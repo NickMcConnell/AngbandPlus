@@ -1,0 +1,78 @@
+Gentleman/Lady Skill Tree for Version 0.3.8c
+
+Skill			Opens			Threshold
+
+Neophyte Combat		Standard Combat		5
+Standard Combat		Vicious Strike		8
+					Accurate Strike		8
+					Toughness			10
+Vicious Strike		Weapons Finesse		10
+Accurate Strike		Swift Blow			10
+
+
+Martial Arts		Eagle Strike Arts	15
+Eagle Strike Arts	Dragon Claw Arts	15
+					Iron Skin			8
+					Toughness			10
+Toughness			Athletics			5
+Dragon Claw Arts	Fleetness			0
+Iron Skin			The Gentle Way		15
+The Gentle Way		Fleetness			10
+
+Neophyte Firearms	Standard Firearms	15
+Standard Firearms	Vicious Shot		8
+					Accurate Shot		8
+					Advanced Firearms	15
+Vicious Shot		Swift Shot			10
+Accurate Shot		Critical Shot		10
+Advanced Firearms	Swift Shot			0 
+					Critical Shot		0
+
+	Throwing			Advanced Throwing	15
+Advanced Throwing	Accurate Throwing	10
+
+Spirituality		Prayer				15
+					Lesser Warding		3
+Prayer				Devotion			15
+Devotion			Fast Cast			5
+Lesser Warding		Greater Warding		15
+Greater Warding		Fast Cast			10
+
+Occult				Advanced Occult		15
+Advanced Occult		Cthulhu Mythos		15
+Cthulhu Mythos		Fast Cast			5
+
+Ritual Magic		Thaumic Energy		3
+Thaumic Energy		Advanced Thaumic Energy	15
+Advanced Thaumic Energy Fast Cast		10
+					Thelma				15
+
+Tempered Will		Hardened Will		15
+Hardened Will		Iron Will			15
+
+Device Norm			Device Power Amp	10
+					Advanced Devices	10
+Device Power Amp	Advanced Power Amp	15
+Advanced Devices	Biological Power Amp	5
+					Efficient Devices	10
+					Fast Device Use		15
+Efficient Devices	Fast Device Use		10
+
+Latin				Eurdite				3
+					Perilous Sorcery	5
+
+Search				Keen Eyes			5
+
+Stealth 			-------------		20
+
+Disarm Traps		-------------		20
+
+Pistol				-------------		20 
+
+Gadgeteer			--------------		20
+
+Detective's Kit		--------------		20
+
+Velocipede			--------------		20
+
+Analytic Engine		--------------		20

@@ -262,6 +262,7 @@ static cptr err_str[PARSE_ERROR_MAX] =
 	"invalid spell frequency",
 	"invalid number of items (0-99)",
 	"too many entries",
+	"non-sequential quest levels",
 };
 
 
@@ -283,6 +284,7 @@ header c_head;
 header h_head;
 header b_head;
 header g_head;
+header q_head;
 
 
 
@@ -865,6 +867,29 @@ static errr init_g_info(void)
 
 
 
+/*
+ * Initialize the "q_info" array
+ */
+static errr init_q_info(void)
+{
+	errr err;
+
+	/* Init the header */
+	init_header(&q_head, z_info->q_max, sizeof(quest_type));
+
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	q_head.parse_info_txt = parse_q_info;
+
+#endif /* ALLOW_TEMPLATES */
+
+    return init_info("quest", &q_head,
+                       (void*)&q_info, (void*)&q_name, NULL);
+}
+
+
+
 
 /*** Initialize others ***/
 
@@ -873,15 +898,15 @@ static errr init_g_info(void)
 /*
  * Hack -- Objects sold in the stores -- by tval/sval pair.
  */
-static const byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
+static const byte store_table[MAX_STORES-4][STORE_CHOICES][2] =
 {
 	{
 		/* General Store */
 
-		{ TV_FOOD, SV_FOOD_RATION },
+		{ TV_FOOD, SV_FOOD_MEAT_PIE },
+		{ TV_FOOD, SV_FOOD_MEAT_PIE },
 		{ TV_FOOD, SV_FOOD_MEAT_PIE },
 		{ TV_FOOD, SV_FOOD_TURNIPS },
-		{ TV_FOOD, SV_FOOD_MEAT_PIE },
 		{ TV_FOOD, SV_FOOD_CHEESE },
 		{ TV_FOOD, SV_FOOD_ONION },
 		{ TV_FOOD, SV_FOOD_POTATO },
@@ -890,16 +915,16 @@ static const byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_FOOD, SV_FOOD_MUTTON },
 		{ TV_FOOD, SV_FOOD_MUTTON },
 		{ TV_FOOD, SV_FOOD_PINT_OF_WINE },
-		{ TV_FOOD, SV_FOOD_PINT_OF_ALE },
+		{ TV_FOOD, SV_FOOD_PINT_ERDE_WINE },
+		{ TV_LITE, SV_LITE_CANDLE_TALLOW },
+		{ TV_LITE, SV_LITE_CANDLE_WAX },
+		{ TV_LITE, SV_LITE_CANDLE_WAX },
 		{ TV_LITE, SV_LITE_TORCH },
-		{ TV_LITE, SV_LITE_CANDLE },
-		{ TV_LITE, SV_LITE_CANDLE },
-		{ TV_LITE, SV_LITE_TAPER },
 
-		{ TV_LITE, SV_LITE_TAPER },
-		{ TV_LITE, SV_LITE_CANDLE },
-		{ TV_LITE, SV_LITE_TAPER },
-		{ TV_LITE, SV_LITE_TAPER },
+		{ TV_LITE, SV_LITE_TORCH },
+		{ TV_LITE, SV_LITE_TORCH },
+		{ TV_LITE, SV_LITE_TORCH },
+		{ TV_LITE, SV_LITE_TORCH },
 		{ TV_FLASK, 0 },
 		{ TV_FLASK, 0 },
 		{ TV_FLASK, 0 },
@@ -918,9 +943,9 @@ static const byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 	{
 		/* Clothing Store */
 
-		{ TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS },
-		{ TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS },
-		{ TV_BOOTS, SV_PAIR_OF_NEEDLE_TOE_SHOES },
+		{ TV_BOOTS, SV_POINTED_TOE_DANDIES },
+		{ TV_BOOTS, SV_ANKLE_BOOTS },
+		{ TV_BOOTS, SV_SQUARE_TOE_DANDIES },
 		{ TV_HELM, SV_HARD_LEATHER_CAP },
 		{ TV_HELM, SV_DEERSTALKER },
 		{ TV_HELM, SV_BOWLER },
@@ -951,8 +976,8 @@ static const byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
 		{ TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
 		{ TV_GLOVES, SV_SET_OF_SILK_GLOVES },
-		{ 0, 0 },
-		{ 0, 0 }
+		{ TV_LEG, SV_PANTS },
+		{ TV_LEG, SV_BREECHES }
 	},
 
 	{
@@ -972,57 +997,57 @@ static const byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_GUN, SV_16_GAGUE },
 		{ TV_AMMO, SV_AMMO_LIGHT },
 		{ TV_AMMO, SV_AMMO_LIGHT },
-		{ TV_AMMO, SV_AMMO_LIGHT },
 		{ TV_AMMO, SV_AMMO_NORMAL },
+		{ TV_BULLET, SV_AMMO_NORMAL },
 
 		{ TV_BULLET, SV_AMMO_NORMAL },
 		{ TV_BULLET, SV_AMMO_NORMAL },
 		{ TV_BULLET, SV_AMMO_NORMAL },
-		{ TV_BULLET, SV_AMMO_NORMAL },
 		{ TV_SHOT, SV_AMMO_NORMAL },
 		{ TV_SHOT, SV_AMMO_NORMAL },
-		{ TV_SHOT, SV_AMMO_NORMAL },
-		{ TV_SWORD, SV_DAGGER },
+		{ TV_SHOT, SV_AMMO_LIGHT },
+		{ TV_SHOT, SV_AMMO_LIGHT },
+		{ TV_HAFTED, SV_WHIP },
+		{ TV_HAFTED, SV_MACE },
+
+		{ TV_POLEARM, SV_JAVELIN },
+		{ TV_POLEARM, SV_SPEAR },
 		{ TV_SWORD, SV_MAIN_GAUCHE },
-
 		{ TV_SWORD, SV_RAPIER },
-		{ TV_SWORD, SV_SABRE },
-		{ TV_SWORD, SV_CUTLASS },
-		{ TV_SWORD, SV_CANE },
-		{ TV_SWORD, SV_BOWIE_KNIFE },
-		{ TV_SWORD, SV_CAVALRY_SABER },
-		{ TV_SWORD, SV_SWORD_CANE },
+		{ TV_DAGGER, SV_THROWING_KNIFE },
+		{ TV_DAGGER, SV_DAGGER },
+		{ TV_BLUNT, SV_CANE_WSTICK },
 
-		{ TV_HAFTED, SV_WHIP }
+		{ TV_AXES, SV_BEAKED_AXE }
 
 	},
 
 	{
 		/* Machineist Shop */
 
-		{ TV_MECHANISM, SV_MECHANISM_ENCHANT_WEAPON_TO_HIT },
-		{ TV_MECHANISM, SV_MECHANISM_ENCHANT_WEAPON_TO_DAM },
-		{ TV_MECHANISM, SV_MECHANISM_ENCHANT_ARMOR },
+		{ TV_MECHANISM, SV_MECHANISM_STAR_IDENTIFY },
+		{ TV_MECHANISM, SV_MECHANISM_LIGHT },
+		{ TV_MECHANISM, SV_MECHANISM_POWER_CELL },
 		{ TV_MECHANISM, SV_MECHANISM_IDENTIFY },
 		{ TV_MECHANISM, SV_MECHANISM_IDENTIFY },
-		{ TV_MECHANISM, SV_MECHANISM_IDENTIFY },
+		{ TV_MECHANISM, SV_MECHANISM_MECHA_HEALING },
 		{ TV_MECHANISM, SV_MECHANISM_REMOVE_CURSE },
 		{ TV_MECHANISM, SV_MECHANISM_TELEPORT },
 
 		{ TV_MECHANISM, SV_MECHANISM_TELEPORT },
 		{ TV_MECHANISM, SV_MECHANISM_PHASE_DOOR },
+		{ TV_MECHANISM, SV_MECHANISM_WORD_OF_RECALL },
 		{ TV_MECHANISM, SV_MECHANISM_PHASE_DOOR },
-		{ TV_MECHANISM, SV_MECHANISM_MONSTER_CONFUSION },
-		{ TV_MECHANISM, SV_MECHANISM_MAPPING },
+		{ TV_MECHANISM, SV_MECHANISM_WORD_OF_RECALL },
 		{ TV_MECHANISM, SV_MECHANISM_DETECT_INVIS },
-		{ TV_MECHANISM, SV_MECHANISM_RECHARGING },
-		{ TV_MECHANISM, SV_MECHANISM_SATISFY_HUNGER },
+		{ TV_MECHANISM, SV_MECHANISM_MECHA_HEALING },
+		{ TV_MECHANISM, SV_MECHANISM_LIGHT },
 		
+		{ TV_MECHANISM, SV_MECHANISM_MECHA_HEALING },
+		{ TV_MECHANISM, SV_MECHANISM_MECHA_HEALING },
 		{ TV_MECHANISM, SV_MECHANISM_WORD_OF_RECALL },
 		{ TV_MECHANISM, SV_MECHANISM_WORD_OF_RECALL },
-		{ TV_MECHANISM, SV_MECHANISM_WORD_OF_RECALL },
-		{ TV_MECHANISM, SV_MECHANISM_WORD_OF_RECALL },
-		{ TV_MECHA_TORSO, SV_MECHA_TORSO_TIN },
+		{ TV_MECHA_HEAD, SV_MECHA_HEAD_TIN },
 		{ TV_MECHA_HEAD, SV_MECHA_HEAD_TIN },
 		{ TV_MECHA_ARMS, SV_MECHA_ARMS_TIN },
 		{ TV_MECHA_FEET, SV_MECHA_FEET_TIN },
@@ -1040,41 +1065,43 @@ static const byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 	{
 		/* Alchemy shop */
 
-		{ TV_FOOD, SV_FOOD_CURE_POISON },
-		{ TV_FOOD, SV_FOOD_CURE_POISON },
-		{ TV_FOOD, SV_FOOD_CURE_BLINDNESS },
-		{ TV_FOOD, SV_FOOD_CURE_BLINDNESS },
-		{ TV_FOOD, SV_FOOD_CURE_PARANOIA },
-		{ TV_FOOD, SV_FOOD_CURE_PARANOIA },
-		{ TV_FOOD, SV_FOOD_CURE_CONFUSION },
-		{ TV_FOOD, SV_FOOD_CURE_CONFUSION },
+		{ TV_TONIC, SV_TONIC_RES_MUS },
+		{ TV_TONIC, SV_TONIC_RES_MUS },
+		{ TV_TONIC, SV_TONIC_RES_AGI },
+		{ TV_TONIC, SV_TONIC_RES_AGI },
+		{ TV_TONIC, SV_TONIC_RES_VIG },
+		{ TV_TONIC, SV_TONIC_RES_VIG },
 
+		{ TV_TONIC, SV_TONIC_RES_SCH },
+		{ TV_TONIC, SV_TONIC_RES_SCH },
+		{ TV_TONIC, SV_TONIC_RES_EGO },
+		{ TV_TONIC, SV_TONIC_RES_EGO },
+		{ TV_TONIC, SV_TONIC_RES_CHR },
+		{ TV_TONIC, SV_TONIC_RES_CHR },
+
+		{ TV_TONIC, SV_TONIC_RESTORE_EXP },
+		{ TV_TONIC, SV_TONIC_RESTORE_EXP },
+		{ TV_TONIC, SV_TONIC_CURE_LIGHT_HP },
+		{ TV_TONIC, SV_TONIC_CURE_LIGHT_HP },
+		{ TV_TONIC, SV_TONIC_CURE_LIGHT_HP },
+		{ TV_TONIC, SV_TONIC_CURE_LIGHT_HP },
+
+		{ TV_TONIC, SV_TONIC_CURE_SERIOUS_HP },
+		{ TV_TONIC, SV_TONIC_CURE_SERIOUS_HP },
+		{ TV_TONIC, SV_TONIC_CURE_SERIOUS_HP },
+		{ TV_TONIC, SV_TONIC_CURE_SERIOUS_HP },
+		{ TV_TONIC, SV_TONIC_CURE_CRITICAL_HP },
+		{ TV_TONIC, SV_TONIC_CURE_CRITICAL_HP },
+
+		{ TV_TONIC, SV_TONIC_BOLDNESS },
+		{ TV_TONIC, SV_TONIC_HEROISM },
 		{ TV_FOOD, SV_FOOD_RESTORE_MUS },
 		{ TV_FOOD, SV_FOOD_RESTORE_VIG },
 		{ TV_FOOD, SV_FOOD_RESTORING },
 		{ TV_FOOD, SV_FOOD_LIGHT_HEALING },
 		{ TV_FOOD, SV_FOOD_CURE_SERIOUS },
-		{ TV_FOOD, SV_FOOD_CURE_SERIOUS },
-		{ TV_TONIC, SV_TONIC_BOLDNESS },
-		{ TV_TONIC, SV_TONIC_HEROISM },
+		{ TV_FOOD, SV_FOOD_CURE_SERIOUS }
 
-		{ TV_TONIC, SV_TONIC_CURE_LIGHT },
-		{ TV_TONIC, SV_TONIC_CURE_SERIOUS },
-		{ TV_TONIC, SV_TONIC_CURE_SERIOUS },
-		{ TV_TONIC, SV_TONIC_CURE_CRITICAL },
-		{ TV_TONIC, SV_TONIC_CURE_CRITICAL },
-		{ TV_TONIC, SV_TONIC_RESTORE_EXP },
-		{ TV_TONIC, SV_TONIC_RESTORE_EXP },
-		{ TV_TONIC, SV_TONIC_RESTORE_EXP },
-
-		{ TV_TONIC, SV_TONIC_RESIST_HEAT },
-		{ TV_TONIC, SV_TONIC_RESIST_COLD },
-		{ TV_TONIC, SV_TONIC_RES_MUS },
-		{ TV_TONIC, SV_TONIC_RES_AGI },
-		{ TV_TONIC, SV_TONIC_RES_VIG },
-		{ TV_TONIC, SV_TONIC_RES_SCH },
-		{ TV_TONIC, SV_TONIC_RES_EGO },
-		{ TV_TONIC, SV_TONIC_RES_CHR }
 	},
 
 	{
@@ -1083,29 +1110,29 @@ static const byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_RING, SV_RING_SEARCHING },
 		{ TV_RING, SV_RING_FEATHER_FALL },
 		{ TV_RING, SV_RING_PROTECTION },
-		{ TV_AMULET, SV_AMULET_CHARISMA },
-		{ TV_AMULET, SV_AMULET_SLOW_DIGEST },
-		{ TV_AMULET, SV_AMULET_RESIST_ACID },
-		{ TV_RAY, SV_RAY_SLOW_MONSTER },
-		{ TV_RAY, SV_RAY_CONFUSE_MONSTER },
+		{ TV_AMULET, SV_AMULET_ADORNMENT },
+		{ TV_AMULET, SV_AMULET_ADORNMENT },
+		{ TV_AMULET, SV_AMULET_ADORNMENT },
+		{ TV_RAY, SV_RAY_FIRE_BOLT },
+		{ TV_RAY, SV_RAY_FIRE_BOLT },
 
 		{ TV_RAY, SV_RAY_SLEEP_MONSTER },
-		{ TV_RAY, SV_RAY_MAGIC_MISSILE },
-		{ TV_RAY, SV_RAY_STINKING_CLOUD },
-		{ TV_RAY, SV_RAY_WONDER },
-		{ TV_TOOL, SV_TOOL_LITE },
+		{ TV_RAY, SV_RAY_CONFUSE_MONSTER },
+		{ TV_RAY, SV_RAY_ICE_BOLT },
+		{ TV_RAY, SV_RAY_ELEC_BOLT },
+		{ TV_TOOL, SV_TOOL_PHOTON_GEN },
 		{ TV_TOOL, SV_TOOL_MAPPING },
 		{ TV_TOOL, SV_TOOL_DETECT_TRAP },
 		{ TV_TOOL, SV_TOOL_DETECT_DOOR },
 
 		{ TV_TOOL, SV_TOOL_DETECT_GOLD },
 		{ TV_TOOL, SV_TOOL_DETECT_ITEM },
-		{ TV_TOOL, SV_TOOL_DETECT_INVIS },
-		{ TV_TOOL, SV_TOOL_DETECT_EVIL },
-		{ TV_TOOL, SV_TOOL_TELEPORTATION },
-		{ TV_TOOL, SV_TOOL_TELEPORTATION },
-		{ TV_TOOL, SV_TOOL_IDENTIFY },
-		{ TV_TOOL, SV_TOOL_IDENTIFY },
+		{ TV_TOOL, SV_TOOL_OBJECT_ANALYSIS },
+		{ TV_TOOL, SV_TOOL_OBJECT_ANALYSIS },
+		{ TV_TOOL, SV_TOOL_CURE_LIGHT_HP },
+		{ TV_TOOL, SV_TOOL_CURE_LIGHT_HP },
+		{ TV_TOOL, SV_TOOL_OBJECT_ANALYSIS },
+		{ TV_TOOL, SV_TOOL_TELEPORT },
 
 		{ TV_MAGIC_BOOK, SV_BOOK_MAGE1 },
 		{ TV_MAGIC_BOOK, SV_BOOK_MAGE1 },
@@ -1155,7 +1182,7 @@ static errr init_other(void)
 	/*** Prepare dungeon arrays ***/
 
 	/* Padded into array */
-	C_MAKE(cave_info, DUNGEON_HGT, byte_256);
+	C_MAKE(cave_info, DUNGEON_HGT, u16b_256);
 
 	/* Feature array */
 	C_MAKE(cave_feat, DUNGEON_HGT, byte_wid);
@@ -1186,18 +1213,13 @@ static errr init_other(void)
 	/* Monsters */
 	C_MAKE(m_list, z_info->m_max, monster_type);
 
+	/* Effects */
+	C_MAKE(x_list, z_info->x_max, effect_type);
 
 	/*** Prepare lore array ***/
 
 	/* Lore */
 	C_MAKE(l_list, z_info->r_max, monster_lore);
-
-
-	/*** Prepare quest array ***/
-
-	/* Quests */
-	C_MAKE(q_list, MAX_Q_IDX, quest);
-
 
 	/*** Prepare the inventory ***/
 
@@ -1216,15 +1238,22 @@ static errr init_other(void)
 		/* Get the store */
 		store_type *st_ptr = &store[i];
 
-		/* Assume full stock */
-		st_ptr->stock_size = STORE_INVEN_MAX;
+		if (i == STORE_LIBRARY)
+		{
+			st_ptr->stock_size = (STORE_INVEN_MAX * 50);
+		}
+		else
+		{
+			st_ptr->stock_size = STORE_INVEN_MAX;
+		}
 
 		/* Allocate the stock */
 		C_MAKE(st_ptr->stock, st_ptr->stock_size, object_type);
 
 		/* No table for the black market or home */
 		if ((i == STORE_B_MARKET) || (i == STORE_HOME)) continue;
-
+		if ((i == STORE_LIBRARY) || (i == STORE_WETWARE)) continue;
+	
 		/* Assume full table */
 		st_ptr->table_size = STORE_CHOICES;
 
@@ -1293,13 +1322,13 @@ static errr init_other(void)
  */
 static errr init_alloc(void)
 {
-	int i, j;
-
-	object_kind *k_ptr;
+	int i;
 
 	monster_race *r_ptr;
 
 	ego_item_type *e_ptr;
+
+	quest_type *q_ptr;
 
 	alloc_entry *table;
 
@@ -1308,94 +1337,16 @@ static errr init_alloc(void)
 	s16b aux[MAX_DEPTH];
 
 
-	/*** Analyze object allocation info ***/
-
-	/* Clear the "aux" array */
-	(void)C_WIPE(&aux, MAX_DEPTH, s16b);
-
-	/* Clear the "num" array */
-	(void)C_WIPE(&num, MAX_DEPTH, s16b);
-
-	/* Size of "alloc_kind_table" */
-	alloc_kind_size = 0;
-
-	/* Scan the objects */
-	for (i = 1; i < z_info->k_max; i++)
-	{
-		k_ptr = &k_info[i];
-
-		/* Scan allocation pairs */
-		for (j = 0; j < 4; j++)
-		{
-			/* Count the "legal" entries */
-			if (k_ptr->chance[j])
-			{
-				/* Count the entries */
-				alloc_kind_size++;
-
-				/* Group by level */
-				num[k_ptr->locale[j]]++;
-			}
-		}
-	}
-
-	/* Collect the level indexes */
-	for (i = 1; i < MAX_DEPTH; i++)
-	{
-		/* Group by level */
-		num[i] += num[i-1];
-	}
-
-	/* Paranoia */
-	if (!num[0]) quit("No town objects!");
-
-
 	/*** Initialize object allocation info ***/
 
-	/* Allocate the alloc_kind_table */
-	C_MAKE(alloc_kind_table, alloc_kind_size, alloc_entry);
+	/* Allocate the permit_kind_table */
+	C_MAKE(permit_kind_table, z_info->k_max, bool);
 
-	/* Get the table entry */
-	table = alloc_kind_table;
+	/* Allocate the chance_kind_table */
+	C_MAKE(chance_kind_table, z_info->k_max, byte);
 
-	/* Scan the objects */
-	for (i = 1; i < z_info->k_max; i++)
-	{
-		k_ptr = &k_info[i];
-
-		/* Scan allocation pairs */
-		for (j = 0; j < 4; j++)
-		{
-			/* Count the "legal" entries */
-			if (k_ptr->chance[j])
-			{
-				int p, x, y, z;
-
-				/* Extract the base level */
-				x = k_ptr->locale[j];
-
-				/* Extract the base probability */
-				p = (100 / k_ptr->chance[j]);
-
-				/* Skip entries preceding our locale */
-				y = (x > 0) ? num[x-1] : 0;
-
-				/* Skip previous entries at this locale */
-				z = y + aux[x];
-
-				/* Load the entry */
-				table[z].index = i;
-				table[z].level = x;
-				table[z].prob1 = p;
-				table[z].prob2 = p;
-				table[z].prob3 = p;
-
-				/* Another entry complete for this locale */
-				aux[x]++;
-			}
-		}
-	}
-
+	/* Allow all legal objects */
+	for (i = 0; i < z_info->k_max; i++) permit_kind_table[i] = TRUE;
 
 	/*** Analyze monster allocation info ***/
 
@@ -1557,6 +1508,21 @@ static errr init_alloc(void)
 		}
 	}
 
+	/*** Initialize quest monsters ***/
+
+	/* Scan the quests */
+	for (i = 0; i < z_info->q_max; i++)
+	{
+		/* Get the i'th quest */
+		q_ptr = &q_info[i];
+
+		/* Skip non-quests */
+		if (q_ptr->active_level)
+		{
+			/* Get the quest monster */
+			r_ptr = &r_info[q_ptr->mon_idx];
+		}
+	}
 
 	/* Success */
 	return (0);
@@ -1804,6 +1770,10 @@ void init_angband(void)
 	note("[Initializing arrays... (prices)]");
 	if (init_g_info()) quit("Cannot initialize prices");
 
+	/* Initialize quest info */
+	note("[Initializing arrays... (quests)]");
+	if (init_q_info()) quit("Cannot initialize quests");
+
 	/* Initialize some other arrays */
 	note("[Initializing arrays... (other)]");
 	if (init_other()) quit("Cannot initialize other stuff");
@@ -1852,8 +1822,9 @@ void cleanup_angband(void)
 	/* Free the allocation tables */
 	C_FREE(alloc_ego_table, alloc_ego_size, alloc_entry);
 	C_FREE(alloc_race_table, alloc_race_size, alloc_entry);
-	C_FREE(alloc_kind_table, alloc_kind_size, alloc_entry);
-
+	FREE(permit_kind_table, alloc_entry);
+	FREE(chance_kind_table, alloc_entry);
+	
 	if (store)
 	{
 		/* Free the store inventories */
@@ -1878,9 +1849,6 @@ void cleanup_angband(void)
 
 	/* Free the player inventory */
 	C_FREE(inventory, INVEN_TOTAL, object_type);
-
-	/* Free the quest list */
-	C_FREE(q_list, MAX_Q_IDX, quest);
 
 	/* Free the lore, monster, and object lists */
 	C_FREE(l_list, z_info->r_max, monster_lore);

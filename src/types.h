@@ -46,6 +46,11 @@
  */
 typedef byte byte_256[256];
 
+/*
+ * An array of 256 u16b's
+ */
+typedef u16b u16b_256[256];
+
 
 /*
  * An array of DUNGEON_WID byte's
@@ -72,10 +77,11 @@ typedef struct monster_blow monster_blow;
 typedef struct monster_race monster_race;
 typedef struct monster_lore monster_lore;
 typedef struct vault_type vault_type;
+typedef struct effect_type effect_type;
 typedef struct object_type object_type;
 typedef struct monster_type monster_type;
 typedef struct alloc_entry alloc_entry;
-typedef struct quest quest;
+typedef struct quest_type quest_type;
 typedef struct owner_type owner_type;
 typedef struct store_type store_type;
 typedef struct magic_type magic_type;
@@ -88,9 +94,12 @@ typedef struct player_other player_other;
 typedef struct player_type player_type;
 typedef struct start_item start_item;
 typedef struct player_skills player_skills;
+typedef struct part_data part_data;
+typedef struct steamware steamware;
 typedef struct high_score high_score;
 typedef struct mind_type mind_type;
 typedef struct mind_power mind_power;
+typedef struct res_cap res_cap;
 
 
 /**** Available structs ****/
@@ -113,7 +122,9 @@ struct maxima
 	u16b v_max;		/* Max size for "v_info[]" */
 	u16b p_max;		/* Max size for "p_info[]" */
 	u16b h_max;		/* Max size for "h_info[]" */
+	u16b x_max;		/* Max size for "x_info[]" */	
 	u16b b_max;		/* Max size per element of "b_info[]" */
+	u16b q_max;		/* Max size for "q_info[]" */
 	u16b c_max;		/* Max size for "c_info[]" */
 
 	u16b o_max;		/* Max size for "o_list[]" */
@@ -168,6 +179,7 @@ struct object_kind
 	byte sval;			/* Object sub type */
 
 	s16b pval;			/* Object extra info */
+	u32b flags_pval;    /* Pval-dependant object flags */
 
 	s16b to_h;			/* Bonus to hit */
 	s16b to_d;			/* Bonus to damage */
@@ -186,8 +198,14 @@ struct object_kind
 	u32b flags2;		/* Flags, set 2 */
 	u32b flags3;		/* Flags, set 3 */
 
-	byte locale[4];		/* Allocation level(s) */
-	byte chance[4];		/* Allocation chance(s) */
+	s16b res[RS_MAX];	/* Percentile Resistances */
+
+	byte locale[3];		/* Allocation level(s) */
+	byte chance[3];		/* Allocation chance(s) */
+
+	byte gen_mult_prob;     /* Probability of generating more than one */
+	byte gen_dice;          /* Average number to generate - dice rolled */
+	byte gen_side;          /* Average number to generate - dice sides */
 
 	byte level;			/* Level */
 	byte extra;			/* Something */
@@ -226,8 +244,6 @@ struct artifact_type
 	byte tval;			/* Artifact type */
 	byte sval;			/* Artifact sub type */
 
-	s16b pval;			/* Artifact extra info */
-
 	s16b to_h;			/* Bonus to hit */
 	s16b to_d;			/* Bonus to damage */
 	s16b to_a;			/* Bonus to armor */
@@ -242,9 +258,18 @@ struct artifact_type
 
 	s32b cost;			/* Artifact "cost" */
 
+	s16b pval1;               /* Special numeric value # 1 */
+	u32b flags_pval1;         /* Artifact flags affected by this value */
+	s16b pval2;               /* Special numeric value # 2 */
+	u32b flags_pval2;         /* Artifact flags affected by this value */
+	s16b pval3;               /* Special numeric value # 3 */
+	u32b flags_pval3;         /* Artifact flags affected by this value */
+
 	u32b flags1;		/* Artifact Flags, set 1 */
 	u32b flags2;		/* Artifact Flags, set 2 */
 	u32b flags3;		/* Artifact Flags, set 3 */
+
+	s16b res[RS_MAX];			/* Percentile Resistances */
 
 	byte level;			/* Artifact level */
 	byte rarity;		/* Artifact rarity */
@@ -277,11 +302,16 @@ struct ego_item_type
 	byte max_sval[3];	/* Maximum legal tval */
 	byte xtra;			/* Extra Sustain/Resist/Power */
 
-	byte max_to_h;		/* Maximum to-hit bonus */
-	byte max_to_d;		/* Maximum to-dam bonus */
-	byte max_to_a;		/* Maximum to-ac bonus */
+	s16b max_to_h;		/* Maximum to-hit bonus */
+	s16b max_to_d;		/* Maximum to-dam bonus */
+	s16b max_to_a;		/* Maximum to-ac bonus */
 
-	byte max_pval;		/* Maximum pval */
+	s16b max_pval1;           /* Special numeric value # 1 */
+	u32b flags_pval1;         /* Ego-item flags affected by this value */
+	s16b max_pval2;           /* Special numeric value # 2 */
+	u32b flags_pval2;         /* Ego-item flags affected by this value */
+
+	s16b res[RS_MAX];	/* Percentile Resistances */
 
 	s32b cost;			/* Ego-item "cost" */
 
@@ -334,9 +364,7 @@ struct monster_race
 	u32b name;				/* Name (offset) */
 	u32b text;				/* Text (offset) */
 
-	byte hdice;				/* Creatures hit dice count */
-	byte hside;				/* Creatures hit dice sides */
-
+	u16b hitpoints;         /* Monster hitpoints */
 	s16b ac;				/* Armour Class */
 
 	s16b sleep;				/* Inactive counter (base) */
@@ -345,10 +373,11 @@ struct monster_race
 
 	s32b mexp;				/* Exp value for kill */
 
-	s16b extra;				/* Unused (for now) */
+	byte freq_ranged;			/* Ranged attack frequency */
 
-	byte freq_inate;		/* Inate spell frequency */
-	byte freq_spell;		/* Other spell frequency */
+	byte mana;				/* Max mana */
+	byte spell_power;		/* Power of (damage-dealing) spells */
+	byte unused;         	/* Not currently used */
 
 	u32b flags1;			/* Flags 1 (general) */
 	u32b flags2;			/* Flags 2 (abilities) */
@@ -357,6 +386,7 @@ struct monster_race
 	u32b flags5;			/* Flags 5 (normal spells) */
 	u32b flags6;			/* Flags 6 (special spells) */
 	u32b flags7;			/* Flags 7 (other) */
+	u32b flags8;			/* Flags 8 (vulnerabilities) */
 
 	monster_blow blow[4];	/* Up to four blows per round */
 
@@ -371,6 +401,8 @@ struct monster_race
 
 	byte max_num;			/* Maximum population allowed per level */
 	byte cur_num;			/* Monster population on current level */
+
+	u16b r_see;				/* Number of monsters of this type visible */
 };
 
 
@@ -400,8 +432,7 @@ struct monster_lore
 	byte r_drop_gold;		/* Max number of gold dropped at once */
 	byte r_drop_item;		/* Max number of item dropped at once */
 
-	byte r_cast_inate;		/* Max number of inate spells seen */
-	byte r_cast_spell;		/* Max number of other spells seen */
+	byte r_ranged;			/* Observed ranged attacks */
 
 	byte r_blows[4];		/* Number of times each blow type was seen */
 
@@ -412,8 +443,8 @@ struct monster_lore
 	u32b r_flags5;			/* Observed racial flags */
 	u32b r_flags6;			/* Observed racial flags */
 	u32b r_flags7;			/* Observed racial flags */
+	u32b r_flags8;			/* Observed racial flags */
 };
-
 
 
 /*
@@ -433,6 +464,63 @@ struct vault_type
 };
 
 
+
+/*
+ * Information about effects.
+ *
+ *   The "index" is used to trigger any effect-type-specific code.  It is
+ *      /not/ the same as the order of this effect in the effect array.
+ *      The index need not be unique - you can have multiple "wall of fire"
+ *      spells going at the same time.
+ *   The "type" can be either the index of the projection type used in
+ *      this effect, or a terrain type that this effect temporarily
+ *      creates, or even correspond to multiple projection types and/or
+ *      terrains.
+ *   "y0" and "x0" are the coordinates of the source grid.
+ *   The "time_count" is how many game turns have elapsed since this
+ *      effect was last processed.  When it reaches zero, the effect is
+ *      processed again, the "age" is incremented by one, and the "time_
+ *      count" reset to the value stored in "time_delay".
+ *   The "age" is how old this effect is; special functions use this
+ *      variable to make the effect do different things over time,
+ *      including "dying".
+ *   The "angle_dir" is the angular direction from the source of the effect
+ *      to the target grid, expressed in degrees divided by 2.  See the
+ *      table "get_angle_to_grid".
+ *   The "power" is how strong this effect is.  This is usually, but
+ *      not always, the same as base damage.
+ *   The "power2" is often used for radius or effectiveness.
+ *   The "flags" store bitflags corresponding to effect state; they serve
+ *      (with the "age") as the effect memory.  Unlike monster or object
+ *      bitflags, these need not have fixed meanings.
+ */
+struct effect_type
+{
+	s16b index;             /* Numerical index or classifier */
+	s16b type;              /* Projection (or terrain) type */
+
+	byte y0;                /* Source location */
+	byte x0;
+
+	byte y1;                /* Target location */
+	byte x1;
+
+	s16b time_count;        /* Game turns until effect takes its turn */
+	s16b time_delay;        /* Number of game turns between effect turns */
+
+	s16b age;               /* Number of turns effect has lasted */
+	s16b lifespan;          /* Number of turns effect can last */
+
+	s16b power;             /* Strength of effect */
+	s16b power2;
+
+	byte practice_skill;   	/* Skill this effect practices when it hurts or
+	                           kills monsters */
+	byte unused;
+	u16b unused2;
+
+	u16b flags;             /* Effect "memory" bitflags */
+};
 
 /*
  * Object information, for a specific object.
@@ -471,7 +559,19 @@ struct object_type
 	byte tval;			/* Item type (from kind) */
 	byte sval;			/* Item sub-type (from kind) */
 
-	s16b pval;			/* Item extra-parameter */
+	s16b pval;                /* Special numeric value # 1 */
+	u32b flags_pval1;         /* Flags affected by this value */
+
+	s16b pval2;               /* Special numeric value # 2 */
+	u32b flags_pval2;         /* Flags affected by this value */
+
+	s16b pval3;               /* Special numeric value # 3 */
+	u32b flags_pval3;         /* Flags affected by this value */
+
+
+	u32b flags1;              /* Non pval-dependant flags, set 1 */
+	u32b flags2;              /* Non pval-dependant flags, set 2 */
+	u32b flags3;              /* Non pval-dependant flags, set 3 */
 
 	byte discount;		/* Discount (if any) */
 
@@ -479,8 +579,8 @@ struct object_type
 
 	s16b weight;		/* Item weight */
 
-	byte name1;			/* Artifact type, if any */
-	byte name2;			/* Ego-Item type, if any */
+	s16b name1;			/* Artifact type, if any */
+	s16b name2;			/* Ego-Item type, if any */
 
 	byte xtra1;			/* Extra info type */
 	byte xtra2;			/* Extra info index */
@@ -496,7 +596,7 @@ struct object_type
 
 	s16b timeout;		/* Timeout Counter */
 
-	byte ident;			/* Special flags */
+	s16b ident;			/* Special flags */
 
 	byte marked;		/* Object is marked */
 
@@ -530,6 +630,7 @@ struct monster_type
 	s16b maxhp;			/* Max Hit points */
 
 	s16b csleep;		/* Inactive counter */
+	byte stasis;			/* Monster being held */
 
 	byte mspeed;		/* Monster "speed" */
 	byte energy;		/* Monster "energy" */
@@ -540,17 +641,24 @@ struct monster_type
 
 	byte cdis;			/* Current dis from player */
 
-	byte mflag;			/* Extra monster flags */
+	u16b mflag;			/* Extra monster flags */
 
 	bool ml;			/* Monster is "visible" */
 
 	s16b hold_o_idx;	/* Object being held (if any) */
 
-#ifdef DRS_SMART_OPTIONS
-
 	u32b smart;			/* Field for "smart_learn" */
 
-#endif /* DRS_SMART_OPTIONS */
+	byte ty;				/* Monster target */
+	byte tx;
+
+	/* Harrassment spells are more likely early in a battle */
+	byte harass;
+
+	byte min_range;		/* What is the closest we want to be? */  /* Not saved */
+	byte best_range;	/* How close do we want to be? */  /* Not saved */
+
+	byte mana;			/* Current mana level */
 
 };
 
@@ -580,28 +688,24 @@ struct alloc_entry
 
 /*
  * Structure for the "quests"
- *
- * Hack -- currently, only the "level" parameter is set, with the
- * semantics that "one (QUEST) monster of that level" must be killed,
- * and then the "level" is reset to zero, meaning "all done".  Later,
- * we should allow quests like "kill 100 fire hounds", and note that
- * the "quest level" is then the level past which progress is forbidden
- * until the quest is complete.  Note that the "QUESTOR" flag then could
- * become a more general "never out of depth" flag for monsters.
- *
- * Actually, in Angband 2.8.0 it will probably prove easier to restrict
- * the concept of quest monsters to specific unique monsters, and to
- * actually scan the dead unique list to see what quests are left.
  */
-struct quest
+struct quest_type
 {
-	byte level;		/* Dungeon level */
-	int r_idx;		/* Monster race */
+	u32b name;			/* Name (offset) */
 
-	int cur_num;	/* Number killed (unused) */
-	int max_num;	/* Number required (unused) */
+	byte type;			/* Quest Type */
+	byte reward;		/* Quest Reward */
+
+	byte active_level;	/* Equals dungeon level if not completed, 0 if completed */
+	byte base_level;	/* The dungeon level on which the quest was assigned*/
+
+	s16b mon_idx;		/* Monster race/unique */
+
+	s16b cur_num;		/* Number killed */
+	s16b max_num;		/* Number required */
+
+	bool started;		/* Has the player start the quest */
 };
-
 
 
 
@@ -646,7 +750,7 @@ struct store_type
 	s16b table_size;		/* Table -- Total Size of Array */
 	s16b *table;			/* Table -- Legal item kinds */
 
-	byte stock_num;			/* Stock -- Number of entries */
+	s16b stock_num;			/* Stock -- Number of entries */
 	s16b stock_size;		/* Stock -- Total Size of Array */
 	object_type *stock;		/* Stock -- Actual stock items */
 };
@@ -679,33 +783,6 @@ struct spell_book
 };
 
 
-#if 0
-/* old spell code */
-
-/*
- * The "name" of spell 'N' is stored as spell_names[X][N],
- * where X is 0 for mage-spells and 1 for priest-spells.
- */
-struct magic_type
-{
-	byte slevel;		/* Required level (to learn) */
-	byte smana;			/* Required mana (to cast) */
-	byte sfail;			/* Minimum chance of failure */
-	byte sexp;			/* Encoded experience bonus */
-};
-
-
-/*
- * Information about the player's "magic"
- *
- * Note that a player with a "spell_book" of "zero" is illiterate.
- */
-struct player_magic
-{
-	magic_type info[PY_MAX_SPELLS];	/* The available spells */
-};
-
-#endif
 
 /*
  * Player sex info
@@ -727,16 +804,6 @@ struct player_race
 	u32b text;			/* Text (offset) */
 
 	s16b r_adj[A_MAX];	/* Racial stat bonuses */
-#if 0
-	s16b r_dis;			/* disarming */
-	s16b r_dev;			/* magic devices */
-	s16b r_sav;			/* saving throw */
-	s16b r_stl;			/* stealth */
-	s16b r_srh;			/* search ability */
-	s16b r_fos;			/* search frequency */
-	s16b r_thn;			/* combat (normal) */
-	s16b r_thb;			/* combat (shooting) */
-#endif
 	byte r_mhp;			/* Race hit-dice modifier */
 	byte r_exp;			/* Race experience factor */
 
@@ -748,10 +815,10 @@ struct player_race
 	s16b m_b_wt;		/* base weight (males) */
 	s16b m_m_wt;		/* mod weight (males) */
 
-	byte f_b_ht;		/* base height (females) */
-	byte f_m_ht;		/* mod height (females) */
-	byte f_b_wt;		/* base weight (females) */
-	byte f_m_wt;		/* mod weight (females) */
+	s16b f_b_ht;		/* base height (females) */
+	s16b f_m_ht;		/* mod height (females) */
+	s16b f_b_wt;		/* base weight (females) */
+	s16b f_m_wt;		/* mod weight (females) */
 
 	byte infra;			/* Infra-vision	range */
 
@@ -778,11 +845,30 @@ struct start_item
 };
 
 
-struct player_skills{
+struct player_skills
+{
 	char *name;			/* Name of the skill */
 	s16b skill_rank;	/* current modified rank of skill */
 	s16b skill_max;		/* maximum internal (character) rank of skill */
+	s16b skill_raise;	/* Helps slow down skill gain */
 	s16b skill_index;	/* Index of skill */
+	s16b skill_type;	/* Type of skill, used for formatting */
+	char *description;  /* description of skill */
+};
+
+struct part_data
+{
+	char *name;
+	s32b cost;
+	s32b install_price;
+	s32b research_time;
+};
+
+struct steamware
+{
+	byte body_part;
+	
+	part_data data[MAX_UPGRADE];
 };
 
 /*
@@ -796,25 +882,7 @@ struct player_class
 	u32b ftitle[10];		/* Titles - offset */
 
 	s16b c_adj[A_MAX];	/* Class stat modifier */
-#if 0
-	s16b c_dis;			/* class disarming */
-	s16b c_dev;			/* class magic devices */
-	s16b c_sav;			/* class saving throws */
-	s16b c_stl;			/* class stealth */
-	s16b c_srh;			/* class searching ability */
-	s16b c_fos;			/* class searching frequency */
-	s16b c_thn;			/* class to hit (normal) */
-	s16b c_thb;			/* class to hit (bows) */
 
-	s16b x_dis;			/* extra disarming */
-	s16b x_dev;			/* extra magic devices */
-	s16b x_sav;			/* extra saving throws */
-	s16b x_stl;			/* extra stealth */
-	s16b x_srh;			/* extra searching ability */
-	s16b x_fos;			/* extra searching frequency */
-	s16b x_thn;			/* extra to hit (normal) */
-	s16b x_thb;			/* extra to hit (bows) */
-#endif
 	s16b c_mhp;			/* Class hit-dice adjustment */
 	s16b c_exp;			/* Class experience factor */
 
@@ -905,6 +973,8 @@ struct player_type
 	s16b wt;			/* Weight */
 	s16b sc;			/* Social Class */
 
+	u16b fame;			/* Fame - used for quests */
+
 	s32b au;			/* Current Gold */
 	
 	/* Generation fields (for quick start) */
@@ -927,6 +997,10 @@ struct player_type
 	s16b mhp;			/* Max hit pts */
 	s16b chp;			/* Cur hit pts */
 	u16b chp_frac;		/* Cur hit frac (times 2^16) */
+
+	s16b mwp;			/* Max wound pts */
+	s16b cwp;			/* Cur wound pts */
+	u16b cwp_frac;		/* Cur wound frac (times 2^16) */
 
 	s16b msp;			/* Max mana pts */
 	s16b csp;			/* Cur mana pts */
@@ -956,14 +1030,29 @@ struct player_type
 	s16b tim_infra;		/* Timed -- Infra Vision */
 	s16b tim_wraith;	/* Timed -- Wraith Form */
 	s16b tim_esp;	    /* Timed ESP */
-	s16b tim_harding;	/* Timed Automata Armor */
-
+	s16b tim_harding;	 /* Timed Automata Armor */
+	s16b tim_invisiblity;/* Timed -- invisiblity */
+	s16b tim_light;		 /* Timed -- Light radius */
+	s16b tim_demonspell; /* Timed -- Demonic spellpower */
+	s16b tim_demonhealth; /* Timed -- Demonic Health */
+	s16b tim_wormsense; 	/* Timed -- Wormsense */
+	s16b tim_voorish;		/* Timed -- Voorish spell skill */
+	s16b tim_stygian;		/* Timed -- Stygian war skill */
+	s16b tim_muscle;		 /* Timed -- Muscle buff */
+	s16b tim_vigor;			/* Timed -- Vigor buff */
+	s16b tim_no_tele;		/* Timed -- No Teleport */
+	s16b tim_free_act;		/* Timed -- Free Action */
+	s16b tim_anti_magic;	/* Timed -- Anti Magic */
+	s16b tim_evade;			/* Timed -- evasion */
+				
+	s16b tim_res[RS_MAX];/* Timed resistancs */
+#if 0
 	s16b oppose_acid;	/* Timed -- oppose acid */
 	s16b oppose_elec;	/* Timed -- oppose lightning */
 	s16b oppose_fire;	/* Timed -- oppose heat */
 	s16b oppose_cold;	/* Timed -- oppose cold */
 	s16b oppose_pois;	/* Timed -- oppose poison */
-	
+#endif	
 
 	u32b muta1;			/* Mutation flags 1 */
 	u32b muta2;			/* Mutation flags 2 */
@@ -980,17 +1069,9 @@ struct player_type
 
 	byte confusing;		/* Glowing hands */
 	byte searching;		/* Currently searching */
-/* removing spell code */
-#if 0
-	u32b spell_learned1;	/* Spell flags */
-	u32b spell_learned2;	/* Spell flags */
-	u32b spell_worked1;		/* Spell flags */
-	u32b spell_worked2;		/* Spell flags */
-	u32b spell_forgotten1;	/* Spell flags */
-	u32b spell_forgotten2;	/* Spell flags */
 
-	byte spell_order[PY_MAX_SPELLS];	/* Spell order */
-#endif
+	s16b base_wakeup_chance;	/* Base amount of character noise -- NOT SAVED! */
+
 	s16b player_hp[PY_MAX_LEVEL];	/* HP Array */
 
 	char died_from[80];		/* Cause of death */
@@ -1079,6 +1160,8 @@ struct player_type
 
 	s16b cur_lite;		/* Radius of lite (if any) */
 
+	s16b extrahp;		/* Hit points to be added on for heroism, berserk */
+
 	u32b notice;		/* Special Updates (bit flags) */
 	u32b update;		/* Pending Updates (bit flags) */
 	u32b redraw;		/* Normal Redraws (bit flags) */
@@ -1091,6 +1174,10 @@ struct player_type
 
 	s16b stat_add[A_MAX];	/* Equipment stat bonuses */
 
+	s16b res[RS_MAX];	/* Percentile Resistances */
+	s16b dis_res[RS_MAX];	/* Percentile Resistances (display)*/
+
+#if 0
 	bool immune_acid;	/* Immunity to acid */
 	bool immune_elec;	/* Immunity to lightning */
 	bool immune_fire;	/* Immunity to fire */
@@ -1102,17 +1189,20 @@ struct player_type
 	bool resist_cold;	/* Resist cold */
 	bool resist_pois;	/* Resist poison */
 
-	bool resist_fear;	/* Resist fear */
 	bool resist_lite;	/* Resist light */
 	bool resist_dark;	/* Resist darkness */
-	bool resist_blind;	/* Resist blindness */
-	bool resist_confu;	/* Resist confusion */
 	bool resist_sound;	/* Resist sound */
 	bool resist_shard;	/* Resist shards */
 	bool resist_nexus;	/* Resist nexus */
 	bool resist_nethr;	/* Resist nether */
 	bool resist_chaos;	/* Resist chaos */
 	bool resist_disen;	/* Resist disenchant */
+#endif
+	bool wormsense;		/* Tremorsense */
+	
+	bool resist_fear;	/* Resist fear */
+	bool resist_blind;	/* Resist blindness */
+	bool resist_confu;	/* Resist confusion */
 
 	bool sustain_mus;	/* Keep strength */
 	bool sustain_agi;	/* Keep dexterity */
@@ -1124,12 +1214,17 @@ struct player_type
 	bool slow_digest;	/* Slower digestion */
 	bool ffall;			/* Feather falling */
 	bool lite;			/* Permanent light */
-	bool regenerate;	/* Regeneration */
+	bool flicker;		/* Are we weilding flame? */
+	bool regenerate_25;	/* Regeneration */
+	bool regenerate_50;	/* Regeneration */
+	bool regenerate_75;	/* Regeneration */
 	bool telepathy;		/* Telepathy */
 	bool see_inv;		/* See invisible */
 	bool free_act;		/* Free action */
 	bool hold_life;		/* Hold life */
 	bool wraith_form;	/* Wraithform */
+	bool counter;		/* Counter-strike */
+	bool invisiblity;	/* Invisiblity */
 
 	bool sh_fire;		/* Fiery 'immolation' effect */
 	bool sh_elec;		/* Electric 'immolation' effect */
@@ -1138,7 +1233,14 @@ struct player_type
 	bool impact;		/* Earthquake blows */
 	bool aggravate;		/* Aggravate monsters */
 	bool teleport;		/* Random teleporting */
+	bool no_teleport;	/* No teleportation */
+	bool no_magic;		/* No spellcasting */
 	bool exp_drain;		/* Experience draining */
+	bool hp_drain;		/* Drains HP */
+	bool sp_drain;		/* Drains SP */
+	bool item_drain;	/* Drains charges */
+	bool spell_disrupt;	/* Disrupt casting */
+	bool anti_magic;	/* Anti-Magic Shell */
 
 	bool bless_blade;	/* Blessed blade */
 
@@ -1155,19 +1257,21 @@ struct player_type
 	s16b ac;			/* Base ac */
 
 	s16b see_infra;		/* Infravision range */
+	s16b mana_bonus;	/* Bonus to mana from equipment */
+	s16b health_bonus;	/* Bonus to health from equipment */
 
+	s16b skill_sav;			/* Skill: Saving throw */
+	s16b skill_stl;			/* Skill: Stealth factor */
+	s16b skill_dig;			/* Skill: Digging */
 	/*s16b skill_dis;		 Skill: Disarming */
 	/*s16b skill_dev;		 Skill: Magic Devices */
-	/*s16b skill_sav;		 Skill: Saving throw */
-	/*s16b skill_stl;		 Skill: Stealth factor */
 	/*s16b skill_srh;		 Skill: Searching ability */
 	/*s16b skill_fos;		 Skill: Searching frequency */
 	/*s16b skill_thn;		 Skill: To hit (normal) */
 	/*s16b skill_thb;		 Skill: To hit (shooting) */
 	/*s16b skill_tht;		 Skill: To hit (throwing) */
-	/*s16b skill_dig;		 Skill: Digging */
 
-	u32b noise;			/* Derived from stealth */
+	/*u32b noise;			 Derived from stealth */
 
 	s16b num_blow;		/* Number of blows */
 	s16b num_fire;		/* Number of shots */
@@ -1178,15 +1282,33 @@ struct player_type
 
 	s16b pspeed;		/* Current speed */
 	
+	/*** Steamware Data ***/
+	s32b eyes_research;		/* Time left on eye research */
+	byte eyes_level;		/* Current (abcd)eye level */
+	s32b reflex_research;	/* Time left on reflex research */
+	byte reflex_level;		/* Current (abcd)reflex level */
+	s32b plate_research;	/* Time left on plate research */
+	byte plate_level;		/* Current (abcd)plate level */
+	s32b core_research;		/* Time left on core research */
+	byte core_level;		/* Current (abcd)core level */
+	s32b spur_research;		/* Time left on spur research */
+	byte spur_level;		/* Current (abcd)spur level */
+	
 	/*** Pet commands ***/
 	s16b pet_follow_distance; /* Length of the imaginary "leash" for pets */
 	bool pet_open_doors;      /* flag - allow pets to open doors */
 	bool pet_pickup_items;    /* flag - allow pets to pickup items */
 
-	byte astral;		/* You're a ghost if true -- Gumband */
-	byte was_astral;	/* You used to be a ghost -- Gumband */
-	byte astral_start;	/* For generating the starting stairs - Gumband */
+	byte wonderland;		/* You're a ghost if true -- Gumband */
+	byte was_wonderland;	/* You used to be a ghost -- Gumband */
+	byte wonderland_start;	/* For generating the starting stairs - Gumband */
+	
+	/* NOT SAVED!! */
+	byte vulnerability;	/* Used to make animal packs charge and retreat */
 
+	u16b cur_quest;		/* Current quest */
+
+	u16b max_seen_r_idx;	/* Most powerful monster visible */
 };
 
 
@@ -1243,3 +1365,13 @@ struct mind_power
 {
 	mind_type info[MAX_CLASS_POWERS];
 };
+
+/*
+ * Information about resistance caps
+ */
+struct res_cap
+{
+	byte normal; /* Normal cap */
+	byte temp;	 /* Cap including temporary resist */
+};
+

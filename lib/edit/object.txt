@@ -15,9 +15,11 @@
 # N: serial number : & object name~
 # G: symbol : color
 # I: tval : sval : pval
-# W: depth : rarity : weight : cost
+# W: depth : unused : weight : cost
 # P: base armor class : base damage : plus to-hit : plus to-dam : plus to-ac : force 
-# A: depth/rarity : depth/rarity : etc
+# A: level/abundance : depth/rarity : depth/rarity
+# M: Chance of multiple items : number of dice to roll 'd' number of sides on die
+# O: fire:earth:air:water:elec:ice:acid:poison:time:ether:sound:nether:light:dark:psi:tk:spirit
 # F: flag | flag | etc
 
 # 'N' indicates the beginning of an entry. The serial number must
@@ -37,26 +39,36 @@
 # sval identifies the subtype and the pval indicates the amount of
 # effect the item has, if applicable. 
 
-# 'W' is for extra information. Depth is the depth the object is
-# normally found at, rarity determines how common the object is,
-# weight is in tenth-pounds and cost is the items value.
+# 'W' is for extra information. Depth is the level of the object,
+# unused is unused,
+# weight is in tenth-pounds and cost is the item's value.
+# an item is considered heavy if (wt/10) is greater than
+# (muscle/9) + 5, heavy weapons should be around 50 lbs. (encumbers 
+# anyone with less than 400 muscle)
 
 # 'P' is for power information. The items base armor class, its base
 # damage and pluses to-hit, to-dam and to-ac.
 
-# 'A' is for allocation - depth and rarity, in pairs. This allows an
+# 'A' is for allocation - local and chance, in pairs. This allows an
 # item to have multiple natural depths and rarities. It is used to
 # ensure that certain vital items such as food and identify scrolls
 # are found throughout the dungeon.
+
+# 'O' is for item percentile resistances. This resistance is cumulative
+# with ego and artifact resistances.
+# O:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 
 # 'F' is for flags. These are fairly self-explanatory. As many F:
 # lines may be used as are needed to specify all the flags and flags
 # are separated by the '|' symbol.
 
+# 'D' is for description. Please note _exactly_ how many of these I 
+# stole from Leon Merrick and Sangband. That's right, nearly all of them 
+# go Leon's open source code! (THANKS LM, and BR)
 
 # Version stamp (required)
 
-V:0.3.1
+V:0.4.0
 
 
 ##### Non-kind (contains the "pile" picture) #####
@@ -64,4300 +76,4853 @@ V:0.3.1
 N:0:<pile>
 G:&:w
 
-##### Skeletons #####
-
-N:1:& Broken Skull~
-G:~:w
-I:1:1:0
-W:0:0:1:0
-A:0/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:2:& Broken Bone~
-G:~:w
-I:1:2:0
-W:0:0:2:0
-A:0/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-#N:3:& Canine Skeleton~
-#G:~:w
-#I:1:4:0
-#W:1:0:10:0
-#A:1/1
-#P:0:1d1:0:0:0:0
-#F:EASY_KNOW
-
-#N:4:& Rodent Skeleton~
-#G:~:w
-#I:1:3:0
-#W:1:0:10:0
-#A:1/1
-#P:0:1d1:0:0:0:0
-#F:EASY_KNOW
-
-N:5:& Human Skeleton~
-G:~:w
-I:1:8:0
-W:5:0:60:0
-A:5/1
-P:0:1d2:0:0:0:0
-F:EASY_KNOW
-
-#parchment testing
-
-## XXX 6 XXX ##
-## XXX 7 XXX ##
-
-#N:8:& Gnome Skeleton~
-#G:~:w
-#I:1:5:0
-#W:5:0:30:0
-#A:5/1
-#P:0:1d2:0:0:0:0
-#F:EASY_KNOW
-
-#####################
-# N:9 - N:25 Unused #
-#####################
-
-##### Empty Bottle ##
-
-N:26:& Empty Bottle~
-G:!:w
-I:2:1:0
-W:0:0:2:0
-A:0/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-##### Junk #####
-
-N:27:& Shard~ of Pottery
-G:~:r
-I:3:3:0
-W:0:0:5:0
-A:0/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:28:& Broken Stick~
-G:~:r
-I:3:6:0
-W:0:0:3:0
-A:0/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-######################
-# N:29 - N:50 Unused #
-######################	
-
 ##### Spikes #######
 
-N:51:& Iron Spike~
+N:1:& Iron Spike~
 G:~:W
 I:5:0:0
 W:1:0:10:1
-A:1/1
+A:2/50:20/0
+M:100:3d5
 P:0:1d1:0:0:0:0
-F:EASY_KNOW
+D:A small, pointed metal bar, suitable for wedging under doors to slow down 
+D:pursuit.
 
-#####################
-# N:52- N:75 Unused #
-#####################
+
 ###################################################
 #################### Chests #######################
 ##### Steam themed chests thanks to Igenlode! #####
-####  Jewelry box, and briefcase by Rdanhenry! ####
+##  jewellery box, and briefcase by Rdanhenry! ####
 ###################################################
-N:76:& Ruined chest~
+N:2:& Dented iron box~
 G:~:s
 I:7:0:0
-W:0:0:250:0:0
-A:75/1
+W:1:0:250:0
+A:5/15:15/8
+P:0:2d3:0:0:0:0
+D:A small battered box, with a rusty, dented exterior.
 
-N:77:& Travelling bag~
+N:3:& Travelling bag~
 G:~:u
 I:7:1:0
 W:5:0:250:20
-A:5/1
+A:7/15:20/8
 P:0:2d3:0:0:0:0
+D:A small traveling satchel. It possibly contains either 
+D:clothes or money.
 
-N:78:& Doctor's bag~
+N:4:& Doctor's satchel~
 G:~:D
 I:7:2:0
 W:5:0:250:20
-A:5/1
+A:7/15:20/8
 P:0:2d3:0:0:0:0
+D:A small black doctor's bag. It likely contains some tonics, though 
+D:it might possibly have food or money.
 
-N:79:& Lockbox~
+N:5:& Lockbox~
 G:~:s
 I:7:3:0
-W:15:0:500:60
-A:15/1
-P:0:2d5:0:0:0:0
+W:10:0:500:60
+A:10/15:23/8
+P:0:2d4:0:0:0:0
+D:A small steel lockbox that people often use to keep their valuables safe.
 
-N:80:& Bandbox~
+N:6:& Bandbox~
 G:~:W
 I:7:4:0
-W:25:0:300:100
-A:25/1
+W:13:0:300:100
+A:13/15:25/8
 P:0:2d4:0:0:0:0
+D:A small bandbox, which usually contains some type of clothing.
 
-N:81:& Hatbox~
+N:7:& Hatbox~
 G:~:U
 I:7:5:0
-W:35:0:1000:150
-A:35/1
-P:0:2d6:0:0:0:0
+W:15:0:1000:150
+A:15/15:28/8
+P:0:2d4:0:0:0:0
+D:A small brown hatbox, likely containing hats.
 
 ## Large chests ##
 
-N:82:& Gladstone Bag~
+N:10:& Gladstone bag~
 G:~:D
 I:7:6:0
-W:45:0:500:200
-A:45/1
-P:0:2d4:0:0:0:0
+W:20:0:500:200
+A:20/13
+P:0:2d3:0:0:0:0
+D:A Gladstone bag is used to store clothing.
 
-N:83:& Cabin Trunk~
+N:11:& Cabin trunk~
 G:~:g
 I:7:7:0
-W:55:0:1000:250
-A:55/1
-P:0:2d6:0:0:0:0
+W:23:0:1000:250
+A:23/12
+P:0:2d8:0:0:0:0
+D:A large cabin trunk that could contain a gun, weapons, 
+D:strange devices, or anything else that someone wanted to keep safe.
 
-N:84:& Steamer Trunk~
+N:12:& Steamer trunk~
 G:~:u
 I:7:8:0
-W:55:0:1000:250
-A:55/1
-P:0:2d6:0:0:0:0
+W:25:0:500:250
+A:25/11
+P:0:3d6:0:0:0:0
+D:An old steamer trunk used to store any kind of valuables.
 
-N:85:& Combination safe~
+N:13:& Combination safe~
 G:~:s
 I:7:9:0
-W:65:0:1000:250
-A:65/1
+W:28:0:1000:250
+A:28/10
 P:0:2d6:0:0:0:0
+D:A combination safe is exclusively used to protect valuables such as 
+D:rings, amulets, and gold.
 
-N:86:& Briefcase~
+N:14:& Briefcase~
 G:~:U
 I:7:10:0
-W:35:0:1000:150
-A:35/1
-P:0:2d6:0:0:0:0
+W:30:0:80:150
+A:30/11
+P:0:2d3:0:0:0:0
+D:A briefcase is used to keep books and paper safe, dry, and easy 
+D:to transport. 
 
-N:87:& Jewelery Box~
+N:15:& Jewellery box~
 G:~:r
 I:7:11:0
-W:45:0:1000:150
-A:45/1
-P:0:2d6:0:0:0:0
+W:40:0:30:150
+A:40/8
+P:0:2d2:0:0:0:0
+D:A pretty Jewellery box.
 
+N:16:& Quest chest~
+G:~:s
+I:7:12:0
+W:300:100:250:0:0
+A:300/100
+F:IMMUNE
 
-#N:83:& Quest chest~
-#G:~:s
-#I:7:8:0
-#W:300:100:250:0:0
-#A:300/100
 
 
 #######################
-# N:83 - N:100 Unused #
+# N:16 - N:19 Unused #
 #######################
 
-#### Pistol Bullets ###
-
-N:101:& Pistol bullet~
+########################
+#### Pistol Bullets ####
+########################
+N:20:& Pistol bullet~
 G:{:s
 I:16:0:0
-W:3:0:1:5
-A:3/0:15/0:35/0:55/0
+W:0:0:1:4
+A:0/130:10/150:50/110
 P:0:1d11:0:0:0:0
+M:100:10d8
 F:SHOW_MODS
+D:A standard pistol bullet.
 
-N:102:& Hollow-point pistol bullet~
+N:21:& Hollow-point pistol bullet~
 G:{:s
 I:16:1:0
-W:5:0:1:12
-A:3/1
+W:5:0:1:10
+A:5/10:30/60:50/30
 P:0:2d13:0:0:0:0
+M:100:7d12
 F:SHOW_MODS
+D:A hollow-point pistol bullet that, when it strikes its target,
+D: splits open possibly causing a great deal of damage.
 
-########################
-# N:103 - N:125 Unused #
-########################
+N:22:& Silver pistol bullet~
+G:{:s
+I:16:2:0
+W:30:0:1:30
+A:30/5:50/15
+P:0:1d11:0:0:0:0
+M:100:2d7
+F:SHOW_MODS | SLAY_UNDEAD
+D:A pistol bullet made from silver. Silver is often said
+D: to be effective versus restless souls.
 
+######################
+# N:23 - N:29 Unused #
+######################
+
+#####################
 ### Rifle Bullets ###
+#####################
 
-N:126:& Rifle bullet~
+N:30:& Rifle bullet~
 G:{:U
 I:17:1:0
-W:7:0:1:10
-A:3/0:15/0:35/0:55/0
+W:0:0:1:10
+A:0/5:5/50:30/150
 P:0:2d11:0:0:0:0
+M:100:10d8
 F:SHOW_MODS
+D:A standard rifle bullet.
 
-N:127:& Hollow-point rifle bullet~
+N:31:& Hollow-point rifle bullet~
 G:{:G
 I:17:2:0
-W:55:0:1:40
-A:55/2
-P:0:3d22:0:0:0:0
+W:20:0:1:40
+A:20/20:50/60
+P:0:2d33:0:0:0:0
+M:100:7d12
 F:SHOW_MODS
+D:A hollow-point rifle bullet that, when it strikes its target, 
+D:splits open, possibly causing a great deal of damage.
 
-########################
-# N:128 - N:150 Unused #
-########################
+######################
+# N:32 - N:39 Unused #
+######################
 
-#### Shotgun Bullets ###
+#########################
+#### Shotgun Bullets ####
+#########################
 
-N:151:& Shotgun buckshot
+N:40:& Shotgun slug~
+G:{:s
+I:18:0:0
+W:0:0:2:20
+A:0/5:10/60:40/180
+P:0:4d11:0:0:0:0
+M:100:12d5
+F:SHOW_MODS
+D:A shotgun slug.
+
+N:41:& Shotgun buckshot
 G:{:s
 I:18:1:0
-W:10:0:2:20
-A:20/0:40/0:50/0:60/0
-P:0:4d11:0:0:0:0
+W:0:0:2:20
+A:0/5:10/50:40/150
+P:0:1d12:0:0:0:0
+M:100:12d5
 F:SHOW_MODS
+D:A load of shotgun buckshot.
 
-N:152:& Steel shotgun slug~
+N:42:& Steel shotgun slug~
 G:{:B
 I:18:2:0
-W:65:0:2:250
-A:65/4
+W:10:0:2:250
+A:30/40
 P:0:4d22:0:0:0:0
+M:100:4d5
 F:SHOW_MODS
+D:A steel shotgun slug that does massive damage when it strikes a target.
+
 
 ########################
-# N:153 - N:175 Unused #
+# N:42 - N:44 Unused #
 ########################
 
+########################
 ######### Guns #########
+########################
 
-N:176:& .22 Bolt Action Rifle~
-G:}:U
-I:19:52:0
-W:3:0:150:200
-A:3/1
-F:SHOW_MODS
-
-N:177:& .30 Lever-Action Carbine~
-G:}:u
-I:19:3:0
-W:10:0:180:300
-A:10/1
-F:SHOW_MODS
-
-N:178:& 20 Gauge Shotgun~
-G:}:D
-I:19:53:0
-W:15:0:190:450
-A:15/1
-F:SHOW_MODS
-
-N:179:& 16 Gauge Shotgun~
-G:}:D
-I:19:4:0
-W:30:0:200:800
-A:30/1
-F:SHOW_MODS
-
-N:180:& .25 Derringer~
+N:45:& .25 Derringer~
 G:}:s
 I:19:2:0
-W:1:0:35:150
-A:1/1
+W:2:0:35:150
+A:2/50:15/5
 F:SHOW_MODS
+D:A small single-shot pistol, easily concealed within a pocket or handbag.
 
-N:181:& .32 Revolver~
+N:46:& .32 Revolver~
 G:}:s
 I:19:12:0
-W:5:0:50:250
-A:5/1:15/1
+W:4:0:50:250
+A:5/50:20/5
 F:SHOW_MODS
+D:A five-shot pocket revolver.
 
-N:182:& .38 Revolver~
+N:47:& .38 Revolver~
 G:}:s
 I:19:22:0
 W:5:0:50:350
-A:5/1:15/1
+A:5/50:20/5
 F:SHOW_MODS
+D:A single-shot breech loader, crude but effective.
 
-N:183:& .41 Revolver~
+N:48:& .41 Revolver~
 G:}:s
 I:19:32:0
 W:15:0:50:950
 P:0:1d1:0:5:0:0
-A:15/1:30/1
+A:15/30:35/5
 F:SHOW_MODS
+D:An average six-shot revolver, smaller calibre than those 
+D:favoured in the Americas, but enough to put a man down when necessary.
 
-N:184:& .45 Revolver~
+N:49:& .45 Revolver~
 G:}:s
 I:19:42:0
 W:20:0:50:1950
 P:0:1d1:0:15:0:0
-A:20/1:40/1
+A:20/30:40/5
 F:SHOW_MODS
+D:A pearl-handled six-shooter, of the kind favoured by 
+D:the cowboys of the Wild West.
 
-N:185:& .45 Martini-Henry Rifle~
+N:50:& .22 Bolt Action Rifle~
+G:}:U
+I:19:52:0
+W:4:0:150:200
+A:4/10:10/40:40/5
+F:SHOW_MODS
+D:A soldier's rifle, readied by a spring-loaded bolt.  Usually 
+D:holds a clip of 3, 5, or 6 cartridges.
+
+N:51:& .30 Lever-Action Carbine~
+G:}:u
+I:19:3:0
+W:8:0:180:300
+A:8/10:15/50:50/5
+F:SHOW_MODS
+D:A weapon popular with cavalrymen, but met with disdain by the general 
+D:infantryman due to its inability to support a bayonet.  One of the first 
+D:weapons to use cordite ammunition.
+
+N:52:& .45 Martini-Henry Rifle~
 G:}:u
 I:19:13:0
 W:10:0:160:500
 P:0:1d1:1:0:0:0
-A:10/1:20/1
+A:10/10:20/50:50/5
 F:SHOW_MODS
+D:A breech-loading rifle that saw much service during the Zulu 
+D:wars.  It is self-cocking, with no external hammer.
 
-N:186:& Col. Moran's Air Rifle~
+N:53:& Col. Moran's Air Rifle~
 G:}:u
 I:19:23:0
 W:20:0:170:1100
 P:0:1d1:5:0:0:0
-A:20/1:30/1
+A:20/10:30/50:50/5
 F:SHOW_MODS
+D:A cunningly disguised air-gun, concealed within a 
+D:walking-stick.  An attempt was once made on the great 
+D:Sherlock Holmes' life with a weapon like this.
 
-N:187:& .303 Lee-Enfield~
+N:54:& .303 Lee-Enfield~
 G:}:u
 I:19:33:0
 W:25:0:180:1500
 P:0:1d1:10:3:0:0
-A:25/1:30/1
+A:25/10:35/50:50/5
 F:SHOW_MODS
+D:The standard rifle for British infantry.  Simple yet 
+D:sturdy, and supporting a 10-round magazine.
 
-N:188:& Elephant gun~
+N:55:& Elephant Gun~
 G:}:u
 I:19:43:0
 W:30:0:250:2300
 P:0:1d1:5:25:0:0
-A:30/1:40/1
+A:30/10:40/40:50/5
 F:SHOW_MODS
+D:As an 8-gauge gun, this is probably the heaviest 
+D:bore you will handle.  You can't hunt rabbits with it though.
 
-N:189:& 12 Gauge Shotgun~
+N:56:& 20 Gauge Shotgun~
+G:}:D
+I:19:53:0
+W:15:0:190:450
+A:15/8:30/40:40/5
+F:SHOW_MODS
+D:An over-and-under style gun, with a double trigger.  Good 
+D:for hunting birds.
+
+N:57:& Sawed-Off Shotgun~
+G:}:U
+I:19:63:0
+W:15:0:110:500
+A:15/8:30/40:40/5
+F:SHOW_MODS
+D:Although it reduces the effectiveness somewhat, shortening the
+D: barrels of a shotgun makes it more convenient to carry, especially
+D: as a concealed weapon.
+
+N:58:& 16 Gauge Shotgun~
+G:}:D
+I:19:4:0
+W:25:0:200:800
+A:25/10:35/40:50/10
+F:SHOW_MODS
+D:A shotgun popular with women and youths, this model has a single barrel.
+
+N:59:& 12 Gauge Shotgun~
 G:}:u
 I:19:14:0
-W:40:0:220:800
+W:35:0:220:800
 P:0:1d1:0:10:0:0
-A:40/1:50/1
+A:35/10:42/30:50/10
 F:SHOW_MODS
+D:A pump-action, single-barrelled shotgun.
 
-N:190:& 10 Gauge Shotgun~
+N:60:& 10 Gauge Shotgun~
 G:}:u
 I:19:24:0
 W:45:0:280:800
 P:0:1d1:5:25:0:0
-A:45/1:55/1
+A:40/10:50/30
 F:SHOW_MODS
+D:The largest gauge shotgun that you are ever likely 
+D:to see. Two barrels, .770 inch bore.
+
 
 ########################
-# N:191 - N:275 Unused #
+# N:61 - N:74 Unused #
 ########################
 
-N:276:& Shovel~
+N:75:& Shovel~
 G:\:s
-I:20:1:1
+I:20:1:5
 W:1:0:60:10
-A:5/16
+A:1/8:30/0
 P:0:1d2:0:0:0:1
-F:SHOW_MODS | TUNNEL
+F:SHOW_MODS | TUNNEL | PIERCE
+D:A compact and sturdy spade.
 
-N:277:& Pneumatic Shovel~
+N:76:& Pneumatic Shovel~
 G:\:B
-I:20:2:2
-W:20:0:60:100
-A:20/4
+I:20:2:10
+W:15:0:60:100
+A:15/12:50/0
 P:0:1d2:0:0:0:1
-F:SHOW_MODS | TUNNEL
+F:SHOW_MODS | TUNNEL | PIERCE
+D:A small shovel shaped head at the end of a strange pneumatic system. 
+D:It appears very useful for digging in magma and quartz.
 
-#N:278:& Dwarven Shovel~
-#G:\:B
-#I:20:3:3
-#W:40:0:120:200
-#A:40/1
-#P:0:1d3:0:0:0
-#F:SHOW_MODS | TUNNEL
-
-N:279:& Pick~
+N:77:& Pick~
 G:\:s
-I:20:4:1
+I:20:4:15
 W:5:0:150:50
-A:10/16
+A:5/10:50/0
 P:0:1d3:0:0:0:2
-F:SHOW_MODS | TUNNEL
+F:SHOW_MODS | TUNNEL | PIERCE
+D:A heavy mining tool with a long, slightly curved head that tapers 
+D:to chisel points on both ends.
 
-N:280:& Pneumatic Pick~
+N:78:& Pneumatic Pick~
 G:\:B
-I:20:5:2
-W:30:0:150:300
-A:30/4
+I:20:5:30
+W:25:0:150:300
+A:20/10:50/00
 P:0:1d3:0:0:0:2
-F:SHOW_MODS | TUNNEL
+F:SHOW_MODS | TUNNEL | PIERCE
+D:A heavy mining tool with a long, slightly curved head. A pneumatic
+D:system that vibrates the head helps to break up harder rock.
 
-#N:281:& Dwarven Pick~
-#G:\:b
-#I:20:6:3
-#W:50:0:200:600
-#A:50/1
-#P:0:1d4:0:0:0
-#F:SHOW_MODS | TUNNEL
+###############
+# N:79 Unused #
+###############
 
-########################
-# N:282 - N:300 Unused #
-########################
+######################
+### Hafted weapons ###
+######################
 
-## Removing some hafted weapons ###
-##### Hafted Weapons #####
-
-N:301:& Whip~
+N:80:& Whip~
 G:\:D
 I:21:2:0
 W:3:0:30:30
-A:3/1
+A:3/70:15/30:50/10
 P:0:1d6:0:0:0:0
-F:SHOW_MODS
+F:SHOW_MODS | BLUNT
+D:A heavy whip, this thick coil is thrown from the shoulder and can
+D: knock down a large man. It is a hafted weapon.
 
-#N:302:& Two-Handed Flail~
-#G:\:y
-#I:21:18:0
-#W:45:0:280:590
-#A:45/1
-#P:0:3d6:0:0:0:X
-#F:SHOW_MODS
+N:81:& Hammer~
+G:\:D
+I:21:3:0
+W:5:0:80:75
+A:5/10:20/30:50/20
+P:0:2d3:0:0:0:1
+F:SHOW_MODS | BLUNT
+D:A hammer, useful for driving nails, breaking rock, and smashing
+D: skulls. It is a hafted weapon.
 
-#N:303:& Morning Star~
-#G:\:D
-#I:21:12:0
-#W:10:0:150:396
-#A:10/1
-#P:0:2d6:0:0:0:X
-#F:SHOW_MODS
+N:82:& Mace~
+G:\:D
+I:21:4:0
+W:5:0:80:130
+A:5/70:25/30:50/20
+P:0:2d4:0:0:0:2
+F:SHOW_MODS | BLUNT
+D:A war club with an iron head, usually flanged or spiked. It is
+D: a hafted weapon.
 
-N:304:& Mace~
+N:83:& Mallet~
 G:\:D
 I:21:5:0
-W:5:0:130:130
-A:5/1
-P:0:2d4:0:0:0:2
-F:SHOW_MODS
+W:8:0:80:55
+A:8/10:23/30:50/20
+P:0:3d2:0:0:0:1
+F:SHOW_MODS | BLUNT
+D:This is a hammer with a large barrel-shaped head, often
+D: used for striking a surface without marring it.
 
-N:305:& Quarterstaff~
-G:\:U
-I:21:3:0
-W:10:0:150:200
-A:10/1
-P:0:1d9:0:0:0:3
-F:SHOW_MODS
+N:84:& War Hammer~
+G:\:D
+I:21:6:0
+W:15:0:220:225
+A:15/60:50/20
+P:0:3d3:0:0:0:3
+F:SHOW_MODS | BLUNT
+D:A mallet with a tapered head and a long handle. It is a hafted
+D: weapon.
 
-N:306:& War Hammer~
+N:85:& Lead-Filled Mace~
 G:\:D
 I:21:8:0
-W:5:0:220:225
-A:5/1
-P:0:3d3:0:0:0:4
-F:SHOW_MODS
+W:25:0:320:502
+A:25/50:50/20
+P:0:3d4:0:0:0:4
+F:SHOW_MODS | BLUNT
+D:A heavy war club topped with a mass of lead-filled steel, capable of
+D: landing crushing blows. It is a hafted weapon.
 
-N:307:& Lead-Filled Mace~
-G:\:D
-I:21:15:0
-W:15:0:180:502
-A:15/1
-P:0:3d4:0:0:0:3
-F:SHOW_MODS
-
-N:308:& Mace~ of Disruption
-G:\:v
-I:21:20:0
-W:80:0:400:4300
-A:80/8
-P:0:5d8:0:0:0:5
-F:SLAY_UNDEAD | SHOW_MODS
-
-N:309:& Lucerne Hammer~
-G:\:B
+N:86:& Throwing Hammer~
+G:\:o
 I:21:10:0
-W:10:0:120:376
-A:10/1
-P:0:2d5:0:0:0:2
-F:SHOW_MODS
-
-N:310:& Mighty Hammer~
-G:\:D
-I:21:50:0
-W:15:0:200:1000
-P:0:3d9:0:0:0:10
-F:SHOW_MODS | INSTA_ART
-
-########################
-# N:311 - N:350 Unused #
-########################
-
-### Axes / Polearms ####
+W:25:0:30:125
+A:25/20
+P:0:2d4:0:0:0:0
+M:100:4d3
+F:THROW | SHOW_MODS | BLUNT
+D:A short-handled iron hammer that can strike hard with thrown. Like
+D: other special throwing weapons, it is unsuitable for melee combat.
+D: If you do use it for hand to hand fighting, it is used as a hafted
+D: weapon.
 
 
-N:351:& Beaked Axe~
-G:/:s
-I:22:10:0
-W:15:0:180:408
-A:15/1
-P:0:2d6:0:0:0:3
-F:SHOW_MODS
 
-N:352:& Glaive~
-G:/:s
-I:22:13:0
-W:20:0:190:363
-A:20/1
-P:0:2d6:0:0:0:4
-F:SHOW_MODS
+######################
+# N:86 - N:89 Unused #
+######################
 
-N:353:& Halberd~
-G:/:s
-I:22:15:0
-W:25:0:190:430
-A:25/1
-P:0:3d5:0:0:0:4
-F:SHOW_MODS
+################
+### Polearms ###
+################
 
-N:354:& Awl-Pike~
+N:90:& Harpoon~
+G:/:o
+I:22:1:0
+W:10:0:15:18
+A:10/33:25/33:45/5
+M:100:4d3
+P:0:2d4:0:0:0:0
+F:THROW | PIERCE | SHOW_MODS
+D:A long spear-like instrument used in fishing to catch fish or other
+D: aquatic animals such as whales.
+
+N:91:& Javelin~
+G:/:o
+I:22:2:0
+W:10:0:15:18
+A:10/33:25/33:45/5
+M:100:4d3
+P:0:1d5:0:0:0:0
+F:THROW | PIERCE | SHOW_MODS
+D:A light throwing spear that can be easily carried in bunches,
+D: perfect for harassing a stronger foe. If held and used for
+D: melee combat, it is weilded as a polearm.
+
+N:92:& Spear~
 G:/:s
 I:22:4:0
-W:10:0:160:340
-A:10/1
-P:0:1d8:0:0:0:3
-F:SHOW_MODS
-
-N:355:& Pike~
-G:/:s
-I:22:8:0
-W:15:0:160:358
-A:15/1
-P:0:2d5:0:0:0:2
-F:SHOW_MODS
-
-N:356:& Spear~
-G:/:s
-I:22:2:0
 W:5:0:50:36
-A:5/1
-P:0:1d6:0:0:0:1
-F:SHOW_MODS
+A:5/30
+P:4:1d6:0:0:0:1
+F:THROW | PIERCE | SHOW_MODS
+D:The basic polearm, with a double-edged knife mounted
+D: on a light shaft. This weapon can be thrown effectively.
+D: If held and used in melee combat, it is weilded as a polearm.
 
-N:357:& Trident~
+N:93:& Trident~
 G:/:y
 I:22:5:0
 W:5:0:70:120
-A:5/1
-P:0:1d8:0:0:0:2
-F:SHOW_MODS
+A:5/30:35/15
+P:1:1d8:0:0:0:2
+F:PIERCE | SHOW_MODS
+D:A three-pronged spear, originally for catching fish. It is a
+D: polearm.
 
-#N:358:& Lance~
-#G:/:s
-#I:22:20:0
-#W:10:0:300:230
-#A:10/1
-#P:0:2d8:0:0:0
-#F:SHOW_MODS
-
-N:359:& Great Axe~
+N:94:& Pike~
 G:/:s
-I:22:25:0
-W:40:0:250:500
-A:40/1
-P:0:4d4:0:0:0:8
-F:SHOW_MODS
+I:22:8:0
+W:15:0:160:358
+A:15/50:50/10
+P:6:2d5:0:0:0:2
+F:PIERCE | SHOW_MODS
+D:A long, heavy spear with an iron head and reinforced shaft. It
+D: is a polearm.
 
-N:360:& Battle Axe~
+N:95:& Glaive~
 G:/:s
-I:22:22:0
-W:15:0:170:334
-A:15/1
-P:0:2d8:0:0:0:6
-F:SHOW_MODS
+I:22:13:0
+W:20:0:190:363
+A:20/40:50/30
+P:8:2d6:0:0:0:3
+F:PIERCE | SHOW_MODS
+D:A reinforced wooden pole eight feet long, topped by a massive knife blade
+D: that can be used to thrust or chop. It is a polearm.
 
-N:361:& Pneumatic Axe~
-G:/:D
-I:22:20:1
-W:45:1:250:2750
-A:60/1
-P:0:3d8:0:0:0:6
-F:SHOW_MODS | BLOWS
-
-N:362:& Broad Axe~
+N:96:& Halberd~
 G:/:s
-I:22:11:0
-W:15:0:160:304
-A:15/1
-P:0:2d6:0:0:0:3
-F:SHOW_MODS
+I:22:15:0
+W:25:0:200:430
+A:25/30:50/20
+P:10:3d5:0:0:0:4
+F:PIERCE | SHOW_MODS
+D:The most successful of the polearms, the halberd has a long haft
+D: mounted with a heavy axe blade and opposing spike, and topped by
+D: a thrusting spine.
 
-N:363:& Scythe~
-G:/:s
-I:22:17:0
-W:45:0:250:800
-A:45/1
-P:0:5d3:0:0:0:7
-F:SHOW_MODS
+#######################
+# N:97 - N:99  Unused #
+#######################
 
-N:364:& Scythe~ of Slicing
-G:/:r
-I:22:30:0
-W:60:0:250:3500
-A:60/4
-P:0:8d4:0:0:0:8
-F:SHOW_MODS
+##################
+##### Swords #####
+##################
 
-########################
-# N:365 - N:425 Unused #
-########################
-
-##### Edged Weapons #####
-
-N:426:& Broken Dagger~
-G:|:D
-I:23:1:0
-W:0:0:5:0
-A:0/1
-P:0:1d1:-2:-4:0:1
-F:SHOW_MODS
-
-N:427:& Bastard Sword~
-G:|:W
-I:23:21:0
-W:15:0:140:350
-A:15/1
-P:0:3d4:0:0:0:2
-F:SHOW_MODS
-
-N:428:& Scimitar~
-G:|:W
-I:23:18:0
-W:10:0:130:250
-A:10/1
-P:0:2d5:0:0:0:2
-F:SHOW_MODS
-
-N:429:& Cane~
-G:|:u
-I:23:15:0
-W:5:0:20:50
-A:5/1
-P:0:1d3:0:0:0:0
-F:SHOW_MODS
-
-N:430:& Broad Sword~
-G:|:W
-I:23:16:0
-W:10:0:160:255
-A:10/1:15/1
-P:0:2d5:0:0:0:3
-F:SHOW_MODS
-
-N:431:& Short Sword~
-G:|:W
-I:23:10:0
-W:5:0:80:90
-A:5/1
-P:0:1d7:0:0:0:1
-F:SHOW_MODS
-
-N:432:& Blade~ of Chaos
-G:|:v
-I:23:30:0
-W:70:0:180:4000
-A:70/8
-P:0:6d5:0:0:0:4
-F:RES_CONFU |
-F:RES_CHAOS | SHOW_MODS
-
-N:433:& Cavalry Sabre~
-G:|:W
-I:23:25:0
-W:30:0:100:275
-A:30/1:40/1
-P:0:1d6:0:0:0:4
-F:SHOW_MODS
-
-N:434:& Main Gauche~
-G:|:W
-I:23:5:0
-W:3:0:30:25
-A:3/1
-P:0:1d5:0:0:0:0
-F:SHOW_MODS
-
-N:435:& Cutlass~
-G:|:W
-I:23:12:0
-W:5:0:110:85
-A:5/1
-P:0:1d7:0:0:0:1
-F:SHOW_MODS
-
-N:436:& Sword Cane~
-G:|:u
-I:23:28:0
-W:40:0:160:850
-A:40/1
-P:0:2d5:0:0:0:3
-F:SHOW_MODS
-
-N:437:& Bowie Knife~
-G:|:W
-I:23:20:0
-W:10:0:20:100
-A:10/1
-P:0:4d2:0:0:0:0
-F:SHOW_MODS
-
-N:438:& Long Sword~
-G:|:W
-I:23:17:0
-W:10:0:130:300
-A:10/1:20/1
-P:0:2d5:0:0:0:2
-F:SHOW_MODS
-
-N:439:& Dagger~
-G:|:W
-I:23:4:0
-W:0:0:12:10
-A:0/1:5/1:10/1:20/1
-P:0:1d4:0:0:0:0
-F:SHOW_MODS
-
-N:440:& Rapier~
-G:|:W
-I:23:7:0
-W:5:0:40:42
-A:5/1
-P:0:1d6:0:0:0:0
-F:SHOW_MODS
-
-N:441:& Sabre~
-G:|:W
-I:23:11:0
-W:5:0:50:50
-A:5/1
-P:0:1d7:0:0:0:1
-F:SHOW_MODS
-
-N:442:& Small Sword~
-G:|:W
-I:23:8:0
-W:5:0:75:48
-A:5/1
-P:0:1d6:0:0:0:1
-F:SHOW_MODS
-
-N:443:& Broken Sword~
+N:100:& Broken Sword~
 G:|:D
 I:23:2:0
 W:0:0:30:2
-A:0/1
+A:0/50:15/0
 P:0:1d2:-2:-4:0:0
-F:SHOW_MODS
+F:EDGED | SHOW_MODS
+D:Above the hilt, a foot of steel rises, ending in a jagged edge.
 
-N:444:& Truncheon~
+####
+###### Note Pierce, under swords. 
+###########################################
+N:101:& Main Gauche~
+G:|:W
+I:23:5:0
+W:3:0:30:25
+A:3/40:20/20:50/10
+P:0:1d5:0:0:0:0
+F:PIERCE | SHOW_MODS
+D:A short thrusting blade with a large guard, primarily used in duels.
+
+N:102:& Rapier~
+G:|:W
+I:23:7:0
+W:5:0:40:42
+A:5/40:20/20:50/10
+P:0:1d6:0:0:0:0
+F:EDGED | SHOW_MODS
+D:A long, thin thrusting blade, mainly used in duels.
+
+N:103:& Small Sword~
 G:|:W
 I:23:8:0
 W:5:0:75:48
-A:5/1
+A:5/40:20/30:50/10
 P:0:1d6:0:0:0:1
-F:SHOW_MODS
+F:EDGED | SHOW_MODS
+D:A smaller version of the longsword, possibly made by brownies.
 
-N:445:& Diabo~
+N:104:& Sabre~
+G:|:W
+I:23:11:8
+W:5:0:50:50
+A:5/40:40/20
+P:0:1d7:0:0:0:1
+F:EDGED | SHOW_MODS
+D:A light, somewhat curved blade; familiar to horsemen and duellists 
+D:alike.
+
+N:105:& Cutlass~
+G:|:W
+I:23:12:0
+W:5:0:110:85
+A:5/40:40/20
+P:0:1d7:0:0:0:2
+F:EDGED | SHOW_MODS
+D:A large, curved chopper with a basket hilt, well known to seamen.
+
+N:106:& Scythe~
+G:/:s
+I:23:14:0
+W:30:0:250:800
+A:30/40:40/20
+P:0:5d3:0:0:0:5
+F:EDGED | SHOW_MODS
+D:The long crescent blade stands out from the handle, and it is
+D: swung to harvest grain or blood. It is a sword.
+
+N:107:& Broad Sword~
+G:|:W
+I:23:16:0
+W:10:0:160:255
+A:10/40:50/20
+P:0:2d5:0:0:0:3
+F:EDGED | SHOW_MODS
+D:A heavy, single-edged sword with a strong grip.
+
+N:108:& Long Sword~
+G:|:W
+I:23:17:0
+W:10:0:130:300
+A:10/50
+P:0:2d5:0:0:0:2
+F:EDGED | SHOW_MODS
+D:A long, straight, two-edged blade, with two hand guards projecting
+D: out from the hilt to form a perfect cross.
+
+N:109:& Scimitar~
+G:|:W
+I:23:18:0
+W:15:0:130:250
+A:15/35
+P:0:2d5:0:0:0:2
+F:EDGED | SHOW_MODS
+D:A single-edged slashing sword with a blade like a crescent.
+
+N:110:& Bastard Sword~
+G:|:W
+I:23:21:0
+W:15:0:140:350
+A:15/40
+P:0:3d4:0:0:0:2
+F:EDGED | SHOW_MODS
+D:Also known as the hand-and-a-half blade.  A larger-than-normal
+D: straight-sided sword with two cutting edges.
+
+N:111:& Cavalry Sabre~
+G:|:W
+I:23:25:0
+W:30:0:100:275
+A:30/30
+P:0:1d6:0:0:0:3
+F:EDGED | SHOW_MODS
+D:A heavy, somewhat curved blade; familiar to horseman and duellists
+D: alike.
+
+N:112:& Sword Cane~
 G:|:u
-I:23:8:0
-W:25:0:120:500
-A:25/1
-P:0:4d6:0:0:0:2
-F:SHOW_MODS
+I:23:28:0
+W:40:0:160:850
+A:30/30
+P:0:2d5:0:0:0:3
+F:EDGED | SHOW_MODS
+D:It has the appearance of a normal cane, but in an instant a blade
+D: can be drawn from a sheath and used to strike.
+
+N:113:& Pneumatic Sword~
+G:|:b
+I:23:32:0
+W:45:0:250:2400
+A:43/15
+P:0:8d5:0:0:0:5
+F:EDGED | SHOW_MODS
+D:A strange sword that uses pneumatics. They can cause grave 
+D:injury to your opponents.
 
 ########################
-# N:446 - N:525 Unused #
+# N:113 - N:119 Unused #
 ########################
 
-## TESTING PROBLEM ##
-### FOR SOME REASON OBJECTS ARE BEING GENERATED FROM 480-497 ##
-## WETHER THERE ARE OBJECTS HERE OR NOT ##
+#################
+#### daggers ####
+#################
+N:120:& Broken Dagger~
+G:|:D
+I:24:2:0
+W:0:0:5:0
+A:0/40:15/0
+P:0:1d1:-2:-4:0:1
+F:PIERCE | SHOW_MODS
+D:This is more like a jagged piece of metal on the end of a hilt than
+D: it is a useful weapon.
+
+N:121:& Throwing Knife~
+G:|:o
+I:24:4:0
+W:1:0:3:8
+A:1/30:5/30:15/0
+P:0:1d3:0:0:0:0
+M:100:4d3
+F:PIERCE | THROW | SHOW_MODS  
+D:A small but sharp blade, well-balanced for throwing by the
+D: skilled. Like other special throwing weapons, it is
+D: unsuitable for melee combat.
+
+N:122:& Dagger~
+G:|:W
+I:24:6:0
+W:0:0:12:10
+A:0/30
+P:0:1d4:0:0:0:0
+F:PIERCE | SHOW_MODS
+D:A two-edged knife with a sharp point.
+
+N:123:& Throwing Dagger~
+G:|:W
+I:24:8:0
+W:2:0:5:33
+P:0:1d4:0:0:0:0
+A:2/5:10/50:20/0
+M:100:4d3
+F:PIERCE | THROW | SHOW_MODS
+D:A small but sharp dagger, well-balanced for throwing by the
+D: skilled. Like other special throwing weapons, it is
+D: unsuitable for melee combat.
+
+N:124:& Short Sword~
+G:|:W
+I:24:10:0
+W:5:0:80:90
+A:5/40:40/30
+P:0:1d7:0:0:0:1
+F:PIERCE | SHOW_MODS
+D:A short thrusting sword. It uses your skill with daggers
+D: rather than swords.
+
+N:125:& Bowie Knife~
+G:|:W
+I:24:14:0
+W:10:0:20:100
+A:10/5:20/30
+P:0:4d2:0:0:0:0
+F:PIERCE | SHOW_MODS
+D:This knife is approximately 12 inches long with a blade two
+D: inches wide and one quarter inch thick. The back of the
+D: blade has a soft metal inlay designed to catch an opponents
+D: blade. A brass quillon is attached to protect the hand.
+
+N:126:& Pneumatic Dagger~
+G:|:b
+I:24:18:0
+W:35:2:15:300
+P:0:8d3:0:0:0:2
+A:35/8
+F:PIERCE | SHOW_MODS
+D:The pneumatics in this blade tear into your opponents.
+
+########################
+# N:127 - N:134 Unused #
+########################
+
+############
+### Axes ###
+############
+
+N:135:& Throwing Hatchet~
+G:/:W
+I:25:1:0
+W:5:0:30:80
+P:0:1d8:0:0:0:0
+A:0/50:10/20:40/0
+F:THROW | EDGED | SHOW_MODS
+D:A short-handled hatchet, balanced for throwing.  A classic
+D: skirmisher's weapon.
+
+N:136:& Beaked Axe~
+G:/:s
+I:25:2:0
+W:8:0:280:408
+A:8/45:40/5
+P:0:2d6:0:0:0:3
+F:EDGED | SHOW_MODS
+D:A narrow axe head opposed by a crow's beak, mounted on an
+D: oaken shaft.
+
+N:137:& Broad Axe~
+G:/:s
+I:25:4:0
+W:15:0:260:304
+A:15/25:40/15
+P:0:2d6:0:0:0:4
+F:EDGED | SHOW_MODS
+D:A simple, single-bladed war axe capable of chopping though
+D: limbs or armour.
+
+N:138:& Battle Axe~
+G:/:s
+I:25:6:0
+W:20:0:360:334
+A:20/25:40/35
+P:0:2d8:0:0:0:5
+F:EDGED | SHOW_MODS
+D:A double-bladed axe. 
+
+N:139:& Great Axe~
+G:/:s
+I:25:8:0
+W:40:0:400:500
+A:40/15
+P:0:4d4:0:0:0:6
+F:EDGED | SHOW_MODS
+D:An enormous two-handed battle axe.
+
+N:140:& Pneumatic Axe~
+G:/:D
+I:25:10:0
+W:45:1:600:2750
+A:45/15
+P:0:3d8:0:0:0:7
+F:EDGED | SHOW_MODS
+D:A giant pneumatic contraption with an axe head that strikes powerful 
+D:blows against your enemies. 
+
+########################
+# N:141 - N:144 Unused #
+########################
+
+##########################
+#### Clubs and staves ####
+##########################
+
+N:145:& Billy Club~
+G:|:D
+I:26:2:0
+W:5:0:20:50
+A:5/10:10/40:20/0
+P:0:1d3:0:0:0:1
+F:BLUNT | SHOW_MODS
+D:A billy club used by bobbies. It is a blunt weapon.
+
+N:146:& Cane~
+G:|:u
+I:26:4:0
+W:3:0:20:50
+A:1/10:5/40:10/0
+P:0:1d3:0:0:0:0
+F:BLUNT | SHOW_MODS
+D:A small cane that can be used as a makeshift weapon.
+D: It is used as a blunt weapon.
+
+N:147:& Walking Stick~
+G:|:u
+I:26:6:0
+W:1:0:20:50
+A:1/10:3/40:5/0
+P:0:1d3:0:0:0:1
+F:BLUNT | SHOW_MODS
+D:A stout walking stick. It can be used as a blunt weapon.
+
+N:148:& Small Black Walking stick~
+G:|:D
+I:26:8:0
+W:5:0:20:150
+A:10/10:15/40:25/0
+P:0:1d3:0:0:0:1
+F:BLUNT | SHOW_MODS
+D:A high-quality black cane that can be used as a makeshift bludgen.
+
+N:149:& Club~
+G:\:U
+I:26:10:0
+W:0:0:130:5
+A:0/50:12/10:15/0
+P:2:1d6:0:0:0:2
+F:BLUNT | SHOW_MODS
+D:A club made from the branch of a tree.  It can be used
+D: as a blunt weapon.
+
+N:150:& Quarterstaff~
+G:\:U
+I:26:12:0
+W:10:0:150:40
+A:10/20:30/50:50/30
+P:9:1d9:0:0:0:3
+F:BLUNT | SHOW_MODS
+D:Six feet of oak which can be wielded in both hands to give a
+D: drubbing or block one.
+
+N:151:& Spiked Club~
+G:\:D
+I:26:14:0
+W:8:0:200:60
+A:8/40:30/0
+P:4:2d7:0:0:0:4
+F:BLUNT | SHOW_MODS
+D:A homemade wooden staff, with a great knobbed head and iron spikes.
+D: The classic brigand's weapon.
 
 
+########################
+# N:152 - N:159 Unused #
+########################
+
+#############
 ### Shoes ###
+#############
 
-N:526:& Pair~ of Soft Leather Shoes
-G:]:U
+N:160:& Pair~ of Pointed Toe Shoes
+G:[:U
 I:30:2:0
-W:3:0:20:7
-A:3/1
-P:2:1d1:0:0:0:0
+W:1:0:10:10
+A:1/35:20/5
+P:2:1d2:0:0:0:0
+D:These shoes were favored in fashion during the 1850-60's,
+D: and again in the 1890's. A leather sole and elastic
+D: at the sides insure a comfortable fit. 
 
-N:527:& Pair~ of Hard Leather Shoes
-G:]:U
-I:30:3:0
-W:5:0:40:12
-A:5/1
-P:3:1d1:0:0:0:0
-
-N:528:& Pair~ of Metal Shod Boots
-G:]:s
-I:30:6:0
-W:20:0:80:50
-A:20/1
-P:6:1d1:0:0:0:0
-
-N:529:& Pair~ Needle Toe Dress Shoes
-G:[:s
+N:161:& Pair~ of Ankle Boots
+G:]:D
 I:30:4:0
-W:20:0:30:125
-A:15/0:35/0
-P:2:1d3:0:0:0:0
+W:2:0:20:40
+A:2/35:25/5
+P:3:1d1:0:0:0:0
+D:This boot was quite popular until the 1890's when laced
+D: boots became more popular. They are often worn with spats. (Shin/ankle
+D: coverings that were buttoned at the sides and fastened under
+D: the foot with a buckled strap.)
+
+N:162:& Pair~ of Square Toe Shoes
+G:]:u
+I:30:6:0
+W:4:0:30:80
+A:4/35:27/5
+P:4:1d1:0:0:0:0
+D:These shoes were favored in fashion during the 1880's,
+D: A leather sole and elastic at the sides insure a
+D: comfortable fit. 
+
+N:163:& Pair~ of Half-boots
+G:]:D
+I:30:8:0
+W:7:0:40:12
+A:7/20:30/5
+P:4:1d1:0:0:0:0
+D:These knee-length boots are now rare, and used almost
+D: exclusively for riding.
+
+N:164:& Pair~ of Laced Shoes
+G:]:u
+I:30:10:0
+W:10:0:20:3
+A:10/35:50/45
+P:1:1d1:0:0:0:0
+D:These shoes have rubber soles and are covered in canvas. They
+D: are often useful for athletic activities.
+
+N:165:& Pair~ of Buttoned Boots
+G:]:s
+I:30:12:0
+W:4:0:60:50
+A:20/30:50/50
+P:5:1d1:0:0:0:0
+D:These boots climb up to mid-calf, and often have cloth
+D: tops.  
+
+N:166:& Pair~ of Laced Boots
+G:]:w
+I:30:14:0
+W:5:0:50:225
+A:5/1:25/30:50/50
+P:6:1d1:0:0:0:0
+D:These knee-high white leather boots are laced up the front
+D: all the way to the top. 
 
 ########################
-# N:530 - N:575 Unused #
+# N:167 - N:169 Unused #
 ########################
 
-N:576:& Set~ of Leather Gloves
-G:]:U
-I:31:1:0
-W:1:0:5:3
-A:1/1
-P:1:0d0:0:0:0:0
-
-N:577:& Set~ of Silk Gloves
+N:170:& Set~ of Gloves
 G:]:U
 I:31:2:0
-W:10:0:2:35
-A:10/1
-P:2:1d1:0:0:0:0
+W:1:0:5:3
+A:1/40:45/20
+P:1:0d0:0:0:0:0
+D:A standard pair of canvas gloves.
 
-N:578:& Set~ of Cesti
-G:]:W
-I:31:5:0
-W:50:0:40:100
-A:50/1
-P:5:1d1:0:0:0:0
-
-N:579:& Set~ of Gloves
-G:]:U
-I:31:3:0
-W:5:0:5:3
-A:3/1
-P:2:0d0:0:0:0:0
-
-N:580:& Set~ of Work Gloves
-G:]:U
+N:171:& Set~ of Leather Gloves
+G:]:D
 I:31:4:0
-W:15:0:5:3
-A:10/1
-P:3:0d0:0:0:0:0
+W:1:0:5:7
+A:1/20:50/10
+P:2:0d0:0:0:0:0
+D:Leather hand protection, with an open palm.
+
+N:172:& Set~ of Silk Gloves
+G:]:U
+I:31:6:0
+W:10:0:2:38
+A:10/10:30/30
+P:1:0d0:0:0:0:0
+D:A set of beautiful silk gloves.
+
+N:173:& Set~ of Work Gloves
+G:]:U
+I:31:8:0
+W:15:0:5:10
+A:15/20
+P:4:0d0:0:0:0:0
+D:A pair of durable work gloves.
 
 ########################
-# N:580 - N:625 Unused #
+# N:174 - N:179 Unused #
 ########################
 
-#####  Hats  #####
+#############################
+## consider adding a derby ##
+##########  Hats  ###########
+#############################
 
-N:626:& Hard Leather Cap~
+N:180:& Hard Leather Cap~
 G:]:u
 I:32:2:0
-W:3:0:15:12
-A:3/1
+W:1:0:15:12
+A:1/20:40/0
 P:2:0d0:0:0:0:0
+D:A padded skullcap of boiled leather.
 
-N:627:& Metal Cap~
-G:]:s
-I:32:3:0
-W:10:0:20:30
-A:10/1
-P:3:1d1:0:0:0:0
-
-N:628:& Woolen Beanie~
-G:]:u
-I:32:5:0
-W:20:0:75:75
-A:20/1
-P:5:1d3:0:0:0:0
-
-N:629:& Top Hat~
-G:]:D
-I:32:6:0
-W:40:0:30:200
-A:40/1
-P:6:1d3:0:0:0:0
-
-N:630:& Deerstalker~
-G:]:u
-I:32:7:0
-W:18:2:40:250
-A:18/2:30/10
-P:8:1d2:0:0:0:0
-
-N:631:& Bowler~
-G:]:b
-I:32:8:0
-W:20:3:35:300
-A:20/3:30/10
-P:6:1d8:0:0:0:0
-
-N:632:& green-tinted glasses
-G:]:g
-I:32:9:0
-W:30:5:20:175
-P:0:1d3:0:0:0:0
-F:SHOW_MODS
-
-N:633:& mask~
-G:]:w
-I:32:1:0
-W:15:3:15:48
-P:0:1d0:0:0:0:0
-F:SHOW_MODS
-
-N:634:& Fez~
+N:181:& Woolen Beanie~
 G:]:u
 I:32:4:0
-W:18:0:75:200
-A:18/1
+W:4:0:10:14
+A:4/20:45/0
 P:3:0d0:0:0:0:0
+D:This is a pullover head covering made of wool.
+
+N:182:& Top Hat~
+G:]:D
+I:32:6:0
+W:10:0:30:60
+A:10/30:50/5
+P:4:1d3:0:0:0:0
+D:This hat is 8-10 inches high, made of either black silk 
+D:or felt. There were several different designs from the Abe 
+D:Lincoln, the Beau, or even the Uncle Sam.
+
+N:183:& Deerstalker~
+G:]:u
+I:32:8:0
+W:15:2:20:55
+A:15/10:30/40
+P:5:1d2:0:0:0:0
+D:This is a hat with a black(or brown)-and-white "houndstooth" pattern. 
+D:It is double billed and has ear flaps with a tie at the top.
+
+N:184:& Bowler~
+G:]:b
+I:32:10:0
+W:13:3:15:90
+A:20/10:40/40
+P:6:1d2:0:0:0:0
+D:The classic felt or wool bowler. With a curved brim and a
+D:rounded top it is a stylish addition to any outfit.
+
+N:185:& Fez~
+G:]:u
+I:32:12:0
+W:18:0:75:100
+A:18/20
+P:7:0d0:0:0:0:0
+D:This is a Turkish heavy wool hat with a tassel.
+
+N:186:& Pair~ of Spectacles
+G:]:w
+I:32:13:0
+W:10:0:5:300
+P:0:0d0:1:0:0:0
+D:A thick pair of glasses.
+
+N:187:& Mask~
+G:]:w
+I:32:14:0
+W:8:0:15:48
+P:0:1d0:0:0:0:0
+F:INSTA_ART
+
+N:188:& Green-tinted Glasses
+G:]:g
+I:32:16:0
+W:10:0:20:175
+P:0:1d3:0:0:0:0
+F:INSTA_ART
+
+N:189:& Crown~
+G:]:y
+I:32:18:0
+W:35:0:30:1000
+P:0:1d3:0:0:0:0
+F:INSTA_ART
+
+## The Eye of Ra
+
+N:190:& Eye~
+G:":w
+I:32:20:0
+W:12:0:3:20000
+F:INSTA_ART
+
 
 ########################
-# N:635 - N:675 Unused #
+# N:188 - N:199 Unused #
 ########################
 
 ######## Crowns ########
 
-N:676:& Iron Crown~
-G:]:s
-I:33:10:0
-W:45:0:20:500
-A:45/1
-P:0:1d1:0:0:0:0
+########################
+###### The pants #######
+## (formerly shields) ##
+########################
 
-N:677:& Golden Crown~
-G:]:y
-I:33:11:0
-W:45:0:30:1000
-A:45/1
-P:0:1d1:0:0:0:0
-F:IGNORE_ACID
+N:200:& Pair~ of Hose
+G:):U
+I:34:2:0
+W:1:0:5:30
+A:1/30:20/0
+P:1:1d1:0:0:0:0
+D:A simple pair of skintight hose. 
 
-N:678:& Jewel Encrusted Crown~
-G:]:v
-I:33:12:0
-W:50:0:40:2000
-A:50/1
-P:0:1d1:0:0:0:0
-F:IGNORE_ACID
+N:201:& Pair~ of Trousers
+G:):U
+I:34:3:0
+W:2:0:15:35
+A:2/50
+P:2:1d1:0:0:0:0
+D:A pair of cloth trousers. 
 
-N:679:& Massive Iron Crown~
-G:]:D
-I:33:50:0
-W:44:0:20:1000
-P:0:1d1:0:0:0:0
+N:202:& Pair~ of Breeches
+G:):s
+I:34:4:0
+W:5:0:15:50
+A:5/30
+P:3:1d1:0:0:0:0
+D:A pair of breeches often used while sailing.
+
+N:203:& Pair~ of Pantaloons
+G:):s
+I:34:5:0
+W:10:0:20:200
+A:10/35
+P:4:1d1:0:0:0:0
+D:A pair of pantaloons.
+
+N:204:& Set~ of Petticoats
+G:[:B
+I:34:10:0
+W:8:0:30:400
+A:8/30
+P:5:1d1:0:0:10:0
+D:A dainty set of petticoats.
+
+N:205:& Bull's Tail
+G:[:U
+I:34:16:0
+W:20:0:30:1400
+P:5:1d1:0:0:10:0
 F:INSTA_ART
 
 ########################
-# N:680 - N:725 Unused #
+# N:205 - N:209 Unused #
 ########################
 
-###### The pants (formerly shields) #######
-
-N:726:& Pair~ of Hose
-G:):U
-I:34:2:0
-W:3:0:20:30
-A:3/1
-P:2:1d1:0:0:0:0
-
-N:727:& Pair~ of Pants
-G:):U
-I:34:4:0
-W:15:0:30:120
-A:15/1
-P:2:1d2:0:0:0:0
-
-N:728:& Pair~ of Breeches
-G:):s
-I:34:3:0
-W:10:0:45:50
-A:10/1
-P:3:1d2:0:0:0:0
-
-N:729:& Pair~ of Pantaloons
-G:):s
-I:34:5:0
-W:30:0:60:200
-A:30/1
-P:4:1d3:0:0:0:0
-
-N:730:& Set~ of Petticoats
-G:[:B
-I:34:10:0
-W:70:0:80:400
-A:70/8
-P:5:1d1:0:0:10:0
-
-########################
-# N:731 - N:775 Unused #
-########################
-
+##################
 ### The Cloaks ###
+##################
 
-N:776:& Cloak~
+N:210:& Cloak~
 G:(:g
 I:35:1:0
 W:1:0:10:3
-A:1/1:20/1
+A:1/40:20/60
 P:1:0d0:0:0:0:0
+D:A traveller's sturdy outer garment.
 
-N:777:& Shadow Cloak~
+N:211:& Shadow Cloak~
 G:(:D
 I:35:6:0
-W:60:0:5:4000
-A:60/4
+W:28:0:5:4000
+A:28/18
 P:6:0d0:0:0:4:0
+D:A midnight-hued cloak that wreathes the wearer in folds of shadow. 
 
-N:778:& Fur Cloak~
+N:212:& Fur Cloak~
 G:(:s
 I:35:2:0
-W:1:0:10:280
-A:1/1:20/1
+W:5:0:10:180
+A:5/5:20/30
 P:3:0d0:0:0:0:0
+O:0:0:0:0:0:10:0:0:0:0:0:0:0:0:0:0:0
+D:A rich fur coat that provides some protection from the cold. 
+
+N:213:& Mantle~
+G:(:r
+I:35:8:0
+W:10:0:15:300
+P:4:0d0:0:0:0:0
+O:5:0:0:0:0:5:0:0:0:0:0:0:0:0:0:0:0
+D:A piece of clothing, similar to a robe but open on the front side.
 
 ########################
-# N:779 - N:800 Unused #
+# N:213 - N:214 Unused #
 ########################
 
 ### Light Armours ###
 
-N:801:& Robe~
-G:(:b
-I:36:2:0
-W:1:0:20:4
-A:1/1:50/1
-P:2:0d0:0:0:0:0
-
-N:802:& Filthy Rag~
+N:215:& Filthy Rag~
 G:(:D
 I:36:1:0
 W:0:0:20:1
-A:0/1
+A:0/20:5/0
 P:1:0d0:0:0:-1:0
+D:This tattered rag appears to once have been a robe, but has been patched 
+D:and re-patched so many times that you can't be sure.
 
-N:803:& Leather Waistcoat~
+N:216:& Robe~
+G:(:b
+I:36:2:0
+W:1:0:20:4
+A:1/50
+P:2:0d0:0:0:0:0
+D:A practical garment of thick wool or velvet, draping from neck to heels.
+
+N:217:& Satin Smoking Jacket~
+G:[:r
+I:36:3:0
+W:5:0:20:52
+A:5/20:40/8
+P:2:0d0:0:0:0:0
+D:This is an elegant satin jacket often worn over clothes to 
+D:protect them from smelling like smoke. This jacket is the 
+D:perfect acessory for cigars and brandy.
+
+N:218:& Leather Waistcoat~
 G:(:U
 I:36:4:0
-W:3:0:80:18
-A:3/1
+W:3:0:30:18
+A:3/30:40/10
 P:4:0d0:0:0:0:0
+D:A simple leather waistcoat. As coats, trousers and waistcoats in 
+D:matching cloth became more popular the fashion for patterned or 
+D:embroidered silk waistcoats declined, though checked, striped 
+D:or tartan woollen, often with wide lapels, continued.
 
-N:804:& Leather Waistcoat~ and Vest~
+N:219:& Fancy Silk Vest~
+G:[:W
+I:36:5:0
+W:15:0:30:300
+A:15/10
+P:3:0d0:0:0:0:0
+D:This is a fancy silk vest.
+
+N:220:& Leather Waistcoat~ and Vest~
 G:(:U
 I:36:6:0
-W:3:0:90:35
-A:3/1
+W:5:0:35:35
+A:5/30:30/10
 P:5:1d1:0:0:0:0
+D:A normal leather waistcoat, but with an interior woollen vest 
+D:and undershirt.
 
-N:805:& Heavy Jacket~
+N:221:& All Wool Spring Overcoat~
+G:[:u
+I:36:7:0
+W:15:0:60:250
+A:15/40:40/20
+P:6:2d4:-1:0:0:0
+D:This overcoat is made of a sturdy wool, though it is not very warm. 
+
+N:222:& Heavy Jacket~
 G:(:U
 I:36:8:0
-W:5:0:100:150
-A:5/1
-P:6:1d1:-1:0:0:0
+W:7:0:80:150
+A:7/40:50/20
+P:6:0d0:-1:0:0:0
+D:A heavy jacket made from wool.
 
-N:806:& Heavy Trenchcoat~
+N:223:& French Percale Shirt~
+G:[:w
+I:36:9:0
+W:25:0:15:700
+A:25/15
+P:6:0d0:0:0:0:0
+D:This is a high class French percale shirt.
+
+N:224:& Heavy Trenchcoat~
 G:(:s
 I:36:10:0
 W:10:0:110:200
-A:10/1
+A:10/30
 P:7:1d2:-1:0:0:0
+D:A heavy ankle-length trenchcoat
 
-N:807:& Tweed Jacket~
+N:225:& Tweed Jacket~
 G:(:U
 I:36:12:0
-W:15:0:140:450
-A:15/1
+W:15:0:30:450
+A:15/30
 P:11:1d1:0:0:0:0
-
-N:808:& All Wool Spring Overcoat~
-G:[:u
-I:36:7:0
-W:15:0:80:250
-A:35/1
-P:6:2d4:-1:0:0:0
-
-N:809:& Satin Smoking Jacket~
-G:[:r
-I:36:3:0
-W:5:0:40:120
-A:20/1:40/1
-P:2:1d1:0:0:0:0
-
-N:810:& Fancy Silk Vest~
-G:[:W
-I:36:5:1
-W:30:0:30:3000
-A:60/4:10:8
-P:3:2d4:0:0:0:0
-F:CHR
-
-N:811:& French Percale Shirt~
-G:[:w
-I:36:9:0
-W:8:0:150:7000
-A:55/4:30/2
-P:6:1d4:0:0:0:0
+D:This is a sharp looking jacket with a woolen tweed pattern.
 
 ########################
-# N:812 - N:850 Unused #
+# N:225 - N:229 Unused #
 ########################
 
 #### Medium Armours ####
 
-N:851:& Officer's Uniform~
+N:230:& Officer's Uniform~
 G:[:s
 I:37:1:0
-W:25:0:150:550
-A:25/1
-P:13:1d4:0:0:0:0
+W:20:0:100:550
+A:25/15
+P:13:1d2:0:0:0:0
+D:An officer's uniform. It provides a good deal of mobility and 
+D:protection.
 
-N:852:& Hunter's Uniform~
+N:231:& Hunter's Uniform~
 G:[:s
 I:37:3:0
 W:25:0:120:750
-A:25/1
-P:14:1d4:0:0:0:0
+A:15/35
+P:14:1d2:0:0:0:0
+D:This is a set of gear often worn while hunting. Hard to 
+D:find, but very protective.
 
-N:853:& Pea Jacket~
+N:232:& Pea Jacket~
 G:[:g
 I:37:4:0
-W:25:0:100:550
-A:25/1
-P:12:1d4:0:0:0:0
+W:18:0:90:550
+A:18/30
+P:12:1d2:0:0:0:0
+D:This is a heavy woolen double-breasted jacket originally 
+D:worn by sailors.
 
-N:854:& Tweed Suit~
+N:233:& Tweed Suit~
 G:[:u
 I:37:6:0
-W:30:0:270:900
-A:30/1
+W:20:0:90:900
+A:20/20
 P:16:1d4:-1:0:0:0
+D:This is a classy suit with a tweed pattern. It may restrict 
+D:your movement a little, but it provides above average protection.
 
-N:855:& Prince Albert Suit~
-G:[:b
-I:37:20:0
-W:35:0:320:1950
-A:35/1
-P:24:1d4:-2:0:0:0
-
-N:856:& Professional Suit~
+N:234:& Professional Suit~
 G:[:U
 I:37:8:0
-W:35:0:290:1100
-A:35/1
+W:30:0:100:1100
+A:30/15
 P:18:1d4:-3:0:0:0
+D:This is a high-class professional suit. It is quite restricting 
+D:but provides a good defense by intimidating those you come across 
+D:making it more difficult for them to hit you.
 
-N:857:& Clay Worsted Dress Suit~
+N:235:& Clay Worsted Dress Suit~
 G:[:W
 I:37:10:0
-W:20:0:320:900
-A:45/1
-P:18:1d6:-4:0:0:0
+W:35:0:110:900
+A:35/25
+P:20:1d6:-4:0:0:0
+D:This nice suit is made from a smooth compact yarn using 
+D:long wool fibers often used especially for firm napless fabrics, 
+D:carpeting, or knitting. As such it provides a lot of protection 
+D:and inhibits your movement
 
-N:858:& Vicuna Cheviot Dress Suit~
+N:236:& Vicuna Cheviot Dress Suit~
 G:[:R
 I:37:12:0
-W:45:0:340:1250
-A:45/1
+W:35:0:120:1250
+A:30/30
 P:20:1d6:-2:0:0:0
+D:Vicuna hair is shorn from a mammal that is a member of the camel family. 
+D:It has a very rugged, harsh, uneven surface that does not hold a crease 
+D:and sags with wear. Resembles serge but is much more rugged and coarse 
+D:and will not shine because of the rough surface.
 
-#N:859:Double Chain Mail~
-#G:[:s
-#I:37:7:0
-#W:30:0:250:850
-#A:30/1
-#P:16:1d4:-2:0:0
-
-N:860:& Coal Suit~
+N:237:& Coal Suit~
 G:[:D
 I:37:16:0
-W:25:0:320:1950
-A:25/1
+W:42:0:320:1950
+A:42/10
 P:30:1d4:-4:0:0:0
+O:8:8:8:8:0:10:5:5:0:0:0:0:0:0:0:0:0
+D:This coal suit provides some protection from the elements.
+
+N:238:& Prince Albert Suit~
+G:[:b
+I:37:20:0
+W:35:0:120:1950
+A:35/10:50/30
+P:24:1d4:-2:0:0:0
+D:A dashing Prince Albert suit.
+
 
 ########################
-# N:861 - N:880 Unused #
+# N:239 - N:249 Unused #
 ########################
 
+##################
 ##### Lights #####
+##################
 
-N:880:& Wooden Torch~
+N:250:& Wooden Torch~
 G:~:u
 I:39:0:4000
-W:5:0:10:10
+W:3:0:8:10
+A:1/5:25/70:50/10
+M:90:4d3
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
+D:A wooden firebrand wrapped in oil-soaked rags.  It can be quite bright, 
+D:but only when well-fueled.  Torches can be refueled with other torches.
 
-N:881:& Brass Lantern~
+N:251:& Brass Lantern~
 G:~:U
 I:39:1:7500
-W:15:1:50:35
+W:2:1:50:35
+A:2/2:12/50:45/10
 P:0:1d1:0:0:0:0
-F:EASY_KNOW | IGNORE_FIRE
+F:EASY_KNOW 
+D:The standard portable light source; it requires oil to operate.
 
-N:882:& Taper~
+N:252:& Taper~
 G:~:u
 I:39:2:1000
-W:1:0:4:1
+W:0:0:4:1
+A:1/60:5/0
+M:80:5d4
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
+D:A thin cord dipped in hot wax several times to produce a quick burning 
+D:narrow candle.
 
-N:883:& Candle~
+N:253:& Wax Candle~
 G:~:u
 I:39:3:4000
 W:2:0:6:3
+A:3/5:10/60:20/0
+M:90:3d5
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
+D:A small container filled with wax and a wick.
 
-## The Pocket Lantern of Sherlock Holmes -- see artifact list
-
-N:884:& Pocket Lantern~
-G:~:y
-I:39:4:2
-W:1:0:10:10000
+N:254:& Tallow Candle~
+G:~:u
+I:39:4:4000
+W:4:0:6:3
+A:5/5:15/50:30/0
+M:90:3d5
 P:0:1d1:0:0:0:0
-F:INSTA_ART
+F:EASY_KNOW
+D:A small container filled with animal fat and tallow. By 
+D:lighting the top it provides a rich orange light.
 
 ## The Electric Lamp of Edison -- see artifact list
 
-N:885:& Electric Lamp~
+N:255:& Electric Lamp~
 G:~:y
 I:39:5:0
-W:30:0:5:25000
+W:8:0:5:25000
+P:0:1d1:0:0:0:0
+F:INSTA_ART
+
+## The Pocket Lantern of Sherlock Holmes -- see artifact list
+
+N:256:& Pocket Lantern~
+G:~:y
+I:39:6:2
+W:12:0:10:10000
 P:0:1d1:0:0:0:0
 F:INSTA_ART
 
 ## The Photic Illuminator of Tesla -- see artifact list
 
-N:886:& Photic Illuminator~
+N:257:& Fluorescent Photic Illuminator~
 G:~:y
-I:39:6:0
-W:60:0:5:60000
+I:39:7:0
+W:30:0:5:60000
 P:0:1d1:0:0:0:0
 F:INSTA_ART
 
-########################
-# N:887  Unused        #
-########################
+#####################
+# N:258-259  Unused #
+#####################
 
+###################
 ##### Amulets #####
+###################
 
-N:888:Ego
-G:":d
-I:40:6:0
-W:20:0:3:500
-A:20/1
-F:EGO | HIDE_TYPE
-
-N:889:Charm
-G:":d
-I:40:7:0
-W:20:0:3:500
-A:20/1
-F:CHR | HIDE_TYPE
-
-N:890:Searching
-G:":d
-I:40:5:0
-W:30:0:3:600
-A:30/4
-F:SEARCH | HIDE_TYPE
-
-N:891:Teleportation
+N:260:Muscle
 G:":d
 I:40:1:0
-W:15:0:3:0
-A:15/1
-F:LIGHT_CURSE | TELEPORT | EASY_KNOW
+W:10:0:3:500
+A:10/50:50/25
+F:MUS | HIDE_TYPE
+D:that enhances your muscle.
 
-N:892:Slow Digestion
-G:":d
-I:40:3:0
-W:15:0:3:200
-A:15/1
-F:SLOW_DIGEST | EASY_KNOW
-
-N:893:Resist Acid
-G:":d
-I:40:4:0
-W:20:0:3:300
-A:20/1
-F:RES_ACID | IGNORE_ACID | EASY_KNOW
-
-N:894:Adornment
+N:261:Agility
 G:":d
 I:40:2:0
-W:15:0:3:20
-A:15/1
-F:EASY_KNOW
+W:10:0:3:500
+A:10/50:50/25
+F:AGI | HIDE_TYPE
+D:that enhances your agility.
 
-N:895:Fancy Adornment
+N:262:Vigor
 G:":d
-I:40:9:0
-W:20:0:3:120
-A:22/1
-F:EASY_KNOW
+I:40:3:0
+W:10:0:3:500
+A:10/50:50/25
+F:VIG | HIDE_TYPE
+D:that enhances your vigor.
 
-N:896:the Magi
+N:263:Ego
+G:":d
+I:40:4:0
+W:10:0:3:500
+A:10/50:50/25
+F:EGO | HIDE_TYPE
+D:that enhances your ego.
+
+N:264:Schooling
+G:":d
+I:40:5:0
+W:10:0:3:500
+A:10/50:50/25
+F:SCH | HIDE_TYPE
+D:that enhances your schooling.
+
+N:265:Charm
+G:":d
+I:40:6:0
+W:8:0:3:500
+A:8/50:50/25
+F:CHR | HIDE_TYPE
+D:that enhances your charm.
+
+N:266:Adornment
+G:":d
+I:40:7:0
+W:1:0:3:20
+A:1/50:15/0
+F:EASY_KNOW
+D:that is worth a little money.
+
+N:267:Fancy Adornment
 G:":d
 I:40:8:0
-W:50:0:3:30000
-A:50/4
-P:0:0d0:0:0:3:0
-F:FREE_ACT | SEE_INVIS | SEARCH |
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+W:5:0:3:100
+A:5/50:20/0
+F:EASY_KNOW
+D:that is worth some money.
 
-N:897:DOOM
+N:268:Gold
 G:":d
-I:40:0:-5
-W:50:0:3:0
-A:50/1
-F:LIGHT_CURSE | MUS | SCH | EGO | AGI | VIG | CHR | HIDE_TYPE
+I:40:9:0
+W:10:0:3:300
+A:10/50:25/0
+F:EASY_KNOW
+D:that is worth a lot of money.
+
+N:269:Hunger Deterrent
+G:":d
+I:40:10:0
+W:1:0:3:200
+A:1/80:5/40:30/0
+F:SLOW_DIGEST | EASY_KNOW
+D:that slows your hunger.
+
+N:270:Stealth
+G:":d
+I:40:11:200
+W:15:0:3:600
+A:15/50:50/10
+F:STEALTH | HIDE_TYPE
+D:that increases your stealth.
+
+N:271:Perception
+G:":d
+I:40:12:0
+W:1:0:3:600
+A:1/10:10/40
+F:SEARCH | HIDE_TYPE
+D:that increases your searching ability.
+
+N:272:Mana
+G:":d
+I:40:13:0
+W:10:0:3:600
+A:10/5:30/50
+F:MANA | HIDE_TYPE
+D:that increases your mana.
+
+N:273:Health
+G:":d
+I:40:14:0
+W:10:0:3:600
+A:10/5:30/50
+F:HEALTH | HIDE_TYPE
+D:that increases your health.
+
+N:274:Good Fortune
+G:":d
+I:40:15:0
+W:5:0:3:600
+A:5/5:30/40
+F:SAVE | HIDE_TYPE
+D:that increases your saving throw.
+
+N:275:Shadow
+G:":d
+I:40:16:0
+W:30:0:3:22600
+A:30/10:40/20
+F:STEALTH | WRAITH | HIDE_TYPE
+D:that renders your form insubstantial.
+
+N:276:Regeneration
+G:":d
+I:40:17:0
+W:5:0:3:600
+A:5/10:20/30:30/0
+F:REGEN_25 | HIDE_TYPE | EASY_KNOW
+D:that increases your regeneration.
+
+N:277:*Regeneration*
+G:":d
+I:40:20:0
+W:20:0:3:1200
+A:20/5:35/10:45/0
+F:REGEN_25 | REGEN_75 | HIDE_TYPE | EASY_KNOW
+D:that greatly increases your regeneration.
+
+N:278:**Regeneration**
+G:":d
+I:40:22:0
+W:40:0:3:3600
+A:40/3:45/5:50/0
+F:REGEN_25 | REGEN_75 | REGEN_50 | HIDE_TYPE | EASY_KNOW
+D:that greatly increases your regeneration.
+
+N:279:the Magi
+G:":d
+I:40:23:0
+W:40:0:3:7200
+A:40/12
+F:MANA | MAGIC_MASTER |
+F:FREE_ACT | SEE_INVIS | RES_BLIND | RES_CONFU | HIDE_TYPE |
+D:that bears powerful enchantments to see the unseen, and to render you clear 
+D:of mind and eye against even the most powerful of dark magics.
 
 ## The Amulet of Arbaces
 #Arbaces was created by Edward Bulwer-Lytton and appeared in The Last Days of 
 #Pompeii (1834)
-N:898:& Amulet~
+N:280:& Amulet~
 G:":d
-I:40:10:3
-W:50:10:3:160000
+I:40:24:0
+W:25:10:3:160000
 F:INSTA_ART
 
 ## The Amulet of John Dee -- see artifact list
 
-N:899:& Mystical Amulet~
+N:281:& Mystical Amulet~
 G:":d
-I:40:11:0
-W:60:0:3:90000
+I:40:25:0
+W:30:0:3:90000
 F:INSTA_ART
 
 ## The Nemo's Nautilus
 
-N:900:& Nautilus~
+N:282:& Nautilus~
 G:":d
-I:40:12:0
-W:70:0:3:75000
+I:40:26:0
+W:35:0:3:75000
+F:INSTA_ART
+
+## The Pectoral of the Scarab
+N:283:& Pectoral~
+G:":d
+I:40:27:0
+W:12:0:3:40000
+F:INSTA_ART
+
+## The Locket of Madame Defarge
+N:284:& Locket~
+G:":d
+I:40:28:0
+W:19:0:3:14000
 F:INSTA_ART
 
 ########################
-# N:901 - N:925 Unused #
+# N:283 - N:299 Unused #
 ########################
 
 ### Rings ###
 
-N:926:Muscle
-G:=:d
-I:45:24:0
-W:30:0:2:500
-A:30/1
-F:MUS | HIDE_TYPE
-
-N:927:Agility
-G:=:d
-I:45:26:0
-W:30:0:2:500
-A:30/1
-F:AGI | HIDE_TYPE
-
-N:928:Vigor
-G:=:d
-I:45:27:0
-W:30:0:2:500
-A:30/1
-F:VIG | HIDE_TYPE
-
-N:929:Mental Aptitude
-G:=:d
-I:45:25:0
-W:30:0:2:500
-A:30/1
-F:SCH | HIDE_TYPE
-
-N:930:Celerity
-G:=:d
-I:45:31:0
-W:80:0:2:100000
-A:80/1
-F:SPEED | HIDE_TYPE
-
-N:931:Searching
-G:=:d
-I:45:23:0
-W:5:0:2:250
-A:5/1
-F:SEARCH | HIDE_TYPE
-
-N:932:Etheric Travel
-G:=:d
-I:45:4:0
-W:5:0:2:0
-A:5/1
-F:LIGHT_CURSE | TELEPORT | EASY_KNOW
-
-N:933:Hunger Deterrent
-G:=:d
-I:45:6:0
-W:5:0:2:250
-A:5/1
-F:SLOW_DIGEST | EASY_KNOW
-
-N:934:Resist Fire
-G:=:d
-I:45:8:0
-W:10:0:2:250
-A:10/1
-F:RES_FIRE | IGNORE_FIRE | EASY_KNOW
-
-N:935:Resist Cold
-G:=:d
-I:45:9:0
-W:10:0:2:250
-A:10/1
-F:RES_COLD | IGNORE_COLD | EASY_KNOW
-
-N:936:Feather Falling
-G:=:d
-I:45:7:0
-W:5:0:2:200
-A:5/1
-F:FEATHER | EASY_KNOW
-
-N:937:Poison Resistance
-G:=:d
-I:45:20:0
-W:40:0:2:16000
-A:40/2
-F:RES_POIS | EASY_KNOW
-
-N:938:Freedom of Mobility
-G:=:d
-I:45:21:0
-W:20:0:2:1500
-A:20/1
-F:FREE_ACT | EASY_KNOW
-
-N:939:Weakness
-G:=:d
-I:45:2:-5
-W:5:0:2:0
-A:5/1
-F:LIGHT_CURSE | MUS | HIDE_TYPE
-
-N:940:Flames
-G:=:d
-I:45:18:0
-W:50:0:2:3000
-A:50/1
-P:0:0d0:0:0:15:0
-F:RES_FIRE | IGNORE_FIRE
-
-N:941:Acid
-G:=:d
-I:45:17:0
-W:50:0:2:3000
-A:50/1
-P:0:0d0:0:0:15:0
-F:RES_ACID | IGNORE_ACID
-
-N:942:Ice
-G:=:d
-I:45:19:0
-W:50:0:2:3000
-A:50/1
-P:0:0d0:0:0:15:0
-F:RES_COLD | IGNORE_COLD
-
-N:943:Woe
-G:=:d
-I:45:0:-5
-W:50:0:2:0
-A:50/1
-F:LIGHT_CURSE | TELEPORT | EGO | CHR | HIDE_TYPE
-
-N:944:Stupidity
-G:=:d
-I:45:3:-5
-W:5:0:2:0
-A:5/1
-F:LIGHT_CURSE | SCH | HIDE_TYPE
-
-N:945:Damage
-G:=:d
-I:45:29:0
-W:20:0:2:500
-A:20/1
-
-N:946:Accuracy
-G:=:d
-I:45:28:0
-W:20:0:2:500
-A:20/1
-
-N:947:Protection
-G:=:d
-I:45:16:0
-W:10:0:2:500
-A:10/1
-
-N:948:Aggravate Monster
+N:300:Muscle
 G:=:d
 I:45:1:0
-W:5:0:2:0
-A:5/1
-F:LIGHT_CURSE | AGGRAVATE | EASY_KNOW
+W:15:0:2:500
+A:15/40
+F:MUS | HIDE_TYPE 
+D:that enhances your muscle.
 
-N:949:See Invisible
+N:301:Agility
 G:=:d
-I:45:22:0
-W:30:0:2:340
-A:30/1
-F:SEE_INVIS | EASY_KNOW
+I:45:2:0
+W:15:0:2:500
+A:15/40
+F:AGI | HIDE_TYPE 
+D:that enhances your agility.
 
-N:950:Sustain Muscle
+N:302:Vigor
+G:=:d
+I:45:3:0
+W:15:0:2:500
+A:15/40
+F:VIG | HIDE_TYPE 
+D:that enhances your vigor.
+
+N:303:Schooling
+G:=:d
+I:45:4:0
+W:15:0:2:500
+A:15/40
+F:SCH | HIDE_TYPE 
+D:that enhances your schooling.
+
+N:304:Ego
+G:=:d
+I:45:5:0
+W:15:0:2:500
+A:15/40
+F:EGO | HIDE_TYPE 
+D:that enhances your ego.
+
+N:305:Charm
+G:=:d
+I:45:6:0
+W:15:0:2:500
+A:15/40
+F:CHR | HIDE_TYPE 
+D:that enhances your charm.
+
+N:306:Sustain Muscle
+G:=:d
+I:45:7:0
+W:5:0:2:750
+A:5/10
+F:SUST_MUS | HIDE_TYPE | EASY_KNOW
+D:that sustains your muscle.
+
+N:307:Sustain Agility
+G:=:d
+I:45:8:0
+W:5:0:2:750
+A:5/10
+F:SUST_AGI | HIDE_TYPE | EASY_KNOW
+D:that sustains your agility.
+
+N:308:Sustain Vigor
+G:=:d
+I:45:9:0
+W:5:0:2:750
+A:5/10
+F:SUST_VIG | HIDE_TYPE | EASY_KNOW
+D:that sustains your vigor.
+
+N:309:Sustain Knowledge
 G:=:d
 I:45:10:0
-W:30:0:2:750
-A:30/1
-F:SUST_MUS | EASY_KNOW
+W:5:0:2:600
+A:5/10
+F:SUST_SCH | HIDE_TYPE | EASY_KNOW
+D:that sustains your knowledge.
 
-N:951:Sustain Knowledge
+N:310:Sustain Ego
 G:=:d
 I:45:11:0
-W:30:0:2:600
-A:30/1
-F:SUST_SCH | EASY_KNOW
+W:5:0:2:600
+A:5/10
+F:SUST_EGO | HIDE_TYPE | EASY_KNOW
+D:that sustains your ego.
 
-N:952:Sustain Ego
+N:311:Sustain Charm
 G:=:d
 I:45:12:0
-W:30:0:2:600
-A:30/1
-F:SUST_EGO | EASY_KNOW
+W:5:0:2:500
+A:5/10
+F:SUST_CHR | HIDE_TYPE | EASY_KNOW
+D:that sustains your charm.
 
-N:953:Sustain Vigor
+N:312:Protection
 G:=:d
 I:45:13:0
-W:30:0:2:750
-A:30/1
-F:SUST_VIG | EASY_KNOW
+W:1:0:2:500
+A:1/30
+O:8:8:8:8:5:5:5:5:0:0:0:0:10:10:0:0:0
+F:HIDE_TYPE 
+D:that provides protection from blows and minor resistance 
+D:to many different elements.
 
-N:954:Sustain Agility
+N:313:Resist Fire
 G:=:d
 I:45:14:0
-W:30:0:2:750
-A:30/1
-F:SUST_AGI | EASY_KNOW
+W:1:0:2:250
+A:1/60:10/0
+O:40:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:HIDE_TYPE | EASY_KNOW
+D:that provides resistance to fire.
 
-N:955:Sustain Charm
+N:314:Resist Earth
 G:=:d
 I:45:15:0
-W:30:0:2:500
-A:30/1
-F:SUST_CHR | EASY_KNOW
+W:3:0:2:250
+A:3/60:12/0
+O:0:40:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:HIDE_TYPE | EASY_KNOW
+D:that provides resistance to earth.
 
-N:956:Slaying
+N:315:Resist Air
+G:=:d
+I:45:16:0
+W:5:0:2:250
+A:5/60:14/0
+O:0:0:40:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:HIDE_TYPE | EASY_KNOW
+D:that provides resistance to air.
+
+N:316:Resist Water
+G:=:d
+I:45:17:0
+W:7:0:2:250
+A:7/60:16/0
+O:0:0:0:40:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:HIDE_TYPE | EASY_KNOW
+D:that provides resistance to water.
+
+N:317:Resist Lightning
+G:=:d
+I:45:18:0
+W:9:0:2:250
+A:9/60:18/0
+O:0:0:0:0:40:0:0:0:0:0:0:0:0:0:0:0:0
+F:HIDE_TYPE | EASY_KNOW
+D:that provides resistance to electricty.
+
+N:318:Resist Ice
+G:=:d
+I:45:19:0
+W:11:0:2:250
+A:11/60:20/0
+O:0:0:0:0:0:40:0:0:0:0:0:0:0:0:0:0:0
+F:HIDE_TYPE | EASY_KNOW
+D:that provides resistance to ice.
+
+N:319:Resist Acid
+G:=:d
+I:45:20:0
+W:13:0:2:250
+A:13/60:22/0
+O:0:0:0:0:0:0:40:0:0:0:0:0:0:0:0:0:0
+F:HIDE_TYPE | EASY_KNOW
+D:that provides resistance to acid.
+
+N:320:Resist Poison
+G:=:d
+I:45:21:0
+W:15:0:2:250
+A:15/60:24/0
+O:0:0:0:0:0:0:0:40:0:0:0:0:0:0:0:0:0
+F:HIDE_TYPE | EASY_KNOW
+D:that provides resistance to poison.
+
+N:321:Hunger Deterrent
+G:=:d
+I:45:22:0
+W:1:0:2:250
+A:1/50:20/0
+F:SLOW_DIGEST | HIDE_TYPE | EASY_KNOW
+D:that slows down digestion of food.
+
+N:322:Feather Falling
+G:=:d
+I:45:23:0
+W:5:0:2:200
+A:5/50:25/0
+F:FEATHER | HIDE_TYPE | EASY_KNOW
+D:that makes you as light as a feather.
+
+N:323:Freedom of Mobility
+G:=:d
+I:45:24:0
+W:9:0:2:1500
+A:6/10:20/50:40/0
+F:FREE_ACT | HIDE_TYPE | EASY_KNOW
+D:that makes you immune to paralysis.
+
+N:324:See Invisible
+G:=:d
+I:45:25:0
+W:20:0:2:340
+A:10/5:20/40:35/0
+F:SEE_INVIS | HIDE_TYPE | EASY_KNOW
+D:that allows you to see invisible creatures.
+
+N:325:Resist Bewilderment
+G:=:d
+I:45:26:0
+W:2:0:2:500
+A:1/5:9/100:18/0
+F:RES_CONFU | HIDE_TYPE | EASY_KNOW
+D:that prevents you from being confused.
+
+#####
+##### N:xxx sval 27 open #####
+##############################
+
+N:327:Stealth
+G:=:d
+I:45:28:0
+W:12:0:2:600
+A:12/5:24/60:36/30
+F:STEALTH | HIDE_TYPE 
+D:that adds to your stealth.
+
+N:328:Perception
+G:=:d
+I:45:29:0
+W:4:0:2:600
+A:4/5:8/60:36/5
+F:SEARCH | HIDE_TYPE 
+D:that adds to your searching ability.
+
+N:329:Accuracy
 G:=:d
 I:45:30:0
-W:40:0:2:1000
-A:40/1
-F:SHOW_MODS
+W:10:0:2:500
+A:10/30
+D:that increases your ability to hit opponents.
 
-#Whoops, lost the comment. Not sure what this is.
+N:330:Damage
+G:=:d
+I:45:31:0
+W:20:0:2:500
+A:20/20
+D:that increases your ability to damage opponents.
 
-N:957:& Ring~
+N:331:Slaying
 G:=:d
 I:45:32:0
-W:50:0:2:35000
+W:30:0:2:800
+A:30/10
+F:SHOW_MODS
+D:that increases your ability to hit & damage opponents.
+
+N:332:Celerity
+G:=:d
+I:45:33:0
+W:40:0:2:100000
+A:40/5:45/30
+F:SPEED | HIDE_TYPE 
+D:that increases your speed.
+
+N:333:Mana
+G:=:d
+I:45:34:0
+W:40:0:2:60000
+A:40/5:45/30
+F:MANA | HIDE_TYPE 
+D:that increases your mana.
+
+N:334:Health
+G:=:d
+I:45:35:0
+W:40:0:2:60000
+A:40/5:45/30
+F:HEALTH | HIDE_TYPE 
+D:that increases your health.
+
+N:335:Woe
+G:=:d
+I:45:36:-5
+W:25:0:2:0
+A:25/60:40/10
+F:LIGHT_CURSE | TELEPORT | EGO | CHR | HIDE_TYPE | EASY_KNOW
+D:that brings great sorrow.
+
+N:336:Aggravate Monster
+G:=:d
+I:45:37:0
+W:8:0:2:0
+A:1/15
+F:LIGHT_CURSE | AGGRAVATE | HIDE_TYPE | EASY_KNOW
+D:that emits several very irritating noises.
+
+N:337:Weakness
+G:=:d
+I:45:38:-5
+W:5:0:2:0
+A:1/15
+F:LIGHT_CURSE | MUS | VIG | HIDE_TYPE | EASY_KNOW
+D:that brings great weakness.
+
+N:338:Stupidity
+G:=:d
+I:45:39:-5
+W:5:0:2:0
+A:5/30:20/0
+F:LIGHT_CURSE | SCH | EGO | HIDE_TYPE | EASY_KNOW
+D:that brings great ignorance.
+
+N:339:Etheric Travel
+G:=:d
+I:45:40:0
+W:5:0:2:0
+A:5/60:30/0
+F:LIGHT_CURSE | TELEPORT | EASY_KNOW
+D:that randomly teleports you.
+
+
+#N:940:Flames
+#G:=:d
+#I:45:18:0
+#W:50:0:2:3000
+#A:50/1
+#P:0:0d0:0:0:15:0
+#O:60:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+
+#N:941:Acid
+#G:=:d
+#I:45:17:0
+#W:50:0:2:3000
+#A:50/1
+#P:0:0d0:0:0:15:0
+#O:0:0:0:0:0:0:60:0:0:0:0:0:0:0:0:0:0
+
+#N:942:Ice
+#G:=:d
+#I:45:19:0
+#W:50:0:2:3000
+#A:50/1
+#P:0:0d0:0:0:15:0
+#O:0:0:0:0:0:60:0:0:0:0:0:0:0:0:0:0:0
+
+
+#Ring of MATERIALISMUS.
+
+N:340:& Ring~
+G:=:d
+I:45:41:0
+W:25:0:2:35000
 F:INSTA_ART
 
 ## The Ring of Edison -- see artifact list
 
-N:958:& Ring~
+N:341:& Ring~
 G:=:d
-I:45:33:0
-W:80:0:2:150000
+I:45:42:0
+W:35:0:2:150000
 F:INSTA_ART
 
 ## The Ring of Tesla
 
-N:959:& Ring~
+N:342:& Ring~
 G:=:d
-I:45:34:0
-W:80:0:2:100000
+I:45:43:0
+W:35:0:2:100000
 F:INSTA_ART
 
 ## The Ring of Field Generation
 
-N:960:& Ring~
+N:343:& Ring~
 G:=:d
-I:45:35:0
-W:90:0:2:200000
+I:45:44:0
+W:38:0:2:200000
 F:INSTA_ART
 
-## The Ring of Power (Vilya) -- see artifact list
-#
-#N:961:& Ring~
-#G:=:d
-#I:45:36:0
-#W:100:0:2:300000
-#F:INSTA_ART
-#
-## The Ring of Power (The One Ring) -- see artifact list
-#
-#N:962:& Ring~
-#G:=:y
-#I:45:37:0
-#W:110:0:2:5000000
-#F:INSTA_ART
-
-N:963:Resist Bewilderment
-G:=:r
-I:45:5:0
-W:10:2:2:500
-A:12/1
-F:RES_CONFU | EASY_KNOW
 
 #########################
-# N:964 - N:1025 Unused #
+# N:344 - N:369 Unused #
 #########################
-
-
 #### Automata Parts ###
+#### HACK!!! MECHA sval Determines bonus ###
+#### See Ego_item.txt for further explanation.  ###
+#### Item generator uses sval and pval to determine item bonuses for mecha
+#### parts. ###
 
-N:1026:& Tin Torso~
+N:370:& Tin Torso~
 G:[:W
 I:46:2:1
-W:5:2:200:450
-A:5/2:30/10
+W:2:1:250:500
+A:1/15:2/30:6/0
 P:10:1d2:0:0:0:0
-F:MUS | SCH | EGO | AGI | VIG | CHR
+O:0:0:0:0:0:0:0:120:0:0:0:0:0:0:120:0:120
+F:MECHA_GEN
+D:A torso made from tin.  It is shabby and dented.  There simply must be a
+D: superior replacement.  It is too oddly shaped to wear a jacket or suit.
 
-N:1027:& Copper Torso~
+N:371:& Copper Torso~
 G:[:o
-I:46:4:2
-W:10:2:300:750
-A:10/2:30/10
-P:18:1d2:0:0:0:0
-F:MUS | SCH | EGO | AGI | VIG | CHR
+I:46:4:1
+W:4:1:350:1000
+A:2/15:4/30:8/0
+P:20:1d2:0:0:0:0
+O:10:10:0:0:-10:0:5:120:0:0:0:0:5:0:120:0:120
+F:MECHA_GEN
+D:A torso made from copper - a magnificent conductor, you know.  It is shined
+D: to a pleasant glow.  It is too oddly shaped to wear a jacket or suit.
 
-N:1028:& Bronze Torso~
+N:372:& Bronze Torso~
 G:[:U
-I:46:6:3
-W:15:5:500:1250
-A:15/5:30/10
+I:46:6:1
+W:6:1:350:1500
+A:4/0:6/30:12/0
 P:25:1d2:0:0:0:0
-F:MUS | SCH | EGO | AGI | VIG | CHR
+O:10:10:10:0:5:0:5:120:0:0:0:0:5:0:120:0:120
+F:MECHA_GEN
+D:A torso made from bronze, a deep brown metal that is highly resilient.  It is
+D: too oddly shaped to wear a jacket or suit.
 
-N:1029:& Steel Torso~
-G:[:W
-I:46:8:4
-W:20:5:700:2750
-A:20/5:40/10
+N:373:& Brass Torso~
+G:[:y
+I:46:8:1
+W:8:1:300:2000
+A:6/0:8/30:17/0
 P:35:1d2:0:0:0:0
-F:MUS | SCH | EGO | AGI | VIG | CHR | SLOW_DIGEST
+O:10:10:10:10:5:5:5:120:5:0:0:0:5:5:120:0:120
+F:MECHA_GEN
+D:A torso made from brass.  In the proper light it shines like the forgotten
+D: sun.  It is too oddly shaped to wear a jacket or suit.
 
-N:1030:& Iron Torso~
+N:374:& Iron Torso~
 G:[:D
-I:46:10:5
-W:30:5:1000:4250
-A:30/5:50/10
-P:40:1d2:0:0:0:0
-F:MUS | SCH | EGO | AGI | VIG | CHR | SLOW_DIGEST 
+I:46:10:2
+W:12:1:700:5000
+A:8/0:12/30:22/0
+P:50:1d2:0:0:10:0
+O:15:10:10:10:10:5:5:120:5:0:0:0:10:5:120:5:120
+F:MECHA_GEN | SLOW_DIGEST
+D:A torso made from iron.  It is very heavy, and you just can't seem to keep up
+D: with the rust.  It is too oddly shaped to wear a jacket or suit.
 
-N:1031:& Mithril Torso~
+N:375:& Rubber Torso~
+G:[:g
+I:46:11:2
+W:17:1:200:8000
+A:12/0:17/30:27/0
+P:35:1d2:0:0:0:0
+O:15:15:10:10:50:10:5:120:10:0:5:0:10:10:120:5:120
+F:MECHA_GEN | SLOW_DIGEST
+D:A torso made from rubber.  It squeaks as you move, but you feel very well
+D: insulated.  It is too oddly shaped to wear a jacket or suit.
+
+N:376:& Ceramic Torso~
+G:[:s
+I:46:12:2
+W:22:1:500:11000
+A:17/0:22/30:30/0
+P:45:1d2:0:0:0:0
+O:15:15:15:10:10:10:10:120:10:0:5:5:20:0:120:5:120
+F:MECHA_GEN | SLOW_DIGEST
+D:A torso made from ceramic.  It is very well made, try not to chip it.  It is
+D: too oddly shaped to wear a jacket or suit.
+
+N:377:& Steel Torso~
+G:[:b
+I:46:13:2
+W:27:1:550:14000
+A:22/0:27/30:34/0
+P:50:1d2:0:0:20:0
+O:15:15:15:15:10:10:10:120:10:5:5:5:10:10:120:5:120
+F:MECHA_GEN | SLOW_DIGEST
+D:A torso made from steel.  This impressive piece of craftsmanship makes you
+D: feel better just by wearing it.  It is too oddly shaped to wear a jacket or
+D: suit.
+
+N:378:& Crystal Torso~
+G:[:W
+I:46:14:3
+W:30:1:700:20000
+A:27/0:30/30:38/0
+P:50:1d2:0:0:0:0
+O:20:20:15:15:10:10:15:120:10:5:-20:5:50:50:120:20:120
+F:MECHA_GEN | SLOW_DIGEST | REGEN_25
+D:A torso made from fine crystal.  A master craftsman shaped it out of delicate
+D: crystal.  Loud noises cause it to vibrate ominously.  It is too oddly shaped to
+D: wear a jacket or suit.
+
+N:379:& Aluminium Torso~
 G:[:B
-I:46:12:6
-W:40:10:800:18850
-A:40/10:60/10
-P:60:1d2:0:0:0:0
-F:MUS | SCH | EGO | AGI | VIG | CHR | SLOW_DIGEST | REGEN
+I:46:16:3
+W:34:1:300:25000
+A:30/0:34/30:38/10
+P:40:1d2:0:0:0:0
+O:20:20:20:15:15:10:15:120:15:5:10:5:15:15:120:10:120
+F:MECHA_GEN | SPEED | SLOW_DIGEST | REGEN_25
+D:A torso made from aluminium.  It is amazingly light and resilient.  It is so
+D: lightweight that you move more easily as soon as you put it on.  It is too
+D: oddly shaped to wear a jacket or suit.
 
-N:1032:& Torso~ of Power
-G:[:r
-I:46:14:3
-W:5:2:200:650
-A:5/2:30/20
-P:10:1d2:0:0:0:0
-F:MUS | AGI | VIG 
+N:380:& Titanium Torso~
+G:[:G
+I:46:18:3
+W:38:1:600:30000
+A:34/0:38/30:42/10
+P:65:1d2:0:0:30:0
+O:20:20:20:20:15:15:15:120:15:10:10:10:15:15:120:10:120
+F:MECHA_GEN | SLOW_DIGEST | REGEN_25
+D:A torso made from titanium.  It is incredibly strong and still lightweight.
+D: Truly an engineering marvel!  It is too oddly shaped to wear a jacket or suit.
 
-N:1033:& Torso~ of Power
+N:381:& Cavorite Torso~
 G:[:r
-I:46:16:6
-W:15:5:300:1250
-A:15/5:30/20
-P:25:1d2:0:0:0:0
-F:MUS | AGI | VIG 
+I:46:20:3
+W:42:1:1200:40000
+A:38/0:42/30
+P:80:1d2:0:0:0:0
+O:25:25:25:25:20:20:20:120:20:15:15:15:20:20:120:15:120
+F:MECHA_GEN | SLOW_DIGEST | REGEN_50
+D:A torso made from cavorite.  This rare metal is exceptionally dense and
+D: resistant to all energy types.  It is too oddly shaped to wear a jacket or
+D: suit.
 
-N:1034:& Torso~ of Mighty Power
-G:[:r
-I:46:18:12
-W:20:40:800:18850
-A:30/10:60/20
-P:60:1d2:0:0:0:0
-F:MUS | AGI | VIG 
 
-N:1035:& Torso~ of Mystic Power
-G:[:r
-I:46:14:3
-W:5:2:200:650
-A:5/2:30/20
-P:10:1d2:0:0:0:0
-F:SCH | EGO | CHR
-
-N:1036:& Torso~ of Mystic Power
-G:[:r
-I:46:16:6
-W:15:5:300:1250
-A:15/5:30/20
-P:25:1d2:0:0:0:0
-F:SCH | EGO | CHR
-
-N:1037:& Torso~ of Mighty Mystic Power
-G:[:r
-I:46:18:12
-W:30:10:800:18850
-A:30/10:60/20
-P:60:1d2:0:0:0:0
-F:SCH | EGO | CHR | SLOW_DIGEST | REGEN
 
 ########################
-#N:1037 - N:1075 Unused #
+#N:382 - N:384 Unused #
 ########################
 
 ### Tval Change. Heads ###
 
-N:1076:& Tin Head~
+N:385:& Tin Head~
 G:]:W
 I:47:2:1
-W:5:2:40:450
-A:5/2:30/10
-P:5:1d2:0:0:0:0
-F:SCH | EGO | AGI | VIG | CHR
+W:2:1:100:500
+A:1/15:2/30:6/0
+P:5:1d2:2:0:0:0
+F:MECHA_GEN | SEARCH
+D:A head made from tin.  It is shabby and dented.  There simply must be a
+D: superior replacement.  Hats just slide right off it.
 
-N:1077:& Copper Head~
+
+N:386:& Copper Head~
 G:]:o
-I:47:4:2
-W:10:2:80:750
-A:10/2:30/10
-P:10:1d2:0:0:0:0
-F:SCH | EGO | AGI | VIG | CHR
+I:47:4:1
+W:4:1:150:1000
+A:2/15:4/30:8/0
+P:10:1d2:2:0:0:0
+O:5:5:0:0:-5:0:0:0:0:0:0:0:0:0:0:0:0
+F:MECHA_GEN | SEARCH
+D:A head made from copper - a magnificent conductor, you know.  It is shined to
+D: a pleasant glow.  Hats just slide right off it.
 
-N:1078:& Bronze Head~
+
+N:387:& Bronze Head~
 G:]:U
-I:47:6:3
-W:15:5:100:1250
-A:15/5:30/10
-P:15:1d2:0:0:0:0
-F:SCH | EGO | AGI | VIG | CHR
+I:47:6:1
+W:6:1:150:1500
+A:4/5:6/30:12/0
+P:10:1d2:4:0:0:0
+O:5:5:5:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:MECHA_GEN | SEARCH
+D:A head made from bronze, a deep brown metal that is highly resilient.  Hats
+D: just slide right off it.
 
-N:1079:& Steel Head~
-G:]:W
-I:47:8:4
-W:20:5:150:2750
-A:20/5:40/10
-P:25:1d2:0:0:0:0
-F:SCH | EGO | AGI | VIG | CHR | SEARCH
 
-N:1080:& Iron Head~
+N:388:& Brass Head~
+G:]:y
+I:47:8:1
+W:8:1:100:2000
+A:6/5:8/30:17/0
+P:10:1d2:4:0:0:0
+O:5:5:5:5:0:0:0:0:5:0:0:0:0:0:0:0:0
+F:MECHA_GEN | SEARCH
+D:A head made from brass.  In the proper light it shines like the forgotten
+D: sun.  Hats just slide right off it.
+
+
+N:389:& Iron Head~
 G:]:D
-I:47:10:5
-W:30:5:300:4250
-A:30/5:50/10
-P:30:1d2:0:0:0:0
-F:SCH | EGO | AGI | VIG | CHR | SEARCH | SEE_INVIS
+I:47:10:2
+W:12:1:300:5000
+A:8/0:12/30:22/0
+P:15:1d2:6:0:5:0
+O:5:5:5:5:5:0:0:0:0:0:0:0:5:0:0:0:0
+F:MECHA_GEN | SEE_INVIS | SEARCH | INFRA
+D:A head made from iron.  It is very heavy, and you just can't seem to keep up
+D: with the rust.  Hats just slide right off it.
 
-N:1081:& Mithril Head~
-G:]:B
-I:47:12:6
-W:40:10:200:18850
-A:40/10:60/10
-P:50:1d2:0:0:0:0
-F:SCH | EGO | AGI | VIG | CHR | SEARCH | SEE_INVIS | TELEPATHY
 
-N:1082:& Head~ of Computation
+N:390:& Rubber Head~
+G:]:g
+I:47:11:2
+W:17:1:100:8000
+A:12/0:17/30:27/0
+P:10:1d2:6:0:0:0
+O:5:5:5:5:20:5:0:0:5:0:0:0:5:5:0:0:0
+F:MECHA_GEN | SEE_INVIS | SEARCH | INFRA
+D:A head made from rubber.  It squeaks as you move, but you feel very well
+D: insulated.  Hats just slide right off it.
+
+
+N:391:& Ceramic Head~
+G:]:s
+I:47:12:2
+W:22:1:200:11000
+A:17/0:22/30:30/0
+P:15:1d2:8:0:0:0
+O:5:5:5:5:5:5:5:0:5:0:0:0:5:0:0:0:0
+F:MECHA_GEN | SEE_INVIS | SEARCH | INFRA
+D:A head made from ceramic.  It is very well made, try not to chip it.  Hats
+D: just slide right off it.
+
+
+N:392:& Steel Head~
+G:]:b
+I:47:13:2
+W:27:1:200:14000
+A:22/0:27/30:34/0
+P:15:1d2:8:0:10:0
+O:5:5:5:5:5:5:5:0:5:0:0:0:5:5:0:0:0
+F:MECHA_GEN | SEE_INVIS | SEARCH | INFRA
+D:A head made from steel.  This impressive piece of craftsmanship makes you
+D: feel better just by wearing it.  Hats just slide right off it.
+
+
+N:393:& Crystal Head~
 G:]:W
 I:47:14:3
-W:5:2:40:450
-A:5/2:30/20
-P:5:1d2:0:0:0:0
-F:SCH | EGO 
+W:30:1:350:20000
+A:27/0:30/30:38/0
+P:20:1d2:10:0:0:0
+O:10:10:5:5:5:5:5:0:5:0:-10:0:10:10:0:5:0
+F:MECHA_GEN | SEE_INVIS | SEARCH | INFRA | LIGHT
+D:A head made from fine crystal.  A master craftsman shaped it out of delicate
+D: crystal.  Loud noises cause it to vibrate ominously.  Hats just slide right off
+D: it.
 
-N:1083:& Head of Computation~
-G:]:W
-I:47:16:6
-W:15:5:60:850
-A:15/5:30/20
-P:15:1d2:0:0:0:0
-F:SCH | EGO 
 
-N:1084:& Head of Supreme Computation~
-G:]:W
-I:47:18:12
-W:40:10:80:20000
-A:40/10:60/20
-P:50:1d2:0:0:0:0
-F:SCH | EGO | SEARCH | SEE_INVIS | TELEPATHY
+N:394:& Aluminium Head~
+G:]:B
+I:47:16:3
+W:34:1:150:25000
+A:30/0:34/30:38/10
+P:20:1d2:10:0:0:0
+O:10:10:10:5:5:5:5:0:5:0:5:0:5:5:0:5:0
+F:MECHA_GEN | SPEED | SEE_INVIS | SEARCH | INFRA
+D:A head made from aluminium.  It is amazingly light and resilient.  It is so
+D: lightweight that you move more easily as soon as you put it on.  Hats just
+D: slide right off it.
 
-N:1085:& Head~ of Personability
-G:]:W
+
+N:395:& Titanium Head~
+G:]:G
+I:47:18:3
+W:38:1:250:30000
+A:34/0:38/30:42/10
+P:25:1d2:12:0:15:0
+O:10:10:10:10:5:5:5:0:5:5:5:5:5:5:0:5:0
+F:MECHA_GEN | SEE_INVIS | SEARCH | INFRA
+D:A head made from titanium.  It is incredibly strong and still lightweight.
+D: Truly an engineering marvel!  Hats just slide right off it.
+
+
+N:396:& Cavorite Head~
+G:]:r
 I:47:20:3
-W:5:2:40:450
-A:5/2:30/20
-P:5:1d2:0:0:0:0
-F:CHR 
+W:42:1:500:40000
+A:38/0:42/30
+P:35:1d2:12:0:0:0
+O:15:15:15:15:10:10:10:0:10:10:10:10:10:10:0:10:0
+F:MECHA_GEN | SEE_INVIS | SEARCH | INFRA
+D:A head made from cavorite.  This rare metal is exceptionally dense and
+D: resistant to all energy types.  Hats just slide right off it.
 
-N:1086:& Head~ of Personability
-G:]:W
-I:47:22:6
-W:15:5:60:850
-A:15/5:40/20
-P:15:1d2:0:0:0:0
-F:CHR 
-
-N:1087:& Head of Supreme Personability~
-G:]:W
-I:47:24:12
-W:40:10:80:20000
-A:40/10:60/20
-P:50:1d2:0:0:0:0
-F:CHR | SEARCH | SEE_INVIS | TELEPATHY
 
 ##########################
-# N:1089 - N:1125 Unused #
+# N:397 - N:399 Unused #
 ##########################
 
 ### Tval Change. Arms ###
 
-N:1125:& Pair~ of Tin Arms
+N:400:& Pair~ of Tin Arms
 G:]:W
 I:48:2:1
-W:5:2:40:450
-A:5/2:30/10
-P:5:1d2:0:0:0:0
-F:MUS | AGI | VIG | CHR
+W:2:1:100:500
+A:1/15:2/30:6/0
+P:5:1d2:0:2:0:0
+F:MECHA_GEN
+D:A pair of arms made from tin.  They are shabby and dented.  There simply must
+D: be a superior replacement.  Gloves just won't fit over them.
 
-N:1126:& Pair~ of Copper Arms
+N:401:& Pair~ of Copper Arms
 G:]:o
-I:48:4:2
-W:10:2:120:750
-A:10/2:30/10
-P:10:1d2:0:0:0:0
-F:MUS | AGI | VIG | CHR
+I:48:4:1
+W:4:1:200:1000
+A:2/15:4/30:8/0
+P:10:1d2:0:2:0:0
+O:3:3:0:0:-5:0:0:0:0:0:0:0:0:0:0:0:0
+F:MECHA_GEN
+D:A pair of arms made from copper - a magnificent conductor, you know.  They
+D: are shined to a pleasant glow.  Gloves just won't fit over them.
 
-N:1127:& Pair~ of Bronze Arms
+N:402:& Pair~ of Bronze Arms
 G:]:U
-I:48:6:3
-W:15:5:150:1250
-A:15/5:30/10
-P:15:1d2:0:0:0:0
-F:MUS | AGI | VIG | CHR
+I:48:6:1
+W:6:1:150:1500
+A:4/5:6/30:12/0
+P:10:1d2:0:4:0:0
+O:3:3:3:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:MECHA_GEN
+D:A pair of arms made from bronze, a deep brown metal that is highly resilient.
+D: Gloves just won't fit over them.
 
-N:1128:& Pair~ of Steel Arms
-G:]:W
-I:48:8:4
-W:20:5:200:2750
-A:20/5:40/10
-P:25:1d2:0:0:0:0
-F:MUS | AGI | VIG | CHR | TUNNEL 
+N:403:& Pair~ of Brass Arms
+G:]:y
+I:48:8:1
+W:8:1:150:2000
+A:6/5:8/30:17/0
+P:15:1d2:0:4:0:0
+O:3:3:3:3:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:MECHA_GEN
+D:A pair of arms made from brass.  In the proper light they shine like the
+D: forgotten sun.  Gloves just won't fit over them.
 
-N:1129:& Pair~ of Iron Arms
+N:404:& Pair~ of Iron Arms
 G:]:D
-I:48:10:5
-W:30:5:400:4250
-A:30/5:50/10
-P:30:1d2:0:0:0:0
-F:MUS | AGI | VIG | CHR | TUNNEL
+I:48:10:2
+W:12:1:300:5000
+A:8/0:12/30:22/0
+P:25:1d2:0:6:5:0
+O:5:3:3:3:3:0:0:0:0:0:0:0:3:0:0:0:0
+F:MECHA_GEN
+D:A pair of arms made from iron.  They are very heavy, and you just can't seem
+D: to keep up with the rust.  Gloves just won't fit over them.
 
-N:1130:& Pair~ of Mithril Arms
-G:]:B
-I:48:12:6
-W:40:10:250:18850
-A:40/10:60/20
-P:50:1d2:0:0:0:0
-F:MUS | AGI | VIG | CHR | TUNNEL | BLOWS
+N:405:& Pair~ of Rubber Arms
+G:]:g
+I:48:11:2
+W:17:1:100:8000
+A:12/0:17/30:27/0
+P:15:1d2:0:6:0:0
+O:5:5:3:3:5:3:0:0:3:0:0:0:3:3:0:0:0
+F:MECHA_GEN
+D:A pair of arms made from rubber.  They squeak as you move, but you feel very
+D: well insulated.  Gloves just won't fit over them.
 
-N:1131:& Pair~ of Arms of Power
+N:406:& Pair~ of Ceramic Arms
+G:]:s
+I:48:12:2
+W:22:1:300:11000
+A:17/0:22/30:30/0
+P:20:1d2:0:8:0:0
+O:5:5:5:3:3:3:3:0:3:0:0:0:3:0:0:0:0
+F:MECHA_GEN
+D:A pair of arms made from ceramic.  They are very well made, try not to chip
+D: them.  Gloves just won't fit over them.
+
+N:407:& Pair~ of Steel Arms
+G:]:b
+I:48:13:2
+W:27:1:250:14000
+A:22/0:27/30:34/0
+P:25:1d2:0:8:10:0
+O:5:5:5:5:3:3:3:0:3:0:0:0:3:3:0:0:0
+F:MECHA_GEN
+D:A pair of arms made from steel.  Their impressive craftsmanship makes you
+D: feel better just by wearing them.  Gloves just won't fit over them.
+
+N:408:& Pair~ of Crystal Arms
 G:]:W
 I:48:14:3
-W:5:10:40:450
-A:5/10:30/20
-P:5:1d2:0:0:0:0
-F:MUS | VIG 
+W:30:1:450:20000
+A:27/0:30/30:38/0
+P:50:1d2:0:10:0:0
+O:5:5:5:5:3:3:5:0:3:0:-10:0:10:10:0:3:0
+F:MECHA_GEN
+D:A pair of arms made from fine crystal.  A master craftsman shaped these out
+D: of delicate crystal.  Loud noises cause them to vibrate ominously.  Gloves just
+D: won't fit over them.
 
-N:1132:& Pair~ of Arms of Power
-G:]:W
-I:48:16:6
-W:15:5:40:450
-A:15/10:30/20
-P:15:1d2:0:0:0:0
-F:MUS | VIG 
+N:409:& Pair~ of Aluminium Arms
+G:]:B
+I:48:16:3
+W:34:1:200:25000
+A:30/0:34/30:38/10
+P:10:1d2:0:10:0:0
+O:5:5:5:5:5:3:5:0:5:0:3:0:5:5:0:3:0
+F:MECHA_GEN | SPEED
+D:A pair of arms made from aluminium.  They are amazingly light and resilient.
+D: They are so lightweight that you move more easily as soon as you put them on.
+D: Gloves just won't fit over them.
 
-N:1134:& Pair~ of Arms of Mighty Power
-G:]:W
-I:48:18:12
-W:40:10:40:450
-A:40/10:60/20
-P:50:1d2:0:0:0:0
-F:MUS | VIG | TUNNEL 
+N:410:& Pair~ of Titanium Arms
+G:]:G
+I:48:18:3
+W:38:1:300:30000
+A:34/0:38/30:42/10
+P:30:1d2:0:12:15:0
+O:5:5:5:5:5:5:5:0:5:3:3:3:5:5:0:3:0
+F:MECHA_GEN
+D:A pair of arms made from titanium.  They are incredibly strong and still
+D: lightweight.  Truly an engineering marvel!  Gloves just won't fit over them.
 
-N:1135:& Pair~ of Arms of Agility
-G:]:W
+N:411:& Pair~ of Cavorite Arms
+G:]:r
 I:48:20:3
-W:5:10:40:450
-A:5/10:30/20
-P:5:1d2:0:0:0:0
-F:AGI | STEALTH 
+W:42:1:800:40000
+A:38/0:42/30
+P:40:1d2:0:12:0:0
+O:10:10:10:10:10:10:10:0:10:5:5:5:10:10:0:5:0
+F:MECHA_GEN
+D:A pair of arms made from cavorite.  This rare metal is exceptionally dense
+D: and resistant to all energy types.  Gloves just won't fit over them.
 
-N:1136:& Pair~ of Arms of Agility
-G:]:W
-I:48:22:6
-W:15:5:40:450
-A:15/10:30/20
-P:15:1d2:0:0:0:0
-F:AGI | STEALTH 
-
-N:1137:& Pair~ of Arms of Mighty Agility
-G:]:W
-I:48:24:12
-W:40:10:40:450
-A:40/10:60/20
-P:50:1d2:0:0:0:0
-F:AGI | STEALTH
 
 ##########################
-# N:1137 - N:1175 Unused #
+# N:412 - N:414 Unused   #
 ##########################
 
-#### Tval Change. Legs #### 
+#### Tval Change. Legs ####
 
-N:1176:& Pair~ of Tin Legs
+N:415:& Pair~ of Tin Legs
 G:]:W
 I:49:2:1
-W:5:2:80:450
-A:5/2:10/10
+W:2:1:100:500
+A:1/15:2/30:6/0
 P:5:1d2:0:0:0:0
-F:MUS | AGI | VIG | CHR
+F:MECHA_GEN
+D:A pair of legs made from tin.  They are shabby and dented.  There simply must
+D: be a superior replacement.  You can pull pants up over them, but shoes and
+D: boots won't fit.
 
-N:1177:& Pair~ of Copper Legs
+
+N:416:& Pair~ of Copper Legs
 G:]:o
-I:49:4:2
-W:10:2:150:750
-A:10/2:30/10
-P:10:1d2:0:0:0:0
-F:MUS | AGI | VIG | CHR
+I:49:4:1
+W:4:1:150:1000
+A:2/15:4/30:8/0
+P:5:1d2:0:0:0:0
+O:3:3:0:0:-15:0:0:0:0:0:0:0:0:0:0:0:0
+F:MECHA_GEN
+D:A pair of legs made from copper - a magnificent conductor, you know.  They
+D: are shined to a pleasant glow.  You can pull pants up over them, but shoes and
+D: boots won't fit.
 
-N:1178:& Pair~ of Bronze Legs
+N:417:& Pair~ of Bronze Legs
 G:]:U
-I:49:6:3
-W:15:5:200:1250
-A:15/5:30/10
+I:49:6:1
+W:6:1:150:1500
+A:4/5:6/30:12/0
+P:10:1d2:0:0:0:0
+O:3:3:3:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:MECHA_GEN
+D:A pair of legs made from bronze, a deep brown metal that is highly resilient.
+D: You can pull pants up over them, but shoes and boots won't fit.
+
+N:418:& Pair~ of Brass Legs
+G:]:y
+I:49:8:1
+W:8:1:150:2000
+A:6/5:8/30:17/0
 P:15:1d2:0:0:0:0
-F:MUS | AGI | VIG | CHR
+O:3:3:3:3:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:MECHA_GEN
+D:A pair of legs made from brass.  In the proper light they shine like the
+D: forgotten sun.  You can pull pants up over them, but shoes and boots won't fit.
 
-N:1179:& Pair~ of Steel Legs
-G:]:W
-I:49:8:4
-W:20:5:300:2750
-A:20/5:40/10
-P:25:1d2:0:0:0:0
-F:MUS | AGI | VIG | CHR | STEALTH 
-
-N:1180:& Pair~ of Iron Legs
+N:419:& Pair~ of Iron Legs
 G:]:D
 I:49:10:5
-W:30:5:500:4250
-A:30/5:50/10
-P:30:1d2:0:0:0:0
-F:MUS | AGI | VIG | CHR | STEALTH | FREE_ACT
+W:12:1:300:5000
+A:8/0:12/30:22/0
+P:25:1d2:0:0:5:0
+O:5:3:3:3:3:0:0:0:0:0:0:0:3:0:0:0:0
+F:MECHA_GEN | SPEED
+D:A pair of legs made from iron.  They are very heavy, and you just can't seem
+D: to keep up with the rust.  You can pull pants up over them, but shoes and boots
+D: won't fit.
 
-N:1181:& Pair~ of Mithril Legs
+N:420:& Pair~ of Rubber Legs
+G:]:g
+I:49:11:5
+W:17:1:200:8000
+A:12/0:17/30:27/0
+P:10:1d2:0:0:0:0
+O:5:5:3:3:100:3:0:0:3:0:0:0:3:3:0:0:0
+F:MECHA_GEN | SPEED
+D:A pair of legs made from rubber.  They squeak as you move, but you feel very
+D: well insulated.  You can pull pants up over them, but shoes and boots won't
+D: fit.
+
+N:421:& Pair~ of Ceramic Legs
+G:]:s
+I:49:12:5
+W:22:1:250:11000
+A:17/0:22/30:30/0
+P:20:1d2:0:0:0:0
+O:5:5:5:3:3:3:3:0:3:0:0:0:3:0:0:0:0
+F:MECHA_GEN | SPEED
+D:A pair of legs made from ceramic.  They are very well made, try not to chip
+D: them.  You can pull pants up over them, but shoes and boots won't fit.
+
+N:422:& Pair~ of Steel Legs
+G:]:b
+I:49:13:5
+W:27:1:250:14000
+A:22/0:27/30:34/0
+P:25:1d2:0:0:10:0
+O:5:5:5:5:3:3:3:0:3:0:0:0:3:3:0:0:0
+F:MECHA_GEN | SPEED
+D:A pair of legs made from steel.  Their impressive piece of craftsmanship
+D: makes you feel better just by wearing them.  You can pull pants up over them,
+D: but shoes and boots won't fit.
+
+N:423:& Pair~ of Crystal Legs
+G:]:W
+I:49:14:10
+W:30:1:450:20000
+A:27/0:30/30:38/0
+P:15:1d2:0:0:0:0
+O:5:5:5:5:3:3:5:0:3:0:-10:0:10:10:0:3:0
+F:MECHA_GEN | FREE_ACT | SPEED
+D:A pair of legs made from fine crystal.  A master craftsman shaped them out of
+D: delicate crystal.  Loud noises cause them to vibrate ominously.  You can pull
+D: pants up over them, but shoes and boots won't fit.
+
+N:424:& Pair~ of Aluminium Legs
 G:]:B
-I:49:12:6
-W:40:10:400:18850
-A:40/10:60/20
-P:50:1d2:0:0:0:0
-F:MUS | AGI | VIG | CHR | STEALTH | FREE_ACT | SPEED | SHOW_MODS
+I:49:16:15
+W:34:1:150:25000
+A:30/0:34/30:38/10
+P:5:1d2:0:0:0:0
+O:5:5:5:5:5:3:5:0:5:0:3:0:5:5:0:3:0
+F:MECHA_GEN | FREE_ACT | SPEED
+D:A pair of legs made from aluminium.  They are amazingly light and resilient.
+D: They are so lightweight that you move more easily as soon as you put them on.
+D: You can pull pants up over them, but shoes and boots won't fit.
+
+N:425:& Pair~ of Titanium Legs
+G:]:G
+I:49:18:10
+W:38:1:300:30000
+A:34/0:38/30:42/10
+P:30:1d2:0:0:15:0
+O:5:5:5:5:5:5:5:0:5:3:3:3:5:5:0:3:0
+F:MECHA_GEN | FREE_ACT | SPEED
+D:A pair of legs made from titanium.  They are incredibly strong and still
+D: lightweight.  Truly an engineering marvel!  You can pull pants up over them,
+D: but shoes and boots won't fit.
+
+N:426:& Pair~ of Cavorite Legs
+G:]:r
+I:49:20:10
+W:42:1:600:40000
+A:38/0:42/30
+P:40:1d2:0:0:0:0
+O:10:10:10:10:10:10:10:0:10:5:5:5:10:10:0:5:0
+F:MECHA_GEN | FREE_ACT | SPEED
+D:A pair of legs made from cavorite.  This rare metal is exceptionally dense
+D: and resistant to all energy types.  You can pull pants up over them, but shoes
+D: and boots won't fit.
+
+
+#################
+##### Tools #####
+#################
+
+N:431:Anti-Photon Generation
+G:_:d
+I:55:0:6
+W:1:0:75:0
+A:1/40:25/0
+P:0:1d2:0:0:0:0
+D:that absorbs ambient unnecessary photons.
+
+N:432:Summoning
+G:_:d
+I:55:1:6
+W:3:0:75:0
+A:3/40:30/0
+P:0:1d2:0:0:0:0
+D:that opens a portal bringing fiends who wish to  
+D:destroy.
+
+N:433:Object Analysis
+G:_:d
+I:55:2:18
+W:5:0:75:400
+A:5/25:25/70:50/15
+P:0:1d2:0:0:0:0
+D:that provides a basic analysis of objects.
+
+N:434:Remove Curse
+G:_:d
+I:55:3:8
+W:8:0:75:500
+A:8/50
+P:0:1d2:0:0:0:0
+D:that removes curses.
+
+N:435:Photon Generation
+G:_:d
+I:55:4:30
+W:1:0:75:250
+A:1/60
+P:0:1d2:0:0:0:0
+D:that generates photons in a contained area.
+
+N:436:Structural Analysis
+G:_:d
+I:55:5:18
+W:10:0:75:750
+A:10/50
+P:0:1d2:0:0:0:0
+D:that analyzes the area around you, providing you 
+D:with a map of your immediate surroundings.
+
+N:437:Ore Location
+G:_:d
+I:55:6:25
+W:2:0:75:200
+A:2/50
+P:0:1d2:0:0:0:0
+D:that detects buried ore in the dungeon walls.
+
+N:438:Object Location
+G:_:d
+I:55:7:25
+W:5:0:75:200
+A:5/50
+P:0:1d2:0:0:0:0
+D:that detects objects near you.
+
+N:439:Threat Detection
+G:_:d
+I:55:8:25
+W:5:0:75:350
+A:5/50
+P:0:1d2:0:0:0:0
+D:that detects mechanical systems in the dungeon's 
+D:structure designed to do harm.
+
+N:440:Egress Detection
+G:_:d
+I:55:9:25
+W:10:0:75:350
+A:3/50
+P:0:1d2:0:0:0:0
+D:that detects structural openings in the dungeon.
+
+N:441:Biological Analysis
+G:_:d
+I:55:10:6
+W:15:0:75:2000
+A:15/40
+P:0:1d2:0:0:0:0
+D:that provides information about biological and 
+D:animate mechanical beings in the dungeon.
+
+N:442:Light Physical Repair
+G:_:d
+I:55:11:22
+W:5:0:75:350
+A:5/50
+P:0:1d2:0:0:0:0
+D:that quickens repair of cuts, bruises, and damaged 
+D:bones and muscle.
+
+N:443:Light Spiritual Recovery
+G:_:d
+I:55:12:22
+W:8:0:75:450
+A:8/2
+P:0:1d2:0:0:0:0
+D:that strengthens your aura, and renews your 
+D:spiritual powers.
+
+N:444:Critical Physical Repair
+G:_:d
+I:55:13:10
+W:30:0:75:5000
+A:30/40
+P:0:1d2:0:0:0:0
+D:that quickens repair of cuts, bruises, scrapes, 
+D:strains, aches, pains, and damaged skin, 
+D:bones, and muscle.
+
+N:445:Curing
+G:_:d
+I:55:14:10
+W:15:0:75:1000
+A:15/50
+P:0:1d2:0:0:0:0
+D:that cures fear, poison, stunning, and cuts.
+
+N:446:Celerity
+G:_:d
+I:55:15:8
+W:23:0:75:1000
+A:23/50
+P:0:1d2:0:0:0:0
+D:that increases the speed at which you move and 
+D:process data.
+
+N:447:Seismic Disturbance
+G:_:d
+I:55:16:4
+W:35:0:75:350
+A:35/25
+P:0:1d2:0:0:0:0
+D:that generates earthquakes.
+
+N:448:Area Disintegration
+G:_:d
+I:55:17:3
+W:40:0:75:2500
+A:40/25
+P:0:1d2:0:0:0:0
+D:that destroys the area around you.
+
+N:449:Etheric Travel
+G:_:d
+I:55:18:20
+W:10:0:75:1000
+A:10/45
+P:0:1d2:0:0:0:0
+D:that moves you a distance away.
+
+
 
 ##########################
-# N:1182 - N:1225 Unused #
-##########################
-
-##### Staffs (Staves ;-p -Mad) #####
-
-N:1226:Trap Location
-G:_:d
-I:55:12:0
-W:10:0:50:350
-A:10/1
-P:0:1d2:0:0:0:0
-
-N:1227:Treasure Location
-G:_:d
-I:55:10:0
-W:5:0:50:200
-A:5/1
-P:0:1d2:0:0:0:0
-
-N:1228:Object Location
-G:_:d
-I:55:11:0
-W:5:0:50:200
-A:5/1
-P:0:1d2:0:0:0:0
-
-N:1229:Teleportation
-G:_:d
-I:55:4:0
-W:20:0:50:2000
-A:20/1
-P:0:1d2:0:0:0:0
-
-N:1230:Earthquakes
-G:_:d
-I:55:28:0
-W:40:0:50:350
-A:40/1
-P:0:1d2:0:0:0:0
-
-N:1231:Summoning
-G:_:d
-I:55:3:0
-W:10:0:50:0
-A:10/1:50/1
-P:0:1d2:0:0:0:0
-
-N:1232:Light
-G:_:d
-I:55:8:0
-W:5:0:50:250
-A:5/1
-P:0:1d2:0:0:0:0
-
-N:1233:*Destruction*
-G:_:d
-I:55:29:0
-W:50:0:50:2500
-A:50/1:70/1
-P:0:1d2:0:0:0:0
-
-N:1234:Starlight
-G:_:d
-I:55:7:0
-W:20:0:50:800
-A:20/1
-P:0:1d2:0:0:0:0
-
-N:1235:Haste Monsters
-G:_:d
-I:55:2:0
-W:10:0:50:0
-A:10/1
-P:0:1d2:0:0:0:0
-
-N:1236:Slow Monsters
-G:_:d
-I:55:21:0
-W:10:0:50:800
-A:10/1
-P:0:1d2:0:0:0:0
-
-N:1237:Sleep Monsters
-G:_:d
-I:55:20:0
-W:10:0:50:700
-A:10/1
-P:0:1d2:0:0:0:0
-
-N:1238:Cure Light Wounds
-G:_:d
-I:55:16:0
-W:5:0:50:350
-A:5/1
-P:0:1d2:0:0:0:0
-
-N:1239:Detect Invisible
-G:_:d
-I:55:14:0
-W:5:0:50:200
-A:5/1
-P:0:1d2:0:0:0:0
-
-N:1240:Speed
-G:_:d
-I:55:22:0
-W:40:0:50:1000
-A:40/1
-P:0:1d2:0:0:0:0
-
-N:1241:Slowness
-G:_:d
-I:55:1:0
-W:40:0:50:0
-A:40/1
-P:0:1d2:0:0:0:0
-
-N:1242:Door/Stair Location
-G:_:d
-I:55:13:0
-W:10:0:50:350
-A:10/1
-P:0:1d2:0:0:0:0
-
-N:1243:Remove Curse
-G:_:d
-I:55:6:0
-W:40:0:50:500
-A:40/1
-P:0:1d2:0:0:0:0
-
-N:1244:Detect Evil
-G:_:d
-I:55:15:0
-W:20:0:50:350
-A:20/1
-P:0:1d2:0:0:0:0
-
-N:1245:Curing
-G:_:d
-I:55:17:0
-W:25:0:50:1000
-A:25/1
-P:0:1d2:0:0:0:0
-
-N:1246:Dispel Evil
-G:_:d
-I:55:24:0
-W:50:0:50:1200
-A:50/1
-P:0:1d2:0:0:0:0
-
-N:1247:Probing
-G:_:d
-I:55:23:0
-W:30:0:50:2000
-A:30/1
-P:0:1d2:0:0:0:0
-
-N:1248:Darkness
-G:_:d
-I:55:0:0
-W:5:0:50:0
-A:5/1:50/1
-P:0:1d2:0:0:0:0
-
-N:1249:Genocide
-G:_:d
-I:55:27:0
-W:70:0:50:3500
-A:70/4
-P:0:1d2:0:0:0:0
-
-N:1250:Power
-G:_:d
-I:55:25:0
-W:70:0:50:4000
-A:70/2
-P:0:1d2:0:0:0:0
-
-N:1251:the Magi
-G:_:d
-I:55:19:0
-W:70:0:50:4500
-A:70/2
-P:0:1d2:0:0:0:0
-
-N:1252:Perception
-G:_:d
-I:55:5:0
-W:10:0:50:400
-A:10/1
-P:0:1d2:0:0:0:0
-
-N:1253:Holiness
-G:_:d
-I:55:26:0
-W:70:0:50:4500
-A:70/2
-P:0:1d2:0:0:0:0
-
-N:1254:Enlightenment
-G:_:d
-I:55:9:0
-W:20:0:50:750
-A:20/1
-P:0:1d2:0:0:0:0
-
-N:1255:Healing
-G:_:d
-I:55:18:0
-W:70:0:50:5000
-A:70/2
-P:0:1d2:0:0:0:0
-
-##########################
-# N:1255 - N:1300 Unused #
+# N:449 - N:469 Unused #
 ##########################
 
 ##### Ray Guns #####
 
-N:1301:Photic Beam
+N:470:Fire
 G:-:d
-I:65:7:0
-W:3:0:10:200
-A:3/1
+I:65:1:20
+W:1:0:10:100
+A:1/10:10/50:20/0
 P:0:1d1:0:0:0:0
+D:that shoots a bolt or beam of fire.
 
-N:1302:Voltic Blast
+N:471:Earth
 G:-:d
-I:65:17:0
-W:15:0:10:600
-A:15/1
+I:65:2:20
+W:3:0:10:140
+A:3/10:13/50:23/0
 P:0:1d1:0:0:0:0
+D:that shoots a bolt or beam of earth.
 
-N:1303:Icy Blast
+N:472:Wind
 G:-:d
-I:65:19:0
-W:20:0:10:800
-A:20/1
+I:65:3:20
+W:6:0:10:180
+A:6/10:16/50:26/0
 P:0:1d1:0:0:0:0
+D:that shoots a bolt or beam of air.
 
-N:1304:Flame
+N:473:Steam
 G:-:d
-I:65:18:0
-W:30:0:10:1000
-A:30/1
+I:65:4:20
+W:9:0:10:220
+A:9/10:19/50:29/0
 P:0:1d1:0:0:0:0
+D:that shoots a bolt or beam of steam.
 
-N:1305:Vaporize solid
+N:474:Ice
 G:-:d
-I:65:6:0
-W:10:0:10:300
-A:10/1
+I:65:5:20
+W:12:0:10:260
+A:12/10:22/50:32/0
 P:0:1d1:0:0:0:0
+D:that shoots a bolt or beam of ice. 
 
-N:1306:Darwinian change
+N:475:Voltage
 G:-:d
-I:65:13:0
-W:20:0:10:400
-A:20/1
+I:65:6:20
+W:15:0:10:300
+A:15/10:25/50:35/0
 P:0:1d1:0:0:0:0
+D:that shoots a bolt or beam of electricty.
 
-N:1307:Heal Monster
+N:476:Acid
 G:-:d
-I:65:0:0
-W:3:0:10:0
-A:3/1
+I:65:7:20
+W:18:0:10:340
+A:18/10:28/50:38/0
 P:0:1d1:0:0:0:0
+D:that shoots a bolt or beam of acid.
 
-N:1308:Haste Monster
+N:477:Poison
 G:-:d
-I:65:1:0
-W:3:0:10:0
-A:3/1
+I:65:8:20
+W:21:0:10:380
+A:21/10:31/50:41/0
 P:0:1d1:0:0:0:0
+D:that shoots a bolt or beam of poison.
 
-N:1309:Slow Monster
+N:478:Tachyon Generation
 G:-:d
-I:65:9:0
-W:5:0:10:500
-A:5/1
+I:65:9:20
+W:24:0:10:420
+A:24/10:34/50:44/0
 P:0:1d1:0:0:0:0
+D:that shoots a bolt or beam of tachyon particles.
 
-N:1310:Confuse Monster
+N:479:Etheric Force
 G:-:d
-I:65:10:0
-W:5:0:10:500
-A:5/1
+I:65:10:20
+W:27:0:10:460
+A:27/10:37/50:47/0
 P:0:1d1:0:0:0:0
+D:that shoots a bolt or beam of etheric force.
 
-N:1311:Sopoforic Ray
+N:480:Clamour
 G:-:d
-I:65:8:0
-W:5:0:10:500
-A:5/1
+I:65:11:20
+W:30:0:10:500
+A:30/10:40/50:50/0
 P:0:1d1:0:0:0:0
+D:that shoots a sonic bolt or beam.
 
-N:1312:Drain Life
+N:481:Electro-Magnetic Pulse
 G:-:d
-I:65:12:0
-W:50:0:10:1200
-A:50/1
+I:65:12:10
+W:40:0:10:600
+A:40/5
 P:0:1d1:0:0:0:0
+D:that shoots a bolt or beam of electro-magnetic energy.
 
-N:1313:Trap/Door Destruction
+N:482:Photic Beam
 G:-:d
-I:65:5:0
-W:10:0:10:100
-A:10/1
+I:65:13:40
+W:1:0:10:100
+A:1/50:20/0
 P:0:1d1:0:0:0:0
+D:that shoots a bolt or beam of photons.
 
-N:1314:Force Bolt
+N:483:Genetic Replication
 G:-:d
-I:65:15:0
-W:3:0:10:200
-A:3/1
+I:65:14:5
+W:1:0:10:0
+A:1/40:10/0
 P:0:1d1:0:0:0:0
+D:that reads the genetic code of a being and 
+D:duplicates it.
 
-N:1315:Clone Monster
+N:484:Phasic Shift
 G:-:d
-I:65:2:0
-W:15:0:10:0
-A:15/1:50/1
-P:0:1d1:0:0:0:0
-
-N:1316:Terror
-G:-:d
-I:65:11:0
-W:10:0:10:500
-A:10/4
-P:0:1d1:0:0:0:0
-
-N:1317:Etheric Blast
-G:-:d
-I:65:3:0
-W:20:0:10:350
-A:20/1
-P:0:1d1:0:0:0:0
-
-N:1318:Disarming
-G:-:d
-I:65:4:0
+I:65:15:20
 W:20:0:10:700
-A:20/1
+A:20/10:30/50:50/30
 P:0:1d1:0:0:0:0
+D:that bends space transplanting living beings far away 
+D:from their current location.
 
-N:1319:Voltic Orb
+N:485:Soporific Ray
 G:-:d
-I:65:21:0
-W:35:0:10:1200
-A:35/1
+I:65:16:30
+W:1:0:10:100
+A:1/50:20/0
 P:0:1d1:0:0:0:0
-F:IGNORE_ELEC
+D:that puts creatures to sleep.
 
-N:1320:Icy Orb
+N:486:Befuddlement
 G:-:d
-I:65:23:0
-W:40:0:10:1500
-A:40/1
+I:65:17:30
+W:1:0:10:100
+A:1/30
 P:0:1d1:0:0:0:0
-F:IGNORE_COLD
+D:that confuses living things
 
-N:1321:Flame Orb
+N:487:Nerve Dampening
 G:-:d
-I:65:22:0
-W:50:0:10:1800
-A:50/1
+I:65:18:30
+W:1:0:10:150
+A:1/30
 P:0:1d1:0:0:0:0
-F:IGNORE_FIRE
+D:that makes creatures slower by reducing the speed at 
+D:which impulses travel through their nervous systems.
 
-N:1322:Toxic Orb
+N:488:Holographic Projection
 G:-:d
-I:65:14:0
-W:5:0:10:400
-A:5/1
+I:65:19:30
+W:1:0:10:150
+A:1/30
 P:0:1d1:0:0:0:0
+D:that scares creatures by showing them a horrific display.
 
-N:1323:Acidic Orb
+N:489:Darwinian Change
 G:-:d
-I:65:20:0
-W:50:0:10:1650
-A:50/1
+I:65:20:5
+W:1:0:10:0
+A:1/30:20/5
 P:0:1d1:0:0:0:0
-F:IGNORE_ACID
+D:that transmutes a creature into a higher or lower 
+D:order of being.
 
-N:1324:Wonder
+N:490:Vaporize Solid
 G:-:d
-I:65:24:0
-W:3:0:10:250
-A:3/1
+I:65:21:20
+W:10:0:10:200
+A:10/50
 P:0:1d1:0:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:that turns rocks and stone into dust.
 
-N:1325:Acidic Bolts
-G:-:d
-I:65:16:0
-W:30:0:10:950
-A:30/1
-P:0:1d1:0:0:0:0
+#########################
+# N:491 - N:499 Unused #
+#########################
 
-N:1326:Dragon's Flame
-G:-:d
-I:65:26:0
-W:50:0:10:2400
-A:50/4
-P:0:1d1:0:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-N:1327:Dragon's Frost
-G:-:d
-I:65:27:0
-W:50:0:10:2400
-A:50/4
-P:0:1d1:0:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-N:1328:Dragon's Breath
-G:-:d
-I:65:28:0
-W:60:0:10:2400
-A:60/4
-P:0:1d1:0:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-N:1329:Annihilation
-G:-:d
-I:65:25:0
-W:60:0:10:3000
-A:60/4
-P:0:1d1:0:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-##########################
-# N:1330 - N:1375 Unused #
-##########################
-
-##### Here are the Rods #####
-
-N:1376:Door/Stair Location
-G:-:d
-I:66:1:0
-W:15:0:15:1000
-A:15/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1377:Trap Location
+##### Here are the Apparatuses #####
+N:500:& Portal Generator~ of Returning
 G:-:d
 I:66:0:0
-W:5:0:15:100
-A:5/1
+W:18:0:15:4000
+A:18/25
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
+D:that recalls you back to town, or to the deepest spot you've been in the
+D: dungeon. There is a delay before it takes effect.
 
-N:1378:Probing
+
+### Device described in Jules Verne 20,000 Leagues Under the Sea and A
+### Journey to the Centre of the Earth.  Could replace photon
+### generator.###
+N:501:& Ruhmkorff~
 G:-:d
-I:66:7:0
-W:40:0:15:4000
-A:40/4
+I:66:1:0
+W:5:0:10:10
+A:5/20
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
+D:that lights the immediate surroundings via a sodium Bunsen Battery,
+D: connected to a carbonic gas lantern.Ê
 
-N:1379:Recall
-G:-:d
-I:66:3:0
-W:30:0:15:4000
-A:30/4
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1380:Illumination
-G:-:d
-I:66:4:0
-W:20:0:15:1000
-A:20/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1381:Light
-G:-:d
-I:66:15:0
-W:10:0:15:500
-A:10/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1382:Lightning Bolts
-G:-:d
-I:66:21:0
-W:20:0:15:2000
-A:20/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1383:Frost Bolts
-G:-:d
-I:66:23:0
-W:25:0:15:2500
-A:25/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1384:Fire Bolts
-G:-:d
-I:66:22:0
-W:30:0:15:3000
-A:30/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1385:Polymorph
-G:-:d
-I:66:19:0
-W:35:0:15:1200
-A:35/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1386:Slow Monster
-G:-:d
-I:66:17:0
-W:30:0:15:1500
-A:30/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1387:Sleep Monster
-G:-:d
-I:66:16:0
-W:30:0:15:1500
-A:30/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1388:Drain Life
-G:-:d
-I:66:18:0
-W:75:0:15:3600
-A:75/4
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1389:Teleport Other
-G:-:d
-I:66:13:0
-W:45:0:15:1400
-A:45/2
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1390:Disarming
-G:-:d
-I:66:14:0
-W:35:0:15:2100
-A:35/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1391:Lightning Balls
-G:-:d
-I:66:25:0
-W:55:0:15:4000
-A:55/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1392:Cold Balls
-G:-:d
-I:66:27:0
-W:60:0:15:4500
-A:60/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1393:Fire Balls
-G:-:d
-I:66:26:0
-W:75:0:15:5000
-A:75/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1394:Acid Balls
-G:-:d
-I:66:24:0
-W:70:0:15:5500
-A:70/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1395:Acid Bolts
-G:-:d
-I:66:20:0
-W:40:0:15:3500
-A:40/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1396:Enlightenment
-G:-:d
-I:66:5:0
-W:65:0:15:10000
-A:65/4
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1397:Perception
+N:502:& Pistol Ammunition Generator~
 G:-:d
 I:66:2:0
-W:50:0:15:13000
-A:50/8
+W:10:0:20:1300
+A:10/5:20/30
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
+D:that generates pistol ammo.
 
-N:1398:Curing
+N:503:& Rifle Ammunition Generator~
 G:-:d
-I:66:8:0
-W:65:0:15:15000
-A:65/8
+I:66:3:0
+W:10:0:20:1300
+A:20/5:30/30
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
+D:that generates rifle ammo.
 
-N:1399:Healing
+N:504:& Shotgun Ammunition Generator~
 G:-:d
-I:66:9:0
-W:80:0:15:20000
-A:80/8
+I:66:4:0
+W:10:0:20:1300
+A:30/5:40/30
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
+D:that generates shotgun ammo.
 
-N:1400:Detection
+N:505:& Physiological Rejuvinator~
+G:-:d
+I:66:5:0
+W:10:0:20:1500
+A:40/5:40/30
+P:0:1d1:0:0:0:0
+F:EASY_KNOW
+D:that restores physical and mental damage brought about by the
+D: elements.  "It is to use the Rouquaol-Denayrouge apparatus, invented
+D: by two of your own countrymen, which I have brought to perfection for
+D: my own use, which allows you to explore these new physiological
+D: conditions, without damage to any organ." -Jules Verne "20,000
+D: Leagues Under the Sea."
+
+N:506:& Keyring~ of the Claus
 G:-:d
 I:66:6:0
-W:30:0:15:5000
-A:30/8
+W:15:0:15:750
+A:5/20:15/3
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
+D: that disarms traps. "A Saint has no need to unlock doors if it
+D: pleases him to enter our homes." -L Frank Baum "The Life and
+D: Adventures of Santa Claus"
 
-N:1401:Restoration
+N:507:& Space-flux inhibitor~
 G:-:d
-I:66:10:0
-W:80:0:15:25000
-A:80/16
-P:0:1d1:0:0:0:0
+I:66:7:0
+W:30:0:45:5500
+A:30/5:40/15
+P:0:1d3:0:0:0:0
 F:EASY_KNOW
-
-N:1402:Speed
-G:-:d
-I:66:11:0
-W:95:0:15:50000
-A:95/16
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
+D:that bends the very nature of space-time preventing anyone from 
+D: reaching or traversing the etheric plane. 
 
 ##########################
-# N:1403 - N:1450 Unused #
+# N:505 - N:549 Unused #
 ##########################
 
-##### Mechanism's (old Scrolls) #####
+##### Mechanisms (old Scrolls) #####
 
-N:1451:Enchant Weapon To-Hit
-G:?:d
-I:70:17:0
-W:15:0:5:125
-A:15/1
-F:EASY_KNOW
-
-N:1452:Enchant Weapon To-Dam
-G:?:d
-I:70:18:0
-W:15:0:5:125
-A:15/1
-F:EASY_KNOW
-
-N:1453:Enchant Armor
-G:?:d
-I:70:16:0
-W:15:0:5:125
-A:15/1
-F:EASY_KNOW
-
-N:1454:Identify
-G:?:d
-I:70:12:0
-W:1:0:5:50
-A:1/1:5/1:10/1:30/1
-F:EASY_KNOW
-
-N:1455:*Identify*
-G:?:d
-I:70:13:0
-W:30:0:5:1000
-A:30/1
-F:EASY_KNOW
-
-N:1456:Remove Curse
-G:?:d
-I:70:14:0
-W:10:0:5:100
-A:10/1
-F:EASY_KNOW
-
-N:1457:Light
-G:?:d
-I:70:24:0
-W:0:0:5:15
-A:0/1:3/1:10/1
-F:EASY_KNOW
-
-N:1458:Summon Monster
-G:?:d
-I:70:4:0
-W:1:0:5:0
-A:1/1
-F:EASY_KNOW
-
-N:1459:Phase Door
-G:?:d
-I:70:8:0
-W:1:0:5:15
-A:1/1
-F:EASY_KNOW
-
-N:1460:Teleportation
-G:?:d
-I:70:9:0
-W:10:0:5:40
-A:10/1
-F:EASY_KNOW
-
-N:1461:Teleport Level
-G:?:d
-I:70:10:0
-W:20:0:5:50
-A:20/1
-F:EASY_KNOW
-
-N:1462:Monster Confusion
-G:?:d
-I:70:36:0
-W:5:0:5:30
-A:5/1
-F:EASY_KNOW
-
-N:1463:Magic Mapping
-G:?:d
-I:70:25:0
-W:5:0:5:40
-A:5/1
-F:EASY_KNOW
-
-N:1464:Rune of Protection
-G:?:d
-I:70:38:0
-W:60:0:5:500
-A:60/2:90/4
-F:EASY_KNOW
-
-N:1465:*Remove Curse*
-G:?:d
-I:70:15:0
-W:50:0:5:8000
-A:50/2
-F:EASY_KNOW
-
-N:1466:Treasure Detection
-G:?:d
-I:70:26:0
-W:0:0:5:15
-A:0/1
-F:EASY_KNOW
-
-N:1467:Object Detection
-G:?:d
-I:70:27:0
-W:0:0:5:15
-A:0/1
-F:EASY_KNOW
-
-N:1468:Trap Detection
-G:?:d
-I:70:28:0
-W:5:0:5:35
-A:5/1:10/1
-F:EASY_KNOW
-
-N:1469:Door/Stair Location
-G:?:d
-I:70:29:0
-W:5:0:5:35
-A:5/1:10/1:15/1
-F:EASY_KNOW
-
-N:1470:Acquirement
-G:?:d
-I:70:46:0
-W:20:0:5:100000
-A:20/8
-F:EASY_KNOW
-
-N:1471:*Acquirement*
-G:?:d
-I:70:47:0
-W:60:0:5:200000
-A:60/16
-F:EASY_KNOW
-
-N:1472:Mass Genocide
-G:?:d
-I:70:45:0
-W:50:0:5:1000
-A:50/4
-F:EASY_KNOW
-
-N:1473:Detect Invisible
-G:?:d
-I:70:30:0
-W:1:0:5:15
-A:1/1
-F:EASY_KNOW
-
-N:1474:Aggravate Monster
-G:?:d
-I:70:1:0
-W:5:0:5:0
-A:5/1
-F:EASY_KNOW
-
-N:1475:Trap Creation
-G:?:d
-I:70:7:0
-W:10:0:5:0
-A:10/1
-F:EASY_KNOW
-
-N:1476:Trap/Door Destruction
-G:?:d
-I:70:39:0
-W:10:0:5:50
-A:10/1
-F:EASY_KNOW
-
-N:1477:Power Cell
-G:?:d
-I:70:22:0
-W:40:0:5:200
-A:40/1
-F:EASY_KNOW
-
-N:1478:Genocide
-G:?:d
-I:70:44:0
-W:40:0:5:750
-A:40/4
-F:EASY_KNOW
-
-N:1479:Darkness
+N:550:Photon Destruction
 G:?:d
 I:70:0:0
 W:1:0:5:0
-A:1/1
+A:1/80:5/0
 F:EASY_KNOW
+D:that darkens an area.
 
-N:1480:Protection from Evil
+N:551:Siren
 G:?:d
-I:70:37:0
-W:30:0:5:50
-A:30/1
+I:70:1:0
+W:1:0:5:0
+A:5/80:10/0
 F:EASY_KNOW
+D:that makes a loud noise.
 
-N:1481:Satisfy Hunger
-G:?:d
-I:70:32:0
-W:5:0:5:10
-A:5/1
-F:EASY_KNOW
-
-N:1482:Dispel Undead
-G:?:d
-I:70:42:0
-W:40:0:5:200
-A:40/1
-F:EASY_KNOW
-
-N:1483:*Enchant Weapon*
-G:?:d
-I:70:21:0
-W:50:0:5:500
-A:50/1
-F:EASY_KNOW
-
-N:1484:Curse Weapon
-G:?:d
-I:70:3:0
-W:50:0:5:0
-A:50/1
-F:EASY_KNOW
-
-N:1485:*Enchant Armor*
-G:?:d
-I:70:20:0
-W:50:0:5:500
-A:50/1:50/1
-F:EASY_KNOW
-
-N:1486:Curse Armor
+N:552:Dark Attention
 G:?:d
 I:70:2:0
-W:50:0:5:0
-A:50/1
+W:25:0:5:0
+A:25/80:30/0
 F:EASY_KNOW
+D:that curses your weapon. 
 
-N:1487:Summon Undead
+N:553:Dark Curse
+G:?:d
+I:70:3:0
+W:25:0:5:0
+A:25/80:30/0
+F:EASY_KNOW
+D:that curses your armor.
+
+N:554:Summon Monster
+G:?:d
+I:70:4:0
+W:1:0:5:0
+A:1/80:5/0
+F:EASY_KNOW
+D:that summons some monsters.
+
+N:555:Opening Graves
 G:?:d
 I:70:5:0
-W:15:0:5:0
-A:15/1
+W:35:0:5:0
+A:35/80:40/0
 F:EASY_KNOW
+D:that summons some undead.
 
-N:1488:Blessing
+N:556:Summon Automata
 G:?:d
-I:70:33:0
+I:70:6:0
+W:5:0:5:0
+A:5/80:10/0
+F:EASY_KNOW
+D:that summons some automata.
+
+N:557:Trap Creation
+G:?:d
+I:70:7:0
+W:10:0:5:0
+A:10/80:15/0
+F:EASY_KNOW
+D:that creates some traps.
+
+N:558:Phase Door
+G:?:d
+I:70:8:0
 W:1:0:5:15
-A:1/1
+A:1/80
+M:80:3d5
 F:EASY_KNOW
+D:that teleports you a short distance.
 
-N:1489:Holy Chant
+N:559:Etheric Travel
 G:?:d
-I:70:34:0
-W:10:0:5:40
-A:10/1
+I:70:9:0
+W:5:0:5:40
+A:5/80
+M:75:2d4
 F:EASY_KNOW
+D:that teleports you a long distance.
 
-N:1490:Holy Prayer
+N:560:Teleport Level
 G:?:d
-I:70:35:0
-W:25:0:5:80
-A:25/1
+I:70:10:0
+W:10:0:5:50
+A:10/40
+M:50:1d3
 F:EASY_KNOW
+D:that sends you up or down one level.
 
-N:1491:Word of Recall
+N:561:Returning
 G:?:d
 I:70:11:0
-W:5:0:5:150
-A:5/1
+W:2:0:5:150
+A:2/90
+M:80:2d4
 F:EASY_KNOW
+D:that transports you from the depths to the town and visa versa.  
+D:There is a delay before it takes effect.
 
-N:1492:*Destruction*
+N:562:Object Analysis
 G:?:d
-I:70:41:0
+I:70:12:0
+W:1:0:5:50
+A:1/100
+M:90:3d4
+F:EASY_KNOW
+D:that reveals the name and obvious powers of an object.
+
+N:563:Detailed Object Analysis
+G:?:d
+I:70:13:0
+W:10:0:5:1000
+A:10/35:50/100
+M:10:2d2
+F:EASY_KNOW
+D:that reveals in full detail the true nature of an object, and imprints it 
+D:in your mind so that you never forget it.
+
+N:564:Remove Curse
+G:?:d
+I:70:14:0
+W:10:0:5:100
+A:5/60:25/10
+F:EASY_KNOW
+D:that frees you from the grip of a lightly cursed item.
+
+N:565:*Remove Curse*
+G:?:d
+I:70:15:0
+W:50:0:5:8000
+A:25/40
+F:EASY_KNOW
+D:that frees you from the grip of a heavily cursed item.
+
+N:566:Power Cell
+G:?:d
+I:70:16:0
+W:15:0:5:200
+A:8/40:15/90
+M:40:3d4
+F:EASY_KNOW
+D:that recharges an item.  The item may be destroyed, especially 
+D:if it has many charges.
+
+N:567:Photonic Discharge Creation
+G:?:d
+I:70:17:0
+W:0:0:5:15
+A:0/100:20/0
+M:75:2d6
+F:EASY_KNOW
+D:that lights up the area.
+
+N:568:Structural Analysis
+G:?:d
+I:70:18:0
+W:7:0:5:40
+A:7/50:50/10
+M:50:1d6
+F:EASY_KNOW
+D:that reveals the nearby dungeon, and finds doors and stairs.
+
+N:569:Prospecting
+G:?:d
+I:70:19:0
+W:1:0:5:15
+A:1/60:10/0
+M:75:2d3
+F:EASY_KNOW
+D:that reveals nearby precious metals and gems.
+
+N:570:Object Detection
+G:?:d
+I:70:20:0
+W:3:0:5:15
+A:3/60:10/0
+M:75:2d3
+F:EASY_KNOW
+D:that reveals nearby objects.
+
+N:571:Trap Detection
+G:?:d
+I:70:21:0
+W:5:0:5:35
+A:2/80:10/0
+M:75:2d3
+F:EASY_KNOW
+D:that reveals nearby traps.
+
+N:572:Door/Stair Location
+G:?:d
+I:70:22:0
+W:2:0:5:35
+A:2/80:10/0
+M:75:2d3
+F:EASY_KNOW
+D:that reveals nearby doors and stairs.
+
+N:573:Detect Invisible
+G:?:d
+I:70:23:0
+W:1:0:5:15
+A:1/100:20/0
+M:75:2d4
+F:EASY_KNOW
+D:that reveals nearby invisible monsters.
+
+N:574:Protective Force Field
+G:?:d
+I:70:24:0
+W:40:0:5:500
+A:20/30:40/70
+F:EASY_KNOW
+D:that creates a place of sanctuary which is difficult for enemies to 
+D:penetrate.
+
+N:575:Trap/Door Destruction
+G:?:d
+I:70:25:0
+W:20:0:5:50
+A:20/30
+F:EASY_KNOW
+D:that destroys traps and doors.
+
+N:576:*Destruction*
+G:?:d
+I:70:26:0
 W:40:0:5:250
-A:40/1
+A:40/100
 F:EASY_KNOW
+D:that obliterates almost everything nearby.  
+D:Unique monsters will escape.
+
+N:577:Acquirement
+G:?:d
+I:70:27:0
+W:20:0:5:100000
+A:25/12
+F:EASY_KNOW
+D:that summons a good magic item to you.
+
+N:578:*Acquirement*
+G:?:d
+I:70:28:0
+W:40:0:5:200000
+A:40/10
+F:EASY_KNOW
+D:that summons several good magic items to you.
+
+N:579:Repair Kit
+G:?:d
+I:70:29:0
+W:0:0:5:20
+A:0/60:5/80:50/0
+M:90:4d5
+F:MECHA_GEN | EASY_KNOW
+D:that repairs mechanical beings.
+
+N:580:*Repair* Kit
+G:?:d
+I:70:30:0
+W:20:0:5:20
+A:20/60:35/80
+M:20:2d4
+F:MECHA_GEN | EASY_KNOW
+D:that greatly repairs mechanical beings.
+
+N:581:Energy Kit
+G:?:d
+I:70:31:0
+W:0:0:5:20
+A:0/4:5/10:50/0
+M:90:4d5
+F:MECHA_GEN | EASY_KNOW
+D:that gives energy back to mechanical beings.
+
+N:582:*Energy* Kit
+G:?:d
+I:70:32:0
+W:20:0:5:20
+A:20/4:35/8
+M:20:2d4
+F:MECHA_GEN | EASY_KNOW
+D:that gives a lot of energy back to mechanical beings.
 
 ##########################
-# N:1492 - N:1550 Unused #
+# N:583 - N:599 Unused #
 ##########################
 
-# Parchments
-
-N:1551:A Morning Conversation
-G:?:o
-I:71:0:0
-W:5:10:50:0
-A:5/10
-F:EASY_KNOW
-
-N:1552:A Note Home
-G:?:o
-I:71:1:0
-W:5:10:40:0
-A:5/10
-F:EASY_KNOW
-
-N:1553:Martian Anatomy
-G:?:o
-I:71:2:0
-W:15:10:40:0
-A:20/10
-F:EASY_KNOW
-
-N:1554:The Martian Slave Race
-G:?:o
-I:71:3:0
-W:15:10:40:0
-A:20/10
-F:EASY_KNOW
-
-N:1555:The Red Weed
-G:?:o
-I:71:4:0
-W:15:10:40:0
-A:20/10
-F:EASY_KNOW
-
-N:1556:Homoeopathy
-G:?:o
-I:71:5:0
-W:20:10:40:0
-A:5/10
-F:EASY_KNOW
-
-#N:1557:a note home 6
+#N:600:A Morning Conversation
+#G:?:o
+#I:71:1:0
+#W:5:10:50:0
+#A:5/2
+#F:EASY_KNOW
+#
+#N:601:A Note Home
+#G:?:o
+#I:71:2:0
+#W:5:10:40:0
+#A:5/2
+#F:EASY_KNOW
+#
+#N:602:Martian Anatomy
+#G:?:o
+#I:71:3:0
+#W:15:10:40:0
+#A:20/2
+#F:EASY_KNOW
+#
+#N:603:The Martian Slave Race
+#G:?:o
+#I:71:4:0
+#W:15:10:40:0
+#A:20/2
+#F:EASY_KNOW
+#
+#N:604:The Red Weed
+#G:?:o
+#I:71:5:0
+#W:15:10:40:0
+#A:20/2
+#F:EASY_KNOW
+#
+#N:605:Homoeopathy
 #G:?:o
 #I:71:6:0
-#W:5:0:40:0
-#A:5/1
+#W:20:10:40:0
+#A:5/2
 #F:EASY_KNOW
 
-#N:1558:a note home 7
-#G:?:o
-#I:71:7:0
-#W:5:0:40:0
-#A:5/1
-#F:EASY_KNOW
-
-#N:1559:a note home 8
-#G:?:o
-#I:71:8:0
-#W:5:0:40:0
-#A:5/1
-#F:EASY_KNOW
-
-#N:1560:a note home 9
-#G:?:o
-#I:71:9:0
-#W:5:0:40:0
-#A:5/1
-#F:EASY_KNOW
-
-#N:1561:a note home 10
-#G:?:o
-#I:71:10:0
-#W:5:0:40:0
-#A:5/1
-#F:EASY_KNOW
-
-#N:1562:a note home 11
-#G:?:o
-#I:71:11:0
-#W:5:0:40:0
-#A:5/1
-#F:EASY_KNOW
-
-#N:1562:a note home 12
-#G:?:o
-#I:71:12:0
-#W:5:0:40:0
-#A:5/1
-#F:EASY_KNOW
-
-##########################
-# N:1563 - N:1650 Unused # (Big gap, as I suppose you'll be adding lots of parchments...)
-##########################
+########################
+# N:606 - N:649 Unused # 
+########################
 
 ##### Tonics #####
 
-N:1651:Slime Mold Juice
-G:!:d
-I:75:2:400
-W:0:0:4:2
-A:0/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1652:Apple Juice
-G:!:d
-I:75:1:250
-W:0:0:4:1
-A:0/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1653:Water
+N:650:Water
 G:!:d
 I:75:0:200
 W:0:0:4:1
-A:0/1
+A:0/100:3/10:10/0
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
+D:that is thirst quenching.
 
-N:1654:Muscle
+N:651:Apple Juice
 G:!:d
-I:75:48:0
-W:30:3:4:8000
-A:30/4
+I:75:1:250
+W:0:0:4:1
+A:0/100:2/10:5/0
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
+D:that is tasty and full of vitamins.
 
-N:1655:Weakness
+N:652:Slime Mold Juice
 G:!:d
-I:75:16:0
-W:3:0:4:0
-A:3/1
+I:75:2:400
+W:0:0:4:2
+A:0/100:2/100:8/0
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
+D:containing the nectar of the gods.  
+D:There is no ambrosia in all the world 
+D:more wonderful than liquified slime mold.
 
-N:1656:Restore Muscle
-G:!:d
-I:75:42:0
-W:25:0:4:300
-A:25/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1657:Knowledge
-G:!:d
-I:75:49:0
-W:30:3:4:8000
-A:30/4
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1658:Stupidity
-G:!:d
-I:75:17:0
-W:20:0:4:0
-A:20/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1659:Restore Knowledge
-G:!:d
-I:75:43:0
-W:25:0:4:300
-A:25/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1660:Ego
-G:!:d
-I:75:50:0
-W:30:3:4:8000
-A:30/4
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1661:Naivety
-G:!:d
-I:75:18:0
-W:20:0:4:0
-A:20/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1662:Restore Ego
-G:!:d
-I:75:44:0
-W:25:0:4:300
-A:25/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1663:Charm
-G:!:d
-I:75:53:0
-W:20:3:4:1000
-A:20/4
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1664:Ugliness
-G:!:d
-I:75:21:0
-W:20:0:4:0
-A:20/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1665:Restore Charm
-G:!:d
-I:75:47:0
-W:20:0:4:300
-A:20/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1666:Cure Light Wounds
-G:!:d
-I:75:34:50
-W:0:0:4:15
-A:0/1:1/1:3/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1667:Clumsiness
-G:!:d
-I:75:19:0
-W:5:0:4:0
-A:5/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1668:Sickliness
-G:!:d
-I:75:20:0
-W:10:0:4:0
-A:10/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1669:Cure Serious Wounds
-G:!:d
-I:75:35:100
-W:3:0:4:40
-A:3/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1670:Cure Critical Wounds
-G:!:d
-I:75:36:100
-W:5:0:4:100
-A:5/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1671:Healing
-G:!:d
-I:75:37:200
-W:15:0:4:300
-A:15/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1672:Vigor
-G:!:d
-I:75:52:0
-W:30:3:4:8000
-A:30/4
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1673:Experience
-G:!:d
-I:75:59:0
-W:65:0:4:25000
-A:65/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1674:Sleep
-G:!:d
-I:75:11:100
-W:0:0:4:0
-A:0/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1675:Blindness
-G:!:d
-I:75:7:0
-W:0:0:4:0
-A:0/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1676:Confusion
-G:!:d
-I:75:9:50
-W:0:0:4:0
-A:0/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1677:Poison
-G:!:d
-I:75:6:0
-W:3:0:4:0
-A:3/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1678:Speed
-G:!:d
-I:75:29:0
-W:1:0:4:75
-A:1/1:40/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1679:Slowness
+N:653:Slowness
 G:!:d
 I:75:4:50
 W:1:0:4:0
-A:1/1
+A:1/100:5/0
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
+D:that slows you down.
 
-N:1680:Agility
-G:!:d
-I:75:51:0
-W:30:3:4:8000
-A:30/4
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1681:Restore Agility
-G:!:d
-I:75:45:0
-W:25:0:4:300
-A:25/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1682:Restore Vigor
-G:!:d
-I:75:46:0
-W:25:0:4:300
-A:25/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1683:Lose Memories
-G:!:d
-I:75:13:0
-W:10:0:4:0
-A:10/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1684:Emetic
+N:654:Emetic
 G:!:d
 I:75:5:0
 W:0:0:4:0
-A:0/1
+A:0/100:3/0
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
+D:that seems unwise to drink.
 
-N:1685:Enlightenment
+N:655:Poison
 G:!:d
-I:75:56:0
-W:25:0:4:800
-A:25/1
+I:75:6:0
+W:3:0:4:0
+A:3/100:10/0
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
+D:that gives off bitter fumes.
 
-N:1686:Heroism
+N:656:Blindness
 G:!:d
-I:75:32:0
+I:75:7:0
+W:0:0:4:0
+A:0/100:10/0
+P:0:1d1:0:0:0:0
+F:EASY_KNOW
+D:that is unnaturally opaque.
+
+#N:1658:Mutagen
+#G:!:v
+#I:75:8:0
+#W:30:0:1:10000
+#A:30/2:50/1
+#P:0:2d12:0:0:0:0
+#M:5:4d8
+#F:THROW
+#D:that shifts and twists inside the container.
+
+N:657:Confusion
+G:!:d
+I:75:9:50
+W:0:0:4:0
+A:0/100:15/0
+P:0:1d1:0:0:0:0
+F:EASY_KNOW
+D:that swirls in hypnotic patterns.
+
+#N:1660:Mutagen Antidote
+#G:!:v
+#I:75:10:0
+#W:15:0:1:10000
+#A:30/2:50/1
+#P:0:1d3:0:0:0:0
+#M:5:4d8
+#D:that is incredibly static.
+
+N:658:Sleep
+G:!:d
+I:75:11:100
+W:0:0:4:0
+A:0/100:5/0
+P:0:1d1:0:0:0:0
+F:EASY_KNOW
+D:that smells like poppies.
+
+N:659:Lose Memories
+G:!:d
+I:75:12:0
+W:15:0:4:0
+A:15/60:20/0
+P:0:1d1:0:0:0:0
+F:EASY_KNOW
+D:that weakens your spirit.
+
+N:660:Skill
+G:!:d
+I:75:13:0
+W:1:0:4:35000
+A:0/1:40/5:50/10
+P:0:1d1:0:0:0:0
+M:1:1d3
+F:EASY_KNOW
+D:that increases your skills.
+
+N:661:Weakness
+G:!:d
+I:75:14:0
+W:3:0:4:0
+A:10/10:25/50:30/0
+P:0:1d1:0:0:0:0
+F:EASY_KNOW
+D:that saps your strength.
+
+N:662:Clumsiness
+G:!:d
+I:75:15:0
+W:5:0:4:0
+A:10/10:25/50:30/0
+P:0:1d1:0:0:0:0
+F:EASY_KNOW
+D:that attacks your coordination.
+
+N:663:Sickliness
+G:!:d
+I:75:16:0
+W:10:0:4:0
+A:10/10:25/50:30/0
+P:0:1d1:0:0:0:0
+F:EASY_KNOW
+D:that ravages your body.
+
+N:664:Stupidity
+G:!:d
+I:75:17:0
+W:20:0:4:0
+A:10/10:25/50:30/0
+P:0:1d1:0:0:0:0
+F:EASY_KNOW
+D:that dulls your mind.
+
+N:665:Naivety
+G:!:d
+I:75:18:0
+W:20:0:4:0
+A:10/10:25/50:30/0
+P:0:1d1:0:0:0:0
+F:EASY_KNOW
+D:that breaks down your will.
+
+N:666:Ugliness
+G:!:d
+I:75:19:0
+W:20:0:4:0
+A:5/10:20/50:25/0
+P:0:1d1:0:0:0:0
+F:EASY_KNOW
+D:that scars your form and dulls your charm.
+
+N:667:Infra-vision
+G:!:d
+I:75:20:0
+W:3:0:4:20
+A:3/50:10/50:15/0
+P:0:1d1:0:0:0:0
+F:EASY_KNOW
+D:that enhances your vision into an area of the 
+D:non-visible spectrum.
+
+N:668:Detect Invisible
+G:!:d
+I:75:21:0
+W:3:0:4:50
+A:3/100:13/100:25/0
+P:0:1d1:0:0:0:0
+F:EASY_KNOW
+D:that reveals the unseen.
+
+N:669:Slow Poison
+G:!:d
+I:75:22:0
+W:1:0:4:25
+A:1/100:30/1
+P:0:1d1:0:0:0:0
+F:EASY_KNOW
+D:that weakens any poisons in your body.
+
+N:670:Neutralize Poison
+G:!:d
+I:75:23:0
+W:5:0:4:75
+A:1/50:10/50:20/5
+P:0:1d1:0:0:0:0
+F:EASY_KNOW
+D:that cures poison.
+
+N:671:Boldness
+G:!:d
+I:75:24:0
+W:1:0:4:10
+A:1/50:5/50:20/1
+P:0:1d1:0:0:0:0
+F:EASY_KNOW
+D:that restores your courage.
+
+N:672:Speed
+G:!:d
+I:75:25:0
+W:1:0:4:75
+A:1/80
+P:0:1d1:0:0:0:0
+F:EASY_KNOW
+D:that makes you supernaturally fast.
+
+N:673:Heroism
+G:!:d
+I:75:26:0
 W:1:0:4:35
 A:1/1
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
+D:that makes you unafraid and gives you skill at combat.
 
-N:1687:Berserk Strength
+N:674:Berserk Strength
 G:!:d
-I:75:33:0
+I:75:27:0
 W:3:0:4:100
 A:3/1
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
+D:that makes you unafraid and gives you mighty skill at 
+D:combat.
 
-N:1688:Boldness
+#N:1678:Cure Minor Wounds
+#G:!:d
+#I:75:28:50
+#W:0:0:1:8
+#A:0/160:10/0
+#P:0:1d1:0:0:0:0
+#M:100:4d3
+#D:that heals small wounds.
+
+N:675:Cure Light Wounds
 G:!:d
-I:75:28:0
-W:1:0:4:10
-A:1/1
+I:75:29:50
+W:0:0:4:15
+A:2/160:20/0
+P:0:1d1:0:0:0:0
+M:100:3d3
+F:EASY_KNOW
+D:that heals small wounds, and a little blinding, confusion, and poisoning.
+
+N:676:Cure Serious Wounds
+G:!:d
+I:75:30:100
+W:8:0:4:40
+A:8/160:30/0
+P:0:1d1:0:0:0:0
+M:90:2d3
+F:EASY_KNOW
+D:that heals moderate wounds, and some blinding, confusion, and poisoning. 
+
+N:677:Cure Critical Wounds
+G:!:d
+I:75:31:100
+W:20:0:4:100
+A:20/160:40/0
+P:0:1d1:0:0:0:0
+M:80:1d3
+F:EASY_KNOW
+D:that heals you considerably and cures a fair amount of blinding, 
+D:confusion, and poisoning.
+
+N:678:Cure Mortal Wounds
+G:!:d
+I:75:32:100
+W:35:0:4:100
+A:35/160:50/10
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
+D:that heals you greatly and cures blinding, 
+D:confusion, and poisoning.
 
-N:1689:Restore Life Levels
+N:679:Healing
+G:!:d
+I:75:33:200
+W:45:0:4:300
+A:45/110:50/30
+P:0:1d1:0:0:0:0
+F:EASY_KNOW
+D:that is phenomenally reinvigorating.
+
+N:680:*Healing*
+G:!:d
+I:75:34:0
+W:40:0:4:1500
+A:48/110
+P:0:1d1:0:0:0:0
+F:EASY_KNOW
+D:that heals you enormously and cures most of your ailments.
+
+N:681:Minor Refresh Spirit
+G:!:d
+I:75:35:50
+W:0:0:4:9
+A:0/2:10/0
+P:0:1d1:0:0:0:0
+M:60:4d2
+F:EASY_KNOW
+D:that restores a few spell points.
+
+N:682:Light Refresh Spirit
+G:!:d
+I:75:36:50
+W:0:0:4:15
+A:2/2:20/0
+P:0:1d1:0:0:0:0
+M:50:3d2
+F:EASY_KNOW
+D:that restores some spell points.
+
+N:683:Serious Refresh Spirit
+G:!:d
+I:75:37:100
+W:3:0:4:40
+A:8/2:30/0
+P:0:1d1:0:0:0:0
+M:40:2d2
+F:EASY_KNOW
+D:that restores your spell points.
+
+N:684:Critical Refresh Spirit
+G:!:d
+I:75:38:100
+W:20:0:4:100
+A:20/2:40/0
+P:0:1d1:0:0:0:0
+M:30:1d2
+F:EASY_KNOW
+D:that restores a lot of spell points.
+
+N:685:Mortal Refresh Spirit
+G:!:d
+I:75:39:100
+W:35:0:4:100
+A:35/2:50/5
+P:0:1d1:0:0:0:0
+D:that greatly restores your spell points.
+
+N:686:Healing Spirit
+G:!:d
+I:75:40:200
+W:15:0:4:300
+A:45/10:50/0
+P:0:1d1:0:0:0:0
+F:EASY_KNOW
+D:that almost fully restores your spell points.
+
+N:687:*Healing* Spirit
 G:!:d
 I:75:41:0
-W:40:0:4:400
-A:40/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1690:Resist Heat
-G:!:d
-I:75:30:0
-W:1:0:4:30
-A:1/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1691:Resist Cold
-G:!:d
-I:75:31:0
-W:1:0:4:30
-A:1/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1692:Detect Invisible
-G:!:d
-I:75:25:0
-W:3:0:4:50
-A:3/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1693:Slow Poison
-G:!:d
-I:75:26:0
-W:1:0:4:25
-A:1/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1694:Neutralize Poison
-G:!:d
-I:75:27:0
-W:5:0:4:75
-A:5/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1695:Restore Mana
-G:!:d
-I:75:40:0
-W:25:0:4:350
-A:25/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1696:Infra-vision
-G:!:d
-I:75:24:0
-W:3:0:4:20
-A:3/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-##### Extra Tonics #####
-
-N:1697:Death
-G:!:d
-I:75:23:0
-W:55:0:4:0
-A:55/4
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1698:Ruination
-G:!:d
-I:75:15:0
-W:40:0:4:0
-A:40/8
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1699:'Fulgurator'
-G:!:d
-I:75:22:0
-W:60:0:4:10000
-A:60/8
-P:0:25d25:0:0:0:0
-F:EASY_KNOW | THROW
-
-N:1700:Augmentation
-G:!:d
-I:75:55:0
-W:40:0:4:60000
-A:40/16
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1701:*Healing*
-G:!:d
-I:75:38:0
 W:40:0:4:1500
-A:40/4
+A:48/2
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
+D:that fully restores your spell points.
 
-N:1702:Life
+N:688:Life
 G:!:d
-I:75:39:0
+I:75:42:0
 W:60:0:4:5000
 A:60/4
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
+D:that heals every wound and fixes all that ails you.
 
-N:1703:Self Knowledge
+N:689:Restore Life Levels
 G:!:d
-I:75:58:0
-W:40:0:4:2000
-A:40/1
+I:75:44:0
+W:30:0:4:400
+A:30/10:50/80
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
+D:that restores your stolen life force.
 
-N:1704:*Enlightenment*
+N:690:Restore Muscle
+G:!:d
+I:75:45:0
+W:25:0:4:300
+A:15/30:40/0
+P:0:1d1:0:0:0:0
+M:50:2d3
+F:EASY_KNOW
+D:that restores your stolen muscle.
+
+N:691:Restore Agility
+G:!:d
+I:75:46:0
+W:25:0:4:300
+A:15/30:40/0
+P:0:1d1:0:0:0:0
+M:50:2d3
+F:EASY_KNOW
+D:that restores your stolen agility.
+
+N:692:Restore Vigor
+G:!:d
+I:75:47:0
+W:25:0:4:300
+A:15/30:40/0
+P:0:1d1:0:0:0:0
+M:50:2d3
+F:EASY_KNOW
+D:that restores your stolen vigor.
+
+N:693:Restore Knowledge
+G:!:d
+I:75:48:0
+W:25:0:4:300
+A:15/30:40/0
+P:0:1d1:0:0:0:0
+M:50:2d3
+F:EASY_KNOW
+D:that restores your stolen schooling.
+
+N:694:Restore Ego
+G:!:d
+I:75:49:0
+W:25:0:4:300
+A:15/30:40/0
+P:0:1d1:0:0:0:0
+M:50:2d3
+F:EASY_KNOW
+D:that restores your stolen ego.
+
+N:695:Restore Charm
+G:!:d
+I:75:50:0
+W:20:0:4:300
+A:15/30:40/0
+P:0:1d1:0:0:0:0
+M:50:2d3
+F:EASY_KNOW
+D:that restores your stolen charm.
+
+N:696:Muscle
+G:!:d
+I:75:51:0
+W:45:3:4:8000
+A:15/10:35/100:50/50
+P:0:1d1:0:0:0:0
+M:5:2d4
+F:EASY_KNOW
+D:that makes you permanently stronger.
+
+N:697:Agility
+G:!:d
+I:75:52:0
+W:45:3:4:8000
+A:15/10:35/100:50/50
+P:0:1d1:0:0:0:0
+M:5:2d4
+F:EASY_KNOW
+D:that makes you permanently more agile.
+
+N:698:Vigor
+G:!:d
+I:75:53:0
+W:45:3:4:8000
+A:15/10:35/100:50/50
+P:0:1d1:0:0:0:0
+M:5:2d4
+F:EASY_KNOW
+D:that makes you permanently more healthy.
+
+N:699:Knowledge
+G:!:d
+I:75:54:0
+W:45:3:4:8000
+A:15/10:35/100:50/50
+P:0:1d1:0:0:0:0
+M:5:2d4
+F:EASY_KNOW
+D:that makes you permanently smarter.
+
+N:700:Ego
+G:!:d
+I:75:55:0
+W:45:3:4:8000
+A:15/10:35/100:50/50
+P:0:1d1:0:0:0:0
+M:5:2d4
+F:EASY_KNOW
+D:that makes you permanently wiser.
+
+N:701:Charm
+G:!:d
+I:75:56:0
+W:45:3:4:1000
+A:10/10:30/100:50/50
+P:0:1d1:0:0:0:0
+M:5:2d4
+F:EASY_KNOW
+D:that makes you permanently more charming.
+
+N:702:Augmentation
 G:!:d
 I:75:57:0
-W:70:0:4:80000
-A:70/4
+W:40:0:4:60000
+A:20/10:50/30
+P:0:1d1:0:0:0:0
+M:1:2d2
+F:EASY_KNOW
+D:that improves your mind and body in every way.
+
+N:703:Enlightenment
+G:!:d
+I:75:58:0
+W:25:0:4:800
+A:25/30:50/50
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
+D:that reveals the entire level and magically lights up most of it.
 
-N:1705:Mutagen
-G:!:v
-I:75:8:0
-W:15:0:1:10000
-A:15/1:30/1
-P:0:2d12:0:0:0:0
-F:EASY_KNOW | THROW
-
-N:1706:Mutagen Antidote
-G:!:v
-I:75:10:0
-W:15:0:1:10000
-A:15/1:30/1
-P:0:1d3:0:0:0:0
+N:704:*Enlightenment*
+G:!:d
+I:75:59:0
+W:50:0:4:80000
+A:30/1:40/10
+P:0:1d1:0:0:0:0
 F:EASY_KNOW
+D:that reveals the entire level and its secrets, improves your mind, 
+D:identifies your possesions, and gives self knowledge.
+
+N:705:Self Knowledge
+G:!:d
+I:75:60:0
+W:30:0:4:2000
+A:30/50
+P:0:1d1:0:0:0:0
+F:EASY_KNOW
+D:that reveals your hidden attributes.
+
+N:706:Experience
+G:!:d
+I:75:61:0
+W:35:0:4:25000
+A:35/15
+P:0:1d1:0:0:0:0
+F:EASY_KNOW
+D:that floods your mind with knowledge.
 
 
 ##########################
-# N:1707 - N:1750 Unused #
+# N:707 - N:749 Unused #
 ##########################
 
-
-N:1751:& Flask~ of oil
+N:750:& Flask~ of oil
 G:!:y
 I:77:0:7500
-W:1:0:10:3
+W:1:0:2:3
 A:1/1
 P:0:2d6:0:0:0:0
-F:EASY_KNOW | THROW
+F:EASY_KNOW
+D:Fuel supply for a lamp or a machine.
 
 ##### Anodynes #####
 
 #Blinding
-N:1752:Blinding
-G:,:W
-I:80:1:500
-W:5:0:1:0
-A:5/1
-F:EASY_KNOW
+#N:752:Blinding
+#G:,:W
+#I:80:1:500
+#W:5:0:1:0
+#A:5/1
+#F:EASY_KNOW
 
 #Paranoia
-N:1753:Bad Tallow weed
-G:,:g
-I:80:2:500
-W:5:0:1:0
-A:5/1
-F:EASY_KNOW
+#N:753:Bad Tallow weed
+#G:,:g
+#I:80:2:500
+#W:5:0:1:0
+#A:5/1
+#F:EASY_KNOW
 
 #Confusion
-N:1754:Ether
-G:,:d
-I:80:3:500
-W:5:0:1:0
-A:5/1
-F:EASY_KNOW
+#N:754:Ether
+#G:,:d
+#I:80:3:500
+#W:5:0:1:0
+#A:5/1
+#F:EASY_KNOW
 
 #Hallucination
-N:1755:Peyote
-G:,:U
-I:80:4:500
-W:10:0:1:0
-A:10/1
-F:EASY_KNOW
+#N:755:Peyote
+#G:,:U
+#I:80:4:500
+#W:10:0:1:0
+#A:10/1
+#F:EASY_KNOW
 
 #Cure Poison
-N:1756:Peony
-G:,:w
-I:80:12:500
-W:10:0:1:60
-A:10/1
-F:EASY_KNOW
+#N:756:Peony
+#G:,:w
+#I:80:12:500
+#W:10:0:1:60
+#A:10/1
+#F:EASY_KNOW
 
 #Cure Blindness
-N:1757:Sweetbalm
-G:,:y
-I:80:13:500
-W:10:0:1:50
-A:10/1
-F:EASY_KNOW
+#N:757:Sweetbalm
+#G:,:y
+#I:80:13:500
+#W:10:0:1:50
+#A:10/1
+#F:EASY_KNOW
 
 #Cure Paranoia
-N:1758:Bryony
-G:,:s
-I:80:14:500
-W:10:0:1:25
-A:10/1
-F:EASY_KNOW
+#N:758:Bryony
+#G:,:s
+#I:80:14:500
+#W:10:0:1:25
+#A:10/1
+#F:EASY_KNOW
+#
+##Cure Confusion
+#N:759:Asafetida
+#G:,:v
+#I:80:15:500
+#W:10:0:1:50
+#A:10/1
+#F:EASY_KNOW
+#
+##Weakness
+#N:760:Hemlock
+#G:,:d
+#I:80:6:500
+#W:10:0:1:0
+#A:10/1
+#F:EASY_KNOW
+#
+##Unhealth
+#N:761:White Lotus
+#G:,:w
+#I:80:10:500
+#W:15:0:1:50
+#A:15/1
+#P:0:10d10:0:0:0:0
+#F:EASY_KNOW | THROW
+#
+##Restore Constitution
+#N:762:Tiger Lily
+#G:,:w
+#I:80:18:500
+#W:20:0:1:350
+#A:20/1
+#F:EASY_KNOW
+#
+##Restoring
+#N:763:Ginseng
+#G:,:g
+#I:80:19:500
+#W:20:0:1:1000
+#A:20/8:30/4:40/1
+#F:EASY_KNOW
+#
+##Stupidity
+#N:764:Thiopental
+#G:,:d
+#I:80:8:500
+#W:15:0:1:0
+#A:15/1
+#F:EASY_KNOW
+#
+##Naivety
+#N:765:Brain Worm
+#G:,:u
+#I:80:9:500
+#W:15:0:1:0
+#A:15/1
+#F:EASY_KNOW
+#
+#N:766:Poison
+#G:,:v
+#I:80:0:500
+#W:5:0:1:0
+#A:5/1:5/1
+#F:EASY_KNOW
+#
+##Sickness
+#N:767:Drain Cleaner
+#G:,:d
+#I:80:7:500
+#W:10:0:1:0
+#A:10/1
+#F:EASY_KNOW
+#
+##Paralysis
+#N:768:Chloroform
+#G:,:d
+#I:80:5:500
+#W:20:0:1:0
+#A:20/1
+#F:EASY_KNOW
+#
+##Restore Strength
+#N:769:Persian Gum
+#G:,:d
+#I:80:17:500
+#W:20:0:1:350
+#A:20/1
+#F:EASY_KNOW
+#
+## Disease
+#N:770:Plague Flower
+#G:,:d
+#I:80:11:500
+#W:20:0:1:50
+#A:20/1
+#P:0:10d10:0:0:0:0
+#F:EASY_KNOW | THROW
+#
+##Cure Serious Wounds
+#N:771:Daffodil
+#G:,:d
+#I:80:16:500
+#W:15:0:2:75
+#A:15/1
+#F:EASY_KNOW
 
-#Cure Confusion
-N:1759:Asafetida
-G:,:v
-I:80:15:500
-W:10:0:1:50
-A:10/1
-F:EASY_KNOW
-
-#Weakness
-N:1760:Hemlock
-G:,:d
-I:80:6:500
-W:10:0:1:0
-A:10/1
-F:EASY_KNOW
-
-#Unhealth
-N:1761:White Lotus
-G:,:w
-I:80:10:500
-W:15:0:1:50
-A:15/1
-P:0:10d10:0:0:0:0
-F:EASY_KNOW | THROW
-
-#Restore Constitution
-N:1762:Tiger Lily
-G:,:w
-I:80:18:500
-W:20:0:1:350
-A:20/1
-F:EASY_KNOW
-
-#Restoring
-N:1763:Ginseng
-G:,:g
-I:80:19:500
-W:20:0:1:1000
-A:20/8:30/4:40/1
-F:EASY_KNOW
-
-#Stupidity
-N:1764:Thiopental
-G:,:d
-I:80:8:500
-W:15:0:1:0
-A:15/1
-F:EASY_KNOW
-
-#Naivety
-N:1765:Brain Worm
-G:,:u
-I:80:9:500
-W:15:0:1:0
-A:15/1
-F:EASY_KNOW
-
-N:1766:Poison
-G:,:v
-I:80:0:500
-W:5:0:1:0
-A:5/1:5/1
-F:EASY_KNOW
-
-#Sickness
-N:1767:Drain Cleaner
-G:,:d
-I:80:7:500
-W:10:0:1:0
-A:10/1
-F:EASY_KNOW
-
-#Paralysis
-N:1768:Chloroform
-G:,:d
-I:80:5:500
-W:20:0:1:0
-A:20/1
-F:EASY_KNOW
-
-#Restore Strength
-N:1769:Persian Gum
-G:,:d
-I:80:17:500
-W:20:0:1:350
-A:20/1
-F:EASY_KNOW
-
-# Disease
-N:1770:Plague Flower
-G:,:d
-I:80:11:500
-W:20:0:1:50
-A:20/1
-P:0:10d10:0:0:0:0
-F:EASY_KNOW | THROW
-
-#Cure Serious Wounds
-N:1771:Daffodil
-G:,:d
-I:80:16:500
-W:15:0:2:75
-A:15/1
-F:EASY_KNOW
+##Cure Light Wounds
+#N:782:Aloe Vera
+#G:,:d
+#I:80:20:500
+#W:15:0:2:75
+#A:15/1
+#F:EASY_KNOW
+#
+#N:783:Marijuana
+#G:,:d
+#I:80:21:0
+#W:5:0:2:75
+#A:15/1:30/1:40/1
+#F:EASY_KNOW
+#
+#N:784:Opium
+#G:,:d
+#I:80:22:100
+#W:10:0:2:75
+#A:15/1:30/1
+#F:EASY_KNOW
+#
+#N:785:Mushrooms
+#G:,:d
+#I:80:23:500
+#W:5:0:2:75
+#A:15/1:30/1
+#F:EASY_KNOW
+#
+#N:786:Cocaine
+#G:,:d
+#I:80:24:0
+#W:10:0:2:75
+#A:15/1:30/1
+#F:EASY_KNOW
+#
+#N:787:Tobacco
+#G:,:d
+#I:80:25:25
+#W:5:0:2:75
+#A:15/1:30/1
+#F:EASY_KNOW
+#
+#restore mp
+#N:1800:& Tea
+#G:,:r
+#I:80:55:1000
+#W:0:0:5:2
+#A:0/20
+#M:80:2d4
+#F:EASY_KNOW
+#
 
 ##### Normal Food #####
 
-N:1772:& Ration~ of Food
-G:,:U
-I:80:35:5000
-W:0:0:10:3
-A:0/1:5/1:10/1
-F:EASY_KNOW
-
-N:1773:& Hard Biscuit~
+N:810:& Hard Biscuit~
 G:,:U
 I:80:32:500
 W:0:0:2:1
+A:0/20
+M:80:2d4
 F:EASY_KNOW
 
-N:1774:& Strip~ of Beef Jerky
+N:811:& Strip~ of Beef Jerky
 G:,:u
-I:80:33:1500
+I:80:33:1750
 W:0:0:2:2
+A:0/20
+M:80:2d4
 F:EASY_KNOW
 
-N:1775:& Slime Mold~
-G:,:g
-I:80:36:3000
-W:1:0:5:2
-A:1/1
-F:EASY_KNOW
-
-N:1776:& Piece~ of Waybread
-G:,:B
-I:80:37:7500
-W:5:0:3:10
-A:5/1:10/1:20/1
-F:EASY_KNOW
-
-N:1777:& Pint~ of Fine Ale
-G:,:y
-I:80:38:500
-W:0:0:5:1
-F:EASY_KNOW
-
-N:1778:& Pint~ of Fine Wine
+N:812:& Pint~ of Fine Wine
 G:,:r
 I:80:39:1000
-W:0:0:10:2
+W:0:0:10:400
+A:0/8
+M:80:2d4
 F:EASY_KNOW
 
-## NEW FOODS
-
-N:1779:& Piece~ of Mutton
+N:813:& Piece~ of Mutton
 G:,:U
-I:80:40:3500
-W:0:0:10:1
-A:0/1:5/1:10/1
+I:80:40:5500
+W:0:0:15:2
+A:0/20
+M:80:2d4
 F:EASY_KNOW
 
-N:1780:& Onion~
+N:814:& Onion~
 G:,:w
 I:80:41:800
 W:0:0:10:1
-A:0/1:5/1:10/1
+A:0/20
+M:80:2d4
 F:EASY_KNOW
 
-N:1781:& Potato~
+N:815:& Potato~
 G:,:U
 I:80:42:1200
 W:0:0:10:1
-A:0/1:5/1:10/1
+A:0/20
+M:80:2d4
 F:EASY_KNOW
 
-#Cure Light Wounds
-N:1782:Aloe Vera
-G:,:d
-I:80:20:500
-W:15:0:2:75
-A:15/1
-F:EASY_KNOW
-
-N:1783:Marijuana
-G:,:d
-I:80:21:0
-W:5:0:2:75
-A:15/1:30/1:40/1
-F:EASY_KNOW
-
-N:1784:Opium
-G:,:d
-I:80:22:100
-W:10:0:2:75
-A:15/1:30/1
-F:EASY_KNOW
-
-N:1785:Mushrooms
-G:,:d
-I:80:23:500
-W:5:0:2:75
-A:15/1:30/1
-F:EASY_KNOW
-
-N:1786:Cocaine
-G:,:d
-I:80:24:0
-W:10:0:2:75
-A:15/1:30/1
-F:EASY_KNOW
-
-N:1787:Tobacco
-G:,:d
-I:80:25:25
-W:5:0:2:75
-A:15/1:30/1
-F:EASY_KNOW
-
-N:1788:& Cheese
+N:816:& Cheese
 G:,:U
 I:80:43:2400
 W:0:0:10:1
-A:0/1:5/1:10/1
+A:0/20
+M:80:2d4
 F:EASY_KNOW
 
-N:1789:& Sausage Roll
+N:817:& Sausage Roll~
 G:,:U
 I:80:44:1500
 W:0:0:10:1
-A:0/1:5/1:10/1
+A:0/20
+M:80:2d4
 F:EASY_KNOW
 
-N:1790:& Crumpet
+N:818:& Crumpet~
 G:,:U
 I:80:45:1000
 W:0:0:10:1
-A:0/1:5/1:10/1
+A:0/20
+M:80:2d4
 F:EASY_KNOW
 
-#/* alternately, replace Ration of food with meat pie?*/
-N:1791:& Meat Pie		
+N:819:& Meat Pie~
 G:,:U
-I:80:46:4500
-W:0:0:10:3
-A:0/1:5/1:10/1
+I:80:46:7500
+W:0:0:18:4
+A:0/20
+M:80:2d4
 F:EASY_KNOW
 
-N:1792:& Saveloy
+N:820:& Saveloy~
 G:,:U
 I:80:47:1000
 W:0:0:10:2
-A:0/1:5/1:10/1
+A:0/20
+M:80:2d4
 F:EASY_KNOW
 
-N:1793:& Fried Fish
+N:821:& Fried Fish
 G:,:U
 I:80:48:1750
 W:0:0:10:2
-A:0/1:5/1:10/1
+A:0/20
+M:80:2d4
 F:EASY_KNOW
 
-N:1794:& Kidney Pudding
+N:822:& Kidney Pudding~
 G:,:U
 I:80:49:500
 W:0:0:10:4
-A:0/1:5/1:10/1
+A:0/20
+M:80:2d4
 F:EASY_KNOW
 
-N:1795:& Turnips
+N:823:& Turnip~
 G:,:U
 I:80:50:800
 W:0:0:10:1
-A:0/1:5/1:10/1
+A:0/20
+M:80:2d4
 F:EASY_KNOW
 
-N:1796:& Pigeon Pie
+N:824:& Pigeon Pie~
 G:,:U
 I:80:51:4000
 W:0:0:10:5
-A:0/1:5/1:10/1
+A:0/20
+M:80:2d4
 F:EASY_KNOW
 
-#perhaps some code if eat too many bon bons, you get sick?
-N:1797:& Bon Bon    
+N:825:& Bon Bon~
 G:,:U
 I:80:52:250
 W:0:0:10:3
-A:0/1:5/1:10/1
+A:0/20
+M:80:2d4
 F:EASY_KNOW
 
-N:1798:& Haddocks
+N:826:& Haddock~
 G:,:U
 I:80:53:2000
 W:0:0:10:2
-A:0/1:5/1:10/1
+A:0/20
+M:80:2d4
 F:EASY_KNOW
 
-N:1799:& Lemonade
+N:827:& Lemonade
 G:,:y
 I:80:54:500
 W:0:0:5:1
+A:0/20
+M:80:2d4
 F:EASY_KNOW
 
-N:1800:& Tea
-G:,:r
-I:80:55:1000
-W:0:0:5:2
-F:EASY_KNOW
-
-N:1801:& Pint~ of Erde Wine
-G:,:y
-I:80:56:500
-W:0:0:5:1
-F:EASY_KNOW
-
-N:1802:& Pint~ of Peppermint Water
+N:828:& Pint~ of Peppermint Water
 G:,:g
 I:80:57:500
-W:0:0:5:1
+W:0:0:5:20
+A:0/20
+M:80:2d4
+F:EASY_KNOW
+
+N:829:& Pint~ of Erde Wine
+G:,:y
+I:80:56:500
+W:0:0:5:30
+A:0/20
+M:80:2d4
 F:EASY_KNOW
 
 ##########################
-# N:1803 - N:1850 Unused #
+# N:829 - N:849 Unused #
 ##########################
 
 ##### Basic Books #####
 
-N:1851:[Liber AL vel Legis]
+N:850:[Liber AL vel Legis]
 G:?:R
-I:90:0:0
+I:90:0:1
 W:5:0:30:100
-A:5/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
+A:5/5
+P:0:0d0:0:0:0:0
+F:EASY_KNOW | MAGIC_MASTER
+D:Do what thou wilt shall be the whole of the Law. The study
+D: of this Book is forbidden. It is wise to destroy this copy
+D: after the first reading. Whosoever disregards this does so
+D: at his own risk and peril. These are most dire. Those who
+D: discuss the contents of this Book are to be shunned by all,
+D: as centres of pestilence. All questions of the Law are to
+D: be decided only by appeal to my writings, each for himself.
+D: There is no law beyond Do what thou wilt. Love is the law,
+D: love under will. The priest of the princes, Ankh-f-n-khonsu 
 
-N:1852:[Treatise on the Resurrection]
-G:?:G
-I:90:10:0
-W:10:0:30:100
-A:10/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
-
-N:1853:[The Zohar (Book of Splendor)]
+N:851:[The Zohar (Book of Splendour)]
 G:?:R
-I:90:1:0
+I:90:1:1
 W:20:0:30:400
-A:20/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
+A:15/5
+P:0:0d0:0:0:0:0
+F:EASY_KNOW | MAGIC_MASTER
+D:Happy will be the lost of Israel, whom the Holy One,
+D: blessed be He, has chosen from amongst the Goyim, of
+D: whom the Scriptures say: "Their work is but vanity, it
+D: is an illusion at which we must laugh; they will all
+D: perish when God visits them in His wrath." At the
+D: moment when the Holy One, blessed be He, will exterminate
+D: all the Goyim of the world, Israel alone will subsist,
+D: even as it is written: "The Lord alone will appear
+D: great on that day! . . . 
 
-N:1854:[Odes of Solomon]
+N:852:[Sepher Yetzirah (Book of Formation)]
+G:?:r
+I:90:2:2
+W:15:0:30:5000
+A:8/5:12/40:20/10
+P:0:1d1:0:0:0:0
+F:EASY_KNOW | MAGIC_MASTER | IMMUNE
+D:1. In two and thirty most occult and wonderful paths
+D: of wisdom did JAH the Lord of Hosts engrave his name:
+D: God of the armies of Israel, ever-living God, merciful
+D: and gracious, sublime, dwelling on high, who inhabiteth
+D: eternity. He created this universe by the three Sepharim,
+D: Number, Writing, and Speech.
+
+N:853:[De Vermis Mysteriis (Mysteries of the Worm)]
+G:?:r
+I:90:3:3
+W:20:0:30:30000
+A:20/20
+P:0:1d1:0:0:0:0
+F:EASY_KNOW | MAGIC_MASTER | IMMUNE
+D:Written in a prison in Prague by Ludwig Prinn in c1542,
+D: this terrible Tome has been known to contain knowledge
+D: that would drive men to madness.Ê Banned by Pope Pious
+D: V, copies may still be found at the Starry Wisdom Church
+D: in Providence Rhode Island, at the Huntington Library in
+D: California, and at Miskatonic University.
+
+N:854:[Cthaat Aquadingen]
+G:?:r
+I:90:4:3
+W:20:0:30:35000
+A:20/10
+P:0:1d1:0:0:0:0
+F:EASY_KNOW | MAGIC_MASTER | IMMUNE
+D:And then shall the gate be opened, as the sun is blotted out. Thus
+D: the Small Crawler will awaken those who dwell beyond and 
+D: bring them. The sea shall swallow them and spit them up and the
+D: leopard shall eat of the flesh in Rudraprayag in the Spring.
+
+N:855:[Othuum Omnicia]
+G:?:r
+I:90:5:3
+W:35:0:30:45000
+A:35/10
+P:0:1d1:0:0:0:0
+F:EASY_KNOW | MAGIC_MASTER | IMMUNE
+
+N:856:[Revelations of Glaaki]
+G:?:r
+I:90:6:2
+W:18:0:30:45000
+A:18/10
+P:0:1d1:0:0:0:0
+F:EASY_KNOW | MAGIC_MASTER | IMMUNE
+D:O vous qui gisez , mort mais rvant\n
+D:Entendez l'appel de votre serviteur\n
+D:Entendez moi , O puissant Cthulhu!\n
+D:Entendez moi maitre des rves!\n
+
+
+N:857:[Treatise on the Resurrection]
 G:?:G
-I:90:11:0
-W:30:0:30:400:0
-A:30/1
-P:0:1d1:0:0:0:0
-F:EASY_KNOW
+I:90:10:1
+W:10:0:30:100
+A:10/15
+P:0:0d0:0:0:0:0
+F:EASY_KNOW | MAGIC_MASTER 
+D:How did the Lord proclaim things while he existed in flesh
+D: and after he had revealed himself as Son of God? He lived
+D: in this place where you remain, speaking about the Law of
+D: Nature - but I call it 'Death'. Now the Son of God, Rheginos,
+D: was Son of Man. He embraced them both, possessing the humanity
+D: and the divinity, so that on the one hand he might vanquish
+D: death through his being Son of God, and that on the other
+D: through the Son of Man the restoration to the Pleroma might
+D: occur; because he was originally from above, a seed of Truth,
+D: before this structure had come into being. In this many dominions
+D: and divinities came into existence. 
 
-N:1855:[Utility Bandolier]
+N:858:[Odes of Solomon]
+G:?:G
+I:90:11:1
+W:30:0:30:400
+A:30/15
+P:0:0d0:0:0:0:0
+F:EASY_KNOW | MAGIC_MASTER 
+D:'But the chasms were submerged in the submersion
+D: of the Lord, and they perished in that thought
+D: with which they had remained from the beginning.
+D: For they labored from the beginning; and the end
+D: of their labor was life. And all of them who were
+D: lacking perished, because they were not able to express
+D: the word so that they might remain. And the Lord
+D: destroyed the thoughts, of all those who had not
+D: the truth with them.' 
+
+N:859:[The Pnakotic Manuscripts]
+G:?:g
+I:90:12:2
+W:25:0:30:10000
+A:25/20
+P:0:1d1:0:0:0:0
+F:EASY_KNOW | MAGIC_MASTER | IMMUNE
+D:Manuscripts originated before the coming of the human
+D: race which describes horrific creatures and locations
+D: which existed at the beginning of time. One of the known
+D: copies existed for 91 years in an arcane library in the
+D: Free-Will Church of Providence, Rhode Island. After Robert
+D: BlakeÕs death in 1935 to the Haunter of the Dark, a Doctor
+D: Dexter removed this and other tomes and added it to his library.
+
+N:860:[Khorda Avesta (Book of Common Prayer)]
+G:?:g
+I:90:13:2
+W:5:0:30:800
+A:1/10:5/40:10/5
+P:0:1d1:0:0:0:0
+F:EASY_KNOW | MAGIC_MASTER | IMMUNE
+D:What protector hast thou given unto me, O Mazda! while the
+D: hate of the wicked encompasses me? Whom but thy Atar and Vohu-mano,
+D: through whose work I keep on the world of righteousness? Reveal
+D: therefore to me thy Religion as thy rule!
+
+N:861:[Trimorphic Protennoia (Nag Hammadi)]
+G:?:g
+I:90:14:3
+W:30:0:30:22000
+A:30/20
+P:0:1d1:0:0:0:0
+F:EASY_KNOW | MAGIC_MASTER | IMMUNE
+D:I am Protennoia, the Thought that dwells in the Light. I am the movement
+D: that dwells in the All, she in whom the All takes its stand, the
+D: first-born among those who came to be, she who exists before the All.
+D: She (Protennoia) is called by three names, although she dwells alone,
+D: since she is perfect. I am invisible within the Thought of the Invisible
+D: One. I am revealed in the immeasurable, ineffable (things). I am
+D: incomprehensible, dwelling in the incomprehensible. I move in every creature. 
+
+N:862:[The Corpus Hermeticum]
+G:?:g
+I:90:15:3
+W:35:0:30:22000
+A:35/20
+P:0:1d1:0:0:0:0
+F:EASY_KNOW | MAGIC_MASTER | IMMUNE
+D:1. It chanced once on a time my mind was meditating on the things that are,
+D: my thought was raised to a great height, the senses of my body being held
+D: back - just as men who are weighed down with sleep after a fill of food,
+D: or from fatigue of body.\n
+D:Methought a Being more than vast, in size beyond all bounds, called out
+D: my name and saith: What wouldst thou hear and see, and what hast thou
+D: in mind to learn and know?\n
+D:2. And I do say: Who art thou?\n
+D:He saith: I am Man-Shepherd (Poemandres), Mind of all-masterhood; I know
+D: what thou desirest and I'm with thee everywhere.\n
+D:3. [And] I reply: I long to learn the things that are, and comprehend their
+D: nature, and know God. This is, I said, what I desire to hear.\n
+D:He answered back to me: Hold in thy mind all thou wouldst know, and I will teach thee. 
+
+N:865:[Utility Bandolier]
 G:?:U
 I:90:18:0
 W:5:0:30:25
-A:5/1
+A:5/10
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
+D:An all purpose utility belt.
 
-N:1856:[Detective's Kit]
+N:866:[Detective's Kit]
 G:?:U
 I:90:19:0
 W:10:0:30:100
-A:10/1
+A:10/10
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
+D:A collection of tools that help you use forensic evidence
+D: to discover anything you want.
 
-N:1857:[Clockwork Chassis]
+N:867:[Clockwork Chassis]
 G:?:U
 I:90:20:0
 W:20:0:30:300
-A:20/1
+A:20/10
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
+D:A clockwork harness that has a variety of useful effects.
 
-N:1858:[Clockwork Carbine]
+N:868:[Clockwork Carbine]
 G:?:U
 I:90:21:0
 W:30:0:30:900
-A:30/1
+A:30/10
 P:0:1d1:0:0:0:0
 F:EASY_KNOW
+D:A powerful clockwork firearm capeable of producing a variety of
+D: effects.
 
 ##### Special Books (note resistances) #####
 
-N:1859:[Sepher Yetzirah (Book of Formation)]
-G:?:r
-I:90:2:0
-W:40:0:30:5000
-A:40/1
-P:0:1d1:0:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-F:EASY_KNOW
-
-N:1860:[The Pnakotic Manuscripts]
-G:?:g
-I:90:12:0
-W:50:0:30:10000
-A:50/1
-P:0:1d1:0:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-F:EASY_KNOW
-
-N:1861:[De Vermis Mysteriis (Mysteries of the Worm)]
-G:?:r
-I:90:3:0
-W:60:0:30:30000
-A:60/1
-P:0:1d1:0:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-F:EASY_KNOW
-
-#N:1861:[]
-#G:?:r
-#I:90:7:0
-#W:80:0:30:50000
-#A:80/2
-#P:0:1d1:0:0:0:0
-#F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-#F:EASY_KNOW
-
-#N:1862:[]
-#G:?:r
-#I:90:8:0
-#W:100:0:30:100000
-#A:100/4
-#P:0:1d1:0:0:0:0
-#F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-#F:EASY_KNOW
-
-N:1864:[Velocipede]
+N:869:[Velocipede]
 G:?:u
 I:90:22:0
 W:40:0:30:5000
-A:40/1
+A:40/20
 P:0:1d1:0:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-F:EASY_KNOW
+F:EASY_KNOW | IMMUNE
+D:A device that has the power to move you.
 
-N:1865:[Analytic Engine]
+N:870:[Analytic Engine]
 G:?:u
 I:90:23:0
 W:50:0:30:10000
-A:50/1
+A:50/40
 P:0:1d1:0:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-F:EASY_KNOW
+F:EASY_KNOW | IMMUNE
+D:An analytic engine without equal.
 
 ##########################
-# N:1865 - N:1900 Unused #
-##########################
-
-#N:1901:[]
-#G:?:g
-#I:91:6:0
-#W:60:0:30:30000
-#A:60/1
-#P:0:1d1:0:0:0:0
-#F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-#F:EASY_KNOW
-
-#N:1902:[]
-#G:?:g
-#I:91:7:0
-#W:80:0:30:50000
-#A:80/2
-#P:0:1d1:0:0:0:0
-#F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-#F:EASY_KNOW
-
-#N:1903:[]
-#G:?:g
-#I:91:8:0
-#W:100:0:30:100000
-#A:100/4
-#P:0:1d1:0:0:0:0
-#F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-#F:EASY_KNOW
-
-##########################
-# N:1904 - N:1950 Unused #
+# N:871 - N:950 Unused #
 ##########################
 
 ##### And here starts the gold/gems #####
+##### Item index is important here ####
 
-N:1950:copper
+N:950:copper nuggets
 G:$:u
 I:100:1:0
 W:1:0:0:3
 
-N:1951:copper
-G:$:u
+N:951:tin nuggets
+G:$:W
 I:100:2:0
 W:1:0:0:4
 
-N:1952:copper
-G:$:u
+N:952:bauxite nuggets
+G:$:B
 I:100:3:0
 W:1:0:0:5
 
-N:1953:silver
+N:953:silver nuggets
 G:$:s
 I:100:4:0
-W:1:0:0:6
-
-N:1954:silver
-G:$:s
-I:100:5:0
-W:1:0:0:7
-
-N:1955:silver
-G:$:s
-I:100:6:0
 W:1:0:0:8
 
-N:1956:garnets
-G:$:r
-I:100:7:0
+N:954:silver nuggets
+G:$:s
+I:100:5:0
 W:1:0:0:9
 
-N:1957:garnets
-G:$:r
-I:100:8:0
+N:955:silver coins
+G:$:s
+I:100:6:0
 W:1:0:0:10
 
-N:1958:gold
-G:$:y
-I:100:9:0
+N:956:garnets
+G:$:r
+I:100:7:0
 W:1:0:0:12
 
-N:1959:gold
+N:957:silverware
+G:$:s
+I:100:8:0
+W:1:0:0:15
+
+N:958:gold nuggets
 G:$:y
-I:100:10:0
-W:1:0:0:14
-
-N:1960:gold
-G:$:y
-I:100:11:0
-W:1:0:0:16
-
-N:1961:opals
-G:$:W
-I:100:12:0
-W:1:0:0:18
-
-N:1962:sapphires
-G:$:b
-I:100:13:0
+I:100:9:0
 W:1:0:0:20
 
-N:1963:rubies
-G:$:r
-I:100:14:0
+N:959:gold coins
+G:$:y
+I:100:10:0
 W:1:0:0:24
 
-N:1964:diamonds
-G:$:w
-I:100:15:0
+N:960:gold nuggets
+G:$:y
+I:100:11:0
 W:1:0:0:28
 
-N:1965:emeralds
-G:$:g
-I:100:16:0
+N:961:opals
+G:$:W
+I:100:12:0
 W:1:0:0:32
 
-N:1966:mithril
-G:$:B
+N:962:pearls
+G:$:w
 I:100:17:0
-W:1:0:0:40
+W:1:0:0:36
 
-N:1967:adamantite
-G:$:G
+N:963:sapphires
+G:$:b
+I:100:13:0
+W:1:0:0:42
+
+N:964:star sapphires
+G:$:B
 I:100:18:0
+W:1:0:0:60
+
+N:965:rubies
+G:$:r
+I:100:14:0
 W:1:0:0:80
 
+N:966:emeralds
+G:$:g
+I:100:16:0
+W:1:0:0:90
 
-##### Objects 498 and 499 are the "Morgoth Artifacts" #####
-
-# These objects, like objects 500 to 511, are never created
-# without being turned into artifacts.  This simplifies the
-# code for "killing the winner monster".
-
-
-
-
-##### Objects 500 to 511 are the "Special Artifacts" #####
-
-# These objects do not specify "full names" because the artifact name
-# is added in "obj-desc.c" based on the artifact index ("i_ptr->name1").
-#
-# These objects do specify a "base name", which is used when the object
-# is "aware" (always true for lites)
-#
-# The Lites (and the One Ring) specify "physical colors", which
-# over-ride the "flavor" colors, if any.  Note that the "One Ring"
-# also has a specific check for "unknown" in which it changes its
-# name to "a plain gold ring".  See "obj-desc.c"
-#
-# Note that ALL artifacts are given "IGNORE_ACID/ELEC/FIRE/COLD",
-# so we do not need to specify that here.
-#
-# Note that the "INSTA_ART" flag is used to prevent these objects from
-# being created without also turning them into artifacts.  This flag
-# must be specified both here and in the artifact template.
-#
-# The only reason for having six different "ring" templates and three
-# different "amulet" templates is to allow each "special artifact" to
-# have a different "color" and "flavor", and also to allow the use of
-# special "base names" (such as "Necklace").
-
-
-#########									#########
-#########  And here begins the stuff I accidentally missed. #########
-#########									#########
-
-
-N:1968:& Walking Stick~
-G:|:u
-I:23:13:0
-W:2:0:20:50
-A:5/1
-P:0:1d3:0:0:0:1
-F:SHOW_MODS
-
-N:1969:& Small Black Walking stick~
-G:|:D
-I:23:14:0
-W:5:0:20:50
-A:5/1
-P:0:1d3:0:0:0:1
-F:SHOW_MODS
-
-N:1970:& Billy Club~
-G:|:D
-I:23:9:0
-W:10:0:20:50
-A:5/1
-P:0:1d3:0:0:0:1
-F:SHOW_MODS
+N:967:diamonds
+G:$:w
+I:100:15:0
+W:1:0:0:100
 
 
 
 
-
-## NEW WEAPONS
-N:1971:& Pneumatic Sword~
-G:|:b
-I:23:32:2
-W:50:1:25:2400
-P:0:8d5:0:0:0:2
-A:50/1
-F:SHOW_MODS | BLOWS
-
-N:1972:& Pneumatic Dagger~
-G:|:b
-I:23:34:4
-W:55:2:15:3000
-P:0:8d3:0:0:0:1
-A:55/2
-F:SHOW_MODS | BLOWS
-
-#New Weapons
-N:1973:& Throwing Dagger~
-G:|:W
-I:23:36:0
-W:2:0:20:33
-P:0:2d4:0:0:0:0
-A:2/1:25/1
-F:THROW
-
-N:1974:& Throwing Hatchet~
-G:/:W
-I:22:32:0
-W:5:0:30:80
-P:0:3d8:0:0:0:0
-A:5/1:15/1
-F:THROW
-
-#N:1975:book
-#G:?:v
-#I:95:1:0
-#W:10:0:5:0
-#F:EASY_KNOW | INSTA_ART
+# books
+#war
+N:999:& Book~
+G:?:v
+I:73:0:0
+W:1:0:5:1
+F:INSTA_ART

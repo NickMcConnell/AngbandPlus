@@ -1,6 +1,12 @@
-/* File: cmd3.c */
+/* File: cmd-know.c */
+/* Purpose: Information and Utility functions. */
 
 /*
+ * Contents of Crate, shipped across the atlantic, total sailing time 9 
+ * weeks. Display inventory and equipment.  Wear and remove equipment.  Drop and
+ * destroy.  Inspecting, inscribing, refueling objects.  Learn about a
+ * symbol. 
+ *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
@@ -9,10 +15,6 @@
  */
 
 #include "angband.h"
-
-
-
-
 
 
 /*
@@ -24,8 +26,9 @@ void do_cmd_inven(void)
 	int i;
 	int statval = p_ptr->stat_use[A_MUS];
 	char prompt[80];
-	if (statval < 160) statval = 160;
-	i = (((statval / 20) * 100) / 2);
+
+	if (statval < 30) statval = 30;
+	i = 900 + (((statval / 25) * 100) / 2);
 
 	/* Hack -- Start in "inventory" mode */
 	p_ptr->command_wrk = (USE_INVEN);
@@ -46,9 +49,9 @@ void do_cmd_inven(void)
 	/*	prt("(Inventory) Command: ", 0, 0); */
 	/* Build a prompt */
 	sprintf(prompt,
-		"(Inventory) burden %d.%d lb (%d%% of capacity). Command: ",
-		p_ptr->total_weight / 10, p_ptr->total_weight % 10,
-		(p_ptr->total_weight * 100) / i);
+		"(Inventory) burden %ld.%ld lb (%ld%% of capacity). Command: ",
+		(long)p_ptr->total_weight / 10, (long)p_ptr->total_weight % 10,
+		(long)(p_ptr->total_weight * 100) / i);
 
 	/* print the prompt */
 	prt(prompt, 0, 0);
@@ -232,8 +235,16 @@ void do_cmd_wield(void)
 	/* Wear the new stuff */
 	object_copy(o_ptr, i_ptr);
 
+	if ((i_ptr->tval == TV_MECHA_TORSO) ||
+	 	(i_ptr->tval == TV_MECHA_HEAD) ||
+	 	(i_ptr->tval == TV_MECHA_ARMS) ||
+	 	(i_ptr->tval == TV_MECHA_FEET))
+	 {
+	 	/* Nothing */
+	 }
+	
 	/* Increase the weight */
-	p_ptr->total_weight += i_ptr->weight;
+	else p_ptr->total_weight += i_ptr->weight;
 
 	/* Increment the equip counter by hand */
 	p_ptr->equip_cnt++;
@@ -280,6 +291,9 @@ void do_cmd_wield(void)
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
+
+	/* Recalculate Hit points */
+	p_ptr->update |= (PU_HP);
 
 	/* Recalculate torch */
 	p_ptr->update |= (PU_TORCH);
@@ -332,8 +346,7 @@ void do_cmd_takeoff(void)
 		/* Nope */
 		return;
 	}
-
-
+	
 	/* Take a partial turn */
 	p_ptr->energy_use = 50;
 
@@ -354,10 +367,12 @@ void do_cmd_drop(void)
 	cptr q, s;
 
 
+	p_ptr->command_wrk = (USE_INVEN);
+	
 	/* Get an item */
 	q = "Drop which item? ";
 	s = "You have nothing to drop.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -453,7 +468,7 @@ void do_cmd_destroy(void)
 	p_ptr->energy_use = 100;
 
 	/* Artifacts cannot be destroyed */
-	if (artifact_p(o_ptr))
+	if ((artifact_p(o_ptr)) || (o_ptr->ident & IDENT_QUEST))
 	{
 		/* Message */
 		msg_format("You cannot destroy %s.", o_name);
@@ -465,8 +480,10 @@ void do_cmd_destroy(void)
 		if (o_ptr->ident & (IDENT_SENSE))
 		{
 			/* Already sensed objects always get improved feelings */
-			if (cursed_p(o_ptr) || broken_p(o_ptr))
-				o_ptr->discount = INSCRIP_TERRIBLE;
+			if (cursed_p(o_ptr))
+				o_ptr->discount = INSCRIP_TWISTED;
+			else if (broken_p(o_ptr))
+				o_ptr->discount = INSCRIP_SHATTERED;
 			else
 				o_ptr->discount = INSCRIP_SPECIAL;
 		}
@@ -489,6 +506,10 @@ void do_cmd_destroy(void)
 	/* Message */
 	msg_format("You destroy %s.", o_name);
 
+	/* Reduce the charges of rods/wands */
+	reduce_charges(o_ptr, amt);
+
+
 	/* Eliminate the item (from the pack) */
 	if (item >= 0)
 	{
@@ -507,45 +528,237 @@ void do_cmd_destroy(void)
 }
 
 
+
 /*
- * Observe an item which has been *identify*-ed
+ * Display specialized object information.  -LM-
+ *
+ * Unidentified:
+ *	Weapons and armour -> description of specific object type (dagger,
+ *	  etc.).
+ *	Others -> description only of general object kind (scroll, etc.)
+ * Identified or aware:
+ *	Artifacts -> artifact-specific description.
+ *	Most objects -> description of specific object type.
+ *	Scrolls, potions, spellbooks, rings, and amulets -> description
+ *	  only of general object kind.
+ * *Identified*:
+ *	All -> description of object type or artifact description,
+ *	  complete listing of attributes and flags.
+ *
+ * Objects may also be members of a class with known effects.  If so,
+ * extra information about effects when used will appear if the effects
+ * can be quantified.
+ *
+ * Boolean value "in_store" only takes effect if player is in a store.
  */
-void do_cmd_observe(void)
+void do_cmd_observe(object_type *o_ptr, bool in_store)
 {
 	int item;
+	int y, x;
+	int i;
 
-	object_type *o_ptr;
+	u16b aware, known, mental;
 
-	char o_name[80];
+	object_kind *k_ptr;
+	object_type *i_ptr;
+	object_type object_type_body;
+
+	char o_name[120];
+
+	char info_text[2048];
+	char object_kind_info[400];
 
 	cptr q, s;
 
 
-	/* Get an item */
-	q = "Examine which item? ";
-	s = "You have nothing to examine.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
+	/* Initialize object description. */
+	strcpy(info_text, "");
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
+	/* If not called in a store, we must get an object to inspect. */
+	if (!o_ptr)
 	{
-		o_ptr = &inventory[item];
+		/* Get an item */
+		q = "Examine which item?";
+		s = "You have nothing to examine.";
+		if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
+
+		/* Get the item (in the pack) */
+		if (item >= 0)
+		{
+			o_ptr = &inventory[item];
+		}
+	
+		/* Get the item (on the floor) */
+		else
+		{
+			o_ptr = &o_list[0 - item];
+		}
 	}
 
-	/* Get the item (on the floor) */
+	/* Automatically Know books */
+	if (o_ptr->tval == TV_BOOK)
+	{
+		if (!(object_known_p(o_ptr)))
+		{
+			/* Know the book */
+			object_known(o_ptr);
+		}
+	}
+
+	/* Get the object kind. */
+	k_ptr = &k_info[o_ptr->k_idx];
+
+	/* Get local object */
+	i_ptr = &object_type_body;
+
+	/* Copy the object */
+	object_copy(i_ptr, o_ptr);
+
+	/* Make singular */
+	i_ptr->number = 1;
+
+	/* Describe the object */
+	if (in_store) object_desc_store(o_name, i_ptr, FALSE, 2);
+	else object_desc(o_name, i_ptr, FALSE, 2);
+
+	/* What is our level of knowledge about the object? */
+	aware = object_aware_p(i_ptr);
+	known = (object_known_p(i_ptr) || in_store);
+	/* known_effects = k_ptr->special & (SPECIAL_KNOWN_EFFECT); */
+	mental = ((i_ptr->ident & (IDENT_MENTAL)) || in_store);
+
+	
+	/*
+	 * Hack - Avoid giving away too much info in normal stores about objects
+	 * other than weapons and armour (no sneaky learning about wand damages!).
+	 */
+	if (in_store) /* && (!k_ptr->special & (SPECIAL_KNOWN_EFFECT)) &&(!is_wargear(k_ptr))) */
+	{
+		mental = FALSE;
+	}
+
+	/* Object is fully known - give maximal information. */
+	if (mental)
+	{
+		/* Get the specific object type's information. */
+		object_info(info_text, i_ptr);
+
+		/* Get information about the general object kind. */
+		strcpy(object_kind_info, format("%s", obj_class_info[i_ptr->tval]));
+	}
+
+	/* Object or object type is identified - show all basic information. */
+	else if ((known) || (aware))
+	{
+		/* Get the specific object type's information, if any. */
+		object_info(info_text, i_ptr);
+
+		/* Get information about the general object kind. */
+		strcpy(object_kind_info, format("%s", obj_class_info[i_ptr->tval]));
+	}
+
+	/*
+	 * Nothing is known about the object or object type - show only
+	 * information about the general object kind.
+	 */
 	else
 	{
-		o_ptr = &o_list[0 - item];
+
+		/* Get information about the general object kind. */
+		strcpy(object_kind_info, format("%s", obj_class_info[i_ptr->tval]));
+
+		/* Do not display the name of an unaware object  XXX */
+		if (!object_aware_p(i_ptr)) strcpy(o_name, "  ");
+		
 	}
 
-	/* Description */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	/* Save screen */
+	screen_save();
 
-	/* Describe */
-	msg_format("Examining %s...", o_name);
+	/* Clear the screen */
+	Term_clear();
 
-	/* Describe it fully */
-	if (!identify_fully_aux(o_ptr)) msg_print("You see nothing special.");
+	/* Label the information. */
+	roff(format("Item Information:  %s\n\n", o_name));
+
+	/* Object type or artifact information. */
+	c_roff(TERM_BLUE, info_text);
+
+#if 0
+	/*  Describe artifacts that belong to sets. */
+	if ((known) && (i_ptr->name1))
+	{
+		artifact_type *a_ptr = &a_info[i_ptr->name1];
+
+
+		/* Is it a set item? */
+		if (a_ptr->set_index)
+		{
+			/* Advance two lines */
+			for (i = 0; i < 2; i++) roff("\n", 0, 0);
+
+			/* Set notification */
+			c_roff(TERM_GREEN,"Set Item: ");
+
+			/* Require full ID to describe the specific set */
+			if (mental)
+			{
+				set_type *s_ptr = &s_info[a_ptr->set_index];
+				c_roff(TERM_GREEN, s_ptr->set_desc, 3, 77);
+			}
+
+			/* Generic description */
+			else c_roff(TERM_GREEN,"It gains power when combined with matching items", 3, 77);
+			/* End sentence */
+			c_roff(TERM_GREEN, ".", 3, 77);
+		}
+	}
+#endif
+
+
+	/* Clear some space */
+	for (i = 0; i < 2; i++) roff("\n");
+
+	/* Fully describe the object. */
+	object_details(i_ptr, mental, known);
+
+	/* Obtain the cursor location */
+	(void)Term_locate(&x, &y);
+
+	/* Spacing. */
+	for (i = y; i < 18; i++) roff("\n");
+
+	/* Object kind information. */
+	c_roff(TERM_GREEN, object_kind_info);
+
+	/* Hack -- attempt to stay on screen. */
+	for (i = y; i < Term->hgt; i++)
+	{
+		/* No more space! */
+		if (i > Term->hgt - 2) break;
+
+		/* Advance one line. */
+		roff("\n");
+
+		/* Enough clear space.  Done. */
+		if (i == (y + 2)) break;
+	}
+
+
+	/* The exit sign. */
+	roff("(Press any key to continue.)");
+	(void)inkey();
+
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+
+	/* Clear the screen */
+	Term_clear();
+
+	/* Load screen */
+	screen_load();
 }
 
 
@@ -907,7 +1120,9 @@ void do_cmd_refill(void)
 	}
 
 	/* It's a candle or taper */
-	else if ((o_ptr->sval == SV_LITE_TAPER) || (o_ptr->sval == SV_LITE_CANDLE))
+	else if ((o_ptr->sval == SV_LITE_TAPER) || 
+			 (o_ptr->sval == SV_LITE_CANDLE_WAX) ||
+			 (o_ptr->sval == SV_LITE_CANDLE_TALLOW))
 	{
 		msg_print("Your light source can't be refilled.");
 	}
@@ -1088,81 +1303,81 @@ static cptr ident_info[] =
 	"-:A ray gun (or apparatus)",
 	".:Floor",
 	"/:A polearm (Axe/Pike/etc)",
-	/* "0:unused", */
-	"1:Entrance to General Store",
-	"2:Entrance to Armory",
-	"3:Entrance to Weaponsmith",
-	"4:Entrance to Temple",
+	"0:Entrance to Steamware",
+	"1:Entrance to General Store", /* Must correct these */
+	"2:Entrance to Clothing Store",
+	"3:Entrance to Gun Shop",
+	"4:Entrance to Machinist",
 	"5:Entrance to Alchemy shop",
 	"6:Entrance to Magic store",
 	"7:Entrance to Black Market",
 	"8:Entrance to your home",
-	/* "9:unused", */
+	"9:Entrance to the Library",
 	"::Rubble",
 	";:A glyph of warding",
 	"<:An up staircase",
 	"=:A ring",
 	">:A down staircase",
 	"?:A mechanism",
-	"@:You",
-	"A:Alien",
-	"B:Beast-man",
-	"C:Construct",
-	"D:Ancient Dragon/Wyrm",
-	"E:Elemental",
-	"F:Dragon Fly",
-	"G:Ghost",
-	"H:Hybrid",
-	"I:Insect",
-	"J:Snake",
-	"K:Killer Beetle",
-	"L:Lich",
-	"M:Monkey",
-	/* "N:unused", */
-	"O:Ogre",
-	"P:Giant Humanoid",
-	"Q:Quylthulg (Pulsing Flesh Mound)",
-	"R:Reptile/Amphibian",
-	"S:Spider/Scorpion/Tick",
-	"T:Troll",
-	"U:Major Demon",
-	"V:Vampire",
-	"W:Wight/Wraith/etc",
-	"X:Xorn/Xaren/etc",
-	"Y:Yeti",
-	"Z:Zephyr Hound",
 	"[:Hard armor",
 	"\\:A hafted weapon (mace/whip/etc)",
 	"]:Misc. armor",
 	"^:A trap",
 	"_:A tool",
 	/* "`:unused", */
-	"a:Automaton",
-	"b:Bat",
-	"c:Centipede",
-	"d:Dragon",
-	"e:Equipment",
-	"f:Feline",
-	"g:Golem",
-	"h:Small humanoid",
-	"i:Icky Thing",
-	"j:Jelly",
-	"k:Chicken",
-	"l:Louse",
-	"m:Mold",
-	"n:Naga",
+	"@:You",
+	"A:Alien",									/* Alien! */
+	"B:Large Beast-man",						/* Beast-man! */
+	"C:Construct",								/* Construct */
+	"D:Large Dinosaur",							/* Dinosaur */
+	"E:Elemental",								/* Elemental */
+	/* "F:Face Card (cards moved to c)", */
+	"G:Ghost",									/* Undead */
+	"H:Hybrid",									/* ??? */
+	"I:Insect",									/* Animal */
+	"J:Snake",									/* Animal */
+	"K:Mechanical Chicken",							/* Animal */
+	/* "L:unused (old Lich)", */		
+	"M:Monkey",									/* Animal */
+	/* "N:unused", */
+	"O:Creatures from Oz", 						/* ??? */
+	"P:Giant Humanoid",							/* Humanoid */
+	/* "Q:Unused (old Quylthulg)", */
+	"R:Reptile/Amphibian",						/* Animal */
+	"S:Spider/Scorpion/Tick",					/* Animal */
+	"T:Tree", 									/* Plant */
+	"U:Major Demon",							/* Demon */
+	"V:Vampire/Revenant",						/* Undead */
+	"W:Wight/Wraith/etc",						/* Undead */
+	/* "X: Unused (old Xorn/Xaren/etc)", */
+	/* "Y: Unused (old Yeti)", */
+	"Z:Hound or Canine",						/* Animal */
+	"a:Automaton",								/* Automaton */
+	"b:Small Beast-man",						/* Beast-man */
+	"c:Card",									/* Card */
+	"d:Dinosaur",								/* Dinosaur */
+	"e:Equipment",								/* Automata */
+	"f:Feline",									/* Animal */
+	"g:Golem",									/* Construct */
+	"h:Small humanoid",							/* Humanoid */
+	"i:Bird",									/* Animal */
+	/* "j: Unused (old Jelly)",	*/
+	"k:Chicken",								/* Animal */
+	"l:Louse",									/* Animal */
+	"m:Mold",									/* Plant */
+	"n:Plant",									/* Plant */
 	/* "o: Unused (old orc)", */
-	"p:Person/Human",
-	"q:Quadruped",
-	"r:Rodent",
-	"s:Skeleton",
-	"t:Townsperson",
-	"u:Minor Demon",
-	"v:Vortex",
-	"w:Worm/Worm-Mass",
-	/* "x:unused", */
-	"y:Yeek",
-	"z:Zombie/Mummy",
+	"p:Person/Human",							/* Humanoid */
+	"q:Quadruped",								/* Animal */
+	"r:Rodent",									/* Animal */
+	/* "s: Unused", (old skeleton)	*/			/* Undead */
+	"t:Townsperson",							/* Humanoid */
+	"u:Minor Demon",							/* Demon */
+	"v:Vortex",									/* Elemental */
+	"w:Worm/Worm-Mass",							/* Animal */
+	/* "x: Unused", */
+	/* "y: Unused (old Yeek)", */
+	"z:Zombie/Mummy",							/* Undead */
 	"{:Firearm Ammunition (bullet/shot/ammo)",
 	"|:An edged weapon (sword/dagger/etc)",
 	"}:A firearm (rifle/shotgun/pistol)",
@@ -1178,7 +1393,7 @@ static cptr ident_info[] =
  * We use "u" to point to array of monster indexes,
  * and "v" to select the type of sorting to perform on "u".
  */
-bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
+bool ang_sort_comp_hook(const void *u, const void *v, int a, int b)
 {
 	u16b *who = (u16b*)(u);
 
@@ -1320,24 +1535,26 @@ static void roff_top(int r_idx)
 /*
  * Identify a character, allow recall of monsters
  *
- * Several "special" responses recall "mulitple" monsters:
+ * Several "special" responses recall "multiple" monsters:
  *   ^A (all monsters)
  *   ^U (all unique monsters)
  *   ^N (all non-unique monsters)
+ *   ^K (all monsters killed at least once this life)  -RML-
  *
  * The responses may be sorted in several ways, see below.
  *
- * Note that the player ghosts are ignored, since they do not exist.
  */
 void do_cmd_query_symbol(void)
 {
-	int i, n, r_idx;
+	int i, j, n, r_idx;
+	int start = 0, last_level = 0;
 	char sym, query;
 	char buf[128];
 
 	bool all = FALSE;
 	bool uniq = FALSE;
 	bool norm = FALSE;
+	bool kill = FALSE;
 
 	bool recall = FALSE;
 
@@ -1345,55 +1562,97 @@ void do_cmd_query_symbol(void)
 	u16b *who;
 
 
-	/* Get a character, or abort */
-	if (!get_com("Enter character to be identified: ", &sym)) return;
+	/* Interact */
+	while (TRUE)
+	{
+		/* Get a character, or abort */
+		if (!get_com("Enter character to be identified (RET for help, ESC to cancel):", &sym)) return;
 
-	/* Find that character info, and describe it */
-	for (i = 0; ident_info[i]; ++i)
-	{
-		if (sym == ident_info[i][0]) break;
-	}
+		/* Describe */
+		if (sym == KTRL('A'))
+		{
+			all = TRUE;
+			strcpy(buf, "Full monster list.");
+			break;
+		}
+		else if (sym == KTRL('U'))
+		{
+			all = uniq = TRUE;
+			strcpy(buf, "Unique monster list.");
+			break;
+		}
+		else if (sym == KTRL('N'))
+		{
+			all = norm = TRUE;
+			strcpy(buf, "Non-unique monster list.");
+			break;
+		}
+		else if (sym == KTRL('K'))
+		{
+			all = kill = TRUE;
+			strcpy(buf, "Killed monster list.");
+			break;
+		}
+		else if (sym == ESCAPE)
+		{
+			return;
+		}
+		else if ((sym == '\r') || (sym == '\n'))
+		{
+			screen_save();
+			clear_from(0);
 
-	/* Describe */
-	if (sym == KTRL('A'))
-	{
-		all = TRUE;
-		strcpy(buf, "Full monster list.");
-	}
-	else if (sym == KTRL('U'))
-	{
-		all = uniq = TRUE;
-		strcpy(buf, "Unique monster list.");
-	}
-	else if (sym == KTRL('N'))
-	{
-		all = norm = TRUE;
-		strcpy(buf, "Non-unique monster list.");
-	}
-	else if (ident_info[i])
-	{
-		sprintf(buf, "%c - %s.", sym, ident_info[i] + 2);
-	}
-	else
-	{
-		sprintf(buf, "%c - %s.", sym, "Unknown Symbol");
+			move_cursor(4, 15);
+			c_roff(TERM_WHITE, "Press:\nControl-A for the full monster list\nControl-U for the unique monster list\nControl-N for the non-unique monster list\nControl-K for the killed monster list\nESCAPE to cancel\nRETURN to show this help window, or\nAny other key to display information about it");
+
+			(void)inkey();
+			screen_load();
+		}
+		else
+		{
+			/* Try to match the key with a info entry */
+			for (i = 0; ident_info[i]; ++i)
+			{
+				if (sym == ident_info[i][0]) break;
+			}
+			if (ident_info[i])
+			{
+				sprintf(buf, "%c - %s.", sym, ident_info[i] + 2);
+				break;
+			}
+			else if (!isalpha(sym))
+			{
+				msg_print("This command was not understood.");
+				message_flush();
+			}
+		}
 	}
 
 	/* Display the result */
 	prt(buf, 0, 0);
 
-
 	/* Allocate the "who" array */
 	C_MAKE(who, z_info->r_max, u16b);
 
 	/* Collect matching monsters */
-	for (n = 0, i = 1; i < z_info->r_max - 1; i++)
+	for (n = 0, i = 1; i < z_info->r_max; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
 		monster_lore *l_ptr = &l_list[i];
 
-		/* Nothing to recall */
-		if (!cheat_know && !l_ptr->r_sights) continue;
+		/*
+		 * Nothing to recall.
+		 * Even cheat_know does not allow the viewing of nonexistent
+		 * player ghosts.
+		 */
+		if ((!cheat_know) && (!l_ptr->r_sights))
+		{
+			 continue;
+		}
+
+		/* Skip unused monsters */
+		if (!r_ptr->name) continue;
+		if (!r_ptr->rarity) continue;
 
 		/* Require non-unique monsters if needed */
 		if (norm && (r_ptr->flags1 & (RF1_UNIQUE))) continue;
@@ -1401,13 +1660,19 @@ void do_cmd_query_symbol(void)
 		/* Require unique monsters if needed */
 		if (uniq && !(r_ptr->flags1 & (RF1_UNIQUE))) continue;
 
+		/* Require killed if needed */
+		if (kill && !(l_ptr->r_pkills)) continue;
+
 		/* Collect "appropriate" monsters */
 		if (all || (r_ptr->d_char == sym)) who[n++] = i;
 	}
 
+
 	/* Nothing to recall */
 	if (!n)
 	{
+		/* XXX XXX Free the "who" array */
+		/* FREE(who); */
 		/* XXX XXX Free the "who" array */
 		C_FREE(who, z_info->r_max, u16b);
 
@@ -1416,7 +1681,7 @@ void do_cmd_query_symbol(void)
 
 
 	/* Prompt */
-	put_str("Recall details? (k/p/y/n): ", 0, 40);
+	put_str("Recall details? (y/n, (k)ills, (l)evel): ", 0, 40);
 
 	/* Query */
 	query = inkey();
@@ -1432,21 +1697,32 @@ void do_cmd_query_symbol(void)
 		query = 'y';
 	}
 
+	/* Sort by total kills (and level) */
+	else if (query == 't')
+	{
+		why = 3;
+		query = 'y';
+	}
+
 	/* Sort by level */
-	if (query == 'p')
+	else if (query == 'l')
 	{
 		why = 2;
 		query = 'y';
 	}
 
-	/* Catch "escape" */
-	if (query != 'y')
+
+	/* Order cancelled */
+	else if (!strchr("yYrR", query))
 	{
+		/* XXX XXX Free the "who" array */
+		/* FREE(who); */
 		/* XXX XXX Free the "who" array */
 		C_FREE(who, z_info->r_max, u16b);
 
 		return;
 	}
+
 
 	/* Sort if needed */
 	if (why)
@@ -1460,11 +1736,37 @@ void do_cmd_query_symbol(void)
 	}
 
 
-	/* Start at the end */
-	i = n - 1;
+	/* Start at the current level */
+	i = 0;
+
+
+	/* We're using the stadard order, or sorting by level */
+	if ((why == 0) || (why == 2))
+	{
+		/*
+		 * Find the monster whose level is the closest to the
+		 * current depth, without being greater than it.
+		 */
+		for (j = 0; j < n; j++)
+		{
+			monster_race *r_ptr = &r_info[who[j]];
+
+			/* Skip uniques */
+			if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
+
+			if ((r_ptr->level <= p_ptr->depth) && (r_ptr->level > last_level))
+			{
+				start = j;
+				last_level = r_ptr->level;
+			}
+		}
+	}
+
+	/* Start at the chosen monster. */
+	i = start;
 
 	/* Scan the monster memory */
-	while (1)
+	while (TRUE)
 	{
 		/* Extract a race */
 		r_idx = who[i];
@@ -1479,10 +1781,11 @@ void do_cmd_query_symbol(void)
 		roff_top(r_idx);
 
 		/* Hack -- Complete the prompt */
-		Term_addstr(-1, TERM_WHITE, " [(r)ecall, ESC]");
+		Term_addstr(-1, TERM_WHITE, "[(r)ecall, ESC]");
+		prt(format("(#%d of %d)", i + 1, n), 0 , 65);
 
 		/* Interact */
-		while (1)
+		while (TRUE)
 		{
 			/* Recall */
 			if (recall)
@@ -1494,7 +1797,9 @@ void do_cmd_query_symbol(void)
 				screen_roff(who[i]);
 
 				/* Hack -- Complete the prompt (again) */
-				Term_addstr(-1, TERM_WHITE, " [(r)ecall, ESC]");
+				Term_addstr(-1, TERM_WHITE, "[un(r)ecall, ESC]");
+				prt(format("(#%d of %d)", i + 1, n), 0 , 65);
+
 			}
 
 			/* Command */
@@ -1518,22 +1823,21 @@ void do_cmd_query_symbol(void)
 		if (query == ESCAPE) break;
 
 		/* Move to "prev" monster */
-		if (query == '-')
+		if ((query == '-') || (query == '4') ||
+		    ((rogue_like_commands) && (query == 'h')))
 		{
-			if (++i == n)
+			if (i-- == 0)
 			{
-				i = 0;
-				if (!expand_list) break;
+				i = n - 1;
 			}
 		}
 
 		/* Move to "next" monster */
 		else
 		{
-			if (i-- == 0)
+			if (++i == n)
 			{
-				i = n - 1;
-				if (!expand_list) break;
+				i = 0;
 			}
 		}
 	}
@@ -1542,6 +1846,10 @@ void do_cmd_query_symbol(void)
 	/* Re-display the identity */
 	prt(buf, 0, 0);
 
+
 	/* Free the "who" array */
+	/* FREE(who); */
+	/* XXX XXX Free the "who" array */
 	C_FREE(who, z_info->r_max, u16b);
 }
+

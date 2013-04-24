@@ -16,7 +16,7 @@
 
 # Version stamp (required)
 
-V:0.3.1
+V:0.4.0
 
 
 # General Store
@@ -44,7 +44,7 @@ N:2:0:Karn the Bringer of Misery
 I:16:5000:210:115:6:6
 N:2:1:Ferdinand the Hungry
 I:6:10000:185:110:5:9
-N:2:2:Batholomew the cheap
+N:2:2:Batholomew the Cheap
 I:5:25000:190:115:5:7
 N:2:3:Pierre the Cook
 I:4:30000:195:112:4:8
@@ -65,7 +65,7 @@ I:9:10000:190:111:5:8
 N:4:1:Ludvik the Chaotic
 I:6:10000:190:110:6:8
 N:4:2:Manute the Nubian
-I:4:15000:200:116:6:9
+I:3:15000:200:116:6:9
 N:4:3:Malovo the Slender
 I:7:15000:220:111:4:9
 
@@ -98,3 +98,23 @@ N:7:2:Your home
 I:99:0:100:100:0:99
 N:7:3:Your home
 I:99:0:100:100:0:99
+
+# library
+N:8:0:Stephen the Reckoner
+I:1:20:250:150:10:5
+N:8:1:Sean the Technician
+I:1:20:250:150:10:5
+N:8:2:Jordan Taleteller
+I:1:30:250:150:10:5
+N:8:3:Sarah of the Lute
+I:1:30:250:150:10:5
+
+# wetware
+N:9:0:R. Dan Henry the Meticulous
+I:16:0:100:100:10:5
+N:9:1:Bridger Flynn the Prolific
+I:24:0:100:100:10:5
+N:9:2:Steve Latour the Sportsman
+I:18:0:100:100:10:5
+N:9:3:Darren Hart the Talented
+I:2:0:100:100:10:5

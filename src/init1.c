@@ -59,26 +59,36 @@ static cptr r_info_blow_method[] =
 	"TOUCH",
 	"PUNCH",
 	"KICK",
+	"SLASH",
+	"PIERCE",
+	"BLUNT",
+	"XXX1",
+	"XXX2",
+	"HOWL",
 	"CLAW",
+	"KISS",
+	"GRAB",
 	"BITE",
 	"STING",
-	"SEDUCE",
 	"BUTT",
 	"CRUSH",
 	"ENGULF",
-	"SHOCK",
 	"CRAWL",
 	"DROOL",
 	"SPIT",
-	"XXX3",
+	"XXX4",
+	"XXX5",
 	"GAZE",
 	"WAIL",
 	"SPORE",
-	"XXX4",
-	"BEG",
-	"INSULT",
-	"MOAN",
+	"XXX6",
+	"XXX7",
+	"ZAP",
+	"PECK",
 	"SPEAK",
+	"BEG",
+	"SEDUCE",
+	"XXX10",
 	NULL
 };
 
@@ -97,10 +107,13 @@ static cptr r_info_blow_effect[] =
 	"EAT_ITEM",
 	"EAT_FOOD",
 	"EAT_LITE",
+	"FIRE",
 	"ACID",
 	"ELEC",
-	"FIRE",
 	"COLD",
+	"STEAM",
+	"NETHER",
+	"ETHER",
 	"BLIND",
 	"CONFUSE",
 	"TERRIFY",
@@ -135,7 +148,7 @@ static cptr r_info_flags1[] =
 	"ATTR_CLEAR",
 	"ATTR_MULTI",
 	"FORCE_DEPTH",
-	"FORCE_MAXHP",
+	"FIXED_HPS",
 	"FORCE_SLEEP",
 	"FORCE_EXTRA",
 	"FRIEND",
@@ -148,12 +161,12 @@ static cptr r_info_flags1[] =
 	"RAND_50",
 	"ONLY_GOLD",
 	"ONLY_ITEM",
-	"DROP_60",
-	"DROP_90",
+	"DROP_5",
+	"DROP_10",
+	"DROP_20",
+	"DROP_40",
+	"DROP_80",
 	"DROP_1D2",
-	"DROP_2D2",
-	"DROP_3D2",
-	"DROP_4D2",
 	"DROP_GOOD",
 	"DROP_GREAT",
 	"DROP_USEFUL",
@@ -167,36 +180,36 @@ static cptr r_info_flags2[] =
 {
 	"STUPID",
 	"SMART",
-	"XXX1X2",
-	"XXX2X2",
+	"FRIENDLY",
+	"HOSTILE",
 	"INVISIBLE",
 	"COLD_BLOOD",
 	"EMPTY_MIND",
 	"WEIRD_MIND",
 	"MULTIPLY",
 	"REGENERATE",
-	"XXX3X2",
-	"XXX4X2",
+	"XXX1",
+	"XXX2",
+	"XXX3",
+	"XXX4",
+	"TRACKER",
+	"IMPENT",
 	"POWERFUL",
-	"AURA_FIRE",
-	"AURA_COLD",
-	"AURA_ELEC",
 	"OPEN_DOOR",
 	"BASH_DOOR",
 	"PASS_WALL",
 	"KILL_WALL",
-	"MOVE_BODY",
 	"KILL_BODY",
 	"TAKE_ITEM",
 	"KILL_ITEM",
+	"LOW_MANA_RUN",
+	"ARCHER",
 	"BRAIN_1",
 	"BRAIN_2",
 	"BRAIN_3",
 	"BRAIN_4",
 	"BRAIN_5",
-	"BRAIN_6",
-	"BRAIN_7",
-	"BRAIN_8"
+	"BRAIN_6"
 };
 
 /*
@@ -205,33 +218,33 @@ static cptr r_info_flags2[] =
 static cptr r_info_flags3[] =
 {
 	"AUTOMATA",
-	"TROLL",
-	"GIANT",
-	"DRAGON",
+	"DINOSAUR",
+	"CONSTRUCT",
+	"ELEMENTAL",
 	"DEMON",
 	"UNDEAD",
 	"EVIL",
 	"ANIMAL",
 	"ALIEN",
 	"BEASTMAN",
-	"HOSTILE",
-	"XXX4X3",
-	"HURT_LITE",
+	"PLANT",
+	"HURT_LIGHT",
 	"HURT_ROCK",
-	"HURT_FIRE",
-	"HURT_COLD",
-	"IM_ACID",
-	"IM_ELEC",
 	"IM_FIRE",
-	"IM_COLD",
+	"IM_EARTH",
+	"IM_AIR",
+	"IM_WATER",
+	"IM_ELEC",
+	"IM_ICE",
+	"IM_ACID",
 	"IM_POIS",
-	"XXX5X3",
-	"RES_NETH",
-	"RES_WATE",
-	"RES_PLAS",
-	"RES_NEXU",
-	"RES_DISE",
-	"XXX6X3",
+	"IM_TIME",
+	"IM_ETHER",
+	"IM_SOUND",
+	"IM_NETHER",
+	"IM_PIERCE",
+	"IM_EDGED",
+	"IM_BLUNT",
 	"NO_FEAR",
 	"NO_STUN",
 	"NO_CONF",
@@ -244,35 +257,35 @@ static cptr r_info_flags3[] =
 static cptr r_info_flags4[] =
 {
 	"SHRIEK",
-	"XXX2X4",
+	"LASH",
+	"ARROW",
+	"GUN",
+	"RIFLE",
+	"SHOTGUN",
+	"ROCKET",
+	"MISSILE",
+	"BR_FIRE",
+	"BR_EARTH",
+	"BR_AIR",
+	"BR_WATER",
+	"BR_ELEC",
+	"BR_ICE",
+	"BR_ACID",
+	"BR_POISON",
+	"BR_TIME",
+	"BR_ETHER",
+	"BR_SOUND",
+	"BR_NETHER",
+	"BR_GRAVITY",
+	"BR_RAD",
+	"BR_LIGHT",
+	"BR_DARK",
+	"CLOUD_RAD",
+	"CLOUD_POISON",
 	"XXX3X4",
 	"XXX4X4",
-	"ARROW_1",
-	"ARROW_2",
-	"ARROW_3",
-	"ARROW_4",
-	"BR_ACID",
-	"BR_ELEC",
-	"BR_FIRE",
-	"BR_COLD",
-	"BR_POIS",
-	"BR_NETH",
-	"BR_LITE",
-	"BR_DARK",
-	"BR_CONF",
-	"BR_SOUN",
-	"BR_CHAO",
-	"BR_DISE",
-	"BR_NEXU",
-	"BR_TIME",
-	"BR_INER",
-	"BR_GRAV",
-	"BR_SHAR",
-	"BR_PLAS",
-	"BR_WALL",
-	"BR_MANA",
-	"BR_NUKE",
-	"BO_NUKE",
+	"XXX5X4",
+	"XXX6X4",
 	"XXX7X4",
 	"XXX8X4"
 };
@@ -282,38 +295,38 @@ static cptr r_info_flags4[] =
  */
 static cptr r_info_flags5[] =
 {
-	"BA_ACID",
-	"BA_ELEC",
 	"BA_FIRE",
-	"BA_COLD",
-	"BA_POIS",
-	"BA_NETH",
-	"BA_WATE",
-	"BA_MANA",
-	"BA_DARK",
-	"DRAIN_MANA",
-	"MIND_BLAST",
-	"BRAIN_SMASH",
-	"CAUSE_1",
-	"CAUSE_2",
-	"CAUSE_3",
-	"CAUSE_4",
-	"BO_ACID",
-	"BO_ELEC",
+	"BA_EARTH",
+	"BA_AIR",
+	"BA_WATER",
+	"BA_ELEC",
+	"BA_ICE",
+	"BA_ACID",
+	"BA_POISON",
+	"BA_TIME",
+	"BA_ETHER",
+	"BA_SOUND",
+	"BA_NETHER",
+	"BA_GRAVITY",
+	"BA_EMP",
+	"BA_RAD",
+	"XXX1X5",
 	"BO_FIRE",
-	"BO_COLD",
-	"BO_POIS",
-	"BO_NETH",
-	"BO_WATE",
-	"BO_MANA",
-	"BO_PLAS",
-	"BO_ICEE",
-	"MISSILE",
-	"SCARE",
-	"BLIND",
-	"CONF",
-	"SLOW",
-	"HOLD"
+	"BO_EARTH",
+	"BO_AIR",
+	"BO_WATER",
+	"BO_ELEC",
+	"BO_ICE",
+	"BO_ACID",
+	"BO_POISON",
+	"BO_TIME",
+	"BO_ETHER",
+	"BO_SOUND",
+	"BO_NETHER",
+	"BO_GRAVITY",
+	"XXX2X5",
+	"XXX3X5",
+	"XXX4X5"
 };
 
 /*
@@ -322,37 +335,37 @@ static cptr r_info_flags5[] =
 static cptr r_info_flags6[] =
 {
 	"HASTE",
-	"XXX1X6",
+	"CURE",
 	"HEAL",
-	"XXX2X6",
+	"ADD_MANA",
 	"BLINK",
 	"TPORT",
-	"XXX3X6",
-	"XXX4X6",
+	"XXX1X6",
+	"XXX2X6",
 	"TELE_TO",
 	"TELE_AWAY",
 	"TELE_LEVEL",
-	"XXX5",
+	"TELE_SELF_TO",
 	"DARKNESS",
 	"TRAPS",
 	"FORGET",
-	"XXX6X6",
-	"S_KIN",
-	"S_HI_DEMON",
-	"S_MONSTER",
-	"S_MONSTERS",
-	"S_AUTOMATA",
-	"S_SPIDER",
-	"S_HOUND",
-	"S_MONKEY",
-	"S_ALIEN",
-	"S_DEMON",
-	"S_UNDEAD",
-	"S_DRAGON",
-	"S_HI_UNDEAD",
-	"S_HI_DRAGON",
-	"S_WRAITH",
-	"S_UNIQUE"
+	"FEAR",
+	"PSI",
+	"DOMINATION",
+	"STUN",
+	"TK",
+	"FORCE",
+	"CONFUSION",
+	"SPIRIT",
+	"ECTOPLASM",
+	"BLIND",
+	"SLOW",
+	"HOLD",
+	"DRAIN_MANA",
+	"XXX3X6",
+	"XXX4X6",
+	"XXX5X6",
+	"MIRROR_IMAGE"
 };
 
 /*
@@ -360,8 +373,8 @@ static cptr r_info_flags6[] =
  */
 static cptr r_info_flags7[] =
 {
-	"FRIENDLY",
-	"XXX7X2",
+	"BE_FIRE",
+	"BE_ELEC",
 	"XXX7X3",
 	"XXX7X4",
 	"XXX7X5",
@@ -376,29 +389,67 @@ static cptr r_info_flags7[] =
 	"XXX7X14",
 	"XXX7X15",
 	"XXX7X16",
-	"XXX7X17",
-	"XXX7X18",
-	"XXX7X19",
-	"XXX7X20",
-	"XXX7X21",
-	"XXX7X22",
-	"XXX7X23",
-	"XXX7X24",
-	"XXX7X25",
-	"XXX7X26",
-	"XXX7X27",
-	"XXX7X28",
-	"XXX7X29",
-	"XXX7X30",
-	"XXX7X31",
-	"XXX7X32"
+	"S_PLANTS",
+	"S_KIN",
+	"S_HI_DEMON",
+	"S_MONSTER",
+	"S_MONSTERS",
+	"S_AUTOMATA",
+	"S_SPIDER",
+	"S_HOUND",
+	"S_MONKEY",
+	"S_ALIEN",
+	"S_DEMON",
+	"S_UNDEAD",
+	"S_ELEMENTAL",
+	"S_HI_UNDEAD",
+	"S_HI_ELEMENTAL",
+	"S_UNIQUE"
 };
 
+/*
+ * Monster race flags
+ */
+static cptr r_info_flags8[] =
+{
+	"VUN_FIRE",
+	"VUN_EARTH",
+	"VUN_AIR",
+	"VUN_WATER",
+	"VUN_ELEC",
+	"VUN_ICE",
+	"VUN_ACID",
+	"VUN_POIS",
+	"VUN_TIME",
+	"VUN_ETHER",
+	"VUN_SOUND",
+	"VUN_NETHER",
+	"VUN_PIERCE",
+	"VUN_EDGED",
+	"VUN_BLUNT",
+	"XXX8X16",
+	"XXX8X17",
+	"XXX8X18",
+	"XXX8X19",
+	"XXX8X20",
+	"XXX8X21",
+	"XXX8X22",
+	"XXX8X23",
+	"XXX8X24",
+	"XXX8X25",
+	"XXX8X26",
+	"XXX8X27",
+	"XXX8X28",
+	"XXX8X29",
+	"XXX8X30",
+	"XXX8X31",
+	"CLOUD_SURROUND"
+};
 
 /*
  * Object flags
  */
-static cptr k_info_flags1[] =
+static cptr k_info_flags_pval[] =
 {
 	"MUS",
 	"AGI",
@@ -406,38 +457,38 @@ static cptr k_info_flags1[] =
 	"SCH",
 	"EGO",
 	"CHR",
-	"XXX1",
-	"XXX2",
+	"XXX6",
+	"XXX7",
 	"STEALTH",
 	"SEARCH",
 	"INFRA",
 	"TUNNEL",
 	"SPEED",
+	"MANA",
+	"HEALTH",
+	"LIGHT",
+	"SAVE",
+	"MAGIC_MASTER",
+	"XXX18",
+	"XXX19",
 	"BLOWS",
 	"SHOTS",
 	"MIGHT",
-	"SLAY_ANIMAL",
-	"SLAY_EVIL",
-	"SLAY_UNDEAD",
-	"SLAY_DEMON",
-	"SLAY_AUTOMATA",
-	"SLAY_TROLL",
-	"SLAY_GIANT",
-	"SLAY_DRAGON",
-	"KILL_DRAGON",
-	"SLAY_ALIEN",
-	"SLAY_BEASTMAN",
-	"BRAND_POIS",
-	"BRAND_ACID",
-	"BRAND_ELEC",
-	"BRAND_FIRE",
-	"BRAND_COLD"
+	"XXX23",
+	"XXX24",
+	"XXX25",
+	"XXX26",
+	"XXX27",
+	"XXX28",
+	"XXX29",
+	"XXX30",
+	"XXX31"
 };
 
 /*
  * Object flags
  */
-static cptr k_info_flags2[] =
+static cptr k_info_flags1[] =
 {
 	"SUST_MUS",
 	"SUST_AGI",
@@ -445,32 +496,71 @@ static cptr k_info_flags2[] =
 	"SUST_SCH",
 	"SUST_EGO",
 	"SUST_CHR",
+	"XXX7",
+	"XXX8",
+	"SLAY_ANIMAL",
+	"SLAY_EVIL",
+	"SLAY_UNDEAD",
+	"SLAY_DEMON",
+	"SLAY_AUTOMATA",
+	"SLAY_DINOSAUR",
+	"SLAY_CONSTRUCT",
+	"SLAY_ELEMENTAL",
+	"SLAY_ALIEN",
+	"SLAY_BEASTMAN",
+	"SLAY_CARDS",
+	"XXX20",
+	"XXX21",
+	"XXX22",
+	"XXX23",
+	"XXX24",
+	"BRAND_FIRE",
+	"BRAND_ELEC",
+	"BRAND_ICE",
+	"BRAND_ACID",
+	"BRAND_POISON",
+	"BRAND_FORCE",
+	"XXX31",
+	"XXX32"
+};
+
+/*
+ * Object flags
+ */
+static cptr k_info_flags2[] =
+{
+	"IMPACT",
+	"CRITICAL",
+	"VAMPIRIC",
+	"THROW",
+	"PERFECT_BALANCE",
+	"VORPAL",
 	"RETURN",
-	"XXX2",
-	"XXX3",
-	"XXX4",
-	"XXX5",
-	"XXX6",
-	"IM_ACID",
-	"IM_ELEC",
-	"IM_FIRE",
-	"IM_COLD",
-	"RES_ACID",
-	"RES_ELEC",
-	"RES_FIRE",
-	"RES_COLD",
-	"RES_POIS",
-	"RES_FEAR",
-	"RES_LITE",
-	"RES_DARK",
-	"RES_BLIND",
+	"EDGED",
+	"BLUNT",
+	"PIERCE",
+	"SLOW_DIGEST",
+	"FEATHER",
+	"TELEPATHY",
+	"SEE_INVIS",
+	"FREE_ACT",
+	"WRAITH",
+	"BLESSED",
+	"HOLD_LIFE",
+	"REFLECT",
+	"INVISIBLE",
+	"IMMUNE",
+	"XXX22",
+	"XXX23",
+	"XXX24",
+	"XXX25",
+	"XXX26",
+	"REGEN_25",
+	"REGEN_50",
+	"REGEN_75",
 	"RES_CONFU",
-	"RES_SOUND",
-	"RES_SHARD",
-	"RES_NEXUS",
-	"RES_NETHR",
-	"RES_CHAOS",
-	"RES_DISEN"
+	"RES_BLIND",
+	"RES_FEAR"
 };
 
 /*
@@ -478,93 +568,38 @@ static cptr k_info_flags2[] =
  */
 static cptr k_info_flags3[] =
 {
-	"SLOW_DIGEST",
-	"FEATHER",
-	"LITE",
-	"REGEN",
-	"TELEPATHY",
-	"SEE_INVIS",
-	"FREE_ACT",
-	"HOLD_LIFE",
 	"SH_FIRE",
 	"SH_ELEC",
 	"SPINES",
+	"SH_ETHER",
+	"SH_XXX5",
+	"SH_XXX6",
+	"SH_XXX7",
 	"AUTOMATA",
-	"IMPACT",
-	"TELEPORT",
-	"AGGRAVATE",
-	"DRAIN_EXP",
-	"IGNORE_ACID",
-	"IGNORE_ELEC",
-	"IGNORE_FIRE",
-	"IGNORE_COLD",
-	"WRAITH",
-	"MUTABLE",
-	"BLESSED",
 	"ACTIVATE",
 	"INSTA_ART",
 	"EASY_KNOW",
 	"HIDE_TYPE",
 	"SHOW_MODS",
-	"THROW",
+	"NO_FUEL",
+	"MECHA_GEN",
+	"XXX16",
+	"TELEPORT",
+	"EARTHQUAKE",
+	"NEVER_BLOW",
+	"NO_TELEPORT",
+	"NO_MAGIC",
+	"DRAIN_EXP",
+	"DRAIN_HP",
+	"DRAIN_SP",
+	"DRAIN_ITEM",
+	"AGGRAVATE",
+	"DISRUPT_SPELL",
+	"MUTABLE",
+	"XXX29",
 	"LIGHT_CURSE",
 	"HEAVY_CURSE",
 	"PERMA_CURSE"
-};
-
-
-/*
- * Activation type
- */
-static cptr a_info_act[ACT_MAX] =
-{
-	"ILLUMINATION",
-	"MAGIC_MAP",
-	"CLAIRVOYANCE",
-	"PROT_EVIL",
-	"DISP_EVIL",
-	"HEAL1",
-	"HEAL2",
-	"CURE_WOUNDS",
-	"HASTE1",
-	"HASTE2",
-	"FIRE1",
-	"FIRE2",
-	"FIRE3",
-	"FROST1",
-	"FROST2",
-	"FROST3",
-	"FROST4",
-	"FROST5",
-	"ACID1",
-	"RECHARGE1",
-	"SLEEP",
-	"LIGHTNING_BOLT",
-	"ELEC2",
-	"GENOCIDE",
-	"MASS_GENOCIDE",
-	"IDENTIFY",
-	"DRAIN_LIFE1",
-	"DRAIN_LIFE2",
-	"BIZZARE",
-	"STAR_BALL",
-	"RAGE_BLESS_RESIST",
-	"PHASE",
-	"TRAP_DOOR_DEST",
-	"DETECT",
-	"RESIST",
-	"TELEPORT",
-	"RESTORE_LIFE",
-	"MISSILE",
-	"ARROW",
-	"REM_FEAR_POIS",
-	"STINKING_CLOUD",
-	"STONE_TO_MUD",
-	"TELE_AWAY",
-	"WOR",
-	"CONFUSE",
-	"PROBE",
-	"FIREBRAND"
 };
 
 
@@ -579,20 +614,20 @@ static cptr c_info_flags[] =
 	"CUMBER_GLOVE",
 	"ZERO_FAIL",
 	"BEAM",
-	"CHOOSE_SPELLS",
-	"PSEUDO_ID_HEAVY",
-	"PSEUDO_ID_IMPROV",
+	"",
+	"",
+	"",
 	"ARCANE",
 	"SECULAR",
-	"OFFICER",
-	"AESTHETE",
-	"EXPLORER",
-	"MEDIUM",
-	"RECKONER",
-	"TOURIST",
-	"HUSSAR",
-	"NATURE",
-	"NINJA",
+	"POWER",
+	"PSEUDO_ID1",
+	"PSEUDO_ID2",
+	"PSEUDO_ID3",
+	"PSEUDO_ID4",
+	"PSEUDO_ID_HEAVY",
+	"",
+	"",
+	"",
 	"ANARCHIST",
 	"MUTABLE",
 	"XXX23",
@@ -836,6 +871,18 @@ errr parse_z_info(char *buf, header *head)
 		z_info->v_max = max;
 	}
 
+	/* Process 'X' for "Maximum x_info[] index" */
+	else if (buf[2] == 'X')
+	{
+		int max;
+
+		/* Scan for the value */
+		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the value */
+		z_info->x_max = max;
+	}
+
 
 	/* Process 'P' for "Maximum p_info[] index" */
 	else if (buf[2] == 'P')
@@ -883,6 +930,18 @@ errr parse_z_info(char *buf, header *head)
 
 		/* Save the value */
 		z_info->b_max = max;
+	}
+
+	/* Process 'Q' for "Maximum q_info[] index" */
+	else if (buf[2] == 'Q')
+	{
+		int max;
+
+		/* Scan for the value */
+		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the value */
+		z_info->q_max = max;
 	}
 
 	/* Process 'O' for "Maximum o_list[] index" */
@@ -1164,6 +1223,9 @@ static errr grab_one_flag(u32b *flags, cptr names[], cptr what)
  */
 static errr grab_one_kind_flag(object_kind *k_ptr, cptr what)
 {
+	if (grab_one_flag(&k_ptr->flags_pval, k_info_flags_pval, what) == 0)
+		return (0);
+
 	if (grab_one_flag(&k_ptr->flags1, k_info_flags1, what) == 0)
 		return (0);
 
@@ -1353,6 +1415,61 @@ errr parse_k_info(char *buf, header *head)
 		k_ptr->force = force;
 	}
 
+	/* Process 'O' for "Oppositions" (one line only) */
+	else if (buf[0] == 'O')
+	{
+		int fir, ear, air, wtr, elc, ice, acd, psn;
+		int tim, eth, snd, nth, lit, drk, psi, tlk, spi;
+
+		/* There better be a current pr_ptr */
+		if (!k_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Scan for the values */
+		if (17 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+		                &fir, &ear, &air, &wtr, &elc, &ice,
+						&acd, &psn, &tim, &eth, &snd, &nth, 
+						&lit, &drk, &psi, &tlk, &spi)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the values */
+		k_ptr->res[RS_FIR] = fir;
+		k_ptr->res[RS_EAR] = ear;
+		k_ptr->res[RS_AIR] = air;
+		k_ptr->res[RS_WTR] = wtr;
+		k_ptr->res[RS_ELC] = elc;
+		k_ptr->res[RS_ICE] = ice;
+		k_ptr->res[RS_ACD] = acd;
+		k_ptr->res[RS_PSN] = psn;
+		k_ptr->res[RS_TIM] = tim;
+		k_ptr->res[RS_ETH] = eth;
+		k_ptr->res[RS_SND] = snd;
+		k_ptr->res[RS_NTH] = nth;
+		k_ptr->res[RS_LIT] = lit;
+		k_ptr->res[RS_DRK] = drk;
+		k_ptr->res[RS_PSI] = psi;
+		k_ptr->res[RS_TLK] = tlk;
+		k_ptr->res[RS_SPI] = spi;
+	}
+	
+	/* Process 'M' for "Multiple quantity" (one line only) */
+	else if (buf[0] == 'M')
+	{
+		int prob, dice, side;
+
+		/* There better be a current k_ptr */
+		if (!k_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Scan for the values */
+		if (3 != sscanf(buf+2, "%d:%dd%d", &prob, &dice, &side))				
+		{
+			return (PARSE_ERROR_GENERIC);
+		}
+
+		/* Save the values */
+		k_ptr->gen_mult_prob = prob;
+		k_ptr->gen_dice = dice;
+		k_ptr->gen_side = side;
+	}
+
 	/* Hack -- Process 'F' for flags */
 	else if (buf[0] == 'F')
 	{
@@ -1379,6 +1496,21 @@ errr parse_k_info(char *buf, header *head)
 			s = t;
 		}
 	}
+
+	/* Process 'D' for "Description" */
+	else if (buf[0] == 'D')
+	{
+		/* There better be a current k_ptr */
+		if (!k_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Get the text */
+		s = buf+2;
+
+		/* Store the text */
+		if (!add_text(&(k_ptr->text), head, s))
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+	}
+
 	else
 	{
 		/* Oops */
@@ -1387,6 +1519,35 @@ errr parse_k_info(char *buf, header *head)
 
 	/* Success */
 	return (0);
+}
+
+
+/*
+ * Grab one pval-dependant flag in an artifact_type from a textual string
+ */
+static bool grab_one_artifact_pval_flag(artifact_type *a_ptr, cptr what, int pval)
+{
+	if (pval == 1)
+	{
+		if (grab_one_flag(&a_ptr->flags_pval1, k_info_flags_pval, what) == 0)
+			return (0);
+	}
+	if (pval == 2)
+	{
+		if (grab_one_flag(&a_ptr->flags_pval2, k_info_flags_pval, what) == 0)
+			return (0);
+	}
+	if (pval == 3)
+	{
+		if (grab_one_flag(&a_ptr->flags_pval3, k_info_flags_pval, what) == 0)
+			return (0);
+	}
+
+	/* Oops */
+	msg_format("Unknown artifact pval flag '%s'.", what);
+
+	/* Error */
+	return (PARSE_ERROR_GENERIC);
 }
 
 
@@ -1411,30 +1572,6 @@ static errr grab_one_artifact_flag(artifact_type *a_ptr, cptr what)
 	return (PARSE_ERROR_GENERIC);
 }
 
-
-/*
- * Grab one activation from a textual string
- */
-static errr grab_one_activation(artifact_type *a_ptr, cptr what)
-{
-	int i;
-
-	/* Scan activations */
-	for (i = 0; i < ACT_MAX; i++)
-	{
-		if (streq(what, a_info_act[i]))
-		{
-			a_ptr->activation = i;
-			return (0);
-		}
-	}
-
-	/* Oops */
-	msg_format("Unknown artifact activation '%s'.", what);
-
-	/* Error */
-	return (PARSE_ERROR_GENERIC);
-}
 
 
 
@@ -1487,25 +1624,26 @@ errr parse_a_info(char *buf, header *head)
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 
 		/* Ignore everything */
+#if 0
 		a_ptr->flags3 |= (TR3_IGNORE_MASK);
+#endif
 	}
 
 	/* Process 'I' for "Info" (one line only) */
 	else if (buf[0] == 'I')
 	{
-		int tval, sval, pval;
+		int tval, sval;
 
 		/* There better be a current a_ptr */
 		if (!a_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (3 != sscanf(buf+2, "%d:%d:%d",
-			            &tval, &sval, &pval)) return (PARSE_ERROR_GENERIC);
+		if (2 != sscanf(buf+2, "%d:%d",
+			            &tval, &sval)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		a_ptr->tval = tval;
 		a_ptr->sval = sval;
-		a_ptr->pval = pval;
 	}
 
 	/* Process 'W' for "More Info" (one line only) */
@@ -1549,6 +1687,119 @@ errr parse_a_info(char *buf, header *head)
 		a_ptr->force = force;
 	}
 
+	/* Process 'PV' for "pval values" (one line only) */
+	else if (buf[0] == 'Y')
+	{
+		int pval1 = 0, pval2 = 0, pval3 = 0;
+
+		/* There better be a current a_ptr */
+		if (!a_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Scan for the values (assume three pval values) */
+		if (3 != sscanf(buf+2, "%d:%d:%d", &pval1, &pval2, &pval3))
+		{
+			/* Scan for the values (assume two pval values) */
+			if (2 != sscanf(buf+2, "%d:%d", &pval1, &pval2))
+			{
+				/* Scan for the values (assume one pval value) */
+				if (1 != sscanf(buf+2, "%d", &pval1))
+				{
+					return (PARSE_ERROR_GENERIC);
+				}
+			}
+		}
+
+		/* Save the pvals */
+		a_ptr->pval1 = pval1;
+		a_ptr->pval2 = pval2;
+		a_ptr->pval3 = pval3;
+	}
+
+	/* Process '1', '2', and '3' for pval-dependant flags (one line only) */
+	else if ((buf[0] == '1') || (buf[0] == '2') || (buf[0] == '3'))
+	{
+		int this_pval;
+
+		/* There better be a current a_ptr */
+		if (!a_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Get the pval now being modified */
+		if      (buf[0] == '1') this_pval = 1;
+		else if (buf[0] == '2') this_pval = 2;
+		else                    this_pval = 3;
+
+		/* Verify the pval */
+		if (buf[0] == '1')
+		{
+			if (a_ptr->pval1 == 0) return (PARSE_ERROR_NO_PVAL1);
+		}
+		else if (buf[0] == '2')
+		{
+			if (a_ptr->pval2 == 0) return (PARSE_ERROR_NO_PVAL2);
+		}
+		else
+		{
+			if (a_ptr->pval3 == 0) return (PARSE_ERROR_NO_PVAL3);
+		}
+
+		/* Parse every entry textually */
+		for (s = buf + 2; *s; )
+		{
+			/* Find the end of this entry */
+			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+			/* Nuke and skip any dividers */
+			if (*t)
+			{
+				*t++ = '\0';
+				while ((*t == ' ') || (*t == '|')) t++;
+			}
+
+			/* Parse this entry */
+			if (0 != grab_one_artifact_pval_flag(a_ptr, s, this_pval))
+				return (PARSE_ERROR_INVALID_FLAG);
+
+
+			/* Start the next entry */
+			s = t;
+		}
+	}
+
+	/* Process 'O' for "Oppositions" (one line only) */
+	else if (buf[0] == 'O')
+	{
+		int fir, ear, air, wtr, elc, ice, acd, psn;
+		int tim, eth, snd, nth, lit, drk, psi, tlk, spi;
+
+		/* There better be a current pr_ptr */
+		if (!a_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Scan for the values */
+		if (17 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+		                &fir, &ear, &air, &wtr, &elc, &ice,
+						&acd, &psn, &tim, &eth, &snd, &nth, 
+						&lit, &drk, &psi, &tlk, &spi)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the values */
+		a_ptr->res[RS_FIR] = fir;
+		a_ptr->res[RS_EAR] = ear;
+		a_ptr->res[RS_AIR] = air;
+		a_ptr->res[RS_WTR] = wtr;
+		a_ptr->res[RS_ELC] = elc;
+		a_ptr->res[RS_ICE] = ice;
+		a_ptr->res[RS_ACD] = acd;
+		a_ptr->res[RS_PSN] = psn;
+		a_ptr->res[RS_TIM] = tim;
+		a_ptr->res[RS_ETH] = eth;
+		a_ptr->res[RS_SND] = snd;
+		a_ptr->res[RS_NTH] = nth;
+		a_ptr->res[RS_LIT] = lit;
+		a_ptr->res[RS_DRK] = drk;
+		a_ptr->res[RS_PSI] = psi;
+		a_ptr->res[RS_TLK] = tlk;
+		a_ptr->res[RS_SPI] = spi;
+	}
+
 	/* Process 'F' for flags */
 	else if (buf[0] == 'F')
 	{
@@ -1583,7 +1834,7 @@ errr parse_a_info(char *buf, header *head)
 
 		/* There better be a current a_ptr */
 		if (!a_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
+#if 0
 		/* Find the colon before the name */
 		s = strchr(buf + 2, ':');
 
@@ -1594,19 +1845,34 @@ errr parse_a_info(char *buf, header *head)
 		*s++ = '\0';
 
 		/* Paranoia -- require a name */
-		if (!*s) return (PARSE_ERROR_GENERIC);
+		/* if (!*s) return (PARSE_ERROR_GENERIC); */
 
 		/* Get the activation */
-		grab_one_activation(a_ptr, buf + 2);
-
+		/* grab_one_activation(a_ptr, buf + 2); */
+#endif
 		/* Scan for the values */
-		if (2 != sscanf(s, "%d:%d",
+		if (2 != sscanf(buf + 2, "%d:%d",
 			            &time, &rand)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		a_ptr->time = time;
 		a_ptr->randtime = rand;
 	}
+
+	/* Process 'D' for "Description" */
+	else if (buf[0] == 'D')
+	{
+		/* There better be a current a_ptr */
+		if (!a_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Get the text */
+		s = buf+2;
+
+		/* Store the text */
+		if (!add_text(&(a_ptr->text), head, s))
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+	}
+
 	else
 	{
 		/* Oops */
@@ -1617,6 +1883,29 @@ errr parse_a_info(char *buf, header *head)
 	return (0);
 }
 
+
+/*
+ * Grab one pval-dependant flag in an ego-item_type from a textual string
+ */
+static bool grab_one_ego_item_pval_flag(ego_item_type *e_ptr, cptr what, int pval)
+{
+	if (pval == 1)
+	{
+		if (grab_one_flag(&e_ptr->flags_pval1, k_info_flags_pval, what) == 0)
+			return (0);
+	}
+	else
+	{
+		if (grab_one_flag(&e_ptr->flags_pval2, k_info_flags_pval, what) == 0)
+			return (0);
+	}
+
+	/* Oops */
+	msg_format("Unknown ego-item pval flag '%s'.", what);
+
+	/* Error */
+	return (PARSE_ERROR_GENERIC);
+}
 
 /*
  * Grab one flag in a ego-item_type from a textual string
@@ -1761,19 +2050,118 @@ errr parse_e_info(char *buf, header *head)
 	/* Hack -- Process 'C' for "creation" */
 	else if (buf[0] == 'C')
 	{
-		int th, td, ta, pv;
+		int th, td, ta;
 
 		/* There better be a current e_ptr */
 		if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
-			            &th, &td, &ta, &pv)) return (PARSE_ERROR_GENERIC);
+		if (3 != sscanf(buf+2, "%d:%d:%d",
+			            &th, &td, &ta)) return (PARSE_ERROR_GENERIC);
 
 		e_ptr->max_to_h = th;
 		e_ptr->max_to_d = td;
 		e_ptr->max_to_a = ta;
-		e_ptr->max_pval = pv;
+	}
+
+	/* Process 'O' for "Oppositions" (one line only) */
+	else if (buf[0] == 'O')
+	{
+		int fir, ear, air, wtr, elc, ice, acd, psn;
+		int tim, eth, snd, nth, lit, drk, psi, tlk, spi;
+
+		/* There better be a current pr_ptr */
+		if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Scan for the values */
+		if (17 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+		                &fir, &ear, &air, &wtr, &elc, &ice,
+						&acd, &psn, &tim, &eth, &snd, &nth, 
+						&lit, &drk, &psi, &tlk, &spi)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the values */
+		e_ptr->res[RS_FIR] = fir;
+		e_ptr->res[RS_EAR] = ear;
+		e_ptr->res[RS_AIR] = air;
+		e_ptr->res[RS_WTR] = wtr;
+		e_ptr->res[RS_ELC] = elc;
+		e_ptr->res[RS_ICE] = ice;
+		e_ptr->res[RS_ACD] = acd;
+		e_ptr->res[RS_PSN] = psn;
+		e_ptr->res[RS_TIM] = tim;
+		e_ptr->res[RS_ETH] = eth;
+		e_ptr->res[RS_SND] = snd;
+		e_ptr->res[RS_NTH] = nth;
+		e_ptr->res[RS_LIT] = lit;
+		e_ptr->res[RS_DRK] = drk;
+		e_ptr->res[RS_PSI] = psi;
+		e_ptr->res[RS_TLK] = tlk;
+		e_ptr->res[RS_SPI] = spi;
+	}
+
+	/* Process 'Y' for "pval values" (one line only) */
+	else if (buf[0] == 'Y')
+	{
+		int pval1 = 0, pval2 = 0;
+
+		/* Scan for the values (assume two pval values) */
+		if (2 != sscanf(buf+2, "%d:%d", &pval1, &pval2))
+		{
+			/* Scan for the values (assume one pval value) */
+			if (1 != sscanf(buf+2, "%d", &pval1))
+			{
+				return (PARSE_ERROR_GENERIC);
+			}
+		}
+
+		/* Save the pvals */
+		e_ptr->max_pval1 = pval1;
+		e_ptr->max_pval2 = pval2;
+	}
+
+	/* Process '1' and '2' for pval-dependant flags (one line only) */
+	else if ((buf[0] == '1') || (buf[0] == '2'))
+	{
+		int this_pval;
+
+		/* There better be a current e_ptr */
+		if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Get the pval now being modified */
+		if (buf[0] == '1') this_pval = 1;
+		else               this_pval = 2;
+
+		/* Verify the pval */
+		if (buf[0] == '1')
+		{
+			if (e_ptr->max_pval1 == 0) return (PARSE_ERROR_NO_PVAL1);
+		}
+		else
+		{
+			if (e_ptr->max_pval2 == 0) return (PARSE_ERROR_NO_PVAL2);
+		}
+
+		/* Parse every entry textually */
+		for (s = buf + 2; *s; )
+		{
+			/* Find the end of this entry */
+			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+			/* Nuke and skip any dividers */
+			if (*t)
+			{
+				*t++ = '\0';
+				while ((*t == ' ') || (*t == '|')) t++;
+			}
+
+			/* Parse this entry */
+			if (0 != grab_one_ego_item_pval_flag(e_ptr, s, this_pval))
+				return (PARSE_ERROR_INVALID_FLAG);
+
+
+			/* Start the next entry */
+			s = t;
+		}
 	}
 
 	/* Hack -- Process 'F' for flags */
@@ -1802,6 +2190,21 @@ errr parse_e_info(char *buf, header *head)
 			s = t;
 		}
 	}
+
+	/* Process 'D' for "Description" */
+	else if (buf[0] == 'D')
+	{
+		/* There better be a current e_ptr */
+		if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Get the text */
+		s = buf+2;
+
+		/* Store the text */
+		if (!add_text(&(e_ptr->text), head, s))
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+	}
+
 	else
 	{
 		/* Oops */
@@ -1826,8 +2229,8 @@ static errr grab_one_basic_flag(monster_race *r_ptr, cptr what)
 
 	if (grab_one_flag(&r_ptr->flags3, r_info_flags3, what) == 0)
 		return (0);
-	
-	if (grab_one_flag(&r_ptr->flags7, r_info_flags7, what) == 0)
+
+	if (grab_one_flag(&r_ptr->flags8, r_info_flags8, what) == 0)
 		return (0);
 
 	/* Oops */
@@ -1852,12 +2255,16 @@ static errr grab_one_spell_flag(monster_race *r_ptr, cptr what)
 	if (grab_one_flag(&r_ptr->flags6, r_info_flags6, what) == 0)
 		return (0);
 
+	if (grab_one_flag(&r_ptr->flags7, r_info_flags7, what) == 0)
+		return (0);
+
 	/* Oops */
 	msg_format("Unknown monster flag '%s'.", what);
 
 	/* Failure */
 	return (PARSE_ERROR_GENERIC);
 }
+
 
 
 
@@ -1956,19 +2363,18 @@ errr parse_r_info(char *buf, header *head)
 	/* Process 'I' for "Info" (one line only) */
 	else if (buf[0] == 'I')
 	{
-		int spd, hp1, hp2, aaf, ac, slp;
+		int spd, hp, aaf, ac, slp;
 
 		/* There better be a current r_ptr */
 		if (!r_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the other values */
-		if (6 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d",
-			            &spd, &hp1, &hp2, &aaf, &ac, &slp)) return (PARSE_ERROR_GENERIC);
+		if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d",
+			            &spd, &hp, &aaf, &ac, &slp)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		r_ptr->speed = spd;
-		r_ptr->hdice = hp1;
-		r_ptr->hside = hp2;
+		r_ptr->hitpoints = hp;
 		r_ptr->aaf = aaf;
 		r_ptr->ac = ac;
 		r_ptr->sleep = slp;
@@ -1977,7 +2383,7 @@ errr parse_r_info(char *buf, header *head)
 	/* Process 'W' for "More Info" (one line only) */
 	else if (buf[0] == 'W')
 	{
-		int lev, rar, pad;
+		int lev, rar, mana;
 		long exp;
 
 		/* There better be a current r_ptr */
@@ -1985,12 +2391,12 @@ errr parse_r_info(char *buf, header *head)
 
 		/* Scan for the values */
 		if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
-			            &lev, &rar, &pad, &exp)) return (PARSE_ERROR_GENERIC);
+			            &lev, &rar, &mana, &exp)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		r_ptr->level = lev;
 		r_ptr->rarity = rar;
-		r_ptr->extra = pad;
+		r_ptr->mana = mana;
 		r_ptr->mexp = exp;
 	}
 
@@ -2102,14 +2508,29 @@ errr parse_r_info(char *buf, header *head)
 			}
 
 			/* XXX Hack -- Read spell frequency */
-			if (1 == sscanf(s, "1_IN_%d", &i))
+			if ((r_ptr->freq_ranged == 0) &&
+			    (1 == sscanf(s, "1_IN_%d", &i)))
 			{
 				/* Sanity check */
 				if ((i < 1) || (i > 100))
 					return (PARSE_ERROR_INVALID_SPELL_FREQ);
 
 				/* Extract a "frequency" */
-				r_ptr->freq_spell = r_ptr->freq_inate = 100 / i;
+				r_ptr->freq_ranged = 100 / i;
+
+				/* Start at next entry */
+				s = t;
+
+				/* Continue */
+				continue;
+			}
+
+			/* Read spell power. */
+			if ((r_ptr->spell_power == 0) &&
+			    (1 == sscanf(s, "POW_%d", &i)))
+			{
+				/* Save spell power. */
+				r_ptr->spell_power = i;
 
 				/* Start at next entry */
 				s = t;
@@ -2132,40 +2553,6 @@ errr parse_r_info(char *buf, header *head)
 		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
 	}
 
-#if 0
-	/* XXX XXX XXX The ghost is unused */
-
-	/* Mega-Hack -- acquire "ghost" */
-	r_ptr = &r_info[z_info->r_max-1];
-
-	/* Get the next index */
-	r_ptr->name = head->name_size;
-	r_ptr->text = head->text_size;
-
-	/* Save some space for the ghost info */
-	head->name_size += 64;
-	head->text_size += 64;
-
-	/* Hack -- Default name/text for the ghost */
-	strcpy(r_name + r_ptr->name, "Nobody, the Undefined Ghost");
-	strcpy(r_text + r_ptr->text, "It seems strangely familiar...");
-
-	/* Hack -- set the attr/char info */
-	r_ptr->d_attr = r_ptr->x_attr = TERM_WHITE;
-	r_ptr->d_char = r_ptr->x_char = 'G';
-
-	/* Hack -- Try to prevent a few "potential" bugs */
-	r_ptr->flags1 |= (RF1_UNIQUE);
-
-	/* Hack -- Try to prevent a few "potential" bugs */
-	r_ptr->flags1 |= (RF1_NEVER_MOVE | RF1_NEVER_BLOW);
-
-	/* Hack -- Try to prevent a few "potential" bugs */
-	r_ptr->hdice = r_ptr->hside = 1;
-
-	/* Hack -- Try to prevent a few "potential" bugs */
-	r_ptr->mexp = 1L;
-#endif
 
 	/* Success */
 	return (0);
@@ -2277,31 +2664,7 @@ errr parse_p_info(char *buf, header *head)
 			continue;
 		}
 	}
-#if 0
-	/* Process 'R' for "Racial Skills" (one line only) */
-	else if (buf[0] == 'R')
-	{
-		int dis, dev, sav, stl, srh, fos, thn, thb;
 
-		/* There better be a current pr_ptr */
-		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Scan for the values */
-		if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
-			            &dis, &dev, &sav, &stl,
-			            &srh, &fos, &thn, &thb)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		pr_ptr->r_dis = dis;
-		pr_ptr->r_dev = dev;
-		pr_ptr->r_sav = sav;
-		pr_ptr->r_stl = stl;
-		pr_ptr->r_srh = srh;
-		pr_ptr->r_fos = fos;
-		pr_ptr->r_thn = thn;
-		pr_ptr->r_thb = thb;
-	}
-#endif
 	/* Process 'X' for "Extra Info" (one line only) */
 	else if (buf[0] == 'X')
 	{
@@ -2544,55 +2907,7 @@ errr parse_c_info(char *buf, header *head)
 			continue;
 		}
 	}
-#if 0
-	/* Process 'C' for "Class Skills" (one line only) */
-	else if (buf[0] == 'C')
-	{
-		int dis, dev, sav, stl, srh, fos, thn, thb;
 
-		/* There better be a current pc_ptr */
-		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Scan for the values */
-		if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
-			            &dis, &dev, &sav, &stl,
-			            &srh, &fos, &thn, &thb)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		pc_ptr->c_dis = dis;
-		pc_ptr->c_dev = dev;
-		pc_ptr->c_sav = sav;
-		pc_ptr->c_stl = stl;
-		pc_ptr->c_srh = srh;
-		pc_ptr->c_fos = fos;
-		pc_ptr->c_thn = thn;
-		pc_ptr->c_thb = thb;
-	}
-
-	/* Process 'X' for "Extra Skills" (one line only) */
-	else if (buf[0] == 'X')
-	{
-		int dis, dev, sav, stl, srh, fos, thn, thb;
-
-		/* There better be a current pc_ptr */
-		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Scan for the values */
-		if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
-			            &dis, &dev, &sav, &stl,
-			            &srh, &fos, &thn, &thb)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		pc_ptr->x_dis = dis;
-		pc_ptr->x_dev = dev;
-		pc_ptr->x_sav = sav;
-		pc_ptr->x_stl = stl;
-		pc_ptr->x_srh = srh;
-		pc_ptr->x_fos = fos;
-		pc_ptr->x_thn = thn;
-		pc_ptr->x_thb = thb;
-	}
-#endif
 	/* Process 'I' for "Info" (one line only) */
 	else if (buf[0] == 'I')
 	{
@@ -2637,7 +2952,7 @@ errr parse_c_info(char *buf, header *head)
 	/* Process 'M' for "Magic Info" (one line only) */
 	else if (buf[0] == 'M')
 	{
-		int spell_stat, sstat1, sstat2, dist;
+		int spell_stat, dist;
 
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
@@ -3028,6 +3343,106 @@ errr parse_g_info(char *buf, header *head)
 	return (0);
 }
 
+/*
+ * Initialize the "q_info" array, by parsing an ascii "template" file
+ */
+errr parse_q_info(char *buf, header *head)
+{
+	int i;
+
+	char *s;
+
+	/* Current entry */
+	static quest_type *q_ptr = NULL;
+
+	static int prev_lev = 0;
+
+	/* Process 'N' for "New/Number/Name" */
+	if (buf[0] == 'N')
+	{
+		/* Find the colon before the name */
+		s = strchr(buf+2, ':');
+
+		/* Verify that colon */
+		if (!s) return (PARSE_ERROR_GENERIC);
+
+		/* Nuke the colon, advance to the name */
+		*s++ = '\0';
+
+		/* Paranoia -- require a name */
+		if (!*s) return (PARSE_ERROR_GENERIC);
+
+		/* Get the index */
+		i = atoi(buf+2);
+
+		/* Verify information */
+		if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
+
+		/* Verify information */
+		if (i >= head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
+
+		/* Save the index */
+		error_idx = i;
+
+		/* Point at the "info" */
+		q_ptr = (quest_type*)head->info_ptr + i;
+
+		/* Store the name */
+		if (!(q_ptr->name = add_name(head, s)))
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+	}
+
+	/* Process 'W' for "Where/What" (one line only) */
+	else if (buf[0] == 'W')
+	{
+		int lev, r_idx, u_idx, max;
+
+		/* There better be a current q_ptr */
+		if (!q_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Scan for the values */
+		if (4 != sscanf(buf+2, "%d:%d:%d:%d",&lev, &r_idx, &u_idx, &max))
+			return (PARSE_ERROR_GENERIC);
+
+		/* Check quests */
+		for (i = 0; i < error_idx; i++)
+		{
+			/* Check for quest */
+			if (lev <= prev_lev) return (PARSE_ERROR_NON_SEQUENTIAL_QUESTS);
+		}
+
+		/* Save the values */
+		prev_lev = q_ptr->base_level = q_ptr->active_level = lev;
+
+		if(r_idx)
+		{
+			monster_race *r_ptr = &r_info[r_idx];
+
+			/*unique quest*/
+			if (r_ptr->flags1 & RF1_UNIQUE)
+			{
+				q_ptr->mon_idx = r_idx;
+				q_ptr->type = QUEST_FIXED_U;
+			}
+
+			/*fixed quest*/
+			else 
+			{
+				q_ptr->mon_idx = r_idx;
+				q_ptr->type = QUEST_FIXED;
+			}
+		}
+		q_ptr->max_num = max;
+	}
+	else
+	{
+		/* Oops */
+		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
+	}
+
+	/* Success */
+	return (0);
+}
 
 #else	/* ALLOW_TEMPLATES */
 

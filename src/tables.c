@@ -39,6 +39,30 @@ const s16b ddy_ddd[9] =
 
 
 /*
+ * Circular keypad direction array
+ */
+const s16b cdd[8] =
+{ 2, 3, 6, 9, 8, 7, 4, 1 };
+
+/*
+ * Global arrays for optimizing "ddx[cdd[i]]" and "ddy[cdd[i]]"
+ */
+const s16b ddx_cdd[8] =
+{ 0, 1, 1, 1, 0, -1, -1, -1 };
+
+const s16b ddy_cdd[8] =
+{ 1, 1, 0, -1, -1, -1, 0, 1 };
+
+/*
+ * Global arrays for optimizing "ddx[cdd[i]]" and "ddy[cdd[i]]"
+ */
+const s16b ddx_cdddouble[8] =
+{ 0, 2, 2, 2, 0, -2, -2, -2 };
+
+const s16b ddy_cdddouble[8] =
+{ 2, 2, 0, -2, -2, -2, 0, 2 };
+
+/*
  * Global array for converting numbers to uppercase hecidecimal digit
  * This array can also be used to convert a number to an octal digit
  */
@@ -49,1070 +73,6 @@ const char hexsym[16] =
 }; 
 
 
-/* all of these tables will be pulled */
-/* New stats are acessed by */
-/* p_ptr->stat_cur[A_MUS] etc. */
-
-/*
- * Stat Table (INT/WIS) -- Number of half-spells per level
- */
-/* 
- * Replacement Suggestions
- * range 0-5, divide by 100, divide by 2.
- */
-const byte adj_mag_study[] =
-{
-	0	/* 3 */,
-	0	/* 4 */,
-	0	/* 5 */,
-	0	/* 6 */,
-	0	/* 7 */,
-	1	/* 8 */,
-	1	/* 9 */,
-	1	/* 10 */,
-	1	/* 11 */,
-	2	/* 12 */,
-	2	/* 13 */,
-	2	/* 14 */,
-	2	/* 15 */,
-	2	/* 16 */,
-	2	/* 17 */,
-	2	/* 18/00-18/09 */,
-	2	/* 18/10-18/19 */,
-	2	/* 18/20-18/29 */,
-	2	/* 18/30-18/39 */,
-	2	/* 18/40-18/49 */,
-	3	/* 18/50-18/59 */,
-	3	/* 18/60-18/69 */,
-	3	/* 18/70-18/79 */,
-	3	/* 18/80-18/89 */,
-	4	/* 18/90-18/99 */,
-	4	/* 18/100-18/109 */,
-	4	/* 18/110-18/119 */,
-	5	/* 18/120-18/129 */,
-	5	/* 18/130-18/139 */,
-	5	/* 18/140-18/149 */,
-	5	/* 18/150-18/159 */,
-	5	/* 18/160-18/169 */,
-	5	/* 18/170-18/179 */,
-	5	/* 18/180-18/189 */,
-	5	/* 18/190-18/199 */,
-	5	/* 18/200-18/209 */,
-	5	/* 18/210-18/219 */,
-	5	/* 18/220+ */
-};
-
-
-/*
- * Stat Table (INT/WIS) -- extra half-mana-points per level
- */
-/* 
- * Replacement Suggestions
- * 0-16. Divide by 50. (for a total of 20)
- */
-
-const byte adj_mag_mana[] =
-{
-	0	/* 3 */,
-	0	/* 4 */,
-	0	/* 5 */,
-	0	/* 6 */,
-	0	/* 7 */,
-	1	/* 8 */,
-	2	/* 9 */,
-	2	/* 10 */,
-	2	/* 11 */,
-	2	/* 12 */,
-	2	/* 13 */,
-	2	/* 14 */,
-	2	/* 15 */,
-	2	/* 16 */,
-	2	/* 17 */,
-	3	/* 18/00-18/09 */,
-	3	/* 18/10-18/19 */,
-	3	/* 18/20-18/29 */,
-	3	/* 18/30-18/39 */,
-	3	/* 18/40-18/49 */,
-	4	/* 18/50-18/59 */,
-	4	/* 18/60-18/69 */,
-	5	/* 18/70-18/79 */,
-	6	/* 18/80-18/89 */,
-	7	/* 18/90-18/99 */,
-	8	/* 18/100-18/109 */,
-	9	/* 18/110-18/119 */,
-	10	/* 18/120-18/129 */,
-	11	/* 18/130-18/139 */,
-	12	/* 18/140-18/149 */,
-	13	/* 18/150-18/159 */,
-	14	/* 18/160-18/169 */,
-	15	/* 18/170-18/179 */,
-	16	/* 18/180-18/189 */,
-	16	/* 18/190-18/199 */,
-	16	/* 18/200-18/209 */,
-	16	/* 18/210-18/219 */,
-	16	/* 18/220+ */
-};
-
-
-/*
- * Stat Table (INT/WIS) -- Minimum failure rate (percentage)
- */
- /* 
- * Replacement Suggestions
- *  99 - 0. hmmmmm, take 999 - stat, and divide the result by 10
- * I.E. Stat 444 ->  999-444 = 555 / 10 = 55% chance of failure
- *      Stat 888 ->  999-888 = 111 / 10 = 11% chance of failure.
- *  Must have relevant skill to make this work working. . .
- */
-
-const byte adj_mag_fail[] =
-{
-	99	/* 3 */,
-	99	/* 4 */,
-	99	/* 5 */,
-	99	/* 6 */,
-	99	/* 7 */,
-	50	/* 8 */,
-	30	/* 9 */,
-	20	/* 10 */,
-	15	/* 11 */,
-	12	/* 12 */,
-	11	/* 13 */,
-	10	/* 14 */,
-	9	/* 15 */,
-	8	/* 16 */,
-	7	/* 17 */,
-	6	/* 18/00-18/09 */,
-	6	/* 18/10-18/19 */,
-	5	/* 18/20-18/29 */,
-	5	/* 18/30-18/39 */,
-	5	/* 18/40-18/49 */,
-	4	/* 18/50-18/59 */,
-	4	/* 18/60-18/69 */,
-	4	/* 18/70-18/79 */,
-	4	/* 18/80-18/89 */,
-	3	/* 18/90-18/99 */,
-	3	/* 18/100-18/109 */,
-	2	/* 18/110-18/119 */,
-	2	/* 18/120-18/129 */,
-	2	/* 18/130-18/139 */,
-	2	/* 18/140-18/149 */,
-	1	/* 18/150-18/159 */,
-	1	/* 18/160-18/169 */,
-	1	/* 18/170-18/179 */,
-	1	/* 18/180-18/189 */,
-	1	/* 18/190-18/199 */,
-	0	/* 18/200-18/209 */,
-	0	/* 18/210-18/219 */,
-	0	/* 18/220+ */
-};
-
-
-/*
- * Stat Table (INT/WIS) -- Various things
- * Divide by 50?
- */
-const byte adj_mag_stat[] =
-{
-	0	/* 3 */,
-	0	/* 4 */,
-	0	/* 5 */,
-	0	/* 6 */,
-	0	/* 7 */,
-	1	/* 8 */,
-	1	/* 9 */,
-	1	/* 10 */,
-	1	/* 11 */,
-	1	/* 12 */,
-	1	/* 13 */,
-	1	/* 14 */,
-	2	/* 15 */,
-	2	/* 16 */,
-	2	/* 17 */,
-	3	/* 18/00-18/09 */,
-	3	/* 18/10-18/19 */,
-	3	/* 18/20-18/29 */,
-	3	/* 18/30-18/39 */,
-	3	/* 18/40-18/49 */,
-	4	/* 18/50-18/59 */,
-	4	/* 18/60-18/69 */,
-	5	/* 18/70-18/79 */,
-	6	/* 18/80-18/89 */,
-	7	/* 18/90-18/99 */,
-	8	/* 18/100-18/109 */,
-	9	/* 18/110-18/119 */,
-	10	/* 18/120-18/129 */,
-	11	/* 18/130-18/139 */,
-	12	/* 18/140-18/149 */,
-	13	/* 18/150-18/159 */,
-	14	/* 18/160-18/169 */,
-	15	/* 18/170-18/179 */,
-	16	/* 18/180-18/189 */,
-	17	/* 18/190-18/199 */,
-	18	/* 18/200-18/209 */,
-	19	/* 18/210-18/219 */,
-	20	/* 18/220+ */
-};
-
-
-/*
- * Stat Table (CHR) -- payment percentages
- */
- /* 
- * Replacement Suggestions
- * Expand the range from 200 - 50. Then figure something out on that.
- */
-
-const byte adj_chr_gold[] =
-{
-	130	/* 3 */,
-	125	/* 4 */,
-	122	/* 5 */,
-	120	/* 6 */,
-	118	/* 7 */,
-	116	/* 8 */,
-	114	/* 9 */,
-	112	/* 10 */,
-	110	/* 11 */,
-	108	/* 12 */,
-	106	/* 13 */,
-	104	/* 14 */,
-	103	/* 15 */,
-	102	/* 16 */,
-	101	/* 17 */,
-	100	/* 18/00-18/09 */,
-	99	/* 18/10-18/19 */,
-	98	/* 18/20-18/29 */,
-	97	/* 18/30-18/39 */,
-	96	/* 18/40-18/49 */,
-	95	/* 18/50-18/59 */,
-	94	/* 18/60-18/69 */,
-	93	/* 18/70-18/79 */,
-	92	/* 18/80-18/89 */,
-	91	/* 18/90-18/99 */,
-	90	/* 18/100-18/109 */,
-	89	/* 18/110-18/119 */,
-	88	/* 18/120-18/129 */,
-	87	/* 18/130-18/139 */,
-	86	/* 18/140-18/149 */,
-	85	/* 18/150-18/159 */,
-	84	/* 18/160-18/169 */,
-	83	/* 18/170-18/179 */,
-	82	/* 18/180-18/189 */,
-	81	/* 18/190-18/199 */,
-	80	/* 18/200-18/209 */,
-	80	/* 18/210-18/219 */,
-	80	/* 18/220+ */
-};
-
-
-/*
- * Stat Table (INT) -- Magic devices
- */
- /* 
- * Replacement Suggestions
- * Divide by 50?
- */
-
-const byte adj_int_dev[] =
-{
-	0	/* 3 */,
-	0	/* 4 */,
-	0	/* 5 */,
-	0	/* 6 */,
-	0	/* 7 */,
-	1	/* 8 */,
-	1	/* 9 */,
-	1	/* 10 */,
-	1	/* 11 */,
-	1	/* 12 */,
-	1	/* 13 */,
-	1	/* 14 */,
-	2	/* 15 */,
-	2	/* 16 */,
-	2	/* 17 */,
-	3	/* 18/00-18/09 */,
-	3	/* 18/10-18/19 */,
-	4	/* 18/20-18/29 */,
-	4	/* 18/30-18/39 */,
-	5	/* 18/40-18/49 */,
-	5	/* 18/50-18/59 */,
-	6	/* 18/60-18/69 */,
-	6	/* 18/70-18/79 */,
-	7	/* 18/80-18/89 */,
-	7	/* 18/90-18/99 */,
-	8	/* 18/100-18/109 */,
-	9	/* 18/110-18/119 */,
-	10	/* 18/120-18/129 */,
-	11	/* 18/130-18/139 */,
-	12	/* 18/140-18/149 */,
-	13	/* 18/150-18/159 */,
-	14	/* 18/160-18/169 */,
-	15	/* 18/170-18/179 */,
-	16	/* 18/180-18/189 */,
-	17	/* 18/190-18/199 */,
-	18	/* 18/200-18/209 */,
-	19	/* 18/210-18/219 */,
-	20	/* 18/220+ */
-};
-
-
-/*
- * Stat Table (WIS) -- Saving throw
- */
- /* 
- * Replacement Suggestions
- *	Divide by 50?
- */
-
-const byte adj_wis_sav[] =
-{
-	0	/* 3 */,
-	0	/* 4 */,
-	0	/* 5 */,
-	0	/* 6 */,
-	0	/* 7 */,
-	1	/* 8 */,
-	1	/* 9 */,
-	1	/* 10 */,
-	1	/* 11 */,
-	1	/* 12 */,
-	1	/* 13 */,
-	1	/* 14 */,
-	2	/* 15 */,
-	2	/* 16 */,
-	2	/* 17 */,
-	3	/* 18/00-18/09 */,
-	3	/* 18/10-18/19 */,
-	3	/* 18/20-18/29 */,
-	3	/* 18/30-18/39 */,
-	3	/* 18/40-18/49 */,
-	4	/* 18/50-18/59 */,
-	4	/* 18/60-18/69 */,
-	5	/* 18/70-18/79 */,
-	5	/* 18/80-18/89 */,
-	6	/* 18/90-18/99 */,
-	7	/* 18/100-18/109 */,
-	8	/* 18/110-18/119 */,
-	9	/* 18/120-18/129 */,
-	10	/* 18/130-18/139 */,
-	11	/* 18/140-18/149 */,
-	12	/* 18/150-18/159 */,
-	13	/* 18/160-18/169 */,
-	14	/* 18/170-18/179 */,
-	15	/* 18/180-18/189 */,
-	16	/* 18/190-18/199 */,
-	17	/* 18/200-18/209 */,
-	18	/* 18/210-18/219 */,
-	19	/* 18/220+ */
-};
-
-
-/*
- * Stat Table (AGI) -- disarming
- */
- /* 
- * Replacement Suggestions
- * DIvide by 100?
- */
-
-const byte adj_dex_dis[] =
-{
-	0	/* 3 */,
-	0	/* 4 */,
-	0	/* 5 */,
-	0	/* 6 */,
-	0	/* 7 */,
-	0	/* 8 */,
-	0	/* 9 */,
-	0	/* 10 */,
-	0	/* 11 */,
-	0	/* 12 */,
-	1	/* 13 */,
-	1	/* 14 */,
-	1	/* 15 */,
-	2	/* 16 */,
-	2	/* 17 */,
-	4	/* 18/00-18/09 */,
-	4	/* 18/10-18/19 */,
-	4	/* 18/20-18/29 */,
-	4	/* 18/30-18/39 */,
-	5	/* 18/40-18/49 */,
-	5	/* 18/50-18/59 */,
-	5	/* 18/60-18/69 */,
-	6	/* 18/70-18/79 */,
-	6	/* 18/80-18/89 */,
-	7	/* 18/90-18/99 */,
-	8	/* 18/100-18/109 */,
-	8	/* 18/110-18/119 */,
-	8	/* 18/120-18/129 */,
-	8	/* 18/130-18/139 */,
-	8	/* 18/140-18/149 */,
-	9	/* 18/150-18/159 */,
-	9	/* 18/160-18/169 */,
-	9	/* 18/170-18/179 */,
-	9	/* 18/180-18/189 */,
-	9	/* 18/190-18/199 */,
-	10	/* 18/200-18/209 */,
-	10	/* 18/210-18/219 */,
-	10	/* 18/220+ */
-};
-
-
-/*
- * Stat Table (INT) -- disarming
- */
- /* 
- * Replacement Suggestions
- * looks like, oh lets see, yep! Divide by 50
- */
-
-const byte adj_int_dis[] =
-{
-	0	/* 3 */,
-	0	/* 4 */,
-	0	/* 5 */,
-	0	/* 6 */,
-	0	/* 7 */,
-	1	/* 8 */,
-	1	/* 9 */,
-	1	/* 10 */,
-	1	/* 11 */,
-	1	/* 12 */,
-	1	/* 13 */,
-	1	/* 14 */,
-	2	/* 15 */,
-	2	/* 16 */,
-	2	/* 17 */,
-	3	/* 18/00-18/09 */,
-	3	/* 18/10-18/19 */,
-	3	/* 18/20-18/29 */,
-	4	/* 18/30-18/39 */,
-	4	/* 18/40-18/49 */,
-	5	/* 18/50-18/59 */,
-	6	/* 18/60-18/69 */,
-	7	/* 18/70-18/79 */,
-	8	/* 18/80-18/89 */,
-	9	/* 18/90-18/99 */,
-	10	/* 18/100-18/109 */,
-	10	/* 18/110-18/119 */,
-	11	/* 18/120-18/129 */,
-	12	/* 18/130-18/139 */,
-	13	/* 18/140-18/149 */,
-	14	/* 18/150-18/159 */,
-	15	/* 18/160-18/169 */,
-	16	/* 18/170-18/179 */,
-	17	/* 18/180-18/189 */,
-	18	/* 18/190-18/199 */,
-	19	/* 18/200-18/209 */,
-	19	/* 18/210-18/219 */,
-	19	/* 18/220+ */
-};
-
-
-/*
- * Stat Table (AGI) -- bonus to ac (plus 128)
- */
- /* 
- * Replacement Suggestions
- * wtf, this is going to get more comoplicated.
- */
-
-const byte adj_dex_ta[] =
-{
-	128 + -4	/* 3 */,
-	128 + -3	/* 4 */,
-	128 + -2	/* 5 */,
-	128 + -1	/* 6 */,
-	128 + 0	/* 7 */,
-	128 + 0	/* 8 */,
-	128 + 0	/* 9 */,
-	128 + 0	/* 10 */,
-	128 + 0	/* 11 */,
-	128 + 0	/* 12 */,
-	128 + 0	/* 13 */,
-	128 + 0	/* 14 */,
-	128 + 1	/* 15 */,
-	128 + 1	/* 16 */,
-	128 + 1	/* 17 */,
-	128 + 2	/* 18/00-18/09 */,
-	128 + 2	/* 18/10-18/19 */,
-	128 + 2	/* 18/20-18/29 */,
-	128 + 2	/* 18/30-18/39 */,
-	128 + 2	/* 18/40-18/49 */,
-	128 + 3	/* 18/50-18/59 */,
-	128 + 3	/* 18/60-18/69 */,
-	128 + 3	/* 18/70-18/79 */,
-	128 + 4	/* 18/80-18/89 */,
-	128 + 5	/* 18/90-18/99 */,
-	128 + 6	/* 18/100-18/109 */,
-	128 + 7	/* 18/110-18/119 */,
-	128 + 8	/* 18/120-18/129 */,
-	128 + 9	/* 18/130-18/139 */,
-	128 + 9	/* 18/140-18/149 */,
-	128 + 10	/* 18/150-18/159 */,
-	128 + 11	/* 18/160-18/169 */,
-	128 + 12	/* 18/170-18/179 */,
-	128 + 13	/* 18/180-18/189 */,
-	128 + 14	/* 18/190-18/199 */,
-	128 + 15	/* 18/200-18/209 */,
-	128 + 15	/* 18/210-18/219 */,
-	128 + 15	/* 18/220+ */
-};
-
-
-/*
- * Stat Table (MUS) -- bonus to dam (plus 128)
- */
- /* 
- * Replacement Suggestions
- * This too.
- */
-
-const byte adj_str_td[] =
-{
-	128 + -2	/* 3 */,
-	128 + -2	/* 4 */,
-	128 + -1	/* 5 */,
-	128 + -1	/* 6 */,
-	128 + 0	/* 7 */,
-	128 + 0	/* 8 */,
-	128 + 0	/* 9 */,
-	128 + 0	/* 10 */,
-	128 + 0	/* 11 */,
-	128 + 0	/* 12 */,
-	128 + 0	/* 13 */,
-	128 + 0	/* 14 */,
-	128 + 0	/* 15 */,
-	128 + 1	/* 16 */,
-	128 + 2	/* 17 */,
-	128 + 2	/* 18/00-18/09 */,
-	128 + 2	/* 18/10-18/19 */,
-	128 + 3	/* 18/20-18/29 */,
-	128 + 3	/* 18/30-18/39 */,
-	128 + 3	/* 18/40-18/49 */,
-	128 + 3	/* 18/50-18/59 */,
-	128 + 3	/* 18/60-18/69 */,
-	128 + 4	/* 18/70-18/79 */,
-	128 + 5	/* 18/80-18/89 */,
-	128 + 5	/* 18/90-18/99 */,
-	128 + 6	/* 18/100-18/109 */,
-	128 + 7	/* 18/110-18/119 */,
-	128 + 8	/* 18/120-18/129 */,
-	128 + 9	/* 18/130-18/139 */,
-	128 + 10	/* 18/140-18/149 */,
-	128 + 11	/* 18/150-18/159 */,
-	128 + 12	/* 18/160-18/169 */,
-	128 + 13	/* 18/170-18/179 */,
-	128 + 14	/* 18/180-18/189 */,
-	128 + 15	/* 18/190-18/199 */,
-	128 + 16	/* 18/200-18/209 */,
-	128 + 18	/* 18/210-18/219 */,
-	128 + 20	/* 18/220+ */
-};
-
-
-/*
- * Stat Table (AGI) -- bonus to hit (plus 128)
- */
- /* 
- * Replacement Suggestions
- *this three!
- */
-
-const byte adj_dex_th[] =
-{
-	128 + -3	/* 3 */,
-	128 + -2	/* 4 */,
-	128 + -2	/* 5 */,
-	128 + -1	/* 6 */,
-	128 + -1	/* 7 */,
-	128 + 0	/* 8 */,
-	128 + 0	/* 9 */,
-	128 + 0	/* 10 */,
-	128 + 0	/* 11 */,
-	128 + 0	/* 12 */,
-	128 + 0	/* 13 */,
-	128 + 0	/* 14 */,
-	128 + 0	/* 15 */,
-	128 + 1	/* 16 */,
-	128 + 2	/* 17 */,
-	128 + 3	/* 18/00-18/09 */,
-	128 + 3	/* 18/10-18/19 */,
-	128 + 3	/* 18/20-18/29 */,
-	128 + 3	/* 18/30-18/39 */,
-	128 + 3	/* 18/40-18/49 */,
-	128 + 4	/* 18/50-18/59 */,
-	128 + 4	/* 18/60-18/69 */,
-	128 + 4	/* 18/70-18/79 */,
-	128 + 4	/* 18/80-18/89 */,
-	128 + 5	/* 18/90-18/99 */,
-	128 + 6	/* 18/100-18/109 */,
-	128 + 7	/* 18/110-18/119 */,
-	128 + 8	/* 18/120-18/129 */,
-	128 + 9	/* 18/130-18/139 */,
-	128 + 9	/* 18/140-18/149 */,
-	128 + 10	/* 18/150-18/159 */,
-	128 + 11	/* 18/160-18/169 */,
-	128 + 12	/* 18/170-18/179 */,
-	128 + 13	/* 18/180-18/189 */,
-	128 + 14	/* 18/190-18/199 */,
-	128 + 15	/* 18/200-18/209 */,
-	128 + 15	/* 18/210-18/219 */,
-	128 + 15	/* 18/220+ */
-};
-
-
-/*
- * Stat Table (MUS) -- bonus to hit (plus 128)
- */
- /* 
- * Replacement Suggestions
- * THis four
- */
-
-const byte adj_str_th[] =
-{
-	128 + -3	/* 3 */,
-	128 + -2	/* 4 */,
-	128 + -1	/* 5 */,
-	128 + -1	/* 6 */,
-	128 + 0	/* 7 */,
-	128 + 0	/* 8 */,
-	128 + 0	/* 9 */,
-	128 + 0	/* 10 */,
-	128 + 0	/* 11 */,
-	128 + 0	/* 12 */,
-	128 + 0	/* 13 */,
-	128 + 0	/* 14 */,
-	128 + 0	/* 15 */,
-	128 + 0	/* 16 */,
-	128 + 0	/* 17 */,
-	128 + 1	/* 18/00-18/09 */,
-	128 + 1	/* 18/10-18/19 */,
-	128 + 1	/* 18/20-18/29 */,
-	128 + 1	/* 18/30-18/39 */,
-	128 + 1	/* 18/40-18/49 */,
-	128 + 1	/* 18/50-18/59 */,
-	128 + 1	/* 18/60-18/69 */,
-	128 + 2	/* 18/70-18/79 */,
-	128 + 3	/* 18/80-18/89 */,
-	128 + 4	/* 18/90-18/99 */,
-	128 + 5	/* 18/100-18/109 */,
-	128 + 6	/* 18/110-18/119 */,
-	128 + 7	/* 18/120-18/129 */,
-	128 + 8	/* 18/130-18/139 */,
-	128 + 9	/* 18/140-18/149 */,
-	128 + 10	/* 18/150-18/159 */,
-	128 + 11	/* 18/160-18/169 */,
-	128 + 12	/* 18/170-18/179 */,
-	128 + 13	/* 18/180-18/189 */,
-	128 + 14	/* 18/190-18/199 */,
-	128 + 15	/* 18/200-18/209 */,
-	128 + 15	/* 18/210-18/219 */,
-	128 + 15	/* 18/220+ */
-};
-
-
-/*
- * Stat Table (MUS) -- weight limit in deca-pounds
- */
- /* 
- * Replacement Suggestions
- * Divide by 40?
- */
-
-const byte adj_str_wgt[] =
-{
-	5	/* 3 */,
-	6	/* 4 */,
-	7	/* 5 */,
-	8	/* 6 */,
-	9	/* 7 */,
-	10	/* 8 */,
-	11	/* 9 */,
-	12	/* 10 */,
-	13	/* 11 */,
-	14	/* 12 */,
-	15	/* 13 */,
-	16	/* 14 */,
-	17	/* 15 */,
-	18	/* 16 */,
-	19	/* 17 */,
-	20	/* 18/00-18/09 */,
-	22	/* 18/10-18/19 */,
-	24	/* 18/20-18/29 */,
-	26	/* 18/30-18/39 */,
-	28	/* 18/40-18/49 */,
-	30	/* 18/50-18/59 */,
-	30	/* 18/60-18/69 */,
-	30	/* 18/70-18/79 */,
-	30	/* 18/80-18/89 */,
-	30	/* 18/90-18/99 */,
-	30	/* 18/100-18/109 */,
-	30	/* 18/110-18/119 */,
-	30	/* 18/120-18/129 */,
-	30	/* 18/130-18/139 */,
-	30	/* 18/140-18/149 */,
-	30	/* 18/150-18/159 */,
-	30	/* 18/160-18/169 */,
-	30	/* 18/170-18/179 */,
-	30	/* 18/180-18/189 */,
-	30	/* 18/190-18/199 */,
-	30	/* 18/200-18/209 */,
-	30	/* 18/210-18/219 */,
-	30	/* 18/220+ */
-};
-
-
-/*
- * Stat Table (MUS) -- weapon weight limit in pounds
- */
- /* 
- * Replacement Suggestions
- * Divide by 10.
- */
-
-const byte adj_str_hold[] =
-{
-	4	/* 3 */,
-	5	/* 4 */,
-	6	/* 5 */,
-	7	/* 6 */,
-	8	/* 7 */,
-	10	/* 8 */,
-	12	/* 9 */,
-	14	/* 10 */,
-	16	/* 11 */,
-	18	/* 12 */,
-	20	/* 13 */,
-	22	/* 14 */,
-	24	/* 15 */,
-	26	/* 16 */,
-	28	/* 17 */,
-	30	/* 18/00-18/09 */,
-	30	/* 18/10-18/19 */,
-	35	/* 18/20-18/29 */,
-	40	/* 18/30-18/39 */,
-	45	/* 18/40-18/49 */,
-	50	/* 18/50-18/59 */,
-	55	/* 18/60-18/69 */,
-	60	/* 18/70-18/79 */,
-	65	/* 18/80-18/89 */,
-	70	/* 18/90-18/99 */,
-	80	/* 18/100-18/109 */,
-	80	/* 18/110-18/119 */,
-	80	/* 18/120-18/129 */,
-	80	/* 18/130-18/139 */,
-	80	/* 18/140-18/149 */,
-	90	/* 18/150-18/159 */,
-	90	/* 18/160-18/169 */,
-	90	/* 18/170-18/179 */,
-	90	/* 18/180-18/189 */,
-	90	/* 18/190-18/199 */,
-	100	/* 18/200-18/209 */,
-	100	/* 18/210-18/219 */,
-	100	/* 18/220+ */
-};
-
-
-/*
- * Stat Table (MUS) -- digging value
- */
- /* 
- * Replacement Suggestions
- * Divide by 10?
- */
-
-const byte adj_str_dig[] =
-{
-	0	/* 3 */,
-	0	/* 4 */,
-	1	/* 5 */,
-	2	/* 6 */,
-	3	/* 7 */,
-	4	/* 8 */,
-	4	/* 9 */,
-	5	/* 10 */,
-	5	/* 11 */,
-	6	/* 12 */,
-	6	/* 13 */,
-	7	/* 14 */,
-	7	/* 15 */,
-	8	/* 16 */,
-	8	/* 17 */,
-	9	/* 18/00-18/09 */,
-	10	/* 18/10-18/19 */,
-	12	/* 18/20-18/29 */,
-	15	/* 18/30-18/39 */,
-	20	/* 18/40-18/49 */,
-	25	/* 18/50-18/59 */,
-	30	/* 18/60-18/69 */,
-	35	/* 18/70-18/79 */,
-	40	/* 18/80-18/89 */,
-	45	/* 18/90-18/99 */,
-	50	/* 18/100-18/109 */,
-	55	/* 18/110-18/119 */,
-	60	/* 18/120-18/129 */,
-	65	/* 18/130-18/139 */,
-	70	/* 18/140-18/149 */,
-	75	/* 18/150-18/159 */,
-	80	/* 18/160-18/169 */,
-	85	/* 18/170-18/179 */,
-	90	/* 18/180-18/189 */,
-	95	/* 18/190-18/199 */,
-	100	/* 18/200-18/209 */,
-	100	/* 18/210-18/219 */,
-	100	/* 18/220+ */
-};
-
-
-/*
- * Stat Table (MUS) -- help index into the "blow" table
- */
- /* 
- * Replacement Suggestions
- * Check out the blow table.
- */
-
-const byte adj_str_blow[] =
-{
-	3	/* 3 */,
-	4	/* 4 */,
-	5	/* 5 */,
-	6	/* 6 */,
-	7	/* 7 */,
-	8	/* 8 */,
-	9	/* 9 */,
-	10	/* 10 */,
-	11	/* 11 */,
-	12	/* 12 */,
-	13	/* 13 */,
-	14	/* 14 */,
-	15	/* 15 */,
-	16	/* 16 */,
-	17	/* 17 */,
-	20 /* 18/00-18/09 */,
-	30 /* 18/10-18/19 */,
-	40 /* 18/20-18/29 */,
-	50 /* 18/30-18/39 */,
-	60 /* 18/40-18/49 */,
-	70 /* 18/50-18/59 */,
-	80 /* 18/60-18/69 */,
-	90 /* 18/70-18/79 */,
-	100 /* 18/80-18/89 */,
-	110 /* 18/90-18/99 */,
-	120 /* 18/100-18/109 */,
-	130 /* 18/110-18/119 */,
-	140 /* 18/120-18/129 */,
-	150 /* 18/130-18/139 */,
-	160 /* 18/140-18/149 */,
-	170 /* 18/150-18/159 */,
-	180 /* 18/160-18/169 */,
-	190 /* 18/170-18/179 */,
-	200 /* 18/180-18/189 */,
-	210 /* 18/190-18/199 */,
-	220 /* 18/200-18/209 */,
-	230 /* 18/210-18/219 */,
-	240 /* 18/220+ */
-};
-
-
-/*
- * Stat Table (AGI) -- index into the "blow" table
- */
- /* 
- * Replacement Suggestions
- * Check out the blow table.
- */
-
-const byte adj_dex_blow[] =
-{
-	0	/* 3 */,
-	0	/* 4 */,
-	0	/* 5 */,
-	0	/* 6 */,
-	0	/* 7 */,
-	0	/* 8 */,
-	0	/* 9 */,
-	1	/* 10 */,
-	1	/* 11 */,
-	1	/* 12 */,
-	1	/* 13 */,
-	1	/* 14 */,
-	1	/* 15 */,
-	1	/* 16 */,
-	1	/* 17 */,
-	1	/* 18/00-18/09 */,
-	2	/* 18/10-18/19 */,
-	2	/* 18/20-18/29 */,
-	2	/* 18/30-18/39 */,
-	2	/* 18/40-18/49 */,
-	3	/* 18/50-18/59 */,
-	3	/* 18/60-18/69 */,
-	4	/* 18/70-18/79 */,
-	4	/* 18/80-18/89 */,
-	5	/* 18/90-18/99 */,
-	6	/* 18/100-18/109 */,
-	7	/* 18/110-18/119 */,
-	8	/* 18/120-18/129 */,
-	9	/* 18/130-18/139 */,
-	10	/* 18/140-18/149 */,
-	11	/* 18/150-18/159 */,
-	12	/* 18/160-18/169 */,
-	14	/* 18/170-18/179 */,
-	16	/* 18/180-18/189 */,
-	18	/* 18/190-18/199 */,
-	20	/* 18/200-18/209 */,
-	20	/* 18/210-18/219 */,
-	20	/* 18/220+ */
-};
-
-
-/*
- * Stat Table (AGI) -- chance of avoiding "theft" and "falling"
- */
-const byte adj_dex_safe[] =
-{
-	0	/* 3 */,
-	1	/* 4 */,
-	2	/* 5 */,
-	3	/* 6 */,
-	4	/* 7 */,
-	5	/* 8 */,
-	5	/* 9 */,
-	6	/* 10 */,
-	6	/* 11 */,
-	7	/* 12 */,
-	7	/* 13 */,
-	8	/* 14 */,
-	8	/* 15 */,
-	9	/* 16 */,
-	9	/* 17 */,
-	10	/* 18/00-18/09 */,
-	10	/* 18/10-18/19 */,
-	15	/* 18/20-18/29 */,
-	15	/* 18/30-18/39 */,
-	20	/* 18/40-18/49 */,
-	25	/* 18/50-18/59 */,
-	30	/* 18/60-18/69 */,
-	35	/* 18/70-18/79 */,
-	40	/* 18/80-18/89 */,
-	45	/* 18/90-18/99 */,
-	50	/* 18/100-18/109 */,
-	60	/* 18/110-18/119 */,
-	70	/* 18/120-18/129 */,
-	80	/* 18/130-18/139 */,
-	90	/* 18/140-18/149 */,
-	100	/* 18/150-18/159 */,
-	100	/* 18/160-18/169 */,
-	100	/* 18/170-18/179 */,
-	100	/* 18/180-18/189 */,
-	100	/* 18/190-18/199 */,
-	100	/* 18/200-18/209 */,
-	100	/* 18/210-18/219 */,
-	100	/* 18/220+ */
-};
-
-
-/*
- * Stat Table (CON) -- base regeneration rate
- */
- /* 
- * Replacement Suggestions
- * Looks like divided by 100
- */
-
-const byte adj_con_fix[] =
-{
-	0	/* 3 */,
-	0	/* 4 */,
-	0	/* 5 */,
-	0	/* 6 */,
-	0	/* 7 */,
-	0	/* 8 */,
-	0	/* 9 */,
-	0	/* 10 */,
-	0	/* 11 */,
-	0	/* 12 */,
-	0	/* 13 */,
-	1	/* 14 */,
-	1	/* 15 */,
-	1	/* 16 */,
-	1	/* 17 */,
-	2	/* 18/00-18/09 */,
-	2	/* 18/10-18/19 */,
-	2	/* 18/20-18/29 */,
-	2	/* 18/30-18/39 */,
-	2	/* 18/40-18/49 */,
-	3	/* 18/50-18/59 */,
-	3	/* 18/60-18/69 */,
-	3	/* 18/70-18/79 */,
-	3	/* 18/80-18/89 */,
-	3	/* 18/90-18/99 */,
-	4	/* 18/100-18/109 */,
-	4	/* 18/110-18/119 */,
-	5	/* 18/120-18/129 */,
-	6	/* 18/130-18/139 */,
-	6	/* 18/140-18/149 */,
-	7	/* 18/150-18/159 */,
-	7	/* 18/160-18/169 */,
-	8	/* 18/170-18/179 */,
-	8	/* 18/180-18/189 */,
-	8	/* 18/190-18/199 */,
-	9	/* 18/200-18/209 */,
-	9	/* 18/210-18/219 */,
-	9	/* 18/220+ */
-};
-
-
-/*
- * Stat Table (CON) -- extra half-hitpoints per level (plus 128)
- */
- /* think of later */
-const byte adj_con_mhp[] =
-{
-	128 + -5	/* 3 */,
-	128 + -3	/* 4 */,
-	128 + -2	/* 5 */,
-	128 + -1	/* 6 */,
-	128 + 0	/* 7 */,
-	128 + 0	/* 8 */,
-	128 + 0	/* 9 */,
-	128 + 0	/* 10 */,
-	128 + 0	/* 11 */,
-	128 + 0	/* 12 */,
-	128 + 0	/* 13 */,
-	128 + 0	/* 14 */,
-	128 + 1	/* 15 */,
-	128 + 1	/* 16 */,
-	128 + 2	/* 17 */,
-	128 + 3	/* 18/00-18/09 */,
-	128 + 4	/* 18/10-18/19 */,
-	128 + 4	/* 18/20-18/29 */,
-	128 + 4	/* 18/30-18/39 */,
-	128 + 4	/* 18/40-18/49 */,
-	128 + 5	/* 18/50-18/59 */,
-	128 + 6	/* 18/60-18/69 */,
-	128 + 7	/* 18/70-18/79 */,
-	128 + 8	/* 18/80-18/89 */,
-	128 + 9	/* 18/90-18/99 */,
-	128 + 10	/* 18/100-18/109 */,
-	128 + 11	/* 18/110-18/119 */,
-	128 + 12	/* 18/120-18/129 */,
-	128 + 13	/* 18/130-18/139 */,
-	128 + 14	/* 18/140-18/149 */,
-	128 + 15	/* 18/150-18/159 */,
-	128 + 16	/* 18/160-18/169 */,
-	128 + 18	/* 18/170-18/179 */,
-	128 + 20	/* 18/180-18/189 */,
-	128 + 22	/* 18/190-18/199 */,
-	128 + 25	/* 18/200-18/209 */,
-	128 + 25	/* 18/210-18/219 */,
-	128 + 25	/* 18/220+ */
-};
-
-
 /*
  * This table is used to help calculate the number of blows the player can
  * make in a single round of attacks (one player turn) with a normal weapon.
@@ -1121,6 +81,8 @@ const byte adj_con_mhp[] =
  * blows/round for powerful warriors.
  *
  * Note that certain artifacts and ego-items give "bonus" blows/round.
+ *
+ * Currently none of the below is true for steam. 
  *
  * First, from the player class, we extract some values:
  *
@@ -1140,10 +102,6 @@ const byte adj_con_mhp[] =
  * The player gets "blows_table[P][D]" blows/round, as shown below,
  * up to a maximum of "num" blows/round, plus any "bonus" blows/round.
  */
- /*
-  * I need a new blows system besides this sucky table. Or I keep the sucky table.
-  *
-  */
 const byte blows_table[12][12] =
 {
 	/* P/D */
@@ -1185,56 +143,6 @@ const byte blows_table[12][12] =
 	/* 11+ */
 	{  3,   3,   4,   4,   4,   4,   5,   5,   6,   6,   6,   7 },
 };
-
-
-#if 0
-
-/*
- * This is the "old" table used to calculate multiple blows.
- *
- * Note that this table used a different indexing scheme to determine "P"
- */
-
-const byte old_blows_table[11][12] =
-{
-	/* P/D */
-	/* 3,  10, /01, /50, /90,/100,/101,/110,/120,/130,/140,/150 */
-
-	/* 0+ */
-	{  1,   1,   1,   1,   1,   1,   2,   2,   2,   2,   2,   3},
-
-	/* 2+ */
-	{  1,   1,   1,   1,   2,   2,   3,   3,   3,   3,   3,   4},
-
-	/* 3+ */
-	{  1,   1,   1,   2,   2,   3,   4,   4,   4,   4,   4,   5},
-
-	/* 4+ */
-	{  1,   1,   2,   2,   3,   3,   4,   4,   4,   5,   5,   5},
-
-	/* 6+ */
-	{  1,   2,   2,   3,   3,   4,   4,   4,   5,   5,   5,   5},
-
-	/* 8+ */
-	{  1,   2,   2,   3,   4,   4,   4,   5,   5,   5,   5,   5},
-
-	/* 10+ */
-	{  2,   2,   3,   3,   4,   4,   5,   5,   5,   5,   5,   6},
-
-	/* 13+ */
-	{  2,   3,   3,   3,   4,   4,   5,   5,   5,   5,   5,   6},
-
-	/* 15+ */
-	{  3,   3,   3,   4,   4,   4,   5,   5,   5,   5,   6,   6},
-
-	/* 18+ */
-	{  3,   3,   3,   4,   4,   4,   5,   5,   5,   5,   6,   6},
-
-	/* 20+ */
-	{  3,   3,   4,   4,   4,   4,   5,   5,   5,   6,   6,   6}
-};
-
-#endif
 
 
 /*
@@ -1285,65 +193,60 @@ const byte extract_energy[200] =
 };
 
 
-
-
-
-
-
 /*
  * Base experience levels, may be adjusted up for race and/or class
  */
 const s32b player_exp[PY_MAX_LEVEL] =
 {				/* difference */
-	20,			/* XX */
-	50,			/* XX */
-	100,		/* XX */
-	180,		/* XX */
-	280,		/* XX */
-	400,		/* XX */
-	540,		/* XX */
-	700,		/* XX */
+	15,			/* XX */
+	38,			/* XX */
+	75,			/* XX */
+	135,		/* XX */
+	210,		/* XX */
+	300,		/* XX */
+	405,		/* XX */
+	525,		/* XX */
+	675,		/* XXX */
 	900,		/* XXX */
 	1200,		/* XXX */
-	1600,		/* XXX */
-	2000,		/* XXX */
-	2800,		/* XXX */
-	3600,		/* XXX */
-	4600,		/* XXX */
-	5600,		/* XXX */
-	6800,		/* XXX */
-	8000,		/* XXX */
-	9400,		/* XXX */
-	10800,		/* XXX */
-	13600,		/* XXX */
-	16800,
-	20400,
-	25000,
-	35000L,
-	50000L,
-	70000L,
-	100000L,
+	1500,		/* XXX */
+	2100,		/* XXX */
+	2700,		/* XXX */
+	3450,		/* XXX */
+	4200,		/* XXX */
+	5100,		/* XXX */
+	6000,		/* XXX */
+	7050,		/* XXX */
+	8100,		/* XXX */
+	10200,		/* XXX */
+	12600,
+	15300,
+	18750,
+	26250L,
+	37500L,
+	52500L,
+	75000L,
+	112500L,
 	150000L,
-	200000L,
+	225000L,
 	300000L,
-	400000L,
-	550000L,
-	700000L,
-	900000L,
-	1100000L,
-	1400000L,
-	1700000L,
-	2000000L,
-	2500000L,
-	3000000L,
+	412500L,
+	525000L,
+	675000L,
+	825000L,
+	1050000L,
+	1275000L,
+	1500000L,
+	1875000L,
+	2250000L,
+	2700000L,
+	3150000L,
 	3600000L,
-	4200000L,
-	4800000L,
-	5400000L,
+	4050000L,
+	4500000L,
+	5250000L,
 	6000000L,
-	7000000L,
 	8000000L,
-	9000000L,
 	10000000L
 };
 
@@ -1374,14 +277,14 @@ spell_book books[SV_BOOK_MAX] =
 		/* Liber Al Vel Legis (sval 0) */
 		SBF_MAGIC,
 		{	/* Index, Spell name, level of skill, mana, failure */
-			{ POW_AIM_OF_THE_WILL, "Aim of the Will", 3, 1, 23 },
-			{ POW_SENSE_WILL, "Sense Will", 4, 2, 22 },
-			{ POW_TRANSPORT_WILL, "Transportation of the Will", 8, 5, 44 },
-			{ POW_INNER_RAD, "Inner Radiance", 9, 3, 33 },
-			{ POW_HEALING_I, "Healing of the Will", 11, 10, 42 },
-			{ POW_LO_OBJECT, "Location of Things without Spirit", 13, 8, 32 },
-			{ POW_LO_TRAPS, "Locating Safe Passage of the Will", 15, 8, 32 },
-			{ POW_PLAGUE_WILL, "Plagueing the Will", 20, 7, 42 },
+			{ POW_AIM_OF_THE_WILL, "Aim of the Will", 3, 1, 7 },
+			{ POW_SENSE_WILL, "Sense Will", 4, 2, 6 },
+			{ POW_ASTRAL_GATE, "Astral Gate", 8, 5, 12 },
+			{ POW_INNER_RAD, "Inner Radiance", 9, 3, 7 },
+			{ POW_DEMONIC_WILL, "Demonic Will", 11, 10, 2 },
+			{ POW_LO_OBJECT, "Object/Metal Detection", 13, 6, 11 },
+			{ POW_LO_TRAPS, "Safe Passage of the Will", 15, 6, 11 },
+			{ POW_PLAGUE_WILL, "Plaguing the Will", 20, 7, 16 },
 			{ 0, NULL, 99, 0, 0 },
 			{ 0, NULL, 99, 0, 0 }
 			
@@ -1391,15 +294,15 @@ spell_book books[SV_BOOK_MAX] =
 		/* The Zohar (Book of Splendor) (sval 1) */
 		SBF_MAGIC,
 		{	/* Index, Spell name, level of skill, mana, failure */
-			{ POW_RECHARGE, "Transfering Will to Objects", 23, 30, 45 },
-			{ POW_SUPPRESSION_WILL, "Supression of the Will", 15, 3, 20 },
+			{ POW_SUPPRESSION_WILL, "Supression of the Will", 15, 3, 10 },
 			{ POW_IDENTIFY, "Knowledge of Secular Objects", 20, 15, 35 },
-			{ POW_FIRE_BOLT, "Spectacle of Fire", 25, 9, 45},
-			{ POW_FROST_BOLT, "Spectacle of Ice", 25, 9, 45 },
-			{ POW_TELEPORT_OTHER_I, "Movement of the Will of Others", 30, 18, 50 },
-			{ POW_HASTE, "Focus of the Will", 26, 10, 30 },
-			{ POW_FIREBALL, "Sphere of Flame", 32, 18, 50 },
-			{ POW_GENOCIDE, "Solitude of the Will", 45, 40, 70 },
+			{ POW_RECHARGE, "Transfering Will to Objects", 23, 30, 25 },
+			{ POW_FROST_BOLT, "Spectacle of Ice", 25, 9, 17},
+			{ POW_FIRE_BOLT, "Spectacle of Fire", 25, 9, 17},
+			{ POW_HASTE, "Focus of the Will", 26, 10, 35 },
+			{ POW_TELEPORT_OTHER_I, "Movement of the Will of Others", 30, 18, 40 },
+			{ POW_FIREBALL, "Sphere of Flame", 32, 18, 20 },
+			{ POW_GENOCIDE, "Solitude of the Will", 45, 40, 60 },
 			{ 0, NULL, 99, 0, 0 }
 			
 		}
@@ -1408,14 +311,14 @@ spell_book books[SV_BOOK_MAX] =
 		/* Sepher Yetzirah (Book of Formation) (sval 2) */
 		SBF_MAGIC,
 		{	/* Index, Spell name, level of skill, mana, failure */
-			{ POW_ACID_BOLT, "Spectacle of Acid", 26, 11, 50 },
-			{ POW_LIGHTNING_BOLT, "Spectacle of Lightning", 26, 11, 50 },
-			{ POW_CLOUD_KILL, "Purge the Toxins of the Will", 33, 23, 45 },
-			{ POW_ICE_STORM, "Storm of Ice", 36, 22, 54 },
-			{ POW_FIRE_STORM, "Storm of Fire", 36, 22, 54 },
-			{ POW_METEOR_STORM, "Swarm of Meteors", 43, 30, 55 },
-			{ POW_ELEMENTAL_BALL, "Sphere of the elements", 47, 40, 55 },
-			{ POW_SOUL_STORM, "Soulstorm", 50, 50, 50 },
+			{ POW_ACID_BOLT, "Spectacle of Acid", 26, 11, 20 },
+			{ POW_LIGHTNING_BOLT, "Spectacle of Lightning", 26, 11, 20 },
+			{ POW_CLOUD_KILL, "Purge the Toxins of the Will", 33, 23, 35 },
+			{ POW_ICE_STORM, "Storm of Ice", 36, 22, 34 },
+			{ POW_FIRE_STORM, "Storm of Fire", 38, 22, 34 },
+			{ POW_METEOR_STORM, "Swarm of Meteors", 43, 30, 45 },
+			{ POW_ELEMENTAL_BALL, "Sphere of the elements", 47, 40, 45 },
+			{ POW_SOUL_STORM, "Soulstorm", 50, 50, 40 },
 			{ 0, NULL, 99, 0, 0 },
 			{ 0, NULL, 99, 0, 0 }
 			
@@ -1425,11 +328,11 @@ spell_book books[SV_BOOK_MAX] =
 		/* De Vermis Mysteriis (Mysteries of the Worm) (sval 3) */
 		SBF_MAGIC,
 		{	/* Index, Spell name, level of skill, mana, failure */
-			{ POW_RECHARGE_II, "Power of the Worm", 44, 20, 45 },
-			{ POW_EARTHQUAKE_I, "Force of the Worm", 46, 28, 40 },
-			{ POW_WORD_OF_RECALL_I, "Path of the Worm", 30, 10, 24 },
-			{ POW_MIND_OF_WORM, "Mind of the Worm", 51, 19, 60 },
-			{ POW_MASS_GENOCIDE, "Death of the Worm", 53, 65, 70 },
+			{ POW_WORD_OF_RECALL_I, "Path of the Worm", 30, 10, 14 },
+			{ POW_RECHARGE_II, "Power of the Worm", 44, 20, 35 },
+			{ POW_EARTHQUAKE_I, "Force of the Worm", 46, 28, 30 },
+			{ POW_MIND_OF_WORM, "Mind of the Worm", 51, 19, 50 },
+			{ POW_MASS_GENOCIDE, "Death of the Worm", 53, 65, 60 },
 			{ 0, NULL, 99, 0, 0 },
 			{ 0, NULL, 99, 0, 0 },
 			{ 0, NULL, 99, 0, 0 },
@@ -1439,16 +342,16 @@ spell_book books[SV_BOOK_MAX] =
 		}
 	},
 	{
-		/* Book name (sval 4) */
-		0,
+		/* Cthaat Aquadingen (sval 4) */
+		SBF_MAGIC,
 		{	/* Index, Spell name, level of skill, mana, failure */
-			{ 0, NULL, 99, 0, 0 },
-			{ 0, NULL, 99, 0, 0 },
-			{ 0, NULL, 99, 0, 0 },
-			{ 0, NULL, 99, 0, 0 },
-			{ 0, NULL, 99, 0, 0 },
-			{ 0, NULL, 99, 0, 0 },
-			{ 0, NULL, 99, 0, 0 },
+			{ POW_SUMMON_DEMON, "Hellspawn", 10, 30, 60},
+			{ POW_VOORISH_SIGN, "Voorish Sign", 12, 15, 15 },/* + magic skill */
+			{ POW_BYAKHEE_WINDS, "Winds of Byakhee", 16, 12, 30 }, /*wind cone */
+			{ POW_FAUGN_BARRIER, "Barrier of Chaugnar Faugn", 20, 18, 40 }, /*fear wall*/
+			{ POW_BANISH_DEMON, "Expatriate Demon", 55, 20, 55 },	/* dispel */
+			{ POW_SUMMON_DEMON_II, "Helllord", 65, 100, 40 },
+			{ POW_LAMP_ALHAZRED, "Lamp of Alhazred", 70, 120, 14 }, /* halucination enlightnment */
 			{ 0, NULL, 99, 0, 0 },
 			{ 0, NULL, 99, 0, 0 },
 			{ 0, NULL, 99, 0, 0 }
@@ -1456,31 +359,31 @@ spell_book books[SV_BOOK_MAX] =
 		}
 	},
 	{
-		/* Book name (sval 5) */
-		0,
+		/* Othuum Omnicia (sval 5) */
+		SBF_MAGIC,
 		{	/* Index, Spell name, level of skill, mana, failure */
-			{ 0, NULL, 99, 0, 0 },
-			{ 0, NULL, 99, 0, 0 },
-			{ 0, NULL, 99, 0, 0 },
-			{ 0, NULL, 99, 0, 0 },
-			{ 0, NULL, 99, 0, 0 },
-			{ 0, NULL, 99, 0, 0 },
-			{ 0, NULL, 99, 0, 0 },
-			{ 0, NULL, 99, 0, 0 },
-			{ 0, NULL, 99, 0, 0 },
+			{ POW_CONTACT_YITHIAN, "Contact Yithian", 10, 2, 10 }, /* detect magic */
+			{ POW_INCANT_MI_GO, "Incantation of Mi-go", 18, 8, 18 }, /* (drain) wheel (short beams in all directions) */
+			{ POW_CONSUME_FLESH, "Consume Flesh", 25, 1, 55 }, /* hp to sp */
+			{ POW_MELT_STONE, "Melt Stone", 30, 3, 28 }, /* wall to mud */
+			{ POW_CHIME_TEZCH, "Chime of Tezchaptl", 45, 16, 35 }, /* walls of force radiating out */
+			{ POW_MIRROR_ATEP, "Mirror of Tarkhun Atep", 55, 40, 40 }, /* invisible */
+			{ POW_GATE, "Gate", 60, 7, 10 }, /* dimension door */
+			{ POW_EFFIGY_HATE, "Effigy of Hate", 70, 120, 35 }, /* large killwallsphere /then graviton sphere */
+			{ POW_CONTACT_NYAR, "Contact Nyarlathotep", 75, 150, 50 }, /* *IDENTIFY* */
 			{ 0, NULL, 99, 0, 0 }
 			
 		}
 	},
 	{
-		/* Book name (sval 6) */
-		0,
+		/* Revelations of Glaaki (sval 6) */
+		SBF_MAGIC,
 		{	/* Index, Spell name, level of skill, mana, failure */
-			{ 0, NULL, 99, 0, 0 },
-			{ 0, NULL, 99, 0, 0 },
-			{ 0, NULL, 99, 0, 0 },
-			{ 0, NULL, 99, 0, 0 },
-			{ 0, NULL, 99, 0, 0 },
+			{ POW_DEMON_COURAGE, "Demonic Courage", 9, 4, 12 }, 
+			{ POW_DEMON_FURY, "Demonic Fury", 18, 8, 16 },
+			{ POW_DEMONIC_VIGOR, "Infernal Health", 28, 10, 20 },
+			{ POW_DEMON_SHIELD, "Demonic Shield", 32, 20, 25 },
+			{ POW_STYGIAN_WAR, "Stygian Warfare", 40, 40, 30 }, /* combat bonus */
 			{ 0, NULL, 99, 0, 0 },
 			{ 0, NULL, 99, 0, 0 },
 			{ 0, NULL, 99, 0, 0 },
@@ -1493,7 +396,7 @@ spell_book books[SV_BOOK_MAX] =
 		/* Book name (sval 7) */
 		0,
 		{	/* Index, Spell name, level of skill, mana, failure */
-			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 },/*Moving hell circle of death */
 			{ 0, NULL, 99, 0, 0 },
 			{ 0, NULL, 99, 0, 0 },
 			{ 0, NULL, 99, 0, 0 },
@@ -1546,14 +449,14 @@ spell_book books[SV_BOOK_MAX] =
 		{	/* Index, Spell name, level of skill, mana, failure */
 			{ POW_CHANT, "Holy Protection Chant", 1, 1, 10 },
 			{ POW_SANCTUARY, "Protection of the Lord", 3, 2, 15 },
-			{ POW_HOLY_BOLT, "Holy Flame", 5, 2, 15 },
-			{ POW_HEALING_II, "Healing of the Body", 5, 3, 20 },
+			{ POW_HEALING_I, "Resting of the Body", 5, 3, 20 },
 			{ POW_PROTECTION_FROM_EVIL, "Protection from Evil", 9, 3, 20 },
-			{ POW_HEALING_III, "Greater Healing of the Body", 11, 3, 22 },
+			{ POW_HEALING_II, "Healing of the Body", 11, 3, 22 },
 			{ POW_REMOVE_CURSE, "Remove Foul Curses", 13, 8, 22 },
 			{ POW_TURN_UNDEAD, "Purity of the living", 15, 4, 22 },
-			{ POW_HEALING_IV, "Purification of the Body", 18, 5, 23 },
-			{ POW_DESTROY_MACHINE, "Reckoning of Metal", 20, 2, 11 }
+			{ POW_HEALING_III, "Purification of the Body", 18, 5, 23 },
+			{ POW_DESTROY_MACHINE, "Reckoning of Metal", 20, 2, 11 },
+			{ 0, NULL, 99, 0, 0 }
 			
 		}
 	},
@@ -1568,9 +471,9 @@ spell_book books[SV_BOOK_MAX] =
 			{ POW_PRAYER, "Holy Prayer", 14, 8, 33 },
 			{ POW_DISPEL_EVIL, "Prayer to Dispel Evil", 18, 15, 33 },
 			{ POW_IDENTIFY_II, "Lore", 22, 25, 85 },
-			{ POW_HOLY_WORD, "Holy Word", 30, 15, 70 },
-			{ POW_HEALING_V, "Healing of the Spirit", 40, 17, 70 },
-			{ POW_RESTORATION, "Healing of the Body", 45, 30, 80 }
+			{ POW_HEALING_IV, "Healing", 40, 17, 70 },
+			{ POW_HOLY_WORD, "Holy Word", 50, 15, 70 },
+			{ POW_RESTORATION, "Healing of the Flesh", 65, 30, 80 }
 			
 			
 		}
@@ -1584,7 +487,7 @@ spell_book books[SV_BOOK_MAX] =
 			{ POW_RECHARGE_III, "Holy Infusion of Power", 31, 50, 90 },
 			{ POW_DISPEL_EVIL_II, "Exorcism of Evil", 34, 40, 55 },
 			{ POW_WORD_OF_RECALL_II, "Godly Passage", 36, 80, 80 },
-			{ POW_RESISTANCE, "Holy Resistance", 50, 80, 70 },
+			{ POW_RESISTANCE, "Holy Resistance", 60, 80, 70 },
 			{ 0, NULL, 99, 0, 0 },
 			{ 0, NULL, 99, 0, 0 },
 			{ 0, NULL, 99, 0, 0 },
@@ -1593,13 +496,30 @@ spell_book books[SV_BOOK_MAX] =
 		}
 	},
 	{
-		/* Book name (sval 13) */
-		0,
+		/* Khorda Avesta (sval 13) */
+		SBF_PRAYER,
 		{	/* Index, Spell name, level of skill, mana, failure */
+			{ POW_HEAL_CUTS, "Ashem Vohu", 5, 2, 10 },
+			{ POW_REMOVE_FEAR_II, "Padyab-Kusti", 8, 3, 13 },
+			{ POW_MINOR_RESISTANCE, "Ahunwar", 10, 8, 22 },
+			{ POW_MUSCLE_BUFF, "Srosh Baj", 20, 35, 33 },
+			{ POW_SHATTER, "Doa Tan-Dorostri", 25, 8, 21 },
+			{ POW_NO_TELEPORT, "Khwarshed Niyayesh", 30, 10, 35 },
+			{ POW_VIGOR_BUFF, "Hoshbam", 35, 45, 44 },
+			{ POW_STONE_MELD, "Vispa Humata", 55, 50, 60 },
 			{ 0, NULL, 99, 0, 0 },
-			{ 0, NULL, 99, 0, 0 },
-			{ 0, NULL, 99, 0, 0 },
-			{ 0, NULL, 99, 0, 0 },
+			{ 0, NULL, 99, 0, 0 }
+			
+		}
+	},
+	{
+		/* Trimorphic Protennoia (Nag Hammadi) (sval 14) */
+		SBF_PRAYER,
+		{	/* Index, Spell name, level of skill, mana, failure */
+			{ POW_FREE_ACT, "Spirit of Freedom", 3, 2, 12 },
+			{ POW_DIVINE_FAVOR, "Divine Favor", 12, 18, 33 },
+			{ POW_FLAMING_WRATH, "Flaming Wrath", 20, 12, 35 },
+			{ POW_ANTI_MAGIC, "Anti-magic Shell", 40, 50, 60 },
 			{ 0, NULL, 99, 0, 0 },
 			{ 0, NULL, 99, 0, 0 },
 			{ 0, NULL, 99, 0, 0 },
@@ -1610,31 +530,14 @@ spell_book books[SV_BOOK_MAX] =
 		}
 	},
 	{
-		/* Book name (sval 14) */
-		0,
+		/* The Corpus Hermeticum (sval 15) */
+		SBF_PRAYER,
 		{	/* Index, Spell name, level of skill, mana, failure */
-			{ 0, NULL, 99, 0, 0 },
-			{ 0, NULL, 99, 0, 0 },
-			{ 0, NULL, 99, 0, 0 },
-			{ 0, NULL, 99, 0, 0 },
-			{ 0, NULL, 99, 0, 0 },
-			{ 0, NULL, 99, 0, 0 },
-			{ 0, NULL, 99, 0, 0 },
-			{ 0, NULL, 99, 0, 0 },
-			{ 0, NULL, 99, 0, 0 },
-			{ 0, NULL, 99, 0, 0 }
-			
-		}
-	},
-	{
-		/* Book name (sval 15) */
-		0,
-		{	/* Index, Spell name, level of skill, mana, failure */
-			{ 0, NULL, 99, 0, 0 },
-			{ 0, NULL, 99, 0, 0 },
-			{ 0, NULL, 99, 0, 0 },
-			{ 0, NULL, 99, 0, 0 },
-			{ 0, NULL, 99, 0, 0 },
+			{ POW_DANCING_LIGHTS, "Poemandres, the Shepherd of Men", 8, 3, 23 },/* dancing lights */
+			{ POW_SACRED_SERMON, "The Sacred Sermon", 15, 30, 95 },
+			{ POW_MANIFEST_GOD, "Though Unmanifest God Is Most Manifest", 40, 60, 45 },
+			{ POW_THOUGHT_SENSE, "On Thought and Sense", 55, 12, 28 },
+			{ POW_KEY, "The Key", 75, 120, 55 },
 			{ 0, NULL, 99, 0, 0 },
 			{ 0, NULL, 99, 0, 0 },
 			{ 0, NULL, 99, 0, 0 },
@@ -1683,11 +586,11 @@ spell_book books[SV_BOOK_MAX] =
 		{	/* Index, Spell name, level of skill, mana, failure */
 			{ POW_CALL_LIGHT, "Gaslight", 1, 1, 10 },
 			{ POW_REMOVE_FEAR, "Harmonic Fortitude Restorer", 2, 2, 15 },
+			{ POW_SPRING_BLADE, "Spring Blade", 3, 2, 10 },
 			{ POW_HEALING_VI, "Physiological Robustness Aid", 4, 3, 15 },
 			{ POW_DETECT_DOOR_STAIR, "Egress & Portal Locator", 8, 5, 20 },
 			{ POW_DETECT_TRAPS, "Physical Danger Warning System", 10, 2, 20 },
 			{ POW_SLOW_POISON, "Toxin Inhibitor", 7, 8, 30 },
-			{ POW_SPRING_BLADE, "Spring Blade", 3, 2, 10 },
 			{ POW_NOURISHMENT, "Nourishment Support System", 18, 6, 35 },
 			{ POW_OBJECT_ANALYSIS, "Object Analysis", 32, 30, 40 },
 			{ POW_FETCH, "Object Grappling Hook", 40, 20, 20 }
@@ -1722,8 +625,8 @@ spell_book books[SV_BOOK_MAX] =
 			{ POW_GUNS, "Forward Cannons", 16, 8, 45 },
 			{ POW_HEALING_VII, "Advanced Physiological Aid", 20, 12, 45 },
 			{ POW_TURN_STONE_TO_MUD, "Pneumatic Tunneling Device", 22, 15, 50 },
-			{ POW_EARTHQUAKE_II, "Sonic Unharmonizer", 30, 25, 55 },
-			{ POW_MISSILE, "Shoulder Rocket", 35, 15, 60 },
+			{ POW_EARTHQUAKE_II, "Sonic Unharmonizer", 30, 25, 35 },
+			{ POW_MISSILE, "Shoulder Rocket", 35, 15, 40 },
 			{ POW_EMP, "Electro-magnetic Pulse", 40, 20, 10 }
 			
 		}
@@ -1734,10 +637,10 @@ spell_book books[SV_BOOK_MAX] =
 		{	/* Index, Spell name, level of skill, mana, failure */
 			{ POW_LEAD_SLUGS, "Fire Lead Slugs", 3, 5, 35 },
 			{ POW_LIGHTNING_RAY, "Fire Lightning Ray", 8, 6, 40 },
-			{ POW_FROST_RAY, "Fire Frost Ray", 12, 7, 50 },
-			{ POW_HEAT_RAY, "Fire Heat Ray", 15, 8, 52 },
-			{ POW_GRAVITY_RAY, "Fire Graviton Ray", 25, 9, 54 },
-			{ POW_TELEPORT_OTHER_II, "Fire Dimensional Ray", 30, 10, 56 },
+			{ POW_FROST_RAY, "Fire Frost Beam", 12, 7, 40 },
+			{ POW_HEAT_RAY, "Fire Flamethrower", 15, 8, 42 },
+			{ POW_GRAVITY_RAY, "Fire Graviton Ray", 25, 9, 44 },
+			{ POW_TELEPORT_OTHER_II, "Fire Dimensional Ray", 30, 10, 46 },
 			/* need some cool powers here. :-/ */
 			{ 0, NULL, 99, 0, 0 },
 			{ 0, NULL, 99, 0, 0 },
@@ -1848,6 +751,138 @@ spell_book books[SV_BOOK_MAX] =
 			
 		}
 	}	
+};
+
+
+/*
+ * Steamware Tables
+ */
+ 
+steamware wares[MAX_STEAMWARE_PARTS] =
+{
+	{
+		SW_EYES,
+		{
+			{ "Alpha eyes",	5000,		800,	2000},
+			{ "Beta eyes", 	24000,		1200,	7000},
+			{ "Gamma eyes",	60000,		2000,	19000},
+			{ "Delta eyes",	120000,		8000,	39000},
+			{ "Research Completed",	0,	0,	0}			
+		}
+	},
+	{
+		SW_WIRED_REFLEX,
+		{
+			{"Alpha wired reflexes",	40000,		8000, 	7000},
+			{"Beta wired reflexes", 	120000,		24000, 	60000},
+			{"Gamma wired reflexes",	240000,		80000,	150000},
+			{"Delta wired reflexes",	1600000,	300000,	400000},
+			{ "Research Completed",	0,	0,	0}			
+		}
+	},
+	{
+		SW_DERMAL_PLATE,
+		{
+			{"Alpha dermal plating",	8000,	1200, 	3000},
+			{"Beta dermal plating", 	16000,	4000, 	12000},
+			{"Gamma dermal plating",	32000,	12000,	33000},
+			{"Delta dermal plating",	64000,	24000,	67000},
+			{ "Research Completed",	0,	0,	0}			
+		}
+	},
+	{
+		SW_FURNACE_CORE,
+		{
+			{"Alpha core furnace",	50000,		20000, 	24000},
+			{"Beta core furnace", 	100000,		40000, 	49000},
+			{"Gamma core furnace",	500000,		80000,	99000},
+			{"Delta core furnace",	1000000,	400000,	199000},
+			{ "Research Completed",	0,	0,	0}			
+		}
+	},
+	{
+		SW_SPURS,
+		{
+			{"Alpha spurs",	12000,		1000, 	49000},
+			{"Beta spurs", 	10000,		2000, 	19000},
+			{"Gamma spurs",	20000,		4000,	39000},
+			{"Delta spurs",	40000,		8000,	79000},
+			{ "Research Completed",	0,	0,	0}			
+		}
+	}
+};
+ 
+/*
+ * Resistance names 
+ */
+
+cptr resist_names[RS_MAX] =
+{
+	"fire",
+	"earth",
+	"air",
+	"water",
+	"electricty",
+	"ice",
+	"acid",
+	"poison",
+	"time",
+	"ether",
+	"sound",
+	"nether",
+	"light",
+	"dark",
+	"psi",
+	"telekinetic",
+	"spirit",
+};
+
+/*
+ * Resistance names 
+ */
+cptr resist_names_short[RS_MAX] =
+{
+	"Fire ",
+	"Erth ",
+	"Air  ",
+	"Water",
+	"Elec ",
+	"Ice  ",
+	"Acid ",
+	"Poisn",
+	"Time ",
+	"Ether",
+	"Sound",
+	"Nethr",
+	"Light",
+	"Dark ",
+	"Psi  ",
+	"Tk   ",
+	"Spirt"
+};
+
+/*
+ * Resistance maximums
+ */
+res_cap resist_caps[RS_MAX] =
+{
+	{55, 88},
+	{55, 88},
+	{55, 88},
+	{55, 88},
+	{50, 88},
+	{50, 88},
+	{50, 88},
+	{50, 88},
+	{40, 66},
+	{40, 66},
+	{40, 66},
+	{40, 66},
+	{60, 90},
+	{60, 90},
+	{40, 50},
+	{40, 50},
+	{40, 50}
 };
 
 /*
@@ -1986,18 +1021,6 @@ cptr color_names[16] =
 };
 
 
-
-/* Both of these stat name abbreviations need to be changed. */
-/*
- * Abbreviations of healthy stats
- */
-/* Old stat names */
-/*cptr stat_names[A_MAX] =
- *{
- *	"STR: ", "INT: ", "WIS: ", "DEX: ", "CON: ", "CHR: "
- *};
- */
- 
 /* New stat names. 
  *
  * Please take note that the new stat names are reorganized,
@@ -2011,12 +1034,6 @@ cptr stat_names[A_MAX] =
 
 /*
  * Abbreviations of damaged stats
- */
-/* Old damaged stats */
-/*cptr stat_names_reduced[A_MAX] =
- *{
- *	"Str: ", "Int: ", "Wis: ", "Dex: ", "Con: ", "Chr: "
- *};
  */
 /* NEW damaged stats. Note the new order */ 
  cptr stat_names_reduced[A_MAX] =
@@ -2047,7 +1064,7 @@ cptr window_flag_desc[32] =
 	"Display object recall",
 	NULL,
 	"Display snap-shot",
-	NULL,
+	"Display visible monsters",
 	NULL,
 	"Display borg messages",
 	"Display borg status",
@@ -2106,7 +1123,7 @@ cptr option_text[OPT_MAX] =
 	"verify_destroy",			/* OPT_verify_destroy */
 	"verify_special",			/* OPT_verify_special */
 	"allow_quantity",			/* OPT_allow_quantity */
-	NULL,						/* xxx */
+	"spell_book_select",		/* OPT_spell_book_select */
 	"auto_haggle",				/* OPT_auto_haggle */
 	"auto_scum",				/* OPT_auto_scum */
 	NULL,						/* xxx testing_stack */
@@ -2149,8 +1166,8 @@ cptr option_text[OPT_MAX] =
 	"auto_more",				/* OPT_auto_more */
 	"smart_monsters",			/* OPT_smart_monsters */
 	"smart_packs",				/* OPT_smart_packs */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
+	"exp_need",					/* OPT_exp_need */
+	"verify_leave_quests",		/* OPT_verify_leave_quest */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -2370,7 +1387,7 @@ cptr option_desc[OPT_MAX] =
 	"Verify destruction of objects",			/* OPT_verify_destroy */
 	"Verify use of special commands",			/* OPT_verify_special */
 	"Allow quantity specification",				/* OPT_allow_quantity */
-	NULL,										/* xxx */
+	"Toggle inven/equip spellbook select",		/* OPT_spell_book_select */
 	"Auto-haggle in stores",					/* OPT_auto_haggle */
 	"Auto-scum for good levels",				/* OPT_auto_scum */
 	NULL,										/* xxx testing_stack */
@@ -2413,8 +1430,8 @@ cptr option_desc[OPT_MAX] =
 	"Automatically clear '-more-' prompts",		/* OPT_auto_more */
 	"Monsters behave more intelligently",		/* OPT_smart_monsters */
 	"Monsters act smarter in groups (v.slow)",	/* OPT_smart_packs */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
+	"Display experience needed for next level",	/* OPT_exp_need */
+	"Verify before descending from quest level",/* OPT_verify_leave_quest */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -2632,9 +1649,9 @@ const bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_alert_hitpoint */
 	FALSE,		/* OPT_alert_failure */
 	TRUE,		/* OPT_verify_destroy */
-	TRUE,		/* OPT_verify_special */
+	FALSE,		/* OPT_verify_special */
 	TRUE,		/* OPT_allow_quantity */
-	FALSE,		/* xxx */
+	TRUE,		/* OPT_spell_book_select */
 	TRUE,		/* OPT_auto_haggle */
 	TRUE,		/* OPT_auto_scum */
 	FALSE,		/* xxx */
@@ -2677,8 +1694,8 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_auto_more */
 	TRUE,		/* OPT_smart_monsters */
 	TRUE,		/* OPT_smart_packs */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
+	TRUE,		/* OPT_exp_need */
+	TRUE,		/* OPT_verify_leave_quest */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2880,6 +1897,8 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_always_pickup,
 		OPT_always_repeat,
 		OPT_depth_in_feet,
+		OPT_exp_need,
+		OPT_verify_leave_quest,
 		OPT_stack_force_notes,
 		OPT_stack_force_costs,
 		OPT_show_labels,
@@ -2888,8 +1907,6 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_show_details,
 		OPT_show_flavors,
 		OPT_ring_bell,
-		255,
-		255,
 		255,
 		255
 	},
@@ -2912,8 +1929,8 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_verify_destroy,
 		OPT_verify_special,
 		OPT_allow_quantity,
+		OPT_spell_book_select,
 		OPT_auto_more,
-		255,
 		255,
 		255,
 		255
@@ -3024,7 +2041,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 cptr inscrip_text[MAX_INSCRIP] =
 {
 	NULL,
-	"terrible",
+	"shattered",
 	"worthless",
 	"cursed",
 	"broken",
@@ -3033,6 +2050,351 @@ cptr inscrip_text[MAX_INSCRIP] =
 	"excellent",
 	"special",
 	"uncursed",
-	"indestructible"
+	"indestructible",
+	"weird",
+	"twisted"
 };
 
+
+
+byte mana_cost_RF4[32]=
+{
+	1,			/* RF4_SHIEIK */
+	0,			/* RF4_LASH */
+	0,			/* RF4_ARROW */
+	0,			/* RF4_GUN */
+	0,			/* RF4_RIFLE */
+	0,			/* RF4_SHOTGUN */
+	0,			/* RF4_ROCKET */
+	0,			/* RF4_MISSILE */
+	0,			/* RF4_BR_FIRE */
+	0,			/* RF4_BR_EARTH */
+	0,			/* RF4_BR_AIR */
+	0,			/* RF4_BR_WATER */
+	0,			/* RF4_BR_ELEC */
+	0,			/* RF4_BR_ICE */
+	0,			/* RF4_BR_ACID */
+	0,			/* RF4_BR_POISON */
+	0,			/* RF4_BR_TIME */
+	0,			/* RF4_BR_ETHER */
+	0,			/* RF4_BR_SOUND */
+	0,			/* RF4_BR_NETHER */
+	0,			/* RF4_BR_GRAVITY */
+	0,			/* RF4_BR_RAD */
+	0,			/* RF4_BR_LIGHT */
+	0,			/* RF4_BR_DARK */
+	0,			/* RF4_CLOUD_RAD */
+	0,			/* RF4_CLOUD_POISON */
+	0,			/* RF4_XXX3 */
+	0,			/* RF4_XXX4 */
+	0,			/* RF4_XXX5 */
+	0,			/* RF4_XXX6 */
+	0,			/* RF4_FOG_NETHER */
+	0			/* RF4_FOG_POISON */
+};
+
+byte mana_cost_RF5[32]=
+{
+	4,			/* RF5_BA_FIRE */
+	4,			/* RF5_BA_EARTH */
+	4,			/* RF5_BA_AIR */
+	4,			/* RF5_BA_WATER */
+	5,			/* RF5_BA_ELEC */
+	5, 			/* RF5_BA_ICE */
+	5, 			/* RF5_BA_ACID */
+	5, 			/* RF5_BA_POISON */
+	6, 			/* RF5_BA_TIME */
+	6, 			/* RF5_BA_ETHER */
+	6, 			/* RF5_BA_SOUND */
+	6, 			/* RF5_BA_NETHER */
+	7, 			/* RF5_BA_GRAVITY */
+	7, 			/* RF5_BA_EMP */
+	7, 			/* RF5_BA_RAD */
+	0, 			/* RF5_XXX1 */
+	4, 			/* RF5_BO_FIRE */
+	4, 			/* RF5_BO_EARTH */
+	4, 			/* RF5_BO_AIR */
+	4, 			/* RF5_BO_WATER */
+	4, 			/* RF5_BO_ELEC */
+	4, 			/* RF5_BO_ICE */
+	4, 			/* RF5_BO_ACID */
+	4, 			/* RF5_BO_POISON */
+	5, 			/* RF5_BO_TIME */
+	5, 			/* RF5_BO_ETHER */
+	5, 			/* RF5_BO_SOUND */
+	5, 			/* RF5_BO_NETHER */
+	5, 			/* RF5_BO_GRAVITY */
+	0, 			/* RF5_XXX2 */
+	0, 			/* RF5_XXX3 */
+	0  			/* RF5_XXX4 */
+};
+
+byte mana_cost_RF6[32]=
+{
+	6, 			/* RF6_HASTE */
+	3, 			/* RF6_CURE */
+	5, 			/* RF6_HEAL */
+	0, 			/* RF6_ADD_MANA */
+	1, 			/* RF6_BLINK */
+	6, 			/* RF6_TPORT */
+	0, 			/* RF6_XXX1 */
+	0, 			/* RF6_XXX2 */
+	4, 			/* RF6_TELE_TO */
+	8, 			/* RF6_TELE_AWAY */
+	8, 			/* RF6_TELE_LEVEL */
+	4, 			/* RF6_TELE_SELF_TO */
+	1, 			/* RF6_DARKNESS */
+	2, 			/* RF6_TRAPS */
+	6, 			/* RF6_FORGET */
+	1, 			/* RF6_FEAR */
+	4, 			/* RF6_PSI */
+	6, 			/* RF6_DOMINATION */
+	1, 			/* RF6_STUN */
+	3, 			/* RF6_TK */
+	5, 			/* RF6_FORCE */
+	1, 			/* RF6_CONFUSION */
+	4, 			/* RF6_SPIRIT */
+	6, 			/* RF6_ECTOPLASM */
+	3, 			/* RF6_BLIND */
+	5, 			/* RF6_SLOW */
+	6, 			/* RF6_HOLD */
+	0, 			/* RF6_DRAIN_MANA */
+	0, 			/* RF6_XXX3 */
+	0, 			/* RF6_XXX4 */
+	0, 			/* RF6_XXX5 */
+	60  		/* RF6_MIRROR_IMAGE */
+};
+
+byte mana_cost_RF7[32]=
+{
+	3,			/* RF7_BE_FIRE */
+	3, 			/* RF7_BE_ELEC */
+	0, 			/* RF7_XXX2 */
+	0,			/* RF7_XXX1 */
+	0,			/* RF7_XXX1 */
+	0,			/* RF7_XXX3 */
+	0, 			/* RF7_XXX4 */
+	0, 			/* RF7_XXX5 */
+	0,	 		/* RF7_XXX1 */
+	0,			/* RF7_XXX1 */
+	0,			/* RF7_XXX1 */
+	0,			/* RF7_XXX1 */
+	0, 			/* RF7_XXX6 */
+	0, 			/* RF7_XXX7 */
+	0,			/* RF7_XXX1 */
+	0, 			/* RF7_XXX1 */
+	10, 			/* RF7_S_PLANTS */
+	12,			/* RF7_S_KIN */
+	16,			/* RF7_S_HI_DEMON */
+	8, 			/* RF7_S_MONSTER */
+	15,			/* RF7_S_MONSTERS */
+	15,			/* RF7_S_AUTOMATA */
+	12,			/* RF7_S_SPIDER */
+	14,			/* RF7_S_HOUND */
+	15,			/* RF7_S_MONKEY */
+	10,			/* RF7_S_ALIEN */
+	10,			/* RF7_S_DEMON */
+	12,			/* RF7_S_UNDEAD */
+	15,			/* RF7_S_ELEMENTAL */
+	22,			/* RF7_S_HI_UNDEAD */
+	22,			/* RF7_S_HI_ELEMENTAL */
+	22 			/* RF7_S_UNIQUE */
+};
+
+/*
+ * d_base:     base desirability for AI.
+ * d_summ:     desriability for AI per monster level
+ *                  times 0-3 based on number of clear spaces
+ * d_hurt:     desirability for AI per monster spell power
+ *                  times 0-3 based on damage taken
+ * d_mana:     desirability for AI per monster spell power
+ *                  times 0-2 based on mana shortage
+ * d_esc:      desirability for AI per monster level
+ *                  times 0-3 based on fear, and damage taken
+ * d_tact:     desirability for AI per monster level, modified
+ *                  times 0-3 based on proximity, min_range, and best_range
+ * d_res:      category of 'resistability' checked by monster AI
+ *                 for purposes of desirability.
+ * d_range:    % of spell desirability retained for each step past 'range'
+ */
+
+byte spell_desire_RF4[32][8] =
+{
+/*  d_base	  d_hurt  d_esc	     d_res				    */
+/*	     d_summ	  d_mana   d_tact	       d_range		    */
+	{ 30,  0,   0,   5,	0,   0,	   0	  ,  100}, /* RF4_SHRIEK	*/
+	{ 40,  0,   0,   5,	0,   0,	   0	  ,    0}, /* RF4_LASH		*/
+	{ 40,  0,   0,   5,	0,   0, LRN_ARCH  ,   20}, /* RF4_ARROW		*/
+	{ 40,  0,   0,   5,	0,   0, LRN_ARCH  ,   20}, /* RF4_GUN		*/
+	{ 40,  0,   0,   5,	0,   0, LRN_ARCH  ,   20}, /* RF4_RIFLE		*/
+	{ 40,  0,   0,   5,	0,   0, LRN_ARCH  ,   20}, /* RF4_SHOTGUN	*/
+	{ 40,  0,   0,   5,	0,   0, LRN_ARCH  ,   20}, /* RF4_ROCKET	*/
+	{ 40,  0,   0,   5,	0,   0, LRN_ARCH  ,   20}, /* RF4_MISSILE	*/
+	{ 65,  0,   0,   5,	0,   0, LRN_FIRE  ,   90}, /* RF4_BR_FIRE	*/
+	{ 65,  0,   0,   5,	0,   0, LRN_EARTH ,   90}, /* RF4_BR_EARTH	*/
+	{ 65,  0,   0,   5,	0,   0, LRN_AIR   ,   90}, /* RF4_BR_AIR	*/
+	{ 65,  0,   0,   5,	0,   0, LRN_WATER ,   90}, /* RF4_BR_WATER	*/
+	{ 65,  0,   0,   5,	0,   0, LRN_ELEC  ,   90}, /* RF4_BR_ELEC	*/
+	{ 65,  0,   0,   5,	0,   0, LRN_ICE   ,   90}, /* RF4_BR_ICE	*/
+	{ 65,  0,   0,   5,	0,   0, LRN_ACID  ,   90}, /* RF4_BR_ACID	*/
+	{ 65,  0,   0,   5,	0,   0, LRN_POISON,   90}, /* RF4_BR_POISON	*/
+	{ 65,  0,   0,   5,	0,   0, LRN_TIME  ,   90}, /* RF4_BR_TIME	*/
+	{ 65,  0,   0,   5,	0,   0, LRN_ETHER ,   90}, /* RF4_BR_ETHER	*/
+	{ 65,  0,   0,   5,	0,   0, LRN_SOUND ,   90}, /* RF4_BR_SOUND	*/
+	{ 65,  0,   0,   5,	0,   0,	LRN_NETHER,   90}, /* RF4_BR_NETHER	*/
+	{ 50,  0,   0,   5,	0,   0,    0      ,   90}, /* RF4_BR_GRAVITY*/
+	{ 50,  0,   0,   5,	0,   0,    0      ,   90}, /* RF4_BR_RAD	*/
+	{ 65,  0,   0,   5,	0,   0, LRN_LIGHT ,   90}, /* RF4_BR_LIGHT	*/
+	{ 65,  0,   0,   5,	0,   0, LRN_DARK  ,   90}, /* RF4_BR_DARK	*/
+	{ 65,  0,   0,   5,	0,   0,    0      ,   90}, /* RF4_CLOUD_RAD	*/
+	{ 65,  0,   0,   5,	0,   0,    0      ,   90}, /* RF4_CLOUD_POISON*/
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF4_XXX3		*/
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF4_XXX4		*/
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF4_XXX5		*/
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF4_XXX6		*/
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF4_FOG_NETHER		*/
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}  /* RF4_FOG_POISON		*/
+};
+
+byte spell_desire_RF5[32][8] =
+{
+/*  d_base	  d_hurt   d_esc      d_res				    */
+/*	     d_summ	  d_mana  d_tact	        d_range		    */
+	{ 50,  0,   0,   0,	0,   0, LRN_FIRE  ,  100}, /* RF5_BA_FIRE	*/
+	{ 50,  0,   0,   0,	0,   0, LRN_EARTH ,  100}, /* RF5_BA_EARTH	*/
+	{ 50,  0,   0,   0,	0,   0, LRN_AIR   ,  100}, /* RF5_BA_AIR	*/
+	{ 50,  0,   0,   0,	0,   0, LRN_WATER ,  100}, /* RF5_BA_WATER	*/
+	{ 40,  0,   0,   0,	0,   0, LRN_ELEC  ,  100}, /* RF5_BA_ELEC	*/
+	{ 40,  0,   0,   0,	0,   0, LRN_ICE   ,  100}, /* RF5_BA_ICE	*/
+	{ 40,  0,   0,   0,	0,   0, LRN_ACID  ,  100}, /* RF5_BA_ACID	*/
+	{ 40,  0,   0,   0,	0,   0, LRN_POISON,  100}, /* RF5_BA_POISON	*/
+	{ 30,  0,   0,   0,	0,   0, LRN_TIME  ,  100}, /* RF5_BA_TIME	*/
+	{ 30,  0,   0,   0,	0,   0, LRN_ETHER ,  100}, /* RF5_BA_ETHER	*/
+	{ 30,  0,   0,   0,	0,   0, LRN_SOUND ,  100}, /* RF5_BA_SOUND	*/
+	{ 30,  0,   0,   0,	0,   0, LRN_NETHER,  100}, /* RF5_BA_NETHER	*/
+	{ 20,  0,   0,   0,	0,   0,    0      ,  100}, /* RF5_BA_GRAVITY*/
+	{ 20,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF5_BA_EMP	*/
+	{ 20,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF5_BA_RAD	*/
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF5_XXX1		*/
+	{ 50,  0,   0,   0,	0,   0, LRN_FIRE  ,  100}, /* RF5_BO_FIRE	*/
+	{ 50,  0,   0,   0,	0,   0, LRN_EARTH ,  100}, /* RF5_BO_EARTH	*/
+	{ 50,  0,   0,   0,	0,   0, LRN_AIR   ,  100}, /* RF5_BO_AIR	*/
+	{ 50,  0,   0,   0,	0,   0, LRN_WATER ,  100}, /* RF5_BO_WATER	*/
+	{ 45,  0,   0,   0,	0,   0, LRN_ELEC  ,  100}, /* RF5_BO_ELEC	*/
+	{ 45,  0,   0,   0,	0,   0, LRN_ICE   ,  100}, /* RF5_BO_ICE	*/
+	{ 45,  0,   0,   0,	0,   0, LRN_ACID  ,  100}, /* RF5_BO_ACID	*/
+	{ 45,  0,   0,   0,	0,   0, LRN_POISON,  100}, /* RF5_BO_POISON	*/
+	{ 35,  0,   0,   0,	0,   0, LRN_TIME  ,  100}, /* RF5_BO_TIME	*/
+	{ 35,  0,   0,   0,	0,   0,	LRN_ETHER ,  100}, /* RF5_BO_ETHER	*/
+	{ 35,  0,   0,   0,	0,   0,	LRN_SOUND ,  100}, /* RF5_BO_SOUND	*/
+	{ 35,  0,   0,   0,	0,   0, LRN_NETHER,  100}, /* RF5_BO_NETHER */
+	{ 25,  0,   0,   0,	0,   0,    0      ,  100}, /* RF5_BO_GRAVITY*/
+	{ 0,   0,   0,   0,	0,   0,    0      ,  100}, /* RF5_XXX2		*/
+	{ 0,   0,   0,   0,	0,   0,    0      ,  100}, /* RF5_XXX3		*/
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}  /* RF5_XXX4 		*/
+};
+
+byte spell_desire_RF6[32][8] =
+{
+/*  d_base	  d_hurt  d_esc	     d_res				    */
+/*	     d_summ	   d_mana  d_tact	          d_range		    */
+	{ 50,  0,   0,   0,	0,   0,	   0	  ,  	100}, /* RF6_HASTE			*/
+	{ 50,  0,   0,   0, 0,   0,	   0	  ,  	100}, /* RF6_CURE			*/
+	{ 10,  0,   20,  0,	0,   0,	   0	  ,  	100}, /* RF6_HEAL			*/
+	{ 15,  0,   0,   25,0,   0,	   0	  ,  	100}, /* RF6_ADD_MANA		*/
+	{ 27,  0,   0,   0,	10,  15,   0	  ,  	100}, /* RF6_BLINK			*/
+	{ 10,  0,   0,   0,	20,  10,   0	  ,  	100}, /* RF6_TPORT			*/
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  	100}, /* RF6_XXX1			*/
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  	100}, /* RF6_XXX2			*/
+	{ 30,  0,   0,   0,	0,   10,   0	  ,  	100}, /* RF6_TELE_TO		*/
+	{ 10,  0,   0,   0,	20,  10,   0	  ,  	100}, /* RF6_TELE_AWAY		*/
+	{ 10,  0,   0,   0,	20,  10,   0      ,	    100}, /* RF6_TELE_LEVEL		*/
+	{ 30,  0,   0,   0,	0,   0,	   0	  ,  	100}, /* RF6_TELE_SELF_TO	*/
+	{ 20,  0,   0,   0,	5,   0,	   0	  ,  	100}, /* RF6_DARKNESS		*/
+	{ 25,  0,   0,   0,	5,   0,	   0	  ,  	100}, /* RF6_TRAPS			*/
+	{ 25,  0,   0,   0,	5,   0, LRN_SAVE  ,  	100}, /* RF6_FORGET			*/
+	{ 25,  0,   0,   0, 0,   0, LRN_FEAR  ,     100}, /* RF6_FEAR			*/
+	{ 15,  0,   0,   0,	0,   0,	LRN_PSI   ,  	100}, /* RF6_PSI			*/
+	{ 10,  0,   0,   0,	0,   0,	LRN_PSI   ,  	100}, /* RF6_DOMINATION		*/
+	{ 25,  0,   0,   0,	0,   0, LRN_TK    ,  	100}, /* RF6_STUN			*/
+	{ 15,  0,   0,   0,	0,   0, LRN_TK    ,  	100}, /* RF6_TK				*/
+	{ 10,  0,   0,   0,	0,   0, LRN_TK    ,  	100}, /* RF6_FORCE			*/
+	{ 25,  0,   0,   0,	0,   0,	LRN_CONFU ,  	100}, /* RF6_CONFUSION		*/
+	{ 15,  0,   0,   0,	0,   0,	LRN_SPIRIT,  	100}, /* RF6_SPIRIT			*/
+	{ 10,  0,   0,   0,	0,   0,	LRN_SPIRIT,  	100}, /* RF6_ECTOPLASM		*/
+	{ 30,  0,   0,   0,	0,   0,	LRN_BLIND ,  	100}, /* RF6_BLIND			*/
+	{ 30,  0,   0,   0,	0,   0,	LRN_SAVE  ,  	100}, /* RF6_SLOW			*/
+	{ 40,  0,   0,   0,	0,   0,	LRN_FREE_SAVE,  100}, /* RF6_HOLD			*/
+	{ 25,  0,  15,   0,	0,   0, LRN_MANA  ,     100}, /* RF6_DRAIN_MANA		*/
+	{ 0,   0,   0,   0,	0,   0,    0      ,	    100}, /* RF6_XXX3			*/
+	{ 0,   0,   0,   0,	0,   0,    0      ,	    100}, /* RF6_XXX4			*/
+	{ 0,   0,   0,   0,	0,   0,    0      ,	    100}, /* RF6_XXX5			*/
+	{ 20,  5,  18,   0,	0,   0,    0      ,	    100}  /* RF6_MIRROR_IMAGE	*/
+};
+
+byte spell_desire_RF7[32][8] =
+{
+/*     d_base	  d_hurt    d_esc	 d_res				    */
+/*	     d_summ	d_mana	  d_tact	   d_range		    */
+	{ 50,  0,   0,   0,	0,   0,	LRN_FIRE  ,  80}, /* RF7_BE_FIRE		*/
+	{ 50,  0,   0,   0,	0,   0,	LRN_ELEC  ,  80}, /* RF7_BE_ELEC		*/
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX7X3		*/
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX7X4		*/
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX7X5		*/
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX7X6		*/
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX7X7		*/
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX7X8		*/
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX7X9		*/
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX7X10		*/
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX7X11		*/
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX7X12		*/
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX7X13		*/
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX7X14		*/
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX7X15		*/
+	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX7X16		*/
+	{ 0,   10,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_PLANTS		*/
+	{ 0,   18,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_KIN			*/
+	{ 0,   18,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_HI_DEMON	*/
+	{ 0,   14,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_MONSTER		*/
+	{ 0,   14,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_MONSTERS	*/
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_AUTOMATA	*/
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_SPIDER		*/
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_HOUND		*/
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_MONKEY		*/
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_ALIEN		*/
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_DEMON		*/
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_UNDEAD		*/
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_ELEMENTAL	*/
+	{ 0,   17,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_HI_UNDEAD	*/
+	{ 0,   18,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_HI_ELEMENTAL*/
+	{ 0,   18,  0,   0,	0,   0,	   0	  ,  100}  /* RF7_S_UNIQUE  	*/
+};
+
+/*
+ * Optimal Ranges for various spells.
+ * 6 is optimal for Breath Weapons, Beams, and Arcs.
+ * 3 is optimal for Lash/Spit.
+ * 0 indicates no range limitation for other spells.
+ *
+ * This range is considered a preference if d_range in spell_desire is > 0.
+ * It is a hard limit if d_range = 0.
+ */
+byte spell_range_RF4[32] =
+{
+	0,3,0,0,0,0,0,0,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,0,0,0,0,0,0,0,0
+};
+
+byte spell_range_RF5[32] =
+{
+	6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,0,6,6,6,6,6,6,6,6,6,6,6,6,6,0,0,0
+};
+
+byte spell_range_RF6[32] =
+{
+	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+};
+
+byte spell_range_RF7[32] =
+{
+	6,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+};

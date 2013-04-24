@@ -1,6 +1,14 @@
 /* File: files.c */
 
 /*
+ * Drop and set permissions.  Read preference files.  Check time and load.
+ * Display the character screen.  Character dumps, read random line 
+ * from a file.  Show a file (inc. the online help), context-specific 
+ * help.  Display a file (alternate method).  Process a character
+ * name, commit suicide, save the game.  Get and display score, turn
+ * character into a winner.  The character death interface.  Controlled
+ * exit and panic saves.
+ *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
@@ -98,61 +106,6 @@ void safe_setuid_grab(void)
 #endif /* SET_UID */
 
 }
-
-
-#if 0
-
-/*
- * Use this (perhaps) for Angband 2.8.4
- *
- * Extract "tokens" from a buffer
- *
- * This function uses "whitespace" as delimiters, and treats any amount of
- * whitespace as a single delimiter.  We will never return any empty tokens.
- * When given an empty buffer, or a buffer containing only "whitespace", we
- * will return no tokens.  We will never extract more than "num" tokens.
- *
- * By running a token through the "text_to_ascii()" function, you can allow
- * that token to include (encoded) whitespace, using "\s" to encode spaces.
- *
- * We save pointers to the tokens in "tokens", and return the number found.
- */
-static s16b tokenize_whitespace(char *buf, s16b num, char **tokens)
-{
-	int k = 0;
-
-	char *s = buf;
-
-
-	/* Process */
-	while (k < num)
-	{
-		char *t;
-
-		/* Skip leading whitespace */
-		for ( ; *s && isspace(*s); ++s) /* loop */;
-
-		/* All done */
-		if (!*s) break;
-
-		/* Find next whitespace, if any */
-		for (t = s; *t && !isspace(*t); ++t) /* loop */;
-
-		/* Nuke and advance (if necessary) */
-		if (*t) *t++ = '\0';
-
-		/* Save the token */
-		tokens[k++] = s;
-
-		/* Advance */
-		s = t;
-	}
-
-	/* Count */
-	return (k);
-}
-
-#endif
 
 
 /*
@@ -1288,42 +1241,76 @@ static void display_player_xtra_info(void)
 	cptr desc;
 
 	char buf[160];
+	char skbuf[160];
+	char stbuf[160];
+	char wpbuf[160];
+	int skhit, skdam, sthit, stdam, wphit, wpdam;
 	
-	if (p_ptr->muta3 & MUT3_HORNS) muta_att++;
-	if (p_ptr->muta3 & MUT3_SCOR_TAIL) muta_att++;
-	if (p_ptr->muta3 & MUT3_BEAK) muta_att++;
-	if (p_ptr->muta3 & MUT3_TUSKS) muta_att++;
-	if (p_ptr->muta3 & MUT3_CLAWS) muta_att++;
-	if (p_ptr->muta3 & MUT3_TENTACLES) muta_att++;
+	skhit = skdam = sthit = stdam = wphit = wpdam = 0;
+	
+	if (p_ptr->muta4 & MUT4_HORNS) muta_att++;
+	if (p_ptr->muta4 & MUT4_SCOR_TAIL) muta_att++;
+	if (p_ptr->muta4 & MUT4_BEAK) muta_att++;
+	if (p_ptr->muta4 & MUT4_TUSKS) muta_att++;
+	if (p_ptr->muta4 & MUT4_CLAWS) muta_att++;
+	if (p_ptr->muta4 & MUT4_TENTACLES) muta_att++;
+	if (p_ptr->muta4 & MUT4_ALPHA_SPURS) muta_att++;
+	if (p_ptr->muta4 & MUT4_BETA_SPURS) muta_att++;
+	if (p_ptr->muta4 & MUT4_GAMMA_SPURS) muta_att++;
+	if (p_ptr->muta4 & MUT4_DELTA_SPURS) muta_att++;
 	
 
 	/* Upper middle */
-	col = 26;
+	col = 23;
 
 
 	/* Age */
 	Term_putstr(col, 3, -1, TERM_WHITE, "Age");
-	Term_putstr(col+9, 3, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->age));
+	Term_putstr(col+13, 3, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->age));
 
 	/* Height */
 	Term_putstr(col, 4, -1, TERM_WHITE, "Height");
-	Term_putstr(col+9, 4, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->ht));
+	Term_putstr(col+13, 4, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->ht));
 
 	/* Weight */
 	Term_putstr(col, 5, -1, TERM_WHITE, "Weight");
-	Term_putstr(col+9, 5, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->wt));
+	Term_putstr(col+13, 5, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->wt));
 
 	/* Status */
 	Term_putstr(col, 6, -1, TERM_WHITE, "Status");
-	Term_putstr(col+9, 6, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->sc));
+	Term_putstr(col+13, 6, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->sc));
 
-	/* Maximize mode has been removed with the stat revision*/
-/*	Term_putstr(col, 7, -1, TERM_WHITE, "Maximize"); */
-/*	Term_putstr(col+12, 7, -1, TERM_L_BLUE, adult_maximize ? "Y" : "N"); */
+	/* Max dungeon level */
+	Term_putstr(col, 7, -1, TERM_WHITE, "MaxDepth");
+
+	/* Has he actually left the town? */
+	if (p_ptr->max_depth)
+	{
+		if (p_ptr->max_depth < 51)
+		{
+			/*express in feet or level*/
+			if (depth_in_feet) strnfmt(buf, sizeof(buf), "%5d ft",  2550-(p_ptr->max_depth * 50));
+			else strnfmt(buf, sizeof(buf), " Lev %3d", 51-(p_ptr->max_depth));
+		}
+		else if (p_ptr->max_depth == 51)
+		{
+			strnfmt(buf, sizeof(buf), " Surface");
+		}
+		else 
+		{
+			/*express in feet or level*/
+			if (depth_in_feet) strnfmt(buf, sizeof(buf), "%5d ft",  ((p_ptr->max_depth-51) * 50));
+			else strnfmt(buf, sizeof(buf), "Lab Lv %3d", (p_ptr->max_depth - 51));
+		}
+	}
+ 	/*hasn't left town*/
+	else strnfmt(buf, sizeof(buf), "    Town");
+
+	Term_putstr(col+9, 7, -1, TERM_L_BLUE, buf);
 
 	/* Preserve */
 	Term_putstr(col, 8, -1, TERM_WHITE, "Preserve");
-	Term_putstr(col+12, 8, -1, TERM_L_BLUE, adult_preserve ? "Y" : "N");
+	Term_putstr(col+16, 8, -1, TERM_L_BLUE, adult_preserve ? "Y" : "N");
 
 
 	/* Left */
@@ -1378,26 +1365,98 @@ static void display_player_xtra_info(void)
 		Term_putstr(col+8, 13, -1, TERM_L_GREEN,
 		            format("%10s", "********"));
 	}
+	/* Colspan */
+
+	/* Melee weapon */
+	o_ptr = &inventory[INVEN_WIELD];
+
+	/* Base skill */
+	hit = p_ptr->dis_to_h;
+	dam = p_ptr->dis_to_d;
+	sthit = ((int)((p_ptr->stat_use[A_AGI] / 60) - 3));
+	sthit += ((int)((p_ptr->stat_use[A_MUS] / 60) - 3));
+	stdam = ((int)((p_ptr->stat_use[A_MUS] / 40) - 3));
+	if ((p_ptr->skills[SK_ACC_STRIKE].skill_max > 0) && (o_ptr->k_idx > 0)) 
+		skhit = p_ptr->skills[SK_ACC_STRIKE].skill_rank;
+	if ((p_ptr->skills[SK_VICIOUS_STRIKE].skill_max > 0) && (o_ptr->k_idx > 0)) 
+		skdam = p_ptr->skills[SK_VICIOUS_STRIKE].skill_rank;
+	if ((p_ptr->skills[SK_SPIRIT_INFUSION].skill_max > 0) && (o_ptr->k_idx > 0)) 
+		skdam += p_ptr->skills[SK_SPIRIT_INFUSION].skill_rank;		
+	else if (p_ptr->skills[SK_SPIRIT_INFUSION].skill_max > 0)
+		skdam += (p_ptr->skills[SK_SPIRIT_INFUSION].skill_rank * 2);		
+	if (object_known_p(o_ptr)) wphit += o_ptr->to_h;
+	if (object_known_p(o_ptr)) wpdam += o_ptr->to_d;	
+	
+	/* Apply weapon bonuses */
+	if (object_known_p(o_ptr)) hit += o_ptr->to_h;
+	if (object_known_p(o_ptr)) dam += o_ptr->to_d;
+	if ((p_ptr->skills[SK_ACC_STRIKE].skill_max > 0) && (o_ptr->k_idx > 0)) 
+			hit += p_ptr->skills[SK_ACC_STRIKE].skill_rank;
+	if ((p_ptr->skills[SK_VICIOUS_STRIKE].skill_max > 0) && (o_ptr->k_idx > 0)) 
+			dam += p_ptr->skills[SK_VICIOUS_STRIKE].skill_rank;
+	if ((p_ptr->skills[SK_SPIRIT_INFUSION].skill_max > 0) && (o_ptr->k_idx > 0)) 
+		dam += p_ptr->skills[SK_SPIRIT_INFUSION].skill_rank;		
+	else if (p_ptr->skills[SK_SPIRIT_INFUSION].skill_max > 0)
+		dam += (p_ptr->skills[SK_SPIRIT_INFUSION].skill_rank * 2);		
+	
+
+	/* Melee attacks */
+	sprintf(buf, "(%+d,%+d)", hit, dam);
+	sprintf(stbuf, "(%+d,%+d)", sthit, stdam);
+	sprintf(skbuf, "(%+d,%+d)", skhit, skdam);
+	sprintf(wpbuf, "(%+d,%+d)", wphit, wpdam);
+	Term_putstr(col, 16, -1, TERM_WHITE, "Melee");
+	Term_putstr(col+9, 15, -1, TERM_WHITE, "Stat");	
+	Term_putstr(col+18, 15, -1, TERM_WHITE, "Skill");
+	Term_putstr(col+28, 15, -1, TERM_WHITE, "Weap.");
+	Term_putstr(col+38, 15, -1, TERM_WHITE, "Total");				
+	Term_putstr(col+5, 16, -1, TERM_L_BLUE, format("%10s", stbuf)); 
+	Term_putstr(col+15, 16, -1, TERM_L_BLUE, format("%10s", skbuf)); 
+	Term_putstr(col+25, 16, -1, TERM_L_BLUE, format("%10s", wpbuf)); 
+	Term_putstr(col+35, 16, -1, TERM_L_BLUE, format("%10s", buf)); 
 
 
-	/* Gold */
-	Term_putstr(col, 15, -1, TERM_WHITE, "Gold");
-	Term_putstr(col+8, 15, -1, TERM_L_GREEN,
-	            format("%10ld", p_ptr->au));
+	/* Range weapon */
+	o_ptr = &inventory[INVEN_GUN];
 
+	/* Clear the calculated values */
+	skhit = skdam = sthit = stdam = wphit = wpdam = 0;
 
-	/* Burden */
-	sprintf(buf, "%ld.%ld lbs",
-	        p_ptr->total_weight / 10,
-	        p_ptr->total_weight % 10);
-	Term_putstr(col, 17, -1, TERM_WHITE, "Burden");
-	Term_putstr(col+8, 17, -1, TERM_L_GREEN,
-	            format("%10s", buf));
+	/* Base skill */
+	hit = p_ptr->dis_to_h;
+	dam = 0;
+	sthit = ((int)((p_ptr->stat_use[A_AGI] / 60) - 3));
+	sthit += ((int)((p_ptr->stat_use[A_MUS] / 60) - 3));
+	stdam = 0;
+	if (p_ptr->skills[SK_ACC_SHOT].skill_max > 0) skhit = p_ptr->skills[SK_ACC_SHOT].skill_rank;
+	if (p_ptr->skills[SK_VICIOUS_SHOT].skill_max > 0) skdam = p_ptr->skills[SK_VICIOUS_SHOT].skill_rank;
+	if (p_ptr->skills[SK_PYROKINETICS].skill_max > 0) skdam = p_ptr->skills[SK_PYROKINETICS].skill_rank/2;
+	if (object_known_p(o_ptr)) wphit += o_ptr->to_h;
+	if (object_known_p(o_ptr)) wpdam += o_ptr->to_d;	
+
+	/* Apply weapon bonuses */
+	if (object_known_p(o_ptr)) hit += o_ptr->to_h;
+	if (object_known_p(o_ptr)) dam += o_ptr->to_d;
+	/* Skills that affect display flags */
+	if (p_ptr->skills[SK_ACC_SHOT].skill_max > 0) hit += p_ptr->skills[SK_ACC_SHOT].skill_rank;
+	if (p_ptr->skills[SK_VICIOUS_SHOT].skill_max > 0) dam += p_ptr->skills[SK_VICIOUS_SHOT].skill_rank;
+	if (p_ptr->skills[SK_PYROKINETICS].skill_max > 0) dam += p_ptr->skills[SK_PYROKINETICS].skill_rank/2;
+
+	/* Range attacks */
+	sprintf(buf, "(%+d,%+d)", hit, dam);
+	sprintf(stbuf, "(%+d,%+d)", sthit, stdam);
+	sprintf(skbuf, "(%+d,%+d)", skhit, skdam);
+	sprintf(wpbuf, "(%+d,%+d)", wphit, wpdam);
+	Term_putstr(col,    17, -1, TERM_WHITE, "Shoot");
+	Term_putstr(col+5,  17, -1, TERM_L_BLUE, format("%10s", stbuf)); 
+	Term_putstr(col+15, 17, -1, TERM_L_BLUE, format("%10s", skbuf)); 
+	Term_putstr(col+25, 17, -1, TERM_L_BLUE, format("%10s", wpbuf)); 
+	Term_putstr(col+35, 17, -1, TERM_L_BLUE, format("%10s", buf)); 
+
 
 
 	/* Middle */
 	col = 26;
-
 
 	/* Armor */
 	base = p_ptr->dis_ac;
@@ -1408,77 +1467,26 @@ static void display_player_xtra_info(void)
 	Term_putstr(col, 10, -1, TERM_WHITE, "Armor");
 	Term_putstr(col+5, 10, -1, TERM_L_BLUE, format("%13s", buf));
 
-
-	/* Base skill */
-	hit = p_ptr->dis_to_h;
-	dam = p_ptr->dis_to_d;
-
-	/* Basic fighting */
-	sprintf(buf, "(%+d,%+d)", hit, dam);
-	Term_putstr(col, 11, -1, TERM_WHITE, "Fight");
-	Term_putstr(col+5, 11, -1, TERM_L_BLUE, format("%13s", buf));
-
-
-	/* Melee weapon */
-	o_ptr = &inventory[INVEN_WIELD];
-
-	/* Base skill */
-	hit = p_ptr->dis_to_h;
-	dam = p_ptr->dis_to_d;
-
-	/* Apply weapon bonuses */
-	if (object_known_p(o_ptr)) hit += o_ptr->to_h;
-	if (object_known_p(o_ptr)) dam += o_ptr->to_d;
-	if (p_ptr->skills[SK_ACC_STRIKE].skill_max > -2) hit += p_ptr->skills[SK_ACC_STRIKE].skill_rank;
-	if (p_ptr->skills[SK_VICIOUS_STRIKE].skill_max > -2) dam += p_ptr->skills[SK_VICIOUS_STRIKE].skill_rank;
-
-	/* Melee attacks */
-	sprintf(buf, "(%+d,%+d)", hit, dam);
-	Term_putstr(col, 12, -1, TERM_WHITE, "Melee");
-	Term_putstr(col+5, 12, -1, TERM_L_BLUE, format("%13s", buf));
-
-
-	/* Range weapon */
-	o_ptr = &inventory[INVEN_GUN];
-
-	/* Base skill */
-	hit = p_ptr->dis_to_h;
-	dam = 0;
-
-	/* Apply weapon bonuses */
-	if (object_known_p(o_ptr)) hit += o_ptr->to_h;
-	if (object_known_p(o_ptr)) dam += o_ptr->to_d;
-	/* Skills that affect display flags */
-	if (p_ptr->skills[SK_ACC_SHOT].skill_max > -2) hit += p_ptr->skills[SK_ACC_SHOT].skill_rank;
-	if (p_ptr->skills[SK_VICIOUS_SHOT].skill_max > -2) dam += p_ptr->skills[SK_VICIOUS_SHOT].skill_rank;
-
-	/* Range attacks */
-	sprintf(buf, "(%+d,%+d)", hit, dam);
-	Term_putstr(col, 13, -1, TERM_WHITE, "Shoot");
-	Term_putstr(col+5, 13, -1, TERM_L_BLUE, format("%13s", buf));
-
-
 	/* Blows */
 	
 	if (!muta_att)
 		sprintf(buf, "%d/turn", p_ptr->num_blow);
 	else
 		sprintf(buf, "%d+%d/turn", p_ptr->num_blow, muta_att);
-	Term_putstr(col, 14, -1, TERM_WHITE, "Blows");
-	Term_putstr(col+5, 14, -1, TERM_L_BLUE, format("%13s", buf));
+	Term_putstr(col, 11, -1, TERM_WHITE, "Blows");
+	Term_putstr(col+5, 11, -1, TERM_L_BLUE, format("%13s", buf));
 
 
 	/* Shots */
 	sprintf(buf, "%d/turn", p_ptr->num_fire);
-	Term_putstr(col, 15, -1, TERM_WHITE, "Shots");
-	Term_putstr(col+5, 15, -1, TERM_L_BLUE, format("%13s", buf));
+	Term_putstr(col, 12, -1, TERM_WHITE, "Shots");
+	Term_putstr(col+5, 12, -1, TERM_L_BLUE, format("%13s", buf));
 
 
 	/* Infra */
 	sprintf(buf, "%d ft", p_ptr->see_infra * 10);
-	Term_putstr(col, 17, -1, TERM_WHITE, "Infra");
-	Term_putstr(col+5, 17, -1, TERM_L_BLUE, format("%13s", buf));
-
+	Term_putstr(col, 13, -1, TERM_WHITE, "Infra");
+	Term_putstr(col+5, 13, -1, TERM_L_BLUE, format("%13s", buf));
 
 	/* Right */
 	col = 49;
@@ -1486,6 +1494,7 @@ static void display_player_xtra_info(void)
 
 	/* Fighting Skill (with current weapon) */
 	o_ptr = &inventory[INVEN_WIELD];
+
 	if (p_ptr->skills[SK_ACC_STRIKE].skill_rank > 0)
 	{
 		tmp = p_ptr->to_h + o_ptr->to_h + (p_ptr->skills[SK_ACC_STRIKE].skill_rank);
@@ -1494,29 +1503,78 @@ static void display_player_xtra_info(void)
 	if (tmp < 0)  tmp = 0;
 	
 	xthn = (p_ptr->skills[SK_TOHIT].skill_rank * 5) + (tmp * BTH_PLUS_ADJ);
-	if (p_ptr->skills[SK_INTER_COMBAT].skill_rank > 0)
+
+	if ((p_ptr->skills[SK_INTER_COMBAT].skill_max > 0) && (o_ptr->k_idx > 0))
 	{
 		xthn += p_ptr->skills[SK_INTER_COMBAT].skill_rank * 4;
 	}
-	if(p_ptr->skills[SK_ADV_COMBAT].skill_rank > 0)
+	if ((p_ptr->skills[SK_ADV_COMBAT].skill_max > 0) && (o_ptr->k_idx > 0))
 	{
 		xthn += p_ptr->skills[SK_ADV_COMBAT].skill_rank * 3;
 	}
-	if(p_ptr->skills[SK_MASTER_COMBAT].skill_rank > 0)
+	if ((p_ptr->skills[SK_MASTER_COMBAT].skill_max > 0) && (o_ptr->k_idx > 0))
 	{
 		xthn += p_ptr->skills[SK_MASTER_COMBAT].skill_rank * 2;
 	}
-	if (p_ptr->skills[SK_AXE].skill_rank > 0 && o_ptr->tval == TV_POLEARM)
+	if ((p_ptr->skills[SK_TOHIT_MARTIAL].skill_max > 0) && (o_ptr->k_idx == 0))
 	{
-		xthn += p_ptr->skills[SK_AXE].skill_rank *  4;
+		xthn += p_ptr->skills[SK_TOHIT_MARTIAL].skill_rank * 6;
 	}
-	if (p_ptr->skills[SK_BLUNT].skill_rank > 0 && o_ptr->tval == TV_HAFTED)
+	if ((p_ptr->skills[SK_INTER_MARTIAL].skill_max > 0) && (o_ptr->k_idx == 0))
+	{
+		xthn += p_ptr->skills[SK_INTER_MARTIAL].skill_rank * 5;
+	}
+	if ((p_ptr->skills[SK_ADV_MARTIAL].skill_max > 0) && (o_ptr->k_idx == 0))
+	{
+		xthn += p_ptr->skills[SK_ADV_MARTIAL].skill_rank * 4;
+	}
+	if (p_ptr->skills[SK_HAFTED].skill_max > 0 && o_ptr->tval == TV_HAFTED)
+	{
+		xthn += p_ptr->skills[SK_HAFTED].skill_rank * 4;
+	}
+	if (p_ptr->skills[SK_HAFTED_MASTER].skill_max > 0 && o_ptr->tval == TV_HAFTED)
+	{
+		xthn += p_ptr->skills[SK_HAFTED_MASTER].skill_rank * 6;
+	}
+	if (p_ptr->skills[SK_POLEARM].skill_max > 0 && o_ptr->tval == TV_POLEARM)
+	{
+		xthn += p_ptr->skills[SK_POLEARM].skill_rank * 4;
+	}
+	if (p_ptr->skills[SK_POLEARM_MASTER].skill_max > 0 && o_ptr->tval == TV_POLEARM)
+	{
+		xthn += p_ptr->skills[SK_POLEARM_MASTER].skill_rank * 6;
+	}
+	if (p_ptr->skills[SK_SWORD].skill_max > 0 && o_ptr->tval == TV_SWORD)
+	{
+		xthn += p_ptr->skills[SK_SWORD].skill_rank * 4;
+	}
+	if (p_ptr->skills[SK_SWORD_MASTER].skill_max > 0 && o_ptr->tval == TV_SWORD)
+	{
+		xthn += p_ptr->skills[SK_SWORD_MASTER].skill_rank * 6;
+	}
+	if (p_ptr->skills[SK_DAGGER].skill_max > 0 && o_ptr->tval == TV_DAGGER)
+	{
+		xthn += p_ptr->skills[SK_DAGGER].skill_rank * 4;
+	}
+	if (p_ptr->skills[SK_DAGGER_MASTER].skill_max > 0 && o_ptr->tval == TV_DAGGER)
+	{
+		xthn += p_ptr->skills[SK_DAGGER_MASTER].skill_rank * 6;
+	}
+	if (p_ptr->skills[SK_AXES].skill_max > 0 && o_ptr->tval == TV_AXES)
+	{
+		xthn += p_ptr->skills[SK_AXES].skill_rank * 4;
+	}
+	if (p_ptr->skills[SK_AXES_MASTER].skill_max > 0 && o_ptr->tval == TV_AXES)
+	{
+		xthn += p_ptr->skills[SK_AXES_MASTER].skill_rank * 6;
+	}
+	if (p_ptr->skills[SK_BLUNT].skill_max > 0 && o_ptr->tval == TV_BLUNT)
 	{
 		xthn += p_ptr->skills[SK_BLUNT].skill_rank * 4;
 	}
-	if (p_ptr->skills[SK_SWORD].skill_rank > 0 && o_ptr->tval == TV_SWORD)
+	if (p_ptr->skills[SK_BLUNT_MASTER].skill_max > 0 && o_ptr->tval == TV_BLUNT)
 	{
-		xthn += p_ptr->skills[SK_SWORD].skill_rank * 4;
+		xthn += p_ptr->skills[SK_BLUNT_MASTER].skill_rank * 6;
 	}
 
 
@@ -1548,92 +1606,114 @@ static void display_player_xtra_info(void)
 
 	/* Basic abilities */
 	/* Disarming */
-	if (p_ptr->skills[SK_DISARM_GOOD].skill_max >= 0) 
+	if (p_ptr->skills[SK_DISARM_GOOD].skill_max > 0) 
 	{
 		xdis = (4 * p_ptr->skills[SK_DISARM_GOOD].skill_rank);
 	}
-	else if (p_ptr->skills[SK_DISARM_NORM].skill_max >= 0) 
+	else if (p_ptr->skills[SK_DISARM_NORM].skill_max > 0) 
 	{
 		xdis = (3 * p_ptr->skills[SK_DISARM_NORM].skill_rank);
 	}
-	else if (p_ptr->skills[SK_DISARM_POOR].skill_max >= 0) 
+	else if (p_ptr->skills[SK_DISARM_POOR].skill_max > 0) 
 	{
 		xdis = (2 * p_ptr->skills[SK_DISARM_POOR].skill_rank);
 	}
 	else xdis = 1;
 	
 	/* Devices */
-	if (p_ptr->skills[SK_DEVICE_GOOD].skill_max >= 0) 
+	if (p_ptr->skills[SK_DEVICE_GOOD].skill_max > 0) 
 	{
 		xdev = (3 * p_ptr->skills[SK_DEVICE_GOOD].skill_rank);
 	}
-	else if (p_ptr->skills[SK_DEVICE_NORM].skill_max >= 0) 
+	else if (p_ptr->skills[SK_DEVICE_NORM].skill_max > 0) 
 	{
 		xdev = (2 * p_ptr->skills[SK_DEVICE_NORM].skill_rank);
 	}
-	else if (p_ptr->skills[SK_DEVICE_POOR].skill_max >= 0) 
+	else if (p_ptr->skills[SK_DEVICE_POOR].skill_max > 0) 
 	{
 		xdev = (p_ptr->skills[SK_DEVICE_POOR].skill_rank);
 	}
 	else xdev = 1;
 	
 	/* Saving throw */
-	if (p_ptr->skills[SK_SAVETH_GOOD].skill_max >= 0) 
+	xsav = p_ptr->skill_sav;
+	if (p_ptr->skills[SK_SAVETH_BNUS].skill_max > 0) 
 	{
-		xsav = (4 * p_ptr->skills[SK_SAVETH_GOOD].skill_rank);
+		xsav += p_ptr->skills[SK_SAVETH_BNUS].skill_rank;
 	}
-	else if (p_ptr->skills[SK_SAVETH_NORM].skill_max >= 0) 
-	{
-		xsav = (3 * p_ptr->skills[SK_SAVETH_NORM].skill_rank);
-	}
-	else if (p_ptr->skills[SK_SAVETH_POOR].skill_max >= 0) 
-	{
-		xsav = (2 * p_ptr->skills[SK_SAVETH_POOR].skill_rank);
-	}
-	else xsav = 1;
 
 	/* Stealth */
-	if (p_ptr->skills[SK_STEALTH_GOOD].skill_max >= 0) 
+	if (p_ptr->skills[SK_STEALTH_GOOD].skill_max > 0) 
 	{
 		xstl = (3 * p_ptr->skills[SK_STEALTH_GOOD].skill_rank / 2);
 	}
-	else if (p_ptr->skills[SK_STEALTH_NORM].skill_max >= 0) 
+	else if (p_ptr->skills[SK_STEALTH_NORM].skill_max > 0) 
 	{
 		xstl = (p_ptr->skills[SK_STEALTH_NORM].skill_rank);
 	}
-	else if (p_ptr->skills[SK_STEALTH_POOR].skill_max >= 0) 
+	else if (p_ptr->skills[SK_STEALTH_POOR].skill_max > 0) 
 	{
 		xstl = (p_ptr->skills[SK_STEALTH_POOR].skill_rank / 2);
 	}
 	else xstl = 1;
 
 	/* Searching Ability */
-	if (p_ptr->skills[SK_SEARCHING_GOOD].skill_max >= 0) 
+	if (p_ptr->skills[SK_SEARCHING_GOOD].skill_max > 0) 
 	{
-		xsrh = (5 * p_ptr->skills[SK_SEARCHING_GOOD].skill_rank);
+		if (p_ptr->skills[SK_TRAILBLAZER].skill_max > 0)
+		{
+			xsrh = (5 * p_ptr->skills[SK_SEARCHING_GOOD].skill_rank) +
+				p_ptr->skills[SK_TRAILBLAZER].skill_rank / 2;
+		}
+		else xsrh = (5 * p_ptr->skills[SK_SEARCHING_GOOD].skill_rank);
 	}
-	else if (p_ptr->skills[SK_SEARCHING_NORM].skill_max >= 0) 
+	else if (p_ptr->skills[SK_SEARCHING_NORM].skill_max > 0) 
 	{
-		xsrh = (3 * p_ptr->skills[SK_SEARCHING_NORM].skill_rank);
+		if (p_ptr->skills[SK_TRAILBLAZER].skill_max > 0)
+		{
+			xsrh = (3 * p_ptr->skills[SK_SEARCHING_NORM].skill_rank) +
+				p_ptr->skills[SK_TRAILBLAZER].skill_rank / 2;
+		}
+		else xsrh = (3 * p_ptr->skills[SK_SEARCHING_NORM].skill_rank);
 	}
-	else if (p_ptr->skills[SK_SEARCHING_POOR].skill_max >= 0) 
+	else if (p_ptr->skills[SK_SEARCHING_POOR].skill_max > 0) 
 	{
-		xsrh = (p_ptr->skills[SK_SEARCHING_POOR].skill_rank);
+		if (p_ptr->skills[SK_TRAILBLAZER].skill_max > 0)
+		{
+			xsrh = (p_ptr->skills[SK_SEARCHING_POOR].skill_rank) +
+				p_ptr->skills[SK_TRAILBLAZER].skill_rank / 2;
+		}
+		else xsrh = (p_ptr->skills[SK_SEARCHING_POOR].skill_rank);
 	}
 	else xsrh = 1;
 
 	/* Searching Frequency */
-	if (p_ptr->skills[SK_SEARCHING_GOOD].skill_max >= 0) 
+	if (p_ptr->skills[SK_SEARCHING_GOOD].skill_max > 0) 
 	{
-		xfos = (3 * p_ptr->skills[SK_SEARCHING_GOOD].skill_rank);
+		if (p_ptr->skills[SK_TRAILBLAZER].skill_max > 0)
+		{
+			xfos = (3 * p_ptr->skills[SK_SEARCHING_GOOD].skill_rank) +
+				p_ptr->skills[SK_TRAILBLAZER].skill_rank / 2;
+		}
+		else xfos = (3 * p_ptr->skills[SK_SEARCHING_GOOD].skill_rank);
 	}
-	else if (p_ptr->skills[SK_SEARCHING_NORM].skill_max >= 0) 
+	else if (p_ptr->skills[SK_SEARCHING_NORM].skill_max > 0) 
 	{
-		xfos = (2 * p_ptr->skills[SK_SEARCHING_NORM].skill_rank);
+		if (p_ptr->skills[SK_TRAILBLAZER].skill_max > 0)
+		{
+			xfos = (2 * p_ptr->skills[SK_SEARCHING_NORM].skill_rank) +
+				p_ptr->skills[SK_TRAILBLAZER].skill_rank / 2;
+		}
+		else xfos = (2 * p_ptr->skills[SK_SEARCHING_NORM].skill_rank);
 	}
-	else if (p_ptr->skills[SK_SEARCHING_POOR].skill_max >= 0) 
+	else if (p_ptr->skills[SK_SEARCHING_POOR].skill_max > 0) 
 	{
-		xfos = (p_ptr->skills[SK_SEARCHING_POOR].skill_rank);
+		if (p_ptr->skills[SK_TRAILBLAZER].skill_max > 0)
+		{
+			xfos = (p_ptr->skills[SK_SEARCHING_POOR].skill_rank) +
+				p_ptr->skills[SK_TRAILBLAZER].skill_rank / 2;
+		}
+		else xfos = (p_ptr->skills[SK_SEARCHING_POOR].skill_rank);
 	}
 	else xfos = 1;
 	
@@ -1691,14 +1771,12 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3)
 	/* Clear */
 	(*f1) = (*f2) = (*f3) = 0L;
 
-	/* Add Astral flags */
-	if (p_ptr->astral)
+	/* Add wonderland flags */
+	if (p_ptr->wonderland)
 	{
-		(*f1) |= (TR1_SPEED);
-		(*f3) |= (TR3_LITE);
-		(*f3) |= (TR3_SEE_INVIS);
-		(*f3) |= (TR3_TELEPATHY);
-		(*f3) |= (TR3_SLOW_DIGEST);
+		(*f2) |= (TR2_SEE_INVIS);
+		(*f2) |= (TR2_TELEPATHY);
+		(*f2) |= (TR2_SLOW_DIGEST);
 	}
 
 	/* Add racial flags */
@@ -1759,176 +1837,325 @@ static const byte display_player_flag_set[4] =
 /*
  * Hack -- see below
  */
-static const u32b display_player_flag_head[4] =
+typedef struct c_flag_desc
 {
-	TR2_RES_ACID,
-	TR2_RES_BLIND,
-	TR3_SLOW_DIGEST,
-	TR1_STEALTH
-};
+	byte		set;
+
+	u32b		r_flag;
+	u32b		i_flag;
+	cptr		desc;
+} c_flag_desc;
 
 /*
  * Hack -- see below
  */
-static cptr display_player_flag_names[4][8] =
+static const c_flag_desc flag_list[3][13] =
 {
 	{
-		" Acid:",	/* TR2_RES_ACID */
-		" Elec:",	/* TR2_RES_ELEC */
-		" Fire:",	/* TR2_RES_FIRE */
-		" Cold:",	/* TR2_RES_COLD */
-		" Pois:",	/* TR2_RES_POIS */
-		" Fear:",	/* TR2_RES_FEAR */
-		" Lite:",	/* TR2_RES_LITE */
-		" Dark:"	/* TR2_RES_DARK */
+		{2, TR2_IMPACT,			 	0, "   Impact:"},
+		{2, TR2_CRITICAL,			0, " Critical:"},
+		{2, TR2_VAMPIRIC,			0, " Vampiric:"},
+		{2, TR2_THROW,			 	0, "    Throw:"},
+		{2, TR2_VORPAL,				0, "   Vorpal:"},
+		{2, TR2_RETURN,			 	0, "   Return:"},
+		{1, TR1_BRAND_FORCE,		0, "Frce Brnd:"},
+		{1, TR1_BRAND_FIRE,			0, "Fire Brnd:"},
+		{1, TR1_BRAND_ELEC,			0, "Elec Brnd:"},
+		{1, TR1_BRAND_ICE,		 	0, "Ice Brand:"},
+		{1, TR1_BRAND_ACID,			0, "Acid Brnd:"},
+		{1, TR1_BRAND_POISON,	 	0, "Psn. Brnd:"},
+		{99, 0, 		0, 						" "}
 	},
-
 	{
-		"Blind:",	/* TR2_RES_BLIND */
-		"Confu:",	/* TR2_RES_CONFU */
-		"Sound:",	/* TR2_RES_SOUND */
-		"Shard:",	/* TR2_RES_SHARD */
-		"Nexus:",	/* TR2_RES_NEXUS */
-		"Nethr:",	/* TR2_RES_NETHR */
-		"Chaos:",	/* TR2_RES_CHAOS */
-		"Disen:"	/* TR2_RES_DISEN */
+		{2, TR2_SLOW_DIGEST,			 0, "S. Digest:"},
+		{2, TR2_FEATHER,				 0, "Fthr Fall:"},
+		{2, TR2_TELEPATHY,				 0, "Telepathy:"},
+		{2, TR2_SEE_INVIS,				 0, "See Invis:"},
+		{2, TR2_FREE_ACT,				 0,	" Free Act:"},
+		{2, TR2_WRAITH,					 0, "Wraithfrm:"},
+		{2, TR2_HOLD_LIFE,				 0, "Hold Life:"},
+		{2, TR2_REFLECT,				 0, "  Reflect:"},
+		{2, TR2_INVISIBLE,				 0, "Invisible:"},
+		{2, TR2_RES_CONFU,				 0, "Res Confu:"},
+		{2, TR2_RES_BLIND,				 0, "Res Blind:"},
+		{2, TR2_RES_FEAR,				 0, " Res Fear:"},
+		{99,0, 0,						"          "}
 	},
-
 	{
-		"S.Dig:",	/* TR3_SLOW_DIGEST */
-		"Feath:",	/* TR3_FEATHER */
-		"PLite:",	/* TR3_LITE */
-		"Regen:",	/* TR3_REGEN */
-		"Telep:",	/* TR3_TELEPATHY */
-		"Invis:",	/* TR3_SEE_INVIS */
-		"FrAct:",	/* TR3_FREE_ACT */
-		"HLife:"	/* TR3_HOLD_LIFE */
-	},
-
-	{
-		"Stea.:",	/* TR1_STEALTH */
-		"Sear.:",	/* TR1_SEARCH */
-		"Infra:",	/* TR1_INFRA */
-		"Tunn.:",	/* TR1_TUNNEL */
-		"Speed:",	/* TR1_SPEED */
-		"Blows:",	/* TR1_BLOWS */
-		"Shots:",	/* TR1_SHOTS */
-		"Might:"	/* TR1_MIGHT */
+		{3, TR3_LIGHT_CURSE,			 0, "Lgt Curse:"},
+		{3, TR3_HEAVY_CURSE,			 0, "Hvy Curse:"},
+		{3, TR3_MUTABLE,				 0, " Mutation:"},
+		{3, TR3_NO_MAGIC,				 0, " No Magic:"},
+		{3, TR3_NO_TELEPORT,			 0, "No Teleprt:"},
+		{3, TR3_DRAIN_SP,				 0, " Drain SP:"},
+		{3, TR3_DRAIN_HP,				 0, " Drain HP:"},
+		{3,	TR3_DISRUPT_SPELL,			 0, "  Disrupt:"},
+		{3, TR3_DRAIN_ITEM,				 0, "Drn Items:"},
+		{3, TR3_DRAIN_EXP,				 0, "Drn   Exp:"},
+		{3, TR3_TELEPORT,				 0, " Teleport:"},
+		{3, TR3_AGGRAVATE,				 0, "Aggravate:"},
+		{99,0, 0,						"          "}
 	}
 };
 
 
 /*
- * Special display, part 1
+ * Display the player flags on the top of the screen
  */
 static void display_player_flag_info(void)
 {
 	int x, y, i, n;
-
 	int row, col;
 
-	int set;
-	u32b head;
-	u32b flag;
 	cptr name;
 
 	u32b f[4];
 
+	object_type *o_ptr;
 
-	/* Four columns */
-	for (x = 0; x < 4; x++)
+	byte attr1, attr2;
+
+	/* Three columns */
+	for (x = 0; x < 3; x++)
 	{
 		/* Reset */
-		row = 11;
-		col = 20 * x;
+		row = 1;
+		col = 2 + (26 * x);
 
-		/* Extract set */
-		set = display_player_flag_set[x];
-
-		/* Extract head */
-		head = display_player_flag_head[x];
-
-		/* Header */
-		c_put_str(TERM_WHITE, "abcdefghijkl@", row++, col+6);
-
-		/* Eight rows */
-		for (y = 0; y < 8; y++)
+		/* Twelve rows */
+		for (y = 0; y < 13; y++)
 		{
-			/* Extract flag */
-			flag = (head << y);
-
+			if (flag_list[x][y].set == 99) break;
+				
 			/* Extract name */
-			name = display_player_flag_names[x][y];
+			name = flag_list[x][y].desc;
 
 			/* Header */
 			c_put_str(TERM_WHITE, name, row, col);
 
-			/* Check equipment */
-			for (n = 6, i = INVEN_WIELD; i < INVEN_TOTAL; ++i, ++n)
+			if (flag_list[x][y].set > 0)
 			{
-				byte attr = TERM_SLATE;
+				/* Check equipment */
+				for (n = 10, i = INVEN_WIELD; i < INVEN_TOTAL; ++i, ++n)
+				{
+					attr1 = TERM_SLATE;
+					attr2 = TERM_WHITE;
 
-				object_type *o_ptr;
+					/* Object */
+					o_ptr = &inventory[i];
 
-				/* Object */
-				o_ptr = &inventory[i];
+					/* different colour for unlit lanterns */
+					/* if ((o_ptr->tval == TV_LITE) && (!o_ptr->timeout)) attr2 = TERM_SLATE; */
 
-				/* Known flags */
-				object_flags_known(o_ptr, &f[1], &f[2], &f[3]);
+					/* Known flags */
+					object_flags_known(o_ptr, &f[1], &f[2], &f[3]);
 
-				/* Color columns by parity */
-				if (i % 2) attr = TERM_L_WHITE;
+					/* Color columns by parity */
+					if (i % 2) attr1 = TERM_L_WHITE;
 
-				/* Non-existant objects */
-				if (!o_ptr->k_idx) attr = TERM_L_DARK;
+					/* Non-existant objects */
+					if (!o_ptr->k_idx) attr1 = TERM_L_DARK;
 
-				/* Hack -- Check immunities */
-				if ((x == 0) && (y < 4) &&
-				    (f[set] & ((TR2_IM_ACID) << y)))
+					/* Hack -- Check immunities */
+					if (f[flag_list[x][y].set] & flag_list[x][y].i_flag)
+					{
+						c_put_str(attr2, "*", row, col+n);
+					}
+
+					/* Check flags */
+					else if (f[flag_list[x][y].set] & flag_list[x][y].r_flag)
+					{
+						c_put_str(attr2, "+", row, col+n);
+					}
+
+					/* Default */
+					else
+					{
+						c_put_str(attr1, ".", row, col+n);
+					}
+				}
+
+				/* Player flags */
+				player_flags(&f[1], &f[2], &f[3]);
+
+				/* Default */
+				c_put_str(TERM_SLATE, ".", row, col+n);
+
+				/* Check flags */
+				if (f[flag_list[x][y].set] & flag_list[x][y].i_flag)
 				{
 					c_put_str(TERM_WHITE, "*", row, col+n);
 				}
-
-				/* Check flags */
-				else if (f[set] & flag)
+				else if (f[flag_list[x][y].set] & flag_list[x][y].r_flag) 
 				{
 					c_put_str(TERM_WHITE, "+", row, col+n);
+				}
+
+				n++;
+			}
+
+			/* Advance */
+			row++;
+		}
+	}
+}
+
+/*
+ * Display the player resistances on the bottom of the screen
+ */
+ 
+static void display_player_resists_info(void)
+{
+	int i, j, k, n, x;
+	int row, col;
+	object_type *o_ptr;
+
+	byte attr1, attr2;
+
+	c_put_str(TERM_WHITE, "Resistances:", 13, 2);
+
+	for (i = 0, j = 0; i < RS_MAX; i++)
+	{
+		x = (j / ((RS_MAX + 2) / 3));
+		col = 2 + (26 * x);
+		row = 14;
+
+		/* Display */
+		if (p_ptr->dis_res[i])
+		{
+			prt(format("%s:", resist_names_short[i]), row + (j % ((RS_MAX + 2) / 3)), col);
+
+			/* Check equipment */
+			for (n = 10, k = INVEN_WIELD; k < INVEN_TOTAL; ++k, ++n)
+			{
+				attr1 = TERM_SLATE;
+				attr2 = TERM_WHITE;
+
+				/* Object */
+				o_ptr = &inventory[k];
+
+				/* different colour for unlit lanterns */
+				if ((o_ptr->tval == TV_LITE) && (!o_ptr->timeout)) attr2 = TERM_SLATE;
+
+				/* Color columns by parity */
+				if (k % 2) attr1 = TERM_L_WHITE;
+
+				/* Non-existant objects */
+				if (!o_ptr->k_idx) attr1 = TERM_L_DARK;
+
+				/* Check flags */
+				if (object_resist_known(o_ptr, i))
+				{
+					int posneg = object_resist_known(o_ptr, i);
+					if (posneg < 0) c_put_str(attr2, "-", row + (j % ((RS_MAX + 2) / 3)), col + n);
+					else c_put_str(attr2, "+", row + (j % ((RS_MAX + 2) / 3)), col + n);
 				}
 
 				/* Default */
 				else
 				{
-					c_put_str(attr, ".", row, col+n);
+					c_put_str(attr1, ".", row + (j % ((RS_MAX + 2) / 3)), col + n);
 				}
 			}
 
-			/* Player flags */
-			player_flags(&f[1], &f[2], &f[3]);
-
 			/* Default */
-			c_put_str(TERM_SLATE, ".", row, col+n);
+			c_put_str(TERM_SLATE, ".", row + (j % ((RS_MAX + 2) / 3)), col + n);
 
-			/* Hack -- Check immunities */
-			if ((x == 0) && (y < 4) &&
-			    (f[set] & ((TR2_IM_ACID) << y)))
+			/* Basic Resistance - Must be a better way than hardcoding XCCCX */
+			if (p_ptr->skills[SK_BASIC_SURVIVAL].skill_max > 0)
 			{
-				c_put_str(TERM_WHITE, "*", row, col+n);
+				if (i < RS_ELC)
+				{
+					c_put_str(TERM_WHITE, "+", row + (j % ((RS_MAX + 2) / 3)), col + n);
+				}
+			}
+			if ((p_ptr->skills[SK_PERILOUS_SORCERY].skill_max > 0) &&
+				(p_ptr->skills[SK_PERILOUS_SORCERY].skill_rank > 1))
+			{
+				if (i < RS_ELC)
+				{
+					c_put_str(TERM_WHITE, "-", row + (j % ((RS_MAX + 2) / 3)), col + n);
+				}
+				if (i > RS_DRK)
+				{
+					c_put_str(TERM_WHITE, "-", row + (j % ((RS_MAX + 2) / 3)), col + n);
+				}
+			}
+			if (p_ptr->skills[SK_MARTIAL_DEFENSE_II].skill_max > 0)
+			{
+				if ((i < RS_TIM) && (p_ptr->skills[SK_MARTIAL_DEFENSE_II].skill_max > 1))
+				{
+					c_put_str(TERM_WHITE, "+", row + (j % ((RS_MAX + 2) / 3)), col + n);
+				}
+				else if (i < RS_ELC) c_put_str(TERM_WHITE, "+", row + (j % ((RS_MAX + 2) / 3)), col + n);
+			}
+			if (p_ptr->skills[SK_MENTAL_RESISTANCE].skill_max > 0)
+			{
+				if ((i > RS_PSN) && (p_ptr->skills[SK_MARTIAL_DEFENSE_II].skill_max > 1))
+				{
+					c_put_str(TERM_WHITE, "+", row + (j % ((RS_MAX + 2) / 3)), col + n);
+				}
+				else if ((i > RS_NTH)) c_put_str(TERM_WHITE, "+", row + (j % ((RS_MAX + 2) / 3)), col + n);
+			}
+			if (p_ptr->skills[SK_ELEMENTAL_RESISTANCE].skill_max > 0)
+			{
+				if (i < RS_TIM)
+				{
+					c_put_str(TERM_WHITE, "+", row + (j % ((RS_MAX + 2) / 3)), col + n);
+				}
+			}
+			if (p_ptr->skills[SK_FIRE_MASTERY].skill_max > 0)
+			{
+				if (i == RS_FIR) c_put_str(TERM_WHITE, "+", row + (j % ((RS_MAX + 2) / 3)), col + n);
+			}
+			if (p_ptr->skills[SK_WIND_MASTERY].skill_max > 0)
+			{
+				if (i == RS_AIR) c_put_str(TERM_WHITE, "+", row + (j % ((RS_MAX + 2) / 3)), col + n);
+			}
+			if (p_ptr->skills[SK_EARTH_MASTERY].skill_max > 0)
+			{
+				if (i == RS_EAR) c_put_str(TERM_WHITE, "+", row + (j % ((RS_MAX + 2) / 3)), col + n);
+			}
+			if (p_ptr->skills[SK_WATER_MASTERY].skill_max > 0)
+			{
+				if (i == RS_WTR) c_put_str(TERM_WHITE, "+", row + (j % ((RS_MAX + 2) / 3)), col + n);
 			}
 
+			n++;
+
+			/* Temporary Resist */
+
+			/* Default */
+			c_put_str(TERM_SLATE, ".", row + (j % ((RS_MAX + 2) / 3)), col + n);
+
 			/* Check flags */
-			else if (f[set] & flag) c_put_str(TERM_WHITE, "+", row, col+n);
+			if (p_ptr->tim_res[i])
+			{
+				c_put_str(TERM_WHITE, "+", row + (j % ((RS_MAX + 2) / 3)), col + n);
+			}
 
-			/* Advance */
-			row++;
+			/* Resistance value */
+			if (p_ptr->tim_res[i]) attr1 = TERM_L_BLUE;
+			else if (p_ptr->dis_res[i] > resist_caps[i].normal) 
+			{
+				 attr1 = TERM_GREEN;
+			}
+			else if (p_ptr->dis_res[i] == resist_caps[i].normal) attr1 = TERM_GREEN;
+			else if (p_ptr->dis_res[i] >= resist_caps[i].normal / 2) attr1 = TERM_L_GREEN;
+			else attr1 = TERM_YELLOW;
+
+			c_put_str(attr1, format("%d%%", p_ptr->dis_res[i]), row + (j % ((RS_MAX + 2) / 3)), col + 6);
+
+			j++;
 		}
-
-		/* Footer */
-		c_put_str(TERM_WHITE, "abcdefghijkl@", row++, col+6);
-
-		/* Equippy */
-		display_player_equippy(row++, col+6);
 	}
-}
+	for (i = 0; i < 3; i++)
+	{
+		c_put_str(TERM_WHITE, "abcdefghijkl@*", 20, 12 + (26 * i));	
+		/* Equippy */
+		display_player_equippy(21, 12 + (26 * i));
+	}
+}	
 
 
 /*
@@ -1992,8 +2219,8 @@ extern void display_player_misc_info(void)
 
 
 	/* Hit Points */
-	put_str("HP", 7, 1);
-	sprintf(buf, "%d/%d", p_ptr->chp, p_ptr->mhp);
+	put_str("WP", 7, 1);
+	sprintf(buf, "%d/%d", p_ptr->cwp, p_ptr->mwp);
 	c_put_str(TERM_L_BLUE, buf, 7, 8);
 
 
@@ -2009,10 +2236,17 @@ extern void display_player_misc_info(void)
  */
 extern void display_player_stat_info(void)
 {
-	int i, row, col;
+	int i, row, col, stat, pval;
 
 	char buf[80];
 
+	object_type *o_ptr;
+	u32b f1, f2, f3;
+
+	u32b f[4];
+
+	byte a;
+	char c;
 
 	/* Row */
 	row = 3;
@@ -2022,11 +2256,8 @@ extern void display_player_stat_info(void)
 
 	/* Print out the labels for the columns */
 	c_put_str(TERM_WHITE, "  Self", row-1, col+5);
-	c_put_str(TERM_WHITE, " EB", row-1, col+12);
-	c_put_str(TERM_WHITE, "   Best", row-1, col+16);
-	
-	/* c_put_str(TERM_WHITE, " EB", row-1, col+20);    */
-	/* c_put_str(TERM_WHITE, "  Best", row-1, col+24); */
+	c_put_str(TERM_WHITE, " abcdefghijkl@", row-1, col+12);
+	c_put_str(TERM_WHITE, "   Best", row-1, col+26);
 
 	/* Display the stats */
 	for (i = 0; i < A_MAX; i++)
@@ -2055,29 +2286,154 @@ extern void display_player_stat_info(void)
 		cnv_stat(p_ptr->stat_max[i], buf);
 		c_put_str(TERM_L_GREEN, buf, row+i, col+5);
 
-		/* Race Bonus */
-/*		sprintf(buf, "%+3d", rp_ptr->r_adj[i]);		*/
-/*		c_put_str(TERM_L_BLUE, buf, row+i, col+12);	*/
-
-		/* Class Bonus */
-/*		sprintf(buf, "%+3d", cp_ptr->c_adj[i]); 	*/
-/*		c_put_str(TERM_L_BLUE, buf, row+i, col+16);	*/
-
-		/* Equipment Bonus */
-		sprintf(buf, "%+3d", p_ptr->stat_add[i]);
-		c_put_str(TERM_L_BLUE, buf, row+i, col+12);
-
 		/* Resulting "modified" maximum value */
 		cnv_stat(p_ptr->stat_top[i], buf);    
-		c_put_str(TERM_L_GREEN, buf, row+i, col+16);
+		c_put_str(TERM_L_GREEN, buf, row+i, col+26);
 
 		/* Only display stat_use if not maximal */
 		if (p_ptr->stat_use[i] < p_ptr->stat_top[i])
 		{
 			cnv_stat(p_ptr->stat_use[i], buf);	
-			c_put_str(TERM_YELLOW, buf, row+i, col+16);
+			c_put_str(TERM_YELLOW, buf, row+i, col+5);
 		}
 	}
+
+	/* Process equipment */
+	for (i = INVEN_WIELD; i < INVEN_TOTAL; ++i)
+	{
+		/* Get the object */
+		o_ptr = &inventory[i];
+
+		/* Known flags */
+		object_flags_known(o_ptr, &f[1], &f[2], &f[3]);
+
+		/* Initialize color based of sign of pval. */
+		for (stat = 0; stat < A_MAX; stat++)
+		{
+			/* Default */
+			a = TERM_SLATE;
+			c = '.';
+
+			/* Get this object's modifier to the current stat, if any */
+			pval = get_object_pval(o_ptr, TR_PVAL_MUS << stat);
+
+
+			/* Stat is affected by this piece of equipment */
+			if (pval)
+			{
+				/* Default */
+				c = '*';
+
+				/* Good */
+				if (pval > 0)
+				{
+					/* Good */
+					a = TERM_L_GREEN;
+
+					/* Label boost */
+					if (pval < 10) c = '0' + pval;
+				}
+
+				/* Bad */
+				if (pval < 0)
+				{
+					/* Bad */
+					a = TERM_RED;
+
+					/* Label boost */
+					if (pval < 10) c = '0' - pval;
+				}
+			}
+
+			/* Sustain */
+			/* if (f1 & (1 << (stat + 26))) */
+			/* Sustain */
+			if (f[1] & (TR1_SUST_MUS << stat))
+			{
+				/* Dark green or yellow, "s" if no stat bonus. */
+				if (pval >= 0) a = TERM_GREEN;
+				else           a = TERM_YELLOW;
+				if (c == '.') c = 's';
+			}
+
+
+			/* Hack - unlit lanterns */
+			if ((o_ptr->tval == TV_LITE) && (!o_ptr->timeout)) a = TERM_SLATE;
+
+			/* Dump proper character */
+			Term_putch(col+13, row + stat, a, c);
+		}
+
+		/* Advance */
+		col++;
+	}
+	
+	/* Player flags */
+	player_flags(&f1, &f2, &f3);
+
+	/* Check stats */
+	for (stat = 0; stat < A_MAX; ++stat)
+	{
+		/* Default */
+		a = TERM_SLATE;
+		c = '.';
+
+		/* Sustain */
+		if (f1 & (1<<(stat+26)))
+		{
+			/* Dark green */
+			a = TERM_GREEN;
+
+			/* Convert '.' to 's' */
+			if (c == '.') c = 's';
+		}
+		
+		if (p_ptr->skills[SK_ERUDITE].skill_max > 0)
+		{
+			
+			if (stat == A_MUS) 
+			{
+				c = '*';
+				a = TERM_RED;
+				if (p_ptr->skills[SK_ERUDITE].skill_rank < 9)
+				{
+					c = '0' + p_ptr->skills[SK_ERUDITE].skill_rank;
+				}
+			}
+			if (stat == (A_EGO))
+			{
+				c = '*';
+				a = TERM_L_GREEN;
+				if (p_ptr->skills[SK_ERUDITE].skill_rank < 9)
+					c = '0' + p_ptr->skills[SK_ERUDITE].skill_rank;
+			}
+			if (stat == (A_SCH))
+			{
+				c = '*';
+				a = TERM_L_GREEN;
+				if (p_ptr->skills[SK_ERUDITE].skill_rank < 9)
+					c = '0' + p_ptr->skills[SK_ERUDITE].skill_rank;
+			}
+		}	
+		if (p_ptr->skills[SK_ATHLETICS].skill_max > 0)
+		{
+			if (stat == A_MUS) 
+			{
+				a = TERM_L_GREEN;
+				c = '0' + ((p_ptr->skills[SK_ATHLETICS].skill_rank + 2) / 4);
+			}
+			if (stat == (A_AGI))
+			{
+				a = TERM_L_GREEN;
+				c = '0' + ((p_ptr->skills[SK_ATHLETICS].skill_rank + 3) / 4);
+			}
+		}	
+
+		/* Dump */
+		Term_putch(col+13, row+stat, a, c);
+	}
+
+	
 }
 
 
@@ -2221,9 +2577,10 @@ void display_player_skills(void)
  *
  * The top two lines, and the bottom line (or two) are left blank.
  *
- * Mode 0 = standard display with skills/history
- * Mode 1 = special display with equipment flags
- * Mode 2 = mutations <- THIS MODE DOESN'T WORK
+ * Mode 0 = standard display with skills/history (Needs to be redesigned)
+ * Mode 1 = special display with equipment flags (Needs to be changed)
+ * Mode 2 = mutations  (*fixed*)
+ * Mode 3 = should transfer smoothly to mode-one
  * Now it works, but it's ugly.
  */
 void display_player(int mode)
@@ -2232,6 +2589,7 @@ void display_player(int mode)
 	clear_from(0);
 
 	/* Misc info */
+	/* Needs to be reworked, more detailed combat info */
 	display_player_misc_info();
 
 	/* Stat info */
@@ -2240,15 +2598,13 @@ void display_player(int mode)
 	/* Special */
 	if (mode == 1)
 	{
-		/* Hack -- Level */
-		put_str("Level", 9, 1);
-		c_put_str(TERM_L_BLUE, format("%d", p_ptr->lev), 9, 8);
-
+		clear_from(0);
 		/* Stat/Sustain flags */
-		display_player_sust_info();
+		/* display_player_sust_info(); */
 
 		/* Other flags */
 		display_player_flag_info();
+		display_player_resists_info();
 	}
 
 	else if (mode == 2)
@@ -2256,6 +2612,7 @@ void display_player(int mode)
 	 do_cmd_knowledge_mutations();
 	}
 	/* Standard */
+	/* This happens when mode is 0 (display_player(0) is called) */
 	else
 	{
 		/* Extra info */
@@ -2289,8 +2646,6 @@ errr file_character(cptr name, bool full)
 
 	char buf[1024];
 
-	int k, info_length;
-	cptr info[128];
 	cptr blanks = "     ";
 
 
@@ -2359,23 +2714,38 @@ errr file_character(cptr name, bool full)
 		/* End the row */
 		fprintf(fff, "%s\n", buf);
 	}
-
+	
 	/* Skip some lines */
 	fprintf(fff, "\n\n");
+
+	fprintf(fff, "  [Resists & Abilities]\n\n");
+
+	display_player(1);
 	
-	/* Dump the Skills */
-	for(z = 0; z < N_SKILLS; z++)
+	/* Dump part of the screen */
+	for (y = 2; y < 23; y++)
 	{
-		if (p_ptr->skills[z].skill_rank > 0)
+		/* Dump each row */
+		for (x = 0; x < 79; x++)
 		{
-		fprintf(fff, "%18s %2d\n", skills[z].name, p_ptr->skills[z].skill_max);
+			/* Get the attr/char */
+			(void)(Term_what(x, y, &a, &c));
+
+			/* Dump it */
+			buf[x] = c;
 		}
+
+		/* Back up over spaces */
+		while ((x > 0) && (buf[x-1] == ' ')) --x;
+
+		/* Terminate */
+		buf[x] = '\0';
+
+		/* End the row */
+		fprintf(fff, "%s\n", buf);
 	}
 
-	/* Skip some lines */
-	fprintf(fff, "\n\n");
-
-
+	
 	/* If dead, dump last messages -- Prfnoff */
 	if (p_ptr->is_dead)
 	{
@@ -2389,24 +2759,42 @@ errr file_character(cptr name, bool full)
 		fprintf(fff, "\n\n");
 	}
 
+	fprintf(fff, "  [Skills]\n\n");
+	
+	/* Dump the Skills */
+	for(z = 0; z < N_SKILLS; z++)
+	{
+		if (p_ptr->skills[z].skill_rank > 0)
+		{
+		fprintf(fff, "%18s %2d\n", skills[z].name, p_ptr->skills[z].skill_max);
+		}
+	}
+
+	/* Skip some lines */
+	fprintf(fff, "\n\n");
+
+    if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3 ||
+    	p_ptr->muta4 || p_ptr->muta5 || p_ptr->muta6)
+    {
+        fprintf(fff, "  [Steamware & Mutations]\n\n");
+        dump_mutations(fff);
+
+	 	/* Skip some lines */
+		fprintf(fff, "\n\n");
+   }
+
 	/* Dump the equipment */
 	if (p_ptr->equip_cnt)
 	{
 		fprintf(fff, "  [Character Equipment]\n\n");
 		for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 		{
+			if (!inventory[i].k_idx) continue;
 			object_desc(o_name, &inventory[i], TRUE, 3);
+			o_name[72] = '\0';
 			fprintf(fff, "%c) %s\n",
 			        index_to_label(i), o_name);
 
-			/* Describe random object attributes */
-			info_length = identify_random_gen(&inventory[i], info, 128);
-
-			/* Write it */
-			for (k = 0; k < info_length; k++)
-			{
-				fprintf(fff, "%s%s\n", blanks, info[k]);
-			}
 		}
 		fprintf(fff, "\n\n");
 	}
@@ -2418,17 +2806,11 @@ errr file_character(cptr name, bool full)
 		if (!inventory[i].k_idx) break;
 
 		object_desc(o_name, &inventory[i], TRUE, 3);
+		o_name[72] = '\0';
+
 		fprintf(fff, "%c) %s\n",
 		        index_to_label(i), o_name);
 
-		/* Describe random object attributes */
-		info_length = identify_random_gen(&inventory[i], info, 128);
-
-		/* Write it */
-		for (k = 0; k < info_length; k++)
-		{
-			fprintf(fff, "%s%s\n", blanks, info[k]);
-		}
 	}
 	fprintf(fff, "\n\n");
 
@@ -2443,22 +2825,33 @@ errr file_character(cptr name, bool full)
 		for (i = 0; i < st_ptr->stock_num; i++)
 		{
 			object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
-			fprintf(fff, "%c) %s\n", I2A(i), o_name);
+			o_name[72] = '\0';
 
-			/* Describe random object attributes */
-			info_length = identify_random_gen(&st_ptr->stock[i], info, 128);
-
-			/* Write it */
-			for (k = 0; k < info_length; k++)
-			{
-				fprintf(fff, "%s%s\n", blanks, info[k]);
-			}
+			fprintf(fff, "%s\n", o_name);
 		}
 
-		/* Add an empty line */
+		/* Add two empty lines */
 		fprintf(fff, "\n\n");
 	}
 
+	/* Check if in quest */
+	if (p_ptr->cur_quest > 0)
+	{
+		quest_type *q_ptr = &q_info[quest_num(p_ptr->cur_quest)];
+
+		/* Skip completed quest */
+		if (q_ptr->active_level)
+		{
+			fprintf(fff, "  [Current Quest]\n\n");
+
+			/* Describe quest */
+			fprintf(fff, "%s\n", describe_quest(p_ptr->cur_quest, 4));
+
+			/* Add an empty line */
+			fprintf(fff, "\n\n");
+		}
+
+	}
 
 	/* Dump options */
 	fprintf(fff, "  [Options]\n\n");
@@ -2957,6 +3350,12 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		{
 			/* Recurse on that file */
 			if (!show_file(hook[D2I(ch)], NULL, 0, mode)) ch = ESCAPE;
+		}
+
+		if (ch == 'h')  /* Hack, added for character display */
+		{
+			display_player(0);
+			ch = ESCAPE;
 		}
 
 		/* Exit on escape */
@@ -3575,11 +3974,7 @@ static void death_examine(void)
 		msg_format("Examining %s...", o_name);
 
 		/* Describe it fully */
-		if (!identify_fully_aux(o_ptr))
-		{
-			msg_print("You see nothing special.");
-			message_flush();
-		}
+		do_cmd_observe(o_ptr, FALSE);
 	}
 }
 
@@ -3822,7 +4217,7 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 
 			/* Another line of info */
 			sprintf(out_val, "               Killed by %s on %s %d",
-			        the_score.how, "Dungeon Level", cdun);
+			        the_score.how, "Dungeon Level", 50-cdun);
 
 			/* Hack -- some people die in the town */
 			if (!cdun)
@@ -3832,7 +4227,7 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 			}
 
 			/* Append a "maximum level" */
-			if (mdun > cdun) strcat(out_val, format(" (Max %d)", mdun));
+			if (mdun > cdun) strcat(out_val, format(" (Max %d)", 50-mdun));
 
 			/* Dump the info */
 			c_put_str(attr, out_val, n*4 + 3, 0);
@@ -4144,9 +4539,9 @@ errr predict_score(void)
 
 	/* Save the level and such */
 	sprintf(the_score.cur_lev, "%3d", p_ptr->lev);
-	sprintf(the_score.cur_dun, "%3d", p_ptr->depth);
+	sprintf(the_score.cur_dun, "%3d", 50-p_ptr->depth);
 	sprintf(the_score.max_lev, "%3d", p_ptr->max_lev);
-	sprintf(the_score.max_dun, "%3d", p_ptr->max_depth);
+	sprintf(the_score.max_dun, "%3d", 50-p_ptr->max_depth);
 
 	/* Hack -- no cause of death */
 	strcpy(the_score.how, "nobody (yet!)");

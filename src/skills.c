@@ -23,7 +23,7 @@ bool displayed = FALSE;
  *
  * The names of the skills can be found in defines.h. 
  *
- * Inactives skills have a value of -2, and which skills are active 
+ * Inactive skills have a value of -2, and which skills are active 
  * are set by the race and class int functions at the end player creation. 
  * All of this information is hardcoded. 
  *
@@ -42,13 +42,7 @@ bool displayed = FALSE;
  * skills new skills will become available. These new skills are even _more_ specific.
  *
  * Skills have a natrual maximum of 20 - and cannot be raised higher than your
- * level + 2. 
- * 
- * I should probably also have a method of limiting skills a second way (such as a skill
- * you get when combat skill is at 4 can't ever be higher than your level - 1, which
- * if you'll notice is (level + 3) - 4) XXX
- *
- * It appears that I may not need the fourth value in this array _AT_ _ALL_ XXX
+ * level the skill was gained at + 2. 
  * 
  * NOTE: It is this code's _WORST_ TERRIBLE NIGHTMARE ever if a character somehow
  * ends up with a positive value for more than one skill in the same 'grouping'
@@ -61,330 +55,596 @@ bool displayed = FALSE;
  * Thanks to Rbowman, Antimatter(RML), Yumi, and various other people for their
  * assitance with this.
  *
+ * Skill categories are racial/class/resistance/general, combat, spells/items/other. 
+ *
  * Implimentation by Courtney Campbell. -CCC
  */
 player_skills skills[N_SKILLS] = {
 	 
 	/* 0-4 */
-	{"Disarming Traps", -2, -2, 0},
-	{"Disarming Traps", -2, -2, 0},
-	{"Disarming Traps", -2, -2, 0},
-	{"Using Devices", -2, -2, 0},
-	{"Using Devices", -2, -2, 0},
+	{"Disarming Traps", -2, -2, -2, 0, 1, 
+		"This is your ability to open locks and disarm traps.\
+		You are particularly talented at this skill."},
+	{"Disarming Traps", -2, -2, -2, 0, 1, 
+		"This is your ability to open locks and disarm traps.\
+		You have an average ability in this skill."},
+	{"Disarming Traps", -2, -2, -2, 0, 1, 
+		"This is your ability to open locks and disarm traps.\
+		You are all thumbs when it comes to traps and locks!"},
+	{"Disable Machine", -2, -2, -2, 0, 1, 
+		"This skill allows you to disable rogue and dangerous machines.\
+		When you strike an automaton or construct there is a chance that you will drain some of it's power (mana)."},
+	{"Saving Throw", -2, -2, -2, 0, 1, 
+		"This skill improves your ability to protect yourself versus dangerous and harmful attacks."},
 
 	/* 5-9 etc. */	
-	{"Using Devices", -2, -2, 0},
-	{"Saving Throw", -2, -2, 0},
-	{"Saving Throw", -2, -2, 0},
-	{"Saving Throw", -2, -2, 0},
-	{"Stealth", -2, -2, 0},
+	{"Assassination", -2, -2, -2, 0, 1, 
+		"If a monster is asleep, assassination allows you to strike a deadly blow."},
+	{"Theft", -2, -2, -2, 0, 1, 
+		"Sometimes you can steal gold from monsters when you attack them.\
+		The higher this skill is, the better you are at stealing from monsters."},
+	{"Master Theft", -2, -2, -2, 0, 1, 
+		"Sometimes you can steal a *lot* of gold from monsters.\
+		The higher this skill is, the more gold it is possible to get from monsters."},
+	{"Stealth", -2, -2, -2, 0, 1, 
+		"You are silent like the night.\
+		Stealth is your ability to avoid detection."},
+	{"Stealth", -2, -2, -2, 0, 1, 
+		"Stealth is your ability to avoid detection."},
 
 	/* 10 */		
-	{"Stealth", -2, -2, 0},
-	{"Stealth", -2, -2, 0},
-	{"Searching", -2, -2, 0},
-	{"Searching", -2, -2, 0},
-	{"Searching", -2, -2, 0},
+	{"Stealth", -2, -2, -2, 0, 1, 
+		"You make a loud racket.\
+		Stealth is your ability to avoid detection"},
+	{"Superstealth", -2, -2, -2, 0, 1, 
+		"You are neither seen nor heard.\
+		Superstealth allows you to dampen the very noise around you and cloud your form making yourself almost impossible to detect."},
+	{"Searching", -2, -2, -2, 0, 1, 
+		"Needles are *easy* to find in haystacks.\
+		Searching is your ability to detect traps and find secret doors."},
+	{"Searching", -2, -2, -2, 0, 1, 
+		"Searching is your ability to detect traps and find secret doors."},
+	{"Searching", -2, -2, -2, 0, 1, 
+		"You've lost your hat on your head before.\
+		Searching is your ability to detect traps and find secret doors."},
 	
 	/* 15 */	
-	{"XYX.", -2, -2, 0},
-	{"XYX.", -2, -2, 0},
-	{"XYX.", -2, -2, 0},
-	{"XXX1", -2, -2, 0},
-	{"XXX2", -2, -2, 0},
+	{"Trailblazer", -2, -2, -2, 0, 1, 
+		"Because noone has ever been there is reason enough to go.\
+		Trailblazing increases your searching ability and adds to your wound points."},
+	{"Spot Weakness", -2, -2, -2, 0, 1, 
+		"Everyone has a weak spot.\
+		You are good at striking the weak spot of monsters allowing you to do massive critical damage."},
+	{"Keen Eyes", -2, -2, -2, 0, 1, 
+		"Range is just a suggestion for maximum accuracy.\
+		Your keen eyes allow you to extend the range of your firearms up to 50'"},
+	{"Sense Dungeon", -2, -2, -2, 0, 1, "Nothing"},
+	{"Dungeon Lore", -2, -2, -2, 0, 1, "Nothing"},
 	
 	/* 20 */	
-	{"XXX3", -2, -2, 0},
-	{"Tunnelling", -2, -2, 0},
-	{"Tunnelling", -2, -2, 0},
-	{"Digging", -2, -2, 0},
-	{"", -2, -2, 0},
+	{"Pain Tolerance", -2, -2, -2, 0, 2, 
+		"'Tis but a flesh wound!\
+		Your tolerance for pain increases and eliminates the penalties incurred while wounded. "},
+	{"Perilous Sorcery", -2, -2, -2, 0, 3, 
+		"If you take risks, great power can be gotten very quickly.\
+		Lowers your elemental and mental resistances, but increases the spells you can access.\
+		This skill does not take effect until it is raised past one rank. "},
+	{"Luck", -2, -2, -2, 0, 1, 
+		"Felix ille tamen corvo quoque rarior albo."},
+	{"Erudite", -2, -2, -2, 0, 3, 
+		"Hours spent in reading and study sharpen your mind, and weaken the body.\
+		This skill raises your Schooling and Ego at the cost of your Muscle."},
+	{"DEFAULT", -2, -2, -2, 0, 1, "Nothing"},
 	
 	/* 25 */
 	/* racial skills */	
-	{"British", -2, -2, 0},
-	{"British2", -2, -2, 0},
-	{"Asiatic", -2, -2, 0},
-	{"Asiatic2", -2, -2, 0},
-	{"American", -2, -2, 0},
+	{"British", -2, -2, -2, 0, 1, "Nothing"},
+	{"British2", -2, -2, -2, 0, 1, "Nothing"},
+	{"Asiatic", -2, -2, -2, 0, 1, "Nothing"},
+	{"Asiatic2", -2, -2, -2, 0, 1, "Nothing"},
+	{"American", -2, -2, -2, 0, 1, "Nothing"},
 	
 	/* 30 */	
-	{"American2", -2, -2, 0},
-	{"African", -2, -2, 0},
-	{"African2", -2, -2, 0},
-	{"Connoisseur", -2, -2, 0},
-	{"French2", -2, -2, 0},
+	{"American2", -2, -2, -2, 0, 1, "Nothing"},
+	{"African", -2, -2, -2, 0, 1, "Nothing"},
+	{"African2", -2, -2, -2, 0, 1, "Nothing"},
+	{"Connoisseur", -2, -2, -2, 0, 1, 
+		"You can prepare fantastic meals.\
+		As connoisseur increases, so do the benefits from the meal."},
+	{"French2", -2, -2, -2, 0, 1, "Nothing"},
 	
 	/* 35 */	
-	{"Spanish", -2, -2, 0},
-	{"Spanish2", -2, -2, 0},
-	{"Ransack & Plunder", -2, -2, 0},
-	{"German2", -2, -2, 0},
-	{"Russian", -2, -2, 0},
+	{"Spanish", -2, -2, -2, 0, 1, "Nothing"},
+	{"Spanish2", -2, -2, -2, 0, 1, "Nothing"},
+	{"Ransack & Plunder", -2, -2, -2, 0, 1, 
+		"You can quickly and effectively locate loot."},
+	{"German2", -2, -2, -2, 0, 1, "Nothing"},
+	{"Russian", -2, -2, -2, 0, 1, "Nothing"},
 
 	/* 40 */	
-	{"Russian2", -2, -2, 0},
-	{"Finnish", -2, -2, 0},
-	{"Finnish2", -2, -2, 0},
-	{"Arabic", -2, -2, 0},
-	{"Arabic2", -2, -2, 0},
+	{"Russian2", -2, -2, -2, 0, 1, "Nothing"},
+	{"Finnish", -2, -2, -2, 0, 1, "Nothing"},
+	{"Finnish2", -2, -2, -2, 0, 1, "Nothing"},
+	{"Arabic", -2, -2, -2, 0, 1, "Nothing"},
+	{"Arabic2", -2, -2, -2, 0, 1, "Nothing"},
 
 	/* 45 */	
-	{"Stonelore", -2, -2, 0},
-	{"Dwarf2", -2, -2, 0},
-	{"Fae Pathways", -2, -2, 0},
-	{"Brownie2", -2, -2, 0},
-	{"Daoinesidhe", -2, -2, 0},
+	{"Stonelore", -2, -2, -2, 0, 1, 
+		"The earth holds no secrets from you.\
+		By concentrating and examining your surroundings you can gather information about the dungeon."},
+	{"Dwarf2", -2, -2, -2, 0, 1, "Nothing"},
+	{"Fae Pathways", -2, -2, -2, 0, 1, 
+		"The world is filled with mystic portals and pathways.\
+		You can access and travel through these strange gates.\
+		The more you know about fae pathways the father you can travel along them."},
+	{"Brownie2", -2, -2, -2, 0, 1, "Nothing"},
+	{"Daoinesidhe", -2, -2, -2, 0, 1, "Nothing"},
 
 	/* 50 */	
-	{"Daoinesidhe2", -2, -2, 0},
-	{"seeliefae", -2, -2, 0},
-	{"seeliefae2", -2, -2, 0},
-	{"unseelfae", -2, -2, 0},
-	{"unseeliefae2", -2, -2, 0},
+	{"Daoinesidhe2", -2, -2, -2, 0, 1, "Nothing"},
+	{"seeliefae", -2, -2, -2, 0, 1, "Nothing"},
+	{"seeliefae2", -2, -2, -2, 0, 1, "Nothing"},
+	{"unseelfae", -2, -2, -2, 0, 1, "Nothing"},
+	{"unseeliefae2", -2, -2, -2, 0, 1, "Nothing"},
 
 	/* 55 */
 	/* Automata / Steam-Mecha skills */	
-	{"Systems Cypher", -2, -2, 0},
-	{"Onslaught Cypher", -2, -2, 0},
-	{"Aegis Cypher", -2, -2, 0},
-	{"Utility Cypher", -2, -2, 0},
-	{"Rocketry Cypher", -2, -2, 0},
+	{"Systems Cypher", -2, -2, -2, 0, 1, 
+		"*tink* mmmmmwhirrrrrrrrrr-analysis complete.\
+		Activating environmental preperations.\
+		Systems cypher is your ability to hyper-cogitate, adapt, and prepare yourself to your environment."},
+	{"Onslaught Cypher", -2, -2, -2, 0, 1, 
+		"Onslaught cypher is your weapons system.\
+		As you upgrade you recieve new, more powerful attacks."},
+	{"Aegis Cypher", -2, -2, -2, 0, 1, 
+		"This is a defensive utility allowing you to protect yourself from attacks, both physical and magical."},
+	{"Utility Cypher", -2, -2, -2, 0, 1, 
+		"Utility cypher is a sensor array allows you to analyze your environment and discover previously unknown information."},
+	{"Rocketry Cypher", -2, -2, -2, 0, 1, 
+		"The rocketry cypher increases the damage of your rockets."},
 
 	/* 60 */	
-	{"Djinn1", -2, -2, 0},
-	{"Djinn2", -2, -2, 0},
-	{"Djinn3", -2, -2, 0},
-	{"Demonic Attunement", -2, -2, 0},
-	{"Dark Charm", -2, -2, 0},
+	{"Djinn1", -2, -2, -2, 0, 1, "Nothing"},
+	{"Djinn2", -2, -2, -2, 0, 1, "Nothing"},
+	{"Djinn3", -2, -2, -2, 0, 1, "Nothing"},
+	{"Demonic Attunement", -2, -2, -2, 0, 1, 
+		"This is the degree of your alignment with dark forces.\
+		The dark forces give you the power to cause fear and confusion."},
+	{"Dark Charm", -2, -2, -2, 0, 1, 
+		"This is the ability to dominate the weak willed creatures that surround you."},
 
 	/* 65 */	
-	{"Rakshasa3", -2, -2, 0},
-	{"Rock Tossing", -2, -2, 0},
-	{"Bezerk Strength", -2, -2, 0},
-	{"Troll", -2, -2, 0},
-	{"Etheric Attunement", -2, -2, 0},
+	{"Rakshasa3", -2, -2, -2, 0, 1, "Nothing"},
+	{"Rock Tossing", -2, -2, -2, 0, 1, 
+		"RARGH. YOU TOSS ROCK GOOD!\
+		THIS MAKE TOSS ROCK SMASH GOOD!"},
+	{"Bezerk Strength", -2, -2, -2, 0, 1, 
+		"You have an untapped reserve of strength."},
+	{"Troll", -2, -2, -2, 0, 1, "Nothing"},
+	{"Etheric Attunement", -2, -2, -2, 0, 1, 
+		"This is your degree of alignment with the etherial plane.\
+		It prevents you from taking damage as you move through solid rock and helps you dodge certain spells."},
 
 	/* 70 */	
-	{"ghost2", -2, -2, 0},
-	{"Cowardice", -2, -2, 0},
-	{"old1", -2, -2, 0},
-	{"old12", -2, -2, 0},
-	{"old13", -2, -2, 0},
+	{"ghost2", -2, -2, -2, 0, 1, "Nothing"},
+	{"Cowardice", -2, -2, -2, 0, 1, 
+		"This is how good you are at running away."},
+	{"old1", -2, -2, -2, 0, 1, "Nothing"},
+	{"old12", -2, -2, -2, 0, 1, "Nothing"},
+	{"old13", -2, -2, -2, 0, 1, "Nothing"},
 
 	/* 75 */
 	/* combat skills */	
-	{"Neophyte Combat", -2, -2, 0},
-	{"Standard Combat", -2, -2, 0},
-	{"Advanced Combat", -2, -2, 0},
-	{"Master Combat", -2, -2, 0},
-	{"Axes / Polearms", -2, -2, 0},
+	{"Neophyte Combat", -2, -2, -2, 0, 2, 
+		"Neophyte combat is your basic melee combat abilities.\
+		It affects both martial arts and weapon combat."},
+	{"Standard Combat", -2, -2, -2, 0, 2, 
+		"Standard combat is your basic melee weapon abilities.\
+		It affects your ability to successfully land a blow, as well as slightly increasing the damage you can cause with a weapon. "},
+	{"Advanced Combat", -2, -2, -2, 0, 2, 
+		"Advanced combat is your advanced melee weapon abilities.\
+		It somewhat affects your ability to successfully land a blow, as well as increasing the damage you can cause with a weapon. "},
+	{"Master Combat", -2, -2, -2, 0, 2, 
+		"Master combat is your mastery of melee weapon strikes.\
+		It somewhat affects your ability to successfully land a blow, as well as increasing the damage you can cause with a weapon. "},
+	{"Power Strike", -2, -2, -2, 0, 2, 
+		"Power strike is your ability to land *powerful* blows with a weapon.\
+		It lets you get the most out of heavy weapons, and increases the striking power of lighter weapons."},
 
 	/* 80 */
-	{"Hafted / Blunt", -2, -2, 0},
-	{"Swords", -2, -2, 0},
-	{"Power Strike", -2, -2, 0},
-	{"Critical Strike", -2, -2, 0},
-	{"Accurate Strike", -2, -2, 0},
+	{"Critical Strike", -2, -2, -2, 0, 2, 
+		"Critical strike allows you to strike devestating critical blows.\
+		It increases both the frequency and power of criticals."},
+	{"Accurate Strike", -2, -2, -2, 0, 2, 
+		"Accurate strike increases your precision and accuracy with your weapon."},
+	{"Vicious Strike", -2, -2, -2, 0, 2, 
+		"Vicious strike is your ability to strike hard and fast with your weapon, causing additional damage."},
+	{"Swift Blow", -2, -2, -2, 0, 2, 
+		"Swift blow increases the speed of your blows.\
+		With the weapon finesse skill this helps to determine the attacks per round you receive with weapons only.\
+		If you are very strong, raising this skill is most effective."},
+	{"Weapon Finesse", -2, -2, -2, 0, 2, 
+		"Weapon finesse increases your ability to handle large weapons.\
+		With the swift blows skill this helps determine the attacks per round you receive with weapons only.\
+		If you are very agile, raising this skill is most effective."},
 
 	/* 85 */
-	{"Vicious Strike", -2, -2, 0},
-	{"Swift Blows", -2, -2, 0},
-	{"Weapon Finesse", -2, -2, 0},
-	{"Neophyte Firearms", -2, -2, 0},
-	{"Standard Firearms", -2, -2, 0},
+	{"Martial Arts", -2, -2, -2, 0, 2, 
+		"Martial arts is your skill at either pugilism, modern defensive techniques, or the ancient eastern art of self defense without weapons."},
+	{"Eagle Strike Arts", -2, -2, -2, 0, 2, 
+		"Eagle strike arts is your ability to increase the damage you can cause with your bare hands."},
+	{"Dragon Claw Arts", -2, -2, -2, 0, 2, 
+		"Dragon claw arts is your ability to greatly increase the damage you can cause with your bare hands.\
+		It allows the possiblity of very deadly blows and holds."},
+	{"Neophyte Firearms", -2, -2, -2, 0, 2, 
+		"Neophyte firearms is your basic ranged weapon combat abilitie.\
+		It affects your accuracy with guns."},
+	{"Standard Firearms", -2, -2, -2, 0, 2, 
+		"Standard firearms is your standard ranged weapon combat abilitie.\
+		It further affects your accuracy with guns."},
 
 	/* 90 */
-	{"Advanced Firearms", -2, -2, 0},
-	{"Master Firearms", -2, -2, 0},
-	{"Pistols", -2, -2, 0},
-	{"Rifles", -2, -2, 0},
-	{"Shotguns", -2, -2, 0},
+	{"Advanced Firearms", -2, -2, -2, 0, 2, 
+		"Advanced firearms is your advanced ranged weapon combat abilitie.\
+		It still further increases your accuracy with guns."},
+	{"Master Firearms", -2, -2, -2, 0, 2, 
+		"Master firearms is your mastery of ranged weapons."},
+	{"Pistols", -2, -2, -2, 0, 2, 
+		"This is your skill with pistols.\
+		It greatly increases your accuracy with pistols."},
+	{"Rifles", -2, -2, -2, 0, 2, 
+		"This is your skill with rifles.\
+		It greatly increases your accuracy with rifles."},
+	{"Shotguns", -2, -2, -2, 0, 2, 
+		"This is your skill with shotguns.\
+		It greatly increases your accuracy with shotguns."},
 
 	/* 95 */
-	{"Critical Shot", -2, -2, 0},
-	{"Accurate Shot", -2, -2, 0},
-	{"Vicious Shot", -2, -2, 0},
-	{"Swift Shot", -2, -2, 0},
-	{"Throwing", -2, -2, 0},
+	{"Critical Shot", -2, -2, -2, 0, 2, 
+		"Critical shot allows you to strike devestating critical attacks with your firearm.\
+		It increases botht he frequency and power of your criticals."},
+	{"Accurate Shot", -2, -2, -2, 0, 2, 
+		"Accurate shot greatly increases the accuracy of your firearm attack."},
+	{"Vicious Shot", -2, -2, -2, 0, 2, 
+		"Vicious shot is your ability to time your shots so that they do more damage."},
+	{"Swift Shot", -2, -2, -2, 0, 2, 
+		"Swift shot is your ability to rapidly reload and fire your firearm."},
+	{"Throwing", -2, -2, -2, 0, 2, 
+		"Throwing is your ability to toss objects effectively with damaging effects."},
 
 	/* 100 */
-	{"Advance Throwing", -2, -2, 0},
-	{"Master Throwing", -2, -2, 0},
-	{"Power Throw", -2, -2, 0},
-	{"Critical Throw", -2, -2, 0},
-	{"Throwing Accuracy", -2, -2, 0},
+	{"Advance Throwing", -2, -2, -2, 0, 2, 
+		"Advanced throwing is your advanced ability to toss objects with damaging effects.\
+		It also increases the range of your throw."},
+	{"Master Throwing", -2, -2, -2, 0, 2, 
+		"Master throwing is your mastery of thrown objects.\
+		It also increases the range of your throw."},
+	{"Power Throw", -2, -2, -2, 0, 2, 
+		"Power throw greatly increases the damage of thrown objects."},
+	{"Critical Throw", -2, -2, -2, 0, 2, 
+		"Critical throw allows you to strike devestating critical throws.\
+		It increases both the frequency and power of your criticals."},
+	{"Throwing Accuracy", -2, -2, -2, 0, 2, 
+		"Throwing accuracy greatly increases the accuracy of your throws."},
 
 	/* 105-109 */	
-	{"XXX5", -2, -2, 0},
-	{"XXX6", -2, -2, 0},
-	{"XXX7", -2, -2, 0},
-	{"XXX8", -2, -2, 0},
-	{"XXX9", -2, -2, 0},
+	{"Hafted Weapons", -2, -2, -2, 0, 2,
+		"Hafted weapons is your proficiency with blunt hafted weapons, such as whips, maces, and hammers."},
+	{"Polearms", -2, -2, -2, 0, 2, 
+		"Polearms is your proficiency with piercing polearms, such as javelins, spears, pikes, and halberds."},
+	{"Swords", -2, -2, -2, 0, 2, 
+		"Swords is your proficiency with slashing swords, such as rapiers, sabres, scimitars, and cutlasses."},
+	{"Daggers", -2, -2, -2, 0, 2, 
+		"Daggers is your proficiency with piercing daggers, such as throwing knives, short swords, and bowie knives."},
+	{"Axes", -2, -2, -2, 0, 2, 
+		"Axes is your proficiency with slashing axes, such as throwing hatchets, and beaked, broad, battle, and great axes."},
 
 	/* 110-114 */	
-	{"XXX10", -2, -2, 0},
-	{"XXX11", -2, -2, 0},
-	{"XXX12", -2, -2, 0},
-	{"XXX13", -2, -2, 0},
-	{"XXX14", -2, -2, 0},
+	{"Blunt Weapons", -2, -2, -2, 0, 2, 
+		"Blunt weapons is your proficiency with bludgeoning weapons, such as canes, clubs, and quarterstaves."},
+	{"Hafted Mastery", -2, -2, -2, 0, 2, 
+		"Hafted mastery is your mastery of hafted weapons."},
+	{"Polearm Mastery", -2, -2, -2, 0, 2, 
+		"Polearm mastery is your mastery of polearms."},
+	{"Sword Mastery", -2, -2, -2, 0, 2, 
+		"Sword mastery is your mastery of swords."},
+	{"Dagger Mastery", -2, -2, -2, 0, 2, 
+		"Dagger mastery is your mastery of daggers."},
 
 	/* 115-119 */	
-	{"XXX15", -2, -2, 0},
-	{"XXX16", -2, -2, 0},
-	{"XXX17", -2, -2, 0},
-	{"XXX18", -2, -2, 0},
-	{"XXX19", -2, -2, 0},
+	/* note the "special" names for martial defense */
+	{"Axe Mastery", -2, -2, -2, 0, 2, 
+		"Axe mastery is your mastery of axes."},
+	{"Blunt Mastery", -2, -2, -2, 0, 2, 
+		"Blunt mastery is your mastery of blunt weapons."},
+	{"Acrobatics", -2, -2, -2, 0, 2, 
+		"Acrobatics increases your defensive abilities, as well as eventually allowing you to evade attacks and move around quickly."},
+	{"Iron Skin", -2, -2, -2, 0, 2, 
+		"Iron skin toughens up your skin making it harder for monsters to successfully hit you."},
+	{"The Gentle Way", -2, -2, -2, 0, 2, 
+		"The gentle way allows you to counterstrike monsters that attack you as well as providing resistance to some elemental attacks."},
 
 	/* 120-124 */	
-	{"XXX20", -2, -2, 0},
-	{"XXX21", -2, -2, 0},
-	{"XXX22", -2, -2, 0},
-	{"XXX23", -2, -2, 0},
-	{"XXX24", -2, -2, 0},
+	{"Fleetness", -2, -2, -2, 0, 2, 
+		"Fleetness increases your speed."},
+	{"Double Throw", -2, -2, -2, 0, 2, "Nothing"},
+	{"Quick Toss", -2, -2, -2, 0, 2, 
+		"Quick Toss greatly reduces the time it takes to throw objects at monsters."},
+	{"Dirty Fighting", -2, -2, -2, 0, 2, 
+		"Dirty fighting allows you to do a bit of extra damage to monsters."},
+	{"", -2, -2, -2, 0, 2, ""},
 
 	/* 125-129 */	
-	{"Command Techniques", -2, -2, 0},
-	{"Debutante Ability", -2, -2, 0},
-	{"Survival Technique", -2, -2, 0},
-	{"Mentalist Powers", -2, -2, 0},
-	{"Reality Hacking", -2, -2, 0},
+	{"Command Techniques", -2, -2, -2, 0, 1, 
+		"Command techniques is the Officer's ability to lead and command various denizens of the dungeon.\
+		Activated by class 'p'owers. (press 'p')"},
+	{"Combat Techniques", -2, -2, -2, 0, 1, 
+		"Combat techniques is the Officer's ability to perform special combat maneuvers.\
+		Activated by class 'p'owers. (press 'p')"},
+	{"Presence", -2, -2, -2, 0, 1, 
+		"Presence increases the Officer's ability to lead and command his troops."},
+	{"Debutante Ability", -2, -2, -2, 0, 1, 
+		"The debutante ability of the Aesthete allows him to sense valueables, turn items into gold, escape, and return quickly back to town.\
+		Activated by class 'p'owers. (press 'p')"},
+	{"Artificer Ability", -2, -2, -2, 0, 1, 
+		"Artificer ability is the ability of the aesthete to enhance and recharge items.\
+		Activated by class 'p'owers. (press 'p')"},
 
 	/* 130-134 */	
-	{"Tourism Dept.", -2, -2, 0},
-	{"Combat Techniques", -2, -2, 0},
-	{"Natural Empathy", -2, -2, 0},
-	{"Ninjutsu", -2, -2, 0},
-	{"Presence", -2, -2, 0},
+	{"Survival Technique", -2, -2, -2, 0, 1, 
+		"Survival technique provides several basic useful powers.\
+		Activated by class 'p'owers. (press 'p')"},
+	{"Telepathy", -2, -2, -2, 0, 1, 
+		"Telepathy is the Medium's ability to sense and affect the minds of the creatures around him.\
+		Activated by class 'p'owers. (press 'p')"},
+	{"Clairsentience", -2, -2, -2, 0, 1, 
+		"Clairsentience is the Medium's ability to know the unknown.\
+		Activated by class 'p'owers. (press 'p')"},
+	{"Psychometabolism", -2, -2, -2, 0, 1, 
+		"Psychometabolism is the Medium's ability to alter and repair his body using his mind.\
+		Activated by class 'p'owers. (press 'p')"},
+	{"Mesmeric Will", -2, -2, -2, 0, 1, 
+		"Mesmeric will increases the power of the Medium's abilities."},
 
 	/* 135-139 */	
-	{"Mesmeric Will", -2, -2, 0},
-	{"Hebrew", -2, -2, 0},
-	{"Qabala", -2, -2, 0},
-	{"Gematria", -2, -2, 0},
-	{"", -2, -2, 0},
+	{"Combat Techniques", -2, -2, -2, 0, 1, 
+		"Combat techniques are the various stances and strikes learned by the Dashing Hussars.\
+		Activated by class 'p'owers. (press 'p')"},
+	{"Elite Maneuvers", -2, -2, -2, 0, 1, 
+		"Elite maneuvers are the advanced stances and strikes learned by the Dashing Hussars.\
+		Activated by class 'p'owers. (press 'p')"},
+	{"Flora", -2, -2, -2, 0, 1, 
+		"Flora is the Naturalist's powers over plants.\
+		Activated by class 'p'owers. (press 'p')"},
+	{"Fauna", -2, -2, -2, 0, 1, 
+		"Fauna is the Naturalist's powers over animals.\
+		Activated by class 'p'owers. (press 'p')"},
+	{"Elemental", -2, -2, -2, 0, 1, 
+		"Elemental is the Naturalist's powers over the elements.\
+		Activated by class 'p'owers. (press 'p')"},
 
 	/* 140-144 */	
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
+	{"Ninja Mysticism", -2, -2, -2, 0, 1, 
+		"Ninja Mysticism is the Ninja's access to ancient secret magics.\
+		Activated by class 'p'owers. (press 'p')"},
+	{"Ninja Stealth", -2, -2, -2, 0, 1, 
+		"Ninja Stealth is the Ninja's ability to travel long distances, remain unoticed, and learn about items.\
+		Activated by class 'p'owers. (press 'p')"},
+	{"Ninjutsu", -2, -2, -2, 0, 1, 
+		"Ninjutsu is the Ninja's secret martial maneuvers.\
+		Activated by class 'p'owers. (press 'p')"},
+	{"Hebrew", -2, -2, -2, 0, 1, "Nothing"},
+	{"Qabala", -2, -2, -2, 0, 1, "Nothing"},
 
 	/* 145-149 */	
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
+	{"Gematria", -2, -2, -2, 0, 1, "Nothing"},
+	{"Bribery", -2, -2, -2, 0, 1, 
+		"Bribery is the Aesthete's skill at paying monsters gold to leave him alone."},
+	{"Art Appreciation", -2, -2, -2, 0, 3, 	
+		"Art appreciation is the Aesthete's ability to finagle a better sale price from items out of merchants."},
+	{"Battle Endurance", -2, -2, -2, 0, 2, 
+		"Battle endurance increases your wound points."},
+	{"Earth's Hearth", -2, -2, -2, 0, 1, 
+		"Earth's hearth increases your reserve of spellpoints."},
 
 	/* 150-154 */	
 	/* Note: Have to be very careful that the r/c descrptions match */
 	/* what skills are available- Should add a check in cmd-book.c */
-	{"Latin", -2, -2, 0},
-	{"Occult Lore", -2, -2, 0},
-	{"Adv. Occult Lore", -2, -2, 0},
-	{"Cthulhu Mythos", -2, -2, 0},
-	{"Ritual Magic", -2, -2, 0},
+	{"Latin", -2, -2, -2, 0, 3, 
+		"Latin is your ability to read Latin.\
+		It is very helpful in decyphering old mystic works."},
+	{"Occult Lore", -2, -2, -2, 0, 3, 
+		"Occult Lore is your understanding of the occult.\
+		It allows comprehension of basic occult works. "},
+	{"Adv. Occult Lore", -2, -2, -2, 0, 3, 
+		"Advanced Occult Lore is your advanced understanding of occult topics and lore.\
+		It allows comprehension of advanced occult works."},
+	{"Cthulhu Mythos", -2, -2, -2, 0, 3, 
+		"Cthulhu mythos is your understanding of dark and forbidden cthulhu lore.\
+		It allows understanding of the most powerful and dark occult works."},
+	{"Ritual Magic", -2, -2, -2, 0, 3, 
+		"Ritual magic is your understanding of the techniques and processes of ritual magic.\
+		It increases the potency and power of your occult spells."},
 
 	/* 155-159 */	
-	{"Thaumic Energy", -2, -2, 0},
-	{"Thaumaturgy", -2, -2, 0},
-	{"Thelma", -2, -2, 0},
-	{"Spirituality", -2, -2, 0},
-	{"Prayer", -2, -2, 0},
+	{"Thaumic Energy", -2, -2, -2, 0, 3, 
+		"Thaumic energy is your understanding of magical thaumic energy.\
+		Raising this skill increases the safety of your arcane spells."},
+	{"Thaumaturgy", -2, -2, -2, 0, 3, 
+		"Thaumaturgy further increases your understanding of magical thaumic energy.\
+		Raising this skill further increases the safety of your arcane spells."},
+	{"Thelma", -2, -2, -2, 0, 3, 
+		"Thelma is your unity with the all.\
+		It phenomenally increases the power of your spells."},
+	{"Spirituality", -2, -2, -2, 0, 3, 
+		"Spirituality is your level of being in touch with the divine.\
+		It allows you to learn basic prayers."},
+	{"Prayer", -2, -2, -2, 0, 3, 
+		"Prayer is your skill at prayer.\
+		It allows you to learn advanced prayers."},
 
 	/* 160-164 */	
-	{"Devotion", -2, -2, 0},
-	{"Lesser warding", -2, -2, 0},
-	{"Greater warding", -2, -2, 0},
-	{"Tempered will", -2, -2, 0},
-	{"Hardened will", -2, -2, 0},
+	{"Devotion", -2, -2, -2, 0, 3, 
+		"Devotion is your level of devotion to god.\
+		It allows you to learn the most powerful prayers."},
+	{"Lesser Warding", -2, -2, -2, 0, 3, 
+		"Lesser warding is your knowledge of lesser wards.\
+		It increases the saftey of your prayers."},
+	{"Greater Warding", -2, -2, -2, 0, 3, 
+		"Greater warding is your knowledge of greater wards.\
+		It increases the saftey of your prayers."},
+	{"Tempered Will", -2, -2, -2, 0, 3, 
+		"Tempered will is the strength of your will.\
+		It increases the power of all your incantations."},
+	{"Hardened Will", -2, -2, -2, 0, 3, 
+		"Hardened will is the force of your will.\
+		It increases the power of all your spells."},
 
 	/* 165-169 */	
-	{"Iron Will", -2, -2, 0},
-	{"Spell Quickening", -2, -2, 0},
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
+	{"Iron Will", -2, -2, -2, 0, 3, 
+		"Iron will is the center of your will.\
+		It increases the power of all your spells."},
+	{"Spell Quickening", -2, -2, -2, 0, 3, 
+		"Spell quickening is your ability to call up and discharge magic quickly and with ease.\
+		It reduces the amount of time it takes to cast a spell."},
+	{"Spiritual Infusion", -2, -2, -2, 0, 3, 
+		"Spiritual infusion allows you to draw upon the spirit realm to add spirit energy to your melee attacks."},
+	{"Mental Resistance", -2, -2, -2, 0, 3, 
+		"Mental Resistance provides resistance to several types of elemental attacks."},
+	{"Spiritual Shield", -2, -2, -2, 0, 3,
+		"Spiritual shield creates a sphere of spirit energy that surrounds you making it harder for monsters to strike you."},
 
 	/* 170-174 */	
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
+	{"Spiritual Healing", -2, -2, -2, 0, 3, 
+		"Spiritual healing increases the rate at which you recover from damage."},
+	{"Spiritual Speed", -2, -2, -2, 0, 3, 
+		"The spirits themselves provide you with extra energy allowing you to move much quicker than mortals."},
+	{"Anatomy", -2, -2, -2, 0, 3, 
+		"Anatomy is your knowledge of biology and the human body.\
+		It increases the power and frequency of your critcals versus living creatures."},
+	{"Sabotage", -2, -2, -2, 0, 1, 
+		"Sabotage is your ability to effectively destroy or disable non-living creatures.\
+		It increases the power and frequency of your criticals versus non-living creatures."},
+	{"Theology", -2, -2, -2, 0, 3, "nothing"},
 
 	/* 175-179 */	
-	{"Gadgeteer", -2, -2, 0},
-	{"Utility Bandolier", -2, -2, 0},
-	{"Detectives Kit", -2, -2, 0},
-	{"Clockwork Chassis", -2, -2, 0},
-	{"Clockwork Carbine", -2, -2, 0},
+	{"Gadgeteer", -2, -2, -2, 0, 3, 
+		"Gadgeteer is your base skill with powerful devices.\
+		It increases the amount and ease of effects you can get from devices."},
+	{"Utility Bandolier", -2, -2, -2, 0, 3, 
+		"This is your familarity with the utility bandolier."},
+	{"Detectives Kit", -2, -2, -2, 0, 3, 
+		"This is your familarity with the detectives kit."},
+	{"Clockwork Chassis", -2, -2, -2, 0, 3, 
+		"This is your familarity with the clockwork chassis."},
+	{"Clockwork Carbine", -2, -2, -2, 0, 3, 
+		"This is your familarity with the clockwork carbine."},
 
 	/* 180-184 */	
-	{"Velocipede", -2, -2, 0},
-	{"Analytic Engine", -2, -2, 0},
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
+	{"Velocipede", -2, -2, -2, 0, 3, 
+		"This is your familarity with the velocipede."},
+	{"Analytic Engine", -2, -2, -2, 0, 3, 
+		"This is your familarity with the analytic engine."},
+	{"", -2, -2, -2, 0, 3, "nothing"},
+	{"", -2, -2, -2, 0, 3, "nothing"},
+	{"", -2, -2, -2, 0, 3, "nothing"},
 
 	/* 185-189 */	
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
+	{"", -2, -2, -2, 0, 3, "nothing"},
+	{"", -2, -2, -2, 0, 3, "nothing"},
+	{"", -2, -2, -2, 0, 3, "nothing"},
+	{"", -2, -2, -2, 0, 3, "nothing"},
+	{"Pyrokinetics", -2, -2, -2, 0, 3, 
+		"This is the art of using science to project fire.\
+		It increases your ranged damage  by adding more and more fire damage to your shots."},
 
 	/* 190-194 */	
-	{"Advanced Devices", -2, -2, 0},
-	{"Fast Device use", -2, -2, 0},
-	{"Device Effeciency", -2, -2, 0},
-	{"Device Power Amp", -2, -2, 0},
-	{"Advanced Power Amp", -2, -2, 0},
+	{"Using Devices", -2, -2, -2, 0, 1, 
+		"This is your skill with devices.\
+		You are extremely talented at this skill."},
+	{"Using Devices", -2, -2, -2, 0, 1, 
+		"This is your skill with devices."},
+	{"Using Devices", -2, -2, -2, 0, 1, 
+		"This is your skill with devices.\
+		You are terrible at this skill."},
+	{"Advanced Devices", -2, -2, -2, 0, 1, 
+		"Advanced devices further increases your success rate at activating devices."},
+	{"Fast Device Use", -2, -2, -2, 0, 1, 
+		"Fast devices use reduces the amount of time it takes to use devices."},
 
 	/* 195-199 */	
-	{"Device Bio Amp", -2, -2, 0},
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
+	{"Device Efficiency", -2, -2, -2, 0, 1, 
+		"Device efficiency allows you to reduce the recharge time between uses of apparatuses."},
+	{"Device Power Amp", -2, -2, -2, 0, 1, 
+		"Device power amplifier increases the amount of damage you can cause with devices."},
+	{"Advanced Power Amp", -2, -2, -2, 0, 1, 
+		"Advanced power amplifier further increases the amount of damage you can cause with devices."},
+	{"Device Bio Amp", -2, -2, -2, 0, 1, 
+		"Device Biological Amplifier increases the effect devices have upon living matter."},
+	{"", -2, -2, -2, 0, 3, "nothing"},
 
 	/* 200-204 */	
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
+	{"Fire Lore", -2, -2, -2, 0, 1, 
+		"Fire lore is your basic understanding of fire.\
+		It attacks your enemies with fire when you strike them in melee combat, raises the amount your strength can increase, and gives you access to powerful fire attacks at high levels."},
+	{"Fire Mastery", -2, -2, -2, 0, 1, 
+		"Fire mastery is your mastery of fire and flame.\
+		It increases your resistance versus fire, shields you in fire, and allows powerful fire attacks."},
+	{"Wind Lore", -2, -2, -2, 0, 1, 
+		"Wind lore is your basic understanding of wind and air.\
+		It raises the amount your agility can increase, and raises your speed."},
+	{"Wind Mastery", -2, -2, -2, 0, 1, 
+		"Wind Mastery is your mastery of wind and air.\
+		It allows you to see as a bird, conjure a cyclone, raises your resistance to air, speed, and protects you with an electric sheath."},
+	{"Water Lore", -2, -2, -2, 0, 1, 
+		"Water lore is your basic understanding of water.\
+		It increases your rate of regeneration, and increases the amount your physical stats can increase."},
 
 	/* 205-209 */	
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
+	{"Water Mastery", -2, -2, -2, 0, 1, 
+		"Water mastery is your mastery of water and the sea.\
+		It further increases your regeneration rate, raises your resistance to water, raises your armor class and allows you to conjure rushing streams of water."},
+	{"Earth Lore", -2, -2, -2, 0, 1, 
+		"Earth lore is your basic understanding of earth.\
+		It raises the amount your vigor can increase, and increases your armor class."},
+	{"Earth Mastery", -2, -2, -2, 0, 1, 
+		"Earth mastery is your mastery of earth and stone.\
+		It allows you to conjure bolts of earth and stone, raises your resistance to earth, further rasies your armor class and protects your body with sharp spines."},
+	{"Elemental Defense", -2, -2, -2, 0, 1, 
+		"Elemental defense raises your resistance against the low and mid resists."},
+	{"Basic Survival", -2, -2, -2, 0, 1, 
+		"Basic survival raises your resistance against all the low resists."},
 
 	/* 210-214 */	
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
+	{"Toughness", -2, -2, -2, 0, 2, 
+		"Toughness raises your wound points."},
+	{"Mental toughness", -2, -2, -2, 0, 3, 
+		"Mental toughness raises your wound points."},
+	{"Fortitude", -2, -2, -2, 0, 2, 
+		"Fortitude raises your wound points."},
+	{"Iron Body", -2, -2, -2, 0, 2, 
+		"Raises your wound points and armor class."},
+	{"Spiritual Battery", -2, -2, -2, 0, 1, 
+		"Spiritual battery increases your reserve of spellpoints."},
 
 	/* 215-219 */	
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
+	{"Hold the Line", -2, -2, -2, 0, 2, 
+		"Hold the line increases your armor class."},
+	{"Knock-down", -2, -2, -2, 0, 2, 
+		"Attempts to stun monsters you hit with a melee attack."},
+	{"Dragon's Heart", -2, -2, -2, 0, 1,
+		"Adds to the amount your physical stats increase when raised."},
+	{"Athletics", -2, -2, -2, 0, 2, 
+		"Athletics mproves your physical fitness making you more agile, stronger, and faster.\
+		A very athletic person can produce boosts of speed allowing them to move much faster than normal."},
+	{"", -2, -2, -2, 0, 1, "nothing"},
 
 	/* 220-224 */	
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
-	{"", -2, -2, 0},
-
+	{"", -2, -2, -2, 0, 1, "nothing"},
+	{"", -2, -2, -2, 0, 1, "nothing"},
+	{"", -2, -2, -2, 0, 1, "nothing"},
+	{"", -2, -2, -2, 0, 1, "nothing"},
+	{"", -2, -2, -2, 0, 1, "nothing"},
 };
 
 
@@ -398,7 +658,7 @@ player_skills skills[N_SKILLS] = {
  * perhaps I should have a second value that sets the value in skills to -1 for skills
  * that the player has a possiblility to acquire? XXX
  *
- * I'm not really concerned about peoples ability to modify steam for their own ends, 
+ * I'm not really concerned about peoples ability to modify them for their own ends, 
  * perhaps sometime before version 1.0 I'll change this so that this information is pulled
  * from an external text file. -CCC
  */
@@ -410,51 +670,51 @@ const s16b race_skills[25][N_SKILLS] =
 {
 	/* British Skills */
 	{0,0,1,0,0,
-	 1,0,1,0,0,
-	 0,1,0,1,0,
+	 0,0,0,0,0,
+	 1,0,0,1,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,1,0,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
 	 0,0,0,0,0,
 
 	 0,0,0,0,0,
@@ -465,51 +725,51 @@ const s16b race_skills[25][N_SKILLS] =
 	 
 	/* Asiatic skills */
 	{0,0,1,0,0,
-	 1,0,0,1,0,
-	 1,0,0,1,0,
+	 0,0,0,0,1,
+	 0,0,0,1,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 
+	 0,0,0,0,0,
+	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,1,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
 	 0,0,0,0,0,
 
 	 0,0,0,0,0,
@@ -519,11 +779,11 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0},
 
 	 /* American Skills */
-	{0,0,1,0,1,
-	 0,0,0,1,0,
-	 0,1,0,1,0,
+	{0,0,1,0,0,
 	 0,0,0,0,0,
-	 0,0,1,0,0,
+	 1,0,0,1,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
 
 	 0,0,0,0,0,
 	 0,0,0,0,0,
@@ -564,7 +824,7 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
-	 0,0,0,0,0,
+	 0,1,0,0,0,
 	 0,0,0,0,0,
 
 	 0,0,0,0,0,
@@ -575,38 +835,8 @@ const s16b race_skills[25][N_SKILLS] =
 
 	 /* Africian Skills */
 	{0,0,1,0,0,
-	 1,0,1,0,0,
-	 1,0,0,0,1,
-	 0,0,0,0,0,
-	 0,0,0,1,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
+	 0,0,0,0,1,
+	 0,0,0,0,1,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 
@@ -615,11 +845,41 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
 	 
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,1,0,0,
 	 0,0,0,0,0,
 
 	 0,0,0,0,0,
@@ -630,10 +890,10 @@ const s16b race_skills[25][N_SKILLS] =
 
 	 /* French Skills */
 	{0,0,1,0,0,
-	 1,0,1,0,0,
-	 0,1,0,1,0,
 	 0,0,0,0,0,
-	 0,0,1,0,0,
+	 1,0,0,1,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
 	 
 	 0,0,0,0,0,
 	 0,0,0,1,0,
@@ -674,7 +934,7 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
-	 0,0,0,0,0,
+	 0,0,1,0,0,
 	 0,0,0,0,0,
 
 	 0,0,0,0,0,
@@ -685,38 +945,8 @@ const s16b race_skills[25][N_SKILLS] =
 
 	 /* Spanish Skills */
 	{0,0,1,0,0,
-	 1,0,1,0,0,
-	 0,1,0,0,1,
 	 0,0,0,0,0,
-	 0,0,0,1,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
+	 1,0,0,0,1,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 
@@ -725,11 +955,41 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,1,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
 	 
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,1,0,0,
 	 0,0,0,0,0,
 
 	 0,0,0,0,0,
@@ -739,15 +999,15 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0},
 
 	 /* German Skills */
-	{0,0,1,0,1,
+	{0,0,1,0,0,
+	 0,0,0,0,0,
+	 1,0,0,1,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 
+	 0,0,0,0,0,
+	 0,0,0,0,0,
 	 0,0,1,0,0,
-	 0,1,0,1,0,
-	 0,0,0,0,0,
-	 0,0,0,1,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,1,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 
@@ -784,7 +1044,7 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
-	 0,0,0,0,0,
+	 0,1,0,0,0,
 	 0,0,0,0,0,
 
 	 0,0,0,0,0,
@@ -795,38 +1055,8 @@ const s16b race_skills[25][N_SKILLS] =
 
 	/* Russian Skills */
 	{0,1,0,0,0,
-	 1,0,1,0,0,
-	 1,0,0,0,1,
-	 0,0,0,0,0,
-	 0,0,0,1,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
+	 0,0,0,0,1,
+	 0,0,0,0,1,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 
@@ -835,11 +1065,41 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
 	 
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,1,0,0,
 	 0,0,0,0,0,
 
 	 0,0,0,0,0,
@@ -850,38 +1110,8 @@ const s16b race_skills[25][N_SKILLS] =
 
 	/* Scandinavian Skills */
 	{0,0,1,0,0,
-	 1,0,0,1,0,
-	 0,1,0,0,1,
 	 0,0,0,0,0,
-	 0,0,0,1,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
+	 1,0,0,0,1,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 
@@ -890,11 +1120,41 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
 	 
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,1,0,0,
 	 0,0,0,0,0,
 
 	 0,0,0,0,0,
@@ -905,38 +1165,8 @@ const s16b race_skills[25][N_SKILLS] =
 	 
 	/* Arabic Skills */
 	{0,1,0,0,0,
-	 1,0,0,1,0,
-	 1,0,0,0,1,
-	 0,0,0,0,0,
-	 0,0,0,1,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
+	 0,0,0,0,1,
+	 0,0,0,0,1,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 
@@ -945,11 +1175,41 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
 	 
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,1,0,0,
 	 0,0,0,0,0,
 
 	 0,0,0,0,0,
@@ -960,10 +1220,10 @@ const s16b race_skills[25][N_SKILLS] =
 
 	/* Dwarf Skills */
 	{1,0,0,0,0,
-	 1,0,1,0,0,
-	 0,1,0,1,0,
 	 0,0,0,0,0,
-	 0,1,0,0,0,
+	 1,0,0,1,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
 	 
 	 0,0,0,0,0,
 	 0,0,0,0,0,
@@ -979,32 +1239,32 @@ const s16b race_skills[25][N_SKILLS] =
 
 	 0,0,0,0,1,
 	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,1,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
 	 1,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
 	 0,0,0,0,0,
 
 	 0,0,0,0,0,
@@ -1014,11 +1274,11 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0},
 
 	/* Brownie Skills */
-	{0,1,0,1,0,
-	 0,1,0,0,0,
-	 1,0,0,0,1,
+	{0,1,0,0,0,
+	 0,0,0,0,1,
+	 0,0,0,0,1,
 	 0,0,0,0,0,
-	 0,0,0,1,0,
+	 0,0,0,0,0,
 	 
 	 0,0,0,0,0,
 	 0,0,0,0,0,
@@ -1034,7 +1294,7 @@ const s16b race_skills[25][N_SKILLS] =
 
 	 0,0,0,0,0,
 	 0,0,0,0,0,
-	 0,1,0,0,0,
+	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 
@@ -1059,7 +1319,7 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
-	 0,0,0,0,0,
+	 1,0,0,0,0,
 	 0,0,0,0,0,
 
 	 0,0,0,0,0,
@@ -1069,40 +1329,10 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0},
 
 	/* Daoine Sidhe Skills */
-	{0,1,0,0,1,
-	 0,1,0,0,1,
+	{0,1,0,0,0,
+	 0,0,0,1,0,
 	 0,0,1,0,0,
 	 0,0,0,0,0,
-	 0,0,0,1,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 
 	 0,0,0,0,0,
@@ -1110,11 +1340,41 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
 	 
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,1,0,0,0,
 	 0,0,0,0,0,
 
 	 0,0,0,0,0,
@@ -1124,11 +1384,11 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0},
 	
 	/* Seelie Fae Skills */ 	 
-	{0,1,0,0,1,
-	 0,1,0,0,1,
+	{0,1,0,0,0,
+	 0,0,0,1,0,
 	 0,0,0,1,0,
 	 0,0,0,0,0,
-	 0,0,0,1,0,
+	 0,0,0,0,0,
 	 
 	 0,0,0,0,0,
 	 0,0,0,0,0,
@@ -1169,7 +1429,7 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
-	 0,0,0,0,0,
+	 0,1,0,0,0,
 	 0,0,0,0,0,
 
 	 0,0,0,0,0,
@@ -1179,11 +1439,11 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0},
 
 	/* Unseelie Fae Skills */
-	{0,1,0,0,1,
-	 0,1,0,0,1,
+	{0,1,0,0,0,
+	 0,0,0,1,0,
 	 0,0,0,1,0,
 	 0,0,0,0,0,
-	 0,0,0,1,0,
+	 0,0,0,0,0,
 	 
 	 0,0,0,0,0,
 	 0,0,0,0,0,
@@ -1224,7 +1484,7 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
-	 0,0,0,0,0,
+	 0,1,0,0,0,
 	 0,0,0,0,0,
 
 	 0,0,0,0,0,
@@ -1235,10 +1495,10 @@ const s16b race_skills[25][N_SKILLS] =
 
 	/* Automata Skills */
 	{0,0,1,0,0,
-	 1,0,0,1,0,
-	 0,1,0,0,1,
 	 0,0,0,0,0,
-	 0,0,0,1,0,
+	 1,0,0,0,1,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
 	 
 	 0,0,0,0,0,
 	 0,0,0,0,0,
@@ -1253,7 +1513,7 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0,
 
 	 0,0,0,0,0,
-	 0,0,0,0,1,
+	 0,1,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,1,0,0,0,
@@ -1279,7 +1539,7 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
-	 0,0,0,0,0,
+	 0,0,1,0,0,
 	 0,0,0,0,0,
 
 	 0,0,0,0,0,
@@ -1290,10 +1550,10 @@ const s16b race_skills[25][N_SKILLS] =
 
 	/* Steam-Mecha Skills */
 	{0,0,1,0,0,
-	 1,0,0,1,0,
-	 0,1,0,0,1,
 	 0,0,0,0,0,
-	 0,1,0,0,0,
+	 1,0,0,0,1,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
 	 
 	 0,0,0,0,0,
 	 0,0,0,0,0,
@@ -1308,8 +1568,8 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0,
 
 	 0,0,0,0,0,
-	 0,0,0,0,1,
-	 1,0,0,0,0,
+	 0,1,1,0,0,
+	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 1,1,0,0,0,
 
@@ -1334,7 +1594,7 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
-	 0,0,0,0,0,
+	 0,0,1,0,0,
 	 0,0,0,0,0,
 
 	 0,0,0,0,0,
@@ -1344,40 +1604,10 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0},	 
 
 	/* Djinn Skills */
-	{0,1,0,0,1,
-	 0,1,0,0,1,
+	{0,1,0,0,0,
+	 0,0,0,1,0,
 	 0,0,0,1,0,
 	 0,0,0,0,0,
-	 0,0,0,1,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 
 	 0,0,0,0,0,
@@ -1385,11 +1615,41 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
 	 
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,1,0,0,0,
 	 0,0,0,0,0,
 
 	 0,0,0,0,0,
@@ -1399,11 +1659,11 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0},
 	 
 	/* Rakshasa Skills */
-	{0,0,1,1,0,
-	 0,1,0,0,1,
+	{0,0,1,0,0,
+	 0,0,0,1,0,
 	 0,0,0,1,0,
 	 0,0,0,0,0,
-	 0,0,1,0,0,
+	 0,0,0,0,0,
 	 
 	 0,0,0,0,0,
 	 0,0,0,0,0,
@@ -1418,8 +1678,8 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0,
 
 	 0,0,0,0,0,
+	 0,0,0,0,1,
 	 0,0,0,0,0,
-	 0,0,1,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 
@@ -1444,7 +1704,7 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
-	 0,0,0,0,0,
+	 1,0,0,0,0,
 	 0,0,0,0,0,
 
 	 0,0,0,0,0,
@@ -1455,10 +1715,10 @@ const s16b race_skills[25][N_SKILLS] =
 
 	/* Giant Skills*/
 	{0,0,1,0,0,
-	 1,0,0,1,0,
-	 0,1,0,0,1,
 	 0,0,0,0,0,
-	 0,1,0,0,0,
+	 1,0,0,0,1,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
 	 
 	 0,0,0,0,0,
 	 0,0,0,0,0,
@@ -1472,8 +1732,14 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,1,0,0,0,
 	 0,0,0,0,0,
 
+	 0,0,0,0,1,
+	 0,0,1,0,0,
 	 0,0,0,0,0,
-	 1,0,1,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
 	 1,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
@@ -1483,12 +1749,6 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
 	 
 	 0,0,0,0,0,
 	 0,0,0,0,0,
@@ -1499,7 +1759,7 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
-	 0,0,0,0,0,
+	 0,0,1,0,0,
 	 0,0,0,0,0,
 
 	 0,0,0,0,0,
@@ -1510,10 +1770,10 @@ const s16b race_skills[25][N_SKILLS] =
 
 	/* Ogre Skills */
 	{0,0,1,0,0,
-	 1,0,0,1,0,
-	 0,1,0,0,1,
 	 0,0,0,0,0,
-	 0,0,1,0,0,
+	 1,0,0,0,1,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
 	 
 	 0,0,0,0,0,
 	 0,0,0,0,0,
@@ -1528,7 +1788,13 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0,
 
 	 0,0,0,0,0,
-	 1,0,1,0,0,
+	 0,0,1,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
 	 1,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
@@ -1538,12 +1804,6 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
 	 
 	 0,0,0,0,0,
 	 0,0,0,0,0,
@@ -1554,7 +1814,7 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
-	 0,0,0,0,0,
+	 0,0,1,0,0,
 	 0,0,0,0,0,
 
 	 0,0,0,0,0,
@@ -1565,38 +1825,8 @@ const s16b race_skills[25][N_SKILLS] =
 
 	/* Troll Skills */
 	{0,0,1,0,0,
-	 1,0,0,1,0,
-	 0,1,0,0,1,
 	 0,0,0,0,0,
-	 0,0,0,1,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 1,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
+	 1,0,0,0,1,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 
@@ -1605,11 +1835,41 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,1,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
 	 
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,1,0,0,
 	 0,0,0,0,0,
 
 	 0,0,0,0,0,
@@ -1620,10 +1880,10 @@ const s16b race_skills[25][N_SKILLS] =
 
 	/* Ghost Skills */
 	{0,0,1,0,0,
-	 1,0,1,0,1,
+	 0,0,0,1,0,
 	 0,0,0,1,0,
 	 0,0,0,0,0,
-	 0,0,0,1,0,
+	 0,0,0,0,0,
 	 
 	 0,0,0,0,0,
 	 0,0,0,0,0,
@@ -1664,7 +1924,7 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
-	 0,0,0,0,0,
+	 0,0,1,0,0,
 	 0,0,0,0,0,
 
 	 0,0,0,0,0,
@@ -1675,10 +1935,10 @@ const s16b race_skills[25][N_SKILLS] =
 
 	/* Goblin Skills */
 	{0,0,1,0,0,
-	 1,0,0,1,0,
-	 0,1,0,0,1,
 	 0,0,0,0,0,
-	 0,0,0,1,0,
+	 1,0,0,0,1,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
 	 
 	 0,0,0,0,0,
 	 0,0,0,0,0,
@@ -1719,7 +1979,7 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
-	 0,0,0,0,0,
+	 0,0,1,0,0,
 	 0,0,0,0,0,
 
 	 0,0,0,0,0,
@@ -1730,44 +1990,8 @@ const s16b race_skills[25][N_SKILLS] =
 
 	/* Old One Skills */
 	{0,0,1,0,0,
-	 1,0,0,1,0,
-	 0,1,0,0,1,
 	 0,0,0,0,0,
-	 0,1,0,0,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
+	 1,0,0,0,1,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 
@@ -1781,7 +2005,43 @@ const s16b race_skills[25][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
-	 0,0,0,0,0}
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,1,0,0,
+	 0,0,0,0,0,
+
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0,
+	 0,0,0,0,0},
 };
 
 /*
@@ -1791,8 +2051,8 @@ const s16b race_skills[25][N_SKILLS] =
 const s16b class_skills[20][N_SKILLS] =
 {
 	/* Officer Skills */
-	{0,0,0,0,1,
-	 0,1,0,0,0,
+	{0,0,0,0,0,
+	 0,0,0,0,0,
 	 0,0,0,1,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
@@ -1810,18 +2070,18 @@ const s16b class_skills[20][N_SKILLS] =
 	 0,0,0,0,0,
 
 	 1,0,0,0,0,
-	 0,1,0,0,0,
-	 0,0,0,1,0,
+	 0,0,0,0,0,
+	 1,0,0,1,0,
 	 0,0,1,0,0,
 	 0,0,0,0,1,
 
 	 0,0,0,0,0,
-	 0,0,0,0,0,
+	 0,0,1,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 
-	 1,0,0,0,0,
+	 1,1,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
@@ -1829,14 +2089,14 @@ const s16b class_skills[20][N_SKILLS] =
 
 	 1,1,0,0,1,
 	 0,0,0,1,0,
-	 0,0,0,0,0,
+	 0,0,0,1,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 
 	 0,1,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
-	 0,0,0,0,0,
+	 0,1,0,0,0,
 	 0,0,0,0,0,
 
 	 0,0,0,0,0,
@@ -1847,8 +2107,8 @@ const s16b class_skills[20][N_SKILLS] =
 
 	/* Aesthete Skills */
 	{0,0,0,0,0,
+	 0,0,0,0,1,
 	 0,0,0,0,0,
-	 1,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 
@@ -1866,7 +2126,7 @@ const s16b class_skills[20][N_SKILLS] =
 
 	 1,0,0,0,0,
 	 0,0,0,0,0,
-	 0,0,0,1,0,
+	 1,0,0,1,0,
 	 0,0,0,0,0,
 	 0,0,0,0,1,
 
@@ -1876,7 +2136,7 @@ const s16b class_skills[20][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 
-	 0,1,0,0,0,
+	 0,0,0,1,1,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
@@ -1884,69 +2144,14 @@ const s16b class_skills[20][N_SKILLS] =
 	 
 	 1,1,0,0,1,
 	 0,0,0,1,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0},
-
-	/* Detective Skills */
-	{1,0,0,1,0,
-	 0,0,1,0,0,
-	 1,0,1,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 1,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,1,0,
-	 0,0,1,0,0,
-	 0,0,0,0,1,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 1,1,0,0,1,
 	 0,0,0,1,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
-	 0,0,0,0,0,
 	 
-	 0,1,1,0,0,
 	 1,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
+	 1,0,0,0,0,
 	 0,0,0,0,0,
 
 	 0,0,0,0,0,
@@ -1956,7 +2161,7 @@ const s16b class_skills[20][N_SKILLS] =
 	 0,0,0,0,0},
 
 	/* Engineer Skills */
-	{0,1,0,1,0,
+	{0,1,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
@@ -1976,63 +2181,8 @@ const s16b class_skills[20][N_SKILLS] =
 
 	 1,0,0,0,0,
 	 0,0,0,0,0,
-	 0,0,0,1,0,
-	 0,0,0,0,0,
-	 0,0,0,0,1,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 1,1,0,0,1,
-	 0,0,0,1,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 1,1,1,1,1,
-	 1,1,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0},
-
-	/* Explorer skills */
-	{0,1,0,0,0,
-	 0,0,1,0,0,
 	 1,0,0,1,0,
 	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 1,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,1,0,
-	 0,0,0,1,0,
 	 0,0,0,0,1,
 
 	 0,0,0,0,0,
@@ -2040,8 +2190,8 @@ const s16b class_skills[20][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
-
-	 0,0,1,0,0,
+	 
+	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
@@ -2049,14 +2199,14 @@ const s16b class_skills[20][N_SKILLS] =
 	 
 	 1,1,0,0,1,
 	 0,0,0,1,0,
-	 0,0,0,0,0,
+	 0,0,0,1,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 
-	 0,1,0,0,0,
+	 1,1,0,1,1,
+	 1,1,0,0,0,
+	 0,0,0,0,0,
 	 1,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
 	 0,0,0,0,0,
 
 	 0,0,0,0,0,
@@ -2067,8 +2217,8 @@ const s16b class_skills[20][N_SKILLS] =
 
 	/* Medium Skills */
 	{0,0,0,0,0,
-	 0,1,0,0,0,
-	 1,0,0,0,0,
+	 0,0,0,0,1,
+	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 
@@ -2086,7 +2236,7 @@ const s16b class_skills[20][N_SKILLS] =
 
 	 1,0,0,0,0,
 	 0,0,0,0,0,
-	 0,0,0,1,0,
+	 1,0,0,1,0,
 	 0,0,0,0,0,
 	 0,0,0,0,1,
 
@@ -2096,8 +2246,8 @@ const s16b class_skills[20][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 
-	 0,0,0,1,0,
 	 0,0,0,0,0,
+	 0,1,1,1,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
@@ -2105,171 +2255,6 @@ const s16b class_skills[20][N_SKILLS] =
 	 1,1,0,0,1,
 	 0,0,0,1,0,
 	 0,0,0,1,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0},
-
-	/* Reckoner Skills */
-	{0,1,0,1,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 1,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,1,0,
-	 0,0,0,0,0,
-	 0,0,0,0,1,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,1,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 1,1,0,0,1,
-	 0,0,0,1,0,
-	 0,0,0,1,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 0,1,1,1,1,
-	 1,1,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0},
-
-	/* Tourist Skills */
-	{0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 1,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,1,0,
-	 0,0,0,0,0,
-	 0,0,0,0,1,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 1,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 1,1,0,0,1,
-	 0,0,0,1,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0},
-
-	/* Sportsman Skills */
-	{0,0,0,0,0,
-	 0,0,0,0,1,
-	 0,0,1,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 1,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,1,0,
-	 0,0,1,1,1,
-	 0,0,0,0,1,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 1,1,0,0,1,
-	 0,0,0,1,0,
-	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 
@@ -2304,70 +2289,15 @@ const s16b class_skills[20][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 
-	 1,0,0,0,1,
-	 1,1,0,0,0,
-	 0,0,0,1,0,
-	 0,0,0,0,0,
-	 0,0,0,0,1,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 1,1,0,0,1,
-	 0,0,0,1,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0},
-
-	/* Anarchist Skills */
-	{1,0,0,1,0,
-	 0,1,0,0,1,
-	 0,0,1,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
 	 1,0,0,0,0,
 	 0,0,0,0,0,
-	 0,0,0,1,0,
-	 0,0,0,0,0,
+	 1,0,0,1,0,
+	 0,0,1,1,1,
 	 0,0,0,0,1,
 
 	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
+	 1,1,1,1,1,
+	 1,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 
@@ -2383,7 +2313,7 @@ const s16b class_skills[20][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 
-	 0,0,0,0,1,
+	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
@@ -2414,27 +2344,27 @@ const s16b class_skills[20][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 
-	 1,0,0,0,1,
-	 1,1,0,0,0,
-	 0,0,0,1,0,
+	 1,0,0,0,0,
+	 0,0,0,0,0,
+	 1,0,0,1,0,
 	 0,0,0,1,0,
 	 0,0,0,0,1,
 
 	 0,0,0,0,0,
-	 0,0,0,0,0,
+	 0,1,1,1,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 
 	 0,0,0,0,0,
-	 0,1,0,0,0,
 	 0,0,0,0,0,
+	 1,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 
 	 1,1,0,0,1,
 	 0,0,0,1,0,
-	 0,0,0,0,0,
+	 0,0,0,1,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 
@@ -2447,7 +2377,7 @@ const s16b class_skills[20][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
-	 0,0,0,0,0,
+	 0,0,1,0,0,
 	 0,0,0,0,0},
 
 	/* Gentleman / Lady */
@@ -2471,7 +2401,7 @@ const s16b class_skills[20][N_SKILLS] =
 	 
 	 1,0,0,0,0,
 	 0,0,0,0,0,
-	 0,0,0,1,0,
+	 1,0,0,1,0,
 	 0,0,1,0,0,
 	 0,0,0,0,1,
 
@@ -2493,7 +2423,7 @@ const s16b class_skills[20][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 
-	 0,0,0,0,0,
+	 1,0,1,0,0,
 	 1,1,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
@@ -2506,8 +2436,8 @@ const s16b class_skills[20][N_SKILLS] =
 	 0,0,0,0,0},
 
 	/* Rogue */
-	{1,0,0,1,0,
-	 0,0,0,0,1,
+	{1,0,0,0,0,
+	 0,0,0,1,0,
 	 0,0,1,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
@@ -2525,13 +2455,13 @@ const s16b class_skills[20][N_SKILLS] =
 	 0,0,0,0,0,
 
 	 1,0,0,0,0,
-	 0,1,0,1,0,
-	 0,1,0,1,0,
+	 0,0,0,1,0,
+	 1,0,0,1,0,
 	 0,0,0,0,0,
 	 1,0,0,0,1,
 
 	 0,0,0,1,1,
-	 0,0,0,0,0,
+	 0,0,1,1,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
@@ -2551,62 +2481,7 @@ const s16b class_skills[20][N_SKILLS] =
 	 1,1,0,0,0,
 	 1,1,0,0,0,
 	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0},
-
-	/* Steam Engineer */
-	{0,0,0,1,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
 	 1,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,1,0,
-	 0,0,0,0,0,
-	 0,0,0,0,1,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 1,1,0,0,1,
-	 0,0,0,1,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 1,1,1,1,1,
-	 1,1,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
 	 0,0,0,0,0,
 
 	 0,0,0,0,0,
@@ -2617,8 +2492,8 @@ const s16b class_skills[20][N_SKILLS] =
 
 	/* Naturalist */
 	{0,0,0,0,0,
+	 0,0,0,0,1,
 	 0,0,0,0,0,
-	 1,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 
@@ -2635,246 +2510,26 @@ const s16b class_skills[20][N_SKILLS] =
 	 0,0,0,0,0,
 
 	 1,0,0,0,0,
-	 1,0,0,0,0,
-	 0,0,0,1,0,
+	 0,0,0,0,0,
+	 1,0,0,1,0,
 	 0,0,0,0,0,
 	 0,0,0,0,1,
 
 	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,1,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 1,1,0,0,1,
-	 0,0,0,1,0,
-	 0,0,0,1,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0},
-
-	/* Qabalist */
-	{0,0,0,0,0,
-	 0,1,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
+	 1,0,0,0,0,
 	 1,0,0,0,0,
 	 0,0,0,0,0,
-	 0,0,0,1,0,
-	 0,0,0,0,0,
-	 0,0,0,0,1,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
 	 0,0,0,0,0,
 
 	 0,0,0,0,0,
 	 0,0,0,0,0,
-	 0,1,1,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 1,1,0,0,1,
-	 0,0,0,1,0,
-	 0,0,0,1,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0},
-
-	/* Oculus Dei */
-	{0,0,0,0,0,
-	 0,1,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 1,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,1,0,
-	 0,0,0,0,0,
-	 0,0,0,0,1,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 1,1,0,0,1,
-	 0,0,0,1,0,
-	 0,0,0,1,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0},
-
-	/* Ninja */
-	{1,0,0,1,0,
-	 0,1,0,0,1,
-	 0,0,1,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 1,0,0,0,0,
-	 0,1,0,0,0,
-	 0,0,0,1,0,
-	 0,0,0,0,0,
-	 0,0,0,0,1,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,1,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 1,1,0,0,1,
-	 0,0,0,1,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0},
-
-	/* Weapon Master */
-	{0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 1,0,0,0,1,
-	 1,1,0,0,0,
-	 0,0,0,1,0,
 	 0,0,1,1,1,
-	 0,0,0,0,1,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-
-	 0,0,0,0,0,
-	 0,0,0,0,0,
-	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 
 	 1,1,0,0,1,
 	 0,0,0,1,0,
-	 0,0,0,0,0,
+	 0,0,0,1,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 
@@ -2884,8 +2539,8 @@ const s16b class_skills[20][N_SKILLS] =
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 
-	 0,0,0,0,0,
-	 0,0,0,0,0,
+	 1,0,1,0,1,
+	 0,1,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0,
 	 0,0,0,0,0}
@@ -2920,7 +2575,9 @@ bool can_raise_skill(int skill)
 
 	/* Skills can't be raised higher than your level + 2 */
 	/* Changed from + 3 to + 2 to encourage the placement of skills in broader areas */
+	if (p_ptr->wizard) return (TRUE);
 	if (p_ptr->skills[skill].skill_max >= (lev + 2)) return (FALSE);
+	if (p_ptr->skills[skill].skill_max >= (p_ptr->skills[skill].skill_raise + 2)) return (FALSE);
 
 	/* Assume no limits */
 	return (TRUE);
@@ -2944,7 +2601,7 @@ void skill_raceinit(void)
 		if (race_skills[race][i] > 0)
 		{
 			 /* Then set skill_rank, and skill_max to one */
-			 p_ptr->skills[i].skill_rank = p_ptr->skills[i].skill_max = 1;		 
+			 p_ptr->skills[i].skill_rank = p_ptr->skills[i].skill_max = p_ptr->skills[i].skill_raise = 1;		 
 		}
 	}
 	return;
@@ -2968,7 +2625,7 @@ void skill_classinit(void)
 		if (class_skills[class][i] > 0)
 		{
 			/* set skill_rank, and skill_max to one */
-			 p_ptr->skills[i].skill_rank = p_ptr->skills[i].skill_max = 1;		 
+			 p_ptr->skills[i].skill_rank = p_ptr->skills[i].skill_max = p_ptr->skills[i].skill_raise = 1;		 
 		}
 	}
 	return;
@@ -2988,70 +2645,46 @@ void skill_cleanup()
 	 /* disarm */
 	 if (p_ptr->skills[SK_DISARM_GOOD].skill_max > 0)
 	 {
-	 	p_ptr->skills[SK_DISARM_NORM].skill_rank = p_ptr->skills[SK_DISARM_NORM].skill_max = -2;
-	 	p_ptr->skills[SK_DISARM_POOR].skill_rank = p_ptr->skills[SK_DISARM_POOR].skill_max = -2;
+	 	p_ptr->skills[SK_DISARM_NORM].skill_rank = p_ptr->skills[SK_DISARM_NORM].skill_max = p_ptr->skills[SK_DISARM_NORM].skill_raise = -2;
+	 	p_ptr->skills[SK_DISARM_POOR].skill_rank = p_ptr->skills[SK_DISARM_POOR].skill_max = p_ptr->skills[SK_DISARM_POOR].skill_raise = -2;
 	 }
 	 else if(p_ptr->skills[SK_DISARM_NORM].skill_max > 0)
 	 {
-	 	p_ptr->skills[SK_DISARM_POOR].skill_rank = p_ptr->skills[SK_DISARM_POOR].skill_max = -2;
+	 	p_ptr->skills[SK_DISARM_POOR].skill_rank = p_ptr->skills[SK_DISARM_POOR].skill_max = p_ptr->skills[SK_DISARM_POOR].skill_raise = -2;
 	 }
 	
 	 /* Magic Device */
 	 if (p_ptr->skills[SK_DEVICE_GOOD].skill_max > 0)
 	 {
-	 	p_ptr->skills[SK_DEVICE_NORM].skill_rank = p_ptr->skills[SK_DEVICE_NORM].skill_max = -2;
-	 	p_ptr->skills[SK_DEVICE_POOR].skill_rank = p_ptr->skills[SK_DEVICE_POOR].skill_max = -2;
+	 	p_ptr->skills[SK_DEVICE_NORM].skill_rank = p_ptr->skills[SK_DEVICE_NORM].skill_max =  p_ptr->skills[SK_DEVICE_NORM].skill_raise = -2;
+	 	p_ptr->skills[SK_DEVICE_POOR].skill_rank = p_ptr->skills[SK_DEVICE_POOR].skill_max =  p_ptr->skills[SK_DEVICE_POOR].skill_raise = -2;
 	 }
 	 else if(p_ptr->skills[SK_DEVICE_NORM].skill_max > 0)
 	 {
-	 	p_ptr->skills[SK_DEVICE_POOR].skill_rank = p_ptr->skills[SK_DEVICE_POOR].skill_max = -2;
+	 	p_ptr->skills[SK_DEVICE_POOR].skill_rank = p_ptr->skills[SK_DEVICE_POOR].skill_max =  p_ptr->skills[SK_DEVICE_POOR].skill_raise = -2;
 	 }
-	 
-	 /* Saving Throw */
-	 if (p_ptr->skills[SK_SAVETH_GOOD].skill_max > 0)
-	 {
-	 	p_ptr->skills[SK_SAVETH_NORM].skill_rank = p_ptr->skills[SK_SAVETH_NORM].skill_max = -2;
-	 	p_ptr->skills[SK_SAVETH_POOR].skill_rank = p_ptr->skills[SK_SAVETH_POOR].skill_max = -2;
-	 }
-	 else if(p_ptr->skills[SK_SAVETH_NORM].skill_max > 0)
-	 {
-	 	p_ptr->skills[SK_SAVETH_POOR].skill_rank = p_ptr->skills[SK_SAVETH_POOR].skill_max = -2;
-	 }
-	 
+	 	 
 	 /* Stealth */
 	 if (p_ptr->skills[SK_STEALTH_GOOD].skill_max > 0)
 	 {
-	 	p_ptr->skills[SK_STEALTH_NORM].skill_rank = p_ptr->skills[SK_STEALTH_NORM].skill_max = -2;
-	 	p_ptr->skills[SK_STEALTH_POOR].skill_rank = p_ptr->skills[SK_STEALTH_POOR].skill_max = -2;
+	 	p_ptr->skills[SK_STEALTH_NORM].skill_rank = p_ptr->skills[SK_STEALTH_NORM].skill_max =  p_ptr->skills[SK_STEALTH_NORM].skill_raise = -2;
+	 	p_ptr->skills[SK_STEALTH_POOR].skill_rank = p_ptr->skills[SK_STEALTH_POOR].skill_max =  p_ptr->skills[SK_STEALTH_POOR].skill_raise = -2;
 	 }
 	 else if(p_ptr->skills[SK_STEALTH_NORM].skill_max > 0)
 	 {
-	 	p_ptr->skills[SK_STEALTH_POOR].skill_rank = p_ptr->skills[SK_STEALTH_POOR].skill_max = -2;
+	 	p_ptr->skills[SK_STEALTH_POOR].skill_rank = p_ptr->skills[SK_STEALTH_POOR].skill_max =  p_ptr->skills[SK_STEALTH_POOR].skill_raise = -2;
 	 }
 	 
 	 /* Searching Ability */
 	 if (p_ptr->skills[SK_SEARCHING_GOOD].skill_max > 0)
 	 {
-	 	p_ptr->skills[SK_SEARCHING_NORM].skill_rank = p_ptr->skills[SK_SEARCHING_NORM].skill_max = -2;
-	 	p_ptr->skills[SK_SEARCHING_POOR].skill_rank = p_ptr->skills[SK_SEARCHING_POOR].skill_max = -2;
+	 	p_ptr->skills[SK_SEARCHING_NORM].skill_rank = p_ptr->skills[SK_SEARCHING_NORM].skill_max =  p_ptr->skills[SK_SEARCHING_NORM].skill_raise = -2;
+	 	p_ptr->skills[SK_SEARCHING_POOR].skill_rank = p_ptr->skills[SK_SEARCHING_POOR].skill_max =  p_ptr->skills[SK_SEARCHING_POOR].skill_raise = -2;
 	 }
 	 else if(p_ptr->skills[SK_SEARCHING_NORM].skill_max > 0)
 	 {
-	 	p_ptr->skills[SK_SEARCHING_POOR].skill_rank = p_ptr->skills[SK_SEARCHING_POOR].skill_max = -2;
+	 	p_ptr->skills[SK_SEARCHING_POOR].skill_rank = p_ptr->skills[SK_SEARCHING_POOR].skill_max =  p_ptr->skills[SK_SEARCHING_POOR].skill_raise = -2;
 	 }
-		
-	 /* Digging */
-	 if (p_ptr->skills[SK_DIGGING_GOOD].skill_max > 0)
-	 {
-	 	p_ptr->skills[SK_DIGGING_NORM].skill_rank = p_ptr->skills[SK_DIGGING_NORM].skill_max = -2;
-	 	p_ptr->skills[SK_DIGGING_POOR].skill_rank = p_ptr->skills[SK_DIGGING_POOR].skill_max = -2;
-	 }
-	 else if(p_ptr->skills[SK_DIGGING_NORM].skill_max > 0)
-	 {
-	 	p_ptr->skills[SK_DIGGING_POOR].skill_rank = p_ptr->skills[SK_DIGGING_POOR].skill_max = -2;
-	 }
-	
-	 
 }
 
 /* 
@@ -3066,94 +2699,142 @@ void skill_cleanup()
 
 void skill_link(void)
 {
+	/* Racial skills */
 	if (p_ptr->skills[SK_UTILITY_CYPHER].skill_max > 9)
 	{
 		if (p_ptr->skills[SK_SYSTEMS_CYPHER].skill_max == -2)
 		{
-			p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank = p_ptr->skills[SK_SYSTEMS_CYPHER].skill_max = 1;
+			p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank = p_ptr->skills[SK_SYSTEMS_CYPHER].skill_max = p_ptr->skills[SK_SYSTEMS_CYPHER].skill_raise = 1;
 		}
 	}
 	if (p_ptr->skills[SK_ONSLAUGHT_CYPHER].skill_max > 3 && p_ptr->skills[SK_AEGIS_CYPHER].skill_max > 5)
 	{
 		if (p_ptr->skills[SK_SYSTEMS_CYPHER].skill_max == -2)
 		{		
-			p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank = p_ptr->skills[SK_SYSTEMS_CYPHER].skill_max = 1;
+			p_ptr->skills[SK_SYSTEMS_CYPHER].skill_rank = p_ptr->skills[SK_SYSTEMS_CYPHER].skill_max = p_ptr->skills[SK_SYSTEMS_CYPHER].skill_raise = 1;
 		}
 	}
 	if (p_ptr->skills[SK_DEMON_ATTUNE].skill_max > 3)
 	{
 		if (p_ptr->skills[SK_DARK_CHARM].skill_max == -2)
 		{
-			p_ptr->skills[SK_DARK_CHARM].skill_rank = p_ptr->skills[SK_DARK_CHARM].skill_max = 1;
+			p_ptr->skills[SK_DARK_CHARM].skill_rank = p_ptr->skills[SK_DARK_CHARM].skill_max = p_ptr->skills[SK_DARK_CHARM].skill_raise = 1;
 		}
 	}
 	if (p_ptr->skills[SK_ONSLAUGHT_CYPHER].skill_max > 14)
 	{
 		if (p_ptr->skills[SK_ROCKETRY].skill_max == -2)
 		{
-			p_ptr->skills[SK_ROCKETRY].skill_rank = p_ptr->skills[SK_ROCKETRY].skill_max = 1;
+			p_ptr->skills[SK_ROCKETRY].skill_rank = p_ptr->skills[SK_ROCKETRY].skill_max = p_ptr->skills[SK_ROCKETRY].skill_raise = 1;
+		}
+	}
+	if (((p_ptr->skills[SK_INTER_COMBAT].skill_max > 9) ||
+		(p_ptr->skills[SK_INTER_MARTIAL].skill_max > 9)) &&
+		(!(p_ptr->prace == RACE_GHOST)))
+	{
+		if (p_ptr->skills[SK_TOUGHNESS].skill_max == -2)
+		{
+			p_ptr->skills[SK_TOUGHNESS].skill_rank = p_ptr->skills[SK_TOUGHNESS].skill_max = p_ptr->skills[SK_TOUGHNESS].skill_raise = 1;
+		}
+	}
+	if ((p_ptr->skills[SK_TOUGHNESS].skill_max > 19) &&
+		(
+		(p_ptr->pclass == CLASS_ADVENTURER) ||
+		(p_ptr->pclass == CLASS_OFFICER)
+		)
+		)
+	{
+		if (p_ptr->skills[SK_FORTITUDE].skill_max == -2)
+		{
+			p_ptr->skills[SK_FORTITUDE].skill_rank = p_ptr->skills[SK_FORTITUDE].skill_max = p_ptr->skills[SK_FORTITUDE].skill_raise = 1;
+		}
+	}
+	if ((p_ptr->skills[SK_TOUGHNESS].skill_max > 9) &&
+		(
+		(p_ptr->pclass == CLASS_ADVENTURER) ||
+		(p_ptr->pclass == CLASS_DASHING_H) ||
+		(p_ptr->pclass == CLASS_OFFICER)
+		)
+		)
+	{
+		if (p_ptr->skills[SK_PAIN_TOLERANCE].skill_max == -2)
+		{
+			p_ptr->skills[SK_PAIN_TOLERANCE].skill_rank = p_ptr->skills[SK_PAIN_TOLERANCE].skill_max = p_ptr->skills[SK_PAIN_TOLERANCE].skill_raise = 1;
+		}
+	}
+	if ((p_ptr->skills[SK_TOUGHNESS].skill_max > 4) &&
+		(
+		(p_ptr->pclass == CLASS_NATURAL) ||
+		(p_ptr->pclass == CLASS_DASHING_H) ||
+		(p_ptr->pclass == CLASS_GENTLEMAN)
+		)
+		)
+	{
+		if (p_ptr->skills[SK_ATHLETICS].skill_max == -2)
+		{
+			p_ptr->skills[SK_ATHLETICS].skill_rank = p_ptr->skills[SK_ATHLETICS].skill_max = p_ptr->skills[SK_ATHLETICS].skill_raise = 1;
+		}
+	}
+	if ((p_ptr->skills[SK_FORTITUDE].skill_max > 19) &&
+		(
+		(p_ptr->pclass == CLASS_ADVENTURER)
+		)
+		)
+	{
+		if (p_ptr->skills[SK_IRON_BODY].skill_max == -2)
+		{
+			p_ptr->skills[SK_IRON_BODY].skill_rank = p_ptr->skills[SK_IRON_BODY].skill_max = p_ptr->skills[SK_IRON_BODY].skill_raise = 1;
 		}
 	}
 	if 	(
 		(p_ptr->skills[SK_TOHIT].skill_max > 4) &&
 		( 
 		(p_ptr->pclass == CLASS_OFFICER) ||
-		(p_ptr->pclass == CLASS_DETECTIVE) ||
+		(p_ptr->pclass == CLASS_GENTLEMAN) ||
+		(p_ptr->pclass == CLASS_AESTHETE) ||
 		(p_ptr->pclass == CLASS_ENGINEER) ||
-		(p_ptr->pclass == CLASS_EXPLORER) ||
-		(p_ptr->pclass == CLASS_RECKONER) ||
-		(p_ptr->pclass == CLASS_SPORTSMAN) ||
 		(p_ptr->pclass == CLASS_ADVENTURER) ||
-		(p_ptr->pclass == CLASS_ANARCHIST) ||
 		(p_ptr->pclass == CLASS_DASHING_H) ||
 		(p_ptr->pclass == CLASS_ROGUE) ||
-		(p_ptr->pclass == CLASS_STEAM_ENG) ||
 		(p_ptr->pclass == CLASS_NATURAL) ||
-		(p_ptr->pclass == CLASS_QABALIST) ||
-		(p_ptr->pclass == CLASS_OCULUS_DEI) ||
-		(p_ptr->pclass == CLASS_NINJA) ||		
-		(p_ptr->pclass == CLASS_WEAPON)	
+		(p_ptr->pclass == CLASS_MEDIUM)
 		)	
 		)
 	{
 		if (p_ptr->skills[SK_INTER_COMBAT].skill_max == -2)
 		{
-			p_ptr->skills[SK_INTER_COMBAT].skill_rank = p_ptr->skills[SK_INTER_COMBAT].skill_max = 1;
+			p_ptr->skills[SK_INTER_COMBAT].skill_rank = p_ptr->skills[SK_INTER_COMBAT].skill_max = p_ptr->skills[SK_INTER_COMBAT].skill_raise = 1;
 		}
 	}
 	if 	(
 		(p_ptr->skills[SK_INTER_COMBAT].skill_max > 14) &&
 		( 
 		(p_ptr->pclass == CLASS_OFFICER) ||
-		(p_ptr->pclass == CLASS_SPORTSMAN) ||
+		(p_ptr->pclass == CLASS_ENGINEER) ||
 		(p_ptr->pclass == CLASS_ADVENTURER) ||
 		(p_ptr->pclass == CLASS_DASHING_H) ||
-		(p_ptr->pclass == CLASS_ROGUE) ||
-		(p_ptr->pclass == CLASS_NINJA) ||		
-		(p_ptr->pclass == CLASS_WEAPON)	
+		(p_ptr->pclass == CLASS_NATURAL) ||
+		(p_ptr->pclass == CLASS_ROGUE) 
 		)	
 		)
 	{
 		if (p_ptr->skills[SK_ADV_COMBAT].skill_max == -2)
 		{
-			p_ptr->skills[SK_ADV_COMBAT].skill_rank = p_ptr->skills[SK_ADV_COMBAT].skill_max = 1;
+			p_ptr->skills[SK_ADV_COMBAT].skill_rank = p_ptr->skills[SK_ADV_COMBAT].skill_max = p_ptr->skills[SK_ADV_COMBAT].skill_raise = 1;
 		}
 	}	
 	if 	(
 		(p_ptr->skills[SK_ADV_COMBAT].skill_max > 14) &&
 		( 
 		(p_ptr->pclass == CLASS_OFFICER) ||
-		(p_ptr->pclass == CLASS_SPORTSMAN) ||
 		(p_ptr->pclass == CLASS_ADVENTURER) ||
-		(p_ptr->pclass == CLASS_DASHING_H) ||
-		(p_ptr->pclass == CLASS_NINJA) ||		
-		(p_ptr->pclass == CLASS_WEAPON)	
+		(p_ptr->pclass == CLASS_DASHING_H) 
 		)	
 		)
 	{
 		if (p_ptr->skills[SK_MASTER_COMBAT].skill_max == -2)
 		{
-			p_ptr->skills[SK_MASTER_COMBAT].skill_rank = p_ptr->skills[SK_MASTER_COMBAT].skill_max = 1;
+			p_ptr->skills[SK_MASTER_COMBAT].skill_rank = p_ptr->skills[SK_MASTER_COMBAT].skill_max = p_ptr->skills[SK_MASTER_COMBAT].skill_raise = 1;
 		}
 	}
 	if 	(
@@ -3161,84 +2842,63 @@ void skill_link(void)
 		( 
 		(p_ptr->pclass == CLASS_OFFICER) ||
 		(p_ptr->pclass == CLASS_AESTHETE) ||
-		(p_ptr->pclass == CLASS_DETECTIVE) ||
 		(p_ptr->pclass == CLASS_ENGINEER) ||
-		(p_ptr->pclass == CLASS_EXPLORER) ||
 		(p_ptr->pclass == CLASS_MEDIUM) ||
-		(p_ptr->pclass == CLASS_RECKONER) ||
-		(p_ptr->pclass == CLASS_SPORTSMAN) ||
 		(p_ptr->pclass == CLASS_ADVENTURER) ||
-		(p_ptr->pclass == CLASS_ANARCHIST) ||
 		(p_ptr->pclass == CLASS_DASHING_H) ||
 		(p_ptr->pclass == CLASS_GENTLEMAN) ||
 		(p_ptr->pclass == CLASS_ROGUE) ||
-		(p_ptr->pclass == CLASS_STEAM_ENG) ||
-		(p_ptr->pclass == CLASS_NATURAL) ||
-		(p_ptr->pclass == CLASS_QABALIST) ||
-		(p_ptr->pclass == CLASS_OCULUS_DEI) ||
-		(p_ptr->pclass == CLASS_NINJA) ||		
-		(p_ptr->pclass == CLASS_WEAPON)	
+		(p_ptr->pclass == CLASS_NATURAL)
 		)	
 		)
 	{
 		if (p_ptr->skills[SK_INTER_SHOOTING].skill_max == -2)
 		{
-			p_ptr->skills[SK_INTER_SHOOTING].skill_rank = p_ptr->skills[SK_INTER_SHOOTING].skill_max = 1;
+			p_ptr->skills[SK_INTER_SHOOTING].skill_rank = p_ptr->skills[SK_INTER_SHOOTING].skill_max = p_ptr->skills[SK_INTER_SHOOTING].skill_raise = 1;
 		}
 	}
 	if 	(
 		(p_ptr->skills[SK_INTER_SHOOTING].skill_max > 14) &&
 		( 
 		(p_ptr->pclass == CLASS_OFFICER) ||
-		(p_ptr->pclass == CLASS_DETECTIVE) ||
+		(p_ptr->pclass == CLASS_AESTHETE) ||
+		(p_ptr->pclass == CLASS_GENTLEMAN) ||
 		(p_ptr->pclass == CLASS_ENGINEER) ||
-		(p_ptr->pclass == CLASS_EXPLORER) ||
-		(p_ptr->pclass == CLASS_OCULUS_DEI) ||	
-		(p_ptr->pclass == CLASS_RECKONER) ||
-		(p_ptr->pclass == CLASS_SPORTSMAN) ||
 		(p_ptr->pclass == CLASS_ADVENTURER) ||
-		(p_ptr->pclass == CLASS_ANARCHIST) ||
 		(p_ptr->pclass == CLASS_DASHING_H) ||
 		(p_ptr->pclass == CLASS_ROGUE) ||
-		(p_ptr->pclass == CLASS_STEAM_ENG) ||
-		(p_ptr->pclass == CLASS_QABALIST) ||
-		(p_ptr->pclass == CLASS_NINJA) ||		
-		(p_ptr->pclass == CLASS_WEAPON)	
+		(p_ptr->pclass == CLASS_MEDIUM)
 		)	
 		)
 	{
 		if (p_ptr->skills[SK_ADV_SHOOTING].skill_max == -2)
 		{
-			p_ptr->skills[SK_ADV_SHOOTING].skill_rank = p_ptr->skills[SK_ADV_SHOOTING].skill_max = 1;
+			p_ptr->skills[SK_ADV_SHOOTING].skill_rank = p_ptr->skills[SK_ADV_SHOOTING].skill_max = p_ptr->skills[SK_ADV_SHOOTING].skill_raise = 1;
 		}
 	}
 	if 	(
 		(p_ptr->skills[SK_ADV_SHOOTING].skill_max > 14) &&
 		( 
-		(p_ptr->pclass == CLASS_SPORTSMAN) ||
+		(p_ptr->pclass == CLASS_OFFICER) ||
 		(p_ptr->pclass == CLASS_ADVENTURER) ||
-		(p_ptr->pclass == CLASS_DASHING_H) ||
-		(p_ptr->pclass == CLASS_WEAPON)	
+		(p_ptr->pclass == CLASS_DASHING_H) 
 		)	
 		)
 	{
 		if (p_ptr->skills[SK_MASTER_SHOOTING].skill_max == -2)
 		{
-			p_ptr->skills[SK_MASTER_SHOOTING].skill_rank = p_ptr->skills[SK_MASTER_SHOOTING].skill_max = 1;
+			p_ptr->skills[SK_MASTER_SHOOTING].skill_rank = p_ptr->skills[SK_MASTER_SHOOTING].skill_max = p_ptr->skills[SK_MASTER_SHOOTING].skill_raise = 1;
 		}
 	}
 	if 	(
 		(p_ptr->skills[SK_TOHIT_THROWING].skill_max > 14) &&
 		( 
 		(p_ptr->pclass == CLASS_MEDIUM) ||
-		(p_ptr->pclass == CLASS_SPORTSMAN) ||
 		(p_ptr->pclass == CLASS_ADVENTURER) ||
-		(p_ptr->pclass == CLASS_ANARCHIST) ||
+		(p_ptr->pclass == CLASS_ENGINEER) ||
 		(p_ptr->pclass == CLASS_DASHING_H) ||
 		(p_ptr->pclass == CLASS_GENTLEMAN) ||
 		(p_ptr->pclass == CLASS_ROGUE) ||
-		(p_ptr->pclass == CLASS_NINJA) ||		
-		(p_ptr->pclass == CLASS_WEAPON)	||
 		(p_ptr->pclass == CLASS_NATURAL) ||
 		(p_ptr->pclass == CLASS_AESTHETE)	
 		)	
@@ -3246,125 +2906,565 @@ void skill_link(void)
 	{
 		if (p_ptr->skills[SK_ADV_THROWING].skill_max == -2)
 		{
-			p_ptr->skills[SK_ADV_THROWING].skill_rank = p_ptr->skills[SK_ADV_THROWING].skill_max = 1;
+			p_ptr->skills[SK_ADV_THROWING].skill_rank = p_ptr->skills[SK_ADV_THROWING].skill_max =  p_ptr->skills[SK_ADV_THROWING].skill_raise = 1;
 		}
 	}
 	if 	(
 		(p_ptr->skills[SK_ADV_THROWING].skill_max > 14) &&
 		( 
-		(p_ptr->pclass == CLASS_MEDIUM) ||
-		(p_ptr->pclass == CLASS_SPORTSMAN) ||
 		(p_ptr->pclass == CLASS_ADVENTURER) ||
-		(p_ptr->pclass == CLASS_ANARCHIST) ||
-		(p_ptr->pclass == CLASS_DASHING_H) ||
-		(p_ptr->pclass == CLASS_NINJA) ||		
-		(p_ptr->pclass == CLASS_ROGUE) ||	
-		(p_ptr->pclass == CLASS_WEAPON)	
+		(p_ptr->pclass == CLASS_ENGINEER) ||
+		(p_ptr->pclass == CLASS_AESTHETE) ||
+		(p_ptr->pclass == CLASS_NATURAL) ||
+		(p_ptr->pclass == CLASS_ROGUE)
 		)	
 		)
 	{
 		if (p_ptr->skills[SK_MASTER_THROWING].skill_max == -2)
 		{
-			p_ptr->skills[SK_MASTER_THROWING].skill_rank = p_ptr->skills[SK_MASTER_THROWING].skill_max = 1;
+			p_ptr->skills[SK_MASTER_THROWING].skill_rank = p_ptr->skills[SK_MASTER_THROWING].skill_max = p_ptr->skills[SK_MASTER_THROWING].skill_raise = 1;
+		}
+	}
+	if  (
+		(p_ptr->skills[SK_TOHIT_MARTIAL].skill_max > 14) &&
+		(
+		(p_ptr->pclass == CLASS_MEDIUM) ||
+		(p_ptr->pclass == CLASS_ROGUE) ||
+		(p_ptr->pclass == CLASS_GENTLEMAN) ||
+		(p_ptr->pclass == CLASS_NATURAL) ||
+		(p_ptr->prace == RACE_ASIATIC)
+		)
+		)
+	{
+		if (p_ptr->skills[SK_INTER_MARTIAL].skill_max == -2)
+		{
+			p_ptr->skills[SK_INTER_MARTIAL].skill_rank = p_ptr->skills[SK_INTER_MARTIAL].skill_max = p_ptr->skills[SK_INTER_MARTIAL].skill_raise = 1;
+		}
+	}
+	if  (
+		(p_ptr->skills[SK_TOHIT_MARTIAL].skill_max > 4) &&
+		(
+		(p_ptr->pclass == CLASS_ENGINEER) ||
+		(p_ptr->pclass == CLASS_ROGUE) ||
+		(p_ptr->pclass == CLASS_DASHING_H)
+		)
+		)
+	{
+		if (p_ptr->skills[SK_ACROBATICS].skill_max == -2)
+		{
+			p_ptr->skills[SK_ACROBATICS].skill_rank = p_ptr->skills[SK_ACROBATICS].skill_max = p_ptr->skills[SK_ACROBATICS].skill_raise = 1;
+		}
+	}
+	if  (
+		(p_ptr->skills[SK_INTER_MARTIAL].skill_max > 14) &&
+		(
+		(p_ptr->pclass == CLASS_ROGUE) ||
+		(p_ptr->pclass == CLASS_MEDIUM) ||
+		(p_ptr->pclass == CLASS_GENTLEMAN) ||
+		(p_ptr->pclass == CLASS_NATURAL) ||
+		(p_ptr->prace == RACE_ASIATIC)
+		)
+		)
+	{
+		if (p_ptr->skills[SK_ADV_MARTIAL].skill_max == -2)
+		{
+			p_ptr->skills[SK_ADV_MARTIAL].skill_rank = p_ptr->skills[SK_ADV_MARTIAL].skill_max = p_ptr->skills[SK_ADV_MARTIAL].skill_raise = 1;
 		}
 	}
 	if (p_ptr->skills[SK_INTER_COMBAT].skill_max > 7)
 	{
 		if (p_ptr->skills[SK_VICIOUS_STRIKE].skill_max == -2)
 		{
-			p_ptr->skills[SK_VICIOUS_STRIKE].skill_rank = p_ptr->skills[SK_VICIOUS_STRIKE].skill_max = 1;
+			p_ptr->skills[SK_VICIOUS_STRIKE].skill_rank = p_ptr->skills[SK_VICIOUS_STRIKE].skill_max = p_ptr->skills[SK_VICIOUS_STRIKE].skill_raise = 1;
 		}
 		if (p_ptr->skills[SK_ACC_STRIKE].skill_max == -2)
 		{
-			p_ptr->skills[SK_ACC_STRIKE].skill_rank = p_ptr->skills[SK_ACC_STRIKE].skill_max = 1;
+			p_ptr->skills[SK_ACC_STRIKE].skill_rank = p_ptr->skills[SK_ACC_STRIKE].skill_max = p_ptr->skills[SK_ACC_STRIKE].skill_raise = 1;
 		}
 	}
 	if (p_ptr->skills[SK_VICIOUS_STRIKE].skill_max > 9 && p_ptr->skills[SK_ADV_COMBAT].skill_max > 0)
 	{
 		if (p_ptr->skills[SK_POWER_STRIKE].skill_max == -2)
 		{
-			p_ptr->skills[SK_POWER_STRIKE].skill_rank = p_ptr->skills[SK_POWER_STRIKE].skill_max = 1;
+			p_ptr->skills[SK_POWER_STRIKE].skill_rank = p_ptr->skills[SK_POWER_STRIKE].skill_max = p_ptr->skills[SK_POWER_STRIKE].skill_raise = 1;
 		}
 	}
 	if (p_ptr->skills[SK_VICIOUS_STRIKE].skill_max > 9)
 	{
 		if (p_ptr->skills[SK_WEAPON_FINESSE].skill_max == -2)
 		{
-			p_ptr->skills[SK_WEAPON_FINESSE].skill_rank = p_ptr->skills[SK_WEAPON_FINESSE].skill_max = 1;
+			p_ptr->skills[SK_WEAPON_FINESSE].skill_rank = p_ptr->skills[SK_WEAPON_FINESSE].skill_max = p_ptr->skills[SK_WEAPON_FINESSE].skill_raise = 1;
 		}
 	}
 	if (p_ptr->skills[SK_ACC_STRIKE].skill_max > 9  && p_ptr->skills[SK_ADV_COMBAT].skill_max > 0)
 	{
 		if (p_ptr->skills[SK_CRIT_STRIKE].skill_max == -2)
 		{
-			p_ptr->skills[SK_CRIT_STRIKE].skill_rank = p_ptr->skills[SK_CRIT_STRIKE].skill_max = 1;
+			p_ptr->skills[SK_CRIT_STRIKE].skill_rank = p_ptr->skills[SK_CRIT_STRIKE].skill_max = p_ptr->skills[SK_CRIT_STRIKE].skill_raise = 1;
 		}
 	}
 	if (p_ptr->skills[SK_ACC_STRIKE].skill_max > 9)
 	{
 		if (p_ptr->skills[SK_SWIFT_BLOW].skill_max == -2)
 		{
-			p_ptr->skills[SK_SWIFT_BLOW].skill_rank = p_ptr->skills[SK_SWIFT_BLOW].skill_max = 1;
+			p_ptr->skills[SK_SWIFT_BLOW].skill_rank = p_ptr->skills[SK_SWIFT_BLOW].skill_max = p_ptr->skills[SK_SWIFT_BLOW].skill_raise = 1;
 		}
 	}
 	if (p_ptr->skills[SK_INTER_SHOOTING].skill_max > 7)
 	{
 		if (p_ptr->skills[SK_ACC_SHOT].skill_max == -2)
 		{
-			p_ptr->skills[SK_ACC_SHOT].skill_rank = p_ptr->skills[SK_ACC_SHOT].skill_max = 1;
+			p_ptr->skills[SK_ACC_SHOT].skill_rank = p_ptr->skills[SK_ACC_SHOT].skill_max = p_ptr->skills[SK_ACC_SHOT].skill_raise = 1;
 		}
 		if (p_ptr->skills[SK_VICIOUS_SHOT].skill_max == -2)
 		{
-			p_ptr->skills[SK_VICIOUS_SHOT].skill_rank = p_ptr->skills[SK_VICIOUS_SHOT].skill_max = 1;
+			p_ptr->skills[SK_VICIOUS_SHOT].skill_rank = p_ptr->skills[SK_VICIOUS_SHOT].skill_max = p_ptr->skills[SK_VICIOUS_SHOT].skill_raise = 1;
 		}
 	}
 	if (p_ptr->skills[SK_ACC_SHOT].skill_max > 9  && p_ptr->skills[SK_ADV_SHOOTING].skill_max > 0)
 	{
 		if (p_ptr->skills[SK_CRIT_SHOT].skill_max == -2)
 		{
-			p_ptr->skills[SK_CRIT_SHOT].skill_rank = p_ptr->skills[SK_CRIT_SHOT].skill_max = 1;
+			p_ptr->skills[SK_CRIT_SHOT].skill_rank = p_ptr->skills[SK_CRIT_SHOT].skill_max = p_ptr->skills[SK_CRIT_SHOT].skill_raise = 1;
 		}
 	}
 	if (p_ptr->skills[SK_VICIOUS_SHOT].skill_max > 9  && p_ptr->skills[SK_ADV_SHOOTING].skill_max > 0)
 	{
 		if (p_ptr->skills[SK_SWIFT_SHOT].skill_max == -2)
 		{
-			p_ptr->skills[SK_SWIFT_SHOT].skill_rank = p_ptr->skills[SK_SWIFT_SHOT].skill_max = 1;
+			p_ptr->skills[SK_SWIFT_SHOT].skill_rank = p_ptr->skills[SK_SWIFT_SHOT].skill_max = p_ptr->skills[SK_SWIFT_SHOT].skill_raise = 1;
 		}
 	}
 	if (p_ptr->skills[SK_ADV_THROWING].skill_max > 9)
 	{
 		if (p_ptr->skills[SK_ACC_THROW].skill_max == -2)
 		{
-			p_ptr->skills[SK_ACC_THROW].skill_rank = p_ptr->skills[SK_ACC_THROW].skill_max = 1;
+			p_ptr->skills[SK_ACC_THROW].skill_rank = p_ptr->skills[SK_ACC_THROW].skill_max = p_ptr->skills[SK_ACC_THROW].skill_raise = 1;
 		}
 	} 
 	if (p_ptr->skills[SK_ACC_THROW].skill_max > 9)
 	{
 		if (p_ptr->skills[SK_CRIT_THROW].skill_max == -2)
 		{
-			p_ptr->skills[SK_CRIT_THROW].skill_rank = p_ptr->skills[SK_CRIT_THROW].skill_max = 1;
+			p_ptr->skills[SK_CRIT_THROW].skill_rank = p_ptr->skills[SK_CRIT_THROW].skill_max = p_ptr->skills[SK_CRIT_THROW].skill_raise = 1;
 		}
 	} 
 	if (p_ptr->skills[SK_ACC_THROW].skill_max > 3 && p_ptr->skills[SK_MASTER_THROWING].skill_max > 0)		
 	{
 		if (p_ptr->skills[SK_POWER_THROW].skill_max == -2)
 		{
-			p_ptr->skills[SK_POWER_THROW].skill_rank = p_ptr->skills[SK_POWER_THROW].skill_max = 1;
+			p_ptr->skills[SK_POWER_THROW].skill_rank = p_ptr->skills[SK_POWER_THROW].skill_max = p_ptr->skills[SK_POWER_THROW].skill_raise = 1;
+		}
+	}
+	if 	((p_ptr->pclass == CLASS_ROGUE) &&
+		((p_ptr->skills[SK_MASTER_THROWING].skill_max > 9)))
+	{
+		if (p_ptr->skills[SK_FAST_THROW].skill_max == -2)
+		{
+			p_ptr->skills[SK_FAST_THROW].skill_rank = p_ptr->skills[SK_FAST_THROW].skill_max = p_ptr->skills[SK_FAST_THROW].skill_raise = 1;
+		}
+	}
+	if  (
+		(p_ptr->skills[SK_INTER_MARTIAL].skill_max > 7) &&
+		(
+		(p_ptr->pclass == CLASS_ROGUE) ||
+		(p_ptr->pclass == CLASS_MEDIUM) ||
+		(p_ptr->pclass == CLASS_GENTLEMAN) ||
+		(p_ptr->pclass == CLASS_NATURAL) ||
+		(p_ptr->prace == RACE_ASIATIC)
+		)
+		)
+	{
+		if (p_ptr->skills[SK_MARTIAL_DEFENSE].skill_max == -2)
+		{
+			p_ptr->skills[SK_MARTIAL_DEFENSE].skill_rank = p_ptr->skills[SK_MARTIAL_DEFENSE].skill_max = p_ptr->skills[SK_MARTIAL_DEFENSE].skill_raise = 1;
+		}
+	} 
+#if 0
+	if  (
+		(p_ptr->skills[SK_INTER_MARTIAL].skill_max > 7) &&
+		(
+		(p_ptr->pclass == CLASS_ROGUE)
+		)
+		)
+	{
+		if (p_ptr->skills[SK_JUMPING].skill_max == -2)
+		{
+			p_ptr->skills[SK_JUMPING].skill_rank = p_ptr->skills[SK_JUMPING].skill_max = p_ptr->skills[SK_JUMPING].skill_raise = 1;
+		}
+	} 
+#endif
+	if  (
+		(p_ptr->skills[SK_MARTIAL_DEFENSE].skill_max > 14) &&
+		(
+		(p_ptr->pclass == CLASS_ROGUE) ||
+		(p_ptr->pclass == CLASS_GENTLEMAN) ||
+		(p_ptr->prace == RACE_ASIATIC)
+		)
+		)
+	{
+		if (p_ptr->skills[SK_MARTIAL_DEFENSE_II].skill_max == -2)
+		{
+			p_ptr->skills[SK_MARTIAL_DEFENSE_II].skill_rank = p_ptr->skills[SK_MARTIAL_DEFENSE_II].skill_max = p_ptr->skills[SK_MARTIAL_DEFENSE_II].skill_raise = 1;
+		}
+	} 
+	if  (
+		(p_ptr->skills[SK_ADV_MARTIAL].skill_max > 9) &&
+		(p_ptr->skills[SK_MARTIAL_DEFENSE_II].skill_max > 0) &&
+		(
+		(p_ptr->pclass == CLASS_ROGUE) ||
+		(p_ptr->pclass == CLASS_GENTLEMAN) ||
+		(p_ptr->prace == RACE_ASIATIC)
+		)
+		)
+	{
+		if (p_ptr->skills[SK_MARTIAL_SPEED].skill_max == -2)
+		{
+			p_ptr->skills[SK_MARTIAL_SPEED].skill_rank = p_ptr->skills[SK_MARTIAL_SPEED].skill_max = p_ptr->skills[SK_MARTIAL_SPEED].skill_raise = 1;
+		}
+	} 
+	if (p_ptr->skills[SK_HAFTED].skill_max > 1)
+	{
+		p_ptr->skills[SK_POLEARM].skill_rank = p_ptr->skills[SK_POLEARM].skill_max = p_ptr->skills[SK_POLEARM].skill_raise = -2;
+		p_ptr->skills[SK_SWORD].skill_rank = p_ptr->skills[SK_SWORD].skill_max = p_ptr->skills[SK_SWORD].skill_raise = -2;
+		p_ptr->skills[SK_DAGGER].skill_rank = p_ptr->skills[SK_DAGGER].skill_max = p_ptr->skills[SK_DAGGER].skill_raise = -2;
+		p_ptr->skills[SK_AXES].skill_rank = p_ptr->skills[SK_AXES].skill_max = p_ptr->skills[SK_AXES].skill_raise = -2;
+		p_ptr->skills[SK_BLUNT].skill_rank = p_ptr->skills[SK_BLUNT].skill_max = p_ptr->skills[SK_BLUNT].skill_raise = -2;
+
+	}
+	if (p_ptr->skills[SK_BLUNT].skill_max > 1)
+	{
+		p_ptr->skills[SK_POLEARM].skill_rank = p_ptr->skills[SK_POLEARM].skill_max = p_ptr->skills[SK_POLEARM].skill_raise = -2;
+		p_ptr->skills[SK_SWORD].skill_rank = p_ptr->skills[SK_SWORD].skill_max = p_ptr->skills[SK_SWORD].skill_raise = -2;
+		p_ptr->skills[SK_DAGGER].skill_rank = p_ptr->skills[SK_DAGGER].skill_max = p_ptr->skills[SK_DAGGER].skill_raise = -2;
+		p_ptr->skills[SK_AXES].skill_rank = p_ptr->skills[SK_AXES].skill_max = p_ptr->skills[SK_AXES].skill_raise = -2;
+		p_ptr->skills[SK_HAFTED].skill_rank = p_ptr->skills[SK_HAFTED].skill_max = p_ptr->skills[SK_HAFTED].skill_raise = -2;
+
+	}
+	if (p_ptr->skills[SK_AXES].skill_max > 1)
+	{
+		p_ptr->skills[SK_POLEARM].skill_rank = p_ptr->skills[SK_POLEARM].skill_max = p_ptr->skills[SK_POLEARM].skill_raise = -2;
+		p_ptr->skills[SK_SWORD].skill_rank = p_ptr->skills[SK_SWORD].skill_max = p_ptr->skills[SK_SWORD].skill_raise = -2;
+		p_ptr->skills[SK_DAGGER].skill_rank = p_ptr->skills[SK_DAGGER].skill_max = p_ptr->skills[SK_DAGGER].skill_raise = -2;
+		p_ptr->skills[SK_HAFTED].skill_rank = p_ptr->skills[SK_HAFTED].skill_max = p_ptr->skills[SK_HAFTED].skill_raise = -2;
+		p_ptr->skills[SK_BLUNT].skill_rank = p_ptr->skills[SK_BLUNT].skill_max = p_ptr->skills[SK_BLUNT].skill_raise = -2;
+
+	}
+	if (p_ptr->skills[SK_DAGGER].skill_max > 1)
+	{
+		p_ptr->skills[SK_POLEARM].skill_rank = p_ptr->skills[SK_POLEARM].skill_max = p_ptr->skills[SK_POLEARM].skill_raise = -2;
+		p_ptr->skills[SK_SWORD].skill_rank = p_ptr->skills[SK_SWORD].skill_max = p_ptr->skills[SK_SWORD].skill_raise = -2;
+		p_ptr->skills[SK_HAFTED].skill_rank = p_ptr->skills[SK_HAFTED].skill_max = p_ptr->skills[SK_HAFTED].skill_raise = -2;
+		p_ptr->skills[SK_AXES].skill_rank = p_ptr->skills[SK_AXES].skill_max = p_ptr->skills[SK_AXES].skill_raise = -2;
+		p_ptr->skills[SK_BLUNT].skill_rank = p_ptr->skills[SK_BLUNT].skill_max = p_ptr->skills[SK_BLUNT].skill_raise = -2;
+
+	}
+	if (p_ptr->skills[SK_SWORD].skill_max > 1)
+	{
+		p_ptr->skills[SK_POLEARM].skill_rank = p_ptr->skills[SK_POLEARM].skill_max = p_ptr->skills[SK_POLEARM].skill_raise = -2;
+		p_ptr->skills[SK_HAFTED].skill_rank = p_ptr->skills[SK_HAFTED].skill_max = p_ptr->skills[SK_HAFTED].skill_raise = -2;
+		p_ptr->skills[SK_DAGGER].skill_rank = p_ptr->skills[SK_DAGGER].skill_max = p_ptr->skills[SK_DAGGER].skill_raise = -2;
+		p_ptr->skills[SK_AXES].skill_rank = p_ptr->skills[SK_AXES].skill_max = p_ptr->skills[SK_AXES].skill_raise = -2;
+		p_ptr->skills[SK_BLUNT].skill_rank = p_ptr->skills[SK_BLUNT].skill_max = p_ptr->skills[SK_BLUNT].skill_raise = -2;
+
+	}
+	if (p_ptr->skills[SK_POLEARM].skill_max > 1)
+	{
+		p_ptr->skills[SK_HAFTED].skill_rank = p_ptr->skills[SK_HAFTED].skill_max = p_ptr->skills[SK_HAFTED].skill_raise = -2;
+		p_ptr->skills[SK_SWORD].skill_rank = p_ptr->skills[SK_SWORD].skill_max = p_ptr->skills[SK_SWORD].skill_raise = -2;
+		p_ptr->skills[SK_DAGGER].skill_rank = p_ptr->skills[SK_DAGGER].skill_max = p_ptr->skills[SK_DAGGER].skill_raise = -2;
+		p_ptr->skills[SK_AXES].skill_rank = p_ptr->skills[SK_AXES].skill_max = p_ptr->skills[SK_AXES].skill_raise = -2;
+		p_ptr->skills[SK_BLUNT].skill_rank = p_ptr->skills[SK_BLUNT].skill_max = p_ptr->skills[SK_BLUNT].skill_raise = -2;
+
+	}
+	if (p_ptr->skills[SK_PISTOL].skill_max > 1)
+	{
+		p_ptr->skills[SK_RIFLE].skill_rank = p_ptr->skills[SK_RIFLE].skill_max = p_ptr->skills[SK_RIFLE].skill_raise = -2;
+		p_ptr->skills[SK_SHOTGUN].skill_rank = p_ptr->skills[SK_SHOTGUN].skill_max = p_ptr->skills[SK_SHOTGUN].skill_raise = -2;
+	}
+	if (p_ptr->skills[SK_RIFLE].skill_max > 1)
+	{
+		p_ptr->skills[SK_PISTOL].skill_rank = p_ptr->skills[SK_PISTOL].skill_max = p_ptr->skills[SK_PISTOL].skill_raise = -2;
+		p_ptr->skills[SK_SHOTGUN].skill_rank = p_ptr->skills[SK_SHOTGUN].skill_max = p_ptr->skills[SK_SHOTGUN].skill_raise = -2;
+	}
+	if (p_ptr->skills[SK_SHOTGUN].skill_max > 1)
+	{
+		p_ptr->skills[SK_PISTOL].skill_rank = p_ptr->skills[SK_PISTOL].skill_max = p_ptr->skills[SK_PISTOL].skill_raise = -2;
+		p_ptr->skills[SK_RIFLE].skill_rank = p_ptr->skills[SK_RIFLE].skill_max = p_ptr->skills[SK_RIFLE].skill_raise = -2;
+	}
+	if ((p_ptr->pclass == CLASS_ADVENTURER) &&
+		(p_ptr->skills[SK_HAFTED].skill_max > 19))
+	{
+		if (p_ptr->skills[SK_HAFTED_MASTER].skill_max == -2)
+		{
+			p_ptr->skills[SK_HAFTED_MASTER].skill_rank = p_ptr->skills[SK_HAFTED_MASTER].skill_max = p_ptr->skills[SK_HAFTED_MASTER].skill_raise = 1;
+		}
+	}
+	if ((p_ptr->pclass == CLASS_ADVENTURER) &&
+	 	(p_ptr->skills[SK_POLEARM].skill_max > 19))
+	{
+		if (p_ptr->skills[SK_POLEARM_MASTER].skill_max == -2)
+		{
+			p_ptr->skills[SK_POLEARM_MASTER].skill_rank = p_ptr->skills[SK_POLEARM_MASTER].skill_max = p_ptr->skills[SK_POLEARM_MASTER].skill_raise = 1;
+		}
+	}
+	if ((p_ptr->pclass == CLASS_ADVENTURER) &&
+		(p_ptr->skills[SK_SWORD].skill_max > 19))
+	{
+		if (p_ptr->skills[SK_SWORD_MASTER].skill_max == -2)
+		{
+			p_ptr->skills[SK_SWORD_MASTER].skill_rank = p_ptr->skills[SK_SWORD_MASTER].skill_max = p_ptr->skills[SK_SWORD_MASTER].skill_raise = 1;
+		}
+	}
+	if ((p_ptr->pclass == CLASS_ADVENTURER) &&
+		(p_ptr->skills[SK_DAGGER].skill_max > 19))
+	{
+		if (p_ptr->skills[SK_DAGGER_MASTER].skill_max == -2)
+		{
+			p_ptr->skills[SK_DAGGER_MASTER].skill_rank = p_ptr->skills[SK_DAGGER_MASTER].skill_max = p_ptr->skills[SK_DAGGER_MASTER].skill_raise = 1;
+		}
+	}
+	if ((p_ptr->pclass == CLASS_ADVENTURER) &&
+		(p_ptr->skills[SK_AXES].skill_max > 19))
+	{
+		if (p_ptr->skills[SK_AXES_MASTER].skill_max == -2)
+		{
+			p_ptr->skills[SK_AXES_MASTER].skill_rank = p_ptr->skills[SK_AXES_MASTER].skill_max = p_ptr->skills[SK_AXES_MASTER].skill_raise = 1;
+		}
+	}
+	if ((p_ptr->pclass == CLASS_ADVENTURER) &&
+		(p_ptr->skills[SK_BLUNT].skill_max > 19))
+	{
+		if (p_ptr->skills[SK_BLUNT_MASTER].skill_max == -2)
+		{
+			p_ptr->skills[SK_BLUNT_MASTER].skill_rank = p_ptr->skills[SK_BLUNT_MASTER].skill_max = p_ptr->skills[SK_BLUNT_MASTER].skill_raise = 1;
+		}
+	}
+	if ((p_ptr->pclass == CLASS_ADVENTURER) && 
+		((p_ptr->skills[SK_SEARCHING_GOOD].skill_max > 4) ||
+		 (p_ptr->skills[SK_SEARCHING_NORM].skill_max > 4) ||
+		 (p_ptr->skills[SK_SEARCHING_POOR].skill_max > 4)))
+	{
+		if (p_ptr->skills[SK_TRAILBLAZER].skill_max == -2)
+		{
+			p_ptr->skills[SK_TRAILBLAZER].skill_rank = p_ptr->skills[SK_TRAILBLAZER].skill_max = p_ptr->skills[SK_TRAILBLAZER].skill_raise = 1;
+		}
+	}
+	if (p_ptr->skills[SK_TRAILBLAZER].skill_max > 14)
+	{
+		if (p_ptr->skills[SK_EXPLORER].skill_max == -2)
+		{
+			p_ptr->skills[SK_EXPLORER].skill_rank = p_ptr->skills[SK_EXPLORER].skill_max = p_ptr->skills[SK_EXPLORER].skill_raise = 1;
+		}
+	}
+	if ((p_ptr->skills[SK_SEARCHING_GOOD].skill_max > 4) ||
+		(p_ptr->skills[SK_SEARCHING_NORM].skill_max > 4) ||
+		(p_ptr->skills[SK_SEARCHING_POOR].skill_max > 4))
+	{
+		if (p_ptr->skills[SK_KEEN_EYES].skill_max == -2)
+		{
+			p_ptr->skills[SK_KEEN_EYES].skill_rank = p_ptr->skills[SK_KEEN_EYES].skill_max = p_ptr->skills[SK_KEEN_EYES].skill_raise = 1;
+		}
+	}
+	
+	if ( ((p_ptr->pclass == CLASS_ADVENTURER) || 
+		 (p_ptr->pclass == CLASS_ENGINEER) || 
+		 (p_ptr->pclass == CLASS_OFFICER)) && 
+		 (p_ptr->skills[SK_KEEN_EYES].skill_max > 9) &&
+		((p_ptr->skills[SK_SEARCHING_GOOD].skill_max > 14) ||
+		 (p_ptr->skills[SK_SEARCHING_NORM].skill_max > 14) ||
+		 (p_ptr->skills[SK_SEARCHING_POOR].skill_max > 14)))
+	{
+		if (p_ptr->skills[SK_SPOT_WEAKNESS].skill_max == -2)
+		{
+			p_ptr->skills[SK_SPOT_WEAKNESS].skill_rank = p_ptr->skills[SK_SPOT_WEAKNESS].skill_max = p_ptr->skills[SK_SPOT_WEAKNESS].skill_raise = 1;
+		}
+	}
+	
+	if ((p_ptr->pclass == CLASS_ADVENTURER) && (p_ptr->skills[SK_FORTITUDE].skill_max > 4) &&
+		((p_ptr->skills[SK_STEALTH_GOOD].skill_max > 9) ||
+		 (p_ptr->skills[SK_STEALTH_NORM].skill_max > 9) ||
+		 (p_ptr->skills[SK_STEALTH_POOR].skill_max > 9)))
+	{
+		if (p_ptr->skills[SK_BASIC_SURVIVAL].skill_max == -2)
+		{
+			p_ptr->skills[SK_BASIC_SURVIVAL].skill_rank = p_ptr->skills[SK_BASIC_SURVIVAL].skill_max = p_ptr->skills[SK_BASIC_SURVIVAL].skill_raise = 1;
+		}
+	}
+	if (((p_ptr->pclass == CLASS_ADVENTURER) || 
+		 (p_ptr->pclass == CLASS_ENGINEER) || 
+		 (p_ptr->pclass == CLASS_ROGUE)) &&
+		((p_ptr->skills[SK_DISARM_GOOD].skill_max > 9) ||
+		 (p_ptr->skills[SK_DISARM_NORM].skill_max > 9) ||
+		 (p_ptr->skills[SK_DISARM_POOR].skill_max > 9)))
+	{
+		if (p_ptr->skills[SK_DISABLE_MACHINE].skill_max == -2)
+		{
+			p_ptr->skills[SK_DISABLE_MACHINE].skill_rank = p_ptr->skills[SK_DISABLE_MACHINE].skill_max = p_ptr->skills[SK_DISABLE_MACHINE].skill_raise = 1;
+		}
+	}
+	if ((p_ptr->pclass == CLASS_ROGUE) && (p_ptr->skills[SK_ADV_MARTIAL].skill_max > 0) &&
+		((p_ptr->skills[SK_STEALTH_GOOD].skill_max > 19) ||
+		 (p_ptr->skills[SK_STEALTH_NORM].skill_max > 19) ||
+		 (p_ptr->skills[SK_STEALTH_POOR].skill_max > 19)))
+	{
+		if (p_ptr->skills[SK_NINJASTEALTH].skill_max == -2)
+		{
+			p_ptr->skills[SK_NINJASTEALTH].skill_rank = p_ptr->skills[SK_NINJASTEALTH].skill_max = p_ptr->skills[SK_NINJASTEALTH].skill_raise = 1;
+		}
+		if (p_ptr->skills[SK_NINJUTSU].skill_max == -2)
+		{
+			p_ptr->skills[SK_NINJUTSU].skill_rank = p_ptr->skills[SK_NINJUTSU].skill_max = p_ptr->skills[SK_NINJUTSU].skill_raise = 1;
+		}
+	}
+	if 	((p_ptr->skills[SK_NINJASTEALTH].skill_max > 4) ||
+		(p_ptr->skills[SK_NINJUTSU].skill_max > 4))
+	{
+		if (p_ptr->skills[SK_NINJAMAGIC].skill_max == -2)
+		{
+			p_ptr->skills[SK_NINJAMAGIC].skill_rank = p_ptr->skills[SK_NINJAMAGIC].skill_max = p_ptr->skills[SK_NINJAMAGIC].skill_raise = 1;
+		}
+	}
+	if 	((p_ptr->pclass == CLASS_ROGUE) &&
+		((p_ptr->skills[SK_TOHIT].skill_max > 4) ||
+		(p_ptr->skills[SK_TOHIT_MARTIAL].skill_max > 4)))
+	{
+		if (p_ptr->skills[SK_DIRTY_FIGHTING].skill_max == -2)
+		{
+			p_ptr->skills[SK_DIRTY_FIGHTING].skill_rank = p_ptr->skills[SK_DIRTY_FIGHTING].skill_max = p_ptr->skills[SK_DIRTY_FIGHTING].skill_raise = 1;
+		}
+	}
+	if 	(((p_ptr->pclass == CLASS_ROGUE) || 
+		  (p_ptr->pclass == CLASS_ENGINEER) ||
+ 		  (p_ptr->pclass == CLASS_OFFICER)) &&
+		((p_ptr->skills[SK_LATIN].skill_max > 9)))
+	{
+		if (p_ptr->skills[SK_ANATOMY].skill_max == -2)
+		{
+			p_ptr->skills[SK_ANATOMY].skill_rank = p_ptr->skills[SK_ANATOMY].skill_max = p_ptr->skills[SK_ANATOMY].skill_raise = 1;
+		}
+	}
+
+	if 	((((p_ptr->pclass == CLASS_GENTLEMAN) || 
+		  (p_ptr->pclass == CLASS_ENGINEER) ||
+ 		  (p_ptr->pclass == CLASS_MEDIUM)) &&
+		((p_ptr->skills[SK_LATIN].skill_max > 2))) &&
+		(!(p_ptr->prace == RACE_STEAM_MECHA)) &&
+		(!(p_ptr->prace == RACE_AUTOMATA)))
+	{
+		if (p_ptr->skills[SK_ERUDITE].skill_max == -2)
+		{
+			p_ptr->skills[SK_ERUDITE].skill_rank = p_ptr->skills[SK_ERUDITE].skill_max = p_ptr->skills[SK_ERUDITE].skill_raise = 1;
+		}
+	}
+	if (((p_ptr->pclass == CLASS_ROGUE) || 
+		 (p_ptr->pclass == CLASS_ENGINEER) || 
+		 (p_ptr->pclass == CLASS_AESTHETE)) &&
+		((p_ptr->skills[SK_DISARM_GOOD].skill_max > 9) ||
+		 (p_ptr->skills[SK_DISARM_NORM].skill_max > 9) ||
+		 (p_ptr->skills[SK_DISARM_POOR].skill_max > 9)))
+	{
+		if (p_ptr->skills[SK_SABOTAGE].skill_max == -2)
+		{
+			p_ptr->skills[SK_SABOTAGE].skill_rank = p_ptr->skills[SK_SABOTAGE].skill_max = p_ptr->skills[SK_SABOTAGE].skill_raise = 1;
+		}
+	}
+	if ((p_ptr->pclass == CLASS_ROGUE) &&
+		((p_ptr->skills[SK_STEALTH_GOOD].skill_max > 9) ||
+		 (p_ptr->skills[SK_STEALTH_NORM].skill_max > 9) ||
+		 (p_ptr->skills[SK_STEALTH_POOR].skill_max > 9)))
+	{
+		if (p_ptr->skills[SK_ASSASSINATION].skill_max == -2)
+		{
+			p_ptr->skills[SK_ASSASSINATION].skill_rank = p_ptr->skills[SK_ASSASSINATION].skill_max = p_ptr->skills[SK_ASSASSINATION].skill_raise = 1;
+		}
+	}
+	if ((p_ptr->pclass == CLASS_ROGUE) &&
+		((p_ptr->skills[SK_STEALTH_GOOD].skill_max > 14) ||
+		 (p_ptr->skills[SK_STEALTH_NORM].skill_max > 14) ||
+		 (p_ptr->skills[SK_STEALTH_POOR].skill_max > 14)))
+	{
+		if (p_ptr->skills[SK_THEFT].skill_max == -2)
+		{
+			p_ptr->skills[SK_THEFT].skill_rank = p_ptr->skills[SK_THEFT].skill_max = p_ptr->skills[SK_THEFT].skill_raise = 1;
+		}
+	}
+	if (p_ptr->skills[SK_THEFT].skill_max > 19)
+	{
+		if (p_ptr->skills[SK_MASTER_THEFT].skill_max == -2)
+		{
+			p_ptr->skills[SK_MASTER_THEFT].skill_rank = p_ptr->skills[SK_MASTER_THEFT].skill_max = p_ptr->skills[SK_MASTER_THEFT].skill_raise = 1;
+		}
+	}
+	if ((p_ptr->pclass == CLASS_ROGUE) &&
+		((p_ptr->skills[SK_STEALTH_GOOD].skill_max > 19) ||
+		 (p_ptr->skills[SK_STEALTH_NORM].skill_max > 19) ||
+		 (p_ptr->skills[SK_STEALTH_POOR].skill_max > 19)))
+	{
+		if (p_ptr->skills[SK_SUPERSTEALTH].skill_max == -2)
+		{
+			p_ptr->skills[SK_SUPERSTEALTH].skill_rank = p_ptr->skills[SK_SUPERSTEALTH].skill_max = p_ptr->skills[SK_SUPERSTEALTH].skill_raise = 1;
 		}
 	}
 	if (p_ptr->skills[SK_OFFICER].skill_max > 4)
 	{
 		if (p_ptr->skills[SK_PRESENCE].skill_max == -2)
 		{
-			p_ptr->skills[SK_PRESENCE].skill_rank = p_ptr->skills[SK_PRESENCE].skill_max = 1;
+			p_ptr->skills[SK_PRESENCE].skill_rank = p_ptr->skills[SK_PRESENCE].skill_max = p_ptr->skills[SK_PRESENCE].skill_raise = 1;
 		}
 	}
-	if (p_ptr->skills[SK_MEDIUM].skill_max > 4)
+	if ((p_ptr->pclass == CLASS_OFFICER) && (p_ptr->skills[SK_INTER_COMBAT].skill_max > 4))
+	{
+		if (p_ptr->skills[SK_HOLD_THE_LINE].skill_max == -2)
+		{
+			p_ptr->skills[SK_HOLD_THE_LINE].skill_rank = p_ptr->skills[SK_HOLD_THE_LINE].skill_max = p_ptr->skills[SK_HOLD_THE_LINE].skill_raise = 1;
+		}
+	}
+	if ((p_ptr->pclass == CLASS_OFFICER) && (p_ptr->skills[SK_ADV_COMBAT].skill_max > 9))
+	{
+		if (p_ptr->skills[SK_KNOCK_DOWN].skill_max == -2)
+		{
+			p_ptr->skills[SK_KNOCK_DOWN].skill_rank = p_ptr->skills[SK_KNOCK_DOWN].skill_max = p_ptr->skills[SK_KNOCK_DOWN].skill_raise = 1;
+		}
+	}
+	if 	((p_ptr->skills[SK_HOLD_THE_LINE].skill_max > 14) &&
+		(p_ptr->skills[SK_ADV_COMBAT].skill_max > 14))
+	{
+		if (p_ptr->skills[SK_BATTLE_ENDURANCE].skill_max == -2)
+		{
+			p_ptr->skills[SK_BATTLE_ENDURANCE].skill_rank = p_ptr->skills[SK_BATTLE_ENDURANCE].skill_max = p_ptr->skills[SK_BATTLE_ENDURANCE].skill_raise = 1;
+		}
+	}
+	if (p_ptr->skills[SK_TELEPATHY].skill_max > 4 ||
+		p_ptr->skills[SK_CLAIRSENTIENCE].skill_max > 4 ||
+		p_ptr->skills[SK_PSYCHOMETABOLISM].skill_max > 4)
 	{
 		if (p_ptr->skills[SK_MESMERIC_WILL].skill_max == -2)
 		{
-			p_ptr->skills[SK_MESMERIC_WILL].skill_rank = p_ptr->skills[SK_MESMERIC_WILL].skill_max = 1;
+			p_ptr->skills[SK_MESMERIC_WILL].skill_rank = p_ptr->skills[SK_MESMERIC_WILL].skill_max = p_ptr->skills[SK_MESMERIC_WILL].skill_raise = 1;
+		}
+	}
+	if (p_ptr->skills[SK_FLORAL].skill_max > 4 ||
+		p_ptr->skills[SK_FAUNA].skill_max > 4 ||
+		p_ptr->skills[SK_ELEMENTAL].skill_max > 4)
+	{
+		if (p_ptr->skills[SK_EARTH_HEARTH].skill_max == -2)
+		{
+			p_ptr->skills[SK_EARTH_HEARTH].skill_rank = p_ptr->skills[SK_EARTH_HEARTH].skill_max = p_ptr->skills[SK_EARTH_HEARTH].skill_raise = 1;
+		}
+	}
+	if (p_ptr->skills[SK_MESMERIC_WILL].skill_max > 4)
+	{
+		if (p_ptr->skills[SK_SPIRIT_BATTERY].skill_max == -2)
+		{
+			p_ptr->skills[SK_SPIRIT_BATTERY].skill_rank = p_ptr->skills[SK_SPIRIT_BATTERY].skill_max = p_ptr->skills[SK_SPIRIT_BATTERY].skill_raise = 1;
+		}
+	}
+	if (p_ptr->skills[SK_COMBATTECHNIQUES].skill_max > 14 )
+	{
+		if (p_ptr->skills[SK_ELITEMANEUVERS].skill_max == -2)
+		{
+			p_ptr->skills[SK_ELITEMANEUVERS].skill_rank = p_ptr->skills[SK_ELITEMANEUVERS].skill_max = p_ptr->skills[SK_ELITEMANEUVERS].skill_raise = 1;
 		}
 	}
 
@@ -3372,153 +3472,187 @@ void skill_link(void)
 	{
 		if (p_ptr->skills[SK_GEMATRIA].skill_max == -2)
 		{
-			p_ptr->skills[SK_GEMATRIA].skill_rank = p_ptr->skills[SK_GEMATRIA].skill_max = 1;
+			p_ptr->skills[SK_GEMATRIA].skill_rank = p_ptr->skills[SK_GEMATRIA].skill_max = p_ptr->skills[SK_GEMATRIA].skill_raise = 1;
+		}
+	}
+	if ((p_ptr->pclass == CLASS_AESTHETE) && (p_ptr->skills[SK_LATIN].skill_max > 4))
+	{
+		if (p_ptr->skills[SK_ART_APPRECIATION].skill_max == -2)
+		{
+			p_ptr->skills[SK_ART_APPRECIATION].skill_rank = p_ptr->skills[SK_ART_APPRECIATION].skill_max = p_ptr->skills[SK_ART_APPRECIATION].skill_raise = 1;
+		}
+	}
+	if ((p_ptr->pclass == CLASS_AESTHETE) &&
+		((p_ptr->skills[SK_STEALTH_GOOD].skill_max > 4) ||
+		 (p_ptr->skills[SK_STEALTH_NORM].skill_max > 4) ||
+		 (p_ptr->skills[SK_STEALTH_POOR].skill_max > 4)))
+	{
+		if (p_ptr->skills[SK_BRIBERY].skill_max == -2)
+		{
+			p_ptr->skills[SK_BRIBERY].skill_rank = p_ptr->skills[SK_BRIBERY].skill_max = p_ptr->skills[SK_BRIBERY].skill_raise = 1;
+			gain_random_mutation(109);
 		}
 	}
 	/* spells */
 	/* Everyone gets latin, and access to books */
 	/* then there is the occult chain. */
+	if (p_ptr->skills[SK_GADGETEER].skill_max > 4)
+	{
+		if (p_ptr->skills[SK_PYROKINETICS].skill_max == -2)
+		{
+			p_ptr->skills[SK_PYROKINETICS].skill_rank = p_ptr->skills[SK_PYROKINETICS].skill_max = p_ptr->skills[SK_PYROKINETICS].skill_raise = 1;
+		}
+	}
+	if ((p_ptr->pclass == CLASS_GENTLEMAN) && (p_ptr->skills[SK_LATIN].skill_max > 4))
+	{
+		if (p_ptr->skills[SK_PERILOUS_SORCERY].skill_max == -2)
+		{
+			p_ptr->skills[SK_PERILOUS_SORCERY].skill_rank = p_ptr->skills[SK_PERILOUS_SORCERY].skill_max = p_ptr->skills[SK_PERILOUS_SORCERY].skill_raise = 1;
+		}
+	}
 	if 	(
 		(p_ptr->skills[SK_OCCULT].skill_max > 14) &&
 		(
 		(p_ptr->pclass == CLASS_AESTHETE) ||
-		(p_ptr->pclass == CLASS_DETECTIVE) ||
 		(p_ptr->pclass == CLASS_ENGINEER) ||
-		(p_ptr->pclass == CLASS_EXPLORER) ||
 		(p_ptr->pclass == CLASS_MEDIUM) ||
-		(p_ptr->pclass == CLASS_RECKONER) ||
-		(p_ptr->pclass == CLASS_STEAM_ENG) ||
-		(p_ptr->pclass == CLASS_TOURIST) ||
-		(p_ptr->pclass == CLASS_ANARCHIST) ||
 		(p_ptr->pclass == CLASS_GENTLEMAN) ||
 		(p_ptr->pclass == CLASS_ROGUE) ||
-		(p_ptr->pclass == CLASS_NATURAL) ||
-		(p_ptr->pclass == CLASS_QABALIST) ||
-		(p_ptr->pclass == CLASS_OCULUS_DEI)
+		(p_ptr->pclass == CLASS_NATURAL)
 		)
 		)
 	{
 		if (p_ptr->skills[SK_ADV_OCCULT].skill_max == -2)
 		{
-			p_ptr->skills[SK_ADV_OCCULT].skill_rank = p_ptr->skills[SK_ADV_OCCULT].skill_max = 1;
+			p_ptr->skills[SK_ADV_OCCULT].skill_rank = p_ptr->skills[SK_ADV_OCCULT].skill_max = p_ptr->skills[SK_ADV_OCCULT].skill_raise = 1;
 		}
 	}
 	if 	(
 		(p_ptr->skills[SK_ADV_OCCULT].skill_max > 14) &&
 		(
-		(p_ptr->pclass == CLASS_AESTHETE) ||
-		(p_ptr->pclass == CLASS_DETECTIVE) ||
-		(p_ptr->pclass == CLASS_EXPLORER) ||
-		(p_ptr->pclass == CLASS_MEDIUM) ||
-		(p_ptr->pclass == CLASS_RECKONER) ||
-		(p_ptr->pclass == CLASS_ANARCHIST) ||
 		(p_ptr->pclass == CLASS_GENTLEMAN) ||
-		(p_ptr->pclass == CLASS_ROGUE) ||
-		(p_ptr->pclass == CLASS_NATURAL) ||
-		(p_ptr->pclass == CLASS_QABALIST) ||
-		(p_ptr->pclass == CLASS_OCULUS_DEI)
+		(p_ptr->pclass == CLASS_ROGUE) 
 		)
 		)
 	{
 		if (p_ptr->skills[SK_CTHULHU_MYTHOS].skill_max == -2)
 		{
-			p_ptr->skills[SK_CTHULHU_MYTHOS].skill_rank = p_ptr->skills[SK_CTHULHU_MYTHOS].skill_max = 1;
+			p_ptr->skills[SK_CTHULHU_MYTHOS].skill_rank = p_ptr->skills[SK_CTHULHU_MYTHOS].skill_max = p_ptr->skills[SK_CTHULHU_MYTHOS].skill_raise = 1;
 		}
 	}
 	if 	(
-		(p_ptr->skills[SK_RITUAL_MAGIC].skill_max > 3) &&
+		(p_ptr->skills[SK_RITUAL_MAGIC].skill_max > 2) &&
 		(
 		(p_ptr->pclass == CLASS_MEDIUM) ||
-		(p_ptr->pclass == CLASS_RECKONER) ||
-		(p_ptr->pclass == CLASS_ANARCHIST) ||
-		(p_ptr->pclass == CLASS_STEAM_ENG) ||
 		(p_ptr->pclass == CLASS_GENTLEMAN) ||
+		(p_ptr->pclass == CLASS_ENGINEER) ||
 		(p_ptr->pclass == CLASS_ROGUE) ||
 		(p_ptr->pclass == CLASS_NATURAL) ||
-		(p_ptr->pclass == CLASS_QABALIST) ||
-		(p_ptr->pclass == CLASS_OCULUS_DEI) 
+		(p_ptr->pclass == CLASS_AESTHETE)		
 		)
 		)
 	{
 		if (p_ptr->skills[SK_THAUMIC_ENERGY].skill_max == -2)
 		{
-			p_ptr->skills[SK_THAUMIC_ENERGY].skill_rank = p_ptr->skills[SK_THAUMIC_ENERGY].skill_max = 1;
+			p_ptr->skills[SK_THAUMIC_ENERGY].skill_rank = p_ptr->skills[SK_THAUMIC_ENERGY].skill_max = p_ptr->skills[SK_THAUMIC_ENERGY].skill_raise = 1;
 		}
 	}
 	if 	(
 		(p_ptr->skills[SK_THAUMIC_ENERGY].skill_max > 14) &&
 		(
 		(p_ptr->pclass == CLASS_MEDIUM) ||
-		(p_ptr->pclass == CLASS_RECKONER) ||
-		(p_ptr->pclass == CLASS_ANARCHIST) ||
-		(p_ptr->pclass == CLASS_OCULUS_DEI) ||
+		(p_ptr->pclass == CLASS_ENGINEER) ||
 		(p_ptr->pclass == CLASS_GENTLEMAN) ||
-		(p_ptr->pclass == CLASS_NATURAL) ||
-		(p_ptr->pclass == CLASS_QABALIST)
+		(p_ptr->pclass == CLASS_NATURAL) 
 		)
 		)
 	{
 		if (p_ptr->skills[SK_ADV_THAUMIC_ENERGY].skill_max == -2)
 		{
-			p_ptr->skills[SK_ADV_THAUMIC_ENERGY].skill_rank = p_ptr->skills[SK_ADV_THAUMIC_ENERGY].skill_max = 1;
+			p_ptr->skills[SK_ADV_THAUMIC_ENERGY].skill_rank = p_ptr->skills[SK_ADV_THAUMIC_ENERGY].skill_max = p_ptr->skills[SK_ADV_THAUMIC_ENERGY].skill_raise = 1;
 		}
 	}
 	if 	(
 		(p_ptr->skills[SK_ADV_THAUMIC_ENERGY].skill_max > 14) &&
 		(
-		(p_ptr->pclass == CLASS_ANARCHIST) ||
-		(p_ptr->pclass == CLASS_OCULUS_DEI) ||
-		(p_ptr->pclass == CLASS_QABALIST)
+		(p_ptr->pclass == CLASS_GENTLEMAN) 
 		)
 		)
 	{
 		if (p_ptr->skills[SK_THELMA].skill_max == -2)
 		{
-			p_ptr->skills[SK_THELMA].skill_rank = p_ptr->skills[SK_THELMA].skill_max = 1;
+			p_ptr->skills[SK_THELMA].skill_rank = p_ptr->skills[SK_THELMA].skill_max = p_ptr->skills[SK_THELMA].skill_raise = 1;
 		}
 	}
 	if 	(
 		(p_ptr->skills[SK_SPIRITUALITY].skill_max > 14) &&
 		(
 		(p_ptr->pclass == CLASS_NATURAL) ||
-		(p_ptr->pclass == CLASS_OCULUS_DEI) ||
-		(p_ptr->pclass == CLASS_ANARCHIST) ||
-		(p_ptr->pclass == CLASS_QABALIST) 
+		(p_ptr->pclass == CLASS_MEDIUM) ||
+		(p_ptr->pclass == CLASS_GENTLEMAN) ||
+		(p_ptr->pclass == CLASS_ENGINEER) ||
+		(p_ptr->pclass == CLASS_DASHING_H) ||
+		(p_ptr->pclass == CLASS_ADVENTURER) ||
+		(p_ptr->pclass == CLASS_OFFICER) ||
+		(p_ptr->pclass == CLASS_ROGUE) ||
+		(p_ptr->pclass == CLASS_AESTHETE)		
 		)
 		)
 	{
 		if (p_ptr->skills[SK_PRAYER].skill_max == -2)
 		{
-			p_ptr->skills[SK_PRAYER].skill_rank = p_ptr->skills[SK_PRAYER].skill_max = 1;
-		}
-	}
-	if (p_ptr->skills[SK_PRAYER].skill_max > 14)
-	{
-		if (p_ptr->skills[SK_DEVOTION].skill_max == -2)
-		{
-			p_ptr->skills[SK_DEVOTION].skill_rank = p_ptr->skills[SK_DEVOTION].skill_max = 1;
+			p_ptr->skills[SK_PRAYER].skill_rank = p_ptr->skills[SK_PRAYER].skill_max = p_ptr->skills[SK_PRAYER].skill_raise = 1;
 		}
 	}
 	if 	(
-		(p_ptr->skills[SK_SPIRITUALITY].skill_max > 3) &&
+		(p_ptr->skills[SK_PRAYER].skill_max > 14) &&
+		(
+		(p_ptr->pclass == CLASS_GENTLEMAN) ||
+		(p_ptr->pclass == CLASS_NATURAL) ||
+		(p_ptr->pclass == CLASS_MEDIUM) 
+		)
+		)
+		
+	{
+		if (p_ptr->skills[SK_DEVOTION].skill_max == -2)
+		{
+			p_ptr->skills[SK_DEVOTION].skill_rank = p_ptr->skills[SK_DEVOTION].skill_max = p_ptr->skills[SK_DEVOTION].skill_raise = 1;
+		}
+	}
+	if 	(
+		(p_ptr->skills[SK_SPIRITUALITY].skill_max > 2) &&
 		(
 		(p_ptr->pclass == CLASS_NATURAL) ||
-		(p_ptr->pclass == CLASS_OCULUS_DEI) ||
-		(p_ptr->pclass == CLASS_ANARCHIST) ||
-		(p_ptr->pclass == CLASS_QABALIST) 
+		(p_ptr->pclass == CLASS_ENGINEER) ||
+		(p_ptr->pclass == CLASS_GENTLEMAN) ||
+		(p_ptr->pclass == CLASS_MEDIUM) ||
+		(p_ptr->pclass == CLASS_ROGUE) ||
+		(p_ptr->pclass == CLASS_OFFICER) ||
+		(p_ptr->pclass == CLASS_DASHING_H) ||
+		(p_ptr->pclass == CLASS_ADVENTURER) ||
+		(p_ptr->pclass == CLASS_AESTHETE)		
 		)
 		)
 	{
 		if (p_ptr->skills[SK_LESSER_WARD].skill_max == -2)
 		{
-			p_ptr->skills[SK_LESSER_WARD].skill_rank = p_ptr->skills[SK_LESSER_WARD].skill_max = 1;
+			p_ptr->skills[SK_LESSER_WARD].skill_rank = p_ptr->skills[SK_LESSER_WARD].skill_max = p_ptr->skills[SK_LESSER_WARD].skill_raise = 1;
 		}
 	}
-	if (p_ptr->skills[SK_LESSER_WARD].skill_max > 14)
+	if 	(
+		(p_ptr->skills[SK_LESSER_WARD].skill_max > 14) &&
+		(
+		(p_ptr->pclass == CLASS_NATURAL) ||
+		(p_ptr->pclass == CLASS_MEDIUM) ||
+		(p_ptr->pclass == CLASS_GENTLEMAN) ||
+		(p_ptr->pclass == CLASS_ADVENTURER) ||
+		(p_ptr->pclass == CLASS_AESTHETE)		
+		)
+		)
 	{
 		if (p_ptr->skills[SK_GREATER_WARD].skill_max == -2)
 		{
-			p_ptr->skills[SK_GREATER_WARD].skill_rank = p_ptr->skills[SK_GREATER_WARD].skill_max = 1;
+			p_ptr->skills[SK_GREATER_WARD].skill_rank = p_ptr->skills[SK_GREATER_WARD].skill_max = p_ptr->skills[SK_GREATER_WARD].skill_raise = 1;
 		}
 	}
 	if (
@@ -3528,7 +3662,7 @@ void skill_link(void)
 	{
 		if (p_ptr->skills[SK_FAST_CAST].skill_max == -2)
 		{
-			p_ptr->skills[SK_FAST_CAST].skill_rank = p_ptr->skills[SK_FAST_CAST].skill_max = 1;
+			p_ptr->skills[SK_FAST_CAST].skill_rank = p_ptr->skills[SK_FAST_CAST].skill_max = p_ptr->skills[SK_FAST_CAST].skill_raise = 1;
 		}		
 	}	   
 	   
@@ -3536,35 +3670,35 @@ void skill_link(void)
 	{
 		if (p_ptr->skills[SK_HARD_WILL].skill_max == -2)
 		{
-			p_ptr->skills[SK_HARD_WILL].skill_rank = p_ptr->skills[SK_HARD_WILL].skill_max = 1;
+			p_ptr->skills[SK_HARD_WILL].skill_rank = p_ptr->skills[SK_HARD_WILL].skill_max = p_ptr->skills[SK_HARD_WILL].skill_raise = 1;
 		}
 	}
 	if (p_ptr->skills[SK_HARD_WILL].skill_max > 14)
 	{
 		if (p_ptr->skills[SK_IRON_WILL].skill_max == -2)
 		{
-			p_ptr->skills[SK_IRON_WILL].skill_rank = p_ptr->skills[SK_IRON_WILL].skill_max = 1;
+			p_ptr->skills[SK_IRON_WILL].skill_rank = p_ptr->skills[SK_IRON_WILL].skill_max = p_ptr->skills[SK_IRON_WILL].skill_raise = 1;
 		}
 	}
 	if (p_ptr->skills[SK_DEVICE_GOOD].skill_max > 4)
 	{
 		if (p_ptr->skills[SK_ADV_DEVICE].skill_max == -2)
 		{
-			p_ptr->skills[SK_ADV_DEVICE].skill_rank = p_ptr->skills[SK_ADV_DEVICE].skill_max = 1;
+			p_ptr->skills[SK_ADV_DEVICE].skill_rank = p_ptr->skills[SK_ADV_DEVICE].skill_max = p_ptr->skills[SK_ADV_DEVICE].skill_raise = 1;
 		}
 	}
 	if (p_ptr->skills[SK_DEVICE_NORM].skill_max > 9)
 	{
 		if (p_ptr->skills[SK_ADV_DEVICE].skill_max == -2)
 		{
-			p_ptr->skills[SK_ADV_DEVICE].skill_rank = p_ptr->skills[SK_ADV_DEVICE].skill_max = 1;
+			p_ptr->skills[SK_ADV_DEVICE].skill_rank = p_ptr->skills[SK_ADV_DEVICE].skill_max = p_ptr->skills[SK_ADV_DEVICE].skill_raise = 1;
 		}
 	}
 	if (p_ptr->skills[SK_DEVICE_POOR].skill_max > 14)
 	{
 		if (p_ptr->skills[SK_ADV_DEVICE].skill_max == -2)
 		{
-			p_ptr->skills[SK_ADV_DEVICE].skill_rank = p_ptr->skills[SK_ADV_DEVICE].skill_max = 1;
+			p_ptr->skills[SK_ADV_DEVICE].skill_rank = p_ptr->skills[SK_ADV_DEVICE].skill_max = p_ptr->skills[SK_ADV_DEVICE].skill_raise = 1;
 		}
 	}
 	if (
@@ -3574,39 +3708,264 @@ void skill_link(void)
 	{
 		if (p_ptr->skills[SK_SPEED_DEVICE].skill_max == -2)
 		{
-			p_ptr->skills[SK_SPEED_DEVICE].skill_rank = p_ptr->skills[SK_SPEED_DEVICE].skill_max = 1;
+			p_ptr->skills[SK_SPEED_DEVICE].skill_rank = p_ptr->skills[SK_SPEED_DEVICE].skill_max = p_ptr->skills[SK_SPEED_DEVICE].skill_raise = 1;
 		}
 	}
 	if (p_ptr->skills[SK_ADV_DEVICE].skill_max > 9)
 	{
 		if (p_ptr->skills[SK_EFF_DEVICE].skill_max == -2)
 		{
-			p_ptr->skills[SK_EFF_DEVICE].skill_rank = p_ptr->skills[SK_EFF_DEVICE].skill_max = 1;
+			p_ptr->skills[SK_EFF_DEVICE].skill_rank = p_ptr->skills[SK_EFF_DEVICE].skill_max = p_ptr->skills[SK_EFF_DEVICE].skill_raise = 1;
 		}
 	}
-	if (p_ptr->skills[SK_ADV_DEVICE].skill_max > 7)
+	if 	(
+		 (p_ptr->skills[SK_DEVICE_POOR].skill_max > 14) ||
+		 (p_ptr->skills[SK_DEVICE_GOOD].skill_max > 4) ||
+		 (p_ptr->skills[SK_DEVICE_NORM].skill_max > 9)
+		)
 	{
 		if (p_ptr->skills[SK_POW_DEVICE].skill_max == -2)
 		{
-			p_ptr->skills[SK_POW_DEVICE].skill_rank = p_ptr->skills[SK_POW_DEVICE].skill_max = 1;
+			p_ptr->skills[SK_POW_DEVICE].skill_rank = p_ptr->skills[SK_POW_DEVICE].skill_max = p_ptr->skills[SK_POW_DEVICE].skill_raise = 1;
 		}
 	}
 	if (p_ptr->skills[SK_POW_DEVICE].skill_max > 14)
 	{
 		if (p_ptr->skills[SK_POW2_DEVICE].skill_max == -2)
 		{
-			p_ptr->skills[SK_POW2_DEVICE].skill_rank = p_ptr->skills[SK_POW2_DEVICE].skill_max = 1;
+			p_ptr->skills[SK_POW2_DEVICE].skill_rank = p_ptr->skills[SK_POW2_DEVICE].skill_max = p_ptr->skills[SK_POW2_DEVICE].skill_raise = 1;
 		}
 	}
 	if (p_ptr->skills[SK_ADV_DEVICE].skill_max > 4)
 	{
 		if (p_ptr->skills[SK_HEAL_DEVICE].skill_max == -2)
 		{
-			p_ptr->skills[SK_HEAL_DEVICE].skill_rank = p_ptr->skills[SK_HEAL_DEVICE].skill_max = 1;
+			p_ptr->skills[SK_HEAL_DEVICE].skill_rank = p_ptr->skills[SK_HEAL_DEVICE].skill_max = p_ptr->skills[SK_HEAL_DEVICE].skill_raise = 1;
+		}
+	}
+	if 	(
+		(p_ptr->skills[SK_HARD_WILL].skill_max > 4) &&
+		(
+		(p_ptr->pclass == CLASS_MEDIUM)
+		)
+		)
+	{
+		if (p_ptr->skills[SK_MENTAL_RESISTANCE].skill_max == -2)
+		{
+			p_ptr->skills[SK_MENTAL_RESISTANCE].skill_rank = p_ptr->skills[SK_MENTAL_RESISTANCE].skill_max = p_ptr->skills[SK_MENTAL_RESISTANCE].skill_raise = 1;
+		}
+	}
+	if 	(
+		(p_ptr->skills[SK_HARD_WILL].skill_max > 14) &&
+		(
+		(p_ptr->pclass == CLASS_MEDIUM)
+		)
+		)
+	{
+		if (p_ptr->skills[SK_TOUGHNESS_WILL].skill_max == -2)
+		{
+			p_ptr->skills[SK_TOUGHNESS_WILL].skill_rank = p_ptr->skills[SK_TOUGHNESS_WILL].skill_max = p_ptr->skills[SK_TOUGHNESS_WILL].skill_raise = 1;
+		}
+	}
+	if 	(
+		(p_ptr->skills[SK_SPIRITUALITY].skill_max > 9) &&
+		(
+		(p_ptr->pclass == CLASS_MEDIUM)
+		)
+		)
+	{
+		if (p_ptr->skills[SK_SPIRIT_INFUSION].skill_max == -2)
+		{
+			p_ptr->skills[SK_SPIRIT_INFUSION].skill_rank = p_ptr->skills[SK_SPIRIT_INFUSION].skill_max = p_ptr->skills[SK_SPIRIT_INFUSION].skill_raise = 1;
+		}
+	}
+	if 	(
+		(p_ptr->skills[SK_SPIRIT_INFUSION].skill_max > 4) &&
+		(
+		(p_ptr->pclass == CLASS_MEDIUM)
+		)
+		)
+	{
+		if (p_ptr->skills[SK_SPIRIT_SHIELD].skill_max == -2)
+		{
+			p_ptr->skills[SK_SPIRIT_SHIELD].skill_rank = p_ptr->skills[SK_SPIRIT_SHIELD].skill_max = p_ptr->skills[SK_SPIRIT_SHIELD].skill_raise = 1;
+		}
+		if (p_ptr->skills[SK_SPIRIT_HEALING].skill_max == -2)
+		{
+			p_ptr->skills[SK_SPIRIT_HEALING].skill_rank = p_ptr->skills[SK_SPIRIT_HEALING].skill_max = p_ptr->skills[SK_SPIRIT_HEALING].skill_raise = 1;
+		}
+	}
+	if 	(
+		(p_ptr->skills[SK_SPIRIT_SHIELD].skill_max > 14) ||
+		(p_ptr->skills[SK_SPIRIT_HEALING].skill_max > 14)
+		)
+	{
+		if (p_ptr->skills[SK_SPIRIT_SPEED].skill_max == -2)
+		{
+			p_ptr->skills[SK_SPIRIT_SPEED].skill_rank = p_ptr->skills[SK_SPIRIT_SPEED].skill_max = p_ptr->skills[SK_SPIRIT_SPEED].skill_raise = 1;
+		}	
+	}	
+	if (p_ptr->skills[SK_FIRE_LORE].skill_max > 1)
+	{
+		p_ptr->skills[SK_WIND_LORE].skill_rank = p_ptr->skills[SK_WIND_LORE].skill_max = p_ptr->skills[SK_WIND_LORE].skill_raise = -2;
+		p_ptr->skills[SK_WATER_LORE].skill_rank = p_ptr->skills[SK_WATER_LORE].skill_max = p_ptr->skills[SK_WATER_LORE].skill_raise = -2;
+		p_ptr->skills[SK_EARTH_LORE].skill_rank = p_ptr->skills[SK_EARTH_LORE].skill_max = p_ptr->skills[SK_EARTH_LORE].skill_raise = -2;
+
+	}
+	if (p_ptr->skills[SK_WIND_LORE].skill_max > 1)
+	{
+		p_ptr->skills[SK_FIRE_LORE].skill_rank = p_ptr->skills[SK_FIRE_LORE].skill_max = p_ptr->skills[SK_FIRE_LORE].skill_raise = -2;
+		p_ptr->skills[SK_WATER_LORE].skill_rank = p_ptr->skills[SK_WATER_LORE].skill_max = p_ptr->skills[SK_WATER_LORE].skill_raise = -2;
+		p_ptr->skills[SK_EARTH_LORE].skill_rank = p_ptr->skills[SK_EARTH_LORE].skill_max = p_ptr->skills[SK_EARTH_LORE].skill_raise = -2;
+
+	}
+	if (p_ptr->skills[SK_WATER_LORE].skill_max > 1)
+	{
+		p_ptr->skills[SK_WIND_LORE].skill_rank = p_ptr->skills[SK_WIND_LORE].skill_max = p_ptr->skills[SK_WIND_LORE].skill_raise = -2;
+		p_ptr->skills[SK_FIRE_LORE].skill_rank = p_ptr->skills[SK_FIRE_LORE].skill_max = p_ptr->skills[SK_FIRE_LORE].skill_raise = -2;
+		p_ptr->skills[SK_EARTH_LORE].skill_rank = p_ptr->skills[SK_EARTH_LORE].skill_max = p_ptr->skills[SK_EARTH_LORE].skill_raise = -2;
+
+	}
+	if (p_ptr->skills[SK_EARTH_LORE].skill_max > 1)
+	{
+		p_ptr->skills[SK_WIND_LORE].skill_rank = p_ptr->skills[SK_WIND_LORE].skill_max = p_ptr->skills[SK_WIND_LORE].skill_raise = -2;
+		p_ptr->skills[SK_WATER_LORE].skill_rank = p_ptr->skills[SK_WATER_LORE].skill_max = p_ptr->skills[SK_WATER_LORE].skill_raise = -2;
+		p_ptr->skills[SK_FIRE_LORE].skill_rank = p_ptr->skills[SK_FIRE_LORE].skill_max = p_ptr->skills[SK_FIRE_LORE].skill_raise = -2;
+
+	}
+	if (p_ptr->skills[SK_FIRE_LORE].skill_max > 19)
+	{
+		if (p_ptr->skills[SK_FIRE_MASTERY].skill_max == -2)
+		{
+			p_ptr->skills[SK_FIRE_MASTERY].skill_rank = p_ptr->skills[SK_FIRE_MASTERY].skill_max = p_ptr->skills[SK_FIRE_MASTERY].skill_raise = 1;
+		}
+	}
+	if (p_ptr->skills[SK_WIND_LORE].skill_max > 19)
+	{
+		if (p_ptr->skills[SK_WIND_MASTERY].skill_max == -2)
+		{
+			p_ptr->skills[SK_WIND_MASTERY].skill_rank = p_ptr->skills[SK_WIND_MASTERY].skill_max = p_ptr->skills[SK_WIND_MASTERY].skill_raise = 1;
+		}
+	}
+	if (p_ptr->skills[SK_WATER_LORE].skill_max > 19)
+	{
+		if (p_ptr->skills[SK_WATER_MASTERY].skill_max == -2)
+		{
+			p_ptr->skills[SK_WATER_MASTERY].skill_rank = p_ptr->skills[SK_WATER_MASTERY].skill_max = p_ptr->skills[SK_WATER_MASTERY].skill_raise = 1;
+		}
+	}
+	if (p_ptr->skills[SK_EARTH_LORE].skill_max > 19)
+	{
+		if (p_ptr->skills[SK_EARTH_MASTERY].skill_max == -2)
+		{
+			p_ptr->skills[SK_EARTH_MASTERY].skill_rank = p_ptr->skills[SK_EARTH_MASTERY].skill_max = p_ptr->skills[SK_EARTH_MASTERY].skill_raise = 1;
 		}
 	}
 
+	if ((p_ptr->skills[SK_EARTH_LORE].skill_max > 14) ||
+		(p_ptr->skills[SK_WIND_LORE].skill_max > 14) ||
+		(p_ptr->skills[SK_WATER_LORE].skill_max > 14) ||
+		(p_ptr->skills[SK_FIRE_LORE].skill_max > 14))
+	{
+		if (p_ptr->skills[SK_ELEMENTAL_RESISTANCE].skill_max == -2)
+		{
+			p_ptr->skills[SK_ELEMENTAL_RESISTANCE].skill_rank = p_ptr->skills[SK_ELEMENTAL_RESISTANCE].skill_max = p_ptr->skills[SK_ELEMENTAL_RESISTANCE].skill_raise = 1;
+		}		
+	}
 
+	if (p_ptr->skills[SK_DETECTIVES_KIT].skill_max > 1)
+	{
+		p_ptr->skills[SK_UTILITY_BANDOLIER].skill_rank = p_ptr->skills[SK_UTILITY_BANDOLIER].skill_max = p_ptr->skills[SK_UTILITY_BANDOLIER].skill_raise = -2;
+		p_ptr->skills[SK_CLOCKWORK_CHASSIS].skill_rank = p_ptr->skills[SK_CLOCKWORK_CHASSIS].skill_max = p_ptr->skills[SK_CLOCKWORK_CHASSIS].skill_raise = -2;
+		p_ptr->skills[SK_CLOCKWORK_CARBINE].skill_rank = p_ptr->skills[SK_CLOCKWORK_CARBINE].skill_max = p_ptr->skills[SK_CLOCKWORK_CARBINE].skill_raise = -2;
+		p_ptr->skills[SK_VELOCIPEDE].skill_rank = p_ptr->skills[SK_VELOCIPEDE].skill_max = p_ptr->skills[SK_VELOCIPEDE].skill_raise = -2;
+		p_ptr->skills[SK_ANALYTIC_ENGINE].skill_rank = p_ptr->skills[SK_ANALYTIC_ENGINE].skill_max = p_ptr->skills[SK_ANALYTIC_ENGINE].skill_raise = -2;
+
+	}
+	if (p_ptr->skills[SK_UTILITY_BANDOLIER].skill_max > 1)
+	{
+		p_ptr->skills[SK_DETECTIVES_KIT].skill_rank = p_ptr->skills[SK_DETECTIVES_KIT].skill_max = p_ptr->skills[SK_DETECTIVES_KIT].skill_raise = -2;
+	}
+	if (p_ptr->skills[SK_CLOCKWORK_CHASSIS].skill_max > 1)
+	{
+		p_ptr->skills[SK_DETECTIVES_KIT].skill_rank = p_ptr->skills[SK_DETECTIVES_KIT].skill_max = p_ptr->skills[SK_DETECTIVES_KIT].skill_raise = -2;
+	}
+	if (p_ptr->skills[SK_CLOCKWORK_CARBINE].skill_max > 1)
+	{
+		p_ptr->skills[SK_DETECTIVES_KIT].skill_rank = p_ptr->skills[SK_DETECTIVES_KIT].skill_max = p_ptr->skills[SK_DETECTIVES_KIT].skill_raise = -2;
+	}
+	if (p_ptr->skills[SK_VELOCIPEDE].skill_max > 1)
+	{
+		p_ptr->skills[SK_DETECTIVES_KIT].skill_rank = p_ptr->skills[SK_DETECTIVES_KIT].skill_max = p_ptr->skills[SK_DETECTIVES_KIT].skill_raise = -2;
+	}
+	if (p_ptr->skills[SK_ANALYTIC_ENGINE].skill_max > 1)
+	{
+		p_ptr->skills[SK_DETECTIVES_KIT].skill_rank = p_ptr->skills[SK_DETECTIVES_KIT].skill_max = p_ptr->skills[SK_DETECTIVES_KIT].skill_raise = -2;
+	}
+
+	/* Trigger Mutations from skills */
+	if (p_ptr->skills[SK_FIRE_LORE].skill_max == 10)
+	{
+		if (!(p_ptr->muta1 & MUT1_FIRE_BOLT))
+			gain_random_mutation(100);
+	}
+	if (p_ptr->skills[SK_FIRE_LORE].skill_max == 15)
+	{
+		if (!(p_ptr->muta1 & MUT1_FIRE_BALL))
+			gain_random_mutation(101);
+	}
+	if (p_ptr->skills[SK_FIRE_MASTERY].skill_max == 5)
+	{
+		if (!(p_ptr->muta1 & MUT1_FIRE_BREATH))
+			gain_random_mutation(102);
+	}
+	if (p_ptr->skills[SK_FIRE_MASTERY].skill_max == 15)
+	{
+		if (!(p_ptr->muta1 & MUT1_FIRE_STORM))
+			gain_random_mutation(103);
+	}
+	if (p_ptr->skills[SK_EARTH_MASTERY].skill_max == 1)
+	{
+		if (!(p_ptr->muta1 & MUT1_EARTH_BOLT))
+			gain_random_mutation(104);
+	}
+	if (p_ptr->skills[SK_EARTH_MASTERY].skill_max == 10)
+	{
+		if (!(p_ptr->muta1 & MUT1_EARTH_SHOWER))
+			gain_random_mutation(105);
+	}
+	if (p_ptr->skills[SK_WIND_MASTERY].skill_max == 1)
+	{
+		if (!(p_ptr->muta1 & MUT1_BIRDS_VIEW))
+			gain_random_mutation(106);
+	}
+	if (p_ptr->skills[SK_WIND_MASTERY].skill_max == 5)
+	{
+		if (!(p_ptr->muta1 & MUT1_CYCLONE))
+			gain_random_mutation(107);
+	}
+	if (p_ptr->skills[SK_WATER_MASTERY].skill_max == 5)
+	{
+		if (!(p_ptr->muta1 & MUT1_RUSHING_STREAMS))
+			gain_random_mutation(108);
+	}
+	/* Bribery is 109 and is located above (it comes with the skill) */
+	if (p_ptr->skills[SK_ACROBATICS].skill_max == 5)
+	{
+		if (!(p_ptr->muta1 & MUT1_EVASION))
+			gain_random_mutation(110);
+	}
+	if (p_ptr->skills[SK_ACROBATICS].skill_max == 20)
+	{
+		if (!(p_ptr->muta1 & MUT1_SPRING))
+			gain_random_mutation(111);
+	}
+	if (p_ptr->skills[SK_ATHLETICS].skill_max == 15)
+	{
+		if (!(p_ptr->muta1 & MUT1_BURST))
+			gain_random_mutation(112);
+	}
+	
 }
 
 /*  possibly bool? This function raises a skill max(Perm) */
@@ -3640,6 +3999,55 @@ void skill_up(int skill)
 	/* Check to see if any new skills have opened up */
 	skill_link();
 	
+
+}
+
+void skill_max_up(int skill)
+{
+	cptr boxtop, boxbottom, boxmessage_gold, boxmessage_max, boxmessage_level;
+	boxtop = 			"--------------------------------------------";
+	boxmessage_gold = 	"|            You lack the Gold!            |";
+	boxmessage_level =  "|      No skill max > character level!     |";
+	boxmessage_max = 	"| You can now train that skill to maximum! |";
+	boxbottom = 		"--------------------------------------------";
+	if (p_ptr->au < (p_ptr->lev * SKILL_INCREASE_CONSTANT)) 
+	{
+		Term_putstr(15, 9, -1, TERM_RED, boxtop);
+		Term_putstr(15, 10, -1, TERM_RED, boxmessage_gold);
+		Term_putstr(15, 11, -1, TERM_RED, boxbottom);
+		pause_line(12);
+	}
+	else if (p_ptr->skills[skill].skill_raise + 2 >= SK_MAX_POWER)
+	{
+		Term_putstr(15, 9, -1, TERM_RED, boxtop);
+		Term_putstr(15, 10, -1, TERM_RED, boxmessage_max);
+		Term_putstr(15, 11, -1, TERM_RED, boxbottom);
+		pause_line(12);
+	}
+	else if (p_ptr->skills[skill].skill_raise > p_ptr->max_lev)
+	{
+		Term_putstr(15, 9, -1, TERM_RED, boxtop);
+		Term_putstr(15, 10, -1, TERM_RED, boxmessage_level);
+		Term_putstr(15, 11, -1, TERM_RED, boxbottom);
+		pause_line(12);
+	}
+	else 
+	{
+		/* spend the gold */
+		p_ptr->au -= (p_ptr->lev * SKILL_INCREASE_CONSTANT);
+
+		/* Raise the skill by one */
+		p_ptr->skills[skill].skill_raise += 1;
+		
+		/* Update the display */
+		/* store_prt_gold(); */
+
+		/* gain a skill point */
+		/* p_ptr->free_skpts += 1; */
+
+		/* feedback */
+		/* msg_print("You train your skill maximum up!"); */
+	}
 
 }
 
@@ -3696,867 +4104,14 @@ void skill_restore(int skill)
 static void prt_skill_select(int selected)
 {
 	char a = TERM_L_BLUE;
-	
-	switch (selected)
-	{
-		case SK_DISARM_GOOD:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill determines your ability to open locks and disarm traps", 21, 4);
-			c_put_str(a, "You are particularly talented at this skill", 22, 4);
-			break;
-		}
-		case SK_DISARM_NORM:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill determines your ability to open locks and disarm traps", 21, 4);
-			c_put_str(a, "You have an average ability at this skill", 22, 4);
-			break;
-		}
-		case SK_DISARM_POOR:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill determines your ability to open locks and disarm traps", 21, 4);
-			c_put_str(a, "You are terrible at this skill", 22, 4);
-			break;
-		}
-		case SK_DEVICE_GOOD:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill determines your basic ability to use devices", 21, 4);
-			c_put_str(a, "You are particularly talented at this skill", 22, 4);
-			break;
-		}
-		case SK_DEVICE_NORM:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill determines your basic ability to use devices", 21, 4);
-			c_put_str(a, "You have an average ability at this skill", 22, 4);
-			break;
-		}
-		case SK_DEVICE_POOR:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill determines your basic ability to use devices", 21, 4);
-			c_put_str(a, "You are terrible at this skill", 22, 4);
-			break;
-		}
-		case SK_SAVETH_GOOD:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill determines your ability to resist negative effects", 21, 4);
-			c_put_str(a, "You are particularly talented at this skill", 22, 4);
-			break;
-		}
-		case SK_SAVETH_NORM:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill determines your ability to resist negative effects", 21, 4);
-			c_put_str(a, "You have an average ability at this skill", 22, 4);
-			break;
-		}
-		case SK_SAVETH_POOR:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill determines your ability to resist negative effects", 21, 4);
-			c_put_str(a, "You are terrible at this skill", 22, 4);
-			break;
-		}
-		case SK_STEALTH_GOOD:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill determines your ability to avoid waking monsters", 21, 4);
-			c_put_str(a, "You are particularly talented at this skill", 22, 4);
-			break;
-		}
-		case SK_STEALTH_NORM:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill determines your ability to avoid waking monsters", 21, 4);
-			c_put_str(a, "You have an average ability at this skill", 22, 4);
-			break;
-		}
-		case SK_STEALTH_POOR:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill determines your ability to avoid waking monsters", 21, 4);
-			c_put_str(a, "You are terrible at this skill", 22, 4);
-			break;
-		}
-		case SK_SEARCHING_GOOD:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill determines your ability to detect traps and find secret doors", 21, 4);
-			c_put_str(a, "You are particularly talented at this skill", 22, 4);
-			break;
-		}
-		case SK_SEARCHING_NORM:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill determines your ability to detect traps and find secret doors", 21, 4);
-			c_put_str(a, "You have an average ability at this skill", 22, 4);
-			break;
-		}
-		case SK_SEARCHING_POOR:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill determines your ability to detect traps and find secret doors", 21, 4);
-			c_put_str(a, "You are terrible at this skill", 22, 4);
-			break;
-		}
-		case SK_TOHIT:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This determines your basic combat skill", 21, 4);
-			c_put_str(a, "This skill gives you basic minor combat abilities", 22, 4);
-			break;
-		}
-		case SK_INTER_COMBAT:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This is your intermediate combat weapon skill", 21, 4);
-			c_put_str(a, "This skill gives you intermediate combat abilities", 22, 4);
-			break;
-		}
-		case SK_ADV_COMBAT:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This is your advanced combat weapon skill", 21, 4);
-			c_put_str(a, "This skill gives you advanced combat abilities", 22, 4);
-			break;
-		}
-		case SK_MASTER_COMBAT:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This is your mastery of combat weapon skill", 21, 4);
-			c_put_str(a, "This skill allows you to master combat", 22, 4);
-			break;
-		}
-		case SK_INTER_SHOOTING:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This is your intermediate firearms skill", 21, 4);
-			c_put_str(a, "This skill gives you intermediate firearm abilities", 22, 4);
-			break;
-		}
-		case SK_ADV_SHOOTING:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This is your advanced firearms skill", 21, 4);
-			c_put_str(a, "This skill gives you advanced firearm abilities", 22, 4);
-			break;
-		}
-		case SK_MASTER_SHOOTING:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This is your mastery of firearms skill", 21, 4);
-			c_put_str(a, "This skill allows you to master firearms", 22, 4);
-			break;
-		}
-		case SK_TOHIT_SHOOTING:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This determines your basic firearms skill", 21, 4);
-			c_put_str(a, "This skill gives you basic minor firearm abilities", 22, 4);
-			break;
-		}
-		case SK_TOHIT_THROWING:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This determines your basic throwing skill", 21, 4);
-			c_put_str(a, "This skill gives you basic minor throwing abilities", 22, 4);
-			break;
-		}
-		case SK_ADV_THROWING:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This is your advanced throwing weapons skill", 21, 4);
-			c_put_str(a, "This skill gives you advanced abilities with throwing weapons", 22, 4);
-			break;
-		}
-		case SK_MASTER_THROWING:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This is your mastery of thrown weapons skill", 21, 4);
-			c_put_str(a, "This skill allows you to master thrown weapons", 22, 4);
-			break;
-		}
-		case SK_DIGGING_GOOD:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill determines your ability to tunnel through rock", 21, 4);
-			c_put_str(a, "You are particularly talented at this skill", 22, 4);
-			break;
-		}
-		case SK_DIGGING_NORM:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill determines your ability to tunnel through rock", 21, 4);
-			c_put_str(a, "You have an average ability at this skill", 22, 4);
-			break;
-		}
-		case SK_DIGGING_POOR:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill determines your ability to dig through rubble", 21, 4);
-			c_put_str(a, "You are terrible at this skill", 22, 4);
-			break;
-		}
-		case SK_CUISINE:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill allows you to create a wonderful meal", 21, 4);
-			c_put_str(a, "At your skill increases, so do the benefits from the meal", 22, 4);
-			break;
-		}
-		case SK_RANSACK:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill allows you to locate items of value", 21, 4);
-			c_put_str(a, "At high levels it allows you to turn items into gold", 22, 4);
-			break;
-		}
-		case SK_STONELORE:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill gives you information about the dungeon", 21, 4);
-			c_put_str(a, "At high levels, you can even find secret passages to other places", 22, 4);
-			break;
-		}
-		case SK_FAE_PATH:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill allows you to use secret fae pathways", 21, 4);
-			c_put_str(a, "At it increases, so does the distance you can travel", 22, 4);
-			break;
-		}
-		case SK_SYSTEMS_CYPHER:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This is your ability to hyper-cogitate. As you upgrade, it provides", 21, 4);
-			c_put_str(a, "new functions such as healing and increased combat effectiveness", 22, 4);
-			break;
-		}
-		case SK_ONSLAUGHT_CYPHER:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "These are your weapons systems. As you upgrade, you", 21, 4);
-			c_put_str(a, "recieve new more powerful attacks.", 22, 4);
-			break;
-		}
-		case SK_AEGIS_CYPHER:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This is a powerful defensive system. As you upgrade it", 21, 4);
-			c_put_str(a, "your shielding becomes stronger.", 22, 4);
-			break;
-		}
-		case SK_UTILITY_CYPHER:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This is your sensor array. As you upgrade it you are", 21, 4);
-			c_put_str(a, "able to detect more things around you.", 22, 4);
-			break;
-		}
-		case SK_DEMON_ATTUNE:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This is your inherent demonic nature.", 21, 4);
-			c_put_str(a, "It determines the force behind your demonic attacks.", 22, 4);
-			break;
-		}
-		case SK_DARK_CHARM:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This is your dark magnetic charm.", 21, 4);
-			c_put_str(a, "It imposes your will on others.", 22, 4);
-			break;
-		}
-		case SK_ROCK_TOSS:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "Toss a big rock better!", 21, 4);
-			c_put_str(a, "SMASH!", 22, 4);
-			break;
-		}
-		case SK_BZRK_STR:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "Get real angry!", 21, 4);
-			c_put_str(a, "It's clobbering time!", 22, 4);
-			break;
-		}
-		case SK_ETHERIC_ATTUNE:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill determines how well you are attuned", 21, 4);
-			c_put_str(a, "to the etheric plane.", 22, 4);
-			break;
-		}
-		case SK_COWARDICE:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "T-T-Th-This is h-how long you can flee!", 21, 4);
-			c_put_str(a, "AAAIIEEEEEEEEEEEEEEEEEEEEEEEE!", 22, 4);
-			break;
-		}
-		case SK_ROCKETRY:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill determines the power of your explosive missile launchers", 21, 4);
-			c_put_str(a, "", 22, 4);
-			break;
-		}
-		case SK_AXE:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This is your mastery of axes and polearm weapons", 21, 4);
-			c_put_str(a, "", 22, 4);
-			break;
-		}
-		case SK_BLUNT:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This is your mastery of hafted and blunt weapons", 21, 4);
-			c_put_str(a, "", 22, 4);
-			break;
-		}
-		case SK_SWORD:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This is your mastery of sword weapons", 21, 4);
-			c_put_str(a, "", 22, 4);
-			break;
-		}
-		case SK_POWER_STRIKE:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill allows you to strike *POWERFUL* blows with heavy weapons", 21, 4);
-			c_put_str(a, "", 22, 4);
-			break;
-		}
-		case SK_CRIT_STRIKE:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill allows you to strike devestating critical blows.", 21, 4);
-			c_put_str(a, "Critical strike increases both the frequency and power of criticals.", 22, 4);
-			break;
-		}
-		case SK_ACC_STRIKE:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill increases the accuracy of your combat weapon strikes.", 21, 4);
-			c_put_str(a, "", 22, 4);
-			break;
-		}
-		case SK_ACC_SHOT:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill increases the accuracy of your firearm shots.", 21, 4);
-			c_put_str(a, "", 22, 4);
-			break;
-		}
-		case SK_ACC_THROW:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill increases the accuracy of your thrown weapon strikes.", 21, 4);
-			c_put_str(a, "", 22, 4);
-			break;
-		}
-		case SK_VICIOUS_STRIKE:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill increases the damage of your combat weapon strikes.", 21, 4);
-			c_put_str(a, "", 22, 4);
-			break;
-		}
-		case SK_VICIOUS_SHOT:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill increases the damage of your firearm hits.", 21, 4);
-			c_put_str(a, "", 22, 4);
-			break;
-		}
-		case SK_POWER_THROW:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill increases the damage of your thrown weapon strikes.", 21, 4);
-			c_put_str(a, "", 22, 4);
-			break;
-		}
-		case SK_SWIFT_BLOW:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill increases the speed of your blows. With the Weapon Finesse", 21, 4);
-			c_put_str(a, "skill this helps determine the attacks per round you receive", 22, 4);
-			break;
-		}
-		case SK_WEAPON_FINESSE:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill increases your ability to handle large weapons. With the ", 21, 4);
-			c_put_str(a, "Swift Blows skill this helps determine the attacks per round you receive", 22, 4);
-			break;
-		}
-		case SK_PISTOL:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This is your skill with pistols.", 21, 4);
-			c_put_str(a, "", 22, 4);
-			break;
-		}
-		case SK_RIFLE:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This is your skill with rifles.", 21, 4);
-			c_put_str(a, "", 22, 4);
-			break;
-		}
-		case SK_SHOTGUN:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This is your skill with shotguns", 21, 4);
-			c_put_str(a, "", 22, 4);
-			break;
-		}
-		case SK_SWIFT_SHOT:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This is how quickly you can reload and fire your firearm", 21, 4);
-			c_put_str(a, "", 22, 4);
-			break;
-		}
-		case SK_CRIT_SHOT:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill allows you to strike devestating critical blows.", 21, 4);
-			c_put_str(a, "Critical shot increases both the frequency and power of criticals.", 22, 4);
-			break;
-		}
-		case SK_CRIT_THROW:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill allows you to strike devestating critical blows.", 21, 4);
-			c_put_str(a, "Critical throw increases both the frequency and power of criticals.", 22, 4);
-			break;
-		}
-		case SK_OFFICER:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill is the officer's ability to perform his special class", 21, 4);
-			c_put_str(a, "powers. ", 22, 4);
-			break;
-		}
-		case SK_PRESENCE:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill is the officer's ability to persuade others to do", 21, 4);
-			c_put_str(a, "his bidding. ", 22, 4);
-			break;
-		}
-		case SK_AESTHETE:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill is the aesthete's ability to perform his special class", 21, 4);
-			c_put_str(a, "powers. ", 22, 4);
-			break;
-		}
-		case SK_EXPLORER:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill is the explorer's ability to perform his special class", 21, 4);
-			c_put_str(a, "talents. ", 22, 4);
-			break;
-		}
-		case SK_MEDIUM:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill is the mediums's mental ability.", 21, 4);
-			c_put_str(a, "", 22, 4);
-			break;
-		}
-		case SK_MESMERIC_WILL:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill is the mediums's ability to strengthen his will to ", 21, 4);
-			c_put_str(a, "improve his class powers. ", 22, 4);
-			break;
-		}
-		case SK_RECKONER:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill is the reckoner's ability to perform his special class", 21, 4);
-			c_put_str(a, "powers. ", 22, 4);
-			break;
-		}
-		case SK_TOURIST:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill is the tourist's ability to perform his special class", 21, 4);
-			c_put_str(a, "powers. ", 22, 4);
-			break;
-		}
-		case SK_HUSSAR:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill is the dashing hussar's ability to perform his special combat", 21, 4);
-			c_put_str(a, "techniques. ", 22, 4);
-			break;
-		}
-		case SK_NATURE:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill is the naturalist's empathy with nature", 21, 4);
-			c_put_str(a, "The higher this skill, the better his abilities at natural empathy. ", 22, 4);
-			break;
-		}
-		case SK_NINJA:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill is the ninja's ability to perform ninjutsu", 21, 4);
-			c_put_str(a, "powers. ", 22, 4);
-			break;
-		}
-		case SK_HEBREW:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill is your ability to read Hebrew.", 21, 4);
-			c_put_str(a, "This language is necessary for Qabalistic magic. ", 22, 4);
-			break;
-		}
-		case SK_QABALA:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill is your knowledge of the Qabala.", 21, 4);
-			c_put_str(a, "", 22, 4);
-			break;
-		}
-		case SK_GEMATRIA:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill is your knowledge of the numerical values.", 21, 4);
-			c_put_str(a, "of the hebrew alphabet. It allows powerfull magic", 22, 4);
-			break;
-		}
-		case SK_LATIN:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill is your ability to read Latin.", 21, 4);
-			c_put_str(a, "It is very helpful in decyphering mystic works.", 22, 4);
-			break;
-		}
-		case SK_OCCULT:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This is your basic occult knowledge.", 21, 4);
-			c_put_str(a, "It allows understanding of basic mystic works.", 22, 4);
-			break;
-		}
-		case SK_ADV_OCCULT:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This is your advanced occult knowledge.", 21, 4);
-			c_put_str(a, "It allows understanding of advanced mystic works.", 22, 4);
-			break;
-		}
-		case SK_CTHULHU_MYTHOS:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This is your knowledge of the dark Cthulhu mythos.", 21, 4);
-			c_put_str(a, "It allows understanding of the most powerful and dark mystic works.", 22, 4);
-			break;
-		}
-		case SK_RITUAL_MAGIC:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This is your understanding of ritual magic.", 21, 4);
-			c_put_str(a, "It increases the potency of your mystic spells.", 22, 4);
-			break;
-		}
-		case SK_THAUMIC_ENERGY:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This is your understanding of magical thaumic energy.", 21, 4);
-			c_put_str(a, "It increases the safety of your mystic spells.", 22, 4);
-			break;
-		}
-		case SK_ADV_THAUMIC_ENERGY:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This further increases your understanding of magical thaumic ", 21, 4);
-			c_put_str(a, "energy. It increases the safety of your mystic spells.", 22, 4);
-			break;
-		}
-		case SK_THELMA:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This is your unity with the Thelma. ", 21, 4);
-			c_put_str(a, "It greatly increases the power of your spells.", 22, 4);
-			break;
-		}
-		case SK_SPIRITUALITY:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This is your basic spirituality. ", 21, 4);
-			c_put_str(a, "It allows you to learn basic prayers.", 22, 4);
-			break;
-		}
-		case SK_PRAYER:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This is your skill at prayer. ", 21, 4);
-			c_put_str(a, "It allows you to learn advanced mystic prayers.", 22, 4);
-			break;
-		}
-		case SK_DEVOTION:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This is your level of devotion to your religion. ", 21, 4);
-			c_put_str(a, "It allows you to learn the most powerful mystic prayers.", 22, 4);
-			break;
-		}
-		case SK_LESSER_WARD:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This is your ability to use lesser wards. ", 21, 4);
-			c_put_str(a, "It increases the saftey of using your prayers.", 22, 4);
-			break;
-		}
-		case SK_GREATER_WARD:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This is your ability to use greater wards. ", 21, 4);
-			c_put_str(a, "It greatly increases the saftey of using your prayers.", 22, 4);
-			break;
-		}
-		case SK_TMPR_WILL:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This is the strength of your will. ", 21, 4);
-			c_put_str(a, "It increases the power of your incantations.", 22, 4);
-			break;
-		}
-		case SK_HARD_WILL:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This is the force of your will. ", 21, 4);
-			c_put_str(a, "It increases the power of your spells.", 22, 4);
-			break;
-		}
-		case SK_IRON_WILL:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This is the center of your will. ", 21, 4);
-			c_put_str(a, "It greatly increases the power of your spells.", 22, 4);
-			break;
-		}
-		case SK_GADGETEER:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This determines your base skills with powerful devices. ", 21, 4);
-			c_put_str(a, "It increases the amount of effects you can get from devices.", 22, 4);
-			break;
-		}
-		case SK_UTILITY_BANDOLIER:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This determines your skill with the utility bandolier. ", 21, 4);
-			c_put_str(a, "", 22, 4);
-			break;
-		}
-		case SK_DETECTIVES_KIT:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This determines your skill with the detective's kit. ", 21, 4);
-			c_put_str(a, "", 22, 4);
-			break;
-		}
-		case SK_CLOCKWORK_CHASSIS:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This determines your skill with the clockwork chassis. ", 21, 4);
-			c_put_str(a, "", 22, 4);
-			break;
-		}
-		case SK_CLOCKWORK_CARBINE:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This determines your skill with the clockwork carbine. ", 21, 4);
-			c_put_str(a, "", 22, 4);
-			break;
-		}
-		case SK_VELOCIPEDE:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This determines your skill with the velocipede. ", 21, 4);
-			c_put_str(a, "", 22, 4);
-			break;
-		}
-		case SK_ANALYTIC_ENGINE:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This determines your skill with the analytic engine. ", 21, 4);
-			c_put_str(a, "", 22, 4);
-			break;
-		}
-		case SK_ADV_DEVICE:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This determines your advanced skills with devices. ", 21, 4);
-			c_put_str(a, "", 22, 4);
-			break;
-		}
-		case SK_SPEED_DEVICE:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This determines the speed at which you can activate devices. ", 21, 4);
-			c_put_str(a, "It allows you to activate ray guns and tools faster. ", 22, 4);
-			break;
-		}
-		case SK_EFF_DEVICE:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This reduces the amount of time between uses of ", 21, 4);
-			c_put_str(a, "apparatuses.", 22, 4);
-			break;
-		}
-		case SK_POW_DEVICE:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This increases the damage you can cause with devices. ", 21, 4);
-			c_put_str(a, "", 22, 4);
-			break;
-		}
-		case SK_POW2_DEVICE:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This skill further increases the damage you can cause ", 21, 4);
-			c_put_str(a, "with devices. ", 22, 4);
-			break;
-		}
-		case SK_HEAL_DEVICE:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			c_put_str(a, "This increases biological effectiveness. ", 21, 4);
-			c_put_str(a, "", 22, 4);
-			break;
-		}
 
-		default:
-		{
-			Term_erase(0, 21, 255);
-		 	Term_erase(0, 22, 255);
-			/* do nothing */
-			break;
-		}
-	}
+	Term_erase(0, 20, 255);
+	Term_erase(0, 21, 255);
+	Term_erase(0, 22, 255);
 
+	move_cursor(20, 4);
+
+	c_roff(a, skills[selected].description);
 }
 
 
@@ -4566,9 +4121,9 @@ static void prt_skill_select(int selected)
  */
 
 /* This whole function is the for loop in the function below */
-void prt_skill_rank(int skill, int selected)
+void prt_skill_rank(int skill, int selected, int mode, bool train)
 {
-	char buf1[38], buf2[18];
+	char buf1[80], buf2[18];
 	int row, col;
 	char c;
 
@@ -4577,11 +4132,10 @@ void prt_skill_rank(int skill, int selected)
 	
 
 	/* Highlight selected skill */
-	/* Not quite sure if this should be here, or in the other level.c display */
 	if (skill == selected) a = TERM_BLUE; 
 	
 	/* Skip unused skills */
-	if (p_ptr->skills[skill].skill_max == -2) 
+	if ((p_ptr->skills[skill].skill_max == -2) || (p_ptr->skills[skill].skill_type != mode))
 	{
 		displayed = FALSE;
 		return; 
@@ -4589,7 +4143,20 @@ void prt_skill_rank(int skill, int selected)
 	
 	
 	/* Skill cannot be raised further */
-	if (!can_raise_skill(skill))
+	if (train)
+	{
+		if (p_ptr->skills[skill].skill_raise >= SK_MAX_POWER)
+		{
+			a = TERM_VIOLET;
+			if (skill == selected) a = TERM_BLUE;
+		}
+		else
+		{
+			a = TERM_L_BLUE;
+			if (skill == selected) a = TERM_BLUE;
+		}
+	}
+	else if (!can_raise_skill(skill))
 	{
 		/* Skill is maxed out */
 		if (p_ptr->skills[skill].skill_max == SK_MAX_POWER)
@@ -4612,26 +4179,27 @@ void prt_skill_rank(int skill, int selected)
 	row = SKILL_ROW_START + skill_count;
 	col = COL_ONE;
 	
-	if (skill_count < 11)
+	if (skill_count < 9)
 	{
 	row = SKILL_ROW_START + skill_count;
 	col = COL_ONE;
 	}
-	else if (skill_count < 22)
+	else if (skill_count < 18)
 	{
-	row = SKILL_ROW_START + (skill_count - 11);
+	row = SKILL_ROW_START + (skill_count - 9);
 	col = COL_TWO;
 	}
 	else 
 	{
-	row = SKILL_ROW_START + (skill_count -22);
+	row = SKILL_ROW_START + (skill_count -18);
 	col = COL_THREE;
 	}
 	
 	c = I2A(skill_count);
-	
+	 
 	/* Display the skillrank */
-	sprintf(buf2, "%2d", p_ptr->skills[skill].skill_max);
+	if (train) sprintf(buf2, "%2d", ((p_ptr->skills[skill].skill_raise < 18) ? p_ptr->skills[skill].skill_raise + 2 : 20));
+	else sprintf(buf2, "%2d", p_ptr->skills[skill].skill_max);
 
 	/* Format the string */
 	sprintf(buf1, "%c) %18s%c %s", c, skills[skill].name,
@@ -4646,16 +4214,18 @@ void prt_skill_rank(int skill, int selected)
 /*
  * Print out all the skills, along with their ranks.
  */
-void print_all_skills(int selected)
+void print_all_skills(int selected, int mode, bool train)
 {
 	int i;
-
+	
+#if 0
 	/* Clear all of the screen except the special message area */
 	for (i = SKILL_ROW_START; i < SKILL_ROW_END; i++)
 	{
 		Term_erase(i, 0, 255); /* find out what function clears rows */
 	}
-
+	pause_line(2); 
+#endif
 	/* Print the static information */
 	/* will do this later */
 
@@ -4665,20 +4235,18 @@ void print_all_skills(int selected)
 	/* reset the skill count */
 	skill_count = 0;
 	
+	prt_skill_select(selected);
+	
 	/* Print all the skills */
 	for (i = 0; i < N_SKILLS; i++) 
 	{
 		/* clear the index */
 		p_ptr->skills[i].skill_index = 0;
-		prt_skill_rank(i, selected);
-		prt_skill_select(selected);
+		prt_skill_rank(i, selected, mode, train);
 		if (displayed == TRUE) 
 		{
-		/* I may no longer need the below info. May be superflours (sp?) */
-		/* Skill_count is _not_! it is needed for layout. */
-		/* skill_index may likely not be needed */
-		skill_count++;
-		p_ptr->skills[i].skill_index = skill_count;
+			skill_count++;
+			p_ptr->skills[i].skill_index = skill_count;
 		}
 	}
 }

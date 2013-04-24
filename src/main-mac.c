@@ -160,7 +160,7 @@
 
 /* Steamband characteristics */
 #define ANGBAND_CREATOR 'SCCC'
-#define ANGBAND_PREFERENCES "Steamband Preferences"
+#define ANGBAND_PREFERENCES "Steamband 040 Preferences"
 /* This is defined, and I'm pretty sure that there _isn't_ a score menu */
 /* may be the crux of the problem -CCC*/
 /* #define HAS_SCORE_MENU */
@@ -4922,12 +4922,13 @@ static bool CheckEvents(bool wait)
 
 	static UInt32 lastTicks = 0L;
 
+#if 0 /* It appears that this sleep variable isn't used */
 #ifndef ANGBAND_LITE_MAC
 
 	UInt32 sleep;
 
 #endif /* !ANGBAND_LITE_MAC */
-
+#endif
 
 	/* Access the clock */
 	curTicks = TickCount();
@@ -5777,7 +5778,9 @@ int main(void)
 {
 	int i;
 
+#if 0 /* It also appears that this isn't used */
 	EventRecord tempEvent;
+#endif 
 	int numberOfMasters = 10;
 
 	/* Increase stack space by 64K */

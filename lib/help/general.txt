@@ -1,4 +1,4 @@
-=== Using the Online Help === (OUTDATED)
+=== Using the Online Help ===
 
 You can press Escape (ESC) at any time to leave the online help.
 
@@ -18,6 +18,8 @@ Use "#" + "0" + Return + "/" + Return to restart a search.
 
 Please continue to press Space to view the rest of this file...
 
+Hit enter at any time during the game for a complete list of commands
+
 
 === General Information ===
 
@@ -26,11 +28,11 @@ creates a character, choosing from a variety of sexes, races and classes,
 and then "runs" that character over a period of days, weeks, even months.
 
 The player will begin his adventure on the town level where he may acquire
-supplies, weapons, armor, and magical devices by bartering with various shop
-owners.  Then the player can descend into the Underworld of Steamband, where 
+supplies, weapons, armor, and magical devices by buying from various shop
+owners.  Then the player can ascend into the dungeon of Steamband, where 
 he will explore the many levels of the dungeon, gaining experience by killing 
 fierce creatures, collecting powerful objects and valuable treasure, and 
-returning to town occasionally to barter for new supplies.  Eventually, as 
+returning to town occasionally to buy new supplies.  Eventually, as 
 the player grows more experienced, he may attempt to win the game by defeating 
 The final enemy and returning to the surface of the world.
 
@@ -41,22 +43,22 @@ especially this one, before beginning any serious adventuring...
 
 === A Note from the Maintainer ===
 
-Welcome to Steamband 0.2.0
+Welcome to Steamband 0.4.0
 
 My name is Courtney Campbell, and I have been the maintainer of steamband since
-Januaray 2003.  
+January 2003.  
 
-steamband 0.2.0 is available for PPC Macintosh, with a x86 compile that
-will be available soon.  It is written entirely in C,
-and the source code is freely available.  Creating a version for a new
-platform involves writing as few as 100 lines of code and recompiling.
+Steamband 0.4.0 is available for PPC/68k/OSX Macintosh, with a x86 compile that
+usually is available soon after the Macintosh release.  It is written 
+entirely in C, and the source code is freely available.  Creating a version
+for a new platform involves writing as few as 100 lines of code and recompiling.
 
-steamband 0.2.0 is the most recent version.  It, I am sure contains 
-many and varied bugs. Please write "campbell@oook.cz" with any bugs that you 
+steamband 0.4.0 is the most recent version.  It, I am sure, contains 
+many and varied bugs. Please write "valis@oook.cz" with any bugs that you 
 find. 
 
 You can email compliments, complaints, suggestions, bug reports, and patches
-to me ("campbell@oook.cz"), and you can post interesting experiences and
+to me ("valis@oook.cz"), and you can post interesting experiences and
 basic questions to the newsgroup ("rec.games.roguelike.angband").
 
 You may freely distribute the game, and its source, though you are bound
@@ -105,12 +107,12 @@ When the game starts up, depending on what platform you are using, you may
 be taken directly to the character creation screen, or you may have to ask
 to create a new character.  In either case, you will be shown the character
 information screen, and you will be asked a series of questions.  For this
-demo, press "a" three times to select a "female human warrior" character.
-Then press "n" when asked about preserve mode and maximize mode, and when
-asked if you wish to use the autoroller.  You will now be presented with a
-description of your character.  Look over the description briefly, there is
-a lot of information here, and most of it will not make any sense.  Press
-escape three times and your character will be placed into the "town".
+demo, press "a" three times to select a "female british officer" character.
+Then press "n" when asked about wonderland mode.  You will now be presented
+with a description of your character.  Look over the description briefly, 
+there is a lot of information here, and most of it will not make any sense.
+Press enter, then type a name and press enter again, and then press enter
+a third time and your character will be placed into the "town".
 
 You should now be looking at the basic dungeon interaction screen.  To the
 left is some information about your character.  To the right is an overhead
@@ -124,17 +126,18 @@ represents.  Press "/" plus "@" now to verify the meaning of the "@" symbol.
 The "#" symbols around the edge of the town represent the walls that surround
 the the town.  The "#" symbols arranged in large rectangles represent stores.
 The "numeric" symbols represent an "entrance" to a store.  The "." symbols
-represent "floor" grids which are "illuminated".  It is currently daytime,
-so most of the town should consist of stores and illuminated floor grids.
+represent "floor" grids which are "illuminated".  The town in the center of
+the earth is always lit by a strange glow, so most of the town should consist
+of stores and illuminated floor grids.
 
 Any "alphabetic" symbols always represent monsters, where the word "monsters"
 specifies a wide variety of entities, including people, animals, plants, etc.
 Only a few "races" of monsters normally appear in town, and all of them are
 "relatively" harmless.  The most common "monsters" in town are small animals
-(cats and dogs) and townspeople (merchants, mercenaries, miscreants, etc).
+(cats and dogs) and townspeople (gentleman, drunkards, demimondaines, etc).
 
 Now use the "l" command to "look" around.  This will cause the cursor to be
-moved onto each "interesting" grid that can be "seen" by your character, one
+moved onto each "interesting" grid that can be seen by your character, one
 at a time, giving you a description of that grid.  The cursor always starts
 on the grid containing your character.  In this case, you will see a message
 telling you that your character is standing on a staircase.  Keep pressing
@@ -143,18 +146,19 @@ a subset of the things which are actually displayed on the screen.
 
 Now press "i", to display your character's "inventory".  All new characters
 start out with some objects to help them survive.  Your character will have
-some food, a potion, some torches, some chain mail, and a sword.  Press "w"
-to wield/wear something.  Observe that the inventory listing is reduced to
-those objects which can actually be wielded or worn.  Press "d" to wear the
-chain mail, and then press "i" again.  Note that the chain mail is no longer
-shown in the inventory, and the sword has moved up in the listing.
+some food, a potion of healing, a light source of some kind, an officers 
+uniform, a saber, and a .25 caliber derringer.  Press "w" to wield/wear 
+something.  Observe that the inventory listing is reduced to those objects
+which can actually be wielded or worn.  Press "d" to wear the officers 
+uniform, and then press "i" again.  Note that the officers uniform is no longer
+shown in the inventory, and the saber has moved up in the listing.
 
 Now press "e" to see your "equipment".  Your character has twelve "slots" for
-equipment, including slots for a weapon, a bow, two rings, an amulet, a light,
-some armor, a cloak, a shield, a helmet, some gloves, and some boots.  Press
-"t" to take something off.  Note that the equipment listing is reduced to
+equipment, including slots for a weapon, a gun, two rings, an amulet, a light,
+some armor, a cloak, a pair of trousers, a hat, some gloves, and some boots.
+Press "t" to take something off.  Note that the equipment listing is reduced to
 those objects which can actually be taken off.  Press "g" to take off the
-chain mail, and then press "e" again.  Note that the chain mail is no longer
+officers uniform, and then press "e" again.  Note that the chain mail is no longer
 shown in the equipment.  Press escape.
 
 Now press "w" + "d" to wear your armor again.  Note that you do not have to
@@ -178,7 +182,7 @@ One of the most important things that your character can do is move around.
 Use the numeric keys on the keypad to make your character move around.  The
 "4", "6", "8", and "2" keys move your character west, east, north, and south,
 and the "7", "9", "1" and "3" keys move your character diagonally.  When your
-character first moves, observe the ">" symbol that is left behind.  This is
+character first moves, observe the "<" symbol that is left behind.  This is
 the "staircase" that she was standing on earlier in the demo.
 
 Attempting to stay away from monsters, try and move your character towards
@@ -253,11 +257,11 @@ often a good idea to have a few extra flasks of oil.  Press escape to leave
 the store.  If you want, take time to visit the rest of the stores.  One of
 the buildings, marked with an "8", is your "home", and is not a real store.
 
-Now move to the staircase, represented by the ">" symbol, and press ">", to
+Now move to the staircase, represented by the "<" symbol, and press "<", to
 go down the stairs.  At this point, you are in the dungeon.  Use the "l"
 command to look around.  Note that you are standing on a staircase leading
-back to town.  Use the "<" command to take the stairs back to town.  Now use
-the ">" command to go back down the stairs into the dungeon.  You are now in
+back to town.  Use the ">" command to take the stairs back to town.  Now use
+the "<" command to go back down the stairs into the dungeon.  You are now in
 a different part of the dungeon than you were in before.  The dungeon is so
 huge, once you leave one part of the dungeon, you will never find it again.
 

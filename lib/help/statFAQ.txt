@@ -1,0 +1,119 @@
+=== Statistic FAQ ===
+Q:*What* exactly in the heck is going on with all these whacky stats?
+
+A:Muscle, Agility, Vigor, Schooling, Ego, and Charm all map in a very
+standard way to Strength, Dexterity, Constitution, Intelligence, Wisdom
+and Charisma. The short descriptions of the above stats are MUS, AGI,
+VIG, SCH, EGO, and CHR.
+
+
+Q:I meant the numbers.
+
+A:Oh, well then. Each stat is graded on a value from 1 through 999.
+700 happens to be the natural maximum, but the stat can go higher
+then that using equipment and skills (which are applied to the base
+stat).
+
+
+Q:What's a 'good' stat?
+
+A: Good stats for starting characters are ~180 range. Less than 100
+is bad, and 300-400 are good. Anything above that is great. 
+
+
+Q:How do these compare to stats in other bands.
+
+A:Each equipment bonus to a stat provides a 10 point bonus. So
+a +4 bonus to Muscle is equal to 40 additional muscle. Every 
+30-40 points in a stat equates to about a one point difference in
+a normal *band. 
+
+
+Q:Wait a second, doesn't that mean equipment bonuses will be low?
+
+A:No, bonuses on equipment overall tend to be higher making them
+about equivalent to the bonuses on normal *band equipment.
+
+
+Q:Hey, if 30-40 points is equilivant to a normal stat point in
+a *band, doesn't this mean that your starting score of 180 is 
+equal to a starting strength of 5 or 6?
+
+A:No, because the *bands use a table lookup which basically groups
+80% of the stat in the same range. The changeover has compensated for
+this.
+
+
+Q:What's with this 'statgrowth' thing?
+
+A:Instead of having a long period of the game devoted to 'maxing'
+out your stats, every time you gain a level you gain a statgrowth
+point. Spending one of these points causes all of your stats to 
+increase. 
+
+
+Q:No, no, on the character creation screen there's this statgrowth
+thing.
+
+A:Oh. Every race has a base value for a stat, and every class has
+a base value for a stat. *Every* time these stats are raised they
+increase a random amount between 1 and (the racial growth factor +
+the class growth factor).
+
+
+Q:I must not be communicating clearly today. I do not understand
+how to 'grow' my stats.
+
+A:Go to the skill screen - 'G', and there you will see instructions
+at the bottom. (hint: push 'g'.)
+
+
+Q:Hey! I gained a level and i didn't gain a statgrowth point! Why
+not?
+
+A: It is rarely possible to gain either 0, 2, or 3 stat growth points
+on level gain.
+
+
+Q:I didn't gain a level and I've got a stat growth point. What happened?
+
+A:Sometimes when you return a book to the library you will be rewarded
+with a statgrowth point in addition to skill points.
+
+
+Q:It is ever to my advantage to hold off gaining stats?
+
+A:Very very rarely. Stats always grow when you use the points, but if a 
+stat is drained, you won't see the effect until it is restored. Some classes
+(noteably Dashing Hussars and Naturalists) have skills that increase the 
+amount a stat increases. And it is to your advantage to wait on gaining stats
+if you are raising those skills. However, if you don't gain your stats some
+it will be very difficult to continue to survive. And remember the natural 
+maximum of a stat is 700.
+
+
+Q:If I use mutiple stat gains all at once, I get larger increases right?
+
+A:No. The stat totals shown at character creation are constant, and only
+affected in the game by a small subset of skills. The game picks a random
+number between 1 and that value (which never changes excepting those skills)
+and that is your increase. There are no other factors involved.
+
+
+Q:So if I don't have any of those skills I can raise my stats as soon as I
+level, without penalty?
+
+A:Yes. And you are advised to do so.
+
+
+Q:What are the skills? 
+
+A:That's spoiler information, but in a general sense certain elemental
+lores, and the heart of a certain mythical animal in the Naturalist's 
+and Dashing Hussar's case respectively.
+
+
+Q:What is with the highlighted stat during character creation?
+
+A:Depending on what class you select, this is the stat that is used
+to calculate this classes spellpoints.

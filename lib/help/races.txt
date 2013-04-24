@@ -1,0 +1,496 @@
+ 
+***** <British>
+ British
+	Hailing from the grand isle of Britain, little can stop 
+	their powerful imperialist drive. Stout and afraid of 
+	nothing, the British expand throughout the world sharing 
+	their superior way of life to those not fortunate enough 
+	to be born under the rule of Queen Victoria. They are the 
+	standard by which the rest of the world is judged. Growing
+	up under the British culture you will find yourself well 
+	prepared for whatever endeavors you may perchance to take. 
+	Because of their faith in the unsurpassable power 
+	of the British Empire and the belief of their culture's 
+	supremacy, the British do not know fear.
+	
+	Resistant to Fear
+	Mus:5 Agi:5 Vig:5 Sch:6 Ego:5 Chr:5
+	100% experience modifier
+	Hit die: 8
+
+***** <Asiatic>
+ Asiatic
+	Coming from the mystical eastern Asia, these people have 
+	grown up in a very different culture from the Western point
+	of view. Their emphasis on joint control of body and mind, 
+	Ying and Yang, gives them a fantastic discipline. Eastern 
+	culture has not given them a very good understanding of 
+	science and also their manners might be considered odd by 
+	westerners. They are also poor at disarming traps, and  
+	using devices. Asiatic people have a limited mystical 
+	ability to sense their immediate surroundings in dark.
+
+	Infravision 10'
+	Full access to the Martial Arts skill tree
+	Mus:5 Agi:7 Vig:5 Sch:4 Ego:6 Chr:4
+	120% experience modifier
+	Hit die:7
+
+***** <American>
+ American
+	Americans came from the young democratic republic of the 
+	new continent. Their country is recovering from the 
+	devastating civil war and adventurous spirits are high. 
+	Americans aren't generally very strong on willpower or 
+	mystical aspects, but they are personable and driven 
+	in their own way. Americans are poor at disarming 
+	traps, saving throws and stealth.
+	
+	Mus:6 Agi:6 Vig:6 Sch:6 Ego:3 Chr:7
+	110% experience modifier
+	Hit die:10
+
+***** <African>
+ African
+	Africans, or Negroes as westerners call them, are used 
+	to living in very harsh conditions of the darkest Africa. 
+	Coming from the uncharted savage areas of the World they 
+	are very strong, they have excellent endurance and agility, 
+	but they lack the knowledge and manners brought by Western 
+	education. Africans are poor at disarming traps, 
+	using devices and stealth.
+	
+	Mus:8 Agi:7 Vig:6 Sch:2 Ego:5 Chr:3
+	110% experience modifier
+	Hit die:10
+
+***** <French>
+ French
+	The French came from the great nation of France. They 
+	speak one of the most refined languages, which is used 
+	in many high societies in Europe - even in the Russian 
+	Tsar's court! They still remember and admire the times 
+	of the Louie XIV making them very charming in their 
+	behaviour and manners. The French are poor at disarming 
+	traps, using devices and stealth.
+	
+	The French get the skill of "Connoisseur" which allows
+	them to make meals which restore some of their lost
+	strength. The higher this skill, the more the meal heals
+	the player.
+	
+	Mus:5 Agi:5 Vig:5 Sch:5 Ego:5 Chr:8
+	90% experience modifier
+	Hit die:7
+          
+***** <Spanish>
+ Spanish
+	The Spanish are the original adventurers and 
+	conquistadors. The Spanish heyday is long gone 
+	now, but the conqueror spirit lives on. Unlike 
+	many other European gentlemen, the Spanish do not 
+	neglect their physical exercises, namely agility. 
+	The Spanish are poor at disarming traps, 
+	using devices, and stealth.
+
+	Mus:5 Agi:8 Vig:5 Sch:5 Ego:5 Chr:5
+	100% experience modifier
+	Hit die:8
+               
+***** <German>
+ German
+	The Germans are known for their industrious spirit and 
+	excellent knowledge of machinery and engineering. 
+	Laborious nature and the Prussian sense of physical 
+	disciplines gives them some physical strength. The 
+	Germans are also very self-knowledgeable and strong 
+	on will, which gives them an edge with mystical aspects. 
+	The Germans are poor at disarming traps, and stealth.
+	
+	The Germans get the skill Ransack and Plunder which 
+	allows them to detect valuable objects and eventually
+	turn any item they find into gold.
+	
+	Mus:7 Agi:5 Vig:5 Sch:7 Ego:7 Chr:5
+	110% experience modifier
+	Hit die:8
+    
+***** <Russian>
+ Russian
+	The vast Russian empire is perhaps the strongest 
+	European power reaching from the Baltic and Barents Sea 
+	to the Pacific Ocean and having twice the population of 
+	any other European power. Living under the Tsar's absolute 
+	rule, hot summers and cold winters are not easy, but the 
+	Russians are used to it giving them good physical health. 
+	Most of the Russian population, who unlike most other 
+	Europeans follow the teachings of the Orthodox Church, are 
+	illiterate peasants. The Russians are poor at using 
+	devices, searching and digging.
+		
+	Resistant to Confusion
+	Mus:5 Agi:5 Vig:8 Sch:5 Ego:5 Chr:5
+	100% experience modifier
+	Hit die:8
+               
+***** <Scandinavian>
+ Scandinavians
+	Scandinavians are hardy men from the North. They are 
+	still very much in touch with the nature and its spirits 
+	- civilized people could even consider them as a sort 
+	of pagans even though they mostly are Christians. This 
+	gives the Scandinavians better magical abilities, but 
+	makes them a bit less charming and presentable. The 
+	Scandinavians are poor at all skills.
+	
+	Mus:5 Agi:5 Vig:5 Sch:5 Ego:7 Chr:4
+	95% experience modifier
+	Hit die:8
+               
+***** <Arabic>
+ Arabic
+	The Arabs are the noble men of Northern Africa and 
+	Middle East. Their old Arabic civilization carried on 
+	the knowledge and heritage of the Ancient Greek and 
+	Rome when Europe fell to the dark Middle Ages. Their 
+	mystical culture gives them better understanding of 
+	magic and living in dry desert areas of the world 
+	gives them Slow Digestion and some agility. The 
+	Arabic people are poor at the rest of the skills.
+	
+	Slower Digestion
+	Mus:5 Agi:6 Vig:5 Sch:5 Ego:7 Chr:6
+	110% experience modifier
+	Hit die:8
+               
+***** <Dwarf>
+ Dwarf
+	Dwarves, industrious folks of the underground, are 
+	rarely seen by ordinary people. Living underground 
+	and mining huge and sophisticated tunnel networks 
+	(some scientists say that the Earth is actually 
+	hollow) make them very strong and healthy. 
+	Their scientific achievements are much more advanced 
+	than those of humans. Their short growth makes them 
+	less agile and not so pleasant to look at. Dwarves are 
+	good at disarming traps, but they are poor at the rest.
+
+	Dwarves get access to the Stonelore skill which senses
+	their surroundings underground, and eventually allows
+	them to escape a level quickly. 
+	
+	Dwarves also start off with access to the Power Strike
+	skill, and can specialize in axes regardless of class.
+	
+	Infravision 50'
+	Mus:9 Agi:3 Vig:9 Sch:8 Ego:2 Chr:1
+	125% experience modifier
+	Hit die:14
+               
+***** <Brownie>
+ Brownie
+	Brownies, industrious folks of surface, are very rarely 
+	seen by ordinary people. They are small on size and 
+	their bodies are fragile. When people fall asleep, 
+	brownies perform their labour for them but they also 
+	torment the lazy. They are extremely good at science 
+	and machinery even much more so than their underground 
+	counterparts, the Dwarves. Their small and fragile frame 
+	makes them physically less able. Brownies 
+	cannot be paralyzed. They are good at using devices and 
+	saving throw. They are poor at the rest.
+	
+	Brownies can also learn the skill Fae Pathways, which 
+	allows them to teleport short distances.
+
+	Free action
+	Mus:4 Agi:4 Vig:3 Sch:11 Ego:4 Chr:4
+	100% experience modifier
+	Hit die:3
+               
+***** <Daoine Sidhe>
+ Daoine Sidhe
+	Daoine Sidhe are the divine folks living in hollow mounds 
+	in Ireland. They are the faerie kings and queens. They 
+	sometimes came out from their mounds to hunt and steal 
+	children from humans. They are superior to humans in 
+	almost all aspects and they are quite fond of fighting 
+	and competitions. Daoine Sidhe can see invisible beings.
+	Daoine Sidhe are good at Stealth. 
+	They are poor at the rest.
+
+	See Invisible, Infravision 40'
+	Mus:6 Agi:9 Vig:7 Sch:8 Ego:4 Chr:9
+	150% experience modifier
+	Hit die:8
+	
+***** <Seelie Fae>
+ Seelie Fae
+	Seelie Fae, or properly called Seelie Court, are the 
+	benevolent faeries of the British Islands. There are 
+	many different kinds of these friendly natured faeries 
+	but they commonly are pleasant to look but they are 
+	fragile in nature and thus not very strong. They are 
+	very agile and have good knowledge of both science and 
+	magic. Their magical abilities allow them to float 
+	preventing them from falling. Their experience cannot be
+	drained. Seelie Fae are good at saving throw and stealth.
+	
+	Seelie Fae can also learn the skill Fae Pathways, which 
+	allows them to teleport short distances.
+	
+	Hold life, Feather fall
+	Mus:3 Agi:11 Vig:1 Sch:7 Ego:7 Chr:11
+	140% experience modifier
+	Hit die:5
+        
+***** <Unseelie Fae>
+ Unseelie Fae
+	Unseelie Fae or Unseelie Court, are the evil and 
+	malevolent faeries of the British Isles. They take 
+	pleasure in stealing from and tormenting people. 
+	They are not very bright, and if you realize that 
+	such fairy is tormenting you, you can usually 
+	fairly easily out-smart it. They are generally 
+	best at physical efforts being even stronger than 
+	dwarves. They can see invisible beings, and their 
+	magical abilities allow them to float preventing
+	them from falling. They also gain strange mutations
+	over time. Unseelie Fae are good at saving throw
+	and stealth. 
+	
+	Like Seelie Fae, they can also learn the skill Fae 
+	Pathways, which allows them to teleport short distances.
+
+	See invisible, Feather fall, Mutable, Infravision 100'
+	Mus:11 Agi:7 Vig:11 Sch:1 Ego:3 Chr:7
+	140% experience modifier
+	Hit die: 6
+               
+***** <Automaton>
+ Automaton
+	Automata are mechanical men. They do not evolve 
+	or develop in the same sense as living things, 
+	but their fine constructed bodies give them 
+	endurance and strength over that of humans. 
+	They can also use different mechanical body 
+	parts giving them new characteristics. Their 
+	statistics cannot be reduced, their experience 
+	cannot be drained (much) and they cannot be 
+	poisoned. Automata themselves are poor at all 
+	skills, but they can have some skills depending 
+	of their designed use (i.e. class). Automata
+	cannot drink tonics, must rely on mechanisms for
+	healing, and eat oil instead of food. They cannot
+	wear hats, boots, body armor or gloves, these items
+	do not fit around their body forms. These slots are
+	where automata heads, legs, torsos, and arms are equipped.
+	
+	Automata start with skill Utility Cypher, which 
+	allows them to detect things, and eventually identify
+	objects, and can get Systems Cypher later. 
+	
+	Automata also begin with access to the accurate strike
+	skill, and the accurate shot skill due to their 
+	mechanical precision.
+	
+	Sustain all, Hold life, Automata, Resist Blindness
+	140% experience modifier
+	Hit die:10
+	
+	Mus:40 Agi:25 Vig:55 Sch:25 Ego:5 Chr:15
+	(NOTE: These numbers are actually only for starting
+	stats. is no way for automata to raise their stats 
+	beyond wielding equipment. Also note that there will 
+	soon be other 'upgrade' options for automata - they 
+	will have a slightly modified way of gaining stats.)
+               
+***** <Steam-Mecha>
+ Steam-Mecha
+	Steam-mecha are great and powerful war machines. 
+	They are bigger, harder and meaner than automata 
+	making them truly horrible fighting monstrosities. 
+	These steam-powered machines are very, very difficult 
+	not to notice as they hum, clack, rattle and blow 
+	steam as they make their way through the dungeon. 
+	This noise will alarm any monster from a distance. 
+	They can use mechanical body parts just as automata 
+	and their statistics cannot be reduced, their 
+	experience cannot be drained and they cannot be 
+	poisoned. Steam mecha are poor at all skills. 
+	
+	Steam-Mecha start with the Onslaught Cypher skill, which
+	enhances their weaponry and get Aegis Cypher and Systems
+	Cypher later.
+	
+	Steam-Mecha also begin with access to the accurate
+	and vicious strike skills, along with access to the
+	accurate and vicious shot skills due to their construction
+	for war.
+
+	Sustain all, Hold life, Automata, Aggravation, Resist Blindness
+	Infravision 40'
+	200% experience modifier
+	Hit die:23
+
+	Mus:60 Agi:40 Vig:65 Sch:25 Ego:5 Chr:5
+	(As Automata)
+               
+***** <Djinn>
+ Djinn
+	Djinn are Arabic spirits that may or may not 
+	serve Allah. They may be good or evil but they 
+	all enjoy punishing people who have mistreated 
+	them. They are composed of the elements and can 
+	assume human form. They are strongest in magical 
+	aspects and science, but are also superior to 
+	humans in physical attributes. A Djinn's ego can't
+	be drained and their magical abilities 
+	allow them to float preventing them from falling. 
+	Djinns are good at saving throw and poor at digging.
+    
+	Sustain Ego, Feather Fall
+	Mus:7 Agi:9 Vig:7 Sch:9 Ego:11 Chr:7
+	200% experience modifier
+	Hit die:13
+               
+***** <Rakshasa>
+ Rakshasa
+	Rakshasa are the ancient spirits of India. They 
+	are malevolent evil spirits who eat human flesh. 
+	They can possess the bodies of some poor humans 
+	to enter the physical world. In this form they are 
+	much stronger and agile than ordinary humans 
+	although their hands are mirrored from human 
+	point of view, their thumbs being inside when 
+	their palms are up. They are also very beautiful 
+	and have some knowledge in science. They have 
+	their agility sustained. The Rakshasa may gain
+	strange mutations. Rakshasa are good at using 
+	devices, and stealth. They are poor
+	at disarming traps. 
+	
+	Rakshasa have the Demonic Attunement skill, which allows 
+	them to mystify and charm opponents and they also 
+	get Dark Charm early on.
+	
+	Rakshasa also start with access to the weapon 
+	finesse skill, and the critical throwing skill.
+	
+	Sustain Agility, Mutable, Infravision 40'
+	Mus:9 Agi:11 Vig:7 Sch:7 Ego:5 Chr:11
+	200% experience modifier
+	Hit die:10
+               
+***** <Giant>
+ Giant
+	Giants are huge, stupid and ugly humanoids. They are 
+	said to be the builders of many ancient rock formations 
+	and stone age stone rings. Roaming the impenetrable 
+	forests and wildernesses, these creatures rely on their 
+	size and strength but they are somewhat clumsy and quite 
+	stupid. Giants are poor at all skills. 
+	
+	Giants start with access to the rock tossing skill.
+	
+	Giants also start with access to the Power Strike skill,
+	as well as with acess to the Vicious Strike skill. Giants
+	can also specalize in blunt weapons regardless of their class.
+
+	Mus:14 Agi:3 Vig:11 Sch:2 Ego:3 Chr:1
+	180% experience modifier
+	Hit die:16
+               
+***** <Ogre>
+ Ogre
+	Ogres are like giant's smaller brothers. They stand 
+	twice as tall as humans and are built very strong and 
+	heavy. They are not as strong as giants but they are 
+	neither quite as clumsy, stupid and ugly. Ogres are 
+	poor at all the base skills. 
+	
+	Ogres have the skill berserk, allowing them to gain
+	superhuman combat abilities for a short while.
+	
+	Ogres start with access to the vicious strike skill,
+	and can specialize in blunt weapons regardless of class.
+	
+	Mus:12 Agi:5 Vig:9 Sch:3 Ego:3 Chr:3
+	150% experience modifier
+	Hit die:11
+               
+***** <Troll>
+ Troll
+	Trolls are evil, ugly and hairy humanoids living in 
+	dark forests and caves. They roam the wilderness 
+	assembling their armies and waiting for the time to 
+	wipe the Christianity from the face of the earth. 
+	They are smaller than ogres but they are very healthy 
+	and durable and they are able to regenerate 
+	wounds. Trolls are not particularly smart. They are 
+	poor at all skills.
+	
+	Trolls automatically gain access to the vicious strike skill.
+	
+	Regenerate
+	Mus:9 Agi:5 Vig:14 Sch:3 Ego:4 Chr:2
+	190% experience modifier
+	Hit die:12
+	
+               
+***** <Ghost>
+ Ghost
+	Ghosts are the spirits of dead people who are not 
+	yet ready to leave this world. They don't have bodies, 
+	making them able to pass through walls, though 
+	it hurts them.  Ghosts also float through air making them
+	unable to fall and they are telepathic, being able to sense
+	other intelligent beings nearby. The draw side of spirit form
+	is that their ability to operate physically is limited. 
+	Ghosts are very agile and very good at magic. 
+	They are good at stealth but poor at disarming 
+	traps and using devices.
+
+	Ghosts gain access to the etheric attunement skill which
+	allows them to avoid most of the damage from passing through
+	walls.
+
+	Feather Fall, Telepathy, Wraithform
+	Mus:3 Agi:12 Vig:3 Sch:7 Ego:12 Chr:7
+	150% experience modifier
+	Hit die:5
+               
+***** <Goblin>
+ Goblin
+	Goblins are small little beings, something like a 
+	miniature troll. They live around humans though hidden 
+	from their eyes and do all kinds of small nuisances 
+	like abruptly moving furniture or souring milk. 
+	They are very weak in all aspects, including skills.
+	
+	Goblins gain access to the racial skill of cowardice allowing
+	them to run away!
+
+	Infravision 20'
+	Mus:1 Agi:1 Vig:1 Sch:1 Ego:1 Chr:1
+	experience modifier 60%
+	Hit die:2
+	
+               
+***** <Old One>
+ Old Ones
+	Old Ones are hideous beings out of our universe. 
+	They represent the chaos and disorder that do not 
+	belong to this universe thus being inconceivable 
+	for most humans. Their presence is so disrupting 
+	to reality that they are always sensed by others. 
+	They are superior to any other being from our 
+	universe in all aspects. They also have all stats 
+	sustained.
+	They do not know fear, regenerate and are 
+	telepathic. They drain the strength of others and 
+	their experience is constantly drained as their form 
+	shifts. Their presence in this universe 
+	causes strange mutations to their physical form.
+
+	???? (Unknown!)                              

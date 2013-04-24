@@ -54,12 +54,13 @@ OBJ = \
 	cmd-know.obj cmd-misc.obj cmd-util.obj \
 	dungeon.obj files.obj generate.obj \
 	init1.obj init2.obj load2.obj \
-	melee1.obj melee2.obj monster1.obj monster2.obj \
+	monattk.obj monmove.obj monster1.obj monster2.obj \
 	object1.obj object2.obj save.obj spells1.obj \
 	spells2.obj spells3.obj store.obj tables.obj util.obj \
 	variable.obj wizard1.obj wizard2.obj xtra1.obj \
 	xtra2.obj z-form.obj z-rand.obj z-term.obj \
-	z-util.obj z-virt.obj pet.obj mspells1.obj mutation.obj
+	z-util.obj z-virt.obj pet.obj quest.obj mspells1.obj mutation.obj \
+        effects.obj
 
 all : $(EXE_FILE)
 

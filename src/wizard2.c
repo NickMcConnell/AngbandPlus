@@ -88,7 +88,11 @@ static void do_cmd_wiz_hack_ben(void)
 
 }
 
-
+static void do_cmd_clear_quests(void)
+{
+	/* No current quest */
+	p_ptr->cur_quest = 0;
+}
 
 /*
  * Output a long int in binary format.
@@ -373,6 +377,9 @@ static const tval_desc tvals[] =
 	{ TV_SWORD,             "Sword"                },
 	{ TV_POLEARM,           "Polearm"              },
 	{ TV_HAFTED,            "Hafted Weapon"        },
+	{ TV_DAGGER,            "Dagger"        },
+	{ TV_AXES,            "Axe"        },
+	{ TV_BLUNT,            "Blunt Clubs"        },
 	{ TV_GUN,               "Gun"                  },
 	{ TV_BULLET,            "Rifle Bullets"        },
 	{ TV_SHOT,              "Shotgun Shot"         },
@@ -389,9 +396,10 @@ static const tval_desc tvals[] =
 	{ TV_RING,              "Ring"                 },
 	{ TV_AMULET,            "Amulet"               },
 	{ TV_LITE,              "Lite"                 },
-	{ TV_TONIC,            "tonic"               },
+	{ TV_TONIC,            "Tonic"               },
 	{ TV_MECHANISM,         "Mechanism"            },
 	{ TV_TEXT,				"Parchment"			   },
+	{ TV_BOOK,				"Book"				   },
 	{ TV_RAY,               "Ray gun"              },
 	{ TV_TOOL,              "Tool"                 },
 	{ TV_APPARATUS,         "Apparatus"            },
@@ -415,7 +423,7 @@ static const tval_desc tvals[] =
 /*
  * Strip an "object name" into a buffer
  */
-static void strip_name(char *buf, int k_idx)
+void strip_name(char *buf, int k_idx)
 {
 	char *t;
 
@@ -632,6 +640,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 			break;
 		}
 
+		/* Apply normal magic, but first clear object */
 		/* Apply normal magic, but first clear object */
 		else if (ch == 'n' || ch == 'N')
 		{
@@ -1065,6 +1074,7 @@ static void wiz_create_item(void)
 
 /*
  * Create the artifact with the specified number
+ * DOES NOT WORK
  */
 static void wiz_create_artifact(int a_idx)
 {
@@ -1096,7 +1106,6 @@ static void wiz_create_artifact(int a_idx)
 	i_ptr->name1 = a_idx;
 
 	/* Extract the fields */
-	i_ptr->pval = a_ptr->pval;
 	i_ptr->ac = a_ptr->ac;
 	i_ptr->force = a_ptr->force;
 	i_ptr->dd = a_ptr->dd;
@@ -1135,7 +1144,9 @@ static void do_cmd_wiz_cure_all(void)
 
 	/* Heal the player */
 	p_ptr->chp = p_ptr->mhp;
+	p_ptr->cwp = p_ptr->mwp;
 	p_ptr->chp_frac = 0;
+	p_ptr->cwp_frac = 0;
 
 	/* Restore mana */
 	p_ptr->csp = p_ptr->msp;
@@ -1293,7 +1304,7 @@ static void do_cmd_wiz_summon(int num)
 
 	for (i = 0; i < num; i++)
 	{
-		(void)summon_specific(py, px, p_ptr->depth, 0, FALSE, FALSE);
+		(void)summon_specific(py, px, p_ptr->depth, 0, FALSE);
 	}
 }
 
@@ -1375,13 +1386,13 @@ static void do_cmd_wiz_unhide(int d)
 		if (m_ptr->cdis > d) continue;
 
 		/* Optimize -- Repair flags */
-		repair_mflag_mark = repair_mflag_show = TRUE;
+		 repair_mflag_show = TRUE;
 
 		/* Detect the monster */
 		m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
 
 		/* Update the monster */
-		update_mon(i, FALSE);
+		update_mon(i, FALSE, FALSE);
 	}
 }
 
@@ -1466,8 +1477,43 @@ static void do_cmd_wiz_query(void)
 	prt_map();
 }
 
+static void light_all(void)
+{
+	(void)set_blind(100); /* Visible */
+	(void)set_confused(100); /* Visible */
+	(void)set_poisoned(100); /* Visible */
+	(void)set_afraid(100); /* Visible */
+	(void)set_image(100); /* Obvious */
+	(void)set_fast(100); /* Visible */
+	(void)set_shield(100); /* Visible by AC */
+	(void)set_blessed(100); /* Bls Hr Sh PtE */
+	(void)set_hero(100); /**/
+	(void)set_shero(100);/**/
+	(void)set_protevil(100);/**/
+	(void)set_shadow(100); /* AC dimms */
+	(void)set_invuln(100); /* Obvious */
+	(void)set_tim_esp(100); /* Esp Sinv Fa Inf */
+	(void)set_tim_invis(100); /**/
+	(void)set_tim_demonspell(100); /* Obvious */
+	(void)set_tim_demonhealth(100); /* Obvious */
+	(void)set_tim_wormsense(100); /* Wormsense */
+	(void)set_tim_voorish(100); /* Obvious */
+	(void)set_tim_stygian(100); /* Obvious */
+	(void)set_tim_no_tele(100);
+	(void)set_tim_free_act(100); /**/
+	(void)set_tim_anti_magic(100);
+	(void)set_tim_infra(100);/**/
+	(void)set_tim_harding(100); /* Obvious */
+	(void)set_tim_invisiblity(100); /* AC dimms */
+	(void)set_stun(100); /* Visible */
+	(void)set_cut(100); /* Visible */
+}
 
-
+static void inc_fame(void)
+{
+	p_ptr->fame++;
+	msg_format("Player fame is %d.", p_ptr->fame);
+}
 #ifdef ALLOW_SPOILERS
 
 /*
@@ -1560,6 +1606,12 @@ void do_cmd_debug(void)
 			detect_all();
 			break;
 		}
+		/* Turn on all temp effects */
+		case 'D':
+		{
+			light_all();
+			break;
+		}
 
 		/* Edit character */
 		case 'e':
@@ -1572,6 +1624,13 @@ void do_cmd_debug(void)
 		case 'f':
 		{
 			(void)identify_fully();
+			break;
+		}
+		
+		case 'F':
+		{
+			/* incriment fame */
+			(void)inc_fame();
 			break;
 		}
 
@@ -1653,6 +1712,12 @@ void do_cmd_debug(void)
 			break;
 		}
 
+		/* Remove the quests */
+		case 'r':
+		{
+			do_cmd_clear_quests();
+			break;
+		}
 		/* Summon Random Monster(s) */
 		case 's':
 		{

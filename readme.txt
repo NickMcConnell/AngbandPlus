@@ -1,7 +1,7 @@
 
 
   ************************************************************************
-  **   Steamband 0.3.1   **   The Journey from the Ceter of the Earth   **
+  **   Steamband 0.4.0   **   The Journey from the Ceter of the Earth   **
   ************************************************************************
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
@@ -15,7 +15,7 @@
 
                  Angband 2.9.0 - 2.9.3 by Robert Ruehlmann
 
-				Steamband 0.3.1  by Courtney C. Campbell
+				Steamband 0.4.0  by Courtney C. Campbell
 				
         Send comments, bug reports, and patches, to "campbell@oook.cz"
        Visit the Angband Home Page at "http://www.thangorodrim.net/"
@@ -28,39 +28,27 @@
 
 Hello everyone!
 
-Ok, first things first. This program has bugs. I am _not_ a coder by nature
-and have only recently begun teaching myself to code. So if you find any bugs,
-(and I'm sure there are a bunch of them) please e-mail me. However, version 
-0.3.1 is much more stable than previous version, so it is HIGHLY RECOMMENDED
-that you update.
+If you are playing it, you are required to send me bug reports, 
+mispellings, any anything that happens that seems like it shouldn't.
+The easiest way to insure that you remember everything is to play
+the game with notepad open.
+
+The most important thing to be looking for at this stage is balance.
+Always finding an artifact where it's never powerful enough to use it?
+Got a resist maxed and nothing attacks you with it? Consistantly getting
+killed by the same unique? Certain powers too weak or never used? Please,
+if you're playing with something besides an automaton or steam-mecha
+write in with your thoughts on balance.
 
 You can also join the steamband mailing list! You do this by sending an
 e-mail to Steamband-subscribe@yahoogroups.com . This will keep you 
 up to date on all the latest steamband developments.
 
-Please, _Please_ take note that this is a 0.3.1 version. Steamband 
-will not be what I want it to be until version 1.0.0. There are many
-_many_ changes planned. A new leveling system I want to impliment,
-and more artifacts and monsters that are in theme, are just a _few_
-of the many improvements planned. I'm mainly releasing 
-now for feedback, and so that everyone can have a say in what they want!
-
-I plan on adding back in randarts, and an autosquelch, but those are 
-things that will take a while to get to. 
-
-Oh! and I hope everyone enjoys playing! Make sure you remember that
-'a' no longer stands for ant, and watch out! Buy yourself a gun if
-you want to survive!
 -Campbell (VALIS)
-
-Some quick notes for new users. The FAQ can be found at 
-http://angband.oook.cz/steamband/FAQ.html
-It answers some general questions. You should know that you 
-raise stats, and gain skills by pushing the 'G' key.
 
 === General Info ===
 
-This is the README file for Steamband 0.2.2 (26th Feb 2003).
+This is the README file for Steamband 0.4.0 (14th Feb 2005).
 
 Steamband is a "graphical" dungeon adventure game using textual characters
 to represent the walls and floors of a dungeon and the inhabitants therein,

@@ -46,7 +46,7 @@
 
 # Version stamp (required)
 
-V:0.3.1
+V:0.4.0
 
 
 ### Simple Vaults (type 7) -- maximum size 44x22 ###
@@ -1214,4 +1214,67 @@ D:%XX***XXX...XXX...XXX...XXX...XXX^^X*.X^X^X^X^X^X.*XXXXXXXXXXXXX..XX^^XXXXXXXX
 D:%XXXX^^^^^^^^^XXX^^^^^^^^^XXX^^^#XXX8.X.&.X.&.X..*X+^.^.^.^.^.^..XX*^.^.^.^.^.^.^.^.^.^#8X%
 D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+### Quest Vaults (type 9) -- maximum size 44x22 ###
+
+N:55:Round Quest
+X:9:0:12:19
+D:       %%%%%       
+D:    %%%,^#^,%%%    
+D:  %%....#+#....%%  
+D: %.....&#9#&...,.% 
+D:%...,.##X+X##.,...%
+D:%.@.,.#*X8X*+^,.,.%
+D:%.,.,^+*XQX*#.,.@.%
+D:%...,.##XXX##.,...%
+D: %.,....#*#......% 
+D:  %%....#+#....%%  
+D:    %%%^^#^^%%%    
+D:       %%%%%       
+
+N:56:Square Quest
+X:9:0:12:13
+D:XXXXXXXXXXXXX
+D:X,^,,,,,,,,,X
+D:X,XXXX#XXXX^X
+D:X,X,,&,,^,X,X
+D:X,X,XXXXX,X,X
+D:X,X^X^+8X&X,X
+D:X,X&+9XQX,X,X
+D:X,X,XXXXX^X,X
+D:X,X,^,&,,,X,X
+D:X^XXXXXXXXX,X
+D:X,,,,,,,,,^,X
+D:XXXXXX#XXXXXX
+
+N:57:Twisted Quest
+X:9:0:12:16
+D:################
+D:#.............^#
+D:#.XXXXXXXXXXXX.#
+D:#.X9##,,#,,##X.#
+D:#.X#+^^^^#,,#X.#
+D:#.X#&^^#^#,,&X.#
+D:#.X##^^^^#,,,X.#
+D:#.X,+#,&##@,,X.#
+D:#.X9,##^#Q8##X.#
+D:#.XXXXX+XXXXXX.#
+D:#^.............#
+D:################
+
+N:58:Storeroom Quest
+X:9:0:13:17
+D:XXXXXXXXXXXXXXXXX
+D:X~&+.X*X*X*X*X*XX
+D:X&@X...........*X
+D:XXXX^XXXX.&&&..XX
+D:X~&X^X.^..&&&..*X
+D:X~@X^X^XXXXXXXXXX
+D:XQ8+^X@^^^^^^^^^#
+D:X~@X^X^XXXXXXXXXX
+D:X~&X^X.^..&&&..*X
+D:XXXX^XXXX.&&&..XX
+D:X&@X...........*X
+D:X~&+.X*X*X*X*X*XX
+D:XXXXXXXXXXXXXXXXX
 

@@ -31,8 +31,8 @@ OBJS = \
   init2.o \
   load1.o \
   load2.o \
-  melee1.o \
-  melee2.o \
+  monattk.o \
+  monmove.o \
   monster1.o \
   monster2.o \
   object1.o \

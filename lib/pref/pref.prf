@@ -216,7 +216,7 @@ C:1:O
 
 # Mutations -- Mutations
 A:U
-C:1:X
+C:1:^O
 
 # Message colors
 %:message.prf

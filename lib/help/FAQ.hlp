@@ -1,0 +1,21 @@
+Welcome to the Steamband FAQ list.
+
+Please choose one of the following FAQs:
+
+    (1) General FAQ                (generalFAQ.txt)
+    (2) Statistic FAQ              (statFAQ.txt)
+    (3) Skill FAQ                  (skillFAQ.txt)
+    (4) Magic FAQ                  (magicFAQ.txt)
+    (5) Wound point FAQ            (wpFAQ.txt)
+ 
+Browser/help commands:
+  #     go to line         %  go to file         ?  go to last file/main menu
+  SPACE advance 1 page     -  back up 1 page     /  search for text
+  RET   advance 1 line     =  back up 1 line     &  show (highlight) some text
+  +     advance 1/2 page   _  back up 1/2 page   !  toggle case sentitivity
+
+***** [1] generalFAQ.txt
+***** [2] statFAQ.txt
+***** [3] skillFAQ.txt
+***** [4] magicFAQ.txt
+***** [5] wpFAQ.txt

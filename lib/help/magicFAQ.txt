@@ -1,0 +1,188 @@
+=== Magic FAQ ===
+Q: I'm level 12, and I can't cast the level 12 spells in my device/
+spellbook! What is going on?
+
+A. Whether or not you can cast/understand a spell or effect is _solely_ 
+determined by your level in the appropriate skill. Which for mage spells 
+is Latin + Occult path, and for priest spells is Latin + Spirituality path. 
+For devices - if you get them, it's gadgeteering + the specific device skill.
+See the magic FAQ for more details.
+
+
+Q:Come again?
+
+A:There are a collection of skills for each type of magic that determine
+which spells you can cast. You add all the relevant skills together and
+if they are higher then the level of effect you are trying to cast then
+you can produce it. We are calling this a 'chain'.
+
+
+Q: I cast a spell, and took damage and had my stats drained! What the 
+@$%& is this? I've been playing V for years - and magic should just
+work! 
+
+A: First - There is a way to use magic relatively safely. Second - 
+this is a victorian / steam / pulp variant of Angband called Steamband. 
+In all the Victorian literature that you have ever read, do you remember
+there being any wizards? Those who did mess with magic, do you remember 
+the stories they were in? You know, like H.P. Lovecraft? or perhaps John 
+Dee from Guy Fawkes? Are these wizards? or mortals who have imperiled 
+their mortal soul to traffick in dark magicks of the damned?
+
+
+Q:That sucks! Why would I ever use magic?
+
+A:If you're willing to overcome the difficulties, there are many powerful
+spells available to the most powerful mages. Some of the new effects are
+quite cool. They are surely worth checking out.
+
+
+Q:Ok, spell it out for me buddy, how do I use magic.
+
+A:Magic is complicated, but well worth the effort to learn. Below is an 
+explanation. 
+
+There are three (3) different kinds of magic
+1)Will magic (or Occult)
+2)Prayer magic (or Spirituality)
+3)Enigmatic devices (or Gadgeteering)
+
+Occult magic is the most dangerous, many spells have stat and hp costs
+associated with them. 
+Spirituality is safer, though upon failure there can be disastrous
+consequences.
+Gadgeteering is safest - there is no penalty to failing to cast a 
+gadgeteering effect.
+
+Each type of magic has certain skills associated with learning it and
+casting it safely.
+
+
+============
+Gadgeteering
+============
+Q:Let's start in reverse order - tell me about Gadgeteering!
+
+A:There are various enigmatic devices you may find in the game (such
+as the utility bandoleer) which can produce certain effects. Some classes
+have access to skills that match the name of these devices, if they put 
+skill points into the skills that match the name of the devices they can
+produce effects from them. Engineers and Gentlemen also have a skill called 
+Gadgeteering which applies to all devices, and is added to the specific 
+device skill allowing them to get more powerful effects. This type of magic 
+is closest to the old *band style of play.
+
+The skills that Gadgeteering uses are listed below
+[Gadgeteer] - adds it skill value to all the devices below to determine
+which effects you can generate.
+[Utility Bandolier]
+[Detectives Kit]
+[Clockwork Chassis]
+[Clockwork Carbine]
+[Velocipede]
+[Analytic Engine]
+
+You take your skill in Gadgeteering and add it to the skill in the particular
+device you are trying to use, and if that number is higher than the level
+of the effect, you have a chance to use it. So your Gadgeteering chain is
+[Gadgeteer]+[specific device] in determining what spells you can cast for
+each device.
+There are no penalties for failure or any negative effects for Gadgeteering.
+
+============
+Spirituality
+============
+Q:Well, that wasn't so hard. What about Spirituality or Prayer magic?
+
+A:The Spirituality chain (the list of skills that determine what spells
+you can cast) is [Latin] + [Spirituality]+-->[Prayer]+-->[Devotion]. 
+The arrows are there because you don't start with prayer, you start with
+spirituality and once that is high enough the prayer skill opens up.
+You can use this chain with the Green books you find in the game.
+
+
+Q:Wow, that looks much more powerful than gadgeteering! And lots of books
+to cast spells out of than-
+
+A:Not so fast. There are other factors involved in spirit magic. 
+Although there is never a cost to casting a prayer, a wayward prayer
+can have disastrous consequences. If you fail to cast a prayer and
+the wrong power intercepts your message your character could be surrounded 
+by demons or worse! So you must also practice your warding skills.
+[Lesser Warding]+-->[Greater Warding] will protect you from negative
+consequences if your prayers fail. You will gain access to [Lesser
+Warding] after your first few skill points are spent on spirituality.
+
+==============================
+Willpower  & Other Information
+==============================
+Q:How do I tell which spells are safe to cast?
+
+A:Dangerous spells are shown in violet, and risky ones in yellow. 
+Relatively safe spells are shown in the color of the book.
+
+
+Q:What's the deal with Willpower?
+
+A:With Spirituality and Occult magic your Willpower score [Tempered
+Will]+-->[Hardened Will]+-->[Iron Will] will increase the 
+effectiveness of your spells. A spellcaster without willpower is 
+a sorry sight indeed. Your willpower score does not affect spells
+from engimatic devices.
+
+=====================
+Occult, or Will Magic
+=====================
+Q:Ok, what about Occult magic.
+
+A:The Occult chain is [Latin] + [Occult]+-->[Advanced Occult]+-->
+[Cthulhu Mythos]
+
+
+Q:What's the catch?
+
+A:There is nearly *always* a cost to using the powerful "Occult" 
+or red book 'm'agic. Successfully casting spells can often damage 
+your mind and body. To protect yourself you need [Thaumic Energy]+-->
+[Advanced Thaumic Energy]. 
+
+
+Q:How do I get access to [Thaumic Energy]?
+
+A:It will unlock from increasing [Ritual Magic]. [Ritual Magic]
+much like the willpower chain increases the power of your spells.
+See, you need to have a background in ritual magic before you can
+begin to use thaumic energy correctly.
+
+
+Q:Wait! I cast a safe spell (one that was the color of the book - not
+violet or yellow) and I still had my stats drained!
+
+A: It's true. There is *always* a cost to using some occult spells.
+However, if you are fully protected, your stat drain should have been
+in the range of 1-3 points. Often allowing you to cast a spell dozens
+of times before seeing any real negative effects from the stat loss.
+
+Well, any costs besdies having to restore the stats. I hear they
+sell some good tonics in town for that sort of thing.
+
+
+Q:Hey! I inspected the first occult spellbook and in the description
+it told me it was forbidden and would self-destruct after reading!
+
+A:Well, I did say it was risky. :-) That's just flavor text, though
+suppose if you tried to use the book without learning how to control
+thaumic energy it might very quickly lead to your demise.
+
+
+Q:Hey, it doesn't say anything about my spellcaster wearing gloves. . .
+
+A:That's because there isn't a penalty for wearing gloves.
+
+
+Q:Why does it let me wield spellbooks? 
+
+A:Because if you're holding a spellbook in your hand, it's bonus (+x)
+is a magic master bonus. It raises your [Latin] and your 'saftey' skills,
+(both [Thaumic Energy] and [Lesser Warding]) making your spells more
+safe and eaiser to cast.

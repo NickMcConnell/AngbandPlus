@@ -507,7 +507,7 @@
 
 
 /* Steamband characteristics */
-#define ANGBAND_CREATOR 'SCCC'
+#define ANGBAND_CREATOR 'A271'
 /* #define HAS_SCORE_MENU */
 
 

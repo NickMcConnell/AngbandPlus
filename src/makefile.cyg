@@ -31,8 +31,8 @@ SRCS = \
 	level.c \
 	load2.c \
 	main-win.c \
-	melee1.c \
-	melee2.c \
+	monattk.c \
+	monmove.c \
 	monster1.c \
 	monster2.c \
 	mspells1.c \
@@ -40,6 +40,7 @@ SRCS = \
 	object1.c \
 	object2.c \
 	pet.c \
+	quest.c \
 	readdib.c \
 	save.c \
 	skills.c \
@@ -80,8 +81,8 @@ EXOBJS = \
 	level.o \
 	load2.o \
 	main-win.o \
-	melee1.o \
-	melee2.o \
+	monattk.o \
+	monmove.o \
 	monster1.o \
 	monster2.o \
 	mspells1.o \
@@ -89,6 +90,7 @@ EXOBJS = \
 	object1.o \
 	object2.o \
 	pet.o \
+	quest.o \
 	readdib.o \
 	save.o \
 	skills.o \
@@ -230,10 +232,10 @@ main.o: main.c $(INCS)
 main-win.o: main-win.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-melee1.o: melee1.c $(INCS)
+monattk.o: monattk.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-melee2.o: melee2.c $(INCS)
+monmove.o: monmove.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 monster1.o: monster1.c $(INCS)

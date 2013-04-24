@@ -136,7 +136,6 @@
 	((P)=FREE(P,T))
 
 
-
 /**** Available variables ****/
 
 /* Replacement hook for "rnfree()" */
@@ -150,6 +149,9 @@ extern vptr (*ralloc_aux)(huge);
 
 
 /**** Available functions ****/
+
+/* De-allocate memory */
+extern void* npprnfree(void *p);
 
 /* De-allocate a given amount of memory */
 extern vptr rnfree(vptr p, huge len);

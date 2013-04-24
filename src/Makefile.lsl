@@ -7,7 +7,7 @@ SRCS = \
   variable.c tables.c util.c cave.c \
   object1.c object2.c monster1.c monster2.c \
   xtra1.c xtra2.c spells1.c spells2.c \
-  melee1.c melee2.c save.c files.c \
+  monattk.c monmove.c save.c files.c \
   cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
   store.c birth.c load1.c load2.c \
   wizard1.c wizard2.c \
@@ -19,7 +19,7 @@ OBJS = \
   variable.o tables.o util.o cave.o \
   object1.o object2.o monster1.o monster2.o \
   xtra1.o xtra2.o spells1.o spells2.o \
-  melee1.o melee2.o save.o files.o \
+  monattk.o monmove.o save.o files.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
   store.o birth.o load1.o load2.o \
   wizard1.o wizard2.o \
@@ -94,8 +94,8 @@ main-gcu.o: main-gcu.c $(INCS)
 main-x11.o: main-x11.c $(INCS)
 main-xaw.o: main-xaw.c $(INCS)
 main.o: main.c $(INCS)
-melee1.o: melee1.c $(INCS)
-melee2.o: melee2.c $(INCS)
+monattk.o: monattk.c $(INCS)
+monmove.o: monmove.c $(INCS)
 monster1.o: monster1.c $(INCS)
 monster2.o: monster2.c $(INCS)
 object1.o: object1.c $(INCS)

@@ -1,0 +1,76 @@
+Dashing Hussar Skill Tree for Version 0.3.8c
+
+Skill			Opens			Threshold
+
+Neophyte Combat		Standard Combat		5
+Standard Combat		Vicious Strike		8
+					Accurate Strike		8
+					Toughness			10
+					Advanced Combat		15
+Vicious Strike		Weapons Finesse		10
+					Power Strike		10
+Accurate Strike		Swift Blow			10
+					Critical Strike		10
+Advanced Combat		Master Combat		15
+					Power Strike		0
+					Critical Strike		0
+			
+
+Martial Arts		Eagle Strike Arts	15
+					Acrobatics			5
+Eagle Strike Arts	Iron Skin			8
+					Toughness			10
+Toughness			Athletics			5
+					Pain Tolerance		10
+
+Neophyte Firearms	Standard Firearms	15
+Standard Firearms	Vicious Shot		8
+					Accurate Shot		8
+					Advanced Firearms	15
+Vicious Shot		Swift Shot			10
+Accurate Shot		Critical Shot		10
+Advanced Firearms	Swift Shot			0 
+					Critical Shot		0
+					Master Firearms		15
+
+Throwing			Advanced Throwing	15
+Advanced Throwing	Accurate Throwing	10
+
+
+Spirituality		Prayer				15
+					Lesser Warding		3
+
+Occult				----------------	20
+
+Ritual Magic		----------------	20
+
+Tempered Will		Hardened Will		15
+Hardened Will		Iron Will			15
+
+Device Norm			Device Power Amp	10
+					Advanced Devices	10
+Device Power Amp	Advanced Power Amp	15
+Advanced Devices	Biological Power Amp	5
+					Efficient Devices	10
+					Fast Device Use		15
+Efficient Devices	Fast Device Use		10
+
+Latin				-------------		20
+
+Search				Keen Eyes			5
+
+Stealth 			-------------		20
+
+Disarm Traps		-------------		20
+
+Combat Techniques	Elite Maneuvers		15
+
+Dragon's Heart		-------------		20
+
+Polearm				-------------		20
+
+Dagger				-------------		20 
+
+Sword				-------------		20
+
+Rifle				-------------		20

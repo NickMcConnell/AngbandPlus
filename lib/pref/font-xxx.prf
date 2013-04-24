@@ -301,7 +301,9 @@ S:0xFF:0x0F/0x2C
 
 
 ##### Default inventory object colors #####
-
+## For future refrence this is hex values for the ###
+## color constants in defines.h Violet is 10, os 0x0A is ##
+## the code. ##
 
 # SKELETON
 E:1:0x01
@@ -401,6 +403,12 @@ E:66:0x0A
 
 # SCROLL
 E:70:0x01
+
+# PARCHMENT
+E:71:0x03
+
+# BOOK
+E:73:0x0A
 
 # POTION
 E:75:0x0E

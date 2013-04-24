@@ -25,15 +25,21 @@
 # === Understanding ego_item.txt ===
 
 # N: serial number : ego type
-# X: inventory slot : rating : xtra
-# C: max to-hit : max to-dam : max to-ac : pval
-# W: depth : rarity : weight : cost
+# X: inventory slot (useless) : rating : xtra
+# W: depth/level(almost unused) : rarity : weight (useless) : cost
+# C: max to-hit : max to-dam : max to-ac 
 # T: tval : min_sval : max_sval
+# O: fire:earth:air:water:elec:ice:acid:poison:time:ether:sound:nether:light:dark:psi:tk:spirit
+# Y: pval1 : pval2
+# 1: Pval1 flags | 
+# 2: pval2 flags
 # F: flag | flag | etc
+# D: description
 
 # 'N' indicates the beginning of an entry. The serial number must
 # increase for each new item.
 
+# Note: 'Slots" does jack and shit. Absolutely no effect. 
 # 'X' is for extra information - inventory slot and rating. Slots
 # range from 23 (for ammunition) to 35 (for boots). Rating affects
 # level feelings.  The xtra value determines random extra flags for
@@ -48,6 +54,10 @@
 # normally found at, rarity determines how common the object is,
 # weight is in tenth-pounds and cost is the items value.
 
+# 'O' is for item percentile resistances. This resistance is additative
+# with ego and artifact resistances.
+# O:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+
 # 'F' is for flags. These are fairly self-explanatory. As many F:
 # lines may be used as are needed to specify all the flags and flags
 # are separated by the '|' symbol.
@@ -60,815 +70,1475 @@
 
 # Version stamp (required)
 
-V:0.3.1
+V:0.4.0
 
 
 ### Body Armor ###
 ### Alter some of these so that they fall on 'proper' armor.
 
-N:1:of the Machine
-X:30:10:1
-C:5:5:10:2
-W:0:3:0:2500
+N:1:of Inviolability to Fire
+X:0:10:0
+W:0:1:0:800
+T:34:0:99
 T:36:0:99
 T:37:0:99
-F:MUS | VIG | REGEN | SPINES
+O:40:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+D:It grants resistance to fire.
 
-### Add activation for the etheric equipment (Phase door / teleport)
-N:2:(*Etheric*)
-X:30:20:2
-C:0:0:25:3
-W:0:10:0:12000
+N:2:of Inviolability to Earth
+X:0:10:0
+W:0:1:0:800
+T:34:0:99
 T:36:0:99
 T:37:0:99
-F:RES_NEXUS | SUST_VIG | SUST_AGI | SUST_EGO | SPEED
+O:0:40:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+D:It grants resistance to earth.
 
-N:3:(Etheric)
-X:30:15:1
-C:0:0:10:0
+N:3:of Inviolability to Air
+X:0:10:0
+W:0:1:0:800
+T:34:0:99
+T:36:0:99
+T:37:0:99
+O:0:0:40:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+D:It grants resistance to air.
+
+N:4:of Inviolability to Water
+X:0:12:0
+W:0:1:0:900
+T:34:0:99
+T:36:0:99
+T:37:0:99
+O:0:0:0:40:0:0:0:0:0:0:0:0:0:0:0:0:0
+D:It grants resistance to water.
+
+N:5:of Inviolability to Electricity
+X:0:16:0
+W:0:1:0:1000
+T:34:0:99
+T:36:0:99
+T:37:0:99
+O:0:0:0:0:40:0:0:0:0:0:0:0:0:0:0:0:0
+D:It grants resistance to electricity.
+
+N:6:of Inviolability to Ice
+X:0:16:0
+W:0:1:0:1000
+T:34:0:99
+T:36:0:99
+T:37:0:99
+O:0:0:0:0:0:40:0:0:0:0:0:0:0:0:0:0:0
+D:It grants resistance to ice.
+
+N:7:of Inviolability to Acid
+X:0:16:0
+W:0:1:0:1000
+T:34:0:99
+T:36:0:99
+T:37:0:99
+O:0:0:0:0:0:0:40:0:0:0:0:0:0:0:0:0:0
+D:It grants resistance to acid.
+
+N:8:of Inviolability to Poison
+X:0:16:0
+W:0:1:0:1000
+T:34:0:99
+T:36:0:99
+T:37:0:99
+O:0:0:0:0:0:0:0:40:0:0:0:0:0:0:0:0:0
+D:It grants resistance to poison.
+
+N:9:of Inviolability to the Elements
+X:0:20:0
+W:0:4:0:6500
+C:0:0:10
+T:36:0:99
+T:37:0:99
+O:35:35:35:35:15:15:15:15:0:0:0:0:0:0:0:0:0
+D:It grants resistance to all of the basic elements, and it also 
+D:protects you somewhat from the mid elements.
+
+N:10:of *Inviolability* to the Elements
+X:0:20:0
+W:0:10:0:15000
+C:0:0:10
+T:36:0:99
+T:37:0:99
+O:45:45:45:45:35:35:35:35:0:0:0:0:0:0:0:0:0
+D:It grants great resistance to all of the basic elements, and it also 
+D:protects you well from the mid elements.
+
+N:11:of the Daoine Sidhe
+X:30:25:0
+W:0:4:0:11000
+C:0:0:18
+T:36:0:99
+T:37:0:99
+O:0:0:10:0:0:0:30:30:10:10:10:8:30:30:0:0:0
+Y:3
+1:STEALTH 
+F:SUST_EGO | RES_CONFU 
+D:Fay have walked and lived in the hidden places of earth for thousands 
+D:of years. Chimeric glamors swath their forms from the prying eyes 
+D:of meddlesome humans. This appears to be a garment of the Daoine 
+D:Sidhe and will contain powerful magics.
+
+N:12:(Clockwork)
+X:0:6:0
+W:0:2:0:7000
+C:0:0:8
+T:36:0:99
+T:37:0:99
+O:0:0:0:0:0:0:0:0:-20:0:0:0:0:0:0:0:0
+Y:3:2
+1:SPEED
+2:MUS | AGI
+F:DISRUPT_SPELL
+D:A piece of clothing to be sure; but in place of cloth, gears interlock 
+D:in a fine mesh. It is a fascinating piece of workmanship and appears 
+D:very wearable. 
+
+N:13:of Permanence
+X:0:30:0
+W:0:5:0:30000
+C:0:0:10
+T:36:2:2
+O:35:35:35:35:20:20:20:20:5:5:5:5:10:10:0:0:0
+F:SUST_MUS | SUST_AGI | SUST_VIG | SUST_SCH | SUST_EGO | SUST_CHR | HOLD_LIFE
+D:The great scientists of your time spend countless hours seeking to prefect
+D: fabrics and weaves combining new miracles in technology with ancient sorceries.
+D: Their work has come to an end in this mantle that protects you against the
+D: elements, stat-draining, and experience. Fortunate that you should
+D: benefit from all their hard work.
+
+N:14:(Martian)
+X:0:30:0
+W:0:4:0:6000
+C:0:0:20
+T:37:0:2
+O:50:0:-10:0:10:-10:30:-30:0:25:30:0:30:30:10:10:10
+Y:-2:4
+1:STEALTH
+2:HEALTH | SAVE | MUS
+F:SUST_MUS | SUST_AGI | FEATHER | FREE_ACT | REGEN_25 | RES_BLIND | RES_FEAR |
+F:SH_FIRE | MUTABLE | NO_TELEPORT | LIGHT_CURSE
+D:This is the uniform of a martian officer. It is made out of some strange 
+D:material that is totally unknown to the scientists of today. It likely 
+D:emits some strange martian radiation.
+
+N:15:(Etheric)
+X:0:15:0
+C:0:0:10
 W:0:2:0:1500
 T:36:0:99
 T:37:0:99
-F:RES_NEXUS
+O:0:0:0:0:8:8:8:8:0:50:0:0:0:0:0:0:0
+Y:3
+1:MANA | SPEED 
+F:SUST_AGI | SUST_EGO | SUST_SCH | FREE_ACT | RES_CONFU | TELEPORT
+D:This piece of clothing shimmers in the light. It appears to be somehow bound 
+D:to the etheric forces that permeate our world. 
 
-N:4:of Inviolability to Acid
-X:30:16:0
-W:0:1:0:1000
-T:36:0:99
-T:37:0:99
-F:RES_ACID | IGNORE_ACID
-
-N:5:of Inviolability to Lightning
-X:30:10:0
-W:0:1:0:400
-T:36:0:99
-T:37:0:99
-F:RES_ELEC | IGNORE_ELEC
-
-N:6:of Inviolability to Fire
-X:30:14:0
-W:0:1:0:800
-T:36:0:99
-T:37:0:99
-F:RES_FIRE | IGNORE_FIRE
-
-N:7:of Inviolability to Cold
-X:30:12:0
-W:0:1:0:600
-T:36:0:99
-T:37:0:99
-F:RES_COLD | IGNORE_COLD
-
-N:8:of Inviolability to the Elements
-X:30:20:0
-W:0:2:0:12500
-C:0:0:10:0
-T:36:0:99
-T:37:0:99
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-N:9:of the Daoine Sidhe
-X:30:25:2
-W:0:4:0:15000
-C:0:0:10:3
-T:36:0:99
-T:37:0:99
-F:STEALTH | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-N:10:of the Mercurial Engine
-X:30:10:1
-C:0:0:25:5
-W:0:15:0:120000
-T:36:0:99
-T:37:0:99
-F:INFRA | MUS | VIG | AGI | SPEED | RES_DARK | RES_SHARD | RES_DISEN |
-F:IGNORE_ACID | IGNORE_FIRE | IGNORE_COLD | RES_ACID | RES_ELEC | 
-F:RES_FIRE | RES_COLD |
-F:HOLD_LIFE | AGGRAVATE | 
-
-N:11:of Permanence
-X:30:30:2
-W:0:2:0:30000
-C:0:0:10:0
-T:36:2:2
-F:SUST_MUS | SUST_AGI | SUST_VIG | SUST_SCH | SUST_EGO | SUST_CHR | 
-F:HOLD_LIFE | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-N:12:(Martian)
-X:30:30:2
-W:0:10:0:30000
-C:0:0:20:2
-T:37:1:1
-F:VIG | SPEED | REGEN | RES_POIS | RES_SOUND | RES_CHAOS
-
-# 13 (unused)
-
-# 14 (unused)
-
-# 15 (unused)
-
-
-### Shields ###
-
-# Note that the most common shields (lightning, cold) have a ratity of 2.
-# That is to keep close to original Angband rarities.
-
-N:16:of Inviolability to Acid
-X:32:16:0
-W:0:6:0:1000
+N:16:of Crushing
+X:0:5:0
+C:0:0:0
 T:34:0:99
-F:RES_ACID | IGNORE_ACID
+T:36:0:99
+T:37:0:99
+F:DRAIN_HP | LIGHT_CURSE
+D:It slips on easily enough, but grips you so tightly that you cannot remove 
+D:it.  As the pressure continually builds, you realize that death could be 
+D:very near.
 
-N:17:of Inviolability to Lightning
-X:32:10:0
-W:0:2:0:400
+N:17:of the Chemist
+X:0:5:0
+W:0:3:0:4200
+C:0:0:8
+T:35:0:99
 T:34:0:99
-F:RES_ELEC | IGNORE_ELEC
+T:36:0:99
+O:15:15:15:15:0:0:45:45:0:0:0:0:0:0:0:0:0
+Y:10:-2
+1:SCH
+2:SPEED
+F:SLOW_DIGEST | RES_CONFU
+D:A durable protective garment, useful for working with dangerous substances.
 
-N:18:of Inviolability to Fire
-X:32:14:0
-W:0:3:0:800
+N:18:of the Stars
+X:0:5:0
+W:0:2:0:3000
+C:0:0:10
+T:35:0:99
+T:36:0:99
+O:0:0:35:0:35:15:15:0:0:0:0:0:0:0:0:0:0
+Y:5
+1:EGO | AGI
+F:FEATHER
+D:A piece of clothing made of some strange material from space. 
+
+N:19:(Gold Woven)
+X:0:5:0
+W:0:10:0:35000
+C:0:0:20
+T:36:0:99
+T:37:0:99
+O:15:15:15:15:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:2:5
+1:LIGHT
+2:CHR
+D:A brilliant piece of armor woven from the finest gold thread.
+
+N:20:of the Machine
+X:0:10:0
+W:0:6:0:2500
+C:0:0:18
+T:36:0:99
+T:37:0:99
+Y:3:-8
+1:MUS | VIG
+2:AGI
+F:REGEN_25 | SPINES
+D:What logicial, mechanical hell this piece of clothing came
+D: from is unknown. It is a moving, living, breathing piece of 
+D: equipment. You only hope that it will help you to wear it.
+
+N:21:of the Mercurial Engine
+X:0:20:0
+W:0:15:0:80000
+C:0:0:32
+T:36:0:99
+T:37:0:99
+O:40:0:0:0:40:40:40:0:0:0:40:40:0:40:0:0:0
+Y:8:3
+1:MUS | VIG | AGI
+2:INFRA | SPEED
+F:HOLD_LIFE | DRAIN_SP
+D:In the fires of mercury this abyssal thing was forged.
+D: it is recognizeable as clothing only by it's shape. 
+
+#N:2:(*Etheric*)
+
+### 15-29 Unused ####
+
+###################
+### Pants 30-34 ###
+###################
+
+N:30:of the Olympian
+X:0:5:0
+W:0:2:0:3000
+C:0:0:5
 T:34:0:99
-F:RES_FIRE | IGNORE_FIRE
+Y:8:2
+1:AGI
+2:MUS
+F:SUST_MUS | SUST_AGI | SUST_AGI | FREE_ACT
+D:This is mighty legware!
 
-N:19:of Inviolability to Cold
-X:32:12:0
-W:0:2:0:600
+N:31:of Swiftness
+X:0:25:0
+W:0:80:0:150000
+C:0:0:2
 T:34:0:99
-F:RES_COLD | IGNORE_COLD
+Y:8
+1:SPEED
+D:These pants itch, and they don't look too nice. But
+D: whats the point of fashion if you're moving so fast
+D: no one can see you?
 
-N:20:of Inviolability to the Elements
-X:32:20:0
-W:0:6:0:12500
-C:0:0:10:0
+N:32:of Travel
+X:0:3:0
+W:0:2:0:2800
+C:0:0:12
 T:34:0:99
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+O:18:22:4:22:0:12:0:0:0:0:0:0:0:0:0:0:0
+D:These sturdy pants look well-worn, but seem made
+D: for wearing on journeys of long distances.
 
-N:21:(Martian)
-X:32:30:2
-W:0:10:0:30000
-C:0:0:18:2
+N:33:of the Forest of Burzee
+X:0:5:3
+W:0:10:0:20000
+C:0:0:20
 T:34:0:99
-F:VIG | SPEED | REGEN | RES_POIS | RES_SOUND | RES_CHAOS
+Y:2:5
+1:VIG | SPEED
+2:STEALTH
+F:SUST_VIG
+O:5:5:5:5:5:3:3:3:40:10:6:6:20:0:0:0:0
+D:"Have you ever heard of the great Forest of Burzee?  Nurse used to
+D: sing of it  when I was a child." -L Frank Baum "The Life and
+D: Adventures of Santa Claus"
 
-# 22 (unused)
 
+##############################
+### Crowns and Helms 35-60 ###
+##############################
 
-
-### Crowns and Helms ###
-N:23:(Martian)
-X:33:30:2
-W:0:10:0:30000
-C:0:0:20:2
-T:32:2:3
-F:VIG | SPEED | REGEN | RES_POIS | RES_SOUND | RES_CHAOS
-
-N:24:of Intellect
-X:33:13:0
-C:0:0:0:2
+N:35:of Calculation
+X:0:13:0
 W:0:2:0:500
-T:32:0:99
-F:SCH | SUST_SCH
+C:0:0:0
+T:32:0:13
+T:33:0:99
+Y:8:2
+1:SCH
+2:EGO
+F:SUST_SCH
+D:This hat has strange wires coming out of it. 
 
-N:25:of Insight
-X:33:13:0
+N:36:of Insight
+X:0:13:0
 W:0:2:0:500
-C:0:0:0:2
-T:32:0:99
-F:EGO | SUST_EGO
+C:0:0:0
+T:32:0:13
+T:33:0:99
+Y:8:2
+1:EGO
+2:SCH
+F:SUST_EGO
+D:This hat has strange metal plates on the interior.
 
-N:26:of Beauty
-X:33:8:0
+N:37:of Beauty
+X:0:8:0
+W:0:2:0:300
+C:0:0:0
+T:32:0:99
+T:33:0:99
+Y:10
+1:CHR
+F:SUST_CHR
+D:This hat makes it dashing! Just dashing.
+
+N:38:of Order
+X:0:19:0
+W:0:10:0:14500
+C:0:0:0
+T:33:0:16
+T:32:0:99
+Y:8:3
+1:SCH | EGO
+2:MANA | MAGIC_MASTER
+F:SUST_SCH | SUST_EGO | SEE_INVIS | 
+O:15:15:15:15:5:5:5:5:5:5:5:5:0:0:0:0:0
+D:The hat of a powerful magic order. It makes you both more knowledgeable and
+D: stronger of will, as well as giving you more power to meddle in dark forces.
+
+N:39:of Safari
+X:0:15:0
+W:0:6:0:8000
+C:0:0:0
+T:32:0:99
+T:33:0:13
+Y:8
+1:MUS | AGI | VIG 
+F:SUST_MUS | SUST_AGI | SUST_VIG | FREE_ACT
+D:This hat of the hunter increases your physical attributes makeing it easier 
+D:to bring down big game. It also prevents paralaysis.
+
+N:40:of Rulership
+X:0:17:0
+W:0:4:0:4000
+C:0:0:0
+T:33:0:99
+T:32:0:99
+Y:8
+1:EGO | CHR | HEALTH | 
+F:SUST_EGO | SUST_CHR | SLOW_DIGEST | RES_CONFU
+D:This is a royal piece of headgear made from the best quality materials, 
+D:enchanted by mystical powers it contains the spirits of great rulers.
+
+N:41:of Perception
+X:32:0:99
+T:33:0:99
 W:0:2:0:1000
-C:0:0:0:4
+C:0:0:0
 T:32:0:99
-F:CHR | SUST_CHR
+O:0:0:0:0:0:0:0:0:0:0:0:0:40:40:0:0:0
+Y:3
+1:SEARCH | 
+F:RES_BLIND | SEE_INVIS
+D:This hat gives you enhanced skills of searching and allows you to 
+D:detect invisible creatures. It also shields your eyes from sudden 
+D:changes in ambient light.
 
-N:27:of the Order
-X:33:15:3
-W:0:4:0:7500
-C:0:0:0:3
-T:33:0:99
-F:SCH | SUST_SCH | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-N:28:of Might
-X:33:19:0
-W:0:4:0:2000
-C:0:0:0:3
-T:33:0:99
-F:MUS | AGI | VIG | SUST_MUS | SUST_AGI | SUST_VIG | FREE_ACT
-
-N:29:of Lordliness
-X:33:17:0
-W:0:2:0:2000
-C:0:0:0:3
-T:33:0:99
-F:EGO | CHR | SUST_EGO | SUST_CHR
-
-N:30:of Seeing
-X:33:8:0
-W:0:2:0:1000
-C:0:0:0:5
-T:33:0:99
-T:32:0:99
-F:SEARCH | RES_BLIND | SEE_INVIS
-
-N:31:of Infravision
-X:33:11:0
-W:0:1:0:500
-C:0:0:0:5
-T:32:0:99
-F:INFRA | HIDE_TYPE
-
-N:32:of Light
-X:33:6:0
-W:0:2:0:500
-T:32:0:99
-F:LITE | RES_LITE
-
-N:33:of Telepathy
+N:42:of Telepathy
 X:33:20:0
 W:0:4:0:50000
-T:33:0:99
+T:32:0:99
 F:TELEPATHY
+D:Suddenly, the minds of your enemies stand revealed, and you perceive 
+D:those who attempt to waylay you in the dark.
 
-N:34:of Regeneration
+N:43:of Regeneration
 X:33:10:0
-W:0:4:0:1500
-T:33:0:99
-F:REGEN
+W:0:8:0:1500
+T:32:0:99
+F:REGEN_25
+D:This powerful hat causes your wounds to seal up before your very eyes.
 
-N:35:of Teleportation
+N:44:of Teleportation
 X:33:0:0
 W:0:2:0:0
 T:32:0:99
 T:33:0:99
 F:TELEPORT | LIGHT_CURSE
+D:It randomly teleports you around the dungeon, and you'll find it 
+D:hard to take off.
 
-N:36:of Stupidity
+N:45:of Stupidity
 X:33:0:0
-C:0:0:0:5
+C:0:0:0
 W:0:1:0:0
 T:32:0:99
 T:33:0:99
-F:SCH | LIGHT_CURSE
+Y:-5
+1:SCH
+F:LIGHT_CURSE
+D:It saps the powers of the mind.
 
-N:37:of Naivety
+N:46:of Naivety
 X:33:0:0
-C:0:0:0:5
+C:0:0:0
 W:0:1:0:0
 T:32:0:99
 T:33:0:99
-F:EGO | LIGHT_CURSE
+Y:-5
+1:EGO
+F:LIGHT_CURSE
+D:It drains away wisdom.
 
-N:38:of Ugliness
+N:47:of Ugliness
 X:33:0:0
-C:0:0:0:5
+C:0:0:0
 W:0:2:0:0
 T:32:0:99
 T:33:0:99
-F:CHR | LIGHT_CURSE
+Y:-5
+1:CHR
+F:LIGHT_CURSE
+D:This hideous headgear makes you appear foul and ugly to others.
 
-N:39:of Sickliness
+N:48:of Sickliness
 X:33:0:0
-C:0:0:0:5
+C:0:0:0
 W:0:2:0:0
 T:32:0:99
 T:33:0:99
-F:MUS | AGI | VIG | LIGHT_CURSE
+Y:-5
+1:MUS | AGI | VIG
+F:LIGHT_CURSE
+D:It withers the body away, and is reluctant to release its grip.
+
+N:49:(Gem Studded)
+X:33:2:0
+W:0:2:0:22000
+C:0:0:0
+T:32:0:99
+T:33:0:99
+O:0:40:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:5:10
+1:VIG | MUS
+2:CHR
+D:A helm studded with gems.
+
+N:50:(Plumed)
+X:33:0:0
+W:3:2:0:2400
+C:0:0:0
+T:32:0:13
+T:33:0:99
+O:3:3:3:3:2:2:2:2:1:1:1:1:0:0:0:0:0
+Y:6:2
+1:CHR
+2:VIG
+F:SUST_CHR
+D:A hat with a feather.
+
+N:51:of the Nautilus
+X:0:0:3
+W:0:5:0:2500
+C:0:0:0
+T:32:0:13
+T:33:0:99
+Y:3:2
+1:VIG
+2:SEARCH
+F:SUST_MUS
+O:0:0:5:15:10:15:0:0:0:0:0:0:0:0:0:0:0
+D:A hat made of the finest Sea Otter fur, made to withstand the harsh
+D: temperature extremes of the open sea.
 
 
-### Cloaks ###
+#N:31:of Infravision
 
-N:40:of Protection
-X:31:10:0
+#N:32:of Light
+
+####################
+### Cloaks 61-89 ###
+####################
+N:61:of Protection
+X:0:10:0
+W:0:2:0:500
+C:0:0:10
+T:35:0:99
+O:8:8:8:8:5:5:5:5:3:3:3:3:10:10:2:2:2
+D:It offers enhanced ordinary protection.
+
+N:62:of Stealth
+X:0:10:0
 W:0:1:0:500
-C:0:0:10:0
+C:0:0:0
 T:35:0:99
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+Y:3
+1:STEALTH
+D:It improves your ability to hide from your enemies.
 
-N:41:of Stealth
-X:31:10:0
-W:0:1:0:500
-C:0:0:0:3
+#N:42:of Aman
+
+N:63:(Etheric)
+X:0:15:0
+C:0:0:10
+W:0:5:0:1500
 T:35:0:99
-F:STEALTH
+O:0:0:0:0:8:8:8:8:0:50:0:0:0:0:0:0:0
+Y:3
+1:MANA | SPEED 
+F:SUST_AGI | SUST_EGO | SUST_SCH | FREE_ACT | RES_CONFU | TELEPORT
+D:This cloak shimmers in the light. It appears to be somehow bound 
+D:to the etheric forces that permeate our world. 
 
-N:42:of Aman
-X:31:20:2
-W:0:7:0:4000
-C:0:0:20:3
-T:35:0:99
-F:STEALTH | 
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-N:43:(Etheric)
-X:31:15:1
-C:0:0:10:0
-W:0:0:0:1500
-T:35:0:99
-F:RES_NEXUS
-
-N:44:of Enveloping
+N:64:of Enveloping
 X:31:0:0
 W:0:1:0:0
-C:10:10:0:0
+C:-10:-10:0
 T:35:0:99
-F:SHOW_MODS | LIGHT_CURSE
+F:SHOW_MODS | LIGHT_CURSE | DISRUPT_SPELL
+D:The swirling folds of this cloak seem always to be in the way when you 
+D:most want to strike your opponents.
 
-N:45:of Vulnerability
-X:31:0:0
+N:65:of Vulnerability
+X:0:0:0
 W:0:1:0:0
-C:0:0:50:0
+C:0:0:-35
 T:35:0:99
 F:AGGRAVATE | LIGHT_CURSE
+D:You feel horribly naked and defenceless, and wonder how you'll get 
+D:this acursed clock off your back.
 
-N:46:of Irritation
-X:31:0:0
-W:0:1:0:0
-C:15:15:0:0
+N:66:of Invisibility
+X:0:25:0
+W:0:20:0:80000
+C:0:0:0
 T:35:0:99
-F:AGGRAVATE | SHOW_MODS | LIGHT_CURSE
+F:INVISIBLE | DRAIN_SP
+D:This powerful cloak renders you invisible to all monsters around you.
+D: While worn it drains your spirit to power it's powerful magic.
 
-N:47:(*Etheric*)
-X:31:20:2
-C:0:0:25:3
-W:0:15:0:12000
-T:36:0:99
-T:37:0:99
-F:RES_NEXUS | SUST_VIG | SUST_AGI | SUST_EGO | SPEED |
-F:RES_COLD | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS
+N:67:of the Order
+X:0:13:0
+W:0:10:0:22000
+C:0:0:5
+T:35:0:99
+Y:8:3
+1:SCH | EGO
+2:MANA | MAGIC_MASTER
+F:SUST_SCH | SUST_EGO | SEE_INVIS | 
+O:5:5:5:5:0:0:0:0:0:0:0:0:10:10:0:0:0
+D:The cloak of a powerful magic order. It makes you both more knowledgeable and 
+D:stronger of will, as well as giving you more power to meddle in dark forces. 
 
+N:68:of Inviolability to Fire
+X:0:10:0
+W:0:1:0:800
+T:35:0:99
+O:15:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+D:It grants resistance to fire.
 
+N:69:of Inviolability to Earth
+X:0:10:0
+W:0:1:0:800
+T:35:0:99
+O:0:15:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+D:It grants resistance to earth.
 
-### Gloves ###
+N:70:of Inviolability to Air
+X:0:10:0
+W:0:1:0:800
+T:35:0:99
+O:0:0:15:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+D:It grants resistance to air.
 
+N:71:of Inviolability to Water
+X:0:12:0
+W:0:1:0:900
+T:35:0:99
+O:0:0:0:15:0:0:0:0:0:0:0:0:0:0:0:0:0
+D:It grants resistance to water.
+
+N:72:of Inviolability to Electricity
+X:0:16:0
+W:0:1:0:1000
+T:35:0:99
+O:0:0:0:0:15:0:0:0:0:0:0:0:0:0:0:0:0
+D:It grants resistance to electricity.
+
+N:73:of Inviolability to Ice
+X:0:16:0
+W:0:1:0:1000
+T:35:0:99
+O:0:0:0:0:0:15:0:0:0:0:0:0:0:0:0:0:0
+D:It grants resistance to ice.
+
+N:74:of Inviolability to Acid
+X:0:16:0
+W:0:1:0:1000
+T:35:0:99
+O:0:0:0:0:0:0:15:0:0:0:0:0:0:0:0:0:0
+D:It grants resistance to acid.
+
+N:75:of Inviolability to Poison
+X:0:16:0
+W:0:1:0:1000
+T:35:0:99
+O:0:0:0:0:0:0:0:15:0:0:0:0:0:0:0:0:0
+D:It grants resistance to poison.
+
+N:76:of Regeneration
+X:0:25:0
+W:0:15:0:20000
+T:35:0:99
+F:REGEN_25
+D:This powerful cloak regenerates your wounds.
+
+N:77:of the Night
+X:0:5:0
+W:0:2:0:3500
+T:35:0:99
+O:0:0:0:0:0:0:0:0:0:0:0:0:35:35:0:0:0
+Y:5
+1:STEALTH | INFRA
+F:RES_BLIND
+D:This cloak of inky night provides protection from light and dark, while
+D: dampening your footfalls.
+
+########################
+### Gloves (90 - 120 ###
+########################
 # Gloves of Free Action are the most common, rarity 3 
 
-N:48:of Free Action
-X:34:11:0
+N:90:of Free Action
+X:0:11:0
 W:0:3:0:1000
 T:31:0:99
 F:FREE_ACT
+D:They protect from paralyzation and certain slowing attacks.
 
-N:49:of Slaying
-X:34:17:0
+N:91:of Slaying
+X:0:17:0
 W:0:4:0:1500
-C:5:5:0:0
+C:8:8:0
 T:31:0:99
 F:SHOW_MODS
+D:You strike with viciousness and accuracy when wearing these.
 
-N:50:of Agility
-X:34:14:0
+N:92:of Agility
+X:0:14:0
 W:0:6:0:1000
-C:0:0:0:5
+C:0:0:0
 T:31:0:99
-F:AGI | HIDE_TYPE
+Y:6
+1:AGI
+F:HIDE_TYPE
+D:While wearing these, your fingers seem divinely nimble, and your whole body 
+D:lithe and limber.
 
-N:51:of Power
-X:34:22:0
+N:93:of Power
+X:0:22:0
 W:0:12:0:2500
-C:5:5:0:5
+C:12:12:0
 T:31:0:99
-F:MUS | SHOW_MODS | HIDE_TYPE
+Y:8
+1:MUS
+F:SHOW_MODS | HIDE_TYPE | DISRUPT_SPELL
+D:He who wears these gains considerable combat power, and feels his 
+D:muscles bulge as he hammers his foes.
 
-N:52:(Etheric)
-X:34:10:1
-C:3:1:10:0
-W:0:4:0:1500
+N:94:of Magic Mastery
+X:0:20:0
+W:0:15:0:2500
+Y:4
+1:MAGIC_MASTER
+F:HIDE_TYPE
+D:They enhance your saftey and skill when meddling with dark forces.
+
+N:95:(Etheric)
+X:0:10:0
+C:0:0:10
+W:0:6:0:1500
 T:31:0:99
-F:RES_NEXUS | SUST_AGI
+O:0:0:0:0:0:0:0:0:0:10:0:0:0:0:0:0:0
+Y:1
+1:AGI | SEARCH
+F:SUST_AGI | FREE_ACT 
+D:This pair of gloves shimmers in the light. It appears to be somehow bound 
+D:to the etheric forces that permeate our world. 
 
-N:53:(*Etheric*)
-X:34:20:2
-C:10:3:25:3
-W:0:15:0:15000
-T:31:0:99
-F:RES_NEXUS | SUST_VIG | SUST_AGI | SUST_EGO | SPEED | AGI |
-F:RES_COLD | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS
-
-N:54:of Weakness
-X:34:0:0
+N:96:of Weakness
+X:0:0:0
 W:0:1:0:0
-C:0:0:0:10
+C:0:0:0
 T:31:0:99
-F:MUS | LIGHT_CURSE
+Y:-10
+1:MUS
+F:LIGHT_CURSE
+D:They suck the strength out of your nerveless arms.
 
-N:55:of Clumsiness
-X:34:0:0
+N:97:of Fumbling
+X:0:0:0
 W:0:1:0:0
-C:0:0:0:10
+C:0:0:0
 T:31:0:99
-F:AGI | LIGHT_CURSE
+Y:-10
+1:AGI
+F:LIGHT_CURSE
+D:Your fingers seem thick and clumsy, and you fumble around instead of 
+D:slaying your foes.
 
+N:98:(Smoldering)
+X:0:4:0
+W:0:6:0:12000
+C:0:0:0
+T:31:0:99
+O:50:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:5:1
+1:MUS
+2:LIGHT
+F:SH_FIRE | 
 
-### Boots ###
-
+########################
+### Boots  (121-150) ###
+########################
 # here as well, the rarities are weird #
 
-N:56:of Slow Descent
-X:35:7:0
-W:0:9:0:250
+N:121:of Slow Descent
+X:0:7:0
+W:0:4:0:250
 T:30:0:99
 F:FEATHER
+D:They make you light-footed, able to avoid damage from pits.
 
-N:57:of Stealth
-X:35:16:0
-W:0:12:0:500
-C:0:0:0:3
+N:122:of Stealth
+X:0:16:0
+W:0:3:0:500
+C:0:0:0
 T:30:0:99
-F:STEALTH
+Y:3
+1:STEALTH
+D:Your footfalls make little noise wearing these.
 
-N:58:of Free Action
-X:35:15:0
-W:0:25:0:1000
+N:123:of Free Action
+X:0:15:0
+W:0:6:0:1000
 T:30:0:99
 F:FREE_ACT
+D:These protect against paralyzation and some slowing attacks.
 
-N:59:of Speed
-X:35:25:0
+N:124:of Speed
+X:0:25:0
 W:0:100:0:200000
-C:0:0:0:10
+C:0:0:0
 T:30:0:99
-F:SPEED | HIDE_TYPE
+Y:10
+1:SPEED
+F:HIDE_TYPE
+D:All around you seem to move with dreamlike sloth; time itself waits 
+D:patiently for you.
 
-N:60:(*Etheric*)
-X:34:20:2
-C:10:3:25:3
-W:0:15:0:15000
-T:31:0:99
-F:RES_NEXUS | SUST_VIG | SUST_AGI | SUST_EGO | SPEED |
-F:RES_COLD | RES_FIRE | RES_COLD | RES_ELEC | FEATHER | RES_DISEN 
-
-N:61:of Noise
-X:35:0:0
+N:125:of Noise
+X:0:0:0
 W:0:1:1:0
 T:30:0:99
 F:AGGRAVATE | LIGHT_CURSE
+D:Every step you take echoes through the dungeon, and all around 
+D:you annoyed creatures advance to kill.
 
-N:62:of Slowness
-X:35:0:0
+N:126:of Slowness
+X:0:0:0
 W:0:1:0:0
-C:0:0:0:5
+C:0:0:0
 T:30:0:99
-F:SPEED | LIGHT_CURSE
+Y:-10
+1:SPEED 
+F:LIGHT_CURSE
+D:These slow the wearer down.
 
-N:63:of Annoyance
-X:35:0:0
-W:0:1:0:0
-C:0:0:0:10
+N:127:of the Nautilus
+X:0:15:2
+W:0:10:0:2500
 T:30:0:99
-F:SPEED | AGGRAVATE | LIGHT_CURSE
+Y:2
+1:STEALTH | AGI
+F:SUST_AGI
+O:-5:3:3:5:10:10:10:3:3:0:0:0:0:0:0:0:0
+D:Boots made from the skin of seals from the polar clime.  Warm,
+D: soft, and quite comfortable.
 
 
-### Weapons ###
+#########################
+### Weapons (151-300) ###
+#########################
 
-N:64:(Holy)
-X:24:30:1
+N:151:(Holy)
+X:0:30:0
 W:0:10:0:20000
-C:6:6:4:4
+C:6:6:4
 T:21:0:99
-T:22:0:99
-T:23:0:99
-F:EGO | 
-F:SLAY_EVIL | SLAY_UNDEAD | SLAY_DEMON | 
-F:SEE_INVIS | BLESSED
+T:26:0:99
+Y:8
+1:EGO
+F:SLAY_EVIL | SLAY_UNDEAD | SLAY_DEMON | SEE_INVIS | BLESSED 
+D:The sactified weapon of the pious, it slays evil, demons, and the 
+D:undead, increases ego, grants sight beyond sight, and boosts 
+D:armour class.
 
-
-N:65:(Defender)
-X:24:25:1
+N:152:(Defender)
+X:0:25:1
 W:0:10:0:15000
-C:4:4:8:4
+C:4:4:15
 T:21:0:99
-T:22:0:99
 T:23:0:99
-F:STEALTH | 
-F:FREE_ACT | SEE_INVIS | FEATHER | REGEN | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+T:26:0:99
+O:20:20:20:20:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:4
+1:STEALTH
+D:Strong friend in peril, this weapon enhances stealth, resists all four 
+D:basic elements, and increases armour class.
 
+#N:66:(Blessed)
+#X:24:20:3
+#W:0:10:0:5000
+#C:0:0:0
+#T:21:0:99
+#T:22:0:99
+#T:23:0:99
+#O:2:2:2:2:0:0:0:0:0:0:0:25:30:30:0:0:0
 
-N:66:(Blessed)
-X:24:20:3
-W:0:10:0:5000
-C:0:0:0:3
-T:21:0:99
-T:22:0:99
-T:23:0:99
-F:EGO | 
-F:BLESSED
-
-N:67:(Martian)
+N:153:(Martian)
 X:24:30:2
-W:0:15:0:30000
-C:10:10:0:2
-T:21:0:99
+W:0:11:0:12000
+C:10:10:0
 T:22:0:99
 T:23:0:99
-F:VIG | SPEED | REGEN | RES_POIS | RES_SOUND | RES_CHAOS
+T:24:0:99
+O:50:0:-10:0:10:-10:30:-30:0:25:30:0:30:30:10:10:10
+Y:-3:4
+1:STEALTH
+2:HEALTH | SAVE | MUS
+F:SUST_MUS | SUST_AGI | RES_FEAR | SLAY_ANIMAL | BRAND_FIRE | CRITICAL |
+F:MUTABLE | NO_TELEPORT | LIGHT_CURSE 
+D:This is a martian weapon. It is made out of some strange 
+D:material that is totally unknown to the scientists of today. It likely 
+D:emits some strange martian radiation.
 
-N:68:of Exigency
+N:154:of Exigency
 X:24:20:0
 W:0:10:0:20000
-C:5:5:0:2
-T:21:0:99
+C:5:5:0
 T:22:0:99
 T:23:0:99
-F:MUS | AGI | VIG | 
-F:SLAY_TROLL | SLAY_GIANT | 
-F:FREE_ACT | SEE_INVIS
+T:24:0:99
+Y:10
+1:MUS | AGI | VIG | 
+F:FREE_ACT | SEE_INVIS | SLAY_AUTOMATA | SLAY_CONSTRUCT 
+D:This looks to be an extremly functional weapon.
 
-N:69:of Extra Attacks
+N:155:of Battle
 X:24:20:0
-W:0:10:0:10000
-C:0:0:0:2
+W:0:12:0:10000
+C:16:16:0
 T:21:0:99
-T:22:0:99
-T:23:0:99
-F:BLOWS
+T:26:0:99
+Y:1:4
+1:BLOWS
+2:AGI | MUS
+F:RES_FEAR | CRITICAL 
+D:It is unusually easy to fight well with this weapon, for it renders 
+D:you fearless, grants an extra blow, and increases your agility and muscle.
 
-# 70 (unused)
-
-# 71 (unused)
+N:156:of Power
+X:0:20:0
+W:0:80:0:10000
+C:18:30:-10
+T:25:3:99
+Y:10:2
+1:MUS
+2:SPEED | BLOWS
+F:LIGHT_CURSE | HEAVY_CURSE | IMPACT | CRITICAL | NO_MAGIC | BRAND_FORCE 
+D:This is a mighty axe that does devestating damage to your opponents. 
+D:It is extremely difficult to put down once picked up, and prevents 
+D:any kind of contact with arcane forces. That is a small price to 
+D:pay for the kind of punishment it metes out to your enemies.
 
 # The "Elemental" brands (4)
 
-N:72:of Melting
-X:24:15:0
+N:157:of Melting
+X:0:15:0
 W:0:10:0:8000
-T:21:0:99
-T:22:0:99
 T:23:0:99
-F:BRAND_ACID | RES_ACID | IGNORE_ACID
+T:24:0:99
+T:25:0:99
+O:0:0:0:0:0:0:40:0:0:0:0:0:0:0:0:0:0
+F:BRAND_ACID 
+D:This weapon smokes and sizzles with noxious black corrosions.  It 
+D:grants resistance to acid and cannot be harmed by that element.
 
-N:73:of Shocking
-X:24:20:0
+N:158:of Shocking
+X:0:20:0
 W:0:10:0:4500
-T:21:0:99
-T:22:0:99
 T:23:0:99
-F:BRAND_ELEC | RES_ELEC | IGNORE_ELEC | SH_ELEC
+T:24:0:99
+T:25:0:99
+O:0:0:0:0:40:0:0:0:0:0:0:0:0:0:0:0:0
+F:BRAND_ELEC 
+D:Sparks form tiny coronas upon its surface from top to bottom and it 
+D:grants resistance to electricity.
 
-N:74:of Burning
-X:24:20:0
+N:159:of Burning
+X:0:20:0
 W:0:10:0:3000
-T:21:0:99
-T:22:0:99
 T:23:0:99
-F:BRAND_FIRE | RES_FIRE | IGNORE_FIRE | SH_FIRE
+T:24:0:99
+T:25:0:99
+O:40:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:BRAND_FIRE 
+D:Flames dance merrily up and down it.  It grants resistance to fire, and 
+D:cannot be harmed by that element.
 
-N:75:of Freezing
-X:24:15:0
+N:160:of Freezing
+X:0:15:0
 W:0:10:0:2500
-T:21:0:99
-T:22:0:99
 T:23:0:99
-F:BRAND_COLD | RES_COLD | IGNORE_COLD
+T:24:0:99
+T:25:0:99
+O:0:0:0:0:0:40:0:0:0:0:0:0:0:0:0:0:0
+F:BRAND_ICE 
+D:Crystals of coldly gleaming ice form upon its surface, and it grants 
+D:resistance to frost.
 
-# 76 (unused)
-
-# 77 (unused)
-
-# 78 (unused)
-
-# 79 (unused)
+N:161:of Poisoning
+X:0:15:0
+W:0:10:0:2500
+T:23:0:99
+T:24:0:99
+T:25:0:99
+O:0:0:0:0:0:0:0:40:0:0:0:0:0:0:0:0:0
+F:BRAND_POISON 
+D:It gleams a sickly green, and you dare not hold it above the handle.
 
 # The "Slay" brands (8)
 
-N:80:of Slay Animal
-X:24:18:0
-W:0:6:0:3500
+N:162:of Slay Animal
+X:0:18:0
+W:0:18:0:3500
 T:21:0:99
 T:22:0:99
 T:23:0:99
 F:SLAY_ANIMAL
+D:This weapon is especially deadly against natural creatures.
 
-N:81:of Slay Evil
+N:163:of Slay Animal
 X:24:18:0
-W:0:6:0:3500
+W:0:18:0:3500
+T:24:0:99
+T:25:0:99
+T:26:0:99
+F:SLAY_ANIMAL 
+D:This weapon is especially deadly against natural creatures.
+
+N:164:of Slay Evil
+X:0:18:0
+W:0:18:0:3500
 T:21:0:99
 T:22:0:99
 T:23:0:99
 F:SLAY_EVIL
+D:This weapon fights against evil with holy fury.
 
-N:82:of Slay Undead
+N:165:of Slay Evil
 X:24:18:0
-W:0:6:0:3500
+W:0:18:0:3500
+T:24:0:99
+T:25:0:99
+T:26:0:99
+F:SLAY_EVIL 
+D:This weapon fights against evil with holy fury.
+
+N:166:of Slay Undead
+X:0:18:0
+W:0:18:0:3500
 T:21:0:99
 T:22:0:99
 T:23:0:99
 F:SLAY_UNDEAD
+D:This weapon strikes at undead with holy wrath.
 
-N:83:of Slay Demon
-X:24:14:0
-W:0:6:0:2500
-T:21:0:99
-T:22:0:99
-T:23:0:99
-F:SLAY_DEMON
-
-N:84:of Slay Automata
-X:24:10:0
-W:0:6:0:2500
-T:21:0:99
-T:22:0:99
-T:23:0:99
-F:SLAY_AUTOMATA
-
-N:85:of Slay Troll
-X:24:10:0
-W:0:6:0:2500
-T:21:0:99
-T:22:0:99
-T:23:0:99
-F:SLAY_TROLL
-
-N:86:of Slay Giant
-X:24:14:0
-W:0:6:0:2500
-T:21:0:99
-T:22:0:99
-T:23:0:99
-F:SLAY_GIANT
-
-N:87:of Slay Dragon
+N:167:of Slay Undead
 X:24:18:0
-W:0:6:0:3500
+W:0:18:0:3500
+T:24:0:99
+T:25:0:99
+T:26:0:99
+F:SLAY_UNDEAD 
+D:This weapon strikes at undead with holy wrath.
+
+N:168:of Slay Demon
+X:0:18:0
+W:0:18:0:3500
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:SLAY_DRAGON
+F:SLAY_DEMON 
+D:This weapon smites demonic foes with holy wrath.
 
-# The "Kill" brands (8)
+N:169:of Slay Demon
+X:24:18:0
+W:0:18:0:3500
+T:24:0:99
+T:25:0:99
+T:26:0:99
+F:SLAY_DEMON 
+D:This weapon smites demonic foes with holy wrath.
 
-N:88:of *Slay* Animal
-X:24:20:0
-W:0:25:0:6000
-C:0:0:0:2
+N:170:of Slay Automata
+X:0:18:0
+W:0:18:0:3500
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:SCH | SLAY_ANIMAL | REGEN
+F:SLAY_AUTOMATA 
+D:This weapon is especially deadly against automata.
 
-N:89:of *Slay* Evil
-X:24:20:0
-W:0:25:0:5000
-C:0:0:0:2
+N:171:of Slay Automata
+X:24:18:0
+W:0:18:0:3500
+T:24:0:99
+T:25:0:99
+T:26:0:99
+F:SLAY_AUTOMATA 
+D:This weapon is especially deadly against automata.
+
+N:172:of Slay Dinosaur
+X:0:18:0
+W:0:18:0:3500
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:EGO | SLAY_EVIL | BLESSED
+F:SLAY_DINOSAUR 
+D:This weapon is especially deadly against dinosaurs.
 
-N:90:of *Slay* Undead
-X:24:24:0
-W:0:25:0:8000
-C:0:0:0:2
+N:173:of Slay Dinosaur
+X:24:18:0
+W:0:18:0:3500
+T:24:0:99
+T:25:0:99
+T:26:0:99
+F:SLAY_DINOSAUR 
+D:This weapon is especially deadly against dinosaurs.
+
+N:174:of Slay Construct
+X:0:18:0
+W:0:18:0:3500
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:EGO | SLAY_UNDEAD | SEE_INVIS
+F:SLAY_CONSTRUCT 
+D:This weapon is especially deadly against constructs.
 
-N:91:of *Slay* Demon
-X:24:16:0
-W:0:25:0:4000
-C:0:0:0:2
+N:175:of Slay Construct
+X:24:18:0
+W:0:18:0:3500
+T:24:0:99
+T:25:0:99
+T:26:0:99
+F:SLAY_CONSTRUCT 
+D:This weapon is especially deadly against constructs.
+
+N:176:of Slay Elemental
+X:0:18:0
+W:0:18:0:3500
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:SCH | SLAY_DEMON
+F:SLAY_ELEMENTAL 
+D:This weapon is especially deadly against elementals.
 
-N:92:of *Slay* Automata
-X:24:14:0
-W:0:25:0:4000
-C:0:0:0:2
+N:177:of Slay Elemental
+X:24:18:0
+W:0:18:0:3500
+T:24:0:99
+T:25:0:99
+T:26:0:99
+F:SLAY_ELEMENTAL 
+D:This weapon is especially deadly against elementals.
+
+N:178:of Slay Alien
+X:0:18:0
+W:0:18:0:3500
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:AGI | SLAY_AUTOMATA
+F:SLAY_ALIEN 
+D:This weapon is especially deadly against alien.
 
-N:93:of *Slay* Troll
-X:24:14:0
-W:0:25:0:4000
-C:0:0:0:2
+N:179:of Slay Alien
+X:24:18:0
+W:0:18:0:3500
+T:24:0:99
+T:25:0:99
+T:26:0:99
+F:SLAY_ALIEN 
+D:This weapon is especially deadly against alien.
+
+N:180:of Slay Beastman
+X:0:18:0
+W:0:18:0:3500
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:MUS | SLAY_TROLL
+F:SLAY_BEASTMAN 
+D:This weapon is especially deadly against beastmen.
 
-N:94:of *Slay* Giant
-X:24:16:0
-W:0:25:0:4000
-C:0:0:0:2
+N:181:of Slay Beastman
+X:24:18:0
+W:0:18:0:3500
+T:24:0:99
+T:25:0:99
+T:26:0:99
+F:SLAY_BEASTMAN 
+D:This weapon is especially deadly against beastmen.
+
+N:182:(Deckcutter)
+X:0:18:0
+W:0:18:0:3500
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:MUS | SLAY_GIANT
+F:SLAY_CARDS 
+D:This weapon is especially against cards.
 
-N:95:of *Slay* Dragon
-X:24:24:0
-W:0:25:0:6000
-C:0:0:0:2
+N:183:(Deckcutter)
+X:24:18:0
+W:0:18:0:3500
+T:24:0:99
+T:25:0:99
+T:26:0:99
+F:SLAY_CARDS 
+D:This weapon is especially deadly against cards.
+
+
+## 183-199
+# New Egos
+N:200:(Lunar)
+X:0:20:0:
+W:0:14:0:12000
+C:0:18:0
+T:22:0:99
+O:0:0:0:0:0:35:0:0:0:0:0:0:0:40:0:0:0
+Y:8:2
+1:MUS | VIG
+2:INFRA
+F:RES_BLIND | FREE_ACT | FEATHER 
+D:This polearm in infused with lunar energy. It protects
+D: its user from blindness, paralization, and falling.
+
+N:201:of Eternity
+X:0:18:0
+W:0:12:0:6000
+C:0:0:0
+T:22:0:99
+T:24:0:99
+O:0:0:0:0:0:0:0:0:45:0:0:0:0:0:0:0:0
+Y:5:4
+1:SPEED
+2:EGO | SCH
+F:FREE_ACT
+D:This weapon seems timeless, it's form indistinct and shifting
+D: before your very eyes.
+
+N:202:of the Scholar
+X:0:20:0
+W:0:14:0:8000
+C:0:0:0
+T:26:11:13
+T:26:3:7
+Y:16:-8
+1:EGO | SCH
+2:MUS | AGI
+F:RES_BLIND | RES_CONFU | FREE_ACT | SEE_INVIS | NEVER_BLOW
+D:Not a weapon, so much as a tool of the learned man.
+
+N:203:of Incineration
+X:0:18:0
+W:0:14:0:8000
+C:10:10:0
 T:21:0:99
 T:22:0:99
-T:23:0:99
-F:VIG | SLAY_DRAGON | KILL_DRAGON
+T:26:0:99
+O:25:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:5:2
+1:MUS
+2:LIGHT
+F:BRAND_FIRE
+D:Flames dance merrily up and down it.  It grants resistance to fire, and 
+D:cannot be harmed by that element.
 
-N:96:of Slay Alien
-X:24:24:0
-W:0:25:0:6000
-C:0:0:0:2
+N:204:of Electrocution
+X:0:18:0
+W:0:14:0:7500
+C:10:10:0
 T:21:0:99
 T:22:0:99
-T:23:0:99
-F:SLAY_ALIEN
+T:26:0:99
+O:0:0:0:0:25:0:0:0:0:0:0:0:0:0:0:0:0
+Y:5:2
+1:AGI
+F:BRAND_ELEC | FREE_ACT
+D:Sparks form tiny coronas upon its surface from top to bottom and it 
+D:grants resistance to electricity.
 
-N:97:of Slay Beastman
-X:24:24:0
-W:0:25:0:6000
-C:0:0:0:2
+N:205:(Obsidian)
+X:0:18:0
+W:0:14:0:8500
+C:10:10:20
 T:21:0:99
 T:22:0:99
-T:23:0:99
-F:SLAY_BEASTMAN
+T:26:0:99
+O:0:25:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:5
+1:VIG
+F:BRAND_FORCE 
+D:Made from obsidian, this mystical weapon pulses with the breath of
+D: the earth. It feels extremely powerful in your hands.
 
-N:98:of *Slay* Alien
-X:24:24:0
-W:0:25:0:6000
-C:0:0:0:2
+N:206:of Venom
+X:0:18:0
+W:0:14:0:8500
+C:10:10:0
 T:21:0:99
 T:22:0:99
-T:23:0:99
-F:SCH | SLAY_ALIEN
+T:26:0:99
+O:0:0:25:0:0:0:0:25:0:0:0:0:0:0:0:0:0
+Y:5
+1:SPEED
+F:BRAND_POISON
+D:It drips a sickly green venom, and you dare not hold it
+D: above the handle.
 
-N:99:of *Slay* Beastman
-X:24:24:0
-W:0:25:0:6000
-C:0:0:0:2
+N:207:of the Deep
+X:0:18:0
+W:0:14:0:6500
+C:10:17:0
 T:21:0:99
 T:22:0:99
-T:23:0:99
-F:VIG | SLAY_BEASTMAN
+T:26:0:99
+O:0:0:0:25:0:25:0:0:0:0:0:0:0:0:0:0:0
+Y:5
+1:EGO | SCH
+F:BRAND_ICE
+D:Crystals of coldly gleaming ice form upon its surface, and it grants 
+D:resistance to frost.
 
-N:100:of Digging
-X:24:4:0
-W:0:1:0:500
-C:0:0:0:5
-T:20:0:99
-F:TUNNEL |
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-# 101 (unused)
-
-N:102:of the Leper
-X:24:0:0
-W:5:20:0:0
-C:20:20:10:0
+N:208:of Corrosion
+X:0:18:0
+W:0:14:0:8000
+C:10:10:0
 T:21:0:99
 T:22:0:99
+T:26:0:99
+O:0:0:0:0:0:0:25:0:0:0:0:0:0:0:0:0:0
+Y:5
+1:VIG
+F:BRAND_ACID
+D:This weapon smokes and sizzles with noxious black corrosions.  It 
+D:grants resistance to acid and cannot be harmed by that element.
+
+N:209:of Returning
+X:0:4:0
+W:0:8:0:800
+C:8:8:0
+T:21:9:11
+T:24:7:9
+T:25:0:2
+F:THROW | RETURN
+D:This well crafted throwing weapon magically returns to your inventory
+D: upon being thrown at an enemy
+
+N:240:of the Klutz
+X:0:0:0
+W:0:1:0:0
+C:-12:0:0
+T:22:0:99
 T:23:0:99
-F:SEE_INVIS | AGGRAVATE | HEAVY_CURSE | LIGHT_CURSE
+T:24:0:99
+Y:-20
+1:AGI
+F:LIGHT_CURSE
+D:This weapon constantly squirms in your hand making it hard to hit
+D: anything, much less perform any delicate actions.
 
-# 103 (unused)
+N:241:of Weakness
+X:0:0:0
+C:0:-12:0
+T:22:0:99
+T:23:0:99
+T:24:0:99
+Y:-20
+1:MUS
+F:LIGHT_CURSE
+D:This weapon saps your strength, making it hard to hold, much less
+D: damage your opponents.
 
+N:242:of the Ryls
+X:0:10:1
+W:10:5:12:5000            
+C:12:12:0
+T:24:2:8
+Y:3
+1:AGI | STEALTH
+F:CRITICAL | SLAY_EVIL | FEATHER
+O:10:10:10:10:10:5:5:5:0:0:0:0:25:25:0:0:0
+D:"Woe came upon the sharp-taloned goblins when the thorns of the
+D: Ryls reached their savage hearts and let their life-blood sprinkle
+D: all the plain.  And afterward from every drop a thistle grew." - L
+D: Frank Baum "the Life and Adventures of Santa Claus"
 
-### Missile Launchers ###
+### Add Activation for Detect Animals###
+N:243:of the Knooks
+X:0:10:1
+W:15:10:0:5000
+C:15:15:0
+T:22:1:99
+O:10:15:7:7:7:7:15:3:0:0:0:-20:20:0:0:0:0
+Y:2
+1:MUS
+F:SLAY_ANIMAL | SLAY_DEMON
+D:"Greatly marvelled the Tartary Giants when the spears of the
+D: little Knooks pierced their thick walls of flesh and sent them
+D: reeling to the ground with howls of agony."- L Frank Baum "The Life
+D: and Adventures of Santa Claus"
 
-N:104:of Accuracy
+###Ash Switches of the Wood Nymphs###
+### Add Activation for Stone to Mud###
+N:244:of the Wood Nymphs
+X:0:10:2
+W:20:15:0:7500
+C:18:18:0
+T:26:2:14
+O:0:40:0:0:0:0:5:0:0:0:0:25:0:0:0:0:0
+Y:3
+1:AGI | LIGHT
+F:SLAY_CONSTRUCT | FREE_ACT | BRAND_FORCE
+D:"As for the Awgwas, they had scant time to realize how they were
+D: destroyed, for the ash switches of the Nymphs bore a charm unknown to
+D: any of the Awgwas, and turned their foes into clods of earth at the
+D: slightest touch!" -L Frank Baum "The Life and Adventures of Santa
+D: Claus"
+
+###################################
+### Missile Launchers (301-400) ###
+###################################
+N:301:of Precision
 X:25:10:0
 W:0:1:0:1000
-C:15:5:0:0
+C:15:5:0
 T:19:0:99
+Y:2
+1:AGI
+D:This gun shoots missiles with pinpoint accuracy.  You feel more
+D: agile just holding it in your hands.
 
-N:105:of Velocity
+N:302:of Ferocity
 X:25:10:0
 W:0:1:0:1000
-C:5:15:0:0
+C:5:15:0
 T:19:0:99
+Y:2
+1:MUS
+D:This gun causes unnaturally harsh wounds.  You feel stronger
+D: just holding in in your hands.
 
-# 106 (unused)
-
-# 107 (unused)
-
-N:108:of Extra Might
+N:303:of Extra Might
 X:25:20:0
 W:0:4:0:10000
-C:5:10:0:2
+C:5:10:0
 T:19:0:99
-F:MIGHT
+Y:2
+1:MIGHT
+D:A gun powerful beyond the measure of its kind, firing shots
+D: with great force.
 
-N:109:of Extra Shots
+N:304:of Extra Shots
 X:25:20:0
-C:10:5:0:1
+C:10:5:0
 W:0:4:0:10000
 T:19:0:99
-F:SHOTS
+Y:3
+1:SHOTS
+D:So wondrously easy to reload is this weapon that little time passes
+D: between one shot and the next.
+
+N:305:of the Gunslinger
+X:25:5:0
+W:0:6:0:8000
+T:19:0:99
+C:-5:15:0
+Y:3:1
+1:SPEED
+2:SHOTS
+F:FREE_ACT
+D:A weapon of the mighty gunslinger. It increases damage and your rate
+D: of fire, as well as making you quicker on the draw, but speed
+D: sometimes reduces accuracy.
+
+N:306:(Pearl Handled)
+X:25:5:0
+W:0:6:0:6000
+T:19:0:99
+C:10:10:0
+Y:5:1
+1:CHR
+2:LIGHT
+D:The handle of this firearm is high quality pearl.
+
+N:307:of the Safari
+X:25:5:0
+W:0:6:0:10000
+T:19:0:99
+C:20:20:0
+Y:1
+1:SHOTS | MIGHT
+F:RES_FEAR
+D:This weapon is well crafted and specifically designed
+D: for hunting big game.
+
+###Add Activate for Create Ammo###
+N:308:of the Nautilus
+X:0:5:1
+W:0:3:0:5000
+C:0:0:0
+T:19:22:24
+Y:1:-1
+1:SHOTS
+2:SPEED
+F:BRAND_ELEC
+D:"But, having no powder, I use instead air under great pressure,
+D: which the pumps of the Nautilus furnish abundantly...  The balls shot
+D: from this gun are not ordinary ones, but litle cases of glass...
+D: These glass cases are covered with a case of steel, and weighted with
+D: a pellet of lead.  They are real Leyden bottles, into which
+D: electricity is forced at a very high tension." -Jules Verne "20,000
+D: Leagues Under the Sea"
+
 
 # 110 (unused)
 
@@ -879,118 +1549,703 @@ F:SHOTS
 
 # Note the 'weird' rarities #
 
-N:112:of Hurt Animal
+N:401:of Hurt Animal
 X:23:10:0
 W:0:25:0:25
 T:16:0:99
 T:17:0:99
 T:18:0:99
 F:SLAY_ANIMAL
+D:They slay natural creatures.
 
-N:113:of Hurt Evil
+N:402:of Hurt Evil
 X:23:10:0
 W:0:25:0:25
 T:16:0:99
 T:17:0:99
 T:18:0:99
 F:SLAY_EVIL
+D:They do extra damage to evil creatures.
 
-N:114:of Hurt Undead
+N:403:of Hurt Undead
 X:23:10:0
 W:0:50:0:25
 T:16:0:99
 T:17:0:99
 T:18:0:99
 F:SLAY_UNDEAD
+D:They do extra damage to the undead.
 
-N:115:of Hurt Demon
+N:404:of Hurt Demon
 X:23:10:0
 W:0:50:0:15
 T:16:0:99
 T:17:0:99
 T:18:0:99
 F:SLAY_DEMON
+D:They smite demonic foes.
 
-N:116:of Hurt Automata
+N:405:of Hurt Automata
 X:23:10:0
 W:0:50:0:15
 T:16:0:99
 T:17:0:99
 T:18:0:99
 F:SLAY_AUTOMATA
+D:They do extra damage to automata.
 
-N:117:of Hurt Troll
+N:406:of Hurt Dinosaur
 X:23:10:0
 W:0:50:0:15
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:SLAY_TROLL
+F:SLAY_DINOSAUR
+D:They do extra damage to dinosaurs.
 
-N:118:of Hurt Giant
+N:407:of Hurt Construct
 X:23:10:0
 W:0:50:0:15
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:SLAY_GIANT
+F:SLAY_CONSTRUCT
+D:They do extra damage to constructs.
 
-N:119:of Hurt Dragon
+N:408:of Hurt Elemental
 X:23:10:0
 W:0:50:0:35
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:SLAY_DRAGON
+F:SLAY_ELEMENTAL
+D:They do extra damage to elementals.
 
-N:120:of Hurt Alien
+N:409:of Hurt Alien
 X:23:10:0
 W:0:50:0:35
 T:16:0:99
 T:17:0:99
 T:18:0:99
 F:SLAY_ALIEN
+D:They do extra damage to aliens.
 
-N:121:of Hurt Beastman
+N:410:of Hurt Beastman
 X:23:10:0
 W:0:50:0:35
 T:16:0:99
 T:17:0:99
 T:18:0:99
 F:SLAY_BEASTMAN
+D:They do extra damage to Beastmen.
 
-N:122:of Flame
-X:23:10:0
-W:0:25:0:30
+N:411:of Flash
+X:0:10:0
+W:0:50:0:25
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:BRAND_FIRE | IGNORE_FIRE
+F:BRAND_ELEC
+D:"Prince Flash bore a lightning bolt in his right hand, and a horn
+D: of gunpowder in his right, and his bright eyes roved constantly
+D: around, as if he longed to use his blinding flashes." -L Frank Baum,
+D: The Life and Adventures of Santa Claus.
 
-N:123:of Frost
-X:23:10:0
-W:0:25:0:25
-T:16:0:99
-T:17:0:99
-T:18:0:99
-F:BRAND_COLD | IGNORE_COLD
+### Mecha Egos 420 - 485 ###
 
-N:124:of Wounding
-X:23:5:0
-W:0:8:0:20
-C:5:5:0:0
-T:16:0:99
-T:17:0:99
-T:18:0:99
+### All mecha parts are generated as ego items.  ###
+###
+### It is possible for a mecha part to have three pvals.  ###
 
-N:125:of Backbiting
-X:23:0:0
-W:5:30:0:0
-C:50:50:0:0
-T:16:0:99
-T:17:0:99
-T:18:0:99
-F:LIGHT_CURSE
+### The first comes from object.txt and is constant. ###
+### The second and third pvals are from ego_item.txt. ###
+
+### The ego_item pvals are partly random. ###
+### The pvals are calculated by taking 1/2 of the sval for the part from object.txt ###
+### plus a random value between pval/2 and pval from the ego item. ###
+
+### Common flags from object.txt and ego_item.txt are additive, thus you can
+### give a MUS bonus to the base object in object.txt, and it will stack with any
+### MUS bonus from the ego item.  ###
+
+### Negative pvals are allowed.  ###
+
+## Torso egos 420 - 439 ##
+
+N:420:(Clockwork)
+X:0:0:0
+W:0:1:0:100
+C:0:0:0
+T:46:0:8
+Y:1
+1:MUS | VIG
+D:A clockwork torso.
+
+N:421:(Steam-powered)
+X:0:0:0
+W:0:2:0:400
+C:0:0:0
+T:46:0:16
+O:0:0:0:25:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:2
+1:MUS | VIG
+D:A steam-powered torso.
+
+N:422:(Pneumatic)
+X:0:0:0
+W:0:3:0:1200
+C:0:0:0
+T:46:0:16
+O:0:0:25:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:4
+1:MUS | VIG
+D:A pneumatic torso.
+
+N:423:(Hydraulic)
+X:0:15:0
+W:0:5:0:3000
+C:0:0:0
+T:46:10:99
+O:25:0:0:0:0:-25:0:0:0:0:0:0:0:0:0:0:0
+Y:8
+1:MUS | VIG
+D:A hydraulic torso.
+
+N:424:(Overclocked)
+X:0:30:0
+W:0:20:0:30000
+C:0:0:0
+T:46:10:99
+O:0:0:0:0:0:0:0:0:-20:0:0:0:0:0:0:0:0
+Y:2:4
+1:MUS | VIG
+2:SPEED
+D:A torso that functions much quicker than it should.
+
+N:425:(Enameled)
+X:0:0:0
+W:0:4:0:2000
+C:0:0:20
+T:46:1:10
+T:46:14:99
+O:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:2:1
+1:MUS | VIG
+2:CHR
+D:A masterfully painted torso.  Not just a tool, but an objet d'art.
+
+### NOTE: Multiple tvals, so rubber is not polished ###
+
+N:426:(Polished)
+X:0:0:0
+W:0:3:0:1200
+C:0:0:0
+T:46:1:10
+T:46:12:99
+O:0:0:0:0:10:0:0:0:0:0:0:0:10:10:0:0:0
+Y:1:1
+1:MUS | VIG
+2:CHR
+D:This torso has been polished to a highly reflective shine.
+
+N:427:of Resist Elements
+X:0:5:0
+W:0:4:0:2000
+C:0:0:0
+T:46:1:16
+O:40:40:40:40:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:1
+1:MUS | VIG
+D:This torso has been specially fortified to resist the basic elements.
+
+N:428:of Resist Energies
+X:0:5:0
+W:0:5:0:3000
+C:0:0:0
+T:46:1:16
+O:0:0:0:0:30:30:30:0:30:0:0:0:30:30:0:0:0
+Y:2
+1:MUS | VIG
+D:This torso has been specially fortified to resist the various energies of the
+D: universe.
+
+N:429:of Resist Forces
+X:0:5:0
+W:0:6:0:5000
+C:0:0:0
+T:46:10:99
+O:0:0:0:0:0:0:0:0:0:20:20:20:0:0:0:20:0
+Y:4
+1:MUS | VIG
+D:This torso has been specially fortified to resist cosmic forces.
+
+N:430:of *Resistance*
+X:0:10:0
+W:0:12:0:12000
+C:0:0:0
+T:46:10:99
+O:20:20:20:20:20:20:20:0:20:20:20:20:20:20:0:20:0
+Y:4
+1:MUS | VIG
+D:This torso has been specially fortified to resist anything and everything.
+
+N:431:(Insulated)
+X:0:0:0
+W:0:3:0:1200
+C:0:0:0
+T:46:1:99
+O:30:0:0:0:30:30:0:0:0:0:0:0:0:0:0:0:0
+Y:2
+1:MUS | VIG
+D:The interior of this torso has been filled with thick insulation.
+
+N:432:(Sparking)
+X:0:5:0
+W:0:8:0:7000
+C:0:10:0
+T:46:1:99
+O:0:0:0:0:-30:0:0:0:0:0:0:0:0:0:0:0:0
+Y:2
+1:MUS | VIG
+F:SH_ELEC
+D:This torso's wiring has been permanently damaged.  Sparks of electricity are
+D: flying everywhere.
+
+N:433:of Mystical Protection
+X:0:15:0
+W:0:10:0:9000
+C:0:0:20
+T:46:10:99
+O:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:4:-4
+1:MUS | VIG
+2:SAVE
+D:Bizzare runes adorn this torso, protecting it's wearer from mystical forces.
+
+N:434:and Rocket Pack
+X:0:10:0
+W:0:20:0:30000
+C:0:0:0
+T:46:10:99
+O:40:0:0:0:0:-40:0:0:0:0:0:0:0:0:0:0:0
+Y:4:-4
+1:MUS | VIG
+2:SPEED
+F:FEATHER | SH_FIRE
+D:A mechanical genius has added a rocket pack to this torso.  Up Up and Away!
+
+N:435:of Self-Repair
+X:0:10:0
+W:0:15:0:18000
+C:0:0:0
+T:46:10:99
+O:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:2
+1:MUS | VIG
+F:REGEN_25
+D:Hundreds of tiny automata crawl all over this torso, quickly repairing any
+D: damage that occurs.
+
+### 436 - 439 Unused ###
+
+## Head Egos 440 - 454 ##
+
+N:440:(Clockwork)
+X:0:0:0
+W:0:1:0:100
+C:0:0:0
+T:47:0:8
+Y:1
+1:SCH | EGO | CHR
+D:A clockwork head.
+
+N:441:(Steam-powered)
+X:0:0:0
+W:0:2:0:400
+C:0:0:0
+T:47:0:16
+O:0:0:0:25:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:2
+1:SCH | EGO | CHR
+D:A steam-powered head.
+
+N:442:(Pneumatic)
+X:0:0:0
+W:0:3:0:1200
+C:0:0:0
+T:47:0:16
+O:0:0:25:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:4
+1:SCH | EGO | CHR
+D:A pneumatic head.
+
+N:443:(Hydraulic)
+X:0:0:0
+W:0:5:0:3000
+C:0:0:0
+T:47:10:99
+O:25:0:0:0:0:-25:0:0:0:0:0:0:0:0:0:0:0
+Y:8
+1:SCH | EGO | CHR
+D:A hydraulic head.
+
+N:444:(Overclocked)
+X:0:0:0
+W:0:20:0:30000
+C:0:0:0
+T:47:10:99
+O:0:0:0:0:0:0:0:0:-20:0:0:0:0:0:0:0:0
+Y:2:4
+1:SCH | EGO | CHR
+2:SPEED
+D:A head that functions much quicker than it should.
+
+N:445:(Enameled)
+X:0:0:0
+W:0:4:0:2000
+C:0:0:20
+T:47:0:10
+T:47:14:99
+O:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:2:3
+1:SCH | EGO
+2:CHR
+D:A masterfully painted head.  Not just a tool, but an objet d'art.
+
+### NOTE: Multiple tvals, so rubber is not polished ###
+
+N:446:(Polished)
+X:0:0:0
+W:0:3:0:1200
+C:0:0:0
+T:47:0:10
+T:47:12:99
+O:0:0:0:0:20:0:0:0:0:0:0:0:20:20:0:0:0
+Y:1:2
+1:SCH | EGO
+2:CHR
+D:This head has been polished to a highly reflective shine.
+
+N:447:of Target Acquisition
+X:0:0:0
+W:0:6:0:5000
+C:20:0:0
+T:47:0:99
+O:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:2
+1:SCH | EGO | CHR
+D:Special sensors built into this head increase the accuracy of your attacks.
+
+N:448:of Computation
+X:0:0:0
+W:0:5:0:3000
+C:0:0:0
+T:47:0:16
+O:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:2:4
+1:EGO | CHR
+2:SCH
+D:This head has several systems for extra calculation.
+
+N:449:of Supreme Computation
+X:0:0:0
+W:0:15:0:18000
+C:0:0:0
+T:47:10:99
+O:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:4:8
+1:EGO | CHR
+2:SCH
+D:This head has an advanced prototype calculation system.  Vacuum tubes
+D: everywhere.
+
+N:450:of Personability
+X:0:0:0
+W:0:6:0:5000
+C:0:0:0
+T:47:1:16
+O:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:2:4
+1:SCH | EGO
+2:CHR
+D:This head has several extra functions that allow you to control your facial
+D: expressions.
+
+N:451:of Supreme Personability
+X:0:0:0
+W:0:16:0:20000
+C:0:0:0
+T:47:10:99
+O:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:4:8
+1:SCH | EGO
+2:CHR
+D:You're good enough; you're smart enough; and, dog gonnit, people like you!
+
+### 452 - 454 Unused ###
+
+## Arm Egos 455 - 469 ##
+
+N:455:(Clockwork)
+X:0:0:0
+W:0:1:0:100
+C:0:0:0
+T:48:0:8
+Y:1
+1:AGI
+D:A set of clockwork arms.
+
+N:456:(Steam-powered)
+X:0:0:0
+W:0:2:0:400
+C:0:0:0
+T:48:0:16
+O:0:0:0:25:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:2
+1:AGI
+D:A set of steam-powered arms.
+
+N:457:(Pneumatic)
+X:0:0:0
+W:0:3:0:1200
+C:0:0:0
+T:48:0:16
+O:0:0:25:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:4
+1:AGI
+D:A set of pneumatic arms.
+
+N:458:(Hydraulic)
+X:0:0:0
+W:0:5:0:3000
+C:0:0:0
+T:48:10:99
+O:25:0:0:0:0:-25:0:0:0:0:0:0:0:0:0:0:0
+Y:8
+1:AGI
+D:A set of hydraulic arms.
+
+N:459:(Overclocked)
+X:0:0:0
+W:0:20:0:30000
+C:0:0:0
+T:48:10:99
+O:0:0:0:0:0:0:0:0:-20:0:0:0:0:0:0:0:0
+Y:2:4
+1:AGI
+2:SPEED
+D:A set of arms that function much quicker than they should.
+
+N:460:(Enameled)
+X:0:0:0
+W:0:4:0:2000
+C:0:0:20
+T:48:0:10
+T:48:14:99
+O:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:2:2
+1:AGI
+2:CHR
+D:A masterfully painted set of arms.  Not just tools, but objets d'art.
+
+### NOTE: Multiple tvals, so rubber is not polished ###
+
+N:461:(Polished)
+X:0:0:0
+W:0:3:0:1200
+C:0:0:0
+T:48:0:10
+T:48:12:99
+O:0:0:0:0:20:0:0:0:0:0:0:0:20:20:0:0:0
+Y:1:1
+1:AGI
+2:CHR
+D:This set of arms has been polished to a highly reflective shine.
+
+N:462:(Spring Loaded)
+X:0:0:0
+W:0:15:0:18000
+C:0:0:0
+T:48:0:99
+O:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:4
+1:AGI 
+F:BRAND_FORCE
+D:Powerful compression springs are built into these arms.  Your blows are more
+D: forceful.
+
+N:463:(Bladed)
+X:0:0:0
+W:0:8:0:7000
+C:0:20:0
+T:48:0:99
+O:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:4
+1:AGI
+D:These arms are covered with razor sharp blades for cutting your foes to
+D: shreds.
+
+N:464:of Power
+X:0:0:0
+W:0:8:0:7000
+C:0:0:0
+T:48:0:16
+O:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:2:4
+1:AGI
+2:MUS
+D:Well-made arms that are particularly strong.
+
+N:465:of Mighty Power
+X:0:0:0
+W:0:18:0:24000
+C:0:0:0
+T:48:10:99
+O:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:4:8
+1:AGI
+2:MUS
+D:Well-made arms that are extremely strong.  You feel like you could move
+D: mountains.
+
+N:466:of Agility
+X:0:0:0
+W:0:6:0:5000
+C:10:0:0
+T:48:0:16
+O:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:6
+1:AGI
+F:FREE_ACT
+D:Your motor control is noticeably better while wearing these well-made arms.
+
+N:467:of Supreme Agility
+X:0:0:0
+W:0:16:0:20000
+C:20:0:0
+T:48:10:99
+O:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:10
+1:AGI
+F:FREE_ACT
+D:The speed and grace you exhibit while wearing these arms is unparalleled.
+
+### 468 - 469 Unused ###
+
+### Leg Egos 470 - 484 ###
+
+N:470:(Clockwork)
+X:0:0:0
+W:0:1:0:100
+C:0:0:0
+T:49:0:8
+Y:1
+1:MUS | AGI
+D:A set of clockwork legs.
+
+N:471:(Steam-powered)
+X:0:0:0
+W:0:2:0:400
+C:0:0:0
+T:49:0:16
+O:0:0:0:25:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:2
+1:MUS | AGI
+D:A set of steam-powered legs.
+
+N:472:(Pneumatic)
+X:0:0:0
+W:0:3:0:1200
+C:0:0:0
+T:49:0:16
+O:0:0:25:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:4
+1:MUS | AGI
+D:A set of pneumatic legs.
+
+N:473:(Hydraulic)
+X:0:0:0
+W:0:5:0:3000
+C:0:0:0
+T:49:10:99
+O:25:0:0:0:0:-25:0:0:0:0:0:0:0:0:0:0:0
+Y:8
+1:MUS | AGI
+D:A set of hydraulic legs.
+
+N:474:(Overclocked)
+X:0:0:0
+W:0:20:0:30000
+C:0:0:0
+T:49:10:99
+O:0:0:0:0:0:0:0:0:-20:0:0:0:0:0:0:0:0
+Y:2:4
+1:MUS | AGI
+2:SPEED
+D:A set of legs that function much quicker than they should.
+
+N:475:(Enameled)
+X:0:0:0
+W:0:4:0:2000
+C:0:0:20
+T:49:0:10
+T:49:14:99
+O:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:2:2
+1:MUS | AGI
+2:CHR
+D:A masterfully painted set of legs.  Not just tools, but objets d'art.
+
+### NOTE: Multiple tvals, so rubber is not polished ###
+
+N:476:(Polished)
+X:0:0:0
+W:0:3:0:1200
+C:0:0:0
+T:49:0:10
+T:49:12:99
+O:0:0:0:0:20:0:0:0:0:0:0:0:20:20:0:0:0
+Y:1:1
+1:MUS | AGI
+2:CHR
+D:This set of legs has been polished to a highly reflective shine.
+
+N:477:(Quicksilver)
+X:0:0:0
+W:0:25:0:50000
+C:0:0:0
+T:49:0:99
+O:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:2:4
+1:MUS | AGI
+2:SPEED
+D:The normal hydraulic fluid in these legs has been replaced with frictionless
+D: quicksilver.
+
+N:478:with Vectored Exhaust
+X:0:0:0
+W:0:18:0:24000
+C:0:0:0
+T:49:0:99
+O:0:0:20:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:2:1
+1:MUS | AGI
+2:SPEED
+F:FEATHER
+D:The exhaust from your core furnace can be vented through special ducts in
+D: these legs to provide limited flight capability.
+
+N:479:of Motion
+X:0:0:0
+W:0:5:0:3000
+C:0:0:0
+T:49:0:16
+O:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+Y:2
+1:MUS | AGI
+F:FREE_ACT
+D: A pair of free moving legs.
+
 
 ### Special Broken Items ###
 
@@ -998,39 +2253,14 @@ F:LIGHT_CURSE
 # they keep their rarity of 0 and nobody adds 'T' lines for them. 
 
 # Destroyed Weapon
-N:126:(Shattered)
-X:24:0:0
-W:0:0:0:0
-C:5:5:0:0
+#N:126:(Shattered)
+#X:24:0:0
+#W:0:0:0:0
+#C:5:5:0
 
 # Destroyed Body Armor
 
-N:127:(Blasted)
-X:30:0:0
-W:0:0:0:0
-C:0:0:10:0
-
-#boots
-N:128:(Martian)
-X:35:30:2
-W:0:15:0:30000
-C:0:0:10:2
-T:30:6:6
-F:AGI | SPEED | REGEN | RES_POIS | RES_SOUND | RES_CHAOS
-
-#cloak
-N:129:(Martian)
-X:31:30:2
-W:0:15:0:30000
-C:0:0:10:2
-T:35:0:99
-F:CHR | SPEED | REGEN | RES_POIS | RES_SOUND | RES_CHAOS
-
-#gloves
-N:130:(Martian)
-X:34:30:2
-W:0:15:0:30000
-C:0:0:10:2
-T:31:0:99
-F:MUS | SPEED | REGEN | RES_POIS | RES_SOUND | RES_CHAOS
-
+#N:127:(Blasted)
+#X:30:0:0
+#W:0:0:0:0
+#C:0:0:-10

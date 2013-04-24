@@ -1,0 +1,134 @@
+=== Skill FAQ ===
+
+Q:I keep dying, and I can't hit anything, or cast spells or. . .
+
+A:Push 'G' to allocate your skill points.
+
+
+Q:Oh.
+
+A:No problem - it's common to people coming from other variants.
+
+
+Q: I'm level 12, and I can't cast the level 12 spells in my device!
+
+A. Level currently affects very few things in Steamband. Almost
+everything is determined by your skill. Whether or not you can 
+cast/understand a spell is _solely_ determined by your level 
+in the appropriate skill. Which for mage spells is Latin + Occult 
+path, and for priest spells is Latin + Spirituality path. For 
+devices - if you get them, it's gadgeteering + the specific device skill.
+
+
+Q:I added a skill point where I didn't want it to go! How do I get it
+back?
+
+A:Sorry. You can't. Skill increases are permanant.
+
+
+Q:I added points in a skill and some skills dissappeared!
+
+A:Sometimes when you put points in a skill (like daggers or firelore)
+it means you are specializing, and it denies you access to other
+opposed skills. If you're going to become a weaponmaster of daggers
+you can't very well also become a weaponmaster of swords. Skills
+should *NEVER* dissapear if you have already put points into them.
+If one does, it is a bug and an email should be sent to valis@oook.cz
+
+
+Q:I don't see any combat or magic skills. Where are they?
+
+A:Push the 'h' key on the skill screen to switch across
+the skill tabs.
+
+
+Q:How come I can't raise my skill any higher?
+
+A:There are 2 limits to raising skills. First, no skill can be higher 
+than your current level + 2. Second, each skill has a maximum value of
+3 + 1 for every level you gain while the skill is available or 20, 
+whichever is less. No skill can be raised higher than 20.
+
+
+Q:What?
+
+A:No skill can be raised higher th-
+
+
+Q:No, the other part.
+
+A:If you are level thirteen and you gain access to the rogue skill
+theft by raising your stealth to 15, then the maximum you can raise
+the theft skill to is to 3. If you become level 14, then you can
+raise the theft skill another point to 4.
+
+
+Q:Doesn't this mean it's too my advantage to try to avoid gaining 
+levels and collecting skill points from turning in books to the 
+library.
+
+A:Well it would, if you couldn't pay to raise your skill maximums 
+in the home. ('8')
+
+
+Q:How many skill points does a person invest in a skill before it 
+becomes a waste of skill points? For example,once novice melee (or 
+whatever the name is) is advanced enough to open up standard melee 
+skill is it a waste to put any more points in novice?? 
+
+A:The answer to this question is very important! Skills _never_ 
+become a waste of skill points. I made very sure that every point 
+that you put into a skill increases your ability in something 
+somewhere - and I insured that the ability gets better with every 
+single skill point spent. There is never a skill you will put a 
+point into that it will be a waste of your time. In the case of 
+novice melee - it provides a bigger bonus to hit, but standard 
+combat opens up new abilities. Skill points are never a waste. 
+Oh, and the name of the skill is neophyte combat.
+
+
+Q:Could a message be implemented for the various skills (or a 
+skill cap) that would notify the player that they had reached 
+the effective limit of that skill?? 
+
+A: I believe the answer to the above question takes care of this. 
+There is no need for a message, because there is no effective 
+limit of skills. 20 is the max, and every point does something useful.
+
+Q:I put a lot of points into advanced combat, and my to hit and 
+damage didn't go up. What gives?
+
+A:Those skills *don't* raise your to hit or damage. They raise your
+fighting ability which affects how well you can hit monsters - before
+a to hit or damage bonus is applied. To get an idea of your relative
+fighting skills take a look at the 'C'haracter screen - that will give
+you an idea of your current fighting skill
+
+
+Q:If I put points in magic skills am I making my combat skills any
+worse?
+
+A:No. All skills are used and raised independently. Barring the 
+specialization skills mentioned above, raising one skill will never
+affect the effects of another skill.
+
+
+Q:I turned a book into the library and didn't get the number of skill
+points that I sold it for. Why not?
+
+A:The number of skill points you gain is random, it can be *up* *to*
+the sale price of the book, but the actual value you acquire is random.
+
+
+
+Q:Skill points gained whether from library books or leveling seem 
+to be a fairly random quantity, is there any stat that can effect 
+this? What is the algorithm?
+
+A:There is no stat or skill that can increase the amount of skill
+point gain. The algorithm for skill gain on level is spoiler information
+which can be found by source diving. However, it does decrease as
+your level increases. As for books, each book is assigned a 'cost'
+from 1-20 (with 99.8% being lower than 4) and when you turn in a 
+book, a simple random number is generated between 1 and the cost
+of the book. That is the number of skill points you gain.

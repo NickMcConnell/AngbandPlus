@@ -1,6 +1,6 @@
-=== Version Information === (OUTDATED)
+=== Version Information === 
 
-This file was last updated for Steamband 0.2.0
+This file was last updated for Steamband 0.4.0
 
 Make sure to read the newsgroup ("rec.games.roguelike.angband"), and to visit
 the Official Angband Home Page ("http://thangorodrim.angband.org") for the

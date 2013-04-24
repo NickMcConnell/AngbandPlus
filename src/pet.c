@@ -405,15 +405,19 @@ bool are_enemies(monster_type *m_ptr, monster_type *n_ptr)
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	monster_race *s_ptr = &r_info[n_ptr->r_idx];
 
+	/* Aggravating players cause pets to only focus on him */
+	if (p_ptr->aggravate) return FALSE;
+	
 	/* Friendly vs. opposite aligned normal or pet */
-	if (((r_ptr->flags3 & RF3_EVIL) &&
-		  (s_ptr->flags3 & RF3_HOSTILE)) ||
-		 ((r_ptr->flags3 & RF3_HOSTILE) &&
-		  (s_ptr->flags3 & RF3_EVIL))||
-		 ((r_ptr->flags3 & RF3_HOSTILE) &&
-		  (s_ptr->flags3 & RF3_HOSTILE)) )
+	if ((((r_ptr->flags3 & RF3_EVIL) &&
+		  (s_ptr->flags2 & RF2_HOSTILE)) ||
+		 ((r_ptr->flags2 & RF2_HOSTILE) &&
+		  (s_ptr->flags3 & RF3_EVIL)) ||
+		 ((r_ptr->flags2 & RF2_HOSTILE) &&
+		  (s_ptr->flags2 & RF2_HOSTILE))) &&
+		  (r_ptr->d_char != s_ptr->d_char))
 	{
-		return TRUE;
+		if (one_in_(20)) return TRUE;
 	}
 
 	/* Hostile vs. non-hostile */

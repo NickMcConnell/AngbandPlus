@@ -1,4 +1,4 @@
-Welcome to the Angband Online Help System.
+Welcome to the Steamband Online Help System.
 
 Please choose one of the following online help files:
 
@@ -10,8 +10,13 @@ Please choose one of the following online help files:
     (6) Command Descriptions       (command.txt)
     (7) Option Descriptions        (option.txt)
     (8) Version Information        (version.txt)
-    (9) Spoiler Menu (if any)      (spoiler.hlp)
-    (0) User Menu (if any)         (user.hlp)
+    (9) FAQ's                      (FAQ.hlp)
+
+Browser/help commands:
+  #     go to line         %  go to file         ?  go to last file/main menu
+  SPACE advance 1 page     -  back up 1 page     /  search for text
+  RET   advance 1 line     =  back up 1 line     &  show (highlight) some text
+  +     advance 1/2 page   _  back up 1/2 page   !  toggle case sentitivity
 
 ***** [1] general.txt
 ***** [2] birth.txt
@@ -21,6 +26,6 @@ Please choose one of the following online help files:
 ***** [6] command.txt
 ***** [7] option.txt
 ***** [8] version.txt
-***** [9] spoiler.hlp
+***** [9] FAQ.hlp
 ***** [0] user.hlp
 

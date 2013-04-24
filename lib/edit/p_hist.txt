@@ -10,22 +10,16 @@
 
 # Background information (see below)
 
-# Chart progression by race:,
-#   Human/Dunadan -->  1 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
-#   Half-Elf      -->  4 -->  1 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
-#   Elf/High-Elf  -->  7 -->  8 -->  9 --> 54 --> 55 --> 56
-#   Hobbit        --> 10 --> 11 -->  3 --> 50 --> 51 --> 52 --> 53
-#   Gnome         --> 13 --> 14 -->  3 --> 50 --> 51 --> 52 --> 53
-#   Dwarf         --> 16 --> 17 --> 18 --> 57 --> 58 --> 59 --> 60 --> 61
-#   Half-Orc      --> 19 --> 20 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
-#   Half-Troll    --> 22 --> 23 --> 62 --> 63 --> 64 --> 65 --> 66
-
 #		h_ptr->chart = prv; Current
 #		h_ptr->next = nxt;  Next
 #		h_ptr->roll = prc;  Percentage Chance
 #		h_ptr->bonus = soc; Bonus to soc.
-# You are 1(Birth Order and status) of 2(person). 3(Describe You). 4(Eyes), 5(Hair Style)6(haircolor, and 7(Complexion)
-# _OR_ Your (parent) was a (race) (job/status). (eyes), (Hairstyple) (haircolor), and (Color)(skin)
+
+# You are 1(Birth Order and status) of 2(person). 3(Describe You). 
+# 4(Eyes), 5(Hair Style)6(haircolor, and 7(Complexion)
+# _OR_ Your (parent) was a (race) (job/status). (eyes), 
+# (Hairstyple) (haircolor), and (Color)(skin)
+
 # NEW Chart progression by race
 #	British/French/
 #	Spaniards/German/
@@ -52,22 +46,23 @@
 
 # Version stamp (required)
 
-V:0.3.1
+V:0.4.0
+
 #	British/French/
 #	Spaniards/German/
 #	Finnish	
 
-N:1:2:10:15
+N:1:2:10:25
 D:You are the illegitimate and unacknowledged child 
-N:1:2:15:25
+N:1:2:15:35
 D:You are the illegitimate and acknowledged child 
-N:1:2:20:35
+N:1:2:20:45
 D:You are the Youngest of several children 
-N:1:2:30:40
+N:1:2:30:50
 D:You are one of several children 
-N:1:2:95:45
+N:1:2:95:55
 D:You are the first child 
-N:1:2:100:50
+N:1:2:100:60
 D:You are the only child 
 
 N:2:3:10:40
@@ -116,7 +111,7 @@ N:4:5:55:50
 D:You have green eyes, 
 N:4:5:90:50
 D:You have blue eyes, 
-N:4:5:100:50
+N:4:5:100:55
 D:You have blue-gray eyes, 
 
 N:5:6:60:50
@@ -151,17 +146,17 @@ N:7:0:100:50
 D:and a very fair complexion. 
 
 #	Asiatic
-N:8:9:15:15
+N:8:9:15:25
 D:You are the illegitimate and unacknowledged child 
-N:8:9:10:25
+N:8:9:10:35
 D:You are the illegitimate and acknowledged child 
-N:8:9:15:35
-D:You are the Youngest of several children 
-N:8:9:20:40
+N:8:9:15:45
+D:You are the youngest of several children 
+N:8:9:20:50
 D:You are one of several children 
-N:8:9:99:45
+N:8:9:99:55
 D:You are the first child 
-N:8:9:100:50
+N:8:9:100:60
 D:You are the only child 
 
 N:9:10:10:40
@@ -204,71 +199,53 @@ N:11:12:35:50
 D:You have dark brown eyes, 
 N:11:12:95:50
 D:You have brown eyes, 
-N:11:12:97:50
-D:You have hazel eyes, 
-N:11:12:98:50
-D:You have green eyes, 
-N:11:12:99:50
-D:You have blue eyes, 
 N:11:12:100:50
-D:You have blue-gray eyes, 
+D:You have hazel eyes, 
 
 N:12:13:80:50
 D:straight 
 N:12:13:85:50
 D:wavy 
-N:12:13:90:50
-D:curly 
 N:12:13:100:50
 D:long 
 
 N:13:14:80:50
 D:black hair, 
-N:13:14:90:50
-D:brown hair, 
-N:13:14:98:50
-D:auburn hair, 
-N:13:14:99:50
-D:red hair, 
 N:13:14:100:50
-D:blond hair, 
+D:brown hair, 
 
 N:14:0:20:50
 D:and a very dark complexion. 
 N:14:0:75:50
 D:and a dark complexion. 
-N:14:0:80:50
-D:and an average complexion. 
-N:14:0:99:50
-D:and a fair complexion. 
 N:14:0:100:50
-D:and a very fair complexion. 
+D:and an average complexion. 
 
 #	African
-N:15:16:15:15
-D:You are the illegitimate and unacknowledged child 
-N:15:16:10:25
-D:You are the illegitimate and acknowledged child 
 N:15:16:15:35
+D:You are the illegitimate and unacknowledged child 
+N:15:16:10:45
+D:You are the illegitimate and acknowledged child 
+N:15:16:15:45
 D:You are the Youngest of several children 
-N:15:16:20:40
+N:15:16:20:50
 D:You are one of several children 
-N:15:16:80:45
+N:15:16:80:55
 D:You are the first child 
-N:15:16:100:50
+N:15:16:100:60
 D:You are the only child 
 
-N:16:17:10:40
+N:16:17:10:50
 D:of a Wanderer. 
-N:16:17:20:45
+N:16:17:20:55
 D:of a Hermit. 
-N:16:17:30:50
+N:16:17:30:60
 D:of a Tribesman. 
-N:16:17:85:55
+N:16:17:85:65
 D:of a Medicine Man. 
-N:16:17:90:60
+N:16:17:90:70
 D:of a Warrior. 
-N:16:17:100:70
+N:16:17:100:80
 D:of a Tribal chief. 
 
 N:17:18:20:20
@@ -302,20 +279,20 @@ D:and a very dark complexion.
 N:21:0:75:50
 D:and a dark complexion. 
 N:21:0:100:50
-D:and an coca colored complexion. 
+D:and a coca colored complexion. 
 
 # Russian
-N:22:23:10:15
+N:22:23:10:25
 D:You are the illegitimate and unacknowledged child 
-N:22:23:15:25
+N:22:23:15:35
 D:You are the illegitimate and acknowledged child 
-N:22:23:20:35
+N:22:23:20:45
 D:You are the Youngest of several children 
-N:22:23:30:40
+N:22:23:30:50
 D:You are one of several children 
-N:22:23:95:45
+N:22:23:95:55
 D:You are the first child 
-N:22:23:100:50
+N:22:23:100:60
 D:You are the only child 
 
 N:23:24:10:40
@@ -483,24 +460,24 @@ D:and a very fair complexion.
 #   Daoine Sidhe/
 #	Seelie/Unseelie Fae	
 
-N:36:37:10:15
+N:36:37:10:35
 D:You were born from the sea. 
-N:36:37:15:25
+N:36:37:15:45
 D:You were born from a flower. 
-N:36:37:50:35
+N:36:37:50:55
 D:You were born from the forest. 
-N:36:37:80:40
+N:36:37:80:60
 D:You were born in a hearth. 
-N:36:37:95:45
+N:36:37:95:65
 D:You were born in a fairy ring. 
-N:36:37:100:50
+N:36:37:100:70
 D:You were created by the Lord of the Fae. 
 
-N:37:38:20:20
+N:37:38:20:10
 D:You are unimaginative Fae. 
 N:37:38:80:55
 D:You are a creative Fae. 
-N:37:38:100:60
+N:37:38:100:70
 D:You are a node of glamour.  
 
 N:38:5:10:50
@@ -515,16 +492,14 @@ N:38:39:50:50
 D:You have blue eyes, 
 N:38:39:60:50
 D:You have blue-gray eyes, 
-N:38:39:70:50
+N:38:39:70:60
 D:You have red eyes, 
-N:38:39:80:50
+N:38:39:80:60
 D:You have orange eyes, 
-N:38:39:98:50
+N:38:39:98:60
 D:You have violet eyes, 
-N:38:39:100:50
+N:38:39:100:60
 D:You have gold eyes, 
-
-
 
 N:39:40:60:50
 D:straight 
@@ -565,7 +540,7 @@ D:and a very fair complexion.
 N:42:43:100:50
 D:You are a robot. 
 
-N:43:31:10:40
+N:43:44:10:40
 D:You are made from tin. 
 N:43:44:20:45
 D:You are made from copper. 
@@ -580,16 +555,16 @@ D:You are made from silver.
 N:43:44:85:90
 D:You are made from platinum. 
 N:43:44:90:100
-D:You are made from Mirthil. 
+D:You are made from titanium. 
 N:43:44:100:140
-D:You are made from Etheric Mirthil. 
+D:You are made from etheric titanium. 
 
 N:44:45:20:20
 D:You were given intelligence by your creator. 
 N:44:45:80:55
 D:You became intelligent gradually. 
 N:44:45:100:60
-D:You were once a man.  
+D:You were once human.  
 
 N:45:46:30:50
 D:You have silver disks for eyes, 
@@ -618,7 +593,7 @@ D:and a round head.
 N:47:0:15:50
 D:and a square head. 
 N:47:0:90:50
-D:and an cylindrical head. 
+D:and a cylindrical head. 
 N:47:0:99:50
 D:and a pointed head. 
 N:47:0:100:50
@@ -724,7 +699,7 @@ D:leprous skin.
 #Ghost
 
 N:59:60:100:25
-D:You are the Ghost of a 
+D:You are the Ghost 
 
 N:60:61:10:40
 D:of a Beggar. 
@@ -784,7 +759,7 @@ N:63:64:33:50
 D:rags, 
 N:63:64:66:50
 D:clothes, 
-N:63:64:100:50
+N:63:64:100:60
 D:finery, 
 
 N:64:0:100:50
@@ -799,17 +774,17 @@ N:65:66:100:55
 D:You are the largest of 
 
 N:66:67:15:45
-D:a litter of 3 pups. 
-N:66:67:40:45
-D:a litter of 4 pups. 
-N:66:67:70:50
 D:a litter of 5 pups. 
-N:66:67:85:50
+N:66:67:40:45
 D:a litter of 6 pups. 
-N:66:67:95:55
+N:66:67:70:50
 D:a litter of 7 pups. 
-N:66:67:100:55
+N:66:67:85:50
 D:a litter of 8 pups. 
+N:66:67:95:55
+D:a litter of 9 pups. 
+N:66:67:100:55
+D:a litter of 11 pups. 
 
 N:67:68:25:40
 D:Your father was a fungus farmer, 
@@ -872,17 +847,17 @@ N:74:75:100:60
 D:You turn the minds of people to mush.  
 
 N:75:76:5:50
-D:You have 12 yellow eyes, 
+D:You have tweleve yellow eyes, 
 N:75:76:15:50
-D:You have 4 orange eyes, 
+D:You have four orange eyes, 
 N:75:76:40:50
-D:You have 5 holes oozing puss for eyes, 
+D:You have five holes oozing pus for eyes, 
 N:75:76:55:50
-D:You have 82 black beady eyes, 
+D:You have eighty-two black beady eyes, 
 N:75:76:90:50
-D:You have 9 purple eyes, 
+D:You have nine purple eyes, 
 N:75:76:100:50
-D:You have 13 red glowing eyes, 
+D:You have thirteen red glowing eyes, 
 
 N:76:77:60:50
 D:twelve 
@@ -907,9 +882,9 @@ D:faces coming out of your flesh,
 N:78:0:10:50
 D:and a rubbery complexion. 
 N:78:0:15:50
-D:and a oozing complexion. 
+D:and an oozing complexion. 
 N:78:0:50:50
-D:and an disgusting complexion. 
+D:and a disgusting complexion. 
 N:78:0:80:50
 D:and a bumpy complexion. 
 N:78:0:100:50

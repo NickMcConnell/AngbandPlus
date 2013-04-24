@@ -377,6 +377,14 @@ static s32b price_item(const object_type *o_ptr, int greed, bool flip)
 
 		/* Mega-Hack -- Black market sucks */
 		if (store_num == STORE_B_MARKET) price = price / 2;
+		
+		if (p_ptr->skills[SK_ART_APPRECIATION].skill_max > 0)
+		{
+			/* HACK */
+			if ((o_ptr->ident & (IDENT_STORE))) price = ((price * (100 - p_ptr->skills[SK_ART_APPRECIATION].skill_rank)) / 100);
+			else price = ((price * (100 + p_ptr->skills[SK_ART_APPRECIATION].skill_rank)) / 100);
+		}
+
 	}
 
 	/* Shop is selling */
@@ -390,7 +398,15 @@ static s32b price_item(const object_type *o_ptr, int greed, bool flip)
 
 		/* Mega-Hack -- Black market sucks */
 		if (store_num == STORE_B_MARKET) price = price * 2;
+
+		if (p_ptr->skills[SK_ART_APPRECIATION].skill_max > 0)
+		{
+			/* HACK */
+			price = ((price * (100 - p_ptr->skills[SK_ART_APPRECIATION].skill_rank)) / 100);
+		}
 	}
+	
+	if (store_num == STORE_LIBRARY) adjust = 100;
 
 	/* Compute the final price (with rounding) */
 	price = (price * adjust + 50L) / 100L;
@@ -472,6 +488,9 @@ static void mass_produce(object_type *o_ptr)
 		case TV_SWORD:
 		case TV_POLEARM:
 		case TV_HAFTED:
+		case TV_DAGGER:
+		case TV_AXES:
+		case TV_BLUNT:
 		case TV_DIGGING:
 		case TV_GUN:
 		{
@@ -580,8 +599,8 @@ static bool store_object_similar(const object_type *o_ptr, const object_type *j_
 	/* Different objects cannot be stacked */
 	if (o_ptr->k_idx != j_ptr->k_idx) return (0);
 
-	/* Different charges (etc) cannot be stacked */
-	if (o_ptr->pval != j_ptr->pval) return (0);
+	/* Different charges (etc) cannot be stacked, except ray guns */
+	if (o_ptr->tval != TV_RAY && o_ptr->pval != j_ptr->pval) return (0);
 
 	/* Require many identical values */
 	if (o_ptr->to_h != j_ptr->to_h) return (0);
@@ -623,6 +642,12 @@ static void store_object_absorb(object_type *o_ptr, object_type *j_ptr)
 {
 	int total = o_ptr->number + j_ptr->number;
 
+	if (o_ptr->tval == TV_RAY)
+	{
+		/* just in case the count of charges gets too high */
+		o_ptr->pval = (o_ptr->pval + j_ptr->pval < 32768) ? o_ptr->pval + j_ptr->pval: 32768;
+	}
+
 	/* Combine quantity, lose excess items */
 	o_ptr->number = (total > 99) ? 99 : total;
 }
@@ -634,6 +659,10 @@ static void store_object_absorb(object_type *o_ptr, object_type *j_ptr)
  * Note that the shop, just like a player, will not accept things
  * it cannot hold.  Before, one could "nuke" objects this way, by
  * adding them to a pile which was already full.
+ *
+ * I want to figure out how to have a large number of screens
+ * for storage of the books in the library. . . Should
+ * check heng code for that here in a second XXXCCCXXX
  */
 static bool store_check_num(const object_type *o_ptr)
 {
@@ -687,7 +716,7 @@ static bool is_blessed(const object_type *o_ptr)
 	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Is the object blessed? */
-	return ((f3 & TR3_BLESSED) ? TRUE : FALSE);
+	return ((f2 & TR2_BLESSED) ? TRUE : FALSE);
 }
 
 
@@ -762,6 +791,9 @@ static bool store_will_buy(const object_type *o_ptr)
 				case TV_HAFTED:
 				case TV_POLEARM:
 				case TV_SWORD:
+				case TV_DAGGER:
+				case TV_AXES:
+				case TV_BLUNT:
 				break;
 				default:
 				return (FALSE);
@@ -775,6 +807,25 @@ static bool store_will_buy(const object_type *o_ptr)
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
+				case TV_MAGIC_BOOK:
+				{
+					switch (o_ptr->sval)
+					{
+						case SV_BOOK_DEVICE1:
+						case SV_BOOK_DEVICE2:
+						case SV_BOOK_DEVICE3:
+						case SV_BOOK_DEVICE4:
+						case SV_BOOK_DEVICE5:
+						case SV_BOOK_DEVICE6:
+						case SV_BOOK_DEVICE7:
+						case SV_BOOK_DEVICE8:
+						case SV_BOOK_DEVICE9:
+						case SV_BOOK_DEVICE10:
+						break;
+						default:
+						return (FALSE);
+					}
+				}
 				case TV_MECHANISM:
 				case TV_MECHA_TORSO:
 				case TV_MECHA_HEAD:
@@ -810,6 +861,30 @@ static bool store_will_buy(const object_type *o_ptr)
 			switch (o_ptr->tval)
 			{
 				case TV_MAGIC_BOOK:
+				switch (o_ptr->sval)
+				{
+					case SV_BOOK_MAGE1:
+					case SV_BOOK_MAGE2:
+					case SV_BOOK_MAGE3:
+					case SV_BOOK_MAGE4:
+					case SV_BOOK_MAGE5:
+					case SV_BOOK_MAGE6:
+					case SV_BOOK_MAGE7:
+					case SV_BOOK_MAGE8:
+					case SV_BOOK_MAGE9:
+					case SV_BOOK_MAGE10:
+					case SV_BOOK_PRIEST1:
+					case SV_BOOK_PRIEST2:
+					case SV_BOOK_PRIEST3:
+					case SV_BOOK_PRIEST4:
+					case SV_BOOK_PRIEST5:
+					case SV_BOOK_PRIEST6:
+					case SV_BOOK_PRIEST7:
+					case SV_BOOK_PRIEST8:
+					break;
+					default:
+					return (FALSE);
+				}
 				case TV_AMULET:
 				case TV_RING:
 				case TV_TOOL:
@@ -822,6 +897,23 @@ static bool store_will_buy(const object_type *o_ptr)
 				return (FALSE);
 			}
 			break;
+		}
+		case STORE_LIBRARY:
+		{
+			switch (o_ptr->tval)
+			{
+				case TV_BOOK:
+				{
+					break;
+				}
+				default:
+				return(FALSE);
+			}
+			break;
+		}
+		case STORE_WETWARE:
+		{
+			return(FALSE);
 		}
 	}
 
@@ -1032,6 +1124,13 @@ static void store_item_increase(int item, int num)
 	else if (cnt < 0) cnt = 0;
 	num = cnt - o_ptr->number;
 
+	/* Hack -- adjust the maximum timeouts and total charges of rods and wands. */
+	if (o_ptr->tval == TV_RAY)
+	{
+		o_ptr->pval += num * o_ptr->pval / o_ptr->number;
+	}
+
+
 	/* Save the new number */
 	o_ptr->number += num;
 }
@@ -1123,7 +1222,40 @@ static void store_delete(void)
 
 	/* Determine how many objects are in the slot */
 	num = st_ptr->stock[what].number;
+	
+#if 0
+	if (st_ptr->stock[what].tval == TV_FOOD)
+	{
+		if (st_ptr->stock[what].sval == SV_FOOD_MEAT_PIE)
+		{
+			if (num > 60) num = (num + 1) / 2;
+			else return;
+		}
+	}
 
+	else if (st_ptr->stock[what].tval == TV_LITE)
+	{
+		if (st_ptr->stock[what].sval == SV_LITE_TORCH)
+		{
+			if (num > 60) num = (num + 1) / 2;
+			else return;
+		}
+	}
+	
+	else if (st_ptr->stock[what].tval == TV_FLASK)
+	{
+		if (num > 60) num = (num + 1) / 2;
+		else return;
+	}
+	
+	else if ((st_ptr->stock[what].tval == TV_AMMO) ||
+		(st_ptr->stock[what].tval == TV_BULLET) ||
+		(st_ptr->stock[what].tval == TV_SHOT))
+	{
+		if (num > 90) num = (num - randint(10));
+		else return;
+	}
+#endif	
 	/* Hack -- sometimes, only destroy half the objects */
 	if (rand_int(100) < 50) num = (num + 1) / 2;
 
@@ -1166,7 +1298,7 @@ static void store_create(void)
 		if (store_num == STORE_B_MARKET)
 		{
 			/* Pick a level for object/magic */
-			level = 25 + rand_int(25);
+			level = 15 + rand_int(10) + (p_ptr->lev / 5);
 
 			/* Random object kind (usually of given level) */
 			k_idx = get_obj_num(level);
@@ -1201,7 +1333,8 @@ static void store_create(void)
 			if (i_ptr->sval == SV_LITE_TORCH) i_ptr->pval = FUEL_TORCH / 2;
 			if (i_ptr->sval == SV_LITE_LANTERN) i_ptr->pval = FUEL_LAMP / 2;
 			if (i_ptr->sval == SV_LITE_TAPER) i_ptr->pval = FUEL_TAPER;
-			if (i_ptr->sval == SV_LITE_CANDLE) i_ptr->pval = FUEL_CANDLE;
+			if (i_ptr->sval == SV_LITE_CANDLE_WAX) i_ptr->pval = FUEL_CANDLE;
+			if (i_ptr->sval == SV_LITE_CANDLE_TALLOW) i_ptr->pval = FUEL_CANDLE;
 		}
 
 
@@ -1234,6 +1367,9 @@ static void store_create(void)
 
 		/* Mass produce and/or Apply discount */
 		mass_produce(i_ptr);
+		
+		/* HACK -- The item came from a store */
+		i_ptr->ident |= (IDENT_STORE);
 
 		/* Attempt to carry the (known) object */
 		(void)store_carry(i_ptr);
@@ -1323,11 +1459,11 @@ static void display_entry(int item)
 	o_ptr = &st_ptr->stock[item];
 
 	/* Get the row */
-	y = (item % 12) + 6;
+	y = (item % 12);
 
 	/* Label it, clear the line --(-- */
-	sprintf(out_val, "%c) ", store_to_label(item));
-	prt(out_val, y, 0);
+	sprintf(out_val, "%c) ", store_to_label(y));
+	prt(out_val, y + 6, 0);
 
 	/* Describe an object in the home */
 	if (store_num == STORE_HOME)
@@ -1352,7 +1488,7 @@ static void display_entry(int item)
 		}
 
 		/* Display the object */
-		c_put_str(attr, o_name, y, 3);
+		c_put_str(attr, o_name, y + 6, 3);
 
 		/* Show weights */
 		if (show_weights)
@@ -1360,7 +1496,7 @@ static void display_entry(int item)
 			/* Only show the weight of a single object */
 			int wgt = o_ptr->weight;
 			sprintf(out_val, "%3d.%d lb", wgt / 10, wgt % 10);
-			put_str(out_val, y, 68);
+			put_str(out_val, y + 6, 68);
 		}
 	}
 
@@ -1388,7 +1524,7 @@ static void display_entry(int item)
 		}
 
 		/* Display the object */
-		c_put_str(attr, o_name, y, 3);
+		c_put_str(attr, o_name, y + 6, 3);
 
 		/* Show weights */
 		if (show_weights)
@@ -1396,7 +1532,7 @@ static void display_entry(int item)
 			/* Only show the weight of a single object */
 			int wgt = o_ptr->weight;
 			sprintf(out_val, "%3d.%d", wgt / 10, wgt % 10);
-			put_str(out_val, y, 61);
+			put_str(out_val, y + 6, 61);
 		}
 
 		/* Display a "fixed" cost */
@@ -1407,7 +1543,7 @@ static void display_entry(int item)
 
 			/* Actually draw the price (not fixed) */
 			sprintf(out_val, "%9ld F", (long)x);
-			put_str(out_val, y, 68);
+			put_str(out_val, y + 6, 68);
 		}
 
 		/* Display a "taxed" cost */
@@ -1417,11 +1553,11 @@ static void display_entry(int item)
 			x = price_item(o_ptr, ot_ptr->min_inflate, FALSE);
 
 			/* Hack -- Apply Sales Tax if needed */
-			if (!noneedtobargain(x)) x += x / 10;
+			/* if (!noneedtobargain(x)) x += x / 10; */
 
 			/* Actually draw the price (with tax) */
 			sprintf(out_val, "%9ld  ", (long)x);
-			put_str(out_val, y, 68);
+			put_str(out_val, y + 6, 68);
 		}
 
 		/* Display a "haggle" cost */
@@ -1432,7 +1568,7 @@ static void display_entry(int item)
 
 			/* Actually draw the price (not fixed) */
 			sprintf(out_val, "%9ld  ", (long)x);
-			put_str(out_val, y, 68);
+			put_str(out_val, y + 6, 68);
 		}
 	}
 }
@@ -1515,7 +1651,6 @@ static void display_store(void)
 			put_str("Weight", 5, 70);
 		}
 	}
-
 	/* Normal stores */
 	else
 	{
@@ -1529,19 +1664,19 @@ static void display_store(void)
 
 		/* Show the max price in the store (above prices) */
 		sprintf(buf, "%s (%ld)", store_name, (long)(ot_ptr->max_cost));
-		prt(buf, 3, 50);
+		if (store_num != STORE_WETWARE) prt(buf, 3, 50);
 
 		/* Label the object descriptions */
-		put_str("Item Description", 5, 3);
+		if (store_num != STORE_WETWARE) put_str("Item Description", 5, 3);
 
 		/* If showing weights, show label */
-		if (show_weights)
+		if (show_weights && (store_num != STORE_WETWARE))
 		{
 			put_str("Weight", 5, 60);
 		}
 
 		/* Label the asking price (in stores) */
-		put_str("Price", 5, 72);
+		if (store_num != STORE_WETWARE) put_str("Price", 5, 72);
 	}
 
 	/* Display the current gold */
@@ -1558,7 +1693,7 @@ static void display_store(void)
  *
  * Return TRUE if an object was selected
  */
-static bool get_stock(int *com_val, cptr pmt)
+static bool get_stock(int *com_val, cptr pmt, int i, int j)
 {
 	int item;
 
@@ -1592,7 +1727,7 @@ static bool get_stock(int *com_val, cptr pmt)
 
 	/* Build the prompt */
 	sprintf(buf, "(Items %c-%c, ESC to exit) %s",
-	        store_to_label(0), store_to_label(st_ptr->stock_num - 1),
+	        store_to_label(i), store_to_label(j),
 	        pmt);
 
 	/* Ask until done */
@@ -1943,7 +2078,7 @@ static bool purchase_haggle(object_type *o_ptr, s32b *price)
 			ignore = TRUE;
 
 			/* Apply sales tax */
-			final_ask += (final_ask / 10);
+			/* final_ask += (final_ask / 10); */
 		}
 
 		/* Jump to final price */
@@ -2122,7 +2257,7 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 	purse = (s32b)(ot_ptr->max_cost);
 
 	/* No need to haggle */
-	if (noneed || auto_haggle || (final_ask >= purse))
+	if (noneed || auto_haggle || (final_ask >= purse) || (store_num == STORE_LIBRARY))
 	{
 		/* Apply Sales Tax (if needed) */
 		if (auto_haggle && !noneed)
@@ -2130,8 +2265,17 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 			final_ask -= final_ask / 10;
 		}
 
+		if (store_num == STORE_LIBRARY)
+		{
+			msg_print("You return the book for safekeeping.");
+			message_flush();
+
+			/* Ignore haggling */
+			ignore = TRUE;
+		}
+		
 		/* No reason to haggle */
-		if (final_ask >= purse)
+		else if (final_ask >= purse)
 		{
 			/* Message */
 			msg_print("You instantly agree upon the price.");
@@ -2295,16 +2439,646 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 	return (FALSE);
 }
 
+/* 
+ * Gain a skill point
+ */
+static void store_train(void)
+{
+
+	do_cmd_gain_level(TRUE);
+
+#if 0
+	if (p_ptr->au < (p_ptr->lev * 750)) msg_print("You lack the gold!");
+	else 
+	{
+		/* spend the gold */
+		p_ptr->au -= (p_ptr->lev * 750);
+
+		/* Update the display */
+		store_prt_gold();
+
+		/* gain a skill point */
+		p_ptr->free_skpts += 1;
+
+		/* feedback */
+		msg_print("You gain a skill point!");
+	}
+#endif
+}
+
+static void steamware_research(void)
+{
+	int i, j, x, y;
+	int level, selection;
+	int research, time_remaining;
+	
+	part_data *s_ptr;
+	
+	char buf[160];
+	char which;
+
+	x = 1;
+	y = 5;
+	j = 0;
+	
+	/* Paranoia */
+	level = research = time_remaining = 0;
+	
+	if (p_ptr->prace == RACE_GHOST)
+	{
+		msg_print("Ack! I'm haunted!");
+		return;
+	}
+	if ((p_ptr->prace == RACE_AUTOMATA) ||
+		(p_ptr->prace == RACE_STEAM_MECHA))
+	{
+		msg_print("Silly robot! Steamware is for fleshbags!");
+		return;
+	}
+	if (p_ptr->prace == RACE_OLD_ONE)
+	{
+		msg_print("No way am I working for you! MY BRAIN IS MELTING!!!!");
+		return;
+	}
+	if (p_ptr->prace == RACE_DJINN)
+	{
+		msg_print("I can't make anything to go in your body!");
+		return;
+	}
+	
+	put_str("Name", 5, 5);
+	put_str("Cost Research Time (remaining)", 5, 34);
+	
+	for (i = 0; i < MAX_STEAMWARE_PARTS; i++)
+	{
+		j++;
+		
+		/* ugh. this is ugly. Must be a better way */
+		if (i == SW_EYES) 
+		{
+			level = p_ptr->eyes_level;
+			time_remaining = p_ptr->eyes_research;
+		}
+		else if (i == SW_WIRED_REFLEX) 
+		{
+			level = p_ptr->reflex_level;
+			time_remaining = p_ptr->reflex_research;
+		}
+		else if (i == SW_DERMAL_PLATE)
+		{
+			level = p_ptr->plate_level;
+			time_remaining = p_ptr->plate_research;
+		}
+		else if (i == SW_FURNACE_CORE)
+		{
+			level = p_ptr->core_level;
+			time_remaining = p_ptr->core_research;
+		}
+		else if (i == SW_SPURS)
+		{
+			level = p_ptr->spur_level;
+			time_remaining = p_ptr->spur_research;
+		}
+
+		s_ptr = &wares[i].data[level];
+
+		prt("", y + j + 1, x);
+		put_str(format("  %c) ", I2A(i)), y + j + 1, x);
+		put_str(format("%-27s", s_ptr->name), y + j + 1, x + 5);
+		put_str(format("%6d %7d~", s_ptr->cost, (s_ptr->research_time + 1000)), y + j + 1, x + 32);
+		put_str(format("(%7d)", time_remaining), y + j + 1, x + 50);
+
+	}
+		
+	/* build a prompt */
+	sprintf(buf, "(Select desired research %c-%c, ESC to exit)",
+	        store_to_label(0), store_to_label(MAX_STEAMWARE_PARTS - 1));
+	
+	while (TRUE)
+	{
+		bool verify;
+
+		/* Escape */
+		if (!get_com(buf, &which)) 
+		{
+			/* Clear screen */
+			Term_clear();
+			do_cmd_store();
+			return;
+		}
+		/* Note verify */
+		verify = (isupper(which) ? TRUE : FALSE);
+
+		/* Lowercase */
+		which = tolower(which);
+
+		/* Convert response to item */
+		selection = (islower(which) ? A2I(which) : -1);
 
 
+		/* Oops */
+		if ((selection < 0) || (selection > (MAX_STEAMWARE_PARTS-1)))
+		{
+			/* Oops */
+			msg_print("Illegal store object choice!");
 
+			continue;
+		}
+
+		if (selection == SW_EYES) 
+		{
+			level = p_ptr->eyes_level;
+			research = p_ptr->eyes_research;
+		}
+		else if (selection == SW_WIRED_REFLEX) 
+		{
+			level = p_ptr->reflex_level;
+			research = p_ptr->reflex_research;
+		}
+		else if (selection == SW_DERMAL_PLATE) 
+		{
+			level = p_ptr->plate_level;
+			research = p_ptr->plate_research;
+		}
+		else if (selection == SW_FURNACE_CORE) 
+		{
+			level = p_ptr->core_level;
+			research = p_ptr->core_research;
+		}
+		else if (selection == SW_SPURS) 
+		{
+			level = p_ptr->spur_level;
+			research = p_ptr->spur_research;
+		}
+		
+		if (research)
+		{
+			/* Oops */
+			msg_print("I am still researching the current level!");
+			clear_from(4);
+			return;
+		}
+
+		s_ptr = &wares[selection].data[level];
+		break;
+	}
+	if (level == 4)
+	{
+			/* Oops */
+			msg_print("I have completed all the research I can do on that!");
+			clear_from(4);
+			return;
+		
+	}
+	if (p_ptr->au >= s_ptr->cost)
+	{
+		if (selection == SW_EYES) p_ptr->eyes_research = s_ptr->research_time + rand_int(2000);
+		if (selection == SW_WIRED_REFLEX) p_ptr->reflex_research = s_ptr->research_time + rand_int(2000);
+		if (selection == SW_DERMAL_PLATE) p_ptr->plate_research = s_ptr->research_time + rand_int(2000);
+		if (selection == SW_FURNACE_CORE) p_ptr->core_research = s_ptr->research_time + rand_int(2000);
+		if (selection == SW_SPURS) p_ptr->spur_research = s_ptr->research_time + rand_int(2000);
+		
+		p_ptr->au -= s_ptr->cost;
+
+		/* Update the display */
+		store_prt_gold();
+
+		msg_format("You paid %ld gold. for research on (%c) %s.",
+				           (long)s_ptr->cost, store_to_label(selection),
+				           s_ptr->name);
+		clear_from(4);
+
+	}
+	else
+	{
+		/* Oops */
+		msg_print("You lack the gold!");
+		clear_from(4);
+	}
+}
+
+static void steamware_install(void)
+{
+
+	int i, j, x, y;
+	int level, selection;
+
+	part_data *s_ptr;
+
+	char buf[160];
+	char which;
+	
+	if (p_ptr->prace == RACE_GHOST)
+	{
+		msg_print("I can't put steam-ware in a body that isn't there!");
+		return;
+	}
+	if ((p_ptr->prace == RACE_AUTOMATA) ||
+		(p_ptr->prace == RACE_STEAM_MECHA))
+	{
+		msg_print("Why don't you just go down to the Machinist Shop!");
+		return;
+	}
+	if (p_ptr->prace == RACE_OLD_ONE)
+	{
+		msg_print("I guess I could put this here-OHFORTHELOVEOFGODMYEYES-");
+		return;
+	}
+	if (p_ptr->prace == RACE_DJINN)
+	{
+		msg_print("Maybe you should find a lamp!");
+		return;
+	}
+
+	x = 1;
+	y = 5;
+	j = 0;
+
+	put_str("I can only install the most advanced part avaiable!", 3, 3);
+
+	put_str("Name", 5, 5);
+	put_str("Install Price", 5, 34);
+
+	for (i = 0; i < MAX_STEAMWARE_PARTS; i++)
+	{
+		j++;
+		
+		/* ugh. this is ugly. Must be a better way */
+		if (i == SW_EYES) 
+		{
+			level = p_ptr->eyes_level - 1;
+		}
+		else if (i == SW_WIRED_REFLEX) 
+		{
+			level = p_ptr->reflex_level - 1;
+		}
+		else if (i == SW_DERMAL_PLATE)
+		{
+			level = p_ptr->plate_level - 1;
+		}
+		else if (i == SW_FURNACE_CORE)
+		{
+			level = p_ptr->core_level - 1;
+		}
+		else if (i == SW_SPURS)
+		{
+			level = p_ptr->spur_level - 1;
+		}
+		
+		if (level < 0)
+		{
+			prt("I have researched nothing to install!", y + j + 1, x);
+		}
+		else 
+		{
+			s_ptr = &wares[i].data[level];
+
+			prt("", y + j + 1, x);
+			put_str(format("  %c) ", I2A(i)), y + j + 1, x);
+			put_str(format("%-27s", s_ptr->name), y + j + 1, x + 5);
+			put_str(format("%6d", s_ptr->install_price), y + j + 1, x + 32);
+		}
+	}
+	/* build a prompt */
+	sprintf(buf, "(Select desired installation %c-%c, ESC to exit)",
+	        store_to_label(0), store_to_label(MAX_STEAMWARE_PARTS - 1));
+
+	while (TRUE)
+	{
+		bool verify;
+
+		/* Escape */
+		if (!get_com(buf, &which)) 
+		{
+			/* Clear screen */
+			Term_clear();
+			do_cmd_store();
+			return;
+		}
+		/* Note verify */
+		verify = (isupper(which) ? TRUE : FALSE);
+
+		/* Lowercase */
+		which = tolower(which);
+
+		/* Convert response to item */
+		selection = (islower(which) ? A2I(which) : -1);
+
+		/* Oops */
+		if ((selection < 0) || (selection > (MAX_STEAMWARE_PARTS-1)))
+		{
+			/* Oops */
+			msg_print("Illegal store object choice!");
+
+			continue;
+		}
+		if (selection == SW_EYES) 
+		{
+			level = p_ptr->eyes_level;
+		}
+		else if (selection == SW_WIRED_REFLEX) 
+		{
+			level = p_ptr->reflex_level;
+		}
+		else if (selection == SW_DERMAL_PLATE) 
+		{
+			level = p_ptr->plate_level;
+		}
+		else if (selection == SW_FURNACE_CORE) 
+		{
+			level = p_ptr->core_level;
+		}
+		else if (selection == SW_SPURS) 
+		{
+			level = p_ptr->spur_level;
+		}
+
+		if (!level)
+		{
+			/* Oops */
+			msg_print("I have researched nothing to install!");
+			clear_from(4);
+			return;
+		}
+
+		s_ptr = &wares[selection].data[level - 1];
+		break;
+	}
+	if (p_ptr->au >= s_ptr->install_price)
+	{
+		if (selection == SW_EYES) 
+		{
+			if (level == 1) 
+			{
+			 	if (!(p_ptr->muta6 & MUT6_ALPHA_EYES))
+								gain_random_mutation(200);
+				else 
+				{
+					msg_print("You already have them!"); 
+					clear_from(4);
+					return;
+				}
+			}
+			if (level == 2) 
+			{
+			 	if (!(p_ptr->muta6 & MUT6_BETA_EYES))
+								gain_random_mutation(201);
+				else 
+				{
+					msg_print("You already have them!"); 
+					clear_from(4);
+					return;
+				}
+			}
+			if (level == 3) 
+			{
+			 	if (!(p_ptr->muta6 & MUT6_GAMMA_EYES))
+								gain_random_mutation(202);
+				else 
+				{
+					msg_print("You already have them!"); 
+					clear_from(4);
+					return;
+				}
+				
+			}
+			if (level == 4) 
+			{
+			 	if (!(p_ptr->muta6 & MUT6_DELTA_EYES))
+								gain_random_mutation(203);
+				else 
+				{
+					msg_print("You already have them!"); 
+					clear_from(4);
+					return;
+				}
+				
+			}
+		}
+		else if (selection == SW_WIRED_REFLEX) 
+		{
+			if (level == 1) 
+			{
+			 	if (!(p_ptr->muta6 & MUT6_ALPHA_REFLEX))
+								gain_random_mutation(204);
+				else 
+				{
+					msg_print("You already have them!"); 
+					clear_from(4);
+					return;
+				}
+			}
+			if (level == 2) 
+			{
+			 	if (!(p_ptr->muta6 & MUT6_BETA_REFLEX))
+								gain_random_mutation(205);
+				else 
+				{
+					msg_print("You already have them!"); 
+					clear_from(4);
+					return;
+				}
+			}
+			if (level == 3) 
+			{
+			 	if (!(p_ptr->muta6 & MUT6_GAMMA_REFLEX))
+								gain_random_mutation(206);
+				else 
+				{
+					msg_print("You already have them!"); 
+					clear_from(4);
+					return;
+				}
+				
+			}
+			if (level == 4) 
+			{
+			 	if (!(p_ptr->muta6 & MUT6_DELTA_REFLEX))
+								gain_random_mutation(207);
+				else 
+				{
+					msg_print("You already have them!"); 
+					clear_from(4);
+					return;
+				}
+				
+			}
+		}
+		else if (selection == SW_DERMAL_PLATE) 
+		{
+			if (level == 1) 
+			{
+			 	if (!(p_ptr->muta6 & MUT6_ALPHA_PLATING))
+								gain_random_mutation(208);
+				else 
+				{
+					msg_print("You already have it!"); 
+					clear_from(4);
+					return;
+				}
+			}
+			if (level == 2) 
+			{
+			 	if (!(p_ptr->muta6 & MUT6_BETA_PLATING))
+								gain_random_mutation(209);
+				else 
+				{
+					msg_print("You already have it!"); 
+					clear_from(4);
+					return;
+				}
+			}
+			if (level == 3) 
+			{
+			 	if (!(p_ptr->muta6 & MUT6_GAMMA_PLATING))
+								gain_random_mutation(210);
+				else 
+				{
+					msg_print("You already have it!"); 
+					clear_from(4);
+					return;
+				}
+				
+			}
+			if (level == 4) 
+			{
+			 	if (!(p_ptr->muta6 & MUT6_DELTA_PLATING))
+								gain_random_mutation(211);
+				else 
+				{
+					msg_print("You already have it!"); 
+					clear_from(4);
+					return;
+				}
+				
+			}
+		}
+		else if (selection == SW_FURNACE_CORE) 
+		{
+			if (level == 1) 
+			{
+			 	if (!(p_ptr->muta6 & MUT6_ALPHA_CORE))
+								gain_random_mutation(212);
+				else 
+				{
+					msg_print("You already have it!"); 
+					clear_from(4);
+					return;
+				}
+			}
+			if (level == 2) 
+			{
+			 	if (!(p_ptr->muta6 & MUT6_BETA_CORE))
+								gain_random_mutation(213);
+				else 
+				{
+					msg_print("You already have it!"); 
+					clear_from(4);
+					return;
+				}
+			}
+			if (level == 3) 
+			{
+			 	if (!(p_ptr->muta6 & MUT6_GAMMA_CORE))
+								gain_random_mutation(214);
+				else 
+				{
+					msg_print("You already have it!"); 
+					clear_from(4);
+					return;
+				}
+				
+			}
+			if (level == 4) 
+			{
+			 	if (!(p_ptr->muta6 & MUT6_DELTA_CORE))
+								gain_random_mutation(215);
+				else 
+				{
+					msg_print("You already have it!"); 
+					clear_from(4);
+					return;
+				}
+				
+			}
+		}
+		else if (selection == SW_SPURS) 
+		{
+			if (level == 1) 
+			{
+			 	if (!(p_ptr->muta4 & MUT4_ALPHA_SPURS))
+								gain_random_mutation(216);
+				else 
+				{
+					msg_print("You already have it!"); 
+					clear_from(4);
+					return;
+				}
+			}
+			if (level == 2) 
+			{
+			 	if (!(p_ptr->muta4 & MUT4_BETA_SPURS))
+								gain_random_mutation(217);
+				else 
+				{
+					msg_print("You already have it!"); 
+					clear_from(4);
+					return;
+				}
+			}
+			if (level == 3) 
+			{
+			 	if (!(p_ptr->muta4 & MUT4_GAMMA_SPURS))
+								gain_random_mutation(218);
+				else 
+				{
+					msg_print("You already have it!"); 
+					clear_from(4);
+					return;
+				}
+				
+			}
+			if (level == 4) 
+			{
+			 	if (!(p_ptr->muta4 & MUT4_DELTA_SPURS))
+								gain_random_mutation(219);
+				else 
+				{
+					msg_print("You already have it!"); 
+					clear_from(4);
+					return;
+				}
+				
+			}
+		}
+		
+		p_ptr->au -= s_ptr->install_price;
+
+		/* Update the display */
+		store_prt_gold();
+
+		msg_format("ARRRRGGGHHH!!! That hurt! You paid %ld gold.", (long)s_ptr->install_price);
+		msg_format("(%c) %s is now installed.", store_to_label(selection), s_ptr->name);
+
+		/* Ouch */
+		p_ptr->chp = 0;
+		take_hit(randint(randint(p_ptr->lev)), "surgery", TRUE);
+	}
+	else
+	{
+		/* Oops */
+		msg_print("You lack the gold!");
+		clear_from(4);
+	}
+
+}
 
 /*
  * Buy an object from a store
  */
 static void store_purchase(void)
 {
-	int n;
+	int n, i;
 	int amt, choice;
 	int item, item_new;
 
@@ -2334,6 +3108,11 @@ static void store_purchase(void)
 		return;
 	}
 
+	/* Find the number of objects on this and following pages */
+	i = (st_ptr->stock_num - store_top);
+
+	/* And then restrict it to the current page */
+	if (i > 12) i = 12;
 
 	/* Prompt */
 	if (store_num == STORE_HOME)
@@ -2346,7 +3125,10 @@ static void store_purchase(void)
 	}
 
 	/* Get the object number to be bought */
-	if (!get_stock(&item, out_val)) return;
+	if (!get_stock(&item, out_val, 0, i - 1)) return;
+
+	/* Get the actual index */
+	item = item + store_top;
 
 	/* Get the actual object */
 	o_ptr = &st_ptr->stock[item];
@@ -2362,6 +3144,15 @@ static void store_purchase(void)
 
 	/* Get desired object */
 	object_copy(i_ptr, o_ptr);
+
+	/*
+	 * Hack -- If a rod or wand, allocate a portion of the total maximum
+	 * timeouts or charges.
+	 */
+	if ((o_ptr->tval == TV_RAY) && (amt < o_ptr->number))
+	{
+		i_ptr->pval = o_ptr->pval * amt / o_ptr->number;
+	}
 
 	/* Modify quantity */
 	i_ptr->number = amt;
@@ -2618,9 +3409,11 @@ static void store_sell(void)
 		item_tester_hook = store_will_buy;
 	}
 
+	p_ptr->command_wrk = (USE_INVEN);
+	
 	/* Get an item */
 	s = "You have nothing that I want.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -2660,6 +3453,15 @@ static void store_sell(void)
 	/* Modify quantity */
 	i_ptr->number = amt;
 
+	/*
+	 * Hack -- If a rod or wand, allocate some of the total maximum
+	 * timeouts or charges to those being sold.
+	 */
+	if (o_ptr->tval == TV_RAY)
+	{
+		i_ptr->pval = o_ptr->pval * amt / o_ptr->number;
+	}
+
 	/* Get a full description */
 	object_desc(o_name, i_ptr, TRUE, 3);
 
@@ -2683,7 +3485,11 @@ static void store_sell(void)
 	if (store_num != STORE_HOME)
 	{
 		/* Describe the transaction */
-		msg_format("Selling %s (%c).", o_name, index_to_label(item));
+		if (store_num == STORE_LIBRARY)
+			msg_format("Returning %s (%c).", o_name, index_to_label(item));
+		else
+			msg_format("Selling %s (%c).", o_name, index_to_label(item));
+		
 		message_flush();
 
 		/* Haggle for it */
@@ -2702,7 +3508,25 @@ static void store_sell(void)
 			decrease_insults();
 
 			/* Get some money */
-			p_ptr->au += price;
+			if (store_num == STORE_LIBRARY) 
+			{
+				p_ptr->free_skpts += randint(price);
+				msg_print("You gain some insight!");
+				message_flush();
+				
+				if ((p_ptr->prace == RACE_AUTOMATA) || 
+				(p_ptr->prace == RACE_STEAM_MECHA))
+				{
+					/* nothing */
+				}
+				else if (rand_int(100) < price) 
+				{
+					p_ptr->free_sgain++;
+					msg_print("You can get stronger!");
+					message_flush();
+				}
+			}
+			else p_ptr->au += price;
 
 			/* Update the display */
 			store_prt_gold();
@@ -2719,6 +3543,10 @@ static void store_sell(void)
 			/* Identify original object */
 			object_aware(o_ptr);
 			object_known(o_ptr);
+			
+			/* HACK -- The item came from a store */
+			o_ptr->ident |= (IDENT_STORE);
+		
 
 			/* Combine / Reorder the pack (later) */
 			p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -2735,6 +3563,12 @@ static void store_sell(void)
 			/* Modify quantity */
 			i_ptr->number = amt;
 
+			/*
+			 * Hack -- Allocate charges between those wands or rods sold
+			 * and retained, unless all are being sold.
+			 */
+			distribute_charges(o_ptr, i_ptr, amt);
+
 			/* Get the "actual" value */
 			value = object_value(i_ptr) * i_ptr->number;
 
@@ -2742,9 +3576,12 @@ static void store_sell(void)
 			object_desc(o_name, i_ptr, TRUE, 3);
 
 			/* Describe the result (in message buffer) */
-			msg_format("You sold %s (%c) for %ld gold.",
+			if (store_num != STORE_LIBRARY) 
+			{
+				msg_format("You sold %s (%c) for %ld gold.",
 			           o_name, index_to_label(item), (long)price);
-
+			}
+						
 			/* Analyze the prices (and comment verbally) */
 			purchase_analyze(price, value, dummy);
 
@@ -2776,6 +3613,9 @@ static void store_sell(void)
 	/* Player is at home */
 	else
 	{
+		/* Distribute charges of wands/rods */
+		distribute_charges(o_ptr, i_ptr, amt);
+
 		/* Describe */
 		msg_format("You drop %s (%c).", o_name, index_to_label(item));
 
@@ -2810,9 +3650,8 @@ static void store_sell(void)
  */
 static void store_examine(void)
 {
-	int         item;
+	int         item, i;
 	object_type *o_ptr;
-	char        o_name[80];
 	char        out_val[160];
 
 
@@ -2830,6 +3669,11 @@ static void store_examine(void)
 		return;
 	}
 
+	/* Find the number of objects on this and following pages */
+	i = (st_ptr->stock_num - store_top);
+
+	/* And then restrict it to the current page */
+	if (i > 12) i = 12;
 
 	/* Prompt */
 	if (rogue_like_commands)
@@ -2838,27 +3682,21 @@ static void store_examine(void)
 		sprintf(out_val, "Which item do you want to look at? ");
 
 	/* Get the item number to be examined */
-	if (!get_stock(&item, out_val)) return;
+	if (!get_stock(&item, out_val, 0, i - 1)) return;
+
+	/* Get the actual index */
+	item = item + store_top;
 
 	/* Get the actual object */
 	o_ptr = &st_ptr->stock[item];
 
 	/* Description */
-	if (store_num == STORE_HOME)
-	{
-		object_desc(o_name, o_ptr, TRUE, 3);
-	}
-	else
-	{
-		object_desc_store(o_name, o_ptr, TRUE, 3);
-	}
+	/* Examine the item. */
+	do_cmd_observe(o_ptr, (store_num == STORE_HOME ? FALSE : TRUE));
 
 	/* Describe */
-	msg_format("Examining %s...", o_name);
-
-	/* Describe it fully */
-	if (!identify_fully_aux(o_ptr))
-		msg_print("You see nothing special.");
+	/* msg_format("Examining %s...", o_name); */
+	msg_print("Examining item");
 
 	return;
 }
@@ -2911,25 +3749,13 @@ static void store_process_command(void)
 				/* Nothing to see */
 				msg_print("Entire inventory is shown.");
 			}
-
-			else if (store_top == 0)
+			else 
 			{
-				/* Page 2 */
-				store_top = 12;
-
-				/* Redisplay wares */
+				store_top += 12;
+                if (store_top >= st_ptr->stock_num) store_top = 0;
+ 
 				display_inventory();
 			}
-
-			else
-			{
-				/* Page 1 */
-				store_top = 0;
-
-				/* Redisplay wares */
-				display_inventory();
-			}
-
 			break;
 		}
 
@@ -2952,25 +3778,42 @@ static void store_process_command(void)
 		/* Get (purchase) */
 		case 'g':
 		{
-			store_purchase();
+			if (store_num < STORE_LIBRARY) store_purchase();
+			if (store_num == STORE_LIBRARY)
+			{
+				Term_clear();
+				display_guild();
+			}
 			break;
 		}
 
 		/* Drop (Sell) */
 		case 'd':
 		{
-			store_sell();
+			if (store_num != STORE_WETWARE) store_sell();
 			break;
 		}
 
 		/* Examine */
 		case 'l':
 		{
-			store_examine();
+			if (store_num != STORE_WETWARE) store_examine();
 			break;
 		}
-
-
+		case 'a':
+		/* HACK!!! - Can't find roguelike keybindings for stores */
+		case 'z':
+		{
+			if (store_num == STORE_HOME) store_train();
+			if (store_num == STORE_LIBRARY) guild_purchase();
+			if (store_num == STORE_WETWARE) steamware_install();
+			break;
+		}
+		case 'r':
+		{
+			if (store_num == STORE_WETWARE) steamware_research();
+			break;
+		}
 		/*** Inventory Commands ***/
 
 		/* Wear/wield equipment */
@@ -3025,7 +3868,7 @@ static void store_process_command(void)
 		/* Identify an object */
 		case 'I':
 		{
-			do_cmd_observe();
+			do_cmd_observe(NULL, FALSE);
 			break;
 		}
 
@@ -3222,8 +4065,9 @@ void do_cmd_store(void)
 	int which;
 
 	int tmp_chr;
-
-
+	char skill_cost[60];
+	skill_cost[0] = '\0';
+				
 	/* Verify a store */
 	if (!((cave_feat[py][px] >= FEAT_SHOP_HEAD) &&
 	      (cave_feat[py][px] <= FEAT_SHOP_TAIL)))
@@ -3278,6 +4122,8 @@ void do_cmd_store(void)
 	/* Do not leave */
 	leave_store = FALSE;
 
+	strcat(skill_cost, format(" a) Skill Max Up (%6dau).", (p_ptr->lev * 750))); 
+
 	/* Interact with player */
 	while (!leave_store)
 	{
@@ -3291,26 +4137,37 @@ void do_cmd_store(void)
 		clear_from(21);
 
 		/* Basic commands */
-		prt(" ESC) Exit from Building.", 22, 0);
+		prt(" ESC) Exit from Building.", 21, 0);
 
 		/* Browse if necessary */
 		if (st_ptr->stock_num > 12)
 		{
-			prt(" SPACE) Next page of stock", 23, 0);
+			prt(" SPACE) Next page of stock", 22, 0);
 		}
 
 		/* Commands */
-		prt(" g) Get/Purchase an item.", 22, 31);
-		prt(" d) Drop/Sell an item.", 23, 31);
+		if (store_num < STORE_LIBRARY)
+			prt(" g) Get/Purchase an item.", 21, 31);
+		if (store_num == STORE_LIBRARY)
+			prt(" g) Get quest information.", 21, 31);		
+		if (store_num != STORE_WETWARE)
+			prt(" d) Drop/Sell an item.", 22, 31);
+		if (store_num == STORE_WETWARE)
+			prt(" r) Research Steamware.", 21, 31);
+		if (store_num == STORE_WETWARE)
+			prt(" a) Surgery Installation.", 22, 31);
 
+		if (store_num == STORE_HOME) prt(skill_cost, 23, 31);
+		
 		/* Add in the eXamine option */
-		if (rogue_like_commands)
-			prt(" x) eXamine an item.", 22, 56);
-		else
-			prt(" l) Look at an item.", 22, 56);
+		if (rogue_like_commands && (store_num != STORE_WETWARE))
+			prt(" x) eXamine an item.", 21, 56);
+		else if (store_num != STORE_WETWARE)
+			prt(" l) Look at an item.", 21, 56);
+			
 
 		/* Prompt */
-		prt("You may: ", 21, 0);
+		prt("You may: ", 20, 0);
 
 		/* Get a command */
 		request_command(TRUE);
@@ -3485,7 +4342,8 @@ void store_shuffle(int which)
 	st_ptr->good_buy = 0;
 	st_ptr->bad_buy = 0;
 
-
+	if (store_num == STORE_LIBRARY) return;
+	
 	/* Discount all the items */
 	for (i = 0; i < st_ptr->stock_num; i++)
 	{
@@ -3515,7 +4373,8 @@ void store_maint(int which)
 
 	/* Ignore home */
 	if (which == STORE_HOME) return;
-
+	if (which == STORE_LIBRARY) return;
+	if (which == STORE_WETWARE) return;
 
 	/* Save the store index */
 	store_num = which;
@@ -3630,3 +4489,4 @@ void store_init(int which)
 		object_wipe(&st_ptr->stock[k]);
 	}
 }
+

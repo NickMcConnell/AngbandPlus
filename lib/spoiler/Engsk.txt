@@ -1,0 +1,77 @@
+Engineer Skill Tree for Version 0.3.8c
+
+Skill				Opens			Threshold
+
+Neophyte Combat		Standard Combat		5
+Standard Combat		Vicious Strike		8
+					Accurate Strike		8
+					Toughness			10
+					Advanced Combat		15
+Vicious Strike		Weapons Finesse		10
+					Power Strike		10
+Accurate Strike		Critical Strike		10
+					Swift Blow			10
+Advanced Combat		Master Combat		15
+					Power Strike		0
+					Critical Strike		0
+
+Martial Arts		Acrobatics			5
+
+Neophyte Firearms	Standard Firearms	15
+Standard Firearms	Vicious Shot		8
+					Accurate Shot		8
+					Advanced Firearms	15
+Vicious Shot		Swift Shot		10
+Accurate Shot		Critical Shot		10
+Advanced Firearms	Swift Shot			0 
+					Critical Shot		0
+
+Throwing			Advanced Throwing	15
+Advanced Throwing	Master Throwing		15
+					Accurate Throwing	10
+Accurate Throwing 	Power Throwing		4
+					Critical Throwing	10
+Master Throwing 	Power Throwing		0
+
+Spirituality		Prayer				15
+					Lesser Warding		3
+
+Occult				Advanced Occult		15
+
+Ritual Magic		Thaumic Energy		3
+Thaumic Energy		Advanced Thaumic Energy	15
+
+Tempered Will		Hardened Will		15
+Hardened Will		Iron Will			15
+
+Device Good			Device Power Amp	5
+					Advanced Devices	5
+Device Power Amp	Advanced Power Amp	15
+Advanced Devices	Biological Power Amp	5
+					Efficient Devices	10
+					Fast Device Use		15
+Efficient Devices	Fast Device Use		10
+
+Latin				Anatomy				10
+					Eurdite				3
+
+Search				Keen Eyes			5
+					Spot Weakness		15
+Keen Eyes			Spot Weakness		10
+
+Stealth 			--------------		20
+
+Disarm Traps		Disable Construct	10
+					Sabatoge		10
+
+Gadgeteer			Pyrotechnics		5
+
+Utility Bandolier	--------------		20
+
+Clockwork Chassis	--------------		20
+
+Clockwork Carbine	--------------		20
+
+Velocipede			--------------		20
+
+Analytic Engine		--------------		20

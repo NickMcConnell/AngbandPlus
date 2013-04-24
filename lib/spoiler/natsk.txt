@@ -1,0 +1,82 @@
+Naturalist Skill Tree for Version 0.3.8c
+
+Skill				Opens			Threshold
+
+Neophyte Combat		Standard Combat		5
+Standard Combat		Vicious Strike		8
+					Accurate Strike		8
+					Toughness			10
+					Advanced Combat		15
+Vicious Strike		Weapons Finesse		10
+					Power Strike		10
+Accurate Strike		Swift Blow			10
+					Critical Strike		10
+Advanced Combat		Power Strike		0
+					Critical Strike		0
+
+Martial Arts		Eagle Strike Arts	15
+Eagle Strike Arts	Dragon Claw Arts	15
+					Iron Skin			8
+					Toughness			10
+Toughness			Athletics			5
+
+Neophyte Firearms	Standard Firearms	15
+Standard Firearms	Vicious Shot		8
+					Accurate Shot		8
+
+Throwing			Advanced Throwing	15
+Advanced Throwing	Master Throwing		15
+					Accurate Throwing	10
+Accurate Throwing 	Power Throwing		4
+					Critical Throwing	10
+Master Throwing 	Power Throwing		0
+
+Spirituality		Prayer				15
+					Lesser Warding		3
+Prayer				Devotion			15
+Devotion			Fast Cast			5
+Lesser Warding		Greater Warding		15
+Greater Warding		Fast Cast			10
+
+
+Occult				Advanced Occult		15
+
+Ritual Magic		Thaumic Energy		3
+Thaumic Energy		Advanced Thaumic Energy	15
+
+Tempered Will		Hardened Will		15
+Hardened Will		Iron Will			15
+
+Device Good			Device Power Amp	15
+					Advanced Devices	15
+Device Power Amp	Advanced Power Amp	15
+Advanced Devices	Biological Power Amp	5
+					Efficient Devices	10
+					Fast Device Use		15
+Efficient Devices	Fast Device Use		10
+
+Latin				-------------		20
+
+Search				Keen Eyes			5
+
+Stealth 			-------------		20
+
+Disarm Traps		-------------		20
+
+Blunt				-------------		20 \
+							can only pick one
+Hafted				-------------		20 /
+
+Flaura			Earth's Hearth			5
+Fauna			Earth's Hearth			5
+Elemental		Earth's Hearth			5
+
+Fire Lore		Fire Mastery			20\
+				Elemental Resistance	15 \
+Earth Lore		Earth Mastery			20  \
+				Elemental Resistance	15  Can only pick one 
+Air Lore		Air Mastery				20  element to specialise in
+				Elemental Resistance	15  /
+Water Lore		Water Mastery			20 /
+				Elemental Resistance	15/
+			 

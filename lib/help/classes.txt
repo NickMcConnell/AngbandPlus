@@ -1,0 +1,197 @@
+***** <Officer>
+ Officer
+	There are many opportunities for valour - one of the 
+	quickest in the fast-paced mobile world of the 19th Century 
+	was to enlist in the armed forces of your homeland. In addition 
+	to a broad background in various fighting techniques and 
+	hours of practice on the firing range, Officers learn the 
+	ability of command and leadership. These skills allow them 
+	to strike fear into the hearts of their enemies, drive their 
+	ranks into confusion, and even dominate them into following 
+	orders. Officers have very good physical attributes and 
+	uniform makes them look good as well. Senior officers are 
+	known to be fearless.
+	
+	Officers gain some special skills from the Neophyte combat
+	path. 
+	
+	Quote: "Those nasty savages won't pass me, my dear Lady. 
+			Put your mind at rest."
+
+	resist fear @ 30th level
+	Mus:10 Agi:8 Vig:8 Sch:2 Ego:2 Chr:8
+	30% experience modifier
+	Hit die:8
+
+***** <Aesthete>
+ Aesthete
+	Aesthetes are upper class connoisseurs of art who have 
+	great eye for beauty and for, well, aesthetics. They are 
+	masters in getting their money's worth since they know the 
+	value of things. They are not physically very strong, but 
+	they have had a profound education in science. Their eye 
+	for beauty also applies to their clothing making them very 
+	nice to look at.
+	
+	Aesthete's who speak Latin well can gain access to a skill
+	that allows them to increase sale prices, and reduce buy prices,
+	and stealthy Aesthete's can even bribe monsters in the dungeon!
+	
+	Quote: "Beautiful, my darling! Absolutely beautiful! I hope you 
+			didn't pay too much for it."
+	
+	Mus:2 Agi:6 Vig:4 Sch:8 Ego:6 Chr:10
+	0% experience modifier
+	Hit die:3
+
+***** <Engineer>
+ Engineer
+	Engineers are the hardy workers and experts in applied science. 
+	They are at home with different devices and can activate them 
+	for different effects. Their strength lies in these devices and 
+	their use.
+	They have gone through long schooling making them experts with 
+	science and they have quite good willpower as well. Engineers 
+	in general are not viewed as very attractive.
+
+	Engineers specializing in Latin, searching, or disabling devices
+	can often discover skills that increase their ability to cause
+	critical damage to certain types of monsters.
+
+	Quote: "Give me the monkey-wrench there. No, you idiot! 
+			That's a set wrench!"
+	
+	
+	Mus:6 Agi:6 Vig:6 Sch:12 Ego:8 Chr:2
+	40% experience modifier
+	Hit die:4
+
+***** <Medium>
+ Medium
+	Mediums act as middlemen between spiritual and our world. 
+	Some of the so-called mediums are just swindlers who are after 
+	your money, but there are some real ones, who can really connect 
+	with the other world. They are very good in utilizing their 
+	mental powers and exploiting the spiritual world.
+	Mediums are not good in physical attributes, but they are very 
+	strong in mental area.
+
+	Mediums specializing in spirituality gain access to a variety 
+	of special abilities, and mediums with strong willpower can 
+	become very powerful. 
+
+	Quote: "I'm getting something here! I'm getting something here!"
+	
+	Mediums
+	Mus:4 Agi:4 Vig:4 Sch:8 Ego:10 Chr:8
+	35% experience modifier
+	Hit die:2
+
+***** <Adventurer>
+ Adventurer
+	Adventurers are in it for the thrill. They are not necessarily 
+	after money, but it of course helps. Adventurers are the 
+	all-around fighter type. Their physical attributes are better 
+	than mental ones and they are certainly not the type which 
+	stays indoors at school studying. Their fighting 
+	skills are better than any other class.
+	
+	Adventurers specializing in search can learn to blaze trails
+	in the dungeon, and even learn a variety of special abilities.
+	Tough and stealthy adventurers can learn to resist many types of
+	elements. Adventurers can also specialize in certain weapon types
+	to a great degree, but choosing one eliminates your ability to 
+	specialize in any of the others.
+
+	Quote: "Of course I'm in!"
+	
+	Mus:11 Agi:11 Vig:12 Sch:2 Ego:6 Chr:6
+	15% experience modifier
+	Hit die:13
+               
+***** <Dashing Hussar>
+ Dashing Hussar
+	Hussars are the noble warriors of Poland. Many poor noble 
+	men made astonishing careers as these flamboyant warriors. 
+	They saved the city of Vienna, and thus the whole Austria - 
+	from the Turkish siege in 1683. Their fighting tradition 
+	goes back to the Middle Ages so they have had plenty of 
+	time to master hand-to-hand combat. They continue to be a 
+	fearsome opponent even at the time of firearms.
+	They are unparalleled fighters, they have excellent 
+	physical attributes and their noble upbringing gives them 
+	good education.
+
+	Dashing Hussars start with the skill 'Dragon's Heart' which
+	increases the amount they gain from increasing their stats.
+	Raising this early makes it more effective.
+
+	Quote: "Hah! Those are not a match even for pesky Turkish 
+			bashi-bazouks! Charge!"
+			
+	
+	Mus:12 Agi:10 Vig:12 Sch:8 Ego:8 Chr:8
+	50% experience modifier
+	Hit die:10
+               
+***** <Gentleman/Lady>
+ Gentleman/Lady
+	Gentlemen are a product of their time. They are good at 
+	nothing, even in keeping their money, since they have a 
+	tendency to lead an extravagant life they cannot afford. 
+	They have neglected their physical exercises and are not 
+	particularly well educated in science either. They are 
+	the real challenge to play.
+
+	Quote: "Now listen to me, my dear fellow. I'm most 
+			certainly not going to degrade myself to doing that 
+			bloody thing!"
+
+	Mus:2 Agi:4 Vig:4 Sch:10 Ego:10 Chr:10
+	0% experience modifier
+	Hit die:4
+               
+***** <Rogue>
+ Rogue
+	Rogues are professional thieves and cutpurses. They range 
+	from a filthy street urchin to a sophisticated gentleman 
+	burglar like Arsene Lupin. They all have common that they 
+	are very agile and stealthy and they can use some 
+	devices to aid them in their unsavoury endeavours.
+
+	Stealthy Rogues gain a variety of special abilities, but if
+	a rogue specializes in martial arts also eventually powerful
+	ancient combat techniques become available. Rogues good at 
+	disabling devices, or Latin can also learn to strike devastating
+	critical blows.
+
+	Quote: "Dear sir, if you are going to stay this dagger away 
+			from your precious intestines, you give me your money. 
+			And that pocket watch."
+	
+	Mus:4 Agi:16 Vig:6 Sch:8 Ego:6 Chr:8
+	25% experience modifier
+	Hit die:4
+
+***** <Naturalist>
+ Naturalist
+	The modern view of man as a master over nature has some 
+	opponents. These naturalists claim that humans are dependant 
+	on nature and they want to preserve the nature from being 
+	destroyed and polluted by modern machinery and advances. 
+	They are very tuned-in with nature. Due to their 
+	well-planned diet they are healthy, though not otherwise 
+	physically fit. Their best strengths lie in their knowledge 
+	of mystical aspects of nature.
+	
+	Naturalists can align themselves with various elements giving
+	them a variety of special abilities. Aligning yourself with one
+	of the elements eliminates your ability to access any of the 
+	other lore skills.
+	
+	Quote: "Mmmm, this tree is very nice to hug"
+
+	Mus:4 Agi:4 Vig:8 Sch:8 Ego:12 Chr:6
+	30% experience modifier
+	Hit die:3
+               

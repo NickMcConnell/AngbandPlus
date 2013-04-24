@@ -262,31 +262,6 @@ static errr wr_savefile(void)
 	data_next = data_head;
 
 
-#if 0
-	/* Operating system */
-	wr_u32b(sf_xtra);
-
-	/* Time file last saved */
-	wr_u32b(sf_when);
-
-	/* Number of past lives */
-	wr_u16b(sf_lives);
-
-	/* Number of times saved */
-	wr_u16b(sf_saves);
-
-	/* XXX XXX XXX */
-
-	/* Set the type */
-	data_type = TYPE_BASIC;
-
-	/* Set the "options" size */
-	data_size = (data_next - data_head);
-
-	/* Write the block */
-	wr_block();
-#endif
-
 
 	/* Dump the "options" */
 	put_options();
@@ -302,125 +277,6 @@ static errr wr_savefile(void)
 
 	/* XXX XXX XXX */
 
-#if 0
-
-	/* Dump the "messages" */
-
-	/* Dump the number of "messages" */
-	tmp16u = message_num();
-	if (compress_savefile && (tmp16u > 40)) tmp16u = 40;
-	wr_u16b(tmp16u);
-
-	/* Dump the messages and types (oldest first!) */
-	for (i = tmp16u - 1; i >= 0; i--)
-	{
-		wr_string(message_str(i));
-		wr_u16b(message_type(i));
-	}
-
-	/* Dump the monster lore */
-	tmp16u = z_info->r_max;
-	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++) wr_lore(i);
-
-
-	/* Dump the object memory */
-	tmp16u = z_info->k_max;
-	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++) wr_xtra(i);
-
-
-	/* Hack -- Dump the quests */
-	tmp16u = MAX_Q_IDX;
-	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++)
-	{
-		wr_byte(q_list[i].level);
-		wr_byte(0);
-		wr_byte(0);
-		wr_byte(0);
-	}
-
-	/* Hack -- Dump the artifacts */
-	tmp16u = z_info->a_max;
-	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++)
-	{
-		artifact_type *a_ptr = &a_info[i];
-		wr_byte(a_ptr->cur_num);
-		wr_byte(0);
-		wr_byte(0);
-		wr_byte(0);
-	}
-
-
-
-	/* Write the "extra" information */
-	wr_extra();
-
-
-	/* Dump the "player hp" entries */
-	tmp16u = PY_MAX_LEVEL;
-	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++)
-	{
-		wr_s16b(player_hp[i]);
-	}
-
-
-	/* Write spell data */
-	wr_u32b(spell_learned1);
-	wr_u32b(spell_learned2);
-	wr_u32b(spell_worked1);
-	wr_u32b(spell_worked2);
-	wr_u32b(spell_forgotten1);
-	wr_u32b(spell_forgotten2);
-
-	/* Dump the ordered spells */
-	for (i = 0; i < PY_MAX_SPELLS; i++)
-	{
-		wr_byte(spell_order[i]);
-	}
-
-
-	/* Write the inventory */
-	for (i = 0; i < INVEN_TOTAL; i++)
-	{
-		object_type *o_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Dump index */
-		wr_u16b(i);
-
-		/* Dump object */
-		wr_item(o_ptr);
-	}
-
-	/* Add a sentinel */
-	wr_u16b(0xFFFF);
-
-
-	/* Note the stores */
-	tmp16u = MAX_STORES;
-	wr_u16b(tmp16u);
-
-	/* Dump the stores */
-	for (i = 0; i < tmp16u; i++) wr_store(&store[i]);
-
-
-	/* Player is not dead, write the dungeon */
-	if (!p_ptr->is_dead)
-	{
-		/* Dump the dungeon */
-		wr_dungeon();
-
-		/* Dump the ghost */
-		wr_ghost();
-	}
-
-#endif
 
 	/* Dump the "final" marker XXX XXX XXX */
 	/* Type zero, Size zero, Contents zero, etc */
@@ -695,15 +551,21 @@ static void wr_item(const object_type *o_ptr)
 
 	wr_byte(o_ptr->tval);
 	wr_byte(o_ptr->sval);
+
 	wr_s16b(o_ptr->pval);
+	wr_u32b(o_ptr->flags_pval1);
+	wr_s16b(o_ptr->pval2);
+	wr_u32b(o_ptr->flags_pval2);
+	wr_s16b(o_ptr->pval3);
+	wr_u32b(o_ptr->flags_pval3);
 
 	wr_byte(o_ptr->discount);
 
 	wr_byte(o_ptr->number);
 	wr_s16b(o_ptr->weight);
 
-	wr_byte(o_ptr->name1);
-	wr_byte(o_ptr->name2);
+	wr_s16b(o_ptr->name1);
+	wr_s16b(o_ptr->name2);
 
 	wr_s16b(o_ptr->timeout);
 	wr_s16b(o_ptr->force);
@@ -715,14 +577,9 @@ static void wr_item(const object_type *o_ptr)
 	wr_byte(o_ptr->dd);
 	wr_byte(o_ptr->ds);
 
-	wr_byte(o_ptr->ident);
+	wr_s16b(o_ptr->ident);
 
 	wr_byte(o_ptr->marked);
-
-	/* Old flags */
-	wr_u32b(0L);
-	wr_u32b(0L);
-	wr_u32b(0L);
 
 	/* Held by monster index */
 	wr_s16b(o_ptr->held_m_idx);
@@ -744,22 +601,38 @@ static void wr_item(const object_type *o_ptr)
 
 
 /*
+ * Special monster flags that get saved in the savefile
+ */
+#define SAVE_MON_FLAGS (MFLAG_MIME | MFLAG_ACTV | MFLAG_TOWN)
+
+/*
  * Write a "monster" record
  */
 static void wr_monster(const monster_type *m_ptr)
 {
+	u16b tmp16u;
+
 	wr_s16b(m_ptr->r_idx);
 	wr_byte(m_ptr->fy);
 	wr_byte(m_ptr->fx);
 	wr_s16b(m_ptr->hp);
 	wr_s16b(m_ptr->maxhp);
 	wr_s16b(m_ptr->csleep);
+	wr_byte(m_ptr->stasis);
 	wr_byte(m_ptr->mspeed);
 	wr_byte(m_ptr->energy);
 	wr_byte(m_ptr->stunned);
 	wr_byte(m_ptr->confused);
 	wr_byte(m_ptr->monfear);
+
+	tmp16u = m_ptr->mflag & (SAVE_MON_FLAGS);
+	wr_u16b(tmp16u);
+
 	wr_u32b(m_ptr->smart);
+	wr_byte(m_ptr->ty);
+	wr_byte(m_ptr->tx);
+	wr_byte(m_ptr->mana);
+
 	wr_byte(0);
 }
 
@@ -791,8 +664,7 @@ static void wr_lore(int r_idx)
 	wr_byte(l_ptr->r_drop_item);
 
 	/* Count spells */
-	wr_byte(l_ptr->r_cast_inate);
-	wr_byte(l_ptr->r_cast_spell);
+	wr_byte(l_ptr->r_ranged);
 
 	/* Count blows of each type */
 	wr_byte(l_ptr->r_blows[0]);
@@ -808,6 +680,7 @@ static void wr_lore(int r_idx)
 	wr_u32b(l_ptr->r_flags5);
 	wr_u32b(l_ptr->r_flags6);
 	wr_u32b(l_ptr->r_flags7);
+	wr_u32b(l_ptr->r_flags8);
 
 
 	/* Monster limit per level */
@@ -853,7 +726,7 @@ static void wr_store(const store_type *st_ptr)
 	wr_byte(st_ptr->owner);
 
 	/* Save the stock size */
-	wr_byte(st_ptr->stock_num);
+	wr_s16b(st_ptr->stock_num);
 
 	/* Save the "haggle" info */
 	wr_s16b(st_ptr->good_buy);
@@ -1034,6 +907,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->age);
 	wr_s16b(p_ptr->ht);
 	wr_s16b(p_ptr->wt);
+	wr_u16b(p_ptr->fame);
 
 	/* Dump the stats  (maximum and current) */
 	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_max[i]);
@@ -1042,9 +916,29 @@ static void wr_extra(void)
 	/* Write skills */
 	for (i = 0; i < N_SKILLS; ++i) wr_s16b(p_ptr->skills[i].skill_rank);
 	for (i = 0; i < N_SKILLS; ++i) wr_s16b(p_ptr->skills[i].skill_max);
+	for (i = 0; i < N_SKILLS; ++i) wr_s16b(p_ptr->skills[i].skill_raise);
+	for (i = 0; i < N_SKILLS; ++i) wr_s16b(p_ptr->skills[i].skill_type);
+
+	/* Dump the resistances */
+	for (i = 0; i < RS_MAX; ++i) wr_s16b(p_ptr->tim_res[i]);
+	for (i = 0; i < RS_MAX; ++i) wr_s16b(p_ptr->res[i]);
+	for (i = 0; i < RS_MAX; ++i) wr_s16b(p_ptr->dis_res[i]);
 
 	/* Ignore the transient stats */
 	for (i = 0; i < 12; ++i) wr_s16b(0);
+
+	/* Write steamware data */
+	
+	wr_s32b(p_ptr->eyes_research);
+	wr_byte(p_ptr->eyes_level);
+	wr_s32b(p_ptr->reflex_research);
+	wr_byte(p_ptr->reflex_level);
+	wr_s32b(p_ptr->plate_research);
+	wr_byte(p_ptr->plate_level);
+	wr_s32b(p_ptr->core_research);
+	wr_byte(p_ptr->core_level);
+	wr_s32b(p_ptr->spur_research);
+	wr_byte(p_ptr->spur_level);	
 
 	wr_s32b(p_ptr->au);
 	/* Starting Gold */
@@ -1061,6 +955,10 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->mhp);
 	wr_s16b(p_ptr->chp);
 	wr_u16b(p_ptr->chp_frac);
+
+	wr_s16b(p_ptr->mwp);
+	wr_s16b(p_ptr->cwp);
+	wr_u16b(p_ptr->cwp_frac);
 
 	wr_s16b(p_ptr->msp);
 	wr_s16b(p_ptr->csp);
@@ -1100,23 +998,31 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->shield);
 	wr_s16b(p_ptr->blessed);
 	wr_s16b(p_ptr->tim_invis);
+	wr_s16b(p_ptr->tim_light);
+	wr_s16b(p_ptr->tim_demonspell);
+	wr_s16b(p_ptr->tim_demonhealth);
+	wr_s16b(p_ptr->tim_wormsense);
+	wr_s16b(p_ptr->tim_voorish);
+	wr_s16b(p_ptr->tim_stygian);
+	wr_s16b(p_ptr->tim_muscle);
+	wr_s16b(p_ptr->tim_vigor);
+	wr_s16b(p_ptr->tim_no_tele);
+	wr_s16b(p_ptr->tim_free_act);
+	wr_s16b(p_ptr->tim_anti_magic);
 	wr_s16b(p_ptr->word_recall);
 	wr_s16b(p_ptr->see_infra);
 	wr_s16b(p_ptr->tim_infra);
 	wr_s16b(p_ptr->tim_harding);
-	wr_s16b(p_ptr->oppose_fire);
-	wr_s16b(p_ptr->oppose_cold);
-	wr_s16b(p_ptr->oppose_acid);
-	wr_s16b(p_ptr->oppose_elec);
-	wr_s16b(p_ptr->oppose_pois);
+	wr_s16b(p_ptr->tim_invisiblity);
+	wr_s16b(p_ptr->tim_evade);
 	wr_s16b(p_ptr->tim_wraith);
 	wr_s16b(p_ptr->tim_esp);
 	wr_byte(p_ptr->confusing);
 		/* Ghostly status -- from Gumband */
-	wr_byte(p_ptr->astral);
-	wr_byte(p_ptr->was_astral);
-	wr_byte(p_ptr->astral_start);
-	wr_byte(0);	/* oops */
+	wr_byte(p_ptr->wonderland);
+	wr_byte(p_ptr->was_wonderland);
+	wr_byte(p_ptr->wonderland_start);
+	wr_byte(p_ptr->wizard);
 	wr_byte(0);	/* oops */
 	wr_byte(0);	/* oops */
 	wr_byte(p_ptr->searching);
@@ -1134,14 +1040,6 @@ static void wr_extra(void)
 
 	/* Future use */
 	for (i = 0; i < 10; i++) wr_u32b(0L);
-
-
-	/* Random artifact version */
-	/* wr_u32b(RANDART_VERSION); */
-
-	/* Random artifact seed */
-	/* wr_u32b(seed_randart); */
-
 
 	/* Ignore some flags */
 	wr_u32b(0L);	/* oops */
@@ -1174,48 +1072,6 @@ static void wr_extra(void)
 }
 
 
-/*
- * Dump the random artifacts
- */
-/* static void wr_randarts(void)
-{
-	int i;
-
-	wr_u16b(z_info->a_max);
-
-	for (i = 0; i < z_info->a_max; i++)
-	{
-		artifact_type *a_ptr = &a_info[i];
-
-		wr_byte(a_ptr->tval);
-		wr_byte(a_ptr->sval);
-		wr_s16b(a_ptr->pval);
-
-		wr_s16b(a_ptr->to_h);
-		wr_s16b(a_ptr->to_d);
-		wr_s16b(a_ptr->to_a);
-		wr_s16b(a_ptr->ac);
-
-		wr_byte(a_ptr->dd);
-		wr_byte(a_ptr->ds);
-
-		wr_s16b(a_ptr->weight);
-
-		wr_s32b(a_ptr->cost);
-
-		wr_u32b(a_ptr->flags1);
-		wr_u32b(a_ptr->flags2);
-		wr_u32b(a_ptr->flags3);
-
-		wr_byte(a_ptr->level);
-		wr_byte(a_ptr->rarity);
-
-		wr_byte(a_ptr->activation);
-		wr_u16b(a_ptr->time);
-		wr_u16b(a_ptr->randtime);
-	}
-}
-*/
 
 /*
  * The cave grid flags that get saved in the savefile
@@ -1465,14 +1321,37 @@ static bool wr_savefile_new(void)
 
 
 	/* Hack -- Dump the quests */
-	tmp16u = MAX_Q_IDX;
+	tmp16u = z_info->q_max;
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++)
 	{
-		wr_byte(q_list[i].level);
-		wr_byte(0);
-		wr_byte(0);
-		wr_byte(0);
+		wr_byte(q_info[i].type);
+
+		if ((q_info[i].type == QUEST_FIXED) || (q_info[i].type == QUEST_FIXED_U))
+		{
+			wr_byte(q_info[i].active_level);
+			wr_s16b(q_info[i].cur_num);
+		}
+
+		else if ((q_info[i].type == QUEST_GUILD) || (q_info[i].type == QUEST_UNIQUE))
+		{
+			wr_byte(q_info[i].reward);
+			wr_byte(q_info[i].active_level);
+			wr_byte(q_info[i].base_level);
+
+			wr_s16b(q_info[i].mon_idx);
+
+			wr_s16b(q_info[i].cur_num);
+			wr_s16b(q_info[i].max_num);
+			wr_byte(q_info[i].started);
+		}
+		else if (q_info[i].type == QUEST_VAULT)
+		{
+			wr_byte(q_info[i].reward);
+			wr_byte(q_info[i].active_level);
+			wr_byte(q_info[i].base_level);
+		}
+
 	}
 
 	/* Hack -- Dump the artifacts */
@@ -1499,29 +1378,6 @@ static bool wr_savefile_new(void)
 	{
 		wr_s16b(p_ptr->player_hp[i]);
 	}
-
-
-	/* Write spell data */
-/*	wr_u32b(p_ptr->spell_learned1);
-	wr_u32b(p_ptr->spell_learned2);
-	wr_u32b(p_ptr->spell_worked1);
-	wr_u32b(p_ptr->spell_worked2);
-	wr_u32b(p_ptr->spell_forgotten1);
-	wr_u32b(p_ptr->spell_forgotten2);
-*/
-	/* Dump the ordered spells */
-/*	for (i = 0; i < PY_MAX_SPELLS; i++)
-	{
-		wr_byte(p_ptr->spell_order[i]);
-	}
-*/
-
-	/* Write randart information */
-/*	if (adult_rand_artifacts)
-	{
-		wr_randarts();
-	}
-*/
 
 	/* Write the inventory */
 	for (i = 0; i < INVEN_TOTAL; i++)
@@ -2054,7 +1910,7 @@ bool load_player(void)
 		character_loaded = TRUE;
 
 		/* Still alive */
-		if (p_ptr->chp >= 0)
+		if (p_ptr->cwp >= 0)
 		{
 			/* Reset cause of death */
 			strcpy(p_ptr->died_from, "(alive and well)");
@@ -2097,50 +1953,3 @@ bool load_player(void)
 	/* Oops */
 	return (FALSE);
 }
-
-
-/* Very old savefiles 
-	Since I'm starting at 0.1.0 I'm commenting this out
-	I also moved them from line 1929 to see what I'm missing 
-		(Expression error) */
-		
-		/*
-		if ((sf_major == 5) && (sf_minor == 2))
-		{
-			sf_major = 2;
-			sf_minor = 5;
-		}
-		*/
-		
-		/* Extremely old savefiles */
-		/*
-		if (sf_major > 2)
-		{
-			sf_major = 1;
-		}
-		*/
-
-		/* Clear screen */
-		
-		/* Parse "ancient" savefiles */
-		/*
-		if (sf_major < 2)
-		{
-			err = rd_savefile_old();
-		}
-		*/
-		
-		/* Parse "old" savefiles */
-		/*
-		else if ((sf_major == 2) && (sf_minor < 7))
-		*/
-		/*
-		{
-		*/
-			/* Attempt to load */
-		/*
-			err = rd_savefile_old();
-		}
-		*/
-
-		/* Parse "new" savefiles */

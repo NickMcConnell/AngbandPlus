@@ -13,7 +13,7 @@
 # Format:
 # N:class number:class name
 # S:str:int:wis:dex:con:chr
-# I:mhp:exp:sense_base:sense_div:pet_upkeep_div
+# I:mhp:exp:unused:unused:pet_upkeep_div
 # A:max_attacks:min_weight:att_multiply
 # M:spell-stat:spell weight
 # B:spell book:handicap
@@ -39,8 +39,7 @@
 # every ten levels.
 
 # 'I' is for extra info - max. hitpoints gained per level, experience
-# factor in percent, base chance for pseudo-id (smaller is better),
-# level dependent divisor for the pseudo-id chance.
+# factor in percent, two unused numbers, and your pet upkeep factor
 
 # 'A' is for attack info - maximum possible number of attacks, minimum
 # weapon weight for calculating the number of attacks, multiplier for
@@ -63,12 +62,12 @@
 
 # Version stamp (required)
 
-V:0.3.1
+V:0.4.0
 
-
+## Keeping this class
 N:0:Officer
-S:12:10:10:4:4:10
-I:10:30:9000:40:5
+S:10:8:8:2:2:8
+I:8:30:9000:40:5
 A:6:30:5
 M:5:550
 B:0:4
@@ -94,7 +93,7 @@ E:75:33:0:1:1
 E:23:11:0:1:1
 E:37:1:0:1:1
 E:19:2:0:1:1
-F:BRAVERY_30 | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV 
+F:BRAVERY_30 | PSEUDO_ID_HEAVY | PSEUDO_ID3
 T:2nd Lt.
 T:1st Lt.
 T:Captain
@@ -117,9 +116,10 @@ Z:Lt. General
 Z:General
 # Possibly a powers list for commanding things
 
+## Also keeping this class - has a great power list
 N:1:Aesthete
-S:4:8:6:10:8:12
-I:5:0:5000:30:20
+S:2:6:4:8:6:10
+I:3:0:5000:30:20
 A:4:35:2
 M:5:450
 B:0:3
@@ -144,7 +144,8 @@ E:35:2:0:1:3
 E:40:9:0:3:6
 E:36:5:1:1:3
 E:32:6:0:1:3
-F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV 
+#They get excellent ID even though they don't need it.
+F:PSEUDO_ID_HEAVY | PSEUDO_ID4
 T:Intellectual
 T:Dilettante
 T:Heir
@@ -167,62 +168,11 @@ Z:Monopolist
 Z:Baroness
 # Money and shop related powers
 
-N:2:Detective
-S:6:10:4:12:10:10
-I:7:10:2000:40:10
-A:5:35:3
-M:3:550
-B:0:3
-B:1:3
-B:2:3
-B:3:3
-B:4:3
-B:5:3
-B:6:3
-B:7:3
-B:8:3
-B:9:3
-B:10:3
-B:11:3
-B:12:3
-B:13:3
-B:14:3
-B:15:3
-B:16:3
-B:17:3
-B:18:3
-B:19:1
-B:22:3
-B:23:2
-E:75:25:0:1:1
-E:23:4:0:1:1
-E:36:7:0:1:1
-F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV 
-T:Constable
-T:Sergeant
-T:Inspector
-T:Ch. Inspector
-T:Superintend.
-T:Ch. Superint.
-T:Commander
-T:Asst. Commish
-T:Dpty. Commish
-T:Commissioner
-Z:Constable
-Z:Sergeant
-Z:Inspector
-Z:Ch. Inspector
-Z:Superintend.
-Z:Ch. Superint.
-Z:Commander
-Z:Asst. Commish
-Z:Dpty. Commish
-Z:Commissioner
-# use some devices
 
-N:3:Engineer
-S:8:8:8:14:10:4
-I:6:40:3000:40:15
+#keeping this class also
+N:2:Engineer
+S:6:6:6:12:8:2
+I:4:40:3000:40:15
 A:4:35:4
 M:3:250
 B:0:3
@@ -245,14 +195,14 @@ B:16:3
 B:17:3
 B:18:1
 B:19:1
-B:20:2
-B:21:2
+B:20:1
+B:21:1
 B:22:1
 B:23:1
 E:66:4:0:1:1
 E:70:8:0:1:1
 E:90:18:0:1:1
-F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | ZERO_FAIL | BEAM 
+F:ZERO_FAIL | BEAM | PSEUDO_ID_HEAVY | PSEUDO_ID2
 T:Jr. Engineer
 T:Engineer
 T:Sr. Engineer
@@ -275,60 +225,11 @@ Z:Chief WO-4
 Z:Master WO
 # Use all devices
 
-N:4:Explorer
-S:12:10:8:6:10:8
-I:8:30:7000:800:10
-A:6:30:5
-M:4:550
-B:0:3
-B:1:3
-B:2:3
-B:3:3
-B:4:3
-B:5:3
-B:6:3
-B:7:3
-B:8:3
-B:9:3
-B:10:3
-B:11:3
-B:12:3
-B:13:3
-B:14:3
-B:15:3
-B:16:3
-B:17:3
-B:18:3
-B:22:3
-E:19:2:0:1:1
-E:80:35:0:8:15
-E:30:3:0:1:1
-F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV 
-T:Hiker
-T:Outdoorsman
-T:Rugged ODman
-T:Frontiersman
-T:Trailblazer
-T:Green Explorer
-T:Explorer
-T:Vet. Explorer
-T:Mstr Explorer
-T:Lord Explorer
-Z:Hiker
-Z:Outdoorsman
-Z:Rugged ODman
-Z:Frontiersman
-Z:Trailblazer
-Z:Green Explorer
-Z:Explorer
-Z:Vet. Explorer
-Z:Mstr Explorer
-Z:Lady Explorer
-# Needs some innate powers and benifits
 
-N:5:Medium
-S:6:6:6:10:12:10
-I:4:35:20000:40:10
+#keeping this class
+N:3:Medium
+S:4:4:4:8:10:8
+I:2:35:20000:40:10
 A:6:30:5
 M:4:250
 B:0:1
@@ -350,9 +251,9 @@ B:15:2
 B:16:2
 B:17:2
 E:75:36:0:1:1
-E:23:4:0:1:1
+E:23:5:0:1:1
 E:36:2:0:1:1
-F:ZERO_FAIL | BEAM
+F:ZERO_FAIL | BEAM | PSEUDO_ID2 
 T:Touched
 T:Shining
 T:Psychic
@@ -375,167 +276,11 @@ Z:Esper
 Z:Mind Mistress
 #standard weak psychic powers
 
-N:6:Reckoner
-#S:-2:5:0:4:0:-4
-S:4:10:6:12:8:4
-#C:20:28:10:0:0:2:40:55
-#X:10:7:10:1:1:1:45:45
-I:5:0:3000:350:20
-A:4:30:4
-M:3:250
-B:0:2
-B:1:2
-B:2:2
-B:3:2
-B:4:2
-B:5:2
-B:6:2
-B:7:2
-B:8:2
-B:9:2
-B:10:2
-B:11:2
-B:12:2
-B:13:2
-B:14:2
-B:15:2
-B:16:2
-B:17:2
-B:18:2
-B:19:2
-B:20:2
-B:21:2
-B:22:2
-E:55:5:20:1:1
-E:65:13:20:1:1
-E:70:11:0:1:1
-F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | ZERO_FAIL | MUTABLE
-T:Neophyte
-T:User
-T:Adv. User
-T:Programmer
-T:Adv. Progrmr
-T:Cracker
-T:Hacker
-T:Elite Hacker
-T:Guru
-T:Logos
-Z:Neophyte
-Z:User
-Z:Adv. User
-Z:Programmer
-Z:Adv. Progrmr
-Z:Cracker
-Z:Hacker
-Z:Elite Hacker
-Z:Guru
-Z:Logos
-#uhhhh, not sure maybe this is the programmer one? unique powers
-#of reality maniuplation
 
-N:7:Tourist
-#S:-3:-3:-3:-3:-3:-3
-S:4:4:4:4:4:4
-#C:0:0:0:0:0:0:0:0
-#X:2:2:2:2:2:2:5:5
-I:3:0:29000:40:10
-A:3:40:2
-M:3:550
-B:0:5
-B:1:5
-B:2:5
-B:3:5
-B:4:5
-B:5:5
-B:6:5
-B:7:5
-B:8:5
-B:9:5
-B:10:5
-B:11:5
-B:12:5
-B:13:5
-B:14:5
-B:15:5
-B:16:5
-B:17:5
-E:80:40:0:10:15
-E:23:4:0:1:1
-E:36:4:0:1:1
-T:Rambler
-T:Sightseer
-T:Excursionist
-T:Peregrinator
-T:Traveler
-T:Journeyer
-T:Voyager
-T:Explorer
-T:Adventurer
-T:Spelunker
-Z:Gypsy
-Z:Sightseer
-Z:Excursionist
-Z:Peregrinator
-Z:Traveler
-Z:Journeyer
-Z:Voyager
-Z:Explorer
-Z:Adventuress
-Z:Spelunker
-#Maybe a WoR power?
-
-N:8:Sportsman
-S:10:14:10:6:8:10
-I:12:45:15000:40:25
-A:6:30:5
-M:1:550
-B:0:3
-B:1:3
-B:2:3
-B:3:3
-B:4:3
-B:5:3
-B:6:3
-B:7:3
-B:8:3
-B:9:3
-B:10:3
-B:11:3
-B:12:3
-B:13:3
-B:14:3
-B:15:3
-B:16:3
-B:17:3
-E:19:12:0:1:1
-E:23:11:0:1:1
-E:37:3:0:1:1
-F:BRAVERY_30 | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV 
-T:Spectator
-T:Trainee
-T:Duck Hunter
-T:Deer Hunter
-T:Fox Hunter
-T:Hunter
-T:Master Hunter
-T:Safari Hunter
-T:Sportsman
-T:Lord Hunter
-Z:Spectator
-Z:Trainee
-Z:Duck Hunter
-Z:Deer Hunter
-Z:Fox Huntress
-Z:Huntress
-Z:Ms. Hunter
-Z:Safari Hunter
-Z:Sportsman
-Z:Lady Hunter
-#none
-
-N:9:Adventurer
-S:14:12:10:4:8:8
-I:15:15:9000:40:15
+#keeping this class
+N:4:Adventurer
+S:11:11:12:2:6:6
+I:13:15:9000:40:15
 A:6:30:5
 M:2:550
 B:0:3
@@ -559,7 +304,7 @@ B:17:3
 E:75:33:0:1:1
 E:23:16:0:1:1
 E:37:4:0:1:1
-F:BRAVERY_30 | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV
+F:BRAVERY_30 | PSEUDO_ID4 
 T:Rookie
 T:Soldier
 T:Mercenary
@@ -582,60 +327,10 @@ Z:Duchess
 Z:Lady
 #none
 
-N:10:Anarchist
-S:10:8:4:8:12:12
-I:7:0:9000:40:25
-A:5:30:4
-M:4:350
-B:0:1
-B:1:2
-B:2:2
-B:3:2
-B:4:2
-B:5:2
-B:6:2
-B:7:2
-B:8:2
-B:9:2
-B:10:4
-B:11:4
-B:12:4
-B:13:4
-B:14:4
-B:15:4
-B:16:4
-B:17:4
-B:21:4
-E:90:0:0:1:1
-E:23:16:0:1:1
-E:37:4:0:1:1
-F:BRAVERY_30 | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | ZERO_FAIL | MUTABLE | ANARCHIST
-T:Rebel
-T:Anarch
-T:Frondeur
-T:Insurgent
-T:Chaosite
-T:Malcontent
-T:Mutineer
-T:Revolter
-T:Anarchist
-T:Master Anarch
-Z:Rebel
-Z:Anarch
-Z:Frondeur
-Z:Insurgent
-Z:Chaosite
-Z:Malcontent
-Z:Mutineer
-Z:Revolter
-Z:Anarchist
-Z:Master Anarch
-#some devices and books, hmmm? possible? 
-
-
-N:11:Dashing Hussar
-S:14:12:14:10:10:10
-I:12:50:9000:40:20
+#keeping
+N:5:Dashing Hussar
+S:12:10:12:8:8:8
+I:10:50:9000:40:20
 A:7:25:5
 M:0:850
 B:0:5
@@ -659,7 +354,7 @@ B:17:5
 E:75:33:0:1:1
 E:23:16:0:1:1
 E:37:4:0:1:1
-F:BRAVERY_30 | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV 
+F:BRAVERY_30 | PSEUDO_ID3 | PSEUDO_ID_HEAVY
 T:2nd Lt.
 T:1st Lt.
 T:Captain
@@ -682,36 +377,37 @@ Z:Lt. General
 Z:General
 #none
 
-
-N:12:Gentleman/Lady
-S:2:4:4:10:8:10
-I:6:0:9000:40:10
+#keeping
+N:6:Gentleman/Lady
+S:2:4:4:10:10:10
+I:4:0:9000:40:10
 A:5:35:4
 M:3:350
-B:0:2
-B:1:2
-B:2:2
-B:3:2
-B:4:2
-B:5:2
-B:6:2
-B:7:2
-B:8:2
-B:9:2
-B:10:2
-B:11:2
-B:12:2
-B:13:2
-B:14:2
-B:15:2
-B:16:2
-B:17:2
-B:22:2
-B:23:2
+B:0:1
+B:1:1
+B:2:1
+B:3:1
+B:4:1
+B:5:1
+B:6:1
+B:7:1
+B:8:1
+B:9:1
+B:10:1
+B:11:1
+B:12:1
+B:13:1
+B:14:1
+B:15:1
+B:16:1
+B:17:1
+B:19:1
+B:22:1
+B:23:1
 E:35:2:0:1:1
 E:36:5:1:1:1
 E:31:2:0:1:1
-F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV
+F:ZERO_FAIL | BEAM | PSEUDO_ID1
 T:Boy
 T:Bloke
 T:Chap
@@ -733,9 +429,9 @@ Z:Baroness
 Z:Duchess
 Z:Princess
 
-N:13:Rogue
-S:6:18:8:10:8:10
-I:6:25:20000:40:15
+N:7:Rogue
+S:4:16:6:8:6:8
+I:4:25:20000:40:15
 A:5:30:3
 M:1:550
 B:0:3
@@ -760,9 +456,9 @@ B:18:2
 B:22:4
 B:23:4
 E:19:2:0:1:1
-E:23:4:0:1:1
+E:24:8:0:8:12
 E:36:4:0:1:1
-F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | 
+F:PSEUDO_ID4 | PSEUDO_ID_HEAVY
 T:Vagabond
 T:Cutpurse
 T:Footpad
@@ -785,68 +481,13 @@ Z:Thief
 Z:Mistress Thief
 #some devices
 
-N:14:Steam Engineer
-S:10:9:12:14:6:4
-I:8:50:9000:40:20
-A:4:30:3
-M:3:550
-B:0:3
-B:1:3
-B:2:3
-B:3:3
-B:4:3
-B:5:3
-B:6:3
-B:7:3
-B:8:3
-B:9:3
-B:10:3
-B:11:3
-B:12:3
-B:13:3
-B:14:3
-B:15:3
-B:16:3
-B:17:3
-B:18:2
-B:19:2
-B:20:1
-B:21:1
-B:22:2
-B:23:2
-E:66:4:0:1:1
-E:70:8:0:1:1
-E:90:18:0:1:1
-F:BRAVERY_30 | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | ZERO_FAIL 
-T:Jr. Engineer
-T:Engineer
-T:Sr. Engineer
-T:Ch. Engineer
-T:Warrant Off.
-T:Chief WO-1
-T:Chief WO-2
-T:Chief WO-3
-T:Chief WO-4
-T:Master WO
-Z:Jr. Engineer
-Z:Engineer
-Z:Sr. Engineer
-Z:Ch. Engineer
-Z:Warrant Off.
-Z:Chief WO-1
-Z:Chief WO-2
-Z:Chief WO-3
-Z:Chief WO-4
-Z:Master WO
-# Some devices
-
-
-N:15:Naturalist
+#keeping
+N:8:Naturalist
 #S:-3:2:3:0:1:-1
-S:4:6:10:10:12:8
+S:4:4:8:8:12:6
 #C:30:36:30:2:16:20:34:20
 #X:7:13:9:0:0:0:15:15
-I:5:30:240000:5:5
+I:3:30:240000:5:5
 A:4:40:2
 M:4:550
 B:0:1
@@ -867,10 +508,10 @@ B:14:2
 B:15:2
 B:16:2
 B:17:2
-E:30:2:0:1:1
-E:35:1:0:1:1
-E:36:2:0:1:1
-F:ZERO_FAIL | NATURE 
+E:26:12:0:1:1
+E:35:2:0:1:1
+E:75:36:0:3:6
+F:ZERO_FAIL | PSEUDO_ID3
 T:Acolyte
 T:Farmer
 T:Grower
@@ -893,204 +534,3 @@ Z:Mistress Druid
 Z:Lady Druid
 #special nature powers
 
-N:16:Qabalist
-S:3:4:4:12:14:6
-I:1:50:240000:5:10
-A:4:40:2
-M:4:450
-B:0:1
-B:1:1
-B:2:1
-B:3:1
-B:4:1
-B:5:1
-B:6:1
-B:7:1
-B:8:1
-B:9:1
-B:10:1
-B:11:1
-B:12:1
-B:13:1
-B:14:1
-B:15:1
-B:16:1
-B:17:1
-E:90:0:0:1:1
-E:23:4:0:1:1
-E:70:11:0:1:1
-F:CUMBER_GLOVE | ZERO_FAIL | BEAM 
-T:Novice
-T:Apprentice
-T:Trickster
-T:Illusionist
-T:Spellbinder
-T:Evoker
-T:Conjurer
-T:Warlock
-T:Sorcerer
-T:Arch-Mage
-Z:Novice
-Z:Palmist
-Z:Siren
-Z:Illusionist
-Z:Spellbinder
-Z:Enchantress
-Z:Conjuress
-Z:Witch
-Z:Sorcereress
-Z:Lady Witch
-
-
-N:17:Oculus Dei
-S:5:6:8:13:13:6
-I:9:30:9000:40:10
-A:6:30:5
-M:3:750
-B:0:2
-B:1:2
-B:2:2
-B:3:2
-B:4:2
-B:5:2
-B:6:2
-B:7:2
-B:8:2
-B:9:2
-B:10:1
-B:11:1
-B:12:1
-B:13:1
-B:14:1
-B:15:1
-B:16:1
-B:17:1
-E:90:10:0:1:1
-E:23:4:0:1:1
-E:70:11:0:1:1
-F:BRAVERY_30 | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | ZERO_FAIL | BEAM
-T:Believer
-T:Acolyte
-T:Adept
-T:Curate
-T:Canon
-T:Lama
-T:Patriarch
-T:Priest
-T:High Priest
-T:Priest Lord
-Z:Believer
-Z:Sister
-Z:Prioress
-Z:Postulant
-Z:Canoness
-Z:Anchorite
-Z:Matron
-Z:Priestess
-Z:Abbess
-Z:Mthr Supr.
-#don't know
-
-N:18:Ninja
-#S:5:-2:-2:2:2:-1
-S:11:11:11:6:6:6
-#C:25:18:18:1:14:2:70:55
-#X:10:7:10:0:0:0:45:45
-I:9:0:9000:40:20
-A:6:30:5
-M:1:550
-B:0:3
-B:1:5
-B:2:5
-B:3:6
-B:4:6
-B:5:6
-B:6:6
-B:7:7
-B:8:7
-B:9:7
-B:10:7
-B:11:7
-B:12:7
-B:13:7
-B:14:7
-B:15:7
-B:16:7
-B:17:7
-E:23:4:0:1:1
-E:23:4:0:1:1
-E:36:2:0:1:1
-F:BRAVERY_30 | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | NINJA
-T:Trainee
-T:Myrmidon
-T:Initiate
-T:Knifer
-T:Bladesman
-T:Hashishin
-T:Black Dagger
-T:Shadowstrike
-T:Assassinator
-T:Death Lord
-Z:Trainee
-Z:Myrmidon
-Z:Initiate
-Z:Knifer
-Z:Bladesman
-Z:Hashishin
-Z:Black Dagger
-Z:Shadowstrike
-Z:Assassinator
-Z:Lady Death
-#special ninja powers
-
-N:19:Weapon Master
-#S:5:-2:-2:2:2:-1
-S:14:12:10:4:6:6
-#C:25:18:18:1:14:2:70:55
-#X:10:7:10:0:0:0:45:45
-I:9:0:9000:40:20
-A:6:30:5
-M:0:1850
-B:0:9
-B:1:9
-B:2:9
-B:3:9
-B:4:9
-B:5:9
-B:6:9
-B:7:9
-B:8:9
-B:9:9
-B:10:9
-B:11:9
-B:12:9
-B:13:9
-B:14:9
-B:15:9
-B:16:9
-B:17:9
-E:75:33:0:1:1
-E:23:16:0:1:1
-E:37:4:0:1:1
-F:BRAVERY_30 | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV
-T:Rookie
-T:Soldier
-T:Mercenary
-T:Veteran
-T:Swordsman
-T:Champion
-T:Hero
-T:Baron
-T:Duke
-T:Lord
-Z:Rookie
-Z:Soldier
-Z:Mercenary
-Z:Veteran
-Z:Swordsman
-Z:Champion
-Z:Heroine
-Z:Baroness
-Z:Duchess
-Z:Lady
-#none

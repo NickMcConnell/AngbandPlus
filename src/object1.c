@@ -12,13 +12,123 @@
 
 
 /*
+ * General information about classes of objects.
+ *
+ * Index is tval. What the hell is going on with entry 90/91?
+ */
+cptr obj_class_info[101] =
+{
+	/* 0  */"",
+	/* 1  */"Skeletons are the remains of adventurers less lucky than you.",
+	/* 2  */"Empty bottles at one time may have held powerful tonics",
+	/* 3  */"Junk is useless trash. Perhaps someday you may find a use for it.",
+	/* 4  */"",
+	/* 5  */"Spikes are used to jam doors shut; a well-spiked door is difficult to open.",
+	/* 6  */"",
+	/* 7  */"Chests may have some really good treasures hidden inside, but can be perilous to open.  Bashing a locked chest damages whatever is inside, but also any traps that guard it.",
+	/* 8  */"",
+	/* 9  */"",
+	/* 10 */"",
+	/* 11 */"",
+	/* 12 */"",
+	/* 13 */"",
+	/* 14 */"",
+	/* 15 */"",
+	/* 16 */"Pistol ammo.",
+	/* 17 */"Rifle ammo.",
+	/* 18 */"Shotgun ammo.",
+	/* 19 */"Guns are powerful firearms that allow you to inflict damage from a distance without using magic. Pistols, rifles, and shotguns each require different types of ammo. Great skill with guns will help you stay alive.",
+	/* 20 */"Diggers, especially heavy ones, are invaluable for forced entry and escape and can make a lucky miner rich.",
+	/* 21 */"Hafted weapons rely on blunt force to inflict damage. Although heavy, they can do a lot of damage.",
+	/* 22 */"Pole-mounted weapons are often cumbersome, but some offer both a high degree of protection and powerful piercing attacks.",
+	/* 23 */"The effectiveness of swords depends on keen edges.  They tend to be quite light and are easy to use, but some may not deal enough damage for your liking.",
+	/* 24 */"Daggers rely on their lightweight quickness to cause piercing damage. What they lose in raw damage, they make up for in quick strikes.",
+	/* 25 */"Axes are powerful weapons doing large amounts of slashing damage. Many people may find them too heavy to wield.",
+	/* 26 */"Blunt weapons such as clubs and quarterstaves often provide a defensive bonus in addition to their powerful blows.",
+	/* 27 */"",
+	/* 28 */"",
+	/* 29 */"",
+	/* 30 */"Footwear protects the feet only, but some rare items of this type have magics to render them fleet, light, or steady.",
+	/* 31 */"Your hands would benefit from protection too, but many magic users need to keep their fingers unencumbered or magically supple.",
+	/* 32 */"Many a blow will be struck upon your head, and protection here will certainly be helpful.  Some rare items may protect and enhance your mind.",
+	/* 33 */"Many a blow will be struck upon your head, and protection here will certainly be helpful.  Some rare items may protect and enhance your mind.",
+	/* 34 */"Trousers are quite useful in keeping your bits warm and secure. Enchantments may often grace leg coverings.",
+	/* 35 */"Experienced adventurers wrap a cloak around their body.  Some rare items of this type may allow you to slip silently around less alert enemies.",
+	/* 36 */"Some kind of body protection will become a necessity as you face ever more dangerous opponents; rare items of this type may hold many and varied protective magics.",
+	/* 37 */"Some kind of body protection will become a necessity as you face ever more dangerous opponents; rare items of this type may hold many and varied protective magics.",
+	/* 38 */"",
+	/* 39 */"An adventurer who cannot see is jackal food.  Rare items of this type may have an extended lighting radius or require no fuel.",
+	/* 40 */"Amulets slip around your neck, and almost all have magics wondrous or perilous bound inside.",
+	/* 41 */"",
+	/* 42 */"",
+	/* 43 */"",
+	/* 44 */"",
+	/* 45 */"You may wear a ring upon each of your two ring fingers, and benefit or suffer from the magics it contains.",
+	/* 46 */"Mechanical torsos often contain powerful enhancements and upgrades for automata and steam-mecha.",
+	/* 47 */"Mechanical heads often contain powerful enhancements and upgrades for automata and steam-mecha.",
+	/* 48 */"Mechanical arms often contain powerful enhancements and upgrades for automata and steam-mecha.",
+	/* 49 */"Mechanical feet often contain powerful enhancements and upgrades for automata and steam-mecha. Mechanical feet have leg attachments that connect to the torso.",
+	/* 50 */"",
+	/* 51 */"",
+	/* 52 */"",
+	/* 53 */"",
+	/* 54 */"",
+	/* 55 */"Tools are often heavy, and take up plenty of space in your backpack, but these strange-looking machines often can produce powerful effects covering large areas.  Tools are highly durable and are easy to repower when they run out of energy.",
+	/* 56 */"",
+	/* 57 */"",
+	/* 58 */"",
+	/* 59 */"",
+	/* 60 */"",
+	/* 61 */"",
+	/* 62 */"",
+	/* 63 */"",
+	/* 64 */"",
+	/* 65 */"Ray guns produce a range of powerful combat effects.  Once its energy is depleted, a ray gun is useless until recharged.",
+	/* 66 */"The powerful apparatuses can, utilizing some advanced form of energy, produce a limitless amount of effects.  However they require time between uses to recover.",
+	/* 67 */"",
+	/* 68 */"",
+	/* 69 */"",
+	/* 70 */"One will often find small mechanisms lying about.  They are easy to use, and are a warrior's best chance at making use of strange effects.",
+	/* 71 */"Sometimes one will find an ancient document lying about with strange lore and stories.",
+	/* 72 */"",
+	/* 73 */"Books often contain tales of the fantastic; however, in your case they may contain information that could keep you alive. If you had somewhere you could take the book and read it in peace so you could dig out the information. . .",
+	/* 74 */"",
+	/* 75 */"Healers, alchemists, scientists, and sages create tonics in vast quantities, and store them in small flasks of clear glass or gleaming crystal.  Once quaffed, a tonic is guaranteed to work, but sometimes the contents are nothing but harmful snake oil. . .",
+	/* 76 */"",
+	/* 77 */"Oil is used to fuel lanterns, can be thrown to cause damage, and is useful in keeping complex machines running.",
+	/* 78 */"",
+	/* 79 */"",
+	/* 80 */"Deep in the murky dungeons strange mushrooms grow, and monsters rout about sealed packets of food that their owners will never need again.	"
+	/* 81 */"",
+	/* 82 */"",
+	/* 83 */"",
+	/* 84 */"",
+	/* 85 */"",
+	/* 86 */"",
+	/* 87 */"",
+	/* 88 */"",
+	/* 89 */"",
+	/* 90 */"",
+	/* 91 */"A manual of sorcerous magics or device of powerful effects. You must be skilled to prevent dark forces from stealing your soul if foolish enough to work with sorcery. Items are safer, but are often quite difficult to figure out.  Arcane (red) books use Ego for failure rates, Divine (green) books use Ego/Sch for failure rates, and Items (brown) use Sch.",
+	/* 92 */"",
+	/* 93 */"",
+	/* 94 */"",
+	/* 95 */"",
+	/* 96 */"",
+	/* 97 */"",
+	/* 98 */"",
+	/* 99 */"",
+	/* 100 */"Small valuables and coins."
+};
+
+/*
  * Max sizes of the following arrays.
  */
-#define MAX_ROCKS      42       /* Used with rings (min 38) */
-#define MAX_AMULETS    16       /* Used with amulets (min 13) */
-#define MAX_WOODS      32       /* Used with tools (min 30) */
+#define MAX_ROCKS      46       /* Used with rings (min 38) */
+#define MAX_AMULETS    30       /* Used with amulets (min 28) */
+#define MAX_WOODS      35       /* Used with tools (min 30) */
 #define MAX_METALS     32       /* Used with rayguns/apparatuses (min 29/28) */
-#define MAX_COLORS     63       /* Used with tonics (min 60) */
+#define MAX_COLORS     65       /* Used with tonics (min 63) */
 #define MAX_SHROOM     26       /* Used with anodyne (min 26) */
 #define MAX_TITLES     50       /* Used with mechanism (min 48) */
 /* old scroll syllables */
@@ -40,8 +150,9 @@ static cptr ring_adj[MAX_ROCKS] =
 	"Onyx", "Opal", "Pearl", "Quartz", "Quartzite",
 	"Rhodonite", "Ruby", "Sapphire", "Tiger Eye", "Topaz",
 	"Turquoise", "Zircon", "Platinum", "Bronze", "Gold",
-	"Obsidian", "Silver", "Tortoise Shell", "Mithril", "Jet",
-	"Engagement", "Adamantite"
+	"Obsidian", "Silver", "Tortoise Shell", "Bark", "Jet",
+	"Engagement", "Viridigen", "Grass", "Oak", "Copper",
+	"Bone"
 };
 
 static byte ring_col[MAX_ROCKS] =
@@ -53,8 +164,9 @@ static byte ring_col[MAX_ROCKS] =
 	TERM_L_RED, TERM_L_WHITE, TERM_WHITE, TERM_L_WHITE, TERM_L_WHITE,
 	TERM_L_RED, TERM_RED, TERM_BLUE, TERM_YELLOW, TERM_YELLOW,
 	TERM_L_BLUE, TERM_L_UMBER, TERM_WHITE, TERM_L_UMBER, TERM_YELLOW,
-	TERM_L_DARK, TERM_L_WHITE, TERM_UMBER, TERM_L_BLUE, TERM_L_DARK,
-	TERM_YELLOW, TERM_L_GREEN
+	TERM_L_DARK, TERM_L_WHITE, TERM_UMBER, TERM_L_UMBER, TERM_L_DARK,
+	TERM_YELLOW, TERM_L_GREEN, TERM_GREEN, TERM_L_UMBER, TERM_L_GREEN,
+	TERM_L_WHITE
 };
 
 
@@ -67,7 +179,9 @@ static cptr amulet_adj[MAX_AMULETS] =
 	"Amber", "Driftwood", "Coral", "Agate", "Ivory",
 	"Obsidian", "Bone", "Brass", "Bronze", "Pewter",
 	"Tortoise Shell", "Golden", "Azure", "Crystal", "Silver",
-	"Copper"
+	"Copper", "Silver", "Platinum", "Pearl", "Oak",
+	"Mithril", "Onyx", "Opal", "Sapphire", "Ruby",
+	"Jade", "Viridigen", "Teak", "Lapis Lauzi", "Star Sapphire"
 };
 
 static byte amulet_col[MAX_AMULETS] =
@@ -75,7 +189,9 @@ static byte amulet_col[MAX_AMULETS] =
 	TERM_YELLOW, TERM_L_UMBER, TERM_WHITE, TERM_L_WHITE, TERM_WHITE,
 	TERM_L_DARK, TERM_WHITE, TERM_L_UMBER, TERM_L_UMBER, TERM_SLATE,
 	TERM_UMBER, TERM_YELLOW, TERM_L_BLUE, TERM_WHITE, TERM_L_WHITE,
-	TERM_L_UMBER
+	TERM_L_UMBER, TERM_L_WHITE, TERM_L_WHITE, TERM_WHITE, TERM_UMBER,
+	TERM_L_WHITE, TERM_L_DARK, TERM_L_WHITE, TERM_L_BLUE, TERM_L_RED,
+	TERM_L_GREEN, TERM_GREEN, TERM_L_UMBER, TERM_L_BLUE, TERM_BLUE
 };
 
 
@@ -85,13 +201,13 @@ static byte amulet_col[MAX_AMULETS] =
 
 static cptr tool_adj[MAX_WOODS] =
 {
-	"Aspen", "Balsa", "Banyan", "Birch", "Cedar",
-	"Cottonwood", "Cypress", "Dogwood", "Elm", "Eucalyptus",
-	"Hemlock", "Hickory", "Ironwood", "Locust", "Mahogany",
-	"Maple", "Mulberry", "Oak", "Pine", "Redwood",
-	"Rosewood", "Spruce", "Sycamore", "Teak", "Walnut",
-	"Mistletoe", "Hawthorn", "Bamboo", "Silver", "Runed",
-	"Golden", "Ashen"/*,"Gnarled","Ivory","Willow"*/
+	"Rusty", "Polished", "Greasy", "Clean", "Complex",
+	"Shiny", "Dull", "Glowing", "Balanced", "Small",
+	"Large", "Iron", "Ironwood", "Steel", "Cavorite",
+	"Strange", "Intricate", "Slim", "Weighty", "Worn",
+	"Chipped", "Round", "Square", "Thick", "Ivory",
+	"Marble", "Rickety", "Bamboo", "Silver", "Runed",
+	"Golden", "Ashen", "Curved", "Adjustable", "Inscribed"
 };
 
 static byte tool_col[MAX_WOODS] =
@@ -102,7 +218,7 @@ static byte tool_col[MAX_WOODS] =
 	TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_RED,
 	TERM_RED, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_UMBER,
 	TERM_GREEN, TERM_L_UMBER, TERM_L_UMBER, TERM_L_WHITE, TERM_UMBER,
-	TERM_YELLOW, TERM_SLATE, /* (?), (?), (?) */
+	TERM_YELLOW, TERM_SLATE, TERM_SLATE, TERM_SLATE, TERM_SLATE
 };
 
 
@@ -117,8 +233,8 @@ static cptr ray_adj[MAX_METALS] =
 	"Silver", "Steel", "Tin", "Titanium", "Tungsten",
 	"Zirconium", "Zinc", "Aluminum-Plated", "Copper-Plated", "Gold-Plated",
 	"Nickel-Plated", "Silver-Plated", "Steel-Plated", "Tin-Plated", "Zinc-Plated",
-	"Mithril-Plated", "Mithril", "Runed", "Bronze", "Brass",
-	"Platinum", "Lead"/*,"Lead-Plated","Ivory","Pewter"*/
+	"Pearl-Plated", "Ivory", "Runed", "Bronze", "Brass",
+	"Platinum", "Lead"/*,"Lead-Plated","XXX","Pewter"*/
 };
 
 static byte ray_col[MAX_METALS] =
@@ -128,8 +244,8 @@ static byte ray_col[MAX_METALS] =
 	TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE, TERM_WHITE, TERM_WHITE,
 	TERM_L_WHITE, TERM_L_WHITE, TERM_L_BLUE, TERM_L_UMBER, TERM_YELLOW,
 	TERM_L_UMBER, TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE,
-	TERM_L_BLUE, TERM_L_BLUE, TERM_UMBER, TERM_L_UMBER, TERM_L_UMBER,
-	TERM_WHITE, TERM_SLATE, /*TERM_SLATE,TERM_WHITE,TERM_SLATE*/
+	TERM_WHITE, TERM_WHITE, TERM_UMBER, TERM_L_UMBER, TERM_L_UMBER,
+	TERM_WHITE, TERM_SLATE, /*TERM_SLATE,TERM_XXX,TERM_SLATE*/
 };
 
 
@@ -178,14 +294,14 @@ static cptr tonic_adj[MAX_COLORS] =
 {
 	"Clear", "Light Brown", "Icky Green", "xxx",
 	"Addington's Phos Ferrone Iron", "Althrop's Constitutional",
-	"Ambrecht's Coca Wine", "Angelica Bitter Tonic", "Dr. A. Armistead's Fameous Ague",
+	"Ambrecht's Coca Wine", "Angelica Bitter", "Dr. A. Armistead's Fameous Ague",
 	"Baldwin's Celery Pepsin & Dandelion", "Balyeat's Fig", 
 	"Bear Brand Wild Cherry", "Dr. Beard's Alterative", "Betula Beer",
 	"A. M. Bininger & Co. Wheat", "Bitter Apple",
 	"Dr. Blendigo's Celery", "Bock's Restorative",
 	"Brother Benjamin Great Herbalo", "Dr. Brooks' Antimalarial",
 	"Burk's Iron", "Cardui, The Women's", "S.S. Clark's Diamond Family",
-	"Cla-wood Malt", "Colden's Liquid Beef", "Corona Distemper Tonic",
+	"Cla-wood Malt", "Colden's Liquid Beef", "Corona Distemper",
 	"Dalton's Sarsaparilla and Nerve", "Davis's Morning Noon & Night",
 	"The Imperial King of all", "Eureka Pepsin - A Never Failing",
 	"Ferro China Milano", "Fletcher's Vege", "Goging's Wild Cherry",
@@ -198,9 +314,10 @@ static cptr tonic_adj[MAX_COLORS] =
 	"Mexican Herb", "Morrison's Sure Cure", "Mull's Grape", 
 	"Old Sachem Bitters & Wigwam", "Owbridge's Lung",
 	"Parker's best", "C.G. Pendleton's", "Pepper's Quinine & Iron", 
-	"Primley's Iron & Wahoo", "Psychine", "Quin's Chill Tonic", 
+	"Primley's Iron & Wahoo", "Psychine", "Quin's Chill", 
 	"Ramon's Pepsin Chill", "Royal Pepsin", "Sano Rheumatic Cure & System",
-	"Vin-O-Sula Cuban", "Walt's Wild Cherry", "Mickey's Magical Brew"
+	"Vin-O-Sula Cuban", "Walt's Wild Cherry", "Mickey's Magical Brew",
+	"Lillybeck's Tasteless Chill", "Sherry & Iron"
 };
 
 static byte tonic_col[MAX_COLORS] =
@@ -217,7 +334,7 @@ static byte tonic_col[MAX_COLORS] =
 	TERM_VIOLET, TERM_RED, TERM_WHITE, TERM_YELLOW, TERM_VIOLET,
 	TERM_L_RED, TERM_RED, TERM_L_RED, TERM_YELLOW, TERM_GREEN,
 	TERM_VIOLET, TERM_RED, TERM_YELLOW, TERM_YELLOW, TERM_L_BLUE, 
-	TERM_L_BLUE, TERM_UMBER
+	TERM_L_BLUE, TERM_UMBER, TERM_L_RED, TERM_GREEN
 };
 
 static cptr mech_adj[MAX_MECH_ADJ] =
@@ -254,10 +371,6 @@ static cptr mech_noun2[MAX_MECH_NOUN2] =
 static char mechanism_adj[MAX_TITLES][42];
 
 static byte mechanism_col[MAX_TITLES];
-
-
-
-
 
 
 /*
@@ -515,7 +628,7 @@ void flavor_init(void)
 		k_ptr->flavor = object_flavor(i);
 
 		/* No flavor yields aware */
-		if (!k_ptr->flavor) k_ptr->aware = TRUE;
+		/* if (!k_ptr->flavor) k_ptr->aware = TRUE; */
 	}
 }
 
@@ -607,6 +720,63 @@ void reset_visuals(bool unused)
 #endif /* ALLOW_BORG_GRAPHICS */
 }
 
+/*
+ * Given a pval-dependant flag, return the value it is modified by.
+ *
+ * All pvals are transferred to the object itself upon creation.
+ *
+ * (error-handling)
+ * If, for whatever reason, the object should have more than one pval
+ * affecting this flag, only the first pval (in the order "pval", "pval2",
+ * "pval3") is expressed.
+ */
+s16b get_object_pval(const object_type *o_ptr, u32b flg)
+{
+	/* Ignore non-objects */
+	if (!o_ptr->k_idx) return (0);
+
+	/* Test for any pval-dependant qualities */
+	if (flg == 0L)
+	{
+		/* See if at least one pval is non-zero, and affects any flags */
+		if (((o_ptr->pval  != 0) && (o_ptr->flags_pval1)) ||
+		    ((o_ptr->pval2 != 0) && (o_ptr->flags_pval2)) ||
+		    ((o_ptr->pval3 != 0) && (o_ptr->flags_pval3)))
+		{
+			return (1);
+		}
+	}
+
+	/* Test a specific quality */
+	else
+	{
+		/* Look at the primary pval */
+		if (o_ptr->pval != 0)
+		{
+			/* Flag is affected by this pval -- return its value */
+			if (o_ptr->flags_pval1 & (flg)) return (o_ptr->pval);
+		}
+
+		/* Look at the secondary pval */
+		if (o_ptr->pval2 != 0)
+		{
+			/* Flag is affected by this pval -- return its value */
+			if (o_ptr->flags_pval2 & (flg)) return (o_ptr->pval2);
+		}
+
+		/* Look at the tertiary pval */
+		if (o_ptr->pval3 != 0)
+		{
+			/* Flag is affected by this pval -- return its value */
+			if (o_ptr->flags_pval3 & (flg)) return (o_ptr->pval3);
+		}
+	}
+
+	/* No pval affects this flag */
+	return (0);
+}
+
+
 
 /*
  * Modes of object_flags_aux()
@@ -617,21 +787,38 @@ void reset_visuals(bool unused)
 
 
 /*
- * Obtain the "flags" for an item
+ * Obtain the non-pval qualities of an item
+ *
+ * The flags associated with any object may come from its base object kind,
+ * its artifact or ego template, or may be stored directly in the object_
+ * type fields.
+ *
+ * OBJECT_FLAGS_FULL gets all the flags associated with the object.
+ * OBJECT_FLAGS_KNOWN gets all the known flags associated with the object.
+ * OBJECT_FLAGS_EXTRA gets (only) all the added flags associated with the
+ *    object, including all random flags, and all flags added by the
+ *    character or game events.
  */
 static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 {
 	object_kind *k_ptr;
+	bool spoil = FALSE;
 
+
+	/* Always start with empty flags */
+	(*f1) = (*f2) = (*f3) = 0L;
+
+	/* Ignore non-objects */
+	if (!o_ptr->k_idx) return;
+
+	/* Require identification sometimes */
 	if (mode != OBJECT_FLAGS_FULL)
 	{
-		/* Clear */
-		(*f1) = (*f2) = (*f3) = 0L;
-
 		/* Must be identified */
 		if (!object_known_p(o_ptr)) return;
 	}
 
+	/* Usually, get the standard object/ego-item/artifact flags. */
 	if (mode != OBJECT_FLAGS_RANDOM)
 	{
 		k_ptr = &k_info[o_ptr->k_idx];
@@ -641,109 +828,96 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 		(*f2) = k_ptr->flags2;
 		(*f3) = k_ptr->flags3;
 
-		if (mode == OBJECT_FLAGS_FULL)
-		{
-			/* Artifact */
-			if (o_ptr->name1)
-			{
-				artifact_type *a_ptr = &a_info[o_ptr->name1];
-
-				(*f1) = a_ptr->flags1;
-				(*f2) = a_ptr->flags2;
-				(*f3) = a_ptr->flags3;
-			}
-		}
-
-		/* Ego-item */
+		/* Ego-item -- always fully known if ID'd */
 		if (o_ptr->name2)
 		{
 			ego_item_type *e_ptr = &e_info[o_ptr->name2];
 
+			/* Add to base object kind flags */
 			(*f1) |= e_ptr->flags1;
 			(*f2) |= e_ptr->flags2;
 			(*f3) |= e_ptr->flags3;
 		}
 
-		if (mode == OBJECT_FLAGS_KNOWN)
-		{
-			/* Obvious artifact flags */
-			if (o_ptr->name1)
-			{
-				artifact_type *a_ptr = &a_info[o_ptr->name1];
-
-				/* Obvious flags (pval) */
-				(*f1) = (a_ptr->flags1 & (TR1_PVAL_MASK));
-
-				(*f3) = (a_ptr->flags3 & (TR3_IGNORE_MASK));
-			}
-		}
-	}
-
-	if (mode != OBJECT_FLAGS_FULL)
-	{
-		bool spoil = FALSE;
-
-#ifdef SPOIL_ARTIFACTS
-		/* Full knowledge for some artifacts */
-		if (artifact_p(o_ptr)) spoil = TRUE;
-#endif /* SPOIL_ARTIFACTS */
-
-#ifdef SPOIL_EGO_ITEMS
-		/* Full knowledge for some ego-items */
-		if (ego_item_p(o_ptr)) spoil = TRUE;
-#endif /* SPOIL_ARTIFACTS */
-
-		/* Need full knowledge or spoilers */
-		if (!spoil && !(o_ptr->ident & IDENT_MENTAL)) return;
-
-		/* Artifact */
+		/* Artifact -- non-obvious flags require *ID* to know */
 		if (o_ptr->name1)
 		{
 			artifact_type *a_ptr = &a_info[o_ptr->name1];
 
-			(*f1) = a_ptr->flags1;
-			(*f2) = a_ptr->flags2;
-			(*f3) = a_ptr->flags3;
-
-			if (mode == OBJECT_FLAGS_RANDOM)
+			/* We know everything */
+			if ((mode == OBJECT_FLAGS_FULL) || (spoil) ||
+			    (o_ptr->ident & (IDENT_KNOWN)))
+			    /* the above was IDENT_MENTAL */
 			{
-				/* Hack - remove 'ignore' flags */
-				(*f3) &= ~(TR3_IGNORE_MASK);
+				/* Overwrite base object kind flags */
+				(*f1) = a_ptr->flags1;
+				(*f2) = a_ptr->flags2;
+				(*f3) = a_ptr->flags3;
+			}
+
+			/* We don't know everything */
+			else
+			{
+				/* Obvious flags (easy-to-know-nastiness) */
+				(*f3) |= (a_ptr->flags3 & (TR3_LIGHT_CURSE |
+					   TR3_HEAVY_CURSE | TR3_PERMA_CURSE |
+					   TR3_DRAIN_EXP   | TR3_DRAIN_HP |
+					   TR3_DRAIN_SP    | TR3_DRAIN_ITEM |
+					   TR3_TELEPORT    | TR3_NO_MAGIC |
+					   TR3_AGGRAVATE   | TR3_DISRUPT_SPELL |
+					   TR3_NEVER_BLOW ));
 			}
 		}
-
-		/* Full knowledge for *identified* objects */
-		if (!(o_ptr->ident & IDENT_MENTAL)) return;
 	}
 
-	/* Extra powers */
-	switch (o_ptr->xtra1)
+	/* Require full knowledge */
+	if ((mode == OBJECT_FLAGS_FULL) || (spoil) ||
+	    (o_ptr->ident & (IDENT_MENTAL)))
 	{
-		case OBJECT_XTRA_TYPE_SUSTAIN:
-		{
-			/* OBJECT_XTRA_WHAT_SUSTAIN == 2 */
-			(*f2) |= (OBJECT_XTRA_BASE_SUSTAIN << o_ptr->xtra2);
-			break;
-		}
+		/* Extra flags -- set 1 */
+		(*f1) |= o_ptr->flags1;
 
-		case OBJECT_XTRA_TYPE_RESIST:
-		{
-			/* OBJECT_XTRA_WHAT_RESIST == 2 */
-			(*f2) |= (OBJECT_XTRA_BASE_RESIST << o_ptr->xtra2);
-			break;
-		}
+		/* Extra flags -- set 2 */
+		(*f2) |= o_ptr->flags2;
 
-		case OBJECT_XTRA_TYPE_POWER:
-		{
-			/* OBJECT_XTRA_WHAT_POWER == 3 */
-			(*f3) |= (OBJECT_XTRA_BASE_POWER << o_ptr->xtra2);
-			break;
-		}
+		/* Extra flags -- set 3 */
+		(*f3) |= o_ptr->flags3;
 	}
 }
 
 
+/*
+ * Most pvals are displayed in object descriptions, but not all.
+ */
+static bool should_display_pval(const object_type *o_ptr, byte set)
+{
+	u32b flag_set = 0L;
+	s16b pval = 0;
 
+	if ((set < 1) || (set > 3)) return (FALSE);
+
+	/* Get the correct pval and pval flags set */
+	if (set == 1) pval = o_ptr->pval;
+	if (set == 2) pval = o_ptr->pval2;
+	if (set == 3) pval = o_ptr->pval3;
+
+	if (set == 1) flag_set = o_ptr->flags_pval1;
+	if (set == 2) flag_set = o_ptr->flags_pval2;
+	if (set == 3) flag_set = o_ptr->flags_pval3;
+
+	/* No need to display a pval if it is zero */
+	if (!pval) return (FALSE);
+
+	/* Ignore some flags */
+	flag_set &= ~(TR_PVAL_LIGHT);
+	flag_set &= ~(TR_PVAL_MIGHT);
+
+	/* No need to display a pval if it affects no displayable flags */
+	if (!flag_set) return (FALSE);
+
+	/* Display the pval */
+	return (TRUE);
+}
 
 /*
  * Obtain the "flags" for an item
@@ -753,8 +927,6 @@ void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 	object_flags_aux(OBJECT_FLAGS_FULL, o_ptr, f1, f2, f3);
 }
 
-
-
 /*
  * Obtain the "flags" for an item which are known to the player
  */
@@ -762,7 +934,6 @@ void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 {
 	object_flags_aux(OBJECT_FLAGS_KNOWN, o_ptr, f1, f2, f3);
 }
-
 
 /*
  * Efficient version of '(T) += strfmt((T), "%c", (C))'
@@ -773,8 +944,6 @@ void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 	*(T)++ = (C); \
  \
 } while (0)
-
-
 
 /*
  * Efficient version of '(T) += strfmt((T), "%s", (S))'
@@ -787,8 +956,6 @@ void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 	while (*s) *(T)++ = *s++; \
  \
 } while (0)
-
-
 
 /*
  * Efficient version of '(T) += strfmt((T), "%u", (N))'
@@ -816,8 +983,6 @@ void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 	} \
  \
 } while (0)
-
-
 
 /*
  * Efficient version of '(T) += strfmt((T), "%+d", (I))'
@@ -922,52 +1087,58 @@ void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
  */
 void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 {
-	cptr basenm;
-	cptr modstr;
+	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+	object_type *gun_ptr;
+
+	cptr basenm, modstr;
 
 	int power;
 
 	bool aware;
 	bool known;
+	bool easy_know;
 
 	bool flavor;
 
 	bool append_name;
+	bool do_prefix;
 
 	bool show_weapon;
 	bool show_armour;
 
 	char *b;
-
 	char *t;
 
 	cptr s;
-
 	cptr u;
 	cptr v;
 
 	char p1 = '(', p2 = ')';
 	char b1 = '[', b2 = ']';
 	char c1 = '{', c2 = '}';
+	char d1 = '<', d2 = '>';
 
 	char discount_buf[80];
-
 	char tmp_buf[128];
 
 	u32b f1, f2, f3;
 
-	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+	int dd, ds, db;
+	int tmul;
+	long avgdam;
 
 
 	/* Extract some flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
-
 
 	/* See if the object is "aware" */
 	aware = (object_aware_p(o_ptr) ? TRUE : FALSE);
 
 	/* See if the object is "known" */
 	known = (object_known_p(o_ptr) ? TRUE : FALSE);
+
+	/* Assume no special "easy_know" conditions */
+	easy_know = FALSE;
 
 	/* See if the object is "flavored" */
 	flavor = (k_ptr->flavor ? TRUE : FALSE);
@@ -977,6 +1148,9 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 
 	/* Assume no name appending */
 	append_name = FALSE;
+
+	/* Assume no prefix */
+	do_prefix = FALSE;
 
 	/* Assume no need to show "weapon" bonuses */
 	show_weapon = FALSE;
@@ -989,7 +1163,6 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 
 	/* Assume no "modifier" string */
 	modstr = "";
-
 
 	/* Analyze the object */
 	switch (o_ptr->tval)
@@ -1014,6 +1187,9 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		case TV_HAFTED:
 		case TV_POLEARM:
 		case TV_SWORD:
+		case TV_DAGGER:
+		case TV_AXES:
+		case TV_BLUNT:
 		case TV_DIGGING:
 		{
 			show_weapon = TRUE;
@@ -1041,6 +1217,12 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 
 		/* Lites (including a few "Specials") */
 		case TV_LITE:
+		{
+			break;
+		}
+		
+		/* Books */
+		case TV_BOOK:
 		{
 			break;
 		}
@@ -1106,8 +1288,17 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		{
 			/* Color the object */
 			modstr = apparatus_adj[o_ptr->sval];
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Apparatus~" : "& Apparatus~");
+
+
+			/* Apparatus is now just a generic device name */
+			/* It could be a deck of cards, a telescope, or any  */
+			/* kind of object at all */
+			if (aware) basenm = (k_name + k_ptr->name);
+			else basenm = "& # Apparatus~";
+
+			/* Old code */
+			/* if (aware) append_name = TRUE; */
+			/* basenm = (flavor ? "& # Apparatus~" : "& Apparatus~"); */
 
 			break;
 		}
@@ -1118,7 +1309,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			/* Color the object */
 			modstr = mechanism_adj[o_ptr->sval];
 			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& \"#\" Mechanism~" : "& Mechanism~");
+			basenm = (flavor ? "& # Mechanism~" : "& Mechanism~");
 
 			break;
 		}
@@ -1130,7 +1321,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			/* Color the object */
 			modstr = tonic_adj[o_ptr->sval];
 			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Tonic~" : "& Tonic~");
+			basenm = (flavor ? "& \"#\" Tonic~" : "& Tonic~");
 
 			break;
 		}
@@ -1206,9 +1397,6 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 	/* Handle objects which sometimes use "a" or "an" */
 	if (*s == '&')
 	{
-		/* Paranoia XXX XXX XXX */
-		/* ASSERT(s[1] == ' '); */
-
 		/* Skip the ampersand and the following space */
 		s += 2;
 
@@ -1285,9 +1473,18 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		}
 	}
 
+	/* Non-artifact perfectly balanced throwing weapons are indicated. */
+	if ((f2 & (TR2_PERFECT_BALANCE)) && (f2 & (TR2_THROW)) &&
+	    (known) && (!artifact_p(o_ptr)))
+	{
+		object_desc_str_macro(t, "Well-balanced ");
+	}
 
-	/* Paranoia XXX XXX XXX */
-	/* ASSERT(*s != '~'); */
+	/* Insert any prefix */
+	if (do_prefix)
+	{
+		object_desc_str_macro(t, modstr);
+	}
 
 	/* Copy the string */
 	for (; *s; s++)
@@ -1302,6 +1499,12 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 
 				/* Hack -- "Cutlass-es" and "Torch-es" */
 				if ((k == 's') || (k == 'h')) *t++ = 'e';
+
+				/* Knife -> Knives */
+				else if ((k == 'e') && (t[-2] == 'f'))
+				{
+					t[-2] = 'v';
+				}
 
 				/* Add an 's' */
 				*t++ = 's';
@@ -1333,8 +1536,10 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 
 
 	/* Hack -- Append "Artifact" or "Special" names */
-	if (known)
+	if ((known) || ((easy_know) && (aware)))
 	{
+		bool no_ego_name = FALSE;
+
 		/* Grab any artifact name */
 		if (o_ptr->name1)
 		{
@@ -1363,6 +1568,12 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 	if (o_ptr->tval == TV_CHEST)
 	{
 		cptr tail = "";
+
+		/*may be a quest item*/
+		if(o_ptr->ident & IDENT_QUEST)
+		{
+			tail = " (Sealed by Guild Magic)";
+		}
 
 		/* Not searched yet */
 		if (!known)
@@ -1468,6 +1679,9 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		case TV_HAFTED:
 		case TV_POLEARM:
 		case TV_SWORD:
+		case TV_DAGGER:
+		case TV_AXES:
+		case TV_BLUNT:
 		case TV_DIGGING:
 		{
 			/* Append a "damage" string */
@@ -1476,6 +1690,8 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			object_desc_num_macro(t, o_ptr->dd);
 			object_desc_chr_macro(t, 'd');
 			object_desc_num_macro(t, o_ptr->ds);
+			object_desc_chr_macro(t, '|');
+			object_desc_num_macro(t, o_ptr->force);
 			object_desc_chr_macro(t, p2);
 
 			/* All done */
@@ -1496,6 +1712,20 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			object_desc_chr_macro(t, p2);
 
 			/* All done */
+			break;
+		}
+
+		/* Light sources */
+		case TV_LITE:
+		{
+			/* Display the light radius */
+			power = get_object_pval(o_ptr, TR_PVAL_LIGHT);
+
+			object_desc_chr_macro(t, ' ');
+			object_desc_chr_macro(t, b1);
+			object_desc_num_macro(t, power);
+			object_desc_chr_macro(t, b2);
+
 			break;
 		}
 	}
@@ -1521,6 +1751,8 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			object_desc_chr_macro(t, ' ');
 			object_desc_chr_macro(t, p1);
 			object_desc_int_macro(t, o_ptr->to_h);
+			object_desc_chr_macro(t, ',');
+			object_desc_int_macro(t, o_ptr->to_d);
 			object_desc_chr_macro(t, p2);
 		}
 
@@ -1529,9 +1761,78 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		{
 			object_desc_chr_macro(t, ' ');
 			object_desc_chr_macro(t, p1);
+			object_desc_int_macro(t, o_ptr->to_h);
+			object_desc_chr_macro(t, ',');
 			object_desc_int_macro(t, o_ptr->to_d);
 			object_desc_chr_macro(t, p2);
 		}
+	}
+
+	gun_ptr = &inventory[INVEN_GUN];
+
+	/* if have a firing weapon + ammo matches bow */
+	if (gun_ptr->k_idx && (p_ptr->ammo_tval == o_ptr->tval))
+	{
+		/* See if the bow is "known" - then set damage bonus */
+		if (object_known_p(gun_ptr))
+		{
+			db = gun_ptr->to_d;
+		}
+		else
+		{
+			db = 0;
+		}
+
+		/* effect of player */
+		db += p_ptr->dis_to_d;
+
+		if (p_ptr->skills[SK_VICIOUS_SHOT].skill_max > 0) 
+				db += p_ptr->skills[SK_VICIOUS_SHOT].skill_rank;
+
+		if (p_ptr->skills[SK_PYROKINETICS].skill_max > 0) 
+				db += p_ptr->skills[SK_PYROKINETICS].skill_rank/2;
+
+		/* effect of ammo */
+		if (known) db += o_ptr->to_d;
+
+		dd = o_ptr->dd;
+		ds = o_ptr->ds;
+
+		/* effect of damage dice . dice * (sides + 1) / 2*/
+		avgdam = ((dd * (ds + 1)) / 2) + db;
+
+		/* Bow properties */
+		/* energy_use = p_ptr->bow_energy; */
+		tmul = p_ptr->ammo_mult;
+
+		/* Get extra "power" from "extra might" */
+		tmul += get_object_pval(o_ptr, TR_PVAL_MIGHT);
+
+		/* launcher multiplier */
+		avgdam *= tmul;
+
+		/* display (shot damage/ avg damage) */
+		object_desc_chr_macro(t, ' ');
+		object_desc_chr_macro(t, p1);
+		object_desc_num_macro(t, avgdam);
+		object_desc_chr_macro(t, '/');
+
+		tmul = p_ptr->num_fire;
+
+		if (tmul == 0)
+		{
+			object_desc_chr_macro(t, '0');
+		}
+		else
+		{
+			/* calc effects of energy  x2 */
+			avgdam *= (p_ptr->num_fire);
+
+			/* rescale */
+			object_desc_num_macro(t, avgdam);
+		}
+
+		object_desc_chr_macro(t, p2);
 	}
 
 
@@ -1600,106 +1901,128 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		}
 	}
 
-	/* Hack -- Process Lanterns/Torches */
-	else if ((o_ptr->tval == TV_LITE) && (!artifact_p(o_ptr)))
+	/* Process light sources that need fuel */
+	else if ((o_ptr->tval == TV_LITE) && (!(f3 & (TR3_NO_FUEL))))
 	{
-		/* Hack -- Turns of light for normal lites */
-		object_desc_str_macro(t, " (with ");
+		/* Hack -- Turns of light for normal light sources */
+		object_desc_str_macro(t, " <Fuel: ");
 		object_desc_num_macro(t, o_ptr->pval);
-		object_desc_str_macro(t, " turns of light)");
+		object_desc_str_macro(t, ">");
 	}
 
 
-	/* Dump "pval" flags for wearable items */
-	if (known && (f1 & (TR1_PVAL_MASK)))
+	/* Display object pvals */
+	else if (known && (get_object_pval(o_ptr, 0L)))
 	{
-		cptr tail = "";
-		cptr tail2 = "";
+		int displayed = 0;
 
-		/* Start the display */
-		object_desc_chr_macro(t, ' ');
-		object_desc_chr_macro(t, p1);
-
-		/* Dump the "pval" itself */
-		object_desc_int_macro(t, o_ptr->pval);
-
-		/* Do not display the "pval" flags */
-		if (f3 & (TR3_HIDE_TYPE))
+		/* Dump the first pval value */
+		if (should_display_pval(o_ptr, 1))
 		{
-			/* Nothing */
+			/* Start the display */
+			object_desc_chr_macro(t, ' ');
+			object_desc_chr_macro(t, d1);
+			object_desc_int_macro(t, o_ptr->pval);
+			displayed++;
 		}
 
-		/* Stealth */
-		else if (f1 & (TR1_STEALTH))
+		/* Dump the second pval value */
+		if (should_display_pval(o_ptr, 2))
 		{
-			/* Dump " to stealth" */
-			tail = " to stealth";
+			/* Start or continue the display */
+			if (displayed) object_desc_str_macro(t, ", ");
+			else
+			{
+				object_desc_chr_macro(t, ' ');
+				object_desc_chr_macro(t, d1);
+			}
+
+			object_desc_int_macro(t, o_ptr->pval2);
+			displayed++;
 		}
 
-		/* Searching */
-		else if (f1 & (TR1_SEARCH))
+		/* Dump the third pval value */
+		if (should_display_pval(o_ptr, 3))
 		{
-			/* Dump " to searching" */
-			tail = " to searching";
-		}
+			/* Start or continue the display */
+			if (displayed) object_desc_str_macro(t, ", ");
+			else
+			{
+				object_desc_chr_macro(t, ' ');
+				object_desc_chr_macro(t, d1);
+			}
 
-		/* Infravision */
-		else if (f1 & (TR1_INFRA))
-		{
-			/* Dump " to infravision" */
-			tail = " to infravision";
-		}
-
-#if 0
-
-		/* Tunneling */
-		else if (f1 & (TR1_TUNNEL))
-		{
-			/* Dump " to digging" */
-			tail = " to digging";
-		}
-
-#endif
-
-		/* Speed */
-		else if (f1 & (TR1_SPEED))
-		{
-			/* Dump " to speed" */
-			tail = " to speed";
-		}
-
-		/* Blows */
-		else if (f1 & (TR1_BLOWS))
-		{
-			/* Add " attack" */
-			tail = " attack";
-
-			/* Add "attacks" */
-			if (ABS(o_ptr->pval) != 1) tail2 = "s";
+			object_desc_int_macro(t, o_ptr->pval3);
+			displayed++;
 		}
 
 #if 0
-
-		/* Shots */
-		else if (f1 & (TR1_SHOTS))
+		/* We sometimes show pval descriptions */
+		if ((displayed == 1) && (!(o_ptr->flags3 & (TR3_HIDE_TYPE))))
 		{
-			/* Nothing */
-		}
+			cptr tail = "";
 
-		/* Might */
-		else if (f1 & (TR1_MIGHT))
-		{
-			/* Nothing */
-		}
+			/* Speed */
+			if (get_object_pval(o_ptr, TR_PVAL_SPEED))
+			{
+				/* Dump " to speed" */
+				tail = " to speed";
+			}
 
+			/* Blows */
+			else if (get_object_pval(o_ptr, TR_PVAL_BLOWS))
+			{
+				/* Add " attack" */
+				if (ABS(get_object_pval(o_ptr, TR_PVAL_BLOWS)) == 1)
+				{
+					tail = " attack";
+				}
+				else
+				{
+					tail = " attacks";
+				}
+			}
+
+			/* Stealth */
+			else if (get_object_pval(o_ptr, TR_PVAL_STEALTH))
+			{
+				/* Dump " to stealth" */
+				tail = " to stealth";
+			}
+
+			/* Saving throw */
+			else if (get_object_pval(o_ptr, TR_PVAL_SAVE))
+			{
+				/* Dump " to saving throw" */
+				tail = " to saving throw";
+			}
+
+			/* Mana */
+			else if (get_object_pval(o_ptr, TR_PVAL_MANA))
+			{
+				/* Dump " to mana" */
+				tail = " to mana (x20)";
+			}
+
+			/* Awareness */
+			else if (get_object_pval(o_ptr, TR_PVAL_SEARCH))
+			{
+				/* Dump " to searching" */
+				tail = " to awareness";
+			}
+
+			/* Infravision */
+			else if (get_object_pval(o_ptr, TR_PVAL_INFRA))
+			{
+				/* Dump " to infravision" */
+				tail = " to infravision";
+			}
+
+			/* Add the descriptor */
+			object_desc_str_macro(t, tail);
+		}
 #endif
-
-		/* Add the descriptor */
-		object_desc_str_macro(t, tail);
-		object_desc_str_macro(t, tail2);
-
-		/* Finish the display */
-		object_desc_chr_macro(t, p2);
+		if (displayed) object_desc_chr_macro(t, d2);
 	}
 
 
@@ -1714,7 +2037,6 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 	/* No more details wanted */
 	if (mode < 3) goto object_desc_done;
 
-
 	/* Use standard inscription */
 	if (o_ptr->note)
 	{
@@ -1726,7 +2048,6 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 	{
 		u = NULL;
 	}
-
 
 	/* Use special inscription, if any */
 	if (o_ptr->discount >= INSCRIP_NULL)
@@ -1863,694 +2184,56 @@ void object_desc_store(char *buf, const object_type *o_ptr, int pref, int mode)
 }
 
 
-static cptr act_description[ACT_MAX] =
-{
-	"illumination",
-	"magic mapping",
-	"clairvoyance",
-	"protection from evil",
-	"dispel evil (x5)",
-	"heal (500)",
-	"heal (1000)",
-	"cure wounds (4d7)",
-	"haste self (20+d20 turns)",
-	"haste self (75+d75 turns)",
-	"fire bolt (9d8)",
-	"fire ball (72)",
-	"large fire ball (120)",
-	"frost bolt (6d8)",
-	"frost ball (48)",
-	"frost ball (100)",
-	"frost bolt (12d8)",
-	"large frost ball (200)",
-	"acid bolt (5d8)",
-	"recharge item I",
-	"sleep II",
-	"lightning bolt (4d8)",
-	"large lightning ball (250)",
-	"genocide",
-	"mass genocide",
-	"identify",
-	"drain life (90)",
-	"drain life (120)",
-	"bizarre things",
-	"star ball (150)",
-	"berserk rage, bless, and resistance",
-	"phase door",
-	"door and trap destruction",
-	"detection",
-	"resistance (20+d20 turns)",
-	"teleport",
-	"restore life levels",
-	"magic missile (2d6)",
-	"a magical arrow (150)",
-	"remove fear and cure poison",
-	"stinking cloud (12)",
-	"stone to mud",
-	"teleport away",
-	"word of recall",
-	"confuse monster",
-	"probing",
-	"fire branding of bolts",
-};
-
-
 
 /*
- * Determine the "Activation" (if any) for an artifact
- * Return a string, or NULL for "no activation"
+ * Obtain the resistances from an item 
  */
-cptr item_activation(const object_type *o_ptr)
+s16b object_resist(const object_type *o_ptr, int res_type)
 {
-	u32b f1, f2, f3;
+	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+	artifact_type *a_ptr = &a_info[o_ptr->name1];
+	ego_item_type *e_ptr = &e_info[o_ptr->name2];
 
-	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
-
-	/* Require activation ability */
-	if (!(f3 & (TR3_ACTIVATE))) return (NULL);
-
-	/* Artifact activations */
-	if (o_ptr->name1)
-	{
-		artifact_type *a_ptr = &a_info[o_ptr->name1];
-
-#if 0
-		/*
-		 * ToDo: Put the recharge time back into the
-		 * artifact description.
-		 */
-		char turns[32];
-
-		/* Format the number of turns */
-		if (a_ptr->time && a_ptr->randtime)
-			sprintf(turns, " every %d+d%d turns",
-			        a_ptr->time, a_ptr->randtime);
-		else if (a_ptr->time)
-			sprintf(turns, " every %d turns", a_ptr->time);
-		else if (a_ptr->randtime)
-			sprintf(turns, " every d%d turns", a_ptr->randtime);
-#endif
-
-		/* Paranoia */
-		if (a_ptr->activation >= ACT_MAX)
-			return (NULL);
-
-		/* Some artifacts can be activated */
-		return (act_description[a_ptr->activation]);
-	}
-
-	/* Require dragon scale mail */
-	if (o_ptr->tval != TV_DRAG_ARMOR) return (NULL);
-
-	/* Branch on the sub-type */
-	switch (o_ptr->sval)
-	{
-		case SV_DRAGON_BLUE:
-		{
-			return "breathe lightning (100) every 450+d450 turns";
-		}
-		case SV_DRAGON_WHITE:
-		{
-			return "breathe frost (110) every 450+d450 turns";
-		}
-		case SV_DRAGON_BLACK:
-		{
-			return "breathe acid (130) every 450+d450 turns";
-		}
-		case SV_DRAGON_GREEN:
-		{
-			return "breathe poison gas (150) every 450+d450 turns";
-		}
-		case SV_DRAGON_RED:
-		{
-			return "breathe fire (200) every 450+d450 turns";
-		}
-		case SV_DRAGON_MULTIHUED:
-		{
-			return "breathe multi-hued (250) every 225+d225 turns";
-		}
-		case SV_DRAGON_BRONZE:
-		{
-			return "breathe confusion (120) every 450+d450 turns";
-		}
-		case SV_DRAGON_GOLD:
-		{
-			return "breathe sound (130) every 450+d450 turns";
-		}
-		case SV_DRAGON_CHAOS:
-		{
-			return "breathe chaos/disenchant (220) every 300+d300 turns";
-		}
-		case SV_DRAGON_LAW:
-		{
-			return "breathe sound/shards (230) every 300+d300 turns";
-		}
-		case SV_DRAGON_BALANCE:
-		{
-			return "breathe balance (250) every 300+d300 turns";
-		}
-		case SV_DRAGON_SHINING:
-		{
-			return "breathe light/darkness (200) every 300+d300 turns";
-		}
-		case SV_DRAGON_POWER:
-		{
-			return "breathe the elements (300) every 300+d300 turns";
-		}
-	}
-
-
-	/* Oops */
-	return NULL;
-}
-
-
-/*
- * Fill an array with a description of the item flags.
- *
- * "info" must point to a cptr array that is big enough to store all
- * descriptions.
- *
- * Returns the number of lines.
- *
- * ToDo: Check the len of the array to prevent buffer overflows
- * (yes, this is paranoid).
- *
- * ToDo: Allow dynamic generation of strings.
- */
-static bool identify_fully_aux2(const object_type *o_ptr, int mode, cptr *info, int len)
-{
 	int i = 0;
 
-	u32b f1, f2, f3;
-
-
-	/* Unused parameter */
-	(void)len;
-
-	/* Extract the "known" and "random" flags */
-	object_flags_aux(mode, o_ptr, &f1, &f2, &f3);
-
-
-	/* Mega-Hack -- describe activation */
-	if (f3 & (TR3_ACTIVATE))
+	/* Random abilities for ego items */
+	if (o_ptr->name1)
 	{
-		info[i++] = "It can be activated for...";
-		info[i++] = item_activation(o_ptr);
-		info[i++] = "...if it is being worn.";
+		if (((o_ptr->xtra1 == OBJECT_XTRA_TYPE_MID_RESIST) ||
+			(o_ptr->xtra1 == OBJECT_XTRA_TYPE_HIGH_RESIST)) &&
+			(o_ptr->xtra2 == res_type))
+			i = 25;
 	}
 
-
-	/* Hack -- describe lite's */
-	if (o_ptr->tval == TV_LITE)
-	{
-		if (artifact_p(o_ptr))
-		{
-			info[i++] = "It provides light (radius 3) forever.";
-		}
-		else if (o_ptr->sval == SV_LITE_LANTERN)
-		{
-			info[i++] = "It provides light (radius 2) when fueled.";
-		}
-		else
-		{
-			info[i++] = "It provides light (radius 1) when fueled.";
-		}
-	}
-
-
-	/* And then describe it fully */
-
-	if (f1 & (TR1_MUS))
-	{
-		info[i++] = "It affects your muscle.";
-	}
-	if (f1 & (TR1_AGI))
-	{
-		info[i++] = "It affects your agility.";
-	}
-	if (f1 & (TR1_VIG))
-	{
-		info[i++] = "It affects your vigor.";
-	}
-	if (f1 & (TR1_SCH))
-	{
-		info[i++] = "It affects your schooling.";
-	}
-	if (f1 & (TR1_EGO))
-	{
-		info[i++] = "It affects your ego.";
-	}
-	if (f1 & (TR1_CHR))
-	{
-		info[i++] = "It affects your charisma.";
-	}
-
-	if (f1 & (TR1_STEALTH))
-	{
-		info[i++] = "It affects your stealth.";
-	}
-	if (f1 & (TR1_SEARCH))
-	{
-		info[i++] = "It affects your searching.";
-	}
-	if (f1 & (TR1_INFRA))
-	{
-		info[i++] = "It affects your infravision.";
-	}
-	if (f1 & (TR1_TUNNEL))
-	{
-		info[i++] = "It affects your ability to tunnel.";
-	}
-	if (f1 & (TR1_SPEED))
-	{
-		info[i++] = "It affects your speed.";
-	}
-	if (f1 & (TR1_BLOWS))
-	{
-		info[i++] = "It affects your attack speed.";
-	}
-	if (f1 & (TR1_SHOTS))
-	{
-		info[i++] = "It affects your shooting speed.";
-	}
-	if (f1 & (TR1_MIGHT))
-	{
-		info[i++] = "It affects your shooting power.";
-	}
-
-	if (f1 & (TR1_SLAY_ANIMAL))
-	{
-		info[i++] = "It is especially deadly against natural creatures.";
-	}
-	if (f1 & (TR1_SLAY_EVIL))
-	{
-		info[i++] = "It fights against evil with holy fury.";
-	}
-	if (f1 & (TR1_SLAY_UNDEAD))
-	{
-		info[i++] = "It strikes at undead with holy wrath.";
-	}
-	if (f1 & (TR1_SLAY_DEMON))
-	{
-		info[i++] = "It strikes at demons with holy wrath.";
-	}
-	if (f1 & (TR1_SLAY_AUTOMATA))
-	{
-		info[i++] = "It is especially deadly against Automatas.";
-	}
-	if (f1 & (TR1_SLAY_TROLL))
-	{
-		info[i++] = "It is especially deadly against trolls.";
-	}
-	if (f1 & (TR1_SLAY_GIANT))
-	{
-		info[i++] = "It is especially deadly against giants.";
-	}
-	if (f1 & (TR1_SLAY_DRAGON))
-	{
-		info[i++] = "It is especially deadly against dragons.";
-	}
-	if (f1 & (TR1_SLAY_ALIEN))
-	{
-		info[i++] = "It is especially deadly against aliens.";
-	}
-	if (f1 & (TR1_SLAY_BEASTMAN))
-	{
-		info[i++] = "It is especially deadly against beastmen.";
-	}
-
-	if (f1 & (TR1_KILL_DRAGON))
-	{
-		info[i++] = "It is a great bane of dragons.";
-	}
-
-	if (f1 & (TR1_BRAND_ACID))
-	{
-		info[i++] = "It does extra damage from acid.";
-	}
-	if (f1 & (TR1_BRAND_ELEC))
-	{
-		info[i++] = "It does extra damage from electricity.";
-	}
-	if (f1 & (TR1_BRAND_FIRE))
-	{
-		info[i++] = "It does extra damage from fire.";
-	}
-	if (f1 & (TR1_BRAND_COLD))
-	{
-		info[i++] = "It does extra damage from frost.";
-	}
-	if (f1 & (TR1_BRAND_POIS))
-	{
-		info[i++] = "It does extra damage from poison.";
-	}
-
-	if (f2 & (TR2_SUST_MUS))
-	{
-		info[i++] = "It sustains your muscle.";
-	}
-	if (f2 & (TR2_SUST_AGI))
-	{
-		info[i++] = "It sustains your agility.";
-	}
-	if (f2 & (TR2_SUST_VIG))
-	{
-		info[i++] = "It sustains your vigor.";
-	}
-	if (f2 & (TR2_SUST_SCH))
-	{
-		info[i++] = "It sustains your schooling.";
-	}
-	if (f2 & (TR2_SUST_EGO))
-	{
-		info[i++] = "It sustains your ego.";
-	}
-	if (f2 & (TR2_SUST_CHR))
-	{
-		info[i++] = "It sustains your charisma.";
-	}
-	
-	if (f2 & (TR2_RETURN))
-	{
-		info[i++] = "It returns when thrown.";
-	}
-
-
-	if (f2 & (TR2_IM_ACID))
-	{
-		info[i++] = "It provides immunity to acid.";
-	}
-	else if (f2 & (TR2_RES_ACID))
-	{
-		info[i++] = "It provides resistance to acid.";
-	}
-
-	if (f2 & (TR2_IM_ELEC))
-	{
-		info[i++] = "It provides immunity to electricity.";
-	}
-	else if (f2 & (TR2_RES_ELEC))
-	{
-		info[i++] = "It provides resistance to electricity.";
-	}
-
-	if (f2 & (TR2_IM_FIRE))
-	{
-		info[i++] = "It provides immunity to fire.";
-	}
-	else if (f2 & (TR2_RES_FIRE))
-	{
-		info[i++] = "It provides resistance to fire.";
-	}
-
-	if (f2 & (TR2_IM_COLD))
-	{
-		info[i++] = "It provides immunity to cold.";
-	}
-	else if (f2 & (TR2_RES_COLD))
-	{
-		info[i++] = "It provides resistance to cold.";
-	}
-
-	if (f2 & (TR2_RES_POIS))
-	{
-		info[i++] = "It provides resistance to poison.";
-	}
-
-	if (f2 & (TR2_RES_FEAR))
-	{
-		info[i++] = "It provides resistance to fear.";
-	}
-
-	if (f2 & (TR2_RES_LITE))
-	{
-		info[i++] = "It provides resistance to light.";
-	}
-
-	if (f2 & (TR2_RES_DARK))
-	{
-		info[i++] = "It provides resistance to dark.";
-	}
-
-	if (f3 & (TR3_WRAITH))
-	{
-		info[i++] = "It renders you incorporeal.";
-	}
-
-	if (f2 & (TR2_RES_BLIND))
-	{
-		info[i++] = "It provides resistance to blindness.";
-	}
-
-	if (f2 & (TR2_RES_CONFU))
-	{
-		info[i++] = "It provides resistance to confusion.";
-	}
-
-	if (f2 & (TR2_RES_SOUND))
-	{
-		info[i++] = "It provides resistance to sound.";
-	}
-
-	if (f2 & (TR2_RES_SHARD))
-	{
-		info[i++] = "It provides resistance to shards.";
-	}
-
-	if (f2 & (TR2_RES_NEXUS))
-	{
-		info[i++] = "It provides resistance to nexus.";
-	}
-
-	if (f2 & (TR2_RES_NETHR))
-	{
-		info[i++] = "It provides resistance to nether.";
-	}
-
-	if (f2 & (TR2_RES_CHAOS))
-	{
-		info[i++] = "It provides resistance to chaos.";
-	}
-
-	if (f2 & (TR2_RES_DISEN))
-	{
-		info[i++] = "It provides resistance to disenchantment.";
-	}
-
-	if (f3 & (TR3_SLOW_DIGEST))
-	{
-		info[i++] = "It slows your metabolism.";
-	}
-
-	if (f3 & (TR3_FEATHER))
-	{
-		info[i++] = "It induces feather falling.";
-	}
-
-	if (f3 & (TR3_LITE))
-	{
-		info[i++] = "It provides permanent light.";
-	}
-
-	if (f3 & (TR3_REGEN))
-	{
-		info[i++] = "It speeds your regenerative powers.";
-	}
-
-	if (f3 & (TR3_TELEPATHY))
-	{
-		info[i++] = "It gives telepathic powers.";
-	}
-
-	if (f3 & (TR3_SEE_INVIS))
-	{
-		info[i++] = "It allows you to see invisible monsters.";
-	}
-
-	if (f3 & (TR3_FREE_ACT))
-	{
-		info[i++] = "It provides immunity to paralysis.";
-	}
-
-	if (f3 & (TR3_HOLD_LIFE))
-	{
-		info[i++] = "It provides resistance to life draining.";
-	}
-
-	if (f3 & (TR3_SH_FIRE))
-	{
-		info[i++] = "It produces a fiery sheath.";
-	}
-
-	if (f3 & (TR3_THROW))
-	{
-		info[i++] = "It is designed for throwing.";
-	}
-
-	if (f3 & (TR3_SH_ELEC))
-	{
-		info[i++] = "It produces an electric sheath.";
-	}
-
-	if (f3 & (TR3_SPINES))
-	{
-		info[i++] = "It is covered with spines.";
-	}
-
-	if (f3 & (TR3_IMPACT))
-	{
-		info[i++] = "It induces earthquakes.";
-	}
-
-	if (f3 & (TR3_TELEPORT))
-	{
-		info[i++] = "It induces random teleportation.";
-	}
-
-	if (f3 & (TR3_AGGRAVATE))
-	{
-		info[i++] = "It aggravates nearby creatures.";
-	}
-
-	if (f3 & (TR3_DRAIN_EXP))
-	{
-		info[i++] = "It drains experience.";
-	}
-
-	if (f3 & (TR3_BLESSED))
-	{
-		info[i++] = "It has been blessed by the gods.";
-	}
-
-	if (object_known_p(o_ptr) && cursed_p(o_ptr))
-	{
-		if (f3 & (TR3_PERMA_CURSE))
-		{
-			info[i++] = "It is permanently cursed.";
-		}
-		else if (f3 & (TR3_HEAVY_CURSE))
-		{
-			info[i++] = "It is heavily cursed.";
-		}
-		else
-		{
-			info[i++] = "It is cursed.";
-		}
-	}
-
-	if ((f3 & (TR3_IGNORE_ACID)) && (f3 & (TR3_IGNORE_ELEC)) &&
-	    (f3 & (TR3_IGNORE_FIRE)) && (f3 & (TR3_IGNORE_COLD)))
-	{
-		info[i++] = "It cannot be harmed by the elements.";
-	}
-	else
-	{
-		if (f3 & (TR3_IGNORE_ACID))
-		{
-			info[i++] = "It cannot be harmed by acid.";
-		}
-		if (f3 & (TR3_IGNORE_ELEC))
-		{
-			info[i++] = "It cannot be harmed by electricity.";
-		}
-		if (f3 & (TR3_IGNORE_FIRE))
-		{
-			info[i++] = "It cannot be harmed by fire.";
-		}
-		if (f3 & (TR3_IGNORE_COLD))
-		{
-			info[i++] = "It cannot be harmed by cold.";
-		}
-	}
-
-	/* Unknown extra powers (ego-item with random extras or artifact) */
-	if (object_known_p(o_ptr) &&
-		(!(o_ptr->ident & IDENT_MENTAL)) &&
-	    ((o_ptr->xtra1) || artifact_p(o_ptr)))
-	{
-		info[i++] = "It might have hidden powers.";
-	}
-
-
-	/* Return the number of lines */
-	return (i);
+	return (k_ptr->res[res_type] + a_ptr->res[res_type] + e_ptr->res[res_type] + i);
 }
-
 
 /*
- * Describe an item's random attributes for "character dumps"
+ * Obtain the resistances from an item 
  */
-int identify_random_gen(const object_type *o_ptr, cptr *info, int len)
+s16b object_resist_known(const object_type *o_ptr, int res_type)
 {
-	/* Fill the list of descriptions and return the count */
-	return identify_fully_aux2(o_ptr, OBJECT_FLAGS_RANDOM, info, len);
-}
+	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+	artifact_type *a_ptr = &a_info[o_ptr->name1];
+	ego_item_type *e_ptr = &e_info[o_ptr->name2];
 
+	int res = 0;
 
-/*
- * Describe an item
- */
-bool identify_fully_aux(const object_type *o_ptr)
-{
-	int i, j, k;
-	cptr info[128];
-
-
-	/* Fill the list of descriptions */
-	i = identify_fully_aux2(o_ptr, OBJECT_FLAGS_KNOWN, info, 128);
-
-	/* No special effects */
-	if (!i) return (FALSE);
-
-
-	/* Save screen */
-	screen_save();
-
-
-	/* Erase the screen */
-	Term_clear();
-
-	/* Label the information */
-	prt("     Item Attributes:", 1, 0);
-
-	/* Dump some info */
-	for (k = 2, j = 0; j < i; j++)
+	if (object_known_p(o_ptr)) 
 	{
-		/* Show the info */
-		prt(info[j], k++, 0);
+		res = k_ptr->res[res_type] + e_ptr->res[res_type];
+		if (artifact_p(o_ptr)) res += a_ptr->res[res_type];
 
-		/* Page wrap */
-		if ((k == 22) && (j+1 < i))
-		{
-			prt("-- more --", k, 0);
-			inkey();
-
-			/* Erase the screen */
-			Term_clear();
-
-			/* Label the information */
-			prt("     Item Attributes:", 1, 0);
-
-			/* Back to the top */
-			k = 2;
-		}
+		/* Known random ego-item resists */
+		if (o_ptr->name1 && (o_ptr->ident & IDENT_MENTAL))
+		if (((o_ptr->xtra1 == OBJECT_XTRA_TYPE_MID_RESIST) ||
+			(o_ptr->xtra1 == OBJECT_XTRA_TYPE_HIGH_RESIST)) &&
+			(o_ptr->xtra2 == res_type))
+			res += 25;
 	}
 
-	/* Wait for it */
-	prt("[Press any key to continue]", k, 0);
-	(void)inkey();
-
-
-	/* Load screen */
-	screen_load();
-
-
-	/* Gave knowledge */
-	return (TRUE);
+	return (res);
 }
-
 
 
 /*
@@ -2630,6 +2313,10 @@ s16b wield_slot(const object_type *o_ptr)
 		case TV_HAFTED:
 		case TV_POLEARM:
 		case TV_SWORD:
+		case TV_DAGGER:
+		case TV_AXES:
+		case TV_BLUNT:
+		case TV_MAGIC_BOOK:
 		{
 			return (INVEN_WIELD);
 		}
@@ -2747,6 +2434,7 @@ s16b wield_slot(const object_type *o_ptr)
 
 /*
  * Return a string mentioning how a given item is carried
+ * Should add Automata descriptions for mecha parts
  */
 cptr mention_use(int i)
 {
@@ -2761,12 +2449,44 @@ cptr mention_use(int i)
 		case INVEN_RIGHT: p = "On right hand"; break;
 		case INVEN_NECK:  p = "Around neck"; break;
 		case INVEN_LITE:  p = "Light source"; break;
-		case INVEN_BODY:  p = "On body"; break;
+		case INVEN_BODY:  
+		{
+			if ((p_ptr->prace == RACE_AUTOMATA) || 
+				(p_ptr->prace == RACE_STEAM_MECHA)) 
+			{
+				p = "Body"; break;
+			}
+			else p = "On body"; break;
+		}
 		case INVEN_OUTER: p = "About body"; break;
 		case INVEN_LEG:   p = "On legs"; break;
-		case INVEN_HEAD:  p = "On head"; break;
-		case INVEN_HANDS: p = "On hands"; break;
-		case INVEN_FEET:  p = "On feet"; break;
+		case INVEN_HEAD:  
+		{
+			if ((p_ptr->prace == RACE_AUTOMATA) || 
+				(p_ptr->prace == RACE_STEAM_MECHA)) 
+			{
+				p = "Head"; break;
+			}
+			else p = "On head"; break;
+		}
+		case INVEN_HANDS: 
+		{
+			if ((p_ptr->prace == RACE_AUTOMATA) || 
+				(p_ptr->prace == RACE_STEAM_MECHA))
+			{
+				 p = "Arms"; break;
+			}
+			else p = "On hands"; break;
+		}
+		case INVEN_FEET:  
+		{
+			if ((p_ptr->prace == RACE_AUTOMATA) || 
+				(p_ptr->prace == RACE_STEAM_MECHA))
+			{
+				 p = "Legs"; break;
+			}
+			else p = "On feet"; break;
+		}
 		default:          p = "In pack"; break;
 	}
 
@@ -3072,7 +2792,12 @@ void display_equip(void)
 		n = strlen(o_name);
 
 		/* Get inventory color */
-		attr = tval_to_attr[o_ptr->tval & 0x7F];
+		if (o_ptr->tval != TV_MAGIC_BOOK) attr = tval_to_attr[o_ptr->tval & 0x7F];
+		else
+		{
+			if (cp_ptr->spell_book[o_ptr->sval]) attr = k_info[o_ptr->k_idx].d_attr;
+			else attr = TERM_L_DARK;
+		}
 
 		/* Display the entry itself */
 		Term_putstr(3, i - INVEN_WIELD, n, attr, o_name);
@@ -3278,7 +3003,12 @@ void show_equip(void)
 		out_index[k] = i;
 
 		/* Get inventory color */
-		out_color[k] = tval_to_attr[o_ptr->tval & 0x7F];
+		if (o_ptr->tval != TV_MAGIC_BOOK) out_color[k] = tval_to_attr[o_ptr->tval & 0x7F];
+		else
+		{
+			if (cp_ptr->spell_book[o_ptr->sval]) out_color[k] = k_info[o_ptr->k_idx].d_attr;
+			else out_color[k] = TERM_L_DARK;
+		}
 
 		/* Save the description */
 		strcpy(out_desc[k], o_name);
@@ -3400,7 +3130,12 @@ void show_floor(const int *floor_list, int floor_num)
 		out_index[k] = i;
 
 		/* Get inventory color */
-		out_color[k] = tval_to_attr[o_ptr->tval & 0x7F];
+		if (o_ptr->tval != TV_MAGIC_BOOK) out_color[k] = tval_to_attr[o_ptr->tval & 0x7F];
+		else
+		{
+			if (cp_ptr->spell_book[o_ptr->sval]) out_color[k] = k_info[o_ptr->k_idx].d_attr;
+			else out_color[k] = TERM_L_DARK;
+		}
 
 		/* Save the object description */
 		strcpy(out_desc[k], o_name);
@@ -3862,7 +3597,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	else
 	{
 		/* Hack -- Start on equipment if requested */
-		if (p_ptr->command_see &&
+		/* I'm removing the command_see check and I'm sure it will break something */
+		if (/* p_ptr->command_see && */
 		    (p_ptr->command_wrk == (USE_EQUIP)) &&
 		    use_equip)
 		{
@@ -4441,3 +4177,1256 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Result */
 	return (item);
 }
+
+
+/*
+ * Extract and return extended information about an object, including
+ * (sometimes) damage information for magical items, and (if appropriate)
+ * ego and artifact lore.
+ *
+ * Code mostly from object_desc and roff_aux.
+ */
+void object_info(char *buf, object_type *o_ptr)
+{
+	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
+	char *t;
+	cptr s;
+	cptr v;
+	cptr w;
+	cptr x;
+
+	/* Assume no flavor string, no ego info, and no base info. */
+	cptr modstr = "";
+	cptr egoinfo = "";
+	char baseinfo[1024];
+
+
+	/* Artifacts have unique descriptions. */
+	if ((artifact_p(o_ptr)) && (object_known_p(o_ptr)))
+	{
+		artifact_type *a_ptr = &a_info[o_ptr->name1];
+
+#ifdef DELAY_LOAD_A_TEXT
+
+		int fd;
+
+		/* Build the filename */
+		path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, "artifact.raw");
+
+		/* Open the "raw" file */
+		fd = fd_open(buf, O_RDONLY);
+
+		/* Use file */
+		if (fd >= 0)
+		{
+			huge pos;
+
+			/* Starting position */
+			pos = a_ptr->text;
+
+			/* Additional offsets */
+			pos += a_head->head_size;
+			pos += a_head->info_size;
+			pos += a_head->name_size;
+
+			/* Seek */
+			fd_seek(fd, pos);
+
+			/* Read a chunk of data */
+			fd_read(fd, buf, sizeof(buf));
+
+			/* Close it */
+			fd_close(fd);
+		}
+
+#else
+		/* If already in memory, simple to access */
+		my_strcpy(buf, a_text + a_ptr->text, 2048);
+
+#endif
+
+		/* Return the description, if any. */
+		return;
+	}
+
+	/* All non-artifact or random artifact objects. */
+	else
+	{
+
+#ifdef DELAY_LOAD_K_TEXT
+
+		int fd;
+
+		/* Build the filename */
+		path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, "object.raw");
+
+		/* Open the "raw" file */
+		fd = fd_open(buf, O_RDONLY);
+
+		/* Use file */
+		if (fd >= 0)
+		{
+			huge pos;
+
+			/* Starting position */
+			pos = k_ptr->text;
+
+			/* Additional offsets */
+			pos += k_head->head_size;
+			pos += k_head->info_size;
+			pos += k_head->name_size;
+
+			/* Seek */
+			fd_seek(fd, pos);
+
+			/* Read a chunk of data */
+			fd_read(fd, buf, sizeof(buf));
+
+			/* Close it */
+			fd_close(fd);
+		}
+
+#else
+
+		/* If already in memory, simple to access */
+		strcpy(buf, k_text + k_ptr->text);
+
+#endif
+
+		/* No object description, so return failure. */
+		if (!buf[0]) return;
+
+
+		/* Various object types have different kinds of information. */
+		switch (o_ptr->tval)
+		{
+			/* Dragon Scale Mails */
+			case TV_DRAG_ARMOR:
+			{
+				/* Allow processing of activation information. */
+				strcpy(baseinfo, format("%s", buf));
+				break;
+			}
+
+			/* Amulets */
+			case TV_AMULET:
+			{
+				strcpy(baseinfo, format("An amulet %s", buf));
+				break;
+			}
+
+			/* Rings */
+			case TV_RING:
+			{
+				strcpy(baseinfo, format("A ring %s", buf));
+				break;
+			}
+
+			/* Staffs */
+			case TV_TOOL:
+			{
+				strcpy(baseinfo, format("A tool %s", buf));
+				break;
+			}
+
+			/* Wands */
+			case TV_RAY:
+			{
+				strcpy(baseinfo, format("A ray gun %s", buf));
+				break;
+			}
+
+			/* Rods */
+			case TV_APPARATUS:
+			{
+				strcpy(baseinfo, format("An apparatus %s", buf));
+				break;
+			}
+
+			/* Scrolls */
+			case TV_MECHANISM:
+			{
+				strcpy(baseinfo, format("A mechanism %s", buf));
+				break;
+			}
+
+			/* Potions */
+			case TV_TONIC:
+			{
+				strcpy(baseinfo, format("A tonic %s", buf));
+				break;
+			}
+
+			/* All other objects can just display the info text. */
+			default:
+			{
+				/* Store the basic info text. */
+				strcpy(baseinfo, format("%s", buf));
+			}
+		}
+
+
+		/* Ego-object descriptions are added to any base description. */
+		if ((o_ptr->name2) && (object_known_p(o_ptr)))
+		{
+			ego_item_type *e_ptr = &e_info[o_ptr->name2];
+			char ebuf[1024];
+
+			/* First, find the information in memory, or get it from
+			 * the binary file.
+			 */
+#ifdef DELAY_LOAD_E_TEXT
+
+			int fd;
+
+			/* Build the filename */
+			path_build(ebuf, sizeof(ebuf), ANGBAND_DIR_DATA, "ego_item.raw");
+
+			/* Open the "raw" file */
+			fd = fd_open(ebuf, O_RDONLY);
+
+			/* Use file */
+			if (fd >= 0)
+			{
+				huge pos;
+
+				/* Starting position */
+				pos = e_ptr->text;
+
+				/* Additional offsets */
+				pos += e_head->head_size;
+				pos += e_head->info_size;
+				pos += e_head->name_size;
+
+				/* Seek */
+				fd_seek(fd, pos);
+
+				/* Read a chunk of data */
+				fd_read(fd, ebuf, sizeof(ebuf));
+
+				/* Close it */
+				fd_close(fd);
+			}
+
+#else
+
+			/* If already in memory, simple to access */
+			strcpy(ebuf, e_text + e_ptr->text);
+
+#endif
+
+			/* Point to the ego-item information. */
+			egoinfo = ebuf;
+		}
+
+
+		/* Point to "buf", and start dumping the result */
+		t = buf;
+
+
+		/*** Assemble the object information. ***/
+
+		/* The object needs an article */
+		if (baseinfo[0] == '&')
+		{
+			/* Skip ampersand and space. */
+			s = baseinfo + 2;
+
+			/* Flavor starts with a vowel */
+			if (is_a_vowel(modstr[0])) w = "An ";
+
+			/* Flavor starts with a non-vowel */
+			else w = "A ";
+		}
+		else
+		{
+			w = "";
+
+			/* Start at beginning of base info. */
+			s = baseinfo;
+		}
+
+		/* Copy the base description, inserting info text. */
+		for (; *s; s++)
+		{
+			/* Insert article */
+			if (s != baseinfo)
+			{
+				for (; *w; w++) *t++ = *w;
+			}
+
+			/* Insert numerical info before closing period. */
+			if ((*s == '.') && (*(s + 1) == '\0'))
+			{
+				/* Extra info if object is fully known. */
+				if (o_ptr->ident & (IDENT_MENTAL)) /* || k_ptr->special & (SPECIAL_KNOWN_EFFECT)) */
+				{
+					cptr moddata = "";
+					bool dummy;
+
+					/* Item is a magical device */
+					if ((o_ptr->tval == TV_TOOL) ||
+					    (o_ptr->tval == TV_RAY) ||
+					    (o_ptr->tval == TV_APPARATUS))
+					{
+						moddata = do_device(OBJECT_INFO, o_ptr,
+							&dummy, &dummy, FALSE);
+					}
+
+					/* Item is some food or a mushroom, a potion, or a scroll */
+					else if ((o_ptr->tval == TV_FOOD) ||
+					         (o_ptr->tval == TV_TONIC) ||
+					         (o_ptr->tval == TV_MECHANISM))
+					{
+						moddata = do_object(OBJECT_INFO, o_ptr);
+					}
+
+					/* If there is any numerical data,  */
+					if (strlen(moddata) > 0)
+					{
+						/* ...insert a space, and */
+						*t++ = ' ';
+
+						/* insert the numerical data into the string. */
+						for (v = moddata; *v; v++) *t++ = *v;
+					}
+				}
+				/* Otherwise, no extra information. */
+			}
+			/* Copy over the string. */
+			*t++ = *s;
+		}
+
+		/* Extra info for ego items. */
+		if ((o_ptr->name2) && (object_known_p(o_ptr)))
+		{
+			cptr divider = "                                   ---";
+
+			/* Insert a return, a divider, and another return. */
+			*t++ = '\n';
+			for (x = divider; *x; x++) *t++ = *x;
+			*t++ = '\n';
+
+			/* Copy the ego info to the information string. */
+			for (x = egoinfo; *x; x++) *t++ = *x;
+		}
+
+		/* End the string. */
+		*t = '\0';
+
+		/* Return the string. */
+		return;
+	}
+}
+
+/*
+ * Descriptions of pval-dependent qualities.
+ */
+static cptr pval_desc_text[32] =
+{
+	"muscle",
+	"agility",
+	"vigor",
+	"schooling",
+	"ego",
+	"charm",
+	"XXX6",
+	"XXX7",
+	"stealth",
+	"searching",
+	"infravision",
+	"tunneling",
+	"speed",
+	"mana",
+	"health",
+	"light radius",
+	"saving throw",
+	"magic bonus",
+	"XXX18",
+	"XXX19",
+	"melee blows",
+	"shooting speed",
+	"missile weapon power",
+	"XX23",
+	"XX24",
+	"XX25",
+	"XX26",
+	"XX27",
+	"XX28",
+	"XX29",
+	"XX30",
+	"XX31"
+};
+
+/*
+ * Display most of what is known about any object.  Rewritten to
+ * use "roff" and to harmonize with other description code.
+ *
+ * Fully known objects display all information, known objects display
+ * everything except the non pval-dependant and random flags, and others
+ * display only basic help text.
+ */
+void object_details(object_type *o_ptr, bool mental, bool known)
+{
+	int i, j, k, tmp1, tmp2;
+	int y, x;
+
+	int pval[32][2];
+
+	u32b f1, f2, f3;
+
+	int attr_listed = 0;
+	int attr_num = 0;
+
+
+
+	/* Object is not known -- jump straight to the basic information */
+	if (!known) goto basic_info;
+
+
+
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3);
+
+	/* Describe activation, if present. */
+	if (f3 & (TR3_ACTIVATE))
+	{
+		object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
+		if (mental) /*(|| (k_ptr->special |= (SPECIAL_KNOWN_EFFECT))) */
+		{
+			cptr buf = do_activation_aux(OBJECT_INFO, o_ptr);
+
+			c_roff(TERM_BLUE, "Activation:  ");
+			c_roff(TERM_BLUE, format("%s\n\n", buf));
+		}
+	}
+
+	/* Describe light sources */
+	if (get_object_pval(o_ptr, TR_PVAL_LIGHT) > 0)
+	{
+		int radius = get_object_pval(o_ptr, TR_PVAL_LIGHT);
+
+		if ((o_ptr->tval != TV_LITE) || (f3 & (TR3_NO_FUEL)))
+		{
+			c_roff(TERM_YELLOW, format("It provides light (radius %d) forever.\n",
+				radius));
+		}
+		else
+		{
+			c_roff(TERM_YELLOW, format("It provides light (radius %d) when fueled.\n",
+				radius));
+		}
+	}
+
+	/* display gun ranges -- hardcoded from cmd-attk.c line ~1800 */
+	/* From do_cmd_fire */
+	if (o_ptr->tval == TV_GUN)
+	{
+		if (o_ptr->sval == SV_DERRINGER) 
+			c_roff(TERM_UMBER, "This pistol has an accurate range of 2 squares.\n");
+		if (o_ptr->sval == SV_32_REVOLVER) 
+			c_roff(TERM_UMBER, "This pistol has an accurate range of 6 squares.\n");
+		if (o_ptr->sval == SV_38_REVOLVER) 
+			c_roff(TERM_UMBER, "This pistol has an accurate range of 6 squares.\n");
+		if (o_ptr->sval == SV_41_REVOLVER) 
+			c_roff(TERM_UMBER, "This pistol has an accurate range of 6 squares.\n");
+		if (o_ptr->sval == SV_45_REVOLVER) 
+			c_roff(TERM_UMBER, "This pistol has an accurate range of 6 squares.\n");
+		if (o_ptr->sval == SV_22_BOLT_ACTION) 
+			c_roff(TERM_UMBER, "This rifle has an accurate range of 10 squares.\n");
+		if (o_ptr->sval == SV_30_LEVER_ACTION) 
+			c_roff(TERM_UMBER, "This rifle has an accurate range of 14 squares.\n");
+		if (o_ptr->sval == SV_45_MARTINI_HENRY) 
+			c_roff(TERM_UMBER, "This rifle has an accurate range of 14 squares.\n");
+		if (o_ptr->sval == SV_COL_MORAN) 
+			c_roff(TERM_UMBER, "This rifle has an accurate range of 14 squares.\n");
+		if (o_ptr->sval == SV_303_LEE_ENFIELD) 
+			c_roff(TERM_UMBER, "This rifle has an accurate range of 14 squares.\n");
+		if (o_ptr->sval == SV_ELEPHANT_GUN) 
+			c_roff(TERM_UMBER, "This rifle has an accurate range of 14 squares.\n");
+		if (o_ptr->sval == SV_20_GAGUE) 
+			c_roff(TERM_UMBER, "This shotgun has an accurate range of 10 squares.\n");
+		if (o_ptr->sval == SV_SAWED_OFF) 
+			c_roff(TERM_UMBER, "This shotgun has an accurate range of 6 squares.\n");
+		if (o_ptr->sval == SV_16_GAGUE) 
+			c_roff(TERM_UMBER, "This shotgun has an accurate range of 8 squares.\n");
+		if (o_ptr->sval == SV_12_GAGUE) 
+			c_roff(TERM_UMBER, "This shotgun has an accurate range of 6 squares.\n");
+		if (o_ptr->sval == SV_10_GAGUE) 
+			c_roff(TERM_UMBER, "This shotgun has an accurate range of 4 squares.\n");
+	}
+	
+	/* Magical devices can be damaged  XXX XXX */
+	if (((o_ptr->tval == TV_TOOL) || (o_ptr->tval == TV_RAY)) &&
+		  (o_ptr->ac < k_info[o_ptr->k_idx].ac))
+	{
+		roff("This object is damaged.\n");
+	}
+
+
+	/* Object has a pval of some kind */
+	if (get_object_pval(o_ptr, 0L))
+	{
+		/* Get the values of a lot of pval-dependant qualities */
+		pval[0][0]  = get_object_pval(o_ptr, TR_PVAL_MUS);
+		pval[1][0]  = get_object_pval(o_ptr, TR_PVAL_AGI);
+		pval[2][0]  = get_object_pval(o_ptr, TR_PVAL_VIG);
+		pval[3][0]  = get_object_pval(o_ptr, TR_PVAL_SCH);
+		pval[4][0]  = get_object_pval(o_ptr, TR_PVAL_EGO);
+		pval[5][0]  = get_object_pval(o_ptr, TR_PVAL_CHR);
+		pval[6][0]  = 0;
+		pval[7][0]  = 0;
+
+		pval[8][0]  = get_object_pval(o_ptr, TR_PVAL_STEALTH);
+		pval[9][0]  = get_object_pval(o_ptr, TR_PVAL_SEARCH);
+		pval[10][0] = get_object_pval(o_ptr, TR_PVAL_INFRA);
+		pval[11][0] = get_object_pval(o_ptr, TR_PVAL_TUNNEL);
+		pval[12][0] = get_object_pval(o_ptr, TR_PVAL_SPEED);
+		pval[13][0] = get_object_pval(o_ptr, TR_PVAL_MANA);
+
+		/* Show exact values for new and unfamiliar pvals  XXX XXX */
+		pval[14][0] = get_object_pval(o_ptr, TR_PVAL_HEALTH);
+		pval[15][0] = 0; /* Do not show light radius here */
+		pval[16][0] = get_object_pval(o_ptr, TR_PVAL_SAVE);
+		pval[17][0] = get_object_pval(o_ptr, TR_PVAL_MAGIC_MASTER);
+		pval[18][0] = 0; 
+		pval[19][0] = 0;
+
+		pval[20][0] = get_object_pval(o_ptr, TR_PVAL_BLOWS);
+		pval[21][0] = get_object_pval(o_ptr, TR_PVAL_SHOTS);
+		pval[22][0] = get_object_pval(o_ptr, TR_PVAL_MIGHT);
+		pval[23][0] = 0;
+		pval[24][0] = 0;
+		pval[25][0] = 0;
+		pval[26][0] = 0;
+		pval[27][0] = 0;
+		pval[28][0] = 0;
+		pval[29][0] = 0;
+		pval[30][0] = 0;
+		pval[31][0] = 0;
+
+		/* Special case:  all stats */
+		if ((pval[0][0] != 0) &&
+		    (pval[1][0] == pval[0][0]) && (pval[2][0] == pval[0][0]) &&
+		    (pval[3][0] == pval[0][0]) && (pval[4][0] == pval[0][0]) &&
+		    (pval[5][0] == pval[0][0]))
+		{
+			cptr desc = "increases";
+			if (pval[0][0] < 0) desc = "decreases";
+
+			roff(format("It %s all your stats by %d.\n", desc,
+				ABS(pval[0][0])));
+
+			/* Hack -- stats have been displayed */
+			pval[0][0] = pval[1][0] = pval[2][0] = pval[3][0] =
+			             pval[4][0] = pval[5][0] = 0;
+		}
+
+		/* Save the original indexes */
+		for (i = 0; i < 32; i++)
+		{
+			pval[i][1] = i;
+		}
+
+		/* Sort all the pvals by value */
+		for (i = 0; i < 32 - 1; i++)
+		{
+			for (j = 0; j < 32 - 1; j++)
+			{
+				/* Bubble sort */
+				if (pval[j][0] < pval[j + 1][0])
+				{
+					tmp1 = pval[j][0];
+					tmp2 = pval[j][1];
+					pval[j][0] = pval[j + 1][0];
+					pval[j][1] = pval[j + 1][1];
+					pval[j + 1][0] = tmp1;
+					pval[j + 1][1] = tmp2;
+				}
+			}
+		}
+
+		/* List all the pvals by value */
+		for (k = 0; k < 32;)
+		{
+			/* Get pval */
+			tmp1 = pval[k][0];
+
+			/* Skip pvals of 0 */
+			if (!tmp1)
+			{
+				k++;
+				continue;
+			}
+
+			/* Figure out how many items use this pval */
+			for (j = k + 1, attr_num = 1; j < 32; j++, attr_num++)
+			{
+				if (pval[j][0] != tmp1) break;
+			}
+
+
+			/* Start the description */
+			if (tmp1 > 0) roff("It increases your");
+			else          roff("It decreases your");
+
+			/* List all the items with this pval */
+			for (j = k, attr_listed = 0; (j < 32) && (attr_listed < attr_num);
+			     j++)
+			{
+				/* Listing another attribute */
+				attr_listed++;
+
+				/* Commas separate members of a list of more than two. */
+				if ((attr_num > 2) && (attr_listed > 1)) roff(",");
+
+				/* "and" before final member of a list of more than one. */
+				if ((attr_num > 1) && (j != k))
+				{
+					if (attr_num == attr_listed) roff(" and");
+				}
+
+				/* List -- use original flag index */
+				roff(format(" %s", pval_desc_text[pval[j][1]]));
+			}
+
+			/* End this pval's description */
+			roff(format(" by %d.\n", ABS(tmp1)));
+
+			/* Advance to next set of pvals */
+			k = j;
+		}
+	}
+
+	/* Require full identification for most info */
+	if (mental)
+	{
+		/* Sustain stats. */
+		if ((f1 & (TR1_SUST_MUS)) || (f1 & (TR1_SUST_AGI)) ||
+			 (f1 & (TR1_SUST_VIG)) || (f1 & (TR1_SUST_SCH)) ||
+			 (f1 & (TR1_SUST_EGO)) || (f1 & (TR1_SUST_CHR)))
+		{
+			/* Clear number of items to list, and items listed. */
+			attr_num = 0;
+			attr_listed = 0;
+
+			/* How many attributes need to be listed? */
+			if (f1 & (TR1_SUST_MUS)) attr_num++;
+			if (f1 & (TR1_SUST_AGI)) attr_num++;
+			if (f1 & (TR1_SUST_VIG)) attr_num++;
+			if (f1 & (TR1_SUST_SCH)) attr_num++;
+			if (f1 & (TR1_SUST_EGO)) attr_num++;
+			if (f1 & (TR1_SUST_CHR)) attr_num++;
+
+			/* Special case:  sustain all stats */
+			if (attr_num == 6)
+			{
+				roff("It sustains all your stats");
+			}
+			else
+			{
+				roff("It sustains your");
+
+				/* Loop for number of attributes in this group. */
+				for (j = 0; j < 6; j++)
+				{
+					bool list_ok = FALSE;
+
+					if ((j == 0) && (f1 & (TR1_SUST_MUS))) list_ok = TRUE;
+					if ((j == 1) && (f1 & (TR1_SUST_AGI))) list_ok = TRUE;
+					if ((j == 2) && (f1 & (TR1_SUST_VIG))) list_ok = TRUE;
+					if ((j == 3) && (f1 & (TR1_SUST_SCH))) list_ok = TRUE;
+					if ((j == 4) && (f1 & (TR1_SUST_EGO))) list_ok = TRUE;
+					if ((j == 5) && (f1 & (TR1_SUST_CHR))) list_ok = TRUE;
+
+					if (!list_ok) continue;
+
+					/* Listing another attribute. */
+					attr_listed++;
+
+					/* Commas separate members of a list of more than two. */
+					if ((attr_num > 2) && (attr_listed > 1)) roff(",");
+
+					/* "and" before final member of a list of more than one. */
+					if ((attr_num > 1) && (j != 0))
+					{
+						if (attr_num == attr_listed) roff(" and");
+					}
+
+					/* List the attribute description, in its proper place. */
+					if (j == 0) roff(" muscle");
+					if (j == 1) roff(" agility");
+					if (j == 2) roff(" vigor");
+					if (j == 3) roff(" schooling");
+					if (j == 4) roff(" ego");
+					if (j == 5) roff(" charm");
+				}
+			}
+
+			/* End sentence.  Go to next line. */
+			roff(". \n");
+		}
+	}
+	if (known)
+	{
+		/* Slays. */
+		if ((f1 & (TR1_SLAY_ANIMAL)) || (f1 & (TR1_SLAY_EVIL)) ||
+			 (f1 & (TR1_SLAY_UNDEAD)) || (f1 & (TR1_SLAY_DEMON)) ||
+			 (f1 & (TR1_SLAY_AUTOMATA))    || (f1 & (TR1_SLAY_DINOSAUR)) ||
+			 (f1 & (TR1_SLAY_CONSTRUCT))  || (f1 & (TR1_SLAY_ELEMENTAL)) ||
+			 (f1 & (TR1_SLAY_ALIEN))  || (f1 & (TR1_SLAY_BEASTMAN)) ||
+			 (f1 & (TR1_SLAY_CARDS)))
+		{
+			/* Clear number of items to list, and items listed. */
+			attr_num = 0;
+			attr_listed = 0;
+
+			/* How many normal slays need to be listed? */
+			if (f1 & (TR1_SLAY_ANIMAL)) attr_num++;
+			if (f1 & (TR1_SLAY_EVIL))   attr_num++;
+			if (f1 & (TR1_SLAY_UNDEAD)) attr_num++;
+			if (f1 & (TR1_SLAY_DEMON))  attr_num++;
+			if (f1 & (TR1_SLAY_AUTOMATA))    attr_num++;
+			if (f1 & (TR1_SLAY_DINOSAUR))  attr_num++;
+			if (f1 & (TR1_SLAY_CONSTRUCT))  attr_num++;
+			if (f1 & (TR1_SLAY_ELEMENTAL)) attr_num++;
+			if (f1 & (TR1_SLAY_ALIEN)) attr_num++;
+			if (f1 & (TR1_SLAY_BEASTMAN)) attr_num++;
+			if (f1 & (TR1_SLAY_CARDS)) attr_num++;
+
+			/* Start the sentence */
+			if (attr_num) roff("It slays");
+
+			/* Loop for number of attributes in this group. */
+			for (j = 0; j < 11; j++)
+			{
+				bool list_ok = FALSE;
+
+				if ((j == 0) && (f1 & (TR1_SLAY_ANIMAL))) list_ok = TRUE;
+				if ((j == 1) && (f1 & (TR1_SLAY_EVIL))) list_ok = TRUE;
+				if ((j == 2) && (f1 & (TR1_SLAY_UNDEAD))) list_ok = TRUE;
+				if ((j == 3) && (f1 & (TR1_SLAY_DEMON))) list_ok = TRUE;
+				if ((j == 4) && (f1 & (TR1_SLAY_AUTOMATA))) list_ok = TRUE;
+				if ((j == 5) && (f1 & (TR1_SLAY_DINOSAUR))) list_ok = TRUE;
+				if ((j == 6) && (f1 & (TR1_SLAY_CONSTRUCT))) list_ok = TRUE;
+				if ((j == 7) && (f1 & (TR1_SLAY_ELEMENTAL))) list_ok = TRUE;
+				if ((j == 8) && (f1 & (TR1_SLAY_ALIEN))) list_ok = TRUE;
+				if ((j == 9) && (f1 & (TR1_SLAY_BEASTMAN))) list_ok = TRUE;
+				if ((j == 10) && (f1 & (TR1_SLAY_CARDS))) list_ok = TRUE;
+
+				if (!list_ok) continue;
+
+				/* Listing another attribute. */
+				attr_listed++;
+
+				/* Commas separate members of a list of more than two. */
+				if ((attr_num > 2) && (attr_listed > 1)) roff(",");
+
+				/* "and" before final member of a list of more than one. */
+				if ((attr_num > 1) && (j != 0))
+				{
+					if (attr_num == attr_listed) roff(" and");
+				}
+
+				/* List the attribute description, in its proper place. */
+				if (j == 0) roff(" animals");
+				if (j == 1) roff(" evil");
+				if (j == 2) roff(" undead");
+				if (j == 3) roff(" demons");
+				if (j == 4) roff(" automata");
+				if (j == 5) roff(" dinosaurs");
+				if (j == 6) roff(" constructs");
+				if (j == 7) roff(" elementals");
+				if (j == 8) roff(" aliens");
+				if (j == 9) roff(" beastmen");
+				if (j == 10) roff(" cards");
+			}
+
+			/* End sentence.  Go to next line. */
+			roff(". \n");
+		}
+
+
+		/* Elemental and poison brands. */
+		if ((f1 & (TR1_BRAND_FIRE)) || (f1 & (TR1_BRAND_ELEC)) ||
+			 (f1 & (TR1_BRAND_ICE)) || (f1 & (TR1_BRAND_ACID)) ||
+			 (f1 & (TR1_BRAND_POISON)) || (f1 & (TR1_BRAND_FORCE)))
+		{
+			/* Clear number of items to list, and items listed. */
+			attr_num = 0;
+			attr_listed = 0;
+
+			/* How many normal brands need to be listed? */
+			if (f1 & (TR1_BRAND_FIRE)) attr_num++;
+			if (f1 & (TR1_BRAND_ELEC)) attr_num++;
+			if (f1 & (TR1_BRAND_ICE)) attr_num++;
+			if (f1 & (TR1_BRAND_ACID)) attr_num++;
+			if (f1 & (TR1_BRAND_POISON)) attr_num++;
+			if (f1 & (TR1_BRAND_FORCE)) attr_num++;
+
+			/* Start the sentence */
+			if (attr_num) roff("It");
+
+			/* Loop for number of attributes in this group. */
+			for (j = 0; j < 6; j++)
+			{
+				bool list_ok = FALSE;
+
+				if ((j == 0) && (f1 & (TR1_BRAND_FIRE))) list_ok = TRUE;
+				if ((j == 1) && (f1 & (TR1_BRAND_ELEC))) list_ok = TRUE;
+				if ((j == 2) && (f1 & (TR1_BRAND_ICE))) list_ok = TRUE;
+				if ((j == 3) && (f1 & (TR1_BRAND_ACID))) list_ok = TRUE;
+				if ((j == 4) && (f1 & (TR1_BRAND_POISON))) list_ok = TRUE;
+				if ((j == 5) && (f1 & (TR1_BRAND_FORCE))) list_ok = TRUE;
+
+				if (!list_ok) continue;
+
+				/* Listing another attribute. */
+				attr_listed++;
+
+				/* Commas separate members of a list of more than two. */
+				if ((attr_num > 2) && (attr_listed > 1)) roff(",");
+
+				/* "and" before final member of a list of more than one. */
+				if ((attr_num > 1) && (j != 0))
+				{
+					if (attr_num == attr_listed) roff(" and");
+				}
+
+				/* List the attribute description, in its proper place. */
+				if (j == 0) roff(" burns");
+				if (j == 1) roff(" electrocutes");
+				if (j == 2) roff(" freezes");
+				if (j == 3) roff(" melts");
+				if (j == 4) roff(" poisons");
+				if (j == 5) roff(" powerfully strikes");
+			}
+
+			/* End the sentence */
+			if (attr_num) roff(" your foes");
+
+			/* End sentence.  Go to next line. */
+			roff(". \n");
+		}
+
+		/* Vorpal weapons and missile launchers. */
+#if 0	/* Guns are not vorpal */
+		if (f1 & (TR1_VORPAL))
+		{
+			if (o_ptr->tval == TV_BOW)
+			{
+				roff("The missiles this weapon shoots drive deeply into their targets. \n");
+			}
+			else if (o_ptr->tval == TV_HAFTED)
+			{
+				roff("It is a weapon of concussion. \n");
+			}
+			else if (!is_missile(o_ptr))
+			{
+				roff("It is a vorpal blade. \n");
+			}
+			else
+			{
+				roff("It drives deeply into your foes. \n");
+			}
+		}
+#endif
+		/* Throwing weapons. */
+		if (f2 & (TR2_THROW))
+		{
+			if (f2 & (TR2_PERFECT_BALANCE))
+			{
+				roff("It can be thrown hard and fast. \n");
+			}
+			roff("It can be thrown effectively. \n");
+		}
+
+		/* Resistances. */
+		if ((object_resist(o_ptr, RS_FIR) != 0) || (object_resist(o_ptr, RS_EAR) != 0) ||
+			(object_resist(o_ptr, RS_AIR) != 0) || (object_resist(o_ptr, RS_WTR) != 0) ||
+			(object_resist(o_ptr, RS_ELC) != 0) || (object_resist(o_ptr, RS_ICE) != 0) ||
+			(object_resist(o_ptr, RS_ACD) != 0) || (object_resist(o_ptr, RS_PSN) != 0) ||
+			(object_resist(o_ptr, RS_TIM) != 0) || (object_resist(o_ptr, RS_ETH) != 0) ||
+			(object_resist(o_ptr, RS_SND) != 0) || (object_resist(o_ptr, RS_NTH) != 0) ||
+			(object_resist(o_ptr, RS_LIT) != 0) || (object_resist(o_ptr, RS_DRK) != 0) ||
+			(object_resist(o_ptr, RS_PSI) != 0) || (object_resist(o_ptr, RS_TLK) != 0) ||
+			(object_resist(o_ptr, RS_SPI) != 0))
+		{
+			/* Clear number of items to list, and items listed. */
+			attr_num = 0;
+			attr_listed = 0;
+
+			/* How many attributes need to be listed? */
+			if (object_resist(o_ptr, RS_FIR) != 0)  attr_num++;
+			if (object_resist(o_ptr, RS_EAR) != 0)  attr_num++;
+			if (object_resist(o_ptr, RS_AIR) != 0)  attr_num++;
+			if (object_resist(o_ptr, RS_WTR) != 0)  attr_num++;
+			if (object_resist(o_ptr, RS_ELC) != 0)  attr_num++;
+			if (object_resist(o_ptr, RS_ICE) != 0)  attr_num++;
+			if (object_resist(o_ptr, RS_ACD) != 0)  attr_num++;
+			if (object_resist(o_ptr, RS_PSN) != 0)  attr_num++;
+			if (object_resist(o_ptr, RS_TIM) != 0)  attr_num++;
+			if (object_resist(o_ptr, RS_ETH) != 0)  attr_num++;
+			if (object_resist(o_ptr, RS_SND) != 0)  attr_num++;
+			if (object_resist(o_ptr, RS_NTH) != 0)  attr_num++;
+			if (object_resist(o_ptr, RS_LIT) != 0)  attr_num++;
+			if (object_resist(o_ptr, RS_DRK) != 0)  attr_num++;
+			if (object_resist(o_ptr, RS_PSI) != 0)  attr_num++;
+			if (object_resist(o_ptr, RS_TLK) != 0)  attr_num++;
+			if (object_resist(o_ptr, RS_SPI) != 0)  attr_num++;
+
+			roff("It provides"); /* resistance to"); */
+
+			/* Loop for number of attributes in this group. */
+			for (j = 0; j < RS_MAX; j++)
+			{
+				bool list_ok = FALSE;
+
+				if ((j ==  0) && (object_resist(o_ptr, RS_FIR) != 0)) list_ok = TRUE;
+				if ((j ==  1) && (object_resist(o_ptr, RS_EAR) != 0)) list_ok = TRUE;
+				if ((j ==  2) && (object_resist(o_ptr, RS_AIR) != 0)) list_ok = TRUE;
+				if ((j ==  3) && (object_resist(o_ptr, RS_WTR) != 0)) list_ok = TRUE;
+				if ((j ==  4) && (object_resist(o_ptr, RS_ELC) != 0)) list_ok = TRUE;
+				if ((j ==  5) && (object_resist(o_ptr, RS_ICE) != 0)) list_ok = TRUE;
+				if ((j ==  6) && (object_resist(o_ptr, RS_ACD) != 0)) list_ok = TRUE;
+				if ((j ==  7) && (object_resist(o_ptr, RS_PSN) != 0)) list_ok = TRUE;
+				if ((j ==  8) && (object_resist(o_ptr, RS_TIM) != 0)) list_ok = TRUE;
+				if ((j ==  9) && (object_resist(o_ptr, RS_ETH) != 0)) list_ok = TRUE;
+				if ((j == 10) && (object_resist(o_ptr, RS_SND) != 0)) list_ok = TRUE;
+				if ((j == 11) && (object_resist(o_ptr, RS_NTH) != 0)) list_ok = TRUE;
+				if ((j == 12) && (object_resist(o_ptr, RS_LIT) != 0)) list_ok = TRUE;
+				if ((j == 13) && (object_resist(o_ptr, RS_DRK) != 0)) list_ok = TRUE;
+				if ((j == 14) && (object_resist(o_ptr, RS_PSI) != 0)) list_ok = TRUE;
+				if ((j == 15) && (object_resist(o_ptr, RS_TLK) != 0)) list_ok = TRUE;
+				if ((j == 16) && (object_resist(o_ptr, RS_SPI) != 0)) list_ok = TRUE;
+
+				if (!list_ok) continue;
+
+				/* Listing another attribute. */
+				attr_listed++;
+
+				/* Commas separate members of a list of more than two. */
+				if ((attr_num > 2) && (attr_listed > 1)) roff(",");
+
+				/* "and" before final member of a list of more than one. */
+				if ((attr_num > 1) && (j != 0))
+				{
+					if (attr_num == attr_listed) roff(" and");
+				}
+								
+				/* List the attribute description, in its proper place. */
+				if (j ==  0) roff(format(" %d%% fire", (object_resist(o_ptr, RS_FIR))));
+				if (j ==  1) roff(format(" %d%% earth/shards", (object_resist(o_ptr, RS_EAR))));
+				if (j ==  2) roff(format(" %d%% air", (object_resist(o_ptr, RS_AIR))));
+				if (j ==  3) roff(format(" %d%% water", (object_resist(o_ptr, RS_WTR))));
+				if (j ==  4) roff(format(" %d%% electricity", (object_resist(o_ptr, RS_ELC))));
+				if (j ==  5) roff(format(" %d%% ice", (object_resist(o_ptr, RS_ICE))));
+				if (j ==  6) roff(format(" %d%% acid", (object_resist(o_ptr, RS_ACD))));
+				if (j ==  7) roff(format(" %d%% poison", (object_resist(o_ptr, RS_PSN))));
+				if (j ==  8) roff(format(" %d%% time", (object_resist(o_ptr, RS_TIM))));
+				if (j ==  9) roff(format(" %d%% ether", (object_resist(o_ptr, RS_ETH))));
+				if (j == 10) roff(format(" %d%% sound", (object_resist(o_ptr, RS_SND))));
+				if (j == 11) roff(format(" %d%% nether", (object_resist(o_ptr, RS_NTH))));
+				if (j == 12) roff(format(" %d%% light", (object_resist(o_ptr, RS_LIT))));
+				if (j == 13) roff(format(" %d%% dark", (object_resist(o_ptr, RS_DRK))));
+				if (j == 14) roff(format(" %d%% psionic", (object_resist(o_ptr, RS_PSI))));
+				if (j == 15) roff(format(" %d%% telekinetic", (object_resist(o_ptr, RS_TLK))));
+				if (j == 16) roff(format(" %d%% spirit", (object_resist(o_ptr, RS_SPI))));
+			}
+
+			/* End sentence.  Go to next line. */
+			roff(" resistance. \n");
+		}
+
+		/* Clear a listing variable. */
+		attr_num = 0;
+
+		/* Special processing for the three "survival resists" */
+		if (f2 & (TR2_RES_FEAR)) attr_num++;
+		if (f2 & (TR2_RES_BLIND)) attr_num++;
+		if (f2 & (TR2_RES_CONFU)) attr_num++;
+
+		if (f2 & (TR2_RES_FEAR))
+		{
+			roff("It renders you fearless");
+			if (attr_num == 1) roff(". \n");
+			else roff(", and");
+		}
+
+		if (f2 & (TR2_RES_BLIND))
+		{
+			if ((attr_num > 1) && (f2 & (TR2_RES_FEAR)))
+				roff(" provides resistance to blindness");
+			else roff("It provides resistance to blindness");
+
+			if (f2 & (TR2_RES_CONFU)) roff(" and");
+			else roff(". \n");
+		}
+
+		if (f2 & (TR2_RES_CONFU))
+		{
+			if ((attr_num > 1) && (!(f2 & (TR2_RES_BLIND))))
+				roff(" provides resistance to confusion.\n");
+			else if (attr_num > 1) roff(" confusion.\n");
+			else roff("It provides resistance to confusion.\n");
+		}
+
+
+		/* Miscellaneous abilities. */
+		if (
+			 (f2 & (TR2_IMPACT))      || (f2 & (TR2_CRITICAL)) ||
+			 (f2 & (TR2_VAMPIRIC))    || (f2 & (TR2_VORPAL)) ||
+			 (f2 & (TR2_RETURN))      || (f2 & (TR2_EDGED)) ||
+			 (f2 & (TR2_BLUNT))       || (f2 & (TR2_PIERCE)) ||
+			 (f2 & (TR2_SLOW_DIGEST)) || (f2 & (TR2_FEATHER)) ||
+			 (f2 & (TR2_TELEPATHY))   || (f2 & (TR2_SEE_INVIS)) ||
+			 (f2 & (TR2_FREE_ACT))    || (f2 & (TR2_HOLD_LIFE)) ||
+			 (f2 & (TR2_WRAITH))      || (f2 & (TR2_REFLECT)) ||
+			 (f2 & (TR2_BLESSED))     || (f2 & (TR2_REGEN_25)) ||
+			 (f2 & (TR2_REGEN_50))    || (f2 & (TR2_REGEN_75)) ||
+			 (f3 & (TR3_SH_FIRE))     || (f3 & (TR3_SPINES)) ||
+			 (f3 & (TR3_SH_ELEC))     || (f3 & (TR3_SH_ETHER)) ||
+			 (f2 & (TR2_INVISIBLE)))
+		{
+			/* Clear number of items to list, and items listed. */
+			attr_num = 0;
+			attr_listed = 0;
+
+			/* How many attributes need to be listed? */
+			if (f2 & (TR2_IMPACT))      attr_num++;
+			if (f2 & (TR2_CRITICAL))    attr_num++;
+			if (f2 & (TR2_VAMPIRIC))    attr_num++;
+			if (f2 & (TR2_VORPAL))      attr_num++;
+			if (f2 & (TR2_RETURN))      attr_num++;
+			if (f2 & (TR2_EDGED))       attr_num++;
+			if (f2 & (TR2_BLUNT))       attr_num++;
+			if (f2 & (TR2_PIERCE))      attr_num++;
+			if (f2 & (TR2_SLOW_DIGEST)) attr_num++;
+			if (f2 & (TR2_FEATHER))     attr_num++;
+			if (f2 & (TR2_TELEPATHY))   attr_num++;
+			if (f2 & (TR2_SEE_INVIS))   attr_num++;
+			if (f2 & (TR2_FREE_ACT))    attr_num++;
+			if (f2 & (TR2_HOLD_LIFE))   attr_num++;
+			if (f2 & (TR2_WRAITH))      attr_num++;
+			if (f2 & (TR2_REFLECT))     attr_num++;
+			if (f2 & (TR2_INVISIBLE))     attr_num++;
+			if (f2 & (TR2_BLESSED))     attr_num++;
+			if (f2 & (TR2_REGEN_25))    attr_num++;
+			if (f2 & (TR2_REGEN_50))    attr_num++;
+			if (f2 & (TR2_REGEN_75))    attr_num++;
+			if (f3 & (TR3_SH_FIRE))     attr_num++;
+			if (f3 & (TR3_SH_ELEC))     attr_num++;
+			if (f3 & (TR3_SPINES))      attr_num++;
+			if (f3 & (TR3_SH_ETHER))    attr_num++;
+
+			roff("It");
+
+			/* Loop for number of attributes in this group. */
+			for (j = 0; j < 25; j++)
+			{
+				bool list_ok = FALSE;
+
+				if ((j == 0) && (f2 & (TR2_IMPACT)))      list_ok = TRUE;
+				if ((j == 1) && (f2 & (TR2_CRITICAL)))    list_ok = TRUE;
+				if ((j == 2) && (f2 & (TR2_VAMPIRIC)))    list_ok = TRUE;
+				if ((j == 3) && (f2 & (TR2_VORPAL)))      list_ok = TRUE;
+				if ((j == 4) && (f2 & (TR2_RETURN)))      list_ok = TRUE;
+				if ((j == 5) && (f2 & (TR2_EDGED)))       list_ok = TRUE;
+				if ((j == 6) && (f2 & (TR2_BLUNT)))       list_ok = TRUE;
+				if ((j == 7) && (f2 & (TR2_PIERCE)))      list_ok = TRUE;
+				if ((j == 8) && (f2 & (TR2_SLOW_DIGEST))) list_ok = TRUE;
+				if ((j == 9) && (f2 & (TR2_FEATHER)))     list_ok = TRUE;
+				if ((j == 10) && (f2 & (TR2_TELEPATHY)))  list_ok = TRUE;
+				if ((j == 11) && (f2 & (TR2_SEE_INVIS)))  list_ok = TRUE;
+				if ((j == 12) && (f2 & (TR2_FREE_ACT)))   list_ok = TRUE;
+				if ((j == 13) && (f2 & (TR2_HOLD_LIFE)))  list_ok = TRUE;
+				if ((j == 14) && (f2 & (TR2_WRAITH)))     list_ok = TRUE;
+				if ((j == 15) && (f2 & (TR2_REFLECT)))    list_ok = TRUE;
+				if ((j == 16) && (f2 & (TR2_INVISIBLE)))    list_ok = TRUE;
+				if ((j == 17) && (f2 & (TR2_BLESSED)))    list_ok = TRUE;
+				if ((j == 18) && (f2 & (TR2_REGEN_25)))   list_ok = TRUE;
+				if ((j == 19) && (f2 & (TR2_REGEN_50)))   list_ok = TRUE;
+				if ((j == 20) && (f2 & (TR2_REGEN_75)))   list_ok = TRUE;
+				if ((j == 21) && (f3 & (TR3_SH_FIRE)))    list_ok = TRUE;
+				if ((j == 22) && (f3 & (TR3_SH_ELEC)))    list_ok = TRUE;
+				if ((j == 23) && (f3 & (TR3_SPINES)))     list_ok = TRUE;
+				if ((j == 24) && (f3 & (TR3_SH_ETHER)))   list_ok = TRUE;
+
+				if (!list_ok) continue;
+
+				/* Listing another attribute. */
+				attr_listed++;
+
+				/* Commas separate members of a list of more than two. */
+				if ((attr_num > 2) && (attr_listed > 1)) roff(",");
+
+				/* "and" before final member of a list of more than one. */
+				if ((attr_num > 1) && (j != 0))
+				{
+					if (attr_num == attr_listed) roff(" and");
+				}
+
+				/* List the attribute description, in its proper place. */
+				if (j == 0) roff(" is an impact weapon");
+				if (j == 1) roff(" often causes criticals");
+				if (j == 2) roff(" is a vampiric weapon");
+				if (j == 3) roff(" is a vorpal weapon");
+				if (j == 4) roff(" will return to you when thrown");
+				if (j == 5) roff(" is an edged weapon");
+				if (j == 6) roff(" is a blunt weapon");
+				if (j == 7) roff(" is a piercing weapon");
+				if (j == 8) roff(" slows your metabolism");
+				if (j == 9) roff(" grants feather falling");
+				if (j == 10) roff(" gives telepathic powers");
+				if (j == 11) roff(" allows you to see invisible monsters");
+				if (j == 12) roff(" provides immunity to paralysis");
+				if (j == 13) roff(" provides resistance to life draining");
+				if (j == 14) roff(" gives wraithform");
+				if (j == 15) roff(" reflects projectiles");
+				if (j == 16) roff(" renders you invisible");
+				if (j == 17) roff(" has been blessed by the gods");
+				if (j == 18) roff(" provides a 25% increase in regeneration");
+				if (j == 19) roff(" provides a 50% increase in regeneration");
+				if (j == 20) roff(" provides a 75% increase in regeneration");
+				if (j == 21) roff(" provides a fire aura");
+				if (j == 22) roff(" provides a electric aura");
+				if (j == 23) roff(" provides a thick covering of spines");
+				if (j == 24) roff(" provides a etheric aura");
+			}
+
+			/* End sentence.  Go to next line. */
+			roff(". \n");
+		}
+
+		/* Nastiness. */
+		if ((f3 & (TR3_MUTABLE)) || (f3 & (TR3_TELEPORT)) ||
+			 (f3 & (TR3_EARTHQUAKE))  || (f3 & (TR3_NEVER_BLOW)) ||
+			 (f3 & (TR3_NO_TELEPORT)) || (f3 & (TR3_NO_MAGIC)) ||
+			 (f3 & (TR3_DRAIN_EXP)) || (f3 & (TR3_DRAIN_HP)) ||
+			 (f3 & (TR3_DRAIN_SP)) || (f3 & (TR3_DRAIN_ITEM)) ||
+			 (f3 & (TR3_AGGRAVATE)) || (f3 & (TR3_DISRUPT_SPELL)) ||
+			 (cursed_p(o_ptr)))
+		{
+			/* Clear number of items to list, and items listed. */
+			attr_num = 0;
+			attr_listed = 0;
+
+			/* How many attributes need to be listed? */
+			if (f3 & (TR3_MUTABLE)) attr_num++;
+			if (f3 & (TR3_TELEPORT))   attr_num++;
+			if (f3 & (TR3_EARTHQUAKE))  attr_num++;
+			if (f3 & (TR3_NEVER_BLOW)) attr_num++;
+			if (f3 & (TR3_NO_TELEPORT)) attr_num++;
+			if (f3 & (TR3_NO_MAGIC)) attr_num++;
+			if (f3 & (TR3_DRAIN_EXP)) attr_num++;
+			if (f3 & (TR3_DRAIN_HP)) attr_num++;
+			if (f3 & (TR3_DRAIN_SP)) attr_num++;
+			if (f3 & (TR3_DRAIN_ITEM)) attr_num++;
+			if (f3 & (TR3_AGGRAVATE)) attr_num++;
+			if (f3 & (TR3_DISRUPT_SPELL)) attr_num++;
+
+			/* This one will display one of three possible descriptions. */
+			if (cursed_p(o_ptr)) attr_num++;
+
+			roff("It");
+
+			/* Loop for number of attributes in this group. */
+			for (j = 0; j < 13; j++)
+			{
+				bool list_ok = FALSE;
+
+				if ((j == 0) && (f3 & (TR3_MUTABLE)))   list_ok = TRUE;
+				if ((j == 1) && (f3 & (TR3_TELEPORT)))     list_ok = TRUE;
+				if ((j == 2) && (f3 & (TR3_EARTHQUAKE)))    list_ok = TRUE;
+				if ((j == 3) && (f3 & (TR3_NEVER_BLOW)))   list_ok = TRUE;
+				if ((j == 4) && (f3 & (TR3_NO_TELEPORT)))   list_ok = TRUE;
+				if ((j == 5) && (f3 & (TR3_NO_MAGIC)))    list_ok = TRUE;
+				if ((j == 6) && (f3 & (TR3_DRAIN_EXP)))    list_ok = TRUE;
+				if ((j == 7) && (f3 & (TR3_DRAIN_HP)))    list_ok = TRUE;
+				if ((j == 8) && (f3 & (TR3_DRAIN_SP)))    list_ok = TRUE;
+				if ((j == 9) && (f3 & (TR3_DRAIN_ITEM)))    list_ok = TRUE;
+				if ((j == 10) && (f3 & (TR3_AGGRAVATE)))    list_ok = TRUE;
+				if ((j == 11) && (f3 & (TR3_DISRUPT_SPELL)))    list_ok = TRUE;
+				if ((j == 12) && (cursed_p(o_ptr)))        list_ok = TRUE;
+
+				if (!list_ok) continue;
+
+				/* Listing another attribute. */
+				attr_listed++;
+
+				/* Commas separate members of a list of more than two. */
+				if ((attr_num > 2) && (attr_listed > 1)) roff(",");
+
+				/* "and" before final member of a list of more than one. */
+				if ((attr_num > 1) && (j != 0))
+				{
+					if (attr_num == attr_listed) roff(" and");
+				}
+
+				/* List the attribute description, in its proper place. */
+				if (j == 0) roff(" causes mutations");
+				if (j == 1) roff(" induces random teleportation");
+				if (j == 2) roff(" causes earthquakes");
+				if (j == 3) roff(" refuses to attack");
+				if (j == 4) roff(" prevents teleportation");
+				if (j == 5) roff(" prevents you from casting spells");
+				if (j == 6) roff(" drains experience");
+				if (j == 7) roff(" drains hitpoints");
+				if (j == 8) roff(" drains spellpoints");
+				if (j == 9) roff(" drains charges from items");
+				if (j == 10) roff(" aggravates nearby creatures");
+				if (j == 11) roff(" disrupts spellcasting");
+				if (j == 12)
+				{
+					if (f3 & (TR3_PERMA_CURSE))
+						roff(" can never be taken off once put on");
+					else if (f3 & (TR3_HEAVY_CURSE))
+						roff(" is powerfully cursed");
+					else
+						roff(" is cursed");
+				}
+			}
+
+			/* End sentence.  Go to next line. */
+			roff(". \n");
+		}
+		/* Ignore various elements. */
+		if (f2 & (TR2_IMMUNE)) 
+		{
+			roff("It cannot be damaged or destroyed by the elements. \n");
+		}
+
+	}
+
+	/* All objects should display certain basic help text */
+	basic_info:
+
+
+	/* Get cursor location */
+	(void)Term_locate(&x, &y);
+
+	/* We do not have enough screen space left  XXX XXX */
+	if (y > Term->hgt - 4) return;
+
+
+	/* Note durability */
+	if ((o_ptr->ac > 0) &&
+		 ((o_ptr->tval == TV_TONIC) ||
+	     (o_ptr->tval == TV_MECHANISM) ||
+	     (o_ptr->tval == TV_TEXT) ||
+	     (o_ptr->tval == TV_AMMO) ||
+	     (o_ptr->tval == TV_BULLET) ||
+	     (o_ptr->tval == TV_SHOT) ||
+	     (o_ptr->tval == TV_TOOL) ||
+	     (o_ptr->tval == TV_RAY)))
+	{
+		roff("This item is unusually durable.\n");
+	}
+
+#if 0
+	/* Explain skills and other "gotchas" */
+#endif
+}
+

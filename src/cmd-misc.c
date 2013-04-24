@@ -1,6 +1,12 @@
-/* File: cmd2.c */
+/* File: cmd-misc.c */
+/* Misc. dungeon and movement commands */
 
 /*
+ * "And so what he told me was that in order to escape to the carny 
+ * he had to Go up and down stairs, toggle sneaking.  Handle chests.  Handle doors,
+ * tunnel, disarm, bash, alter a grid, and spike.  Walk, run, stay still,
+ * pickup, and rest. And that was all, too, by George!"
+ *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
@@ -14,7 +20,7 @@
 /*
  * Go up one level 
  *
- * XXX !!! XXX NOTE:
+ * NOTE:
  * This command takes the player *up* a level. p_ptr->depth is reduced
  * by one, the terrain is 'feat_less' indicating a return to the 'town'
  * depth. In Steam however, you start in the center and work your way 
@@ -29,16 +35,31 @@
  * to stay consistant, while providing the illusion of the proper effects to 
  * the player.
  * 
- * Which is great and all, but still real confusing.
+ * Which is great and all, but still real confusing. -CCC
  *
  */
 void do_cmd_go_up(void)
 {
+	char out_val[160];
+	byte quest;
+
 	/* Verify stairs */
 	if (cave_feat[p_ptr->py][p_ptr->px] != FEAT_LESS)
 	{
 		msg_print("I see no down staircase here.");
 		return;
+	}
+
+	/*find out of leaving a level*/
+	quest = quest_check(p_ptr->depth);
+
+	/* Verify leaving quest level */
+	if ((verify_leave_quest) &&
+		(quest == QUEST_GUILD || quest == QUEST_UNIQUE ||
+       ((quest == QUEST_VAULT) && (quest_item_slot() == -1))))
+	{
+		sprintf(out_val, "Really risk failing your quest? ");
+		if (!get_check(out_val)) return;
 	}
 
 	/* Ironman */
@@ -60,6 +81,9 @@ void do_cmd_go_up(void)
 	/* New depth */
 	p_ptr->depth--;
 
+	/*find out of entering a quest level (should never happen going up)*/
+	quest = quest_check(p_ptr->depth);
+
 	/* Leaving */
 	p_ptr->leaving = TRUE;
 }
@@ -70,12 +94,28 @@ void do_cmd_go_up(void)
  */
 void do_cmd_go_down(void)
 {
+	byte quest;
+	char out_val[160];
+
 	/* Verify stairs */
 	if (cave_feat[p_ptr->py][p_ptr->px] != FEAT_MORE)
 	{
 		msg_print("I see no up staircase here.");
 		return;
 	}
+
+	/*find out if leaving a quest level*/
+	quest = quest_check(p_ptr->depth);
+
+	/* Verify leaving quest level */
+	if ((verify_leave_quest) &&
+		(quest == QUEST_GUILD || quest == QUEST_UNIQUE ||
+        ((quest == QUEST_VAULT) && (quest_item_slot() == -1))))
+		{
+			sprintf(out_val, "Really risk failing your quest? ");
+
+			if (!get_check(out_val)) return;
+		}
 
 	/* Hack -- take a turn */
 	p_ptr->energy_use = 100;
@@ -88,6 +128,9 @@ void do_cmd_go_down(void)
 
 	/* New level */
 	p_ptr->depth++;
+
+	/*find out if entering a quest level*/
+	quest = quest_check(p_ptr->depth);
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;
@@ -252,9 +295,12 @@ static byte get_choice(int chest_sval)
 			if (choice < 6) return (TV_BULLET);
 			if (choice < 9) return (TV_SHOT);
 			if (choice < 20) return (TV_GUN);
-			if (choice < 30) return (TV_HAFTED);
-			if (choice < 40) return (TV_POLEARM);
-			if (choice < 60) return (TV_SWORD);
+			if (choice < 25) return (TV_HAFTED);
+			if (choice < 30) return (TV_POLEARM);
+			if (choice < 35) return (TV_SWORD);
+			if (choice < 40) return (TV_DAGGER);
+			if (choice < 45) return (TV_AXES);
+			if (choice < 50) return (TV_BLUNT);
 			if (choice < 65) return (TV_TOOL);
 			if (choice < 60) return (TV_RAY);
 			if (choice < 75) return (TV_APPARATUS);
@@ -269,9 +315,12 @@ static byte get_choice(int chest_sval)
 			if (choice < 4) return (TV_BULLET);
 			if (choice < 6) return (TV_SHOT);
 			if (choice < 12) return (TV_GUN);
-			if (choice < 16) return (TV_HAFTED);
-			if (choice < 20) return (TV_POLEARM);
-			if (choice < 24) return (TV_SWORD);
+			if (choice < 14) return (TV_HAFTED);
+			if (choice < 16) return (TV_POLEARM);
+			if (choice < 18) return (TV_SWORD);
+			if (choice < 20) return (TV_DAGGER);
+			if (choice < 22) return (TV_AXES);
+			if (choice < 24) return (TV_BLUNT);
 			if (choice < 28) return (TV_BOOTS);
 			if (choice < 30) return (TV_GLOVES);
 			if (choice < 32) return (TV_HELM);
@@ -320,11 +369,10 @@ static byte get_choice(int chest_sval)
  *
  * Disperse treasures from the given chest, centered at (x,y).
  *
- * Small chests often contain "gold", while Large chests always contain
- * items.  Wooden chests contain 2 items, Iron chests contain 4 items,
- * and Steel chests contain 6 items.  The "value" of the items in a
- * chest is based on the "power" of the chest, which is in turn based
- * on the level on which the chest is generated.
+ * Chests contain a variety of items depending on what type of chest
+ * they are. The "value" of the items in a chest is based on the "power"
+ * of the chest, which is in turn based on the level on which 
+ * the chest is generated.
  *
  * Wheee! I'm stealing code by LM! :-) see Oangband for details.
  */
@@ -332,7 +380,6 @@ static void chest_death(int y, int x, s16b o_idx)
 {
 	int number;
 	bool obj_success = FALSE;
-/*	bool tiny;*/
 
 	object_type *o_ptr;
 
@@ -346,11 +393,6 @@ static void chest_death(int y, int x, s16b o_idx)
 	if (o_ptr->sval >= SV_CHEST_MIN_LARGE) number = 4 + randint(3);
 	else number = 2 + randint(3);
 	
-	/* Small chests often hold "gold" */
-	/* tiny = (o_ptr->sval < SV_CHEST_MIN_LARGE); */
-
-	/* Determine how much to drop (see above) */
-	/* number = (o_ptr->sval % SV_CHEST_MIN_LARGE) * 2; */
 
 	/* Zero pval means empty chest */
 	if (!o_ptr->pval) number = 0;
@@ -361,7 +403,6 @@ static void chest_death(int y, int x, s16b o_idx)
 	/* Determine the "value" of the items */
 	object_level = ABS(o_ptr->pval) + 20;
 
-	
 	/* Drop some objects (non-chests) */
 	for (; number > 0; --number)
 	{
@@ -398,13 +439,13 @@ static void chest_death(int y, int x, s16b o_idx)
 			case TV_BULLET:
 			case TV_SHOT:
 			{
-				if (randint(200) < object_level)
+				if (randint(50) < object_level)
 				{
 					obj_success = make_object(i_ptr, TRUE, TRUE, TRUE);
 					break;
 				}
 
-				else if (randint(40) < object_level)
+				else if (randint(10) < object_level)
 				{
 					obj_success = make_object(i_ptr, TRUE, FALSE, TRUE);
 					break;
@@ -418,7 +459,7 @@ static void chest_death(int y, int x, s16b o_idx)
 
 			case TV_MAGIC_BOOK:
 			{
-				if (randint(80) < object_level)
+				if (randint(15) < object_level)
 				{
 				  obj_success = make_object(i_ptr, TRUE, FALSE, TRUE);
 				}
@@ -438,7 +479,7 @@ static void chest_death(int y, int x, s16b o_idx)
 			case TV_TOOL:
 			case TV_APPARATUS:
 			{
-				if (randint(100) < (object_level - 10) / 2)
+				if (randint(25) < (object_level - 10) / 2)
 				{
 					obj_success = make_object(i_ptr, TRUE, FALSE, TRUE);
 				}
@@ -464,28 +505,8 @@ static void chest_death(int y, int x, s16b o_idx)
 			required_tval = get_choice(o_ptr->sval);
 		}
 
-
-
-#if 0
-		/* Small chests often drop gold */
-		if (tiny && (rand_int(100) < 75))
-		{
-			/* Make some gold */
-			if (!make_gold(i_ptr)) continue;
-		}
-
-		/* Otherwise drop an item */
-		else
-		{
-			/* Make an object */
-			if (!make_object(i_ptr, FALSE, FALSE)) continue;
-		}
-#endif
-
 		/* Normally, drop object near the chest. */
-		else 
-		  if (obj_success)
-		    drop_near(i_ptr, -1, y, x);
+		else drop_near(i_ptr, -1, y, x);
 	}
 
 	/* Clear this global variable, to avoid messing up object generation. */
@@ -534,7 +555,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 	if (trap & (CHEST_LOSE_MUS))
 	{
 		msg_print("A small needle has pricked you!");
-		take_hit(damroll(1, 4), "a poison needle");
+		take_hit(damroll(1, 4), "a poison needle", TRUE);
 		(void)do_dec_stat(A_MUS);
 	}
 
@@ -542,7 +563,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 	if (trap & (CHEST_LOSE_VIG))
 	{
 		msg_print("A small needle has pricked you!");
-		take_hit(damroll(1, 4), "a poison needle");
+		take_hit(damroll(1, 4), "a poison needle", TRUE);
 		(void)do_dec_stat(A_VIG);
 	}
 
@@ -550,7 +571,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 	if (trap & (CHEST_POISON))
 	{
 		msg_print("A puff of green gas surrounds you!");
-		if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+		if (!(resist_effect(RS_PSN)))
 		{
 			(void)set_poisoned(p_ptr->poisoned + 10 + randint(20));
 		}
@@ -573,7 +594,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 		msg_print("You are enveloped in a cloud of smoke!");
 		for (i = 0; i < num; i++)
 		{
-			(void)summon_specific(y, x, summon_level, 0, FALSE, FALSE);
+			(void)summon_specific(y, x, summon_level, 0, FALSE);
 		}
 	}
 
@@ -583,7 +604,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 		msg_print("There is a sudden explosion!");
 		msg_print("Everything inside the chest is destroyed!");
 		o_ptr->pval = 0;
-		take_hit(damroll(5, 8), "an exploding chest");
+		take_hit(damroll(5, 8), "an exploding chest", TRUE);
 	}
 }
 
@@ -606,9 +627,16 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 
 	object_type *o_ptr = &o_list[o_idx];
 
+	/*never open quest chests*/
+	if(o_ptr->ident & IDENT_QUEST)
+	{
+		msg_print("This chest is to be opened by the Guild!");
+
+		flag = FALSE;
+	}
 
 	/* Attempt to unlock it */
-	if (o_ptr->pval > 0)
+	else if (o_ptr->pval > 0)
 	{
 		/* Assume locked, and thus not open */
 		flag = FALSE;
@@ -931,7 +959,9 @@ static bool do_cmd_open_aux(int y, int x)
 	
 	bool more = FALSE;
 
-
+	/* Paranoia */
+	i = 0;
+	
 	/* Verify legality */
 	if (!do_cmd_open_test(y, x)) return (FALSE);
 
@@ -1069,8 +1099,8 @@ void do_cmd_open(void)
 
 	/* Verify legality */
 	if (!o_idx && !do_cmd_open_test(y, x)) return;
-	/* removed energy use from this line */
-	/* Hopefully there shouldn't be any strange behavior */
+	/* Take a turn */
+	p_ptr->energy_use = 100;
 
 	/* Apply confusion */
 	if (confuse_dir(&dir))
@@ -1104,8 +1134,7 @@ void do_cmd_open(void)
 		msg_print("There is a monster in the way!");
 
 		/* Attack */
-		py_attack(y, x);
-		return;
+		py_attack(y, x, 0);
 	}
 
 	/* Chest */
@@ -1122,8 +1151,6 @@ void do_cmd_open(void)
 		more = do_cmd_open_aux(y, x);
 	}
 
-	/* Take a turn */
-	p_ptr->energy_use = 100;
 
 	/* Cancel repeat unless we may continue */
 	if (!more) disturb(0, 0);
@@ -1188,7 +1215,7 @@ static bool do_cmd_close_aux(int y, int x)
 	else
 	{
 		/* Close the door */
-		cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
+		cave_set_feat(y, x, FEAT_DOOR_HEAD + 0);
 
 		/* Update the visuals */
 		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
@@ -1268,8 +1295,11 @@ void do_cmd_close(void)
 		/* Message */
 		msg_print("There is a monster in the way!");
 
+		/* Take a turn */
+		p_ptr->energy_use = 100;
+
 		/* Attack */
-		py_attack(y, x);
+		py_attack(y, x, 0);
 		return;
 	}
 
@@ -1366,19 +1396,8 @@ static bool twall(int y, int x)
 static bool do_cmd_tunnel_aux(int y, int x)
 {
 	bool more = FALSE;
-	int diggood, dignorm, digpoor;
 	
-	int digchance;
-	
-	/* Get the "digging" factor */
-	diggood = p_ptr->skills[SK_DIGGING_GOOD].skill_rank;
-	dignorm = p_ptr->skills[SK_DIGGING_NORM].skill_rank;
-	digpoor = p_ptr->skills[SK_DIGGING_NORM].skill_rank;
-	
-	/* Insure good values */
-	if (diggood >= 0) digchance = diggood * 3;
-	if (dignorm >= 0) digchance = dignorm * 2;
-	if (digpoor >= 0) digchance = digpoor;
+	int digchance = p_ptr->skill_dig;
 
 	/* sanity check */
 	if (digchance > 2000) digchance = 2000;
@@ -1583,8 +1602,8 @@ void do_cmd_tunnel(void)
 	/* Oops */
 	if (!do_cmd_tunnel_test(y, x)) return;
 
-	/* removed energy use from this line */
-	/* Hopefully there shouldn't be any strange behavior */
+	/* Take a turn */
+	p_ptr->energy_use = 100;
 
 
 	/* Apply confusion */
@@ -1616,8 +1635,7 @@ void do_cmd_tunnel(void)
 		msg_print("There is a monster in the way!");
 
 		/* Attack */
-		py_attack(y, x);
-		return;
+		py_attack(y, x, 0);
 	}
 
 	/* Walls */
@@ -1626,9 +1644,6 @@ void do_cmd_tunnel(void)
 		/* Tunnel through walls */
 		more = do_cmd_tunnel_aux(y, x);
 	}
-
-	/* Take a turn */
-	p_ptr->energy_use = 100;
 
 	/* Cancel repetition unless we can continue */
 	if (!more) disturb(0, 0);
@@ -1682,7 +1697,9 @@ static bool do_cmd_disarm_aux(int y, int x)
 
 	bool more = FALSE;
 
-
+	/* Paranoia */
+	i = 0;
+	
 	/* Verify legality */
 	if (!do_cmd_disarm_test(y, x)) return (FALSE);
 
@@ -1808,8 +1825,9 @@ void do_cmd_disarm(void)
 	/* Verify legality */
 	if (!o_idx && !do_cmd_disarm_test(y, x)) return;
 
-	/* removed energy use from this line */
-	/* Hopefully there shouldn't be any strange behavior */
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+
 
 
 	/* Apply confusion */
@@ -1844,8 +1862,7 @@ void do_cmd_disarm(void)
 		msg_print("There is a monster in the way!");
 
 		/* Attack */
-		py_attack(y, x);
-		return;
+		py_attack(y, x, 0);
 	}
 
 	/* Chest */
@@ -1861,8 +1878,6 @@ void do_cmd_disarm(void)
 		/* Disarm the trap */
 		more = do_cmd_disarm_aux(y, x);
 	}
-	/* Take a turn */
-	p_ptr->energy_use = 100;
 
 	/* Cancel repeat unless told not to */
 	if (!more) disturb(0, 0);
@@ -1922,10 +1937,10 @@ static bool do_cmd_bash_aux(int y, int x)
 	/* Message */
 	msg_print("You smash into the door!");
 
+	/* Make a lot of noise. */
+	add_wakeup_chance = 9000;
+
 	/* Hack -- Bash power based on strength */
-	/* (Ranges from 3 to 20 to 100 to 200) */
-	/* adj_str_blow[p_ptr->stat_ind[A_MUS]]; */
-	/* @STAT@ */
 	bash = p_ptr->stat_use[A_MUS] / 4;
 
 	/* Extract door power */
@@ -2030,8 +2045,8 @@ void do_cmd_bash(void)
 	/* Verify legality */
 	if (!do_cmd_bash_test(y, x)) return;
 
-	/* removed energy use from this line */
-	/* Hopefully there shouldn't be any strange behavior */
+	/* Take a turn */
+	p_ptr->energy_use = 100;
 
 
 	/* Apply confusion */
@@ -2063,8 +2078,7 @@ void do_cmd_bash(void)
 		msg_print("There is a monster in the way!");
 
 		/* Attack */
-		py_attack(y, x);
-		return;
+		py_attack(y, x, 0);
 	}
 
 	/* Door */
@@ -2077,9 +2091,6 @@ void do_cmd_bash(void)
 			disturb(0, 0);
 		}
 	}
-
-	/* Take a turn */
-	p_ptr->energy_use = 100;
 }
 
 
@@ -2119,8 +2130,8 @@ void do_cmd_alter(void)
 	/* Must have knowledge to know feature XXX XXX */
 	if (!(cave_info[y][x] & (CAVE_MARK))) feat = FEAT_NONE;
 
-	/* removed energy use from this line */
-	/* Hopefully there shouldn't be any strange behavior */
+	/* Take a turn */
+	p_ptr->energy_use = 100;
 
 
 	/* Apply confusion */
@@ -2149,8 +2160,7 @@ void do_cmd_alter(void)
 	if (cave_m_idx[y][x] > 0)
 	{
 		/* Attack */
-		py_attack(y, x);
-		return;
+		py_attack(y, x, 0);
 	}
 
 	/* Tunnel through walls */
@@ -2159,14 +2169,14 @@ void do_cmd_alter(void)
 		/* Tunnel */
 		more = do_cmd_tunnel_aux(y, x);
 	}
-#if 0
+
 	/* Bash jammed doors */
 	else if (feat >= FEAT_DOOR_HEAD + 0x08)
 	{
 		/* Tunnel */
 		more = do_cmd_bash_aux(y, x);
 	}
-#endif /* 0 */
+
 	/* Open closed doors */
 	else if (feat >= FEAT_DOOR_HEAD)
 	{
@@ -2181,8 +2191,6 @@ void do_cmd_alter(void)
 		more = do_cmd_disarm_aux(y, x);
 	}
 
-#if 0
-
 	/* Close open doors */
 	else if (feat == FEAT_OPEN)
 	{
@@ -2190,7 +2198,6 @@ void do_cmd_alter(void)
 		more = do_cmd_close_aux(y, x);
 	}
 
-#endif
 
 	/* Oops */
 	else
@@ -2198,9 +2205,6 @@ void do_cmd_alter(void)
 		/* Oops */
 		msg_print("You spin around.");
 	}
-
-	/* Take a turn */
-	p_ptr->energy_use = 100;
 
 	/* Cancel repetition unless we can continue */
 	if (!more) disturb(0, 0);
@@ -2303,8 +2307,8 @@ void do_cmd_spike(void)
 	/* Verify legality */
 	if (!do_cmd_spike_test(y, x)) return;
 
-	/* removed energy use from this line */
-	/* Hopefully there shouldn't be any strange behavior */
+	/* Take a turn */
+	p_ptr->energy_use = 100;
 
 	/* Confuse direction */
 	if (confuse_dir(&dir))
@@ -2322,8 +2326,7 @@ void do_cmd_spike(void)
 		msg_print("There is a monster in the way!");
 
 		/* Attack */
-		py_attack(y, x);
-		return;
+		py_attack(y, x, 0);
 	}
 
 	/* Go for it */
@@ -2352,8 +2355,6 @@ void do_cmd_spike(void)
 		inven_item_describe(item);
 		inven_item_optimize(item);
 	}
-	/* Take a turn */
-	p_ptr->energy_use = 100;
 }
 
 
@@ -2367,6 +2368,8 @@ static bool do_cmd_walk_test(int y, int x)
 	/* Hack -- walking obtains knowledge XXX XXX */
 	if (!(cave_info[y][x] & (CAVE_MARK))) return (TRUE);
 
+	if ((cave_m_idx[y][x] > 0) && (easy_alter)) return (TRUE);
+	
 	/* Require open space */
 	if ((!cave_floor_bold(y, x)) && (!p_ptr->tim_wraith) && (!p_ptr->wraith_form))
 	{
@@ -2428,8 +2431,8 @@ static void do_cmd_walk_or_jump(int jumping)
 	/* Verify legality */
 	if (!do_cmd_walk_test(y, x)) return;
 
-	/* removed energy use from this line */
-	/* Hopefully there shouldn't be any strange behavior */
+	/* Take a turn */
+	p_ptr->energy_use = 100;
 
 
 	/* Confuse direction */
@@ -2442,13 +2445,7 @@ static void do_cmd_walk_or_jump(int jumping)
 
 
 	/* Verify legality */
-	if (!do_cmd_walk_test(y, x)) 
-	{
-		/* Take a turn */
-		p_ptr->energy_use = 100;
-		return;
-	}
-
+	if (!do_cmd_walk_test(y, x)) return;
 
 	/* Allow repeated command */
 	if (p_ptr->command_arg)
@@ -2516,7 +2513,7 @@ void do_cmd_run(void)
 
 	/* Verify legality */
 	if (!do_cmd_walk_test(y, x)) return;
-
+	if ((p_ptr->tim_wraith || p_ptr->wraith_form) && !cave_floor_bold(y, x)) return;
 
 	/* Start run */
 	run_step(dir);
@@ -2534,6 +2531,9 @@ static void do_cmd_hold_or_stay(int pickup)
 	int searchfrqgood, searchfrqnorm, searchfrqpoor;
 	int searchfrqchance;
 	
+	/* Paranoia */
+	searchfrqchance = 0;
+
 	/* Get the "Frequency" factor */
 	searchfrqgood = p_ptr->skills[SK_SEARCHING_GOOD].skill_rank;
 	searchfrqnorm = p_ptr->skills[SK_SEARCHING_NORM].skill_rank;
@@ -2545,6 +2545,9 @@ static void do_cmd_hold_or_stay(int pickup)
 	if (searchfrqnorm >= 0) searchfrqchance = searchfrqnorm * 2;
 	if (searchfrqpoor >= 0) searchfrqchance = searchfrqpoor;
 
+	if (p_ptr->skills[SK_TRAILBLAZER].skill_max > 0)
+		searchfrqchance += p_ptr->skills[SK_TRAILBLAZER].skill_rank / 2;
+		
 	/* Allow repeated command */
 	if (p_ptr->command_arg)
 	{
@@ -2708,6 +2711,9 @@ void move_player(int dir, int jumping)
 	bool p_can_pass_walls = FALSE;
 	bool wall_is_perma = FALSE;
 
+	/* Paranoia */
+	searchfrqchance = 0;
+
 	/* Find the result of moving */
 	y = py + ddy[dir];
 	x = px + ddx[dir];
@@ -2722,6 +2728,9 @@ void move_player(int dir, int jumping)
 	if (searchfrqgood >= 0) searchfrqchance = searchfrqgood * 3;
 	if (searchfrqnorm >= 0) searchfrqchance = searchfrqnorm * 2;
 	if (searchfrqpoor >= 0) searchfrqchance = searchfrqpoor;
+
+	if (p_ptr->skills[SK_TRAILBLAZER].skill_max > 0)
+		searchfrqchance += p_ptr->skills[SK_TRAILBLAZER].skill_rank / 2;
 
 	/* Player can not walk through "walls"... */
 	/* unless in Shadow Form */
@@ -2746,12 +2755,11 @@ void move_player(int dir, int jumping)
 		{
 			msg_format("You push past %s.", m_name);
 			monster_swap(py, px, y, x);
-			update_mon(cave_m_idx[y][x], TRUE);
+			update_mon(cave_m_idx[y][x], TRUE, FALSE);
 		}
 		else
 		/* Attack */
-		py_attack(y, x);
-		return;
+		py_attack(y, x, 0);
 	}
 
 #ifdef ALLOW_EASY_ALTER
@@ -2929,6 +2937,9 @@ void search(void)
 
 	int searchgood, searchnorm, searchpoor;
 	
+	/* Paranoia */
+	chance = 0;
+	
 	/* Get the "search" factor */
 	searchgood = p_ptr->skills[SK_SEARCHING_GOOD].skill_rank;
 	searchnorm = p_ptr->skills[SK_SEARCHING_NORM].skill_rank;
@@ -2938,6 +2949,9 @@ void search(void)
 	if (searchgood >= 0) chance = searchgood * 5;
 	if (searchnorm >= 0) chance = searchnorm * 3;
 	if (searchpoor >= 0) chance = searchpoor;
+
+	if (p_ptr->skills[SK_TRAILBLAZER].skill_max > 0)
+		chance += p_ptr->skills[SK_TRAILBLAZER].skill_rank / 2;
 
 	/* Penalize various conditions */
 	if (p_ptr->blind || no_lite()) chance = chance / 10;
@@ -3057,11 +3071,19 @@ static void py_pickup_aux(int o_idx)
 
 	char o_name[80];
 	object_type *o_ptr;
+	object_kind *k_ptr;
 
 	o_ptr = &o_list[o_idx];
 
+	/* Get the object kind. */
+	k_ptr = &k_info[o_ptr->k_idx];
+
 	/* Carry the object */
 	slot = inven_carry(o_ptr);
+
+	/* Make us aware of objects *when we look at them* instead of at generation */
+	/* Unless they are 'hidden' objects with a flavor */
+	if (!k_ptr->flavor) k_ptr->aware = TRUE;
 
 	/* Get the object again */
 	o_ptr = &inventory[slot];

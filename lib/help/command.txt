@@ -1,4 +1,4 @@
-=== Command Descriptions === (OUTDATED)
+=== Command Descriptions === 
 
         The following command descriptions are listed as the command name
 plus the "underlying command" key.  This is followed by the command name
@@ -33,16 +33,16 @@ Equipment list (e)
         each corresponding to a different location on the body, and each of
         which may contain only a single object at a time, and each of which
         may only contain objects of the proper "type", and which include
-        WIELD (weapon), BOW (missile launcher), LEFT (ring), RIGHT (ring),
+        WIELD (weapon), GUN (missile launcher), LEFT (ring), RIGHT (ring),
         NECK (amulet), LITE (light source), BODY (armor), OUTER (cloak),
-        ARM (shield), HEAD (helmet), HANDS (gloves), FEET (boots).  You
+        LEG (trousers), HEAD (helmet), HANDS (gloves), FEET (boots).  You
         must be wielding/wearing certain objects to take advantage of
         their special powers.
 
 Drop an item (d)
         This drops an item from your inventory or equipment onto the
         dungeon floor.  If the floor spot you are standing on already has
-        an object in it, Angband will attempt to drop the item onto an
+        an object in it, Steamband will attempt to drop the item onto an
         adjacent space.  Be warned that if the floor is full and you
         attempt to drop something, it may disappear and be destroyed.
         Doors and traps are considered objects for the purpose of
@@ -106,21 +106,18 @@ Go up staircase (<)
         Climbs up an up staircase you are standing on.  There is always at
         least one staircase going up on every level except for the town
         level (this doesn't mean it's easy to find).  Going up a staircase
-        will take you to a new dungeon level unless you are at 50 feet
-        (dungeon level 1), in which case you will return to the town
-        level.  Note that whenever you leave a level (not the town), you
-        will never find it again.  This means that for all intents and
-        purposes, any objects on that level are destroyed.  This includes
-        artifacts unless the "Create characters in preserve mode" option
-        was set when your character was created, in which case the artifacts
+        will take you to a new dungeon level.  Note that whenever you 
+        leave a level (not the town), you will never find it again.  
+        This means that for all intents and purposes, any objects on 
+        that level are destroyed.  This includes artifacts unless the 
+        "Create characters in preserve mode" option was set when your 
+        character was created, in which case the artifacts
         may show up again later.  This command takes some energy.
 
 Go down staircase (>)
         Descends a down staircase you are standing on.  There are always
         at least two staircases going down on each level, except for the
-        town which has only one, and "quest" levels, which have none until
-        the quest monster is killed.  Going down a staircase will take you
-        to a new dungeon level.  See "Go Up Staircase" for more info.
+        town which has only one.  See "Go Up Staircase" for more info.
         This command takes some energy.
 
 --- Resting Commands ---
@@ -148,7 +145,9 @@ Rest (R)
         want to rest, or "*" to rest until your hitpoints and mana are
         restored, or "&" to rest until you are fully "healed".  This command
         may take an argument (used for the number of turns to rest), and
-        takes some energy.
+        takes some energy. While you are resting, your wounds will not
+        worsen. Having full hit points will make it less likely that your
+        wounds will worsen.
 
 --- Searching Commands ---
 
@@ -243,64 +242,60 @@ Alter (+)
 
 --- Spell and Prayer Commands ---
 
-Browse a book (b)
-        Only mages, rogues, and rangers can read magic books, and only
-        priests and paladins can read prayer books.  Warriors cannot read
-        any books.  When this command is used, all of the spells or prayers
-        contained in the selected book are displayed, along with information
-        such as their level, the amount of mana required to cast them, and
-        whether or not you know the spell or prayer.
+Browse a book/device (b)
+        Any character can browse books.  When this command is used, all 
+        of the spells, prayers, or activations in engimatic devices
+        contained in the selected book or device are displayed, along
+        with information such as their level, and the amount of mana 
+        required to cast them.
 
-Gain new spells or mani'p'ulations (G)
-        Use this command to actually learn new spells or prayers.  When you
-        are able to learn new spells or prayers, the word "Study" will appear
-        on the status line at the bottom of the screen.  If you have a book
-        in your possession, containing spells or prayers which you may learn,
-        then you may choose to study that book.  If you are a mage, rogue, or
-        ranger, you may actually choose which spell to study.  If you are a
-        priest or paladin, your gods will choose a prayer for you.  There are
-        nine books of each type, five of which are normally found only in the
-        dungeon. This command takes some energy.
+Gain skill points (G)
+        You can gain access to the skills screen by pushing the 'G' key 
+        anytime you are in town or in the dungeon. You can switch between 
+        the three skill 'groupings' by pushing the 'h' key. You can navigate
+        around the list by pushing either the up arrow/'8' key or the down 
+        arrow/'2' key. You can increase your skills by pushing the '+' key. 
+        Skill increases are permanent -- once a point is added to a skill, 
+        it can never be removed. You may press the 'g' key while on the 
+        skills screen to "spend" your stat gain points to raise all of your 
+        stats once. All characters can gain skills - in fact all characters
+        *must* raise their skills if they wish to survive.
 
-Cast a spell (m)
-        To cast a spell, you must have previously learned the spell and
-        must have in your inventory a book from which the spell can be
-        read.  Each spell has a chance of failure which starts out fairly
-        large but decreases as you gain levels.  If you don't have enough
-        mana to cast a spell, you will be prompted for confirmation.  If
-        you decide to go ahead, the chance of failure is greatly increased,
-        and you may lose a point of constitution.  Since you must read the
-        spell from a book, you cannot be blind or confused while casting,
-        and there must be some light present.  This command takes some energy.
+Cast a spell/ Activate an engmatic device (m)
+        To produce an effect, you must have the appropriate skill 
+        developed enough to exceed the rank or 'difficulty' of the effect.
+        You also must have in your inventory a book or device from which
+        the effect can be produced.  Each spell has a chance of failure
+        which starts out fairly large but decreases as you gain skill in
+        the appropriate area.  If you don't have enough mana to cast a 
+        spell, you will be prompted for confirmation.  If you decide to
+        go ahead, the chance of failure is greatly increased, and you may
+        lose some vigor.  Since you must produce the effect from a book or
+        device, you cannot be blind or confused while casting, and there
+        must be some light present.  This command takes some energy.
 
-Mani'p'ulate a device (p)
-        To use devices, you must have previously learned an activation
-        and must have in your inventory a device from which the activation can
-        be read.  Each activation has a chance of not working which starts
-        out fairly large but decreases as you gain levels.  If you don't
-        have enough mana to activate a device, you will be prompted for
-        confirmation.  If you decide to go ahead, the chance of failure
-        is greatly increased, and you may lose a point of constitution.
-        Since you must use the activation from a device, you cannot be blind
-        or confused while activating, and there must be some light present.
-        This command takes some energy.
+Use Class 'p'owers (p)
+        Most classes start with or will gain access to certain skills
+        that will allow them to produce inherint class powers. These
+        powers can be accessed by this command. This command takes some
+        energy.
         
-Use a Racial power, or Mutation (U)
-		Your race may have certain special powers, or possibly during the 
-		course of the game you may be struck with a mutation. If this is 
-		the case you can access some of the activateable abilities by 
-		hitting the U key. Racial powers and Mutations use Mana - possibly 
-		hp depending on your class.
+Use a Racial power, Skill, or Mutation (U)
+        Your race may have certain special powers, you may develop a skill
+        which gives you a special ability, or possibly during the 
+        course of the game you may be struck with a mutation. If this is 
+        the case you can access some of the activateable abilities by 
+        hitting the U key. Racial powers, Skills, and Mutations use Mana.
 
 Command your Pets (P)
-		This command gives you access to your pet commands. Through certain 
-		methods, or perhaps through your commanding presence (if you happen 
-		to be an officer) you may acquire pets. These are monsters that 
-		do your bidding. When they kill creatures you will recieve experience, 
-		and the more pets you have the slower your mana regenerates. Pets 
-		do *not* transfer from level to level in the dungeon. They also cannot
-		kill uniques (They can hurt them, just not do the last point of 
-		damage).
+        This command gives you access to your pet commands. Through certain 
+        methods, or perhaps through your commanding presence (if you happen 
+        to be an officer) you may acquire pets. These are monsters that 
+        do your bidding. When they kill creatures you will recieve experience, 
+        and the more pets you have the slower your mana regenerates. Pets 
+        do *not* transfer from level to level in the dungeon. They also cannot
+        kill uniques (They can hurt them, just not do the last point of 
+        damage).
 
 --- Object Manipulation Commands ---
 
@@ -327,7 +322,7 @@ Quaff a tonic (q)
         This command takes some energy.
 
 Rig a mechanism (r)
-        Use this command to rig a mechanism.  mechanism spells usually have an
+        Use this command to rig a mechanism.  Mechanism spells usually have an
         area effect, except for a few cases where they act on other objects.
         Rigging a mechanism causes the mechanism to disintegrate as the mechanism
         takes effect.  Most mechanism which prompt for more information can be
@@ -383,33 +378,33 @@ Activate an artifact (A)
         wielding the item.  This command takes some energy.
 
 Aim a Ray Gun (a) or Zap a Ray Gun (z)
-        Wands must be aimed in a direction to be used.  Wands are magical
-        devices, and therefore there is a chance you will not be able to
-        figure out how to use them if you aren't good with magical
+        Ray Guns must be aimed in a direction to be used.  Ray Guns are 
+        magical devices, and therefore there is a chance you will not be 
+        able to figure out how to use them if you aren't good with magical
         devices.  They will fire a shot that affects the first object or
         creature encountered or fire a beam that affects anything in a
-        given direction, depending on the wand.  An obstruction such as a
+        given direction, depending on the gun.  An obstruction such as a
         door or wall will generally stop the effects from traveling any
         farther.  This command requires a direction and can use a target.
         This command takes some energy.
 
 Use a tool (u) or Zap a tool (Z)
-        This command will use a staff.  A staff is normally very similar
-        to a scroll, in that they normally either have an area effect or
-        affect a specific object.  Staves are magical devices, and there
+        This command will use a tool.  A tool is normally very similar
+        to a mechanism, in that they normally either have an area effect or
+        affect a specific object.  Tools are magical devices, and there
         is a chance you will not be able to figure out how to use them.
         This command takes some energy.
  
 Zap an apparatus (z) or Activate a apparatus (a)
-        Rods are extremely powerful magical items, which cannot be burnt
-        or shattered, and which can have either staff-like or wand-like
-        effects, but unlike staves and wands, they don't have charges.
-        Instead, they draw on the ambient magical energy to recharge
-        themselves, and therefore can only be activated once every few
-        turns.  The recharging time varies depending on the type of rod.
-        This command may require a direction (depending on the type of
-        rod, and whether you are aware of its type) and can use a target.
-        This command takes some energy.
+        Apparatuses are extremely powerful magical items, which cannot 
+        be burnt or shattered, and which can have either tool-like or 
+        ray gun-like effects, but unlike staves and wands, they don't 
+        have charges. Instead, they draw on the ambient magical energy 
+        to recharge themselves, and therefore can only be activated once 
+        every few turns.  The recharging time varies depending on the 
+        type of apparatus. This command may require a direction (depending 
+        on the type of apparatus, and whether you are aware of its type) 
+        and can use a target. This command takes some energy.
 
 --- Throwing and Missile Weapons ---
 
@@ -512,9 +507,8 @@ Look around (l) or Examine things (x)
         start out looking at "yourself".
 
 Observe an item (I)
-        This command lets you observe a previously *identified* item.
+        This command lets you observe a previously identified item.
         This will tell you things about the special powers of the object.
-        Currently, it only makes sense for artifacts and ego-items.
 
 --- Message Commands ---
 

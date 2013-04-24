@@ -31,8 +31,15 @@
 #define PARSE_ERROR_INVALID_SPELL_FREQ      12
 #define PARSE_ERROR_INVALID_ITEM_NUMBER     13
 #define PARSE_ERROR_TOO_MANY_ENTRIES        14
+#define PARSE_ERROR_NON_SEQUENTIAL_QUESTS	15
 
-#define PARSE_ERROR_MAX                     15
+
+#define PARSE_ERROR_NO_PVAL1                16
+#define PARSE_ERROR_NO_PVAL2                17
+#define PARSE_ERROR_NO_PVAL3                18
+
+
+#define PARSE_ERROR_MAX                     19
 
 
 typedef struct header header;
@@ -110,6 +117,7 @@ extern errr parse_c_info(char *buf, header *head);
 extern errr parse_h_info(char *buf, header *head);
 extern errr parse_b_info(char *buf, header *head);
 extern errr parse_g_info(char *buf, header *head);
+extern errr parse_q_info(char *buf, header *head);
 
 /*
  * Error tracking
@@ -134,5 +142,6 @@ extern header p_head;
 extern header h_head;
 extern header b_head;
 extern header g_head;
+extern header q_head;
 
 #endif /* INCLUDED_INIT_H */

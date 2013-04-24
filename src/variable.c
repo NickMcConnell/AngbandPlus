@@ -76,6 +76,7 @@ u32b seed_town;			/* Hack -- consistent town layout */
 
 s16b num_repro;			/* Current reproducer count */
 s16b object_level;		/* Current object creation level */
+s16b old_object_level;	/* Old object creation level */
 s16b monster_level;		/* Current monster creation level */
 
 char summon_kin_type;		/* Hack -- See summon_specific() */
@@ -86,6 +87,9 @@ s32b old_turn;			/* Hack -- Level feeling counter */
 
 bool use_sound;			/* The "sound" mode is enabled */
 bool use_graphics;		/* The "graphics" mode is enabled */
+
+s16b image_count;  		/* Grids until next random image    */
+                  		/* Optimizes the hallucination code */
 
 s16b signal_count;		/* Hack -- Count interrupts */
 
@@ -103,10 +107,7 @@ bool opening_chest;		/* Hack -- prevent chest generation */
 bool shimmer_monsters;	/* Hack -- optimize multi-hued monsters */
 bool shimmer_objects;	/* Hack -- optimize multi-hued objects */
 
-bool repair_mflag_born;	/* Hack -- repair monster flags (born) */
-bool repair_mflag_nice;	/* Hack -- repair monster flags (nice) */
 bool repair_mflag_show;	/* Hack -- repair monster flags (show) */
-bool repair_mflag_mark;	/* Hack -- repair monster flags (mark) */
 
 s16b o_max = 1;			/* Number of allocated objects */
 s16b o_cnt = 0;			/* Number of live objects */
@@ -276,16 +277,16 @@ byte *temp_x;
  * This array is padded to a width of 256 to allow fast access to elements
  * in the array via "grid" values (see the GRID() macros).
  */
-byte (*cave_info)[256];
+u16b(*cave_info)[256];
 
 /*
- * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid feature codes
+ * Array[DUNGEON_HGT][DUNGEON_WID_MAX] of cave grid feature codes
  */
-byte (*cave_feat)[DUNGEON_WID];
+byte(*cave_feat)[DUNGEON_WID];
 
 
 /*
- * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid object indexes
+ * Array[DUNGEON_HGT_MAX][DUNGEON_WID_MAX] of cave grid object indexes
  *
  * Note that this array yields the index of the top object in the stack of
  * objects in a given grid, using the "next_o_idx" field in that object to
@@ -314,15 +315,48 @@ s16b (*cave_m_idx)[DUNGEON_WID];
 
 /*
  * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid flow "cost" values
+ * Used to simulate character noise.
  */
 byte (*cave_cost)[DUNGEON_WID];
 
 /*
- * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid flow "when" stamps
+ * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid flow "when" stamps.
+ * Used to store character scent trails.
  */
 byte (*cave_when)[DUNGEON_WID];
 
+/*
+ * Current scent age marker.  Counts down from 250 to 0 and then loops.
+ */
+int scent_when = 250;
+
+
+/*
+ * Centerpoints of the last flow (noise) rebuild and the last flow update.
+ */
+int flow_center_y;
+int flow_center_x;
+int update_center_y;
+int update_center_x;
+
+/*
+ * Flow cost at the center grid of the current update.
+ */
+int cost_at_center = 0;
+
 #endif	/* MONSTER_FLOW */
+
+/*
+ * The character generates both directed (extra) noise (by doing noisy
+ * things) and ambient noise (the combination of directed and innate
+ * noise).
+ *
+ * Noise builds up as the character does certain things, and diminishes
+ * over time.
+ */
+s16b add_wakeup_chance = 0;
+s16b total_wakeup_chance = 0;
+
 
 
 /*
@@ -341,12 +375,10 @@ monster_type *m_list;
  */
 monster_lore *l_list;
 
-
 /*
- * Hack -- Array[MAX_Q_IDX] of quests
+ * Array[z_info->x_max] of dungeon effects
  */
-quest *q_list;
-
+effect_type *x_list;
 
 /*
  * Array[MAX_STORES] of stores
@@ -368,6 +400,14 @@ s16b alloc_kind_size;
  * The array[alloc_kind_size] of entries in the "kind allocator table"
  */
 alloc_entry *alloc_kind_table;
+
+/*
+ * The arrays of entries in the "kind allocator tables".
+ * The first is used for allocation permissions, and the second for final
+ * allocation chances.
+ */
+bool *permit_kind_table;
+byte *chance_kind_table;
 
 
 /*
@@ -533,6 +573,12 @@ byte *g_info;
 char *g_name;
 char *g_text;
 
+/*
+ * The quest arrays
+ */
+quest_type *q_info;
+char *q_name;
+
 
 /*
  * Hack -- The special Angband "System Suffix"
@@ -643,13 +689,13 @@ bool (*item_tester_hook)(const object_type*);
 /*
  * Current "comp" function for ang_sort()
  */
-bool (*ang_sort_comp)(vptr u, vptr v, int a, int b);
+bool (*ang_sort_comp)(const void *u, const void *v, int a, int b);
 
 
 /*
  * Current "swap" function for ang_sort()
  */
-void (*ang_sort_swap)(vptr u, vptr v, int a, int b);
+void (*ang_sort_swap)(void *u, void *v, int a, int b);
 
 /*
  * Hack -- function hook to output (colored) text to the
@@ -670,6 +716,7 @@ bool (*get_mon_num_hook)(int r_idx);
  * Hack -- function hook to restrict "get_obj_num_prep()" function
  */
 bool (*get_obj_num_hook)(int k_idx);
+bool(*old_get_obj_num_hook)(int k_idx);
 
 
 /*
@@ -681,6 +728,14 @@ int highscore_fd = -1;
  * The type of object the item generator should make, if specified. -LM-
  */
 byte required_tval = 0;
+byte old_required_tval = 0;
+
+
+/*
+ * The total of all object generation probabilities
+ */
+u32b alloc_kind_total;
+
 
 /*
  * Use transparent tiles

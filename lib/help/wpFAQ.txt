@@ -1,0 +1,55 @@
+=== Wound Point FAQ ===
+Q:What's WP?
+
+A:Wound points.
+
+
+Q:Oh. What exactly are they?
+
+A:Each character has wound points, representing his actual physical health.
+When the character reaches below 0 wound points he dies. 
+
+
+Q:Oh, then what's HP?
+
+A:Hit points.
+
+
+Q:Well if Wound points are actual physical health, what are HP? what
+do they do?
+
+A:Each character has hit points, representing the general condition of the 
+character and how well he is able to resist taking damage. They basically
+act as ablative shielding for wound points.
+
+
+Q:I keep getting messages that my Wounds Ache.
+
+A:Yes, when you are wounded, often your condition will worsen. Nothing
+negative will happen to you while 'R'esting. Bad things may start to happen
+when you've lost about 40% of your total wound points + hit points. You
+can always rest to keep your hit points at maximum, but if you're down to
+20% of your remaining wound points your hit points being at max won't help
+much. That's some pretty serious injury.
+
+
+Q:My wound points won't heal!
+
+A:They don't naturally regenerate. Once you gain some regenerative powers
+they will start to (slowly) regenerate while in the dungeon. They will
+quickly regenerate while you are in town. You can also heal them by 
+drinking potions.
+
+
+Q:I notice HP's are not shown on dumps. Why?
+
+A:Well, since Hit points can be refilled at a moments notice, this fairly
+transitory value seemed much less important to include on dumps then the
+much more important WP value.
+
+
+Q:If you get to zero HP's does further damage debit your WP or just kill you?
+
+A:If you have no HP's, there is no chance of them stopping any of the 
+WP damage. In addition you take another 2-4 WP's of damage in addition
+to what you would have taken.

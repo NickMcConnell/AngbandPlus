@@ -1,0 +1,159 @@
+=== General FAQ ===
+Q:Everything is so different! In fact, everything in this game is so far 
+from my normal experience in Angband and its variants, why should I even
+bother playing?
+
+A: Well, I'd like to think I've produced a challenging modern variant that
+not only implements a strong theme to the game experience, but also flat
+out corrects several problems that Vanilla Angband has had for *years*, 
+including: extreme length of play, a large boring portion of the game 
+where you scum for stat potions, instadeath, unsteady power curve, 
+excessive item generation involving long sequences of gameplay devoted 
+to sifting through junk dropped by monsters and lack of character 
+customization. 
+
+
+Q:But everything is *so* different! Even if I *want* too, how do I go 
+about playing?
+
+A:First of all take a deep breath. There are only a few major things that
+take some getting used to. The first that bothers everyone is the new 
+statistics, and the second is the new skills system. Both those items
+have their own individual FAQ's, which you can access by pushing '?'
+to go back to the main FAQ menu, and then selecting them from the list
+of available FAQ's. Other things which tend to confuse new people are the
+'magic' system and wound points, both of which also have their own FAQs,
+and the 'reverse short' dungeon.
+
+
+Q:What in tarnation is a 'reverse short' dungeon.
+
+A:Put simply, in Steamband you begin your journey in the centre of the 
+earth and move to the surface, which unlike standard *bands is only
+50 levels away - not 100. And since you start in the centre you take
+up stairways '<' to move towards the end of the dungeon (the 'surface')
+and down stairways '>' to move back towards town.
+
+
+Q:Ok then, what's with all this stuff I've never even heard of before! On
+top of having to learn a new basic *banding system, I've got to figure out
+what a 'Clay Worsted Dress Suit' is! How can I play this game if I don't
+even know what I'm wearing?
+
+A:One of the stated goals of Steamband is an educational resource for an
+era that was fascinating, full of the sources for much of our modern day 
+entertainments / society and becoming more distant and poorly documented /
+remembered every day. The vast majority of the monsters and uniques that
+you will encounter while playing are from actual literary sources, and you
+can go read books about them at your leisure. Oh, and to solve the 
+difficulty with items - any item in the game can be 'I'nspected which will 
+give a detailed description of the item, along with any relevant game 
+information.
+
+
+Q:I can't hit anything! I keep dying! This variant is way too hard.
+
+A:Most often people have this complaint because they have failed to allocate
+any of their skill points. You can access the skills screen by pushing 'G'
+in the dungeon or town.
+
+
+Q:I'm having trouble figuring out how to use my racial powers, class powers,
+and spells. How do I use them?
+
+A:Racial abilities, and special abilities gained from skills are 'U'sed
+by pushing 'U'.  Class 'p'owers are accessed by pushing 'p'. Magic spells
+and the activations of enigmatic devices are accessed by pushing 'm'. If
+you are having trouble remembering these commands you can simply use the 
+quick menu by pushing enter.
+
+
+Q: I'm having trouble doing a lot of damage. I've got a dagger and four 
+attacks, why am I not doing much damage?
+
+A:Heavy weapons with fewer blows are (or can be) better.
+
+
+Q:What do you mean heavy weapons are better?
+
+A: Weapons have a new feature called 'force'. You can tell the force of 
+a weapon by the description of the damage dice. A saber has a damage of 
+(1d7|1). The part after the '|' is the force of the weapons. Larger 
+weapons  do more damage with a higher force. Each time you strike a monster
+Steamband attempts another attack for each force blow on the weapon. Each
+force blow that connects adds to a damage multiplier, doing progressively
+more and more damage. The message that is printed after you attack gives 
+you an idea of how hard you have hit the monster. Each successive force blow 
+has a smaller chance of hitting. You may notice that it's fairly easy to 
+connect a blow on a monster with a small amount of skill, but to strike 
+with each and every force blow (and thus take the best advantage of heavy 
+weapons) it requires a large amount of investment in combat skills.
+One blow with a large weapon is now better than multiple blows with a 
+smaller one. Multiple blows are limited to 4 without investing skill 
+points into the available skills. 
+
+
+Q: Seriously, I want a skills spoiler.
+
+A:Steamband is meant to be played without spoilers regarding what skills
+are available, but if you check the library folder you will see a spoiler 
+folder and it has plain text spoilers as to what skills are available.
+More visual spoilers in the form of pdf files are available from the
+steamband home page, http://angband.oook.cz/steamband/index.html
+
+
+Q: Character 'A' from [V]angband gets this power! Why don't I get it 
+in Steam?
+
+A: All classes and races can get any power they want from spellbooks - 
+any class can learn. The classes, and the equipment they can use may not 
+be the same as the *band you are used to. You may notice that a design 
+goal of mine has not been to keep gameplay similar to [V]'s.
+
+
+Q:Hey! I thought you wanted to get rid of insta-kills! I went from 
+full wound points down to nothing! What gives?
+
+A:Well, it is important to keep in mind that the dungeon in Steamband
+is only 50 levels. so if you drop four levels, you've dropped just under
+a 10th of the whole dungeon. Also, in pits and vaults monsters can appear
+out of depth. The out of depth values have been reduced, but a monster that
+comes from 5 or 10 levels deeper than you can be a serious threat. Your 
+gameplay will benefit from a high amount of paranoia. :-)
+
+
+Q:A lot seems changed in this variant.
+
+A:Yes.
+
+
+Q:How long did all this take you?
+
+A:Thousands of hours. On average I've spend about 20 hours a week on it
+over the last 2 years.
+
+
+Q:Thanks.
+
+A:No problem.
+
+========================
+Automata and Steam-Mecha
+========================
+Q: Uhh, I got my stats drained and when I tried to drink a potion - 
+It said I couldn't! What is going on?
+
+A. Automata and Steam-mecha are unable to drink potions, and eat normal 
+food. Thankfully - they have all their stats sustained. Sadly, this 
+means in the event of a time attack, or casting a spell that drains stats, 
+they are out of luck. If they become religious enough, perhaps god will grant
+them a way to restore their stats. Perhaps also they may be lucky enough
+to run across strange apparatuses in the dungeon that could also repair them.
+
+
+Q: What do these Automata, and Steam-Mecha eat?
+
+A. Oil. press 'e' and select oil.
+
+
+
