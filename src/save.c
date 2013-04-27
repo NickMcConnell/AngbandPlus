@@ -551,6 +551,10 @@ static void wr_item(const object_type *o_ptr)
 	/* Next object in list */
 	wr_s16b(o_ptr->next_o_idx);
 
+	/* Contents, if appropriate */
+	if (o_ptr->tval == TV_CONTAINER)
+		wr_s16b(o_ptr->contents_o_idx);
+
 	/* Remove this soon... */
 	wr_byte(o_ptr->allocated);
 
@@ -841,6 +845,7 @@ static void wr_options(void)
 	/* Autosave info */
 	wr_byte(autosave_l);
 	wr_byte(autosave_t);
+	wr_byte(autosave_b);
 	wr_s16b(autosave_freq);
 
 	/*** Normal options ***/

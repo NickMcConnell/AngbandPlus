@@ -167,13 +167,13 @@ distcheck: dist
 	-rm -rf temp2
 	-rm -rf $(DESTDIR)
 
-VER_MAJOR := `grep "\#define VER_MAJOR" src/defines.h | sed s/\#define\ VER_MAJOR\ //`
-VER_MINOR := `grep "\#define VER_MINOR" src/defines.h | sed s/\#define\ VER_MINOR\ //`
-VER_PATCH := `grep "\#define VER_PATCH" src/defines.h | sed s/\#define\ VER_PATCH\ //`
+VER_MAJOR := `grep "\#define VER_MAJOR" src/version.h | sed s/\#define\ VER_MAJOR\ //`
+VER_MINOR := `grep "\#define VER_MINOR" src/version.h | sed s/\#define\ VER_MINOR\ //`
+VER_PATCH := `grep "\#define VER_PATCH" src/version.h | sed s/\#define\ VER_PATCH\ //`
 VER_EXTRA := \
-	`grep "\#define VER_EXTRA" src/defines.h | sed s/\#define\ VER_EXTRA\ /pre/ | sed s/pre0//`
+	`grep "\#define VER_EXTRA" src/version.h | sed s/\#define\ VER_EXTRA\ /pre/ | sed s/pre0//`
 VER_AFTER := \
-	`grep "\#define VER_AFTER" src/defines.h | sed s/\#define\ VER_AFTER\ // | sed s/\"//g`
+	`grep "\#define VER_AFTER" src/version.h | sed s/\#define\ VER_AFTER\ // | sed s/\"//g`
 
 #
 # Expand now, so don't have quoting problems
@@ -220,7 +220,7 @@ test:
 	fi
 
 # Hack to remake configure.in if the version number changes
-.version: src/defines.h
+.version: src/version.h
 	@if [ ! -r .version ]; then \
 		echo "$(VERSION)" > .version; \
 	fi

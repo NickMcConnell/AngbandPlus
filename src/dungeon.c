@@ -81,25 +81,28 @@ static byte value_check_aux1(const object_type *o_ptr)
 static byte value_check_aux2(const object_type *o_ptr)
 {
 	/* Cursed items (all of them) */
-	if (cursed_p(o_ptr)) return FEEL_CURSED;
+	if (cursed_p(o_ptr)) return FEEL_WEAK_CURSED;
 
 	/* Broken items (all of them) */
-	if (o_ptr->cost <= 0) return FEEL_BROKEN;
+	if (o_ptr->cost <= 0) return FEEL_WEAK_BAD;
 
 	/* Artifacts -- except cursed/broken ones */
-	if (FLAG(o_ptr, TR_INSTA_ART)) return FEEL_GOOD;
-
-	/* Ego-Items -- except cursed/broken ones */
-	if (ego_item_p(o_ptr)) return FEEL_GOOD;
-
-	/* Good armor bonus */
-	if (o_ptr->to_a > 0) return FEEL_GOOD;
-
-	/* Good weapon bonuses */
-	if (o_ptr->to_h + o_ptr->to_d > 0) return FEEL_GOOD;
+	if (FLAG(o_ptr, TR_INSTA_ART)) return FEEL_WEAK_GOOD;
 
 	/* Worthless is "bad" */
-	if (!object_value(o_ptr)) return FEEL_BAD;
+	if (object_value(o_ptr) < 1) return FEEL_WEAK_BAD;
+
+	/* Good armor bonus */
+	if (o_ptr->to_a > 0) return FEEL_WEAK_GOOD;
+
+	/* Good weapon bonuses */
+	if (o_ptr->to_h + o_ptr->to_d > 0) return FEEL_WEAK_GOOD;
+
+	/* Bad bonuses */
+	if (o_ptr->to_a + o_ptr->to_h + o_ptr->to_d < 0) return FEEL_WEAK_BAD;
+
+	/* Ego-Items -- except cursed/broken ones */
+	if (ego_item_p(o_ptr)) return FEEL_WEAK_GOOD;
 
 	/* No feeling */
 	return FEEL_NONE;
@@ -216,6 +219,17 @@ void sense_item(object_type *o_ptr, bool heavy, bool wield, bool msg)
 			case FEEL_SPECIAL:
 			{
 				feel = FEEL_TERRIBLE;
+				break;
+			}
+			case FEEL_WEAK_BAD:
+			case FEEL_WEAK_GOOD:
+			{
+				feel = one_in_(3) ? FEEL_WEAK_GOOD : FEEL_WEAK_BAD;
+				break;
+			}
+			case FEEL_WEAK_CURSED:
+			{
+				feel = one_in_(3) ? FEEL_AVERAGE : FEEL_WEAK_CURSED;
 				break;
 			}
 		}
@@ -775,6 +789,9 @@ static bool item_tester_unsensed(const object_type *o_ptr)
 
 	/* Check to see if we have identified the item */
 	if (object_known_p(o_ptr)) return (FALSE);
+
+	/* Cannot re-sense items that already have a strong-pseudo feeling */
+	if (o_ptr->feeling >= FEEL_BROKEN && o_ptr->feeling <= FEEL_TAINTED) return (FALSE);
 
 	/* Cannot sense flavoured items */
 	if (k_ptr->flavor) return (FALSE);
@@ -2127,6 +2144,13 @@ static void process_command(void)
 		{
 			/* Destroy an item */
 			do_cmd_destroy();
+			break;
+		}
+
+		case 'O':
+		{
+			/* Organize */
+			do_cmd_organize();
 			break;
 		}
 

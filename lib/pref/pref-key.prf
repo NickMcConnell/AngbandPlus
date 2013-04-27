@@ -144,6 +144,10 @@ C:1:^T
 A:k
 C:1:^D
 
+# Allow use of the "organize" command
+A:O
+C:1:^O
+
 # Locate player on map
 A:L
 C:1:W
@@ -206,7 +210,7 @@ C:1:'
 
 # Squelch & unsquelch
 A:K
-C:1:^,
+C:1:[
 
 A:^u
-C:1:^.
+C:1:]

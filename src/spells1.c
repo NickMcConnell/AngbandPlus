@@ -882,6 +882,7 @@ static bool project_o(int who, int r, int x, int y, int dam, int typ)
 			{
 				bool is_potion = FALSE;
 				object_type *j_ptr;
+				object_type *j2_ptr;
 
 				/* Describe if needed */
 				if (obvious && note_kill && (!SQUELCH(o_ptr->k_idx) || FLAG(o_ptr, TR_SQUELCH)))
@@ -890,7 +891,18 @@ static bool project_o(int who, int r, int x, int y, int dam, int typ)
 				}
 
 				k_idx = o_ptr->k_idx;
+
 				is_potion = object_is_potion(o_ptr);
+
+				/* If it's a container, delete all its contents.. but no splash effects. */
+				if (o_ptr->tval == TV_CONTAINER)
+				{
+					OBJ_ITT_START(o_ptr->contents_o_idx, j2_ptr)
+
+						delete_dungeon_object(j2_ptr);
+
+					OBJ_ITT_END;
+				}
 
 				/* Delete the object, but keep a temp copy */
 				j_ptr = object_dup(o_ptr);
@@ -907,6 +919,7 @@ static bool project_o(int who, int r, int x, int y, int dam, int typ)
 
 				/* Redraw */
 				lite_spot(x, y);
+
 			}
 		}
 	}

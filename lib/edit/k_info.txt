@@ -75,7 +75,7 @@
 
 # Version stamp (required)
 
-V:0.2.2
+V:0.2.3
 
 
 ##### Something special #####
@@ -358,7 +358,7 @@ A:10/1:20/1:30/1:40/1
 F:EASY_KNOW
 L:USE:  msgf("That tastes good."); clear_poisoned(); hp_player(damroll(4, 8))
 D:Made by elves, this extremely nutritious trail bread also
-D:cures poison and restores 4d8 hp when eaten.
+D: cures poison and restores 4d8 hp when eaten.
 D:  Provides sustenance for about 3750 turns under normal conditions.
 
 N:26:& Pint~ of Fine Ale
@@ -412,7 +412,7 @@ A:1/1
 P:0:1d1:-2:-4:0
 F:SHOW_MODS
 D:This may have once been a servicable dagger, but now it's little more
-D:than a broken stub.
+D: than a broken stub.
 
 N:31:& Bastard Sword~
 G:|:W
@@ -422,7 +422,7 @@ A:26/1
 P:0:3d4:0:0:0
 F:SHOW_MODS
 D:A large sword designed to be equally useful in a one-handed or
-D:two-handed grip.
+D: two-handed grip.
 
 N:32:& Scimitar~
 G:|:W
@@ -487,7 +487,7 @@ P:0:1d5:0:0:0
 F:SHOW_MODS
 D:A large dagger or short sword designed for use in two-handed fighting.  The
 D: Main Gauche is meant to be held in the left hand ("Main Gauche" is French
-D:for "left hand") for parrying, while the other hand wields a larger weapon.
+D: for "left hand") for parrying, while the other hand wields a larger weapon.
 
 N:39:& Cutlass~
 G:|:W
@@ -569,7 +569,7 @@ A:0/1
 P:0:1d2:-2:-4:0
 F:SHOW_MODS
 D:This was once the blade of a valiant warrior, but now it's
-D:ruined beyond repair.
+D: ruined beyond repair.
 
 ##### Hafted Weapons #####
 
@@ -1053,7 +1053,8 @@ W:80:0:40:1000
 A:80/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID
-D:A circlet of gold and beatuiful gems.  Majestic and durable, but not very protective.
+D:A circlet of gold and beatuiful gems.  Majestic and durable, but not very
+D: protective.
 
 N:101:& Robe~
 G:(:b
@@ -1084,7 +1085,8 @@ I:36:5:0
 W:5:0:90:35
 A:5/1
 P:5:1d1:0:0:0
-D:Comfortable and light, but with additional metal studs. It offers good protection for its bulk.
+D:Comfortable and light, but with additional metal studs. It offers good
+D: protection for its bulk.
 
 N:105:& Hard Leather Armor~
 G:(:U
@@ -1100,7 +1102,8 @@ I:36:7:0
 W:17:0:110:250
 A:17/1
 P:7:1d2:-1:0:0
-D:Comfortable and light, but with additional metal studs. It offers good protection for its bulk.
+D:Comfortable and light, but with additional metal studs. It offers good
+D: protection for its bulk.
 
 N:107:& Leather Scale Mail~
 G:(:U
@@ -1164,8 +1167,8 @@ I:37:12:0
 W:70:0:260:2000
 A:70/1
 P:22:1d6:-3:0:0
-D:A suit of chain mail with plates in a few key places, where they are most needed and least
-D: likely to hamper movement.
+D:A suit of chain mail with plates in a few key places, where they are most
+D: needed and least likely to hamper movement.
 
 N:115:& Metal Lamellar Armor~
 G:[:W
@@ -1173,6 +1176,7 @@ I:37:13:0
 W:70:0:340:2500
 A:70/1
 P:23:1d6:-3:0:0
+D:A suit of armor consisting of small plates ("lames") laced together in rows.
 
 N:116:& Full Plate Armor~
 G:[:W
@@ -1188,7 +1192,8 @@ I:37:18:0
 W:80:0:380:6000
 A:80/1
 P:28:2d4:-3:0:0
-D:A suit of chain mail covered with protective metal plates reinforced with iron bands.
+D:A suit of chain mail covered with protective metal plates reinforced
+D: with iron bands.
 
 N:118:& Adamantite Plate Mail~
 G:[:G
@@ -1244,6 +1249,7 @@ I:35:1:0
 W:1:0:10:3
 A:1/1:35/1
 P:1:0d0:0:0:0
+D:A simple cloth covering with a hood.
 
 N:124:& Shadow Cloak~
 G:(:D
@@ -1263,6 +1269,7 @@ I:31:1:0
 W:1:0:5:3
 A:1/1
 P:1:0d0:0:0:0
+D:A set of gloves made from thick, durable leather.
 
 N:126:& Set~ of Gauntlets
 G:]:U
@@ -1270,6 +1277,7 @@ I:31:2:0
 W:17:0:25:35
 A:17/1:40/1
 P:2:1d1:0:0:0
+D:A heavy set of metal gloves.
 
 N:127:& Set~ of Cesti
 G:]:W
@@ -1296,6 +1304,7 @@ I:34:4:0
 W:26:0:100:120
 A:26/1:60/1
 P:6:1d4:0:0:0
+D:A medium-sized shield.
 
 N:130:& Small Shield~
 G:):s
@@ -1303,6 +1312,7 @@ I:34:3:0
 W:17:0:65:50
 A:17/1:40/1
 P:5:1d3:0:0:0
+D:A smaller shield, lighter but less protective.
 
 N:131:& Tower Shield~
 G:):s
@@ -1587,7 +1597,6 @@ I:45:14:2
 W:30:0:2:500
 A:30/1
 F:SPEED | FEATHER | HIDE_TYPE
-D:This ring almost vibrates with power.
 L:MAKE: object.pval = 1 + m_bonus(object.pval, level)
 L:MAKE: allow_curse = TRUE
 
@@ -1658,7 +1667,6 @@ I:40:4:0
 W:35:0:3:250
 A:35/2
 F:RES_ACID | IGNORE_ACID | EASY_KNOW
-D:With this amulet you feel uncorrosive.
 
 N:169:Berserk Strength
 G:":d
@@ -1722,7 +1730,7 @@ F:EASY_KNOW
 L:USE:  if not enchant_spell(1, 0, 0) then result = FALSE end
 L:USE:  ident = TRUE
 D:This scroll makes a single weapon easier to hit with.
-D:It might not work on a weapon that's already enchanted.
+D:  It might not work on a weapon that's already enchanted.
 
 N:174:Enchant Weapon Damage
 G:?:d
@@ -1733,7 +1741,7 @@ F:EASY_KNOW
 L:USE:  if not enchant_spell(0, 1, 0) then result = FALSE end
 L:USE:  ident = TRUE
 D:This scroll makes a single weapon more damaging.
-D:It might not work on a weapon that's already enchanted.
+D:  It might not work on a weapon that's already enchanted.
 
 N:175:Enchant Armor
 G:?:d
@@ -1744,7 +1752,7 @@ F:EASY_KNOW
 L:USE:  if not enchant_spell(0, 0, 1) then result = FALSE end
 L:USE:  ident = TRUE
 D:This scroll makes a single piece of armor more effective protection.
-D:It might not work on armor that's already enchanted.
+D:  It might not work on armor that's already enchanted.
 
 N:176:Identify
 G:?:d
@@ -1790,7 +1798,7 @@ L:USE:  if not player_res(TR1_RES_CHAOS) then take_hit(rand_range(150, 300),
 L:USE:          "a Scroll of Logrus") end
 L:USE:  ident = TRUE
 D:The chaotic runes on this scroll look very dangerous.
-D:It creates a chaos burst (400) centered on you, but will hurt you as well.
+D:  It creates a chaos burst (400) centered on you, but will hurt you as well.
 
 N:180:Remove Curse
 G:?:d
@@ -1802,7 +1810,7 @@ L:USE:  if remove_curse() then
 L:USE:          msgf("You feel as if someone is watching over you.")
 L:USE:          ident = TRUE end
 D:This scroll will remove curses that prevent you from removing equipment.
-D:It isn't powerful enough to affect some curses.
+D:  It isn't powerful enough to affect some curses.
 
 N:181:Light
 G:?:d
@@ -1811,8 +1819,8 @@ W:0:0:5:15
 A:0/1:5/1
 F:EASY_KNOW
 L:USE:  ident = lite_area(damroll(2, 8), 2)
-D:This scroll lights the room you are in.  It also deals a small amount 
-D:of damage to nearby creatures that are vulnerable to light.
+D:This scroll lights the room you are in.  It also deals a small amount
+D: of damage to nearby creatures that are vulnerable to light.
 
 N:182:Fire
 G:?:d
@@ -1825,7 +1833,7 @@ L:USE:  if res_fire_lvl() > 3 then take_hit(rand_range(100, 200),
 L:USE:          "a Scroll of Fire") end
 L:USE:  ident = TRUE
 D:This scroll creates a fire burst (350) centered on you, but
-D:will hurt you as well.
+D: will hurt you as well.
 
 N:183:Ice
 G:?:d
@@ -1838,7 +1846,7 @@ L:USE:  if res_fire_lvl() > 3 then take_hit(rand_range(50, 100),
 L:USE:          "a Scroll of Ice") end
 L:USE:  ident = TRUE
 D:This scroll creates a cold burst (300) centered on you, but
-D:will hurt you as well.
+D: will hurt you as well.
 
 N:184:Summon Monster
 G:?:d
@@ -1848,7 +1856,7 @@ A:1/1
 F:EASY_KNOW
 L:USE:  ident = summon_monsters_near_player(randint1(3), 0)
 D:This scroll summons monsters from elsewhere... and they won't
-D:be happy about it!
+D: be happy about it!
 
 N:185:Phase Door
 G:?:d
@@ -1893,7 +1901,7 @@ L:USE:          player.redraw = bOr(player.redraw, PR_STATUS)
 L:USE:          ident = TRUE
 L:USE:  end
 D:This scroll creates a magical field that will confuse the next
-D:monster you hit.
+D: monster you hit.
 
 N:189:Magic Mapping
 G:?:d
@@ -1914,7 +1922,7 @@ F:EASY_KNOW
 L:USE:  if not warding_glyph() then result = FALSE end
 L:USE:  ident = TRUE
 D:This scroll creates a magical glyph that will keep monsters
-D:from crossing it.
+D: from crossing it.
 
 N:191:*Remove Curse*
 G:?:d
@@ -1927,7 +1935,7 @@ L:USE:          msgf("You feel as if someone is watching over you.")
 L:USE:          ident = TRUE
 L:USE:  end
 D:This scroll removes all but the most powerful curses from your
-D:equipment, allowing you to remove cursed items.
+D: equipment, allowing you to remove cursed items.
 
 N:192:Treasure Detection
 G:?:d
@@ -1938,7 +1946,7 @@ F:EASY_KNOW
 L:USE:  ident = detect_treasure()
 L:USE:  if detect_objects_gold() then ident = TRUE end
 D:This scroll magically reveals the location of gems and
-D:precious metals nearby.
+D: precious metals nearby.
 
 N:193:Object Detection
 G:?:d
@@ -2002,7 +2010,7 @@ L:USE:  current_object_source.data = 198
 L:USE:  acquirement(player.px, player.py, 1, TRUE, FALSE)
 L:USE:  ident = TRUE
 D:This scroll transports a powerful item to your location.
-D:You will get better items on deeper dungeon levels.
+D:  You will get better items on deeper dungeon levels.
 
 N:199:*Acquirement*
 G:?:d
@@ -2017,7 +2025,7 @@ L:USE:  current_object_source.data = 199
 L:USE:  acquirement(player.px, player.py, rand_range(2, 3), TRUE, FALSE)
 L:USE:  ident = TRUE
 D:This scroll transports several powerful items to your location.
-D:You will get better items on deeper dungeon levels.
+D:  You will get better items on deeper dungeon levels.
 
 N:200:Mass Genocide
 G:?:d
@@ -2029,7 +2037,7 @@ L:USE:  mass_genocide(TRUE)
 L:USE:  ident = TRUE
 D:The evil runes on this scroll make you tremble.
 D:It destroys all nearby monsters totally. You won't get any experience
-D:or treasure from them.
+D: or treasure from them.
 
 N:201:Detect Invisible
 G:?:d
@@ -2073,14 +2081,14 @@ N:205:Artifact Creation
 G:?:d
 I:70:52:0
 W:100:0:5:300000
-A:60/20:100/10
+A:100/10:75/20
 F:EASY_KNOW
 L:USE:  if not artifact_scroll() then result = FALSE end
 L:USE:  ident = TRUE
-D:This powerful scroll will turn a normal item into a unique 
-D:artifact.  Be careful, sometimes artifacts have drawbacks as 
-D:well as benefits.  It can't affect an item that already 
-D:has special powers.
+D:This powerful scroll will turn a normal item into a unique
+D: artifact.  Be careful, sometimes artifacts have drawbacks as
+D: well as benefits.  It can't affect an item that already
+D: has special powers.
 
 N:206:Recharging
 G:?:d
@@ -2091,7 +2099,7 @@ F:EASY_KNOW
 L:USE:  if not recharge(130) then result = FALSE end
 L:USE:  ident = TRUE
 D:This scroll will recharge a wand, staff or rod.  There's a small
-D:chance it will fail and blow up the item you're trying to recharge.
+D: chance it will fail and blow up the item you're trying to recharge.
 
 N:207:Genocide
 G:?:d
@@ -2102,9 +2110,9 @@ F:EASY_KNOW
 L:USE:  genocide(TRUE)
 L:USE:  ident = TRUE
 D:The evil runes on this scroll make you shiver.
-D:It will totally destroy all monsters on the current level of
-D:a single letter you select.  You won't get any experience or treasure
-D:from these monsters.
+D:  It will totally destroy all monsters on the current level of
+D: a single letter you select.  You won't get any experience or treasure
+D: from these monsters.
 
 N:208:Darkness
 G:?:d
@@ -2117,7 +2125,7 @@ L:USE:          inc_blind(rand_range(3, 8))
 L:USE:  end
 L:USE:  ident = unlite_area(10, 3)
 D:This scroll creates a sphere of magical darkness centered on you.
-D:It also causes temporary blindness.
+D:  It also causes temporary blindness.
 
 N:209:Protection from Evil
 G:?:d
@@ -2155,7 +2163,7 @@ F:EASY_KNOW
 L:USE:  if not enchant_spell(randint1(5), randint1(5), 0) then result = FALSE end
 L:USE:  ident = TRUE
 D:This scroll magically enchants one weapon.
-D:It might not work on a weapon that's already enchanted.
+D:  It might not work on a weapon that's already enchanted.
 
 N:213:Curse Weapon
 G:?:d
@@ -2175,7 +2183,7 @@ F:EASY_KNOW
 L:USE:  if not enchant_spell(0, 0, rand_range(2, 7)) then result = FALSE end
 L:USE:  ident = TRUE
 D:This scroll magically enchants one piece of armor.
-D:It might not work on armor that's already enchanted.
+D:  It might not work on armor that's already enchanted.
 
 N:215:Curse Armor
 G:?:d
@@ -2194,7 +2202,7 @@ A:26/1
 F:EASY_KNOW
 L:USE:  ident = summon_monsters_near_player(randint1(3), SUMMON_UNDEAD)
 D:This scroll summons several undead monsters to your location.
-D:They won't be happy about being summoned.
+D:  They won't be happy about being summoned.
 
 N:217:Blessing
 G:?:d
@@ -2204,7 +2212,7 @@ A:1/2
 F:EASY_KNOW
 L:USE:  ident = inc_blessed(rand_range(12, 24))
 D:This scroll gives you a temporary blessing (12-24 turns), improving
-D:your armor class and weapon skill.
+D: your armor class and weapon skill.
 
 N:218:Holy Chant
 G:?:d
@@ -2214,7 +2222,7 @@ A:15/2
 F:EASY_KNOW
 L:USE:  ident = inc_blessed(rand_range(24, 48))
 D:This scroll gives you a temporary blessing (24-48 turns), improving
-D:your armor class and weapon skill.
+D: your armor class and weapon skill.
 
 N:219:Holy Prayer
 G:?:d
@@ -2224,7 +2232,7 @@ A:30/2
 F:EASY_KNOW
 L:USE:  ident = inc_blessed(rand_range(36, 72))
 D:This scroll gives you a temporary blessing (36-72 turns), improving
-D:your armor class and weapon skill.
+D: your armor class and weapon skill.
 
 N:220:Word of Recall
 G:?:d
@@ -2235,8 +2243,8 @@ F:EASY_KNOW
 L:USE:  word_of_recall()
 L:USE:  ident = TRUE
 D:This scroll has two uses.  If read within a dungeon, it returns you
-D:to the surface.  If read near the entrance of a dungeon, it takes you to
-D:the last level of that dungeon you recalled out from.
+D: to the surface.  If read near the entrance of a dungeon, it takes you to
+D: the last level of that dungeon you recalled out from.
 
 N:221:*Destruction*
 G:?:d
@@ -2248,7 +2256,7 @@ L:USE:  if not destroy_area(player.px, player.py, 15) then
 L:USE:          msgf("The dungeon trembles...") end
 L:USE:  ident = TRUE
 D:This powerful scroll destroys the nearby dungeon, turning it into a
-D:jumble of smashed rock.
+D: jumble of smashed rock.
 
 ##### Potions #####
 
@@ -2423,7 +2431,7 @@ L:USE:  ident = do_curing()
 L:SMASH:project(who, 2, x, y, damroll(6, 3), GF_OLD_HEAL,
 L:SMASH:    (PROJECT_JUMP + PROJECT_ITEM + PROJECT_KILL)); return FALSE,TRUE
 D:This potion cures blindness, confusion, poison, cuts, and hallucination,
-D:and cures 200 hit points.
+D: and cures 200 hit points.
 
 # Note! Invulnerability decreases your food...
 
@@ -2448,7 +2456,6 @@ F:EASY_KNOW
 L:USE:  do_cmd_rerate(); cure_all_mutations()
 L:USE:  ident = TRUE
 D:This potion removes all mutations and rerolls your hitpoints.
-D:Be careful, your new hitpoints might be worse than your old ones.
 
 N:240:Cure Serious Wounds
 G:!:d
@@ -2517,7 +2524,7 @@ L:USE:          gain_exp(ee)
 L:USE:  end
 L:USE:  ident = TRUE
 D:This potion increases your experience by 50%, with a maximum
-D:gain of 100,000 experience points.
+D: gain of 100,000 experience points.
 
 N:245:Sleep
 G:!:d
@@ -2531,7 +2538,7 @@ L:USE:  ident = TRUE
 L:SMASH:project(who, 2, x, y, 0, GF_OLD_SLEEP,
 L:SMASH:    (PROJECT_JUMP + PROJECT_ITEM + PROJECT_KILL)); return TRUE,TRUE
 D:This potion puts you to sleep.  If it is thrown and
-D:shatters, it puts monsters in the splash area to sleep.
+D: shatters, it puts monsters in the splash area to sleep.
 
 N:246:Blindness
 G:!:d
@@ -2570,7 +2577,7 @@ L:USE:  end
 L:SMASH:project(who, 2, x, y, 0, GF_OLD_CONF,
 L:SMASH:    (PROJECT_JUMP + PROJECT_ITEM + PROJECT_KILL)); return TRUE,TRUE
 D:A drunken alchemist accidentally poured ale into a potion mix.
-D:It causes temporary confusion, and might also have other effects.
+D: It causes temporary confusion, and might also have other effects.
 
 N:248:Poison
 G:!:d
@@ -2583,7 +2590,7 @@ L:USE:  ident = res_pois_lvl() ~= 0 and inc_poisoned(rand_range(10, 25))
 L:SMASH:project(who, 2, x, y, damroll(3, 6), GF_POIS,
 L:SMASH:    (PROJECT_JUMP + PROJECT_ITEM + PROJECT_KILL)); return TRUE,TRUE
 D:This potion poisons you if you drink it.  If it is thrown and shatters,
-D: it deals 3d6 damage to monsters caught in the splash area.
+D: it deals 3d6 poison damage to monsters caught in the splash area.
 
 N:249:Speed
 G:!:d
@@ -2692,8 +2699,8 @@ F:EASY_KNOW
 L:USE:  ident = clear_afraid()
 L:USE:  if inc_hero(rand_range(25, 50)) then ident = TRUE end
 L:USE:  if hp_player(10) then ident = TRUE end
-D:This potion makes you more heroic for 25-50 turns, increasing your 
-D:weapon skill.  It also cures you of fear, and heals you slightly.
+D:This potion makes you more heroic for 25-50 turns, increasing your
+D: weapon skill.  It also cures you of fear, and heals you slightly.
 
 N:258:Berserk Strength
 G:!:d
@@ -2705,9 +2712,9 @@ F:EASY_KNOW
 L:USE:  ident = clear_afraid()
 L:USE:  if inc_shero(rand_range(25, 50)) then ident = TRUE end
 L:USE:  if hp_player(30) then ident = TRUE end
-D:This potion makes you go berserk for 25-50 turns, increasing your 
-D:weapon skill but making you easier to hit.  It also restores 
-D:30 hit points and cures you of fear.
+D:This potion makes you go berserk for 25-50 turns, increasing your
+D: weapon skill but making you easier to hit.  It also restores
+D: 30 hit points and cures you of fear.
 
 N:259:Boldness
 G:!:d
@@ -2737,8 +2744,8 @@ A:4/5:15/1:30/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
 L:USE:  ident = inc_oppose_fire(rand_range(10, 20))
-D:This potion grants temporary resistance to fire (10-20 turns).  
-D:This resistance stacks with that given by items.
+D:This potion grants temporary resistance to fire (10-20 turns).
+D:  This resistance stacks with that given by items.
 
 N:262:Resist Cold
 G:!:d
@@ -2748,8 +2755,8 @@ A:4/5:15/1:30/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
 L:USE:  ident = inc_oppose_cold(rand_range(10, 20))
-D:This potion grants temporary resistance to cold (10-20 turns).  
-D:This resistance stacks with that given by items.
+D:This potion grants temporary resistance to cold (10-20 turns).
+D:  This resistance stacks with that given by items.
 
 N:263:Detect Invisible
 G:!:d
@@ -2792,7 +2799,7 @@ L:USE:  ident = sp_player(player.msp)
 L:SMASH:project(who, 1, x, y, damroll(10, 10), GF_MANA,
 L:SMASH:    (PROJECT_JUMP + PROJECT_ITEM + PROJECT_KILL)); return TRUE,TRUE
 D:The liquid in this bottle sparks with flashes of energy.
-D:It restores you to full mana when drunk.
+D:  It restores you to full mana when imbibed.
 
 N:267:Infra-vision
 G:!:d
@@ -2818,9 +2825,9 @@ L:USE:  inc_oppose_fire(rand_range(20, 40))
 L:USE:  inc_oppose_cold(rand_range(20, 40))
 L:USE:  inc_oppose_pois(rand_range(20, 40))
 L:USE:  ident = TRUE
-D:This potion grants resistance to acid, lightning, fire, cold, 
-D:and poison for 20-40 turns.  This resistance stacks with that 
-D:granted by items.
+D:This potion grants resistance to acid, lightning, fire, cold,
+D: and poison for 20-40 turns.  This resistance stacks with that
+D: granted by items.
 
 ##### Wands #####
 
@@ -2833,8 +2840,8 @@ P:0:1d1:0:0:0
 L:USE:  msgf("A line of blue shimmering light appears.")
 L:USE:  lite_line(dir, damroll(6, 8))
 L:USE:  ident = TRUE
-D:This wand creates a line of light that deals 6d8 damage to 
-D:susceptible monsters.
+D:This wand creates a line of light that deals 6d8 damage to
+D: susceptible monsters.
 
 N:270:Tame Monster
 G:-:d
@@ -2880,8 +2887,7 @@ W:25:0:10:300
 A:25/2
 P:0:1d1:0:0:0
 L:USE:  ident = poly_monster(dir)
-D:This wand polymorphs a monster into a new random monster.  
-D:It won't affect unique monsters.
+D:This wand polymorphs a monster into a new random monster.
 
 N:275:Heal Monster
 G:-:d
@@ -2900,7 +2906,7 @@ A:4/2
 P:0:1d1:0:0:0
 L:USE:  ident = speed_monster(dir)
 D:This wand permanently increases a monster's speed.  
-D:It won't work on a monster that's already hasted.
+D:  It won't work on a monster that's already hasted.
 
 N:277:Slow Monster
 G:-:d
@@ -2981,8 +2987,8 @@ W:20:0:10:350
 A:20/1
 P:0:1d1:0:0:0
 L:USE:  ident = teleport_monster(dir)
-D:This wand teleports away all monsters caught in the beam.  
-D:Teleported monsters reappear elsewhere on the same level.
+D:This wand teleports away all monsters caught in the beam.
+D:  Teleported monsters reappear elsewhere on the same level.
 
 N:286:Disarming
 G:-:d
@@ -3192,8 +3198,8 @@ W:10:0:50:0
 A:17/4:55/1
 P:0:1d2:0:0:0
 L:USE:  ident = summon_monsters_near_player(randint1(4), 0)
-D:This staff summons several monsters to your location.  
-D:The monsters summoned will not be pleased.
+D:This staff summons several monsters to your location.
+D:  The monsters summoned will not be pleased.
 
 N:306:Light
 G:_:d
@@ -3202,8 +3208,8 @@ W:5:0:50:250
 A:7/1
 P:0:1d2:0:0:0
 L:USE:  ident = lite_area(damroll(2, 8), 2)
-D:This staff lights the room you are in and deals some damage to nearby 
-D:monsters that are vulnerable to light.
+D:This staff lights the room you are in and deals some damage to nearby
+D: monsters that are vulnerable to light.
 
 N:307:*Destruction*
 G:_:d
@@ -3212,8 +3218,8 @@ W:80:0:50:5000
 A:80/1:100/1
 P:0:1d2:0:0:0
 L:USE:  ident = destroy_area(player.px, player.py, 15)
-D:This staff destroys the nearby dungeon, turning it into a jumble 
-D:of blasted rock.
+D:This staff destroys the nearby dungeon, turning it into a jumble
+D: of blasted rock.
 
 N:308:Starlight
 G:_:d
@@ -3226,8 +3232,8 @@ L:USE:          msgf("The end of the staff glows brightly...")
 L:USE:  end
 L:USE:  starlite()
 L:USE:  ident = TRUE
-D:This staff shoots several rays of light in random directions.  
-D:Each ray deals 6d8 damage to vulnerable monsters caught in the beam.
+D:This staff shoots several rays of light in random directions.
+D: Each ray deals 6d8 damage to vulnerable monsters caught in the beam.
 
 N:309:Haste Monsters
 G:_:d
@@ -3236,8 +3242,8 @@ W:10:0:50:0
 A:17/2
 P:0:1d2:0:0:0
 L:USE:  ident = speed_monsters()
-D:This staff permanently increases the speed of all nearby monsters.  
-D:Monsters that are already hasted aren't affected.
+D:This staff permanently increases the speed of all nearby monsters.
+D: Monsters that are already hasted aren't affected.
 
 N:310:Slow Monsters
 G:_:d
@@ -3246,8 +3252,8 @@ W:17:0:50:400
 A:17/2
 P:0:1d2:0:0:0
 L:USE:  ident = slow_monsters()
-D:This staff permanently decreases the speed of all nearby monsters.  
-D:Monsters that are already slowed aren't affected.
+D:This staff permanently decreases the speed of all nearby monsters.
+D:  Monsters that are already slowed aren't affected.
 
 N:311:Sleep Monsters
 G:_:d
@@ -3314,8 +3320,8 @@ L:USE:  ident = remove_curse()
 L:USE:  if ident and player.tim.blind == 0 then
 L:USE:          msgf("The staff glows blue for a moment...")
 L:USE:  end
-D:This staff removes curses from equipment, allowing you to take 
-D:it off.  It might not affect powerful curses.
+D:This staff removes curses from equipment, allowing you to take
+D: it off.  It might not affect powerful curses.
 
 N:318:Detection
 G:_:d
@@ -3324,7 +3330,8 @@ W:15:0:50:300
 A:15/2
 P:0:1d2:0:0:0
 L:USE:  ident = detect_all()
-D:This staff magically detects nearby doors, traps, stairs, items, and monsters.
+D:This staff magically detects nearby doors, traps, stairs, items, and
+D: monsters.
 
 N:319:Curing
 G:_:d
@@ -3333,8 +3340,8 @@ W:33:0:50:500
 A:33/4
 P:0:1d2:0:0:0
 L:USE:  ident = do_curing()
-D:This staff cures blindness, confusion, poison, cuts, and 
-D:hallucination, and restores 200 hit points.
+D:This staff cures blindness, confusion, poison, cuts, and
+D: hallucination, and restores 200 hit points.
 
 N:320:Dispel Evil
 G:_:d
@@ -3364,8 +3371,8 @@ P:0:1d2:0:0:0
 L:USE:  ident = not player_res(TR1_RES_BLIND) and not player_res(TR1_RES_DARK)
 L:USE:          and inc_blind(rand_range(4, 8))
 L:USE:  if unlite_area(10, 3) then ident = TRUE end
-D:This staff creates a sphere of magical darkness.  It also causes 
-D:temporary blindness.
+D:This staff creates a sphere of magical darkness.  It also causes
+D: temporary blindness.
 
 N:323:Genocide
 G:_:d
@@ -3375,9 +3382,9 @@ A:95/4
 P:0:1d2:0:0:0
 L:USE:  genocide(TRUE)
 L:USE:  ident = TRUE
-D:This staff completely destroys all monsters on the current dungeon level 
-D:of a single letter you select.  You don't get experience or treasure 
-D:from those monsters.
+D:This staff completely destroys all monsters on the current dungeon level
+D: of a single letter you select.  You don't get experience or treasure
+D: from those monsters.
 
 N:324:Power
 G:_:d
@@ -3422,9 +3429,9 @@ L:USE:  if clear_afraid() then ident = TRUE end
 L:USE:  if hp_player(50) then ident = TRUE end
 L:USE:  if clear_stun() then ident = TRUE end
 L:USE:  if clear_cut() then ident = TRUE end
-D:This staff has many beneficial effects.  It deals 300 damage to nearby 
-D:evil monsters; grants temporary protection from evil; cures poison, fear, 
-D:stunning, and cuts; and restores 50 hit points.
+D:This staff has many beneficial effects.  It deals 300 damage to nearby
+D: evil monsters; grants temporary protection from evil; cures poison, fear,
+D: stunning, and cuts; and restores 50 hit points.
 
 N:328:Enlightenment
 G:_:d
@@ -3457,8 +3464,8 @@ W:17:0:30:100
 A:17/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
-D:A small, light-gray book, containing the simplest of good prayers 
-D:to lighten the way.
+D:A small, light-gray book, containing the simplest of good prayers
+D: to lighten the way.
 L:MAKE:  if level > 70 and (one_in_(60) ~= 0) then
 L:MAKE:    set_obj_flag(object, 2, TR2_IGNORE_FIRE) end
 
@@ -3469,8 +3476,8 @@ W:20:0:30:1000
 A:35/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
-D:A white book with invocations of healing, protection and 
-D:fighting evil.
+D:A white book with invocations of healing, protection and
+D: fighting evil.
 L:MAKE:  if level > 70 and (one_in_(60) ~= 0) then
 L:MAKE:    set_obj_flag(object, 2, TR2_IGNORE_FIRE) end
 
@@ -3487,8 +3494,8 @@ D:A white grimoire with great spells of banishing evil.
 N:333:[Codex of Heaven]
 G:?:w
 I:90:3:0
-W:95:0:30:100000
-A:95/3
+W:90:0:30:100000
+A:90/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
@@ -3501,8 +3508,8 @@ W:17:0:30:100
 A:17/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
-D:A small light-blue book with simple sorcerous spells of detection, 
-D:teleportation and clouding the minds of your foes.
+D:A small light-blue book with simple sorcerous spells of detection,
+D: teleportation and clouding the minds of your foes.
 L:MAKE:  if level > 70 and (one_in_(60) ~= 0) then
 L:MAKE:    set_obj_flag(object, 2, TR2_IGNORE_FIRE) end
 
@@ -3513,8 +3520,8 @@ W:20:0:30:1000
 A:35/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
-D:A blue book containing sorcerous spells of knowledge, speed, 
-D:and hindering your enemies.
+D:A blue book containing sorcerous spells of knowledge, speed,
+D: and hindering your enemies.
 L:MAKE:  if level > 70 and (one_in_(60) ~= 0) then
 L:MAKE:    set_obj_flag(object, 2, TR2_IGNORE_FIRE) end
 
@@ -3531,13 +3538,13 @@ D:A deep-blue tome, containing great magics of mind over matter.
 N:337:[Grimoire of Power]
 G:?:b
 I:91:3:0
-W:95:0:30:100000
-A:95/3
+W:90:0:30:100000
+A:90/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
-D:A mighty grimoire glowing with eldritch blue from the magics 
-D:it contains.
+D:A mighty grimoire glowing with eldritch blue from the magics
+D: it contains.
 
 ##### Chests #####
 
@@ -3633,8 +3640,10 @@ W:1:0:10:3
 A:1/1:7/1:15/1
 P:0:2d6:0:0:0
 F:EASY_KNOW
-D:Empty this flask in a lantern to keep it fueled.  
-D:Or throw it at a monster which doesn't like fire.
+L:SMASH:project(who, 2, x, y, damroll(2, 4), GF_FIRE,
+L:SMASH:    (PROJECT_JUMP + PROJECT_KILL)); return TRUE,TRUE
+D:Empty this flask in a lantern to keep it fueled.
+D: Or throw it at a monster which doesn't like fire.
 
 N:349:& Empty Bottle~
 G:!:w
@@ -3643,6 +3652,7 @@ W:0:0:2:1
 A:0/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
+D:An empty bottle with a crack in it.
 
 ##### Here are the Rods #####
 
@@ -3696,9 +3706,9 @@ A:26/8:52/4
 P:0:1d1:0:0:0
 F:EASY_KNOW
 L:USE:  word_of_recall(); ident = TRUE
-D:This rod has two effects.  If used in the dungeon, it takes you to 
-D:the surface.  If used near a dungeon entrance, it takes you to the depth 
-D:you last recalled out from.
+D:This rod has two effects.  If used in the dungeon, it takes you to
+D: the surface.  If used near a dungeon entrance, it takes you to the depth
+D: you last recalled out from.
 
 N:355:Illumination
 G:-:d
@@ -3708,8 +3718,8 @@ A:15/2
 P:0:1d1:0:0:0
 F:EASY_KNOW
 L:USE:  ident = lite_area(damroll(4, 8), 2)
-D:This rod lights the room you are in and deals damage to nearby monsters 
-D:that are vulnerable to light.
+D:This rod lights the room you are in and deals damage to nearby monsters
+D: that are vulnerable to light.
 
 N:356:Light
 G:-:d
@@ -3720,8 +3730,8 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 L:USE:  msgf("A line of blue shimmering light appears.")
 L:USE:  lite_line(dir, damroll(6, 8)); ident = TRUE
-D:This rod creates a line of light that deals 6d8 damage to vulnerable 
-D:monsters.
+D:This rod creates a line of light that deals 6d8 damage to vulnerable
+D: monsters.
 
 N:357:Lightning Bolts
 G:-:d
@@ -3761,8 +3771,7 @@ A:28/2
 P:0:1d1:0:0:0
 F:EASY_KNOW
 L:USE:  if poly_monster(dir) then ident = TRUE end
-D:This rod transforms a monster into another random monster.  
-D:It doesn't work on uniques.
+D:This rod transforms a monster into another random monster.
 
 N:361:Slow Monster
 G:-:d
@@ -3772,8 +3781,8 @@ A:26/2
 P:0:1d1:0:0:0
 F:EASY_KNOW
 L:USE:  if slow_monster(dir) then ident = TRUE end
-D:This rod reduces a monster's speed.  It doesn't work 
-D:on a monster that's already slowed.
+D:This rod reduces a monster's speed.  It doesn't work
+D: on a monster that's already slowed.
 
 N:362:Sleep Monster
 G:-:d
@@ -3803,8 +3812,8 @@ A:40/4:70/2
 P:0:1d1:0:0:0
 F:EASY_KNOW
 L:USE:  if teleport_monster(dir) then ident = TRUE end
-D:This rod teleports monsters away in a straight line.  Teleported 
-D:monsters appear elsewhere on the same level.
+D:This rod teleports monsters away in a straight line.  Teleported
+D: monsters appear elsewhere on the same level.
 
 N:365:Disarming
 G:-:d
@@ -3894,8 +3903,8 @@ A:58/8:90/4
 P:0:1d1:0:0:0
 F:EASY_KNOW
 L:USE:  ident = do_curing()
-D:This rod cures blindness, confusion, poison, cuts, and hallucination, 
-D:and restores 200 hit points.
+D:This rod cures blindness, confusion, poison, cuts, and hallucination,
+D: and restores 200 hit points.
 
 N:374:Healing
 G:-:d
@@ -3959,8 +3968,8 @@ W:17:0:30:100
 A:17/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
-D:A small, light-green book with nature rites of detection, curing, 
-D:and other aid.
+D:A small, light-green book with nature rites of detection, curing,
+D: and other aid.
 L:MAKE:  if level > 70 and (one_in_(60) ~= 0) then
 L:MAKE:    set_obj_flag(object, 2, TR2_IGNORE_FIRE) end
 
@@ -3971,8 +3980,8 @@ W:20:0:30:1000
 A:35/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
-D:A green book with rites showing both the power and enlightenment 
-D:of nature's magics.
+D:A green book with rites showing both the power and enlightenment
+D: of nature's magics.
 L:MAKE:  if level > 70 and (one_in_(60) ~= 0) then
 L:MAKE:    set_obj_flag(object, 2, TR2_IGNORE_FIRE) end
 
@@ -3984,19 +3993,19 @@ A:75/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
-D:A sheaf of papers in deep-green leather bindings, filled with 
-D:powerful spells of nature's protection.
+D:A sheaf of papers in deep-green leather bindings, filled with
+D: powerful spells of nature's protection.
 
 N:382:[Nature's Wrath]
 G:?:g
 I:92:3:0
-W:100:0:30:100000
-A:100/2
+W:90:0:30:100000
+A:90/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
 D:A mottled-green grimoire, vibrating with the power of nature's 
-D:destructive magics.
+D: destructive magics.
 
 N:383:[Sign of Chaos]
 G:?:R
@@ -4028,19 +4037,19 @@ A:75/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
-D:A deep-red codex, filled with ways of manifesting chaos upon this 
-D:reality or even twisting life and reality itself.
+D:A deep-red codex, filled with ways of manifesting chaos upon this
+D: reality or even twisting life and reality itself.
 
 N:386:[Armageddon Tome]
 G:?:r
 I:93:3:0
-W:105:0:30:100000
-A:105/3
+W:90:0:30:100000
+A:90/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
-D:A fiery-red tome that sizzles with power, barely holding in check 
-D:the most destructive magics imaginable.
+D:A fiery-red tome that sizzles with power, barely holding in check
+D: the most destructive magics imaginable.
 
 N:387:[Black Prayers]
 G:?:D
@@ -4060,8 +4069,8 @@ W:20:0:30:1000
 A:35/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
-D:A black book with many evil incantations and spells of pain, terror, 
-D:and death.
+D:A black book with many evil incantations and spells of pain, terror,
+D: and death.
 L:MAKE:  if level > 70 and (one_in_(60) ~= 0) then
 L:MAKE:    set_obj_flag(object, 2, TR2_IGNORE_FIRE) end
 
@@ -4094,7 +4103,7 @@ W:0:0:1:0
 A:0/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
-D:Something tampled onthis skull.
+D:Something trampled on this skull.
 
 N:392:& Broken Bone~
 G:~:w
@@ -4112,7 +4121,7 @@ W:1:0:10:0
 A:1/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
-D:No more sun for this doggie.
+D:Poor scruffy little guy.
 
 N:394:& Rodent Skeleton~
 G:~:w
@@ -4168,6 +4177,7 @@ W:70:0:300:1350
 A:70/1:105/1
 P:0:4d6:0:0:0
 F:SHOW_MODS
+D:An exceptionally large and heavy war hammer.
 
 ##### Dragon Scale Mail #####
 
@@ -4185,6 +4195,8 @@ L:USE:  msgf("You breathe acid.")
 L:USE:  fire_ball(GF_ACID, dir, 430, 2)
 L:USE:  object.timeout = rand_range(50, 100)
 L:DESC: return "breathe acid (430) every 50-100 turns"
+D:Mail made from the jet-black scales of a dragon.  The scales almost
+D: pulsate, as if they are still alive.
 
 N:401:& Blue Dragon Scale Mail~
 G:[:b
@@ -4200,6 +4212,8 @@ L:USE:  msgf("You breathe lightning.")
 L:USE:  fire_ball(GF_ELEC, dir, 330, 2)
 L:USE:  object.timeout = rand_range(50, 100)
 L:DESC: return "breathe lightning (330) every 50-100 turns"
+D:Mail made from the deep blue scales of a dragon.  The scales almost
+D: pulsate, as if they are still alive.
 
 N:402:& White Dragon Scale Mail~
 G:[:w
@@ -4207,7 +4221,7 @@ I:38:3:0
 W:50:0:200:20000
 A:50/8
 P:30:2d4:-2:0:10
-F:RES_COLD | EASY_KNOW |
+F:RES_COLD |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 L:USE:  local success; local dir; success, dir = get_aim_dir()
 L:USE:  if not success then return end
@@ -4215,6 +4229,8 @@ L:USE:  msgf("You breathe frost.")
 L:USE:  fire_ball(GF_COLD, dir, 370, 2)
 L:USE:  object.timeout = rand_range(50, 100)
 L:DESC: return "breathe frost (370) every 50-100 turns"
+D:Mail made from the luminous white scales of a dragon.  The scales almost
+D: pulsate, as if they are still alive.
 
 N:403:& Red Dragon Scale Mail~
 G:[:r
@@ -4222,7 +4238,7 @@ I:38:4:0
 W:80:0:200:50000
 A:80/8
 P:30:2d4:-2:0:10
-F:RES_FIRE | EASY_KNOW |
+F:RES_FIRE | 
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 L:USE:  local success; local dir; success, dir = get_aim_dir()
 L:USE:  if not success then return end
@@ -4230,6 +4246,8 @@ L:USE:  msgf("You breathe fire.")
 L:USE:  fire_ball(GF_FIRE, dir, 670, 2)
 L:USE:  object.timeout = rand_range(50, 100)
 L:DESC: return "breathe fire (670) every 50-100 turns"
+D:Mail made from the ruby-red scales of a dragon.  The scales almost
+D: pulsate, as if they are still alive.
 
 N:404:& Green Dragon Scale Mail~
 G:[:g
@@ -4245,6 +4263,8 @@ L:USE:  msgf("You breathe poison gas.")
 L:USE:  fire_ball(GF_POIS, dir, 500, 2)
 L:USE:  object.timeout = rand_range(50, 100)
 L:DESC: return "breathe poison gas (500) every 50-100 turns"
+D:Mail made from the sickly green scales of a dragon.  The scales almost
+D: pulsate, as if they are still alive.
 
 N:405:& Multi-Hued Dragon Scale Mail~
 G:[:v
@@ -4268,6 +4288,8 @@ L:USE:  msgf("You breathe "..damname..".")
 L:USE:  fire_ball(damtype, dir, 840, 2)
 L:USE:  object.timeout = rand_range(25, 50)
 L:DESC: return "breathe multi-hued (840) every 25-50 turns"
+D:Mail made from the many-colored scales of a dragon.  The scales almost
+D: pulsate, as if they are still alive.
 
 N:406:& Pseudo Dragon Scale Mail~
 G:[:v
@@ -4288,6 +4310,8 @@ L:USE:  msgf("You breathe "..damname..".")
 L:USE:  fire_ball(damtype, dir, 670, 2)
 L:USE:  object.timeout = rand_range(30, 60)
 L:DESC: return "breathe light/darkness (670) every 30-60 turns"
+D:Mail made from the irridescent scales of a dragon.  The scales almost
+D: pulsate, as if they are still alive.
 
 N:407:& Law Dragon Scale Mail~
 G:[:B
@@ -4308,6 +4332,8 @@ L:USE:  msgf("You breathe "..damname..".")
 L:USE:  fire_ball(damtype, dir, 750, 2)
 L:USE:  object.timeout = rand_range(30, 60)
 L:DESC: return "breathe sound/shards (750) every 30-60 turns"
+D:Mail made from the aquamarine scales of a dragon.  The scales almost
+D: pulsate, as if they are still alive.
 
 N:408:& Bronze Dragon Scale Mail~
 G:[:U
@@ -4323,6 +4349,8 @@ L:USE:  msgf("You breathe confusion.")
 L:USE:  fire_ball(GF_CONFUSION, dir, 400, 2)
 L:USE:  object.timeout = rand_range(50, 100)
 L:DESC: return "breathe confusion (400) every 50-100 turns"
+D:Mail made from the dull bronze scales of a dragon.  The scales almost
+D: pulsate, as if they are still alive.
 
 N:409:& Gold Dragon Scale Mail~
 G:[:y
@@ -4338,6 +4366,8 @@ L:USE:  msgf("You breathe sound.")
 L:USE:  fire_ball(GF_SOUND, dir, 430, 2)
 L:USE:  object.timeout = rand_range(50, 100)
 L:DESC: return "breathe sound (430) every 50-100 turns"
+D:Mail made from the shiny gold scales of a dragon.  The scales almost
+D: pulsate, as if they are still alive.
 
 N:410:& Chaos Dragon Scale Mail~
 G:[:v
@@ -4357,6 +4387,8 @@ L:USE:  end
 L:USE:  fire_ball(damtype, dir, 740, 2)
 L:USE:  object.timeout = rand_range(30, 60)
 L:DESC: return "breathe chaos/disenchant (740) every 30-60 turns"
+D:Mail made from the many-colored scales of a dragon.  The scales almost
+D: pulsate, as if they are still alive.
 
 N:411:& Balance Dragon Scale Mail~
 G:[:v
@@ -4379,6 +4411,8 @@ L:USE:  msgf("You breathe "..damname..".")
 L:USE:  fire_ball(damtype, dir, 840, 2)
 L:USE:  object.timeout = rand_range(30, 60)
 L:DESC: return "breathe balance (840) every 30-60 turns"
+D:Mail made from the many-colored scales of a dragon.  The scales almost
+D: pulsate, as if they are still alive.
 
 N:412:& Power Dragon Scale Mail~
 G:[:v
@@ -4396,6 +4430,8 @@ L:USE:  msgf("You breathe the elements.")
 L:USE:  fire_ball(GF_MISSILE, dir, 1000, 2)
 L:USE:  object.timeout = rand_range(30, 60)
 L:DESC: return "breathe the elements (1000) every 30-60 turns"
+D:Mail made from the many-colored scales of a dragon.  The scales almost
+D: pulsate, as if they are still alive.
 
 ## PDSM has been restored to (almost) its former glory in Zangband
 
@@ -4405,7 +4441,7 @@ I:32:7:0
 W:80:0:50:10000
 A:80/20:105/20
 P:8:1d3:0:0:10
-F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD
+F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD | HIDDEN_POWERS
 D:Made from dragon bones, it retains some magical properities.
 
 N:414:& Dragon Shield~
@@ -4414,7 +4450,7 @@ I:34:6:0
 W:80:0:100:10000
 A:80/20:105/20
 P:11:1d7:0:0:10
-F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD
+F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD | HIDDEN_POWERS	
 D:Made from dragon bones, it retains some magical properities.
 
 ##### Extra potions #####
@@ -4431,8 +4467,8 @@ L:USE:  take_hit(5000, "a potion of Death")
 L:USE:  ident = TRUE
 L:SMASH:project(who, 1, x, y, damroll(25, 25), GF_DEATH_RAY,
 L:SMASH:    (PROJECT_JUMP + PROJECT_ITEM + PROJECT_KILL)); return TRUE,TRUE
-D:This potion deals 5000 damage.  If it is thrown and shatters, it 
-D:deals 25d25 damage to each monster caught in the splash area.
+D:This potion deals 5000 damage.  If it is thrown and shatters, it
+D: deals 25d25 damage to each monster caught in the splash area.
 
 N:416:Ruination
 G:!:d
@@ -4452,9 +4488,9 @@ L:USE:  dec_stat(A_INT, 25, TRUE)
 L:USE:  ident = TRUE
 L:SMASH:project(who, 1, x, y, damroll(25, 25), GF_SHARDS,
 L:SMASH:    (PROJECT_JUMP + PROJECT_ITEM + PROJECT_KILL)); return TRUE,TRUE
-D:This potion deals damage and permanently drains all your stats.  
-D:If it is thrown and shatters, it deals 25d25 damage to each monster 
-D:caught in the splash area.
+D:This potion deals damage and permanently drains all your stats.
+D: If it is thrown and shatters, it deals 25d25 damage to each monster 
+D: caught in the splash area.
 
 N:417:Detonations
 G:!:d
@@ -4471,8 +4507,8 @@ L:USE:  ident = TRUE
 L:SMASH:project(who, 1, x, y, damroll(25, 25), GF_SHARDS,
 L:SMASH:    (PROJECT_JUMP + PROJECT_ITEM + PROJECT_KILL)); return TRUE,TRUE
 D:The bottle this potion is in looks very fragile.  
-D:It deals massive damage if drunk.  If it is thrown and shatters, it 
-D:deals 25d25 damage to each monster caught in the splash area.
+D: It deals massive damage if drunk.  If it is thrown and shatters, it 
+D: deals 25d25 damage to each monster caught in the splash area.
 
 N:418:Augmentation
 G:!:d
@@ -4502,8 +4538,7 @@ L:USE:  if clear_stun() then ident = TRUE end
 L:USE:  if clear_cut() then ident = TRUE end
 L:SMASH:project(who, 2, x, y, damroll(50, 50), GF_OLD_HEAL,
 L:SMASH:    (PROJECT_JUMP + PROJECT_ITEM + PROJECT_KILL)); return FALSE,TRUE
-D:This potion cures stunning and cuts, and
-D:restores 1200 hit points.
+D:This potion cures stunning and cuts, and restores 1200 hit points.
 
 N:420:Life
 G:!:d
@@ -4515,8 +4550,8 @@ F:EASY_KNOW
 L:USE:  do_life_potion()
 L:SMASH:project(who, 2, x, y, damroll(50, 50), GF_OLD_HEAL,
 L:SMASH:    (PROJECT_JUMP + PROJECT_ITEM + PROJECT_KILL)); return FALSE,TRUE
-D:This potion cures poison, blindness, confusion, hallucination, stunning, 
-D:cuts, and all stat and experience drains, and restores 5000 hit points.
+D:This potion cures poison, blindness, confusion, hallucination, stunning,
+D: cuts, and all stat and experience drains, and restores 5000 hit points.
 
 N:421:Self Knowledge
 G:!:d
@@ -4548,10 +4583,10 @@ L:USE:  detect_treasure(); detect_objects_gold(); detect_objects_normal()
 L:USE:  identify_pack()
 L:USE:  self_knowledge()
 L:USE:  ident = TRUE
-D:This potion grants a surge of enlightnment.  You detect everyhing on 
-D:the current dungeon level, all objects you are carrying are identified, 
-D:magical effects on you are revealed, and your intelligence and wisdom 
-D:are permanently increased.
+D:This potion grants a surge of enlightnment.  You detect everyhing on
+D: the current dungeon level, all objects you are carrying are identified,
+D: magical effects on you are revealed, and your intelligence and wisdom
+D: are permanently increased.
 
 N:423:[Black Channels]
 G:?:v
@@ -4561,19 +4596,20 @@ A:75/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
-D:This tome of blackest midnight holds spells to bind evil to oneself 
-D:and bringing darkness and death upon others.
+D:This tome of blackest midnight holds spells to bind evil to oneself
+D: and bringing darkness and death upon others.
 
 N:424:[Necronomicon]
 G:?:v
 I:94:3:0
-W:95:0:30:100000
-A:95/3
+W:90:0:30:100000
+A:90/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
-D:This mighty grimoire of death seems to suck all life and light from 
-D:around it. Death in all it's forms is controlled by the rituals within.
+D:This mighty grimoire of death, bound in tortured human flesh, seems to
+D: suck all life and light from around it. Death in all it's forms is
+D: controlled by the rituals within.
 
 # Additional rings
 
@@ -4998,8 +5034,8 @@ D:A exquisite tome, with spells for summoning energy itself.
 N:515:[Manual of the Planes]
 G:?:o
 I:95:3:0
-W:95:0:30:100000
-A:95/3
+W:90:0:30:100000
+A:90/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
@@ -5014,8 +5050,8 @@ W:10:0:30:100
 A:10/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
-D:A small drab gray spellbook, containing the simplest of common 
-D:utility spells.
+D:A small drab gray spellbook, containing the simplest of common
+D: utility spells.
 L:MAKE:  if level > 70 and (one_in_(60) ~= 0) then
 L:MAKE:    set_obj_flag(object, 2, TR2_IGNORE_FIRE) end
 
@@ -5086,8 +5122,8 @@ L:MAKE: allow_curse = TRUE
 N:523:Resistance
 G:":d
 I:40:15:0
-W:75:0:3:2200
-A:75/4
+W:47:0:3:2200
+A:47/4
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | HIDDEN_POWERS
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 L:MAKE: if (one_in_(3) ~= 0) then add_ego_power(EGO_XTRA_HI_RESIST, object) end
@@ -5102,6 +5138,7 @@ W:65:0:280:580
 A:65/3:85/3
 P:0:4d6:0:0:0
 F:SHOW_MODS
+D:German for "two-hander", it is a large two-handed sword.
 
 N:525:& Tanto~
 G:|:W
@@ -5110,6 +5147,7 @@ W:5:0:20:30
 A:5/5
 P:0:1d5:0:0:0
 F:SHOW_MODS
+D:A double-edged knife of Japanese origin.
 
 N:526:& Splint Mail~
 G:[:D
@@ -5117,6 +5155,7 @@ I:37:10:0
 W:61:0:250:950
 A:61/1
 P:19:1d4:-2:0:0
+D:A suit of armor made from overlapping strips of metal.
 
 N:527:& Do-maru~
 G:[:s
@@ -5124,6 +5163,7 @@ I:37:11:0
 W:70:0:290:1020
 A:70/5
 P:20:1d4:-2:0:0
+D:A samurai armor made from metal laced into large plates and lacquered.
 
 N:528:& Trifurcate Spear~
 G:/:o
@@ -5132,6 +5172,7 @@ W:61:0:140:400
 A:61/5
 P:0:2d9:0:0:0
 F:SHOW_MODS
+D:A three-pronged spear, not meant for throwing.
 
 N:529:& Three Piece Rod~
 G:\:u
@@ -5140,6 +5181,7 @@ W:35:0:120:350
 A:35/5
 P:0:3d3:0:0:0
 F:SHOW_MODS
+D:Three metal-bound rods of wood attached with chain.
 
 N:530:& O-yoroi~
 G:[:D
@@ -5147,6 +5189,8 @@ I:37:16:0
 W:75:0:320:1150
 A:75/8
 P:24:1d4:-2:0:0
+D:The armor of samurai lords, it consists of large and small metal plates
+D: laced together and then lacqurered.
 
 N:531:& Fur Cloak~
 G:(:W
@@ -5154,6 +5198,7 @@ I:35:3:0
 W:35:0:30:200
 A:35/2:52/2
 P:3:0d0:0:0:0
+D:A heavy cloak fashioned from an animal skin.
 
 N:532:& Lajatang~
 G:/:s
@@ -5162,6 +5207,8 @@ W:43:0:175:330
 A:43/4
 P:0:2d7:0:0:0
 F:SHOW_MODS
+D:A cross between a halberd and a quarterstaff, it is a staff with curved
+D: blades at both ends.
 
 N:533:& Hatchet~
 G:/:s
@@ -5170,6 +5217,7 @@ W:3:0:60:50
 A:3/1:28/3
 P:0:1d5:0:0:0
 F:SHOW_MODS
+D:A small one-hand axe usually used to split logs for firewood.
 
 ##### New armor #####
 
@@ -5179,6 +5227,7 @@ I:36:8:0
 W:26:0:110:400
 A:26/1
 P:8:1d1:-1:0:0
+D:A suit of leather armor reinforced internally with metal bands.
 
 N:536:& Leather Jacket~
 G:(:U
@@ -5186,6 +5235,7 @@ I:36:12:0
 W:35:0:130:700
 A:35/3
 P:12:1d2:-1:0:0
+D:A thick leather jacket with metal studs and matching trousers.
 
 ##### New weapons #####
 
@@ -5196,6 +5246,7 @@ W:10:0:70:110
 A:10/3
 P:0:2d3:0:0:0
 F:SHOW_MODS
+D:A small harvesting implement that makes a poor but usable weapon.
 
 N:538:& Tetsubo~
 G:\:u
@@ -5204,6 +5255,7 @@ W:43:0:190:570
 A:43/5
 P:0:2d7:0:0:0
 F:SHOW_MODS
+D:Also known as a Kanabo, it is a heavy metal-shod club with metal spikes.
 
 N:539:& Nunchaku~
 G:\:u
@@ -5212,6 +5264,7 @@ W:20:0:60:120
 A:20/2
 P:0:2d3:0:0:0
 F:SHOW_MODS
+D:A simple weapon consisting of two hard rods connected by a chain.
 
 N:540:& Bo Staff~
 G:\:U
@@ -5220,6 +5273,7 @@ W:60:0:160:310
 A:60/3
 P:0:1d20:0:0:0
 F:SHOW_MODS
+D:A long, hardened staff of wood with metal binding.
 
 N:541:& Staff~
 G:\:U
@@ -5228,6 +5282,7 @@ W:19:0:70:200
 A:19/2
 P:0:1d10:0:0:0
 F:SHOW_MODS
+D:A simple staff of wood.
 
 N:542:& Club~
 G:\:u
@@ -5236,6 +5291,7 @@ W:0:0:100:3
 A:0/1
 P:0:2d2:0:0:0
 F:SHOW_MODS
+D:Simply, a big hunk of wood for bashing in skulls.
 
 N:543:& Broad Spear~
 G:/:w
@@ -5244,6 +5300,7 @@ W:60:0:100:450
 A:60/5
 P:0:1d20:0:0:0
 F:SHOW_MODS
+D:A long spear with a wide bladed tip.
 
 N:544:& Khopesh~
 G:|:W
@@ -5252,6 +5309,8 @@ W:17:0:130:190
 A:17/5
 P:0:2d4:0:0:0
 F:SHOW_MODS
+D:A curious weapon with a short curved blade, of Egyptian / Sumerian origin.
+D:  Sometimes called a sickle-sword.
 
 N:545:& Flamberge~
 G:|:W
@@ -5260,6 +5319,7 @@ W:65:0:230:600
 A:65/2:87/2
 P:0:3d7:0:0:0
 F:SHOW_MODS
+D:A large two-handed sword with an undulating blade, reminiscent of flame.
 
 N:546:& Claymore~
 G:|:W
@@ -5268,6 +5328,7 @@ W:65:0:200:600
 A:65/2
 P:0:2d8:0:0:0
 F:SHOW_MODS
+D:A two-handed sword of Scottish origin, with a scalloped guard on the hilt.
 
 N:547:& Espadon~
 G:|:W
@@ -5276,6 +5337,7 @@ W:65:0:200:600
 A:65/5
 P:0:2d9:0:0:0
 F:SHOW_MODS
+D:A very long, heavy two-handed sword of Spanish origin.
 
 N:548:& Great Scimitar~
 G:|:W
@@ -5284,6 +5346,7 @@ W:85:0:240:1050
 A:85/2:98/6
 P:0:4d5:0:0:0
 F:SHOW_MODS
+D:A great two-handed version of the scimitar.
 
 N:549:& Wakizashi~
 G:|:W
@@ -5292,6 +5355,7 @@ W:26:0:90:210
 A:26/6
 P:0:2d4:0:0:0
 F:SHOW_MODS
+D:A short, secondary sword of Japanese origin.  
 
 N:550:& Naginata~
 G:/:s
@@ -5310,6 +5374,7 @@ W:82:0:155:700
 A:82/4
 P:0:1d25:0:0:0
 F:SHOW_MODS
+D:A European polearm with a hook-like blade at the end.
 
 N:552:& Guisarme~
 G:/:s
@@ -5318,6 +5383,8 @@ W:37:0:165:320
 A:37/1
 P:0:2d5:0:0:0
 F:SHOW_MODS
+D:A spear with a hook near the tip, this popular polearm was mainly used
+D: against mounted enemies.
 
 N:553:& Heavy Lance~
 G:/:s
@@ -5326,22 +5393,26 @@ W:88:0:400:700
 A:88/5
 P:0:1d35:0:0:0
 F:SHOW_MODS
+D:A very heavy spear, almost impossible to use without a horse, which you
+D: haven't got.
 
-N:554:& Basillard~
+N:554:& Khanda~
 G:|:w
 I:23:9:0
 W:42:0:80:550
-A:42/5
-P:0:1d15:0:0:0
+A:42/6
+P:0:2d7:0:0:0
 F:SHOW_MODS
+D:A two-handed flat-bladed sword, the Indian equivalent of the katana.
 
-N:555:& Ninjato~
+N:555:& Odachi~
 G:|:s
 I:23:19:0
 W:52:0:100:600
-A:52/3
+A:52/5
 P:0:1d18:0:0:0
 F:SHOW_MODS
+D:An extra-long katana-like sword with a long handle. 
 
 N:556:& Ring Mail~
 G:[:s
@@ -5349,6 +5420,7 @@ I:37:2:0
 W:35:0:200:550
 A:35/1
 P:12:1d4:-2:0:0
+D:A simple form of armor made from rings, bound together with leather.
 
 N:557:& Cord Armor~
 G:(:y
@@ -5356,6 +5428,7 @@ I:36:9:0
 W:9:0:80:200
 A:9/2
 P:6:1d1:0:0:0
+D:A light suit of armor made from thickly twined leather cords.
 
 N:558:& Paper Armor~
 G:(:w
@@ -5371,6 +5444,7 @@ I:36:10:0
 W:4:0:60:30
 A:4/1
 P:4:1d1:0:0:0
+D:A somewhat more luxurious and comfortable suit of basic leather armor.
 
 N:560:& Kabuto~
 G:]:D
@@ -5378,6 +5452,8 @@ I:32:8:0
 W:75:0:80:300
 A:75/6
 P:7:1d2:0:0:0
+D:An elaborate samurai helmet with flexible metal plates to protect the
+D: neck and ears.
 
 # Removed
 #
@@ -5394,21 +5470,23 @@ I:32:4:0
 W:28:0:30:60
 A:28/5
 P:4:1d2:0:0:0
+D:A broad-brimmed metal bowl helmet.
 
-N:563:& Haramakido~
+N:563:& Haramaki-do~
 G:[:D
 I:37:14:0
 W:56:0:280:1320
 A:56/10
 P:17:1d4:-2:0:0
+D:A samurai armor of metal plates and chain.
 
+# The Incandescent Globe of Sawall -- Artifact
 N:564:& Incandescent Globe~
 G:*:y
 I:39:3:0
 W:30:50:5:20000
 P:0:1d1:0:0:0
 F:INSTA_ART | LITE
-
 
 N:565:& Diamond Edge~
 G:|:w
@@ -5436,7 +5514,8 @@ W:50:0:50:100
 A:26/6:52/3:90/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
-D:This small statuette seems to move.  (Figurines are activated by throwing them.)
+D:This small statuette seems to move.  (Figurines are activated by
+D: throwing them.)
 
 N:568:& Wooden Statue~ of #
 G:`:u
@@ -5545,7 +5624,7 @@ G:~:w
 I:36:0:0
 W:1:0:10:0
 P:1:1d1:0:0:0
-
+D:You wish it was cooler.
 
 ##### New Bolt #####
 
@@ -5657,7 +5736,7 @@ W:50:0:120:1400
 A:50/5:101/3
 P:0:3d4:0:0:0
 F:PSI_CRIT | LITE | SHOW_MODS
-D:The blade of this sword is made of pure magic.
+D:The blade of this sword is made of pure psionic energy.
 
 N:593:& Hammer~ of Returning
 G:\:D
@@ -5711,11 +5790,11 @@ N:597:Healing
 G:,:d
 I:80:21:500
 W:30:0:4:750
-A:30/4:50/4:80/4
+A:30/4:50/2
 F:EASY_KNOW
-L:USE:  ident = do_curing()  
+L:USE:  ident = do_curing()  hp_player(100)
 D:This mushroom cures blindness, confusion, poison and cuts, and
-D:restores 200 hit points when eaten.
+D: restores 300 hit points when eaten.
 D:  Mushrooms provide sustenance for about 250 turns under normal conditions.
 
 N:598:Energy
@@ -5724,8 +5803,8 @@ I:80:22:500
 W:45:0:4:350
 A:45/2:65/2
 F:EASY_KNOW
-L:USE:  ident = sp_player(50)
-D:This mushroom restores 50 points of mana when eaten.
+L:USE:  ident = sp_player(100)
+D:This mushroom restores 100 points of mana when eaten.
 D:  Mushrooms provide sustenance for about 250 turns under normal conditions.
 
 N:599:Plenty
@@ -5738,9 +5817,9 @@ L:USE:  ident = TRUE
 L:USE:  if (object.number > 1 and one_in_(10) == 0) then
 L:USE:     object.number = object.number +1
 L:USE:     msgf("The mushrooms seem to replenish themselves.") end
-D:These mushrooms are very tasty, and can be a plentiful source of food.  They often
-D: replenish themselves by magic.  These mushrooms provide sustenance for about 750 turns
-D: under normal conditions.
+D:These mushrooms are very tasty, and can be a plentiful source of food.
+D:  They often replenish themselves by magic.  These mushrooms provide
+D: sustenance for about 750 turns under normal conditions.
 
 N:600:Chaos
 G:,:d
@@ -5750,19 +5829,20 @@ A:40/3:60/2
 P:0:10d10:0:0:0
 F:EASY_KNOW
 L:USE:  ident = mushroom_chaos()
-D:This mushroom affects your body in strange ways.  It does 10d10 damage when thrown.
-D:  Mushrooms provide sustenance for about 250 turns under normal conditions.
+D:This mushroom affects your body in strange ways if you are not resistant
+D: to the effects of chaos.  It does 10d10 damage when
+D: thrown.  Mushrooms provide sustenance for about 250 turns under normal
+D: conditions.
 
-# Weapons
-
-#N:601:& Long Sword~
-#G:|:w
-#I:23:35:0
-#W:45:0:150:2500
-#A:45/5:70/3
-#P:0:3d5:3:3:0
-#F:SHOW_MODS
-#D:A long sword of exceptionally fine craftsmanship.
+N:601:Cure Mutations
+G:,:d
+I:80:27:500
+W:75:0:4:10000
+A:75/8
+F:EASY_KNOW
+L:USE:  ident = cure_all_mutations()
+D:This mushroom cures you of all mutations.  Mushrooms provide
+D: sustenance for about 250 turns under normal conditions.
 
 #N:602:& Greatsword~
 #G:|:w
@@ -5772,6 +5852,8 @@ D:  Mushrooms provide sustenance for about 250 turns under normal conditions.
 #P:0:4d6:3:3:0
 #F:SHOW_MODS
 #D:A two-handed sword of exceptionally fine craftsmanship.
+
+# Weapons
 
 N:603:& Tonfa~
 G:\:U
@@ -5839,8 +5921,8 @@ D:A thick, powerful whip designed to do actual damage.
 N:610:Augmentation
 G:=:d
 I:45:57:0
-W:60:0:2:3000
-A:60/2
+W:85:0:2:3000
+A:85/2
 F:HIDE_TYPE | STR | INT | CHR | WIS | DEX | CON
 L:MAKE: if (one_in_(8)) then object.pval = 2 else object.pval=1 end
 L:MAKE: allow_curse = TRUE
@@ -5876,6 +5958,8 @@ W:90:0:35:2000
 A:90/3
 P:0:1d1:0:0:4
 F:IGNORE_ACID | SUST_INT | SUST_WIS
+D:A circlet of mithril.  Majestic and durable, but not very
+D: protective.
 
 N:614:Wisdom
 G:=:d
@@ -5996,8 +6080,8 @@ F:SLAY_ANIMAL | EASY_KNOW
 N:624:Protection from Trolls
 G:":d
 I:40:22:0
-W:40:0:3:900
-A:40/2
+W:29:0:3:900
+A:29/2
 F:SLAY_TROLL | SLAY_GIANT | EASY_KNOW
 
 N:625:Protection from Demons
@@ -6430,7 +6514,7 @@ L:USE:  while(times ~= 0) do
 L:USE:    if (fire_bolt(GF_FIRE, dir, damroll(6,8))) then ident=TRUE end
 L:USE:    times = times - 1 end
 D:This wand fires a blast of several fire bolts in the same
-D:direction (6d8 each).
+D: direction (6d8 each).
 
 N:651:Cold Blasts
 G:-:d
@@ -6511,12 +6595,12 @@ I:66:50:50
 W:40:0:10:500
 A:40/8:65/4
 L:USE:  ident = fire_ball(GF_MANA, dir, 5, 7)
-D:This rod fires an ENORMOUS mana ball (5).  It is useful for destroying 
-D:objects en masse.
+D:This rod fires an ENORMOUS mana ball (5).  It is useful for destroying
+D: objects en masse.
 
 N:659:Enchant Armor
 G:-:d
-I:66:31:800
+I:66:30:800
 W:90:0:10:30000
 A:90/16
 L:USE:  if not enchant_spell(0,0,1) then result=FALSE end
@@ -6557,8 +6641,9 @@ W:80:0:10:20000
 A:80/20
 L:USE:  ident = TRUE
 L:USE:  if not recharge(130) then result=FALSE end
-D:This powerful rod can recharge rods, staves, and wands, about every 400 turns.
-D:  There is a small chance that the spell will backfire and destroy or drain the item.
+D:This powerful rod can recharge rods, staves, and wands, about every 400
+D: turns.  There is a small chance that the spell will backfire and destroy
+D: or drain the item.
 
 N:664:Stone Skin
 G:?:d
@@ -6588,29 +6673,27 @@ A:5/10:20/10:80/10
 L:TIMED: if (one_in_(400) ~= 0) then msgf("You feel youthful!"); end
 D:While wearing this amulet, you will never die of old age.
 
+# 667-670: Unused.  Were intended for randart ring/amulet generation. 
+
 N:667:& Ring~
 G:=:d
 I:45:65:0
 W:50:0:2:0
-A:50/0:80/0
 
 N:668:& Amulet~
 G:":d
 I:40:31:0
 W:60:0:3:0
-A:60/0:85/0
 
 N:669:& Medallion~
 G:":d
 I:40:31:0
 W:60:0:3:0
-A:60/0:85/0
 
 N:670:& Necklace~
 G:":d
 I:40:31:0
 W:60:0:3:0
-A:60/0:85/0
 
 N:671:Blood
 G:=:d
@@ -6620,3 +6703,46 @@ A:65/2
 F:CURSED | SLOW_HEAL | EASY_KNOW
 L:TIMED:  if (one_in_(4)) then take_hit(dam_roll(2,4), "a ring of blood") end
 D:This ring bites deep into your finger and drains your blood.
+
+# Quivers below are in ALPHA testing.
+# If you change nothing, they will have no effect on your game.
+# To allow them, remove the '#' before the "A:" lines in each of these entries.
+# Most commands will let you navigate into containers to select objects;
+# many will not let you use a container if it's not empty.  To reoganize, use
+# the 'O' (organize) command (^O in the roguelike keyset).  
+
+N:672:& Small quiver~
+G:&:u
+I:6:92:60
+W:10:0:10:100
+#A:10/2
+P:4:1d1:0:0:0
+F:EASY_KNOW
+D:It is a container for ammunition.  It can hold up to 60 arrows, bolts, or shots.
+
+N:673:& Quiver~
+G:&:u
+I:6:91:100
+W:20:0:20:100
+#A:20/2
+P:6:1d1:0:0:0
+F:EASY_KNOW
+D:It is a container for ammunition.  It can hold up to 100 arrows, bolts, or shots.
+
+N:674:& Large quiver~
+G:&:U
+I:6:90:150
+W:40:0:30:750
+#A:40/2
+P:8:1d1:0:0:0
+F:EASY_KNOW
+D:It is a container for ammunition.  It can hold up to 150 arrows, bolts, or shots.
+
+N:675:& Flameproof quiver~
+G:&:U
+I:6:75:100
+W:60:0:20:750
+#A:60/2
+P:6:1d1:0:0:0
+F:IGNORE_FIRE | EASY_KNOW
+D:It is a container for ammunition.  It can hold up to 100 arrows, bolts, or shots.

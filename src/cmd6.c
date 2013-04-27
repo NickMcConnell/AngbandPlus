@@ -1035,7 +1035,8 @@ void do_cmd_activate(void)
 	q = "Activate which item? ";
 	s = "You have nothing to activate.";
 
-	o_ptr = get_item(q, s, (USE_EQUIP | USE_FLOOR));
+	/* Containers that activate?  Maybe someday.  */
+	o_ptr = get_item(q, s, (USE_EQUIP | USE_FLOOR | USE_FULL_CONTAINER));
 
 	/* Not a valid item */
 	if (!o_ptr) return;

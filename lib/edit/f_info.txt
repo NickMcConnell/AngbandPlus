@@ -39,7 +39,7 @@
 
 # Version stamp (required)
 
-V:0.2.2
+V:0.2.3
 
 
 # 0x00 --> nothing

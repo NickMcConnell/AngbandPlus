@@ -1061,7 +1061,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 		/* Get how much the kill was worth */
 		exp_for_kill(r_ptr, &new_exp, &new_exp_frac);
-		
+
 		/* Clones or summoned monsters can't be killed for XP. */
 		if (m_ptr->smart & SM_CLONED)
 		{
@@ -3048,6 +3048,26 @@ bool get_rep_dir(int *dp)
 
 	if (repeat_pull(dp))
 	{
+		/* Done, if not confused. */
+		if (!p_ptr->tim.confused) return (TRUE);
+
+		/* Standard confusion */
+		if (randint0(100) < 75)
+		{
+			/* Random direction */
+			dir = ddd[randint0(8)];
+		}
+
+		/* Notice confusion */
+		if (p_ptr->cmd.dir != dir)
+		{
+			/* Warn the user */
+			msgf("You are confused.");
+		}
+
+		/* Save direction */
+		(*dp) = dir;
+
 		return (TRUE);
 	}
 

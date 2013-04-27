@@ -357,19 +357,14 @@ static void rd_item(object_type *o_ptr)
 	byte old_ds;
 
 	byte tmpbyte;
-	s16b tmps16b;
 
 	object_kind *k_ptr;
 
 	char buf[1024];
 	int i;
 
-	/* Old flags from pre [Z] 2.5.3 */
-	byte name1, name2, xtra1, xtra2;
-
 	/* Number of object flags */
 	byte n_flags;
-
 
 	/* Kind */
 	rd_s16b(&o_ptr->k_idx);
@@ -413,6 +408,9 @@ static void rd_item(object_type *o_ptr)
 		o_ptr->flags[i] = 0;
 
 	rd_s16b(&o_ptr->next_o_idx);
+
+	if (o_ptr->tval == TV_CONTAINER && sf_version >= 56)
+		rd_s16b(&o_ptr->contents_o_idx);
 
 	rd_byte((byte *)(&o_ptr->allocated));
 
@@ -971,6 +969,8 @@ static void rd_options(void)
 	/* Autosave options */
 	rd_byte(&autosave_l);
 	rd_byte(&autosave_t);
+	if (sf_version >= 56) rd_byte(&autosave_b);
+	else autosave_b = TRUE;
 	rd_s16b(&autosave_freq);
 
 
@@ -2016,7 +2016,6 @@ static errr rd_dungeon(void)
 	int wid, hgt;
 	u16b limit;
 	cave_type *c_ptr;
-	u16b dun_level_backup, px_back, py_back;
 
 	bool ignore_stuff = FALSE;
 
@@ -2310,14 +2309,6 @@ static errr rd_dungeon(void)
 }
 
 /*
- * Strip old (Pre 2.7.0) quest info from the savefile
- */
-static void strip_quests(u16b num)
-{
-	return;
-}
-
-/*
  * Load the quests
  */
 static void rd_quests(int max_quests)
@@ -2480,6 +2471,71 @@ static void rd_quests(int max_quests)
 			}
 		}
 		rd_checksum("Quest record");
+
+		/* Repair broken quests if necessary */
+		if (sf_version < 56)
+		{
+			monster_race *r_ptr = NULL;
+
+			/* Find the target monster race */
+			if (q_ptr->type == QUEST_TYPE_BOUNTY || q_ptr->type == QUEST_TYPE_DEFEND)
+			{
+				r_ptr = &r_info[q_ptr->data.bnt.r_idx];
+			}
+			else if (q_ptr->type == QUEST_TYPE_FIXED_KILL)
+			{
+				r_ptr = &r_info[q_ptr->data.fix.data.kill.r_idx];
+			}
+			else if (q_ptr->type == QUEST_TYPE_FIXED_BOSS)
+			{
+				r_ptr = &r_info[q_ptr->data.fix.data.boss.r_idx];
+			}
+			else if (q_ptr->type == QUEST_TYPE_DUNGEON)
+			{
+				r_ptr = &r_info[q_ptr->data.dun.r_idx];
+			}
+
+			/* Check for a quest with a dead, unique boss */
+			if (r_ptr && FLAG(r_ptr, RF_UNIQUE) && r_ptr->max_num == 0)
+			{
+				/* Make sure the quest is not open */
+				if (q_ptr->status == QUEST_STATUS_TAKEN)
+					q_ptr->status = QUEST_STATUS_COMPLETED;
+				else if (q_ptr->status == QUEST_STATUS_UNTAKEN)
+					q_ptr->status = QUEST_STATUS_FINISHED;
+			}
+
+			/* Check for a kill quest with an inappropriate, escorted boss */
+			if (r_ptr && (FLAG(r_ptr, RF_ESCORT) || FLAG(r_ptr, RF_ESCORTS)) &&
+				q_ptr->type == QUEST_TYPE_FIXED_KILL)
+				/* Hack: should work, since the boss data and kill data are the same right now. */
+				q_ptr->type = QUEST_TYPE_FIXED_BOSS;
+
+			/* Check for quests off the edge of the map. */
+			if (q_ptr->type == QUEST_TYPE_FIXED_BOSS ||
+				q_ptr->type == QUEST_TYPE_FIXED_KILL ||
+				q_ptr->type == QUEST_TYPE_FIXED_CLEAROUT ||
+				q_ptr->type == QUEST_TYPE_FIXED_DEN)
+			{
+				/* Find the quest stairs */
+				int j;
+				place_type * pl_ptr;
+
+				for (j = 0; j < place_count; j++)
+				{
+					pl_ptr = &place[j];
+
+					if (pl_ptr->quest_num == i)
+					{
+						if (pl_ptr->x >= max_wild-1) pl_ptr->x = max_wild-2;
+						if (pl_ptr->y >= max_wild-1) pl_ptr->y = max_wild-2;
+					}
+
+					/* This will also redraw quests near the player that should show up and used to not. */
+					refresh_quest_stair(pl_ptr);
+				}
+			}
+		}
 	}
 }
 
@@ -2488,7 +2544,7 @@ static void convert_spells(void)
 	int use_realm1 = p_ptr->spell.r[0].realm;
 	int use_realm2 = p_ptr->spell.r[1].realm;
 	int i, j, r;
-		
+
 	/* For earlier versions, no converting. */
 	if (sf_version < 54)
 	{
@@ -2503,7 +2559,7 @@ static void convert_spells(void)
 		{
 			int shift = 0;
 			r = (use_realm1 == REALM_CONJ ? 0 : 1);
-			
+
 			/* Move spells around.  An order that works is:
 				5 (Summon Phantom) replaces 6 (Magic Rope).
 				9 (Teleport Self) replaces 5.
@@ -2512,22 +2568,22 @@ static void convert_spells(void)
 				14 (Summon Elemental) replaces 13.
 				12 (Dimension Door) replaces 10 (Web).
 				12 and 14 are reset completely. */
-			for (i = 0; i < 3; i ++) 
+			for (i = 0; i < 3; i ++)
 			{
 				u32b *m;
-					
+
 				switch(i)
 				{
 					case 0:  m = &p_ptr->spell.r[r].learned; break;
 					case 1:  m = &p_ptr->spell.r[r].worked;  break;
 					case 2:  m = &p_ptr->spell.r[r].forgotten; break;
 				}
-			
+
 				if (*m & (1L << 5))
 					*m |= (1L << 6);
 				else
 					*m &= ~(1L << 6);
-				
+
 				if (*m & (1L << 9))
 					*m |= (1L << 5);
 				else
@@ -2555,7 +2611,7 @@ static void convert_spells(void)
 
 				*m &= ~((1L << 12) | (1L << 14));
 			}
-	
+
 			/* Change r into an offset */
 			r = (r ? 32 : 0);
 
@@ -2582,17 +2638,17 @@ static void convert_spells(void)
 					case 12:
 						p_ptr->spell.order[i] = 10 + r;
 						break;
-					case 6: 
+					case 6:
 					case 10:
 						p_ptr->spell.order[i] = 99;
 						shift++;
 						break;
 				}
 			}
-			
+
 			/* Shift away empty slots */
 			/* This is bubblesort, but we know in advance how many passes to make. */
-			for (i = 0; i < shift; i++) 
+			for (i = 0; i < shift; i++)
 			{
 				for (j = 0; j < PY_MAX_SPELLS - 1; j++)
 				{
@@ -2603,34 +2659,34 @@ static void convert_spells(void)
 					}
 				}
 			}
-						
+
 
 		}
-	
+
 		/* Sorcery changes */
 		if (use_realm1 == REALM_SORCERY || use_realm2 == REALM_SORCERY)
 		{
 			r = (use_realm1 == REALM_SORCERY ? 0 : 1);
-			
+
 			/* Move spells around.  An order that works is:
 				Save status of spell 9 (Identify)
 				Spell 10 (Charm monster) replaces spell 9.
 				Spell 11 (Mass sleep) replaces spell 10.
 				Spell 9 buffer (Identify) replaces spell 11. */
-			for (i = 0; i < 3; i ++) 
+			for (i = 0; i < 3; i ++)
 			{
 				u32b *m;
 				bool cycle;
-					
+
 				switch(i)
 				{
 					case 0:  m = &p_ptr->spell.r[r].learned; break;
 					case 1:  m = &p_ptr->spell.r[r].worked;  break;
 					case 2:  m = &p_ptr->spell.r[r].forgotten; break;
 				}
-		
+
 				cycle = (*m & (1L << 9) ? TRUE : FALSE);
-	
+
 				if (*m & (1L << 10))
 					*m |= (1L << 9);
 				else
@@ -2811,28 +2867,13 @@ static errr rd_savefile_new_aux(void)
 	/* Number of quests */
 	rd_u16b(&max_quests_load);
 
-	/* Ignore old quests */
-	if (sf_version < 30)
+	if (max_quests_load > z_info->q_max)
 	{
-		strip_quests(max_quests_load);
-
-		/* Reinitialise the quests when loading an old version */
-		init_player_quests();
+		note("Too many (%u) quests!", max_quests_load);
+		return (23);
 	}
 
-	/* Newer versions */
-	else
-	{
-		/* Incompatible save files */
-		if (max_quests_load > z_info->q_max)
-		{
-			note("Too many (%u) quests!", max_quests_load);
-			return (23);
-		}
-
-		rd_quests(max_quests_load);
-	}
-
+	rd_quests(max_quests_load);
 
 	if (arg_fiddle) note("Loaded Quests");
 
@@ -2958,7 +2999,7 @@ static errr rd_savefile_new_aux(void)
 	/* Convert spells that changed */
 	if (sf_version <= 54)
 		convert_spells();
-			
+
 
 	/* Checksum */
 	rd_checksum ("Hit point and spell info");

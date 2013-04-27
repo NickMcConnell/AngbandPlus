@@ -1649,7 +1649,7 @@ errr parse_k_info(char *buf, header *head)
 			if (t && (!s || t < s))
 			{
 				int chance = atoi(t + 1);
-				if (chance > 0) k_ptr->chance[i] = chance;
+				if (chance >= 0) k_ptr->chance[i] = chance;
 			}
 		}
 	}

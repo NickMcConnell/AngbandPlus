@@ -838,6 +838,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 		case TV_SPIKE:
 		case TV_FLASK:
 		case TV_CHEST:
+		case TV_CONTAINER:
 		{
 			/* Some objects are easy to describe */
 			break;
@@ -907,7 +908,6 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 
 			/* Known artifacts */
 			if ((FLAG(k_ptr, TR_INSTA_ART)) && aware) break;
-			if (aware && o_ptr->sval == 31) break;  /* reserved for insta-artifacts */
 
 			/* Color the object */
 			modstr = amulet_adj[o_ptr->sval];
@@ -926,7 +926,6 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 
 			/* Known artifacts */
 			if ((FLAG(k_ptr, TR_INSTA_ART)) && aware) break;
-			if (aware && o_ptr->sval == 65) break;  /* reserved for insta-artifacts */
 
 			/* Color the object */
 			modstr = ring_adj[o_ptr->sval];
@@ -1351,7 +1350,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 	if (o_ptr->to_h && o_ptr->to_d) show_weapon = TRUE;
 
 	/* Display the item like armour */
-	if ((o_ptr->ac) && (o_ptr->tval != TV_WAND)) show_armour = TRUE;
+	if ((o_ptr->ac) && (o_ptr->tval != TV_WAND) && (o_ptr->tval != TV_CONTAINER)) show_armour = TRUE;
 
 	/* Dump base weapon info */
 	switch (o_ptr->tval)

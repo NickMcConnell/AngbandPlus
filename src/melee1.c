@@ -817,12 +817,12 @@ bool make_attack_normal(int m_idx)
 						o_ptr = &p_ptr->equipment[EQUIP_LITE];
 
 						/* Drain fuel */
-						if ((o_ptr->pval > 0) &&
-							(!(FLAG(o_ptr, TR_INSTA_ART))))
+						if ((o_ptr->timeout > 0) &&
+							(!(FLAG(o_ptr, TR_LITE))))
 						{
 							/* Reduce fuel */
-							o_ptr->pval -= (s16b)rand_range(250, 500);
-							if (o_ptr->pval < 1) o_ptr->pval = 1;
+							o_ptr->timeout -= (s16b)rand_range(250, 500);
+							if (o_ptr->timeout < 1) o_ptr->timeout = 1;
 
 							/* Notice */
 							if (!p_ptr->tim.blind)

@@ -639,7 +639,7 @@ bool auto_pickup_okay(const object_type *o_ptr)
 		object_type *j_ptr;
 
 		/* Similar slot? */
-		OBJ_ITT_START (p_ptr->inventory, j_ptr)
+		OBJ_ITT_DFS_START (p_ptr->inventory, j_ptr)
 		{
 			/* Check if the item can be combined with an inscribed object */
 			if (object_similar(j_ptr, o_ptr) && j_ptr->inscription)
@@ -711,11 +711,7 @@ void py_pickup_aux(object_type *o_ptr)
 	 * so j_ptr should never be NULL after inven_carry()
 	 */
 
-	/* Get slot number */
-	slot = get_item_position(p_ptr->inventory, j_ptr);
-
-	/* Message */
-	msgf("You have %v (%c).", OBJECT_FMT(j_ptr, TRUE, 3), I2A(slot));
+	item_describe(j_ptr);
 }
 
 
@@ -756,7 +752,8 @@ void carry(int pickup)
 
 		/* Apply auto_destroy options here. */
 		if ((auto_destroy_chests && o_ptr->tval == TV_CHEST && !o_ptr->pval)
-			|| (auto_destroy_bad && object_value(o_ptr) < 1)
+			|| (auto_destroy_bad && object_value(o_ptr) < 1 && o_ptr->feeling != FEEL_DUBIOUS &&
+			            o_ptr->feeling != FEEL_TAINTED)
 			|| (auto_destroy_weap && (o_ptr->tval >= TV_BOW && o_ptr->tval <= TV_SWORD))
 			|| (auto_destroy_arm && (o_ptr->tval >= TV_SOFT_ARMOR && o_ptr->tval <= TV_DRAG_ARMOR))
 			|| (auto_destroy_cloak && o_ptr->tval == TV_CLOAK)
@@ -821,9 +818,11 @@ void carry(int pickup)
 			if (!(FLAG(o_ptr, TR_INSTA_ART) && object_known_p(o_ptr)) &&
 				o_ptr->feeling != FEEL_SPECIAL && o_ptr->feeling != FEEL_TERRIBLE)
 			{
-				destroy_item_aux(o_ptr, o_ptr->number);
-				item_increase(o_ptr, -o_ptr->number);
-				continue;
+				if (destroy_item_aux(o_ptr, o_ptr->number))
+				{
+					item_increase(o_ptr, -o_ptr->number);
+					continue;
+				}
 			}
 		}
 

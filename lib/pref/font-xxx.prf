@@ -319,6 +319,9 @@ E:5:0x02
 # CHEST
 E:7:0x02
 
+# Containers
+E:6:0x0F
+
 # SHOT
 E:16:0x0F
 

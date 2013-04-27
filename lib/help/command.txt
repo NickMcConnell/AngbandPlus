@@ -109,7 +109,7 @@ example, use "\" + "." + "6", to specify "run east".
  l  Look around                          L  Locate player on map
  m  Cast a spell / use mental power      M  Full dungeon map
  n  Repeat last command                  N  (unused)
- o  Open a door or chest                 O  (unused)
+ o  Open a door or chest                 O  Organize containers
  p  Command your pets                    P  (unused)
  q  Quaff a potion                       Q  Quit (commit suicide)
  r  Read a scroll                        R  Rest for a period
@@ -201,7 +201,7 @@ example, use "\" + "." + "6", to specify "run east".
  }  Uninscribe an object                ^L  (tunnel - east)
  [  (unused)                            ^M  (tunnel - south)
  ]  (unused)                            ^N  (tunnel - south east)
- -  Walk (flip pickup)                  ^O  (unused)
+ -  Walk (flip pickup)                  ^O  Organize containers
  _  Enter store                         ^P  Show previous messages
  +  Alter grid                          ^Q  Quit to next midi song
  =  Set options                         ^R  Redraw the screen

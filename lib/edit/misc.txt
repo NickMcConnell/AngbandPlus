@@ -11,7 +11,7 @@
 
 # Version stamp (required)
 
-V:0.2.2
+V:0.2.3
 
 # Maximum number of "monster groups"
 M:g:100
@@ -64,7 +64,7 @@ M:W:T:300
 M:W:P:420
 
 # Maximum number of active "regions" in dungeon / wilderness
-M:G:10
+M:G:30
 
 # This needs to be larger than STORE_CACHE_AMNT * 24
 # Maximum number of objects

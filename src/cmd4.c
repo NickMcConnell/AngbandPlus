@@ -568,18 +568,21 @@ static bool do_cmd_options_cheat(int dummy)
 }
 
 
-static const cheat_option_type autosave_info[2] =
+static const cheat_option_type autosave_info[3] =
 {
 	{(bool *)(&autosave_l), 0x0001,
 	 "autosave_l", "Autosave when entering new levels"},
 
 	{(bool *)(&autosave_t), 0x0002,
 	 "autosave_t", "Timed autosave"},
+
+	{(bool *)(&autosave_b), 0x0003,
+	 "autosave_b", "Backup autosave"}
 };
 
 
 /* Forward declare */
-extern menu_type autosave_menu[4];
+extern menu_type autosave_menu[5];
 
 
 static bool do_cmd_options_toggle_frequency(int option)
@@ -635,8 +638,9 @@ static bool do_cmd_options_autosave_aux(int option)
 }
 
 
-menu_type autosave_menu[4] =
+menu_type autosave_menu[5] =
 {
+	{NULL, NULL, do_cmd_options_autosave_aux, MN_ACTIVE | MN_SELECT},
 	{NULL, NULL, do_cmd_options_autosave_aux, MN_ACTIVE | MN_SELECT},
 	{NULL, NULL, do_cmd_options_autosave_aux, MN_ACTIVE | MN_SELECT},
 	{NULL, NULL, do_cmd_options_toggle_frequency, MN_ACTIVE},
@@ -656,7 +660,7 @@ static bool do_cmd_options_autosave(int dummy)
 	/* Hack - ignore unused parameter */
 	(void) dummy;
 
-	for (i = 0; i < 2; i++)
+	for (i = 0; i < 3; i++)
 	{
 		/* Change the option text */
 		strnfmt(buf, 1024, "%-48s: %s  (%s)",
@@ -675,10 +679,10 @@ static bool do_cmd_options_autosave(int dummy)
 	strnfmt(buf, 1024, "Timed autosave frequency: every %d turns", autosave_freq);
 
 	/* Delete old string */
-	string_free(autosave_menu[2].text);
+	string_free(autosave_menu[3].text);
 
 	/* Save new string */
-	autosave_menu[2].text = string_make(buf);
+	autosave_menu[3].text = string_make(buf);
 
 	display_menu(autosave_menu, 0, TRUE, NULL, "Autosave");
 
@@ -3790,6 +3794,7 @@ static bool do_cmd_knowledge_kill_count(int dummy)
 static bool do_cmd_knowledge_objects(int dummy)
 {
 	int k;
+	int tval, lvl;
 
 	FILE *fff;
 
@@ -3808,45 +3813,74 @@ static bool do_cmd_knowledge_objects(int dummy)
 	/* Failure */
 	if (!fff) return (FALSE);
 
-	/* Scan the object kinds */
-	for (k = 1; k < z_info->k_max; k++)
+	/* One type of object at a time */
+	for (tval = TV_SKELETON; tval < TV_GOLD; tval++)
 	{
-		object_kind *k_ptr = &k_info[k];
-
-		/* Hack -- skip artifacts */
-		if (FLAG(k_ptr, TR_INSTA_ART)) continue;
-
-		/* List known flavored objects */
-		if (k_ptr->flavor && k_ptr->aware)
+		switch (tval)
 		{
-			object_type *o_ptr;
+			case TV_POTION:
+			case TV_SCROLL:
+			case TV_RING:
+			case TV_AMULET:
+			case TV_WAND:
+			case TV_STAFF:
+			case TV_ROD:
+			case TV_FOOD:
+				break;
+			default:
+				continue;
+		}
 
-			/* Create fake object */
-			o_ptr = object_prep(k);
+		for (lvl = 0; lvl < 127; lvl++)
+		{
 
-			attr = color_seq[tval_to_attr[o_ptr->tval % 128]];
-
-			a = object_attr(o_ptr);
-			c = object_char(o_ptr);
-
-			/* Only add equippys if in ascii mode */
-			if (!(a & 0x80) && !(c & 0x80))
+			/* Scan the object kinds */
+			for (k = 1; k < z_info->k_max; k++)
 			{
-				if (c == '$')
+				object_kind *k_ptr = &k_info[k];
+
+				/* Skip objects not matching the current tval */
+				if (k_ptr->tval != tval) continue;
+
+				/* Skip objects not matching the current level */
+				if (k_ptr->locale[0] != lvl) continue;
+
+				/* Hack -- skip artifacts */
+				if (FLAG(k_ptr, TR_INSTA_ART)) continue;
+
+				/* List known flavored objects */
+				if (k_ptr->flavor && k_ptr->aware)
 				{
-					/* Print a message ('$' needs to be escaped) */
-					froff(fff, " %s$$%s  %v\n", color_seq[a], attr, OBJECT_STORE_FMT(o_ptr, FALSE, 0));
+					object_type *o_ptr;
+
+					/* Create fake object */
+					o_ptr = object_prep(k);
+
+					attr = color_seq[tval_to_attr[o_ptr->tval % 128]];
+
+					a = object_attr(o_ptr);
+					c = object_char(o_ptr);
+
+					/* Only add equippys if in ascii mode */
+					if (!(a & 0x80) && !(c & 0x80))
+					{
+						if (c == '$')
+						{
+							/* Print a message ('$' needs to be escaped) */
+							froff(fff, " %s$$%s  %v\n", color_seq[a], attr, OBJECT_STORE_FMT(o_ptr, FALSE, 0));
+						}
+						else
+						{
+							/* Print a message */
+							froff(fff, " %s%c%s  %v\n", color_seq[a], c, attr, OBJECT_STORE_FMT(o_ptr, FALSE, 0));
+						}
+					}
+					else
+					{
+						/* Print a message */
+							froff(fff, "  %s  %v\n", attr, OBJECT_STORE_FMT(o_ptr, FALSE, 0));
+					}
 				}
-				else
-				{
-					/* Print a message */
-					froff(fff, " %s%c%s  %v\n", color_seq[a], c, attr, OBJECT_STORE_FMT(o_ptr, FALSE, 0));
-				}
-			}
-			else
-			{
-				/* Print a message */
-					froff(fff, "  %s  %v\n", attr, OBJECT_STORE_FMT(o_ptr, FALSE, 0));
 			}
 		}
 	}

@@ -780,6 +780,7 @@ struct object_type
 	byte dd, ds;	/* Damage dice/sides */
 
 	s16b next_o_idx;	/* Next object in stack (if any) */
+	s16b contents_o_idx;   /* First object in contents (if any) */
 
 	s16b inscription;	/* Inscription index */
 	s16b xtra_name;	/* Extra Name (Artifacts and ego items) */
@@ -1913,8 +1914,6 @@ typedef byte (*object_hook_type) (int k_idx);
 typedef int (*inven_func) (object_type *);
 typedef bool (*cave_hook_type) (const cave_type *c_ptr);
 typedef bool (*object_comp) (const object_type *, const object_type *);
-
-
 
 /*
  * Semi-Portable High Score List Entry (128 bytes) -- BEN

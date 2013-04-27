@@ -1532,7 +1532,7 @@ bool alchemy(void)
 	q = "Turn which item to gold? ";
 	s = "You have nothing to turn to gold.";
 
-	o_ptr = get_item(q, s, (USE_INVEN | USE_FLOOR));
+	o_ptr = get_item(q, s, (USE_INVEN | USE_FLOOR | USE_FULL_CONTAINER));
 
 	/* Not a valid item */
 	if (!o_ptr) return (FALSE);
@@ -2312,7 +2312,7 @@ static bool ident_spell_aux(int k_idx)
 	q = "Identify which item? ";
 	s = "You have nothing to identify.";
 
-	o_ptr = get_item(q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR));
+	o_ptr = get_item(q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_FULL_CONTAINER));
 
 	/* Not a valid item */
 	if (!o_ptr) return (FALSE);
@@ -3218,7 +3218,7 @@ s16b spell_chance(int spell, int realm)
 	{
 		minfail = MAX(5, minfail);
 	}
-	else if (p_ptr->rp.pclass == CLASS_RANGER || 
+	else if (p_ptr->rp.pclass == CLASS_RANGER ||
 			 (p_ptr->rp.pclass == CLASS_WARRIOR_MAGE && realm != REALM_ARCANE-1))
 	{
 		minfail = MAX(3, minfail);
@@ -4131,6 +4131,7 @@ bool hates_acid(const object_type *o_ptr)
 		}
 
 		case TV_CHEST:
+		case TV_CONTAINER:
 		{
 			/* Ouch */
 			return (TRUE);
@@ -4204,6 +4205,7 @@ bool hates_fire(const object_type *o_ptr)
 		}
 
 		case TV_CHEST:
+		case TV_CONTAINER:
 		{
 			/* Chests */
 			return (TRUE);
@@ -4283,7 +4285,6 @@ int set_cold_destroy(object_type *o_ptr)
 	return (TRUE);
 }
 
-
 /*
  * Destroys a type of item on a given percent chance
  * Note that missiles are no longer necessarily all destroyed
@@ -4291,22 +4292,25 @@ int set_cold_destroy(object_type *o_ptr)
  * New-style wands and rods handled correctly. -LM-
  * Returns number of items destroyed.
  */
-int inven_damage(inven_func typ, int perc)
+static int inven_damage_aux(inven_func typ, int perc, int start_o_idx)
 {
 	int j, k, amt;
 	object_type *o_ptr;
 
 	int slot;
 
-
-	/* Count the casualties */
 	k = 0;
 
 	/* Scan the inventory */
-	OBJ_ITT_START (p_ptr->inventory, o_ptr)
+	OBJ_ITT_START (start_o_idx, o_ptr)
 	{
-		/* Hack -- for now, skip artifacts */
+		/* Skip artifacts */
 		if (FLAG(o_ptr, TR_INSTA_ART)) continue;
+
+		/* Handle container contents */
+		if (o_ptr->tval == TV_CONTAINER) {
+			k += inven_damage_aux(typ, perc, o_ptr->contents_o_idx);
+		}
 
 		/* Give this item slot a shot at death */
 		if ((*typ) (o_ptr))
@@ -4353,8 +4357,12 @@ int inven_damage(inven_func typ, int perc)
 	}
 	OBJ_ITT_END;
 
-	/* Return the casualty count */
 	return (k);
+}
+
+int inven_damage(inven_func typ, int perc)
+{
+	return (inven_damage_aux(typ, perc, p_ptr->inventory));
 }
 
 
@@ -5110,7 +5118,7 @@ bool player_summon (int type, int level, bool group, int dur, int pet, int numbe
 	if (!r_idx) return (FALSE);
 
 	/* Attempt to place number monsters (awake) */
-	for (j = 0; j < number; j++) 
+	for (j = 0; j < number; j++)
 	{
 		/* Look for a location */
 		for (i = 0; i < 20; ++i)
@@ -5155,7 +5163,7 @@ bool player_summon (int type, int level, bool group, int dur, int pet, int numbe
 				succ = TRUE;
 		}
 	}
-	
+
 	if (!succ) return (FALSE);
 
 	/* Give a message. */

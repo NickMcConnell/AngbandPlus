@@ -13,10 +13,10 @@
 
 CC_AUX := gcc
 
-CFLAGS := -Wsign-compare -Wnested-externs -Wundef -Wuninitialized -Wunused -Wswitch -Wreturn-type -Wsequence-point -Wparentheses -Wimplicit -Wchar-subscripts -Wredundant-decls -Wstrict-prototypes -Waggregate-return -Wbad-function-cast -Wpointer-arith -Wwrite-strings -Wno-long-long -Wmissing-declarations -Wmissing-prototypes -Wall -W -pedantic -g -O2 -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include -I/usr/X11R6/include -DHAVE_CONFIG_H
-CPPFLAGS := 
-LIBS := -lz -lrpcsvc -lbsd -ltk8.4 -ltcl8.4 -lncurses -lXaw -lICE -lXpm -lSM -lXt -lXmu -lXm -lXext 
-LDFLAGS :=  -L/usr/lib -L/usr/X11R6/lib -lgtk -lgdk -rdynamic -lgmodule -lglib -ldl -lXi -lXext -lX11 -lm
+CFLAGS := -Wsign-compare -Wdeclaration-after-statement -Wnested-externs -Wundef -Wuninitialized -Wunused -Wswitch -Wreturn-type -Wsequence-point -Wparentheses -Wimplicit -Wchar-subscripts -Wredundant-decls -Wstrict-prototypes -Waggregate-return -Wbad-function-cast -Wpointer-arith -Wwrite-strings -Wno-long-long -Wmissing-declarations -Wmissing-prototypes -Wall -W -pedantic -g -O2 -I/sw/include/gtk-1.2 -I/sw/include/glib-1.2 -I/sw/lib/glib/include -I/usr/X11R6/include -DHAVE_CONFIG_H
+CPPFLAGS := -I/usr/X11R6/include 
+LIBS := -lz -lrpcsvc -ltk8.4 -ltcl8.4 -lncurses -lXaw -lICE -lXpm -lSM -lXt -lXmu -lXm -lXext 
+LDFLAGS :=  -L/sw/lib -L/usr/X11R6/lib -lgtk -lgdk -lgmodule -lglib -lintl -lXext -lX11 -lm -L/usr/X11R6/lib
 
 prefix = /usr/local
 exec_prefix = ${prefix}
@@ -167,13 +167,13 @@ distcheck: dist
 	-rm -rf temp2
 	-rm -rf $(DESTDIR)
 
-VER_MAJOR := `grep "\#define VER_MAJOR" src/defines.h | sed s/\#define\ VER_MAJOR\ //`
-VER_MINOR := `grep "\#define VER_MINOR" src/defines.h | sed s/\#define\ VER_MINOR\ //`
-VER_PATCH := `grep "\#define VER_PATCH" src/defines.h | sed s/\#define\ VER_PATCH\ //`
+VER_MAJOR := `grep "\#define VER_MAJOR" src/version.h | sed s/\#define\ VER_MAJOR\ //`
+VER_MINOR := `grep "\#define VER_MINOR" src/version.h | sed s/\#define\ VER_MINOR\ //`
+VER_PATCH := `grep "\#define VER_PATCH" src/version.h | sed s/\#define\ VER_PATCH\ //`
 VER_EXTRA := \
-	`grep "\#define VER_EXTRA" src/defines.h | sed s/\#define\ VER_EXTRA\ /pre/ | sed s/pre0//`
+	`grep "\#define VER_EXTRA" src/version.h | sed s/\#define\ VER_EXTRA\ /pre/ | sed s/pre0//`
 VER_AFTER := \
-	`grep "\#define VER_AFTER" src/defines.h | sed s/\#define\ VER_AFTER\ // | sed s/\"//g`
+	`grep "\#define VER_AFTER" src/version.h | sed s/\#define\ VER_AFTER\ // | sed s/\"//g`
 
 #
 # Expand now, so don't have quoting problems
@@ -220,7 +220,7 @@ test:
 	fi
 
 # Hack to remake configure.in if the version number changes
-.version: src/defines.h
+.version: src/version.h
 	@if [ ! -r .version ]; then \
 		echo "$(VERSION)" > .version; \
 	fi

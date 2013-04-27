@@ -285,7 +285,7 @@ static void dead_level(void)
 			delete_monster(x,y);
 			delete_object(x,y);
 			delete_field(x,y);
-			
+
 			/* Get rid of rubble too */
 			c_ptr = cave_p(x,y);
 			if (c_ptr->feat == FEAT_RUBBLE)
@@ -2453,7 +2453,7 @@ void create_region_aux(s16b *region, int x, int y, byte flags)
 	}
 
 	/* Warn the player */
-	msgf("Too many regions!");
+	get_check("Too many regions!  The game is probably about to crash.");
 
 	/* Paranoia */
 	*region = 0;

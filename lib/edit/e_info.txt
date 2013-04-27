@@ -62,7 +62,7 @@
 
 # Version stamp (required)
 
-V:0.2.2
+V:0.2.3
 
 
 ### Body Armor ###
@@ -471,7 +471,7 @@ L:MAKE:	end
 L:MAKE:	add_ego_power(EGO_XTRA_SUSTAIN, object)
 L:MAKE:	if (one_in_(4) ~= 0) then
 L:MAKE:		set_obj_flag(object, 0, TR0_BLOWS)
-L:MAKE:		object.pval = randint1(4) - object.dd / 2
+L:MAKE:		object.pval = randint1(4) - (object.dd + 1)/ 2
 L:MAKE:		if object.pval < 1 then object.pval = 1 end
 L:MAKE:	end
 
@@ -513,7 +513,7 @@ N:69:of Extra Attacks
 X:24:20
 W:50:3:0:500
 F:BLOWS
-L:MAKE:	object.pval = randint1(3) - object.dd / 2
+L:MAKE:	object.pval = randint1(4) - (object.dd + 1)/ 2
 L:MAKE: if object.pval < 1 then object.pval = 1 end
 
 N:70:of Slaying
@@ -523,12 +523,11 @@ F:HIDDEN_POWERS
 L:MAKE:	object.ds = object.ds + (object.ds * randint1(5)) / 5
 L:MAKE:	if (one_in_(5) ~= 0) then set_obj_flag(object, 0, TR0_BRAND_POIS) end
 
-
-# 71 (unused)
 N:71:of Fury
 X:24:30
 W:40:20:0:10000
 F:STR | BLOWS | AGGRAVATE | RES_FEAR | HIDE_TYPE | IGNORE_ACID | IGNORE_FIRE
+L:MAKE:   object.pval = 2 + m_bonus(3, level)
 
 # The "Elemental" brands (4) (6)
 
@@ -581,7 +580,8 @@ F:TUNNEL | IMPACT
 L:MAKE:	object.pval = m_bonus(3, level) + 3
 L:MAKE:	if (one_in_(3) ~= 0) then
 L:MAKE:		set_obj_flag(object, 0, TR0_BLOWS)
-L:MAKE:		object.pval = object.pval - object.dd / 2
+L:MAKE:		object.pval = object.pval - (object.dd + 1) / 2
+L:MAKE:		if object.pval > 3 then object.pval = 3 end
 L:MAKE:		if object.pval < 1 then object.pval = 1 end
 L:MAKE:	end
 

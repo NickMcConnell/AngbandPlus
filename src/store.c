@@ -267,6 +267,12 @@ static void mass_produce(object_type *o_ptr)
 	/* Analyze the type */
 	switch (o_ptr->tval)
 	{
+		case TV_CONTAINER:
+		{
+			size += damroll(2,2);
+			break;
+		}
+
 		case TV_FOOD:
 		case TV_FLASK:
 		case TV_LITE:

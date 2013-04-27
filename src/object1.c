@@ -13,6 +13,9 @@
 #include "angband.h"
 #include "script.h"
 
+/* Hack: For use in get_item & subroutines.  */
+s16b curr_container = 0;
+
 
 /*
  * Reset the "visual" lists
@@ -874,13 +877,6 @@ static void roff_obj_aux(const object_type *o_ptr)
 		}
 	}
 
-	/* No memory for stacks of non-combat items */
-	if (o_ptr->number > 1 && (o_ptr->tval < TV_SHOT || o_ptr->tval > TV_DRAG_ARMOR))
-	{
-		roff ("\n");
-		return;
-	}
-
 	/* Print out object-finding memory */
 	switch (o_ptr->mem.type)
 	{
@@ -895,7 +891,10 @@ static void roff_obj_aux(const object_type *o_ptr)
 
 				if (pl_ptr->type == PL_QUEST_STAIR)
 				{
-					roff ("You found %s on the floor in a quest.  ", o_ptr->number > 1 ? "them" : "it");
+					if (depth_in_feet)
+						roff ("You found %s on the floor in a quest at %d'.  ", o_ptr->number > 1 ? "them" : "it", o_ptr->mem.depth*50);
+					else
+						roff ("You found %s on the floor in a quest (level %d).  ", o_ptr->number > 1 ? "them" : "it", o_ptr->mem.depth);
 				}
 				else
 				{
@@ -919,7 +918,10 @@ static void roff_obj_aux(const object_type *o_ptr)
 
 			if (pl_ptr->type == PL_QUEST_STAIR)
 			{
-				roff ("You found %s in a vault in a quest.  ", o_ptr->number > 1 ? "them" : "it");
+				if (depth_in_feet)
+					roff ("You found %s in a vault in a quest at %d'.  ", o_ptr->number > 1 ? "them" : "it", o_ptr->mem.depth*50);
+				else
+					roff ("You found %s in a vault in a quest (level %d).  ", o_ptr->number > 1 ? "them" : "it", o_ptr->mem.depth);
 			}
 			else
 			{
@@ -1004,7 +1006,10 @@ static void roff_obj_aux(const object_type *o_ptr)
 			{
 				if (pl_ptr->type == PL_QUEST_STAIR)
 				{
-					roff ("in a quest.  ");
+					if (depth_in_feet)
+						roff ("in a quest at %d'.  ", o_ptr->mem.depth*50);
+					else
+						roff ("in a quest (level %d).  ", o_ptr->mem.depth);
 				}
 				else if (depth_in_feet)
 					roff ("at %d'.  ", o_ptr->mem.depth*50);
@@ -1042,8 +1047,12 @@ static void roff_obj_aux(const object_type *o_ptr)
 		}
 		case OM_CHEST:
 		{
-			/* For now, boring. */
-			roff ("%s in a chest.", o_ptr->number > 1 ? "They were" : "It was");
+			if (depth_in_feet && o_ptr->mem.depth)
+				roff ("%s in a chest at %d'.", o_ptr->number > 1 ? "They were" : "It was", o_ptr->mem.depth);
+			else if (o_ptr->mem.depth)
+				roff ("%s in a chest (level %d).", o_ptr->number > 1 ? "They were" : "It was", o_ptr->mem.depth);
+			else
+				roff ("%s in a chest in the wilderness.", o_ptr->number > 1 ? "They were" : "It was");
 			break;
 		}
 		case OM_SCROLL:
@@ -1144,7 +1153,7 @@ void identify_fully_aux(const object_type *o_ptr)
  *  to an item in a list.
  * Return NULL if the label does not indicate a real item.
  */
-static object_type *label_to_list(int c, s16b list_start)
+object_type *label_to_list(int c, s16b list_start)
 {
 	int i;
 
@@ -1983,7 +1992,7 @@ void display_inven(void)
 		/* Display the weight if needed */
 		if (show_weights && o_ptr->weight)
 		{
-			int wgt = o_ptr->weight * o_ptr->number;
+			int wgt = object_weight(o_ptr);
 			prtf(wid - 9, i, "%3d.%1d lb", wgt / 10, wgt % 10);
 		}
 
@@ -2054,7 +2063,7 @@ void display_equip(void)
 		/* Display the weight (if needed) */
 		if (show_weights && o_ptr->weight)
 		{
-			int wgt = o_ptr->weight * o_ptr->number;
+			int wgt = object_weight(o_ptr);
 			int col = (show_labels ? wid - 28 : wid - 9);
 			put_fstr(col, i, "%3d.%1d lb", wgt / 10, wgt % 10);
 		}
@@ -2200,7 +2209,7 @@ void show_list(s16b o_list_ptr, bool store)
 		/* Display the weight if needed */
 		if (show_weights)
 		{
-			int wgt = o_ptr->weight * o_ptr->number;
+			int wgt = object_weight(o_ptr);
 			put_fstr(lim, j + 1, "%3d.%1d lb", wgt / 10, wgt % 10);
 
 			if (store)
@@ -2382,7 +2391,7 @@ void show_equip(bool store)
 			/* Display the weight if needed */
 			if (show_weights)
 			{
-				int wgt = o_ptr->weight * o_ptr->number;
+				int wgt = object_weight(o_ptr);
 				put_fstr(lim, j + 1, "%3d.%1d lb", wgt / 10, wgt % 10);
 
 				if (store)
@@ -2529,7 +2538,7 @@ void inventory_remind(void)
 	object_type *o_ptr;
 	int i;
 
-	OBJ_ITT_START (p_ptr->inventory, o_ptr)
+	OBJ_ITT_DFS_START (p_ptr->inventory, o_ptr)
 	{
 		/* Remind about non-equipped items */
 		if (inventory_remind_aux(o_ptr, 'i'))
@@ -2559,6 +2568,8 @@ void inventory_remind(void)
 static object_type *get_tag(bool *inven, char tag)
 {
 	int i;
+	s16b this_idx = p_ptr->inventory;
+	s16b suspend_idx = 0;
 
 	cptr s;
 
@@ -2566,7 +2577,7 @@ static object_type *get_tag(bool *inven, char tag)
 
 
 	/* Check inventory */
-	OBJ_ITT_START (p_ptr->inventory, o_ptr)
+	OBJ_ITT_DFS_START (p_ptr->inventory, o_ptr)
 	{
 		/* Skip empty inscriptions */
 		if (!o_ptr->inscription) continue;
@@ -2732,12 +2743,37 @@ static bool toggle_windows(bool toggle, int command_wrk)
 	return (toggle);
 }
 
+bool (* item_tester_hook2) (const object_type *);
+
+bool item_tester_hook_okay_or_container(const object_type * o_ptr)
+{
+	object_type * q_ptr;
+
+	/* If no item_tester_hook2, always okay. */
+	if (!item_tester_hook2) return (TRUE);
+
+	/* If the object passes the basic test, okay. */
+	if ((*item_tester_hook2)(o_ptr)) return (TRUE);
+
+	/* If the object is a container, and something inside passes the basic test, okay. */
+	if (o_ptr->tval == TV_CONTAINER && o_ptr->contents_o_idx)
+	{
+		OBJ_ITT_START (o_ptr->contents_o_idx, q_ptr)
+		{
+			if ((*item_tester_hook2)(q_ptr)) return (TRUE);
+		}
+		OBJ_ITT_END;
+	}
+
+	/* Otherwise, not okay. */
+	return (FALSE);
+}
 
 /*
  * Show the prompt for items
  */
 static void show_item_prompt(bool inven, bool equip, bool floor, bool store,
-							cptr pmt, int command_wrk)
+							cptr pmt, bool full_container, int command_wrk)
 {
 	int i;
 
@@ -2753,11 +2789,22 @@ static void show_item_prompt(bool inven, bool equip, bool floor, bool store,
 	{
 		case USE_INVEN:
 		{
+			bool (*hook)(const object_type *);
+
 			/* Extract the legal requests */
 			get_label_bounds(p_ptr->inventory, &n1, &n2);
 
+			/* We need to mess around with the tester hook to get appropriate
+			   containers to show up in the list */
+			item_tester_hook2 = item_tester_hook;
+
+			item_tester_hook = &item_tester_hook_okay_or_container;
+
 			/* Redraw */
 			show_list(p_ptr->inventory, store);
+
+			/* Restore the hook */
+			item_tester_hook = item_tester_hook2;
 
 			/* Begin the prompt */
 			len = strnfmt(out_val, 160, "Inven:");
@@ -2767,6 +2814,29 @@ static void show_item_prompt(bool inven, bool equip, bool floor, bool store,
 
 			/* Append */
 			if (floor) strnfcat(out_val, 160, &len, " - for floor,");
+
+			break;
+		}
+
+		case USE_CONTAINER:
+		{
+			/* Extract the legal requests */
+			get_label_bounds(curr_container, &n1, &n2);
+
+			/* Redraw */
+			show_list(curr_container, store);
+
+			/* Begin the prompt */
+			len = strnfmt(out_val, 160, "Contents:");
+
+			/* Append */
+			if (equip) strnfcat(out_val, 160, &len, " / for Inven,");
+
+			/* Append */
+			if (floor) strnfcat(out_val, 160, &len, " - for floor,");
+
+			/* Append */
+			if (full_container) strnfcat(out_val, 160, &len, " * for container,");
 
 			break;
 		}
@@ -2991,7 +3061,6 @@ static object_type *recall_object_choice(int *command_wrk)
 	return (NULL);
 }
 
-
 /*
  * Let the user select an item and return a pointer to it.
  *
@@ -3040,10 +3109,12 @@ object_type *get_item(cptr pmt, cptr str, int mode)
 	bool inven = FALSE;
 	bool floor = FALSE;
 	bool store = FALSE;
+	bool full_container = FALSE;
 
 	bool allow_equip = FALSE;
 	bool allow_inven = FALSE;
 	bool allow_floor = FALSE;
+
 
 	int command_wrk;
 
@@ -3056,6 +3127,7 @@ object_type *get_item(cptr pmt, cptr str, int mode)
 
 	/* Temp item */
 	object_type *q_ptr;
+	object_type *q2_ptr;
 
 	object_type *o_ptr;
 
@@ -3064,6 +3136,10 @@ object_type *get_item(cptr pmt, cptr str, int mode)
 	if (mode & (USE_INVEN)) inven = TRUE;
 	if (mode & (USE_FLOOR)) floor = TRUE;
 	if (mode & (USE_STORE)) store = TRUE;
+	if (mode & (USE_FULL_CONTAINER)) full_container = TRUE;
+
+	/* Not in container mode */
+	curr_container = 0;
 
 	/* Paranoia XXX XXX XXX */
 	message_flush();
@@ -3105,6 +3181,22 @@ object_type *get_item(cptr pmt, cptr str, int mode)
 				allow_inven = TRUE;
 
 				break;
+			}
+
+			/* Check inside containers */
+			if (q_ptr->tval == TV_CONTAINER && q_ptr->contents_o_idx)
+			{
+				OBJ_ITT_START(q_ptr->contents_o_idx, q2_ptr)
+				{
+					if (item_tester_okay(q2_ptr))
+					{
+						allow_inven = TRUE;
+						break;
+					}
+				}
+				OBJ_ITT_END;
+
+				if (allow_inven) break;
 			}
 		}
 		OBJ_ITT_END;
@@ -3177,7 +3269,7 @@ object_type *get_item(cptr pmt, cptr str, int mode)
 
 		/* Display the prompt */
 		show_item_prompt(allow_inven, allow_equip, allow_floor, store, pmt,
-						 command_wrk);
+						 full_container, command_wrk);
 
 		/* Get a key */
 		which = inkey();
@@ -3227,6 +3319,11 @@ object_type *get_item(cptr pmt, cptr str, int mode)
 						break;
 					}
 				}
+				else if (command_wrk == (USE_CONTAINER))
+				{
+					/* No need to check: can only be using a container if inventory is allowed */
+					command_wrk = (USE_INVEN);
+				}
 
 				/* Hack -- Fix screen */
 
@@ -3240,6 +3337,26 @@ object_type *get_item(cptr pmt, cptr str, int mode)
 				break;
 			}
 
+			case '*':
+			{
+				if (command_wrk != (USE_CONTAINER)) break;
+				if (!full_container) break;
+
+				/* Find the container */
+				OBJ_ITT_START(p_ptr->inventory, o_ptr)
+				{
+					if (o_ptr->tval == TV_CONTAINER && o_ptr->contents_o_idx == curr_container)
+					{
+						/* Allow player to "refuse" certain actions */
+						if (get_item_allow(o_ptr))
+							done = TRUE;
+						break;
+					}
+				}
+				OBJ_ITT_END;
+
+				break;
+			}
 			case '-':
 			{
 				if (!allow_floor)
@@ -3406,10 +3523,54 @@ object_type *get_item(cptr pmt, cptr str, int mode)
 					o_ptr = label_to_list(which, c_ptr->o_idx);
 				}
 
+				else if (command_wrk == USE_CONTAINER)
+				{
+					o_ptr = label_to_list(which, curr_container);
+				}
+
 				/* Make sure selection is in bounds */
 				if (!o_ptr)
 				{
 					bell("Illegal object choice (bounds)!");
+					break;
+				}
+
+				/* Check if the item is a container we could use */
+				if (o_ptr->tval == TV_CONTAINER && o_ptr->contents_o_idx)
+				{
+					bool switched = FALSE;
+
+					if (allow_inven)
+					{
+						OBJ_ITT_START (o_ptr->contents_o_idx, q_ptr)
+						{
+							if (item_tester_okay(q_ptr))
+							{
+								/* Switch to container mode */
+								command_wrk = USE_CONTAINER;
+								curr_container = o_ptr->contents_o_idx;
+								switched = TRUE;
+
+								/* Hack -- Fix screen */
+
+								/* Load screen */
+								screen_load();
+
+								/* Save screen */
+								screen_save();
+
+								break;
+							}
+						}
+						OBJ_ITT_END;
+					}
+
+					if (switched) break;
+
+					/* Non-empty container with nothing appropriate inside */
+					bell("Illegal object choice (non-empty container)!");
+
+					o_ptr = NULL;
 					break;
 				}
 
@@ -3536,10 +3697,22 @@ void dump_full_item(FILE *fff, object_type *o_ptr)
 			return;
 	}
 
-	/* No description for objects with no hidden powers. */
-	else if (!FLAG(o_ptr, TR_HIDDEN_POWERS) && !FLAG(o_ptr, TR_INSTA_ART))
-	{
+	/* Don't describe if there are no interesting flags. */
+	else if (!( (o_ptr->flags[0] & ~TR0_XXX1) |
+				(o_ptr->flags[1] & ~TR1_XXX1) |
+				(o_ptr->flags[2] & ~(TR2_QUESTITEM | TR2_XXX4 | TR2_HIDDEN_POWERS | TR2_EASY_KNOW |
+									 TR2_HIDE_TYPE | TR2_SHOW_MODS | TR2_CURSED)) |
+				(o_ptr->flags[3] & ~(TR3_SQUELCH | TR3_XXX6 | TR3_XXX7 | TR3_XXX8 | TR3_XXX27 | TR3_XXX28))))
 		return;
+
+	if (FLAG(o_ptr, TR_HIDDEN_POWERS) && object_known_full(o_ptr))
+	{
+		strnfmt(desc, 16384, "%sYou have full knowledge of this item.  ", desc);
+	}
+
+	else if (FLAG(o_ptr, TR_HIDDEN_POWERS))
+	{
+		strnfmt(desc, 16384, "%sThis item may have hidden powers.  ", desc);
 	}
 
 	/* Mega-Hack -- describe activation if item is identified */
@@ -3943,7 +4116,7 @@ void dump_full_item(FILE *fff, object_type *o_ptr)
 
 	if (FLAG(of_ptr, TR_XTRA_MIGHT))
 	{
-		strnfmt(desc, 16384, "%sIt fires missiles with extra might ", desc);
+		strnfmt(desc, 16384, "%sIt fires missiles with extra might.  ", desc);
 	}
 
 	/* Collect curses */
@@ -4059,10 +4232,36 @@ void dump_full_item(FILE *fff, object_type *o_ptr)
 		strnfmt(desc, 16384, "%sIt carries an ancient and foul curse.  ", desc);
 	}
 
-	if (FLAG(of_ptr, TR_IGNORE_FIRE) && o_ptr->tval >= TV_BOOKS_MIN && o_ptr->tval <= TV_BOOKS_MAX)
+	/* Gather ignores */
+	vn = 0;
+	if (FLAG(of_ptr, TR_IGNORE_ACID)) vp[vn++] = "acid";
+	if (FLAG(of_ptr, TR_IGNORE_ELEC)) vp[vn++] = "electricity";
+	if (FLAG(of_ptr, TR_IGNORE_FIRE)) vp[vn++] = "fire";
+	if (FLAG(of_ptr, TR_IGNORE_COLD)) vp[vn++] = "cold";
+
+	if (vn == 4)
 	{
-		strnfmt(desc, 16384, "%sIt cannot be harmed by fire.  ", desc);
+		vn = 0;
+		vp[vn++] = "the elements";
 	}
+
+	/* Print ignores */
+	if (vn)
+	{
+		strnfmt(desc, 16384, "%sIt cannot be harmed by ", desc);
+
+		/* Scan */
+		for (n = 0; n < vn; n++)
+		{
+			if (n > 0 && n == vn - 1) strnfmt(desc, 16384, "%s or ", desc);
+			else if (n > 0)  strnfmt(desc, 16384, "%s, ", desc);
+
+			strnfmt(desc, 16384, "%s%s", desc, vp[n]);
+		}
+
+		strnfmt(desc, 16384, "%s.  ", desc);
+	}
+
 
 	/* Don't print out ONLY object-finding memory. */
 	if (desc[1])
@@ -4081,7 +4280,12 @@ void dump_full_item(FILE *fff, object_type *o_ptr)
 
 					if (pl_ptr->type == PL_QUEST_STAIR)
 					{
-						strnfmt(desc, 16384, "%sYou found %s on the floor in a quest.  ", desc, o_ptr->number > 1 ? "them" : "it");
+						if (depth_in_feet)
+							strnfmt(desc, 16384, "%sYou found %s on the floor in a quest at %d'.  ",
+									desc, o_ptr->number > 1 ? "them" : "it", o_ptr->mem.depth * 50);
+						else
+							strnfmt(desc, 16384, "%sYou found %s on the floor in a quest (level %d).  ",
+									desc, o_ptr->number > 1 ? "them" : "it", o_ptr->mem.depth);
 					}
 					else
 					{
@@ -4105,7 +4309,10 @@ void dump_full_item(FILE *fff, object_type *o_ptr)
 
 				if (pl_ptr->type == PL_QUEST_STAIR)
 				{
-					strnfmt(desc, 16384, "%sYou found %s in a vault in a quest.  ", desc, o_ptr->number > 1 ? "them" : "it");
+					if (depth_in_feet)
+						strnfmt(desc, 16384, "%sYou found %s in a vault in a quest at %d'.  ", desc, o_ptr->number > 1 ? "them" : "it", o_ptr->mem.depth*50);
+					else
+						strnfmt(desc, 16384, "%sYou found %s in a vault in a quest (level %d).  ", desc,  o_ptr->number > 1 ? "them" : "it", o_ptr->mem.depth);
 				}
 				else
 				{
@@ -4190,8 +4397,12 @@ void dump_full_item(FILE *fff, object_type *o_ptr)
 				{
 					if (pl_ptr->type == PL_QUEST_STAIR)
 					{
-						strnfmt(desc, 16384, "%sin a quest.  ", desc);
+						if (depth_in_feet)
+							strnfmt(desc, 16384, "%sin a quest at %d'.  ", desc, o_ptr->mem.depth*50);
+						else
+							strnfmt(desc, 16384, "%sin a quest (level %d).  ", desc, o_ptr->mem.depth);
 					}
+
 					else if (depth_in_feet)
 						strnfmt(desc, 16384, "%sat %d'.  ", desc, o_ptr->mem.depth*50);
 					else
@@ -4228,8 +4439,12 @@ void dump_full_item(FILE *fff, object_type *o_ptr)
 			}
 			case OM_CHEST:
 			{
-				/* For now, boring. */
-				strnfmt(desc, 16384, "%s%s in a chest.", desc, o_ptr->number > 1 ? "They were" : "It was");
+				if (depth_in_feet && o_ptr->mem.depth)
+					strnfmt(desc, 16384, "%s%s in a chest at %d'.", desc, o_ptr->number > 1 ? "They were" : "It was", o_ptr->mem.depth);
+				else if (o_ptr->mem.depth)
+					strnfmt(desc, 16384, "%s%s in a chest (level %d).", desc, o_ptr->number > 1 ? "They were" : "It was", o_ptr->mem.depth);
+				else
+					strnfmt(desc, 16384, "%s%s in a chest in the wilderness.", desc, o_ptr->number > 1 ? "They were" : "It was");
 				break;
 			}
 			case OM_SCROLL:
@@ -4279,3 +4494,25 @@ void dump_full_item(FILE *fff, object_type *o_ptr)
 		froff(fff, "\n");
 }
 
+/*
+ * Calculate the weight of an object, recursively including contents.
+ *
+ * This would work even if containers are allowed to contain containers; they
+ * aren't, currently, but this could change.
+ */
+int object_weight(object_type *o_ptr)
+{
+	int wgt = o_ptr->weight * o_ptr->number;
+	object_type *j_ptr;
+
+	if (o_ptr->tval == TV_CONTAINER)
+	{
+		OBJ_ITT_START(o_ptr->contents_o_idx, j_ptr)
+
+			wgt += object_weight(j_ptr);
+
+		OBJ_ITT_END;
+	}
+
+	return (wgt);
+}

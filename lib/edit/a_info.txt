@@ -53,7 +53,7 @@
 
 # Version stamp (required)
 
-V:0.2.2
+V:0.2.3
 
 
 # The Phial of Galadriel
@@ -653,7 +653,7 @@ L:MAKE:		set_obj_flag(object, 2, TR2_HEAVY_CURSE)
 L:MAKE:		set_obj_flag(object, 2, TR2_AGGRAVATE)
 L:MAKE:		set_obj_flag(object, 2, TR2_TY_CURSE)
 L:MAKE:	end
-L:BONUS:	b.stat[A_STR] = b.stat[STAT_STR] + object.to_a / 5
+L:BONUS:	b.stat[A_STR] = b.stat[A_STR] + object.to_a / 5
 L:SPOIL:	return "Random ability & high resist (warrior); curse, heavy curse, aggravate, ty curse (non-warrior); +1 str / +5 ac"
 
 

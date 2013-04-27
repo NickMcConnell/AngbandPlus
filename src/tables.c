@@ -6132,7 +6132,7 @@ option_type option_info[OPT_MAX] =
 	{FALSE, 2, "view_special_lite",		"Use special colors for floor grids (slow)" },
 
 	{TRUE,  2, "view_player_colour",	"Use special colours for the player" },
-	{FALSE, 8, "enable_panic_save",	    "Enable 'panic save' during a crash" },
+	{TRUE,  0, NULL,					"Number 65" },
 	{TRUE,  0, NULL,					"Number 66" },
 	{TRUE,  0, NULL,					"Number 67" },
 	{TRUE,  0, NULL,					"Number 68" },
@@ -6588,6 +6588,9 @@ cptr game_inscriptions[FEEL_MAX] =
 	"bad",			 /* FEEL_BAD */
 	"dubious",		 /* FEEL_DUBIOUS */
 	"tainted",		 /* FEEL_TAINTED */
+	"cursed",		 /* FEEL_WEAK_CURSED */
+	"bad",			 /* FEEL_WEAK_BAD */
+	"good",			 /* FEEL_WEAK_GOOD */
 };
 
 

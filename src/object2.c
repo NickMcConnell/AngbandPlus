@@ -93,6 +93,16 @@ static void excise_object_idx(s16b *o_idx_ptr, object_type *o_ptr)
  */
 void delete_held_object(s16b *o_idx_ptr, object_type *o_ptr)
 {
+	int contents = 0;
+	bool drop = FALSE;
+
+	/* For containers, save the contents to handle in a moment. */
+	if (o_ptr->tval == TV_CONTAINER)
+	{
+		contents = o_ptr->contents_o_idx;
+		if (o_idx_ptr == &p_ptr->inventory) drop = TRUE;
+	}
+
 	/* Excise */
 	excise_object_idx(o_idx_ptr, o_ptr);
 
@@ -101,6 +111,42 @@ void delete_held_object(s16b *o_idx_ptr, object_type *o_ptr)
 
 	/* Count objects */
 	o_cnt--;
+
+	/* Handle emptying containers after the object is deleted, so
+	   things can't be added back to containers that are vanishing. */
+	if (contents)
+	{
+		object_type * j2_ptr;
+
+		while (TRUE)
+		{
+			if (!contents) break;
+
+			j2_ptr = &o_list[contents];
+
+			if (!drop)
+				delete_held_object(&contents, j2_ptr);
+			else
+			{
+				object_type * j_ptr;
+
+				if (inven_carry_okay(j2_ptr))
+				{
+					j_ptr = object_dup(j2_ptr);
+					delete_held_object(&contents, j2_ptr);
+					j_ptr = inven_carry(j_ptr);
+					item_describe(j_ptr);
+				}
+				else
+				{
+					j_ptr = object_dup(j2_ptr);
+					delete_held_object(&contents, j2_ptr);
+					msgf ("You have no room for %v.", OBJECT_FMT(j_ptr, TRUE, 3));
+					drop_near(j_ptr, -1, p_ptr->px, p_ptr->py);
+				}
+			}
+		}
+	}
 }
 
 /*
@@ -945,32 +991,49 @@ s32b flag_cost(const object_type *o_ptr, int plusses)
 {
 	s32b total = 0;
 
-	if (FLAG(o_ptr, TR_STR)) total += (500 * plusses);
-	if (FLAG(o_ptr, TR_INT)) total += (500 * plusses);
-	if (FLAG(o_ptr, TR_WIS)) total += (500 * plusses);
-	if (FLAG(o_ptr, TR_DEX)) total += (500 * plusses);
-	if (FLAG(o_ptr, TR_CON)) total += (500 * plusses);
-	if (FLAG(o_ptr, TR_CHR)) total += (250 * plusses);
+	if (FLAG(o_ptr, TR_STR)) total += MAX(500 * plusses, 200 * sqvalue(plusses));
+	if (FLAG(o_ptr, TR_INT)) total += MAX(500 * plusses, 200 * sqvalue(plusses));
+	if (FLAG(o_ptr, TR_WIS)) total += MAX(500 * plusses, 200 * sqvalue(plusses));
+	if (FLAG(o_ptr, TR_DEX)) total += MAX(500 * plusses, 200 * sqvalue(plusses));
+	if (FLAG(o_ptr, TR_CON)) total += MAX(500 * plusses, 200 * sqvalue(plusses));
+	if (FLAG(o_ptr, TR_CHR)) total += MAX(250 * plusses, 100 * sqvalue(plusses));
 
 	if ((FLAG(o_ptr, TR_SP)) && (plusses > 0)) total += (2500 * plusses);
 	if (FLAG(o_ptr, TR_CHAOTIC)) total += 500;
 	if (FLAG(o_ptr, TR_VAMPIRIC)) total += 5000;
-	if (FLAG(o_ptr, TR_STEALTH)) total += (50 * plusses);
+	if (FLAG(o_ptr, TR_STEALTH)) total += (25 * sqvalue(plusses));
 	if (FLAG(o_ptr, TR_SEARCH)) total += (50 * plusses);
 	if (FLAG(o_ptr, TR_INFRA)) total += (30 * plusses);
-	if (FLAG(o_ptr, TR_TUNNEL)) total += (20 * plusses);
+	if (FLAG(o_ptr, TR_TUNNEL)) total += (50 * plusses);
 	if ((FLAG(o_ptr, TR_SPEED)) && (plusses > 0)) total += (500 * sqvalue(plusses));
 	if ((FLAG(o_ptr, TR_BLOWS)) && (plusses > 0)) total += (2500 * sqvalue(plusses));
 
-	if (FLAG(o_ptr, TR_SLAY_ANIMAL)) total += 750;
-	if (FLAG(o_ptr, TR_SLAY_EVIL))   total += 750;
-	if (FLAG(o_ptr, TR_SLAY_UNDEAD)) total += 750;
-	if (FLAG(o_ptr, TR_SLAY_DEMON))  total += 750;
-	if (FLAG(o_ptr, TR_SLAY_ORC))    total += 750;
-	if (FLAG(o_ptr, TR_SLAY_TROLL))  total += 750;
-	if (FLAG(o_ptr, TR_SLAY_GIANT))  total += 750;
-	if (FLAG(o_ptr, TR_SLAY_DRAGON)) total += 750;
-	if (FLAG(o_ptr, TR_KILL_DRAGON)) total += 1500;
+	/* Slays: only on weapons */
+	if (o_ptr->tval >= TV_SHOT && o_ptr->tval <= TV_SWORD)
+	{
+		if (FLAG(o_ptr, TR_SLAY_ANIMAL)) total += 500;
+		if (FLAG(o_ptr, TR_SLAY_EVIL))   total += 450;
+		if (FLAG(o_ptr, TR_SLAY_UNDEAD)) total += 500;
+		if (FLAG(o_ptr, TR_SLAY_DEMON))  total += 550;
+		if (FLAG(o_ptr, TR_SLAY_ORC))    total += 450;
+		if (FLAG(o_ptr, TR_SLAY_TROLL))  total += 450;
+		if (FLAG(o_ptr, TR_SLAY_GIANT))  total += 500;
+		if (FLAG(o_ptr, TR_SLAY_DRAGON)) total += 650;
+		if (FLAG(o_ptr, TR_KILL_DRAGON)) total += 2000;
+	}
+
+	/* Protection: on anything other than ammo */
+	if (o_ptr->tval < TV_SHOT || o_ptr->tval > TV_BOLT)
+	{
+		if (FLAG(o_ptr, TR_SLAY_ANIMAL)) total += 250;
+		if (FLAG(o_ptr, TR_SLAY_EVIL))   total += 300;
+		if (FLAG(o_ptr, TR_SLAY_UNDEAD)) total += 300;
+		if (FLAG(o_ptr, TR_SLAY_DEMON))  total += 300;
+		if (FLAG(o_ptr, TR_SLAY_ORC))    total += 150;
+		if (FLAG(o_ptr, TR_SLAY_TROLL))  total += 200;
+		if (FLAG(o_ptr, TR_SLAY_GIANT))  total += 250;
+		if (FLAG(o_ptr, TR_SLAY_DRAGON)) total += 300;
+	}
 
 	if (FLAG(o_ptr, TR_VORPAL)) total += 1500;
 	if (FLAG(o_ptr, TR_IMPACT)) total += 1500;
@@ -996,7 +1059,7 @@ s32b flag_cost(const object_type *o_ptr, int plusses)
 	if (FLAG(o_ptr, TR_IM_LITE)) total += 10000;
 	if (FLAG(o_ptr, TR_IM_DARK)) total += 10000;
 
-	if (FLAG(o_ptr, TR_THROW)) total += 2000;
+	if (FLAG(o_ptr, TR_THROW)) total += 300;
 	if (FLAG(o_ptr, TR_REFLECT)) total += 5000;
 
 	if (FLAG(o_ptr, TR_RES_ACID))   total += 500;
@@ -1004,10 +1067,10 @@ s32b flag_cost(const object_type *o_ptr, int plusses)
 	if (FLAG(o_ptr, TR_RES_FIRE))   total += 500;
 	if (FLAG(o_ptr, TR_RES_COLD))   total += 500;
 	if (FLAG(o_ptr, TR_RES_POIS))   total += 1500;
-	if (FLAG(o_ptr, TR_RES_FEAR))   total += 1500;
-	if (FLAG(o_ptr, TR_RES_LITE))   total += 1500;
-	if (FLAG(o_ptr, TR_RES_DARK))   total += 1500;
-	if (FLAG(o_ptr, TR_RES_BLIND))  total += 1500;
+	if (FLAG(o_ptr, TR_RES_FEAR))   total += 500;
+	if (FLAG(o_ptr, TR_RES_LITE))   total += 1000;
+	if (FLAG(o_ptr, TR_RES_DARK))   total += 1000;
+	if (FLAG(o_ptr, TR_RES_BLIND))  total += 1250;
 	if (FLAG(o_ptr, TR_RES_CONF))   total += 1500;
 	if (FLAG(o_ptr, TR_RES_SOUND))  total += 1500;
 	if (FLAG(o_ptr, TR_RES_SHARDS)) total += 1500;
@@ -1016,10 +1079,10 @@ s32b flag_cost(const object_type *o_ptr, int plusses)
 	if (FLAG(o_ptr, TR_RES_CHAOS))  total += 1500;
 	if (FLAG(o_ptr, TR_RES_DISEN))  total += 1500;
 
-	if (FLAG(o_ptr, TR_SH_FIRE)) total += 1000;
-	if (FLAG(o_ptr, TR_SH_ELEC)) total += 1000;
-	if (FLAG(o_ptr, TR_SH_ACID)) total += 1000;
-	if (FLAG(o_ptr, TR_SH_COLD)) total += 1000;
+	if (FLAG(o_ptr, TR_SH_FIRE)) total += 2500;
+	if (FLAG(o_ptr, TR_SH_ELEC)) total += 2500;
+	if (FLAG(o_ptr, TR_SH_ACID)) total += 2500;
+	if (FLAG(o_ptr, TR_SH_COLD)) total += 2500;
 
 	if (FLAG(o_ptr, TR_QUESTITEM)) total += 0;
 	if (FLAG(o_ptr, TR_XXX4)) total += 0;
@@ -1039,12 +1102,14 @@ s32b flag_cost(const object_type *o_ptr, int plusses)
 	if (FLAG(o_ptr, TR_REGEN))       total += 1000;
 	if (FLAG(o_ptr, TR_FREE_ACT))    total += 1000;
 	if (FLAG(o_ptr, TR_HOLD_LIFE))   total += 2000;
-	if (FLAG(o_ptr, TR_TELEPATHY))   total += 2000;
+	if (FLAG(o_ptr, TR_TELEPATHY))   total += 4000;
 
 	if (FLAG(o_ptr, TR_XTRA_MIGHT)) total += 1000;
 	if (FLAG(o_ptr, TR_XTRA_SHOTS)) total += 1000;
 
 	if (FLAG(o_ptr, TR_IGNORE_ACID)) total += 50;
+	/* Worth more on armor */
+	if (FLAG(o_ptr, TR_IGNORE_ACID) && (o_ptr->tval > TV_SWORD && o_ptr->tval < TV_LITE)) total += 150;
 	if (FLAG(o_ptr, TR_IGNORE_ELEC)) total += 50;
 	if (FLAG(o_ptr, TR_IGNORE_FIRE)) total += 50;
 	if (FLAG(o_ptr, TR_IGNORE_COLD)) total += 50;
@@ -1063,7 +1128,7 @@ s32b flag_cost(const object_type *o_ptr, int plusses)
 	if (FLAG(o_ptr, TR_CURSED)) total -= 5000;
 	if (FLAG(o_ptr, TR_HEAVY_CURSE)) total -= 12500;
 	if (FLAG(o_ptr, TR_PERMA_CURSE)) total -= 15000;
-	if (FLAG(o_ptr, TR_LUCK_10)) total += 3000;
+	if (FLAG(o_ptr, TR_LUCK_10)) total += 2000;
 	if (FLAG(o_ptr, TR_WILD_SHOT)) total += 50;
 	if (FLAG(o_ptr, TR_WILD_WALK)) total += 200;
 	if (FLAG(o_ptr, TR_MUTATE)) total += 500;
@@ -1071,7 +1136,7 @@ s32b flag_cost(const object_type *o_ptr, int plusses)
 	if (FLAG(o_ptr, TR_STRANGE_LUCK)) total += 2000;
 	if (FLAG(o_ptr, TR_PASS_WALL)) total += 25000;
 	if (FLAG(o_ptr, TR_GHOUL_TOUCH)) total += 750;
-	if (FLAG(o_ptr, TR_PSI_CRIT)) total += 1500;
+	if (FLAG(o_ptr, TR_PSI_CRIT)) total += 1000;
 	if (FLAG(o_ptr, TR_RETURN)) total += 500;
 	if (FLAG(o_ptr, TR_EXPLODE)) total += 500;
 	if (FLAG(o_ptr, TR_HURT_ACID)) total -= 5000;
@@ -1150,7 +1215,8 @@ s32b object_value_real(const object_type *o_ptr)
 
 		/* Price the object's flags vs the default flags */
 		value += flag_cost(o_ptr, o_ptr->pval) / divisor;
-		value -= flag_cost(&dummy, 1) / divisor;
+		/* Max with 0 to avoid silly prices for default cursed things */
+		value -= MAX(flag_cost(&dummy, 1) / divisor, 0);
 	}
 
 
@@ -1279,7 +1345,7 @@ s32b object_value_real(const object_type *o_ptr)
 		{
 			/* Figurines, relative to monster level */
 			value = (r_info[o_ptr->pval].level *
-					 r_info[o_ptr->pval].level * 5L);
+					 r_info[o_ptr->pval].level);
 			break;
 		}
 	}
@@ -1296,8 +1362,16 @@ s32b object_value_real(const object_type *o_ptr)
  */
 bool object_average(object_type *o_ptr)
 {
+	/* Non-combat objects never count */
+	if (o_ptr->tval < TV_SHOT || o_ptr->tval > TV_DRAG_ARMOR)
+		return (FALSE);
+
 	/* Return TRUE if the object is bad. */
-	if (object_value(o_ptr) < 1) return (TRUE);
+	if (object_value(o_ptr) < 1 && o_ptr->feeling != FEEL_DUBIOUS
+								&& o_ptr->feeling != FEEL_TAINTED) return (TRUE);
+
+	/* {average} objects count */
+	if (o_ptr->feeling == FEEL_AVERAGE) return (TRUE);
 
 	/* If we haven't identified the item enough, assume it could be good. */
 	if (!object_known_p(o_ptr)) return (FALSE);
@@ -1305,10 +1379,6 @@ bool object_average(object_type *o_ptr)
 	/* False for artifacts or ego items */
 	if (FLAG(o_ptr, TR_INSTA_ART) || o_ptr->e_idx)
 		return(FALSE);
-
-	/* True for all other non-combat items */
-	if (o_ptr->tval < TV_SHOT || o_ptr->tval > TV_DRAG_ARMOR)
-		return(TRUE);
 
 	/* False for enchanted items */
 	if (o_ptr->to_h > 0 || o_ptr->to_d > 0 || o_ptr->to_a > 0)
@@ -1322,8 +1392,16 @@ bool object_average(object_type *o_ptr)
  */
 bool object_good(object_type *o_ptr)
 {
-	/* Return TRUE if the object is bad. */
-	if (object_value(o_ptr) < 1) return (TRUE);
+	/* Non-combat objects never count */
+	if (o_ptr->tval < TV_SHOT || o_ptr->tval > TV_DRAG_ARMOR)
+		return (FALSE);
+
+	/* Return TRUE if the object is bad or average. */
+	if (object_average(o_ptr)) return (TRUE);
+
+	/* Return TRUE if the object is {good} */
+	/* Doesn't work for FEEL_WEAK_GOOD; those could be excellent or special. */
+	if (o_ptr->feeling == FEEL_GOOD) return (TRUE);
 
 	/* If we haven't identified the item enough, assume it could be great. */
 	if (!object_known_p(o_ptr)) return (FALSE);
@@ -1474,7 +1552,6 @@ void reduce_charges(object_type *o_ptr, int amt)
 	}
 }
 
-
 /*
  * Determine if an item can "absorb" a second item
  *
@@ -1508,9 +1585,8 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 	switch (o_ptr->tval)
 	{
 		case TV_CHEST:
+		case TV_CONTAINER:
 		{
-			/* Chests */
-
 			/* Never okay */
 			return (FALSE);
 		}
@@ -1705,6 +1781,59 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 	return (TRUE);
 }
 
+/*
+ * Test if j_ptr can contain o_ptr.
+ *
+ * Required: 1.  First object is a container.
+ *           2.  Second object is of a type suitable for the container.
+ *           3.  Container has space.
+ *
+ * Containers use pval to determine number of objects that can be contained,
+ * and base ac to determine the number of stacks.
+ */
+bool object_can_contain(object_type *j_ptr, object_type *o_ptr, int priority)
+{
+	bool can_absorb = FALSE;
+	object_type * j2_ptr;
+	int slots = 0;
+	int objs = 0;
+
+	if (j_ptr->tval != TV_CONTAINER) return (FALSE);
+
+	/* Handle priority.  Priority 0 should be superior to stacking with similar objects,
+	   Priority 1 should be "no harm" and Priority 2 can have pros and cons. */
+
+	/* For now, not much to check. Sval = 3 is the flameproof quiver.  */
+	if (priority == 0 && j_ptr->sval != 3) return (FALSE);
+
+	/* For now, all containers are for ammunition only. */
+	if (o_ptr->tval != TV_SHOT && o_ptr->tval != TV_ARROW && o_ptr->tval != TV_BOLT)
+		return (FALSE);
+
+	/* Go through the list */
+	OBJ_ITT_START (j_ptr->contents_o_idx, j2_ptr)
+	{
+		/* Count slots */
+		slots++;
+
+		/* Count objects */
+		objs += j2_ptr->number;
+
+		if (object_similar(o_ptr, j2_ptr))
+			can_absorb = TRUE;
+	}
+	OBJ_ITT_END;
+
+	/* Check for maximum number of objects */
+	if (objs + o_ptr->number > j_ptr->pval) return (FALSE);
+
+	/* Check for maximum number of stacks */
+	if (slots + (can_absorb ? 0 : 1) > j_ptr->ac) return (FALSE);
+
+	/* Otherwise, we can. */
+	return (TRUE);
+}
+
 
 /*
  * Allow one item to "absorb" another, assuming they are similar
@@ -1802,7 +1931,6 @@ void object_absorb(object_type *o_ptr, const object_type *j_ptr)
 		if (o_ptr->pval) o_ptr->info &= ~(OB_EMPTY);
 	}
 }
-
 
 /*
  * Are these objects the same except for next_o_idx?  Originally meant for
@@ -3768,6 +3896,7 @@ byte kind_is_theme(int k_idx)
 		}
 		case TV_SPIKE: return (match_theme.tools);
 		case TV_CHEST: return (match_theme.treasure);
+		case TV_CONTAINER: return (match_theme.tools);
 		case TV_FIGURINE: return (match_theme.treasure);
 		case TV_STATUE: return (match_theme.treasure);
 		case TV_SHOT: return (match_theme.combat);
@@ -4003,9 +4132,6 @@ static bool put_object(object_type *o_ptr, int x, int y)
 
 		/* Notice + Redraw */
 		note_spot(x, y);
-
-		/* Debug - scan player list for this item and complain if we find it */
-		look_up_list(j_ptr);
 
 		return (TRUE);
 	}
@@ -4628,11 +4754,12 @@ void semi_acquirement(int num, int delta_level, obj_theme * o_theme)
  * object returned by the get_item() function.
  *
  * We know the item is in our equipment, our
- * inventory, or is on the floor underneith us.
+ * inventory, a container in our inventory, or is on the floor underneath us.
  */
 s16b *look_up_list(object_type *o_ptr)
 {
 	object_type *j_ptr;
+	object_type *j2_ptr;
 
 	cave_type *c_ptr;
 
@@ -4653,6 +4780,16 @@ s16b *look_up_list(object_type *o_ptr)
 
 		/* Debug - test array bounds */
 		if (GET_ARRAY_INDEX(o_list, j_ptr) >= o_max) quit("Inven outside bounds!");
+
+		/* Check inside containers */
+		if (j_ptr->tval == TV_CONTAINER)
+		{
+			OBJ_ITT_START (j_ptr->contents_o_idx, j2_ptr)
+			{
+				if (j2_ptr == o_ptr) return (&j_ptr->contents_o_idx);
+			}
+			OBJ_ITT_END;
+		}
 	}
 	OBJ_ITT_END;
 
@@ -4767,16 +4904,7 @@ bool floor_item(object_type *o_ptr)
 /* Is the item in the players inventory or equipment? */
 bool player_item(object_type *o_ptr)
 {
-	s16b *o_list = look_up_list(o_ptr);
-
-	/* Equipment? */
-	if (!o_list) return (TRUE);
-
-	/* Inventory */
-	if (o_list == &p_ptr->inventory) return (TRUE);
-
-	/* Elsewhere */
-	return (TRUE);
+	return (!floor_item(o_ptr));
 }
 
 
@@ -4850,6 +4978,23 @@ static cptr item_describe_aux(object_type *o_ptr, bool back_step)
 		{
 			return (format("On the ground: %s.", o_name));
 		}
+		else
+		{
+			/* Might be in a container, find the container. */
+			object_type * j_ptr;
+
+			OBJ_ITT_START(p_ptr->inventory, j_ptr)
+			{
+				if (list == &j_ptr->contents_o_idx)
+				{
+					item = get_item_position(p_ptr->inventory, j_ptr);
+					return (format("In your %v (%c): %s.", OBJECT_FMT(j_ptr, FALSE, 0), I2A(item), o_name));
+				}
+			}
+			OBJ_ITT_END;
+
+			/* If we get here, it was in a store, no message. */
+		}
 	}
 	else
 	{
@@ -4882,6 +5027,19 @@ static cptr item_describe_aux(object_type *o_ptr, bool back_step)
 		/* Then it is in the shop */
 		else
 		{
+			/* Might be in a container, find the container. */
+			object_type * j_ptr;
+
+			OBJ_ITT_START(p_ptr->inventory, j_ptr)
+			{
+				if (list == &j_ptr->contents_o_idx)
+				{
+					item = get_item_position(p_ptr->inventory, j_ptr);
+					return (format("In your %v (%c): %s.", OBJECT_FMT(j_ptr, FALSE, 0), I2A(item), o_name));
+				}
+			}
+			OBJ_ITT_END;
+
 			if (show_labels) strnfmt(lab, 40, "In the shop: ");
 
 			return (format("%s%s", lab, o_name));
@@ -4913,8 +5071,8 @@ void item_describe_roff(object_type *o_ptr)
 
 /*
  * Describe an item in the inventory and pretend it is one slot lower than it
- * seems to be.  This is usefull when a the item is being identified by a scroll
- * of idenitfy and it was the last scroll of identify so there is some shuffling
+ * seems to be.  This is useful when a the item is being identified by a scroll
+ * of identify and it was the last scroll of identify so there is some shuffling
  * in the inventory.
  *
  * Faux is for faux pas as this is a hack.
@@ -4986,7 +5144,18 @@ static void item_optimize(object_type *o_ptr)
 		}
 		else
 		{
-			/* Store item */
+			/* Might be in a container, find the container. */
+			object_type * j_ptr;
+
+			OBJ_ITT_START(p_ptr->inventory, j_ptr)
+			{
+				if (list == &j_ptr->contents_o_idx)
+				{
+					p_ptr->window |= (PW_INVEN);
+				}
+			}
+			OBJ_ITT_END;
+
 			delete_held_object(list, o_ptr);
 		}
 	}
@@ -5108,6 +5277,28 @@ bool inven_carry_okay(const object_type *o_ptr)
 	{
 		/* Check if the two items can be combined */
 		if (object_similar(j_ptr, o_ptr)) return (TRUE);
+
+		/* Check if the object can be inserted into the first */
+		if (object_can_contain(j_ptr, o_ptr, 2)) return (TRUE);
+	}
+	OBJ_ITT_END;
+
+	/* Nope */
+	return (FALSE);
+}
+
+bool inven_carry_okay_no_containers(const object_type *o_ptr)
+{
+	object_type *j_ptr;
+
+	/* Empty slot? */
+	if (get_list_length(p_ptr->inventory) < INVEN_PACK) return (TRUE);
+
+	/* Similar slot? */
+	OBJ_ITT_START (p_ptr->inventory, j_ptr)
+	{
+		/* Check if the two items can be combined */
+		if (object_similar(j_ptr, o_ptr)) return (TRUE);
 	}
 	OBJ_ITT_END;
 
@@ -5133,6 +5324,11 @@ static bool reorder_pack_comp(const object_type *o1_ptr,
 	if ((o2_ptr->tval == REALM2_BOOK) &&
 		(o1_ptr->tval != REALM2_BOOK)) return (FALSE);
 
+	/* Nasty hack: Containers appear between lites and amulets */
+	if (o1_ptr->tval == TV_CONTAINER && o2_ptr->tval != TV_CONTAINER)
+		return (o2_ptr->tval <= TV_LITE);
+	if (o2_ptr->tval == TV_CONTAINER && o1_ptr->tval != TV_CONTAINER)
+		return (o1_ptr->tval >= TV_AMULET);
 
 	/* Objects sort by decreasing type */
 	if (o1_ptr->tval > o2_ptr->tval) return (TRUE);
@@ -5222,6 +5418,47 @@ object_type *reorder_objects_aux(object_type *q_ptr, object_comp comp_func,
 
 
 /*
+ * Adds o_ptr to the inventory of j_ptr.
+ */
+object_type *object_insert(object_type *j_ptr, object_type *o_ptr)
+{
+	object_type *j2_ptr;
+
+	/* Paranoia */
+	if (j_ptr->tval != TV_CONTAINER) return;
+
+	/* Try to stack first */
+	OBJ_ITT_START (j_ptr->contents_o_idx, j2_ptr)
+	{
+		if (object_similar(j2_ptr, o_ptr))
+		{
+			object_absorb(j2_ptr, o_ptr);
+
+			/* Wipe the old object */
+			object_wipe(o_ptr);
+
+			return (j2_ptr);
+		}
+	}
+	OBJ_ITT_END;
+
+	j2_ptr = add_object_list(&j_ptr->contents_o_idx, o_ptr);
+
+	/* Forget location */
+	o_ptr->iy = o_ptr->ix = 0;
+
+	/* Forget region */
+	o_ptr->region = 0;
+
+	/* No longer marked */
+	o_ptr->info &= ~(OB_SEEN);
+
+	j2_ptr = reorder_objects_aux(j2_ptr, reorder_pack_comp, j_ptr->contents_o_idx);
+
+	return (j2_ptr);
+}
+
+/*
  * Add an item to the players inventory, and return the slot used.
  *
  * If the new item can combine with an existing item in the inventory,
@@ -5241,6 +5478,145 @@ object_type *reorder_objects_aux(object_type *q_ptr, object_comp comp_func,
 object_type *inven_carry(object_type *o_ptr)
 {
 	object_type *j_ptr;
+	int i;
+
+	/* Check for combining */
+	OBJ_ITT_START (p_ptr->inventory, j_ptr)
+	{
+		/* Check if the two items can be combined */
+		if (object_similar(j_ptr, o_ptr))
+		{
+			/* Combine the items */
+			object_absorb(j_ptr, o_ptr);
+
+			/* Recalculate bonuses and weight */
+			p_ptr->update |= (PU_BONUS | PU_WEIGHT);
+
+			/* Notice changes */
+			notice_inven();
+
+			/* Wipe old object */
+			object_wipe(o_ptr);
+
+			/* Success */
+			return (j_ptr);
+		}
+
+		/* Check for a container that can contain the object
+		   with benefits */
+		if (object_can_contain(j_ptr, o_ptr, 0))
+		{
+			/* Insert the item */
+			j_ptr = object_insert(j_ptr, o_ptr);
+
+			/* Recalculate bonuses and weight */
+			p_ptr->update |= (PU_BONUS | PU_WEIGHT);
+
+			/* Notice changes */
+			notice_inven();
+
+			/* Success */
+			return (j_ptr);
+		}
+	}
+	OBJ_ITT_END;
+
+	/* Check for containers of worse quality that can contain the object */
+	OBJ_ITT_START(p_ptr->inventory, j_ptr)
+	{
+		/* Check for a container that can contain the object
+		   with no penalties compared to holding in inventory */
+		if (object_can_contain(j_ptr, o_ptr, 1))
+		{
+			/* Insert the item */
+			j_ptr = object_insert(j_ptr, o_ptr);
+
+			/* Recalculate bonuses and weight */
+			p_ptr->update |= (PU_BONUS | PU_WEIGHT);
+
+			/* Notice changes */
+			notice_inven();
+
+			/* Success */
+			return (j_ptr);
+		}
+	}
+	OBJ_ITT_END;
+
+	if (get_list_length(p_ptr->inventory >= INVEN_PACK))
+	{
+		/* Prefer a penalized container to a backpack overflow */
+		OBJ_ITT_START(p_ptr->inventory, j_ptr)
+		{
+			if (object_can_contain(j_ptr, o_ptr, 2))
+			{
+				/* Insert the item */
+				j_ptr = object_insert(j_ptr, o_ptr);
+
+				/* Recalculate bonuses and weight */
+				p_ptr->update |= (PU_BONUS | PU_WEIGHT);
+
+				/* Notice changes */
+				notice_inven();
+
+				/* Success */
+				return (j_ptr);
+			}
+		}
+		OBJ_ITT_END;
+	}
+
+	/* Add the item to the pack */
+	o_ptr = add_object_list(&p_ptr->inventory, o_ptr);
+
+	/* Paranoia */
+	if (!o_ptr) return (NULL);
+
+	/* Forget location */
+	o_ptr->iy = o_ptr->ix = 0;
+
+	/* Forget region */
+	o_ptr->region = 0;
+
+	/* No longer marked */
+	o_ptr->info &= ~(OB_SEEN);
+
+	/* Reorder the pack */
+	o_ptr = reorder_objects_aux(o_ptr, reorder_pack_comp, p_ptr->inventory);
+
+	/* Recalculate bonuses and weight */
+	p_ptr->update |= (PU_BONUS | PU_WEIGHT);
+
+	/* Notice changes */
+	notice_inven();
+
+	/* Return the new item */
+	return (o_ptr);
+}
+
+
+/*
+ * Add an item to the players inventory, and return the slot used,
+ * but don't allow inserting into containers.
+ *
+ * If the new item can combine with an existing item in the inventory,
+ * it will do so, using "object_similar()" and "object_absorb()", else,
+ * the item will be placed into the "proper" location in the inventory.
+ *
+ * This function can be used to "over-fill" the player's pack, but only
+ * once, and such an action must trigger the "overflow" code immediately.
+ * Note that when the pack is being "over-filled", the new item must be
+ * placed into the "overflow" slot, and the "overflow" must take place
+ * before the pack is reordered, but (optionally) after the pack is
+ * combined.  This may be tricky.  See "dungeon.c" for info.
+ *
+ * Note that this code must remove any location/stack information
+ * from the object once it is placed into the inventory.
+ */
+object_type *inven_carry_no_containers(object_type *o_ptr)
+{
+	object_type *j_ptr;
+	int i;
 
 	/* Check for combining */
 	OBJ_ITT_START (p_ptr->inventory, j_ptr)
@@ -5275,7 +5651,7 @@ object_type *inven_carry(object_type *o_ptr)
 	/* Forget location */
 	o_ptr->iy = o_ptr->ix = 0;
 
-	/* Forget Region */
+	/* Forget region */
 	o_ptr->region = 0;
 
 	/* No longer marked */
@@ -5293,7 +5669,6 @@ object_type *inven_carry(object_type *o_ptr)
 	/* Return the new item */
 	return (o_ptr);
 }
-
 
 /*
  * Take off (some of) a non-cursed equipment item
@@ -5379,14 +5754,12 @@ void inven_drop(object_type *o_ptr, int amt)
 	object_type *q_ptr;
 
 	int slot;
+	int old_amt = o_ptr->number;
 
 	s16b *list;
 
 	/* Error check */
 	if (amt <= 0) return;
-
-	/* Describe item */
-	item_describe(o_ptr);
 
 	/* Get list */
 	list = look_up_list(o_ptr);
@@ -5401,14 +5774,45 @@ void inven_drop(object_type *o_ptr, int amt)
 		if (!o_ptr) return;
 	}
 
-	/* Get item slot */
-	slot = get_item_position(p_ptr->inventory, o_ptr);
+	/* Hack: for description, set the number of objects to amt. */
+	o_ptr->number = amt;
+
+	/* Message */
+	if (list == &p_ptr->inventory)
+	{
+		/* Get item slot */
+		slot = get_item_position(p_ptr->inventory, o_ptr);
+
+		msgf("You drop %v (%c).", OBJECT_FMT(o_ptr, TRUE, 3), I2A(slot));
+	}
+	else
+	{
+		object_type * j_ptr;
+		slot = 0;
+
+		OBJ_ITT_START (p_ptr->inventory, j_ptr)
+		{
+			slot++;
+			if (j_ptr->tval == TV_CONTAINER && list == (&j_ptr->contents_o_idx))
+				break;
+		}
+		OBJ_ITT_END;
+
+		msgf("You drop %v (from (%c)).", OBJECT_FMT(o_ptr, TRUE, 3), I2A(slot));
+	}
+
+	/* Hack: re-set number of objects */
+	/* Hack: temporary decrease in number, for description */
+	o_ptr->number = old_amt - amt;
+
+	/* Describe what's left */
+	item_describe(o_ptr);
+
+	/* Undo temporary decrease */
+	o_ptr->number += amt;
 
 	/* Get local object */
 	q_ptr = item_split(o_ptr, amt);
-
-	/* Message */
-	msgf("You drop %v (%c).", OBJECT_FMT(q_ptr, TRUE, 3), I2A(slot));
 
 	/* Drop it near the player */
 	drop_near(q_ptr, 0, p_ptr->px, p_ptr->py);

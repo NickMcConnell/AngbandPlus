@@ -147,9 +147,9 @@ LUAWSRCS := $(LUAWOBJS:.obj=.c)
 ## Main list of objects and source files.
 ##
 
-SRCS := $(ANGSRCS) $(ZUTILSRCS) $(BORGSRCS)
+SRCS := $(ANGSRCS) $(ZUTILSRCS)
 
-OBJS = $(ANGOBJS) $(ZUTILOBJS) $(BORGOBJS) $(LUAOBJS) readdib.obj angband.res
+OBJS = $(ANGOBJS) $(ZUTILOBJS) $(LUAOBJS) readdib.obj angband.res
 
 
 ##
@@ -214,7 +214,7 @@ zangband.exe: $(OBJS)
 ## Hack - default install action.
 ## (This can be overridden below.)
 ##
-INSTALL = copy zangband.exe ..\zangband.exe
+INSTALL = copy zangband.exe ..\"z+angband.exe"
 
 ##
 ## Variation -- All the ports that work in Linux at once.

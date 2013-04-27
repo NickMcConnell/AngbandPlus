@@ -2765,8 +2765,12 @@ errr file_character(cptr name, bool full)
 
 	if (ironman_nightmare) froff(fff, "\n Nightmare Mode:     ON");
 
-	froff(fff, "\n Recall Depth:       Level %d (%d')\n",
+	if (ironman_downward || vanilla_town)
+		froff(fff, "\n Recall Depth:       Level %d (%d')\n",
 		 	max_dun_level_reached(), 50 * max_dun_level_reached());
+	else
+		froff(fff, "\n Maximum Level Reached:    %d (%d')\n",
+			max_dun_level_reached(), 50 * max_dun_level_reached());
 
 	if (p_ptr->state.noscore)
 		froff(fff, "\n You have done something illegal.");
@@ -4012,6 +4016,56 @@ void do_cmd_save_game(int is_autosave)
 
 	/* Note that the player is not dead */
 	(void)strcpy(p_ptr->state.died_from, "(alive and well)");
+
+	/* Implement autosave_b */
+	if (is_autosave && autosave_b)
+	{
+		/* Copy the file */
+		char newsf[1024];
+		char oldsf[1024];
+		char buf[1024];
+		FILE *oldfff;
+		FILE *newfff;
+
+		strnfmt(oldsf, 1024, "%s", savefile);
+		strnfmt(newsf, 1024, "%s.auto", savefile);
+
+		/* Grab permissions */
+		safe_setuid_grab();
+
+		/* Remove the old backup */
+		(void)fd_kill(newsf);
+
+		/* Drop permissions */
+		safe_setuid_drop();
+
+		oldfff = my_fopen(oldsf, "rb");
+		newfff = my_fopen(newsf, "wb");
+
+		if (!oldfff || !newfff)
+		{
+			msgf ("Autosave backup failed.");
+			my_fclose(oldfff);
+			my_fclose(newfff);
+			return;
+		}
+
+		C_WIPE(buf, 1024, char);
+
+		while(TRUE)
+		{
+			int bytes_read;
+
+			bytes_read = fread(buf, sizeof(char), 1024, oldfff);
+
+			if (!bytes_read) break;
+
+			fwrite(buf, sizeof(char), bytes_read, newfff);
+		}
+
+		my_fclose(oldfff);
+		my_fclose(newfff);
+	}
 }
 
 

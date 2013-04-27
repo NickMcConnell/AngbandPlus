@@ -1593,12 +1593,8 @@ void exit_game_panic(void)
 	(void)strcpy(p_ptr->state.died_from, "(panic save)");
 
 	/* Panic save, or get worried */
-	if (enable_panic_save) {
-		if (!save_player()) quit("panic save failed!");
+	if (!save_player()) quit("panic save failed!");
 
-		/* Successful panic save */
-		quit("panic save succeeded!");
-	}
-	else
-		quit("panic save aborted due to user option.");
+	/* Successful panic save */
+	quit("panic save succeeded!");
 }

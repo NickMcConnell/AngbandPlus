@@ -1102,7 +1102,7 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 			if (!o_ptr->k_idx) continue;
 			if (!cursed_p(o_ptr)) continue;
 
-			o_ptr->feeling = FEEL_CURSED;
+			o_ptr->feeling = FEEL_WEAK_CURSED;
 		}
 		OBJ_ITT_END;
 	}

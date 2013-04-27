@@ -25,44 +25,7 @@
  * You have been warned.
  */
 
-
-/*
- * Name of the version/variant
- */
-#define VERSION_NAME "Z+Angband"
-
-/* Savefile version */
-#define SAVEFILE_VERSION 55
-
-/* User-visible version */
-#define VER_MAJOR 0
-#define VER_MINOR 2
-#define VER_PATCH 2
-#define VER_EXTRA 0
-
-/* Versions after release */
-#define VER_AFTER ""
-
-/* Stringify argument */
-#define Z_STR(a) Z_STR1(a)
-
-#define Z_STR1(a)\
-	# a
-
-/* Pre-release version string */
-#if VER_EXTRA != 0
-	#define PRE_VERSION \
-		"pre" Z_STR(VER_EXTRA)
-#else
-	#define PRE_VERSION
-#endif /* VER_EXTRA != 0 */
-
-
-/*
- * Current version string
- */
-#define VERSION_STRING \
-	Z_STR(VER_MAJOR) "." Z_STR(VER_MINOR) "." Z_STR(VER_PATCH) PRE_VERSION VER_AFTER
+#include "version.h"
 
 #define ANGBAND_2_8_1
 #define ZANGBAND
@@ -96,6 +59,9 @@
 #undef assert
 #define assert(ignore)	((void) 0)
 #endif /* !DEBUG */
+
+/* Savefile version */
+#define SAVEFILE_VERSION 56
 
 
 /*
@@ -1880,6 +1846,7 @@
 #define TV_BOTTLE        2		/* Empty bottles ('!') */
 #define TV_JUNK          3		/* Sticks, Pottery, etc ('~') */
 #define TV_SPIKE         5		/* Spikes ('~') */
+#define TV_CONTAINER     6      /* Containers ('&') */
 #define TV_CHEST         7		/* Chests ('&') */
 #define TV_FIGURINE      8		/* Magical figurines */
 #define TV_STATUE        9		/* Statue */
@@ -2656,6 +2623,8 @@
 #define USE_INVEN	0x02		/* Allow inven items */
 #define USE_FLOOR	0x04		/* Allow floor items */
 #define USE_STORE	0x10		/* Selling to store */
+#define USE_CONTAINER 0x20		/* Browsing inside a container */
+#define USE_FULL_CONTAINER 0x08 /* Allow an inventory container with objects in it */
 
 /*
  * Bit flags for the "p_ptr->notice" variable
@@ -2938,8 +2907,11 @@
 #define FEEL_BAD			   10
 #define FEEL_DUBIOUS		   11
 #define FEEL_TAINTED		   12
+#define FEEL_WEAK_CURSED       13
+#define FEEL_WEAK_BAD          14
+#define FEEL_WEAK_GOOD         15
 
-#define FEEL_MAX               13
+#define FEEL_MAX               16
 
 /*
  * Special "xtra" object powers for ego items and some artifacts
@@ -4320,7 +4292,6 @@ static __inline void COPY_FLAG_AUX(const u32b *flags1, u32b *flags2, int num, u3
 /* Option Set 2 */
 
 #define	view_player_colour		p_ptr->options[49]
-#define enable_panic_save		p_ptr->options[50]
 /* {TRUE,  0, NULL,					"Number 66" }, p_ptr->options[51] */
 /* {TRUE,  0, NULL,					"Number 67" }, p_ptr->options[52] */
 /* {TRUE,  0, NULL,					"Number 68" }, p_ptr->options[53] */
@@ -4616,32 +4587,61 @@ static __inline void COPY_FLAG_AUX(const u32b *flags1, u32b *flags2, int num, u3
 /*			if (!((O)->k_idx)) continue; \ */
 #define OBJ_ITT_START(OSTART, O) \
 	do { \
-		s16b _this_o_idx, _next_o_idx = 0; \
+		s16b _this_o_idx = 0; \
 		\
-		for (_this_o_idx = (OSTART); _this_o_idx; _this_o_idx = _next_o_idx) \
+		for (_this_o_idx = (OSTART); _this_o_idx; ) \
 		{ \
 			(O) = &o_list[_this_o_idx];\
 			assert((O)->k_idx); \
 			\
-			_next_o_idx = (O)->next_o_idx;
+			_this_o_idx = (O)->next_o_idx;
 
 #define OBJ_ITT_END \
 		} \
 	} while (0)
 
 /*
+ * Iterate over the objects in a list, recursing into ONE LAYER of containers.
+ * Having more layers of containers would make this behave strangely;
+ * we would have to have a stack instead of a single temporary variable.
+ */
+#define OBJ_ITT_DFS_START(OSTART, O) \
+	do { \
+		s16b _this_o_idx, _suspend_o_idx = 0; \
+		\
+		for (_this_o_idx = (OSTART); _this_o_idx; ) \
+		{ \
+			(O) = &o_list[_this_o_idx];\
+			assert((O)->k_idx); \
+			\
+			if ((O)->tval == TV_CONTAINER && (O)->contents_o_idx) \
+			{ \
+				_suspend_o_idx = (O)->next_o_idx; \
+				_this_o_idx = (O)->contents_o_idx; \
+			} \
+			else \
+			{ \
+				_this_o_idx = (O)->next_o_idx; \
+				if (!_this_o_idx && _suspend_o_idx) \
+				{ \
+					_this_o_idx = _suspend_o_idx; \
+					_suspend_o_idx = 0; \
+				} \
+			}
+
+/*
  * Iterate over the fieldss in a list
  */
 #define FLD_ITT_START(FSTART, F) \
 	do { \
-		s16b _this_f_idx, _next_f_idx = 0; \
+		s16b _this_f_idx; \
 		\
-		for (_this_f_idx = (FSTART); _this_f_idx; _this_f_idx = _next_f_idx) \
+		for (_this_f_idx = (FSTART); _this_f_idx; ) \
 		{ \
 			(F) = &fld_list[_this_f_idx];\
 			assert((F)->t_idx); \
 			\
-			_next_f_idx = (F)->next_f_idx;
+			_this_f_idx = (F)->next_f_idx;
 
 #define FLD_ITT_END \
 		} \

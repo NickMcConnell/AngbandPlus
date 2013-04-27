@@ -255,6 +255,7 @@ static void roff_spell_life(int spell)
 						(high ? 75 : (50 + (50/4)) ));
 			roff (" (at its center) to monsters in the blast.  ");
 			roff (CLR_L_DARK "Evil monsters take double damage from holy fire, and it will destroy cursed objects.");
+			roff (CLR_L_DARK "  Good monsters are immune, and non-evil monsters resist holy fire.");
 			return;
 		case 12:
 			roff ("Bestows protection from evil on you for ");
@@ -952,14 +953,15 @@ static void roff_spell_death(int spell)
 			roff (" ball of " CLR_ORANGE "unholy fire");
 			roff (" at a target of your choice that will cause ");
 			roff (CLR_RED "%id3 (up to 12d3) damage", 3+((plev-1)/5));
-			roff (" to the target.  ");
+			roff (" to the target.  May also cause fear, stunning, or confusion.  ");
 			roff (CLR_L_DARK "Evil monsters take double damage from unholy fire, and it will destroy cursed objects. ");
 			roff (CLR_L_DARK "A radius 0 ball is like a bolt that can skip over other monsters in the way.");
+			roff (CLR_L_DARK "Some monsters may resist being horrified, stunned, or confused.");
 			return;
 		case 2:
-			roff ("Attempts to cause a creature of your choice to become afraid. ");
+			roff ("Attempts to cause a creature of your choice to become afraid and stunned. ");
 			roff (CLR_L_DARK "Fearful monsters run away from you until they recover their courage.");
-			roff (CLR_L_DARK "Some monsters may resist being horrified. ");
+			roff (CLR_L_DARK "Some monsters may resist being horrified or stunned. ");
 			return;
 		case 3:
 			roff ("Fires a ball of ");
@@ -2127,6 +2129,7 @@ static bool cast_life_spell(int spell)
 			(void)clear_stun();
 			(void)clear_cut();
 			(void)clear_poisoned();
+			break;
 		case 18:				/* Dispel Undead + Demons */
 			(void)dispel_undead(plev * 3);
 			(void)dispel_demons(plev * 3);
@@ -2744,6 +2747,7 @@ static bool cast_chaos_spell(int spell)
 			break;
 		case 18:				/* Energize Item == Charging */
 			return recharge(20+(3*plev)/2);
+			break;
 		case 19:				/* Channel Energy */
 			i = randint1(p_ptr->chp/2)+randint1(20);  /* drains up to 50% of current health + 1d20 */
 			if (p_ptr->tim.invuln) {
@@ -3037,6 +3041,8 @@ static bool cast_death_spell(int spell)
 			(void)clear_afraid();
 			break;
 		case 17: 				/* Drain Life */
+			if (!get_aim_dir(&dir)) return FALSE;
+
 			(void)drain_life(dir, 75);
 			break;
 		case 18:				/* Nether Bolt */
@@ -3296,7 +3302,7 @@ static bool cast_conj_spell(int spell)
 			(void)inc_etherealness(rand_range(20,40));
 			break;
 		case 28:				/* Summon Demon */
-	        sum_fail = player_summon(PSUM_DEMON, plev+randint1(plev), FALSE, 350, 0, 
+	        sum_fail = player_summon(PSUM_DEMON, plev+randint1(plev), FALSE, 350, 0,
 				(one_in_(55-plev) ? rand_range(2,4) : 1));
 			break;
 		case 29:				/* Planar Rift */
@@ -3316,7 +3322,7 @@ static bool cast_conj_spell(int spell)
 					sum_fail = player_summon(PSUM_HI_DRAGON, 45+plev, FALSE, 450, 0, 1);
 					break;
 				case 3:
-			        sum_fail = player_summon(PSUM_DRAGON, 50+plev, FALSE, 600, PSUM_FORCE_SUCCESS, 
+			        sum_fail = player_summon(PSUM_DRAGON, 50+plev, FALSE, 600, PSUM_FORCE_SUCCESS,
 						rand_range(2,4));
 					break;
 				case 4:

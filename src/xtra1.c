@@ -2101,7 +2101,7 @@ static void calc_weight(void)
 	OBJ_ITT_START (p_ptr->inventory, o_ptr)
 	{
 		/* Increase the weight */
-		p_ptr->total_weight += (o_ptr->number * o_ptr->weight);
+		p_ptr->total_weight += object_weight(o_ptr);
 	}
 	OBJ_ITT_END;
 

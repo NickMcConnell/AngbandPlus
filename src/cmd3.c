@@ -67,6 +67,7 @@ static const tval_desc tvals[] =
 	{TV_FLASK, "Flask"},
 	{TV_JUNK, "Junk"},
 	{TV_SKELETON, "Skeleton"},
+	{TV_CONTAINER, "Container"},
 	{0, NULL}
 };
 
@@ -113,7 +114,8 @@ static int tval_to_idx(u16b x)
 		case TV_FLASK: return 37;
 		case TV_JUNK: return 38;
 		case TV_SKELETON: return 39;
-		default: return 40;
+		case TV_CONTAINER: return 40;
+		default: return 41;
 	}
 }
 
@@ -493,7 +495,7 @@ bool destroy_item_aux(object_type *o_ptr, int amt)
 		{
 			if (p_ptr->spell.r[0].realm == REALM_LIFE)
 			{
-				if (o_ptr->tval != TV_LIFE_BOOK) gain_expr = TRUE;
+				if (o_ptr->tval == TV_DEATH_BOOK) gain_expr = TRUE;
 			}
 			else
 			{
@@ -565,7 +567,7 @@ void do_cmd_destroy(void)
 	q = "Destroy which item? ";
 	s = "You have nothing to destroy.";
 
-	o_ptr = get_item(q, s, (USE_INVEN | USE_FLOOR));
+	o_ptr = get_item(q, s, (USE_INVEN | USE_FLOOR | USE_FULL_CONTAINER));
 
 	/* Not a valid item */
 	if (!o_ptr) return;
@@ -593,8 +595,10 @@ void do_cmd_destroy(void)
 	/* Verify unless quantity given */
 	if (!force)
 	{
-		if ((!(quick_destroy_bad && (object_value(o_ptr) < 1))) && !quick_destroy_all
-			&& !(quick_destroy_avg && object_average(o_ptr)) && !(quick_destroy_good && object_good(o_ptr)))
+		if (!((quick_destroy_bad && object_value(o_ptr) < 1) ||
+			   quick_destroy_all ||
+			   (quick_destroy_avg && object_average(o_ptr)) ||
+			   (quick_destroy_good && object_good(o_ptr))))
 		{
 			/* Make a verification */
 			if (!get_check("Really destroy %v? ", OBJECT_FMT(o_ptr, TRUE, 3)))
@@ -634,7 +638,7 @@ void do_cmd_observe(void)
 	q = "Examine which item? ";
 	s = "You have nothing to examine.";
 
-	o_ptr = get_item(q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR));
+	o_ptr = get_item(q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_FULL_CONTAINER));
 
 	/* Not a valid item */
 	if (!o_ptr) return;
@@ -645,6 +649,9 @@ void do_cmd_observe(void)
 
 static bool item_tester_inscribed(const object_type *o_ptr)
 {
+	/* Allow attempts to uninscribe objects with feelings */
+	if (o_ptr->feeling) return (TRUE);
+
 	/* Nothing to remove */
 	if (!o_ptr->inscription) return (FALSE);
 
@@ -668,16 +675,29 @@ void do_cmd_uninscribe(void)
 	q = "Un-inscribe which item? ";
 	s = "You have nothing to un-inscribe.";
 
-	o_ptr = get_item(q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR));
+	o_ptr = get_item(q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_FULL_CONTAINER));
 
 	/* Not a valid item */
 	if (!o_ptr) return;
 
-	/* Message */
-	msgf("Inscription removed.");
+	/* Hack: if the object is ID'ed, remove any object feeling. */
+	if (object_known_p(o_ptr))
+	{
+		o_ptr->feeling = FEEL_NONE;
+
+		/* Hack: Message to confirm, only if it's not coming later. */
+		if (!o_ptr->inscription)
+			msgf("Inscription removed.");
+	}
 
     /* Remove the incription */
-    quark_remove(&o_ptr->inscription);
+    if (o_ptr->inscription)
+	{
+		quark_remove(&o_ptr->inscription);
+
+		/* Message */
+		msgf("Inscription removed.");
+	}
 
 	/* Notice changes */
 	notice_item();
@@ -701,7 +721,7 @@ void do_cmd_inscribe(void)
 	q = "Inscribe which item? ";
 	s = "You have nothing to inscribe.";
 
-	o_ptr = get_item(q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR));
+	o_ptr = get_item(q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_FULL_CONTAINER));
 
 	/* Not a valid item */
 	if (!o_ptr) return;
@@ -2112,5 +2132,195 @@ bool destroy_squelched_item(object_type *o_ptr, int amt)
 	if (quiet_squelch) item_increase_silent(o_ptr, -amt);
 	else item_increase(o_ptr, -amt);
 	return (TRUE);
+}
+
+/* See if the player has any containers that can contain the object. */
+bool item_tester_hook_organizable(object_type *o_ptr)
+{
+	int amt = o_ptr->number;
+	bool test = FALSE;
+	object_type * j_ptr;
+
+	/* Temporarily set number to be 0. */
+	o_ptr->number = 0;
+
+	OBJ_ITT_START(p_ptr->inventory, j_ptr)
+	{
+		if (j_ptr->tval == TV_CONTAINER)
+		{
+			if (object_can_contain(j_ptr, o_ptr, 2))
+			{
+				test = TRUE;
+				break;
+			}
+		}
+	}
+	OBJ_ITT_END;
+
+	/* Reset quantity */
+	o_ptr->number = amt;
+	return (test);
+}
+
+
+/*
+ * Organize objects into or out of containers
+ */
+static void do_cmd_organize_aux(void)
+{
+	int amt = 1;
+	bool allowed = FALSE;
+	char which;
+	bool act = FALSE;
+	bool done = FALSE;
+
+	object_type *o_ptr;
+	object_type *q_ptr;
+
+	cptr q, s;
+
+	/* If the player has no containers, this is pointless. */
+	OBJ_ITT_START(p_ptr->inventory, o_ptr)
+	{
+		if (o_ptr->tval == TV_CONTAINER)
+		{
+			allowed = TRUE;
+			break;
+		}
+	}
+	OBJ_ITT_END;
+
+	if (!allowed)
+	{
+		msgf ("You have no containers to organize objects.");
+		return;
+	}
+
+	/* Start organizing */
+	while (TRUE)
+	{
+		item_tester_hook = &item_tester_hook_organizable;
+
+		/* Get an item */
+		q = "Move which item? ";
+		s = "You have nothing to organize.";
+
+		o_ptr = get_item(q, s, (USE_INVEN));
+
+		/* Not a valid item */
+		if (!o_ptr) return;
+
+		/* See how many items */
+		if (o_ptr->number > 1)
+		{
+			/* Get a quantity */
+			amt = get_quantity(NULL, o_ptr->number);
+
+			/* Allow user abort */
+			if (amt <= 0) continue;
+		}
+
+		/* Now, prompt for which container */
+		screen_save();
+
+		item_tester_tval = TV_CONTAINER;
+
+		show_list(p_ptr->inventory, FALSE);
+
+		item_tester_tval = 0;
+
+		/* Show the prompt */
+		prtf(0, 0, "Which container?%s", inven_carry_okay_no_containers(o_ptr) ? " (* for Inven)" : "");
+
+		/* Get a response */
+		which = inkey();
+
+		switch(which)
+		{
+			case ESCAPE:
+			{
+				done = TRUE;
+				break;
+			}
+			case '*':
+			{
+				if (!inven_carry_okay_no_containers(o_ptr))
+					msgf ("You have no room in your backpack!");
+				else
+				{
+					int old_amt = o_ptr->number;
+
+					o_ptr->number -= amt;
+
+					item_describe(o_ptr);
+
+					o_ptr->number = old_amt;
+
+					q_ptr = item_split(o_ptr, amt);
+					q_ptr = inven_carry_no_containers(q_ptr);
+
+					item_describe(q_ptr);
+
+					act = TRUE;
+				}
+				break;
+			}
+			default:
+			{
+				int ver;
+				object_type * j_ptr;
+				int old_amt = o_ptr->number;
+
+				/* Extract "query" setting */
+				ver = isupper(which);
+				which = tolower(which);
+
+				q_ptr = label_to_list(which, p_ptr->inventory);
+
+				/* Temporarily change number */
+				o_ptr->number = amt;
+
+				if (!object_can_contain(q_ptr, o_ptr, 2))
+				{
+					o_ptr->number = old_amt;
+					msgf ("You can't put it in there!");
+					break;
+				}
+
+				o_ptr->number = old_amt - amt;
+
+				item_describe(o_ptr);
+
+				o_ptr->number = old_amt;
+
+				j_ptr = item_split(o_ptr, amt);
+				j_ptr = object_insert(q_ptr, j_ptr);
+
+				item_describe(j_ptr);
+
+				act = TRUE;
+				break;
+			}
+		}
+
+		screen_load();
+
+		/* Take a partial turn */
+		if (act)
+			p_ptr->state.energy_use = 50;
+
+
+		if (done) break;
+	}
+
+	make_noise(1);
+}
+
+void do_cmd_organize(void)
+{
+	do_cmd_organize_aux();
+
+	/* Forget the item tester hook */
+	item_tester_hook = NULL;
 }
 

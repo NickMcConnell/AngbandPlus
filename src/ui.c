@@ -1425,6 +1425,9 @@ void wrap_froff(FILE *fff, char *buf, int margin, int rowmax)
 			return;
 		}
 
+		/* Eat up any extra whitespace */
+		while(isspace((int)buf[brk+1])) brk++;
+
 		/* Make a termination point at the break */
 		buf[brk] = 0;
 

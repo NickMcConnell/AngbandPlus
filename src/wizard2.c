@@ -621,10 +621,10 @@ static void do_cmd_wiz_hack_mango(int arg)
 	/* Debug */
 
 	monster_group_type *mg_ptr = &mg_info[arg];
-	
+
 	msgf ("Group: %s", mg_ptr->name);
 
-	for (i = 0; i < z_info->r_max; i++) 
+	for (i = 0; i < z_info->r_max; i++)
 	{
 		if (monster_group_test(i, mg_ptr))
 		{
@@ -1281,6 +1281,7 @@ static const tval_desc tvals[] =
 	{TV_FLASK, "Flask"},
 	{TV_JUNK, "Junk"},
 	{TV_SKELETON, "Skeleton"},
+	{TV_CONTAINER, "Container"},
 	{0, NULL}
 };
 
@@ -1686,7 +1687,7 @@ static void do_cmd_wiz_play(void)
 	q = "Play with which object? ";
 	s = "You have nothing to play with.";
 
-	q_ptr = get_item(q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR));
+	q_ptr = get_item(q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_FULL_CONTAINER));
 
 	/* Not a valid item */
 	if (!q_ptr) return;

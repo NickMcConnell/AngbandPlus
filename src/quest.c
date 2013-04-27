@@ -520,6 +520,9 @@ static u16b insert_clearout_quest(u16b d_idx, int level)
 
 	n = 1+rand_range(level/25, level/18);
 
+	/* Enforce bounds */
+	if (n + level > 100) n = (100 - level);
+
 	q_ptr->reward = level * level * 7 * n;
 
 	pick_quest_location(&x, &y, &p_num);
@@ -843,7 +846,7 @@ static u16b find_good_town(int *dist)
 		score = abs(distance(pl_ptr->x, pl_ptr->y, p_ptr->px / 16, p_ptr->py / 16) - *dist);
 
 		/* The bigger the difference, the less likely a high score is */
-		score = randint1(WILD_SIZE - score);
+		score = randint1(MAX(WILD_SIZE - score, 0));
 
 		if (score > best_score)
 		{
@@ -3119,8 +3122,10 @@ static quest_type *insert_message_quest(int dist)
 	int store;
 	u16b place_num;
 
+	int q_num;
+
 	/* Get a new quest */
-	int q_num = q_pop();
+	q_num = q_pop();
 
 	/* Paranoia */
 	if (!q_num) return (NULL);
@@ -3185,9 +3190,9 @@ static bool request_message(int dummy)
 
 	/*
 	 * Generate a quest to send a message to a town
-	 * roughly 20 to 50 wilderness squares away.
+	 * roughly 20 to 70 wilderness squares away.
 	 */
-	q_ptr = insert_message_quest(curr_scale * 2);
+	q_ptr = insert_message_quest(curr_scale);
 
 	if (!q_ptr)
 	{
@@ -3503,7 +3508,7 @@ void request_quest(const store_type *b_ptr, int scale)
 	{
 		case BUILD_COURIER:
 			/* Hack: quest difficulty should be random */
-			curr_scale = rand_range(20,80);
+			curr_scale = rand_range(20,70);
 			request_message(0);
 			return;
 		case BUILD_FARM:
@@ -3547,7 +3552,6 @@ void request_quest(const store_type *b_ptr, int scale)
 		{
 			int i;
 			place_type *pl_ptr = NULL;
-			wild_done_type *w_ptr;
 
 			/* Find the place */
 			for (i = 0; i < place_count; i++)
@@ -4972,6 +4976,10 @@ static int create_quest_dungeon(store_type * st_ptr, int lev)
 	{
 		num = (5 + randint0(p_ptr->max_lev / 2)) / r_ptr->rarity;
 	}
+
+	/* Force bounds */
+	lev = MIN(lev, 99);
+	lev = MAX(lev, 1);
 
 	/* Generate the quest */
 	return(insert_dungeon_monster_quest(best_r_idx, num, lev));

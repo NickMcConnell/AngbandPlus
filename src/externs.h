@@ -139,6 +139,7 @@ extern byte delay_factor;
 extern s16b autosave_freq;
 extern byte autosave_t;
 extern byte autosave_l;
+extern byte autosave_b;
 extern bool cheat_peek;
 extern bool cheat_hear;
 extern bool cheat_room;
@@ -362,6 +363,7 @@ extern bool research_mon(void);
 extern void do_cmd_squelch(void);
 extern void do_cmd_unsquelch(void);
 extern bool destroy_squelched_item(object_type *o_ptr, int amt);
+extern void do_cmd_organize(void);
 
 
 /* cmd4.c */
@@ -601,8 +603,11 @@ extern void object_known(object_type *o_ptr);
 extern void object_aware(object_type *o_ptr);
 extern void object_tried(object_type *o_ptr);
 extern void object_mental(object_type *o_ptr);
+extern bool object_can_contain(object_type *j_ptr, object_type *o_ptr, int priority);
+extern object_type *object_insert(object_type *j_ptr, object_type *o_ptr);
 extern s32b flag_cost(const object_type *o_ptr, int plusses);
 extern s32b object_value(const object_type *o_ptr);
+extern object_type *label_to_list(int c, s16b list_start);
 extern s32b object_value_real(const object_type *o_ptr);
 extern void distribute_charges(object_type *o_ptr, object_type *q_ptr, int amt);
 extern void reduce_charges(object_type *o_ptr, int amt);
@@ -643,9 +648,11 @@ extern object_type *item_split(object_type *o_ptr, int num);
 extern void item_increase(object_type *o_ptr, int num);
 extern void item_increase_silent(object_type *o_ptr, int num);
 extern bool inven_carry_okay(const object_type *o_ptr);
+extern bool inven_carry_okay_no_containers(const object_type *o_ptr);
 extern object_type *reorder_objects_aux(object_type *q_ptr,
 										object_comp comp_func, u16b o_idx);
 extern object_type *inven_carry(object_type *o_ptr);
+extern object_type *inven_carry_no_containers(object_type *o_ptr);
 extern object_type *inven_takeoff(object_type *o_ptr);
 extern void inven_drop(object_type *o_ptr, int amt);
 extern cptr item_activation(const object_type *o_ptr);
@@ -660,6 +667,7 @@ extern void show_floor(int x, int y);
 extern bool object_average(object_type *o_ptr);
 extern bool object_good(object_type *o_ptr);
 extern void dump_full_item(FILE *fff, object_type *o_ptr);
+extern int object_weight(object_type *o_ptr);
 
 
 /* racial.c */

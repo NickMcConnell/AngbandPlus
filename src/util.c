@@ -392,7 +392,7 @@ static void handle_signal_abort(int sig)
 	signals_ignore_tstp();
 
 	/* Attempt to save */
-	/* DEBUG: disable this 
+	/* DEBUG: disable this
 	if (save_player())
 	{
 		put_fstr(45, 23, CLR_RED "Panic save succeeded!");
@@ -729,7 +729,7 @@ errr path_parse(char *buf, int max, cptr file)
 
 		/* Terminate */
 		buf[max - 1] = '\0';
-				
+
 		return (0);
 	}
 
@@ -767,7 +767,7 @@ errr path_parse(char *buf, int max, cptr file)
 
 	/* Append the rest of the filename, if any */
 	if (s) (void)strncat(buf, s, max - 1);
-	
+
 	/* Terminate */
 	buf[max - 1] = '\0';
 
@@ -993,7 +993,7 @@ static errr my_fgets_aux(FILE *fff, char *buf, huge n, bool strip)
 				/* Append some more spaces */
 				while (!(i % 8)) buf[i++] = ' ';
 			}
-			
+
 			/* Strip non-printables if asked */
 			else if(!strip || isprint(*s))
 			{
@@ -3145,13 +3145,13 @@ void set_message_type(char *buf, uint max, cptr fmt, va_list *vp)
 
 	/* Unused parameter */
 	(void)fmt;
-   
+
     /* Get the argument - and set the message type */
 	current_message_type = va_arg(*vp, int);
-	
+
 	/* Get the string to format with. */
 	str = va_arg(*vp, cptr);
-	
+
 	/* Expand the string */
 	vstrnfmt(buf, max, str, vp);
 }
@@ -3162,11 +3162,11 @@ void set_message_type(char *buf, uint max, cptr fmt, va_list *vp)
 void msgf(cptr fmt, ...)
 {
 	va_list vp;
-	
+
 	int i;
 
 	char buf[1024];
-	
+
 	/* Set the message type */
 	current_message_type = MSG_GENERIC;
 
@@ -3178,7 +3178,7 @@ void msgf(cptr fmt, ...)
 
 	/* End the Varargs Stuff */
 	va_end(vp);
-	
+
 	sound(current_message_type);
 
 	/* Clean the string of '\n' characters */
@@ -3187,7 +3187,7 @@ void msgf(cptr fmt, ...)
 		/* Erase carriage returns */
 		if (buf[i] == '\n') buf[i] = ' ';
 	}
-	
+
 	/* Display */
 	msg_print_aux(current_message_type, buf);
 }

@@ -129,6 +129,7 @@ byte delay_factor = 2;	/* Delay factor (0 to 9) */
 
 byte autosave_l = TRUE;	/* Autosave before entering new levels */
 byte autosave_t = TRUE;	/* Timed autosave */
+byte autosave_b = TRUE; /* Backup autosaves */
 s16b autosave_freq = 1000;	/* Autosave frequency */
 
 /* Cheating options */
