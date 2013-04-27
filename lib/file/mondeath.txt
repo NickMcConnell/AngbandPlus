@@ -50,12 +50,12 @@ N:1018:Raou
 points at himself and shouts, 'I finished my life with no regrets!'
 
 N:1063:lousy, the King of louses
-says, 'Ah, Chengband is too difficult!  I'm going back to Hengband!!'
+says, 'Ah, PosChengband is too difficult!  I'm going back to Chengband!!'
 
 N:1094:The Variant Maintainer
-says, 'I guess Chengband is too easy!'
+says, 'I guess PosChengband is too easy!'
 says, 'Wait until you see me next release!'
-says, 'I guess this is the last version of Chengband!'
+says, 'I guess this is the last version of PosChengband!'
 
 N:*:Default
 shouts, 'AAAARRRGGGHHH!!!'

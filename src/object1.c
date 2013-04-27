@@ -146,6 +146,27 @@ void missile_flags(object_type *arrow, u32b flgs[TR_FLAG_SIZE])
 			flgs[i] |= bow_flgs[i]; /* Mask? */
 	}
 }
+
+void missile_flags_known(object_type *arrow, u32b flgs[TR_FLAG_SIZE])
+{
+	int i;
+	int slot = equip_find_first(object_is_bow);
+
+	object_flags_known(arrow, flgs);
+	for (i = 0; i < TR_FLAG_SIZE; i++)
+		flgs[i] |= p_ptr->shooter_info.flags[i];
+
+	if (slot)
+	{
+		object_type *bow = equip_obj(slot);
+		u32b         bow_flgs[TR_FLAG_SIZE];
+
+		object_flags_known(bow, bow_flgs);
+		for (i = 0; i < TR_FLAG_SIZE; i++)
+			flgs[i] |= bow_flgs[i]; /* Mask? */
+	}
+}
+
 void object_flags(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE])
 {
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];

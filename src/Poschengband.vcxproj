@@ -360,6 +360,7 @@
     <None Include="..\lib\file\lite_high.txt" />
     <None Include="..\lib\file\lite_low.txt" />
     <None Include="..\lib\file\lite_med.txt" />
+    <None Include="..\lib\file\mondeath.txt" />
     <None Include="..\lib\file\monspeak.txt" />
     <None Include="..\lib\file\news.txt" />
     <None Include="..\lib\file\ring_cursed.txt" />

@@ -13,6 +13,8 @@
 #include "angband.h"
 #include "equip.h"
 
+static void do_cmd_knowledge_weapon(void);
+static void do_cmd_knowledge_shooter(void);
 
 /*
  * A set of functions to maintain automatic dumps of various kinds.
@@ -460,8 +462,7 @@ void do_cmd_change_name(void)
 		}
 
 		/* Prompt */
-		Term_putstr(2, h - 1, -1, TERM_WHITE,
-			"['c' to change name, 'f' to file, 'h' to change mode, or ESC]");
+		Term_putstr(2, h - 1, -1, TERM_WHITE, "['c'hange name, 'f'ile, 'n'ext, 'w'eapons, 'b'ows, ESC to quit]");
 
 		/* Query */
 		c = inkey();
@@ -477,6 +478,10 @@ void do_cmd_change_name(void)
 			/* Process the player name */
 			process_player_name(FALSE);
 		}
+		else if (c == 'w')
+			do_cmd_knowledge_weapon();
+		else if (c == 'b')
+			do_cmd_knowledge_shooter();
 
 		/* File dump */
 		else if (c == 'f')
@@ -497,7 +502,7 @@ void do_cmd_change_name(void)
 		}
 
 		/* Toggle mode */
-		else if (c == 'h')
+		else if (c == 'h' || c == 'n')
 		{
 			mode++;
 		}
@@ -5908,6 +5913,15 @@ static void do_cmd_knowledge_uniques(void)
 	fd_kill(file_name);
 }
 
+static void do_cmd_knowledge_shooter(void)
+{
+	screen_save();
+	Term_clear();
+	display_shooter_info(0, 0);
+	flush();
+	(void)inkey();
+	screen_load();
+}
 
 static void do_cmd_knowledge_weapon(void)
 {

@@ -4008,9 +4008,17 @@ void do_cmd_fire_aux2(int item, object_type *bow, int sx, int sy, int tx, int ty
 					}
 					else
 					{
+						critical_t crit = {0};
 						if (shoot_hack != SHOOT_SHATTER && shoot_hack != SHOOT_ELEMENTAL)
 							tdam = tot_dam_aux_shot(q_ptr, tdam, m_ptr);
-						tdam = critical_shot(q_ptr->weight, q_ptr->to_h, tdam);
+
+						crit = critical_shot(q_ptr->weight, q_ptr->to_h);
+						if (crit.desc)
+						{
+							tdam = tdam * crit.mul/100 + crit.to_d;
+							msg_print(crit.desc);
+						}
+
 						tdam += p_ptr->shooter_info.to_d;
 						if (weaponmaster_is_(WEAPONMASTER_CROSSBOWS))
 						{

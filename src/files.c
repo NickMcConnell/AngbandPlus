@@ -2546,9 +2546,9 @@ static void display_player_stat_info(void)
 	row = 1;
 
 	/* Print out the labels for the columns */
-	c_put_str(TERM_WHITE, "  Base", row, stat_col+ 8 + equip_count() + 2);
-	c_put_str(TERM_WHITE,  "  R  C  P  E", row, stat_col+ 8 + equip_count() + 2 + 6);
-	c_put_str(TERM_WHITE, " Total", row, stat_col+ 8 + equip_count() + 2 + 19);
+	c_put_str(TERM_WHITE, "  Base", row, stat_col+ 8 + equip_count() + 1);
+	c_put_str(TERM_WHITE,  "  R  C  P  E", row, stat_col+ 8 + equip_count() + 1 + 6);
+	c_put_str(TERM_WHITE, " Total", row, stat_col+ 8 + equip_count() + 1 + 19);
 
 	/* Display the stats */
 	for (i = 0; i < 6; i++)
@@ -2590,25 +2590,25 @@ static void display_player_stat_info(void)
 		{
 			c_put_str(TERM_WHITE, "!", row + i+1, stat_col + 4);
 		}
-		c_put_str(TERM_L_BLUE, buf, row + i+1, stat_col + 13 + equip_count() + 3 - strlen(buf));
+		c_put_str(TERM_L_BLUE, buf, row + i+1, stat_col + 13 + equip_count() + 2 - strlen(buf));
 
 		/* Race, class, and equipment modifiers */
 		(void)sprintf(buf, "%3d", r_adj);
-		c_put_str(TERM_L_BLUE, buf, row + i+1, stat_col + equip_count() + 13 + 3);
+		c_put_str(TERM_L_BLUE, buf, row + i+1, stat_col + equip_count() + 13 + 2);
 		(void)sprintf(buf, "%3d", c_adj);
-		c_put_str(TERM_L_BLUE, buf, row + i+1, stat_col + equip_count() + 16 + 3);
+		c_put_str(TERM_L_BLUE, buf, row + i+1, stat_col + equip_count() + 16 + 2);
 		(void)sprintf(buf, "%3d", (int)ap_ptr->a_adj[i]);
-		c_put_str(TERM_L_BLUE, buf, row + i+1, stat_col + equip_count() + 19 + 3);
+		c_put_str(TERM_L_BLUE, buf, row + i+1, stat_col + equip_count() + 19 + 2);
 		(void)sprintf(buf, "%3d", e_adj);
-		c_put_str(TERM_L_BLUE, buf, row + i+1, stat_col + equip_count() + 22 + 3);
+		c_put_str(TERM_L_BLUE, buf, row + i+1, stat_col + equip_count() + 22 + 2);
 
 		/* Actual maximal modified value */
 		cnv_stat(p_ptr->stat_top[i], buf);
-		c_put_str(TERM_L_GREEN, buf, row + i+1, stat_col + equip_count() + 26 + 3);
+		c_put_str(TERM_L_GREEN, buf, row + i+1, stat_col + equip_count() + 26 + 2);
 	}
 
 	/* Column */
-	col = stat_col + 8;
+	col = stat_col + 7;
 
 	/* Header and Footer */
 	display_player_equippy(row-1, col, 0);
@@ -3370,7 +3370,6 @@ static void dump_aux_display_player(FILE *fff)
 	}
 	fprintf(fff, "\n");
 
-
 	fprintf(fff, "==================================== Melee ====================================\n\n");
 	for (i = 0; i < MAX_HANDS; i++)
 	{
@@ -3418,6 +3417,41 @@ static void dump_aux_display_player(FILE *fff)
 			while ((x > 0) && (buf[x-1] == ' ')) buf[--x] = '\0';
 			if (buf[0])
 				fprintf(fff, "%s\n", buf);
+		}
+		fprintf(fff, "\n\n");
+	}
+
+	if (equip_find_object(TV_BOW, SV_ANY) && !prace_is_(RACE_MON_JELLY))
+	{
+		bool skip = FALSE;
+		int w, h;
+		Term_get_size(&w, &h);
+		fprintf(fff, "=================================== Shooting ==================================\n\n");
+		Term_clear();
+		display_shooter_info(0, 0);
+		for (y = 0; y < h; y++)
+		{
+			for (x = 0; x < 79; x++)
+			{
+				(void)(Term_what(x, y, &a, &c));
+				if (a < 128)
+					buf[x] = c;
+				else
+					buf[x] = ' ';
+			}
+			buf[x] = '\0';
+			while ((x > 0) && (buf[x-1] == ' ')) buf[--x] = '\0';
+			if (buf[0])
+			{
+				if (skip)
+				{
+					fputc('\n', fff);
+					skip = FALSE;
+				}
+				fprintf(fff, "%s\n", buf);
+			}
+			else
+				skip = TRUE;
 		}
 		fprintf(fff, "\n\n");
 	}
@@ -3546,11 +3580,7 @@ static void dump_aux_pet(FILE *fff)
 
 	if (pet_settings)
 	{
-#ifdef JP
-		fprintf(fff, "\n\n  [ペットへの命令]\n");
-#else
-		fprintf(fff, "\n\n  [Command for Pets]\n");
-#endif
+		fprintf(fff, "\n\n=============================== Command for Pets ==============================\n");
 
 #ifdef JP
 		fprintf(fff, "\n ドアを開ける:                       %s", (p_ptr->pet_extra_flags & PF_OPEN_DOORS) ? "ON" : "OFF");

@@ -265,7 +265,7 @@ race_t *_acidic_cytoplasm_get_race_t(void)
 	static bool   init = FALSE;
 	if (!init)
 	{
-		me.subname = "Acid. Cytoplasm";
+		me.subname = "Acidic Cytoplasm";
 
 		me.stats[A_STR] =  3;
 		me.stats[A_INT] = -7;

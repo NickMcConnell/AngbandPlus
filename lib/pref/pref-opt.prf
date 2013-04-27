@@ -41,7 +41,7 @@ X:view_granite_lite
 X:view_special_lite
 Y:view_perma_grids
 Y:view_torch_grids
-Y:view_unsafe_grids
+X:view_unsafe_grids
 X:view_reduce_view
 Y:fresh_before
 X:fresh_after
@@ -117,9 +117,9 @@ Y:powerup_home
 
 ##### Easy Object Auto-Destroyer #####
 
-X:destroy_items
-X:destroy_feeling
-X:destroy_identify
+Y:destroy_items
+Y:destroy_feeling
+Y:destroy_identify
 Y:leave_worth
 X:leave_equip
 Y:leave_chest

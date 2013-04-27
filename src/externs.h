@@ -712,7 +712,6 @@ extern void touch_zap_player(int m_idx);
 extern bool test_hit_fire(int chance, int ac, int vis);
 extern bool random_opponent(int *y, int *x);
 extern bool test_hit_norm(int chance, int ac, int vis);
-extern s16b critical_shot(int weight, int plus, int dam);
 extern s16b critical_throw(int weight, int plus, int dam);
 
 typedef struct critical_s {
@@ -720,6 +719,7 @@ typedef struct critical_s {
 	int to_d;
 	cptr desc;
 } critical_t;
+extern critical_t critical_shot(int weight, int plus);
 extern critical_t critical_norm(int weight, int plus, s16b meichuu, int mode, int hand);
 
 extern s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, int mode, bool thrown);
@@ -1067,6 +1067,7 @@ extern void object_flags(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE]);
 extern void weapon_flags(int hand, u32b flgs[TR_FLAG_SIZE]);
 extern void weapon_flags_known(int hand, u32b flgs[TR_FLAG_SIZE]);
 extern void missile_flags(object_type *arrow, u32b flgs[TR_FLAG_SIZE]);
+extern void missile_flags_known(object_type *arrow, u32b flgs[TR_FLAG_SIZE]);
 extern void object_flags_known(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE]);
 extern cptr item_activation(object_type *o_ptr);
 extern bool screen_object(object_type *o_ptr, u32b mode);
@@ -1384,6 +1385,7 @@ extern int hit_chance(int hand, int to_h, int ac);
 
 extern int display_weapon_info(int hand, int row, int col);
 extern int display_innate_attack_info(int which, int row, int col);
+extern int display_shooter_info(int row, int col);
 
 /* util.c */
 extern errr path_parse(char *buf, int max, cptr file);

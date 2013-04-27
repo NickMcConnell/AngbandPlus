@@ -2268,7 +2268,8 @@ static void store_create(void)
 
 		/* Mass produce and/or Apply discount (mass_produce needs to know about the discount) */
 		discount(&forge);
-		mass_produce(&forge);
+		if (k_info[forge.k_idx].gen_flags & TRG_STACK)
+			mass_produce(&forge);
 
 		/* Attempt to carry the (known) item */
 		(void)store_carry(&forge);

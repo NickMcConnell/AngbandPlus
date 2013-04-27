@@ -2,11 +2,11 @@
 #include "equip.h"
 
 static equip_template_t equip_template_std = 
-	{12, { {EQUIP_SLOT_WEAPON_SHIELD, "Right Arm", 0},
-		   {EQUIP_SLOT_WEAPON_SHIELD, "Left Arm", 1},
+	{12, { {EQUIP_SLOT_WEAPON_SHIELD, "Right Hand", 0},
+		   {EQUIP_SLOT_WEAPON_SHIELD, "Left Hand", 1},
 		   {EQUIP_SLOT_BOW, "Shooting", 0},
-		   {EQUIP_SLOT_RING, "Right Hand", 0},
-		   {EQUIP_SLOT_RING, "Left Hand", 1},
+		   {EQUIP_SLOT_RING, "Right Ring", 0},
+		   {EQUIP_SLOT_RING, "Left Ring", 1},
 		   {EQUIP_SLOT_AMULET, "Neck", 0},
 		   {EQUIP_SLOT_LITE, "Light", 0},
 		   {EQUIP_SLOT_BODY_ARMOR, "Body", 0},
@@ -14,22 +14,6 @@ static equip_template_t equip_template_std =
 		   {EQUIP_SLOT_HELMET, "Head", 0},
 		   {EQUIP_SLOT_GLOVES, "Hands", 0},
 		   {EQUIP_SLOT_BOOTS, "Feet", 0} }
-};
-
-/* http://en.wikipedia.org/wiki/Marilith */
-static equip_template_t equip_template_marilith = 
-	{12, { {EQUIP_SLOT_WEAPON_SHIELD, "Right Arm 1", 0},
-		   {EQUIP_SLOT_WEAPON_SHIELD, "Left Arm 1", 1},
-		   {EQUIP_SLOT_RING, "Right Hand 1", 0},
-		   {EQUIP_SLOT_RING, "Left Hand 1", 1},
-		   {EQUIP_SLOT_GLOVES, "Gloves 1", 0},
-		   {EQUIP_SLOT_WEAPON_SHIELD, "Right Arm 2", 2},
-		   {EQUIP_SLOT_WEAPON_SHIELD, "Left Arm 2", 3},
-		   {EQUIP_SLOT_WEAPON_SHIELD, "Right Arm 3", 4},
-		   {EQUIP_SLOT_WEAPON_SHIELD, "Left Arm 3", 5},
-		   {EQUIP_SLOT_BOW, "Shooting", 2},
-		   {EQUIP_SLOT_AMULET, "Neck", 0},
-		   {EQUIP_SLOT_LITE, "Light", 0} }
 };
 
 static equip_template_ptr _template = NULL;
@@ -1060,6 +1044,7 @@ void equip_calc_bonuses(void)
 			default:
 			{
 				int j;
+				if (object_is_melee_weapon(o_ptr)) break; /* Hack for Jellies ... */
 				for (j = 0; j < MAX_HANDS; j++)
 				{
 					if (p_ptr->weapon_info[j].wield_how != WIELD_NONE)
@@ -1073,11 +1058,14 @@ void equip_calc_bonuses(void)
 		}
 
 		/* New: Rings and Gloves can grant weapon slays */
-		_weapon_info_flag(i, flgs, TR_BRAND_FIRE);
-		_weapon_info_flag(i, flgs, TR_BRAND_COLD);
-		_weapon_info_flag(i, flgs, TR_BRAND_ELEC);
-		_weapon_info_flag(i, flgs, TR_BRAND_ACID);
-		_weapon_info_flag(i, flgs, TR_BRAND_POIS);
+		if (!object_is_melee_weapon(o_ptr)) /* Hack for Jellies ... */
+		{
+			_weapon_info_flag(i, flgs, TR_BRAND_FIRE);
+			_weapon_info_flag(i, flgs, TR_BRAND_COLD);
+			_weapon_info_flag(i, flgs, TR_BRAND_ELEC);
+			_weapon_info_flag(i, flgs, TR_BRAND_ACID);
+			_weapon_info_flag(i, flgs, TR_BRAND_POIS);
+		}
 
 		if (have_flag(flgs, TR_IMPACT)) /* Assume weapon slot ... */
 		{

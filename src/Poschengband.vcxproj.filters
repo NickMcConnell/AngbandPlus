@@ -1098,5 +1098,8 @@
     <None Include="..\lib\help\MonsterRaces.txt">
       <Filter>Edit\Help</Filter>
     </None>
+    <None Include="..\lib\file\mondeath.txt">
+      <Filter>Edit\Stuff</Filter>
+    </None>
   </ItemGroup>
 </Project>

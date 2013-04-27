@@ -414,8 +414,9 @@ bool test_hit_norm(int chance, int ac, int vis)
  * Critical hits (from bows/crossbows/slings)
  * Factor in item weight, total plusses, and player level.
  */
-s16b critical_shot(int weight, int plus, int dam)
+critical_t critical_shot(int weight, int plus)
 {
+	critical_t result = {0};
 	int i, k;
 
 	/* Extract "shot" power */
@@ -423,7 +424,7 @@ s16b critical_shot(int weight, int plus, int dam)
 
 	/* Snipers can shot more critically with crossbows */
 	if (p_ptr->concent) i += ((i * p_ptr->concent) / 10);
-	/*if ((p_ptr->pclass == CLASS_SNIPER) && (p_ptr->shooter_info.tval_ammo == TV_BOLT)) i *= 2; */
+	if ((p_ptr->pclass == CLASS_SNIPER) && (p_ptr->shooter_info.tval_ammo == TV_BOLT)) i *= 2;
 
 	/* Critical hit */
 	if (randint1(5000) <= i)
@@ -432,22 +433,22 @@ s16b critical_shot(int weight, int plus, int dam)
 
 		if (k < 900)
 		{
-			msg_print("It was a good hit!");
-			dam += (dam / 2);
+			result.desc = "It was a good hit!";
+			result.mul = 150;
 		}
 		else if (k < 1350)
 		{
-			msg_print("It was a great hit!");
-			dam *= 2;
+			result.desc = "It was a great hit!";
+			result.mul = 200;
 		}
 		else
 		{
-			msg_print("It was a superb hit!");
-			dam *= 3;
+			result.desc = "It was a superb hit!";
+			result.mul = 300;
 		}
 	}
 
-	return (dam);
+	return result;
 }
 
 /*
@@ -549,31 +550,31 @@ critical_t critical_norm(int weight, int plus, s16b meichuu, int mode, int hand)
 
 		if (k < 400)
 		{
-			result.desc = T("It was a good hit!", "手ごたえがあった！");
+			result.desc = "It was a good hit!";
 			result.mul = 200;
 			result.to_d = 5;
 		}
 		else if (k < 700)
 		{
-			result.desc = T("It was a great hit!", "かなりの手ごたえがあった！");
+			result.desc = "It was a great hit!";
 			result.mul = 200;
 			result.to_d = 10;
 		}
 		else if (k < 900)
 		{
-			result.desc = T("It was a superb hit!", "会心の一撃だ！");
+			result.desc = "It was a superb hit!";
 			result.mul = 300;
 			result.to_d = 15;
 		}
 		else if (k < 1300)
 		{
-			result.desc = T("It was a *GREAT* hit!", "最高の会心の一撃だ！");
+			result.desc = "It was a *GREAT* hit!";
 			result.mul = 300;
 			result.to_d = 20;
 		}
 		else
 		{
-			result.desc = T("It was a *SUPERB* hit!", "比類なき最高の会心の一撃だ！");
+			result.desc = "It was a *SUPERB* hit!";
 			result.mul = 350;
 			result.to_d = 25;
 		}
@@ -2478,6 +2479,7 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath)
 						int amt = MIN(base_dam, max_drain_amt - drain_amt);
 						if (amt && project(0, 0, m_ptr->fy, m_ptr->fx, amt, e, PROJECT_KILL|PROJECT_HIDE, -1))
 							drain_amt += amt;
+						*mdeath = (m_ptr->r_idx == 0);
 						break;
 					}
 					case GF_OLD_DRAIN:
@@ -2488,6 +2490,7 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath)
 							hp_player(amt);
 							drain_amt += amt;
 						}
+						*mdeath = (m_ptr->r_idx == 0);
 						break;
 					default:
 						project(0, 0, m_ptr->fy, m_ptr->fx, base_dam, e, PROJECT_KILL|PROJECT_HIDE, -1);
