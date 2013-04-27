@@ -1,17 +1,15 @@
 ## Makefile.am -- Process this file with automake to process Makefile.in
 
-angband_files = \
-  help.hlp attack.txt birth.txt command.txt \
-  dungeon.txt general.txt option.txt playing.txt \
-  version.txt
+ironhells_files = \
+	help.hlp attack.txt birth.txt command.txt \
+	dungeon.txt general.txt option.txt playing.txt \
+	version.txt
 
 EXTRA_DIST = \
-  $(angband_files)
+	$(ironhells_files)
 
-if SET_GID
-angbanddir = @DEFAULT_PATH@help
+ironhellsdir = @DATA_PATH@lib/help
 
-angband_DATA = \
-  $(angband_files)
-endif
+ironhells_DATA = \
+	$(ironhells_files)
 

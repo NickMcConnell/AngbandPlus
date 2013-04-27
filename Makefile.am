@@ -1,7 +1,3 @@
-## Makefile.am -- Process this file with automake to process Makefile.in
+SUBDIRS = data lib src 
 
-AUTOMAKE_OPTIONS = foreign
 
-EXTRA_DIST = readme.txt changes.txt compile.txt acconfig.h
-
-SUBDIRS = src lib

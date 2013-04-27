@@ -1,16 +1,14 @@
 ## Makefile.am -- Process this file with automake to process Makefile.in
 
-angband_files = \
-  birth.lua event.lua init.lua object.lua spell.lua store.lua \
-  test.lua trace.lua
+ironhells_files = \
+	birth.lua event.lua init.lua object.lua spell.lua store.lua \
+	test.lua trace.lua
 
 EXTRA_DIST = \
-  $(angband_files)
+	$(ironhells_files)
 
-if SET_GID
-angbanddir = @DEFAULT_PATH@script
+ironhellsdir = @DATA_PATH@script
 
-angband_DATA = \
-  $(angband_files)
-endif
+ironhells_DATA = \
+	$(ironhells_files)
 

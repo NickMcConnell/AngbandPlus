@@ -1,20 +1,18 @@
 ## Makefile.am -- Process this file with automake to process Makefile.in
 
-angband_files = \
-  delete.me
+ironhells_files = \
+	delete.me
 
 EXTRA_DIST = \
-  $(angband_files)
+	$(ironhells_files)
 
-if SET_GID
-angbanddir = @DEFAULT_PATH@save
+ironhellsdir = @DATA_PATH@lib/save
 
-angband_DATA = \
-  $(angband_files)
-endif
+ironhells_DATA = \
+	$(ironhells_files)
 
 install-data-hook:
 if SET_GID
-	chown -R root.@GAMEGROUP@ "$(DESTDIR)$(angbanddir)"
-	chmod -R 070 "$(DESTDIR)$(angbanddir)"
+	chown -R root.@GAMEGROUP@ "$(DESTDIR)$(ironhellsdir)"
+	chmod -R 070 "$(DESTDIR)$(ironhellsdir)"
 endif
