@@ -8,10 +8,6 @@
 
 # After modifying this file, delete the "lib/raw/r_info.raw" file.
 
-# Semantics of S_AMBERITES: Since all non-Tolkienian unique Ringwraiths
-# have been removed (i.e. all except the Witch-king of Angmar and
-# Khamul), the spell summons unique Amberites instead of Ringwraiths.
-
 # Currently, "unique" monsters are just "special" monster races, with
 # the requirement that only one monster of that race can exist at a time,
 # and when it is killed, it can never again be generated.
@@ -161,8 +157,8 @@ G:@:w
 
 ##### Town monsters #####
 
-N:1:Filthy street urchin
-G:t:D
+N:1:Grubby snotling
+G:o:s
 I:110:1d4:4:2:40
 W:0:2:0:0
 O:0:0:0
@@ -173,15 +169,15 @@ F:RAND_25 | FRIENDS |
 F:TAKE_ITEM | OPEN_DOOR | DROP_CORPSE | DROP_SKELETON
 D:He looks squalid and thoroughly revolting.
 
-N:2:Scrawny cat
-G:f:U
+N:2:Gnasher squig
+G:q:U
 I:110:1d2:30:3:10
 W:0:3:0:0
 O:0:0:0
 B:CLAW:HURT:1d1
 F:RAND_25 | WILD_TOWN
 F:ANIMAL | DROP_CORPSE | DROP_SKELETON
-D:A skinny little furball with sharp claws and a menacing look.
+D:It's mostly teeth.
 
 N:3:Sparrow
 G:B:U
@@ -228,35 +224,32 @@ F:ONLY_GOLD | DROP_60 |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
 D:He has an axe with a sharp and strong edge.
 
-N:7:Scruffy little dog
-G:C:U
+N:7:Mangy warg
+G:C:D
 I:110:1d3:20:3:5
 W:0:3:0:0
 O:0:0:0
-B:BITE:HURT:1d1
+B:BITE:HURT:1d3
 F:RAND_25 | DROP_SKELETON | DROP_CORPSE | WILD_TOWN
 F:ANIMAL
-D:A thin flea-ridden mutt, growling as you get close.
+D:It's owner hasn't been feeding it. It is looking for it's own food...
 
-N:8:Farmer Maggot
-G:h:w
+N:8:Farmer Grishnak
+G:o:w
 I:110:35d10:40:10:3
 W:0:3:0:0
 O:0:100:0
 B:HIT:HURT:1d3
-F:UNIQUE | MALE | CAN_SPEAK | DROP_CORPSE | FRIENDLY
+F:UNIQUE | MALE | CAN_SPEAK | DROP_CORPSE
 F:FORCE_MAXHP | WILD_TOWN
 F:ONLY_ITEM | DROP_90 | DROP_GOOD | DROP_GREAT
 F:OPEN_DOOR | BASH_DOOR | LITE_1
 F:NO_CONF | NO_SLEEP
-D:Before you appears a broad thick-set hobbit with a round red face. 
-D:"What's wrong with old Maggot?" asked Pippin.  "He's a good friend to 
-D:all the Brandybucks.  Of course he's a terror to trespassers, and keeps 
-D:ferocious dogs -- but after all, folk down here are near the border and 
-D:have to be more on their guard." 
+D:His crops all died. His farm burned down. He ate his dogs. 
+D:Somehow, it's all your fault.
 
-N:9:Blubbering idiot
-G:t:W
+N:9:Orcish moron
+G:o:u
 I:110:1d2:6:1:0
 W:0:1:0:0
 O:0:0:0
@@ -266,8 +259,8 @@ F:RAND_25 |
 F:TAKE_ITEM
 D:He tends to blubber a lot.
 
-N:10:Hobo
-G:t:g
+N:10:Homeless goblin
+G:o:g
 I:110:1d2:6:1:0
 W:0:1:0:0
 O:0:0:0
@@ -277,8 +270,8 @@ F:RAND_25 |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
 D:Ugly doesn't begin to describe him.
 
-N:11:Raving lunatic
-G:t:G
+N:11:Orcish lunatic
+G:o:G
 I:120:3d4:6:1:0
 W:0:1:0:0
 O:0:0:0
@@ -286,10 +279,10 @@ B:DROOL
 F:MALE | DROP_CORPSE | DROP_SKELETON | WILD_TOWN
 F:RAND_25 | 
 F:TAKE_ITEM
-D:Drooling and comical, but then, what do you expect?
+D:He's eaten some mushroom that he shouldn't have.
 
-N:12:Pitiful looking beggar
-G:t:U
+N:12:Goblin beggar
+G:o:U
 I:110:1d4:10:2:40
 W:0:1:0:0
 O:0:0:0
@@ -297,10 +290,10 @@ B:BEG
 F:MALE | DROP_SKELETON | DROP_CORPSE
 F:RAND_25 | WILD_TOWN
 F:TAKE_ITEM | OPEN_DOOR
-D:You just can't help feeling sorry for him.
+D:You just can't help laughing at his misfortune.
 
-N:13:Mangy looking leper
-G:t:u
+N:13:Diseased orc
+G:o:W
 I:110:1d1:10:2:50
 W:0:1:0:0
 O:0:0:0
@@ -311,8 +304,8 @@ F:RAND_25 | WILD_TOWN
 F:TAKE_ITEM | OPEN_DOOR
 D:You feel it isn't safe to touch him.
 
-N:14:Agent of black market
-G:t:D
+N:14:Hobgoblin thief
+G:o:D
 I:110:2d8:10:10:99
 W:0:1:0:0
 O:25:50:25
@@ -324,10 +317,10 @@ F:WILD_SWAMP1 | WILD_SWAMP2 | WILD_FOREST1 | WILD_FOREST2 | WILD_MOUNT1
 F:WILD_MOUNT2 | WILD_GRASS
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:EVIL
-D:He 'finds' new wares for the Black Market. From unwary adventurers... 
+D:He is staring at your money pouch...
 
-N:15:Singing, happy drunk
-G:t:y
+N:15:Drunken orc
+G:o:y
 I:110:2d3:10:3:0
 W:0:1:0:0
 O:0:0:0
@@ -336,10 +329,11 @@ F:MALE |
 F:RAND_50 | DROP_SKELETON | DROP_CORPSE
 F:ONLY_GOLD | DROP_60 | WILD_TOWN
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
-D:He makes you glad to be sober.
+D:He has had too much fungus brew. He doesn't know what is going on. 
+D:You wonder - maybe he has money!
 
-N:16:Aimless looking merchant
-G:t:o
+N:16:Goblin merchant
+G:o:o
 I:110:3d3:10:3:255
 W:0:1:0:0
 O:0:0:0
@@ -348,11 +342,10 @@ F:MALE |
 F:RAND_50 | 
 F:ONLY_GOLD | DROP_60 | DROP_SKELETON | DROP_CORPSE
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | WILD_TOWN | LITE_1
-D:The typical ponce around town, with purse jingling, and looking for more 
-D:jewelry to buy.
+D:His money pouch is bulging with coins.
 
-N:17:Mean looking mercenary
-G:t:R
+N:17:Ogre thug
+G:O:o
 I:110:4d8:10:10:250
 W:0:1:0:0
 O:0:100:0
@@ -361,10 +354,10 @@ F:MALE | DROP_SKELETON | DROP_CORPSE
 F:RAND_50 | DROP_90 | WILD_TOWN | WILD_FOREST1 | WILD_FOREST2
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | LITE_1
 F:EVIL
-D:No job is too low for him.
+D:He steals from anyone smaller than him.
 
-N:18:Battle scarred veteran
-G:t:r
+N:18:Bored troll
+G:T:B
 I:110:6d8:10:16:250
 W:0:1:0:0
 O:25:50:25
@@ -372,20 +365,7 @@ B:HIT:HURT:2d6
 F:MALE | DROP_SKELETON | DROP_CORPSE
 F:RAND_50 | DROP_90 | WILD_TOWN | LITE_1
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
-D:He doesn't take to strangers kindly.
-
-N:19:Martti Ihrasaari
-G:P:w
-I:109:35d15:50:15:4
-W:0:4:0:0
-O:50:50:0
-B:HIT:HURT:1d3
-F:UNIQUE | MALE | GIANT | CAN_SPEAK | FRIENDLY
-F:FORCE_MAXHP | DROP_CORPSE | WILD_TOWN
-F:ONLY_ITEM | DROP_90 | DROP_GOOD | LITE_1
-F:OPEN_DOOR | BASH_DOOR | SILLY |
-F:NO_CONF | NO_SLEEP
-D:He weighs 127 kg. He is the former president of some remote country. 
+D:He's looking for something to do...
 
 ##### Normal monsters #####
 
@@ -8050,7 +8030,7 @@ D:slithered along the ground, unsupported by any limbs... incredibly
 D:disgusting to behold and its amorphous body gave off a stench of death 
 D:and decay..."
 
-N:553:Pattern ghost
+N:553:Spell ghost
 G:G:D
 I:120:14d25:30:15:20
 W:51:3:0:27000
@@ -8065,8 +8045,8 @@ F:INVISIBLE | COLD_BLOOD | PASS_WALL | CAN_FLY | WILD_DUNGEON_01
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_5 | 
 S:FORGET | MIND_BLAST
-D:An almost life-like creature which is nothing more than a phantom 
-D:created by the Pattern.
+D:An almost life-like creature which is nothing more than a remnants 
+D:of a spell gone awry.
 
 N:554:Grey wraith
 G:W:s
@@ -9153,17 +9133,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_4 |
 S:BO_ICEE | BO_WATE | BA_COLD | BA_WATE
 D:The Queen of the Sea where the Pattern is reflected is a cunning 
-D:diplomat and a dangerous foe. "A woman sat upon the throne... 
-D:and her hair was green, though streaked with silver, and her eyes 
-D:were round of moons of jade and her brows rose like the wings of 
-D:olive gulls. Her mouth was small, her chin was small; her cheeks 
-D:were high and wide and rounded. A circlet of white gold crossed 
-D:her brow and there was a crystal necklace about her neck. At its 
-D:tip there flashed a sapphire between her sweet bare breasts, whose 
-D:nipples were also bare green. She wore scaled trunks of blue and 
-D:a silver belt, and she held a scepter of pink coral in her hand 
-D:and had a ring upon every finger, and each ring had a stone of 
-D:a different blue within it. She did not smile..."
+D:diplomat and a dangerous foe. 
 
 N:616:Kavlax the Many-Headed
 G:d:v
@@ -9956,7 +9926,7 @@ B:HIT:HURT:8d6
 B:HIT:UN_BONUS:6d8
 B:HIT:UN_BONUS:6d8
 F:WILD_DUNGEON_01
-F:UNIQUE | MALE | CAN_SPEAK | AMBERITE | DROP_SKELETON | DROP_CORPSE
+F:UNIQUE | MALE | CAN_SPEAK | DROP_SKELETON | DROP_CORPSE
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | LITE_2
 F:SMART | OPEN_DOOR | BASH_DOOR | CAN_SWIM
@@ -11997,7 +11967,7 @@ B:HIT:TERRIFY:5d6
 B:HIT:PARALYZE:5d6
 B:HIT:BLIND:4d8
 F:WILD_DUNGEON_01
-F:UNIQUE | MALE | AMBERITE | DROP_CORPSE | DROP_CHOSEN |
+F:UNIQUE | MALE | DROP_CORPSE | DROP_CHOSEN |
 F:FORCE_SLEEP | FORCE_MAXHP | SHAPECHANGER | CAN_SPEAK |
 F:ONLY_ITEM | DROP_3D2 | DROP_GOOD | CAN_FLY |
 F:OPEN_DOOR | BASH_DOOR | ATTR_MULTI | RES_DISE | ATTR_ANY | RES_TELE
@@ -12008,16 +11978,7 @@ S:FORGET | S_MONSTERS | BA_CHAO | BLINK | TPORT | TELE_TO |
 S:TELE_AWAY | S_DEMON
 D:Once this now gnomish creature created the universe with the Jewel 
 D:of Judgement - or so you have been told. There is little sanity left 
-D:in his present form even if he still has the power. "He was a small 
-D:man. Tiny, might be an even better word. He was around five feet tall 
-D:and a hunchback. His hair and beard were as heavy as (Corwin's). The 
-D:only distinguishing features in that great mass of fur were 
-D:his long, hook nose and his almost black eyes, now squinted 
-D:against the light... Dworkin: 'I am Oberon's prisoner.' Corwin: 
-D:'Oh? None of us knew that Dad had locked you up.' (Corwin) heard 
-D:(Dworkin) weeping. 'Yes,' he said after a long time. 'He didn't 
-D:trust me.' 'Why not?' 'I told him I'd thought of a way to 
-D:destroy Amber. I described it to him, and he locked me in.'"
+D:in his present form even if he still has the power. 
 
 N:764:Uriel, Angel of Fire
 G:A:R
@@ -12231,36 +12192,7 @@ D:The wizard who opposed Saruman, and in the end, was the only
 D:one of the Istari to succeed in his task. Gandalf is very 
 D:wise and specializes in fire magic.
 
-N:773:Brand, Mad Visionary of Amber
-G:p:v
-I:120:50d70:100:50:0
-W:79:1:0:2100000
-O:0:0:100
-B:HIT:UN_BONUS:6d8
-B:HIT:UN_BONUS:6d8
-B:HIT:CONFUSE:5d5
-B:HIT:UN_POWER:5d5
-F:WILD_DUNGEON_01
-F:UNIQUE | MALE | ATTR_MULTI | CAN_SPEAK | AMBERITE | ATTR_ANY | RES_TELE
-F:FORCE_SLEEP | FORCE_MAXHP | DROP_SKELETON | DROP_CORPSE
-F:ONLY_ITEM | DROP_4D2 | DROP_GOOD |
-F:DROP_CHOSEN |
-F:SMART | OPEN_DOOR | BASH_DOOR | CAN_FLY 
-F:EVIL | IM_FIRE | IM_COLD | LITE_2
-F:IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP
-S:1_IN_2 |
-S:BLIND | CONF |
-S:TPORT | BLINK | BA_FIRE | BA_COLD |
-S:DRAIN_MANA | CAUSE_4 | BA_ACID | TELE_AWAY |
-S:MIND_BLAST | TRAPS | HEAL |
-S:HASTE | BRAIN_SMASH | BA_CHAO | BA_DARK
-D:Brand sees himself as a hero, the god creator 
-D:and absolute monarch of a future world. Unfortunately he needs 
-D:to erase the existing world to make his new world. "...a figure both 
-D:like Bleys and (Corwin). (Corwin's) features, though smaller, his eyes, 
-D:Bleys' hair, beardless. He wore a riding suit of green and sat atop a white 
-D:horse... There was a quality of both strength and weakness, questing and 
-D:abandonment about him."
+# 773 unused
 
 N:774:Shadowlord
 G:G:b
@@ -12572,31 +12504,7 @@ D:the underside of the body were many white pyramids, presumably
 D:used for locomotion. The diameter of the body must have been 
 D:at least ten feet at its least wide..."
 
-N:789:Bleys, Master of Manipulation
-G:p:U
-I:130:50d70:100:50:50
-W:87:1:0:2700000
-O:0:100:0
-B:HIT:HURT:8d15
-B:HIT:HURT:8d15
-B:TOUCH:EAT_ITEM
-F:WILD_DUNGEON_01
-F:UNIQUE | MALE | CAN_SPEAK | AMBERITE | RES_TELE | DROP_CORPSE | CAN_SWIM
-F:FORCE_SLEEP | FORCE_MAXHP | NO_CONF | NO_SLEEP | DROP_SKELETON |
-F:DROP_4D2 | DROP_GOOD | ONLY_ITEM |
-F:EVIL | IM_FIRE | IM_ELEC | SMART | REGENERATE | OPEN_DOOR | BASH_DOOR |
-F:LITE_2
-S:1_IN_3 |
-S:SCARE | BLIND | CONF | TPORT | BLINK | TELE_AWAY | TELE_TO
-S:TELE_LEVEL | BA_COLD | BA_FIRE | TRAPS | MIND_BLAST | 
-S:S_MONSTERS 
-D:This cunning Amberite is the master of subtle ploys. "...a fiery bearded, 
-D:flame-crowned man, dressed all in red and orange, mainly of silk stuff, 
-D:and he held a sword in his right hand and a glass of wine in his left, 
-D:and the devil himself danced behind his eyes... His chin was light, but the 
-D:beard covered it. His sword was inlaid with an elaborate filigree of a 
-D:golden color. He wore two huge rings on his right hand and one on his 
-D:left: an emerald, a ruby, and a sapphire, respectively."
+# 789 Unused
 
 N:790:Great Wyrm of Many Colours
 G:D:v
@@ -12618,27 +12526,7 @@ S:BR_POIS | BR_ELEC | BR_ACID | BR_FIRE | BR_COLD |
 S:CONF | SCARE | BLIND
 D:A huge dragon whose scales shimmer in myriad hues.
 
-N:791:Fiona the Sorceress
-G:p:y
-I:130:49d70:100:50:50
-W:87:1:0:1900000
-O:10:0:90
-B:HIT:POISON:8d15
-B:HIT:POISON:8d15
-B:TOUCH:LOSE_CHR
-B:TOUCH:LOSE_CON
-F:WILD_DUNGEON_01
-F:UNIQUE | FEMALE | CAN_SPEAK | AMBERITE | ONLY_ITEM | RES_TELE
-F:DROP_CHOSEN | DROP_CORPSE | DROP_SKELETON | CAN_FLY
-F:FORCE_SLEEP | FORCE_MAXHP | NO_CONF | NO_SLEEP | LITE_2
-F:DROP_3D2 | DROP_GOOD
-F:EVIL | IM_POIS | IM_ELEC | SMART | REGENERATE | OPEN_DOOR | BASH_DOOR |
-S:1_IN_3 |
-S:SCARE | BLIND | CONF | TPORT | BLINK | TELE_AWAY | TELE_TO
-S:TRAPS | CAUSE_4 | BA_POIS | S_DEMON
-S:S_MONSTERS
-D:She is beautiful and deadly. "...I have always been very fond of Fiona. 
-D:She is certainly the loveliest, most civilized of (all Amberites)."
+# 791 is unused
 
 N:792:Tselakus, the Dreadlord
 G:G:R
@@ -12658,7 +12546,7 @@ F:IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:BLIND | HOLD | CONF | 
 S:BA_DARK | BA_NETH | 
-S:S_AMBERITES | S_HI_UNDEAD | S_KIN
+S:S_HI_UNDEAD | S_KIN
 D:This huge affront to existence twists and tears at the fabric of space.
 D:Darkness itself recoils from the touch of Tselakus as he leaves a trail
 D:of death and destruction. Mighty claws rend reality as he
@@ -12694,7 +12582,7 @@ B:HIT:HURT:9d15
 B:HIT:HURT:9d15
 B:HIT:LOSE_CON:1d30
 F:WILD_DUNGEON_01
-F:UNIQUE | MALE | CAN_SPEAK | AMBERITE | RES_TELE | DROP_SKELETON
+F:UNIQUE | MALE | CAN_SPEAK | RES_TELE | DROP_SKELETON
 F:FORCE_SLEEP | FORCE_MAXHP | NO_CONF | NO_SLEEP | DROP_CORPSE
 F:DROP_4D2 | DROP_GOOD | ONLY_ITEM |
 F:DROP_CHOSEN | LITE_2
@@ -12800,31 +12688,7 @@ S:BRAIN_SMASH | BA_MANA | BA_NETH | S_UNDEAD
 D:A humanoid form, black as night, advancing steadily and unstoppably.  
 D:Flee!
 
-N:799:Caine, the Conspirator
-G:p:D
-I:130:42d100:100:50:20
-W:90:1:0:3100000
-O:0:100:0
-B:HIT:HURT:9d15
-B:HIT:HURT:9d15
-B:INSULT:EAT_ITEM:1d3
-B:INSULT:EAT_GOLD:1d3
-F:UNIQUE | MALE | CAN_SPEAK | AMBERITE | RES_TELE | WILD_DUNGEON_01
-F:OPEN_DOOR | BASH_DOOR | DROP_CORPSE | DROP_SKELETON
-F:FORCE_SLEEP | FORCE_MAXHP | NO_CONF | NO_SLEEP | LITE_2
-F:DROP_4D2 | DROP_GOOD | ONLY_ITEM |
-F:EVIL | IM_POIS | IM_COLD | SMART | REGENERATE | CAN_SWIM
-S:1_IN_4 |
-S:TPORT | TELE_TO | SCARE | DARKNESS |
-S:S_DRAGON | TRAPS | BO_WATE | BO_NETH | S_UNDEAD | S_DEMON |
-S:CONF | BO_ACID | FORGET | MIND_BLAST | CAUSE_4
-D:Caine is perhaps the least reliable Amberite, always ready to ignore 
-D:his pacts and promises when it suits him. "...the swarthy, dark-eyed 
-D:countenance of Caine, dressed all in satin that was black and green, 
-D:wearing a dark three-cornered hat set at a rakish angle, and a green 
-D:plume of feathers trailing down in the back. He was standing in the 
-D:profile, one arm akimbo, and toes of his boots curled upwards, and he 
-D:wore an emerald-studded dagger at his belt... He was dark."
+# 799 is unused
 
 N:800:Master quylthulg
 G:Q:b
@@ -12958,30 +12822,7 @@ D:toad-shaped head. And the head opened its eyes very slowly, as if
 D:half awakened from slumber, so that they were visible as two slits 
 D:of oozing phosphor in the black browless face."
 
-N:807:Gerard, Strongman of Amber
-G:p:u
-I:130:66d70:100:75:20
-W:89:1:0:1900000
-O:0:100:0
-B:HIT:SHATTER:15d15
-B:HIT:SHATTER:15d15
-F:UNIQUE | MALE | CAN_SPEAK | AMBERITE | RES_TELE | WILD_DUNGEON_01
-F:DROP_SKELETON | DROP_CORPSE | CAN_SWIM | LITE_2
-F:FORCE_SLEEP | FORCE_MAXHP | NO_CONF | NO_SLEEP | KILL_WALL |
-F:DROP_4D2 | DROP_GOOD | ONLY_ITEM |
-F:EVIL | IM_POIS | IM_ACID | IM_FIRE | REGENERATE
-F:OPEN_DOOR | BASH_DOOR |
-S:1_IN_4 |
-S:HEAL | TPORT | TELE_TO | SCARE | BLIND | S_MONSTERS
-D:Gerard may not be quite as devious as the other Amberites, but 
-D:he is certainly stronger than the rest of them put together. "...a big, 
-D:powerful man... (He) resembled (Corwin) quite strongly, save that 
-D:his jaw was heavier, and (Corwin) knew he was bigger than him, though 
-D:slower. His strength was a thing out of legend. He wore a dressing gown of 
-D:blue and gray clasped around the middle with a wide, black belt, and he 
-D:stood laughing. About his neck, on a heavy cord, there hung a silver 
-D:hunting horn. He wore a fringe beard and a light mustache. In his right 
-D:hand he held a goblet of wine."
+# 807 is unused
 
 N:808:Ungoliant, the Unlight
 G:S:D
@@ -13100,7 +12941,7 @@ O:0:100:0
 B:HIT:HURT:10d15
 B:HIT:HURT:10d15
 B:HIT:EAT_ITEM:10d15
-F:UNIQUE | MALE | CAN_SPEAK | SMART | AMBERITE | RES_TELE | WILD_DUNGEON_01
+F:UNIQUE | MALE | CAN_SPEAK | SMART | RES_TELE | WILD_DUNGEON_01
 F:OPEN_DOOR | BASH_DOOR | DROP_CORPSE | DROP_SKELETON | CAN_SWIM
 F:FORCE_SLEEP | FORCE_MAXHP | NO_CONF | NO_SLEEP | LITE_2
 F:DROP_4D2 | DROP_GOOD | ONLY_ITEM |
@@ -13249,33 +13090,7 @@ S:BA_MANA | BA_DARK | S_HI_UNDEAD | BA_CHAO | HAND_DOOM | ANIM_DEAD
 D:Klingsor, whose hopeless effort to join the Knights of the Grail 
 D:was thwarted, turned to black magic and became a deadly necromancer.
 
-N:820:Corwin, Lord of Avalon
-G:p:r
-I:130:59d70:100:50:15
-W:90:1:0:2600000
-O:0:100:0
-B:HIT:HURT:10d15
-B:HIT:HURT:10d15
-B:HIT:LOSE_CON:10d15
-F:UNIQUE | MALE | CAN_SPEAK | SMART | AMBERITE | RES_TELE | WILD_DUNGEON_01
-F:OPEN_DOOR | BASH_DOOR | DROP_CORPSE | DROP_SKELETON
-F:FORCE_SLEEP | FORCE_MAXHP | NO_CONF | NO_SLEEP | CAN_SWIM
-F:DROP_4D2 | DROP_GOOD | ONLY_ITEM |
-F:DROP_CHOSEN | LITE_2
-F:EVIL |IM_COLD | IM_POIS | IM_ELEC | REGENERATE
-S:1_IN_4 |
-S:SCARE | CONF | TPORT | TELE_TO | S_MONSTER | DRAIN_MANA |
-S:CAUSE_3 | BO_ACID | BO_MANA | HOLD | BA_FIRE | BA_COLD |
-S:TRAPS | TELE_AWAY | HEAL | BRAIN_SMASH | BA_WATE | BA_NETH |
-S:FORGET | BO_WATE | BO_NETH | CAUSE_4 | DARKNESS | S_MONSTERS |
-S:BO_PLAS | S_ANGEL
-D:Corwin is one of the most feared and respected Amberites; his skill 
-D:and cunning are well known. "Green eyes, black hair, dressed in black 
-D:and silver, yes. (Corwin) had on a cloak and it was slightly furled 
-D:as by a wind. (He) had on black boots, like Eric's, and (he) too bore a 
-D:blade, only (his) was heavier, though not quite as long as (Eric's). 
-D:(He) had (his) gloves on and they were silver and scaled. The clasp 
-D:at (his) neck was cast in the form of a silver rose."
+# 820 is unused
 
 N:821:The Emperor Quylthulg
 G:Q:y
@@ -13308,7 +13123,7 @@ F:ANIMAL | EVIL |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_1 | 
 S:S_MONSTER | S_MONSTERS | S_UNDEAD | S_DEMON | S_DRAGON | S_ANGEL | 
-S:S_HYDRA | S_SPIDER | S_ANT | S_HOUND | S_UNIQUE | S_AMBERITES | 
+S:S_HYDRA | S_SPIDER | S_ANT | S_HOUND | S_UNIQUE | 
 S:S_HI_UNDEAD | S_HI_DRAGON | S_KIN
 D:This disgusting creature squeals and snorts as it writhes on the floor.  
 D:It pulsates with evil.  Its intent is to overwhelm you with monster after 
@@ -13344,7 +13159,7 @@ B:HIT:HURT:15d15
 B:HIT:HURT:15d15
 B:HIT:HURT:15d15
 B:HIT:HURT:15d15
-F:UNIQUE | MALE | CAN_SPEAK | SMART | AMBERITE | RES_TELE | WILD_DUNGEON_01
+F:UNIQUE | MALE | CAN_SPEAK | SMART | RES_TELE | WILD_DUNGEON_01
 F:OPEN_DOOR | BASH_DOOR | DROP_CORPSE | DROP_SKELETON | CAN_SWIM
 F:FORCE_SLEEP | FORCE_MAXHP | NO_CONF | NO_SLEEP | LITE_2
 F:DROP_4D2 | DROP_GOOD | ONLY_ITEM |
@@ -13600,7 +13415,7 @@ F:REGENERATE | CAN_SWIM
 S:1_IN_3 |
 S:SHRIEK | HASTE | HEAL | DRAIN_MANA | TPORT | TELE_TO | TELE_AWAY |
 S:TELE_LEVEL | FORGET | S_CYBER | S_DEMON | HAND_DOOM | S_HI_UNDEAD |
-S:S_UNIQUE | S_HI_DRAGON | BA_DARK | BA_MANA | S_AMBERITES | ANIM_DEAD
+S:S_UNIQUE | S_HI_DRAGON | BA_DARK | BA_MANA | ANIM_DEAD
 S:INVULNER
 D:Loki, the god of mischief, is a nasty person. He will use every 
 D:dirty trick in the book, and then some. In the end, his half-giant 
@@ -14163,7 +13978,7 @@ S:1_IN_3 |
 S:SHRIEK | BR_SOUN | BR_LITE | BR_INER | BR_TIME | BR_SHAR | 
 S:BR_PLAS | BR_MANA | BR_DISI | DRAIN_MANA | HEAL | HASTE |
 S:TELE_AWAY | BLINK | TPORT | FORGET | 
-S:S_MONSTERS | S_HI_DRAGON | S_AMBERITES | S_UNIQUE
+S:S_MONSTERS | S_HI_DRAGON | S_UNIQUE
 D:The Unicorn of Order, who once stole an eye from the great Serpent 
 D:of chaos, is watching the events unfold with growing distress. It 
 D:regards you as a mortal meddling in the affairs of immortals, and 
@@ -14182,7 +13997,7 @@ B:HIT:UN_POWER:12d12
 B:HIT:CONFUSE:10d2
 B:HIT:BLIND:10d2
 F:UNIQUE | QUESTOR | MALE | CAN_SPEAK | DROP_CORPSE | WILD_DUNGEON_01
-F:ATTR_MULTI | AMBERITE | RES_TELE
+F:ATTR_MULTI | RES_TELE
 F:FORCE_SLEEP | FORCE_MAXHP | FORCE_DEPTH | 
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | DROP_GREAT |
 F:DROP_CHOSEN | REFLECTING | AURA_FIRE | AURA_ELEC
@@ -14194,13 +14009,10 @@ S:TPORT | SCARE | BLIND | S_DEMON | S_ANGEL | S_MONSTERS |
 S:TELE_TO | CONF | BO_MANA | BA_FIRE | BRAIN_SMASH | BA_NETH |
 S:BO_ICEE | CAUSE_4 | BA_WATE | BO_PLAS | TELE_LEVEL | TELE_AWAY |
 S:FORGET | DARKNESS | BA_MANA | S_HI_DRAGON | S_HI_UNDEAD | BA_CHAO
-S:S_AMBERITES | S_CYBER | HAND_DOOM
+S:S_CYBER | HAND_DOOM
 D:Oberon, the father or grandfather of most Amberites, is as powerful 
 D:as ever. He is afraid that you will upset the balance and will not 
-D:let you harm the Serpent of Chaos. "Oberon, Lord of Amber, stood before 
-D:me in his green and his gold. High, wide and thick, his beard black and 
-D:shot with silver, his hair the same. Green rings in gold settings and 
-D:a blade of golden color."
+D:let you harm the Serpent of Chaos. 
 
 # Morgoth, Mr normal monster!
 
@@ -14224,7 +14036,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_3 | 
 S:BRAIN_SMASH | 
 S:BA_MANA | BO_MANA | BA_NETH | ANIM_DEAD 
-S:S_MONSTERS | S_UNIQUE | S_AMBERITES | S_HI_UNDEAD | S_HI_DRAGON
+S:S_MONSTERS | S_UNIQUE | S_HI_UNDEAD | S_HI_DRAGON
 D:He is the Master of the Pits of Angband.  His figure is like a black 
 D:mountain crowned with Lightning.  He rages with everlasting anger, his 
 D:body scarred by Fingolfin's eight mighty wounds.  He can never rest from 
@@ -14260,7 +14072,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | RES_TELE
 S:1_IN_3 | 
 S:S_MONSTERS | BR_CHAO | BA_CHAO | ROCKET | BRAIN_SMASH | S_CYBER |
 S:BR_NETH | HASTE | BR_MANA | S_HI_UNDEAD | S_HI_DRAGON | S_UNIQUE |
-S:S_AMBERITES | BR_NUKE | BR_POIS | BR_DISI | HAND_DOOM
+S:BR_NUKE | BR_POIS | BR_DISI | HAND_DOOM
 D:The Big Boss himself. Before the universe the Serpent was. The Unicorn 
 D:of Order fought with Serpent and stole one of its eyes, known as the 
 D:Jewel of Judgement. With the Jewel, Dworkin drew the Pattern and thus 

@@ -1297,20 +1297,6 @@ bool set_stun(int v)
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
-	/*
-	 * Golems cannot be stunned when they are being used as a
-	 * "training" class.  However, when they are being used in
-	 * a hard game - they lose this advantage.  (Golems are
-	 * designed for newbies - not scummers.)
-	 */
-	if ((p_ptr->prace == RACE_GOLEM) &&
-		!(ironman_shops || ironman_downward || ironman_hard_quests ||
-		  ironman_empty_levels || ironman_rooms || ironman_nightmare ||
-		  ironman_deep_quests))
-	{
-		v = 0;
-	}
-
 	/* Knocked out */
 	if (p_ptr->stun > 100)
 	{
@@ -1475,12 +1461,6 @@ bool set_cut(int v)
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	if (p_ptr->prace == RACE_GOLEM ||
-		p_ptr->prace == RACE_SKELETON ||
-		p_ptr->prace == RACE_SPECTRE ||
-		(p_ptr->prace == RACE_ZOMBIE && p_ptr->lev > 11))
-		v = 0;
 
 	/* Mortal wound */
 	if (p_ptr->cut > 1000)
@@ -2490,9 +2470,8 @@ void do_poly_self(void)
 		if (!effect_msg[0])
 		{
 			msgf("You turn into a%s %s!",
-					   (((new_race == RACE_AMBERITE) ||
-						 (new_race == RACE_ELF) ||
-						 (new_race == RACE_IMP)) ? "n" : ""),
+					   (((new_race == RACE_BLACK_ORC) ||
+						 (new_race == RACE_OGRE)) ? "n" : ""),
 					   race_info[new_race].title);
 		}
 		else

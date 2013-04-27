@@ -192,6 +192,9 @@ void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 	(*f1) |= (o_ptr->flags1 &
 			  (TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | TR1_CON | TR1_CHR));
 
+	(*f1) |= (o_ptr->flags1 &
+			  (TR1_ILL_STR | TR1_ILL_INT | TR1_ILL_WIS | TR1_ILL_DEX | TR1_ILL_CON | TR1_ILL_CHR));
+
 	/* 
 	 * *Identify* sets these flags,
 	 * and ego items have some set on creation.
@@ -843,6 +846,7 @@ bool identify_fully_aux(const object_type *o_ptr)
 	int i = 0, j, k;
 
 	u32b f1, f2, f3;
+	int tempStat;
 
 	cptr info[128], reclaim[128], temp;
 	int num_reclaim = 0;
@@ -892,12 +896,24 @@ bool identify_fully_aux(const object_type *o_ptr)
 		temp = string_make(format("A soul is trapped within. It is level %i.", o_ptr->level));
 		info[i++] = temp;
 		reclaim[num_reclaim++] = temp;
+
+		if (o_ptr->sval > o_ptr->level)
+		{
+			temp = string_make(format("It has %i experience.", o_ptr->exp));
+			info[i++] = temp;
+			reclaim[num_reclaim++] = temp;
+
+			temp = string_make(format("It can eventually grow to level %i.", o_ptr->sval));
+			info[i++] = temp;
+			reclaim[num_reclaim++] = temp;
+		}
+		else info[i++] = "It is at its maximum level.";
 	}
 
 	/* Soul gem, a hack */
 	if (o_ptr->tval == TV_SOUL_GEM)
 	{
-		info[i++] = "It can be set into a ring or amulet";
+		info[i++] = "It can be bound into a ring or amulet";
 	}
 
 	// don't list accuracy and damage bonuses for weapons, only list them on items
@@ -970,101 +986,124 @@ bool identify_fully_aux(const object_type *o_ptr)
 
 	/* And then describe it fully */
 
-	if (f1 & (TR1_STR))
+	if (f1 & (TR1_STR | TR1_ILL_STR ))
 	{
-		if (o_ptr->pval > 0)
-		{
-			temp = string_make(format("It increases your strength by %+i.",
-									  o_ptr->pval));
-		}
-		else
-		{
-			temp = string_make(format("It decreases your strength by %+i.",
-									  o_ptr->pval));
-		}
+		tempStat = 0;
+		if (f1 & TR1_STR)	tempStat += o_ptr->pval;
+		if (f1 & TR1_ILL_STR)	tempStat -= o_ptr->pval;
 
-		info[i++] = temp;
-		reclaim[num_reclaim++] = temp;
+		if (tempStat > 0)
+		{
+			temp = string_make(format("It increases your strength by %+i.",tempStat));
+			info[i++] = temp;
+			reclaim[num_reclaim++] = temp;
+		}
+		else if (tempStat < 0)
+		{
+			temp = string_make(format("It decreases your strength by %i.",tempStat));
+			info[i++] = temp;
+			reclaim[num_reclaim++] = temp;
+		}
 	}
-	if (f1 & (TR1_INT))
-	{
-		if (o_ptr->pval > 0)
-		{
-			temp = string_make(format("It increases your intelligence by %+i.",
-									  o_ptr->pval));
-		}
-		else
-		{
-			temp = string_make(format("It decreases your intelligence by %+i.",
-									  o_ptr->pval));
-		}
 
-		info[i++] = temp;
-		reclaim[num_reclaim++] = temp;
+	if (f1 & (TR1_CON | TR1_ILL_CON ))
+	{
+		tempStat = 0;
+		if (f1 & TR1_CON)	tempStat += o_ptr->pval;
+		if (f1 & TR1_ILL_CON)	tempStat -= o_ptr->pval;
+
+		if (tempStat > 0)
+		{
+			temp = string_make(format("It decreases your constitution by %+i.",tempStat));
+			info[i++] = temp;
+			reclaim[num_reclaim++] = temp;
+		}
+		else if (tempStat < 0)
+		{
+			temp = string_make(format("It decreases your constitution by %i.",tempStat));
+			info[i++] = temp;
+			reclaim[num_reclaim++] = temp;
+		}
 	}
-	if (f1 & (TR1_WIS))
-	{
-		if (o_ptr->pval > 0)
-		{
-			temp = string_make(format("It increases your wisdom by %+i.",
-									  o_ptr->pval));
-		}
-		else
-		{
-			temp = string_make(format("It decreases your wisdom by %+i.",
-									  o_ptr->pval));
-		}
 
-		info[i++] = temp;
-		reclaim[num_reclaim++] = temp;
+	if (f1 & (TR1_DEX | TR1_ILL_DEX ))
+	{
+		tempStat = 0;
+		if (f1 & TR1_DEX)	tempStat += o_ptr->pval;
+		if (f1 & TR1_ILL_DEX)	tempStat -= o_ptr->pval;
+
+		if (tempStat > 0)
+		{
+			temp = string_make(format("It increases your dexterity by %+i.",tempStat));
+			info[i++] = temp;
+			reclaim[num_reclaim++] = temp;
+		}
+		else if (tempStat < 0)
+		{
+			temp = string_make(format("It decreases your dexterity by %i.",tempStat));
+			info[i++] = temp;
+			reclaim[num_reclaim++] = temp;
+		}
 	}
-	if (f1 & (TR1_DEX))
-	{
-		if (o_ptr->pval > 0)
-		{
-			temp = string_make(format("It increases your dexterity by %+i.",
-									  o_ptr->pval));
-		}
-		else
-		{
-			temp = string_make(format("It decreases your dexterity by %+i.",
-									  o_ptr->pval));
-		}
 
-		info[i++] = temp;
-		reclaim[num_reclaim++] = temp;
+	if (f1 & (TR1_INT | TR1_ILL_INT ))
+	{
+		tempStat = 0;
+		if (f1 & TR1_INT)	tempStat += o_ptr->pval;
+		if (f1 & TR1_ILL_INT)	tempStat -= o_ptr->pval;
+
+		if (tempStat > 0)
+		{
+			temp = string_make(format("It increases your intelligence by %+i.",tempStat));
+			info[i++] = temp;
+			reclaim[num_reclaim++] = temp;
+		}
+		else if (tempStat < 0)
+		{
+			temp = string_make(format("It decreases your intelligence by %i.",tempStat));
+			info[i++] = temp;
+			reclaim[num_reclaim++] = temp;
+		}
 	}
-	if (f1 & (TR1_CON))
-	{
-		if (o_ptr->pval > 0)
-		{
-			temp = string_make(format("It increases your constitution by %+i.",
-									  o_ptr->pval));
-		}
-		else
-		{
-			temp = string_make(format("It decreases your constitution by %+i.",
-									  o_ptr->pval));
-		}
 
-		info[i++] = temp;
-		reclaim[num_reclaim++] = temp;
+	if (f1 & (TR1_WIS | TR1_ILL_WIS ))
+	{
+		tempStat = 0;
+		if (f1 & TR1_WIS)	tempStat += o_ptr->pval;
+		if (f1 & TR1_ILL_WIS)	tempStat -= o_ptr->pval;
+
+		if (tempStat > 0)
+		{
+			temp = string_make(format("It increases your wisdom by %+i.",tempStat));
+			info[i++] = temp;
+			reclaim[num_reclaim++] = temp;
+		}
+		else if (tempStat < 0)
+		{
+			temp = string_make(format("It decreases your wisdom by %i.",tempStat));
+			info[i++] = temp;
+			reclaim[num_reclaim++] = temp;
+		}
 	}
-	if (f1 & (TR1_CHR))
-	{
-		if (o_ptr->pval > 0)
-		{
-			temp = string_make(format("It increases your charisma by %+i.",
-									  o_ptr->pval));
-		}
-		else
-		{
-			temp = string_make(format("It decreases your charisma by %+i.",
-									  o_ptr->pval));
-		}
 
-		info[i++] = temp;
-		reclaim[num_reclaim++] = temp;
+	if (f1 & (TR1_CHR | TR1_ILL_CHR ))
+	{
+		tempStat = 0;
+		if (f1 & TR1_CHR)	tempStat += o_ptr->pval;
+		if (f1 & TR1_ILL_CHR)	tempStat -= o_ptr->pval;
+
+		if (tempStat > 0)
+		{
+			temp = string_make(format("It increases your charisma by %+i.",tempStat));
+			info[i++] = temp;
+			reclaim[num_reclaim++] = temp;
+		}
+		else if (tempStat < 0)
+		{
+			temp = string_make(format("It decreases your charisma by %i.",tempStat));
+			info[i++] = temp;
+			reclaim[num_reclaim++] = temp;
+		}
 	}
 
 	if (f1 & (TR1_STEALTH))
@@ -1083,6 +1122,7 @@ bool identify_fully_aux(const object_type *o_ptr)
 		info[i++] = temp;
 		reclaim[num_reclaim++] = temp;
 	}
+
 	if (f1 & (TR1_SEARCH))
 	{
 		if (o_ptr->pval > 0)
@@ -1198,22 +1238,22 @@ bool identify_fully_aux(const object_type *o_ptr)
 		info[i++] = "It poisons your foes.";
 	}
 
-	if (f1 & (TR1_CHAOTIC))
+	if (f2 & (TR2_CHAOTIC))
 	{
 		info[i++] = "It produces chaotic effects.";
 	}
 
-	if (f1 & (TR1_VAMPIRIC))
+	if (f2 & (TR2_VAMPIRIC))
 	{
 		info[i++] = "It drains life from your foes.";
 	}
 
-	if (f1 & (TR1_IMPACT))
+	if (f2 & (TR2_IMPACT))
 	{
 		info[i++] = "It can cause earthquakes.";
 	}
 
-	if (f1 & (TR1_VORPAL))
+	if (f2 & (TR2_VORPAL))
 	{
 		info[i++] = "It is very sharp and can cut your foes.";
 	}
@@ -1306,11 +1346,11 @@ bool identify_fully_aux(const object_type *o_ptr)
 		info[i++] = "It is perfectly balanced for throwing.";
 	}
 
-	if (f2 & (TR2_FREE_ACT))
+	if (f3 & (TR3_FREE_ACT))
 	{
 		info[i++] = "It provides immunity to paralysis.";
 	}
-	if (f2 & (TR2_HOLD_LIFE))
+	if (f3 & (TR3_HOLD_LIFE))
 	{
 		info[i++] = "It provides resistance to life draining.";
 	}
@@ -1406,7 +1446,7 @@ bool identify_fully_aux(const object_type *o_ptr)
 	{
 		info[i++] = "It speeds your regenerative powers.";
 	}
-	if (f2 & (TR2_REFLECT))
+	if (f3 & (TR3_REFLECT))
 	{
 		info[i++] = "It reflects bolts and arrows.";
 	}
@@ -1425,6 +1465,10 @@ bool identify_fully_aux(const object_type *o_ptr)
 	if (f3 & (TR3_SH_ACID))
 	{
 		info[i++] = "It produces an acidic cloud.";
+	}
+	if (f3 & (TR3_SH_POIS))
+	{
+		info[i++] = "It produces an poisonous cloud.";
 	}
 	if (f3 & (TR3_NO_MAGIC))
 	{
@@ -1482,23 +1526,10 @@ bool identify_fully_aux(const object_type *o_ptr)
 		info[i++] = "It carries an ancient foul curse.";
 	}
 
-	if (f3 & (TR3_IGNORE_ACID))
+	if (f3 & (TR3_IGNORE_ELEM))
 	{
-		info[i++] = "It cannot be harmed by acid.";
+		info[i++] = "It cannot be harmed by the elements.";
 	}
-	if (f3 & (TR3_IGNORE_ELEC))
-	{
-		info[i++] = "It cannot be harmed by electricity.";
-	}
-	if (f3 & (TR3_IGNORE_FIRE))
-	{
-		info[i++] = "It cannot be harmed by fire.";
-	}
-	if (f3 & (TR3_IGNORE_COLD))
-	{
-		info[i++] = "It cannot be harmed by cold.";
-	}
-
 
 	/* No special effects */
 	if (!i) return (FALSE);
@@ -2278,7 +2309,6 @@ bool item_tester_hook_is_book(const object_type *o_ptr)
 		case TV_NATURE_BOOK:
 		case TV_CHAOS_BOOK:
 		case TV_DEATH_BOOK:
-		case TV_TRUMP_BOOK:
 		case TV_ARCANE_BOOK:
 		case TV_LIFE_BOOK:
 

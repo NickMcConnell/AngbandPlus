@@ -1767,7 +1767,7 @@ static void calc_mana(void)
 
 		/* Normal gloves hurt mage-type spells */
 		if (o_ptr->k_idx &&
-			!(f2 & (TR2_FREE_ACT)) && !((f1 & (TR1_DEX)) && (o_ptr->pval > 0)))
+			!(f3 & (TR3_FREE_ACT)) && !((f1 & (TR1_DEX)) && (o_ptr->pval > 0)))
 		{
 			/* Encumbered */
 			p_ptr->cumber_glove = TRUE;
@@ -2429,6 +2429,7 @@ static void calc_bonuses(void)
 	p_ptr->sh_elec = FALSE;
 	p_ptr->sh_cold = FALSE;
 	p_ptr->sh_acid = FALSE;
+	p_ptr->sh_pois = FALSE;
 	p_ptr->anti_magic = FALSE;
 	p_ptr->anti_tele = FALSE;
 
@@ -2504,14 +2505,6 @@ static void calc_bonuses(void)
 			/* Unencumbered Monks become faster every 10 levels */
 			if (!p_ptr->monk_armour_stat)
 			{
-#ifndef MONK_HACK
-				if (!((p_ptr->prace == RACE_KLACKON) ||
-					  (p_ptr->prace == RACE_SPRITE)))
-#endif /* MONK_HACK */
-				{
-					p_ptr->pspeed += (p_ptr->lev) / 10;
-				}
-
 				/* Free action if unencumbered at level 25 */
 				if (p_ptr->lev > 24) p_ptr->free_act = TRUE;
 			}
@@ -2523,223 +2516,70 @@ static void calc_bonuses(void)
 	/***** Races ****/
 	switch (p_ptr->prace)
 	{
-		case RACE_ELF:
-		{
-			p_ptr->resist_lite = TRUE;
-			break;
-		}
-		case RACE_HOBBIT:
-		{
-			p_ptr->sustain_dex = TRUE;
-			break;
-		}
-		case RACE_GNOME:
-		{
-			p_ptr->free_act = TRUE;
-			break;
-		}
-		case RACE_DWARF:
-		{
-			p_ptr->resist_blind = TRUE;
-			break;
-		}
-		case RACE_HALF_ORC:
-		{
-			p_ptr->resist_dark = TRUE;
-			break;
-		}
-		case RACE_HALF_TROLL:
-		{
-			p_ptr->sustain_str = TRUE;
-
-			if (p_ptr->lev > 14)
-			{
-				/* High level trolls heal fast... */
-				p_ptr->regenerate = TRUE;
-
-				if (p_ptr->pclass == CLASS_WARRIOR)
-				{
-					p_ptr->slow_digest = TRUE;
-					/*
-					 * Let's not make Regeneration
-					 * a disadvantage for the poor warriors who can
-					 * never learn a spell that satisfies hunger (actually
-					 * neither can rogues, but half-trolls are not
-					 * supposed to play rogues)
-					 */
-				}
-			}
-			break;
-		}
-		case RACE_AMBERITE:
-		{
-			p_ptr->sustain_con = TRUE;
-
-			/* Amberites heal fast... */
-			p_ptr->regenerate = TRUE;
-			break;
-		}
-		case RACE_HIGH_ELF:
-		{
-			p_ptr->resist_lite = TRUE;
-			p_ptr->see_inv = TRUE;
-			break;
-		}
-		case RACE_BARBARIAN:
+		case RACE_BLACK_ORC:
 		{
 			p_ptr->resist_fear = TRUE;
 			break;
 		}
-		case RACE_HALF_OGRE:
+		case RACE_SAVAGE_ORC:
 		{
-			p_ptr->resist_dark = TRUE;
-			p_ptr->sustain_str = TRUE;
+			p_ptr->reflect = TRUE;
 			break;
 		}
-		case RACE_HALF_GIANT:
+		case RACE_NIGHT_GOBLIN:
 		{
-			p_ptr->sustain_str = TRUE;
-			p_ptr->resist_shard = TRUE;
+			p_ptr->see_inv = TRUE;
+			p_ptr->pspeed += 1 + (p_ptr->lev) / 10;
 			break;
 		}
-		case RACE_HALF_TITAN:
+		case RACE_GOBLIN:
 		{
-			p_ptr->resist_chaos = TRUE;
-			break;
-		}
-		case RACE_CYCLOPS:
-		{
-			p_ptr->resist_sound = TRUE;
-			break;
-		}
-		case RACE_YEEK:
-		{
-			p_ptr->resist_acid = TRUE;
-			if (p_ptr->lev > 19) p_ptr->immune_acid = TRUE;
-			break;
-		}
-		case RACE_KLACKON:
-		{
-			p_ptr->resist_confu = TRUE;
-			p_ptr->resist_acid = TRUE;
-
-			/* Klackons become faster */
-			p_ptr->pspeed += (p_ptr->lev) / 10;
-			break;
-		}
-		case RACE_KOBOLD:
-		{
-			p_ptr->resist_pois = TRUE;
-			break;
-		}
-		case RACE_NIBELUNG:
-		{
-			p_ptr->resist_disen = TRUE;
-			p_ptr->resist_dark = TRUE;
-			break;
-		}
-		case RACE_DARK_ELF:
-		{
-			p_ptr->resist_dark = TRUE;
-			if (p_ptr->lev > 19) p_ptr->see_inv = TRUE;
-			break;
-		}
-		case RACE_DRACONIAN:
-		{
-			p_ptr->ffall = TRUE;
-			if (p_ptr->lev > 4) p_ptr->resist_fire = TRUE;
-			if (p_ptr->lev > 9) p_ptr->resist_cold = TRUE;
-			if (p_ptr->lev > 14) p_ptr->resist_acid = TRUE;
-			if (p_ptr->lev > 19) p_ptr->resist_elec = TRUE;
-			if (p_ptr->lev > 34) p_ptr->resist_pois = TRUE;
-			break;
-		}
-		case RACE_MIND_FLAYER:
-		{
-			p_ptr->sustain_int = TRUE;
-			p_ptr->sustain_wis = TRUE;
-			if (p_ptr->lev > 14) p_ptr->see_inv = TRUE;
-			if (p_ptr->lev > 29) p_ptr->telepathy = TRUE;
-			break;
-		}
-		case RACE_IMP:
-		{
-			p_ptr->resist_fire = TRUE;
-			if (p_ptr->lev > 9) p_ptr->see_inv = TRUE;
-			break;
-		}
-		case RACE_GOLEM:
-		{
-			p_ptr->slow_digest = TRUE;
 			p_ptr->free_act = TRUE;
-			p_ptr->see_inv = TRUE;
-			p_ptr->resist_pois = TRUE;
-			if (p_ptr->lev > 34) p_ptr->hold_life = TRUE;
+			p_ptr->pspeed += 1 + (p_ptr->lev) / 10;
 			break;
 		}
-		case RACE_SKELETON:
-		{
-			p_ptr->resist_shard = TRUE;
-			p_ptr->hold_life = TRUE;
-			p_ptr->see_inv = TRUE;
-			p_ptr->resist_pois = TRUE;
-			if (p_ptr->lev > 9) p_ptr->resist_cold = TRUE;
-			break;
-		}
-		case RACE_ZOMBIE:
-		{
-			p_ptr->resist_nethr = TRUE;
-			p_ptr->hold_life = TRUE;
-			p_ptr->see_inv = TRUE;
-			p_ptr->resist_pois = TRUE;
-			p_ptr->slow_digest = TRUE;
-			if (p_ptr->lev > 4) p_ptr->resist_cold = TRUE;
-			break;
-		}
-		case RACE_VAMPIRE:
-		{
-			p_ptr->resist_dark = TRUE;
-			p_ptr->hold_life = TRUE;
-			p_ptr->resist_nethr = TRUE;
-			p_ptr->resist_cold = TRUE;
-			p_ptr->resist_pois = TRUE;
-			p_ptr->lite = TRUE;
-			break;
-		}
-		case RACE_SPECTRE:
-		{
-			p_ptr->resist_nethr = TRUE;
-			p_ptr->hold_life = TRUE;
-			p_ptr->see_inv = TRUE;
-			p_ptr->resist_pois = TRUE;
-			p_ptr->slow_digest = TRUE;
-			p_ptr->resist_cold = TRUE;
-			p_ptr->pass_wall = TRUE;
-			if (p_ptr->lev > 34) p_ptr->telepathy = TRUE;
-			break;
-		}
-		case RACE_SPRITE:
-		{
-			p_ptr->ffall = TRUE;
-			p_ptr->resist_lite = TRUE;
-
-			/* Sprites become faster */
-			p_ptr->pspeed += p_ptr->lev / 10;
-			break;
-		}
-		case RACE_BEASTMAN:
+		case RACE_OGRE:
 		{
 			p_ptr->resist_confu = TRUE;
-			p_ptr->resist_sound = TRUE;
+			p_ptr->resist_lite  = TRUE;
+			p_ptr->pspeed -= 2;
 			break;
 		}
-		case RACE_GHOUL:
+		case RACE_ETTIN:
 		{
-			if (p_ptr->lev > 9) p_ptr->resist_dark = TRUE;
-			p_ptr->hold_life = TRUE;
-			if (p_ptr->lev > 19) p_ptr->resist_nethr = TRUE;
-			p_ptr->resist_cold = TRUE;
+			p_ptr->resist_blind = TRUE;
+			p_ptr->resist_lite  = TRUE;
+			p_ptr->pspeed -= 2;
+			break;
+		}
+		case RACE_STONE_TROLL:
+		{
+			p_ptr->regenerate  = TRUE;
+			p_ptr->to_a     += p_ptr->lev;
+			p_ptr->dis_to_a += p_ptr->lev;
+			p_ptr->pspeed -= 2;
+			break;
+		}
+		case RACE_HUMAN:
+		{
+			p_ptr->resist_lite = TRUE;
+			p_ptr->slow_digest = TRUE;
+			break;
+		}
+		case RACE_GREMLIN:
+		{
+			p_ptr->ffall = TRUE;
+			p_ptr->to_a     += p_ptr->lev;
+			p_ptr->dis_to_a += p_ptr->lev;
+			break;
+		}
+		case RACE_HOBGOBLIN:
+		{
 			p_ptr->resist_pois = TRUE;
+			if (p_ptr->lev > 29)
+			{
+				p_ptr->immune_pois = TRUE;
+			}
 			break;
 		}
 	}
@@ -2770,6 +2610,13 @@ static void calc_bonuses(void)
 		if (f1 & (TR1_CON)) p_ptr->stat_add[A_CON] += o_ptr->pval;
 		if (f1 & (TR1_CHR)) p_ptr->stat_add[A_CHR] += o_ptr->pval;
 
+		if (f1 & (TR1_ILL_STR)) p_ptr->stat_add[A_STR] -= o_ptr->pval;
+		if (f1 & (TR1_ILL_INT)) p_ptr->stat_add[A_INT] -= o_ptr->pval;
+		if (f1 & (TR1_ILL_WIS)) p_ptr->stat_add[A_WIS] -= o_ptr->pval;
+		if (f1 & (TR1_ILL_DEX)) p_ptr->stat_add[A_DEX] -= o_ptr->pval;
+		if (f1 & (TR1_ILL_CON)) p_ptr->stat_add[A_CON] -= o_ptr->pval;
+		if (f1 & (TR1_ILL_CHR)) p_ptr->stat_add[A_CHR] -= o_ptr->pval;
+
 		/* Affect stealth */
 		if (f1 & (TR1_STEALTH)) p_ptr->skill_stl += o_ptr->pval;
 
@@ -2792,7 +2639,7 @@ static void calc_bonuses(void)
 		if (f1 & (TR1_BLOWS)) extra_blows += o_ptr->pval;
 
 		/* Hack -- cause earthquakes */
-		if (f1 & (TR1_IMPACT)) p_ptr->impact = TRUE;
+		if (f2 & (TR2_IMPACT)) p_ptr->impact = TRUE;
 
 		/* Boost shots */
 		if (f3 & (TR3_XTRA_SHOTS)) extra_shots++;
@@ -2809,8 +2656,8 @@ static void calc_bonuses(void)
 		if (f3 & (TR3_LITE)) p_ptr->lite = TRUE;
 		if (f3 & (TR3_SEE_INVIS)) p_ptr->see_inv = TRUE;
 		if (f3 & (TR3_FEATHER)) p_ptr->ffall = TRUE;
-		if (f2 & (TR2_FREE_ACT)) p_ptr->free_act = TRUE;
-		if (f2 & (TR2_HOLD_LIFE)) p_ptr->hold_life = TRUE;
+		if (f3 & (TR3_FREE_ACT)) p_ptr->free_act = TRUE;
+		if (f3 & (TR3_HOLD_LIFE)) p_ptr->hold_life = TRUE;
 
 		/* Immunity flags */
 		if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
@@ -2837,11 +2684,12 @@ static void calc_bonuses(void)
 		if (f2 & (TR2_RES_BLIND)) p_ptr->resist_blind = TRUE;
 		if (f2 & (TR2_RES_NETHER)) p_ptr->resist_nethr = TRUE;
 
-		if (f2 & (TR2_REFLECT)) p_ptr->reflect = TRUE;
+		if (f3 & (TR3_REFLECT)) p_ptr->reflect = TRUE;
 		if (f3 & (TR3_SH_FIRE)) p_ptr->sh_fire = TRUE;
 		if (f3 & (TR3_SH_ELEC)) p_ptr->sh_elec = TRUE;
 		if (f3 & (TR3_SH_COLD)) p_ptr->sh_cold = TRUE;
 		if (f3 & (TR3_SH_ACID)) p_ptr->sh_acid = TRUE;
+		if (f3 & (TR3_SH_POIS)) p_ptr->sh_acid = TRUE;
 		if (f3 & (TR3_NO_MAGIC)) p_ptr->anti_magic = TRUE;
 		if (f3 & (TR3_NO_TELE)) p_ptr->anti_tele = TRUE;
 
@@ -2917,13 +2765,6 @@ static void calc_bonuses(void)
 
 	/* Hack -- aura of fire also provides light */
 	if (p_ptr->sh_fire) p_ptr->lite = TRUE;
-
-	/* Golems also get an intrinsic AC bonus */
-	if (p_ptr->prace == RACE_GOLEM)
-	{
-		p_ptr->to_a += 20 + (p_ptr->lev / 5);
-		p_ptr->dis_to_a += 20 + (p_ptr->lev / 5);
-	}
 
 	/* Calculate stats */
 	for (i = 0; i < A_MAX; i++)

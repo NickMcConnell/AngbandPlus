@@ -363,7 +363,7 @@ static int cave_passable_mon(monster_type *m_ptr, cave_type *c_ptr)
 		}
 	}
 
-	/* Permanent walls + the pattern block movement */
+	/* Permanent walls block movement */
 	else if (cave_perma_grid(c_ptr))
 	{
 		return (0);
@@ -2315,14 +2315,6 @@ static void take_move(int m_idx, int *mm)
 			/* Took a turn */
 			do_turn = TRUE;
 		}
-
-		/* Not over the pattern */
-		if (cave_pattern_grid(c_ptr) && !do_turn &&
-			!(r_ptr->flags7 & RF7_CAN_FLY))
-		{
-			do_move = FALSE;
-		}
-
 
 		/* A monster is in the way */
 		if (do_move && c_ptr->m_idx)

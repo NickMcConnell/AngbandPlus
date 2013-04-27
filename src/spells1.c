@@ -638,7 +638,8 @@ static bool project_o(int who, int r, int x, int y, int dam, int typ)
 				{
 					do_kill = TRUE;
 					note_kill = (plural ? " melt!" : " melts!");
-					if (f3 & (TR3_IGNORE_ACID)) ignore = TRUE;
+					if (f3 & (TR3_IGNORE_ELEM)) ignore = TRUE;
+					if (f2 & (TR2_RES_ACID)) ignore = TRUE;
 				}
 				break;
 			}
@@ -651,7 +652,8 @@ static bool project_o(int who, int r, int x, int y, int dam, int typ)
 				{
 					do_kill = TRUE;
 					note_kill = (plural ? " are destroyed!" : " is destroyed!");
-					if (f3 & (TR3_IGNORE_ELEC)) ignore = TRUE;
+					if (f3 & (TR3_IGNORE_ELEM)) ignore = TRUE;
+					if (f2 & (TR2_RES_ELEC)) ignore = TRUE;
 				}
 				break;
 			}
@@ -664,7 +666,8 @@ static bool project_o(int who, int r, int x, int y, int dam, int typ)
 				{
 					do_kill = TRUE;
 					note_kill = (plural ? " burn up!" : " burns up!");
-					if (f3 & (TR3_IGNORE_FIRE)) ignore = TRUE;
+					if (f3 & (TR3_IGNORE_ELEM)) ignore = TRUE;
+					if (f2 & (TR2_RES_FIRE)) ignore = TRUE;
 				}
 				break;
 			}
@@ -677,7 +680,8 @@ static bool project_o(int who, int r, int x, int y, int dam, int typ)
 				{
 					note_kill = (plural ? " shatter!" : " shatters!");
 					do_kill = TRUE;
-					if (f3 & (TR3_IGNORE_COLD)) ignore = TRUE;
+					if (f3 & (TR3_IGNORE_ELEM)) ignore = TRUE;
+					if (f2 & (TR2_RES_COLD)) ignore = TRUE;
 				}
 				break;
 			}
@@ -690,14 +694,16 @@ static bool project_o(int who, int r, int x, int y, int dam, int typ)
 				{
 					do_kill = TRUE;
 					note_kill = (plural ? " burn up!" : " burns up!");
-					if (f3 & (TR3_IGNORE_FIRE)) ignore = TRUE;
+					if (f3 & (TR3_IGNORE_ELEM)) ignore = TRUE;
+					if (f2 & (TR2_RES_FIRE)) ignore = TRUE;
 				}
 				if (hates_elec(o_ptr))
 				{
 					ignore = FALSE;
 					do_kill = TRUE;
 					note_kill = (plural ? " are destroyed!" : " is destroyed!");
-					if (f3 & (TR3_IGNORE_ELEC)) ignore = TRUE;
+					if (f3 & (TR3_IGNORE_ELEM)) ignore = TRUE;
+					if (f2 & (TR2_RES_ELEC)) ignore = TRUE;
 				}
 				break;
 			}
@@ -710,14 +716,16 @@ static bool project_o(int who, int r, int x, int y, int dam, int typ)
 				{
 					do_kill = TRUE;
 					note_kill = (plural ? " burn up!" : " burns up!");
-					if (f3 & (TR3_IGNORE_FIRE)) ignore = TRUE;
+					if (f3 & (TR3_IGNORE_ELEM)) ignore = TRUE;
+					if (f2 & (TR2_RES_FIRE)) ignore = TRUE;
 				}
 				if (hates_cold(o_ptr))
 				{
 					ignore = FALSE;
 					do_kill = TRUE;
 					note_kill = (plural ? " shatter!" : " shatters!");
-					if (f3 & (TR3_IGNORE_COLD)) ignore = TRUE;
+					if (f3 & (TR3_IGNORE_ELEM)) ignore = TRUE;
+					if (f2 & (TR2_RES_COLD)) ignore = TRUE;
 				}
 				break;
 			}
@@ -3280,8 +3288,7 @@ static bool project_p(int who, int r, int x, int y, int dam, int typ, int a_rad)
 
 			if (p_ptr->resist_nethr)
 			{
-				if (p_ptr->prace != RACE_SPECTRE)
-					dam *= 6;
+				dam *= 6;
 				dam /= rand_range(7, 12);
 			}
 			else
@@ -3302,15 +3309,7 @@ static bool project_p(int who, int r, int x, int y, int dam, int typ, int a_rad)
 				}
 			}
 
-			if (p_ptr->prace == RACE_SPECTRE)
-			{
-				msgf("You feel invigorated!");
-				(void)hp_player(dam / 4);
-			}
-			else
-			{
-				take_hit(dam, killer);
-			}
+			take_hit(dam, killer);
 
 			break;
 		}
@@ -3543,11 +3542,6 @@ static bool project_p(int who, int r, int x, int y, int dam, int typ, int a_rad)
 			{
 				(void)set_blind(p_ptr->blind + rand_range(2, 7));
 			}
-			if (p_ptr->prace == RACE_VAMPIRE)
-			{
-				msgf("The light scorches your flesh!");
-				dam *= 2;
-			}
 			take_hit(dam, killer);
 
 			if (p_ptr->wraith_form)
@@ -3573,8 +3567,6 @@ static bool project_p(int who, int r, int x, int y, int dam, int typ, int a_rad)
 			{
 				dam *= 4;
 				dam /= rand_range(7, 12);
-
-				if (p_ptr->prace == RACE_VAMPIRE) dam = 0;
 			}
 			else if (!blind && !p_ptr->resist_blind)
 			{
@@ -3801,28 +3793,6 @@ static bool project_p(int who, int r, int x, int y, int dam, int typ, int a_rad)
 		{
 			/* Death Ray */
 			if (fuzzy) msgf("You are hit by something extremely cold!");
-
-			switch (p_ptr->prace)
-			{
-					/* Some races are immune */
-				case RACE_GOLEM:
-				case RACE_SKELETON:
-				case RACE_ZOMBIE:
-				case RACE_VAMPIRE:
-				case RACE_SPECTRE:
-				case RACE_GHOUL:
-				{
-					dam = 0;
-					break;
-				}
-					/* Hurt a lot */
-				default:
-				{
-					take_hit(dam, killer);
-					break;
-				}
-			}
-
 			break;
 		}
 

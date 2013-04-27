@@ -35,7 +35,7 @@ static byte value_check_aux1(const object_type *o_ptr)
 	if (ego_item_p(o_ptr))
 	{
 		/* Cursed / Worthless */
-		if (o_ptr->flags3 & TR3_CURSED || !o_ptr->cost)
+		if (o_ptr->flags3 & TR3_CURSED && !o_ptr->cost)
 		{
 			return FEEL_WORTHLESS;
 		}
@@ -427,174 +427,6 @@ static void sense_inventory(void)
 	OBJ_ITT_END;
 }
 
-
-/*
- * Go to any level (ripped off from wiz_jump)
- */
-static void pattern_teleport(void)
-{
-	int min_level = 0;
-	int max_level = 99;
-
-	/* Ask for level */
-	if (get_check("Teleport level? "))
-	{
-		char tmp_val[160];
-
-		/* Only downward in ironman mode */
-		if (ironman_downward)
-			min_level = p_ptr->depth;
-
-		/* Maximum level */
-		if (p_ptr->depth > 100)
-			max_level = MAX_DEPTH - 1;
-		else if (p_ptr->depth == 100)
-			max_level = 100;
-
-		/* Default */
-		strnfmt(tmp_val, 160, "%d", p_ptr->depth);
-
-		/* Ask for a level */
-		if (!get_string(tmp_val, 11, "Teleport to level (%d-%d): ",
-						min_level, max_level)) return;
-
-		/* Extract request */
-		p_ptr->command_arg = atoi(tmp_val);
-	}
-	else if (get_check("Normal teleport? "))
-	{
-		teleport_player(200);
-		return;
-	}
-	else
-	{
-		return;
-	}
-
-	/* Paranoia */
-	if (p_ptr->command_arg < min_level) p_ptr->command_arg = min_level;
-
-	/* Paranoia */
-	if (p_ptr->command_arg > max_level) p_ptr->command_arg = max_level;
-
-	/* Accept request */
-	msgf("You teleport to dungeon level %d.", p_ptr->command_arg);
-
-	if (autosave_l) do_cmd_save_game(TRUE);
-
-	/* Change level */
-	p_ptr->depth = p_ptr->command_arg;
-
-	/* Leaving */
-	p_ptr->leaving = TRUE;
-}
-
-
-static void wreck_the_pattern(void)
-{
-	int px = p_ptr->px;
-	int py = p_ptr->py;
-
-	int to_ruin, r_y, r_x;
-
-	if (area(px, py)->feat == FEAT_PATTERN_XTRA2)
-	{
-		/* Ruined already */
-		return;
-	}
-
-	msgf("You bleed on the Pattern!");
-	msgf("Something terrible happens!");
-
-	if (!p_ptr->invuln)
-		take_hit(damroll(10, 8), "corrupting the Pattern");
-
-	to_ruin = rand_range(35, 80);
-
-	while (to_ruin--)
-	{
-		scatter(&r_x, &r_y, px, py, 4);
-
-		if ((area(r_x, r_y)->feat >= FEAT_PATTERN_START) &&
-			(area(r_x, r_y)->feat < FEAT_PATTERN_XTRA2))
-		{
-			cave_set_feat(r_x, r_y, FEAT_PATTERN_XTRA2);
-		}
-	}
-
-	cave_set_feat(px, py, FEAT_PATTERN_XTRA2);
-}
-
-
-/*
- * Returns TRUE if we are on the Pattern...
- */
-static bool pattern_effect(void)
-{
-	cave_type *c_ptr = area(p_ptr->px, p_ptr->py);
-
-	if ((c_ptr->feat < FEAT_PATTERN_START) ||
-		(c_ptr->feat > FEAT_PATTERN_XTRA2))
-		return FALSE;
-
-	if ((p_ptr->prace == RACE_AMBERITE) && (p_ptr->cut > 0) && one_in_(10))
-	{
-		wreck_the_pattern();
-	}
-
-	if (c_ptr->feat == FEAT_PATTERN_END)
-	{
-		(void)set_poisoned(0);
-		(void)set_image(0);
-		(void)set_stun(0);
-		(void)set_cut(0);
-		(void)set_blind(0);
-		(void)set_afraid(0);
-		(void)do_res_stat(A_STR);
-		(void)do_res_stat(A_INT);
-		(void)do_res_stat(A_WIS);
-		(void)do_res_stat(A_DEX);
-		(void)do_res_stat(A_CON);
-		(void)do_res_stat(A_CHR);
-		(void)restore_level();
-		(void)hp_player(1000);
-		cave_set_feat(p_ptr->px, p_ptr->py, FEAT_PATTERN_OLD);
-		msgf("This section of the Pattern looks less powerful.");
-	}
-
-
-	/*
-	 * We could make the healing effect of the
-	 * Pattern center one-time only to avoid various kinds
-	 * of abuse, like luring the win monster into fighting you
-	 * in the middle of the pattern...
-	 */
-
-	else if (c_ptr->feat == FEAT_PATTERN_OLD)
-	{
-		/* No effect */
-	}
-	else if (c_ptr->feat == FEAT_PATTERN_XTRA1)
-	{
-		pattern_teleport();
-	}
-	else if (c_ptr->feat == FEAT_PATTERN_XTRA2)
-	{
-		if (!p_ptr->invuln)
-			take_hit(200, "walking the corrupted Pattern");
-	}
-	else
-	{
-		if ((p_ptr->prace == RACE_AMBERITE) && one_in_(2))
-			return TRUE;
-		else if (!p_ptr->invuln)
-			take_hit(damroll(1, 3), "walking the Pattern");
-	}
-
-	return TRUE;
-}
-
-
 /*
  * Regenerate hit points				-RAK-
  */
@@ -778,7 +610,7 @@ static bool item_tester_unsensed(const object_type *o_ptr)
 	if (object_known_p(o_ptr)) return (FALSE);
 
 	/* Don't re-sense an item we have already sensed */
-	if (o_ptr->info && OB_SENSE) return (FALSE);
+//	if (o_ptr->info && OB_SENSE) return (FALSE);
 	
 	/* Cannot sense flavoured items */
 	if (k_ptr->flavor) return (FALSE);
@@ -830,6 +662,109 @@ bool psychometry(void)
 
 	/* "Inscribe" it */
 	o_ptr->feeling = feel;
+
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+
+	/* Something happened */
+	return (TRUE);
+}
+
+bool is_weapon_or_armor(const object_type *o_ptr)
+{
+	/* Valid "tval" codes */
+	switch (o_ptr->tval)
+	{
+		case TV_SHOT:
+		case TV_BOLT:
+		case TV_ARROW:
+		case TV_BOW:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_SWORD:
+		case TV_DIGGING:
+		case TV_BOOTS:
+		case TV_GLOVES:
+		case TV_HELM:
+		case TV_CROWN:
+		case TV_SHIELD:
+		case TV_CLOAK:
+		case TV_SOFT_ARMOR:
+		case TV_HARD_ARMOR:
+		case TV_DRAG_ARMOR:
+		{
+			return (TRUE);
+		}
+	}
+
+	/* Nope */
+	return (FALSE);
+}
+
+/*
+ * Forcibly pseudo-identify *all* objects in the inventory
+ */
+bool sense_power(void)
+{
+	object_type *o_ptr;
+	byte feel;
+	int i;
+
+	OBJ_ITT_START (p_ptr->inventory, o_ptr)
+	{
+		if (!is_weapon_or_armor(o_ptr)) continue;
+		if (object_known_p(o_ptr)) continue;
+		feel = value_check_aux1(o_ptr);
+
+		if (feel)
+		{
+			msgf("You feel the %v in your pack %s %s...",
+				   OBJECT_FMT(o_ptr, FALSE, 0),
+				   ((o_ptr->number == 1) ? "is" : "are"),
+				   game_inscriptions[feel]);
+
+			/* We have "felt" it */
+			o_ptr->info |= (OB_SENSE);
+
+			/* "Inscribe" it */
+			o_ptr->feeling = feel;
+		}
+	}
+	OBJ_ITT_END;
+
+	//also check wielded items
+	for (i = 0; i < EQUIP_MAX; i++)
+	{
+		o_ptr = &p_ptr->equipment[i];
+		if (!is_weapon_or_armor(o_ptr)) continue;
+		
+		/* Need valid items */
+		if (!o_ptr->k_idx) continue;
+		if (object_known_p(o_ptr)) continue;
+
+		feel = value_check_aux1(o_ptr);
+
+		if (feel)
+		{
+			msgf("You feel the %v (%c) you are %s %s %s...",
+			   OBJECT_FMT(o_ptr, FALSE, 0), I2A(i),
+			   describe_use(i),
+			   ((o_ptr->number == 1) ? "is" : "are"),
+			   game_inscriptions[feel]);
+
+			/* We have "felt" it */
+			o_ptr->info |= (OB_SENSE);
+
+			/* "Inscribe" it */
+			o_ptr->feeling = feel;
+		}
+	}
+
+
+
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -1016,46 +951,6 @@ static void process_world(void)
 	{
 		/* Take damage */
 		take_hit(1, "poison");
-	}
-
-
-	/* (Vampires) Take damage from sunlight */
-	if (p_ptr->prace == RACE_VAMPIRE)
-	{
-		if (!p_ptr->depth && !p_ptr->resist_lite && !p_ptr->invuln &&
-			(!((turn / ((10L * TOWN_DAWN) / 2)) % 2)))
-		{
-			if (c_ptr->info & CAVE_GLOW)
-			{
-				/* Take damage */
-				msgf("The sun's rays scorch your undead flesh!");
-				take_hit(1, "sunlight");
-				cave_no_regen = TRUE;
-			}
-		}
-
-		o_ptr = &p_ptr->equipment[EQUIP_LITE];
-
-		if (o_ptr->tval &&
-			(o_ptr->sval >= SV_LITE_GALADRIEL) &&
-			(o_ptr->sval < SV_LITE_THRAIN) && !p_ptr->resist_lite)
-		{
-			char o_name[256];
-			char ouch[280];
-
-			/* Get an object description */
-			object_desc(o_name, o_ptr, FALSE, 0, 256);
-
-			msgf("The %s scorches your undead flesh!", o_name);
-
-			cave_no_regen = TRUE;
-
-			/* Get an object description */
-			object_desc(o_name, o_ptr, TRUE, 0, 256);
-
-			strnfmt(ouch, 280, "wielding %s", o_name);
-			if (!p_ptr->invuln) take_hit(1, ouch);
-		}
 	}
 
 	if ((c_ptr->feat == FEAT_SHAL_LAVA) &&
@@ -1422,20 +1317,11 @@ static void process_world(void)
 	}
 
 
-	/* Are we walking the pattern? */
-	if (pattern_effect())
+	/* Regeneration ability */
+	if (p_ptr->regenerate)
 	{
-		cave_no_regen = TRUE;
+		regen_amount = regen_amount * 2;
 	}
-	else
-	{
-		/* Regeneration ability */
-		if (p_ptr->regenerate)
-		{
-			regen_amount = regen_amount * 2;
-		}
-	}
-
 
 	/* Searching or Resting */
 	if (p_ptr->searching || p_ptr->resting)
@@ -1473,7 +1359,7 @@ static void process_world(void)
 	if (p_ptr->poisoned) regen_amount = 0;
 	if (p_ptr->cut) regen_amount = 0;
 
-	/* Special floor -- Pattern, in a wall -- yields no healing */
+	/* Special floor -- in a wall -- yields no healing */
 	if (cave_no_regen) regen_amount = 0;
 
 	regen_amount = (regen_amount * mutant_regenerate_mod) / 100;
@@ -1613,7 +1499,7 @@ static void process_world(void)
 		}
 
 		/*
-		 * Hack: Uncursed teleporting items (e.g. Trump Weapons)
+		 * Hack: Uncursed teleporting items
 		 * can actually be useful!
 		 */
 		if ((f3 & TR3_TELEPORT) && one_in_(100))
@@ -3307,19 +3193,7 @@ void play_game(bool new_game)
 		/* Roll up a new character */
 		player_birth();
 
-		/* Hack -- enter the world */
-		if ((p_ptr->prace == RACE_VAMPIRE) ||
-			(p_ptr->prace == RACE_SKELETON) ||
-			(p_ptr->prace == RACE_ZOMBIE) ||
-			(p_ptr->prace == RACE_SPECTRE) || (p_ptr->prace == RACE_GHOUL))
-		{
-			/* Undead start just after midnight */
-			turn = (30L * TOWN_DAWN) / 4 + 1;
-		}
-		else
-		{
-			turn = 1;
-		}
+		turn = 1;
 
 		/* Create a new wilderness for the player */
 		create_wilderness();

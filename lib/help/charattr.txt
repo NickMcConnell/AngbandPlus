@@ -117,319 +117,65 @@ there are no significant gameplay differences between the two sexes.
 ***** <TheRaces>
 === Races ===
 
-There are thirty different races that you can choose from in XBAND.
+There are nine different races that you can choose from in XBAND.
 Each race has various strengths and weaknesses and its own adjustments
 to a character's stats and abilities. Many races also have intrinsic
 abilities and powers.
  
+Black Orc
+   Black Orcs are the largest and strongest of all orcs. Like all orcs,
+   their skin is green, but it is such a dark shade that it appears
+   almost black. Their discipline is legendary; they are completely
+   fearless.
+
+Savage Orc
+   Savage Orcs are tribal; They cover themselves with mystical tattoos
+   that believe protect them from evil magic.
+  
+Ogre
+   Ogres are notoriously single-minded, and as such, are almost
+   impossible to confuse. They are also a bit sluggish. They are very
+   strong and tough, but also very clumsy.
+  
+Ettin
+   Ettins have two heads, and as such, it is very difficult to blind
+   them. They are very strong and tough, but also very clumsy.
+
+Stone Troll
+   Stone Trolls regenerate, and have rock-hard skin. They are
+   also a bit sluggish. They are very strong and tough, but also very
+   stupid.
+  
+Goblin
+   Goblins have free action. They are also very speedy. They are
+   physically somewhat weak, but are very nimble and smart.
+  
+Night Goblin
+   Night Goblins can see invisible things. They are also very speedy.
+   They are physically somewhat weak, but are very nimble and smart.
+
+Hobgoblin
+   Hobgoblins are the sneakiest and most treacherous of all orc-kind.
+   No-one likes them. Thousands of generations of back-stabbing have
+   led to Hobgoblins being highly resistant to poison. 
+   
+Gremlin
+   Gremlins are small, winged humanoids that are closely related to
+   Goblins. As Gremlins age, their skin grows tougher and tougher,
+   until it finally reaches a stone-like consistency. Because of their
+   stone skin, Gremlins are much tougher than goblins, but also much
+   less agile. 
+
 Human
-     The human is the base character. All other races are compared
-     to them. Humans can choose any class and are average at
-     everything. Humans tend to go up levels faster than any other
-     race because of their shorter life spans. No racial adjustments or
-     intrinsics occur to characters choosing human.
+   These scrawny pink creatures are physically weak, although they do
+   have some aptitude for magic. They dwell above ground, and as such
+   have no infravision, but are also less susceptible to Light attacks.
+   They don't eat much.
 
-Half-Elf
-     Half-elves tend to be smarter and faster than a human, but not as
-     strong. Half-elves are slightly better at searching, disarming,
-     saving throws, stealth, bows, and magic, but they are not as good
-     at hand weapons. Half-elves may choose any class and do not
-     receive any intrinsic abilities.
-
-Elf
-     Elves are better magicians then humans, but not as good at
-     fighting. They tend to be smarter than either humans or half-elves
-     and also have better wisdom. Elves are better at searching,
-     disarming, perception, stealth, bows, and magic, but they are not
-     as good at hand weapons. They resist light effects intrinsically.
- 
-Hobbit
-     Hobbits, or Halflings, are very good at bows, throwing, and have
-     good saving throws. They also are very good at searching,
-     disarming, perception, and stealth; so they make excellent rogues
-     (but prefer to be called burglars). They will be much weaker than
-     humans, and no good at melee fighting. Halflings have fair
-     infravision, so they can detect warm creatures at a distance.
-     They have their dexterity sustained. They are very fond of food,
-     and learn, in due time, to cook a delicious meal from available
-     ingredients.
- 
-Gnome
-     Gnomes are smaller than dwarves but larger than Halflings. They,
-     like the Halflings, live in the earth in burrow-like homes. Gnomes
-     make excellent mages, and have very good saving throws. They are
-     good at searching, disarming, perception, and stealth. They have
-     lower strength than humans so they are not very good at fighting
-     with hand weapons. Gnomes have fair infra-vision, so they can
-     detect warm-blooded creatures at a distance. Gnomes are protected
-     intrinsically against paralysis and some slowing effects. At
-     higher levels, Gnomes learn to teleport at will.
- 
-Dwarf
-     Dwarves are the headstrong miners and fighters of legend. They
-     tend to be stronger and tougher but slower and less intelligent
-     than humans. Because they are so headstrong and are somewhat wise,
-     they resist spells which are cast on them. Dwarves also have very
-     good infra-vision because they live underground. They do have one
-     big drawback, though. Dwarves are loudmouthed and proud, singing
-     in loud voices, arguing with themselves for no good reason,
-     screaming out challenges at imagined foes. In other words, dwarves
-     have miserable stealth. They can never be blinded. Dwarves also
-     learn to study the structure of a dungeon, and can spot things
-     that go unseen by the other races.
- 
-Half-Orc
-     Half-Orcs make excellent warriors and decent priests, but are
-     terrible at magic. They are as bad as dwarves at stealth, and
-     horrible at searching, disarming, and perception. Half-Orcs are,
-     let's face it, ugly. They tend to pay more for goods in town.
-     Half-Orcs do make good warriors and rogues, for the simple reason
-     that Half-Orcs tend to have great constitutions and lots of hit
-     points. Because of their preference to living underground to on
-     the surface, Half-Orcs resist darkness attacks. A Half-Orc will
-     learn to dispel any fear that may be upon him or her.
- 
-Half-Troll
-     Half-Trolls are incredibly strong, and have more hit points than
-     most other races. They are also very stupid and slow. They will
-     make great warriors and iffy priests. They are bad at searching,
-     disarming, perception, and stealth. They are so ugly that a
-     Half-Orc grimaces in their presence. They also happen to be fun to
-     run... Half-trolls always have their strength sustained. At higher
-     levels, Half-Trolls learn to enter a berserk fury, and regenerate
-     wounds automatically.
-
-Amberites
-     The Amberites are a reputedly immortal race, who are endowed with
-     numerous advantages in addition to their longevity. They are very
-     tough and their constitution cannot be reduced, and their ability
-     to heal wounds far surpasses that of any other race. Having seen
-     virtually everything, very little is new to them, and they gain
-     levels much slower than the other races. But should they advance
-     high enough, they will learn the innate Amberite powers of Pattern
-     Mindwalking and Shadow Shifting.
-
-High-Elf
-     High-elves are a race of immortal beings dating from the beginning
-     of time. They are masters of all skills, and are strong and
-     intelligent, although their wisdom is sometimes suspect. They can
-     play most classes very well. High-elves begin their lives able to
-     see the unseen, and resist light effects just like regular elves.
-     However, there are few things that they have not seen already, and
-     experience is very hard for them to gain.
-
-Barbarian
-     Barbarians are hardy men of the north. They are fierce in combat,
-     and their wrath is feared throughout the world. Combat is their
-     life: they feel no fear, and they learn to enter battle frenzy at
-     will even sooner than half-trolls. Barbarians are, however,
-     suspicious of magic, which makes magic devices fairly hard for
-     them to use and they are thus poorly suited to the spellcasting
-     classes.
-
-Half-Ogre
-     Half-Ogres are like Half-Orcs, only more so. They are big, bad,
-     and stupid. For warriors, they have all the necessary attributes,
-     and they can even become wizards: after all, they are related to
-     Ogre Magi, from whom they have learned the skill of setting
-     trapped runes once their level is high enough. Like Half-Orcs,
-     they resist darkness, and like Half-Trolls, they have their
-     strength sustained.
-
-Half-Giant
-     Half-Giants are not too unusual, as there has been a tradition
-     according to which it is a noble and brave thing to do to consort
-     a giant (especially a giant-maid). Nevertheless, the poor
-     offspring of such a union is seldom very popular in the world of
-     men. Their limited intelligence makes it difficult for them to
-     become full spellcasters, but with their huge strength they make
-     excellent warriors. No ordinary wall can withstand the fury of a
-     giant, or a half-giant, and at higher levels they can learn the
-     power of magical digging. Their thick skin makes them resistant to
-     shards, and like Half-Ogres and Half-Trolls, they have their
-     strength sustained.
-
-Half-Titan
-     Half-mortal descendants of the mighty titans, these immensely
-     powerful creatures put almost any other race to shame. They may
-     lack the fascinating special powers of certain other races, but
-     their enhanced attributes more than make up for that. They learn
-     to estimate the strengths of their foes, and their love for law
-     and order makes them resistant to the effects of Chaos.
-
-Cyclops
-     With but one eye, a Cyclops can see more than many with two eyes.
-     They are headstrong, and loud noises bother them very little. They
-     are not quite qualified for the magic using professions, but as a
-     certain Mr. Ulysses can testify, their accuracy with thrown rocks
-     can be deadly...
-
-Yeek
-     Yeeks are among the most pathetic creatures. Fortunately, their
-     horrible screams can scare away less confident foes, and their
-     skin becomes more and more resistant to acid, as they gain
-     experience. But having said that, even a mediocre monster can wipe
-     the proverbial floor with an unwary Yeek.
-
-Klackon
-     Klackons are bizarre semi-intelligent ant-like insectoid
-     creatures. They make great fighters, but their mental abilities
-     are severely limited. Obedient and well-ordered, they can never be
-     confused. They are also very nimble, and become faster as they
-     advance levels. They are also very acidic, inherently resisting
-     acid, and capable of spitting acid at higher levels.
-
-Kobold
-     Kobolds are a weak goblin race. They love poisoned weapons, and
-     can learn to throw poisoned darts (of which they carry an
-     unlimited supply). They are also inherently resistant to poison,
-     and can become adequate fighters, although they are not one of the
-     more powerful races.
-
-Nibelung
-     The hated and persecuted race of nocturnal dwarves, these
-     cave-dwellers are not much bothered by darkness. Their natural
-     inclination to magical items has made them immune to effects which
-     could drain away magical energy, and like ordinary dwarves, they
-     can examine the dungeon to discover traps and secret doors.
-
-Dark Elf
-     Another dark, cave-dwelling race, likewise unhampered by darkness
-     attacks, the Dark Elves have a long tradition and knowledge of
-     magic. With their intelligence they can become superb mages or
-     priests, and they have an inherent magic missile attack available
-     to them at a low level. With their keen sight, they also learn to
-     see invisible things as their relatives High-Elves do, but at a
-     higher level.
-
-Draconian
-     A humanoid race with dragon-like attributes. As they advance
-     levels, they gain new elemental resistances (up to Poison
-     Resistance), and they also have a breath weapon, which becomes
-     more powerful with experience. The exact type of the breath
-     weapon depends on the Draconian's class and level. With their
-     wings, they can easily escape any pit trap unharmed.
-
-Mind Flayer
-     A secretive and mysterious ancient race. Their civilization may
-     well be older than any other on our planet, and their intelligence
-     and wisdom are naturally sustained, and are so great that they
-     enable Mind Flayers to become more powerful spellcasters than any
-     other race, even if their physical attributes are a good deal less
-     admirable. As they advance levels, they gain the powers of See
-     Invisible, Telepathy and a mind blast attack.
-
-Imp
-     A demon-creature from the nether-world, naturally resistant to
-     fire attacks, and capable of learning fire bolt and fire ball
-     attacks. They are little loved by other races, but can perform
-     fairly well in most professions.
-
-Golem
-     A Golem is an artificial creature, built from a lifeless raw
-     material like clay, and awakened to life. They are nearly
-     mindless, making them useless for professions which rely on magic,
-     but as warriors they are very tough. They are resistant to poison,
-     they can see invisible things, and move freely. At higher levels,
-     they also become resistant to attacks which threaten to drain away
-     their life force. They also learn to temporarily turn their skin
-     into a very hard, stonelike substance. In the most recent version,
-     Golems gain very little nutrition from ordinary food. They need to
-     collect scrolls of satisfy hunger, or perish of exhaustion when
-     the life force animating their body runs out. In the most recent
-     version Golems also gain natural armor class bonus from their
-     tough body.
-
-Skeleton
-    There are two types of skeletons: the ordinary, warrior-like
-    skeletons, and the spell-using skeletons, which are also called
-    liches. As undead beings, skeletons need to worry very little about
-    poison or attacks that can drain life. They do not really use eyes
-    for perceiving things, and are thus not fooled by invisibility.
-    Their bones are resistant to shard attacks (not much to cut
-    there), and they will quickly become resistant to cold. Should a
-    skeleton be unlucky enough to lose some of his or her remaining
-    life, he or she will learn to restore it at will. It is very hard
-    for skeletons to eat food or drink potions. Although the magical
-    effects of these will affect the skeleton even without entering the
-    skeleton's (non-existent) belly, the potion or food itself will
-    fall through the skeleton's jaws, giving no nutritional benefit.
-
-Zombie
-    Much like Skeletons, Zombies too are undead horrors: they are
-    resistant to life-draining attacks, and can learn to restore their
-    life-force. Like skeletons, they become resistant to cold-based
-    attacks (actually earlier than skeletons), resist poison and can
-    see invisible. While still vulnerable to cuts (unlike skeletons),
-    Zombies are resistant to Nether. Like Golems, they gain very little
-    nutrition from the food of mortals. However, Zombies are, as the
-    name implies, practically mindless: in this company, Groo would
-    seem a genius.
- 
-Vampire
-    One of the mightier undead creatures, the Vampire is an
-    awe-inspiring sight. Yet this mighty creature has a serious
-    weakness: the bright rays of sun are its bane, and it will need to
-    flee the surface to the deep recesses of earth until the sun
-    finally sets. Darkness, on the other hand, only makes the Vampire
-    stronger and they are unharmed by darkness attacks. As undead, the
-    Vampire has a firm hold on its life force, and resists nether
-    attacks. The Vampire also resists cold and poison based attacks. It
-    is, however, susceptible to its perpetual hunger for fresh blood,
-    which can only be satiated by sucking the blood from a nearby
-    monster, which is the Vampire's special power. It should be noted
-    that the vampires are so sensitive to daylight that even certain
-    artifact light items which are filled with daylight will hurt them
-    if they try to wield the items. Fortunately, the vampires do not
-    really need these items, since they radiate an aura of 'dark light'
-    of their own. Light resistance will, in any case, protect the
-    vampire from the adverse effects of sunlight.
-
-Spectre
-    Another powerful undead creature: the Spectre is a ghastly
-    apparition, surrounded by an unearthly green glow. They exist only
-    partially on our plane of existence: half-corporeal, they can pass
-    through walls, although the density of the wall will hurt them in
-    the process of doing this. The Spectre can scream an eldritch howl,
-    which is enough to scare lesser monsters witless. As undead, they
-    have a firm hold on their life force, see invisible, and resist
-    poison and cold. They also resist nether; in fact, their
-    half-corporeal form actually grows stronger from the effects of
-    nether. At higher levels they develop telepathic abilities.
-    Spectres make superb spellcasters, but their physical form is very
-    weak. Like Golems and Zombies, Spectres gain almost no nutrition
-    from ordinary food.
-
-Sprite
-    One of the several fairy races, Sprites are very small. They have
-    tiny wings, and can fly over traps that may open up beneath them.
-    They enjoy sunlight intensely, and need worry little about light
-    based attacks. Although physically among the weakest races, Sprites
-    are very talented in magic, and can become highly skilled wizards.
-    Sprites have the special power of spraying Sleeping Dust, and at
-    higher levels they learn to fly faster.
-
-Beastman
-    This race is a blasphemous abomination produced by Chaos. It is not
-    an independent race but rather a humanoid creature, most often a
-    human, twisted by the Chaos, or a nightmarish crossbreed of a human
-    and a beast. All Beastmen are accustomed to Chaos so much that they
-    are untroubled by confusion and sound, although raw warpstone can
-    still have effects on them. Beastmen revel in chaos, as it twists
-    them more and more. Beastmen are subject to mutations: when they
-    have been created, they receive a random mutation. After that,
-    every time they advance a level they have a little chance of
-    gaining yet another mutation.
-
-Ghoul
-    This race of undead preys upon the dead and dying. Ghouls can learn
-    to sense living creatures around them and, having killed them, can
-    feast upon their corpses gaining nourishment. As an undead being,
-    Ghouls naturally resist the effects of cold, poison and life-draining
-    attacks.  As they grow stronger the effects of darkness and nether
-    upon them decreases.  In addition, the Ghoul's touch may paralyze
-    some oponents. Ghoul's make adequate fighters and poor spell casters.
-
+Snotling
+   These tiny green creatures are weak, clumsy, and stupid. They have
+   no redeeming qualities; everyone hates them.
+  
 
 ***** <TheClasses>
 === Classes ===
@@ -530,9 +276,8 @@ Rogue
     The Burglar, on the other hand, is more interested in the Sorcery
     spells, which allow him or her to do the job fast and efficiently.
     Assassins' partiality for Death magic is well known, and they are
-    feared for it. Finally, there is the Card Shark, who will opt for
-    Trump magic, and shuffles the decks with amazing proficiency.
-
+    feared for it. 
+    
     As a rogue increases in experience, his proficiency with the sling
     improves and he will ultimately gain two additional shots per round
     with his favorite missile launcher.
@@ -866,46 +611,23 @@ Infra-vision
 === Stat Bonus Tables ===
 
 Each of the races and classes has certain modifications to their
-starting statistics an experience penalty. The experience penalty is
-designed to 'balance' the races with better starting statistics and
-abilities by requiring them to earn more experience before advancing a
-level.
- 
+starting statistics. 
 
 --- Table 1 - Race Statistic Bonus Table ---
 
-              STR  INT  WIS  DEX  CON  CHR  Hit Dice  Exp Penalty
-Human          0    0    0    0    0    0      10         +0%
-Half-Elf      -1   +1   +1   +1   -1   +1       9         +10%
-Elf           -1   +2   +2   +1   -2   +2       8         +20%
-Hobbit        -2   +2   +1   +3   +2   +1       7         +10%
-Gnome         -1   +2    0   +2   +1   -2       8         +35%
-Dwarf         +2   -2   +2   -2   +2   -3      11         +35%
-Half-Orc      +2   -1    0    0   +1   -4      10         +10%
-Half-Troll    +4   -4   -2   -4   +3   -6      12         +37%
-Amberite      +1   +2   +2   +2   +3   +2      10         +125%
-High-Elf      +1   +3   +2   +3   +1   +5      10         +100%
-Barbarian     +3   -2   -1   +1   +2   -2      11         +20%
-Half-Ogre     +3   -1   -1   -1   +3   -3      12         +30%
-Half-Giant    +4   -2   -2   -2   +3   -3      13         +50%
-Half-Titan    +5   +1   +1   -2   +3   +1      14         +155%
-Cyclops       +4   -3   -3   -3   +4   -6      13         +30%
-Yeek          -2   +1   +1   +1   -2   -7       7         +0%
-Klackon       +2   -1   -1   +1   +2   -2      12         +35%
-Kobold        +1   -1    0   +1    0   -4       9         +25%
-Nibelung      +1   -1   +2    0   +2   -4      11         +35%
-Dark Elf      -1   +3   +2   +2   -2   +1       9         +50%
-Draconian     +2   +1   +1   +1   +2   -3      11         +150%
-Mind Flayer   -3   +4   +4    0   -2   -5       9         +40%
-Imp           -1   -1   -1   +1   +2   -3      10         +10%
-Golem         +4   -5   -5   -2   +4   -4      12         +100%
-Skeleton       0   -2   -2    0   +1   -4      10         +45%
-Zombie        +2   -6   -6   +1   +4   -5      13         +35%
-Vampire       +3   +3   -1   -1   +1   +2      11         +100%
-Spectre       -5   +4   +4   +2   -3   -6       7         +80%
-Sprite        -4   +3   +3   +3   -2   +2       7         +75%
-Beastman      +2   -2   -1   -1   +2   -4      11         +40%
-Ghoul          0   -1   -1   -1   +1   -5       9         +125%
+              STR  INT  WIS  DEX  CON  CHR  Hit Dice 
+Black Orc     +2    0    0    0   +2   +2      11    
+Ettin          0   +2   +2   -4   +2    0      14    
+Goblin        -2   +2   +2   +2   -2   -2       7   
+Gremlin       -2    0    0   -2   +4   -2       7
+Hobgoblin      0    0    0   +4    0   -6       9    
+Human          0    0    0    0    0    0       9
+Night Goblin  -2   +4   +4   +2   -4   -2       7    
+Ogre          +2    0    0   -4   +2    0      14    
+Savage Orc     0   -2   -2   +2   +2   +2      11    
+Snotling      -6   -6   -6   -6   -6   -6       4
+Stone Troll   +4   -4   -4   -4   +4   -2      14    
+
 
 --- Table 2 - Class Statistic Bonus Table ---
 

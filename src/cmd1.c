@@ -1483,15 +1483,6 @@ void py_attack(int x, int y)
 	/* Initial blows available. */
 	blows = p_ptr->num_blow;
 
-	/* Prepare for ghoul paralysis? */
-	if (!(o_ptr->k_idx) && (p_ptr->prace == RACE_GHOUL))
-	{
-		ghoul_paral = 0;
-
-		/* Prevent bogus falls asleep messages */
-		if (!(m_ptr->csleep)) ghoul_hack = TRUE;
-	}
-
 	if (p_ptr->pclass == CLASS_ROGUE)
 	{
 		if (m_ptr->csleep && m_ptr->ml)
@@ -1611,7 +1602,7 @@ void py_attack(int x, int y)
 			object_flags(o_ptr, &f1, &f2, &f3);
 
 			/* Select a chaotic effect (50% chance) */
-			if ((f1 & TR1_CHAOTIC) && (one_in_(2)))
+			if ((f2 & TR2_CHAOTIC) && (one_in_(2)))
 			{
 				if (randint1(5) < 3)
 				{
@@ -1641,7 +1632,7 @@ void py_attack(int x, int y)
 			}
 
 			/* Vampiric drain */
-			if ((f1 & TR1_VAMPIRIC) || (chaos_effect == 1))
+			if ((f2 & TR2_VAMPIRIC) || (chaos_effect == 1))
 			{
 				/* Only drain "living" monsters */
 				if (monster_living(r_ptr))
@@ -1704,7 +1695,7 @@ void py_attack(int x, int y)
 				 * All of these artifact-specific effects
 				 * should be pythonized.
 				 */
-				if ((f1 & TR1_VORPAL) &&
+				if ((f2 & TR2_VORPAL) &&
 					(one_in_((o_ptr->activate + 128 == ART_VORPAL_BLADE)
 							 ? 3 : 6)))
 				{
@@ -1791,9 +1782,7 @@ void py_attack(int x, int y)
 			/* Bare hands and not a monk */
 			else
 			{
-				msgf("You %s %s.",
-						   ((p_ptr->prace == RACE_GHOUL) ? "claw" : "punch"),
-						   m_name);
+				msgf("You punch %s.", m_name);
 			}
 
 			/* No negative damage */
@@ -2029,210 +2018,6 @@ void py_attack(int x, int y)
 	}
 }
 
-
-static void summon_pattern_vortex(int x, int y)
-{
-	int i;
-
-	/* Find the pattern vortex */
-	for (i = 1; i < z_info->r_max; i++)
-	{
-		monster_race *r_ptr = &r_info[i];
-
-		/* Summon it */
-		if (strstr(r_name + r_ptr->name, "Pattern") && (r_ptr->d_char == 'v'))
-		{
-			if (summon_named_creature(x, y, i, FALSE, FALSE, FALSE))
-			{
-				msgf("You hear a bell chime.");
-			}
-		}
-	}
-}
-
-
-static bool pattern_seq(int c_x, int c_y, int n_x, int n_y)
-{
-	cave_type *c1_ptr, *c2_ptr;
-
-	c1_ptr = area(c_x, c_y);
-	c2_ptr = area(n_x, n_y);
-
-	if (!cave_pattern_grid(c1_ptr) && !cave_pattern_grid(c2_ptr))
-		return TRUE;
-
-	if (c2_ptr->feat == FEAT_PATTERN_START)
-	{
-		if (!cave_pattern_grid(c1_ptr) &&
-			!p_ptr->confused && !p_ptr->stun && !p_ptr->image)
-		{
-			if (get_check
-				("If you start walking the Pattern, you must walk the whole way. Ok? "))
-				return TRUE;
-			else
-				return FALSE;
-		}
-		else
-			return TRUE;
-	}
-	else if ((c2_ptr->feat == FEAT_PATTERN_OLD) ||
-			 (c2_ptr->feat == FEAT_PATTERN_END) ||
-			 (c2_ptr->feat == FEAT_PATTERN_XTRA2))
-	{
-		if (cave_pattern_grid(c1_ptr))
-		{
-			return TRUE;
-		}
-		else
-		{
-			if (get_check("Really step onto the Pattern here? "))
-			{
-				take_hit(100, "Stepping onto the Pattern");
-
-				if (one_in_(3)) summon_pattern_vortex(n_x, n_y);
-
-				return TRUE;
-			}
-			else
-			{
-				return FALSE;
-			}
-		}
-	}
-	else if ((c2_ptr->feat == FEAT_PATTERN_XTRA1) ||
-			 (c1_ptr->feat == FEAT_PATTERN_XTRA1))
-	{
-		return TRUE;
-	}
-	else if (c1_ptr->feat == FEAT_PATTERN_START)
-	{
-		if (cave_pattern_grid(c2_ptr))
-			return TRUE;
-		else
-		{
-			if (get_check("Really step off of the Pattern? "))
-			{
-				take_hit(10, "Stepping off of the Pattern");
-
-				if (one_in_(6)) summon_pattern_vortex(n_x, n_y);
-
-				return TRUE;
-			}
-
-			return FALSE;
-		}
-	}
-	else if ((c1_ptr->feat == FEAT_PATTERN_OLD) ||
-			 (c1_ptr->feat == FEAT_PATTERN_END) ||
-			 (c1_ptr->feat == FEAT_PATTERN_XTRA2))
-	{
-		if (!cave_pattern_grid(c2_ptr))
-		{
-			if (get_check("Really step off of the Pattern? "))
-			{
-				take_hit(100, "Stepping off of the Pattern");
-
-				if (one_in_(2)) summon_pattern_vortex(n_x, n_y);
-
-				return TRUE;
-			}
-			else
-			{
-				return FALSE;
-			}
-		}
-		else
-		{
-			return TRUE;
-		}
-	}
-	else
-	{
-		if (!cave_pattern_grid(c1_ptr))
-		{
-			if (get_check("Really step onto the Pattern here? "))
-			{
-				take_hit(25, "Stepping onto the Pattern");
-
-				if (one_in_(6)) summon_pattern_vortex(n_x, n_y);
-
-				return TRUE;
-			}
-			else
-			{
-				return FALSE;
-			}
-		}
-		else
-		{
-			byte ok_move = FEAT_PATTERN_START;
-
-			switch (c1_ptr->feat)
-			{
-				case FEAT_PATTERN_1:
-				{
-					ok_move = FEAT_PATTERN_2;
-					break;
-				}
-				case FEAT_PATTERN_2:
-				{
-					ok_move = FEAT_PATTERN_3;
-					break;
-				}
-				case FEAT_PATTERN_3:
-				{
-					ok_move = FEAT_PATTERN_4;
-					break;
-				}
-				case FEAT_PATTERN_4:
-				{
-					ok_move = FEAT_PATTERN_1;
-					break;
-				}
-				default:
-				{
-					if (p_ptr->wizard)
-						msgf("Funny Pattern walking, %d.",
-								   *area(c_x, c_y));
-
-					/* Goof-up */
-					return TRUE;
-				}
-			}
-
-			if ((c2_ptr->feat == ok_move) || (c2_ptr->feat == c1_ptr->feat))
-				return TRUE;
-
-			else
-			{
-				if (!cave_pattern_grid(c2_ptr)
-					&& get_check("Really step off of the Pattern? "))
-				{
-					take_hit(50, "Stepping off of the Pattern");
-
-					if (one_in_(3)) summon_pattern_vortex(n_x, n_y);
-
-					return TRUE;
-				}
-
-				else if (cave_pattern_grid(c2_ptr)
-						 && get_check("Really stray from the proper path? "))
-				{
-					take_hit(25, "Walking backwards along the Pattern");
-
-					if (one_in_(5)) summon_pattern_vortex(n_x, n_y);
-
-					return TRUE;
-				}
-
-				return FALSE;
-			}
-		}
-	}
-}
-
-
-
 /*
  * Move player in the given direction, with the given "pickup" flag.
  *
@@ -2320,7 +2105,6 @@ void move_player(int dir, int do_pickup)
 		if (!is_hostile(m_ptr) &&
 			!(p_ptr->confused || p_ptr->image || !m_ptr->ml || p_ptr->stun ||
 			  ((p_ptr->muta2 & MUT2_BERS_RAGE) && p_ptr->shero)) &&
-			(pattern_seq(px, py, x, y)) &&
 			((cave_floor_grid(c_ptr)) || p_can_pass_walls))
 		{
 			m_ptr->csleep = 0;
@@ -2522,19 +2306,6 @@ void move_player(int dir, int do_pickup)
 		sound(SOUND_HITWALL);
 	}
 
-	/* Normal movement */
-	if (!pattern_seq(px, py, x, y))
-	{
-		if (!(p_ptr->confused || p_ptr->stun || p_ptr->image))
-		{
-			p_ptr->energy_use = 0;
-		}
-
-		/* To avoid a loop with running */
-		disturb(FALSE);
-
-		oktomove = FALSE;
-	}
 
 	/* Normal movement */
 	if (oktomove)

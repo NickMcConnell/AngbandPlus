@@ -209,23 +209,6 @@ Weapon of Westernesse
     dexterity, and constitution. It also allows you to see invisible
     creatures and protects from paralyzation and some slowing attacks.
 
-(Trump Weapon)
-    A Trump Weapon is especially deadly against evil creatures and will
-    increase your ability to discover hidden dungeon features. It will
-    help you regenerate hit-points and mana faster and at the same time
-    will reduce your rate of food consumption. It provides resistance
-    to nexus and protects from paralyzation and some slowing attacks.
-    In addition it may cause you to teleport randomly and can be
-    activated for teleport once every 50+1d50 turns.
-
-(Pattern Weapon)
-    A Pattern Weapon has been embedded with a fragment of the Pattern.
-    It will increase your strength and constitution and also has a
-    chance of increasing your dexterity. It is especially effective
-    when used against evil, undead and demonic creatures. It will allow
-    you to see invisible creatures and protects from paralyzation and
-    some slowing attacks.
-
 (Blessed Blade)
     A blessed blade will increase your wisdom and can be wielded by
     priests with no penalty.

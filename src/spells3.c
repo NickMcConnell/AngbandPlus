@@ -82,9 +82,6 @@ bool teleport_away(int m_idx, int dis)
 			/* Not on player */
 			if ((ny == p_ptr->py) && (nx == p_ptr->px)) continue;
 
-			/* ...nor onto the Pattern */
-			if (cave_pattern_grid(c_ptr)) continue;
-
 			/* Not on bad terrain */
 			if (!monster_can_cross_terrain(c_ptr->feat, r_ptr)) continue;
 
@@ -247,9 +244,6 @@ void teleport_to_player(int m_idx)
 
 			/* Not on player */
 			if ((ny == py) && (nx == px)) continue;
-
-			/* ...nor onto the Pattern */
-			if (cave_pattern_grid(c_ptr)) continue;
 
 			/* No teleporting into vaults and such */
 			/* if (c_ptr->info & (CAVE_ICKY)) continue; */
@@ -1050,14 +1044,6 @@ void brand_weapon(int brand_type)
 			{
 				act = "thirsts for blood!";
 				ego = EGO_VAMPIRIC;
-				break;
-			}
-			case 4:
-			{
-				act = "seems very unstable now.";
-				ego = EGO_TRUMP;
-				o_ptr->pval = randint1(2);
-				o_ptr->activate = ACT_TELEPORT_1;
 				break;
 			}
 
@@ -1910,7 +1896,7 @@ bool artifact_scroll(void)
 			p_ptr->update |= PU_WEIGHT;
 		}
 
-		okay = create_artifact(o_ptr, TRUE);
+		okay = create_randart(o_ptr, TRUE);
 	}
 
 	/* Failure */
@@ -2746,7 +2732,6 @@ bool potion_smash_effect(int who, int x, int y, int k_idx)
 		}
 		case SV_POTION_CONFUSION:
 		{
-			/* Booze */
 			dt = GF_OLD_CONF;
 			ident = TRUE;
 			angry = TRUE;
@@ -3146,16 +3131,16 @@ void spell_info(char *p, int spell, int realm)
 							p_ptr->pclass == CLASS_HIGH_MAGE) ? 2 : 4));
 
 		/* Analyze the spell */
-		switch (realm)
+		switch (realm+1)
 		{
-			case 0:
+			case REALM_LIFE:
 			{
 				/* Life */
 				switch (spell)
 				{
 					case 1:
 					{
-						strcpy(p, " heal 2d10");
+						strcpy(p, " heal 40");
 						break;
 					}
 					case 2:
@@ -3171,12 +3156,12 @@ void spell_info(char *p, int spell, int realm)
 					}
 					case 6:
 					{
-						strcpy(p, " heal 4d10");
+						strcpy(p, " heal 75");
 						break;
 					}
 					case 10:
 					{
-						strcpy(p, " heal 8d10");
+						strcpy(p, " heal 150");
 						break;
 					}
 					case 11:
@@ -3252,7 +3237,7 @@ void spell_info(char *p, int spell, int realm)
 				break;
 			}
 
-			case 1:
+			case REALM_SORCERY:
 			{
 				/* Sorcery */
 				switch (spell)
@@ -3319,14 +3304,14 @@ void spell_info(char *p, int spell, int realm)
 				break;
 			}
 
-			case 2:
+			case REALM_NATURE:
 			{
 				/* Nature */
 				switch (spell)
 				{
 					case 1:
 					{
-						strcpy(p, " heal 2d8");
+						strcpy(p, " heal 40");
 						break;
 					}
 					case 4:
@@ -3406,7 +3391,7 @@ void spell_info(char *p, int spell, int realm)
 				break;
 			}
 
-			case 3:
+			case REALM_CHAOS:
 			{
 				/* Chaos */
 				switch (spell)
@@ -3473,7 +3458,8 @@ void spell_info(char *p, int spell, int realm)
 					}
 					case 17:
 					{
-						strnfmt(p, 80, " dam %dd8", (5 + (plev / 10)));
+						/* Actually rand_range(25,50) */
+						strcpy(p, " dur 25+d25");
 						break;
 					}
 					case 19:
@@ -3525,7 +3511,7 @@ void spell_info(char *p, int spell, int realm)
 				break;
 			}
 
-			case 4:
+			case REALM_DEATH:
 			{
 				/* Death */
 				switch (spell)
@@ -3626,62 +3612,7 @@ void spell_info(char *p, int spell, int realm)
 				break;
 			}
 
-			case 5:
-			{
-				/* Trump */
-				switch (spell)
-				{
-					case 0:
-					{
-						strcpy(p, " range 10");
-						break;
-					}
-					case 1:
-					{
-						strnfmt(p, 80, " dam %dd3", 3 + ((plev - 1) / 5));
-						break;
-					}
-					case 2:
-					{
-						strcpy(p, " random");
-						break;
-					}
-					case 4:
-					{
-						strnfmt(p, 80, " range %d", plev * 4);
-						break;
-					}
-					case 5:
-					{
-						strnfmt(p, 80, " range %d", plev + 2);
-						break;
-					}
-					case 6:
-					{
-						/* Actually rand_range(25,55) */
-						strcpy(p, " dur 25+d30");
-						break;
-					}
-					case 8:
-					{
-						strnfmt(p, 80, " max wgt %d", plev * 15 / 10);
-						break;
-					}
-					case 14:
-					{
-						strcpy(p, " delay 15+d21");
-						break;
-					}
-					case 22:
-					{
-						strnfmt(p, 80, " dam %d", plev * 3);
-						/* break; */
-					}
-				}
-				break;
-			}
-
-			case 6:
+			case REALM_ARCANE:
 			{
 				/* Arcane */
 				switch (spell)
@@ -3703,7 +3634,7 @@ void spell_info(char *p, int spell, int realm)
 					}
 					case 7:
 					{
-						strcpy(p, " heal 2d8");
+						strcpy(p, " heal 40");
 						break;
 					}
 					case 14:
@@ -3717,7 +3648,7 @@ void spell_info(char *p, int spell, int realm)
 					}
 					case 18:
 					{
-						strcpy(p, " heal 4d8");
+						strcpy(p, " heal 75");
 						break;
 					}
 					case 19:
@@ -3956,7 +3887,6 @@ bool hates_fire(const object_type *o_ptr)
 		case TV_NATURE_BOOK:
 		case TV_CHAOS_BOOK:
 		case TV_DEATH_BOOK:
-		case TV_TRUMP_BOOK:
 		case TV_ARCANE_BOOK:
 		{
 			/* Books */
@@ -4009,7 +3939,7 @@ int set_acid_destroy(object_type *o_ptr)
 	u32b f1, f2, f3;
 	if (!hates_acid(o_ptr)) return (FALSE);
 	object_flags(o_ptr, &f1, &f2, &f3);
-	if (f3 & TR3_IGNORE_ACID) return (FALSE);
+	if (f3 & TR3_IGNORE_ELEM) return (FALSE);
 	return (TRUE);
 }
 
@@ -4022,7 +3952,7 @@ int set_elec_destroy(object_type *o_ptr)
 	u32b f1, f2, f3;
 	if (!hates_elec(o_ptr)) return (FALSE);
 	object_flags(o_ptr, &f1, &f2, &f3);
-	if (f3 & TR3_IGNORE_ELEC) return (FALSE);
+	if (f3 & TR3_IGNORE_ELEM) return (FALSE);
 	return (TRUE);
 }
 
@@ -4035,7 +3965,7 @@ int set_fire_destroy(object_type *o_ptr)
 	u32b f1, f2, f3;
 	if (!hates_fire(o_ptr)) return (FALSE);
 	object_flags(o_ptr, &f1, &f2, &f3);
-	if (f3 & TR3_IGNORE_FIRE) return (FALSE);
+	if (f3 & TR3_IGNORE_ELEM) return (FALSE);
 	return (TRUE);
 }
 
@@ -4048,7 +3978,7 @@ int set_cold_destroy(object_type *o_ptr)
 	u32b f1, f2, f3;
 	if (!hates_cold(o_ptr)) return (FALSE);
 	object_flags(o_ptr, &f1, &f2, &f3);
-	if (f3 & TR3_IGNORE_COLD) return (FALSE);
+	if (f3 & TR3_IGNORE_ELEM) return (FALSE);
 	return (TRUE);
 }
 
@@ -4193,7 +4123,7 @@ static int minus_ac(void)
 	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Object resists */
-	if (f3 & TR3_IGNORE_ACID)
+	if ((f3 & TR3_IGNORE_ELEM) || (f2 & TR2_RES_ACID))
 	{
 		msgf("Your %s is unaffected!", o_name);
 
@@ -4389,7 +4319,7 @@ bool rustproof(void)
 	/* Description */
 	object_desc(o_name, o_ptr, FALSE, 0, 256);
 
-	o_ptr->flags3 |= TR3_IGNORE_ACID;
+	o_ptr->flags3 |= TR3_IGNORE_ELEM;
 
 	if ((o_ptr->to_a < 0) && !(cursed_p(o_ptr)))
 	{
@@ -4792,16 +4722,6 @@ void sanity_blast(const monster_type *m_ptr)
 
 	/* Monster memory */
 	r_ptr->r_flags4 |= RF4_ELDRITCH_HORROR;
-
-	/* Demon characters are unaffected */
-	if (p_ptr->prace == RACE_IMP) return;
-
-	/* Undead characters are 50% likely to be unaffected */
-	if (((p_ptr->prace == RACE_SKELETON) ||
-		 (p_ptr->prace == RACE_ZOMBIE) ||
-		 (p_ptr->prace == RACE_VAMPIRE) ||
-		 (p_ptr->prace == RACE_SPECTRE) ||
-		 (p_ptr->prace == RACE_GHOUL)) && saving_throw(25 + p_ptr->lev)) return;
 
 	/* Mind blast */
 	if (!saving_throw(p_ptr->skill_sav * 100 / power))

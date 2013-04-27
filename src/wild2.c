@@ -216,7 +216,7 @@ void select_town_name(char *name, int pop)
 	int len;
 
 	/* Get a normal 'elvish' name */
-	get_table_name(buf, FALSE);
+	get_table_name(buf);
 
 	/* Get length */
 	len = strlen(buf) - 1;

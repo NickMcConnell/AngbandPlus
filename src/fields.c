@@ -3084,9 +3084,15 @@ bool field_action_hit_trap_drain_magic(field_type *f_ptr, va_list vp)
 			(o_ptr->pval))
 		{
 			/* Uncharge */
-			if (o_ptr->tval == TV_WAND) o_ptr->ac += o_ptr->pval;
+			if (o_ptr->tval == TV_WAND)
+			{
+				o_ptr->ac++;
+			}
 
-			o_ptr->pval = 0;
+			o_ptr->pval--;
+
+			/* Never less than zero */
+			if (o_ptr->pval < 0) o_ptr->pval = 0;
 
 			/* Combine / Reorder the pack */
 			p_ptr->notice |= (PN_COMBINE | PN_REORDER);

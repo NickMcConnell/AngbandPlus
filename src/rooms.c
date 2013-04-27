@@ -2089,48 +2089,6 @@ static void build_vault(int xval, int yval, int xmax, int ymax, cptr data,
 					place_trap(x, y);
 					break;
 				}
-
-				case 'p':
-				{
-					set_feat_grid(c_ptr, FEAT_PATTERN_START);
-					break;
-				}
-
-				case 'a':
-				{
-					set_feat_grid(c_ptr, FEAT_PATTERN_1);
-					break;
-				}
-
-				case 'b':
-				{
-					set_feat_grid(c_ptr, FEAT_PATTERN_2);
-					break;
-				}
-
-				case 'c':
-				{
-					set_feat_grid(c_ptr, FEAT_PATTERN_3);
-					break;
-				}
-
-				case 'd':
-				{
-					set_feat_grid(c_ptr, FEAT_PATTERN_4);
-					break;
-				}
-
-				case 'P':
-				{
-					set_feat_grid(c_ptr, FEAT_PATTERN_END);
-					break;
-				}
-
-				case 'B':
-				{
-					set_feat_grid(c_ptr, FEAT_PATTERN_XTRA1);
-					break;
-				}
 			}
 		}
 	}

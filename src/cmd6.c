@@ -209,48 +209,7 @@ static void do_cmd_eat_food_aux(object_type *o_ptr)
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 
-
-	/* Food can feed the player */
-	if (p_ptr->prace == RACE_VAMPIRE)
-	{
-		/* Reduced nutritional benefit */
-		(void)set_food(p_ptr->food + (o_ptr->pval / 10));
-		msgf
-			("Mere victuals hold scant sustenance for a being such as yourself.");
-		if (p_ptr->food < PY_FOOD_ALERT)	/* Hungry */
-			msgf("Your hunger can only be satisfied with fresh blood!");
-	}
-	else if (p_ptr->prace == RACE_SKELETON)
-	{
-		if (!((o_ptr->sval == SV_FOOD_WAYBREAD) ||
-			  (o_ptr->sval < SV_FOOD_BISCUIT)))
-		{
-			object_type *q_ptr;
-
-			msgf("The food falls through your jaws!");
-
-			/* Create the item */
-			q_ptr = object_prep(lookup_kind(o_ptr->tval, o_ptr->sval));
-
-			/* Drop the object from heaven */
-			drop_near(q_ptr, -1, p_ptr->px, p_ptr->py);
-		}
-		else
-		{
-			msgf("The food falls through your jaws and vanishes!");
-		}
-	}
-	else if ((p_ptr->prace == RACE_GOLEM) ||
-			 (p_ptr->prace == RACE_ZOMBIE) ||
-			 (p_ptr->prace == RACE_SPECTRE) || (p_ptr->prace == RACE_GHOUL))
-	{
-		msgf("The food of mortals is poor sustenance for you.");
-		(void)set_food(p_ptr->food + ((o_ptr->pval) / 20));
-	}
-	else
-	{
-		(void)set_food(p_ptr->food + o_ptr->pval);
-	}
+	(void)set_food(p_ptr->food + o_ptr->pval);
 
 	/* Destroy a food item */
 	item_increase(o_ptr, -1);
@@ -331,7 +290,6 @@ static void do_cmd_quaff_potion_aux(object_type *o_ptr)
 			if (set_blind(p_ptr->blind + rand_range(100, 200)))
 				ident = TRUE;
 		break;
-	// Booze
 	case SV_POTION_CONFUSION:
 		if (! p_ptr->resist_confu)
 			if (set_confused(p_ptr->confused + rand_range(15, 35)))
@@ -504,7 +462,9 @@ static void do_cmd_quaff_potion_aux(object_type *o_ptr)
 		if (set_cut(0)) ident = TRUE;
 		break;
 	case SV_POTION_LIFE:
+	  ident = TRUE;
 		msgf("You feel life flow through your body!");
+		hp_player(5000);
 		restore_level();
 		set_poisoned(0);
 		set_blind(0);
@@ -658,12 +618,6 @@ static void do_cmd_quaff_potion_aux(object_type *o_ptr)
 		break;
 	}
 
-	if (p_ptr->prace == RACE_SKELETON)
-	{
-		msgf("Some of the fluid falls through your jaws!");
-		(void)potion_smash_effect(0, p_ptr->px, p_ptr->py, o_ptr->k_idx);
-	}
-
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
@@ -684,23 +638,7 @@ static void do_cmd_quaff_potion_aux(object_type *o_ptr)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 
 	/* Potions can feed the player */
-	switch (p_ptr->prace)
-	{
-		case RACE_VAMPIRE:
-			(void)set_food(p_ptr->food + (o_ptr->pval / 10));
-			break;
-		case RACE_SKELETON:
-			/* Do nothing */
-			break;
-		case RACE_GOLEM:
-		case RACE_ZOMBIE:
-		case RACE_SPECTRE:
-		case RACE_GHOUL:
-			(void)set_food(p_ptr->food + ((o_ptr->pval) / 20));
-			break;
-		default:
-			(void)set_food(p_ptr->food + o_ptr->pval);
-	}
+	(void)set_food(p_ptr->food + o_ptr->pval);
 
 	/* Reduce and describe items */
 	item_increase(o_ptr, -1);
@@ -1153,7 +1091,7 @@ static void do_cmd_use_staff_aux(object_type *o_ptr)
 		ident = TRUE;
 		break;
 	case SV_STAFF_STARLITE:
-		if (p_ptr->blind == 0) msgf("The; of the staff glows brightly...");
+		if (p_ptr->blind == 0) msgf("The staff glows brightly...");
 		starlite();
 		ident = TRUE;
 		break;

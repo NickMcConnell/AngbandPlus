@@ -1,3 +1,131 @@
+**** 07/09/04
+
+Fixed a bug that caused crashes when Blade of Chaos were generated.
+Made a bunch of flavor changes to the items list.
+Improved randarts a bit more.
+
+**** 05/20/04
+
+Fixed a bug where some worthless items were being pseudo-id'ed as "excellent"
+
+**** 05/19/04
+
+Made sure named monsters no longer drop their named artifacts; some
+  of these could cause game crashes, since the underlying weapon types
+  don't exist anymore (Groo's Katana, for example).
+
+**** 05/18/04
+
+Tweaked the Dark soul sub-type; added STEALTH
+Fixed a typo in the chaos spell descriptions
+Fixed a bug where acid was damaging acid-resistant armor+weapons
+Greatly weakened staff + wand draining
+
+**** 05/17/04
+
+Reverted psychometry to previous behavior; new behavior was bugged
+Fixed bug where Ogres + Ettins were not getting resist lite.
+Fixed bug where Vorpal flag and Immunity flags were being listed incorrectly
+
+**** 05/12/04
+
+Lots of racial re-working. Removed Jungle Trolls; added Snotlings,
+Humans, and Gremlins.
+
+Edited help files to match new races.
+
+Fixed a bug in the birth screens; hitting escape could cause a 
+program crash.
+
+**** 02/26/04
+
+Fixed a typo
+
+**** 02/25/04
+
+Added some more info when you 'i'nspect a bound item
+Fixed a bug where the DIG flag also gave the IMPACT flag.
+Updated spell info screens with new healing amounts
+
+Made some ego-types deeper (Resistance, of the Hummingbird)
+Made some ego-types rarer (of the Hummingbird)
+
+**** 02/24/04
+
+Stripped out a lot of the weapons / armor that don't fit the setting.
+Fixed a bug that allowed *ID'ed* artifacts to be destroyed
+Summoned monsters now appear next to the summoner, rather than the player.
+
+**** 02/23/04
+
+Added a new function for generating names for randart non-weapons
+
+Stripping out pattern stuff (including pattern weapons)
+Stripped out trump stuff (including trump magic + weapons)
+
+Temporarily disabled normal artifacts
+
+**** 02/20/04
+
+More racial tweaking
+  buffed the Hit Dice of all the big guys, but gave speed penalties to
+    compensate.
+  The little guys now get a speed boost to make up for their lower hit die.
+  Replaced Jungle Troll's SLOW_DIGEST with SUST_DEX
+  Gave Jungle Trolls a slight nerf to melee, and a big boost to ranged combat.
+  
+Added ILL_STAT flags. Items can now be generated that boost one stat while
+  penalizing another.
+
+Re-worked all item flags.
+  Removed IGNORE_XXX, replaced with IGNORE_ELEM, which ignores all elements.
+  Many items have had IGNORE_ELEM added.
+  Items without IGNORE_ELEM will still ignore some elements, if the item
+    grants resistance against that element (armor of resist acid, for example).
+  Removed QUEST_ITEM, along with grond + morgoth's crown
+  Added AURA_POIS, a poison sheath.
+ 
+Re-worked the character info screen a little bit to show the new flags
+  AURA_POIS is shown on the screen
+  ILL_XXX flags are shown as penalties
+  If an item has a penalty to a stat, but also sustains it, that value will
+    be shown in yellow.
+
+**** 02/19/04
+
+Replaced all the townsfolk
+
+Fixed a bug where randarts with the 'Sharpness' ego-type could give way too
+  many extra attacks
+
+Non-sword randarts can no longer have the 'Vorpal' flag, they get the
+  'Earthquake' flag instead.
+
+Fixed a bug where randart lites were not being generated with some flags
+
+Monsters generated in town no longer drop soul gems
+
+**** 02/18/04
+
+More racial tweaks
+More work on randart names
+
+Began stripping out Amberites
+
+Fixed potions of life; they weren't healing.
+
+**** 02/17/04
+
+Added three new races: Jungle Trolls, Savage Orcs, Ettins
+Reworked all of the races
+
+Cool new function for randart weapon names
+
+**** 02/16/04
+
+Stripped out ALL of the old races, replaced them with the green menace:
+  Orcs, Forest Goblins, Night Goblins, Trolls, Ogres, Hobgoblins
+
 **** 02/13/04
 
 XBAND 0.4.0 released.
@@ -32,7 +160,8 @@ Changed Forest Gnome to Gnome Archer, changed color.
 
 Changed color of snotlings to prevent confusion with goblins
 
-Psychometry (and by extension, the Chaos spell Sense Power) will now filter out already-sensed items.
+Psychometry (and by extension, the Chaos spell Sense Power) will now filter
+  out already-sensed items.
 
 **** 02/05/04
 
@@ -408,8 +537,9 @@ Added new item type, Soul Data.
   Soul Data is displayed as Soul Data (Monster Name).
   Currently Soul Data doesn't do anything.
   
-**** TODO
+**** TODO:
 
+*Fix Racial info in help files
 Make imbued items 'A'ctivateble
 Possibly fix soul memory across characters bug
 Cleanup savefile format
@@ -417,7 +547,6 @@ Add more artifacts
 Remove Amber stuff (including Pattern stuff)
 Fix version numbering
 Change 'ZAngband' -> 'XBand'
-Fix save file brokenness due to Z 2.7.2 bug
 Item descriptions in character dump
 Update official FAQ
 Update help files
@@ -425,8 +554,6 @@ I don't think the HURT_FIRE and HURT_COLD flags work
 Add more ego-types! (Very important with new artifact system)
 Revamp spell lists
 Add procs to weapons and armor
-Add negative item flags - ILL_CON would penalize con by pval
-Re-work character races (Strip out Amberites)
 Better method of soul gem generation / Play up collectible aspect of soul gems
 Re-work Rogues (remove spell books, give innate abilities)
 Much clearer soul gem evaluation

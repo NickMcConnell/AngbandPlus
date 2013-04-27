@@ -607,30 +607,30 @@ static void wiz_display_item(const object_type *o_ptr)
 			   o_ptr->info, o_ptr->timeout);
 
 	prtf(j, 10, "+------------FLAGS1------------+\n"
-				"AFFECT........SLAY........BRAND.\n"
-	    		"              cvae      xsqpaefc\n"
-	    		"siwdcc  ssidsahanvudotgddhuoclio\n"
-	    		"tnieoh  trnipttmiinmrrnrrraiierl\n"
-	    		"rtsxna..lcfgdkcpmldncltggpksdced\n"
+		      "AFFECT----->MISC->SLAY---->BRAND>\n"
+	    		"      xxxxxx      ae      xpaefc\n"
+	    		"siwdccsiwdccssidsanvudotgddoclio\n"
+	    		"tnieohtnieohtrniptiinmrrnrriierl\n"
+	    		"rtsxnartsxnalcfgdkmldncltggsdced\n"
                 "%v", binary_fmt, f1);
 
 	prtf(j, 17, "+------------FLAGS2------------+\n"
-				"SUST...IMMUN..RESIST............\n"
-	    		"        aefctrpsaefcpfldbc sn   \n"
-	    		"siwdcc  clioheatcliooeialoshtncd\n"
-	    		"tnieoh  ierlrfraierliatrnnnrhehi\n"
-	    		"rtsxna..dcedwlatdcedsrekdfddrxss\n"
+		      "SUST->IMMN>MISC>RESIST--------->\n"
+	    		"      paefcstcviaefcpfldbc sn   \n"
+	    		"siwdccocliohhhapcliooeialoshtncd\n"
+	    		"tnieohiierlrrtmcierliatrnnnrhehi\n"
+	    		"rtsxnasdcedpwcptdcedsrekdfddrxss\n"
                 "%v", binary_fmt, f2);
 
 	prtf(j + 32, 10,"+------------FLAGS3------------+\n"
-				    "fe c  a ehsi  st    iiiiadta  hp\n"
-				    "ilqo nctaihnf ee    ggggcregb vr\n"
-				    "reslnoiysdose eld   nnnntalrl ym\n"
-				    "ectdomdcyewta ieirmsrrrriieaeccc\n"
-				    "aaiataauktmatlnpgeihaefcvnpvsuuu\n"
-				    "uutuegurnyoahivaeggoclioaeoasrrr\n"
-				    "rrerlirsopdretitsehtierltxrtesss\n"
-				    "aamaecaewestreshtntsdcedeptedeee\n"
+			    "fecap   ehsi  st      hiadta  hp\n"
+			    "iloco ntaihnf ee    rfogcregb vr\n"
+			    "reliinoysdose eld   erlntalrl ym\n"
+			    "ecddsomcyewta ieirmsfedriieaeccc\n"
+				  "aaaaatauktmatlnpgeihlelevnpvsuuu\n"
+				  "uuuuuegrnyoahivaeggoeailaeoasrrr\n"
+				  "rrrrrlisopdretitsehtccfetxrtesss\n"
+				  "aaaaaecewestreshtntsttemeptedeee\n"
                     "%v", binary_fmt, f3);
 }
 
@@ -679,7 +679,6 @@ static const tval_desc tvals[] =
 	{TV_NATURE_BOOK, "Nature Spellbook"},
 	{TV_CHAOS_BOOK, "Chaos Spellbook"},
 	{TV_DEATH_BOOK, "Death Spellbook"},
-	{TV_TRUMP_BOOK, "Trump Spellbook"},
 	{TV_ARCANE_BOOK, "Arcane Spellbook"},
 	{TV_SPIKE, "Spikes"},
 	{TV_DIGGING, "Digger"},
@@ -975,7 +974,7 @@ static object_type *wiz_reroll_item(object_type *o_ptr)
 				o_ptr = object_prep(o_ptr->k_idx);
 
 				/* Make a random artifact */
-				(void)create_artifact(o_ptr, FALSE);
+				(void)create_randart(o_ptr, FALSE);
 				break;
 			}
 		}

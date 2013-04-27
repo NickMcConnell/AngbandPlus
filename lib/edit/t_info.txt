@@ -1400,7 +1400,7 @@ F:18,field_action_magetower1 | 19,field_action_magetower2
 
 # Soul Dealer
 N:145:Soul Dealer
-G:7:G
+G:0:G
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:5:0:0:0:0:0:0

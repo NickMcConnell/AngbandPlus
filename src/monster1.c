@@ -214,7 +214,6 @@ static void roff_aux(int r_idx, int remem)
 		if (r_ptr->flags3 & RF3_EVIL) flags3 |= (RF3_EVIL);
 		if (r_ptr->flags3 & RF3_GOOD) flags3 |= (RF3_GOOD);
 		if (r_ptr->flags3 & RF3_ANIMAL) flags3 |= (RF3_ANIMAL);
-		if (r_ptr->flags3 & RF3_AMBERITE) flags3 |= (RF3_AMBERITE);
 
 		/* Know 'quantum' flag */
 		if (r_ptr->flags2 & RF2_QUANTUM) flags2 |= (RF2_QUANTUM);
@@ -513,7 +512,6 @@ static void roff_aux(int r_idx, int remem)
 		else if (flags3 & RF3_GIANT) roff(CLR_L_BLUE " giant");
 		else if (flags3 & RF3_TROLL) roff(CLR_L_BLUE " troll");
 		else if (flags3 & RF3_ORC) roff(CLR_L_BLUE " orc");
-		else if (flags3 & RF3_AMBERITE) roff(CLR_L_BLUE " Amberite");
 		else if (flags2 & RF2_QUANTUM) roff(CLR_L_BLUE " quantum creature");
 		else
 			roff(" creature");
@@ -748,7 +746,7 @@ static void roff_aux(int r_idx, int remem)
 	if (flags6 & (RF6_S_HI_UNDEAD)) vp[vn++] = "summon Greater Undead";
 	if (flags6 & (RF6_S_HI_DRAGON)) vp[vn++] = "summon Ancient Dragons";
 	if (flags6 & (RF6_S_CYBER)) vp[vn++] = "summon Cyberdemons";
-	if (flags6 & (RF6_S_AMBERITES)) vp[vn++] = "summon Lords of Amber";
+	if (flags6 & (RF6_XXX_A))   vp[vn++] = "do Something";
 	if (flags6 & (RF6_S_UNIQUE)) vp[vn++] = "summon Unique Monsters";
 
 	/* Describe spells */

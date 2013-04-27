@@ -46,7 +46,7 @@ to something you are more comfortable with.
 
   #   A secret door                   #   A wall
   +   A closed door                   %   A mineral vein
-  +   A locked door                   *   Treasure in wall / Pattern
+  +   A locked door                   *   Treasure in wall
   +   A jammed door                   :   A pile of rubble
 
 
@@ -261,10 +261,7 @@ last monster is killed which means that you cannot continue further
 into the dungeon until you have completed your quests. When you
 kill the last quest monster, the down staircase will be created and
 the monster will drop an item of 'excellent' quality or above. This
-is true even of monsters that do not normally drop items. Using the
-services of the Trump Tower (see the Town section) can teleport you
-past a particularly nasty quest but you must come back and finish
-it later if you want your character to be a winner.
+is true even of monsters that do not normally drop items. 
 
 Random quests can be either 'easy' or 'hard' and you must choose
 which type you want during character generation. This choice is

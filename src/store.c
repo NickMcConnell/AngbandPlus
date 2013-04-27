@@ -270,7 +270,6 @@ static void mass_produce(object_type *o_ptr)
 		case TV_NATURE_BOOK:
 		case TV_CHAOS_BOOK:
 		case TV_DEATH_BOOK:
-		case TV_TRUMP_BOOK:
 		case TV_ARCANE_BOOK:
 		{
 			if (cost <= 50L) size += damroll(2, 3);

@@ -80,88 +80,17 @@ they represent. It is recommended that inexperienced players choose
 warriors as spellcasting requires a player more familiar with dungeon
 survival techniques.
 
-The following table shows which classes are recommended for the various
-races.
-
- 
-            Warrior Mage  Priest Rogue  Ranger Paladin Warrior Chaos
-                                                        -Mage Warrior
-Human         Yes    Yes   Yes    Yes    Yes     Yes     Yes    Yes
-Half-Elf      Yes    Yes   Yes    Yes    Yes     Yes     Yes    Yes
-Elf           Yes    Yes   Yes    Yes    Yes     No      Yes    No
-Hobbit        Yes    Yes   No     Yes    No      No      No     No
-Gnome         Yes    Yes   Yes    Yes    No      No      No     No
-Dwarf         Yes    No    Yes    No     No      No      No     No
-Half-Orc      Yes    No    Yes    Yes    No      No      No     Yes
-Half-Troll    Yes    No    Yes    No     No      No      No     No
-Amberite      Yes    Yes   Yes    Yes    Yes     Yes     Yes    Yes
-High-Elf      Yes    Yes   Yes    Yes    Yes     No      Yes    No
-Barbarian     Yes    No    Yes    Yes    Yes     No      No     Yes
-Half-Ogre     Yes    Yes   Yes    No     No      No      No     No
-Half-Giant    Yes    No    No     No     Yes     No      No     No
-Half-Titan    Yes    Yes   Yes    No     No      Yes     No     No
-Cyclops       Yes    No    Yes    No     No      No      No     No
-Yeek          Yes    Yes   Yes    Yes    No      No      No     No
-Klackon       Yes    No    No     No     Yes     No      No     No
-Kobold        Yes    No    No     Yes    No      No      No     No
-Nibelung      Yes    Yes   Yes    Yes    No      No      No     No
-Dark Elf      Yes    Yes   Yes    Yes    Yes     No      Yes    Yes
-Draconian     Yes    Yes   Yes    No     No      No      Yes    No
-Mind Flayer   No     Yes   Yes    No     No      No      Yes    No
-Imp           Yes    Yes   No     Yes    No      No      Yes    Yes
-Golem         Yes    No    No     No     No      No      No     No
-Skeleton      Yes    Yes   Yes    Yes    No      No      No     No
-Zombie        Yes    No    No     No     No      No      No     No
-Vampire       Yes    Yes   Yes    Yes    Yes     Yes     Yes    Yes
-Spectre       No     Yes   Yes    Yes    No      No      Yes    No
-Sprite        No     Yes   Yes    Yes    Yes     No      Yes    No
-Beastman      Yes    Yes   Yes    Yes    No      No      Yes    Yes
-
-
-                   Mind-  High
-             Monk crafter Mage
-Human         Yes   Yes    Yes
-Half-Elf      Yes   Yes    Yes
-Elf           Yes   Yes    Yes
-Hobbit        No    No     Yes
-Gnome         No    Yes    Yes
-Dwarf         No    No     No
-Half-Orc      Yes   No     No
-Half-Troll    No    No     No
-Amberite      Yes   Yes    Yes
-High-Elf      Yes   Yes    Yes
-Barbarian     No    No     No
-Half-Ogre     No    No     Yes
-Half-Giant    No    No     No
-Half-Titan    Yes   Yes    Yes
-Cyclops       No    No     No
-Yeek          No    Yes    Yes
-Klackon       No    No     No
-Kobold        No    No     No
-Nibelung      No    No     Yes
-Dark Elf      Yes   Yes    Yes
-Draconian     Yes   Yes    Yes
-Mind Flayer   Yes   Yes    Yes
-Imp           Yes   Yes    Yes
-Golem         No    No     No
-Skeleton      Yes   Yes    Yes
-Zombie        No    No     No
-Vampire       Yes   Yes    Yes
-Spectre       Yes   Yes    Yes
-Sprite        No    Yes    Yes
-Beastman      Yes   Yes    Yes
-
 ***** <ChoosingMagic>
 === Choosing Your Magic Realm(s) ===
 
 If you have selected a spellcasting class, you will next be prompted
 for your choice of magic realm(s). The magic system, as implemented in
-XBAND, consists of seven realms: Life, Arcane, Sorcery, Nature,
-Trump, Chaos and Death. In general, Life is primarily defensive but
+XBAND, consists of six realms: Life, Arcane, Sorcery, Nature,
+Chaos and Death. In general, Life is primarily defensive but
 also offers spells to attack evil creatures, Arcane offers utility
 spells and some limited offensive capability, Sorcery offers utility
 and defensive spells, Nature offers both defensive and offensive
-spells, Trump specializes in teleportation and summoning spells and
+spells, and
 Chaos and Death are offensive. A more complete description of the magic
 realms and spellcasting in general can be found in the section on the
 Magic Realms (see magic.txt#MagicRealms [7]).
@@ -186,17 +115,17 @@ and '1st/2nd' indicates that it can be either. Classes that only have
 '1st' options do not get a second realm. Classes with only one '1st'
 option must choose this option as their first realm.
 
-Class          Life    Arcane  Sorcery Nature  Trump   Chaos   Death
+Class          Life    Arcane  Sorcery Nature  Chaos   Death
 ----------------------------------------------------------------------
-Mage           1st/2nd 1st/2nd 1st/2nd 1st/2nd 1st/2nd 1st/2nd 1st/2nd
-Priest         1st     2nd     2nd     2nd     2nd     2nd     1st
-Rogue                  1st     1st             1st             1st
-Ranger                 2nd     2nd     1st     2nd     2nd     2nd
-Paladin        1st                                             1st
-Warrior-Mage   2nd     1st     2nd     2nd     2nd     2nd     2nd
-Chaos Warrior                                          1st
-Monk           1st                     1st                     1st
-High Mage      1st     1st     1st     1st     1st     1st     1st
+Mage           1st/2nd 1st/2nd 1st/2nd 1st/2nd 1st/2nd 1st/2nd
+Priest         1st     2nd     2nd     2nd     2nd     1st
+Rogue                  1st     1st                     1st
+Ranger                 2nd     2nd     1st     2nd     2nd
+Paladin        1st                                     1st
+Warrior-Mage   2nd     1st     2nd     2nd     2nd     2nd
+Chaos Warrior                                  1st
+Monk           1st                     1st             1st
+High Mage      1st     1st     1st     1st     1st     1st
 
 
 ***** <RandomQuests>

@@ -307,20 +307,6 @@ void check_experience(void)
 		/* Save the highest level */
 		if (p_ptr->lev > p_ptr->max_lev)
 		{
-			int i;
-
-			if (p_ptr->prace == RACE_BEASTMAN)
-			{
-				/*
-				 * Chance for a mutation is increased
-				 * if multiple levels are gained.
-				 */
-				for (i = p_ptr->max_lev; i < p_ptr->lev; i++)
-				{
-					if (one_in_(5)) level_mutation = TRUE;
-				}
-			}
-
 			p_ptr->max_lev = p_ptr->lev;
 
 			if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) ||
@@ -731,10 +717,9 @@ bool monster_death(int m_idx, bool explode)
 		q_ptr->dd = 6;
 		q_ptr->pval = 2;
 
-		q_ptr->flags1 |= (TR1_VAMPIRIC | TR1_STR | TR1_CON);
-		q_ptr->flags2 |= (TR2_FREE_ACT | TR2_HOLD_LIFE | TR2_RES_NEXUS | TR2_RES_CHAOS | TR2_RES_NETHER | TR2_RES_CONF);	/* No longer resist_disen */
-		q_ptr->flags3 |= (TR3_IGNORE_ACID | TR3_IGNORE_ELEC |
-						  TR3_IGNORE_FIRE | TR3_IGNORE_COLD);
+		q_ptr->flags1 |= (TR1_STR | TR1_CON);
+		q_ptr->flags2 |= (TR2_VAMPIRIC | TR2_RES_NEXUS | TR2_RES_CHAOS | TR2_RES_NETHER | TR2_RES_CONF);	/* No longer resist_disen */
+		q_ptr->flags3 |= (TR3_IGNORE_ELEM | TR3_FREE_ACT | TR3_HOLD_LIFE );
 
 		/* Just to be sure */
 		q_ptr->flags3 |= TR3_NO_TELE;	/* How's that for a downside? */
@@ -830,10 +815,10 @@ bool monster_death(int m_idx, bool explode)
 		if (strstr((r_name + r_ptr->name), "Serpent of Chaos"))
 		{
 			/* Make Grond */
-			create_named_art(ART_GROND, x, y);
+//			create_named_art(ART_GROND, x, y);
 
 			/* Make Crown of Morgoth */
-			create_named_art(ART_MORGOTH, x, y);
+//			create_named_art(ART_MORGOTH, x, y);
 		}
 		else
 		{
@@ -925,7 +910,7 @@ bool monster_death(int m_idx, bool explode)
 				if (a_info[a_idx].cur_num == 0)
 				{
 					/* Create the artifact */
-					create_named_art(a_idx, x, y);
+//					create_named_art(a_idx, x, y);
 
 					/* The artifact has been created */
 					a_info[a_idx].cur_num = 1;
@@ -935,7 +920,7 @@ bool monster_death(int m_idx, bool explode)
 	}
 
 	/* (Non-unique) Monsters (sometimes) drop soul gems */
-	if (!(r_ptr->flags1 & RF1_UNIQUE) && one_in_(200))
+	if (!(r_ptr->flags1 & RF1_UNIQUE) && one_in_(200) && !(r_ptr->flags8 & RF8_WILD_TOWN) )
 	{
 		q_ptr = object_prep(lookup_kind(TV_SOUL_GEM, 0));
 
@@ -1238,23 +1223,6 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 			/* Hack -- Auto-recall */
 			monster_race_track(m_ptr->r_idx);
-		}
-
-		/* Don't kill Amberites */
-		if ((r_ptr->flags3 & RF3_AMBERITE) && one_in_(2))
-		{
-			int curses = rand_range(2, 4);
-			bool stop_ty = FALSE;
-			int count = 0;
-
-			msgf("%^s puts a terrible blood curse on you!", m_name);
-			curse_equipment(100, 50);
-
-			do
-			{
-				stop_ty = activate_ty_curse(stop_ty, &count);
-			}
-			while (--curses);
 		}
 
 		/* Delete the monster */
@@ -2054,9 +2022,6 @@ static bool target_set_accept(int x, int y)
 	/* Interesting memorized features */
 	feat = pc_ptr->feat;
 
-	/* Notice the Pattern */
-	if (cave_pattern_grid(pc_ptr)) return (TRUE);
-
 	/* Notice doors */
 	if (feat == FEAT_OPEN) return (TRUE);
 	if (feat == FEAT_BROKEN) return (TRUE);
@@ -2576,7 +2541,7 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 			/* Hack -- handle unknown grids */
 			if (feat == FEAT_NONE) name = "unknown grid";
 
-			/* Pick a prefix for the pattern and stairs */
+			/* Pick a prefix for stairs */
 			if (*s2 && cave_perma_grid(pc_ptr))
 			{
 				s2 = "on ";
@@ -3425,99 +3390,14 @@ void gain_level_reward(int chosen_reward)
 			msgf("'Thy deed hath earned thee a worthy blade.'");
 
 			tval = TV_SWORD;
-			switch (randint1(p_ptr->lev))
-			{
-				case 0:  case 1:
-					sval = SV_DAGGER;
-					break;
-				case 2:  case 3:
-					sval = SV_MAIN_GAUCHE;
-					break;
-				case 4:
-					sval = SV_TANTO;
-					break;
-				case 5:  case 6:
-					sval = SV_RAPIER;
-					break;
-				case 7:  case 8:
-					sval = SV_SMALL_SWORD;
-					break;
-				case 9:  case 10:
-					sval = SV_BASILLARD;
-					break;
-				case 11:  case 12:  case 13:
-					sval = SV_SHORT_SWORD;
-					break;
-				case 14:  case 15:
-					sval = SV_SABRE;
-					break;
-				case 16:  case 17:
-					sval = SV_CUTLASS;
-					break;
-				case 18:
-					sval = SV_WAKIZASHI;
-					break;
-				case 19:
-					sval = SV_KHOPESH;
-					break;
-				case 20:
-					sval = SV_TULWAR;
-					break;
-				case 21:
-					sval = SV_BROAD_SWORD;
-					break;
-				case 22:  case 23:
-					sval = SV_LONG_SWORD;
-					break;
-				case 24:  case 25:
-					sval = SV_SCIMITAR;
-					break;
-				case 26:
-					sval = SV_NINJATO;
-					break;
-				case 27:
-					sval = SV_KATANA;
-					break;
-				case 28:  case 29:
-					sval = SV_BASTARD_SWORD;
-					break;
-				case 30:
-					sval = SV_GREAT_SCIMITAR;
-					break;
-				case 31:
-					sval = SV_CLAYMORE;
-					break;
-				case 32:
-					sval = SV_ESPADON;
-					break;
-				case 33:
-					sval = SV_TWO_HANDED_SWORD;
-					break;
-				case 34:
-					sval = SV_FLAMBERGE;
-					break;
-				case 35:
-					sval = SV_NO_DACHI;
-					break;
-				case 36:
-					sval = SV_EXECUTIONERS_SWORD;
-					break;
-				case 37:
-					sval = SV_ZWEIHANDER;
-					break;
-				case 38:
-					sval = SV_DIAMOND_EDGE;
-					break;
-				default:
-					sval = SV_BLADE_OF_CHAOS;
-			}
+			sval = SV_BLADE_OF_CHAOS;
 
 			q_ptr = object_prep(lookup_kind(tval, sval));
 
 			q_ptr->to_h = 3 + randint1(p_ptr->depth) % 10;
 			q_ptr->to_d = 3 + randint1(p_ptr->depth) % 10;
 
-			add_ego_power(EGO_XTRA_POWER  , q_ptr);
+			add_ego_power(EGO_XTRA_RESIST  , q_ptr);
 			add_ego_power(EGO_XTRA_ABILITY, q_ptr);
 			add_ego_power(EGO_XTRA_SLAY   , q_ptr);
 			add_ego_flags(q_ptr, EGO_CHAOTIC);

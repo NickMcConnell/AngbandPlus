@@ -300,6 +300,8 @@ int get_player_sort_choice(cptr *choices, int num, int col, int wid,
 	/* Get the choice */
 	choice = get_player_choice(strings, num, col, wid, helpfile, hook);
 
+	if (choice == INVALID_CHOICE) return choice;
+
 	/* Invert the choice */
 	for (i = 0; i < num; i++)
 	{

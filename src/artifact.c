@@ -144,7 +144,7 @@ void random_low_resist(object_type *o_ptr)
 	}
 }
 
-bool create_artifact(object_type *o_ptr, bool a_scroll)
+bool create_randart(object_type *o_ptr, bool a_scroll)
 {
 	char new_name[1024];
 	u32b oldFlag1;
@@ -160,6 +160,14 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 
 	numTries = 0;
 	numEgo   = 0;
+
+	/* give all artifact lites permanent light, this prevents wierd interactions between
+	   refueling timeouts and activation timeouts */
+	if (o_ptr->tval == TV_LITE)
+	{
+		o_ptr->timeout = 0;
+		o_ptr->flags3 |= TR3_LITE;
+	}
 
 	//if the second apply magic didn't give us anything new, try again
 	while ( numEgo < 2 )
@@ -197,7 +205,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 	switch (randint0(rand_range))
 	{
 		case 0:
-			add_ego_power(EGO_XTRA_POWER,   o_ptr);
+			add_ego_power(EGO_XTRA_RESIST,  o_ptr);
 			break;
 		case 1:
 			add_ego_power(EGO_XTRA_SUSTAIN, o_ptr);
@@ -210,23 +218,58 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 			break;
 	}
 
-	/* give all artifact lites permanent light, this prevents wierd interactions between
-	   refueling timeouts and activation timeouts */
-	if (o_ptr->tval == TV_LITE)
-	{
-		o_ptr->timeout = 0;
-		o_ptr->flags3 = TR3_LITE;
-	}
-
 	/* give one in three randarts an activation */
 	if (one_in_(3)) give_activation_power(o_ptr);
+
+	// if this doesn't have a pval, give it something.
+	if (o_ptr->pval == 0)
+	{
+		switch (randint(20))
+		{
+		case 1: case 2:
+			o_ptr->flags1 |= TR1_STR;
+			o_ptr->pval = randint(3);
+			break;
+		case 3: case 4:
+			o_ptr->flags1 |= TR1_CON;
+			o_ptr->pval = randint(3);
+			break;
+		case 5: case 6:
+			o_ptr->flags1 |= TR1_DEX;
+			o_ptr->pval = randint(3);
+			break;
+		case 7: case 8:
+			o_ptr->flags1 |= TR1_INT;
+			o_ptr->pval = randint(3);
+			break;
+		case 9: case 10:
+			o_ptr->flags1 |= TR1_WIS;
+			o_ptr->pval = randint(3);
+			break;
+		case 11: case 12: case 13: case 14:
+			o_ptr->flags1 |= TR1_CHR;
+			o_ptr->pval =  randint(6);
+			break;
+		case 15:
+			o_ptr->flags1 |= TR1_SPEED;
+			o_ptr->pval = randint(6);
+			break;
+		case 16:
+			o_ptr->flags1 |= TR1_BLOWS;
+			o_ptr->pval = 1;
+			break;
+		case 17: case 18: case 19: case 20:
+			o_ptr->flags1 |= TR1_STEALTH;
+			o_ptr->pval = randint(6);
+			break;
+		}
+	}
 
 	/* take away the easy know flag, if it has it */
 	o_ptr->flags3 &= ~TR3_EASY_KNOW;
 
 	/* Apply the artifact flags */
-	o_ptr->flags3 |= (TR3_IGNORE_ACID | TR3_IGNORE_ELEC |
-					  TR3_IGNORE_FIRE | TR3_IGNORE_COLD | TR3_INSTA_ART);
+	o_ptr->flags3 |= (TR3_IGNORE_ELEM | TR3_INSTA_ART);
 
 	/* start off not knowing anything about it */
 	o_ptr->kn_flags1 = 0;
@@ -267,7 +310,8 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 		if (!(get_string(dummy_name, 80,
         				 "What do you want to call the artifact? ")))
 		{
-			get_table_name(new_name, TRUE);
+			if ( (o_ptr->tval >= TV_BOW) && (o_ptr->tval <= TV_SWORD) )	get_randart_name_weapon(new_name);
+				else get_randart_name_other(new_name);
 		}
 		else
 		{
@@ -276,7 +320,8 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 	}
 	else
 	{
-		get_table_name(new_name, TRUE);
+		if ( (o_ptr->tval >= TV_BOW) && (o_ptr->tval <= TV_SWORD) )	get_randart_name_weapon(new_name);
+			else get_randart_name_other(new_name);
 	}
 
 	/* Save the inscription */
@@ -1754,7 +1799,7 @@ void random_artifact_resistance(object_type *o_ptr)
 
 	if (give_resistance)
 	{
-		add_ego_power(EGO_XTRA_POWER, o_ptr);
+		add_ego_power(EGO_XTRA_RESIST, o_ptr);
 	}
 }
 

@@ -343,7 +343,7 @@ F:0:RES_LITE | LITE
 
 N:59:Dark
 C:0:0:0
-F:0:RES_DARK
+F:0:RES_DARK | STEALTH 
 
 N:60:Multihued
 C:0:0:0

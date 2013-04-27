@@ -256,7 +256,52 @@ static bool object_flavor(int k_idx)
 }
 
 
-void get_table_name(char *out_string, bool quotes)
+void get_randart_name_weapon(char *out_string)
+{
+	int len = 0;
+	
+	char Syllable[80];
+
+	/* Empty string */
+	out_string[0] = 0;
+
+	strnfcat(out_string, 18, &len, "'");
+
+	(void)get_rnd_line("prefix.txt", 0, Syllable);
+	strnfcat(out_string, 18, &len, "%s", Syllable);
+
+	(void)get_rnd_line("suffix.txt", 0, Syllable);
+	strnfcat(out_string, 18, &len, "%s", Syllable);
+
+	strnfcat(out_string, 18, &len, "'");
+
+	out_string[0] = toupper(out_string[0]);
+}
+
+void get_randart_name_other(char *out_string)
+{
+	int len = 0;
+	
+	char Syllable[80];
+
+	/* Empty string */
+	out_string[0] = 0;
+
+	strnfcat(out_string, 18, &len, "'");
+
+	(void)get_rnd_line("adject.txt", 0, Syllable);
+	strnfcat(out_string, 18, &len, "%s", Syllable);
+
+	(void)get_rnd_line("noun.txt", 0, Syllable);
+	strnfcat(out_string, 18, &len, " %s", Syllable);
+
+	strnfcat(out_string, 18, &len, "'");
+
+	out_string[0] = toupper(out_string[0]);
+}
+
+
+void get_table_name(char *out_string)
 {
 	int testcounter = rand_range(2, 3);
 	
@@ -264,11 +309,6 @@ void get_table_name(char *out_string, bool quotes)
 	
 	/* Empty string */
 	out_string[0] = 0;
-
-	if (quotes)
-	{
-		strnfcat(out_string, 18, &len, "'");
-	}
 
 	if (one_in_(3))
 	{
@@ -286,15 +326,7 @@ void get_table_name(char *out_string, bool quotes)
 		}
 	}
 
-	if (quotes)
-	{
-		out_string[1] = toupper(out_string[1]);
-		strnfcat(out_string, 18, &len, "'");
-	}
-	else
-	{
-		out_string[0] = toupper(out_string[0]);
-	}
+	out_string[0] = toupper(out_string[0]);
 }
 
 
@@ -793,16 +825,6 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 				basenm = "& Book~ of Death Magic #";
 			else
 				basenm = "& Death Spellbook~ #";
-			break;
-		}
-
-		case TV_TRUMP_BOOK:
-		{
-			modstr = basenm;
-			if (mp_ptr->spell_book == TV_LIFE_BOOK)
-				basenm = "& Book~ of Trump Magic #";
-			else
-				basenm = "& Trump Spellbook~ #";
 			break;
 		}
 

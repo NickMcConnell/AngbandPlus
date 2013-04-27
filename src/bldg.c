@@ -76,29 +76,6 @@ void have_nightmare(int r_idx)
 
 	r_ptr->r_flags4 |= RF4_ELDRITCH_HORROR;
 
-	switch (p_ptr->prace)
-	{
-		case RACE_IMP:
-		{
-			/* Imps may make a saving throw */
-			if (saving_throw(20 + p_ptr->lev)) return;
-
-			break;
-		}
-
-		case RACE_SKELETON:
-		case RACE_ZOMBIE:
-		case RACE_SPECTRE:
-		case RACE_VAMPIRE:
-		case RACE_GHOUL:
-		{
-			/* Undead may make a saving throw */
-			if (saving_throw(10 + p_ptr->lev)) return;
-
-			break;
-		}
-	}
-
 	/* Mind blast */
 	if (!saving_throw(p_ptr->skill_sav * 100 / power))
 	{

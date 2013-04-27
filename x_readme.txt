@@ -1,112 +1,79 @@
-XBAND 0.4.0
+XBAND 0.5.0
 
 Author: Chris Watkins (xis@prodigy.net)
 
 XBAND is an Angband variant based off of ZAngband 2.7.2. I made this game
-to bring new gameplay elements into the world of Angband variants. XBAND
-features one major new element; that of capturing and raising souls. 
+to bring new gameplay elements into the world of Angband variants. 
 
-Sometimes, when you kill a monster, it will drop a soul gem. These soul
-gems can be imbued into rings and amulets at the soul dealer. 
+What makes XBAND unique?
 
-Souls level up as you fight, their maximum level is level 6. Their pval is
-equal to their level. As they level up, they gain more resists and abilities.
+1. The soul-gem system. In XBAND, you build your own magical rings and
+     amulets by binding the souls of defeated monsters to jewelry.
+2. The races. In XBAND, you play the part of an nasty monster. You might
+     be an Orc, or a Troll. You aren't fighting to save the world. You
+     are fighting because it's fun.
+3. The auto-ID system. In XBAND, as your characters advance, they gain
+     the ability to evaluate items at a glance. Some classes, like rogues,
+     are very good at this. This helps speed things up in the later parts
+     of the game.
+4. The randart system. In XBAND, every artifact is randomly generated. As
+     you descend deeper into the dungeon, you will find artifacts of
+     greater and greater power.
 
-To gain level 2, you need to kill  200 monsters worth   1 xp or more
-To gain level 3, you need to kill  400 monsters worth   8 xp or more
-To gain level 4, you need to kill  600 monsters worth  27 xp or more
-To gain level 5, you need to kill  800 monsters worth  64 xp or more
-To gain level 6, you need to kill 1000 monsters worth 125 xp or more
+Changes from version 0.4.0 include:
 
-As you can see from the chart, there are thresholds associated with each
-level. Kills that give less XP than the threshold don't count toward
-leveling up the items. When I say kill monsters, I really mean anything that
-gains XP. Disarming traps also works, for example. 
+Massive setting changes:
+  Stripped out ALL of the old races, replaced them with the green menace:
+    Black Orcs, Savage Orcs, Goblins, Night Goblins, Stone Trolls,
+    Ogres, Ettins, Hobgoblins, Gremlins, Snotlings, and Humans.
+  Edited help files to match new races.
+  Consequently, the townsfolk now look a little different...
+  New functions for randart names.
+  Many items have been renamed.
+  Stripped out all references to Amberites, Trump and the Pattern.
 
-There are five grades of rings and amulets. Copper, Silver, Gold, Platinum,
-and Adamantium. The more valuable the material, the higher level an imbued 
-soul can reach. 
+Big changes to the item code:
+  Normal artifacts have been removed, only randarts are generated now.
+  Added ILL_STAT flags. Items can now be generated that boost one stat while
+    penalizing another.
+  Removed IGNORE_XXX, replaced with IGNORE_ELEM, which ignores all elements.
+  Many items have had IGNORE_ELEM added.
+  Items without IGNORE_ELEM will still ignore some elements, if the item
+    grants resistance against that element (armor of resist acid, for example).
+  Removed QUEST_ITEM, along with grond + morgoth's crown
+  Added AURA_POIS, a poison sheath.
+  Re-worked the character info screen a little bit to show the new flags:
+    AURA_POIS is shown on the screen
+    ILL_XXX flags are shown as penalties
+    If an item has a penalty to a stat, but also sustains it, that value will
+    be shown in yellow.
+  Some ego-types have been made rarer, others more common.
 
-Level 2 - Copper
-Level 3 - Silver
-Level 4 - Gold
-Level 5 - Platinum
-Level 6 - Adamantium
+Summoned monsters now appear next to the summoner, rather than the player.
 
-In addition, Adamantium is immmune to being destroyed by
-the elements. 
+Monsters generated in town no longer drop soul gems.
 
-Currently, each monster letter has a soul type associated with it. This
-means that the soul of a snotling gives the same benefits as that of a black
-orc. Monster types that you encounter in the first few levels of the game
-(icky things, kobolds, etc.) have fairly weak souls. When you dive a little
-deeper, you hit the mid-range of souls (lesser demons, ogres, golems, etc.).
-The mid-range souls are about twice as strong. In the depths of the dungeon,
-you find the most dangerous monster types (greater demons, ancient dragons,
-liches, etc.), who have the most powerful souls.
+Added some more info when you 'i'nspect a bound item.
 
-In addition, many monsters have a secondary soul type. If a monster has an
-elemental attack, its soul will have bonuses related to that element. If
-a monster has multiple elemental attacks, it's soul gem will be created
-with an elemental sub-type chosen randomly from its attacks.
+Greatly weakened staff + wand draining
 
+Tweaked the Dark soul sub-type; added STEALTH.
 
-Changes from version 0.3.1 include:
-
-Vanilla town has had one more store added (Soul Dealer).
-  As a consequence, Vanilla mode is now much more playable.
-The Vanilla town is now the default town.
-Removed the 'Imbue' option from the soul dealer; imbuing items is now a simple
-  command. Just hit 'B' to (imbue/bind) a soul to an item.
-  As a consequence, Ironman mode should now be much more playable.
-Poison is now one of the basic resists, many items have been updated to reflect this.
-Added poison immunity.
-  Kobolds now gain poison immunity at L30.
-  Poison soul gems now grant poison immunity at L6.
-  Green Dragon Scale Mail now provides poison immunity.
-Weapons and armor are no longer generated in stacks at the stores.
-Rings and amulets no longer stack.
-Made all staves/rods/potions/mushrooms/spells of "Cure X" act the same way.
-Chaos magic has been re-worked a bit; it should have more flexibility now.
-  Removed Wonder, replaced with Sense Power, which pseudo-ID's equipment.
-  Removed Chain Lightning, replaced with Battle Frenzy, which berserks + hastes.
-  Removed Touch of Confusion, replaced with Ray of Confusion, which confuses at range.
-  Removed Chaos Branding, replaced with Mass Confusion, which confuses all monsters in LOS.
-Psychometry (and by extension, the Chaos spell Sense Power) will now filter out already-sensed items.
-Quest monsters now appear in red in visible monsters term.
-The message about the soul dealer in monster recall is now displayed in green.
-Character dumps are now saved in the SAVE directory, while note files are still
-  saved in the USER directory. This prevents a problem where it was easy to over-
-  write note files with character dumps.
-Monsters that have elemental auras will now drop soul gems with elemental sub-types.
-Weakened Ogre souls.
-Changed the color of several monsters:
-  Changed color of Lizardmen / Lizard King to prevent confusion with Gnome Mages
-  Changed color of Alberich, Mime, and Hagen to all match.
-  Changed color of most leprechauns
-  Changed Forest Gnome to Gnome Archer, changed color.
-  Changed color of snotlings to prevent confusion with goblins.
-Dialed back damage bonuses. Each +1 now gives +5% damage.
-Dialed back brand damage. Fire, Cold, Elec, Acid, and Poison brands now do 2X damage.
-Made some changes to artifacts.
-Messed around with hidden attribute detection on items that have not been *ID'ed*.
-Randarts can now have Vampiric or Vorpal as random slays.
-Randart lites now always have permanent light. 
-  (The timeouts on fuel and the timeouts on activated abilities are linked; I had to either cut activated abilities on randart lites,
-  or give all lites permanent lite).
-Fixed ego-type 'of digging'.
-Adjust costs of some ego items.
-Warpstone weapons now cause random teleportation.
-Ported over some bugfixes from Zangband 2.7.4b:
-  Fixed some savefile loading bugs
-  Fixed monster lights
-  Fixed some crashes related to monster movement
-  Fixed some door closing / opening stuff
-  Fixed permenant inscription you used to get if you tried to destroy an artifact.
-Changed algorithm for decreasing stats, algorithm taken from Z 2.7.4b
-Fixed scrolls of rumor.
-Replaced ZAngband with XBAND in a lot of help files.
-Added the Soul Gem helpfile to the helpfile system.
+Bug Fixes:
+  Fixed potions of life; they weren't healing.
+  Fixed a bug where randart lites were not being generated with some flags
+  Fixed a bug where randarts with the 'Sharpness' ego-type could give way too
+    many extra attacks
+  Fixed a bug that allowed *ID'ed* artifacts to be destroyed
+  Non-sword randarts can no longer have the 'Vorpal' flag, they get the
+    'Earthquake' flag instead.
+  Fixed a bug in the birth screens; hitting escape could cause a 
+    program crash.
+  Fixed a bug where acid was damaging acid-resistant armor+weapons
+  Fixed a typo in the chaos spell descriptions.
+  Reverted psychometry to previous behavior; new behavior was bugged.
+  Updated spell info screens with new healing amounts.
+  Fixed a bug where some worthless items were being pseudo-id'ed as "excellent"
 
 Changes from version 0.3.0 include:
 

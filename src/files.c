@@ -343,7 +343,6 @@ errr process_pref_file_command(char *buf)
 
 	char *zz[16];
 
-
 	/* Skip "empty" lines */
 	if (!buf[0]) return (0);
 
@@ -1533,7 +1532,7 @@ static void display_player_abilities(void)
 			avgdam *= 786;
 			avgdam /= 500;
 		}
-		else if (object_known_p(o_ptr) && (f1 & TR1_VORPAL))
+		else if (object_known_p(o_ptr) && (f2 & TR2_VORPAL))
 		{
 			/* vorpal flag only */
 			avgdam *= 609;
@@ -1594,7 +1593,7 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3)
 				if (p_ptr->lev > 9)
 					(*f1) |= TR1_SPEED;
 				if (p_ptr->lev > 24)
-					(*f2) |= (TR2_FREE_ACT);
+					(*f3) |= (TR3_FREE_ACT);
 			}
 			break;
 		case CLASS_MINDCRAFTER:
@@ -1614,176 +1613,41 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3)
 	/* Races */
 	switch (p_ptr->prace)
 	{
-		case RACE_ELF:
-			(*f2) |= (TR2_RES_LITE);
-			break;
-		case RACE_HOBBIT:
-			(*f2) |= (TR2_SUST_DEX);
-			break;
-		case RACE_GNOME:
-			(*f2) |= (TR2_FREE_ACT);
-			break;
-		case RACE_DWARF:
-			(*f2) |= (TR2_RES_BLIND);
-			break;
-		case RACE_HALF_ORC:
-			(*f2) |= (TR2_RES_DARK);
-			break;
-		case RACE_HALF_TROLL:
-			(*f2) |= (TR2_SUST_STR);
-			if (p_ptr->lev > 14)
-			{
-				(*f3) |= (TR3_REGEN);
-				if (p_ptr->pclass == CLASS_WARRIOR)
-				{
-					(*f3) |= (TR3_SLOW_DIGEST);
-					/*
-					 * Let's not make Regeneration a disadvantage
-					 * for the poor warriors who can never learn
-					 * a spell that satisfies hunger (actually
-					 * neither can rogues, but half-trolls are not
-					 * supposed to play rogues)
-					 */
-				}
-			}
-			break;
-		case RACE_AMBERITE:
-			(*f2) |= (TR2_SUST_CON);
-			(*f3) |= (TR3_REGEN);	/* Amberites heal fast */
-			break;
-		case RACE_HIGH_ELF:
-			(*f2) |= (TR2_RES_LITE);
-			(*f3) |= (TR3_SEE_INVIS);
-			break;
-		case RACE_BARBARIAN:
+		case RACE_BLACK_ORC:
 			(*f2) |= (TR2_RES_FEAR);
 			break;
-		case RACE_HALF_OGRE:
-			(*f2) |= (TR2_SUST_STR);
-			(*f2) |= (TR2_RES_DARK);
+		case RACE_SAVAGE_ORC:
+			(*f3) |= (TR3_REFLECT);
 			break;
-		case RACE_HALF_GIANT:
-			(*f2) |= (TR2_RES_SHARDS);
-			(*f2) |= (TR2_SUST_STR);
-			break;
-		case RACE_HALF_TITAN:
-			(*f2) |= (TR2_RES_CHAOS);
-			break;
-		case RACE_CYCLOPS:
-			(*f2) |= (TR2_RES_SOUND);
-			break;
-		case RACE_YEEK:
-			(*f2) |= (TR2_RES_ACID);
-			if (p_ptr->lev > 19)
-				(*f2) |= (TR2_IM_ACID);
-			break;
-		case RACE_KLACKON:
+		case RACE_OGRE:
 			(*f2) |= (TR2_RES_CONF);
-			(*f2) |= (TR2_RES_ACID);
-			if (p_ptr->lev > 9)
-				(*f1) |= TR1_SPEED;
+			(*f2) |= (TR2_RES_LITE);
 			break;
-		case RACE_KOBOLD:
+		case RACE_ETTIN:
+			(*f2) |= (TR2_RES_BLIND);
+			(*f2) |= (TR2_RES_LITE);
+			break;
+		case RACE_HUMAN:
+			(*f2) |= (TR2_RES_LITE);
+			break;
+		case RACE_GREMLIN:
+			(*f3) |= (TR3_FEATHER);
+			break;
+		case RACE_STONE_TROLL:
+			(*f3) |= (TR3_REGEN);
+			break;
+		case RACE_NIGHT_GOBLIN:
+			(*f3) |= (TR3_SEE_INVIS);
+			break;
+		case RACE_GOBLIN:
+			(*f3) |= (TR3_FREE_ACT);
+			break;
+		case RACE_HOBGOBLIN:
 			(*f2) |= (TR2_RES_POIS);
 			if (p_ptr->lev > 29)
 				(*f2) |= (TR2_IM_POIS);
 			break;
-		case RACE_NIBELUNG:
-			(*f2) |= (TR2_RES_DISEN);
-			(*f2) |= (TR2_RES_DARK);
-			break;
-		case RACE_DARK_ELF:
-			(*f2) |= (TR2_RES_DARK);
-			if (p_ptr->lev > 19)
-				(*f3) |= (TR3_SEE_INVIS);
-			break;
-		case RACE_DRACONIAN:
-			(*f3) |= TR3_FEATHER;
-			if (p_ptr->lev > 4)
-				(*f2) |= (TR2_RES_FIRE);
-			if (p_ptr->lev > 9)
-				(*f2) |= (TR2_RES_COLD);
-			if (p_ptr->lev > 14)
-				(*f2) |= (TR2_RES_ACID);
-			if (p_ptr->lev > 19)
-				(*f2) |= (TR2_RES_ELEC);
-			if (p_ptr->lev > 34)
-				(*f2) |= (TR2_RES_POIS);
-			break;
-		case RACE_MIND_FLAYER:
-			(*f2) |= (TR2_SUST_INT);
-			(*f2) |= (TR2_SUST_WIS);
-			if (p_ptr->lev > 14)
-				(*f3) |= (TR3_SEE_INVIS);
-			if (p_ptr->lev > 29)
-				(*f3) |= (TR3_TELEPATHY);
-			break;
-		case RACE_IMP:
-			(*f2) |= (TR2_RES_FIRE);
-			if (p_ptr->lev > 9)
-				(*f3) |= (TR3_SEE_INVIS);
-			break;
-		case RACE_GOLEM:
-			(*f3) |= (TR3_SEE_INVIS);
-			(*f2) |= (TR2_FREE_ACT);
-			(*f2) |= (TR2_RES_POIS);
-			(*f3) |= (TR3_SLOW_DIGEST);
-			if (p_ptr->lev > 34)
-				(*f2) |= (TR2_HOLD_LIFE);
-			break;
-		case RACE_SKELETON:
-			(*f3) |= (TR3_SEE_INVIS);
-			(*f2) |= (TR2_RES_SHARDS);
-			(*f2) |= (TR2_HOLD_LIFE);
-			(*f2) |= (TR2_RES_POIS);
-			if (p_ptr->lev > 9)
-				(*f2) |= (TR2_RES_COLD);
-			break;
-		case RACE_ZOMBIE:
-			(*f3) |= (TR3_SEE_INVIS);
-			(*f2) |= (TR2_HOLD_LIFE);
-			(*f2) |= (TR2_RES_NETHER);
-			(*f2) |= (TR2_RES_POIS);
-			(*f3) |= (TR3_SLOW_DIGEST);
-			if (p_ptr->lev > 4)
-				(*f2) |= (TR2_RES_COLD);
-			break;
-		case RACE_VAMPIRE:
-			(*f2) |= (TR2_HOLD_LIFE);
-			(*f2) |= (TR2_RES_DARK);
-			(*f2) |= (TR2_RES_NETHER);
-			(*f3) |= (TR3_LITE);
-			(*f2) |= (TR2_RES_POIS);
-			(*f2) |= (TR2_RES_COLD);
-			break;
-		case RACE_SPECTRE:
-			(*f2) |= (TR2_RES_COLD);
-			(*f3) |= (TR3_SEE_INVIS);
-			(*f2) |= (TR2_HOLD_LIFE);
-			(*f2) |= (TR2_RES_NETHER);
-			(*f2) |= (TR2_RES_POIS);
-			(*f3) |= (TR3_SLOW_DIGEST);
-			/* XXX pass_wall */
-			if (p_ptr->lev > 34)
-				(*f3) |= TR3_TELEPATHY;
-			break;
-		case RACE_SPRITE:
-			(*f2) |= (TR2_RES_LITE);
-			(*f3) |= (TR3_FEATHER);
-			if (p_ptr->lev > 9)
-				(*f1) |= (TR1_SPEED);
-			break;
-		case RACE_BEASTMAN:
-			(*f2) |= (TR2_RES_SOUND);
-			(*f2) |= (TR2_RES_CONF);
-			break;
-		case RACE_GHOUL:
-			(*f2) |= (TR2_HOLD_LIFE);
-			if (p_ptr->lev > 9) (*f2) |= (TR2_RES_DARK);
-			if (p_ptr->lev > 19) (*f2) |= (TR2_RES_NETHER);
-			(*f2) |= (TR2_RES_POIS);
-			(*f2) |= (TR2_RES_COLD);
-			break;
+
 		default:
 			;					/* Do nothing */
 	}
@@ -1835,7 +1699,7 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3)
 
 		if (p_ptr->muta3 & MUT3_MOTION)
 		{
-			(*f2) |= TR2_FREE_ACT;
+			(*f3) |= TR3_FREE_ACT;
 		}
 	}
 }
@@ -1974,7 +1838,7 @@ static void display_player_flag_info(void)
 
 	/*** Set 2 ***/
 
-	row = 11;
+	row =  9;
 	col = 24;
 
 	display_player_equippy(col + 10, row++);
@@ -1982,15 +1846,15 @@ static void display_player_flag_info(void)
 	put_fstr(col + 10, row++, "abcdefghijkl@");
 
 	display_player_flag_aux(col, row++, "Speed   :", 1, TR1_SPEED, 0);
-	display_player_flag_aux(col, row++, "Reflect :", 2, TR2_REFLECT, 0);
+	display_player_flag_aux(col, row++, "Reflect :", 3, TR3_REFLECT, 0);
 	display_player_flag_aux(col, row++, "AuraFire:", 3, TR3_SH_FIRE, 0);
 	display_player_flag_aux(col, row++, "AuraElec:", 3, TR3_SH_ELEC, 0);
 	display_player_flag_aux(col, row++, "AuraCold:", 3, TR3_SH_COLD, 0);
 	display_player_flag_aux(col, row++, "AuraAcid:", 3, TR3_SH_ACID, 0);
+	display_player_flag_aux(col, row++, "AuraPois:", 3, TR3_SH_POIS, 0);
 	display_player_flag_aux(col, row++, "NoTelprt:", 3, TR3_NO_TELE, 0);
 	display_player_flag_aux(col, row++, "No Magic:", 3, TR3_NO_MAGIC, 0);
-	display_player_flag_aux(col, row++, "Cursed  :", 3, TR3_CURSED,
-							TR3_HEAVY_CURSE | TR3_PERMA_CURSE);
+	display_player_flag_aux(col, row++, "Cursed  :", 3, TR3_CURSED, TR3_HEAVY_CURSE | TR3_PERMA_CURSE);
 	display_player_flag_aux(col, row++, "DrainExp:", 3, TR3_DRAIN_EXP, 0);
 	display_player_flag_aux(col, row++, "Teleport:", 3, TR3_TELEPORT, 0);
 
@@ -2004,9 +1868,9 @@ static void display_player_flag_info(void)
 
 	put_fstr(col + 11, row++, "abcdefghijkl@");
 
-	display_player_flag_aux(col, row++, "Free Actn:", 2, TR2_FREE_ACT, 0);
+	display_player_flag_aux(col, row++, "Free Actn:", 3, TR3_FREE_ACT, 0);
 	display_player_flag_aux(col, row++, "SeeInvis.:", 3, TR3_SEE_INVIS, 0);
-	display_player_flag_aux(col, row++, "Hold Life:", 2, TR2_HOLD_LIFE, 0);
+	display_player_flag_aux(col, row++, "Hold Life:", 3, TR3_HOLD_LIFE, 0);
 	display_player_flag_aux(col, row++, "Telepathy:", 3, TR3_TELEPATHY, 0);
 	display_player_flag_aux(col, row++, "SlwDigstn:", 3, TR3_SLOW_DIGEST, 0);
 	display_player_flag_aux(col, row++, "Regen.   :", 3, TR3_REGEN, 0);
@@ -2033,6 +1897,7 @@ static void display_player_stat_info(void)
 	int i, e_adj;
 	int stat_col, stat;
 	int row, col;
+	int temp;
 
 	object_type *o_ptr;
 	u32b f1, f2, f3;
@@ -2045,7 +1910,7 @@ static void display_player_stat_info(void)
 	stat_col = 24;
 
 	/* Row */
-	row = 3;
+	row = 2;
 
 	/* Print out the labels for the columns */
 	put_fstr(stat_col, row - 1, "Stat");
@@ -2121,40 +1986,51 @@ static void display_player_stat_info(void)
 			/* Default */
 			a = TERM_SLATE;
 			c = '.';
+			temp = 0;
+
+			// good stats
+			if (f1 & 1 << stat)      temp += o_ptr->pval;			
+			// ill stats
+			if (f1 & (1<<6) << stat) temp -= o_ptr->pval;
 
 			/* Boost */
-			if (f1 & 1 << stat)
+			if (temp != 0)
 			{
 				/* Default */
 				c = '*';
 
 				/* Good */
-				if (o_ptr->pval > 0)
+				if (temp > 0)
 				{
 					/* Good */
 					a = TERM_L_GREEN;
 
 					/* Label boost */
-					if (o_ptr->pval < 10) c = '0' + o_ptr->pval;
-				}
+					if (temp < 10) c = '0' + temp;
 
-				if (f2 & 1 << stat)
-				{
-					/* Dark green for sustained stats. */
-					a = TERM_GREEN;
+					if (f2 & 1 << stat)
+					{
+						/* Dark green for sustained stats. */
+						a = TERM_GREEN;
+					}
 				}
 
 				/* Bad */
-				if (o_ptr->pval < 0)
+				if (temp < 0)
 				{
 					/* Bad */
 					a = TERM_RED;
 
 					/* Label boost */
-					if (o_ptr->pval < 10) c = '0' - o_ptr->pval;
+					if (temp < 10) c = '0' - temp;
+
+					if (f2 & 1 << stat)
+					{
+						/* Yellow for penalized-but-sustained. */
+						a = TERM_YELLOW;
+					}
 				}
 			}
-
 			/* Sustain */
 			else if (f2 & 1 << stat)
 			{

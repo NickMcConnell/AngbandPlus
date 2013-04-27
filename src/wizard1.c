@@ -103,7 +103,6 @@ static const grouper group_item[] =
 	{TV_NATURE_BOOK, "Books (Nature)"},
 	{TV_CHAOS_BOOK, "Books (Chaos)"},
 	{TV_DEATH_BOOK, "Books (Death)"},
-	{TV_TRUMP_BOOK, "Books (Trump)"},
 	{TV_ARCANE_BOOK, "Books (Arcane)"},
 
 	{TV_CHEST, "Chests"},
@@ -472,7 +471,7 @@ static const flag_desc slay_flags_desc[] =
 /*
  * Elemental brands for weapons
  *
- * Clearly, TR1_IMPACT is a bit out of place here. To simplify
+ * Clearly, TR2_IMPACT is a bit out of place here. To simplify
  * coding, it has been included here along with the elemental
  * brands. It does seem to fit in with the brands and slaying
  * more than the miscellaneous section.
@@ -485,10 +484,10 @@ static const flag_desc brand_flags_desc[] =
 	{TR1_BRAND_COLD, "Frost Brand"},
 	{TR1_BRAND_POIS, "Poisoned"},
 
-	{TR1_CHAOTIC, "Mark of Chaos"},
-	{TR1_VAMPIRIC, "Vampiric"},
-	{TR1_IMPACT, "Earthquake impact on hit"},
-	{TR1_VORPAL, "Very sharp"},
+	{TR2_CHAOTIC, "Mark of Chaos"},
+	{TR2_VAMPIRIC, "Vampiric"},
+	{TR2_IMPACT, "Earthquake impact on hit"},
+	{TR2_VORPAL, "Very sharp"},
 };
 
 
@@ -549,9 +548,9 @@ static const flag_desc sustain_flags_desc[] =
 static const flag_desc misc_flags2_desc[] =
 {
 	{TR2_THROW, "Throwing"},
-	{TR2_REFLECT, "Reflection"},
-	{TR2_FREE_ACT, "Free Action"},
-	{TR2_HOLD_LIFE, "Hold Life"},
+	{TR3_REFLECT, "Reflection"},
+	{TR3_FREE_ACT, "Free Action"},
+	{TR3_HOLD_LIFE, "Hold Life"},
 };
 
 /*
@@ -1714,7 +1713,7 @@ static void spoil_mon_info(cptr fname)
 		else if (flags3 & (RF3_GIANT)) spoil_out(" giant");
 		else if (flags3 & (RF3_TROLL)) spoil_out(" troll");
 		else if (flags3 & (RF3_ORC)) spoil_out(" orc");
-		else if (flags3 & (RF3_AMBERITE)) spoil_out(" Amberite");
+		else if (flags3 & (RF3_XXX_A)) spoil_out(" something");
 		else
 			spoil_out(" creature");
 
@@ -1920,7 +1919,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags6 & (RF6_S_HI_UNDEAD)) vp[vn++] = "summon greater undead";
 		if (flags6 & (RF6_S_HI_DRAGON)) vp[vn++] = "summon ancient dragons";
 		if (flags6 & (RF6_S_CYBER)) vp[vn++] = "summon Cyberdemons";
-		if (flags6 & (RF6_S_AMBERITES)) vp[vn++] = "summon Lords of Amber";
+		if (flags6 & (RF6_XXX_A)) vp[vn++] = "do something";
 		if (flags6 & (RF6_S_UNIQUE)) vp[vn++] = "summon unique monsters";
 
 		if (vn)
@@ -2540,78 +2539,6 @@ static void spoil_mutation(cptr fname)
 	msgf("Successfully created a spoiler file.");
 }
 
-
-/*
- * Create a spoiler file for artifacts
- */
-static void spoil_rac_pow(cptr fname)
-{
-	int i;
-	char buf[1024];
-
-	const mutation_type *mut_ptr;
-
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
-
-	/* File type is "TEXT" */
-	FILE_TYPE(FILE_TYPE_TEXT);
-
-	/* Open the file */
-	fff = my_fopen(buf, "w");
-
-	/* Oops */
-	if (!fff)
-	{
-		msgf("Cannot create spoiler file.");
-		return;
-	}
-
-	/* Dump the header */
-	spoiler_underline("Racial Powers Spoilers for " VERSION_NAME " Version " VERSION_STRING);
-	spoiler_blanklines(1);
-
-	/* The Racial Powers */
-	spoiler_underline("The Racial Powers");
-	spoiler_blanklines(1);
-
-	for (i = 0; i < MAX_RACE_POWERS; i++)
-	{
-		mut_ptr = &race_powers[i];
-
-		/* Describe power */
-		rp_ptr = &race_info[mut_ptr->which];
-		spoiler_underline(rp_ptr->title);
-
-		spoil_out("%s \n", mut_ptr->desc_text);
-
-		spoil_out("- Activation: %s \n", mut_ptr->name);
-
-		spoil_out("- Min. level: %d \n", (int)mut_ptr->level);
-
-		spoil_out("- HP/SP Cost: %d \n", mut_ptr->cost);
-
-		spoil_out("- Statistic : %3s \n", long_stat_names[mut_ptr->stat]);
-
-		spoil_out("- Difficulty: %d \n", mut_ptr->diff);
-
-		spoiler_blanklines(1);
-	}
-
-	/* Check for errors */
-	if (ferror(fff))
-	{
-		msgf("Cannot close spoiler file.");
-		return;
-	}
-
-	my_fclose(fff);
-
-	/* Message */
-	msgf("Successfully created a spoiler file.");
-}
-
-
 /*
  * Forward declare
  */
@@ -2644,7 +2571,6 @@ void do_cmd_spoilers(void)
 		prtf(5, 7, "(3) Brief Monster Info (mon-desc.spo)");
 		prtf(5, 8, "(4) Full Monster Info (mon-info.spo)");
 		prtf(5, 9, "(5) Brief Mutation Info (mutation.spo)");
-		prtf(5, 10, "(6) Brief Racial Powers Info (rac-pow.spo)");
 
 		/* Prompt */
 		prtf(0, 12, "Command: ");
@@ -2686,12 +2612,6 @@ void do_cmd_spoilers(void)
 		else if (i == '5')
 		{
 			spoil_mutation("mutation.spo");
-		}
-
-		/* Option (6) */
-		else if (i == '6')
-		{
-			spoil_rac_pow("rac-pow.spo");
 		}
 
 		/* Oops */

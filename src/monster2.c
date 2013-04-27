@@ -1451,9 +1451,6 @@ bool place_monster_one(int x, int y, int r_idx, bool slp, bool friendly,
 		return (FALSE);
 	}
 
-	/* Nor on the Pattern */
-	if (cave_pattern_grid(c_ptr)) return (FALSE);
-
 	/* Paranoia */
 	if (!r_idx) return (FALSE);
 
@@ -2221,12 +2218,6 @@ static bool summon_specific_okay(int r_idx)
 			break;
 		}
 
-		case SUMMON_AMBERITES:
-		{
-			okay = (r_ptr->flags3 & (RF3_AMBERITE)) ? TRUE : FALSE;
-			break;
-		}
-
 		case SUMMON_UNIQUE:
 		{
 			okay = (r_ptr->flags1 & (RF1_UNIQUE)) ? TRUE : FALSE;
@@ -2367,7 +2358,7 @@ static bool summon_specific_okay(int r_idx)
  *
  * We will attempt to place the monster up to 10 times before giving up.
  *
- * Note: SUMMON_UNIQUE and SUMMON_AMBERITES will summon Unique's
+ * Note: SUMMON_UNIQUE will summon Unique's
  * Note: SUMMON_HI_UNDEAD and SUMMON_HI_DRAGON may summon Unique's
  * Note: None of the other summon codes will ever summon Unique's.
  *
@@ -2410,9 +2401,6 @@ bool summon_specific(int who, int x1, int y1, int lev, int type, bool group,
 		/* Require "empty" floor grid */
 		c_ptr = area(x, y);
 		if (!cave_empty_grid(c_ptr)) continue;
-
-		/* ... nor on the Pattern */
-		if (cave_pattern_grid(c_ptr)) continue;
 
 		/* Check for a field that blocks movement */
 		if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_NO_ENTER)) continue;

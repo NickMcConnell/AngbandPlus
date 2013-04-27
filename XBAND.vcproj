@@ -412,18 +412,6 @@
 			Name="File Files"
 			Filter="">
 			<File
-				RelativePath="debug\lib\file\a_cursed.txt">
-			</File>
-			<File
-				RelativePath="debug\lib\file\a_high.txt">
-			</File>
-			<File
-				RelativePath="debug\lib\file\a_low.txt">
-			</File>
-			<File
-				RelativePath="debug\lib\file\a_med.txt">
-			</File>
-			<File
 				RelativePath="debug\lib\file\chainswd.txt">
 			</File>
 			<File

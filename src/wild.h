@@ -60,9 +60,6 @@
 
 /* Town monster types */
 #define TOWN_MONST_VILLAGER		1
-#define TOWN_MONST_ELVES		2
-#define TOWN_MONST_DWARF		3
-#define TOWN_MONST_LIZARD		4
 #define TOWN_MONST_MONST		5
 #define TOWN_MONST_ABANDONED	6
 

@@ -72,17 +72,6 @@ void self_knowledge(void)
 		f3 |= t3;
 	}
 
-	/* Racial powers... */
-	for (x = 0; x < MAX_RACE_POWERS; x++)
-	{
-		mut_ptr = &race_powers[x];
-
-		if ((mut_ptr->which == p_ptr->prace) && (plev >= mut_ptr->level))
-		{
-			info[i++] = mut_ptr->desc_text;
-		}
-	}
-
 	/* Activatble mutations */
 	for (x = 0; x < MUT_PER_SET * 3; x++)
 	{
@@ -381,27 +370,27 @@ void self_knowledge(void)
 		info[i++] = "Your charisma is sustained.";
 	}
 
-	if (f1 & (TR1_STR))
+	if ( (f1 & (TR1_STR)) || (f1 & TR1_ILL_STR) )
 	{
 		info[i++] = "Your strength is affected by your equipment.";
 	}
-	if (f1 & (TR1_INT))
+	if ( (f1 & (TR1_INT)) || (f1 & TR1_ILL_INT) )
 	{
 		info[i++] = "Your intelligence is affected by your equipment.";
 	}
-	if (f1 & (TR1_WIS))
+	if ( (f1 & (TR1_WIS)) || (f1 & TR1_ILL_WIS) )
 	{
 		info[i++] = "Your wisdom is affected by your equipment.";
 	}
-	if (f1 & (TR1_DEX))
+	if ( (f1 & (TR1_DEX)) || (f1 & TR1_ILL_DEX) )
 	{
 		info[i++] = "Your dexterity is affected by your equipment.";
 	}
-	if (f1 & (TR1_CON))
+	if ( (f1 & (TR1_CON)) || (f1 & TR1_ILL_CON) )
 	{
 		info[i++] = "Your constitution is affected by your equipment.";
 	}
-	if (f1 & (TR1_CHR))
+	if ( (f1 & (TR1_CHR)) || (f1 & TR1_ILL_CHR) )
 	{
 		info[i++] = "Your charisma is affected by your equipment.";
 	}
@@ -444,23 +433,23 @@ void self_knowledge(void)
 			info[i++] = "Your weapon has been blessed by the gods.";
 		}
 
-		if (f1 & (TR1_CHAOTIC))
+		if (f2 & (TR2_CHAOTIC))
 		{
 			info[i++] = "Your weapon is branded with the Sign of Chaos.";
 		}
 
 		/* Hack */
-		if (f1 & (TR1_IMPACT))
+		if (f2 & (TR2_IMPACT))
 		{
 			info[i++] = "The impact of your weapon can cause earthquakes.";
 		}
 
-		if (f1 & (TR1_VORPAL))
+		if (f2 & (TR2_VORPAL))
 		{
 			info[i++] = "Your weapon is very sharp.";
 		}
 
-		if (f1 & (TR1_VAMPIRIC))
+		if (f2 & (TR2_VAMPIRIC))
 		{
 			info[i++] = "Your weapon drains life from your foes.";
 		}
@@ -1188,7 +1177,6 @@ bool detect_objects_magic(void)
 			(tv == TV_NATURE_BOOK) ||
 			(tv == TV_CHAOS_BOOK) ||
 			(tv == TV_DEATH_BOOK) ||
-			(tv == TV_TRUMP_BOOK) ||
 			(tv == TV_ARCANE_BOOK) ||
 			((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
 		{
@@ -2598,12 +2586,6 @@ bool earthquake(int cx, int cy, int r)
 							/* Get result */
 							if (!(flags & MEG_DO_MOVE)) continue;
 
-							/* ... nor on the Pattern */
-							if (cave_pattern_grid(c_ptr))
-							{
-								continue;
-							}
-
 							/* Important -- Skip "quake" grids */
 							if (map[16 + y - cy][16 + x - cx]) continue;
 
@@ -3840,7 +3822,7 @@ int activate_hi_summon(void)
 
 	for (i = 0; i < (randint1(9) + (p_ptr->depth / 40)); i++)
 	{
-		switch ((randint1(26) + (p_ptr->depth / 20)) / 2)
+		switch ((randint1(24) + (p_ptr->depth / 20)) / 2)
 		{
 			case 1:
 			{
@@ -3898,35 +3880,28 @@ int activate_hi_summon(void)
 									FALSE, FALSE);
 				break;
 			}
-			case 9:
-			{
-				count +=
-					summon_specific(0, px, py, p_ptr->depth, SUMMON_AMBERITES,
-									TRUE, FALSE, FALSE);
-				break;
-			}
-			case 10:
+			case  9:
 			{
 				count +=
 					summon_specific(0, px, py, p_ptr->depth, SUMMON_UNIQUE,
 									TRUE, FALSE, FALSE);
 				break;
 			}
-			case 11:
+			case 10:
 			{
 				count +=
 					summon_specific(0, px, py, p_ptr->depth, SUMMON_HI_UNDEAD,
 									TRUE, FALSE, FALSE);
 				break;
 			}
-			case 12:
+			case 11:
 			{
 				count +=
 					summon_specific(0, px, py, p_ptr->depth, SUMMON_HI_DRAGON,
 									TRUE, FALSE, FALSE);
 				break;
 			}
-			case 13:
+			case 12:
 			{
 				count +=
 					summon_specific(0, px, py, 100, SUMMON_CYBER, TRUE, FALSE,

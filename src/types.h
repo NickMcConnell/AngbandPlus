@@ -1363,10 +1363,7 @@ struct player_type
 
 	bool is_dead;	/* Player is dead */
 	bool wizard;	/* Player is in wizard mode */
-	u16b expfact;	/* Experience factor
-					 * Note: was byte, causing overflow for Amberite
-					 * characters (such as Amberite Paladins)
-					 */
+	u16b expfact;	/* Experience factor */
 
 	/*** Pointers to player grid information ***/
 
@@ -1478,6 +1475,7 @@ struct player_type
 	bool sh_elec;	/* Electric 'immolation' effect */
 	bool sh_cold;	/* Freezing 'immolation' effect */
 	bool sh_acid;	/* Acidic 'immolation' effect */
+	bool sh_pois;	/* Poisonous 'immolation' effect */
 
 	bool anti_magic;	/* Anti-magic */
 	bool anti_tele;	/* Prevent teleportation */

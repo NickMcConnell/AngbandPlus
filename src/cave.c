@@ -1468,132 +1468,31 @@ static void variable_player_graph(byte *a, char *c)
 
 				switch (p_ptr->prace)
 				{
-					case RACE_GNOME:
-					case RACE_HOBBIT:
+					case RACE_NIGHT_GOBLIN:
+					case RACE_GOBLIN:
+					case RACE_GREMLIN:
+					case RACE_SNOTLING:
 					{
 						*c = 144;
 						break;
 					}
-					case RACE_DWARF:
-					{
-						*c = 236;
-						break;
-					}
-					case RACE_HALF_ORC:
+					case RACE_BLACK_ORC:
+					case RACE_SAVAGE_ORC:
+					case RACE_HUMAN:
+					case RACE_HOBGOBLIN:
 					{
 						*c = 243;
 						break;
 					}
-					case RACE_HALF_TROLL:
+					case RACE_STONE_TROLL:
 					{
 						*c = 184;
 						break;
 					}
-					case RACE_ELF:
-					case RACE_HALF_ELF:
-					case RACE_HIGH_ELF:
-					{
-						*c = 223;
-						break;
-					}
-					case RACE_HALF_OGRE:
+					case RACE_OGRE:
+					case RACE_ETTIN:
 					{
 						*c = 168;
-						break;
-					}
-					case RACE_HALF_GIANT:
-					case RACE_HALF_TITAN:
-					case RACE_CYCLOPS:
-					{
-						*c = 145;
-						break;
-					}
-					case RACE_YEEK:
-					{
-						*c = 209;
-						break;
-					}
-					case RACE_KLACKON:
-					{
-						*c = 229;
-						break;
-					}
-					case RACE_KOBOLD:
-					{
-						*c = 204;
-						break;
-					}
-					case RACE_NIBELUNG:
-					{
-						*c = 144;
-						break;
-					}
-					case RACE_DARK_ELF:
-					{
-						*c = 223;
-						break;
-					}
-					case RACE_DRACONIAN:
-					{
-						if (p_ptr->lev < 20)
-							*c = 240;
-						else if (p_ptr->lev < 40)
-							*c = 22;
-						else
-							*c = 137;
-						break;
-					}
-					case RACE_MIND_FLAYER:
-					{
-						*c = 236;
-						break;
-					}
-					case RACE_IMP:
-					{
-						*c = 142;
-						break;
-					}
-					case RACE_GOLEM:
-					{
-						*c = 6;
-						break;
-					}
-					case RACE_SKELETON:
-					{
-						if (p_ptr->pclass == CLASS_MAGE ||
-							p_ptr->pclass == CLASS_PRIEST ||
-							p_ptr->pclass == CLASS_HIGH_MAGE ||
-							p_ptr->pclass == CLASS_MONK ||
-							p_ptr->pclass == CLASS_MINDCRAFTER)
-							*c = 159;
-						else
-							*c = 181;
-						break;
-					}
-					case RACE_ZOMBIE:
-					case RACE_GHOUL:
-					{
-						*c = 221;
-						break;
-					}
-					case RACE_VAMPIRE:
-					{
-						*c = 217;
-						break;
-					}
-					case RACE_SPECTRE:
-					{
-						*c = 241;
-						break;
-					}
-					case RACE_SPRITE:
-					{
-						*c = 244;
-						break;
-					}
-					case RACE_BEASTMAN:
-					{
-						*c = 154;
 						break;
 					}
 				}

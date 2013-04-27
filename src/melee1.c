@@ -556,9 +556,13 @@ bool make_attack_normal(int m_idx)
 								/* Uncharge */
 								if (o_ptr->tval == TV_WAND)
 								{
-									o_ptr->ac += o_ptr->pval;
+									o_ptr->ac++;
 								}
-								o_ptr->pval = 0;
+
+								o_ptr->pval--;
+
+								/* Never less than zero */
+								if (o_ptr->pval < 0) o_ptr->pval = 0;
 
 								/* Combine / Reorder the pack */
 								p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -1296,36 +1300,7 @@ bool make_attack_normal(int m_idx)
 								lose_exp(d);
 							}
 						}
-
-						/* Heal the attacker? */
-						if (!(p_ptr->prace == RACE_ZOMBIE ||
-							  p_ptr->prace == RACE_VAMPIRE ||
-							  p_ptr->prace == RACE_SPECTRE ||
-							  p_ptr->prace == RACE_SKELETON ||
-							  p_ptr->prace == RACE_GOLEM ||
-							  p_ptr->prace == RACE_GHOUL) &&
-							(damage > 2) && !(resist_drain))
-						{
-							bool did_heal = FALSE;
-
-							if (m_ptr->hp < m_ptr->maxhp) did_heal = TRUE;
-
-							/* Heal */
-							m_ptr->hp += damroll(4, damage / 6);
-							if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp =
-									m_ptr->maxhp;
-
-							/* Redraw (later) if needed */
-							if (p_ptr->health_who == m_idx) p_ptr->redraw |=
-									(PR_HEALTH);
-
-							/* Special message */
-							if ((visible) && (did_heal))
-							{
-								msgf("%^s appears healthier.", m_name);
-							}
-						}
-					}
+				  }
 				}
 			}
 
@@ -1566,6 +1541,31 @@ bool make_attack_normal(int m_idx)
 					{
 						if (visible)
 							r_ptr->r_flags3 |= RF3_IM_ACID;
+					}
+				}
+
+				if (p_ptr->sh_pois && alive)
+				{
+					if (!(r_ptr->flags3 & RF3_IM_POIS))
+					{
+						int dam = damroll(2, 6);
+
+						/* Modify the damage */
+						dam = mon_damage_mod(m_ptr, dam, 0);
+
+						msgf("%^s chokes and gasps!", m_name);
+
+						if (mon_take_hit(m_idx, dam, &fear,
+										 " collapses, convulsing."))
+						{
+							blinked = FALSE;
+							alive = FALSE;
+						}
+					}
+					else
+					{
+						if (visible)
+							r_ptr->r_flags3 |= RF3_IM_POIS;
 					}
 				}
 

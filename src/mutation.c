@@ -511,36 +511,6 @@ bool gain_mutation(int choose_mut)
 	}
 	else
 	{
-		if (p_ptr->prace == RACE_VAMPIRE &&
-			!(p_ptr->muta1 & MUT1_HYPN_GAZE) && (randint1(10) < 7))
-		{
-			num = M1_HYPN_GAZE;
-		}
-
-		else if (p_ptr->prace == RACE_IMP &&
-				 !(p_ptr->muta2 & MUT2_HORNS) && (randint1(10) < 7))
-		{
-			num = M2_HORNS;
-		}
-
-		else if (p_ptr->prace == RACE_YEEK &&
-				 !(p_ptr->muta1 & MUT1_SHRIEK) && (randint1(10) < 7))
-		{
-			num = M1_SHRIEK;
-		}
-
-		else if (p_ptr->prace == RACE_BEASTMAN &&
-				 !(p_ptr->muta1 & MUT1_POLYMORPH) && (randint1(10) < 2))
-		{
-			num = M1_POLYMORPH;
-		}
-
-		else if (p_ptr->prace == RACE_MIND_FLAYER &&
-				 !(p_ptr->muta2 & MUT2_TENTACLES) && (randint1(10) < 7))
-		{
-			num = M2_TENTACLES;
-		}
-
 		/* Point to the mutation */
 		mut_ptr = &mutations[num];
 
@@ -838,16 +808,6 @@ int calc_mutant_regenerate_mod(void)
 	int regen;
 	int mod = 10;
 	int count = count_mutations();
-
-	/*
-	 * Beastman get 10 "free" mutations and
-	 * only 5% decrease per additional mutation
-	 */
-	if (p_ptr->prace == RACE_BEASTMAN)
-	{
-		count -= 10;
-		mod = 5;
-	}
 
 	/* No negative modifier */
 	if (count <= 0) return 100;

@@ -315,7 +315,6 @@ static bool summon_possible(int x1, int y1)
 			/* Access Grid */
 			c_ptr = area(x, y);
 
-			/* ...nor on the Pattern */
 			if (cave_perma_grid(c_ptr)) continue;
 
 			/* Check to see if fields dissallow placement */
@@ -741,6 +740,9 @@ bool make_attack_spell(int m_idx)
 	/* Target location */
 	int x = px;
 	int y = py;
+
+	int mx = m_ptr->fx;
+	int my = m_ptr->fy;
 
 	/* Summon count */
 	int count = 0;
@@ -2140,7 +2142,7 @@ bool make_attack_spell(int m_idx)
 			for (k = 0; k < 6; k++)
 			{
 				count +=
-					summon_specific(m_idx, x, y, rlev, SUMMON_KIN, TRUE, FALSE,
+					summon_specific(m_idx, mx, my, rlev, SUMMON_KIN, TRUE, FALSE,
 									FALSE);
 			}
 			if (blind
@@ -2171,7 +2173,7 @@ bool make_attack_spell(int m_idx)
 			for (k = 0; k < 1; k++)
 			{
 				count +=
-					summon_specific(m_idx, x, y, rlev, 0, TRUE, FALSE, FALSE);
+					summon_specific(m_idx, mx, my, rlev, 0, TRUE, FALSE, FALSE);
 			}
 			if (blind && count) msgf("You hear something appear nearby.");
 			break;
@@ -2187,7 +2189,7 @@ bool make_attack_spell(int m_idx)
 			for (k = 0; k < 8; k++)
 			{
 				count +=
-					summon_specific(m_idx, x, y, rlev, 0, TRUE, FALSE, FALSE);
+					summon_specific(m_idx, mx, my, rlev, 0, TRUE, FALSE, FALSE);
 			}
 			if (blind
 				&& count) msgf("You hear many things appear nearby.");
@@ -2204,7 +2206,7 @@ bool make_attack_spell(int m_idx)
 			for (k = 0; k < 6; k++)
 			{
 				count +=
-					summon_specific(m_idx, x, y, rlev, SUMMON_ANT, TRUE, FALSE,
+					summon_specific(m_idx, mx, my, rlev, SUMMON_ANT, TRUE, FALSE,
 									FALSE);
 			}
 			if (blind
@@ -2222,7 +2224,7 @@ bool make_attack_spell(int m_idx)
 			for (k = 0; k < 6; k++)
 			{
 				count +=
-					summon_specific(m_idx, x, y, rlev, SUMMON_SPIDER, TRUE,
+					summon_specific(m_idx, mx, my, rlev, SUMMON_SPIDER, TRUE,
 									FALSE, FALSE);
 			}
 			if (blind
@@ -2240,7 +2242,7 @@ bool make_attack_spell(int m_idx)
 			for (k = 0; k < 6; k++)
 			{
 				count +=
-					summon_specific(m_idx, x, y, rlev, SUMMON_HOUND, TRUE,
+					summon_specific(m_idx, mx, my, rlev, SUMMON_HOUND, TRUE,
 									FALSE, FALSE);
 			}
 			if (blind
@@ -2258,7 +2260,7 @@ bool make_attack_spell(int m_idx)
 			for (k = 0; k < 6; k++)
 			{
 				count +=
-					summon_specific(m_idx, x, y, rlev, SUMMON_HYDRA, TRUE,
+					summon_specific(m_idx, mx, my, rlev, SUMMON_HYDRA, TRUE,
 									FALSE, FALSE);
 			}
 			if (blind
@@ -2276,7 +2278,7 @@ bool make_attack_spell(int m_idx)
 			for (k = 0; k < 1; k++)
 			{
 				count +=
-					summon_specific(m_idx, x, y, rlev, SUMMON_ANGEL, TRUE,
+					summon_specific(m_idx, mx, my, rlev, SUMMON_ANGEL, TRUE,
 									FALSE, FALSE);
 			}
 			if (blind && count) msgf("You hear something appear nearby.");
@@ -2295,7 +2297,7 @@ bool make_attack_spell(int m_idx)
 			for (k = 0; k < 1; k++)
 			{
 				count +=
-					summon_specific(m_idx, x, y, rlev, SUMMON_DEMON, TRUE,
+					summon_specific(m_idx, mx, my, rlev, SUMMON_DEMON, TRUE,
 									FALSE, FALSE);
 			}
 			if (blind && count) msgf("You hear something appear nearby.");
@@ -2313,7 +2315,7 @@ bool make_attack_spell(int m_idx)
 			for (k = 0; k < 1; k++)
 			{
 				count +=
-					summon_specific(m_idx, x, y, rlev, SUMMON_UNDEAD, TRUE,
+					summon_specific(m_idx, mx, my, rlev, SUMMON_UNDEAD, TRUE,
 									FALSE, FALSE);
 			}
 			if (blind && count) msgf("You hear something appear nearby.");
@@ -2330,7 +2332,7 @@ bool make_attack_spell(int m_idx)
 			for (k = 0; k < 1; k++)
 			{
 				count +=
-					summon_specific(m_idx, x, y, rlev, SUMMON_DRAGON, TRUE,
+					summon_specific(m_idx, mx, my, rlev, SUMMON_DRAGON, TRUE,
 									FALSE, FALSE);
 			}
 			if (blind && count) msgf("You hear something appear nearby.");
@@ -2347,7 +2349,7 @@ bool make_attack_spell(int m_idx)
 			for (k = 0; k < 8; k++)
 			{
 				count +=
-					summon_specific(m_idx, x, y, rlev, SUMMON_HI_UNDEAD, TRUE,
+					summon_specific(m_idx, mx, my, rlev, SUMMON_HI_UNDEAD, TRUE,
 									FALSE, FALSE);
 			}
 			if (blind && count)
@@ -2367,7 +2369,7 @@ bool make_attack_spell(int m_idx)
 			for (k = 0; k < 8; k++)
 			{
 				count +=
-					summon_specific(m_idx, x, y, rlev, SUMMON_HI_DRAGON, TRUE,
+					summon_specific(m_idx, mx, my, rlev, SUMMON_HI_DRAGON, TRUE,
 									FALSE, FALSE);
 			}
 			if (blind && count)
@@ -2379,23 +2381,7 @@ bool make_attack_spell(int m_idx)
 
 		case 160 + 30:
 		{
-			/* RF6_S_AMBERITES */
-			disturb(TRUE);
-			if (blind) msgf("%^s mumbles.", m_name);
-			else
-				msgf("%^s magically summons Lords of Amber!", m_name);
-
-
-			for (k = 0; k < 8; k++)
-			{
-				count +=
-					summon_specific(m_idx, x, y, rlev, SUMMON_AMBERITES, TRUE,
-									FALSE, FALSE);
-			}
-			if (blind && count)
-			{
-				msgf("You hear immortal beings appear nearby.");
-			}
+			/* RF6_XXX_A */
 			break;
 		}
 
@@ -2409,13 +2395,13 @@ bool make_attack_spell(int m_idx)
 			for (k = 0; k < 8; k++)
 			{
 				count +=
-					summon_specific(m_idx, x, y, rlev, SUMMON_UNIQUE, TRUE,
+					summon_specific(m_idx, mx, my, rlev, SUMMON_UNIQUE, TRUE,
 									FALSE, FALSE);
 			}
 			for (k = 0; k < 8; k++)
 			{
 				count +=
-					summon_specific(m_idx, x, y, rlev, SUMMON_HI_UNDEAD, TRUE,
+					summon_specific(m_idx, mx, my, rlev, SUMMON_HI_UNDEAD, TRUE,
 									FALSE, FALSE);
 			}
 			if (blind && count)

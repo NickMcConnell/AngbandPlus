@@ -56,7 +56,7 @@ extern const u32b fake_spell_flags[4];
 extern const byte realm_choices1[];
 extern const byte realm_choices2[];
 extern cptr realm_names[];
-extern cptr spell_names[7][32];
+extern cptr spell_names[MAX_REALM][32];
 extern const byte chest_traps[64];
 extern cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5];
 extern cptr color_names[16];
@@ -76,7 +76,6 @@ extern cptr silly_attacks[MAX_SILLY_ATTACK];
 extern const rbm_type rbm_info[MAX_RBM];
 extern const field_action f_action[];
 extern const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET];
-extern const mutation_type race_powers[MAX_RACE_POWERS];
 
 /* variable.c */
 extern cptr copyright[5];
@@ -432,6 +431,7 @@ extern void do_cmd_imbuesoul();
 extern bool sense_item(object_type *o_ptr, bool heavy, bool wield, bool msg);
 extern void notice_lite_change(object_type *o_ptr);
 extern bool psychometry(void);
+extern bool sense_power(void);
 extern void play_game(bool new_game);
 
 /* files.c */
@@ -572,7 +572,9 @@ extern bool are_enemies(const monster_type *m_ptr1, const monster_type *m_ptr2);
 extern bool monster_living(const monster_race *r_ptr);
 
 /* flavor.c */
-extern void get_table_name(char *out_string, bool quotes);
+extern void get_table_name   (char *out_string);
+extern void get_randart_name_weapon (char *out_string);
+extern void get_randart_name_other  (char *out_string);
 extern void flavor_init(void);
 extern void object_desc(char *buf, const object_type *o_ptr, int pref,
 						int mode, int size);
@@ -1022,7 +1024,7 @@ extern bool clean_shot(int x1, int y1, int x2, int y2, bool friendly);
 extern bool monst_spell_monst(int m_idx);
 
 /* artifact.c */
-extern bool create_artifact(object_type *o_ptr, bool a_scroll);
+extern bool create_randart(object_type *o_ptr, bool a_scroll);
 extern void random_low_resist(object_type *o_ptr);
 extern bool activate_effect(object_type *o_ptr);
 extern void random_artifact_resistance(object_type *o_ptr);

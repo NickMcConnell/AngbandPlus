@@ -9,10 +9,7 @@ appropriate file, the game may form a new name from syllables[].
 
 The files in this directory:
 
-a_cursed.txt Possible names for randomly generated cursed armour artifacts
-a_high.txt   Possible names for randomly generated 'powerful' armour artifacts
-a_low.txt    Possible names for randomly generated 'weak' armour artifacts
-a_med.txt    Possible names for randomly generated 'medium' armour artifacts
+adject.txt   Used with 'noun.txt' to generate names for nonweapon artifacts
 chainswd.txt Possible noise for the Chainsword
 crime.txt    Possible crimes that speaking uniques may have committed
 dead.txt     The tombstone picture (the death screen)
@@ -23,11 +20,10 @@ monfear.txt  Possible lines for scared speaking uniques
 monfrien.txt Possible lines for friendly speaking uniques
 monspeak.txt Possible lines for speaking uniques
 news.txt     The game intro screen
+noun.txt     Used with 'adject.txt' to generate names for nonweapon artifacts
+prefix.txt   Used with 'suffix.txt' to generate names for weapon artifacts
 readme.txt   You are reading this file right now
 rumors.txt   Possible rumours (for scrolls or rumour and shopkeepers)
 sample.txt   A sample file for the random line selecting function
 silly.txt    Silly monster names for hallucination
-w_cursed.txt Possible names for randomly generated cursed weapon artifacts
-w_high.txt   Possible names for randomly generated 'powerful' weapon artifacts
-w_low.txt    Possible names for randomly generated 'weak' weapon artifacts
-w_med.txt    Possible names for randomly generated 'medium' weapon artifacts
+suffix.txt   Used with 'prefix.txt' to generate names for weapon artifacts
