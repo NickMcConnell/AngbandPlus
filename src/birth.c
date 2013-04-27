@@ -9,6 +9,7 @@
  */
 
 #include "angband.h"
+#include "option.h"
 #include "raceflag.h"
 #include "store.h"
 #include "tvalsval.h"
@@ -166,7 +167,7 @@ static void load_prev_data(void)
 static int adjust_stat(int value, int amount, int auto_roll)
 {
 	/* Negative amounts or maximize mode */
-	if ((amount < 0) || adult_maximize)
+	if ((amount < 0) || OPTION(adult_maximize))
 	{
 		return (modify_stat_value(value, amount));
 	}
@@ -249,7 +250,7 @@ static void get_stats(void)
 		bonus = p_ptr->rp_ptr->r_adj[i] + p_ptr->cp_ptr->c_adj[i];
 
 		/* Variable stat maxes */
-		if (adult_maximize)
+		if (OPTION(adult_maximize))
 		{
 			/* Start fully healed */
 			p_ptr->stat_cur[i] = p_ptr->stat_max[i];
@@ -546,10 +547,10 @@ static void player_outfit(void)
 		e_ptr = &(p_ptr->cp_ptr->start_items[i]);
 
 		/* Hack	-- Give the player an object */
-		if (e_ptr->tval > 0)
+		if (e_ptr->obj_id.tval > 0)
 		{
 			/* Get the object_kind */
-			int k_idx = lookup_kind(e_ptr->tval, e_ptr->sval);
+			int k_idx = lookup_kind(e_ptr->obj_id);
 
 			/* Valid item? */
 			if (!k_idx) continue;
@@ -860,7 +861,7 @@ static void race_aux_hook(birth_menu r_str)
 /*
  * Player race
  */
-static bool get_player_race(void)
+static int get_player_race(void)
 {
 	int i, res;
 	birth_menu *races;
@@ -931,7 +932,7 @@ static void class_aux_hook(birth_menu c_str)
 /*
  * Player class
  */
-static bool get_player_class(void)
+static int get_player_class(void)
 {
 	int i, res;
 	birth_menu *classes;
@@ -1015,7 +1016,7 @@ static bool get_player_sex(void)
  */
 static bool player_birth_aux_1(void)
 {
-	int i, res, cur;
+	int res, cur;
 
 	/*** Instructions ***/
 
@@ -1078,16 +1079,29 @@ static bool player_birth_aux_1(void)
 	}
 
 	/* Set adult options from birth options */
-	for (i = OPT_BIRTH; i < OPT_CHEAT; i++)
-	{
-		op_ptr->opt[OPT_ADULT + (i - OPT_BIRTH)] = op_ptr->opt[i];
-	}
+	ZAIBAND_STATIC_ASSERT(OPT_CHEAT-OPT_BIRTH==OPT_SCORE-OPT_ADULT);
+	ZAIBAND_STATIC_ASSERT(OPT_adult_point_based-OPT_ADULT==OPT_birth_point_based-OPT_BIRTH);
+	ZAIBAND_STATIC_ASSERT(OPT_adult_auto_roller-OPT_ADULT==OPT_birth_auto_roller-OPT_BIRTH);
+	ZAIBAND_STATIC_ASSERT(OPT_adult_maximize-OPT_ADULT==OPT_birth_maximize-OPT_BIRTH);
+	ZAIBAND_STATIC_ASSERT(OPT_adult_preserve-OPT_ADULT==OPT_birth_preserve-OPT_BIRTH);
+	ZAIBAND_STATIC_ASSERT(OPT_adult_ironman-OPT_ADULT==OPT_birth_ironman-OPT_BIRTH);
+	ZAIBAND_STATIC_ASSERT(OPT_adult_no_stores-OPT_ADULT==OPT_birth_no_stores-OPT_BIRTH);
+	ZAIBAND_STATIC_ASSERT(OPT_adult_no_artifacts-OPT_ADULT==OPT_birth_no_artifacts-OPT_BIRTH);
+	ZAIBAND_STATIC_ASSERT(OPT_adult_rand_artifacts-OPT_ADULT==OPT_birth_rand_artifacts-OPT_BIRTH);
+	ZAIBAND_STATIC_ASSERT(OPT_adult_no_stacking-OPT_ADULT==OPT_birth_no_stacking-OPT_BIRTH);
+
+	C_COPY(op_ptr->opt+OPT_ADULT,op_ptr->opt+OPT_BIRTH,OPT_CHEAT-OPT_BIRTH);
 
 	/* Reset score options from cheat options */
-	for (i = OPT_CHEAT; i < OPT_ADULT; i++)
-	{
-		op_ptr->opt[OPT_SCORE + (i - OPT_CHEAT)] = op_ptr->opt[i];
-	}
+	ZAIBAND_STATIC_ASSERT(OPT_ADULT-OPT_CHEAT==OPT_MAX-OPT_SCORE);
+	ZAIBAND_STATIC_ASSERT(OPT_score_peek-OPT_SCORE==OPT_cheat_peek-OPT_CHEAT);
+	ZAIBAND_STATIC_ASSERT(OPT_score_hear-OPT_SCORE==OPT_cheat_hear-OPT_CHEAT);
+	ZAIBAND_STATIC_ASSERT(OPT_score_room-OPT_SCORE==OPT_cheat_room-OPT_CHEAT);
+	ZAIBAND_STATIC_ASSERT(OPT_score_xtra-OPT_SCORE==OPT_cheat_xtra-OPT_CHEAT);
+	ZAIBAND_STATIC_ASSERT(OPT_score_know-OPT_SCORE==OPT_cheat_know-OPT_CHEAT);
+	ZAIBAND_STATIC_ASSERT(OPT_score_live-OPT_SCORE==OPT_cheat_live-OPT_CHEAT);
+
+	C_COPY(op_ptr->opt+OPT_SCORE,op_ptr->opt+OPT_CHEAT,OPT_ADULT-OPT_CHEAT);
 
 	/* Clear */
 	Term_clear();
@@ -1097,10 +1111,16 @@ static bool player_birth_aux_1(void)
 }
 
 
+#define MIN_STAT 8
+#define MAX_STAT 17
 /*
- * Initial stat costs (initial stats always range from 10 to 18 inclusive).
+ * Cost of each "point" of a stat.
  */
-static const int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 4, 7, 11, 16, 22, 30 };
+static const int birth_stat_costs[(MAX_STAT-MIN_STAT) + 1] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+
+/* theoretical best: 17 3 stats, 16 1 more stat, two stats 8 */
+#define MAX_BIRTH_POINTS 35
+#define MIN_BIRTH_POINTS 25
 
 
 /*
@@ -1108,11 +1128,11 @@ static const int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 4, 7, 11, 16, 22, 30 }
  *
  * This function handles "point-based" character creation.
  *
- * The player selects, for each stat, a value from 10 to 18 (inclusive),
- * each costing a certain amount of points (as above), from a pool of 48
+ * The player selects, for each stat, a value from 8 to 17 (inclusive),
+ * each costing a certain amount of points (as above), from a pool of MAX_BIRTH_POINTS
  * available points, to which race/class modifiers are then applied.
  *
- * Each unused point is converted into 100 gold pieces.
+ * Formerly, each unused point is converted into 100 gold pieces.
  */
 static bool player_birth_aux_2(void)
 {
@@ -1136,7 +1156,9 @@ static bool player_birth_aux_2(void)
 	for (i = 0; i < A_MAX; i++)
 	{
 		/* Initial stats */
-		stats[i] = 10;
+		stats[i] = (MIN_STAT+MAX_STAT+1)/2;
+		p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stats[i];		
+		stat_use[i] = adjust_stat(stats[i], p_ptr->rp_ptr->r_adj[i] + p_ptr->cp_ptr->c_adj[i], TRUE);
 	}
 
 
@@ -1159,44 +1181,41 @@ static bool player_birth_aux_2(void)
 		/* Process stats */
 		for (i = 0; i < A_MAX; i++)
 		{
-			/* Variable stat maxes */
-			if (adult_maximize)
-			{
-				/* Reset stats */
-				p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stats[i];
-
-			}
-
-			/* Fixed stat maxes */
-			else
-			{
-				/* Obtain a "bonus" for "race" and "class" */
-				int bonus = p_ptr->rp_ptr->r_adj[i] + p_ptr->cp_ptr->c_adj[i];
-
-				/* Apply the racial/class bonuses */
-				p_ptr->stat_cur[i] = p_ptr->stat_max[i] =
-					modify_stat_value(stats[i], bonus);
-			}
-
 			/* Total cost */
-			cost += birth_stat_costs[stats[i] - 10];
+			cost += birth_stat_costs[stats[i] - MIN_STAT];
 		}
 
 		/* Restrict cost */
-		if (cost > 48)
+		if (cost > MAX_BIRTH_POINTS)
 		{
 			/* Warning */
 			bell("Excessive stats!");
 
 			/* Reduce stat */
 			stats[stat]--;
+			p_ptr->stat_cur[stat] = p_ptr->stat_max[stat] = stats[stat];		
+			stat_use[stat] = adjust_stat(stats[stat], p_ptr->rp_ptr->r_adj[stat] + p_ptr->cp_ptr->c_adj[stat], TRUE);
 
 			/* Recompute costs */
 			continue;
 		}
 
-		/* Gold is inversely proportional to cost */
-		p_ptr->au = (100 * (48 - cost)) + 100;
+		if (cost < MIN_BIRTH_POINTS)
+		{
+			/* Warning */
+			bell("Anemic stats!");
+
+			/* Increase stat */
+			stats[stat]++;
+			p_ptr->stat_cur[stat] = p_ptr->stat_max[stat] = stats[stat];		
+			stat_use[stat] = adjust_stat(stats[stat], p_ptr->rp_ptr->r_adj[stat] + p_ptr->cp_ptr->c_adj[stat], TRUE);
+
+			/* Recompute costs */
+			continue;
+		}
+
+		/* Gold was inversely proportional to cost */
+/*		p_ptr->au = (100 * (MAX_BIRTH_POINTS - cost)) + 100;	*/
 
 		/* Calculate the bonuses and hitpoints */
 		p_ptr->update |= (PU_BONUS | PU_HP);
@@ -1220,14 +1239,19 @@ static bool player_birth_aux_2(void)
 		for (i = 0; i < A_MAX; i++)
 		{
 			/* Display cost */
-			strnfmt(buf, sizeof(buf), "%4d", birth_stat_costs[stats[i] - 10]);
+			strnfmt(buf, sizeof(buf), "%4d", birth_stat_costs[stats[i] - MIN_STAT]);
 			put_str(buf, row + i, col + 32);
 		}
 
+#define BIRTH_PROMPT2(A) "Total Cost %2d/" #A ".  2/8/UD arrows move, 4/6/LR arrows modify, 'Enter' accepts."
+#define BIRTH_PROMPT(A) BIRTH_PROMPT2(A)
 
 		/* Prompt XXX XXX XXX */
-		strnfmt(buf, sizeof(buf), "Total Cost %2d/48.  Use 2/8 to move, 4/6 to modify, 'Enter' to accept.", cost);
+		strnfmt(buf, sizeof(buf), BIRTH_PROMPT(MAX_BIRTH_POINTS), cost);
 		prt(buf, 0, 0);
+
+#undef BIRTH_PROMPT2
+#undef BIRTH_PROMPT
 
 		/* Place cursor just after cost of current stat */
 		Term_gotoxy(col + 36, row + stat);
@@ -1245,30 +1269,34 @@ static bool player_birth_aux_2(void)
 		if ((ch == '\r') || (ch == '\n')) break;
 
 		/* Prev stat */
-		if (ch == '8')
+		if (('8' == ch) || (ARROW_UP == ch))
 		{
 			stat = (stat + A_MAX - 1) % A_MAX;
 		}
 
 		/* Next stat */
-		if (ch == '2')
+		if (('2' == ch) || (ARROW_DOWN == ch))
 		{
 			stat = (stat + 1) % A_MAX;
 		}
 
 		/* Decrease stat */
-		if ((ch == '4') && (stats[stat] > 10))
+		if ((('4' == ch) || (ARROW_LEFT == ch)) && (stats[stat] > MIN_STAT))
 		{
 			stats[stat]--;
+			p_ptr->stat_cur[stat] = p_ptr->stat_max[stat] = stats[stat];		
+			stat_use[stat] = adjust_stat(stats[stat], p_ptr->rp_ptr->r_adj[stat] + p_ptr->cp_ptr->c_adj[stat], TRUE);
 		}
 
 		/* Increase stat */
-		if ((ch == '6') && (stats[stat] < 18))
+		if ((('6' == ch) || (ARROW_RIGHT == ch)) && (stats[stat] < MAX_STAT))
 		{
 			stats[stat]++;
+			p_ptr->stat_cur[stat] = p_ptr->stat_max[stat] = stats[stat];		
+			stat_use[stat] = adjust_stat(stats[stat], p_ptr->rp_ptr->r_adj[stat] + p_ptr->cp_ptr->c_adj[stat], TRUE);
 		}
 	}
-
+	get_money();
 
 	/* Done */
 	return (TRUE);
@@ -1307,7 +1335,7 @@ static bool player_birth_aux_3(void)
 	/*** Autoroll ***/
 
 	/* Initialize */
-	if (adult_auto_roller)
+	if (OPTION(adult_auto_roller))
 	{
 		int mval[A_MAX];
 
@@ -1414,7 +1442,7 @@ static bool player_birth_aux_3(void)
 		int col = 42;
 
 		/* Feedback */
-		if (adult_auto_roller)
+		if (OPTION(adult_auto_roller))
 		{
 			Term_clear();
 
@@ -1641,7 +1669,7 @@ static bool player_birth_aux(void)
 	if (!player_birth_aux_1()) return (FALSE);
 
 	/* Point-based */
-	if (adult_point_based)
+	if (OPTION(adult_point_based))
 	{
 		/* Point based */
 		if (!player_birth_aux_2()) return (FALSE);
@@ -1682,7 +1710,7 @@ static void player_birth_done_hook(void)
 	object_type *i_ptr = &object_type_body;	/* Get local object */
 
 	/* Give the player some food */
-	object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
+	object_prep(i_ptr, lookup_kind2(TV_FOOD, SV_FOOD_RATION));
 	i_ptr->number = (byte)rand_range(3, 7);
 	object_aware(i_ptr);
 	object_known(i_ptr);
@@ -1690,9 +1718,10 @@ static void player_birth_done_hook(void)
 
 
 	/* Give the player some torches */
-	object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
+	/* Torches are implicitly store-bought */
+	object_prep(i_ptr, lookup_kind2(TV_LITE, SV_LITE_TORCH));
 	i_ptr->number = (byte)rand_range(3, 7);
-	i_ptr->pval = rand_range(3, 7) * 500;
+	i_ptr->pval = (7*FUEL_TORCH) / 10;
 	object_aware(i_ptr);
 	object_known(i_ptr);
 	inven_carry(i_ptr);
@@ -1702,33 +1731,45 @@ static void player_birth_done_hook(void)
 	assert(p_ptr->inventory[INVEN_WIELD].k_idx);	/* assign primary weapon explicitly in config */
 	if (!(p_ptr->inventory[INVEN_OUTER].k_idx))
 	{	/* Basic Cloak */
-		object_prep(p_ptr->inventory+INVEN_OUTER, lookup_kind(TV_CLOAK, SV_CLOAK));
+		object_prep(p_ptr->inventory+INVEN_OUTER, lookup_kind2(TV_CLOAK, SV_CLOAK));
+		object_aware(p_ptr->inventory+INVEN_OUTER);
+		object_known(p_ptr->inventory+INVEN_OUTER);
 	}
 
 	/* these are more questionable */
 	if (!(p_ptr->inventory[INVEN_BODY].k_idx))
 	{	/* start with a robe */
-		object_prep(p_ptr->inventory+INVEN_BODY, lookup_kind(TV_SOFT_ARMOR, SV_ROBE));
+		object_prep(p_ptr->inventory+INVEN_BODY, lookup_kind2(TV_SOFT_ARMOR, SV_ROBE));
+		object_aware(p_ptr->inventory+INVEN_BODY);
+		object_known(p_ptr->inventory+INVEN_BODY);
 	}
 
 	if (!(p_ptr->inventory[INVEN_ARM].k_idx))
 	{	/* start with a shield */
-		object_prep(p_ptr->inventory+INVEN_ARM, lookup_kind(TV_SHIELD, SV_SMALL_LEATHER_SHIELD));
+		object_prep(p_ptr->inventory+INVEN_ARM, lookup_kind2(TV_SHIELD, SV_SMALL_LEATHER_SHIELD));
+		object_aware(p_ptr->inventory+INVEN_ARM);
+		object_known(p_ptr->inventory+INVEN_ARM);
 	}
 
 	if (!(p_ptr->inventory[INVEN_HEAD].k_idx))
 	{	/* start with a helmet */
-		object_prep(p_ptr->inventory+INVEN_HEAD, lookup_kind(TV_HELM, SV_HARD_LEATHER_CAP));
+		object_prep(p_ptr->inventory+INVEN_HEAD, lookup_kind2(TV_HELM, SV_HARD_LEATHER_CAP));
+		object_aware(p_ptr->inventory+INVEN_HEAD);
+		object_known(p_ptr->inventory+INVEN_HEAD);
 	}
 
 	if (!(p_ptr->inventory[INVEN_HANDS].k_idx) && !(p_ptr->cp_ptr->flags & CF_CUMBER_GLOVE))
 	{	/* start with leather gloves */
-		object_prep(p_ptr->inventory+INVEN_HANDS, lookup_kind(TV_GLOVES, SV_SET_OF_LEATHER_GLOVES));
+		object_prep(p_ptr->inventory+INVEN_HANDS, lookup_kind2(TV_GLOVES, SV_SET_OF_LEATHER_GLOVES));
+		object_aware(p_ptr->inventory+INVEN_HANDS);
+		object_known(p_ptr->inventory+INVEN_HANDS);
 	}
 
 	if (!(p_ptr->inventory[INVEN_FEET].k_idx))
 	{
-		object_prep(p_ptr->inventory+INVEN_FEET, lookup_kind(TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS));
+		object_prep(p_ptr->inventory+INVEN_FEET, lookup_kind2(TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS));
+		object_aware(p_ptr->inventory+INVEN_FEET);
+		object_known(p_ptr->inventory+INVEN_FEET);
 	}
 
 	/* Give the player a full energy count */
@@ -1764,7 +1805,6 @@ void player_birth(void)
 	message_add("====================", MSG_GENERIC);
 	message_add("  ", MSG_GENERIC);
 	message_add(" ", MSG_GENERIC);
-
 
 	/* Hack -- outfit the player */
 	player_outfit();

@@ -17,6 +17,7 @@
 
 #include "angband.h"
 #include "learn.h"
+#include "option.h"
 #include "raceflag.h"
 #include "summon.h"
 
@@ -41,27 +42,22 @@ static const char* const wd_himself[3] =
  *
  * When a monster is deleted, all of its objects are deleted.
  */
-void delete_monster_idx(int i)
+void delete_monster_idx(const m_idx_type i)
 {
-	int x, y;
-
-	monster_type *m_ptr = &mon_list[i];
-	monster_race *r_ptr = m_ptr->race();
+	monster_type* const m_ptr = mon_list+i;
+	monster_race* const r_ptr = m_ptr->race();
 
 	s16b this_o_idx, next_o_idx = 0;
 
 
 	/* Get location */
-	y = m_ptr->loc.y;
-	x = m_ptr->loc.x;
-
+	coord g = m_ptr->loc;
 
 	/* Hack -- Reduce the racial counter */
 	r_ptr->cur_num--;
 
 	/* Hack -- count the number of "reproducers" */
 	if (r_ptr->flags[1] & RF1_MULTIPLY) num_repro--;
-
 
 	/* Hack -- remove target monster */
 	if (p_ptr->target_who == i) target_set_monster(0);
@@ -71,7 +67,7 @@ void delete_monster_idx(int i)
 
 
 	/* Monster is gone */
-	cave_m_idx[y][x] = 0;
+	cave_m_idx[g.y][g.x] = 0;
 
 
 	/* Delete objects */
@@ -98,7 +94,7 @@ void delete_monster_idx(int i)
 
 
 	/* Visual update */
-	lite_spot(m_ptr->loc);
+	lite_spot(g);
 }
 
 
@@ -120,17 +116,12 @@ void delete_monster(coord g)
  */
 static void compact_monsters_aux(int i1, int i2)
 {
-	monster_type *m_ptr;
-
-	s16b this_o_idx, next_o_idx = 0;
-
-
 	/* Do nothing */
 	if (i1 == i2) return;
 
-
-	/* Old monster */
-	m_ptr = &mon_list[i1];
+	monster_type* const m_ptr = &mon_list[i1];	/* Old monster */
+	s16b this_o_idx;
+	s16b next_o_idx = 0;
 
 	/* Update the cave */
 	cave_m_idx[m_ptr->loc.y][m_ptr->loc.x] = i2;
@@ -157,7 +148,7 @@ static void compact_monsters_aux(int i1, int i2)
 	mon_list[i2] = mon_list[i1];
 
 	/* Hack -- wipe hole */
-	WIPE(&mon_list[i1]);
+	WIPE(m_ptr);
 }
 
 
@@ -249,8 +240,8 @@ void wipe_mon_list(void)
 	/* Delete all the monsters */
 	for (i = mon_max - 1; i >= 1; i--)
 	{
-		monster_type *m_ptr = &mon_list[i];
-		monster_race *r_ptr = m_ptr->race();
+		monster_type* const m_ptr = &mon_list[i];
+		monster_race* const r_ptr = m_ptr->race();
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -267,20 +258,11 @@ void wipe_mon_list(void)
 		WIPE(m_ptr);
 	}
 
-	/* Reset "mon_max" */
-	mon_max = 1;
-
-	/* Reset "mon_cnt" */
-	mon_cnt = 0;
-
-	/* Hack -- reset "reproducer" count */
-	num_repro = 0;
-
-	/* Hack -- no more target */
-	target_set_monster(0);
-
-	/* Hack -- no more tracking */
-	health_track(0);
+	mon_max = 1;			/* Reset "mon_max" */
+	mon_cnt = 0;			/* Reset "mon_cnt" */
+	num_repro = 0;			/* Reset "reproducer" count */
+	target_set_monster(0);	/* No more target */
+	health_track(0);		/* No more tracking */
 }
 
 
@@ -297,36 +279,20 @@ static s16b mon_pop(void)
 	/* Normal allocation */
 	if (mon_max < z_info->m_max)
 	{
-		/* Get the next hole */
-		i = mon_max;
-
-		/* Expand the array */
-		mon_max++;
-
-		/* Count monsters */
-		mon_cnt++;
-
-		/* Return the index */
-		return (i);
+		i = mon_max;	/* Get the next hole */
+		mon_max++;		/* Expand the array */
+		mon_cnt++;		/* Count monsters */
+		return (i);		/* Return the index */
 	}
 
 
 	/* Recycle dead monsters */
 	for (i = 1; i < mon_max; i++)
 	{
-		monster_type *m_ptr;
-
-		/* Get the monster */
-		m_ptr = &mon_list[i];
-
 		/* Skip live monsters */
-		if (m_ptr->r_idx) continue;
-
-		/* Count monsters */
-		mon_cnt++;
-
-		/* Use this monster */
-		return (i);
+		if (mon_list[i].r_idx) continue;
+		mon_cnt++;	/* Count monsters */
+		return (i);	/* Use this monster */
 	}
 
 
@@ -387,7 +353,7 @@ static int pick_monster(long total, alloc_entry *table)
 		if (value < table[i].prob3) break;
 
 		/* Decrement */
-		value =- table[i].prob3;
+		value -= table[i].prob3;
 	}
 	return i;
 }
@@ -450,13 +416,13 @@ s16b get_mon_num(int level)
 	/* Process probabilities */
 	for (i = 0; i < alloc_race_size; i++)
 	{
-		/* Monsters are sorted by depth */
-		if (table[i].level > level) break;
-
 		/* Default */
 		table[i].prob3 = 0;
 
-		/* Hack -- No town monsters in dungeon */
+		/* No monsters more powerful than requested */
+		if (table[i].level > level) continue;
+
+		/* No town monsters in dungeon */
 		if ((level > 0) && (table[i].level <= 0)) continue;
 
 		/* Get the "r_idx" of the chosen monster */
@@ -468,16 +434,12 @@ s16b get_mon_num(int level)
 		/* Hack -- "unique" monsters must be "unique" */
 		if ((r_ptr->flags[0] & RF0_UNIQUE) &&
 		    (r_ptr->cur_num >= r_ptr->max_num))
-		{
 			continue;
-		}
 
 		/* Depth Monsters never appear out of depth */
 		if ((r_ptr->flags[0] & RF0_FORCE_DEPTH) &&
 			(r_ptr->level > p_ptr->depth))
-		{
 			continue;
-		}
 
 		/* Accept */
 		table[i].prob3 = table[i].prob2;
@@ -536,10 +498,9 @@ void display_monlist(void)
 	const char* m_name;
 	char buf[80];
 
-	monster_type *m_ptr;
 	monster_race *r_ptr;
 
-	u16b *race_counts;
+	u16b* race_counts;
 
 
 	/* Allocate the array */
@@ -548,7 +509,7 @@ void display_monlist(void)
 	/* Iterate over mon_list */
 	for (idx = 1; idx < mon_max; idx++)
 	{
-		m_ptr = &mon_list[idx];
+		const monster_type* const m_ptr = &mon_list[idx];
 
 		/* Only visible monsters */
 		if (!m_ptr->ml) continue;
@@ -561,7 +522,7 @@ void display_monlist(void)
 	/* Iterate over mon_list ( again :-/ ) */
 	for (idx = 1; idx < mon_max; idx++)
 	{
-		m_ptr = &mon_list[idx];
+		const monster_type* const m_ptr = &mon_list[idx];
 
 		/* Only visible monsters */
 		if (!m_ptr->ml) continue;
@@ -811,15 +772,15 @@ void monster_desc(char *desc, size_t max, const monster_type *m_ptr, int mode)
 /*
  * Learn about a monster (by "probing" it)
  */
-void lore_do_probe(int m_idx)
+void lore_do_probe(const m_idx_type m_idx)
 {
-	monster_type *m_ptr = &mon_list[m_idx];
-	monster_race *r_ptr = m_ptr->race();
-	monster_lore *l_ptr = m_ptr->lore();
+	monster_type* const m_ptr = mon_list+m_idx;
+	monster_race* const r_ptr = m_ptr->race();
+	monster_lore* const l_ptr = m_ptr->lore();
 
 
 	/* Hack -- Memorize some flags */
-	C_COPY(l_ptr->flags, r_ptr->flags, RACE_FLAG_ATTACK_START);
+	C_COPY(l_ptr->flags, r_ptr->flags, RACE_FLAG_STRICT_UB);
 
 	/* Update monster recall window */
 	if (p_ptr->monster_race_idx == m_ptr->r_idx) p_ptr->redraw |= (PR_MONSTER);
@@ -839,11 +800,11 @@ void lore_do_probe(int m_idx)
  * gold and items are dropped, and remembers that information to be
  * described later by the monster recall code.
  */
-void lore_treasure(int m_idx, int num_item, int num_gold)
+void lore_treasure(const m_idx_type m_idx, int num_item, int num_gold)
 {
-	monster_type *m_ptr = &mon_list[m_idx];
-	monster_race *r_ptr = m_ptr->race();
-	monster_lore *l_ptr = m_ptr->lore();
+	monster_type* const m_ptr = mon_list+m_idx;
+	monster_race* const r_ptr = m_ptr->race();
+	monster_lore* const l_ptr = m_ptr->lore();
 
 
 	/* Note the number of things dropped */
@@ -857,7 +818,6 @@ void lore_treasure(int m_idx, int num_item, int num_gold)
 	/* Update monster recall window */
 	if (p_ptr->monster_race_idx == m_ptr->r_idx) p_ptr->redraw |= (PR_MONSTER);
 }
-
 
 
 /*
@@ -919,11 +879,11 @@ void lore_treasure(int m_idx, int num_item, int num_gold)
  * "disturb_near" (monster which is "easily" viewable moves in some
  * way).  Note that "moves" includes "appears" and "disappears".
  */
-void update_mon(int m_idx, bool full)
+void update_mon(const m_idx_type m_idx, bool full)
 {
-	monster_type *m_ptr = &mon_list[m_idx];
-	monster_race *r_ptr = m_ptr->race();
-	monster_lore *l_ptr = m_ptr->lore();
+	monster_type* m_ptr = mon_list+m_idx;
+	monster_race* r_ptr = m_ptr->race();
+	monster_lore* l_ptr = m_ptr->lore();
 
 	int d;
 
@@ -1081,10 +1041,10 @@ void update_mon(int m_idx, bool full)
 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
 			/* Hack -- Count "fresh" sightings */
-			if (l_ptr->sights < MAX_SHORT) l_ptr->sights++;
+			if (l_ptr->sights < MAX_S16B) l_ptr->sights++;
 
 			/* Disturb on appearance */
-			if (disturb_move) disturb(1, 0);
+			if (OPTION(disturb_move)) disturb(1, 0);
 
 			/* Window stuff */
 			p_ptr->redraw |= PR_MONLIST;
@@ -1107,7 +1067,7 @@ void update_mon(int m_idx, bool full)
 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
 			/* Disturb on disappearance */
-			if (disturb_move) disturb(1, 0);
+			if (OPTION(disturb_move)) disturb(1, 0);
 
 			/* Window stuff */
 			p_ptr->redraw |= PR_MONLIST;
@@ -1125,7 +1085,7 @@ void update_mon(int m_idx, bool full)
 			m_ptr->mflag |= (MFLAG_VIEW);
 
 			/* Disturb on appearance */
-			if (disturb_near) disturb(1, 0);
+			if (OPTION(disturb_near)) disturb(1, 0);
 		}
 	}
 
@@ -1139,7 +1099,7 @@ void update_mon(int m_idx, bool full)
 			m_ptr->mflag &= ~(MFLAG_VIEW);
 
 			/* Disturb on disappearance */
-			if (disturb_near) disturb(1, 0);
+			if (OPTION(disturb_near)) disturb(1, 0);
 		}
 	}
 }
@@ -1152,18 +1112,13 @@ void update_mon(int m_idx, bool full)
  */
 void update_monsters(bool full)
 {
-	int i;
-
-	/* Update each (live) monster */
-	for (i = 1; i < mon_max; i++)
+	m_idx_type i(mon_max-1);
+	while(1)
 	{
-		monster_type *m_ptr = &mon_list[i];
-
-		/* Skip dead monsters */
-		if (!m_ptr->r_idx) continue;
-
-		/* Update the monster */
-		update_mon(i, full);
+		/* live monsters get updated */
+		if (mon_list[i].r_idx) update_mon(i, full);
+		if (1==i) break;
+		--i;
 	}
 }
 
@@ -1173,15 +1128,11 @@ void update_monsters(bool full)
 /*
  * Make a monster carry an object
  */
-s16b monster_carry(int m_idx, object_type *j_ptr)
+s16b monster_carry(const m_idx_type m_idx, object_type *j_ptr)
 {
-	assert(0 < m_idx && m_idx < z_info->m_max);
 	s16b o_idx;
-
 	s16b this_o_idx, next_o_idx = 0;
-
-	monster_type *m_ptr = &mon_list[m_idx];
-
+	monster_type* const m_ptr = mon_list+m_idx;
 
 	/* Scan objects already being held for combination */
 	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -1440,7 +1391,7 @@ static bool place_monster_one(coord g, int r_idx, bool slp)
 		if (r_ptr->flags[0] & RF0_UNIQUE)
 		{
 			/* Message for cheaters */
-			if (cheat_hear) msg_format("Deep Unique (%s).", name);
+			if (OPTION(cheat_hear)) msg_format("Deep Unique (%s).", name);
 
 			/* Boost rating by twice delta-depth */
 			rating += (r_ptr->level - p_ptr->depth) * 2;
@@ -1450,7 +1401,7 @@ static bool place_monster_one(coord g, int r_idx, bool slp)
 		else
 		{
 			/* Message for cheaters */
-			if (cheat_hear) msg_format("Deep Monster (%s).", name);
+			if (OPTION(cheat_hear)) msg_format("Deep Monster (%s).", name);
 
 			/* Boost rating by delta-depth */
 			rating += (r_ptr->level - p_ptr->depth);
@@ -1461,7 +1412,7 @@ static bool place_monster_one(coord g, int r_idx, bool slp)
 	else if (r_ptr->flags[0] & RF0_UNIQUE)
 	{
 		/* Unique monsters induce message */
-		if (cheat_hear) msg_format("Unique (%s).", name);
+		if (OPTION(cheat_hear)) msg_format("Unique (%s).", name);
 	}
 
 
@@ -1823,7 +1774,7 @@ bool alloc_monster(int dis, bool slp)
 
 	if (!attempts_left)
 	{
-		if (cheat_xtra || cheat_hear)
+		if (OPTION(cheat_xtra) || OPTION(cheat_hear))
 		{
 			msg_print("Warning! Could not allocate a new monster.");
 		}
@@ -2052,9 +2003,9 @@ bool summon_specific(coord g, int lev, int type)
  *
  * Note that "reproduction" REQUIRES empty space.
  */
-bool multiply_monster(int m_idx)
+bool multiply_monster(const m_idx_type m_idx)
 {
-	monster_type *m_ptr = &mon_list[m_idx];
+	monster_type* const m_ptr = mon_list+m_idx;
 
 	coord g;
 	int i;
@@ -2152,10 +2103,9 @@ static const int pain_noise_intensity[7]
  *
  * Technically should attempt to treat "Beholder"'s as jelly's
  */
-void message_pain(int m_idx, int dam)
+void message_pain(const m_idx_type m_idx, int dam)
 {
-	const monster_type* const m_ptr = &mon_list[m_idx];
-
+	const monster_type* const m_ptr = mon_list+m_idx;
 	char m_name[80];
 
 
@@ -2213,15 +2163,13 @@ void message_pain(int m_idx, int dam)
 /*
  * Learn about an "observed" resistance.
  */
-void update_smart_learn(int m_idx, int what)
+void update_smart_learn(const m_idx_type m_idx, int what)
 {
-
-	monster_type *m_ptr = &mon_list[m_idx];
-	monster_race *r_ptr = m_ptr->race();
-
-
 	/* Not allowed to learn */
-	if (!smart_learn) return;
+	if (!OPTION(adult_smart_learn)) return;
+
+	monster_type* const m_ptr = mon_list+m_idx;
+	monster_race* const r_ptr = m_ptr->race();
 
 	/* Too stupid to learn anything */
 	if (r_ptr->flags[1] & RF1_STUPID) return;

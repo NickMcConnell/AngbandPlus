@@ -47,7 +47,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"3.0.7"
+#define VERSION_STRING	"3.0.9 alpha"
 
 
 /*
@@ -55,23 +55,13 @@
  */
 #define VERSION_MAJOR	3
 #define VERSION_MINOR	0
-#define VERSION_PATCH	7
+#define VERSION_PATCH	8
 #define VERSION_EXTRA	0
-
-
-/*
- * Oldest version number that can still be imported
- */
-#define OLD_VERSION_MAJOR	2
-#define OLD_VERSION_MINOR	9
-#define OLD_VERSION_PATCH	0
-
 
 /*
  * Version of random artifact code.
  */
 #define RANDART_VERSION	62
-
 
 /*
  * Number of grids in each block (vertically)
@@ -204,13 +194,6 @@ enum player_gender	{
 
 
 /*
- * OPTION: Maximum number of macros (see "util.c")
- * Default: assume at most 512 macros are used
- */
-#define MACRO_MAX	512
-
-
-/*
  * Misc constants
  */
 #define TOWN_DAWN		10000	/* Number of turns from dawn to dawn XXX */
@@ -297,6 +280,7 @@ enum player_gender	{
 
 /*
  * Total number of inventory slots (hard-coded).
+ * Should be signed because of negative-slot convention.
  */
 #define INVEN_TOTAL	36
 
@@ -454,158 +438,6 @@ inline bool is_trap(byte x) {	return IS_TRAP(x);	}
  * rings, amulets), and the ones from 16 to 127 are "normal".
  */
 #define ART_MIN_NORMAL		16
-
-
-
-/*** Ego-Item indexes (see "lib/edit/ego_item.txt") ***/
-
-
-/* Nothing */
-/* xxx */
-/* xxx */
-/* xxx */
-
-/* Body Armor */
-#define EGO_RESIST_ACID		4
-#define EGO_RESIST_ELEC		5
-#define EGO_RESIST_FIRE		6
-#define EGO_RESIST_COLD		7
-#define EGO_RESISTANCE		8
-#define EGO_ELVENKIND		9
-#define EGO_ARMR_VULN		10
-#define EGO_PERMANENCE		11
-#define EGO_ARMR_DWARVEN	12
-/* xxx */
-/* xxx */
-/* xxx */
-
-/* Shields */
-#define EGO_ENDURE_ACID		16
-#define EGO_ENDURE_ELEC		17
-#define EGO_ENDURE_FIRE		18
-#define EGO_ENDURE_COLD		19
-#define EGO_ENDURANCE		20
-#define EGO_SHIELD_ELVENKIND	21
-#define EGO_SHIELD_PRESERVATION	22
-#define EGO_SHIELD_VULN		23
-
-/* Crowns and Helms */
-#define EGO_INTELLIGENCE	24
-#define EGO_WISDOM			25
-#define EGO_BEAUTY			26
-#define EGO_MAGI			27
-#define EGO_MIGHT			28
-#define EGO_LORDLINESS		29
-#define EGO_SEEING			30
-#define EGO_INFRAVISION		31
-#define EGO_LITE			32
-#define EGO_TELEPATHY		33
-#define EGO_REGENERATION	34
-#define EGO_TELEPORTATION	35
-#define EGO_STUPIDITY		36
-#define EGO_NAIVETY			37
-#define EGO_UGLINESS		38
-#define EGO_SICKLINESS		39
-
-/* Cloaks */
-#define EGO_PROTECTION		40
-#define EGO_STEALTH			41
-#define EGO_AMAN			42
-#define EGO_CLOAK_MAGI		43
-#define EGO_ENVELOPING		44
-#define EGO_VULNERABILITY	45
-#define EGO_IRRITATION		46
-/* xxx */
-
-/* Gloves */
-#define EGO_FREE_ACTION		48
-#define EGO_SLAYING			49
-#define EGO_AGILITY			50
-#define EGO_POWER			51
-#define EGO_GLOVES_THIEVERY	52
-#define EGO_GAUNTLETS_COMBAT	53
-#define EGO_WEAKNESS		54
-#define EGO_CLUMSINESS		55
-
-/* Boots */
-#define EGO_SLOW_DESCENT	56
-#define EGO_QUIET			57
-#define EGO_MOTION			58
-#define EGO_SPEED			59
-#define EGO_STABILITY		60
-#define EGO_NOISE			61
-#define EGO_SLOWNESS		62
-#define EGO_ANNOYANCE		63
-
-/* Weapons */
-#define EGO_HA				64
-#define EGO_DF				65
-#define EGO_BLESS_BLADE		66
-#define EGO_GONDOLIN		67
-#define EGO_WEST			68
-#define EGO_ATTACKS			69
-#define EGO_FURY			70
-/* xxx */
-#define EGO_BRAND_ACID		72
-#define EGO_BRAND_ELEC		73
-#define EGO_BRAND_FIRE		74
-#define EGO_BRAND_COLD		75
-#define EGO_BRAND_POIS		76
-/* xxx */
-/* xxx */
-/* xxx */
-#define EGO_SLAY_ANIMAL		80
-#define EGO_SLAY_EVIL		81
-#define EGO_SLAY_UNDEAD		82
-#define EGO_SLAY_DEMON		83
-#define EGO_SLAY_ORC		84
-#define EGO_SLAY_TROLL		85
-#define EGO_SLAY_GIANT		86
-#define EGO_SLAY_DRAGON		87
-#define EGO_KILL_ANIMAL		88
-#define EGO_KILL_EVIL		89
-#define EGO_KILL_UNDEAD		90
-#define EGO_KILL_DEMON		83
-#define EGO_KILL_ORC		84
-#define EGO_KILL_TROLL		85
-#define EGO_KILL_GIANT		86
-#define EGO_KILL_DRAGON		95
-/* xxx */
-/* xxx */
-/* xxx */
-/* xxx */
-#define EGO_DIGGING			100
-#define EGO_DIGGER_EARTHQUAKE		101
-#define EGO_MORGUL			102
-/* xxx */
-
-/* Bows */
-#define EGO_ACCURACY		104
-#define EGO_VELOCITY		105
-#define EGO_BOW_LORIEN		106
-#define EGO_CROSSBOW_HARAD	107
-#define EGO_EXTRA_MIGHT		108
-#define EGO_EXTRA_SHOTS		109
-#define EGO_SLING_BUCKLAND	110
-#define EGO_NAZGUL			111
-
-/* Ammo */
-#define EGO_HURT_ANIMAL		112
-#define EGO_HURT_EVIL		113
-#define EGO_HURT_UNDEAD		114
-#define EGO_HURT_DEMON		115
-#define EGO_HURT_ORC		116
-#define EGO_HURT_TROLL		117
-#define EGO_HURT_GIANT		118
-#define EGO_HURT_DRAGON		119
-#define EGO_AMMO_HOLY		120
-#define EGO_AMMO_VENOM		121
-#define EGO_FLAME			122
-#define EGO_FROST			123
-#define EGO_WOUNDING		124
-#define EGO_BACKBITING		125
-#define EGO_SHATTERED		126
-#define EGO_BLASTED			127
 
 
 
@@ -774,7 +606,7 @@ inline bool is_trap(byte x) {	return IS_TRAP(x);	}
  * Special object flags
  */
 #define IDENT_SENSE     0x01	/* Item has been "sensed" */
-/* XXX */
+#define IDENT_HIDE		0x02	/* Item is in store, but should not be displayed. */
 #define IDENT_EMPTY     0x04	/* Item charges are known */
 #define IDENT_KNOWN     0x08	/* Item abilities are known */
 #define IDENT_STORE     0x10	/* Item is in the inventory of a store */
@@ -915,12 +747,12 @@ inline bool is_trap(byte x) {	return IS_TRAP(x);	}
 #define TR3_XXX5            0x00100000L /* (reserved) */
 #define TR3_XXX6            0x00200000L /* (reserved) */
 #define TR3_BLESSED         0x00400000L /* Item has been blessed */
-#define TR3_ACTIVATE        0x00800000L /* Item can be activated */
+#define TR3_XXX7        	0x00800000L /* XXX Item can be activated XXX */
 #define TR3_INSTA_ART       0x01000000L /* Item makes an artifact */
 #define TR3_EASY_KNOW       0x02000000L /* Item is known if aware */
 #define TR3_HIDE_TYPE       0x04000000L /* Item hides description */
 #define TR3_SHOW_MODS       0x08000000L /* Item shows Tohit/Todam */
-#define TR3_XXX7            0x10000000L /* (reserved) */
+#define TR3_XXX8            0x10000000L /* (reserved) */
 #define TR3_LIGHT_CURSE     0x20000000L /* Item has Light Curse */
 #define TR3_HEAVY_CURSE     0x40000000L /* Item has Heavy Curse */
 #define TR3_PERMA_CURSE     0x80000000L /* Item has Perma Curse */
@@ -1025,270 +857,26 @@ inline bool is_trap(byte x) {	return IS_TRAP(x);	}
  * number of 32-bit bitmaps used for monster race
  * actual RF flags are in raceflag.h
  */
-#define RACE_FLAG_STRICT_UB 6
-#define RACE_FLAG_ATTACK_START 3
-#define RACE_FLAG_ATTACK_STRICT_UB 3
+#define RACE_FLAG_STRICT_UB 3
+#define RACE_FLAG_SPELL_STRICT_UB 3
 
-/*** Option Definitions ***/
 
 /*
- * Option indexes (offsets)
- *
- * These values are hard-coded by savefiles (and various pieces of code).
+ * Redeclaraton of option macro, master is in option.h
  */
-#define OPT_BIRTH					128
-#define OPT_CHEAT					160
-#define OPT_ADULT					192
-#define OPT_SCORE					224
-#define OPT_NONE					255
 #define OPT_MAX						256
-
-
-/*
- * Option indexes (normal)
- *
- * These values are hard-coded by savefiles.
- */
-#define OPT_rogue_like_commands		0
-#define OPT_quick_messages			1
-#define OPT_floor_query_flag		2
-#define OPT_carry_query_flag		3
-#define OPT_use_old_target			4
-#define OPT_always_pickup			5
-#define OPT_always_repeat			6
-#define OPT_depth_in_feet			7
-#define OPT_stack_force_notes		8
-/* xxx OPT_stack_force_costs */
-#define OPT_show_labels				10
-#define OPT_show_weights			11
-#define OPT_show_choices			12
-#define OPT_show_details			13
-#define OPT_ring_bell				14
-#define OPT_show_flavors			15
-#define OPT_run_ignore_stairs		16
-#define OPT_run_ignore_doors		17
-#define OPT_run_cut_corners			18
-#define OPT_run_use_corners			19
-#define OPT_disturb_move			20
-#define OPT_disturb_near			21
-#define OPT_disturb_panel			22
-#define OPT_disturb_state			23
-/* xxx OPT_disturb_minor */
-/* xxx OPT_disturb_other */
-/* xxx OPT_alert_hitpoint */
-/* xxx OPT_alert_failure */
-#define OPT_verify_destroy			28
-/* xxx OPT_verify_special */
-/* xxx OPT_allow_quantity */
-/* xxx */
-/* xxx OPT_auto_haggle */
-#define OPT_auto_scum				33
-/* xxx testing_stack */
-/* xxx testing_carry */
-#define OPT_expand_look				36
-/* xxx OPT_expand_list */
-#define OPT_view_perma_grids		38
-#define OPT_view_torch_grids		39
-#define OPT_dungeon_align			40
-#define OPT_dungeon_stair			41
-#define OPT_flow_by_sound			42
-#define OPT_flow_by_smell			43
-/* xxx track_follow */
-/* xxx track_target */
-#define OPT_smart_learn				46
-#define OPT_smart_cheat				47
-#define OPT_view_reduce_lite		48
-#define OPT_hidden_player			49
-#define OPT_avoid_abort				50
-#define OPT_avoid_other				51
-#define OPT_flush_failure			52
-#define OPT_flush_disturb			53
-/* xxx */
-#define OPT_compress_savefile		58
-#define OPT_hilite_player			59
-#define OPT_view_yellow_lite		60
-#define OPT_view_bright_lite		61
-#define OPT_view_granite_lite		62
-#define OPT_view_special_lite		63
-#define OPT_easy_open 				64
-#define OPT_easy_alter 				65
-#define OPT_easy_floor 				66
-#define OPT_show_piles				67
-#define OPT_center_player			68
-#define OPT_run_avoid_center		69
-/* xxx */
-#define OPT_auto_more				71
-#define OPT_smart_monsters			72
-#define OPT_smart_packs				73
-/* xxx */
-/* xxx */
-/* xxx */
-/* xxx */
-/* xxx */
-/* xxx */
-/* xxx xxx */
-#define OPT_birth_point_based       (OPT_BIRTH+0)
-#define OPT_birth_auto_roller       (OPT_BIRTH+1)
-#define OPT_birth_maximize          (OPT_BIRTH+2)
-#define OPT_birth_preserve          (OPT_BIRTH+3)
-#define OPT_birth_ironman           (OPT_BIRTH+4)
-#define OPT_birth_no_stores         (OPT_BIRTH+5)
-#define OPT_birth_no_artifacts      (OPT_BIRTH+6)
-#define OPT_birth_rand_artifacts    (OPT_BIRTH+7)
-#define OPT_birth_no_stacking       (OPT_BIRTH+8)
-/* xxx xxx */
-#define OPT_cheat_peek				(OPT_CHEAT+0)
-#define OPT_cheat_hear				(OPT_CHEAT+1)
-#define OPT_cheat_room				(OPT_CHEAT+2)
-#define OPT_cheat_xtra				(OPT_CHEAT+3)
-#define OPT_cheat_know				(OPT_CHEAT+4)
-#define OPT_cheat_live				(OPT_CHEAT+5)
-/* xxx xxx */
-#define OPT_adult_point_based		(OPT_ADULT+0)
-#define OPT_adult_auto_roller		(OPT_ADULT+1)
-#define OPT_adult_maximize			(OPT_ADULT+2)
-#define OPT_adult_preserve			(OPT_ADULT+3)
-#define OPT_adult_ironman			(OPT_ADULT+4)
-#define OPT_adult_no_stores			(OPT_ADULT+5)
-#define OPT_adult_no_artifacts		(OPT_ADULT+6)
-#define OPT_adult_rand_artifacts	(OPT_ADULT+7)
-#define OPT_adult_no_stacking		(OPT_ADULT+8)
-/* xxx xxx */
-#define OPT_score_peek				(OPT_SCORE+0)
-#define OPT_score_hear				(OPT_SCORE+1)
-#define OPT_score_room				(OPT_SCORE+2)
-#define OPT_score_xtra				(OPT_SCORE+3)
-#define OPT_score_know				(OPT_SCORE+4)
-#define OPT_score_live				(OPT_SCORE+5)
-/* xxx xxx */
-
-
-/*
- * Hack -- Option symbols
- */
-#define rogue_like_commands		op_ptr->opt[OPT_rogue_like_commands]
-#define quick_messages			op_ptr->opt[OPT_quick_messages]
-#define floor_query_flag		op_ptr->opt[OPT_floor_query_flag]
-#define carry_query_flag		op_ptr->opt[OPT_carry_query_flag]
-#define use_old_target			op_ptr->opt[OPT_use_old_target]
-#define always_pickup			op_ptr->opt[OPT_always_pickup]
-#define always_repeat			op_ptr->opt[OPT_always_repeat]
-#define depth_in_feet			op_ptr->opt[OPT_depth_in_feet]
-#define stack_force_notes		op_ptr->opt[OPT_stack_force_notes]
-#define show_labels				op_ptr->opt[OPT_show_labels]
-#define show_weights			op_ptr->opt[OPT_show_weights]
-#define show_choices			op_ptr->opt[OPT_show_choices]
-#define show_details			op_ptr->opt[OPT_show_details]
-#define ring_bell				op_ptr->opt[OPT_ring_bell]
-#define show_flavors			op_ptr->opt[OPT_show_flavors]
-#define run_ignore_stairs		op_ptr->opt[OPT_run_ignore_stairs]
-#define run_ignore_doors		op_ptr->opt[OPT_run_ignore_doors]
-#define run_cut_corners			op_ptr->opt[OPT_run_cut_corners]
-#define run_use_corners			op_ptr->opt[OPT_run_use_corners]
-#define disturb_move			op_ptr->opt[OPT_disturb_move]
-#define disturb_near			op_ptr->opt[OPT_disturb_near]
-#define disturb_panel			op_ptr->opt[OPT_disturb_panel]
-#define disturb_state			op_ptr->opt[OPT_disturb_state]
-/* xxx disturb_minor */
-/* xxx disturb_other */
-/* xxx */
-/* xxx alert_failure */
-#define verify_destroy			op_ptr->opt[OPT_verify_destroy]
-/* #define verify_special			op_ptr->opt[OPT_verify_special] */
-/* #define allow_quantity			op_ptr->opt[OPT_allow_quantity] */
-/* xxx */
-/* auto_haggle */
-#define auto_scum				op_ptr->opt[OPT_auto_scum]
-/* xxx testing_stack */
-/* xxx testing_carry */
-#define expand_look				op_ptr->opt[OPT_expand_look]
-/* xxx expand_list */
-#define view_perma_grids		op_ptr->opt[OPT_view_perma_grids]
-#define view_torch_grids		op_ptr->opt[OPT_view_torch_grids]
-#define dungeon_align			op_ptr->opt[OPT_dungeon_align]
-#define dungeon_stair			op_ptr->opt[OPT_dungeon_stair]
-#define flow_by_sound			op_ptr->opt[OPT_flow_by_sound]
-#define flow_by_smell			op_ptr->opt[OPT_flow_by_smell]
-/* xxx track_follow */
-/* xxx track_target */
-#define smart_learn				op_ptr->opt[OPT_smart_learn]
-#define smart_cheat				op_ptr->opt[OPT_smart_cheat]
-#define view_reduce_lite		op_ptr->opt[OPT_view_reduce_lite]
-#define hidden_player			op_ptr->opt[OPT_hidden_player]
-#define avoid_abort				op_ptr->opt[OPT_avoid_abort]
-#define avoid_other				op_ptr->opt[OPT_avoid_other]
-#define flush_failure			op_ptr->opt[OPT_flush_failure]
-#define flush_disturb			op_ptr->opt[OPT_flush_disturb]
-/* xxx */
-#define compress_savefile		op_ptr->opt[OPT_compress_savefile]
-#define hilite_player			op_ptr->opt[OPT_hilite_player]
-#define view_yellow_lite		op_ptr->opt[OPT_view_yellow_lite]
-#define view_bright_lite		op_ptr->opt[OPT_view_bright_lite]
-#define view_granite_lite		op_ptr->opt[OPT_view_granite_lite]
-#define view_special_lite		op_ptr->opt[OPT_view_special_lite]
-#define easy_open				op_ptr->opt[OPT_easy_open]
-#define easy_alter				op_ptr->opt[OPT_easy_alter]
-#define easy_floor				op_ptr->opt[OPT_easy_floor]
-#define show_piles				op_ptr->opt[OPT_show_piles]
-#define center_player			op_ptr->opt[OPT_center_player]
-#define run_avoid_center		op_ptr->opt[OPT_run_avoid_center]
-/* xxx */
-#define auto_more				op_ptr->opt[OPT_auto_more]
-#define smart_monsters			op_ptr->opt[OPT_smart_monsters]
-#define smart_packs				op_ptr->opt[OPT_smart_packs]
-/* xxx */
-/* xxx */
-/* xxx */
-/* xxx */
-/* xxx */
-/* xxx */
-/* xxx xxx */
-#define birth_point_based		op_ptr->opt[OPT_birth_point_based]
-#define birth_auto_roller		op_ptr->opt[OPT_birth_auto_roller]
-#define birth_maximize			op_ptr->opt[OPT_birth_maximize]
-#define birth_preserve			op_ptr->opt[OPT_birth_preserve]
-#define birth_ironman			op_ptr->opt[OPT_birth_ironman]
-#define birth_no_stores			op_ptr->opt[OPT_birth_no_stores]
-#define birth_no_artifacts		op_ptr->opt[OPT_birth_no_artifacts]
-#define birth_rand_artifacts	op_ptr->opt[OPT_birth_rand_artifacts]
-#define birth_no_stacking       op_ptr->opt[OPT_birth_no_stacking]
-/* xxx xxx */
-#define cheat_peek				op_ptr->opt[OPT_cheat_peek]
-#define cheat_hear				op_ptr->opt[OPT_cheat_hear]
-#define cheat_room				op_ptr->opt[OPT_cheat_room]
-#define cheat_xtra				op_ptr->opt[OPT_cheat_xtra]
-#define cheat_know				op_ptr->opt[OPT_cheat_know]
-#define cheat_live				op_ptr->opt[OPT_cheat_live]
-/* xxx xxx */
-#define adult_point_based		op_ptr->opt[OPT_adult_point_based]
-#define adult_auto_roller		op_ptr->opt[OPT_adult_auto_roller]
-#define adult_maximize			op_ptr->opt[OPT_adult_maximize]
-#define adult_preserve			op_ptr->opt[OPT_adult_preserve]
-#define adult_ironman			op_ptr->opt[OPT_adult_ironman]
-#define adult_no_stores			op_ptr->opt[OPT_adult_no_stores]
-#define adult_no_artifacts		op_ptr->opt[OPT_adult_no_artifacts]
-#define adult_rand_artifacts	op_ptr->opt[OPT_adult_rand_artifacts]
-#define adult_no_stacking		op_ptr->opt[OPT_adult_no_stacking]
-/* xxx xxx */
-#define score_peek				op_ptr->opt[OPT_score_peek]
-#define score_hear				op_ptr->opt[OPT_score_hear]
-#define score_room				op_ptr->opt[OPT_score_room]
-#define score_xtra				op_ptr->opt[OPT_score_xtra]
-#define score_know				op_ptr->opt[OPT_score_know]
-#define score_live				op_ptr->opt[OPT_score_live]
-/* xxx xxx */
-
-
-/*
- * Information for "do_cmd_options()".
- */
-#define OPT_PAGE_MAX				7
-#define OPT_PAGE_PER				20
-
 
 
 /*** Macro Definitions ***/
 
+/*
+ * Debugging tracker
+ */
+#ifdef NDEBUG
+#define m_ptr_from_m_idx(i) (mon_list+i)
+#else
+#define m_ptr_from_m_idx(i) (assert(1<=(s16b)(i)),assert((s16b)(i)<mon_max),mon_list+i)
+#endif
 
 /*
  * Hack -- The main "screen"
@@ -1380,6 +968,8 @@ inline bool is_trap(byte x) {	return IS_TRAP(x);	}
 	 (cave_o_idx[Y][X] == 0) && \
 	 (cave_m_idx[Y][X] == 0))
 
+#define cave_feat_in_range(Y,X,FEAT_A,FEAT_B)	\
+	(((FEAT_A)<=cave_feat[Y][X]) && (cave_feat[Y][X]<=(FEAT_B)))
 
 /**
  * Determine if a "legal" grid is "permanent"
@@ -1392,8 +982,7 @@ inline bool is_trap(byte x) {	return IS_TRAP(x);	}
 	((cave_feat[Y][X] >= FEAT_PERM_EXTRA) || \
 	 ((cave_feat[Y][X] == FEAT_LESS) || \
 	  (cave_feat[Y][X] == FEAT_MORE)) || \
-	 ((cave_feat[Y][X] >= FEAT_SHOP_HEAD) && \
-	  (cave_feat[Y][X] <= FEAT_SHOP_TAIL)))
+	 (cave_feat_in_range(Y,X,FEAT_SHOP_HEAD,FEAT_SHOP_TAIL)))
 
 /*
  * Maximum number of macro trigger names

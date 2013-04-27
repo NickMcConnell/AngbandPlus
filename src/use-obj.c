@@ -17,6 +17,7 @@
 
 #include "angband.h"
 #include "cmds.h"
+#include "option.h"
 #include "project.h"
 #include "summon.h"
 #include "tvalsval.h"
@@ -32,7 +33,7 @@ static bool check_devices(object_type *o_ptr)
 	const char *what = NULL;
 
 	/* Get the right string */
-	switch (o_ptr->tval)
+	switch (o_ptr->obj_id.tval)
 	{
 		case TV_ROD:   msg = "zap the rod";   break;
 		case TV_WAND:  msg = "use the wand";  what = "wand";  break;
@@ -42,14 +43,14 @@ static bool check_devices(object_type *o_ptr)
 
 	/* Base chance of success */
 	/* staves always work */
-	if (TV_STAFF != o_ptr->tval)
+	if (TV_STAFF != o_ptr->obj_id.tval)
 	{
 		int chance = p_ptr->item_chance(lev);
 
 		/* Roll for usage */
 		if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
 		{
-			if (flush_failure) flush();
+			if (OPTION(flush_failure)) flush();
 			msg_format("You failed to %s properly.", msg);
 			return FALSE;
 		}
@@ -58,7 +59,7 @@ static bool check_devices(object_type *o_ptr)
 	/* Notice empty staffs */
 	if (what && o_ptr->pval <= 0)
 	{
-		if (flush_failure) flush();
+		if (OPTION(flush_failure)) flush();
 		msg_format("The %s has no charges left.", what);
 		o_ptr->ident |= (IDENT_EMPTY);
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -72,7 +73,7 @@ static bool check_devices(object_type *o_ptr)
 static bool eat_food(object_type *o_ptr, bool *ident)
 {
 	/* Analyze the food */
-	switch (o_ptr->sval)
+	switch (o_ptr->obj_id.sval)
 	{
 		case SV_FOOD_POISON:
 		{
@@ -286,7 +287,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 static bool quaff_potion(object_type *o_ptr, bool *ident)
 {
 	/* Analyze the potion */
-	switch (o_ptr->sval)
+	switch (o_ptr->obj_id.sval)
 	{
 		case SV_POTION_WATER:
 		case SV_POTION_APPLE_JUICE:
@@ -442,19 +443,13 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_INFRAVISION:
 		{
-			if (p_ptr->inc_timed<TMD_SINFRA>(100 + randint(100)))
-			{
-				*ident = TRUE;
-			}
+			if (p_ptr->inc_timed<TMD_SINFRA>(100 + randint(100))) *ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_DETECT_INVIS:
 		{
-			if (p_ptr->inc_timed<TMD_SINVIS>(12 + randint(12)))
-			{
-				*ident = TRUE;
-			}
+			if (p_ptr->inc_timed<TMD_SINVIS>(12 + randint(12))) *ident = TRUE;
 			break;
 		}
 
@@ -491,19 +486,13 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_RESIST_HEAT:
 		{
-			if (p_ptr->inc_timed<TMD_OPP_FIRE>(randint(10) + 10))
-			{
-				*ident = TRUE;
-			}
+			if (p_ptr->inc_timed<TMD_OPP_FIRE>(randint(10) + 10)) *ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_RESIST_COLD:
 		{
-			if (p_ptr->inc_timed<TMD_OPP_COLD>(randint(10) + 10))
-			{
-				*ident = TRUE;
-			}
+			if (p_ptr->inc_timed<TMD_OPP_COLD>(randint(10) + 10)) *ident = TRUE;
 			break;
 		}
 
@@ -739,6 +728,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_EXPERIENCE:
 		{
+			restore_level();
 			if (p_ptr->exp < PY_MAX_EXP)
 			{
 				s32b ee = (p_ptr->exp / 2) + 10;
@@ -763,7 +753,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 
 
 	/* Analyze the scroll */
-	switch (o_ptr->sval)
+	switch (o_ptr->obj_id.sval)
 	{
 		case SV_SCROLL_DARKNESS:
 		{
@@ -1083,7 +1073,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 	bool use_charge = TRUE;
 
 	/* Analyze the staff */
-	switch (o_ptr->sval)
+	switch (o_ptr->obj_id.sval)
 	{
 		case SV_STAFF_DARKNESS:
 		{
@@ -1332,7 +1322,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 static bool aim_wand(object_type *o_ptr, bool *ident, int dir)
 {
-	int sval = o_ptr->sval;
+	int sval = o_ptr->obj_id.sval;
 
 	/* XXX Hack -- Wand of wonder can do anything before it */
 	if (sval == SV_WAND_WONDER) sval = rand_int(SV_WAND_WONDER);
@@ -1545,7 +1535,7 @@ static bool zap_rod(object_type *o_ptr, bool *ident, int dir)
 	object_kind *k_ptr = &object_type::k_info[o_ptr->k_idx];
 
 	/* Analyze the rod */
-	switch (o_ptr->sval)
+	switch (o_ptr->obj_id.sval)
 	{
 		case SV_ROD_DETECT_TRAP:
 		{
@@ -2177,12 +2167,12 @@ static bool activate_object(object_type *o_ptr, int dir)
 
 
 	/* Hack -- Dragon Scale Mail can be activated as well */
-	if (o_ptr->tval == TV_DRAG_ARMOR)
+	if (o_ptr->obj_id.tval == TV_DRAG_ARMOR)
 	{
 		object_kind* k_ptr = &object_type::k_info[o_ptr->k_idx];	/* XXX prepare to set timeout info XXX */
 
 		/* Branch on the sub-type */
-		switch (o_ptr->sval)
+		switch (o_ptr->obj_id.sval)
 		{
 			case SV_DRAGON_BLUE:
 			{
@@ -2349,12 +2339,12 @@ static bool activate_object(object_type *o_ptr, int dir)
 	}
 
 	/* Hack -- some Rings can be activated for double resist and element ball */
-	if (o_ptr->tval == TV_RING)
+	if (o_ptr->obj_id.tval == TV_RING)
 	{
 		object_kind* k_ptr = &object_type::k_info[o_ptr->k_idx];	/* XXX prepare to set timeout info XXX */
 
 		/* Branch on the sub-type */
-		switch (o_ptr->sval)
+		switch (o_ptr->obj_id.sval)
 		{
 			case SV_RING_ACID:
 			{
@@ -2410,8 +2400,8 @@ static bool activate_object(object_type *o_ptr, int dir)
 
 static bool want_aim(object_type *o_ptr)
 {
-	if (o_ptr->tval == TV_WAND) return TRUE;
-	if (o_ptr->tval == TV_ROD && ((o_ptr->sval >= SV_ROD_MIN_DIRECTION) || !o_ptr->aware())) return TRUE;
+	if (o_ptr->obj_id.tval == TV_WAND) return TRUE;
+	if (o_ptr->obj_id.tval == TV_ROD && ((o_ptr->obj_id.sval >= SV_ROD_MIN_DIRECTION) || !o_ptr->aware())) return TRUE;
 	if (o_ptr->name1)
 	{
 		switch (object_type::a_info[o_ptr->name1].activation)
@@ -2441,8 +2431,8 @@ static bool want_aim(object_type *o_ptr)
 		}
 	}
 	
-	if (o_ptr->tval == TV_DRAG_ARMOR) return TRUE;
-	if (o_ptr->tval == TV_RING) return TRUE;
+	if (o_ptr->obj_id.tval == TV_DRAG_ARMOR) return TRUE;
+	if (o_ptr->obj_id.tval == TV_RING) return TRUE;
 
 	return FALSE;
 }
@@ -2489,11 +2479,11 @@ void do_cmd_use(object_type *o_ptr, int item, int snd, use_type _use)
 	/* Check for timeout */
 	if (_use == USE_TIMEOUT)
 	{
-		if (TV_ROD == o_ptr->tval)
+		if (TV_ROD == o_ptr->obj_id.tval)
 		{
 			if (o_ptr->timeout > (o_ptr->pval - object_type::k_info[o_ptr->k_idx].pval))
 			{
-				if (flush_failure) flush();
+				if (OPTION(flush_failure)) flush();
 
 				if (o_ptr->number == 1)
 					msg_print("The rod is still charging");
@@ -2525,7 +2515,7 @@ void do_cmd_use(object_type *o_ptr, int item, int snd, use_type _use)
 	}
 
 	/* Analyze the object */
-	switch (o_ptr->tval)
+	switch (o_ptr->obj_id.tval)
 	{
 		case TV_FOOD:
 		{
@@ -2712,13 +2702,8 @@ static const char* const act_description[ACT_MAX] =
  */
 void describe_item_activation(const object_type *o_ptr)
 {
-	u32b f[OBJECT_FLAG_STRICT_UB];
-
-	/* Extract the flags */
-	object_flags(o_ptr, f);
-
 	/* Require activation ability */
-	if (!(f[2] & TR3_ACTIVATE)) return;
+	if (!obj_has_activation(o_ptr)) return;
 
 	/* Artifact activations */
 	if (o_ptr->name1)
@@ -2766,10 +2751,10 @@ void describe_item_activation(const object_type *o_ptr)
 	}
 
 	/* Ring activations */
-	if (o_ptr->tval == TV_RING)
+	if (TV_RING == o_ptr->obj_id.tval)
 	{
 		/* Branch on the sub-type */
-		switch (o_ptr->sval)
+		switch (o_ptr->obj_id.sval)
 		{
 			case SV_RING_ACID:
 			{
@@ -2798,10 +2783,10 @@ void describe_item_activation(const object_type *o_ptr)
 	}
 
 	/* Require dragon scale mail */
-	if (o_ptr->tval != TV_DRAG_ARMOR) return;
+	if (TV_DRAG_ARMOR != o_ptr->obj_id.tval) return;
 
 	/* Branch on the sub-type */
-	switch (o_ptr->sval)
+	switch (o_ptr->obj_id.sval)
 	{
 		case SV_DRAGON_BLUE:
 		{

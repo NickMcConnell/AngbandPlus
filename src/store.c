@@ -10,8 +10,10 @@
 
 #include "angband.h"
 #include "cmds.h"
+#include "option.h"
 #include "store.h"
 #include "tvalsval.h"
+#include "x-spell.h"
 
 /*
  * Store constants.
@@ -21,6 +23,9 @@
 #define STORE_MIN_KEEP	6		/**< Min slots to "always" keep full */
 #define STORE_MAX_KEEP	18		/**< Max slots to "always" keep full */
 
+/*
+ * Store reference tables.
+ */
 static const char* const comment_accept[] =
 {
 	"Okay.",
@@ -143,7 +148,7 @@ static bool store_will_buy(int store_num, const object_type *o_ptr)
 		case STORE_GENERAL:
 		{
 			/* Analyze the type */
-			switch (o_ptr->tval)
+			switch (o_ptr->obj_id.tval)
 			{
 				case TV_FOOD:
 				case TV_LITE:
@@ -163,7 +168,7 @@ static bool store_will_buy(int store_num, const object_type *o_ptr)
 		case STORE_ARMOR:
 		{
 			/* Analyze the type */
-			switch (o_ptr->tval)
+			switch (o_ptr->obj_id.tval)
 			{
 				case TV_BOOTS:
 				case TV_GLOVES:
@@ -183,7 +188,7 @@ static bool store_will_buy(int store_num, const object_type *o_ptr)
 		case STORE_WEAPON:
 		{
 			/* Analyze the type */
-			switch (o_ptr->tval)
+			switch (o_ptr->obj_id.tval)
 			{
 				case TV_SHOT:
 				case TV_BOLT:
@@ -202,15 +207,14 @@ static bool store_will_buy(int store_num, const object_type *o_ptr)
 		case STORE_TEMPLE:
 		{
 			/* Analyze the type */
-			switch (o_ptr->tval)
+			switch (o_ptr->obj_id.tval)
 			{
 				case TV_PRAYER_BOOK:
 				case TV_SCROLL:
 				case TV_POTION:
 				case TV_HAFTED:		return TRUE;
 				case TV_POLEARM:
-				case TV_SWORD:
-									/* Known blessed blades are accepted too */
+				case TV_SWORD:		/* Known blessed blades are accepted too */
 									if (is_blessed(o_ptr) && o_ptr->known()) return TRUE;
 				default:			return FALSE;
 			}
@@ -221,7 +225,7 @@ static bool store_will_buy(int store_num, const object_type *o_ptr)
 		case STORE_ALCHEMY:
 		{
 			/* Analyze the type */
-			switch (o_ptr->tval)
+			switch (o_ptr->obj_id.tval)
 			{
 				case TV_SCROLL:
 				case TV_POTION:		return TRUE;
@@ -234,7 +238,7 @@ static bool store_will_buy(int store_num, const object_type *o_ptr)
 		case STORE_MAGIC:
 		{
 			/* Analyze the type */
-			switch (o_ptr->tval)
+			switch (o_ptr->obj_id.tval)
 			{
 				case TV_MAGIC_BOOK:
 				case TV_AMULET:
@@ -314,6 +318,48 @@ static store_type *st_ptr = NULL;
  */
 static owner_type *ot_ptr = NULL;
 
+/*
+ * We store the player net worth here so everyone can access it
+ */
+static s32b pc_net_worth = 0;
+
+/**
+ *  Determine player net worth
+ */
+static s32b player_net_worth(void)
+{
+	object_type o;
+	s32b net_worth = p_ptr->au;	/* start with actual gold */
+	int i;
+
+	/* inventory */
+	for (i=0; i < INVEN_TOTAL; ++i)
+	{
+		s32b item_worth;
+		if (!p_ptr->inventory[i].k_idx) continue;
+		o = p_ptr->inventory[i];
+		object_known(&o);
+		item_worth = object_value(&o);
+		if (0 >= item_worth) continue;
+		if (MAX_S32B-item_worth <= net_worth) return MAX_S32B;
+		net_worth += item_worth;
+	}
+
+	/* home */
+	for (i = 0; i < store[STORE_HOME].stock_num; ++i)
+	{
+		s32b item_worth;
+		if (!store[STORE_HOME].stock[i].k_idx) continue;
+		o = store[STORE_HOME].stock[i];
+		object_known(&o);
+		item_worth = object_value(&o);
+		if (0 >= item_worth) continue;
+		if (MAX_S32B-item_worth <= net_worth) return MAX_S32B;
+		net_worth += item_worth;
+	}
+
+	return net_worth;
+}
 
 static void activate_store(store_indexes which)
 {
@@ -322,6 +368,7 @@ static void activate_store(store_indexes which)
 
 	/* Activate the owner */
 	ot_ptr = &b_info[(store_num * z_info->b_max) + st_ptr->owner];
+	pc_net_worth = player_net_worth();
 }
 
 
@@ -345,7 +392,7 @@ static void activate_store(store_indexes which)
  * to adjust (by 200) to extract a usable multiplier.  Note that the
  * "greed" value is always something (?).
  */
-static s32b price_item(const object_type *o_ptr, int greed, bool flip)
+static s32b price_item(const object_type *o_ptr, int greed, bool store_buy)
 {
 	int factor;
 	int adjust;
@@ -365,7 +412,7 @@ static s32b price_item(const object_type *o_ptr, int greed, bool flip)
 
 
 	/* Shop is buying */
-	if (flip)
+	if (store_buy)
 	{
 		/* Adjust for greed */
 		adjust = 100 + (300 - (greed + factor));
@@ -410,7 +457,7 @@ static void mass_produce(object_type *o_ptr)
 	s32b cost = object_value(o_ptr);
 
 	/* Analyze the type */
-	switch (o_ptr->tval)
+	switch (o_ptr->obj_id.tval)
 	{
 		/* Food, Flasks, and Lites */
 		case TV_FOOD:
@@ -480,13 +527,36 @@ static void mass_produce(object_type *o_ptr)
 	o_ptr->number = size;	/* Save the total pile size */
 
 	/* Hack -- rods need to increase PVAL if stacked */
-	if (o_ptr->tval == TV_ROD)
+	if (o_ptr->obj_id.tval == TV_ROD)
 	{
 		o_ptr->pval = o_ptr->number * object_type::k_info[o_ptr->k_idx].pval;
 	}
 }
 
+/*
+ * Convert a store index from visual to internal
+ */
+static s16b visual_to_internal_index(int i)
+{
+	int j;
+	if ((0 > i) || (i >= st_ptr->stock_num)) return -1;
 
+	for(j = 0; j <= i; ++j)
+		if (st_ptr->stock[j].ident & IDENT_HIDE)
+			if (++i >= st_ptr->stock_num) return -1;
+	return i;
+}
+
+static s16b internal_to_visual_index(int i)
+{
+	int j;
+	if ((0 > i) || (i >= st_ptr->stock_num)) return -1;
+
+	for(j = i; 0 <= j; --j)
+		if (st_ptr->stock[j].ident & IDENT_HIDE)
+			if (0 > --i) return -1;
+	return i;
+}
 
 /*
  * Convert a store item index into a one character label
@@ -514,7 +584,7 @@ static s16b label_to_store(int c)
 	if ((0 > i) || (i >= st_ptr->stock_num)) return (-1);
 
 	/* Return the index */
-	return (i);
+	return visual_to_internal_index(i);
 }
 
 
@@ -538,9 +608,9 @@ static bool store_object_similar(const object_type *o_ptr, const object_type *j_
 
 	/* Different pvals cannot be stacked, except for wands, staves, or rods */
 	if ((o_ptr->pval != j_ptr->pval) &&
-	    (o_ptr->tval != TV_WAND) &&
-	    (o_ptr->tval != TV_STAFF) &&
-	    (o_ptr->tval != TV_ROD)) return (0);
+	    (o_ptr->obj_id.tval != TV_WAND) &&
+	    (o_ptr->obj_id.tval != TV_STAFF) &&
+	    (o_ptr->obj_id.tval != TV_ROD)) return (0);
 
 	/* Require many identical values */
 	if (o_ptr->to_h != j_ptr->to_h) return (0);
@@ -564,7 +634,7 @@ static bool store_object_similar(const object_type *o_ptr, const object_type *j_
 	if (o_ptr->d != j_ptr->d) return (0);
 
 	/* Hack -- Never stack chests */
-	if (o_ptr->tval == TV_CHEST) return (0);
+	if (o_ptr->obj_id.tval == TV_CHEST) return (0);
 
 	/* Require matching pseudo fields */
 	if (o_ptr->pseudo != j_ptr->pseudo) return (0);
@@ -588,14 +658,14 @@ static void store_object_absorb(object_type *o_ptr, object_type *j_ptr)
 	 * Hack -- if rods are stacking, add the pvals (maximum timeouts)
 	 * and any charging timeouts together
 	 */
-	if (o_ptr->tval == TV_ROD)
+	if (o_ptr->obj_id.tval == TV_ROD)
 	{
 		o_ptr->pval += j_ptr->pval;
 		o_ptr->timeout += j_ptr->timeout;
 	}
 
 	/* Hack -- if wands/staves are stacking, combine the charges */
-	if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF))
+	if ((o_ptr->obj_id.tval == TV_WAND) || (o_ptr->obj_id.tval == TV_STAFF))
 	{
 		o_ptr->pval += j_ptr->pval;
 	}
@@ -700,25 +770,25 @@ static int home_carry(object_type *o_ptr)
 		j_ptr = &st_ptr->stock[slot];
 
 		/* Hack -- readable books always come first */
-		if (o_ptr->tval == p_ptr->spell_book())
+		if (o_ptr->obj_id.tval == p_ptr->spell_book())
 			{
-			if (j_ptr->tval != p_ptr->spell_book()) break;
+			if (j_ptr->obj_id.tval != p_ptr->spell_book()) break;
 			}
 		else{
-			if (j_ptr->tval == p_ptr->spell_book()) continue;
+			if (j_ptr->obj_id.tval == p_ptr->spell_book()) continue;
 			}
 
 		/* Objects sort by decreasing type */
-		if (o_ptr->tval > j_ptr->tval) break;
-		if (o_ptr->tval < j_ptr->tval) continue;
+		if (o_ptr->obj_id.tval > j_ptr->obj_id.tval) break;
+		if (o_ptr->obj_id.tval < j_ptr->obj_id.tval) continue;
 
 		/* Can happen in the home */
 		if (!o_ptr->aware()) continue;
 		if (!j_ptr->aware()) break;
 
 		/* Objects sort by increasing sval */
-		if (o_ptr->sval < j_ptr->sval) break;
-		if (o_ptr->sval > j_ptr->sval) continue;
+		if (o_ptr->obj_id.sval < j_ptr->obj_id.sval) break;
+		if (o_ptr->obj_id.sval > j_ptr->obj_id.sval) continue;
 
 		/* Objects in the home can be unknown */
 		if (!o_ptr->known()) continue;
@@ -793,12 +863,12 @@ static int store_carry(object_type *o_ptr)
 		j_ptr = &st_ptr->stock[slot];
 
 		/* Objects sort by decreasing type */
-		if (o_ptr->tval > j_ptr->tval) break;
-		if (o_ptr->tval < j_ptr->tval) continue;
+		if (o_ptr->obj_id.tval > j_ptr->obj_id.tval) break;
+		if (o_ptr->obj_id.tval < j_ptr->obj_id.tval) continue;
 
 		/* Objects sort by increasing sval */
-		if (o_ptr->sval < j_ptr->sval) break;
-		if (o_ptr->sval > j_ptr->sval) continue;
+		if (o_ptr->obj_id.sval < j_ptr->obj_id.sval) break;
+		if (o_ptr->obj_id.sval > j_ptr->obj_id.sval) continue;
 
 		/* Evaluate that slot */
 		j_value = object_value(j_ptr);
@@ -856,16 +926,99 @@ static void store_item_optimize(int item)
 	WIPE(st_ptr->stock + st_ptr->stock_num);
 }
 
+static bool store_has_item_type(s16b k_idx, int i)
+{
+	int j;
+
+	/* Check every object in the store */
+	for (j = 0; j < store[i].stock_num; j++)
+	{
+		/* Duplicate object "type", assume boring */
+		if (k_idx == store[i].stock[j].k_idx) return TRUE;
+	}
+	return FALSE;
+}
+
+static bool some_legal_store_has_item_type(s16b k_idx)
+{
+	int i;
+
+	/* Check the stores */
+	for (i = 0; i < MAX_STORES; i++)
+	{
+		/* Skip home and black market */
+		if (i == STORE_B_MARKET || i == STORE_HOME)
+		  continue;
+
+		if (store_has_item_type(k_idx,i)) return TRUE;
+	}
+	return FALSE;
+}
+
+static bool player_owns_item_type(s16b k_idx)
+{
+	int i;
+
+	/* Check every object in the home */
+	for (i = 0; i < store[STORE_HOME].stock_num; ++i)
+	{
+		/* Duplicate object "type", assume boring */
+		if (k_idx == store[STORE_HOME].stock[i].k_idx) return TRUE;
+	}
+
+	/* Check every object equipped or in inventory */
+	for (i = 0; i < INVEN_TOTAL; ++i)
+	{
+		/* Duplicate object "type", assume boring */
+		if (k_idx == p_ptr->inventory[i].k_idx) return TRUE;
+	}
+
+	return FALSE;
+}
+
+static bool object_is_artifact_with_activation(const object_type* o_ptr,int activation)
+{
+	if (!o_ptr->k_idx) return FALSE;
+	if (!o_ptr->is_artifact()) return FALSE;
+	return activation==object_type::a_info[o_ptr->name1].activation;	
+}
+
+static bool player_owns_artifact_with_activation(int activation)
+{
+	int i;
+
+	/* Check every object in the home */
+	for (i = 0; i < store[STORE_HOME].stock_num; ++i)
+		if (object_is_artifact_with_activation(store[STORE_HOME].stock+i,activation)) return TRUE;
+
+	/* Check every object equipped or in inventory */
+	for (i = 0; i < INVEN_TOTAL; ++i)
+		if (object_is_artifact_with_activation(p_ptr->inventory+i,activation)) return TRUE;
+
+	return FALSE;
+}
+
+static bool black_market_has_item_type(s16b k_idx)
+{
+	int i;
+
+	/* Check every object in the home */
+	for (i = 0; i < store[STORE_B_MARKET].stock_num; ++i)
+	{
+		/* Duplicate object "type", assume boring */
+		if (k_idx == store[STORE_B_MARKET].stock[i].k_idx) return TRUE;
+	}
+
+	return FALSE;
+}
 
 /*
  * This function will keep 'crap' out of the black market.
  * Crap is defined as any object that is "available" elsewhere
  * Based on a suggestion by "Lee Vogt" <lvogt@cig.mcel.mot.com>
  */
-static bool black_market_crap(const object_type *o_ptr)
+static bool black_market_boring(const object_type *o_ptr)
 {
-	int i, j;
-
 	/* Ego items are never crap */
 	if (o_ptr->name2) return FALSE;
 
@@ -874,25 +1027,457 @@ static bool black_market_crap(const object_type *o_ptr)
 	if (o_ptr->to_h > 0) return FALSE;
 	if (o_ptr->to_d > 0) return FALSE;
 
-	/* Check the other stores */
-	for (i = 0; i < MAX_STORES; i++)
-	{
-		/* Skip home and black market */
-		if (i == STORE_B_MARKET || i == STORE_HOME)
-		  continue;
+	
+	/* Check the other stores; if they have it, it's boring */
+	return some_legal_store_has_item_type(o_ptr->k_idx);
+}
 
-		/* Check every object in the store */
-		for (j = 0; j < store[i].stock_num; j++)
+static bool player_armor_boring(const object_type* o_ptr, const u32b* f_ref, s16b total_ac, const object_type* j_ptr)
+{
+	u32b f[OBJECT_FLAG_STRICT_UB];
+	u32b f2[OBJECT_FLAG_STRICT_UB];
+	u32b f_mask[OBJECT_FLAG_STRICT_UB];
+	int i;
+
+	s16b total_ac2 = j_ptr->ac + j_ptr->to_a;
+	bool has_flags = FALSE;
+	bool has_flags2 = FALSE;
+
+	object_flags(j_ptr,f2);
+
+	/* mask out bad flags, and boring flags */
+	f2[2] &= ~(TR3_IMPACT | TR3_TELEPORT | TR3_AGGRAVATE | TR3_DRAIN_EXP | TR3_LIGHT_CURSE | TR3_HEAVY_CURSE | TR3_PERMA_CURSE | TR3_INSTA_ART | TR3_EASY_KNOW | TR3_HIDE_TYPE | TR3_SHOW_MODS);
+
+	/* mirror object flags */
+	C_COPY(f,f_ref,OBJECT_FLAG_STRICT_UB);
+
+	/* build mask */
+	for(i = 0; i<OBJECT_FLAG_STRICT_UB; ++i)
+		f_mask[i] = f_ref[i] & f2[i];
+
+	/* apply easy masks */
+	f[1] &= ~f_mask[1];
+	f[1] &= ~f_mask[1];
+	f2[2] &= ~f_mask[2];
+	f2[2] &= ~f_mask[2];
+
+	/* if they have a decent pval, mask out pval-driven flags we already have as well */
+	if (o_ptr->pval <= j_ptr->pval)
+		f[0] &= ~f_mask[0];						
+	else
+		/* mask out binary flags that we already have */
+		f[0] &= ~(f_mask[0] & (TR1_SLAY_ANIMAL | TR1_SLAY_EVIL | TR1_SLAY_UNDEAD | TR1_SLAY_DEMON | TR1_SLAY_ORC | TR1_SLAY_TROLL | TR1_SLAY_GIANT | TR1_SLAY_DRAGON | TR1_KILL_DRAGON | TR1_KILL_DEMON | TR1_KILL_UNDEAD | TR1_BRAND_POIS | TR1_BRAND_ACID | TR1_BRAND_ELEC | TR1_BRAND_FIRE | TR1_BRAND_COLD));
+
+	/* if we have a decent pval, mask out pval-driven flags we already have as well */
+	if (o_ptr->pval >= j_ptr->pval)
+		f2[0] &= ~f_mask[0];						
+	else
+		/* mask out binary flags that we already have */
+		f2[0] &= ~(f_mask[0] & (TR1_SLAY_ANIMAL | TR1_SLAY_EVIL | TR1_SLAY_UNDEAD | TR1_SLAY_DEMON | TR1_SLAY_ORC | TR1_SLAY_TROLL | TR1_SLAY_GIANT | TR1_SLAY_DRAGON | TR1_KILL_DRAGON | TR1_KILL_DEMON | TR1_KILL_UNDEAD | TR1_BRAND_POIS | TR1_BRAND_ACID | TR1_BRAND_ELEC | TR1_BRAND_FIRE | TR1_BRAND_COLD));
+
+	for(i = 0; i<OBJECT_FLAG_STRICT_UB; ++i)
 		{
-			/* Duplicate object "type", assume crappy */
-			if (o_ptr->k_idx == store[i].stock[j].k_idx) return TRUE;
+		if (f[i]) has_flags = TRUE;
+		if (f2[i]) has_flags2 = TRUE;
 		}
-	}
 
-	/* Assume okay */
+	if (has_flags) return FALSE;	/* had something the other item didn't */
+	if (has_flags2)
+	{	/* only chance is better AC */
+		if (total_ac<=total_ac2) return TRUE;	/* oops */
+	}
+	else
+	{	/* no worse AC, or same-type better AC */
+		if (total_ac<total_ac2 || o_ptr->obj_id==j_ptr->obj_id) return TRUE;
+	}
 	return FALSE;
 }
 
+static bool player_bow_boring(const object_type* o_ptr, const u32b* f_ref, s32b base_dam_rate1, s32b ideal_dam_rate1, int speed1, int canonical_speed, const object_type* j_ptr)
+{
+	u32b f[OBJECT_FLAG_STRICT_UB];
+	u32b f2[OBJECT_FLAG_STRICT_UB];
+	u32b f_mask[OBJECT_FLAG_STRICT_UB];
+	s32b base_dam_rate2 = -1000;
+	s32b ideal_dam_rate2 = -1000;
+	int i;
+	s16b speed2 = canonical_speed;
+	s16b num_attacks2;
+	byte ammo_tval2;
+	byte ammo_mult2;
+
+	bool has_flags = FALSE;
+/*	bool has_flags2 = FALSE;	*/
+
+	player_missile_shot_analysis(*j_ptr, p_ptr->stat_use[A_STR], num_attacks2, ammo_tval2, ammo_mult2);
+
+	/* adjust working speed if this provides speed */
+	if (j_ptr->pval && (object_type::k_info[j_ptr->k_idx].flags[0] & TR1_SPEED))
+		speed2 += j_ptr->pval;
+
+	/* consider basic attack power per standard 200 energy */
+	/* XXX should pull minroll+maxroll from data files */
+	switch(ammo_tval2)
+	{
+	case TV_SHOT:	{	/* 1d4 Iron Shot */
+					base_dam_rate2 = (5+2*j_ptr->to_d)*ammo_mult2*num_attacks2;
+					ideal_dam_rate2 = (5+2*(MAX(j_ptr->to_d,9)+9))*ammo_mult2*num_attacks2;
+					break;
+					};
+	case TV_ARROW:	{	/* 1d4 Arrow */
+					base_dam_rate2 = (5+2*j_ptr->to_d)*ammo_mult2*num_attacks2;
+					ideal_dam_rate2 = (5+2*(MAX(j_ptr->to_d,9)+9))*ammo_mult2*num_attacks2;
+					break;
+					};
+	case TV_BOLT:	{	/* 1d5 Bolt */
+					base_dam_rate2 = (6+2*j_ptr->to_d)*ammo_mult2*num_attacks2;
+					ideal_dam_rate2 = (6+2*(MAX(j_ptr->to_d,9)+9))*ammo_mult2*num_attacks2;
+					break;
+					};
+	};
+
+	object_flags(j_ptr,f2);
+
+	/* mask out extra shots and might, as they're already factored in */
+	f2[0] &= ~(TR1_SHOTS | TR1_MIGHT);
+
+	/* mask out bad flags, and boring flags */
+	f2[2] &= ~(TR3_IMPACT | TR3_TELEPORT | TR3_AGGRAVATE | TR3_DRAIN_EXP | TR3_LIGHT_CURSE | TR3_HEAVY_CURSE | TR3_PERMA_CURSE | TR3_INSTA_ART | TR3_EASY_KNOW | TR3_HIDE_TYPE | TR3_SHOW_MODS);
+
+	/* mirror object flags */
+	C_COPY(f,f_ref,OBJECT_FLAG_STRICT_UB);
+
+	/* build mask */
+	for(i = 0; i<OBJECT_FLAG_STRICT_UB; ++i)
+		f_mask[i] = f_ref[i] & f2[i];
+
+	/* apply easy masks */
+	f[1] &= ~f_mask[1];
+	f[1] &= ~f_mask[1];
+	f2[2] &= ~f_mask[2];
+	f2[2] &= ~f_mask[2];
+
+	/* if they have a decent pval, mask out pval-driven flags we already have as well */
+	if (o_ptr->pval <= j_ptr->pval)
+		f[0] &= ~f_mask[0];						
+	else
+		/* mask out binary flags that we already have */
+		f[0] &= ~(f_mask[0] & (TR1_SLAY_ANIMAL | TR1_SLAY_EVIL | TR1_SLAY_UNDEAD | TR1_SLAY_DEMON | TR1_SLAY_ORC | TR1_SLAY_TROLL | TR1_SLAY_GIANT | TR1_SLAY_DRAGON | TR1_KILL_DRAGON | TR1_KILL_DEMON | TR1_KILL_UNDEAD | TR1_BRAND_POIS | TR1_BRAND_ACID | TR1_BRAND_ELEC | TR1_BRAND_FIRE | TR1_BRAND_COLD));
+
+	/* if we have a decent pval, mask out pval-driven flags we already have as well */
+	if (o_ptr->pval >= j_ptr->pval)
+		f2[0] &= ~f_mask[0];						
+	else
+		/* mask out binary flags that we already have */
+		f2[0] &= ~(f_mask[0] & (TR1_SLAY_ANIMAL | TR1_SLAY_EVIL | TR1_SLAY_UNDEAD | TR1_SLAY_DEMON | TR1_SLAY_ORC | TR1_SLAY_TROLL | TR1_SLAY_GIANT | TR1_SLAY_DRAGON | TR1_KILL_DRAGON | TR1_KILL_DEMON | TR1_KILL_UNDEAD | TR1_BRAND_POIS | TR1_BRAND_ACID | TR1_BRAND_ELEC | TR1_BRAND_FIRE | TR1_BRAND_COLD));
+
+	for(i = 0; i<OBJECT_FLAG_STRICT_UB; ++i)
+		{
+		if (f[i]) has_flags = TRUE;
+/*		if (f2[i]) has_flags2 = TRUE;	*/
+		}
+
+	/* consider basic attack power */
+	if (has_flags) return FALSE;					/* had something the other item didn't */
+	if (   base_dam_rate2*extract_energy[speed1]<base_dam_rate1*extract_energy[speed2]
+		&& ideal_dam_rate2*extract_energy[speed1]<ideal_dam_rate1*extract_energy[speed2]) return TRUE;	/* dominated : no flags, worse base and ideal damage */
+	return FALSE;
+}
+
+static bool player_weapon_boring(const object_type* o_ptr, const u32b* f_ref, s32b base_dam_rate1, s32b ideal_dam_rate1, int speed1, int canonical_speed, const object_type* j_ptr)
+{
+	u32b f[OBJECT_FLAG_STRICT_UB];
+	u32b f2[OBJECT_FLAG_STRICT_UB];
+	u32b f_mask[OBJECT_FLAG_STRICT_UB];
+	s32b base_dam_rate2 = -1000;
+	s32b ideal_dam_rate2 = -1000;
+	int i;
+	s16b speed2 = canonical_speed;
+	s16b num_attacks2;
+
+	bool has_flags = FALSE;
+/*	bool has_flags2 = FALSE;	*/
+
+	player_melee_blow_analysis(*j_ptr, p_ptr->stat_use[A_STR], p_ptr->stat_use[A_DEX], num_attacks2);
+
+	/* adjust working speed if this provides speed */
+	if (j_ptr->pval && (object_type::k_info[j_ptr->k_idx].flags[0] & TR1_SPEED))
+		speed2 += j_ptr->pval;
+
+	/* consider basic attack power per standard 200 energy */
+	base_dam_rate2 = (j_ptr->d.minroll()+j_ptr->d.maxroll()+2*o_ptr->to_d)*num_attacks2;
+	ideal_dam_rate2 = (j_ptr->d.minroll()+j_ptr->d.maxroll()+2*(MAX(o_ptr->to_d,9)+9))*num_attacks2;
+
+	object_flags(j_ptr,f2);
+
+	/* mask out extra blows, as they're already factored in */
+	f2[0] &= ~TR1_BLOWS;
+
+	/* mask out bad flags, and boring flags */
+	f2[2] &= ~(TR3_IMPACT | TR3_TELEPORT | TR3_AGGRAVATE | TR3_DRAIN_EXP | TR3_LIGHT_CURSE | TR3_HEAVY_CURSE | TR3_PERMA_CURSE | TR3_INSTA_ART | TR3_EASY_KNOW | TR3_HIDE_TYPE | TR3_SHOW_MODS);
+
+	/* mirror object flags */
+	C_COPY(f,f_ref,OBJECT_FLAG_STRICT_UB);
+
+	/* build mask */
+	for(i = 0; i<OBJECT_FLAG_STRICT_UB; ++i)
+		f_mask[i] = f_ref[i] & f2[i];
+
+	/* apply easy masks */
+	f[1] &= ~f_mask[1];
+	f[1] &= ~f_mask[1];
+	f2[2] &= ~f_mask[2];
+	f2[2] &= ~f_mask[2];
+
+	/* if they have a decent pval, mask out pval-driven flags we already have as well */
+	if (o_ptr->pval <= j_ptr->pval)
+		f[0] &= ~f_mask[0];						
+	else
+		/* mask out binary flags that we already have */
+		f[0] &= ~(f_mask[0] & (TR1_SLAY_ANIMAL | TR1_SLAY_EVIL | TR1_SLAY_UNDEAD | TR1_SLAY_DEMON | TR1_SLAY_ORC | TR1_SLAY_TROLL | TR1_SLAY_GIANT | TR1_SLAY_DRAGON | TR1_KILL_DRAGON | TR1_KILL_DEMON | TR1_KILL_UNDEAD | TR1_BRAND_POIS | TR1_BRAND_ACID | TR1_BRAND_ELEC | TR1_BRAND_FIRE | TR1_BRAND_COLD));
+
+	/* if we have a decent pval, mask out pval-driven flags we already have as well */
+	if (o_ptr->pval >= j_ptr->pval)
+		f2[0] &= ~f_mask[0];						
+	else
+		/* mask out binary flags that we already have */
+		f2[0] &= ~(f_mask[0] & (TR1_SLAY_ANIMAL | TR1_SLAY_EVIL | TR1_SLAY_UNDEAD | TR1_SLAY_DEMON | TR1_SLAY_ORC | TR1_SLAY_TROLL | TR1_SLAY_GIANT | TR1_SLAY_DRAGON | TR1_KILL_DRAGON | TR1_KILL_DEMON | TR1_KILL_UNDEAD | TR1_BRAND_POIS | TR1_BRAND_ACID | TR1_BRAND_ELEC | TR1_BRAND_FIRE | TR1_BRAND_COLD));
+
+	for(i = 0; i<OBJECT_FLAG_STRICT_UB; ++i)
+		{
+		if (f[i]) has_flags = TRUE;
+/*		if (f2[i]) has_flags2 = TRUE;	*/
+		}
+
+	/* consider basic attack power */
+	if (has_flags) { return FALSE; } /* had something the other item didn't */
+	if (   base_dam_rate2*extract_energy[speed1]<base_dam_rate1*extract_energy[speed2]
+		&& ideal_dam_rate2*extract_energy[speed1]<ideal_dam_rate1*extract_energy[speed2]) return TRUE;	/* dominated : no flags, worse base and ideal damage */
+	return FALSE;
+}
+
+/*
+ * This function guesses whether the player would be interested in the item.
+ */
+static bool item_is_boring_to_player(const object_type *o_ptr)
+{
+	u32b f_ref[OBJECT_FLAG_STRICT_UB];
+	int i;
+
+	object_flags(o_ptr,f_ref);
+
+	/* mask out bad flags, and boring flags */
+	f_ref[2] &= ~(TR3_IMPACT | TR3_TELEPORT | TR3_AGGRAVATE | TR3_DRAIN_EXP | TR3_LIGHT_CURSE | TR3_HEAVY_CURSE | TR3_PERMA_CURSE | TR3_INSTA_ART | TR3_EASY_KNOW | TR3_HIDE_TYPE | TR3_SHOW_MODS);
+
+	switch(o_ptr->obj_id.tval)
+	{
+	case TV_BOOTS:
+	case TV_GLOVES:
+	case TV_SHIELD:
+	case TV_CLOAK:		/* armors that are only used for slot */
+		{
+		s16b total_ac = o_ptr->ac+o_ptr->to_a;
+
+		/* Check every object in the home */
+		for (i = 0; i < store[STORE_HOME].stock_num; ++i)
+		{
+			const object_type* const j_ptr = store[STORE_HOME].stock+i;
+			if (!j_ptr->k_idx) continue;
+			if (o_ptr->obj_id.tval!=j_ptr->obj_id.tval) continue;
+			if (player_armor_boring(o_ptr,f_ref,total_ac,j_ptr)) return TRUE;
+		}
+
+		/* Check every object equipped or in inventory */
+		for (i = 0; i < INVEN_TOTAL; ++i)
+		{
+			const object_type* const j_ptr = p_ptr->inventory+i;
+			if (!j_ptr->k_idx) continue;
+			if (o_ptr->obj_id.tval!=j_ptr->obj_id.tval) continue;
+			if (player_armor_boring(o_ptr,f_ref,total_ac,j_ptr)) return TRUE;
+		}
+		break;
+		};
+	case TV_HELM:
+	case TV_CROWN:	/* helms and crowns */
+		{
+		s16b total_ac = o_ptr->ac+o_ptr->to_a;
+
+		/* Check every object in the home */
+		for (i = 0; i < store[STORE_HOME].stock_num; ++i)
+		{
+			const object_type* const j_ptr = store[STORE_HOME].stock+i;
+			if (!j_ptr->k_idx) continue;
+			if (TV_HELM!=j_ptr->obj_id.tval && TV_CROWN!=j_ptr->obj_id.tval) continue;
+			if (player_armor_boring(o_ptr,f_ref,total_ac,j_ptr)) return TRUE;
+		}
+
+		/* Check every object equipped or in inventory */
+		for (i = 0; i < INVEN_TOTAL; ++i)
+		{
+			const object_type* const j_ptr = p_ptr->inventory+i;
+			if (!j_ptr->k_idx) continue;
+			if (TV_HELM!=j_ptr->obj_id.tval && TV_CROWN!=j_ptr->obj_id.tval) continue;
+			if (player_armor_boring(o_ptr,f_ref,total_ac,j_ptr)) return TRUE;
+		}
+		break;
+		};
+	case TV_SOFT_ARMOR:
+	case TV_HARD_ARMOR:
+	case TV_DRAG_ARMOR:
+		{
+		s16b total_ac = o_ptr->ac+o_ptr->to_a;
+
+		/* Check every object in the home */
+		for (i = 0; i < store[STORE_HOME].stock_num; ++i)
+		{
+			const object_type* const j_ptr = store[STORE_HOME].stock+i;
+			if (!j_ptr->k_idx) continue;
+			if (TV_SOFT_ARMOR!=j_ptr->obj_id.tval && TV_HARD_ARMOR!=j_ptr->obj_id.tval && TV_DRAG_ARMOR!=j_ptr->obj_id.tval) continue;
+			if (player_armor_boring(o_ptr,f_ref,total_ac,j_ptr)) return TRUE;
+		}
+
+		/* Check every object equipped or in inventory */
+		for (i = 0; i < INVEN_TOTAL; ++i)
+		{
+			const object_type* const j_ptr = p_ptr->inventory+i;
+			if (!j_ptr->k_idx) continue;
+			if (TV_SOFT_ARMOR!=j_ptr->obj_id.tval && TV_HARD_ARMOR!=j_ptr->obj_id.tval && TV_DRAG_ARMOR!=j_ptr->obj_id.tval) continue;
+			if (player_armor_boring(o_ptr,f_ref,total_ac,j_ptr)) return TRUE;
+		}
+		break;
+		};
+	case TV_BOW:
+		{
+		s32b base_dam_rate = -1000;
+		s32b ideal_dam_rate = -1000;
+		s16b num_attacks = 0;
+		s16b canonical_speed = p_ptr->speed;
+		s16b working_speed;
+		byte ammo_tval;
+		byte ammo_mult;
+
+		player_missile_shot_analysis(*o_ptr, p_ptr->stat_use[A_STR], num_attacks, ammo_tval, ammo_mult);
+
+		/* mask out extra shots and extra might, as they're already factored in */
+		f_ref[0] &= ~(TR1_SHOTS | TR1_MIGHT);
+
+		/* XXX also pay attention to STR, in case of heavy-bow syndrome */
+		/* adjust canonical speed if player's bow is providing speed */
+		if (p_ptr->inventory[INVEN_BOW].k_idx && p_ptr->inventory[INVEN_BOW].pval && (object_type::k_info[p_ptr->inventory[INVEN_BOW].k_idx].flags[0] & TR1_SPEED))
+			canonical_speed -= p_ptr->inventory[INVEN_BOW].pval;
+
+		working_speed = canonical_speed;
+
+		/* adjust working speed if this provides speed */
+		if (o_ptr->pval && (object_type::k_info[o_ptr->k_idx].flags[0] & TR1_SPEED))
+			working_speed += o_ptr->pval;
+
+		/* consider basic attack power per standard 200 energy */
+		/* XXX should pull minroll+maxroll from data files */
+		switch(ammo_tval)
+		{
+		case TV_SHOT:	{	/* 1d4 Iron Shot */
+						base_dam_rate = (5+2*o_ptr->to_d)*ammo_mult*num_attacks;
+						ideal_dam_rate = (5+2*(MAX(o_ptr->to_d,9)+9))*ammo_mult*num_attacks;
+						break;
+						};
+		case TV_ARROW:	{	/* 1d4 Arrow */
+						base_dam_rate = (5+2*o_ptr->to_d)*ammo_mult*num_attacks;
+						ideal_dam_rate = (5+2*(MAX(o_ptr->to_d,9)+9))*ammo_mult*num_attacks;
+						break;
+						};
+		case TV_BOLT:	{	/* 1d5 Bolt */
+						base_dam_rate = (6+2*o_ptr->to_d)*ammo_mult*num_attacks;
+						ideal_dam_rate = (6+2*(MAX(o_ptr->to_d,9)+9))*ammo_mult*num_attacks;
+						break;
+						};
+		};
+
+		/* Check every object in the home */
+		for (i = 0; i < store[STORE_HOME].stock_num; ++i)
+		{
+			const object_type* const j_ptr = store[STORE_HOME].stock+i;
+			if (!j_ptr->k_idx) continue;
+			if (TV_BOW!=j_ptr->obj_id.tval) continue;
+			if (player_bow_boring(o_ptr,f_ref,base_dam_rate,ideal_dam_rate,working_speed,canonical_speed,j_ptr)) return TRUE;
+		}
+
+		/* Check every object equipped or in inventory */
+		for (i = 0; i < INVEN_TOTAL; ++i)
+		{
+			const object_type* const j_ptr = p_ptr->inventory+i;
+			if (!j_ptr->k_idx) continue;
+			if (TV_BOW!=j_ptr->obj_id.tval) continue;
+			if (player_bow_boring(o_ptr,f_ref,base_dam_rate,ideal_dam_rate,working_speed,canonical_speed,j_ptr)) return TRUE;
+		}
+		break;
+		};
+	case TV_DIGGING:
+	case TV_HAFTED:
+	case TV_POLEARM:
+	case TV_SWORD:
+		{
+		s32b base_dam_rate = -1000;
+		s32b ideal_dam_rate = -1000;
+		s16b num_attacks = 0;
+		s16b canonical_speed = p_ptr->speed;
+		s16b working_speed;
+
+		player_melee_blow_analysis(*o_ptr, p_ptr->stat_use[A_STR], p_ptr->stat_use[A_DEX], num_attacks);
+
+		/* mask out extra blows, as they're already factored in */
+		f_ref[0] &= ~TR1_BLOWS;
+
+		/* XXX also pay attention to STR, in case of heavy-bow syndrome */
+		/* XXX also pay attention to DEX, in case of inagility syndrome */
+		/* adjust canonical speed if player's bow is providing speed */
+		if (p_ptr->inventory[INVEN_BOW].k_idx && p_ptr->inventory[INVEN_BOW].pval && (object_type::k_info[p_ptr->inventory[INVEN_BOW].k_idx].flags[0] & TR1_SPEED))
+			canonical_speed -= p_ptr->inventory[INVEN_BOW].pval;
+
+		working_speed = canonical_speed;
+
+		/* adjust working speed if this provides speed */
+		if (o_ptr->pval && (object_type::k_info[o_ptr->k_idx].flags[0] & TR1_SPEED))
+			working_speed += o_ptr->pval;
+
+		/* consider basic attack power per standard 200 energy */
+		base_dam_rate = (o_ptr->d.minroll()+o_ptr->d.maxroll()+2*o_ptr->to_d)*num_attacks;
+		ideal_dam_rate = (o_ptr->d.minroll()+o_ptr->d.maxroll()+2*(MAX(o_ptr->to_d,9)+9))*num_attacks;
+
+		/* Check every object in the home */
+		for (i = 0; i < store[STORE_HOME].stock_num; ++i)
+		{
+			const object_type* const j_ptr = store[STORE_HOME].stock+i;
+			if (!j_ptr->k_idx) continue;
+			if (TV_DIGGING!=j_ptr->obj_id.tval && TV_HAFTED!=j_ptr->obj_id.tval && TV_POLEARM!=j_ptr->obj_id.tval || TV_SWORD!=j_ptr->obj_id.tval) continue;
+			if (player_weapon_boring(o_ptr,f_ref,base_dam_rate,ideal_dam_rate,working_speed,canonical_speed,j_ptr)) return TRUE;
+		}
+
+		/* Check every object equipped or in inventory */
+		for (i = 0; i < INVEN_TOTAL; ++i)
+		{
+			const object_type* const j_ptr = p_ptr->inventory+i;
+			if (!j_ptr->k_idx) continue;
+			if (TV_DIGGING!=j_ptr->obj_id.tval && TV_HAFTED!=j_ptr->obj_id.tval && TV_POLEARM!=j_ptr->obj_id.tval || TV_SWORD!=j_ptr->obj_id.tval) continue;
+			if (player_weapon_boring(o_ptr,f_ref,base_dam_rate,ideal_dam_rate,working_speed,canonical_speed,j_ptr)) return TRUE;
+		}
+		break;
+		};
+	}
+	return FALSE;
+}
+
+static bool outrageous_item_price(const object_type *o_ptr)
+{
+	/* No unaffordable items */
+	s32b item_worth = price_item(o_ptr, ot_ptr->inflate, FALSE);
+	if (item_worth > pc_net_worth) return TRUE;
+
+	/* No absurdly inexpensive items */
+	if (item_worth <= (STORE_B_MARKET == store_num ? 10 : 0)) return TRUE;
+
+	return FALSE;	/* We could sell this */
+} 
 
 /*
  * Attempt to delete (some of) a random object from the store
@@ -900,20 +1485,11 @@ static bool black_market_crap(const object_type *o_ptr)
  */
 static void store_delete(void)
 {
-	int what, num;
-	object_type *o_ptr;
+	if (0 >= st_ptr->stock_num) return;	/* Paranoia */
 
-	/* Paranoia */
-	if (0 >= st_ptr->stock_num) return;
-
-	/* Pick a random slot */
-	what = rand_int(st_ptr->stock_num);
-
-	/* Get the object */
-	o_ptr = &st_ptr->stock[what];
-
-	/* Determine how many objects are in the slot */
-	num = o_ptr->number;
+	int what = rand_int(st_ptr->stock_num);		/* Pick a random slot */
+	object_type* o_ptr = &st_ptr->stock[what];	/* Get the object */
+	int num = o_ptr->number;					/* Determine how many objects are in the slot */
 
 	/* Hack -- sometimes, only destroy half the objects */
 	if (one_in_(2)) num = (num + 1) / 2;
@@ -922,9 +1498,9 @@ static void store_delete(void)
 	if (one_in_(2)) num = 1;
 
 	/* Hack -- decrement the maximum timeouts and total charges of rods and wands. */
-	if ((o_ptr->tval == TV_ROD) ||
-	    (o_ptr->tval == TV_STAFF) ||
-	    (o_ptr->tval == TV_WAND))
+	if ((o_ptr->obj_id.tval == TV_ROD) ||
+	    (o_ptr->obj_id.tval == TV_STAFF) ||
+	    (o_ptr->obj_id.tval == TV_WAND))
 	{
 		o_ptr->pval -= num * o_ptr->pval / o_ptr->number;
 	}
@@ -934,6 +1510,219 @@ static void store_delete(void)
 	store_item_optimize(what);
 }
 
+/*
+ * The Black Market makes a point of having what you need when no-one else does.
+ */
+static bool black_market_emergency_stock(void)
+{
+	object_type o;
+	int i;
+	s16b kind_stack[8];
+	s16b kinds_used = 0;
+	bool need_this = TRUE;
+
+	/* Paranoia -- no room left */
+	if (store[STORE_B_MARKET].stock_num >= store[STORE_B_MARKET].stock_size) return FALSE;
+
+	/* Word Of Recall : critical */
+	if (!player_owns_artifact_with_activation(ACT_WOR))
+	{	/* no artifact providing this */
+		kind_stack[kinds_used++] = lookup_kind2(TV_SCROLL,SV_SCROLL_WORD_OF_RECALL);	/* stock this */
+		assert(0<kind_stack[kinds_used-1]);
+	
+		kind_stack[kinds_used++] = lookup_kind2(TV_ROD,SV_ROD_RECALL);				/* this also provides */
+		assert(0<kind_stack[kinds_used-1]);
+
+		switch(p_ptr->spell_book())
+		{
+		case TV_PRAYER_BOOK:	{	/* Sync with x-spell.c: spell provides if can be cast */
+								const magic_type* s_info = p_ptr->spell_info(PRAYER_WORD_OF_RECALL);
+								if (s_info->slevel <= p_ptr->lev && s_info->smana <= p_ptr->msp)
+									{
+									kind_stack[kinds_used++] = lookup_kind2(TV_PRAYER_BOOK,get_spell_book(PRAYER_WORD_OF_RECALL));
+									assert(0<kind_stack[kinds_used-1]);
+									}
+								break;
+								}
+		case TV_MAGIC_BOOK:		{	/* Sync with x-spell.c: spell provides if can be cast */
+								const magic_type* s_info = p_ptr->spell_info(SPELL_WORD_OF_RECALL);
+								if (s_info->slevel <= p_ptr->lev && s_info->smana <= p_ptr->msp)
+									{
+									kind_stack[kinds_used++] = lookup_kind2(TV_MAGIC_BOOK,get_spell_book(SPELL_WORD_OF_RECALL));
+									assert(0<kind_stack[kinds_used-1]);
+									}
+								break;
+								}
+		};
+
+		/* does @ need this */
+		while(0<kinds_used)
+			if (some_legal_store_has_item_type(kind_stack[--kinds_used]) || player_owns_item_type(kind_stack[kinds_used]) || black_market_has_item_type(kind_stack[kinds_used]))
+				need_this = FALSE;
+
+		if (need_this)
+		{
+			WIPE(&o);	/* clear temporary object */
+
+			/* Create a new object of the chosen kind */
+			object_prep(&o, kind_stack[0]);
+
+			object_known(&o);		/* The object is "known" */
+			o.ident |= IDENT_STORE;	/* Item belongs to a store */
+
+			/* No unaffordable or absurdly inexpensive items */
+			if (!outrageous_item_price(&o))
+			{
+				mass_produce(&o);	/* Mass produce */
+				store_carry(&o);	/* Attempt to carry the (known) object */
+				return TRUE;		/* did an emergency stock */
+			}
+		}
+
+
+		/* reset */
+		need_this = TRUE;
+		kinds_used = 0;
+	};
+
+	/* stat restore is critical */
+	for(i = A_STR; i<A_MAX; ++i)
+		if (p_ptr->stat_cur[i]<p_ptr->stat_max[i])
+		{
+			kind_stack[kinds_used++] = lookup_kind2(TV_POTION,SV_POTION_RES_STR+i);	/* stock this */
+			assert(0<kind_stack[kinds_used-1]);
+
+			kind_stack[kinds_used++] = lookup_kind2(TV_POTION,SV_POTION_INC_STR+i);	/* this also provides */
+			assert(0<kind_stack[kinds_used-1]);
+
+			kind_stack[kinds_used++] = lookup_kind2(TV_POTION,SV_POTION_AUGMENTATION);	/* XXX optimization target XXX */
+			assert(0<kind_stack[kinds_used-1]);
+
+			kind_stack[kinds_used++] = lookup_kind2(TV_POTION,SV_POTION_LIFE);	/* XXX optimization target XXX */
+			assert(0<kind_stack[kinds_used-1]);
+
+			kind_stack[kinds_used++] = lookup_kind2(TV_FOOD,SV_FOOD_RESTORING);	/* XXX optimization target XXX */
+			assert(0<kind_stack[kinds_used-1]);
+
+			kind_stack[kinds_used++] = lookup_kind2(TV_ROD,SV_ROD_RESTORATION);	/* XXX optimization target XXX */
+			assert(0<kind_stack[kinds_used-1]);
+			
+			switch(i)
+			{
+			case A_STR:	{
+						kind_stack[kinds_used++] = lookup_kind2(TV_FOOD,SV_FOOD_RESTORE_STR);
+						assert(0<kind_stack[kinds_used-1]);
+						break;
+						}
+			case A_INT:
+			case A_WIS:	{
+						kind_stack[kinds_used++] = lookup_kind2(TV_POTION,SV_POTION_STAR_ENLIGHTENMENT);
+						assert(0<kind_stack[kinds_used-1]);
+						break;
+						}
+			case A_CON:	{
+						kind_stack[kinds_used++] = lookup_kind2(TV_FOOD,SV_FOOD_RESTORE_CON);
+						assert(0<kind_stack[kinds_used-1]);
+						break;
+						}
+			};
+
+			if (TV_PRAYER_BOOK == p_ptr->spell_book())
+			{
+				const magic_type* s_info = p_ptr->spell_info(PRAYER_RESTORATION);
+				if (s_info->slevel <= p_ptr->lev && s_info->smana <= p_ptr->msp)
+					{
+					kind_stack[kinds_used++] = lookup_kind2(TV_PRAYER_BOOK,get_spell_book(PRAYER_RESTORATION));
+					assert(0<kind_stack[kinds_used-1]);
+					}
+			};
+
+			/* does @ need this */
+			while(0<kinds_used)
+				if (some_legal_store_has_item_type(kind_stack[--kinds_used]) || player_owns_item_type(kind_stack[kinds_used]) || black_market_has_item_type(kind_stack[kinds_used]))
+					need_this = FALSE;
+
+			if (need_this)
+			{
+				WIPE(&o);	/* clear temporary object */
+
+				/* Create a new object of the chosen kind */
+				object_prep(&o, kind_stack[0]);
+
+				object_known(&o);		/* The object is "known" */
+				o.ident |= IDENT_STORE;	/* Item belongs to a store */
+
+				/* No unaffordable or absurdly inexpensive items */
+				if (!outrageous_item_price(&o))
+				{
+					mass_produce(&o);	/* Mass produce */
+					store_carry(&o);	/* Attempt to carry the (known) object */
+					return TRUE;		/* did an emergency stock */
+				}
+			}
+
+			/* reset */
+			need_this = TRUE;
+			kinds_used = 0;
+		}
+
+	/* Restore Experience */
+	if (p_ptr->max_exp<p_ptr->max_exp && !player_owns_artifact_with_activation(ACT_RESTORE_LIFE))
+	{	/* no artifact providing this */
+		kind_stack[kinds_used++] = lookup_kind2(TV_POTION,SV_POTION_RESTORE_EXP);	/* stock this */
+		assert(0<kind_stack[kinds_used-1]);
+	
+		kind_stack[kinds_used++] = lookup_kind2(TV_POTION,SV_POTION_LIFE);
+		assert(0<kind_stack[kinds_used-1]);
+
+		kind_stack[kinds_used++] = lookup_kind2(TV_POTION,SV_POTION_EXPERIENCE);
+		assert(0<kind_stack[kinds_used-1]);
+
+		kind_stack[kinds_used++] = lookup_kind2(TV_ROD,SV_ROD_RESTORATION);	/* XXX optimization target XXX */
+		assert(0<kind_stack[kinds_used-1]);
+
+		if (TV_PRAYER_BOOK == p_ptr->spell_book())
+		{
+			const magic_type* s_info = p_ptr->spell_info(PRAYER_REMEMBRANCE);
+			if (s_info->slevel <= p_ptr->lev && s_info->smana <= p_ptr->msp)
+				{
+				kind_stack[kinds_used++] = lookup_kind2(TV_PRAYER_BOOK,get_spell_book(PRAYER_REMEMBRANCE));
+				assert(0<kind_stack[kinds_used-1]);
+				}
+		};
+
+		/* does @ need this */
+		while(0<kinds_used)
+			if (some_legal_store_has_item_type(kind_stack[--kinds_used]) || player_owns_item_type(kind_stack[kinds_used]) || black_market_has_item_type(kind_stack[kinds_used]))
+				need_this = FALSE;
+
+		if (need_this)
+		{
+			WIPE(&o);	/* clear temporary object */
+
+			/* Create a new object of the chosen kind */
+			object_prep(&o, kind_stack[0]);
+
+			object_known(&o);		/* The object is "known" */
+			o.ident |= IDENT_STORE;	/* Item belongs to a store */
+
+			/* No unaffordable or absurdly inexpensive items */
+			if (!outrageous_item_price(&o))
+			{
+				mass_produce(&o);	/* Mass produce */
+				store_carry(&o);	/* Attempt to carry the (known) object */
+				return TRUE;		/* did an emergency stock */
+			}
+		}
+
+
+		/* reset */
+		need_this = TRUE;
+		kinds_used = 0;
+	};
+
+	return FALSE;	/* no emergency stocking, proceed normally */
+}
 
 /*
  * Creates a random object and gives it to a store
@@ -947,10 +1736,10 @@ static void store_delete(void)
  */
 static void store_create(void)
 {
-	int k_idx, tries, level;
+	int item_create_tries = 0;	/* XXX give up on item filtration if it's causing a spinlock */
 
-	object_type object_type_body;
-	object_type *i_ptr = &object_type_body;	/* Get local object */
+	int k_idx, tries, level;
+	object_type o;	/* local object */
 
 	/* Paranoia -- no room left */
 	if (st_ptr->stock_num >= st_ptr->stock_size) return;
@@ -962,6 +1751,9 @@ static void store_create(void)
 		/* Black Market */
 		if (store_num == STORE_B_MARKET)
 		{
+			/* emergency stocking counts */
+			if (black_market_emergency_stock()) break;
+
 			/* Pick a level for object/magic */
 			level = 25 + rand_int(25);
 
@@ -983,81 +1775,100 @@ static void store_create(void)
 		}
 
 		/* Create a new object of the chosen kind */
-		object_prep(i_ptr, k_idx);
+		object_prep(&o, k_idx);
 
 		/* Apply some "low-level" magic (no artifacts) */
-		apply_magic(i_ptr, level, FALSE, FALSE, FALSE);
-
-		/* Hack -- Charge lite's */
-		if (i_ptr->tval == TV_LITE)
-		{
-			if (i_ptr->sval == SV_LITE_TORCH) i_ptr->pval = FUEL_TORCH / 2;
-			if (i_ptr->sval == SV_LITE_LANTERN) i_ptr->pval = FUEL_LAMP / 2;
-		}
-
-
-		/* The object is "known" */
-		object_known(i_ptr);
-
-		/* Item belongs to a store */
-		i_ptr->ident |= IDENT_STORE;
+		apply_magic(&o, level, FALSE, FALSE, FALSE);
 
 		/* Mega-Hack -- no chests in stores */
-		if (i_ptr->tval == TV_CHEST) continue;
+		if (o.obj_id.tval == TV_CHEST) continue;
+
+		/* Hack -- Charge lite's */
+		if (o.obj_id.tval == TV_LITE)
+		{
+			if (o.obj_id.sval == SV_LITE_TORCH) o.pval = (7*FUEL_TORCH) / 10;
+			if (o.obj_id.sval == SV_LITE_LANTERN) o.pval = FUEL_LAMP / 2;
+		}
+
+		object_known(&o);		/* The object is "known" */
+		o.ident |= IDENT_STORE;	/* Item belongs to a store */
 
 		/* Prune the black market */
 		if (store_num == STORE_B_MARKET)
 		{
-			/* Hack -- No "crappy" items */
-			if (black_market_crap(i_ptr)) continue;
+			/* Black market doesn't like to carry anything legal and available */
+			if (black_market_boring(&o)) continue;
+		};
 
-			/* Hack -- No "cheap" items */
-			if (object_value(i_ptr) < 10) continue;
-		}
-
-		/* Prune normal stores */
-		else
+		/* XXX drop retry filter after too many items XXX */
+		if (20 >= ++item_create_tries)
 		{
-			/* No "worthless" items */
-			if (object_value(i_ptr) <= 0) continue;
-		}
+			/* No unaffordable or absurdly inexpensive items */
+			if (outrageous_item_price(&o)) {--tries; continue; }
 
+			/* No items that bore the player */
+			if (item_is_boring_to_player(&o)) {--tries; continue; }
 
-		/* Mass produce */
-		mass_produce(i_ptr);
+			/* No items we already have in stock */
+			if (store_has_item_type(k_idx,store_num)) {--tries; continue; };
+		};
 
-		/* Attempt to carry the (known) object */
-		(void)store_carry(i_ptr);
-
-		/* Definitely done */
-		break;
+		mass_produce(&o);		/* Mass produce */
+		store_carry(&o);		/* Attempt to carry the (known) object */
+		break;					/* Definitely done */
 	}
 }
 
+/*
+ *  Report whether an item has its quantity display-clamped
+ */
+static bool display_clamped(const object_type* o_ptr)
+{
+		/* XXX armors and main weapons should display only one XXX */
+		switch(o_ptr->obj_id.tval)
+		{
+		case TV_RING:		/* Can only wear two rings, but the interesting ones won't be mass-produced */
+		case TV_BOW:
+		case TV_DIGGING:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_SWORD:
+		case TV_BOOTS:
+		case TV_GLOVES:
+		case TV_HELM:
+		case TV_CROWN:
+		case TV_SHIELD:
+		case TV_CLOAK:
+		case TV_SOFT_ARMOR:
+		case TV_HARD_ARMOR:
+		case TV_DRAG_ARMOR:
+		case TV_AMULET:		/* can only wear one of these at a time */
+							return TRUE;
+		default:			return FALSE;
+		}
+}
 
 /*
  * Redisplay a single store entry
  */
-static void display_entry(int item)
+static bool display_entry(int item)
 {
-	int y;
-	object_type *o_ptr;
-	s32b x;
-
 	char o_name[80];
 	char out_val[160];
+	object_type *o_ptr = &st_ptr->stock[item];			/* Get the object */
+	s32b x;
+	int y;
 	int maxwid;
 
+	if (o_ptr->ident & IDENT_HIDE) return FALSE;	/* hide if requested */
+
+	/* convert to visual index */
+	item = internal_to_visual_index(item);
 
 	/* Must be on current "page" to get displayed */
-	if (!((item >= store_top) && (item < store_top + 12))) return;
+	if (!((item >= store_top) && (item < store_top + 12))) return FALSE;
 
-
-	/* Get the object */
-	o_ptr = &st_ptr->stock[item];
-
-	/* Get the row */
-	y = (item % 12) + 6;
+	y = (item % 12) + 6;			/* Get the row */
 
 	/* Label it, clear the line --(-- */
 	sprintf(out_val, "%c) ", store_to_label(item));
@@ -1071,20 +1882,20 @@ static void display_entry(int item)
 		maxwid = 75;
 
 		/* Leave room for weights, if necessary -DRS- */
-		if (show_weights) maxwid -= 10;
+		if (OPTION(show_weights)) maxwid -= 10;
 
 		/* Describe the object */
 		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, ODESC_FULL);
 		o_name[maxwid] = '\0';
 
 		/* Get inventory color */
-		attr = tval_to_attr[o_ptr->tval & 0x7F];
+		attr = tval_to_attr[o_ptr->obj_id.tval & 0x7F];
 
 		/* Display the object */
 		c_put_str(attr, o_name, y, 3);
 
 		/* Show weights */
-		if (show_weights)
+		if (OPTION(show_weights))
 		{
 			/* Only show the weight of a single object */
 			int wgt = o_ptr->weight;
@@ -1097,30 +1908,33 @@ static void display_entry(int item)
 	else
 	{
 		byte attr;
+		const byte backup_quantity = o_ptr->number;
 
-		/* Zaiband: Viewing an object makes you aware of it */
+		/* Zaiband: Viewing an object in a store makes you aware of it */
 		object_aware(o_ptr);
 
 		/* Must leave room for the "price" */
 		maxwid = 65;
 
 		/* Leave room for weights, if necessary -DRS- */
-		if (show_weights) maxwid -= 7;
+		if (OPTION(show_weights)) maxwid -= 7;
+
+		/* XXX armors and main weapons should display only one XXX */
+		if (display_clamped(o_ptr)) o_ptr->number = 1;
 
 		/* Describe the object (fully) */
 		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, ODESC_FULL);
 		o_name[maxwid] = '\0';
 
 		/* Get inventory color */
-		attr = tval_to_attr[o_ptr->tval & 0x7F];
+		attr = tval_to_attr[o_ptr->obj_id.tval & 0x7F];
 
 		/* Display the object */
 		c_put_str(attr, o_name, y, 3);
 
 		/* Show weights */
-		if (show_weights)
-		{
-			/* Only show the weight of a single object */
+		if (OPTION(show_weights))
+		{			/* Only show the weight of a single object */
 			int wgt = o_ptr->weight;
 			sprintf(out_val, "%3d.%d", wgt / 10, wgt % 10);
 			put_str(out_val, y, 61);
@@ -1130,14 +1944,17 @@ static void display_entry(int item)
 		x = price_item(o_ptr, ot_ptr->inflate, FALSE);
 
 		/* Actually draw the price (with tax) */
-		if (((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF)) &&
+		if (((o_ptr->obj_id.tval == TV_WAND) || (o_ptr->obj_id.tval == TV_STAFF)) &&
 		    ((o_ptr->pval % o_ptr->number) > 0))
 			sprintf(out_val, "%9ld avg", (long)x);
 		else
 			sprintf(out_val, "%9ld  ", (long)x);
 
 		put_str(out_val, y, 68);
+	
+		o_ptr->number = backup_quantity;
 	}
+	return TRUE;
 }
 
 
@@ -1148,16 +1965,18 @@ static void display_entry(int item)
  */
 static void display_inventory(void)
 {
-	int i, k;
+	int i;
+	int k = 0;
 
 	/* Display the next 12 items */
-	for (k = 0; k < 12; k++)
+	for (i = 0; i < st_ptr->stock_size; ++i)
 	{
 		/* Stop when we run out of items */
-		if (store_top + k >= st_ptr->stock_num) break;
+		if (i >= st_ptr->stock_num) break;
 
 		/* Display that line */
-		display_entry(store_top + k);
+		if (display_entry(i)) ++k;
+		if (12 == k) break;
 	}
 
 	/* Erase the extra lines and the "more" prompt */
@@ -1213,10 +2032,7 @@ static void display_store(void)
 		put_str("Item Description", 5, 3);
 
 		/* If showing weights, show label */
-		if (show_weights)
-		{
-			put_str("Weight", 5, 70);
-		}
+		if (OPTION(show_weights)) put_str("Weight", 5, 70);
 	}
 
 	/* Normal stores */
@@ -1238,20 +2054,14 @@ static void display_store(void)
 		put_str("Item Description", 5, 3);
 
 		/* If showing weights, show label */
-		if (show_weights)
-		{
-			put_str("Weight", 5, 60);
-		}
+		if (OPTION(show_weights)) put_str("Weight", 5, 60);
 
 		/* Label the asking price (in stores) */
 		put_str("Price", 5, 72);
 	}
 
-	/* Display the current gold */
-	store_prt_gold();
-
-	/* Draw in the inventory */
-	display_inventory();
+	store_prt_gold();		/* Display the current gold */
+	display_inventory();	/* Draw in the inventory */
 }
 
 
@@ -1296,7 +2106,7 @@ static bool get_stock(int *com_val, const char* const pmt)
 
 	/* Build the prompt */
 	strnfmt(buf, sizeof(buf), "(Items %c-%c, ESC to exit) %s",
-	        store_to_label(0), store_to_label(st_ptr->stock_num - 1),
+	        store_to_label(0), store_to_label(internal_to_visual_index(st_ptr->stock_num - 1)),
 	        pmt);
 
 	/* Ask until done */
@@ -1318,18 +2128,13 @@ static bool get_stock(int *com_val, const char* const pmt)
 
 		/* Oops */
 		if (item < 0)
-		{
-			/* Oops */
+		{	/* Oops */
 			bell("Illegal store object choice!");
-
 			continue;
 		}
 
-		/* No verification */
-		if (!verify) break;
-
-		/* Object */
-		o_ptr = &st_ptr->stock[item];
+		if (!verify) break;				/* No verification */
+		o_ptr = &st_ptr->stock[item];	/* Object */
 
 		/* Describe */
 		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, ODESC_FULL);
@@ -1340,8 +2145,7 @@ static bool get_stock(int *com_val, const char* const pmt)
 		/* Query */
 		if (!get_check(out_val)) return (FALSE);
 
-		/* Done */
-		break;
+		break;							/* Done */
 	}
 
 	/* Save item */
@@ -1658,19 +2462,14 @@ static void store_purchase(void)
 	char o_name[80];
 
 	char out_val[160];
+	bool display_lockdown;
 
 
 	/* Empty? */
 	if (st_ptr->stock_num <= 0)
 	{
-		if (store_num == STORE_HOME)
-		{
-			msg_print("Your home is empty.");
-		}
-		else
-		{
-			msg_print("I am currently out of stock.");
-		}
+		msg_print((STORE_HOME == store_num)	? "Your home is empty."
+											: "I am currently out of stock.");
 		return;
 	}
 
@@ -1690,9 +2489,10 @@ static void store_purchase(void)
 
 	/* Get the actual object */
 	o_ptr = &st_ptr->stock[item];
+	display_lockdown = display_clamped(o_ptr);
 
 	/* Get a quantity */
-	amt = get_quantity(NULL, o_ptr->number);
+	amt = get_quantity(NULL, (display_lockdown) ? 1 : o_ptr->number);
 
 	/* Allow user abort */
 	if (amt <= 0) return;
@@ -1773,12 +2573,15 @@ static void store_purchase(void)
 				           o_name, index_to_label(item_new));
 
 				/* Now, reduce the original stack's pval */
-				if ((o_ptr->tval == TV_ROD) ||
-				    (o_ptr->tval == TV_WAND) ||
-				    (o_ptr->tval == TV_STAFF))
+				if ((o_ptr->obj_id.tval == TV_ROD) ||
+				    (o_ptr->obj_id.tval == TV_WAND) ||
+				    (o_ptr->obj_id.tval == TV_STAFF))
 				{
 					o_ptr->pval -= i_ptr->pval;
 				}
+
+				/* XXX hide item if display quantity is clamped XXX */
+				if (display_lockdown) o_ptr->ident |= IDENT_HIDE;
 
 				/* Handle stuff */
 				handle_stuff();
@@ -1791,7 +2594,7 @@ static void store_purchase(void)
 				store_item_optimize(item);
 
 				/* Store is empty */
-				if (st_ptr->stock_num == 0)
+				if (st_ptr->stock_num == 0 || -1==visual_to_internal_index(0))
 				{
 					int i;
 
@@ -1827,13 +2630,10 @@ static void store_purchase(void)
 				}
 
 				/* The object is gone */
-				else if (st_ptr->stock_num != n)
+				else if (st_ptr->stock_num != n || display_lockdown)
 				{
 					/* Only one screen left */
-					if (st_ptr->stock_num <= 12)
-					{
-						store_top = 0;
-					}
+					if (internal_to_visual_index(st_ptr->stock_num-1) <= 12) store_top = 0;
 
 					/* Redraw everything */
 					display_inventory();
@@ -1885,10 +2685,7 @@ static void store_purchase(void)
 		if (st_ptr->stock_num != n)
 		{
 			/* Only one screen left */
-			if (st_ptr->stock_num <= 12)
-			{
-				store_top = 0;
-			}
+			if (st_ptr->stock_num <= 12) store_top = 0;
 
 			/* Redraw everything */
 			display_inventory();
@@ -1938,6 +2735,7 @@ static void store_sell(void)
 	}
 
 	/* Get an item */
+	p_ptr->command_wrk = (USE_INVEN);
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the object */
@@ -1968,9 +2766,9 @@ static void store_sell(void)
 	/* Hack -- If a rod, wand, or staff, allocate total maximum
 	 * timeouts or charges to those being sold.
 	 */
-	if ((o_ptr->tval == TV_ROD) ||
-	    (o_ptr->tval == TV_WAND) ||
-	    (o_ptr->tval == TV_STAFF))
+	if ((o_ptr->obj_id.tval == TV_ROD) ||
+	    (o_ptr->obj_id.tval == TV_WAND) ||
+	    (o_ptr->obj_id.tval == TV_STAFF))
 	{
 		i_ptr->pval = o_ptr->pval * amt / o_ptr->number;
 	}
@@ -1982,14 +2780,8 @@ static void store_sell(void)
 	/* Is there room in the store (or the home?) */
 	if (!store_check_num(i_ptr))
 	{
-		if (store_num == STORE_HOME)
-		{
-			msg_print("Your home is full.");
-		}
-		else
-		{
-			msg_print("I have not the room in my store to keep it.");
-		}
+		msg_print((STORE_HOME == store_num)	? "Your home is full."
+											: "I have not the room in my store to keep it.");
 		return;
 	}
 
@@ -2071,12 +2863,8 @@ static void store_sell(void)
 			/* The store gets that (known) object */
 			item_pos = store_carry(i_ptr);
 
-			/* Update the display */
-			if (item_pos >= 0)
-			{
-				/* Redisplay wares */
-				display_inventory();
-			}
+			/* Redisplay wares, if needed */
+			if (item_pos >= 0) display_inventory();
 		}
 	}
 
@@ -2100,12 +2888,8 @@ static void store_sell(void)
 		/* Let the home carry it */
 		item_pos = home_carry(i_ptr);
 
-		/* Update store display */
-		if (item_pos >= 0)
-		{
-			/* Redisplay wares */
-			display_inventory();
-		}
+		/* Redisplay wares, if needed */
+		if (item_pos >= 0) display_inventory();
 	}
 }
 
@@ -2116,39 +2900,22 @@ static void store_sell(void)
 static void store_examine(void)
 {
 	int         item;
-	object_type *o_ptr;
-	char        out_val[160];
-
 
 	/* Empty? */
 	if (st_ptr->stock_num <= 0)
 	{
-		if (store_num == STORE_HOME)
-		{
-			msg_print("Your home is empty.");
-		}
-		else
-		{
-			msg_print("I am currently out of stock.");
-		}
+		msg_print((STORE_HOME == store_num) ? "Your home is empty."
+											: "I am currently out of stock.");
 		return;
 	}
 
-
-	/* Prompt */
-	if (rogue_like_commands)
-		sprintf(out_val, "Which item do you want to examine? ");
-	else
-		sprintf(out_val, "Which item do you want to look at? ");
-
 	/* Get the item number to be examined */
-	if (!get_stock(&item, out_val)) return;
-
-	/* Get the actual object */
-	o_ptr = &st_ptr->stock[item];
+	if (!get_stock(&item, ((OPTION(rogue_like_commands)) ? "Which item do you want to examine? "
+												 : "Which item do you want to look at? ")))
+		return;
 
 	/* Describe it fully */
-	object_info_screen(o_ptr);
+	object_info_screen(&st_ptr->stock[item]);
 }
 
 
@@ -2497,15 +3264,14 @@ void do_cmd_store(void)
 
 	/* Verify a store */
 	ZAIBAND_STATIC_ASSERT((FEAT_SHOP_TAIL-FEAT_SHOP_HEAD+1)==MAX_STORES);
-	if (!((cave_feat[py][px] >= FEAT_SHOP_HEAD) &&
-	      (cave_feat[py][px] <= FEAT_SHOP_TAIL)))
+	if (!cave_feat_in_range(py,px,FEAT_SHOP_HEAD,FEAT_SHOP_TAIL))
 	{
 		msg_print("You see no store here.");
 		return;
 	}
 
 	/* The doors are locked on ironmen */
-	if (adult_no_stores)
+	if (OPTION(adult_no_stores))
 	{
 		msg_print("The doors are locked.");
 		return;
@@ -2558,7 +3324,7 @@ void do_cmd_store(void)
 		prt(" d) Drop/Sell an item.", 23, 29);
 
 		/* Add in the eXamine option */
-		if (rogue_like_commands)
+		if (OPTION(rogue_like_commands))
 			prt(" x) eXamine an item.", 22, 56);
 		else
 			prt(" l) Look at an item.", 22, 56);
@@ -2721,16 +3487,21 @@ void store_maint(store_indexes which)
 
 	activate_store(which);
 
+	/* unhide everything */
+	for (j = st_ptr->stock_num - 1; j >= 0; j--)
+		st_ptr->stock[j].ident &= ~(IDENT_HIDE);
+
 	/* Mega-Hack -- prune the black market */
 	if (store_num == STORE_B_MARKET)
 	{
 		/* Destroy crappy black market items */
 		for (j = st_ptr->stock_num - 1; j >= 0; j--)
 		{
-			object_type *o_ptr = &st_ptr->stock[j];
+			object_type* const o_ptr = &st_ptr->stock[j];
+			if (!o_ptr->k_idx) continue;
 
-			/* Destroy crappy items */
-			if (black_market_crap(o_ptr))
+			/* Destroy boring items */
+			if (black_market_boring(o_ptr))
 			{
 				/* Destroy the object */
 				store_item_increase(j, 0 - o_ptr->number);
@@ -2739,6 +3510,40 @@ void store_maint(store_indexes which)
 		}
 	}
 
+	/* Mega-Hack -- do not offer unaffordable items for sale */
+	/* Magic shop can get infinite-looped from this for mages, priests have no trouble */
+	if (STORE_MAGIC != store_num || 500 <= pc_net_worth)
+	{
+		for (j = st_ptr->stock_num - 1; j >= 0; j--)
+		{
+			object_type* const o_ptr = &st_ptr->stock[j];
+			if (!o_ptr->k_idx) continue;
+
+			/* Destroy expensive items */
+			if (object_value(o_ptr)>pc_net_worth)
+			{
+				/* Destroy the object */
+				store_item_increase(j, 0 - o_ptr->number);
+				store_item_optimize(j);
+			}
+		}
+	}
+
+	/* Mega-Hack -- do not offer boring items for sale */
+	for (j = st_ptr->stock_num - 1; j >= 0; j--)
+	{
+		object_type* const o_ptr = &st_ptr->stock[j];
+		if (!o_ptr->k_idx) continue;
+
+		/* Destroy boring items */
+		if (item_is_boring_to_player(o_ptr))
+		{
+			/* Destroy the object */
+			store_item_increase(j, 0 - o_ptr->number);
+			store_item_optimize(j);
+		}
+	}
+	
 
 	j = st_ptr->stock_num;			/* Choose the number of slots to keep */
 	j =- randint(STORE_TURNOVER);

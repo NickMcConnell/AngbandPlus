@@ -18,6 +18,7 @@
 
 #include "angband.h"
 #include "learn.h"
+#include "option.h"
 #include "project.h"
 #include "raceflag.h"
 #include "summon.h"
@@ -189,9 +190,9 @@ player_type::harmless_projection(int dam, int typ, u32b smart)
  */
 static void init_spell_damage(u32b* f_attack, range_spec* damage_spec, int rlev, int hp, u32b smart)
 {
-	C_WIPE(damage_spec, 32 * RACE_FLAG_ATTACK_STRICT_UB);
+	C_WIPE(damage_spec, 32 * RACE_FLAG_SPELL_STRICT_UB);
 
-#define _MISSILE_WEAPON_SPEC(I,N,D) if (f_attack[0] & RF3_##I) {damage_spec[RFA_##I].range.set(N,D);}
+#define _MISSILE_WEAPON_SPEC(I,N,D) if (f_attack[0] & RSF0_##I) {damage_spec[RFA_##I].range.set(N,D);}
 
 	/* XXX rethink these, should use an ammunition and to-hit system XXX */
 	/* XXX note that ARROW_3, at least, is also used to represent innate weapons */
@@ -209,10 +210,10 @@ static void init_spell_damage(u32b* f_attack, range_spec* damage_spec, int rlev,
 	if (0>=hp/3)
 	{	/* ahem...breath won't do damage anyway... */
 		/* using immunities/resistances should require a discipline check */
-		f_attack[0] &= ~(RF3_BR_ACID | RF3_BR_ELEC | RF3_BR_FIRE | RF3_BR_COLD);
+		f_attack[0] &= ~(RSF0_BR_ACID | RSF0_BR_ELEC | RSF0_BR_FIRE | RSF0_BR_COLD);
 	}
 
-#define _BREATH_WEAPON_SPEC(I,DIV,LIMIT,TYPE) if (f_attack[0] & RF3_BR_##I) {damage_spec[RFA_BR_##I].base = MIN(LIMIT, hp / DIV); if (player_type::harmless_projection(damage_spec[RFA_BR_##I].base, TYPE, smart)) {f_attack[0] &= ~(RF3_BR_##I); damage_spec[RFA_BR_##I].base = 0;};}
+#define _BREATH_WEAPON_SPEC(I,DIV,LIMIT,TYPE) if (f_attack[0] & RSF0_BR_##I) {damage_spec[RFA_BR_##I].base = MIN(LIMIT, hp / DIV); if (player_type::harmless_projection(damage_spec[RFA_BR_##I].base, TYPE, smart)) {f_attack[0] &= ~(RSF0_BR_##I); damage_spec[RFA_BR_##I].base = 0;};}
 
 	_BREATH_WEAPON_SPEC(ACID, 3, 1600, GF_ACID);
 	_BREATH_WEAPON_SPEC(ELEC, 3, 1600, GF_ELEC);
@@ -236,34 +237,34 @@ static void init_spell_damage(u32b* f_attack, range_spec* damage_spec, int rlev,
 
 #undef _BREATH_WEAPON_SPEC
 
-	if (f_attack[1] & RF4_BA_ACID) {damage_spec[RFA_BA_ACID].set(15, 1 ,rlev * 3);};
-	if (f_attack[1] & RF4_BA_ELEC) {damage_spec[RFA_BA_ELEC].set(8, 1, rlev * 3 / 2);};
-	if (f_attack[1] & RF4_BA_FIRE) {damage_spec[RFA_BA_FIRE].set(10, 1,  rlev * 7 / 2);};
-	if (f_attack[1] & RF4_BA_COLD) {damage_spec[RFA_BA_COLD].set(10, 1,  rlev * 3 / 2);};
+	if (f_attack[1] & RSF1_BA_ACID) {damage_spec[RFA_BA_ACID].set(15, 1 ,rlev * 3);};
+	if (f_attack[1] & RSF1_BA_ELEC) {damage_spec[RFA_BA_ELEC].set(8, 1, rlev * 3 / 2);};
+	if (f_attack[1] & RSF1_BA_FIRE) {damage_spec[RFA_BA_FIRE].set(10, 1,  rlev * 7 / 2);};
+	if (f_attack[1] & RSF1_BA_COLD) {damage_spec[RFA_BA_COLD].set(10, 1,  rlev * 3 / 2);};
 
-	if (f_attack[1] & RF4_BA_POIS) {damage_spec[RFA_BA_POIS].range.set(12, 2);};
-	if (f_attack[1] & RF4_BA_NETH) {damage_spec[RFA_BA_NETH].set(50+rlev, 10, 10);};
-	if (f_attack[1] & RF4_BA_WATE) {damage_spec[RFA_BA_WATE].set(50, 1, rlev * 5 / 2);};
-	if (f_attack[1] & RF4_BA_MANA) {damage_spec[RFA_BA_MANA].set(rlev*5, 10, 10);};
-	if (f_attack[1] & RF4_BA_DARK) {damage_spec[RFA_BA_DARK].set(rlev*5, 10, 10);};
-	if (f_attack[1] & RF4_MIND_BLAST) {damage_spec[RFA_MIND_BLAST].range.set(8, 8);};
-	if (f_attack[1] & RF4_BRAIN_SMASH) {damage_spec[RFA_BRAIN_SMASH].range.set(12, 15);};
-	if (f_attack[1] & RF4_CAUSE_1) {damage_spec[RFA_CAUSE_1].range.set(3, 8);};
-	if (f_attack[1] & RF4_CAUSE_2) {damage_spec[RFA_CAUSE_2].range.set(8, 8);};
-	if (f_attack[1] & RF4_CAUSE_3) {damage_spec[RFA_CAUSE_3].range.set(10, 15);};
-	if (f_attack[1] & RF4_CAUSE_4) {damage_spec[RFA_CAUSE_4].range.set(15, 15);};
+	if (f_attack[1] & RSF1_BA_POIS) {damage_spec[RFA_BA_POIS].range.set(12, 2);};
+	if (f_attack[1] & RSF1_BA_NETH) {damage_spec[RFA_BA_NETH].set(50+rlev, 10, 10);};
+	if (f_attack[1] & RSF1_BA_WATE) {damage_spec[RFA_BA_WATE].set(50, 1, rlev * 5 / 2);};
+	if (f_attack[1] & RSF1_BA_MANA) {damage_spec[RFA_BA_MANA].set(rlev*5, 10, 10);};
+	if (f_attack[1] & RSF1_BA_DARK) {damage_spec[RFA_BA_DARK].set(rlev*5, 10, 10);};
+	if (f_attack[1] & RSF1_MIND_BLAST) {damage_spec[RFA_MIND_BLAST].range.set(8, 8);};
+	if (f_attack[1] & RSF1_BRAIN_SMASH) {damage_spec[RFA_BRAIN_SMASH].range.set(12, 15);};
+	if (f_attack[1] & RSF1_CAUSE_1) {damage_spec[RFA_CAUSE_1].range.set(3, 8);};
+	if (f_attack[1] & RSF1_CAUSE_2) {damage_spec[RFA_CAUSE_2].range.set(8, 8);};
+	if (f_attack[1] & RSF1_CAUSE_3) {damage_spec[RFA_CAUSE_3].range.set(10, 15);};
+	if (f_attack[1] & RSF1_CAUSE_4) {damage_spec[RFA_CAUSE_4].range.set(15, 15);};
 
-	if (f_attack[1] & RF4_BO_ACID) {damage_spec[RFA_BO_ACID].set(rlev/3, 7, 8);};
-	if (f_attack[1] & RF4_BO_ELEC) {damage_spec[RFA_BO_ELEC].set(rlev/3, 4, 8);};
-	if (f_attack[1] & RF4_BO_FIRE) {damage_spec[RFA_BO_FIRE].set(rlev/3, 9, 8);};
-	if (f_attack[1] & RF4_BO_COLD) {damage_spec[RFA_BO_COLD].set(rlev/3, 6, 8);};
+	if (f_attack[1] & RSF1_BO_ACID) {damage_spec[RFA_BO_ACID].set(rlev/3, 7, 8);};
+	if (f_attack[1] & RSF1_BO_ELEC) {damage_spec[RFA_BO_ELEC].set(rlev/3, 4, 8);};
+	if (f_attack[1] & RSF1_BO_FIRE) {damage_spec[RFA_BO_FIRE].set(rlev/3, 9, 8);};
+	if (f_attack[1] & RSF1_BO_COLD) {damage_spec[RFA_BO_COLD].set(rlev/3, 6, 8);};
 
-	if (f_attack[1] & RF4_BO_NETH) {damage_spec[RFA_BO_NETH].set(30+ rlev*3/2, 5, 5);};
-	if (f_attack[1] & RF4_BO_WATE) {damage_spec[RFA_BO_WATE].set(rlev, 10, 10);};
-	if (f_attack[1] & RF4_BO_MANA) {damage_spec[RFA_BO_MANA].set(50, 1, rlev*7/2);};
-	if (f_attack[1] & RF4_BO_PLAS) {damage_spec[RFA_BO_PLAS].set(10+rlev, 8, 7);};
-	if (f_attack[1] & RF4_BO_ICEE) {damage_spec[RFA_BO_ICEE].set(rlev, 6, 6);};
-	if (f_attack[1] & RF4_MISSILE) {damage_spec[RFA_MISSILE].set(rlev/3, 2, 6);};
+	if (f_attack[1] & RSF1_BO_NETH) {damage_spec[RFA_BO_NETH].set(30+ rlev*3/2, 5, 5);};
+	if (f_attack[1] & RSF1_BO_WATE) {damage_spec[RFA_BO_WATE].set(rlev, 10, 10);};
+	if (f_attack[1] & RSF1_BO_MANA) {damage_spec[RFA_BO_MANA].set(50, 1, rlev*7/2);};
+	if (f_attack[1] & RSF1_BO_PLAS) {damage_spec[RFA_BO_PLAS].set(10+rlev, 8, 7);};
+	if (f_attack[1] & RSF1_BO_ICEE) {damage_spec[RFA_BO_ICEE].set(rlev, 6, 6);};
+	if (f_attack[1] & RSF1_MISSILE) {damage_spec[RFA_MISSILE].set(rlev/3, 2, 6);};
 }
 
 
@@ -271,16 +272,16 @@ static void init_spell_damage(u32b* f_attack, range_spec* damage_spec, int rlev,
  * Remove the "bad" spells from a spell list
  * KRB: old implementation gutted.
  */
-static void remove_bad_spells(int m_idx, u32b *f_attack, range_spec* damage_spec)
+static void remove_bad_spells(const m_idx_type m_idx, u32b *f_attack, range_spec* damage_spec)
 {
 	monster_type* const m_ptr = &mon_list[m_idx];
 	const monster_race* const r_ptr = m_ptr->race();
 	const int apparent_player_health = p_ptr->apparent_health();
 
-	u32b f_attack2[RACE_FLAG_ATTACK_STRICT_UB];
-	u16b min_dam[32 * RACE_FLAG_ATTACK_STRICT_UB];
-	u16b median_dam[32 * RACE_FLAG_ATTACK_STRICT_UB];
-	u16b max_dam[32 * RACE_FLAG_ATTACK_STRICT_UB];
+	u32b f_attack2[RACE_FLAG_SPELL_STRICT_UB];
+	u16b min_dam[32 * RACE_FLAG_SPELL_STRICT_UB];
+	u16b median_dam[32 * RACE_FLAG_SPELL_STRICT_UB];
+	u16b max_dam[32 * RACE_FLAG_SPELL_STRICT_UB];
 
 	u32b smart = m_ptr->smart;
 	size_t i;
@@ -290,22 +291,22 @@ static void remove_bad_spells(int m_idx, u32b *f_attack, range_spec* damage_spec
 	if (r_ptr->flags[1] & RF1_STUPID) return;
 
 	/* Must be cheating or learning */
-	if (!smart_cheat && !smart_learn) return;
+	if (!OPTION(adult_smart_cheat) && !OPTION(adult_smart_learn)) return;
 
 	/* if cheating, know about perfect save */
-	if (smart_cheat && 100<=p_ptr->skills[SKILL_SAVE] && int_outof(r_ptr, 100))
+	if (OPTION(adult_smart_cheat) && 100<=p_ptr->skills[SKILL_SAVE] && int_outof(r_ptr, 100))
 	{
-		f_attack[1] &= ~(RF4_MIND_BLAST | RF4_BRAIN_SMASH | RF4_CAUSE_1 | RF4_CAUSE_2 | RF4_CAUSE_3 | RF4_CAUSE_4 | RF4_SCARE | RF4_BLIND | RF4_CONF | RF4_SLOW | RF4_HOLD);
-		f_attack[2] &= ~(RF5_TELE_LEVEL | RF5_FORGET);
+		f_attack[1] &= ~(RSF1_MIND_BLAST | RSF1_BRAIN_SMASH | RSF1_CAUSE_1 | RSF1_CAUSE_2 | RSF1_CAUSE_3 | RSF1_CAUSE_4 | RSF1_SCARE | RSF1_BLIND | RSF1_CONF | RSF1_SLOW | RSF1_HOLD);
+		f_attack[2] &= ~(RSF2_TELE_LEVEL | RSF2_FORGET);
 	}
 
 	/* Nothing known */
 	if (!smart) return;
 
 	/* initialize f_attack2 mirror of f_attack, etc. */
-	C_COPY(f_attack2, f_attack, RACE_FLAG_ATTACK_STRICT_UB);
+	C_COPY(f_attack2, f_attack, RACE_FLAG_SPELL_STRICT_UB);
 
-	for (i = 0; i < 32 * RACE_FLAG_ATTACK_STRICT_UB; ++i)
+	for (i = 0; i < 32 * RACE_FLAG_SPELL_STRICT_UB; ++i)
 	{
 		min_dam[i] = damage_spec[i].minroll();
 		median_dam[i] = damage_spec[i].medianroll();
@@ -314,7 +315,7 @@ static void remove_bad_spells(int m_idx, u32b *f_attack, range_spec* damage_spec
 
 	/* assume attacks that can be nullified by a save have minimum damage 0 */
 	/* if cheating, check that save is actually possible first */
-	if (!smart_cheat || 0<=p_ptr->skills[SKILL_SAVE])
+	if (!OPTION(adult_smart_cheat) || 0<=p_ptr->skills[SKILL_SAVE])
 	{
 		min_dam[RFA_MIND_BLAST] = 0;
 		min_dam[RFA_BRAIN_SMASH] = 0;
@@ -326,11 +327,11 @@ static void remove_bad_spells(int m_idx, u32b *f_attack, range_spec* damage_spec
 
 	if ((smart & (SM_IMM_ACID)) && int_outof(r_ptr, 100))
 	{
-		f_attack2[0] &= ~RF3_BR_ACID;
-		f_attack2[1] &= ~(RF4_BA_ACID | RF4_BO_ACID);
+		f_attack2[0] &= ~RSF0_BR_ACID;
+		f_attack2[1] &= ~(RSF1_BA_ACID | RSF1_BO_ACID);
 	};
 
-	if ((f_attack2[0] & RF3_BR_ACID) || (f_attack2[1] & (RF4_BA_ACID | RF4_BO_ACID)))
+	if ((f_attack2[0] & RSF0_BR_ACID) || (f_attack2[1] & (RSF1_BA_ACID | RSF1_BO_ACID)))
 	{
 		/* Zaiband: new damage-modeling code */
 		if ((smart & (SM_OPP_ACID)) && int_outof(r_ptr, 100))
@@ -361,11 +362,11 @@ static void remove_bad_spells(int m_idx, u32b *f_attack, range_spec* damage_spec
 
 	if ((smart & (SM_IMM_ELEC)) && int_outof(r_ptr, 100))
 	{
-		f_attack2[0] &= ~RF3_BR_ELEC;
-		f_attack2[1] &= ~(RF4_BA_ELEC | RF4_BO_ELEC);
+		f_attack2[0] &= ~RSF0_BR_ELEC;
+		f_attack2[1] &= ~(RSF1_BA_ELEC | RSF1_BO_ELEC);
 	};
 
-	if ((f_attack2[0] & RF3_BR_ELEC) || (f_attack2[1] & (RF4_BA_ELEC | RF4_BO_ELEC)))
+	if ((f_attack2[0] & RSF0_BR_ELEC) || (f_attack2[1] & (RSF1_BA_ELEC | RSF1_BO_ELEC)))
 	{
 		if ((smart & (SM_OPP_ELEC)) && int_outof(r_ptr, 100))
 		{
@@ -395,11 +396,11 @@ static void remove_bad_spells(int m_idx, u32b *f_attack, range_spec* damage_spec
 
 	if ((smart & (SM_IMM_FIRE)) && int_outof(r_ptr, 100))
 	{
-		f_attack2[0] &= ~RF3_BR_FIRE;
-		f_attack2[1] &= ~(RF4_BA_FIRE | RF4_BO_FIRE);
+		f_attack2[0] &= ~RSF0_BR_FIRE;
+		f_attack2[1] &= ~(RSF1_BA_FIRE | RSF1_BO_FIRE);
 	}
 
-	if ((f_attack2[0] & RF3_BR_FIRE) || (f_attack2[1] & (RF4_BA_FIRE | RF4_BO_FIRE)))
+	if ((f_attack2[0] & RSF0_BR_FIRE) || (f_attack2[1] & (RSF1_BA_FIRE | RSF1_BO_FIRE)))
 	{
 		if (smart & (SM_OPP_FIRE) && int_outof(r_ptr, 100))
 		{
@@ -429,11 +430,11 @@ static void remove_bad_spells(int m_idx, u32b *f_attack, range_spec* damage_spec
 
 	if ((smart & (SM_IMM_COLD)) && int_outof(r_ptr, 100))
 	{
-		f_attack2[0] &= ~RF3_BR_COLD;
-		f_attack2[1] &= ~(RF4_BA_COLD | RF4_BO_COLD | RF4_BO_ICEE);
+		f_attack2[0] &= ~RSF0_BR_COLD;
+		f_attack2[1] &= ~(RSF1_BA_COLD | RSF1_BO_COLD | RSF1_BO_ICEE);
 	};
 
-	if ((f_attack2[0] & RF3_BR_COLD) || (f_attack2[1] & (RF4_BA_COLD | RF4_BO_COLD | RF4_BO_ICEE)))
+	if ((f_attack2[0] & RSF0_BR_COLD) || (f_attack2[1] & (RSF1_BA_COLD | RSF1_BO_COLD | RSF1_BO_ICEE)))
 	{
 		if (smart & (SM_OPP_COLD) && int_outof(r_ptr, 100))
 		{
@@ -467,13 +468,13 @@ static void remove_bad_spells(int m_idx, u32b *f_attack, range_spec* damage_spec
 		};
 	};
 
-	if ((f_attack2[0] & RF3_BR_POIS) || (f_attack2[1] & RF4_BA_POIS))
+	if ((f_attack2[0] & RSF0_BR_POIS) || (f_attack2[1] & RSF1_BA_POIS))
 	{
 		if (smart & (SM_OPP_POIS) && int_outof(r_ptr, 100))
 		{
 			if (0==max_dam[RFA_BR_POIS])
 			{
-				f_attack2[0] &= ~(RF3_BR_POIS);
+				f_attack2[0] &= ~(RSF0_BR_POIS);
 			}
 			else
 			{
@@ -490,7 +491,7 @@ static void remove_bad_spells(int m_idx, u32b *f_attack, range_spec* damage_spec
 		{
 			if (0==max_dam[RFA_BR_POIS])
 			{
-				f_attack2[0] &= ~RF3_BR_POIS;
+				f_attack2[0] &= ~RSF0_BR_POIS;
 			}
 			else
 			{
@@ -507,83 +508,83 @@ static void remove_bad_spells(int m_idx, u32b *f_attack, range_spec* damage_spec
 
 	if (smart & (SM_RES_LITE))
 	{
-		if ((f_attack2[0] & RF3_BR_LITE) && int_outof(r_ptr, 100))
+		if ((f_attack2[0] & RSF0_BR_LITE) && int_outof(r_ptr, 100))
 		{
 			min_dam[RFA_BR_LITE] /= 3;
 			median_dam[RFA_BR_LITE] = 4 * median_dam[RFA_BR_LITE] / 10;	/* XXX */
 			max_dam[RFA_BR_LITE] = 4 * max_dam[RFA_BR_LITE] / 7;
-			if (0==max_dam[RFA_BR_LITE]) f_attack2[0] &= ~RF3_BR_LITE;
+			if (0==max_dam[RFA_BR_LITE]) f_attack2[0] &= ~RSF0_BR_LITE;
 		}
 	}
 
 	if (smart & (SM_RES_DARK))
 	{
-		if (((f_attack2[0] & RF3_BR_DARK) || (f_attack2[1] & RF4_BA_DARK)) && int_outof(r_ptr, 100))
+		if (((f_attack2[0] & RSF0_BR_DARK) || (f_attack2[1] & RSF1_BA_DARK)) && int_outof(r_ptr, 100))
 		{
-			if (f_attack2[0] & RF3_BR_DARK)
+			if (f_attack2[0] & RSF0_BR_DARK)
 			{
 				min_dam[RFA_BR_DARK] /= 3;
 				median_dam[RFA_BR_DARK] = 4 * median_dam[RFA_BR_DARK] / 10;	/* XXX */
 				max_dam[RFA_BR_DARK] = 4 * max_dam[RFA_BR_DARK] / 7;
 			}
 
-			if (f_attack2[1] & RF4_BA_DARK)
+			if (f_attack2[1] & RSF1_BA_DARK)
 			{
 				min_dam[RFA_BA_DARK] /= 3;
 				median_dam[RFA_BA_DARK] = 4 * median_dam[RFA_BA_DARK] / 10;	/* XXX */
 				max_dam[RFA_BA_DARK] = 4 * max_dam[RFA_BA_DARK] / 7;
 			}
-			if (0==max_dam[RFA_BR_DARK]) f_attack2[0] &= ~RF3_BR_DARK;
-			if (0==max_dam[RFA_BA_DARK]) f_attack2[1] &= ~RF4_BA_DARK;
+			if (0==max_dam[RFA_BR_DARK]) f_attack2[0] &= ~RSF0_BR_DARK;
+			if (0==max_dam[RFA_BA_DARK]) f_attack2[1] &= ~RSF1_BA_DARK;
 		}
 	}
 
 	/* note that resist blindness also makes 0hp light/dark attacks moot */
-	if (smart & (SM_RES_BLIND) && ((f_attack2[0] & (RF3_BR_LITE | RF3_BR_DARK)) || (f_attack2[1] & RF4_BA_DARK)) && int_outof(r_ptr, 100))
+	if (smart & (SM_RES_BLIND) && ((f_attack2[0] & (RSF0_BR_LITE | RSF0_BR_DARK)) || (f_attack2[1] & RSF1_BA_DARK)) && int_outof(r_ptr, 100))
 	{
-		if (0==max_dam[RFA_BR_LITE]) f_attack2[0] &= ~RF3_BR_LITE;
-		if (0==max_dam[RFA_BR_DARK]) f_attack2[0] &= ~RF3_BR_DARK;
-		if (0==max_dam[RFA_BA_DARK]) f_attack2[1] &= ~RF4_BA_DARK;
+		if (0==max_dam[RFA_BR_LITE]) f_attack2[0] &= ~RSF0_BR_LITE;
+		if (0==max_dam[RFA_BR_DARK]) f_attack2[0] &= ~RSF0_BR_DARK;
+		if (0==max_dam[RFA_BA_DARK]) f_attack2[1] &= ~RSF1_BA_DARK;
 	}
 
-	if (smart & (SM_RES_CONFU) && (f_attack2[0] & RF3_BR_CONF) && int_outof(r_ptr, 100))
+	if (smart & (SM_RES_CONFU) && (f_attack2[0] & RSF0_BR_CONF) && int_outof(r_ptr, 100))
 	{
 		min_dam[RFA_BR_CONF] = 5 * min_dam[RFA_BR_CONF] / 12;
 		median_dam[RFA_BR_CONF] = 5 * median_dam[RFA_BR_CONF] / 10;	/* XXX */
 		max_dam[RFA_BR_CONF] = 5 * max_dam[RFA_BR_CONF] / 7;
-		if (0==max_dam[RFA_BR_CONF]) f_attack2[0] &= ~RF3_BR_CONF;
+		if (0==max_dam[RFA_BR_CONF]) f_attack2[0] &= ~RSF0_BR_CONF;
 	}
 
-	if (smart & (SM_RES_SOUND) && (f_attack2[0] & RF3_BR_SOUN) && int_outof(r_ptr, 100))
+	if (smart & (SM_RES_SOUND) && (f_attack2[0] & RSF0_BR_SOUN) && int_outof(r_ptr, 100))
 	{
 		min_dam[RFA_BR_SOUN] = 5 * min_dam[RFA_BR_SOUN] / 12;
 		median_dam[RFA_BR_SOUN] = 5 * median_dam[RFA_BR_SOUN] / 10;	/* XXX */
 		max_dam[RFA_BR_SOUN] = 5 * max_dam[RFA_BR_SOUN] / 7;
-		if (0==max_dam[RFA_BR_SOUN]) f_attack2[0] &= ~RF3_BR_SOUN;
+		if (0==max_dam[RFA_BR_SOUN]) f_attack2[0] &= ~RSF0_BR_SOUN;
 	}
 
-	if (smart & (SM_RES_SHARD) && (f_attack2[0] & RF3_BR_SHAR) && int_outof(r_ptr, 100))
+	if (smart & (SM_RES_SHARD) && (f_attack2[0] & RSF0_BR_SHAR) && int_outof(r_ptr, 100))
 	{
 		min_dam[RFA_BR_SHAR] /= 2;
 		median_dam[RFA_BR_SHAR] = 6 * median_dam[RFA_BR_SHAR] / 10;	/* XXX */
 		max_dam[RFA_BR_SHAR] = 6 * max_dam[RFA_BR_SHAR] / 7;
-		if (0==max_dam[RFA_BR_SHAR]) f_attack2[0] &= ~RF3_BR_SHAR;
+		if (0==max_dam[RFA_BR_SHAR]) f_attack2[0] &= ~RSF0_BR_SHAR;
 	}
 
-	if (smart & (SM_RES_NEXUS) && (f_attack2[0] & RF3_BR_NEXU) && int_outof(r_ptr, 100))
+	if (smart & (SM_RES_NEXUS) && (f_attack2[0] & RSF0_BR_NEXU) && int_outof(r_ptr, 100))
 	{
 		min_dam[RFA_BR_NEXU] /= 2;
 		median_dam[RFA_BR_NEXU] = 6 * median_dam[RFA_BR_NEXU] / 10;	/* XXX */
 		max_dam[RFA_BR_NEXU] = 6 * max_dam[RFA_BR_NEXU] / 7;
-		if (0==max_dam[RFA_BR_NEXU]) f_attack2[0] &= ~RF3_BR_NEXU;
+		if (0==max_dam[RFA_BR_NEXU]) f_attack2[0] &= ~RSF0_BR_NEXU;
 	}
 
-	if (smart & (SM_RES_NETHR) && ((f_attack2[0] & RF3_BR_NETH) || (f_attack2[1] & (RF4_BA_NETH | RF4_BO_NETH))) && int_outof(r_ptr, 100))
+	if (smart & (SM_RES_NETHR) && ((f_attack2[0] & RSF0_BR_NETH) || (f_attack2[1] & (RSF1_BA_NETH | RSF1_BO_NETH))) && int_outof(r_ptr, 100))
 	{
 		min_dam[RFA_BR_NETH] /= 2;
 		median_dam[RFA_BR_NETH] = 6 * median_dam[RFA_BR_NETH] / 10;	/* XXX */
 		max_dam[RFA_BR_NETH] = 6 * max_dam[RFA_BR_NETH] / 7;
-		if (0==max_dam[RFA_BR_NETH]) f_attack2[0] &= ~RF3_BR_NETH;
+		if (0==max_dam[RFA_BR_NETH]) f_attack2[0] &= ~RSF0_BR_NETH;
 		min_dam[RFA_BA_NETH] /= 2;
 		median_dam[RFA_BA_NETH] = 6 * median_dam[RFA_BA_NETH] / 10;	/* XXX */
 		max_dam[RFA_BA_NETH] = 6 * max_dam[RFA_BA_NETH] / 7;
@@ -592,20 +593,20 @@ static void remove_bad_spells(int m_idx, u32b *f_attack, range_spec* damage_spec
 		max_dam[RFA_BO_NETH] = 6 * max_dam[RFA_BO_NETH] / 7;
 	}
 
-	if (smart & (SM_RES_CHAOS) && (f_attack2[0] & RF3_BR_CHAO) && int_outof(r_ptr, 100))
+	if (smart & (SM_RES_CHAOS) && (f_attack2[0] & RSF0_BR_CHAO) && int_outof(r_ptr, 100))
 	{
 		min_dam[RFA_BR_CHAO] /= 2;
 		median_dam[RFA_BR_CHAO] = 6 * median_dam[RFA_BR_CHAO] / 10;	/* XXX */
 		max_dam[RFA_BR_CHAO] = 6 * max_dam[RFA_BR_CHAO] / 7;
-		if (0==max_dam[RFA_BR_CHAO]) f_attack2[0] &= ~RF3_BR_CHAO;
+		if (0==max_dam[RFA_BR_CHAO]) f_attack2[0] &= ~RSF0_BR_CHAO;
 	}
 
-	if (smart & (SM_RES_DISEN) && (f_attack2[0] & RF3_BR_DISE) && int_outof(r_ptr, 100))
+	if (smart & (SM_RES_DISEN) && (f_attack2[0] & RSF0_BR_DISE) && int_outof(r_ptr, 100))
 	{
 		min_dam[RFA_BR_DISE] /= 2;
 		median_dam[RFA_BR_DISE] = 6 * median_dam[RFA_BR_DISE] / 10;	/* XXX */
 		max_dam[RFA_BR_DISE] = 6 * max_dam[RFA_BR_DISE] / 7;
-		if (0==max_dam[RFA_BR_DISE]) f_attack2[0] &= ~RF3_BR_DISE;
+		if (0==max_dam[RFA_BR_DISE]) f_attack2[0] &= ~RSF0_BR_DISE;
 	}
 
 	/* damage filters */
@@ -615,7 +616,7 @@ static void remove_bad_spells(int m_idx, u32b *f_attack, range_spec* damage_spec
 
 	{	/* C-ish blocking brace */
 	bool for_the_win = FALSE;
-	for (i = 0; i < 32 * RACE_FLAG_ATTACK_STRICT_UB; ++i)
+	for (i = 0; i < 32 * RACE_FLAG_SPELL_STRICT_UB; ++i)
 		if ((int)min_dam[i]>apparent_player_health)
 		{
 			for_the_win = TRUE;
@@ -623,13 +624,13 @@ static void remove_bad_spells(int m_idx, u32b *f_attack, range_spec* damage_spec
 		}
 	if (for_the_win)
 	{
-		for (i = 0; i < 32 * RACE_FLAG_ATTACK_STRICT_UB; ++i)
+		for (i = 0; i < 32 * RACE_FLAG_SPELL_STRICT_UB; ++i)
 			if ((int)min_dam[i]<=apparent_player_health)
 				RESET_FLAG(f_attack2,i);
 	}
 	else
 	{
-		for (i = 0; i < 32 * RACE_FLAG_ATTACK_STRICT_UB; ++i)
+		for (i = 0; i < 32 * RACE_FLAG_SPELL_STRICT_UB; ++i)
 			if ((int)max_dam[i]>apparent_player_health)
 			{
 				for_the_win = TRUE;
@@ -637,7 +638,7 @@ static void remove_bad_spells(int m_idx, u32b *f_attack, range_spec* damage_spec
 			}
 		if (for_the_win)
 		{
-			for (i = 0; i < 32 * RACE_FLAG_ATTACK_STRICT_UB; ++i)
+			for (i = 0; i < 32 * RACE_FLAG_SPELL_STRICT_UB; ++i)
 				if ((int)max_dam[i]<=apparent_player_health)
 					RESET_FLAG(f_attack2,i);
 		}
@@ -661,10 +662,10 @@ static void remove_bad_spells(int m_idx, u32b *f_attack, range_spec* damage_spec
 	else if (median_dam[RFA_##A]<median_dam[RFA_##B])	\
 		RESET_FLAG(f_attack2,RFA_##A)
 
-	if (f_attack2[1] & RF4_MISSILE)
+	if (f_attack2[1] & RSF1_MISSILE)
 	{	/* compare median damage against cause_1...cause_4 */
 #define _MISSILE_VS(A)	\
-		if (f_attack2[1] & RF4_##A)	\
+		if (f_attack2[1] & RSF1_##A)	\
 		{	\
 			if ((long)median_dam[RFA_MISSILE]*100<(long)median_dam[RFA_##A]*p_ptr->skills[SKILL_SAVE])	\
 				RESET_FLAG(f_attack2,RFA_MISSILE);	\
@@ -673,7 +674,7 @@ static void remove_bad_spells(int m_idx, u32b *f_attack, range_spec* damage_spec
 		}
 
 		/* if cheating, use player's save in arbitrating magic missile vs cause wounds */
-		if (smart_cheat)
+		if (OPTION(adult_smart_cheat))
 		{
 			_MISSILE_VS(CAUSE_1);
 			_MISSILE_VS(CAUSE_2);
@@ -683,16 +684,16 @@ static void remove_bad_spells(int m_idx, u32b *f_attack, range_spec* damage_spec
 
 		/* following can be pure damage */
 #if 0
-		if ((f_attack2[1] & RF4_BA_POIS) && (smart & (SM_OPP_POIS | SM_RES_POIS))) _MISSILE_VS(BA_POIS);
-		if ((f_attack2[1] & RF4_BA_NETH) && (smart & SM_RES_NETHR)) _MISSILE_VS(BA_NETH);
-		if ((f_attack2[1] & RF4_BA_WATE) && (smart & SM_RES_SOUND) && (smart & SM_RES_CONFU)) _MISSILE_VS(BA_WATE);
-		if (f_attack2[1] & RF4_BA_MANA) _MISSILE_VS(BA_MANA);
-		if ((f_attack2[1] & RF4_BA_DARK) && (smart & (SM_RES_BLIND | SM_RES_DARK))) _MISSILE_VS(BA_DARK);
-		if ((f_attack2[1] & RF4_BO_NETH) && (smart & SM_RES_NETHR)) _MISSILE_VS(BO_NETH);
-		if ((f_attack2[1] & RF4_BO_WATE) && (smart & SM_RES_SOUND) && (smart & SM_RES_CONFU)) _MISSILE_VS(BO_WATE);
-		if (f_attack2[1] & RF4_BO_MANA) _MISSILE_VS(BO_MANA);
-		if ((f_attack2[1] & RF4_BO_PLAS) && )
-		if ((f_attack2[1] & RF4_BO_ICEE) && (smart & SM_RES_SOUND) && (smart & SM_RES_SHARD)) _MISSILE_VS(BO_ICEE);
+		if ((f_attack2[1] & RSF1_BA_POIS) && (smart & (SM_OPP_POIS | SM_RES_POIS))) _MISSILE_VS(BA_POIS);
+		if ((f_attack2[1] & RSF1_BA_NETH) && (smart & SM_RES_NETHR)) _MISSILE_VS(BA_NETH);
+		if ((f_attack2[1] & RSF1_BA_WATE) && (smart & SM_RES_SOUND) && (smart & SM_RES_CONFU)) _MISSILE_VS(BA_WATE);
+		if (f_attack2[1] & RSF1_BA_MANA) _MISSILE_VS(BA_MANA);
+		if ((f_attack2[1] & RSF1_BA_DARK) && (smart & (SM_RES_BLIND | SM_RES_DARK))) _MISSILE_VS(BA_DARK);
+		if ((f_attack2[1] & RSF1_BO_NETH) && (smart & SM_RES_NETHR)) _MISSILE_VS(BO_NETH);
+		if ((f_attack2[1] & RSF1_BO_WATE) && (smart & SM_RES_SOUND) && (smart & SM_RES_CONFU)) _MISSILE_VS(BO_WATE);
+		if (f_attack2[1] & RSF1_BO_MANA) _MISSILE_VS(BO_MANA);
+		if ((f_attack2[1] & RSF1_BO_PLAS) && )
+		if ((f_attack2[1] & RSF1_BO_ICEE) && (smart & SM_RES_SOUND) && (smart & SM_RES_SHARD)) _MISSILE_VS(BO_ICEE);
 #endif
 
 #undef _MISSILE_VS
@@ -1124,39 +1125,39 @@ S:MIND_BLAST | CAUSE_3 | DARKNESS | FORGET
 	/* on-off non-damaging attacks */
 	if (smart & (SM_RES_CONFU))
 	{
-		if ((f_attack2[1] & RF4_CONF) && int_outof(r_ptr, 100)) f_attack2[1] &= ~RF4_CONF;
+		if ((f_attack2[1] & RSF1_CONF) && int_outof(r_ptr, 100)) f_attack2[1] &= ~RSF1_CONF;
 	}
 
 	if (smart & (SM_RES_NEXUS))
 	{
-		if ((f_attack2[2] & RF5_TELE_LEVEL) && int_outof(r_ptr, 100)) f_attack2[2] &= ~RF5_TELE_LEVEL;
+		if ((f_attack2[2] & RSF2_TELE_LEVEL) && int_outof(r_ptr, 100)) f_attack2[2] &= ~RSF2_TELE_LEVEL;
 	}
 
 	if (smart & (SM_RES_FEAR))
 	{
-		if ((f_attack2[1] & RF4_SCARE) && int_outof(r_ptr, 100)) f_attack2[1] &= ~RF4_SCARE;
+		if ((f_attack2[1] & RSF1_SCARE) && int_outof(r_ptr, 100)) f_attack2[1] &= ~RSF1_SCARE;
 	}
 
 	if (smart & (SM_RES_BLIND))
 	{
-		if ((f_attack2[1] & RF4_BLIND) && int_outof(r_ptr, 100)) f_attack2[1] &= ~RF4_BLIND;
+		if ((f_attack2[1] & RSF1_BLIND) && int_outof(r_ptr, 100)) f_attack2[1] &= ~RSF1_BLIND;
 	}
 
 	if (smart & (SM_IMM_FREE))
 	{
-		if ((f_attack2[1] & (RF4_HOLD | RF4_SLOW)) && int_outof(r_ptr, 100)) f_attack2[1] &= ~(RF4_HOLD | RF4_SLOW);
+		if ((f_attack2[1] & (RSF1_HOLD | RSF1_SLOW)) && int_outof(r_ptr, 100)) f_attack2[1] &= ~(RSF1_HOLD | RSF1_SLOW);
 	}
 
 	if (smart & (SM_IMM_MANA))
 	{
-		if ((f_attack2[1] & RF4_DRAIN_MANA) && int_outof(r_ptr, 100)) f_attack2[1] &= ~RF4_DRAIN_MANA;
+		if ((f_attack2[1] & RSF1_DRAIN_MANA) && int_outof(r_ptr, 100)) f_attack2[1] &= ~RSF1_DRAIN_MANA;
 	}
 
 	/* XXX XXX XXX No spells left? */
 	/* if (!f_attack2[0] && !f_attack2[1] && !f_attack2[2]) ... */
 
 	/* return the data */
-	C_COPY(f_attack2, f_attack, RACE_FLAG_ATTACK_STRICT_UB);
+	C_COPY(f_attack2, f_attack, RACE_FLAG_SPELL_STRICT_UB);
 }
 
 
@@ -1227,10 +1228,10 @@ static bool clean_shot(coord g1, coord g2)
  * Stop if we hit a monster
  * Affect monsters and the player
  */
-static void bolt(int m_idx, int typ, int dam_hp)
+static void bolt(int m_idx_ok, int typ, int dam_hp)
 {
 	/* Target the player with a bolt attack */
-	(void)project(m_idx, 0, p_ptr->loc, dam_hp, typ, PROJECT_STOP | PROJECT_KILL);
+	(void)project(m_idx_ok, 0, p_ptr->loc, dam_hp, typ, PROJECT_STOP | PROJECT_KILL);
 }
 
 
@@ -1239,25 +1240,49 @@ static void bolt(int m_idx, int typ, int dam_hp)
  * Pass over any monsters that may be in the way
  * Affect grids, objects, monsters, and the player
  */
-static void breath(int m_idx, int typ, int dam_hp)
+static void breath(int m_idx_ok, int typ, int dam_hp)
 {
-	monster_type *m_ptr = &mon_list[m_idx];
-	monster_race *r_ptr = m_ptr->race();
+	monster_type* const m_ptr = &mon_list[m_idx_ok];
+	monster_race* const r_ptr = m_ptr->race();
 	int rad = (r_ptr->flags[1] & RF1_POWERFUL) ? 3 : 2;	/* Determine the radius of the blast */
 
 	/* Target the player with a ball attack */
-	(void)project(m_idx, rad, p_ptr->loc, dam_hp, typ, PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL);
+	(void)project(m_idx_ok, rad, p_ptr->loc, dam_hp, typ, PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL);
 }
 
 
 /*
  * Offsets for the spell indices
  */
-#define RF_OFFSET 32 * RACE_FLAG_ATTACK_START
-#define RF3_OFFSET 32 * 3
-#define RF4_OFFSET 32 * 4
-#define RF5_OFFSET 32 * 5
+#define BASE2_LOG_HACK_FRAGMENT(A,B) ((((A)>>(B)) & 1)*(B))
 
+/** Unfortunately, this macro only works for an isolated bitflag 
+ * (exactly one bit set, all others reset).  It also only works for at most 
+ * 32 bits. 
+ */
+#define BASE2_LOG_HACK(A)	\
+	(BASE2_LOG_HACK_FRAGMENT(A,31)+BASE2_LOG_HACK_FRAGMENT(A,30)+ \
+	 BASE2_LOG_HACK_FRAGMENT(A,29)+BASE2_LOG_HACK_FRAGMENT(A,28)+ \
+	 BASE2_LOG_HACK_FRAGMENT(A,27)+BASE2_LOG_HACK_FRAGMENT(A,26)+ \
+	 BASE2_LOG_HACK_FRAGMENT(A,25)+BASE2_LOG_HACK_FRAGMENT(A,24)+ \
+	 BASE2_LOG_HACK_FRAGMENT(A,23)+BASE2_LOG_HACK_FRAGMENT(A,22)+ \
+	 BASE2_LOG_HACK_FRAGMENT(A,21)+BASE2_LOG_HACK_FRAGMENT(A,20)+ \
+	 BASE2_LOG_HACK_FRAGMENT(A,19)+BASE2_LOG_HACK_FRAGMENT(A,18)+ \
+	 BASE2_LOG_HACK_FRAGMENT(A,17)+BASE2_LOG_HACK_FRAGMENT(A,16)+ \
+	 BASE2_LOG_HACK_FRAGMENT(A,15)+BASE2_LOG_HACK_FRAGMENT(A,14)+ \
+	 BASE2_LOG_HACK_FRAGMENT(A,13)+BASE2_LOG_HACK_FRAGMENT(A,12)+ \
+	 BASE2_LOG_HACK_FRAGMENT(A,11)+BASE2_LOG_HACK_FRAGMENT(A,10)+ \
+	 BASE2_LOG_HACK_FRAGMENT(A,9)+BASE2_LOG_HACK_FRAGMENT(A,8)+ \
+	 BASE2_LOG_HACK_FRAGMENT(A,7)+BASE2_LOG_HACK_FRAGMENT(A,6)+ \
+	 BASE2_LOG_HACK_FRAGMENT(A,5)+BASE2_LOG_HACK_FRAGMENT(A,4)+ \
+	 BASE2_LOG_HACK_FRAGMENT(A,3)+BASE2_LOG_HACK_FRAGMENT(A,2)+ \
+	 BASE2_LOG_HACK_FRAGMENT(A,1))
+
+#define SPELL_ORIGIN 1
+#define MIN_NOMINATE_SPELL (SPELL_ORIGIN+32)
+
+/** converts spell flag into an index value for the case statement */
+#define SPELL(A,B) SPELL_ORIGIN+(A)*32+BASE2_LOG_HACK(B)
 
 /*
  * Have a monster choose a spell to cast.
@@ -1271,12 +1296,12 @@ static void breath(int m_idx, int typ, int dam_hp)
  *
  * This function could be an efficiency bottleneck.
  */
-static int choose_attack_spell(int m_idx, u32b *f_attack)
+static int choose_attack_spell(const m_idx_type m_idx, u32b *f_attack)
 {
 	monster_type *m_ptr = &mon_list[m_idx];
 	monster_race *r_ptr = m_ptr->race();
 
-	u32b f_mask[RACE_FLAG_ATTACK_STRICT_UB] = {0L, 0L, 0L};
+	u32b f_mask[RACE_FLAG_SPELL_STRICT_UB] = {0L, 0L, 0L};
 
 	int num = 0;
 	byte spells[96];
@@ -1290,30 +1315,30 @@ static int choose_attack_spell(int m_idx, u32b *f_attack)
 
 
 	/* Smart monsters restrict their spell choices. */
-	if (smart_monsters && !(r_ptr->flags[1] & RF1_STUPID))
+	if (OPTION(adult_smart_monsters) && !(r_ptr->flags[1] & RF1_STUPID))
 	{
 		/* What have we got? */
-		has_escape = ((f_attack[0] & RF3_ESCAPE_MASK) ||
-		              (f_attack[1] & RF4_ESCAPE_MASK) ||
-		              (f_attack[2] & RF5_ESCAPE_MASK));
-		has_attack = ((f_attack[0] & RF3_ATTACK_MASK) ||
-		              (f_attack[1] & RF4_ATTACK_MASK) ||
-		              (f_attack[2] & RF5_ATTACK_MASK));
-		has_summon = ((f_attack[0] & RF3_SUMMON_MASK) ||
-		              (f_attack[1] & RF4_SUMMON_MASK) ||
-		              (f_attack[2] & RF5_SUMMON_MASK));
-		has_tactic = ((f_attack[0] & RF3_TACTIC_MASK) ||
-		              (f_attack[1] & RF4_TACTIC_MASK) ||
-		              (f_attack[2] & RF5_TACTIC_MASK));
-		has_annoy = ((f_attack[0] & RF3_ANNOY_MASK) ||
-		             (f_attack[1] & RF4_ANNOY_MASK) ||
-		             (f_attack[2] & RF5_ANNOY_MASK));
-		has_haste = ((f_attack[0] & RF3_HASTE_MASK) ||
-		             (f_attack[1] & RF4_HASTE_MASK) ||
-		             (f_attack[2] & RF5_HASTE_MASK));
-		has_heal = ((f_attack[0] & RF3_HEAL_MASK) ||
-		            (f_attack[1] & RF4_HEAL_MASK) ||
-		            (f_attack[2] & RF5_HEAL_MASK));
+		has_escape = ((f_attack[0] & RSF0_ESCAPE_MASK) ||
+		              (f_attack[1] & RSF1_ESCAPE_MASK) ||
+		              (f_attack[2] & RSF2_ESCAPE_MASK));
+		has_attack = ((f_attack[0] & RSF0_ATTACK_MASK) ||
+		              (f_attack[1] & RSF1_ATTACK_MASK) ||
+		              (f_attack[2] & RSF2_ATTACK_MASK));
+		has_summon = ((f_attack[0] & RSF0_SUMMON_MASK) ||
+		              (f_attack[1] & RSF1_SUMMON_MASK) ||
+		              (f_attack[2] & RSF2_SUMMON_MASK));
+		has_tactic = ((f_attack[0] & RSF0_TACTIC_MASK) ||
+		              (f_attack[1] & RSF1_TACTIC_MASK) ||
+		              (f_attack[2] & RSF2_TACTIC_MASK));
+		has_annoy = ((f_attack[0] & RSF0_ANNOY_MASK) ||
+		             (f_attack[1] & RSF1_ANNOY_MASK) ||
+		             (f_attack[2] & RSF2_ANNOY_MASK));
+		has_haste = ((f_attack[0] & RSF0_HASTE_MASK) ||
+		             (f_attack[1] & RSF1_HASTE_MASK) ||
+		             (f_attack[2] & RSF2_HASTE_MASK));
+		has_heal = ((f_attack[0] & RSF0_HEAL_MASK) ||
+		            (f_attack[1] & RSF1_HEAL_MASK) ||
+		            (f_attack[2] & RSF2_HEAL_MASK));
 
 		/*** Try to pick an appropriate spell type ***/
 
@@ -1321,18 +1346,18 @@ static int choose_attack_spell(int m_idx, u32b *f_attack)
 		if (has_escape && ((m_ptr->chp < m_ptr->mhp / 4) || m_ptr->monfear))
 		{
 			/* Choose escape spell */
-			f_mask[0] = RF3_ESCAPE_MASK;
-			f_mask[1] = RF4_ESCAPE_MASK;
-			f_mask[2] = RF5_ESCAPE_MASK;
+			f_mask[0] = RSF0_ESCAPE_MASK;
+			f_mask[1] = RSF1_ESCAPE_MASK;
+			f_mask[2] = RSF2_ESCAPE_MASK;
 		}
 
 		/* Still hurt badly, couldn't flee, attempt to heal */
 		else if (has_heal && m_ptr->chp < m_ptr->mhp / 4)
 		{
 			/* Choose heal spell */
-			f_mask[0] = RF3_HEAL_MASK;
-			f_mask[1] = RF4_HEAL_MASK;
-			f_mask[2] = RF5_HEAL_MASK;
+			f_mask[0] = RSF0_HEAL_MASK;
+			f_mask[1] = RSF1_HEAL_MASK;
+			f_mask[2] = RSF2_HEAL_MASK;
 		}
 
 		/* Player is close and we have attack spells, blink away */
@@ -1340,9 +1365,9 @@ static int choose_attack_spell(int m_idx, u32b *f_attack)
 		         has_attack && (rand_int(100) < 75))
 		{
 			/* Choose tactical spell */
-			f_mask[0] = RF3_TACTIC_MASK;
-			f_mask[1] = RF4_TACTIC_MASK;
-			f_mask[2] = RF5_TACTIC_MASK;
+			f_mask[0] = RSF0_TACTIC_MASK;
+			f_mask[1] = RSF1_TACTIC_MASK;
+			f_mask[2] = RSF2_TACTIC_MASK;
 		}
 
 		/* We're hurt (not badly), try to heal */
@@ -1350,60 +1375,60 @@ static int choose_attack_spell(int m_idx, u32b *f_attack)
 		         (rand_int(100) < 60))
 		{
 			/* Choose heal spell */
-			f_mask[0] = RF3_HEAL_MASK;
-			f_mask[1] = RF4_HEAL_MASK;
-			f_mask[2] = RF5_HEAL_MASK;
+			f_mask[0] = RSF0_HEAL_MASK;
+			f_mask[1] = RSF1_HEAL_MASK;
+			f_mask[2] = RSF2_HEAL_MASK;
 		}
 
 		/* Summon if possible (sometimes) */
 		else if (has_summon && (rand_int(100) < 50))
 		{
 			/* Choose summon spell */
-			f_mask[0] = RF3_SUMMON_MASK;
-			f_mask[1] = RF4_SUMMON_MASK;
-			f_mask[2] = RF5_SUMMON_MASK;
+			f_mask[0] = RSF0_SUMMON_MASK;
+			f_mask[1] = RSF1_SUMMON_MASK;
+			f_mask[2] = RSF2_SUMMON_MASK;
 		}
 
 		/* Attack spell (most of the time) */
 		else if (has_attack && (rand_int(100) < 85))
 		{
 			/* Choose attack spell */
-			f_mask[0] = RF3_ATTACK_MASK;
-			f_mask[1] = RF4_ATTACK_MASK;
-			f_mask[2] = RF5_ATTACK_MASK;
+			f_mask[0] = RSF0_ATTACK_MASK;
+			f_mask[1] = RSF1_ATTACK_MASK;
+			f_mask[2] = RSF2_ATTACK_MASK;
 		}
 
 		/* Try another tactical spell (sometimes) */
 		else if (has_tactic && (rand_int(100) < 50))
 		{
 			/* Choose tactic spell */
-			f_mask[0] = RF3_TACTIC_MASK;
-			f_mask[1] = RF4_TACTIC_MASK;
-			f_mask[2] = RF5_TACTIC_MASK;
+			f_mask[0] = RSF0_TACTIC_MASK;
+			f_mask[1] = RSF1_TACTIC_MASK;
+			f_mask[2] = RSF2_TACTIC_MASK;
 		}
 
 		/* Haste self if we aren't already somewhat hasted (rarely) */
 		else if (has_haste && (rand_int(100) < (20 + r_ptr->speed - m_ptr->speed)))
 		{
 			/* Choose haste spell */
-			f_mask[0] = RF3_HASTE_MASK;
-			f_mask[1] = RF4_HASTE_MASK;
-			f_mask[2] = RF5_HASTE_MASK;
+			f_mask[0] = RSF0_HASTE_MASK;
+			f_mask[1] = RSF1_HASTE_MASK;
+			f_mask[2] = RSF2_HASTE_MASK;
 		}
 
 		/* Annoy player (most of the time) */
 		else if (has_annoy && (rand_int(100) < 85))
 		{
 			/* Choose annoyance spell */
-			f_mask[0] = RF3_ANNOY_MASK;
-			f_mask[1] = RF4_ANNOY_MASK;
-			f_mask[2] = RF5_ANNOY_MASK;
+			f_mask[0] = RSF0_ANNOY_MASK;
+			f_mask[1] = RSF1_ANNOY_MASK;
+			f_mask[2] = RSF2_ANNOY_MASK;
 		}
 
 		/* Else choose no spell (The masks default to this.) */
 
 		/* Keep only the interesting spells */
-		for (i = 0; i < RACE_FLAG_ATTACK_STRICT_UB; i++)
+		for (i = 0; i < RACE_FLAG_SPELL_STRICT_UB; i++)
 			f_attack[i] &= f_mask[i];
 
 		/* Anything left? */
@@ -1411,9 +1436,9 @@ static int choose_attack_spell(int m_idx, u32b *f_attack)
 	}
 
 	/* Extract all spells */
-	for (i = 0; i < 32 * RACE_FLAG_ATTACK_STRICT_UB; i++)
+	for (i = 0; i < 32 * RACE_FLAG_SPELL_STRICT_UB; i++)
 	{
-		if (TEST_FLAG(f_attack, i)) spells[num++] = i + RF_OFFSET;
+		if (TEST_FLAG(f_attack, i)) spells[num++] = i + SPELL_ORIGIN;
 	}
 
 	/* Paranoia */
@@ -1424,202 +1449,232 @@ static int choose_attack_spell(int m_idx, u32b *f_attack)
 }
 
 /* spell implementations for struct lookup */
-static void mspell_SHRIEK(int m_idx)
+static void mspell_SHRIEK(int m_idx_ok)
 {
-	aggravate_monsters(m_idx);
+	aggravate_monsters(m_idx_ok);
 }
 
-static void mspell_ARROW_1(int m_idx)
+static void mspell_ARROW_1(int m_idx_ok)
 {
-	bolt(m_idx, GF_ARROW, NdS(1, 6));
+	const monster_type& m = mon_list[m_idx_ok];
+	if (missile_test_hit(40+m.race()->level, p_ptr->total_ac(), true, distance(m.loc.y, m.loc.x, p_ptr->loc.y, p_ptr->loc.x), p_ptr->loc))
+	{
+		msg_print("The arrow misses.");
+		return;
+	};
+	bolt(m_idx_ok, GF_ARROW, NdS(1, 6));
 }
 
-static void mspell_ARROW_2(int m_idx)
+static void mspell_ARROW_2(int m_idx_ok)
 {
-	bolt(m_idx, GF_ARROW, NdS(3, 6));
+	const monster_type& m = mon_list[m_idx_ok];
+	if (missile_test_hit(40+m.race()->level, p_ptr->total_ac(), true, distance(m.loc.y, m.loc.x, p_ptr->loc.y, p_ptr->loc.x), p_ptr->loc))
+	{
+		msg_print("The arrow misses.");
+		return;
+	};
+	bolt(m_idx_ok, GF_ARROW, NdS(3, 6));
 }
 
-static void mspell_ARROW_3(int m_idx)
+static void mspell_ARROW_3(int m_idx_ok)
 {
-	bolt(m_idx, GF_ARROW, NdS(5, 6));
+	const monster_type& m = mon_list[m_idx_ok];
+	if (missile_test_hit(40+m.race()->level, p_ptr->total_ac(), true, distance(m.loc.y, m.loc.x, p_ptr->loc.y, p_ptr->loc.x), p_ptr->loc))
+	{
+		msg_print("The missile misses.");
+		return;
+	};
+	bolt(m_idx_ok, GF_ARROW, NdS(5, 6));
 }
 
-static void mspell_ARROW_4(int m_idx)
+static void mspell_ARROW_4(int m_idx_ok)
 {
-	bolt(m_idx, GF_ARROW, NdS(7, 6));
+	const monster_type& m = mon_list[m_idx_ok];
+	if (missile_test_hit(40+m.race()->level, p_ptr->total_ac(), true, distance(m.loc.y, m.loc.x, p_ptr->loc.y, p_ptr->loc.x), p_ptr->loc))
+	{
+		msg_print("The missle misses.");
+		return;
+	};
+	bolt(m_idx_ok, GF_ARROW, NdS(7, 6));
 }
 
-static void mspell_BOULDER(int m_idx)
+static void mspell_BOULDER(int m_idx_ok)
 {
-	bolt(m_idx, GF_ARROW, NdS(1 + mon_list[m_idx].race()->level / 7, 12));
+	const monster_type& m = mon_list[m_idx_ok];
+	if (missile_test_hit(40+m.race()->level, p_ptr->total_ac(), true, distance(m.loc.y, m.loc.x, p_ptr->loc.y, p_ptr->loc.x), p_ptr->loc))
+	{
+		msg_print("The boulder misses.");
+		return;
+	};
+	bolt(m_idx_ok, GF_ARROW, NdS(1 + mon_list[m_idx_ok].race()->level / 7, 12));
 }
 
-static void mspell_BR_ACID(int m_idx)
+static void mspell_BR_ACID(int m_idx_ok)
 {
-	const int dam = mon_list[m_idx].chp/3;
-	breath(m_idx, GF_ACID, MIN(dam, 1600));
+	const int dam = mon_list[m_idx_ok].chp/3;
+	breath(m_idx_ok, GF_ACID, MIN(dam, 1600));
 }
 
-static void mspell_BR_ELEC(int m_idx)
+static void mspell_BR_ELEC(int m_idx_ok)
 {
-	const int dam = mon_list[m_idx].chp/3;
-	breath(m_idx, GF_ELEC, MIN(dam, 1600));
+	const int dam = mon_list[m_idx_ok].chp/3;
+	breath(m_idx_ok, GF_ELEC, MIN(dam, 1600));
 }
 
-static void mspell_BR_FIRE(int m_idx)
+static void mspell_BR_FIRE(int m_idx_ok)
 {
-	const int dam = mon_list[m_idx].chp/3;
-	breath(m_idx, GF_FIRE, MIN(dam, 1600));
+	const int dam = mon_list[m_idx_ok].chp/3;
+	breath(m_idx_ok, GF_FIRE, MIN(dam, 1600));
 }
 
-static void mspell_BR_COLD(int m_idx)
+static void mspell_BR_COLD(int m_idx_ok)
 {
-	const int dam = mon_list[m_idx].chp/3;
-	breath(m_idx, GF_COLD, MIN(dam, 1600));
+	const int dam = mon_list[m_idx_ok].chp/3;
+	breath(m_idx_ok, GF_COLD, MIN(dam, 1600));
 }
 
-static void mspell_BR_POIS(int m_idx)
+static void mspell_BR_POIS(int m_idx_ok)
 {
-	const int dam = mon_list[m_idx].chp/3;
-	breath(m_idx, GF_POIS, MIN(dam, 800));
+	const int dam = mon_list[m_idx_ok].chp/3;
+	breath(m_idx_ok, GF_POIS, MIN(dam, 800));
 }
 
-static void mspell_BR_NETH(int m_idx)
+static void mspell_BR_NETH(int m_idx_ok)
 {
-	const int dam = mon_list[m_idx].chp/6;
-	breath(m_idx, GF_NETHER, MIN(dam, 550));
+	const int dam = mon_list[m_idx_ok].chp/6;
+	breath(m_idx_ok, GF_NETHER, MIN(dam, 550));
 }
 
-static void mspell_BR_LITE(int m_idx)
+static void mspell_BR_LITE(int m_idx_ok)
 {
-	const int dam = mon_list[m_idx].chp/6;
-	breath(m_idx, GF_LITE, MIN(dam, 400));
+	const int dam = mon_list[m_idx_ok].chp/6;
+	breath(m_idx_ok, GF_LITE, MIN(dam, 400));
 }
 
-static void mspell_BR_DARK(int m_idx)
+static void mspell_BR_DARK(int m_idx_ok)
 {
-	const int dam = mon_list[m_idx].chp/6;
-	breath(m_idx, GF_DARK, MIN(dam, 400));
+	const int dam = mon_list[m_idx_ok].chp/6;
+	breath(m_idx_ok, GF_DARK, MIN(dam, 400));
 }
 
-static void mspell_BR_CONF(int m_idx)
+static void mspell_BR_CONF(int m_idx_ok)
 {
-	const int dam = mon_list[m_idx].chp/6;
-	breath(m_idx, GF_CONFUSION, MIN(dam, 400));
+	const int dam = mon_list[m_idx_ok].chp/6;
+	breath(m_idx_ok, GF_CONFUSION, MIN(dam, 400));
 }
 
-static void mspell_BR_SOUND(int m_idx)
+static void mspell_BR_SOUND(int m_idx_ok)
 {
-	const int dam = mon_list[m_idx].chp/6;
-	breath(m_idx, GF_SOUND, MIN(dam, 500));
+	const int dam = mon_list[m_idx_ok].chp/6;
+	breath(m_idx_ok, GF_SOUND, MIN(dam, 500));
 }
 
-static void mspell_BR_CHAOS(int m_idx)
+static void mspell_BR_CHAOS(int m_idx_ok)
 {
-	const int dam = mon_list[m_idx].chp/6;
-	breath(m_idx, GF_CHAOS, MIN(dam, 500));
+	const int dam = mon_list[m_idx_ok].chp/6;
+	breath(m_idx_ok, GF_CHAOS, MIN(dam, 500));
 }
 
-static void mspell_BR_DISE(int m_idx)
+static void mspell_BR_DISE(int m_idx_ok)
 {
-	const int dam = mon_list[m_idx].chp/6;
-	breath(m_idx, GF_DISENCHANT, MIN(dam, 500));
+	const int dam = mon_list[m_idx_ok].chp/6;
+	breath(m_idx_ok, GF_DISENCHANT, MIN(dam, 500));
 }
 
-static void mspell_BR_NEXU(int m_idx)
+static void mspell_BR_NEXU(int m_idx_ok)
 {
-	const int dam = mon_list[m_idx].chp/6;
-	breath(m_idx, GF_NEXUS, MIN(dam, 400));
+	const int dam = mon_list[m_idx_ok].chp/6;
+	breath(m_idx_ok, GF_NEXUS, MIN(dam, 400));
 }
 
-static void mspell_BR_TIME(int m_idx)
+static void mspell_BR_TIME(int m_idx_ok)
 {
-	const int dam = mon_list[m_idx].chp/3;
-	breath(m_idx, GF_TIME, MIN(dam, 150));
+	const int dam = mon_list[m_idx_ok].chp/3;
+	breath(m_idx_ok, GF_TIME, MIN(dam, 150));
 }
 
-static void mspell_BR_INER(int m_idx)
+static void mspell_BR_INER(int m_idx_ok)
 {
-	const int dam = mon_list[m_idx].chp/6;
-	breath(m_idx, GF_INERTIA, MIN(dam, 200));
+	const int dam = mon_list[m_idx_ok].chp/6;
+	breath(m_idx_ok, GF_INERTIA, MIN(dam, 200));
 }
 
-static void mspell_BR_GRAV(int m_idx)
+static void mspell_BR_GRAV(int m_idx_ok)
 {
-	const int dam = mon_list[m_idx].chp/3;
-	breath(m_idx, GF_GRAVITY, MIN(dam, 200));
+	const int dam = mon_list[m_idx_ok].chp/3;
+	breath(m_idx_ok, GF_GRAVITY, MIN(dam, 200));
 }
 
-static void mspell_BR_SHAR(int m_idx)
+static void mspell_BR_SHAR(int m_idx_ok)
 {
-	const int dam = mon_list[m_idx].chp/6;
-	breath(m_idx, GF_SHARD, MIN(dam, 500));
+	const int dam = mon_list[m_idx_ok].chp/6;
+	breath(m_idx_ok, GF_SHARD, MIN(dam, 500));
 }
 
-static void mspell_BR_PLAS(int m_idx)
+static void mspell_BR_PLAS(int m_idx_ok)
 {
-	const int dam = mon_list[m_idx].chp/3;
-	breath(m_idx, GF_PLASMA, MIN(dam, 150));
+	const int dam = mon_list[m_idx_ok].chp/3;
+	breath(m_idx_ok, GF_PLASMA, MIN(dam, 150));
 }
 
-static void mspell_BR_WALL(int m_idx)
+static void mspell_BR_WALL(int m_idx_ok)
 {
-	const int dam = mon_list[m_idx].chp/6;
-	breath(m_idx, GF_FORCE, MIN(dam, 200));
+	const int dam = mon_list[m_idx_ok].chp/6;
+	breath(m_idx_ok, GF_FORCE, MIN(dam, 200));
 }
 
-static void mspell_BA_ACID(int m_idx)
+static void mspell_BA_ACID(int m_idx_ok)
 {
-	breath(m_idx, GF_ACID, randint(MIN(mon_list[m_idx].race()->level,1) * 3) + 15);
+	breath(m_idx_ok, GF_ACID, randint(MIN(mon_list[m_idx_ok].race()->level,1) * 3) + 15);
 }
 
-static void mspell_BA_ELEC(int m_idx)
+static void mspell_BA_ELEC(int m_idx_ok)
 {
-	breath(m_idx, GF_ELEC, randint(MIN(mon_list[m_idx].race()->level,1) * 3 / 2) + 8);
+	breath(m_idx_ok, GF_ELEC, randint(MIN(mon_list[m_idx_ok].race()->level,1) * 3 / 2) + 8);
 }
 
-static void mspell_BA_FIRE(int m_idx)
+static void mspell_BA_FIRE(int m_idx_ok)
 {
-	breath(m_idx, GF_FIRE, randint(MIN(mon_list[m_idx].race()->level,1) * 7 / 2) + 10);
+	breath(m_idx_ok, GF_FIRE, randint(MIN(mon_list[m_idx_ok].race()->level,1) * 7 / 2) + 10);
 }
 
-static void mspell_BA_COLD(int m_idx)
+static void mspell_BA_COLD(int m_idx_ok)
 {
-	breath(m_idx, GF_COLD, randint(MIN(mon_list[m_idx].race()->level,1) * 3 / 2) + 10);
+	breath(m_idx_ok, GF_COLD, randint(MIN(mon_list[m_idx_ok].race()->level,1) * 3 / 2) + 10);
 }
 
-static void mspell_BA_POIS(int m_idx)
+static void mspell_BA_POIS(int m_idx_ok)
 {
-	breath(m_idx, GF_POIS, NdS(12, 2));
+	breath(m_idx_ok, GF_POIS, NdS(12, 2));
 }
 
-static void mspell_BA_NETH(int m_idx)
+static void mspell_BA_NETH(int m_idx_ok)
 {
-	breath(m_idx, GF_NETHER, (50 + NdS(10, 10) + MIN(mon_list[m_idx].race()->level,1)));
+	breath(m_idx_ok, GF_NETHER, (50 + NdS(10, 10) + MIN(mon_list[m_idx_ok].race()->level,1)));
 }
 
-static void mspell_BA_WATE(int m_idx)
+static void mspell_BA_WATE(int m_idx_ok)
 {
 	msg_print("You are engulfed in a whirlpool.");
-	breath(m_idx, GF_WATER, randint(MIN(mon_list[m_idx].race()->level,1) * 5 / 2) + 50);
+	breath(m_idx_ok, GF_WATER, randint(MIN(mon_list[m_idx_ok].race()->level,1) * 5 / 2) + 50);
 }
 
-static void mspell_BA_MANA(int m_idx)
+static void mspell_BA_MANA(int m_idx_ok)
 {
-	breath(m_idx, GF_MANA, (MIN(mon_list[m_idx].race()->level,1) * 5) + NdS(10, 10));
+	breath(m_idx_ok, GF_MANA, (MIN(mon_list[m_idx_ok].race()->level,1) * 5) + NdS(10, 10));
 }
 
-static void mspell_BA_DARK(int m_idx)
+static void mspell_BA_DARK(int m_idx_ok)
 {
-	breath(m_idx, GF_DARK, (MIN(mon_list[m_idx].race()->level,1) * 5) + NdS(10, 10));
+	breath(m_idx_ok, GF_DARK, (MIN(mon_list[m_idx_ok].race()->level,1) * 5) + NdS(10, 10));
 }
 
-static void mspell_DRAIN_MANA(int m_idx)
+static void mspell_DRAIN_MANA(int m_idx_ok)
 {
-	monster_type& m = mon_list[m_idx];
+	monster_type& m = mon_list[m_idx_ok];
 	if (p_ptr->csp)
 	{
-		int r1 = (randint(MIN(mon_list[m_idx].race()->level,1)) / 2) + 1;	/* Attack power */
+		int r1 = (randint(MIN(mon_list[m_idx_ok].race()->level,1)) / 2) + 1;	/* Attack power */
 
 		/* Full drain */
 		if (r1 >= p_ptr->csp)
@@ -1652,7 +1707,7 @@ static void mspell_DRAIN_MANA(int m_idx)
 			};
 
 			/* Redraw (later) if needed */
-			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+			if (p_ptr->health_who == m_idx_ok) p_ptr->redraw |= (PR_HEALTH);
 
 			/* Special message */
 			if (!p_ptr->timed[TMD_BLIND] && m.ml)
@@ -1670,10 +1725,10 @@ static void mspell_DRAIN_MANA(int m_idx)
 	{
 		msg_print("Or would have, if you had any magical energy to drain.");
 	}
-	update_smart_learn(m_idx, DRS_MANA);
+	update_smart_learn(m_idx_ok, DRS_MANA);
 }
 
-static void mspell_MIND_BLAST(int m_idx)
+static void mspell_MIND_BLAST(int m_idx_ok)
 {
 	if (p_ptr->std_save())
 	{
@@ -1683,7 +1738,7 @@ static void mspell_MIND_BLAST(int m_idx)
 	{
 		char ddesc[80];
 		/* Get the "died from" name */
-		monster_desc(ddesc, sizeof(ddesc), mon_list + m_idx, MDESC_SHOW | MDESC_IND2);
+		monster_desc(ddesc, sizeof(ddesc), mon_list + m_idx_ok, MDESC_SHOW | MDESC_IND2);
 
 		msg_print("Your mind is blasted by psionic energy.");
 		if (!p_ptr->resist_confu) p_ptr->inc_timed<TMD_CONFUSED>(rand_int(4) + 4);
@@ -1691,7 +1746,7 @@ static void mspell_MIND_BLAST(int m_idx)
 	}
 }
 
-static void mspell_BRAIN_SMASH(int m_idx)
+static void mspell_BRAIN_SMASH(int m_idx_ok)
 {
 	if (p_ptr->std_save())
 	{
@@ -1701,7 +1756,7 @@ static void mspell_BRAIN_SMASH(int m_idx)
 	{
 		char ddesc[80];
 		/* Get the "died from" name */
-		monster_desc(ddesc, sizeof(ddesc), mon_list + m_idx, MDESC_SHOW | MDESC_IND2);
+		monster_desc(ddesc, sizeof(ddesc), mon_list + m_idx_ok, MDESC_SHOW | MDESC_IND2);
 
 		msg_print("Your mind is blasted by psionic energy.");
 		take_hit(NdS(12, 15), ddesc);
@@ -1712,7 +1767,7 @@ static void mspell_BRAIN_SMASH(int m_idx)
 	}
 }
 
-static void mspell_CAUSE_1(int m_idx)
+static void mspell_CAUSE_1(int m_idx_ok)
 {
 	if (p_ptr->std_save())
 	{
@@ -1722,13 +1777,13 @@ static void mspell_CAUSE_1(int m_idx)
 	{
 		char ddesc[80];
 		/* Get the "died from" name */
-		monster_desc(ddesc, sizeof(ddesc), mon_list + m_idx, MDESC_SHOW | MDESC_IND2);
+		monster_desc(ddesc, sizeof(ddesc), mon_list + m_idx_ok, MDESC_SHOW | MDESC_IND2);
 
 		take_hit(NdS(3, 8), ddesc);
 	}
 }
 
-static void mspell_CAUSE_2(int m_idx)
+static void mspell_CAUSE_2(int m_idx_ok)
 {
 	if (p_ptr->std_save())
 	{
@@ -1738,13 +1793,13 @@ static void mspell_CAUSE_2(int m_idx)
 	{
 		char ddesc[80];
 		/* Get the "died from" name */
-		monster_desc(ddesc, sizeof(ddesc), mon_list + m_idx, MDESC_SHOW | MDESC_IND2);
+		monster_desc(ddesc, sizeof(ddesc), mon_list + m_idx_ok, MDESC_SHOW | MDESC_IND2);
 
 		take_hit(NdS(8, 8), ddesc);
 	}
 }
 
-static void mspell_CAUSE_3(int m_idx)
+static void mspell_CAUSE_3(int m_idx_ok)
 {
 	if (p_ptr->std_save())
 	{
@@ -1754,13 +1809,13 @@ static void mspell_CAUSE_3(int m_idx)
 	{
 		char ddesc[80];
 		/* Get the "died from" name */
-		monster_desc(ddesc, sizeof(ddesc), mon_list + m_idx, MDESC_SHOW | MDESC_IND2);
+		monster_desc(ddesc, sizeof(ddesc), mon_list + m_idx_ok, MDESC_SHOW | MDESC_IND2);
 
 		take_hit(NdS(10, 15), ddesc);
 	}
 }
 
-static void mspell_CAUSE_4(int m_idx)
+static void mspell_CAUSE_4(int m_idx_ok)
 {
 	if (p_ptr->std_save())
 	{
@@ -1770,64 +1825,64 @@ static void mspell_CAUSE_4(int m_idx)
 	{
 		char ddesc[80];
 		/* Get the "died from" name */
-		monster_desc(ddesc, sizeof(ddesc), mon_list + m_idx, MDESC_SHOW | MDESC_IND2);
+		monster_desc(ddesc, sizeof(ddesc), mon_list + m_idx_ok, MDESC_SHOW | MDESC_IND2);
 
 		take_hit(NdS(15, 15), ddesc);
 		p_ptr->inc_timed<TMD_CUT>(NdS(10, 10));
 	}
 }
 
-static void mspell_BO_ACID(int m_idx)
+static void mspell_BO_ACID(int m_idx_ok)
 {
-	bolt(m_idx, GF_ACID, NdS(7, 8) + (MIN(mon_list[m_idx].race()->level,1) / 3));
+	bolt(m_idx_ok, GF_ACID, NdS(7, 8) + (MIN(mon_list[m_idx_ok].race()->level,1) / 3));
 }
 
-static void mspell_BO_ELEC(int m_idx)
+static void mspell_BO_ELEC(int m_idx_ok)
 {
-	bolt(m_idx, GF_ELEC, NdS(4, 8) + (MIN(mon_list[m_idx].race()->level,1) / 3));
+	bolt(m_idx_ok, GF_ELEC, NdS(4, 8) + (MIN(mon_list[m_idx_ok].race()->level,1) / 3));
 }
 
-static void mspell_BO_FIRE(int m_idx)
+static void mspell_BO_FIRE(int m_idx_ok)
 {
-	bolt(m_idx, GF_FIRE, NdS(9, 8) + (MIN(mon_list[m_idx].race()->level,1) / 3));
+	bolt(m_idx_ok, GF_FIRE, NdS(9, 8) + (MIN(mon_list[m_idx_ok].race()->level,1) / 3));
 }
 
-static void mspell_BO_COLD(int m_idx)
+static void mspell_BO_COLD(int m_idx_ok)
 {
-	bolt(m_idx, GF_COLD, NdS(6, 8) + (MIN(mon_list[m_idx].race()->level,1) / 3));
+	bolt(m_idx_ok, GF_COLD, NdS(6, 8) + (MIN(mon_list[m_idx_ok].race()->level,1) / 3));
 }
 
-static void mspell_BO_NETH(int m_idx)
+static void mspell_BO_NETH(int m_idx_ok)
 {
-	bolt(m_idx, GF_NETHER, 30 + NdS(5, 5) + (MIN(mon_list[m_idx].race()->level,1) * 3) / 2);
+	bolt(m_idx_ok, GF_NETHER, 30 + NdS(5, 5) + (MIN(mon_list[m_idx_ok].race()->level,1) * 3) / 2);
 }
 
-static void mspell_BO_WATE(int m_idx)
+static void mspell_BO_WATE(int m_idx_ok)
 {
-	bolt(m_idx, GF_WATER, NdS(10, 10) + (MIN(mon_list[m_idx].race()->level,1)));
+	bolt(m_idx_ok, GF_WATER, NdS(10, 10) + (MIN(mon_list[m_idx_ok].race()->level,1)));
 }
 
-static void mspell_BO_MANA(int m_idx)
+static void mspell_BO_MANA(int m_idx_ok)
 {
-	bolt(m_idx, GF_MANA, randint(MIN(mon_list[m_idx].race()->level,1) * 7 / 2) + 50);
+	bolt(m_idx_ok, GF_MANA, randint(MIN(mon_list[m_idx_ok].race()->level,1) * 7 / 2) + 50);
 }
 
-static void mspell_BO_PLAS(int m_idx)
+static void mspell_BO_PLAS(int m_idx_ok)
 {
-	bolt(m_idx, GF_PLASMA, 10 + NdS(8, 7) + MIN(mon_list[m_idx].race()->level,1));
+	bolt(m_idx_ok, GF_PLASMA, 10 + NdS(8, 7) + MIN(mon_list[m_idx_ok].race()->level,1));
 }
 
-static void mspell_BO_ICEE(int m_idx)
+static void mspell_BO_ICEE(int m_idx_ok)
 {
-	bolt(m_idx, GF_ICE, NdS(6, 6) + MIN(mon_list[m_idx].race()->level,1));
+	bolt(m_idx_ok, GF_ICE, NdS(6, 6) + MIN(mon_list[m_idx_ok].race()->level,1));
 }
 
-static void mspell_MISSILE(int m_idx)
+static void mspell_MISSILE(int m_idx_ok)
 {
-	bolt(m_idx, GF_MISSILE, NdS(2, 6) + (MIN(mon_list[m_idx].race()->level,1) / 3));
+	bolt(m_idx_ok, GF_MISSILE, NdS(2, 6) + (MIN(mon_list[m_idx_ok].race()->level,1) / 3));
 }
 
-static void mspell_SCARE(int m_idx)
+static void mspell_SCARE(int m_idx_ok)
 {
 	if (p_ptr->resist_fear)
 	{
@@ -1841,10 +1896,10 @@ static void mspell_SCARE(int m_idx)
 	{
 		(void)p_ptr->inc_timed<TMD_AFRAID>(rand_int(4) + 4);
 	}
-	update_smart_learn(m_idx, DRS_RES_FEAR);
+	update_smart_learn(m_idx_ok, DRS_RES_FEAR);
 }
 
-static void mspell_BLIND(int m_idx)
+static void mspell_BLIND(int m_idx_ok)
 {
 	if (p_ptr->resist_blind)
 	{
@@ -1858,10 +1913,10 @@ static void mspell_BLIND(int m_idx)
 	{
 		(void)p_ptr->set_timed<TMD_BLIND>(12 + rand_int(4));
 	}
-	update_smart_learn(m_idx, DRS_RES_BLIND);
+	update_smart_learn(m_idx_ok, DRS_RES_BLIND);
 }
 
-static void mspell_CONF(int m_idx)
+static void mspell_CONF(int m_idx_ok)
 {
 	if (p_ptr->resist_confu)
 	{
@@ -1875,10 +1930,10 @@ static void mspell_CONF(int m_idx)
 	{
 		(void)p_ptr->inc_timed<TMD_CONFUSED>(rand_int(4) + 4);
 	}
-	update_smart_learn(m_idx, DRS_RES_CONFU);
+	update_smart_learn(m_idx_ok, DRS_RES_CONFU);
 }
 
-static void mspell_SLOW(int m_idx)
+static void mspell_SLOW(int m_idx_ok)
 {
 	if (p_ptr->free_act)
 	{
@@ -1892,10 +1947,10 @@ static void mspell_SLOW(int m_idx)
 	{
 		(void)p_ptr->inc_timed<TMD_SLOW>(rand_int(4) + 4);
 	}
-	update_smart_learn(m_idx, DRS_FREE);
+	update_smart_learn(m_idx_ok, DRS_FREE);
 }
 
-static void mspell_HOLD(int m_idx)
+static void mspell_HOLD(int m_idx_ok)
 {
 	if (p_ptr->free_act)
 	{
@@ -1909,12 +1964,12 @@ static void mspell_HOLD(int m_idx)
 	{
 		(void)p_ptr->inc_timed<TMD_PARALYZED>(rand_int(4) + 4);
 	}
-	update_smart_learn(m_idx, DRS_FREE);
+	update_smart_learn(m_idx_ok, DRS_FREE);
 }
 
-static void mspell_HASTE(int m_idx)
+static void mspell_HASTE(int m_idx_ok)
 {
-	monster_type& m = mon_list[m_idx];
+	monster_type& m = mon_list[m_idx_ok];
 	const monster_race* const r_ptr = m.race();
 	char m_name[80];
 
@@ -1936,10 +1991,10 @@ static void mspell_HASTE(int m_idx)
 	}
 }
 
-static void mspell_HEAL(int m_idx)
+static void mspell_HEAL(int m_idx_ok)
 {
-	monster_type& m = mon_list[m_idx];
-	const int heal_power = MIN(mon_list[m_idx].race()->level,1)*6;
+	monster_type& m = mon_list[m_idx_ok];
+	const int heal_power = MIN(mon_list[m_idx_ok].race()->level,1)*6;
 	char m_name[80];
 
 	/* Get the monster name (or "it") */
@@ -1965,7 +2020,7 @@ static void mspell_HEAL(int m_idx)
 	}
 
 	/* Redraw (later) if needed */
-	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+	if (p_ptr->health_who == m_idx_ok) p_ptr->redraw |= (PR_HEALTH);
 
 	/* Cancel fear */
 	if (m.monfear)
@@ -1980,27 +2035,27 @@ static void mspell_HEAL(int m_idx)
 	}
 }
 
-static void mspell_BLINK(int m_idx)
+static void mspell_BLINK(int m_idx_ok)
 {
-	teleport_away(m_idx, 10);
+	teleport_away(m_idx_ok, 10);
 }
 
-static void mspell_TELE_AWAY(int m_idx)
+static void mspell_TELE_AWAY(int m_idx_ok)
 {
-	teleport_away(m_idx, 10);
+	teleport_away(m_idx_ok, 10);
 }
 
-static void mspell_TPORT(int m_idx)
+static void mspell_TPORT(int m_idx_ok)
 {
-	teleport_away(m_idx, MAX_SIGHT * 2 + 5);
+	teleport_away(m_idx_ok, MAX_SIGHT * 2 + 5);
 }
 
-static void mspell_TELE_TO(int m_idx)
+static void mspell_TELE_TO(int m_idx_ok)
 {
-	teleport_player_to(mon_list[m_idx].loc);
+	teleport_player_to(mon_list[m_idx_ok].loc);
 }
 
-static void mspell_TELE_LEVEL(int m_idx)
+static void mspell_TELE_LEVEL(int m_idx_ok)
 {
 	if (p_ptr->resist_nexus)
 	{
@@ -2014,20 +2069,20 @@ static void mspell_TELE_LEVEL(int m_idx)
 	{
 		teleport_player_level();
 	}
-	update_smart_learn(m_idx, DRS_RES_NEXUS);
+	update_smart_learn(m_idx_ok, DRS_RES_NEXUS);
 }
 
-static void mspell_DARKNESS(int m_idx)
+static void mspell_DARKNESS(int m_idx_ok)
 {
 	unlite_area(0, 3);
 }
 
-static void mspell_TRAPS(int m_idx)
+static void mspell_TRAPS(int m_idx_ok)
 {
 	trap_creation();
 }
 
-static void mspell_FORGET(int m_idx)
+static void mspell_FORGET(int m_idx_ok)
 {
 	if (p_ptr->std_save())
 	{
@@ -2039,11 +2094,11 @@ static void mspell_FORGET(int m_idx)
 	}
 }
 
-static void mspell_S_KIN(int m_idx)
+static void mspell_S_KIN(int m_idx_ok)
 {
 	int count = 0;
 	{
-	const monster_type& m = mon_list[m_idx];
+	const monster_type& m = mon_list[m_idx_ok];
 	const monster_race* const r_ptr = m.race();
 	const int rlev = MIN(r_ptr->level,1);
 	int k = 6;
@@ -2069,10 +2124,10 @@ static void mspell_S_KIN(int m_idx)
 	if (p_ptr->timed[TMD_BLIND] && count) msg_print("You hear many things appear nearby.");
 }
 
-static void mspell_S_HI_DEMON(int m_idx)
+static void mspell_S_HI_DEMON(int m_idx_ok)
 {
 	int count = 0;
-	const monster_type& m = mon_list[m_idx];
+	const monster_type& m = mon_list[m_idx_ok];
 	const int rlev = MIN(m.race()->level,1);
 	int k = 8;
 	do	count += summon_specific(m.loc, rlev, SUMMON_HI_DEMON);
@@ -2080,17 +2135,17 @@ static void mspell_S_HI_DEMON(int m_idx)
 	if (p_ptr->timed[TMD_BLIND] && count) msg_print("You hear many evil things appear nearby.");
 }
 
-static void mspell_S_MONSTER(int m_idx)
+static void mspell_S_MONSTER(int m_idx_ok)
 {
-	const int rlev = MIN(mon_list[m_idx].race()->level,1);
-	int count =  summon_specific(mon_list[m_idx].loc, rlev, 0);
+	const int rlev = MIN(mon_list[m_idx_ok].race()->level,1);
+	int count =  summon_specific(mon_list[m_idx_ok].loc, rlev, 0);
 	if (p_ptr->timed[TMD_BLIND] && count) msg_print("You hear something appear nearby.");
 }
 
-static void mspell_S_MONSTERS(int m_idx)
+static void mspell_S_MONSTERS(int m_idx_ok)
 {
 	int count = 0;
-	const monster_type& m = mon_list[m_idx];
+	const monster_type& m = mon_list[m_idx_ok];
 	const int rlev = MIN(m.race()->level,1);
 	int k = 8;
 	do	count += summon_specific(m.loc, rlev, 0);
@@ -2098,10 +2153,10 @@ static void mspell_S_MONSTERS(int m_idx)
 	if (p_ptr->timed[TMD_BLIND] && count) msg_print("You hear many things appear nearby.");
 }
 
-static void mspell_S_ANIMAL(int m_idx)
+static void mspell_S_ANIMAL(int m_idx_ok)
 {
 	int count = 0;
-	const monster_type& m = mon_list[m_idx];
+	const monster_type& m = mon_list[m_idx_ok];
 	const int rlev = MIN(m.race()->level,1);
 	int k = 8;
 	do	count += summon_specific(m.loc, rlev, SUMMON_ANIMAL);
@@ -2109,10 +2164,10 @@ static void mspell_S_ANIMAL(int m_idx)
 	if (p_ptr->timed[TMD_BLIND] && count) msg_print("You hear many things appear nearby.");
 }
 
-static void mspell_S_SPIDER(int m_idx)
+static void mspell_S_SPIDER(int m_idx_ok)
 {
 	int count = 0;
-	const monster_type& m = mon_list[m_idx];
+	const monster_type& m = mon_list[m_idx_ok];
 	const int rlev = MIN(m.race()->level,1);
 	int k = 6;
 	do	count += summon_specific(m.loc, rlev, SUMMON_SPIDER);
@@ -2120,10 +2175,10 @@ static void mspell_S_SPIDER(int m_idx)
 	if (p_ptr->timed[TMD_BLIND] && count) msg_print("You hear many things appear nearby.");
 }
 
-static void mspell_S_HOUND(int m_idx)
+static void mspell_S_HOUND(int m_idx_ok)
 {
 	int count = 0;
-	const monster_type& m = mon_list[m_idx];
+	const monster_type& m = mon_list[m_idx_ok];
 	const int rlev = MIN(m.race()->level,1);
 	int k = 6;
 	do	count += summon_specific(m.loc, rlev, SUMMON_HOUND);
@@ -2131,10 +2186,10 @@ static void mspell_S_HOUND(int m_idx)
 	if (p_ptr->timed[TMD_BLIND] && count) msg_print("You hear many things appear nearby.");
 }
 
-static void mspell_S_HYDRA(int m_idx)
+static void mspell_S_HYDRA(int m_idx_ok)
 {
 	int count = 0;
-	const monster_type& m = mon_list[m_idx];
+	const monster_type& m = mon_list[m_idx_ok];
 	const int rlev = MIN(m.race()->level,1);
 	int k = 6;
 	do	count += summon_specific(m.loc, rlev, SUMMON_HYDRA);
@@ -2142,38 +2197,38 @@ static void mspell_S_HYDRA(int m_idx)
 	if (p_ptr->timed[TMD_BLIND] && count) msg_print("You hear many things appear nearby.");
 }
 
-static void mspell_S_ANGEL(int m_idx)
+static void mspell_S_ANGEL(int m_idx_ok)
 {
-	const int rlev = MIN(mon_list[m_idx].race()->level,1);
-	int count = summon_specific(mon_list[m_idx].loc, rlev, SUMMON_ANGEL);
+	const int rlev = MIN(mon_list[m_idx_ok].race()->level,1);
+	int count = summon_specific(mon_list[m_idx_ok].loc, rlev, SUMMON_ANGEL);
 	if (p_ptr->timed[TMD_BLIND] && count) msg_print("You hear something appear nearby.");
 }
 
-static void mspell_S_DEMON(int m_idx)
+static void mspell_S_DEMON(int m_idx_ok)
 {
-	const int rlev = MIN(mon_list[m_idx].race()->level,1);
-	int count = summon_specific(mon_list[m_idx].loc, rlev, SUMMON_DEMON);
+	const int rlev = MIN(mon_list[m_idx_ok].race()->level,1);
+	int count = summon_specific(mon_list[m_idx_ok].loc, rlev, SUMMON_DEMON);
 	if (p_ptr->timed[TMD_BLIND] && count) msg_print("You hear something appear nearby.");
 }
 
-static void mspell_S_UNDEAD(int m_idx)
+static void mspell_S_UNDEAD(int m_idx_ok)
 {
-	const int rlev = MIN(mon_list[m_idx].race()->level,1);
-	int count = summon_specific(mon_list[m_idx].loc, rlev, SUMMON_UNDEAD);
+	const int rlev = MIN(mon_list[m_idx_ok].race()->level,1);
+	int count = summon_specific(mon_list[m_idx_ok].loc, rlev, SUMMON_UNDEAD);
 	if (p_ptr->timed[TMD_BLIND] && count) msg_print("You hear something appear nearby.");
 }
 
-static void mspell_S_DRAGON(int m_idx)
+static void mspell_S_DRAGON(int m_idx_ok)
 {
-	const int rlev = MIN(mon_list[m_idx].race()->level,1);
-	int count = summon_specific(mon_list[m_idx].loc, rlev, SUMMON_DRAGON);
+	const int rlev = MIN(mon_list[m_idx_ok].race()->level,1);
+	int count = summon_specific(mon_list[m_idx_ok].loc, rlev, SUMMON_DRAGON);
 	if (p_ptr->timed[TMD_BLIND] && count) msg_print("You hear something appear nearby.");
 }
 
-static void mspell_S_HI_UNDEAD(int m_idx)
+static void mspell_S_HI_UNDEAD(int m_idx_ok)
 {
 	int count = 0;
-	const monster_type& m = mon_list[m_idx];
+	const monster_type& m = mon_list[m_idx_ok];
 	const int rlev = MIN(m.race()->level,1);
 	int k = 8;
 	do	count += summon_specific(m.loc, rlev, SUMMON_HI_UNDEAD);
@@ -2181,10 +2236,10 @@ static void mspell_S_HI_UNDEAD(int m_idx)
 	if (p_ptr->timed[TMD_BLIND] && count) msg_print("You hear many creepy things appear nearby.");
 }
 
-static void mspell_S_HI_DRAGON(int m_idx)
+static void mspell_S_HI_DRAGON(int m_idx_ok)
 {
 	int count = 0;
-	const monster_type& m = mon_list[m_idx];
+	const monster_type& m = mon_list[m_idx_ok];
 	const int rlev = MIN(m.race()->level,1);
 	int k = 8;
 	do	count += summon_specific(m.loc, rlev, SUMMON_HI_DRAGON);
@@ -2192,10 +2247,10 @@ static void mspell_S_HI_DRAGON(int m_idx)
 	if (p_ptr->timed[TMD_BLIND] && count) msg_print("You hear many powerful things appear nearby.");
 }
 
-static void mspell_S_WRAITH(int m_idx)
+static void mspell_S_WRAITH(int m_idx_ok)
 {
 	int count = 0;
-	const monster_type& m = mon_list[m_idx];
+	const monster_type& m = mon_list[m_idx_ok];
 	const int rlev = MIN(m.race()->level,1);
 	int k = 8;
 	do	count += summon_specific(m.loc, rlev, SUMMON_WRAITH);
@@ -2207,10 +2262,10 @@ static void mspell_S_WRAITH(int m_idx)
 	if (p_ptr->timed[TMD_BLIND] && count) msg_print("You hear many creepy things appear nearby.");
 }
 
-static void mspell_S_UNIQUE(int m_idx)
+static void mspell_S_UNIQUE(int m_idx_ok)
 {
 	int count = 0;
-	const monster_type& m = mon_list[m_idx];
+	const monster_type& m = mon_list[m_idx_ok];
 	const int rlev = MIN(m.race()->level,1);
 	int k = 8;
 	do	count += summon_specific(m.loc, rlev, SUMMON_UNIQUE);
@@ -2561,13 +2616,13 @@ m_spell_config magic_attack_list[]	=	{
  * Note the special "MFLAG_NICE" flag, which prevents a monster from using
  * any spell attacks until the player has had a single chance to move.
  */
-static bool make_attack_spell(int m_idx)
+static bool make_attack_spell(const m_idx_type m_idx)
 {
 	int thrown_spell, rlev;
 
-	u32b f_attack[RACE_FLAG_ATTACK_STRICT_UB];
+	u32b f_attack[RACE_FLAG_SPELL_STRICT_UB];
 
-	range_spec damage_spec[32 * RACE_FLAG_ATTACK_STRICT_UB];
+	range_spec damage_spec[32 * RACE_FLAG_SPELL_STRICT_UB];
 
 	monster_type *m_ptr = &mon_list[m_idx];
 	monster_race *r_ptr = m_ptr->race();
@@ -2617,7 +2672,7 @@ static bool make_attack_spell(int m_idx)
 	}
 	else
 	{
-		if (smart_learn)
+		if (OPTION(adult_smart_learn))
 		{
 			/* Hack -- Occasionally forget player status */
 			/* remember to replace this with more message-based approach later */
@@ -2625,7 +2680,7 @@ static bool make_attack_spell(int m_idx)
 		}
 
 		/* Cheat if requested */
-		if (smart_cheat)
+		if (OPTION(adult_smart_cheat))
 		{
 			/* Know weirdness */
 			if (p_ptr->free_act) m_ptr->smart |= (SM_IMM_FREE);
@@ -2668,7 +2723,7 @@ static bool make_attack_spell(int m_idx)
 	}
 
 	/* Extract the racial spell flags */
-	C_COPY(f_attack, r_ptr->flags+ RACE_FLAG_ATTACK_START, RACE_FLAG_ATTACK_STRICT_UB);
+	C_COPY(f_attack, r_ptr->spell_flags, RACE_FLAG_SPELL_STRICT_UB);
 	init_spell_damage(f_attack, damage_spec, rlev, m_ptr->chp, m_ptr->smart);
 
 	/* Hack -- allow "desperate" spells */
@@ -2677,9 +2732,9 @@ static bool make_attack_spell(int m_idx)
 	    one_in_(2))
 	{
 		/* Require intelligent spells */
-		f_attack[0] &= RF3_INT_MASK;
-		f_attack[1] &= RF4_INT_MASK;
-		f_attack[2] &= RF5_INT_MASK;
+		f_attack[0] &= RSF0_INT_MASK;
+		f_attack[1] &= RSF1_INT_MASK;
+		f_attack[2] &= RSF2_INT_MASK;
 
 		/* No spells left */
 		if (!f_attack[0] && !f_attack[1] && !f_attack[2]) return (FALSE);
@@ -2689,24 +2744,24 @@ static bool make_attack_spell(int m_idx)
 	if (!(r_ptr->flags[1] & RF1_STUPID))
 	{
 		/* Check for a clean bolt shot */
-		if (((f_attack[0] & RF3_BOLT_MASK) ||
-			(f_attack[1] & RF4_BOLT_MASK) ||
-			(f_attack[2] & RF5_BOLT_MASK)) &&
+		if (((f_attack[0] & RSF0_BOLT_MASK) ||
+			(f_attack[1] & RSF1_BOLT_MASK) ||
+			(f_attack[2] & RSF2_BOLT_MASK)) &&
 			!clean_shot(m_ptr->loc, p_ptr->loc))
 		{
 			/* Remove spells that will only hurt friends */
-			f_attack[0] &= ~RF3_BOLT_MASK;
-			f_attack[1] &= ~RF4_BOLT_MASK;
-			f_attack[2] &= ~RF5_BOLT_MASK;
+			f_attack[0] &= ~RSF0_BOLT_MASK;
+			f_attack[1] &= ~RSF1_BOLT_MASK;
+			f_attack[2] &= ~RSF2_BOLT_MASK;
 		}
 
 		/* Check for a possible summon */
 		if (!(summon_possible(m_ptr->loc)))
 		{
 			/* Remove summoning spells */
-			f_attack[0] &= ~RF3_SUMMON_MASK;
-			f_attack[1] &= ~RF4_SUMMON_MASK;
-			f_attack[2] &= ~RF5_SUMMON_MASK;
+			f_attack[0] &= ~RSF0_SUMMON_MASK;
+			f_attack[1] &= ~RSF1_SUMMON_MASK;
+			f_attack[2] &= ~RSF2_SUMMON_MASK;
 		}
 
 		/* No spells left */
@@ -2739,16 +2794,16 @@ static bool make_attack_spell(int m_idx)
 	/* Abort if no spell was chosen */
 	if (!thrown_spell) return (FALSE);
 	/* XXX handle this as a bootstrap test XXX */
-	assert((RF_OFFSET<=thrown_spell) && (RF_OFFSET + 32 * RACE_FLAG_ATTACK_STRICT_UB > thrown_spell) && (NULL != magic_attack_list[thrown_spell-RF_OFFSET].m_spell_config));
+	assert((SPELL_ORIGIN<=thrown_spell) && (SPELL_ORIGIN + 32 * RACE_FLAG_SPELL_STRICT_UB > thrown_spell) && (NULL != magic_attack_list[thrown_spell-SPELL_ORIGIN].m_spell_config));
 
 	/* Check for spell failure (innate attacks never fail) */
-	if (thrown_spell >= RF4_OFFSET)
+	if (thrown_spell >= SPELL_ORIGIN + 32)
 	{
 		/* Calculate spell failure rate */
 		int failrate = 25 - (rlev + 3) / 4;
 
 		/* Hack -- Stupid monsters will never fail (for jellies and such) */
-		if (!smart_monsters || r_ptr->flags[1] & RF1_STUPID) failrate = 0;
+		if (!OPTION(adult_smart_monsters) || r_ptr->flags[1] & RF1_STUPID) failrate = 0;
 
 		if ((0 >= failrate) || (rand_int(100) < failrate))
 		{
@@ -2759,50 +2814,50 @@ static bool make_attack_spell(int m_idx)
 
 	/* Cast the spell. */
 	disturb(1, 0);
-	if (magic_attack_list[thrown_spell-RF_OFFSET].sound_idx) sound(magic_attack_list[thrown_spell-RF_OFFSET].sound_idx);
+	if (magic_attack_list[thrown_spell-SPELL_ORIGIN].sound_idx) sound(magic_attack_list[thrown_spell-SPELL_ORIGIN].sound_idx);
 	if (blind)
 	{
-		if (NULL!=magic_attack_list[thrown_spell-RF_OFFSET].blind_msg)
+		if (NULL!=magic_attack_list[thrown_spell-SPELL_ORIGIN].blind_msg)
 		{
-			if (strstr(magic_attack_list[thrown_spell-RF_OFFSET].blind_msg, "%^s "))
+			if (strstr(magic_attack_list[thrown_spell-SPELL_ORIGIN].blind_msg, "%^s "))
 			{
-				msg_format(magic_attack_list[thrown_spell-RF_OFFSET].blind_msg, m_name);
+				msg_format(magic_attack_list[thrown_spell-SPELL_ORIGIN].blind_msg, m_name);
 			}
 			else
 			{
-				msg_print(magic_attack_list[thrown_spell-RF_OFFSET].blind_msg);
+				msg_print(magic_attack_list[thrown_spell-SPELL_ORIGIN].blind_msg);
 			}
 		}
 	}
 	else if (!seen)
 	{
-		if (NULL!=magic_attack_list[thrown_spell-RF_OFFSET].unseen_msg)
+		if (NULL!=magic_attack_list[thrown_spell-SPELL_ORIGIN].unseen_msg)
 		{
-			if (strstr(magic_attack_list[thrown_spell-RF_OFFSET].unseen_msg, "%^s "))
+			if (strstr(magic_attack_list[thrown_spell-SPELL_ORIGIN].unseen_msg, "%^s "))
 			{
-				msg_format(magic_attack_list[thrown_spell-RF_OFFSET].unseen_msg, m_name);
+				msg_format(magic_attack_list[thrown_spell-SPELL_ORIGIN].unseen_msg, m_name);
 			}
 			else
 			{
-				msg_print(magic_attack_list[thrown_spell-RF_OFFSET].unseen_msg);
+				msg_print(magic_attack_list[thrown_spell-SPELL_ORIGIN].unseen_msg);
 			}
 		}
 	}
 	else
 	{
-		if (NULL!=magic_attack_list[thrown_spell-RF_OFFSET].seen_msg)
+		if (NULL!=magic_attack_list[thrown_spell-SPELL_ORIGIN].seen_msg)
 		{
-			if (strstr(magic_attack_list[thrown_spell-RF_OFFSET].seen_msg, "%^s "))
+			if (strstr(magic_attack_list[thrown_spell-SPELL_ORIGIN].seen_msg, "%^s "))
 			{
-				msg_format(magic_attack_list[thrown_spell-RF_OFFSET].seen_msg, m_name);
+				msg_format(magic_attack_list[thrown_spell-SPELL_ORIGIN].seen_msg, m_name);
 			}
 			else
 			{
-				msg_print(magic_attack_list[thrown_spell-RF_OFFSET].blind_msg);
+				msg_print(magic_attack_list[thrown_spell-SPELL_ORIGIN].blind_msg);
 			}
 		}
 	};
-	(magic_attack_list[thrown_spell-RF_OFFSET].m_spell_config)(m_idx);
+	(magic_attack_list[thrown_spell-SPELL_ORIGIN].m_spell_config)(m_idx);
 
 
 	/* Remember what the monster did to us */
@@ -2810,7 +2865,7 @@ static bool make_attack_spell(int m_idx)
 	{
 		SET_FLAG(l_ptr->flags, thrown_spell);
 		/* Innate spell */
-		if (thrown_spell < 32*4)
+		if (thrown_spell < SPELL_ORIGIN+32)
 		{
 			if (l_ptr->cast_innate < UCHAR_MAX) l_ptr->cast_innate++;
 		}
@@ -2824,7 +2879,7 @@ static bool make_attack_spell(int m_idx)
 
 
 	/* Always take note of monsters that kill you */
-	if (p_ptr->is_dead && (l_ptr->deaths < MAX_SHORT)) l_ptr->deaths++;
+	if (p_ptr->is_dead && (l_ptr->deaths < MAX_S16B)) l_ptr->deaths++;
 
 
 	/* A spell was cast */
@@ -2847,6 +2902,191 @@ static void mon_attack_power(coord g,int& dam_min, int& dam_median, int& dam_max
 }
 #endif
 
+/*
+ * Visibility estimator.  Ignores detection spells.
+ * Weird mind monsters are presumed to brazenly assume indetectability.
+ * Synchronize against: update_mon
+ */
+static bool player_would_see_monster(const m_idx_type m_idx,coord p_loc, coord m_loc)
+{
+	monster_type *m_ptr = &mon_list[m_idx];
+	monster_race *r_ptr = m_ptr->race();
+
+	/* Compute distance */
+	int	d = distance(p_loc.y,p_loc.x,m_loc.y,m_loc.x);
+
+	/* Restrict distance */
+	if (d > 255) d = 255;
+
+	/* Nearby */
+	if (d <= MAX_SIGHT)
+	{
+		/* Basic telepathy */
+		if (p_ptr->telepathy)
+		{
+			/* Normal mind, allow telepathy */
+			if (!(r_ptr->flags[1] & (RF1_EMPTY_MIND | RF1_WEIRD_MIND))) return TRUE;
+		}
+
+		/* Normal line of sight, and not blind */
+		if (los(p_loc,m_loc) && !p_ptr->timed[TMD_BLIND])
+		{
+			/* Use "infravision" */
+			if (d <= p_ptr->see_infra)
+			{
+				if (!(r_ptr->flags[1] & RF1_COLD_BLOOD)) return TRUE;
+			}
+
+			else if ((d <= p_ptr->cur_lite) || (cave_info[m_loc.y][m_loc.x] & CAVE_GLOW)) return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+static bool square_momentarily_unseen_by_player(const m_idx_type m_idx,coord m_loc,coord p_loc,int player_moves)
+{
+	if (player_would_see_monster(m_idx,p_loc,m_loc)) return FALSE;
+	if (0<player_moves)
+	{
+		int i = 0;
+		do	{	/* not that efficient at 2<=player_moves, and could be rewritten in terms of flow.c */
+			coord test(p_loc);
+			test += dd_coord_ddd[i];
+			if (!in_bounds_fully(test.y,test.x)) continue;	/* irrational caution */
+			if (!cave_empty_bold(test.y,test.x)) continue;
+			if (!square_momentarily_unseen_by_player(m_idx,m_loc,test,player_moves-1)) return FALSE;
+			}
+		while(KEYPAD_DIR_MAX > ++i);
+	};
+	return TRUE;
+}
+
+static bool player_could_attack_monster(coord p_loc, coord m_loc)
+{
+	if (0 < p_ptr->timed[TMD_PARALYZED]) return FALSE;	/* paralyzed is no attack */
+	if (100 <= p_ptr->timed[TMD_STUN]) return FALSE;	/* knocked out is no attack */
+
+	const int d = distance(p_loc.y,p_loc.x,m_loc.y,m_loc.x);	/* Compute distance */
+	if (1>=d) return TRUE;										/* melee is attackable */
+
+	/* otherwise, walls provide complete immunity even to LOS spells */
+	if (cave_info[m_loc.y][m_loc.x] & (CAVE_WALL)) return FALSE;
+
+	/* XXX if player has an LoS effect, should count as attack-capable; might need cheat-AI XXX */
+	/* XXX if player has a ball effect, should count as attack-capable; might need cheat-AI XXX */
+	/* XXX if player has reasonable throwing weapons, should count as attack-capable; might need cheat-AI XXX */
+
+	/* simple check for missile launcher; synchronize against do_cmd_fire */
+	if (p_ptr->inventory[INVEN_BOW].obj_id.tval && d>=(10 + 5*p_ptr->ammo_mult) && projectable(p_loc,m_loc)) return TRUE;	
+
+	/* no attacks */
+	return FALSE;
+}
+
+/*
+ *
+ */
+static bool square_momentarily_safe_from_player(coord m_loc,coord p_loc,int player_moves)
+{
+	if (player_could_attack_monster(p_loc,m_loc)) return FALSE;
+	if (0<player_moves)
+	{
+		int i = 0;
+		do	{	/* not that efficient at 2<=player_moves, and could be rewritten in terms of flow.c */
+			coord test(p_loc);
+			test += dd_coord_ddd[i];
+			if (!in_bounds_fully(test.y,test.x)) continue;	/* irrational caution */
+			if (!cave_empty_bold(test.y,test.x)) continue;
+			if (!square_momentarily_safe_from_player(m_loc,test,player_moves-1)) return FALSE;
+			}
+		while(KEYPAD_DIR_MAX > ++i);
+	};
+	return TRUE;
+}
+
+#if 0
+/*
+ *  Returns whether a given monster is useless.  Here to make it easy to synchronize against mon_will_run.
+ */
+bool
+monster_type::mon_is_useless(void)
+{
+	monster_race* const r_ptr = race();
+
+	/*! \bug anything that can kill the player in one attack is useful (alternately, terrifying melee attack) */
+	/*! \bug anything that can swamp the player is useful */
+
+	/* generically wants to close */
+	{	/* C-ish blocking brace */
+	u16b p_lev = p_ptr->lev;							/* Examine player power (level) */
+	u16b m_lev = r_ptr->level + 8 + 25;	/* Examine monster power (level plus morale) */
+
+	/* Optimize extreme cases below */
+	if (m_lev > p_lev + 4) return (FALSE);
+	if (m_lev + 4 <= p_lev) return (TRUE);
+
+	{	/* C-ish blocking brace */
+	/* Examine player health */
+//	u16b p_chp = p_ptr->chp;
+	u16b p_mhp = p_ptr->mhp;
+
+	/* Examine monster health */
+//	u16b m_chp = chp;
+	u32b m_mhp = mhp;
+
+	/* Prepare to optimize the calculation */
+//	u16b p_val = (p_lev * p_mhp) + (p_chp << 2);	/* div p_mhp */
+//	u32b m_val = (m_lev * m_mhp) + (m_chp << 2);	/* div m_mhp */
+	u16b p_val = (p_lev * p_mhp) + (p_mhp << 2);	/* div p_mhp */
+	u32b m_val = (m_lev * m_mhp) + (m_mhp << 2);	/* div m_mhp */
+
+	/* Strong players scare strong monsters */
+	if (p_val * m_mhp <= m_val * p_mhp) return (TRUE);
+	}	/* end blocking brace */
+	}	/* end blocking brace */
+	return FALSE;
+}
+
+/*
+ *  Returns whether a given monster race is useless.  Here to make it easy to synchronize against mon_will_run.
+ */
+bool
+monster_race::race_is_useless(void)
+{
+	/*! \bug anything that can kill the player in one attack is useful (alternately, terrifying melee attack) */
+	/*! \bug anything that can swamp the player is useful */
+
+	/* generically wants to close */
+	{	/* C-ish blocking brace */
+	u16b p_lev = p_ptr->lev;							/* Examine player power (level) */
+	u16b m_lev = level + 8 + 25;	/* Examine monster power (level plus morale) */
+
+	/* Optimize extreme cases below */
+	if (m_lev > p_lev + 4) return (FALSE);
+	if (m_lev + 4 <= p_lev) return (TRUE);
+
+	{	/* C-ish blocking brace */
+	/* Examine player health */
+//	u16b p_chp = p_ptr->chp;
+	u16b p_mhp = p_ptr->mhp;
+
+	/* Examine monster health */
+//	u16b m_chp = chp;
+	u32b m_mhp = h.maxroll();
+
+	/* Prepare to optimize the calculation */
+//	u16b p_val = (p_lev * p_mhp) + (p_chp << 2);	/* div p_mhp */
+//	u32b m_val = (m_lev * m_mhp) + (m_chp << 2);	/* div m_mhp */
+	u16b p_val = (p_lev * p_mhp) + (p_mhp << 2);	/* div p_mhp */
+	u32b m_val = (m_lev * m_mhp) + (m_mhp << 2);	/* div m_mhp */
+
+	/* Strong players scare strong monsters */
+	if (p_val * m_mhp <= m_val * p_mhp) return (TRUE);
+	}	/* end blocking brace */
+	}	/* end blocking brace */
+	return FALSE;
+}
+#endif
 
 /*
  * Returns whether a given monster will try to run from the player.
@@ -2861,16 +3101,25 @@ static void mon_attack_power(coord g,int& dam_min, int& dam_median, int& dam_max
  * Note that this function is responsible for about one to five percent
  * of the processor use in normal conditions...
  */
-static int mon_will_run(int m_idx)
+static bool mon_will_run(const m_idx_type m_idx)
 {
-	monster_type *m_ptr = &mon_list[m_idx];
-	monster_race *r_ptr = m_ptr->race();
+	monster_type* const m_ptr = &mon_list[m_idx];
+	monster_race* const r_ptr = m_ptr->race();
 
 	/* Keep monsters from running too far away */
 	if (m_ptr->cdis > MAX_SIGHT + 5) return (FALSE);
 
 	/* All "afraid" monsters will run away */
 	if (m_ptr->monfear) return (TRUE);
+
+	/* KBB: do not run if the player can't attack you anyway */
+	/* assumes player gets 1 move; not so good against fast players */
+	{
+	int mon_moves;
+	int player_moves;
+	m_ptr->move_ratio(player_moves, mon_moves, *p_ptr, 0, 1);	/* pessimize */
+	if (square_momentarily_safe_from_player(m_ptr->loc,p_ptr->loc,player_moves)) return FALSE;
+	}
 
 #if 0
 	{
@@ -2889,13 +3138,13 @@ static int mon_will_run(int m_idx)
 	}
 #else
 	if (1 == m_ptr->cdis)
-	{	/* check for melee instakill chance; do not run if we have it */
+	{	/* KBB: check for melee instakill chance; do not run if we have it */
 		int m_min, m_median, m_max;
 		m_ptr->melee_analyze(m_min,m_median,m_max,p_ptr->loc);
 		if (m_max > p_ptr->apparent_health()) return FALSE;
 	}
 
-	/* do not run if the player is swamped */
+	/* KBB: do not run if the player is swamped */
 	{
 	long total_min = 0;
 	long total_median = 0;
@@ -2979,8 +3228,7 @@ static bool nodoor_move_legal(coord g)
 	if (!cave_floor_bold(g.y, g.x)) return FALSE;
 
 	/* can't handle doors */
-	if (((cave_feat[g.y][g.x] >= FEAT_DOOR_HEAD) &&
-	     (cave_feat[g.y][g.x] <= FEAT_DOOR_TAIL)) ||
+	if (cave_feat_in_range(g.y,g.x,FEAT_DOOR_HEAD,FEAT_DOOR_TAIL) ||
 	     (cave_feat[g.y][g.x] == FEAT_SECRET))
 		return FALSE;
 
@@ -3006,17 +3254,18 @@ static bool wallpasser_move_legal(coord g)
 	return TRUE;
 }
 
-static int find_target_dir(int m_idx,coord g)
+static int find_target_dir(const m_idx_type m_idx,coord g)
 {
-	monster_type* m_ptr = &mon_list[m_idx];
-	monster_race* r_ptr = m_ptr->race();
+	monster_type* const m_ptr = &mon_list[m_idx];
+	monster_race* const r_ptr = m_ptr->race();
 
 	/* Monster never moves */
 	if (r_ptr->flags[0] & RF0_NEVER_MOVE) return 0;
 
 	{	/* C-style blocking brace */
-	int dir_stack[8];
-	int dis_stack[8];
+	int dir_stack[KEYPAD_DIR_MAX];
+	int dis_stack[KEYPAD_DIR_MAX];
+	bool bool_stack[KEYPAD_DIR_MAX];
 	size_t dir_stack_UB = 0;
 	size_t i;
 
@@ -3036,8 +3285,7 @@ static int find_target_dir(int m_idx,coord g)
 			{
 				if (!(r_ptr->flags[1] & RF1_KILL_BODY)) continue;	/* oops */
 				{	/* C-ish blocking brace */
-				monster_type *n_ptr = &mon_list[cave_m_idx[n.y][n.x]];
-				if (compare_monsters(m_ptr, n_ptr) <= 0) continue;	/* no-go */				
+				if (compare_monsters(m_ptr, m_ptr_from_m_idx(cave_m_idx[n.y][n.x])) <= 0) continue;	/* no-go */				
 				}	/* end blocking brace */
 			}
 			dir_stack[dir_stack_UB++] = i;
@@ -3048,29 +3296,92 @@ static int find_target_dir(int m_idx,coord g)
 	if (0 == dir_stack_UB) return 0;
 	if (1 == dir_stack_UB) return ddd[dir_stack[0]];
 
-	/* maximize distance from player when closing in */
-	i = dir_stack_UB;
-	do	{
-		--i;
-		dis_stack[i] = distance(m_ptr->loc.y+ddy[dir_stack[i]],m_ptr->loc.x+ddx[dir_stack[i]],p_ptr->loc.y,p_ptr->loc.x);
-		while(i+1<dir_stack_UB && dis_stack[i]!=dis_stack[i+1])
-		{
-			if (dis_stack[i]<dis_stack[i+1])
+	/* stupid monsters do not move at all intelligently */
+	if (!(r_ptr->flags[1] & RF1_STUPID))
+	{
+		/* cover: deny player attacks */
+		i = dir_stack_UB;
+		do	{
+			--i;
+			bool_stack[i] = player_could_attack_monster(p_ptr->loc,m_ptr->loc+dd_coord_ddd[i]);
+			while(i+1<dir_stack_UB && bool_stack[i]!=bool_stack[i+1])
 			{
-				memmove(dis_stack+i,dis_stack+i+1,(dir_stack_UB-(i+1))*sizeof(int));
-				memmove(dir_stack+i,dir_stack+i+1,(dir_stack_UB-(i+1))*sizeof(int));
+				if (!bool_stack[i])
+					dir_stack_UB = i+1;
+				else
+				{
+					if (i+2<dir_stack_UB)
+					{
+						memmove(bool_stack+i,bool_stack+i+1,(dir_stack_UB-(i+2))*sizeof(bool));
+						memmove(dir_stack+i,dir_stack+i+1,(dir_stack_UB-(i+2))*sizeof(int));
+					}
+					--dir_stack_UB;
+				}
 			}
-			else if (i+2<dir_stack_UB)
-			{
-				memmove(dis_stack+i+1,dis_stack+i+2,(dir_stack_UB-(i+2))*sizeof(int));
-				memmove(dir_stack+i+1,dir_stack+i+2,(dir_stack_UB-(i+2))*sizeof(int));
 			}
-			--dir_stack_UB;
-		}
-		}
-	while(0<i);
+		while(0<i);
+		if (1 == dir_stack_UB) return ddd[dir_stack[0]];
 
-	if (1 == dir_stack_UB) return ddd[dir_stack[0]];
+		/* concealment: deny player visibility */
+		i = dir_stack_UB;
+		do	{
+			--i;
+			bool_stack[i] = player_would_see_monster(m_idx,p_ptr->loc,m_ptr->loc+dd_coord_ddd[i]);
+			while(i+1<dir_stack_UB && bool_stack[i]!=bool_stack[i+1])
+			{
+				if (!bool_stack[i])
+					dir_stack_UB = i+1;
+				else
+				{
+					if (i+2<dir_stack_UB)
+					{
+						memmove(bool_stack+i,bool_stack+i+1,(dir_stack_UB-(i+2))*sizeof(bool));
+						memmove(dir_stack+i,dir_stack+i+1,(dir_stack_UB-(i+2))*sizeof(int));
+					}
+					--dir_stack_UB;
+				}
+			}
+			}
+		while(0<i);	
+		if (1 == dir_stack_UB) return ddd[dir_stack[0]];
+
+		/* maximize distance from player when closing in */
+		i = dir_stack_UB;
+		do	{
+			--i;
+			dis_stack[i] = distance(m_ptr->loc.y+ddy[dir_stack[i]],m_ptr->loc.x+ddx[dir_stack[i]],p_ptr->loc.y,p_ptr->loc.x);
+			while(i+1<dir_stack_UB && dis_stack[i]!=dis_stack[i+1])
+			{
+				if (dis_stack[i]>dis_stack[i+1])
+					dir_stack_UB = i+1;
+				else
+				{
+					if (i+2<dir_stack_UB)
+					{
+						memmove(dis_stack+i,dis_stack+i+1,(dir_stack_UB-(i+2))*sizeof(int));
+						memmove(dir_stack+i,dir_stack+i+1,(dir_stack_UB-(i+2))*sizeof(int));
+					}
+					--dir_stack_UB;
+				}
+			}
+			}
+		while(0<i);
+		if (1 == dir_stack_UB) return ddd[dir_stack[0]];
+
+		/* final tie-breaker: prefer orthogonal directions (diagonals are 150 energy cost in Zaiband) */
+		/* relying on above being order-preserving to work */
+		if (KEYPAD_CARDINAL_DIR_MAX<=dir_stack[dir_stack_UB-1])
+		{
+			i = dir_stack_UB-1;
+			do 	if (KEYPAD_CARDINAL_DIR_MAX>dir_stack[--i])
+					{
+					dir_stack_UB = i+1;
+					break;
+					}
+			while(0<i);
+		}
+	}
+
 	return ddd[dir_stack[rand_int(dir_stack_UB)]];
 	}	/* end blocking brace */
 }
@@ -3097,14 +3408,14 @@ static int find_target_dir(int m_idx,coord g)
  * being close enough to chase directly.  I have no idea what will
  * happen if you combine "smell" with low "aaf" values.
  */
-static int get_move_dir_aux(int m_idx)
+static int get_move_dir_aux(const m_idx_type m_idx)
 {
 	/* Monster flowing disabled */
-	if (!flow_by_sound) return 0;
+	if (!OPTION(adult_flow_by_sound)) return 0;
 
 	{	/* C-style blocking braces */
-	monster_type *m_ptr = &mon_list[m_idx];
-	monster_race *r_ptr = m_ptr->race();
+	monster_type* const m_ptr = &mon_list[m_idx];
+	monster_race* const r_ptr = m_ptr->race();
 	
 	int i;
 	int best_i = 0;
@@ -3128,7 +3439,7 @@ static int get_move_dir_aux(int m_idx)
 		if (cave_when[m_ptr->loc.y][m_ptr->loc.x] == 0) return 0;
 
 		/* The monster is not allowed to track the player */
-		if (!flow_by_smell) return 0;
+		if (!OPTION(adult_flow_by_smell)) return 0;
 	}
 
 	/* Monster is too far away to notice the player */
@@ -3173,7 +3484,7 @@ static bool player_no_los(coord g)
 	return !player_has_los_bold(g.y,g.x);
 }
 
-static int find_safety_dir(int m_idx)
+static int find_safety_dir(const m_idx_type m_idx)
 {
 	monster_type* m_ptr = &mon_list[m_idx];
 	monster_race* r_ptr = m_ptr->race();
@@ -3182,8 +3493,9 @@ static int find_safety_dir(int m_idx)
 	if (r_ptr->flags[0] & RF0_NEVER_MOVE) return 0;
 
 	{	/* C-style blocking brace */
-	int dir_stack[8];
-	int dis_stack[8];
+	int dir_stack[KEYPAD_DIR_MAX];
+	int dis_stack[KEYPAD_DIR_MAX];
+	bool bool_stack[KEYPAD_DIR_MAX];
 	size_t dir_stack_UB = 0;
 	size_t i;
 
@@ -3203,8 +3515,7 @@ static int find_safety_dir(int m_idx)
 			{
 				if (!(r_ptr->flags[1] & RF1_KILL_BODY)) continue;	/* oops */
 				{	/* C-ish blocking brace */
-				monster_type *n_ptr = &mon_list[cave_m_idx[n.y][n.x]];
-				if (compare_monsters(m_ptr, n_ptr) <= 0) continue;	/* no-go */				
+				if (compare_monsters(m_ptr, m_ptr_from_m_idx(cave_m_idx[n.y][n.x])) <= 0) continue;	/* no-go */				
 				}	/* end blocking brace */
 			}
 			dir_stack[dir_stack_UB++] = i;
@@ -3222,37 +3533,100 @@ static int find_safety_dir(int m_idx)
 		dis_stack[i] = distance(m_ptr->loc.y+ddy[dir_stack[i]],m_ptr->loc.x+ddx[dir_stack[i]],p_ptr->loc.y,p_ptr->loc.x);
 		while(i+1<dir_stack_UB && dis_stack[i]!=dis_stack[i+1])
 		{
-			if (dis_stack[i]<dis_stack[i+1])
+			if (dis_stack[i]>dis_stack[i+1])
+				dir_stack_UB = i+1;
+			else
 			{
-				memmove(dis_stack+i,dis_stack+i+1,(dir_stack_UB-(i+1))*sizeof(int));
-				memmove(dir_stack+i,dir_stack+i+1,(dir_stack_UB-(i+1))*sizeof(int));
+				if (i+2<dir_stack_UB)
+				{
+					memmove(dis_stack+i,dis_stack+i+1,(dir_stack_UB-(i+2))*sizeof(int));
+					memmove(dir_stack+i,dir_stack+i+1,(dir_stack_UB-(i+2))*sizeof(int));
+				}
+				--dir_stack_UB;
 			}
-			else if (i+2<dir_stack_UB)
-			{
-				memmove(dis_stack+i+1,dis_stack+i+2,(dir_stack_UB-(i+2))*sizeof(int));
-				memmove(dir_stack+i+1,dir_stack+i+2,(dir_stack_UB-(i+2))*sizeof(int));
-			}
-			--dir_stack_UB;
 		}
 		}
 	while(0<i);
-
 	if (1 == dir_stack_UB) return ddd[dir_stack[0]];
+
+	/* stupid monsters do not move at all intelligently */
+	if (!(r_ptr->flags[1] & RF1_STUPID))
+	{
+		/* cover: deny player attacks */
+		i = dir_stack_UB;
+		do	{
+			--i;
+			bool_stack[i] = player_could_attack_monster(p_ptr->loc,m_ptr->loc+dd_coord_ddd[i]);
+			while(i+1<dir_stack_UB && bool_stack[i]!=bool_stack[i+1])
+			{
+				if (!bool_stack[i])
+					dir_stack_UB = i+1;
+				else
+				{
+					if (i+2<dir_stack_UB)
+					{
+						memmove(bool_stack+i,bool_stack+i+1,(dir_stack_UB-(i+2))*sizeof(bool));
+						memmove(dir_stack+i,dir_stack+i+1,(dir_stack_UB-(i+2))*sizeof(int));
+					}
+					--dir_stack_UB;
+				}
+			}
+			}
+		while(0<i);
+		if (1 == dir_stack_UB) return ddd[dir_stack[0]];
+
+		/* concealment: deny player visibility */
+		i = dir_stack_UB;
+		do	{
+			--i;
+			bool_stack[i] = player_would_see_monster(m_idx,p_ptr->loc,m_ptr->loc+dd_coord_ddd[i]);
+			while(i+1<dir_stack_UB && bool_stack[i]!=bool_stack[i+1])
+			{
+				if (!bool_stack[i])
+					dir_stack_UB = i+1;
+				else
+				{
+					if (i+2<dir_stack_UB)
+					{
+						memmove(bool_stack+i,bool_stack+i+1,(dir_stack_UB-(i+2))*sizeof(bool));
+						memmove(dir_stack+i,dir_stack+i+1,(dir_stack_UB-(i+2))*sizeof(int));
+					}
+					--dir_stack_UB;
+				}
+			}
+			}
+		while(0<i);	
+		if (1 == dir_stack_UB) return ddd[dir_stack[0]];
+
+		/* final tie-breaker: prefer orthogonal directions (diagonals are 150 energy cost in Zaiband) */
+		/* relying on above being order-preserving to work */
+		if (KEYPAD_CARDINAL_DIR_MAX<=dir_stack[dir_stack_UB-1])
+		{
+			i = dir_stack_UB-1;
+			do 	if (KEYPAD_CARDINAL_DIR_MAX>dir_stack[--i])
+					{
+					dir_stack_UB = i+1;
+					break;
+					}
+			while(0<i);
+		}
+	}
 	return ddd[dir_stack[rand_int(dir_stack_UB)]];
 	}	/* end blocking brace */
 }
 
-static int find_hiding_dir(int m_idx)
+static int find_hiding_dir(const m_idx_type m_idx)
 {
-	monster_type* m_ptr = &mon_list[m_idx];
-	monster_race* r_ptr = m_ptr->race();
+	monster_type* const m_ptr = &mon_list[m_idx];
+	monster_race* const r_ptr = m_ptr->race();
 
 	/* Monster never moves */
 	if (r_ptr->flags[0] & RF0_NEVER_MOVE) return 0;
 
 	{	/* C-style blocking brace */
-	int dir_stack[8];
-	int dis_stack[8];
+	int dir_stack[KEYPAD_DIR_MAX];
+	int dis_stack[KEYPAD_DIR_MAX];
+	bool bool_stack[KEYPAD_DIR_MAX];
 	size_t dir_stack_UB = 0;
 	size_t i;
 
@@ -3272,8 +3646,7 @@ static int find_hiding_dir(int m_idx)
 			{
 				if (!(r_ptr->flags[1] & RF1_KILL_BODY)) continue;	/* oops */
 				{	/* C-ish blocking brace */
-				monster_type *n_ptr = &mon_list[cave_m_idx[n.y][n.x]];
-				if (compare_monsters(m_ptr, n_ptr) <= 0) continue;	/* no-go */				
+				if (compare_monsters(m_ptr, m_ptr_from_m_idx(cave_m_idx[n.y][n.x])) <= 0) continue;	/* no-go */				
 				}	/* end blocking brace */
 			}
 			dir_stack[dir_stack_UB++] = i;
@@ -3291,22 +3664,85 @@ static int find_hiding_dir(int m_idx)
 		dis_stack[i] = distance(m_ptr->loc.y+ddy[dir_stack[i]],m_ptr->loc.x+ddx[dir_stack[i]],p_ptr->loc.y,p_ptr->loc.x);
 		while(i+1<dir_stack_UB && dis_stack[i]!=dis_stack[i+1])
 		{
-			if (dis_stack[i]>dis_stack[i+1])
+			if (dis_stack[i]<dis_stack[i+1])
+				dir_stack_UB = i+1;
+			else
 			{
-				memmove(dis_stack+i,dis_stack+i+1,(dir_stack_UB-(i+1))*sizeof(int));
-				memmove(dir_stack+i,dir_stack+i+1,(dir_stack_UB-(i+1))*sizeof(int));
+				if (i+2<dir_stack_UB)
+				{
+					memmove(dis_stack+i,dis_stack+i+1,(dir_stack_UB-(i+2))*sizeof(int));
+					memmove(dir_stack+i,dir_stack+i+1,(dir_stack_UB-(i+2))*sizeof(int));
+				}
+				--dir_stack_UB;
 			}
-			else if (i+2<dir_stack_UB)
-			{
-				memmove(dis_stack+i+1,dis_stack+i+2,(dir_stack_UB-(i+2))*sizeof(int));
-				memmove(dir_stack+i+1,dir_stack+i+2,(dir_stack_UB-(i+2))*sizeof(int));
-			}
-			--dir_stack_UB;
 		}
 		}
 	while(0<i);
-
 	if (1 == dir_stack_UB) return ddd[dir_stack[0]];
+
+	/* stupid monsters do not move at all intelligently */
+	if (!(r_ptr->flags[1] & RF1_STUPID))
+	{
+		/* cover: deny player attacks */
+		i = dir_stack_UB;
+		do	{
+			--i;
+			bool_stack[i] = player_could_attack_monster(p_ptr->loc,m_ptr->loc+dd_coord_ddd[i]);
+			while(i+1<dir_stack_UB && bool_stack[i]!=bool_stack[i+1])
+			{
+				if (!bool_stack[i])
+					dir_stack_UB = i+1;
+				else
+				{
+					if (i+2<dir_stack_UB)
+					{
+						memmove(bool_stack+i,bool_stack+i+1,(dir_stack_UB-(i+2))*sizeof(bool));
+						memmove(dir_stack+i,dir_stack+i+1,(dir_stack_UB-(i+2))*sizeof(int));
+					}
+					--dir_stack_UB;
+				}
+			}
+			}
+		while(0<i);
+		if (1 == dir_stack_UB) return ddd[dir_stack[0]];
+
+		/* concealment: deny player visibility */
+		i = dir_stack_UB;
+		do	{
+			--i;
+			bool_stack[i] = player_would_see_monster(m_idx,p_ptr->loc,m_ptr->loc+dd_coord_ddd[i]);
+			while(i+1<dir_stack_UB && bool_stack[i]!=bool_stack[i+1])
+			{
+				if (!bool_stack[i])
+					dir_stack_UB = i+1;
+				else
+				{
+					if (i+2<dir_stack_UB)
+					{
+						memmove(bool_stack+i,bool_stack+i+1,(dir_stack_UB-(i+2))*sizeof(bool));
+						memmove(dir_stack+i,dir_stack+i+1,(dir_stack_UB-(i+2))*sizeof(int));
+					}
+					--dir_stack_UB;
+				}
+			}
+			}
+		while(0<i);	
+		if (1 == dir_stack_UB) return ddd[dir_stack[0]];
+
+		/* final tie-breaker: prefer orthogonal directions (diagonals are 150 energy cost in Zaiband) */
+		/* relying on above being order-preserving to work */
+		if (KEYPAD_CARDINAL_DIR_MAX<=dir_stack[dir_stack_UB-1])
+		{
+			i = dir_stack_UB-1;
+			do 	if (KEYPAD_CARDINAL_DIR_MAX>dir_stack[--i])
+					{
+					dir_stack_UB = i+1;
+					break;
+					}
+			while(0<i);
+		}
+	}
+
 	return ddd[dir_stack[rand_int(dir_stack_UB)]];
 	}	/* end blocking brace */
 }
@@ -3457,8 +3893,7 @@ static bool check_for_glyph(coord g)
 
 static bool check_for_door(coord g)
 {
-	return ((cave_feat[g.y][g.x] >= FEAT_DOOR_HEAD) &&
-		          (cave_feat[g.y][g.x] <= FEAT_DOOR_TAIL)) ||
+	return cave_feat_in_range(g.y,g.x,FEAT_DOOR_HEAD,FEAT_DOOR_TAIL) ||
 		         (cave_feat[g.y][g.x] == FEAT_SECRET);
 }
 
@@ -3467,13 +3902,13 @@ static bool check_for_door(coord g)
  *
  * We store the directions in a special "mm" array
  */
-static bool get_moves(int m_idx, int mm[5])
+static bool get_moves(const m_idx_type m_idx, int mm[5])
 {
 	int py = p_ptr->loc.y;
 	int px = p_ptr->loc.x;
 
-	monster_type *m_ptr = &mon_list[m_idx];
-	monster_race *r_ptr = m_ptr->race();
+	monster_type* const m_ptr = &mon_list[m_idx];
+	monster_race* const r_ptr = m_ptr->race();
 
 	bool done = FALSE;
 
@@ -3492,9 +3927,10 @@ static bool get_moves(int m_idx, int mm[5])
 		}
 	}
 
+
 	/* Normal animal packs try to get the player out of corridors. */
 	/* KBB: also count arbitrary floor grids (AI problem reported in some variant) */
-	if (smart_packs &&
+	if (OPTION(adult_smart_packs) &&
 	    (r_ptr->flags[0] & RF0_FRIENDS) && (r_ptr->flags[2] & RF2_ANIMAL) &&
 	    !((r_ptr->flags[1] & (RF1_PASS_WALL | RF1_KILL_WALL))))
 	{
@@ -3503,9 +3939,11 @@ static bool get_moves(int m_idx, int mm[5])
 		/* Count room grids next to player */
 		for (i = 0; i < 8; i++)
 		{
+			coord test(p_ptr->loc);
+			test += dd_coord_ddd[i];
 			/* Check for room grid */
-			if (cave_info[py + ddy_ddd[i]][px + ddx_ddd[i]] & (CAVE_ROOM)) ++room;
-			if (cave_floor_bold(py + ddy_ddd[i], px + ddx_ddd[i])) ++floor_count;
+			if (cave_info[test.y][test.x] & (CAVE_ROOM)) ++room;
+			if (cave_floor_bold(test.y, test.x)) ++floor_count;
 		}
 
 		/* Not in a room and strong player */
@@ -3525,7 +3963,7 @@ static bool get_moves(int m_idx, int mm[5])
 	if (!done && mon_will_run(m_idx))
 	{
 		/* Try to find safe place */
-		int flee_dir = (smart_monsters) ? find_safety_dir(m_idx) : 0;
+		int flee_dir = (OPTION(adult_smart_monsters)) ? find_safety_dir(m_idx) : 0;
 		if (flee_dir)
 		{
 			flow_dir = flee_dir;
@@ -3539,7 +3977,7 @@ static bool get_moves(int m_idx, int mm[5])
 	}
 
 	/* Monster groups try to surround the player */
-	if (!done && smart_packs && (r_ptr->flags[0] & RF0_FRIENDS))
+	if (!done && OPTION(adult_smart_packs) && (r_ptr->flags[0] & RF0_FRIENDS))
 	{
 		/* 
 		 * Zaiband: if monster #1 is 1-away from player, and there is 
@@ -3563,9 +4001,10 @@ static bool get_moves(int m_idx, int mm[5])
 				if (0 > cave_m_idx[tmp.y][tmp.x]) continue;	/* player here */
 				else if (0 < cave_m_idx[tmp.y][tmp.x])
 				{	/** \bug only monsters that this monster doesn't have a double-move on should count */
-					if (	2==mon_list[cave_m_idx[tmp.y][tmp.x]].cdis
+					const monster_type* const n_ptr = m_ptr_from_m_idx(cave_m_idx[tmp.y][tmp.x]);
+					if (	2==n_ptr->cdis
 						/* no-move monsters don't count */
-						&& 	!(mon_list[cave_m_idx[tmp.y][tmp.x]].race()->flags[0] & RF0_NEVER_MOVE))
+						&& 	!(n_ptr->race()->flags[0] & RF0_NEVER_MOVE))
 					{
 						bool has_path = FALSE;
 						int j;
@@ -3575,7 +4014,7 @@ static bool get_moves(int m_idx, int mm[5])
 							tmp2 += dd_coord_ddd[j];
 							if (0 < cave_m_idx[tmp2.y][tmp2.x]) continue;
 							if (1<distance(tmp2.y, tmp2.x, py, px)) continue;
-							if (cave_floor_bold(tmp2.y,tmp2.x) || (mon_list[cave_m_idx[tmp.y][tmp.x]].race()->flags[1] & (RF1_PASS_WALL | RF1_KILL_WALL)))
+							if (cave_floor_bold(tmp2.y,tmp2.x) || (n_ptr->race()->flags[1] & (RF1_PASS_WALL | RF1_KILL_WALL)))
 							{
 								has_path = TRUE;
 								break;
@@ -3646,8 +4085,8 @@ typedef bool selective_destroy_helper(object_type *o_ptr, monster_type *m_ptr);
 
 static bool eat_food_floor_ok(const object_type *o_ptr)
 {
-	if (   o_ptr->tval == TV_FOOD
-		&& o_ptr->sval >= SV_FOOD_CURE_POISON)
+	if (   o_ptr->obj_id.tval == TV_FOOD
+		&& o_ptr->obj_id.sval >= SV_FOOD_CURE_POISON)
 		return (TRUE);
 	return (FALSE);
 }
@@ -3655,18 +4094,12 @@ static bool eat_food_floor_ok(const object_type *o_ptr)
 /* XXX would like template function here XXX */
 static bool non_money_ok(const object_type *o_ptr)
 {
-	return TV_GOLD != o_ptr->tval;
-}
-
-/* XXX would like template function here XXX */
-static bool spoil_food_ok(const object_type *o_ptr)
-{
-	return TV_FOOD == o_ptr->tval;
+	return TV_GOLD != o_ptr->obj_id.tval;
 }
 
 static bool eat_lite_ok(const object_type *o_ptr)
 {
-	if (   o_ptr->tval == TV_LITE
+	if (   o_ptr->obj_id.tval == TV_LITE
 		&& 0<o_ptr->pval
 		&& !o_ptr->is_artifact())
 		return (TRUE);
@@ -3675,11 +4108,11 @@ static bool eat_lite_ok(const object_type *o_ptr)
 
 static bool eat_food_floor_helper(object_type *o_ptr, monster_type *m_ptr)
 {
-	if 		(o_ptr->sval == SV_FOOD_CURE_PARANOIA && m_ptr->monfear)
+	if 		(o_ptr->obj_id.sval == SV_FOOD_CURE_PARANOIA && m_ptr->monfear)
 		{	/* cure fear */
 		m_ptr->monfear = 1;		/* XXX -- don't want to clone code */
 		}
-	else if (o_ptr->sval == SV_FOOD_CURE_CONFUSION && m_ptr->confused)
+	else if (o_ptr->obj_id.sval == SV_FOOD_CURE_CONFUSION && m_ptr->confused)
 		{	/* cure confusion */
 		m_ptr->confused = 1;	/* XXX -- don't want to clone code */
 		}
@@ -3689,7 +4122,7 @@ static bool eat_food_floor_helper(object_type *o_ptr, monster_type *m_ptr)
 static bool take_item_helper(object_type *o_ptr, monster_type *m_ptr)
 {
 	object_type tmp = *o_ptr;
-	(void)monster_carry(m_ptr - mon_list, &tmp);			/* Carry the object */
+	monster_carry(m_ptr - mon_list, &tmp);			/* Carry the object */
 	return TRUE;
 }
 
@@ -3789,15 +4222,12 @@ monster_type::wake_up()
 	/* reality check */
 	assert(0<csleep);
 
-	/* Reset sleep counter */
-	csleep = 0;
-
-	/* Start with no energy */
-	energy = 0;
+	csleep = 0;	/* Reset sleep counter */
+	energy = 0;	/* Start with no energy */
 
 	/* Notice the "waking up" */
 	if (ml)
-		{
+	{
 		char m_name[80];
 
 		/* Get the monster name */
@@ -3866,7 +4296,7 @@ monster_type::disturb(int d)
  * Technically, need to check for monster in the way combined
  * with that monster being in a wall (or door?) XXX
  */
-static void process_monster(int m_idx)
+static void process_monster(const m_idx_type m_idx)
 {
 	monster_type *m_ptr = &mon_list[m_idx];
 	monster_race *r_ptr = m_ptr->race();
@@ -4027,7 +4457,7 @@ NOTE: Vulnerable items must be moved away in initial generation.
 			destroy_items_selectively(cave_o_idx[o.y][o.x], m_ptr,
 									player_has_los_bold(o.y, o.x), NULL,
 									"%^s spoils %s.",
-									spoil_food_ok,NULL);
+									o_ptr_is<TV_FOOD>,NULL);
 			}
 		if (monster_has_attack(r_ptr,RBE_EAT_LITE))
 			{
@@ -4066,6 +4496,31 @@ NOTE: Vulnerable items must be moved away in initial generation.
 			}
 		}
 
+	/* wake up sleeping allies ... */
+	if (!(r_ptr->flags[1] & RF1_STUPID) && los(o,p_ptr->loc))
+	{
+		for (i = mon_max - 1; i >= 1; i--)
+		{
+			/* Get the monster */
+			const monster_type* const n_ptr = &mon_list[i];
+			if (!n_ptr->r_idx) continue;	/* ignore dead monsters */
+			if (!n_ptr->csleep) continue;	/* ally is awake (this catches self) */
+
+			{
+			const int range = distance(o.y, o.x, n_ptr->loc.y, n_ptr->loc.x);
+			if (range>r_ptr->aaf) 			continue;	/* can't notice the ally */
+			if (range>n_ptr->race()->aaf)	continue;	/* ally can't notice me */
+			}
+
+			if (los(o,n_ptr->loc))
+			{	/* see the ally */
+				apply_noise(o,1);	/* XXX do something about intensity later */
+									/* XXX do something about a message later; CZ should bark, others should yell/shout */
+				break;
+			}
+		}
+	}
+
 	/* Process moves */
 	for (i = 0; i < 5; i++)
 	{
@@ -4075,134 +4530,170 @@ NOTE: Vulnerable items must be moved away in initial generation.
 		/* Get the destination */
 		coord n(o + dd_coord[d]);
 
-		/* Permanent wall */
+		/* check legality */
+		if (!(((r_ptr->flags[1] & (RF1_PASS_WALL | RF1_KILL_WALL)) ? wallpasser_move_legal
+									: (r_ptr->flags[1] & (RF1_OPEN_DOOR | RF1_BASH_DOOR)) ? normal_move_legal : nodoor_move_legal)(n))) continue;
+
+		/* Permanent wall (irrational caution) */
 		if (FEAT_PERM_EXTRA <= cave_feat[n.y][n.x]) continue;
 
-		/* Floor is open? */
-		if (cave_floor_bold(n.y, n.x))
+		do_move = TRUE;		/* Assume we can move */
+
+		/* KBB: check whether move is suicidal, if not staggering */
+		/* do not veto attacking the player */
+		if (!stagger && (cave_m_idx[n.y][n.x] >= 0))
 		{
-			/* Go ahead and move */
-			do_move = TRUE;
-		}
+			int mon_moves = 0;
+			int player_moves = 0;
+			m_ptr->move_ratio(player_moves, mon_moves, *p_ptr, 0, 1);	/* pessimize */
 
-		/* Monster moves through walls (and doors) */
-		else if (r_ptr->flags[1] & RF1_PASS_WALL)
-		{
-			/* Pass through walls/doors/rubble */
-			do_move = TRUE;
-
-			/* Monster went through a wall */
-			learn_RF1 |= RF1_PASS_WALL;
-		}
-
-		/* Monster destroys walls (and doors) */
-		else if (r_ptr->flags[1] & RF1_KILL_WALL)
-		{
-			/* Eat through walls/doors/rubble */
-			do_move = TRUE;
-
-			/* Monster destroyed a wall */
-			learn_RF1 |= RF1_KILL_WALL;
-
-			/* Forget the wall */
-			cave_info[n.y][n.x] &= ~(CAVE_MARK);
-
-			/* Notice */
-			cave_set_feat(n.y, n.x, FEAT_FLOOR);
-
-			/* Note changes to viewable region */
-			if (player_has_los_bold(n.y, n.x)) do_view = TRUE;
-		}
-
-		/* Handle doors and secret doors */
-		else if (((cave_feat[n.y][n.x] >= FEAT_DOOR_HEAD) &&
-		          (cave_feat[n.y][n.x] <= FEAT_DOOR_TAIL)) ||
-		         (cave_feat[n.y][n.x] == FEAT_SECRET))
-		{
-			bool may_bash = TRUE;
-
-			/* Take a turn */
-			do_turn = TRUE;
-
-			/* Creature can open doors. */
-			if (r_ptr->flags[1] & RF1_OPEN_DOOR)
-			{
-				/* Closed doors and secret doors */
-				if ((cave_feat[n.y][n.x] == FEAT_DOOR_HEAD) ||
-				    (cave_feat[n.y][n.x] == FEAT_SECRET))
-				{
-					/* The door is open */
-					learn_RF1 |= RF1_OPEN_DOOR;
-
-					/* Do not bash the door */
-					may_bash = FALSE;
-				}
-
-				/* Locked doors (not jammed) */
-				else if (cave_feat[n.y][n.x] < FEAT_DOOR_HEAD + 0x08)
-				{	/* Door power */
-					const int k = ((cave_feat[n.y][n.x] - FEAT_DOOR_HEAD) & 0x07);
-
-					may_bash = FALSE;	/* Do not bash the door */
-
-					/* Try to unlock it XXX XXX XXX */
-					if (((m_ptr->chp / 10) > k+1) && rand_int(m_ptr->chp / 10) > k)
-					{
-						/* Unlock the door */
-						cave_set_feat(n.y, n.x, FEAT_DOOR_HEAD + 0x00);
-					}
+			/* unseen monster does not want to be both seen and attackable after moving */
+			if (!m_ptr->ml)
+			{	
+				if (   !square_momentarily_unseen_by_player(m_idx,n,p_ptr->loc,player_moves)
+					&& square_momentarily_unseen_by_player(m_idx,m_ptr->loc,p_ptr->loc,player_moves)
+					&& !square_momentarily_safe_from_player(n,p_ptr->loc,player_moves)
+					&& square_momentarily_safe_from_player(m_ptr->loc,p_ptr->loc,player_moves))
+				{	/* oops */
+				do_move = FALSE;
 				}
 			}
 
-			/* Stuck doors -- attempt to bash them down if allowed */
-			if (may_bash && (r_ptr->flags[1] & RF1_BASH_DOOR))
-			{	/* weak monsters can't bash doors */
-				if (20 <= m_ptr->chp)
-				{
-					/* Door power */
-					const int k = ((cave_feat[n.y][n.x] - FEAT_DOOR_HEAD) & 0x07);
+			/* seen, not-attackable monster does not want to be attackable after moving */
+			else
+			{
+				if (   !square_momentarily_safe_from_player(n,p_ptr->loc,player_moves)
+					&& square_momentarily_safe_from_player(m_ptr->loc,p_ptr->loc,player_moves))
+				{	/* oops */
+				do_move = FALSE;
+				}
+			}
+		};
 
-					/* Attempt to Bash XXX XXX XXX */
-					if (((m_ptr->chp / 10) > k+1) && rand_int(m_ptr->chp / 10) > k)
+		/* Open floor is ok, need to check other terrain */
+		if (do_move && !cave_floor_bold(n.y, n.x))
+		{
+			/* Well, be more careful about checking */
+			do_move = FALSE;
+
+			/* Monster moves through walls (and doors) */
+			if (r_ptr->flags[1] & RF1_PASS_WALL)
+			{
+				/* Pass through walls/doors/rubble */
+				do_move = TRUE;
+	
+				/* Monster went through a wall */
+				learn_RF1 |= RF1_PASS_WALL;
+			}
+
+			/* Monster destroys walls (and doors) */
+			else if (r_ptr->flags[1] & RF1_KILL_WALL)
+			{
+				/* Eat through walls/doors/rubble */
+				do_move = TRUE;
+
+				/* Monster destroyed a wall */
+				learn_RF1 |= RF1_KILL_WALL;
+
+				/* Forget the wall */
+				cave_info[n.y][n.x] &= ~(CAVE_MARK);
+
+				/* Notice */
+				cave_set_feat(n.y, n.x, FEAT_FLOOR);
+
+				/* Note changes to viewable region */
+				if (player_has_los_bold(n.y, n.x)) do_view = TRUE;
+			}
+
+			/* Handle doors and secret doors */
+			else if (cave_feat_in_range(n.y,n.x,FEAT_DOOR_HEAD,FEAT_DOOR_TAIL) ||
+			         (cave_feat[n.y][n.x] == FEAT_SECRET))
+			{
+				bool may_bash = TRUE;
+
+				/* Take a turn */
+				do_turn = TRUE;
+
+				/* Creature can open doors. */
+				if (r_ptr->flags[1] & RF1_OPEN_DOOR)
+				{
+					/* Closed doors and secret doors */
+					if ((cave_feat[n.y][n.x] == FEAT_DOOR_HEAD) ||
+					    (cave_feat[n.y][n.x] == FEAT_SECRET))
 					{
-						msg_print("You hear a door burst open!");
-						disturb(0, 0);			/* Disturb */
-						apply_noise(n, 10);		/* Bashing open doors is noisy */
-						learn_RF1 |= RF1_BASH_DOOR;
-						do_move = TRUE;			/* Hack -- fall into doorway */
+						/* The door is open */
+						learn_RF1 |= RF1_OPEN_DOOR;
+
+						/* Do not bash the door */
+						may_bash = FALSE;
+					}
+
+					/* Locked doors (not jammed) */
+					else if (cave_feat[n.y][n.x] < FEAT_DOOR_HEAD + 0x08)
+					{	/* Door power */
+						const int k = ((cave_feat[n.y][n.x] - FEAT_DOOR_HEAD) & 0x07);
+
+						may_bash = FALSE;	/* Do not bash the door */
+
+						/* Try to unlock it XXX XXX XXX */
+						if (((m_ptr->chp / 10) > k+1) && rand_int(m_ptr->chp / 10) > k)
+						{
+							/* Unlock the door */
+							cave_set_feat(n.y, n.x, FEAT_DOOR_HEAD + 0x00);
+						}
+					}
+				}
+
+				/* Stuck doors -- attempt to bash them down if allowed */
+				if (may_bash && (r_ptr->flags[1] & RF1_BASH_DOOR))
+				{	/* weak monsters can't bash doors */
+					if (20 <= m_ptr->chp)
+					{
+						/* Door power */
+						const int k = ((cave_feat[n.y][n.x] - FEAT_DOOR_HEAD) & 0x07);
+
+						/* Attempt to Bash XXX XXX XXX */
+						if (((m_ptr->chp / 10) > k+1) && rand_int(m_ptr->chp / 10) > k)
+						{
+							msg_print("You hear a door burst open!");
+							disturb(0, 0);			/* Disturb */
+							apply_noise(n, 10);		/* Bashing open doors is noisy */
+							learn_RF1 |= RF1_BASH_DOOR;
+							do_move = TRUE;			/* Hack -- fall into doorway */
+						}
+						else
+						{
+							msg_print("You hear a door strain, but hold.");
+							disturb(0, 0);			/* Disturb */
+							apply_noise(n, 2);		/* Failing to bash open doors is noisy */
+						}
 					}
 					else
 					{
-						msg_print("You hear a door strain, but hold.");
-						disturb(0, 0);			/* Disturb */
-						apply_noise(n, 2);		/* Failing to bash open doors is noisy */
+						/* Zaiband: Don't use that turn after all */
+						do_turn = FALSE;
 					}
 				}
-				else
+
+
+				/* Deal with doors in the way */
+				if (learn_RF1 & (RF1_BASH_DOOR | RF1_OPEN_DOOR))
 				{
-					/* Zaiband: Don't use that turn after all */
-					do_turn = FALSE;
+					/* Break down the door */
+					if ((learn_RF1 & RF1_BASH_DOOR) && one_in_(2))
+					{
+						cave_set_feat(n.y, n.x, FEAT_BROKEN);
+					}
+
+					/* Open the door */
+					else
+					{
+						cave_set_feat(n.y, n.x, FEAT_OPEN);
+					}
+
+					/* Handle viewable doors */
+					if (player_has_los_bold(n.y, n.x)) do_view = TRUE;
 				}
-			}
-
-
-			/* Deal with doors in the way */
-			if (learn_RF1 & (RF1_BASH_DOOR | RF1_OPEN_DOOR))
-			{
-				/* Break down the door */
-				if ((learn_RF1 & RF1_BASH_DOOR) && one_in_(2))
-				{
-					cave_set_feat(n.y, n.x, FEAT_BROKEN);
-				}
-
-				/* Open the door */
-				else
-				{
-					cave_set_feat(n.y, n.x, FEAT_OPEN);
-				}
-
-				/* Handle viewable doors */
-				if (player_has_los_bold(n.y, n.x)) do_view = TRUE;
 			}
 		}
 
@@ -4230,23 +4721,24 @@ NOTE: Vulnerable items must be moved away in initial generation.
 			}
 		}
 
-		/* Some monsters never attack */
-		if (do_move && (cave_m_idx[n.y][n.x] < 0) &&
-		    (r_ptr->flags[0] & RF0_NEVER_BLOW))
-		{
-			/* memorize lack of attacks */
-			if (m_ptr->ml) l_ptr->flags[0] |= RF0_NEVER_BLOW;
-			do_move = FALSE;	/* Do not move */
-		}
-
-		/* The player is in the way.  Attack him. */
 		if (do_move && (cave_m_idx[n.y][n.x] < 0))
 		{
-			make_attack_normal(m_idx);	/* Do the attack */
-			do_move = FALSE;			/* Do not move */
-			do_turn = TRUE;				/* Took a turn */
-		}
+			do_move = FALSE;	/* Do not move */
 
+			/* Some monsters never attack */
+			if (r_ptr->flags[0] & RF0_NEVER_BLOW)
+			{
+				/* memorize lack of attacks */
+				if (m_ptr->ml) l_ptr->flags[0] |= RF0_NEVER_BLOW;
+			}
+
+			/* The player is in the way.  Attack him. */
+			else
+			{
+				make_attack_normal(m_idx);	/* Do the attack */
+				do_turn = TRUE;				/* Took a turn */
+			}
+		}
 
 		/* Some monsters never move */
 		if (do_move && (r_ptr->flags[0] & RF0_NEVER_MOVE))
@@ -4263,7 +4755,7 @@ NOTE: Vulnerable items must be moved away in initial generation.
 		/* A monster is in the way */
 		if (do_move && (cave_m_idx[n.y][n.x] > 0))
 		{
-			const monster_type* const n_ptr = &mon_list[cave_m_idx[n.y][n.x]];
+			const monster_type* const n_ptr = m_ptr_from_m_idx(cave_m_idx[n.y][n.x]);
 
 			do_move = FALSE;	/* Assume no movement */
 
@@ -4285,7 +4777,7 @@ NOTE: Vulnerable items must be moved away in initial generation.
 		/* A monster is in the way */
 		if (do_move && (cave_m_idx[n.y][n.x] > 0))
 		{
-			const monster_type* const n_ptr = &mon_list[cave_m_idx[n.y][n.x]];
+			const monster_type* const n_ptr = m_ptr_from_m_idx(cave_m_idx[n.y][n.x]);
 
 			do_move = FALSE;	/* Assume no movement */
 
@@ -4315,8 +4807,8 @@ NOTE: Vulnerable items must be moved away in initial generation.
 			monster_swap(o, n);	/* Move the monster */
 
 			/* Possible disturb */
-			if (m_ptr->ml && (disturb_move || 
-							((m_ptr->mflag & (MFLAG_VIEW)) && disturb_near)))
+			if (m_ptr->ml && (OPTION(disturb_move) || 
+							((m_ptr->mflag & (MFLAG_VIEW)) && OPTION(disturb_near))))
 			{
 				disturb(0, 0);	/* Disturb */
 			}
@@ -4365,7 +4857,7 @@ NOTE: Vulnerable items must be moved away in initial generation.
 
 
 	/* If we haven't done anything, try casting a spell again */
-	if (smart_monsters && !do_turn && !do_move)
+	if (OPTION(adult_smart_monsters) && !do_turn && !do_move)
 	{
 		/* Cast spell */
 		if (make_attack_spell(m_idx)) return;
@@ -4407,7 +4899,7 @@ NOTE: Vulnerable items must be moved away in initial generation.
 static bool monster_can_flow(const monster_type* const m_ptr)
 {
 	/* Hack -- Monsters can "smell" the player from far away */
-	if (flow_by_sound)
+	if (OPTION(adult_flow_by_sound))
 	{
 		/* Monster location */
 		int fy = m_ptr->loc.y;
@@ -4454,41 +4946,42 @@ static bool monster_can_flow(const monster_type* const m_ptr)
  */
 void process_monsters(byte minimum_energy)
 {
-	int i;
+	if (1==mon_max || p_ptr->leaving) return;
+
+	m_idx_type i(mon_max - 1);
 
 	/* Process the monsters (backwards); handle leaving */
-	for (i = mon_max - 1; i >= 1 && !p_ptr->leaving; i--)
+	while(i>=1 && !p_ptr->leaving)
 	{
 		/* Get the monster */
 		monster_type* const m_ptr = &mon_list[i];
 
-		if (!m_ptr->r_idx) continue;					/* Ignore "dead" monsters */
-		if (m_ptr->energy < minimum_energy) continue;	/* Not enough energy to move */
-
+		if (	m_ptr->r_idx						/* ignore "dead" monsters */
+			&&	m_ptr->energy >= minimum_energy)	/* need enough energy to move */
 		/* Heal monster? XXX XXX XXX */
-
-		{ /* C-ish blocking brace */
-		const monster_race* const r_ptr = m_ptr->race();	/* Get the race */
-
-		/*
-		 * Process the monster if the monster either:
-		 * - can "sense" the player
-		 * - is hurt
-		 * - can "see" the player (checked backwards)
-		 * - is already awake and has either full gaze or clairvoyant gaze [ZaiBand]
-		 * - can "smell" the player from far away (flow)
-		 */
-		if ((m_ptr->cdis <= r_ptr->aaf) ||
-		    (m_ptr->chp < m_ptr->mhp) ||
-		    player_has_los_bold(m_ptr->loc.y, m_ptr->loc.x) ||
-			(!m_ptr->csleep && (monster_has_attack(r_ptr,RBM_CLAIRVOYANT_GAZE) || monster_has_attack(r_ptr,RBM_RANGED_GAZE)) && MAX_RANGE<distance(m_ptr->loc.y,m_ptr->loc.x,p_ptr->loc.y,p_ptr->loc.x)) ||
-		    monster_can_flow(m_ptr))
 		{
-			process_monster(i);	/* Process the monster */
-		}
+			const monster_race* const r_ptr = m_ptr->race();	/* Get the race */
 
-		m_ptr->energy -= 100;	/* Use up "some" energy */
+			/*
+			 * Process the monster if the monster either:
+			 * - can "sense" the player
+			 * - is hurt
+			 * - can "see" the player (checked backwards)
+			 * - is already awake and has either full gaze or clairvoyant gaze [ZaiBand]
+			 * - can "smell" the player from far away (flow)
+			 */
+			if ((m_ptr->cdis <= r_ptr->aaf) ||
+			    (m_ptr->chp < m_ptr->mhp) ||
+			    player_has_los_bold(m_ptr->loc.y, m_ptr->loc.x) ||
+				(!m_ptr->csleep && (monster_has_attack(r_ptr,RBM_CLAIRVOYANT_GAZE) || monster_has_attack(r_ptr,RBM_RANGED_GAZE)) && MAX_RANGE<distance(m_ptr->loc.y,m_ptr->loc.x,p_ptr->loc.y,p_ptr->loc.x)) ||
+			    monster_can_flow(m_ptr))
+			{
+				process_monster(i);	/* Process the monster */
+			}
 
+			m_ptr->energy -= 100;	/* Use up "some" energy */
 		}	/* end blocking brace */
+		if (1==i) break;
+		--i;
 	}
 }

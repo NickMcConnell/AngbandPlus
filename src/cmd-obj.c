@@ -178,7 +178,7 @@ static void obj_set_squelch(object_type *o_ptr, int item)
 
 static bool obj_can_browse(const object_type *o_ptr)
 {
-	if (o_ptr->tval != p_ptr->spell_book()) return FALSE;
+	if (o_ptr->obj_id.tval != p_ptr->spell_book()) return FALSE;
 	return TRUE;
 }
 
@@ -307,18 +307,11 @@ static bool obj_read_pre(void)
 	return TRUE;
 }
 
-/* Basic tval testers */
-static bool obj_is_staff(const object_type *o_ptr)  { return o_ptr->tval == TV_STAFF; }
-static bool obj_is_wand(const object_type *o_ptr)   { return o_ptr->tval == TV_WAND; }
-static bool obj_is_potion(const object_type *o_ptr) { return o_ptr->tval == TV_POTION; }
-static bool obj_is_scroll(const object_type *o_ptr) { return o_ptr->tval == TV_SCROLL; }
-static bool obj_is_food(const object_type *o_ptr)   { return o_ptr->tval == TV_FOOD; }
-
 /* Determine if an object is zappable */
 static bool obj_can_zap(const object_type *o_ptr)
 {
 	const object_kind *k_ptr = &object_type::k_info[o_ptr->k_idx];
-	if (o_ptr->tval != TV_ROD) return FALSE;
+	if (o_ptr->obj_id.tval != TV_ROD) return FALSE;
 
 	/* All still charging? */
 //	if (o_ptr->number <= (o_ptr->timeout + (k_ptr->time_base - 1)) / k_ptr->time_base) return FALSE;
@@ -331,19 +324,9 @@ static bool obj_can_zap(const object_type *o_ptr)
 /* Determine if an object is activatable */
 static bool obj_can_activate(const object_type *o_ptr)
 {
-	u32b f[OBJECT_FLAG_STRICT_UB];
-
-	/* Not known */
-	if (!o_ptr->known()) return (FALSE);
-
-	/* Check the recharge */
-	if (o_ptr->timeout) return (FALSE);
-
-	/* Extract the flags */
-	object_flags(o_ptr, f);
-
-	/* Check activation flag */
-	return (f[2] & TR3_ACTIVATE);
+	if (!o_ptr->known()) return FALSE;	/* Not known */
+	if (o_ptr->timeout) return FALSE;	/* Check the recharge */
+	return obj_has_activation(o_ptr);
 }
 
 
@@ -398,13 +381,13 @@ static bool obj_refill_pre(void)
 
 //	object_flags(o_ptr, f);
 
-	if (o_ptr->tval != TV_LITE)
+	if (o_ptr->obj_id.tval != TV_LITE)
 	{
 		msg_print("You are not wielding a light.");
 		return FALSE;
 	}
 
-	else if (o_ptr->sval != SV_LITE_LANTERN && o_ptr->sval != SV_LITE_TORCH)
+	else if (o_ptr->obj_id.sval != SV_LITE_LANTERN && o_ptr->obj_id.sval != SV_LITE_TORCH)
 //	else if (f3 & TR3_NO_FUEL)
 	{
 		msg_print("Your light cannot be refilled.");
@@ -422,17 +405,16 @@ static bool obj_can_refill(const object_type *o_ptr)
 	/* Get flags */
 //	object_flags(o_ptr, f);
 
-	if (j_ptr->sval == SV_LITE_LANTERN)
+	if (j_ptr->obj_id.sval == SV_LITE_LANTERN)
 	{
 		/* Flasks of oil are okay */
-		if (o_ptr->tval == TV_FLASK) return (TRUE);
+		if (o_ptr->obj_id.tval == TV_FLASK) return (TRUE);
 	}
 
 	/* Non-empty, non-everburning sources are okay */
-	if ((o_ptr->tval == TV_LITE) &&
-	    (o_ptr->sval == j_ptr->sval) &&
+	if ((o_ptr->obj_id == j_ptr->obj_id) &&
 	    (o_ptr->timeout > 0) &&
-		(o_ptr->sval == SV_LITE_LANTERN || o_ptr->sval == SV_LITE_TORCH))
+		(o_ptr->obj_id.sval == SV_LITE_LANTERN || o_ptr->obj_id.sval == SV_LITE_TORCH))
 //		!(f3 & TR3_NO_FUEL))
 	{
 		return (TRUE);
@@ -448,11 +430,11 @@ static void obj_refill(object_type *o_ptr, int item)
 	p_ptr->energy_use = 50;
 
 	/* It's a lamp */
-	if (j_ptr->sval == SV_LITE_LANTERN)
+	if (j_ptr->obj_id.sval == SV_LITE_LANTERN)
 		refill_lamp(j_ptr, o_ptr, item);
 
 	/* It's a torch */
-	else if (j_ptr->sval == SV_LITE_TORCH)
+	else if (j_ptr->obj_id.sval == SV_LITE_TORCH)
 		refuel_torch(j_ptr, o_ptr, item);
 }
 
@@ -526,11 +508,11 @@ static item_act_t item_actions[] =
 	/*** Item usage ***/
 	{ obj_use_staff, "use",
 	  "Use which staff? ", "You have no staff to use.",
-	  obj_is_staff, (USE_INVEN | USE_FLOOR), NULL },
+	  o_ptr_is<TV_STAFF>, (USE_INVEN | USE_FLOOR), NULL },
 
 	{ obj_use_wand, "aim",
       "Aim which wand? ", "You have no wand to aim.",
-	  obj_is_wand, (USE_INVEN | USE_FLOOR), NULL },
+	  o_ptr_is<TV_WAND>, (USE_INVEN | USE_FLOOR), NULL },
 
 	{ obj_use_rod, "zap",
       "Zap which rod? ", "You have no charged rods to zap.",
@@ -542,15 +524,15 @@ static item_act_t item_actions[] =
 
 	{ obj_use_food, "eat",
       "Eat which item? ", "You have nothing to eat.",
-	  obj_is_food, (USE_INVEN | USE_FLOOR), NULL },
+	  o_ptr_is<TV_FOOD>, (USE_INVEN | USE_FLOOR), NULL },
 
 	{ obj_use_potion, "quaff",
       "Quaff which potion? ", "You have no potions to quaff.",
-	  obj_is_potion, (USE_INVEN | USE_FLOOR), NULL },
+	  o_ptr_is<TV_POTION>, (USE_INVEN | USE_FLOOR), NULL },
 
 	{ obj_use_scroll, "read",
       "Read which scroll? ", "You have no scrolls to read.",
-	  obj_is_scroll, (USE_INVEN | USE_FLOOR), obj_read_pre },
+	  o_ptr_is<TV_SCROLL>, (USE_INVEN | USE_FLOOR), obj_read_pre },
 
 	{ obj_refill, "refill",
       "Refuel with what fuel source? ", "You have nothing to refuel with.",

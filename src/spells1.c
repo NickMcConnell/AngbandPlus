@@ -18,6 +18,7 @@
 #include "angband.h"
 #include "project.h"
 #include "learn.h"
+#include "option.h"
 #include "raceflag.h"
 #include "tvalsval.h"
 
@@ -141,7 +142,7 @@ static void _teleport_away(coord g, int dis, int disallow_flg, int sound_code)
  *
  * But allow variation to prevent infinite loops.
  */
-void teleport_away(int m_idx, int dis)
+void teleport_away(const m_idx_type m_idx, int dis)
 {
 	monster_type *m_ptr = &mon_list[m_idx];
 
@@ -216,7 +217,7 @@ void teleport_player_to(coord g)
  */
 void teleport_player_level(void)
 {
-	if (adult_ironman)
+	if (OPTION(adult_ironman))
 	{
 		msg_print("Nothing happens.");
 		return;
@@ -478,7 +479,7 @@ void take_hit(int dam, const char* kb_str)
 static bool hates_acid(const object_type *o_ptr)
 {
 	/* Analyze the type */
-	switch (o_ptr->tval)
+	switch (o_ptr->obj_id.tval)
 	{
 		/* Wearable items */
 		case TV_ARROW:
@@ -495,34 +496,22 @@ static bool hates_acid(const object_type *o_ptr)
 		case TV_CLOAK:
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
-		case TV_DRAG_ARMOR:
-		{
-			return (TRUE);
-		}
+		case TV_DRAG_ARMOR:	return TRUE;
 
 		/* Staffs/Scrolls are wood/paper */
 		case TV_STAFF:
-		case TV_SCROLL:
-		{
-			return (TRUE);
-		}
+		case TV_SCROLL:		return TRUE;
 
 		/* Ouch */
-		case TV_CHEST:
-		{
-			return (TRUE);
-		}
+		case TV_CHEST:		return TRUE;
 
 		/* Junk is useless */
 		case TV_SKELETON:
 		case TV_BOTTLE:
-		case TV_JUNK:
-		{
-			return (TRUE);
-		}
+		case TV_JUNK:		return TRUE;
 	}
 
-	return (FALSE);
+	return FALSE;
 }
 
 
@@ -531,17 +520,14 @@ static bool hates_acid(const object_type *o_ptr)
  */
 static bool hates_elec(const object_type *o_ptr)
 {
-	switch (o_ptr->tval)
+	switch (o_ptr->obj_id.tval)
 	{
 		case TV_RING:
 		case TV_WAND:
-		case TV_ROD:
-		{
-			return (TRUE);
-		}
+		case TV_ROD:	return TRUE;
 	}
 
-	return (FALSE);
+	return FALSE;
 }
 
 
@@ -553,7 +539,7 @@ static bool hates_elec(const object_type *o_ptr)
 static bool hates_fire(const object_type *o_ptr)
 {
 	/* Analyze the type */
-	switch (o_ptr->tval)
+	switch (o_ptr->obj_id.tval)
 	{
 		/* Wearable */
 		case TV_LITE:
@@ -564,33 +550,21 @@ static bool hates_fire(const object_type *o_ptr)
 		case TV_BOOTS:
 		case TV_GLOVES:
 		case TV_CLOAK:
-		case TV_SOFT_ARMOR:
-		{
-			return (TRUE);
-		}
+		case TV_SOFT_ARMOR:		return TRUE;
 
 		/* Books */
 		case TV_MAGIC_BOOK:
-		case TV_PRAYER_BOOK:
-		{
-			return (TRUE);
-		}
+		case TV_PRAYER_BOOK:	return TRUE;
 
 		/* Chests */
-		case TV_CHEST:
-		{
-			return (TRUE);
-		}
+		case TV_CHEST:			return TRUE;
 
 		/* Staffs/Scrolls burn */
 		case TV_STAFF:
-		case TV_SCROLL:
-		{
-			return (TRUE);
-		}
+		case TV_SCROLL:			return TRUE;
 	}
 
-	return (FALSE);
+	return FALSE;
 }
 
 
@@ -599,17 +573,14 @@ static bool hates_fire(const object_type *o_ptr)
  */
 static bool hates_cold(const object_type *o_ptr)
 {
-	switch (o_ptr->tval)
+	switch (o_ptr->obj_id.tval)
 	{
 		case TV_POTION:
 		case TV_FLASK:
-		case TV_BOTTLE:
-		{
-			return (TRUE);
-		}
+		case TV_BOTTLE:	return TRUE;
 	}
 
-	return (FALSE);
+	return FALSE;
 }
 
 
@@ -706,7 +677,7 @@ static int inven_damage(o_ptr_test* typ, int perc)
 			int chance = perc * 100;
 
 			/* Rods are tough */
-			if (o_ptr->tval == TV_ROD) chance /= 4;
+			if (o_ptr->obj_id.tval == TV_ROD) chance /= 4;
 
 			/* Count the casualties */
 			for (amt = j = 0; j < o_ptr->number; ++j)
@@ -732,9 +703,9 @@ static int inven_damage(o_ptr_test* typ, int perc)
 				 * maximum timeout or charges of the stack needs to be reduced,
 				 * unless all the items are being destroyed. -LM-
 				 */
-				if (((o_ptr->tval == TV_WAND) ||
-				     (o_ptr->tval == TV_STAFF) ||
-				     (o_ptr->tval == TV_ROD)) &&
+				if (((o_ptr->obj_id.tval == TV_WAND) ||
+				     (o_ptr->obj_id.tval == TV_STAFF) ||
+				     (o_ptr->obj_id.tval == TV_ROD)) &&
 				    (amt < o_ptr->number))
 				{
 					o_ptr->pval -= o_ptr->pval * amt / o_ptr->number;
@@ -1347,8 +1318,7 @@ static bool project_f(int who, int r, coord g, int dam, int typ)
 
 			/* Destroy traps */
 			if ((cave_feat[g.y][g.x] == FEAT_INVIS) ||
-			    ((cave_feat[g.y][g.x] >= FEAT_TRAP_HEAD) &&
-			     (cave_feat[g.y][g.x] <= FEAT_TRAP_TAIL)))
+			    cave_feat_in_range(g.y,g.x,FEAT_TRAP_HEAD,FEAT_TRAP_TAIL))
 			{
 				/* Check line of sight */
 				if (player_has_los_bold(g.y, g.x))
@@ -1389,10 +1359,8 @@ static bool project_f(int who, int r, coord g, int dam, int typ)
 			if ((cave_feat[g.y][g.x] == FEAT_OPEN) ||
 			    (cave_feat[g.y][g.x] == FEAT_BROKEN) ||
 			    (cave_feat[g.y][g.x] == FEAT_INVIS) ||
-			    ((cave_feat[g.y][g.x] >= FEAT_TRAP_HEAD) &&
-			     (cave_feat[g.y][g.x] <= FEAT_TRAP_TAIL)) ||
-			    ((cave_feat[g.y][g.x] >= FEAT_DOOR_HEAD) &&
-			     (cave_feat[g.y][g.x] <= FEAT_DOOR_TAIL)))
+			    cave_feat_in_range(g.y,g.x,FEAT_TRAP_HEAD,FEAT_TRAP_TAIL) ||
+			    cave_feat_in_range(g.y,g.x,FEAT_DOOR_HEAD,FEAT_DOOR_TAIL))
 			{
 				/* Check line of sight */
 				if (player_has_los_bold(g.y, g.x))
@@ -1402,8 +1370,7 @@ static bool project_f(int who, int r, coord g, int dam, int typ)
 					obvious = TRUE;
 
 					/* Visibility change */
-					if ((cave_feat[g.y][g.x] >= FEAT_DOOR_HEAD) &&
-					    (cave_feat[g.y][g.x] <= FEAT_DOOR_TAIL))
+					if (cave_feat_in_range(g.y,g.x,FEAT_DOOR_HEAD,FEAT_DOOR_TAIL))
 					{
 						/* Update the visuals */
 						p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
@@ -1812,7 +1779,7 @@ static bool project_o(int who, int r, coord g, int dam, int typ)
 			case GF_KILL_DOOR:
 			{
 				/* Chests are noticed only if trapped or locked */
-				if (o_ptr->tval == TV_CHEST)
+				if (o_ptr->obj_id.tval == TV_CHEST)
 				{
 					/* Disarm/Unlock traps */
 					if (o_ptr->pval > 0)
@@ -2070,7 +2037,7 @@ static bool project_m(int who, int r, coord g, int dam, int typ)
 				dam = 0;
 				if (seen) l_ptr->flags[2] |= RF2_UNDEAD;
 			}
-			else if (r_ptr->flags[3] & RF3_BR_NETH)
+			else if (r_ptr->spell_flags[0] & RSF0_BR_NETH)
 			{
 				note = " resists.";
 				dam *= 3; dam /= (randint(6)+6);
@@ -2099,7 +2066,7 @@ static bool project_m(int who, int r, coord g, int dam, int typ)
 		{
 			do_poly = TRUE;
 			do_conf = (5 + randint(11) + r) / (r + 1);
-			if (r_ptr->flags[3] & RF3_BR_CHAO)
+			if (r_ptr->spell_flags[0] & RSF0_BR_CHAO)
 			{
 				note = " resists.";
 				dam *= 3; dam /= (randint(6)+6);
@@ -2110,7 +2077,7 @@ static bool project_m(int who, int r, coord g, int dam, int typ)
 
 		case GF_SHARD:		/* Shards -- Shard breathers resist */
 		{
-			if (r_ptr->flags[3] & RF3_BR_SHAR)
+			if (r_ptr->spell_flags[0] & RSF0_BR_SHAR)
 			{
 				note = " resists.";
 				dam *= 3; dam /= (randint(6)+6);
@@ -2121,7 +2088,7 @@ static bool project_m(int who, int r, coord g, int dam, int typ)
 		case GF_SOUND:		/* Sound -- Sound breathers resist */
 		{
 			do_stun = (10 + randint(15) + r) / (r + 1);
-			if (r_ptr->flags[3] & RF3_BR_SOUN)
+			if (r_ptr->spell_flags[0] & RSF0_BR_SOUN)
 			{
 				note = " resists.";
 				dam *= 2; dam /= (randint(6)+6);
@@ -2132,7 +2099,7 @@ static bool project_m(int who, int r, coord g, int dam, int typ)
 		case GF_CONFUSION:	/* Confusion */
 		{
 			do_conf = (10 + randint(15) + r) / (r + 1);
-			if (r_ptr->flags[3] & RF3_BR_CONF)
+			if (r_ptr->spell_flags[0] & RSF0_BR_CONF)
 			{
 				note = " resists.";
 				dam *= 2; dam /= (randint(6)+6);
@@ -2147,7 +2114,7 @@ static bool project_m(int who, int r, coord g, int dam, int typ)
 
 		case GF_DISENCHANT:	/* Disenchantment */
 		{
-			if (r_ptr->flags[3] & RF2_RES_DISE)
+			if (r_ptr->spell_flags[0] & RF2_RES_DISE)
 			{
 				note = " resists.";
 				dam *= 3; dam /= (randint(6)+6);
@@ -2158,7 +2125,7 @@ static bool project_m(int who, int r, coord g, int dam, int typ)
 
 		case GF_NEXUS:		/* Nexus */
 		{
-			if (r_ptr->flags[3] & RF2_RES_NEXUS)
+			if (r_ptr->spell_flags[0] & RF2_RES_NEXUS)
 			{
 				note = " resists.";
 				dam *= 3; dam /= (randint(6)+6);
@@ -2170,7 +2137,7 @@ static bool project_m(int who, int r, coord g, int dam, int typ)
 		case GF_FORCE:		/* Force */
 		{
 			do_stun = (randint(15) + r) / (r + 1);
-			if (r_ptr->flags[3] & RF3_BR_WALL)
+			if (r_ptr->spell_flags[0] & RSF0_BR_WALL)
 			{
 				note = " resists.";
 				dam *= 3; dam /= (randint(6)+6);
@@ -2180,7 +2147,7 @@ static bool project_m(int who, int r, coord g, int dam, int typ)
 
 		case GF_INERTIA:	/* Inertia -- breathers resist */
 		{
-			if (r_ptr->flags[3] & RF3_BR_INER)
+			if (r_ptr->spell_flags[0] & RSF0_BR_INER)
 			{
 				note = " resists.";
 				dam *= 3; dam /= (randint(6)+6);
@@ -2190,7 +2157,7 @@ static bool project_m(int who, int r, coord g, int dam, int typ)
 
 		case GF_TIME:		/* Time -- breathers resist */
 		{
-			if (r_ptr->flags[3] & RF3_BR_TIME)
+			if (r_ptr->spell_flags[0] & RSF0_BR_TIME)
 			{
 				note = " resists.";
 				dam *= 3; dam /= (randint(6)+6);
@@ -2204,7 +2171,7 @@ static bool project_m(int who, int r, coord g, int dam, int typ)
 			if (randint(127) > r_ptr->level)
 				do_dist = 10;
 
-			if (r_ptr->flags[3] & RF3_BR_GRAV)
+			if (r_ptr->spell_flags[0] & RSF0_BR_GRAV)
 			{
 				note = " resists.";
 				dam *= 3; dam /= (randint(6)+6);
@@ -2412,7 +2379,7 @@ static bool project_m(int who, int r, coord g, int dam, int typ)
 
 		case GF_LITE:	/* Lite -- opposite of Dark */
 		{
-			if (r_ptr->flags[3] & RF3_BR_LITE)
+			if (r_ptr->spell_flags[0] & RSF0_BR_LITE)
 			{
 				note = " resists.";
 				dam *= 2; dam /= (randint(6)+6);
@@ -2429,7 +2396,7 @@ static bool project_m(int who, int r, coord g, int dam, int typ)
 
 		case GF_DARK:	/* Dark -- opposite of Lite */
 		{
-			if (r_ptr->flags[3] & RF3_BR_DARK)
+			if (r_ptr->spell_flags[0] & RSF0_BR_DARK)
 			{
 				note = " resists.";
 				dam *= 2; dam /= (randint(6)+6);
@@ -2666,7 +2633,7 @@ static bool project_m(int who, int r, coord g, int dam, int typ)
 
 	/* Sound and Impact breathers never stun */
 	else if (do_stun &&
-	         !(r_ptr->flags[3] & (RF3_BR_SOUN | RF3_BR_WALL)))
+	         !(r_ptr->spell_flags[0] & (RSF0_BR_SOUN | RSF0_BR_WALL)))
 	{
 		/* Obvious (irrational caution) */
 		if (seen) obvious = TRUE;
@@ -2689,7 +2656,7 @@ static bool project_m(int who, int r, coord g, int dam, int typ)
 	/* Confusion and Chaos breathers (and sleepers) never confuse */
 	else if (do_conf &&
 	         !(r_ptr->flags[2] & RF2_NO_CONF) &&
-	         !(r_ptr->flags[3] & (RF3_BR_CONF | RF3_BR_CHAO)))
+	         !(r_ptr->spell_flags[0] & (RSF0_BR_CONF | RSF0_BR_CHAO)))
 	{
 		/* Obvious (irrational caution) */
 		if (seen) obvious = TRUE;

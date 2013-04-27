@@ -1,1 +1,0 @@
-squelch.o: squelch.c

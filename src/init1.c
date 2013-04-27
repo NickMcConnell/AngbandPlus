@@ -211,20 +211,20 @@ static const char* const r_info_flags2[] =
 {
 	"STUPID",
 	"SMART",
-	"XXX1X2",
-	"XXX2X2",
+	NULL,
+	NULL,
 	"INVISIBLE",
 	"COLD_BLOOD",
 	"EMPTY_MIND",
 	"WEIRD_MIND",
 	"MULTIPLY",
 	"REGENERATE",
-	"XXX3X2",
-	"XXX4X2",
+	NULL,
+	NULL,
 	"POWERFUL",
-	"XXX5X2",
-	"XXX7X2",
-	"XXX6X2",
+	NULL,
+	NULL,
+	NULL,
 	"OPEN_DOOR",
 	"BASH_DOOR",
 	"PASS_WALL",
@@ -256,10 +256,10 @@ static const char* const r_info_flags3[] =
 	"UNDEAD",
 	"EVIL",
 	"ANIMAL",
-	"XXX1X3",
-	"XXX2X3",
-	"XXX3X3",
-	"XXX4X3",
+	NULL,
+	NULL,
+	NULL,
+	NULL,
 	"HURT_LITE",
 	"HURT_ROCK",
 	"HURT_FIRE",
@@ -269,13 +269,13 @@ static const char* const r_info_flags3[] =
 	"IM_FIRE",
 	"IM_COLD",
 	"IM_POIS",
-	"XXX5X3",
+	NULL,
 	"RES_NETH",
 	"IM_WATER",
 	"RES_PLAS",
 	"RES_NEXUS",
 	"RES_DISE",
-	"XXX6X3",
+	NULL,
 	"NO_FEAR",
 	"NO_STUN",
 	"NO_CONF",
@@ -288,9 +288,9 @@ static const char* const r_info_flags3[] =
 static const char* const r_info_flags4[] =
 {
 	"SHRIEK",
-	"XXX2X4",
-	"XXX3X4",
-	"XXX4X4",
+	NULL,
+	NULL,
+	NULL,
 	"ARROW_1",
 	"ARROW_2",
 	"ARROW_3",
@@ -315,9 +315,9 @@ static const char* const r_info_flags4[] =
 	"BR_PLAS",
 	"BR_WALL",
 	"BR_MANA",
-	"XXX5X4",
-	"XXX6X4",
-	"XXX7X4",
+	NULL,
+	NULL,
+	NULL,
 	"BOULDER"
 };
 
@@ -366,21 +366,21 @@ static const char* const r_info_flags5[] =
 static const char* const r_info_flags6[] =
 {
 	"HASTE",
-	"XXX1X6",
+	NULL,
 	"HEAL",
-	"XXX2X6",
+	NULL,
 	"BLINK",
 	"TPORT",
-	"XXX3X6",
-	"XXX4X6",
+	NULL,
+	NULL,
 	"TELE_TO",
 	"TELE_AWAY",
 	"TELE_LEVEL",
-	"XXX5",
+	NULL,
 	"DARKNESS",
 	"TRAPS",
 	"FORGET",
-	"XXX6X6",
+	NULL,
 	"S_KIN",
 	"S_HI_DEMON",
 	"S_MONSTER",
@@ -450,12 +450,12 @@ static const char* const k_info_flags2[] =
 	"SUST_DEX",
 	"SUST_CON",
 	"SUST_CHR",
-	"XXX1",
-	"XXX2",
-	"XXX3",
-	"XXX4",
-	"XXX5",
-	"XXX6",
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
 	"IM_ACID",
 	"IM_ELEC",
 	"IM_FIRE",
@@ -491,10 +491,10 @@ static const char* const k_info_flags3[] =
 	"SEE_INVIS",
 	"FREE_ACT",
 	"HOLD_LIFE",
-	"XXX1",
-	"XXX2",
-	"XXX3",
-	"XXX4",
+	NULL,
+	NULL,
+	NULL,
+	NULL,
 	"IMPACT",
 	"TELEPORT",
 	"AGGRAVATE",
@@ -503,15 +503,15 @@ static const char* const k_info_flags3[] =
 	"IGNORE_ELEC",
 	"IGNORE_FIRE",
 	"IGNORE_COLD",
-	"XXX5",
-	"XXX6",
+	NULL,
+	NULL,
 	"BLESSED",
-	"ACTIVATE",
+	NULL,
 	"INSTA_ART",
 	"EASY_KNOW",
 	"HIDE_TYPE",
 	"SHOW_MODS",
-	"XXX7",
+	NULL,
 	"LIGHT_CURSE",
 	"HEAVY_CURSE",
 	"PERMA_CURSE"
@@ -590,29 +590,29 @@ static const char* const c_info_flags[] =
 	"CHOOSE_SPELLS",
 	"PSEUDO_ID_HEAVY",
 	"PSEUDO_ID_IMPROV",
-	"XXX10",
-	"XXX11",
-	"XXX12",
-	"XXX13",
-	"XXX14",
-	"XXX15",
-	"XXX16",
-	"XXX17",
-	"XXX18",
-	"XXX19",
-	"XXX20",
-	"XXX21",
-	"XXX22",
-	"XXX23",
-	"XXX24",
-	"XXX25",
-	"XXX26",
-	"XXX27",
-	"XXX28",
-	"XXX29",
-	"XXX30",
-	"XXX31",
-	"XXX32"
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL
 };
 
 
@@ -732,16 +732,9 @@ errr init_info_txt(FILE *fp, char *buf, header *head,
                    parse_info_txt_func parse_info_txt_line)
 {
 	errr err;
-
-	/* Not ready yet */
-	bool okay = FALSE;
-
-	/* Just before the first record */
-	error_idx = -1;
-
-	/* Just before the first line */
-	error_line = 0;
-
+	bool okay = FALSE;	/* Not ready yet */
+	error_idx = -1;		/* Just before the first record */
+	error_line = 0;		/* Just before the first line */
 
 	/* Prepare the "fake" stuff */
 	head->name_size = 0;
@@ -757,7 +750,7 @@ errr init_info_txt(FILE *fp, char *buf, header *head,
 		if (!buf[0] || (buf[0] == '#')) continue;
 
 		/* Verify correct "colon" format */
-		if (buf[1] != ':') return (PARSE_ERROR_GENERIC);
+		if (buf[1] != ':') return (PARSE_ERROR_MISSING_COLON);
 
 
 		/* Hack -- Process 'V' for "Version" */
@@ -997,7 +990,7 @@ errr parse_v_info(char *buf, header *head)
 		s = strchr(buf+2, ':');
 
 		/* Verify that colon */
-		if (!s) return (PARSE_ERROR_GENERIC);
+		if (!s) return (PARSE_ERROR_MISSING_COLON);
 
 		/* Nuke the colon, advance to the name */
 		*s++ = '\0';
@@ -1087,7 +1080,7 @@ errr parse_f_info(char *buf, header *head)
 		s = strchr(buf+2, ':');
 
 		/* Verify that colon */
-		if (!s) return (PARSE_ERROR_GENERIC);
+		if (!s) return (PARSE_ERROR_MISSING_COLON);
 
 		/* Nuke the colon, advance to the name */
 		*s++ = '\0';
@@ -1188,7 +1181,7 @@ static errr grab_one_flag(u32b *flags, const char* const names[], const char* co
 	/* Check flags */
 	for (i = 0; i < 32; i++)
 	{
-		if (streq(what, names[i]))
+		if (NULL!=names[i] && streq(what, names[i]))
 		{
 			*flags |= (1L << i);
 			return (0);
@@ -1200,12 +1193,15 @@ static errr grab_one_flag(u32b *flags, const char* const names[], const char* co
 
 static errr grab_object_flag(u32b* flags,const char* const what,const char* const err_str)
 {
+	ZAIBAND_STATIC_ASSERT(32==N_ELEMENTS(k_info_flags1));
 	if (grab_one_flag(&flags[0], k_info_flags1, what) == 0)
 		return (0);
 
+	ZAIBAND_STATIC_ASSERT(32==N_ELEMENTS(k_info_flags2));
 	if (grab_one_flag(&flags[1], k_info_flags2, what) == 0)
 		return (0);
 
+	ZAIBAND_STATIC_ASSERT(32==N_ELEMENTS(k_info_flags3));
 	if (grab_one_flag(&flags[2], k_info_flags3, what) == 0)
 		return (0);
 
@@ -1239,26 +1235,17 @@ errr parse_k_info(char *buf, header *head)
 	static object_kind *k_ptr = NULL;
 
 
-	/* Process 'N' for "New/Number/Name" */
+	/* Process 'N' for "New/Name" */
 	if (buf[0] == 'N')
 	{
-		/* Find the colon before the name */
-		s = strchr(buf+2, ':');
-
-		/* Verify that colon */
-		if (!s) return (PARSE_ERROR_GENERIC);
-
-		/* Nuke the colon, advance to the name */
-		*s++ = '\0';
+		/* Advance to the name */
+		s = buf+2;
 
 		/* Paranoia -- require a name */
 		if (!*s) return (PARSE_ERROR_GENERIC);
 
 		/* Get the index */
-		i = atoi(buf+2);
-
-		/* Verify information */
-		if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
+		i = error_idx+1;
 
 		/* Verify information */
 		if (i >= head->info_num) return (PARSE_ERROR_TOO_MANY_ENTRIES);
@@ -1321,10 +1308,23 @@ errr parse_k_info(char *buf, header *head)
 		if (!k_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (!parse_integer_like(buf+2,k_ptr->tval,k_ptr->sval,k_ptr->pval)) return (PARSE_ERROR_GENERIC);
+		if (!parse_integer_like(buf+2,k_ptr->obj_id.tval,k_ptr->obj_id.sval,k_ptr->pval)) return (PARSE_ERROR_GENERIC);
+
+		{	/* XXX replicate lookup_kind code here without messages XXX */
+		int k;
+
+		/* Look for it */
+		for (k = 1; k < error_idx-1; k++)
+			{
+			object_kind *alt_k_ptr = &((object_kind*)(k_head.info_ptr))[k];
+
+			/* Found a match */
+			if (k_ptr->obj_id == alt_k_ptr->obj_id) {plog("Items must not duplicate tval/sval"); return (PARSE_ERROR_GENERIC);};
+			}
+		}
 
 		/* rod charging algorithm takes division-by-zero on pval, would be weird with negative pval */
-		if (TV_ROD == k_ptr->tval && 0 >= k_ptr->pval) {plog("Rods must have positive pval"); return (PARSE_ERROR_GENERIC);};
+		if (TV_ROD == k_ptr->obj_id.tval && 0 >= k_ptr->pval) {plog("Rods must have positive pval"); return (PARSE_ERROR_GENERIC);};
 	}
 
 	/* Process 'W' for "More Info" (one line only) */
@@ -1499,7 +1499,7 @@ errr parse_a_info(char *buf, header *head)
 		s = strchr(buf+2, ':');
 
 		/* Verify that colon */
-		if (!s) return (PARSE_ERROR_GENERIC);
+		if (!s) return (PARSE_ERROR_MISSING_COLON);
 
 		/* Nuke the colon, advance to the name */
 		*s++ = '\0';
@@ -1537,7 +1537,7 @@ errr parse_a_info(char *buf, header *head)
 		if (!a_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (!parse_integer_like(buf+2,a_ptr->tval,a_ptr->sval,a_ptr->pval)) return (PARSE_ERROR_GENERIC);
+		if (!parse_integer_like(buf+2,a_ptr->obj_id.tval,a_ptr->obj_id.sval,a_ptr->pval)) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Process 'W' for "More Info" (one line only) */
@@ -1609,7 +1609,7 @@ errr parse_a_info(char *buf, header *head)
 		s = strchr(buf + 2, ':');
 
 		/* Verify that colon */
-		if (!s) return (PARSE_ERROR_GENERIC);
+		if (!s) return (PARSE_ERROR_MISSING_COLON);
 
 		/* Nuke the colon, advance to the name */
 		*s++ = '\0';
@@ -1688,7 +1688,7 @@ errr parse_e_info(char *buf, header *head)
 		s = strchr(buf+2, ':');
 
 		/* Verify that colon */
-		if (!s) return (PARSE_ERROR_GENERIC);
+		if (!s) return (PARSE_ERROR_MISSING_COLON);
 
 		/* Nuke the colon, advance to the name */
 		*s++ = '\0';
@@ -1824,12 +1824,15 @@ errr parse_e_info(char *buf, header *head)
  */
 static errr grab_one_basic_flag(monster_race *r_ptr, const char* const what)
 {
+	ZAIBAND_STATIC_ASSERT(32==N_ELEMENTS(r_info_flags1));
 	if (grab_one_flag(&r_ptr->flags[0], r_info_flags1, what) == 0)
 		return (0);
 
+	ZAIBAND_STATIC_ASSERT(32==N_ELEMENTS(r_info_flags2));
 	if (grab_one_flag(&r_ptr->flags[1], r_info_flags2, what) == 0)
 		return (0);
 
+	ZAIBAND_STATIC_ASSERT(32==N_ELEMENTS(r_info_flags3));
 	if (grab_one_flag(&r_ptr->flags[2], r_info_flags3, what) == 0)
 		return (0);
 
@@ -1846,13 +1849,16 @@ static errr grab_one_basic_flag(monster_race *r_ptr, const char* const what)
  */
 static errr grab_one_spell_flag(monster_race *r_ptr, const char* const what)
 {
-	if (grab_one_flag(&r_ptr->flags[3], r_info_flags4, what) == 0)
+	ZAIBAND_STATIC_ASSERT(32==N_ELEMENTS(r_info_flags4));
+	if (grab_one_flag(&r_ptr->spell_flags[0], r_info_flags4, what) == 0)
 		return (0);
 
-	if (grab_one_flag(&r_ptr->flags[4], r_info_flags5, what) == 0)
+	ZAIBAND_STATIC_ASSERT(32==N_ELEMENTS(r_info_flags5));
+	if (grab_one_flag(&r_ptr->spell_flags[1], r_info_flags5, what) == 0)
 		return (0);
 
-	if (grab_one_flag(&r_ptr->flags[5], r_info_flags6, what) == 0)
+	ZAIBAND_STATIC_ASSERT(32==N_ELEMENTS(r_info_flags6));
+	if (grab_one_flag(&r_ptr->spell_flags[2], r_info_flags6, what) == 0)
 		return (0);
 
 	/* Oops */
@@ -1885,7 +1891,7 @@ errr parse_r_info(char *buf, header *head)
 		s = strchr(buf+2, ':');
 
 		/* Verify that colon */
-		if (!s) return (PARSE_ERROR_GENERIC);
+		if (!s) return (PARSE_ERROR_MISSING_COLON);
 
 		/* Nuke the colon, advance to the name */
 		*s++ = '\0';
@@ -2229,7 +2235,7 @@ errr parse_p_info(char *buf, header *head)
 		s = strchr(buf+2, ':');
 
 		/* Verify that colon */
-		if (!s) return (PARSE_ERROR_GENERIC);
+		if (!s) return (PARSE_ERROR_MISSING_COLON);
 
 		/* Nuke the colon, advance to the name */
 		*s++ = '\0';
@@ -2275,7 +2281,7 @@ errr parse_p_info(char *buf, header *head)
 			s = strchr(s, ':');
 
 			/* Verify that colon */
-			if (!s) return (PARSE_ERROR_GENERIC);
+			if (!s) return (PARSE_ERROR_MISSING_COLON);
 
 			/* Nuke the colon, advance to the subindex */
 			*s++ = '\0';
@@ -2410,6 +2416,7 @@ errr parse_p_info(char *buf, header *head)
  */
 static errr grab_one_class_flag(player_class *pc_ptr, const char* const what)
 {
+	ZAIBAND_STATIC_ASSERT(32==N_ELEMENTS(c_info_flags));
 	if (grab_one_flag(&pc_ptr->flags, c_info_flags, what) == 0)
 		return (0);
 
@@ -2444,7 +2451,7 @@ errr parse_c_info(char *buf, header *head)
 		s = strchr(buf+2, ':');
 
 		/* Verify that colon */
-		if (!s) return (PARSE_ERROR_GENERIC);
+		if (!s) return (PARSE_ERROR_MISSING_COLON);
 
 		/* Nuke the colon, advance to the name */
 		*s++ = '\0';
@@ -2494,7 +2501,7 @@ errr parse_c_info(char *buf, header *head)
 			s = strchr(s, ':');
 
 			/* Verify that colon */
-			if (!s) return (PARSE_ERROR_GENERIC);
+			if (!s) return (PARSE_ERROR_MISSING_COLON);
 
 			/* Nuke the colon, advance to the subindex */
 			*s++ = '\0';
@@ -2622,7 +2629,7 @@ errr parse_c_info(char *buf, header *head)
 		e_ptr = &pc_ptr->start_items[cur_equip];
 
 		/* Scan for the values */
-		if (!parse_integer_like(buf+2,e_ptr->tval,e_ptr->sval,e_ptr->min,e_ptr->max)) return (PARSE_ERROR_GENERIC);
+		if (!parse_integer_like(buf+2,e_ptr->obj_id.tval,e_ptr->obj_id.sval,e_ptr->min,e_ptr->max)) return (PARSE_ERROR_GENERIC);
 
 		if ((e_ptr->min > 99) || (e_ptr->max > 99))
 			return (PARSE_ERROR_INVALID_ITEM_NUMBER);
@@ -2755,7 +2762,7 @@ errr parse_b_info(char *buf, header *head)
 		s = strchr(buf+2, ':');
 
 		/* Verify that colon */
-		if (!s) return (PARSE_ERROR_GENERIC);
+		if (!s) return (PARSE_ERROR_MISSING_COLON);
 
 		/* Nuke the colon, advance to the subindex */
 		*s++ = '\0';
@@ -2767,7 +2774,7 @@ errr parse_b_info(char *buf, header *head)
 		t = strchr(s, ':');
 
 		/* Verify that colon */
-		if (!t) return (PARSE_ERROR_GENERIC);
+		if (!t) return (PARSE_ERROR_MISSING_COLON);
 
 		/* Nuke the colon, advance to the name */
 		*t++ = '\0';
@@ -2869,7 +2876,7 @@ errr parse_g_info(char *buf, header *head)
 			s = strchr(s, ':');
 
 			/* Verify that colon */
-			if (!s) return (PARSE_ERROR_GENERIC);
+			if (!s) return (PARSE_ERROR_MISSING_COLON);
 
 			/* Nuke the colon, advance to the subindex */
 			*s++ = '\0';
@@ -2928,16 +2935,16 @@ errr parse_flavor_info(char *buf, header *head)
 		flavor_ptr = (flavor_type*)head->info_ptr + i;
 
 		/* Save the tval */
-		flavor_ptr->tval = (byte)tval;
+		flavor_ptr->obj_id.tval = (byte)tval;
 
 		/* Save the sval */
 		if (result == 2)
 		{
 			/* Megahack - unknown sval */
-			flavor_ptr->sval = SV_UNKNOWN;
+			flavor_ptr->obj_id.sval = SV_UNKNOWN;
 		}
 		else
-			flavor_ptr->sval = (byte)sval;
+			flavor_ptr->obj_id.sval = (byte)sval;
 	}
 
 	/* Process 'G' for "Graphics" */

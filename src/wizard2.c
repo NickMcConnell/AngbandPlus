@@ -16,6 +16,7 @@
  */
 
 #include "angband.h"
+#include "option.h"
 #include "tvalsval.h"
 
 #ifdef ALLOW_DEBUG
@@ -308,7 +309,7 @@ static void wiz_display_item(const object_type *o_ptr)
 
 	prt(format("kind = %-5d  level = %-4d  tval = %-5d  sval = %-5d",
 	           o_ptr->k_idx, o_ptr->level(),
-	           o_ptr->tval, o_ptr->sval), 4, j);
+	           o_ptr->obj_id.tval, o_ptr->obj_id.sval), 4, j);
 
 	prt(format("number = %-3d  wgt = %-6d  ac = %-5d    damage = %dd%d",
 	           o_ptr->number, o_ptr->weight,
@@ -416,7 +417,7 @@ static void strip_name(char *buf, int k_idx)
 	const char* str = k_ptr->name();
 
 	/* If not aware, use flavor */ 
-	if (!cheat_know && !k_ptr->aware && k_ptr->flavor) 
+	if (!OPTION(cheat_know) && !k_ptr->aware && k_ptr->flavor) 
 		str = k_ptr->flavor_text(); 
 
 	/* Skip past leading characters */
@@ -510,7 +511,7 @@ static int wiz_create_itemtype(void)
 		object_kind *k_ptr = &object_type::k_info[i];
 
 		/* Analyze matching items */
-		if (k_ptr->tval == tval)
+		if (k_ptr->obj_id.tval == tval)
 		{
 			/* Hack -- Skip instant artifacts */
 			if (k_ptr->flags[2] & (TR3_INSTA_ART)) continue;
@@ -787,8 +788,7 @@ static void wiz_statistics(object_type *o_ptr)
 
 
 			/* Test for the same tval and sval. */
-			if ((o_ptr->tval) != (i_ptr->tval)) continue;
-			if ((o_ptr->sval) != (i_ptr->sval)) continue;
+			if (o_ptr->obj_id!=i_ptr->obj_id) continue;
 
 			/* Check for match */
 			if ((i_ptr->pval == o_ptr->pval) &&
@@ -873,7 +873,7 @@ static void wiz_quantity_item(object_type *o_ptr, bool carried)
 		}
 
 		/* Adjust charge for rods */
-		if (o_ptr->tval == TV_ROD)
+		if (o_ptr->obj_id.tval == TV_ROD)
 		{
 			o_ptr->pval = (o_ptr->pval / o_ptr->number) * tmp_int;
 		}
@@ -1045,7 +1045,7 @@ static void wiz_create_artifact(int a_idx)
 	WIPE(i_ptr);
 
 	/* Acquire the "kind" index */
-	k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
+	k_idx = lookup_kind(a_ptr->obj_id);
 
 	/* Oops */
 	if (!k_idx) return;

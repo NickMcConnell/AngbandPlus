@@ -16,6 +16,7 @@
  */
 
 #include "angband.h"
+#include "option.h"
 #include "raceflag.h"
 #include "store.h"
 
@@ -627,7 +628,7 @@ static void destroy_level(void)
 
 
 	/* Note destroyed levels */
-	if (cheat_room) msg_print("Destroyed Level");
+	if (OPTION(cheat_room)) msg_print("Destroyed Level");
 
 	/* Drop a few epi-centers (usually about two) */
 	for (n = 0; n < randint(5); n++)
@@ -1603,7 +1604,7 @@ static bool vault_aux_giant(int r_idx)
 /*
  * Hack -- breath type for "vault_aux_dragon()"
  */
-static u32b vault_aux_dragon_mask3;
+static u32b vault_aux_dragon_mask0;
 
 
 /*
@@ -1614,16 +1615,16 @@ static bool vault_aux_dragon(int r_idx)
 	monster_race *r_ptr = &monster_type::r_info[r_idx];
 
 	/* Decline unique monsters */
-	if (r_ptr->flags[0] & RF0_UNIQUE) return (FALSE);
+	if (r_ptr->flags[0] & RF0_UNIQUE) return FALSE;
 
 	/* Hack -- Require "d" or "D" monsters */
-	if (!strchr("Dd", r_ptr->d_char)) return (FALSE);
+	if (!strchr("Dd", r_ptr->d_char)) return FALSE;
 
 	/* Hack -- Require correct "breath attack" */
-	if (r_ptr->flags[3] != vault_aux_dragon_mask3) return (FALSE);
+	if (r_ptr->spell_flags[0] != vault_aux_dragon_mask0) return FALSE;
 
 	/* Okay */
-	return (TRUE);
+	return TRUE;
 }
 
 
@@ -1767,7 +1768,7 @@ static void build_type5(int y0, int x0)
 
 
 	/* Describe */
-	if (cheat_room)
+	if (OPTION(cheat_room))
 	{
 		/* Room type */
 		msg_format("Monster nest (%s)", name);
@@ -1931,7 +1932,7 @@ static void build_type6(int y0, int x0)
 				name = "acid dragon";
 
 				/* Restrict dragon breath type */
-				vault_aux_dragon_mask3 = RF3_BR_ACID;
+				vault_aux_dragon_mask0 = RSF0_BR_ACID;
 
 				/* Done */
 				break;
@@ -1944,7 +1945,7 @@ static void build_type6(int y0, int x0)
 				name = "electric dragon";
 
 				/* Restrict dragon breath type */
-				vault_aux_dragon_mask3 = RF3_BR_ELEC;
+				vault_aux_dragon_mask0 = RSF0_BR_ELEC;
 
 				/* Done */
 				break;
@@ -1957,7 +1958,7 @@ static void build_type6(int y0, int x0)
 				name = "fire dragon";
 
 				/* Restrict dragon breath type */
-				vault_aux_dragon_mask3 = RF3_BR_FIRE;
+				vault_aux_dragon_mask0 = RSF0_BR_FIRE;
 
 				/* Done */
 				break;
@@ -1970,7 +1971,7 @@ static void build_type6(int y0, int x0)
 				name = "cold dragon";
 
 				/* Restrict dragon breath type */
-				vault_aux_dragon_mask3 = RF3_BR_COLD;
+				vault_aux_dragon_mask0 = RSF0_BR_COLD;
 
 				/* Done */
 				break;
@@ -1983,7 +1984,7 @@ static void build_type6(int y0, int x0)
 				name = "poison dragon";
 
 				/* Restrict dragon breath type */
-				vault_aux_dragon_mask3 = RF3_BR_POIS;
+				vault_aux_dragon_mask0 = RSF0_BR_POIS;
 
 				/* Done */
 				break;
@@ -1996,9 +1997,9 @@ static void build_type6(int y0, int x0)
 				name = "multi-hued dragon";
 
 				/* Restrict dragon breath type */
-				vault_aux_dragon_mask3 = (RF3_BR_ACID | RF3_BR_ELEC |
-				                          RF3_BR_FIRE | RF3_BR_COLD |
-				                          RF3_BR_POIS);
+				vault_aux_dragon_mask0 = (RSF0_BR_ACID | RSF0_BR_ELEC |
+				                          RSF0_BR_FIRE | RSF0_BR_COLD |
+				                          RSF0_BR_POIS);
 
 				/* Done */
 				break;
@@ -2070,7 +2071,7 @@ static void build_type6(int y0, int x0)
 
 
 	/* Message */
-	if (cheat_room)
+	if (OPTION(cheat_room))
 	{
 		/* Room type */
 		msg_format("Monster pit (%s)", name);
@@ -2346,7 +2347,7 @@ static void build_type7(coord g)
 	}
 
 	/* Message */
-	if (cheat_room) msg_format("Lesser vault (%s)", v_ptr->name());
+	if (OPTION(cheat_room)) msg_format("Lesser vault (%s)", v_ptr->name());
 
 	/* Boost the rating */
 	rating += v_ptr->rat;
@@ -2382,7 +2383,7 @@ static void build_type8(coord g)
 	}
 
 	/* Message */
-	if (cheat_room) msg_format("Greater vault (%s)", v_ptr->name());
+	if (OPTION(cheat_room)) msg_format("Greater vault (%s)", v_ptr->name());
 
 	/* Boost the rating */
 	rating += v_ptr->rat;
@@ -2900,7 +2901,7 @@ static void cave_gen(void)
 		bx = rand_int(dun->col_rooms);
 
 		/* Align dungeon rooms */
-		if (dungeon_align)
+		if (OPTION(adult_dungeon_align))
 		{
 			/* Slide some rooms right */
 			if ((bx % 3) == 0) bx++;
@@ -3466,7 +3467,7 @@ void generate_cave(void)
 		else feeling = 10;
 
 		/* Hack -- Have a special feeling sometimes */
-		if (good_item_flag && !adult_preserve) feeling = 1;
+		if (good_item_flag && !OPTION(adult_preserve)) feeling = 1;
 
 		/* It takes 1000 game turns for "feelings" to recharge */
 		if (((turn - old_turn) < 1000) && (old_turn > 1)) feeling = 0;
@@ -3496,7 +3497,7 @@ void generate_cave(void)
 		}
 
 		/* Mega-Hack -- "auto-scum" */
-		if (auto_scum && (num < 100))
+		if (OPTION(adult_auto_scum) && (num < 100))
 		{
 			/* Require "goodness" */
 			if ((feeling > 9) ||
@@ -3506,8 +3507,8 @@ void generate_cave(void)
 			    ((p_ptr->depth >= 40) && (feeling > 5)))
 			{
 				/* Give message to cheaters */
-				if (cheat_room || cheat_hear ||
-				    cheat_peek || cheat_xtra)
+				if (OPTION(cheat_room) || OPTION(cheat_hear) ||
+				    OPTION(cheat_peek) || OPTION(cheat_xtra))
 				{
 					/* Message */
 					why = "boring level";

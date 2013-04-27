@@ -20,6 +20,7 @@
 
 #include "angband.h"
 #include "game-event.h"
+#include "option.h"
 #include "wind_flg.h"
 
 #include "keypad.h"
@@ -254,7 +255,7 @@ static void verify_panel(void)
 		panel_hgt = screen_hgt / 2;
 
 		/* Scroll screen vertically when off-center */
-		if (center_player && (!p_ptr->running || !run_avoid_center) &&
+		if (OPTION(center_player) && (!p_ptr->running || !OPTION(run_avoid_center)) &&
 		    (py != wy + panel_hgt))
 		{
 			wy = py - panel_hgt;
@@ -268,7 +269,7 @@ static void verify_panel(void)
 
 
 		/* Scroll screen horizontally when off-center */
-		if (center_player && (!p_ptr->running || !run_avoid_center) &&
+		if (OPTION(center_player) && (!p_ptr->running || !OPTION(run_avoid_center)) &&
 		    (px != wx + panel_wid))
 		{
 			wx = px - panel_wid;
@@ -554,10 +555,13 @@ static void prt_health(int row, int col)
 	{
 		/* Erase the health bar */
 		Term_erase(col, row, 12);
+		return;
 	}
 
+	const monster_type* const m_ptr = m_ptr_from_m_idx(p_ptr->health_who);
+
 	/* Tracking an unseen monster */
-	else if (!mon_list[p_ptr->health_who].ml)
+	if (!m_ptr->ml)
 	{
 		/* Indicate that the monster health is "unknown" */
 		Term_putstr(col, row, 12, TERM_WHITE, "[----------]");
@@ -571,7 +575,7 @@ static void prt_health(int row, int col)
 	}
 
 	/* Tracking a dead monster (?) */
-	else if (0 > mon_list[p_ptr->health_who].chp)
+	else if (0 > m_ptr->chp)
 	{
 		/* Indicate that the monster health is "unknown" */
 		Term_putstr(col, row, 12, TERM_WHITE, "[----------]");
@@ -580,7 +584,6 @@ static void prt_health(int row, int col)
 	/* Tracking a visible monster */
 	else
 	{
-		const monster_type* const m_ptr = &mon_list[p_ptr->health_who];
 		int len;
 		byte attr = TERM_RED;
 
@@ -613,19 +616,23 @@ static void prt_health(int row, int col)
 static void prt_max_mon_hp(int row, int col)
 {
 	if (   !p_ptr->health_who						/* Not tracking */
-		|| !mon_list[p_ptr->health_who].ml			/* Unseen */
-		|| p_ptr->timed[TMD_IMAGE]					/* Hallucinatory */
-		|| (0 > mon_list[p_ptr->health_who].chp))	/* Dead */
+		|| p_ptr->timed[TMD_IMAGE])					/* Hallucinatory */
 	{
+BlankLine:
 		/* Erase the health bar */
 		Term_erase(col, row, 12);
+		return;
 	}
+
+	const monster_type* const m_ptr = m_ptr_from_m_idx(p_ptr->health_who);
+	if (   !m_ptr->ml			/* Unseen */
+		|| (0 > m_ptr->chp))	/* Dead */
+		goto BlankLine;
 
 	/* Tracking a visible monster */
 	else
 	{
 		char tmp[32];
-		const monster_type* const m_ptr = &mon_list[p_ptr->health_who];
 
 		sprintf(tmp, "M. MHP %5d", (int)(m_ptr->mhp));
 		Term_putstr(col, row, 12, TERM_WHITE, tmp);
@@ -638,19 +645,23 @@ static void prt_max_mon_hp(int row, int col)
 static void prt_move_ratio(int row, int col)
 {
 	if (   !p_ptr->health_who						/* Not tracking */
-		|| !mon_list[p_ptr->health_who].ml			/* Unseen */
-		|| p_ptr->timed[TMD_IMAGE]					/* Hallucinatory */
-		|| (0 > mon_list[p_ptr->health_who].chp))	/* Dead */
+		|| p_ptr->timed[TMD_IMAGE])					/* Hallucinatory */
 	{
+BlankLine:
 		/* Erase the health bar */
 		Term_erase(col, row, 12);
+		return;
 	}
+
+	const monster_type* const m_ptr = m_ptr_from_m_idx(p_ptr->health_who);
+	if (   !m_ptr->ml			/* Unseen */
+		|| (0 > m_ptr->chp))	/* Dead */
+		goto BlankLine;
 
 	/* Tracking a visible monster */
 	else
 	{
 		char tmp[32];
-		const monster_type* const m_ptr = &mon_list[p_ptr->health_who];
 		int player_moves = 1;
 		int monster_moves = 1;
 
@@ -666,7 +677,8 @@ static void prt_move_ratio(int row, int col)
 
 static void prt_energy(int row, int col)
 {
-	put_str("Energy    ", row, col);
+	Term_erase(col, row, 12);		/* Erase the energy line */
+	put_str("Energy ", row, col);
 
 
 	int i = p_ptr->speed;
@@ -677,23 +689,55 @@ static void prt_energy(int row, int col)
 	/* Hack -- Visually "undo" the Search Mode Slowdown */
 	if (p_ptr->searching) i += 10;
 
-	/* Fast */
-	if (i > 110)
+	if (   !p_ptr->health_who						/* Not tracking */
+		|| p_ptr->timed[TMD_IMAGE])					/* Hallucinatory */
 	{
-		attr = TERM_GREEN;
+NoTarget:
+		/* Fast */
+		if (i > 110)
+		{
+			attr = TERM_GREEN;
+		}
+
+		/* Slow */
+		else if (i < 110)
+		{
+			attr = TERM_L_UMBER;
+		};
+
+		sprintf(buf, "%2d", (int)(extract_energy[i]));
+
+		/* Display the speed */
+		c_put_str(attr, buf, row, col+7);
+		return;
 	}
 
-	/* Slow */
-	else if (i < 110)
+
+	const monster_type* const m_ptr = m_ptr_from_m_idx(p_ptr->health_who);
+	if (   !m_ptr->ml			/* Unseen */
+		|| (0 > m_ptr->chp))	/* Dead */
+		goto NoTarget;
+		
+	/* Tracking a visible monster */
+	else
 	{
-		attr = TERM_L_UMBER;
-	};
+		/* Fast */
+		if (i > m_ptr->speed)
+		{
+			attr = TERM_GREEN;
+		}
 
-	sprintf(buf, "%2d", (int)(extract_energy[i]));
+		/* Slow */
+		else if (i < m_ptr->speed)
+		{
+			attr = TERM_L_UMBER;
+		};
 
-	/* Display the speed */
-	c_put_str(attr, buf, row, col+10);
+		sprintf(buf, "%d/%d", (int)(extract_energy[i]), (int)(extract_energy[m_ptr->speed]));
 
+		/* Display the energy ratio */
+		c_put_str(attr, buf, row, col+7);
+	}
 }
 
 /*
@@ -743,7 +787,7 @@ static void prt_depth(int row, int col)
 	{
 		my_strcpy(depths, "Town", sizeof(depths));
 	}
-	else if (depth_in_feet)
+	else if (OPTION(depth_in_feet))
 	{
 		strnfmt(depths, sizeof(depths), "%d ft", p_ptr->depth * 50);
 	}
@@ -1109,7 +1153,7 @@ static size_t prt_state(int row, int col)
 static size_t prt_dtrap(int row, int col)
 {
 #if 0
-	byte info = cave_info2[p_ptr->py][p_ptr->px];
+	byte info = cave_info2[p_ptr->loc.y][p_ptr->loc.x];
 
 	/* The player is in a trap-detected grid */
 	if (info & (CAVE2_DTRAP))

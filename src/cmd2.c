@@ -17,6 +17,7 @@
  */
 
 #include "angband.h"
+#include "option.h"
 #include "tvalsval.h"
 
 #include "keypad.h"
@@ -63,7 +64,7 @@ void do_cmd_go_up(void)
 	}
 
 	/* Ironman */
-	if (adult_ironman)
+	if (OPTION(adult_ironman))
 	{
 		msg_print("Nothing happens!");
 		return;
@@ -196,7 +197,7 @@ static s16b chest_check(coord g)
 		/* if (!o_ptr->marked) continue; */
 
 		/* Check for chest */
-		if (o_ptr->tval == TV_CHEST) return (this_o_idx);
+		if (o_ptr->obj_id.tval == TV_CHEST) return (this_o_idx);
 	}
 
 	/* No chest */
@@ -220,8 +221,8 @@ static void chest_death(coord t, s16b o_idx)
 	object_type *o_ptr = &o_list[o_idx];	/* Get the chest */
 	object_type object_type_body;
 	object_type *i_ptr = &object_type_body; /* Get local object */
-	bool tiny = (o_ptr->sval < SV_CHEST_MIN_LARGE);	/* Small chests often hold "gold" */
-	int number = (o_ptr->sval % SV_CHEST_MIN_LARGE) * 2;	/* Determine how much to drop (see above) */
+	bool tiny = (o_ptr->obj_id.sval < SV_CHEST_MIN_LARGE);	/* Small chests often hold "gold" */
+	int number = (o_ptr->obj_id.sval % SV_CHEST_MIN_LARGE) * 2;	/* Determine how much to drop (see above) */
 
 	/* Zero pval means empty chest */
 	if (!o_ptr->pval) number = 0;
@@ -242,7 +243,7 @@ static void chest_death(coord t, s16b o_idx)
 		if (tiny && !one_in_(4))
 		{
 			/* Make some gold */
-			if (!make_gold(i_ptr)) continue;
+			make_gold(i_ptr, SV_CASH);
 		}
 
 		/* Otherwise drop an item */
@@ -381,7 +382,7 @@ static bool do_cmd_open_chest(coord g, s16b o_idx)
 		{
 			/* We may continue repeating */
 			more = TRUE;
-			if (flush_failure) flush();
+			if (OPTION(flush_failure)) flush();
 			message(MSG_LOCKPICK_FAIL, 0, "You failed to pick the lock.");
 		}
 	}
@@ -451,7 +452,7 @@ static bool do_cmd_disarm_chest(coord g, s16b o_idx)
 	{
 		/* We may keep trying */
 		more = TRUE;
-		if (flush_failure) flush();
+		if (OPTION(flush_failure)) flush();
 		msg_print("You failed to disarm the chest.");
 	}
 
@@ -617,8 +618,7 @@ static bool do_cmd_open_test(coord g)
 	}
 
 	/* Must be a closed door */
-	if (!((cave_feat[g.y][g.x] >= FEAT_DOOR_HEAD) &&
-	      (cave_feat[g.y][g.x] <= FEAT_DOOR_TAIL)))
+	if (!cave_feat_in_range(g.y,g.x,FEAT_DOOR_HEAD,FEAT_DOOR_TAIL))
 	{
 		/* Message */
 		message(MSG_NOTHING_TO_OPEN, 0, "You see nothing there to open.");
@@ -678,7 +678,7 @@ static bool do_cmd_open_aux(coord g)
 		else
 		{
 			/* Failure */
-			if (flush_failure) flush();
+			if (OPTION(flush_failure)) flush();
 
 			/* Message */
 			message(MSG_LOCKPICK_FAIL, 0, "You failed to pick the lock.");
@@ -723,7 +723,7 @@ void do_cmd_open(void)
 
 
 	/* Easy Open */
-	if (easy_open)
+	if (OPTION(easy_open))
 	{
 		int num_doors, num_chests;
 
@@ -901,7 +901,7 @@ void do_cmd_close(void)
 
 
 	/* Easy Close */
-	if (easy_open)
+	if (OPTION(easy_open))
 	{
 		/* Count open doors */
 		if (count_feats(g, is_open, FALSE) == 1)
@@ -1322,8 +1322,7 @@ static bool do_cmd_disarm_test(coord g)
 	}
 
 	/* Require an actual trap */
-	if (!((cave_feat[g.y][g.x] >= FEAT_TRAP_HEAD) &&
-	      (cave_feat[g.y][g.x] <= FEAT_TRAP_TAIL)))
+	if (!cave_feat_in_range(g.y,g.x,FEAT_TRAP_HEAD,FEAT_TRAP_TAIL))
 	{
 		/* Message */
 		msg_print("You see nothing there to disarm.");
@@ -1374,7 +1373,7 @@ static bool do_cmd_disarm_aux(coord g)
 	else if ((i > 5) && (randint(i) > 5))
 	{
 		/* Failure */
-		if (flush_failure) flush();
+		if (OPTION(flush_failure)) flush();
 
 		/* Message */
 		msg_format("You failed to disarm the %s.", name);
@@ -1412,7 +1411,7 @@ void do_cmd_disarm(void)
 
 
 	/* Easy Disarm */
-	if (easy_open)
+	if (OPTION(easy_open))
 	{
 		int num_traps = count_feats(g, is_trap, TRUE);	/* Count visible traps */
 		int num_chests = count_chests(g, TRUE);			/* Count chests (trapped) */
@@ -1511,8 +1510,7 @@ static bool do_cmd_bash_test(coord g)
 	}
 
 	/* Require a door */
-	if (!((cave_feat[g.y][g.x] >= FEAT_DOOR_HEAD) &&
-	      (cave_feat[g.y][g.x] <= FEAT_DOOR_TAIL)))
+	if (!cave_feat_in_range(g.y,g.x,FEAT_DOOR_HEAD,FEAT_DOOR_TAIL))
 	{
 		/* Message */
 		msg_print("You see nothing there to bash.");
@@ -1821,7 +1819,7 @@ static bool get_spike(int& ip)
 		const object_type* const o_ptr = &p_ptr->inventory[i];
 
 		/* Check the "tval" code */
-		if (o_ptr->tval == TV_SPIKE)
+		if (o_ptr->obj_id.tval == TV_SPIKE)
 		{
 			/* Save the spike index */
 			ip = i;
@@ -1852,8 +1850,7 @@ static bool do_cmd_spike_test(coord g)
 	}
 
 	/* Require a door */
-	if (!((cave_feat[g.y][g.x] >= FEAT_DOOR_HEAD) &&
-	      (cave_feat[g.y][g.x] <= FEAT_DOOR_TAIL)))
+	if (!cave_feat_in_range(g.y,g.x,FEAT_DOOR_HEAD,FEAT_DOOR_TAIL))
 	{
 		/* Message */
 		msg_print("You see nothing there to spike.");
@@ -1979,7 +1976,7 @@ static bool do_cmd_walk_test(int y, int x)
 		else if (cave_feat[y][x] < FEAT_SECRET)
 		{
 			/* Hack -- Handle "easy_alter" */
-			if (easy_alter) return (TRUE);
+			if (OPTION(easy_alter)) return (TRUE);
 
 			/* Message */
 			message(MSG_HITWALL, 0, "There is a door in the way!");
@@ -2150,8 +2147,7 @@ static void do_cmd_hold_or_stay(int pickup)
 	py_pickup(pickup);
 
 	/* Hack -- enter a store if we are on one */
-	if ((cave_feat[p_ptr->loc.y][p_ptr->loc.x] >= FEAT_SHOP_HEAD) &&
-	    (cave_feat[p_ptr->loc.y][p_ptr->loc.x] <= FEAT_SHOP_TAIL))
+	if (cave_feat_in_range(p_ptr->loc.y,p_ptr->loc.x,FEAT_SHOP_HEAD,FEAT_SHOP_TAIL))
 	{
 		/* Disturb */
 		disturb(0, 0);
@@ -2171,7 +2167,7 @@ static void do_cmd_hold_or_stay(int pickup)
 void do_cmd_hold(void)
 {
 	/* Hold still (usually pickup) */
-	do_cmd_hold_or_stay(always_pickup);
+	do_cmd_hold_or_stay(OPTION(always_pickup));
 }
 
 
@@ -2181,7 +2177,7 @@ void do_cmd_hold(void)
 void do_cmd_stay(void)
 {
 	/* Stay still (usually do not pickup) */
-	do_cmd_hold_or_stay(!always_pickup);
+	do_cmd_hold_or_stay(!OPTION(always_pickup));
 }
 
 

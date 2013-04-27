@@ -40,10 +40,6 @@ static const struct module modules[] =
 	{ "gtk", help_gtk, init_gtk },
 #endif /* USE_GTK */
 
-#ifdef USE_XAW
-	{ "xaw", help_xaw, init_xaw },
-#endif /* USE_XAW */
-
 #ifdef USE_X11
 	{ "x11", help_x11, init_x11 },
 #endif /* USE_X11 */
@@ -228,8 +224,6 @@ int main(int argc, char *argv[])
 
 	bool done = FALSE;
 
-	int show_score = 0;
-
 	const char *mstr = NULL;
 
 	bool args = TRUE;
@@ -334,14 +328,6 @@ int main(int argc, char *argv[])
 				break;
 			}
 
-			case 'S':
-			case 's':
-			{
-				show_score = atoi(arg);
-				if (show_score <= 0) show_score = 10;
-				continue;
-			}
-
 			case 'u':
 			case 'U':
 			{
@@ -387,7 +373,6 @@ int main(int argc, char *argv[])
 				puts("  -f             Request fiddle (verbose) mode");
 				puts("  -v             Request sound mode");
 				puts("  -g             Request graphics mode");
-				puts("  -s<num>        Show <num> high scores (default: 10)");
 				puts("  -u<who>        Use your <who> savefile");
 				puts("  -d<path>       Store pref files and screendumps in <path>");
 				puts("  -m<sys>        Use module <sys>, where <sys> can be:");
@@ -431,11 +416,10 @@ int main(int argc, char *argv[])
 
 	/* Make sure we have a display! */
 	if (!done) quit("Unable to prepare any 'display module'!");
-	
+
 
 	/* Process the player name */
-	if (ANGBAND_SYS != "gtk")
-		process_player_name(TRUE);
+	process_player_name(TRUE);
 
 	/* Install "quit" hook */
 	quit_aux = quit_hook;
@@ -460,7 +444,7 @@ int main(int argc, char *argv[])
 		get_game_command = get_init_cmd;
 
 	/* Set up the display handlers and things. */
-	init_display();   
+	init_display();
 
 	/* Play the game */
 	play_game();

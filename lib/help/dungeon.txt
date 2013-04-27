@@ -121,7 +121,7 @@ HP   19/  19 #........#####.........#########......#6######....#########......#
 M. MHP     2 #.....................................########...................#
              #.....................................########...................#
 Nxt Turn 1/1 #.......................................t.......@................#
-Energy    10 #................................................................#
+Energy 10/10 #................................................................#
              ##################################################################
 Town
 
@@ -174,9 +174,10 @@ Discerning whether monsters know how to use the move ratio information
 is difficult at this time.
 
 The Energy line lists your "energy" recovery, which controls how fast your
-character takes turns.  It is currently an internal statistic that monsters
-do not directly see.  Slow monsters have substantially less energy recovery
-than 10; fast monsters have substantially more energy recovery.
+character takes turns.  If you are targeting a monster, you will also see
+the targeted monster's "energy" recovery.  Slow monsters have substantially 
+less energy recovery than 10; fast monsters have substantially more energy 
+recovery.
 
 If your energy recovery is less than 10, the speed that is causing this will
 show under the Energy line as Slow (-__).  Likewise, if your energy recovery

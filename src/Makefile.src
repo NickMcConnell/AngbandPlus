@@ -13,7 +13,7 @@ INCS = angband.h config.h defines.h externs.h types.h types2.h \
 
 HEADERS = $(HDRS) $(INCS)
 
-ZFILES = flow.o game-event.o keypad.o z-file.o z-form.o z-msg.o z-probability.o z-quark.o z-rand.o z-term.o z-type.o z-util.o z-virt.o
+ZFILES = flow.o game-event.o keypad.o option.o z-file.o z-form.o z-msg.o z-probability.o z-quark.o z-rand.o z-term.o z-type.o z-util.o z-virt.o
 MAINFILES = main.o maid-x11.o main-crb.o main-gcu.o main-gtk.o \
 	main-ros.o main-sdl.o main-win.o main-x11.o main-xaw.o snd-sdl.o
 
@@ -35,6 +35,7 @@ ANGFILES = \
 	init1.o \
 	init2.o \
 	load.o \
+	macro.o \
 	melee1.o \
 	melee2.o \
 	monster1.o \

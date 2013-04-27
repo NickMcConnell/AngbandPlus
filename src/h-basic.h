@@ -341,20 +341,7 @@
 
 
 /*** Other headers ***/
-/* want a static assert */
-/* we have two other potential sources...a sufficiently advanced C++ compiler, or Loki */
-
-#ifdef HAVE_BOOST
-# include <boost/static_assert.hpp>
-# define ZAIBAND_STATIC_ASSERT(A) BOOST_STATIC_ASSERT(A)
-#endif
-
-/* want a test for POD-struct */
-/* check whether Loki is good for this */
-#ifdef HAVE_BOOST
-# include <boost/type_traits.hpp>
-# define ZAIBAND_REQUIRE_POD_STRUCT(A) BOOST_STATIC_ASSERT(boost::is_pod<A>::value)
-#endif
+#include "static_assert.h"
 
 #if defined(MACINTOSH) && defined(__MWERKS__)
 # include <unix.h>
@@ -436,7 +423,8 @@ typedef unsigned char byte;
 
 #endif /* __STDC__ */
 
-#define MAX_SHORT				((u16b)(-1)/2)
+#define MAX_S16B	((s16b)((u16b)(-1)/2))
+#define MAX_S32B	((s32b)((u32b)(-1)/2))
 
 /*** Simple constants ***/
 

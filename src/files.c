@@ -9,6 +9,8 @@
  */
 
 #include "angband.h"
+#include "macro.h"
+#include "option.h"
 #include "score.h"
 #include "store.h"
 #include "tvalsval.h"
@@ -351,7 +353,7 @@ errr process_pref_file_command(char *buf)
 	{
 		char tmp[1024];
 		text_to_ascii(tmp, sizeof(tmp), buf+2);
-		macro_add(tmp, macro_buffer);
+		if (macro_add(tmp, macro_buffer)) return (1);
 		return (0);
 	}
 
@@ -495,7 +497,7 @@ errr process_pref_file_command(char *buf)
 		/* Check non-adult options */
 		for (i = 0; i < OPT_ADULT; i++)
 		{
-			if (option_text[i] && streq(option_text[i], buf + 2))
+			if (options[i].text && streq(options[i].text, buf + 2))
 			{
 				op_ptr->opt[i] = FALSE;
 				return (0);
@@ -512,7 +514,7 @@ errr process_pref_file_command(char *buf)
 		/* Check non-adult options */
 		for (i = 0; i < OPT_ADULT; i++)
 		{
-			if (option_text[i] && streq(option_text[i], buf + 2))
+			if (options[i].text && streq(options[i].text, buf + 2))
 			{
 				op_ptr->opt[i] = TRUE;
 				return (0);
@@ -1554,7 +1556,7 @@ static const char *show_max_depth(void)
 {
 	static char buffer[10];
 	if (p_ptr->max_depth == 0) return "Town";
-	else if (depth_in_feet)
+	else if (OPTION(depth_in_feet))
 	{
 		strnfmt(buffer, sizeof(buffer), "%d ft", p_ptr->max_depth * 50);
 		return buffer;
@@ -1583,14 +1585,14 @@ static const char *show_weapon(const object_type *o_ptr)
 	static char buffer[2][12];
 	int hit = p_ptr->dis_to_h;
 	int dam = p_ptr->dis_to_d;
-	bool is_bow = (o_ptr->tval == TV_BOW);
+	const bool is_bow = (o_ptr->obj_id.tval == TV_BOW);
 	if (o_ptr->known())
 	{
 		hit += o_ptr->to_h;
 		if (!is_bow) dam += o_ptr->to_d;
 	}
-	strnfmt(buffer[(int)is_bow], sizeof(buffer), "(%+d,%+d)", hit, dam);
-	return buffer[(int)is_bow];
+	strnfmt(buffer[is_bow], sizeof(buffer), "(%+d,%+d)", hit, dam);
+	return buffer[is_bow];
 }
 
 static inline byte max_color(int val, int max)
@@ -1712,7 +1714,7 @@ int get_panel(int oid, data_panel *panel, size_t size)
 		{TERM_L_BLUE, "Height",		"%y",	{ i2u(p_ptr->ht), END  }},
 		{TERM_L_BLUE, "Weight",		"%y",	{ i2u(p_ptr->wt), END  }},
 		{TERM_L_BLUE, "Status",		"%y",	{ i2u(p_ptr->sc), END  }},
-		{TERM_L_BLUE, "Maximize",	"%y",	{ c2u(adult_maximize ? 'Y' : 'N'), END  }}
+		{TERM_L_BLUE, "Maximize",	"%y",	{ c2u(OPTION(adult_maximize) ? 'Y' : 'N'), END  }}
 	};
 #ifdef ZAIBAND_STATIC_ASSERT
 	ZAIBAND_STATIC_ASSERT(N_ELEMENTS(panel5) == PANEL5_PAGE_ROW);
@@ -1855,7 +1857,7 @@ errr file_character(const char* name, bool full)
 		strnfmt(out_val, sizeof(out_val), "Replace existing file %s? ", buf);
 
 		/* Ask */
-		if (get_check(out_val)) fd = -1;
+		if (!get_check(out_val)) fd = -1;
 	}
 
 	/* Open the non-existing file */
@@ -2031,12 +2033,12 @@ errr file_character(const char* name, bool full)
 	/* Dump options */
 	for (i = OPT_ADULT; i < OPT_MAX; i++)
 	{
-		if (option_desc[i])
+		if (options[i].desc)
 		{
 			fprintf(fff, "%-45s: %s (%s)\n",
-			        option_desc[i],
+			        options[i].desc,
 			        op_ptr->opt[i] ? "yes" : "no ",
-			        option_text[i]);
+			        options[i].text);
 		}
 	}
 
@@ -2086,59 +2088,24 @@ static void string_lower(char *buf)
 bool show_file(const char* name, const char* what, int line, int mode)
 {
 	int i, k, n;
-
 	char ch;
-
-	/* Number of "real" lines passed by */
-	int next = 0;
-
-	/* Number of "real" lines in the file */
-	int size;
-
-	/* Backup value for "line" */
-	int back = 0;
-
-	/* This screen has sub-screens */
-	bool menu = FALSE;
-
-	/* Case sensitive search */
-	bool case_sensitive = FALSE;
-
-	/* Current help file */
-	FILE *fff = NULL;
-
-	/* Find this string (if any) */
-	char *find = NULL;
-
-	/* Jump to this tag */
-	const char* tag = NULL;
-
-	/* Hold a string to find */
-	char finder[80];
-
-	/* Hold a string to show */
-	char shower[80];
-
-	/* Filename */
-	char filename[1024];
-
-	/* Describe this thing */
-	char caption[128];
-
-	/* Path buffer */
-	char path[1024];
-
-	/* General buffer */
-	char buf[1024];
-
-	/* Lower case version of the buffer, for searching */
-	char lc_buf[1024];
-
-	/* Sub-menu information */
-	char hook[26][32];
-
+	int next = 0;	/* Number of "real" lines passed by */
+	int size;		/* Number of "real" lines in the file */
+	int back = 0;	/* Backup value for "line" */
+	bool menu = FALSE;	/* This screen has sub-screens */
+	bool case_sensitive = FALSE;	/* Case sensitive search */
+	FILE *fff = NULL;	/* Current help file */
+	char *find = NULL;	/* Find this string (if any) */
+	const char* tag = NULL;	/* Jump to this tag */
+	char finder[80];	/* Hold a string to find */
+	char shower[80];	/* Hold a string to show */
+	char filename[1024];	/* Filename */
+	char caption[128];	/* Describe this thing */
+	char path[1024];	/* Path buffer */
+	char buf[1024];		/* General buffer */
+	char lc_buf[1024];	/* Lower case version of the buffer, for searching */
+	char hook[26][32];	/* Sub-menu information */
 	int wid, hgt;
-
 
 	/* Wipe finder */
 	finder[0] = '\x00';
@@ -2972,7 +2939,7 @@ static void show_info(void)
 				object_desc(o_name, sizeof(o_name), o_ptr, TRUE, ODESC_FULL);
 
 				/* Get the inventory color */
-				attr = tval_to_attr[o_ptr->tval % N_ELEMENTS(tval_to_attr)];
+				attr = tval_to_attr[o_ptr->obj_id.tval % N_ELEMENTS(tval_to_attr)];
 
 				/* Display the object */
 				c_put_str(attr, o_name, j+2, 7);

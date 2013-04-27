@@ -1,9 +1,56 @@
 META: edit format break
 * object.txt: A line conversion of some kind
-* artifact.txt: kill ACTIVATE flag
+* really should do something about the menu_flags type, merged in a RiscOS main that needs protection from this
+* V SVN 944 breaks top-level Makefile for Zaiband; remember to proofread before release and counter-patch
 
-META: other changes
-* terrain.txt: summon runes should look different than teleport runes, etc.
+[resync dirs: src, lib/edit]
+Changes Zaiband 3.0.9
+- The Black Market has what you need, when you need it (as long as it is affordable).  At least, for:
+** ?Word of Recall
+** !Restore [stat]
+** !Restore Experience
+  This availability boost should require the affected items to not be available in any other store (including the home), 
+  and for @ to have nothing relevant.
+- The Black Market will no longer taunt you with unaffordable Rings of Speed at CL 1.  In fact, 
+  no store should taunt you with truly unaffordable items (as of the time of store maintenance). The only exception will be to 
+  prevent infinite looping of the store maintenance backend.  [In particular, the Magic Shop may taunt you with unaffordable items before 
+  your first trip.]
+- Stores should have fewer boring armors and weapons now, assuming that they can get interesting ones in.  Note that other than missiles,
+  multiple instances of the exact same kind of armor or weapon are boring.  You will only see one of each kind in stock, regardless of 
+  how many are actually in stock.
+- I couldn't think of a good reason in-character reason why summon traps should look identical to teleport traps when visible.  
+  They no longer do (but still have the same descriptive text).
+- !Experience adjusted to restore experience first, to match the Gain [stat] potions
+- cost rebalancing: first pass at resolving inadequate value of enchantment pluses.
+- monster pathfinding now has limited awareness of cover and concealment
+- non-stupid monsters that both have los on you, and los on a sleeping monster, will try to wake the sleeping monster automatically 
+  (doesn't cost a turn)
+- Energy recovery is now a public stat (you can see the monster's energy recovery when you target them...and vice versa).  When there is a ratio,
+  yours is on the left.
+- Points-based generation has been revamped.  Any stat combination from autorolling or classical generation is now possible, and no others.
+  Gold from points-based generation is exactly equivalent to that from either autorolling or classical generation.  Starting point is 
+  all optimistic median stats; you can reduce stats below their starting values if necessary.
+- option defaults changed:
+** flow_by_sound/flow_by_small/view_yellow_lite/view_bright_lite/view_granite_lite/view_special_lite/smart_monsters/smart_packs on
+** run_ignore_stairs, run_ignore_doors, ring_bell off
+** now birth: auto_scum, flow_by_sound, flow_by_smell, smart_monsters, smart_packs, smart_learn, smart_cheat, dungeon_align, dungeon_stair.
+   Have these the way you want them before importing.
+- JamesDoyle/Oook forums: a number of spelling tweaks to the artifact descriptions.
+- from V SVN:
+** all monsters that have great drops have good drops.
+** extra color names
+** character dump logic fix
+** experience for monster kill, and native depth, obvious
+** arrows, missiles, and boulders can miss now.  Using Zaiband's ranged attack penalties.
+** selling in stores forced to start on character inventory
+** Starting torches are implicitly store-bought (but 3500 turns)
+
+Technical Changes Zaiband 3.0.9
+- Windows port: require FF_MODERN (const-width font) as default rather than FF_DONTCARE
+- Windows port: efficient font cache
+- main-xaw.c is in the freezer now.
+- k_idx disconnected from savefile relevance (and gone from object.txt).
+- [Eddie Grove] ACTIVATE flag no longer exists.
 
 Changes Zaiband 3.0.8 alpha
 - monster recovery from stunning, confusion, and fear has been made 
@@ -977,7 +1024,6 @@ Aug 18, 2007: -107 days
 620: LUA stat analyzer
 621: tool script readme
 622: remove zero-effect code
-623: anti-segfault hack
 625: clean up object flags as part of *ID* annihilation
 626: chardump fix to z-file.c
 628: chardump fix
@@ -988,7 +1034,6 @@ Aug 18, 2007: -107 days
 638/639: alternate detection approach
 640: overwrite savefile prompt fix
 643/644: version adjust (ignore, but note out-of-memory issue with 643)
-645/646: GTK work
 652/653/654: object_desc cleanup
 * this one's messy, and I'm not sure I agree with AS's file reorganization
 ** done:
@@ -1003,7 +1048,6 @@ enum object_desc_mode	{	ODESC_BASE = 0,
 ** next: reorganize along lines of V obj-desc
 
 662: Angband man page
-664: remove main-xaw.c [Zaiband stuffs into freezer]
 665: obj-ui.c reorganization
 666-668: more object-handling file reorganization 
 670: ang_sort and ang_cmp moved to z-util.c; target.c created
@@ -1019,17 +1063,10 @@ enum object_desc_mode	{	ODESC_BASE = 0,
 689: remove support for pre-3.0.1 savefiles
 690: (squelch fixup)
 691: make pt-based mostly equivalent to autoroller
-692: OSX fixup (main)
-693: OSX fixup (z-files.c)
-694: put OSX on new-style command-loop
 695/696: Make get_mon_num_prep() void. 
-697: OSX typo fix
 698: Mouse button patch
-699: OSX fixup
 700: min gold always 200
-701-704: GTK work
 705: rename no-preserve option: "Lose artifacts when leaving level"
-706,708: GTK work
 711: torches made lighter (do not copy to Zaiband)
 715: command_see eliminated; not as simple as it looks
 726: kill -s option in main.c (show scores)
@@ -1047,16 +1084,68 @@ enum object_desc_mode	{	ODESC_BASE = 0,
 755: feature: detection via aware means can give definitive negative results
 756: MN_NULL constant
 758: repair connected stairs option
-766: SDL fix
 767: PNG transparency fix
 768: z-virt.h adjust, study
 778: Mac fixup
 779: guarantee CHR is applied before store price cap
 782: debian prototype distro system
 787: object knowledge sorts by cost
-788: Bard gets SLAY_DRAGON (mythos; perhaps should be KILL_DRAGON.  In any case, update attack.c to use brands from the launcher as well first.)
 796: ?Rune of Protection fixup
 808/812: DTRAP borders
 810: pickup function interface cleanup
 816: lazy movement patch (allows combining arrow keys into diagonals, useful for laptops)
 819: fix mouse pointing
+825: object distribution experiment
+833: X11 graphics support removed to prepare way for free licensing
+834/836: X11-maid merged into X11-main; graphics support, etc. removed to enable GPL-ification
+835: doxygenize types.h
+843: min depth for each kind of trap
+847: event handler fix: phantom object prevention
+848/855: Rogue should be better at melee (Timo)
+854: prepare for textual tvals/svals
+862,863,864,865,866,867,868,869,870,871: menu system adjust
+874: autoconf fixup
+882: FAQ adjust
+883: nerf missile weapon range (not sure about this one)
+889: gold drop revamp
+891: external config for store items
+892: init error constant adjust
+893: more specific errors
+895: rand_int |-> randint0, randint |-> randint1, rand_die |-> randint1
+896/897: adjust artifact.txt to use textual svals/tvals
+898: temporary confusion resist
+899: terror timed effect; stoneskin timed effect; Clear Mind effect; Deep Descent effect; Line of Sight confusion effect; 
+901: IMPAIR_HP, IMPAIR_MANA; food level only affects HP regeneration; impairment means halving regeneration rate
+902: player vulnerabilities to RBase
+903: Purging effect (mushrooms)
+904: AFRAID item flag (induces perma-fear)
+907: mass object reorganization
+916: mithril ammo allowed to be SLAY_EVIL, VENOM
+921: allow ENTER in more places
+932: GTK2 (clear to merge, V uses tvalsval.h like Zaiband)
+934/935: save.c adjust to make savefile issues go back to UI
+936/937: change DROP_dice to be a mutex
+939: replace RF0_DROP_USEFUL with RF0_DROP_20
+940: undo mutex for DROP_dice
+958: OSX
+961: Mac-Carbon
+962: OSX
+968: character dump cleanup
+
+Ekolis/V Trac: should invisible traps have their attr/char pair hard-coded?
+Idea: mushroom death drop is mushrooms
+Idea: make DROP_?? and DROP_?D? "lexical flags"
+Idea: configurable thresholds for R*
+Idea: ironman option: V SVN detection range
+Idea: player net worth used during store restocking
+* cost suppression: done
+* stop dominated items: needs rethink of store stocking.  In progress.
+* intrastore sales: doable
+* dynamic purse: savefile format change
+** idea is that storekeeper's purse is a function of his current wealth; he's not really willing to spend more than 1% per purchase
+** may want "psuedocustomers" to apply CHA/race effects with
+** affects: intrastore sales
+* warehousing: savefile format change
+** store record has 10 bytes of deadspace : can swing dynamic purse on 4 bytes
+Idea: automatic description of food value
+* note: only food that has an interesting tradeoff against Rations is Beef Jerky, currently.  Would need a more complex hunger/thirst system to justify the others.

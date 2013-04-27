@@ -17,6 +17,7 @@
 
 #include "angband.h"
 #include "game-event.h"
+#include "option.h"
 #include "raceflag.h"
 #include "tvalsval.h"
 
@@ -127,7 +128,7 @@ bool player_type::set_timed_clean(int idx, int v)
 	if (!notice) return FALSE;
 
 	/* Disturb */
-	if (disturb_state) disturb(0, 0);
+	if (OPTION(disturb_state)) disturb(0, 0);
 
 	/* Update the visuals, as appropriate. */
 	p_ptr->update |= effect->flag_update;
@@ -197,7 +198,7 @@ static bool set_timed_condition_w_immunity(int v, s16b& stat,bool immune, int ms
 	stat = v;
 
 	/* Disturb */
-	if (notice && disturb_state) disturb(0, 0);
+	if (notice && OPTION(disturb_state)) disturb(0, 0);
 
 	return notice;
 }
@@ -358,7 +359,7 @@ bool set_stun(int v,player_type& p)
 	if (!notice) return (FALSE);
 
 	/* Disturb */
-	if (disturb_state) disturb(0, 0);
+	if (OPTION(disturb_state)) disturb(0, 0);
 
 	/* Recalculate bonuses */
 	p.update |= (PU_BONUS);
@@ -429,7 +430,7 @@ bool set_cut(int v,player_type& p)
 	if (!notice) return (FALSE);
 
 	/* Disturb */
-	if (disturb_state) disturb(0, 0);
+	if (OPTION(disturb_state)) disturb(0, 0);
 
 	/* Recalculate bonuses */
 	p.update |= (PU_BONUS);
@@ -536,7 +537,7 @@ bool set_food(int v)
 	if (!notice) return (FALSE);
 
 	/* Disturb */
-	if (disturb_state) disturb(0, 0);
+	if (OPTION(disturb_state)) disturb(0, 0);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -690,7 +691,7 @@ void lose_exp(s32b amount)
  *
  * Note the use of actual "monster names".  XXX XXX XXX
  */
-static int get_coin_type(const monster_race *r_ptr)
+static SV_cash get_coin_type(const monster_race *r_ptr)
 {
 	const char* const name = r_ptr->name();
 
@@ -698,22 +699,22 @@ static int get_coin_type(const monster_race *r_ptr)
 	if (r_ptr->d_char == '$')
 	{
 		/* Look for textual clues */
-		if (strstr(name, " copper ")) return (3);
-		if (strstr(name, " silver ")) return (6);
-		if (strstr(name, " gold ")) return (11);
-		if (strstr(name, " mithril ")) return (17);
-		if (strstr(name, " adamantite ")) return (18);
+		if (strstr(name, " copper ")) return SV_COPPER;
+		if (strstr(name, " silver ")) return SV_SILVER;
+		if (strstr(name, " gold ")) return SV_GOLD;
+		if (strstr(name, " mithril ")) return SV_MITHRIL;
+		if (strstr(name, " adamantite ")) return SV_ADAMANTITE;
 
 		/* Look for textual clues */
-		if (strstr(name, "Copper ")) return (3);
-		if (strstr(name, "Silver ")) return (6);
-		if (strstr(name, "Gold ")) return (11);
-		if (strstr(name, "Mithril ")) return (17);
-		if (strstr(name, "Adamantite ")) return (18);
+		if (strstr(name, "Copper ")) return SV_COPPER;
+		if (strstr(name, "Silver ")) return SV_SILVER;
+		if (strstr(name, "Gold ")) return SV_GOLD;
+		if (strstr(name, "Mithril ")) return SV_MITHRIL;
+		if (strstr(name, "Adamantite ")) return SV_ADAMANTITE;
 	}
 
 	/* Assume nothing */
-	return (0);
+	return SV_CASH;
 }
 
 
@@ -765,8 +766,13 @@ static void build_quest_stairs(coord g)
  * Note that monsters can now carry objects, and when a monster dies,
  * it drops all of its objects, which may disappear in crowded rooms.
  */
-void monster_death(int m_idx)
+void monster_death(const m_idx_type m_idx)
 {
+	object_type object_type_body;
+	object_type *i_ptr = &object_type_body;	/* Get local object */
+	monster_type* const m_ptr = mon_list+m_idx;
+	const monster_race* const r_ptr = m_ptr->race();
+
 	int i, j;
 
 	int dump_item = 0;
@@ -775,24 +781,20 @@ void monster_death(int m_idx)
 	int number = 0;
 	int total = 0;
 
+	const SV_cash force_coin = get_coin_type(r_ptr);
+
 	s16b this_o_idx, next_o_idx = 0;
 
-	monster_type *m_ptr = &mon_list[m_idx];
-	monster_race *r_ptr = m_ptr->race();
-	coord g = m_ptr->loc;	/* Get the location */
+	const coord g = m_ptr->loc;	/* Get the location */
 
-	bool visible = (m_ptr->ml || (r_ptr->flags[0] & RF0_UNIQUE));
+	const bool visible = (m_ptr->ml || (r_ptr->flags[0] & RF0_UNIQUE));
 
-	bool good = (r_ptr->flags[0] & RF0_DROP_GOOD);
-	bool great = (r_ptr->flags[0] & RF0_DROP_GREAT);
+	const bool great = (r_ptr->flags[0] & RF0_DROP_GREAT);
+	const bool good = great || (r_ptr->flags[0] & RF0_DROP_GOOD);
 
-	bool do_gold = (!(r_ptr->flags[0] & RF0_ONLY_ITEM));
-	bool do_item = (!(r_ptr->flags[0] & RF0_ONLY_GOLD));
+	const bool do_gold = (!(r_ptr->flags[0] & RF0_ONLY_ITEM));
+	const bool do_item = (!(r_ptr->flags[0] & RF0_ONLY_GOLD));
 
-	int force_coin = get_coin_type(r_ptr);
-
-	object_type object_type_body;
-	object_type *i_ptr = &object_type_body;	/* Get local object */
 
 	/* Drop objects being carried */
 	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -814,7 +816,7 @@ void monster_death(int m_idx)
 	if (r_ptr->flags[0] & RF0_DROP_CHOSEN)
 	{
 		/* Mega-Hack -- Prepare to make "Grond" */
-		object_prep(i_ptr, lookup_kind(TV_HAFTED, SV_GROND));
+		object_prep(i_ptr, lookup_kind2(TV_HAFTED, SV_GROND));
 
 		/* Mega-Hack -- Mark this item as "Grond" */
 		i_ptr->name1 = ART_GROND;
@@ -827,7 +829,7 @@ void monster_death(int m_idx)
 
 
 		/* Mega-Hack -- Prepare to make "Morgoth" */
-		object_prep(i_ptr, lookup_kind(TV_CROWN, SV_MORGOTH));
+		object_prep(i_ptr, lookup_kind2(TV_CROWN, SV_MORGOTH));
 
 		/* Mega-Hack -- Mark this item as "Morgoth" */
 		i_ptr->name1 = ART_MORGOTH;
@@ -848,9 +850,6 @@ void monster_death(int m_idx)
 	if (r_ptr->flags[0] & RF0_DROP_3D2) number += NdS(3, 2);
 	if (r_ptr->flags[0] & RF0_DROP_4D2) number += NdS(4, 2);
 
-	/* Hack -- handle creeping coins */
-	coin_type = force_coin;
-
 	/* Average dungeon and monster levels */
 	object_level = (p_ptr->depth + r_ptr->level) / 2;
 
@@ -863,11 +862,8 @@ void monster_death(int m_idx)
 		/* Make Gold */
 		if (do_gold && (!do_item || one_in_(2)))
 		{
-			/* Make some gold */
-			if (!make_gold(i_ptr)) continue;
-
-			/* Assume seen XXX XXX XXX */
-			dump_gold++;
+			make_gold(i_ptr, force_coin);	/* Make some gold */
+			dump_gold++;					/* Assume seen XXX XXX XXX */
 		}
 
 		/* Make Object */
@@ -884,12 +880,7 @@ void monster_death(int m_idx)
 		drop_near(i_ptr, -1, g);
 	}
 
-	/* Reset the object level */
-	object_level = p_ptr->depth;
-
-	/* Reset "coin" type */
-	coin_type = 0;
-
+	object_level = p_ptr->depth;	/* Reset the object level */
 
 	/* Take note of any dropped treasure */
 	if (visible && (dump_item || dump_gold))
@@ -898,9 +889,7 @@ void monster_death(int m_idx)
 		lore_treasure(m_idx, dump_item, dump_gold);
 	}
 
-
-	/* Update monster list window */
-	p_ptr->redraw |= PR_MONLIST;
+	p_ptr->redraw |= PR_MONLIST;	/* Update monster list window */
 
 	/* Only process "Quest Monsters" */
 	if (!(r_ptr->flags[0] & RF0_QUESTOR)) return;
@@ -922,11 +911,8 @@ void monster_death(int m_idx)
 	/* Nothing left, game over... */
 	if (total == 0)
 	{
-		/* Total winner */
-		p_ptr->total_winner = TRUE;
-
-		/* Redraw the "title" */
-		p_ptr->redraw |= (PR_TITLE);
+		p_ptr->total_winner = TRUE;		/* Total winner */
+		p_ptr->redraw |= (PR_TITLE);	/* Redraw the "title" */
 
 		/* Congratulations */
 		msg_print("*** CONGRATULATIONS ***");
@@ -973,11 +959,11 @@ monster_race::is_nonliving() const
  * worth more than subsequent monsters.  This would also need to
  * induce changes in the monster recall code.  XXX XXX XXX
  */
-bool mon_take_hit(int m_idx, int dam, bool *fear, const char* note)
+bool mon_take_hit(const m_idx_type m_idx, int dam, bool *fear, const char* note)
 {
-	monster_type *m_ptr = &mon_list[m_idx];
-	monster_race *r_ptr = m_ptr->race();
-	monster_lore *l_ptr = m_ptr->lore();
+	monster_type* const m_ptr = mon_list+m_idx;
+	monster_race* const r_ptr = m_ptr->race();
+	monster_lore* const l_ptr = m_ptr->lore();
 
 	s32b div, new_exp, new_exp_frac;
 
@@ -1068,10 +1054,10 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, const char* note)
 		if (m_ptr->ml || (r_ptr->flags[0] & RF0_UNIQUE))
 		{
 			/* Count kills this life */
-			if (l_ptr->pkills < MAX_SHORT) l_ptr->pkills++;
+			if (l_ptr->pkills < MAX_S16B) l_ptr->pkills++;
 
 			/* Count kills in all lives */
-			if (l_ptr->tkills < MAX_SHORT) l_ptr->tkills++;
+			if (l_ptr->tkills < MAX_S16B) l_ptr->tkills++;
 
 			/* Hack -- Auto-recall */
 			monster_race_track(m_ptr->r_idx);
@@ -1182,10 +1168,10 @@ bool modify_panel(term *t, int wy, int wx)
 /*
  * Monster health description
  */
-static void look_mon_desc(char *buf, size_t max, int m_idx)
+static void look_mon_desc(char *buf, size_t max, const m_idx_type m_idx)
 {
-	monster_type *m_ptr = &mon_list[m_idx];
-	monster_race *r_ptr = m_ptr->race();
+	monster_type* const m_ptr = mon_list+m_idx;
+	monster_race* const r_ptr = m_ptr->race();
 
 	bool living = r_ptr->is_nonliving();
 
@@ -1346,17 +1332,8 @@ int target_dir(char ch)
 	}
 	else
 	{
-		/* Roguelike */
-		if (rogue_like_commands)
-		{
-			mode = KEYMAP_MODE_ROGUE;
-		}
-
-		/* Original */
-		else
-		{
-			mode = KEYMAP_MODE_ORIG;
-		}
+		/* Roguelike/Original */
+		mode = (OPTION(rogue_like_commands)) ? KEYMAP_MODE_ROGUE : KEYMAP_MODE_ORIG;
 
 		/* Extract the action (if any) */
 		act = keymap_act[mode][(byte)(ch)];
@@ -1403,7 +1380,7 @@ bool target_able(int m_idx)
 	if (m_idx <= 0) return (FALSE);
 
 	/* Get monster */
-	m_ptr = &mon_list[m_idx];
+	m_ptr = m_ptr_from_m_idx(m_idx);
 
 	/* Monster must be alive */
 	if (!m_ptr->r_idx) return (FALSE);
@@ -1443,7 +1420,7 @@ bool target_okay(void)
 	/* Check "monster" targets */
 	if (p_ptr->target_who > 0)
 	{
-		int m_idx = p_ptr->target_who;
+		const m_idx_type m_idx = p_ptr->target_who;
 
 		/* Accept reasonable targets */
 		if (target_able(m_idx))
@@ -1469,7 +1446,7 @@ void target_set_monster(int m_idx)
 	/* Acceptable target */
 	if ((m_idx > 0) && target_able(m_idx))
 	{
-		monster_type *m_ptr = &mon_list[m_idx];
+		const monster_type* const m_ptr = m_ptr_from_m_idx(m_idx);
 
 		/* Save target info */
 		p_ptr->target_set = TRUE;
@@ -1645,10 +1622,8 @@ static bool target_set_interactive_accept(coord g)
 	/* Visible monsters */
 	if (cave_m_idx[g.y][g.x] > 0)
 	{
-		monster_type *m_ptr = &mon_list[cave_m_idx[g.y][g.x]];
-
 		/* Visible monsters */
-		if (m_ptr->ml) return (TRUE);
+		if (m_ptr_from_m_idx(cave_m_idx[g.y][g.x])->ml) return (TRUE);
 	}
 
 	/* Scan all objects in the grid */
@@ -1673,16 +1648,13 @@ static bool target_set_interactive_accept(coord g)
 		if (cave_feat[g.y][g.x] == FEAT_MORE) return (TRUE);
 
 		/* Notice shops */
-		if ((cave_feat[g.y][g.x] >= FEAT_SHOP_HEAD) &&
-		    (cave_feat[g.y][g.x] <= FEAT_SHOP_TAIL)) return (TRUE);
+		if (cave_feat_in_range(g.y,g.x,FEAT_SHOP_HEAD,FEAT_SHOP_TAIL)) return (TRUE);
 
 		/* Notice traps */
-		if ((cave_feat[g.y][g.x] >= FEAT_TRAP_HEAD) &&
-		    (cave_feat[g.y][g.x] <= FEAT_TRAP_TAIL)) return (TRUE);
+		if (cave_feat_in_range(g.y,g.x,FEAT_TRAP_HEAD,FEAT_TRAP_TAIL)) return (TRUE);
 
 		/* Notice doors */
-		if ((cave_feat[g.y][g.x] >= FEAT_DOOR_HEAD) &&
-		    (cave_feat[g.y][g.x] <= FEAT_DOOR_TAIL)) return (TRUE);
+		if (cave_feat_in_range(g.y,g.x,FEAT_DOOR_HEAD,FEAT_DOOR_TAIL)) return (TRUE);
 
 		/* Notice rubble */
 		if (cave_feat[g.y][g.x] == FEAT_RUBBLE) return (TRUE);
@@ -1699,7 +1671,7 @@ static bool target_set_interactive_accept(coord g)
 static bool targetable_generic(coord g)
 {
 	/* Require line of sight, unless "look" is "expanded" */
-	if (!expand_look && !player_has_los_bold(g.y, g.x)) return false;
+	if (!OPTION(expand_look) && !player_has_los_bold(g.y, g.x)) return false;
 
 	/* Require "interesting" contents */
 	if (!target_set_interactive_accept(g)) return false;
@@ -1715,7 +1687,7 @@ static bool targetable_generic(coord g)
 static bool targetable_monster(coord g)
 {
 	/* Require line of sight, unless "look" is "expanded" */
-	if (!expand_look && !player_has_los_bold(g.y, g.x)) return false;
+	if (!OPTION(expand_look) && !player_has_los_bold(g.y, g.x)) return false;
 
 	/* Require "interesting" contents */
 	if (!target_set_interactive_accept(g)) return false;
@@ -1852,8 +1824,8 @@ static int target_set_interactive_aux(coord g, int mode, const char* const info)
 		/* Actual monsters */
 		if (cave_m_idx[g.y][g.x] > 0)
 		{
-			monster_type *m_ptr = &mon_list[cave_m_idx[g.y][g.x]];
-			monster_race *r_ptr = m_ptr->race();
+			monster_type* const m_ptr = m_ptr_from_m_idx(cave_m_idx[g.y][g.x]);
+			monster_race* const r_ptr = m_ptr->race();
 
 			/* Visible */
 			if (m_ptr->ml)
@@ -2002,7 +1974,7 @@ static int target_set_interactive_aux(coord g, int mode, const char* const info)
 		floored = FALSE;
 
 		/* Scan all objects in the grid */
-		if (easy_floor)
+		if (OPTION(easy_floor))
 		{
 			int floor_list[MAX_FLOOR_STACK];
 			int floor_num = scan_floor(floor_list, MAX_FLOOR_STACK, g, 0x02);	/* Scan for floor objects */
@@ -2611,7 +2583,7 @@ bool get_aim_dir(int *dp)
 	dir = p_ptr->command_dir;
 
 	/* Hack -- auto-target if requested */
-	if (use_old_target && target_okay()) dir = 5;
+	if (OPTION(use_old_target) && target_okay()) dir = 5;
 
 	/* Ask until satisfied */
 	while (!dir)

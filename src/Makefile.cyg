@@ -9,7 +9,7 @@
 CC = g++
 WRES = windres
 LIBS = -mno-cygwin -mwindows -lwinmm
-CFLAGS = -Wall -Wextra -pedantic -Os -mno-cygwin -DWINDOWS -DHAVE_BOOST
+CFLAGS = -Wall -Wextra -pedantic -Os -mno-cygwin -DWINDOWS -DHAVE_BOOST -DNDEBUG
 
 EXOBJS = $(BASEOBJS) win/angband.res main-win.o win/readdib.o
 

@@ -18,8 +18,23 @@
 #include "angband.h"
 #include "z-msg.h"
 #include "z-quark.h"
+#include "ego.h"
+#include "option.h"
 #include "tvalsval.h"
 #include "store.h"
+
+/*
+ * Import constants
+ */
+#define OPT307_auto_scum				33
+#define OPT307_dungeon_align			40
+#define OPT307_dungeon_stair			41
+#define OPT307_flow_by_sound			42
+#define OPT307_flow_by_smell			43
+#define OPT307_smart_learn				46
+#define OPT307_smart_cheat				47
+#define OPT307_smart_monsters			72
+#define OPT307_smart_packs				73
 
 /*
  * This file loads savefiles from Angband 2.9.X.
@@ -46,8 +61,12 @@
  * by a monster will reduce the shield by that amount.  XXX XXX XXX
  */
 
-
-
+/*
+ * Oldest version number that can still be imported
+ */
+#define OLD_VERSION_MAJOR	2
+#define OLD_VERSION_MINOR	9
+#define OLD_VERSION_PATCH	0
 
 
 /*
@@ -69,6 +88,14 @@ static u32b	v_check = 0L;
  * Hack -- simple "checksum" on the encoded bytes
  */
 static u32b	x_check = 0L;
+
+/*
+ * Savefile version
+ */
+static byte sf_major;	/**< Savefile's VERSION_MAJOR */
+static byte sf_minor;	/**< Savefile's VERSION_MINOR" */
+static byte sf_patch;	/**< Savefile's VERSION_PATCH */
+static byte sf_extra;	/**< Savefile's VERSION_EXTRA" */
 
 
 /*
@@ -95,7 +122,7 @@ static void note(const char* const msg)
  * This function determines if the version of the savefile
  * currently being read is older than version "x.y.z".
  */
-static bool older_than(int x, int y, int z)
+static bool older_than(byte x, byte y, byte z)
 {
 	/* Much older, or much more recent */
 	if (sf_major < x) return (TRUE);
@@ -120,7 +147,7 @@ static bool older_than(int x, int y, int z)
 static bool wearable_p(const object_type *o_ptr)
 {
 	/* Valid "tval" codes */
-	switch (o_ptr->tval)
+	switch (o_ptr->obj_id.tval)
 	{
 		case TV_SHOT:
 		case TV_ARROW:
@@ -252,28 +279,27 @@ static void strip_bytes(int n)
 static errr rd_item(object_type *o_ptr)
 {
 	dice_sides old_d;
-
-	u32b f[OBJECT_FLAG_STRICT_UB];
-
 	object_kind *k_ptr;
 
+	u32b f[OBJECT_FLAG_STRICT_UB];
 	char buf[128];
+	s16b tmp_s16b;
 
-
-	/* Kind */
-	rd_s16b(&o_ptr->k_idx);
-
-	/* Paranoia */
-	if ((o_ptr->k_idx < 0) || (o_ptr->k_idx >= z_info->k_max))
-		return (-1);
+	/* skip 2 bytes */
+	rd_s16b(&tmp_s16b);
 
 	/* Location */
 	rd_byte((byte*)(&o_ptr->loc.y));
 	rd_byte((byte*)(&o_ptr->loc.x));
 
 	/* Type/Subtype */
-	rd_byte(&o_ptr->tval);
-	rd_byte(&o_ptr->sval);
+	rd_byte(&o_ptr->obj_id.tval);
+	rd_byte(&o_ptr->obj_id.sval);
+
+	/* tval/sval translators go here */
+
+	/* Kind */
+	o_ptr->k_idx = lookup_kind(o_ptr->obj_id);
 
 	/* Special pval */
 	rd_s16b(&o_ptr->pval);
@@ -323,15 +349,8 @@ static errr rd_item(object_type *o_ptr)
 	/* Save the inscription */
 	if (buf[0]) o_ptr->note = quark_add(buf);
 
-	/* Obtain the "kind" template */
-	k_ptr = &object_type::k_info[o_ptr->k_idx];
-
-	/* Obtain tval/sval from k_info */
-	o_ptr->tval = k_ptr->tval;
-	o_ptr->sval = k_ptr->sval;
-
-
 	/* Hack -- notice "broken" items */
+	k_ptr = object_type::k_info + o_ptr->k_idx;
 	if (k_ptr->cost <= 0) o_ptr->ident |= (IDENT_BROKEN);
 
 
@@ -346,7 +365,7 @@ static errr rd_item(object_type *o_ptr)
 	 *
 	 * -JG-
 	 */
-	if ((o_ptr->tval == TV_ROD) &&
+	if ((o_ptr->obj_id.tval == TV_ROD) &&
 	    (o_ptr->pval - (k_ptr->pval * o_ptr->number) != 0))
 	{
 		o_ptr->timeout = o_ptr->pval;
@@ -356,7 +375,7 @@ static errr rd_item(object_type *o_ptr)
 	if (older_than(3, 0, 4))
 	{
 		/* Recalculate charges of stacked wands and staves */
-		if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF))
+		if ((o_ptr->obj_id.tval == TV_WAND) || (o_ptr->obj_id.tval == TV_STAFF))
 		{
 			o_ptr->pval = o_ptr->pval * o_ptr->number;
 		}
@@ -543,6 +562,9 @@ static void rd_lore(int r_idx)
 	for (i = 0; i < RACE_FLAG_STRICT_UB; i++)
 		rd_u32b(&l_ptr->flags[i]);
 
+	for (i = 0; i < RACE_FLAG_SPELL_STRICT_UB; i++)
+		rd_u32b(&l_ptr->spell_flags[i]);
+
 	/* Read the "Racial" monster limit per level */
 	rd_byte(&r_ptr->max_num);
 
@@ -551,10 +573,12 @@ static void rd_lore(int r_idx)
 	rd_byte(&tmp8u);
 	rd_byte(&tmp8u);
 
-
 	/* Repair the lore flags */
 	for (i = 0; i < RACE_FLAG_STRICT_UB; i++)
 		l_ptr->flags[i] &= r_ptr->flags[i];
+
+	for (i = 0; i < RACE_FLAG_SPELL_STRICT_UB; i++)
+		l_ptr->spell_flags[i] &= r_ptr->spell_flags[i];
 }
 
 
@@ -648,7 +672,14 @@ static void rd_randomizer(void)
 	Rand_quick = FALSE;
 }
 
-
+static void flag_set(u32b mask, u32b flag, int ob, int i)
+{
+	/* Process saved entries */
+	if (options[i].text && (mask & (1L << ob)))
+	{
+		op_ptr->opt[i] = (flag & (1L << ob)) ? TRUE : FALSE;
+	}
+}
 
 /*
  * Read options
@@ -711,26 +742,76 @@ static void rd_options(void)
 		int ob = i % 32;
 
 		/* Process real entries */
-		if (option_text[i])
+		if (older_than(3,0,8))
 		{
-			/* Process saved entries */
-			if (mask[os] & (1L << ob))
+			switch(i)
 			{
-				/* Set flag */
-				if (flag[os] & (1L << ob))
-				{
-					/* Set */
-					op_ptr->opt[i] = TRUE;
-				}
-
-				/* Clear flag */
-				else
-				{
-					/* Set */
-					op_ptr->opt[i] = FALSE;
-				}
+			case OPT307_auto_scum:		{
+										flag_set(mask[os], flag[os], ob, OPT_birth_auto_scum);
+										flag_set(mask[os], flag[os], ob, OPT_adult_auto_scum);
+										continue;
+										};
+			case OPT307_dungeon_align:	{
+										flag_set(mask[os], flag[os], ob, OPT_birth_dungeon_align);
+										flag_set(mask[os], flag[os], ob, OPT_adult_dungeon_align);
+										continue;
+										};
+			case OPT307_dungeon_stair:	{
+										flag_set(mask[os], flag[os], ob, OPT_birth_dungeon_stair);
+										flag_set(mask[os], flag[os], ob, OPT_adult_dungeon_stair);
+										continue;
+										};
+			case OPT307_flow_by_sound:	{
+										flag_set(mask[os], flag[os], ob, OPT_birth_flow_by_sound);
+										flag_set(mask[os], flag[os], ob, OPT_adult_flow_by_sound);
+										continue;
+										};
+			case OPT307_flow_by_smell:	{
+										flag_set(mask[os], flag[os], ob, OPT_birth_flow_by_smell);
+										flag_set(mask[os], flag[os], ob, OPT_adult_flow_by_smell);
+										continue;
+										};
+			case OPT307_smart_learn:	{
+										flag_set(mask[os], flag[os], ob, OPT_birth_smart_learn);
+										flag_set(mask[os], flag[os], ob, OPT_adult_smart_learn);
+										continue;
+										};
+			case OPT307_smart_cheat:	{
+										flag_set(mask[os], flag[os], ob, OPT_birth_smart_cheat);
+										flag_set(mask[os], flag[os], ob, OPT_adult_smart_cheat);
+										continue;
+										};
+			case OPT307_smart_monsters:	{
+										flag_set(mask[os], flag[os], ob, OPT_birth_smart_monsters);
+										flag_set(mask[os], flag[os], ob, OPT_adult_smart_monsters);
+										continue;
+										};
+			case OPT307_smart_packs:	{
+										flag_set(mask[os], flag[os], ob, OPT_birth_smart_packs);
+										flag_set(mask[os], flag[os], ob, OPT_adult_smart_packs);
+										continue;
+										};
+			case OPT_birth_auto_scum:
+			case OPT_birth_dungeon_align:
+			case OPT_birth_dungeon_stair:
+			case OPT_birth_flow_by_sound:
+			case OPT_birth_flow_by_smell:
+			case OPT_birth_smart_learn:
+			case OPT_birth_smart_cheat:
+			case OPT_birth_smart_monsters:
+			case OPT_birth_smart_packs:
+			case OPT_adult_auto_scum:
+			case OPT_adult_dungeon_align:
+			case OPT_adult_dungeon_stair:
+			case OPT_adult_flow_by_sound:
+			case OPT_adult_flow_by_smell:
+			case OPT_adult_smart_learn:
+			case OPT_adult_smart_cheat:
+			case OPT_adult_smart_monsters:
+			case OPT_adult_smart_packs:		continue;
 			}
-		}
+		};
+		flag_set(mask[os], flag[os], ob, i);
 	}
 
 
@@ -1200,8 +1281,7 @@ static errr rd_randarts(void)
 			{
 				artifact_type *a_ptr = &object_type::a_info[i];
 				a_ptr->_name = 0;
-				a_ptr->tval = 0;
-				a_ptr->sval = 0;
+				a_ptr->obj_id.clear();
 			}
 
 			/* Read the artifacts */
@@ -1209,8 +1289,8 @@ static errr rd_randarts(void)
 			{
 				artifact_type *a_ptr = &object_type::a_info[i];
 
-				rd_byte(&a_ptr->tval);
-				rd_byte(&a_ptr->sval);
+				rd_byte(&a_ptr->obj_id.tval);
+				rd_byte(&a_ptr->obj_id.sval);
 				rd_s16b(&a_ptr->pval);
 
 				rd_s16b(&a_ptr->to_h);
@@ -1534,7 +1614,6 @@ static errr rd_dungeon(void)
 		return (-1);
 	}
 
-
 	/*** Objects ***/
 
 	/* Read the item count */
@@ -1837,7 +1916,7 @@ static errr rd_savefile_new_aux(void)
 
 
 	/* Read random artifacts */
-	if (adult_rand_artifacts)
+	if (OPTION(adult_rand_artifacts))
 	{
 		if (rd_randarts()) return (-1);
 		if (arg_fiddle) note("Loaded Random Artifacts");
@@ -1905,7 +1984,6 @@ static errr rd_savefile_new_aux(void)
 
 	/* Hack -- no ghosts */
 	monster_type::r_info[z_info->r_max-1].max_num = 0;
-
 
 	/* Success */
 	return (0);
@@ -2173,9 +2251,9 @@ bool load_player(void)
 	if (!err)
 	{
 		/* Give a conversion warning */
-		if ((version_major != sf_major) ||
-		    (version_minor != sf_minor) ||
-		    (version_patch != sf_patch))
+		if (((byte)VERSION_MAJOR != sf_major) ||
+		    ((byte)VERSION_MINOR != sf_minor) ||
+		    ((byte)VERSION_PATCH != sf_patch))
 		{
 			/* Message */
 			msg_format("Converted a %d.%d.%d savefile.",

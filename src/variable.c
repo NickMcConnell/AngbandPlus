@@ -30,22 +30,6 @@ const char* const copyright =
 
 
 /*
- * Executable version
- */
-byte version_major = VERSION_MAJOR;
-byte version_minor = VERSION_MINOR;
-byte version_patch = VERSION_PATCH;
-byte version_extra = VERSION_EXTRA;
-
-/*
- * Savefile version
- */
-byte sf_major;			/* Savefile's "version_major" */
-byte sf_minor;			/* Savefile's "version_minor" */
-byte sf_patch;			/* Savefile's "version_patch" */
-byte sf_extra;			/* Savefile's "version_extra" */
-
-/*
  * Savefile information
  */
 u32b sf_xtra;			/* Operating system info */
@@ -94,16 +78,14 @@ bool use_bigtile = FALSE;
 
 s16b signal_count;		/* Hack -- Count interrupts */
 
-bool msg_flag;			/* Player has pending message */
+bool msg_flag = FALSE;	/* Player has pending message */
 
 bool inkey_base;		/* See the "inkey()" function */
 bool inkey_xtra;		/* See the "inkey()" function */
 bool inkey_scan;		/* See the "inkey()" function */
 bool inkey_flag;		/* See the "inkey()" function */
 
-s16b coin_type;			/* Hack -- force coin type */
-
-bool opening_chest;		/* Hack -- prevent chest generation */
+bool opening_chest = FALSE;		/* Hack -- prevent chest generation */
 
 bool shimmer_monsters;	/* Hack -- optimize multi-hued monsters */
 bool shimmer_objects;	/* Hack -- optimize multi-hued objects */
@@ -111,13 +93,6 @@ bool shimmer_objects;	/* Hack -- optimize multi-hued objects */
 bool repair_mflag_nice;	/* Hack -- repair monster flags (nice) */
 bool repair_mflag_show;	/* Hack -- repair monster flags (show) */
 bool repair_mflag_mark;	/* Hack -- repair monster flags (mark) */
-
-s16b o_max = 1;			/* Number of allocated objects */
-s16b o_cnt = 0;			/* Number of live objects */
-
-s16b mon_max = 1;	/* Number of allocated monsters */
-s16b mon_cnt = 0;	/* Number of live monsters */
-
 
 /*
  * TRUE if process_command() is a repeated call.
@@ -152,22 +127,6 @@ char savefile[1024];
 
 
 /*
- * Number of active macros.
- */
-s16b macro__num;
-
-/*
- * Array of macro patterns [MACRO_MAX]
- */
-const char** macro__pat;
-
-/*
- * Array of macro actions [MACRO_MAX]
- */
-const char** macro__act;
-
-
-/*
  * The array[ANGBAND_TERM_MAX] of window pointers
  */
 term* angband_term[ANGBAND_TERM_MAX];
@@ -189,14 +148,6 @@ char angband_term_name[ANGBAND_TERM_MAX][16] =
 	"Term-6",
 	"Term-7"
 };
-
-
-int max_macrotrigger = 0;
-const char* macro_template = NULL;
-const char* macro_modifier_chr;
-const char* macro_modifier_name[MAX_MACRO_MOD];
-const char* macro_trigger_name[MAX_MACRO_TRIGGER];
-const char* macro_trigger_keycode[2][MAX_MACRO_TRIGGER];
 
 
 /*
@@ -233,14 +184,15 @@ coord *temp_g;
 byte *temp_y;
 byte *temp_x;
 
+/*
+ * start level-specific information
+ */
+
 
 /*
- * Array[DUNGEON_HGT][256] of cave grid info flags (padded)
- *
- * This array is padded to a width of 256 to allow fast access to elements
- * in the array via "grid" values (see the GRID() macros).
+ * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid info flags
  */
-byte (*cave_info)[256];
+byte (*cave_info)[DUNGEON_WID];
 
 /*
  * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid feature codes
@@ -285,15 +237,17 @@ byte (*cave_cost)[DUNGEON_WID];
 byte (*cave_when)[DUNGEON_WID];
 
 
-/*
- * Array[z_info->o_max] of dungeon objects
- */
-object_type *o_list;
+object_type *o_list;	/**< Array[z_info->o_max] of dungeon objects */
+s16b o_max = 1;			/**< Number of allocated objects */
+s16b o_cnt = 0;			/**< Number of live objects */
+
+monster_type *mon_list; /**< Array[z_info->m_max] of dungeon monsters */
+s16b mon_max = 1;		/**< Number of allocated monsters */
+s16b mon_cnt = 0;		/**< Number of live monsters */
 
 /*
- * Array[z_info->m_max] of dungeon monsters
+ * end level-specific information
  */
-monster_type *mon_list;
 
 
 /*
@@ -360,12 +314,6 @@ char misc_to_char[256];
  * Be sure to use "index & 0x7F" to avoid illegal access
  */
 byte tval_to_attr[128];
-
-
-/*
- * Current (or recent) macro action
- */
-char macro_buffer[1024];
 
 
 /*
@@ -578,7 +526,7 @@ const char* ANGBAND_DIR_XTRA;
  * Total Hack -- allow all items to be listed (even empty ones)
  * This is only used by "do_cmd_inven_e()" and is cleared there.
  */
-bool item_tester_full;
+bool item_tester_full = FALSE;
 
 
 /*

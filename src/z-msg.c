@@ -392,14 +392,16 @@ errr message_color_define(u16b type, byte color)
 
 byte message_type_color(u16b type)
 {
-	msgcolor_t *mc = messages->colors;
 	byte color = TERM_WHITE;
+	if (messages)
+		{
+		msgcolor_t *mc = messages->colors;
 
-	while (mc && mc->type != type)
-		mc = mc->next;
+		while (mc && mc->type != type)
+			mc = mc->next;
 
-	if (mc && (mc->color != TERM_DARK))
-		color = mc->color;
-
+		if (mc && (mc->color != TERM_DARK))
+			color = mc->color;
+		};
 	return color;
 }

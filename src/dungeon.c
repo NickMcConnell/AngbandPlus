@@ -12,6 +12,7 @@
 #include "cmds.h"
 #include "game-event.h"
 #include "z-quark.h"
+#include "option.h"
 #include "raceflag.h"
 #include "store.h"
 #include "tvalsval.h"
@@ -110,7 +111,7 @@ static bool sensable(object_type* o_ptr)
 	if (!o_ptr->k_idx) return FALSE;
 
 	/* Valid "tval" codes */
-	switch (o_ptr->tval)
+	switch (o_ptr->obj_id.tval)
 	{
 		case TV_SHOT:		/* intentional fallthrough */
 		case TV_ARROW:
@@ -309,7 +310,7 @@ static void regenhp(int percent)
 	p_ptr->chp += (s16b)(new_chp >> 16);   /* div 65536 */
 
 	/* check for overflow */
-	if ((p_ptr->chp < 0) && (old_chp > 0)) p_ptr->chp = MAX_SHORT;
+	if ((p_ptr->chp < 0) && (old_chp > 0)) p_ptr->chp = MAX_S16B;
 	new_chp_frac = (new_chp & 0xFFFF) + p_ptr->chp_frac;	/* mod 65536 */
 	if (new_chp_frac >= 0x10000L)
 	{
@@ -351,7 +352,7 @@ static void regenmana(int percent)
 	/* check for overflow */
 	if ((p_ptr->csp < 0) && (old_csp > 0))
 	{
-		p_ptr->csp = MAX_SHORT;
+		p_ptr->csp = MAX_S16B;
 	}
 	new_mana_frac = (new_mana & 0xFFFF) + p_ptr->csp_frac;	/* mod 65536 */
 	if (new_mana_frac >= 0x10000L)
@@ -581,15 +582,12 @@ static void recharged_notice(const object_type *o_ptr, bool all)
 
 static bool recharge_rod_on_ground(object_type& o)
 {
-	if ((o.tval == TV_ROD) && (o.timeout))
+	if ((o.obj_id.tval == TV_ROD) && (o.timeout))
 	{
 		if (o.timeout<o.number)
-			{
 			o.timeout = 0;
-			}
-		else{
+		else
 			o.timeout -= o.number;
-			}
 	}
 	return false;
 }
@@ -645,7 +643,7 @@ static void recharge_objects(void)
 		const object_kind* const k_ptr = &object_type::k_info[o_ptr->k_idx];
 
 		/* Examine all charging rods */
-		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
+		if ((o_ptr->obj_id.tval == TV_ROD) && (o_ptr->timeout))
 		{
 			/* Determine how many rods are charging */
 			int temp = (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval;
@@ -826,7 +824,7 @@ static void process_world(void)
 			int n;
 
 			/* Message */
-			if (cheat_xtra) msg_print("Updating Shops...");
+			if (OPTION(cheat_xtra)) msg_print("Updating Shops...");
 
 			/* Maintain each shop (except home) */
 			ZAIBAND_STATIC_ASSERT(STORE_HOME+1==MAX_STORES);
@@ -842,7 +840,7 @@ static void process_world(void)
 			if (one_in_(STORE_SHUFFLE))
 			{
 				/* Message */
-				if (cheat_xtra) msg_print("Shuffling a Shopkeeper...");
+				if (OPTION(cheat_xtra)) msg_print("Shuffling a Shopkeeper...");
 
 				/* Pick a random shop (except home), then shuffle it */
 /*				ZAIBAND_STATIC_ASSERT(STORE_HOME+1==MAX_STORES);	*/
@@ -855,7 +853,7 @@ static void process_world(void)
 			}
 
 			/* Message */
-			if (cheat_xtra) msg_print("Done.");
+			if (OPTION(cheat_xtra)) msg_print("Done.");
 		}
 	}
 
@@ -1042,7 +1040,7 @@ static void process_world(void)
 	o_ptr = &p_ptr->inventory[INVEN_LITE];
 
 	/* Burn some fuel in the current lite (unless it is daytime in the town) */
-	if ((TV_LITE == o_ptr->tval) && ((p_ptr->depth) || ((5L * TOWN_DAWN) <= turn % (10L * TOWN_DAWN))))
+	if ((TV_LITE == o_ptr->obj_id.tval) && ((p_ptr->depth) || ((5L * TOWN_DAWN) <= turn % (10L * TOWN_DAWN))))
 	{
 		/* Hack -- Use some fuel (except on artifacts) */
 		if (!o_ptr->is_artifact() && (o_ptr->pval > 0))
@@ -1994,7 +1992,8 @@ static void process_player_aux(void)
 {
 	static int old_monster_race_idx = 0;
 
-	static u32b	old_flags[RACE_FLAG_STRICT_UB] = {0, 0, 0, 0, 0, 0};
+	static u32b	old_flags[RACE_FLAG_STRICT_UB] = {0, 0, 0};
+	static u32b	old_spell_flags[RACE_FLAG_SPELL_STRICT_UB] = {0, 0, 0};
 	static byte old_blows[MONSTER_BLOW_MAX];
 
 	static byte	old_cast_innate = 0;
@@ -2011,6 +2010,7 @@ static void process_player_aux(void)
 		if (0!=memcmp(old_blows,l_ptr->blows,MONSTER_BLOW_MAX) ||
 		    (old_monster_race_idx != p_ptr->monster_race_idx) ||
 		    (0!=memcmp(old_flags, l_ptr->flags, sizeof(u32b)*RACE_FLAG_STRICT_UB)) ||
+		    (0!=memcmp(old_spell_flags, l_ptr->spell_flags, sizeof(u32b)*RACE_FLAG_SPELL_STRICT_UB)) ||
 		    (old_cast_innate != l_ptr->cast_innate) ||
 		    (old_cast_spell != l_ptr->cast_spell))
 		{
@@ -2019,6 +2019,9 @@ static void process_player_aux(void)
 
 			/* Memorize flags */
 			C_COPY(old_flags, l_ptr->flags, RACE_FLAG_STRICT_UB);
+
+			/* Memorize spell flags */
+			C_COPY(old_spell_flags, l_ptr->spell_flags, RACE_FLAG_SPELL_STRICT_UB);
 
 			/* Memorize blows */
 			C_COPY(old_blows, l_ptr->blows, MONSTER_BLOW_MAX);
@@ -2138,7 +2141,7 @@ static void process_player(void)
 	}
 
 	/* Handle "abort" */
-	if (!avoid_abort)
+	if (!OPTION(avoid_abort))
 	{
 		/* Check for "player abort" */
 		if (p_ptr->running ||
@@ -2303,7 +2306,7 @@ static void process_player(void)
 			if (p_ptr->timed[TMD_IMAGE]) p_ptr->redraw |= (PR_MAP);
 
 			/* Shimmer monsters if needed */
-			if (!avoid_other && shimmer_monsters)
+			if (!OPTION(avoid_other) && shimmer_monsters)
 			{
 				/* Clear the flag */
 				shimmer_monsters = FALSE;
@@ -2349,10 +2352,7 @@ static void process_player(void)
 				/* Process the monsters */
 				for (i = 1; i < mon_max; i++)
 				{
-					monster_type *m_ptr;
-
-					/* Get the monster */
-					m_ptr = &mon_list[i];
+					monster_type* const m_ptr = &mon_list[i];	/* Get the monster */
 
 					/* Skip dead monsters */
 					/* if (!m_ptr->r_idx) continue; */
@@ -2413,7 +2413,6 @@ static void process_player(void)
  */
 static void dungeon(void)
 {
-	monster_type *m_ptr;
 	int i;
 
 	int py = p_ptr->loc.y;
@@ -2435,7 +2434,6 @@ static void dungeon(void)
 	p_ptr->command_rep = 0;
 	p_ptr->command_arg = 0;
 	p_ptr->command_dir = 0;
-
 
 	/* Cancel the target */
 	target_set_monster(0);
@@ -2479,7 +2477,7 @@ static void dungeon(void)
 	}
 
 	/* No stairs from town or if not allowed */
-	if (!p_ptr->depth || !dungeon_stair)
+	if (!p_ptr->depth || !OPTION(adult_dungeon_stair))
 	{
 		p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
 	}
@@ -2553,6 +2551,8 @@ static void dungeon(void)
 	/* Redraw stuff */
 	redraw_stuff();
 
+	assert(p_ptr->inven_cnt_is_strict_UB_of_nonzero_k_idx() && "precondition");
+
 	/* Hack -- Decrease "xtra" depth */
 	character_xtra--;
 
@@ -2565,6 +2565,8 @@ static void dungeon(void)
 
 	/* Notice stuff */
 	notice_stuff();
+
+	assert(p_ptr->inven_cnt_is_strict_UB_of_nonzero_k_idx() && "precondition");
 
 	/* Handle stuff */
 	handle_stuff();
@@ -2675,7 +2677,7 @@ static void dungeon(void)
 		for (i = mon_max - 1; i >= 1; i--)
 		{
 			/* Access the monster */
-			m_ptr = &mon_list[i];
+			monster_type* const m_ptr = &mon_list[i];
 
 			/* Ignore "dead" monsters */
 			if (!m_ptr->r_idx) continue;
@@ -2840,7 +2842,7 @@ void play_game(bool new_game)
 		player_birth();
 
 		/* Randomize the artifacts */
-		if (adult_rand_artifacts)
+		if (OPTION(adult_rand_artifacts))
 		{
 			do_randart(seed_randart, TRUE);
 		}
@@ -2921,7 +2923,6 @@ void play_game(bool new_game)
 		/* Process the level */
 		dungeon();
 
-
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff();
 
@@ -2955,7 +2956,7 @@ void play_game(bool new_game)
 		if (p_ptr->playing && p_ptr->is_dead)
 		{
 			/* Mega-Hack -- Allow player to cheat death */
-			if ((p_ptr->wizard || cheat_live) && !get_check("Die? "))
+			if ((p_ptr->wizard || OPTION(cheat_live)) && !get_check("Die? "))
 			{
 				/* Mark social class, reset age, if needed */
 				if (p_ptr->sc) p_ptr->sc = p_ptr->age = 0;

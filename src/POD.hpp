@@ -4,6 +4,10 @@
 #define POD_HPP 1
 
 #include <cstring>
+#ifdef HAVE_BOOST
+#include <boost/type_traits.hpp>
+#include "static_assert.h"
+#endif
 
 // Adapted from the Zaimoni.STL.
 
@@ -15,8 +19,10 @@ namespace zaiband {
 template<class T1, class T2>
 struct POD_pair
 {
-	BOOST_STATIC_ASSERT(boost::is_pod<T1>::value);
-	BOOST_STATIC_ASSERT(boost::is_pod<T2>::value);
+#ifdef HAVE_BOOST
+	ZAIBAND_STATIC_ASSERT(boost::is_pod<T1>::value);
+	ZAIBAND_STATIC_ASSERT(boost::is_pod<T2>::value);
+#endif
 
 	typedef T1 first_type;
 	typedef T2 second_type;

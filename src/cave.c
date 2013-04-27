@@ -18,6 +18,7 @@
 
 #include "angband.h"
 #include "game-event.h"
+#include "option.h"
 #include "raceflag.h"
 #include "wind_flg.h"
 
@@ -197,10 +198,10 @@ static void special_lighting_floor(byte *a, char *c, enum grid_light_level light
 	/* The floor starts off "lit" - i.e. rendered in white or the default 
 	 * tile. */
 
-	if (lighting == LIGHT_TORCH && view_yellow_lite)
+	if (lighting == LIGHT_TORCH && OPTION(view_yellow_lite))
 	{
 		/* 
-		 * view_yellow_lite distinguishes between torchlit and 
+		 * OPTION(view_yellow_lite) distinguishes between torchlit and 
 		 * permanently-lit areas 
 		 */
 		switch (use_graphics)
@@ -240,7 +241,7 @@ static void special_lighting_floor(byte *a, char *c, enum grid_light_level light
 		 * view_bright_lite makes tiles that aren't in the "eyeline" 
 		 * of the player show up dimmer than those that are.
 		 */
-		if (view_bright_lite && !in_view)
+		if (OPTION(view_bright_lite) && !in_view)
 		{
 			switch (use_graphics)
 			{
@@ -263,7 +264,7 @@ static void special_lighting_floor(byte *a, char *c, enum grid_light_level light
  * grids to show them as more-or-less lit.  Note that how walls are drawn 
  * isn't directly related to how they are lit - walls are always "lit".
  * The lighting effects we use are as a visual cue to emphasise blindness 
- * and to show field-of-view (view_bright_lite).
+ * and to show field-of-view (OPTION(view_bright_lite)).
  *
  * For text, we change the attr and for graphics we modify the char to
  * use a different tile in the tileset.  These modifications are different
@@ -292,8 +293,8 @@ static void special_wall_display(byte *a, char *c, bool in_view, int feat)
 		}
 	}
 
-	/* Handle "view_bright_lite" by dimming walls not "in view" */
-	else if (view_bright_lite)
+	/* Handle "OPTION(view_bright_lite)" by dimming walls not "in view" */
+	else if (OPTION(view_bright_lite))
 	{
 		switch (use_graphics)
 		{
@@ -369,11 +370,11 @@ grid_data::as_text(byte& ap, char& cp, byte& tap, char& tcp) const
 	char c = f_ptr->x_char;
 
 	/* Special lighting effects */
-	if (f_idx <= FEAT_INVIS && view_special_lite)
+	if (f_idx <= FEAT_INVIS && OPTION(view_special_lite))
 		special_lighting_floor(&a, &c, lighting, in_view);
 
 	/* Special lighting effects (walls only) */
-	if (f_idx > FEAT_INVIS && view_granite_lite) 
+	if (f_idx > FEAT_INVIS && OPTION(view_granite_lite)) 
 		special_wall_display(&a, &c, in_view, f_idx);
 
 	/* Save the terrain info for the transparency effects */
@@ -395,7 +396,7 @@ grid_data::as_text(byte& ap, char& cp, byte& tap, char& tcp) const
 		else
 		{
 			/* Get the "pile" feature instead, if more than one and supposed to show it */
-			object_kind *k_ptr = &object_type::k_info[(show_piles && multiple_objects) ? 0
+			object_kind *k_ptr = &object_type::k_info[(OPTION(show_piles) && multiple_objects) ? 0
 													 : first_k_idx];
 			
 			/* Normal attr and char */
@@ -417,8 +418,7 @@ grid_data::as_text(byte& ap, char& cp, byte& tap, char& tcp) const
 		}
 		else
 		{
-			monster_type *m_ptr = &mon_list[m_idx];
-			monster_race *r_ptr = m_ptr->race();
+			const monster_race* const r_ptr = m_ptr_from_m_idx(m_idx)->race();
 				
 			byte da;
 			char dc;
@@ -493,7 +493,7 @@ grid_data::as_text(byte& ap, char& cp, byte& tap, char& tcp) const
 	else if (is_player)
 #else /* MAP_INFO_MULTIPLE_PLAYERS */
 	/* Handle "player" */
-	else if (is_player && !(p_ptr->running && hidden_player))
+	else if (is_player && !(p_ptr->running && OPTION(hidden_player)))
 #endif /* MAP_INFO_MULTIPLE_PLAYERS */
 	{
 		monster_race *r_ptr = &monster_type::r_info[0];
@@ -575,8 +575,7 @@ grid_data::as_text(byte& ap, char& cp, byte& tap, char& tcp) const
  *    grid that the player knows and cares about (to facilitate any special
  *    floor stack symbol that might be used).
  *  - in_view is TRUE if the player can currently see the grid - this can
- *    be used to indicate field-of-view, such as through the view_bright_lite
- *    option.
+ *    be used to indicate field-of-view, such as through OPTION(view_bright_lite).
  *  - lighting is set to indicate the lighting level for the grid:
  *    LIGHT_DARK for unlit grids, LIGHT_TORCH for those lit by the player's
  *    light source, and LIGHT_GLOW for inherently light grids (lit rooms, etc).
@@ -676,16 +675,14 @@ grid_data::grid_data(unsigned int y, unsigned int x)
 	}
 
 	/* Monsters */
-	if (m_idx > 0)
+	if (0 < m_idx)
 	{
 		/* If the monster isn't "visible", make sure we don't list it.*/
-		monster_type *m_ptr = &mon_list[m_idx];
-		if (!m_ptr->ml) m_idx = 0;
-
+		if (!m_ptr_from_m_idx(m_idx)->ml) m_idx = 0;
 	}
 
 	/* Rare random hallucination on non-outer walls */
-	if (hallucinate && m_idx == 0 && first_k_idx == 0)
+	if (hallucinate && 0 == m_idx && 0 == first_k_idx)
 	{
 		if ((f_idx < FEAT_PERM_SOLID) && one_in_(256))
 		{
@@ -966,8 +963,8 @@ void note_spot(coord g)
 		if (cave_feat[g.y][g.x] <= FEAT_INVIS)
 		{
 			/* Option -- memorize certain floors */
-			if (((info & (CAVE_GLOW)) && view_perma_grids) ||
-			    view_torch_grids)
+			if (((info & (CAVE_GLOW)) && OPTION(view_perma_grids)) ||
+			    OPTION(view_torch_grids))
 			{
 				/* Memorize */
 				cave_info[g.y][g.x] |= (CAVE_MARK);
@@ -1346,8 +1343,8 @@ void display_map(int *cy, int *cx)
 	byte mp[DUNGEON_HGT][DUNGEON_WID];
 
 	/* Save lighting effects */
-	bool old_view_special_lite = view_special_lite;
-	bool old_view_granite_lite = view_granite_lite;
+	bool old_view_special_lite = OPTION(view_special_lite);
+	bool old_view_granite_lite = OPTION(view_granite_lite);
 
 	monster_race *r_ptr = &monster_type::r_info[0];
 
@@ -1360,8 +1357,8 @@ void display_map(int *cy, int *cx)
 
 
 	/* Disable lighting effects */
-	view_special_lite = FALSE;
-	view_granite_lite = FALSE;
+	OPTION(view_special_lite) = FALSE;
+	OPTION(view_granite_lite) = FALSE;
 
 
 	/* Nothing here */
@@ -1468,8 +1465,8 @@ void display_map(int *cy, int *cx)
 
 
 	/* Restore lighting effects */
-	view_special_lite = old_view_special_lite;
-	view_granite_lite = old_view_granite_lite;
+	OPTION(view_special_lite) = old_view_special_lite;
+	OPTION(view_granite_lite) = old_view_granite_lite;
 }
 
 
@@ -1680,8 +1677,8 @@ void do_cmd_view_map(void)
  * that grid.  This is used to "memorize" grids when they are first "seen" by
  * the player, and to allow certain grids to be "detected" by certain magic.
  * Note that most grids are always memorized when they are first "seen", but
- * "boring" grids (floor grids) are only memorized if the "view_torch_grids"
- * option is set, or if the "view_perma_grids" option is set, and the grid
+ * "boring" grids (floor grids) are only memorized if the "OPTION(view_torch_grids)"
+ * option is set, or if the "OPTION(view_perma_grids)" option is set, and the grid
  * in question has the "CAVE_GLOW" flag set.
  *
  * Objects are "memorized" in a different way, using a special "marked" flag
@@ -2069,44 +2066,19 @@ struct vinfo_hack {
 };
 
 
-
 /**
- * Sorting hook -- comp function -- array of long's (see below)
+ * Sorting hook for stdlib qsort of longs
  *
  * We use "u" to point to an array of long integers.
  */
-static bool ang_sort_comp_hook_longs(const void *u, const void *v, int a, int b)
+static int qsort_hook_longs(const void* x, const void* y)
 {
-	long *x = (long*)(u);
-
-	/* Unused parameter */
-	(void)v;
-
-	return (x[a] <= x[b]);
+	long LHS = *((const long*)x);
+	long RHS = *((const long*)y);
+	if (LHS<RHS) return -1;
+	if (LHS>RHS) return 1;
+	return 0;
 }
-
-
-/**
- * Sorting hook -- comp function -- array of long's (see below)
- *
- * We use "u" to point to an array of long integers.
- */
-static void ang_sort_swap_hook_longs(void *u, void *v, int a, int b)
-{
-	long *x = (long*)(u);
-
-	long temp;
-
-	/* Unused parameter */
-	(void)v;
-
-	/* Swap */
-	temp = x[a];
-	x[a] = x[b];
-	x[b] = temp;
-}
-
-
 
 /**
  * Save a slope
@@ -2244,17 +2216,7 @@ errr vinfo_init(void)
 		         hack->num_slopes, VINFO_MAX_SLOPES);
 	}
 
-
-	/* Sort slopes numerically */
-	ang_sort_comp = ang_sort_comp_hook_longs;
-
-	/* Sort slopes numerically */
-	ang_sort_swap = ang_sort_swap_hook_longs;
-
-	/* Sort the (unique) slopes */
-	ang_sort(hack->slopes, NULL, hack->num_slopes);
-
-
+	qsort(hack->slopes,hack->num_slopes,sizeof(long),qsort_hook_longs);
 
 	/* Enqueue player grid */
 	queue[queue_tail++] = &vinfo[0];
@@ -2618,7 +2580,7 @@ void update_flow(void)
 	coord flow_c[FLOW_MAX];
 
 	/* Hack -- disabled */
-	if (!flow_by_sound) return;
+	if (!OPTION(adult_flow_by_sound)) return;
 
 
 	/*** Cycle the flow ***/
@@ -2783,15 +2745,15 @@ static bool wiz_lite_object(object_type& o)
  *
  * This function "illuminates" every grid in the dungeon, memorizes all
  * "objects", memorizes all grids as with magic mapping, and, under the
- * standard option settings (view_perma_grids but not view_torch_grids)
+ * standard option settings (OPTION(view_perma_grids) but not OPTION(view_torch_grids))
  * memorizes all floor grids too.
  *
- * Note that if "view_perma_grids" is not set, we do not memorize floor
- * grids, since this would defeat the purpose of "view_perma_grids", not
+ * Note that if "OPTION(view_perma_grids)" is not set, we do not memorize floor
+ * grids, since this would defeat the purpose of "OPTION(view_perma_grids)", not
  * that anyone seems to play without this option.
  *
- * Note that if "view_torch_grids" is set, we do not memorize floor grids,
- * since this would prevent the use of "view_torch_grids" as a method to
+ * Note that if "OPTION(view_torch_grids)" is set, we do not memorize floor grids,
+ * since this would prevent the use of "OPTION(view_torch_grids)" as a method to
  * keep track of what grids have been observed directly.
  */
 void wiz_lite(void)
@@ -2828,7 +2790,7 @@ void wiz_lite(void)
 					}
 
 					/* Normally, memorize floors (see above) */
-					if (view_perma_grids && !view_torch_grids)
+					if (OPTION(view_perma_grids) && !OPTION(view_torch_grids))
 					{
 						/* Memorize the grid */
 						cave_info[yy][xx] |= (CAVE_MARK);
@@ -2913,7 +2875,7 @@ void town_illuminate(bool daytime)
 				cave_info[y][x] |= (CAVE_GLOW);
 
 				/* Hack -- Memorize grids */
-				if (view_perma_grids)
+				if (OPTION(view_perma_grids))
 				{
 					cave_info[y][x] |= (CAVE_MARK);
 				}
@@ -2926,7 +2888,7 @@ void town_illuminate(bool daytime)
 				cave_info[y][x] &= ~(CAVE_GLOW);
 
 				/* Hack -- Forget grids */
-				if (view_perma_grids)
+				if (OPTION(view_perma_grids))
 				{
 					cave_info[y][x] &= ~(CAVE_MARK);
 				}
@@ -2941,8 +2903,7 @@ void town_illuminate(bool daytime)
 		for (x = 0; x < TOWN_WID; x++)
 		{
 			/* Track shop doorways */
-			if ((cave_feat[y][x] >= FEAT_SHOP_HEAD) &&
-			    (cave_feat[y][x] <= FEAT_SHOP_TAIL))
+			if (cave_feat_in_range(y,x,FEAT_SHOP_HEAD,FEAT_SHOP_TAIL))
 			{
 				for (i = 0; i < KEYPAD_DIR_MAX; i++)
 				{
@@ -2953,10 +2914,7 @@ void town_illuminate(bool daytime)
 					cave_info[yy][xx] |= (CAVE_GLOW);
 
 					/* Hack -- Memorize grids */
-					if (view_perma_grids)
-					{
-						cave_info[yy][xx] |= (CAVE_MARK);
-					}
+					if (OPTION(view_perma_grids)) cave_info[yy][xx] |= (CAVE_MARK);
 				}
 			}
 		}
@@ -3171,17 +3129,13 @@ void disturb(int stop_search, int unused_flag)
 		p_ptr->running = 0;
 
  		/* Check for new panel if appropriate */
- 		if (center_player && run_avoid_center) event_signal(EVENT_PLAYERMOVED);
+ 		if (OPTION(center_player) && OPTION(run_avoid_center)) event_signal(EVENT_PLAYERMOVED);
 
 		/* Calculate torch radius */
 		p_ptr->update |= (PU_TORCH);
 
-		/* Redraw the player */
-		if (hidden_player)
-		{
-			/* Redraw player */
-			lite_spot(p_ptr->loc);
-		}
+		/* Redraw the player, if needed */
+		if (OPTION(hidden_player)) lite_spot(p_ptr->loc);
 	}
 
 	/* Cancel searching if requested */
@@ -3198,7 +3152,7 @@ void disturb(int stop_search, int unused_flag)
 	}
 
 	/* Flush the input if requested */
-	if (flush_disturb) flush();
+	if (OPTION(flush_disturb)) flush();
 }
 
 

@@ -35,7 +35,7 @@
 static int breakage_chance(const object_type *o_ptr)
 {
 	/* Examine the item type */
-	switch (o_ptr->tval)
+	switch (o_ptr->obj_id.tval)
 	{
 		/* Always break */
 		case TV_FLASK:
@@ -208,7 +208,7 @@ static int slay_multiplier(const object_type *o_ptr, const monster_type *m_ptr)
 	object_flags(o_ptr, f);
 
 	/* Some "weapons" and "ammo" do extra damage */
-	switch (o_ptr->tval)
+	switch (o_ptr->obj_id.tval)
 	{
 		case TV_SHOT:
 		case TV_ARROW:
@@ -320,7 +320,7 @@ static void learn_multiplier(const object_type *o_ptr, const monster_type *m_ptr
 	object_flags(o_ptr, f);
 
 	/* Some "weapons" and "ammo" do extra damage */
-	switch (o_ptr->tval)
+	switch (o_ptr->obj_id.tval)
 	{
 		case TV_SHOT:
 		case TV_ARROW:
@@ -452,9 +452,9 @@ void py_attack(coord g)
 
 
 	/* Get the monster */
-	monster_type* m_ptr = &mon_list[cave_m_idx[g.y][g.x]];
-	monster_race* r_ptr = m_ptr->race();
-	monster_lore* l_ptr = m_ptr->lore();
+	monster_type* const m_ptr = m_ptr_from_m_idx(cave_m_idx[g.y][g.x]);
+	monster_race* const r_ptr = m_ptr->race();
+	monster_lore* const l_ptr = m_ptr->lore();
 
 
 	/* Disturb the player */
@@ -644,21 +644,36 @@ player_type::melee_analyze(monster_type* m_ptr, int& min_dam, int& median_dam, i
  * no-aim: 5 degrees; aim: 1 degree.
  */
 
-static bool missile_test_hit(int chance, int ac, int vis, int distance)
+/* prepare to generalize:
+ * implicit parameters: p_ptr->loc
+ * extract monster/player from location
+ */
+bool missile_test_hit(int chance, int ac, int vis, int distance, coord loc)
 {
-	bool aiming = (TRUE);
+	const bool is_player = 0>cave_m_idx[loc.y][loc.x];
+	bool aiming = TRUE;
 
 	/* count monsters.  If zero are adjacent, allow aiming. */
 	/* Yes, undetected monsters prohibit aiming. */
 	int i;
-	for(i=0;i<KEYPAD_DIR_MAX;i++)
-		{
-		if (0<cave_m_idx[p_ptr->loc.y+ddy_ddd[i]][p_ptr->loc.x+ddx_ddd[i]])
-			{	/* found a monster...no aiming! */
-			aiming = (FALSE);
-			break;
-			}
-		}
+	if (is_player)
+	{
+		for(i=0;i<KEYPAD_DIR_MAX;i++)
+			if (0<cave_m_idx[loc.y+ddy_ddd[i]][loc.x+ddx_ddd[i]])
+				{	/* found a monster...no aiming! */
+				aiming = FALSE;
+				break;
+				}
+	}
+	else
+	{
+		for(i=0;i<KEYPAD_DIR_MAX;i++)
+			if (0>cave_m_idx[loc.y+ddy_ddd[i]][loc.x+ddx_ddd[i]])
+				{	/* found a player...no aiming! */
+				aiming = FALSE;
+				break;
+				}
+	}
 
 	if (aiming)
 		{	/* aiming version: normalize with 1 degree of random phi. */
@@ -679,7 +694,7 @@ static bool missile_test_hit(int chance, int ac, int vis, int distance)
 		}
 	else{	/* no aiming version: normalize with 5 degrees of random phi */
 			/* inscribed circle at 8.5', circumscribed circle at 34.2' */
-		msg_print("Nearby threats prevent you from aiming your weapon carefully.");
+		if (is_player) msg_print("Nearby threats prevent you from aiming your weapon carefully.");
 		if (1<distance)
 			{
 			if (3>=distance)
@@ -693,11 +708,6 @@ static bool missile_test_hit(int chance, int ac, int vis, int distance)
 				}
 			}
 		}
-
-#if 0
-	/* apply the legacy correction */
-	chance -= distance;
-#endif
 
 	/* use melee algorithm */
 	return test_hit(chance,ac,vis);
@@ -761,7 +771,7 @@ void do_cmd_fire(void)
 	int msec = op_ptr->delay_factor * op_ptr->delay_factor;
 
 	/* Require a usable launcher */
-	if (!j_ptr->tval || !p_ptr->ammo_tval)
+	if (!j_ptr->obj_id.tval || !p_ptr->ammo_tval)
 	{
 		msg_print("You have nothing to fire with.");
 		return;
@@ -882,20 +892,20 @@ void do_cmd_fire(void)
 		/* Handle monster */
 		if (cave_m_idx[t.y][t.x] > 0)
 		{
-			monster_type *m_ptr = &mon_list[cave_m_idx[t.y][t.x]];
-			monster_race *r_ptr = m_ptr->race();
+			monster_type* const m_ptr = m_ptr_from_m_idx(cave_m_idx[t.y][t.x]);
+			monster_race* const r_ptr = m_ptr->race();
 			int visible = m_ptr->ml;
 
 			/* Note the collision */
 			hit_body = TRUE;
 
 			/* Did we hit it (penalize distance travelled) */
-			if (missile_test_hit(chance, r_ptr->ac, m_ptr->ml, distance(p_ptr->loc.y, p_ptr->loc.x, t.y, t.x)))
+			if (missile_test_hit(chance, r_ptr->ac, m_ptr->ml, distance(p_ptr->loc.y, p_ptr->loc.x, t.y, t.x), p_ptr->loc))
 			{
 				bool fear = FALSE;
 
 				/* grammatically living monsters die; others are destroyed */
-				const char* const note_dies = (r_ptr->is_nonliving()) ? " dies." : " is destroyed.";
+				const char* const note_dies = (r_ptr->is_nonliving()) ? " is destroyed." : " dies.";
 
 				/* Handle unseen monster */
 				if (!visible)
@@ -915,11 +925,12 @@ void do_cmd_fire(void)
 					/* Message */
 					message_format(MSG_SHOOT_HIT, 0, "The %s hits %s.", o_name, m_name);
 
-					/* Hack -- Track this monster race */
-					if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
-
-					/* Hack -- Track this monster */
-					if (m_ptr->ml) health_track(cave_m_idx[t.y][t.x]);
+					/* Hack -- Track this monster race, monster */
+					if (m_ptr->ml)
+					{
+						monster_race_track(m_ptr->r_idx);
+						health_track(cave_m_idx[t.y][t.x]);
+					}					
 				}
 
 				/* Apply special damage XXX XXX XXX */
@@ -982,7 +993,7 @@ player_type::missile_analyze(monster_type* m_ptr, int& min_dam, int& median_dam,
 	const object_type* const j_ptr = &p_ptr->inventory[INVEN_BOW];	/* Get the "bow" (if any) */
 
 	/* Require a usable launcher */
-	if (!j_ptr->tval || !p_ptr->ammo_tval)
+	if (!j_ptr->obj_id.tval || !p_ptr->ammo_tval)
 	{
 		min_dam = median_dam = max_dam = 0;
 		return;
@@ -998,7 +1009,7 @@ player_type::missile_analyze(monster_type* m_ptr, int& min_dam, int& median_dam,
 	for (i=0; i<inven_cnt; ++i)
 	{
 		const object_type* const o_ptr = &p_ptr->inventory[i];
-		if (p_ptr->ammo_tval!=o_ptr->tval) continue;
+		if (p_ptr->ammo_tval!=o_ptr->obj_id.tval) continue;
 		if (-1==item)
 		{
 			int slayfactor = slay_multiplier(o_ptr,m_ptr)*slay_multiplier(j_ptr,m_ptr);
@@ -1207,20 +1218,20 @@ void do_cmd_throw(void)
 		/* Handle monster */
 		if (cave_m_idx[t.y][t.x] > 0)
 		{
-			monster_type *m_ptr = &mon_list[cave_m_idx[t.y][t.x]];
-			monster_race *r_ptr = m_ptr->race();
+			monster_type* const m_ptr = m_ptr_from_m_idx(cave_m_idx[t.y][t.x]);
+			monster_race* const r_ptr = m_ptr->race();
 			int visible = m_ptr->ml;
 
 			/* Note the collision */
 			hit_body = TRUE;
 
 			/* Did we hit it (penalize range) */
-			if (missile_test_hit(chance, r_ptr->ac, m_ptr->ml, distance(p_ptr->loc.y, p_ptr->loc.x, t.y, t.x)))
+			if (missile_test_hit(chance, r_ptr->ac, m_ptr->ml, distance(p_ptr->loc.y, p_ptr->loc.x, t.y, t.x), p_ptr->loc))
 			{
 				bool fear = FALSE;
 
 				/* grammatically living monsters die; others are destroyed */
-				const char* const note_dies = (r_ptr->is_nonliving()) ? " dies." : " is destroyed.";
+				const char* const note_dies = (r_ptr->is_nonliving()) ? " is destroyed." : " dies.";
 
 				/* Handle unseen monster */
 				if (!visible)

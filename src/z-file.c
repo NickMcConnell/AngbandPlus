@@ -154,13 +154,12 @@ FILE *my_fopen_temp(char *buf, size_t max)
  */
 FILE *my_fopen_temp(char *buf, size_t max)
 {
-	const char *s;
-
-	/* Temp file */
-	s = tmpnam(NULL);
+	const char *s = tmpnam(NULL);	/* Temp file */
 
 	/* Oops */
 	if (!s) return (NULL);
+
+	if ('\\'==s[0]) ++s;	/* deal with M$ */
 
 	/* Copy to buffer */
 	my_strcpy(buf, s, max);

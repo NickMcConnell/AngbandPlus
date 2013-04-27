@@ -19,6 +19,10 @@
 #include "raceflag.h"
 #include "tvalsval.h"
 
+#include "POD.hpp"
+
+using zaiband::POD_pair;
+
 #ifdef ALLOW_SPOILERS
 
 
@@ -62,9 +66,9 @@ static void spoiler_underline(const char* const str, char c)
 
 
 /*
- * The basic items categorized by type
+ * The basic items categorized by type: tval, string pairs
  */
-static const grouper group_item[] =
+static const POD_pair<byte,const char* const> group_item[] =
 {
 	{ TV_SHOT,		"Ammo" },
 	{ TV_ARROW,		  NULL },
@@ -163,13 +167,10 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 	dam[0] = '\x00';
 
 	/* Damage */
-	switch (i_ptr->tval)
+	switch (i_ptr->obj_id.tval)
 	{
 		/* Bows */
-		case TV_BOW:
-		{
-			break;
-		}
+		case TV_BOW:	break;
 
 		/* Ammo */
 		case TV_SHOT:
@@ -257,7 +258,7 @@ static void spoil_obj_desc(const char* const fname)
 	for (i = 0; TRUE; i++)
 	{
 		/* Write out the group title */
-		if (group_item[i].name)
+		if (group_item[i].second)
 		{
 			/* Hack -- bubble-sort by cost and then level */
 			for (s = 0; s < n - 1; s++)
@@ -303,10 +304,10 @@ static void spoil_obj_desc(const char* const fname)
 			n = 0;
 
 			/* Notice the end */
-			if (!group_item[i].tval) break;
+			if (!group_item[i].first) break;
 
 			/* Start a new set */
-			fprintf(fff, "\n\n%s\n\n", group_item[i].name);
+			fprintf(fff, "\n\n%s\n\n", group_item[i].second);
 		}
 
 		/* Get legal item types */
@@ -315,7 +316,7 @@ static void spoil_obj_desc(const char* const fname)
 			object_kind *k_ptr = &object_type::k_info[k];
 
 			/* Skip wrong tval's */
-			if (k_ptr->tval != group_item[i].tval) continue;
+			if (k_ptr->obj_id.tval != group_item[i].first) continue;
 
 			/* Hack -- Skip instant-artifacts */
 			if (k_ptr->flags[2] & (TR3_INSTA_ART)) continue;
@@ -347,9 +348,9 @@ static void spoil_obj_desc(const char* const fname)
 
 
 /*
- * The artifacts categorized by type
+ * The artifacts categorized by type: tval, string pairs
  */
-static const grouper group_artifact[] =
+static const POD_pair<byte,const char* const> group_artifact[] =
 {
 	{ TV_SWORD,         "Edged Weapons" },
 	{ TV_POLEARM,       "Polearms" },
@@ -390,7 +391,7 @@ bool make_fake_artifact(object_type *o_ptr, byte name1)
 	if (!a_ptr->_name) return FALSE;
 
 	/* Get the "kind" index */
-	i = lookup_kind(a_ptr->tval, a_ptr->sval);
+	i = lookup_kind(a_ptr->obj_id);
 
 	/* Oops */
 	if (!i) return (FALSE);
@@ -459,13 +460,13 @@ static void spoil_artifact(const char* const fname)
 	                         VERSION_NAME, VERSION_STRING), '=');
 
 	/* List the artifacts by tval */
-	for (i = 0; group_artifact[i].tval; i++)
+	for (i = 0; group_artifact[i].first; i++)
 	{
 		/* Write out the group title */
-		if (group_artifact[i].name)
+		if (group_artifact[i].second)
 		{
 			spoiler_blanklines(2);
-			spoiler_underline(group_artifact[i].name, '=');
+			spoiler_underline(group_artifact[i].second, '=');
 			spoiler_blanklines(1);
 		}
 
@@ -476,7 +477,7 @@ static void spoil_artifact(const char* const fname)
 			char buf[80];
 
 			/* We only want objects in the current group */
-			if (a_ptr->tval != group_artifact[i].tval) continue;
+			if (a_ptr->obj_id.tval != group_artifact[i].first) continue;
 
 			/* Wipe the object */
 			WIPE(i_ptr);

@@ -18,7 +18,8 @@
 
 #include "angband.h"
 #include "z-quark.h"
-
+#include "macro.h"
+#include "option.h"
 
 #ifdef SET_UID
 # ifndef HAVE_USLEEP
@@ -523,275 +524,6 @@ void ascii_to_text(char *buf, size_t len, const char* str)
 
 
 /*
- * The "macro" package
- *
- * Functions are provided to manipulate a collection of macros, each
- * of which has a trigger pattern string and a resulting action string
- * and a small set of flags.
- */
-
-
-
-/*
- * Determine if any macros have ever started with a given character.
- */
-static bool macro__use[256];
-
-
-/*
- * Find the macro (if any) which exactly matches the given pattern
- */
-int macro_find_exact(const char* pat)
-{
-	int i;
-
-	/* Nothing possible */
-	if (!macro__use[(byte)(pat[0])]) return -1;
-
-	/* Scan the macros */
-	for (i = 0; i < macro__num; ++i)
-	{
-		if (streq(macro__pat[i], pat)) return i;
-	}
-
-	/* No matches */
-	return -1;
-}
-
-
-/*
- * Find the first macro (if any) which contains the given pattern
- */
-static int macro_find_check(const char* pat)
-{
-	int i;
-
-	/* Nothing possible */
-	if (!macro__use[(byte)(pat[0])]) return -1;
-
-	/* Scan the macros */
-	for (i = 0; i < macro__num; ++i)
-	{
-		if (prefix(macro__pat[i], pat)) return i;
-	}
-
-	/* Nothing */
-	return -1;
-}
-
-
-/*
- * Find the first macro (if any) which contains the given pattern and more
- */
-static int macro_find_maybe(const char* pat)
-{
-	int i;
-
-	/* Nothing possible */
-	if (!macro__use[(byte)(pat[0])]) return -1;
-
-	/* Scan the macros */
-	for (i = 0; i < macro__num; ++i)
-	{
-		/* Skip macros which do not contain the pattern */
-		if (!prefix(macro__pat[i], pat)) continue;
-
-		/* Skip macros which exactly match the pattern XXX XXX */
-		if (streq(macro__pat[i], pat)) continue;
-
-		/* Found one */
-		return i;
-	}
-
-	/* Nothing */
-	return -1;
-}
-
-
-/*
- * Find the longest macro (if any) which starts with the given pattern
- */
-static int macro_find_ready(const char* pat)
-{
-	int i, t, n = -1, s = -1;
-
-	/* Nothing possible */
-	if (!macro__use[(byte)(pat[0])]) return -1;
-
-	/* Scan the macros */
-	for (i = 0; i < macro__num; ++i)
-	{
-		/* Skip macros which are not contained by the pattern */
-		if (!prefix(pat, macro__pat[i])) continue;
-
-		/* Obtain the length of this macro */
-		t = strlen(macro__pat[i]);
-
-		/* Only track the "longest" pattern */
-		if ((n >= 0) && (s > t)) continue;
-
-		/* Track the entry */
-		n = i;
-		s = t;
-	}
-
-	/* Result */
-	return n;
-}
-
-
-/*
- * Add a macro definition (or redefinition).
- *
- * We should use "act == NULL" to "remove" a macro, but this might make it
- * impossible to save the "removal" of a macro definition.  XXX XXX XXX
- *
- * We should consider refusing to allow macros which contain existing macros,
- * or which are contained in existing macros, because this would simplify the
- * macro analysis code.  XXX XXX XXX
- *
- * We should consider removing the "command macro" crap, and replacing it
- * with some kind of "powerful keymap" ability, but this might make it hard
- * to change the "roguelike" option from inside the game.  XXX XXX XXX
- */
-errr macro_add(const char* pat, const char* act)
-{
-	int n;
-
-
-	/* Paranoia -- require data */
-	if (!pat || !act) return (-1);
-
-
-	/* Look for any existing macro */
-	n = macro_find_exact(pat);
-
-	/* Replace existing macro */
-	if (n >= 0)
-	{
-		/* Free the old macro action */
-		string_free(macro__act[n]);
-	}
-
-	/* Create a new macro */
-	else
-	{
-		/* Get a new index */
-		n = macro__num++;
-
-		/* Boundary check */
-		if (macro__num >= MACRO_MAX) quit("Too many macros!");
-
-		/* Save the pattern */
-		macro__pat[n] = string_make(pat);
-	}
-
-	/* Save the action */
-	macro__act[n] = string_make(act);
-
-	/* Efficiency */
-	macro__use[(byte)(pat[0])] = TRUE;
-
-	/* Success */
-	return (0);
-}
-
-
-
-/*
- * Initialize the "macro" package
- */
-errr macro_init(void)
-{
-	/* Macro patterns */
-	C_MAKE(macro__pat, MACRO_MAX, const char*);
-
-	/* Macro actions */
-	C_MAKE(macro__act, MACRO_MAX, const char*);
-
-	/* Success */
-	return (0);
-}
-
-
-/*
- * Free the macro package
- */
-errr macro_free(void)
-{
-	int i, j;
-
-	/* Free the macros */
-	for (i = 0; i < macro__num; ++i)
-	{
-		string_free(macro__pat[i]);
-		string_free(macro__act[i]);
-	}
-
-	FREE((void*)macro__pat);
-	FREE((void*)macro__act);
-
-	/* Free the keymaps */
-	for (i = 0; i < KEYMAP_MODES; ++i)
-	{
-		for (j = 0; j < (int)N_ELEMENTS(keymap_act[i]); ++j)
-		{
-			string_free(keymap_act[i][j]);
-			keymap_act[i][j] = NULL;
-		}
-	}
-
-	/* Success */
-	return (0);
-}
-
-
-/*
- * Free the macro trigger package
- */
-errr macro_trigger_free(void)
-{
-	int i;
-	int num;
-
-	if (macro_template != NULL)
-	{
-		/* Free the template */
-		string_free(macro_template);
-		macro_template = NULL;
-
-		/* Free the trigger names and keycodes */
-		for (i = 0; i < max_macrotrigger; i++)
-		{
-			string_free(macro_trigger_name[i]);
-
-			string_free(macro_trigger_keycode[0][i]);
-			string_free(macro_trigger_keycode[1][i]);
-		}
-
-		/* No more macro triggers */
-		max_macrotrigger = 0;
-
-		/* Count modifier-characters */
-		num = strlen(macro_modifier_chr);
-
-		/* Free modifier names */
-		for (i = 0; i < num; i++)
-		{
-			string_free(macro_modifier_name[i]);
-		}
-
-		/* Free modifier chars */
-		string_free(macro_modifier_chr);
-		macro_modifier_chr = NULL;
-	}
-
-	/* Success */
-	return (0);
-}
-
-
-/*
  * Flush all pending input.
  *
  * Actually, remember the flush, using the "inkey_xtra" flag, and in the
@@ -810,7 +542,7 @@ void flush(void)
  */
 void flush_fail(void)
 {
-	if (flush_failure) flush();
+	if (OPTION(flush_failure)) flush();
 }
 
 
@@ -1154,7 +886,7 @@ ui_event_data inkey_ex(void)
 	(void)Term_get_cursor(&cursor_state);
 	
 	/* Show the cursor if waiting, except sometimes in "command" mode */
-	if (!inkey_scan && (!inkey_flag || hilite_player || character_icky))
+	if (!inkey_scan && (!inkey_flag || OPTION(hilite_player) || character_icky))
 	{
 		/* Show the cursor */
 		(void)Term_set_cursor(TRUE);
@@ -1375,7 +1107,7 @@ void bell(const char* reason)
 	}
 
 	/* Make a bell noise (if allowed) */
-	if (ring_bell) Term_xtra(TERM_XTRA_NOISE, 0);
+	if (OPTION(ring_bell)) Term_xtra(TERM_XTRA_NOISE, 0);
 
 	/* Flush the input (later!) */
 	flush();
@@ -1473,14 +1205,13 @@ static void msg_flush(int x)
 	/* Pause for response */
 	Term_putstr(x, 0, -1, a, "-more-");
 
-	if (!auto_more)
+	if (!OPTION(auto_more))
 	{
 		/* Get an acceptable keypress */
 		while (1)
 		{
-			char ch;
-			ch = inkey();
-			if (quick_messages) break;
+			char ch = inkey();
+			if (OPTION(quick_messages)) break;
 			if ((ch == ESCAPE) || (ch == ' ')) break;
 			if ((ch == '\n') || (ch == '\r')) break;
 			bell("Illegal response to a 'more' prompt!");
@@ -1522,68 +1253,42 @@ static int message_column = 0;
  */
 static void msg_print_aux(u16b type, const char* const msg)
 {
-	int n;
-	char *t;
-	char buf[1024];
-	byte color;
 	int w, h;
+	int n = (msg ? strlen(msg) : 0);	/* Message Length */
+	char buf[1024];
+	char* t = buf;						/* prepare to analyze the buffer */
+	byte color;
 
-
-	/* Obtain the size */
-	(void)Term_get_size(&w, &h);
-
-	/* Hack -- Reset */
-	if (!msg_flag) message_column = 0;
-
-	/* Message Length */
-	n = (msg ? strlen(msg) : 0);
+	(void)Term_get_size(&w, &h);		/* Obtain the size */
+	if (!msg_flag) message_column = 0;	/* Reset */
 
 	/* Hack -- flush when requested or needed */
 	if (message_column && (!msg || ((message_column + n) > (w - 8))))
 	{
-		/* Flush */
-		msg_flush(message_column);
-
-		/* Forget it */
-		msg_flag = FALSE;
-
-		/* Reset */
-		message_column = 0;
+		msg_flush(message_column);	/* Flush */
+		msg_flag = FALSE;			/* Forget it */
+		message_column = 0;			/* Reset */
 	}
 
-
-	/* No message */
-	if (!msg) return;
-
-	/* Paranoia */
-	if (n > 1000) return;
-
+	if (!msg) return;		/* No message */
+	if (n > 1000) return;	/* Paranoia */
 
 	/* Memorize the message (if legal) */
 	if (character_generated && !(p_ptr->is_dead))
 		message_add(msg, type);
 
-	/* Window stuff */
-	p_ptr->redraw |= (PR_MESSAGE);
-
-	/* Copy it */
-	my_strcpy(buf, msg, sizeof(buf));
-
-	/* Analyze the buffer */
-	t = buf;
-
-	/* Get the color of the message */
-	color = message_type_color(type);
+	p_ptr->redraw |= (PR_MESSAGE);		/* Window stuff */
+	my_strcpy(buf, msg, sizeof(buf));	/* Copy it */
+	color = message_type_color(type);	/* Get the color of the message */
 
 	/* Split message */
 	while (n > (w - 8))
 	{
 		char oops;
-
-		int check, split;
+		int check;
 
 		/* Default split */
-		split = (w - 8);
+		int split = (w - 8);
 
 		/* Find the "best" split point */
 		for (check = (w / 2); check < (w - 8); check++)
@@ -1617,11 +1322,8 @@ static void msg_print_aux(u16b type, const char* const msg)
 	/* Display the tail of the message */
 	Term_putstr(message_column, 0, n, color, t);
 
-	/* Remember the message */
-	msg_flag = TRUE;
-
-	/* Remember the position */
-	message_column += n + 1;
+	msg_flag = TRUE;			/* Remember the message */
+	message_column += n + 1;	/* Remember the position */
 }
 
 
@@ -2477,7 +2179,7 @@ bool get_check(const char* prompt)
 	while (TRUE)
 	{
 		ch = inkey();
-		if (quick_messages) break;
+		if (OPTION(quick_messages)) break;
 		if (ch == ESCAPE) break;
 		if (strchr("YyNn", ch)) break;
 		bell("Illegal response to a 'yes/no' question!");
@@ -2570,7 +2272,7 @@ void request_command(bool shopping)
 {
 	const char* act;
 	int i;
-	int mode = (rogue_like_commands) ? KEYMAP_MODE_ROGUE : KEYMAP_MODE_ORIG;
+	int mode = (OPTION(rogue_like_commands)) ? KEYMAP_MODE_ROGUE : KEYMAP_MODE_ORIG;
 	char ch;
 
 	p_ptr->command_cmd = 0;	/* No command yet */
@@ -2766,7 +2468,7 @@ void request_command(bool shopping)
 	}
 
 	/* Hack -- Auto-repeat certain commands */
-	if (always_repeat && (p_ptr->command_arg <= 0))
+	if (OPTION(always_repeat) && (p_ptr->command_arg <= 0))
 	{
 		/* Hack -- auto repeat certain commands */
 		if (strchr(AUTO_REPEAT_COMMANDS, p_ptr->command_cmd))
@@ -2861,11 +2563,14 @@ int color_text_to_attr(const char* name)
 	if (my_stricmp(name, "dark")       == 0) return (TERM_DARK);
 	if (my_stricmp(name, "white")      == 0) return (TERM_WHITE);
 	if (my_stricmp(name, "slate")      == 0) return (TERM_SLATE);
+	if (my_stricmp(name, "gray")       == 0) return (TERM_SLATE);
+	if (my_stricmp(name, "grey")       == 0) return (TERM_SLATE);
 	if (my_stricmp(name, "orange")     == 0) return (TERM_ORANGE);
 	if (my_stricmp(name, "red")        == 0) return (TERM_RED);
 	if (my_stricmp(name, "green")      == 0) return (TERM_GREEN);
 	if (my_stricmp(name, "blue")       == 0) return (TERM_BLUE);
 	if (my_stricmp(name, "umber")      == 0) return (TERM_UMBER);
+	if (my_stricmp(name, "brown")      == 0) return (TERM_UMBER);
 	if (my_stricmp(name, "violet")     == 0) return (TERM_VIOLET);
 	if (my_stricmp(name, "yellow")     == 0) return (TERM_YELLOW);
 	if (my_stricmp(name, "lightdark")  == 0) return (TERM_L_DARK);
@@ -2874,6 +2579,7 @@ int color_text_to_attr(const char* name)
 	if (my_stricmp(name, "lightgreen") == 0) return (TERM_L_GREEN);
 	if (my_stricmp(name, "lightblue")  == 0) return (TERM_L_BLUE);
 	if (my_stricmp(name, "lightumber") == 0) return (TERM_L_UMBER);
+	if (my_stricmp(name, "lightbrown") == 0) return (TERM_L_UMBER);
 
 	/* Oops */
 	return (-1);

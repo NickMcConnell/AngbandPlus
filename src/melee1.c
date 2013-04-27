@@ -312,10 +312,10 @@ int armor_damage_reduction(int damage,int ac)
 	return damage-(damage * MIN(ac,150) / 250);
 }
 
-static void apply_exact_damage(byte effect,int damage,byte rlev,u16b m_idx,const char* ddesc,bool& obvious,bool& blinked,bool& do_break)
+static void apply_exact_damage(byte effect,int damage,byte rlev,const m_idx_type m_idx,const char* ddesc,bool& obvious,bool& blinked,bool& do_break)
 {
 	char o_name[80];
-	monster_type* m_ptr = &mon_list[m_idx];
+	monster_type* const m_ptr = &mon_list[m_idx];
 	int k;
 
 	/* Apply appropriate damage */
@@ -391,8 +391,8 @@ static void apply_exact_damage(byte effect,int damage,byte rlev,u16b m_idx,const
 				object_type* const o_ptr = &p_ptr->inventory[rand_int(p_ptr->inven_cnt)];
 
 				/* Drain charged wands/staves */
-				if ((o_ptr->tval == TV_STAFF) ||
-				    (o_ptr->tval == TV_WAND))
+				if ((o_ptr->obj_id.tval == TV_STAFF) ||
+				    (o_ptr->obj_id.tval == TV_WAND))
 				{
 					/* Charged? */
 					if (o_ptr->pval)
@@ -554,7 +554,7 @@ static void apply_exact_damage(byte effect,int damage,byte rlev,u16b m_idx,const
 				distribute_charges(o_ptr, i_ptr, 1);
 
 				/* Carry the object */
-				(void)monster_carry(m_idx, i_ptr);
+				monster_carry(m_idx, i_ptr);
 
 				/* Steal the items */
 				inven_item_increase(i, -1);
@@ -594,7 +594,7 @@ static void apply_exact_damage(byte effect,int damage,byte rlev,u16b m_idx,const
 				object_type* const o_ptr = &p_ptr->inventory[i];
 
 				/* Skip non-food objects */
-				if (o_ptr->tval != TV_FOOD) continue;
+				if (o_ptr->obj_id.tval != TV_FOOD) continue;
 
 				/* Get a description */
 				object_desc(o_name, sizeof(o_name), o_ptr, FALSE, ODESC_BASE);
@@ -1078,7 +1078,7 @@ static void apply_exact_damage(byte effect,int damage,byte rlev,u16b m_idx,const
 /*
  * Attack the player via physical attacks.
  */
-bool make_attack_normal(int m_idx)
+bool make_attack_normal(const m_idx_type m_idx)
 {
 	monster_type *m_ptr = &mon_list[m_idx];
 	monster_race *r_ptr = m_ptr->race();
@@ -1300,7 +1300,7 @@ bool make_attack_normal(int m_idx)
 
 
 	/* Always notice cause of death */
-	if (p_ptr->is_dead && (l_ptr->deaths < MAX_SHORT))
+	if (p_ptr->is_dead && (l_ptr->deaths < MAX_S16B))
 	{
 		l_ptr->deaths++;
 	}
@@ -1400,11 +1400,11 @@ monster_type::melee_analyze(int& min_dam, int& median_dam, int& max_dam,coord g)
 /*
  * Attack the player via ranged physical attacks (currently, gazes)
  */
-bool make_attack_ranged_physical(int m_idx)
+bool make_attack_ranged_physical(const m_idx_type m_idx)
 {
-	monster_type *m_ptr = &mon_list[m_idx];
-	monster_race *r_ptr = m_ptr->race();
-	monster_lore *l_ptr = m_ptr->lore();
+	monster_type* const m_ptr = &mon_list[m_idx];
+	monster_race* const r_ptr = m_ptr->race();
+	monster_lore* const l_ptr = m_ptr->lore();
 	int attack_count = 0;
 
 	/* Not allowed to attack */
@@ -1565,7 +1565,7 @@ bool make_attack_ranged_physical(int m_idx)
 	}	/* end blocking brace */
 
 	/* Always notice cause of death */
-	if (p_ptr->is_dead && (l_ptr->deaths < MAX_SHORT))
+	if (p_ptr->is_dead && (l_ptr->deaths < MAX_S16B))
 	{
 		l_ptr->deaths++;
 	}

@@ -20,6 +20,8 @@
 #include "z-quark.h"
 #include "game-event.h"
 #include "game-cmd.h"
+#include "macro.h"
+#include "option.h"
 #include "store.h"
 #include "tvalsval.h"
 
@@ -346,19 +348,20 @@ static const char* const err_str[PARSE_ERROR_MAX] =
 {
 	NULL,
 	"parse error",
-	"obsolete file",
+	"invalid flag specification",
+	"invalid number of items (0-99)",
+	"invalid spell frequency",
+	"missing colon",
 	"missing record header",
 	"non-sequential records",
-	"invalid flag specification",
-	"undefined directive",
+	"obsolete file",
 	"out of memory",
 	"value out of bounds",
 	"too few arguments",
 	"too many arguments",
 	"too many allocation entries",
-	"invalid spell frequency",
-	"invalid number of items (0-99)",
 	"too many entries",
+	"undefined directive",
 	"vault too big",
 };
 
@@ -576,7 +579,6 @@ static errr init_info(const char* const filename, header *head)
 
 		/* Build the filename */
 		path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, format("%s.raw", filename));
-
 
 		/* Attempt to open the file */
 		fd = fd_open(buf, O_RDONLY);
@@ -1091,7 +1093,7 @@ static errr init_flavor_info(void)
 /*
  * Hack -- Objects sold in the stores -- by tval/sval pair.
  */
-static const byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
+static const tvalsval store_table[MAX_STORES-2][STORE_CHOICES] =
 {
 	{
 		/* General Store */
@@ -1345,7 +1347,7 @@ static errr init_other(void)
 	/*** Prepare the various "bizarre" arrays ***/
 
 	/* Initialize the "macro" package */
-	(void)macro_init();
+	macro_init();
 
 	/* Initialize the "quark" package */
 	(void)quarks_init();
@@ -1366,7 +1368,7 @@ static errr init_other(void)
 	/*** Prepare dungeon arrays ***/
 
 	/* Padded into array */
-	C_MAKE(cave_info, DUNGEON_HGT, byte_256);
+	C_MAKE(cave_info, DUNGEON_HGT, byte_wid);
 
 	/* Feature array */
 	C_MAKE(cave_feat, DUNGEON_HGT, byte_wid);
@@ -1420,7 +1422,6 @@ static errr init_other(void)
 	/* Fill in each store */
 	for (i = 0; i < MAX_STORES; i++)
 	{
-
 		int k;
 
 		/* Get the store */
@@ -1444,23 +1445,9 @@ static errr init_other(void)
 		/* Scan the choices */
 		for (k = 0; k < STORE_CHOICES; k++)
 		{
-			int k_idx;
-
-			/* Extract the tval/sval codes */
-			int tv = store_table[i][k][0];
-			int sv = store_table[i][k][1];
-
-			/* Look for it */
-			for (k_idx = 1; k_idx < z_info->k_max; k_idx++)
-			{
-				object_kind *k_ptr = &object_type::k_info[k_idx];
-
-				/* Found a match */
-				if ((k_ptr->tval == tv) && (k_ptr->sval == sv)) break;
-			}
-
-			/* Catch errors */
-			if (k_idx == z_info->k_max) continue;
+			int k_idx = lookup_kind(store_table[i][k]);
+			assert(k_idx);
+			if (!k_idx) continue;
 
 			/* Add that item index to the table */
 			st_ptr->table[st_ptr->table_num++] = k_idx;
@@ -1475,7 +1462,7 @@ static errr init_other(void)
 	for (i = 0; i < OPT_MAX; i++)
 	{
 		/* Default value */
-		op_ptr->opt[i] = option_norm[i];
+		op_ptr->opt[i] = options[i].norm;
 	}
 
 	/* Initialize the window flags */

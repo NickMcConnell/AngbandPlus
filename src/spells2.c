@@ -17,6 +17,8 @@
 
 #include "angband.h"
 #include "project.h"
+#include "ego.h"
+#include "option.h"
 #include "raceflag.h"
 #include "tvalsval.h"
 
@@ -915,7 +917,7 @@ bool lose_all_info(void)
 void set_recall(void)
 {
 	/* Ironman */
-	if (adult_ironman && !p_ptr->total_winner)
+	if (OPTION(adult_ironman) && !p_ptr->total_winner)
 	{
 		msg_print("Nothing happens.");
 		return;
@@ -991,8 +993,7 @@ bool detect_trap(coord g)
 	}
 
 	/* Detect traps */
-	if ((cave_feat[g.y][g.x] >= FEAT_TRAP_HEAD) &&
-	    (cave_feat[g.y][g.x] <= FEAT_TRAP_TAIL))
+	if (cave_feat_in_range(g.y,g.x,FEAT_TRAP_HEAD,FEAT_TRAP_TAIL))
 	{
 		/* Hack -- Memorize */
 		cave_info[g.y][g.x] |= (CAVE_MARK);
@@ -1025,8 +1026,7 @@ bool detect_door(coord g)
 	}
 
 	/* Detect doors */
-	if (((cave_feat[g.y][g.x] >= FEAT_DOOR_HEAD) &&
-	     (cave_feat[g.y][g.x] <= FEAT_DOOR_TAIL)) ||
+	if (cave_feat_in_range(g.y,g.x,FEAT_DOOR_HEAD,FEAT_DOOR_TAIL) ||
 	    ((cave_feat[g.y][g.x] == FEAT_OPEN) ||
 	     (cave_feat[g.y][g.x] == FEAT_BROKEN)))
 	{
@@ -1152,7 +1152,7 @@ static bool detect_gold(object_type& o)
 	if (!panel_contains(o.loc)) return false;
 
 	/* Detect "gold" objects */
-	if (o.tval == TV_GOLD)
+	if (o.obj_id.tval == TV_GOLD)
 	{
 		/* Hack -- memorize it */
 		o.marked = TRUE;
@@ -1183,7 +1183,7 @@ bool detect_normal_object(object_type& o)
 	if (!panel_contains(o.loc)) return false;
 
 	/* Detect "real" objects */
-	if (o.tval != TV_GOLD)
+	if (o.obj_id.tval != TV_GOLD)
 	{
 		/* Hack -- memorize it */
 		o.marked = TRUE;
@@ -1214,7 +1214,7 @@ bool detect_magic_object(object_type& o)
 	if (!panel_contains(o.loc)) return true;
 
 	/* Examine the tval */
-	byte tv = o.tval;
+	byte tv = o.obj_id.tval;
 
 	/* Artifacts, misc magic items, or enchanted wearables */
 	if (o.is_artifact() || o.is_ego_item() ||
@@ -1463,7 +1463,7 @@ void stair_creation(void)
  */
 static bool item_tester_hook_weapon(const object_type *o_ptr)
 {
-	switch (o_ptr->tval)
+	switch (o_ptr->obj_id.tval)
 	{
 		case TV_SWORD:
 		case TV_HAFTED:
@@ -1472,13 +1472,10 @@ static bool item_tester_hook_weapon(const object_type *o_ptr)
 		case TV_BOW:
 		case TV_BOLT:
 		case TV_ARROW:
-		case TV_SHOT:
-		{
-			return (TRUE);
-		}
+		case TV_SHOT:	return TRUE;
 	}
 
-	return (FALSE);
+	return FALSE;
 }
 
 
@@ -1487,7 +1484,7 @@ static bool item_tester_hook_weapon(const object_type *o_ptr)
  */
 static bool item_tester_hook_armour(const object_type *o_ptr)
 {
-	switch (o_ptr->tval)
+	switch (o_ptr->obj_id.tval)
 	{
 		case TV_DRAG_ARMOR:
 		case TV_HARD_ARMOR:
@@ -1497,13 +1494,10 @@ static bool item_tester_hook_armour(const object_type *o_ptr)
 		case TV_CROWN:
 		case TV_HELM:
 		case TV_BOOTS:
-		case TV_GLOVES:
-		{
-			return (TRUE);
-		}
+		case TV_GLOVES:		return TRUE;
 	}
 
-	return (FALSE);
+	return FALSE;
 }
 
 
@@ -1555,11 +1549,11 @@ static bool enchant(object_type *o_ptr, int n, int eflag)
 	prob = o_ptr->number * 100;
 
 	/* Missiles are easy to enchant */
-	if ((o_ptr->tval == TV_BOLT) ||
-	    (o_ptr->tval == TV_ARROW) ||
-	    (o_ptr->tval == TV_SHOT))
+	if ((o_ptr->obj_id.tval == TV_BOLT) ||
+	    (o_ptr->obj_id.tval == TV_ARROW) ||
+	    (o_ptr->obj_id.tval == TV_SHOT))
 	{
-		prob = prob / 20;
+		prob /= 20;
 	}
 
 	/* Try "n" times */
@@ -1718,7 +1712,7 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 	if (!okay)
 	{
 		/* Flush */
-		if (flush_failure) flush();
+		if (OPTION(flush_failure)) flush();
 
 		/* Message */
 		msg_print("The enchantment failed.");
@@ -1907,13 +1901,13 @@ bool identify_fully(void)
 static bool item_tester_hook_recharge(const object_type *o_ptr)
 {
 	/* Recharge staves */
-	if (o_ptr->tval == TV_STAFF) return (TRUE);
+	if (o_ptr->obj_id.tval == TV_STAFF) return TRUE;
 
 	/* Recharge wands */
-	if (o_ptr->tval == TV_WAND) return (TRUE);
+	if (o_ptr->obj_id.tval == TV_WAND) return TRUE;
 
 	/* Nope */
-	return (FALSE);
+	return FALSE;
 }
 
 
@@ -2189,7 +2183,6 @@ void aggravate_monsters(int who)
  */
 bool banishment(void)
 {
-	int i;
 	char typ;
 
 
@@ -2198,22 +2191,23 @@ bool banishment(void)
 		return FALSE;
 
 	/* Delete the monsters of that "type" */
-	for (i = 1; i < mon_max; i++)
+	m_idx_type i(mon_max-1);
+	while(1)
 	{
-		monster_type *m_ptr = &mon_list[i];
-		monster_race *r_ptr = m_ptr->race();
-
-		if (!m_ptr->r_idx) continue;	/* Paranoia -- Skip dead monsters */
-
-		/* Hack -- Skip Unique Monsters */
-		if (r_ptr->flags[0] & RF0_UNIQUE) continue;
-
-		if (r_ptr->d_char != typ) continue;	/* Skip "wrong" monsters */
+		monster_type* const m_ptr = &mon_list[i];
+		monster_race* const r_ptr = m_ptr->race();
+		if (	m_ptr->r_idx						/* only live monsters */
+			&& 	!(r_ptr->flags[0] & RF0_UNIQUE)		/* cannot banish uniques */
+			&&	r_ptr->d_char != typ)				/* only the right monsters */
+		{
 		delete_monster_idx(i);				/* Delete the monster */
 
 		/* Take some damage */
 		take_hit(randint(4), "the strain of casting Banishment");
-	}
+		}
+		if (1==i) break;
+		--i;		
+	};
 
 	p_ptr->redraw |= PR_MONLIST;	/* Update monster list window */
 	return TRUE;					/* Success */
@@ -3398,7 +3392,7 @@ void brand_object(object_type *o_ptr, byte brand_type)
 	}
 	else
 	{
-		if (flush_failure) flush();
+		if (OPTION(flush_failure)) flush();
 		msg_print("The Branding failed.");
 	}
 }
@@ -3422,17 +3416,14 @@ void brand_weapon(void)
  */
 static bool item_tester_hook_ammo(const object_type *o_ptr)
 {
-	switch (o_ptr->tval)
+	switch (o_ptr->obj_id.tval)
 	{
 		case TV_BOLT:
 		case TV_ARROW:
-		case TV_SHOT:
-		{
-			return (TRUE);
-		}
+		case TV_SHOT:	return TRUE;
 	}
 
-	return (FALSE);
+	return FALSE;
 }
 
 

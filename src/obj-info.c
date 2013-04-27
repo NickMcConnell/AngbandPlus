@@ -16,6 +16,7 @@
  */
 
 #include "angband.h"
+#include "option.h"
 #include "tvalsval.h"
 
 
@@ -395,7 +396,7 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f3)
 	if (f3 & (TR3_IMPACT))      good[gc++] = "creates earthquakes on impact";
 	if (f3 & (TR3_SLOW_DIGEST)) good[gc++] = "slows your metabolism";
 	if (f3 & (TR3_FEATHER))     good[gc++] = "makes you fall like a feather";
-	if (((o_ptr->tval == TV_LITE) && o_ptr->is_artifact()) || (f3 & (TR3_LITE)))
+	if (((o_ptr->obj_id.tval == TV_LITE) && o_ptr->is_artifact()) || (f3 & (TR3_LITE)))
 		good[gc++] = "lights the dungeon around you";
 	if (f3 & (TR3_REGEN))       good[gc++] = "speeds your regeneration";
 
@@ -457,19 +458,54 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f3)
 	return (something);
 }
 
+/* Determine if an object is activatable */
+bool obj_has_activation(const object_type *o_ptr)
+{
+	/* Artifacts may activate */
+	if (o_ptr->name1 && object_type::a_info[o_ptr->name1].activation) return TRUE; 
+
+	switch(o_ptr->obj_id.tval)
+	{
+	case TV_RING:			switch(o_ptr->obj_id.sval)
+							{
+							case SV_RING_ACID:
+							case SV_RING_FLAMES:
+							case SV_RING_ICE:
+							case SV_RING_LIGHTNING:	return TRUE;
+							default: 				return FALSE;
+							};
+	case TV_DRAG_ARMOR:		switch(o_ptr->obj_id.sval)
+							{
+							case SV_DRAGON_BLUE:
+							case SV_DRAGON_WHITE:
+							case SV_DRAGON_BLACK:
+							case SV_DRAGON_GREEN:
+							case SV_DRAGON_RED:
+							case SV_DRAGON_MULTIHUED:
+							case SV_DRAGON_BRONZE:
+							case SV_DRAGON_GOLD:
+							case SV_DRAGON_CHAOS:
+							case SV_DRAGON_LAW:
+							case SV_DRAGON_BALANCE:
+							case SV_DRAGON_SHINING:
+							case SV_DRAGON_POWER:	return TRUE;
+							default: 				return FALSE;
+							};
+	default: return FALSE;
+	};
+}
 
 /*
  * Describe an object's activation, if any.
  */
-static bool describe_activation(const object_type *o_ptr, u32b f3)
+static bool describe_activation(const object_type *o_ptr)
 {
 	/* Check for the activation flag */
-	if (f3 & TR3_ACTIVATE)
+	if (obj_has_activation(o_ptr))
 	{
 		p_text_out("It activates for ");
 		describe_item_activation(o_ptr);
 		p_text_out(".  ");
-
 		return (TRUE);
 	}
 
@@ -498,7 +534,7 @@ bool object_info_out(const object_type *o_ptr)
 	if (describe_resist(o_ptr, f[1], f[2])) something = TRUE;
 	if (describe_sustains(o_ptr, f[1])) something = TRUE;
 	if (describe_misc_magic(o_ptr, f[2])) something = TRUE;
-	if (describe_activation(o_ptr, f[2])) something = TRUE;
+	if (describe_activation(o_ptr)) something = TRUE;
 	if (describe_ignores(o_ptr, f[2])) something = TRUE;
 
 	/* Unknown extra powers (ego-item with random extras or artifact) */
@@ -542,7 +578,7 @@ static bool screen_out_head(const object_type *o_ptr)
 	FREE(o_name);
 
 	/* Display the known artifact description */
-	if (!adult_rand_artifacts && o_ptr->name1 &&
+	if (!OPTION(adult_rand_artifacts) && o_ptr->name1 &&
 	    o_ptr->known() && object_type::a_info[o_ptr->name1]._text)
 	{
 		p_text_out("\n\n   ");
@@ -609,7 +645,7 @@ void object_info_screen(const object_type *o_ptr)
 	screen_load();
 
 	/* Hack -- Browse book, then prompt for a command */
-	if (o_ptr->tval == p_ptr->spell_book())
+	if (o_ptr->obj_id.tval == p_ptr->spell_book())
 	{
 		/* Call the aux function */
 		do_cmd_browse_aux(o_ptr);

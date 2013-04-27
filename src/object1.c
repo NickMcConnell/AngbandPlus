@@ -17,6 +17,7 @@
 
 #include "angband.h"
 #include "z-quark.h"
+#include "option.h"
 #include "randname.h"
 #include "tvalsval.h"
 #include "wind_flg.h"
@@ -45,18 +46,13 @@ static void flavor_assign_fixed(void)
 		flavor_type *flavor_ptr = &object_kind::flavor_info[i];
 
 		/* Skip random flavors */
-		if (flavor_ptr->sval == SV_UNKNOWN) continue;
+		if (flavor_ptr->obj_id.sval == SV_UNKNOWN) continue;
 
 		for (j = 0; j < z_info->k_max; j++)
-		{
 			/* Skip other objects */
-			if ((object_type::k_info[j].tval == flavor_ptr->tval) &&
-			    (object_type::k_info[j].sval == flavor_ptr->sval))
-			{
+			if (object_type::k_info[j].obj_id == flavor_ptr->obj_id)
 				/* Store the flavor index */
 				object_type::k_info[j].flavor = i;
-			}
-		}
 	}
 }
 
@@ -70,23 +66,21 @@ static void flavor_assign_random(byte tval)
 	/* Count the random flavors for the given tval */
 	for (i = 0; i < z_info->flavor_max; i++)
 	{
-		if ((object_kind::flavor_info[i].tval == tval) &&
-		    (object_kind::flavor_info[i].sval == SV_UNKNOWN))
-		{
+		if ((object_kind::flavor_info[i].obj_id.tval == tval) &&
+		    (object_kind::flavor_info[i].obj_id.sval == SV_UNKNOWN))
 			flavor_count++;
-		}
 	}
 
 	for (i = 0; i < z_info->k_max; i++)
 	{
 		/* Skip other object types */
-		if (object_type::k_info[i].tval != tval) continue;
+		if (object_type::k_info[i].obj_id.tval != tval) continue;
 
 		/* Skip objects that already are flavored */
 		if (object_type::k_info[i].flavor != 0) continue;
 
 		/* HACK - Ordinary food is "boring" */
-		if ((tval == TV_FOOD) && (object_type::k_info[i].sval >= SV_FOOD_MIN_FOOD))
+		if ((tval == TV_FOOD) && (object_type::k_info[i].obj_id.sval >= SV_FOOD_MIN_FOOD))
 			continue;
 
 		if (!flavor_count) quit_fmt("Not enough flavors for tval %d.", tval);
@@ -98,10 +92,10 @@ static void flavor_assign_random(byte tval)
 		for (j = 0; j < z_info->flavor_max; j++)
 		{
 			/* Skip other tvals */
-			if (object_kind::flavor_info[j].tval != tval) continue;
+			if (object_kind::flavor_info[j].obj_id.tval != tval) continue;
 
 			/* Skip assigned svals */
-			if (object_kind::flavor_info[j].sval != SV_UNKNOWN) continue;
+			if (object_kind::flavor_info[j].obj_id.sval != SV_UNKNOWN) continue;
 
 			if (choice == 0)
 			{
@@ -109,7 +103,7 @@ static void flavor_assign_random(byte tval)
 				object_type::k_info[i].flavor = j;
 
 				/* Mark the flavor as used */
-				object_kind::flavor_info[j].sval = object_type::k_info[i].sval;
+				object_kind::flavor_info[j].obj_id.sval = object_type::k_info[i].obj_id.sval;
 
 				/* One less flavor to choose from */
 				flavor_count--;
@@ -477,7 +471,7 @@ static bool obj_desc_show_weapon(const object_type *o_ptr)
 	u32b f[OBJECT_FLAG_STRICT_UB];
 
 	/* Analyze the object */
-	switch (o_ptr->tval)
+	switch (o_ptr->obj_id.tval)
 	{
 		/* Missiles/Bows/Weapons */
 		case TV_SHOT:
@@ -506,7 +500,7 @@ static bool obj_desc_show_weapon(const object_type *o_ptr)
 static bool obj_desc_show_armor(const object_type *o_ptr)
 {
 	/* Analyze the object */
-	switch (o_ptr->tval)
+	switch (o_ptr->obj_id.tval)
 	{
 		/* Armour */
 		case TV_BOOTS:
@@ -533,11 +527,11 @@ static bool object_desc_append_name(const object_type *o_ptr)
 	if (!o_ptr->aware() && !(o_ptr->ident & IDENT_STORE)) return FALSE;
 
 	/* Analyze the object */
-	switch (o_ptr->tval)
+	switch (o_ptr->obj_id.tval)
 	{
 	case TV_FOOD:	/* Food */
 		/* Ordinary food is "boring" */
-		if (o_ptr->sval >= SV_FOOD_MIN_FOOD) break;
+		if (o_ptr->obj_id.sval >= SV_FOOD_MIN_FOOD) break;
 
 	case TV_AMULET:	/* Amulets (including a few "Specials") */
 	case TV_RING:	/* Rings (including a few "Specials") */
@@ -747,13 +741,13 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, bool pref, obj
 	}
 
 	/* Allow flavors to be hidden when aware */
-	if (aware && !show_flavors) flavor = FALSE;
+	if (aware && !OPTION(show_flavors)) flavor = FALSE;
 
 	/* Analyze the object */
 	/* aware artifacts do not need much analysis */
 	if (o_ptr->is_artifact() && aware)
 	{
-		switch (o_ptr->tval)
+		switch (o_ptr->obj_id.tval)
 		{		
 			/* Some objects are easy to describe */
 			case TV_SKELETON:
@@ -835,7 +829,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, bool pref, obj
 	}
 	else
 	{
-		switch (o_ptr->tval)
+		switch (o_ptr->obj_id.tval)
 		{
 			/* Some objects are easy to describe */
 			case TV_SKELETON:
@@ -924,7 +918,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, bool pref, obj
 			case TV_SCROLL:
 			{
 				/* Color the object */
-				modstr = scroll_adj[o_ptr->sval];
+				modstr = scroll_adj[o_ptr->obj_id.sval];
 				basenm = (flavor ? "& Scroll~ titled \"#\"" : "& Scroll~");
 
 				break;
@@ -944,7 +938,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, bool pref, obj
 			case TV_FOOD:
 			{
 				/* Ordinary food is "boring" */
-				if (o_ptr->sval >= SV_FOOD_MIN_FOOD) break;
+				if (o_ptr->obj_id.sval >= SV_FOOD_MIN_FOOD) break;
 
 				/* Color the object */
 				modstr = k_ptr->flavor_text();
@@ -1144,21 +1138,17 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, bool pref, obj
 
 
 	/* Hack -- Chests must be described in detail, if known (already been searched) */
-	if (o_ptr->tval == TV_CHEST && known)
+	if (o_ptr->obj_id.tval == TV_CHEST && known)
 	{
 		const char* tail = NULL;
 
 		/* May be "empty" */
 		if (!o_ptr->pval)
-		{
 			tail = " (empty)";
-		}
 
 		/* May be "disarmed" */
 		else if (o_ptr->pval < 0)
-		{
 			tail = (chest_traps[0 - o_ptr->pval]) ? " (disarmed)" : " (unlocked)";
-		}
 
 		/* Describe the traps, if any */
 		else
@@ -1216,7 +1206,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, bool pref, obj
 
 
 	/* Dump base weapon info */
-	switch (o_ptr->tval)
+	switch (o_ptr->obj_id.tval)
 	{
 		/* Missiles */
 		case TV_SHOT:
@@ -1244,7 +1234,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, bool pref, obj
 		case TV_BOW:
 		{
 			/* Hack -- Extract the "base power" */
-			int power = (o_ptr->sval % 10);
+			int power = (o_ptr->obj_id.sval % 10);
 
 			/* Append a "power" string */
 			object_desc_str_macro(" (");
@@ -1319,7 +1309,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, bool pref, obj
 	if (ODESC_COMBAT == mode) goto object_desc_done;
 
 	/* Hack -- Process Lanterns/Torches */
-	if ((o_ptr->tval == TV_LITE) && (!o_ptr->is_artifact()))
+	if ((o_ptr->obj_id.tval == TV_LITE) && (!o_ptr->is_artifact()))
 	{
 		/* Hack -- Turns of light for normal lites */
 		object_desc_str_macro(" (with ");
@@ -1421,8 +1411,8 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, bool pref, obj
 
 	/* Hack -- Wands and Staffs have charges */
 	if (known &&
-	    ((o_ptr->tval == TV_STAFF) ||
-	     (o_ptr->tval == TV_WAND)))
+	    ((o_ptr->obj_id.tval == TV_STAFF) ||
+	     (o_ptr->obj_id.tval == TV_WAND)))
 	{
 		/* Dump " (N charges)" */
 		object_desc_str_macro(" (");
@@ -1436,7 +1426,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, bool pref, obj
 	}
 
 	/* Hack -- Rods have a "charging" indicator */
-	else if (known && (o_ptr->tval == TV_ROD))
+	else if (known && (o_ptr->obj_id.tval == TV_ROD))
 	{
 		/* Hack -- Dump " (# charging)" if relevant */
 		if (o_ptr->timeout > 0)
@@ -1645,7 +1635,7 @@ s16b label_to_equip(int c)
 s16b wield_slot(const object_type *o_ptr)
 {
 	/* Slot for equipment */
-	switch (o_ptr->tval)
+	switch (o_ptr->obj_id.tval)
 	{
 		case TV_DIGGING:
 		case TV_HAFTED:
@@ -1797,28 +1787,23 @@ const char* describe_use(int i)
 bool item_tester_okay(const object_type *o_ptr)
 {
 	/* Hack -- allow listing empty slots */
-	if (item_tester_full) return (TRUE);
+	if (item_tester_full) return TRUE;
 
 	/* Require an item */
-	if (!o_ptr->k_idx) return (FALSE);
+	if (!o_ptr->k_idx) return FALSE;
 
 	/* Hack -- ignore "gold" */
-	if (o_ptr->tval == TV_GOLD) return (FALSE);
+	if (o_ptr->obj_id.tval == TV_GOLD) return FALSE;
 
 	/* Check the tval */
-	if (item_tester_tval)
-	{
-		if (!(item_tester_tval == o_ptr->tval)) return (FALSE);
-	}
+	if (item_tester_tval && (item_tester_tval != o_ptr->obj_id.tval))
+		return FALSE;
 
 	/* Check the hook */
-	if (item_tester_hook)
-	{
-		if (!(*item_tester_hook)(o_ptr)) return (FALSE);
-	}
+	if (item_tester_hook && !(*item_tester_hook)(o_ptr)) return FALSE;
 
 	/* Assume okay */
-	return (TRUE);
+	return TRUE;
 }
 
 
@@ -1910,7 +1895,7 @@ void display_inven(void)
 		n = strlen(o_name);
 
 		/* Get inventory color */
-		attr = tval_to_attr[o_ptr->tval % N_ELEMENTS(tval_to_attr)];
+		attr = tval_to_attr[o_ptr->obj_id.tval % N_ELEMENTS(tval_to_attr)];
 
 		/* Display the entry itself */
 		Term_putstr(3, i, n, attr, o_name);
@@ -1919,7 +1904,7 @@ void display_inven(void)
 		Term_erase(3+n, i, 255);
 
 		/* Display the weight if needed */
-		if (show_weights && o_ptr->weight)
+		if (OPTION(show_weights) && o_ptr->weight)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
 			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
@@ -1979,7 +1964,7 @@ void display_equip(void)
 		n = strlen(o_name);
 
 		/* Get inventory color */
-		attr = tval_to_attr[o_ptr->tval % N_ELEMENTS(tval_to_attr)];
+		attr = tval_to_attr[o_ptr->obj_id.tval % N_ELEMENTS(tval_to_attr)];
 
 		/* Display the entry itself */
 		Term_putstr(3, i - INVEN_WIELD, n, attr, o_name);
@@ -1988,17 +1973,17 @@ void display_equip(void)
 		Term_erase(3+n, i - INVEN_WIELD, 255);
 
 		/* Display the slot description (if needed) */
-		if (show_labels)
+		if (OPTION(show_labels))
 		{
 			Term_putstr(61, i - INVEN_WIELD, -1, TERM_WHITE, "<--");
 			Term_putstr(65, i - INVEN_WIELD, -1, TERM_WHITE, mention_use(i));
 		}
 
 		/* Display the weight (if needed) */
-		if (show_weights && o_ptr->weight)
+		if (OPTION(show_weights) && o_ptr->weight)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
-			int col = (show_labels ? 52 : 71);
+			int col = (OPTION(show_labels) ? 52 : 71);
 			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
 			Term_putstr(col, i - INVEN_WIELD, -1, TERM_WHITE, tmp_val);
 		}
@@ -2038,7 +2023,7 @@ void show_inven(void)
 	assert(p_ptr->inven_cnt_is_strict_UB_of_nonzero_k_idx() && "precondition");
 
 	/* Require space for weight (if needed) */
-	if (show_weights) lim -= 9;
+	if (OPTION(show_weights)) lim -= 9;
 
 
 	/* Display the inventory */
@@ -2059,7 +2044,7 @@ void show_inven(void)
 		out_index[k] = i;
 
 		/* Get inventory color */
-		out_color[k] = tval_to_attr[o_ptr->tval % N_ELEMENTS(tval_to_attr)];
+		out_color[k] = tval_to_attr[o_ptr->obj_id.tval % N_ELEMENTS(tval_to_attr)];
 
 		/* Save the object description */
 		my_strcpy(out_desc[k], o_name, sizeof(out_desc[0]));
@@ -2068,7 +2053,7 @@ void show_inven(void)
 		l = strlen(out_desc[k]) + 5;
 
 		/* Be sure to account for the weight */
-		if (show_weights) l += 9;
+		if (OPTION(show_weights)) l += 9;
 
 		/* Maintain the maximum length */
 		if (l > len) len = l;
@@ -2099,7 +2084,7 @@ void show_inven(void)
 		c_put_str(out_color[j], out_desc[j], j + 1, col + 3);
 
 		/* Display the weight if needed */
-		if (show_weights)
+		if (OPTION(show_weights))
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
 			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
@@ -2136,10 +2121,10 @@ void show_equip(void)
 	lim = 79 - 3;
 
 	/* Require space for labels (if needed) */
-	if (show_labels) lim -= (14 + 2);
+	if (OPTION(show_labels)) lim -= (14 + 2);
 
 	/* Require space for weight (if needed) */
-	if (show_weights) lim -= 9;
+	if (OPTION(show_weights)) lim -= 9;
 
 	/* Scan the equipment list */
 	for (k = 0, i = INVEN_WIELD; i < INVEN_TOTAL; i++)
@@ -2159,7 +2144,7 @@ void show_equip(void)
 		out_index[k] = i;
 
 		/* Get inventory color */
-		out_color[k] = tval_to_attr[o_ptr->tval % N_ELEMENTS(tval_to_attr)];
+		out_color[k] = tval_to_attr[o_ptr->obj_id.tval % N_ELEMENTS(tval_to_attr)];
 
 		/* Save the description */
 		my_strcpy(out_desc[k], o_name, sizeof(out_desc[0]));
@@ -2168,10 +2153,10 @@ void show_equip(void)
 		l = strlen(out_desc[k]) + (2 + 3);
 
 		/* Increase length for labels (if needed) */
-		if (show_labels) l += (14 + 2);
+		if (OPTION(show_labels)) l += (14 + 2);
 
 		/* Increase length for weight (if needed) */
-		if (show_weights) l += 9;
+		if (OPTION(show_weights)) l += 9;
 
 		/* Maintain the max-length */
 		if (l > len) len = l;
@@ -2199,7 +2184,7 @@ void show_equip(void)
 		put_str(tmp_val, j+1, col);
 
 		/* Use labels */
-		if (show_labels)
+		if (OPTION(show_labels))
 		{
 			/* Mention the use */
 			strnfmt(tmp_val, sizeof(tmp_val), "%-14s: ", mention_use(out_index[j]));
@@ -2217,7 +2202,7 @@ void show_equip(void)
 		}
 
 		/* Display the weight if needed */
-		if (show_weights)
+		if (OPTION(show_weights))
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
 			sprintf(tmp_val, "%3d.%d lb", wgt / 10, wgt % 10);
@@ -2236,7 +2221,9 @@ void show_equip(void)
 void show_floor(const int *floor_list, int floor_num)
 {
 	int i, j, k, l;
-	int col, len, lim;
+	int col;
+	int len = 79 - 50;	/* Default length */
+	int lim = 79 - 3;	/* Maximum space allowed for descriptions */
 
 	object_type *o_ptr;
 
@@ -2248,15 +2235,8 @@ void show_floor(const int *floor_list, int floor_num)
 	byte out_color[MAX_FLOOR_STACK];
 	char out_desc[MAX_FLOOR_STACK][80];
 
-
-	/* Default length */
-	len = 79 - 50;
-
-	/* Maximum space allowed for descriptions */
-	lim = 79 - 3;
-
 	/* Require space for weight (if needed) */
-	if (show_weights) lim -= 9;
+	if (OPTION(show_weights)) lim -= 9;
 
 	/* Display the inventory */
 	for (k = 0, i = 0; i < floor_num; i++)
@@ -2276,7 +2256,7 @@ void show_floor(const int *floor_list, int floor_num)
 		out_index[k] = i;
 
 		/* Get inventory color */
-		out_color[k] = tval_to_attr[o_ptr->tval % N_ELEMENTS(tval_to_attr)];
+		out_color[k] = tval_to_attr[o_ptr->obj_id.tval % N_ELEMENTS(tval_to_attr)];
 
 		/* Save the object description */
 		my_strcpy(out_desc[k], o_name, sizeof(out_desc[0]));
@@ -2285,7 +2265,7 @@ void show_floor(const int *floor_list, int floor_num)
 		l = strlen(out_desc[k]) + 5;
 
 		/* Be sure to account for the weight */
-		if (show_weights) l += 9;
+		if (OPTION(show_weights)) l += 9;
 
 		/* Maintain the maximum length */
 		if (l > len) len = l;
@@ -2319,7 +2299,7 @@ void show_floor(const int *floor_list, int floor_num)
 		c_put_str(out_color[j], out_desc[j], j + 1, col + 3);
 
 		/* Display the weight if needed */
-		if (show_weights)
+		if (OPTION(show_weights))
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
 			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
@@ -2618,7 +2598,7 @@ bool get_item(int *cp, const char* pmt, const char* str, int mode)
 		}
 
 		/* Use floor if allowed */
-		else if (easy_floor)
+		else if (OPTION(easy_floor))
 		{
 			p_ptr->command_wrk = (USE_FLOOR);
 		}
@@ -2643,7 +2623,7 @@ bool get_item(int *cp, const char* pmt, const char* str, int mode)
 	while (!done)
 	{
 		/* Show choices */
-		if (show_choices)
+		if (OPTION(show_choices))
 		{
 			int ni = op_ptr->count_flagged_windows(PW_INVEN);
 			int ne = op_ptr->count_flagged_windows(PW_EQUIP);
@@ -2848,14 +2828,14 @@ bool get_item(int *cp, const char* pmt, const char* str, int mode)
 					break;
 				}
 
-				if (easy_floor)
+				if (OPTION(easy_floor))
 				{
 					/* There is only one item */
 					if (floor_num == 1)
 					{
 						/* Hack -- Auto-Select */
 						if ((p_ptr->command_wrk == (USE_FLOOR)) ||
-						    (!floor_query_flag))
+						    (!OPTION(floor_query_flag)))
 						{
 							/* Special index */
 							k = 0 - floor_list[0];
@@ -2901,7 +2881,7 @@ bool get_item(int *cp, const char* pmt, const char* str, int mode)
 					if (!get_item_okay(k)) continue;
 
 					/* Verify the item (if required) */
-					if (floor_query_flag && !verify_item("Try", k)) continue;
+					if (OPTION(floor_query_flag) && !verify_item("Try", k)) continue;
 
 					/* Allow player to "refuse" certain actions */
 					if (!get_item_allow(k)) continue;
@@ -3106,7 +3086,7 @@ bool get_item(int *cp, const char* pmt, const char* str, int mode)
 
 
 	/* Clean up */
-	if (show_choices)
+	if (OPTION(show_choices))
 	{
 		if (toggle) toggle_inven_equip();		/* Toggle again if needed */
 		p_ptr->redraw |= (PR_INVEN | PR_EQUIP);	/* Update */

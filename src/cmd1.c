@@ -18,6 +18,7 @@
 
 #include "angband.h"
 #include "z-quark.h"
+#include "option.h"
 #include "tvalsval.h"
 
 #include "keypad.h"
@@ -76,7 +77,7 @@ void search(void)
 				for (o_ptr = get_first_object(t.y, t.x); o_ptr; o_ptr = get_next_object(o_ptr))
 				{
 					/* Skip non-chests */
-					if (o_ptr->tval != TV_CHEST) continue;
+					if (o_ptr->obj_id.tval != TV_CHEST) continue;
 
 					/* Skip disarmed chests */
 					if (o_ptr->pval <= 0) continue;
@@ -181,7 +182,7 @@ void py_pickup(int pickup)
 		disturb(0, 0);
 
 		/* Pick up gold */
-		if (o_ptr->tval == TV_GOLD)
+		if (o_ptr->obj_id.tval == TV_GOLD)
 		{
 			/* Determine which sound to play */
 			if ((long)o_ptr->pval < 200) sound_msg = MSG_MONEY1;
@@ -216,13 +217,13 @@ void py_pickup(int pickup)
 		}
 
 		/* Easy Floor */
-		if (easy_floor)
+		if (OPTION(easy_floor))
 		{
 			/* Pickup if possible */
 			if (pickup && inven_carry_okay(o_ptr))
 			{
 				/* Pick up if allowed */
-				if (!carry_query_flag)
+				if (!OPTION(carry_query_flag))
 				{
 					/* Pick up the object */
 					py_pickup_aux(this_o_idx);
@@ -272,7 +273,7 @@ void py_pickup(int pickup)
 		}
 
 		/* Query before picking up */
-		if (carry_query_flag)
+		if (OPTION(carry_query_flag))
 		{
 			char out_val[160];
 			strnfmt(out_val, sizeof(out_val), "Pick up %s? ", o_name);
@@ -284,7 +285,7 @@ void py_pickup(int pickup)
 	}
 
 	/* Easy floor, objects left */
-	if (easy_floor && (can_pickup + not_pickup > 0))
+	if (OPTION(easy_floor) && (can_pickup + not_pickup > 0))
 	{
 		/* Not picking up */
 		if (!pickup)
@@ -378,16 +379,15 @@ void move_player(int dir, int jumping)
 	}
 
 	/* Optionally alter known traps/doors on (non-jumping) movement */
-	else if (easy_alter && !jumping &&
+	else if (OPTION(easy_alter) && !jumping &&
 	         (cave_info[dest_g.y][dest_g.x] & (CAVE_MARK)) &&
-	         (cave_feat[dest_g.y][dest_g.x] >= FEAT_TRAP_HEAD) &&
-	         (cave_feat[dest_g.y][dest_g.x] <= FEAT_DOOR_TAIL))
+	         cave_feat_in_range(dest_g.y,dest_g.x,FEAT_TRAP_HEAD,FEAT_DOOR_TAIL))
 	{
 		/* Not already repeating */
 		if (!p_ptr->command_rep)
 		{
 			/* Hack -- Optional auto-repeat */
-			if (always_repeat && (p_ptr->command_arg <= 0))
+			if (OPTION(always_repeat) && (p_ptr->command_arg <= 0))
 			{
 				/* Repeat 99 times */
 				p_ptr->command_rep = 99;
@@ -487,11 +487,10 @@ void move_player(int dir, int jumping)
 		}
 
 		/* Handle "objects" */
-		py_pickup(jumping != always_pickup);
+		py_pickup(jumping != OPTION(always_pickup));
 
 		/* Handle "store doors" */
-		if ((cave_feat[dest_g.y][dest_g.x] >= FEAT_SHOP_HEAD) &&
-		    (cave_feat[dest_g.y][dest_g.x] <= FEAT_SHOP_TAIL))
+		if (cave_feat_in_range(dest_g.y,dest_g.x,FEAT_SHOP_HEAD,FEAT_SHOP_TAIL))
 		{
 			/* Disturb */
 			disturb(0, 0);
@@ -520,8 +519,7 @@ void move_player(int dir, int jumping)
 		}
 
 		/* Set off an visible trap */
-		else if ((cave_feat[dest_g.y][dest_g.x] >= FEAT_TRAP_HEAD) &&
-		         (cave_feat[dest_g.y][dest_g.x] <= FEAT_TRAP_TAIL))
+		else if (cave_feat_in_range(dest_g.y,dest_g.x,FEAT_TRAP_HEAD,FEAT_TRAP_TAIL))
 		{
 			/* Disturb */
 			disturb(0, 0);
@@ -925,7 +923,7 @@ static bool run_test(void)
 				case FEAT_BROKEN:
 				{
 					/* Option -- ignore */
-					if (run_ignore_doors) notice = FALSE;
+					if (OPTION(run_ignore_doors)) notice = FALSE;
 
 					/* Done */
 					break;
@@ -936,7 +934,7 @@ static bool run_test(void)
 				case FEAT_MORE:
 				{
 					/* Option -- ignore */
-					if (run_ignore_stairs) notice = FALSE;
+					if (OPTION(run_ignore_stairs)) notice = FALSE;
 
 					/* Done */
 					break;
@@ -1099,7 +1097,7 @@ static bool run_test(void)
 		}
 
 		/* Two options, examining corners */
-		else if (run_use_corners && !run_cut_corners)
+		else if (OPTION(run_use_corners) && !OPTION(run_cut_corners))
 		{
 			/* Primary option */
 			p_ptr->run_cur_dir = option;
@@ -1121,7 +1119,7 @@ static bool run_test(void)
 			{
 				/* Can not see anything ahead and in the direction we */
 				/* are turning, assume that it is a potential corner. */
-				if (run_use_corners &&
+				if (OPTION(run_use_corners) &&
 				    see_nothing(option, t) &&
 				    see_nothing(option2, t))
 				{
@@ -1137,7 +1135,7 @@ static bool run_test(void)
 			}
 
 			/* This corner is seen to be enclosed; we cut the corner. */
-			else if (run_cut_corners)
+			else if (OPTION(run_cut_corners))
 			{
 				p_ptr->run_cur_dir = option2;
 				p_ptr->run_old_dir = option2;

@@ -17,6 +17,7 @@
 
 #include "angband.h"
 #include "game-event.h"
+#include "option.h"
 #include "tvalsval.h"
 #include "wind_flg.h"
 
@@ -418,14 +419,16 @@ static void calc_mana(void)
 	const bool old_cumber_glove = p_ptr->cumber_glove;
 	const bool old_cumber_armor = p_ptr->cumber_armor;
 
-	/* Hack -- no negative mana */
-	if (levels < 0) levels = 0;
-
-	/* Extract total mana */
-	msp = (long)adj_mag_mana[p_ptr->stat_ind[p_ptr->cp_ptr->spell_stat]] * levels / 100;
-
-	/* Hack -- usually add one mana */
-	if (levels) ++msp;
+	if (0 < levels) 
+ 	{ 
+		msp = 1; 
+		msp += adj_mag_mana[p_ptr->stat_ind[p_ptr->cp_ptr->spell_stat]] * levels / 100; 
+	} 
+	else 
+	{ 
+		levels = 0; 
+		msp = 0; 
+	} 
 
 	/* Process gloves for those disturbed by them */
 	if (p_ptr->cp_ptr->flags & CF_CUMBER_GLOVE)
@@ -571,7 +574,7 @@ static void calc_torch(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Examine actual lites */
-		if (o_ptr->tval == TV_LITE)
+		if (o_ptr->obj_id.tval == TV_LITE)
 		{
 			/* Artifact Lites provide permanent, bright, lite */
 			if (o_ptr->is_artifact())
@@ -580,18 +583,21 @@ static void calc_torch(void)
 				continue;
 			}
 			
-			/* Lanterns (with fuel) provide more lite */
-			if ((o_ptr->sval == SV_LITE_LANTERN) && (o_ptr->pval > 0))
+			if (0 < o_ptr->pval)
 			{
-				p_ptr->cur_lite += 2;
-				continue;
-			}
+				/* Lanterns (with fuel) provide more lite */
+				if (o_ptr->obj_id.sval == SV_LITE_LANTERN)
+				{
+					p_ptr->cur_lite += 2;
+					continue;
+				}
 			
-			/* Torches (with fuel) provide some lite */
-			if ((o_ptr->sval == SV_LITE_TORCH) && (o_ptr->pval > 0))
-			{
-				p_ptr->cur_lite += 1;
-				continue;
+				/* Torches (with fuel) provide some lite */
+				if (o_ptr->obj_id.sval == SV_LITE_TORCH)
+				{
+					p_ptr->cur_lite += 1;
+					continue;
+				}
 			}
 		}
 		else
@@ -610,7 +616,7 @@ static void calc_torch(void)
 
 
 	/* Reduce lite when running if requested */
-	if (p_ptr->running && view_reduce_lite)
+	if (p_ptr->running && OPTION(view_reduce_lite))
 	{
 		/* Reduce the lite radius if needed */
 		if (p_ptr->cur_lite > 1) p_ptr->cur_lite = 1;
@@ -637,6 +643,145 @@ static int weight_limit(void)
 	return (i);
 }
 
+/* synchronize against: calc_bonuses */
+void player_missile_shot_analysis(const object_type& o, s16b str, s16b& num_fire, byte& ammo_tval, byte& ammo_mult)
+{
+	assert(o.k_idx);
+	assert(TV_BOW==o.obj_id.tval);
+	assert(SV_SLING==o.obj_id.sval || SV_SHORT_BOW==o.obj_id.sval || SV_LONG_BOW==o.obj_id.sval || SV_LIGHT_XBOW==o.obj_id.sval || SV_HEAVY_XBOW==o.obj_id.sval);
+	u32b f[OBJECT_FLAG_STRICT_UB];
+	int hold = adj_str_hold[str];	/* Obtain the "hold" value */
+	int extra_shots = 0;
+	int extra_might = 0;
+	bool heavy_shoot = (hold < o.weight/10);
+
+	/* Extract the item flags */
+	object_flags(&o, f);
+
+	/* Affect shots */
+	if (f[0] & (TR1_SHOTS)) extra_shots = o.pval;
+
+	/* Affect Might */
+	if (f[0] & (TR1_MIGHT)) extra_might = o.pval;
+
+	num_fire = 1;
+	
+	switch(o.obj_id.sval)
+	{
+		/* Sling and ammo */
+		case SV_SLING:
+		{
+			ammo_tval = TV_SHOT;
+			ammo_mult = 2;
+			break;
+		}
+
+		/* Short Bow and Arrow */
+		case SV_SHORT_BOW:
+		{
+			ammo_tval = TV_ARROW;
+			ammo_mult = 2;
+			break;
+		}
+
+		/* Long Bow and Arrow */
+		case SV_LONG_BOW:
+		{
+			ammo_tval = TV_ARROW;
+			ammo_mult = 3;
+			break;
+		}
+
+		/* Light Crossbow and Bolt */
+		case SV_LIGHT_XBOW:
+		{
+			ammo_tval = TV_BOLT;
+			ammo_mult = 3;
+			break;
+		}
+
+		/* Heavy Crossbow and Bolt */
+		case SV_HEAVY_XBOW:
+		{
+			ammo_tval = TV_BOLT;
+			ammo_mult = 4;
+			break;
+		}
+		default:
+		{
+			assert(0 && "SV out of range");
+			return;
+		}
+	}
+
+	/* Apply special flags */
+	if (!heavy_shoot)
+	{
+		num_fire += extra_shots;	/* Extra shots */
+		ammo_mult += extra_might;	/* Extra might */
+
+		/* Hack -- Rangers love Bows */
+		if ((p_ptr->cp_ptr->flags & CF_EXTRA_SHOT) && (TV_ARROW == p_ptr->ammo_tval))
+		{
+			/* Extra shot at level 20 */
+			if (p_ptr->lev >= 20) ++num_fire;
+
+			/* Extra shot at level 40 */
+			if (p_ptr->lev >= 40) ++num_fire;
+		}
+	}
+
+	/* Require at least one shot */
+	if (num_fire < 1) num_fire = 1;
+}
+
+/* synchronize against: calc_bonuses */
+void player_melee_blow_analysis(const object_type& o, s16b str, s16b dex, s16b& num_blow)
+{
+	assert(o.k_idx);
+	assert(o.obj_id.tval==TV_DIGGING || o.obj_id.tval==TV_HAFTED || o.obj_id.tval==TV_POLEARM || o.obj_id.tval==TV_SWORD);
+	u32b f[OBJECT_FLAG_STRICT_UB];
+	int hold = adj_str_hold[str];	/* Obtain the "hold" value */
+	int extra_blows = 0;
+	bool heavy_wield = (hold < o.weight/10);
+
+	/* Extract the item flags */
+	object_flags(&o, f);
+
+	/* Affect shots */
+	if (f[0] & (TR1_BLOWS)) extra_blows = o.pval;
+
+	num_blow = 1;
+
+	/*** Analyze weapon ***/
+
+	/* Normal weapons */
+	if (!heavy_wield)
+	{
+		/* Enforce a minimum "weight" (tenth pounds) */
+		int div = MAX(o.weight, p_ptr->cp_ptr->min_weight);
+
+		/* Get the strength vs weight */
+		int str_index = (adj_str_blow[str] * p_ptr->cp_ptr->att_multiply / div);
+
+		/* Index by dexterity */
+		int dex_index = (adj_dex_blow[dex]);
+
+		if (str_index > 11) str_index = 11;	/* Maximal value */
+		if (dex_index > 11) dex_index = 11;	/* Maximal value */
+
+		/* Use the blows table */
+		num_blow = blows_table[str_index][dex_index];
+
+		/* Maximal value */
+		if (num_blow > p_ptr->cp_ptr->max_attacks) num_blow = p_ptr->cp_ptr->max_attacks;
+
+		num_blow += extra_blows;	/* Add in the "bonus blows" */
+
+		/* Require at least one blow */
+		if (num_blow < 1) num_blow = 1;
+	}
+}
 
 /*
  * Calculate the players current "state", taking into account
@@ -978,7 +1123,7 @@ static void calc_bonuses(void)
 		add = p_ptr->stat_add[i];
 
 		/* Maximize mode */
-		if (adult_maximize)
+		if (OPTION(adult_maximize))
 		{
 			/* Modify the stats for race/class */
 			add += (p_ptr->rp_ptr->r_adj[i] + p_ptr->cp_ptr->c_adj[i]);
@@ -1029,67 +1174,39 @@ static void calc_bonuses(void)
 	}
 
 	/* Invulnerability */
-	if (p_ptr->timed[TMD_INVULN])
-	{
-		p_ptr->to_a += 100;
-		p_ptr->dis_to_a += 100;
-	}
+	if (p_ptr->timed[TMD_INVULN]) p_ptr->mental_to_a_adj(100);
 
 	/* Temporary blessing */
 	if (p_ptr->timed[TMD_BLESSED])
 	{
-		p_ptr->to_a += 5;
-		p_ptr->dis_to_a += 5;
-		p_ptr->to_h += 10;
-		p_ptr->dis_to_h += 10;
+		p_ptr->mental_to_a_adj(5);
+		p_ptr->mental_to_h_adj(10);
 	}
 
 	/* Temporary shield */
-	if (p_ptr->timed[TMD_SHIELD])
-	{
-		p_ptr->to_a += 50;
-		p_ptr->dis_to_a += 50;
-	}
+	if (p_ptr->timed[TMD_SHIELD]) p_ptr->mental_to_a_adj(50);
 
 	/* Temporary "Hero" */
-	if (p_ptr->timed[TMD_HERO])
-	{
-		p_ptr->to_h += 12;
-		p_ptr->dis_to_h += 12;
-	}
+	if (p_ptr->timed[TMD_HERO]) p_ptr->mental_to_h_adj(12);
 
 	/* Temporary "Berserk" */
 	if (p_ptr->timed[TMD_SHERO])
 	{
-		p_ptr->to_h += 24;
-		p_ptr->dis_to_h += 24;
-		p_ptr->to_a -= 10;
-		p_ptr->dis_to_a -= 10;
+		p_ptr->mental_to_a_adj(-10);
+		p_ptr->mental_to_h_adj(24);
 	}
 
 	/* Temporary "fast" */
-	if (p_ptr->timed[TMD_FAST])
-	{
-		tmp_speed += 10;
-	}
+	if (p_ptr->timed[TMD_FAST]) tmp_speed += 10;
 
 	/* Temporary "slow" */
-	if (p_ptr->timed[TMD_SLOW])
-	{
-		tmp_speed -= 10;
-	}
+	if (p_ptr->timed[TMD_SLOW]) tmp_speed -= 10;
 
 	/* Temporary see invisible */
-	if (p_ptr->timed[TMD_SINVIS])
-	{
-		p_ptr->see_inv = TRUE;
-	}
+	if (p_ptr->timed[TMD_SINVIS]) p_ptr->see_inv = TRUE;
 
 	/* Temporary infravision boost */
-	if (p_ptr->timed[TMD_SINFRA])
-	{
-		p_ptr->see_infra += 5;
-	}
+	if (p_ptr->timed[TMD_SINFRA]) p_ptr->see_infra += 5;
 
 
 	/*** Special flags ***/
@@ -1125,17 +1242,16 @@ static void calc_bonuses(void)
 
 	/*** Apply modifier bonuses ***/
 
+	/* Actual and Displayed Modifier Bonuses (Un-inflate stat bonuses) */
+	p_ptr->mental_to_a_adj((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
+	p_ptr->mental_to_h_adj((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
+	p_ptr->mental_to_h_adj((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
+
 	/* Actual Modifier Bonuses (Un-inflate stat bonuses) */
-	p_ptr->to_a += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
 	p_ptr->to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
-	p_ptr->to_h += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
-	p_ptr->to_h += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
 
 	/* Displayed Modifier Bonuses (Un-inflate stat bonuses) */
-	p_ptr->dis_to_a += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
 	p_ptr->dis_to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
-	p_ptr->dis_to_h += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
-	p_ptr->dis_to_h += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
 
 
 	/*** Modify skills ***/
@@ -1191,8 +1307,7 @@ static void calc_bonuses(void)
 	if (hold < o_ptr->weight / 10)
 	{
 		/* Hard to wield a heavy bow */
-		p_ptr->to_h += 2 * (hold - o_ptr->weight / 10);
-		p_ptr->dis_to_h += 2 * (hold - o_ptr->weight / 10);
+		p_ptr->mental_to_h_adj(2 * (hold - o_ptr->weight / 10));
 
 		/* Heavy Bow */
 		p_ptr->heavy_shoot = TRUE;
@@ -1205,7 +1320,7 @@ static void calc_bonuses(void)
 		p_ptr->num_fire = 1;
 
 		/* Analyze the launcher */
-		switch (o_ptr->sval)
+		switch (o_ptr->obj_id.sval)
 		{
 			/* Sling and ammo */
 			case SV_SLING:
@@ -1286,8 +1401,7 @@ static void calc_bonuses(void)
 	if (hold < o_ptr->weight / 10)
 	{
 		/* Hard to wield a heavy weapon */
-		p_ptr->to_h += 2 * (hold - o_ptr->weight / 10);
-		p_ptr->dis_to_h += 2 * (hold - o_ptr->weight / 10);
+		p_ptr->mental_to_h_adj(2 * (hold - o_ptr->weight / 10));
 
 		/* Heavy weapon */
 		p_ptr->heavy_wield = TRUE;
@@ -1297,7 +1411,7 @@ static void calc_bonuses(void)
 	if (o_ptr->k_idx && !p_ptr->heavy_wield)
 	{
 		/* Enforce a minimum "weight" (tenth pounds) */
-		int div = ((o_ptr->weight < p_ptr->cp_ptr->min_weight) ? p_ptr->cp_ptr->min_weight : o_ptr->weight);
+		int div = MAX(o_ptr->weight, p_ptr->cp_ptr->min_weight);
 
 		/* Get the strength vs weight */
 		int str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * p_ptr->cp_ptr->att_multiply / div);
@@ -1327,7 +1441,7 @@ static void calc_bonuses(void)
 
 	/* Priest weapon penalty for non-blessed edged weapons */
 	if ((p_ptr->cp_ptr->flags & CF_BLESS_WEAPON) && (!p_ptr->bless_blade) &&
-	    ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)))
+	    ((o_ptr->obj_id.tval == TV_SWORD) || (o_ptr->obj_id.tval == TV_POLEARM)))
 	{
 		/* Reduce the real bonuses */
 		p_ptr->to_h -= 2;
@@ -1586,6 +1700,7 @@ static const POD_pair<u32b,game_event_type> redraw_events[] =
 	{ PR_INVEN, EVENT_INVENTORY },
 	{ PR_EQUIP, EVENT_EQUIPMENT },
 	{ PR_MONLIST, EVENT_MONSTERLIST },
+	{ PR_MONSTER, EVENT_SPEED },
 	{ PR_MONSTER, EVENT_MONSTERTARGET },
 	{ PR_MESSAGE, EVENT_MESSAGES }
 };

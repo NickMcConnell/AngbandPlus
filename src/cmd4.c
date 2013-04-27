@@ -9,6 +9,8 @@
  */
 
 #include "angband.h"
+#include "macro.h"
+#include "option.h"
 #include "raceflag.h"
 #include "score.h"
 #include "wind_flg.h"
@@ -137,25 +139,21 @@ static void remove_old_dump(const char* const orig_file, const char* const mark)
 		}
 	}
 
-	/* Close files */
-	my_fclose(orig_fff);
-	my_fclose(tmp_fff);
-
 	/* If there are changes, overwrite the original file with the new one */
 	if (changed)
 	{
-		/* Copy contents of temporary file */
-		tmp_fff = my_fopen(tmp_file, "r");
-		orig_fff = my_fopen(orig_file, "w");
+		tmp_fff = freopen(NULL, "r", tmp_fff);
+		orig_fff = freopen(NULL, "w", orig_fff);
 
 		while (!my_fgets(tmp_fff, buf, sizeof(buf)))
 		{
 			fprintf(orig_fff, "%s\n", buf);
 		}
-
-		my_fclose(orig_fff);
-		my_fclose(tmp_fff);
 	}
+
+	/* Close files */
+	my_fclose(orig_fff);
+	my_fclose(tmp_fff);
 
 	/* Kill the temporary file */
 	fd_kill(tmp_file);
@@ -665,9 +663,9 @@ static void do_cmd_options_aux(int page, const char* const info)
 
 			/* Display the option text */
 			strnfmt(buf, sizeof(buf), "%-48s: %s  (%s)",
-			        option_desc[opt[i]],
+			        options[opt[i]].desc,
 			        op_ptr->opt[opt[i]] ? "yes" : "no ",
-			        option_text[opt[i]]);
+			        options[opt[i]].text);
 			c_prt(a, buf, i + 2, 0);
 		}
 
@@ -744,7 +742,7 @@ static void do_cmd_options_aux(int page, const char* const info)
 
 			case '?':
 			{
-				strnfmt(buf, sizeof(buf), "option.txt#%s", option_text[opt[k]]);
+				strnfmt(buf, sizeof(buf), "option.txt#%s", options[opt[k]].text);
 				show_file(buf, NULL, 0, 0);
 				Term_clear();
 				break;
@@ -938,19 +936,19 @@ static errr option_dump(const char* fname)
 	for (i = 0; i < OPT_CHEAT; i++)
 	{
 		/* Require a real option */
-		if (!option_text[i]) continue;
+		if (!options[i].text) continue;
 
 		/* Comment */
-		fprintf(fff, "# Option '%s'\n", option_desc[i]);
+		fprintf(fff, "# Option '%s'\n", options[i].desc);
 
 		/* Dump the option */
 		if (op_ptr->opt[i])
 		{
-			fprintf(fff, "Y:%s\n", option_text[i]);
+			fprintf(fff, "Y:%s\n", options[i].text);
 		}
 		else
 		{
-			fprintf(fff, "X:%s\n", option_text[i]);
+			fprintf(fff, "X:%s\n", options[i].text);
 		}
 
 		/* Skip a line */
@@ -1382,7 +1380,7 @@ static errr keymap_dump(const char* fname)
 
 
 	/* Roguelike */
-	if (rogue_like_commands)
+	if (OPTION(rogue_like_commands))
 	{
 		mode = KEYMAP_MODE_ROGUE;
 	}
@@ -1482,7 +1480,7 @@ void do_cmd_macros(void)
 
 
 	/* Roguelike */
-	if (rogue_like_commands)
+	if (OPTION(rogue_like_commands))
 	{
 		mode = KEYMAP_MODE_ROGUE;
 	}
@@ -2917,8 +2915,6 @@ static void do_cmd_knowledge_artifacts(void)
 {
 	int i, k, z;
 
-	FILE *fff;
-
 	char file_name[1024];
 
 	char o_name[80];
@@ -2929,7 +2925,7 @@ static void do_cmd_knowledge_artifacts(void)
 
 
 	/* Temporary file */
-	fff = my_fopen_temp(file_name, sizeof(file_name));
+	FILE* fff = my_fopen_temp(file_name, sizeof(file_name));
 
 	/* Failure */
 	if (!fff) return;
@@ -3007,7 +3003,7 @@ static void do_cmd_knowledge_artifacts(void)
 		strcpy(o_name, "Unknown Artifact");
 
 		/* Obtain the base object type */
-		z = lookup_kind(a_ptr->tval, a_ptr->sval);
+		z = lookup_kind(a_ptr->obj_id);
 
 		/* Real object */
 		if (z)
@@ -3051,7 +3047,6 @@ static void do_cmd_knowledge_artifacts(void)
 static void do_cmd_knowledge_uniques(void)
 {
 	int i, n;
-	FILE *fff;
 	char file_name[1024];
 	u16b why = 2;
 	u16b *who;
@@ -3060,7 +3055,7 @@ static void do_cmd_knowledge_uniques(void)
 
 
 	/* Temporary file */
-	fff = my_fopen_temp(file_name, sizeof(file_name));
+	FILE* fff = my_fopen_temp(file_name, sizeof(file_name));
 
 	/* Failure */
 	if (!fff) return;
@@ -3075,7 +3070,7 @@ static void do_cmd_knowledge_uniques(void)
 		monster_lore *l_ptr = &monster_type::l_list[i];
 
 		/* Require known monsters */
-		if (!cheat_know && !l_ptr->sights) continue;
+		if (!OPTION(cheat_know) && !l_ptr->sights) continue;
 
 		/* Require unique monsters */
 		if (!(r_ptr->flags[0] & RF0_UNIQUE)) continue;
@@ -3130,15 +3125,13 @@ static void do_cmd_knowledge_objects(void)
 {
 	int k;
 
-	FILE *fff;
-
 	char o_name[80];
 
 	char file_name[1024];
 
 
 	/* Temporary file */
-	fff = my_fopen_temp(file_name, sizeof(file_name));
+	FILE* fff = my_fopen_temp(file_name, sizeof(file_name));
 
 	/* Failure */
 	if (!fff) return;
@@ -3187,8 +3180,6 @@ static void do_cmd_knowledge_kills(void)
 {
 	int n, i;
 
-	FILE *fff;
-
 	char file_name[1024];
 
 	u16b *who;
@@ -3196,7 +3187,7 @@ static void do_cmd_knowledge_kills(void)
 
 
 	/* Temporary file */
-	fff = my_fopen_temp(file_name, sizeof(file_name));
+	FILE* fff = my_fopen_temp(file_name, sizeof(file_name));
 
 	/* Failure */
 	if (!fff) return;

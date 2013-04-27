@@ -19,8 +19,9 @@
  */
 
 #include "angband.h"
-#include "raceflag.h"
 #include "melee.h"
+#include "option.h"
+#include "raceflag.h"
 
 
 /*
@@ -200,37 +201,37 @@ static void describe_monster_spells(const monster_race& r, const monster_lore& l
 
 	/* Collect innate attacks */
 	vn = 0;
-	if (lore.flags[3] & RF3_SHRIEK)  vp[vn++] = "shriek for help";
-	if (lore.flags[3] & RF3_ARROW_1) vp[vn++] = "fire an arrow";
-	if (lore.flags[3] & RF3_ARROW_2) vp[vn++] = "fire arrows";
-	if (lore.flags[3] & RF3_ARROW_3) vp[vn++] = "fire a missile";
-	if (lore.flags[3] & RF3_ARROW_4) vp[vn++] = "fire missiles";
-	if (lore.flags[3] & RF3_BOULDER) vp[vn++] = "throw boulders";
+	if (lore.spell_flags[0] & RSF0_SHRIEK)  vp[vn++] = "shriek for help";
+	if (lore.spell_flags[0] & RSF0_ARROW_1) vp[vn++] = "fire an arrow";
+	if (lore.spell_flags[0] & RSF0_ARROW_2) vp[vn++] = "fire arrows";
+	if (lore.spell_flags[0] & RSF0_ARROW_3) vp[vn++] = "fire a missile";
+	if (lore.spell_flags[0] & RSF0_ARROW_4) vp[vn++] = "fire missiles";
+	if (lore.spell_flags[0] & RSF0_BOULDER) vp[vn++] = "throw boulders";
 
 	/* Describe innate attacks */
 	output_desc_list(msex, "may", vp, -vn, TERM_WHITE);
 
 	/* Collect breaths */
 	vn = 0;
-	if (lore.flags[3] & RF3_BR_ACID)		vp[vn++] = "acid";
-	if (lore.flags[3] & RF3_BR_ELEC)		vp[vn++] = "lightning";
-	if (lore.flags[3] & RF3_BR_FIRE)		vp[vn++] = "fire";
-	if (lore.flags[3] & RF3_BR_COLD)		vp[vn++] = "frost";
-	if (lore.flags[3] & RF3_BR_POIS)		vp[vn++] = "poison";
-	if (lore.flags[3] & RF3_BR_NETH)		vp[vn++] = "nether";
-	if (lore.flags[3] & RF3_BR_LITE)		vp[vn++] = "light";
-	if (lore.flags[3] & RF3_BR_DARK)		vp[vn++] = "darkness";
-	if (lore.flags[3] & RF3_BR_CONF)		vp[vn++] = "confusion";
-	if (lore.flags[3] & RF3_BR_SOUN)		vp[vn++] = "sound";
-	if (lore.flags[3] & RF3_BR_CHAO)		vp[vn++] = "chaos";
-	if (lore.flags[3] & RF3_BR_DISE)		vp[vn++] = "disenchantment";
-	if (lore.flags[3] & RF3_BR_NEXU)		vp[vn++] = "nexus";
-	if (lore.flags[3] & RF3_BR_TIME)		vp[vn++] = "time";
-	if (lore.flags[3] & RF3_BR_INER)		vp[vn++] = "inertia";
-	if (lore.flags[3] & RF3_BR_GRAV)		vp[vn++] = "gravity";
-	if (lore.flags[3] & RF3_BR_SHAR)		vp[vn++] = "shards";
-	if (lore.flags[3] & RF3_BR_PLAS)		vp[vn++] = "plasma";
-	if (lore.flags[3] & RF3_BR_WALL)		vp[vn++] = "force";
+	if (lore.spell_flags[0] & RSF0_BR_ACID)		vp[vn++] = "acid";
+	if (lore.spell_flags[0] & RSF0_BR_ELEC)		vp[vn++] = "lightning";
+	if (lore.spell_flags[0] & RSF0_BR_FIRE)		vp[vn++] = "fire";
+	if (lore.spell_flags[0] & RSF0_BR_COLD)		vp[vn++] = "frost";
+	if (lore.spell_flags[0] & RSF0_BR_POIS)		vp[vn++] = "poison";
+	if (lore.spell_flags[0] & RSF0_BR_NETH)		vp[vn++] = "nether";
+	if (lore.spell_flags[0] & RSF0_BR_LITE)		vp[vn++] = "light";
+	if (lore.spell_flags[0] & RSF0_BR_DARK)		vp[vn++] = "darkness";
+	if (lore.spell_flags[0] & RSF0_BR_CONF)		vp[vn++] = "confusion";
+	if (lore.spell_flags[0] & RSF0_BR_SOUN)		vp[vn++] = "sound";
+	if (lore.spell_flags[0] & RSF0_BR_CHAO)		vp[vn++] = "chaos";
+	if (lore.spell_flags[0] & RSF0_BR_DISE)		vp[vn++] = "disenchantment";
+	if (lore.spell_flags[0] & RSF0_BR_NEXU)		vp[vn++] = "nexus";
+	if (lore.spell_flags[0] & RSF0_BR_TIME)		vp[vn++] = "time";
+	if (lore.spell_flags[0] & RSF0_BR_INER)		vp[vn++] = "inertia";
+	if (lore.spell_flags[0] & RSF0_BR_GRAV)		vp[vn++] = "gravity";
+	if (lore.spell_flags[0] & RSF0_BR_SHAR)		vp[vn++] = "shards";
+	if (lore.spell_flags[0] & RSF0_BR_PLAS)		vp[vn++] = "plasma";
+	if (lore.spell_flags[0] & RSF0_BR_WALL)		vp[vn++] = "force";
 
 	/* Describe breaths */
 	if (vn)
@@ -247,64 +248,64 @@ static void describe_monster_spells(const monster_race& r, const monster_lore& l
 
 	/* Collect spells */
 	vn = 0;
-	if (lore.flags[4] & RF4_BA_ACID)     vp[vn++] = "produce acid balls";
-	if (lore.flags[4] & RF4_BA_ELEC)     vp[vn++] = "produce lightning balls";
-	if (lore.flags[4] & RF4_BA_FIRE)     vp[vn++] = "produce fire balls";
-	if (lore.flags[4] & RF4_BA_COLD)     vp[vn++] = "produce frost balls";
-	if (lore.flags[4] & RF4_BA_POIS)     vp[vn++] = "produce poison balls";
-	if (lore.flags[4] & RF4_BA_NETH)     vp[vn++] = "produce nether balls";
-	if (lore.flags[4] & RF4_BA_WATE)     vp[vn++] = "produce water balls";
-	if (lore.flags[4] & RF4_BA_MANA)     vp[vn++] = "invoke mana storms";
-	if (lore.flags[4] & RF4_BA_DARK)     vp[vn++] = "invoke darkness storms";
-	if (lore.flags[4] & RF4_DRAIN_MANA)  vp[vn++] = "drain mana";
-	if (lore.flags[4] & RF4_MIND_BLAST)  vp[vn++] = "cause mind blasting";
-	if (lore.flags[4] & RF4_BRAIN_SMASH) vp[vn++] = "cause brain smashing";
-	if (lore.flags[4] & RF4_CAUSE_1)     vp[vn++] = "cause light wounds";
-	if (lore.flags[4] & RF4_CAUSE_2)     vp[vn++] = "cause serious wounds";
-	if (lore.flags[4] & RF4_CAUSE_3)     vp[vn++] = "cause critical wounds";
-	if (lore.flags[4] & RF4_CAUSE_4)     vp[vn++] = "cause mortal wounds";
-	if (lore.flags[4] & RF4_BO_ACID)     vp[vn++] = "produce acid bolts";
-	if (lore.flags[4] & RF4_BO_ELEC)     vp[vn++] = "produce lightning bolts";
-	if (lore.flags[4] & RF4_BO_FIRE)     vp[vn++] = "produce fire bolts";
-	if (lore.flags[4] & RF4_BO_COLD)     vp[vn++] = "produce frost bolts";
-/*	if (lore.flags[4] & RF4_BO_POIS)     vp[vn++] = "produce poison bolts"; */
-	if (lore.flags[4] & RF4_BO_NETH)     vp[vn++] = "produce nether bolts";
-	if (lore.flags[4] & RF4_BO_WATE)     vp[vn++] = "produce water bolts";
-	if (lore.flags[4] & RF4_BO_MANA)     vp[vn++] = "produce mana bolts";
-	if (lore.flags[4] & RF4_BO_PLAS)     vp[vn++] = "produce plasma bolts";
-	if (lore.flags[4] & RF4_BO_ICEE)     vp[vn++] = "produce ice bolts";
-	if (lore.flags[4] & RF4_MISSILE)     vp[vn++] = "produce magic missiles";
-	if (lore.flags[4] & RF4_SCARE)       vp[vn++] = "terrify";
-	if (lore.flags[4] & RF4_BLIND)       vp[vn++] = "blind";
-	if (lore.flags[4] & RF4_CONF)        vp[vn++] = "confuse";
-	if (lore.flags[4] & RF4_SLOW)        vp[vn++] = "slow";
-	if (lore.flags[4] & RF4_HOLD)        vp[vn++] = "paralyze";
-	if (lore.flags[5] & RF5_HASTE)       vp[vn++] = "haste-self";
-	if (lore.flags[5] & RF5_HEAL)        vp[vn++] = "heal-self";
-	if (lore.flags[5] & RF5_BLINK)       vp[vn++] = "blink-self";
-	if (lore.flags[5] & RF5_TPORT)       vp[vn++] = "teleport-self";
-	if (lore.flags[5] & RF5_TELE_TO)     vp[vn++] = "teleport to";
-	if (lore.flags[5] & RF5_TELE_AWAY)   vp[vn++] = "teleport away";
-	if (lore.flags[5] & RF5_TELE_LEVEL)  vp[vn++] = "teleport level";
-	if (lore.flags[5] & RF5_DARKNESS)    vp[vn++] = "create darkness";
-	if (lore.flags[5] & RF5_TRAPS)       vp[vn++] = "create traps";
-	if (lore.flags[5] & RF5_FORGET)      vp[vn++] = "cause amnesia";
-	if (lore.flags[5] & RF5_S_KIN)       vp[vn++] = "summon similar monsters";
-	if (lore.flags[5] & RF5_S_MONSTER)   vp[vn++] = "summon a monster";
-	if (lore.flags[5] & RF5_S_MONSTERS)  vp[vn++] = "summon monsters";
-	if (lore.flags[5] & RF5_S_ANIMAL)    vp[vn++] = "summon animals";
-	if (lore.flags[5] & RF5_S_SPIDER)    vp[vn++] = "summon spiders";
-	if (lore.flags[5] & RF5_S_HOUND)     vp[vn++] = "summon hounds";
-	if (lore.flags[5] & RF5_S_HYDRA)     vp[vn++] = "summon hydras";
-	if (lore.flags[5] & RF5_S_ANGEL)     vp[vn++] = "summon an angel";
-	if (lore.flags[5] & RF5_S_DEMON)     vp[vn++] = "summon a demon";
-	if (lore.flags[5] & RF5_S_UNDEAD)    vp[vn++] = "summon an undead";
-	if (lore.flags[5] & RF5_S_DRAGON)    vp[vn++] = "summon a dragon";
-	if (lore.flags[5] & RF5_S_HI_UNDEAD) vp[vn++] = "summon Greater Undead";
-	if (lore.flags[5] & RF5_S_HI_DRAGON) vp[vn++] = "summon Ancient Dragons";
-	if (lore.flags[5] & RF5_S_HI_DEMON)  vp[vn++] = "summon Greater Demons";
-	if (lore.flags[5] & RF5_S_WRAITH)    vp[vn++] = "summon Ring Wraiths";
-	if (lore.flags[5] & RF5_S_UNIQUE)    vp[vn++] = "summon Unique Monsters";
+	if (lore.spell_flags[1] & RSF1_BA_ACID)     vp[vn++] = "produce acid balls";
+	if (lore.spell_flags[1] & RSF1_BA_ELEC)     vp[vn++] = "produce lightning balls";
+	if (lore.spell_flags[1] & RSF1_BA_FIRE)     vp[vn++] = "produce fire balls";
+	if (lore.spell_flags[1] & RSF1_BA_COLD)     vp[vn++] = "produce frost balls";
+	if (lore.spell_flags[1] & RSF1_BA_POIS)     vp[vn++] = "produce poison balls";
+	if (lore.spell_flags[1] & RSF1_BA_NETH)     vp[vn++] = "produce nether balls";
+	if (lore.spell_flags[1] & RSF1_BA_WATE)     vp[vn++] = "produce water balls";
+	if (lore.spell_flags[1] & RSF1_BA_MANA)     vp[vn++] = "invoke mana storms";
+	if (lore.spell_flags[1] & RSF1_BA_DARK)     vp[vn++] = "invoke darkness storms";
+	if (lore.spell_flags[1] & RSF1_DRAIN_MANA)  vp[vn++] = "drain mana";
+	if (lore.spell_flags[1] & RSF1_MIND_BLAST)  vp[vn++] = "cause mind blasting";
+	if (lore.spell_flags[1] & RSF1_BRAIN_SMASH) vp[vn++] = "cause brain smashing";
+	if (lore.spell_flags[1] & RSF1_CAUSE_1)     vp[vn++] = "cause light wounds";
+	if (lore.spell_flags[1] & RSF1_CAUSE_2)     vp[vn++] = "cause serious wounds";
+	if (lore.spell_flags[1] & RSF1_CAUSE_3)     vp[vn++] = "cause critical wounds";
+	if (lore.spell_flags[1] & RSF1_CAUSE_4)     vp[vn++] = "cause mortal wounds";
+	if (lore.spell_flags[1] & RSF1_BO_ACID)     vp[vn++] = "produce acid bolts";
+	if (lore.spell_flags[1] & RSF1_BO_ELEC)     vp[vn++] = "produce lightning bolts";
+	if (lore.spell_flags[1] & RSF1_BO_FIRE)     vp[vn++] = "produce fire bolts";
+	if (lore.spell_flags[1] & RSF1_BO_COLD)     vp[vn++] = "produce frost bolts";
+/*	if (lore.spell_flags[1] & RSF1_BO_POIS)     vp[vn++] = "produce poison bolts"; */
+	if (lore.spell_flags[1] & RSF1_BO_NETH)     vp[vn++] = "produce nether bolts";
+	if (lore.spell_flags[1] & RSF1_BO_WATE)     vp[vn++] = "produce water bolts";
+	if (lore.spell_flags[1] & RSF1_BO_MANA)     vp[vn++] = "produce mana bolts";
+	if (lore.spell_flags[1] & RSF1_BO_PLAS)     vp[vn++] = "produce plasma bolts";
+	if (lore.spell_flags[1] & RSF1_BO_ICEE)     vp[vn++] = "produce ice bolts";
+	if (lore.spell_flags[1] & RSF1_MISSILE)     vp[vn++] = "produce magic missiles";
+	if (lore.spell_flags[1] & RSF1_SCARE)       vp[vn++] = "terrify";
+	if (lore.spell_flags[1] & RSF1_BLIND)       vp[vn++] = "blind";
+	if (lore.spell_flags[1] & RSF1_CONF)        vp[vn++] = "confuse";
+	if (lore.spell_flags[1] & RSF1_SLOW)        vp[vn++] = "slow";
+	if (lore.spell_flags[1] & RSF1_HOLD)        vp[vn++] = "paralyze";
+	if (lore.spell_flags[2] & RSF2_HASTE)       vp[vn++] = "haste-self";
+	if (lore.spell_flags[2] & RSF2_HEAL)        vp[vn++] = "heal-self";
+	if (lore.spell_flags[2] & RSF2_BLINK)       vp[vn++] = "blink-self";
+	if (lore.spell_flags[2] & RSF2_TPORT)       vp[vn++] = "teleport-self";
+	if (lore.spell_flags[2] & RSF2_TELE_TO)     vp[vn++] = "teleport to";
+	if (lore.spell_flags[2] & RSF2_TELE_AWAY)   vp[vn++] = "teleport away";
+	if (lore.spell_flags[2] & RSF2_TELE_LEVEL)  vp[vn++] = "teleport level";
+	if (lore.spell_flags[2] & RSF2_DARKNESS)    vp[vn++] = "create darkness";
+	if (lore.spell_flags[2] & RSF2_TRAPS)       vp[vn++] = "create traps";
+	if (lore.spell_flags[2] & RSF2_FORGET)      vp[vn++] = "cause amnesia";
+	if (lore.spell_flags[2] & RSF2_S_KIN)       vp[vn++] = "summon similar monsters";
+	if (lore.spell_flags[2] & RSF2_S_MONSTER)   vp[vn++] = "summon a monster";
+	if (lore.spell_flags[2] & RSF2_S_MONSTERS)  vp[vn++] = "summon monsters";
+	if (lore.spell_flags[2] & RSF2_S_ANIMAL)    vp[vn++] = "summon animals";
+	if (lore.spell_flags[2] & RSF2_S_SPIDER)    vp[vn++] = "summon spiders";
+	if (lore.spell_flags[2] & RSF2_S_HOUND)     vp[vn++] = "summon hounds";
+	if (lore.spell_flags[2] & RSF2_S_HYDRA)     vp[vn++] = "summon hydras";
+	if (lore.spell_flags[2] & RSF2_S_ANGEL)     vp[vn++] = "summon an angel";
+	if (lore.spell_flags[2] & RSF2_S_DEMON)     vp[vn++] = "summon a demon";
+	if (lore.spell_flags[2] & RSF2_S_UNDEAD)    vp[vn++] = "summon an undead";
+	if (lore.spell_flags[2] & RSF2_S_DRAGON)    vp[vn++] = "summon a dragon";
+	if (lore.spell_flags[2] & RSF2_S_HI_UNDEAD) vp[vn++] = "summon Greater Undead";
+	if (lore.spell_flags[2] & RSF2_S_HI_DRAGON) vp[vn++] = "summon Ancient Dragons";
+	if (lore.spell_flags[2] & RSF2_S_HI_DEMON)  vp[vn++] = "summon Greater Demons";
+	if (lore.spell_flags[2] & RSF2_S_WRAITH)    vp[vn++] = "summon Ring Wraiths";
+	if (lore.spell_flags[2] & RSF2_S_UNIQUE)    vp[vn++] = "summon Unique Monsters";
 
 	/* Describe spells */
 	if (vn)
@@ -883,49 +884,41 @@ static void describe_monster_toughness(const monster_race& r, const monster_lore
 
 static void describe_monster_exp(const monster_race& r, const monster_lore& lore)
 {
-	/* Describe experience if known */
-	if (lore.tkills)
-	{
-		const char* p = "th";	/* English ordinal suffix */
-		const char* q = "";		/* leading vowels in numbers */
+	/* Describe experience */
+	const char* p = "th";	/* English ordinal suffix */
+	const char* q = "";		/* leading vowels in numbers */
 
-		/* calculate the integer exp part (abuse later) */
-		int i = (long)r.mexp * r.level / p_ptr->lev;
+	/* calculate the integer exp part (abuse later) */
+	int i = (long)r.mexp * r.level / p_ptr->lev;
 
-		/* calculate the fractional exp part scaled by 100, */
-		/* must use long arithmetic to avoid overflow (abuse later) */
-		int j = ((((long)r.mexp * r.level % p_ptr->lev) *
-			  (long)1000 / p_ptr->lev + 5) / 10);
+	/* calculate the fractional exp part scaled by 100, */
+	/* must use long arithmetic to avoid overflow (abuse later) */
+	int j = ((((long)r.mexp * r.level % p_ptr->lev) *
+		  (long)1000 / p_ptr->lev + 5) / 10);
 
-		/* Introduction */
-		if (lore.flags[0] & RF0_UNIQUE)
-			text_out("Killing");
-		else
-			text_out("A kill of");
-
-		text_out(" this creature");
+	/* Introduction */
+	text_out((lore.flags[0] & RF0_UNIQUE) ? "Killing" : "A kill of");
+	text_out(" this creature");
 
 
-		/* Mention the experience */
-		text_out(format(" is worth %ld.%02ld point%s",
+	/* Mention the experience */
+	text_out(format(" is worth %ld.%02ld point%s",
 			        (long)i, (long)j,
 			        (((i == 1) && (j == 0)) ? "" : "s")));
 
-		/* Take account of annoying English */
-		i = p_ptr->lev % 10;
-		if ((p_ptr->lev / 10) == 1) /* nothing */;
-		else if (i == 1) p = "st";
-		else if (i == 2) p = "nd";
-		else if (i == 3) p = "rd";
+	/* Take account of annoying English */
+	i = p_ptr->lev % 10;
+	if ((p_ptr->lev / 10) == 1) /* nothing */;
+	else if (i == 1) p = "st";
+	else if (i == 2) p = "nd";
+	else if (i == 3) p = "rd";
 
-		/* Take account of "leading vowels" in numbers */
-		i = p_ptr->lev;
-		if ((i == 8) || (i == 11) || (i == 18)) q = "n";
+	/* Take account of "leading vowels" in numbers */
+	i = p_ptr->lev;
+	if ((i == 8) || (i == 11) || (i == 18)) q = "n";
 
-		/* Mention the dependance on the player's level */
-		text_out(format(" for a%s %lu%s level character.  ",
-			        q, (long)i, p));
-	}
+	/* Mention the dependance on the player's level */
+	text_out(format(" for a%s %lu%s level character.  ", q, (long)i, p));
 }
 
 
@@ -953,14 +946,12 @@ static void describe_monster_movement(const monster_race& r, const monster_lore&
 		text_out_c(TERM_SLATE, " lives in the town");
 		old = TRUE;
 	}
-	else if (lore.tkills)
+	else
 	{
-		if (lore.flags[0] & RF0_FORCE_DEPTH)
-			text_out_c(TERM_SLATE, " is found ");
-		else
-			text_out_c(TERM_SLATE, " is normally found ");
+		text_out_c(TERM_SLATE, (lore.flags[0] & RF0_FORCE_DEPTH) ? " is found "
+																 : " is normally found ");
 		
-		if (depth_in_feet)
+		if (OPTION(depth_in_feet))
 		{
 			text_out_c(TERM_SLATE, format("at depths of %d feet",
 			                            r.level * 50));
@@ -1040,7 +1031,7 @@ static void cheat_monster_lore(const monster_race& r, monster_lore& lore)
 
 
 	/* Hack -- Maximal kills */
-	lore.tkills = MAX_SHORT;
+	lore.tkills = MAX_S16B;
 
 	/* Hack -- Maximal info */
 	lore.wake = lore.ignore = UCHAR_MAX;
@@ -1075,6 +1066,7 @@ static void cheat_monster_lore(const monster_race& r, monster_lore& lore)
 
 	/* Hack -- know all the flags */
 	C_COPY(lore.flags, r.flags, RACE_FLAG_STRICT_UB);
+	C_COPY(lore.spell_flags, r.spell_flags, RACE_FLAG_SPELL_STRICT_UB);
 }
 
 
@@ -1098,7 +1090,7 @@ void describe_monster(int r_idx, bool spoilers)
 
 	/* Assume some "obvious" flags */
 	lore.flags[0] |= (r_ptr->flags[0] & RF0_OBVIOUS_MASK);
-	lore.flags[3] |= (r_ptr->flags[3] & RF3_OBVIOUS_MASK);
+	lore.spell_flags[0] |= (r_ptr->spell_flags[0] & RSF0_OBVIOUS_MASK);
 
 	/* Killing a monster reveals some properties */
 	if (lore.tkills)
@@ -1111,14 +1103,14 @@ void describe_monster(int r_idx, bool spoilers)
 	}
 
 	/* Cheat -- know everything */
-	if (cheat_know || spoilers) cheat_monster_lore(*r_ptr, lore);
+	if (OPTION(cheat_know) || spoilers) cheat_monster_lore(*r_ptr, lore);
 
 	/* Show kills of monster vs. player(s) */
-	if (!spoilers && show_details)
+	if (!spoilers && OPTION(show_details))
 		describe_monster_kills(*r_ptr, lore);
 
 	/* Monster description */
-	if (spoilers || show_details)
+	if (spoilers || OPTION(show_details))
 		describe_monster_desc(*r_ptr);
 
 	/* Describe the movement and level of the monster */

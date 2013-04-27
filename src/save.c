@@ -17,6 +17,7 @@
 
 #include "angband.h"
 #include "z-quark.h"
+#include "option.h"
 #include "store.h"
 
 /*
@@ -97,14 +98,14 @@ static void wr_string(const char* str)
  */
 static void wr_item(const object_type *o_ptr)
 {
-	wr_s16b(o_ptr->k_idx);
+	wr_s16b(0);	/* old k_idx */
 
 	/* Location */
 	wr_byte(o_ptr->loc.y);
 	wr_byte(o_ptr->loc.x);
 
-	wr_byte(o_ptr->tval);
-	wr_byte(o_ptr->sval);
+	wr_byte(o_ptr->obj_id.tval);
+	wr_byte(o_ptr->obj_id.sval);
 	wr_s16b(o_ptr->pval);
 
 	wr_byte(o_ptr->pseudo);
@@ -141,14 +142,7 @@ static void wr_item(const object_type *o_ptr)
 	wr_byte(o_ptr->xtra2);
 
 	/* Save the inscription (if any) */
-	if (o_ptr->note)
-	{
-		wr_string(quark_str(o_ptr->note));
-	}
-	else
-	{
-		wr_string("");
-	}
+	wr_string(o_ptr->note ? quark_str(o_ptr->note) : "");
 }
 
 
@@ -211,6 +205,9 @@ static void wr_lore(int r_idx)
 	/* Memorize flags */
 	for (i = 0; i < RACE_FLAG_STRICT_UB; i++)
 		wr_u32b(l_ptr->flags[i]);
+
+	for (i = 0; i < RACE_FLAG_SPELL_STRICT_UB; i++)
+		wr_u32b(l_ptr->spell_flags[i]);
 
 
 	/* Monster limit per level */
@@ -341,7 +338,7 @@ static void wr_options(void)
 		int ob = i % 32;
 
 		/* Process real entries */
-		if (option_text[i])
+		if (options[i].text)
 		{
 			/* Set flag */
 			if (op_ptr->opt[i])
@@ -537,8 +534,8 @@ static void wr_randarts(void)
 	{
 		artifact_type *a_ptr = &object_type::a_info[i];
 
-		wr_byte(a_ptr->tval);
-		wr_byte(a_ptr->sval);
+		wr_byte(a_ptr->obj_id.tval);
+		wr_byte(a_ptr->obj_id.sval);
 		wr_s16b(a_ptr->pval);
 
 		wr_s16b(a_ptr->to_h);
@@ -789,7 +786,7 @@ static bool wr_savefile_new(void)
 
 	/* Dump the number of "messages" */
 	tmp16u = messages_num();
-	if (compress_savefile && (tmp16u > 40)) tmp16u = 40;
+	if (OPTION(compress_savefile) && (tmp16u > 40)) tmp16u = 40;
 	wr_u16b(tmp16u);
 
 	/* Dump the messages (oldest first!) */
@@ -865,10 +862,7 @@ static bool wr_savefile_new(void)
 
 
 	/* Write randart information */
-	if (adult_rand_artifacts)
-	{
-		wr_randarts();
-	}
+	if (OPTION(adult_rand_artifacts)) wr_randarts();
 
 
 	/* 

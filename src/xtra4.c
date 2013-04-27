@@ -30,6 +30,7 @@
  */
 
 #include "angband.h"
+#include "option.h"
 
 int
 agent_type::ticks_to_move(int move, int diag) const
@@ -52,15 +53,16 @@ agent_type::energy_in_ticks(int ticks) const
 void
 agent_type::move_ratio(int& threat_moves, int& my_moves, const agent_type& threat, int threat_diag, int my_diag) const
 {
-	int ticks_to_my_move = ticks_to_move(2,my_diag);
-	int ticks_to_threat_move = threat.ticks_to_move(1,threat_diag);
+	const int base_my_move = (150<=energy) ? 2 : 1;
+	int ticks_to_my_move = ticks_to_move(base_my_move,MIN(base_my_move-1,my_diag));
+	int ticks_to_threat_move = threat.ticks_to_move(1,0);
 
 	my_moves = 1;
 	threat_moves = 1;
 
 	if		(ticks_to_my_move>ticks_to_threat_move)
 	{	/* threat is faster, check for double-move */
-		threat_moves = threat.moves_in_ticks(ticks_to_my_move,threat_diag);
+		threat_moves = threat.moves_in_ticks(ticks_to_my_move,(threat_diag) ? 1 : 0);
 		/* but I win energy ties (actually true only for player) */
 		if (	(1 < threat_moves)
 			&&	(threat.ticks_to_move(threat_moves,threat_diag) == ticks_to_my_move)
@@ -69,7 +71,7 @@ agent_type::move_ratio(int& threat_moves, int& my_moves, const agent_type& threa
 	}
 	else if	(ticks_to_my_move<ticks_to_threat_move)
 	{	/* I am faster, check for double-move */
-		my_moves = moves_in_ticks(ticks_to_threat_move,my_diag);
+		my_moves = moves_in_ticks(ticks_to_threat_move,MIN(base_my_move-1,my_diag));
 	}
 	else if (energy_in_ticks(ticks_to_my_move)>=threat.energy_in_ticks(ticks_to_threat_move))
 	{	/* I win energy ties (actually only true for player) */
@@ -83,7 +85,7 @@ agent_type::move_ratio(int& threat_moves, int& my_moves, const agent_type& threa
 int
 agent_type::apparent_health() const
 {
-	if (chp>=mhp || smart_cheat) return chp;
+	if (chp>=mhp || OPTION(adult_smart_cheat)) return chp;
 
 	{
 	int stars_sub_1 = (10L * (long) chp / (long)mhp);

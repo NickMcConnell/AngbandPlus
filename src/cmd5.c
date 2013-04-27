@@ -18,6 +18,7 @@
 
 #include "angband.h"
 
+#include "option.h"
 #include "tvalsval.h"
 #include "wind_flg.h"
 
@@ -241,7 +242,7 @@ void display_koff(int k_idx)
 	if (!p_ptr->spell_book()) return;
 
 	/* Display spells in readible books */
-	if (i_ptr->tval == p_ptr->spell_book())
+	if (i_ptr->obj_id.tval == p_ptr->spell_book())
 	{
 		int i;
 		int spell;
@@ -612,7 +613,7 @@ bool spell_cast(int spell)
 	/* Failed spell */
 	if (rand_int(100) < chance)
 	{
-		if (flush_failure) flush();
+		if (OPTION(flush_failure)) flush();
 		msg_print("You failed to concentrate hard enough!");
 	}
 

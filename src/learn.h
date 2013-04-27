@@ -78,5 +78,5 @@
 #define SM_RES_DISEN	0x80000000
 
 /* monster2.c */
-extern void update_smart_learn(int m_idx, int what);
+extern void update_smart_learn(const m_idx_type m_idx, int what);
 

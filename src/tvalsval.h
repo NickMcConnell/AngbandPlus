@@ -550,6 +550,23 @@
 #define SV_FOOD_PINT_OF_ALE		38
 #define SV_FOOD_PINT_OF_WINE	39
 
+/* The nonstrict upper bound "sval" codes for TV_GOLD */
+enum SV_cash 	{	SV_CASH = 0,
+					SV_COPPER = 3,
+					SV_SILVER = 6,
+					SV_GARNETS = 8,
+					SV_GOLD = 11,
+					SV_OPALS,
+					SV_SAPPHIRES,
+					SV_RUBIES,
+					SV_DIAMONDS,
+					SV_EMERALDS,
+					SV_MITHRIL,
+					SV_ADAMANTITE
+				};
+
+#define MAX_GOLD			SV_ADAMANTITE	/* Number of "gold" entries */
+
 
 /*
  * Special "sval" limit -- first "normal" food
@@ -575,4 +592,9 @@
  * Special "sval" value -- unknown "sval"
  */
 #define SV_UNKNOWN			255
+
+/*
+ * object2.c 
+ */
+extern void make_gold(object_type *j_ptr, SV_cash coin_type);
 

@@ -19,6 +19,7 @@
 #include "angband.h"
 #include "cmds.h"
 #include "game-event.h"
+#include "option.h"
 #include "raceflag.h"
 #include "tvalsval.h"
 #include "z-quark.h"
@@ -245,9 +246,9 @@ void do_cmd_destroy(void)
 	/* Obtain a local object */
 	*i_ptr = *o_ptr;
 
-	if ((o_ptr->tval == TV_WAND) ||
-	    (o_ptr->tval == TV_STAFF) ||
-	    (o_ptr->tval == TV_ROD))
+	if ((o_ptr->obj_id.tval == TV_WAND) ||
+	    (o_ptr->obj_id.tval == TV_STAFF) ||
+	    (o_ptr->obj_id.tval == TV_ROD))
 	{
 		/* Calculate the amount of destroyed charges */
 		i_ptr->pval = o_ptr->pval * amt / o_ptr->number;
@@ -260,7 +261,7 @@ void do_cmd_destroy(void)
 	object_desc(o_name, sizeof(o_name), i_ptr, TRUE, ODESC_FULL);
 
 	/* Verify destruction */
-	if (verify_destroy)
+	if (OPTION(verify_destroy))
 	{
 		strnfmt(out_val, sizeof(out_val), "Really destroy %s? ", o_name);
 		if (!get_check(out_val)) return;
@@ -350,7 +351,7 @@ void refill_lamp(object_type *j_ptr, object_type *o_ptr, int item)
 	}
 
 	/* Refilled from a lantern */
-	if (o_ptr->sval == SV_LITE_LANTERN)
+	if (o_ptr->obj_id.sval == SV_LITE_LANTERN)
 	{
 		/* Unstack if necessary */
 		if (o_ptr->number > 1)
@@ -538,7 +539,7 @@ void do_cmd_locate(void)
 		        (y2 / PANEL_HGT), (x2 / PANEL_WID), tmp_val);
 
 		/* More detail */
-		if (center_player)
+		if (OPTION(center_player))
 		{
 			strnfmt(out_val, sizeof(out_val),
 		        	"Map sector [%d(%02d),%d(%02d)], which is%s your sector.  Direction?",
@@ -862,7 +863,7 @@ void do_cmd_query_symbol(void)
 		monster_lore *l_ptr = &monster_type::l_list[i];
 
 		/* Nothing to recall */
-		if (!cheat_know && !l_ptr->sights) continue;
+		if (!OPTION(cheat_know) && !l_ptr->sights) continue;
 
 		/* Require non-unique monsters if needed */
 		if (norm && (r_ptr->flags[0] & RF0_UNIQUE)) continue;
