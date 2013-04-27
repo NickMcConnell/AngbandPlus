@@ -1,0 +1,435 @@
+# This is the file for allowing uniques to speak their "own" lines
+# when in fear.
+#
+# Deleting this file will have no real effect on the game.  Modifying it may
+# cause STRANGE unique lines to come up if the format's wrong, but shouldn't
+# crash anything.  The format goes like so:
+# 
+# N:whoever this is
+# 3
+# says line 1
+# says line 2
+# says line 3
+#
+# The number after the N: is the "monster index number" obtained from
+# r_info.txt.  The text field after that number isn't actually used--it's
+# just there to help humans edit the file.  The numbers on lines by
+# themselves are the number of lines that the monster has.  Getting these
+# numbers wrong won't crash anything, but will produce strange lines.
+#
+# A '*' in the number field is a wildcard and applies to any monster.
+# It should only be placed at the end of the file, since all 'N:' lines
+# after it will be ignored.
+#
+# Two or more monsters can share lines; just put their N: lines in a
+# contiguous block.
+#
+# To stop a certain monster from having unique lines, put a # in front of
+# its N: line.
+#
+# Entries by Eric Bock, Matt Graham, Andrew Hill, and Topi Ylinen
+
+N:Farmer Maggot
+2
+screams, 'Don't hurt a poor helpless hobbit!'
+yells, 'Where are my vicious dogs when I need them?'
+
+N:Martti Ihrasaari
+2
+yells, 'I'm a head of state!  You can't *do* this!'
+yells, 'Help! Psycho on the loose!'
+
+N:Grip, Farmer Maggot's dog
+N:Wolf, Farmer Maggot's dog
+N:Fang, Farmer Maggot's dog
+5
+whimpers.
+pines.
+limps away, howling.
+howls.
+looks at you sadly.
+  
+N:Smeagol
+3
+says, 'Don't hurt us, mastersisis.'
+says, 'Poor Smeagol, poor Smeagol.'
+says, 'No AH! Don't hurtsis us.'
+
+N:Mughash the Kobold Lord
+2
+screams, 'Cowards! Why did you abandon me?'
+begs for mercy.
+
+N:Wormtongue, Agent of Saruman
+3
+begs you to spare his miserable life.
+whines, 'This is not my fault!'
+screams, 'Help! Help!'
+
+N:Robin Hood, the Outlaw
+3
+begs you to spare his life.
+says, 'But I'm a GOOD guy, really!'
+says, 'Money? Sure, take it all back!'
+
+#N:Brodda, the Easterling
+#N:Ulfast, Son of Ulfang
+
+N:Orfax, Son of Boldor
+N:Boldor, King of the Yeeks
+2
+sobs, 'I didn't MEAN it...'
+whimpers and moans.
+
+N:Hobbes the Tiger
+1
+yells, 'Ow! Get me back to the comics!'
+
+N:Lagduf, the Snaga
+N:Grishnakh, the Hill Orc
+N:Golfimbul, the Hill Orc Chief
+N:Ufthak of Cirith Ungol
+N:Orc captain
+N:Shagrat, the Orc Captain
+N:Gorbag, the Orc Captain
+N:Bolg, Son of Azog
+N:Ugluk, the Uruk
+N:Lugdush, the Uruk
+N:Azog, King of the Uruk-Hai
+6
+screams, 'Hey, orcs have rights too!'
+says, 'You're just prejudiced against orc-kind, aren't you?'
+begs, 'Spare me and I'll get you Ringil! Really!'
+says, 'Next time, I'm bringing more Uruks with me!'
+says, 'Don't hate me because I'm ugly!'
+whimpers and grovels.
+
+N:Mime, the Nibelung
+N:Hagen, son of Alberich
+N:Alberich the Nibelung King
+1
+screams, 'Help! Murder! Murder!'
+
+#N:Sangahyando of Umbar
+#N:Angamaite of Umbar
+
+#This next may be unnecessarily evil... :-]
+
+N:It
+2
+howls, 'I'll be back!'
+whimpers, 'They said this invisibility thing was better than it is!'
+
+N:Kharis the Powerslave
+1
+howls, 'Nnnnooo!'
+
+#N:Ulwarth, Son of Ulfang
+
+#Grendel's fear line makes sense if you've read "Beowulf"...
+
+N:Grendel
+1
+whines, 'Mommy, save me!'
+
+N:Barney the Dinosaur
+3
+begs, 'Don't! Think of the children!'
+screams, 'But I'm a big TV star!'
+sobs, 'All right! I apologize! I really really do!'
+
+#N:Bokrug
+
+N:Bert the Stone Troll
+N:Bill the Stone Troll
+N:Tom the Stone Troll
+N:Rogrog the Black Troll
+2
+yells, 'Ey, watch it, you cheeky sod!'
+screams, 'Me mates'll settle yer hash!'
+
+N:Groo the Wanderer
+1
+says, 'Oops... me get in big trouble!'
+
+# I have no idea what these next 4 should say, so.... --MG
+#N:Fasolt the Giant
+#N:Jurt the Living Trump
+#N:Lord Borel of Hendrake
+#N:Mandor, Master of the Logrus
+
+N:Father Dagon
+N:Mother Hydra
+1
+sobs, 'No! I'm an endangered aquatic species!'
+
+N:Loge, Spirit of Fire
+1
+pants and gasps.
+
+N:Moire, Queen of Rebma
+1
+wails, 'Help! Murder! Murder!'
+
+N:Kavlax the Many-Headed
+2
+says, 'This is YOUR fault!' and bites itself.
+blames its problems on the head you've managed to kill.
+
+N:Malekith the Accursed
+2
+says, 'C'mon! I'm sure we can work this out...'
+pleads for his miserable life.
+
+N:Jasra, Brand's Mistress
+1
+hisses, 'We don't die, we multiply!'
+
+#N:Strygalldwir
+
+N:Rinaldo, son of Brand
+N:Jack of Shadows
+2
+screams, 'Not the face! Not the face!'
+says, 'Yikes! Where'd I put my mail-order Cyberdemon?'
+
+#N:Chaugnar Faugn, Horror from the Hills
+
+N:Judge Death
+N:Judge Fear
+N:Judge Fire
+N:Judge Mortis
+2
+says, 'You'll never get away with this...'
+says, 'Hey! I've got LAWYERS!'
+
+#N:Ariel, Queen of Air
+
+N:Smaug the Golden
+2
+howls, 'Black Arrow? NOOOO!'
+howls, 'This CAN'T be happening!'
+
+#N:Fafner the Dragon
+#N:Fangorn the Treebeard
+
+N:Glaurung, Father of the Dragons
+2
+writhes as he spouts black blood from many wounds.
+says, 'I shall be avenged!'
+
+#N:Ulik the Troll
+#N:Baphomet the Minotaur Lord
+
+N:Bull Gates
+3
+sobs, 'OK, Linux doesn't suck. Let me live?'
+screams, 'Is megalomania THAT bad?'
+apologizes for MS-DOS.
+
+N:Santa Claus
+3
+sobs, 'Think of the children you'll disappoint!'
+sobs, 'No, Virginia, there isn't... not any more...'
+attempts to buy you off with offers of goodies.
+
+#N:Khamul the Easterling
+
+N:The Phoenix
+1
+defiantly caws, 'I shall rise again!'
+
+#N:Nidhogg the Hel-Drake
+#N:The Lernean Hydra
+#N:Thuringwethil
+#N:Fundin Bluecloak
+#N:Dworkin Barimen
+
+N:Uriel, Angel of Fire
+N:Azriel, Angel of Death
+N:Raphael, the Messenger
+3
+screams, 'Help! I am undone!'
+says, 'The Most High hath ordained this; I must follow.'
+screams, 'My God, my God, why hast thou forsaken me?'
+
+N:Ancalagon the Black
+2
+writhes as he spouts acidic blood from many wounds.
+says, 'My friends the Wyrms of Power will get you!'
+
+
+#N:Artsi the Champion of Chaos
+
+# Saruman's first line is a paraphrase from LoTR when he insults Theoden.
+
+N:Saruman of Many Colours
+2
+says, 'Wait! Look behind you!'
+howls, 'Wormtongue! Where are you, you bastard?'
+
+N:Gandalf the Grey
+2
+screams, 'How have things come to this... again?!'
+yells, 'Ouch!'
+
+N:Bast, Goddess of Cats
+2
+spits, 'I'll be back, worse than ever!'
+snarls weakly.
+
+N:Vlad Dracula, Prince of Darkness
+1
+howls with pain and fear.
+
+#N:Hypnos, Lord of Sleep
+#N:Tselakus, the Dreadlord
+#N:The Norsa
+#N:Omarax the Eye Tyrant
+#N:Yig, Father of Serpents
+
+# I have little familiarity with the Amber books, so these are left
+# for others to fill in as they see fit.
+
+#N:Brand, Mad Visionary of Amber
+#N:Bleys, Master of Manipulation
+#N:Fiona the Sorceress
+#N:Julian, Master of Forest Amber
+#N:Caine, the Conspirator
+#N:Gerard, Strongman of Amber
+#N:Eric the Usurper
+#N:Corwin, Lord of Avalon
+#N:Benedict, the Ideal Warrior
+
+N:The Witch-King of Angmar
+1
+wails, 'Nooooo!'
+
+#N:Ithaqua the Windwalker
+
+N:Hela, Queen of the Dead
+N:Ymir the Ice Giant
+N:Loki the Trickster
+N:Surtur the Giant Fire Demon
+3
+shouts, 'Why didn't I just stay in Asgard?'
+offers you everything in exchange for life.
+yells, 'I'll be back, with a squad of Cyberdemons!'
+
+N:Ubbo-Sathla, the Unbegotten Source
+N:Zoth-Ommog
+N:Yibb-Tstll the Patient One
+N:Eihort, the Thing in the Labyrinth
+N:The King in Yellow
+N:Hastur the Unspeakable
+N:Nyogtha, the Thing that Should not Be
+N:Ahtu, Avatar of Nyarlathotep
+N:Daoloth, the Render of the Veils
+N:Glaaki
+N:Rhan-Tegoth
+N:Tsathoggua, the Sleeper of N'kai
+N:Atlach-Nacha, the Spider God
+N:Y'golonac
+N:Cyaegha
+N:Abhoth, Source of Uncleanness
+N:Shuma-Gorath
+N:Yog-Sothoth, the All-in-One
+N:Shub-Niggurath, Black Goat of the Woods
+N:Nodens, Lord of the Great Abyss
+N:Nyarlathotep, the Crawling Chaos
+N:Great Cthulhu
+5
+sobs, 'I'm not bad, I was just born like this!'
+gibbers weakly.
+mumbles, 'kill -9 adventurer, kill -9 adventurer'
+oozes greenish blood from many wounds.
+burbles with terror.
+
+N:Carcharoth, the Jaws of Thirst
+N:Fenris Wolf
+N:Draugluin, Sire of All Werewolves
+3
+cringes and whimpers.
+says, 'Look, I promise I won't bite the mailman anymore!'
+says, 'Hey, put that rolled-up newspaper down!'
+
+N:Cantoras, the Skeletal Lord
+N:Mephistopheles, Lord of Hell
+N:The Mouth of Sauron
+N:Klingsor, Evil Master of Magic
+N:Vecna, the Emperor Lich
+N:Kaschei the Immortal
+N:Gothmog, the High Captain of Balrogs
+N:Sauron, the Sorcerer
+N:Oberon, King of Amber
+2
+screams, 'This CAN'T be happening!'
+shouts, 'Kill me if you want, the Boss will getcha!'
+
+N:The Serpent of Chaos
+1
+screams, 'This CAN'T be happening!'
+
+N:*
+61
+says: 'I am too young to die.'
+says: 'Ok, ok! I get: no more pals.'
+screams: 'Help, ho!'
+screams: 'What ho! Help!'
+says: 'You will pay for this!'
+says: 'Violence is no solution!'
+says: 'I thought you liked me.'
+says: 'Such senseless violence! I don't understand it!'
+screams: 'Ho! Murder! Murder!'
+says: 'Look, behind you!'
+screams: 'Run away!'
+screams: 'Run to the hills! Run for your lives!'
+says: 'Wait! Spare me and I'll make you rich! Money isn't a problem!'
+says: 'I'll be back...'
+says: 'Hey -- I've got lawyers!'
+says: 'All my possession for a moment of time!'
+says: 'Hey, it was only a joke, all right?'
+says: 'Stop!'
+says: 'Cut it out, will you?'
+says: 'I will not kneel. Strike!'
+screams: 'Cowards! Why did you not protect me?'
+screams: 'Idiots! I am surrounded by incompetent idiots!'
+says: 'I don't wanna die, I'm a god, why can't I live on?'
+yells: 'Someone call the Gendarmes!'
+screams: 'Keep that lunatic away from me!'
+shouts: 'Drop that weapon, now!'
+says: 'Fool! You don't know what you're doing!'
+screams for help!
+begs for mercy.
+sobs.
+screams: 'Help! The maniac's murdering me!'
+says: 'Just what is it you want? Money? Babes? I can arrange it...'
+says: 'Wait! Let's make a deal!'
+says: 'Just can't stop this surmounting terror!'
+says: 'If there is a God, then why has he let me die?'
+says: 'I know where I'm going -- out!'
+says: 'No hope, no life, just pain and fear.'
+says: 'I am a fugitive, hunted down like game.'
+says: 'You'll live to regret this blasphemous offence!'
+says: 'All my life's blood is slowly draining away...'
+asks: 'Should we be fighting at all?'
+asks: 'What are we fighting for?'
+asks you: 'Can you say you are proud of what you've done?'
+says: 'Every minute I get weaker...'
+says: 'All my life I've run away...'
+says: 'All that I see, absolute horror!'
+says: 'I have fallen prey to failure.'
+says: 'Just leave me alone!'
+says: 'Please, save me!'
+says: 'You've won a battle, but I'll win the war!'
+says: 'You've won this round, next time it's *my* turn!'
+says: 'Another time, another battlefield, *my* victory.'
+says: 'I've got to keep running.'
+says: 'It's all so futile!'
+says: 'Cowards live to fight another day.'
+says: 'Life it seems will fade away, drifting further every day.'
+says: 'Emptiness is filling me, to the point of agony.'
+says: 'Cannot stand this hell I feel!'
+cries: 'Someone help me, oh please God help me!'
+cries: 'Please! I have a mate and six siblings!'
+cries: 'Mama, they try and break me!'

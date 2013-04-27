@@ -51,4 +51,25 @@ F:61:1/127
 F:62:1/127
 F:63:1/127
 
+# Mossy floor (umber / centered dot)
+
+F:83:7/31
+
+# Lichen floor (green / centered dot)
+
+F:84:5/31
+
+# Crushing ceiling (up) (light umber / centered dot)
+F:85:15/31
+
+# Mossy wall (umber / solid block)
+
+F:96:7/127
+
+# Lichen wall (green / solid block)
+
+F:97:5/127
+
+# Crushing ceiling (down) (light umber / solid block)
+F:98:15/127
 

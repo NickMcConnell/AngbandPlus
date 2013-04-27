@@ -1,0 +1,101 @@
+# File: pref-opt.prf
+
+#
+# Allow user specification of various options
+#
+# This file includes, if appropriate, various "sub-files"
+#
+# See "lib/help/command.txt" and "src/files.c" for more information.
+#
+
+
+##### User-Interface #####
+
+Y:rogue_like_commands
+Y:quick_messages
+Y:other_query_flag
+Y:carry_query_flag
+X:use_old_target
+Y:always_pickup
+Y:always_repeat
+X:depth_in_feet
+Y:stack_force_notes
+Y:stack_force_costs
+Y:show_labels
+Y:show_weights
+Y:show_choices
+Y:show_details
+X:ring_bell
+Y:use_color
+
+
+##### Disturbance #####
+
+X:find_ignore_stairs
+Y:find_ignore_doors
+Y:find_cut
+Y:find_examine
+X:disturb_move
+Y:disturb_near
+Y:disturb_panel
+Y:disturb_minor
+Y:alert_hitpoint
+X:alert_failure
+
+
+##### Game-Play #####
+
+Y:auto_haggle
+Y:auto_scum
+Y:stack_allow_items
+Y:stack_allow_wands
+Y:expand_look
+Y:expand_list
+Y:view_perma_grids
+X:view_torch_grids
+X:dungeon_align
+Y:dungeon_stair
+Y:flow_by_sound
+Y:flow_by_smell
+Y:smart_learn
+X:smart_cheat
+
+
+##### Efficiency #####
+
+X:view_reduce_lite
+X:view_reduce_view
+X:avoid_abort
+X:avoid_other
+Y:flush_failure
+X:flush_disturb
+X:flush_command
+Y:fresh_before
+X:fresh_after
+X:fresh_message
+Y:compress_savefile
+X:hilite_player
+Y:view_yellow_lite
+Y:view_bright_lite
+Y:view_granite_lite
+Y:view_special_lite
+
+
+##### ZAngband options #####
+
+Y:disturb_other
+Y:last_words
+Y:speak_unique
+Y:small_levels
+X:empty_levels
+X:player_symbols
+Y:equippy_chars
+X:skip_mutations
+Y:plain_descriptions
+X:stupid_monsters
+Y:auto_destroy
+Y:confirm_wear
+X:confirm_stairs
+X:disturb_pets
+Y:center_player
+X:avoid_center

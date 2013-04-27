@@ -1,0 +1,21 @@
+
+
+                            *********************
+                            **  Zceband 2.1.2  **
+                            *********************
+
+          Based on Moria: Copyright (c) 1985 Robert Alan Koeneke
+              and Umoria: Copyright (c) 1989 James E. Wilson
+
+       Angband 2.7 - 2.8: Ben Harrison (benh@phial.com)
+
+       Curses/X11 Module: Ben Harrison, Torbj|rn Lindgren
+
+          Zangband 2.11c: (Mr) Topi Ylinen (f1toyl@uta.fi)
+      Current maintainer: Eric Bock (ebock@uswest.net)
+
+ Visit "Thangorodrim - The Angband Page" at "http://thangorodrim.angband.org/"
+           Read the Angband newsgroup, "rec.games.roguelike.angband"
+              Chat on the #angband channel at "irc.othernet.org"
+
+    Send all comments, bug reports, patches, etc, to "ebock@uswest.net".

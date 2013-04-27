@@ -64,3 +64,20 @@ F:61:1/-79
 F:62:1/-79
 F:63:1/-79
 
+
+# Mossy floor (umber / centered dot)
+
+F:83:7/-7
+
+# Lichen floor (green / centered dot)
+
+F:84:5/-7
+
+# Mossy wall (umber / solid block)
+
+F:96:7/-79
+
+# Lichen wall (green / solid block)
+
+F:97:5/-79
+

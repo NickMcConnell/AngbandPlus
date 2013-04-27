@@ -1,0 +1,185 @@
+# This is the file for allowing friendly uniques to speak their "own" lines.
+# Deleting this file will have no real effect on the game.  Modifying it may
+# cause STRANGE unique lines to come up if the format's wrong, but shouldn't
+# crash anything.  The format goes like so:
+# 
+# N:whoever this is
+# 3
+# says line 1
+# says line 2
+# says line 3
+#
+# The number after the N: is the "monster index number" obtained from
+# r_info.txt.  The text field after that number isn't actually used--it's
+# just there to help humans edit the file.  The numbers on lines by
+# themselves are the number of lines that the monster has.  Getting these
+# numbers wrong won't crash anything, but will produce strange lines.
+#
+# A '*' in the number field is a wildcard and applies to any monster.
+# It should only be placed at the end of the file, since all 'N:' lines
+# after it will be ignored.
+#
+# Two or more monsters can share lines; just put their N: lines in a
+# contiguous block.
+#
+# To stop a certain monster from having unique lines, put a # in front of
+# its N: line.
+#
+# Entries by Eric Bock, Matt Graham, Andrew Hill, Chris Kern, and Topi Ylinen
+
+N:Farmer Maggot
+3
+seems sad about something.
+asks if you have seen his dogs.
+mumbles something about mushrooms.
+
+#N:Martti Ihrasaari
+
+N:Grip, Farmer Maggot's dog
+N:Wolf, Farmer Maggot's dog
+N:Fang, Farmer Maggot's dog
+0
+
+#N:Smeagol
+#N:Mughash the Kobold Lord
+#N:Wormtongue, Agent of Saruman
+#N:Robin Hood, the Outlaw
+#N:Brodda, the Easterling
+#N:Ulfast, Son of Ulfang
+#N:Orfax, Son of Boldor
+#N:Boldor, King of the Yeeks
+#N:Hobbes the Tiger
+#N:Lagduf, the Snaga
+#N:Grishnakh, the Hill Orc
+#N:Golfimbul, the Hill Orc Chief
+#N:Ufthak of Cirith Ungol
+#N:Shagrat, the Orc Captain
+#N:Gorbag, the Orc Captain
+#N:Bolg, Son of Azog
+#N:Ugluk, the Uruk
+#N:Lugdush, the Uruk
+#N:Azog, King of the Uruk-Hai
+#N:Mime, the Nibelung
+#N:Hagen, son of Alberich
+#N:Alberich the Nibelung King
+#N:Sangahyando of Umbar
+#N:Angamaite of Umbar
+#N:It
+#N:Kharis the Powerslave
+#N:Ulwarth, Son of Ulfang
+#N:Grendel
+#N:Barney the Dinosaur
+#N:Bokrug
+#N:Bert the Stone Troll
+#N:Bill the Stone Troll
+#N:Tom the Stone Troll
+#N:Groo the Wanderer
+#N:Fasolt the Giant
+#N:Jurt the Living Trump
+#N:Rogrog the Black Troll
+#N:Lord Borel of Hendrake
+#N:Father Dagon
+#N:Mother Hydra
+#N:Mandor, Master of the Logrus
+#N:Loge, Spirit of Fire
+#N:Moire, Queen of Rebma
+#N:Kavlax the Many-Headed
+#N:Malekith the Accursed
+#N:Jasra, Brand's Mistress
+#N:Strygalldwir
+#N:Judge Fire
+#N:Judge Mortis
+#N:Rinaldo, son of Brand
+#N:Jack of Shadows
+#N:Judge Fear
+#N:Chaugnar Faugn, Horror from the Hills
+
+N:Shoggoth
+2
+wobbles about disgustingly.
+wails, 'Tekeli-li!  Tekeli-li!'
+
+#N:Judge Death
+#N:Ariel, Queen of Air
+#N:Smaug the Golden
+#N:Fafner the Dragon
+#N:Fangorn the Treebeard
+#N:Glaurung, Father of the Dragons
+#N:Ulik the Troll
+#N:Baphomet the Minotaur Lord
+#N:Bull Gates
+#N:Santa Claus
+#N:Khamul the Easterling
+#N:The Phoenix
+#N:Nidhogg the Hel-Drake
+#N:The Lernean Hydra
+#N:Thuringwethil
+#N:Fundin Bluecloak
+#N:Dworkin Barimen
+#N:Uriel, Angel of Fire
+#N:Azriel, Angel of Death
+#N:Raphael, the Messenger
+#N:Ancalagon the Black
+#N:Daoloth, the Render of the Veils
+#N:Artsi the Champion of Chaos
+#N:Saruman of Many Colours
+#N:Gandalf the Grey
+#N:Brand, Mad Visionary of Amber
+#N:Bast, Goddess of Cats
+#N:Vlad Dracula, Prince of Darkness
+#N:Hypnos, Lord of Sleep
+#N:Bleys, Master of Manipulation
+#N:Fiona the Sorceress
+#N:Tselakus, the Dreadlord
+#N:Julian, Master of Forest Amber
+#N:The Norsa
+#N:Caine, the Conspirator
+#N:Omarax the Eye Tyrant
+#N:Gerard, Strongman of Amber
+#N:Atlach-Nacha, the Spider God
+#N:Eric the Usurper
+#N:Yig, Father of Serpents
+#N:Hela, Queen of the Dead
+#N:Corwin, Lord of Avalon
+#N:Benedict, the Ideal Warrior
+#N:The Witch-King of Angmar
+#N:Ithaqua the Windwalker
+#N:Ymir the Ice Giant
+#N:Loki the Trickster
+#N:Surtur the Giant Fire Demon
+#N:Ubbo-Sathla, the Unbegotten Source
+#N:Zoth-Ommog
+#N:Yibb-Tstll the Patient One
+#N:Eihort, the Thing in the Labyrinth
+#N:The King in Yellow
+#N:Hastur the Unspeakable
+#N:Nyogtha, the Thing that Should not Be
+#N:Ahtu, Avatar of Nyarlathotep
+#N:Glaaki
+#N:Rhan-Tegoth
+#N:Tsathoggua, the Sleeper of N'kai
+#N:Y'golonac
+#N:Cyaegha
+#N:Abhoth, Source of Uncleanness
+#N:Shuma-Gorath
+#N:Yog-Sothoth, the All-in-One
+#N:Shub-Niggurath, Black Goat of the Woods
+#N:Nodens, Lord of the Great Abyss
+#N:Nyarlathotep, the Crawling Chaos
+#N:Great Cthulhu
+#N:Carcharoth, the Jaws of Thirst
+#N:Fenris Wolf
+#N:Draugluin, Sire of All Werewolves
+#N:Cantoras, the Skeletal Lord
+#N:Mephistopheles, Lord of Hell
+#N:The Mouth of Sauron
+#N:Klingsor, Evil Master of Magic
+#N:Vecna, the Emperor Lich
+#N:Kaschei the Immortal
+#N:Gothmog, the High Captain of Balrogs
+#N:Sauron, the Sorcerer
+#N:Oberon, King of Amber
+#N:The Serpent of Chaos
+
+#N:*:Default lines
+
