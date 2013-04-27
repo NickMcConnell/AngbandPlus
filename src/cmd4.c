@@ -374,10 +374,10 @@ void do_cmd_redraw(void)
 	p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER | PW_STATS);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_DUNGEON | PW_MONSTER | PW_OBJECT);
+	p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_DUNGEON | PW_MONSTER | PW_OBJECT | PW_FLOOR);
 
 	/* Update playtime */
 	update_playtime();
@@ -1140,8 +1140,8 @@ void do_cmd_options_hitpoint_warning(cptr info)
 			{
 				if (k < 2)
 				{
-					if (k == 0 && hitpoint_warn > 0) hitpoint_warn--;
-					if (k == 1 && spellpoint_warn > 0) spellpoint_warn--;
+					if (k == 0 && hitpoint_warn > 1) hitpoint_warn--;
+					if (k == 1 && spellpoint_warn > 1) spellpoint_warn--;
 				}
 				else
 				{
@@ -1496,6 +1496,53 @@ static void do_cmd_options_win(void)
 }
 
 
+#define OPT_NUM 15
+
+static struct opts
+{
+	char key;
+	cptr name;
+	int row;
+}
+option_fields[OPT_NUM] =
+{
+#ifdef JP
+	{ '1', "    キー入力     オプション", 3 },
+	{ '2', "    画面出力     オプション", 4 },
+	{ '3', "  ゲームプレイ   オプション", 5 },
+	{ '4', "  行動中止関係   オプション", 6 },
+	{ '5', "     効率化      オプション", 7 },
+	{ '6', "  簡易自動破壊   オプション", 8 },
+	{ '7', "      警告       オプション", 9 },
+	{ 'r', "   プレイ記録    オプション", 10 },
+	{ 'p', "自動拾いエディタ", 12 },
+	{ 'd', " 基本ウェイト量", 13 },
+	{ 'a', "   自動セーブ    オプション", 14 },
+	{ 'w', "ウインドウフラグ", 15 },
+	{ 's', "   設定の保存   ", 16 },
+
+	{ 'b', "      初期       オプション", 18 },
+	{ 'c', "      詐欺       オプション", 19 },
+#else
+	{ '1', "Input Options", 3 },
+	{ '2', "Output Options", 4 },
+	{ '3', "Game-Play Options", 5 },
+	{ '4', "Disturbance Options", 6 },
+	{ '5', "Efficiency Options", 7 },
+	{ '6', "Object auto-destruction Options", 8 },
+	{ '7', "Warning Options", 9 },
+	{ 'r', "Play record Options", 10 },
+	{ 'p', "Auto-picker/destroyer editor", 12 },
+	{ 'd', "Base Delay Factor", 13 },
+	{ 'a', "Autosave Options", 14 },
+	{ 'w', "Window Flags", 15 },
+	{ 's', "Save to pref file", 15 },
+
+	{ 'b', "Birth Options (Browse Only)", 18 },
+	{ 'c', "Cheat Options", 19 },
+#endif
+};
+
 /*
  * Set or unset various options.
  *
@@ -1504,7 +1551,9 @@ static void do_cmd_options_win(void)
  */
 void do_cmd_options(void)
 {
-	int k;
+	char k;
+	int i, d, skey;
+	int y = 0;
 
 	/* Save the screen */
 	screen_save();
@@ -1512,6 +1561,11 @@ void do_cmd_options(void)
 	/* Interact */
 	while (1)
 	{
+		int n = OPT_NUM;
+
+		/* Does not list cheat option when cheat option is off */
+		if (!noscore && !allow_debug_opts) n--;
+
 		/* Clear screen */
 		Term_clear();
 
@@ -1519,86 +1573,58 @@ void do_cmd_options(void)
 #ifdef JP
 		prt("[ オプションの設定 ]", 1, 0);
 #else
-		prt("XAngband options", 1, 0);
+		prt("TinyAngband options", 1, 0);
 #endif
 
-#ifdef JP
-		/* Give some choices */
-		prt("(1)     キー入力     オプション", 3, 5);
-		prt("(2)     画面出力     オプション", 4, 5);
-		prt("(3)   ゲームプレイ   オプション", 5, 5);
-		prt("(4)   行動中止関係   オプション", 6, 5);
-		prt("(5)      効率化      オプション", 7, 5);
-		prt("(6)   簡易自動破壊   オプション", 8, 5);
-		prt("(7)       警告       オプション", 9, 5);
-		prt("(R)    プレイ記録    オプション", 10, 5);
-
-		/* Special choices */
-		prt("(P) 自動拾いエディタ", 12, 5);
-		prt("(D)  基本ウェイト量", 13, 5);
-		prt("(A)    自動セーブ    オプション", 14, 5);
-
-		/* Window flags */
-		prt("(W) ウインドウフラグ", 15, 5);
-#else
-		/* Give some choices */
-		prt("(1) Input Options", 3, 5);
-		prt("(2) Output Options", 4, 5);
-		prt("(3) Game-Play Options", 5, 5);
-		prt("(4) Disturbance Options", 6, 5);
-		prt("(5) Efficiency Options", 7, 5);
-		prt("(6) Object auto-destruction Options", 8, 5);
-		prt("(7) Warning Options", 9, 5);
-		prt("(R) Play record Options", 10, 5);
-
-		/* Special choices */
-		prt("(P) Auto-picker/destroyer editor", 12, 5);
-		prt("(D) Base Delay Factor", 13, 5);
-		prt("(A) Autosave Options", 14, 5);
-
-		/* Window flags */
-		prt("(W) Window Flags", 15, 5);
-#endif
-
-		if (!wizard || !allow_debug_opts)
+		while(1)
 		{
-			/* Birth */
+			/* Give some choices */
+			for (i = 0; i < n; i++)
+			{
+				byte a = TERM_WHITE;
+				if (i == y) a = TERM_L_BLUE;
+				Term_putstr(5, option_fields[i].row, -1, a, 
+					format("(%c) %s", toupper(option_fields[i].key), option_fields[i].name));
+			}
+
 #ifdef JP
-			prt("(B)       初期       オプション (参照のみ)", 17, 5);
+			prt("<方向>で移動, Enterで決定, ESCでキャンセル: ", 21, 0);
 #else
-			prt("(B) Birth Options (Browse Only)", 17, 5);
+			prt("Move to <dir>, Select to Enter, Cancel to ESC: ", 0, 0);
 #endif
+
+			/* Get command */
+			skey = inkey_special(TRUE);
+			if (!(skey & SKEY_MASK)) k = (char)skey;
+			else k = 0;
+
+			/* Exit */
+			if (k == ESCAPE) break;
+
+			if (my_strchr("\n\r ", k))
+			{
+				k = option_fields[y].key;
+				break;
+			}
+
+			for (i = 0; i < n; i++)
+			{
+				if (tolower(k) == option_fields[i].key) break;
+			}
+
+			/* Command is found */
+			if (i < n) break;
+
+			/* Hack -- difficulty option */
+			if (k == 'F') break;
+
+			/* Move cursor */
+			d = 0;
+			if (skey == SKEY_UP) d = 8;
+			if (skey == SKEY_DOWN) d = 2;
+			y = (y + ddy[d] + n) % n;
+			if (!d) bell();
 		}
-		else
-		{
-			/* Birth */
-#ifdef JP
-			prt("(B)       初期       オプション", 17, 5);
-#else
-			prt("(B) Birth Options", 17, 5);
-#endif
-		}
-
-
-		if (noscore || allow_debug_opts)
-		{
-			/* Cheating */
-#ifdef JP
-			prt("(C)       詐欺       オプション", 18, 5);
-#else
-			prt("(C) Cheating Options", 18, 5);
-#endif
-		}
-
-		/* Prompt */
-#ifdef JP
-		prt("コマンド:", 20, 0);
-#else
-		prt("Command: ", 20, 0);
-#endif
-
-		/* Get command */
-		k = inkey();
 
 		/* Exit */
 		if (k == ESCAPE) break;
@@ -1701,7 +1727,6 @@ void do_cmd_options(void)
 
 			/* Play record Options */
 			case 'r':
-			case 'R':
 			{
 				/* Spawn */
 #ifdef JP
@@ -1713,7 +1738,6 @@ void do_cmd_options(void)
 			}
 
 			/* Birth Options */
-			case 'B':
 			case 'b':
 			{
 				/* Spawn */
@@ -1726,7 +1750,7 @@ void do_cmd_options(void)
 			}
 
 			/* Cheating Options */
-			case 'C':
+			case 'c':
 			{
 				if (!noscore && !allow_debug_opts)
 				{
@@ -1745,7 +1769,6 @@ void do_cmd_options(void)
 			}
 
 			case 'a':
-			case 'A':
 			{
 #ifdef JP
 				do_cmd_options_autosave("自動セーブ");
@@ -1757,19 +1780,17 @@ void do_cmd_options(void)
 
 			/* Window flags */
 			case 'w':
-			case 'W':
 			{
 				/* Spawn */
 				do_cmd_options_win();
 				p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL |
-						  PW_PLAYER | PW_MESSAGE | PW_OVERHEAD |
+						  PW_PLAYER | PW_STATS | PW_MESSAGE | PW_OVERHEAD |
 						  PW_MONSTER | PW_OBJECT | PW_SNAPSHOT |
-						  PW_BORG_1 | PW_BORG_2 | PW_DUNGEON);
+						  PW_FLOOR | PW_BORG_1 | PW_BORG_2 | PW_DUNGEON);
 				break;
 			}
 
 			/* Auto-picker/destroyer editor */
-			case 'P':
 			case 'p':
 			{
 				do_cmd_edit_autopick();
@@ -1778,16 +1799,14 @@ void do_cmd_options(void)
 
 			/* Hack -- Delay Speed */
 			case 'd':
-			case 'D':
 			{
 				/* Prompt */
-				prt("", 17, 0);
+				clear_from(17);
 #ifdef JP
 				prt("コマンド: 基本ウェイト量", 18, 0);
 #else
 				prt("Command: Base Delay Factor", 18, 0);
 #endif
-
 
 				/* Get a new value */
 				while (1)
@@ -1815,79 +1834,8 @@ void do_cmd_options(void)
 				break;
 			}
 
-			/* Hack -- hitpoint warning factor */
-			case 'H':
-			case 'h':
-			{
-				/* Prompt */
-				prt("", 17, 0);
-#ifdef JP
-				prt("コマンド: 低ヒットポイント警告", 18, 0);
-#else
-				prt("Command: Hitpoint Warning", 18, 0);
-#endif
-
-				/* Get a new value */
-				while (1)
-				{
-#ifdef JP
-					prt(format("現在の低ヒットポイント警告: %d0%%",
-						hitpoint_warn), 22, 0);
-					prt("低ヒットポイント警告 (0-9) ESCで決定: ", 20, 0);
-#else
-					prt(format("Current hitpoint warning: %d0%%",
-						hitpoint_warn), 22, 0);
-					prt("Hitpoint Warning (0-9 or ESC to accept): ", 20, 0);
-#endif
-					k = inkey();
-					if (k == ESCAPE) break;
-					if (isdigit(k)) hitpoint_warn = D2I(k);
-					else bell();
-				}
-
-				break;
-			}
-
-			/* Hack -- spellpoint warning factor */
-#ifdef JP
-			case 'M':
-			case 'm':
-#else
-			case 'S':
-			case 's':
-#endif
-			{
-				/* Prompt */
-				prt("", 17, 0);
-#ifdef JP
-				prt("コマンド: 低マジックポイント設定", 18, 0);
-#else
-				prt("Command: Spellpoint Warning", 18, 0);
-#endif
-
-				/* Get a new value */
-				while (1)
-				{
-#ifdef JP
-					prt(format("現在の低マジックポイント設定: %d0%%",
-						spellpoint_warn), 22, 0);
-					prt("低マジックポイント設定 (0-9) ESCで決定: ", 20, 0);
-#else
-					prt(format("Current Spellpoint warning: %d0%%",
-						spellpoint_warn), 22, 0);
-					prt("Spellpoint Warning (0-9 or ESC to accept): ", 20, 0);
-#endif
-					k = inkey();
-					if (k == ESCAPE) break;
-					if (isdigit(k)) spellpoint_warn = D2I(k);
-					else bell();
-				}
-
-				break;
-			}
-
 			/* Dump the current options to file */
-			case '|':
+			case 's':
 			{
 				int i;
 				FILE    *fff;
@@ -4539,7 +4487,7 @@ static int collect_objects(int grp_cur, int object_idx[], byte mode)
 		if (TV_LIFE_BOOK == group_tval)
 		{
 			/* Hack -- All spell books */
-			if (TV_LIFE_BOOK <= k_ptr->tval && k_ptr->tval <= TV_MAGIC_BOOK)
+			if (TV_LIFE_BOOK <= k_ptr->tval && k_ptr->tval <= TV_SORCERY_BOOK)
 			{
 				/* Add the object */
 				object_idx[object_cnt++] = i;
@@ -7856,6 +7804,7 @@ static void do_cmd_knowledge_inven_aux(FILE *fff, object_type *o_ptr,
 		|| (o_ptr->tval == TV_HELM && o_ptr->sval == SV_DRAGON_HELM) 
 		|| (o_ptr->tval == TV_GLOVES && o_ptr->sval == SV_SET_OF_DRAGON_GLOVES) 
 		|| (o_ptr->tval == TV_BOOTS && o_ptr->sval == SV_PAIR_OF_DRAGON_BOOTS) 
+		|| (o_ptr->tval == TV_HARD_ARMOR && o_ptr->sval == SV_DRAGON_ARMOR) 
 		|| o_ptr->art_name || o_ptr->name1)
     {
 		int i;

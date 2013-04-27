@@ -1033,18 +1033,8 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			/* Desired char */
 			c = r_ptr->x_char;
 
-			/* Ignore weird codes */
-			if (avoid_other)
-			{
-				/* Use char */
-				(*cp) = c;
-
-				/* Use attr */
-				(*ap) = a;
-			}
-
 			/* Mimics' colors vary */
-			else if (my_strchr("\"!=", c) && !(r_ptr->flags1 & RF1_UNIQUE))
+			if (my_strchr("\"!=", c) && !(r_ptr->flags1 & RF1_UNIQUE))
 			{
 				/* Use char */
 				(*cp) = c;
@@ -1202,15 +1192,12 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 							c = 253;
 							break;
 						case CLASS_WARRIOR_MAGE:
-						case CLASS_ARCHAEOLOGIST:
 							if (p_ptr->lev < 20)
 								a = TERM_L_RED;
 							else
 								a = TERM_VIOLET;
 							break;
 						case CLASS_MAGE:
-						case CLASS_HIGH_MAGE:
-						case CLASS_DEVICE_USER:
 							if (p_ptr->lev < 20)
 								a = TERM_L_RED;
 							else
@@ -1224,19 +1211,6 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 								a = TERM_BLUE;
 							c = 248;
 							break;
-						case CLASS_RANGER:
-							if (p_ptr->lev < 20)
-								a = TERM_L_GREEN;
-							else
-								a = TERM_GREEN;
-							break;
-						case CLASS_ROGUE:
-						case CLASS_SNIPER:
-							if (p_ptr->lev < 20)
-								a = TERM_SLATE;
-							else
-								a = TERM_L_DARK;
-							break;
 						case CLASS_WARRIOR:
 						case CLASS_ARCHER:
 							if (p_ptr->lev < 20)
@@ -1244,24 +1218,12 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 							else
 								a = TERM_UMBER;
 							break;
-						case CLASS_MONK:
-						case CLASS_MINDCRAFTER:
-							if (p_ptr->lev < 20)
-								a = TERM_L_UMBER;
-							else
-								a = TERM_UMBER;
-							c = 248;
-							break;
-						case CLASS_ELEMENTALIST:
-							a = TERM_GREEN;
-							break;
 						default: /* Unknown */
 							a = TERM_WHITE;
 					}
 
 					switch (p_ptr->prace)
 					{
-						case RACE_GNOME:
 						case RACE_HOBBIT:
 							c = 144;
 							break;
@@ -1271,78 +1233,10 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 						case RACE_HALF_ORC:
 							c = 243;
 							break;
-						case RACE_HALF_TROLL:
-							c = 184;
-							break;
 						case RACE_ELF:
 						case RACE_HALF_ELF:
 						case RACE_HIGH_ELF:
 							c = 223;
-							break;
-						case RACE_HALF_OGRE:
-							c = 168;
-							break;
-						case RACE_HALF_GIANT:
-						case RACE_HALF_TITAN:
-						case RACE_CYCLOPS:
-							c = 145;
-							break;
-						case RACE_YEEK:
-							c = 209;
-							break;
-						case RACE_KLACKON:
-							c = 229;
-							break;
-						case RACE_KOBOLD:
-							c = 204;
-							break;
-						case RACE_NIBELUNG:
-							c = 144;
-							break;
-						case RACE_DARK_ELF:
-							c = 223;
-							break;
-						case RACE_DRACONIAN:
-							if (p_ptr->lev < 20)
-								c = 240;
-							else if (p_ptr->lev < 40)
-								c = 22;
-							else
-								c = 137;
-							break;
-						case RACE_MIND_FLAYER:
-							c = 236;
-							break;
-						case RACE_IMP:
-							c = 142;
-							break;
-						case RACE_GOLEM:
-							c = 6;
-							break;
-						case RACE_SKELETON:
-							if (p_ptr->pclass == CLASS_MAGE ||
-								p_ptr->pclass == CLASS_PRIEST ||
-								p_ptr->pclass == CLASS_HIGH_MAGE ||
-								p_ptr->pclass == CLASS_MONK ||
-								p_ptr->pclass == CLASS_MINDCRAFTER)
-								c = 159;
-							else
-								c = 181;
-							break;
-						case RACE_ZOMBIE:
-							c = 221;
-							break;
-						case RACE_VAMPIRE:
-							c = 217;
-							break;
-						case RACE_SPECTRE:
-							c = 241;
-							break;
-						case RACE_SPRITE:
-							c = 244;
-							break;
-						case RACE_BEASTMAN:
-							c = 154;
 							break;
 					}
 				}
@@ -4416,9 +4310,6 @@ void disturb(int stop_search, int unused_flag)
 		/* Cancel */
 		running = 0;
 
-		/* Check for new panel if appropriate */
-		if (center_player && avoid_center) verify_panel();
-
 		/* Calculate torch radius */
 		p_ptr->update |= (PU_TORCH);
 	}
@@ -4428,9 +4319,6 @@ void disturb(int stop_search, int unused_flag)
 	{
 		/* Cancel */
 		travel.run = 0;
-
-		/* Check for new panel if appropriate */
-		if (center_player && avoid_center) verify_panel();
 
 		/* Calculate torch radius */
 		p_ptr->update |= (PU_TORCH);

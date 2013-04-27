@@ -164,13 +164,8 @@ void do_cmd_equip(void)
 /*
  * The "wearable" tester
  */
-bool item_tester_hook_wear(object_type *o_ptr)
+bool item_tester_hook_wear(const object_type *o_ptr)
 {
-	if (p_ptr->pclass == CLASS_SNATCHER)
-	{
-		if (!check_monster_wield(wield_slot(o_ptr))) return (FALSE);
-	}
-
 	/* Check for a usable slot */
 	if (wield_slot(o_ptr) >= INVEN_WIELD) return (TRUE);
 
@@ -225,20 +220,6 @@ void do_cmd_wield(void)
 
 	/* Check the slot */
 	slot = wield_slot(o_ptr);
-
-	/* Snatcher */
-	if (p_ptr->pclass == CLASS_SNATCHER)
-	{
-		if (!check_monster_wield(slot))
-		{
-#ifdef JP
-			msg_print("今はそれを装備できない！");
-#else
-			msg_print("Can not wear/wield it now!");
-#endif
-			return;
-		}
-	}
 
 	/* Where is the item now */
 	if (slot == INVEN_WIELD)
@@ -350,7 +331,7 @@ void do_cmd_wield(void)
 		return;
 	}
 
-	if (cursed_p(o_ptr) && wear_confirm &&
+	if (cursed_p(o_ptr) &&
 	    (object_known_p(o_ptr) || (o_ptr->ident & IDENT_SENSE)))
 	{
 		char dummy[512];
@@ -359,16 +340,14 @@ void do_cmd_wield(void)
 		object_desc(o_name, o_ptr, OD_OMIT_PREFIX | OD_NAME_ONLY);
 
 #ifdef JP
-sprintf(dummy, "本当に%s{呪われている}を使いますか？", o_name);
+		sprintf(dummy, "本当に%s{呪われている}を使いますか？", o_name);
 #else
 		sprintf(dummy, "Really use the %s {cursed}? ", o_name);
 #endif
-
-
 		if (!get_check(dummy))
 			return;
 	}
-
+#if 0
 	if ((o_ptr->name1 == ART_STONEMASK) && object_known_p(o_ptr) && (p_ptr->prace != RACE_VAMPIRE))
 	{
 		char dummy[MAX_NLEN+80];
@@ -387,7 +366,7 @@ sprintf(dummy, "本当に%s{呪われている}を使いますか？", o_name);
 		if (!get_check(dummy))
 			return;
 	}
-
+#endif
 	/* Check if completed a quest */
 	for (i = 0; i < max_quests; i++)
 	{
@@ -402,7 +381,7 @@ sprintf(dummy, "本当に%s{呪われている}を使いますか？", o_name);
 #else
 			msg_print("You completed your quest!");
 #endif
-			sound(SOUND_QUEST);
+	  		sound(SOUND_LEVEL); /* (Sound substitute) No quest sound */
 			msg_print(NULL);
 		}
 	}
@@ -471,6 +450,7 @@ sprintf(dummy, "本当に%s{呪われている}を使いますか？", o_name);
 	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
 #endif
 
+    sound(SOUND_WIELD);
 
 	/* Cursed! */
 	if (cursed_p(o_ptr))
@@ -481,11 +461,12 @@ sprintf(dummy, "本当に%s{呪われている}を使いますか？", o_name);
 #else
 		msg_print("Oops! It feels deathly cold!");
 #endif
-
+		sound(SOUND_CURSED);
+	  
 		/* Note the curse */
 		o_ptr->ident |= (IDENT_SENSE);
 	}
-
+#if 0
 	/* if you weild stonemask, you morph into vampire */
 	if ((o_ptr->name1 == ART_STONEMASK) && (!is_undead()))
 	{
@@ -497,7 +478,7 @@ sprintf(dummy, "本当に%s{呪われている}を使いますか？", o_name);
 		msg_format("You polymorphed into a vampire!");
 #endif
 	}
-
+#endif
 	if (newrace)
 	{
 		rp_ptr = &race_info[p_ptr->prace];
@@ -537,7 +518,7 @@ sprintf(dummy, "本当に%s{呪われている}を使いますか？", o_name);
 	p_ptr->redraw |= (PR_EQUIPPY);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER | PW_STATS);
 }
 
 
@@ -706,9 +687,7 @@ void do_cmd_drop(void)
 static bool high_level_book(object_type *o_ptr)
 {
 	if ((o_ptr->tval == TV_LIFE_BOOK) ||
-	    (o_ptr->tval == TV_SORCERY_BOOK) ||
-	    (o_ptr->tval == TV_MUSOU_BOOK) ||
-		(o_ptr->tval == TV_MAGIC_BOOK))	/* Magic */
+	    (o_ptr->tval == TV_SORCERY_BOOK))
 	{
 		if (o_ptr->sval > 1)
 			return TRUE;
@@ -867,7 +846,7 @@ void do_cmd_destroy(void)
 	msg_format("You destroy %s.", o_name);
 #endif
 
-	sound(SOUND_DESTITEM);
+	sound(SOUND_DESTROY);
 
 	if (high_level_book(o_ptr))
 	{
@@ -1154,7 +1133,7 @@ void do_cmd_inscribe(void)
 /*
  * An "item_tester_hook" for refilling lanterns
  */
-static bool item_tester_refill_lantern(object_type *o_ptr)
+static bool item_tester_refill_lantern(const object_type *o_ptr)
 {
 	/* Flasks of oil are okay */
 	if (o_ptr->tval == TV_FLASK) return (TRUE);
@@ -1275,7 +1254,7 @@ static void do_cmd_refill_lamp(void)
 /*
  * An "item_tester_hook" for refilling torches
  */
-static bool item_tester_refill_torch(object_type *o_ptr)
+static bool item_tester_refill_torch(const object_type *o_ptr)
 {
 	/* Torches are okay */
 	if ((o_ptr->tval == TV_LITE) &&
@@ -1621,7 +1600,7 @@ static cptr ident_info[] =
 	"6:魔法の店の入口",
 	"7:ブラックマーケットの入口",
 	"8:我が家の入口",
-	"9:書店の入口",
+	"9:美術商の入口",
 	"::岩石",
 	";:結界の紋章/爆発のルーン",
 	"<:上り階段",
@@ -1718,7 +1697,7 @@ static cptr ident_info[] =
 	"6:Entrance to Magic store",
 	"7:Entrance to Black Market",
 	"8:Entrance to your home",
-	"9:Entrance to the bookstore",
+	"9:Entrance to the atelier",
 	"::Rubble",
 	";:A glyph of warding / explosive rune",
 	"<:An up staircase",

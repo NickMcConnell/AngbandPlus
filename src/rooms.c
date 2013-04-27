@@ -35,8 +35,24 @@
 static room_info_type room_info_normal[ROOM_T_MAX] =
 {
 	/* Depth */
+#ifdef TINYANGBAND
+	/*  0  10  20  30  40  min limit */
+	{{999,900,800,700,600},  0}, /* NORMAL    */
+	{{  1, 10, 20, 30, 40},  1}, /* OVERLAP   */
+	{{  1, 10, 20, 30, 40},  3}, /* CROSS     */
+	{{  1, 10, 20, 30, 40},  3}, /* INNER_F   */
+	{{  0,  1, 15, 20, 20}, 10}, /* NEST      */
+	{{  0,  1, 15, 20, 20}, 10}, /* PIT       */
+	{{  0,  1,  1,  1,  2}, 10}, /* LESSER_V  */
+	{{  0,  0,  1,  1,  1}, 20}, /* GREATER_V */
+	{{  0,100,200,300,400},  5}, /* FRACAVE   */
+	{{  0,  4,  8, 12, 16},  3}, /* OVAL      */
+	{{  1,  6, 12, 18, 24}, 10}, /* CRYPT     */
+	{{  0, 15, 30, 60,120},  5}, /* FRAC_F    */
+	{{  1, 10, 20, 30, 40},  3}, /* INNER_W   */
+	{{  1,  1,  1,  1,  1},  1}, /* ARCADE    */
+#else
 	/*  0  10  20  30  40  50  60  70  80  90 100  min limit */
-
 	{{999,900,800,700,600,500,400,300,200,100,  0},  0}, /* NORMAL    */
 	{{  1, 10, 20, 30, 40, 50, 60, 70, 80, 90,100},  1}, /* OVERLAP   */
 	{{  1, 10, 20, 30, 40, 50, 60, 70, 80, 90,100},  3}, /* CROSS     */
@@ -51,8 +67,8 @@ static room_info_type room_info_normal[ROOM_T_MAX] =
 	{{  1,  6, 12, 18, 24, 30, 36, 42, 48, 54, 60}, 10}, /* CRYPT     */
 	{{  0,100,200,300,400,500,600,700,800,900,999},  5}, /* FRAC_F    */
 	{{  1, 10, 20, 30, 40, 50, 60, 70, 80, 90,100},  3}, /* INNER_W   */
-	{{  0,  4,  8, 12, 16, 20, 24, 28, 32, 36, 40},  3}, /* PARALLEL  */
 	{{  1,  1,  1,  1,  1,  1,  1,  2,  2,  3,  3},  1}, /* ARCADE    */
+#endif
 };
 
 
@@ -60,14 +76,15 @@ static room_info_type room_info_normal[ROOM_T_MAX] =
 static byte room_build_order[ROOM_T_MAX] = {
 	ROOM_T_GREATER_VAULT,
 	ROOM_T_ARCADE,
+#if 0
 	ROOM_T_RANDOM_VAULT,
+#endif
 	ROOM_T_LESSER_VAULT,
 	ROOM_T_PIT,
 	ROOM_T_NEST,
 	ROOM_T_INNER_FEAT,
 	ROOM_T_INNER_WALLS,
 	ROOM_T_OVAL,
-	ROOM_T_PARALLELAGRAM,
 	ROOM_T_CRYPT,
 	ROOM_T_OVERLAP,
 	ROOM_T_CROSS,
@@ -407,8 +424,7 @@ static bool find_space(int *y, int *x, int height, int width)
  *  12 -- crypts
  *  13 -- Large with feature
  *  14 -- Large version 2
- *  15 -- Parallelagram room
- *  16 -- underground arcade
+ *  15 -- underground arcade
  */
 
 
@@ -455,6 +471,7 @@ static bool build_type1(void)
 
 	/* Generate inner floors */
 	generate_fill(y1, x1, y2, x2, FEAT_FLOOR);
+
 
 	/* Hack -- Occasional pillar room */
 	if (one_in_(20))
@@ -1030,9 +1047,10 @@ static int vault_aux_race;
 /* Race index for "monster pit (symbol clone)" */
 static char vault_aux_char;
 
+#if 0
 /* Breath mask for "monster pit (dragon)" */
 static u32b vault_aux_dragon_mask4;
-
+#endif
 
 /*
  * Helper monster selection function
@@ -1103,33 +1121,6 @@ static bool vault_aux_undead(int r_idx)
 	return (TRUE);
 }
 
-
-/*
- * Helper function for "monster nest (chapel)"
- */
-static bool vault_aux_chapel(int r_idx)
-{
-	monster_race *r_ptr = &r_info[r_idx];
-
-	/* Validate the monster */
-	if (!vault_monster_okay(r_idx)) return (FALSE);
-
-	/* Require "priest" or Angel */
-#ifdef JP
-	if ((r_ptr->d_char != 'A') && !my_strstr((r_name + r_ptr->E_name), "riest"))
-#else
-	if ((r_ptr->d_char != 'A') && !my_strstr((r_name + r_ptr->name), "riest"))
-#endif
-
-	{
-		return (FALSE);
-	}
-
-	/* Okay */
-	return (TRUE);
-}
-
-
 /*
  * Helper function for "monster nest (kennel)"
  */
@@ -1142,24 +1133,6 @@ static bool vault_aux_kennel(int r_idx)
 
 	/* Require a Zephyr Hound or a dog */
 	if (!my_strchr("CZ", r_ptr->d_char)) return (FALSE);
-
-	/* Okay */
-	return (TRUE);
-}
-
-
-/*
- * Helper function for "monster nest (mimic)"
- */
-static bool vault_aux_mimic(int r_idx)
-{
-	monster_race *r_ptr = &r_info[r_idx];
-
-	/* Validate the monster */
-	if (!vault_monster_okay(r_idx)) return (FALSE);
-
-	/* Require mimic */
-	if (!my_strchr("!|$?=", r_ptr->d_char)) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -1268,10 +1241,11 @@ static bool vault_aux_dragon(int r_idx)
 
 	/* Require dragon */
 	if (!(r_ptr->flags3 & RF3_DRAGON)) return (FALSE);
-
+#if 0
 	/* Hack -- Require correct "breath attack" */
-	if (r_ptr->flags4 != vault_aux_dragon_mask4) return (FALSE);
-
+	/* No more so many type dragons.  -- dis */
+    if (r_ptr->flags4 != vault_aux_dragon_mask4) return (FALSE);
+#endif
 	/* Decline undead */
 	if (r_ptr->flags3 & RF3_UNDEAD) return (FALSE);
 
@@ -1296,25 +1270,6 @@ static bool vault_aux_demon(int r_idx)
 	/* Okay */
 	return (TRUE);
 }
-
-
-/*
- * Helper function for "monster pit (lovecraftian)"
- */
-static bool vault_aux_cthulhu(int r_idx)
-{
-	monster_race *r_ptr = &r_info[r_idx];
-
-	/* Validate the monster */
-	if (!vault_monster_okay(r_idx)) return (FALSE);
-
-	/* Require eldritch horror */
-	if (!(r_ptr->flags2 & RF2_ELDRITCH_HORROR)) return (FALSE);
-
-	/* Okay */
-	return (TRUE);
-}
-
 
 /*
  * Helper function for "monster pit (clone)"
@@ -1352,7 +1307,7 @@ static void vault_prep_symbol(void)
 	vault_aux_char = r_info[r_idx].d_char;
 }
 
-
+#if 0
 /*
  * Helper function for "monster pit (dragon)"
  */
@@ -1424,7 +1379,7 @@ static void vault_prep_dragon(void)
 		}
 	}
 }
-
+#endif
 
 typedef struct vault_aux_type vault_aux_type;
 
@@ -1487,21 +1442,15 @@ static vault_aux_type nest_types[] =
 	{"クローン",     vault_aux_clone,   vault_prep_clone,   5, 3},
 	{"ゼリー",       vault_aux_jelly,   NULL,               5, 6},
 	{"記号クローン", vault_aux_symbol,  vault_prep_symbol, 25, 3},
-	{"ミミック",     vault_aux_mimic,   NULL,              25, 6},
-	{"クトゥルフ",   vault_aux_cthulhu, NULL,              65, 2},
 	{"犬小屋",       vault_aux_kennel,  NULL,              50, 2},
 	{"動物",         vault_aux_animal,  NULL,              50, 4},
-	{"教会",         vault_aux_chapel,  NULL,              65, 2},
 	{"アンデッド",   vault_aux_undead,  NULL,              65, 4},
 #else
 	{"clone",        vault_aux_clone,   vault_prep_clone,   5, 3},
 	{"jelly",        vault_aux_jelly,   NULL,               5, 6},
 	{"symbol clone", vault_aux_symbol,  vault_prep_symbol, 25, 3},
-	{"mimic",        vault_aux_mimic,   NULL,              25, 6},
-	{"lovecraftian", vault_aux_cthulhu, NULL,              65, 2},
 	{"kennel",       vault_aux_kennel,  NULL,              50, 2},
 	{"animal",       vault_aux_animal,  NULL,              50, 4},
-	{"chapel",       vault_aux_chapel,  NULL,              65, 2},
 	{"undead",       vault_aux_undead,  NULL,              65, 4},
 #endif
 	{NULL,           NULL,              NULL,               0, 0},
@@ -1644,19 +1593,15 @@ static vault_aux_type pit_types[] =
 	{"オーク",       vault_aux_orc,     NULL,               5, 4},
 	{"トロル",       vault_aux_troll,   NULL,              20, 4},
 	{"ジャイアント", vault_aux_giant,   NULL,              40, 4},
-	{"クトゥルフ",   vault_aux_cthulhu, NULL,              65, 2},
 	{"クローン",     vault_aux_symbol,  vault_prep_symbol, 55, 3},
-	{"教会",         vault_aux_chapel,  NULL,              55, 1},
-	{"ドラゴン",     vault_aux_dragon,  vault_prep_dragon, 70, 4},
+	{"ドラゴン",     vault_aux_dragon,  NULL, 70, 4},
 	{"デーモン",     vault_aux_demon,   NULL,              80, 4},
 #else
 	{"orc",          vault_aux_orc,     NULL,               5, 4},
 	{"troll",        vault_aux_troll,   NULL,              20, 4},
 	{"giant",        vault_aux_giant,   NULL,              40, 4},
-	{"lovecraftian", vault_aux_cthulhu, NULL,              65, 2},
 	{"clone",        vault_aux_symbol,  vault_prep_symbol, 55, 3},
-	{"chapel",       vault_aux_chapel,  NULL,              55, 1},
-	{"dragon",       vault_aux_dragon,  vault_prep_dragon, 70, 4},
+	{"dragon",       vault_aux_dragon,  NULL, 70, 4},
 	{"demon",        vault_aux_demon,   NULL,              80, 4},
 #endif
 	{NULL,           NULL,              NULL,               0, 0},
@@ -2946,6 +2891,12 @@ static bool generate_fracave(int y0, int x0, int xsize, int ysize, int cutoff, b
 				/* Set appropriate flags */
 				if (light) cave[y0 + y - yhsize][x0 + x - xhsize].info |= (CAVE_GLOW);
 				if (room) cave[y0 + y - yhsize][x0 + x - xhsize].info |= (CAVE_ROOM);
+#ifdef TINYANGBAND
+				if ((dun_level >= 20) && (one_in_(7)))
+				{
+					cave[y0 + y - yhsize][x0 + x - xhsize].feat = (one_in_(7) ? FEAT_DEEP_LAVA : FEAT_SHAL_LAVA);
+				}
+#endif
 			}
 			else if ((cave[y0 + y - yhsize][x0 + x - xhsize].feat == FEAT_WALL_OUTER) &&
 				 (cave[y0 + y - yhsize][x0 + x - xhsize].info & CAVE_ICKY))
@@ -3477,7 +3428,7 @@ static void fill_treasure(int x1, int x2, int y1, int y2, int difficulty)
 	}
 }
 
-
+#if 0
 /*
  * This function creates a random vault that looks like a collection of bubbles.
  * It works by getting a set of coordinates that represent the center of each
@@ -3594,8 +3545,9 @@ static void build_bubble_vault(int x0, int y0, int xsize, int ysize)
 	fill_treasure(x0 - xhsize + 1, x0 - xhsize + xsize - 2,
 		 y0 - yhsize + 1, y0 - yhsize + ysize - 2, randint1(5));
 }
+#endif
 
-
+#if 0
 /*
  * Overlay a rectangular room given its bounds
  * This routine is used by build_room_vault
@@ -3653,8 +3605,9 @@ static void build_room(int x1, int x2, int y1, int y2)
 		}
 	}
 }
+#endif
 
-
+#if 0
 /* Create a random vault that looks like a collection of overlapping rooms */
 
 static void build_room_vault(int x0, int y0, int xsize, int ysize)
@@ -3701,8 +3654,9 @@ if (cheat_room) msg_print("部屋宝庫");
 	/* Fill with monsters and treasure, high difficulty */
 	fill_treasure(x0 - xhsize + 1, x0 - xhsize + xsize - 1, y0 - yhsize + 1, y0 - yhsize + ysize - 1, randint1(5) + 5);
 }
+#endif
 
-
+#if 0
 /* Create a random vault out of a fractal cave */
 static void build_cave_vault(int x0, int y0, int xsiz, int ysiz)
 {
@@ -3757,6 +3711,9 @@ if (cheat_room) msg_print("洞窟宝庫");
 	fill_treasure(x0 - xhsize + 1, x0 - xhsize + xsize - 1, y0 - yhsize + 1, y0 - yhsize + ysize - 1, randint1(5));
 }
 
+#endif
+
+#if 0
 /*
  * maze vault -- rectangular labyrinthine rooms
  *
@@ -3858,8 +3815,9 @@ static void r_visit(int y1, int x1, int y2, int x2,
 		} /* end switch */
 	}
 }
+#endif
 
-
+#if 0
 static void build_maze_vault(int x0, int y0, int xsize, int ysize)
 {
 	int dy, dx;
@@ -3907,8 +3865,9 @@ static void build_maze_vault(int x0, int y0, int xsize, int ysize)
 	/* rnfree(visited, num_vertices * sizeof(int)); */
 	C_FREE(visited, num_vertices, int);
 }
+#endif
 
-
+#if 0
 /*
  * Build a "mini" checkerboard vault
  *
@@ -3997,7 +3956,7 @@ static void build_mini_c_vault(int x0, int y0, int xsize, int ysize)
 	/* rnfree(visited, num_vertices * sizeof(int)); */
 	C_FREE(visited, num_vertices, int);
 }
-
+#endif
 
 /*
  * Build a town/ castle by using a recursive algorithm.
@@ -4167,7 +4126,7 @@ static void build_recursive_room(int x1, int y1, int x2, int y2, int power)
 	}
 }
 
-
+#if 0
 /* Build a castle */
 
 /*
@@ -4208,7 +4167,7 @@ static void build_castle_vault(int x0, int y0, int xsize, int ysize)
 	/* Fill with monsters and treasure, low difficulty */
 	fill_treasure(x1, x2, y1, y2, randint1(3));
 }
-
+#endif
 
 /*
  * Add outer wall to a floored region
@@ -4288,7 +4247,7 @@ static int dist2(int x1, int y1, int x2, int y2,
 	/* 128/181 is approx. 1/sqrt(2) */
 }
 
-
+#if 0
 /*
  * Build target vault.
  * This is made by two concentric "crypts" with perpendicular
@@ -4392,8 +4351,9 @@ static void build_target_vault(int x0, int y0, int xsize, int ysize)
 	/* Fill with stuff - medium difficulty */
 	fill_treasure(x0 - rad, x0 + rad, y0 - rad, y0 + rad, rand_range(3, 6));
 }
+#endif
 
-
+#if 0
 #ifdef ALLOW_CAVERNS_AND_LAKES
 /*
  * This routine uses a modified version of the lake code to make a
@@ -4486,8 +4446,9 @@ if (cheat_room) msg_print("エレメント宝庫");
 		      y0 - yhsize + 1, y0 - yhsize + ysize - 1, randint1(5));
 }
 #endif /* ALLOW_CAVERNS_AND_LAKES */
+#endif
 
-
+#if 0
 /*
  * This makes a vault that has many micro-rooms.
  */
@@ -4556,8 +4517,9 @@ static void build_micro_room_vault(int x0, int y0, int xsize, int ysize)
 	/* Fill with monsters and treasure, low difficulty */
 	fill_treasure(x1, x2, y1, y2, randint1(5));
 }
+#endif
 
-
+#if 0
 /*
  * Random vaults
  */
@@ -4602,7 +4564,7 @@ static bool build_type10(void)
 
 	return TRUE;
 }
-
+#endif
 
 /*
  * Build an vertical oval room.
@@ -4632,7 +4594,8 @@ static bool build_type11(void)
 			if (distance(y0, x0, y, x) <= rad - 1)
 			{
 				/* inside- so is floor */
-				cave[y][x].feat = FEAT_FLOOR;
+	
+    			cave[y][x].feat = FEAT_FLOOR;
 			}
 			else if (distance(y0, x0, y, x) <= rad + 1)
 			{
@@ -4769,7 +4732,7 @@ static bool build_type13(void)
 	done = FALSE;
 
 	/* Pick the type */
-	switch (randint0(5))
+	switch (randint0(4))
 	{
 		case 0:
 		{
@@ -4787,22 +4750,22 @@ static bool build_type13(void)
 
 		case 2:
 		{
-			/* Rock */
-			type = LAKE_T_ROCK_FORMATION;
-			break;
-		}
-
-		case 3:
-		{
 			/* Rubble - oooh treasure */
 			type = LAKE_T_EARTH_VAULT;
 			break;
 		}
 
-		case 4:
+		case 3:
 		{
 			/* Tree */
 			type = LAKE_T_AIR_VAULT;
+			break;
+		}
+
+		case 4:
+		{
+			/* Rock */
+			type = LAKE_T_ROCK_FORMATION;
 			break;
 		}
 	}
@@ -4952,59 +4915,6 @@ static bool build_type14(void)
 
 	return TRUE;
 }
-
-
-/*
- * Type 15 -- Parallelagram Shaped Rooms
- */
-static bool build_type15(void)
-{
-	u16b		h, w;
-	int         y, x, y1, x1, yval, xval;
-	bool        light, type;
-
-	/* Get size + shape */
-	h = (u16b) rand_range(6, 15);
-	w = (u16b) rand_range(11, 22);
-
-
-	/* Find and reserve some space in the dungeon.  Get center of room. */
-	if (!find_space(&yval, &xval, h, w + h)) return FALSE;
-
-	/* Choose lite or dark */
-	light = (dun_level <= randint1(25));
-
-	/* Get top left corner */
-	x1 = xval - (w + h) / 2;
-	y1 = yval - h / 2;
-
-	/* Get handedness */
-	type = (one_in_(2) ? TRUE : FALSE);
-
-	/* Fill in floor */
-	for (y = 1; y < h; y++)
-	{
-		for (x = x1; x < x1 + w; x++)
-		{
-			if (type)
-			{
-				/* Sloping down and right */
-				cave[y + y1][x + y].feat = FEAT_FLOOR;
-			}
-			else
-			{
-				/* Sloping up and right */
-				cave[y + y1][x + h - y].feat = FEAT_FLOOR;
-			}
-		}
-	}
-
-	/* Find visible outer walls and set to be FEAT_OUTER */
-	add_outer_wall(xval, yval, light, x1, y1, x1 + h + w, y1 + h);
-
-	return TRUE;
-}
-
 
 /* Minimum & maximum town size */
 #define MIN_TOWN_WID ((MAX_WID / 3) / 2)
@@ -5182,12 +5092,12 @@ static void build_stores(int ltcy, int ltcx, int stores[], int n)
  * This function does NOT do anything about the owners of the stores,
  * nor the contents thereof.  It only handles the physical layout.
  */
-static bool build_type16(void)
+static bool build_type15(void)
 {
 	int stores[] =
 	{
 		STORE_GENERAL, STORE_ARMOURY, STORE_WEAPON, STORE_TEMPLE,
-		STORE_ALCHEMIST, STORE_MAGIC, STORE_BLACK, STORE_EGO,
+		STORE_ALCHEMIST, STORE_MAGIC, STORE_BLACK, STORE_STATUE,
 	};
 	int n = sizeof stores / sizeof (int);
 	int i, y, x, y1, x1, yval, xval;
@@ -5281,13 +5191,14 @@ static bool room_build(int typ)
 	case ROOM_T_LESSER_VAULT:  return build_type7();
 	case ROOM_T_GREATER_VAULT: return build_type8();
 	case ROOM_T_FRACAVE:       return build_type9();
+#if 0
 	case ROOM_T_RANDOM_VAULT:  return build_type10();
+#endif
 	case ROOM_T_OVAL:          return build_type11();
 	case ROOM_T_CRYPT:         return build_type12();
 	case ROOM_T_FRAC_FEAT:     return build_type13();
 	case ROOM_T_INNER_WALLS:   return build_type14();
-	case ROOM_T_PARALLELAGRAM: return build_type15();
-	case ROOM_T_ARCADE:        return build_type16();
+	case ROOM_T_ARCADE:        return build_type15();
 	}
 
 	/* Paranoia */
@@ -5403,8 +5314,9 @@ void generate_rooms(void)
 			break;
 
 		case ROOM_T_GREATER_VAULT:
+#if 0
 		case ROOM_T_RANDOM_VAULT:
-
+#endif
 			/* Largest room */
 			i -= 3;
 			break;

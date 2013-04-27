@@ -63,8 +63,6 @@ static bool object_easy_know(int i)
 		/* Spellbooks */
 		case TV_LIFE_BOOK:
 		case TV_SORCERY_BOOK:
-		case TV_MUSOU_BOOK:
-		case TV_MAGIC_BOOK:
 		{
 			return (TRUE);
 		}
@@ -177,7 +175,23 @@ void get_table_sindarin(char *out_string)
 	tmp[0] = toupper(tmp[0]);
 	sprintf(out_string, "'%s'", tmp);
 #endif
+	return;
+}
 
+void get_table_bad_sindarin(char *out_string)
+{
+	char Syllable[80];
+	char tmp[80];
+
+	get_rnd_line("nname.txt", 1, Syllable);
+	strcpy(tmp, Syllable);
+#ifdef JP
+	sindarin_to_kana(Syllable, tmp);
+	sprintf(out_string, "『%s』", Syllable);
+#else
+	tmp[0] = toupper(tmp[0]);
+	sprintf(out_string, "'%s'", tmp);
+#endif
 	return;
 }
 
@@ -493,7 +507,7 @@ static char *object_desc_num(char *t, uint n)
  *（cmd1.c で流用するために object_desc_japanese から移動した。）
  */
 
-char *object_desc_kosuu(char *t, object_type *o_ptr)
+char *object_desc_kosuu(char *t, const object_type *o_ptr)
 {
 	t = object_desc_num(t, o_ptr->number);
 
@@ -522,8 +536,6 @@ char *object_desc_kosuu(char *t, object_type *o_ptr)
 		}
 		case TV_LIFE_BOOK:
 		case TV_SORCERY_BOOK:
-		case TV_MUSOU_BOOK:
-		case TV_MAGIC_BOOK:
 		{
 			t = object_desc_str(t, "冊");
 			break;
@@ -753,6 +765,7 @@ static flag_insc_table flag_insc_slay[] =
 	{ "デ", "U", TR1_SLAY_DEMON, 1, 0 },
 	{ "死", "L", TR1_SLAY_UNDEAD, 1, 0 },
 	{ "動", "Z", TR1_SLAY_ANIMAL, 1, 0 },
+	{ "人", "h", TR1_SLAY_HUMAN, 1, 0 },
 	{ NULL, NULL, 0, 0, 0 }
 };
 
@@ -803,7 +816,7 @@ static bool have_flag_of(flag_insc_table *fi_ptr, u32b flag[])
 	return FALSE;
 }
 
-static char *get_ability_abbreviation(char *ptr, object_type *o_ptr, bool kanji, bool all, bool special)
+static char *get_ability_abbreviation(char *ptr, const object_type *o_ptr, bool kanji, bool all, bool special)
 {
 	char *prev_ptr = ptr;
 	bool tele = FALSE;
@@ -938,7 +951,7 @@ static char *get_ability_abbreviation(char *ptr, object_type *o_ptr, bool kanji,
 /*
  *  Get object inscription with auto inscription of object flags.
  */
-static void get_inscription(char *buff, object_type *o_ptr)
+static void get_inscription(char *buff, const object_type *o_ptr)
 {
 	cptr insc = quark_str(o_ptr->inscription);
 	char *ptr = buff;
@@ -1057,7 +1070,7 @@ static void get_inscription(char *buff, object_type *o_ptr)
  *   OD_NO_FLAVOR        : Allow to hidden flavor
  *   OD_FORCE_FLAVOR     : Get un-shuffled flavor name
  */
-void object_desc(char *buf, object_type *o_ptr, u32b mode)
+void object_desc(char *buf, const object_type *o_ptr, u32b mode)
 {
 	/* Extract object kind name */
 	cptr            kindname = get_object_name(o_ptr);
@@ -1394,34 +1407,6 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 				basenm = "& Book~ of Sorcery %";
 			else
 				basenm = "& Sorcery Spellbook~ %";
-#endif
-
-			break;
-		}
-
-		case TV_MUSOU_BOOK:
-		{
-#ifdef JP
-			basenm = "無双の魔法書%";
-#else
-			if (mp_ptr->spell_type == ST_PRAYER)
-				basenm = "& Book~ of Musou Magic %";
-			else
-				basenm = "& Musou Spellbook~ %";
-#endif
-
-			break;
-		}
-
-		case TV_MAGIC_BOOK:
-		{
-#ifdef JP
-			basenm = "呪術の魔法書%";
-#else
-			if (mp_ptr->spell_type == ST_PRAYER)
-				basenm = "& Book~ of Black Magic %";
-			else
-				basenm = "& Magic Spellbook~ %";
 #endif
 
 			break;
@@ -2037,9 +2022,6 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 		/* Launcher multiplier */
 		avgdam *= tmul;
 		avgdam /= (100 * 10);
-
-		/* Get extra damage from concentration */
-		if (p_ptr->concent) avgdam = boost_concentration_damage(avgdam);
 	
 		if (avgdam < 0) avgdam = 0;
 

@@ -371,11 +371,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* Acquire the "user name" as a default player name */
-#ifdef ANGBAND_2_8_1
 	user_name(player_name, player_uid);
-#else /* ANGBAND_2_8_1 */
-	user_name(op_ptr->full_name, player_uid);
-#endif /* ANGBAND_2_8_1 */
 
 #ifdef PRIVATE_USER_PATH
 
@@ -458,11 +454,7 @@ int main(int argc, char *argv[])
 			case 'U':
 			{
 				if (!argv[i][2]) goto usage;
-#ifdef ANGBAND_2_8_1
 				strcpy(player_name, &argv[i][2]);
-#else /* ANGBAND_2_8_1 */
-				strcpy(op_ptr->full_name, &argv[i][2]);
-#endif /* ANGBAND_2_8_1 */
 				break;
 			}
 

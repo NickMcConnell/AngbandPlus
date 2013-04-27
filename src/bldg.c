@@ -81,20 +81,9 @@ msg_format("%s%sの顔を見てしまった！",
 				  horror_desc[randint0(MAX_SAN_HORROR)], desc);
 
 	r_ptr->r_flags2 |= RF2_ELDRITCH_HORROR;
-
+#if 0
 	switch(p_ptr->prace)
 	{
-		/* Imps may make a saving throw */
-		case RACE_IMP:
-		{
-			if (saving_throw(20 + p_ptr->lev)) return;
-
-			break;
-		}
-		/* Undead may make a saving throw */
-		case RACE_SKELETON:
-		case RACE_ZOMBIE:
-		case RACE_SPECTRE:
 		case RACE_VAMPIRE:
 		{
 			if (saving_throw(10 + p_ptr->lev)) return;
@@ -102,7 +91,7 @@ msg_format("%s%sの顔を見てしまった！",
 			break;
 		}
 	}
-
+#endif
 	/* Mind blast */
 	if (!saving_throw(p_ptr->skill_sav * 100 / power))
 	{
@@ -528,11 +517,8 @@ static void show_building(building_type* bldg)
 	char tmp_str[MAX_NLEN];
 
 	Term_clear();
-#if 0
-	sprintf(tmp_str, "%s (%s)", bldg->owner_name, bldg->owner_race);
-#else
+
 	sprintf(tmp_str, "%s", bldg->owner_name);
-#endif
 	put_str(tmp_str, 2, 10);
 
 	sprintf(tmp_str, "%s", bldg->name);
@@ -1736,8 +1722,12 @@ static void compare_weapon_aux1(object_type *o_ptr, int col, int r)
 	/* Get the flags of the weapon */
 	object_flags(o_ptr, &f1, &f2, &f3);
 
+	/* Extra brands */
+	if (p_ptr->tim_brand) f1 |= p_ptr->xtra_brand;
+
 	/* Print the relevant lines */
 #ifdef JP
+	if (f1 & TR1_SLAY_HUMAN)  compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 25, "人間:",  TERM_YELLOW);
 	if (f1 & TR1_SLAY_ANIMAL) compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 25, "動物:",  TERM_YELLOW);
 	if (f1 & TR1_SLAY_EVIL)   compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 20, "邪悪:",  TERM_YELLOW);
 	if (f1 & TR1_SLAY_UNDEAD) compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 30, "不死:",  TERM_YELLOW);
@@ -1753,6 +1743,7 @@ static void compare_weapon_aux1(object_type *o_ptr, int col, int r)
 	if (f1 & TR1_BRAND_COLD)  compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 25, "冷属性:",  TERM_RED);
 	if (f1 & TR1_BRAND_POIS)  compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 25, "毒属性:",  TERM_RED);
 #else
+	if (f1 & TR1_SLAY_HUMAN)  compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 25, "Humans:", TERM_YELLOW);
 	if (f1 & TR1_SLAY_ANIMAL) compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 25, "Animals:", TERM_YELLOW);
 	if (f1 & TR1_SLAY_EVIL)   compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 20, "Evil:", TERM_YELLOW);
 	if (f1 & TR1_SLAY_UNDEAD) compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 30, "Undead:", TERM_YELLOW);
@@ -1864,7 +1855,7 @@ static void list_weapon(object_type *o_ptr, int row, int col)
 /*
  * Hook to specify "ego"
  */
-static bool item_tester_hook_ego_item(object_type *o_ptr)
+static bool item_tester_hook_ego_item(const object_type *o_ptr)
 {
 	if (!o_ptr->name2) return (FALSE);
 
@@ -1884,7 +1875,7 @@ static bool item_tester_hook_ego_item(object_type *o_ptr)
 /*
  * Hook to specify "weapon"
  */
-bool item_tester_hook_melee_weapon(object_type *o_ptr)
+bool item_tester_hook_melee_weapon(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -1904,7 +1895,7 @@ bool item_tester_hook_melee_weapon(object_type *o_ptr)
 /*
  * Hook to specify "ammo"
  */
-static bool item_tester_hook_ammo(object_type *o_ptr)
+static bool item_tester_hook_ammo(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -2140,7 +2131,7 @@ static bool forge_ego_item(void)
 /*
  * Hook to specify "broken weapon"
  */
-static bool item_tester_hook_broken_weapon(object_type *o_ptr)
+static bool item_tester_hook_broken_weapon(const object_type *o_ptr)
 {
 	if (o_ptr->tval != TV_SWORD) return FALSE;
 

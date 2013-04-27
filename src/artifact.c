@@ -49,6 +49,18 @@ void one_sustain(object_type *o_ptr)
  */
 void one_high_resistance(object_type *o_ptr)
 {
+#ifdef TINYANGBAND
+	switch (randint0(7))
+	{
+		case  0: o_ptr->art_flags2 |= (TR2_RES_POIS);   break;
+		case  1: o_ptr->art_flags2 |= (TR2_RES_DARK);   break;
+		case  2: o_ptr->art_flags2 |= (TR2_RES_BLIND);  break;
+		case  3: o_ptr->art_flags2 |= (TR2_RES_CONF);   break;
+		case  4: o_ptr->art_flags2 |= (TR2_RES_SOUND);  break;
+		case  5: o_ptr->art_flags2 |= (TR2_RES_NETHER); break;
+		case  6: o_ptr->art_flags2 |= (TR2_RES_FEAR);   break;
+	}
+#else
 	switch (randint0(12))
 	{
 		case  0: o_ptr->art_flags2 |= (TR2_RES_POIS);   break;
@@ -64,14 +76,25 @@ void one_high_resistance(object_type *o_ptr)
 		case 10: o_ptr->art_flags2 |= (TR2_RES_DISEN);  break;
 		case 11: o_ptr->art_flags2 |= (TR2_RES_FEAR);   break;
 	}
+#endif
 }
-
 
 /*
  * Choose one random high resistance ( except poison and disenchantment )
  */
 void one_lordly_high_resistance(object_type *o_ptr)
 {
+#ifdef TINYANGBAND
+	switch (randint0(6))
+	{
+		case 0: o_ptr->art_flags2 |= (TR2_RES_DARK);   break;
+		case 1: o_ptr->art_flags2 |= (TR2_RES_BLIND);  break;
+		case 2: o_ptr->art_flags2 |= (TR2_RES_CONF);   break;
+		case 3: o_ptr->art_flags2 |= (TR2_RES_SOUND);  break;
+		case 4: o_ptr->art_flags2 |= (TR2_RES_NETHER); break;
+		case 5: o_ptr->art_flags2 |= (TR2_RES_FEAR);   break;
+	}
+#else
 	switch (randint0(10))
 	{
 		case 0: o_ptr->art_flags2 |= (TR2_RES_LITE);   break;
@@ -85,6 +108,7 @@ void one_lordly_high_resistance(object_type *o_ptr)
 		case 8: o_ptr->art_flags2 |= (TR2_RES_CHAOS);  break;
 		case 9: o_ptr->art_flags2 |= (TR2_RES_FEAR);   break;
 	}
+#endif
 }
 
 
@@ -178,7 +202,7 @@ static void curse_artifact(object_type * o_ptr)
 }
 
 
-static void random_plus(object_type * o_ptr)
+void random_plus(object_type * o_ptr)
 {
 	int this_type = (o_ptr->tval < TV_BOOTS ? 24 : 20);
 
@@ -387,6 +411,21 @@ static void random_plus(object_type * o_ptr)
 	}
 }
 
+void one_plus(object_type *o_ptr)
+{
+	switch (randint0(9))
+	{
+	case 0: o_ptr->art_flags1 |= TR1_STR; break;
+	case 1: o_ptr->art_flags1 |= TR1_INT; break;
+	case 2: o_ptr->art_flags1 |= TR1_WIS; break;
+	case 3: o_ptr->art_flags1 |= TR1_DEX; break;
+	case 4: o_ptr->art_flags1 |= TR1_CON; break;
+	case 5: o_ptr->art_flags1 |= TR1_CHR; break;
+	case 6: o_ptr->art_flags1 |= TR1_SEARCH; break;
+	case 7: o_ptr->art_flags1 |= TR1_INFRA; break;
+	case 8: o_ptr->art_flags1 |= TR1_TUNNEL; break;
+	}
+}
 
 static void random_resistance(object_type * o_ptr, int specific)
 {
@@ -504,27 +543,9 @@ static void random_resistance(object_type * o_ptr, int specific)
 				if (randint1(2) == 1) return;
 			}
 		}
-		else if (artifact_bias == BIAS_CHAOS)
-		{
-			if (!(o_ptr->art_flags2 & TR2_RES_CHAOS))
-			{
-				o_ptr->art_flags2 |= TR2_RES_CHAOS;
-				if (randint1(2) == 1) return;
-			}
-			if (!(o_ptr->art_flags2 & TR2_RES_CONF))
-			{
-				o_ptr->art_flags2 |= TR2_RES_CONF;
-				if (randint1(2) == 1) return;
-			}
-			if (!(o_ptr->art_flags2 & TR2_RES_DISEN))
-			{
-				o_ptr->art_flags2 |= TR2_RES_DISEN;
-				if (randint1(2) == 1) return;
-			}
-		}
 	}
 
-	switch (specific ? specific : randint1(42))
+	switch (specific ? specific : randint1(35))
 	{
 		case 1:
 			if (randint1(WEIRD_LUCK) != 1)
@@ -611,8 +632,6 @@ static void random_resistance(object_type * o_ptr, int specific)
 				artifact_bias = BIAS_WARRIOR;
 			break;
 		case 21:
-			o_ptr->art_flags2 |= TR2_RES_LITE;
-			break;
 		case 22:
 			o_ptr->art_flags2 |= TR2_RES_DARK;
 			break;
@@ -623,8 +642,6 @@ static void random_resistance(object_type * o_ptr, int specific)
 		case 25:
 		case 26:
 			o_ptr->art_flags2 |= TR2_RES_CONF;
-			if (!artifact_bias && randint1(6) == 1)
-				artifact_bias = BIAS_CHAOS;
 			break;
 		case 27:
 		case 28:
@@ -632,29 +649,11 @@ static void random_resistance(object_type * o_ptr, int specific)
 			break;
 		case 29:
 		case 30:
-			o_ptr->art_flags2 |= TR2_RES_SHARDS;
-			break;
-		case 31:
-		case 32:
 			o_ptr->art_flags2 |= TR2_RES_NETHER;
 			if (!artifact_bias && randint1(3) == 1)
 				artifact_bias = BIAS_NECROMANTIC;
 			break;
-		case 33:
-		case 34:
-			o_ptr->art_flags2 |= TR2_RES_NEXUS;
-			break;
-		case 35:
-		case 36:
-			o_ptr->art_flags2 |= TR2_RES_CHAOS;
-			if (!artifact_bias && randint1(2) == 1)
-				artifact_bias = BIAS_CHAOS;
-			break;
-		case 37:
-		case 38:
-			o_ptr->art_flags2 |= TR2_RES_DISEN;
-			break;
-		case 39:
+		case 31:
 			if (o_ptr->tval >= TV_CLOAK && o_ptr->tval <= TV_HARD_ARMOR)
 				o_ptr->art_flags3 |= TR3_SH_ELEC;
 			else
@@ -662,7 +661,7 @@ static void random_resistance(object_type * o_ptr, int specific)
 			if (!artifact_bias)
 				artifact_bias = BIAS_ELEC;
 			break;
-		case 40:
+		case 32:
 			if (o_ptr->tval >= TV_CLOAK && o_ptr->tval <= TV_HARD_ARMOR)
 				o_ptr->art_flags3 |= TR3_SH_FIRE;
 			else
@@ -670,14 +669,14 @@ static void random_resistance(object_type * o_ptr, int specific)
 			if (!artifact_bias)
 				artifact_bias = BIAS_FIRE;
 			break;
-		case 41:
+		case 33:
 			if (o_ptr->tval == TV_SHIELD || o_ptr->tval == TV_CLOAK ||
 			    o_ptr->tval == TV_HELM || o_ptr->tval == TV_HARD_ARMOR)
 				o_ptr->art_flags2 |= TR2_REFLECT;
 			else
 				random_resistance(o_ptr, specific);
 			break;
-		case 42:
+		case 34:
 			if (o_ptr->tval >= TV_CLOAK && o_ptr->tval <= TV_HARD_ARMOR)
 				o_ptr->art_flags3 |= TR3_SH_COLD;
 			else
@@ -745,14 +744,6 @@ static void random_misc(object_type * o_ptr)
 		if (!(o_ptr->art_flags2 & TR2_SUST_CHR))
 		{
 			o_ptr->art_flags2 |= TR2_SUST_CHR;
-			if (randint1(2) == 1) return;
-		}
-	}
-	else if (artifact_bias == BIAS_CHAOS)
-	{
-		if (!(o_ptr->art_flags3 & TR3_TELEPORT))
-		{
-			o_ptr->art_flags3 |= TR3_TELEPORT;
 			if (randint1(2) == 1) return;
 		}
 	}
@@ -870,16 +861,7 @@ static void random_misc(object_type * o_ptr)
 
 static void random_slay(object_type *o_ptr)
 {
-	if (artifact_bias == BIAS_CHAOS && (o_ptr->tval != TV_BOW))
-	{
-		if (!(o_ptr->art_flags1 & TR1_CHAOTIC))
-		{
-			o_ptr->art_flags1 |= TR1_CHAOTIC;
-			if (randint1(2) == 1) return;
-		}
-	}
-
-	else if (artifact_bias == BIAS_PRIESTLY &&
+	if (artifact_bias == BIAS_PRIESTLY &&
 	   (o_ptr->tval == TV_SWORD || o_ptr->tval == TV_POLEARM) &&
 	  !(o_ptr->art_flags3 & TR3_BLESSED))
 	{
@@ -992,7 +974,7 @@ static void random_slay(object_type *o_ptr)
 
 	if (o_ptr->tval != TV_BOW)
 	{
-		switch (randint1(34))
+		switch (randint1(36))
 		{
 		case 1:
 		case 2:
@@ -1091,10 +1073,11 @@ static void random_slay(object_type *o_ptr)
 			if (!artifact_bias)
 				artifact_bias = BIAS_NECROMANTIC;
 			break;
+		case 33:
+		case 34:
+			o_ptr->art_flags1 |= TR1_SLAY_HUMAN;
 		default:
 			o_ptr->art_flags1 |= TR1_CHAOTIC;
-			if (!artifact_bias)
-				artifact_bias = BIAS_CHAOS;
 			break;
 		}
 	}
@@ -1158,7 +1141,46 @@ static void random_slay(object_type *o_ptr)
 }
 
 
-static void give_activation_power(object_type *o_ptr)
+void one_brand(object_type *o_ptr)
+{
+	switch(randint0(6))
+	{
+	case 0: o_ptr->art_flags1 |= TR1_BRAND_ACID; break;
+	case 1: o_ptr->art_flags1 |= TR1_BRAND_ELEC; break;
+	case 2: o_ptr->art_flags1 |= TR1_BRAND_COLD; break;
+	case 3: o_ptr->art_flags1 |= TR1_BRAND_FIRE; break;
+	case 4: o_ptr->art_flags1 |= TR1_BRAND_POIS; break;
+	default:
+		switch(randint0(4))
+		{
+		case 0: o_ptr->art_flags1 |= TR1_CHAOTIC; break;
+		case 1: o_ptr->art_flags1 |= TR1_IMPACT; break;
+		case 2: o_ptr->art_flags1 |= TR1_VORPAL; break;
+		default: o_ptr->art_flags1 |= TR1_VAMPIRIC; break;
+		}
+	}
+}
+
+
+void one_slay(object_type *o_ptr)
+{
+	switch(randint0(8))
+	{
+	case 0: o_ptr->art_flags1 |= TR1_SLAY_HUMAN; break;
+	case 1: o_ptr->art_flags1 |= TR1_SLAY_ANIMAL; break;
+	case 2: o_ptr->art_flags1 |= TR1_SLAY_UNDEAD; break;
+	case 3: o_ptr->art_flags1 |= TR1_SLAY_DEMON; break;
+	case 4: o_ptr->art_flags1 |= TR1_SLAY_ORC; break;
+	case 5: o_ptr->art_flags1 |= TR1_SLAY_TROLL; break;
+	case 6: o_ptr->art_flags1 |= TR1_SLAY_GIANT; break;
+	case 7: o_ptr->art_flags1 |= ((one_in_(7)) ? TR1_KILL_DRAGON : TR1_SLAY_DRAGON); break;
+	default: /* Evil slaying is not branded */
+		o_ptr->art_flags1 |= TR1_SLAY_EVIL;
+	}
+}
+
+
+void give_activation_power(object_type *o_ptr)
 {
 	int type = 0, chance = 0;
 
@@ -1212,14 +1234,6 @@ static void give_activation_power(object_type *o_ptr)
 				type = ACT_BA_COLD_2;
 			else
 				type = ACT_BA_COLD_3;
-		}
-		else if (artifact_bias == BIAS_CHAOS)
-		{
-			chance = 50;
-			if (randint1(6) == 1)
-				type = ACT_SUMMON_DEMON;
-			else
-				type = ACT_CALL_CHAOS;
 		}
 		else if (artifact_bias == BIAS_PRIESTLY)
 		{
@@ -1444,85 +1458,9 @@ static void get_random_name(char *return_name, byte tval, int power)
 	{
 		get_table_name(return_name);
 	}
-	else if (randint1(100) <= TABLE_NAME)
-	{
-		get_table_sindarin(return_name);
-	}
 	else
 	{
-		cptr filename;
-
-		switch ((bool)(tval >= TV_BOOTS))
-		{
-			case 1:
-				switch (power)
-				{
-					case 0:
-#ifdef JP
-						filename = "a_cursed_j.txt";
-#else
-						filename = "a_cursed.txt";
-#endif
-						break;
-					case 1:
-#ifdef JP
-						filename = "a_low_j.txt";
-#else
-						filename = "a_low.txt";
-#endif
-						break;
-					case 2:
-#ifdef JP
-						filename = "a_med_j.txt";
-#else
-						filename = "a_med.txt";
-#endif
-						break;
-					default:
-#ifdef JP
-						filename = "a_high_j.txt";
-#else
-						filename = "a_high.txt";
-#endif
-				}
-				break;
-			default:
-				switch (power)
-				{
-					case 0:
-#ifdef JP
-						filename = "w_cursed_j.txt";
-#else
-						filename = "w_cursed.txt";
-#endif
-						break;
-					case 1:
-#ifdef JP
-						filename = "w_low_j.txt";
-#else
-						filename = "w_low.txt";
-#endif
-						break;
-					case 2:
-#ifdef JP
-						filename = "w_med_j.txt";
-#else
-						filename = "w_med.txt";
-#endif
-						break;
-					default:
-#ifdef JP
-						filename = "w_high_j.txt";
-#else
-						filename = "w_high.txt";
-#endif
-				}
-		}
-
-		(void)get_rnd_line(filename, artifact_bias, return_name);
-#ifdef JP
-		if(return_name[0]==0) sprintf(return_name, "『%sにエラー』", filename);
-#endif
+		get_table_sindarin(return_name);
 	}
 }
 
@@ -1561,15 +1499,12 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 				artifact_bias = BIAS_WARRIOR;
 				break;
 			case CLASS_MAGE:
-			case CLASS_ELEMENTALIST:
 				artifact_bias = BIAS_MAGE;
 				break;
 			case CLASS_PRIEST:
 				artifact_bias = BIAS_PRIESTLY;
 				break;
-			case CLASS_RANGER:
 			case CLASS_ARCHER:
-			case CLASS_SNIPER:
 				artifact_bias = BIAS_RANGER;
 				warrior_artifact_bias = 30;
 				break;
@@ -1578,30 +1513,9 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 				warrior_artifact_bias = 40;
 				break;
 			case CLASS_WARRIOR_MAGE:
-			case CLASS_DEVICE_USER:
 				artifact_bias = BIAS_MAGE;
 				warrior_artifact_bias = 40;
 				break;
-			case CLASS_MINDCRAFTER:
-				if (randint1(5) > 2) artifact_bias = BIAS_PRIESTLY;
-				break;
-			case CLASS_ARCHAEOLOGIST:
-				artifact_bias = BIAS_MAGE;
-				warrior_artifact_bias = 60;
-				break;
-#if 0
-			case CLASS_ROGUE:
-				artifact_bias = BIAS_ROGUE;
-				warrior_artifact_bias = 25;
-				break;
-			case CLASS_CHAOS_WARRIOR:
-				artifact_bias = BIAS_CHAOS;
-				warrior_artifact_bias = 40;
-				break;
-			case CLASS_MONK:
-				artifact_bias = BIAS_PRIESTLY;
-				break;
-#endif
 		}
 	}
 
@@ -2109,7 +2023,7 @@ bool activate_random_artifact(object_type * o_ptr)
 #else
 			msg_print("You launch a rocket!");
 #endif
-			sound(SOUND_ROCKET);
+ 			sound(SOUND_MISS); /* (Sound substitute) HACK! No rocket sound available, use arrow miss */ 
 			fire_ball(GF_ROCKET, dir, 120 + plev, 2);
 			o_ptr->timeout = 400;
 			break;
@@ -2147,7 +2061,7 @@ bool activate_random_artifact(object_type * o_ptr)
 #else
 			msg_print("You breathe the elements.");
 #endif
-			sound(SOUND_BREATH);
+			sound(SOUND_BR_ELEMENTS);
 			fire_ball(GF_MISSILE, dir, 300, -4);
 			o_ptr->timeout = 500;
 			break;
@@ -2209,7 +2123,7 @@ bool activate_random_artifact(object_type * o_ptr)
 #ifdef JP
 			msg_print("おどろおどろしい音が鳴り渡った...");
 #else
-			msg_print("You wind a mighty blast; your enemies tremble!");
+			msg_print("You blow a mighty blast; your enemies tremble!");
 #endif
 			(void)turn_monsters((3 * p_ptr->lev / 2) + 10);
 			o_ptr->timeout = randint0(40) + 40;
@@ -2221,7 +2135,7 @@ bool activate_random_artifact(object_type * o_ptr)
 #ifdef JP
 			msg_print("おどろおどろしい音が鳴り渡った...");
 #else
-			msg_print("You wind a mighty blast; your enemies tremble!");
+			msg_print("You blow a mighty blast; your enemies tremble!");
 #endif
 			turn_monsters(40 + p_ptr->lev);
 			o_ptr->timeout = 3 * (p_ptr->lev + 10);
@@ -2856,22 +2770,6 @@ void random_artifact_resistance(object_type * o_ptr, artifact_type *a_ptr)
 {
 	bool give_resistance = FALSE, give_power = FALSE;
 
-	if (o_ptr->name1 == ART_TERROR) /* Terror Mask is for warriors... */
-	{
-		if (p_ptr->pclass == CLASS_WARRIOR || p_ptr->pclass == CLASS_ARCHER)
-		{
-			give_power = TRUE;
-			give_resistance = TRUE;
-		}
-		else
-		{
-			o_ptr->art_flags3 |=
-			    (TR3_CURSED | TR3_HEAVY_CURSE | TR3_AGGRAVATE | TR3_TY_CURSE);
-			o_ptr->ident |= IDENT_CURSED;
-			return;
-		}
-	}
-
 	if (a_ptr->gen_flags & (TRG_XTRA_POWER)) give_power = TRUE;
 	if (a_ptr->gen_flags & (TRG_XTRA_H_RES)) give_resistance = TRUE;
 	if (a_ptr->gen_flags & (TRG_XTRA_RES_OR_POWER))
@@ -3055,7 +2953,11 @@ void create_named_ego(object_type *o_ptr)
 bool create_nazgul_ring(object_type *o_ptr)
 {
 	char    new_name[1024];
+#ifdef TINYANGBAND
+	int     powers = randint1(3) + 1;
+#else
 	int     powers = randint1(5) + 1;
+#endif
 
 	/* paranoia */
 	if ((o_ptr->tval != TV_RING) || (o_ptr->sval != SV_RING_WRAITH))
@@ -3153,7 +3055,7 @@ bool create_nazgul_ring(object_type *o_ptr)
 	if (one_in_(666)) o_ptr->art_flags3 |= TR3_WRAITH;
 
 	/* Save the inscription */
-	get_table_name(new_name);
+	get_table_bad_sindarin(new_name);
 	o_ptr->art_name = quark_add(new_name);
 
 	/* Window stuff */

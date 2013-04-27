@@ -699,8 +699,6 @@ struct owner_type
 	byte haggle_per;	/* Haggle unit */
 
 	byte insult_max;	/* Insult limit */
-
-	byte owner_race;	/* Owner race */
 };
 
 
@@ -768,7 +766,7 @@ struct player_magic
 	int spell_first;		/* Level of first spell */
 	int spell_weight;		/* Weight that hurts spells */
 
-	magic_type info[MAX_REALM][32];    /* The available spells */
+	magic_type info[MAX_REALM][MAX_SPELLS];    /* The available spells */
 };
 
 
@@ -1000,21 +998,16 @@ struct player_type
 
 	s16b resist_magic;  /* Timed Resist Magic (later) */
 	s16b tim_radar;     /* Timed Radar Eye */
-	s16b tim_sentence;  /* Magic: Revenge Sentence */
-
-	s16b tim_xtra1;     /* Later */
+	s16b tim_might;     /* Timed Extra Might */
 	s16b tim_xtra2;     /* Later */
 	s16b tim_xtra3;     /* Later */
-	s16b tim_xtra4;     /* Later */
-	s16b tim_xtra5;     /* Later */
-	s16b tim_xtra6;     /* Later */
 
-	s16b chaos_patron;  /* Old one */
+	s16b tim_brand;
+	u32b xtra_brand;
+
+	s16b valar_patron;  /* Old one */
 
 	u32b muta;         /* for Chaos mutation */
-
-	u32b concent;      /* for sniper */
-	u32b r_idx;        /* for snatcher */
 
 	s16b word_recall;	/* Word of recall counter */
 
@@ -1165,12 +1158,6 @@ struct player_type
 
 	s16b pspeed;		/* Current speed */
 
-	s16b keep_magic;	/* Magic: number of keeping spells */
-	u32b keep_spells;	/* Magic: keep spells */
-	s16b rvs_x;			/* Magic: Revenge Sentence - x */
-	s16b rvs_y;			/* Magic: Revenge Sentence - y */
-	s32b rvs_d;			/* Magic: Revenge Sentence - damage */
-
 	bool dtrap;
 	bool autopick_autoregister; /* auto register is in-use or not */
 
@@ -1218,40 +1205,12 @@ struct birther
 	s16b stat_max[6];	/* Current "maximal" stat values */
 	s16b player_hp[PY_MAX_LEVEL];
 
-	s16b chaos_patron;  /* Old one */
+	s16b valar_patron;  /* Old one */
 
 	char history[4][60];
 
 	byte quests;
 	bool quick_ok;
-};
-
-
-/* For Monk martial arts */
-
-typedef struct martial_arts martial_arts;
-
-struct martial_arts
-{
-	cptr    desc;       /* A verbose attack description */
-	int     min_level;  /* Minimum level to use */
-	int     chance;     /* Chance of 'success' */
-	int     dd;         /* Damage dice */
-	int     ds;         /* Damage sides */
-	int     effect;     /* Special effects */
-};
-
-
-
-/* Mindcrafters */
-
-typedef struct mindcraft_power mindcraft_power;
-struct mindcraft_power
-{
-	int     min_lev;
-	int     mana_cost;
-	int     fail;
-	cptr    name;
 };
 
 

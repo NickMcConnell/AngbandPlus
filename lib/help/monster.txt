@@ -1,0 +1,29 @@
+=== Monsters ===
+
+Monsters are basically 'the enemy'.  There are lots in the
+dungeon.
+
+--- Monster attacks ---
+
+Monsters can attack in melee, with magic and with breath 
+attacks.
+
+You can only be hit by melee attacks when you are immediately 
+adjacent to them.  There are also 'branded' melee attacks, 
+you can have items burn, lose experience or other unfavourable
+effects.
+
+With magic there are 'bolt' and 'ball' attacks.  These also 
+can have various (e.g. elemental) types.  Breath attacks cover 
+a wide area and and, as well as having many types, also do 
+quite heavy damage.  However breath attacks depend on the 
+monster's HP so if they are weakened their attacks will also 
+be feeble.
+
+--- Monster defences ---
+
+Monsters have AC and resistances.
+
+With high AC it becomes difficult to hit them in melee.
+If you attack with an element they resist the damage will be
+considerably lightened.

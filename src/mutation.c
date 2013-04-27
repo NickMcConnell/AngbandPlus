@@ -1175,16 +1175,6 @@ int calc_mutant_regenerate_mod(void)
 	int mod = 10;
 	int count = count_mutations();
 
-	/*
-	 * Beastman get 10 "free" mutations and
-	 * only 5% decrease per additional mutation
-	 */
-	if (p_ptr->prace == RACE_BEASTMAN)
-	{
-		count -= 10;
-		mod = 5;
-	}
-
 	/* No negative modifier */
 	if (count <= 0) return 100;
 

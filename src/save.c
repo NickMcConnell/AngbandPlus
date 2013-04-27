@@ -922,7 +922,7 @@ static void save_quick_start(void)
 
 	for (i = 0; i < PY_MAX_LEVEL; i++) wr_s16b(previous_char.player_hp[i]);
 
-	wr_s16b(previous_char.chaos_patron);
+	wr_s16b(previous_char.valar_patron);
 
 	for (i = 0; i < 4; i++) wr_string(previous_char.history[i]);
 
@@ -1054,34 +1054,24 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->tim_wraith);
 	wr_s16b(p_ptr->resist_magic);
 	wr_s16b(p_ptr->tim_radar);
-	wr_s16b(p_ptr->tim_sentence);	/* Magic */
-	wr_s16b(p_ptr->tim_xtra1);
+	wr_s16b(p_ptr->tim_might);
 	wr_s16b(p_ptr->tim_xtra2);
 	wr_s16b(p_ptr->tim_xtra3);
-	wr_s16b(p_ptr->tim_xtra4);
-	wr_s16b(p_ptr->tim_xtra5);
-	wr_s16b(p_ptr->tim_xtra6);
 
-	wr_s16b(p_ptr->chaos_patron);
+	wr_s16b(p_ptr->tim_brand);
+	wr_u32b(p_ptr->xtra_brand);
+
+	wr_s16b(p_ptr->valar_patron);
 	wr_u32b(p_ptr->muta);
-	wr_u32b(p_ptr->concent);
-	wr_u32b(p_ptr->r_idx);
 
 	wr_byte(p_ptr->confusing);
 	wr_byte(0);     /* oops */
 	wr_byte(p_ptr->autopick_autoregister);
 	wr_byte(0);     /* oops */
 	wr_byte(p_ptr->searching);
-	wr_byte(maximize_mode);
+	wr_byte(0); /* maximize_mode was deleted */
 	wr_byte(preserve_mode);
 	wr_byte(0);
-
-	/* Magic */
-	wr_s16b(p_ptr->keep_magic);
-	wr_u32b(p_ptr->keep_spells);
-	wr_s16b(p_ptr->rvs_x);
-	wr_s16b(p_ptr->rvs_y);
-	wr_s32b(p_ptr->rvs_d);
 
 	/* Future use */
 	for (i = 0; i < 12; i++) wr_u32b(0L);

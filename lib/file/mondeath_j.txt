@@ -1,51 +1,18 @@
-N:53:Grip, Farmer Maggot's dog
-N:54:Wolf, Farmer Maggot's dog
-N:55:Fang, Farmer Maggot's dog
+N:2:Sauron, the Sorcerer
+「一つの指輪がある限り、私は甦る！」
+の身体は黒い風となり、暗闇の中に渦巻いて消えた。
 
-N:63:Smeagol
+N:18:Grip, Farmer Maggot's dog
+N:19:Wolf, Farmer Maggot's dog
+N:20:Fang, Farmer Maggot's dog
+
+N:23:Smeagol
 「にくむ、にくむ、にくむぅぅぅ！」
 
-N:393:It
-「それってひどくない？」
-
-N:670:Jack of Shadows
-「覚えておけ！今度会った時は貴様が堆屍穴に行く番だ！」
-
-N:732:Bull Gates
-「Ｍ＄帝国は永遠に不滅だ！」
-
-N:764:Uriel, Angel of Fire
-N:765:Azriel, Angel of Death
-N:769:Raphael, the Messenger
-「主よ、この罪深き者に天罰をお与え下さい！」
-
-N:771:Saruman of Many Colours
+N:132:Saruman of Many Colours
 #指輪物語でのセリフのパロディ
 #元は「あんたの慈悲を憎む。あんたを憎む！では、わしは行く。」
 「あんたの無慈悲を憎む。あんたを憎む！では、わしは逝く。」
-
-N:780:Vlad Dracula, Prince of Darkness
-「フフフ、私はまた甦るだろう…人間の心に暗黒がある限り。ハハハハ！」
-
-N:860:Sauron, the Sorcerer
-「一つの指輪がある限り、私は甦る！」
-
-N:885:Dio Brando
-にあなたは言った「てめえは俺を怒らせた。」  第三部、完ッ！
-,スタンド名「ザ・ワールド」:死亡。 →To be continued...
-
-N:887:Smeagol(Y.S.Remix)
-「僕ちん、僕ちん、僕ちんーーーー！」
-
-N:888:Internet Exploder
-を削除します。
-
-N:629:White Rabbit
-はあなたに恐ろしい予言をかけた。
-
-N:799:Iznami
-N:824:Amaterasu
-「キャアァァァ！」
 
 N:*:Default
 「グアァァァ！」

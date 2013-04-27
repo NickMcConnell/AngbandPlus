@@ -1,36 +1,31 @@
-Welcome to the Zangband Online Help System.
+Welcome to the TinyAngband Online Help System.
 
 Please choose one of the following online help files:
 
-    (0) General Information            (general.hlp)
-    (1) Creating a Character           (birth.hlp)
-    (2) Character Attributes           (charattr.hlp)
-    (3) The Town and Wilderness        (town.hlp)
-    (4) The Dungeon                    (dungeon.hlp)
-    (5) Zangband Objects               (objects.hlp)
-    (6) Attacking Monsters             (attack.hlp)
-    (7) Defending Yourself             (defend.hlp)
-    (8) Zangband Magic System          (magic.hlp)
-    (9) Zangband Commands              (command.hlp)
-    (a) Zangband Options               (option.hlp)
-    (b) User Preference Files          (pref.hlp)
-    (c) The Zangband Newbie Guide      (tang.txt)
-    (d) Zangband Spoilers              (spoiler.hlp)
+    (0) General Information
+    (1) Creating a Character
+    (2) Character Attributes
+    (3) Commands
+    (4) The Town
+    (5) The Dungeon
+    (6) Objects
+    (7) Monsters
+    (8) Attack
+    (9) Defence
+    (a) Options
+    (b) Version Information
 
-    (?) Help System Commands           (helpinfo.txt)
+    (?) Help System Commands
 
-
-***** [0] general.hlp
-***** [1] birth.hlp
-***** [2] charattr.hlp
-***** [3] town.hlp
-***** [4] dungeon.hlp
-***** [5] objects.hlp
-***** [6] attack.hlp
-***** [7] defend.hlp
-***** [8] magic.hlp
-***** [9] command.hlp
-***** [a] option.hlp
-***** [b] pref.hlp
-***** [c] tang.txt
-***** [d] spoiler.hlp
+***** [0] general.txt
+***** [1] birth.txt
+***** [2] charattr.txt
+***** [3] command.txt
+***** [4] town.txt
+***** [5] dungeon.txt
+***** [6] objects.txt
+***** [7] monster.txt
+***** [8] attack.txt
+***** [9] defend.txt
+***** [a] option.txt
+***** [b] version.txt

@@ -158,11 +158,18 @@ void add_note(cptr note, char code)
 			strnfmt(buf, 255, "%s %s : Snatched %s's body.\n", g_time, depths, note);
 #endif
 			break;
+		case 'r': /* reward from valar */
+#ifdef JP
+			strnfmt(buf, 255, "%s %s : パトロンの報酬で、%s\n", g_time, depths, note);
+#else
+			strnfmt(buf, 255, "%s %s : The patron rewards you with %s.\n", g_time, depths, note);
+#endif
+			break;
 		case 'd': /* Died (Killed) */
 #ifdef JP
 			strnfmt(buf, 255, "%s %s : %s に殺された。\n", g_time, depths, note);
 #else
-			strnfmt(buf, 255, "%s %s : %s Killed by %s.\n", g_time, depths, note);
+			strnfmt(buf, 255, "%s %s : Killed by %s.\n", g_time, depths, note);
 #endif
 			break;
 		case 'W': /* Cheat mode */
@@ -223,10 +230,7 @@ void add_note_type(int note_number)
 			{
 				strnfmt(player, 100, "%s(", player);
 
-				if (p_ptr->pclass == CLASS_ELEMENTALIST)
-					strnfmt(player, 100, "%s%s", player, element_realm_name());
-				else
-					strnfmt(player, 100, "%s%s", player, realm_names[p_ptr->realm1]);
+				strnfmt(player, 100, "%s%s", player, realm_names[p_ptr->realm1]);
 
 				if (p_ptr->realm2 != REALM_NONE)
 				{
@@ -240,10 +244,7 @@ void add_note_type(int note_number)
 			if (p_ptr->realm1 != REALM_NONE)
 			{
 				strnfmt(player, 100, "%s of ", player);
-				if (p_ptr->pclass == CLASS_ELEMENTALIST)
-					strnfmt(player, 100, "%s%s", player, element_realm_name());
-				else
-					strnfmt(player, 100, "%s%s", player, realm_names[p_ptr->realm1]);
+				strnfmt(player, 100, "%s%s", player, realm_names[p_ptr->realm1]);
 			}
 
 			if (p_ptr->realm2 != REALM_NONE)

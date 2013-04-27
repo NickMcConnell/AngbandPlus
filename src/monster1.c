@@ -208,7 +208,7 @@ static void roff_aux(int r_idx, int remem)
 		if (r_ptr->flags3 & RF3_EVIL)     flags3 |= (RF3_EVIL);
 		if (r_ptr->flags3 & RF3_GOOD)     flags3 |= (RF3_GOOD);
 		if (r_ptr->flags3 & RF3_ANIMAL)   flags3 |= (RF3_ANIMAL);
-		if (r_ptr->flags3 & RF3_AMBERITE) flags3 |= (RF3_AMBERITE);
+		if (r_ptr->flags3 & RF3_HUMAN)    flags3 |= (RF3_HUMAN);
 
 		/* Know 'quantum' flag */
 		if (r_ptr->flags2 & RF2_QUANTUM)  flags2 |= (RF2_QUANTUM);
@@ -618,7 +618,7 @@ static void roff_aux(int r_idx, int remem)
 #endif
 
 		/* Describe the "race" */
-		if ((flags3 & (RF3_DRAGON | RF3_DEMON | RF3_GIANT | RF3_TROLL | RF3_ORC | RF3_AMBERITE)) || (flags2 & RF2_QUANTUM))
+		if ((flags3 & (RF3_DRAGON | RF3_DEMON | RF3_GIANT | RF3_TROLL | RF3_ORC | RF3_HUMAN)) || (flags2 & RF2_QUANTUM))
 		{
 #ifdef JP
 			if (flags3 & RF3_DRAGON)   c_roff(TERM_ORANGE, "ドラゴン");
@@ -626,7 +626,7 @@ static void roff_aux(int r_idx, int remem)
 			if (flags3 & RF3_GIANT)    c_roff(TERM_L_UMBER, "ジャイアント");
 			if (flags3 & RF3_TROLL)    c_roff(TERM_BLUE, "トロル");
 			if (flags3 & RF3_ORC)      c_roff(TERM_UMBER, "オーク");
-			if (flags3 & RF3_AMBERITE) c_roff(TERM_L_WHITE, "神族");
+			if (flags3 & RF3_HUMAN)    c_roff(TERM_L_WHITE, "人間");
 			if (flags2 & RF2_QUANTUM)  c_roff(TERM_VIOLET, "量子生物");
 #else
 			if (flags3 & RF3_DRAGON)   c_roff(TERM_ORANGE, " dragon");
@@ -634,7 +634,7 @@ static void roff_aux(int r_idx, int remem)
 			if (flags3 & RF3_GIANT)    c_roff(TERM_L_UMBER, " giant");
 			if (flags3 & RF3_TROLL)    c_roff(TERM_BLUE, " troll");
 			if (flags3 & RF3_ORC)      c_roff(TERM_UMBER, " orc");
-			if (flags3 & RF3_AMBERITE) c_roff(TERM_L_WHITE, " Spirit");
+			if (flags3 & RF3_HUMAN)    c_roff(TERM_L_WHITE, " human");
 			if (flags2 & RF2_QUANTUM)  c_roff(TERM_VIOLET, " quantum creature");
 #endif
 		}
@@ -791,6 +791,16 @@ static void roff_aux(int r_idx, int remem)
 		vp[vn] = "shriek for help";
 #endif
 		color[vn++] = TERM_L_WHITE;
+	}
+
+	if (flags4 & RF4_THROW)
+	{
+#ifdef JP
+		vp[vn] = "岩を投げる";
+#else
+		vp[vn] = "throw a rock";
+#endif
+		color[vn++] = TERM_UMBER;
 	}
 
 	if (flags4 & RF4_ROCKET)
@@ -1033,7 +1043,7 @@ static void roff_aux(int r_idx, int remem)
 	if (flags6 & (RF6_S_UNDEAD))        {vp[vn] = "アンデッド一体召喚"; color[vn++] = TERM_L_DARK;}
 	if (flags6 & (RF6_S_DRAGON))        {vp[vn] = "ドラゴン一体召喚"; color[vn++] = TERM_ORANGE;}
 	if (flags6 & (RF6_S_HI_UNDEAD))     {vp[vn] = "強力なアンデッド召喚"; color[vn++] = TERM_L_DARK;}
-	if (flags6 & (RF6_S_HI_DRAGON))     {vp[vn] = "古代ドラゴン召喚"; color[vn++] = TERM_ORANGE;}
+	if (flags6 & (RF6_S_HI_DRAGON))     {vp[vn] = "上級ドラゴン召喚"; color[vn++] = TERM_ORANGE;}
 	if (flags6 & (RF6_S_CYBER))         {vp[vn] = "サイバーデーモン召喚"; color[vn++] = TERM_UMBER;}
 	if (flags6 & (RF6_S_HI_DEMON))      {vp[vn] = "上級デーモン一体召喚"; color[vn++] = TERM_L_RED;}
 	if (flags6 & (RF6_S_UNIQUE))        {vp[vn] = "ユニーク・モンスター召喚"; color[vn++] = TERM_VIOLET;}
@@ -1103,7 +1113,7 @@ static void roff_aux(int r_idx, int remem)
 	if (flags6 & (RF6_S_UNDEAD))        {vp[vn] = "summon an undead"; color[vn++] = TERM_L_DARK;}
 	if (flags6 & (RF6_S_DRAGON))        {vp[vn] = "summon a dragon"; color[vn++] = TERM_ORANGE;}
 	if (flags6 & (RF6_S_HI_UNDEAD))     {vp[vn] = "summon Greater Undead"; color[vn++] = TERM_L_DARK;}
-	if (flags6 & (RF6_S_HI_DRAGON))     {vp[vn] = "summon Ancient Dragons"; color[vn++] = TERM_ORANGE;}
+	if (flags6 & (RF6_S_HI_DRAGON))     {vp[vn] = "summon Greater Dragons"; color[vn++] = TERM_ORANGE;}
 	if (flags6 & (RF6_S_CYBER))         {vp[vn] = "summon Cyberdemons"; color[vn++] = TERM_UMBER;}
 	if (flags6 & (RF6_S_HI_DEMON))      {vp[vn] = "summon Greater Demon"; color[vn++] = TERM_L_RED;}
 	if (flags6 & (RF6_S_UNIQUE))        {vp[vn] = "summon Unique Monsters"; color[vn++] = TERM_VIOLET;}
@@ -2116,7 +2126,7 @@ static void roff_aux(int r_idx, int remem)
 	 * Notice "Quest" monsters, but only if you
 	 * already encountered the monster.
 	 */
-	if ((flags1 & RF1_QUESTOR) && (r_ptr->r_sights))
+	if ((flags1 & RF1_QUESTOR) && ((r_ptr->r_sights) || (wizard)))
 	{
 #ifdef JP
 		roff("あなたはこのモンスターを殺したいという強い欲望を感じている...");

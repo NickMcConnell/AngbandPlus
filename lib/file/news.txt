@@ -1,6 +1,6 @@
 
                   ***************************************
-                  **           XAngband 1.3.0          **
+                  **         TinyAngband 0.0.3         **
                   ***************************************
           Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
               and Umoria:    Copyright (c) 1989 James E. Wilson
@@ -11,11 +11,11 @@
     ZAngband 2.3.0 - ???:    The ZAngband DevTeam
        Japanese ZAngband:    M.Itakura < m-itakura@geocities.co.jp >
                 Hengband:    Mr.hoge <combat-echizen¡÷geocities.co.jp>
-
                 XAngband:    XAngband DevTeam
 
-                     URL: http://xangband.sourceforge.jp/eng/
- 
+             TinyAngband:    XAngband DevTeam
 
-            XAngband is for UNIX/X11, Windows,(Macintosh) etc.
+                URL: http://xangband.sourceforge.jp/tiny/eng.html
+
+            TinyAngband is for UNIX/X11, Windows,(Macintosh) etc.
             Send bug report to "http://xangband.sourceforge.jp/eng/"

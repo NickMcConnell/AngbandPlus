@@ -139,9 +139,9 @@ static bool alloc_stairs(int feat, int num, int walls)
 		if ((dun_level > 1) && quest_number(dun_level)) return TRUE;
 
 		/* No downstairs at the bottom */
-		if (dun_level >= MAX_DEPTH - 1) return TRUE;
+		if (dun_level >= TINY_MAX_DEPTH - 1) return TRUE;
 
-		if ((dun_level < MAX_DEPTH - 2) && !quest_number(dun_level + 1))
+		if ((dun_level < TINY_MAX_DEPTH - 2) && !quest_number(dun_level + 1))
 			more_num = (randint1(num) + 1) / 2;
 	}
 
@@ -521,6 +521,38 @@ static void gen_caverns_and_lakes(void)
 }
 
 
+/*
+ * Put lava crater.
+ */
+static void place_lavas(int x, int y)
+{
+	int i, j;
+
+	/* place shallow or deep lavas in ovalish distribution*/
+	for (i = x - 3; i < x + 4; i++)
+	{
+		for (j = y - 3; j < y + 4; j++)
+		{
+			/* Want square to be in the circle and accessable.*/
+			if (in_bounds(j, i) && (distance(j, i, y, x) < 4) && !cave_perma_bold(j, i))
+			{
+				/*
+				 * Clear previous contents, add feature
+				 * The border mainly gets trees, while the center gets rubble */
+				if ((distance(j, i, y, x) > 1) || (randint1(100) < 25))
+				{
+					if (randint1(100) < 75)
+						cave[j][i].feat = FEAT_SHAL_LAVA;
+				}
+				else
+				{
+					cave[j][i].feat = FEAT_DEEP_LAVA;
+				}
+			}
+		}
+	}
+}
+
 
 /*
  * Generate a new dungeon level
@@ -618,12 +650,39 @@ static bool cave_gen(void)
 	generate_rooms();
 
 	/* Make a hole in the dungeon roof sometimes at level 1 */
-	if ((dun_level == 1) && terrain_streams)
+	if ((dun_level == 1) && terrain_streams && one_in_(DUN_MOS_DEN))
 	{
-		while (one_in_(DUN_MOS_DEN))
+		int n = 0;
+
+		do
 		{
-			place_trees(randint1(cur_wid - 2), randint1(cur_hgt - 2));
+			int x = randint1(cur_wid - 2);
+			int y = randint1(cur_hgt - 2);
+
+			n++;
+			if (!cave_floor_bold(y, x)) continue;
+			place_trees(x, y);
+			if (one_in_(DUN_MOS_DEN)) break;
 		}
+		while (n < 1000);
+	}
+
+	/* Make a crater in the dungeon sometimes under level 20 */
+	if ((dun_level >= 20) && terrain_streams)
+	{
+		int n = 0;
+
+		do
+		{
+			int x = randint1(cur_wid - 2);
+			int y = randint1(cur_hgt - 2);
+
+			n++;
+			if (!cave_floor_bold(y, x)) continue;
+			place_lavas(x, y);
+			if (one_in_(DUN_MOS_DEN)) break;
+		}
+		while (n < 1000);
 	}
 
 	/* Destroy the level if necessary */
@@ -635,7 +694,7 @@ static bool cave_gen(void)
 		int feat1, feat2;
 
 		/* Choose water or lava */
-		if (randint1(MAX_DEPTH) - 1 > dun_level)
+		if (randint1(TINY_MAX_DEPTH) - 1 > dun_level)
 		{
 			feat1 = FEAT_DEEP_WATER;
 			feat2 = FEAT_SHAL_WATER;
@@ -1024,6 +1083,17 @@ static void quest_gen(void)
 /* Make a real level */
 static bool level_gen(cptr *why)
 {
+#ifdef TINYANGBAND
+	/* Level size is always 2x2 */
+	int level_height = 2;
+	int level_width = 2;
+
+	cur_hgt = level_height * SCREEN_HGT;
+	cur_wid = level_width * SCREEN_WID;
+
+	panel_row_min = cur_hgt;
+	panel_col_min = cur_wid;
+#else /* Other Variants */
 	int level_height, level_width;
 
 	if (always_small_levels || ironman_small_levels ||
@@ -1071,6 +1141,7 @@ static bool level_gen(cptr *why)
 		panel_row_min = cur_hgt;
 		panel_col_min = cur_wid;
 	}
+#endif
 
 	/* Make a dungeon */
 	if (!cave_gen())

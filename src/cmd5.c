@@ -14,297 +14,85 @@
 
 #define tval2realm(A) ((A) - TV_LIFE_BOOK + 1)
 
-static const char *spell_tips[MAX_REALM][32] =
+static const char *spell_tips[MAX_REALM][MAX_SPELLS] =
 {
 #ifdef JP
 	{
 		"近くの邪悪なモンスターを感知する。",
 		"怪我と体力を少し回復させる。",
 		"一定時間、命中率とACにボーナスを得る。",
-		"恐怖を取り除く。",
 		"光源が照らしている範囲か部屋全体を永久に明るくする。",
 		"近くの全ての罠と扉と階段を感知する。",
-		"怪我と体力を中程度回復させる。",
 		"満腹にする。",
-		"光線を放つ。光を嫌うモンスターに効果がある。",
-		"アイテムにかかった弱い呪いを解除する。",
+		"聖なる力をもつ宝珠を放つ。邪悪なモンスターに対して大きなダメージを与えるが、善良なモンスターには効果がない。",
+		"一定時間、炎、冷気に対する耐性を得る。装備による耐性に累積する。",
 
 		"体力を大幅に回復させ、負傷と朦朧状態も全快する。",
-		"聖なる力をもつ宝珠を放つ。邪悪なモンスターに対して大きなダメージを与えるが、善良なモンスターには効果がない。",
-		"周辺の地形を感知し、近くの罠、扉、階段、全ての見えるモンスターを感知する。",
-		"一定時間、炎、冷気に対する耐性を得る。装備による耐性に累積する。",
-		"モンスター1体を魅了する。抵抗されると無効。",
-		"邪悪なモンスターの攻撃を防ぐバリアを張る。",
-		"極めて強力な回復呪文で、負傷と朦朧状態も全快する。",
-		"視界内の全ての邪悪なモンスターをテレポートさせる。抵抗されると無効。",
-		"閃光の球を放つ。",
-		"自分のいる床の上に、モンスターが通り抜けたり召喚されたりすることができなくなるルーンを描く。",
-
-		"一定時間、ヒーロー気分になる。",
-		"アイテムにかかった強力な呪いを解除する。",
-		"一定時間、酸、電撃、炎、冷気、毒に対する耐性を得る。装備による耐性に累積する。",
-		"視界内の全ての邪悪なモンスターにダメージを与える。",
-		"視界内の全てのモンスターを魅了する。抵抗されると無効。",
-		"視界内の邪悪な存在に大きなダメージを与え、体力を回復し、毒、恐怖、朦朧状態、負傷から全快する。",
-		"武器を祝福する。強力な呪いのかかった武器には抵抗される。アーティファクトを祝福しようとして失敗すると劣化する。",
+		"アイテムにかかった弱い呪いを解除する。",
 		"すべてのステータスと経験値を回復する。",
-		"自分を中心とした光の球を発生させる。さらに、その階全体を永久に照らし、ダンジョン内すべてのアイテムを感知する。",
-		"アイテムの持つ能力を完全に知る。",
-		"最強の治癒の魔法で、負傷と朦朧状態も全快する。",
-		"隣接するモンスターに聖なるダメージを与え、視界内のモンスターにダメージ、減速、朦朧、混乱、恐怖、眠りを与える。さらに体力を回復し、恐怖を取り除き、一定時間狂戦士化し、加速する。",
+		"周辺の地形を感知する。",
+		"視界内の全ての邪悪なモンスターにダメージを与える。",
+		"極めて強力な回復呪文で、負傷と朦朧状態も全快する。",
+		"武器を祝福する。強力な呪いのかかった武器には抵抗される。アーティファクトを祝福しようとして失敗すると劣化する。",
+		"閃光の球を放つ。",
 	},
 	{
 		"弱い魔法の矢を放つ。",
-		"近くの全ての見えるモンスターを感知する。",
 		"近距離のテレポートをする。",
-		"近くの全ての扉と罠を感知する。",
+		"近くの全ての見えるモンスターを感知する。",
 		"光源が照らしている範囲か部屋全体を永久に明るくする。",
-		"一直線上の全ての罠と扉を破壊する。",
 		"遠距離のテレポートをする。",
-		"満腹になる。",
 		"魔法の球を放つ。",
-		"地上にいるときはダンジョンの最深階へ、ダンジョンにいるときは地上へと移動する。",
+		"周辺の地形を感知する。",
+		"モンスター1体をテレポートさせる。抵抗されると無効。",
 
 		"壁を溶かして床にする。",
-		"スタッフ/ワンドの充填回数を増やすか、充填中のロッドの充填時間を減らす。",
-		"周辺の地形を感知する。",
-		"アイテムを1つ識別する。レベルが高いとアイテムの能力を完全に知ることができる。",
+		"地上にいるときはダンジョンの最深階へ、ダンジョンにいるときは地上へと移動する。",
+		"アイテムを1つ識別する。",
+		"生物に有効な強力な矢を放つ。",
 		"一定時間、テレパシー能力を得る。",
-		"純粋な魔力のビームを放つ。",
 		"一定時間、加速する。",
-		"モンスター1体をテレポートさせる。抵抗されると無効。",
-		"ロケットを発射する。",
-		"指定した文字のモンスターを現在の階から消し去る。抵抗されると無効。",
-
-		"モンスターの残り体力、最大体力、スピードを知る。",
-		"瞬時に上か下の階にテレポートする。",
-		"離れた位置のアイテムを移動させる。",
 		"近くの全てのモンスター、罠、扉、階段、財宝、そしてアイテムを感知する。",
-		"周辺のアイテム、モンスター、地形を破壊する。",
-		"その階全体を永久に照らし、ダンジョン内すべてのアイテムを感知する。さらに、一定時間テレパシー能力を得る。",
-		"視界内のモンスターをテレポートさせる。",
-		"短距離内の指定した場所にテレポートする。",
-		"アイテム1つをお金に変える。",
-		"自分の周囲にいるモンスターを現在の階から消し去る。抵抗されると無効。",
-		"非常に強力で巨大な純粋な魔力の球を放つ。",
-		"一定時間、壁を通り抜けることができ受けるダメージが軽減される幽体の状態に変身する。"
+		"巨大な地獄の炎の球を放つ。善良なモンスターに対してさらに大きなダメージを与える。",
 	},
-	{
-		"一定時間、回復力が増強される。",
-		"3方向に対して攻撃する。",
-		"一定時間、ヒーロー気分になる。",
-		"指定した場所に向かって高速移動を行う。",
-		"一定時間、電撃、炎、冷気に対する耐性を得る。装備による耐性に累積する。",
-		"一定時間、視界内の全てのモンスターを視認できる。",
-		"攻撃した後、反対側に抜ける。",
-		"フォースのボルトを放つ。",
-		"一定時間、ACを上昇させる。",
-		"アイテムにかかった弱い呪いを解除する。",
-
-		"狂戦士化し、恐怖を除去する。",
-		"周囲のダンジョンを揺らし、壁と床をランダムに入れ変える。",
-		"素早く相手に近寄り、攻撃を繰り出す。",
-		"一定時間、酸、電撃、炎、冷気、毒に対する耐性を得る。装備による耐性に累積する。",
-		"弾/矢/ボルトを強い威力で発射する。",
-		"切れ味のある攻撃を繰り出す。",
-		"一定時間、加速する。",
-		"全方向に対して攻撃する。",
-		"遅鈍のビームを放つ。",
-		"一定時間、魔法防御力とACが上がり、混乱と盲目の耐性、反射能力、麻痺知らず、浮遊を得る。",
-
-		"武器・防具にかけられたあらゆる魔力を完全に解除する。",
-		"邪悪なモンスターの攻撃を防ぐバリアを張る。",
-		"狂戦士化し、恐怖を除去し、加速する。",
-		"アイテムを酸・電撃・火炎・冷気で傷つかないよう加工する。",
-		"モンスターを朦朧とさせ、恐怖させる攻撃をする。",
-		"武器の命中率修正とダメージ修正を強化する。",
-		"鎧の防御修正を強化する。",
-		"無敵のバリアすら切り裂く攻撃を行う。",
-		"1ターンで2度攻撃を行う。",
-		"遅鈍のブレスと同等の攻撃を行う。",
-		"武器に滅邪の属性をつける。",
-		"一定時間、あらゆる耐性を付け、ACと魔法防御能力を上昇させる。"
-	},
-	{
-		"体力や傷を少し回復させる。",
-		"祝福により攻撃精度と防御力が上がる。",
-		"視界内のモンスターの動きを遅くする。",
-		"炎のオーラを身にまとい、回復速度が速くなる。",
-		"視界内のモンスターに微弱量の毒のダメージを与える。",
-		"術者の腕力を上昇させる。",
-		"装備している武器を呪う。",
-		"周囲の邪悪なモンスターを感知する。",
-		"暗黒への耐性を得る。",
-		"氷のオーラを身にまとい、防御力が上昇する。",
-
-		"体力や傷を多少回復させる。",
-		"1体のモンスターを隣接するマスへ呼び寄せる。",
-		"呪文詠唱を中止することなく、薬の効果を得ることができる。",
-		"視界内のモンスターに微弱量の生命力吸収のダメージを与える。与えたダメージの分、体力が回復する。",
-		"武器の攻撃力を上げる。切れ味を得、呪いに応じて与えるダメージが上昇し、善良なモンスターに対するダメージが2倍になる。",
-		"地獄への耐性を得る。",
-		"攻撃した際モンスターを混乱させる。",
-		"術者の腕力、器用さ、耐久力を上昇させる。攻撃回数の上限を 1 増加させる。",
-		"視界内のモンスターをテレポートさせる。",
-		"視界内のモンスターのテレポートを阻害するバリアを張る。",
-
-		"その階の増殖するモンスターの増殖を阻止する。",
-		"体力や傷を回復させる。",
-		"狂戦士化する。",
-		"魔法の道具に魔力を再充填する。",
-		"呪われた武器の呪いを吸収して魔力を回復する。",
-		"経験値を徐々に復活し、減少した能力値を回復させる。",
-		"吸血属性で攻撃する。",
-		"視界内のモンスターを朦朧とさせる。",
-		"モンスターの隣のマスに瞬間移動する。",
-		"打撃や魔法で受けたダメージを、攻撃元のモンスターにも与える。",
-		"視界内のモンスターの魔法を阻害するバリアを張る。",
-		"数ターン後に、それまで受けたダメージに応じた威力の魔法の弾を、対象のモンスターがその時いた位置に放つ。",
-	}
 #else
 	{
 		"Detects all evil monsters in your vicinity.",
 		"Heals cut and HP a little.",
 		"Gives bonus to hit and AC for a few turns.",
-		"Removes fear.",
 		"Lights up nearby area and the inside of a room permanently.",
 		"Detects traps, doors, and stairs in your vicinity.",
-		"Heals cut and HP more.",
 		"Satisfies hunger.",
 		"Fires a beam of light which damages to light-sensitive monsters.",
-		"Removes normal curses from equipped items.",
+		"Gives resistance to fire and cold. These resistances can be added to which from equipment for more powerful resistances.",
 
 		"Heals cut, stun and HP greatly.",
-		"Fires a ball with holy power. Hurts evil monsters greatly, but don't effect good monsters.",
-		"Maps nearby area. Detects all monsters, traps, doors and stairs.",
-		"Gives resistance to fire and cold. These resistances can be added to which from equipment for more powerful resistances.",
-		"Attempts to charm a monster.",
-		"Gives aura which protect you from evil monster's physical attack.",
-		"Much powerful healing magic, and heals cut and stun completely.",
-		"Teleports all evil monsters in sight away unless resisted.",
-		"Fires a ball of light.",
-		"Sets a glyph on the floor beneath you. Monsters cannot attack you if you are on a glyph, but can try to break glyph.",
-
-		"Removes fear, and gives bonus to hit and 10 more HP for a while.",
-		"Removes normal and heavy curse from equipped items.",
-		"Gives resistance to fire, cold, electricity, acid and poison for a while. These resistances can be added to which from equipment for more powerful resistances.",
-		"Damages all evil monsters in sight.",
-		"Attempts to charm all monsters in sight.",
-		"Damages all evil monsters in sight, heals HP somewhat, and completely heals poison, fear, stun and cut status.",
-		"Blesses a weapon. Heavy cursed weapons resist it. Artifacts are disenchanted when blessing is failed."
+		"Removes normal curses from equipped items.",
 		"Restores all stats and experience.",
-		"Maps and lights whole dungeon level. Knows all objects location. And gives telepathy for a while.",
-		"*Identifies* an item.",
-		"The greatest healing magic. Heals all HP, cut and stun.",
-		"Damages all adjacent monsters with holy power. Damages and attempt to slow, stun, confuse, scare and freeze all monsters in sight. And heals HP.",
+		"Maps nearby area.",
+		"Damages all evil monsters in sight.",
+		"Much powerful healing magic, and heals cut and stun completely.",
+		"Blesses a weapon. Heavy cursed weapons resist it. Artifacts are disenchanted when blessing is failed.",
+		"Fires a ball of light.",
 	},
 	{
 		"Fires a weak bolt of magic.",
-		"Detects all monsters in your vicinity unless invisible.",
 		"Teleport short distance.",
-		"Detects traps, doors, and stairs in your vicinity.",
+		"Detects all monsters in your vicinity unless invisible.",
 		"Lights up nearby area and the inside of a room permanently.",
-		"Fires a beam which destroy traps and doors.",
 		"Teleport long distance.",
-		"Satisfies hunger.",
 		"Fires a ball of magic.",
-		"Recalls player from dungeon to town, or from town to the deepest level of dungeon.",
+		"Maps nearby area.",
+		"Teleports all monsters on the line away unless resisted.",
 
 		"Turns one rock square to mud.",
-		"Recharges staffs, wands or rods.",
-		"Maps nearby area.",
-		"Identifies an item. Or *Identifies* an item at lev 35.",
+		"Recalls player from dungeon to town, or from town to the deepest level of dungeon.",
+		"Identifies an item.",
+		"Fires a beam of drain life.",
 		"Gives telepathy for a while.",
-		"Fires a beam of magic.",
 		"Hastes you for a while.",
-		"Teleports all monsters on the line away unless resisted.",
-		"Fires a magic rocket.",
-		"Eliminates an entire class of monster, exhausting you.  Powerful or unique monsters may resist.",
-
-		"Proves all monsters' alignment, HP, speed and their true character.",
-		"Teleport to up or down stairs in a moment.",
-		"Pulls a distant item close to you.",
 		"Detects all monsters, traps, doors, stairs, treasures and items in your vicinity.",
-		"Destroy everything in nearby area.",
-		"Maps and lights whole dungeon level. Knows all objects location. And gives telepathy for a while.",
-		"Teleports all monsters in sight away unless resisted.",
-		"Teleport to given location.",
-		"Turns an item into 1/3 of its value in gold.",
-		"Eliminates all nearby monsters, exhausting you.  Powerful or unique monsters may be able to resist.",
-		"Fires an extremely powerful huge ball of pure mana.",
-		"Becomes wraith form which gives ability to pass walls and makes all damages half."
-	},
-	{
-		"Gives regeneration ability for a while.",
-		"Attacks in 3 directions in one time.",
-		"Removes fear, and gives bonus to hit and 10 more HP for a while.",
-		"Steps close to a monster.",
-		"Gives resistance to fire, cold and electricity for a while. These resistances can be added to which from equipment for more powerful resistances.",
-		"Gives see everything in your sight for a while.",
-		"Attacks monster with your weapons normally, then move through counter side of the monster.",
-		"Fire a bolt of force.",
-		"Gives bonus to AC for a while.",
-		"Removes normal curses from equipped items.",
-
-		"Gives bonus to hit and HP, immunity to fear for a while. But decreases AC.",
-		"Shakes dungeon structure, and results in random swapping of floors and walls.",
-		"Steps close to a monster and attacks at a time.",
-		"Gives resistance to fire, cold, electricity, acid and poison for a while. These resistances can be added to which from equipment for more powerful resistances.",
-		"Fire a shot/allow/bolt strongly.",
-		"Attempts to attack with vorpal hit.",
-		"Hastes you for a while.",
-		"Attacks all adjacent monsters.",
-		"Fire a beam of inertia.",
-		"Gives resistance to magic, bonus to AC, resistance to confusion, blindness, reflection, free action and levitation for a while.",
-
-		"Removes all magics completely from any weapon or armor.",
-		"Gives aura which protect you from evil monster's physical attack.",
-		"Gives another bonus to hit and HP, immunity to fear for a while. Hastes you. But decreases AC.",
-		"Makes an equipment acid-proof.",
-		"Smashing a monster terribly.",
-		"Attempts to increase +to-hit, +to-dam of a weapon.",
-		"Attempts to increase +AC of an armor.",
-		"Attacks a monster and penetrates its barrier.",
-		"Double attacks at a time.",
-		"Fire a breath of inertia.",
-		"Makes current weapon an evil slayer.",
-		"Gives ultimate resistance, bonus to AC and speed."
-	},
-	{
-		"Heals cut and HP a little.",
-		"Attempts to increase +to_hit of a weapon and AC",
-		"Makes all monsters slow in your sight.",
-		"Gives fire aura and regeneration.",
-		"Deals few damages of poison to all monsters in your sight.",
-		"Attempts to increase your strength.",
-		"Curses your weapon.",
-		"Detects evil monsters.",
-		"Gives resistance to dark.",
-		"Gives fire aura and bonus to AC.",
-
-		"Heals cut and HP more.",
-		"Teleports a monster close to you.",
-		"Quaffs a potion without canceling of casting a spell.",
-		"Deals few dameges of drain life to all monsters in your sight.",
-		"Gives vorpal ability to your weapon. Increases damages by your weapon acccording to curse of your weapon.",
-		"Gives resistance to nether.",
-		"Confuses a monster when you attack.",
-		"Attempts to increases your strength, dexterity and constitusion.",
-		"Teleport all monsters away in your sight.",
-		"Obstructs all teleportations by monsters in your sight.",
-
-		"Obstructs all multiplying by monsters in entire floor.",
-		"Heals cut and HP greatry.",
-		"Makes you berserk.",
-		"Recharges a magic device.",
-		"Drains curse on your weapon and heals SP a little.",
-		"Restores life energy and status.",
-		"Gives vampiric ability to your weapon.",
-		"Stuns all monsters in your sight.",
-		"Teleports you close to a monster.",
-		"Returns same damage which you got to the monster which damaged you.",
-		"Obstructs all magic spell of monsters in your sight.",
-		"Fires magic ball to revenge after few turns.",
+		"Fires an extremely huge ball of hell fire.",
 	},
 #endif
 };
@@ -351,8 +139,8 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, int use_realm)
 	cptr        p = ((mp_ptr->spell_type == ST_PRAYER) ? "prayer" : "spell");
 #endif
 
-#ifdef ALLOW_REPEAT /* TNB */
 
+	/* Repeat previous command */
 	/* Get the spell, if available */
 	if (repeat_pull(sn))
 	{
@@ -363,8 +151,6 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, int use_realm)
 			return (TRUE);
 		}
 	}
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Extract spells */
 	for (spell = 0; spell < 32; spell++)
@@ -543,11 +329,8 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, int use_realm)
 	/* Save the choice */
 	(*sn) = spell;
 
-#ifdef ALLOW_REPEAT /* TNB */
-
+	/* Remember the command for repeating */
 	repeat_push(*sn);
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Success */
 	return (TRUE);
@@ -934,6 +717,7 @@ static bool cast_life_spell(int spell)
 
 	switch (spell)
 	{
+		/*** First book ***/
 	case 0: /* Detect Evil */
 		(void)detect_monsters_evil(DETECT_RAD_DEFAULT);
 		break;
@@ -944,32 +728,36 @@ static bool cast_life_spell(int spell)
 	case 2: /* Bless */
 		(void)set_blessed(p_ptr->blessed + randint1(12) + 12);
 		break;
-	case 3: /* Remove Fear */
-		(void)set_afraid(0);
-		break;
-	case 4: /* Call Light */
+	case 3: /* Call Light */
 		(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
 		break;
-	case 5: /* Detect Traps + Secret Doors */
+	case 4: /* Detect Traps + Secret Doors */
 		(void)detect_traps(DETECT_RAD_DEFAULT);
 		(void)detect_doors(DETECT_RAD_DEFAULT);
 		(void)detect_stairs(DETECT_RAD_DEFAULT);
 		break;
-	case 6: /* Cure Medium Wounds */
-		(void)hp_player(damroll(4, 10));
-		(void)set_cut((p_ptr->cut / 2) - 20);
-		break;
-	case 7: /* Satisfy Hunger */
+	case 5: /* Satisfy Hunger */
 		(void)set_food(PY_FOOD_MAX - 1);
 		break;
-	case 8: /* Holy Lite */
+	case 6: /* Holy Orb */
 		if (!get_aim_dir(&dir)) return FALSE;
-#ifdef JP
-		msg_print("聖なる光線が現れた。");
-#else
-		msg_print("A line of sunlight appears.");
-#endif
-		(void)lite_line(dir);
+
+		fire_ball(GF_HOLY_FIRE, dir,
+			  (damroll(3, 6) + plev +
+			  (plev / ((p_ptr->pclass == CLASS_PRIEST) ? 2 : 4))),
+			  2);
+		break;
+	case 7: /* Resistance Heat & Cold */
+		(void)set_oppose_fire(p_ptr->oppose_fire + randint1(20) + 20);
+		(void)set_oppose_cold(p_ptr->oppose_cold + randint1(20) + 20);
+		break;
+
+		/*** Second Book ***/
+	case 8: /* Cure Critical Wounds */
+		(void)hp_player(damroll(8, 10));
+		(void)set_stun(0);
+		(void)set_cut(0);
+		(void)set_poisoned(0);
 		break;
 	case 9: /* Remove Curse */
 		if (remove_curse())
@@ -981,101 +769,7 @@ static bool cast_life_spell(int spell)
 #endif
 		}
 		break;
-	case 10: /* Cure Critical Wounds */
-		(void)hp_player(damroll(8, 10));
-		(void)set_stun(0);
-		(void)set_cut(0);
-		(void)set_poisoned(0);
-		break;
-	case 11: /* Orb or Draining */
-		if (!get_aim_dir(&dir)) return FALSE;
-
-		fire_ball(GF_HOLY_FIRE, dir,
-			  (damroll(3, 6) + plev +
-			  (plev / ((p_ptr->pclass == CLASS_PRIEST) ? 2 : 4))),
-			  ((plev < 30) ? 2 : 3));
-		break;
-	case 12: /* Nature Awareness -- downgraded */
-		map_area(DETECT_RAD_MAP);
-		(void)detect_traps(DETECT_RAD_DEFAULT);
-		(void)detect_doors(DETECT_RAD_DEFAULT);
-		(void)detect_stairs(DETECT_RAD_DEFAULT);
-		(void)detect_monsters_normal(DETECT_RAD_DEFAULT);
-		break;
-	case 13: /* Resistance Heat & Cold */
-		(void)set_oppose_fire(p_ptr->oppose_fire + randint1(20) + 20);
-		(void)set_oppose_cold(p_ptr->oppose_cold + randint1(20) + 20);
-		break;
-	case 14: /* Charm Monster */
-		if (!get_aim_dir(&dir)) return FALSE;
-
-		(void)charm_monster(dir, plev);
-		break;
-	case 15: /* Protection from Evil */
-		(void)set_protevil(p_ptr->protevil + randint1(25) + 3 * p_ptr->lev);
-		break;
-	case 16: /* Healing */
-		(void)hp_player(300);
-		(void)set_stun(0);
-		(void)set_cut(0);
-		break;
-	case 17: /* Banishment */
-		if (banish_evil(100))
-		{
-#ifdef JP
-			msg_print("神の御力が邪悪を打ち払った！");
-#else
-			msg_print("The power of your god banishes evil!");
-#endif
-		}
-		break;
-	case 18: /* Star Burst */
-		if (!get_aim_dir(&dir)) return FALSE;
-
-		fire_ball(GF_LITE, dir, (100 + plev * 2), 3);
-		break;
-	case 19: /* Glyph of Warding */
-		warding_glyph();
-		break;
-	case 20: /* Heroism */
-		(void)set_hero(p_ptr->hero + randint1(25) + 25);
-		(void)hp_player(10);
-		(void)set_afraid(0);
-		break;
-	case 21: /* Dispel Curse */
-		if (remove_all_curse())
-		{
-#ifdef JP
-			msg_print("誰かに見守られているような気がする。");
-#else
-			msg_print("You feel as if someone is watching over you.");
-#endif
-		}
-		break;
-	case 22: /* Resistance True */
-		(void)set_oppose_acid(p_ptr->oppose_acid + randint1(20) + 20);
-		(void)set_oppose_elec(p_ptr->oppose_elec + randint1(20) + 20);
-		(void)set_oppose_fire(p_ptr->oppose_fire + randint1(20) + 20);
-		(void)set_oppose_cold(p_ptr->oppose_cold + randint1(20) + 20);
-		(void)set_oppose_pois(p_ptr->oppose_pois + randint1(20) + 20);
-		break;
-	case 23: /* Dispel Evil */
-		(void)dispel_evil(plev * 4);
-		break;
-	case 24: /* 'Day of the Dove' */
-		charm_monsters(plev * 2);
-		break;
-	case 25: /* Holy Word */
-		(void)dispel_evil(plev * 4);
-		(void)hp_player(500);
-		(void)set_afraid(0);
-		(void)set_poisoned(0);
-		(void)set_stun(0);
-		(void)set_cut(0);
-		break;
-	case 26: /* Bless Weapon */
-		return bless_weapon();
-	case 27: /* Restoration */
+	case 10: /* Restoration */
 		(void)do_res_stat(A_STR);
 		(void)do_res_stat(A_INT);
 		(void)do_res_stat(A_WIS);
@@ -1084,37 +778,24 @@ static bool cast_life_spell(int spell)
 		(void)do_res_stat(A_CHR);
 		(void)restore_level();
 		break;
-	case 28: /* Nanka(神聖なる光) */
-		project(0, 8, py, px, 150, GF_LITE, PROJECT_KILL | PROJECT_ITEM);
-		(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
-		wiz_lite();
+	case 11: /* Sense Surrounding */
+		map_area(DETECT_RAD_MAP);
 		break;
-	case 29: /* Holy Vision */
-		return identify_fully();
-	case 30: /* Healing True */
-		(void)hp_player(1000);
+	case 12: /* Dispel Evil */
+		(void)dispel_evil(plev * 3);
+		break;
+	case 13: /* Healing */
+		(void)hp_player(200);
 		(void)set_stun(0);
 		(void)set_cut(0);
+		(void)set_poisoned(0);
 		break;
-	case 31: /* Divine Intervention */
-		project(0, 1, py, px, 600, GF_HOLY_FIRE, PROJECT_KILL);
-		dispel_monsters(plev * 4);
-		slow_monsters();
-		stun_monsters(plev * 4);
-		confuse_monsters(plev * 4);
-		turn_monsters(plev * 4);
-		stasis_monsters(plev * 4);
-		(void)set_shero(p_ptr->shero + randint1(25) + 25);
-		(void)hp_player(300);
-		if (!p_ptr->fast)
-		{   /* Haste */
-			(void)set_fast(randint1(20 + plev) + plev);
-		}
-		else
-		{
-			(void)set_fast(p_ptr->fast + randint1(5));
-		}
-		(void)set_afraid(0);
+	case 14: /* Bless Weapon */
+		return bless_weapon();
+		break;
+	case 15: /* Star Burst */
+		if (!get_aim_dir(&dir)) return FALSE;
+		fire_ball(GF_LITE, dir, (100 + plev * 4), 3);
 		break;
 	default:
 #ifdef JP
@@ -1140,465 +821,76 @@ static bool cast_sorcery_spell(int spell)
 
 	switch (spell)
 	{
+		/*** First Book ***/
 	case 0: /* Magic Missile */
 		if (!get_aim_dir(&dir)) return FALSE;
 
 		fire_bolt_or_beam(beam - 10, GF_MISSILE, dir,
 			damroll(3 + ((plev - 1) / 5), 4));
 		break;
-	case 1: /* Detect Monsters */
-		(void)detect_monsters_normal(DETECT_RAD_DEFAULT);
-		break;
-	case 2: /* Phase Door */
+	case 1: /* Phase Door */
 		teleport_player(10);
 		break;
-	case 3: /* Detect Doors and Traps */
-		(void)detect_traps(DETECT_RAD_DEFAULT);
-		(void)detect_doors(DETECT_RAD_DEFAULT);
-		(void)detect_stairs(DETECT_RAD_DEFAULT);
+	case 2: /* Detect Monsters */
+		(void)detect_monsters_normal(DETECT_RAD_DEFAULT);
 		break;
-	case 4: /* Light Area */
+	case 3: /* Light Area */
 		(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
 		break;
-	case 5: /* Trap & Door Destruction */
-		if (!get_aim_dir(&dir)) return FALSE;
-
-		(void)destroy_door(dir);
-		break;
-	case 6: /* Teleport Self */
+	case 4: /* Teleport Self */
 		teleport_player(plev * 5);
 		break;
-	case 7: /* Satisfy Hunger */
-		(void)set_food(PY_FOOD_MAX - 1);
-		break;
-	case 8: /* Manaburst */
+	case 5: /* Manaburst */
 		if (!get_aim_dir(&dir)) return FALSE;
 
 		fire_ball(GF_MISSILE, dir,
 			  (damroll(3, 5) + plev +
 			   (plev / ((p_ptr->pclass == CLASS_MAGE) ? 2 : 4))),
-			   (plev < 30) ? 2 : 3);
+			   2);
 			/* Shouldn't actually use GF_MANA, as it will destroy all
 			 * items on the floor */
+		break;
+	case 6: /* Magic Mapping */
+		map_area(DETECT_RAD_MAP);
+		break;
+	case 7: /* Teleport Other */
+		if (!get_aim_dir(&dir)) return FALSE;
+		(void)fire_beam(GF_AWAY_ALL, dir, plev);
+		break;
+
+		/*** Second Book ***/
+	case 8: /* Stone to Mud */
+		if (!get_aim_dir(&dir)) return FALSE;
+		(void)wall_to_mud(dir);
 		break;
 	case 9: /* Word of Recall */
 		word_of_recall();
 		break;
-	case 10: /* Stone to Mud */
+	case 10: /* Identify */
+		return ident_spell();
+	case 11: /* Bolt of Drain Life */
 		if (!get_aim_dir(&dir)) return FALSE;
-
-		(void)wall_to_mud(dir);
+		fire_bolt(GF_OLD_DRAIN, dir, 70 + p_ptr->lev * 2);
 		break;
-	case 11: /* Recharging */
-		return recharge(plev * 4);
-	case 12: /* Magic Mapping */
-		map_area(DETECT_RAD_MAP);
-		break;
-	case 13: /* Identify */
-		if (plev < 35) return ident_spell();
-		else return identify_fully();
-	case 14: /* Sense Minds */
+	case 12: /* Sense Minds */
 		(void)set_tim_esp(p_ptr->tim_esp + randint1(30) + 25);
 		break;
-	case 15: /* Doom Bolt -- always beam in 2.0.7 or later */
-		if (!get_aim_dir(&dir)) return FALSE;
-
-		fire_beam(GF_MANA, dir, damroll(11 + ((plev - 5) / 4), 8));
+	case 13: /* Haste Self */
+		(void)set_fast(randint1(20 + plev) + plev);
 		break;
-	case 16: /* Haste Self */
-		if (!p_ptr->fast)
-		{
-			(void)set_fast(randint1(20 + plev) + plev);
-		}
-		else
-		{
-			(void)set_fast(p_ptr->fast + randint1(5));
-		}
-		break;
-	case 17: /* Teleport Other */
-		if (!get_aim_dir(&dir)) return FALSE;
-
-		(void)fire_beam(GF_AWAY_ALL, dir, plev);
-		break;
-	case 18: /* Magic Rocket */
-		if (!get_aim_dir(&dir)) return FALSE;
-
-#ifdef JP
-		msg_print("ロケット発射！");
-#else
-		msg_print("You launch a rocket!");
-#endif
-		sound(SOUND_ROCKET);
-		fire_ball(GF_ROCKET, dir, (120 + plev * 2), 2);
-		break;
-	case 19: /* Genocide */
-		(void)genocide(plev + 50);
-		break;
-	case 20: /* Probing */
-		probing();
-		break;
-	case 21: /* Teleport Level */
-		(void)teleport_player_level();
-		break;
-	case 22: /* Telekinesis */
-		if (!get_aim_dir(&dir)) return FALSE;
-
-		fetch(dir, plev * 15 / 10, FALSE);
-		break;
-	case 23: /* Detection */
+	case 14: /* Detection */
 		(void)detect_all(DETECT_RAD_DEFAULT);
 		break;
-	case 24: /* Word of Destruction */
-		destroy_area(py, px, 15, TRUE);
-		break;
-	case 25: /* Clairvoyance */
-		wiz_lite();
-		if (!p_ptr->telepathy)
-		{
-			(void)set_tim_esp(p_ptr->tim_esp + randint1(30) + 25);
-		}
-		break;
-	case 26: /* Banish Monsters */
-		banish_monsters(MAX_SIGHT * 5);
-		break;
-	case 27: /* Dimension Door */
-#ifdef JP
-		msg_print("次元の扉が開いた。目的地を選んで下さい。");
-#else
-		msg_print("You open a dimensional gate. Choose a destination.");
-#endif
-		return dimension_door();
-	case 28: /* Alchemy */
-		return alchemy();
-	case 29: /* Mass Genocide */
-		(void)mass_genocide(plev + 50);
-		break;
-	case 30: /* Mana Storm */
+	case 15: /* Hell Fire */
 		if (!get_aim_dir(&dir)) return FALSE;
-
-		fire_ball(GF_MANA, dir, 300 + (plev * 5), 4);
-		break;
-	case 31: /* Wraithform */
-		set_wraith_form(p_ptr->tim_wraith + randint1(plev / 2) + (plev / 2));
+		fire_ball(GF_HELL_FIRE, dir, 111 + (plev * 6), 4);
+		take_hit(7 + randint1(13), "呪文を唱えた疲労");
 		break;
 	default:
 #ifdef JP
 		msg_format("あなたは不明なソーサリーの呪文 %d を唱えた。", spell);
 #else
 		msg_format("You cast an unknown Sorcery spell: %d.", spell);
-#endif
-		msg_print(NULL);
-	}
-
-	return TRUE;
-}
-
-
-static bool cast_musou_spell(int spell)
-{
-	int	    dir;
-	int	    plev = p_ptr->lev;
-	int	    x, y;
-
-	switch (spell)
-	{
-	case 0: /* Regenerate */
-		(void)set_tim_regen(p_ptr->tim_regen + 80 + randint1(80));
-		break;
-	case 1: /* 3way attack */
-	{
-		int cdir;
-		if (!get_rep_dir(&dir)) return FALSE;
-
-		if (dir == 5) return FALSE;
-		for (cdir = 0;cdir < 8; cdir++)
-		{
-			if (cdd[cdir] == dir) break;
-		}
-		if (cdir == 8) return FALSE;
-		y = py + ddy_cdd[cdir];
-		x = px + ddx_cdd[cdir];
-		if (cave[y][x].m_idx)
-			py_attack(y, x);
-		else
-#ifdef JP
-			msg_print("攻撃は空を切った。");
-#else
-			msg_print("You attack the empty air.");
-#endif
-		y = py + ddy_cdd[(cdir + 7) % 8];
-		x = px + ddx_cdd[(cdir + 7) % 8];
-		if (cave[y][x].m_idx)
-			py_attack(y, x);
-		else
-#ifdef JP
-			msg_print("攻撃は空を切った。");
-#else
-			msg_print("You attack the empty air.");
-#endif
-		y = py + ddy_cdd[(cdir + 1) % 8];
-		x = px + ddx_cdd[(cdir + 1) % 8];
-		if (cave[y][x].m_idx)
-			py_attack(y, x);
-		else
-#ifdef JP
-			msg_print("攻撃は空を切った。");
-#else
-			msg_print("You attack the empty air.");
-#endif
-		break;
-	}
-	case 2: /* Heroism */
-		(void)set_hero(p_ptr->hero + randint1(25) + 25);
-		(void)hp_player(10);
-		(void)set_afraid(0);
-		break;
-	case 3: /* Jumping */
-		project_length = 5;
-		if (!get_aim_dir(&dir)) return FALSE;
-
-		project_hook(GF_JUMP, dir, 0, PROJECT_STOP);
-		project_length = 0;
-		break;
-	case 4: /* Resist Environment */
-		(void)set_oppose_cold(p_ptr->oppose_cold + randint1(20) + 20);
-		(void)set_oppose_fire(p_ptr->oppose_fire + randint1(20) + 20);
-		(void)set_oppose_elec(p_ptr->oppose_elec + randint1(20) + 20);
-		break;
-	case 5: /* Radar Eye */
-		(void)set_tim_radar(p_ptr->tim_radar + randint1(25) + 30);
-		break;
-	case 6: /* Charge */
-		return charge_monster();
-	case 7: /* Slash Wind */
-		if (!get_aim_dir(&dir)) return FALSE;
-
-		fire_bolt(GF_FORCE, dir, damroll(3 + ((plev - 5) / 4), 8));
-		break;
-	case 8: /* Stone Skin */
-		(void)set_shield(p_ptr->shield + randint1(25) + 30);
-		break;
-	case 9: /* Remove Curse */
-		if (remove_curse())
-		{
-#ifdef JP
-			msg_print("誰かに見守られているような気がする。");
-#else
-			msg_print("You feel as if someone is watching over you.");
-#endif
-		}
-		break;
-	case 10: /* Berserk */
-		(void)set_shero(p_ptr->shero + randint1(25) + 25);
-		(void)hp_player(30);
-		(void)set_afraid(0);
-		break;
-	case 11: /* Earthquake */
-		earthquake(py, px, 10);
-		break;
-	case 12: /* Jump and Attack */
-		project_length = 5;
-		if (!get_aim_dir(&dir)) return FALSE;
-
-		project_hook(GF_JUMP_ATTACK, dir, 0, PROJECT_STOP | PROJECT_KILL);
-		project_length = 0;
-		break;
-	case 13: /* Resistance True */
-		(void)set_oppose_acid(p_ptr->oppose_acid + randint1(20) + 20);
-		(void)set_oppose_elec(p_ptr->oppose_elec + randint1(20) + 20);
-		(void)set_oppose_fire(p_ptr->oppose_fire + randint1(20) + 20);
-		(void)set_oppose_cold(p_ptr->oppose_cold + randint1(20) + 20);
-		(void)set_oppose_pois(p_ptr->oppose_pois + randint1(20) + 20);
-		break;
-	case 14: /* Aura Arrow */
-		superb_shot = TRUE;
-		command_cmd = 'f';
-		(void)do_cmd_fire();
-		superb_shot = FALSE;
-		break;
-	case 15: /* Fast Slicing */
-		if (!get_rep_dir(&dir)) return FALSE;
-
-		y = py + ddy[dir];
-		x = px + ddx[dir];
-		if(cave[y][x].m_idx)
-		{
-			py_attack_special(y, x, ATTACK_VORPAL);
-		}
-		else
-		{
-#ifdef JP
-			msg_print("その方向にはモンスターはいません。");
-#else
-			msg_print("You don't see any monster in this direction");
-#endif
-			return FALSE;
-		}
-		break;
-	case 16: /* Haste Self */
-		if (!p_ptr->fast)
-		{
-			(void)set_fast(randint1(20 + plev) + plev);
-		}
-		else
-		{
-			(void)set_fast(p_ptr->fast + randint1(5));
-		}
-		break;
-	case 17: /* Whirlwind Attack */
-		{
-			int y, x;
-			cave_type       *c_ptr;
-			monster_type    *m_ptr;
-
-			for (dir = 0; dir <= 9; dir++)
-			{
-				y = py + ddy[dir];
-				x = px + ddx[dir];
-				c_ptr = &cave[y][x];
-
-				/* Get the monster */
-				m_ptr = &m_list[c_ptr->m_idx];
-
-				/* Hack -- attack monsters */
-				if (c_ptr->m_idx && (m_ptr->ml || cave_floor_bold(y, x)))
-					py_attack(y, x);
-			}
-		}
-		break;
-	case 18: /* Nanka(疾風斬) */
-		if (!get_aim_dir(&dir)) return FALSE;
-
-		fire_beam(GF_INERTIA, dir, (plev * 3 / 2) + randint1(plev * 2));
-		break;
-	case 19: /* Magical Armour */
-		(void)set_magicdef(p_ptr->magicdef + randint1(20) + 20);
-		break;
-	case 20: /* Remove Enchantment */
-		if(!mundane_spell(TRUE)) return FALSE;
-		break;
-	case 21: /* Protection from Evil */
-		(void)set_protevil(p_ptr->protevil + randint1(25) + 3 * p_ptr->lev);
-		break;
-	case 22: /* Battle Frenzy */
-		(void)set_shero(p_ptr->shero + randint1(25) + 25);
-		(void)hp_player(30);
-		(void)set_afraid(0);
-		if (!p_ptr->fast)
-		{
-			(void)set_fast(randint1(20 + (plev / 2)) + (plev / 2));
-		}
-		else
-		{
-			(void)set_fast(p_ptr->fast + randint1(5));
-		}
-		break;
-	case 23: /* Coating */
-		(void)coat_equip();
-		break;
-	case 24: /* Bombing Attack */
-		if (!get_rep_dir(&dir)) return FALSE;
-
-		y = py + ddy[dir];
-		x = px + ddx[dir];
-		if(cave[y][x].m_idx)
-		{
-			py_attack_special(y, x, ATTACK_BAKUSIN);
-		}
-		else
-		{
-#ifdef JP
-			msg_print("その方向にはモンスターはいません。");
-#else
-			msg_print("You don't see any monster in this direction");
-#endif
-			return FALSE;
-		}
-		break;
-	case 25: /* Enchant Weapon */
-		return enchant_spell(randint0(4) + 1, randint0(4) + 1, 0);
-	case 26: /* Enchant Armour */
-		return enchant_spell(0, 0, randint0(3) + 2);
-	case 27: /* Nanka(闘気の剣) */
-		if (!get_rep_dir(&dir)) return FALSE;
-
-		y = py + ddy[dir];
-		x = px + ddx[dir];
-		if(cave[y][x].m_idx)
-		{
-			py_attack_special(y, x, ATTACK_TOUKI);
-		}
-		else
-		{
-#ifdef JP
-			msg_print("その方向にはモンスターはいません。");
-#else
-			msg_print("You don't see any monster in this direction");
-#endif
-			return FALSE;
-		}
-		break;
-	case 28: /* Nanka(隼斬り) */
-		if (!get_rep_dir(&dir)) return FALSE;
-
-		y = py + ddy[dir];
-		x = px + ddx[dir];
-		if(cave[y][x].m_idx)
-		{
-			py_attack(y, x);
-		}
-		else
-		{
-#ifdef JP
-			msg_print("その方向にはモンスターはいません。");
-#else
-			msg_print("You don't see any monster in this direction");
-#endif
-			return FALSE;
-		}
-		if (cave[y][x].m_idx)
-		{
-			handle_stuff();
-			py_attack(y, x);
-		}
-		break;
-	case 29: /* Nanka(竜巻斬) */
-		if (!get_aim_dir(&dir)) return FALSE;
-
-		fire_ball(GF_INERTIA, dir, 175+randint1(plev*2), -3);
-		break;
-	case 30: /* Nanka(滅邪の刃) */
-		brand_weapon(5);
-		break;
-	case 31: /* Nanka(無双) */
-	{
-		int v = randint1(25) + 25;
-		(void)set_hero(p_ptr->hero + v);
-		(void)set_shero(p_ptr->shero + v);
-		(void)hp_player(30);
-		(void)set_afraid(0);
-		if (p_ptr->fast < v)
-		{
-			(void)set_fast(v);
-		}
-		else
-		{
-			(void)set_fast(p_ptr->fast + randint1(5));
-		}
-		(void)set_shield(p_ptr->shield + v);
-		(void)set_oppose_acid(p_ptr->oppose_acid + v);
-		(void)set_oppose_elec(p_ptr->oppose_elec + v);
-		(void)set_oppose_fire(p_ptr->oppose_fire + v);
-		(void)set_oppose_cold(p_ptr->oppose_cold + v);
-		(void)set_oppose_pois(p_ptr->oppose_pois + v);
-		(void)set_musou(p_ptr->musou + v);
-		break;
-	}
-	default:
-#ifdef JP
-		msg_format("あなたは不明な無双の呪文 %d を唱えた。", spell);
-#else
-		msg_format("You cast an unknown Musou spell: %d.", spell);
 #endif
 		msg_print(NULL);
 	}
@@ -1769,7 +1061,7 @@ void do_cmd_cast(void)
 #else
 		msg_format("You failed to get the %s off!", prayer);
 #endif
-		sound(SOUND_FAIL);
+ 		sound(SOUND_STORE2);  /* (Sound substitute) HACK! No fail sound, use strore 2*/
 	}
 
 	/* Process spell */
@@ -1784,12 +1076,6 @@ void do_cmd_cast(void)
 		case REALM_SORCERY: /* * SORCERY * */
 			cast = cast_sorcery_spell(spell);
 			break;
-		case REALM_MUSOU: /* * MUSOU * */
-			cast = cast_musou_spell(spell);
-			break;
-		case REALM_MAGIC: /* * MAGIC * */
-			cast = cast_magic_spell(spell);	/* MAGIC */
-			break;
 		default:
 			cast = FALSE;
 			msg_format("You cast a spell from an unknown realm: realm %d, spell %d.", realm, spell);
@@ -1800,6 +1086,7 @@ void do_cmd_cast(void)
 		if (!cast) return;
 
 		/* A spell was cast */
+		sound(SOUND_SPELL);
 		if (!(increment ?
 		    (spell_worked2 & (1L << spell)) :
 		    (spell_worked1 & (1L << spell))))
@@ -1822,24 +1109,7 @@ void do_cmd_cast(void)
 	}
 
 	/* Take a turn */
-	if (!((realm == REALM_MUSOU) && (spell == 13)))
-		energy_use = 100;
-	else /* Aura Arrow */
-	{
-		object_type *j_ptr = &inventory[INVEN_BOW];
-
-		if (j_ptr->tval)
-		{
-			int thits = p_ptr->num_fire;
-
-			energy_use = bow_energy(j_ptr->sval);
-			energy_use = (energy_use * 100 / thits);
-		}
-		else
-		{
-			energy_use = 100;
-		}
-	}
+	energy_use = 100;
 
 	/* Sufficient mana */
 	if (use_mana <= p_ptr->csp)
@@ -1888,7 +1158,7 @@ void do_cmd_cast(void)
 	p_ptr->redraw |= (PR_MANA);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_PLAYER);
+	p_ptr->window |= (PW_PLAYER | PW_STATS);
 	p_ptr->window |= (PW_SPELL);
 }
 
@@ -1910,7 +1180,7 @@ int calculate_upkeep(void)
 	monster_type    *m_ptr;
 	monster_race    *r_ptr;
 
-	int old_total_friends = total_friends; 
+	/* int old_total_friends = total_friends; */
 	s32b old_friend_align = friend_align;
 
 	/* Clear some variables */

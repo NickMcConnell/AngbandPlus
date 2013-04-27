@@ -120,7 +120,7 @@ ANGBAND MENU
 		POPUP "&Graphics"
 		{
 			MENUITEM "&None", 400
-			MENUITEM "&Old tiles", 401
+			MENUITEM "&8x8 tiles", 401
 			MENUITEM "&Adam Bolt's tiles", 402
 			MENUITEM "&Bigtile mode", 409
 		}

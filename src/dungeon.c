@@ -261,6 +261,7 @@ static void sense_inventory(void)
 					((o_ptr->number == 1) ? "is" : "are"),
 					game_inscriptions[feel]);
 #endif
+            sound(SOUND_PSEUDOID);
 		}
 
 		/* Message (inventory) */
@@ -275,6 +276,7 @@ static void sense_inventory(void)
 				   ((o_ptr->number == 1) ? "is" : "are"),
 					   game_inscriptions[feel]);
 #endif
+            sound(SOUND_PSEUDOID);
 		}
 
 		/* We have "felt" it */
@@ -442,6 +444,7 @@ static void sense_magic(void)
 					((o_ptr->number == 1) ? "is" : "are"),
 					game_inscriptions[feel]);
 #endif
+            sound(SOUND_PSEUDOID);
 		}
 
 		/* Message (inventory) */
@@ -456,6 +459,7 @@ static void sense_magic(void)
 				   ((o_ptr->number == 1) ? "is" : "are"),
 					   game_inscriptions[feel]);
 #endif
+            sound(SOUND_PSEUDOID);
 		}
 
 		/* We have "felt" it */
@@ -482,11 +486,11 @@ static void sense_magic(void)
 static void pattern_teleport(void)
 {
 	int min_level = 0;
-	int max_level = 99;
+	int max_level = TINY_MAX_DEPTH - 1;
 
 	/* Ask for level */
 #ifdef JP
-if (get_check("レベル・テレポートしますか？"))
+	if (get_check("レベル・テレポートしますか？"))
 #else
 	if (get_check("Teleport level? "))
 #endif
@@ -500,18 +504,17 @@ if (get_check("レベル・テレポートしますか？"))
 			min_level = dun_level;
 
 		/* Maximum level */
-		if (dun_level > 100)
-			max_level = MAX_DEPTH - 1;
-		else if (dun_level == 100)
-			max_level = 100;
+		if (dun_level > MORGOTH_DEPTH)
+			max_level = MORGOTH_DEPTH - 1;
+		else if (dun_level == MORGOTH_DEPTH)
+			max_level = MORGOTH_DEPTH;
 
 		/* Prompt */
 #ifdef JP
-sprintf(ppp, "テレポート先:(%d-%d)", min_level, max_level);
+		sprintf(ppp, "テレポート先:(%d-%d)", min_level, max_level);
 #else
 		sprintf(ppp, "Teleport to level (%d-%d): ", min_level, max_level);
 #endif
-
 
 		/* Default */
 		sprintf(tmp_val, "%d", dun_level);
@@ -523,11 +526,10 @@ sprintf(ppp, "テレポート先:(%d-%d)", min_level, max_level);
 		command_arg = atoi(tmp_val);
 	}
 #ifdef JP
-else if (get_check("通常テレポート？"))
+	else if (get_check("通常テレポート？"))
 #else
 	else if (get_check("Normal teleport? "))
 #endif
-
 	{
 		teleport_player(200);
 		return;
@@ -545,11 +547,10 @@ else if (get_check("通常テレポート？"))
 
 	/* Accept request */
 #ifdef JP
-msg_format("%d 階にテレポートしました。", command_arg);
+	msg_format("%d 階にテレポートしました。", command_arg);
 #else
 	msg_format("You teleport to dungeon level %d.", command_arg);
 #endif
-
 
 	if (autosave_l) do_cmd_save_game(TRUE);
 
@@ -822,7 +823,7 @@ static void notice_lite_change(object_type *o_ptr)
 	{
 		disturb(0, 0);
 #ifdef JP
-msg_print("明かりが消えてしまった！");
+	msg_print("明かりが消えてしまった！");
 #else
 		msg_print("Your light has gone out!");
 #endif
@@ -834,7 +835,7 @@ msg_print("明かりが消えてしまった！");
 	{
 		if (disturb_minor) disturb(0, 0);
 #ifdef JP
-msg_print("明かりが微かになってきている。");
+	msg_print("明かりが微かになってきている。");
 #else
 		msg_print("Your light is growing faint.");
 #endif
@@ -861,7 +862,7 @@ void leave_quest_check(void)
 }
 
 
-static bool item_tester_hook_psychometry(object_type *o_ptr)
+static bool item_tester_hook_psychometry(const object_type *o_ptr)
 {
 	return (!object_known_p(o_ptr) && 
 		((o_ptr->feeling == FEEL_NONE) || (o_ptr->feeling == FEEL_UNCURSED)));
@@ -963,7 +964,7 @@ bool psychometry(void)
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER | PW_STATS);
 
 	/* Valid "tval" codes */
 	switch (o_ptr->tval)
@@ -1066,6 +1067,55 @@ static void recharged_notice(object_type *o_ptr)
 	}
 }
 
+static void play_ambient_sound(void)
+{
+        /* Town sound */
+        if (dun_level == 0) 
+        {
+                /* Hack - is it daytime or nighttime? */
+                if (turn % (10L * TOWN_DAWN) < (10L * TOWN_DAWN) / 2)
+                {
+                        /* It's day. */
+                        sound(SOUND_AMBIENT_DAY);
+                } 
+                else 
+                {
+                        /* It's night. */
+                        sound(SOUND_AMBIENT_NITE);
+                }
+                
+        }
+
+        /* Dungeon level 1-5 */
+        else if (dun_level <= 5) 
+        {
+                sound(SOUND_AMBIENT_DNG1);
+        }
+
+        /* Dungeon level 6-10 */
+        else if (dun_level <= 10) 
+        {
+                sound(SOUND_AMBIENT_DNG2);
+        }
+
+        /* Dungeon level 11-15 */
+        else if (dun_level <= 15) 
+        {
+                sound(SOUND_AMBIENT_DNG3);
+        }
+
+        /* Dungeon level 16-20 */
+        else if (dun_level <= 20) 
+        {
+                sound(SOUND_AMBIENT_DNG4);
+        }
+
+        /* Dungeon level 21- */
+        else  
+        {
+                sound(SOUND_AMBIENT_DNG5);
+        }
+}
 
 /*
  * Count number of adjacent monsters
@@ -1215,6 +1265,8 @@ byte get_dungeon_feeling(void)
 		    o_ptr->sval == SV_PAIR_OF_DRAGON_BOOTS) delta += 5 * base;
 		if (o_ptr->tval == TV_HELM &&
 		    o_ptr->sval == SV_DRAGON_HELM) delta += 5 * base;
+		if (o_ptr->tval == TV_HARD_ARMOR &&
+		    o_ptr->sval == SV_DRAGON_ARMOR) delta += 5 * base;
 		if (o_ptr->tval == TV_RING &&
 		    o_ptr->sval == SV_RING_SPEED &&
 		    !cursed_p(o_ptr)) delta += 25 * base;
@@ -1274,7 +1326,7 @@ static void update_dungeon_feeling(void)
 	/* No feeling in a quest */
 	if (quest_num &&
 	    (((quest_num < MIN_RANDOM_QUEST) || (quest_num > MAX_RANDOM_QUEST)) &&
-	     !((quest_num == QUEST_OBERON) || (quest_num == QUEST_SERPENT) ||
+	     !((quest_num == QUEST_SAURON) || (quest_num == QUEST_MORGOTH) ||
 	       !(quest[quest_num].flags & QUEST_FLAG_PRESET)))) return;
 
 
@@ -1333,6 +1385,12 @@ static void process_world(void)
 
 	/*** Check the Time and Load ***/
 
+    /* Play an ambient sound at regular intervals. */
+    if (!(turn % (TOWN_DAWN / 4)))
+    {
+          play_ambient_sound();
+    }
+
 	if (!(turn % 1000))
 	{
 		/* Check time and load */
@@ -1349,8 +1407,8 @@ static void process_world(void)
 
 				/* Message */
 #ifdef JP
-msg_print("アングバンドへの門が閉じかかっています...");
-msg_print("ゲームを終了するかセーブするかして下さい。");
+				msg_print("アングバンドへの門が閉じかかっています...");
+				msg_print("ゲームを終了するかセーブするかして下さい。");
 #else
 				msg_print("The gates to ANGBAND are closing...");
 				msg_print("Please finish up and/or save your game.");
@@ -1363,7 +1421,7 @@ msg_print("ゲームを終了するかセーブするかして下さい。");
 			{
 				/* Message */
 #ifdef JP
-msg_print("今、アングバンドへの門が閉ざされました。");
+				msg_print("今、アングバンドへの門が閉ざされました。");
 #else
 				msg_print("The gates to ANGBAND are now closed.");
 #endif
@@ -1413,7 +1471,7 @@ msg_print("今、アングバンドへの門が閉ざされました。");
 			{
 				/* Message */
 #ifdef JP
-msg_print("夜が明けた。");
+				msg_print("夜が明けた。");
 #else
 				msg_print("The sun has risen.");
 #endif
@@ -1444,7 +1502,7 @@ msg_print("夜が明けた。");
 			{
 				/* Message */
 #ifdef JP
-msg_print("日が沈んだ。");
+				msg_print("日が沈んだ。");
 #else
 				msg_print("The sun has fallen.");
 #endif
@@ -1502,7 +1560,7 @@ msg_print("日が沈んだ。");
 
 		/* Message */
 #ifdef JP
-if (cheat_xtra) msg_print("報酬をリセット");
+		if (cheat_xtra) msg_print("報酬をリセット");
 #else
 		if (cheat_xtra) msg_print("Rewards reset.");
 #endif
@@ -1531,14 +1589,14 @@ if (cheat_xtra) msg_print("報酬をリセット");
 	{
 		/* Take damage */
 #ifdef JP
-take_hit(1, "毒");
+		take_hit(1, "毒");
 #else
 		take_hit(1, "poison");
 #endif
 
 	}
 
-
+#if 0
 	/* (Vampires) Take damage from sunlight */
 	if (p_ptr->prace == RACE_VAMPIRE)
 	{
@@ -1549,8 +1607,8 @@ take_hit(1, "毒");
 			{
 				/* Take damage */
 #ifdef JP
-msg_print("日光があなたのアンデッドの肉体を焼き焦がした！");
-take_hit(1, "日光");
+				msg_print("日光があなたのアンデッドの肉体を焼き焦がした！");
+				take_hit(1, "日光");
 #else
 				msg_print("The sun's rays scorch your undead flesh!");
 				take_hit(1, "sunlight");
@@ -1573,7 +1631,7 @@ take_hit(1, "日光");
 			object_desc(o_name, o_ptr, OD_OMIT_PREFIX | OD_NAME_ONLY);
 
 #ifdef JP
-msg_format("%sがあなたのアンデッドの肉体を焼き焦がした！", o_name);
+			msg_format("%sがあなたのアンデッドの肉体を焼き焦がした！", o_name);
 #else
 			msg_format("The %s scorches your undead flesh!", o_name);
 #endif
@@ -1585,7 +1643,7 @@ msg_format("%sがあなたのアンデッドの肉体を焼き焦がした！", o_name);
 			object_desc(o_name, o_ptr, OD_NAME_ONLY);
 
 #ifdef JP
-sprintf(ouch, "%sを装備したダメージ", o_name);
+			sprintf(ouch, "%sを装備したダメージ", o_name);
 #else
 			sprintf(ouch, "wielding %s", o_name);
 #endif
@@ -1593,6 +1651,7 @@ sprintf(ouch, "%sを装備したダメージ", o_name);
 			if (!p_ptr->invuln) take_hit(1, ouch);
 		}
 	}
+#endif
 
 	if ((cave[py][px].feat == FEAT_SHAL_LAVA) &&
 		!p_ptr->invuln && !p_ptr->immune_fire && !p_ptr->ffall)
@@ -1606,8 +1665,8 @@ sprintf(ouch, "%sを装備したダメージ", o_name);
 		{
 			/* Take damage */
 #ifdef JP
-msg_print("溶岩で火傷した！");
-take_hit(damage, "浅い溶岩流");
+			msg_print("溶岩で火傷した！");
+			take_hit(damage, "浅い溶岩流");
 #else
 			msg_print("The lava burns you!");
 			take_hit(damage, "shallow lava");
@@ -1632,8 +1691,8 @@ take_hit(damage, "浅い溶岩流");
 			damage = damage / 5;
 
 #ifdef JP
-message = "熱で火傷した！";
-hit_from = "深い溶岩流の上に浮遊したダメージ";
+			message = "熱で火傷した！";
+			hit_from = "深い溶岩流の上に浮遊したダメージ";
 #else
 			message = "The heat burns you!";
 			hit_from = "flying over deep lava";
@@ -1643,8 +1702,8 @@ hit_from = "深い溶岩流の上に浮遊したダメージ";
 		else
 		{
 #ifdef JP
-message = "溶岩で火傷した！";
-hit_from = "深い溶岩流";
+			message = "溶岩で火傷した！";
+			hit_from = "深い溶岩流";
 #else
 			message = "The lava burns you!";
 			hit_from = "deep lava";
@@ -1702,8 +1761,8 @@ hit_from = "深い溶岩流";
 			if (p_ptr->pass_wall)
 			{
 #ifdef JP
-msg_print("体の分子が分解した気がする！");
-dam_desc = "密度";
+				msg_print("体の分子が分解した気がする！");
+				dam_desc = "密度";
 #else
 				msg_print("Your molecules feel disrupted!");
 				dam_desc = "density";
@@ -1713,8 +1772,8 @@ dam_desc = "密度";
 			else
 			{
 #ifdef JP
-msg_print("崩れた岩に押し潰された！");
-dam_desc = "硬い岩";
+				msg_print("崩れた岩に押し潰された！");
+				dam_desc = "硬い岩";
 #else
 				msg_print("You are being crushed!");
 				dam_desc = "solid rock";
@@ -1749,7 +1808,7 @@ dam_desc = "硬い岩";
 					case 0:
 					{
 #ifdef JP
-msg_print("遠くで不気味な鐘の音が鳴った。");
+						msg_print("遠くで不気味な鐘の音が鳴った。");
 #else
 						msg_print("You hear a distant bell toll ominously.");
 #endif
@@ -1759,7 +1818,7 @@ msg_print("遠くで不気味な鐘の音が鳴った。");
 					case 1:
 					{
 #ifdef JP
-msg_print("遠くで鐘が二回鳴った。");
+						msg_print("遠くで鐘が二回鳴った。");
 #else
 						msg_print("A distant bell sounds twice.");
 #endif
@@ -1769,7 +1828,7 @@ msg_print("遠くで鐘が二回鳴った。");
 					case 2:
 	{
 #ifdef JP
-msg_print("遠くで鐘が三回鳴った。");
+						msg_print("遠くで鐘が三回鳴った。");
 #else
 						msg_print("A distant bell sounds three times.");
 #endif
@@ -1779,7 +1838,7 @@ msg_print("遠くで鐘が三回鳴った。");
 					case 3:
 					{
 #ifdef JP
-msg_print("遠くで鐘が四回鳴った。");
+						msg_print("遠くで鐘が四回鳴った。");
 #else
 						msg_print("A distant bell tolls four times.");
 #endif
@@ -1796,7 +1855,7 @@ msg_print("遠くで鐘が四回鳴った。");
 
 				disturb(1, 0);
 #ifdef JP
-msg_print("遠くで鐘が何回も鳴り、死んだような静けさの中へ消えていった。");
+				msg_print("遠くで鐘が何回も鳴り、死んだような静けさの中へ消えていった。");
 #else
 				msg_print("A distant bell tolls many times, fading into an deathly silence.");
 #endif
@@ -1829,7 +1888,7 @@ msg_print("遠くで鐘が何回も鳴り、死んだような静けさの中へ消えていった。");
 
 		/* Take damage */
 #ifdef JP
-take_hit(i, "致命傷");
+		take_hit(i, "致命傷");
 #else
 		take_hit(i, "a fatal wound");
 #endif
@@ -1881,7 +1940,7 @@ take_hit(i, "致命傷");
 
 		/* Take damage */
 #ifdef JP
-if (!p_ptr->invuln) take_hit(i, "空腹");
+		if (!p_ptr->invuln) take_hit(i, "空腹");
 #else
 		if (!p_ptr->invuln) take_hit(i, "starvation");
 #endif
@@ -1916,7 +1975,7 @@ if (!p_ptr->invuln) take_hit(i, "空腹");
 			{
 				/* Message */
 #ifdef JP
-msg_print("あまりにも空腹で気絶してしまった。");
+				msg_print("あまりにも空腹で気絶してしまった。");
 #else
 				msg_print("You faint from the lack of food.");
 #endif
@@ -2194,23 +2253,15 @@ msg_print("あまりにも空腹で気絶してしまった。");
 		(void)set_tim_radar(p_ptr->tim_radar - 1);
 	}
 
-	/* Magic: Revenge Sentence */
-	if (p_ptr->tim_sentence)
+	/* Extra Might */
+	if (p_ptr->tim_might)
 	{
-		u16b flg = (PROJECT_GRID | PROJECT_ITEM | PROJECT_JUMP | PROJECT_KILL);
-		p_ptr->tim_sentence--;
+		(void)set_tim_might(p_ptr->tim_might - 1);
+	}
 
-		if (!p_ptr->tim_sentence)
-		{
-#ifdef JP
-			msg_print("復讐だ！復讐だ！");
-#else
-			msg_print("Revenge, revenge！");
-#endif
-			(void)project(0, 2, p_ptr->rvs_y, p_ptr->rvs_x, p_ptr->rvs_d, GF_MISSILE, flg);
-
-			p_ptr->redraw |= (PR_EXTRA);
-		}
+	if (p_ptr->tim_brand)
+	{
+		(void)set_tim_brand(p_ptr->tim_brand - 1, 0);
 	}
 
 	/*** Poison and Stun and Cut ***/
@@ -2454,21 +2505,7 @@ msg_print("あまりにも空腹で気絶してしまった。");
 		{
 			int count = 0;
 
-			if ((p_ptr->pclass != CLASS_ARCHAEOLOGIST) || one_in_(666))
-				(void)activate_ty_curse(FALSE, &count);
-		}
-
-		/* Make a chainsword noise */
-		if ((o_ptr->name1 == ART_CHAINSWORD) && randint1(CHAINSWORD_NOISE) == 1)
-		{
-			char noise[1024];
-#ifdef JP
-			if (!get_rnd_line("chainswd_j.txt", 0, noise))
-#else
-			if (!get_rnd_line("chainswd.txt", 0, noise))
-#endif
-				msg_print(noise);
-			disturb(FALSE, FALSE);
+			(void)activate_ty_curse(FALSE, &count);
 		}
 
 		/*
@@ -2494,7 +2531,7 @@ msg_print("あまりにも空腹で気絶してしまった。");
 					/* msg_print("Teleport aborted.") */ ;
 				}
 #ifdef JP
-else if (get_check("テレポートしますか？"))
+				else if (get_check("テレポートしますか？"))
 #else
 				else if (get_check("Teleport? "))
 #endif
@@ -2511,12 +2548,6 @@ else if (get_check("テレポートしますか？"))
 		{
 			/* Recharge */
 			o_ptr->timeout--;
-
-			/* Device-users can activate objects again quickly */
-			if (p_ptr->pclass == CLASS_DEVICE_USER)
-			{
-				if (o_ptr->timeout > 0) o_ptr->timeout--;
-			}
 
 			/* Notice changes */
 			if (!o_ptr->timeout)
@@ -2642,7 +2673,7 @@ else if (get_check("テレポートしますか？"))
 			if (dun_level || p_ptr->inside_quest)
 			{
 #ifdef JP
-msg_print("上に引っ張りあげられる感じがする！");
+				msg_print("上に引っ張りあげられる感じがする！");
 #else
 				msg_print("You feel yourself yanked upwards!");
 #endif
@@ -2657,7 +2688,7 @@ msg_print("上に引っ張りあげられる感じがする！");
 			else
 			{
 #ifdef JP
-msg_print("下に引きずり降ろされる感じがする！");
+				msg_print("下に引きずり降ろされる感じがする！");
 #else
 				msg_print("You feel yourself yanked downwards!");
 #endif
@@ -2882,19 +2913,11 @@ static void process_command(void)
 {
 	int old_now_message = p_ptr->now_message;
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 	/* Handle repeating the last command */
 	repeat_check();
 
-#endif /* ALLOW_REPEAT -- TNB */
-
 	/* Reset current message line */
 	p_ptr->now_message = 0;
-
-	/* Sniper */
-	if ((p_ptr->pclass == CLASS_SNIPER) && (p_ptr->concent))
-		reset_concent = TRUE;
 
 	/* Parse the command */
 	switch (command_cmd)
@@ -2922,7 +2945,7 @@ static void process_command(void)
 			{
 				wizard = FALSE;
 #ifdef JP
-msg_print("ウィザードモード解除。");
+				msg_print("ウィザードモード解除。");
 #else
 				msg_print("Wizard mode off.");
 #endif
@@ -2932,7 +2955,7 @@ msg_print("ウィザードモード解除。");
 			{
 				wizard = TRUE;
 #ifdef JP
-msg_print("ウィザードモード突入。");
+				msg_print("ウィザードモード突入。");
 #else
 				msg_print("Wizard mode on.");
 #endif
@@ -3064,32 +3087,14 @@ msg_print("ウィザードモード突入。");
 		/* Move (usually pick up things) */
 		case ';':
 		{
-#ifdef ALLOW_EASY_DISARM /* TNB */
-
 			do_cmd_walk(FALSE);
-
-#else /* ALLOW_EASY_DISARM -- TNB */
-
-			do_cmd_walk(always_pickup);
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
-
 			break;
 		}
 
 		/* Move (usually do not pick up) */
 		case '-':
 		{
-#ifdef ALLOW_EASY_DISARM /* TNB */
-
 			do_cmd_walk(TRUE);
-
-#else /* ALLOW_EASY_DISARM -- TNB */
-
-			do_cmd_walk(!always_pickup);
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
-
 			break;
 		}
 
@@ -3224,13 +3229,7 @@ msg_print("ウィザードモード突入。");
 		/* Browse a book */
 		case 'b':
 		{
-			if (p_ptr->pclass == CLASS_MINDCRAFTER)
-				do_cmd_mind_browse();
-			else if (p_ptr->pclass == CLASS_ELEMENTALIST)
-				do_cmd_elem_browse();
-			else if (p_ptr->pclass == CLASS_SNIPER)
-				do_cmd_snipe_browse();
-			else do_cmd_browse();
+			do_cmd_browse();
 			break;
 		}
 
@@ -3239,26 +3238,15 @@ msg_print("ウィザードモード突入。");
 		{
 			if (!p_ptr->inside_arena)
 			{
-				if (p_ptr->pclass == CLASS_DEVICE_USER)
-				{
-					do_cmd_use_device();
-				}
-
 				/* -KMW- */
-				else if (p_ptr->anti_magic)
+				if (p_ptr->anti_magic)
 				{
 #ifdef JP
 					cptr which_power = "魔法";
 #else
 					cptr which_power = "magic";
 #endif
-					if (p_ptr->pclass == CLASS_MINDCRAFTER)
-#ifdef JP
-						which_power = "超能力";
-#else
-						which_power = "psionic powers";
-#endif
-					else if (mp_ptr->spell_type == ST_PRAYER)
+					if (mp_ptr->spell_type == ST_PRAYER)
 #ifdef JP
 						which_power = "祈り";
 #else
@@ -3274,16 +3262,7 @@ msg_print("ウィザードモード突入。");
 				}
 				else
 				{
-					if (p_ptr->pclass == CLASS_MINDCRAFTER)
-						do_cmd_mindcraft();
-					else if (p_ptr->pclass == CLASS_ELEMENTALIST)
-						do_cmd_element();
-					else if (p_ptr->pclass == CLASS_SNIPER)
-						do_cmd_snipe();
-					else if (p_ptr->pclass == CLASS_SNATCHER)
-						do_cmd_monster_spell();
-					else
-						do_cmd_cast();
+					do_cmd_cast();
 				}
 			}
 			else
@@ -3329,7 +3308,7 @@ msg_print("ウィザードモード突入。");
 			else
 			{
 #ifdef JP
-msg_print("アリーナが魔法を吸収した！");
+				msg_print("アリーナが魔法を吸収した！");
 #else
 				msg_print("The arena absorbs all attempted magic!");
 #endif
@@ -3361,7 +3340,7 @@ msg_print("アリーナが魔法を吸収した！");
 			else
 			{
 #ifdef JP
-msg_print("アリーナでは真っ向勝負だ！");
+				msg_print("アリーナでは真っ向勝負だ！");
 #else
 				msg_print("You're in the arena now. This is hand-to-hand!");
 #endif
@@ -3379,7 +3358,7 @@ msg_print("アリーナでは真っ向勝負だ！");
 			else
 			{
 #ifdef JP
-msg_print("アリーナでは真っ向勝負だ！");
+				msg_print("アリーナでは真っ向勝負だ！");
 #else
 				msg_print("You're in the arena now. This is hand-to-hand!");
 #endif
@@ -3397,7 +3376,7 @@ msg_print("アリーナでは真っ向勝負だ！");
 			else
 			{
 #ifdef JP
-msg_print("アリーナが魔法を吸収した！");
+				msg_print("アリーナが魔法を吸収した！");
 #else
 				msg_print("The arena absorbs all attempted magic!");
 #endif
@@ -3421,7 +3400,7 @@ msg_print("アリーナが魔法を吸収した！");
 			else
 			{
 #ifdef JP
-msg_print("アリーナが魔法を吸収した！");
+				msg_print("アリーナが魔法を吸収した！");
 #else
 				msg_print("The arena absorbs all attempted magic!");
 #endif
@@ -3439,7 +3418,7 @@ msg_print("アリーナが魔法を吸収した！");
 			else
 			{
 #ifdef JP
-msg_print("アリーナが魔法を吸収した！");
+				msg_print("アリーナが魔法を吸収した！");
 #else
 				msg_print("The arena absorbs all attempted magic!");
 #endif
@@ -3457,7 +3436,7 @@ msg_print("アリーナが魔法を吸収した！");
 			else
 			{
 #ifdef JP
-msg_print("アリーナが魔法を吸収した！");
+				msg_print("アリーナが魔法を吸収した！");
 #else
 				msg_print("The arena absorbs all attempted magic!");
 #endif
@@ -3479,7 +3458,7 @@ msg_print("アリーナが魔法を吸収した！");
 			else
 			{
 #ifdef JP
-msg_print("アリーナが魔法を吸収した！");
+				msg_print("アリーナが魔法を吸収した！");
 #else
 				msg_print("The arena absorbs all attempted magic!");
 #endif
@@ -3497,7 +3476,7 @@ msg_print("アリーナが魔法を吸収した！");
 			else
 			{
 #ifdef JP
-msg_print("アリーナが魔法を吸収した！");
+				msg_print("アリーナが魔法を吸収した！");
 #else
 				msg_print("The arena absorbs all attempted magic!");
 #endif
@@ -3746,7 +3725,7 @@ msg_print("アリーナが魔法を吸収した！");
 			if (randint1(2) == 1)
 			{
 				char error_m[1024];
-				sound(SOUND_ILLEGAL);
+ 				sound(SOUND_BELL);  /* bell is the default system error sound */
 #ifdef JP
 				if (!get_rnd_line("error_j.txt", 0, error_m))
 #else
@@ -3757,7 +3736,7 @@ msg_print("アリーナが魔法を吸収した！");
 			}
 			else
 #ifdef JP
-prt(" '?' でヘルプが表示されます。", 0, 0);
+				prt(" '?' でヘルプが表示されます。", 0, 0);
 #else
 				prt("Type '?' for help.", 0, 0);
 #endif
@@ -4036,12 +4015,17 @@ static void process_player(void)
 			else
 				p_ptr->energy_need += energy_use;
 
+			/* Show objects on floor in subwinodw*/
+			look_y = py;
+			look_x = px;
+			p_ptr->window |= (PW_FLOOR);
+
 			/* Hack -- constant hallucination */
 			if (p_ptr->image) p_ptr->redraw |= (PR_MAP);
 
 
 			/* Shimmer monsters if needed */
-			if (!avoid_other && shimmer_monsters)
+			if (shimmer_monsters)
 			{
 				/* Clear the flag */
 				shimmer_monsters = FALSE;
@@ -4142,8 +4126,6 @@ static void process_player(void)
 		/* Used up energy for this turn */
 		if (energy_use) 
 		{
-			if (reset_concent) reset_concentration(TRUE);
-			if (p_ptr->keep_magic) upkeep_magic_spell();
 			break;
 		}
 	}
@@ -4346,7 +4328,7 @@ static void dungeon(void)
 	p_ptr->redraw |= (PR_MAP);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER | PW_STATS);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_MONSTER | PW_MESSAGE);
@@ -4505,20 +4487,6 @@ static void dungeon(void)
 	{
 		/* Un-mark the quest monster */
 		r_info[quest[quest_num].r_idx].flags1 &= ~RF1_QUESTOR;
-	}
-
-	/* Magic: Give up your revenge */
-	if (p_ptr->tim_sentence)
-	{
-		p_ptr->tim_sentence = 0;
-		p_ptr->rvs_x = 0;
-		p_ptr->rvs_y = 0;
-		p_ptr->rvs_d = 0;
-#ifdef JP
-		msg_print("復讐をあきらめた。");
-#else
-		msg_print("Give up your revenge.");
-#endif
 	}
 }
 
@@ -4830,7 +4798,7 @@ void play_game(bool new_game)
 	Term_xtra(TERM_XTRA_REACT, 0);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER | PW_STATS);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_DUNGEON | PW_MONSTER | PW_OBJECT);

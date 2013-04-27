@@ -61,34 +61,34 @@ F:63:15/127:LIT
 #R:247:0x01:31
 
 # Stunwall
-R:326:0x09:127
+#R:326:0x09:127
 
 # Landmine
 #R:333:0x01:31
 
 # Livingstone
-R:336:0x09:127
+#R:336:0x09:127
 
 # Vampiric mist
-R:365:0x08:127
+#R:365:0x08:127
 
 # It
 #R:393:0x09:31
 
 # Xiclotlan
-R:396:0x08:127
+#R:396:0x08:127
 
 # Roper
-R:426:0x08:127
+#R:426:0x08:127
 
 # Lesser wall monster
-R:448:0x09:127
+#R:448:0x09:127
 
 # Chaos tile
 #R:458:0x0A:31
 
 # Mist giant
-R:552:0x0E:127
+#R:552:0x0E:127
 
 # Trapper
 #R:565:0x01:31
@@ -97,19 +97,19 @@ R:552:0x0E:127
 #R:567:0x01:31
 
 # Weird fume
-R:625:0x0A:127
+#R:625:0x0A:127
 
 # Dark young of Shub-Niggurath
-R:677:0x08:127
+#R:677:0x08:127
 
 # Colour out of space
 #R:678:0x0A:31
 
 # Greater wall monster
-R:718:0x09:127
+#R:718:0x09:127
 
 # Ahtu, Avatar of Nyarlathotep
-R:761:0x08:127
+#R:761:0x08:127
 
 # Null the Living Void
 #R:803:0x00:31
@@ -118,7 +118,7 @@ R:761:0x08:127
 #R:868:0x00:31
 
 # Noxious fume
-R:875:0x0B:127
+#R:875:0x0B:127
 
 # Creeping dust
 #R:880:0x0A:31

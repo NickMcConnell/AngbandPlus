@@ -1157,16 +1157,6 @@ static byte choose_realm(byte choices)
 		count++;
 		auto_select = REALM_SORCERY;
 	}
-	if (choices & CH_MUSOU)
-	{
-		count++;
-		auto_select = REALM_MUSOU;
-	}
-	if (choices & CH_MAGIC)	/* Magic */
-	{
-		count++;
-		auto_select = REALM_MAGIC;
-	}
 
 	/* Auto-select the realm */
 	if (count < 2) return auto_select;
@@ -1336,18 +1326,8 @@ static byte choose_realm(byte choices)
  */
 static bool get_player_realms(void)
 {
-	/* Snatcher */
-	if (p_ptr->pclass == CLASS_SNATCHER)
-	{
-		set_first_monster_race();
-		return (TRUE);
-	}
-
 	/* Select the first realm */
-	if (p_ptr->pclass == CLASS_ELEMENTALIST)
-		p_ptr->realm1 = choose_element();
-	else
-		p_ptr->realm1 = choose_realm(realm_choices1[p_ptr->pclass]);
+	p_ptr->realm1 = choose_realm(realm_choices1[p_ptr->pclass]);
 
 	if (255 == p_ptr->realm1) return FALSE;
 	if (p_ptr->realm1)
@@ -1358,11 +1338,7 @@ static bool get_player_realms(void)
 #else
 		put_str("Magic       :", 6, 1);
 #endif
-
-		if (p_ptr->pclass == CLASS_ELEMENTALIST)
-			c_put_str(TERM_L_BLUE, element_realm_name(), 6, 15);
-		else
-			c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm1], 6, 15);
+		c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm1], 6, 15);
 
 		/* Select the second realm */
 		p_ptr->realm2 = choose_realm(realm_choices2[p_ptr->pclass]);
@@ -1408,7 +1384,7 @@ static void save_prev_data(birther *birther_ptr)
 		birther_ptr->player_hp[i] = player_hp[i];
 	}
 
-	birther_ptr->chaos_patron = 0;
+	birther_ptr->valar_patron = p_ptr->valar_patron;
 
 	/* Save the history */
 	for (i = 0; i < 4; i++)
@@ -1459,7 +1435,7 @@ static void load_prev_data(bool swap)
 	p_ptr->mhp = player_hp[0];
 	p_ptr->chp = player_hp[0];
 
-	p_ptr->chaos_patron = 0;
+	p_ptr->valar_patron = previous_char.valar_patron;
 
 	/* Load the history */
 	for (i = 0; i < 4; i++)
@@ -1517,21 +1493,9 @@ static int adjust_stat(int value, int amount, int auto_roll)
 			{
 				value++;
 			}
-			else if (maximize_mode)
+			else
 			{
 				value += 10;
-			}
-			else if (value < 18+70)
-			{
-				value += ((auto_roll ? 15 : randint1(15)) + 5);
-			}
-			else if (value < 18+90)
-			{
-				value += ((auto_roll ? 6 : randint1(6)) + 2);
-			}
-			else if (value < 18+100)
-			{
-				value++;
 			}
 		}
 	}
@@ -1567,7 +1531,7 @@ static void get_stats(void)
 
 			/* Save that value */
 			sum += val;
-			p_ptr->stat_cur[3*i] = p_ptr->stat_max[3*i] = (maximize_mode ? val : adjust_stat(val, rp_ptr->r_adj[3*i] + cp_ptr->c_adj[3*i], FALSE));
+			p_ptr->stat_cur[3*i] = p_ptr->stat_max[3*i] = val;
 
 			/* Extract 5 + 1d3 + 1d4 + 1d5 */
 			val = 5 + 3;
@@ -1577,7 +1541,7 @@ static void get_stats(void)
 
 			/* Save that value */
 			sum += val;
-			p_ptr->stat_cur[3*i+1] = p_ptr->stat_max[3*i+1] = (maximize_mode ? val : adjust_stat(val, rp_ptr->r_adj[3*i+1] + cp_ptr->c_adj[3*i+1], FALSE));
+			p_ptr->stat_cur[3*i+1] = p_ptr->stat_max[3*i+1] = val;
 
 			/* Extract 5 + 1d3 + 1d4 + 1d5 */
 			val = 5 + 3;
@@ -1587,7 +1551,7 @@ static void get_stats(void)
 
 			/* Save that value */
 			sum += val;
-			p_ptr->stat_cur[3*i+2] = p_ptr->stat_max[3*i+2] = (maximize_mode ? val : adjust_stat(val, rp_ptr->r_adj[3*i+2] + cp_ptr->c_adj[3*i+2], FALSE));
+			p_ptr->stat_cur[3*i+2] = p_ptr->stat_max[3*i+2] = val;
 		}
 
 		/* Verify totals */
@@ -1663,11 +1627,6 @@ static void get_history(void)
 			chart = 10;
 			break;
 		}
-		case RACE_GNOME:
-		{
-			chart = 13;
-			break;
-		}
 		case RACE_DWARF:
 		{
 			chart = 16;
@@ -1676,106 +1635,6 @@ static void get_history(void)
 		case RACE_HALF_ORC:
 		{
 			chart = 19;
-			break;
-		}
-		case RACE_HALF_TROLL:
-		{
-			chart = 22;
-			break;
-		}
-		case RACE_DARK_ELF:
-		{
-			chart = 69;
-			break;
-		}
-		case RACE_HALF_OGRE:
-		{
-			chart = 74;
-			break;
-		}
-		case RACE_HALF_GIANT:
-		{
-			chart = 75;
-			break;
-		}
-		case RACE_HALF_TITAN:
-		{
-			chart = 76;
-			break;
-		}
-		case RACE_CYCLOPS:
-		{
-			chart = 77;
-			break;
-		}
-		case RACE_YEEK:
-		{
-			chart = 78;
-			break;
-		}
-		case RACE_KOBOLD:
-		{
-			chart = 82;
-			break;
-		}
-		case RACE_KLACKON:
-		{
-			chart = 84;
-			break;
-		}
-		case RACE_NIBELUNG:
-		{
-			chart = 87;
-			break;
-		}
-		case RACE_DRACONIAN:
-		{
-			chart = 89;
-			break;
-		}
-		case RACE_MIND_FLAYER:
-		{
-			chart = 92;
-			break;
-		}
-		case RACE_IMP:
-		{
-			chart = 94;
-			break;
-		}
-		case RACE_GOLEM:
-		{
-			chart = 98;
-			break;
-		}
-		case RACE_SKELETON:
-		{
-			chart = 102;
-			break;
-		}
-		case RACE_ZOMBIE:
-		{
-			chart = 107;
-			break;
-		}
-		case RACE_VAMPIRE:
-		{
-			chart = 113;
-			break;
-		}
-		case RACE_SPECTRE:
-		{
-			chart = 118;
-			break;
-		}
-		case RACE_SPRITE:
-		{
-			chart = 124;
-			break;
-		}
-		case RACE_BEASTMAN:
-		{
-			chart = 129;
 			break;
 		}
 		default:
@@ -1902,7 +1761,7 @@ void get_ahw(bool newage)
 	else if (p_ptr->psex == SEX_FEMALE)
 	{
 		p_ptr->ht = randnor(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
-		
+
 		h_percent = (int)(p_ptr->ht) * 100 / (int)(rp_ptr->f_b_ht);
 		p_ptr->wt = randnor((int)(rp_ptr->f_b_wt) * h_percent / 100,
 			(int)(rp_ptr->f_m_wt) * h_percent / 300 );
@@ -1931,9 +1790,6 @@ static void get_money(void)
 		else if (p_ptr->stat_max[i] > 18) gold -= 150;
 		else gold -= (p_ptr->stat_max[i] - 8) * 10;
 	}
-
-	/* Archaeologists can get more much money */
-	if (p_ptr->pclass == CLASS_ARCHAEOLOGIST) gold += 2000;
 
 	/* Minimum 100 gold */
 	if (gold < 100) gold = 100;
@@ -2116,9 +1972,6 @@ static void player_wipe(void)
 
 	/* Reset mutations */
 	p_ptr->muta = 0;
-
-	/* Reset snatches */
-	p_ptr->r_idx = 0;
 }
 
 /*
@@ -2153,23 +2006,15 @@ static void init_dungeon_quests(int number_of_quests)
 
 		while (TRUE)
 		{
-			/*
-			 * Random monster 5 - 10 levels out of depth
-			 * (depending on level)
-			 */
-			r_idx = get_mon_num(q_ptr->level + 4 + randint1(q_ptr->level / 10));
+			r_idx = get_mon_num(q_ptr->level + 10);
 			r_ptr = &r_info[r_idx];
 
 			/* Accept Only Unique Monster */
 			if(!(r_ptr->flags1 & RF1_UNIQUE)) continue;
 
 			if (r_ptr->flags1 & RF1_QUESTOR) continue;
-
-			/*
-			 * Accept monsters that are 2 - 6 levels
-			 * out of depth depending on the quest level
-			 */
-			if (r_ptr->level > (q_ptr->level + (q_ptr->level / 20) + 1)) break;
+			if (r_ptr->level >= q_ptr->level + 5) continue;
+			if (r_ptr->level >= q_ptr->level) break;
 		}
 
 		q_ptr->r_idx = r_idx;
@@ -2183,15 +2028,15 @@ static void init_dungeon_quests(int number_of_quests)
 
 	/* Init the two main quests (Oberon + Serpent) */
 	init_flags = INIT_ASSIGN;
-	p_ptr->inside_quest = QUEST_OBERON;
+	p_ptr->inside_quest = QUEST_SAURON;
 	process_dungeon_file("q_info.txt", 0, 0, 0, 0);
 
-	quest[QUEST_OBERON].status = QUEST_STATUS_TAKEN;
+	quest[QUEST_SAURON].status = QUEST_STATUS_TAKEN;
 
-	p_ptr->inside_quest = QUEST_SERPENT;
+	p_ptr->inside_quest = QUEST_MORGOTH;
 	process_dungeon_file("q_info.txt", 0, 0, 0, 0);
 
-	quest[QUEST_SERPENT].status = QUEST_STATUS_TAKEN;
+	quest[QUEST_MORGOTH].status = QUEST_STATUS_TAKEN;
 	p_ptr->inside_quest = 0;
 }
 
@@ -2203,6 +2048,71 @@ static void init_turn(void)
 	/* We cannot choose undeads on birth, so initial turn is 1 */
 	turn = 1;
 }
+
+/* 
+ * Try to wield everything wieldable in the inventory. 
+ * Code taken from Angband 3.1.0 under Angband license
+ */ 
+static void wield_all(void) 
+{ 
+	object_type *o_ptr; 
+	object_type *i_ptr; 
+	object_type object_type_body; 
+ 
+	int slot; 
+	int item; 
+ 
+	/* Scan through the slots backwards */ 
+	for (item = INVEN_PACK - 1; item >= 0; item--) 
+	{ 
+		o_ptr = &inventory[item]; 
+ 
+		/* Skip non-objects */ 
+		if (!o_ptr->k_idx) continue; 
+ 
+		/* Make sure we can wield it and that there's nothing else in that slot */ 
+		slot = wield_slot(o_ptr); 
+		if (slot < INVEN_WIELD) continue; 
+		if (slot == INVEN_LITE) continue; /* Does not wield toaches because buys a lantern soon */
+		if (inventory[slot].k_idx) continue; 
+ 
+		/* Get local object */ 
+		i_ptr = &object_type_body; 
+		object_copy(i_ptr, o_ptr); 
+ 
+		/* Modify quantity */ 
+		i_ptr->number = 1; 
+ 
+		/* Decrease the item (from the pack) */ 
+		if (item >= 0) 
+		{ 
+			inven_item_increase(item, -1); 
+			inven_item_optimize(item); 
+		} 
+ 
+		/* Decrease the item (from the floor) */ 
+		else 
+		{ 
+			floor_item_increase(0 - item, -1); 
+			floor_item_optimize(0 - item); 
+		} 
+ 
+		/* Get the wield slot */ 
+		o_ptr = &inventory[slot]; 
+ 
+		/* Wear the new stuff */ 
+		object_copy(o_ptr, i_ptr); 
+ 
+		/* Increase the weight */ 
+		p_ptr->total_weight += i_ptr->weight; 
+ 
+		/* Increment the equip counter by hand */ 
+		equip_cnt++;
+
+ 	} 
+	return; 
+} 
+
 
 /*
  * Each player starts out with a few items, given as tval/sval pairs.
@@ -2220,55 +2130,15 @@ static byte player_init[MAX_CLASS][3][2] =
 	{
 		/* Mage */
 		{ TV_SORCERY_BOOK, 0 }, /* Hack: for realm1 book */
-		{ TV_SORCERY_BOOK, 1 },
 		{ TV_SWORD, SV_DAGGER },
-#if 0
-		{ TV_DEATH_BOOK, 0 } /* Hack: for realm2 book */
-#endif
+		{ TV_POTION, SV_POTION_SPEED },
 	},
 
 	{
 		/* Priest */
-		{ TV_SORCERY_BOOK, 0 }, /* Hack: for Life / Death book */
-		{ TV_SORCERY_BOOK, 1 },
+		{ TV_SORCERY_BOOK, 0 }, /* Hack: for realm1 book */
 		{ TV_HAFTED, SV_MACE },
-#if 0
-		{ TV_DEATH_BOOK, 0 } /* Hack: for realm2 book */
-#endif
-	},
-
-	{
-		/* Ranger */
-		{ TV_SORCERY_BOOK, 0 }, /* Hack: for realm1 book */
-		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
-		{ TV_SWORD, SV_SHORT_SWORD },
-#if 0
-		{ TV_DEATH_BOOK, 0 }		/* Hack: for realm2 book */
-#endif
-	},
-
-	{
-		/* Paladin */
-		{ TV_SORCERY_BOOK, 0 },
-		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL }
-	},
-
-	{
-		/* Warrior-Mage */
-		{ TV_SORCERY_BOOK, 0 }, /* Hack: for realm1 book */
-		{ TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL },
-		{ TV_SWORD, SV_LONG_SWORD },
-#if 0
-		{ TV_DEATH_BOOK, 0 } /* Hack: for realm2 book */
-#endif
-	},
-
-	{
-		/* Mindcrafter */
-		{ TV_SWORD, SV_SMALL_SWORD },
-		{ TV_POTION, SV_POTION_RESTORE_MANA },
-		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
+		{ TV_POTION, SV_POTION_HEALING },
 	},
 
 	{
@@ -2279,38 +2149,17 @@ static byte player_init[MAX_CLASS][3][2] =
 	},
 
 	{
-		/* Archaeologist */
-		{ TV_SORCERY_BOOK, 0 },
-		{ TV_DIGGING, SV_SHOVEL },
-		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
+		/* Paladin */
+		{ TV_SORCERY_BOOK, 0 }, /* Hack: for realm1 book */
+		{ TV_SWORD, SV_LONG_SWORD },
+		{ TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL }
 	},
 
 	{
-		/* Elementalist */
-		{ TV_SWORD, SV_DAGGER },
-		{ TV_POTION, SV_POTION_RESTORE_MANA },
-		{ TV_WAND, SV_WAND_MAGIC_MISSILE },
-	},
-
-	{
-		/* Sniper */
-		{ TV_SWORD, SV_SHORT_SWORD },
+		/* Warrior-Mage */
+		{ TV_SORCERY_BOOK, 0 }, /* Hack: for realm1 book */
 		{ TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL },
-		{ TV_BOW, SV_LIGHT_XBOW },
-	},
-
-	{
-		/* Snatcher */
-		{ TV_SWORD, SV_SHORT_SWORD },
-		{ TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL },
-		{ TV_WAND, SV_WAND_MAGIC_MISSILE },
-	},
-
-	{
-		/* Device-User */
-		{ TV_SWORD, SV_SHORT_SWORD },
-		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
-		{ TV_WAND, SV_WAND_MAGIC_MISSILE },
+		{ TV_SWORD, SV_LONG_SWORD },
 	},
 };
 
@@ -2332,6 +2181,9 @@ static void add_outfit(object_type *o_ptr)
 
 	/* Auto-inscription */
 	autopick_alter_item(slot, FALSE);
+
+	/* Now try wielding everything */ 
+	wield_all(); 
 }
 
 
@@ -2352,133 +2204,27 @@ void player_outfit(void)
 	q_ptr = &forge;
 
 	/* Give the player some food */
-	switch (p_ptr->prace)
-	{
-		case RACE_GOLEM:
-		case RACE_SKELETON:
-		case RACE_ZOMBIE:
-		case RACE_VAMPIRE:
-		case RACE_SPECTRE:
-		{
-			/* Scrolls of satisfy hunger */
-			object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_SATISFY_HUNGER));
-			q_ptr->number = (byte)rand_range(2, 5);
-
-			add_outfit(q_ptr);
-
-			break;
-		}
-		default:
-		{
-			/* Food rations */
-			object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
-			if (p_ptr->pclass == CLASS_ARCHAEOLOGIST)
-				q_ptr->number = (byte)rand_range(8, 10);
-			else
-				q_ptr->number = (byte)rand_range(3, 7);
-
-			add_outfit(q_ptr);
-		}
-	}
+	object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
+	q_ptr->number = (byte)rand_range(3, 7);
+	add_outfit(q_ptr);
 
 	/* Get local object */
 	q_ptr = &forge;
 
-	if (p_ptr->prace == RACE_VAMPIRE)
-	{
-		/* Vampire can't birth on XAngband */
-	}
-	else if (p_ptr->pclass == CLASS_ARCHAEOLOGIST)
-	{
-		/* Hack -- Give the player some torches */
-		object_prep(q_ptr, lookup_kind(TV_LITE, SV_LITE_LANTERN));
-		q_ptr->xtra3 = 15000;
-
-		add_outfit(q_ptr);
-	}
-	else
-	{
-		/* Hack -- Give the player some torches */
-		object_prep(q_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
-		q_ptr->number = (byte)rand_range(3, 7);
-		q_ptr->xtra3 = rand_range(3, 7) * 500;
-
-		add_outfit(q_ptr);
-	}
+	/* Hack -- Give the player some torches */
+	object_prep(q_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
+	q_ptr->number = (byte)rand_range(3, 7);
+	q_ptr->xtra3 = FUEL_TORCH / 2;
+	add_outfit(q_ptr);
 
 	/* Get local object */
 	q_ptr = &forge;
 
-	if (p_ptr->pclass == CLASS_RANGER)
+	if (p_ptr->pclass == CLASS_ARCHER)
 	{
 		/* Hack -- Give the player some arrows */
 		object_prep(q_ptr, lookup_kind(TV_ARROW, SV_AMMO_NORMAL));
 		q_ptr->number = (byte)rand_range(15, 20);
-
-		add_outfit(q_ptr);
-
-		/* Hack -- Give the player some arrows */
-		object_prep(q_ptr, lookup_kind(TV_BOW, SV_SHORT_BOW));
-
-		add_outfit(q_ptr);
-	}
-	else if (p_ptr->pclass == CLASS_HIGH_MAGE)
-	{
-		/* Hack -- Give the player some arrows */
-		object_prep(q_ptr, lookup_kind(TV_WAND, SV_WAND_MAGIC_MISSILE));
-		q_ptr->number = 1;
-		q_ptr->pval = (byte)rand_range(25, 30);
-
-		add_outfit(q_ptr);
-	}
-	else if (p_ptr->pclass == CLASS_ARCHER)
-	{
-		/* Hack -- Give the player some arrows */
-		object_prep(q_ptr, lookup_kind(TV_ARROW, SV_AMMO_NORMAL));
-		q_ptr->number = (byte)rand_range(15, 20);
-
-		add_outfit(q_ptr);
-	}
-	else if (p_ptr->pclass == CLASS_SNIPER)
-	{
-		/* Hack -- Give the player some arrows */
-		object_prep(q_ptr, lookup_kind(TV_BOLT, SV_AMMO_LIGHT));
-		q_ptr->number = (byte)rand_range(15, 20);
-
-		add_outfit(q_ptr);
-	}
-	else if (p_ptr->pclass == CLASS_ARCHAEOLOGIST)
-	{
-		/* Hack -- Give the player some flasks */
-		object_prep(q_ptr, lookup_kind(TV_FLASK, 0));
-		q_ptr->number = (byte)rand_range(3, 5);
-
-		add_outfit(q_ptr);
-
-		/* Hack -- Give the player some spikes */
-		object_prep(q_ptr, lookup_kind(TV_SPIKE, 0));
-		q_ptr->number = (byte)rand_range(27, 32);
-
-		add_outfit(q_ptr);
-
-		/* Hack -- Give the player some scroll of magic mapping */
-		object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_MAPPING));
-		q_ptr->number = (byte)rand_range(10, 12);
-
-		add_outfit(q_ptr);
-	}
-	else if (p_ptr->pclass == CLASS_DEVICE_USER)
-	{
-		/* Hack -- Give the player some scrolls of recharging */
-		object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_RECHARGING));
-		q_ptr->number = (byte)rand_range(5, 8);
-
-		add_outfit(q_ptr);
-
-		/* Hack -- Give the player a staff of cure light wounds */
-		object_prep(q_ptr, lookup_kind(TV_STAFF, SV_STAFF_CURE_LIGHT));
-		q_ptr->number = 1;
-		q_ptr->pval = (byte)rand_range(20, 25);
 
 		add_outfit(q_ptr);
 	}
@@ -2699,10 +2445,6 @@ static bool get_player_race(void)
 
 	/* Set race */
 	p_ptr->prace = i2r[k];
-
-	/* Give beastman a mutation at character birth */
-	if (p_ptr->prace == RACE_BEASTMAN)
-		hack_mutation = TRUE;
 
 	rp_ptr = &race_info[p_ptr->prace];
 	str = rp_ptr->title;
@@ -2960,7 +2702,7 @@ static int number_of_rquests = 0;
  * This function allows the player to select a sex, race, and class, and
  * modify options (including the birth options).
  */
-static bool player_birth_aux_1(void)
+static bool player_birth_selection(void)
 {
 	int k, n, cs, os;
 	char ch;
@@ -3031,9 +2773,6 @@ static bool player_birth_aux_1(void)
 			rp_ptr = &race_info[p_ptr->prace];
 			cp_ptr = &class_info[p_ptr->pclass];
 			mp_ptr = &m_info[p_ptr->pclass];
-
-			/* Snatcher */
-			if (p_ptr->pclass == CLASS_SNATCHER) set_first_monster_race();
 
 			/* Calculate the bonuses and hitpoints */
 			p_ptr->update |= (PU_BONUS | PU_HP);
@@ -3250,10 +2989,10 @@ static bool player_birth_aux_1(void)
 			put_str("", 15, 40);
 
 			/* Default */
-			strcpy(inp, "10");
+			strcpy(inp, "5");
 
 			/* Get a response (or escape) */
-			if (!askfor_aux(inp, 2, FALSE)) strcpy(inp, "10");
+			if (!askfor_aux(inp, 2, FALSE)) strcpy(inp, "5");
 
 			/* Quit */
 			if (inp[0] == 'Q')
@@ -3292,187 +3031,6 @@ static bool player_birth_aux_1(void)
 	return (TRUE);
 }
 
-
-/*
- * Initial stat costs (initial stats always range from 10 to 18 inclusive).
- */
-static int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 4, 7, 11, 16, 22, 30 };
-
-
-/*
- * Helper function for 'player_birth()'.
- *
- * This function handles "point-based" character creation.
- *
- * The player selects, for each stat, a value from 10 to 18 (inclusive),
- * each costing a certain amount of points (as above), from a pool of 48
- * available points, to which race/class modifiers are then applied.
- *
- * Each unused point is converted into 100 gold pieces.
- */
-static bool player_birth_aux_2(void)
-{
-	int i;
-	int row = 3;
-	int col = 42;
-	int stat = 0;
-	int stats[A_MAX];
-	int cost;
-	char ch;
-	char buf[80];
-
-
-	/* Initialize stats */
-	for (i = 0; i < A_MAX; i++)
-	{
-		/* Initial stats */
-		stats[i] = 10;
-	}
-
-
-	/* Roll for base hitpoints */
-	get_extra(TRUE);
-
-	/* Roll for age/height/weight */
-	get_ahw(TRUE);
-
-	/* Roll for social class */
-	get_history();
-	
-	/* Hack -- get a chaos patron even if you are not a chaos warrior */
-	p_ptr->chaos_patron = 0;
-
-	/* Interact */
-	while (1)
-	{
-		/* Reset cost */
-		cost = 0;
-
-		/* Process stats */
-		for (i = 0; i < A_MAX; i++)
-		{
-			/* Variable stat maxes */
-			if (maximize_mode)
-			{
-				/* Reset stats */
-				p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stats[i];
-
-			}
-
-			/* Fixed stat maxes */
-			else
-			{
-				/* Obtain a "bonus" for "race" and "class" */
-				int bonus = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
-
-				/* Apply the racial/class bonuses */
-				p_ptr->stat_cur[i] = p_ptr->stat_max[i] =
-					modify_stat_value(stats[i], bonus);
-			}
-
-			/* Total cost */
-			cost += birth_stat_costs[stats[i] - 10];
-		}
-
-		/* Restrict cost */
-		if (cost > 48)
-		{
-			/* Warning */
-			bell();
-
-			/* Reduce stat */
-			stats[stat]--;
-
-			/* Recompute costs */
-			continue;
-		}
-
-		/* Gold is inversely proportional to cost */
-		p_ptr->au = (100 * (48 - cost)) + 100;
-
-		/* Calculate the bonuses and hitpoints */
-		p_ptr->update |= (PU_BONUS | PU_HP);
-
-		/* Update stuff */
-		update_stuff();
-
-		/* Fully healed */
-		p_ptr->chp = p_ptr->mhp;
-
-		/* Fully rested */
-		p_ptr->csp = p_ptr->msp;
-
-		/* Display the player */
-		display_player(0);
-
-		/* Display the costs header */
-#ifdef JP
-		put_str("コスト", row - 1, col + 32);
-#else
-		put_str("Cost", row - 1, col + 32);
-#endif
-
-		/* Display the costs */
-		for (i = 0; i < A_MAX; i++)
-		{
-			/* Display cost */
-			sprintf(buf, "%4d", birth_stat_costs[stats[i] - 10]);
-			put_str(buf, row + i, col + 32);
-		}
-
-
-		/* Prompt XXX XXX XXX */
-#ifdef JP
-		sprintf(buf, "コスト合計: %2d/48  2/8 で移動,  4/6 で変更,  ESC で終了", cost);
-#else
-		sprintf(buf, "Total Cost %2d/48.  Use 2/8 to move, 4/6 to modify, ESC to accept.", cost);
-#endif
-		prt(buf, 0, 0);
-
-		/* Place cursor just after cost of current stat */
-		Term_gotoxy(col + 36, row + stat);
-
-		/* Get key */
-		ch = inkey();
-
-		/* Quit */
-		if (ch == 'Q') quit(NULL);
-
-		/* Start over */
-		if (ch == 'S') return (FALSE);
-
-		/* Done */
-		if (ch == ESCAPE) break;
-
-		/* Prev stat */
-		if (ch == '8')
-		{
-			stat = (stat + 5) % 6;
-		}
-
-		/* Next stat */
-		if (ch == '2')
-		{
-			stat = (stat + 1) % 6;
-		}
-
-		/* Decrease stat */
-		if ((ch == '4') && (stats[stat] > 10))
-		{
-			stats[stat]--;
-		}
-
-		/* Increase stat */
-		if ((ch == '6') && (stats[stat] < 18))
-		{
-			stats[stat]++;
-		}
-	}
-
-
-	/* Done */
-	return (TRUE);
-}
 
 #ifdef JP
 /* 文字列sのxバイト目が漢字の1バイト目かどうか判定する */
@@ -3685,6 +3243,16 @@ static void edit_history(void)
 }
 
 
+static int initial_stat[MAX_CLASS][A_MAX] =
+{
+	{ 17, 3, 3, 16, 16, 3 },	/* Warrior */
+	{ 16, 17, 3, 3, 16, 3 },	/* Mage */
+	{ 16, 3, 16, 16, 15, 3 },	/* Priest */
+	{ 16, 3, 3,	17, 16, 3 },	/* Archer */
+	{ 16, 3, 15, 16, 16, 3 },	/* Paradin */
+	{ 16, 15, 3, 16, 16, 3 },	/* Warrior-Mage */
+};
+
 /*
  * Helper function for 'player_birth()'.
  *
@@ -3694,334 +3262,68 @@ static void edit_history(void)
  * from continuously rolling up characters, which can be VERY
  * expensive CPU wise.  And it cuts down on player stupidity.
  */
-static bool player_birth_aux_3(void)
+static bool player_birth_autoroll(void)
 {
-	int i, j, m, cs, os;
-	int cval[A_MAX];
-	
+	int i, j, m;
 	bool flag;
 	bool prev = FALSE;
-	
 	char ch;
-	
 	char b1 = '[';
 	char b2 = ']';
-	
-	char buf[80], cur[80];
-	char inp[80];
-	
-	
+	char buf[80];
+
+
 #ifdef ALLOW_AUTOROLLER
-	
+
 	s16b stat_limit[A_MAX];
-	
 	s32b stat_match[A_MAX];
-	
 	s32b auto_round = 0L;
-	
-	
+
+
 	/*** Autoroll ***/
-	
+
 	/* Initialize */
-	if (autoroller)
-	{
-		/* Clean up */
-		clear_from(10);
-		
-		/* Extra info */
-#ifdef JP
-		put_str("最低限得たい能力値を設定して下さい。", 10, 15);
-		put_str("2/8で項目選択、4/6で値の増減、Enterで次へ", 11, 15);
-#else
-		put_str("Set minimum stats.", 10, 15);
-		put_str("2/8 for Select, 4/6 for Change value, Enter for Goto next", 11, 15);
-#endif
-		
-#ifdef JP
-		put_str("         基本値  種族 職業     合計値  最大値", 13, 15);
-#else
-		put_str("           Base   Rac  Cla      Total  Maximum", 13, 15);
-#endif
-		
-		/* Output the maximum stats */
-		for (i = 0; i < A_MAX; i++)
-		{
-			/* Reset the "success" counter */
-			stat_match[i] = 0;
-			cval[i] = 3;
-			
-			/* Race/Class bonus */
-			j = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
-			
-			/* Obtain the "maximal" stat */
-			m = adjust_stat(17, j, TRUE);
-			
-			/* Above 18 */
-			if (m > 18)
-			{
-#ifdef JP
-				sprintf(cur, "18/%02d", (m - 18));
-#else
-				sprintf(cur, "18/%02d", (m - 18));
-#endif
-			}
-			
-			/* From 3 to 18 */
-			else
-			{
-#ifdef JP
-				sprintf(cur, "%2d", m);
-#else
-				sprintf(cur, "%2d", m);
-#endif
-			}
-			
-			/* Obtain the current stat */
-			m = adjust_stat(cval[i], j, TRUE);
-			
-			/* Above 18 */
-			if (m > 18)
-			{
-#ifdef JP
-				sprintf(inp, "18/%02d", (m - 18));
-#else
-				sprintf(inp, "18/%02d", (m - 18));
-#endif
-			}
-			
-			/* From 3 to 18 */
-			else
-			{
-#ifdef JP
-				sprintf(inp, "%2d", m);
-#else
-				sprintf(inp, "%2d", m);
-#endif
-			}
-			
-			/* Prepare a prompt */
-			sprintf(buf, "%6s       %2d   %+3d  %+3d  =  %6s  %6s",
-				stat_names[i], cval[i], rp_ptr->r_adj[i], cp_ptr->c_adj[i], inp, cur);
-			
-			/* Dump the prompt */
-			put_str(buf, 14 + i, 15);
-		}
-		
-		/* Get a minimum stat */
-		cs = 0;
-		os = A_MAX;
-		while (TRUE)
-		{
-			/* Move Cursol */
-			if (cs != os)
-			{
-				if(os == A_MAX)
-				{
-#ifdef JP
-					c_put_str(TERM_WHITE, "決定する", 21, 35);
-#else
-					c_put_str(TERM_WHITE, "Accept", 21, 35);
-#endif
-				}
-				else if(os < 6)
-					c_put_str(TERM_WHITE, cur, 14 + os, 15);
-				
-				if(cs == 6)
-				{
-#ifdef JP
-					c_put_str(TERM_YELLOW, "決定する", 21, 35);
-#else
-					c_put_str(TERM_YELLOW, "Accept", 21, 35);
-#endif
-				}
-				else
-				{
-					/* Race/Class bonus */
-					j = rp_ptr->r_adj[cs] + cp_ptr->c_adj[cs];
-					
-					/* Obtain the current stat */
-					m = adjust_stat(cval[cs], j, TRUE);
-					
-					/* Above 18 */
-					if (m > 18)
-					{
-#ifdef JP
-						sprintf(inp, "18/%02d", (m - 18));
-#else
-						sprintf(inp, "18/%02d", (m - 18));
-#endif
-					}
-					
-					/* From 3 to 18 */
-					else
-					{
-#ifdef JP
-						sprintf(inp, "%2d", m);
-#else
-						sprintf(inp, "%2d", m);
-#endif
-					}
-					
-					/* Prepare a prompt */
-					sprintf(cur, "%6s       %2d   %+3d  %+3d  =  %6s",
-						stat_names[cs], cval[cs], rp_ptr->r_adj[cs],
-						cp_ptr->c_adj[cs], inp);
-					c_put_str(TERM_YELLOW, cur, 14 + cs, 15);
-				}
-				os = cs;
-			}
-			
-			/* Prompt for the minimum stats */
-			ch = inkey();
-			switch (ch) {
-			case 'Q':
-				remove_loc();
-				quit(NULL);
-				break;
-			case 'S':
-				return (FALSE);
-			case ESCAPE:
-				break;
-			case ' ':
-			case '\r':
-			case '\n':
-				if(cs < A_MAX)
-				{
-					ch = '2';
-					cs++;
-				}
-				else ch = ' ';
-				break;
-			case '8':
-			case 'k':
-				if (cs > 0) cs--;
-				break;
-			case '2':
-			case 'j':
-				if (cs < A_MAX) cs++;
-				break;
-			case '4':
-			case 'h':
-				if (cs != A_MAX)
-				{
-					if (cval[cs] == 3)
-					{
-						cval[cs] = 17;
-						os = 7;
-					}
-					else if (cval[cs] > 3)
-					{
-						cval[cs]--;
-						os = 7;
-					}
-					else return FALSE;
-				}
-				break;
-			case '6':
-			case 'l':
-				if (cs != A_MAX)
-				{
-					if (cval[cs] == 17)
-					{
-						cval[cs] = 3;
-						os = 7;
-					}
-					else if (cval[cs] < 17)
-					{
-						cval[cs]++;
-						os = 7;
-					}
-					else return FALSE;
-				}
-				break;
-			case 'm':
-				if(cs != 6)
-				{
-					cval[cs] = 17;
-					os = 7;
-				}
-				break;
-			case 'n':
-				if(cs != 6)
-				{
-					cval[cs] = 3;
-					os = 7;
-				}
-				break;
-			case '?':
-				do_cmd_help();
-				break;
-			case '=':
-				screen_save();
-#ifdef JP
-				do_cmd_options_aux(6, "初期オプション((*)はスコアに影響)");
-#else
-				do_cmd_options_aux(6, "Startup Opts((*)s effect score)");
-#endif
-				screen_load();
-				break;
-			default:
-				bell();
-				break;
-			}
-			if(ch == ESCAPE || (ch == ' ' && cs == A_MAX)) break;
-		}
-	}
-	
 	for (i = 0; i < 6; i++)
 	{
 		/* Save the minimum stat */
-		stat_limit[i] = cval[i];
+		stat_limit[i] = initial_stat[p_ptr->pclass][i];
 	}
-	
+
 #endif /* ALLOW_AUTOROLLER */
-	
+
 	/* Clean up */
 	clear_from(10);
-	
-	
+
+
 	/*** Generate ***/
-	
+
 	/* Roll */
 	while (TRUE)
 	{
 		int col = 42;
-		
+
 		/* Feedback */
 		if (autoroller)
 		{
 			Term_clear();
-			
+
 			/* Label */
 #ifdef JP
 			put_str("最小値", 2, col+5);
-#else
-			put_str(" Limit", 2, col+5);
-#endif
-			
-			
-			/* Label */
-#ifdef JP
 			put_str("成功率", 2, col+13);
-#else
-			put_str("  Freq", 2, col+13);
-#endif
-			
-			
-			/* Label */
-#ifdef JP
 			put_str("現在値", 2, col+24);
 #else
+			put_str(" Limit", 2, col+5);
+			put_str("  Freq", 2, col+13);
 			put_str("  Roll", 2, col+24);
 #endif
-			
-			
+
 			/* Put the minimal stats */
 			for (i = 0; i < A_MAX; i++)
 			{
 				/* Label stats */
 				put_str(stat_names[i], 3+i, col);
-				
+
 				/* Race/Class bonus */
 				j = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
 
@@ -4032,39 +3334,39 @@ static bool player_birth_aux_3(void)
 				cnv_stat(m, buf);
 				c_put_str(TERM_L_BLUE, buf, 3+i, col+5);
 			}
-			
+
 			/* Label count */
 #ifdef JP
 			put_str("回数 :", 10, col+13);
 #else
 			put_str("Round:", 10, col+13);
 #endif
-			
-			
+
+
 			/* Indicate the state */
 #ifdef JP
 			put_str("(ESCで停止)", 12, col+13);
 #else
 			put_str("(Hit ESC to stop)", 12, col+13);
 #endif
-			
-			
+
+
 			/* Auto-roll */
 			while (1)
 			{
 				bool accept = TRUE;
-				
+
 				/* Get a new character */
 				get_stats();
-				
+
 				/* Advance the round */
 				auto_round++;
-				
+
 				/* Hack -- Prevent overflow */
 				if (auto_round >= 1000000000L)
 				{
 					auto_round = 1;
-					
+
 					if (autoroller)
 					{
 						for( i = 0; i < 6; i ++)
@@ -4073,7 +3375,7 @@ static bool player_birth_aux_3(void)
 						}
 					}
 				}
-				
+
 				/* Check and count acceptable stats */
 				for (i = 0; i < A_MAX; i++)
 				{
@@ -4082,20 +3384,20 @@ static bool player_birth_aux_3(void)
 					{
 						stat_match[i]++;
 					}
-					
+
 					/* This stat is not okay */
 					else
 					{
 						accept = FALSE;
 					}
 				}
-				
+
 				/* Break if "happy" */
 				if (accept) break;
-				
+
 				/* Take note every 25 rolls */
 				flag = (!(auto_round % AUTOROLLER_STEP));
-				
+
 				/* Update display occasionally */
 				if (flag)
 				{
@@ -4105,7 +3407,7 @@ static bool player_birth_aux_3(void)
 						/* Put the stat */
 						cnv_stat(p_ptr->stat_max[i], buf);
 						c_put_str(TERM_L_GREEN, buf, 3+i, col+24);
-						
+
 						/* Put the percent */
 						if (stat_match[i])
 						{
@@ -4125,7 +3427,7 @@ static bool player_birth_aux_3(void)
 							sprintf(buf, "%3d.%d%%", p/10, p%10);
 							c_put_str(attr, buf, 3+i, col+13);
 						}
-						
+
 						/* Never happened */
 						else
 						{
@@ -4136,70 +3438,71 @@ static bool player_birth_aux_3(void)
 #endif
 						}
 					}
-					
+
 					/* Dump round */
 					put_str(format("%10ld", auto_round), 10, col+20);
-					
+
 					/* Make sure they see everything */
 					Term_fresh();
-					
+
 					/* Delay 1/10 second */
 					if (delay_autoroll) Term_xtra(TERM_XTRA_DELAY, 100);
-					
+#if 0
 					/* Do not wait for a key */
 					inkey_scan = TRUE;
-					
+
 					/* Check for a keypress */
 					if (inkey()) break;
+#endif
 				}
 			}
 		}
-		
+
 		/* Otherwise just get a character */
 		else
 		{
 			/* Get a new character */
 			get_stats();
 		}
-		
+
 		/* Flush input */
 		flush();
-		
+
 		/*** Display ***/
-		
+
 		/* Roll for base hitpoints */
 		get_extra(TRUE);
-		
+
 		/* Roll for age/height/weight */
 		get_ahw(TRUE);
-		
+
 		/* Roll for social class */
 		get_history();
-		
+
 		/* Roll for gold */
 		get_money();
-		
+
 		/* Hack -- get a chaos patron even if you are not a chaos warrior */
-		p_ptr->chaos_patron = 0;
-		
+		p_ptr->valar_patron = randint0(MAX_PATRON);
+
 		/* Input loop */
 		while (TRUE)
 		{
 			/* Calculate the bonuses and hitpoints */
 			p_ptr->update |= (PU_BONUS | PU_HP);
-			
+
 			/* Update stuff */
 			update_stuff();
-			
+
 			/* Fully healed */
 			p_ptr->chp = p_ptr->mhp;
-			
+
 			/* Fully rested */
 			p_ptr->csp = p_ptr->msp;
-			
+
 			/* Display the player */
 			display_player(0);
-			
+
 			/* Prepare a prompt (must squeeze everything in) */
 			Term_gotoxy(2, 23);
 			Term_addch(TERM_WHITE, b1);
@@ -4208,43 +3511,43 @@ static bool player_birth_aux_3(void)
 #else
 			Term_addstr(-1, TERM_WHITE, "'r' to reroll");
 #endif
-			
+
 #ifdef JP
 			if (prev) Term_addstr(-1, TERM_WHITE, ", 'p'で前の数値");
 #else
 			if (prev) Term_addstr(-1, TERM_WHITE, ", 'p' for prev");
 #endif
-			
+
 #ifdef JP
 			Term_addstr(-1, TERM_WHITE, ", Enterでこの数値に決定");
 #else
 			Term_addstr(-1, TERM_WHITE, ", or Enter to accept");
 #endif
-			
+
 			Term_addch(TERM_WHITE, b2);
-			
+
 			/* Prompt and get a command */
 			ch = inkey();
-			
+
 			/* Quit */
 			if (ch == 'Q') quit(NULL);
-			
+
 			/* Start over */
 			if (ch == 'S') return (FALSE);
-			
+
 			/* Escape accepts the roll */
 			if (ch == ESCAPE || ch == '\r' || ch == '\n') break;
-			
+
 			/* Reroll this character */
 			if ((ch == ' ') || (ch == 'r')) break;
-			
+
 			/* Previous character */
 			if (prev && (ch == 'p'))
 			{
 				load_prev_data(TRUE);
 				continue;
 			}
-			
+
 			/* Help */
 			if (ch == '?')
 			{
@@ -4259,29 +3562,29 @@ static bool player_birth_aux_3(void)
 #else
 				do_cmd_options_aux(6, "Startup Options");
 #endif
-				
+
 				screen_load();
 				continue;
 			}
-			
+
 			/* Warning */
 			bell();
 		}
-		
+
 		/* Are we done? */
 		if (ch == ESCAPE || ch == '\r' || ch == '\n') break;
-		
+
 		/* Save this for the "previous" character */
 		save_prev_data(&previous_char);
 		previous_char.quick_ok = FALSE;
-		
+
 		/* Note that a previous roll exists */
 		prev = TRUE;
 	}
-	
+
 	/* Clear prompt */
 	clear_from(23);
-	
+
 	/* Done */
 	return (TRUE);
 }
@@ -4292,19 +3595,13 @@ static bool player_birth_aux(void)
 	char ch;
 
 	/* Ask questions */
-	if (!player_birth_aux_1()) return FALSE;
+	if (!player_birth_selection()) return FALSE;
 	if (do_quick_start) return TRUE;
-
-	/* Point based */
-	if (point_based)
-	{
-		if (!player_birth_aux_2()) return FALSE;
-	}
 
 	/* Auto-roll */
 	else
 	{
-		if (!player_birth_aux_3()) return FALSE;
+		if (!player_birth_autoroll()) return FALSE;
 	}
 
 	/*** Edit character background ***/
@@ -4353,7 +3650,7 @@ static bool player_birth_aux(void)
  */
 void player_birth(void)
 {
-	int i, j;
+	int i, j, row;
 
 
 	/* Initialize Playtime */
@@ -4399,4 +3696,71 @@ void player_birth(void)
 	/* Set the inv/equip window flag as default */
 	if (!window_flag[2])
 		window_flag[2] |= PW_INVEN;
+
+	/* Start Message */
+	clear_from(0);
+	row = 5;
+#ifdef JP
+	prt("冥王モルゴスが虚空より舞い戻った！                          ", row++, 10);
+	prt("モルゴスは闇の力でかつての手下どもを蘇らせ、闇の軍勢を率いて", row++, 10);
+	prt("再びアングバンドの要塞に立てこもろうとしている。まだ、その力", row++, 10);
+	prt("は完全ではないが、時が経てば世界を闇に覆い尽くす程の力を取り", row++, 10);
+	prt("戻すだろう。                                                ", row++, 10);
+	prt("神々は、この不測の事態に対して、大いなる軍勢を派遣しようとし", row++, 10);
+	prt("ている。このままでは中つ国はめちゃめちゃになってしまうだろう。", row++, 10);
+	prt(format("あなたの神%sはこの事態を憂慮し、密かにあなたにモルゴス",
+		valar_patrons[p_ptr->valar_patron]), row++, 10);
+	prt("討伐を命じられた。モルゴスが力を取り戻す前に、あなたは洞穴の", row++, 10);
+	prt("奥深くに潜む冥王モルゴスを打ち倒さなければならない。        ", row++, 10);
+	switch(p_ptr->prace)
+	{
+	case RACE_HALF_ORC:
+		row++;
+		prt("ハーフオークであるあなたは、自分をこのような境遇に生み出した", row++, 10);
+		prt("闇の軍勢にとにかくムカついている。奴らをブチのめせ！", row++, 10);
+		break;
+	case RACE_BARBARIAN:
+		row++;
+		prt("かつて大勢の野蛮人が冥王モルゴスに味方したせいで、あなたの種", row++, 10);
+		prt("族は肩身の狭い思いをしている。冥王を倒し名誉を挽回せよ！", row++, 10);
+		break;
+	}
+	row++;
+	prt("[ 何かキーを押してください。]", row, 25);
+#else
+	prt("Morgoth, Lord of Darkness, returned from the void!!", row++, 10);
+	prt("He has revived his former servants with the power of darkness", row++, 10);
+	prt("and is leading his dread troops to try to once again and to", row++, 10);
+	prt("hold his fortress 'Angband'. His power is not complete yet, ", row++, 10);
+	prt("but with the passage of time he will no doubt regain the power", row++, 10);
+	prt("to overwhelm the world with darkness. ", row++, 10);
+	prt("The Valar, in face of this unforseen situation have decided to", row++, 10);
+	prt("send their armies in in great force.  The great battle in the", row++, 10);
+	prt("offing would doubless throw the Middle-Earth into chaos.", row++, 10);
+	prt(format("Your valar %s, troubled by this, has ordered you in",
+		valar_patrons[p_ptr->valar_patron]), row++, 10);
+	prt("secret on a mission to kill Morgoth. You must enter the cave and", row++, 10);
+	prt("defeat Morgoth who lurks at recesses of the cave before he", row++, 10);
+	prt("regains his great power.", row++, 10);
+	switch(p_ptr->prace)
+	{
+	case RACE_HALF_ORC:
+		row++;
+		prt("As a half-orc you were born into this situation.", row++, 10);
+		prt("The armies of darkness managed to piss you off and", row++, 10);
+		prt("now you're going to crush them into the ground!", row++, 10);
+		break;
+	case RACE_BARBARIAN:
+		row++;
+		prt("Because many of babarians followed in the past ", row++, 10);
+		prt("your tribe is looked on with suspicion.  Defeat ", row++, 10);
+		prt("Morgoth, Lord of Darkness, and clear your people's", row++, 10);
+		prt("honour!", row++, 10);
+		break;
+	}
+	row++;
+	prt("[ Hit Any Key ]", row, 32);
+#endif
+
+	(void)inkey();
 }

@@ -91,13 +91,14 @@ static void choice_gain_stat(void)
 	screen_load();
 }  
 
+extern void gain_level_reward(int chosen_reward);
 
 /*
  * Advance experience levels and print experience
  */
 void check_experience(void)
 {
-	bool level_mutation = FALSE;
+	bool level_reward = FALSE;
 	bool inc_stat_okay = FALSE;
 	int  old_lev = p_ptr->lev;
 
@@ -109,12 +110,6 @@ void check_experience(void)
 
 	/* Hack -- upper limit */
 	if (p_ptr->exp > PY_MAX_EXP) p_ptr->exp = PY_MAX_EXP;
-
-	if (p_ptr->pclass == CLASS_SNATCHER)
-	{
-		if (p_ptr->exp > (player_exp[SN_MAX_LEVEL - 1] * p_ptr->expfact / 100L - 1L))
-			p_ptr->exp = (player_exp[SN_MAX_LEVEL - 1] * p_ptr->expfact / 100L - 1L);
-	}
 
 	/* Hack -- upper limit */
 	if (p_ptr->max_exp > PY_MAX_EXP) p_ptr->max_exp = PY_MAX_EXP;
@@ -134,8 +129,7 @@ void check_experience(void)
 
 	/* Lose levels while possible */
 	while ((p_ptr->lev > 1) &&
-		((p_ptr->exp < (player_exp[p_ptr->lev - 2] * p_ptr->expfact / 100L)) ||
-		((p_ptr->pclass == CLASS_SNATCHER) && (p_ptr->lev > SN_MAX_LEVEL))))
+		(p_ptr->exp < (player_exp[p_ptr->lev - 2] * p_ptr->expfact / 100L)))
 	{
 		/* Lose a level */
 		p_ptr->lev--;
@@ -148,7 +142,7 @@ void check_experience(void)
 		p_ptr->redraw |= (PR_LEV | PR_TITLE);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER);
+		p_ptr->window |= (PW_PLAYER | PW_STATS);
 
 		/* Handle stuff */
 		handle_stuff();
@@ -159,9 +153,6 @@ void check_experience(void)
 	while ((p_ptr->lev < PY_MAX_LEVEL) &&
 	       (p_ptr->exp >= (player_exp[p_ptr->lev-1] * p_ptr->expfact / 100L)))
 	{
-		if ((p_ptr->pclass == CLASS_SNATCHER) && (p_ptr->lev >= SN_MAX_LEVEL))
-			break;
-
 		/* Gain a level */
 		p_ptr->lev++;
 		lite_spot(py, px);
@@ -185,10 +176,7 @@ void check_experience(void)
 		{
 			p_ptr->max_plv = p_ptr->lev;
 
-			if (p_ptr->prace == RACE_BEASTMAN)
-			{
-				if (randint1(5) == 1) level_mutation = TRUE;
-			}
+			level_reward = TRUE;
 
 			/* You can gain stat only when reaching max level */
 			inc_stat_okay = TRUE;
@@ -211,7 +199,7 @@ void check_experience(void)
 		p_ptr->redraw |= (PR_LEV | PR_TITLE);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER | PW_SPELL);
+		p_ptr->window |= (PW_PLAYER | PW_SPELL | PW_STATS);
 
 #ifdef JP
 /* XTRA HACK LVUP */
@@ -224,32 +212,28 @@ void check_experience(void)
 /* XTRA HACK LVUP */
 		level_up = 0;
 #endif
-		if (inc_stat_okay){
+		if (inc_stat_okay)
+		{
 			/* You can gain stat per 5 level */
 			if(!(p_ptr->max_plv % 5)) choice_gain_stat();
-		}
 
-		if (level_mutation)
-		{
-#ifdef JP
-			msg_print("あなたは変わった気がする...");
-#else
-			msg_print("You feel different...");
-#endif
-			(void)gain_random_mutation(0);
-			level_mutation = FALSE;
-		}
-
-		if ((p_ptr->pclass == CLASS_SNATCHER) && (p_ptr->lev < PY_MAX_LEVEL))
-		{
-			if (p_ptr->lev >= SN_MAX_LEVEL)
+			/* gain stat randomly */
+			else
 			{
-#ifdef JP
-				msg_print("この身体ではこれ以上強くなれない。");
-#else
-				msg_print("Can not level up with this body.");
-#endif
+				int n;
+
+				if (one_in_(3))
+					n = valar_stats[p_ptr->valar_patron];
+				else
+					n = randint0(6);
+				do_inc_stat(n);
 			}
+		}
+
+		if (level_reward)
+		{
+			gain_level_reward(0);
+			level_reward = FALSE;
 		}
 	}
 
@@ -273,7 +257,7 @@ void check_experience(void)
 static int get_coin_type(int r_idx)
 {
 	monster_race    *r_ptr = &r_info[r_idx];
-
+#if 0
 	/* Analyze "coin" monsters */
 	if (r_ptr->d_char == '$')
 	{
@@ -287,7 +271,7 @@ static int get_coin_type(int r_idx)
 		case MON_ADAMANT_COINS: return (17);
 		}
 	}
-
+#endif
 	/* Assume nothing */
 	return (0);
 }
@@ -326,6 +310,7 @@ static bool kind_is_cloak(int k_idx)
 	return (FALSE);
 }
 
+#ifndef TINYANGBAND
 /*
  * Hack -- determine if a template is Book
  */
@@ -334,7 +319,7 @@ static bool kind_is_book(int k_idx)
 	object_kind *k_ptr = &k_info[k_idx];
 
 	/* Analyze the item type */
-	if ((k_ptr->tval >= TV_LIFE_BOOK) && (k_ptr->tval <= TV_MAGIC_BOOK))
+	if ((k_ptr->tval >= TV_LIFE_BOOK) && (k_ptr->tval <= TV_SORCERY_BOOK))
 	{
 		return (TRUE);
 	}
@@ -352,7 +337,7 @@ static bool kind_is_good_book(int k_idx)
 	object_kind *k_ptr = &k_info[k_idx];
 
 	/* Analyze the item type */
-	if ((k_ptr->tval >= TV_LIFE_BOOK) && (k_ptr->tval <= TV_MAGIC_BOOK) && (k_ptr->sval > 1))
+	if ((k_ptr->tval >= TV_LIFE_BOOK) && (k_ptr->tval <= TV_SORCERY_BOOK) && (k_ptr->sval > 1))
 	{
 		return (TRUE);
 	}
@@ -360,7 +345,7 @@ static bool kind_is_good_book(int k_idx)
 	/* Assume not good */
 	return (FALSE);
 }
-
+#endif
 
 
 void check_quest_completion(monster_type *m_ptr)
@@ -458,7 +443,7 @@ void check_quest_completion(monster_type *m_ptr)
 #else
 						msg_print("You just completed your quest!");
 #endif
-						sound(SOUND_QUEST);
+	  					sound(SOUND_LEVEL); /* (Sound substitute) No quest sound */
 						msg_print(NULL);
 					}
 
@@ -507,7 +492,7 @@ void check_quest_completion(monster_type *m_ptr)
 #else
 						msg_print("You just completed your quest!");
 #endif
-						sound(SOUND_QUEST);
+	  					sound(SOUND_LEVEL); /* (Sound substitute) No quest sound */
 						msg_print(NULL);
 					}
 				}
@@ -560,12 +545,12 @@ void check_quest_completion(monster_type *m_ptr)
 #else
 						msg_print("You just completed your quest!");
 #endif
-						sound(SOUND_QUEST);
+	  					sound(SOUND_LEVEL); /* (Sound substitute) No quest sound */
 						msg_print(NULL);
 					}
 
 					/* Finish the two main quests without rewarding */
-					if ((i == QUEST_OBERON) || (i == QUEST_SERPENT))
+					if ((i == QUEST_SAURON) || (i == QUEST_MORGOTH))
 					{
 						quest[i].status = QUEST_STATUS_FINISHED;
 					}
@@ -606,7 +591,7 @@ void check_quest_completion(monster_type *m_ptr)
 #else
 						msg_print("You just completed your quest!");
 #endif
-						sound(SOUND_QUEST);
+	  					sound(SOUND_LEVEL); /* (Sound substitute) No quest sound */
 						msg_print(NULL);
 					}
 					quest[i].cur_num = 0;
@@ -745,7 +730,7 @@ void monster_death(int m_idx, bool drop_item_okay)
 			int d_side = r_ptr->blow[i].d_side;
 			int damage = damroll(d_dice, d_side);
 
-			sound(SOUND_EXPLODE);
+			sound(SOUND_BR_FIRE); /* (Sound substitute) No sound for explode, use fire */
 			project(m_idx, 3, y, x, damage, typ, flg);
 			break;
 		}
@@ -803,120 +788,8 @@ void monster_death(int m_idx, bool drop_item_okay)
 	/* Drop objects being carried */
 	monster_drop_carried_objects(m_ptr);
 
-	/* Muramasa sucked blood, and became more powerful */
-	if( r_ptr->d_char == 'p' && inventory[INVEN_WIELD].name1 == ART_MURAMASA ){
-		int to_h = inventory[INVEN_WIELD].to_h ;
-		int to_d = inventory[INVEN_WIELD].to_d ;
-		int i,flag;
-	  
-		/**  to_h will increase by 1 / 2^(to_h -9)  **/
-		flag=1;
-		for(i=0; i<to_h - 9 ; i++) if( one_in_(2) ) flag=0;
-		if( flag == 1 ) to_h++;
-
-		/**  to_d will increase by 1 / 2^(to_d -9)  **/
-		flag=1;
-		for(i=0; i<to_d - 9 ; i++) if( one_in_(2) ) flag=0;
-		if( flag == 1 ) to_d++;
-
-		if( inventory[INVEN_WIELD].to_h != to_h || inventory[INVEN_WIELD].to_d != to_d ){
-#ifdef JP
-			msg_print("妖刀は血を吸って強くなった！");
-#else
-			msg_print("Muramasa sucked blood, and became more powerful!");
-#endif
-			inventory[INVEN_WIELD].to_h = to_h;
-			inventory[INVEN_WIELD].to_d = to_d;
-		}
-	}
-
-	/*
-	 * Mega^3-hack: killing a 'Warrior of the Dawn' is likely to
-	 * spawn another in the fallen one's place!
-	 */
-#ifdef JP
-	else
-#endif
-	if (m_ptr->r_idx == MON_DAWN)
-	{
-		if (randint1(20) != 13)
-		{
-			int wy = y, wx = x;
-			int attempts = 100;
-			bool pet = is_pet(m_ptr);
-
-			do
-			{
-				scatter(&wy, &wx, y, x, 20, 0);
-			}
-			while (!(in_bounds(wy, wx) && cave_empty_bold2(wy, wx)) && --attempts);
-
-			if (attempts > 0)
-			{
-				if (summon_specific((pet ? -1 : 0), wy, wx, 100, SUMMON_DAWN,
-										  FALSE, is_friendly(m_ptr), pet))
-				{
-					if (player_can_see_bold(wy, wx))
-#ifdef JP
-						msg_print("新たな戦士が現れた！");
-#else
-						msg_print("A new warrior steps forth!");
-#endif
-				}
-			}
-		}
-	}
-
-	/* Pink horrors are replaced with 2 Blue horrors */
-	else if (m_ptr->r_idx == MON_PINK_HORROR)
-	{
-		bool notice = FALSE;
-
-		for (i = 0; i < 2; i++)
-		{
-			int wy = y, wx = x;
-			bool pet = is_pet(m_ptr);
-
-			if (summon_specific((pet ? -1 : 0), wy, wx, 100, SUMMON_BLUE_HORROR,
-									  FALSE, is_friendly(m_ptr), pet))
-			{
-				if (player_can_see_bold(wy, wx))
-					notice = TRUE;
-			}
-		}
-
-		if (notice)
-#ifdef JP
-			msg_print("ピンク・ホラーは分裂した！");
-#else
-			msg_print("The Pink horror divides!");
-#endif
-	}
-
-	/* One more ultra-hack: An Unmaker goes out with a big bang! */
-	else if (m_ptr->r_idx == MON_UNMAKER)
-	{
-		u16b flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
-		(void)project(m_idx, 6, y, x, 100, GF_CHAOS, flg);
-	}
-
-	/* Bloodletters of Khorne may drop a blade of chaos */
-	else if ((m_ptr->r_idx == MON_BLOODLETTER) && (randint1(100) < 15))
-	{
-		/* Get local object */
-		q_ptr = &forge;
-
-		/* Prepare to make a Blade of Chaos */
-		object_prep(q_ptr, lookup_kind(TV_SWORD, SV_BLADE_OF_CHAOS));
-
-		apply_magic(q_ptr, object_level, FALSE, FALSE, FALSE, FALSE);
-
-		/* Drop it in the dungeon */
-		(void)drop_near(q_ptr, -1, y, x);
-	}
-
-	/* Deathswords and Hellblades drop only swords. */
-	else if ((r_ptr->d_char == '|') && !(m_ptr->r_idx == MON_STORMBRINGER))
+	/* Death Sword drop only swords */
+	if (r_ptr->d_char == '|')
 	{
 		/* Get local object */
 		q_ptr = &forge;
@@ -958,7 +831,7 @@ void monster_death(int m_idx, bool drop_item_okay)
 		/* Drop it in the dungeon */
 		(void)drop_near(q_ptr, -1, y, x);
 	}
-
+#ifndef TINYANGBAND
 	else if ((m_ptr->r_idx == MON_RAAL) && (dun_level > 9))
 	{
 		/* Get local object */
@@ -982,7 +855,7 @@ void monster_death(int m_idx, bool drop_item_okay)
 		/* Drop it in the dungeon */
 		(void)drop_near(q_ptr, -1, y, x);
 	}
-
+#endif
 	/* HACK -- ringwraiths */
 	else if ((m_ptr->r_idx == MON_ANGMAR) || (m_ptr->r_idx == MON_KHAMUL) ||
 		(m_ptr->r_idx == MON_NAZGUL))
@@ -1044,19 +917,9 @@ void monster_death(int m_idx, bool drop_item_okay)
 
 			switch (m_ptr->r_idx)
 			{
-			case MON_GOLD_RING:
-				a_idx = ART_POWER;
-				chance = 75;
-				break;
-
 			case MON_SAURON:
 				a_idx = ART_POWER;
-				chance = 25;
-				break;
-
-			case MON_MAEGLIN:
-				a_idx = ART_GONDOR;
-				chance = 10;
+				chance = 5;
 				break;
 
 			case MON_SARUMAN:
@@ -1064,90 +927,16 @@ void monster_death(int m_idx, bool drop_item_okay)
 				chance = 20;
 				break;
 
-			case MON_KLING:
-				a_idx = ART_DESTINY;
-				chance = 40;
-				break;
-
 			case MON_AR_PHARAZON:
 				a_idx = ART_NUMENOR;
-				chance = 20;
-				break;
-
-			case MON_HAGEN:
-				a_idx = ART_HAGEN;
-				chance = 66;
-				break;
-
-			case MON_OROCHI:
-				a_idx = ART_KUSANAGI;
-				chance = 10;
+				chance = 15;
 				break;
 
 			case MON_GOTHMOG:
 				a_idx = ART_GOTHMOG;
-				chance = 33;
-				break;
-
-			case MON_STORMBRINGER:
-				a_idx = ART_STORMBRINGER;
-				chance = 100;
-				break;
-
-			case MON_LUNGORTHIN:
-				a_idx = ART_CALRIS;
 				chance = 50;
 				break;
 
-			case MON_JACK_SHADOWS:
-				a_idx = ART_JACK;
-				chance = 15;
-				break;
-
-			case MON_DIO:
-				a_idx = ART_STONEMASK;
-				chance = 20;
-				break;
-
-			case MON_FUNDIN:
-				a_idx = ART_FUNDIN;
-				chance = 15;
-				break;
-
-			case MON_ROBIN_HOOD:
-				a_idx = ART_ROBIN_HOOD;
-				chance = 15;
-				break;
-
-			case MON_YAMATO_TAKERU:
-				a_idx = ART_KUSANAGI;
-				chance = 5;
-				break;
-
-			case MON_MIKADUCHI:
-				a_idx = ART_FUTSUNOMITAMA;
-				chance = 15;
-				break;
-
-			case MON_IZANAGI:
-				a_idx = ART_NUMAHOKO;
-				chance = 15;
-				break;
-
-			case MON_SUSANOO:
-				a_idx = ART_KUSANAGI;
-				chance = 5;
-				break;
-
-			case MON_TSUKUYOMI:
-				a_idx = ART_YATA;
-				chance = 20;
-				break;
-
-			case MON_AMATERASU:
-				a_idx = ART_MAGATAMA;
-				chance = 20;
-				break;
 			}
 
 			if ((a_idx > 0) && ((randint1(99) < chance) || (wizard)))
@@ -1361,39 +1150,6 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			monster_race_track(m_ptr->r_idx);
 		}
 
-		/* Don't kill Amberites */
-		if ((r_ptr->flags3 & RF3_AMBERITE) && (randint1(2) == 1))
-		{
-			int curses = 1 + randint1(3);
-			bool stop_ty = FALSE;
-			int count = 0;
-
-#ifdef JP
-			msg_format("%^sは恐ろしい呪いをあなたにかけた！", m_name);
-#else
-			msg_format("%^s puts a terrible curse on you!", m_name);
-#endif
-			if (p_ptr->pclass == CLASS_ARCHAEOLOGIST)
-			{
-				if (!one_in_(7))
-#ifdef JP
-					msg_format("祟りなんか怖くない！", m_name);
-#else
-					msg_format("but, you feel it isn't terrible.", m_name);
-#endif
-			}
-			else
-			{
-				curse_equipment(100, 50);
-
-				do
-				{
-					stop_ty = activate_ty_curse(stop_ty, &count);
-				}
-				while (--curses);
-			}
-		}
-
 		if (r_ptr->flags2 & RF2_CAN_SPEAK)
 		{
 			char line_got[1024];
@@ -1440,8 +1196,20 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			}
 		}
 
-		/* Make a sound */
-		sound(SOUND_KILL);
+
+        /* Play a special sound if the monster was unique */
+        if ((r_ptr->flags1 & RF1_UNIQUE) && !(m_ptr->smart & SM_CLONED))
+        {
+                /* Mega-Hack -- Morgoth -- see monster_death() */
+                if (r_ptr->flags1 & RF1_DROP_CHOSEN)
+                         sound(SOUND_KILL_KING);
+                else
+                         sound(SOUND_KILL_UNIQUE);
+        } 
+		else 
+        {
+		 	 sound(SOUND_KILL);
+	    }
 
 		/* Death by Missile/Spell attack */
 		if (note)
@@ -1691,7 +1459,7 @@ void redraw_window(void)
 	Term_xtra(TERM_XTRA_REACT, 0);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER | PW_STATS);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_DUNGEON | PW_MONSTER | PW_OBJECT);
@@ -1792,7 +1560,7 @@ void verify_panel(void)
 	if (max_pcol_min < 0) max_pcol_min = 0;
 
 		/* Center on player */
-	if (center_player && (!avoid_center || !running))
+	if (center_player)
 	{
 		/* Center vertically */
 		prow_min = y - hgt / 2;
@@ -3102,12 +2870,6 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 #else
 				sprintf(out_val, "%s%s%s%s [%s] (%d:%d)", s1, s2, s3, name, info, y, x);
 #endif
-			else if ((p_ptr->pclass == CLASS_SNATCHER) && ((y == py) && (x == px)))
-#ifdef JP
-				sprintf(out_val, "%s%s%s%s[r思 %s]", s1, name, s2, s3, info);
-#else
-				sprintf(out_val, "%s%s%s%s [r,%s]", s1, s2, s3, name, info);
-#endif
 			else
 #ifdef JP
 				sprintf(out_val, "%s%s%s%s[%s]", s1, name, s2, s3, info);
@@ -3117,32 +2879,6 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 			prt(out_val, 0, 0);
 			move_cursor_relative(y, x);
 			query = inkey();
-
-			if ((p_ptr->pclass == CLASS_SNATCHER) && ((y == py) && (x == px)))
-			{
-				/* Recall */
-				if (query == 'r')
-				{
-					/* Save */
-					screen_save();
-
-					/* Recall on screen */
-					screen_roff(p_ptr->r_idx, 0);
-
-					/* Hack -- Complete the prompt (again) */
-#ifdef JP
-					Term_addstr(-1, TERM_WHITE, format("  [r思 %s%s]", x_info, info));
-#else
-					Term_addstr(-1, TERM_WHITE, format("  [r,%s%s]", x_info, info));
-#endif
-
-					/* Command */
-					query = inkey();
-
-					/* Restore */
-					screen_load();
-				}
-			}
 
 			/* Always stop at "normal" keys */
 			if ((query != '\r') && (query != '\n') && (query != ' ')) break;
@@ -3475,6 +3211,12 @@ strcpy(info, "q止 p自 o現 +次 -前");
 
 				/* Use that grid */
 				m = i;
+
+				/* Show objects on floor in subwindow */
+				look_y = temp_y[i];
+				look_x = temp_x[i];
+				p_ptr->window |= (PW_FLOOR);
+				handle_stuff();
 			}
 		}
 
@@ -3644,12 +3386,20 @@ strcpy(info, "q止 t決 p自 m近 +次 -前");
 				/* Slide into legality */
 				if (y >= cur_hgt-1) y = cur_hgt- 2;
 				else if (y <= 0) y = 1;
+
+				/* Show objects on floor in subwindow */
+				look_y = y;
+				look_x = x;
+				p_ptr->window |= (PW_FLOOR);
+				handle_stuff();
 			}
 		}
 	}
 
 	/* Forget */
 	temp_n = 0;
+	look_y = py;
+	look_x = px;
 
 	/* Clear the top line */
 	prt("", 0, 0);
@@ -3664,7 +3414,7 @@ strcpy(info, "q止 t決 p自 m近 +次 -前");
 	p_ptr->redraw |= (PR_MAP);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
+	p_ptr->window |= (PW_OVERHEAD | PW_FLOOR);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -3705,8 +3455,7 @@ bool get_aim_dir(int *dp)
 	/* Hack -- auto-target if requested */
 	if (use_old_target && target_okay()) dir = 5;
 	
-#ifdef ALLOW_REPEAT /* TNB */
-
+	/* Repeat previous command */
 	if (repeat_pull(dp))
 	{
 		/* Confusion? */
@@ -3718,8 +3467,6 @@ bool get_aim_dir(int *dp)
 			dir = *dp;
 		}
 	}
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Ask until satisfied */
 	while (!dir)
@@ -3817,11 +3564,8 @@ msg_print("あなたは混乱している。");
 	/* Save direction */
 	(*dp) = dir;
 
-#ifdef ALLOW_REPEAT /* TNB */
-
+	/* Remember the command for repeating */
 	repeat_push(command_dir);
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* A "valid" direction was entered */
 	return (TRUE);
@@ -3849,14 +3593,11 @@ bool get_rep_dir_aux(int *dp, bool under)
 {
 	int dir;
 
-#ifdef ALLOW_REPEAT /* TNB */
-
+	/* Repeat previous command */
 	if (repeat_pull(dp))
 	{
 		return (TRUE);
 	}
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Initialize */
 	(*dp) = 0;
@@ -3919,11 +3660,8 @@ msg_print("あなたは混乱している。");
 	/* Save direction */
 	(*dp) = dir;
 
-#ifdef ALLOW_REPEAT /* TNB */
-
+	/* Remember the command for repeating */
 	repeat_push(dir);
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Success */
 	return (TRUE);
@@ -4021,7 +3759,7 @@ static void tgt_pt_prepare(void)
 bool tgt_pt(int *x_ptr, int *y_ptr)
 {
 	char ch = 0;
-	int d, x, y, n;
+	int d, x, y, n = 0;
 	bool success = FALSE;
 
 	int wid, hgt;
@@ -4035,7 +3773,6 @@ bool tgt_pt(int *x_ptr, int *y_ptr)
 	if (expand_list) 
 	{
 		tgt_pt_prepare();
-		n = 0;
 	}
 
 #ifdef JP
@@ -4451,37 +4188,341 @@ int bow_tmul(int sval)
 	return (tmul);
 }
 
-void activate_light_sabre(object_type *o_ptr, byte flag)
+void gain_level_reward(int chosen_reward)
 {
-	artifact_type *a_ptr = &a_info[ART_LIGHT_SABRE];
+	int i;
+	int type, effect;
+	cptr reward = NULL;
 
-	if (o_ptr->name1 != ART_LIGHT_SABRE) return;
-
-	if ((flag == TRUE) && (o_ptr->dd == a_ptr->dd))
+	if (!chosen_reward)
 	{
-#ifdef JP
-		msg_print("光輝く刃が現れた．．．");
-#else
-		msg_print("Your sword has brilliant blade now...");
-#endif
-		o_ptr->dd = 16;
-		o_ptr->pval = 2;
-		o_ptr->art_flags1 |= (TR1_BRAND_ELEC | TR1_BRAND_FIRE | TR1_VORPAL | TR1_BLOWS);
-		o_ptr->art_flags3 |= TR3_LITE;
-	}
-	else if (o_ptr->dd != a_ptr->dd)
-	{
-#ifdef JP
-		msg_print("光輝く刃が消えた．．．");
-#else
-		msg_print("Your sword loses brilliant blade now...");
-#endif
-		o_ptr->dd = a_ptr->dd;
-		o_ptr->pval = a_ptr->pval;
-		o_ptr->art_flags1 &= ~(TR1_BRAND_ELEC | TR1_BRAND_FIRE | TR1_VORPAL | TR1_BLOWS);
-		o_ptr->art_flags3 &= ~TR3_LITE;
+		if (multi_rew) return;
+		else multi_rew = TRUE;
 	}
 
-	p_ptr->update |= (PU_BONUS);
-	update_stuff();
+	type = randint0(MAX_REWARDS);
+	effect = valar_rewards[p_ptr->valar_patron][type];
+
+	switch (chosen_reward ? chosen_reward : effect)
+	{
+		case REW_IGNORE:
+#ifdef JP
+			msg_format("%sはあなたを無視した。",
+				valar_patrons[p_ptr->valar_patron]);
+			reward = "無視してもらった。";
+#else
+			msg_format("%s ignores you.",
+				valar_patrons[p_ptr->valar_patron]);
+			reward = "nothing";
+#endif
+			break;
+		case REW_BLESS:
+#ifdef JP
+			msg_format("%sの声が響き渡った:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_print("「汝に祝福あれ。」");
+			reward = "祝福された。";
+#else
+			msg_format("The voice of %s booms out:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_print("'Let me bless thee.'");
+			reward = "blessing";
+#endif
+			set_blessed(p_ptr->blessed + randint1(100) + 100);
+			break;
+		case REW_HERO:
+#ifdef JP
+			msg_format("%sの声が響き渡った:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_print("「汝に勇気を与えよう。」");
+			reward = "勇気をもらった。";
+#else
+			msg_format("The voice of %s booms out:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_print("'I give thine courage.'");
+			reward = "heroism";
+#endif
+			set_hero(p_ptr->hero + randint1(100) + 100);
+			break;
+		case REW_SPEED:
+#ifdef JP
+			msg_format("%sの声が響き渡った:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_print("「汝に素早さを与えよう。」");
+			reward = "動きが速くなった。";
+#else
+			msg_format("The voice of %s booms out:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_print("'I give thine quickness.'");
+			reward = "temporary speed";
+#endif
+			set_slow(0);
+			set_fast(randint1(100) + 100);
+			break;
+		case REW_RESTORE:
+#ifdef JP
+			msg_format("%sの声がささやいた:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_print("「余が汝の身体を癒さん。」");
+			reward = "身体が癒された";
+#else
+			msg_format("The voice of %s whispers:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_print("'Let me cure thee.'");
+			reward = "curing";
+#endif
+			restore_level();
+			(void)set_poisoned(0);
+			(void)set_blind(0);
+			(void)set_confused(0);
+			(void)set_image(0);
+			(void)set_stun(0);
+			(void)set_cut(0);
+			hp_player(50);
+			for (i = 0; i < 6; i++)
+			{
+				(void)do_res_stat(i);
+			}
+			break;
+		case REW_ENLIGHT:
+#ifdef JP
+			msg_format("%sの声がささやいた:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_print("「余の見えしものを汝に見せようぞ。」");
+			reward = "階の情報を手に入れた。";
+#else
+			msg_format("The voice of %s whispers:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_print("'Let me show thee anything that i can look.'");
+			reward = "an enlightenment";
+#endif
+			wiz_lite();
+			break;
+		case REW_GREA_OBJ:
+#ifdef JP
+			msg_format("%sの声が響き渡った:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_print("「我が与えし物を賢明に使うべし。」");
+			reward = "高級品のアイテムを手に入れた。";
+#else
+			msg_format("The voice of %s booms out:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_print("'Use my gift wisely.'");
+			reward = "an excellent item";
+#endif
+			acquirement(py, px, 1, TRUE, FALSE);
+			break;
+		case REW_GREA_OBS:
+#ifdef JP
+			msg_format("%sの声が響き渡った:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_print("「下僕よ、汝の献身への我が惜しみ無き報いを見るがよい。」");
+			reward = "高級品のアイテムを手に入れた。";
+#else
+			msg_format("The voice of %s booms out:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_print("'Behold, mortal, how generously I reward thy loyalty.'");
+			reward = "excellent items";
+#endif
+			acquirement(py, px, randint1(2) + 1, TRUE, FALSE);
+			break;
+		case REW_GAIN_ABL:
+#ifdef JP
+			msg_format("%sの声が鳴り響いた:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_print("「留まるのだ、下僕よ。余が汝の肉体を鍛えん。」");
+			reward = "能力値が1つ上がった。";
+#else
+			msg_format("The voice of %s rings out:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_print("'Stay, mortal, and let me mold thee.'");
+			reward = "increasing a stat.";
+#endif
+			do_inc_stat(randint0(6));
+			break;
+		case REW_AUGM_ABL:
+#ifdef JP
+			msg_format("%sの声が響き渡った:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_print("「我がささやかなる賜物を受けとるがよい！」");
+			reward = "全能力値が上がった。";
+#else
+			msg_format("The voice of %s booms out:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_print("'Receive this modest gift from me!'");
+			reward = "increasing all stats";
+#endif
+			for (i = 0; i < 6; i++)
+			{
+				(void)do_inc_stat(i);
+			}
+			break;
+	   case REW_HEAL:
+#ifdef JP
+			msg_format("%sの声が響き渡った:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_print("「甦るがよい、我が下僕よ！」");
+			reward = "体力が回復した。";
+#else
+			msg_format("The voice of %s booms out:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_print("'Rise, my servant!'");
+			reward = "healing";
+#endif
+			restore_level();
+			(void)set_poisoned(0);
+			(void)set_blind(0);
+			(void)set_confused(0);
+			(void)set_image(0);
+			(void)set_stun(0);
+			(void)set_cut(0);
+			hp_player(5000);
+			for (i = 0; i < 6; i++)
+			{
+				(void)do_res_stat(i);
+			}
+			break;
+		case REW_POTION:
+#ifdef JP
+			msg_format("%sの声が響き渡った:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_print("「我がささやかなる賜物を受けとるがよい！」");
+			reward = "薬を1服もらった。";
+#else
+			msg_format("The voice of %s booms out:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_print("'Receive this modest gift from me!'");
+			reward = "an potion";
+#endif
+			{
+				object_type forge;
+				object_type *q_ptr = &forge;
+
+				object_prep(q_ptr, lookup_kind(TV_POTION, SV_POTION_HEALING));
+				(void)drop_near(q_ptr, -1, py, px);
+			}
+			break;
+		case REW_RE_CURSE:
+#ifdef JP
+			msg_format("%sの声が響き渡った:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_print("「我、汝の呪いを消滅せん！」");
+			reward = "呪いが解かれた";
+#else
+			msg_format("The voice of %s booms out:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_print("'Let me remove all curses, thine!'");
+			reward = "removing curses";
+#endif
+			remove_all_curse();
+			break;
+		case REW_GENOCIDE:
+#ifdef JP
+			msg_format("%sの声が響き渡った:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_print("「我、汝の敵を抹殺せん！」");
+			reward = "モンスターが抹殺された。";
+#else
+			msg_format("The voice of %s booms out:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_print("'Let me relieve thee of thine oppressors!'");
+			reward = "genociding monsters";
+#endif
+			(void)genocide(0);
+			break;
+		case REW_MASS_GEN:
+#ifdef JP
+			msg_format("%sの声が響き渡った:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_print("「我、汝の敵を抹殺せん！」");
+			reward = "モンスターが抹殺された。";
+#else
+			msg_format("The voice of %s booms out:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_print("'Let me relieve thee of thine oppressors!'");
+			reward = "genociding nearby monsters";
+#endif
+			(void)mass_genocide(0);
+			break;
+		case REW_DISPEL_C:
+#ifdef JP
+			msg_format("%sの力が敵を攻撃するのを感じた！",
+				valar_patrons[p_ptr->valar_patron]);
+			reward = "周囲の敵が攻撃された。";
+#else
+			msg_format("You can feel the power of %s assault your enemies!",
+				valar_patrons[p_ptr->valar_patron]);
+			reward = "dispel monsters";
+#endif
+			(void)dispel_monsters(p_ptr->lev * 8);
+			break;
+		case REW_WISHING:
+#ifdef JP
+			msg_format("%sの声が響き渡った:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_print("「汝の願い聞きいれようぞ！」");
+			reward = "願いを聞いてもらった。";
+#else
+			msg_format("The voice of %s booms out:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_print("'Let me accept thine wish!'");
+			reward = "wishing";
+#endif
+			for (i = 0; i < 3; i++)
+			{
+				int lev = 1 + (p_ptr->lev * 2/ 3);
+				if (do_cmd_wishing(lev, TRUE, TRUE, TRUE) != -1) break;
+			}
+			break;
+		case REW_PROTEVIL:
+#ifdef JP
+			msg_format("%sの声が響き渡った:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_print("「邪悪より汝を護らん。」");
+			reward = "邪悪から護られた。";
+#else
+			msg_format("The voice of %s booms out:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_print("'Let me protect thee from evilness.'");
+			reward = "protecting from evil";
+#endif
+			set_protevil(p_ptr->protevil + randint1(100) + 100);
+			break;
+		case REW_AMULET:
+#ifdef JP
+			msg_format("%sの声が響き渡った:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_print("「暗き中にも華やかであれ！」");
+			reward = "特別なアミュレットをもらった。";
+#else
+			msg_format("The voice of %s booms out:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_print("'Be gorgeous, even if in darkness!'");
+			reward = "a special amulet";
+#endif
+			{
+				object_type forge;
+				object_type *q_ptr = &forge;
+
+				object_prep(q_ptr, lookup_kind(TV_AMULET, SV_AMULET_ADORNMENT));
+				(void)create_artifact(q_ptr, FALSE);
+				(void)drop_near(q_ptr, -1, py, px);
+			}
+			break;
+		default:
+#ifdef JP
+			msg_format("%sの声がどもった:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_format("「あー、あー、答えは %d/%d。質問は何？」", type, effect);
+#else
+			msg_format("The voice of %s stammers:",
+				valar_patrons[p_ptr->valar_patron]);
+			msg_format("'Uh... uh... the answer's %d/%d, what's the question?'", type, effect);
+#endif
+	}
+
+	if (reward && take_notes)
+	{
+		add_note(reward, 'r');
+	}
 }

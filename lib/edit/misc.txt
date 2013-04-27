@@ -1,7 +1,7 @@
 # File: misc.txt
 
 # Maximum number of towns
-M:T:6
+M:T:3
 
 # Maximum number of quests
 M:Q:100
@@ -13,10 +13,10 @@ M:WX:10
 M:WY:10
 
 # Maximum number of monsters in r_info_j.txt
-M:R:898
+M:R:156
 
 # Maximum number of items in k_info_j.txt
-M:K:549
+M:K:341
 
 # Maximum number of vaults in v_info_j.txt
 M:V:126
@@ -25,10 +25,10 @@ M:V:126
 M:F:160
 
 # Maximum number of artifacts in a_info_j.txt
-M:A:176
+M:A:101
 
 # Maximum number of ego-items in e_info_j.txt
-M:E:131
+M:E:96
 
 # Maximum size for "o_list[]"
 M:O:512

@@ -279,7 +279,11 @@ static errr path_temp(char *buf, int max)
 	if (!s) return (-1);
 
 	/* Format to length */
+#ifndef WINDOWS
 	(void)strnfmt(buf, max, "%s", s);
+#else
+	(void)strnfmt(buf, max, "./%s", s);
+#endif
 
 	/* Success */
 	return (0);
@@ -3569,8 +3573,7 @@ s16b get_quantity(cptr prompt, int max)
 		return (amt);
 	}
 
-#ifdef ALLOW_REPEAT /* TNB */
-
+	/* Repeat previous command */
 	/* Get the item index */
 	if ((max != 1) && repeat_pull(&amt))
 	{
@@ -3583,8 +3586,6 @@ s16b get_quantity(cptr prompt, int max)
 		/* Use it */
 		return (amt);
 	}
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Build a prompt if needed */
 	if (!prompt)
@@ -3637,11 +3638,9 @@ s16b get_quantity(cptr prompt, int max)
 	/* Enforce the minimum */
 	if (amt < 0) amt = 0;
 
-#ifdef ALLOW_REPEAT /* TNB */
 
+	/* Remember the command for repeating */
 	if (amt) repeat_push(amt);
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Return the result */
 	return (amt);
@@ -4360,7 +4359,7 @@ prt(format("²ó¿ô: %d", command_arg), 0, 0);
 	}
 
 	/* Hack -- Auto-repeat certain commands */
-	if (always_repeat && (command_arg <= 0))
+	if (command_arg <= 0)
 	{
 		/* Hack -- auto repeat certain commands */
 		if (my_strchr("TBDoc+", command_cmd))
@@ -4578,8 +4577,6 @@ int get_keymap_dir(char ch)
 }
 
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 #define REPEAT_MAX		20
 
 /* Number of chars saved */
@@ -4654,8 +4651,6 @@ void repeat_check(void)
 		repeat_push(what);
 	}
 }
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 
 #ifdef SORT_R_INFO
@@ -5276,6 +5271,7 @@ int inkey_special(bool numpad_cursor)
 		/* A special key found */
 		if (skey)
 		{
+
 			/* Cancel macro action on the queue */
 			forget_macro_action();
 

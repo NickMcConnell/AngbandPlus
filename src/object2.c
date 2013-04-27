@@ -623,7 +623,8 @@ s16b get_obj_num(int level)
 		if (one_in_(GREAT_OBJ))
 		{
 			/* What a bizarre calculation */
-			level = 1 + (level * MAX_DEPTH / randint1(MAX_DEPTH));
+			/* level = 1 + (level * MAX_DEPTH / randint1(MAX_DEPTH)); */
+			level = level + randint1(20);
 		}
 	}
 
@@ -763,7 +764,7 @@ void object_known(object_type *o_ptr)
 /*
  * The player is now aware of the effects of the given object.
  */
-void object_aware(object_type *o_ptr)
+void object_aware(const object_type *o_ptr)
 {
 	/* Fully aware of the effects */
 	k_info[o_ptr->k_idx].aware = TRUE;
@@ -773,7 +774,7 @@ void object_aware(object_type *o_ptr)
 /*
  * Something has been "sampled"
  */
-void object_tried(object_type *o_ptr)
+void object_tried(const object_type *o_ptr)
 {
 	/* Mark it as tried (even if "aware") */
 	k_info[o_ptr->k_idx].tried = TRUE;
@@ -784,7 +785,7 @@ void object_tried(object_type *o_ptr)
  * Return the "value" of an "unknown" item
  * Make a guess at the value of non-aware items
  */
-static s32b object_value_base(object_type *o_ptr)
+static s32b object_value_base(const object_type *o_ptr)
 {
 	/* Aware item -- use template cost */
 	if (object_aware_p(o_ptr)) return (get_object_cost(o_ptr));
@@ -828,7 +829,7 @@ static s32b object_value_base(object_type *o_ptr)
 
 
 /* Return the value of the flags the object has... */
-s32b flag_cost(object_type * o_ptr, int plusses)
+s32b flag_cost(const object_type * o_ptr, int plusses)
 {
 	s32b total = 0;
 	u32b f1, f2, f3;
@@ -889,6 +890,7 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 	if (f1 & TR1_CHAOTIC) {tmp_cost += 5000; count++;}
 	if (f1 & TR1_VAMPIRIC) {tmp_cost += 6500; count++;}
 	if (f1 & TR1_SLAY_ANIMAL) {tmp_cost += 1800; count++;}
+	if (f1 & TR1_SLAY_HUMAN) {tmp_cost += 1800; count++;}
 	if (f1 & TR1_SLAY_EVIL) {tmp_cost += 2500; count++;}
 	if (f1 & TR1_SLAY_UNDEAD) {tmp_cost += 1800; count++;}
 	if (f1 & TR1_SLAY_DEMON) {tmp_cost += 1800; count++;}
@@ -1084,7 +1086,7 @@ s32b flag_cost(object_type * o_ptr, int plusses)
  *
  * Every wearable item with a "pval" bonus is worth extra (see below).
  */
-s32b object_value_real(object_type *o_ptr)
+s32b object_value_real(const object_type *o_ptr)
 {
 	s32b value;
 
@@ -1330,7 +1332,7 @@ s32b object_value_real(object_type *o_ptr)
  * Note that discounted items stay discounted forever, even if
  * the discount is "forgotten" by the player via memory loss.
  */
-s32b object_value(object_type *o_ptr)
+s32b object_value(const object_type *o_ptr)
 {
 	s32b value;
 
@@ -1454,7 +1456,7 @@ void reduce_charges(object_type *o_ptr, int amt)
  *  Return maximum number of stack.
  */
 
-int object_similar_part(object_type *o_ptr, object_type *j_ptr)
+int object_similar_part(const object_type *o_ptr, const object_type *j_ptr)
 {
 	/* Default maximum number of stack */
 	int max_num = MAX_STACK_SIZE;
@@ -1550,9 +1552,6 @@ int object_similar_part(object_type *o_ptr, object_type *j_ptr)
 		case TV_HARD_ARMOR:
 		case TV_DRAG_ARMOR:
 		{
-			/* Require permission */
-			if (!stack_allow_items) return 0;
-
 			/* Fall through */
 		}
 
@@ -1652,7 +1651,7 @@ int object_similar_part(object_type *o_ptr, object_type *j_ptr)
  *  Determine if an item can absorb a second item.
  */
 
-bool object_similar(object_type *o_ptr, object_type *j_ptr)
+bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 {
 	int total = o_ptr->number + j_ptr->number;
 
@@ -1783,7 +1782,7 @@ void object_wipe(object_type *o_ptr)
 /*
  * Prepare an object based on an existing object
  */
-void object_copy(object_type *o_ptr, object_type *j_ptr)
+void object_copy(const object_type *o_ptr, object_type *j_ptr)
 {
 	/* Copy the structure */
 	COPY(o_ptr, j_ptr, object_type);
@@ -1879,17 +1878,17 @@ static s16b m_bonus(int max, int level)
 
 
 	/* Paranoia -- enforce maximal "level" */
-	if (level > MAX_DEPTH - 1) level = MAX_DEPTH - 1;
+	if (level > TINY_MAX_DEPTH - 1) level = TINY_MAX_DEPTH - 1;
 
 
 	/* The "bonus" moves towards the max */
-	bonus = ((max * level) / MAX_DEPTH);
+	bonus = ((max * level) / TINY_MAX_DEPTH);
 
 	/* Hack -- determine fraction of error */
-	extra = ((max * level) % MAX_DEPTH);
+	extra = ((max * level) % TINY_MAX_DEPTH);
 
 	/* Hack -- simulate floating point computations */
-	if (randint0(MAX_DEPTH) < extra) bonus++;
+	if (randint0(TINY_MAX_DEPTH) < extra) bonus++;
 
 
 	/* The "stand" is equal to one quarter of the max */
@@ -2162,8 +2161,8 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 	int tohit1 = randint1(5) + m_bonus(5, level);
 	int todam1 = randint1(5) + m_bonus(5, level);
 
-	int tohit2 = m_bonus(10, level);
-	int todam2 = m_bonus(10, level);
+	int tohit2 = m_bonus(5, level);
+	int todam2 = m_bonus(5, level);
 
 	/* Good */
 	if (power > 0)
@@ -2280,10 +2279,6 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 				case EGO_HA:
 					if (one_in_(4)) o_ptr->art_flags1 |= TR1_BLOWS;
 					break;
-				case EGO_DEMON:
-					if (one_in_(3)) o_ptr->art_flags1 |= TR1_CHAOTIC;
-					if (one_in_(4)) o_ptr->art_flags1 |= TR1_BLOWS;
-					break;
 				case EGO_DF:
 					if (one_in_(3)) o_ptr->art_flags2 |= TR2_RES_POIS;
 					if (one_in_(3)) o_ptr->art_flags3 |= TR3_WARNING;
@@ -2302,10 +2297,6 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					}
 					if (one_in_(5)) o_ptr->art_flags1 |= TR1_BRAND_POIS;
 					break;
-				case EGO_TRUMP:
-					if (one_in_(5)) o_ptr->art_flags1 |= TR1_SLAY_DEMON;
-					if (one_in_(7)) one_ability(o_ptr);
-					break;
 				case EGO_PATTERN:
 					if (one_in_(3)) o_ptr->art_flags2 |= TR2_HOLD_LIFE;
 					if (one_in_(3)) o_ptr->art_flags1 |= TR1_DEX;
@@ -2322,7 +2313,6 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 
 				/* Hack -- Some Powerful Ego gets extra dice */
 				if (o_ptr->name2 == EGO_HA ||
-				    o_ptr->name2 == EGO_DEMON ||
 				    o_ptr->name2 == EGO_PATTERN ||
 				    o_ptr->name2 == EGO_WEST ||
 					o_ptr->name2 == EGO_SHARPNESS)
@@ -2341,7 +2331,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 			else if (power < -1)
 			{
 				/* Roll for ego-item */
-				if ((randint0(MAX_DEPTH) < level) || (power < -2))
+				if ((randint0(TINY_MAX_DEPTH) < level) || (power < -2))
 				{
 					while (1)
 					{
@@ -2354,6 +2344,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					{
 					case EGO_MORGUL:
 						if (one_in_(6)) o_ptr->art_flags3 |= TR3_TY_CURSE;
+						if (one_in_(1 + (o_ptr->dd / 2))) o_ptr->dd++;
 						break;
 					case EGO_WEIRD:
 						o_ptr->dd++;
@@ -2372,8 +2363,6 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 				/* Hack -- Some Powerful Ego gets extra dice */
 				if (o_ptr->name2 == EGO_MORGUL)
 				{
-					if (one_in_(1 + (o_ptr->dd / 2))) o_ptr->dd++;
-
 					/* Hack -- Super-charge the damage dice */
 					while (one_in_(10L * o_ptr->dd * o_ptr->ds)) o_ptr->dd++;
 
@@ -2411,12 +2400,6 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 			{
 				o_ptr->name2 = get_random_ego(INVEN_AMMO, TRUE, level);
 
-				switch (o_ptr->name2)
-				{
-				case EGO_SLAYING_BOLT:
-					o_ptr->dd++;
-					break;
-				}
 				/* Hack -- super-charge the damage dice */
 				while (one_in_(10L * o_ptr->dd * o_ptr->ds)) o_ptr->dd++;
 
@@ -2428,7 +2411,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 			else if (power < -1)
 			{
 				/* Roll for ego-item */
-				if ((randint0(MAX_DEPTH) < level) || (power < -2))
+				if ((randint0(TINY_MAX_DEPTH) < level) || (power < -2))
 				{
 					o_ptr->name2 = get_random_ego(INVEN_AMMO, FALSE, level);
 				}
@@ -2463,7 +2446,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 {
 	int toac1 = randint1(5) + m_bonus(5, level);
 
-	int toac2 = m_bonus(10, level);
+	int toac2 = m_bonus(5, level);
 
 	/* Good */
 	if (power > 0)
@@ -2513,6 +2496,17 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 		case TV_HARD_ARMOR:
 		case TV_SOFT_ARMOR:
 		{
+			if ((o_ptr->tval == TV_HARD_ARMOR) &&
+				(o_ptr->sval == SV_DRAGON_ARMOR))
+			{
+				/* Mention the item */
+				if (cheat_peek) object_mention(o_ptr);
+				dragon_resist(o_ptr);
+
+				/* Occationaly permit ego */
+				if (!one_in_(3)) break;
+			}
+
 			/* Very good */
 			if (power > 1)
 			{
@@ -2632,7 +2626,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 
 				switch (o_ptr->name2)
 				{
-				case EGO_SLOW_DESCENT:
+				case EGO_LEVITATION:
 					if (one_in_(2)) one_high_resistance(o_ptr);
 					break;
 				}
@@ -2667,7 +2661,6 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 					case EGO_MAGI:
 					case EGO_MIGHT:
 					case EGO_TELEPATHY:
-					case EGO_REGENERATION:
 					case EGO_LORDLINESS:
 						break;
 					case EGO_SEEING:
@@ -2694,14 +2687,6 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 					o_ptr->art_flags3 |= TR3_HEAVY_CURSE;
 
 					if (one_in_(3)) o_ptr->art_flags3 |= TR3_TY_CURSE;
-
-					switch (randint1(4))
-					{
-						case 1: o_ptr->art_flags3 |= TR3_NO_TELE; break;
-						case 2: o_ptr->art_flags3 |= TR3_NO_MAGIC; break;
-						case 3: o_ptr->art_flags3 |= TR3_AGGRAVATE; break;
-						default: o_ptr->art_flags3 |= TR3_DRAIN_EXP;
-					}
 				}
 			}
 
@@ -2738,8 +2723,6 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 					case EGO_INTELLIGENCE:
 					case EGO_WISDOM:
 					case EGO_BEAUTY:
-					case EGO_LITE:
-					case EGO_INFRAVISION:
 						break;
 					case EGO_PROTECT_HELM:
 						switch(o_ptr->sval)
@@ -2790,13 +2773,8 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 					create_artifact(o_ptr, FALSE);
 					break;
 				}
-				while (1)
-				{
-					o_ptr->name2 = get_random_ego(INVEN_OUTER, TRUE, level);
-					if (o_ptr->name2 == EGO_JUSTICE && o_ptr->sval != SV_CLOAK)
-						continue;
-					break;
-				}
+
+				o_ptr->name2 = get_random_ego(INVEN_OUTER, TRUE, level);
 			}
 
 			/* Very cursed */
@@ -2831,7 +2809,11 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_RING_ATTACKS:
 				{
 					/* Stat bonus */
+#ifdef TINYANGBAND
+					o_ptr->pval = 1;
+#else
 					o_ptr->pval = m_bonus(2, level);
+#endif
 					if (one_in_(15)) o_ptr->pval++;
 					if (o_ptr->pval < 1) o_ptr->pval = 1;
 
@@ -2884,7 +2866,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_RING_SPEED:
 				{
 					/* Base speed (1 to 10) */
-					o_ptr->pval = randint1(5) + m_bonus(5, level);
+					o_ptr->pval = randint1(4) + m_bonus(4, level);
 
 					/* Super-charge the ring */
 					while (one_in_(2)) o_ptr->pval++;
@@ -2952,7 +2934,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_RING_ELEC:
 				{
 					/* Bonus to armor class */
-					o_ptr->to_a = rand_range(5, 10) + m_bonus(10, level);
+					o_ptr->to_a = rand_range(5, 10) + m_bonus(5, level);
 					break;
 				}
 
@@ -2960,7 +2942,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_RING_DAMAGE:
 				{
 					/* Bonus to damage */
-					o_ptr->to_d = rand_range(5, 13) + m_bonus(10, level);
+					o_ptr->to_d = rand_range(5, 10) + m_bonus(5, level);
 
 					/* Cursed */
 					if (power < 0)
@@ -2982,7 +2964,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_RING_ACCURACY:
 				{
 					/* Bonus to hit */
-					o_ptr->to_h = rand_range(5, 13) + m_bonus(10, level);
+					o_ptr->to_h = rand_range(5, 10) + m_bonus(5, level);
 
 					/* Cursed */
 					if (power < 0)
@@ -3004,7 +2986,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_RING_PROTECTION:
 				{
 					/* Bonus to armor class */
-					o_ptr->to_a = rand_range(5, 13) + m_bonus(10, level);
+					o_ptr->to_a = rand_range(5, 10) + m_bonus(10, level);
 
 					/* Cursed */
 					if (power < 0)
@@ -3026,8 +3008,8 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_RING_SLAYING:
 				{
 					/* Bonus to damage and to hit */
-					o_ptr->to_d = randint1(7) + m_bonus(10, level);
-					o_ptr->to_h = randint1(7) + m_bonus(10, level);
+					o_ptr->to_d = randint1(5) + m_bonus(8, level);
+					o_ptr->to_h = randint1(5) + m_bonus(8, level);
 
 					/* Cursed */
 					if (power < 0)
@@ -3051,7 +3033,6 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				{
 					/* Stat bonus */
 					o_ptr->pval = 1 + m_bonus(3, level);
-					if (one_in_(4)) o_ptr->pval++;
 
 					/* Cursed */
 					if (power < 0)
@@ -3090,7 +3071,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_AMULET_CHARISMA:
 				case SV_AMULET_MAGIC_MASTERY:
 				{
-					o_ptr->pval = 1 + m_bonus(5, level);
+					o_ptr->pval = 1 + m_bonus(3, level);
 
 					/* Cursed */
 					if (power < 0)
@@ -3451,7 +3432,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 	int i, rolls, f1, f2, power;
 
 	/* Maximum "level" for various things */
-	if (lev > MAX_DEPTH - 1) lev = MAX_DEPTH - 1;
+	if (lev > TINY_MAX_DEPTH - 1) lev = TINY_MAX_DEPTH - 1;
 
 
 	/* Base chance of being "good" */
@@ -3585,6 +3566,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 		case TV_BOOTS:
 		{
 			if (power ||
+			     ((o_ptr->tval == TV_HARD_ARMOR) && (o_ptr->sval == SV_DRAGON_ARMOR)) ||
 			     ((o_ptr->tval == TV_HELM) && (o_ptr->sval == SV_DRAGON_HELM)) ||
 			     ((o_ptr->tval == TV_SHIELD) && (o_ptr->sval == SV_DRAGON_SHIELD)) ||
 			     ((o_ptr->tval == TV_GLOVES) && (o_ptr->sval == SV_SET_OF_DRAGON_GLOVES)) ||
@@ -3620,6 +3602,9 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 		/* Hack -- acquire "cursed" flag */
 		if (e_ptr->flags3 & (TR3_CURSED)) o_ptr->ident |= (IDENT_CURSED);
 
+		/* Paranoia: reset artifact bias */
+		artifact_bias = 0;
+
 		if (e_ptr->gen_flags & (TRG_ONE_SUSTAIN)) one_sustain(o_ptr);
 		if (e_ptr->gen_flags & (TRG_XTRA_POWER)) one_ability(o_ptr);
 		if (e_ptr->gen_flags & (TRG_XTRA_H_RES)) one_high_resistance(o_ptr);
@@ -3627,6 +3612,10 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 		if (e_ptr->gen_flags & (TRG_XTRA_D_RES)) one_dragon_ele_resistance(o_ptr);
 		if (e_ptr->gen_flags & (TRG_XTRA_L_RES)) one_lordly_high_resistance(o_ptr);
 		if (e_ptr->gen_flags & (TRG_XTRA_RES)) one_resistance(o_ptr);
+		if (e_ptr->gen_flags & (TRG_XTRA_PLUS)) one_plus(o_ptr);
+		if (e_ptr->gen_flags & (TRG_XTRA_BRAND)) one_brand(o_ptr);
+		if (e_ptr->gen_flags & (TRG_XTRA_SLAY)) one_slay(o_ptr);
+		if (e_ptr->gen_flags & (TRG_XTRA_ACT)) { give_activation_power(o_ptr); artifact_bias = 0; }
 
 		/* Hack -- apply extra penalties if needed */
 		if (cursed_p(o_ptr) || broken_p(o_ptr))
@@ -3676,27 +3665,6 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 			/* Weapon (Holy Avenger) */
 			case EGO_HA:
 			{
-				if (o_ptr->art_flags1 & (TR1_BLOWS))
-				{
-					o_ptr->pval = 1;
-					if (one_in_(3) && ((o_ptr->dd * (o_ptr->ds + 1)) < 15)) o_ptr->pval++;
-				}
-				break;
-			}
-
-			/* Weapon (Demon) */
-			case EGO_DEMON:
-			{
-				/* Demon Weapon is always cursed */
-				o_ptr->art_flags3 |= TR3_CURSED;
-				o_ptr->ident |= (IDENT_CURSED);
-
-				/* Occationally heavily cursed */
-				if (one_in_(5)) o_ptr->art_flags3 |= TR3_HEAVY_CURSE;
-
-				/* Demon Weapon has penalty to ac */
-				o_ptr->to_a = (0 - o_ptr->to_a);
-
 				if (o_ptr->art_flags1 & (TR1_BLOWS))
 				{
 					o_ptr->pval = 1;
@@ -3796,8 +3764,6 @@ static bool kind_is_good(int k_idx)
 		/* Books -- High level books are good (except Arcane books) */
 		case TV_LIFE_BOOK:
 		case TV_SORCERY_BOOK:
-		case TV_MUSOU_BOOK:
-		case TV_MAGIC_BOOK:
 		{
 			if (k_ptr->sval >= SV_BOOK_MIN_GOOD) return (TRUE);
 			return (FALSE);
@@ -4354,7 +4320,7 @@ if (wizard) msg_print("(床スペースがない)");
 				msg_format("The %s%s burns in the lava.",
 					o_name, (plural ? "" : "s"));
 #endif
-				sound(SOUND_FIRE);
+				sound(SOUND_BR_FIRE); /* (Sound substitute) No sound for fire */
 			}
 
 			/* Debug */
@@ -4597,7 +4563,7 @@ void pick_trap(int y, int x)
 		if (p_ptr->inside_arena || quest_number(dun_level)) continue;
 
 		/* Hack -- no trap doors on the deepest level */
-		if (dun_level >= MAX_DEPTH-1) continue;
+		if (dun_level >= TINY_MAX_DEPTH-1) continue;
 
 		break;
 	}
@@ -4916,7 +4882,7 @@ void floor_item_optimize(int item)
 /*
  * Check if we have space for an item in the pack without overflow
  */
-bool inven_carry_okay(object_type *o_ptr)
+bool inven_carry_okay(const object_type *o_ptr)
 {
 	int j;
 
@@ -5212,10 +5178,6 @@ s16b inven_takeoff(int item, int amt)
 
 	/* Modify quantity */
 	q_ptr->number = amt;
-
-	/* Disactivate Light Sabre */
-	if (q_ptr->name1 == ART_LIGHT_SABRE)
-		activate_light_sabre(q_ptr, FALSE);
 
 	/* Describe the object */
 	object_desc(o_name, q_ptr, 0);
@@ -5655,7 +5617,7 @@ void display_koff(int k_idx)
 
 		/* Print spells */
 		print_spells(spells, num, 2, 0,
-		    (q_ptr->tval == REALM1_BOOK ? p_ptr->realm1 : p_ptr->realm2 - 1));
+		    (q_ptr->tval == REALM1_BOOK ? p_ptr->realm1 - 1 : p_ptr->realm2 - 1));
 	}
 }
 
@@ -5734,8 +5696,7 @@ static void spell_damcalc(int typ, int dam, int limit, int *max)
 		}
 		else
 		{
-			if ((p_ptr->muta & MUT_VULN_ELEM) ||
-				((p_ptr->pclass == CLASS_SNATCHER) && (r_info[p_ptr->r_idx].flags3 & (RF3_HURT_COLD))))
+			if (p_ptr->muta & MUT_VULN_ELEM)
 				dam *= 2;
 			if (p_ptr->resist_cold) dam = (dam + 2) / 3;
 			if (p_ptr->oppose_cold) dam = (dam + 2) / 3;
@@ -5750,8 +5711,7 @@ static void spell_damcalc(int typ, int dam, int limit, int *max)
 		}
 		else
 		{
-			if ((p_ptr->muta & MUT_VULN_ELEM) ||
-				((p_ptr->pclass == CLASS_SNATCHER) && (r_info[p_ptr->r_idx].flags3 & (RF3_HURT_FIRE))))
+			if (p_ptr->muta & MUT_VULN_ELEM)
 				dam *= 2;
 			if (p_ptr->resist_fire) dam = (dam + 2) / 3;
 			if (p_ptr->oppose_fire) dam = (dam + 2) / 3;
@@ -5760,13 +5720,15 @@ static void spell_damcalc(int typ, int dam, int limit, int *max)
 
 	case GF_LITE:
 		if (p_ptr->resist_lite) dam = dam * 4 / 7; /* Worst case of 4 / (d6 + 6) */
-		if ((p_ptr->prace == RACE_VAMPIRE) ||
-			((p_ptr->pclass == CLASS_SNATCHER) && (r_info[p_ptr->r_idx].flags3 & (RF3_HURT_LITE))))
+#if 0
+		if (p_ptr->prace == RACE_VAMPIRE)
 			dam *= 2;
+#endif
 		break;
 
 	case GF_DARK:
-		if ((p_ptr->prace == RACE_VAMPIRE) || p_ptr->wraith_form)
+		/* if ((p_ptr->prace == RACE_VAMPIRE) || p_ptr->wraith_form) */
+		if (p_ptr->wraith_form)
 		{
 			dam = 0;
 			complete_immune = TRUE;
@@ -5791,12 +5753,7 @@ static void spell_damcalc(int typ, int dam, int limit, int *max)
 		break;
 
 	case GF_NETHER:
-		if (p_ptr->prace == RACE_SPECTRE)
-		{
-			dam = 0;
-			complete_immune = TRUE;
-		}
-		else if (p_ptr->resist_neth) dam = dam * 6 / 7; /* Worst case of 6 / (d6 + 6) */
+		if (p_ptr->resist_neth) dam = dam * 6 / 7; /* Worst case of 6 / (d6 + 6) */
 		break;
 
 	case GF_DISENCHANT:
@@ -5825,17 +5782,15 @@ static void spell_damcalc(int typ, int dam, int limit, int *max)
 		break;
 
 	case GF_DEATH_RAY:
+#if 0
 		switch (p_ptr->prace)
 		{
-		case RACE_GOLEM:
-		case RACE_SKELETON:
-		case RACE_ZOMBIE:
 		case RACE_VAMPIRE:
-		case RACE_SPECTRE:
 			dam = 0;
 			complete_immune = TRUE;
 			break;
 		}
+#endif
 		break;
 	}
 
@@ -5961,7 +5916,8 @@ bool process_warning(int xx, int yy)
 					u32b f6 = r_ptr->flags6;
 
 					/* Breath attacks & rocket */
-					if (f4 & RF4_ROCKET) spell_damcalc(GF_ROCKET, m_ptr->hp / 4, 800, &dam_max0);
+					if (f4 & RF4_THROW)   spell_damcalc(GF_SHARDS, rlev * 4 + 100, 800, &dam_max0);
+					if (f4 & RF4_ROCKET)  spell_damcalc(GF_ROCKET, m_ptr->hp / 4, 800, &dam_max0);
 					if (f4 & RF4_BR_ACID) spell_damcalc(GF_ACID, breath_dam_div3, 1200, &dam_max0);
 					if (f4 & RF4_BR_ELEC) spell_damcalc(GF_ELEC, breath_dam_div3, 1200, &dam_max0);
 					if (f4 & RF4_BR_FIRE) spell_damcalc(GF_FIRE, breath_dam_div3, 1200, &dam_max0);
@@ -6049,7 +6005,7 @@ bool process_warning(int xx, int yy)
 			else strcpy(o_name, "body"); /* Warning ability without item */
 			msg_format("Your %s pulsates sharply!", o_name);
 #endif
-			sound(SOUND_WARN);
+			sound(SOUND_HITPOINT_WARN);
 			disturb(0, 0);
 			return TRUE;
 		}
@@ -6057,8 +6013,7 @@ bool process_warning(int xx, int yy)
 	else old_damage /= 2;
 
 	c_ptr = &cave[yy][xx];
-	if (((is_trap(c_ptr->feat) && !easy_disarm) || (c_ptr->feat == FEAT_INVIS)) 
-		&& !one_in_(13))
+	if ((c_ptr->feat == FEAT_INVIS) && !one_in_(13))
 	{
 		o_ptr = choose_warning_item();
 		if (o_ptr) object_desc(o_name, o_ptr, OD_OMIT_PREFIX | OD_NAME_ONLY);
@@ -6069,7 +6024,7 @@ bool process_warning(int xx, int yy)
 		else strcpy(o_name, "body"); /* Warning ability without item */
 		msg_format("Your %s pulsates!", o_name);
 #endif
-		sound(SOUND_WARN);
+		sound(SOUND_HITPOINT_WARN);
 		disturb(0, 0);
 		return TRUE;
 	}

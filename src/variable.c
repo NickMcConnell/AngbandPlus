@@ -199,7 +199,6 @@ s32b friend_align = 0;
 int leaving_quest = 0;
 
 bool superb_shot = FALSE;
-int snipe_type = SP_NONE;
 
 /*
  * Software options (set via the '=' command).  See "tables.c"
@@ -210,18 +209,14 @@ int snipe_type = SP_NONE;
 
 bool rogue_like_commands;	/* Rogue-like commands */
 bool quick_messages;		/* Activate quick messages */
-bool other_query_flag;		/* Prompt for various information */
 bool carry_query_flag;		/* Prompt before picking things up */
 bool use_old_target;		/* Use old target by default */
 bool always_pickup;			/* Pick things up by default */
-bool always_repeat;			/* Repeat obvious commands */
 bool depth_in_feet;			/* Show dungeon level in feet */
 
 bool stack_force_notes;		/* Merge inscriptions when stacking */
 bool stack_force_costs;		/* Merge discounts when stacking */
 
-bool show_labels;			/* Show labels in object listings */
-bool show_weights;			/* Show weights in object listings */
 bool show_choices;			/* Show choices in certain sub-windows */
 bool show_details;			/* Show details in certain sub-windows */
 
@@ -255,7 +250,6 @@ bool disturb_minor;			/* Disturb whenever boring things happen */
 bool disturb_other;			/* Disturb whenever various things happen */
 
 bool alert_hitpoint;		/* Alert user to critical hitpoints */
-bool alert_failure;		/* Alert user to various failures */
 bool last_words;		/* Get last words upon dying */
 bool speak_unique;		/* Speaking uniques + shopkeepers */
 bool ignore_unview;		/* Ignore messages whenever any monster does */
@@ -263,13 +257,11 @@ bool small_levels;		/* Allow unusually small dungeon levels */
 bool always_small_levels;		/* Use always unusually small dungeon levels */
 bool empty_levels;		/* Allow empty 'arena' levels */
 bool player_symbols;		/* Use varying symbols for the player char */
-bool equippy_chars;		/* Back by popular demand... */
 bool skip_mutations;		/* Skip mutations screen even if we have it */
 bool plain_descriptions;	/* Plain object descriptions */
 bool stupid_monsters;		/* Monsters use old AI */
 bool auto_destroy;		/* Known worthless items are destroyed without confirmation */
 bool confirm_stairs;		/* Prompt before staircases... */
-bool wear_confirm;		/* Confirm before putting on known cursed items */
 bool disturb_pets;		/* Pets moving nearby disturb us */
 bool disturb_trap_detect;       /* Disturb when leaving trap detected area */
 bool alert_trap_detect;         /* Alert when leaving trap detected area */
@@ -277,12 +269,9 @@ bool alert_trap_detect;         /* Alert when leaving trap detected area */
 
 /* Option Set 3 -- Game-Play */
 
-bool auto_haggle;			/* Auto-haggle in stores */
+bool confirm_store;			/* Confirm buying or selling in stores */
 
 bool auto_scum;				/* Auto-scum for good levels */
-
-bool stack_allow_items;		/* Allow weapons and armor to stack */
-bool stack_allow_wands;		/* Allow wands/staffs/rods to stack */
 
 bool expand_look;			/* Expand the power of the look command */
 bool expand_list;			/* Expand the power of the list commands */
@@ -302,8 +291,8 @@ bool track_target;			/* Monsters target the player */
 bool smart_learn;			/* Monsters learn from their mistakes */
 bool smart_cheat;			/* Monsters exploit player weaknesses */
 
-bool take_notes;                        /* Allow notes to be added to a file */
-bool auto_notes;                        /* Automatically take notes */
+bool take_notes;            /* Allow notes to be added to a file */
+bool auto_notes;            /* Automatically take notes */
 bool record_artifact;
 bool record_randart;
 bool record_unique;
@@ -311,9 +300,8 @@ bool record_quest;
 bool dump_abilities;
 bool dump_messages;
 
-bool point_based;                       /* Point-based generation */
-bool delay_autoroll;                    /* Delay in autoroll */
-bool ironman_hengband;                  /* Forbid abuse */
+bool delay_autoroll;        /* Delay in autoroll */
+bool ironman_hengband;      /* Forbid abuse */
 bool view_unsafe_grids;		/* Map marked by detect traps */
 
 bool allow_debug_opts;   /* Allow use of debug/cheat options */
@@ -324,11 +312,9 @@ bool view_reduce_lite;		/* Reduce lite-radius when running */
 bool view_reduce_view;		/* Reduce view-radius in town */
 
 bool avoid_abort;			/* Avoid checking for user abort */
-bool avoid_other;			/* Avoid processing special colors */
 
 bool flush_failure;			/* Flush input on any failure */
 bool flush_disturb;			/* Flush input on disturbance */
-bool flush_command;			/* Flush input before every command */
 
 bool fresh_before;			/* Flush output before normal commands */
 bool fresh_after;			/* Flush output after normal commands */
@@ -590,78 +576,163 @@ byte angband_color_table[256][4] =
 	{0x00, 0xC0, 0x80, 0x40}	/* TERM_L_UMBER */
 };
 
-
 /*
- * Standard sound names
+ * Standard sound (and message) names
  */
-char angband_sound_name[SOUND_MAX][16] =
+char angband_sound_name[SOUND_MAX][19] =
 {
-	"",
-	"hit",
-	"miss",
-	"flee",
-	"drop",
-	"kill",
-	"level",
-	"death",
-	"study",
-	"teleport",
-	"shoot",
-	"quaff",
-	"zap",
-	"walk",
-	"tpother",
-	"hitwall",
-	"eat",
-	"store1",
-	"store2",
-	"store3",
-	"store4",
-	"dig",
-	"opendoor",
-	"shutdoor",
-	"tplevel",
-	"scroll",
-	"buy",
-	"sell",
-	"warn",
-	"rocket",
-	"n_kill",
-	"u_kill",
-	"quest",
-	"heal",
-	"x_heal",
-	"bite",
-	"claw",
-	"m_spell",
-	"summon",
-	"breath",
-	"ball",
-	"m_heal",
-	"atkspell",
-	"evil",
-	"touch",
-	"sting",
-	"crush",
-	"slime",
-	"wail",
-	"winner",
-	"fire",
-	"acid",
-	"elec",
-	"cold",
-	"illegal",
-	"fail",
-	"wakeup",
-	"invuln",
-	"fall",
-	"pain",
-	"destitem",
-	"moan",
-	"show",
-	"unused",
-	"explode",
+        "",
+        "hit",
+        "miss",
+        "flee",
+        "drop",
+        "kill",
+        "level",
+        "death",
+        "study",
+        "teleport",
+        "shoot",
+        "quaff",
+        "zap_rod",
+        "walk",
+        "tpother",
+        "hitwall",
+        "eat",
+        "store1",
+        "store2",
+        "store3",
+        "store4",
+        "dig",
+        "opendoor",
+        "shutdoor",
+        "tplevel",
+        "bell",
+        "nothing_to_open",
+        "lockpick_fail",
+        "stairs_down", 
+        "hitpoint_warn",
+        "act_artifact", 
+        "use_staff", 
+        "destroy", 
+        "mon_hit", 
+        "mon_touch", 
+        "mon_punch", 
+        "mon_kick", 
+        "mon_claw", 
+        "mon_bite", 
+        "mon_sting", 
+        "mon_butt", 
+        "mon_crush", 
+        "mon_engulf", 
+        "mon_crawl", 
+        "mon_drool", 
+        "mon_spit", 
+        "mon_gaze", 
+        "mon_wail", 
+        "mon_spore", 
+        "mon_beg", 
+        "mon_insult", 
+        "mon_moan", 
+        "recover", 
+        "blind", 
+        "confused", 
+        "poisoned", 
+        "afraid", 
+        "paralyzed", 
+        "drugged", 
+        "speed", 
+        "slow", 
+        "shield", 
+        "blessed", 
+        "hero", 
+        "berserk", 
+        "prot_evil", 
+        "invuln", 
+        "see_invis", 
+        "infrared", 
+        "res_acid", 
+        "res_elec", 
+        "res_fire", 
+        "res_cold", 
+        "res_pois", 
+        "stun", 
+        "cut", 
+        "stairs_up", 
+        "store_enter", 
+        "store_leave", 
+        "store_home", 
+        "money1", 
+        "money2", 
+        "money3", 
+        "shoot_hit", 
+        "store5", 
+        "lockpick", 
+        "disarm", 
+        "identify_bad", 
+        "identify_ego", 
+        "identify_art", 
+        "breathe_elements", 
+        "breathe_frost", 
+        "breathe_elec", 
+        "breathe_acid", 
+        "breathe_gas", 
+        "breathe_fire", 
+        "breathe_confusion", 
+        "breathe_disenchant", 
+        "breathe_chaos", 
+        "breathe_shards", 
+        "breathe_sound", 
+        "breathe_light", 
+        "breathe_dark", 
+        "breathe_nether", 
+        "breathe_nexus", 
+        "breathe_time", 
+        "breathe_inertia", 
+        "breathe_gravity", 
+        "breathe_plasma", 
+        "breathe_force", 
+        "summon_monster", 
+        "summon_angel", 
+        "summon_undead", 
+        "summon_animal", 
+        "summon_spider", 
+        "summon_hound", 
+        "summon_hydra", 
+        "summon_demon", 
+        "summon_dragon", 
+        "summon_gr_undead", 
+        "summon_gr_dragon", 
+        "summon_gr_demon", 
+        "summon_ringwraith", 
+        "summon_unique", 
+        "wield", 
+        "cursed", 
+        "pseudo_id", 
+        "hungry", 
+        "notice", 
+        "ambient_day", 
+        "ambient_nite", 
+        "ambient_dng1", 
+        "ambient_dng2", 
+        "ambient_dng3", 
+        "ambient_dng4", 
+        "ambient_dng5", 
+        "mon_create_trap", 
+        "mon_shriek", 
+        "mon_cast_fear", 
+        "hit_good", 
+        "hit_great", 
+        "hit_superb", 
+        "hit_hi_great", 
+        "hit_hi_superb", 
+        "cast_spell", 
+        "pray_prayer",
+        "kill_unique",
+        "kill_king",
+        "drain_stat",
+        "multiply"
 };
+
 
 
 /*
@@ -962,7 +1033,7 @@ byte item_tester_tval;
  * Here is a "hook" used during calls to "get_item()" and
  * "show_inven()" and "show_equip()", and the choice window routines.
  */
-bool (*item_tester_hook)(object_type*);
+bool (*item_tester_hook)(const object_type*);
 
 
 
@@ -992,17 +1063,9 @@ monster_hook_type get_mon_num2_hook;
 bool (*get_obj_num_hook)(int k_idx);
 
 
-/* Hack, monk armour */
-bool monk_armour_aux;
-bool monk_notify_aux;
-
 #ifdef ALLOW_EASY_OPEN /* TNB */
 bool easy_open;
 #endif /* ALLOW_EASY_OPEN -- TNB */
-
-#ifdef ALLOW_EASY_DISARM /* TNB */
-bool easy_disarm;
-#endif /* ALLOW_EASY_DISARM -- TNB */
 
 #ifdef ALLOW_EASY_FLOOR /* TNB */
 bool easy_floor;
@@ -1011,7 +1074,6 @@ bool easy_floor;
 bool use_command;
 bool numpad_as_cursorkey;	/* Use numpad keys as cursor key in editor mode */
 bool center_player;
-bool avoid_center;
 bool abbrev_extra;	/* Describe obj's extra resistances by abbreviation */
 bool abbrev_all;	/* Describe obj's all resistances by abbreviation */
 bool exp_need;
@@ -1130,7 +1192,6 @@ int mutant_regenerate_mod = 100;
 /*
  * Startup options
  */
-bool vanilla_town;            /* Use "vanilla" town without set quests */
 bool ironman_shops;           /* Stores are permanently closed */
 bool ironman_small_levels;    /* Always create unusually small dungeon levels */
 bool ironman_downward;        /* Don't allow climbing upwards/recalling */
@@ -1140,8 +1201,7 @@ bool ironman_empty_levels;    /* Always create empty 'arena' levels */
 bool terrain_streams;         /* Create terrain 'streamers' in the dungeon */
 bool munchkin_death;          /* Ask for saving death */
 bool ironman_rooms;           /* Always generate very unusual rooms */
-bool ironman_nightmare;			/* Play the game in Nightmare mode */
-bool maximize_mode;
+bool ironman_nightmare;	      /* Play the game in Nightmare mode */
 bool preserve_mode;
 bool autoroller;
 bool fast_autoroller;
@@ -1170,3 +1230,7 @@ bool browsing_movie;
 /* for travel */
 travel_type travel;
 #endif
+
+/* for subwinows */
+int look_x = 0;
+int look_y = 0;

@@ -122,7 +122,7 @@ ANGBAND MENU
 		POPUP "グラフィクス(&G)"
 		{
 			MENUITEM "なし(&N)", 400
-			MENUITEM "旧タイル(&O)", 401
+			MENUITEM "8x8 タイル(&O)", 401
 			MENUITEM "Adam Boltさんタイル(&A)", 402
 			MENUITEM "タイルを2倍幅で表示", 409
 		}

@@ -302,6 +302,7 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 		
 		if (randint0(2))
 		{
+			/* Monsters throw a rock even if they know you have shards resistance */
 			f4 &= ~(RF4_ROCKET);
 		}
 	}
@@ -520,6 +521,11 @@ msg_print("悪意に満ちた黒いオーラがあなたをとりまいた...");
 
 		o_ptr->feeling = FEEL_NONE;
 	}
+
+	/* Calcurates penalties */
+	p_ptr->update |= (PU_BONUS);
+	p_ptr->redraw |= (PR_ARMOR);
+	handle_stuff();
 }
 
 
@@ -848,6 +854,9 @@ bool make_attack_spell(int m_idx)
 	/* Damage of spell */
 	int dam;
 
+	/* Powerful */
+	bool powerful = (r_ptr->flags2 & RF2_POWERFUL) ? TRUE : FALSE;
+
 	/* Cannot cast spells when confused */
 	if (m_ptr->confused) {m_ptr->target_y = 0;m_ptr->target_x = 0;return (FALSE);}
 
@@ -1005,7 +1014,11 @@ bool make_attack_spell(int m_idx)
 	if (!thrown_spell) return (FALSE);
 
 	/* Calculate spell failure rate */
+#ifdef TINYANGBAND
+	failrate = 27 - rlev;
+#else
 	failrate = 25 - (rlev + 3) / 4;
+#endif
 
 	/* Hack -- Stupid monsters will never fail (for jellies and such) */
 	if (r_ptr->flags2 & RF2_STUPID) failrate = 0;
@@ -1022,17 +1035,6 @@ bool make_attack_spell(int m_idx)
 		return (TRUE);
 	}
 
-	/* Magic: Anti Magic Barrier */
-	if ((thrown_spell >= 128) && magic_barrier(m_idx))
-	{
-#ifdef JP
-		msg_format("反魔法バリアが%^sの呪文をかき消した。", m_name);
-#else
-		msg_format("Anti magic barrier cancels the spell which %^s casts.");
-#endif
-		return (TRUE);
-	}
-
 	/* Cast the spell. */
 	switch (thrown_spell)
 	{
@@ -1045,13 +1047,26 @@ bool make_attack_spell(int m_idx)
 #else
 			msg_format("%^s makes a high pitched shriek.", m_name);
 #endif
+	  		sound(SOUND_SHRIEK);
 			aggravate_monsters(m_idx);
 			break;
 		}
 
-		/* RF4_XXX2X4 */
+		/* RF4_THROW */
 		case 96+1:
 		{
+			disturb(1, 0);
+#ifdef JP
+			if (blind) msg_format("%^s「ふんっ！」", m_name);
+			else msg_format("%^sが大きな岩を投げた。", m_name);
+#else
+			if (blind) msg_format("%^s shouts, 'Haa!!'.", m_name);
+			else msg_format("%^s throws a large rock.", m_name);
+#endif
+ 			sound(SOUND_MISS); /* (Sound substitute) Throwing a rock isn't a rocket sound anyway */ 
+			dam = (rlev * 4) + damroll(10, 10);
+			breath(y, x, m_idx, GF_SHARDS, dam, 1, FALSE);
+			update_smart_learn(m_idx, DRS_SHARD);
 			break;
 		}
 
@@ -1083,7 +1098,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s shoots something.", m_name);
 			else msg_format("%^s fires a rocket.", m_name);
 #endif
-			sound(SOUND_ROCKET);
+ 			sound(SOUND_MISS); /* (Sound substitute) HACK! No rocket sound available, use arrow miss */ 
 			dam = (m_ptr->hp / 4) > 800 ? 800 : (m_ptr->hp / 4);
 			breath(y, x, m_idx, GF_ROCKET, dam, 2, FALSE);
 			update_smart_learn(m_idx, DRS_SHARD);
@@ -1577,6 +1592,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s casts an acid ball.", m_name);
 #endif
 			dam = randint1(rlev * 3) + 15;
+			if (powerful) dam *= 2;
 			breath(y, x, m_idx, GF_ACID, dam, 2, FALSE);
 			update_smart_learn(m_idx, DRS_ACID);
 			break;
@@ -1594,6 +1610,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s casts a lightning ball.", m_name);
 #endif
 			dam = randint1(rlev * 3 / 2) + 8;
+			if (powerful) dam *= 2;
 			breath(y, x, m_idx, GF_ELEC, dam, 2, FALSE);
 			update_smart_learn(m_idx, DRS_ELEC);
 			break;
@@ -1611,6 +1628,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s casts a fire ball.", m_name);
 #endif
 			dam = randint1(rlev * 7 / 2) + 10;
+			if (powerful) dam *= 2;
 			breath(y, x, m_idx, GF_FIRE, dam, 2, FALSE);
 			update_smart_learn(m_idx, DRS_FIRE);
 			break;
@@ -1628,6 +1646,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s casts a frost ball.", m_name);
 #endif
 			dam = randint1(rlev * 3 / 2) + 10;
+			if (powerful) dam *= 2;
 			breath(y, x, m_idx, GF_COLD, dam, 2, FALSE);
 			update_smart_learn(m_idx, DRS_COLD);
 			break;
@@ -1645,6 +1664,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s casts a stinking cloud.", m_name);
 #endif
 			dam = damroll(12, 2);
+			if (powerful) dam *= 2;
 			breath(y, x, m_idx, GF_POIS, dam, 2, FALSE);
 			update_smart_learn(m_idx, DRS_POIS);
 			break;
@@ -1662,6 +1682,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s casts a nether ball.", m_name);
 #endif
 			dam = 50 + damroll(10, 10) + rlev;
+			if (powerful) dam += rlev * 2;
 			breath(y, x, m_idx, GF_NETHER, dam, 2, FALSE);
 			update_smart_learn(m_idx, DRS_NETH);
 			break;
@@ -1683,6 +1704,7 @@ bool make_attack_spell(int m_idx)
 			msg_print("You are engulfed in a whirlpool.");
 #endif
 			dam = randint1(rlev * 2) + 50;
+			if (powerful) dam += randint0(rlev * 2);
 			breath(y, x, m_idx, GF_WATER, dam, 4, FALSE);
 			break;
 		}
@@ -2034,6 +2056,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s casts a acid bolt.", m_name);
 #endif
 			dam = damroll(7, 8) + (rlev / 3);
+			if (powerful) dam *= 2;
 			bolt(m_idx, GF_ACID, dam);
 			update_smart_learn(m_idx, DRS_ACID);
 			update_smart_learn(m_idx, DRS_REFLECT);
@@ -2053,6 +2076,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s casts a lightning bolt.", m_name);
 #endif
 			dam = damroll(4, 8) + (rlev / 3);
+			if (powerful) dam *= 2;
 			bolt(m_idx, GF_ELEC, dam);
 			update_smart_learn(m_idx, DRS_ELEC);
 			update_smart_learn(m_idx, DRS_REFLECT);
@@ -2072,6 +2096,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s casts a fire bolt.", m_name);
 #endif
 			dam = damroll(9, 8) + (rlev / 3);
+			if (powerful) dam *= 2;
 			bolt(m_idx, GF_FIRE, dam);
 			update_smart_learn(m_idx, DRS_FIRE);
 			update_smart_learn(m_idx, DRS_REFLECT);
@@ -2091,6 +2116,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s casts a frost bolt.", m_name);
 #endif
 			dam = damroll(6, 8) + (rlev / 3);
+			if (powerful) dam *= 2;
 			bolt(m_idx, GF_COLD, dam);
 			update_smart_learn(m_idx, DRS_COLD);
 			update_smart_learn(m_idx, DRS_REFLECT);
@@ -2100,7 +2126,20 @@ bool make_attack_spell(int m_idx)
 		/* RF5_BO_POIS */
 		case 128+20:
 		{
-			/* XXX XXX XXX */
+			if (!direct) break;
+			disturb(1, 0);
+#ifdef JP
+			if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
+			else msg_format("%^sがポイズン・ボルトの呪文を唱えた。", m_name);
+#else
+			if (blind) msg_format("%^s mumbles.", m_name);
+			else msg_format("%^s casts a poison bolt.", m_name);
+#endif
+			dam = damroll(5, 8) + (rlev / 3);
+			if (powerful) dam *= 2;
+			bolt(m_idx, GF_POIS, dam);
+			update_smart_learn(m_idx, DRS_POIS);
+			update_smart_learn(m_idx, DRS_REFLECT);
 			break;
 		}
 
@@ -2117,6 +2156,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s casts a nether bolt.", m_name);
 #endif
 			dam = 30 + damroll(5, 5) + (rlev * 3) / 2;
+			if (powerful) dam += (rlev * 3) / 2;
 			bolt(m_idx, GF_NETHER, dam);
 			update_smart_learn(m_idx, DRS_NETH);
 			update_smart_learn(m_idx, DRS_REFLECT);
@@ -2136,6 +2176,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s casts a water bolt.", m_name);
 #endif
 			dam = damroll(10, 10) + rlev;
+			if (powerful) dam += rlev;
 			bolt(m_idx, GF_WATER, dam);
 			update_smart_learn(m_idx, DRS_REFLECT);
 			break;
@@ -2172,6 +2213,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s casts a plasma bolt.", m_name);
 #endif
 			dam = 10 + damroll(8, 7) + rlev;
+			if (powerful) dam += rlev;
 			bolt(m_idx, GF_PLASMA, dam);
 			update_smart_learn(m_idx, DRS_REFLECT);
 			break;
@@ -2190,6 +2232,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s casts an ice bolt.", m_name);
 #endif
 			dam = damroll(6, 6) + rlev;
+			if (powerful) dam += rlev;
 			bolt(m_idx, GF_ICE, dam);
 			update_smart_learn(m_idx, DRS_COLD);
 			update_smart_learn(m_idx, DRS_REFLECT);
@@ -2226,6 +2269,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles, and you hear scary noises.", m_name);
 			else msg_format("%^s casts a fearful illusion.", m_name);
 #endif
+	  		sound(SOUND_CAST_FEAR);
 
 			if (p_ptr->resist_fear)
 			{
@@ -2402,14 +2446,6 @@ bool make_attack_spell(int m_idx)
 		{
 			disturb(1, 0);
 #ifdef JP
-			/* XTRA HACK THEWORLD */
-			if (m_ptr->r_idx == MON_DIO) {
-				process_the_world(randint1(3)+2);
-				break;
-			}
-#endif
-
-#ifdef JP
 			if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
 			else msg_format("%^sが自分の体に念を送った。", m_name, m_poss);
 #else
@@ -2512,7 +2548,7 @@ bool make_attack_spell(int m_idx)
 #endif
 			}
 
-			sound(SOUND_M_HEAL);
+			sound(SOUND_RECOVER); /* No sound for M_HEAL, use recover sound */
 
 			/* Redraw (later) if needed */
 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
@@ -2560,24 +2596,13 @@ bool make_attack_spell(int m_idx)
 		case 160+4:
 		{
 			disturb(1, 0);
-			if (teleport_barrier(m_idx))
-			{
 #ifdef JP
-				msg_format("魔法のバリアが%^sのテレポートを邪魔した。", m_name);
+			msg_format("%^sが瞬時に消えた。", m_name);
 #else
-				msg_format("Magic barrier obstructs teleporting of %^s.", m_name);
+			msg_format("%^s blinks away.", m_name);
 #endif
-			}
-			else
-			{
-#ifdef JP
-				msg_format("%^sが瞬時に消えた。", m_name);
-#else
-				msg_format("%^s blinks away.", m_name);
-#endif
-				teleport_away(m_idx, 10);
-				p_ptr->update |= (PU_MONSTERS | PU_MON_LITE);
-			}
+			teleport_away(m_idx, 10);
+			p_ptr->update |= (PU_MONSTERS | PU_MON_LITE);
 			break;
 		}
 
@@ -2585,23 +2610,12 @@ bool make_attack_spell(int m_idx)
 		case 160+5:
 		{
 			disturb(1, 0);
-			if (teleport_barrier(m_idx))
-			{
 #ifdef JP
-				msg_format("魔法のバリアが%^sのテレポートを邪魔した。", m_name);
+			msg_format("%^sがテレポートした。", m_name);
 #else
-				msg_format("Magic barrier obstructs teleporting of %^s.", m_name);
+			msg_format("%^s teleports away.", m_name);
 #endif
-			}
-			else
-			{
-#ifdef JP
-				msg_format("%^sがテレポートした。", m_name);
-#else
-				msg_format("%^s teleports away.", m_name);
-#endif
-				teleport_away(m_idx, MAX_SIGHT * 2 + 5);
-			}
+			teleport_away(m_idx, MAX_SIGHT * 2 + 5);
 			break;
 		}
 
@@ -2715,6 +2729,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles, and then cackles evilly.", m_name);
 			else msg_format("%^s casts a spell and cackles evilly.", m_name);
 #endif
+	  		sound(SOUND_CREATE_TRAP);
 			(void)trap_creation();
 			break;
 		}
@@ -2775,8 +2790,113 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s magically summons %s %s.", m_name, m_poss,
 				((r_ptr->flags1) & RF1_UNIQUE ? "minions" : "kin"));
 #endif
-			sound(SOUND_SUMMON);
 			summon_kin_type = r_ptr->d_char; /* Big hack */
+			switch(summon_kin_type) /* Try to split up sounds by type */
+			{
+                  case 'A':
+                  {                 
+                       sound(SOUND_SUM_ANGEL);
+                       break;
+                  }
+                  case 'B':
+                  case 'J':
+                  case 'R':
+                  case 'q':
+                  case 'r':
+                  case 'b':
+                  case 'f':
+                  {                 
+                       sound(SOUND_SUM_ANIMAL);
+                       break;
+                  }
+                  case 'C':
+                  case 'Z':
+                  {                 
+                       sound(SOUND_SUM_HOUND);
+                       break;
+                  }
+                  case 'D':
+                  {                 
+                       sound(SOUND_SUM_HI_DRAGON);
+                       break;
+                  }
+                  case 'E':
+                  case 'H':
+                  case 'O':
+                  case 'm':
+                  case 'P':
+                  case 'n':
+                  case 'v':
+                  case 'o':
+                  case 'w':
+                  case 'p':
+                  case 'Q':
+                  case 'T':
+                  case 'X':
+                  case 'Y':
+                  case 'e':
+                  case 'g':
+                  case 'h':
+                  case 'y':
+                  case 't':
+                  case 'i':
+                  case 'j':
+                  case 'k':
+                  {                 
+                       sound(SOUND_SUM_MONSTER);
+                       break;
+                  }
+                  case 's':
+                  case 'z':
+                  case 'G':
+                  case 'V':
+                  {                 
+                       sound(SOUND_SUM_UNDEAD);
+                       break;
+                  }
+                  case 'K':
+                  case 'F':
+                  case 'I':
+                  case 'S':
+                  case 'a':
+                  case 'c':
+                  case 'l':
+                  {                 
+                       sound(SOUND_SUM_SPIDER);
+                       break;
+                  }
+                  case 'M':
+                  {                 
+                       sound(SOUND_SUM_HYDRA);
+                       break;
+                  }
+                  case 'L':
+                  case 'W':
+                  {                 
+                       sound(SOUND_SUM_HI_UNDEAD);
+                       break;
+                  }
+                  case 'U':
+                  {                 
+                       sound(SOUND_SUM_HI_DEMON);
+                       break;
+                  }
+                  case 'd':
+                  {                 
+                       sound(SOUND_SUM_DRAGON);
+                       break;
+                  } 
+                  case 'u':
+                  {                 
+                       sound(SOUND_SUM_DEMON);
+                       break;
+                  } 
+                  default:
+                  {                 
+			           sound(SOUND_SUM_MONSTER);
+                       break;
+                  }
+			}   
 
 			for (k = 0; k < 6; k++)
 			{
@@ -2803,7 +2923,7 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s magically summons Cyberdemons!", m_name);
 			if (blind && count) msg_print("You hear heavy steps nearby.");
 #endif
-			sound(SOUND_SUMMON);
+            sound(SOUND_SUM_HI_DEMON);
 			summon_cyber(m_idx, y, x);
 			break;
 		}
@@ -2819,7 +2939,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons help!", m_name);
 #endif
-			sound(SOUND_SUMMON);
+			sound(SOUND_SUM_MONSTER); /* HACK Should be sound specific for monster type */
 
 			for (k = 0; k < 1; k++)
 			{
@@ -2844,7 +2964,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons monsters!", m_name);
 #endif
-			sound(SOUND_SUMMON);
+			sound(SOUND_SUM_MONSTER); /* HACK! Should be specific sound for monster type */
 
 			for (k = 0; k < 8; k++)
 			{
@@ -2869,7 +2989,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons ants.", m_name);
 #endif
-			sound(SOUND_SUMMON);
+			sound(SOUND_SUM_SPIDER); /* Ants, not spider, but closest */
 
 			for (k = 0; k < 6; k++)
 			{
@@ -2894,7 +3014,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons spiders.", m_name);
 #endif
-			sound(SOUND_SUMMON);
+			sound(SOUND_SUM_SPIDER); 
 
 			for (k = 0; k < 6; k++)
 			{
@@ -2919,7 +3039,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons hounds.", m_name);
 #endif
-			sound(SOUND_SUMMON);
+			sound(SOUND_SUM_HOUND);
 
 			for (k = 0; k < 6; k++)
 			{
@@ -2944,7 +3064,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons hydras.", m_name);
 #endif
-			sound(SOUND_SUMMON);
+			sound(SOUND_SUM_HYDRA);
 
 			for (k = 0; k < 6; k++)
 			{
@@ -2969,7 +3089,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons an angel!", m_name);
 #endif
-			sound(SOUND_SUMMON);
+			sound(SOUND_SUM_ANGEL);
 
 			for (k = 0; k < 1; k++)
 			{
@@ -2994,7 +3114,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons a hellish adversary!", m_name);
 #endif
-			sound(SOUND_SUMMON);
+			sound(SOUND_SUM_DEMON);
 
 			for (k = 0; k < 1; k++)
 			{
@@ -3019,7 +3139,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons an undead adversary!", m_name);
 #endif
-			sound(SOUND_SUMMON);
+			sound(SOUND_SUM_UNDEAD);
 
 			for (k = 0; k < 1; k++)
 			{
@@ -3044,7 +3164,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons a dragon!", m_name);
 #endif
-			sound(SOUND_SUMMON);
+			sound(SOUND_SUM_DRAGON);
 
 			for (k = 0; k < 1; k++)
 			{
@@ -3069,7 +3189,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons greater undead!", m_name);
 #endif
-			sound(SOUND_SUMMON);
+			sound(SOUND_SUM_HI_UNDEAD);
 
 			for (k = 0; k < 8; k++)
 			{
@@ -3094,7 +3214,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons ancient dragons!", m_name);
 #endif
-			sound(SOUND_SUMMON);
+			sound(SOUND_SUM_HI_DRAGON);
 
 			for (k = 0; k < 8; k++)
 			{
@@ -3119,7 +3239,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons a hellish adversary!", m_name);
 #endif
-			sound(SOUND_SUMMON);
+			sound(SOUND_SUM_HI_DEMON);
 
 			for (k = 0; k < 1; k++)
 			{
@@ -3144,7 +3264,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons special opponents!", m_name);
 #endif
-			sound(SOUND_SUMMON);
+			sound(SOUND_SUM_UNIQUE);
 
 			for (k = 0; k < 8; k++)
 			{

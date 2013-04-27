@@ -3,17 +3,9 @@
 angband_files = \
 	a_info.txt e_info.txt f_info.txt k_info.txt m_info.txt \
 	misc.txt r_info.txt v_info.txt w_info.txt \
-	q0000001.txt q0000002.txt q0000003.txt q0000004.txt \
-	q0000005.txt q0000006.txt q0000007.txt q0000010.txt \
-	q0000011.txt q0000012.txt q0000019.txt q0000020.txt \
-	q0000021.txt q0000022.txt q0000023.txt q0000027.txt \
-	q0000028.txt q00000ms.txt q000lyeh.txt q00water.txt \
-	q0clone0.txt q0fields.txt q0thief1.txt q0thief2.txt \
-	q0willow.txt q_avenge.txt q_info.txt q_oberon.txt \
-	q_pref.txt q_random.txt q_serpen.txt q_warg.txt \
-	qdarkelf.txt qhaunted.txt t0000001.txt t0000002.txt \
-	t0000003.txt t0000004.txt t0000005.txt t_basic.txt \
-	t_info.txt t_lite.txt t_pref.txt
+	t_info.txt t_pref.txt t_basic.txt \
+	q_info.txt q_morgoth.txt q_sauron.txt q_random.txt \
+	q_avenge.txt
 
 EXTRA_DIST = \
   $(angband_files)

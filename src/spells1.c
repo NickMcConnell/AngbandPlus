@@ -95,12 +95,10 @@ static byte spell_color(int type)
 			case GF_TELEKINESIS:
 			case GF_DOMINATION:
 			case GF_GENOCIDE:
-			case GF_E_GENOCIDE:
 						return (0x09);
 			case GF_JUMP:
 			case GF_JUMP_ATTACK:
 						return (0x0F);
-			case GF_SNATCH:			return (0x01);
 			case GF_SOFTEN:         return (0x0F);
 		}
 	}
@@ -569,6 +567,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		case GF_DOMINATION:
 		case GF_JUMP:
 		case GF_JUMP_ATTACK:
+		case GF_DIST_ATTACK:
 		{
 			break;
 		}
@@ -805,7 +804,7 @@ msg_print("何かがつっかえてドアが開かない。");
 			/* Rubble */
 			else if (c_ptr->feat == FEAT_RUBBLE)
 			{
-				int prob = (p_ptr->pclass == CLASS_ARCHAEOLOGIST) ? 13 : 20;
+				int prob = 13;
 
 				/* Message */
 				if (known && (c_ptr->info & (CAVE_MARK)))
@@ -1120,7 +1119,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 #else
 					note_kill = (plural ? " melt!" : " melts!");
 #endif
-					sound_kill = SOUND_ACID;
+					sound_kill = SOUND_BR_ACID; /* (Sound substitute) No sound for acid */
 					if (f3 & (TR3_IGNORE_ACID)) ignore = TRUE;
 				}
 				break;
@@ -1137,7 +1136,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 #else
 					note_kill = (plural ? " are destroyed!" : " is destroyed!");
 #endif
-					sound_kill = SOUND_ELEC;
+					sound_kill = SOUND_BR_ELEC; /* (Sound substitute) No sound for elec */
 					if (f3 & (TR3_IGNORE_ELEC)) ignore = TRUE;
 				}
 				break;
@@ -1154,7 +1153,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 #else
 					note_kill = (plural ? " burn up!" : " burns up!");
 #endif
-					sound_kill = SOUND_FIRE;
+					sound_kill = SOUND_BR_FIRE; /* (Sound substitute) No sound for fire */
 					if (f3 & (TR3_IGNORE_FIRE)) ignore = TRUE;
 				}
 				break;
@@ -1171,7 +1170,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 #else
 					note_kill = (plural ? " shatter!" : " shatters!");
 #endif
-					sound_kill = SOUND_COLD;
+					sound_kill = SOUND_BR_FROST; /* (Sound substitute) No sound for cold */
 					if (f3 & (TR3_IGNORE_COLD)) ignore = TRUE;
 				}
 				break;
@@ -1188,7 +1187,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 #else
 					note_kill = (plural ? " burn up!" : " burns up!");
 #endif
-					sound_kill = SOUND_FIRE;
+					sound_kill = SOUND_BR_FIRE; /* (Sound substitute) No sound for fire */
 					if (f3 & (TR3_IGNORE_FIRE)) ignore = TRUE;
 				}
 				if (hates_elec(o_ptr))
@@ -1200,7 +1199,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 #else
 					note_kill = (plural ? " are destroyed!" : " is destroyed!");
 #endif
-					sound_kill = SOUND_ELEC;
+					sound_kill = SOUND_BR_ELEC; /* (Sound substitute) No sound for elec */
 					if (f3 & (TR3_IGNORE_ELEC)) ignore = TRUE;
 				}
 				break;
@@ -1217,7 +1216,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 #else
 					note_kill = (plural ? " burn up!" : " burns up!");
 #endif
-					sound_kill = SOUND_FIRE;
+					sound_kill = SOUND_BR_FIRE; /* (Sound substitute) No sound for fire */
 					if (f3 & (TR3_IGNORE_FIRE)) ignore = TRUE;
 				}
 				if (hates_cold(o_ptr))
@@ -1229,7 +1228,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 #else
 					note_kill = (plural ? " shatter!" : " shatters!");
 #endif
-					sound_kill = SOUND_COLD;
+					sound_kill = SOUND_BR_FROST; /* (Sound substitute) No sound for cold */
 					if (f3 & (TR3_IGNORE_COLD)) ignore = TRUE;
 				}
 				break;
@@ -1249,7 +1248,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 #else
 					note_kill = (plural ? " shatter!" : " shatters!");
 #endif
-					sound_kill = SOUND_COLD;
+					sound_kill = SOUND_BR_FROST; /* (Sound substitute) No sound for cold */
 				}
 				break;
 			}
@@ -1263,7 +1262,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 #else
 				note_kill = (plural ? " are destroyed!" : " is destroyed!");
 #endif
-				sound_kill = SOUND_DESTITEM;
+				sound_kill = SOUND_DESTROY;
 				break;
 			}
 
@@ -1275,7 +1274,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 #else
 				note_kill = (plural ? " evaporate!" : " evaporates!");
 #endif
-				sound_kill = SOUND_DESTITEM;
+				sound_kill = SOUND_DESTROY;
 				break;
 			}
 
@@ -1287,7 +1286,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 #else
 				note_kill = (plural ? " are destroyed!" : " is destroyed!");
 #endif
-				sound_kill = SOUND_DESTITEM;
+				sound_kill = SOUND_DESTROY;
 				if (f2 & (TR2_RES_CHAOS)) ignore = TRUE;
 				break;
 			}
@@ -1304,7 +1303,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 #else
 					note_kill = (plural ? " are destroyed!" : " is destroyed!");
 #endif
-					sound_kill = SOUND_DESTITEM;
+					sound_kill = SOUND_DESTROY;
 				}
 				break;
 			}
@@ -1373,8 +1372,8 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 				if (o_ptr->tval == TV_STATUE)
 				{
 					bool success = TRUE;
-					int r_idx;
-					monster_race *r_ptr;
+					int r_idx = 0;
+					monster_race *r_ptr = NULL;
 
 					if (o_ptr->pval > 0)
 					{
@@ -1415,7 +1414,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 #ifdef JP
 						msg_print("像が活力を帯びたような気がした。");
 #else
-						msg_print("You feel the statue has worn energies.");
+						msg_print("You feel life energy pour into the statue.");
 #endif
 
 						if (!success)
@@ -1599,8 +1598,6 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, int flg)
 
 	/* Fear amount (amount to fear) */
 	int do_fear = 0;
-
-	bool heal_leper = FALSE;
 
 	/* Hold the monster name */
 	char m_name[80];
@@ -1890,6 +1887,7 @@ note = "はいくらか耐性を示した。";
 		case GF_WATER:
 		{
 			if (seen) obvious = TRUE;
+#if 0
 			if (m_ptr->r_idx == MON_WATER_ELEM || m_ptr->r_idx == MON_UNMAKER)
 
 			{
@@ -1898,10 +1896,11 @@ note = "はいくらか耐性を示した。";
 #else
 				note = " is immune.";
 #endif
-
 				dam = 0;
 			}
-			else if (r_ptr->flags3 & RF3_RES_WATE)
+			else
+#endif
+			if (r_ptr->flags3 & RF3_RES_WATE)
 			{
 #ifdef JP
 note = "には耐性がある。";
@@ -2697,17 +2696,13 @@ note = "にはかなり耐性がある。";
 				}
 
 #ifdef JP
-note = "には効果がなかった！";
+				note = "には効果がなかった！";
 #else
 				note = " is unaffected!";
 #endif
-
 				obvious = FALSE;
 				dam = 0;
 			}
-
-			/* Magic */
-			if (is_keeping_spell(MS_VAMPIRIC_MIST)) hp_player(MIN(dam, 4));
 
 			break;
 		}
@@ -2832,11 +2827,6 @@ note = "が分裂した！";
 
 			/* No overflow */
 			if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
-
-			if (m_ptr->r_idx == MON_LEPER)
-			{
-				heal_leper = TRUE;
-			}
 
 			/* Redraw (later) if needed */
 			if (p_ptr->health_who == c_ptr->m_idx) p_ptr->redraw |= (PR_HEALTH);
@@ -3860,58 +3850,6 @@ note_dies = "はドロドロに溶けた！";
 			break;
 		}
 
-		case GF_E_GENOCIDE:
-		{
-			if (seen) obvious = TRUE;
-
-			if ((p_ptr->inside_quest && quest[p_ptr->inside_quest].type != QUEST_TYPE_RANDOM))
-			{
-#ifdef JP
-				msg_format("%^sには効果がなかった。", m_name);
-#else
-				msg_format("%^s is unaffected. ", m_name);
-#endif
-			}
-			else if (elemental_genocide(c_ptr->m_idx))
-			{
-				if (remove_monster(dam, c_ptr->m_idx, "消滅"))
-				{
-#ifdef JP
-					msg_format("%sは消滅した！",m_name);
-#else
-					msg_format("%^s disappered!",m_name);
-#endif
-				}
-				else
-				{
-					get_angry = TRUE;
-				}
-			}
-			else
-			{
-#ifdef JP
-				msg_format("%sには耐性がある！",m_name);
-#else
-				msg_format("%^s resists!",m_name);
-#endif
-				get_angry = TRUE;
-			}
-
-			skipped = TRUE;
-			dam = 0;
-			break;
-		}
-
-		case GF_SNATCH:	/* Snatcher */
-		{
-			if (!body_snatch(c_ptr->m_idx))
-				get_angry = TRUE;
-			skipped = TRUE;
-			dam = 0;
-			break;
-		}
-
-
 		/* Stone to Flesh */
 		case GF_SOFTEN:
 		{
@@ -3956,6 +3894,24 @@ note_dies = "はドロドロに溶けた！";
 				dam = 0;
 			}
 
+			break;
+		}
+
+		case GF_DIST_ATTACK:
+		{
+			if (seen) obvious = TRUE;
+			skipped = TRUE;
+
+			if (c_ptr->m_idx)
+				py_attack(y, x);
+			else
+			{
+#ifdef JP
+				msg_print("攻撃は空を切った。");
+#else
+				msg_print("You attack the empty air.");
+#endif
+			}
 			break;
 		}
 
@@ -4245,17 +4201,6 @@ msg_format("%^s%s", m_name, note);
 		}
 	}
 
-
-	else if (heal_leper)
-	{
-#ifdef JP
-msg_format("%^sは病気が治った！", m_name);
-#else
-		msg_format("%^s is healed!", m_name);
-#endif
-
-		delete_monster_idx(c_ptr->m_idx);
-	}
 	/* If the player did it, give him experience, check fear */
 	else
 	{
@@ -4339,7 +4284,7 @@ msg_format("%^sは恐怖して逃げ出した！", m_name);
 		if (!who)
 		{
 			/* Set counter target to !los player */
-			if (!projectable(m_ptr->fy, m_ptr->fx, py, px) && !(flg & PROJECT_NO_COUNTER))
+			if (!(flg & PROJECT_NO_COUNTER))
 			{
 				m_ptr->target_y = py;
 				m_ptr->target_x = px;
@@ -4407,7 +4352,6 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 	/* Hack -- messages */
 	cptr act = NULL;
 
-	/* Magic: for eye-for-an-eye */
 	int get_damage = 0;
 
 
@@ -4690,65 +4634,46 @@ if (fuzzy) msg_print("何かとても熱いものでで攻撃された！");
 		case GF_NETHER:
 		{
 #ifdef JP
-if (fuzzy) msg_print("地獄の力で攻撃された！");
+			if (fuzzy) msg_print("地獄の力で攻撃された！");
 #else
 			if (fuzzy) msg_print("You are hit by nether forces!");
 #endif
 
-
 			if (p_ptr->resist_neth)
 			{
-				if (p_ptr->prace != RACE_SPECTRE)
-					dam *= 6; dam /= (randint1(6) + 6);
+				dam *= 6; dam /= (randint1(6) + 6);
 			}
 			else
 			{
 				if (p_ptr->hold_life && (randint0(100) < 75))
 				{
 #ifdef JP
-msg_print("しかし自己の生命力を守りきった！");
+					msg_print("しかし自己の生命力を守りきった！");
 #else
 					msg_print("You keep hold of your life force!");
 #endif
-
 				}
 				else if (p_ptr->hold_life)
 				{
 #ifdef JP
-msg_print("生命力が少し体から抜け落ちた気がする！");
+					msg_print("生命力が少し体から抜け落ちた気がする！");
 #else
 					msg_print("You feel your life slipping away!");
 #endif
-
 					lose_exp(200 + (p_ptr->exp / 1000) * MON_DRAIN_LIFE);
 				}
 				else
 				{
 #ifdef JP
-msg_print("生命力が体から吸い取られた気がする！");
+					msg_print("生命力が体から吸い取られた気がする！");
 #else
 					msg_print("You feel your life draining away!");
 #endif
-
 					lose_exp(200 + (p_ptr->exp / 100) * MON_DRAIN_LIFE);
 				}
 			}
 
-			if (p_ptr->prace == RACE_SPECTRE)
-			{
-#ifdef JP
-				msg_print("活力が湧いてくる！");
-#else
-				msg_print("You feel invigorated!");
-#endif
-
-				hp_player(dam / 4);
-			}
-			else
-			{
-				get_damage = take_hit(dam, killer);
-			}
-
+			get_damage = take_hit(dam, killer);
 			break;
 		}
 
@@ -5049,17 +4974,17 @@ if (fuzzy) msg_print("何かで攻撃された！");
 			{
 				(void)set_blind(p_ptr->blind + randint1(5) + 2);
 			}
-			if ((p_ptr->prace == RACE_VAMPIRE) ||
-				((p_ptr->pclass == CLASS_SNATCHER) && (r_info[p_ptr->r_idx].flags3 & (RF3_HURT_LITE))))
+#if 0
+			if (p_ptr->prace == RACE_VAMPIRE)
 			{
 #ifdef JP
-msg_print("光で肉体が焦がされた！");
+				msg_print("光で肉体が焦がされた！");
 #else
 				msg_print("The light scorches your flesh!");
 #endif
-
 				dam *= 2;
 			}
+#endif
 			get_damage = take_hit(dam, killer);
 
 			if (p_ptr->tim_wraith)
@@ -5086,7 +5011,7 @@ msg_print("閃光のため非物質的な影の存在でいられなくなった。");
 		case GF_DARK:
 		{
 #ifdef JP
-if (fuzzy) msg_print("何かで攻撃された！");
+			if (fuzzy) msg_print("何かで攻撃された！");
 #else
 			if (fuzzy) msg_print("You are hit by something!");
 #endif
@@ -5097,8 +5022,9 @@ if (fuzzy) msg_print("何かで攻撃された！");
 				if (p_ptr->resist_dark)
 				{
 					dam *= 4; dam /= (randint1(6) + 6);
-
+#if 0
 					if (p_ptr->prace == RACE_VAMPIRE) dam = 0;
+#endif
 				}
 				else if (!blind && !p_ptr->resist_blind)
 				{
@@ -5243,15 +5169,6 @@ if (fuzzy) msg_print("純粋なエネルギーで攻撃された！");
 #else
 			if (fuzzy) msg_print("You are hit by pure energy!");
 #endif
-			if ((p_ptr->pclass == CLASS_SNATCHER) && (r_info[p_ptr->r_idx].flags3 & (RF3_HURT_ROCK)))
-			{
-#ifdef JP
-				msg_print("皮膚がただれた！");
-#else
-				msg_print("Loses some skin!");
-#endif
-				dam *= 2;
-			}
 			get_damage = take_hit(dam, killer);
 			break;
 		}
@@ -5409,14 +5326,11 @@ if (fuzzy) msg_print("何か非常に冷たいもので攻撃された！");
 
 			switch (p_ptr->prace)
 			{
+#if 0
 				/* Some races are immune */
-				case RACE_GOLEM:
-				case RACE_SKELETON:
-				case RACE_ZOMBIE:
 				case RACE_VAMPIRE:
-				case RACE_SPECTRE:
 					break;
-
+#endif
 				/* Hurt a lot */
 				default:
 				{
@@ -5429,38 +5343,6 @@ if (fuzzy) msg_print("何か非常に冷たいもので攻撃された！");
 		}
 	}
 
-
-
-	/* Magic: Eye for an Eye */
-	if (is_keeping_spell(MS_EYE_FOR_EYE) && (get_damage > 0) && (who > 0))
-	{
-		bool fear;
-#ifdef JP
-		msg_print("呪力がダメージを送り返した。");
-#else
-		msg_print("You return your damage.");
-#endif
-		mon_take_hit(who, get_damage, &fear, NULL);
-
-		if (m_ptr->ml && fear)
-		{
-			sound(SOUND_FLEE);
-	#ifdef JP
-			msg_format("%^sは恐怖で逃げ出した！", m_name);
-	#else
-			msg_format("%^s flees in terror!", m_name);
-	#endif
-
-		}
-	}
-
-	/* Magic: Revenge Sentence */
-	if ((p_ptr->tim_sentence) && (get_damage > 0))
-	{
-		p_ptr->rvs_x = m_ptr->fx;
-		p_ptr->rvs_y = m_ptr->fy;
-		p_ptr->rvs_d += get_damage;
-	}
 
 	/* Disturb */
 	disturb(1, 0);
@@ -6544,13 +6426,10 @@ bool project(int who, int rad, int y, int x, int dam, int typ, u16b flg)
 					if (m_list[cave[y][x].m_idx].ml)
 					{
 #ifdef JP
-						if (m_list[cave[y][x].m_idx].r_idx == MON_DIO)
-							msg_print("ディオ・ブランドーは指一本で攻撃を弾き返した！");
-						else msg_print("攻撃は跳ね返った！");
+						msg_print("攻撃は跳ね返った！");
 #else
 						msg_print("The attack bounces!");
 #endif
-
 						ref_ptr->r_flags2 |= RF2_REFLECTING;
 					}
 

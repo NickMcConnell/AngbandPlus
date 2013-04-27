@@ -110,6 +110,7 @@ static s16b critical_norm(int weight, int chance, int dam)
 #else
 			msg_print("It was a good hit!");
 #endif
+	  		sound(SOUND_HIT_GOOD);
 			dam = 2 * dam + 5;
 		}
 		else if (k < 700)
@@ -119,6 +120,7 @@ static s16b critical_norm(int weight, int chance, int dam)
 #else
 			msg_print("It was a great hit!");
 #endif
+	  		sound(SOUND_HIT_GREAT);
 			dam = 3 * dam + 10;
 		}
 		else if (k < 900)
@@ -128,6 +130,7 @@ static s16b critical_norm(int weight, int chance, int dam)
 #else
 			msg_print("It was a superb hit!");
 #endif
+	  		sound(SOUND_HIT_SUPERB);
 			dam = 4 * dam + 10;
 		}
 		else if (k < 1300)
@@ -137,6 +140,7 @@ static s16b critical_norm(int weight, int chance, int dam)
 #else
 			msg_print("It was a *GREAT* hit!");
 #endif
+	  		sound(SOUND_HIT_HI_GREAT);
 			dam = 4 * dam + 20;
 		}
 		else
@@ -147,6 +151,7 @@ static s16b critical_norm(int weight, int chance, int dam)
 			msg_print("It was a *SUPERB* hit!");
 #endif
 			dam = ((7 * dam) / 2) + 25;
+	  		sound(SOUND_HIT_HI_SUPERB);
 		}
 	}
 
@@ -175,6 +180,9 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
 
+	/* Extra brands */
+	if (p_ptr->tim_brand) f1 |= p_ptr->xtra_brand;
+
 	/* Some "weapons" and "ammo" do extra damage */
 	switch (o_ptr->tval)
 	{
@@ -186,6 +194,18 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 		case TV_SWORD:
 		case TV_DIGGING:
 		{
+			/* Slay Human */
+			if ((f1 & TR1_SLAY_HUMAN) &&
+			    (r_ptr->flags3 & RF3_HUMAN))
+			{
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags3 |= RF3_HUMAN;
+				}
+
+				if (mult < 30) mult = 30;
+			}
+
 			/* Slay Animal */
 			if ((f1 & TR1_SLAY_ANIMAL) &&
 			    (r_ptr->flags3 & RF3_ANIMAL))
@@ -292,9 +312,6 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				}
 
 				if (mult < 50) mult = 50;
-
-				if ((o_ptr->name1 == ART_NOTHUNG) && (m_ptr->r_idx == MON_FAFNER))
-					mult *= 5;
 			}
 
 			/* Brand (Acid) */
@@ -578,7 +595,7 @@ void py_pickup_aux(int o_idx)
 #else
 			msg_print("You completed your quest!");
 #endif
-			sound(SOUND_QUEST);
+	  		sound(SOUND_LEVEL); /* (Sound substitute) No quest sound */
 			msg_print(NULL);
 		}
 	}
@@ -669,8 +686,18 @@ void carry(int pickup)
 				   (long)o_ptr->pval, o_name);
 #endif
 
-
-			sound(SOUND_SELL);
+			if(o_ptr->pval<200)
+			{
+				   sound(SOUND_MONEY1);
+            } 
+            else if(o_ptr->pval<600)
+			{ 
+				   sound(SOUND_MONEY2);
+            } 
+            else
+			{ 
+				   sound(SOUND_MONEY3);
+            } 
 
 			/* Collect the gold */
 			p_ptr->au += o_ptr->pval;
@@ -821,7 +848,7 @@ static void hit_trap(void)
 				msg_print("You have fallen through a trap door!");
 #endif
 
-				sound(SOUND_FALL);
+/* 				sound(SOUND_FALL); */ /* No fall sound */
 				dam = damroll(2, 8);
 #ifdef JP
 				name = "落し戸";
@@ -1403,25 +1430,6 @@ int calc_melee_bonus(int hand)
 
 	if (hand > 1) return (0);
 
-	switch(p_ptr->pclass)
-	{
-		case CLASS_ARCHAEOLOGIST:
-			if (inventory[slot].tval == TV_DIGGING)
-				bonus += (5 + (p_ptr->lev / 5));
-	}
-
-	if (p_ptr->realm1 == REALM_MAGIC)
-	{
-		u32b f1, f2, f3;
-		object_type *o_ptr = &inventory[slot];
-		object_flags(o_ptr, &f1, &f2, &f3);
-
-		if (cursed_p(o_ptr)) bonus += 5;
-		if (f3 & TR3_HEAVY_CURSE) bonus += 7;
-		if (f3 & TR3_PERMA_CURSE) bonus += 13;
-		if (f3 & TR3_TY_CURSE) bonus += 5;
-	}
-
 	/* two handed combat gives melee penalty according to a weight of weapon */
 	if (is_two_handed())
 	{
@@ -1431,6 +1439,8 @@ int calc_melee_bonus(int hand)
 	return (bonus);
 }
 
+
+#ifndef TINYANGBAND
 /**** The monster bashing code. -LM- ****/
 static bool monster_bash(int *blows, int sleeping_bonus, cave_type *c_ptr, 
 			bool *fear, char *m_name)
@@ -1464,9 +1474,7 @@ static bool monster_bash(int *blows, int sleeping_bonus, cave_type *c_ptr,
 	/* Players bash more often when they see a real need. */
 	if (bash_chance)
 	{
-		if ((!inventory[INVEN_WIELD].k_idx) && (p_ptr->pclass != CLASS_MONK))
-			bash_chance *= 3;
-		else if ((inventory[INVEN_WIELD].dd * inventory[INVEN_WIELD].ds * (*blows))
+		if ((inventory[INVEN_WIELD].dd * inventory[INVEN_WIELD].ds * (*blows))
 			< (inventory[INVEN_ARM].dd * inventory[INVEN_ARM].ds * 3))
 			bash_chance *= 2;
 	}
@@ -1475,11 +1483,10 @@ static bool monster_bash(int *blows, int sleeping_bonus, cave_type *c_ptr,
 	if (bash_chance > randint0(240 + r_ptr->level * 9))
 	{
 #ifdef JP
-msg_print("シールドでモンスターに体当りした！");
+		msg_print("シールドでモンスターに体当りした！");
 #else
 		msg_print("You get in a shield bash!");
 #endif
-
 
 		/* Calculate attack quality, a mix of momentum and accuracy. */
 		bash_quality = p_ptr->skill_thn + (p_ptr->wt / 8) +
@@ -1500,21 +1507,19 @@ msg_print("シールドでモンスターに体当りした！");
 		/* Encourage the player to keep wearing that heavy shield. */
 		if (randint1(bash_dam) > 30 + randint1(bash_dam / 2))
 #ifdef JP
-msg_print("バーン！");
+			msg_print("バーン！");
 #else
 			msg_print("WHAMM!");
 #endif
-
 
 		/* Complex message */
 		if (wizard)
 		{
 #ifdef JP
-msg_format("%d/%d のダメージを与えた。", bash_dam, m_ptr->hp);
+			msg_format("%d/%d のダメージを与えた。", bash_dam, m_ptr->hp);
 #else
 			msg_format("You do %d (out of %d) damage.", bash_dam, m_ptr->hp);
 #endif
-
 		}
 
 		/* Damage, check for fear and death. */
@@ -1528,12 +1533,10 @@ msg_format("%d/%d のダメージを与えた。", bash_dam, m_ptr->hp);
 		if (bash_quality + p_ptr->lev > randint1(200 + r_ptr->level * 8))
 		{
 #ifdef JP
-							msg_format("%^sはフラフラになった。", m_name);
+			msg_format("%^sはフラフラになった。", m_name);
 #else
 			msg_format("%^s is stunned.", m_name);
 #endif
-
-
 			m_ptr->stunned += randint0(p_ptr->lev / 5) + 4;
 			if (m_ptr->stunned > 24) m_ptr->stunned = 24;
 		}
@@ -1543,12 +1546,10 @@ msg_format("%d/%d のダメージを与えた。", bash_dam, m_ptr->hp);
 			(!r_ptr->flags3 & (RF3_NO_CONF)))
 		{
 #ifdef JP
-msg_format("%^sは混乱したようだ。", m_name);
+			msg_format("%^sは混乱したようだ。", m_name);
 #else
 			msg_format("%^s appears confused.", m_name);
 #endif
-
-
 			m_ptr->confused += randint0(p_ptr->lev / 5) + 4;
 		}
 
@@ -1560,191 +1561,7 @@ msg_format("%^sは混乱したようだ。", m_name);
 	/* Monster is not dead */
 	return (FALSE);
 }
-
-
-/*
- * The monk special attacks and effects.
- */
-/*
-  ↓昔のやつ。型が変なので直したけど、intにするとまずかったらごめん
-  static void monk_attack(monster_type *m_ptr, long *k, char *m_name) 
-     --- henkma
- */
-static void monk_attack(monster_type *m_ptr, int *k, char *m_name) 
-{
-	int special_effect = 0, stun_effect = 0, times;
-	martial_arts *ma_ptr = &ma_blows[0], *old_ptr = &ma_blows[0];
-	int resist_stun = 0;
-
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-#ifdef JP
-				/*** XTRA HACK XIAOLONG ***/
-				bool do_effect = (inventory[INVEN_WIELD].k_idx == 0);
-#endif
-	if (r_ptr->flags1 & RF1_UNIQUE) resist_stun += 88;
-	if (r_ptr->flags3 & RF3_NO_CONF) resist_stun += 44;
-	if (r_ptr->flags3 & RF3_NO_SLEEP) resist_stun += 44;
-	if ((r_ptr->flags3 & RF3_UNDEAD) || (r_ptr->flags3 & RF3_NONLIVING))
-		resist_stun += 88;
-
-	/* Attempt 'times' */
-	for (times = 0; times < (p_ptr->lev < 7 ? 1 : p_ptr->lev / 7); times++)
-	{
-		do
-		{
-			ma_ptr = &ma_blows[randint0(MAX_MA)];
-		}
-		while ((ma_ptr->min_level > p_ptr->lev) ||
-			(randint1(p_ptr->lev) < ma_ptr->chance));
-
-		/* keep the highest level attack available we found */
-		if ((ma_ptr->min_level > old_ptr->min_level) &&
-			!p_ptr->stun && !p_ptr->confused)
-		{
-			old_ptr = ma_ptr;
-
-			if (wizard && cheat_xtra)
-			{
-#ifdef JP
-							msg_print("攻撃を再選択しました。");
-#else
-				msg_print("Attack re-selected.");
-#endif
-
-			}
-		}
-		else
-		{
-			ma_ptr = old_ptr;
-		}
-	}
-
-	*k = damroll(ma_ptr->dd, ma_ptr->ds);
-
-#ifdef JP
-				/*** XTRA HACK XIAOLONG ***/
-				if (ma_ptr->effect == MA_KNEE && do_effect)
-#else
-	if (ma_ptr->effect == MA_KNEE)
-#endif
-
-	{
-		if (r_ptr->flags1 & RF1_MALE)
-		{
-#ifdef JP
-						msg_format("%sに金的膝蹴りをくらわした！", m_name);
-#else
-			msg_format("You hit %s in the groin with your knee!", m_name);
-#endif
-
-			sound(SOUND_PAIN);
-			special_effect = MA_KNEE;
-		}
-		else
-			msg_format(ma_ptr->desc, m_name);
-	}
-
-#ifdef JP
-				/*** XTRA HACK XIAOLONG ***/
-				else if (ma_ptr->effect == MA_SLOW && do_effect)
-#else
-	else if (ma_ptr->effect == MA_SLOW)
-#endif
-
-	{
-		if (!((r_ptr->flags1 & RF1_NEVER_MOVE) ||
-			my_strchr("~#{}.UjmeEv$,DdsbBFIJQSXclnw!=?", r_ptr->d_char)))
-		{
-#ifdef JP
-						msg_format("%sの足首に関節蹴りをくらわした！", m_name);
-#else
-			msg_format("You kick %s in the ankle.", m_name);
-#endif
-
-			special_effect = MA_SLOW;
-		}
-		else msg_format(ma_ptr->desc, m_name);
-	}
-	else
-	{
-#ifdef JP
-				  /* XTRA HACK XIAOLONG */
-				  /* XIAOLONG のヌンチャクを装備している場合追加効果はなし */
-				  if (ma_ptr->effect && do_effect)
-				    {
-				      stun_effect = (ma_ptr->effect / 2) + randint1(ma_ptr->effect / 2);
-				    }
-				  if (do_effect) msg_format(ma_ptr->desc, m_name);
-				  else {
-				    if (ma_ptr->min_level > 36)msg_format("ホワーーッ！%sを攻撃した。", m_name);
-				    else if (ma_ptr->min_level > 19)msg_format("アチョゥ！%sを攻撃した。", m_name);
-				    else msg_format("%sを攻撃した。", m_name);
-				  }
-#else
-		if (ma_ptr->effect)
-		{
-			stun_effect = (ma_ptr->effect / 2) + randint1(ma_ptr->effect / 2);
-		}
-
-		msg_format(ma_ptr->desc, m_name);
-#endif
-
-	}
-
-	*k = critical_norm(p_ptr->lev * randint1(10), ma_ptr->min_level, *k);
-
-	if ((special_effect == MA_KNEE) && ((*k + p_ptr->to_d) < m_ptr->hp))
-	{
-#ifdef JP
-					msg_format("%^sは苦痛にうめいている！", m_name);
-#else
-		msg_format("%^s moans in agony!", m_name);
-#endif
-
-		stun_effect = 7 + randint1(13);
-		resist_stun /= 3;
-	}
-
-	else if ((special_effect == MA_SLOW) && ((*k + p_ptr->to_d) < m_ptr->hp))
-	{
-		if (!(r_ptr->flags1 & RF1_UNIQUE) &&
-			(randint1(p_ptr->lev) > r_ptr->level) &&
-			m_ptr->mspeed > 60)
-		{
-#ifdef JP
-						msg_format("%^sは足をひきずり始めた。", m_name);
-#else
-			msg_format("%^s starts limping slower.", m_name);
-#endif
-
-			m_ptr->mspeed -= 10;
-		}
-	}
-
-	if (stun_effect && ((*k + p_ptr->to_d) < m_ptr->hp))
-	{
-		if (p_ptr->lev > randint1(r_ptr->level + resist_stun + 10))
-		{
-			if (m_ptr->stunned)
-#ifdef JP
-							msg_format("%^sはさらにフラフラになった。", m_name);
-#else
-				msg_format("%^s is more stunned.", m_name);
-#endif
-
-			else
-#ifdef JP
-msg_format("%sは朦朧としている。", m_name);
-#else
-				msg_format("%^s is stunned.", m_name);
-#endif
-
-
-			m_ptr->stunned += stun_effect;
-		}
-	}
-}
+#endif /* ifndef TINYANGBAND */
 
 
 /*
@@ -1797,9 +1614,6 @@ static void py_attack_aux(int y, int x, int mode)
 	bool            backstab = FALSE;
 	bool            stab_fleeing = FALSE;
 
-	/* Magic */
-	bool            runesword = (is_keeping_spell(MS_RUNESWORD)) ? TRUE : FALSE;
-
 	/* Disturb the player */
 	disturb(0, 0);
 
@@ -1822,11 +1636,8 @@ static void py_attack_aux(int y, int x, int mode)
 		((p_ptr->muta & MUT_BERS_RAGE) && p_ptr->shero) ||
 		!m_ptr->ml))
 	{
-		if (inventory[INVEN_WIELD].name1 == ART_STORMBRINGER ||
-			inventory[INVEN_ARM].name1 == ART_STORMBRINGER ||
-			inventory[INVEN_WIELD].name2 == EGO_WEIRD ||
-			inventory[INVEN_ARM].name2 == EGO_WEIRD ||
-			(runesword))
+		if (inventory[INVEN_WIELD].name2 == EGO_WEIRD ||
+			inventory[INVEN_ARM].name2 == EGO_WEIRD)
 		{
 #ifdef JP
 			msg_format("黒い刃は強欲に%sを攻撃した！", m_name);
@@ -1879,8 +1690,7 @@ static void py_attack_aux(int y, int x, int mode)
 	* Monsters in trees can take advantage of cover,
 	* except from rangers.
 	*/
-	else if ((c_ptr->feat == FEAT_TREES) && 
-		(p_ptr->pclass == CLASS_RANGER))
+	else if (c_ptr->feat == FEAT_TREES)
 	{
 		terrain_bonus = r_ptr->ac / 7 + 5;
 	}
@@ -1909,7 +1719,7 @@ static void py_attack_aux(int y, int x, int mode)
 			blows++;
 			if (one_in_(3) == 1) blows++;
 		}
-
+#if 0
 		if (p_ptr->pclass == CLASS_RANGER)
 		{
 			if (m_ptr->csleep && m_ptr->ml)
@@ -1924,11 +1734,12 @@ static void py_attack_aux(int y, int x, int mode)
 				stab_fleeing = TRUE;
 			}
 		}
-
+#endif
+#ifndef TINYANGBAND	/* No bashing in TinyAngband */
 		/* Attempt to shield bash the monster */
 		if (i == 0)
 			if (monster_bash(&blows, sleeping_bonus, c_ptr, &fear, m_name)) return;
-
+#endif
 		/* Access the weapon */
 		o_ptr = &inventory[INVEN_WIELD + i];
 
@@ -1984,7 +1795,7 @@ static void py_attack_aux(int y, int x, int mode)
 				}
 
 				/* Vampiric drain */
-				if ((f1 & TR1_VAMPIRIC) || (chaos_effect == 1) || is_keeping_spell(MS_VAMPIRIC_ATTACK))
+				if ((f1 & TR1_VAMPIRIC) || (chaos_effect == 1))
 				{
 					/* Only drain "living" monsters */
 					if (monster_living(r_ptr))
@@ -1993,28 +1804,21 @@ static void py_attack_aux(int y, int x, int mode)
 						can_drain = FALSE;
 				}
 
-				if (((f1 & TR1_VORPAL) || (mode == ATTACK_VORPAL) || (runesword)) && (randint1((o_ptr->name1 == ART_VORPAL_BLADE) ? 3 : 6) == 1))
+				if (((f1 & TR1_VORPAL) || (mode == ATTACK_VORPAL)) && (randint1(6) == 1))
 					vorpal_cut = TRUE;
 				else vorpal_cut = FALSE;
 
-				if ((p_ptr->pclass == CLASS_MONK) && monk_empty_hands())
+				if (o_ptr->k_idx)
 				{
-					/* Make a special monk attack */
-					monk_attack(m_ptr, &k, m_name);
-				}
-
-				/* Handle normal weapon */
-				else if (o_ptr->k_idx)
-				{
-	#ifdef JP
+#ifdef JP
 					if (backstab) msg_format("あなたは冷酷にも眠っている無力な%sを突き刺した！", m_name);
 					else if (stab_fleeing) msg_format("逃げる%sを背中から突き刺した！", m_name);
 					else msg_format("%sを攻撃した。", m_name);
-	#else
+#else
 					if (backstab) msg_format("You cruelly stab the helpless, sleeping %s!", m_name);
 					else if (stab_fleeing) msg_format("You backstab the fleeing %s!",  m_name);
 					else msg_format("You hit %s.", m_name);
-	#endif
+#endif
 
 					k = damroll(o_ptr->dd, o_ptr->ds);
 					k = tot_dam_aux(o_ptr, k, m_ptr);
@@ -2044,38 +1848,13 @@ static void py_attack_aux(int y, int x, int mode)
 						 *  combat.
 						 */
 						int mult = 2;
+						int inc_chance = 4;
 
-						int inc_chance = (o_ptr->name1 == ART_VORPAL_BLADE) ? 2 : 4;
-
-						if ((o_ptr->name1 == ART_CHAINSWORD) && (randint1(2) != 1))
-						{
-							char chainsword_noise[1024];
-	#ifdef JP
-							if (!get_rnd_line("chainswd_j.txt", 0, chainsword_noise))
-	#else
-							if (!get_rnd_line("chainswd.txt", 0, chainsword_noise))
-	#endif
-							{
-								msg_print(chainsword_noise);
-							}
-						}
-
-						if (o_ptr->name1 == ART_VORPAL_BLADE)
-						{
-	#ifdef JP
-							msg_print("目にも止まらぬヴォーパルブレード、手錬の早業！");
-	#else
-							msg_print("Your Vorpal Blade goes snicker-snack!");
-	#endif
-						}
-						else
-						{
-	#ifdef JP
-							msg_format("%sをグッサリ切り裂いた！", m_name);
-	#else
-							msg_format("Your weapon cuts deep into %s!", m_name);
-	#endif
-						}
+#ifdef JP
+						msg_format("%sをグッサリ切り裂いた！", m_name);
+#else
+						msg_format("Your weapon cuts deep into %s!", m_name);
+#endif
 
 						/* Try to increase the damage */
 						while (one_in_(inc_chance))
@@ -2088,17 +1867,17 @@ static void py_attack_aux(int y, int x, int mode)
 						/* Ouch! */
 						if (k > m_ptr->hp)
 						{
-	#ifdef JP
+#ifdef JP
 							msg_format("%sを真っ二つにした！", m_name);
-	#else
+#else
 							msg_format("You cut %s in half!", m_name);
-	#endif
+#endif
 						}
 						else
 						{
 							switch(mult)
 							{
-	#ifdef JP
+#ifdef JP
 								case 2:	msg_format("%sを斬った！", m_name);	break;
 								case 3:	msg_format("%sをぶった斬った！", m_name); break;
 								case 4:	msg_format("%sをメッタ斬りにした！", m_name); break;
@@ -2106,7 +1885,7 @@ static void py_attack_aux(int y, int x, int mode)
 								case 6:	msg_format("%sを刺身にした！", m_name);	break;
 								case 7:	msg_format("%sを斬って斬って斬りまくった！", m_name); break;
 								default:	msg_format("%sを細切れにした！", m_name); break;
-	#else
+#else
 								case 2: msg_format("You gouge %s!", m_name); break;
 								case 3: msg_format("You maim %s!", m_name); break;
 								case 4: msg_format("You carve %s!", m_name); break;
@@ -2114,7 +1893,7 @@ static void py_attack_aux(int y, int x, int mode)
 								case 6: msg_format("You smite %s!", m_name); break;
 								case 7: msg_format("You eviscerate %s!", m_name); break;
 								default: msg_format("You shred %s!", m_name); break;
-	#endif
+#endif
 							}
 						}
 						drain_result = drain_result * 3 / 2;
@@ -2132,39 +1911,15 @@ static void py_attack_aux(int y, int x, int mode)
 				/* No negative damage */
 				if (k < 0) k = 0;
 
-				/* Magic */
-				if (runesword)
-				{
-					int bonus = 0;
-
-					if (cursed_p(o_ptr))
-					{
-						bonus += 5;
-						if (f3 & TR3_HEAVY_CURSE) bonus += 7;
-						if (f3 & TR3_PERMA_CURSE) bonus += 13;
-					}
-
-					bonus += (p_ptr->mhp - p_ptr->chp) / 10;
-
-					k += bonus;
-					drain_result += bonus;
-
-					if (r_ptr->flags3 & RF3_GOOD)
-					{
-						k *= 2;
-						drain_result *= 2;
-					}
-				}
-
-				if ((mode == ATTACK_TOUKI) || (runesword))
+				if (mode == ATTACK_TOUKI)
 				{
 				/* ATTACK_TOUKI bypass invulnerability */
 					if (m_ptr->invulner)
-	#ifdef JP
+#ifdef JP
 						msg_print("闘気が無敵のバリアを斬り裂いた！");
-	#else
+#else
 						msg_print("The barrier is penetrated!");
-	#endif
+#endif
 				}
 				else
 				{
@@ -2175,11 +1930,11 @@ static void py_attack_aux(int y, int x, int mode)
 				/* Complex message */
 				if (wizard)
 				{
-	#ifdef JP
+#ifdef JP
 					msg_format("%d/%d のダメージを与えた。", k, m_ptr->hp);
-	#else
+#else
 					msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
-	#endif
+#endif
 				}
 
 				if (k <= 0) can_drain = FALSE;
@@ -2222,11 +1977,11 @@ static void py_attack_aux(int y, int x, int mode)
 
 						if (cheat_xtra)
 						{
-	#ifdef JP
+#ifdef JP
 							msg_format("Draining left: %d", drain_left);
-	#else
+#else
 							msg_format("Draining left: %d", drain_left);
-	#endif
+#endif
 						}
 
 						if (drain_left)
@@ -2243,11 +1998,11 @@ static void py_attack_aux(int y, int x, int mode)
 
 							if (drain_msg)
 							{
-	#ifdef JP
+#ifdef JP
 								msg_format("刃が%sから生命力を吸い取った！", m_name);
-	#else
+#else
 								msg_format("Your weapon drains life from %s!", m_name);
-	#endif
+#endif
 								drain_msg = FALSE;
 							}
 
@@ -2260,17 +2015,17 @@ static void py_attack_aux(int y, int x, int mode)
 				}
 
 				/* Confusion attack */
-				if (p_ptr->confusing || (chaos_effect == 3) || is_keeping_spell(MS_CONFUSION))
+				if (p_ptr->confusing || (chaos_effect == 3))
 				{
 					/* Cancel glowing hands */
 					if (p_ptr->confusing)
 					{
 						p_ptr->confusing = FALSE;
-	#ifdef JP
+#ifdef JP
 						msg_print("手の輝きがなくなった。");
-	#else
+#else
 						msg_print("Your hands stop glowing.");
-	#endif
+#endif
 						p_ptr->redraw |= (PR_STATUS);
 					}
 
@@ -2282,27 +2037,27 @@ static void py_attack_aux(int y, int x, int mode)
 							r_ptr->r_flags3 |= RF3_NO_CONF;
 						}
 
-	#ifdef JP
+#ifdef JP
 						msg_format("%^sには効果がなかった。", m_name);
-	#else
+#else
 						msg_format("%^s is unaffected.", m_name);
-	#endif
+#endif
 					}
 					else if (randint0(100) < r_ptr->level)
 					{
-	#ifdef JP
+#ifdef JP
 						msg_format("%^sには効果がなかった。", m_name);
-	#else
+#else
 						msg_format("%^s is unaffected.", m_name);
-	#endif
+#endif
 					}
 					else
 					{
-	#ifdef JP
+#ifdef JP
 						msg_format("%^sは混乱したようだ。", m_name);
-	#else
+#else
 						msg_format("%^s appears confused.", m_name);
-	#endif
+#endif
 						m_ptr->confused += 10 + randint0(p_ptr->lev) / 5;
 					}
 				}
@@ -2316,32 +2071,32 @@ static void py_attack_aux(int y, int x, int mode)
 						if (r_ptr->flags1 & RF1_UNIQUE)
 						{
 							if (m_ptr->ml) r_ptr->r_flags3 |= RF3_RES_TELE;
-	#ifdef JP
+#ifdef JP
 							msg_format("%^sには効果がなかった。", m_name);
-	#else
+#else
 							msg_format("%^s is unaffected!", m_name);
-	#endif
+#endif
 							resists_tele = TRUE;
 						}
 						else if (r_ptr->level > randint1(100))
 						{
 							if (m_ptr->ml) r_ptr->r_flags3 |= RF3_RES_TELE;
-	#ifdef JP
+#ifdef JP
 							msg_format("%^sは抵抗力を持っている！", m_name);
-	#else
+#else
 							msg_format("%^s resists!", m_name);
-	#endif
+#endif
 							resists_tele = TRUE;
 						}
 					}
 
 					if (!resists_tele)
 					{
-	#ifdef JP
+#ifdef JP
 						msg_format("%^sは消えた！", m_name);
-	#else
+#else
 						msg_format("%^s disappears!", m_name);
-	#endif
+#endif
 						teleport_away(c_ptr->m_idx, 50);
 						num = p_ptr->num_blow[i] + 1; /* Can't hit it anymore! */
 					}
@@ -2356,11 +2111,11 @@ static void py_attack_aux(int y, int x, int mode)
 					{
 						if (polymorph_monster(y, x))
 						{
-	#ifdef JP
+#ifdef JP
 							msg_format("%^sは変化した！", m_name);
-	#else
+#else
 							msg_format("%^s changes!", m_name);
-	#endif
+#endif
 
 							/* Hack -- Get new monster */
 							m_ptr = &m_list[c_ptr->m_idx];
@@ -2375,11 +2130,11 @@ static void py_attack_aux(int y, int x, int mode)
 						}
 						else
 						{
-	#ifdef JP
+#ifdef JP
 						msg_format("%^sには効果がなかった。", m_name);
-	#else
+#else
 							msg_format("%^s is unaffected.", m_name);
-	#endif
+#endif
 						}
 					}
 				}
@@ -2392,11 +2147,11 @@ static void py_attack_aux(int y, int x, int mode)
 				sound(SOUND_MISS);
 
 				/* Message */
-	#ifdef JP
+#ifdef JP
 				msg_format("ミス！ %sにかわされた。", m_name);
-	#else
+#else
 				msg_format("You miss %s.", m_name);
-	#endif
+#endif
 			}
 		} /* while */
 
@@ -2447,707 +2202,6 @@ static void py_attack_aux(int y, int x, int mode)
 }
 
 
-/* Player attacks monster - Snatcher */
-static void py_attack_monster(int y, int x)
-{
-	cave_type *c_ptr = &cave[y][x];
-
-	monster_type *t_ptr = &m_list[c_ptr->m_idx];
-
-	monster_race *r_ptr = &r_info[p_ptr->r_idx];
-	monster_race *tr_ptr = &r_info[t_ptr->r_idx];
-
-	int ap_cnt;
-	int ac, rlev, pt;
-	int chance;
-	char t_name[80], temp[80];
-	bool blinked = FALSE, touched = FALSE;
-	bool explode = FALSE;
-	bool fear = FALSE;
-	bool heal_effect;
-	byte y_saver = t_ptr->fy;
-	byte x_saver = t_ptr->fx;
-
-	bool see_t = is_seen(t_ptr);
-
-	/* Paranoia */
-	if (inventory[INVEN_WIELD].k_idx)
-	{
-		py_attack_aux(y, x, ATTACK_NORMAL);
-		return;
-	}
-
-	/* Cannot attack self */
-	if (!cave[y][x].m_idx) return;
-
-	/* Not allowed to attack */
-	if (r_ptr->flags1 & RF1_NEVER_BLOW) return;
-
-	/* Stop if friendly */
-	if (!is_hostile(t_ptr) &&
-	    !(p_ptr->stun || p_ptr->confused || p_ptr->image ||
-	    ((p_ptr->muta & MUT_BERS_RAGE) && p_ptr->shero) ||
-	    !see_t))
-	{
-#ifdef JP
-		if (!get_check("本当に攻撃しますか？"))
-#else
-		if (!get_check("Really hit it? "))
-#endif
-		{
-#ifdef JP
-			msg_format("%sを攻撃するのを止めた。", t_name);
-#else
-			msg_format("You stop to avoid hitting %s.", t_name);
-#endif
-			return;
-		}
-	}
-
-	/* Handle player fear */
-	if (p_ptr->afraid)
-	{
-		/* Message */
-		if (see_t)
-#ifdef JP
-			msg_format("恐くて%sを攻撃できない！", t_name);
-#else
-			msg_format("You are too afraid to attack %s!", t_name);
-#endif
-		else
-#ifdef JP
-			msg_format ("そっちには何か恐いものがいる！");
-#else
-			msg_format ("There is something scary in your way!");
-#endif
-		/* Done */
-		return;
-	}
-
-	/* Wake it up */
-	t_ptr->csleep = 0;
-	if (tr_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
-
-	/* Total armor */
-	ac = tr_ptr->ac;
-
-	/* Extract the effective monster level */
-	rlev = p_ptr->lev * 2;
-
-	/* Calculate the "attack quality".  As BTH_PLUS_ADJ has been reduced
-	 * to 1, base skill and modifiers to skill are given equal weight. -LM-
-	 */
-	chance = (p_ptr->skill_thn + (p_ptr->to_h * BTH_PLUS_ADJ));
-
-	/* Get the monster name (or "it") */
-	monster_desc(t_name, t_ptr, 0);
-
-	/* Auto-Recall if possible and visible */
-	if (see_t) monster_race_track(t_ptr->r_idx);
-
-	/* Track a new monster */
-	if (see_t) health_track(c_ptr->m_idx);
-
-	/* Scan through all four blows */
-	for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
-	{
-		bool obvious = FALSE;
-
-		int damage = 0;
-
-		cptr act = NULL;
-
-		/* Extract the attack infomation */
-		int effect = r_ptr->blow[ap_cnt].effect;
-		int method = r_ptr->blow[ap_cnt].method;
-		int d_dice = r_ptr->blow[ap_cnt].d_dice;
-		int d_side = r_ptr->blow[ap_cnt].d_side;
-
-		/* Stop attacking if the target dies! */
-		if (t_ptr->fx != x_saver || t_ptr->fy != y_saver)
-			break;
-
-		/* Hack -- no more attacks */
-		if (!method) break;
-
-		if (blinked) /* Stop! */
-		{
-			/* break; */
-		}
-
-		/* Monster hits*/
-		if (test_hit_norm(chance, ac, see_t))
-		{
-			/* Describe the attack method */
-			switch (method)
-			{
-			case RBM_HIT:
-				{
-#ifdef JP
-					act = "%sを殴った。";
-#else
-					act = "hits %s.";
-#endif
-					touched = TRUE;
-					break;
-				}
-			case RBM_TOUCH:
-				{
-#ifdef JP
-					act = "%sを触った。";
-#else
-					act = "touches %s.";
-#endif
-					touched = TRUE;
-					break;
-				}
-			case RBM_PUNCH:
-				{
-#ifdef JP
-					act = "%sをパンチした。";
-#else
-					act = "punches %s.";
-#endif
-					touched = TRUE;
-					break;
-				}
-			case RBM_KICK:
-				{
-#ifdef JP
-					act = "%sを蹴った。";
-#else
-					act = "kicks %s.";
-#endif
-					touched = TRUE;
-					break;
-				}
-			case RBM_CLAW:
-				{
-#ifdef JP
-					act = "%sをひっかいた。";
-#else
-					act = "claws %s.";
-#endif
-					touched = TRUE;
-					break;
-				}
-			case RBM_BITE:
-				{
-#ifdef JP
-					act = "%sを噛んだ。";
-#else
-					act = "bites %s.";
-#endif
-					touched = TRUE;
-					break;
-				}
-			case RBM_STING:
-				{
-#ifdef JP
-					act = "%sを刺した。";
-#else
-					act = "stings %s.";
-#endif
-					touched = TRUE;
-					break;
-				}
-			case RBM_SLASH:
-				{
-#ifdef JP
-					act = "%sを斬った。";
-#else
-					act = "slashs %s.";
-#endif
-
-					break;
-				}
-			case RBM_BUTT:
-				{
-#ifdef JP
-					act = "%sを角で突いた。";
-#else
-					act = "butts %s.";
-#endif
-					touched = TRUE;
-					break;
-				}
-			case RBM_CRUSH:
-				{
-#ifdef JP
-					act = "%sに体当りした。";
-#else
-					act = "crushes %s.";
-#endif
-					touched = TRUE;
-					break;
-				}
-			case RBM_ENGULF:
-				{
-#ifdef JP
-					act = "%sを飲み込んだ。";
-#else
-					act = "engulfs %s.";
-#endif
-					touched = TRUE;
-					break;
-				}
-			case RBM_CHARGE:
-				{
-#ifdef JP
-					act = "%sに請求書をよこした。";
-#else
-					act = "charges %s.";
-#endif
-					touched = TRUE;
-					break;
-				}
-			case RBM_CRAWL:
-				{
-#ifdef JP
-					act = "%sの体の上を這い回った。";
-#else
-					act = "crawls on %s.";
-#endif
-					touched = TRUE;
-					break;
-				}
-			case RBM_DROOL:
-				{
-#ifdef JP
-					act = "%sによだれをたらした。";
-#else
-					act = "drools on %s.";
-#endif
-					touched = FALSE;
-					break;
-				}
-
-			case RBM_SPIT:
-				{
-#ifdef JP
-					act = "%sに唾を吐いた。";
-#else
-					act = "spits on %s.";
-#endif
-					touched = FALSE;
-					break;
-				}
-			case RBM_EXPLODE:
-				{
-#ifdef JP
-					act = "爆発した。";
-#else
-					act = "explodes.";
-#endif
-					explode = TRUE;
-					touched = FALSE;
-					break;
-				}
-			case RBM_GAZE:
-				{
-#ifdef JP
-					act = "%sをにらんだ。";
-#else
-					act = "gazes at %s.";
-#endif
-					touched = FALSE;
-					break;
-				}
-			case RBM_WAIL:
-				{
-#ifdef JP
-					act = "%sに泣きついた。";
-#else
-					act = "wails at %s.";
-#endif
-					touched = FALSE;
-					break;
-				}
-			case RBM_SPORE:
-				{
-#ifdef JP
-					act = "%sに胞子を飛ばした。";
-#else
-					act = "releases spores at %s.";
-#endif
-					touched = FALSE;
-					break;
-				}
-			case RBM_XXX4:
-				{
-#ifdef JP
-					act = "%sにXXX4を飛ばした。";
-#else
-					act = "projects XXX4's at %s.";
-#endif
-					touched = FALSE;
-					break;
-				}
-			case RBM_BEG:
-				{
-#ifdef JP
-					act = "%sに金をせがんだ。";
-#else
-					act = "begs %s for money.";
-#endif
-					touched = FALSE;
-					break;
-				}
-			case RBM_INSULT:
-				{
-#ifdef JP
-					act = "%sを侮辱した。";
-#else
-					act = "insults %s.";
-#endif
-					touched = FALSE;
-					break;
-				}
-			case RBM_MOAN:
-				{
-#ifdef JP
-					act = "%sにむかってうめいた。";
-#else
-					act = "moans at %s.";
-#endif
-					touched = FALSE;
-					break;
-				}
-			case RBM_SHOW:
-				{
-#ifdef JP
-					act = "%sにむかって歌った。";
-#else
-					act = "sings to %s.";
-#endif
-					touched = FALSE;
-					break;
-				}
-			}
-
-			/* Message */
-			if (act)
-			{
-				strfmt(temp, act, t_name);
-				msg_format("%^s", temp);
-			}
-
-
-			/* Hack -- assume all attacks are obvious */
-			obvious = TRUE;
-
-			/* Roll out the damage */
-			damage = p_ptr->to_d + damroll(d_dice, d_side);
-
-			/* Assume no healing effect */
-			heal_effect = FALSE;
-
-			pt = GF_MISSILE;
-
-			/* Apply appropriate damage */
-			switch (effect)
-			{
-			case 0:
-				{
-					damage = 0;
-					pt = 0;
-					break;
-				}
-
-			case RBE_HURT:
-				{
-					damage -= (damage * ((ac < 150) ? ac : 150) / 250);
-					break;
-				}
-
-			case RBE_POISON:
-			case RBE_DISEASE:
-				{
-					pt = GF_POIS;
-					break;
-				}
-
-			case RBE_UN_BONUS:
-			case RBE_UN_POWER:
-				{
-					pt = GF_DISENCHANT;
-					break;
-				}
-
-			case RBE_EAT_FOOD:
-			case RBE_EAT_LITE:
-				{
-					pt = damage = 0;
-					break;
-				}
-
-			case RBE_EAT_ITEM:
-			case RBE_EAT_GOLD:
-				{
-					pt = damage = 0;
-					if (randint1(2) == 1) blinked = TRUE;
-					break;
-				}
-
-			case RBE_ACID:
-				{
-					pt = GF_ACID;
-					break;
-				}
-
-			case RBE_ELEC:
-				{
-					pt = GF_ELEC;
-					break;
-				}
-
-			case RBE_FIRE:
-				{
-					pt = GF_FIRE;
-					break;
-				}
-
-			case RBE_COLD:
-				{
-					pt = GF_COLD;
-					break;
-				}
-
-			case RBE_BLIND:
-				{
-					break;
-				}
-
-			case RBE_CONFUSE:
-				{
-					pt = GF_CONFUSION;
-					break;
-				}
-
-			case RBE_TERRIFY:
-				{
-					pt = GF_TURN_ALL;
-					break;
-				}
-
-			case RBE_PARALYZE:
-				{
-					pt = GF_OLD_SLEEP; /* sort of close... */
-					break;
-				}
-
-			case RBE_LOSE_STR:
-			case RBE_LOSE_INT:
-			case RBE_LOSE_WIS:
-			case RBE_LOSE_DEX:
-			case RBE_LOSE_CON:
-			case RBE_LOSE_CHR:
-			case RBE_LOSE_ALL:
-				{
-					break;
-				}
-			case RBE_SHATTER:
-				{
-					if (damage > 23)
-					{
-						earthquake_aux(py, px, 8, 0);
-					}
-					break;
-				}
-			case RBE_EXP_10:
-			case RBE_EXP_20:
-			case RBE_EXP_40:
-			case RBE_EXP_80:
-				{
-					pt = GF_NETHER;
-					break;
-				}
-			case RBE_TIME:
-				{
-					pt = GF_TIME;
-					break;
-				}
-			case RBE_EXP_VAMP:
-				{
-					pt = GF_OLD_DRAIN;
-					heal_effect = TRUE;
-					break;
-				}
-
-			default:
-				{
-					pt = 0;
-					break;
-				}
-			}
-
-			if (pt)
-			{
-				/* Do damage if not exploding */
-				if (!explode)
-				{
-					damage = mon_damage_mod(t_ptr, damage, 0);
-
-					/* Complex message */
-					if (wizard)
-					{
-#ifdef JP
-						msg_format("%d/%d のダメージを与えた。", damage, t_ptr->hp);
-#else
-						msg_format("You do %d (out of %d) damage.", damage, t_ptr->hp);
-#endif
-					}
-
-					project(0, 0, t_ptr->fy, t_ptr->fx,
-						(pt == GF_OLD_SLEEP ? rlev : damage), pt, PROJECT_KILL | PROJECT_STOP);
-				}
-
-				if (heal_effect)
-				{
-					if ((monster_living(tr_ptr)) && (damage > 2))
-					{
-						bool did_heal = FALSE;
-
-						if (p_ptr->chp < p_ptr->mhp) did_heal = TRUE;
-
-						/* Heal */
-						p_ptr->chp += damroll(4, damage / 6);
-						if (p_ptr->chp > p_ptr->mhp) p_ptr->chp = p_ptr->mhp;
-						p_ptr->redraw |= (PR_HP);
-
-						/* Special message */
-						if (did_heal)
-						{
-#ifdef JP
-							msg_format("%sから生命力を吸い取った！", t_name);
-#else
-							msg_format("Drains life from %s!", t_name);
-#endif
-						}
-					}
-				}
-
-				/* Confusion attack */
-				if ((touched) && (t_ptr->hp > 0) && (p_ptr->confusing))
-				{
-					p_ptr->confusing = FALSE;
-#ifdef JP
-					msg_print("手の輝きがなくなった。");
-#else
-					msg_print("Your hands stop glowing.");
-#endif
-					p_ptr->redraw |= (PR_STATUS);
-
-					/* Confuse the monster */
-					if (tr_ptr->flags3 & RF3_NO_CONF)
-					{
-						if (t_ptr->ml)
-						{
-							tr_ptr->r_flags3 |= RF3_NO_CONF;
-						}
-
-#ifdef JP
-						msg_format("%^sには効果がなかった。", t_name);
-#else
-						msg_format("%^s is unaffected.", t_name);
-#endif
-					}
-					else if (randint0(100) < tr_ptr->level)
-					{
-#ifdef JP
-						msg_format("%^sには効果がなかった。", t_name);
-#else
-						msg_format("%^s is unaffected.", t_name);
-#endif
-					}
-					else
-					{
-#ifdef JP
-						msg_format("%^sは混乱したようだ。", t_name);
-#else
-						msg_format("%^s appears confused.", t_name);
-#endif
-						t_ptr->confused += 10 + randint0(p_ptr->lev) / 5;
-					}
-				}
-
-				if (touched) touch_zap_player(t_ptr);
-			}
-		}
-
-		/* Monster missed player */
-		else
-		{
-			/* Analyze failed attacks */
-			switch (method)
-			{
-			case RBM_HIT:
-			case RBM_TOUCH:
-			case RBM_PUNCH:
-			case RBM_KICK:
-			case RBM_CLAW:
-			case RBM_BITE:
-			case RBM_STING:
-			case RBM_SLASH:
-			case RBM_BUTT:
-			case RBM_CRUSH:
-			case RBM_ENGULF:
-			case RBM_CHARGE:
-				/* Sound */
-				sound(SOUND_MISS);
-
-				/* Message */
-#ifdef JP
-				msg_format("ミス！ %sにかわされた。", t_name);
-#else
-				msg_format("You miss %s.", t_name);
-#endif
-				break;
-			}
-		}
-	}
-
-	if (explode)
-	{
-		sound(SOUND_EXPLODE);
-
-#ifdef JP
-		mon_take_hit_mon(0, p_ptr->chp + 1, &fear, "は爆発して粉々になった。", 0);
-#else
-		mon_take_hit_mon(0, p_ptr->chp + 1, &fear, " explodes into tiny shreds.", 0);
-#endif
-		blinked = FALSE;
-	}
-
-	/* Hack -- delay fear messages */
-	if (fear && see_t)
-	{
-		/* Sound */
-		sound(SOUND_FLEE);
-
-		/* Message */
-#ifdef JP
-		msg_format("%^sは恐怖して逃げ出した！", t_name);
-#else
-		msg_format("%^s flees in terror!", t_name);
-#endif
-	}
-
-	/* Blink away */
-	if (blinked)
-	{
-#ifdef JP
-		msg_print("笑って逃げた！");
-#else
-		msg_print("Flees laughing!");
-#endif
-		teleport_player(MAX_SIGHT * 2 + 5);
-	}
-
-	return;
-}
-
-
 /*
  * Player attacks a (poor, defenseless) creature        -RAK-
  *
@@ -3155,10 +2209,7 @@ static void py_attack_monster(int y, int x)
  */
 void py_attack(int y, int x)
 {
-	if (p_ptr->pclass == CLASS_SNATCHER)
-		py_attack_monster(y, x);
-	else
-		py_attack_aux(y, x, ATTACK_NORMAL);
+	py_attack_aux(y, x, ATTACK_NORMAL);
 }
 
 void py_attack_special(int y, int x, int mode)
@@ -3397,7 +2448,6 @@ void move_player(int dir, int do_pickup)
 
 	bool p_can_pass_walls = FALSE;
 	bool p_can_kill_walls = FALSE;
-	bool p_can_never_move = FALSE;
 	bool stormbringer = FALSE;
 
 	bool oktomove = TRUE;
@@ -3454,8 +2504,7 @@ void move_player(int dir, int do_pickup)
 	/* Get the monster */
 	m_ptr = &m_list[c_ptr->m_idx];
 
-	if (inventory[INVEN_WIELD].name1 == ART_STORMBRINGER ||
-		inventory[INVEN_WIELD].name2 == EGO_WEIRD)
+	if (inventory[INVEN_WIELD].name2 == EGO_WEIRD)
 		stormbringer = TRUE;
 
 	/* Player can not walk through "walls"... */
@@ -3471,34 +2520,8 @@ void move_player(int dir, int do_pickup)
 
 	p_can_kill_walls = (p_ptr->kill_wall) ? p_can_pass_walls : FALSE;
 
-	if (p_ptr->pclass == CLASS_SNATCHER)
-	{
-		monster_race *r_ptr = &r_info[p_ptr->r_idx];
-		p_can_never_move = (r_ptr->flags1 & (RF1_NEVER_MOVE)) ? TRUE : FALSE;
-	}
-
-	/* Hack --  Snatchers on never_move body can not move. */
-	if (p_can_never_move)
-	{
-		running = 0;
-		oktomove = FALSE;
-
-		if (c_ptr->m_idx && m_ptr->ml)
-		{
-			py_attack(y, x);
-		}
-		else
-		{
-#ifdef JP
-			msg_print("この身体では動くことができない！");
-#else
-			msg_print("Can not move with this body !");
-#endif
-		}
-	}
-
 	/* Hack -- attack monsters */
-	else if (c_ptr->m_idx && (m_ptr->ml || cave_floor_bold(y, x) || p_can_pass_walls))
+	if (c_ptr->m_idx && (m_ptr->ml || cave_floor_bold(y, x) || p_can_pass_walls))
 	{
 		/* Attack -- only if we can see it OR it is not in a wall */
 		if (!is_hostile(m_ptr) &&
@@ -3596,7 +2619,7 @@ void move_player(int dir, int do_pickup)
 	else if (c_ptr->feat == FEAT_TREES)
 	{
 		oktomove = TRUE;
-		if (p_ptr->pclass != CLASS_RANGER) energy_use += 10;
+		energy_use += 10;
 	}
 	/* Quest features */
 	else if ((c_ptr->feat >= FEAT_QUEST_ENTER) &&
@@ -3666,10 +2689,8 @@ void move_player(int dir, int do_pickup)
 		}
 	}
 
-#ifdef ALLOW_EASY_DISARM /* TNB */
-
 	/* Disarm a visible trap */
-	else if ((do_pickup != easy_disarm) && is_trap(c_ptr->feat))
+	else if (!do_pickup && is_trap(c_ptr->feat))
 	{
 		bool ignore = FALSE;
 		switch (c_ptr->feat)
@@ -3709,8 +2730,6 @@ void move_player(int dir, int do_pickup)
 			return;
 		}
 	}
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
 
 	/* Player can not walk through "walls" unless in wraith form...*/
 	else if (!cave_floor_bold(y, x) && !p_can_pass_walls)
@@ -3869,7 +2888,7 @@ msg_print("何かにぶちあたった。");
 		lite_spot(oy, ox);
 
 		/* Sound */
-		/* sound(SOUND_WALK); */
+		/* sound(SOUND_WALK); /* Why disabled ? */
 
 		/* Check for new panel (redraw map) */
 		verify_panel();
@@ -3898,16 +2917,7 @@ msg_print("何かにぶちあたった。");
 		}
 
 		/* Handle "objects" */
-
-#ifdef ALLOW_EASY_DISARM /* TNB */
-
 		carry(do_pickup != always_pickup);
-
-#else /* ALLOW_EASY_DISARM -- TNB */
-
-		carry(do_pickup);
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
 
 		/* Handle "store doors" */
 		if ((c_ptr->feat >= FEAT_SHOP_HEAD) &&
@@ -3952,7 +2962,7 @@ msg_print("何かにぶちあたった。");
 #else
 				msg_print("You accomplished your quest!");
 #endif
-				sound(SOUND_QUEST);
+	  			sound(SOUND_LEVEL); /* (Sound substitute) No quest sound */
 				msg_print(NULL);
 			}
 
@@ -4846,15 +3856,7 @@ void run_step(int dir)
 	energy_use = 100;
 
 	/* Move the player, using the "pickup" flag */
-#ifdef ALLOW_EASY_DISARM /* TNB */
-
 	move_player(find_current, FALSE);
-
-#else /* ALLOW_EASY_DISARM -- TNB */
-
-	move_player(find_current, always_pickup);
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
 }
 
 
@@ -4864,7 +3866,7 @@ void run_step(int dir)
  */
 static bool travel_test(void)
 {
-	int prev_dir, new_dir, check_dir = 0;
+	int prev_dir, new_dir = 0;
 	int row, col;
 	int i, max;
 	bool stop = TRUE;
@@ -4988,7 +3990,7 @@ void travel_step(void)
 	}
 
 	travel.dir = dir;
-	move_player(dir, easy_disarm);
+	move_player(dir, FALSE);
 	travel.run = old_run;
 
 	if ((py == travel.y) && (px == travel.x))

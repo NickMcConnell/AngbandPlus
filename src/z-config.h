@@ -654,33 +654,15 @@
 /* Allow hordes of 'similar' monsters */
 # define MONSTER_HORDES
 
-/* Allow Klackon- and Sprite-Monks to get extra speed
- *
- * undefined by default because
- * Klackons and Sprites are not *supposed* to be
- * playing monks in the first place
- */
-/* #define MONK_HACK */
-
 /* Wizard mode testing options: */
 
 /* Testing upkeep */
 /* # define TRACK_FRIENDS */
 
 /*
- * OPTION: Repeat last command -- TNB
- */
-#define ALLOW_REPEAT
-
-/*
  * OPTION: Make opening and closing things easy -- TNB
  */
 #define ALLOW_EASY_OPEN
-
-/*
- * OPTION: Make disarming traps easy -- TNB
- */
-#define ALLOW_EASY_DISARM
 
 /*
  * OPTION: Make floor stacks easy -- TNB

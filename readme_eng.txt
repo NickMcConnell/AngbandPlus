@@ -3,8 +3,8 @@
 --- UNIX
   Download source archive and do as follows:
 
-  tar -zxvf xangband-x.x.x.tar.gz
-  cd xangband-x.x.x
+  tar -zxvf tinyangband-x.x.x.tar.gz
+  cd tinyangband-x.x.x
   ./configure --disable-japanese
   make install
 
@@ -13,7 +13,7 @@
   If you are a super user, --with-setgid=games option works.
 
   then try
-  ./xangband -- -n<number of windows>  ## for normal ASCII graphics
+  ./tinyangband -- -n<number of windows>  ## for normal ASCII graphics
   to play.
 
 You can change game windows' font, location, and size, by environment 
@@ -21,7 +21,7 @@ variables.
 
 Ex.
 setenv ANGBAND_X11_FONT '-*-*-medium-r-normal--24-*-*-*-*-*-iso8859-1'
-xangband -- -n
+tinyangband -- -n
 
 Then font size will be changed.
 
@@ -34,7 +34,7 @@ Size of windows are ANGBAND_X11_COLS_n, and ANGBAND_X11_ROWS_n.
 --- Windows
 
 Download the binary archive for Windows.
-Unzip it, and click xangband to play.
+Unzip it, and click tinyangband to play.
 
 The makefile.bcc was changed again.
 If you want to compile from the source with borland compiler (BCC),
@@ -52,7 +52,7 @@ or makefile.dos before MAKE with these.
 --- Macintosh
 
 Download the binary archive for Macintosh.
-Unpack it, and click xangband to play.
+Unpack it, and click tinyangband to play.
 
 
 
@@ -161,7 +161,7 @@ keyset, and by pushing 'x' in the Rogue-like keyset.
 
 --- Inscriptions
 
-Below, only the new features in xangband are explained.
+Below, only the new features in tinyangband are explained.
 
 - You can inscribe on objects with "@ma" or '@'+<any command letter>+<any tag>.
   Then, type these alphabet letter in 'm' command to cast from the spellbook.

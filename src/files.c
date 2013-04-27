@@ -307,8 +307,6 @@ static named_num gf_desc[] =
 	{"GF_JUMP",					GF_JUMP				},
 	{"GF_JUMP_ATTACK",			GF_JUMP_ATTACK		},
 	{"GF_GENOCIDE",				GF_GENOCIDE			},
-	{"GF_E_GENOCIDE",			GF_E_GENOCIDE		},
-	{"GF_SNATCH",				GF_SNATCH			},
 	{"GF_SOFTEN",				GF_SOFTEN			},
 	{NULL, 						0					}
 };
@@ -1023,18 +1021,11 @@ cptr process_pref_file_expr(char **sp, char *fp)
 			/* First realm */
 			else if (streq(b+1, "REALM1"))
 			{
-				if (p_ptr->pclass == CLASS_ELEMENTALIST)
-				{
-					v = element_realm_name();
-				}
-				else
-				{
 #ifdef JP
-					v = E_realm_names[p_ptr->realm1];
+				v = E_realm_names[p_ptr->realm1];
 #else
-					v = realm_names[p_ptr->realm1];
+				v = realm_names[p_ptr->realm1];
 #endif
-				}
 			}
 
 			/* Second realm */
@@ -1537,6 +1528,7 @@ errr check_load_init(void)
 #define ENTRY_RACE 34
 #define ENTRY_CLASS 35
 #define ENTRY_REALM 36
+#define ENTRY_PATRON 37
 #define ENTRY_AGE 38
 #define ENTRY_HEIGHT 39
 #define ENTRY_WEIGHT 40
@@ -1590,7 +1582,7 @@ static struct
 	{ 1,  4, -1, "種族     : "},
 	{ 1,  5, -1, "職業     : "},
 	{ 1,  6, -1, "魔法     : "},
-	{ 1,  7, -1, "守護魔神 : "},
+	{ 1,  7, -1, "守護神   : "},
 	{29,  3, 21, "年齢"},
 	{29,  4, 21, "身長"},
 	{29,  5, 21, "体重"},
@@ -1801,17 +1793,6 @@ static cptr likert(int x, int y)
 	}
 }
 
-/* Monk average attack damage - only used here, so not in tables.c */
-int monk_avg_damage[PY_MAX_LEVEL+1] =
-{ 
-	0,
-	250, 275, 299, 299, 306, 309, 321, 325, 328, 332,
-	347, 353, 375, 450, 463, 507, 523, 537, 551, 575,
-	680, 704, 723, 738, 768, 792, 812, 925, 1008, 1032,
-	1061, 1074, 1160, 1178, 1303, 1326, 1400, 1435, 1476, 1500,
-	1669, 1809, 1836, 1875, 2155, 2190, 2227, 2587, 2769, 2811
-};
-
 
 /*
  * Prints ratings on certain abilities
@@ -1833,7 +1814,7 @@ static void display_player_various(void)
 
 	/* Shooting Skill (with current bow and normal missile) */
 	o_ptr = &inventory[INVEN_BOW];
-	tmp = p_ptr->to_h + o_ptr->to_h;
+	tmp = p_ptr->to_b + o_ptr->to_h;
 	xthb = p_ptr->skill_thb + (tmp * BTH_PLUS_ADJ);
 
 	/* If the player is wielding one? */
@@ -1874,21 +1855,13 @@ static void display_player_various(void)
 		{
 			/* Is there a vorpal effect we know about? */
 			object_flags(o_ptr, &f1, &f2, &f3);
-			if ((o_ptr->ident & IDENT_MENTAL) && (o_ptr->name1 == ART_VORPAL_BLADE))
-			{
-				/* vorpal blade */
-				avgdam[i] *= 5;
-				avgdam[i] /= 3;
-			}
-			else if (object_known_p(o_ptr) && (f1 & TR1_VORPAL))
+			if (object_known_p(o_ptr) && (f1 & TR1_VORPAL))
 			{
 				/* vorpal flag only */
 				avgdam[i] *= 11;
 				avgdam[i] /= 9;
 			}
 		}
-		else if (p_ptr->pclass == CLASS_SNATCHER)
-			avgdam[i] = 100 * monster_avgdam(p_ptr->r_idx);
 		else
 			avgdam[i] = 0;
 
@@ -1963,35 +1936,9 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 		if (p_ptr->lev > 44)
 			(*f3) |= (TR3_REGEN);
 		break;
-	case CLASS_RANGER:
-		if ((p_ptr->lev > 9) && !monk_heavy_armor())
-			(*f1) |= TR1_SPEED;
-		break;
 	case CLASS_PALADIN:
 		if (p_ptr->lev > 39)
 			(*f2) |= (TR2_RES_FEAR);
-		break;
-	case CLASS_MONK:
-		if ((p_ptr->lev > 9) && !monk_heavy_armor())
-			(*f1) |= TR1_SPEED;
-		if ((p_ptr->lev > 24) && !monk_heavy_armor())
-			(*f2) |= (TR2_FREE_ACT);
-		break;
-	case CLASS_MINDCRAFTER:
-		if (p_ptr->lev > 9)
-			(*f2) |= (TR2_RES_FEAR);
-		if (p_ptr->lev > 19)
-			(*f2) |= (TR2_SUST_WIS);
-		if (p_ptr->lev > 29)
-			(*f2) |= (TR2_RES_CONF);
-		if (p_ptr->lev > 39)
-			(*f3) |= (TR3_TELEPATHY);
-		break;
-	case CLASS_ELEMENTALIST:
-		element_flags(f1, f2, f3);
-		break;
-	case CLASS_SNATCHER:
-		monster_flags(f1, f2, f3);
 		break;
 	default:
 		; /* Do nothing */
@@ -2000,14 +1947,8 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 	/* Races */
 	switch (p_ptr->prace)
 	{
-	case RACE_ELF:
-		(*f2) |= (TR2_RES_LITE);
-		break;
 	case RACE_HOBBIT:
 		(*f2) |= (TR2_SUST_DEX);
-		break;
-	case RACE_GNOME:
-		(*f2) |= (TR2_FREE_ACT);
 		break;
 	case RACE_DWARF:
 		(*f2) |= (TR2_RES_BLIND);
@@ -2015,151 +1956,15 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 	case RACE_HALF_ORC:
 		(*f2) |= (TR2_RES_DARK);
 		break;
-	case RACE_HALF_TROLL:
-		(*f2) |= (TR2_SUST_STR);
-		if (p_ptr->lev > 14)
-		{
-			(*f3) |= (TR3_REGEN);
-			if (p_ptr->pclass == CLASS_WARRIOR)
-			{
-				(*f3) |= (TR3_SLOW_DIGEST);
-				/*
-				 * Let's not make Regeneration a disadvantage
-				 * for the poor warriors who can never learn
-				 * a spell that satisfies hunger (actually
-				 * neither can rogues, but half-trolls are not
-				 * supposed to play rogues)
-				 */
-			}
-		}
-		break;
 	case RACE_DUNADAN:
 		(*f2) |= (TR2_SUST_CON);
 		(*f3) |= (TR3_REGEN); /* Dunadans heal fast */
 		break;
 	case RACE_HIGH_ELF:
-		(*f2) |= (TR2_RES_LITE);
 		(*f3) |= (TR3_SEE_INVIS);
 		break;
 	case RACE_BARBARIAN:
 		(*f2) |= (TR2_RES_FEAR);
-		break;
-	case RACE_HALF_OGRE:
-		(*f2) |= (TR2_SUST_STR);
-		(*f2) |= (TR2_RES_DARK);
-		break;
-	case RACE_HALF_GIANT:
-		(*f2) |= (TR2_RES_SHARDS);
-		(*f2) |= (TR2_SUST_STR);
-		break;
-	case RACE_HALF_TITAN:
-		(*f2) |= (TR2_RES_CHAOS);
-		break;
-	case RACE_CYCLOPS:
-		(*f2) |= (TR2_RES_SOUND);
-		break;
-	case RACE_YEEK:
-		(*f2) |= (TR2_RES_ACID);
-		if (p_ptr->lev > 19)
-			(*f2) |= (TR2_IM_ACID);
-		break;
-	case RACE_KLACKON:
-		(*f2) |= (TR2_RES_CONF);
-		(*f2) |= (TR2_RES_ACID);
-		if (p_ptr->lev > 9)
-			(*f1) |= TR1_SPEED;
-		break;
-	case RACE_KOBOLD:
-		(*f2) |= (TR2_RES_POIS);
-		break;
-	case RACE_NIBELUNG:
-		(*f2) |= (TR2_RES_DISEN);
-		(*f2) |= (TR2_RES_DARK);
-		break;
-	case RACE_DARK_ELF:
-		(*f2) |= (TR2_RES_DARK);
-		if (p_ptr->lev > 19)
-			(*f3) |= (TR3_SEE_INVIS);
-		break;
-	case RACE_DRACONIAN:
-		(*f3) |= TR3_FEATHER;
-		if (p_ptr->lev > 4)
-			(*f2) |= (TR2_RES_FIRE);
-		if (p_ptr->lev > 9)
-			(*f2) |= (TR2_RES_COLD);
-		if (p_ptr->lev > 14)
-			(*f2) |= (TR2_RES_ACID);
-		if (p_ptr->lev > 19)
-			(*f2) |= (TR2_RES_ELEC);
-		if (p_ptr->lev > 34)
-			(*f2) |= (TR2_RES_POIS);
-		break;
-	case RACE_MIND_FLAYER:
-		(*f2) |= (TR2_SUST_INT);
-		(*f2) |= (TR2_SUST_WIS);
-		if (p_ptr->lev > 14)
-			(*f3) |= (TR3_SEE_INVIS);
-		if (p_ptr->lev > 29)
-			(*f3) |= (TR3_TELEPATHY);
-		break;
-	case RACE_IMP:
-		(*f2) |= (TR2_RES_FIRE);
-		if (p_ptr->lev > 9)
-			(*f3) |= (TR3_SEE_INVIS);
-		break;
-	case RACE_GOLEM:
-		(*f3) |= (TR3_SEE_INVIS);
-		(*f2) |= (TR2_FREE_ACT);
-		(*f2) |= (TR2_RES_POIS);
-		(*f3) |= (TR3_SLOW_DIGEST);
-		if (p_ptr->lev > 34)
-			(*f2) |= (TR2_HOLD_LIFE);
-		break;
-	case RACE_SKELETON:
-		(*f3) |= (TR3_SEE_INVIS);
-		(*f2) |= (TR2_RES_SHARDS);
-		(*f2) |= (TR2_HOLD_LIFE);
-		(*f2) |= (TR2_RES_POIS);
-		if (p_ptr->lev > 9)
-			(*f2) |= (TR2_RES_COLD);
-		break;
-	case RACE_ZOMBIE:
-		(*f3) |= (TR3_SEE_INVIS);
-		(*f2) |= (TR2_HOLD_LIFE);
-		(*f2) |= (TR2_RES_NETHER);
-		(*f2) |= (TR2_RES_POIS);
-		(*f3) |= (TR3_SLOW_DIGEST);
-		if (p_ptr->lev > 4)
-			(*f2) |= (TR2_RES_COLD);
-		break;
-	case RACE_VAMPIRE:
-		(*f2) |= (TR2_HOLD_LIFE);
-		(*f2) |= (TR2_RES_DARK);
-		(*f2) |= (TR2_RES_NETHER);
-		(*f3) |= (TR3_LITE);
-		(*f2) |= (TR2_RES_POIS);
-		(*f2) |= (TR2_RES_COLD);
-		break;
-	case RACE_SPECTRE:
-		(*f2) |= (TR2_RES_COLD);
-		(*f3) |= (TR3_SEE_INVIS);
-		(*f2) |= (TR2_HOLD_LIFE);
-		(*f2) |= (TR2_RES_NETHER);
-		(*f2) |= (TR2_RES_POIS);
-		(*f3) |= (TR3_SLOW_DIGEST);
-		/* XXX pass_wall */
-		if (p_ptr->lev > 34)
-			(*f3) |= TR3_TELEPATHY;
-		break;
-	case RACE_SPRITE:
-		(*f2) |= (TR2_RES_LITE);
-		(*f3) |= (TR3_FEATHER);
-		if (p_ptr->lev > 9)
-			(*f1) |= (TR1_SPEED);
-		break;
-	case RACE_BEASTMAN:
-		(*f2) |= (TR2_RES_SOUND);
-		(*f2) |= (TR2_RES_CONF);
 		break;
 	default:
 		; /* Do nothing */
@@ -2217,6 +2022,62 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 		{
 			(*f2) |= TR2_FREE_ACT;
 		}
+	}
+
+	/* Valar */
+	switch (p_ptr->valar_patron)
+	{
+	case VAR_MANWE:
+		(*f2) |= TR2_RES_ELEC;
+		(*f2) |= TR2_FREE_ACT;
+		if (p_ptr->lev >= 30) (*f2) |= TR2_IM_ELEC;
+		break;
+	case VAR_ULMO:
+		(*f2) |= TR2_RES_FIRE;
+		if (p_ptr->lev >= 25) (*f2) |= TR2_RES_SOUND;
+		break;
+	case VAR_AULE:
+		/* Nothing */
+		break;
+	case VAR_OROME:
+		(*f1) |= TR1_SPEED;
+		break;
+	case VAR_MANDOS:
+		(*f2) |= TR2_HOLD_LIFE;
+		(*f3) |= TR3_SEE_INVIS;
+		break;
+	case VAR_IRMO:
+		/* Nothing */
+		break;
+	case VAR_TULKAS:
+		/* To-Dam and To-Hit */
+		break;
+	case VAR_VARDA:
+		(*f3) |= TR3_LITE;
+		break;
+	case VAR_YAVANNA:
+		(*f2) |= TR2_RES_ACID;
+		if (p_ptr->lev >= 30) (*f2) |= TR2_REFLECT;
+		break;
+	case VAR_NIENNA:
+		(*f3) |= TR3_WARNING;
+		if (p_ptr->lev >= 25) (*f2) |= TR2_RES_CONF;
+		break;
+	case VAR_ESTE:
+		(*f2) |= TR2_SUST_CON;
+		if (p_ptr->lev >= 20) (*f2) |= TR2_RES_BLIND;
+		break;
+	case VAR_VAIRE:
+		(*f1) |= TR1_STEALTH;
+		(*f2) |= TR2_RES_COLD;
+		break;
+	case VAR_VANA:
+		(*f3) |= TR3_REGEN;
+		(*f3) |= TR3_SLOW_DIGEST;
+		break;
+	case VAR_NESSA:
+		(*f1) |= TR1_STEALTH;
+		break;
 	}
 }
 
@@ -2291,21 +2152,6 @@ static void tim_player_flags(u32b *f1, u32b *f2, u32b *f3)
 		(*f3) |= TR3_SLOW_DIGEST;
 		(*f3) |= TR3_REGEN;
 	}
-
-	/* Magic */
-	if (is_keeping_spell(MS_DEMON_AURA))
-	{
-		(*f3) |= TR3_SH_FIRE;
-		(*f3) |= TR3_REGEN;
-	}
-	if (is_keeping_spell(MS_ICE_ARMOR))
-		(*f3) |= TR3_SH_COLD;
-	if (is_keeping_spell(MS_RES_DARK))
-		(*f2) |= TR2_RES_DARK;
-	if (is_keeping_spell(MS_RES_NETHER))
-		(*f2) |= TR2_RES_NETHER;
-	if (is_keeping_spell(MS_BERSERK))
-		(*f2) |= TR2_RES_FEAR;
 }
 
 
@@ -2345,7 +2191,7 @@ static void display_player_equippy(int y, int x)
 		if (!use_color) a = TERM_WHITE;
 
 		/* Clear the part of the screen */
-		if (!equippy_chars || !o_ptr->k_idx)
+		if (!o_ptr->k_idx)
 		{
 			c = ' ';
 			a = TERM_DARK;
@@ -2396,15 +2242,12 @@ static void player_immunity(u32b *f1, u32b *f2, u32b *f3)
 {
 	/* Clear */
 	(*f1) = (*f2) = (*f3) = 0L;
-
+#if 0
 	if (p_ptr->prace == RACE_SPECTRE)
 		(*f2) |= TR2_RES_NETHER;
 	if (p_ptr->prace == RACE_VAMPIRE)
 		(*f2) |= TR2_RES_DARK;
-	if ((p_ptr->prace == RACE_YEEK) && p_ptr->lev > 19)
-		(*f2) |= TR2_RES_ACID;
-	if (p_ptr->pclass == CLASS_ELEMENTALIST)
-		element_immunity(f1, f2, f3);
+#endif
 }
 
 static void tim_player_immunity(u32b *f1, u32b *f2, u32b *f3)
@@ -2428,15 +2271,10 @@ static void player_vuln_flags(u32b *f1, u32b *f2, u32b *f3)
 		(*f2) |= TR2_RES_FIRE;
 		(*f2) |= TR2_RES_COLD;
 	}
+#if 0
 	if (p_ptr->prace == RACE_VAMPIRE)
 		(*f2) |= TR2_RES_LITE;
-	if (p_ptr->pclass == CLASS_SNATCHER)
-	{
-		monster_race *r_ptr = &r_info[p_ptr->r_idx];
-		if (r_ptr->flags3 & (RF3_HURT_LITE)) (*f2) |= TR2_RES_LITE;
-		if (r_ptr->flags3 & (RF3_HURT_FIRE)) (*f2) |= TR2_RES_FIRE;
-		if (r_ptr->flags3 & (RF3_HURT_COLD)) (*f2) |= TR2_RES_COLD;
-	}
+#endif
 }
 
 /*
@@ -2523,7 +2361,38 @@ static void display_player_flag_info(void)
 	player_vuln_flags(&vul_f[0], &vul_f[1], &vul_f[2]);
 
 	/*** Set 1 ***/
+#ifdef TINYANGBAND
+	row = 10;
+	col = 1;
 
+	c_put_str(TERM_WHITE, "abcdefghijkl@", row++, col + 8);
+
+#ifdef JP
+	display_player_flag_aux(row++, col, "耐酸  :", 2, TR2_RES_ACID, TR2_IM_ACID, im_f[1], vul_f[1]);
+	display_player_flag_aux(row++, col, "耐電撃:", 2, TR2_RES_ELEC, TR2_IM_ELEC, im_f[1], vul_f[1]);
+	display_player_flag_aux(row++, col, "耐火炎:", 2, TR2_RES_FIRE, TR2_IM_FIRE, im_f[1], vul_f[1]);
+	display_player_flag_aux(row++, col, "耐冷気:", 2, TR2_RES_COLD, TR2_IM_COLD, im_f[1], vul_f[1]);
+	display_player_flag_aux(row++, col, "耐毒  :", 2, TR2_RES_POIS, 0, im_f[1], vul_f[1]);
+	display_player_flag_aux(row++, col, "耐恐怖:", 2, TR2_RES_FEAR, 0, im_f[1], vul_f[1]);
+	display_player_flag_aux(row++, col, "耐暗黒:", 2, TR2_RES_DARK, 0, im_f[1], vul_f[1]);
+	display_player_flag_aux(row++, col, "耐盲目:", 2, TR2_RES_BLIND, 0, im_f[1], vul_f[1]);
+	display_player_flag_aux(row++, col, "耐混乱:", 2, TR2_RES_CONF, 0, im_f[1], vul_f[1]);
+	display_player_flag_aux(row++, col, "耐轟音:", 2, TR2_RES_SOUND, 0, im_f[1], vul_f[1]);
+	display_player_flag_aux(row++, col, "耐地獄:", 2, TR2_RES_NETHER, 0, im_f[1], vul_f[1]);
+#else
+	display_player_flag_aux(row++, col, "Acid  :", 2, TR2_RES_ACID, TR2_IM_ACID, im_f[1], vul_f[1]);
+	display_player_flag_aux(row++, col, "Elec  :", 2, TR2_RES_ELEC, TR2_IM_ELEC, im_f[1], vul_f[1]);
+	display_player_flag_aux(row++, col, "Fire  :", 2, TR2_RES_FIRE, TR2_IM_FIRE, im_f[1], vul_f[1]);
+	display_player_flag_aux(row++, col, "Cold  :", 2, TR2_RES_COLD, TR2_IM_COLD, im_f[1], vul_f[1]);
+	display_player_flag_aux(row++, col, "Poison:", 2, TR2_RES_POIS, 0, im_f[1], vul_f[1]);
+	display_player_flag_aux(row++, col, "Fear  :", 2, TR2_RES_FEAR, 0, im_f[1], vul_f[1]);
+	display_player_flag_aux(row++, col, "Dark  :", 2, TR2_RES_DARK, 0, im_f[1], vul_f[1]);
+	display_player_flag_aux(row++, col, "Blind :", 2, TR2_RES_BLIND, 0, im_f[1], vul_f[1]);
+	display_player_flag_aux(row++, col, "Conf  :", 2, TR2_RES_CONF, 0, im_f[1], vul_f[1]);
+	display_player_flag_aux(row++, col, "Sound :", 2, TR2_RES_SOUND, 0, im_f[1], vul_f[1]);
+	display_player_flag_aux(row++, col, "Nether:", 2, TR2_RES_NETHER, 0, im_f[1], vul_f[1]);
+#endif
+#else
 	row = 5;
 	col = 1;
 
@@ -2564,7 +2433,7 @@ static void display_player_flag_info(void)
 	display_player_flag_aux(row++, col, "Chaos :", 2, TR2_RES_CHAOS, 0, im_f[1], vul_f[1]);
 	display_player_flag_aux(row++, col, "Disnch:", 2, TR2_RES_DISEN, 0, im_f[1], vul_f[1]);
 #endif
-
+#endif
 
 	/*** Set 2 ***/
 
@@ -2747,15 +2616,8 @@ static void display_player_stat_info(void)
 		if ((p_ptr->stat_max[i] > 18) && (p_ptr->stat_top[i] <= 18))
 			e_adj = p_ptr->stat_top[i] - (p_ptr->stat_max[i] - 18) / 10 - 19;
 
-		/* Deduct class and race bonuses if in maximize */
-		if (maximize_mode)
-		{
-			e_adj -= rp_ptr->r_adj[i];
-			e_adj -= cp_ptr->c_adj[i];
-		}
-
-		/* Snatchers gain monster race bonuses */
-		if (p_ptr->pclass == CLASS_SNATCHER) e_adj -= add_monster_stat(i);
+		e_adj -= rp_ptr->r_adj[i];
+		e_adj -= cp_ptr->c_adj[i];
 
 		/* Reduced name of stat */
 #ifdef JP
@@ -2773,10 +2635,7 @@ static void display_player_stat_info(void)
 		(void)sprintf(buf, "%3d", (int)rp_ptr->r_adj[i]);
 		c_put_str(TERM_L_BLUE, buf, row + i, stat_col + 12);
 
-		if (p_ptr->pclass == CLASS_SNATCHER)
-			(void)sprintf(buf, "%3d", (int)cp_ptr->c_adj[i] + add_monster_stat(i));
-		else
-			(void)sprintf(buf, "%3d", (int)cp_ptr->c_adj[i]);
+		(void)sprintf(buf, "%3d", (int)cp_ptr->c_adj[i]);
 
 		c_put_str(TERM_L_BLUE, buf, row + i, stat_col + 16);
 		(void)sprintf(buf, "%3d", (int)e_adj);
@@ -2918,9 +2777,6 @@ static void display_player_stat_info(void)
 				if (p_ptr->muta & MUT_SCALES) dummy -= 1;
 				if (p_ptr->muta & MUT_ILL_NORM) dummy = 0;
 			}
-
-			/* Snatcher - race bonus */
-			if (p_ptr->pclass == CLASS_SNATCHER) dummy += add_monster_stat(stat);
 
 			/* Boost */
 			if (dummy)
@@ -3424,7 +3280,7 @@ static void display_player_middle(void)
 	o_ptr = &inventory[INVEN_BOW];
 
 	/* Base skill */
-	show_tohit = p_ptr->dis_to_h;
+	show_tohit = p_ptr->dis_to_b;
 	show_todam = 0;
 
 	/* Apply range weapon bonuses */
@@ -3505,11 +3361,7 @@ static void display_player_middle(void)
 	display_player_one_line(ENTRY_MAX_EXP, format("%ld", p_ptr->max_exp), TERM_L_GREEN);
 
 	/* Dump exp to advance */
-	if ((p_ptr->lev >= PY_MAX_LEVEL) ||
-		((p_ptr->pclass == CLASS_SNATCHER) && (p_ptr->lev >= SN_MAX_LEVEL)))
-		display_player_one_line(ENTRY_EXP_TO_ADV, "*****", TERM_L_GREEN);
-	else
-		display_player_one_line(ENTRY_EXP_TO_ADV, format("%ld", (s32b)(player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L)), TERM_L_GREEN);
+	display_player_one_line(ENTRY_EXP_TO_ADV, format("%ld", (s32b)(player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L)), TERM_L_GREEN);
 
 	/* Dump gold */
 	display_player_one_line(ENTRY_GOLD, format("%ld", p_ptr->au), TERM_L_GREEN);
@@ -3580,24 +3432,16 @@ void display_player(int mode)
 		display_player_one_line(ENTRY_RACE, rp_ptr->title, TERM_L_BLUE);
 		display_player_one_line(ENTRY_CLASS, cp_ptr->title, TERM_L_BLUE);
 
-		if ((p_ptr->realm1) || (p_ptr->pclass == CLASS_ELEMENTALIST))
+		if (p_ptr->realm1)
 		{
-			if (p_ptr->pclass == CLASS_ELEMENTALIST)
-			{
-				strcpy(tmp, element_realm_name());
-			}
-			else if (p_ptr->realm2)
+			if (p_ptr->realm2)
 				sprintf(tmp, "%s, %s", realm_names[p_ptr->realm1], realm_names[p_ptr->realm2]);
 			else
 				strcpy(tmp, realm_names[p_ptr->realm1]);
 			display_player_one_line(ENTRY_REALM, tmp, TERM_L_BLUE);
 		}
-		else if (p_ptr->pclass == CLASS_SNATCHER)
-		{
-			monster_race *r_ptr = &r_info[p_ptr->r_idx];
-			strcpy(tmp, r_name + r_ptr->name);
-			display_player_one_line(ENTRY_REALM, tmp, TERM_L_BLUE);
-		}
+
+		display_player_one_line(ENTRY_PATRON, valar_patrons[p_ptr->valar_patron], TERM_L_BLUE);
 
 		/* Age, Height, Weight, Social */
 		/* 身長はセンチメートルに、体重はキログラムに変更してあります */
@@ -4132,19 +3976,6 @@ errr file_character(cptr name, bool full)
 	fprintf(fff, "\n\n  [Miscellaneous information]\n");
 #endif
 
-	if (maximize_mode)
-#ifdef JP
-		fprintf(fff, "\n 最大化モード:       ON");
-#else
-		fprintf(fff, "\n Maximize Mode:      ON");
-#endif
-	else
-#ifdef JP
-		fprintf(fff, "\n 最大化モード:       OFF");
-#else
-		fprintf(fff, "\n Maximize Mode:      OFF");
-#endif
-
 	if (preserve_mode)
 #ifdef JP
 		fprintf(fff, "\n 保存モード:         ON");
@@ -4176,7 +4007,7 @@ errr file_character(cptr name, bool full)
 #else
 		fprintf(fff, "\n Autoscum:           OFF");
 #endif
-
+#ifndef TINYANGBAND
 	if (ironman_small_levels)
 #ifdef JP
 		fprintf(fff, "\n 小さいダンジョン:   ALWAYS");
@@ -4201,20 +4032,7 @@ errr file_character(cptr name, bool full)
 #else
 		fprintf(fff, "\n Small Levels:       OFF");
 #endif
-
-	if (vanilla_town)
-#ifdef JP
-		fprintf(fff, "\n 元祖の町のみ: ON");
-#else
-		fprintf(fff, "\n Vanilla Town:       ON");
-#endif
-	else if (lite_town)
-#ifdef JP
-		fprintf(fff, "\n 小規模な町:         ON");
-#else
-		fprintf(fff, "\n Lite Town:          ON");
-#endif
-
+#endif /* ifndef TINYANGBAND */
 	if (ironman_shops)
 #ifdef JP
 		fprintf(fff, "\n 店なし:             ON");
@@ -4228,7 +4046,7 @@ errr file_character(cptr name, bool full)
 #else
 		fprintf(fff, "\n Diving only:        ON");
 #endif
-
+#ifndef TINYANGBAND
 	if (ironman_empty_levels)
 #ifdef JP
 		fprintf(fff, "\n アリーナ:           ALWAYS");
@@ -4247,21 +4065,21 @@ errr file_character(cptr name, bool full)
 #else
 		fprintf(fff, "\n Arena Levels:       OFF");
 #endif
-
+#endif /* ifndef TINYANGBAND */
 	if (ironman_nightmare)
 #ifdef JP
 		fprintf(fff, "\n 悪夢モード:         ON");
 #else
 		fprintf(fff, "\n Nightmare Mode:     ON");
 #endif
-
+#ifndef TINYANGBAND
 	if (ironman_hengband)
 #ifdef JP
 		fprintf(fff, "\n 変愚蛮怒モード:     ON");
 #else
 		fprintf(fff, "\n Hengband Mode:      ON");
 #endif
-
+#endif /* ifndef TINYANGBAND */
 #ifdef JP
 	fprintf(fff, "\n ランダムクエスト数: %d", number_of_quests());
 #else
@@ -4344,22 +4162,6 @@ errr file_character(cptr name, bool full)
 	/* Skip some lines */
 	fprintf(fff, "\n\n");
 
-
-	if (p_ptr->pclass == CLASS_SNATCHER)
-	{
-		monster_race *r_ptr = &r_info[p_ptr->r_idx];
-
-#ifdef JP
-		fprintf(fff, "  [ キャラクタの身体 ]\n\n");
-		fprintf(fff, "あなたは現在 %s に憑依している。\n", (r_name + r_ptr->name));
-#else
-		fprintf(fff, "  [Character Body]\n\n");
-		fprintf(fff, "Your body is currentry %s.\n", (r_name + r_ptr->name));
-#endif
-
-		/* Skip some lines */
-		fprintf(fff, "\n\n");
-	}
 
 	/* Dump the equipment */
 	if (equip_cnt)
@@ -5726,17 +5528,15 @@ long total_points(void)
 	long mult = 100;
 
 	if (preserve_mode) mult -= 10; /* Penalize preserve, maximize modes */
-	if (maximize_mode) mult -= 15;
 	if (X_stupid_monsters) mult -= 20; /* AI is not that big a deal (yet) */
-	if (vanilla_town) mult += 5; /* Vanilla town is harder */
-
+#ifndef TINYANGBAND
 	/* Not too much of a reward since some people like playing with this. */
 	if (ironman_small_levels) mult += 5;
-
-	if (ironman_downward) mult +=10;
 	if (ironman_empty_levels) mult += 10;
-	if (ironman_nightmare) mult += 20;
 	if (ironman_rooms) mult +=10;
+#endif
+	if (ironman_downward) mult +=10;
+	if (ironman_nightmare) mult += 20;
 
 	if (mult < 5) mult = 5; /* At least 5% of the original score */
 
@@ -5910,12 +5710,6 @@ static void print_tomb(void)
 			p = "Magnificent";
 #endif
 
-		}
-
-		/* Snatcher */
-		else if (p_ptr->pclass == CLASS_SNATCHER)
-		{
-			p = r_name + r_info[p_ptr->r_idx].name;
 		}
 
 		/* Normal */

@@ -73,7 +73,7 @@ void place_random_stairs(int y, int x)
 		up_stairs = FALSE;
 
 	/* Bottom */
-	if (dun_level >= MAX_DEPTH - 1)
+	if (dun_level >= TINY_MAX_DEPTH - 1)
 		down_stairs = FALSE;
 
 	/* Quest-level */
@@ -425,6 +425,11 @@ void generate_fill(int y1, int x1, int y2, int x2, int feat)
 		{
 			/* Hack - only draw on cave[][] */
 			cave[y][x].feat = feat;
+
+			if ((feat == FEAT_FLOOR) && (dun_level >= 20) && (one_in_(7)))
+			{
+				cave[y][x].feat = (one_in_(7) ? FEAT_DEEP_LAVA : FEAT_SHAL_LAVA);
+			}
 		}
 	}
 }

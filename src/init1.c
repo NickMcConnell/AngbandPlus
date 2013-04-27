@@ -207,7 +207,7 @@ static cptr r_info_flags3[] =
 	"UNDEAD",
 	"EVIL",
 	"ANIMAL",
-	"AMBERITE",
+	"HUMAN",
 	"GOOD",
 	"AURA_COLD",
 	"NONLIVING",
@@ -224,7 +224,7 @@ static cptr r_info_flags3[] =
 	"RES_NETH",
 	"RES_WATE",
 	"RES_PLAS",
-	"RES_NEXU",
+	"XXX", /* "RES_NEXU", */
 	"RES_DISE",
 	"UNIQUE_7",
 	"NO_FEAR",
@@ -239,9 +239,9 @@ static cptr r_info_flags3[] =
 static cptr r_info_flags4[] =
 {
 	"SHRIEK",
-	"QUESTOR2",
-	"BA_LITE",
-	"ROCKET",
+	"THROW",
+	"XXX", /* "BA_LITE", */
+	"XXX", /* "ROCKET", */
 	"ARROW_1",
 	"ARROW_2",
 	"ARROW_3",
@@ -257,8 +257,8 @@ static cptr r_info_flags4[] =
 	"BR_CONF",
 	"BR_SOUN",
 	"BR_CHAO",
-	"BR_DISE",
-	"BR_NEXU",
+	"XXX", /* "BR_DISE", */
+	"XXX", /* "BR_NEXU", */
 	"BR_TIME",
 	"BR_INER",
 	"BR_GRAV",
@@ -266,9 +266,9 @@ static cptr r_info_flags4[] =
 	"BR_PLAS",
 	"BR_WALL",
 	"BR_MANA",
-	"BA_NUKE",
-	"BR_NUKE",
-	"BA_CHAO",
+	"XXX", /* "BA_NUKE", */
+	"XXX", /* "BR_NUKE", */
+	"XXX", /* "BA_CHAO", */
 	"BR_DISI",
 };
 
@@ -322,18 +322,18 @@ static cptr r_info_flags6[] =
 	"INVULNER",
 	"BLINK",
 	"TPORT",
-	"XXX3X6",
-	"XXX4X6",
+	"XXX",
+	"XXX",
 	"TELE_TO",
 	"TELE_AWAY",
 	"TELE_LEVEL",
-	"XXX5",
+	"XXX",
 	"DARKNESS",
 	"TRAPS",
 	"FORGET",
-	"ANIM_DEAD", /* ToDo: Implement ANIM_DEAD */
+	"XXX", /* "ANIM_DEAD", /* ToDo: Implement ANIM_DEAD */
 	"S_KIN",
-	"S_CYBER",
+	"XXX", /* "S_CYBER", */
 	"S_MONSTER",
 	"S_MONSTERS",
 	"S_ANT",
@@ -482,7 +482,6 @@ static cptr k_info_flags1[] =
 	"CON",
 	"CHR",
 	"MAGIC_MASTERY",
-	"XXX2",
 	"STEALTH",
 	"SEARCH",
 	"INFRA",
@@ -491,6 +490,7 @@ static cptr k_info_flags1[] =
 	"BLOWS",
 	"CHAOTIC",
 	"VAMPIRIC",
+	"SLAY_HUMAN",
 	"SLAY_ANIMAL",
 	"SLAY_EVIL",
 	"SLAY_UNDEAD",
@@ -600,10 +600,10 @@ static cptr k_info_gen_flags[] =
 	"XTRA_D_RES",
 	"XTRA_RES",
 	"FIXED_FLAVOR",
-	"XXX",
-	"XXX",
-	"XXX",
-	"XXX",
+	"XTRA_PLUS",
+	"XTRA_BRAND",
+	"XTRA_SLAY",
+	"XTRA_ACT",
 	"XXX",
 	"XXX",
 	"XXX",
@@ -1041,6 +1041,7 @@ errr parse_m_info(char *buf, header *head)
 		/* Scan for the values */
 		if (2 != sscanf(buf+2, "%d:%d",
 				&realm, &readable)) return (1);
+		if (realm < 0 || realm >= MAX_REALM) return (1);
 
 		magic_idx = 0;
 	}
@@ -1050,6 +1051,8 @@ errr parse_m_info(char *buf, header *head)
 		int level, mana, fail, exp;
 
 		if (!readable) return (1);
+		if (magic_idx >= MAX_SPELLS) return (1);
+
 		/* Scan for the values */
 		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
 				&level, &mana, &fail, &exp)) return (1);
@@ -3485,18 +3488,11 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 			/* First realm */
 			else if (streq(b+1, "REALM1"))
 			{
-				if (p_ptr->pclass == CLASS_ELEMENTALIST)
-				{
-					v = element_realm_name();
-				}
-				else
-				{
 #ifdef JP
-					v = E_realm_names[p_ptr->realm1];
+				v = E_realm_names[p_ptr->realm1];
 #else
-					v = realm_names[p_ptr->realm1];
+				v = realm_names[p_ptr->realm1];
 #endif
-				}
 			}
 
 			/* Second realm */
@@ -3583,12 +3579,7 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 			/* Wilderness */
 			else if (streq(b+1, "WILDERNESS"))
 			{
-				if (vanilla_town)
-					sprintf(tmp, "NONE");
-				else if (lite_town)
-					sprintf(tmp, "LITE");
-				else
-					sprintf(tmp, "NORMAL");
+				sprintf(tmp, "NONE");
 				v = tmp;
 			}
 		}

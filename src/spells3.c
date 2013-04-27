@@ -522,7 +522,7 @@ void teleport_player_level(void)
 		/* Leaving */
 		p_ptr->leaving = TRUE;
 	}
-	else if (quest_number(dun_level) || (dun_level >= MAX_DEPTH - 1))
+	else if (quest_number(dun_level) || (dun_level >= TINY_MAX_DEPTH - 1))
 	{
 #ifdef JP
 		msg_print("あなたは天井を突き破って宙へ浮いていく。");
@@ -735,7 +735,7 @@ msg_format("%s(%c)は劣化してしまった！",
 	p_ptr->update |= (PU_BONUS);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_EQUIP | PW_PLAYER);
+	p_ptr->window |= (PW_EQUIP | PW_PLAYER | PW_STATS);
 
 	/* Notice */
 	return (TRUE);
@@ -898,6 +898,7 @@ msg_print("照明用アイテムは満タンになった。");
 }
 
 
+#if 0
 /*
  * Brand the current weapon
  */
@@ -923,93 +924,83 @@ void brand_weapon(int brand_type)
 		{
 		case 5:
 #ifdef JP
-act = "は聖なるオーラに包まれた。";
+			act = "は聖なるオーラに包まれた。";
 #else
 			act = "is surrounded by holy light.";
 #endif
-
 			o_ptr->name2 = EGO_SLAY_EVIL;
 			break;
 		case 4:
 #ifdef JP
-act = "は非常に不安定になったようだ。";
+			act = "は非常に不安定になったようだ。";
 #else
 			act = "seems very unstable now.";
 #endif
-
 			o_ptr->name2 = EGO_TRUMP;
 			o_ptr->pval = randint1(2);
 			break;
 		case 3:
 #ifdef JP
-act = "は血を求めている！";
+			act = "は血を求めている！";
 #else
 			act = "thirsts for blood!";
 #endif
-
 			o_ptr->name2 = EGO_VAMPIRIC;
 			break;
 		case 2:
 #ifdef JP
-act = "は毒に覆われた。";
+			act = "は毒に覆われた。";
 #else
 			act = "is coated with poison.";
 #endif
-
 			o_ptr->name2 = EGO_BRAND_POIS;
 			break;
 		case 1:
 #ifdef JP
-act = "はカオスに飲み込まれた。";
+			act = "はカオスに飲み込まれた。";
 #else
 			act = "is engulfed in chaos!";
 #endif
-
 			o_ptr->name2 = EGO_CHAOTIC;
 			break;
 		default:
 			if (randint0(100) < 25)
 			{
 #ifdef JP
-act = "は炎のシールドに覆われた！";
+				act = "は炎のシールドに覆われた！";
 #else
 				act = "is covered in a fiery shield!";
 #endif
-
 				o_ptr->name2 = EGO_BRAND_FIRE;
 			}
 			else
 			{
 #ifdef JP
-act = "は深く冷たいブルーに輝いた！";
+				act = "は深く冷たいブルーに輝いた！";
 #else
 				act = "glows deep, icy blue!";
 #endif
-
 				o_ptr->name2 = EGO_BRAND_COLD;
 			}
 		}
-
 #ifdef JP
-msg_format("あなたの%s%s", o_name, act);
+		msg_format("あなたの%s%s", o_name, act);
 #else
 		msg_format("Your %s %s", o_name, act);
 #endif
-
-
 		enchant(o_ptr, randint0(3) + 4, ENCH_TOHIT | ENCH_TODAM);
 	}
 	else
 	{
 		if (flush_failure) flush();
-
 #ifdef JP
-msg_print("属性付加に失敗した。");
+		msg_print("属性付加に失敗した。");
 #else
 		msg_print("The Branding failed.");
 #endif
 	}
 }
+#endif
 
 
 void call_the_(void)
@@ -1531,7 +1522,7 @@ msg_format("%sを＄%d の金に変えた。", o_name, price);
 		p_ptr->redraw |= (PR_GOLD);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER);
+		p_ptr->window |= (PW_PLAYER | PW_STATS);
 
 	}
 
@@ -1591,7 +1582,7 @@ msg_print("効果がありません！");
 		/* Town/wilderness or Ironman */
 		cave_set_feat(py, px, FEAT_MORE);
 	}
-	else if (quest_number(dun_level) || (dun_level >= MAX_DEPTH - 1))
+	else if (quest_number(dun_level) || (dun_level >= TINY_MAX_DEPTH - 1))
 	{
 		/* Quest level */
 		cave_set_feat(py, px, FEAT_LESS);
@@ -1610,7 +1601,7 @@ msg_print("効果がありません！");
 /*
  * Hook to specify "weapon"
  */
-bool item_tester_hook_weapon(object_type *o_ptr)
+bool item_tester_hook_weapon(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -1634,7 +1625,7 @@ bool item_tester_hook_weapon(object_type *o_ptr)
 /*
  * Hook to specify "weapon" except ammo
  */
-static bool item_tester_hook_weapon_except_ammo(object_type *o_ptr)
+static bool item_tester_hook_weapon_except_ammo(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -1655,7 +1646,7 @@ static bool item_tester_hook_weapon_except_ammo(object_type *o_ptr)
 /*
  * Hook to specify "armour"
  */
-bool item_tester_hook_armour(object_type *o_ptr)
+bool item_tester_hook_armour(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -1680,7 +1671,7 @@ bool item_tester_hook_armour(object_type *o_ptr)
 /*
  * Check if an object is weapon or armour (but not arrow, bolt, or shot)
  */
-bool item_tester_hook_weapon_armour(object_type *o_ptr)
+bool item_tester_hook_weapon_armour(const object_type *o_ptr)
 {
 	return (item_tester_hook_weapon(o_ptr) ||
 		item_tester_hook_armour(o_ptr));
@@ -1829,7 +1820,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER | PW_STATS);
 
 	/* Success */
 	return (TRUE);
@@ -2140,7 +2131,7 @@ bool identify_item(object_type *o_ptr)
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER | PW_STATS);
 
 	/*
 	 * If the item was an artifact, and if the
@@ -2167,7 +2158,7 @@ bool identify_item(object_type *o_ptr)
 }
 
 
-static bool item_tester_hook_identify(object_type *o_ptr)
+static bool item_tester_hook_identify(const object_type *o_ptr)
 {
 	return (bool)!object_known_p(o_ptr);
 }
@@ -2234,6 +2225,23 @@ bool ident_spell(void)
 
 	/* Description */
 	object_desc(o_name, o_ptr, 0);
+
+	/* Possibly play a sound depending on object quality. */
+    if (o_ptr->pval < 0)
+    {
+                /* This is a bad item. */
+                sound(SOUND_IDENT_BAD);
+    }
+    else if (o_ptr->name1 != 0)
+    {
+                /* We have a good artifact. */
+                sound(SOUND_IDENT_ART);
+    }
+    else if (o_ptr->name2 != 0)
+    {
+                /* We have a good ego item. */
+                sound(SOUND_IDENT_EGO);
+    }
 
 	/* Describe */
 	if (item >= INVEN_WIELD)
@@ -2387,7 +2395,7 @@ bool mundane_spell(bool equip)
 }
 
 
-static bool item_tester_hook_identify_fully(object_type *o_ptr)
+static bool item_tester_hook_identify_fully(const object_type *o_ptr)
 {
 	return (bool)(!object_known_p(o_ptr) || !(o_ptr->ident & IDENT_MENTAL));
 }
@@ -2458,6 +2466,23 @@ bool identify_fully(void)
 	/* Description */
 	object_desc(o_name, o_ptr, 0);
 
+	/* Possibly play a sound depending on object quality. */
+    if (o_ptr->pval < 0)
+    {
+                /* This is a bad item. */
+                sound(SOUND_IDENT_BAD);
+    }
+    else if (o_ptr->name1 != 0)
+    {
+                /* We have a good artifact. */
+                sound(SOUND_IDENT_ART);
+    }
+    else if (o_ptr->name2 != 0)
+    {
+                /* We have a good ego item. */
+                sound(SOUND_IDENT_EGO);
+    }
+
 	/* Describe */
 	if (item >= INVEN_WIELD)
 	{
@@ -2501,7 +2526,7 @@ bool identify_fully(void)
 /*
  * Hook for "get_item()".  Determine if something is rechargable.
  */
-bool item_tester_hook_recharge(object_type *o_ptr)
+bool item_tester_hook_recharge(const object_type *o_ptr)
 {
 	/* Can not recharge a staff of wishing */
 	if ((o_ptr->tval == TV_STAFF) && (o_ptr->sval == SV_STAFF_WISHING)) return (FALSE);
@@ -2552,7 +2577,7 @@ static void fail_recharge(int item)
 		/*** Determine Seriousness of Failure ***/
 
 		/* Mages and Deice-users recharge objects more safely. */
-		if ((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_DEVICE_USER))
+		if (p_ptr->pclass == CLASS_MAGE)
 		{
 			/* 10% chance to blow up one rod, otherwise draining. */
 			if (o_ptr->tval == TV_ROD)
@@ -2836,9 +2861,8 @@ s = "魔力を充填すべきアイテムがない。";
 			/* Recharge the wand or staff. */
 			o_ptr->pval += recharge_amount;
 
-
 			/* Hack -- we no longer "know" the item */
-			if (p_ptr->pclass != CLASS_DEVICE_USER) o_ptr->ident &= ~(IDENT_KNOWN);
+			o_ptr->ident &= ~(IDENT_KNOWN);
 
 			/* Hack -- we no longer think the item is empty */
 			o_ptr->ident &= ~(IDENT_EMPTY);
@@ -2848,223 +2872,6 @@ s = "魔力を充填すべきアイテムがない。";
 
 	/* Inflict the penalties for failing a recharge. */
 	if (fail) fail_recharge(item);
-
-	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN);
-
-	/* Something was done */
-	return (TRUE);
-}
-
-
-static bool item_tester_hook_recharge_energy(object_type *o_ptr)
-{
-	if (o_ptr->tval == TV_FLASK) return (TRUE);
-	if ((o_ptr->tval == TV_POTION) && (o_ptr->sval == SV_POTION_RESTORE_MANA)) return (TRUE);
-	return (FALSE);
-}
-
-bool recharge_energy(int power)
-{
-	int item, from, lev;
-	int recharge_strength, recharge_amount;
-	object_type *o_ptr, *q_ptr;
-	object_kind *k_ptr;
-	bool fail = FALSE;
-	cptr q, s;
-
-	/* Only accept legal items */
-	item_tester_hook = item_tester_hook_recharge;
-
-	/* Get an item */
-#ifdef JP
-	q = "どのアイテムに魔力を充填しますか? ";
-	s = "魔力を充填すべきアイテムがない。";
-#else
-	q = "Recharge which item? ";
-	s = "You have nothing to recharge.";
-#endif
-
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return (FALSE);
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-	/* Get the object kind. */
-	k_ptr = &k_info[o_ptr->k_idx];
-
-	if (((o_ptr->tval == TV_WAND) && (o_ptr->pval >= (k_ptr->pval * o_ptr->number))) ||
-		((o_ptr->tval == TV_STAFF) && (o_ptr->pval >= k_ptr->pval)) ||
-		((o_ptr->tval == TV_ROD) && (!o_ptr->timeout)))
-	{
-#ifdef JP
-		msg_print("そのアイテムはもう十分に充填されています。");
-#else
-		if (o_ptr->number == 1)
-			msg_print("It is already fully charged.");
-		else
-			msg_print("They are already fully charged.");
-#endif
-		return (FALSE);
-	}
-
-	/* Extract the object "level" */
-	lev = k_info[o_ptr->k_idx].level;
-
-	/* Only accept legal items */
-	item_tester_hook = item_tester_hook_recharge_energy;
-
-	/* Get an item */
-#ifdef JP
-	q = "どのアイテムから魔力を充填しますか? ";
-	s = "充填に使えるアイテムがない。";
-#else
-	q = "Recharge from which item? ";
-	s = "You have nothing for recharging.";
-#endif
-
-	if (!get_item(&from, q, s, (USE_INVEN | USE_FLOOR))) return (FALSE);
-
-	/* Get the item (in the pack) */
-	if (from >= 0)
-	{
-		q_ptr = &inventory[from];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		q_ptr = &o_list[0 - from];
-	}
-
-	/* Recharge a rod */
-	if (o_ptr->tval == TV_ROD)
-	{
-		/* Extract a recharge strength by comparing object level to power. */
-		recharge_strength = ((power > lev) ? (power - lev) : 0) / 5;
-
-
-		/* Back-fire */
-		if (randint0(recharge_strength) == 0)
-		{
-			/* Activate the failure code. */
-			fail = TRUE;
-		}
-
-		/* Recharge */
-		else
-		{
-			/* Recharge amount */
-			if (q_ptr->tval == TV_FLASK)
-				recharge_amount = k_ptr->pval;
-			else if ((q_ptr->tval == TV_POTION) && (q_ptr->sval == SV_POTION_RESTORE_MANA))
-				recharge_amount = k_ptr->pval * rand_range(3, 5);
-			else	/* Paranoia */
-				recharge_amount = 0;
-
-			/* Recharge by that amount */
-			if (o_ptr->timeout > recharge_amount)
-				o_ptr->timeout -= recharge_amount;
-			else
-				o_ptr->timeout = 0;
-		}
-	}
-
-
-	/* Recharge wand/staff */
-	else
-	{
-		/* Extract a recharge strength by comparing object level to power.
-		 * Divide up a stack of wands' charges to calculate charge penalty.
-		 */
-		if ((o_ptr->tval == TV_WAND) && (o_ptr->number > 1))
-			recharge_strength = (100 + power - lev -
-			(8 * o_ptr->pval / o_ptr->number)) / 15;
-
-		/* All staffs, unstacked wands. */
-		else recharge_strength = (100 + power - lev -
-			(8 * o_ptr->pval)) / 15;
-
-		/* Paranoia */
-		if (recharge_strength < 0) recharge_strength = 0;
-
-		/* Back-fire */
-		if (randint0(recharge_strength) == 0)
-		{
-			/* Activate the failure code. */
-			fail = TRUE;
-		}
-
-		/* If the spell didn't backfire, recharge the wand or staff. */
-		else
-		{
-			/* Recharge based on the standard number of charges. */
-			if (q_ptr->tval == TV_FLASK)
-				recharge_amount = 1 + randint0(k_ptr->pval / 2);
-			else if ((q_ptr->tval == TV_POTION) && (q_ptr->sval == SV_POTION_RESTORE_MANA))
-				recharge_amount = k_ptr->pval * (100 + randint0(50)) / 100;
-			else	/* Paranoia */
-				recharge_amount = 0;
-
-			if (o_ptr->tval == TV_WAND)
-			{
-				s16b max = k_ptr->pval * o_ptr->number;
-
-				/* Recharge the wand. */
-				o_ptr->pval += recharge_amount;
-
-				if (o_ptr->pval > max) o_ptr->pval = max;
-			}
-
-			else if (o_ptr->tval == TV_STAFF)
-			{
-				recharge_amount /= o_ptr->number;
-				if (recharge_amount < 1) recharge_amount = 1;
-
-				/* Recharge the staff. */
-				o_ptr->pval += recharge_amount;
-
-				if (o_ptr->pval > k_ptr->pval) o_ptr->pval = k_ptr->pval;
-			}
-
-			/* Hack -- we no longer "know" the item */
-			if (p_ptr->pclass != CLASS_DEVICE_USER) o_ptr->ident &= ~(IDENT_KNOWN);
-
-			/* Hack -- we no longer think the item is empty */
-			o_ptr->ident &= ~(IDENT_EMPTY);
-		}
-	}
-
-	/* Inflict the penalties for failing a recharge. */
-	if (fail) fail_recharge(item);
-
-	/* Reduce and describe inventory */
-	if (from >= 0)
-	{
-		inven_item_increase(from, -1);
-		inven_item_describe(from);
-		inven_item_optimize(from);
-	}
-
-	/* Reduce and describe floor item */
-	else
-	{
-		floor_item_increase(0 - from, -1);
-		floor_item_describe(0 - from);
-		floor_item_optimize(0 - from);
-	}
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -3093,8 +2900,8 @@ bool bless_weapon(void)
 
 	/* Get an item */
 #ifdef JP
-q = "どのアイテムを祝福しますか？";
-s = "祝福できる武器がありません。";
+	q = "どのアイテムを祝福しますか？";
+	s = "祝福できる武器がありません。";
 #else
 	q = "Bless which weapon? ";
 	s = "You have weapon to bless.";
@@ -3128,24 +2935,22 @@ s = "祝福できる武器がありません。";
 		    (f3 & TR3_PERMA_CURSE))
 		{
 #ifdef JP
-msg_format("%sを覆う黒いオーラは祝福を跳ね返した！",
-    o_name);
+			msg_format("%sを覆う黒いオーラは祝福を跳ね返した！",
+				o_name);
 #else
 			msg_format("The black aura on %s %s disrupts the blessing!",
 			    ((item >= 0) ? "your" : "the"), o_name);
 #endif
-
 			return TRUE;
 		}
 
 #ifdef JP
-msg_format("%s から邪悪なオーラが消えた。",
-    o_name);
+		msg_format("%s から邪悪なオーラが消えた。",
+			o_name);
 #else
 		msg_format("A malignant aura leaves %s %s.",
 		    ((item >= 0) ? "your" : "the"), o_name);
 #endif
-
 
 		/* Uncurse it */
 		o_ptr->ident &= ~(IDENT_CURSED);
@@ -3159,7 +2964,6 @@ msg_format("%s から邪悪なオーラが消えた。",
 #else
 		o_ptr->feeling = FEEL_UNCURSED;
 #endif
-
 
 		/* Recalculate the bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -3179,14 +2983,13 @@ msg_format("%s から邪悪なオーラが消えた。",
 	if (f3 & TR3_BLESSED)
 	{
 #ifdef JP
-msg_format("%s は既に祝福されている。",
-    o_name    );
+		msg_format("%s は既に祝福されている。",
+			o_name    );
 #else
 		msg_format("%s %s %s blessed already.",
 		    ((item >= 0) ? "Your" : "The"), o_name,
 		    ((o_ptr->number > 1) ? "were" : "was"));
 #endif
-
 		return TRUE;
 	}
 
@@ -3194,14 +2997,13 @@ msg_format("%s は既に祝福されている。",
 	{
 		/* Describe */
 #ifdef JP
-msg_format("%s は輝いた！",
-     o_name);
+		msg_format("%s は輝いた！",
+			 o_name);
 #else
 		msg_format("%s %s shine%s!",
 		    ((item >= 0) ? "Your" : "The"), o_name,
 		    ((o_ptr->number > 1) ? "" : "s"));
 #endif
-
 		o_ptr->art_flags3 |= TR3_BLESSED;
 	}
 	else
@@ -3209,11 +3011,10 @@ msg_format("%s は輝いた！",
 		bool dis_happened = FALSE;
 
 #ifdef JP
-msg_print("そのアーティファクトは祝福を嫌っている！");
+		msg_print("そのアーティファクトは祝福を嫌っている！");
 #else
 		msg_print("The artifact resists your blessing!");
 #endif
-
 
 		/* Disenchant tohit */
 		if (o_ptr->to_h > 0)
@@ -3257,20 +3058,15 @@ msg_print("そのアーティファクトは祝福を嫌っている！");
 		if (dis_happened)
 		{
 #ifdef JP
-msg_print("周囲が凡庸な雰囲気で満ちた...");
+			msg_print("周囲が凡庸な雰囲気で満ちた...");
+			msg_format("%s は劣化した！",
+				 o_name    );
 #else
 			msg_print("There is a static feeling in the air...");
-#endif
-
-#ifdef JP
-msg_format("%s は劣化した！",
-     o_name    );
-#else
 			msg_format("%s %s %s disenchanted!",
 			    ((item >= 0) ? "Your" : "The"), o_name,
 			    ((o_ptr->number > 1) ? "were" : "was"));
 #endif
-
 		}
 	}
 
@@ -3278,7 +3074,7 @@ msg_format("%s は劣化した！",
 	p_ptr->update |= (PU_BONUS);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_EQUIP | PW_PLAYER);
+	p_ptr->window |= (PW_EQUIP | PW_PLAYER | PW_STATS);
 
 	return TRUE;
 }
@@ -3332,20 +3128,11 @@ bool potion_smash_effect(int who, int y, int x, int k_idx)
 		case SV_POTION_RES_DEX:
 		case SV_POTION_RES_CON:
 		case SV_POTION_RES_CHR:
-		case SV_POTION_INC_STR:
-		case SV_POTION_INC_INT:
-		case SV_POTION_INC_WIS:
-		case SV_POTION_INC_DEX:
-		case SV_POTION_INC_CON:
-		case SV_POTION_INC_CHR:
-		case SV_POTION_AUGMENTATION:
 		case SV_POTION_ENLIGHTENMENT:
-		case SV_POTION_STAR_ENLIGHTENMENT:
 		case SV_POTION_SELF_KNOWLEDGE:
 		case SV_POTION_EXPERIENCE:
 		case SV_POTION_RESISTANCE:
 		case SV_POTION_INVULNERABILITY:
-		case SV_POTION_STAR_EXPERIENCE:
 			/* All of the above potions have no effect when shattered */
 			return FALSE;
 		case SV_POTION_DETONATIONS:
@@ -3380,7 +3167,6 @@ bool potion_smash_effect(int who, int y, int x, int k_idx)
 			ident = TRUE;
 			break;
 		case SV_POTION_STAR_HEALING:
-		case SV_POTION_LIFE:
 			dt = GF_OLD_HEAL;
 			dam = damroll(50, 50);
 			radius = 1;
@@ -3413,7 +3199,7 @@ bool potion_smash_effect(int who, int y, int x, int k_idx)
 s16b get_spell_chance(int fail, int min_lev, int mana_cost)
 {
 	int chance, minfail;
-	bool dc = (p_ptr->pclass == CLASS_MINDCRAFTER) ? FALSE : p_ptr->dec_mana;
+	bool dc = p_ptr->dec_mana;
 
 	/* Get the failure rate */
 	chance = fail;
@@ -3441,10 +3227,7 @@ s16b get_spell_chance(int fail, int min_lev, int mana_cost)
 	 * (added high mage, mindcrafter)
 	 */
 	if ((p_ptr->pclass != CLASS_PRIEST) &&
-	    (p_ptr->pclass != CLASS_MAGE) &&
-	    (p_ptr->pclass != CLASS_MINDCRAFTER) &&
-	    (p_ptr->pclass != CLASS_HIGH_MAGE) &&
-	    (p_ptr->pclass != CLASS_ELEMENTALIST))
+	    (p_ptr->pclass != CLASS_MAGE))
 	{
 		if (minfail < 5) minfail = 5;
 	}
@@ -3492,29 +3275,8 @@ void display_spell_list(void)
 	/* Erase window */
 	clear_from(0);
 
-	/* Snipers */
-	if (p_ptr->pclass == CLASS_SNIPER)
-	{
-		display_snipe_list();
-		return;
-	}
-
 	/* Warriors are illiterate */
 	if (!mp_ptr->spell_type) return;
-
-	/* Mindcrafter spell-list */
-	if (p_ptr->pclass == CLASS_MINDCRAFTER)
-	{
-		display_mind_list();
-		return;
-	}
-
-
-	if (p_ptr->pclass == CLASS_ELEMENTALIST)
-	{
-		display_element_list();
-		return;
-	}
 
 	/* Normal spellcaster with books */
 
@@ -3526,7 +3288,7 @@ void display_spell_list(void)
 
 		/* Reset numbers */
 		bn = 0;
-		obn = 0;
+		obn = -1;
 		sn = 0;
 
 		/* Reset vertical */
@@ -3539,7 +3301,7 @@ void display_spell_list(void)
 		x = 27 * (j % 3);
 
 		/* Scan spells */
-		for (i = 0; i < 32; i++)
+		for (i = 0; i < MAX_SPELLS; i++)
 		{
 			byte a = TERM_WHITE;
 
@@ -3561,11 +3323,10 @@ void display_spell_list(void)
 			{
 				/* Illegible */
 #ifdef JP
-strcpy(name, "(判読不能)");
+				strcpy(name, "(判読不能)");
 #else
 				strcpy(name, "(illegible)");
 #endif
-
 
 				/* Unusable */
 				a = TERM_L_DARK;
@@ -3599,8 +3360,9 @@ strcpy(name, "(判読不能)");
 			}
 
 			/* Dump the spell --(-- */
-			sprintf(out_val, "%c/%c) %-20.20s",
-				I2A(bn), I2A(sn), name);
+			sprintf(out_val, "%3s %c) %-20.20s",
+				((bn != obn) ? format("[%1c]", I2A(bn)) : "   "),
+				I2A(sn), name);
 
 			/* Track maximum */
 			m[j] = y + n;
@@ -3699,141 +3461,72 @@ static void spell_info(char *p, int spell, int realm)
 		int plev = p_ptr->lev;
 
 		/* See below */
-		int orb = (plev / ((p_ptr->pclass == CLASS_PRIEST ||
-				    p_ptr->pclass == CLASS_HIGH_MAGE) ? 2 : 4));
+		int orb;
 
 		/* Analyze the spell */
 		switch (realm+1)
 		{
 			case REALM_LIFE: /* Life */
+				orb = (plev / ((p_ptr->pclass == CLASS_PRIEST) ? 2 : 4));
+
 				switch (spell)
 				{
 #ifdef JP
 					case  1: strcpy (p, " 回復:2d10"); break;
 					case  2: strcpy (p, " 期間:12+d12"); break;
-					case  4: sprintf(p, " 損傷:2d%d", plev / 2); break;
-					case  6: strcpy (p, " 回復:4d10"); break;
-					case  8: strcpy (p, " 損傷:6d8"); break;
-					case 10: strcpy (p, " 回復:8d10"); break;
-					case 11: sprintf(p, " 損傷:3d6+%d", plev + orb); break;
-					case 13: strcpy (p, " 期間:20+d20"); break;
-					case 15: sprintf(p, " 期間:%d+d25", plev * 3); break;
-					case 16: strcpy (p, " 回復:300"); break;
-					case 18: sprintf(p, " 損傷:%d", 100 + plev * 2); break;
-					case 20: strcpy (p, " 期間:25+d25"); break;
-					case 22: strcpy (p, " 期間:20+d20"); break;
-					case 23: sprintf(p, " 損傷:%d", 4 * plev); break;
-					case 25: sprintf(p, " 損:%d/回:500", 4 * plev); break;
-					case 28: strcpy (p, " 損傷:150"); break;
-					case 30: strcpy (p, " 回復:1000"); break;
-					case 31: sprintf(p, " 回300/損%d+250", plev * 4); break;
+					case  3: sprintf(p, " 損傷:2d%d", plev / 2); break;
+					case  6: sprintf(p, " 損傷:3d6+%d", plev + orb); break;
+					case  7: strcpy (p, " 期間:20+d20"); break;
+
+					case  8: strcpy (p, " 回復:8d10"); break;
+					case 11: sprintf(p, " 期間:%d+d25", plev * 3); break;
+					case 13: sprintf(p, " 損傷:%d", 3 * plev); break;
+					case 14: strcpy (p, " 回復:200"); break;
+					case 15: sprintf(p, " 損傷:%d", 100 + plev * 4); break;
 #else
 					case  1: strcpy (p, " heal 2d10"); break;
 					case  2: strcpy (p, " dur 12+d12"); break;
-					case  4: sprintf(p, " dam 2d%d", plev / 2); break;
-					case  6: strcpy (p, " heal 4d10"); break;
-					case  8: strcpy (p, " dam 6d8"); break;
-					case 10: strcpy (p, " heal 8d10"); break;
-					case 11: sprintf(p, " dam 3d6+%d", plev + orb); break;
-					case 13: strcpy (p, " dur 20+d20"); break;
-					case 15: sprintf(p, " dur %d+d25", plev * 3); break;
-					case 16: strcpy (p, " heal 300"); break;
-					case 18: sprintf(p, " dam %d", 100 + plev * 2); break;
-					case 20: strcpy (p, " dur 25+d25"); break;
-					case 22: strcpy (p, " dur 20+d20"); break;
-					case 23: sprintf(p, " dam %d", 4 * plev); break;
-					case 25: sprintf(p, " d%d/h500", 4 * plev); break;
-					case 28: strcpy (p, " dam 150"); break;
-					case 30: strcpy (p, " heal 1000"); break;
-					case 31: sprintf(p, " h300/d%d+250", plev * 4); break;
+					case  3: sprintf(p, " dam 2d%d", plev / 2); break;
+					case  6: sprintf(p, " dam 3d6+%d", plev + orb); break;
+					case  7: strcpy (p, " dur 20+d20"); break;
+
+					case  8: strcpy (p, " heal 8d10"); break;
+					case 11: sprintf(p, " dur %d+d25", plev * 3); break;
+					case 13: sprintf(p, " dam %d", 3 * plev); break;
+					case 14: strcpy (p, " heal 200"); break;
+					case 15: sprintf(p, " dam %d", 100 + plev * 4); break;
 #endif
 				}
 				break;
 
 			case REALM_SORCERY: /* Sorcery */
+				orb = (plev / ((p_ptr->pclass == CLASS_MAGE) ? 2 : 4));
+
 				switch (spell)
 				{
 #ifdef JP
 					case  0: sprintf(p, " 損傷:%dd4", 3 + ((plev - 1) / 5)); break;
-					case  2: strcpy (p, " 距離:10"); break;
-					case  4: sprintf(p, " 損傷:2d%d", plev / 2); break;
-					case  6: sprintf(p, " 距離:%d", plev * 5); break;
-					case  8: sprintf(p, " 損傷:3d5+%d", plev + (plev / 2)); break;
-					case 14: strcpy (p, " 期間:25+d30"); break;
-					case 15: sprintf(p, " 損傷:%dd8", 11 + ((plev - 5)/4)); break;
-					case 16: sprintf(p, " 期間:%d+d%d", plev, plev + 20); break;
-					case 18: sprintf(p, " 損傷:%d", 120 + plev * 2); break;
-					case 27: sprintf(p, " 距離:%d", plev); break;
-					case 30: sprintf(p, " 損傷:%d", 300 + plev * 5); break;
-					case 31: sprintf(p, " 期間:%d+d%d", plev / 2, plev / 2); break;
+					case  1: strcpy (p, " 距離:10"); break;
+					case  3: sprintf(p, " 損傷:2d%d", plev / 2); break;
+					case  4: sprintf(p, " 距離:%d", plev * 5); break;
+					case  5: sprintf(p, " 損傷:3d5+%d", plev + orb); break;
+
+					case 11: sprintf(p, " 損傷:%d", 70 + plev * 2); break;
+					case 12: strcpy (p, " 期間:25+d30"); break;
+					case 13: sprintf(p, " 期間:%d+d%d", plev, plev + 20); break;
+					case 15: sprintf(p, " 損傷:%d", 111 + 6 * plev); break;
 #else
 					case  0: sprintf(p, " dam %dd4", 3 + ((plev - 1) / 5)); break;
-					case  2: strcpy (p, " range 10"); break;
-					case  4: sprintf(p, " dam 2d%d", plev / 2); break;
-					case  6: sprintf(p, " range %d", plev * 5); break;
-					case  8: sprintf(p, " dam 3d5+%d", plev + (plev / 2)); break;
-					case 14: strcpy (p, " dur 25+d30"); break;
-					case 15: sprintf(p, " dam %dd8", 11 + ((plev - 5)/4)); break;
-					case 16: sprintf(p, " dur %d+d%d", plev, plev + 20); break;
-					case 18: sprintf(p, " dam %d", 120 + plev * 2); break;
-					case 27: sprintf(p, " range %d", plev); break;
-					case 30: sprintf(p, " dam %d", 300 + plev * 5); break;
-					case 31: sprintf(p, " dur %d+d%d", plev / 2, plev / 2); break;
-#endif
-				}
-				break;
+					case  1: strcpy (p, " range 10"); break;
+					case  3: sprintf(p, " dam 2d%d", plev / 2); break;
+					case  4: sprintf(p, " range %d", plev * 5); break;
+					case  5: sprintf(p, " dam 3d5+%d", plev + orb); break;
 
-			case REALM_MUSOU: /* Musou */
-				switch (spell)
-				{
-#ifdef JP
-					case  0: strcpy (p, " 期間:80+d80"); break;
-					case  2: strcpy (p, " 期間:25+d25"); break;
-					case  3: strcpy (p, " 距離:5"); break;
-					case  4: strcpy (p, " 期間:20+d20"); break;
-					case  5: strcpy (p, " 期間:25+d30"); break;
-					case  7: sprintf(p, " 損傷:%dd8", (3 + (plev - 5 ) / 4)); break;
-					case  8: strcpy (p, " 期間:30+d25"); break;
-					case 10: strcpy (p, " 期間:25+d25"); break;
-					case 13: strcpy (p, " 期間:20+d20"); break;
-					case 16: sprintf(p, " 期間:%d+d%d", plev, (20 + plev)); break;
-					case 18: sprintf(p, " 損傷:%d+d%d", (plev * 3 / 2), plev * 2); break;
-					case 19: strcpy (p, " 期間:20+d20"); break;
-					case 21: sprintf(p, " 期間:%d+d25", (plev * 3)); break;
-					case 22: strcpy (p, " 期間:25+d25"); break;
-					case 29: sprintf(p, " 損傷:175+d%d", plev * 2); break;
-					case 31: strcpy (p, " 期間:25+d25"); break;
-#else
-					case  0: strcpy (p, " dur 80+d80"); break;
-					case  2: strcpy (p, " dur 25+d25"); break;
-					case  3: strcpy (p, " range 5"); break;
-					case  4: strcpy (p, " dur 20+d20"); break;
-					case  5: strcpy (p, " dur 25+d30"); break;
-					case  7: sprintf(p, " dam %dd8", (3 + (plev - 5 ) / 4)); break;
-					case  8: strcpy (p, " dur 30+d25"); break;
-					case 10: strcpy (p, " dur 25+d25"); break;
-					case 13: strcpy (p, " dur 20+d20"); break;
-					case 16: sprintf(p, " dur %d+d%d", plev, (20 + plev)); break;
-					case 18: sprintf(p, " dam %d+d%d", (plev * 3 / 2), plev * 2); break;
-					case 19: strcpy (p, " dur 20+d20"); break;
-					case 21: strcpy (p, " dur 25+d25"); break;
-					case 22: sprintf(p, " dur %d+d25", (plev * 3)); break;
-					case 23: strcpy (p, " dur 25+d25"); break;
-					case 29: sprintf(p, " dam 175+d%d", plev * 2); break;
-					case 31: strcpy (p, " dur 25+d25"); break;
+					case 11: sprintf(p, " dam %d", 70 + plev * 2); break;
+					case 12: strcpy (p, " dur 25+d30"); break;
+					case 13: sprintf(p, " dur %d+d%d", plev, plev + 20); break;
+					case 15: sprintf(p, " dam %d", 111 + 6 * plev); break;
 #endif
-				}
-				break;
-
-			case REALM_MAGIC:	/* Magic */
-				switch(spell)
-				{
-				case  0: strcpy (p, " 回復:1d10"); break;
-				case  4: sprintf(p, " 損傷:1d%d", ((p_ptr->lev / 2) + 5)); break;
-				case 10: strcpy (p, " 回復:2d10"); break;
-				case 13: sprintf(p, " 損傷:1d%d", ((p_ptr->lev / 2) + 5)); break;
-				case 21: strcpy (p, " 回復:4d10"); break;
-				case 31: if (p_ptr->tim_sentence) sprintf(p, " 損傷:%d", (p_ptr->rvs_d)); break;
 				}
 				break;
 
@@ -3977,7 +3670,7 @@ put_str("Lv   MP 失率 効果", y, x + 35);
  * Does a given class of objects (usually) hate acid?
  * Note that acid can either melt or corrode something.
  */
-bool hates_acid(object_type *o_ptr)
+bool hates_acid(const object_type *o_ptr)
 {
 	/* Analyze the type */
 	switch (o_ptr->tval)
@@ -4031,7 +3724,7 @@ bool hates_acid(object_type *o_ptr)
 /*
  * Does a given object (usually) hate electricity?
  */
-bool hates_elec(object_type *o_ptr)
+bool hates_elec(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -4051,7 +3744,7 @@ bool hates_elec(object_type *o_ptr)
  * Hafted/Polearm weapons have wooden shafts.
  * Arrows/Bows are mostly wooden.
  */
-bool hates_fire(object_type *o_ptr)
+bool hates_fire(const object_type *o_ptr)
 {
 	/* Analyze the type */
 	switch (o_ptr->tval)
@@ -4073,8 +3766,6 @@ bool hates_fire(object_type *o_ptr)
 		/* Books */
 		case TV_LIFE_BOOK:
 		case TV_SORCERY_BOOK:
-		case TV_MUSOU_BOOK:
-		case TV_MAGIC_BOOK:
 		{
 			return (TRUE);
 		}
@@ -4100,7 +3791,7 @@ bool hates_fire(object_type *o_ptr)
 /*
  * Does a given object (usually) hate cold?
  */
-bool hates_cold(object_type *o_ptr)
+bool hates_cold(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -4125,11 +3816,6 @@ int set_acid_destroy(object_type *o_ptr)
 	if (!hates_acid(o_ptr)) return (FALSE);
 	object_flags(o_ptr, &f1, &f2, &f3);
 	if (f3 & TR3_IGNORE_ACID) return (FALSE);
-	if (p_ptr->pclass == CLASS_DEVICE_USER)	/* Device-users defend their staffs */
-	{
-		if ((o_ptr->tval == TV_STAFF) && !one_in_(p_ptr->lev))
-			return (FALSE);
-	}
 	return (TRUE);
 }
 
@@ -4143,11 +3829,6 @@ int set_elec_destroy(object_type *o_ptr)
 	if (!hates_elec(o_ptr)) return (FALSE);
 	object_flags(o_ptr, &f1, &f2, &f3);
 	if (f3 & TR3_IGNORE_ELEC) return (FALSE);
-	if (p_ptr->pclass == CLASS_DEVICE_USER)	/* Device-users defend their wands */
-	{
-		if ((o_ptr->tval == TV_WAND) && !one_in_(p_ptr->lev))
-			return (FALSE);
-	}
 	return (TRUE);
 }
 
@@ -4161,11 +3842,6 @@ int set_fire_destroy(object_type *o_ptr)
 	if (!hates_fire(o_ptr)) return (FALSE);
 	object_flags(o_ptr, &f1, &f2, &f3);
 	if (f3 & TR3_IGNORE_FIRE) return (FALSE);
-	if (p_ptr->pclass == CLASS_DEVICE_USER)	/* Device-users defend their staffs */
-	{
-		if ((o_ptr->tval == TV_STAFF) && !one_in_(p_ptr->lev))
-			return (FALSE);
-	}
 	return (TRUE);
 }
 
@@ -4337,7 +4013,7 @@ msg_format("%sがダメージを受けた！", o_name);
 	p_ptr->update |= (PU_BONUS);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_EQUIP | PW_PLAYER);
+	p_ptr->window |= (PW_EQUIP | PW_PLAYER | PW_STATS);
 
 	/* Item was damaged */
 	return (TRUE);
@@ -4422,8 +4098,7 @@ int fire_dam(int dam, cptr kb_str)
 	if (p_ptr->immune_fire || (dam <= 0)) return 0;
 
 	/* Vulnerability (Ouch!) */
-	if ((p_ptr->muta & MUT_VULN_ELEM) ||
-		((p_ptr->pclass == CLASS_SNATCHER) && (r_info[p_ptr->r_idx].flags3 & (RF3_HURT_FIRE))))
+	if (p_ptr->muta & MUT_VULN_ELEM)
 		dam *= 2;
 
 	/* Resist the damage */
@@ -4456,8 +4131,7 @@ int cold_dam(int dam, cptr kb_str)
 	if (p_ptr->immune_cold || (dam <= 0)) return 0;
 
 	/* Vulnerability (Ouch!) */
-	if ((p_ptr->muta & MUT_VULN_ELEM) ||
-		((p_ptr->pclass == CLASS_SNATCHER) && (r_info[p_ptr->r_idx].flags3 & (RF3_HURT_COLD))))
+	if (p_ptr->muta & MUT_VULN_ELEM)
 		dam *= 2;
 
 	/* Resist the damage */
@@ -4614,7 +4288,7 @@ msg_format("恐怖の暗黒オーラがあなたの%sを包み込んだ！", o_name);
 		p_ptr->update |= (PU_MANA);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER | PW_STATS);
 	}
 
 	return (TRUE);
@@ -4692,7 +4366,7 @@ msg_format("恐怖の暗黒オーラがあなたの%sを包み込んだ！", o_name);
 		p_ptr->update |= (PU_MANA);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER | PW_STATS);
 	}
 
 	/* Notice */

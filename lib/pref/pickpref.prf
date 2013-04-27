@@ -1,6 +1,5 @@
-#=================================================#
-#   Object Auto-picker/Destroyer Sample Setting   #
-#=================================================#
+#   Object Auto-picker/Destroyer Sample Setting   
+#=================================================
 
 #
 # Pick up all magical items with unknown effects.
@@ -18,40 +17,37 @@ collecting scroll
 (collecting items
 
 #
-# Auto-inscribe resistances ({%all} has special meaning.)
+# Auto-inscribe extra resistances and abilities.
+# If you want to inscrtibe all resistances and abilities,
+# use settings of auto-inscribing '%all'.
+# ({%} and {%all} have special meaning.)
 #
-~*identified* artifact items#%all
-~*identified* ego items#%all
-
-#
-# Simple version of Auto-inscribe ({%} has special meaning.)
-#
-#~*identified* artifact items#%
-#~*identified* ego items#%
+~*identified* artifact items#%
+~*identified* ego items#%
+#~*identified* artifact items#%all
+#~*identified* ego items#%all
 
 #
 # Pick up important magical potions.
 # And inscribe {!k} on it to protect from accidental destruction.
 #
-potion of strength#!k
-potion of wisdom#!k
-potion of dexterity#!k
-potion of constitution#!k
-potion of intelligence#!k
-potion of Charisma#!k
-potion of life#!k!q
 potion of *healing*#!k
 potion of healing#!k
 potion of resistance#!k
 potion of speed#!k
 
 #
-# Pick up important magical scrolls,
+# Pick up important magical scrolls.
 #
-scroll of artifact creation
-scroll of *destruction*
-scroll of mass genocide
-scroll of genocide
+scroll of artifact creation#!k
+scroll of *destruction*#!k!r
+scroll of mass genocide#!k
+scroll of genocide#!k
+
+#
+# Pick up important magic devices.
+#
+staff of wishing#!d!k!v
 
 #
 # Pick up magical weapons with bigger dice.
@@ -75,11 +71,7 @@ unidentified dice boosted weapons
 
 #
 # Pick up high level spellbooks, and inscribe on it.
-#
-first realm's third spellbooks#@mc!k
-
-#
 # Inscribe on low level spellbooks.
 #
-~first realm's second spellbooks#@mb!k
+first realm's second spellbooks#@mb!k
 ~first realm's first spellbooks#@ma!k

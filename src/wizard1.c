@@ -123,8 +123,6 @@ static grouper group_item[] =
 
 	{ TV_LIFE_BOOK,     "魔法書（生命）" },
 	{ TV_SORCERY_BOOK,  "魔法書（仙術）" },
-	{ TV_MUSOU_BOOK,    "魔法書（無双）" },
-	{ TV_MAGIC_BOOK,    "魔法書（呪術）" },
 
 	{ TV_CHEST,         "箱" },
 	{ TV_FIGURINE,      "人形" },
@@ -169,8 +167,6 @@ static grouper group_item[] =
 
 	{ TV_LIFE_BOOK,     "Books (Life)" },
 	{ TV_SORCERY_BOOK,  "Books (Sorcery)" },
-	{ TV_MUSOU_BOOK,    "Books (Combat)" },
-	{ TV_MAGIC_BOOK,    "Books (Magic)" },
 
 	{ TV_CHEST,         "Chests" },
 	{ TV_FIGURINE,      "Magical Figurines" },
@@ -469,7 +465,9 @@ static grouper group_artifact[] =
 	{ TV_SWORD,             "Edged Weapons" },
 	{ TV_POLEARM,           "Polearms" },
 	{ TV_HAFTED,            "Hafted Weapons" },
+	{ TV_DIGGING,           "Shovels/Picks" },
 	{ TV_BOW,               "Bows" },
+	{ TV_ARROW,             "Ammo" },
 
 	{ TV_SOFT_ARMOR,        "Body Armor" },
 	{ TV_HARD_ARMOR,        NULL },
@@ -570,6 +568,7 @@ static flag_desc pval_flags1_desc[] =
 static flag_desc slay_flags_desc[] =
 {
 #ifdef JP
+	{ TR1_SLAY_HUMAN,         "人間" },
 	{ TR1_SLAY_ANIMAL,        "動物" },
 	{ TR1_SLAY_EVIL,          "邪悪" },
 	{ TR1_SLAY_UNDEAD,        "アンデッド" },
@@ -580,6 +579,7 @@ static flag_desc slay_flags_desc[] =
 	{ TR1_SLAY_DRAGON,        "ドラゴン" },
 	{ TR1_KILL_DRAGON,        "*ドラゴン*" },
 #else
+	{ TR1_SLAY_HUMAN,         "Human" },
 	{ TR1_SLAY_ANIMAL,        "Animal" },
 	{ TR1_SLAY_EVIL,          "Evil" },
 	{ TR1_SLAY_UNDEAD,        "Undead" },
@@ -2075,7 +2075,7 @@ static void spoil_mon_info(cptr fname)
 		else if (flags3 & RF3_GIANT)    spoil_out("ジャイアント");
 		else if (flags3 & RF3_TROLL)    spoil_out("トロル");
 		else if (flags3 & RF3_ORC)      spoil_out("オーク");
-		else if (flags3 & RF3_AMBERITE) spoil_out("神族");/*nuke me*/
+		else if (flags3 & RF3_HUMAN)    spoil_out("人間");/*nuke me*/
 		else                            spoil_out("モンスター");
 #else
 		spoil_out("  ");
@@ -2092,7 +2092,7 @@ static void spoil_mon_info(cptr fname)
 		else if (flags3 & (RF3_GIANT)) spoil_out(" giant");
 		else if (flags3 & (RF3_TROLL)) spoil_out(" troll");
 		else if (flags3 & (RF3_ORC)) spoil_out(" orc");
-		else if (flags3 & (RF3_AMBERITE)) spoil_out (" Spirit");
+		else if (flags3 & (RF3_HUMAN)) spoil_out (" human");
 		else spoil_out(" creature");
 #endif
 
@@ -2273,6 +2273,7 @@ static void spoil_mon_info(cptr fname)
 		vn = 0;
 #ifdef JP
 		if (flags4 & RF4_SHRIEK)  vp[vn++] = "悲鳴で助けを求める";
+		if (flags4 & RF4_THROW)   vp[vn++] = "岩を投げる";
 		if (flags4 & RF4_ROCKET)  vp[vn++] = "ロケットを発射する";
 		if (flags4 & RF4_ARROW_1) vp[vn++] = "矢を撃つ";
 		if (flags4 & RF4_ARROW_2) vp[vn++] = "数回矢を撃つ";
@@ -2280,6 +2281,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags4 & RF4_ARROW_4) vp[vn++] = "数回射撃をする";
 #else
 		if (flags4 & RF4_SHRIEK)  vp[vn++] = "shriek for help";
+		if (flags4 & RF4_THROW)   vp[vn++] = "throw a rock";
 		if (flags4 & RF4_ROCKET)  vp[vn++] = "shoot a rocket";
 		if (flags4 & RF4_ARROW_1) vp[vn++] = "fire an arrow";
 		if (flags4 & RF4_ARROW_2) vp[vn++] = "fire arrows";
@@ -2466,7 +2468,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags6 & (RF6_S_UNDEAD))          vp[vn++] = "アンデッド召喚";
 		if (flags6 & (RF6_S_DRAGON))          vp[vn++] = "ドラゴン召喚";
 		if (flags6 & (RF6_S_HI_UNDEAD))       vp[vn++] = "強力なアンデッド召喚";
-		if (flags6 & (RF6_S_HI_DRAGON))       vp[vn++] = "古代ドラゴン召喚";
+		if (flags6 & (RF6_S_HI_DRAGON))       vp[vn++] = "上級ドラゴン召喚";
 		if (flags6 & (RF6_S_CYBER))           vp[vn++] = "サイバーデーモン召喚";
 		if (flags6 & (RF6_S_HI_DEMON))        vp[vn++] = "上級デーモン召喚";
 		if (flags6 & (RF6_S_UNIQUE))          vp[vn++] = "ユニークモンスター召喚";
@@ -2534,7 +2536,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags6 & (RF6_S_UNDEAD))          vp[vn++] = "summon an undead";
 		if (flags6 & (RF6_S_DRAGON))          vp[vn++] = "summon a dragon";
 		if (flags6 & (RF6_S_HI_UNDEAD))       vp[vn++] = "summon greater undead";
-		if (flags6 & (RF6_S_HI_DRAGON))       vp[vn++] = "summon ancient dragons";
+		if (flags6 & (RF6_S_HI_DRAGON))       vp[vn++] = "summon greater dragons";
 		if (flags6 & (RF6_S_CYBER))           vp[vn++] = "summon Cyberdemons";
 		if (flags6 & (RF6_S_HI_DEMON))        vp[vn++] = "summon greater demon";
 		if (flags6 & (RF6_S_UNIQUE))          vp[vn++] = "summon unique monsters";
@@ -2575,7 +2577,7 @@ static void spoil_mon_info(cptr fname)
 			for (i = 0; i < vn; i++)
 			{
 #ifdef JP
-				if ( n != 0 ) spoil_out("、");
+				if ( i != 0 ) spoil_out("、");
 #else
 				if (!i) spoil_out(" which ");
 				else if (i < vn-1) spoil_out(", ");
@@ -2886,7 +2888,7 @@ static void spoil_mon_info(cptr fname)
 			for (i = 0; i < vn; i++)
 			{
 #ifdef JP
-				if ( n != 0 ) spoil_out("し、");
+				if ( i != 0 ) spoil_out("し、");
 #else
 				if (!i) spoil_out(" cannot be ");
 				else if (i < vn-1) spoil_out(", ");
@@ -3402,32 +3404,6 @@ void do_cmd_spoilers(void)
 		else if (i == '4')
 		{
 			spoil_mon_info("mon-info.spo");
-		}
-
-		/* Test codes for snatcher */
-		else if (i == 's')
-		{
-			int i;
-			char buf[1024];
-			FILE *fff;
-
-			path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "monhds.txt");
-			FILE_TYPE(FILE_TYPE_TEXT);
-			fff = my_fopen(buf, "w");
-			if (fff)
-			{
-				for (i = 1; i < max_r_idx; i++)
-				{
-					int hd = monster_hitdie(i);
-					monster_race *r_ptr = &r_info[i];
-
-					fprintf(fff, "%50s Lv:%3d HD:%3d\n", r_name+r_ptr->name, r_ptr->level, hd);
-				}
-				fclose(fff);
-				msg_print("Successful dump monster HD list.");
-				msg_print(NULL);
-			}
-
 		}
 
 		/* Oops */

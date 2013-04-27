@@ -118,6 +118,7 @@ void do_cmd_go_up(void)
 #else
 			msg_print("You enter a maze of up staircases.");
 #endif
+	  		sound(SOUND_STAIRS_UP);
 		}
 
 		if (autosave_l) do_cmd_save_game(TRUE);
@@ -258,12 +259,14 @@ void do_cmd_go_down(void)
 			msg_print("You deliberately jump through the trap door.");
 #endif
 		else /* Success */
+		{
 #ifdef JP
 			msg_print("階段を下りて新たなる迷宮へと足を踏み入れた。");
 #else
 			msg_print("You enter a maze of down staircases.");
 #endif
-
+	  		sound(SOUND_STAIRS_DOWN);
+	  	}
 		if (autosave_l) do_cmd_save_game(TRUE);
 
 		/* Go down */
@@ -577,7 +580,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 #endif
 
 		o_ptr->pval = 0;
-		sound(SOUND_EXPLODE);
+		sound(SOUND_BR_FIRE); /* No explode sound - use breath fire instead */
 #ifdef JP
 		take_hit(damroll(5, 8), "爆発する箱");
 #else
@@ -636,7 +639,7 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 #else
 			msg_print("You have picked the lock.");
 #endif
-
+	  		sound(SOUND_LOCKPICK);
 			gain_exp(1);
 			flag = TRUE;
 		}
@@ -670,8 +673,6 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 	return (more);
 }
 
-
-#if defined(ALLOW_EASY_OPEN) || defined(ALLOW_EASY_DISARM) /* TNB */
 
 /*
  * Return TRUE if the given feature is an open door
@@ -791,8 +792,6 @@ static int coords_to_dir(int y, int x)
 	return d[dx + 1][dy + 1];
 }
 
-#endif /* defined(ALLOW_EASY_OPEN) || defined(ALLOW_EASY_DISARM) -- TNB */
-
 
 /*
  * Perform the basic "open" command on doors
@@ -858,7 +857,7 @@ static bool do_cmd_open_aux(int y, int x)
 #else
 			msg_print("You have picked the lock.");
 #endif
-
+	  		sound(SOUND_LOCKPICK);
 
 			/* Open the door */
 			cave_set_feat(y, x, FEAT_OPEN);
@@ -985,6 +984,7 @@ void do_cmd_open(void)
 #else
 			msg_print("You see nothing there to open.");
 #endif
+	  		sound(SOUND_NOTHING_TO_OPEN);
 
 		}
 
@@ -1438,7 +1438,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	/* Rubble */
 	else if (c_ptr->feat == FEAT_RUBBLE)
 	{
-		int prob = (p_ptr->pclass == CLASS_ARCHAEOLOGIST) ? 8 : 20;
+		int prob = 8;
 
 		/* Remove the rubble */
 		if ((p_ptr->skill_dig > randint0(200)) && twall(y, x, FEAT_FLOOR))
@@ -1722,7 +1722,7 @@ bool easy_open_door(int y, int x)
 #else
 			msg_print("You have picked the lock.");
 #endif
-
+	  		sound(SOUND_LOCKPICK);
 
 			/* Open the door */
 			cave_set_feat(y, x, FEAT_OPEN);
@@ -1749,6 +1749,7 @@ bool easy_open_door(int y, int x)
 #else
 			msg_print("You failed to pick the lock.");
 #endif
+	  		sound(SOUND_LOCKPICK_FAIL);
 
 		}
 	}
@@ -1848,7 +1849,7 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 #else
 		msg_print("You have disarmed the chest.");
 #endif
-
+	  	sound(SOUND_DISARM);
 		gain_exp(o_ptr->pval);
 		o_ptr->pval = (0 - o_ptr->pval);
 	}
@@ -1876,7 +1877,7 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 		msg_print("You set off a trap!");
 #endif
 
-		sound(SOUND_FAIL);
+ 		sound(SOUND_STORE2);  /* (Sound substitute) HACK! No fail sound, use strore 2*/
 		chest_trap(y, x, o_idx);
 	}
 
@@ -1894,15 +1895,7 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
  *
  * Returns TRUE if repeated commands may continue
  */
-#ifdef ALLOW_EASY_DISARM /* TNB */
-
 bool do_cmd_disarm_aux(int y, int x, int dir)
-
-#else /* ALLOW_EASY_DISARM -- TNB */
-
-static bool do_cmd_disarm_aux(int y, int x, int dir)
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
 {
 	int i, j, power;
 
@@ -1949,7 +1942,7 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
 #else
 		msg_format("You have disarmed the %s.", name);
 #endif
-
+	  	sound(SOUND_DISARM);
 
 		/* Reward */
 		gain_exp(power);
@@ -1960,17 +1953,8 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
 		/* Remove the trap */
 		cave_set_feat(y, x, FEAT_FLOOR);
 
-#ifdef ALLOW_EASY_DISARM /* TNB */
-
 		/* Move the player onto the trap */
-		move_player(dir, easy_disarm);
-
-#else /* ALLOW_EASY_DISARM -- TNB */
-
-		/* move the player onto the trap grid */
 		move_player(dir, FALSE);
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
 	}
 
 	/* Failure -- Keep trying */
@@ -2001,18 +1985,8 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
 		msg_format("You set off the %s!", name);
 #endif
 
-
-#ifdef ALLOW_EASY_DISARM /* TNB */
-
-		/* Move the player onto the trap */
-		move_player(dir, easy_disarm);
-
-#else /* ALLOW_EASY_DISARM -- TNB */
-
 		/* Move the player onto the trap */
 		move_player(dir, FALSE);
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
 	}
 
 	/* Result */
@@ -2033,29 +2007,21 @@ void do_cmd_disarm(void)
 
 	bool more = FALSE;
 
-#ifdef ALLOW_EASY_DISARM /* TNB */
+	int num_traps, num_chests;
 
-	/* Option: Pick a direction */
-	if (easy_disarm)
+	/* Count visible traps */
+	num_traps = count_dt(&y, &x, is_trap, TRUE);
+
+	/* Count chests (trapped) */
+	num_chests = count_chests(&y, &x, TRUE);
+
+	/* See if only one target */
+	if (num_traps || num_chests)
 	{
-		int num_traps, num_chests;
-
-		/* Count visible traps */
-		num_traps = count_dt(&y, &x, is_trap, TRUE);
-
-		/* Count chests (trapped) */
-		num_chests = count_chests(&y, &x, TRUE);
-
-		/* See if only one target */
-		if (num_traps || num_chests)
-		{
-			bool too_many = (num_traps && num_chests) || (num_traps > 1) ||
-			    (num_chests > 1);
-			if (!too_many) command_dir = coords_to_dir(y, x);
-		}
+		bool too_many = (num_traps && num_chests) || (num_traps > 1) ||
+			(num_chests > 1);
+		if (!too_many) command_dir = coords_to_dir(y, x);
 	}
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
 
 	/* Allow repeated command */
 	if (command_arg)
@@ -2729,7 +2695,7 @@ void do_cmd_stay(int pickup)
 #else
 			msg_print("You accomplished your quest!");
 #endif
-			sound(SOUND_QUEST);
+	  		sound(SOUND_LEVEL); /* (Sound substitute) No quest sound */
 			msg_print(NULL);
 		}
 
@@ -2787,9 +2753,6 @@ void do_cmd_rest(void)
 			if (command_arg <= 0) return;
 		}
 	}
-
-	/* Magic */
-	if (p_ptr->keep_magic) (void)stop_magic_spell_all();
 
 	/* Paranoia */
 	if (command_arg > 9999) command_arg = 9999;
@@ -2856,14 +2819,6 @@ static int breakage_chance(object_type *o_ptr)
 	switch (p_ptr->pclass) {
 		case CLASS_ARCHER:
 			shoot_bonus = (p_ptr->lev - 1) / 7 + 4;
-			break;
-		case CLASS_SNIPER:
-			if (snipe_type == SP_KILL_WALL) return (100);
-			if (snipe_type == SP_EXPLODE) return (100);
-			if (snipe_type == SP_PIERCE) return (100);
-			if (snipe_type == SP_FINAL) return (100);
-			if (snipe_type == SP_EVILNESS) return (40);
-			if (snipe_type == SP_HOLYNESS) return (40);
 			break;
 		default:
 			shoot_bonus = 0;
@@ -3023,7 +2978,7 @@ static s16b critical_shot(object_type *o_ptr, int chance,
 #endif
 		}
 	}
-
+	sound(SOUND_SHOOT_HIT);
 	return (dam);
 }
 
@@ -3057,6 +3012,18 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 		case TV_ARROW:
 		case TV_BOLT:
 		{
+			/* Slay Human */
+			if ((f1 & TR1_SLAY_HUMAN) &&
+			    (r_ptr->flags3 & RF3_HUMAN))
+			{
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags3 |= RF3_HUMAN;
+				}
+
+				if (mult < 20) mult = 20;
+			}
+
 			/* Slay Animal */
 			if ((f1 & TR1_SLAY_ANIMAL) &&
 			    (r_ptr->flags3 & RF3_ANIMAL))
@@ -3378,9 +3345,6 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 		}
 	}
 
-	/* Sniper */
-	if (snipe_type) mult = tot_dam_aux_snipe(mult, m_ptr);
-
 	/* Return the total damage */
 	return (tdam * mult / 10);
 }
@@ -3495,9 +3459,6 @@ int do_cmd_fire_aux(int item, object_type *j_ptr)
 		o_ptr = &o_list[0 - item];
 	}
 
-	/* Sniper */
-	if ((snipe_type == SP_DOUBLE) && (o_ptr->number < 2)) snipe_type = SP_NONE;
-
 	/* Describe the object */
 	object_desc(o_name, o_ptr, OD_OMIT_PREFIX);
 
@@ -3523,9 +3484,6 @@ int do_cmd_fire_aux(int item, object_type *j_ptr)
 	tdam *= tmul;
 	tdam /= 100;
 
-	/* Get extra damage from concentration */
-	if (p_ptr->concent) tdam = boost_concentration_damage(tdam);
-
 	/* Base range */
 	tdis = 10 + tmul / 40;
 
@@ -3535,7 +3493,6 @@ int do_cmd_fire_aux(int item, object_type *j_ptr)
 	if (!get_aim_dir(&dir))
 	{
 		energy_use = 0;
-		if (snipe_type == SP_AWAY) snipe_type = SP_NONE;
 		return (FALSE);
 	}
 
@@ -3656,53 +3613,14 @@ int do_cmd_fire_aux(int item, object_type *j_ptr)
 		c_ptr = &cave[ny][nx];
 		if (!cave_floor_grid(c_ptr) && !c_ptr->m_idx)
 		{
-			if (snipe_type == SP_KILL_WALL )
-			{
-				if (cave_perma_grid(c_ptr)) break;
-#ifdef JP
-				if (c_ptr->info & CAVE_MARK) msg_print("岩が砕け散った。");
-#else
-				if (c_ptr->info & CAVE_MARK) msg_print("Wall rocks were shattered.");
-#endif
-				/* Forget the wall */
-				c_ptr->info &= ~(CAVE_MARK);
-
-				p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
-
-				/* Destroy the wall */
-				cave_set_feat(ny, nx, FEAT_FLOOR);
-			}
 			break;
 		}
 
 		/* Advance the distance */
 		cur_dis++;
 
-		/* Sniper */
-		if (snipe_type == SP_LITE)
-		{
-			cave[ny][nx].info |= (CAVE_GLOW);
-
-			/* Notice */
-			note_spot(ny, nx);
-
-			/* Redraw */
-			lite_spot(ny, nx);
-		}
-
 		/* Draw a missile if the player can see it */
 		draw_firing_missile(i_ptr, ny, nx, msec);
-
-		if (snipe_type == SP_EVILNESS)
-		{
-			cave[ny][nx].info &= ~(CAVE_GLOW | CAVE_MARK);
-
-			/* Notice */
-			note_spot(ny, nx);
-
-			/* Redraw */
-			lite_spot(ny, nx);
-		}
 
 		/* Save the old location */
 		prev_y = y;
@@ -3740,8 +3658,7 @@ int do_cmd_fire_aux(int item, object_type *j_ptr)
 			* Monsters in trees can take advantage of cover,
 			* except from rangers.
 			*/
-			else if ((c_ptr->feat == FEAT_TREES) && 
-				((p_ptr->pclass != CLASS_RANGER) || (p_ptr->pclass != CLASS_RANGER)))
+			else if (c_ptr->feat == FEAT_TREES)
 			{
 				terrain_bonus = r_ptr->ac / 10 + 5;
 			}
@@ -3757,11 +3674,6 @@ int do_cmd_fire_aux(int item, object_type *j_ptr)
 			/* Weapons of velocity sometimes almost negate monster armour. */
 			if (special_hit) armour /= 3;
 			if (superb_shot) armour /= 2;
-			if (p_ptr->concent)
-			{
-				armour *= (30 - p_ptr->concent * 2);
-				armour /= 30;
-			}
 
 			/* Did we hit it (penalize range) */
 			if (test_hit_fire(chance2 + sleeping_bonus, armour, m_ptr->ml))
@@ -3819,16 +3731,6 @@ int do_cmd_fire_aux(int item, object_type *j_ptr)
 #endif
 				}
 
-				/* Sniper */
-				if (snipe_type == SP_EXPLODE)
-				{
-					u16b flg = (PROJECT_STOP | PROJECT_JUMP | PROJECT_KILL | PROJECT_GRID);
-
-					sound(SOUND_EXPLODE);
-					project(0, ((p_ptr->concent + 1) / 2 + 1), ny, nx, tdam, GF_MISSILE, flg);
-					break;
-				}
-
 				/* Hit the monster, check for death */
 				if (mon_take_hit(c_ptr->m_idx, tdam, &fear, note_dies))
 				{
@@ -3875,98 +3777,12 @@ int do_cmd_fire_aux(int item, object_type *j_ptr)
 					}
 
 					/* Damaged monster can counter if projectable */
-					if (ironman_hengband && !projectable(m_ptr->fy, m_ptr->fx, py, px))
+					if (ironman_hengband)
 					{
 						m_ptr->target_y = py;
 						m_ptr->target_x = px;
 					}
-
-					/* Sniper */
-					if (snipe_type == SP_RUSH)
-					{
-						int n = randint1(5) + 3;
-						int m_idx = c_ptr->m_idx;
-						cave_type *nc_ptr;
-
-						for ( ; cur_dis <= tdis; )
-						{
-							int ox = nx;
-							int oy = ny;
-
-							if (!n) break;
-
-							/* Calculate the new location (see "project()") */
-							mmove2(&ny, &nx, py, px, ty, tx);
-
-							/* Stopped by wilderness boundary */
-							if (!in_bounds2(ny, nx)) break;
-
-							/* Stopped by walls/doors */
-							nc_ptr = &cave[ny][nx];
-							if (!cave_floor_grid(nc_ptr)) break;
-
-							/* Stopped by monsters */
-							if (nc_ptr->m_idx) break;
-
-							cave[ny][nx].m_idx = m_idx;
-							cave[oy][ox].m_idx = 0;
-
-							m_ptr->fx = nx;
-							m_ptr->fy = ny;
-
-							/* Update the monster (new location) */
-							update_mon(c_ptr->m_idx, TRUE);
-
-							lite_spot(ny, nx);
-							lite_spot(oy, ox);
-
-							Term_fresh();
-							Term_xtra(TERM_XTRA_DELAY, msec);
-
-							x = nx;
-							y = ny;
-							cur_dis++;
-							n--;
-						}
-					}
-
-					/* Sniper */
-					if (snipe_type == SP_PARALYZE)
-					{
-						int mlev = (r_ptr->flags1 & RF1_UNIQUE) ? (r_ptr->level * 2) : r_ptr->level;
-
-						if ((r_ptr->flags3 & RF3_NO_SLEEP) ||
-							(mlev > (10 + randint1(p_ptr->concent * 15))))
-						{
-							if (r_ptr->flags3 & RF3_NO_SLEEP)
-							{
-								if (is_seen(m_ptr)) r_ptr->r_flags3 |= (RF3_NO_SLEEP);
-							}
-#ifdef JP
-							msg_format("%sには効果がなかった！", r_name + r_ptr->name);
-#else
-							msg_format("%s is unaffected!", r_name + r_ptr->name);
-#endif
-						}
-						else
-						{
-							m_ptr->csleep = 500;
-#ifdef JP
-							msg_format("%sは眠り込んでしまった！", r_name + r_ptr->name);
-#else
-							msg_format("%s falls asleep!", r_name + r_ptr->name);
-#endif
-							}
-					}
 				}
-			}
-
-			/* Sniper */
-			if (snipe_type == SP_PIERCE)
-			{
-				if(p_ptr->concent < 1) break;
-				p_ptr->concent--;
-				continue;
 			}
 
 			/* Stop looking */
@@ -4022,9 +3838,6 @@ int do_cmd_fire_aux(int item, object_type *j_ptr)
 		(void)drop_near(i_ptr, j, prev_y, prev_x);
 	}
 
-	/* Sniper */
-	if ((snipe_type != SP_DOUBLE) && (p_ptr->concent)) reset_concentration(FALSE);
-
 	return (TRUE);
 }
 
@@ -4069,27 +3882,6 @@ int do_cmd_fire(void)
 
 	/* Fire the item */
 	if (!do_cmd_fire_aux(item, j_ptr)) return (FALSE);
-
-	/* Sniper */
-	if (snipe_type == SP_DOUBLE)
-	{
-		snipe_type = SP_NONE;
-		(void)do_cmd_fire_aux(item, j_ptr);
-	}
-	if (snipe_type == SP_AWAY)
-	{
-		teleport_player(10 + (p_ptr->concent * 2));
-	}
-	if (snipe_type == SP_FINAL)
-	{
-#ifdef JP
-		msg_print("射撃の反動が体を襲った。");
-#else
-		msg_print("A reactionary of shooting attacked you. ");
-#endif
-		(void)set_slow(p_ptr->slow + randint0(10) + 10);
-		(void)set_stun(p_ptr->stun + randint1(40));
-	}
 
 	return (TRUE);
 }
@@ -4175,9 +3967,6 @@ static void do_cmd_throw_aux(int item, int mult)
 
 	/* Single object */
 	q_ptr->number = 1;
-
-	/* Can return ? */
-	if (q_ptr->name1 == ART_MJOLLNIR) return_when_thrown = TRUE;
 
 	/* Description */
 	object_desc(o_name, q_ptr, OD_OMIT_PREFIX);
@@ -4309,8 +4098,7 @@ static void do_cmd_throw_aux(int item, int mult)
 			 * Monsters in trees can take advantage of cover,
 			 * except from rangers.
 			 */
-			else if ((c_ptr->feat == FEAT_TREES) && 
-				 (p_ptr->pclass != CLASS_RANGER))
+			else if (c_ptr->feat == FEAT_TREES)
 			{
 				terrain_bonus = r_ptr->ac / 5 + 5;
 			}
@@ -4594,10 +4382,6 @@ static void do_cmd_throw_aux(int item, int mult)
 			inven_carry(q_ptr);
 		}
 	}
-
-	/* Disactivate Light Sabre */
-	if (do_drop && q_ptr->name1 == ART_LIGHT_SABRE)
-		activate_light_sabre(q_ptr, FALSE);
 
 	/* Drop (or break) near that location */
 	if (do_drop)

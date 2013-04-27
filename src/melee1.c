@@ -118,8 +118,11 @@ static int check_hit(int power, int level)
 	if (k < 10) return (k < 5);
 
 	/* Calculate the "attack quality" */
+#ifdef TINYANGBAND
+	i = (power + (level * 5));
+#else
 	i = (power + (level * 3));
-
+#endif
 	/* Total armor */
 	ac = p_ptr->ac + p_ptr->to_a;
 
@@ -215,7 +218,6 @@ bool make_attack_normal(int m_idx)
 	int omit_mname = 0;
 #endif
 
-	/* Magic: for eye-for-an-eye */
 	int get_damage = 0;
 
 	/* Not allowed to attack */
@@ -284,8 +286,7 @@ bool make_attack_normal(int m_idx)
 			/* Hack -- Apply "protection from evil" */
 			if ((p_ptr->protevil > 0) &&
 			    (r_ptr->flags3 & RF3_EVIL) &&
-			    (p_ptr->lev >= rlev) &&
-			    ((randint0(100) + p_ptr->lev) > 50))
+			    ((5 + randint1(p_ptr->lev)) > rlev))
 			{
 				/* Remember the Evil-ness */
 				if (m_ptr->ml)
@@ -339,7 +340,7 @@ bool make_attack_normal(int m_idx)
 #endif
 
 					touched = TRUE;
-					sound(SOUND_TOUCH);
+					sound(SOUND_MON_TOUCH);
 					break;
 				}
 
@@ -353,7 +354,7 @@ bool make_attack_normal(int m_idx)
 
 					touched = TRUE;
 					do_stun = 1;
-					sound(SOUND_HIT);
+					sound(SOUND_MON_PUNCH);
 					break;
 				}
 
@@ -381,7 +382,7 @@ bool make_attack_normal(int m_idx)
 
 					touched = TRUE;
 					do_cut = 1;
-					sound(SOUND_CLAW);
+					sound(SOUND_MON_CLAW);
 					break;
 				}
 
@@ -395,7 +396,7 @@ bool make_attack_normal(int m_idx)
 
 					do_cut = 1;
 					touched = TRUE;
-					sound(SOUND_BITE);
+					sound(SOUND_MON_BITE);
 					break;
 				}
 
@@ -408,7 +409,7 @@ bool make_attack_normal(int m_idx)
 #endif
 
 					touched = TRUE;
-					sound(SOUND_STING);
+					sound(SOUND_MON_STING);
 					break;
 				}
 
@@ -422,7 +423,7 @@ bool make_attack_normal(int m_idx)
 
 					do_cut = 1;
 					touched = TRUE;
-					sound(SOUND_HIT);
+					sound(SOUND_MON_HIT);
 					break;
 				}
 
@@ -436,7 +437,7 @@ bool make_attack_normal(int m_idx)
 
 					do_stun = 1;
 					touched = TRUE;
-					sound(SOUND_HIT);
+					sound(SOUND_MON_BUTT);
 					break;
 				}
 
@@ -450,7 +451,7 @@ bool make_attack_normal(int m_idx)
 
 					do_stun = 1;
 					touched = TRUE;
-					sound(SOUND_CRUSH);
+					sound(SOUND_MON_CRUSH);
 					break;
 				}
 
@@ -463,7 +464,7 @@ bool make_attack_normal(int m_idx)
 #endif
 
 					touched = TRUE;
-					sound(SOUND_CRUSH);
+					sound(SOUND_MON_ENGULF);
 					break;
 				}
 
@@ -477,7 +478,8 @@ bool make_attack_normal(int m_idx)
 #endif
 
 					touched = TRUE;
-					sound(SOUND_BUY); /* Note! This is "charges", not "charges at". */
+					sound(SOUND_STORE5); /* Note! This is "charges", not "charges at". */
+					/* Is that really right? */
 					break;
 				}
 
@@ -491,7 +493,7 @@ bool make_attack_normal(int m_idx)
 #endif
 
 					touched = TRUE;
-					sound(SOUND_SLIME);
+					sound(SOUND_MON_CRAWL);
 					break;
 				}
 
@@ -503,7 +505,7 @@ bool make_attack_normal(int m_idx)
 					act = "drools on you.";
 #endif
 
-					sound(SOUND_SLIME);
+					sound(SOUND_MON_DROOL);
 					break;
 				}
 
@@ -515,7 +517,7 @@ bool make_attack_normal(int m_idx)
 					act = "spits on you.";
 #endif
 
-					sound(SOUND_SLIME);
+					sound(SOUND_MON_SPIT);
 					break;
 				}
 
@@ -529,6 +531,7 @@ bool make_attack_normal(int m_idx)
 #endif
 
 					explode = TRUE;
+					sound(SOUND_BR_FIRE); /* (Sound substitute)  No sound for explode, use breath fire */
 					break;
 				}
 
@@ -539,7 +542,7 @@ bool make_attack_normal(int m_idx)
 #else
 					act = "gazes at you.";
 #endif
-
+					sound(SOUND_MON_GAZE);
 					break;
 				}
 
@@ -551,7 +554,7 @@ bool make_attack_normal(int m_idx)
 					act = "wails at you.";
 #endif
 
-					sound(SOUND_WAIL);
+					sound(SOUND_MON_WAIL);
 					break;
 				}
 
@@ -563,7 +566,7 @@ bool make_attack_normal(int m_idx)
 					act = "releases spores at you.";
 #endif
 
-					sound(SOUND_SLIME);
+					sound(SOUND_MON_SPORE);
 					break;
 				}
 
@@ -571,9 +574,9 @@ bool make_attack_normal(int m_idx)
 				{
 #ifdef JP
 				omit_mname = -1;
-					act = "が XXX4 を発射した。";
+					act = "が XXX4 を発射した。";  
 #else
-					act = "projects XXX4's at you.";
+					act = "projects XXX4's at you."; /* What's this? */
 #endif
 
 					break;
@@ -587,7 +590,7 @@ bool make_attack_normal(int m_idx)
 					act = "begs you for money.";
 #endif
 
-					sound(SOUND_MOAN);
+					sound(SOUND_MON_BEG);
 					break;
 				}
 
@@ -597,7 +600,7 @@ bool make_attack_normal(int m_idx)
 				omit_mname = -1;
 #endif
 					act = desc_insult[randint0(8)];
-					sound(SOUND_MOAN);
+					sound(SOUND_MON_INSULT);
 					break;
 				}
 
@@ -607,7 +610,7 @@ bool make_attack_normal(int m_idx)
 				omit_mname = -1;
 #endif
 					act = desc_moan[randint0(4)];
-					sound(SOUND_MOAN);
+					sound(SOUND_MON_MOAN);
 					break;
 				}
 
@@ -624,7 +627,7 @@ bool make_attack_normal(int m_idx)
 					else
 						act = "sings 'I love you, you love me.'";
 #endif
-					sound(SOUND_SHOW);
+/* 					sound(SOUND_SHOW); */ /* No sound for show */
 					break;
 				}
 			}
@@ -772,17 +775,6 @@ bool make_attack_normal(int m_idx)
 								/* Calculate healed hitpoints */
 								int heal = rlev * o_ptr->pval;
 
-								if ((p_ptr->pclass == CLASS_DEVICE_USER) &&
-									(randint0(75 + r_ptr->level / 4) < p_ptr->lev * 2))
-								{
-#ifdef JP
-									msg_print("エネルギーの強奪を防いだ。");
-#else
-									msg_print("You defended your devices from energy drain.");
-#endif
-									break;
-								}
-
 								if( o_ptr->tval == TV_STAFF)
 									heal *=  o_ptr->number;
 
@@ -841,11 +833,10 @@ bool make_attack_normal(int m_idx)
 						{
 							/* Saving throw message */
 #ifdef JP
-						msg_print("しかし素早く財布を守った！");
+							msg_print("しかし素早く財布を守った！");
 #else
 							msg_print("You quickly protect your money pouch!");
 #endif
-
 
 							/* Occasional blink anyway */
 							if (randint0(3)) blinked = TRUE;
@@ -862,33 +853,51 @@ bool make_attack_normal(int m_idx)
 							if (gold <= 0)
 							{
 #ifdef JP
-							msg_print("しかし何も盗まれなかった。");
+								msg_print("しかし何も盗まれなかった。");
 #else
 								msg_print("Nothing was stolen.");
 #endif
 
 							}
-							else if (p_ptr->au)
-							{
-#ifdef JP
-							msg_print("財布が軽くなった気がする。");
-							msg_format("$%ld のお金が盗まれた！", (long)gold);
-#else
-								msg_print("Your purse feels lighter.");
-								msg_format("%ld coins were stolen!", (long)gold);
-#endif
-							}
 							else
 							{
-#ifdef JP
-							msg_print("財布が軽くなった気がする。");
-							msg_print("お金が全部盗まれた！");
-#else
-								msg_print("Your purse feels lighter.");
-								msg_print("All of your coins were stolen!");
-#endif
-							}
+								object_type *i_ptr; 
+								object_type object_type_body; 
 
+								/* Get local object */ 
+								i_ptr = &object_type_body; 
+
+								/* Wipe the object */ 
+								object_wipe(i_ptr); 
+
+								/* Prepare a gold object */ 
+								object_prep(i_ptr, OBJ_GOLD_LIST + 3);
+								i_ptr->pval = gold; 
+
+								/* Carry the object */ 
+								(void)monster_carry(m_idx, i_ptr); 
+
+								if (p_ptr->au)
+								{
+#ifdef JP
+									msg_print("財布が軽くなった気がする。");
+									msg_format("$%ld のお金が盗まれた！", (long)gold);
+#else
+									msg_print("Your purse feels lighter.");
+									msg_format("%ld coins were stolen!", (long)gold);
+#endif
+								}
+								else
+								{
+#ifdef JP
+									msg_print("財布が軽くなった気がする。");
+									msg_print("お金が全部盗まれた！");
+#else
+									msg_print("Your purse feels lighter.");
+									msg_print("All of your coins were stolen!");
+#endif
+								}
+							}
 							/* Redraw gold */
 							p_ptr->redraw |= (PR_GOLD);
 
@@ -1204,10 +1213,6 @@ bool make_attack_normal(int m_idx)
 						{
 							if (set_blind(p_ptr->blind + 10 + randint1(rlev)))
 							{
-#ifdef JP
-								/*** XTRA HACK THEWORLD ***/
-								if (m_ptr->r_idx == MON_DIO) msg_print("どうだッ！この血の目潰しはッ！");
-#endif
 								obvious = TRUE;
 							}
 						}
@@ -1750,12 +1755,12 @@ msg_print("生命力が体から吸い取られた気がする！");
 						}
 
 						/* Heal the attacker? */
-						if (!(p_ptr->prace == RACE_ZOMBIE ||
-							  p_ptr->prace == RACE_VAMPIRE ||
-							  p_ptr->prace == RACE_SPECTRE ||
-							  p_ptr->prace == RACE_SKELETON ||
-							  p_ptr->prace == RACE_GOLEM) &&
+#if 0
+						if (!(p_ptr->prace == RACE_VAMPIRE) &&
 							(damage > 2) && !(resist_drain))
+#else
+						if ((damage > 2) && !(resist_drain))
+#endif
 						{
 							bool did_heal = FALSE;
 
@@ -1772,11 +1777,10 @@ msg_print("生命力が体から吸い取られた気がする！");
 							if ((m_ptr->ml) && (did_heal))
 							{
 #ifdef JP
-msg_format("%sは体力を回復したようだ。", m_name);
+								msg_format("%sは体力を回復したようだ。", m_name);
 #else
 								msg_format("%^s appears healthier.", m_name);
 #endif
-
 							}
 						}
 					}
@@ -1851,7 +1855,7 @@ msg_format("%sは体力を回復したようだ。", m_name);
 
 			if (explode)
 			{
-				sound(SOUND_EXPLODE);
+				sound(SOUND_BR_FIRE); /* (Sound substitute) No sound for explode, use breathe fire */
 
 				if (mon_take_hit(m_idx, m_ptr->hp + 1, &fear, NULL))
 				{
@@ -2019,45 +2023,15 @@ msg_format("%sは体力を回復したようだ。", m_name);
 		}
 	}
 
-	/* Magic: Eye for an Eye */
-	if (is_keeping_spell(MS_EYE_FOR_EYE) && (get_damage > 0) && (m_idx > 0))
-	{
-#ifdef JP
-		msg_print("呪力がダメージを送り返した。");
-#else
-		msg_print("You return your damage.");
-#endif
-		mon_take_hit(m_idx, get_damage, &fear, NULL);
-	}
-
-	/* Magic: Revenge Sentence */
-	if ((p_ptr->tim_sentence) && (get_damage > 0))
-	{
-		p_ptr->rvs_x = m_ptr->fx;
-		p_ptr->rvs_y = m_ptr->fy;
-		p_ptr->rvs_d += get_damage;
-	}
-
 	/* Blink away */
 	if (blinked)
 	{
-		if (teleport_barrier(m_idx))
-		{
 #ifdef JP
-			msg_print("泥棒は笑って逃げ...ようとしたがバリアに防がれた。");
+		msg_print("泥棒は笑って逃げた！");
 #else
-			msg_print("The thief flees laughing...? But magic barrier obstructs it.");
+		msg_print("The thief flees laughing!");
 #endif
-		}
-		else
-		{
-#ifdef JP
-			msg_print("泥棒は笑って逃げた！");
-#else
-			msg_print("The thief flees laughing!");
-#endif
-			teleport_away(m_idx, MAX_SIGHT * 2 + 5);
-		}
+		teleport_away(m_idx, MAX_SIGHT * 2 + 5);
 	}
 
 

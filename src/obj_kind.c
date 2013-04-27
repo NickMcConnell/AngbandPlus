@@ -214,39 +214,39 @@ if (!num[0]) quit("町のアイテムがない！");
 }
 
 
-byte get_object_level(object_type *o_ptr)
+byte get_object_level(const object_type *o_ptr)
 {
 	return k_info[o_ptr->k_idx].level;
 }
 
 
-s32b get_object_cost(object_type *o_ptr)
+s32b get_object_cost(const object_type *o_ptr)
 {
 	return k_info[o_ptr->k_idx].cost;
 }
 
 
-cptr get_object_name(object_type *o_ptr)
+cptr get_object_name(const object_type *o_ptr)
 {
 	return (k_name + k_info[o_ptr->k_idx].name);
 }
 
 
 /* The player is "aware" of the item's effects */
-bool get_object_aware(object_type *o_ptr)
+bool get_object_aware(const object_type *o_ptr)
 {
 	return k_info[o_ptr->k_idx].aware;
 }
 
 
 /* The player has "tried" one of the items */
-bool get_object_tried(object_type *o_ptr)
+bool get_object_tried(const object_type *o_ptr)
 {
 	return k_info[o_ptr->k_idx].tried;
 }
 
 
-bool object_is_potion(object_type *o_ptr)
+bool object_is_potion(const object_type *o_ptr)
 {
 	return (k_info[o_ptr->k_idx].tval == TV_POTION);
 }

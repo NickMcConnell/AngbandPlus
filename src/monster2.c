@@ -594,7 +594,8 @@ s16b get_mon_num(int level)
 				int d = level / 4 + 2;
 
 				/* Boost the level */
-				level += ((d < 5) ? d : 5);
+				/* level += ((d < 5) ? d : 5); */
+				level += ((d < 2) ? d : 2);
 			}
 
 			/* Occasional "nasty" monster */
@@ -604,7 +605,8 @@ s16b get_mon_num(int level)
 				int d = level / 4 + 2;
 
 				/* Boost the level */
-				level += ((d < 5) ? d : 5);
+				/* level += ((d < 5) ? d : 5); */
+				level += ((d < 2) ? d : 2);
 			}
 		}
 	}
@@ -1065,9 +1067,80 @@ void lore_treasure(int m_idx, int num_item, int num_gold)
 
 void sanity_blast(monster_type *m_ptr, bool necro)
 {
-	bool happened = FALSE;
 	int power = 100;
 
+#ifdef TINYANGBAND
+	char            m_name[80];
+	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+
+	power = r_ptr->level * 3 + 10;
+	monster_desc(m_name, m_ptr, 0);
+
+	/* Pet eldritch horrors are safe */
+	if (is_pet(m_ptr)) return;
+
+	if (!(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags3 & RF3_UNIQUE_7))
+	{
+		if (r_ptr->flags1 & RF1_FRIENDS) power /= 2;
+	}
+	else power *= 2;
+
+	if (!hack_mind)
+		return; /* No effect yet, just loaded... */
+
+	if (!(r_ptr->flags2 & RF2_ELDRITCH_HORROR))
+		return; /* oops */
+
+	if (saving_throw(p_ptr->skill_sav * 100 / power))
+	{
+		return; /* Save, no adverse effects */
+	}
+
+	if (!m_ptr->ml)
+	{
+#ifdef JP
+		msg_print("恐ろしい何かが近くにいる！");
+#else
+		msg_print("Terrible one is near you!");
+#endif
+	}
+
+	/* Something silly happens... */
+	else if (p_ptr->image)
+	{
+#ifdef JP
+		msg_format("%s%sの顔を見てしまった！",
+#else
+		msg_format("You behold the %s visage of %s!",
+#endif
+			funny_desc[randint0(MAX_SAN_FUNNY)], m_name);
+	}
+
+	/* Something frightening happens... */
+	else
+	{
+#ifdef JP
+		msg_format("%s%sの顔を見てしまった！",
+#else
+		msg_format("You behold the %s visage of %s!",
+#endif
+			horror_desc[randint0(MAX_SAN_HORROR)], m_name);
+
+		r_ptr->r_flags2 |= RF2_ELDRITCH_HORROR;
+	}
+
+	(void)set_afraid(30 + randint1(30));
+
+	if (!saving_throw(p_ptr->skill_sav * 100 / power)) /* Amnesia */
+	{
+		if (lose_all_info())
+#ifdef JP
+			msg_print("あまりの恐怖に全てのことを忘れてしまった！");
+#else
+			msg_print("You forget everything in your utmost terror!");
+#endif
+	}
+#else
 	if (!necro)
 	{
 		char            m_name[80];
@@ -1107,11 +1180,10 @@ void sanity_blast(monster_type *m_ptr, bool necro)
 		{
 			/* Something silly happens... */
 #ifdef JP
-msg_format("%s%sの顔を見てしまった！",
+			msg_format("%s%sの顔を見てしまった！",
 #else
 			msg_format("You behold the %s visage of %s!",
 #endif
-
 				funny_desc[randint0(MAX_SAN_FUNNY)], m_name);
 
 			if (randint1(3) == 1)
@@ -1125,11 +1197,10 @@ msg_format("%s%sの顔を見てしまった！",
 
 		/* Something frightening happens... */
 #ifdef JP
-msg_format("%s%sの顔を見てしまった！",
+		msg_format("%s%sの顔を見てしまった！",
 #else
 		msg_format("You behold the %s visage of %s!",
 #endif
-
 			horror_desc[randint0(MAX_SAN_HORROR)], m_name);
 
 		r_ptr->r_flags2 |= RF2_ELDRITCH_HORROR;
@@ -1149,11 +1220,10 @@ msg_format("%s%sの顔を見てしまった！",
 	else
 	{
 #ifdef JP
-msg_print("ネクロノミコンを読んで正気を失った！");
+		msg_print("ネクロノミコンを読んで正気を失った！");
 #else
 		msg_print("Your sanity is shaken by reading the Necronomicon!");
 #endif
-
 	}
 
 	if (!saving_throw(p_ptr->skill_sav * 100 / power)) /* Mind blast */
@@ -1197,32 +1267,27 @@ msg_print("ネクロノミコンを読んで正気を失った！");
 		return;
 	}
 
-#if 0
 	if (!saving_throw(p_ptr->skill_sav * 100 / power)) /* Permanent lose int & wis */
 	{
 		if (dec_stat(A_INT, 10, TRUE)) happened = TRUE;
 		if (dec_stat(A_WIS, 10, TRUE)) happened = TRUE;
 		if (happened)
 #ifdef JP
-msg_print("以前より正気でなくなった気がする。");
+			msg_print("以前より正気でなくなった気がする。");
 #else
 			msg_print("You feel much less sane than before.");
 #endif
-
 		return;
 	}
-#endif
 
 	if (!saving_throw(p_ptr->skill_sav * 100 / power)) /* Amnesia */
 	{
-
 		if (lose_all_info())
 #ifdef JP
-msg_print("あまりの恐怖に全てのことを忘れてしまった！");
+			msg_print("あまりの恐怖に全てのことを忘れてしまった！");
 #else
 			msg_print("You forget everything in your utmost terror!");
 #endif
-
 		return;
 	}
 
@@ -1310,7 +1375,7 @@ msg_print("あまりの恐怖に全てのことを忘れてしまった！");
 				break;
 		}
 	}
-
+#endif /* ifdef TINYANGBAND */
 	p_ptr->update |= PU_BONUS;
 	handle_stuff();
 }
@@ -1427,7 +1492,7 @@ void update_mon(int m_idx, bool full)
 	if (d <= MAX_SIGHT)
 	{
 		/* Basic telepathy */
-		if ((p_ptr->telepathy) || (p_ptr->concent >= CONCENT_TELE_THRESHOLD))
+		if (p_ptr->telepathy)
 		{
 			/* Empty mind, no telepathy */
 			if (r_ptr->flags2 & (RF2_EMPTY_MIND))
@@ -1466,16 +1531,6 @@ void update_mon(int m_idx, bool full)
 			}
 		}
 
-		/* Magic */
-		if (is_keeping_spell(MS_DETECT_EVIL))
-		{
-			if (r_ptr->flags3 & (RF3_EVIL))
-			{
-				r_ptr->r_flags3 |= (RF3_EVIL);
-				flag = TRUE;
-			}
-		}
-
 		/* Normal line of sight, and not blind */
 		if (player_has_los_bold(fy, fx) && !p_ptr->blind)
 		{
@@ -1483,7 +1538,7 @@ void update_mon(int m_idx, bool full)
 			bool do_cold_blood = FALSE;
 
 			/* Use "radar eye" */
-			if ((p_ptr->tim_radar > 0) || (p_ptr->concent >= CONCENT_RADAR_THRESHOLD))
+			if (p_ptr->tim_radar > 0)
 			{
 				/* Easy to see */
 				easy = flag = TRUE;
@@ -2663,14 +2718,14 @@ static bool summon_specific_okay(int r_idx)
 
 		case SUMMON_KIN:
 		{
+			int pr_idx = 0;
+			if (summon_specific_who > 0)
+			{
+				pr_idx = m_list[summon_specific_who].r_idx;
+			}
 			okay = ((r_ptr->d_char == summon_kin_type) &&
-			       !(r_ptr->flags1 & RF1_UNIQUE));
-			break;
-		}
-
-		case SUMMON_DAWN:
-		{
-			okay = (r_idx == MON_DAWN);
+			       !(r_ptr->flags1 & RF1_UNIQUE) &&
+				   (r_idx != pr_idx));
 			break;
 		}
 
@@ -2716,21 +2771,9 @@ static bool summon_specific_okay(int r_idx)
 			break;
 		}
 
-		case SUMMON_PHANTOM:
-		{
-			okay = (r_idx == MON_PHANTOM_B || r_idx == MON_PHANTOM_W);
-			break;
-		}
-
 		case SUMMON_ELEMENTAL:
 		{
 			okay = (r_ptr->d_char == 'E');
-			break;
-		}
-
-		case SUMMON_BLUE_HORROR:
-		{
-			okay = (r_idx == MON_BLUE_HORROR);
 			break;
 		}
 	}
@@ -2784,7 +2827,11 @@ bool summon_specific(int who, int y1, int x1, int lev, int type, bool group, boo
 	get_mon_num_prep(summon_specific_okay, get_monster_hook2(y, x));
 
 	/* Pick a monster, using the level calculation */
+#ifdef TINYANGBAND
+	r_idx = get_mon_num((dun_level + lev) / 2 + 2);
+#else
 	r_idx = get_mon_num((dun_level + lev) / 2 + 5);
+#endif
 
 	/* Handle failure */
 	if (!r_idx) return (FALSE);
@@ -3754,4 +3801,75 @@ void monster_drop_carried_objects(monster_type *m_ptr)
 
 	/* Forget objects */
 	m_ptr->hold_o_idx = 0;
+}
+ 
+ 
+/*
+ * Make a monster carry an object
+ * Taken from Angband 3.1.0 under the Angband license
+ */
+s16b monster_carry(int m_idx, object_type *j_ptr)
+{
+        s16b o_idx;
+ 
+        s16b this_o_idx, next_o_idx = 0;
+ 
+        monster_type *m_ptr = &m_list[m_idx];
+
+
+        /* Scan objects already being held for combination */
+        for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
+        {
+                object_type *o_ptr;
+
+                /* Get the object */
+                o_ptr = &o_list[this_o_idx];
+
+                /* Get the next object */
+                next_o_idx = o_ptr->next_o_idx;
+
+                /* Check for combination */
+                if (object_similar(o_ptr, j_ptr))
+                {
+                        /* Combine the items */
+                        object_absorb(o_ptr, j_ptr);
+
+                        /* Result */
+                        return (this_o_idx);
+                }
+        }
+
+
+        /* Make an object */
+        o_idx = o_pop();
+
+        /* Success */
+        if (o_idx)
+        {
+                object_type *o_ptr;
+
+                /* Get new object */
+                o_ptr = &o_list[o_idx];
+
+                /* Copy object */
+                object_copy(o_ptr, j_ptr);
+
+                /* Forget mark */
+                o_ptr->marked = OM_TOUCHED;
+
+                /* Forget location */
+                o_ptr->iy = o_ptr->ix = 0;
+
+                /* Link the object to the monster */
+                o_ptr->held_m_idx = m_idx;
+
+                /* Link the object to the pile */
+                o_ptr->next_o_idx = m_ptr->hold_o_idx;
+
+                /* Link the monster to the object */
+                m_ptr->hold_o_idx = o_idx;
+        }
+
+        /* Result */
+        return (o_idx);
 }

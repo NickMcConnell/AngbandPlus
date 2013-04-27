@@ -254,11 +254,11 @@ void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note, int who)
 			/* Make a sound */
 			if (!monster_living(r_ptr))
 			{
-				sound(SOUND_N_KILL);
+				/* sound(SOUND_N_KILL); */ /* No sound for not kill */
 			}
 			else
 			{
-				sound(SOUND_KILL);
+ 				sound(SOUND_KILL); /* Normalkill */
 			}
 
 			if (known)
@@ -277,21 +277,19 @@ void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note, int who)
 				else if (!monster_living(r_ptr))
 				{
 #ifdef JP
-msg_format("%^sは破壊された。", m_name);
+					msg_format("%^sは破壊された。", m_name);
 #else
 					msg_format("%^s is destroyed.", m_name);
 #endif
-
 				}
 				/* Death by normal attack -- living monster */
 				else
 				{
 #ifdef JP
-msg_format("%^sは殺された。", m_name);
+					msg_format("%^sは殺された。", m_name);
 #else
 					msg_format("%^s is killed.", m_name);
 #endif
-
 				}
 			}
 
@@ -1382,8 +1380,11 @@ static int check_hit2(int power, int level, int ac)
 	if (k < 10) return (k < 5);
 
 	/* Calculate the "attack quality" */
+#ifdef TINYANGBAND
+	i = (power + (level * 5));
+#else
 	i = (power + (level * 3));
-
+#endif
 	/* Power and Level compete against Armor */
 	if ((i > 0) && (randint1(i) > ((ac * 3) / 4))) return (TRUE);
 
@@ -2117,7 +2118,7 @@ msg_format("%sは%^sの攻撃をかわした。", t_name,m_name);
 
 	if (explode)
 	{
-		sound(SOUND_EXPLODE);
+		sound(SOUND_BR_FIRE); /* (Sound substitute) No sound for explode, use breathe fire */
 
 		/* Cancel Invulnerability */
 		if (m_ptr->invulner) m_ptr->invulner = 0;
@@ -2136,38 +2137,20 @@ mon_take_hit_mon(m_idx, m_ptr->hp + 1, &fear, "は爆発して粉々になった。", m_idx)
 	/* Blink away */
 	if (blinked)
 	{
-		if (teleport_barrier(m_idx))
+		if (see_m)
 		{
-			if (see_m)
-			{
 #ifdef JP
-				msg_print("泥棒は笑って逃げ...ようとしたがバリアに防がれた。");
+			msg_print("泥棒は笑って逃げた！");
 #else
-				msg_print("The thief flees laughing...? But magic barrier obstructs it.");
+			msg_print("The thief flees laughing!");
 #endif
-			}
-			else if (known)
-			{
-				mon_fight = TRUE;
-			}
 		}
-		else
+		else if (known)
 		{
-			if (see_m)
-			{
-	#ifdef JP
-				msg_print("泥棒は笑って逃げた！");
-	#else
-				msg_print("The thief flees laughing!");
-	#endif
-			}
-			else if (known)
-			{
-				mon_fight = TRUE;
-			}
-
-			teleport_away(m_idx, MAX_SIGHT * 2 + 5);
+			mon_fight = TRUE;
 		}
+
+		teleport_away(m_idx, MAX_SIGHT * 2 + 5);
 	}
 
 	return TRUE;
@@ -2369,7 +2352,11 @@ static void process_monster(int m_idx)
 		int d = 1;
 
 		/* Make a "saving throw" against stun */
+#ifdef TINYANGBAND
+		if (randint0(750) <= r_ptr->level * r_ptr->level)
+#else
 		if (randint0(5000) <= r_ptr->level * r_ptr->level)
+#endif
 		{
 			/* Recover fully */
 			d = m_ptr->stunned;
@@ -2601,9 +2588,6 @@ static void process_monster(int m_idx)
 			}
 		}
 
-		/* Magic: Anti multiply barrier obstructs multuplying of monsters */
-		if (multiply_barrier(m_idx)) k = 8;
-
 		/* Hack -- multiply slower in crowded areas */
 		if ((k < 4) && (!k || !randint0(k * MON_MULT_ADJ)))
 		{
@@ -2614,23 +2598,13 @@ static void process_monster(int m_idx)
 				if (m_ptr->ml)
 				{
 					r_ptr->r_flags2 |= (RF2_MULTIPLY);
+                    sound(SOUND_MULTIPLY);
 				}
 
 				/* Multiplying takes energy */
 				return;
 			}
 		}
-	}
-
-	/* Hack! "Cyber" monster makes noise... */
-	if (((m_ptr->r_idx == MON_CYBER) || (m_ptr->r_idx == MON_CYBER_KING)) &&
-	    (randint1(CYBERNOISE) == 1) && !m_ptr->ml && (m_ptr->cdis <= MAX_SIGHT))
-	{
-#ifdef JP
-		msg_print("重厚な足音が聞こえた。");
-#else
-		msg_print("You hear heavy steps.");
-#endif
 	}
 
 	/* Some monsters can speak */
@@ -3301,6 +3275,7 @@ static void process_monster(int m_idx)
 					if (f1 & TR1_SLAY_DEMON)  flg3 |= (RF3_DEMON);
 					if (f1 & TR1_SLAY_UNDEAD) flg3 |= (RF3_UNDEAD);
 					if (f1 & TR1_SLAY_ANIMAL) flg3 |= (RF3_ANIMAL);
+					if (f1 & TR1_SLAY_HUMAN)  flg3 |= (RF3_HUMAN);
 					if (f1 & TR1_SLAY_EVIL)   flg3 |= (RF3_EVIL);
 
 					/* The object cannot be picked up by the monster */
@@ -3344,23 +3319,11 @@ static void process_monster(int m_idx)
 #endif
 						}
 
-						/* Excise the object */
+						/* Excise the object from floor */
 						excise_object_idx(this_o_idx);
 
-						/* Forget mark */
-						o_ptr->marked &= OM_TOUCHED;
-
-						/* Forget location */
-						o_ptr->iy = o_ptr->ix = 0;
-
-						/* Memorize monster */
-						o_ptr->held_m_idx = m_idx;
-
-						/* Build a stack */
-						o_ptr->next_o_idx = m_ptr->hold_o_idx;
-
-						/* Carry object */
-						m_ptr->hold_o_idx = this_o_idx;
+						/* Carry the object */
+						(void)monster_carry(m_idx, o_ptr);
 					}
 
 					/* Destroy the item if not a pet */

@@ -23,7 +23,7 @@ RC         = brc32
 #
 # Name of the *.exe-file
 
-EXE_FILE = XAngband.exe
+EXE_FILE = tinyangband.exe
 
 ###################################################################
 #
@@ -58,22 +58,21 @@ CPPFLAGS= $(CCOPTS) $(DBGOPT)
 ######################## Targets ##################################
 
 OBJ = \
-	main-win.obj readdib.obj autopick.obj \
-	artifact.obj birth.obj bldg.obj chuukei.obj\
-	cave.obj cmd1.obj cmd2.obj cmd3.obj \
-	cmd4.obj cmd5.obj cmd6.obj dungeon.obj \
-	effects.obj files.obj flavor.obj generate.obj \
-	grid.obj init1.obj init2.obj japanese.obj load.obj \
-	streams.obj rooms.obj melee1.obj melee2.obj \
-	mind.obj monster1.obj monster2.obj mspells1.obj \
-	mspells2.obj mutation.obj notes.obj obj_kind.obj \
-	object1.obj object2.obj racial.obj save.obj \
-	scores.obj spells1.obj spells2.obj spells3.obj \
-	snipe.obj store.obj tables.obj util.obj \
-	variable.obj wild.obj wizard1.obj wizard2.obj \
-	xtra1.obj xtra2.obj z-form.obj z-rand.obj \
-	z-term.obj z-util.obj z-virt.obj element.obj \
-	snatch.obj mspells3.obj magic.obj
+	main-win.obj readdib.obj \
+	autopick.obj chuukei.obj japanese.obj \
+	artifact.obj birth.obj bldg.obj cave.obj \
+	cmd1.obj cmd2.obj cmd3.obj cmd4.obj cmd5.obj cmd6.obj \
+	dungeon.obj effects.obj files.obj flavor.obj \
+	generate.obj grid.obj init1.obj init2.obj \
+	load.obj melee1.obj melee2.obj monster1.obj \
+	monster2.obj mspells1.obj mspells2.obj mutation.obj \
+	notes.obj obj_kind.obj object1.obj object2.obj \
+	racial.obj rooms.obj save.obj scores.obj \
+	spells1.obj spells2.obj spells3.obj store.obj \
+	streams.obj tables.obj util.obj variable.obj \
+	wild.obj wizard1.obj wizard2.obj xtra1.obj \
+	xtra2.obj z-form.obj z-rand.obj z-term.obj \
+	z-util.obj z-virt.obj
 
 all : $(EXE_FILE)
 
@@ -97,6 +96,7 @@ $(EXE_FILE): $(OBJ) angband.res
 
 angband.res: $(ANGBAND_RC)
 	$(RC) -r -foangband.res $(ANGBAND_RC)
+#	$(RC) -r -foang_eng.res $(ANGBAND_RC)
 
 ########################### Implicit Rules ########################
 .c.obj:

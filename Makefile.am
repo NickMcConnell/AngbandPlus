@@ -2,6 +2,6 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-EXTRA_DIST = autopick.txt readme.txt readme_angband readme_eng.txt
+EXTRA_DIST = bootstrap autopick.txt readme.txt readme_angband readme_eng.txt
 
 SUBDIRS = src lib

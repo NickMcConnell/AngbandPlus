@@ -85,7 +85,7 @@ static byte *obj_mem;
  * currently being read is older than version "x.y.z".
  * Adapted for Kantangband / XAngband
  */
-static bool k_older_than(byte x, byte y, byte z)
+static bool older_than(byte x, byte y, byte z)
 {
 	/* Much older, or much more recent */
 	if (k_major < x) return (TRUE);
@@ -348,18 +348,7 @@ static void rd_item(object_type *o_ptr)
 	/* Type/Subtype */
 	rd_byte(&o_ptr->tval);
 	rd_byte(&o_ptr->sval);
-
-	/* Special pval */
-	if (k_older_than(0, 7, 1))
-	{
-		s16b tmp16s;
-		rd_s16b(&tmp16s);
-		o_ptr->pval = tmp16s;
-	}
-	else
-	{
-		rd_s32b(&o_ptr->pval);
-	}
+	rd_s32b(&o_ptr->pval);
 
 	rd_byte(&o_ptr->discount);
 	rd_byte(&o_ptr->number);
@@ -367,16 +356,7 @@ static void rd_item(object_type *o_ptr)
 
 	rd_byte(&o_ptr->name1);
 	rd_byte(&o_ptr->name2);
-	if (k_older_than(0, 7, 1))
-	{
-		s16b tmp16s;
-		rd_s16b(&tmp16s);
-		o_ptr->timeout = tmp16s;
-	}
-	else
-	{
-		rd_s32b(&o_ptr->timeout);
-	}
+	rd_s32b(&o_ptr->timeout);
 
 	rd_s16b(&o_ptr->to_h);
 	rd_s16b(&o_ptr->to_d);
@@ -402,77 +382,10 @@ static void rd_item(object_type *o_ptr)
 	/* Special powers */
 	rd_byte(&o_ptr->xtra1);
 	rd_byte(&o_ptr->xtra2);
-	if (k_older_than(0, 2, 3))
-	{
-		/* Convert torch and lantern */
-		if (o_ptr->tval == TV_LITE &&
-		    (o_ptr->sval == SV_LITE_TORCH || o_ptr->sval == SV_LITE_LANTERN))
-		{
-			o_ptr->xtra3 = (s16b) o_ptr->pval;
-			o_ptr->pval = 0;
-		}
-	}
-	else
-	{
-		rd_s16b(&o_ptr->xtra3);
-	}
-
-	if (k_older_than(0, 2, 1))
-	{
-		if (o_ptr->xtra1 == EGO_XTRA_SUSTAIN)
-		{
-			switch (o_ptr->xtra2 % 6)
-			{
-			case 0: o_ptr->art_flags2 |= (TR2_SUST_STR); break;
-			case 1: o_ptr->art_flags2 |= (TR2_SUST_INT); break;
-			case 2: o_ptr->art_flags2 |= (TR2_SUST_WIS); break;
-			case 3: o_ptr->art_flags2 |= (TR2_SUST_DEX); break;
-			case 4: o_ptr->art_flags2 |= (TR2_SUST_CON); break;
-			case 5: o_ptr->art_flags2 |= (TR2_SUST_CHR); break;
-			}
-			o_ptr->xtra2 = 0;
-		}
-		else if (o_ptr->xtra1 == EGO_XTRA_POWER)
-		{
-			switch (o_ptr->xtra2 % 11)
-			{
-			case  0: o_ptr->art_flags2 |= (TR2_RES_BLIND);  break;
-			case  1: o_ptr->art_flags2 |= (TR2_RES_CONF);   break;
-			case  2: o_ptr->art_flags2 |= (TR2_RES_SOUND);  break;
-			case  3: o_ptr->art_flags2 |= (TR2_RES_SHARDS); break;
-			case  4: o_ptr->art_flags2 |= (TR2_RES_NETHER); break;
-			case  5: o_ptr->art_flags2 |= (TR2_RES_NEXUS);  break;
-			case  6: o_ptr->art_flags2 |= (TR2_RES_CHAOS);  break;
-			case  7: o_ptr->art_flags2 |= (TR2_RES_DISEN);  break;
-			case  8: o_ptr->art_flags2 |= (TR2_RES_POIS);   break;
-			case  9: o_ptr->art_flags2 |= (TR2_RES_DARK);   break;
-			case 10: o_ptr->art_flags2 |= (TR2_RES_LITE);   break;
-			}
-			o_ptr->xtra2 = 0;
-		}		
-		else if (o_ptr->xtra1 == EGO_XTRA_ABILITY)
-		{
-			switch (o_ptr->xtra2 % 8)
-			{
-			case 0: o_ptr->art_flags3 |= (TR3_FEATHER);     break;
-			case 1: o_ptr->art_flags3 |= (TR3_LITE);        break;
-			case 2: o_ptr->art_flags3 |= (TR3_SEE_INVIS);   break;
-			case 3: o_ptr->art_flags3 |= (TR3_TELEPATHY);   break;
-			case 4: o_ptr->art_flags3 |= (TR3_SLOW_DIGEST); break;
-			case 5: o_ptr->art_flags3 |= (TR3_REGEN);       break;
-			case 6: o_ptr->art_flags2 |= (TR2_FREE_ACT);    break;
-			case 7: o_ptr->art_flags2 |= (TR2_HOLD_LIFE);   break;
-			}
-			o_ptr->xtra2 = 0;
-		}
-		o_ptr->xtra1 = 0;
-	}
+	rd_s16b(&o_ptr->xtra3);
 
 	/* Feeling - from 2.3.1, "savefile version 1" */
-	if (sf_version >= 1)
-	{
-		rd_byte(&o_ptr->feeling);
-	}
+	rd_byte(&o_ptr->feeling);
 
 	/* Inscription */
 	rd_string(buf, sizeof(buf));
@@ -506,11 +419,8 @@ static void rd_item(object_type *o_ptr)
 	if (buf[0]) o_ptr->art_name = quark_add(buf);
 
 	/* Named ego */
-	if (!k_older_than(0, 1, 1))
-	{
-		rd_string(buf, sizeof(buf));
-		if (buf[0]) o_ptr->ego_name = quark_add(buf);
-	}
+	rd_string(buf, sizeof(buf));
+	if (buf[0]) o_ptr->ego_name = quark_add(buf);
 
 	/* The Python object - old */
 	{
@@ -519,43 +429,10 @@ static void rd_item(object_type *o_ptr)
 		rd_s32b(&tmp32s);
 		strip_bytes(tmp32s);
 	}
-
+#if 0
 	/* Mega-Hack -- handle "dungeon objects" later */
 	if ((o_ptr->k_idx >= 445) && (o_ptr->k_idx <= 479)) return;
-
-	/* Check for k_idx changed (if older than 0.7.0) */
-	if (k_older_than(0, 7, 0))
-	{
-		object_kind *k_ptr = &k_info[o_ptr->k_idx];
-
-		if ((k_ptr->tval != o_ptr->tval) || (k_ptr->sval != o_ptr->sval))
-		{
-			bool found = FALSE;
-			int k;
-			byte tmp8u = obj_mem[o_ptr->k_idx];
-
-			/* Search for same type object */
-			for (k = 0; k < max_k_idx; k++)
-			{
-				if ((k_info[k].tval == o_ptr->tval) && (k_info[k].sval == o_ptr->sval))
-				{
-					/* Replace k_idx to new id */
-					o_ptr->k_idx = k;
-
-					/* Set the object memory */
-					k_info[k].aware = (tmp8u & 0x01) ? TRUE: FALSE;
-					k_info[k].tried = (tmp8u & 0x02) ? TRUE: FALSE;
-
-					found = TRUE;
-					break;
-				}
-			}
-
-			/* Remove objects deleted from k_info */
-			if (!found) object_wipe(o_ptr);
-		}
-	}
-
+#endif
 	/* Paranoia */
 	if (o_ptr->name1)
 	{
@@ -566,9 +443,6 @@ static void rd_item(object_type *o_ptr)
 
 		/* Verify that artifact */
 		if (!a_ptr->name) o_ptr->name1 = 0;
-
-		/* Set activation */
-		if (k_older_than(0, 7, 0)) o_ptr->xtra2 = a_ptr->activate;
 	}
 
 	/* Paranoia */
@@ -581,26 +455,6 @@ static void rd_item(object_type *o_ptr)
 
 		/* Verify that ego-item */
 		if (!e_ptr->name) o_ptr->name2 = 0;
-
-		/* Set activation */
-		if (k_older_than(0, 7, 0))
-		{
-			if (!o_ptr->xtra2) o_ptr->xtra2 = e_ptr->activate;
-		}
-	}
-
-	if (k_older_than(0, 7, 1))
-	{
-		if (o_ptr->tval == TV_ROD)
-		{
-			object_kind *k_ptr = &k_info[o_ptr->k_idx];
-
-			if (o_ptr->pval != (k_ptr->pval * o_ptr->number))
-			{
-				o_ptr->pval = k_ptr->pval * o_ptr->number;
-				o_ptr->timeout = 0;
-			}
-		}
 	}
 }
 
@@ -624,46 +478,20 @@ static void rd_monster(monster_type *m_ptr)
 	rd_s16b(&m_ptr->maxhp);
 	rd_s16b(&m_ptr->csleep);
 	rd_byte(&m_ptr->mspeed);
-	if (k_older_than(0, 4, 1))
-	{
-		rd_byte(&tmp8u);
-		m_ptr->energy_need = 100 - (s16b)tmp8u;
-	}
-	else rd_s16b(&m_ptr->energy_need);
-	if (k_older_than(0, 4, 2))
-	{
-		m_ptr->hasted = 0;
-		m_ptr->slowed = 0;
-	}
-	else
-	{
-		rd_byte(&m_ptr->hasted);
-		rd_byte(&m_ptr->slowed);
-	}
+	rd_s16b(&m_ptr->energy_need);
+	rd_byte(&m_ptr->hasted);
+	rd_byte(&m_ptr->slowed);
 	rd_byte(&m_ptr->stunned);
 	rd_byte(&m_ptr->confused);
 	rd_byte(&m_ptr->monfear);
-
-	/* Monster invulnerability introduced from 2.3.2+ */
-	if (sf_version < 2)
-		m_ptr->invulner = 0;
-	else
-		rd_byte(&m_ptr->invulner);
+	rd_byte(&m_ptr->invulner);
 
 	rd_u32b(&m_ptr->smart);
 
-	if (k_older_than(0, 1, 3))
-	{
-		m_ptr->target_y = 0;
-		m_ptr->target_x = 0;
-		m_ptr->flags = 0;
-	}
-	else
-	{
-		rd_s16b(&m_ptr->target_y);
-		rd_s16b(&m_ptr->target_x);
-		rd_u32b(&m_ptr->flags);
-	}
+	rd_s16b(&m_ptr->target_y);
+	rd_s16b(&m_ptr->target_x);
+	rd_u32b(&m_ptr->flags);
+
 	rd_byte(&tmp8u);
 }
 
@@ -778,7 +606,7 @@ static errr rd_store(int town_number, int store_number)
 		{
 			int k = st_ptr->stock_num;
 
-			if (!(k_older_than(0, 7, 0) && (q_ptr->k_idx == 0)))
+			if (q_ptr->k_idx != 0)
 			{
 				/* Acquire the item */
 				object_copy(&st_ptr->stock[k], q_ptr);
@@ -860,12 +688,9 @@ static void rd_options(void)
 	rd_byte(&b);
 	hitpoint_warn = b;
 
-	if (!k_older_than(1, 1, 2))
-	{
-		/* Read "spellpoint_warn" */
-		rd_byte(&b);
-		spellpoint_warn = b;
-	}
+	/* Read "spellpoint_warn" */
+	rd_byte(&b);
+	spellpoint_warn = b;
 
 	/*** Cheating options ***/
 
@@ -907,13 +732,6 @@ static void rd_options(void)
 				{
 					/* Set */
 					if (flag[n] & (1L << i))
-					{
-						/* Set */
-						option_flag[n] |= (1L << i);
-					}
-
-					/* Monsters always flow player from 0.7.0 */
-					else if (k_older_than(0, 7, 0) && (n == 1) && ((i == 10) || (i == 11)))
 					{
 						/* Set */
 						option_flag[n] |= (1L << i);
@@ -996,14 +814,7 @@ static void rd_ghost(void)
 static void load_quick_start(void)
 {
 	byte tmp8u;
-	s16b tmp16s;
 	int i;
-
-	if (k_older_than(0, 2, 2))
-	{
-		previous_char.quick_ok = FALSE;
-		return;
-	}
 
 	rd_byte(&previous_char.psex);
 	rd_byte(&previous_char.prace);
@@ -1021,12 +832,7 @@ static void load_quick_start(void)
 
 	for (i = 0; i < PY_MAX_LEVEL; i++) rd_s16b(&previous_char.player_hp[i]);
 
-	rd_s16b(&previous_char.chaos_patron);
-
-	if (k_older_than(0, 4, 3)) /* There were virtues in old ver. */
-	{
-		for (i = 0; i < MAX_PLAYER_VIRTUES; i++) rd_s16b(&tmp16s);
-	}
+	rd_s16b(&previous_char.valar_patron);
 
 	for (i = 0; i < 4; i++) rd_string(previous_char.history[i], sizeof(previous_char.history[i]));
 
@@ -1143,8 +949,6 @@ static void rd_extra(void)
 	rd_s16b(&p_ptr->food);
 	strip_bytes(4); /* Old "food_digested" / "protection" */
 	rd_s16b(&p_ptr->energy_need);
-	if (k_older_than(0, 4, 1))
-		p_ptr->energy_need = 100 - p_ptr->energy_need;
 	rd_s16b(&p_ptr->fast);
 	rd_s16b(&p_ptr->slow);
 	rd_s16b(&p_ptr->afraid);
@@ -1178,29 +982,15 @@ static void rd_extra(void)
 	rd_s16b(&p_ptr->tim_wraith);
 	rd_s16b(&p_ptr->resist_magic);
 	rd_s16b(&p_ptr->tim_radar);
-	rd_s16b(&p_ptr->tim_sentence);	/* Magic */
-	rd_s16b(&p_ptr->tim_xtra1);
+	rd_s16b(&p_ptr->tim_might);
 	rd_s16b(&p_ptr->tim_xtra2);
 	rd_s16b(&p_ptr->tim_xtra3);
-	rd_s16b(&p_ptr->tim_xtra4);
-	rd_s16b(&p_ptr->tim_xtra5);
-	rd_s16b(&p_ptr->tim_xtra6);
-	rd_s16b(&p_ptr->chaos_patron);
-	rd_u32b(&p_ptr->muta);
-	rd_u32b(&p_ptr->concent);
-	rd_u32b(&p_ptr->r_idx);
-	if (k_older_than(0, 7, 2))
-	{
-		p_ptr->muta = 0;
-		p_ptr->concent = 0;
-		p_ptr->r_idx = 0;
-	}
 
-	if (!(sf_version < 5) && k_older_than(0, 4, 3))
-	{
-		for (i = 0; i < MAX_PLAYER_VIRTUES; i++) rd_s16b(&tmp16s);
-		for (i = 0; i < MAX_PLAYER_VIRTUES; i++) rd_s16b(&tmp16s);
-	}
+	rd_s16b(&p_ptr->tim_brand);
+	rd_u32b(&p_ptr->xtra_brand);
+
+	rd_s16b(&p_ptr->valar_patron);
+	rd_u32b(&p_ptr->muta);
 
 	/* Calc the regeneration modifier for mutations */
 	mutant_regenerate_mod = calc_mutant_regenerate_mod();
@@ -1213,19 +1003,9 @@ static void rd_extra(void)
 
 	rd_byte(&tmp8u); /* oops */
 	rd_byte(&p_ptr->searching);
-	rd_byte(&maximize_mode);
+	rd_byte(&tmp8u); /* maximize_mode was deleted */
 	rd_byte(&preserve_mode);
 	rd_byte(&tmp8u);
-
-	/* Magic */
-	if (!k_older_than(1, 2, 1))
-	{
-		rd_s16b(&p_ptr->keep_magic);
-		rd_u32b(&p_ptr->keep_spells);
-		rd_s16b(&p_ptr->rvs_x);
-		rd_s16b(&p_ptr->rvs_y);
-		rd_s32b(&p_ptr->rvs_d);
-	}
 
 	/* Future use */
 	for (i = 0; i < 48; i++) rd_byte(&tmp8u);
@@ -1255,15 +1035,8 @@ static void rd_extra(void)
 	/* Turn when level began */
 	rd_s32b(&old_turn);
 
-	if (k_older_than(1, 0, 1))
-	{
-		p_ptr->feeling_turn = old_turn;
-	}
-	else
-	{
-		/* Turn of last "feeling" */
-		rd_s32b(&p_ptr->feeling_turn);
-	}
+	/* Turn of last "feeling" */
+	rd_s32b(&p_ptr->feeling_turn);
 
 	/* Current turn */
 	rd_s32b(&turn);
@@ -1321,10 +1094,7 @@ static errr rd_inventory(void)
 		rd_item(q_ptr);
 
 		/* Hack -- verify item */
-		if (!k_older_than(0, 7, 0))
-		{
-			if (!q_ptr->k_idx) return (53);
-		}
+		if (!q_ptr->k_idx) return (53);
 
 		/* Wield equipment */
 		if (n >= INVEN_WIELD)
@@ -1380,23 +1150,6 @@ static errr rd_inventory(void)
 				inven_cnt++;
 			}
 		}
-	}
-
-	if (k_older_than(1, 1, 2))
-	{
-		int i;
-
-		q_ptr = &forge;
-		object_wipe(q_ptr);
-
-		if (inventory[INVEN_OUTER].k_idx) object_copy(q_ptr, &inventory[INVEN_OUTER]);
-
-		for (i = INVEN_OUTER; i > INVEN_ARM; i--)
-		{
-			object_copy(&inventory[i], &inventory[i - 1]);
-		}
-
-		object_copy(&inventory[INVEN_ARM], q_ptr);
 	}
 
 	/* Success */
@@ -1478,10 +1231,7 @@ static errr rd_dungeon(void)
 	{
 		/* Grab RLE info */
 		rd_byte(&count);
-		if (k_older_than(0, 1, 5))
-			rd_byte(&tmp8u);
-		else
-			rd_s16b(&tmp16s);
+		rd_s16b(&tmp16s);
 
 		/* Apply the RLE info */
 		for (i = count; i > 0; i--)
@@ -1490,9 +1240,7 @@ static errr rd_dungeon(void)
 			c_ptr = &cave[y][x];
 
 			/* Extract "info" */
-			if (k_older_than(0, 1, 5))
-				c_ptr->info = tmp8u;
-			else c_ptr->info = tmp16s;
+			c_ptr->info = tmp16s;
 
 			/* Decline invalid flags */
 			c_ptr->info &= ~(CAVE_LITE | CAVE_VIEW | CAVE_MNLT);
@@ -1902,7 +1650,7 @@ static errr rd_savefile_new_aux(void)
 	rd_u16b(&tmp_k_idx);
 
 	/* Incompatible save files */
-	if (!k_older_than(0, 7, 0) && (tmp_k_idx > max_k_idx))
+	if (tmp_k_idx > max_k_idx)
 	{
 #ifdef JP
 		note(format("アイテムの種類が多すぎる(%u)！", tmp16u));
@@ -1983,15 +1731,7 @@ static errr rd_savefile_new_aux(void)
 
 		/* Number of quests */
 		rd_u16b(&max_quests_load);
-
-		if (k_older_than(0, 1, 5))
-		{
-			max_rquests_load = 10;
-		}
-		else
-		{
-			rd_byte(&max_rquests_load);
-		}
+		rd_byte(&max_rquests_load);
 
 		/* Incompatible save files */
 		if (max_quests_load > max_quests)
@@ -2010,20 +1750,12 @@ static errr rd_savefile_new_aux(void)
 			{
 				rd_s16b(&quest[i].status);
 				rd_s16b(&quest[i].level);
-
-				if (k_older_than(0, 1, 5))
-				{
-					quest[i].complev = 0;
-				}
-				else
-				{
-					rd_byte(&quest[i].complev);
-				}
+				rd_byte(&quest[i].complev);
 
 				/* Load quest status if quest is running */
-				if (quest[i].status == QUEST_STATUS_TAKEN
+				if ((quest[i].status == QUEST_STATUS_TAKEN)
 				    || (quest[i].status == QUEST_STATUS_COMPLETED)
-				    || (!k_older_than(0, 1, 5) && (i >= MIN_RANDOM_QUEST) && (i <= (MIN_RANDOM_QUEST + max_rquests_load))))
+				    || ((i >= MIN_RANDOM_QUEST) && (i <= (MIN_RANDOM_QUEST + max_rquests_load))))
 				{
 					rd_s16b(&quest[i].cur_num);
 					rd_s16b(&quest[i].max_num);
@@ -2043,18 +1775,14 @@ static errr rd_savefile_new_aux(void)
 							 * Random monster 5 - 10 levels out of depth
 							 * (depending on level)
 							 */
-							r_idx = get_mon_num(quest[i].level + 5 + randint1(quest[i].level / 10));
+							r_idx = get_mon_num(quest[i].level + 10);
 							r_ptr = &r_info[r_idx];
 
 							if(!(r_ptr->flags1 & RF1_UNIQUE)) continue;
 
 							if (r_ptr->flags1 & RF1_QUESTOR) continue;
-
-							/*
-							 * Accept monsters that are 2 - 6 levels
-							 * out of depth depending on the quest level
-							 */
-							if (r_ptr->level > (quest[i].level + (quest[i].level / 20))) break;
+							if (r_ptr->level >= quest[i].level + 5) continue;
+							if (r_ptr->level >= quest[i].level) break;
 						}
 
 						quest[i].r_idx = r_idx;
@@ -2068,11 +1796,6 @@ static errr rd_savefile_new_aux(void)
 
 					/* Load quest flags */
 					rd_byte(&quest[i].flags);
-
-					/* Mark uniques */
-					if (quest[i].status == QUEST_STATUS_TAKEN || quest[i].status == QUEST_STATUS_UNTAKEN)
-						if (r_info[quest[i].r_idx].flags1 & RF1_UNIQUE)
-							r_info[quest[i].r_idx].flags1 |= RF1_QUESTOR;
 				}
 			}
 			/* Ignore the empty quests from old versions */
@@ -2165,9 +1888,17 @@ static errr rd_savefile_new_aux(void)
 	if (arg_fiddle) note("Loaded extra information");
 #endif
 
-
 	/* Read the player_hp array */
 	rd_u16b(&tmp16u);
+
+	/* Remark questor flag on random quester */
+	if (!death)
+	{
+		for (i = MIN_RANDOM_QUEST; i <= MAX_RANDOM_QUEST; i++)
+		{
+			r_info[quest[i].r_idx].flags1 |= RF1_QUESTOR;
+		}
+	}
 
 	/* Incompatible save files */
 	if (tmp16u > PY_MAX_LEVEL)
@@ -2237,23 +1968,13 @@ static errr rd_savefile_new_aux(void)
 		}
 	}
 
-	/* Replace object's k_idx and memory */
-	if (k_older_than(0, 7, 0))
+	for (i = 0; i < tmp_k_idx; i++)
 	{
-		/* Already done it at rd_item() */
-	}
+		byte tmp8u = obj_mem[i];
+		object_kind *k_ptr = &k_info[i];
 
-	/* Set the object memory */
-	else
-	{
-		for (i = 0; i < tmp_k_idx; i++)
-		{
-			byte tmp8u = obj_mem[i];
-			object_kind *k_ptr = &k_info[i];
-
-			k_ptr->aware = (tmp8u & 0x01) ? TRUE: FALSE;
-			k_ptr->tried = (tmp8u & 0x02) ? TRUE: FALSE;
-		}
+		k_ptr->aware = (tmp8u & 0x01) ? TRUE: FALSE;
+		k_ptr->tried = (tmp8u & 0x02) ? TRUE: FALSE;
 	}
 
 	/* Free array for object memories */

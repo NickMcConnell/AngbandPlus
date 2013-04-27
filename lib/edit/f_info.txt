@@ -602,8 +602,8 @@ W:20
 
 # 0x52 --> shop -- egostore (perm)
 
-N:82:À‚¡ı∂Ò≈π
-E:Ego Shop
+N:82:»˛Ω—æ¶
+E:Atelier
 G:9:o
 W:20
 

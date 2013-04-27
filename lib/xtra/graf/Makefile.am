@@ -1,7 +1,7 @@
 ## Makefile.am -- Process this file with automake to process Makefile.in
 
 angband_files = \
-	readme.txt
+	8x8.bmp readme.txt
 
 EXTRA_DIST = \
   $(angband_files)

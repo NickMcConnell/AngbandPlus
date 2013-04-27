@@ -96,7 +96,7 @@ void reset_visuals(void)
 /*
  * Obtain the "flags" for an item
  */
-void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 {
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
@@ -139,7 +139,7 @@ void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 /*
  * Obtain the "flags" for an item which are known to the player
  */
-void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 {
 	bool spoil = FALSE;
 
@@ -224,7 +224,7 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
  * Determine the "Activation" (if any) for an artifact
  * Return a string, or NULL for "no activation"
  */
-cptr item_activation(object_type *o_ptr)
+cptr item_activation(const object_type *o_ptr)
 {
 	u32b f1, f2, f3;
 
@@ -872,22 +872,6 @@ cptr item_activation(object_type *o_ptr)
 	/* Some artifacts can be activated */
 	switch (o_ptr->name1)
 	{
-		case ART_DAWN:
-		{
-#ifdef JP
-			return "暁の師団召喚 : 500+d500 ターン毎";
-#else
-			return "summon the Legion of the Dawn every 500+d500 turns";
-#endif
-		}
-		case ART_CASPANION:
-			{
-#ifdef JP
-				return "ドア/トラップ粉砕 : 10 ターン毎";
-#else
-				return "door and trap destruction every 10 turns";
-#endif
-			}
 		case ART_BRAND:
 			{
 #ifdef JP
@@ -896,15 +880,7 @@ cptr item_activation(object_type *o_ptr)
 				return "fire branding of bolts every 999 turns";
 #endif
 			}
-		case ART_KUSANAGI:
-			{
-#ifdef JP
-				return "逃走 : 35 ターン毎";
-#else
-				return "a getaway every 35 turns";
-#endif
-			}
-		case ART_LOHENGRIN:
+		case ART_CELEBORN:
 			{
 #ifdef JP
 				return ("回復 (777)、癒し、ヒーロー気分 : 300 ターン毎");
@@ -928,22 +904,6 @@ cptr item_activation(object_type *o_ptr)
 				return "a magical arrow (150) every 90+d90 turns";
 #endif
 			}
-		case ART_RAZORBACK:
-			{
-#ifdef JP
-				return "スター・ボール(150) : 1000 ターン毎";
-#else
-				return "star ball (150) every 1000 turns";
-#endif
-			}
-		case ART_BLADETURNER:
-			{
-#ifdef JP
-				return "エレメントのブレス (300), 野獣化、祝福、耐性";
-#else
-				return "breathe elements (300), berserk rage, bless, and resistance";
-#endif
-			}
 		case ART_JUDGE:
 			{
 #ifdef JP
@@ -960,22 +920,6 @@ cptr item_activation(object_type *o_ptr)
 				return "bizarre things every 450+d450 turns";
 #endif
 			}
-		case ART_MURAMASA:
-			{
-#ifdef JP
-				return "腕力上昇(確率 50% で壊れる)";
-#else
-				return "Increase STR (destroyed 50%)";
-#endif
-			}
-		case ART_FLY_STONE:
-			{
-#ifdef JP
-				return "魔力の嵐(400) : 250+d250ターン毎";
-#else
-				return "a mana storm every 250+d250 turns";
-#endif
-			}
 		case ART_PALANTIR:
 			{
 #ifdef JP
@@ -990,14 +934,6 @@ cptr item_activation(object_type *o_ptr)
 				return "士気高揚, スピード(50+d50ターン) : 100+d200 ターン毎";
 #else
 				return "hero and +10 to speed (50) every 100+200d turns";
-#endif
-			}
-		case ART_NUMAHOKO:
-			{
-#ifdef JP
-				return "ウォーター・ボール(200) : 250 ターン毎";
-#else
-				return "water ball (200) every 250 turns";
 #endif
 			}
 		case ART_INCANUS:
@@ -1025,30 +961,6 @@ cptr item_activation(object_type *o_ptr)
 #endif
 				
 			}
-		case ART_LIGHT_SABRE:
-			{
-#ifdef JP
-				return "スイッチON/OFF : いつでも";
-#else
-				return "Turn ON/OFF everytime";
-#endif
-			}
-		case ART_STONE_LORE:
-			{
-#ifdef JP
-				return "知識を得る : いつでも";
-#else
-				return "get a knowledge : everytime";
-#endif
-			}
-		case ART_PITCH_DARK_NIGHT:
-			{
-#ifdef JP
-				return "暗黒の嵐(250) : 150+d150 ターン毎";
-#else
-				return "a dark storm (250) every 150+d150 turns";
-#endif
-			}
 	}
 
 	/* Some ego item can be activated */
@@ -1062,14 +974,6 @@ cptr item_activation(object_type *o_ptr)
 				return "モンスター感知 : 10+d10 ターン毎";
 #else
 				return "detect monster every 10+d10 turns";
-#endif
-			}
-			case EGO_MAGICAL_SHOT:
-			{
-#ifdef JP
-				return "矢 (50 + level*2) : 7+d7 ターン毎";
-#else
-				return "arrows (50 + level*2) every 7+d7 turns";
 #endif
 			}
 			case EGO_BRAND_FIRE:
@@ -1148,140 +1052,11 @@ return "サンダー・ボール (100) と電撃への耐性 : 50+d50 ターン毎";
 		}
 	}
 
-	/* Require dragon scale mail */
-#ifdef JP
-	if (o_ptr->tval != TV_DRAG_ARMOR) return ("奇妙な光");
-#else
-	if (o_ptr->tval != TV_DRAG_ARMOR) return ("a strange glow");
-#endif
-
-	/* Branch on the sub-type */
-	switch (o_ptr->sval)
-	{
-		case SV_DRAGON_BLUE:
-		{
-#ifdef JP
-return "稲妻のブレス(100) : 450+d450 ターン毎";
-#else
-			return "breathe lightning (100) every 450+d450 turns";
-#endif
-
-		}
-		case SV_DRAGON_WHITE:
-		{
-#ifdef JP
-return "冷気のブレス(110) : 450+d450 ターン毎";
-#else
-			return "breathe frost (110) every 450+d450 turns";
-#endif
-
-		}
-		case SV_DRAGON_BLACK:
-		{
-#ifdef JP
-return "酸のブレス(130) : 450+d450 ターン毎";
-#else
-			return "breathe acid (130) every 450+d450 turns";
-#endif
-
-		}
-		case SV_DRAGON_GREEN:
-		{
-#ifdef JP
-return "毒のガスのブレス(150) : 450+d450 ターン毎";
-#else
-			return "breathe poison gas (150) every 450+d450 turns";
-#endif
-
-		}
-		case SV_DRAGON_RED:
-		{
-#ifdef JP
-return "火炎のブレス(200) : 450+d450 ターン毎";
-#else
-			return "breathe fire (200) every 450+d450 turns";
-#endif
-
-		}
-		case SV_DRAGON_MULTIHUED:
-		{
-#ifdef JP
-return "万色のブレス(250) : 225+d225 ターン毎";
-#else
-			return "breathe multi-hued (250) every 225+d225 turns";
-#endif
-
-		}
-		case SV_DRAGON_BRONZE:
-		{
-#ifdef JP
-return "混乱のブレス(120) : 450+d450 ターン毎";
-#else
-			return "breathe confusion (120) every 450+d450 turns";
-#endif
-
-		}
-		case SV_DRAGON_GOLD:
-		{
-#ifdef JP
-return "轟音のブレス(130) : 450+d450 ターン毎";
-#else
-			return "breathe sound (130) every 450+d450 turns";
-#endif
-
-		}
-		case SV_DRAGON_CHAOS:
-		{
-#ifdef JP
-return "カオス/劣化のブレス(220) : 300+d300 ターン毎";
-#else
-			return "breathe chaos/disenchant (220) every 300+d300 turns";
-#endif
-
-		}
-		case SV_DRAGON_LAW:
-		{
-#ifdef JP
-return "轟音/破片のブレス(230) : 300+d300 ターン毎";
-#else
-			return "breathe sound/shards (230) every 300+d300 turns";
-#endif
-
-		}
-		case SV_DRAGON_BALANCE:
-		{
-#ifdef JP
-return "バランスのブレス (250) 300+d300 ターン毎";
-#else
-			return "breathe balance (250) every 300+d300 turns";
-#endif
-
-		}
-		case SV_DRAGON_SHINING:
-		{
-#ifdef JP
-return "閃光/暗黒のブレス(200) : 300+d300 ターン毎";
-#else
-			return "breathe light/darkness (200) every 300+d300 turns";
-#endif
-
-		}
-		case SV_DRAGON_POWER:
-		{
-#ifdef JP
-return "エレメントのブレス(300) : 300+d300 ターン毎";
-#else
-			return "breathe the elements (300) every 300+d300 turns";
-#endif
-
-		}
-	}
-
 	/* Oops */
 #ifdef JP
-	return "空気の息";
+	return "奇妙な光";
 #else
-	return "breathe air";
+	return "a strange glow";
 #endif
 }
 
@@ -1343,26 +1118,11 @@ bool identify_fully_aux(object_type *o_ptr, bool real)
 #endif
 	}
 
-	if (o_ptr->name1 == ART_STONEMASK)
-	{
-#ifdef JP
-		info[i++] = "それを装備した者は吸血鬼になる。";
-#else
-		info[i++] = "It makes you turn into a vampire permanently.";
-#endif
-	}
-
 	/* XTRA HACK STATUE */
 	if (o_ptr->tval == TV_STATUE)
 	{
 		monster_race *r_ptr = &r_info[o_ptr->pval];
-		if (o_ptr->pval == MON_BULLGATES)
-#ifdef JP
-			info[i++] = "それは部屋に飾ると恥ずかしい。";
-#else
-			info[i++] = "It is shameful.";
-#endif
-		else if (r_ptr->flags2 & (RF2_ELDRITCH_HORROR))
+		if (r_ptr->flags2 & (RF2_ELDRITCH_HORROR))
 #ifdef JP
 			info[i++] = "それは部屋に飾ると恐い。";
 #else
@@ -1673,6 +1433,14 @@ bool identify_fully_aux(object_type *o_ptr, bool real)
 		info[i++] = "それは自然界の動物に対して特に恐るべき力を発揮する。";
 #else
 		info[i++] = "It is especially deadly against natural creatures.";
+#endif
+	}
+	if (f1 & (TR1_SLAY_HUMAN))
+	{
+#ifdef JP
+		info[i++] = "それは人間に対して特に恐るべき力を発揮する。";
+#else
+		info[i++] = "It is especially deadly against humans.";
 #endif
 	}
 
@@ -2289,7 +2057,7 @@ s16b label_to_equip(int c)
 /*
  * Determine which equipment slot (if any) an item likes
  */
-s16b wield_slot(object_type *o_ptr)
+s16b wield_slot(const object_type *o_ptr)
 {
 	/* Slot for equipment */
 	switch (o_ptr->tval)
@@ -2633,8 +2401,6 @@ p = "持つだけで精一杯の";
 bool check_book_realm(const byte book_tval, const byte book_sval)
 {
 	if (book_tval < TV_LIFE_BOOK) return FALSE;
-	if ((p_ptr->pclass == CLASS_RANGER) && (book_sval >= 2)) return FALSE;
-	if ((p_ptr->pclass == CLASS_ARCHAEOLOGIST) && (book_sval >= 2)) return FALSE;
 #if 0
 	return (REALM1_BOOK == book_tval || REALM2_BOOK == book_tval);
 #else
@@ -2646,7 +2412,7 @@ bool check_book_realm(const byte book_tval, const byte book_sval)
 /*
  * Check an item against the item tester info
  */
-bool item_tester_okay(object_type *o_ptr)
+bool item_tester_okay(const object_type *o_ptr)
 {
 	/* Hack -- allow listing empty slots */
 	if (item_tester_full) return (TRUE);
@@ -2667,7 +2433,7 @@ bool item_tester_okay(object_type *o_ptr)
 	if (item_tester_tval)
 	{
 		/* Is it a spellbook? If so, we need a hack -- TY */
-		if ((item_tester_tval <= TV_MAGIC_BOOK) &&
+		if ((item_tester_tval <= TV_SORCERY_BOOK) &&
 			(item_tester_tval >= TV_LIFE_BOOK))
 			return check_book_realm(o_ptr->tval, o_ptr->sval);
 		else
@@ -2685,6 +2451,20 @@ bool item_tester_okay(object_type *o_ptr)
 }
 
 
+void show_weight(const object_type *o_ptr, bool label, int row, int col)
+{
+	char tmp_val[80];
+	int wgt = o_ptr->weight * o_ptr->number;
+
+#ifdef JP
+	sprintf(tmp_val, "%3d.%1d%s", lbtokg1(wgt), lbtokg2(wgt),
+		(label) ? " kg" : "");
+#else
+	sprintf(tmp_val, "%3d.%1d%s", wgt / 10, wgt % 10,
+		(label) ? " lb" : "");
+#endif
+	prt(tmp_val, row, col);
+}
 
 
 /*
@@ -2761,17 +2541,7 @@ void display_inven(void)
 		Term_erase(3+n, i, 255);
 
 		/* Display the weight if needed */
-		if (show_weights && o_ptr->weight)
-		{
-			int wgt = o_ptr->weight * o_ptr->number;
-#ifdef JP
-			sprintf(tmp_val, "%3d.%1d kg", lbtokg1(wgt), lbtokg2(wgt) );
-#else
-			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
-#endif
-
-			prt(tmp_val, i, wid - 9);
-		}
+		if (o_ptr->weight) show_weight(o_ptr, TRUE, i, wid - 9);
 	}
 
 	/* Erase the rest of the window */
@@ -2845,25 +2615,12 @@ void display_equip(void)
 		/* Erase the rest of the line */
 		Term_erase(3+n, i - INVEN_WIELD, 255);
 
-		/* Display the weight (if needed) */
-		if (show_weights && o_ptr->weight)
-		{
-			int wgt = o_ptr->weight * o_ptr->number;
-#ifdef JP
-			sprintf(tmp_val, "%3d.%1d kg", lbtokg1(wgt), lbtokg2(wgt));
-#else
-			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
-#endif
+		/* Display the weight */
+		if (o_ptr->weight) show_weight(o_ptr, TRUE, i - INVEN_WIELD, wid - 28);
 
-			prt(tmp_val, i - INVEN_WIELD, wid - (show_labels ? 28 : 9));
-		}
-
-		/* Display the slot description (if needed) */
-		if (show_labels)
-		{
-			Term_putstr(wid - 20, i - INVEN_WIELD, -1, TERM_WHITE, " <-- ");
-			prt(mention_use(i), i - INVEN_WIELD, wid - 15);
-		}
+		/* Display the slot description */
+		Term_putstr(wid - 20, i - INVEN_WIELD, -1, TERM_WHITE, " <-- ");
+		prt(mention_use(i), i - INVEN_WIELD, wid - 15);
 	}
 
 	/* Erase the rest of the window */
@@ -3174,10 +2931,7 @@ void show_inven(void)
 	len = wid - col - 1;
 
 	/* Maximum space allowed for descriptions */
-	lim = wid - 4;
-
-	/* Require space for weight (if needed) */
-	if (show_weights) lim -= 9;
+	lim = wid - 13;
 
 	/* Require space for icon */
 	if (show_inven_graph)
@@ -3227,10 +2981,7 @@ void show_inven(void)
 		(void)strcpy(out_desc[k], o_name);
 
 		/* Find the predicted "line length" */
-		l = strlen(out_desc[k]) + 5;
-
-		/* Be sure to account for the weight */
-		if (show_weights) l += 9;
+		l = strlen(out_desc[k]) + 14;
 
 		/* Account for icon if displayed */
 		if (show_inven_graph)
@@ -3290,17 +3041,7 @@ void show_inven(void)
 		c_put_str(out_color[j], out_desc[j], j + 1, cur_col);
 
 		/* Display the weight if needed */
-		if (show_weights)
-		{
-			int wgt = o_ptr->weight * o_ptr->number;
-#ifdef JP
-			sprintf(tmp_val, "%3d.%1d kg", lbtokg1(wgt), lbtokg2(wgt) );
-#else
-			(void)sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
-#endif
-
-			prt(tmp_val, j + 1, wid - 9);
-		}
+		show_weight(o_ptr, TRUE, j + 1, wid - 9);
 	}
 
 	/* Make a "shadow" below the list (only if needed) */
@@ -3338,23 +3079,11 @@ void show_equip(void)
 	len = wid - col - 1;
 
 	/* Maximum space allowed for descriptions */
-	lim = wid - 4;
-
-	/* Require space for labels (if needed) */
 #ifdef JP
-	if (show_labels) lim -= (7 + 2);
+	lim = wid - 23;
 #else
-	if (show_labels) lim -= (14 + 2);
+	lim = wid - 29;
 #endif
-
-
-	/* Require space for weight (if needed) */
-#ifdef JP
-	if (show_weights) lim -= 10;
-#else
-	if (show_weights) lim -= 9;
-#endif
-
 
 	if (show_equip_graph) lim -= 2;
 
@@ -3365,22 +3094,6 @@ void show_equip(void)
 
 		/* Is this item acceptable? */
 		if (!item_tester_okay(o_ptr)) continue;
-
-		if (p_ptr->pclass == CLASS_SNATCHER)
-		{
-			if (!check_monster_wield(i))
-			{
-				out_index[k] = i;
-				out_color[k] = TERM_L_DARK;
-#ifdef JP
-				(void) strcpy(out_desc[k++], "(装備不可)");
-#else
-				(void) strcpy(out_desc[k++], "(Disable)");
-#endif
-				if (len < wid - col + 2) len = wid - col + 2;
-				continue;
-			}
-		}
 
 		/* Description */
 		object_desc(o_name, o_ptr, 0);
@@ -3402,22 +3115,10 @@ void show_equip(void)
 
 		/* Extract the maximal length (see below) */
 #ifdef JP
-		l = strlen(out_desc[k]) + (2 + 1);
+		l = strlen(out_desc[k]) + (2 + 1) + 9 + 9;
 #else
-		l = strlen(out_desc[k]) + (2 + 3);
+		l = strlen(out_desc[k]) + (2 + 3) + 9 + 16;
 #endif
-
-
-		/* Increase length for labels (if needed) */
-#ifdef JP
-		if (show_labels) l += (7 + 2);
-#else
-		if (show_labels) l += (14 + 2);
-#endif
-
-
-		/* Increase length for weight (if needed) */
-		if (show_weights) l += 9;
 
 		if (show_equip_graph) l += 2;
 
@@ -3474,45 +3175,23 @@ void show_equip(void)
 			cur_col += 2;
 		}
 
-		/* Use labels */
-		if (show_labels)
-		{
-			/* Mention the use */
+		/* Mention the use */
 #ifdef JP
-			(void)sprintf(tmp_val, "%-7s: ", mention_use(i));
+		(void)sprintf(tmp_val, "%-7s: ", mention_use(i));
 #else
-			(void)sprintf(tmp_val, "%-14s: ", mention_use(i));
+		(void)sprintf(tmp_val, "%-14s: ", mention_use(i));
 #endif
+		put_str(tmp_val, j+1, cur_col);
 
-			put_str(tmp_val, j+1, cur_col);
-
-			/* Display the entry itself */
+		/* Display the entry itself */
 #ifdef JP
-			c_put_str(out_color[j], out_desc[j], j+1, cur_col + 9);
+		c_put_str(out_color[j], out_desc[j], j+1, cur_col + 9);
 #else
-			c_put_str(out_color[j], out_desc[j], j+1, cur_col + 16);
+		c_put_str(out_color[j], out_desc[j], j+1, cur_col + 16);
 #endif
-		}
-
-		/* No labels */
-		else
-		{
-			/* Display the entry itself */
-			c_put_str(out_color[j], out_desc[j], j+1, cur_col);
-		}
 
 		/* Display the weight if needed */
-		if (show_weights)
-		{
-			int wgt = o_ptr->weight * o_ptr->number;
-#ifdef JP
-			sprintf(tmp_val, "%3d.%1d kg", lbtokg1(wgt), lbtokg2(wgt) );
-#else
-			(void)sprintf(tmp_val, "%3d.%d lb", wgt / 10, wgt % 10);
-#endif
-
-			prt(tmp_val, j + 1, wid - 9);
-		}
+		show_weight(o_ptr, TRUE, j + 1, wid - 9);
 	}
 
 	/* Make a "shadow" below the list (only if needed) */
@@ -3779,12 +3458,9 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	char tmp_val[160];
 	char out_val[160];
 
-#ifdef ALLOW_REPEAT
-
+	/* Tags for repeat */
 	static char prev_tag = '\0';
 	char cur_tag = '\0';
-
-#endif /* ALLOW_REPEAT */
 
 #ifdef ALLOW_EASY_FLOOR /* TNB */
 
@@ -3797,8 +3473,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	if (mode & USE_INVEN) inven = TRUE;
 	if (mode & USE_FLOOR) floor = TRUE;
 
-#ifdef ALLOW_REPEAT
-
+	/* Repeat previous command */
 	/* Get the item index */
 	if (repeat_pull(cp))
 	{
@@ -3865,8 +3540,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			}
 		}
 	}
-
-#endif /* ALLOW_REPEAT */
 
 
 	/* Paranoia XXX XXX XXX */
@@ -4216,13 +3889,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 						/* Special index */
 						k = 0 - this_o_idx;
 
-						/* Verify the item (if required) */
-#ifdef JP
-						if (other_query_flag && !verify("本当に", k)) continue;
-#else
-						if (other_query_flag && !verify("Try", k)) continue;
-#endif
-
 						/* Allow player to "refuse" certain actions */
 						if (!get_item_allow(k)) continue;
 
@@ -4279,9 +3945,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				(*cp) = k;
 				item = TRUE;
 				done = TRUE;
-#ifdef ALLOW_REPEAT
-				cur_tag = which;
-#endif /* ALLOW_REPEAT */
+				cur_tag = which; /* for repeat */
 				break;
 			}
 
@@ -4386,9 +4050,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 					(*cp) = k;
 					item = TRUE;
 					done = TRUE;
-#ifdef ALLOW_REPEAT
-					cur_tag = which;
-#endif /* ALLOW_REPEAT */
+					cur_tag = which; /* for repeat */
 					break;
 				}
 
@@ -4483,10 +4145,9 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 	if (item)
 	{
-#ifdef ALLOW_REPEAT
+		/* Remember the command for repeating */
 		repeat_push(*cp);
 		if (command_cmd) prev_tag = cur_tag;
-#endif /* ALLOW_REPEAT */
 
 		command_cmd = 0; /* Hack -- command_cmd is no longer effective */
 	}
@@ -4585,10 +4246,7 @@ void show_floor(int y, int x)
 	len = 20;
 
 	/* Maximum space allowed for descriptions */
-	lim = wid - 4;
-
-	/* Require space for weight (if needed) */
-	if (show_weights) lim -= 9;
+	lim = wid - 13;
 
 	/* Scan for objects in the grid, using item_tester_okay() */
 	(void)scan_floor(floor_list, &floor_num, y, x, 0x03);
@@ -4614,10 +4272,7 @@ void show_floor(int y, int x)
 		strcpy(out_desc[k], o_name);
 
 		/* Find the predicted "line length" */
-		l = strlen(out_desc[k]) + 5;
-
-		/* Be sure to account for the weight */
-		if (show_weights) l += 9;
+		l = strlen(out_desc[k]) + 14;
 
 		if (o_ptr->tval != TV_GOLD) dont_need_to_show_weights = FALSE;
 
@@ -4628,7 +4283,7 @@ void show_floor(int y, int x)
 		k++;
 	}
 
-	if (show_weights && dont_need_to_show_weights) len -= 9;
+	if (dont_need_to_show_weights) len -= 9;
 
 	/* Find the column to start in */
 	col = (len > wid - 4) ? 0 : (wid - len - 1);
@@ -4657,17 +4312,7 @@ void show_floor(int y, int x)
 		c_put_str(out_color[j], out_desc[j], j + 1, col + 3);
 
 		/* Display the weight if needed */
-		if (show_weights && (o_ptr->tval != TV_GOLD))
-		{
-			int wgt = o_ptr->weight * o_ptr->number;
-#ifdef JP
-			sprintf(tmp_val, "%3d.%1d kg", lbtokg1(wgt), lbtokg2(wgt) );
-#else
-			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
-#endif
-
-			prt(tmp_val, j + 1, wid - 9);
-		}
+		if (o_ptr->tval != TV_GOLD) show_weight(o_ptr, TRUE, j + 1, wid - 9);
 	}
 
 	/* Make a "shadow" below the list (only if needed) */
@@ -4704,11 +4349,11 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 
 	int floor_num, floor_list[23], floor_top = 0;
 
-#ifdef ALLOW_REPEAT
-
+	/* Tags for repeat */
 	static char prev_tag = '\0';
 	char cur_tag = '\0';
 
+	/* Repeat previous command */
 	/* Get the item index */
 	if (repeat_pull(cp))
 	{
@@ -4790,8 +4435,6 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 			}
 		}
 	}
-
-#endif /* ALLOW_REPEAT */
 
 
 	/* Paranoia XXX XXX XXX */
@@ -5282,12 +4925,6 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 						/* Special index */
 						k = 0 - floor_list[0];
 
-						/* Verify the item (if required) */
-#ifdef JP
-						if (other_query_flag && !verify("本当に", k)) continue;
-#else
-						if (other_query_flag && !verify("Try", k)) continue;
-#endif
 						/* Allow player to "refuse" certain actions */
 						if (!get_item_allow(k))
 						{
@@ -5373,9 +5010,7 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 				(*cp) = k;
 				item = TRUE;
 				done = TRUE;
-#ifdef ALLOW_REPEAT
-				cur_tag = which;
-#endif /* ALLOW_REPEAT */
+				cur_tag = which; /* for repeat */
 				break;
 			}
 #if 0
@@ -5517,9 +5152,7 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 						(*cp) = k;
 						item = TRUE;
 						done = TRUE;
-#ifdef ALLOW_REPEAT
-						cur_tag = which;
-#endif /* ALLOW_REPEAT */
+						cur_tag = which; /* for repeat */
 						break;
 					}
 				}
@@ -5535,9 +5168,7 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 						(*cp) = k;
 						item = TRUE;
 						done = TRUE;
-#ifdef ALLOW_REPEAT
-						cur_tag = which;
-#endif /* ALLOW_REPEAT */
+						cur_tag = which; /* for repeat */
 						break;
 					}
 				}
@@ -5646,10 +5277,9 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 
 	if (item)
 	{
-#ifdef ALLOW_REPEAT
+		/* Remember the command for repeating */
 		repeat_push(*cp);
 		if (command_cmd) prev_tag = cur_tag;
-#endif /* ALLOW_REPEAT */
 
 		command_cmd = 0; /* Hack -- command_cmd is no longer effective */
 	}
