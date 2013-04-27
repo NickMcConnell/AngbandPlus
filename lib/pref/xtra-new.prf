@@ -106,7 +106,7 @@ R:0:0x97/0
 R:0:0x98/0
 ?:[EQU $CLASS Chaos-Warrior]
 R:0:0x99/0
-?:[EQU $CLASS Monk]
+?:[EQU $CLASS Monk Mystic]
 R:0:0x9A/0
 ?:[EQU $CLASS Mindcrafter Psion]
 R:0:0x9B/0

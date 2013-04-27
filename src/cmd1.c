@@ -577,49 +577,45 @@ critical_t critical_norm(int weight, int plus, s16b meichuu, int mode, int hand)
 	return result;
 }
 
-
-
-/*
- * Extract the "total damage" from a given object hitting a given monster.
- *
- * Note that "flasks of oil" do NOT do fire damage, although they
- * certainly could be made to do so.  XXX XXX
- *
- * Note that most brands and slays are x3, except Slay Animal (x2),
- * Slay Evil (x2), and Kill dragon (x5).
- */
-
-s16b tot_dam_aux_monk(int tdam, monster_type *m_ptr)
+s16b tot_dam_aux_monk(int tdam, monster_type *m_ptr, int mode)
 {
 	int mult = 10;
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	const int monk_elem_slay = 17;
 
-	if (have_flag(p_ptr->weapon_info[0].flags, TR_BRAND_ACID))
+	if (have_flag(p_ptr->weapon_info[0].flags, TR_BRAND_ACID) || mode == MYSTIC_ACID)
 	{
 		if (r_ptr->flagsr & RFR_EFF_IM_ACID_MASK)
 		{
 			if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_ACID_MASK);
 		}
+		else if (mode == MYSTIC_ACID)
+		{
+			if (mult < 20) mult = 20;
+		}
 		else
 		{
 			if (mult < monk_elem_slay) mult = monk_elem_slay;
 		}
 	}
 
-	if (have_flag(p_ptr->weapon_info[0].flags, TR_BRAND_ELEC))
+	if (have_flag(p_ptr->weapon_info[0].flags, TR_BRAND_ELEC) || mode == MYSTIC_ELEC)
 	{
 		if (r_ptr->flagsr & RFR_EFF_IM_ELEC_MASK)
 		{
 			if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_ELEC_MASK);
 		}
+		else if (mode == MYSTIC_ELEC)
+		{
+			if (mult < 25) mult = 25;
+		}
 		else
 		{
 			if (mult < monk_elem_slay) mult = monk_elem_slay;
 		}
 	}
 
-	if (have_flag(p_ptr->weapon_info[0].flags, TR_BRAND_FIRE))
+	if (have_flag(p_ptr->weapon_info[0].flags, TR_BRAND_FIRE) || mode == MYSTIC_FIRE)
 	{
 		if (r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK)
 		{
@@ -627,11 +623,17 @@ s16b tot_dam_aux_monk(int tdam, monster_type *m_ptr)
 		}
 		else
 		{
-			if (mult < monk_elem_slay) mult = monk_elem_slay;
+			if (r_ptr->flags3 & RF3_HURT_FIRE)
+			{
+				mult = MAX(mult, 25);
+				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_HURT_FIRE;
+			}
+			else 
+				mult = MAX(mult, monk_elem_slay);
 		}
 	}
 
-	if (have_flag(p_ptr->weapon_info[0].flags, TR_BRAND_COLD))
+	if (have_flag(p_ptr->weapon_info[0].flags, TR_BRAND_COLD) || mode == MYSTIC_COLD)
 	{
 		if (r_ptr->flagsr & RFR_EFF_IM_COLD_MASK)
 		{
@@ -639,11 +641,17 @@ s16b tot_dam_aux_monk(int tdam, monster_type *m_ptr)
 		}
 		else
 		{
-			if (mult < monk_elem_slay) mult = monk_elem_slay;
+			if (r_ptr->flags3 & RF3_HURT_COLD)
+			{
+				mult = MAX(mult, 25);
+				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_HURT_COLD;
+			}
+			else 
+				mult = MAX(mult, monk_elem_slay);
 		}
 	}
 
-	if (have_flag(p_ptr->weapon_info[0].flags, TR_BRAND_POIS))
+	if (have_flag(p_ptr->weapon_info[0].flags, TR_BRAND_POIS) || mode == MYSTIC_POIS)
 	{
 		if (r_ptr->flagsr & RFR_EFF_IM_POIS_MASK)
 		{
@@ -2552,7 +2560,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	monster_race    *r_ptr = NULL;
 	object_type     *o_ptr = equip_obj(p_ptr->weapon_info[hand].slot);
 	char			o_name[MAX_NLEN];
-	u32b            flgs[TR_FLAG_SIZE];
+	u32b            flgs[TR_FLAG_SIZE] = {0};
 	char            m_name[MAX_NLEN];
 	bool            success_hit = FALSE;
 	bool            backstab = FALSE;
@@ -2621,7 +2629,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 		ds = 1;
 		to_h = 0;
 		to_d = 0;
-		if ( (p_ptr->pclass == CLASS_MONK || p_ptr->pclass == CLASS_FORCETRAINER) 
+		if ( (p_ptr->pclass == CLASS_MONK || p_ptr->pclass == CLASS_FORCETRAINER || p_ptr->pclass == CLASS_MYSTIC) 
 		  && !p_ptr->riding )
 		{
 			monk_attack = TRUE;
@@ -2772,7 +2780,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				do_whirlwind = TRUE;
 		}
 
-		if (poison_needle || mode == HISSATSU_KYUSHO)
+		if (poison_needle || mode == HISSATSU_KYUSHO || mode == MYSTIC_KILL)
 		{
 			int n = p_ptr->weapon_ct;
 
@@ -2865,7 +2873,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				}
 			}
 
-			if (monk_attack)
+			if (monk_attack && mode != MYSTIC_KILL)
 			{
 				int special_effect = 0, stun_effect = 0;
 				martial_arts *ma_ptr = &ma_blows[monk_get_attack_idx()];
@@ -2878,7 +2886,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					resist_stun += 66;
 
 				k = damroll(ma_ptr->dd + p_ptr->weapon_info[hand].to_dd, ma_ptr->ds + p_ptr->weapon_info[hand].to_ds);
-				k = tot_dam_aux_monk(k, m_ptr);
+				k = tot_dam_aux_monk(k, m_ptr, mode);
 
 				if (p_ptr->special_attack & ATTACK_SUIKEN) k *= 2; /* Drunken Boxing! */
 
@@ -2908,10 +2916,12 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				{
 					if (ma_ptr->effect)
 						stun_effect = (ma_ptr->effect / 2) + randint1(ma_ptr->effect / 2);
+					if (mode == MYSTIC_STUN)
+						stun_effect *= 2;
 					msg_format(ma_ptr->desc, m_name);
 				}
 
-				crit = monk_get_critical(ma_ptr, hand);
+				crit = monk_get_critical(ma_ptr, hand, mode);
 				if (crit.desc)
 				{
 					k = k * crit.mul/100 + crit.to_d;
@@ -2961,6 +2971,25 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 							msg_format("%^s is more stunned.", m_name);
 					}
 				}
+				if (mode == MYSTIC_KNOCKOUT)
+				{
+					if (r_ptr->flagsr & RFR_RES_ALL)
+					{
+						if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_RES_ALL;
+						msg_format("%^s is immune.", m_name);
+					}
+					else if (mon_save_p(m_ptr->r_idx, A_DEX))
+					{
+						msg_format("%^s resists.", m_name);
+					}
+					else
+					{
+						msg_format("%^s is knocked out.", m_name);
+						knock_out++;		
+						/* No more retaliation this round! */					
+						retaliation_count = 100; /* Any number >= 4 will do ... */
+					}
+				}
 			}
 			/* Handle normal weapon */
 			else if (o_ptr)
@@ -3002,6 +3031,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 				if (!poison_needle
 				 && mode != HISSATSU_KYUSHO
+				 && mode != MYSTIC_KILL
 				 && weaponmaster_get_toggle() != TOGGLE_ORDER_BLADE 
 				 && !have_flag(flgs, TR_ORDER) )
 				{
@@ -3164,9 +3194,11 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				k = k * 3 / 2;
 			}
 
-			if (poison_needle || mode == HISSATSU_KYUSHO)
+			if (poison_needle || mode == HISSATSU_KYUSHO || mode == MYSTIC_KILL)
 			{
-				if ((randint1(randint1(r_ptr->level/7)+5) == 1) && (!(r_ptr->flags1 & RF1_UNIQUE) || m_ptr->r_idx == MON_HAGURE2) && !(r_ptr->flags7 & RF7_UNIQUE2))
+				if ( randint1(randint1(r_ptr->level/7)+5) == 1 
+				  && (!(r_ptr->flags1 & RF1_UNIQUE) || m_ptr->r_idx == MON_HAGURE2) 
+				  && !(r_ptr->flags7 & RF7_UNIQUE2))
 				{
 					k = m_ptr->hp + 1;
 					msg_format("You hit %s on a fatal spot!", m_name);
@@ -3720,6 +3752,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			if ( (p_ptr->special_attack & ATTACK_CONFUSE) 
 			  || chaos_effect == 3 
 			  || mode == HISSATSU_CONF 
+			  || mode == MYSTIC_CONFUSE
 			  || hex_spelling(HEX_CONFUSION)
 			  || (giant_is_(GIANT_TITAN) && p_ptr->lev >= 30 && one_in_(5)) )
 			{
@@ -3908,6 +3941,9 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 		if (mode == HISSATSU_MINEUCHI) break;
 		if (mode == HISSATSU_3DAN) break;
 		if (mode == HISSATSU_IAI) break;
+		if (mode == MYSTIC_KILL) break;
+		if (mode == MYSTIC_KNOCKOUT) break;
+		if (mode == MYSTIC_CONFUSE) break;
 	}
 
 	if (mode == WEAPONMASTER_ELUSIVE_STRIKE && hit_ct)

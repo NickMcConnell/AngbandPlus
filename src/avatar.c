@@ -252,6 +252,7 @@ void get_virtues(void)
 		break;
 	case CLASS_MONK:
 	case CLASS_FORCETRAINER:
+	case CLASS_MYSTIC:
 		p_ptr->vir_types[i++] = V_FAITH;
 		p_ptr->vir_types[i++] = V_HARMONY;
 		p_ptr->vir_types[i++] = V_TEMPERANCE;

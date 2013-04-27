@@ -856,7 +856,10 @@ void monster_death(int m_idx, bool drop_item)
 
 	if (mut_present(MUT_INFERNAL_DEAL) && los(py, px, m_ptr->fy, m_ptr->fx))
 	{
-		if (p_ptr->msp > 0 && p_ptr->pclass != CLASS_RUNE_KNIGHT)
+		if ( p_ptr->msp > 0 
+		  && p_ptr->pclass != CLASS_RUNE_KNIGHT 
+		  && p_ptr->pclass != CLASS_SAMURAI
+		  && p_ptr->pclass != CLASS_MYSTIC )
 		{
 			hp_player_aux(10);
 			sp_player(5);

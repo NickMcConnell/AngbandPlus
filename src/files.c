@@ -3467,6 +3467,7 @@ static void dump_aux_display_player(FILE *fff)
 			ct += (class_ptr->get_powers)(spells + ct, MAX_SPELLS - ct);
 
 		dump_powers_aux(fff, spells, ct);
+		fprintf(fff, "\n");
 	}
 
 	{

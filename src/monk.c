@@ -13,6 +13,10 @@ static int _max_tries(int lvl, u32b defense)
 		tries = 1;
 	else if (defense & KAMAE_GENBU)
 		tries = 1;
+	else if (mystic_get_toggle() == MYSTIC_TOGGLE_OFFENSE)
+		tries = 1 + lvl/4;
+	else if (mystic_get_toggle() == MYSTIC_TOGGLE_DEFENSE)
+		tries = 1 + lvl/15;
 	else
 		tries = (lvl < 7 ? 1 : lvl / 7);
 
@@ -82,7 +86,7 @@ void _get_attack_counts(int tot, _attack_t *counts, int hand)
 		/* Crits depend on the attack chosen. The following won't be stable
 		   for attacks that occur infrequently, but hopefully things will just
 		   average out */
-		crit = monk_get_critical(ma_ptr, hand);
+		crit = monk_get_critical(ma_ptr, hand, 0);
 
 		if (crit.desc)
 		{
@@ -98,6 +102,8 @@ static int _get_weight(void)
 {
 	int weight = 8;
 	if (p_ptr->special_defense & KAMAE_SUZAKU) weight = 4;
+	if (mystic_get_toggle() == MYSTIC_TOGGLE_DEFENSE) weight = 6;
+	if (mystic_get_toggle() == MYSTIC_TOGGLE_OFFENSE) weight = 10;
 	if ((p_ptr->pclass == CLASS_FORCETRAINER) && (p_ptr->magic_num1[0]))
 	{
 		weight += (p_ptr->magic_num1[0]/30);
@@ -106,14 +112,17 @@ static int _get_weight(void)
 	return weight * p_ptr->lev;
 }
 
-critical_t monk_get_critical(martial_arts *ma_ptr, int hand)
+critical_t monk_get_critical(martial_arts *ma_ptr, int hand, int mode)
 {
 	int min_level = ma_ptr->min_level;
 	int weight = _get_weight();
+
+	if (mode == MYSTIC_CRITICAL)
+		weight += weight/2 + 300;
 	
 	if (p_ptr->pclass == CLASS_FORCETRAINER) min_level = MAX(1, min_level - 3);
 
-	return critical_norm(_get_weight(), min_level, p_ptr->weapon_info[hand].to_h, 0, 0);
+	return critical_norm(weight, min_level, p_ptr->weapon_info[hand].to_h, 0, 0);
 }
 
 int monk_get_attack_idx(void)
@@ -146,6 +155,8 @@ void monk_display_attack_info(int hand, int row, int col)
 		int ds = ma_ptr->ds + p_ptr->weapon_info[hand].to_ds;
 		char tmp[20];
 		int dam = dd * (ds + 1) * 100 * counts[i].count / (2 * tot);
+
+	/*	if (counts[i].count == 0) continue; */
 
 		tot_dam += dam;
 		tot_mul += counts[i].mul;

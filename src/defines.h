@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 1
 #define VER_MINOR 0
-#define VER_PATCH 4
+#define VER_PATCH 5
 #define VER_EXTRA 0
 
 
@@ -804,8 +804,9 @@
 #define CLASS_SCOUT             40
 #define CLASS_MAULER            41
 #define CLASS_MONSTER           42
+#define CLASS_MYSTIC            43
 
-#define MAX_CLASS               43
+#define MAX_CLASS               44
 
 /* Warlock Pacts ... stored in p_ptr->psubclass */
 #define PACT_UNDEAD		 0
@@ -5501,6 +5502,17 @@ extern int PlayerUID;
 #define MAULER_CRUSHING_BLOW 53
 #define MAULER_SCATTER       54
 
+#define MYSTIC_STUN          55
+#define MYSTIC_FIRE          56
+#define MYSTIC_COLD          57
+#define MYSTIC_ELEC          58
+#define MYSTIC_ACID          59
+#define MYSTIC_POIS          60
+#define MYSTIC_CRITICAL      61
+#define MYSTIC_CONFUSE       62
+#define MYSTIC_KNOCKOUT      63
+#define MYSTIC_KILL          64
+
 #define HISSATSU_IAI    100
 
 /*
@@ -5905,69 +5917,77 @@ extern int PlayerUID;
 #define SHOOT_KNOCKBACK    13
 #define SHOOT_ELEMENTAL    14
 
-/* Weaponmaster toggle modes */
+/* Weaponmaster et. al. toggle modes */
 #define TOGGLE_NONE				0
 
-	/* Slingmaster */
-	#define TOGGLE_SHOT_ON_THE_RUN	1
-	#define TOGGLE_RAPID_SHOT		2
+/* Slingmaster */
+#define TOGGLE_SHOT_ON_THE_RUN	1
+#define TOGGLE_RAPID_SHOT		2
 
-	/* Daggermaster */
-	#define TOGGLE_FLYING_DAGGER_STANCE	3
-	#define TOGGLE_SHADOW_STANCE		4
-	#define TOGGLE_FRENZY_STANCE		5
+/* Daggermaster */
+#define TOGGLE_FLYING_DAGGER_STANCE	3
+#define TOGGLE_SHADOW_STANCE		4
+#define TOGGLE_FRENZY_STANCE		5
 
-	/* Clubmaster */
-	#define TOGGLE_COMBAT_EXPERTISE		6
-	#define TOGGLE_TRADE_BLOWS			8
+/* Clubmaster */
+#define TOGGLE_COMBAT_EXPERTISE		6
+#define TOGGLE_TRADE_BLOWS			8
 
-	/* Axemaster */
-	#define TOGGLE_POWER_ATTACK			9
+/* Axemaster */
+#define TOGGLE_POWER_ATTACK			9
 
-	/* Swordmaster */
-	#define TOGGLE_BURNING_BLADE		10
-	#define TOGGLE_ICE_BLADE			11
-	#define TOGGLE_THUNDER_BLADE		12
-	#define TOGGLE_BLOOD_BLADE			13
-	#define TOGGLE_HOLY_BLADE			14
-	#define TOGGLE_ORDER_BLADE			15
-	#define TOGGLE_WILD_BLADE			16
+/* Swordmaster */
+#define TOGGLE_BURNING_BLADE		10
+#define TOGGLE_ICE_BLADE			11
+#define TOGGLE_THUNDER_BLADE		12
+#define TOGGLE_BLOOD_BLADE			13
+#define TOGGLE_HOLY_BLADE			14
+#define TOGGLE_ORDER_BLADE			15
+#define TOGGLE_WILD_BLADE			16
 
-	/* Scythemaster */
-	#define TOGGLE_MANY_STRIKE			17
-	#define TOGGLE_PIERCING_STRIKE		18
-	#define TOGGLE_TRIP					19
+/* Scythemaster */
+#define TOGGLE_MANY_STRIKE			17
+#define TOGGLE_PIERCING_STRIKE		18
+#define TOGGLE_TRIP					19
 
-	/* Staffmaster */
-	#define TOGGLE_FLURRY_OF_BLOWS		20
-	#define TOGGLE_GREATER_FLURRY		21
+/* Staffmaster */
+#define TOGGLE_FLURRY_OF_BLOWS		20
+#define TOGGLE_GREATER_FLURRY		21
 
-	/* Pickmaster */
-	#define TOGGLE_STRENGTH_OF_THE_UNDERTAKER	22
-	#define TOGGLE_STOICISM						23
-	#define TOGGLE_INDUSTRIOUS_MORTICIAN		24
+/* Pickmaster */
+#define TOGGLE_STRENGTH_OF_THE_UNDERTAKER	22
+#define TOGGLE_STOICISM						23
+#define TOGGLE_INDUSTRIOUS_MORTICIAN		24
 
-	/* Shieldmaster */
-	#define TOGGLE_SHIELD_BASH      25
-	#define TOGGLE_BULWARK			26
-	#define TOGGLE_SHIELD_REVENGE	27
+/* Shieldmaster */
+#define TOGGLE_SHIELD_BASH      25
+#define TOGGLE_BULWARK			26
+#define TOGGLE_SHIELD_REVENGE	27
 
-	/* Mauler */
-	#define MAULER_TOGGLE_BLOCK     28
-	#define MAULER_TOGGLE_SHATTER   29
-	#define MAULER_TOGGLE_TUNNEL    30
-	#define MAULER_TOGGLE_DRAIN     31
-	#define MAULER_TOGGLE_MAUL      32
-	#define MAULER_TOGGLE_SPLATTER  33
+/* Mauler */
+#define MAULER_TOGGLE_BLOCK     28
+#define MAULER_TOGGLE_SHATTER   29
+#define MAULER_TOGGLE_TUNNEL    30
+#define MAULER_TOGGLE_DRAIN     31
+#define MAULER_TOGGLE_MAUL      32
+#define MAULER_TOGGLE_SPLATTER  33
 
-	/* Bowmaster */
-	#define TOGGLE_READIED_SHOT      34
-	#define TOGGLE_PIERCING_ARROW    35
+/* Bowmaster */
+#define TOGGLE_READIED_SHOT      34
+#define TOGGLE_PIERCING_ARROW    35
 
-	/* Crossbowmaster */
-	#define TOGGLE_RAPID_RELOAD      36
-	#define TOGGLE_EXPLODING_BOLT    37
-	#define TOGGLE_OVERDRAW          38
+/* Crossbowmaster */
+#define TOGGLE_RAPID_RELOAD      36
+#define TOGGLE_EXPLODING_BOLT    37
+#define TOGGLE_OVERDRAW          38
+
+/* Mystic */
+#define MYSTIC_TOGGLE_STEALTH    39
+#define MYSTIC_TOGGLE_FAST       40
+#define MYSTIC_TOGGLE_RETALIATE  41
+#define MYSTIC_TOGGLE_OFFENSE    42
+#define MYSTIC_TOGGLE_DEFENSE    43
+
 
 /* Wild Counters */
 #define WILD_INFRAVISION 1

@@ -1150,6 +1150,7 @@ void draconian_breath_spell(int cmd, variant *res)
 					}
 					break;
 				case CLASS_MONK:
+				case CLASS_MYSTIC:
 				case CLASS_SAMURAI:
 				case CLASS_FORCETRAINER:
 					if (!one_in_(3))

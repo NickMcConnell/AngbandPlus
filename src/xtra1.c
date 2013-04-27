@@ -431,6 +431,11 @@ static void prt_stat(int stat)
 #define BAR_EXPLODING_BOLT 152
 #define BAR_OVERDRAW 153
 #define BAR_PSIONIC_ARCHERY 154
+#define BAR_MYSTIC_STEALTH 155
+#define BAR_MYSTIC_FAST 156
+#define BAR_MYSTIC_RETALIATE 157
+#define BAR_MYSTIC_OFFENSE 158
+#define BAR_MYSTIC_DEFENSE 159
 
 static struct {
 	byte attr;
@@ -594,6 +599,11 @@ static struct {
 	{TERM_L_BLUE, "Ex", "Explode"},
 	{TERM_L_BLUE, "OD", "Overdraw"},
 	{TERM_RED, "Ay", "Archery"},
+	{TERM_L_BLUE, "Sl", "Stealth"},
+	{TERM_L_BLUE, "Fs", "Fast"},
+	{TERM_L_BLUE, "Rl", "Retaliate"},
+	{TERM_L_BLUE, "Of", "Offense"},
+	{TERM_L_BLUE, "Df", "Defense"},
 	{0, NULL, NULL}
 };
 
@@ -880,6 +890,28 @@ static void prt_status(void)
 		}
 
 		if (p_ptr->entrenched) ADD_FLG(BAR_ENTRENCHED);
+	}
+
+	if (p_ptr->pclass == CLASS_MYSTIC)
+	{
+		switch(mystic_get_toggle())
+		{
+		case MYSTIC_TOGGLE_STEALTH:
+			ADD_FLG(BAR_MYSTIC_STEALTH);
+			break;
+		case MYSTIC_TOGGLE_FAST:
+			ADD_FLG(BAR_MYSTIC_FAST);
+			break;
+		case MYSTIC_TOGGLE_RETALIATE:
+			ADD_FLG(BAR_MYSTIC_RETALIATE);
+			break;
+		case MYSTIC_TOGGLE_OFFENSE:
+			ADD_FLG(BAR_MYSTIC_OFFENSE);
+			break;
+		case MYSTIC_TOGGLE_DEFENSE:
+			ADD_FLG(BAR_MYSTIC_DEFENSE);
+			break;
+		}
 	}
 
 	if (p_ptr->pclass == CLASS_MAULER)
@@ -2823,10 +2855,10 @@ static void calc_mana(void)
 		lvl = p_ptr->lev;
 
 
-	if (p_ptr->pclass == CLASS_SAMURAI)
+	if (p_ptr->pclass == CLASS_SAMURAI || p_ptr->pclass == CLASS_MYSTIC)
 	{
-		msp = (adj_mag_mana[p_ptr->stat_ind[mp_ptr->spell_stat]] + 10) * 2;
-		if (msp) msp += (msp * _racial_mana_adjust(mp_ptr->spell_stat) / 20);
+		msp = (adj_mag_mana[p_ptr->stat_ind[caster_ptr->which_stat]] + 10) * 2;
+		if (msp) msp += (msp * _racial_mana_adjust(caster_ptr->which_stat) / 20);
 	}
 	else
 	{
@@ -2960,6 +2992,7 @@ static void calc_mana(void)
 			break;
 
 		case CLASS_SAMURAI:
+		case CLASS_MYSTIC:
 			p_ptr->cumber_armor = FALSE;
 			break;
 
@@ -2982,7 +3015,7 @@ static void calc_mana(void)
 		if (p_ptr->csp > 0 && csp >= 0)
 			p_ptr->csp = csp;
 
-		if ((p_ptr->csp >= msp) && (p_ptr->pclass != CLASS_SAMURAI))
+		if (p_ptr->csp >= msp && p_ptr->pclass != CLASS_SAMURAI && p_ptr->pclass != CLASS_MYSTIC)
 		{
 			p_ptr->csp = msp;
 			p_ptr->csp_frac = 0;
@@ -4438,6 +4471,9 @@ void calc_bonuses(void)
 				case CLASS_SAMURAI:
 					num = 5; wgt = 70; mul = 4; break;
 
+				case CLASS_MYSTIC:
+					num = 1; wgt = 100; mul = 1; break;
+
 				case CLASS_WEAPONSMITH:
 				case CLASS_RUNE_KNIGHT:
 					num = 5; wgt = 150; mul = 5; break;
@@ -4727,7 +4763,7 @@ void calc_bonuses(void)
 		if (p_ptr->weapon_info[i].wield_how != WIELD_NONE && p_ptr->weapon_info[i].bare_hands)
 		{
 			int blow_base = p_ptr->lev + adj_dex_blow[p_ptr->stat_ind[A_DEX]];
-			p_ptr->weapon_info[i].base_blow = 0;
+			p_ptr->weapon_info[i].base_blow = 1;
 
 			if (p_ptr->pclass == CLASS_FORCETRAINER)
 			{
@@ -4740,6 +4776,14 @@ void calc_bonuses(void)
 					p_ptr->weapon_info[i].to_d += (p_ptr->magic_num1[0]/5);
 					p_ptr->weapon_info[i].dis_to_d += (p_ptr->magic_num1[0]/5);
 				}
+			}
+			else if (p_ptr->pclass == CLASS_MYSTIC)
+			{
+				if (blow_base > 13) p_ptr->weapon_info[i].base_blow++;
+				if (blow_base > 25) p_ptr->weapon_info[i].base_blow++;
+				if (blow_base > 37) p_ptr->weapon_info[i].base_blow++;
+				if (blow_base > 49) p_ptr->weapon_info[i].base_blow++;
+				if (blow_base > 58) p_ptr->weapon_info[i].base_blow++;
 			}
 			else
 			{
@@ -4765,6 +4809,18 @@ void calc_bonuses(void)
 			p_ptr->weapon_info[i].base_blow -= arm;
 			if (p_ptr->weapon_info[i].base_blow <= 0)
 				p_ptr->weapon_info[i].base_blow = 1;
+
+			if (p_ptr->weapon_info[i].wield_how == WIELD_TWO_HANDS)
+			{
+				int bonus_to_h=0, bonus_to_d=0;
+				bonus_to_d = ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128) * 3/4;
+				bonus_to_h = ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128) + ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
+
+				p_ptr->weapon_info[i].to_h += MAX(bonus_to_h,1);
+				p_ptr->weapon_info[i].dis_to_h += MAX(bonus_to_h,1);
+				p_ptr->weapon_info[i].to_d += MAX(bonus_to_d,1);
+				p_ptr->weapon_info[i].dis_to_d += MAX(bonus_to_d,1);
+			}
 		}
 	}
 
@@ -4827,7 +4883,7 @@ void calc_bonuses(void)
 				int skill = skills_weapon_current(obj->tval, obj->sval);
 				p_ptr->weapon_info[i].to_h += (skill - WEAPON_EXP_BEGINNER) / 200;
 				p_ptr->weapon_info[i].dis_to_h += (skill - WEAPON_EXP_BEGINNER) / 200;
-				if (p_ptr->pclass == CLASS_MONK || p_ptr->pclass == CLASS_FORCETRAINER)
+				if (p_ptr->pclass == CLASS_MONK || p_ptr->pclass == CLASS_FORCETRAINER || p_ptr->pclass == CLASS_MYSTIC)
 				{
 					if (skills_weapon_is_icky(obj->tval, obj->sval))
 					{
@@ -5030,7 +5086,8 @@ void calc_bonuses(void)
 		p_ptr->old_riding_ryoute = p_ptr->riding_ryoute;
 	}
 
-	if ((p_ptr->pclass == CLASS_MONK 
+	if ((p_ptr->pclass == CLASS_MONK
+	  || p_ptr->pclass == CLASS_MYSTIC 
 	  || p_ptr->pclass == CLASS_FORCETRAINER
 	  || p_ptr->pclass == CLASS_NINJA
 	  || p_ptr->pclass == CLASS_SCOUT) && (monk_armour_aux != monk_notify_aux))
@@ -5521,6 +5578,7 @@ bool heavy_armor(void)
 	u16b monk_arm_wgt = 0;
 
 	if (p_ptr->pclass != CLASS_MONK
+	 && p_ptr->pclass != CLASS_MYSTIC
 	 && p_ptr->pclass != CLASS_FORCETRAINER
 	 && p_ptr->pclass != CLASS_NINJA
 	 && p_ptr->pclass != CLASS_SCOUT)

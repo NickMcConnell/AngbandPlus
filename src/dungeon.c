@@ -382,6 +382,7 @@ static void sense_inventory1(void)
 
 		case CLASS_MONK:
 		case CLASS_FORCETRAINER:
+		case CLASS_MYSTIC:
 		{
 			/* Okay sensing */
 			if (0 != randint0(_adj_pseudo_id(20000) / (plev * plev + 40))) return;
@@ -528,6 +529,7 @@ static void sense_inventory2(void)
 		case CLASS_WARRIOR_MAGE:
 		case CLASS_RED_MAGE:
 		case CLASS_MONK:
+		case CLASS_MYSTIC:
 		{
 			/* Bad sensing */
 			if (0 != randint0(_adj_pseudo_id(95000) / (plev * plev + 40))) return;
@@ -4153,6 +4155,7 @@ msg_print("ウィザードモード突入。");
 					 p_ptr->pclass == CLASS_WEAPONMASTER ||
 					 p_ptr->pclass == CLASS_SCOUT ||
 					 p_ptr->pclass == CLASS_MAULER ||
+					 p_ptr->pclass == CLASS_MYSTIC ||
 					 p_ptr->pclass == CLASS_TIME_LORD )
 			{
 				/* This is the preferred entry point ... I'm still working on
@@ -4252,6 +4255,7 @@ msg_print("ウィザードモード突入。");
 							p_ptr->pclass == CLASS_RAGE_MAGE ||
 							p_ptr->pclass == CLASS_SCOUT ||
 							p_ptr->pclass == CLASS_MAULER ||
+							p_ptr->pclass == CLASS_MYSTIC ||
 							p_ptr->pclass == CLASS_PSION ||
 							p_ptr->pclass == CLASS_TIME_LORD )
 				{

@@ -86,6 +86,9 @@ class_t *result = NULL;
 	case CLASS_MONSTER:
 		result = monster_get_class_t();
 		break;
+	case CLASS_MYSTIC:
+		result = mystic_get_class_t();
+		break;
 	case CLASS_NECROMANCER:
 		result = necromancer_get_class_t();
 		break;

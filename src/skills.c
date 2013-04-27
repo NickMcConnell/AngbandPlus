@@ -143,6 +143,7 @@ bool skills_weapon_is_icky(int tval, int sval)
 	switch (p_ptr->pclass)
 	{
 	case CLASS_MONK:
+	case CLASS_MYSTIC:
 	case CLASS_FORCETRAINER:
 		if (s_info[p_ptr->pclass].w_max[tval-TV_WEAPON_BEGIN][sval] == WEAPON_EXP_UNSKILLED)
 			result = TRUE;

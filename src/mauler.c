@@ -11,7 +11,7 @@ static bool _weapon_check(void)
 	for (hand = 0; hand < MAX_HANDS; hand++)
 	{
 		if ( p_ptr->weapon_info[hand].wield_how != WIELD_NONE
-		  && !p_ptr->weapon_info[hand].wield_how != WIELD_TWO_HANDS )
+		  && p_ptr->weapon_info[hand].wield_how != WIELD_TWO_HANDS )
 		{
 			return FALSE;
 		}

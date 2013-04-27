@@ -5966,7 +5966,7 @@ bool sp_player(int num)
 	int old_csp = p_ptr->csp;
 
 	p_ptr->csp += num;
-	if (p_ptr->csp > p_ptr->msp)
+	if (num > 0 && p_ptr->csp > p_ptr->msp) /* Mystics and Samurai super charge */
 	{
 		p_ptr->csp = p_ptr->msp;
 		p_ptr->csp_frac = 0;

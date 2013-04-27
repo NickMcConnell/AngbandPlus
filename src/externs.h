@@ -107,7 +107,6 @@ extern cptr window_flag_desc[32];
 extern option_type option_info[];
 extern cptr chaos_patrons[MAX_PATRON];
 extern martial_arts ma_blows[MAX_MA];
-extern int monk_ave_damage[PY_MAX_LEVEL+1][3];
 extern cptr game_inscriptions[];
 extern kamae kamae_shurui[MAX_KAMAE];
 extern kamae kata_shurui[MAX_KATA];
@@ -2018,9 +2017,12 @@ extern void remove_mirror(int y, int x);
 extern void monk_double_attack_spell(int cmd, variant *res);
 extern void monk_posture_spell(int cmd, variant *res);
 extern int  monk_get_attack_idx(void);
-extern critical_t monk_get_critical(martial_arts *ma_ptr, int hand);
+extern critical_t monk_get_critical(martial_arts *ma_ptr, int hand, int mode);
 extern void monk_display_attack_info(int hand, int row, int col);
 
+/* mystic.c */
+extern class_t *mystic_get_class_t(void);
+extern int mystic_get_toggle(void);
 
 /* ninja.c */
 extern void quick_walk_spell(int cmd, variant *res);

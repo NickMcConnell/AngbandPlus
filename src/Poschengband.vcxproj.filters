@@ -85,6 +85,9 @@
     <Filter Include="Edit\Files">
       <UniqueIdentifier>{d1fb755d-22b3-4e8c-a903-041d481c26b0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Player\Classes\PosChengband">
+      <UniqueIdentifier>{48def73f-7cce-4e26-8e5b-d71a44ee4f41}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="files.c">
@@ -474,9 +477,6 @@
     <ClCompile Include="menu.c">
       <Filter>Utilities</Filter>
     </ClCompile>
-    <ClCompile Include="monster.c">
-      <Filter>Player\Classes\Chengband</Filter>
-    </ClCompile>
     <ClCompile Include="race_jelly.c">
       <Filter>Player\Races</Filter>
     </ClCompile>
@@ -512,6 +512,12 @@
     </ClCompile>
     <ClCompile Include="savefile.c">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="monster.c">
+      <Filter>Player\Classes\PosChengband</Filter>
+    </ClCompile>
+    <ClCompile Include="mystic.c">
+      <Filter>Player\Classes\PosChengband</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

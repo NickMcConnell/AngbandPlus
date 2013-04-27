@@ -124,6 +124,9 @@ bool object_is_favorite(object_type *o_ptr)
 		break;
 	}
 
+	case CLASS_MYSTIC:
+		return FALSE;
+
 	case CLASS_MONK:
 	case CLASS_FORCETRAINER:
 	case CLASS_NINJA:

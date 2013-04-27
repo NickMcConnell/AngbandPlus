@@ -1694,6 +1694,11 @@ msg_format("%sは体力を回復したようだ。", m_name);
 					if (m_ptr->ml && !p_ptr->confused && !p_ptr->stun && !p_ptr->blind && !p_ptr->paralyzed)
 						do_retaliate = TRUE;
 				}
+				else if (mystic_get_toggle() == MYSTIC_TOGGLE_RETALIATE && p_ptr->csp >= 7)
+				{
+					if (m_ptr->ml && !p_ptr->confused && !p_ptr->stun && !p_ptr->blind && !p_ptr->paralyzed)
+						do_retaliate = TRUE;
+				}
 				else if (p_ptr->pclass == CLASS_MONK && p_ptr->weapon_info[0].bare_hands)
 				{
 					if (m_ptr->ml && !p_ptr->confused && !p_ptr->stun && !p_ptr->blind && !p_ptr->paralyzed && !mon_save_p(m_ptr->r_idx, A_DEX))
@@ -1716,6 +1721,8 @@ msg_format("%sは体力を回復したようだ。", m_name);
 						msg_print("You retaliate.");
 
 					py_attack(m_ptr->fy, m_ptr->fx, WEAPONMASTER_RETALIATION);
+					if (mystic_get_toggle() == MYSTIC_TOGGLE_RETALIATE)
+						sp_player(-7);
 				}
 
 				if (p_ptr->tim_blood_revenge && alive && !p_ptr->is_dead && monster_living(r_ptr))

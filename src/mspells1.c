@@ -880,6 +880,7 @@ static bool anti_magic_check(void)
 	case CLASS_WARRIOR_MAGE:
 	case CLASS_CHAOS_WARRIOR:
 	case CLASS_MONK:
+	case CLASS_MYSTIC:
 	case CLASS_BEASTMASTER:
 	case CLASS_BLOOD_KNIGHT:
 	case CLASS_MAULER:

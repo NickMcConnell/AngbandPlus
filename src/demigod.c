@@ -381,7 +381,8 @@ static void _hermes_calc_bonuses(void)
 }
 static void _hermes_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
-	add_flag(flgs, TR_SPEED);
+	if (p_ptr->lev >= 10)
+		add_flag(flgs, TR_SPEED);
 }
 
 /****************************************************************

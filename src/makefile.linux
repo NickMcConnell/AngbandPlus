@@ -52,7 +52,7 @@ SRCS = \
 	grid.c hex.c high_mage.c hissatsu.c imitator.c init1.c init2.c load.c mage.c \
 	magic_eater.c mauler.c melee1.c melee2.c menu.c mindcrafter.c mirror_master.c \
 	monk.c monster.c monster1.c monster2.c mspells1.c mspells2.c mspells3.c mut.c \
-	mut_a.c necromancer.c ninja.c object1.c object2.c object3.c obj_kind.c paladin.c \
+	mut_a.c mystic.c necromancer.c ninja.c object1.c object2.c object3.c obj_kind.c paladin.c \
 	priest.c psion.c races.c races_a.c races_k.c races_mimic.c race_angel.c \
 	race_beholder.c race_demon.c race_dragon.c race_giant.c race_hound.c race_jelly.c \
 	race_lich.c race_spider.c race_xorn.c racial.c rage-mage.c ranger.c red_mage.c \
@@ -73,7 +73,7 @@ OBJS = \
 	grid.o hex.o high_mage.o hissatsu.o imitator.o init1.o init2.o load.o mage.o \
 	magic_eater.o mauler.o melee1.o melee2.o menu.o mindcrafter.o mirror_master.o \
 	monk.o monster.o monster1.o monster2.o mspells1.o mspells2.o mspells3.o mut.o \
-	mut_a.o necromancer.o ninja.o object1.o object2.o object3.o obj_kind.o paladin.o \
+	mut_a.o mystic.o necromancer.o ninja.o object1.o object2.o object3.o obj_kind.o paladin.o \
 	priest.o psion.o races.o races_a.o races_k.o races_mimic.o race_angel.o \
 	race_beholder.o race_demon.o race_dragon.o race_giant.o race_hound.o race_jelly.o \
 	race_lich.o race_spider.o race_xorn.o racial.o rage-mage.o ranger.o red_mage.o \
@@ -361,6 +361,7 @@ mspells2.o: mspells2.c $(INCS)
 mspells3.o: mspells3.c $(INCS)
 mut.o: mut.c $(INCS)
 mut_a.o: mut_a.c $(INCS)
+mystic.o: mystic.c $(INCS)
 necromancer.o: necromancer.c $(INCS)
 ninja.o: ninja.c $(INCS)
 object1.o: object1.c $(INCS)
