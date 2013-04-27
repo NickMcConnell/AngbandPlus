@@ -324,7 +324,7 @@ static bool summon_possible(int x1, int y1)
 				return (FALSE);
 			}
 
-			/* 
+			/*
 			 * Test for fields that will not allow monsters to
 			 * be generated on them.  (i.e. Glyph of warding)
 			 */
@@ -1452,12 +1452,12 @@ bool make_attack_spell(int m_idx)
 			{
 				msgf("Your mind is blasted by psionic energy.");
 
-				if (!(FLAG(p_ptr, TR_RES_CONF)))
+				if (!(FLAG(p_ptr, TR_RES_CONF)) && !p_ptr->tim.oppose_conf)
 				{
 					(void)inc_confused(rand_range(4, 8));
 				}
 
-				if (!(FLAG(p_ptr, TR_RES_CHAOS)) && one_in_(3))
+				if (!(FLAG(p_ptr, TR_RES_CHAOS)) && !p_ptr->tim.oppose_conf && one_in_(3))
 				{
 					(void)inc_image(rand_range(150, 400));
 				}
@@ -1489,11 +1489,11 @@ bool make_attack_spell(int m_idx)
 			{
 				msgf("Your mind is blasted by psionic energy.");
 				take_hit(damroll(12, 15), ddesc);
-				if (!(FLAG(p_ptr, TR_RES_BLIND)))
+				if (!(FLAG(p_ptr, TR_RES_BLIND)) && !p_ptr->tim.oppose_blind)
 				{
 					(void)inc_blind(rand_range(8, 16));
 				}
-				if (!(FLAG(p_ptr, TR_RES_CONF)))
+				if (!(FLAG(p_ptr, TR_RES_CONF)) && !p_ptr->tim.oppose_conf)
 				{
 					(void)inc_confused(rand_range(4, 8));
 				}
@@ -1509,7 +1509,7 @@ bool make_attack_spell(int m_idx)
 					(void)do_dec_stat(A_WIS);
 				}
 
-				if (!(FLAG(p_ptr, TR_RES_CHAOS)))
+				if (!(FLAG(p_ptr, TR_RES_CHAOS))  && !p_ptr->tim.oppose_conf)
 				{
 					(void)inc_image(rand_range(150, 400));
 				}
@@ -1764,7 +1764,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
 				msgf("%^s casts a spell, burning your eyes!", m_name);
-			if (FLAG(p_ptr, TR_RES_BLIND))
+			if (FLAG(p_ptr, TR_RES_BLIND) && !p_ptr->tim.oppose_blind)
 			{
 				msgf("You are unaffected!");
 			}
@@ -1789,7 +1789,7 @@ bool make_attack_spell(int m_idx)
 								  m_name);
 			else
 				msgf("%^s creates a mesmerising illusion.", m_name);
-			if (FLAG(p_ptr, TR_RES_CONF))
+			if (FLAG(p_ptr, TR_RES_CONF) || p_ptr->tim.oppose_conf)
 			{
 				msgf("You disbelieve the feeble spell.");
 			}
@@ -2376,14 +2376,20 @@ bool make_attack_spell(int m_idx)
 			/* RF5_S_AMBERITES */
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
-			else
+			else if (amber_monsters)
 				msgf("%^s magically summons Lords of Amber!", m_name);
-
+			else
+				msgf("%^s magically summons special opponents!", m_name);
 
 			for (k = 0; k < 8; k++)
 			{
-				count +=
+				if (amber_monsters)
+					count +=
 					summon_specific(m_idx, x, y, rlev, SUMMON_AMBERITES, TRUE,
+									FALSE, FALSE);
+				else
+					count +=
+					summon_specific(m_idx, x, y, rlev, SUMMON_UNIQUE, TRUE,
 									FALSE, FALSE);
 			}
 			if (blind && count)

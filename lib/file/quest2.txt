@@ -1,0 +1,15 @@
+# descriptions of a monster's hideout
+# Note some descriptions are more common than others
+N:*:Default
+10
+lair
+hideout
+home
+stronghold
+lair
+den
+abode
+hole
+den
+hideout
+lair

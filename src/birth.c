@@ -565,7 +565,7 @@ static void player_outfit(void)
 			/* Scrolls of satisfy hunger */
 			q_ptr =
 				object_prep(lookup_kind(TV_SCROLL, SV_SCROLL_SATISFY_HUNGER));
-			q_ptr->number = (byte)rand_range(2, 5);
+			q_ptr->number = 5;
 			object_aware(q_ptr);
 			object_known(q_ptr);
 
@@ -580,7 +580,7 @@ static void player_outfit(void)
 		{
 			/* Food rations */
 			q_ptr = object_prep(lookup_kind(TV_FOOD, SV_FOOD_RATION));
-			q_ptr->number = (byte)rand_range(3, 7);
+			q_ptr->number = 7;
 			object_aware(q_ptr);
 			object_known(q_ptr);
 
@@ -593,7 +593,7 @@ static void player_outfit(void)
 		/* Hack -- Give the player scrolls of DARKNESS! */
 		q_ptr = object_prep(lookup_kind(TV_SCROLL, SV_SCROLL_DARKNESS));
 
-		q_ptr->number = (byte)rand_range(2, 5);
+		q_ptr->number = 5;
 
 		object_aware(q_ptr);
 		object_known(q_ptr);
@@ -607,8 +607,8 @@ static void player_outfit(void)
 	{
 		/* Hack -- Give the player some torches */
 		q_ptr = object_prep(lookup_kind(TV_LITE, SV_LITE_TORCH));
-		q_ptr->number = (byte)rand_range(3, 7);
-		q_ptr->timeout = rand_range(3, 7) * 500;
+		q_ptr->number = (byte)rand_range(5, 7);
+		q_ptr->timeout = rand_range(5, 7) * 500;
 		q_ptr->pval = 0;
 		object_aware(q_ptr);
 		object_known(q_ptr);
@@ -1052,7 +1052,7 @@ static bool player_birth_aux_1(void)
 		put_fstr(11, 7, CLR_L_BLUE "%s", realm_names[p_ptr->spell.r[1].realm]);
 	}
 
-	/* And finally, initialize the starting quests */
+	/* Initialize player quests */
 	init_player_quests();
 
 	/* Clear */
@@ -1115,7 +1115,7 @@ static bool player_birth_aux_2(void)
 
 	/* Roll for age/height/weight */
 	get_ahw();
-	
+
 	/* Dodgy "social class" */
 	p_ptr->rp.sc = randint1(100);
 
@@ -1489,7 +1489,7 @@ static bool player_birth_aux_3(void)
 
 		/* Roll for age/height/weight */
 		get_ahw();
-		
+
 		/* Dodgy "social class" */
 		p_ptr->rp.sc = randint1(100);
 

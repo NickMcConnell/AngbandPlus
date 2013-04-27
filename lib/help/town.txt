@@ -73,7 +73,9 @@ several towns located in various parts of the world. The wilderness is
 not uninhabited and can be dangerous indeed for the unwary. As a
 general rule, the further your character gets from civilization the
 more cautious he or she should be.  Your character will start in a
-relatively harmless area of the wilderness.
+relatively harmless area of the wilderness.  You can use the (^F)
+(level feeling) command in the wilderness to get an idea how dangerous
+it is where you are.
 
 Towns vary in size and will contain a differing selection of shops.
 The starting town will contain an entrance to the dungeon and a
@@ -166,26 +168,7 @@ knowledge of the item if another is encountered.
 ***** <Bartering>
 --- Bartering ---
 
-When bartering, you enter prices you will pay (or accept) for some
-object. You can either enter the absolute amount, or precede a number
-with a plus or minus sign to give a positive or negative increment on
-your previous offer. But be warned that the owners can easily be
-insulted, and may even throw you out for a while if you insult them too
-often.
-
-If you consistently bargain well in a store, that is, you reach the
-final offer much more often than not, then the store owner will
-eventually recognize that you are a superb haggler, and will go
-directly to the final offer instead of haggling with you. Items which
-cost less than 10 gold pieces do not count, as haggling well with these
-items is usually either very easy or almost impossible. The more
-expensive the item is, the less likely the store owner is to assume
-that you are a good haggler.
-
-Note that you may disable haggling with a software option, though this
-will inflict a 10% "sales tax" on all purchases for which the store
-owner would have required you to haggle. (See option.txt for details).
-
+Bartering is no longer used in Zangband.
 
 ***** <ObjectPricing>
 ---- Object Pricing ---
@@ -215,40 +198,44 @@ the cap on the store owner's purse.
 ***** <TheShops>
 === List of Shops ===
 
-Junk Stores ("0")
-     Junk stores stock, lets face it, junk.  But you may occasionally
-     find smoething of use within them.
-
-General Suplies Stores ("1")
+Miscellaneous Stores ("1")
      General stores typically stock basic necessities for entering the
      dungeon such as food, drink, some clothing, torches, lamps, oil,
      shovels, picks, and spikes. Some general stores (notably the
      "Dungeon Supplies" store) may also sell basic magical items.
 
-Armour Stores ("2")
-     Armour stores are where the town's armor is fashioned. All sorts
-     of protective gear may be bought and sold here.
+Armour and Weapon Stores ("2")
+     These stores sell a wide variety of armour, weapons, or both.
 
-Weapons Stores ("3")
-     Weapons stores are where the town's weapons are fashioned.
-     Hand and missile weapons may be purchased and sold here, along
-     with arrows, bolts, and shots.
+Specialty Armour / Weapon Stores ("3")
+     These stores sell weapons, armor, or both, but are relatively
+     specialized to specific subtypes (e.g. only swords or only shields,
+     or only ammunition).
 
+Temples ("4")
+     The temples are the critical store for priests.  They provide
+     spellbooks and general magic supplies, as well as armor and weapons,
+     but all their weapons are suited to use by priests.
 
-Alchemy Stores ("5")
-     Alchemy Stores deal in all types of potions and scrolls and
-     magical books.
+Magic Items ("5" and "6")
+     These stores sell magic items, like potions, scrolls, wands, staves,
+     rods, rings, amulets, and figurines.  A "6" denotes a rather 
+     specialized shop, whereas a "5" denotes a store with a wide variety.
 
-Magic User's Stores ("6")
-     Magic User's Stores deal in all sorts of rings, wands, amulets,
-     and staves, as well as some magic books.
+Black Market ("7")
+     Black Markets and Bazaars are much like a miscellaneous store in
+     that they offer a wide variety of goods.  However, these stores
+     tend to offer rarer, deeper items than others, and also tend to
+     have very unfavorable prices.
 
-Your Home ("8")
-     This is your house where you can store objects that you cannot
-     carry on your travels, or will need at a later date.
+Lodging ("8")
+     Your home, where you can store items, or a Guild or an Inn.
 
-Special Buildings ("7" and "9")
-     Special buildings provide services at a price.
+Magical Services ("9")
+     A building that offers a magical service of some kind, like a magetower.
+
+Mundane Services ("0")
+     A store that provides a mundane service, or a political building.
 
 
 

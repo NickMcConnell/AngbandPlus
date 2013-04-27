@@ -1670,13 +1670,13 @@ void display_visible(void)
 		}
 
 		/* Dump the name */
-		if (FLAG(r_ptr, RF_UNIQUE))
-		{
-			roff(CLR_L_BLUE "%s", mon_race_name(r_ptr));
-		}
-		else if (FLAG(r_ptr, RF_QUESTOR))
+		if (FLAG(r_ptr, RF_QUESTOR))
 		{
 			roff(CLR_L_RED "%s", mon_race_name(r_ptr));
+		}
+		else if (FLAG(r_ptr, RF_UNIQUE))
+		{
+			roff(CLR_L_BLUE "%s", mon_race_name(r_ptr));
 		}
 		else
 		{

@@ -32,24 +32,39 @@ static void place_gen(place_type *pl_ptr)
 {
 	switch (pl_ptr->type)
 	{
-		case TOWN_OLD:
+		case PL_TOWN_OLD:
 		{
 			van_town_gen(pl_ptr);
 			break;
 		}
-		case TOWN_FRACT:
+		case PL_TOWN_FRACT:
 		{
 			draw_city(pl_ptr);
 			break;
 		}
-		case TOWN_QUEST:
+		case PL_QUEST_PIT:
 		{
 			draw_quest(pl_ptr);
 			break;
 		}
-		case TOWN_DUNGEON:
+		case PL_DUNGEON:
 		{
 			draw_dungeon(pl_ptr);
+			break;
+		}
+		case PL_FARM:
+		{
+			draw_farm(pl_ptr);
+			break;
+		}
+		case PL_QUEST_STAIR:
+		{
+			draw_quest_stair(pl_ptr);
+			break;
+		}
+		case PL_TOWN_MINI:
+		{
+			draw_inn(pl_ptr);
 			break;
 		}
 		default:
@@ -106,8 +121,9 @@ static void overlay_place(int x, int y, u16b w_place, blk_ptr block_ptr)
 			/* Only copy terrain if there is something there. */
 			if (c_ptr->feat != FEAT_NONE)
 			{
-				/* Copy the terrain */
+				/* Copy the terrain and flags */
 				block_ptr[j][i].feat = c_ptr->feat;
+				block_ptr[j][i].info = c_ptr->info;
 			}
 			/* Get destination */
 			x2 = x * WILD_BLOCK_SIZE + i;
@@ -149,7 +165,7 @@ static void overlay_place(int x, int y, u16b w_place, blk_ptr block_ptr)
 					if (place_field(x2, y2, c_ptr->fld_idx))
 					{
 						field_type *f_ptr = &fld_list[block_ptr[j][i].fld_idx];
-					
+
 						/* Initialise it */
 						(void)field_script_single(f_ptr, FIELD_ACT_INIT, "");
 					}
@@ -166,7 +182,7 @@ static void overlay_place(int x, int y, u16b w_place, blk_ptr block_ptr)
 					if (place_field(x2, y2, c_ptr->fld_idx))
 					{
 						field_type *f_ptr = &fld_list[block_ptr[j][i].fld_idx];
-					
+
 						/* Add "power" of lock / jam to the field */
 						(void)field_script_single(f_ptr, FIELD_ACT_INIT,
 												"i:", LUA_VAR_NAMED(data, "power"));
@@ -183,7 +199,7 @@ static void overlay_place(int x, int y, u16b w_place, blk_ptr block_ptr)
 					break;
 				}
 			}
-			
+
 			/*
 			 * Instantiate object
 			 */
@@ -697,7 +713,7 @@ static void make_wild_road(blk_ptr block_ptr, int x, int y)
 					/* Flag is set */
 					grad1[i] = ROAD_LEVEL;
 					any = TRUE;
-					
+
 					/* Bridges are narrow */
 					if (wild[y1][x1].done.info & WILD_INFO_WATER)
 					{
@@ -778,7 +794,7 @@ static void make_wild_road(blk_ptr block_ptr, int x, int y)
 				{
 					/* Flag is set */
 					grad2[i] = ROAD_LEVEL;
-					
+
 					/* Bridges are narrow */
 					if (wild[y1][x1].done.info & WILD_INFO_WATER)
 					{
@@ -795,7 +811,7 @@ static void make_wild_road(blk_ptr block_ptr, int x, int y)
 		/* Get direction */
 		x1 = x + ddx[i];
 		y1 = y + ddy[i];
-		
+
 		if (wild[y1][x1].done.info & WILD_INFO_WATER)
 		{
 			/* We are over water - so we need a bridge */
@@ -807,7 +823,7 @@ static void make_wild_road(blk_ptr block_ptr, int x, int y)
 			bridge = TRUE;
 		}
 	}
-	
+
 	/* Only use wood terrain if we need a bridge */
 	if (!need_bridge) bridge = FALSE;
 
@@ -849,7 +865,7 @@ static void make_wild_road(blk_ptr block_ptr, int x, int y)
 				{
 						c_ptr->feat = FEAT_FLOOR_WOOD;
 				}
-				
+
 				else if ((c_ptr->feat == FEAT_SHAL_WATER) ||
 					(c_ptr->feat == FEAT_DEEP_WATER))
 				{
@@ -1503,7 +1519,7 @@ void light_dark_square(int x, int y, bool daytime)
 			remember_grid(c_ptr, pc_ptr);
 		}
 	}
-	
+
 	/* Hack -- Light spot */
 	lite_spot(x, y);
 }
@@ -1854,7 +1870,7 @@ static void allocate_block(int x, int y)
 		/* Get new block */
 		wild_grid[y][x] = wild_cache[wc_cnt++];
 
-	
+
 		/* Are we in the process of loading the game? */
 		if (character_loaded)
 		{
@@ -1867,7 +1883,7 @@ static void allocate_block(int x, int y)
 				incref_region(place[place_num].region);
 			}
 		}
-		
+
 		/* We need to make sure the refcounted regions work */
 		else if (place_num)
 		{
@@ -1879,7 +1895,7 @@ static void allocate_block(int x, int y)
 				/* Create the place */
 				place_gen(pl_ptr);
 			}
-			
+
 			/* Increase refcount for region */
 			incref_region(pl_ptr->region);
 		}
@@ -1919,7 +1935,7 @@ void shift_in_bounds(int *x, int *y)
  * This must be called after the player moves in the wilderness.
  * If the player is just walking around, all that needs to be done is
  * to scroll the grid of pointers - not recalculate them all.
- * However, when the player teleports, all have to ba allocated.
+ * However, when the player teleports, all have to be allocated.
  */
 void move_wild(void)
 {
@@ -1950,10 +1966,10 @@ void move_wild(void)
 
 	/* If we haven't moved block - exit */
 	if ((ox == x) && (oy == y)) return;
-	
+
 	/* We have moved, notice the new town/dungeon */
 	activate_quests(0);
-	
+
 	pl_ptr = &place[p_ptr->place_num];
 
 	/* Check for wilderness quests */
@@ -2166,13 +2182,13 @@ void move_dun_level(int direction)
 {
 	place_type *pl_ptr = &place[p_ptr->place_num];
 	dun_type *d_ptr = pl_ptr->dungeon;
-	
+
 	/* Change depth */
 	p_ptr->depth += direction;
 
 	/* Leaving */
 	p_ptr->state.leaving = TRUE;
-		
+
 	/* Out of bounds? */
 	if (p_ptr->depth < d_ptr->min_level)
 	{
@@ -2187,7 +2203,7 @@ void move_dun_level(int direction)
 			p_ptr->depth = 0;
 		}
 	}
-	
+
 	/* Make sure the deepest level is set correctly */
 	d_ptr->recall_depth = MAX(d_ptr->recall_depth, p_ptr->depth);
 }
@@ -2246,7 +2262,7 @@ void change_level(int level)
 		p_ptr->min_hgt = p_ptr->old_wild_y * WILD_BLOCK_SIZE;
 		p_ptr->max_wid = p_ptr->min_wid + WILD_VIEW * WILD_BLOCK_SIZE;
 		p_ptr->max_hgt = p_ptr->min_hgt + WILD_VIEW * WILD_BLOCK_SIZE;
-		
+
 		/* Update panels (later) */
 		p_ptr->update |= (PU_MAP);
 
@@ -2278,7 +2294,7 @@ void change_level(int level)
 			del_wild_cache();
 		}
 
-		/* 
+		/*
 		 * Default bounds - allocated in generate.c
 		 *
 		 * Should these be set here at all???
@@ -2291,7 +2307,7 @@ void change_level(int level)
 		/* Access the cave */
 		area_aux = access_cave;
 		parea_aux = access_pcave;
-		
+
 		/* Bounds checking */
 		in_bounds = in_bounds_cave;
 		in_bounds2 = in_bounds2_cave;
@@ -2313,10 +2329,10 @@ int base_level(void)
 
 	/* Are we in the dungeon? */
 	if (p_ptr->depth) return (p_ptr->depth);
-	
+
 	/* Point to wilderness block info */
 	w_ptr = &wild[p_ptr->py / 16][p_ptr->px / 16].done;
-	
+
 	/* The level of the wilderness */
 	return(w_ptr->mon_gen);
 }
@@ -2340,7 +2356,7 @@ dun_type *dungeon(void)
 void wipe_all_list(void)
 {
 	int i;
-	
+
 	/* Hack - cull the players inventory */
 	if (p_ptr->inventory) delete_object_list(&p_ptr->inventory);
 
@@ -2383,19 +2399,19 @@ void wipe_all_list(void)
 int max_dun_level_reached(void)
 {
 	int i, max = 0;
-	
+
 	place_type *pl_ptr;
 	dun_type *d_ptr;
-	
+
 	/* Scan all places */
 	for (i = 0; i < place_count; i++)
 	{
 		pl_ptr = &place[i];
-		
+
 		if (pl_ptr->dungeon)
 		{
 			d_ptr = pl_ptr->dungeon;
-			
+
 			/* Best depth? */
 			if (d_ptr->recall_depth > max)
 			{

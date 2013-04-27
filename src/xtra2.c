@@ -125,7 +125,7 @@ void check_experience(void)
 		/* Handle stuff */
 		handle_stuff();
 
-		if (level_reward) 
+		if (level_reward)
 		{
 			if (!multi_rew)
 			{
@@ -427,6 +427,11 @@ bool monster_death(int m_idx, bool explode)
 		trigger_quest_complete(QX_KILL_WINNER, (vptr)m_ptr);
 	}
 
+	if (((m_ptr->r_idx == QW_SAURON) || (m_ptr->r_idx == QW_MORGOTH)) && !amber_monsters)
+	{
+		trigger_quest_complete(QX_KILL_WINNER, (vptr)m_ptr);
+	}
+
 
 	/* Hack: Do not drop a corpse in a random quest.  */
 	if ((one_in_(FLAG(r_ptr, RF_UNIQUE) ? 1 : 2) &&
@@ -465,7 +470,7 @@ bool monster_death(int m_idx, bool explode)
 			{
 				/* Make a corpse */
 				f_ptr = place_field(x, y, FT_CORPSE);
-				
+
 				if (f_ptr)
 				{
 					/* Initialise it */
@@ -477,7 +482,7 @@ bool monster_death(int m_idx, bool explode)
 			{
 				/* Make a skeleton */
 				f_ptr = place_field(x, y, FT_SKELETON);
-				
+
 				if (f_ptr)
 				{
 					/* Initialise it */
@@ -505,7 +510,6 @@ bool monster_death(int m_idx, bool explode)
 		{
 			int wy = y, wx = x;
 			int attempts = 100;
-			bool pet = is_pet(m_ptr);
 
 			do
 			{
@@ -516,8 +520,8 @@ bool monster_death(int m_idx, bool explode)
 
 			if (attempts > 0)
 			{
-				if (summon_specific((pet ? -1 : 0), wx, wy, 100, SUMMON_DAWN,
-									FALSE, is_friendly(m_ptr), pet))
+				if (summon_specific(0, wx, wy, 100, SUMMON_DAWN,
+									FALSE, is_friendly(m_ptr), FALSE))
 				{
 					if (player_can_see_bold(wx, wy))
 						msgf("A new warrior steps forth!");
@@ -534,10 +538,9 @@ bool monster_death(int m_idx, bool explode)
 		for (i = 0; i < 2; i++)
 		{
 			int wy = y, wx = x;
-			bool pet = is_pet(m_ptr);
 
-			if (summon_specific((pet ? -1 : 0), wx, wy, 100, SUMMON_BLUE_HORROR,
-								FALSE, is_friendly(m_ptr), pet))
+			if (summon_specific(0, wx, wy, 100, SUMMON_BLUE_HORROR,
+								FALSE, is_friendly(m_ptr), FALSE))
 			{
 				if (player_can_see_bold(wx, wy))
 					notice = TRUE;
@@ -590,7 +593,8 @@ bool monster_death(int m_idx, bool explode)
 	/* Mega-Hack -- drop "winner" treasures */
 	else if (FLAG(r_ptr, RF_DROP_CHOSEN))
 	{
-		if (mon_name_cont(r_ptr, "Serpent of Chaos"))
+		if (mon_name_cont(r_ptr, "Serpent of Chaos") ||
+		    (mon_name_cont(r_ptr, "Morgoth") && !amber_monsters))
 		{
 			/* Make Grond */
 			create_named_art(ART_GROND, x, y);
@@ -805,14 +809,19 @@ int mon_damage_mod(const monster_type *m_ptr, int dam, int type)
 
 /*
  * This function calculates the experience gained for killing a monster.
+ *
+ * Chaged -- monster experience grows quadratically, now the divider does too.
+ * This should, I hope, lead to better balance and a bigger struggle gaining
+ * levels in the midgame.
  */
 void exp_for_kill(const monster_race *r_ptr, s32b *new_exp, s32b *new_exp_frac)
 {
 	s32b div, exp;
+	int plev = p_ptr->lev;
 
 	if (r_ptr->mexp)
 	{
-		div = p_ptr->lev;
+		div = 1+((plev*plev)/13);
 
 		exp = r_ptr->mexp;
 
@@ -1185,7 +1194,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 void get_map_size(int *x, int *y)
 {
 	int wid, hgt;
-	
+
 	/* Get size */
 	Term_get_size(&wid, &hgt);
 
@@ -1195,7 +1204,7 @@ void get_map_size(int *x, int *y)
 
 	/* Hack - bigmap has half resolution */
 	if (use_bigtile) wid = wid / 2;
-	
+
 	/* Return values */
 	*x = wid;
 	*y = hgt;
@@ -1209,7 +1218,7 @@ void get_map_size(int *x, int *y)
 static bool panel_bounds(int x, int y, int wid, int hgt)
 {
 	int xmax, ymax;
-	
+
 	/* Hack - vanilla town is special */
 	if (vanilla_town && (!p_ptr->depth) && !use_bigtile)
 	{
@@ -1225,10 +1234,10 @@ static bool panel_bounds(int x, int y, int wid, int hgt)
 		if (x > p_ptr->max_wid - wid) x = p_ptr->max_wid - wid;
 		if (x < p_ptr->min_wid) x = p_ptr->min_wid;
 	}
-	
+
 	xmax = x + wid;
 	ymax = y + hgt;
-	
+
 	/* Handle "changes" */
 	if ((x != p_ptr->panel_x1) || (y != p_ptr->panel_y1) ||
 		(xmax != p_ptr->panel_x2) || (ymax != p_ptr->panel_y2))
@@ -1247,10 +1256,10 @@ static bool panel_bounds(int x, int y, int wid, int hgt)
 
 		/* Handle stuff */
 		handle_stuff();
-		
+
 		return (TRUE);
 	}
-	
+
 	return (FALSE);
 }
 
@@ -1271,7 +1280,7 @@ bool change_panel(int dx, int dy)
 	/* Apply the motion */
 	x = p_ptr->panel_x1 + dx * (wid / 2);
 	y = p_ptr->panel_y1 + dy * (hgt / 2);
-	
+
 	/* Get new bounds */
 	return (panel_bounds(x, y, wid, hgt));
 }
@@ -1283,12 +1292,12 @@ bool change_panel(int dx, int dy)
 void verify_panel(void)
 {
 	int wid, hgt;
-	
-	int x, y;	
+
+	int x, y;
 	int nx, ny;
-	
+
 	get_map_size(&wid, &hgt);
-	
+
 	if (center_player && !(avoid_center && p_ptr->state.running))
 	{
 		/* Center it */
@@ -1302,21 +1311,21 @@ void verify_panel(void)
 		y = p_ptr->panel_y1;
 		nx = p_ptr->px - wid / 2;
 		ny = p_ptr->py - hgt / 2;
-		
+
 		/* How far to move panel? */
 		if (abs(nx - x) > wid / 4) x = nx;
-		if (abs(ny - y) > hgt / 4) y = ny; 
+		if (abs(ny - y) > hgt / 4) y = ny;
 	}
-	
+
 	/* Get new bounds */
 	if (panel_bounds(x, y, wid, hgt))
 	{
 		/* Hack -- optional disturb on "panel change" */
 		if (disturb_panel && !center_player) disturb(FALSE);
-		
+
 		/* Window stuff */
 		p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-		
+
 		/* Handle stuff */
 		handle_stuff();
 	}
@@ -1331,26 +1340,26 @@ bool panel_center(int x, int y)
 
 	/* Get size */
 	get_map_size(&wid, &hgt);
-		
+
 	x -= wid / 2;
 	y -= hgt / 2;
 
 	/* How far to move panel? */
 	if (abs(p_ptr->panel_x1 - x) < wid / 4) x = p_ptr->panel_x1;
-	if (abs(p_ptr->panel_y1 - y) < hgt / 4) y = p_ptr->panel_y1; 
-		
+	if (abs(p_ptr->panel_y1 - y) < hgt / 4) y = p_ptr->panel_y1;
+
 	/* Get new bounds */
 	if (panel_bounds(x, y, wid, hgt))
 	{
 		/* Window stuff */
 		p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-		
+
 		/* Handle stuff */
 		handle_stuff();
-		
+
 		return (TRUE);
 	}
-	
+
 	return (FALSE);
 }
 
@@ -1364,17 +1373,17 @@ void map_panel_size(void)
 
 	/* Only if the map exists */
 	if (!character_dungeon) return;
-	
+
 	/* Hack - wait until are done with menus before updating */
 	if (character_icky)
 	{
 		p_ptr->update |= PU_MAP;
 		return;
 	}
-	
+
 	/* Get size */
 	get_map_size(&wid, &hgt);
-	
+
 	/* Set bigreion if required */
 	if (use_bigtile)
 	{
@@ -1888,8 +1897,8 @@ static bool target_set_accept(int x, int y)
 	/* Scan all objects in the grid */
 	OBJ_ITT_START (c_ptr->o_idx, o_ptr)
 	{
-		/* Memorized object */
-		if (o_ptr->info & OB_SEEN) return (TRUE);
+		/* Memorized object, not squelched */
+		if ((o_ptr->info & OB_SEEN) && (!SQUELCH(o_ptr->k_idx) || FLAG(o_ptr, TR_SQUELCH))) return (TRUE);
 	}
 	OBJ_ITT_END;
 
@@ -2341,22 +2350,22 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 			if (f_ptr->info & FIELD_INFO_MARK)
 			{
 				char *name = NULL;
-				
+
 				/* See if it has a special name */
 				field_script_single(f_ptr, FIELD_ACT_LOOK, ":s", LUA_RETURN(name));
-				
+
 				if (name)
 				{
 					/* Copy the string into the temp buffer */
 					strncpy(fld_name, name, 40);
-				
+
 					/* Anything there? */
 					if (!fld_name[0])
-					{				
+					{
 						/* Default to field name */
 						strncpy(fld_name, t_ptr->name, 40);
 					}
-				
+
 					/* Free string allocated to hold return value */
 					string_free(name);
 				}
@@ -2365,7 +2374,7 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 					/* Default to field name */
 					strncpy(fld_name, t_ptr->name, 40);
 				}
-				
+
 				/* Not boring */
 				boring = FALSE;
 
@@ -2403,7 +2412,7 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 		/* Sometimes a field stops the feat from being mentioned */
 		if (fields_have_flags(c_ptr, FIELD_INFO_NFT_LOOK))
 		{
-			/* 
+			/*
 			 * Only if we know about the field will it stop the
 			 * feat from being described.
 			 */
@@ -2700,13 +2709,13 @@ bool target_set(int mode)
 					{
 						int dx = ddx[d];
 						int dy = ddy[d];
-						
+
 						/* Get size */
 						get_map_size(&wid, &hgt);
 
 						/* Restore previous position */
 						panel_center(x2, y2);
-						
+
 						/* Recalculate interesting grids */
 						target_set_prepare(mode);
 
@@ -2719,7 +2728,7 @@ bool target_set(int mode)
 
 						/* Apply the motion */
 						if (panel_center(x, y)) target_set_prepare(mode);
-						
+
 						/* Slide into legality */
 						if (x < p_ptr->min_wid) x = p_ptr->min_wid;
 						else if (x >= p_ptr->max_wid) x = p_ptr->max_wid - 1;
@@ -2846,7 +2855,7 @@ bool target_set(int mode)
 				y += dy;
 
 				if (panel_center(x, y)) target_set_prepare(mode);
-				
+
 				/* Slide into legality */
 				if (x < p_ptr->min_wid) x = p_ptr->min_wid;
 				else if (x >= p_ptr->max_wid) x = p_ptr->max_wid - 1;
@@ -3615,10 +3624,10 @@ bool tgt_pt(int *x, int *y)
 
 				*x += ddx[d];
 				*y += ddy[d];
-				
+
 				/* Center on cursor */
 				panel_center(*x, *y);
-				
+
 				/* Slide into legality */
 				if (*x < p_ptr->min_wid) *x = p_ptr->min_wid;
 				else if (*x >= p_ptr->max_wid) *x = p_ptr->max_wid - 1;

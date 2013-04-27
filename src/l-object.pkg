@@ -26,6 +26,9 @@ typedef int sint;
 /* Special ability OR high resist */
 #define EGO_XTRA_POWER          6
 
+/* Slay */
+#define EGO_XTRA_SLAY           7
+
 /*
  * Use tvals for the item tester functions in stores
  */
@@ -70,7 +73,8 @@ typedef int sint;
 #define TV_NATURE_BOOK  92
 #define TV_CHAOS_BOOK   93
 #define TV_DEATH_BOOK   94
-#define TV_TRUMP_BOOK   95
+#define TV_TRUMP_BOOK   95		/* Keeping for compatibility */
+#define TV_CONJ_BOOK   	95
 #define TV_ARCANE_BOOK  96
 #define TV_GOLD         100		/* Gold can only be picked up by players */
 
@@ -236,7 +240,7 @@ typedef int sint;
 #define TR3_WILD_SHOT           0x00000002L
 #define TR3_WILD_WALK           0x00000004L
 #define TR3_EASY_ENCHANT        0x00000008L
-#define TR3_XXX5                0x00000010L
+#define TR3_SQUELCH             0x00000010L
 #define TR3_XXX6                0x00000020L
 #define TR3_XXX7                0x00000040L
 #define TR3_XXX8                0x00000080L
@@ -301,17 +305,17 @@ struct object_type
 	u16b xtra_name;      /* Extra Name (Artifacts and ego items) */
 
 	u32b flags[4];        /* Flags */
-	
+
 	u32b kn_flags[4];     /* Known Flags */
 
 	s16b next_o_idx;	/* Next object in stack (if any) */
 
 	s32b cost;			/* Object "base cost" */
-	
+
 	byte feeling;       /* Game generated inscription number (eg, pseudo-id) */
 
 	byte a_idx;		/* Artifact number */
-	
+
 	byte info;			/* Special flags */
 
 	bool allocated;	/* Held in the o_list[] array */
@@ -356,3 +360,5 @@ extern void add_ego_flags(object_type *o_ptr, byte ego);
 extern void add_ego_power(int power, object_type *o_ptr);
 extern void acquirement(int x1, int y1, int num, bool great, bool known);
 extern void ring_of_power(int dir);
+extern bool create_artifact(object_type *o_ptr, int level, bool a_scroll);
+extern bool mushroom_chaos(void);

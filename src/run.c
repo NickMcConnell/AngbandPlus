@@ -88,6 +88,9 @@ static int see_interesting(int x, int y)
 	/* Check for objects */
 	OBJ_ITT_START(c_ptr->o_idx, o_ptr)
 	{
+		/* If it's squelched, it's not interesting */
+		if (SQUELCH(o_ptr->k_idx) && !FLAG(o_ptr, TR_SQUELCH)) continue;
+
 		/* If it's visible, it's interesting */
 		if (o_ptr->info & OB_SEEN) return (TRUE);
 	}
@@ -105,19 +108,34 @@ static int see_interesting(int x, int y)
 		switch (c_ptr->feat)
 		{
 		case FEAT_DEEP_LAVA:
+			if (!res_fire_lvl()) break;
+			return (TRUE);
 		case FEAT_DEEP_ACID:
+			if (!res_acid_lvl()) break;
+			return (TRUE);
 		case FEAT_DEEP_SWAMP:
+			if (!res_pois_lvl()) break;
 			return (TRUE);
 
 		case FEAT_SHAL_SWAMP:
+			if (!res_pois_lvl()) break;
+			if (FLAG(p_ptr, TR_FEATHER)) break;
+			return (TRUE);
+
 		case FEAT_SHAL_ACID:
+			if (!res_acid_lvl()) break;
+			if (FLAG(p_ptr, TR_FEATHER)) break;
+			return (TRUE);
+
 		case FEAT_SHAL_LAVA:
+			if (!res_fire_lvl()) break;
+			if (FLAG(p_ptr, TR_FEATHER)) break;
+			return (TRUE);
+
 		/* Water */
 		case FEAT_DEEP_WATER:
 		case FEAT_OCEAN_WATER:
-			/* Levitation makes these feats boring */
 			if (FLAG(p_ptr, TR_FEATHER)) break;
-
 			return (TRUE);
 
 		/* Open doors */
@@ -151,7 +169,7 @@ static int see_interesting(int x, int y)
 #define RUN_MODE_WALL     3  /* Running along a wall */
 #define RUN_MODE_FINISH   4  /* End of run */
 
-/* 
+/*
  * Due to a fortunate coincidence, there are exactly 32 interesting
  * 2-move combinations. We only consider combinations where the
  * second move shares at least one component (N, E, S or W) with
@@ -672,7 +690,7 @@ static void run_corridor(int starting)
 /*
  * Run in an open area
  *
- * XXX Write this
+ * XXX Write this?
  */
 static void run_open(void)
 {
@@ -696,6 +714,9 @@ static void run_open(void)
 		p_ptr->run.mode = RUN_MODE_FINISH;
 		return;
 	}
+
+	/* Hack: Reassign mode next turn if a more interesting one applies. */
+	p_ptr->run.mode = RUN_MODE_START;
 }
 
 
@@ -791,7 +812,7 @@ void run_step(int dir)
 	else
 	{
 		int starting = FALSE;
-		
+
 		/* If we've just started our run, determine the algorithm now */
 		if (p_ptr->run.mode == RUN_MODE_START)
 		{

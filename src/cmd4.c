@@ -219,7 +219,7 @@ void do_cmd_messages(void)
 				while ((str = strstr(str, shower)) != NULL)
 				{
 					int len = strlen(shower);
-				
+
 					/* Display the match */
 					put_fstr(str - msg, hgt - 3 - j, CLR_YELLOW "%s", shower);
 
@@ -442,7 +442,7 @@ void init_options(byte flags)
 	if (ironman_downward)
 	{
 		vanilla_town = TRUE;
-	
+
 		/* And here is the bit that shouldn't see the light of day. */
 		option_info[192].o_val = TRUE;
 	}
@@ -501,19 +501,19 @@ static bool do_cmd_options_cheat_aux(int option)
 
 	/* Toggle the option */
 	(*cheat_info[option].o_var) = !(*cheat_info[option].o_var);
-	
+
 	if (*cheat_info[option].o_var)
 	{
 		/* Turn on the cheating flag */
 		p_ptr->state.noscore |= cheat_info[option].o_word;
 	}
-	
+
 	/* Change the option text */
 	strnfmt(buf, 1024, "%-48s: %s  (%s)",
 			cheat_info[option].o_desc,
 			(*cheat_info[option].o_var ? "yes" : "no "),
 			cheat_info[option].o_text);
-	
+
 	/* Delete old string */
 	string_free(cheat_menu[option].text);
 
@@ -542,10 +542,10 @@ static bool do_cmd_options_cheat(int dummy)
 	char buf[1024];
 
 	int i;
-	
+
 	/* Hack - ignore unused parameter */
 	(void) dummy;
-	
+
 	/* Create the list of options */
 	for (i = 0; i < CHEAT_MAX; i++)
 	{
@@ -554,7 +554,7 @@ static bool do_cmd_options_cheat(int dummy)
 				cheat_info[i].o_desc,
 				(*cheat_info[i].o_var ? "yes" : "no "),
 				cheat_info[i].o_text);
-	
+
 		/* Delete old string */
 		string_free(cheat_menu[i].text);
 
@@ -585,9 +585,9 @@ extern menu_type autosave_menu[4];
 static bool do_cmd_options_toggle_frequency(int option)
 {
 	s16b current = autosave_freq;
-	
+
 	char buf[1024];
-	
+
 	if (current == 0) autosave_freq = 50;
 	if (current == 50) autosave_freq = 100;
 	if (current == 100) autosave_freq = 250;
@@ -600,7 +600,7 @@ static bool do_cmd_options_toggle_frequency(int option)
 	if (current == 25000) autosave_freq = 0;
 
 	strnfmt(buf, 1024, "Timed autosave frequency: every %d turns", autosave_freq);
-	
+
 	/* Delete old string */
 	string_free(autosave_menu[option].text);
 
@@ -615,16 +615,16 @@ static bool do_cmd_options_toggle_frequency(int option)
 static bool do_cmd_options_autosave_aux(int option)
 {
 	char buf[1024];
-	
+
 	/* Toggle the option */
 	(*autosave_info[option].o_var) = !(*autosave_info[option].o_var);
-		
+
 	/* Change the option text */
 	strnfmt(buf, 1024, "%-48s: %s  (%s)",
 			autosave_info[option].o_desc,
 			(*autosave_info[option].o_var ? "yes" : "no "),
 			autosave_info[option].o_text);
-	
+
 	/* Delete old string */
 	string_free(autosave_menu[option].text);
 
@@ -652,10 +652,10 @@ static bool do_cmd_options_autosave(int dummy)
 	char buf[1024];
 
 	int i;
-	
+
 	/* Hack - ignore unused parameter */
 	(void) dummy;
-	
+
 	for (i = 0; i < 2; i++)
 	{
 		/* Change the option text */
@@ -663,25 +663,25 @@ static bool do_cmd_options_autosave(int dummy)
 				autosave_info[i].o_desc,
 				(*autosave_info[i].o_var ? "yes" : "no "),
 				autosave_info[i].o_text);
-	
+
 		/* Delete old string */
 		string_free(autosave_menu[i].text);
 
 		/* Save new string */
 		autosave_menu[i].text = string_make(buf);
 	}
-	
+
 	/* Get string for autosave frequency */
 	strnfmt(buf, 1024, "Timed autosave frequency: every %d turns", autosave_freq);
-	
+
 	/* Delete old string */
 	string_free(autosave_menu[2].text);
 
 	/* Save new string */
 	autosave_menu[2].text = string_make(buf);
-	
+
 	display_menu(autosave_menu, 0, TRUE, NULL, "Autosave");
-	
+
 	return (FALSE);
 }
 
@@ -711,22 +711,22 @@ static bool do_cmd_options_aux2(int option)
 			if (!j)
 			{
 				option_info[i].o_val = !option_info[i].o_val;
-				
+
 				strnfmt(buf, 1024, "%-48s: %s  (%.23s)",
 						option_info[i].o_desc,
 						(option_info[i].o_val ? "yes" : "no "),
 						option_info[i].o_text);
-			
+
 				/* Update the description */
 				string_free(options_aux_menu[option].text);
 				options_aux_menu[option].text = string_make(buf);
-				
+
 				/* Update the help */
 				strnfmt(buf, 1024, "option.txt#%s", option_info[i].o_text);
-				
+
 				string_free(options_aux_menu[option].help);
 				options_aux_menu[option].help = string_make(buf);
-				
+
 				/* Done */
 				break;
 			}
@@ -793,9 +793,9 @@ static cptr option_window_title[8] =
 static bool do_cmd_options_aux(int page)
 {
 	int i, n = 0;
-	
+
 	char buf[1024];
-	
+
 	/* Save the current page */
 	option_page = page + 1;
 
@@ -804,7 +804,7 @@ static bool do_cmd_options_aux(int page)
 	{
 		string_free(options_aux_menu[i].text);
 		options_aux_menu[i].text = NULL;
-		
+
 		string_free(options_aux_menu[i].help);
 		options_aux_menu[i].help = NULL;
 	}
@@ -820,9 +820,9 @@ static bool do_cmd_options_aux(int page)
 					option_info[i].o_desc,
 					(option_info[i].o_val ? "yes" : "no "),
 					option_info[i].o_text);
-			
+
 			options_aux_menu[n].text = string_make(buf);
-			
+
 			/* Update the help */
 			strnfmt(buf, 1024, "option.txt#%s", option_info[i].o_text);
 			options_aux_menu[n].help = string_make(buf);
@@ -842,9 +842,9 @@ static bool do_cmd_options_aux(int page)
 		/* Bail out */
 		return (FALSE);
 	}
-	
+
 	display_menu(options_aux_menu, 0, TRUE, NULL, option_window_title[page]);
-	
+
 	/* Save the changes */
 	init_options(option_flags);
 
@@ -883,7 +883,7 @@ static bool do_cmd_options_win(int dummy)
 
 	/* Clear screen */
 	Term_clear();
-	
+
 	/* Interact */
 	while (go)
 	{
@@ -994,7 +994,7 @@ static bool do_cmd_options_win(int dummy)
 			}
 		}
 	}
-	
+
 	/* Hack - assume all windows will change */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL |
 					  PW_PLAYER | PW_MESSAGE | PW_OVERHEAD |
@@ -1025,9 +1025,9 @@ static bool do_cmd_options_win(int dummy)
 		/* Restore */
 		Term_activate(old);
 	}
-	
+
 	screen_load();
-	
+
 	return (FALSE);
 }
 
@@ -1037,10 +1037,10 @@ static bool do_cmd_options_win(int dummy)
 static bool do_cmd_options_delay(int dummy)
 {
 	char k;
-	
+
 	/* Hack - ignore parameter */
 	(void) dummy;
-	
+
 	screen_save();
 
 	/* Clear screen */
@@ -1077,7 +1077,7 @@ static bool do_cmd_options_delay(int dummy)
 static bool do_cmd_options_hitpoint(int dummy)
 {
 	char k;
-	
+
 	/* Hack - ignore parameter */
 	(void) dummy;
 
@@ -1114,7 +1114,7 @@ static bool do_cmd_options_dump(int dummy)
 	int i;
 	FILE *fff;
 	char buf[1024];
-	
+
 	/* Hack - ignore parameter */
 	(void) dummy;
 
@@ -1482,7 +1482,7 @@ static bool do_cmd_pref_key_load(int dummy)
 	{
 		return (FALSE);
 	}
-	
+
 	/* Process the given filename */
 	if (0 != process_pref_file("%s", tmp))
 	{
@@ -1498,10 +1498,10 @@ static bool do_cmd_pref_key_load(int dummy)
 static int display_cur_action(int dummy)
 {
 	char buf[1024];
-	
+
 	/* Hack - ignore parameter */
 	(void) dummy;
-	
+
 	Term_clear();
 
 	/* Analyze the current action */
@@ -1509,7 +1509,7 @@ static int display_cur_action(int dummy)
 
 	/* Describe + display that action */
 	prtf(0, 20, "Current action (if any) shown below:\n\n%s", buf);
-	
+
 	/* No offset */
 	return (0);
 }
@@ -1524,11 +1524,11 @@ static bool do_cmd_macro_append(int dummy)
 
 	/* Hack - ignore parameter */
 	(void) dummy;
-	
+
 	/* Prompt */
 	prtf(0, 16, "Command: Append macros to a file\n\n"
 				"File: ");
-	
+
 	/* Default filename */
 	strnfmt(tmp, 1024, "%s.prf", player_base);
 
@@ -1537,13 +1537,13 @@ static bool do_cmd_macro_append(int dummy)
 	{
 		return (FALSE);
 	}
-	
+
 	/* Dump the macros */
 	(void)macro_dump(tmp);
 
 	/* Prompt */
 	msgf("Appended macros.");
-	
+
 	return (FALSE);
 }
 
@@ -1558,11 +1558,11 @@ static bool do_cmd_macro_query(int dummy)
 
 	/* Hack - ignore parameter */
 	(void) dummy;
-	
+
 	/* Prompt */
 	prtf(0, 16, "Command: Query a macro\n\n"
 				"Trigger: ");
-	
+
 	/* Get a macro trigger */
 	do_cmd_macro_aux(tmp);
 
@@ -1606,17 +1606,17 @@ static bool do_cmd_macro_create(int dummy)
 
 	/* Hack - ignore parameter */
 	(void) dummy;
-	
+
 	/* Prompt */
 	prtf(0, 16, "Command: Create a macro\n\n"
 				"Trigger: ");
 
 	/* Get a macro trigger */
 	do_cmd_macro_aux(tmp);
-	
+
 	/* Clear */
 	clear_from(20);
-	
+
 	/* Prompt */
 	prtf(0, 20, "Action: ");
 
@@ -1649,7 +1649,7 @@ static bool do_cmd_macro_remove(int dummy)
 
 	/* Hack - ignore parameter */
 	(void) dummy;
-	
+
 	/* Prompt */
 	prtf(0, 16, "Command: Remove a macro\n\n"
 				"Trigger: ");
@@ -1676,11 +1676,11 @@ static bool do_cmd_keymap_append(int dummy)
 
 	/* Hack - ignore parameter */
 	(void) dummy;
-	
+
 	/* Prompt */
 	prtf(0, 16, "Command: Append keymaps to a file\n\n"
 				"File: ");
-	
+
 	/* Default filename */
 	strnfmt(tmp, 1024, "%s.prf", player_base);
 
@@ -1689,13 +1689,13 @@ static bool do_cmd_keymap_append(int dummy)
 	{
 		return (FALSE);
 	}
-	
+
 	/* Dump the macros */
 	(void)keymap_dump(tmp);
 
 	/* Prompt */
 	msgf("Appended keymaps.");
-	
+
 	return (FALSE);
 }
 
@@ -1706,11 +1706,11 @@ static bool do_cmd_keymap_append(int dummy)
 static bool do_cmd_keymap_query(int dummy)
 {
 	char buf[1024];
-	
+
 	cptr act;
-	
+
 	int mode;
-	
+
 	/* Hack - ignore parameter */
 	(void) dummy;
 
@@ -1729,7 +1729,7 @@ static bool do_cmd_keymap_query(int dummy)
 	/* Prompt */
 	prtf(0, 16, "Command: Query a keymap\n\n"
 				"Keypress: ");
-	
+
 	/* Get a keymap trigger */
 	do_cmd_macro_aux_keymap(buf);
 
@@ -1758,7 +1758,7 @@ static bool do_cmd_keymap_query(int dummy)
 		/* Prompt */
 		msgf("Found a keymap.");
 	}
-	
+
 	return (FALSE);
 }
 
@@ -1772,7 +1772,7 @@ static bool do_cmd_keymap_create(int dummy)
 	char buf[1024];
 
 	int mode;
-	
+
 	/* Hack - ignore parameter */
 	(void) dummy;
 
@@ -1787,17 +1787,17 @@ static bool do_cmd_keymap_create(int dummy)
 	{
 		mode = KEYMAP_MODE_ORIG;
 	}
-	
+
 	/* Prompt */
 	prtf(0, 16, "Command: Create a keymap\n\n"
 				"Keypress: ");
 
 	/* Get a keymap trigger */
 	do_cmd_macro_aux_keymap(buf);
-	
+
 	/* Clear */
 	clear_from(20);
-	
+
 	/* Prompt */
 	prtf(0, 20, "Action: ");
 
@@ -1832,7 +1832,7 @@ static bool do_cmd_keymap_remove(int dummy)
 	char buf[1024];
 
 	int mode;
-	
+
 	/* Hack - ignore parameter */
 	(void) dummy;
 
@@ -1851,7 +1851,7 @@ static bool do_cmd_keymap_remove(int dummy)
 	/* Prompt */
 	prtf(0, 16, "Command: Remove a keymap\n\n"
 				"Keypress: ");
-	
+
 	/* Get a keymap trigger */
 	do_cmd_macro_aux_keymap(buf);
 
@@ -1873,16 +1873,16 @@ static bool do_cmd_keymap_remove(int dummy)
 static bool do_cmd_action_create(int dummy)
 {
 	char buf[1024];
-	
+
 	/* Hack - ignore parameter */
 	(void) dummy;
-	
+
 	/* Prompt */
 	prtf(0, 16, "Command: Enter a new action");
-	
+
 	/* Go to the correct location */
 	Term_gotoxy(0, 22);
-	
+
 	/* Get the current default action */
 	ascii_to_text(buf, macro__buf);
 
@@ -1894,10 +1894,10 @@ static bool do_cmd_action_create(int dummy)
 	{
 		return (FALSE);
 	}
-	
+
 	/* Extract an action */
 	text_to_ascii(macro__buf, buf);
-	
+
 	return (FALSE);
 }
 
@@ -1940,7 +1940,7 @@ void do_cmd_macros(void)
 {
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
-		
+
 	display_menu(macro_menu, -1, FALSE, display_cur_action, "Interact with Macros");
 }
 
@@ -1954,9 +1954,9 @@ static bool do_cmd_pref_vis_load(int dummy)
 
 	/* Hack - ignore parameter */
 	(void) dummy;
-	
+
 	screen_save();
-	
+
 	/* Prompt */
 	prtf(0, 13, "Command: Load a user pref file\n\n"
 				"File: ");
@@ -1970,14 +1970,14 @@ static bool do_cmd_pref_vis_load(int dummy)
 		screen_load();
 		return (FALSE);
 	}
-	
+
 	/* Process the given filename */
 	if (0 != process_pref_file("%s", tmp))
 	{
 		/* Prompt */
 		msgf("Could not load file!");
 	}
-	
+
 	screen_load();
 	return (FALSE);
 }
@@ -1989,14 +1989,14 @@ static bool do_cmd_dump_monster(int dummy)
 {
 	char tmp[1024], buf[1024];
 	FILE *fff;
-	
+
 	int i;
-	
+
 	/* Hack - ignore parameter */
 	(void) dummy;
-	
+
 	screen_save();
-	
+
 	/* Prompt */
 	prtf(0, 12, "Command: Dump monster attr/chars\n\n"
 				"File: ");
@@ -2010,7 +2010,7 @@ static bool do_cmd_dump_monster(int dummy)
 		screen_load();
 		return (FALSE);
 	}
-	
+
 	/* Build the filename */
 	path_make(buf, ANGBAND_DIR_USER, tmp);
 
@@ -2023,7 +2023,7 @@ static bool do_cmd_dump_monster(int dummy)
 		screen_load();
 		return (FALSE);
 	}
-	
+
 	/* Start dumping */
 	froff(fff, "\n\n");
 	froff(fff, "# Monster attr/char definitions\n\n");
@@ -2063,14 +2063,14 @@ static bool do_cmd_dump_object(int dummy)
 {
 	char tmp[1024], buf[1024];
 	FILE *fff;
-	
+
 	int i;
 
 	/* Hack - ignore parameter */
 	(void) dummy;
-	
+
 	screen_save();
-	
+
 	/* Prompt */
 	prtf(0, 12, "Command: Dump object attr/chars\n\n"
 				"File: ");
@@ -2084,7 +2084,7 @@ static bool do_cmd_dump_object(int dummy)
 		screen_load();
 		return (FALSE);
 	}
-	
+
 	/* Build the filename */
 	path_make(buf, ANGBAND_DIR_USER, tmp);
 
@@ -2097,7 +2097,7 @@ static bool do_cmd_dump_object(int dummy)
 		screen_load();
 		return (FALSE);
 	}
-	
+
 	/* Start dumping */
 	froff(fff, "\n\n");
 	froff(fff, "# Object attr/char definitions\n\n");
@@ -2138,14 +2138,14 @@ static bool do_cmd_dump_feature(int dummy)
 {
 	char tmp[1024], buf[1024];
 	FILE *fff;
-	
+
 	int i;
 
 	/* Hack - ignore parameter */
 	(void) dummy;
 
 	screen_save();
-	
+
 	/* Prompt */
 	prtf(0, 12, "Command: Dump feature attr/chars\n\n"
 				"File: ");
@@ -2159,7 +2159,7 @@ static bool do_cmd_dump_feature(int dummy)
 		screen_load();
 		return (FALSE);
 	}
-	
+
 	/* Build the filename */
 	path_make(buf, ANGBAND_DIR_USER, tmp);
 
@@ -2172,7 +2172,7 @@ static bool do_cmd_dump_feature(int dummy)
 		screen_load();
 		return (FALSE);
 	}
-	
+
 	/* Start dumping */
 	froff(fff, "\n\n");
 	froff(fff, "# Feature attr/char definitions\n\n");
@@ -2201,9 +2201,9 @@ static bool do_cmd_dump_feature(int dummy)
 
 	/* Message */
 	msgf("Dumped feature attr/chars.");
-	
+
 	screen_load();
-	
+
 	return (FALSE);
 }
 
@@ -2213,14 +2213,14 @@ static bool do_cmd_dump_field(int dummy)
 {
 	char tmp[1024], buf[1024];
 	FILE *fff;
-	
+
 	int i;
 
 	/* Hack - ignore parameter */
 	(void) dummy;
-	
+
 	screen_save();
-	
+
 	/* Prompt */
 	prtf(0, 12, "Command: Dump field attr/chars\n\n"
 				"File: ");
@@ -2234,7 +2234,7 @@ static bool do_cmd_dump_field(int dummy)
 		screen_load();
 		return (FALSE);
 	}
-	
+
 	/* Build the filename */
 	path_make(buf, ANGBAND_DIR_USER, tmp);
 
@@ -2247,7 +2247,7 @@ static bool do_cmd_dump_field(int dummy)
 		screen_load();
 		return (FALSE);
 	}
-	
+
 	/* Start dumping */
 	froff(fff, "\n\n");
 	froff(fff, "# Field attr/char definitions\n\n");
@@ -2287,16 +2287,16 @@ static bool do_cmd_dump_field(int dummy)
 static bool do_cmd_change_monster(int dummy)
 {
 	static int r = 0;
-	
+
 	char i;
 
 	/* Hack - ignore parameter */
 	(void) dummy;
 
 	screen_save();
-	
+
 	Term_clear();
-	
+
 	/* Prompt */
 	prtf(0, 5, "Command: Change monster attr/chars");
 
@@ -2352,16 +2352,16 @@ static bool do_cmd_change_monster(int dummy)
 static bool do_cmd_change_object(int dummy)
 {
 	static int k = 0;
-	
+
 	char i;
 
 	/* Hack - ignore parameters */
 	(void) dummy;
-	
+
 	screen_save();
-	
+
 	Term_clear();
-	
+
 	/* Prompt */
 	prtf(0, 5, "Command: Change object attr/chars");
 
@@ -2405,10 +2405,10 @@ static bool do_cmd_change_object(int dummy)
 		if (i == 'A') k_info[k].x_attr = (byte)(ca - 1);
 		if (i == 'c') k_info[k].x_char = (byte)(cc + 1);
 		if (i == 'C') k_info[k].x_char = (byte)(cc - 1);
-	}	
+	}
 
 	screen_load();
-	
+
 	return (FALSE);
 }
 
@@ -2417,16 +2417,16 @@ static bool do_cmd_change_object(int dummy)
 static bool do_cmd_change_feature(int dummy)
 {
 	static int f = 0;
-	
+
 	char i;
 
 	/* Hack - ignore parameter */
 	(void) dummy;
-	
+
 	screen_save();
-	
+
 	Term_clear();
-	
+
 	/* Prompt */
 	prtf(0, 5, "Command: Change feature attr/chars");
 
@@ -2482,16 +2482,16 @@ static bool do_cmd_change_feature(int dummy)
 static bool do_cmd_change_field(int dummy)
 {
 	static int f = 0;
-	
+
 	char i;
-	
+
 	/* Hack - ignore parameter */
 	(void) dummy;
 
 	screen_save();
-	
+
 	Term_clear();
-	
+
 	/* Prompt */
 	prtf(0, 5, "Command: Change field attr/chars");
 
@@ -2548,7 +2548,7 @@ static bool do_cmd_reset_visuals(int dummy)
 {
 	/* Hack - ignore parameter */
 	(void) dummy;
-	
+
 	/* Reset */
 	reset_visuals();
 
@@ -2592,7 +2592,7 @@ void do_cmd_visuals(void)
 {
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
-	
+
 	display_menu(visuals_menu, -1, FALSE, NULL, "Interact with Visuals");
 }
 
@@ -2606,9 +2606,9 @@ static bool do_cmd_pref_col_load(int dummy)
 
 	/* Hack - ignore parameter */
 	(void) dummy;
-	
+
 	screen_save();
-	
+
 	/* Prompt */
 	prtf(0, 8, "Command: Load a user pref file\n\n"
 				"File: ");
@@ -2622,20 +2622,20 @@ static bool do_cmd_pref_col_load(int dummy)
 		screen_load();
 		return (FALSE);
 	}
-	
+
 	/* Process the given filename */
 	if (0 != process_pref_file("%s", tmp))
 	{
 		/* Prompt */
 		msgf("Could not load file!");
 	}
-	
+
 	/* Mega-Hack -- react to changes */
 	Term_xtra(TERM_XTRA_REACT, 0);
 
 	/* Mega-Hack -- redraw */
 	Term_redraw();
-	
+
 	screen_load();
 	return (FALSE);
 }
@@ -2652,9 +2652,9 @@ static bool do_cmd_dump_colour(int dummy)
 
 	/* Hack - ignore parameters */
 	(void) dummy;
-	
+
 	screen_save();
-	
+
 	/* Prompt */
 	prtf(0, 10, "Command: Dump colors\n\n"
 				"File: ");
@@ -2737,7 +2737,7 @@ static bool do_cmd_dump_message(int dummy)
 
 	/* Hack - ignore parameter */
 	(void) dummy;
-	
+
 	screen_save();
 
 	/* Prompt */
@@ -2796,7 +2796,7 @@ static bool do_cmd_dump_message(int dummy)
 
 	/* Message */
 	msgf("Dumped message color definitions.");
-	
+
 	screen_load();
 	return (FALSE);
 }
@@ -2805,14 +2805,14 @@ static bool do_cmd_dump_message(int dummy)
 static bool do_cmd_modify_colour(int dummy)
 {
 	static byte a = 0;
-	
+
 	int i;
-	
+
 	/* Hack - ignore parameter */
 	(void) dummy;
-	
+
 	screen_save();
-	
+
 	clear_region(0, 9, 21);
 
 	/* Prompt */
@@ -2882,9 +2882,9 @@ static bool do_cmd_modify_colour(int dummy)
 		/* Hack -- redraw */
 		Term_redraw();
 	}
-	
+
 	screen_load();
-	
+
 	return (FALSE);
 }
 
@@ -2896,16 +2896,16 @@ static bool do_cmd_modify_message(int dummy)
 {
 	static byte a = 0;
 	byte color;
-	
+
 	int i;
 
 	/* Hack - ignore parameter */
 	(void) dummy;
 
 	screen_save();
-	
+
 	clear_region(0, 9, 17);
-	
+
 	/* Prompt */
 	prtf(5, 10, "Command: Modify message colors");
 
@@ -3037,6 +3037,17 @@ static cptr do_cmd_feeling_text[11] =
 	"What a boring place..."
 };
 
+static cptr do_cmd_wild_feeling_text[8] =
+{
+	"What a boring place...",
+	"Looks like a safe area.",
+	"Looks like a typical wilderness.",
+	"You feel a bit nervous...",
+	"You feel nervous...",
+	"You have a bad feeling...",
+	"You have a very bad feeling...",
+	"Looks like a very dangerous wilderness."
+};
 
 /*
  * Note that "feeling" is set to zero unless some time has passed.
@@ -3049,24 +3060,40 @@ void do_cmd_feeling(void)
 
 	if (p_ptr->place_num && !p_ptr->depth)
 	{
-		if (place[p_ptr->place_num].quest_num)
+		if (place[p_ptr->place_num].type == PL_QUEST_PIT)
 		{
 			/* No useful feeling in a wilderness quest */
 			msgf("Looks like a typical quest.");
+			return;
 		}
-		else
+		else if (place[p_ptr->place_num].type == PL_TOWN_FRACT ||
+				 place[p_ptr->place_num].type == PL_TOWN_MINI ||
+			 	 place[p_ptr->place_num].type == PL_TOWN_OLD ||
+				 place[p_ptr->place_num].type == PL_FARM)
 		{
-			/* No useful feeling in town */
+			/* In a town, no interesting feeling.  XXX improve this? */
 			msgf("Looks like a typical town.");
+			return;
 		}
-
-		return;
+		else if (place[p_ptr->place_num].type == PL_DUNGEON)
+		{
+			msgf ("Looks like a typical dungeon entrance.");
+			return;
+		}
 	}
 
-	/* No useful feeling in the wilderness */
+	/* In the wilderness, learn something about the danger level around here. */
 	if (!p_ptr->depth)
 	{
-		msgf("Looks like a typical wilderness.");
+		/* Calculate danger level, 0-7. */
+		byte danger;
+
+		danger = wild[p_ptr->py / WILD_BLOCK_SIZE][p_ptr->px / WILD_BLOCK_SIZE].done.mon_gen;
+		if (danger <= 5) danger = 0;
+		else if (danger <= 11) danger = 1;
+		else danger = 2+(danger-11)/9;
+		danger = (danger > 7 ? 7 : danger);
+		msgf(do_cmd_wild_feeling_text[danger]);
 		return;
 	}
 
@@ -3326,10 +3353,10 @@ static bool do_cmd_knowledge_uniques(int dummy)
 
 	u16b why = 2;
 	u16b *who;
-	
+
 	/* Hack - ignore parameter */
 	(void) dummy;
-	
+
 	/* Allocate the "who" array */
 	C_MAKE(who, z_info->r_max, u16b);
 
@@ -3397,7 +3424,7 @@ static bool do_cmd_knowledge_uniques(int dummy)
 		else
 		{
 			/* Alive */
-			print_monster_string(fff, r_ptr->d_attr, r_ptr->d_char, 
+			print_monster_string(fff, r_ptr->d_attr, r_ptr->d_char,
 				format(CLR_L_BLUE "%s is alive.", mon_race_name(r_ptr)),
 					0);
 		}
@@ -3416,7 +3443,7 @@ static bool do_cmd_knowledge_uniques(int dummy)
 
 	/* Remove the file */
 	(void)fd_kill(file_name);
-	
+
 	return (FALSE);
 }
 
@@ -3471,7 +3498,7 @@ void plural_aux(char *name)
 		strcpy(name, buf);
 		return;
 	}
-	
+
 	tail[0] = '\0';
 
 	/* Find the trailing part we should ignore, if any */
@@ -3495,13 +3522,13 @@ void plural_aux(char *name)
 		{
 			/* Preterminate string */
 			buf[len - strlen(plural_table[i])] = '\0';
-			
+
 			/* Pluralise */
 			strnfmt(name, 80, "%s%s%s", buf, plural_table[i + 1], tail);
 			return;
 		}
 	}
-	
+
 	/* Paranoia */
 	quit("Failed to find matching plural in plural_aux()");
 }
@@ -3522,13 +3549,13 @@ bool do_cmd_knowledge_pets(int dummy)
 
 	/* Hack - ignore parameter */
 	(void) dummy;
-	
+
 	/* Open a temporary file */
 	fff = my_fopen_temp(file_name, 1024);
 
 	/* Failure */
 	if (!fff) return (FALSE);
-	
+
 	/* Process the monsters (backwards) */
 	for (i = m_max - 1; i >= 1; i--)
 	{
@@ -3559,7 +3586,7 @@ bool do_cmd_knowledge_pets(int dummy)
 	froff(fff, "----------------------------------------------\n");
 	froff(fff, "   Total: %d pet%s.\n",
 			t_friends, (t_friends == 1 ? "" : "s"));
-	froff(fff, "   Upkeep: %d%% mana.\n", show_upkeep);
+	if (use_upkeep) froff(fff, "   Upkeep: %d%% mana.\n", show_upkeep);
 
 
 	/* Close the file */
@@ -3570,7 +3597,7 @@ bool do_cmd_knowledge_pets(int dummy)
 
 	/* Remove the file */
 	(void)fd_kill(file_name);
-	
+
 	return (FALSE);
 }
 
@@ -3591,12 +3618,12 @@ static bool do_cmd_knowledge_kill_count(int dummy)
 
 	u16b why = 2;
 	u16b *who;
-	
+
 	int kk;
-	
+
 	/* Hack - ignore parameter */
 	(void) dummy;
-	
+
 	/* Allocate the "who" array */
 	C_MAKE(who, z_info->r_max, u16b);
 
@@ -3746,7 +3773,7 @@ static bool do_cmd_knowledge_kill_count(int dummy)
 
 	/* Remove the file */
 	(void)fd_kill(file_name);
-	
+
 	return (FALSE);
 }
 
@@ -3761,11 +3788,11 @@ static bool do_cmd_knowledge_objects(int dummy)
 	FILE *fff;
 
 	char file_name[1024];
-	
+
 	byte a;
 	char c;
 	cptr attr;
-	
+
 	/* Hack - ignore parameter */
 	(void) dummy;
 
@@ -3790,12 +3817,12 @@ static bool do_cmd_knowledge_objects(int dummy)
 
 			/* Create fake object */
 			o_ptr = object_prep(k);
-			
+
 			attr = color_seq[tval_to_attr[o_ptr->tval % 128]];
-			
+
 			a = object_attr(o_ptr);
 			c = object_char(o_ptr);
-			
+
 			/* Only add equippys if in ascii mode */
 			if (!(a & 0x80) && !(c & 0x80))
 			{
@@ -3826,7 +3853,7 @@ static bool do_cmd_knowledge_objects(int dummy)
 
 	/* Remove the file */
 	(void)fd_kill(file_name);
-	
+
 	return (FALSE);
 }
 
@@ -3839,7 +3866,7 @@ static bool do_cmd_knowledge_virtues(int dummy)
 	FILE *fff;
 
 	char file_name[1024];
-	
+
 	/* Hack -ignore parameter */
 	(void) dummy;
 
@@ -3848,7 +3875,7 @@ static bool do_cmd_knowledge_virtues(int dummy)
 
 	/* Failure */
 	if (!fff) return (FALSE);
-	
+
 	dump_virtues(fff);
 
 	/* Close the file */
@@ -3859,7 +3886,7 @@ static bool do_cmd_knowledge_virtues(int dummy)
 
 	/* Remove the file */
 	(void)fd_kill(file_name);
-	
+
 	return (FALSE);
 }
 
@@ -3870,14 +3897,14 @@ static bool do_cmd_knowledge_virtues(int dummy)
 static bool do_cmd_knowledge_notes(int dummy)
 {
 	char fname[1024];
-	
+
 	/* Hack - ignore parameter */
 	(void) dummy;
 
 	strncpy(fname, notes_file(), 1024);
-	
+
 	(void)show_file(fname, "Notes", 0, 0);
-	
+
 	return (FALSE);
 }
 
@@ -3890,7 +3917,7 @@ void dump_town_info(FILE *fff, int town, bool ignore)
 	int j;
 
 	cptr build_name;
-	
+
 	char c;
 	byte a;
 
@@ -3899,7 +3926,7 @@ void dump_town_info(FILE *fff, int town, bool ignore)
 	place_type *pl_ptr = &place[town];
 
 	/* Is it a town? */
-	if (!pl_ptr->quest_num)
+	if (pl_ptr->type == PL_TOWN_OLD || pl_ptr->type == PL_TOWN_FRACT)
 	{
 		/* Hack-- determine the town has been visited */
 		visited = FALSE;
@@ -3937,10 +3964,10 @@ void dump_town_info(FILE *fff, int town, bool ignore)
 				{
 					/* Get attr/char */
 					building_char(pl_ptr->store[j].type, &a, &c);
-					
+
 					/* Only draw symbols in ascii mode */
 					if (!(a & 0x80) && !(c & 0x80))
-					{				
+					{
 						/* Append information about store */
 						froff(fff, "  %s%c" CLR_WHITE "   %s\n", color_seq[a], c, build_name);
 					}
@@ -4008,7 +4035,7 @@ static void dump_dungeon_info(FILE *fff, int town)
 		if (visited)
 		{
 			/* Give the dungeon name and location*/
-			froff(fff, "%s dungeon under %s",
+			froff(fff, "%s under %s",
 				dungeon_type_name(d_ptr->habitat), pl_ptr->name);
 		}
 		else
@@ -4040,7 +4067,7 @@ static void dump_dungeon_info(FILE *fff, int town)
 
 				/* Has this spot been seen? */
 				if (!(w_ptr->info & WILD_INFO_SEEN)) continue;
-				
+
 				/* Is this place the same as the one that we started with? */
 				if (p2_ptr == pl_ptr) count++;
 			}
@@ -4050,7 +4077,7 @@ static void dump_dungeon_info(FILE *fff, int town)
 		if (!count) return;
 
 		/* Give the dungeon name and location*/
-		froff(fff, "%s dungeon %s of %s",
+		froff(fff, "%s %s of %s",
 			dungeon_type_name(d_ptr->habitat), place_dir, place_name);
 
 		/* Did the player go into the dungeon? */
@@ -4109,7 +4136,7 @@ static bool do_cmd_knowledge_wild(int dummy)
 	FILE *fff;
 
 	char file_name[1024];
-	
+
 	/* Hack - ignore parameter */
 	(void) dummy;
 
@@ -4118,7 +4145,7 @@ static bool do_cmd_knowledge_wild(int dummy)
 
 	/* Failure */
 	if (!fff) return (FALSE);
-	
+
 	/* Cycle through the places */
 	for (k = 1; k < place_count; k++)
 	{
@@ -4133,7 +4160,7 @@ static bool do_cmd_knowledge_wild(int dummy)
 
 	/* Remove the file */
 	(void)fd_kill(file_name);
-	
+
 	return (FALSE);
 }
 
@@ -4148,7 +4175,7 @@ static bool do_cmd_knowledge_dungeon(int dummy)
 	FILE *fff;
 
 	char file_name[1024];
-	
+
 	/* Hack - ignore parameter */
 	(void) dummy;
 
@@ -4157,7 +4184,7 @@ static bool do_cmd_knowledge_dungeon(int dummy)
 
 	/* Failure */
 	if (!fff) return (FALSE);
-	
+
 	/* Cycle through the places */
 	for (k = 1; k < place_count; k++)
 	{
@@ -4172,7 +4199,7 @@ static bool do_cmd_knowledge_dungeon(int dummy)
 
 	/* Remove the file */
 	(void)fd_kill(file_name);
-	
+
 	return (FALSE);
 }
 
@@ -4215,7 +4242,7 @@ void do_cmd_knowledge(void)
 	 * Display virtues option is always left out
 	 * if (use_virtues) knowledge_menu[nr++] = knowledge_menu[10];
 	 */
-	
+
 	/* Copy in the display notes */
 	if (take_notes) knowledge_menu[nr++] = knowledge_menu[11];
 
@@ -4225,7 +4252,7 @@ void do_cmd_knowledge(void)
 		knowledge_menu[nr++] = knowledge_menu[12];
 		knowledge_menu[nr++] = knowledge_menu[13];
 	}
-	
+
 	/* Display the menu */
 	display_menu(knowledge_menu, -1, FALSE, NULL, "Display current knowledge");
 
@@ -4250,6 +4277,23 @@ void do_cmd_checkquest(void)
 	(void) do_cmd_knowledge_quests(0);
 }
 
+/*
+ * Describes time t.
+ */
+void desc_time(s32b t, char * desc)
+{
+	s32b len = 10L * TOWN_DAWN;
+	s32b tick = t % len + len / 4;
+
+	int day = t / len + 1;
+	int hour = (24 * tick / len) % 24;
+	int min = (1440 * tick / len) % 60;
+
+	strnfmt(desc, 20, "Day %d, %d:%02d %s.",
+			   day, ((hour % 12 == 0) ? 12 : (hour % 12)),
+			   min, (hour < 12) ? "AM" : "PM");
+}
+
 
 /*
  * Display the time and date
@@ -4257,6 +4301,7 @@ void do_cmd_checkquest(void)
 void do_cmd_time(void)
 {
 	s32b len = 10L * TOWN_DAWN;
+	/* + len / 4 since days "start" at 6am */
 	s32b tick = turn % len + len / 4;
 
 	int day = turn / len + 1;
@@ -4278,17 +4323,18 @@ void do_cmd_time(void)
 	strcpy(desc, "It is a strange time.");
 
 	/* Message */
-	msgf("This is day %d. The time is %d:%02d %s.",
-			   day, (hour % 12 == 0) ? 12 : (hour % 12),
-			   min, (hour < 12) ? "AM" : "PM");
-
 	/* Find the path */
-	if (one_in_(10) || p_ptr->tim.image)
+	if (p_ptr->tim.image)
 	{
+		msgf("You have no idea what time it is.");
 		path_make(buf, ANGBAND_DIR_FILE, "timefun.txt");
 	}
 	else
 	{
+		msgf("This is day %d. The time is %d:%02d %s.",
+			   day, (hour % 12 == 0) ? 12 : (hour % 12),
+			   min, (hour < 12) ? "AM" : "PM");
+
 		path_make(buf, ANGBAND_DIR_FILE, "timenorm.txt");
 	}
 

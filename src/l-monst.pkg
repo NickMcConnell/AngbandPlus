@@ -239,7 +239,6 @@ typedef int errr;
  * Useful flag combinations
  */
 
-#define RF7_DUNGEON             0xFFF00000
 #define RF7_WILD                0x000700FF
 
 

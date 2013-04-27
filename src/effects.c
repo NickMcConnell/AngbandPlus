@@ -616,7 +616,7 @@ bool clear_slow(void)
 bool inc_shield(int v)
 {
 	bool notice = FALSE;
-	
+
 	/* What will the new value be? */
 	v = v + p_ptr->tim.shield;
 
@@ -673,7 +673,7 @@ bool inc_shield(int v)
 bool inc_blessed(int v)
 {
 	bool notice = FALSE;
-	
+
 	/* What will the new value be? */
 	v = v + p_ptr->tim.blessed;
 
@@ -894,6 +894,81 @@ bool inc_protevil(int v)
 }
 
 /*
+ * Increment "p_ptr->etherealness", notice observable changes
+ */
+bool inc_etherealness(int v)
+{
+	bool notice = FALSE;
+
+	/* What will the new value be? */
+	v = v + p_ptr->tim.etherealness;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim.etherealness)
+		{
+			msgf
+				("You become incorporeal.");
+			notice = TRUE;
+
+			/* Redraw map */
+			p_ptr->redraw |= (PR_MAP);
+
+			/* Update monsters */
+			p_ptr->update |= (PU_MONSTERS);
+
+			/* Window stuff */
+			p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim.etherealness)
+		{
+			msgf("You are solid again.");
+			notice = TRUE;
+
+			/* Redraw map */
+			p_ptr->redraw |= (PR_MAP);
+
+			/* Update monsters */
+			p_ptr->update |= (PU_MONSTERS);
+
+			/* Window stuff */
+			p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim.etherealness = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(FALSE);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+
+}
+
+/*
  * Increment "p_ptr->wraith_form", notice observable changes
  */
 bool inc_wraith_form(int v)
@@ -1095,7 +1170,7 @@ static bool set_tim_esp(int v)
 
 	/* Update the monsters */
 	p_ptr->update |= (PU_MONSTERS);
-	
+
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
 
@@ -1507,6 +1582,109 @@ bool inc_oppose_pois(int v)
 	return (TRUE);
 }
 
+/*
+ * Increment "p_ptr->oppose_conf", notice observable changes
+ */
+bool inc_oppose_conf(int v)
+{
+	bool notice = FALSE;
+
+	/* What will the new value be? */
+	v = v + p_ptr->tim.oppose_conf;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim.oppose_conf)
+		{
+			msgf("Your mind feels very steady.");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim.oppose_conf)
+		{
+			msgf("Your mind feels normal again.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim.oppose_conf = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(FALSE);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Increment "p_ptr->oppose_blind", notice observable changes
+ */
+bool inc_oppose_blind(int v)
+{
+	bool notice = FALSE;
+
+	/* What will the new value be? */
+	v = v + p_ptr->tim.oppose_blind;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim.oppose_blind)
+		{
+			msgf("You feel resistant to blindness!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim.oppose_blind)
+		{
+			msgf("You feel less resistant to blindness.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim.oppose_blind = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(FALSE);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
 
 /*
  * Helper functions to test resistance status for the various elements
@@ -1523,16 +1701,16 @@ static int resist_table[12] = {3, 5, 7, 11, 16, 22, 33, 50, 66, 100, 150, 200};
 int res_acid_lvl(void)
 {
 	int level = 9;
-	
+
 	if (FLAG(p_ptr, TR_IM_ACID)) return (0);
-	
+
 	if (FLAG(p_ptr, TR_RES_ACID))  level -= 3;
 	if (p_ptr->tim.oppose_acid)    level -= 3;
 	if (FLAG(p_ptr, TR_HURT_ACID)) level += 2;
 
 	if (level < 0)  level = 0;
 	if (level > 11) level = 11;
-	
+
 	return resist_table[level];;
 }
 
@@ -1542,16 +1720,16 @@ int res_acid_lvl(void)
 int res_elec_lvl(void)
 {
 	int level = 9;
-	
+
 	if (FLAG(p_ptr, TR_IM_ELEC)) return (0);
-	
+
 	if (FLAG(p_ptr, TR_RES_ELEC))  level -= 3;
 	if (p_ptr->tim.oppose_elec)    level -= 3;
 	if (FLAG(p_ptr, TR_HURT_ELEC)) level += 2;
 
 	if (level < 0)  level = 0;
 	if (level > 11) level = 11;
-	
+
 	return resist_table[level];;
 }
 
@@ -1561,7 +1739,7 @@ int res_elec_lvl(void)
 int res_fire_lvl(void)
 {
 	int level = 9;
-	
+
 	if (FLAG(p_ptr, TR_IM_FIRE)) return (0);
 
 	if (FLAG(p_ptr, TR_RES_FIRE))  level -= 3;
@@ -1570,7 +1748,7 @@ int res_fire_lvl(void)
 
 	if (level < 0)  level = 0;
 	if (level > 11) level = 11;
-	
+
 	return resist_table[level];;
 }
 
@@ -1580,16 +1758,16 @@ int res_fire_lvl(void)
 int res_cold_lvl(void)
 {
 	int level = 9;
-	
+
 	if (FLAG(p_ptr, TR_IM_COLD)) return (0);
-	
+
 	if (FLAG(p_ptr, TR_RES_COLD))  level -= 3;
 	if (p_ptr->tim.oppose_cold)    level -= 3;
 	if (FLAG(p_ptr, TR_HURT_COLD)) level += 2;
 
 	if (level < 0)  level = 0;
 	if (level > 11) level = 11;
-	
+
 	return resist_table[level];;
 }
 
@@ -1599,7 +1777,7 @@ int res_cold_lvl(void)
 int res_pois_lvl(void)
 {
 	int level = 9;
-	
+
 	if (FLAG(p_ptr, TR_IM_POIS)) return (0);
 
 	if (FLAG(p_ptr, TR_RES_POIS)) level -= 3;
@@ -1607,7 +1785,7 @@ int res_pois_lvl(void)
 
 	if (level < 0)  level = 0;
 	if (level > 11) level = 11;
-	
+
 	return resist_table[level];;
 }
 
@@ -1708,7 +1886,7 @@ static int minus_ac(void)
 bool acid_dam(int dam, cptr kb_str)
 {
 	int inv;
-	
+
 	dam = resist(dam, res_acid_lvl);
 
 	/* Total Immunity? */
@@ -1728,7 +1906,7 @@ bool acid_dam(int dam, cptr kb_str)
 	/* Inventory damage */
 	if (res_acid_lvl() > 25)
 		(void)inven_damage(set_acid_destroy, inv);
-	
+
 	/* Obvious */
 	return (TRUE);
 }
@@ -1740,7 +1918,7 @@ bool acid_dam(int dam, cptr kb_str)
 bool elec_dam(int dam, cptr kb_str)
 {
 	int inv;
-	
+
 	dam = resist(dam, res_elec_lvl);
 
 	/* Total immunity */
@@ -1769,7 +1947,7 @@ bool elec_dam(int dam, cptr kb_str)
 bool fire_dam(int dam, cptr kb_str)
 {
 	int inv;
-	
+
 	dam = resist(dam, res_fire_lvl);
 
 	/* Totally immune? */
@@ -1798,7 +1976,7 @@ bool fire_dam(int dam, cptr kb_str)
 bool cold_dam(int dam, cptr kb_str)
 {
 	int inv;
-	
+
 	dam = resist(dam, res_cold_lvl);
 
 	/* Total immunity? */
@@ -1846,7 +2024,7 @@ bool pois_dam(int dam, cptr kb_str, int pois)
 		pois = resist(pois, res_pois_lvl);
 		inc_poisoned(pois);
 	}
-	
+
 	/* Obvious */
 	return (TRUE);
 }
@@ -2536,7 +2714,6 @@ bool inc_stat(int stat)
 
 	int cap = stat_cap(stat);
 
-	/* Then augment the current/max stat */
 	value = p_ptr->stat[stat].cur;
 
 	/* Cannot go above limit */
@@ -2572,8 +2749,6 @@ bool inc_stat(int stat)
 	/* Nothing to gain */
 	return (FALSE);
 }
-
-
 
 /*
  * Decreases a stat by an amount indended to vary from 0 to 100 percent.
@@ -2671,6 +2846,60 @@ bool res_stat(int stat)
 	return (FALSE);
 }
 
+
+/*
+ * Increase players mana points, notice effects
+ */
+bool sp_player(int num)
+{
+	/* Mana restoration needed */
+	if (p_ptr->csp < p_ptr->msp)
+	{
+		chg_virtue(V_CHANCE, -1);
+		if ((num > 0) && (p_ptr->csp < (p_ptr->msp / 3)))
+			chg_virtue(V_TEMPERANCE, 1);
+
+		/* Gain hitpoints */
+		p_ptr->csp += num;
+
+		/* Enforce maximum */
+		if (p_ptr->csp >= p_ptr->msp)
+		{
+			p_ptr->csp = p_ptr->msp;
+			p_ptr->csp_frac = 0;
+		}
+
+		/* Redraw */
+		p_ptr->redraw |= (PR_MANA);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_PLAYER);
+
+		/* Heal 0-14 */
+		if (num < 15)
+		{
+			msgf("You feel your head clear a little bit.");
+		}
+
+		/* Heal 15-34 */
+		else if (num < 35)
+		{
+			msgf("You feel your head clear somewhat.");
+		}
+
+		/* Heal 35+ */
+		else
+		{
+			msgf("You feel your head clear.");
+		}
+
+		/* Notice */
+		return (TRUE);
+	}
+
+	/* Ignore */
+	return (FALSE);
+}
 
 /*
  * Increase players hit points, notice effects
@@ -2896,6 +3125,56 @@ bool do_inc_stat(int stat)
 	return (FALSE);
 }
 
+/*
+ * A controlled gain 
+ */
+bool do_inc_stat_fixed(int stat, int amt)
+{
+	int cap = stat_cap(stat);
+	int value = p_ptr->stat[stat].cur;
+	bool gained = FALSE;
+	bool restored = FALSE;
+	
+	if (value < cap)
+	{
+		restored = TRUE;
+
+		/* New value */
+		value += amt;
+		
+		/* Apply cap */
+		value = MIN(cap, value);
+		
+		/* Save the new value */
+		p_ptr->stat[stat].cur = value;
+
+		if (value > p_ptr->stat[stat].max)
+		{
+			p_ptr->stat[stat].max = value;
+			gained = TRUE;
+		}
+
+		/* Recalculate bonuses */
+		p_ptr->update |= (PU_BONUS);
+	}
+	
+	if (gained)
+	{
+		/* Message */
+		msgf("You feel more %s.", desc_stat_pos[stat]);
+		
+		return(TRUE);
+	}
+	else if (restored)
+	{
+		/* Message */
+		msgf("You feel less %s.", desc_stat_neg[stat]);
+
+		return(TRUE);
+	}
+}	
+
+
 
 /*
  * Restores any drained experience
@@ -2929,6 +3208,7 @@ bool restore_level(void)
 bool lose_all_info(void)
 {
 	int i, k;
+	bool need_redraw = FALSE;
 
 	object_type *o_ptr;
 
@@ -2992,6 +3272,12 @@ bool lose_all_info(void)
 			/* Forget knowledge */
 			k_ptr->aware = FALSE;
 			k_ptr->tried = FALSE;
+			/* Unsquelch.  Players should not be able to suppress
+			   objects they don't know! */
+			if (SQUELCH(k)) {
+				p_ptr->squelch[k/32] &= ~(1 << (k%32));
+				need_redraw = TRUE;
+			}
 		}
 	}
 
@@ -3284,7 +3570,7 @@ void take_hit(int damage, cptr hit_from)
 
 	if (p_ptr->tim.wraith_form)
 	{
-		damage /= 10;
+		damage /= 5;
 		if ((damage == 0) && one_in_(10)) damage = 1;
 	}
 
@@ -3316,7 +3602,7 @@ void take_hit(int damage, cptr hit_from)
 	if (p_ptr->chp < 0)
 	{
 		int len;
-	
+
 		/* Sound */
 		sound(SOUND_DEATH);
 

@@ -1,0 +1,409 @@
+Monster theme notes
+
+Molds
+INCLUDE 'm' ','
+Medium tower level, dense, few objects, lvls 6-20 (-5)
+
+Reptiles
+INCLUDE 'J' 'R'
+Any lit desert, lvls 1-15.
+
+Flies
+INCLUDE 'I' 'F'
+EXCLUDE CTH
+Small-medium swamp, lvls 1-30 (+5)
+
+Bugs
+INCLUDE 'c' 'a 'K'
+INCLUDE "tick"
+Any desert, lvls 1-50.
+Any sandy burrow, lvls 1-50.
+
+Slime
+INCLUDE 'm' 'i' 'j' ','
+Sewer level or Cavern, 2-4 levels, lvls 1-50.
+
+Rats
+INCLUDE 'r'
+EXCLUDE ~ MULTIPLY
+INCLUDE "Skaven"
+Medium cavern, sparse, lvls 1-15 (+5)
+
+Kobolds
+INCLUDE 'k'
+INCLUDE #40  (shrieker)
+INCLUDE #35  (Jackal)
+Small forest with single castle, levels 1-10
+Small lair, levels 1-10
+Medium cavern level with castle, levels 1-10
+
+Worms
+INCLUDE 'w'
+EXCLUDE ~ MULTIPLY
+Small swamp, sparse, levels 1-12 (+5)
+Small sewer, sparse, levels 1-12 (+5)
+
+Wolves
+INCLUDE 'C'
+Medium lit forest, levels 1-30
+Medium lit mountain, levels 1-30
+Medium lit tundra, levels 1-30
+
+Bats
+INCLUDE 'b'
+Medium-large cave system, sparse, levels 1-40
+
+Human fighters
+INCLUDE: "warrior"
+INCLUDE: "knight"
+INCLUDE: #116, #150, #216, #293, #410, #532
+EXCLUDE: #693
+EXCLUDE: ~ 'p'
+EXCLUDE: GOOD
+Normal city with castle, dense, levels 5-40
+Single large castle SYM_2, dense, levels 5-40
+
+Thieves
+INCLUDE: "rogue" 
+INCLUDE: "thief"
+INCLUDE: #150, #485
+Single tiny castle SYM_2R, dense, levels 5-8
+Single medium castle SYM_2R, dense, levels 15-20, 35-45
+
+Priests (good, human)
+INCLUDE: "knight"
+INCLUDE: "paladin"
+INCLUDE: "monk"
+INCLUDE: "priest"
+EXCLUDE: EVIL
+INCLUDE: #414
+EXCLUDE: ~ 'p'
+Single medium castle SYM_4, levels 10-55
+
+Mages 
+INCLUDE: "mage"
+INCLUDE: "sorcer"
+INCLUDE: #240, #375, #445, #498, #571, #636, #647, #897, #898
+EXCLUDE: #430
+Small tower level, SYM_2R, CENTER, levels 5-15
+Small tower level, SYM_2R, CENTER, 2-3 levels, levels 16-25
+Medium tower level, SYM_4R, lava pools, sparse, 2-3 levels, levels 26-35
+Medium tower level, SYM_2R, lava pools, sparse, 3-4 levels, levels 36-45
+Small tower level, SYM_2R, 5-7 levels, levels 46-55
+Single large castle, SYM_4R, lava pools, levels 36-55
+Single medium castle, SYM_2R, lava pools, levels 21-35
+Single small castle, SYM_2R, levels 5-20
+
+Spiders  / Scorpions
+INCLUDE: 'S'
+EXCLUDE: "tick"
+Medium cave level, levels 1-45
+Medium desert, levels 1-25
+Medium ruin, levels 15-45
+
+Felines
+INCLUDE: 'f'
+Medium grassland, sparse, levels 5-30
+
+Ghosts
+INCLUDE: 'G'
+Medium swamp, sparse, levels 8-30
+Medium crypt, levels 15-40
+Medium crypt, 2 levels, lvls 30-60
+
+Fish
+INCLUDE: 'l'
+INCLDUE: AQUATIC
+Large cavern with shallow water, lake, river, levels 10-80
+
+Naga
+INCLUDE: 'n' 'J'
+INCLUDE: AQUATIC
+Any lair, with water rivers, levels 5-30
+
+Ranger/Druids
+INCLUDE: #6
+INCLUDE: "ranger"
+INCLUDE: "mystic"
+INCLUDE: "druid"
+Forest with large clearings, rivers, levels 5-45
+
+Mimics
+INCLUDE: CHAR_MIMIC
+Any mine, levels 5-40
+
+Orcs
+INCLUDE: 'o'
+INCLUDE #40  (shrieker)
+Single large castle, SYM_2, in swamp, levels 5-20
+Any city, levels 5-20
+Any mine, levels 5-20
+
+Lesser undead
+INCLUDE: 's' 'z'
+Medium swamp, levels 10-45
+Any crypt, levels 10-45
+
+Dark elves
+INCLUDE: "Dark el"
+Single medium castle, SYM_2R, levels 10-35
+Any city, levels 10-35
+
+Lesser demons
+INCLUDE: 'u'
+Any hell, levels 10-55
+Any horror, levels 10-55
+Any plane of fire, SYM_4R, levels 10-55
+Any plane of ice, SYM_4R, levels 10-55
+
+Yeeks
+INCLUDE: 'y'
+INCLUDE #40  (shrieker)
+Any mine, levels 5-18
+Any ice cave, levels 5-18
+
+Fire-breathers
+INCLUDE: BR_FIRE
+EXCLUDE: DEMON | UNDEAD | NEVER_MOVE
+EXCLUDE: "multi-hued"
+EXCLDUE: "aether"
+EXCLUDE: "many colors"
+Any hell, SYM_4R, CENTER, levels 20-80
+Any plane of fire, SYM_2R, levels 20-80
+
+Fire elemental
+INCLUDE: 'E' 'v' 'Z' '*' 'd' 'D'
+EXCLUDE: ~ IM_FIRE | BR_FIRE
+Any plane of fire, SYM_2R, levels 20-80
+
+Cold-breathers
+INCLUDE: BR_COLD
+EXCLUDE: DEMON | UNDEAD | NEVER_MOVE
+EXCLUDE: "multi-hued"
+EXCLDUE: "aether"
+EXCLUDE: "many colors"
+Any ice cave, SYM_4R, CENTER, levels 20-80
+Any plane of ice, SYM_2R, levels 20-80
+
+Cold elemental
+INCLUDE: 'E' 'v' 'Z' '*' 'd' 'D' 'Y'
+EXCLUDE: ~ IM_COLD | BR_COLD
+Any plane of ice, SYM_2R, levels 20-80
+
+Bitches
+INCLUDE: FEMALE
+EXCLUDE: ~ EVIL
+Any ruin, levels 5-80
+Any lair, levels 5-80
+
+Bears
+INCLUDE: "bear"
+EXCLUDE: ~ 'q'
+Medium forest, levels 5-13
+
+Lightning-breathers
+INCLUDE: BR_ELEC
+EXCLUDE: DEMON | UNDEAD | NEVER_MOVE
+EXCLUDE: "multi-hued"
+EXCLDUE: "aether"
+EXCLUDE: "many colors"
+Any planar, SYM_4R, CENTER, levels 20-80
+
+Gas-breathers
+INCLUDE: BR_POIS
+EXCLUDE: DEMON | UNDEAD | NEVER_MOVE
+EXCLUDE: "multi-hued"
+EXCLDUE: "aether"
+EXCLUDE: "many colors"
+Any cave, SYM_2R, CENTER, levels 20-80
+Any sewer, SYM_4R, levels 20-40
+Any swamp, SYM_4, levels 20-80
+
+Acid-breathers
+INCLUDE: BR_ACID
+EXCLUDE: DEMON | UNDEAD | NEVER_MOVE
+EXCLUDE: "multi-hued"
+EXCLDUE: "aether"
+EXCLUDE: "many colors"
+Any ruin, SYM_2R, CENTER, levels 20-80
+Any plane of acid, SYM_4R, CENTER, levels 20-80
+
+Dragons
+INCLUDE: 'd'
+Any lair, levels 15-55
+Any planar, levels 15-55
+
+Half-breeds
+INCLUDE: 'H' 'Y'
+Any horror, levels 10-80
+Any hell, levels 10-80
+
+Multi-breathers
+INCLUDE: "multi-hued"
+INCLUDE: "aether"
+INCLUDE: "many colors"
+Any planar, levels 20-85
+
+Priests (evil)
+INCLUDE: "knight"
+INCLUDE: "priest"
+EXCLUDE: ~ EVIL
+Single medium castle SYM_4, levels 10-70
+Any crypt, levels 10-70
+
+Priests and undead
+INCLUDE: "knight"
+INCLUDE: "priest"
+EXCLUDE: ~ EVIL
+INCLUDE: 's' 'z'
+Single medium castle SYM_4, levels 10-70
+Any crypt, levels 10-70
+
+Priests and golems
+INCLUDE: "priest"
+EXCLUDE: ~ EVIL
+INCLUDE: 'g' 
+Single medium castle SYM_4, levels 10-70
+Any tower, levels 10-70
+
+Plane of air
+INCLUDE: CAN_FLY
+EXCLUDE: BR_FIRE | BR_ACID | ANIMAL | UNDEAD | DEMON | IM_FIRE | IM_ACID | CHAR_MIMIC
+INCLUDE: 'B'
+INCLUDE: #537
+Large mountain, sparse, levels 20-80
+
+Yeeks & kobolds
+INCLUDE: 'k' 'y'
+INCLUDE #40  (shrieker)
+Small forest with single castle, levels 1-18
+Small lair, levels 1-18
+Medium cavern level with castle, levels 1-18
+
+Orcs & kobolds
+INCLUDE: 'k' 'o'
+INCLUDE #40  (shrieker)
+Single large castle, SYM_2, in swamp, levels 5-20
+Any city, levels 5-20
+Any mine, levels 5-20
+Small forest with single castle, levels 1-20
+Small lair, levels 1-20
+Medium cavern level with castle, levels 1-20
+
+Orcs & ogres
+INCLUDE: 'o' 'O'
+INCLUDE #40  (shrieker)
+Medium mountain with single castle, levels 5-40
+Medium city with single castle, levels 5-40
+Medium cavern level with castle, levels 5-40
+Single medium castle, SYM_2, levels 20-50
+
+Orcs & trolls
+INCLUDE: 'o' 'O' 'T'
+INCLUDE #40  (shrieker)
+Medium mountain with single castle, levels 5-50
+Medium city with single castle, levels 5-50
+Medium cavern level with castle, levels 5-50
+Single medium castle, SYM_2, levels 20-50
+
+Ogres & trolls
+INCLUDE: 'O' 'T'
+Medium mountain with single castle, levels 20-50
+Medium city with single castle, levels 20-50
+Medium cavern level with castle, levels 20-50
+Single medium castle, SYM_2, levels 20-50
+
+Ogres & giants
+INCLUDE: 'O' 'P'
+Medium mountain with single castle, levels 20-60
+Medium city with single castle, levels 20-60
+Medium cavern level with castle, levels 20-60
+Single large castle, SYM_2, levels 20-60
+
+Ogres, trolls & giants
+INCLUDE: 'O' 'T' 'P'
+Medium mountain with single castle, levels 20-60
+Medium city with single castle, levels 20-60
+Medium cavern level with castle, levels 20-60
+Single large castle, SYM_2, levels 20-60
+
+Trolls
+INCLUDE: 'T'
+Medium mountain with single castle, levels 20-60
+Medium cavern level with castle, levels 20-60
+
+Giants
+INCLUDE: 'P'
+Medium mountain with single castle, levels 20-60
+Medium city with single castle, levels 20-60
+Single large castle, SYM_2, levels 20-60
+
+Lycanthrope
+INCLUDE: "Were"
+Any horror, levels 10-30
+
+Hounds
+INCLUDE: 'C' 'Z'
+Any planar, levels 20-80
+
+Positive energy plane
+INCLUDE: BR_LITE | BR_MANA | AURA_ELEC
+Any planar, lit, with lava rivers, levels 20-95
+
+Negative energy plane
+INCLUDE: BR_DARK | BR_NETH | BR_DISE
+EXCLUDE: 'U'
+Any size: cavern, with smoke for floors, SYM_2R, levels 20-95
+
+Hydras & lizards
+INCLUDE: 'M' 'R'
+Any lair, levels 20-60
+
+Plane of water
+INCLUDE: AQUATIC
+INCLUDE: "water" 
+Large, lake level, no rooms, SYM_2R, levels 20-80
+
+Plane of earth
+INCLUDE: HURT_ROCK | KILL_WALL
+Any size ruin, with no tunnels, lots of rubble, levels 20-60
+
+Quylthulgs
+INCLUDE: 'Q'
+Large tower, fewer rooms, no doors, levels 25-90
+
+[Stone giants?]
+[Fire giants?]
+[Cloud giants?]
+[Hill giants?]
+[Storm giants?]
+
+Dragons (II)
+INCLUDE: DRAGON
+Any lair, levels 15-95
+Any horror, levels 15-95
+Any planar, levels 15-95
+
+Undead
+INCLUDE: UNDEAD
+Any crypt, levels 15-95
+Any swamp, levels 15-95
+Any horror, levels 15-95
+
+Demons
+INCLUDE: DEMON
+Any ruin, levels 15-95
+Any horror, levels 15-95
+Any hell, levels 15-95
+
+Eldritch Horrors
+INCLUDE: ELDRITCH_HORROR
+Any horror, levels 15-95
+
+Heaven
+INCLUDE: 'A'
+INCLUDE: GOOD
+EXCLUDE: EVIL
+Large city, salt floors, levels 45-70
+
+

@@ -106,7 +106,7 @@ static int critical_melee(int chance, int sleeping_bonus, cptr m_name,
 	int bonus = 0;
 	int psi_hit = FALSE;
 
-	if ((FLAG(p_ptr, TR_PSI_CRIT)) && (p_ptr->csp >= PSI_COST) && 
+	if ((FLAG(p_ptr, TR_PSI_CRIT)) && (p_ptr->csp >= PSI_COST) &&
 			(randint(100) < 80))
 	{
 		psi_hit = TRUE;
@@ -145,7 +145,7 @@ static int critical_melee(int chance, int sleeping_bonus, cptr m_name,
 				psi_bonus = 1;
 
 			bonus *= psi_bonus;
-			
+
 			p_ptr->csp -= PSI_COST * psi_bonus;
 			p_ptr->redraw |= (PR_MANA);
 			p_ptr->window |= (PW_PLAYER);
@@ -497,7 +497,7 @@ void search(void)
 	int y, x, chance;
 	int old_count;
 
-	/* 
+	/*
 	 * Temp variables to store x and y because the
 	 * count_traps() function stomps on its inputs.
 	 */
@@ -665,7 +665,7 @@ void py_pickup_aux(object_type *o_ptr)
  * Note that we ONLY handle things that can be picked up.
  * See "move_player()" for handling of other things.
  *
- * If the easy floor option is true: 
+ * If the easy floor option is true:
  *		Make the player carry everything in a grid
  *
  * 		If "pickup" is FALSE then only gold will be picked up
@@ -674,6 +674,7 @@ void carry(int pickup)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
+	bool squelched = FALSE;
 
 	char o_name[256];
 	object_type *o_ptr, *fo_ptr = NULL;
@@ -691,8 +692,10 @@ void carry(int pickup)
 		/* Describe the object */
 		object_desc(o_name, o_ptr, TRUE, 3, 256);
 
+		squelched = (SQUELCH(o_ptr->k_idx) ? !FLAG(o_ptr, TR_SQUELCH) : FALSE);
+
 		/* Hack -- disturb */
-		disturb(FALSE);
+		if (!squelched) disturb(FALSE);
 
 		/* Pick up gold */
 		if (o_ptr->tval == TV_GOLD)
@@ -719,7 +722,7 @@ void carry(int pickup)
 			continue;
 		}
 
-		/* Test for auto-pickup */
+		/* Test for auto-pickup, which overrides squelching */
 		if (auto_pickup_okay(o_ptr))
 		{
 			/* Hack - Pick up the object */
@@ -733,19 +736,19 @@ void carry(int pickup)
 		if (!easy_floor)
 		{
 			/* Describe the object */
-			if (!pickup)
+			if (!pickup && !squelched)
 			{
 				msgf("You find %s.", o_name);
 			}
 
 			/* Note that the pack is too full */
-			else if (!inven_carry_okay(o_ptr))
+			else if (!inven_carry_okay(o_ptr) && !squelched)
 			{
 				msgf("You have no room for %s.", o_name);
 			}
 
 			/* Pick up the item (if requested and allowed) */
-			else
+			else if (!squelched)
 			{
 				/* Hack -- query every item */
 				if (carry_query_flag)
@@ -793,6 +796,11 @@ void carry(int pickup)
 					/* Hack - Pick up the object */
 					py_pickup_aux(o_ptr);
 				}
+			}
+			/* Item must be squelched, destroy it, possibly quietly */
+			else
+			{
+				destroy_squelched_item(o_ptr, o_ptr->number);
 			}
 
 			/* Get the next object */
@@ -1486,7 +1494,7 @@ void py_attack(int x, int y)
 	{
 		/* We've spotted it */
 		msgf("You've found %v!", MONSTER_FMT(m_ptr, 0x88));
-		
+
 		/* Toggle flag */
 		m_ptr->smart &= ~(SM_MIMIC);
 
@@ -1534,7 +1542,7 @@ void py_attack(int x, int y)
 	}
 
 	/* Using a weapon can cause it to become cursed */
-	if ((FLAG(o_ptr, TR_AUTO_CURSE)) && 
+	if ((FLAG(o_ptr, TR_AUTO_CURSE)) &&
 			!(FLAG(o_ptr, TR_CURSED)) && (randint(100) < 10))
 	{
 		msgf("Your weapon glows black.");
@@ -1565,7 +1573,7 @@ void py_attack(int x, int y)
 	bonus = p_ptr->to_h + o_ptr->to_h;
 	chance = (p_ptr->skills[SKILL_THN] + (bonus * BTH_PLUS_ADJ));
 
-	apply_object_trigger(TRIGGER_ATTACK, o_ptr, "iiii", 
+	apply_object_trigger(TRIGGER_ATTACK, o_ptr, "iiii",
 		LUA_RETURN(chance), LUA_RETURN(terrain_bonus),
 		LUA_RETURN(total_deadliness), LUA_RETURN(sleeping_bonus));
 
@@ -1685,7 +1693,7 @@ void py_attack(int x, int y)
 				k += slay / 20;
 
 				/* Apply scripted effects */
-				apply_object_trigger(TRIGGER_HIT, o_ptr, ":iiibbbbi", 
+				apply_object_trigger(TRIGGER_HIT, o_ptr, ":iiibbbbi",
 					LUA_RETURN(ghoul_paral), LUA_RETURN(drain_power),
 					LUA_RETURN(vorpal_chance), LUA_RETURN(do_quake),
 					LUA_RETURN(do_conf), LUA_RETURN(do_tele),
@@ -1698,7 +1706,7 @@ void py_attack(int x, int y)
 					do_quake = TRUE;
 				}
 
-				/* 
+				/*
 				 * All of these artifact-specific effects
 				 * should be pythonized.
 				 */
@@ -1991,7 +1999,7 @@ void py_attack(int x, int y)
 			natural_attack(c_ptr->m_idx, MUT2_TENTACLES, &fear, &mdeath);
 	}
 
-	/* 
+	/*
 	 * Hack -- delay paralysis (otherwise, consecutive attacks would make
 	 * it counterproductive
 	 */
@@ -2298,7 +2306,7 @@ void move_player(int dir, int do_pickup)
 
 	/* Player can not walk through "walls"... */
 	/* unless in Shadow Form */
-	if (p_ptr->tim.wraith_form || (FLAG(p_ptr, TR_PASS_WALL)))
+	if (p_ptr->tim.wraith_form || (FLAG(p_ptr, TR_PASS_WALL)) || p_ptr->tim.etherealness)
 		p_can_pass_walls = TRUE;
 
 	/* Never walk through permanent features */
@@ -2377,11 +2385,11 @@ void move_player(int dir, int do_pickup)
 	 * Rangers can move without penality
 	 */
 	else if ((c_ptr->feat == FEAT_TREES) ||
-			 (c_ptr->feat == FEAT_PINE_TREE) || 
+			 (c_ptr->feat == FEAT_PINE_TREE) ||
 			 (c_ptr->feat == FEAT_SNOW_TREE) ||
 	                 (c_ptr->feat == FEAT_MOUNTAIN) ||
 			 (c_ptr->feat == FEAT_SNOW_MOUNTAIN) ||
-			 (c_ptr->feat == FEAT_OBELISK) || 
+			 (c_ptr->feat == FEAT_OBELISK) ||
 			 (c_ptr->feat == FEAT_BOULDER))
 	{
 		oktomove = TRUE;
@@ -2578,7 +2586,7 @@ void move_player(int dir, int do_pickup)
 
 		/* Warn about traps */
 
-		/* 
+		/*
 		 * Is the disturb_traps option set and out of detection range?
 		 */
 		if (disturb_traps && !(pc_ptr->player & GRID_DTCT) &&
@@ -2596,7 +2604,7 @@ void move_player(int dir, int do_pickup)
 		}
 
 		/* Spontaneous Searching */
-		if ((p_ptr->skills[SKILL_FOS] >= 50) || one_in_(50 - p_ptr->skills[SKILL_FOS]))
+		if ((p_ptr->skills[SKILL_FOS] >= 49) || one_in_(50 - p_ptr->skills[SKILL_FOS]))
 		{
 			search();
 		}

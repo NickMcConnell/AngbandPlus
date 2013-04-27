@@ -31,13 +31,29 @@ can be found in the section on the Options Page (see option.txt [3]).
 Here you may set yout 'Birth options' which are options set at birth
 and which cannot be changed again during the game. Note that you may
 change your birth option preferences in game but these will only have
-effect in your next character. Perhaps one of the most important
-features of the birth options is the ability to decide what type of
-town level you want. The various town options are discussed on the Town
-page (see town.txt#TownLevel [4]). Another important decision to make
-is whether you wish to use the Autoroller (see below [1]) or the point-
-based character generation system (see below [d]).
+effect in your next character. 
 
+Some of the birth options have very significant consequences, and 
+different settings can lead to very different games.  
+
+The "vanilla_town", "ironman_shops", "ironman_small_levels",
+"ironman_downward", "ironman_nightmare", and "allow_randart" options
+are options that allow you to make the game harder on yourself in 
+various ways, for an extra challenge.  The default settings are the
+easiest.  
+
+The "silly_monsters", "randart_rare", "amber_monster", "preserve
+mode", and "cthulhu_monsters" options make decisions about what
+gameplay that are not necessarily harder either way, but have a major
+effect on the game.  In a departure from previous Zangband versions,
+"silly_monsters" defaults to off, so if you enjoy the silly monsters,
+remember to switch them back on.
+
+The "munchkin_death" option is a semi-cheat option that makes the game
+easier than normal if you change it.  
+
+Finally, the "autoroller" and "point_based" options affect character
+stat generation.  
 
 ***** <CharAttributes>
 === Character Attributes ===
@@ -157,20 +173,27 @@ Beastman      Yes   Yes    Yes
 If you have selected a spellcasting class, you will next be prompted
 for your choice of magic realm(s). The magic system, as implemented in
 Zangband, consists of seven realms: Life, Arcane, Sorcery, Nature,
-Trump, Chaos and Death. In general, Life is primarily defensive but
-also offers spells to attack evil creatures, Arcane offers utility
+Conjuration, Chaos and Death. In general, Life is primarily defensive
+but also offers spells to attack evil creatures, Arcane offers utility
 spells and some limited offensive capability, Sorcery offers utility
-and defensive spells, Nature offers both defensive and offensive
-spells, Trump specializes in teleportation and summoning spells and
-Chaos and Death are offensive. A more complete description of the magic
-realms and spellcasting in general can be found in the section on the
-Magic Realms (see magic.txt#MagicRealms [7]).
+and defensive spells but no offensive spells, Nature offers both
+defensive and offensive spells, Conjuration specializes in
+teleportation and summoning spells, but has no information spells,
+Chaos is mostly offensive spells, and Death combines offensive spells
+with summoning. A more complete description of the magic realms and
+spellcasting in general can be found in the section on the Magic
+Realms (see magic.txt#MagicRealms [7]).
 
 Where possible, it is generally a good idea to pick one defensive realm
 and one offensive realm. If you pick the realms always in the same
 order (e.g. nature as your first realm and chaos as your second realm,
 not the other way around) you will be less confused when trying to
 pick the correct spellbook to use in the game.
+
+A note about Arcane magic: unlike in previous versions of Zangband, 
+Arcane magic, while lacking in the top power spells, includes a greater
+variety of utility spells, and can generally be mastered much earlier 
+than other realms.  
 
 ***** <Restrictions>
 --- Class/Realm Restrictions ---
@@ -202,11 +225,7 @@ High Mage      1st     1st     1st     1st     1st     1st     1st
 ***** <RandomQuests>
 === RandomQuests ===
 
-Once you have chosen your race, class and (if applicable) your magic
-realm(s), you will be asked how many random quests you wish to be
-assigned. You may choose any number between 0 and 49. A more detailed
-discussion of random quests can be found in the Dungeon section (see
-dungeon.txt#RandomQuests [8]).
+"Random Quests" are no longer used in Zangband.  
 
 
 ***** <AutoRoller>
@@ -263,6 +282,8 @@ the filename that will be used to save the character to disk. On
 others, the character name specifies special "pref" files. And the
 character name is used on the high score list.
 
+Your character name can be changed later through the "display
+character" ('C') command.
 
 ***** <StartInventory>
 === Starting Inventory ===
@@ -282,8 +303,8 @@ a magical item although there is some variance from this.
 --
 Original   : (??)
 Updated    : (??)
-Updated    : Zangband DevTeam
-Last update: Feb 15, 2002
+Updated    : Mangojuice
+Last update: Jun 21, 2008
 
 ***** Begin Hyperlinks
 ***** [1] birth.txt#AutoRoller

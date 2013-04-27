@@ -473,13 +473,55 @@ static bool project_f(int who, int r, int x, int y, int dam, int typ)
 			break;
 		}
 
+		case GF_MAKE_LAVA:
+		{
+			/* Make lava */
+
+			/* Require a "naked" floor grid */
+			if (!cave_naked_grid(c_ptr)) break;
+
+			/* Not under the player */
+			if ((x == p_ptr->px) && (y == p_ptr->py)) break;
+
+			/* Create lava */
+			cave_set_feat(x, y, (one_in_(3) ? FEAT_SHAL_LAVA : FEAT_DEEP_LAVA));
+
+			/* Observe */
+			if (known)
+			{
+				obvious = TRUE;
+			}
+
+			break;
+		}
+		case GF_MAKE_WATER:
+		{
+			/* Make water */
+
+			/* Require a "naked" floor grid */
+			if (!cave_naked_grid(c_ptr)) break;
+
+			/* Not under the player */
+			if ((x == p_ptr->px) && (y == p_ptr->py)) break;
+
+			/* Create water */
+			cave_set_feat(x, y, (one_in_(3) ? FEAT_SHAL_WATER : FEAT_DEEP_WATER));
+
+			/* Observe */
+			if (known)
+			{
+				obvious = TRUE;
+			}
+
+			break;
+		}
 		case GF_MAKE_TRAP:
 		{
 			/* Make traps */
 
 			/* Require a "naked" floor grid */
 			if (!cave_naked_grid(c_ptr)) break;
-			
+
 			/* Place a trap */
 			place_trap(x, y);
 
@@ -510,7 +552,7 @@ static bool project_f(int who, int r, int x, int y, int dam, int typ)
 			/* Require a "naked" floor grid */
 			if ((c_ptr->o_idx != 0) || (c_ptr->m_idx != 0)) break;
 			if (!cave_floor_grid(c_ptr)) break;
-			
+
 			/* Not on permanent grids */
 			if (cave_perma_grid(c_ptr)) break;
 
@@ -530,7 +572,7 @@ static bool project_f(int who, int r, int x, int y, int dam, int typ)
 
 			/* Notice + Redraw */
 			note_spot(x, y);
-			
+
 			/* Observe (after lighting) */
 			if (player_can_see_bold(x, y)) obvious = TRUE;
 
@@ -551,7 +593,7 @@ static bool project_f(int who, int r, int x, int y, int dam, int typ)
 
 			/* Turn off the light. */
 			c_ptr->info &= ~(CAVE_GLOW);
-			
+
 			/* Notice + Redraw */
 			note_spot(x, y);
 
@@ -824,6 +866,8 @@ static bool project_o(int who, int r, int x, int y, int dam, int typ)
 				{
 					msgf("The %v %s unaffected!",
 						OBJECT_FMT(o_ptr, FALSE, 0), (plural ? "are" : "is"));
+					/* unsquelch this particular object, now that we know this */
+					o_ptr->flags[3] |= TR3_SQUELCH;
 				}
 			}
 
@@ -832,9 +876,9 @@ static bool project_o(int who, int r, int x, int y, int dam, int typ)
 			{
 				bool is_potion = FALSE;
 				object_type *j_ptr;
-			
+
 				/* Describe if needed */
-				if (obvious && note_kill)
+				if (obvious && note_kill && (!SQUELCH(o_ptr->k_idx) || FLAG(o_ptr, TR_SQUELCH)))
 				{
 					msgf("The %v%s", OBJECT_FMT(o_ptr, FALSE, 0), note_kill);
 				}
@@ -849,6 +893,9 @@ static bool project_o(int who, int r, int x, int y, int dam, int typ)
 				/* Potions produce effects when 'shattered' */
 				if (is_potion)
 				{
+					/* Hack: say the message if the object was squelched. */
+					if (SQUELCH(j_ptr->k_idx) && FLAG(j_ptr, TR_SQUELCH))
+						msgf("The %v%s", OBJECT_FMT(o_ptr, FALSE, 0), note_kill);
 					(void)potion_smash_effect(who, x, y, j_ptr);
 				}
 
@@ -1721,6 +1768,7 @@ static bool project_m(int who, int r, int x, int y, int dam, int typ)
 				{
 					note = " is in your thrall!";
 					set_pet(m_ptr);
+					m_ptr->unsummon = 5000;
 				}
 				else
 				{
@@ -2089,7 +2137,8 @@ static bool project_m(int who, int r, int x, int y, int dam, int typ)
 			else
 			{
 				note = " suddenly seems friendly!";
-				set_pet(m_ptr);
+				set_friendly(m_ptr);
+
 
 				chg_virtue(V_INDIVIDUALISM, -1);
 				if (FLAG(r_ptr, RF_ANIMAL))
@@ -2124,6 +2173,7 @@ static bool project_m(int who, int r, int x, int y, int dam, int typ)
 			{
 				note = " is in your thrall!";
 				set_pet(m_ptr);
+				m_ptr->unsummon = 5000;
 			}
 
 			/* No "real" damage */
@@ -2161,7 +2211,7 @@ static bool project_m(int who, int r, int x, int y, int dam, int typ)
 			else
 			{
 				note = " is tamed!";
-				set_pet(m_ptr);
+				set_friendly(m_ptr);
 
 				if (FLAG(r_ptr, RF_ANIMAL))
 					chg_virtue(V_NATURE, 1);
@@ -2932,11 +2982,25 @@ static bool project_m(int who, int r, int x, int y, int dam, int typ)
 				/* Hack XXX Die, but do not explode and call project() */
 				(void)monster_death(c_ptr->m_idx, FALSE);
 
+				/* We get 10% experience for kills by pets. */
+				if(is_pet(&m_list[who])) {
+					s32b newexp, newexp_frac;
+					exp_for_kill(&r_info[m_list[c_ptr->m_idx].r_idx], &newexp, &newexp_frac);
+					gain_exp(newexp/10);
+				}
+
 				/* Delete the monster */
 				delete_monster_idx(c_ptr->m_idx);
 			}
 			else
 			{
+				/* We get 10% experience for kills by pets. */
+				if(is_pet(&m_list[who])) {
+					s32b newexp, newexp_frac;
+					exp_for_kill(&r_info[m_list[c_ptr->m_idx].r_idx], &newexp, &newexp_frac);
+					gain_exp(newexp/10);
+				}
+
 				/* Queue the monster */
 				mon_d_m_idx[old_m_d_head] = c_ptr->m_idx;
 			}
@@ -3350,7 +3414,7 @@ static bool project_p(int who, int r, int x, int y, int dam, int typ, int a_rad)
 			{
 				(void)inc_stun(randint1(40));
 			}
-			if (!(FLAG(p_ptr, TR_RES_CONF)))
+			if (!(FLAG(p_ptr, TR_RES_CONF))  && !p_ptr->tim.oppose_conf)
 			{
 				(void)inc_confused(rand_range(5, 10));
 			}
@@ -3373,7 +3437,7 @@ static bool project_p(int who, int r, int x, int y, int dam, int typ, int a_rad)
 				dam *= 6;
 				dam /= rand_range(7, 12);
 			}
-			if (!(FLAG(p_ptr, TR_RES_CONF)))
+			if (!(FLAG(p_ptr, TR_RES_CONF))  && !p_ptr->tim.oppose_conf)
 			{
 				(void)inc_confused(rand_range(20, 30));
 			}
@@ -3468,7 +3532,7 @@ static bool project_p(int who, int r, int x, int y, int dam, int typ, int a_rad)
 				dam *= 5;
 				dam /= rand_range(7, 12);
 			}
-			if (!(FLAG(p_ptr, TR_RES_CONF)))
+			if (!(FLAG(p_ptr, TR_RES_CONF))  && !p_ptr->tim.oppose_conf)
 			{
 				(void)inc_confused(rand_range(10, 30));
 			}
@@ -3581,7 +3645,7 @@ static bool project_p(int who, int r, int x, int y, int dam, int typ, int a_rad)
 				dam *= 4;
 				dam /= rand_range(7, 12);
 			}
-			else if (!blind && !(FLAG(p_ptr, TR_RES_BLIND)))
+			else if (!blind && !(FLAG(p_ptr, TR_RES_BLIND)) && !p_ptr->tim.oppose_blind)
 			{
 				(void)inc_blind(rand_range(2, 7));
 			}
@@ -3611,7 +3675,7 @@ static bool project_p(int who, int r, int x, int y, int dam, int typ, int a_rad)
 			/* Dark -- blinding */
 			if (blind) msgf("You are hit by something!");
 
-			if (FLAG(p_ptr, TR_IM_DARK)) 
+			if (FLAG(p_ptr, TR_IM_DARK))
 			{
 				dam = 0;
 			}
@@ -3621,7 +3685,7 @@ static bool project_p(int who, int r, int x, int y, int dam, int typ, int a_rad)
 				dam /= rand_range(7, 12);
 
 			}
-			else if (!blind && !(FLAG(p_ptr, TR_RES_BLIND)))
+			else if (!blind && !(FLAG(p_ptr, TR_RES_BLIND)) && !p_ptr->tim.oppose_blind)
 			{
 				(void)inc_blind(rand_range(2, 7));
 			}
@@ -4567,7 +4631,7 @@ bool project(int who, int rad, int x, int y, int dam, int typ, u16b flg)
 
 
 				/* Affect fields on the grid */
-				field_script(area(x, y), FIELD_ACT_MAGIC_TARGET, "iiiib:b", 
+				field_script(area(x, y), FIELD_ACT_MAGIC_TARGET, "iiiib:b",
                 			LUA_VAR(who), LUA_VAR_NAMED(d, "dist"),
 							LUA_VAR(dam), LUA_VAR_NAMED(typ, "type"),
 							LUA_VAR_NAMED(player_can_see_bold(x, y), "known"),
@@ -4579,7 +4643,7 @@ bool project(int who, int rad, int x, int y, int dam, int typ, u16b flg)
 				if (project_f(who, dist, x, y, dam, typ)) notice = TRUE;
 
 				/* Affect fields on the grid */
-				field_script(area(x, y), FIELD_ACT_MAGIC_TARGET, "iiiib:b", 
+				field_script(area(x, y), FIELD_ACT_MAGIC_TARGET, "iiiib:b",
                 			LUA_VAR(who), LUA_VAR(dist),
 							LUA_VAR(dam), LUA_VAR_NAMED(typ, "type"),
 							LUA_VAR_NAMED(player_can_see_bold(x, y), "known"),

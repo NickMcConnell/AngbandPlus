@@ -251,7 +251,7 @@ static bool los_general(int x1, int y1, int x2, int y2, cave_hook_type c_hook)
 static bool cave_stop_wall(const cave_type *c_ptr)
 {
 	/* Is it passable? */
-	if (cave_los_grid(c_ptr)) return (FALSE);
+	if (cave_floor_grid(c_ptr)) return (FALSE);
 
 	/* Seems ok */
 	return (TRUE);
@@ -344,7 +344,7 @@ static bool is_direct_projectable(int x1, int y1)
 			c_ptr = area(xx, yy);
 
 			/* Is the square not occupied by a monster, and passable? */
-			if (!cave_los_grid(c_ptr) || c_ptr->m_idx)
+			if (!cave_floor_grid(c_ptr) || c_ptr->m_idx)
 			{
 				return (FALSE);
 			}
@@ -372,7 +372,7 @@ static bool is_direct_projectable(int x1, int y1)
 			c_ptr = area(xx, yy);
 
 			/* Is the square not occupied by a monster, and passable? */
-			if (!cave_los_grid(c_ptr) || c_ptr->m_idx)
+			if (!cave_floor_grid(c_ptr) || c_ptr->m_idx)
 			{
 				return (FALSE);
 			}
@@ -482,7 +482,7 @@ void mmove_init(int x1, int y1, int x2, int y2)
 			if (!is_projectable && c_ptr->m_idx) break;
 
 			/* Is the square not occupied by a monster, and passable? */
-			if (!cave_los_grid(c_ptr) || c_ptr->m_idx)
+			if (!cave_floor_grid(c_ptr) || c_ptr->m_idx)
 			{
 				/* Advance to the best position we have not looked at yet */
 				temp = project_data[mmove_slope][mmove_sq].slope;
@@ -533,7 +533,7 @@ void mmove_init(int x1, int y1, int x2, int y2)
 			if (!is_projectable && c_ptr->m_idx) break;
 
 			/* Is the square not occupied by a monster, and passable? */
-			if (!cave_los_grid(c_ptr) || c_ptr->m_idx)
+			if (!cave_floor_grid(c_ptr) || c_ptr->m_idx)
 			{
 				/* Advance to the best position we have not looked at yet */
 				temp = project_data[mmove_slope][mmove_sq].slope;
@@ -614,7 +614,7 @@ void mmove(int *x, int *y, int x1, int y1)
 /* Does this square stop the projection? */
 static bool project_stop(const cave_type *c_ptr, u16b flg)
 {
-	if (cave_los_grid(c_ptr))
+	if (cave_floor_grid(c_ptr))
 	{
 		/* Require fields do not block magic */
 		if (fields_have_flags(c_ptr, FIELD_INFO_NO_MAGIC))
@@ -898,7 +898,7 @@ sint project_path(coord *gp, int x1, int y1, int x2, int y2, u16b flg)
 static bool cave_stop_ball(const cave_type *c_ptr)
 {
 	/* Walls block spells */
-	if (!cave_los_grid(c_ptr)) return (TRUE);
+	if (!cave_floor_grid(c_ptr)) return (TRUE);
 
 	/* Fields can block magic */
 	if (fields_have_flags(c_ptr, FIELD_INFO_NO_MAGIC)) return (TRUE);
@@ -1818,7 +1818,7 @@ errr vinfo_init(void)
 	}
 
 
-	/* 
+	/*
 	 * Add in the final information in the projection table.
 	 *
 	 * We need to know where to go to if the current square
@@ -1835,7 +1835,7 @@ errr vinfo_init(void)
 	 * by the current slope.
 	 *
 	 * This means that we may end up scanning squares twice,
-	 * but the simplification of the algorithm is worth it. 
+	 * but the simplification of the algorithm is worth it.
 	 */
 	for (i = 0; i < VINFO_MAX_SLOPES; i++)
 	{
@@ -2341,7 +2341,7 @@ static void mon_lite_hack(int x, int y)
 	pcave_type *pc_ptr;
 
 	int dx1, dy1, dx2, dy2;
-	
+
 	int tx, ty;
 	int rx, ry;
 
@@ -2367,10 +2367,10 @@ static void mon_lite_hack(int x, int y)
 	 * need to worry about floor - we won't illuminate that
 	 * if we cannot see it.)
 	 */
-	if (!cave_los_grid(c_ptr))
+	if (!cave_floor_grid(c_ptr))
 	{
 		if ((dx1 * dx2 + dy1 * dy2) < 0) return;
-	
+
 		/*
 		 * Look for the case where the bounce doesn't work
 		 * correctly due to the half-block offset:
@@ -2389,7 +2389,7 @@ static void mon_lite_hack(int x, int y)
 		 */
 		rx = dx1 + dx2;
 		ry = dy1 + dy2;
-	
+
 		/* Get the bounce block */
 		if (ABS(rx) > ABS(ry))
 		{
@@ -2401,14 +2401,14 @@ static void mon_lite_hack(int x, int y)
 			tx = x;
 			ty = y + SGN(ry);
 		}
-	
+
 		/* Hack Bounce block is not in bounds - assume is solid */
 		if (!in_bounds(tx, ty)) return;
 
 		/* Make sure that the light path doesn't pass through a wall. */
-		if (!cave_los_grid(area(tx, ty))) return;
+		if (!cave_floor_grid(area(tx, ty))) return;
 	}
-	
+
 	/* Save the square */
 	if (temp_n < TEMP_MAX)
 	{
@@ -2429,7 +2429,7 @@ static void mon_lite_hack(int x, int y)
 		if (view_monster_grids)
 		{
 			remember_grid(c_ptr, pc_ptr);
-			
+
 			/* Show on the screen */
 			lite_spot(x, y);
 		}
@@ -2491,7 +2491,7 @@ void update_mon_lite(void)
 	{
 		/* Paranoia */
 		if (!in_boundsp(lite_x[i], lite_y[i])) continue;
-		
+
 		/* Point to grid */
 		c_ptr = area(lite_x[i], lite_y[i]);
 		pc_ptr = parea(lite_x[i], lite_y[i]);
@@ -2994,6 +2994,8 @@ void map_area(void)
 	cave_type *c_ptr;
 	pcave_type *pc_ptr;
 
+	dun_type *d_ptr = dungeon();
+
 	/* Pick an area to map */
 	y1 = py - MAX_DETECT - randint1(10);
 	y2 = py + MAX_DETECT + randint1(10);
@@ -3014,28 +3016,60 @@ void map_area(void)
 			c_ptr = area(x, y);
 			pc_ptr = parea(x, y);
 
-			/* All non-walls are "checked" */
-			if (cave_floor_grid(c_ptr))
-			{
-				/* Memorize known walls */
-				for (i = 0; i < 8; i++)
-				{
-					xx = x + ddx_ddd[i];
-					yy = y + ddy_ddd[i];
-					
-					if (!in_boundsp(xx, yy)) continue;
-				
-					c_ptr = area(xx, yy);
-					pc_ptr = parea(xx, yy);
 
-					/* Memorize walls */
-					if (cave_wall_grid(c_ptr))
+			if (p_ptr->depth) {
+
+				/* Floor grids other than normal walls are checked. */
+				if (cave_floor_grid(c_ptr) && c_ptr->feat != d_ptr->wall &&
+					c_ptr->feat != d_ptr->vein[0].deep && c_ptr->feat != d_ptr->vein[1].deep)
+				{
+					/* Memorize known walls */
+					for (i = 0; i < 8; i++)
 					{
-						/* Memorize the walls */
-						remember_grid(c_ptr, pc_ptr);
-						
-						/* Notice the change */
-						lite_spot(xx, yy);
+						xx = x + ddx_ddd[i];
+						yy = y + ddy_ddd[i];
+
+						if (!in_boundsp(xx, yy)) continue;
+
+						c_ptr = area(xx, yy);
+						pc_ptr = parea(xx, yy);
+
+						/* Memorize walls */
+						if (cave_wall_grid(c_ptr) || c_ptr->feat == d_ptr->wall
+							|| c_ptr->feat == d_ptr->vein[0].deep || c_ptr->feat == d_ptr->vein[1].deep)
+						{
+							/* Memorize the walls */
+							remember_grid(c_ptr, pc_ptr);
+
+							/* Notice the change */
+							lite_spot(xx, yy);
+						}
+					}
+				}
+			} else {
+				/* Floor grids are checked. */
+				if (cave_floor_grid(c_ptr))
+				{
+					/* Memorize known walls */
+					for (i = 0; i < 8; i++)
+					{
+						xx = x + ddx_ddd[i];
+						yy = y + ddy_ddd[i];
+
+						if (!in_boundsp(xx, yy)) continue;
+
+						c_ptr = area(xx, yy);
+						pc_ptr = parea(xx, yy);
+
+						/* Memorize walls */
+						if (cave_wall_grid(c_ptr))
+						{
+							/* Memorize the walls */
+							remember_grid(c_ptr, pc_ptr);
+
+							/* Notice the change */
+							lite_spot(xx, yy);
+						}
 					}
 				}
 			}
@@ -3104,7 +3138,7 @@ void wiz_lite(void)
 				o_ptr->info |= OB_SEEN;
 			}
 			OBJ_ITT_END;
-			
+
 			/* Notice the change */
 			lite_spot(x, y);
 		}
@@ -3139,7 +3173,7 @@ void change_wiz_lite(void)
 		for (x = p_ptr->min_wid; x < p_ptr->max_wid; x++)
 		{
 			c_ptr = area(x, y);
-			
+
 			/* Forget memorized floor grids from view_torch_grids */
 			if (!(c_ptr->info & (CAVE_GLOW)) && !view_torch_grids
 				&& !cave_mem_grid(c_ptr))

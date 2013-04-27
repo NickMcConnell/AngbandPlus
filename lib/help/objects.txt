@@ -398,8 +398,8 @@ be the result of a monster dropping them.
 
 In addition to the standard artifacts which are potentially available
 in every game. Zangband will also occasionally generate a 'random'
-artifact. Any weapon or piece of armor as well Amulets of the Magi and
-Rings of Lordly Protection have a chance of becoming a random artifact.
+artifact. Any weapon or piece of armor as well as some powerful rings
+and amulets have a chance of becoming a random artifact.
 
 Note that random artifacts can be both good and bad and of greatly
 varying quality. Unlike standard artifacts, the in-game spoilers will
@@ -436,6 +436,10 @@ Extra Sustains
 
 Extra Resistances
 -----------------
+    Resist Fire
+    Resist Cold
+    Resist Acid
+    Resist Electricity
     Resist Blindness
     Resist Confusion
     Resist Sound
@@ -601,6 +605,19 @@ pick it up. This instruction overrides any auto-pickup options chosen
 chosen by the player (if necessary). The primary prupose is to allow
 easy retrieval of missiles such as arrows and bolts once they have been
 fired at a target.
+
+The {&e} and {&i} Inscriptions
+------------------------------
+These inscriptions are used to remind yourself about an object.  If
+you put {&e} on an object, you will get frequent reminders about that
+object if you are equipping it (this can be useful, for instance, on a
+tunneling implement, if you don't want to forget that you are using it
+to attack creatures).  Similarly, {&i} will cause reminders if the
+object is in your inventory.  This can be useful on your main weapon,
+to remind you that you are not equipping it.  It can also be useful on
+a long-charging rod, so that you can eventually learn that it is done
+recharging.  This may also be useful if you have an inventory item you
+intend to use but keep forgetting about.
 
 
 ***** <ObjectTypes>

@@ -33,12 +33,20 @@ typedef int sint;
 #define FIELD_INFO_DUMMY13	0x4000
 #define FIELD_INFO_DUMMY14  0x8000
 
+/*
+ * Guild membership types.
+ */
+#define GS_NONE			0
+#define GS_NONMEMBER	1
+#define GS_LOW_MEMBER	2
+#define GS_MEMBER		3
+
 
 /*
  * The field structure.
  *
  * Fields will be used to create a variety of effects from
- * the ability to place traps on _all_ terrains (not just 
+ * the ability to place traps on _all_ terrains (not just
  * dungeon floor), to the nightmare mode automatic corpse raising.
  *
  * The new building / store code will use this structure.
@@ -81,7 +89,7 @@ extern void place_sb(int greed, int max_cost);
 extern void display_build(const field_type *f_ptr);
 extern bool test_gold(s32b cost);
 extern bool build_has_quest(void);
-extern void build_cmd_quest(int level);
+extern void build_cmd_quest(int level, field_type *f_ptr);
 extern void record_aura(void);
 extern bool building_healer(void);
 extern bool building_magetower(int factor, bool display);
@@ -95,3 +103,16 @@ extern bool inn_rest(void);
 extern bool compare_weapons(void);
 extern void building_recharge(s32b cost);
 extern bool enchant_item(s32b cost, bool to_hit, bool to_dam, bool to_ac, bool weap);
+extern void build_cmd_repair(void);
+extern void build_cmd_loan(int factor);
+extern void build_set_qlevel(void);
+extern int build_get_qlevel(void);
+extern void place_qinit(int member, int base);
+extern void build_cmd_spellbooks(int price);
+extern void build_cmd_recall(void);
+extern void build_cmd_grave(void);
+extern bool is_member(void);
+extern bool is_full_member(void);
+extern int get_loan_amount(void);
+extern bool check_mortgage(void);
+extern bool build_next_quest(void);

@@ -38,7 +38,7 @@
  * at a time.
  *
  * Several of the arrays for Angband are built from "template" files in
- * the "lib/file" directory, from which quick-load binary "image" files
+ * the "lib/file" ory, from which quick-load binary "image" files
  * are constructed whenever they are not present in the "lib/data"
  * directory, or if those files become obsolete, if we are allowed.
  *
@@ -363,7 +363,7 @@ static errr init_info_raw(int fd, header *head)
 	COPY(head, &test, header);
 
 #ifdef HAVE_MMAP
-	data = mmap(NULL, sizeof(header) + head->info_size + 
+	data = mmap(NULL, sizeof(header) + head->info_size +
 		head->name_size + head->text_size,
 		PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
 
@@ -401,7 +401,7 @@ static errr init_info_raw(int fd, header *head)
 		{
 			/* Allocate the "*_name" array */
 			C_MAKE(head->name_ptr, head->name_size, char);
-	
+
 			/* Read the "*_name" array */
 			fd_read(fd, head->name_ptr, head->name_size);
 		}
@@ -678,7 +678,7 @@ static errr free_info(header *head)
 #ifdef HAVE_MMAP
 	if (head->mmap_base)
 	{
-		munmap(head->mmap_base, sizeof(header) + head->info_size + 
+		munmap(head->mmap_base, sizeof(header) + head->info_size +
 			head->name_size + head->text_size);
 
 		/* Success */
@@ -968,6 +968,62 @@ errr init_t_info(void)
 }
 
 /*
+ * Initialize the field data structures
+ */
+static errr init_mg_info(void)
+{
+	errr err;
+
+	FILE *fp;
+
+	/* General buffer */
+	char buf[1024];
+
+	C_MAKE(mg_info, z_info->mg_max, monster_group_type);
+
+	/*** Load the ascii template file ***/
+
+	/* Build the filename */
+	path_make(buf, ANGBAND_DIR_EDIT, "mg_info.txt");
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+	if (!fp) quit("Cannot open 'mg_info.txt' file.");
+
+
+
+	/* Parse the file */
+	err = init_mg_info_txt(fp, buf);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+		cptr oops;
+
+		/* Error string */
+		oops =
+			(((err > 0) && (err < PARSE_ERROR_MAX)) ? err_str[err] : "unknown");
+
+		/* Oops */
+		msgf("Error %d at line %d of 'mg_info.txt'.", err, error_line);
+		msgf("Record %d contains a '%s' error.", error_idx, oops);
+		msgf("Parsing '%s'.", buf);
+		message_flush();
+
+		/* Quit */
+		quit("Error in 't_info.txt' file.");
+	}
+
+	/* Success */
+	return (0);
+}
+
+/*
  * The list of available format functions
  *
  * (They should be in order of most-called
@@ -993,15 +1049,15 @@ static vstrnfmt_aux_func my_format_functions[9] =
 static errr init_other(void)
 {
 	int i, j, k, n;
-	
+
 	/*** Pre-allocate space for the "format()" buffer ***/
 
 	/* Hack -- Just call the "format()" function */
 	(void)format("%s (%s).", "Steven Fuerst", MAINTAINER);
-	
-	/* Initialise the "%v" user-defined format function list */ 
+
+	/* Initialise the "%v" user-defined format function list */
 	register_format_funcs(my_format_functions);
-	
+
 
 	/*** Prepare the various "bizarre" arrays ***/
 
@@ -1155,7 +1211,7 @@ static errr init_other(void)
 		/* Do nothing */
 	}
 	owner_names_max = i;
-	
+
 	for (i = 0; owner_suffix[i]; i++)
 	{
 		/* Do nothing */
@@ -1412,7 +1468,7 @@ void init_angband(void)
 		/* Close */
 		my_fclose(fp);
 	}
-	
+
 	/* Display version number */
 	put_fstr(42, 3, "%d.%d.%d", VER_MAJOR, VER_MINOR, VER_PATCH);
 
@@ -1507,6 +1563,9 @@ void init_angband(void)
 	note("[Initializing arrays... (alloc)]");
 	if (init_alloc()) quit("Cannot initialize alloc stuff");
 
+	/* Initialize monster group array */
+	note("[Initializing arrays... (groups)]");
+	if (init_mg_info()) quit("Cannot initialize monster groups");
 
 	/*** Load default user pref files ***/
 
@@ -1522,10 +1581,10 @@ void init_angband(void)
 	/* Initialise the fake monochrome flag */
 	fake_monochrome = (!use_graphics
 					   || streq(ANGBAND_SYS, "ibm")) ? TRUE : FALSE;
-	
+
 	/* Initialise the overhead map */
 	init_overhead_map();
-	
+
 	/* Done */
 	note("[Initialization complete]");
 }

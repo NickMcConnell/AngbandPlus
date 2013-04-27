@@ -91,8 +91,9 @@ bool monst_spell_monst(int m_idx)
 	bool see_both;
 	bool known;
 
-	bool friendly = is_friendly(m_ptr);
-	bool pet = is_pet(m_ptr);
+	/* changed, so that pets don't summon other pets. */
+	bool friendly = is_friendly(m_ptr) || is_pet(m_ptr);
+	bool pet = FALSE;
 
 	/* Cannot cast spells when confused */
 	if (m_ptr->confused) return (FALSE);

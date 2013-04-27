@@ -797,7 +797,7 @@ bool do_cmd_knowledge_mutations(int dummy)
 {
 	FILE *fff;
 	char file_name[1024];
-	
+
 	/* Hack - ignore parameter */
 	(void) dummy;
 
@@ -818,7 +818,7 @@ bool do_cmd_knowledge_mutations(int dummy)
 
 	/* Remove the file */
 	(void)fd_kill(file_name);
-	
+
 	return (FALSE);
 }
 
@@ -1119,8 +1119,7 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 
 		for (i = 0; i < 8; i++)
 		{
-			(void)summon_specific(-1, px, py, lvl, SUMMON_BIZARRE1, FALSE,
-								  TRUE, TRUE);
+			(void)player_summon(PSUM_MOLD, lvl, TRUE, 150, TRUE);
 		}
 	}
 
@@ -1387,12 +1386,12 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 			msgf("You feel a SSSCHtupor cOmINg over yOu... *HIC*!");
 		}
 
-		if (!(FLAG(p_ptr, TR_RES_CONF)))
+		if (!(FLAG(p_ptr, TR_RES_CONF)) && !p_ptr->tim.oppose_conf)
 		{
 			(void)inc_confused(rand_range(15, 35));
 		}
 
-		if (!(FLAG(p_ptr, TR_RES_CHAOS)))
+		if (!(FLAG(p_ptr, TR_RES_CHAOS))  && !p_ptr->tim.oppose_conf)
 		{
 			if (one_in_(20))
 			{
@@ -1418,7 +1417,7 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 
 	else if (mut_ptr->which == MUT2_HALLU)
 	{
-		if (!(FLAG(p_ptr, TR_RES_CHAOS)))
+		if (!(FLAG(p_ptr, TR_RES_CHAOS))  && !p_ptr->tim.oppose_conf)
 		{
 			disturb(FALSE);
 			p_ptr->redraw |= PR_EXTRA;
@@ -1452,14 +1451,21 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 	{
 		bool pet = (one_in_(6));
 
-		if (summon_specific((pet ? -1 : 0), p_ptr->px, p_ptr->py,
-							p_ptr->depth, SUMMON_DEMON, TRUE, FALSE, pet))
-		{
-			msgf("You have attracted a demon!");
-			disturb(FALSE);
+		if (pet) {
+			if (player_summon(PSUM_DEMON, p_ptr->depth, TRUE, 200, 2))
+			{
+				msgf("You have attracted a demon!");
+				disturb(FALSE);
+			}
+		} else {
+			if (summon_specific((pet ? -1 : 0), p_ptr->px, p_ptr->py,
+								p_ptr->depth, SUMMON_DEMON, TRUE, FALSE, pet))
+			{
+				msgf("You have attracted a demon!");
+				disturb(FALSE);
+			}
 		}
 	}
-
 	else if (mut_ptr->which == MUT2_SPEED_FLUX)
 	{
 		disturb(FALSE);
@@ -1545,11 +1551,19 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 	{
 		bool pet = (one_in_(3));
 
-		if (summon_specific((pet ? -1 : 0), p_ptr->px, p_ptr->py,
-							p_ptr->depth, SUMMON_ANIMAL, TRUE, FALSE, pet))
-		{
-			msgf("You have attracted an animal!");
-			disturb(FALSE);
+		if (pet) {
+			if (player_summon(PSUM_ANIMAL, p_ptr->depth, TRUE, 200, 2))
+			{
+				msgf("You have attracted an animal!");
+				disturb(FALSE);
+			}
+		} else {
+			if (summon_specific((pet ? -1 : 0), p_ptr->px, p_ptr->py,
+								p_ptr->depth, SUMMON_ANIMAL, TRUE, FALSE, pet))
+			{
+				msgf("You have attracted an animal!");
+				disturb(FALSE);
+			}
 		}
 	}
 
@@ -1628,11 +1642,19 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 	{
 		bool pet = (one_in_(5));
 
-		if (summon_specific((pet ? -1 : 0), p_ptr->px, p_ptr->py,
-							p_ptr->depth, SUMMON_DRAGON, TRUE, FALSE, pet))
-		{
-			msgf("You have attracted a dragon!");
-			disturb(FALSE);
+		if (pet) {
+			if (player_summon(PSUM_DRAGON, p_ptr->depth, TRUE, 200, 2))
+			{
+				msgf("You have attracted a dragon!");
+				disturb(FALSE);
+			}
+		} else {
+			if (summon_specific((pet ? -1 : 0), p_ptr->px, p_ptr->py,
+								p_ptr->depth, SUMMON_DRAGON, TRUE, FALSE, pet))
+			{
+				msgf("You have attracted a dragon!");
+				disturb(FALSE);
+			}
 		}
 	}
 
@@ -1763,8 +1785,8 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 	}
 }
 
-/* 
- * Constant mutation effects 
+/*
+ * Constant mutation effects
  *
  * Note that the commented out effects are actually handled in player_flags().
  */
@@ -1794,7 +1816,7 @@ void mutation_effect(void)
 	{
 		p_ptr->stat[A_CHR].add -= 1;
 	}
-	
+
 	if (p_ptr->muta1 & MUT1_ILLUMINE)
 	{
 		p_ptr->skills[SKILL_STL] -= 1;

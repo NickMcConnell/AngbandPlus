@@ -100,8 +100,8 @@ void delete_monster_idx(int i)
 
 	/* Hack -- count the number of "reproducers" */
 	if (FLAG(r_ptr, RF_MULTIPLY)) num_repro--;
-	
-	/* Notice changes in lighting */		
+
+	/* Notice changes in lighting */
 	if (FLAG(r_ptr, RF_LITE_1) || FLAG(r_ptr, RF_LITE_2))
 	{
 		/* Update some things */
@@ -135,6 +135,10 @@ void delete_monster_idx(int i)
 
 	/* Count monsters */
 	m_cnt--;
+
+	/* We may have just cleared a level */
+	if (current_quest && !p_ptr->state.leaving && current_quest->x_type == QX_CLEAR_LEVEL)
+		trigger_quest_complete(QX_CLEAR_LEVEL, NULL);
 
 	/* Visual update */
 	lite_spot(x, y);
@@ -339,6 +343,10 @@ void wipe_m_list(void)
 	/* Reset "m_cnt" */
 	m_cnt = 0;
 
+	/* If there are no monsters, we may have just cleared a level */
+	if (current_quest && !p_ptr->state.leaving && current_quest->x_type == QX_CLEAR_LEVEL)
+		trigger_quest_complete(QX_CLEAR_LEVEL, NULL);
+
 	/* Hack -- reset "reproducer" count */
 	num_repro = 0;
 
@@ -450,15 +458,23 @@ void get_mon_num_prep(monster_hook_type monster_hook)
 		/* Accept monsters which pass the restriction, if any */
 
 		/*
-		 * Hack - check for silly monsters here.
+		 * Hack - check for monster theme here.
 		 * This makes more sense then adding the test to every
 		 * hook function.
 		 */
-		if ((!monster_hook || (*monster_hook) (entry->index))
-			&& (silly_monsters || !FLAG(&r_info[entry->index], RF_SILLY)))
+		if ((!monster_hook || (*monster_hook) (entry->index)))
 		{
-			/* Accept this monster */
-			entry->prob2 = entry->prob1;
+			if ((!silly_monsters && FLAG(&r_info[entry->index], RF_SILLY)) ||
+				(!cthulhu_monsters && FLAG(&r_info[entry->index], RF_CTH)) ||
+				(!amber_monsters && FLAG(&r_info[entry->index], RF_AMBER)))
+				/* Reject this monster, disallowed theme */
+				entry->prob2 = 0;
+				/* Don't allow wild-only monsters in the dungeon */
+			else if (p_ptr->depth && !(r_info[entry->index].flags[7] & RF7_DUN))
+				entry->prob2 = 0;
+			else
+				/* Accept this monster */
+				entry->prob2 = entry->prob1;
 		}
 
 		/* Do not use this monster */
@@ -484,7 +500,7 @@ bool test_monster_square(cave_type *c_ptr, monster_race *r_ptr)
 
 	/* Nor on the Pattern */
 	if (cave_pattern_grid(c_ptr)) return (FALSE);
-	
+
 	/* Check to see if fields dissallow placement or movement */
 	if (fields_have_flags(c_ptr, FIELD_INFO_NO_ENTER))
 	{
@@ -498,10 +514,10 @@ bool test_monster_square(cave_type *c_ptr, monster_race *r_ptr)
 		case FEAT_OCEAN_WATER:
 		{
 			if (!(FLAG(r_ptr, RF_WILD_OCEAN))) return (FALSE);
-			
+
 			/* Hack - no break */
 		}
-		
+
 		case FEAT_DEEP_WATER:
 		{
 			if (!((FLAG(r_ptr, RF_AQUATIC)) ||
@@ -510,14 +526,14 @@ bool test_monster_square(cave_type *c_ptr, monster_race *r_ptr)
 			{
 				return (FALSE);
 			}
-			
+
 			/* Hack - no break */
 		}
 
 		case FEAT_SHAL_WATER:
 		{
 			if (FLAG(r_ptr, RF_AURA_FIRE)) return (FALSE);
-			
+
 			return (TRUE);
 		}
 		case FEAT_DEEP_LAVA:
@@ -525,10 +541,10 @@ bool test_monster_square(cave_type *c_ptr, monster_race *r_ptr)
 		{
 			/* Immunity to fire is nice */
 			if (FLAG(r_ptr, RF_IM_FIRE)) return (TRUE);
-		
+
 			/* If we are cold - then we can't cross */
 			if (FLAG(r_ptr, RF_AURA_COLD)) return (FALSE);
-			
+
 			/* If we can't fly, then we can't cross */
 			if (!(FLAG(r_ptr, RF_CAN_FLY))) return (FALSE);
 			break;
@@ -538,7 +554,7 @@ bool test_monster_square(cave_type *c_ptr, monster_race *r_ptr)
 		{
 			/* Immunity to acid is nice */
 			if (FLAG(r_ptr, RF_IM_ACID)) return (TRUE);
-			
+
 			/* If we can't fly, then we can't cross */
 			if (!(FLAG(r_ptr, RF_CAN_FLY))) return (FALSE);
 			break;
@@ -548,13 +564,13 @@ bool test_monster_square(cave_type *c_ptr, monster_race *r_ptr)
 		{
 			/* Immunity to poison is nice */
 			if (FLAG(r_ptr, RF_IM_POIS)) return (TRUE);
-			
+
 			/* If we can't fly, then we can't cross */
 			if (!(FLAG(r_ptr, RF_CAN_FLY))) return (FALSE);
 			break;
 		}
 	}
-	
+
 	/* Aquatic monster */
 	if ((FLAG(r_ptr, RF_AQUATIC)) && !(FLAG(r_ptr, RF_CAN_FLY)))
 	{
@@ -562,7 +578,7 @@ bool test_monster_square(cave_type *c_ptr, monster_race *r_ptr)
 	}
 
 	/* Looks ok then */
-	
+
 	return (TRUE);
 }
 
@@ -572,7 +588,7 @@ bool test_monster_square(cave_type *c_ptr, monster_race *r_ptr)
 static bool test_monster_wild(wild_done_type *w_ptr, monster_race *r_ptr)
 {
 	byte mon_wild;
-	
+
 	/* Are we a town or city? */
 	if (w_ptr->place)
 	{
@@ -586,10 +602,10 @@ static bool test_monster_wild(wild_done_type *w_ptr, monster_race *r_ptr)
 	if (w_ptr->wild > WILD_SEA)
 	{
 		if (FLAG(r_ptr, RF_WILD_OCEAN)) return TRUE;
-	
+
 		return FALSE;
 	}
-	
+
 	/* Shore */
 	if (w_ptr->info & WILD_INFO_WATER)
 	{
@@ -597,40 +613,40 @@ static bool test_monster_wild(wild_done_type *w_ptr, monster_race *r_ptr)
 
 		return FALSE;
 	}
-	
+
 	/* Acid */
 	if (w_ptr->info & WILD_INFO_ACID)
 	{
 		/* Immunity to acid is nice */
 		if (FLAG(r_ptr, RF_IM_ACID)) return TRUE;
-			
+
 		/* If we can't fly, then we can't cross */
 		if (FLAG(r_ptr, RF_CAN_FLY)) return TRUE;
-		
+
 		return FALSE;
 	}
-	
+
 	/* Lava */
 	if (w_ptr->info & WILD_INFO_LAVA)
 	{
 		/* Immunity to fire is nice */
 		if (FLAG(r_ptr, RF_IM_FIRE)) return TRUE;
-		
+
 		/* If we are cold - then we can't cross */
 		if (FLAG(r_ptr, RF_AURA_COLD)) return FALSE;
-			
+
 		/* If we can't fly, then we can't cross */
 		if (FLAG(r_ptr, RF_CAN_FLY)) return TRUE;
-		
+
 		return FALSE;
 	}
-	
-	
+
+
 	/*
 	 * Get type of wilderness.
 	 */
 	mon_wild = wild_gen_data[w_ptr->wild].rough_type;
-	
+
 	/* Test to see if the monster likes this terrain */
 	if (r_ptr->flags[7] & mon_wild) return TRUE;
 
@@ -652,70 +668,79 @@ static int filter_mon_loc(int x, int y)
 {
 	wild_done_type *w_ptr;
 	monster_race *r_ptr;
-	
+
 	place_type *pl_ptr = &place[p_ptr->place_num];
 
 	int level;
 
 	int i;
-	
+
 	/* In the wilderness? */
 	if (!p_ptr->depth)
 	{
 		/* Point to wilderness block info */
 		w_ptr = &wild[y / 16][x / 16].done;
-		
+
 		/* Scan the allocation table */
 		for (i = 0; i < alloc_race_size; i++)
 		{
 			/* Get the entry */
 			alloc_entry *entry = &alloc_race_table[i];
-		
+
 			/* Only bother checking monsters we would have created */
 			if (entry->prob2)
 			{
 				/* Get the race */
 				r_ptr = &r_info[entry->index];
-		
+
 				/* Not allowed in this part of the wilderness? */
+
+				/* This kind of theming not disabled.  */
+
 				if (!test_monster_wild(w_ptr, r_ptr))
 				{
 					entry->prob2 = 0;
 				}
 			}
 		}
-		
+
 		/* The level of the monsters */
 		level = w_ptr->mon_gen;
 	}
 	else
 	{
 		/* In the dungeon */
-		
+
 		/* Scan the allocation table */
 		for (i = 0; i < alloc_race_size; i++)
 		{
 			/* Get the entry */
 			alloc_entry *entry = &alloc_race_table[i];
-		
+
 			/* Only bother checking monsters we would have created */
 			if (entry->prob2)
 			{
 				/* Get the race */
 				r_ptr = &r_info[entry->index];
-				
-				/* Not a monster for this dungeon? */
-				if (!(r_ptr->flags[7] & (pl_ptr->dungeon->habitat)))
+
+				/* Not a dungeon monster? */
+				if (!r_ptr->flags[7] & RF7_DUN)
 				{
 					entry->prob2 = 0;
 				}
+
+				/* Monster doesn't live in this dungeon?  And we care about theming?  */
+				else if (!(r_ptr->flags[7] & (pl_ptr->dungeon->habitat)) && monster_theme)
+				{
+					entry->prob2 = (entry->prob2 / 5);
+				}
 			}
 		}
-		
+
 		/* The level of the monsters */
 		level = base_level();
 	}
-	
+
 	return (level);
 }
 
@@ -758,31 +783,28 @@ s16b get_mon_num(int level)
 	/* Boost the level */
 	if (level > 0)
 	{
+		int checks = 2;
+
 		/* Nightmare mode allows more out-of depth monsters */
 		if (ironman_nightmare && one_in_(NASTY_MON))
 		{
-			/* What a bizarre calculation */
-			level = 1 + (level * MAX_DEPTH / randint1(MAX_DEPTH));
+			checks = 5;
 		}
-		else
+
+		for ( ; checks > 0; checks--)
 		{
-			int checks = 2;
-
-			for ( ; checks > 0; checks--)
+			/* Occasional "nasty" monster */
+			if (one_in_(NASTY_MON))
 			{
-				/* Occasional "nasty" monster */
-				if (one_in_(NASTY_MON))
-				{
-					/* Boost the level */
-					level += 7;
-				}
+				/* Boost the level */
+				level += 7;
 			}
+		}
 
-			/* Luck gives occasional very out-of-depth monsters */
-			if ((FLAG(p_ptr, TR_STRANGE_LUCK)) && one_in_(13))
-			{
-				level += randint1(one_in_(7) ? 40 : 10);
-			}
+		/* Luck gives occasional very out-of-depth monsters */
+		if ((FLAG(p_ptr, TR_STRANGE_LUCK)) && one_in_(13))
+		{
+			level += randint1(one_in_(7) ? 40 : 10);
 		}
 	}
 
@@ -812,10 +834,39 @@ s16b get_mon_num(int level)
 			continue;
 		}
 
-		/* Hack -- don't create questors */
+		/* Hack -- don't create questors, usually. */
 		if (FLAG(r_ptr, RF_QUESTOR))
 		{
-			continue;
+			int i;
+			quest_type * q_ptr;
+			bool ok = FALSE;
+
+			/* Never create unique questors.  This includes the winner monsters,
+			   and also, since quests are fixed in advance, we should not be generating
+			   these monsters except deliberately. */
+			if (FLAG(r_ptr, RF_UNIQUE) || FLAG(r_ptr, RF_UNIQUE_7))
+				continue;
+
+			/* Find the quest with this monster in it */
+			for (i = 0; (!ok && i < q_max); i++)
+			{
+				q_ptr = &quest[i];
+				if (q_ptr->status > QUEST_STATUS_TAKEN) continue;
+
+				switch(q_ptr->type)
+				{
+					case QUEST_TYPE_BOUNTY:
+					case QUEST_TYPE_DEFEND:
+						if (q_ptr->status == QUEST_STATUS_TAKEN && q_ptr->data.bnt.r_idx == r_idx)
+						{
+							/* Allow active bounty monsters to be generated. */
+							ok = TRUE;
+							break;
+						}
+					default:
+						break;
+				}
+			}
 		}
 
 		/* Depth Monsters never appear out of depth */
@@ -965,7 +1016,7 @@ void monster_desc(char *desc, const monster_type *m_ptr, int mode, int max)
 	char silly_name[1024];
 	bool seen, pron;
 	bool named = FALSE;
-	
+
 	int n;
 
 	/* Are we hallucinating? (Idea from Nethack...) */
@@ -1216,16 +1267,16 @@ void monster_fmt(char *buf, uint max, cptr fmt, va_list *vp)
 {
 	const monster_type *m_ptr;
 	int mode;
-	
+
 	/* Unused parameter */
 	(void)fmt;
-	
+
 	/* Get the object */
 	m_ptr = va_arg(*vp, const monster_type*);
-	
+
 	/* Get the mode */
 	mode = va_arg(*vp, int);
-	
+
 	/* Print the description into the buffer */
 	monster_desc(buf, m_ptr, mode, max);
 }
@@ -1421,6 +1472,7 @@ void update_mon(int m_idx, bool full)
 
 	/* Exit if monster does not exist. */
 	if (!m_idx) return;
+
 
 	/* Compute distance */
 	if (full)
@@ -1637,6 +1689,22 @@ void update_mon(int m_idx, bool full)
 			m_ptr->mflag &= ~(MFLAG_VIEW);
 		}
 	}
+
+    /* Update the "unsummon" counter, if not using upkeep */
+	if(m_ptr->unsummon && !use_upkeep) {
+		(m_ptr->unsummon)--;
+		if (m_ptr->unsummon == 0) { 			/* vanish, time's up. */
+			char s[80];
+		    strnfmt(s, 80, "%v is unsummoned!", MONSTER_FMT(m_ptr, 0x04));
+				if (islower(s[0])) s[0] = toupper(s[0]);
+				if (m_ptr->mflag & (MFLAG_VIEW)) { /* notice it vanish */
+					msgf(s);
+			string_free(s);
+			}
+			delete_monster_idx(m_idx);
+			return;  /* no need to update anything else now */
+		}
+	}
 }
 
 
@@ -1698,7 +1766,7 @@ monster_type *place_monster_one(int x, int y, int r_idx, bool slp, bool friendly
 
 	/* Paranoia */
 	if (!r_ptr->name) return (NULL);
-	
+
 	/* Lookup the name of the monster */
 	name = mon_race_name(r_ptr);
 
@@ -1707,7 +1775,7 @@ monster_type *place_monster_one(int x, int y, int r_idx, bool slp, bool friendly
 
 	/* Access the location */
 	c_ptr = area(x, y);
-	
+
 	/* Walls also stops generation if we aren't ghostly */
 	if (cave_wall_grid(c_ptr) && !(FLAG(r_ptr, RF_PASS_WALL)))
 	{
@@ -1719,7 +1787,7 @@ monster_type *place_monster_one(int x, int y, int r_idx, bool slp, bool friendly
 
 	/* Not if player is here */
 	if ((y == p_ptr->py) && (x == p_ptr->px)) return (NULL);
-	
+
 	if (!test_monster_square(c_ptr, r_ptr)) return (NULL);
 
 	/* Hack -- "unique" monsters must be "unique" */
@@ -1738,7 +1806,7 @@ monster_type *place_monster_one(int x, int y, int r_idx, bool slp, bool friendly
 		return (NULL);
 	}
 
-	/* 
+	/*
 	 * Test for fields that will not allow monsters to
 	 * be generated on them.  (i.e. Glyph of warding)
 	 */
@@ -1763,7 +1831,7 @@ monster_type *place_monster_one(int x, int y, int r_idx, bool slp, bool friendly
 		{
 			/* Message for cheaters */
 			if (cheat_hear) msgf("Deep Monster (%s).", name);
-	
+
 			if (!FLAG(r_ptr, RF_FRIENDS))
 			{
 				/* Boost rating by delta-depth */
@@ -1802,6 +1870,7 @@ monster_type *place_monster_one(int x, int y, int r_idx, bool slp, bool friendly
 	m_ptr->stunned = 0;
 	m_ptr->confused = 0;
 	m_ptr->monfear = 0;
+    m_ptr->unsummon = 0;
 
 	/* Unknown distance */
 	m_ptr->cdis = 0;
@@ -1816,6 +1885,7 @@ monster_type *place_monster_one(int x, int y, int r_idx, bool slp, bool friendly
 	if (pet)
 	{
 		set_pet(m_ptr);
+		m_ptr->unsummon = 2000;  /* large default to make sure */
 	}
 	/* Friendly? */
 	else if (friendly || (FLAG(r_ptr, RF_FRIENDLY)))
@@ -2131,13 +2201,13 @@ monster_type *place_monster_aux(int x, int y, int r_idx, bool slp, bool grp,
 
 			/* Prepare allocation table */
 			get_mon_num_prep(place_monster_okay);
-			
+
 			/* Default to filtering out monsters not normally on this dungeon */
 			if (!summon)
 			{
 				(void) filter_mon_loc(nx, ny);
 			}
-			
+
 			/* Pick a random race */
 			z = get_mon_num(r_ptr->level);
 
@@ -2174,7 +2244,11 @@ bool place_monster(int x, int y, bool slp, bool grp, int delta_level)
 	int level;
 
 	/* Prepare allocation table */
-	get_mon_num_prep(NULL);
+	if (level_gen_in_progress && current_quest)
+	{
+		get_mon_num_prep(quest_theme_hook);
+	}
+	else get_mon_num_prep(NULL);
 	level = filter_mon_loc(x, y);
 
 	/* Pick a monster */
@@ -2203,7 +2277,7 @@ bool alloc_horde(int x, int y)
 	int attempts = 1000;
 	int cy = y;
 	int cx = x;
-	
+
 	int level;
 
 	/* Prepare allocation table */
@@ -2653,7 +2727,7 @@ bool summon_specific(int who, int x1, int y1, int req_lev, int type, bool group,
 		/* Check for a field that blocks movement */
 		if (fields_have_flags(c_ptr, FIELD_INFO_NO_ENTER)) continue;
 
-		/* 
+		/*
 		 * Test for fields that will not allow monsters to
 		 * be generated on them.  (i.e. Glyph of warding)
 		 */
@@ -2702,7 +2776,7 @@ monster_type *summon_named_creature(int x1, int y1, int r_idx, bool slp,
 	int i, x, y;
 
 	cave_type *c_ptr;
-	
+
 	monster_type *m_ptr = NULL;
 
 	/* Paranoia */
@@ -2789,6 +2863,9 @@ monster_type *multiply_monster(int m_idx, bool clone, bool friendly, bool pet)
 
 		/* Create a new monster (awake, no groups) */
 		t_ptr = place_monster_aux(x, y, m_ptr->r_idx, FALSE, FALSE, friendly, pet, TRUE);
+
+		/* Don't be degerenate */
+		if (pet) t_ptr->unsummon = (m_ptr->unsummon ? m_ptr->unsummon : 150);
 
 		/* Done */
 		break;

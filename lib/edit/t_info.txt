@@ -32,7 +32,7 @@
 # be stored in the data[] array if required.)
 
 # 'D' 8 bytes of data for the field.  How this is used depends on the
-# functions called in the 'F' section below.
+# functions called in the 'L' section below.
 
 
 ##### Something special #####
@@ -759,6 +759,24 @@ L:MENTT:end
 #   "Obscure" means deeper items enchanted to "good" status.
 #   "Unique" means items enchanted to "great" status.
 
+# Buildings (stores without inventories) use the D: line in the following way.
+# data[0] is an index into the shopkeeper name array.
+#     If this is equal to STORE_HOME, then the store will be
+#     treated like a home in various ways.
+# data[1] is used to determine "home" status for guilds.
+# data[2] is used in quest buildings to specify the "level" of the next quest.
+# data[3] is used in quest buildings to help in setting the next quest level. 
+# data[4] - data[7] are currently unused.
+#
+#     Note L:BUILD1 sets up the command menu,
+#          L:BUILD2 processes the command.
+#
+# For most buildings, you should only need to set data[0] and maybe data[3].
+#
+# Note that data[0] is currently not implemented to do anything.
+# Ideally, data[0] will be used to access one of multiple arrays, to 
+# give shopkeeper names flavors.  
+
 # General store
 N:34:General Store
 G:1:o
@@ -771,7 +789,7 @@ L:STORE1:result = item_tester_hook_weapon_armour(object)
 
 # Armoury
 N:35:Armoury
-G:2:U
+G:2:u
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:5:30:0:100:0:0:0
@@ -781,7 +799,7 @@ L:STORE2:result = item_tester_hook_armour(object)
 
 # Weapon Smiths
 N:36:Weapon Smiths
-G:3:w
+G:2:W
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:5:20:0:100:0:0:0
@@ -791,7 +809,7 @@ L:STORE2:result = item_tester_hook_weapon(object)
 
 # Temple
 N:37:Temple
-G:6:g
+G:4:g
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:3:5:20:33:33:34:0:1
@@ -801,7 +819,7 @@ L:STORE1:result = item_tester_hook_recharge(object)
 
 # Alchemy Shop
 N:38:Alchemy Shop
-G:6:b
+G:5:b
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:4:5:30:0:0:100:0:0
@@ -811,7 +829,7 @@ L:STORE1:result = item_tester_hook_recharge(object)
 
 # Magic Wares
 N:39:Magic Wares
-G:6:r
+G:5:r
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:5:20:40:0:0:100:0:0
@@ -821,7 +839,7 @@ L:STORE1:result = item_tester_hook_tval(object, TV_POTION)
 
 # Black Market
 N:40:Black Market
-G:1:D
+G:7:D
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:6:20:50:25:25:25:25:16
@@ -830,16 +848,17 @@ L:PENTER:do_cmd_store(field)
 
 # Home
 N:41:Home
-G:8:y
+G:8:G
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:7:0:0:100:100:100:100:0
 L:SBINIT:place_sb(100, 0)
-L:PENTER:do_cmd_store(field)
+L:PENTER:if (check_mortgage() ~= TRUE) then
+L:PENTER:do_cmd_store(field) end
 
 # Book Store
 N:42:Book Store
-G:5:y
+G:6:y
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:8:20:40:0:0:100:0:8
@@ -849,7 +868,7 @@ L:STORE2:result = item_tester_hook_is_book(object)
 
 # Weaponmaster
 N:43:Weaponmaster
-G:7:r
+G:0:w
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:0:0:0:0:0:0:0:0
@@ -870,7 +889,7 @@ L:BUILD2:end
 
 # Zymurgist
 N:44:Zymurgist
-G:7:b
+G:9:b
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:0:0:0:0:0:0:0
@@ -898,7 +917,7 @@ L:BUILD2:end
 
 # Magesmith (weapon)
 N:45:Magesmith (weapons)
-G:7:w
+G:9:w
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:0:0:0:0:0:0:0
@@ -916,7 +935,7 @@ L:BUILD2:end
 
 # Magesmith (armour)
 N:46:Magesmith (armor)
-G:7:s
+G:9:s
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:3:0:0:0:0:0:0:0
@@ -957,7 +976,7 @@ L:BUILD2:end
 
 # Map Maker
 N:48:Map Maker
-G:9:g
+G:0:g
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:5:0:0:0:0:0:0:0
@@ -978,7 +997,7 @@ L:BUILD2:end
 
 # Weapon Smiths
 N:49:Advanced Weapon Smiths
-G:3:w
+G:2:w
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:20:50:0:100:0:0:0
@@ -988,7 +1007,7 @@ L:STORE2:result = item_tester_hook_weapon(object)
 
 # Weapon Smiths
 N:50:Expert Weapon Smiths
-G:3:w
+G:2:w
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:50:75:0:100:0:0:0
@@ -998,7 +1017,7 @@ L:STORE2:result = item_tester_hook_weapon(object)
 
 # Weapon Smiths
 N:51:Deep Weapon Smiths
-G:3:W
+G:2:D
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:75:127:0:100:0:0:24
@@ -1008,7 +1027,7 @@ L:STORE2:result = item_tester_hook_weapon(object)
 
 # Weapon Smiths
 N:52:Arcane Weapon Smiths
-G:3:W
+G:2:b
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:50:100:0:100:0:0:42
@@ -1018,7 +1037,7 @@ L:STORE2:result = item_tester_hook_weapon(object)
 
 # Weapon Smiths
 N:53:Unique Weapon Smiths
-G:3:W
+G:2:B
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:50:100:0:100:0:0:62
@@ -1058,7 +1077,7 @@ L:STORE2:result = item_tester_hook_armour(object)
 
 # Armoury
 N:57:Arcane Armoury
-G:2:u
+G:2:y
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:50:100:0:100:0:0:42
@@ -1068,7 +1087,7 @@ L:STORE2:result = item_tester_hook_armour(object)
 
 # Armoury
 N:58:Unique Armoury
-G:2:u
+G:2:y
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:50:100:0:100:0:0:62
@@ -1138,7 +1157,7 @@ L:STORE2:result = item_tester_hook_tval(object, TV_SWORD)
 
 # Shieldsman
 N:65:Shieldsman
-G:2:w
+G:3:w
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:1:30:0:100:0:0:8
@@ -1148,7 +1167,7 @@ L:STORE2:result = item_tester_hook_tval(object, TV_SHIELD)
 
 # Shieldsman
 N:66:Advanced Shieldsman
-G:2:w
+G:3:w
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:20:50:0:100:0:0:8
@@ -1158,7 +1177,7 @@ L:STORE2:result = item_tester_hook_tval(object, TV_SHIELD)
 
 # Shieldsman
 N:67:Expert Shieldsman
-G:2:W
+G:3:W
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:30:75:0:100:0:0:8
@@ -1168,7 +1187,7 @@ L:STORE2:result = item_tester_hook_tval(object, TV_SHIELD)
 
 # Shieldsman
 N:68:Obscure Shieldsman
-G:2:W
+G:3:W
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:75:127:0:100:0:0:42
@@ -1178,7 +1197,7 @@ L:STORE2:result = item_tester_hook_tval(object, TV_SHIELD)
 
 # Shieldsman
 N:69:Arcane Shieldsman
-G:2:s
+G:3:s
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:50:100:0:100:0:0:26
@@ -1188,7 +1207,7 @@ L:STORE2:result = item_tester_hook_tval(object, TV_SHIELD)
 
 # Shieldsman
 N:70:Unique Shieldsman
-G:2:s
+G:3:s
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:50:100:0:100:0:0:62
@@ -1288,7 +1307,7 @@ L:STORE2:result = item_tester_hook_ammo(object)
 
 # Fletcher
 N:80:Fletcher
-G:3:g
+G:2:g
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:1:50:0:100:0:0:8
@@ -1298,7 +1317,7 @@ L:STORE2:result = item_tester_hook_fletcher(object)
 
 # Fletcher
 N:81:Advanced Fletcher
-G:3:g
+G:2:g
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:50:100:0:100:0:0:8
@@ -1308,7 +1327,7 @@ L:STORE2:result = item_tester_hook_fletcher(object)
 
 # Fletcher
 N:82:Arcane Fletcher
-G:3:G
+G:2:G
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:50:100:0:100:0:0:42
@@ -1318,7 +1337,7 @@ L:STORE2:result = item_tester_hook_fletcher(object)
 
 # Fletcher
 N:83:Unique Fletcher
-G:3:G
+G:2:G
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:20:100:0:100:0:0:62
@@ -1328,7 +1347,7 @@ L:STORE2:result = item_tester_hook_fletcher(object)
 
 # Warrior Hall
 N:84:Warrior Hall
-G:0:s
+G:2:s
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:1:20:0:100:0:0:0
@@ -1338,7 +1357,7 @@ L:STORE2:result = item_tester_hook_weapon_armour(object)
 
 # Warrior Hall
 N:85:Advanced Warrior Hall
-G:0:s
+G:2:s
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:20:50:0:100:0:0:0
@@ -1348,7 +1367,7 @@ L:STORE2:result = item_tester_hook_weapon_armour(object)
 
 # Warrior Hall
 N:86:Expert Warrior Hall
-G:0:W
+G:2:W
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:40:75:0:100:0:0:8
@@ -1358,7 +1377,7 @@ L:STORE2:result = item_tester_hook_weapon_armour(object)
 
 # Warrior Hall
 N:87:Deep Warrior Hall
-G:0:W
+G:2:W
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:75:127:0:100:0:0:24
@@ -1368,7 +1387,7 @@ L:STORE2:result = item_tester_hook_weapon_armour(object)
 
 # Warrior Hall
 N:88:Arcane Warrior Hall
-G:0:w
+G:2:w
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:50:100:5:95:0:0:42
@@ -1378,7 +1397,7 @@ L:STORE2:result = item_tester_hook_weapon_armour(object)
 
 # Warrior Hall
 N:89:Unique Warrior Hall
-G:0:w
+G:2:w
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:50:100:0:100:0:0:62
@@ -1388,7 +1407,7 @@ L:STORE2:result = item_tester_hook_weapon_armour(object)
 
 # Clothes Store
 N:90:Clothes Store
-G:2:g
+G:3:g
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:0:1:20:0:100:0:0:8
@@ -1398,7 +1417,7 @@ L:STORE2:result = item_tester_hook_soft_armour(object)
 
 # Clothes Store
 N:91:Expensive Clothes Store
-G:2:G
+G:3:G
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:0:0:50:0:100:0:0:24
@@ -1408,7 +1427,7 @@ L:STORE2:result = item_tester_hook_soft_armour(object)
 
 # Heavy Armoury
 N:92:Heavy Armoury
-G:2:B
+G:3:B
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:1:30:0:100:0:0:8
@@ -1418,7 +1437,7 @@ L:STORE2:result = item_tester_hook_pure_hard_armour(object)
 
 # Heavy Armoury
 N:93:Advanced Heavy Armoury
-G:2:B
+G:3:B
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:20:60:20:80:0:0:8
@@ -1428,7 +1447,7 @@ L:STORE2:result = item_tester_hook_pure_hard_armour(object)
 
 # Heavy Armoury
 N:94:Expert Heavy Armoury
-G:2:b
+G:3:b
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:50:75:20:80:0:0:8
@@ -1438,7 +1457,7 @@ L:STORE2:result = item_tester_hook_pure_hard_armour(object)
 
 # Heavy Armoury
 N:95:Arcane Heavy Armoury
-G:2:b
+G:3:b
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:75:127:20:80:0:0:42
@@ -1448,7 +1467,7 @@ L:STORE2:result = item_tester_hook_pure_hard_armour(object)
 
 # Heavy Armoury
 N:96:Obscure Heavy Armoury
-G:2:v
+G:3:v
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:50:100:20:80:0:0:26
@@ -1458,7 +1477,7 @@ L:STORE2:result = item_tester_hook_pure_hard_armour(object)
 
 # Heavy Armoury
 N:97:Unique Heavy Armoury
-G:2:v
+G:3:v
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:50:100:0:100:0:0:62
@@ -1468,7 +1487,7 @@ L:STORE2:result = item_tester_hook_pure_hard_armour(object)
 
 # Milliner
 N:98:Milliner
-G:2:y
+G:3:y
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:0:1:50:50:50:0:0:8
@@ -1478,7 +1497,7 @@ L:STORE2:result = item_tester_hook_helm(object)
 
 # Milliner
 N:99:Advanced Milliner
-G:2:y
+G:3:y
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:0:50:100:50:50:0:0:8
@@ -1488,7 +1507,7 @@ L:STORE2:result = item_tester_hook_helm(object)
 
 # Milliner
 N:100:Arcane Milliner
-G:2:o
+G:3:o
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:50:100:50:50:0:0:42
@@ -1498,7 +1517,7 @@ L:STORE2:result = item_tester_hook_helm(object)
 
 # Milliner
 N:101:Unique Milliner
-G:2:o
+G:3:o
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:20:100:50:50:0:0:62
@@ -1558,7 +1577,7 @@ L:STORE2:result = item_tester_hook_jewel(object)
 
 # Statue Store
 N:107:Statue Store
-G:5:U
+G:1:U
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:0:1:50:100:0:0:0:8
@@ -1568,7 +1587,7 @@ L:STORE2:result = item_tester_hook_tval(object, TV_STATUE)
 
 # Statue Store
 N:108:Unusual Statue Store
-G:5:s
+G:1:s
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:50:100:100:0:0:0:8
@@ -1578,7 +1597,7 @@ L:STORE2:result = item_tester_hook_tval(object, TV_STATUE)
 
 # Figurine Store
 N:109:Figurine Store
-G:5:g
+G:6:g
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:5:26:26:100:0:0:0:8
@@ -1588,7 +1607,7 @@ L:STORE2:result = item_tester_hook_tval(object, TV_FIGURINE)
 
 # Figurine Store
 N:110:Expensive Figurine Store
-G:5:G
+G:6:G
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:5:50:90:100:0:0:0:16
@@ -1598,7 +1617,7 @@ L:STORE2:result = item_tester_hook_tval(object, TV_FIGURINE)
 
 # Potion Store
 N:111:Potion Store
-G:5:b
+G:6:b
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:4:1:30:0:0:100:0:0
@@ -1608,7 +1627,7 @@ L:STORE2:result = item_tester_hook_tval(object, TV_POTION)
 
 # Potion Store
 N:112:Expensive Potion Store
-G:5:b
+G:6:b
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:4:20:40:0:0:100:0:24
@@ -1618,7 +1637,7 @@ L:STORE2:result = item_tester_hook_tval(object, TV_POTION)
 
 # Potion Store
 N:113:Deep Potion Store
-G:5:b
+G:6:b
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:4:40:70:0:0:100:0:24
@@ -1628,7 +1647,7 @@ L:STORE2:result = item_tester_hook_tval(object, TV_POTION)
 
 # Potion Store
 N:114:Rare Potion Store
-G:5:B
+G:6:B
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:4:60:90:0:0:100:0:40
@@ -1638,7 +1657,7 @@ L:STORE2:result = item_tester_hook_tval(object, TV_POTION)
 
 # Potion Store
 N:115:Custom Potion Store
-G:5:B
+G:6:B
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:4:80:120:0:0:100:0:56
@@ -1648,7 +1667,7 @@ L:STORE2:result = item_tester_hook_tval(object, TV_POTION)
 
 # Scroll Store
 N:116:Scroll Store
-G:5:W
+G:6:W
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:8:1:30:0:0:100:0:0
@@ -1658,7 +1677,7 @@ L:STORE2:result = item_tester_hook_tval(object, TV_SCROLL)
 
 # Scroll Store
 N:117:Unusual Scroll Store
-G:5:W
+G:6:W
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:8:20:50:0:0:100:0:8
@@ -1668,7 +1687,7 @@ L:STORE2:result = item_tester_hook_tval(object, TV_SCROLL)
 
 # Scroll Store
 N:118:Expensive Scroll Store
-G:5:W
+G:6:W
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:8:40:70:0:0:100:0:24
@@ -1678,7 +1697,7 @@ L:STORE2:result = item_tester_hook_tval(object, TV_SCROLL)
 
 # Scroll Store
 N:119:Deep Scroll Store
-G:5:w
+G:6:w
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:8:60:90:0:0:100:0:40
@@ -1688,7 +1707,7 @@ L:STORE2:result = item_tester_hook_tval(object, TV_SCROLL)
 
 # Scroll Store
 N:120:Rare Scroll Store
-G:5:w
+G:6:w
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:8:80:120:0:0:100:0:56
@@ -1698,7 +1717,7 @@ L:STORE2:result = item_tester_hook_tval(object, TV_SCROLL)
 
 # Magic Store
 N:121:Magic Store
-G:6:r
+G:5:r
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:5:1:20:0:0:100:0:8
@@ -1708,7 +1727,7 @@ L:STORE2:result = item_tester_hook_recharge(object)
 
 # Magic Store
 N:122:Advanced Magic Store
-G:6:r
+G:5:r
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:5:20:40:0:0:100:0:8
@@ -1718,7 +1737,7 @@ L:STORE2:result = item_tester_hook_recharge(object)
 
 # Magic Store
 N:123:Expensive Magic Store
-G:6:R
+G:5:R
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:5:40:60:0:0:100:0:24
@@ -1728,7 +1747,7 @@ L:STORE2:result = item_tester_hook_recharge(object)
 
 # Magic Store
 N:124:Rare Magic Store
-G:6:R
+G:5:R
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:5:60:90:0:0:100:0:40
@@ -1738,7 +1757,7 @@ L:STORE2:result = item_tester_hook_recharge(object)
 
 # Magic Store
 N:125:Custom Magic Store
-G:6:v
+G:5:v
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:5:80:120:0:0:100:0:56
@@ -1748,7 +1767,7 @@ L:STORE2:result = item_tester_hook_recharge(object)
 
 # Book Store
 N:126:Rare Book Store
-G:5:y
+G:6:y
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:8:20:120:0:0:100:0:56
@@ -1758,7 +1777,7 @@ L:STORE2:result = item_tester_hook_is_book(object)
 
 # Temple
 N:127:Large Temple
-G:6:g
+G:4:g
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:3:20:50:33:33:34:0:1
@@ -1768,7 +1787,7 @@ L:STORE1:result = item_tester_hook_recharge(object)
 
 # Temple
 N:128:High Temple
-G:6:G
+G:4:G
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:3:50:75:33:33:34:0:17
@@ -1778,7 +1797,7 @@ L:STORE1:result = item_tester_hook_recharge(object)
 
 # Temple
 N:129:Hidden Temple
-G:6:G
+G:4:G
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:3:75:100:33:33:34:0:57
@@ -1818,7 +1837,7 @@ L:STORE1:if (item_tester_hook_is_book(object) == TRUE) then result = TRUE end
 
 # Black Market
 N:132:Large Black Market
-G:1:s
+G:7:s
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:6:40:80:25:25:25:25:32
@@ -1827,7 +1846,7 @@ L:PENTER:do_cmd_store(field)
 
 # Black Market
 N:133:Hidden Black Market
-G:1:w
+G:7:w
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:6:60:100:25:25:25:25:56
@@ -1836,7 +1855,7 @@ L:PENTER:do_cmd_store(field)
 
 # Alchemy Shop
 N:134:Advanced Alchemy Shop
-G:6:b
+G:5:b
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:4:20:60:0:0:100:0:8
@@ -1846,7 +1865,7 @@ L:STORE1:result = item_tester_hook_recharge(object)
 
 # Alchemy Shop
 N:135:Rare Alchemy Shop
-G:6:B
+G:5:B
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:4:50:80:0:0:100:0:40
@@ -1865,7 +1884,7 @@ L:PENTER:do_cmd_store(field)
 
 # Food store
 N:137:Grocer
-G:0:U
+G:1:U
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:0:0:25:0:0:0:100:8
@@ -1875,7 +1894,7 @@ L:STORE2:result = item_tester_hook_tval(object, TV_FOOD)
 
 # Library
 N:138:Library
-G:9:b
+G:0:b
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:6:0:0:0:0:0:0:0
@@ -1925,14 +1944,14 @@ L:BUILD2:end
 
 # Inn
 N:140:Inn
-G:0:y
+G:8:y
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:8:0:0:0:0:0:0:0
 L:SBINIT:place_sb(rand_range(90, 125), 0)
 L:PENTER:do_cmd_bldg(field)
 L:BUILD1:building_options("E) Eat (".. factor / 20 .."gp)",
-L:BUILD1:					"R) Rest (".. factor / 4 .."gp)")
+L:BUILD1:		  "R) Rest (".. factor / 4 .."gp)")
 L:BUILD2:local cost
 L:BUILD2:if (command == 'E') then
 L:BUILD2:	cost = factor / 20
@@ -1958,7 +1977,7 @@ N:141:Healer
 G:9:y
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
-D:9:0:0:0:0:0:0:0
+D:3:0:0:0:0:0:0:0
 L:SBINIT:place_sb(rand_range(90, 125), 0)
 L:PENTER:do_cmd_bldg(field)
 L:BUILD1:building_options("R) Restore Stats (".. 20 * factor .."gp)")
@@ -1977,7 +1996,7 @@ L:BUILD2:end
 
 # Black Market
 N:142:Bazaar
-G:1:D
+G:7:D
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:6:5:30:25:25:25:25:16
@@ -2031,37 +2050,408 @@ L:BUILD2:end
 L:BUILD2:message_flush()
 
 # Quest-giver
-N:145:Small Castle
+N:145:Keep
 G:0:v
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
-D:1:0:0:0:0:0:0:0
+D:1:0:0:10:0:0:0:0
 L:SBINIT:place_sb(rand_range(90, 125), 0)
+L:SBINIT:place_qinit(GS_NONMEMBER, 15)
 L:PENTER:do_cmd_bldg(field)
+L:BUILD1:build_set_qlevel()
 L:BUILD1:if (build_has_quest() == TRUE) then
-L:BUILD1:	building_options("R) Request Reward")
-L:BUILD1:else
-L:BUILD1:	building_options("R) Request Quest")
+L:BUILD1:    building_options("Q) Request Reward")
+L:BUILD1:elseif (build_next_quest() == TRUE) then
+L:BUILD1:    building_options("Q) Request Quest (".. build_get_qlevel() ..")")
 L:BUILD1:end
-L:BUILD2:if (command == 'R') then
-L:BUILD2:	build_cmd_quest(10)
+L:BUILD2:if (command == 'Q') then
+L:BUILD2:	build_cmd_quest(0, field)
 L:BUILD2:	done = TRUE
 L:BUILD2:end
 
 # Quest-giver
-N:146:Large Castle
+N:146:Castle
 G:0:v
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:0:0:0:0:0:0:0
 L:SBINIT:place_sb(rand_range(90, 125), 0)
+L:SBINIT:place_qinit(GS_NONMEMBER, 15)
 L:PENTER:do_cmd_bldg(field)
+L:BUILD1:build_set_qlevel()
 L:BUILD1:if (build_has_quest() == TRUE) then
-L:BUILD1:	building_options("R) Request Reward")
-L:BUILD1:else
-L:BUILD1:	building_options("R) Request Quest")
+L:BUILD1:	building_options("Q) Request Reward")
+L:BUILD1:elseif (build_next_quest() == TRUE) then
+L:BUILD1:	building_options(
+L:BUILD1:         "Q) Request Quest (".. build_get_qlevel() ..")")
 L:BUILD1:end
+L:BUILD2:if (command == 'Q') then
+L:BUILD2:	build_cmd_quest(10, field)
+L:BUILD2:	done = TRUE
+L:BUILD2:end
+
+# Quest and service-giver.
+N:147:Warriors' Guild
+G:8:r
+W:100:3:0
+I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
+D:1:0:0:0:10:0:0:0
+L:SBINIT:place_sb(rand_range(90, 125), 0)
+L:SBINIT:if ((player.rp.pclass == CLASS_WARRIOR) or
+L:SBINIT:    (player.rp.pclass == CLASS_CHAOS_WARRIOR) or
+L:SBINIT:    (player.rp.pclass == CLASS_PALADIN) or
+L:SBINIT:    (player.rp.pclass == CLASS_WARRIOR_MAGE)) then
+L:SBINIT:     place_qinit(GS_MEMBER, 10) 
+L:SBINIT:else place_qinit(GS_NONMEMBER, 15) end
+L:PENTER:do_cmd_bldg(field)
+L:BUILD1:build_set_qlevel()
+L:BUILD1:local rstring if (build_has_quest() == TRUE) then
+L:BUILD1:  rstring = "Q) Request Reward" 
+L:BUILD1:elseif (build_next_quest() == TRUE) then
+L:BUILD1:  rstring = "Q) Request Quest ("..build_get_qlevel()..")" 
+L:BUILD1:else rstring = "" end
+L:BUILD1:if (is_member() == TRUE) then
+L:BUILD1:	building_options(rstring, 
+L:BUILD1:          "E) Examine Weapons ("..(factor / 2).."gp)",
+L:BUILD1:          "R) Repair Equipment (free)", "S) Spend the night (free)")
+L:BUILD1:else
+L:BUILD1:	building_options(rstring, 
+L:BUILD1:          "E) Examine Weapons ("..(factor * 3).. "gp)")
+L:BUILD1:end
+L:BUILD2:local cost
+L:BUILD2:if (command == 'E') then
+L:BUILD2:if (is_member() == TRUE) then cost = factor / 2
+L:BUILD2:else	cost = factor * 3  end
+L:BUILD2:	if (test_gold(cost) == TRUE) then
+L:BUILD2:		if compare_weapons() == TRUE then
+L:BUILD2:			player.au = player.au - cost
+L:BUILD2:		end
+L:BUILD2:		message_flush()
+L:BUILD2:	end
+L:BUILD2:	done = TRUE
+L:BUILD2:end
+L:BUILD2:if (command == 'Q') then
+L:BUILD2:       if (is_member() == TRUE) then cost = 5 else cost = 0 end
+L:BUILD2:	build_cmd_quest(cost, field)
+L:BUILD2:	done = TRUE
+L:BUILD2:end
+L:BUILD2:if (command == 'R' and is_member() == TRUE) then
+L:BUILD2:       build_cmd_repair() message_flush() done = TRUE end
+L:BUILD2:if (command == 'S' and is_member() == TRUE) then
+L:BUILD2:       inn_rest() done = TRUE end
+
+N:148:Mages' Guild
+G:8:B
+W:100:3:0
+I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
+D:4:0:0:10:0:0:0:0
+L:SBINIT:place_sb(rand_range(90, 125), 0)
+L:SBINIT:if ((player.rp.pclass == CLASS_MAGE) or
+L:SBINIT:    (player.rp.pclass == CLASS_HIGH_MAGE) or
+L:SBINIT:    (player.rp.pclass == CLASS_WARRIOR_MAGE)) then
+L:SBINIT:     place_qinit(GS_MEMBER, 10) 
+L:SBINIT:else place_qinit(GS_NONMEMBER, 15) end
+L:PENTER:do_cmd_bldg(field)
+L:BUILD1:build_set_qlevel()
+L:BUILD1:local rstring if (build_has_quest() == TRUE) then
+L:BUILD1:  rstring = "Q) Request Reward" 
+L:BUILD1:elseif (build_next_quest() == TRUE) then
+L:BUILD1:  rstring = "Q) Request Quest ("..build_get_qlevel()..")" 
+L:BUILD1:else rstring = "" end
+L:BUILD1:if (is_member() == TRUE) then
+L:BUILD1:	building_options(rstring, 
+L:BUILD1:          "C) Charge Item (".. factor .. "gp)",
+L:BUILD1:          "B) Get SpellBooks (".. factor * 2 .."gp)", 
+L:BUILD1:          "S) Spend the night (free)")
+L:BUILD1:else
+L:BUILD1:	building_options(rstring, 
+L:BUILD1:          "C) Charge Item (".. factor * 3 .. "gp)")
+L:BUILD1:end
+L:BUILD2:local cost
+L:BUILD2:if (command == 'C') then
+L:BUILD2:if (is_member() == TRUE) then cost = factor
+L:BUILD2:else	cost = factor * 3  end
+L:BUILD2:	if (test_gold(cost) == TRUE) then
+L:BUILD2:		if recharge(200) == TRUE then
+L:BUILD2:			player.au = player.au - cost
+L:BUILD2:		end
+L:BUILD2:		message_flush()
+L:BUILD2:	end
+L:BUILD2:	done = TRUE
+L:BUILD2:end
+L:BUILD2:if (command == 'Q') then
+L:BUILD2:       if (is_member() == TRUE) then cost = 15 else cost = 0 end
+L:BUILD2:	build_cmd_quest(cost, field)
+L:BUILD2:	done = TRUE
+L:BUILD2:end
+L:BUILD2:if (command == 'B' and is_member() == TRUE) then
+L:BUILD2:       build_cmd_spellbooks(factor * 2) message_flush() done = TRUE end
+L:BUILD2:if (command == 'S' and is_member() == TRUE) then
+L:BUILD2:       inn_rest()  done=TRUE end
+
+N:149:Cathedral
+G:8:w
+W:100:3:0
+I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
+D:3:0:0:0:0:0:0:0
+L:SBINIT:place_sb(rand_range(90, 125), 0)
+L:SBINIT:if ((player.rp.pclass == CLASS_PRIEST) or
+L:SBINIT:    (player.rp.pclass == CLASS_MONK) or
+L:SBINIT:    (player.rp.pclass == CLASS_PALADIN)) then
+L:SBINIT:     place_qinit(GS_MEMBER, 10) 
+L:SBINIT:else place_qinit(GS_NONMEMBER, 15) end
+L:PENTER:do_cmd_bldg(field)
+L:BUILD1:build_set_qlevel()
+L:BUILD1:local rstring if (build_has_quest() == TRUE) then
+L:BUILD1:  rstring = "Q) Request Reward" 
+L:BUILD1:elseif (build_next_quest() == TRUE) then
+L:BUILD1:  rstring = "Q) Request Quest ("..build_get_qlevel()..")" 
+L:BUILD1:else rstring = "" end
+L:BUILD1:if (is_member() == TRUE) then
+L:BUILD1:	building_options(rstring, 
+L:BUILD1:          "B) Blessing (".. (factor / 3).. "gp)",
+L:BUILD1:          "W) Word of Recall (".. factor .."gp)", 
+L:BUILD1:          "R) Restoration (".. (factor * 15)/2 .."gp)")
+L:BUILD1:else
+L:BUILD1:	building_options(rstring, 
+L:BUILD1:          "B) Blessing (".. (factor * 2) .."gp)",
+L:BUILD1:          "R) Restoration (".. (factor * 30) .."gp)")
+L:BUILD1:end
+L:BUILD2:local cost
+L:BUILD2:if (command == 'B') then
+L:BUILD2:if (is_member()) then cost = factor / 3
+L:BUILD2:else	cost = factor * 2 end
+L:BUILD2:	if (test_gold(cost) == TRUE) then
+L:BUILD2:		player.au = player.au - cost
+L:BUILD2:		hp_player(player.mhp)
+L:BUILD2:               inc_blessed(1500)
+L:BUILD2:		message_flush()
+L:BUILD2:	end
+L:BUILD2:	done = TRUE
+L:BUILD2:end
+L:BUILD2:if (command == 'Q') then
+L:BUILD2:       if (is_member() == TRUE) then cost = 5 else cost = 0 end
+L:BUILD2:	build_cmd_quest(cost, field)
+L:BUILD2:	done = TRUE end
+L:BUILD2:if (command == 'W' and is_member() == TRUE) then
+L:BUILD2:       cost = factor
+L:BUILD2:       if (test_gold(cost) == TRUE) then 
+L:BUILD2:            if build_cmd_recall() == TRUE then
+L:BUILD2:               player.au = player.au - cost 
+L:BUILD2:               message_flush() end 
+L:BUILD2:       end
+L:BUILD2:       done = TRUE end
 L:BUILD2:if (command == 'R') then
-L:BUILD2:	build_cmd_quest(25)
+L:BUILD2:if (is_member() == TRUE) then cost = (factor*15)/2
+L:BUILD2:else	cost = factor * 30  end
+L:BUILD2:	if (test_gold(cost) == TRUE) then
+L:BUILD2:		if (building_healer() == TRUE) then
+L:BUILD2:			player.au = player.au - cost
+L:BUILD2:		else
+L:BUILD2:			msgf("You are in fine health already.")
+L:BUILD2:		end
+L:BUILD2:         message_flush()
+L:BUILD2:	end
+L:BUILD2:	done = TRUE  end
+
+N:150:Thieves' Guild
+G:8:u
+W:100:3:0
+I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
+D:6:0:0:0:0:0:0:0
+L:SBINIT:place_sb(rand_range(90, 125), 0)
+L:SBINIT:if (player.rp.pclass == CLASS_ROGUE) then place_qinit(GS_MEMBER, 10)
+L:SBINIT:else place_qinit(GS_NONMEMBER, 15) end
+L:PENTER:do_cmd_bldg(field)
+L:BUILD1:build_set_qlevel()
+L:BUILD1:local rstring 
+L:BUILD1:if (build_has_quest() == TRUE and is_member() == TRUE) then
+L:BUILD1:  rstring = "Q) Request Reward"
+L:BUILD1:elseif (is_member() == TRUE and build_next_quest() == TRUE) then
+L:BUILD1:  rstring = "Q) Request Quest (".. build_get_qlevel()..")" 
+L:BUILD1:elseif (is_member() == FALSE) then
+L:BUILD1:  rstring = "Q) Request Membership" 
+L:BUILD1:else rstring = "" end
+L:BUILD1:if (is_full_member() == TRUE) then
+L:BUILD1:	building_options(rstring, 
+L:BUILD1:          "I) Identify item (".. factor / 3 .."gp)",
+L:BUILD1:          "F) Fully Identify item (".. factor * 8 .."gp)", 
+L:BUILD1:          "S) Spend the night (free)")
+L:BUILD1:elseif (is_member() == TRUE) then
+L:BUILD1:	building_options(rstring, 
+L:BUILD1:          "I) Identify item (".. factor .. "gp)", 
+L:BUILD1:          "F) Fully Identify item (".. factor * 12 .."gp)")
+L:BUILD1:else  building_options(rstring) end
+L:BUILD2:local cost
+L:BUILD2:if (command == 'Q') then
+L:BUILD2:       if (is_full_member() == TRUE) then cost = 0 
+L:BUILD2:       elseif (is_member() == FALSE) then cost = 10 else cost = 5 end
+L:BUILD2:	build_cmd_quest(cost, field)
+L:BUILD2:	done = TRUE end
+L:BUILD2:if (command == 'S' and is_full_member() == TRUE) then
+L:BUILD2:       inn_rest() done = TRUE end
+L:BUILD2:if (command == 'I' and is_member() == TRUE) then
+L:BUILD2:if (is_full_member() == TRUE) then cost = factor / 3
+L:BUILD2:else	cost = factor end
+L:BUILD2:	if (test_gold(cost) == TRUE) then
+L:BUILD2:		if ident_spell() == TRUE then
+L:BUILD2:			player.au = player.au - cost
+L:BUILD2:		end
+L:BUILD2:		message_flush()
+L:BUILD2:	end
+L:BUILD2:	done = TRUE
+L:BUILD2:end
+L:BUILD2:if (is_member()==TRUE and command == 'F') then 
+L:BUILD2:if (is_full_member() == TRUE) then cost = factor * 8
+L:BUILD2:else cost = factor * 12 end
+L:BUILD2:	if (test_gold(cost) == TRUE) then
+L:BUILD2:		if identify_fully() == TRUE then
+L:BUILD2:			player.au = player.au - cost
+L:BUILD2:		end
+L:BUILD2:		message_flush()
+L:BUILD2:	end
+L:BUILD2:	done = TRUE
+L:BUILD2:end
+
+N:151:Rangers' Guild
+G:8:g
+W:100:3:0
+I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
+D:1:0:0:10:0:0:0:0
+L:SBINIT:place_sb(rand_range(90, 125), 0)
+L:SBINIT:if (player.rp.pclass == CLASS_RANGER) then place_qinit(GS_MEMBER, 10)
+L:SBINIT:else place_qinit(GS_NONMEMBER, 15) end
+L:PENTER:do_cmd_bldg(field)
+L:BUILD1:build_set_qlevel()
+L:BUILD1:local rstring if (build_has_quest() == TRUE) then
+L:BUILD1:  rstring = "Q) Request Reward" 
+L:BUILD1:elseif (build_next_quest() == TRUE) then
+L:BUILD1:  rstring = "Q) Request Quest ("..build_get_qlevel()..")" 
+L:BUILD1:else rstring = "" end
+L:BUILD1:if (is_member() == TRUE) then
+L:BUILD1:	building_options(rstring, 
+L:BUILD1:          "E) Examine Map (free)",
+L:BUILD1:          "B) Request Spellbook ("..(factor * 2).."gp)", 
+L:BUILD1:          "S) Spend the night (free)")
+L:BUILD1:else
+L:BUILD1:	building_options(rstring, 
+L:BUILD1:          "E) Examine Map (".. (factor * 3) .. "gp)")
+L:BUILD1:end
+L:BUILD2:local cost
+L:BUILD2:local amt
+L:BUILD2:if (command == 'E') then
+L:BUILD2:if (is_member() == TRUE) then cost = 0 else cost = factor*3 end
+L:BUILD2:if (is_member() == TRUE) then amt = 30 else amt = 15 end
+L:BUILD2:	if (test_gold(cost) == TRUE) then
+L:BUILD2:		msgf("You learn of the lay of the lands.")
+L:BUILD2:		map_wilderness(amt, player.wilderness_x / 16, 
+L:BUILD2:                                   player.wilderness_y / 16)
+L:BUILD2:		player.au = player.au - cost
+L:BUILD2:	end
+L:BUILD2:	done = TRUE
+L:BUILD2:	message_flush()
+L:BUILD2:end
+L:BUILD2:if (command == 'Q') then
+L:BUILD2:       if (is_member() == TRUE) then cost = 5 else cost = 0 end
+L:BUILD2:	build_cmd_quest(cost, field)
+L:BUILD2:	done = TRUE
+L:BUILD2:end
+L:BUILD2:if (command == 'B' and is_member() == TRUE) then
+L:BUILD2:       build_cmd_spellbooks(factor*2) message_flush() done = TRUE end
+L:BUILD2:if (command == 'S' and is_member() == TRUE) then
+L:BUILD2:       inn_rest() done = TRUE end
+
+N:152:Courier
+G:0:W
+W:100:3:0
+I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
+D:2:0:0:0:0:0:0:0
+L:SBINIT:place_sb(rand_range(90, 125), 0)
+L:SBINIT:place_qinit(GS_NONMEMBER, 15)
+L:PENTER:do_cmd_bldg(field)
+L:BUILD1:local rstring if (build_has_quest() == TRUE) then
+L:BUILD1:  rstring = "Q) Request Reward"  else
+L:BUILD1:  rstring = "Q) Request Quest" end
+L:BUILD1:building_options(rstring)
+L:BUILD2:if (command == 'Q') then
+L:BUILD2:	build_cmd_quest(0, field)
+L:BUILD2:	done = TRUE
+L:BUILD2:end
+
+N:153:Farm
+G:0:U
+W:100:3:0
+I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
+D:2:0:0:1:0:0:0:0
+L:SBINIT:place_sb(rand_range(90, 125), 0)
+L:SBINIT:place_qinit(GS_NONMEMBER, 0)
+L:PENTER:do_cmd_bldg(field)
+L:BUILD1:build_set_qlevel()
+L:BUILD1:local rstring if (build_has_quest() == TRUE) then
+L:BUILD1:  rstring = "Q) Request Reward"  else
+L:BUILD1:  rstring = "Q) Request Quest (".. (build_get_qlevel()/2)..")" end
+L:BUILD1:building_options(rstring, "F) Purchase Food ("..(factor/5).."gp)")
+L:BUILD2:if (command == 'Q') then
+L:BUILD2:	build_cmd_quest((0-(build_get_qlevel()/2)), field)
+L:BUILD2:	done = TRUE
+L:BUILD2:end
+L:BUILD2:if (command == 'F') then
+L:BUILD2:       build_cmd_food(factor/5)
+L:BUILD2:       done = TRUE
+L:BUILD2:end
+
+N:154:Blacksmith
+G:0:D
+W:100:3:0
+I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
+D:3:0:0:0:0:0:0:0
+L:SBINIT:place_sb(rand_range(90, 125), 0)
+L:PENTER:do_cmd_bldg(field)
+L:BUILD1:building_options("R) Repair Equipment ("..(factor*2).."gp)")
+L:BUILD2:if (command == 'R') then 
+L:BUILD2:  if (test_gold(factor*2) == TRUE) then
+L:BUILD2:    if (build_cmd_repair() == TRUE) then
+L:BUILD2:      player.au = player.au - factor*2
+L:BUILD2:    end
+L:BUILD2:  end
+L:BUILD2:  done = TRUE  
+L:BUILD2:end
+
+N:155:Bank
+G:0:y
+W:100:3:0
+I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
+D:6:0:0:0:0:0:0:0
+L:SBINIT:place_sb(rand_range(155, 185), 0)
+L:PENTER:do_cmd_bldg(field)
+L:BUILD1:if (get_loan_amount() > 0) then
+L:BUILD1:	building_options("L) Repay loan")
+L:BUILD1:else
+L:BUILD1:	building_options("L) Take Out loan")
+L:BUILD1:end
+L:BUILD2:if (command == 'L') then
+L:BUILD2:	build_cmd_loan(factor)
+L:BUILD2:   message_flush()
+L:BUILD2:	done = TRUE
+L:BUILD2:end
+
+# Quest-giver
+N:156:Town Hall
+G:0:v
+W:100:3:0
+I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
+D:1:0:0:10:0:0:0:0
+L:SBINIT:place_sb(rand_range(90, 125), 0)
+L:SBINIT:place_qinit(GS_NONMEMBER, 15)
+L:PENTER:do_cmd_bldg(field)
+L:BUILD1:build_set_qlevel()
+L:BUILD1:if (build_has_quest() == TRUE) then
+L:BUILD1:	building_options("Q) Request Reward")
+L:BUILD1:elseif (build_next_quest() == TRUE) then
+L:BUILD1:	building_options(
+L:BUILD1:         "Q) Request Quest (".. build_get_qlevel() ..")")
+L:BUILD1:end
+L:BUILD2:if (command == 'Q') then
+L:BUILD2:	build_cmd_quest(0, field)
 L:BUILD2:	done = TRUE
 L:BUILD2:end

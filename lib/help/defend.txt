@@ -180,6 +180,10 @@ of Elvenkind.
      This is the same as Resistance armor, only generally better
      enchanted. It will also make you more stealthy.
 
+(Dwarven)
+     These armors improve your strength and constitution and your 
+     infravision, and prevent paralysis.
+
 of Permanence (Robes Only)
      These robes provide resistance to fire, cold, acid, and
      electricity and cannot be damaged by acid. They also resist life
@@ -190,20 +194,24 @@ of Reflection (Shields Only)
      to the player character and often damaging the originating
      monster. The reflection is not 100% effective but nearly so. 
 
+of Force (Shields Only)
+     These shields increase your strength, and can also activate to
+     turn your skin into protective stone for a length of time.
+
 --- Caps/Helms/Crowns ---
 
 of Intelligence
      This item will both increase and sustain your intelligence.
 
 of Wisdom
-     This item and will both increase and sustain your wisdom.
+     This item will both increase and sustain your wisdom.
 
 of Beauty
      This item will both increase and sustain your charisma.
 
 of the Magi
-     This item will both increase and sustain your intelligence, and
-     grants resistance against fire, frost, acid, and lightning.
+     This item will both increase and sustain your intelligence and
+     your wisdom, and grants you extra mana points.  
 
 of Might
      This item will both increase and sustain your strength, dexterity,
@@ -234,11 +242,23 @@ of Regeneration
      to rest. You will use food faster than normal while wearing this
      crown because of the regenerative effects.
 
+of Spies
+     This object increases and sustains your dexterity, and also 
+     allows you to periodically evaluate the health of your enemies.
+
+of Magic
+     This crown can be used as an occasional source of magical power.
+
+of Greed
+     This crown improves your stealth, speed, and perception.  However,
+     it also drains your gold away over time...
+
 --- Cloaks ---
 
 of Protection
      These cloaks cannot be harmed by acid, fire, cold or lightning
-     attacks but do not grant resistance to these elements.
+     attacks but do not grant resistance to these elements.  These
+     cloaks also are unusually highly enchanted.
 
 of Stealth
      These cloaks will make your character more stealthy.
@@ -256,6 +276,12 @@ of Electricity
      These cloaks cannot be harmed by acid or electricity attacks. They
      also grant resistance to electricity and give out an electric
      aura.
+
+of Ether
+     This powerful cloak allows you to pass through walls.
+
+of Warding
+     This cloak will grant you protection against some type of monsters.
 
 --- Gloves/Gauntlets/Sets of Cesti ---
 
@@ -276,6 +302,11 @@ of Power
      This item will increase your strength and will also grant a bonus
      to your +to-hit and +to-dam.
 
+(Ghoul Touch)
+     These magic gloves give you a bonus to your combat skills (to-hit
+     and to-dam) and also allow you to sometimes paralyze your foes when
+     you hit them.
+
 --- Boots ---
 
 of Levitation
@@ -290,6 +321,9 @@ of Free Action
 
 of Speed
      These boots will make your character more speedy.
+
+of the Wild
+     These boots allow you to walk more efficiently in the wilderness.
 
 --- Special Items ---
      

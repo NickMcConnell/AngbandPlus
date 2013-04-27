@@ -96,7 +96,7 @@ void reset_visuals(void)
 
 	/* Fields have to notice the change of visuals. */
 	init_fields();
-	
+
 	/* Update map to notice change in visuals */
 	update_overhead_map();
 }
@@ -116,7 +116,7 @@ void object_flags_known(const object_type *o_ptr, object_flags *of_ptr)
 	of_ptr->flags[1] = 0L;
 	of_ptr->flags[2] = 0L;
 	of_ptr->flags[3] = 0L;
-	
+
 	if (cursed_p(o_ptr) && (known || (o_ptr->info & (OB_SENSE))))
 	{
 		SET_FLAG(of_ptr, TR_CURSED);
@@ -134,7 +134,7 @@ void object_flags_known(const object_type *o_ptr, object_flags *of_ptr)
 	/* Show modifications to stats (can't use FLAG() here.) */
 	of_ptr->flags[0] |= (o_ptr->flags[0] & TR0_EASY_MASK);
 
-	/* 
+	/*
 	 * *Identify* sets these flags,
 	 * and ego items have some set on creation.
 	 */
@@ -156,17 +156,17 @@ static char string_buf[200];
 cptr item_activation(const object_type *o_ptr)
 {
 	cptr desc = NULL;
-	
+
 	/* Empty string */
 	string_buf[0] = '\0';
-	
+
 	/* Require activation ability */
 	if (!(FLAG(o_ptr, TR_ACTIVATE))) return ("nothing");
 
 	/* Get description and copy to temporary buffer */
 	/* Lua better not try to modify the object ... */
 	apply_object_trigger(TRIGGER_DESC, (object_type *) o_ptr, ":s", LUA_RETURN(desc));
-	
+
 	if (desc)
 	{
 		strncpy(string_buf, desc, 199);
@@ -174,7 +174,7 @@ cptr item_activation(const object_type *o_ptr)
 		/* Free string allocated to hold return value */
 		string_free(desc);
 	}
-	
+
 	/* Return the description */
 	return string_buf;
 }
@@ -192,7 +192,7 @@ static void roff_obj_aux(const object_type *o_ptr)
 {
 	object_kind *k_ptr;
 	bonuses_type b;
-	
+
 	int i, n;
 
 	object_flags oflags;
@@ -253,11 +253,17 @@ static void roff_obj_aux(const object_type *o_ptr)
 	if (object_known_p(o_ptr) || object_aware_p(o_ptr))
 	{
 		artifact_type *a_ptr = NULL;
+		ego_item_type *e_ptr = NULL;
 		if (o_ptr->a_idx) a_ptr = &a_info[o_ptr->a_idx];
+		if (o_ptr->e_idx) e_ptr = &e_info[o_ptr->e_idx];
 
 		if (a_ptr && a_ptr->text)
 		{
 			roff("%s  ", a_text + a_ptr->text);
+		}
+		else if (e_ptr && e_ptr->text)
+		{
+			roff("%s  ", e_text + e_ptr->text);
 		}
 		else if (k_ptr->text)
 		{
@@ -302,7 +308,7 @@ static void roff_obj_aux(const object_type *o_ptr)
 	for (i = 99; i >= -99; i--)
 	{
 		if (!i) continue;
-	
+
 		/* Collect stat boosts */
 		vn = 0;
 
@@ -491,7 +497,7 @@ static void roff_obj_aux(const object_type *o_ptr)
 			{
 				if (n > 0 && n == vn - 1) roff(" and ");
 				else if (n > 0)  roff(", ");
-	
+
 				roff(CLR_YELLOW "%s", vp[n]);
 			}
 
@@ -542,14 +548,14 @@ static void roff_obj_aux(const object_type *o_ptr)
 			{
 				if (n > 0 && n == vn - 1) roff(" and ");
 				else if (n > 0)  roff(", ");
-	
+
 				roff(CLR_GREEN "%s", vp[n]);
 			}
 
 			roff(".  ");
 		}
 	}
-	
+
 	/* Collect immunities */
 	vn = 0;
 	if (FLAG(of_ptr, TR_IM_ACID)) vp[vn++] = "acid";
@@ -571,7 +577,7 @@ static void roff_obj_aux(const object_type *o_ptr)
 		{
 			if (n > 0 && n == vn - 1) roff(" and ");
 			else if (n > 0)  roff(", ");
-	
+
 			roff(CLR_BLUE "%s", vp[n]);
 		}
 
@@ -615,7 +621,7 @@ static void roff_obj_aux(const object_type *o_ptr)
 		{
 			if (n > 0 && n == vn - 1) roff(" and ");
 			else if (n > 0)  roff(", ");
-	
+
 			roff(CLR_L_BLUE "%s", vp[n]);
 		}
 
@@ -639,7 +645,7 @@ static void roff_obj_aux(const object_type *o_ptr)
 
 	/* Collect miscellaneous */
 	vn = 0;
-	if (FLAG(of_ptr, TR_XXX7))        vp[vn++] = "renders you XXX7'ed";
+/*	if (FLAG(of_ptr, TR_SQUELCH))        vp[vn++] = "(has been squelched)"; */
 	if (FLAG(of_ptr, TR_FEATHER))     vp[vn++] = "allows you to levitate";
 	if (FLAG(of_ptr, TR_LITE))        vp[vn++] = "provides permanent light";
 	if (FLAG(of_ptr, TR_SEE_INVIS))   vp[vn++] = "allows you to see invisible monsters";
@@ -664,7 +670,7 @@ static void roff_obj_aux(const object_type *o_ptr)
 		{
 			if (n > 0 && n == vn - 1) roff(" and ");
 			else if (n > 0)  roff(", ");
-	
+
 			roff("%s", vp[n]);
 		}
 
@@ -689,7 +695,7 @@ static void roff_obj_aux(const object_type *o_ptr)
 		{
 			if (n > 0 && n == vn - 1) roff(" and ");
 			else if (n > 0)  roff(", ");
-	
+
 			roff(CLR_VIOLET "%s", vp[n]);
 		}
 
@@ -721,7 +727,7 @@ static void roff_obj_aux(const object_type *o_ptr)
 		{
 			if (n > 0 && n == vn - 1) roff(" and ");
 			else if (n > 0)  roff(", ");
-	
+
 			roff(CLR_RED "%s", vp[n]);
 		}
 
@@ -754,7 +760,7 @@ static void roff_obj_aux(const object_type *o_ptr)
 		{
 			if (n > 0 && n == vn - 1) roff(" and ");
 			else if (n > 0)  roff(", ");
-	
+
 			roff(CLR_BLUE "%s", vp[n]);
 		}
 
@@ -786,7 +792,7 @@ static void roff_obj_aux(const object_type *o_ptr)
 		{
 			if (n > 0 && n == vn - 1) roff(" and ");
 			else if (n > 0)  roff(", ");
-	
+
 			roff(CLR_RED "%s", vp[n]);
 		}
 
@@ -837,7 +843,7 @@ static void roff_obj_aux(const object_type *o_ptr)
 			{
 				if (n > 0 && n == vn - 1) roff(" or ");
 				else if (n > 0)  roff(", ");
-	
+
 				roff("%s", vp[n]);
 			}
 
@@ -857,7 +863,7 @@ static void roff_obj_aux(const object_type *o_ptr)
 			roff("You are not strong enough to wield this weapon effectively.  ");
 		}
 	}
-	
+
 	/* Final blank line */
 	roff("\n");
 }
@@ -899,7 +905,7 @@ void identify_fully_aux(const object_type *o_ptr)
 
 	/* Wait for the player to read the info */
 	(void)inkey();
-	
+
 	/* Hack - change the redraw hook so bigscreen works */
 	angband_term[0]->resize_hook = old_hook;
 
@@ -1618,7 +1624,7 @@ bool item_tester_hook_is_book(const object_type *o_ptr)
 		case TV_NATURE_BOOK:
 		case TV_CHAOS_BOOK:
 		case TV_DEATH_BOOK:
-		case TV_TRUMP_BOOK:
+		case TV_CONJ_BOOK:
 		case TV_ARCANE_BOOK:
 		case TV_LIFE_BOOK:
 
@@ -1863,7 +1869,7 @@ void show_list(s16b o_list_ptr, bool store)
 	char c;
 
 	int wid, hgt;
-	
+
 	int extra = 0;
 
 	/* Get size */
@@ -1879,11 +1885,11 @@ void show_list(s16b o_list_ptr, bool store)
 	i = -1;
 	j = 0;
 	k = -1;
-	
+
 	/* How much extra room do we need? */
 	if (show_weights) extra += 9;
 	if (store) extra += 11;
-	
+
 	/* Notice the extra space required */
 	lim -= extra;
 
@@ -1892,7 +1898,7 @@ void show_list(s16b o_list_ptr, bool store)
 	{
 		/* Paranoia - don't display too many items */
 		if (k >= INVEN_PACK - 1) break;
-	
+
 		i++;
 
 		/* Is this item acceptable? */
@@ -1917,7 +1923,7 @@ void show_list(s16b o_list_ptr, bool store)
 
 		/* Be sure to account for the weight */
 		if (show_weights) l += 9;
-		
+
 		/* Account for the price */
 		if (store) l += 10;
 
@@ -1976,7 +1982,7 @@ void show_list(s16b o_list_ptr, bool store)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
 			put_fstr(lim, j + 1, "%3d.%1d lb", wgt / 10, wgt % 10);
-			
+
 			if (store)
 			{
 				/* Extract the price */
@@ -2020,12 +2026,12 @@ void show_equip(bool store)
 	char c;
 
 	int wid, hgt;
-	
+
 	int extra = 0;
-	
+
 	/* Get size */
 	Term_get_size(&wid, &hgt);
-	
+
 	/* Maximal length */
 	len = wid - 51;
 
@@ -2034,11 +2040,11 @@ void show_equip(bool store)
 
 	/* Require space for labels (if needed) */
 	if (show_labels) lim -= (14 + 2);
-	
+
 	/* How much extra room do we need? */
 	if (show_weights) extra += 9;
 	if (store) extra += 11;
-	
+
 	/* Notice the extra space required */
 	lim -= extra;
 
@@ -2073,7 +2079,7 @@ void show_equip(bool store)
 
 		/* Increase length for weight (if needed) */
 		if (show_weights) l += 9;
-		
+
 		/* Increase length for price (if needed) */
 		if (store) l += 11;
 
@@ -2158,7 +2164,7 @@ void show_equip(bool store)
 			{
 				int wgt = o_ptr->weight * o_ptr->number;
 				put_fstr(lim, j + 1, "%3d.%1d lb", wgt / 10, wgt % 10);
-			
+
 				if (store)
 				{
 					/* Extract the price */
@@ -2266,6 +2272,60 @@ static bool get_item_allow(object_type *o_ptr)
 	return (TRUE);
 }
 
+/*
+ * See if the item contains a "&c" or a "&*" in its inscription.
+ */
+static bool inventory_remind_aux(object_type *o_ptr, char c)
+{
+	cptr s;
+	
+	/* No inscription */
+	if (!o_ptr->inscription) return (FALSE);
+
+	/* Find a '#' */
+	s = strchr(quark_str(o_ptr->inscription), '&');
+
+	while (s)
+	{
+		/* Check the "restriction" */
+		if ((s[1] == c) || (s[1] == '*'))
+		{
+			return(TRUE);
+		}
+		
+		/* Find another '#' */
+		s = strchr (s+1, '&');
+	}
+	
+	/* Never matched. */
+	return (FALSE);
+}
+
+/*
+ * Remind about items that are inscribed with a '&'
+ */
+void inventory_remind(void)
+{
+	object_type *o_ptr;
+	int i;
+	
+	OBJ_ITT_START (p_ptr->inventory, o_ptr)
+	{
+		/* Remind about non-equipped items */
+		if (inventory_remind_aux(o_ptr, 'i'))
+			msgf ("Reminder: %v is in your inventory.", OBJECT_FMT(o_ptr, FALSE, 3));
+	}
+	OBJ_ITT_END;
+
+	for (i = 0; i < EQUIP_MAX; i++)
+	{
+		o_ptr = &p_ptr->equipment[i];
+
+		/* Remind about non-equipped items */
+		if (inventory_remind_aux(o_ptr, 'e'))
+			msgf ("Reminder: %v is equipped.", OBJECT_FMT(o_ptr, FALSE, 3));
+	}
+}
 
 /*
  * Find the "first" inventory object with the given "tag".
@@ -2466,7 +2526,7 @@ static void show_item_prompt(bool inven, bool equip, bool floor, bool store,
 	char out_val[160];
 
 	object_type *eo_ptr;
-	
+
 	int len = 0;
 
 	switch (command_wrk)
@@ -2891,7 +2951,7 @@ object_type *get_item(cptr pmt, cptr str, int mode)
 	{
 		/* Make sure object is in the unselected state */
 		o_ptr = NULL;
-		
+
 		/* Activate the correct term info */
 		toggle = toggle_windows(toggle, command_wrk);
 
@@ -2975,7 +3035,7 @@ object_type *get_item(cptr pmt, cptr str, int mode)
 					{
 						/* Valid items only */
 						if (!item_tester_okay(o_ptr)) continue;
-					
+
 						/* Allow player to "refuse" certain actions */
 						if (!get_item_allow(o_ptr)) continue;
 
@@ -3153,7 +3213,7 @@ object_type *get_item(cptr pmt, cptr str, int mode)
 
 				/* Allow player to "refuse" certain actions */
 				if (!get_item_allow(o_ptr)) continue;
-					
+
 
 				/* Accept that choice */
 				done = TRUE;

@@ -57,6 +57,15 @@ your character entered into the high score list as a winner. Note that
 until you retire, you can still be killed, so you may want to retire
 before wandering into a hoard of Cyberdemons...
 
+IMPORTANT note: If you are playing with default options (full
+wilderness and quests, and without ironman_downward), you will not be
+able to attempt the end-of-game quests until someone sends you the
+quest.  The end-of-game quests are not hard to find, though: you can
+be given those quests after going through all the other quests
+available in any town or city, a range of about 8 to 15 quests.
+Because of this, it is important to get involved in the ordinary quests
+in the game, not just for the rewards you get, but also so that you can
+eventually win.
 
 ***** <UponDeath>
 --- Upon Death and Dying ---
@@ -89,6 +98,7 @@ difficult than other Angband variants and its maintainers are known for
 their devious and contrary natures. The DevTeam neither confirms nor
 denies its intention to live up to this perception.
 
+Z+angband was developed from Zangband 2.7.5pre1 by Mangojuice.
 
 ***** <Web>
 === Zangband on the Web ===
@@ -156,7 +166,8 @@ likely to contain bugs of varying significance.
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Last update: February 19, 2001
+Updated    : Mangojuice
+Last update: June 21, 2008
 
 
 ***** Begin Hyperlinks

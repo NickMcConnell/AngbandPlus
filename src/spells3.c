@@ -16,6 +16,10 @@
 /* Maximum number of tries for teleporting */
 #define MAX_TRIES 100
 
+
+#define MUT_CHAOS_PATRON 57
+
+
 /*
  * Teleport a monster, normally up to "dis" grids away.
  *
@@ -84,7 +88,7 @@ bool teleport_away(int m_idx, int dis)
 			/* Not on bad terrain */
 			if (!test_monster_square(c_ptr, r_ptr)) continue;
 
-			/* 
+			/*
 			 * Test for fields that will not allow monsters to
 			 * be generated on them.  (i.e. Glyph of warding)
 			 */
@@ -210,7 +214,7 @@ void teleport_to_player(int m_idx)
 				continue;
 			}
 
-			/* 
+			/*
 			 * Test for fields that will not allow monsters to
 			 * be generated on them.  (i.e. Glyph of warding)
 			 */
@@ -480,7 +484,7 @@ void teleport_player_to(int nx, int ny)
 	int y, x, oy, ox, dis = 0, ctr = 0;
 
 	cave_type *c_ptr;
-	
+
 	/* No movement at all */
 	if ((ny == py) && (nx == px)) return;
 
@@ -508,7 +512,7 @@ void teleport_player_to(int nx, int ny)
 		if ((y == py) && (x == px)) continue;
 
 		/* Can enter grid? */
-		if (cave_empty_grid(c_ptr) && !(c_ptr->info & CAVE_ICKY) && 
+		if (cave_empty_grid(c_ptr) && !(c_ptr->info & CAVE_ICKY) &&
 				!(fields_have_flags(c_ptr, FIELD_INFO_NO_ENTER)))
 			break;
 
@@ -577,6 +581,8 @@ void teleport_player_to(int nx, int ny)
  */
 void teleport_player_level(void)
 {
+	int del_level = 0;
+
 	/* No effect in final quest */
 	if (is_special_level(p_ptr->depth) && ironman_downward)
 	{
@@ -589,7 +595,7 @@ void teleport_player_level(void)
 		msgf("There is no effect.");
 		return;
 	}
-	
+
 	if (FLAG(p_ptr, TR_NO_TELE))
 	{
 		msgf("A mysterious force prevents you from teleporting!");
@@ -598,32 +604,38 @@ void teleport_player_level(void)
 
 	if (!p_ptr->depth || ironman_downward)
 	{
-		msgf(MSGT_TPLEVEL, "You sink through the floor.");
-		
-		/* Go down */
-		move_dun_level(1);
+		del_level = 1;
 	}
 	else if (is_special_level(p_ptr->depth))
 	{
-		msgf(MSGT_TPLEVEL, "You rise up through the ceiling.");
-		
-		/* Go up */
-		move_dun_level(-1);
+		del_level = -1;
 	}
-	else if (one_in_(2) || (p_ptr->depth >= dungeon()->max_level))
+	else if (current_quest && p_ptr->depth >= active_level(current_quest))
 	{
-		msgf(MSGT_TPLEVEL, "You rise up through the ceiling.");
-
-		/* Go down */
-		move_dun_level(-1);
+		del_level = -1;
+	}
+	/* Modified, so upwards not forced when max_level reached if dungeon_abyss is set. */
+        else if (p_ptr->depth >= dungeon()->max_level && !dungeon_abyss)
+	{
+		del_level = -1;
 	}
 	else
 	{
-		msgf(MSGT_TPLEVEL, "You sink through the floor.");
-
-		/* Go up */
-	    move_dun_level(1);
+		del_level = (one_in_(2) ? -1 : 1);
 	}
+
+	if (del_level == 1)
+	{
+		msgf(MSGT_TPLEVEL, "You sink through the floor.");
+	}
+	else
+	{
+		msgf(MSGT_TPLEVEL, "You rise up through the ceiling.");
+	}
+
+	/* Go down */
+	move_dun_level(del_level);
+
 
 	/* Sound */
 	sound(SOUND_TPLEVEL);
@@ -648,14 +660,14 @@ bool check_down_wild(void)
 	if (!vanilla_town)
 	{
 		pl_ptr = &place[p_ptr->place_num];
-	
+
 		/* Look for dungeon */
 		if (!pl_ptr->dungeon)
 		{
 			msgf("Nothing happens.");
 			return (FALSE);
 		}
-		
+
 		/* Else we must have been down before */
 		if (!pl_ptr->dungeon->recall_depth)
 		{
@@ -804,7 +816,7 @@ bool apply_disenchant(void)
 		/* Notice */
 		return (TRUE);
 	}
-	
+
 	/* Message */
 	msgf("Your %v (%c) %s disenchanted!",
 			OBJECT_FMT(o_ptr, FALSE, 0), I2A(t),
@@ -955,13 +967,13 @@ void phlogiston(void)
 	/* No torch to refill */
 	else
 	{
-		msgf("You are not wielding anything which uses phlogiston.");
+		msgf("You are not wielding anything which uses fuel.");
 		return;
 	}
 
 	if (o_ptr->timeout >= max_flog)
 	{
-		msgf("No more phlogiston can be put in this %s.", lite_item);
+		msgf("No more fuel can be put in this %s.", lite_item);
 		return;
 	}
 
@@ -969,7 +981,7 @@ void phlogiston(void)
 	o_ptr->timeout += (max_flog / 2);
 
 	/* Message */
-	msgf("You add phlogiston to your %s.", lite_item);
+	msgf("You add fuel to your %s.", lite_item);
 
 	/* Comment */
 	if (o_ptr->timeout >= max_flog)
@@ -1066,7 +1078,7 @@ void brand_weapon(int brand_type)
 		add_ego_flags(o_ptr, ego);
 
 		o_ptr->cost = cost;
-		
+
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
 
@@ -1075,7 +1087,7 @@ void brand_weapon(int brand_type)
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER);
-		
+
 		/* Notice changes */
 		notice_item();
 	}
@@ -1221,7 +1233,7 @@ void fetch(int dir, int wgt, bool require_los)
 		return;
 	}
 
-	/* 
+	/*
 	 * Hack - do not get artifacts.
 	 * This interacts badly with preserve mode.
 	 */
@@ -1360,7 +1372,7 @@ void identify_pack(void)
 		identify_item(o_ptr);
 	}
 	OBJ_ITT_END;
-	
+
 	/* Notice changes */
 	notice_inven();
 }
@@ -1399,22 +1411,22 @@ static bool uncurse_item(object_type *o_ptr, bool all)
 	}
 
 	/* Perma-Cursed Items can NEVER be uncursed */
-	if (FLAG(o_ptr, TR_PERMA_CURSE)) 
+	if (FLAG(o_ptr, TR_PERMA_CURSE))
 	{
 		/* Let the player know */
 		o_ptr->kn_flags[2] |= TR2_PERMA_CURSE;
-		
+
 		/* Done */
 		return (FALSE);
 	}
-	
+
 	/* Uncurse the item */
 	o_ptr->flags[2] &= ~(TR2_CURSED | TR2_HEAVY_CURSE);
 	o_ptr->kn_flags[2] &= ~(TR2_CURSED | TR2_HEAVY_CURSE);
-	
+
 	/* Heavy sensing? */
 	heavy = class_info[p_ptr->rp.pclass].heavy_sense;
-	
+
 	/* Take away the feeling */
 	o_ptr->feeling = FEEL_NONE;
 
@@ -1426,7 +1438,7 @@ static bool uncurse_item(object_type *o_ptr, bool all)
 
 	/* Recalculate the bonuses */
 	p_ptr->update |= (PU_BONUS);
-	
+
 	/* Notice changes */
 	notice_item();
 
@@ -1555,9 +1567,14 @@ bool alchemy(void)
 	}
 	else
 	{
+		/* Formula changed.  Now it is harder & harder to get a lot of gold at once. */
 		price /= 3;
 
 		if (amt > 1) price *= amt;
+
+		if (price > 20000) price = 20000+(price-20000)/2;
+		if (price > 10000) price = 10000+(price-10000)/2;
+		if (price > 5000) price = 5000+(price-5000)/2;
 
 		if (price > 30000) price = 30000;
 		msgf("You turn %s to %ld coins worth of gold.", o_name, price);
@@ -1577,6 +1594,131 @@ bool alchemy(void)
 	return TRUE;
 }
 
+
+/*
+ * Does something random to an item.
+ */
+bool polymorph_item(void)
+{
+	int amt = 1;
+	int old_number, r;
+	long price;
+	bool force = FALSE;
+	object_type *o_ptr;
+	char o_name[256];
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	cptr q, s;
+
+	/* Hack -- force destruction */
+	if (p_ptr->cmd.arg > 0) force = TRUE;
+
+	/* Get an item */
+	q = "Polymorph which item? ";
+	s = "You have nothing to polymorph.";
+
+	o_ptr = get_item(q, s, (USE_INVEN | USE_FLOOR));
+
+	/* Not a valid item */
+	if (!o_ptr) return (FALSE);
+
+	/* Affects entire stack, always */
+	amt = o_ptr->number;
+
+	/* Describe the object */
+	old_number = o_ptr->number;
+	o_ptr->number = amt;
+	object_desc(o_name, o_ptr, TRUE, 3, 256);
+	o_ptr->number = old_number;
+
+	/* Verify unless quantity given */
+	if (!force)
+	{
+		if (!(auto_destroy && (object_value(o_ptr) < 1)))
+		{
+			/* Make a verification */
+			if (!get_check("Really polymorph %s? ", o_name)) return FALSE;
+		}
+	}
+
+	/* Check for artifacts */
+	if (!can_player_destroy_object(o_ptr))
+	{
+		/* Message */
+		msgf("%s is not affected!", o_name);
+
+		/* Done */
+		return FALSE;
+	}
+
+	/* Determine what we do to the object */
+	r = randint1(100);  /* later: may modify the dice roll somehow. */
+
+	/* Doesn't work so well on cursed items */
+	if (FLAG(o_ptr, TR_CURSED)) r = MIN(1, r-30);
+
+	if (r <= 5) 				/* Result: destroy */
+	{
+		msgf("%s is consumed by chaos!", o_name);
+		item_increase(o_ptr, -amt);
+	}
+	else if (r <= 35)			/* Result: turn to gold */
+	{
+		price = object_value_real(o_ptr);
+		if (price <= 0)
+		{
+			/* Message */
+			msgf("You turn %s to fool's gold.", o_name);
+		}
+		else
+		{
+			price /= 3;
+
+			if (amt > 1) price *= amt;
+
+			if (price > 30000) price = 30000;
+			msgf("You turn %s to %ld coins worth of gold.", o_name, price);
+			p_ptr->au += price;
+
+			/* Redraw gold */
+			p_ptr->redraw |= (PR_GOLD);
+
+			/* Window stuff */
+			p_ptr->window |= (PW_PLAYER);
+
+		}
+
+		/* Eliminate the item */
+		item_increase(o_ptr, -amt);
+	}
+	else if (r <= 65)			/* Result: replace with normal item */
+	{
+		msgf("Chaos changes %s.", o_name);
+		semi_acquirement(1, 0, NULL);
+		item_increase(o_ptr, -amt);
+	}
+	else if (r <= 85)			/* Result: replace with good item */
+	{
+		msgf("Chaos changes %s.", o_name);
+		acquirement(px, py, 1, FALSE, FALSE);
+		item_increase(o_ptr, -amt);
+	}
+	else if (r <= 95)			/* Result: themed */
+	{
+		/* until I get more creative, doubles the quantity */
+		msgf("Chaos duplicates %s!", o_name);
+		item_increase(o_ptr, amt);
+	}
+	else 						/* Result: replace with exceptional item */
+	{
+		msgf("Chaos changes %s.", o_name);
+		acquirement(px, py, 1, TRUE, FALSE);
+		item_increase(o_ptr, -amt);
+	}
+
+	return TRUE;
+}
 
 /*
  * Create stairs at the player location
@@ -1610,7 +1752,9 @@ void stair_creation(void)
 		/* Quest level */
 		cave_set_feat(px, py, FEAT_LESS);
 	}
-	else if (one_in_(2) || (p_ptr->depth >= dungeon()->max_level))
+    /* Modified, to disable dungeon max levels */
+	/* else if (one_in_(2) || (p_ptr->depth >= dungeon()->max_level)) */
+	else if (one_in_(2))
 	{
 		cave_set_feat(px, py, FEAT_LESS);
 	}
@@ -1632,7 +1776,7 @@ static void break_curse(object_type *o_ptr)
 		 && (randint0(100) < 25))
 	{
 		msgf("The curse is broken!");
-		
+
 		/* Uncurse it */
 		uncurse_item(o_ptr, TRUE);
 	}
@@ -1805,7 +1949,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER);
-	
+
 	/* Notice changes */
 	notice_item();
 
@@ -2017,7 +2161,7 @@ static void bad_luck(object_type *o_ptr)
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER);
-		
+
 		/* Notice changes */
 		notice_item();
 	}
@@ -2053,10 +2197,10 @@ void identify_item(object_type *o_ptr)
 		if (a_info[o_ptr->a_idx].cur_num != 2)
 		{
 			int artifact = o_ptr->a_idx;
-			
+
 			/* Notice a quest for this artifact */
 			trigger_quest_complete(QX_KNOW_ARTIFACT, &artifact);
-		
+
 			/*
 			 * If the item was an artifact, and if the
 			 * auto-note is selected, write a message.
@@ -2076,9 +2220,9 @@ void identify_item(object_type *o_ptr)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER);
-	
+
 	/* Notice changes */
-	notice_item();	
+	notice_item();
 }
 
 
@@ -2470,12 +2614,16 @@ bool recharge(int power)
 				/* Never less than zero */
 				if (o_ptr->ac < 0) o_ptr->ac = 0;
 			}
-			
-			/* Hack -- we no longer "memorize" the item */
-			o_ptr->info &= ~(OB_MENTAL);
 
+			/* Hack -- we no longer "memorize" the item */
 			/* Hack -- we no longer "know" the item */
+			/* Reversed: with a recharge, you remain aware, and you know how many charges you added.
+			   It's aggravating the other way; recharge backfire is enough for game balance. */
+
+			/*
+			o_ptr->info &= ~(OB_MENTAL);
 			o_ptr->info &= ~(OB_KNOWN);
+			 */
 
 			/* Hack -- we no longer think the item is empty */
 			o_ptr->info &= ~(OB_EMPTY);
@@ -2521,21 +2669,21 @@ bool recharge(int power)
 				/* 10% chance to blow up one rod, otherwise draining. */
 				if (o_ptr->tval == TV_ROD)
 				{
-					if (one_in_(10)) fail_type = 2;
+					if (one_in_(8)) fail_type = 2;
 					else
 						fail_type = 1;
 				}
 				/* 75% chance to blow up one wand, otherwise draining. */
 				else if (o_ptr->tval == TV_WAND)
 				{
-					if (!one_in_(3)) fail_type = 2;
+					if (!one_in_(20)) fail_type = 2;
 					else
 						fail_type = 1;
 				}
 				/* 50% chance to blow up one staff, otherwise no effect. */
 				else if (o_ptr->tval == TV_STAFF)
 				{
-					if (one_in_(2)) fail_type = 2;
+					if (one_in_(20)) fail_type = 2;
 					else
 						fail_type = 0;
 				}
@@ -2544,24 +2692,29 @@ bool recharge(int power)
 			/* All other classes get no special favors. */
 			else
 			{
-				/* 33% chance to blow up one rod, otherwise draining. */
+				/* 2.5% change to blow up entire stack, 22.5% chance to blow up one,
+				   otherwise, drain the rod(s). */
 				if (o_ptr->tval == TV_ROD)
 				{
-					if (one_in_(3)) fail_type = 2;
+					if (one_in_(4)) fail_type = (one_in_(10) ? 3 : 2);
 					else
 						fail_type = 1;
 				}
-				/* 20% chance of the entire stack, else destroy one wand. */
+				/* 1.66% change to blow up entire stack, 15% chance to blow up one,
+				   otherwise, drain the wand(s). */
 				else if (o_ptr->tval == TV_WAND)
 				{
-					if (one_in_(5)) fail_type = 3;
+					if (one_in_(6)) fail_type = (one_in_(10) ? 3 : 2);
 					else
-						fail_type = 2;
+						fail_type = 1;
 				}
-				/* Blow up one staff. */
+				/* 1.66% change to blow up entire stack, 15% chance to blow up one,
+				   otherwise, drain. */
 				else if (o_ptr->tval == TV_STAFF)
 				{
-					fail_type = 2;
+					if (one_in_(6)) fail_type = (one_in_(10) ? 3 : 2);
+					else
+						fail_type = 1;
 				}
 			}
 
@@ -2576,14 +2729,21 @@ bool recharge(int power)
 					if (o_ptr->timeout < 10000)
 						o_ptr->timeout = (o_ptr->timeout + 100) * 2;
 				}
-				else if (o_ptr->tval == TV_WAND)
+				else if (o_ptr->tval == TV_WAND && o_ptr->pval)
 				{
 					msgf("You save your %s from destruction, but all charges are lost.",
 						 o_name);
 					o_ptr->ac += o_ptr->pval;
 					o_ptr->pval = 0;
 				}
-				/* Staffs aren't drained. */
+				else if (o_ptr->tval == TV_STAFF && o_ptr->pval)
+				{
+					msgf("You save your %s from destruction, but all charges are lost.",
+						 o_name);
+					o_ptr->pval = 0;
+				}
+				else   /* there weren't any charges */
+					msgf("The recharge failed.");
 			}
 
 			/* Destroy an object or one in a stack of objects. */
@@ -2666,7 +2826,7 @@ bool bless_weapon(void)
 		}
 
 		msgf("A malignant aura leaves the %s.", o_name);
-		
+
 		/* Uncurse it */
 		uncurse_item(o_ptr, TRUE);
 	}
@@ -2776,7 +2936,7 @@ bool potion_smash_effect(int who, int x, int y, object_type *o_ptr)
 			LUA_VAR(who), LUA_VAR(x), LUA_VAR(y),
 			LUA_RETURN(result), LUA_RETURN(ident));
 	angry = result;
-		
+
 	/* An identification was made */
 	if (ident && !(k_ptr->aware))
 	{
@@ -2809,7 +2969,7 @@ void display_spell_list(void)
 
 	use_realm[0] = p_ptr->spell.r[0].realm - 1;
 	use_realm[1] = p_ptr->spell.r[1].realm - 1;
-	
+
 	/* Erase window */
 	clear_from(0);
 
@@ -3136,59 +3296,76 @@ void spell_info(char *p, int spell, int realm)
 				{
 					case 1:
 					{
-						strcpy(p, " heal 2d10");
+						strcpy(p, " heal 8+d10");
 						break;
 					}
 					case 2:
 					{
 						/* Actually rand_range(12,24) */
-						strcpy(p, " dur 12+d12 turns");
+						strcpy(p, " dur 12+d12");
 						break;
 					}
-					case 4:
+					case 3:
 					{
 						strnfmt(p, 80, " dam 2d%d", (plev / 2));
 						break;
 					}
+					case 5:
+					{
+						strcpy(p, " heal 16+2d10");
+						break;
+					}
 					case 6:
 					{
-						strcpy(p, " heal 4d10");
+						/* Actually 25-50 */
+						strcpy(p, " dur 25+d25");
+						break;
+					}
+					case 8:
+					{
+						/* Actually 50-100 */
+						strcpy(p, " dur 50+d50");
+						break;
+					}
+					case 9:
+					{
+						strcpy(p, " heal 32+4d10");
 						break;
 					}
 					case 10:
-					{
-						strcpy(p, " heal 8d10");
-						break;
-					}
-					case 11:
 					{
 						/* Actually rand_range(24,48) */
 						strcpy(p, " dur 24+d24");
 						break;
 					}
-					case 12:
+					case 11:
 					{
 						strnfmt(p, 80, " dam %d+3d6", plev + orb);
 						break;
 					}
-					case 13:
+					case 12:
 					{
 						strnfmt(p, 80, " dur %d+d25", 3 * plev);
 						break;
 					}
-					case 14:
+					case 13:
 					{
-						strcpy(p, " heal 300");
+						strcpy(p, " heal 250+10d10");
 						break;
 					}
-					case 16:
+					case 17:
 					{
-						strnfmt(p, 80, " dam %d+%d", plev, plev);
+						strcpy(p, " heal 64+8d10");
 						break;
 					}
 					case 18:
 					{
-						strnfmt(p, 80, " dam %d+%d", 3 * plev, 3 * plev);
+						strnfmt(p, 80, " dam %d", plev*3);
+						break;
+					}
+					case 19:
+					{
+						strnfmt(p, 80, " dur 300", plev);
 						break;
 					}
 					case 20:
@@ -3198,29 +3375,23 @@ void spell_info(char *p, int spell, int realm)
 					}
 					case 22:
 					{
-						strnfmt(p, 80, " d %d/h 1000", 4 * plev);
+						strnfmt(p, 80, " d %d, h 1000", 4 * plev);
 						break;
 					}
 					case 24:
 					{
-						/* Actually rand_range(25,50) */
-						strcpy(p, " dur 25+d25");
+						/* Actually rand_range(30,50) */
+						strcpy(p, " dur 30+d20");
 						break;
 					}
-					case 25:
+					case 26:
 					{
-						/* Actually rand_range(50,100) */
-						strcpy(p, " dur 50+d50");
-						break;
-					}
-					case 28:
-					{
-						strcpy(p, " heal 2000");
+						strcpy(p, " dam 200");
 						break;
 					}
 					case 30:
 					{
-						strnfmt(p, 80, " h300/d%d+388", plev * 4);
+						strnfmt(p, 80, " d %d, h 300", (plev * 4)+777);
 						break;
 					}
 					case 31:
@@ -3258,33 +3429,19 @@ void spell_info(char *p, int spell, int realm)
 						strnfmt(p, 80, " dur %d+d%d", plev, plev + 20);
 						break;
 					}
-					case 19:
-					{
-						strnfmt(p, 80, " range %d", plev + 2);
-						break;
-					}
-					case 20:
+					case 21:
 					{
 						/* Actually rand_range(25,55) */
 						strcpy(p, " dur 25+d30");
 						break;
 					}
-					case 23:
-					{
-						strcpy(p, " delay 15+d21");
-						break;
-					}
-					case 25:
-					{
-						strnfmt(p, 80, " max wgt %d", plev * 15 / 10);
-						break;
-					}
-					case 26:
-					{
-						strnfmt(p, 80, " dam %d+7d7", plev / 2);
-						break;
-					}
 					case 27:
+					{
+						/* Actually rand_range(30,50) */
+						strcpy(p, " dur 30+d20");
+						break;
+					}
+					case 29:
 					{
 						/* Actually rand_range(25,55) */
 						strcpy(p, " dur 25+d30");
@@ -3292,7 +3449,6 @@ void spell_info(char *p, int spell, int realm)
 					}
 					case 31:
 					{
-						/* Actually rand_range(8,16) */
 						strcpy(p, " dur 8+d8");
 						break;
 					}
@@ -3307,7 +3463,7 @@ void spell_info(char *p, int spell, int realm)
 				{
 					case 1:
 					{
-						strcpy(p, " heal 2d8");
+						strcpy(p, " 6+d8 heal");
 						break;
 					}
 					case 4:
@@ -3326,14 +3482,19 @@ void spell_info(char *p, int spell, int realm)
 						strnfmt(p, 80, " dam %dd8", (3 + ((plev - 5) / 4)));
 						break;
 					}
-					case 11:
+					case 10:
 					{
 						strnfmt(p, 80, " dam %dd8", (5 + ((plev - 5) / 4)));
 						break;
 					}
-					case 12:
+					case 11:
 					{
 						strcpy(p, " dam 6d8");
+						break;
+					}
+					case 13:
+					{
+						strcpy(p, " dur 300");
 						break;
 					}
 					case 15:
@@ -3341,21 +3502,10 @@ void spell_info(char *p, int spell, int realm)
 						strcpy(p, " heal 1000");
 						break;
 					}
-					case 18:
+					case 18: case 19:
 					{
 						/* Actually rand_range(30,50) */
 						strcpy(p, " dur 20+d30");
-						break;
-					}
-					case 19:
-					{
-						/* Actually rand_range(20,40) */
-						strcpy(p, " dur 20+d20");
-						break;
-					}
-					case 24:
-					{
-						strcpy(p, " rad 10");
 						break;
 					}
 					case 26:
@@ -3412,11 +3562,6 @@ void spell_info(char *p, int spell, int realm)
 														   ? 2 : 4)));
 						break;
 					}
-					case 5:
-					{
-						strnfmt(p, 80, " dam %dd8", (8 + ((plev - 5) / 4)));
-						break;
-					}
 					case 6:
 					{
 						strnfmt(p, 80, " dam %dd8", (8 + ((plev - 5) / 4)));
@@ -3434,37 +3579,57 @@ void spell_info(char *p, int spell, int realm)
 					}
 					case 9:
 					{
-						strnfmt(p, 80, " dam %dd8", (10 + ((plev - 5) / 4)));
+						strnfmt(p, 80, " dam %dd8", (8 + ((plev - 5) / 4)));
 						break;
 					}
 					case 10:
 					{
-						strnfmt(p, 80, " dam %d", (45 + plev) / 2);
+						strnfmt(p, 80, " dam %d", 5 + plev/2);
 						break;
 					}
 					case 11:
 					{
-						strnfmt(p, 80, " dam %dd8", (11 + ((plev - 5) / 4)));
+						strnfmt(p, 80, " dam %d", (45 + plev)/2);
 						break;
 					}
 					case 12:
+					{
+						strnfmt(p, 80, " dam %dd8", (11 + ((plev - 5) / 4)));
+						break;
+					}
+					case 13:
 					{
 						strnfmt(p, 80, " dam %d", 55 + plev);
 						break;
 					}
 					case 15:
 					{
-						strnfmt(p, 80, " dam %d", 66 + plev);
+						strcpy(p, " range 15");
+						break;
+					}
+					case 16:
+					{
+						strnfmt(p, 80, " d %dd8 *10", (5 + (plev / 10)));
 						break;
 					}
 					case 17:
 					{
-						strnfmt(p, 80, " dam %dd8", (5 + (plev / 10)));
+						strnfmt(p, 80, " dam %dd8", (10 + (plev-5 / 4)));
 						break;
 					}
 					case 19:
 					{
-						strnfmt(p, 80, " dam %d", 80 + plev);
+						strnfmt(p, 80, " d%d+d20", p_ptr->chp/2);
+						break;
+					}
+					case 22:
+					{
+						strcpy(p, " dur 750");
+						break;
+					}
+					case 23:
+					{
+						strnfmt(p, 80, " dam %d", p_ptr->chp);
 						break;
 					}
 					case 24:
@@ -3472,14 +3637,9 @@ void spell_info(char *p, int spell, int realm)
 						strnfmt(p, 80, " dam %dd8", (9 + ((plev - 5) / 4)));
 						break;
 					}
-					case 25:
-					{
-						strnfmt(p, 80, " dam %d each", (3 * plev) / 2);
-						break;
-					}
 					case 26:
 					{
-						strnfmt(p, 80, " dam %d", 75 + plev);
+						strnfmt(p, 80, " d %d *(10+d10)", (3 * plev) / 2);
 						break;
 					}
 					case 27:
@@ -3492,19 +3652,14 @@ void spell_info(char *p, int spell, int realm)
 						strnfmt(p, 80, " dam %d", 120 + plev);
 						break;
 					}
-					case 29:
+					case 30:
 					{
 						strnfmt(p, 80, " dam %d", 300 + (plev * 2));
 						break;
 					}
-					case 30:
-					{
-						strnfmt(p, 80, " dam %d", p_ptr->chp);
-						break;
-					}
 					case 31:
 					{
-						strcpy(p, " dam 3 * 175");
+						strcpy(p, " dam 3*175");
 						break;
 					}
 				}
@@ -3542,17 +3697,22 @@ void spell_info(char *p, int spell, int realm)
 					}
 					case 9:
 					{
-						strnfmt(p, 80, " dam %dd8", (6 + ((plev - 5) / 4)));
+						strnfmt(p, 80, " range %d", 5*plev);
+						break;
+					}
+					case 10:
+					{
+						strcpy(p, " dur 100");
 						break;
 					}
 					case 11:
 					{
-						strnfmt(p, 80, " dm %d+%d*d15", plev, MAX(1, plev / 10));
+						strnfmt(p, 80, " dm %d+%dd%d", plev, MAX(1, plev / 10), plev);
 						break;
 					}
 					case 13:
 					{
-						strnfmt(p, 80, " dam %d", 4 * plev);
+						strnfmt(p, 80, " dam %d", (3 * plev)/2);
 						break;
 					}
 					case 16:
@@ -3563,38 +3723,43 @@ void spell_info(char *p, int spell, int realm)
 					}
 					case 17:
 					{
-						strcpy(p, " random");
+						strcpy(p, " dam 75");
 						break;
 					}
 					case 18:
 					{
-						strnfmt(p, 80, " dam %dd8", (4 + ((plev - 5) / 4)));
+						strnfmt(p, 80, " dam %dd8", (6 + ((plev - 5) / 4)));
 						break;
 					}
 					case 19:
 					{
 						/* This is too complicated to give accurately */
-						strcpy(p, " max dur 50");
+						strnfmt(p, 80, " max dur %d", MAX(50, 20+plev));
 						break;
 					}
 					case 20:
 					{
-						strcpy(p, " dam 3*100");
+						strnfmt(p, 80, " dam %d", 150+2*plev);
 						break;
 					}
-					case 22:
+					case 21:
 					{
 						strcpy(p, " dam 120");
 						break;
 					}
+					case 24:
+					{
+						strnfmt(p, 80, " dam %d", plev * 50);
+						break;
+					}
 					case 27:
 					{
-						strnfmt(p, 80, " dam %d", plev * 3);
+						strnfmt(p, 80, " dam %d", plev * 4);
 						break;
 					}
 					case 28:
 					{
-						strnfmt(p, 80, " dam %d", plev * 4);
+						strnfmt(p, 80, " d %d, esc", plev * 3);
 						break;
 					}
 					case 29:
@@ -3604,8 +3769,7 @@ void spell_info(char *p, int spell, int realm)
 					}
 					case 31:
 					{
-						/* Actually rand_range(plev/2,plev) */
-						strnfmt(p, 80, " dur %d+d%d", (plev / 2), (plev / 2));
+						strnfmt(p, 80, " dur %d-%d", 3, (2*plev / 3));
 						break;
 					}
 				}
@@ -3614,12 +3778,12 @@ void spell_info(char *p, int spell, int realm)
 
 			case 5:
 			{
-				/* Trump */
+				/* Conjuration */
 				switch (spell)
 				{
 					case 0:
 					{
-						strcpy(p, " range 10");
+						strcpy(p, " range 15");
 						break;
 					}
 					case 1:
@@ -3627,42 +3791,73 @@ void spell_info(char *p, int spell, int realm)
 						strnfmt(p, 80, " dam %dd3", 3 + ((plev - 1) / 5));
 						break;
 					}
-					case 2:
+					/* several summons: */
+					case 2: case 11: case 14: case 19:
 					{
-						strcpy(p, " random");
+						strcpy(p, " dur 300");
+						break;
+					}
+					case 3:
+					{
+						strnfmt(p, 80, " dam 2d%d", plev / 4);
 						break;
 					}
 					case 4:
 					{
-						strnfmt(p, 80, " range %d", plev * 4);
+						strcpy(p, " heal 6+d8");
 						break;
 					}
-					case 5:
-					{
-						strnfmt(p, 80, " range %d", plev + 2);
-						break;
-					}
-					case 6:
+					case 7:
 					{
 						/* Actually rand_range(25,55) */
-						strcpy(p, " dur 25+d30");
+						strnfmt(p, 80, " dam %d", 10+(plev/2));
 						break;
 					}
 					case 8:
 					{
-						strnfmt(p, 80, " max wgt %d", plev * 15 / 10);
+						strnfmt(p, 80, " dam %d", 5+(plev/10));
 						break;
 					}
-					case 14:
+					case 9:
 					{
-						strcpy(p, " delay 15+d21");
+						strnfmt(p, 80, " range %d", MAX(250, plev*6));
 						break;
 					}
+					case 12:
+						strcpy(p, " range 24");
+						break;
+					case 16:
+						strnfmt(p, 80, " dam %dd6", (6+(plev-1)/5));
+						break;
+					case 17:
+						strnfmt(p, 80, " dam %dd6", (9+(plev-1)/5));
+						break;
+					case 18:
+						strcpy(p, " dur 30+d20");
+						break;
+					case 20: case 28: case 30:
+						strcpy(p, " dur 750");
+						break;
 					case 22:
 					{
-						strnfmt(p, 80, " dam %d", plev * 3);
-						/* break; */
+						strcpy(p, " heal 150+15d8");
+						break;
 					}
+					case 24:
+						strnfmt(p, 80, " range %d", 30+plev);
+						break;
+					case 25:
+						strnfmt(p, 80, " dam %d each", 40+plev);
+						break;
+					case 27:
+						strcpy(p, " dur 20+d20");
+						break;
+					case 29:
+						strnfmt(p, 80, " dam %d", 50+plev*3);
+						break;
+					case 31:
+						strcpy(p, " random");
+						break;
 				}
 				break;
 			}
@@ -3677,52 +3872,49 @@ void spell_info(char *p, int spell, int realm)
 						strnfmt(p, 80, " dam %dd3", 3 + ((plev - 1) / 5));
 						break;
 					}
-					case 4:
+					case 2:
 					{
 						strcpy(p, " range 10");
 						break;
 					}
-					case 5:
+					case 3:
 					{
 						strnfmt(p, 80, " dam 2d%d", plev / 2);
 						break;
 					}
-					case 7:
+					case 8:
 					{
-						strcpy(p, " heal 2d8");
+						strcpy(p, " heal 12+2d8");
 						break;
 					}
-					case 14:
-					case 15:
-					case 16:
-					case 17:
+					case 10: case 13: case 18: case 19:
 					{
 						/* Actually rand_range(20,40) */
 						strcpy(p, " dur 20+d20");
 						break;
 					}
-					case 18:
+					case 12:
 					{
-						strcpy(p, " heal 4d8");
+						strcpy(p, " dur 24+d24");
 						break;
 					}
-					case 19:
-					{
-						strnfmt(p, 80, " range %d", plev * 5);
-						break;
-					}
-					case 21:
+					case 15:
 					{
 						strcpy(p, " dam 6d8");
 						break;
 					}
-					case 23:
+					case 17:
 					{
-						/* Actually rand_range(24,48) */
-						strcpy(p, " dur 24+d24");
+						strnfmt(p, 80, " range %d", plev * 5);
 						break;
 					}
-					case 28:
+					case 24:
+					{
+						/* Actually rand_range(24,48) */
+						strcpy(p, " heal 48+8d8");
+						break;
+					}
+					case 26:
 					{
 						strnfmt(p, 80, " dam %d", 75 + plev);
 						break;
@@ -3941,7 +4133,7 @@ bool hates_fire(const object_type *o_ptr)
 		case TV_NATURE_BOOK:
 		case TV_CHAOS_BOOK:
 		case TV_DEATH_BOOK:
-		case TV_TRUMP_BOOK:
+		case TV_CONJ_BOOK:
 		case TV_ARCANE_BOOK:
 		{
 			/* Books */
@@ -4179,7 +4371,7 @@ bool curse_armor(void)
 		o_ptr->flags[1] = 0;
 		o_ptr->flags[2] = 0;
 		o_ptr->flags[3] = 0;
-		
+
 		/* Lose your feeling */
 		o_ptr->feeling = FEEL_NONE;
 
@@ -4193,7 +4385,7 @@ bool curse_armor(void)
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER);
-		
+
 		/* Notice changes */
 		notice_item();
 	}
@@ -4242,7 +4434,7 @@ bool curse_weapon(void)
 		o_ptr->flags[1] = 0;
 		o_ptr->flags[2] = 0;
 		o_ptr->flags[3] = 0;
-		
+
 		/* Lose your feeling */
 		o_ptr->feeling = FEEL_NONE;
 
@@ -4256,7 +4448,7 @@ bool curse_weapon(void)
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER);
-		
+
 		/* Notice changes */
 		notice_item();
 	}
@@ -4296,7 +4488,7 @@ bool brand_bolts(void)
 
 		/* Enchant */
 		(void)enchant(o_ptr, rand_range(2, 6), ENCH_TOHIT | ENCH_TODAM);
-		
+
 		/* Notice changes */
 		notice_inven();
 
@@ -4431,7 +4623,7 @@ bool dimension_door(void)
 	c_ptr = area(x, y);
 
 	if (!cave_empty_grid(c_ptr) || (c_ptr->info & CAVE_ICKY) ||
-		(distance(x, y, px, py) > plev + 2) || (one_in_(plev * plev / 2)))
+		(distance(x, y, px, py) > 25) || one_in_(plev * plev / 2))
 	{
 		msgf("You fail to exit the astral plane correctly!");
 		p_ptr->energy -= 100;
@@ -4443,6 +4635,36 @@ bool dimension_door(void)
 	return (TRUE);
 }
 
+bool dimension_door2(void)
+{
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
+	int plev = p_ptr->lev;
+	int x = 0, y = 0;
+	cave_type *c_ptr;
+
+	if (!tgt_pt(&x, &y)) return FALSE;
+
+	p_ptr->energy -= 60 - plev;
+
+	/* paranoia */
+	if (!in_bounds2(x, y)) return FALSE;
+
+	c_ptr = area(x, y);
+
+	if (!cave_empty_grid(c_ptr) || (c_ptr->info & CAVE_ICKY) ||
+		(distance(x, y, px, py) > plev+30) || one_in_(plev * plev / 2))
+	{
+		msgf("You fail to exit the astral plane correctly!");
+		p_ptr->energy -= 100;
+		teleport_player(10);
+	}
+	else
+		teleport_player_to(x, y);
+
+	return (TRUE);
+}
 
 /*
  * Map the wilderness
@@ -4547,7 +4769,7 @@ void sanity_blast(const monster_type *m_ptr)
 			/* Get afraid, even if have resist fear! */
 			(void)inc_afraid(rand_range(10, 20));
 		}
-		if (!(FLAG(p_ptr, TR_RES_CHAOS)))
+		if (!(FLAG(p_ptr, TR_RES_CHAOS))  && !p_ptr->tim.oppose_conf)
 		{
 			(void)inc_image(rand_range(150, 400));
 		}
@@ -4561,4 +4783,405 @@ void sanity_blast(const monster_type *m_ptr)
 
 	p_ptr->update |= PU_BONUS;
 	handle_stuff();
+}
+
+/* player_summon:
+ *   Handles summon spells.  Takes:
+ 		type:  0 = no type specified, otherwise, uses one of the SUMMON_X values.
+		level:  level of the summoning.
+		group:  if FALSE, always generates a non-group.  if TRUE, allows a group.
+		dur:   duration the summoned monster will last.  if 0, lasts indefinitely.
+		pet:  0, rolls for success.  1 or 2 forces success or failure, respectively.
+ */
+
+bool player_summon (int type, int level, bool group, int dur, int pet)
+{
+	int i, x, y, qual, r_idx = 0;
+	cave_type *c_ptr;
+	monster_type *m_ptr;
+	bool p;
+	cptr q, s;
+
+	/* determine success or failure */
+	if (pet == 0) {
+		p = !(one_in_(4));  /* simplistic. */
+	} else {
+		p = ((pet == PSUM_FORCE_SUCCESS) ? TRUE : FALSE);
+	}
+
+	/* Hack: if no type specified, let summon_specific do the work. */
+	if (type == 0 || type > PSUM_NUM_TYPES) {
+		return summon_specific((p ? -1 : 0), p_ptr->px, p_ptr->py, level, type, group, FALSE, p);
+	}
+
+	/* Look for a location */
+	for (i = 0; i < 20; ++i)
+	{
+		/* Pick a distance */
+		int d = (i / 15) + 1;
+
+		/* Pick a location */
+		scatter(&x, &y, p_ptr->px, p_ptr->py, d);
+
+		/* paranoia */
+		if (!in_bounds2(x, y)) continue;
+
+		/* Not on top of player */
+		if ((y == p_ptr->py) && (x == p_ptr->px)) continue;
+
+		/* Require "empty" floor grid */
+		c_ptr = area(x, y);
+		if (!cave_empty_grid(c_ptr)) continue;
+
+		/* ... nor on the Pattern */
+		if (cave_pattern_grid(c_ptr)) continue;
+
+		/* Check for a field that blocks movement */
+		if (fields_have_flags(c_ptr, FIELD_INFO_NO_ENTER)) continue;
+
+		/*
+		 * Test for fields that will not allow monsters to
+		 * be generated on them.  (i.e. Glyph of warding)
+		 */
+		if (fields_have_flags(c_ptr, FIELD_INFO_NO_MPLACE)) continue;
+
+		/* Okay */
+		break;
+	}
+
+	/* Failure */
+	if (i == 20) return (FALSE);
+
+	/* Determine the "quality rating" of the monster.  This will always be a number between 1 and 100. */
+	qual = level + damroll(8,4)-20;  /* allows some variation, but close to specified level. */
+	qual = (qual < 1 ? 1 : (qual > 100 ? 100 : qual));
+
+	/* Determine the monster type. NOTE: this is hard-coded for certain
+	   monster race numbers!  */
+	switch(type)
+	{
+		case PSUM_ANIMAL_LOW:
+			if (qual <= 10) r_idx = 21;  /* Large White Snake */
+			else if (qual <= 20) r_idx = 33;  /* Rock Lizard */
+			else if (qual <= 30) r_idx = 42;  /* Metallic Green Centipede */
+			else if (qual <= 40) r_idx = 82;  /* Cave Lizard */
+			else if (qual <= 50) r_idx = 106;  /* Copperhead Snake */
+			else if (qual <= 60) r_idx = 143;  /* Giant Salamander */
+			else if (qual <= 70) r_idx = 171;  /* King Cobra */
+			else if (qual <= 80) r_idx = 172;  /* Eagle */
+			else if (qual <= 90) r_idx = 175;  /* Giant Spider */
+			else r_idx = 196;			/* Wolf */
+			q = "An animal appears!";
+			s = "An angry animal appears!";
+			break;
+		case PSUM_ANIMAL:
+			if (qual <= 10) r_idx = 172;  /* Eagle */
+			else if (qual <= 20) r_idx = 196;  /* Wolf */
+			else if (qual <= 30) r_idx = 173;  /* War Bear */
+			else if (qual <= 40) r_idx = 191;  /* Grizzly Bear */
+			else if (qual <= 50) r_idx = 198;  /* Panther */
+			else if (qual <= 60) r_idx = 211;  /* White Wolf */
+			else if (qual <= 70) r_idx = 257;  /* Warg */
+			else if (qual <= 80) r_idx = 304;  /* Giant Red Scorpion */
+			else if (qual <= 90) r_idx = 334;  /* Wyvern */
+			else r_idx = 389;			/* Tyrannosaurus */
+			q = "An animal appears!";
+			s = "An angry animal appears!";
+			break;
+		case PSUM_ANGEL:
+			if (qual <= 50) r_idx = 417;   	/* Angel */
+			else if (qual <= 70) r_idx = 456;	/* Archangel */
+			else if (qual <= 85) r_idx = 511;	/* Cherub */
+			else if (qual <= 95) r_idx = 605;   /* Seraph */
+			else r_idx = 661;				/* Archon */
+			q = "An angel appears!";
+			s = "An angel appears and turns on you!";
+			break;
+		case PSUM_DEMON:
+			r_idx = 609;  /* Baron of Hell, for now. */
+			q = "You smell brimstone...";
+			s = "You smell brimstone... uh oh!  Your binding failed!";
+			break;
+		case PSUM_UNDEAD:
+			if (qual <= 10) r_idx = 125;  		/* Rotting Corpse */
+			else if (qual <= 20) r_idx = 136;  /* Skeleton Orc */
+			else if (qual <= 30) r_idx = 208;  /* Zombified Orc */
+			else if (qual <= 40) r_idx = 228;  /* Skeleton Human */
+			else if (qual <= 50) r_idx = 273;  /* Flying Skull */
+			else if (qual <= 60) r_idx = 361;  /* Carrion */
+			else if (qual <= 70) r_idx = 390;  /* Mummified Human */
+			else if (qual <= 80) r_idx = 465;  /* Skeleton Troll */
+			else if (qual <= 90) r_idx = 483;  /* Ghoulking */
+			else r_idx = 533;			/* Headless Ghost */
+			q = "An undead creature appears to serve you!";
+			s = "An undead creature appears and attacks you!";
+			break;
+		case PSUM_DRAGON:
+			if (qual <= 5)   /* baby dragon, determine type. */
+			{
+				i = randint1(6);
+				switch(i) {
+					case 1: case 2: case 3: case 4: case 5: r_idx = 162+i; break;
+					case 6: r_idx = 204; break;
+				}
+			} else if (qual <= 35) {  /* young dragon, determine type. */
+				i = randint1(8);
+				switch(i) {
+					case 1: case 2: case 3: case 4: r_idx = 458+i; break;
+					case 5: r_idx = 546; break;
+					case 6: r_idx = 556; break;
+					case 7: r_idx = 559; break;
+					case 8: r_idx = 563; break;
+				}
+			} else if (qual <= 70) {  /* mature dragon, determine type. */
+				i = randint1(8);
+				switch(i) {
+					case 1: r_idx = 549; break;
+					case 2: case 3: case 4: r_idx = 558+i; break;
+					case 5: r_idx = 589; break;
+					case 6: r_idx = 590; break;
+					case 7: r_idx = 592; break;
+					case 8: r_idx = 593; break;
+				}
+			} else {  /* plain ancient dragon, determine type */
+				i = randint1(8);
+				switch(i) {
+					case 1: case 2: r_idx = 600+i; break;
+					case 3: case 4: r_idx = 614+i; break;
+					case 5: r_idx = 624; break;
+					case 6: case 7: r_idx = 638+i; break;
+					case 8: r_idx = 675; break;
+				}
+			}
+			q = "You summon forth a dragon!";
+			s = "An angry dragon appears!";
+			break;
+		case PSUM_HI_UNDEAD:
+			if (qual <= 10) r_idx = 518;  		/* Lich */
+			else if (qual <= 20) r_idx = 520;  /* Master Vampire */
+			else if (qual <= 30) r_idx = 522;  /* Greater Mummy */
+			else if (qual <= 40) r_idx = 555;  /* Revenant */
+			else if (qual <= 50) r_idx = 577;  /* Crypt Thing */
+			else if (qual <= 60) r_idx = 604;  /* Emperor Wight */
+			else if (qual <= 70) r_idx = 607;  /* Black Wraith */
+			else if (qual <= 80) r_idx = 612;  /* Nether Wraith */
+			else if (qual <= 90) r_idx = 658;  /* Master Lich */
+			else if (qual <= 92) r_idx = 664;  /* Undead Beholder */
+			else if (qual <= 94) r_idx = 666;  /* Iron Lich */
+			else if (qual <= 96) r_idx = 690;  /* Dreadmaster */
+			else if (qual <= 98) r_idx = 694;  /* Lesser Black Reaver */
+			else r_idx = 696;			/* Nazgul */
+			q = "An powerful undead creature appears to serve you!";
+			s = "An powerful undead creature appears and attacks you!";
+			break;
+		case PSUM_HI_DRAGON:
+			if (qual <= 30) {  /* plain ancient dragon, determine type */
+				i = randint1(8);
+				switch(i) {
+					case 1: case 2: r_idx = 600+i; break;
+					case 3: case 4: r_idx = 614+i; break;
+					case 5: r_idx = 624; break;
+					case 6: case 7: r_idx = 638+i; break;
+					case 8: r_idx = 675; break;
+				}
+			} else if (qual <= 40) r_idx = 643;  /* Death Drake */
+			else if (qual <= 50) r_idx = 646;    /* Great Crystal Drake */
+			else if (qual <= 60) r_idx = 676;    /* Ethereal Dragon */
+			else if (qual <= 70) r_idx = 703;    /* Dracolisk */
+			else if (qual <= 80) r_idx = 728;    /* Great Storm Wyrm */
+			else if (qual <= 90) r_idx = 741;	 /* Great Ice Wyrm */
+			else r_idx = 754;					 /* Great Hell Wyrm */
+			q = "You summon forth an ancient dragon!";
+			s = "An angry ancient dragon appears!";
+		case PSUM_ELEMENTAL:
+			if (qual <= 25) {  /* elemental spirit */
+				i = randint1(4);
+				switch(i) {
+					case 1: r_idx = 227; break;
+					case 2: r_idx = 303; break;
+					case 3: r_idx = 305; break;
+					case 4: r_idx = 306; break;
+				}
+			} else if (qual <= 50) {  /* lesser vortex */
+				i = randint1(4);
+				switch(i) {
+					case 1: r_idx = 354; break;
+					case 2: r_idx = 355; break;
+					case 3: r_idx = 358; break;
+					case 4: r_idx = 359; break;
+				}
+			} else if (qual <= 90) {  /* basic elemental */
+				i = randint1(8);
+				switch(i) {
+					case 1: r_idx = 510; break;
+					case 2: r_idx = 512; break;
+					case 3: r_idx = 525; break;
+					case 4: r_idx = 526; break;
+					case 5: r_idx = 537; break;
+					case 6: r_idx = 545; break;
+					case 7: r_idx = 570; break;
+					case 8: r_idx = 584; break;
+				}
+			} else { /* hi vortex */
+				i = randint1(6);
+				switch(i) {
+					case 1: r_idx = 587; break;
+					case 2: r_idx = 588; break;
+					case 3: r_idx = 599; break;
+					case 4: r_idx = 600; break;
+					case 5: r_idx = 751; break;
+					case 6: r_idx = 752; break;
+				}
+			}
+			q = "An elemental creature materializes to serve you!";
+			s = "An elemental creature materializes and attacks!";
+			break;
+		case PSUM_PHANTOM:
+			if (qual <= 50) r_idx = 152;
+			else r_idx = 385;
+			q = "A phantom steps forth.";
+			s = "A phantom steps forth to attack you!";
+			break;
+		case PSUM_HYDRA:
+			if (qual <= 10) r_idx = 301;   /* 2-headed */
+			else if (qual <= 40) r_idx = 387;  /* 4 */
+			else if (qual <= 65) r_idx = 440;  /* 5 */
+			else if (qual <= 85) r_idx = 614;  /* 7 */
+			else if (qual <= 95) r_idx = 635;  /* 9 */
+			else r_idx = 688;  /* 11 */
+			q = "A hydra appears!";
+			s = "A hydra appears and attacks you!";
+			break;
+		case PSUM_SPIDER:
+			r_idx = 175;
+			q = "A spider appears!";
+			s = "A spider appears and attacks you!";
+			break;
+		case PSUM_MOLD:
+			if (qual <= 5) r_idx = 20;
+			else if (qual <= 15) r_idx = 76;
+			else if (qual <= 25) r_idx = 113;
+			else if (qual <= 35) r_idx = 146;
+			else if (qual <= 55) r_idx = 190;
+			else if (qual <= 70) r_idx = 192;
+			else if (qual <= 95) r_idx = 324;
+			else r_idx = 711;
+			q = "A mold appears!";
+			s = "A mold appears and attacks you!";
+			break;
+		case PSUM_CYBER:
+			r_idx = 816;
+			q = "A cyberdemon appears to serve you!";
+			s = "A cyberdemon appears and attacks you!";
+			break;
+		default:
+			r_idx = 17;  /* Mean looking mercenary, why not */
+			q = "Bad type in player_summon.";
+			s = "Bad type in player_summon.  It attacks you!";
+			break;
+	}
+
+	/* Handle failure */
+	if (!r_idx) return (FALSE);
+
+	/* Attempt to place the monster (awake) */
+	if (!place_monster_aux(x,y, r_idx, FALSE, group, FALSE, p, TRUE)) return (FALSE);
+
+	/* Give a message. */
+	msgf(p ? q : s);
+
+	/* Find the monster. */
+	m_ptr = &m_list[(area(x,y))->m_idx];
+
+	/* Set unsummoning time, if it is a pet. */
+	m_ptr->unsummon = (p ? dur : 0);
+
+
+
+	return TRUE;
+}
+
+/*
+ * Do what a mushroom of chaos does.
+ * Could be LUA-fied but would be awfully long.
+ */
+bool mushroom_chaos_aux(bool vocal)
+{
+	int v = randint1(100);
+	bool rv = TRUE;
+
+	if (v <= 10)
+	{
+		msgf ("It hurts!");
+		take_hit(damroll(10, v), "a mushroom of chaos");
+	}
+	else if (v <= 17)
+	{
+		rv = do_dec_stat(randint0(6));
+	}
+	else if (v <= 35)
+	{
+		do_poly_self();
+	}
+	else if (v <= 45)
+	{
+		rv = inc_confused(rand_range(10,20));
+	}
+	else if (v <= 50)
+	{
+		rv = inc_confused(rand_range(10,20)) ||	inc_image(rand_range(10,20));
+	}
+	else if (v <= 55)
+	{
+		rv = gain_mutation(0);
+	}
+	else if (v <= 57)
+	{
+		if (!player_has_mut(MUT_CHAOS_PATRON))
+				(void)gain_mutation(MUT_CHAOS_PATRON);
+		else
+		{
+			rv = FALSE;
+		}
+	}
+	else if (v <= 75)
+	{
+		rv = FALSE;
+	}
+	else if (v <= 88)
+	{
+		rv = do_inc_stat(randint0(6));
+	}
+	else if (v <= 92)
+	{
+		msgf ("You feel more experienced.");
+		gain_exp(MIN(1000, (p_ptr->exp / 10)+10));
+	}
+	else
+	{
+		/* Two effects instead */
+		if (!(mushroom_chaos_aux(FALSE) || mushroom_chaos_aux(FALSE)))
+			rv = FALSE;
+	}
+
+	if (!rv && vocal)
+		msgf ("Nothing happens.");
+
+	return (rv);
+}
+
+bool mushroom_chaos(void)
+{
+	/* No effect if you are chaos resistant */
+	if (FLAG(p_ptr, TR_RES_CHAOS))
+	{
+		return (FALSE);
+	}
+
+	msgf ("That tastes strange.");
+	msgf ("Your body is exposed to chaos!");
+
+	mushroom_chaos_aux(TRUE);
+
+	return TRUE;
 }

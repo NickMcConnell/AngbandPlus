@@ -1,0 +1,10 @@
+# descriptions of what a monster's followers
+N:*:Default
+6
+minions
+legion
+followers
+gang
+followers
+minions
+followers

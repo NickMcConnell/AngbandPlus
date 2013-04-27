@@ -11,31 +11,38 @@
 
 # Version stamp (required)
 
-V:2.7.5
+V:0.2.0
+
+# Maximum number of "monster groups"
+M:g:100
 
 # Maximum number of feature types
 M:F:160
 
 # Maximum number of object kinds
-M:K:596
+M:K:800
 
 # Maximum number of artifacts
 M:A:134
 
 # Maximum number of ego-item types
-M:E:128
+M:E:150
 
 # Maximum number of monster races
-M:R:892
+M:R:999
 
 # Maximum number of vaults
 M:V:126
 
 # Maximum number of quests
-M:Q:125
+# 2 winner quests
+# 8 quests per town building x 20 towns = 160
+# 6 quests per guild building x 30 guilds = 180
+# 40 extra for couriers and farms = 382
+M:Q:382
 
 # Maximum number of field types
-M:U:147
+M:U:157
 
 # Maximum size for "fld_list[]"
 M:D:512
@@ -46,8 +53,15 @@ M:W:N:250
 # Maximum number of wilderness block generation types
 M:W:T:300
 
-# Maximum number of "places" in the wilderness (towns + quests)
-M:W:P:60
+# Maximum number of "places" in the wilderness (towns + quests + etc)
+# 20 towns
+# 20 pit quests
+# 20 dungeons
+# up to 10 farms
+# up to 10 inns
+# up to 340 simultaneous quests
+# room to spare.
+M:W:P:420
 
 # Maximum number of active "regions" in dungeon / wilderness
 M:G:10

@@ -13,6 +13,526 @@
 #include "angband.h"
 
 #include "script.h"
+#include "wild.h"
+
+/* Hack */
+/* Note: these declarations in maid_grf.c were static and should be again when I'm done. */
+
+extern int map_cx;
+extern int map_cy;
+extern int display_map_info(int x, int y, char *c, byte *a, char *tc, byte *ta);
+extern void resize_big_map(void);
+extern void display_banner(wild_done_type *w_ptr);
+
+static void display_law_map(int *cx, int *cy)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int i, j, x, y;
+
+	byte feat;
+
+	byte ta;
+	char tc;
+
+	byte tta;
+	char ttc;
+
+	byte tp;
+
+	bool road;
+
+	u16b w_type, w_info, twn;
+
+	byte **ma;
+	char **mc;
+
+	byte **mp;
+
+	byte **mta;
+	char **mtc;
+
+	int hgt, wid, yrat, xrat, xfactor, yfactor;
+
+	place_type *pl_ptr;
+
+
+	/* Hack - disable bigtile mode */
+	if (use_bigtile)
+	{
+		Term_bigregion(-1, -1, -1);
+	}
+
+	/* Get size */
+	Term_get_size(&wid, &hgt);
+	hgt -= 2;
+	wid -= 2;
+
+	/* Paranoia */
+	if ((hgt < 3) || (wid < 3))
+	{
+		/*
+		 * Need to place the player...
+		 * This is wrong, but the map is too small anyway.
+		 */
+		(*cy) = ROW_MAP;
+		(*cx) = COL_MAP;
+		return;
+	}
+
+	/* Allocate the maps */
+	C_MAKE(ma, (hgt + 2), byte *);
+	C_MAKE(mc, (hgt + 2), char *);
+	C_MAKE(mp, (hgt + 2), byte *);
+
+	C_MAKE(mta, (hgt + 2), byte *);
+	C_MAKE(mtc, (hgt + 2), char *);
+
+	/* Allocate and wipe each line map */
+	for (i = 0; i < (hgt + 2); i++)
+	{
+		/* Allocate one row each array */
+		C_MAKE(ma[i], (wid + 2), byte);
+		C_MAKE(mc[i], (wid + 2), char);
+		C_MAKE(mp[i], (wid + 2), byte);
+
+		C_MAKE(mta[i], (wid + 2), byte);
+		C_MAKE(mtc[i], (wid + 2), char);
+	}
+
+	/* Clear the chars and attributes */
+	for (y = 0; y < hgt + 2; ++y)
+	{
+		for (x = 0; x < wid + 2; ++x)
+		{
+			/* Nothing here */
+			ma[y][x] = TERM_WHITE;
+			mc[y][x] = ' ';
+
+			mta[y][x] = TERM_WHITE;
+			mtc[y][x] = ' ';
+
+			/* No priority */
+			mp[y][x] = 0;
+		}
+	}
+
+	if (!p_ptr->depth)
+	{
+		/* Plot wilderness */
+
+		/* work out coords of player in wilderness */
+		x = px / 16 + *cx;
+		y = py / 16 + *cy;
+
+		/* recenter */
+		x = x - wid / 2;
+		if (x + wid >= max_wild) x = max_wild - wid - 1;
+		if (x < 0) x = 0;
+
+		y = y - hgt / 2;
+		if (y + hgt >= max_wild) y = max_wild - hgt - 1;
+		if (y < 0) y = 0;
+
+		/* Player location in wilderness */
+		(*cy) += py / 16 - y + ROW_MAP;
+		(*cx) += px / 16 - x + 1;
+
+		/* Fill in the map */
+		for (i = 0; i < wid; ++i)
+		{
+			for (j = 0; j < hgt; ++j)
+			{
+				/* Only draw blocks inside map */
+				if (((x + i + 1) >= max_wild)
+					|| ((y + j + 1) >= max_wild)) continue;
+
+				/* Only draw blocks that have been seen */
+				/* Not while debugging.
+				if (!(wild[j + y][i + x].done.info & WILD_INFO_SEEN)) continue;
+
+				*/
+
+				w_type = wild[j + y][i + x].done.wild;
+				w_info = wild[j + y][i + x].done.info;
+
+				if (w_type < WILD_SEA)
+				{
+					/* Normal terrain */
+					feat = wild_gen_data[w_type].feat;
+
+					/* Allow roads to be drawn */
+					road = TRUE;
+				}
+				else
+				{
+					feat = FEAT_DEEP_WATER;
+
+					/* No roads please */
+					road = FALSE;
+				}
+
+				/* Add in effect of other specials */
+				if (w_info & (WILD_INFO_WATER))
+				{
+					feat = FEAT_DEEP_WATER;
+				}
+				else if (w_info & (WILD_INFO_ACID))
+				{
+					feat = FEAT_DEEP_ACID;
+				}
+				else if (w_info & (WILD_INFO_LAVA))
+				{
+					feat = FEAT_DEEP_LAVA;
+				}
+
+				/* This is a nasty hack */
+
+				/* Add in effects of roads */
+				if ((w_info & (WILD_INFO_ROAD)) && road)
+				{
+					ma[j + 1][i + 1] = TERM_UMBER;
+					mc[j + 1][i + 1] = '+';
+					feat = FEAT_NONE;
+				}
+				else if ((w_info & (WILD_INFO_TRACK)) && road)
+				{
+					ma[j + 1][i + 1] = TERM_L_UMBER;
+					mc[j + 1][i + 1] = '+';
+					feat = FEAT_NONE;
+				}
+
+				/* Hack - draw places */
+				/* Eventually will get attr,char from place data structure. */
+
+				twn = wild[j + y][i + x].done.place;
+
+				/* If there is a place... */
+				if (twn)
+				{
+					pl_ptr = &place[twn];
+
+					switch (place[twn].type)
+					{
+						case PL_QUEST_PIT:
+						{
+							/* Hack make a char / attr from depth */
+							wild_type *w_ptr = &wild[pl_ptr->y][pl_ptr->x];
+
+							int depth = (w_ptr->done.mon_gen + 9) / 10;
+
+							if (depth > 9) depth = 9;
+
+							/* Quests are white on this map */
+							ma[j + 1][i + 1] = TERM_WHITE;
+							mc[j + 1][i + 1] = '0' + depth;
+							/* feat = FEAT_NONE; */
+
+							break;
+						}
+
+						case PL_DUNGEON:
+						{
+							/* Hack make a char / attr from depth */
+							int depth = (pl_ptr->dungeon->min_level + 9) / 10;
+
+							if (depth > 9) depth = 9;
+
+							/* Dungeons are blue */
+							ma[j + 1][i + 1] = TERM_L_BLUE;
+							mc[j + 1][i + 1] = '0' + depth;
+							feat = FEAT_NONE;
+
+							break;
+						}
+
+						default:
+						{
+							/* Towns are white */
+							ma[j + 1][i + 1] = TERM_WHITE;
+							mc[j + 1][i + 1] = pl_ptr->name[0];
+							/* feat = FEAT_NONE; */
+
+							break;
+						}
+					}
+				}
+
+				/* Finally show position of player */
+				if ((i + x == px / 16) && (j + y == py / 16))
+				{
+					ma[j + 1][i + 1] = TERM_WHITE;
+					mc[j + 1][i + 1] = '@';
+					feat = FEAT_NONE;
+				}
+
+				if (feat)
+				{
+					byte law = wild[y+j][x+i].done.mon_gen;
+					/* Get attr / char pair for wilderness block type */
+
+					if (law <= 9) {
+						ma[j+1][i+1] = TERM_L_RED;
+						mc[j+1][i+1] = '0'+(law);
+					}
+					else if (law <= 19) {
+						ma[j+1][i+1] = TERM_ORANGE;
+						mc[j+1][i+1] = '0'+(law-10);
+					}
+					else if (law <= 29) {
+						ma[j+1][i+1] = TERM_YELLOW;
+						mc[j+1][i+1] = '0'+(law-20);
+					}
+					else if (law <= 39) {
+						ma[j+1][i+1] = TERM_L_GREEN;
+						mc[j+1][i+1] = '0'+(law-30);
+					}
+					else if (law <= 49) {
+						ma[j+1][i+1] = TERM_GREEN;
+						mc[j+1][i+1] = '0'+(law-40);
+					}
+					else if (law <= 59) {
+						ma[j+1][i+1] = TERM_BLUE;
+						mc[j+1][i+1] = '0'+(law-50);
+					} else {
+						ma[j+1][i+1] = TERM_VIOLET;
+						mc[i+1][j+1] = '0'+(law-60);
+					}
+
+					mta[j + 1][i + 1] = ma[j + 1][i + 1];
+					mtc[j + 1][i + 1] = mc[j + 1][i + 1];
+				}
+			}
+		}
+	}
+	else
+	{
+		yrat = p_ptr->max_hgt - p_ptr->min_hgt;
+		xrat = p_ptr->max_wid - p_ptr->min_wid;
+
+		/* Get scaling factors */
+		yfactor = ((yrat / hgt < 4) && (yrat > hgt)) ? 10 : 1;
+		xfactor = ((xrat / wid < 4) && (xrat > wid)) ? 10 : 1;
+
+		yrat = (yrat * yfactor + hgt - 1) / hgt;
+		xrat = (xrat * xfactor + wid - 1) / wid;
+
+		/* Player location in dungeon */
+		(*cy) = py * yfactor / yrat + ROW_MAP;
+		(*cx) = px * xfactor / xrat + 1;
+
+		/* Fill in the map of dungeon */
+		for (i = p_ptr->min_wid; i < p_ptr->max_wid; ++i)
+		{
+			for (j = p_ptr->min_hgt; j < p_ptr->max_hgt; ++j)
+			{
+				/* Location */
+				x = i * xfactor / xrat + 1;
+				y = j * yfactor / yrat + 1;
+
+				/* Get priority and symbol */
+				tp = display_map_info(i, j, &tc, &ta, &ttc, &tta);
+
+				/* Save "best" */
+				if (mp[y][x] < tp)
+				{
+					/* Save the char */
+					mc[y][x] = tc;
+
+					/* Save the attr */
+					ma[y][x] = ta;
+
+					/* Save the transparency graphic */
+					mtc[y][x] = ttc;
+					mta[y][x] = tta;
+
+					/* Save priority */
+					mp[y][x] = tp;
+				}
+			}
+		}
+	}
+
+	/* Corners */
+	i = wid + 1;
+	j = hgt + 1;
+
+	/* Draw the corners */
+	mc[0][0] = '+';
+	mc[0][i] = '+';
+	mc[j][0] = '+';
+	mc[j][i] = '+';
+
+	/* Draw the horizontal edges */
+	for (i = 1; i <= wid; i++)
+	{
+		mc[0][i] = '-';
+		mc[j][i] = '-';
+	}
+
+	/* Draw the vertical edges */
+	for (j = 1; j <= hgt; j++)
+	{
+		mc[j][0] = '|';
+		mc[j][i] = '|';
+	}
+
+	/* Display each map line in order */
+	for (j = 0; j < hgt + 2; ++j)
+	{
+		/* Display the line */
+		for (i = 0; i < wid + 2; ++i)
+		{
+			ta = ma[j][i];
+			tc = mc[j][i];
+
+			tta = mta[j][i];
+			ttc = mtc[j][i];
+
+			/* Hack -- Queue it */
+			Term_queue_char(i, j, ta, tc, tta, ttc);
+		}
+	}
+
+	/* Free each line map */
+	for (i = 0; i < (hgt + 2); i++)
+	{
+		/* Free one row each array */
+		FREE(ma[i]);
+		FREE(mc[i]);
+		FREE(mta[i]);
+		FREE(mtc[i]);
+		FREE(mp[i]);
+	}
+
+	/* Free the maps */
+	FREE(ma);
+	FREE(mc);
+	FREE(mta);
+	FREE(mtc);
+	FREE(mp);
+}
+
+
+static void do_cmd_view_law_map(void)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int cy, cx;
+
+	void (*hook) (void);
+
+	/* No law map in vanilla town mode or in the dungeon. */
+	if (p_ptr->depth || vanilla_town) return;
+
+	/* Remember what the resize hook was */
+	hook = angband_term[0]->resize_hook;
+
+	/* Hack - change the redraw hook so bigscreen works */
+	angband_term[0]->resize_hook = resize_big_map;
+
+	/* Note */
+	prtf(0, 0, "Please wait...");
+
+	/* Flush */
+	Term_fresh();
+
+	/* Clear the screen */
+	Term_clear();
+
+	{
+		/* Offset from player */
+		int x, y;
+
+		/* Direction */
+		int d;
+
+		/* Input character */
+		char c;
+
+		wild_done_type *w_ptr;
+
+		/* No offset yet */
+		x = 0;
+		y = 0;
+
+		/* In the wilderness - Display the map + move it around */
+
+		while (TRUE)
+		{
+			/* Reset offset of map */
+			cx = x;
+			cy = y;
+
+			/* Match offset for the resize */
+			map_cx = cx;
+			map_cy = cy;
+
+			display_law_map(&cx, &cy);
+
+			/* Get wilderness square */
+			w_ptr = &wild[y + py / WILD_BLOCK_SIZE][x + px / WILD_BLOCK_SIZE].done;
+
+			/* Get the banners on the screen */
+			display_banner(w_ptr);
+
+			/* Show the cursor */
+			Term_gotoxy(cx, cy);
+
+			/* Draw it */
+			Term_fresh();
+
+			/* Get a response */
+			c = inkey();
+
+			/* Allow a redraw */
+			if (c == KTRL('R'))
+			{
+				/* Do the redraw */
+				do_cmd_redraw();
+
+				continue;
+			}
+
+			/* Done if not a direction */
+			d = get_keymap_dir(c);
+
+			if (!d) break;
+
+			x += ddx[d];
+			y += ddy[d];
+
+			/* Bounds checking */
+			if (x + px / WILD_BLOCK_SIZE < 0)
+			{
+				x = -px / WILD_BLOCK_SIZE;
+			}
+			if (y + py / WILD_BLOCK_SIZE < 0)
+			{
+				y = -py / WILD_BLOCK_SIZE;
+			}
+			if (x + px / WILD_BLOCK_SIZE > max_wild - 2)
+			{
+				x = max_wild - px / WILD_BLOCK_SIZE - 2;
+			}
+			if (y + py / WILD_BLOCK_SIZE > max_wild - 2)
+			{
+				y = max_wild - py / WILD_BLOCK_SIZE - 2;
+			}
+		}
+	}
+
+	/* Hack - change the redraw hook so bigscreen works */
+	angband_term[0]->resize_hook = hook;
+
+	/* The size may have changed during the scores display */
+	angband_term[0]->resize_hook();
+
+	/* Hack - Flush it */
+	Term_fresh();
+}
 
 
 /*
@@ -94,11 +614,51 @@ static void wiz_create_named_art(int a_idx)
 /*
  * Hack -- quick debugging hook
  */
-static void do_cmd_wiz_hack_ben(void)
+static void do_cmd_wiz_hack_mango(int arg)
 {
-	/* Oops */
-	msgf("Oops.");
-	(void)probing();
+	int i = arg;
+	/* Debug */
+
+	for (i = 0; i < place_count; i++) 
+	{
+		if (place[i].type != PL_TOWN_MINI) continue;
+		
+		msgf ("Place %i: %s", i, place[i].name);
+	}
+}
+
+
+/*
+ * Hack -- quick debugging hook
+ */
+static void do_cmd_wiz_hack_ben(int arg)
+{
+	(void)arg;
+
+	do_cmd_view_law_map();
+
+	/* Make entire wilderness known */
+	{
+		int i, j;
+		for (i = 0; i < WILD_SIZE; i++) {
+			for (j=0; j < WILD_SIZE; j++) {
+				wild[i][j].done.info |= WILD_INFO_SEEN;
+			}
+		}
+	}
+
+	/* Make all quests known */
+	{
+		int i;
+		for (i = 0; i < z_info->q_max; i++)
+		{
+			if (quest[i].type) {
+				quest[i].flags |= QUEST_FLAG_KNOWN;
+				quest[i].status = QUEST_STATUS_TAKEN;
+			}
+		}
+	}
+
 }
 
 
@@ -646,11 +1206,11 @@ static void wiz_display_item(const object_type *o_ptr)
                     "%v", binary_fmt, o_ptr->flags[2]);
 
 	prtf(j + 32, 17,"+------------FLAGS4-------------\n"
-			"        IMSH p pt reHURT..  CURS\n"
-			"        ldac alao exaefcld  as h\n"
-			"        iacomtusuptpclioia  utee\n"
-			"        trilurcscsrlierltr  taaa\n"
-			"        ekddtnkwhinodcedek  ottl\n"
+			"sww     IMSH p pt reHURT..  CURS\n"
+			"add     ldac alao exaefcld  as h\n"
+			"vsw     iacomtusuptpclioia  utee\n"
+			"1hl     trilurcscsrlierltr  taaa\n"
+			"0tk     ekddtnkwhinodcedek  ottl\n"
 		    "%v", binary_fmt, o_ptr->flags[3]);
 
 }
@@ -700,7 +1260,7 @@ static const tval_desc tvals[] =
 	{TV_NATURE_BOOK, "Nature Spellbook"},
 	{TV_CHAOS_BOOK, "Chaos Spellbook"},
 	{TV_DEATH_BOOK, "Death Spellbook"},
-	{TV_TRUMP_BOOK, "Trump Spellbook"},
+	{TV_CONJ_BOOK, "Conjuration Spellbook"},
 	{TV_ARCANE_BOOK, "Arcane Spellbook"},
 	{TV_SPIKE, "Spikes"},
 	{TV_DIGGING, "Digger"},
@@ -718,7 +1278,7 @@ static const tval_desc tvals[] =
 /*
  * Strip an "object name" into a buffer
  */
-static void strip_name(char *buf, int k_idx)
+void strip_name(char *buf, int k_idx)
 {
 	char *t;
 
@@ -753,12 +1313,12 @@ static int create_item_tval = 0;
 static bool wiz_create_itemtype_aux2(int num)
 {
 	int i;
-	
+
 	/* Look up the item to use */
 	for (i = 0; i < z_info->k_max; i++)
 	{
 		object_kind *k_ptr = &k_info[i];
-		
+
 		if (k_ptr->tval == create_item_tval)
 		{
 			/* Are we there yet? */
@@ -767,7 +1327,7 @@ static bool wiz_create_itemtype_aux2(int num)
 				create_item_kidx = i;
 				return (TRUE);
 			}
-			
+
 			/* Count down the objects to go */
 			num--;
 		}
@@ -784,64 +1344,64 @@ static bool wiz_create_itemtype_aux2(int num)
 static bool wiz_create_itemtype_aux1(int tval_entry)
 {
 	int i, num = 0;
-	
+
 	int tval = tvals[tval_entry].tval;
-	
+
 	char buf[1024];
 	char prompt[80];
-	
+
 	menu_type *item_menu;
-	
+
 	bool result;
-	
+
 	/* Count number of options */
 	for (i = 0; i < z_info->k_max; i++)
 	{
 		object_kind *k_ptr = &k_info[i];
-		
+
 		if (k_ptr->tval == tval) num++;
 	}
-	
+
 	/* Create menu array */
 	C_MAKE(item_menu, num + 1, menu_type);
-	
+
 	/* Collect all the objects and their descriptions */
 	num = 0;
 	for (i = 0; i < z_info->k_max; i++)
 	{
 		object_kind *k_ptr = &k_info[i];
-		
+
 		if (k_ptr->tval == tval)
 		{
 			/* Acquire the "name" of object "i" */
 			strip_name(buf, i);
-			
+
 			/* Create the menu entry */
 			item_menu[num].text = string_make(buf);
 			item_menu[num].help = NULL;
 			item_menu[num].action = wiz_create_itemtype_aux2;
 			item_menu[num].flags = MN_ACTIVE;
-		
+
 			num++;
 		}
 	}
-	
+
 	/* Save tval so we can access it in aux2 */
 	create_item_tval = tval;
-	
+
 	/* Create the prompt */
 	strnfmt(prompt, 80, "What Kind of %s? ", tvals[tval_entry].desc);
 	result = display_menu(item_menu, -1, FALSE, NULL, prompt);
-	
+
 	/* Free the option strings */
 	for (i = 0; i <= num; i++)
 	{
 		string_free(item_menu[i].text);
 	}
-	
+
 	/* Free the array */
 	FREE(item_menu);
-	
+
 	return (result);
 }
 
@@ -854,16 +1414,16 @@ static bool wiz_create_itemtype_aux1(int tval_entry)
 static int wiz_create_itemtype(void)
 {
 	int i, num;
-	
+
 	menu_type *item_menu;
 
 	/* Count number of options */
 	num = 0;
 	while(tvals[num].tval) num++;
-	
+
 	/* Create menu array */
 	C_MAKE(item_menu, num + 1, menu_type);
-	
+
 	/* Collect all the tvals and their descriptions */
 	for (i = 0; i < num; i++)
 	{
@@ -872,17 +1432,17 @@ static int wiz_create_itemtype(void)
 		item_menu[i].action = wiz_create_itemtype_aux1;
 		item_menu[i].flags = MN_ACTIVE | MN_CLEAR;
 	}
-	
+
 	/* Hack - we know that item_menu[num].text is NULL due to C_MAKE */
-	
+
 	/* Clear item to make */
 	create_item_kidx = 0;
-	
+
 	display_menu(item_menu, -1, FALSE, NULL, "Get what type of object? ");
-	
+
 	/* Free the array */
 	FREE(item_menu);
-	
+
 	return (create_item_kidx);
 }
 
@@ -1010,7 +1570,7 @@ static object_type *wiz_reroll_item(object_type *o_ptr)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_SPELL | PW_PLAYER);
-	
+
 	/* Notice changes */
 	notice_item();
 
@@ -1160,7 +1720,7 @@ static void do_cmd_wiz_play(void)
 
 			/* Window stuff */
 			p_ptr->window |= (PW_SPELL | PW_PLAYER);
-			
+
 			/* Notice changes */
 			notice_item();
 
@@ -1193,7 +1753,7 @@ static void do_cmd_wiz_play(void)
 		{
 			wiz_quantity_item(o_ptr);
 		}
-		
+
 		if (ch == 'l' || ch == 'L')
 		{
 			int i;
@@ -1296,11 +1856,11 @@ static void do_cmd_wiz_jump(void)
 {
 	int min_depth, max_depth;
 	dun_type *d_ptr = dungeon();
-	
+
 	/* In the wilderness and no dungeon? */
 	if (!check_down_wild()) return;
 
-	max_depth = d_ptr->max_level;
+	max_depth = (dungeon_abyss ? 127 : d_ptr->max_level);
 	min_depth = d_ptr->min_level;
 
 	/* Ask for level */
@@ -1500,6 +2060,137 @@ static void do_cmd_wiz_zap_all(void)
 	p_ptr->update |= (PU_MON_LITE);
 }
 
+void do_cmd_wiz_town_teleport(void)
+{
+	place_type *pl_ptr2;
+	int i, j;
+
+	/* Make sure the player is outside. */
+	if (p_ptr->depth)
+	{
+		msgf("You cannot do this from a dungeon.");
+		return;
+	}
+
+
+	/* Make sure something bad doesn't happen */
+	if (p_ptr->cmd.arg >= place_count)
+	{
+		msgf("Place %i out of bounds, defaulting to %i.", p_ptr->cmd.arg, place_count-1);
+		p_ptr->cmd.arg = place_count - 1;
+	}
+	if (p_ptr->cmd.arg <= 1) p_ptr->cmd.arg = 1;
+
+	/* Get the right place */
+	pl_ptr2 = &place[p_ptr->cmd.arg - 1];
+
+	/* Move the player */
+	if (pl_ptr2->type == PL_TOWN_OLD || pl_ptr2->type == PL_TOWN_FRACT)
+	{
+		store_type *st_ptr;
+
+		/* Hack: Must make sure we "know" the area first. */
+		p_ptr->px = pl_ptr2->x * 16;
+		p_ptr->py = pl_ptr2->y * 16;
+		p_ptr->wilderness_x = p_ptr->px;
+		p_ptr->wilderness_y = p_ptr->py;
+		move_wild();
+
+
+		for (j = 0; j < 100; j++)
+		{
+			i = randint0(pl_ptr2->numstores);
+			st_ptr = &pl_ptr2->store[i];
+			if (st_ptr->owner_name != 0 && st_ptr->type != BUILD_BLANK && st_ptr->type != BUILD_NONE && (st_ptr->x != 0 || st_ptr->y != 0))
+				break;
+		}
+
+		p_ptr->px = pl_ptr2->x * 16 + st_ptr->x;
+		p_ptr->py = pl_ptr2->y * 16 + st_ptr->y;
+	}
+	/* For quests and dungeons, this will take you to an open spot already */
+	else
+	{
+		p_ptr->px = pl_ptr2->x * 16;
+		p_ptr->py = pl_ptr2->y * 16;
+	}
+
+	/* Say something */
+	msgf("You vanish and reappear somewhere else.");
+
+	p_ptr->wilderness_x = p_ptr->px;
+	p_ptr->wilderness_y = p_ptr->py;
+
+	/* Notice player location */
+	Term_move_player();
+
+	/* Remove all monster lights */
+	lite_n = 0;
+
+	/* Notice the move */
+	move_wild();
+
+	/* Check for new panel (redraw map) */
+	verify_panel();
+
+	/* Update stuff */
+	p_ptr->update |= (PU_VIEW | PU_FLOW | PU_MON_LITE);
+
+	/* Update the monsters */
+	p_ptr->update |= (PU_DISTANCE);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+}
+
+
+
+static void do_cmd_wiz_towns(void)
+{
+	/* Count towns */
+	int towns = 0;
+	int stairs = 0;
+	int stores = 0;
+	int i, j;
+
+	for (i = 0; i < MAX_CITY_BUILD; i++)
+		wild_build[i].num = 0;
+
+	for (i = 0; i < place_count; i++)
+	{
+		place_type *pl_ptr = &place[i];
+		if (pl_ptr->type == PL_TOWN_OLD || pl_ptr->type == PL_TOWN_FRACT) towns++;
+		for (j = 0; j < pl_ptr->numstores; j++)
+		{
+			store_type *st_ptr = &pl_ptr->store[j];
+			if (st_ptr->type == BUILD_STAIRS) stairs++;
+			else if (st_ptr->type != BUILD_NONE && st_ptr->type != BUILD_BLANK) stores++;
+			/* count the stores, in case it's requested */
+			wild_build[st_ptr->type].num++;
+		}
+	}
+	msgf("%i towns, %i stores, %i stairs", towns, stores, stairs);
+
+	/* Make entire wilderness known */
+	{
+		int i, j;
+		for (i = 0; i < WILD_SIZE; i++) {
+			for (j=0; j < WILD_SIZE; j++) {
+				wild[i][j].done.info |= WILD_INFO_SEEN;
+			}
+		}
+	}
+
+	if (get_check("Give complete store count? "))
+	{
+		for (i = 0; i < MAX_CITY_BUILD; i++)
+		{
+			msgf("%s: %i", building_name(i), wild_build[i].num);
+		}
+	}
+	if (get_check("Show wilderness difficulty map? "))
+		do_cmd_view_law_map();
+}
 
 #ifdef ALLOW_SPOILERS
 
@@ -1682,7 +2373,7 @@ void do_cmd_debug(void)
 			self_knowledge();
 			break;
 		}
-		
+
 		case 'K':
 		{
 			/* Debug lua stack depth */
@@ -1793,26 +2484,14 @@ void do_cmd_debug(void)
 
 		case 'T':
 		{
-			/* Count towns */
-			int towns = 0;
-			int stairs = 0;
-			int i, j;
+			do_cmd_wiz_towns();
+			break;
+		}
 
-			for (i = 0; i < place_count; i++)
-			{
-				place_type *pl_ptr = &place[i];
 
-				if (!pl_ptr->quest_num) towns++;
-
-				for (j = 0; j < pl_ptr->numstores; j++)
-				{
-					store_type *st_ptr = &pl_ptr->store[j];
-
-					if (st_ptr->type == BUILD_STAIRS) stairs++;
-				}
-			}
-
-			msgf("%i towns, %i stairs", towns, stairs);
+		case KTRL('T'):
+		{
+			do_cmd_wiz_town_teleport();
 			break;
 		}
 
@@ -1841,11 +2520,10 @@ void do_cmd_debug(void)
 #ifdef DEBUG
 		case 'W':
 		{
-			test_decision_tree();
 			break;
 		}
-#endif /* DEBUG */
 
+#endif /* DEBUG */
 		case 'x':
 		{
 			/* Increase Experience */
@@ -1876,10 +2554,17 @@ void do_cmd_debug(void)
 		case '_':
 		{
 			/* Hack -- whatever I desire */
-			do_cmd_wiz_hack_ben();
+			do_cmd_wiz_hack_ben(p_ptr->cmd.arg);
 			break;
 		}
-		
+
+		case '+':
+		{
+			/* Hack -- whatever I desire */
+			do_cmd_wiz_hack_mango(p_ptr->cmd.arg);
+			break;
+		}
+
 #ifdef DEBUG_SCRIPTS
 		case '@':
 		{

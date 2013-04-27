@@ -20,23 +20,23 @@ void center_string(char *buf, uint max, cptr fmt, va_list *vp)
 	int i, j;
 
 	cptr str;
-	
+
 	char tmp[1024];
-	
+
     int size;
-	
+
 	/* Unused parameter */
 	(void)fmt;
-	    
+
     /* Get the size of the string to center in */
 	size = va_arg(*vp, int);
-	
+
 	/* Get the string to center with. */
 	str = va_arg(*vp, cptr);
-	
+
 	/* Expand the string */
 	vstrnfmt(tmp, 1024, str, vp);
-	
+
 	/* Total length */
 	i = strlen(tmp);
 
@@ -55,17 +55,17 @@ void binary_fmt(char *buf, uint max, cptr fmt, va_list *vp)
 {
 	uint i;
 	u32b mask = 1;
-	
+
 	int len = 0;
-	
+
     u32b arg;
-	
+
 	/* Unused parameter */
 	(void)fmt;
-	
+
 	/* Pre-terminate buffer */
 	buf[0] = '\0';
-    
+
     /* Get the argument */
 	arg = va_arg(*vp, u32b);
 
@@ -83,7 +83,7 @@ void binary_fmt(char *buf, uint max, cptr fmt, va_list *vp)
 		{
 			strnfcat(buf, max, &len, CLR_WHITE "-");
 		}
-		
+
 		mask *= 2;
 	}
 }
@@ -119,7 +119,7 @@ int get_player_choice(cptr *choices, int num, int col, int wid,
 	{
 		/*
 		 * Note to Melkor: What happens when the screen is resized?
-		 * There is no 'redraw' hook at this point... 
+		 * There is no 'redraw' hook at this point...
 		 * (That is why the original code restricted itself to what
 		 * would fit in the smallest possible screen.) -SF-
 		 */
@@ -382,13 +382,13 @@ static bool show_option(int x, int y, menu_type *option, char c, bool scroll, bo
 		{
 			prtf(x, y, " %c) %s", c, option->text);
 		}
-	
+
 		return (TRUE);
 	}
-	
+
 	/* Not a valid option */
 	prtf(x, y, "    %s", option->text);
-		
+
 	return (FALSE);
 }
 
@@ -418,11 +418,11 @@ static int show_menu(int num, menu_type *options, int select, bool scroll,
 	int cnt = 0;
 	int i;
 	bool select_me;
-	
+
 	int x, y;
-	
+
 	int offset = 0;
-	
+
 	/*
 	 * Display 'special' information
 	 */
@@ -430,7 +430,7 @@ static int show_menu(int num, menu_type *options, int select, bool scroll,
 
 	/* Border on top of menu */
 	clear_row(1);
-		
+
 	/* Will they fit in one column? */
 	if (num < 19)
 	{
@@ -443,11 +443,11 @@ static int show_menu(int num, menu_type *options, int select, bool scroll,
 				cnt++;
 			}
 		}
-	
+
 		/* Border below menu */
 		clear_row(num + 2 + offset);
 	}
-	
+
 	/* Two columns (use numbers as well) */
 	else if (num < 37)
 	{
@@ -457,17 +457,17 @@ static int show_menu(int num, menu_type *options, int select, bool scroll,
 
 			x = (i / 18) * 40;
 			y = (i % 18) + 2;
-				
+
 			if (show_option(x, y + offset, &options[i], listsym[cnt], scroll, select_me))
 			{
 				cnt++;
 			}
 		}
-		
+
 		/* Border below menu */
 		clear_row(20 + offset);
 	}
-	
+
 	/* Three columns - need to use upper case letters */
 	else
 	{
@@ -477,17 +477,17 @@ static int show_menu(int num, menu_type *options, int select, bool scroll,
 
 			x = (i / 20) * 30;
 			y = (i % 20) + 2;
-			
+
 			if (show_option(x, y + offset, &options[i], listsym[cnt], scroll, select_me))
 			{
 				cnt++;
 			}
 		}
-	
+
 		/* Border below menu */
 		clear_row(22 + offset);
 	}
-	
+
 	/*
 	 * Display the prompt.
 	 * (Do this last, so we get the cursor in the right spot)
@@ -514,7 +514,7 @@ static int show_menu(int num, menu_type *options, int select, bool scroll,
 			 prompt ? prompt : "Select a command: " ,listsym[cnt - 1]);
 	}
 
-	
+
 	return (cnt);
 }
 
@@ -527,11 +527,11 @@ static int show_menu(int num, menu_type *options, int select, bool scroll,
 static int get_choice(char *c, int num, bool *ask)
 {
 	int asked;
-	
+
 	int i;
-	
+
 	*c = inkey();
-	
+
 	/* Handle "cancel" */
 	if (*c == ESCAPE)
     {
@@ -547,18 +547,18 @@ static int get_choice(char *c, int num, bool *ask)
 
 			/* Lowercase */
 			if (asked) *c = tolower(*c);
-			
+
 			*ask = (asked != FALSE);
 
 			/* Extract request */
 			return(A2I(*c));
 		}
-		
+
 		/* Invalid choice */
 		*ask = FALSE;
 		return (-1);
 	}
-	
+
 	/* Else - look for a match */
 	for (i = 0; i < num; i++)
 	{
@@ -569,10 +569,10 @@ static int get_choice(char *c, int num, bool *ask)
 			return (i);
 		}
 	}
-	
+
 	/* No match? */
 	*ask = FALSE;
-	
+
 	return (-1);
 }
 
@@ -597,22 +597,22 @@ bool display_menu(menu_type *options, int select, bool scroll, int disp(int),
 {
 	int i = -1, j, cnt;
 	bool ask = FALSE;
-	char choice;
+	char choice = 0;
 	int num = 0;
 	int save_choice;
-	
+
 	/* Calculate the number of strings we have */
 	while (options[num].text) num++;
-                  
+
     /* Paranoia XXX XXX XXX */
 	message_flush();
 
 	/* Save the screen */
 	screen_save();
-    
+
 	/* Show the list */
 	cnt = show_menu(num, options, select, scroll, disp, prompt);
-		
+
 	/* Paranoia */
 	if (!cnt)
 	{
@@ -620,12 +620,12 @@ bool display_menu(menu_type *options, int select, bool scroll, int disp(int),
 		{
 			/* Do nothing */
 		}
-		
+
 		/* Restore the screen */
 		screen_load();
 		return (FALSE);
 	}
-   
+
 	/* Get a command from the user */
 	while (TRUE)
 	{
@@ -635,7 +635,7 @@ bool display_menu(menu_type *options, int select, bool scroll, int disp(int),
 			/* Try to match with available options */
 			i = get_choice(&choice, num, &ask);
     	}
-	
+
     	/* Handle "cancel" */
 		if (i == -2)
         {
@@ -643,7 +643,7 @@ bool display_menu(menu_type *options, int select, bool scroll, int disp(int),
 			screen_load();
         	return (FALSE);
         }
-		
+
 		/* No match? */
 		if (i == -1)
 		{
@@ -651,7 +651,7 @@ bool display_menu(menu_type *options, int select, bool scroll, int disp(int),
 			if ((choice == '\r') || (choice == ' '))
 			{
 				i = 0;
-			
+
 				/* Scan options */
         		if (num > 1)
 				{
@@ -673,12 +673,12 @@ bool display_menu(menu_type *options, int select, bool scroll, int disp(int),
 				{
 					/* Find previous option */
 					select--;
-				
+
 					/* Scroll over */
 					if (select < 0) select = num - 1;
 				}
 				while(!(options[select].flags & MN_SELECT));
-			
+
 				/* Show the list */
 				show_menu(num, options, select, scroll, disp, prompt);
 
@@ -693,19 +693,19 @@ bool display_menu(menu_type *options, int select, bool scroll, int disp(int),
 				{
 					/* Find next option */
 					select++;
-				
+
 					/* Scroll over */
 					if (select >= num) select = 0;
 				}
 				while(!(options[select].flags & MN_SELECT));
-			
+
 				/* Show the list */
 				show_menu(num, options, select, scroll, disp, prompt);
-			
+
 				/* Next time */
 				continue;
 			}
-		
+
 			/* Context-sensitive help */
 			else if (choice == '?')
 			{
@@ -714,10 +714,10 @@ bool display_menu(menu_type *options, int select, bool scroll, int disp(int),
 				{
 					/* Show the information */
 					show_file(options[select].help, NULL, 0, 0);
-								
+
 					/* Show the list */
 					show_menu(num, options, select, scroll, disp, prompt);
-				
+
 					/* Next time */
 					continue;
 				}
@@ -735,7 +735,7 @@ bool display_menu(menu_type *options, int select, bool scroll, int disp(int),
 			bell("Illegal choice!");
 			continue;
 		}
-		
+
 		save_choice = i;
 
 		/* Find the action to call */
@@ -756,13 +756,13 @@ bool display_menu(menu_type *options, int select, bool scroll, int disp(int),
 							break;
 						}
 					}
-					
+
 					/* Hack - restore the screen */
 					if (options[j].flags & MN_CLEAR)
 					{
 						screen_load();
 					}
-				
+
 					if (options[j].action(j))
 					{
 						/* Hack - restore the screen */
@@ -771,20 +771,20 @@ bool display_menu(menu_type *options, int select, bool scroll, int disp(int),
 							/* Restore the screen */
 							screen_load();
 						}
-						
+
 						/* Save for later */
 						repeat_push(save_choice);
-	
+
 						/* Success */
 						return (TRUE);
 					}
-					
+
 					/* Hack - save the screen */
 					if (options[j].flags & MN_CLEAR)
 					{
 						screen_save();
 					}
-										
+
 					/*
 					 * Select this option for next time
 					 * if had a previous selection.
@@ -793,17 +793,17 @@ bool display_menu(menu_type *options, int select, bool scroll, int disp(int),
 					{
 						select = j;
 					}
-					
+
 					/* Hack - flush messages */
 					message_flush();
-						
+
 					/* Show the list */
 					show_menu(num, options, select, scroll, disp, prompt);
-						
+
 					/* Get a new command */
 					break;
 				}
-				
+
 				/* Decrement count until reach selected option */
 				i--;
 			}
@@ -886,6 +886,32 @@ int color_char_to_attr(char c)
 	return (-1);
 }
 
+char attr_to_color_char(byte c)
+{
+	switch (c)
+	{
+		case TERM_DARK: return('d');
+		case TERM_WHITE: return('w');
+		case TERM_SLATE: return('s');
+		case TERM_ORANGE: return('o');
+		case TERM_RED: return('r');
+		case TERM_GREEN: return('g');
+		case TERM_BLUE: return('b');
+		case TERM_UMBER: return('u');
+
+		case TERM_L_DARK: return('D');
+		case TERM_L_WHITE: return('W');
+		case TERM_VIOLET: return('v');
+		case TERM_YELLOW: return('y');
+		case TERM_L_RED: return('R');
+		case TERM_L_GREEN: return('G');
+		case TERM_L_BLUE: return('B');
+		case TERM_L_UMBER: return('U');
+	}
+
+	return ('&');
+}
+
 
 /*
  * Save the screen, and increase the "icky" depth.
@@ -940,22 +966,22 @@ int fmt_offset(cptr str1, cptr str2)
 		{
 			/* Scan the next character */
 			c++;
-			
+
 			/* Is it a colour specifier? */
 			if (((*c >= 'A') && (*c <= 'R')) ||
 				((*c >= 'a') && (*c <= 'r')))
 			{
 				c++;
-				
+
 				continue;
 			}
 		}
-		
+
 		/* Next position */
 		i++;
 		c++;
 	}
-	
+
 	return (i);
 }
 
@@ -965,7 +991,7 @@ int fmt_offset(cptr str1, cptr str2)
 void fmt_clean(char *buf)
 {
 	char *p = buf, *c = buf;
-	
+
 	while (*c)
 	{
 		/* Does this character match the escape code? */
@@ -973,16 +999,16 @@ void fmt_clean(char *buf)
 		{
 			/* Scan the next character */
 			c++;
-			
+
 			/* Is it an escape sequence? */
 			if ((*c >= 'A') && (*c <= 'R'))
 			{
 				/* Ignore it */
 				c++;
-				
+
 				continue;
 			}
-						
+
 			/*
 			 * Hack XXX XXX - otherwise, ignore the dollar sign
 			 * and copy the string value.
@@ -990,7 +1016,7 @@ void fmt_clean(char *buf)
 			 * This makes "$$" turn into just "$".
 			 */
 			*p++ = *c;
-			
+
 			/* Stop if reach null */
 			if (*c == 0) break;
 		}
@@ -1000,7 +1026,7 @@ void fmt_clean(char *buf)
 			*p++ = *c++;
 		}
 	}
-	
+
 	/* Terminate buffer */
 	*p = '\0';
 }
@@ -1012,16 +1038,16 @@ void fmt_clean(char *buf)
 static void put_cstr(int col, int row, cptr str, bool clear)
 {
 	cptr c = str;
-	
+
 	/* Default to white */
 	byte a = TERM_WHITE;
 	byte da = a;
-	
+
 	int x = col;
-	
+
 	/* Clear line, position cursor */
 	if (clear) Term_erase(col, row, 255);
-	
+
 	while (*c)
 	{
 		/* Does this character match the escape code? */
@@ -1029,7 +1055,7 @@ static void put_cstr(int col, int row, cptr str, bool clear)
 		{
 			/* Scan the next character */
 			c++;
-			
+
 			/* Is it a colour specifier? */
 			if ((*c >= 'A') && (*c <= 'P'))
 			{
@@ -1040,23 +1066,23 @@ static void put_cstr(int col, int row, cptr str, bool clear)
 				 */
 				a = *c - 'A';
 				c++;
-				
+
 				/* Hack -- fake monochrome */
 				if (!use_color) a = TERM_WHITE;
-				
+
 				continue;
 			}
-			
+
 			/* Default colour change? */
 			else if (*c == 'Q')
 			{
 				/* Save current colour as 'default' */
 				da = a;
 				c++;
-				
+
 				continue;
 			}
-			
+
 			/* Go back to default colour */
 			else if (*c == 'R')
 			{
@@ -1065,33 +1091,33 @@ static void put_cstr(int col, int row, cptr str, bool clear)
 
 				continue;
 			}
-			
+
 			/*
 			 * Hack XXX XXX - otherwise, ignore the dollar sign
 			 *
 			 * This makes "$$" turn into just "$".
 			 */
-			
+
 			/* Stop if reach null */
 			else if (*c == 0) break;
 		}
-		
+
 		if (*c == '\n')
 		{
 			/* Reset to the 'start' of the next row. */
 			row++;
 			x = col;
 			c++;
-			
+
 			/* Clear line, position cursor */
 			if (clear) Term_erase(col, row, 255);
-			
-			continue;		
+
+			continue;
 		}
-		
+
 		/* Display the character */
 		Term_putch(x, row, a, *c);
-		
+
 		/* Next position */
 		x++;
 		c++;
@@ -1166,10 +1192,10 @@ void roff(cptr str, ...)
 	int w, h;
 
 	cptr s;
-	
+
 	byte a = TERM_WHITE;
 	byte da = a;
-	
+
 	va_list vp;
 
 	char buf[1024];
@@ -1206,13 +1232,13 @@ void roff(cptr str, ...)
 
 			continue;
 		}
-		
+
 		/* Does this character match the escape code? */
 		if (*s == '$')
 		{
 			/* Scan the next character */
 			s++;
-			
+
 			/* Is it a colour specifier? */
 			if ((*s >= 'A') && (*s <= 'P'))
 			{
@@ -1222,22 +1248,22 @@ void roff(cptr str, ...)
 				 * Hack - this depends on ASCII symbols
 				 */
 				a = *s - 'A';
-								
+
 				/* Hack -- fake monochrome */
 				if (!use_color) a = TERM_WHITE;
-				
+
 				continue;
 			}
-			
+
 			/* Default colour change? */
 			else if (*s == 'Q')
 			{
 				/* Save current colour as 'default' */
 				da = a;
-				
+
 				continue;
 			}
-			
+
 			/* Go back to default colour */
 			else if (*s == 'R')
 			{
@@ -1245,13 +1271,13 @@ void roff(cptr str, ...)
 
 				continue;
 			}
-			
+
 			/*
 			 * Hack XXX XXX - otherwise, ignore the dollar sign
 			 *
 			 * This makes "$$" turn into just "$".
 			 */
-			 
+
 			/* Stop if now reach null */
 			else if (*s == 0) break;
 		}
@@ -1337,7 +1363,7 @@ void froff(FILE *fff, cptr str, ...)
 
 	/* End the Varargs Stuff */
 	va_end(vp);
-		
+
 	/* Output it to the file */
 	fprintf(fff, "%s", buf);
 }
@@ -1502,7 +1528,7 @@ bool askfor_aux(char *buf, int len)
 bool get_string(char *buf, int len, cptr str, ...)
 {
 	bool res;
-    
+
     va_list vp;
 
 	char prompt[1024];
@@ -1521,7 +1547,7 @@ bool get_string(char *buf, int len, cptr str, ...)
 
 	/* Display prompt */
 	prtf(0, 0, prompt);
-	
+
 	/* Ask the user for a string */
 	res = askfor_aux(buf, len);
 
@@ -1543,7 +1569,7 @@ bool get_string(char *buf, int len, cptr str, ...)
 static bool get_check_base(bool def, bool esc, cptr prompt)
 {
 	int i;
-    
+
 	/* Do not skip */
 	p_ptr->state.skip_more = FALSE;
 
@@ -1571,7 +1597,7 @@ static bool get_check_base(bool def, bool esc, cptr prompt)
 	{
 		case 'y': case 'Y':
 			return (TRUE);
-		
+
 		case ESCAPE:
 			return (esc);
 

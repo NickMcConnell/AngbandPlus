@@ -606,6 +606,11 @@ monster_race *r_info;
 char *r_name;
 char *r_text;
 
+/* The monster group array
+ *
+ */
+ monster_group_type *mg_info;
+
 /*
  * The field thaumatergical array
  */
@@ -756,3 +761,18 @@ int owner_suffix_max;
  */
 int init_flags;
 
+/*
+ * Whether we are in a quest dungeon.
+ * Can be easily calculated, but this will be more efficient.
+ */
+quest_type *current_quest = NULL;
+
+/*
+ * Whether we are currently creating the dungeon.
+ */
+bool level_gen_in_progress = FALSE;
+
+/*
+ * Used in monster nest generation
+ */
+monster_group_type *current_monster_group = NULL;

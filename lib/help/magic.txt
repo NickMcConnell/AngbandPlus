@@ -22,11 +22,11 @@ while others offer spells for protection, healing and gathering
 information.
 
 In general, Life is defensive although it offers some good attacking
-spells against evil monsters, Arcane offers utility spells with limited
-offensive capability, Sorcery offers utility spells and some defensive
-capability, Nature specializes in the elements and offers both
-defensive and offensive spells, Trump specializes in teleportation and
-summoning spells and Chaos and Death are offensive.
+spells against evil monsters, Arcane offers utility spells with
+limited offensive capability, Sorcery offers utility spells and some
+defensive capability, Nature specializes in the elements and offers
+both defensive and offensive spells, Conjuration specializes in
+teleportation and summoning spells and Chaos and Death are offensive.
 
 In Zangband, spellcasting classes can select either one or two realms
 from those available. Note that certain realms may be prohibited for
@@ -37,11 +37,11 @@ powerful. However, the opposite holds true. While a given realm of
 magic typically includes spells of a certain type, new ultra powerful
 rare high-level spells have been added to many realms.
 
-Any spell realm should have enough high-level spells even for the later
-stages of the game. The main difference lies in how they support your
-playing strategy: some offer "weapon" spells which let you directly
-hurt your enemy, while others offer spells for protection, healing and
-gathering information.
+Any spell realm except Arcane should have enough high-level spells
+even for the later stages of the game. The main difference lies in how
+they support your playing strategy: some offer "weapon" spells which
+let you directly hurt your enemy, while others offer spells for
+protection, healing and gathering information.
 
 In standard Angband, there were 9 spellbooks for all spellcasters. In
 Zangband, there are 4 spellbooks per realm. Two of them can be bought
@@ -99,7 +99,7 @@ Rogues
      other hand, is more interested in the Sorcery spells, which allow
      him or her to do the job fast and efficiently. The Assassins'
      partiality for Death magic is well known, and they are feared for
-     it. Finally, there is the Card Shark, who will opt for Trump
+     it. Finally, there is the Card Shark, who will opt for Conjuration
      magic, and shuffles the decks with amazing proficiency. All Rogues
      have certain limitations on which spells they can learn, and they
      are not too fast to learn new spells.
@@ -191,38 +191,36 @@ Sorcery
      one weakness: it has no spells to deal direct damage to your
      enemies.
 
-Arcane
-     Even more than Sorcery, Arcane magic is a general purpose realm of
-     magic. It attempts to encompass all 'useful' spells from all 
+Arcane 
+     Even more than Sorcery, Arcane magic is a general purpose realm
+     of magic. It attempts to encompass all 'useful' spells from all
      realms, and almost succeeds, with the probable exception of
-     *Identify*. This is the downside of Arcane magic: while Arcane 
-     does have all the necessary 'tool' spells for a dungeon delver, it
-     has no ultra-powerful high level spells. As a consequence, all
-     Arcane spellbooks can be bought in town. It should also be noted
-     that the 'specialized' realms (i.e. other than Arcane) usually
-     offer the same spell at a lower level and cost. Arcane magic is
-     therefore perhaps not recommendable as one's only realm of magic,
-     but it should be a very nice addition to fill up the gaps in the
-     selection of tools spells in another realm.
+     *Identify*. This is the downside of Arcane magic: while Arcane
+     does have all the necessary 'tool' spells for a dungeon delver,
+     it has no ultra-powerful high level spells. As a consequence, all
+     Arcane spellbooks can be bought in town, and regardless of your
+     class, you will eventually be able to cast every Arcane spell.
+     Furthermore, the Arcane realm can be mastered much earlier than
+     other realsm because of its lack of high-power spells. It should
+     also be noted that the 'specialized' realms (i.e. other than
+     Arcane) usually offer the same spell at a lower level and
+     cost. Arcane magic is therefore perhaps not recommendable as
+     one's only realm of magic, but it should be a very nice addition
+     to fill up the gaps in the selection of tools spells in another
+     realm.
 
-Trump
-     Trump magic seems an independent source of power, although its
-     supposed association with Chaos magic has been mentioned in
-     several places. Although it lacks the unpredictable chaotic
-     side-effects of Chaos magic, it has a few spells whose exact
-     effects seem more or less random. One such spell is Shuffle: the
-     Trump spellbooks actually consist of decks of trumps, and the
-     Shuffle spell allows the caster to shuffle the deck and pick one
-     card at random. The effect depends on the card picked, and is not
-     always pleasant. In the Amber universe, the Trump gateways are
-     also a major method of transportation: Trump magic has, indeed, an
-     admirable selection of teleportation spells. Since the Trump
-     gateways can also be used to summon other creatures, Trump magic
-     has an equally impressive selection of summoning spells. However,
-     not all monsters appreciate being drawn to another place by Trump
-     user. The only summoned creatures whose loyalty is guaranteed are
-     the Phantasmal Servants, who lack a will of their own (but can
-     develop one, if you treat them badly).
+Conjuration
+     Conjuration magic is concerned with the creation and movement of
+     things via magical means.  It has a wide variety of summoning
+     spells that can be effective in all stages of the game.  In
+     addition, it has an excellent variety of transportation spells.
+     It has some direct offensive spells in which a dangerous projectile
+     is created.  It also has some healing, as restorative herbs and
+     essences can be created by magic.  However, Conjuration magic has
+     a near-complete lack of spells for gathering information, so if 
+     you want to be able to identify items or detect monsters around
+     corners you will have to look elsewhere.  (Conjuration magic is
+     similar in some ways to the discontinued Trump school of magic.)
 
 Nature
      Early levels may be rather difficult for a spellcaster relying on
@@ -231,7 +229,7 @@ Nature
      are very useful offensive spells available, especially should the
      spellcaster be lucky enough to find an extremely rare spellbook
      called "Nature's Wrath". Nature also has a spell of Herbal
-     Healing, which is the only powerful healing spell outside the
+     Healing, which is the only high-power healing spell outside the
      realm of Life magic.
 
 Chaos
@@ -633,4 +631,5 @@ Necronomicon
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Last update: May 16, 2000
+Updated    : Mangojuice
+Last update: June 21, 2008

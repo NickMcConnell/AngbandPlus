@@ -13,8 +13,8 @@
 
 
 /* Externs */
-extern void add_river(int feat1, int feat2);
-extern void build_streamer(int feat, int chance);
+extern void add_river(int feat1, int feat2, int size);
+extern void build_streamer(int feat, int chance, int size);
 extern void place_trees(int x, int y);
-extern void build_lake(byte f1, byte f2, byte f3);
+extern void build_lake(byte f1, byte f2, byte f3, byte size);
 extern void build_cavern(void);

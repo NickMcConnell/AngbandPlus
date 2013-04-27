@@ -1,0 +1,17 @@
+# variants on "Many".  Should be capitalized.
+N:*:Default
+13
+Many
+A group of
+A bunch of
+Several
+Lots of
+A number of
+Some
+Too many
+It seems that some
+We have heard that a group of
+We have heard that a number of
+Several
+Recently, 
+Many

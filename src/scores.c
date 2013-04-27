@@ -276,7 +276,7 @@ static bool display_scores_aux2(int from, int to, int note,
 	high_score the_score;
 
 	char out_val[256];
-	
+
 	int len;
 	int entries;
 
@@ -703,7 +703,7 @@ void enter_score(void)
 /*
  * Displays some relevant portion of the high score list.
  */
-static void top_twenty(void)
+void top_twenty(void)
 {
 	int from, to;
 	bool cont;
@@ -1010,7 +1010,7 @@ static void kingly(void)
 void ingame_score(bool *initialized, bool game_in_progress)
 {
 	char buf[1024];
-	
+
 	/* Build the filename */
 	path_make(buf, ANGBAND_DIR_APEX, "scores.raw");
 
@@ -1106,7 +1106,7 @@ static void print_tomb(void)
 
 		put_fstr(11, 7, "%v", center_string, 31, "the");
 
-		
+
 		/* King or Queen */
 		if (p_ptr->state.total_winner || (p_ptr->lev > PY_MAX_LEVEL))
 		{
@@ -1516,7 +1516,7 @@ void close_game(void)
 	else
 	{
 		int wid, hgt;
-	
+
 		/* Save the game */
 		do_cmd_save_game(FALSE);
 
@@ -1525,7 +1525,7 @@ void close_game(void)
 		{
 			add_note_type(NOTE_SAVE_GAME);
 		}
-		
+
 		/* Get size */
 		Term_get_size(&wid, &hgt);
 
@@ -1542,7 +1542,7 @@ void close_game(void)
 
 	/* Forget the high score fd */
 	highscore_fd = -1;
-	
+
 	/* No longer icky */
 	screen_load();
 

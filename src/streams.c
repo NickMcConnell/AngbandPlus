@@ -145,12 +145,14 @@ static void recursive_river(int x1, int y1, int x2, int y2, int feat1,
 /*
  * Places water /lava through dungeon.
  */
-void add_river(int feat1, int feat2)
+void add_river(int feat1, int feat2, int size)
 {
 	int y2, x2;
 	int y1 = 0, x1 = 0;
-	int wid;
-
+	
+	/* Restrict to sizes 1-10 */
+	size = MAX(1,size);
+	size = MIN(10,size);
 
 	/* Hack -- Choose starting point */
 	y2 = rand_range(p_ptr->min_hgt + 1, p_ptr->max_hgt - 2);
@@ -189,8 +191,7 @@ void add_river(int feat1, int feat2)
 		}
 	}
 
-	wid = randint1(DUN_WAT_RNG);
-	recursive_river(x1, y1, x2, y2, feat1, feat2, wid);
+	recursive_river(x1, y1, x2, y2, feat1, feat2, size);
 
 	/* Hack - Save the location as a "room" */
 	if (dun->cent_n < CENT_MAX)
@@ -210,7 +211,7 @@ void add_river(int feat1, int feat2)
  * basic vein, one with hidden gold, and one with known gold.  The
  * hidden gold types are currently unused.
  */
-void build_streamer(int feat, int chance)
+void build_streamer(int feat, int chance, int size)
 {
 	int i, tx, ty;
 	int y, x, dir;
@@ -235,7 +236,7 @@ void build_streamer(int feat, int chance)
 		/* One grid per density */
 		for (i = 0; i < DUN_STR_DEN; i++)
 		{
-			int d = DUN_STR_RNG;
+			int d = size;
 
 			/* Pick a nearby grid */
 			while (1)
@@ -257,7 +258,7 @@ void build_streamer(int feat, int chance)
 			set_feat_grid(c_ptr, feat);
 
 			/* Hack XXX XXX -- Add some (known) treasure */
-			if (one_in_(chance)) c_ptr->feat += 0x04;
+			if (chance && one_in_(chance)) c_ptr->feat += 0x04;
 
 			/*
 			 * So this means that all the treasure is known as soon as it is
@@ -394,21 +395,28 @@ void build_cavern(void)
 /*
  * makes a lake/collapsed cave system in the center of the dungeon
  */
-void build_lake(byte f1, byte f2, byte f3)
+void build_lake(byte f1, byte f2, byte f3, byte size)
 {
 	int grd, roug, xsize, ysize, x0, y0;
 	bool done = FALSE;
 	int c1, c2, c3;
 
+	/* Bounds */
+	if (size < 10) size = 10;
+
 	/* Make the size of the dungeon */
 	xsize = p_ptr->max_wid - 2;
+	xsize = rand_range (xsize/10, (xsize*size)/100);
 	ysize = p_ptr->max_hgt - 2;
+	ysize = rand_range (ysize/10, (ysize*size)/100);
+
+	/* In the center */
 	x0 = xsize / 2;
 	y0 = ysize / 2;
 
 	/* Paranoia: make size even */
-	xsize = x0 * 2;
-	ysize = y0 * 2;
+	if (xsize & 1) xsize++;
+	if (ysize & 1) ysize++;
 
 	while (!done)
 	{

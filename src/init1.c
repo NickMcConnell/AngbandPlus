@@ -117,6 +117,24 @@ static cptr r_info_blow_method[] =
 	NULL
 };
 
+/*
+ * Monster Ranged Methods
+ */
+/*
+ * Unused
+static cptr r_info_ranged_method[] =
+{
+	"",
+	"DART",
+	"ARROW",
+	"BOLT",
+	"SHOT",
+	"DAGGER",
+	"AXE",
+	"BOULDER",
+	NULL
+};
+*/
 
 /*
  * Monster Blow Effects
@@ -406,9 +424,9 @@ static cptr r_info_flags7[] =
 	"SILLY",
 	"LITE_1",
 	"LITE_2",
-	"XXX7X7",
-	"XXX7X8",
-	"XXX7X9",
+	"ALWAYS_KNOWN",
+	"CTH",
+	"AMBER",
 	"XXX7X10",
 	"XXX7X11",
 	"XXX7X12",
@@ -682,6 +700,25 @@ static cptr w_info_flags[] =
 };
 
 /*
+ * Monster group guild flags
+ */
+static cptr mg_info_guild_flags[] =
+{
+	"CASTLE0",
+	"CASTLE1",
+	"CASTLE2",
+	"WARRIOR_GUILD",
+	"THIEVES_GUILD",
+	"RANGER_GUILD",
+	"MAGE_GUILD",
+	"CATHEDRAL",
+	"INN",
+	"ALL",
+	"ALL_CASTLE",
+	"ALL_GUILD"
+};
+
+/*
  * Field info-flags
  */
 
@@ -734,6 +771,80 @@ static cptr t_info_triggers[] =
 	NULL
 };
 
+/*
+ * Monster group dungeon flags
+ */
+static cptr mg_info_dungeon_types[] =
+{
+	"SEWER",
+	"LAIR",
+	"TEMPLE",
+	"TOWER",
+	"RUIN",
+	"GRAVE",
+	"CAVERN",
+	"PLANAR",
+	"HELL",
+	"HORROR",
+	"MINE",
+	"CITY",
+	"VANILLA",
+	"DESERT",
+	"SWAMP",
+	"SANDY_BURROW",
+	"FOREST",
+	"MOUNTAIN",
+	"TUNDRA",
+	"PURE_CASTLE",
+	"ELEMENT_FIRE",
+	"ELEMENT_WATER",
+	"ICE_CAVE",
+	"ELEMENT_ACID",
+	"SMOKE_CAVE",
+	"ELEMENT_COLD",
+	"ELEMENT_EARTH",
+	"HEAVEN",
+	"GRASSLAND",
+	"ELEMENT_AIR",
+	"HOUSE",
+	"FLOOD_CAVE"
+};
+
+static cptr mg_info_dungeon_flags[] =
+{
+	"ROAD",
+	"TRACK",
+	"OUTSIDE",
+	"FORCE_LIT",
+	"SYM_2",
+	"SYM_4",
+	"SYM_2R",
+	"SYM_4R",
+	"BIG",
+	"MEDIUM",
+	"SMALL",
+	"CENTER",
+	"CASTLE",
+	"SPARSE",
+	"DENSE",
+	"POOLS",
+	"XXX1",
+	"XXX2",
+	"XXX3",
+	"XXX4",
+	"XXX5",
+	"XXX6",
+	"XXX7",
+	"XXX8",
+	"XXX9",
+	"XXX10",
+	"XXX11",
+	"XXX12",
+	"XXX13",
+	"XXX14",
+	"XXX15",
+	"XXX16",
+};
 
 /*** Initialize from ascii template files ***/
 
@@ -1056,6 +1167,18 @@ errr parse_z_info(char *buf, header *head)
 		z_info->rg_max = max;
 	}
 
+	/* Process 'g' for "Maximum number of monster groups" */
+	else if (buf[2] == 'g')
+	{
+		int max;
+
+		/* Scan for the value */
+		if (1 != sscanf(buf + 4, "%d", &max)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the value */
+		z_info->mg_max = max;
+	}
+
 	/* Process 'W' for "Maximum wilderness values" */
 	else if (buf[2] == 'W')
 	{
@@ -1098,6 +1221,7 @@ errr parse_z_info(char *buf, header *head)
 			/* Save the value */
 			z_info->wp_max = max;
 		}
+
 	}
 
 	else
@@ -1603,7 +1727,7 @@ errr parse_k_info(char *buf, header *head)
 	else if (buf[0] == 'L')
 	{
 		int n;
-		
+
 		/* There better be a current k_ptr */
 		if (!k_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
@@ -1628,7 +1752,7 @@ errr parse_k_info(char *buf, header *head)
 		/* Store the text */
 		if (!add_text(&(k_ptr->trigger[n]), head, s))
 		{
-			msgf("Icky Trigger!!");
+			msgf("Icky Trigger 1!!");
 			message_flush();
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 		}
@@ -1832,7 +1956,7 @@ errr parse_a_info(char *buf, header *head)
 	else if (buf[0] == 'L')
 	{
 		int n;
-		
+
 		/* There better be a current a_ptr */
 		if (!a_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
@@ -1857,7 +1981,7 @@ errr parse_a_info(char *buf, header *head)
 		/* Store the text */
 		if (!add_text(&(a_ptr->trigger[n]), head, s))
 		{
-			msgf("Icky Trigger!!");
+			msgf("Icky Trigger 2!!");
 			message_flush();
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 		}
@@ -2039,11 +2163,29 @@ errr parse_e_info(char *buf, header *head)
 		}
 	}
 
+	/* Process 'D' for "Description" */
+	else if (buf[0] == 'D')
+	{
+		/* There better be a current e_ptr */
+		if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Get the text */
+		s = buf + 2;
+
+		/* Store the text */
+		if (!add_text(&(e_ptr->text), head, s))
+		{
+			msgf("Icky Description!!");
+			message_flush();
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+		}
+	}
+
 	/* Process 'L' for "Lua script" */
 	else if (buf[0] == 'L')
 	{
 		int n;
-		
+
 		/* There better be a current e_ptr */
 		if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
@@ -2068,7 +2210,7 @@ errr parse_e_info(char *buf, header *head)
 		/* Store the text */
 		if (!add_text(&(e_ptr->trigger[n]), head, s))
 		{
-			msgf("Icky Trigger!!");
+			msgf("Icky Trigger 3!!");
 			message_flush();
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 		}
@@ -2294,7 +2436,7 @@ errr parse_r_info(char *buf, header *head)
 		r_ptr->obj_drop.combat = (byte)combat;
 		r_ptr->obj_drop.magic = (byte)magic;
 
-		/* 
+		/*
 		 * Since monsters do not drop junk,
 		 * this value is defined in terms of the others
 		 */
@@ -2664,6 +2806,9 @@ errr init_w_info_txt(FILE *fp, char *buf)
 	return (0);
 }
 
+
+#endif /* ALLOW_TEMPLATES */
+
 /*
  * Grab one info-flag from a textual string
  */
@@ -2863,12 +3008,12 @@ errr init_t_info_txt(FILE *fp, char *buf)
 			/* Next... */
 			continue;
 		}
-		
+
 		/* Process 'L' for "Lua script" */
 		if (buf[0] == 'L')
 		{
 			int n;
-		
+
 			/* There better be a current t_ptr */
 			if (!t_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
@@ -2894,16 +3039,16 @@ errr init_t_info_txt(FILE *fp, char *buf)
 			if (t_ptr->action[n])
 			{
 				s16b old = t_ptr->action[n];
-				
+
 				t_ptr->action[n] = quark_fmt("%s\n%s", quark_str(old), s);
-				
+
 				quark_remove(&old);
 			}
 			else
 			{
 				t_ptr->action[n] = quark_add(s);
 			}
-					
+
 			/* Next... */
 			continue;
 		}
@@ -2917,4 +3062,1797 @@ errr init_t_info_txt(FILE *fp, char *buf)
 	return (0);
 }
 
-#endif /* ALLOW_TEMPLATES */
+/*
+ * Grab one guild flag in monster_group_type from a textual string
+ */
+static errr grab_one_guild_flag(monster_group_type *mg_ptr, cptr what)
+{
+	int i;
+
+	bool found = FALSE;
+
+	/* Check flags */
+	for (i = 0; i < 9; i++)
+	{
+		if (streq(what, mg_info_guild_flags[i]))
+		{
+			mg_ptr->flags |= (1 << i);
+			found = TRUE;
+		}
+	}
+
+	/* 9-11 are special cases */
+	if (streq(what, mg_info_guild_flags[9]))
+	{
+		mg_ptr->flags |= MGF_ALL;
+		found = TRUE;
+	}
+
+	if (streq(what, mg_info_guild_flags[10]))
+	{
+		mg_ptr->flags |= MGF_CASTLE;
+		found = TRUE;
+	}
+
+	if (streq(what, mg_info_guild_flags[11]))
+	{
+		mg_ptr->flags |= MGF_GUILD;
+		found = TRUE;
+	}
+
+	if (!found)
+	{
+		/* Oops */
+		msgf("Unknown guild flag '%s'.", what);
+
+		/* Error */
+		return (PARSE_ERROR_GENERIC);
+	}
+
+	return(0);
+}
+
+/*
+ * Grab one (basic) flag in a monster_race from a textual string
+ */
+static errr grab_one_monster_flag(u32b *flags, cptr what)
+{
+	if (grab_one_flag(&flags[0], r_info_flags1, what) == 0)
+		return (0);
+
+	if (grab_one_flag(&flags[1], r_info_flags2, what) == 0)
+		return (0);
+
+	if (grab_one_flag(&flags[2], r_info_flags3, what) == 0)
+		return (0);
+
+	if (grab_one_flag(&flags[3], r_info_flags4, what) == 0)
+		return (0);
+
+	if (grab_one_flag(&flags[4], r_info_flags5, what) == 0)
+		return (0);
+
+	if (grab_one_flag(&flags[5], r_info_flags6, what) == 0)
+		return (0);
+
+	if (grab_one_flag(&flags[6], r_info_flags7, what) == 0)
+		return (0);
+
+	if (grab_one_flag(&flags[7], r_info_flags8, what) == 0)
+		return (0);
+
+	if (grab_one_flag(&flags[8], r_info_flags9, what) == 0)
+		return (0);
+
+
+	/* Oops */
+	msgf("Unknown monster flag '%s'.", what);
+
+	/* Failure */
+	return (PARSE_ERROR_GENERIC);
+}
+
+static errr grab_one_dungeon_type_flag(monster_group_type *mg_ptr, cptr what)
+{
+	return grab_one_flag(&mg_ptr->d_type, mg_info_dungeon_types, what);
+}
+
+static errr grab_one_dungeon_flag(monster_group_type *mg_ptr, cptr what)
+{
+	return grab_one_flag(&mg_ptr->d_flags, mg_info_dungeon_flags, what);
+}
+
+/*
+ * Initialize the monster group arrays,
+ *  by parsing an ascii "template" file
+ */
+errr init_mg_info_txt(FILE *fp, char *buf)
+{
+	char *s, *t;
+
+	u16b i = 0;
+
+	byte hook_num = 0;
+
+	/* Current entry */
+	monster_group_type *mg_ptr = NULL;
+
+	/* Just before the first line */
+	error_line = -1;
+
+	/* The last index used */
+	error_idx = -1;
+
+
+
+	/* Parse */
+	while (0 == my_fgets(fp, buf, 1024))
+	{
+		/* Advance the line number */
+		error_line++;
+
+		/* Skip comments and blank lines */
+		if (!buf[0] || (buf[0] == '#')) continue;
+
+		/* Verify correct "colon" format */
+		if (buf[1] != ':') return (PARSE_ERROR_GENERIC);
+
+		/* Process 'N' for "Number" (one line only) */
+		if (buf[0] == 'N')
+		{
+			/* Get the index */
+			i = atoi(buf + 2);
+
+			/* Verify information */
+			if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
+
+			/* Check to see if there is room in array */
+			if (i > z_info->mg_max - 1) return (PARSE_ERROR_OUT_OF_MEMORY);
+
+			/* Save the index */
+			error_idx = i;
+
+			/* point to new position in array */
+			mg_ptr = &mg_info[i];
+
+			/* Find the colon before the name */
+			s = strchr(buf + 2, ':');
+
+			/* Verify that colon */
+			if (!s) return (PARSE_ERROR_GENERIC);
+
+			/* Nuke the colon, advance to the name */
+			*s++ = '\0';
+
+			/* Paranoia -- require a name */
+			if (!*s) return (PARSE_ERROR_GENERIC);
+
+			/* Add the name */
+			strncpy(mg_ptr->name, s, 32);
+
+			/* Start over at hook 0. */
+			hook_num = 0;
+
+			continue;
+		}
+
+		/* Process 'G' for "Guild list" */
+		if (buf[0] == 'G')
+		{
+			/* Parse every entry */
+			for (s = buf + 2; *s;)
+			{
+				/* Find the end of this entry */
+				for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */ ;
+
+				/* Nuke and skip any dividers */
+				if (*t)
+				{
+					*t++ = '\0';
+					while (*t == ' ' || *t == '|') t++;
+				}
+
+				/* Parse this entry */
+				if (0 !=
+					grab_one_guild_flag(mg_ptr,
+									   s)) return (PARSE_ERROR_INVALID_FLAG);
+
+				/* Start the next entry */
+				s = t;
+			}
+			continue;
+		}
+
+		/* Process 'H' for hook information (one line, up to 6 times) */
+		if (buf[0] == 'H')
+		{
+			hook_rule_type *hrt_ptr;
+
+			if (hook_num >= 6)
+			{
+				msgf ("Too many hooks.");
+				return (PARSE_ERROR_OUT_OF_MEMORY);
+			}
+
+			hrt_ptr = &(mg_ptr->rule[hook_num++]);
+
+			/* verify colon format */
+			if (buf[3] != ':' || buf[5] != ':' || buf[7] != ':')
+				return (PARSE_ERROR_GENERIC);
+
+			/* Parse type */
+			switch (buf[2])
+			{
+				case 'G':
+					hrt_ptr->type = HRT_GRAPHIC;
+					break;
+				case 'F':
+					hrt_ptr->type = HRT_FLAG;
+					break;
+				case 'N':
+					hrt_ptr->type = HRT_NAME;
+					break;
+				case 'S':
+					hrt_ptr->type = HRT_SPELL_FREQ;
+					break;
+				case 'X':
+					hrt_ptr->type = HRT_RIDX;
+					break;
+				case 'B':
+					hrt_ptr->type = HRT_BLOW;
+					break;
+				case 'H':
+					hrt_ptr->type = HRT_HIT_DICE;
+					break;
+				case 'v':
+				    hrt_ptr->type = HRT_SPEED;
+					break;
+				case 'D':
+					hrt_ptr->type = HRT_DEPTH;
+					break;
+				case 'R':
+					hrt_ptr->type = HRT_RARITY;
+					break;
+				case 'A':
+					hrt_ptr->type = HRT_ARMOR;
+					break;
+				default:
+					msgf ("Uknown hook rule type '%c'.", buf[2]);
+					return (PARSE_ERROR_GENERIC);
+			}
+
+			/* Parse Include / Exclude */
+			switch (buf[4])
+			{
+				case 'I':
+					hrt_ptr->include = TRUE;
+					break;
+				case 'E':
+					hrt_ptr->include = FALSE;
+					break;
+				default:
+					msgf ("Expected 'E' or 'I', read '%c'.", buf[4]);
+					return (PARSE_ERROR_GENERIC);
+			}
+
+			/* Parse neg */
+			switch (buf[6])
+			{
+				case '+':
+					hrt_ptr->neg = FALSE;
+					break;
+				case '-':
+					hrt_ptr->neg = TRUE;
+					break;
+				default:
+					msgf ("Expected '+' or '-', read '%c'.", buf[4]);
+					return (PARSE_ERROR_GENERIC);
+			}
+
+			/* Parse data */
+			if (buf[2] == 'F')
+			{
+				/* Monster flags: parse the flag descriptions, store raw data in data. */
+				u32b flags[9];
+				int j;
+
+				/* Blank flags */
+				for (j = 0; j < 9; flags[j++] = 0) /* loop */ ;
+
+				/* Parse every entry */
+				for (s = buf + 8; *s;)
+				{
+					/* Find the end of this entry */
+					for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */ ;
+
+					/* Nuke and skip any dividers */
+					if (*t)
+					{
+						*t++ = '\0';
+						while (*t == ' ' || *t == '|') t++;
+					}
+
+					/* Parse this entry */
+					if (0 != grab_one_monster_flag(flags, s))
+									 return (PARSE_ERROR_INVALID_FLAG);
+
+					/* Start the next entry */
+					s = t;
+				}
+
+				/* Turn flags into bytes */
+				for (j = 0; j < 9; j++)
+				{
+					hrt_ptr->data[(4*j)] = (char) (flags[j] && 0xFF);
+					hrt_ptr->data[(4*j)+1] = (char) ((flags[j] >> 8) && 0xFF);
+					hrt_ptr->data[(4*j)+2] = (char) ((flags[j] >> 16) && 0xFF);
+					hrt_ptr->data[(4*j)+3] = (char) ((flags[j] >> 24) && 0xFF);
+				}
+
+				/* Complete paranoia: test the algorithm  */
+				for (j = 0; j < 9; j++)
+				{
+					u32b test;
+
+					test = (u32b)hrt_ptr->data[(4*j)];
+					test += ((u32b)(1 << 8) * hrt_ptr->data[(4*j)+1]);
+					test += ((u32b)(1 << 16) * hrt_ptr->data[(4*j)+2]);
+					test += ((u32b)(1 << 24) * hrt_ptr->data[(4*j)+3]);
+
+					if (test != flags[j])
+					{
+						buf[80];
+						prtf (0, 0, "Flag to char conversion algorithm failed: %h %h", flags[j], test);
+						message_flush();
+					}
+				}
+			} /* Data for HRT_FLAG hooks */
+			else if (buf[2] == 'B')
+			{
+				/* Monster blow: Parse the text and convert to a sequence
+					MxExEx, etc., where M/B signifies method or effect, and x
+					is the number of the type (not a string). */
+				int j;
+				int n = 0;
+				bool found;
+
+				for (s = buf + 8; *s;)
+				{
+					found = FALSE;
+
+					/* Find the end of this entry */
+					for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */ ;
+
+					/* Nuke and skip any dividers */
+					if (*t)
+					{
+						*t++ = '\0';
+						while (*t == ' ' || *t == '|') t++;
+					}
+
+					/* Parse this entry */
+					for (j = 0; r_info_blow_method[j]; j++)
+					{
+						if (streq(s, r_info_blow_method[j]))
+						{
+							hrt_ptr->data[n++] = 'M';
+							hrt_ptr->data[n++] = (char)j;
+							found = TRUE;
+							break;
+						}
+					}
+
+					/* Note: if there were ever an effect and a method with
+					   the same name, this would end up putting them both in the
+					   list.  But, (1) there aren't, and (2) even if there were,
+					   this might well be the right thing to do. */
+					for (j = 0; r_info_blow_effect[j]; j++)
+					{
+						if (streq(s, r_info_blow_effect[j]))
+						{
+							hrt_ptr->data[n++] = 'E';
+							hrt_ptr->data[n++] = (char)j;
+							found = TRUE;
+							break;
+						}
+					}
+
+					if (!found)
+					{
+						msgf ("Unknown monster blow method or effect: %s", s);
+						return (PARSE_ERROR_GENERIC);
+					}
+
+					/* Continue with the next entry */
+					s = t;
+				}
+			} /* Data for HRT_BLOW hooks */
+			else
+			{
+				int x = atoi((buf+8));
+
+				/* For all other hook types, we just copy the string. */
+				strncpy (hrt_ptr->data, (buf+8), 128);
+
+				/* For some hook types, we can detect problems. */
+				if (x < 0)
+				{
+					switch(buf[2])
+					{
+						case 'S':
+						case 'H':
+						case 'v':
+						case 'D':
+						case 'R':
+						case 'A':
+							msgf ("Error: expected a number, read %s", (buf+8));
+							return (PARSE_ERROR_GENERIC);
+						default:
+							break;
+					}
+				}
+			}
+			/* End processing 'H' for hooks */
+			continue;
+		}
+
+		/* Process 'D' for dungeon type information */
+		if (buf[0] == 'D')
+		{
+			/* Parse every entry */
+			for (s = buf + 2; *s;)
+			{
+				/* Find the end of this entry */
+				for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */ ;
+
+				/* Nuke and skip any dividers */
+				if (*t)
+				{
+					*t++ = '\0';
+					while (*t == ' ' || *t == '|') t++;
+				}
+
+				/* Parse this entry */
+				if (0 !=
+					grab_one_dungeon_type_flag(mg_ptr,
+									   s)) return (PARSE_ERROR_INVALID_FLAG);
+
+				/* Start the next entry */
+				s = t;
+			}
+			continue;
+		}
+
+		/* Process 'F' for dungeon flag information */
+		if (buf[0] == 'F')
+		{
+			/* Parse every entry */
+			for (s = buf + 2; *s;)
+			{
+				/* Find the end of this entry */
+				for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */ ;
+
+				/* Nuke and skip any dividers */
+				if (*t)
+				{
+					*t++ = '\0';
+					while (*t == ' ' || *t == '|') t++;
+				}
+
+				/* Parse this entry */
+				if (0 !=
+					grab_one_dungeon_flag(mg_ptr,
+									   s)) return (PARSE_ERROR_INVALID_FLAG);
+
+				/* Start the next entry */
+				s = t;
+			}
+			continue;
+		}
+
+		/* Process 'L' for level information: one line only */
+		if (buf[0] == 'L')
+		{
+			int x;
+			int lmin = 1, lmax = 1, ladj = 0, nmin = 1, nmax = 1;
+
+			if (mg_ptr->min_level)
+			{
+				msgf ("Duplicate L: information ignored at line %i", error_line);
+				continue;
+			}
+
+			s = buf + 2;
+
+			/* HACK: use sscanf to grab the values.  This means
+			   we are not checking all the errors we could be, but
+			   the code is much easier */
+			x = sscanf(s, "%d:%d:%d:%d:%d", &lmin, &lmax, &ladj, &nmin, &nmax);
+
+			mg_ptr->min_level = (byte)lmin;
+			mg_ptr->max_level = (byte)lmax;
+			mg_ptr->adj_level = (s16b)ladj;
+			mg_ptr->min_levels = (byte)nmin;
+			mg_ptr->max_levels = (byte)nmax;
+
+			if (x < 3)
+			{
+				msgf ("Failed to parse L: information, read %s", s);
+				return (PARSE_ERROR_GENERIC);
+			}
+			if (x == 3)
+			{
+				mg_ptr->min_levels = 1;
+				mg_ptr->max_levels = 1;
+			}
+			if (x == 4)
+			{
+				mg_ptr->min_levels = MAX(1, mg_ptr->min_levels);
+				mg_ptr->max_levels = mg_ptr->min_levels;
+			}
+			if (x == 5)
+			{
+				mg_ptr->min_levels = MAX(1, mg_ptr->min_levels);
+				mg_ptr->max_levels = MAX(1, mg_ptr->max_levels);
+			}
+			/* Ensure sensible parameters */
+			mg_ptr->min_levels = MIN(mg_ptr->min_levels, mg_ptr->max_levels);
+			mg_ptr->max_levels = MAX(mg_ptr->min_levels, mg_ptr->max_levels);
+			mg_ptr->min_level = MIN(mg_ptr->min_level, mg_ptr->max_level);
+			mg_ptr->max_level = MAX(mg_ptr->min_level, mg_ptr->max_level);
+		}
+
+		/* Process 'W' for weight information: one line only */
+		if (buf[0] == 'W')
+		{
+			if (mg_ptr->weight)
+			{
+				msgf ("Duplicate W: information ignored at line %i", error_line);
+				continue;
+			}
+
+			mg_ptr->weight = (byte)(atoi(buf + 2));
+
+			if (mg_ptr->weight == 0)
+				msgf ("Caution: W: information gave weight 0 at line %i", error_line);
+		}
+
+	}
+
+	/* Success */
+	return (0);
+}
+
+
+
+s32b monster_auto_experience(monster_race *r_ptr, bool verbose)
+{
+ int danger;
+ int damage = 0;
+ int aggression = 100;
+ s32b toughness = 0;
+ int spells = 0;
+ int naspells = 0;
+ int ranged = 0;
+ int melee = 0;
+ int sfreq, schoice, achoice, emult, rmod, emod, hmod, round, amod;
+ s32b exp;
+ int min_d = 1;
+ int min_t = 1;
+
+ int power[4], power_base, rlev, i;
+ int dam[4];
+ int xhp, xhp_70;
+
+ /* shortcut */
+ if (FLAG(r_ptr, RF_WILD_TOWN)) return 0;
+ /* if (FLAG(r_ptr, RF_FRIENDLY) && FLAG(r_ptr, RF_UNIQUE)) return 0;  */
+
+ /* Effective monster level */
+ rlev = ((r_ptr->hdice * 2 >= 1) ? r_ptr->level : 1);
+ power_base = 3*rlev;
+
+ /* Expected hit points; avg. of avg and max hp. */
+ xhp = (FLAG(r_ptr, RF_FORCE_MAXHP) ? r_ptr->hdice*r_ptr->hside :
+        ((3*r_ptr->hdice *r_ptr->hside)+r_ptr->hdice)/4);
+ xhp_70 = (70*xhp)/100;
+
+ /* Determine melee attack power */
+ for (i = 0; i < 4; i++) {
+   /* Determine power for each blow */
+   if (!r_ptr->blow[i].method) break;  /* no more attacks */
+   switch (r_ptr->blow[i].effect)
+     {
+     case RBE_HURT:  case RBE_SHATTER:
+       power[i] = power_base + 60;
+       break;
+     case RBE_LOSE_STR:  case RBE_LOSE_INT:  case RBE_LOSE_WIS:
+     case RBE_LOSE_DEX:  case RBE_LOSE_CHR:  case RBE_LOSE_CON:
+     case RBE_ACID:
+       power[i] = power_base;
+       break;
+     case RBE_LOSE_ALL:  case RBE_PARALYZE:  case RBE_BLIND:
+       power[i] = power_base+2;
+       break;
+     case RBE_POISON:  case RBE_EAT_ITEM:  case RBE_EAT_FOOD:
+     case RBE_EAT_LITE: case RBE_EXP_10:  case RBE_EXP_20:
+     case RBE_EXP_40: case RBE_EXP_80:  case RBE_DISEASE:
+     case RBE_TIME: case RBE_EXP_VAMP:
+       power[i] = power_base+5;
+       break;
+     case RBE_ELEC: case RBE_FIRE: case RBE_COLD:
+     case RBE_CONFUSE: case RBE_TERRIFY:
+       power[i] = power_base+10;
+       break;
+     case RBE_UN_BONUS:
+       power[i] = power_base+20;
+       break;
+     case RBE_UN_POWER:
+       power[i] = power_base+15;
+       break;
+     default:
+       power[i] = 0;
+       break;
+     }
+   /* determine damage for this attack */
+   dam[i] = (r_ptr->blow[i].d_side ? (r_ptr->blow[i].d_dice *
+(r_ptr->blow[i].d_side+1))/2 : 0);
+   switch (r_ptr->blow[i].effect)
+     {
+     case RBE_POISON:
+       dam[i] += 8;
+       break;
+     case RBE_UN_BONUS:
+       dam[i] += 30;
+       break;
+     case RBE_UN_POWER:
+       dam[i] += 15;
+       break;
+     case RBE_EAT_GOLD:
+       dam[i] += 3;
+       break;
+     case RBE_EAT_ITEM:
+       dam[i] += 10;
+       break;
+     case RBE_EAT_LITE:
+       dam[i] += 3;
+       break;
+     case RBE_ACID:
+       dam[i] += 15;
+       break;
+     case RBE_FIRE:
+       dam[i] += 8;
+       break;
+     case RBE_COLD:  case RBE_ELEC:
+       dam[i] += 3;
+       break;
+     case RBE_BLIND:
+       dam[i] += 10;
+       break;
+     case RBE_CONFUSE:
+       dam[i] += 15;
+       break;
+     case RBE_TERRIFY:
+       dam[i] += 3;
+       break;
+     case RBE_PARALYZE:
+       dam[i] += 45;
+       break;
+     case RBE_LOSE_STR:
+       dam[i] += 25;
+       min_d = MAX(min_d, 25);
+       break;
+     case RBE_LOSE_INT:  case RBE_LOSE_WIS:
+       dam[i] += 10;
+       break;
+     case RBE_LOSE_DEX:  case RBE_LOSE_CON:
+       dam[i] += 20;
+       min_d = MAX(min_d, 15);
+       break;
+     case RBE_LOSE_CHR:
+       dam[i] += 5;
+       break;
+     case RBE_LOSE_ALL:
+       dam[i] += 60;
+       min_d = MAX(min_d, 30);
+       break;
+     case RBE_SHATTER:
+       dam[i] += 10;
+       break;
+     case RBE_EXP_10:
+       dam[i] += 32;
+       min_d = MAX(min_d, 50);
+       break;
+     case RBE_EXP_20:
+       dam[i] += 33;
+       min_d = MAX(min_d, 50);
+       break;
+     case RBE_EXP_40:
+       dam[i] += 34;
+       min_d = MAX(min_d, 50);
+       break;
+     case RBE_EXP_80:
+       dam[i] += 36;
+       min_d = MAX(min_d, 50);
+       break;
+     case RBE_DISEASE:
+       dam[i] += 27;
+       break;
+     case RBE_TIME:
+       dam[i] += 60;
+       min_d = MAX(min_d, 100);
+       break;
+     case RBE_EXP_VAMP:
+       dam[i] += 35;
+       min_d = MAX(min_d, 50);
+       break;
+     }
+ }
+
+ /* calculate melee from attack powers */
+ for (i = 0; i < 4; i++)
+ {
+	int p;
+    if (!r_ptr->blow[i].method) break; /* no more attacks */
+	p =MIN(120, power[i]);
+	melee += (p*dam[i])/120;
+ }
+
+ /* calculate ranged damage from spell list */
+ /* aggravate monsters */
+ if (FLAG(r_ptr, RF_SHRIEK)) {
+   spells++;
+   ranged += 2;
+ }
+
+ /* fear and hallucination */
+ if (FLAG(r_ptr, RF_ELDRITCH_HORROR)) {
+   spells++;
+   ranged += 28;
+ }
+
+ if (FLAG(r_ptr, RF_ROCKET)) {
+   spells++;
+   ranged += ((xhp_70 / 4) > 600 ? 600 : xhp_70/4)+250;
+   min_d = MAX(min_d, 400);
+ }
+
+ if (FLAG(r_ptr, RF_ARROW)) {
+   spells++;
+   ranged += ((r_ptr->hdice < 4 ? 1 : r_ptr->hdice / 4)*7)/2;
+   min_d = MAX(min_d, 10);
+ }
+
+ if (FLAG(r_ptr, RF_BR_ACID)) {
+   spells++;
+   ranged += ((xhp_70 / 2) > 1200 ? 1200 : xhp_70/2)+15;
+   min_d = MAX(min_d, 20);
+ }
+
+ if (FLAG(r_ptr, RF_BR_FIRE)) {
+   spells++;
+   ranged += ((xhp_70 / 2) > 1200 ? 1200 : xhp_70/2)+10;
+   min_d = MAX(min_d, 20);
+ }
+
+ if (FLAG(r_ptr, RF_BR_COLD)) {
+   spells++;
+   ranged += ((xhp_70 / 2) > 1200 ? 1200 : xhp_70/2)+10;
+   min_d = MAX(min_d, 20);
+ }
+
+ if (FLAG(r_ptr, RF_BR_ELEC)) {
+   spells++;
+   ranged += ((xhp_70 / 2) > 1200 ? 1200 : xhp_70/2)+8;
+   min_d = MAX(min_d, 20);
+ }
+
+ if (FLAG(r_ptr, RF_BR_POIS)) {
+   spells++;
+   ranged += (5*((xhp_70 / 2) > 600 ? 600 : xhp_70/2))/4+15;
+   min_d = MAX(min_d, 40);
+ }
+
+ if (FLAG(r_ptr, RF_BR_NETH)) {
+   spells++;
+   ranged += (5*((xhp_70 / 4) > 450 ? 450 : xhp_70/4))/4+35;
+   min_d = MAX(min_d, 40);
+ }
+
+ if (FLAG(r_ptr, RF_BR_LITE)) {
+   spells++;
+   ranged += ((xhp_70 / 4) > 350 ? 350 : xhp_70/4)+10;
+   min_d = MAX(min_d, 30);
+ }
+
+ if (FLAG(r_ptr, RF_BR_DARK)) {
+   spells++;
+   ranged += ((xhp_70 / 4) > 350 ? 350 : xhp_70/4)+10;
+   min_d = MAX(min_d, 30);
+ }
+
+ if (FLAG(r_ptr, RF_BR_CONF)) {
+   spells++;
+   ranged += ((xhp_70 / 4) > 350 ? 350 : xhp_70/4)+20;
+   min_d = MAX(min_d, 40);
+ }
+
+ if (FLAG(r_ptr, RF_BR_SOUN)) {
+   spells++;
+   ranged += ((xhp_70 / 4) > 350 ? 350 : xhp_70/4)+10;
+   min_d = MAX(min_d, 30);
+ }
+
+ if (FLAG(r_ptr, RF_BR_CHAO)) {
+   spells++;
+   ranged += (5*((xhp_70 / 4) > 500 ? 500 : xhp_70/4))/4+20;
+   min_d = MAX(min_d, 40);
+ }
+
+ if (FLAG(r_ptr, RF_BR_DISE)) {
+   spells++;
+   ranged += (5*((xhp_70 / 4) > 400 ? 400 : xhp_70/4))/4+40;
+   min_d = MAX(min_d, 50);
+ }
+
+ if (FLAG(r_ptr, RF_BR_NEXU)) {
+   spells++;
+   ranged += ((xhp_70 / 2) > 250 ? 250 : xhp_70/2)+5;
+   min_d = MAX(min_d, 20);
+ }
+
+ if (FLAG(r_ptr, RF_BR_TIME)) {
+   spells++;
+   ranged += (3*((xhp_70 / 2) > 150 ? 150 : xhp_70/2))/2+50;
+   min_d = MAX(min_d, 50);
+ }
+
+ if (FLAG(r_ptr, RF_BR_INER)) {
+   spells++;
+   ranged += (5*((xhp_70 / 2) > 200 ? 200 : xhp_70/2))/4+30;
+   min_d = MAX(min_d, 40);
+ }
+
+ if (FLAG(r_ptr, RF_BR_GRAV)) {
+   spells++;
+   ranged += (5*((xhp_70 / 2) > 200 ? 200 : xhp_70/2))/4+30;
+   min_d = MAX(min_d, 40);
+ }
+
+ if (FLAG(r_ptr, RF_BR_SHAR)) {
+   spells++;
+   ranged += ((xhp_70 / 4) > 400 ? 400 : xhp_70/4)+10;
+   min_d = MAX(min_d, 20);
+ }
+
+ if (FLAG(r_ptr, RF_BR_PLAS)) {
+   spells++;
+   ranged += (3*((xhp_70 / 4) > 150 ? 150 : xhp_70/4))/2+10;
+   min_d = MAX(min_d, 40);
+ }
+
+ if (FLAG(r_ptr, RF_BR_WALL)) {
+   spells++;
+   ranged += (3*((xhp_70 / 4) > 200 ? 200 : xhp_70/4))/2;
+   min_d = MAX(min_d, 30);
+ }
+
+ if (FLAG(r_ptr, RF_BR_MANA)) {
+   spells++;
+   ranged += (3*((xhp_70 / 4) > 200 ? 200 : xhp_70/4))/2;
+   min_d = MAX(min_d, 40);
+ }
+
+ if (FLAG(r_ptr, RF_BR_NUKE)) {
+   spells++;
+   ranged += (5*((xhp_70 / 2) > 600 ? 600 : xhp_70/2))/4+10;
+   min_d = MAX(min_d, 40);
+ }
+
+ if (FLAG(r_ptr, RF_BR_DISI)) {
+   spells++;
+   ranged += (3*((xhp_70 / 4) > 300 ? 300 : xhp_70/4))/2;
+   min_d = MAX(min_d, 40);
+ }
+
+ if (FLAG(r_ptr, RF_BA_NUKE)) {
+   spells++;
+   ranged += (3*(r_ptr->hdice * 2 + 35))/2+10;
+   min_d = MAX(min_d, 20);
+ }
+
+ if (FLAG(r_ptr, RF_BA_CHAO)) {
+   spells++;
+   ranged += (5*(r_ptr->hdice * 4 + 55))/4+20;
+   min_d = MAX(min_d, 20);
+ }
+
+ if (FLAG(r_ptr, RF_BA_ACID)) {
+   spells++;
+   ranged += (r_ptr->hdice * 7)/2+15;
+   min_d = MAX(min_d, 20);
+ }
+
+ if (FLAG(r_ptr, RF_BA_ELEC)) {
+   spells++;
+   ranged += (r_ptr->hdice * 7)/2+8;
+   min_d = MAX(min_d, 20);
+ }
+
+ if (FLAG(r_ptr, RF_BA_FIRE)) {
+   spells++;
+   ranged += (r_ptr->hdice * 7)/2+10;
+   min_d = MAX(min_d, 25);
+ }
+
+ if (FLAG(r_ptr, RF_BA_COLD)) {
+   spells++;
+   ranged += (r_ptr->hdice * 7)/2+10;
+   min_d = MAX(min_d, 20);
+ }
+
+ if (FLAG(r_ptr, RF_BA_POIS)) {
+   spells++;
+   ranged += 38;
+ }
+
+ if (FLAG(r_ptr, RF_BA_WATE)) {
+   spells++;
+   ranged += (5*(r_ptr->hdice * 9))/8;
+   min_d = MAX(min_d, 40);
+ }
+
+ if (FLAG(r_ptr, RF_BA_MANA)) {
+   spells++;
+   ranged += (3*(r_ptr->hdice * 8 + 55))/2;
+   min_d = MAX(min_d, 40);
+ }
+
+ if (FLAG(r_ptr, RF_BA_DARK)) {
+   spells++;
+   ranged += (r_ptr->hdice * 8 + 55)+10;
+   min_d = MAX(min_d, 40);
+ }
+
+   /* no physical damage, but this is a kind of damage */
+ if (FLAG(r_ptr, RF_DRAIN_MANA)) {
+   spells++;
+   ranged += 2*(r_ptr->hdice +1);
+ }
+
+ /* confusion and hallucination */
+ if (FLAG(r_ptr, RF_MIND_BLAST)) {
+   spells++;
+   ranged += 35+36;
+ }
+
+ /* blind, confuse, paralyze, slow, hallucinate, dec int, wis, 12d15 */
+ if (FLAG(r_ptr, RF_BRAIN_SMASH)) {
+   spells++;
+   ranged += 250;
+ }
+
+ /* curse equip + 3d8 damage */
+ if (FLAG(r_ptr, RF_CAUSE_1)) {
+   spells++;
+   ranged += 13+15;
+ }
+
+ if (FLAG(r_ptr, RF_CAUSE_2)) {
+   spells++;
+   ranged += 36+15;
+ }
+
+ if (FLAG(r_ptr, RF_CAUSE_3)) {
+   spells++;
+   ranged += 80+15;
+ }
+
+ /* causes cuts instead of cursing */
+ if (FLAG(r_ptr, RF_CAUSE_4)) {
+   spells++;
+   ranged += 120+10;
+ }
+
+ if (FLAG(r_ptr, RF_BO_ACID)) {
+   spells++;
+   ranged += (32 + (r_ptr->hdice*2)/3) + 15;
+   min_d = MAX(min_d, 10);
+ }
+
+ if (FLAG(r_ptr, RF_BO_ELEC)) {
+   spells++;
+   ranged += (18 + (r_ptr->hdice*2)/3) + 8;
+   min_d = MAX(min_d, 10);
+ }
+
+ if (FLAG(r_ptr, RF_BO_FIRE)) {
+   spells++;
+   ranged += (41 + (r_ptr->hdice*2)/3) + 10;
+   min_d = MAX(min_d, 10);
+ }
+
+ if (FLAG(r_ptr, RF_BO_COLD)) {
+   spells++;
+   ranged += (27 + (r_ptr->hdice*2)/3) + 15;
+   min_d = MAX(min_d, 10);
+ }
+
+ if (FLAG(r_ptr, RF_BO_NETH)) {
+   spells++;
+   ranged += (5*(45 + (r_ptr->hdice*3)))/4 + 15;
+   min_d = MAX(min_d, 10);
+ }
+
+ if (FLAG(r_ptr, RF_BO_MANA)) {
+   spells++;
+   ranged += (31*(r_ptr->hdice))/2;
+   min_d = MAX(min_d, 40);
+ }
+
+ if (FLAG(r_ptr, RF_BO_PLAS)) {
+   spells++;
+   ranged += (3*(42 + (r_ptr->hdice*2)))/2 + 10;
+   min_d = MAX(min_d, 30);
+ }
+
+ if (FLAG(r_ptr, RF_BO_ICEE)) {
+   spells++;
+   ranged += (3*(21 + (r_ptr->hdice*3)))/2 + 10;
+   min_d = MAX(min_d, 30);
+ }
+
+ if (FLAG(r_ptr, RF_MISSILE)) {
+   spells++;
+   ranged += (5*(7 + (r_ptr->hdice*2)/3))/4;
+   min_d = MAX(min_d, 10);
+ }
+
+ if (FLAG(r_ptr, RF_SCARE)) {
+   spells++;
+   ranged += 5;
+ }
+
+ if (FLAG(r_ptr, RF_BLIND)) {
+   spells++;
+   ranged += 10;
+ }
+
+ if (FLAG(r_ptr, RF_CONF)) {
+   spells++;
+   ranged += 20;
+   min_d = MAX(min_d, 10);
+ }
+
+ if (FLAG(r_ptr, RF_SLOW)) {
+   spells++;
+   ranged += 30;
+ }
+
+ if (FLAG(r_ptr, RF_HOLD)) {
+   spells++;
+   ranged += 30;
+   min_d = MAX(min_d, 10);
+ }
+
+ if (FLAG(r_ptr, RF_HASTE)) {
+   spells++;
+   naspells++;
+   min_d = MAX(min_d, 30);
+ }
+
+     /* approximated from player with 300hp */
+ if (FLAG(r_ptr, RF_HAND_DOOM)) {
+   spells++;
+   ranged += 210+10;
+   min_d = MAX(min_d, 30);
+ }
+
+ if (FLAG(r_ptr, RF_HEAL)) {
+   spells++;
+   naspells++;
+ }
+
+ if (FLAG(r_ptr, RF_INVULNER)) {
+   spells++;
+   naspells++;
+ }
+
+ if (FLAG(r_ptr, RF_BLINK)) {
+   spells++;
+   naspells++;
+ }
+
+ if (FLAG(r_ptr, RF_TPORT)) {
+   spells++;
+   naspells++;
+ }
+
+ if (FLAG(r_ptr, RF_TELE_TO)) {
+   spells++;
+   naspells++;
+ }
+
+ if (FLAG(r_ptr, RF_TELE_AWAY)) {
+   spells++;
+   naspells++;
+ }
+
+ if (FLAG(r_ptr, RF_TELE_LEVEL)) {
+   spells++;
+   naspells++;
+ }
+
+ if (FLAG(r_ptr, RF_DARKNESS)) {
+   spells++;
+   naspells++;
+ }
+
+ if (FLAG(r_ptr, RF_TRAPS)) {
+   spells++;
+   ranged += 20;
+ }
+
+ if (FLAG(r_ptr, RF_FORGET)) {
+   spells++;
+   ranged += 25;
+ }
+
+ if (FLAG(r_ptr, RF_RAISE_DEAD)) {
+   spells++;
+   naspells++;
+   min_d = MAX(min_d, 30);
+ }
+
+ if (FLAG(r_ptr, RF_S_KIN)) {
+   spells++;
+   ranged += 10;
+   min_d = MAX(min_d, 30);
+ }
+
+ if (FLAG(r_ptr, RF_S_CYBER)) {
+   spells++;
+   ranged += 100;
+   min_d = MAX(min_d, 250);
+ }
+
+ if (FLAG(r_ptr, RF_S_MONSTER)) {
+   spells++;
+   naspells++;
+   min_d = MAX(min_d, 10);
+ }
+
+ if (FLAG(r_ptr, RF_S_MONSTERS)) {
+   spells++;
+   ranged += 50;
+   min_d = MAX(min_d, 20);
+ }
+
+ if (FLAG(r_ptr, RF_S_ANT)) {
+   spells++;
+   naspells++;
+   min_d = MAX(min_d, 30);
+ }
+
+ if (FLAG(r_ptr, RF_S_SPIDER)) {
+   spells++;
+   naspells++;
+   min_d = MAX(min_d, 30);
+ }
+
+ if (FLAG(r_ptr, RF_S_HOUND)) {
+   spells++;
+   ranged += 50;
+   min_d = MAX(min_d, 30);
+ }
+
+ if (FLAG(r_ptr, RF_S_HYDRA)) {
+   spells++;
+   naspells++;
+   min_d = MAX(min_d, 30);
+ }
+
+ if (FLAG(r_ptr, RF_S_ANGEL)) {
+   spells++;
+   ranged += 50;
+   min_d = MAX(min_d, 50);
+ }
+
+ if (FLAG(r_ptr, RF_S_DEMON)) {
+   spells++;
+   naspells++;
+   min_d = MAX(min_d, 40);
+ }
+
+ if (FLAG(r_ptr, RF_S_UNDEAD)) {
+   spells++;
+   naspells++;
+   min_d = MAX(min_d, 40);
+ }
+
+ if (FLAG(r_ptr, RF_S_DRAGON)) {
+   spells++;
+   naspells++;
+   min_d = MAX(min_d, 50);
+ }
+
+ if (FLAG(r_ptr, RF_S_HI_UNDEAD)) {
+   spells++;
+   ranged += 100;
+   min_d = MAX(min_d, 70);
+ }
+
+ if (FLAG(r_ptr, RF_S_HI_DRAGON)) {
+   spells++;
+   ranged += 100;
+   min_d = MAX(min_d, 70);
+ }
+
+ if (FLAG(r_ptr, RF_S_AMBERITES)) {
+   spells++;
+   ranged += 300;
+   min_d = MAX(min_d, 1200);
+ }
+
+ if (FLAG(r_ptr, RF_S_UNIQUE)) {
+   spells++;
+   ranged += 300;
+   min_d = MAX(min_d, 1200);
+ }
+
+ /* some useful values */
+ sfreq = (r_ptr->freq_inate + r_ptr->freq_spell)/2;
+ achoice = (FLAG(r_ptr, RF_SMART) ? spells : (spells - naspells));
+ schoice = (FLAG(r_ptr, RF_SMART) ? 1 : spells);
+
+ emult = 100;
+ if (FLAG(r_ptr, RF_RAND_25)) emult -= 25;
+ if (FLAG(r_ptr, RF_RAND_50)) emult -= 50;
+
+ /* Calculate damage */
+ /* ranged first */
+ if (spells) damage = (ranged * sfreq * achoice)/(100*spells);
+ else damage = 0;
+
+ /* add in melee damage */
+ damage += ((100-sfreq)*melee)/100;
+
+ /* reduce for monsters that are erratic */
+ damage = (damage * emult) / 100;
+
+ /* adjust for monster speed */
+ damage = (damage*extract_energy[r_ptr->speed])/10;
+
+ /* calculate aggressiveness */
+ /* handle erratic first, then speed, then other traits. */
+ if (FLAG(r_ptr, RF_RAND_25))  aggression -= 25;
+ if (FLAG(r_ptr, RF_RAND_50))  aggression -= 50;
+ if (FLAG(r_ptr, RF_NEVER_MOVE))  aggression -= 100;
+ aggression = (aggression * extract_energy[r_ptr->speed])/10;
+ /* outright bonus for being faster than a standard player */
+ if (r_ptr->speed > 110) { aggression += 10;  min_d += 25; }
+
+ /* sensory range */
+ if (r_ptr->aaf <= 10)  aggression -= 10;
+ else if (r_ptr->aaf >=80)  aggression += 20;
+ else if (r_ptr->aaf >=50)  aggression += 10;
+
+ /* Mimics are a little more dangerous */
+ if (FLAG(r_ptr, RF_CHAR_MIMIC))  aggression += 10;
+
+ if (FLAG(r_ptr, RF_FORCE_SLEEP)) aggression -= 10;
+
+
+ /* A little harder to flee from if it's harder to see */
+ if (FLAG(r_ptr, RF_COLD_BLOOD))  aggression += 3;
+ if (FLAG(r_ptr, RF_EMPTY_MIND))  aggression += 3;
+ if (FLAG(r_ptr, RF_WEIRD_MIND))  aggression += 2;
+ if (FLAG(r_ptr, RF_LITE_1))  aggression -= 2;
+ if (FLAG(r_ptr, RF_LITE_2))  aggression -= 3;
+ if (FLAG(r_ptr, RF_INVISIBLE))  { aggression += 7;    min_d = MAX(min_d, 30); }
+
+
+
+ if (FLAG(r_ptr, RF_OPEN_DOOR) || FLAG(r_ptr, RF_BASH_DOOR))
+   aggression += 10;
+ if (FLAG(r_ptr, RF_BASH_DOOR))  aggression += 2;
+
+ if (FLAG(r_ptr, RF_PASS_WALL) || FLAG(r_ptr, RF_KILL_WALL))
+   aggression += 30;
+ if (FLAG(r_ptr, RF_KILL_WALL))  aggression += 10;
+
+ if (FLAG(r_ptr, RF_MOVE_BODY) || FLAG(r_ptr, RF_KILL_BODY))
+   aggression += 15;
+
+ /* resistance to status effects cuts off one type of escape */
+ if (FLAG(r_ptr, RF_NO_FEAR))  aggression += 5;
+ if (FLAG(r_ptr, RF_NO_STUN))  aggression += 5;
+ if (FLAG(r_ptr, RF_NO_CONF))  aggression += 5;
+ if (FLAG(r_ptr, RF_NO_SLEEP))  aggression += 5;
+
+ /* very slightly harder if it picks up or kills items */
+ if (FLAG(r_ptr, RF_TAKE_ITEM) || FLAG(r_ptr, RF_KILL_ITEM))
+   aggression += 2;
+
+ /* can it swim, fly, walk? */
+ if (FLAG(r_ptr, RF_CAN_SWIM) || FLAG(r_ptr, RF_CAN_FLY)) aggression += 5;
+ if (FLAG(r_ptr, RF_CAN_FLY)) aggression += 5;
+ if (FLAG(r_ptr, RF_AQUATIC)) aggression -= 25;
+
+ /* Preventing blinks */
+ if (FLAG(r_ptr, RF_TELE_TO)) aggression += 15;
+ if (FLAG(r_ptr, RF_RES_TELE)) aggression += 15;
+
+
+ if (aggression < 20) aggression = 20;
+
+ /* Ready to calculate danger now */
+ danger = (damage * (aggression > 400 ? 400 :
+                     (aggression < 20 ? 20 : aggression))) / 100;
+ if (danger < min_d) danger = min_d;
+
+
+ /* *********************
+    Now, move on to toughness.  */
+
+ /* Toughness formula:
+  *  xhp * (AC modifier) * (Resist modifier) * (Heal modifier) * (Esc. mod)
+  *      * (Summon modifier)
+  */
+
+ /* Apply AC modifier
+  * Amused: 100+100*100/100-.  But it makes sense!
+  *  100+  because this is to be the percentage to use after applying the
+  *        modifier.
+  *  100*  because I'm calculating a percent.
+  *  100/  because 100 is the asymptote for the formula.
+  *  100-  for the same reason.  */
+ toughness = xhp;
+ min_t = (xhp / 3);
+ if (r_ptr->ac >= 80) amod = 460;
+ else
+ {
+       amod = (10000/(100-r_ptr->ac)) - 40;
+ }
+
+       toughness = (toughness * amod)/100;
+
+ if (FLAG(r_ptr, RF_INVISIBLE)) toughness = (toughness * 110)/100;
+ toughness = (toughness * (300+emult))/300;
+
+ /* Caclulate Resist modifier.  Even the most vulnerable creature sill gets
+    50%.  */
+ rmod = 50;
+
+ /* For each basic resistance, add 10%. */
+ if (FLAG(r_ptr, RF_IM_ACID)) rmod += 10;
+ if (FLAG(r_ptr, RF_IM_ELEC)) rmod += 10;
+ if (FLAG(r_ptr, RF_IM_FIRE)) rmod += 10;
+ if (FLAG(r_ptr, RF_IM_COLD)) rmod += 10;
+ if (FLAG(r_ptr, RF_IM_POIS)) rmod += 10;
+
+ /* For advanced resistances, which are rare attacks from the player,
+    subtract 4%.  Skipping extremely rare types. */
+ if (FLAG(r_ptr, RF_RES_NETH) || FLAG(r_ptr, RF_UNDEAD))
+   {
+     rmod += 4;
+     if (FLAG(r_ptr, RF_UNDEAD)) rmod += 2;  /* immune */
+   } else if (FLAG(r_ptr, RF_EVIL)) rmod += 2;  /* slight resistance */
+ if (FLAG(r_ptr, RF_RES_NEXU) || FLAG(r_ptr, RF_BR_NEXU)) rmod += 4;
+ if (FLAG(r_ptr, RF_RES_DISE)) rmod += 4;
+ if (FLAG(r_ptr, RF_DEMON) || FLAG(r_ptr, RF_BR_CHAO)) rmod += 4;
+ if (FLAG(r_ptr, RF_BR_SHAR)) rmod += 4;
+ if (FLAG(r_ptr, RF_BR_SOUN)) rmod += 4;
+ if (FLAG(r_ptr, RF_BR_CONF)) rmod += 4;
+ else if (FLAG(r_ptr, RF_NO_CONF)) rmod += 2;  /* slight resistance */
+
+ /* resistance for psi */
+ if (FLAG(r_ptr, RF_EMPTY_MIND) || FLAG(r_ptr, RF_WEIRD_MIND)) rmod += 8;
+
+ /* penalize for vulnerabilities */
+ if (FLAG(r_ptr, RF_HURT_ROCK)) rmod -= 3;
+ if (FLAG(r_ptr, RF_HURT_LITE)) rmod -= 6;
+
+ /* miscellaneous stuff that might as well go here */
+ if (FLAG(r_ptr, RF_GOOD) && !FLAG(r_ptr, RF_EVIL))  rmod += 2;
+ if (FLAG(r_ptr, RF_REFLECTING))  rmod += 5;
+ if (FLAG(r_ptr, RF_AURA_FIRE) ||
+     FLAG(r_ptr, RF_AURA_COLD) ||
+     FLAG(r_ptr, RF_AURA_ELEC)) { rmod += 10; min_t = MAX(min_t, 50); min_t = MAX(min_t, xhp); }
+ if (FLAG(r_ptr, RF_AURA_FIRE)) rmod += 2;
+ if (FLAG(r_ptr, RF_AURA_COLD)) rmod += 2;
+ if (FLAG(r_ptr, RF_AURA_ELEC)) rmod += 2;
+
+ /* apply it */
+ toughness = (toughness * rmod)/100;
+
+
+
+ /* Heal modifier */
+ /* schoice != 0 if RF_HEAL present; schoice is either 1 or spells. */
+ if (FLAG(r_ptr, RF_HEAL))
+ {
+	toughness = (toughness * (100 + ((4*sfreq*emult)/100)/schoice))/100;
+	min_t = MAX(min_t, xhp);
+ }
+
+ hmod = 0;
+
+ for (i = 0; i < 4; i++) {
+   int p = MAX(120, power[i]);
+   if (r_ptr->blow[i].effect == RBE_UN_POWER)  hmod += (5 * p)/120;
+   if (r_ptr->blow[i].effect == RBE_EXP_VAMP)  hmod += (10 * p)/120;
+ }
+ hmod = 100 + ((hmod * emult) / 100);
+
+ if (FLAG(r_ptr, RF_REGENERATE))  { hmod += 10; min_t = MAX(min_t, xhp/2); }
+ if (FLAG(r_ptr, RF_DRAIN_MANA))  hmod += (10 * emult)/100;
+
+ toughness = (toughness * hmod)/100;
+
+ /* Escape modifier */
+ emod = 100;
+
+ for (i = 0; i < 4; i++) {
+   int p = MAX(120, power[i]);
+   if (r_ptr->blow[i].effect == RBE_EAT_GOLD)  emod += (10 * p)/120;
+   if (r_ptr->blow[i].effect == RBE_EAT_ITEM)  emod += (10 * p)/120;
+ }
+
+ if (FLAG(r_ptr, RF_BLINK) ||
+     FLAG(r_ptr, RF_TPORT) ||
+     FLAG(r_ptr, RF_TELE_AWAY) ||
+     FLAG(r_ptr, RF_TELE_LEVEL)) {
+   emod = emod + ((sfreq*emult)/100)/schoice;
+   min_t = MAX(min_t, (50*emult)/100);
+ }
+
+ toughness = (toughness * emod)/100;
+
+ if (toughness < min_t) toughness = min_t;
+
+ /* Toughness becomes less important the more one has. */
+ if (toughness > 100) toughness = 100 + (toughness-100)/2;
+ if (toughness > 300) toughness = 300 + (toughness-300)/3;
+
+ /* Danger also scales down for very strong creatures. */
+ if (danger > 300) danger = 300 + (danger-300)/2;
+ if (danger > 1000) danger = 1000 + (danger-1000)/4;
+ if (danger > 2000) danger = 2000 + (danger-3000)/6;
+ /* Finally, calculate experience */
+
+ exp = toughness * danger;
+
+  /*
+ if (verbose) msgf ("Exp: %d", exp);
+
+ if (FLAG(r_ptr, RF_UNIQUE)) exp = (exp * 120)/100;
+
+ if (verbose) msgf ("Unique: %d", exp);
+
+ if (FLAG(r_ptr, RF_INVULNER)) exp = (exp * (100 + (3 * sfreq)/spells));
+
+ if (verbose) msgf ("Invul: %d", exp);
+
+ if (FLAG(r_ptr, RF_FRIENDS)) exp = (exp * 75) / 100;
+
+ if (verbose) msgf ("FRIENDS: %d", exp);
+
+ if (FLAG(r_ptr, RF_MULTIPLY)) exp = (exp * 75) / 100;
+
+ if (verbose) msgf ("Multiply: %d", exp);
+  */
+
+ /* MEGA Hack:  Rebalance things manually */
+ if (FLAG(r_ptr, RF_UNIQUE) && FLAG(r_ptr, RF_FRIENDLY)) exp = exp / 10;   /* Unique Eagles massively unbalanced */
+ if (r_ptr->d_char == 'Q') exp = exp * 15; 	/* Qulthyugs got shafted */
+ if (FLAG(r_ptr, RF_MULTIPLY)) exp = exp / 3;
+
+ /* Hack: normalize */
+ if (r_ptr->level > 20) exp = (2*exp/3);
+ else if (r_ptr->level > 50) exp = exp/2;
+ else if (r_ptr->level > 80) exp = exp/3;
+
+
+ /* Hack: Keep things under control */
+ if (exp > (r_ptr->level)*(r_ptr->level)*(r_ptr->level)*(r_ptr->level)/6) {
+	 if (verbose) msgf ("Boundary: %s: %d dm, %d ag = %d DN ... %d xhp, %d tgh", mon_race_name(r_ptr), damage, aggression, danger, xhp, toughness);
+	 verbose = FALSE;
+	 exp = (r_ptr->level)*(r_ptr->level)*(r_ptr->level)*(r_ptr->level)/6;
+ } else if (exp < (r_ptr->level -1)/2) exp = (r_ptr->level-1)/2;
+
+
+ /* round off */
+ if (exp <= 50) round = 1;
+ else if (exp <= 300) round = 5;
+ else if (exp <= 750) round = 10;
+ else if (exp <= 1500) round = 25;
+ else if (exp <= 4000) round = 50;
+ else if (exp <= 10000) round = 100;
+ else if (exp <= 100000) round = 1000;
+ else if (exp <= 1000000) round = 10000;
+ else round = 50000;
+
+ exp = (exp - (exp % round)) + (exp % round < round/2 ? 0 : round);
+
+ if (verbose) {
+	 msgf ("%s: %d dm, %d ag = %d DN ... %d xhp, %d tgh", mon_race_name(r_ptr), damage, aggression, danger, xhp, toughness);
+ }
+
+
+ return exp;
+
+}
+
+/*
+ * Unused.
+static int flagmasks[] =
+{
+	0xFFFFFFFF,
+	0xFFFFFFFF,
+	0xFFFFFFFF,
+	0xFFFFFFFF,
+	0xFFFFFFFF,
+	0xFFFFFFFF,
+	0x000003FF,
+	0xFFFFFFFF,
+	0x00000003,
+};
+*/
+
+/* Returns the number of "F:" field tags r has. */
+static int num_fflags(monster_race *r)
+{
+	int num = 0;
+	int i, j;
+
+	for (i = 0; i < 9; i++) {
+		if (i == 3 || i == 4 || i == 5) continue;  /* flags[3] to flags[5] are spells */
+		for (j = 0; j < 32; j++) {
+			if (r->flags[i] & ( 1 << j)) num++;
+		}
+	}
+
+	return num;
+}
+
+/* Returns the number of "S:" field tags r has. */
+static int num_sflags(monster_race *r)
+{
+	int num = 0;
+	int i, j;
+
+	for (i = 3; i < 6; i++) {
+		for (j = 0; j < 32; j++) {
+			if (r->flags[i] & ( 1 << j)) num++;
+		}
+	}
+
+	return num;
+}
+
+/* Returns the string for the nth "F:" field tag of r. */
+static cptr get_fflag_string(monster_race *r, int n)
+{
+	int i, j;
+	if (n == 0) return "";
+
+	for (i = 0; i < 9; i++) {
+		if (i == 3 || i == 4 || i == 5) continue;  /* flags[3] to flags[5] are spells */
+		for (j = 0; j < 32; j++) {
+			if (r->flags[i] & ( 1 << j)) {
+				n--;
+				if (n == 0) {
+					switch(i) {
+						case 0:  return r_info_flags1[j];
+						case 1:  return r_info_flags2[j];
+						case 2:  return r_info_flags3[j];
+						case 3:  return r_info_flags4[j];
+						case 4:  return r_info_flags5[j];
+						case 5:  return r_info_flags6[j];
+						case 6:  return r_info_flags7[j];
+						case 7:  return r_info_flags8[j];
+						case 8:  return r_info_flags9[j];
+						default:  return "";
+					}
+				}
+			}
+		}
+	}
+	return "";
+}
+
+/* Returns the string for the nth "S:" field tag of r. */
+static cptr get_sflag_string(monster_race *r, int n)
+{
+	int i, j;
+	if (n == 0) return "";
+
+	for (i = 3; i < 6; i++) {
+		for (j = 0; j < 32; j++) {
+			if (r->flags[i] & ( 1 << j)) {
+				n--;
+				if (n == 0) {
+					switch(i) {
+						case 0:  return r_info_flags1[j];
+						case 1:  return r_info_flags2[j];
+						case 2:  return r_info_flags3[j];
+						case 3:  return r_info_flags4[j];
+						case 4:  return r_info_flags5[j];
+						case 5:  return r_info_flags6[j];
+						case 6:  return r_info_flags7[j];
+						case 7:  return r_info_flags8[j];
+						case 8:  return r_info_flags9[j];
+						default:  return "";
+					}
+				}
+			}
+		}
+	}
+	return "";
+}
+
+
+/*
+ * Creates a headerless "r_info.txt" file from the current monster info.
+ */
+void dump_r_info(int dummy)
+{
+	int i, j, k;
+	FILE *fff;
+	monster_race *r;
+	char buf[2048];
+	int offset;
+	char tmp;
+	bool first = TRUE;
+	s32b exp = 0;
+	s32b newexp = 0;
+
+	dummy=0;
+	(void)fd_kill("r_info.txt");
+	fff = my_fopen("r_info.txt", "w");
+
+	for (i = 0; i < z_info->r_max; i++) {
+		r = &r_info[i];
+		/* Leave a blank line, if this is not the first one */
+		if (first) first = FALSE; else froff(fff, "\n");
+
+		/* skip dead monsters */
+		if (!r->rarity) {
+			froff (fff, "# N:%d  unused\n\n", i);
+			continue;
+		}
+
+
+		/* Make some comments. */
+		exp = monster_auto_experience(r, FALSE);
+		if (!r->mexp) {
+			newexp = exp;
+		} else if (exp > 10*r->mexp) {
+			froff(fff, "# XXA Badly undervalued? Old: %d, New: %d, Ratio: %d\n", r->mexp, exp, (r->mexp ? (1000*exp)/r->mexp : -1));
+			newexp = 5*r->mexp;
+		} else if (exp > (5*r->mexp)/2) {
+			froff(fff, "# XXB Undervalued? Old: %d, New: %d, Ratio: %d\n", r->mexp, exp, (r->mexp ? (1000*exp)/r->mexp : -1));
+			newexp = 5*(r->mexp)/2;
+		} else if (exp > (3*r->mexp)/2) {
+			newexp = exp;
+		} else if (exp > (2*r->mexp)/3) {
+			newexp = exp;
+		} else if (exp > (2*r->mexp)/5) {
+			newexp = exp;
+		} else if (exp > r->mexp/10) {
+			froff(fff, "# XXC Overvalued? Old: %d, New: %d, Ratio: %d\n", r->mexp, exp, (r->mexp ? (1000*exp)/r->mexp : -1));
+			newexp = (2*r->mexp)/5;
+		} else {
+			froff(fff, "# XXD Badly overvalued? Old: %d, New: %d, Ratio: %d\n", r->mexp, exp, (r->mexp ? (1000*exp)/r->mexp : -1));
+			newexp = r->mexp/5;
+		}
+
+		/* N: field; serial number, monster name */
+ 		froff(fff, "N:%d:%s\n", i, mon_race_name(r));
+
+		/* G: field; graphic symbol and color name */
+		froff(fff, "G:%c:%c\n", r->d_char, attr_to_color_char(r->d_attr));
+
+		/* I: field; speed, HD d S, vision, AC, alertness */
+		froff(fff, "I:%d:%dd%d:%d:%d:%d\n", r->speed, r->hdice, r->hside, r->aaf, r->ac, r->sleep);
+
+		/* W: field; level, rarity, 0, experience */
+		froff(fff, "W:%d:%d:0:%d\n", r->level, r->rarity, newexp);
+
+		/* O: fields; treasure % : combat items % : magic items % */
+		froff(fff, "O:%d:%d:%d\n", r->obj_drop.treasure, r->obj_drop.combat, r->obj_drop.magic);
+
+		/* B: fields, as needed. */
+		for (j = 0; j < 4; j++) {
+			if (!r->blow[j].method) break;
+			froff(fff, "B:%s", r_info_blow_method[r->blow[j].method]);
+			if (!r->blow[j].effect) {
+				froff(fff, "\n");
+				continue;
+			}
+			froff(fff, ":%s", r_info_blow_effect[r->blow[j].effect]);
+			if (!r->blow[j].d_dice) {
+				froff(fff, "\n");
+				continue;
+			}
+			froff(fff, ":%dd%d\n", r->blow[j].d_dice, r->blow[j].d_side);
+		}
+
+		/* F: fields, as needed. */
+		k = num_fflags(r);
+
+		for (j = 1; j+4 <= k; j+=4) {
+			froff(fff, "F:%s | %s | %s | %s | %s\n", get_fflag_string(r,j), get_fflag_string(r,j+1),
+												 get_fflag_string(r,j+2), get_fflag_string(r,j+3),
+												 get_fflag_string(r,j+4));
+		}
+		if (j <= k) {
+			froff(fff, "F:");
+			for (; j <= k; j++) {
+				froff(fff, "%s%s", get_fflag_string(r,j), (j+1 <= k ? " | " : "\n"));
+			}
+		}
+
+		/* S: fields, if needed */
+		k = num_sflags(r);
+
+		if (r->freq_spell && k) {
+			/* frequency on a line by itself */
+			froff(fff, "S:1_IN_%d\n", 100 / r->freq_spell);
+
+			/* Spell tags, as needed */
+			for (j = 1; j+4 <= k; j+=5) {
+				froff(fff, "S:%s | %s | %s | %s | %s\n", get_sflag_string(r,j), get_sflag_string(r,j+1),
+													 get_sflag_string(r,j+2), get_sflag_string(r,j+3),
+													 get_sflag_string(r,j+4));
+			}
+			if (j <= k) {
+				froff(fff, "S:");
+				for (; j <= k; j++) {
+					froff(fff, "%s%s", get_sflag_string(r,j), (j+1 <= k ? " | " : "\n"));
+				}
+			}
+
+		}
+
+		/* D: description */
+		strcpy(buf, r_text + r->text);	/* read description */
+		offset = 0;
+
+		k = strlen(buf);
+		while (k > 0)
+		{
+			if (k > 75)  /* what's left is too long for one line. */
+			{
+				int n = 0;
+
+				/* find last space in the line */
+				for (j = 0; j < 75; j++)
+					if (buf[offset+j] == ' ') n = j;
+
+				/* boundary condition */
+				if (n == 0) n = 75;
+
+				tmp = buf[offset+n+1];
+				buf[offset+n+1] = 0;
+
+				froff(fff, "D:%s\n", &buf[offset]);
+
+				buf[offset+n+1] = tmp;
+
+				offset += n+1;
+				k -= n+1;
+			}
+			else
+			{
+				froff(fff, "D:%s\n", &buf[offset]);
+				k = 0;
+			}
+		}
+	}
+
+	/* Dumped all the monsters, now close the file */
+
+	my_fclose(fff);
+}

@@ -1573,16 +1573,18 @@ static bool is_road_place(u16b place_num)
 
 	switch (pl_ptr->type)
 	{
-		case TOWN_QUEST:
+		case PL_QUEST_PIT:
+		case PL_FARM:
+		case PL_QUEST_STAIR:
 		{
-			/* No roads to wilderness quests */
+			/* No roads to wilderness quests or farms*/
 			return (FALSE);
 		}
-		
-		case TOWN_DUNGEON:
+
+		case PL_DUNGEON:
 		{
 			dun_type *d_ptr = pl_ptr->dungeon;
-			
+
 			wild_gen2_type *w_ptr = &wild[pl_ptr->y][pl_ptr->x].trans;
 
 			if (w_ptr->law_map + w_ptr->pop_map < 256)
@@ -1595,11 +1597,11 @@ static bool is_road_place(u16b place_num)
 				/* Can we connect a road? */
 				if (d_ptr->flags & (DF_ROAD)) return (TRUE);
 			}
-			
+
 			/* No roads here */
 			return (FALSE);
 		}
-		
+
 		default:
 		{
 			/* Default to true otherwise */
@@ -1677,7 +1679,7 @@ static void road_link(u16b x1, u16b y1, u16b x2, u16b y2)
 
 		/* No bridges over acid or lava */
 		if (w_ptr->info & (WILD_INFO_LAVA | WILD_INFO_ACID)) continue;
-		
+
 		/* Not over ocean */
 		if (w_ptr->hgt_map < 256 / SEA_FRACTION) continue;
 
@@ -1714,7 +1716,7 @@ static void road_connect(u16b *x, u16b *y, u16b place_num)
 	u16b x1 = *x, y1 = *y;
 
 	/* Check place type */
-	if (pl_ptr->type == TOWN_FRACT)
+	if (pl_ptr->type == PL_TOWN_FRACT)
 	{
 		for (k = 0; k < MAX_GATES; k++)
 		{
@@ -1777,9 +1779,9 @@ static void road_connect(u16b *x, u16b *y, u16b place_num)
  *
  * Look for good places to place "crossroads"
  */
-static void create_roads(void)
+void create_roads(void)
 {
-	u16b i, j, places = 0, links = 0;
+	u16b i, j, k, places = 0, links = 0;
 
 	u16b x1, x2, x3, y1, y2, y3;
 
@@ -1789,7 +1791,6 @@ static void create_roads(void)
 
 	u16b **link_list;
 	u16b *place_number;
-
 
 	/* Find number of linkable towns */
 	for (i = 1; i < place_count; i++)
@@ -1890,7 +1891,7 @@ static void create_roads(void)
 		{
 			/* Want a new town */
 			if ((i == place1) || (i == place2)) continue;
-		
+
 			/* Distance from place1 to the new place */
 			dist = link_list[place1][i];
 
@@ -1934,6 +1935,7 @@ static void create_roads(void)
 			}
 		}
 
+		/* If we found a place3, create a crossroads */
 		if (place3 != -1)
 		{
 			/* Mark places as connected to each other */
@@ -1984,6 +1986,7 @@ static void create_roads(void)
 			/* Link place3 with the midpoint */
 			road_link(x1, y1, x2, y2);
 		}
+		/* No third town, just create a direct path */
 		else
 		{
 			dist = link_list[place1][place2];
@@ -1995,7 +1998,7 @@ static void create_roads(void)
 
 			/* Decrement link total */
 			links -= 2;
-;
+
 			/* Hack - save the place number in link_list */
 			place3 = place1;
 			place4 = place2;
@@ -2018,14 +2021,14 @@ static void create_roads(void)
 			 * In some cases, the road will "run into" other places.
 			 * The following code hopefully checks for that.
 			 */
-			for (i = 0; i < places; i++)
+			for (i = 0; i < place_count; i++)
 			{
 				/* Ignore the places we want to connect */
-				if ((i == place3) || (i == place4)) continue;
+				if ((i == place_number[place3]) || (i == place_number[place4])) continue;
 
 				/* Get location of the current place */
-				x3 = place[place_number[i]].x;
-				y3 = place[place_number[i]].y;
+				x3 = place[i].x;
+				y3 = place[i].y;
 
 				/* See if is close */
 				if ((distance(x1, y1, x3, y3) > max_dist) &&
@@ -2062,6 +2065,135 @@ static void create_roads(void)
 				/* Link the two places */
 				road_link(x1, y1, x2, y2);
 			}
+		}
+	}
+
+	/* Now that we've created all the short roads, try to create some longer roads with inns
+	   on them. */
+	for (i = 0; i < places; i++)
+	{
+		/* Remove any link from a place to itself. */
+		link_list[i][i] = 0;
+	}
+
+	/* Add up to NUM_INNS inns */
+	for (k = 0; k < NUM_INNS; k++)
+	{
+		/* Find the shortest good link we can add with an inn. */
+		max_dist = 3 * ROAD_DIST;
+		place1 = -1;
+		place2 = -1;
+
+		for (i = 0; i < places; i++)
+		{
+			for (j = 0; j < i; j++)
+			{
+				/* Should be no direct link already */
+				if (i == j || link_list[i][j] || link_list[j][i]) continue;
+
+				dist = distance(place[place_number[i]].x, place[place_number[i]].y, place[place_number[j]].x,
+								place[place_number[j]].y);
+
+				if (dist < max_dist)
+				{
+					max_dist = dist;
+					place1 = i;
+					place2 = j;
+				}
+			}
+		}
+
+		/* Stop trying if there are links that are short enough */
+		if (place1 == -1) break;
+
+		dist = max_dist;
+		max_dist = (dist / 2) + 1;
+
+		/* Mark the two places as connected to each other */
+		link_list[place1][place2] = 1;
+		link_list[place2][place1] = 1;
+
+		/* Use j as an indicator.  No problem yet.  */
+		j = 0;
+
+		/* Hack - save the place number in link_list */
+		place3 = place1;
+		place4 = place2;
+
+		place1 = place_number[place1];
+		place2 = place_number[place2];
+
+		/* Get first point */
+		x1 = place[place1].x;
+		y1 = place[place1].y;
+
+		/* Get second point */
+		x2 = place[place2].x;
+		y2 = place[place2].y;
+
+		/*
+		 * In some cases, the road will "run into" other places.
+		 * The following code hopefully checks for that.
+		 */
+		for (i = 0; i < place_count; i++)
+		{
+			/* Ignore the places we want to connect */
+			if ((i == place_number[place3]) || (i == place_number[place4])) continue;
+
+			/* Get location of the current place */
+			x3 = place[i].x;
+			y3 = place[i].y;
+
+			/* See if is close */
+			if ((distance(x1, y1, x3, y3) > max_dist) &&
+				(distance(x2, y2, x3, y3) > max_dist)) continue;
+
+			/* See if the place is "in the way" */
+			if (dist_to_line(x3, y3, x1, y1, x2, y2) > ROAD_MIN)
+			{
+				continue;
+			}
+
+			/* We have a problem - set j to be 1 (a flag) */
+			j = 1;
+
+			/* Exit */
+			break;
+		}
+
+		/* If there are no problems - link the two places */
+		if (j == 0 || j == 1)
+		{
+			/* Get connection square for place1 */
+			road_connect(&x1, &y1, place1);
+
+			/* Hack: make a divided midpoint like road_link does for long links;
+			   Create the inn at the midpoint, then connect it to both endpoints with roads. */
+
+			/* This should be randomized, but I don't think anyone will notice for such long roads. */
+			x3 = (x1+x2)/2;
+			y3 = (y1+y2)/2;
+
+			place3 = create_inn(x3, y3);
+
+			/* Did it fail? */
+			if (place3 == -1) continue;
+
+			/* Get connection square for place3 */
+			road_connect(&x3, &y3, place3);
+
+			/* Link place 1 and 3 */
+			road_link(x1, y1, x3, y3);
+
+			/* Reset */
+			x3 = place[place3].x;
+			y3 = place[place3].y;
+
+			/* Get connection square for place2 */
+			road_connect(&x2, &y2, place2);
+
+			/* Link places 2 and 3 */
+			road_link(x3, y3, x2, y2);
 		}
 	}
 
@@ -3039,7 +3171,7 @@ static void wild_done(void)
 
 	/* Change to the wilderness */
 	change_level(0);
-	
+
 	/* We now are in the wilderness */
 	character_dungeon = TRUE;
 }
@@ -3163,7 +3295,7 @@ static void wipe_wilderness(void)
 			/* Free the stores */
 			FREE(pl_ptr->store);
 		}
-		
+
 		/* Free the dungeon data */
 		if (pl_ptr->dungeon)
 		{
@@ -3341,7 +3473,7 @@ static void create_wild_info(int *bestx, int *besty)
 	/* Save best town location */
 	*bestx = x;
 	*besty = y;
-	
+
 	/* Free the temp data */
 	FREE(wild_temp_dist);
 }
@@ -3457,7 +3589,7 @@ static void create_terrain(void)
 					/* Is ocean? */
 					if (w_ptr->done.wild < WILD_SEA)
 					{
-						/* 
+						/*
 						 * Set all squares next to ocean to be "water"
 						 * This makes the ocean boundaries look like
 						 * those of rivers - rough on the sub-block
@@ -3494,7 +3626,7 @@ void create_wilderness(void)
 	int x, y;
 
 	bool done = FALSE;
-	
+
 	/* Invalidate the player while we make everything */
 	character_dungeon = FALSE;
 
@@ -3551,9 +3683,6 @@ void create_wilderness(void)
 		done = init_places(x, y);
 	}
 
-	/* Connect the places with roads */
-	create_roads();
-
 	/*
 	 * Finish everything off
 	 */
@@ -3562,7 +3691,7 @@ void create_wilderness(void)
 	create_terrain();
 
 	/*
-	 * We can check the wilderness structures in debug mode - 
+	 * We can check the wilderness structures in debug mode -
 	 * So don't delete them in that case...
 	 */
 #ifndef DEBUG

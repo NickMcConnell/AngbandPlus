@@ -18,9 +18,135 @@
 /*
  * Maximum number of tries for selection of a proper quest monster
  */
-#define MAX_TRIES 100
+#define MAX_TRIES 30
 
+static const store_type *curr_build;
+static int curr_scale;
+static int curr_place_num;
 
+static int thresh = 30;
+
+static void pick_quest_location(int *best_x, int *best_y, int *p_num)
+{
+	int score, i;
+	int best_score = 500;
+	int x, y, bx, by, pn;
+	int j;
+	wild_type *w_ptr;
+
+	for (i = 0; i < thresh; i++)
+	{
+		x = rand_range(place[curr_place_num].x - thresh, place[curr_place_num].x + thresh);
+		y = rand_range(place[curr_place_num].y - thresh, place[curr_place_num].y + thresh);
+
+		/* Bounds enforcement */
+		if (x < 0) x = 0;
+		if (y < 0) y = 0;
+		if (x >= max_wild) x = max_wild - 1;
+		if (y >= max_wild) y = max_wild - 1;
+
+		score = distance(x, y, place[curr_place_num].x, place[curr_place_num].y);
+
+		if (score < 5)
+		{
+			/* Too close */
+			continue;
+		}
+
+		/* Make sure this place is not already a fixed place, and not in water or lava or acid, or on the road */
+		w_ptr = &wild[y][x];
+		if (w_ptr->trans.place) score = 500;
+		if (w_ptr->trans.info & (WILD_INFO_WATER | WILD_INFO_LAVA | WILD_INFO_ACID | WILD_INFO_ROAD))
+			score = 500;
+
+		/* Not too close to another quest dungeon */
+		for (j = 0; j < place_count; j++)
+		{
+			if (place[j].type != PL_QUEST_STAIR) continue;
+			if (distance(x, y, place[j].x, place[j].y) < 3)
+				score = 500;
+		}
+
+		if (score < best_score)
+		{
+			best_score = score;
+			*best_x = x;
+			*best_y = y;
+			bx = x;
+			by = y;
+		}
+	}
+
+	if (best_score == 500) /* Try to not crash, just recurse... but warn */
+	{
+		/* Debug */
+		get_check ("Couldn't find suitable place in pick_quest_location, recursing.");
+		thresh++;
+		pick_quest_location(best_x, best_y, p_num);
+		return;
+	}
+
+	/* Create the place */
+	pn = place_pop();
+
+	/* Paranoia */
+	if (pn == -1)
+	{
+		get_check ("Ready to quit?");
+		quit ("Couldn't pick a new place in quest generation");
+	}
+
+	*p_num = pn;
+
+	/* Save x and y */
+	place[pn].x = bx;
+	place[pn].y = by;
+
+	/* Do other common setup stuff */
+	place[pn].store = NULL;
+	MAKE(place[pn].dungeon, dun_type);
+	place[pn].type = PL_QUEST_STAIR;
+	place[pn].numstores = 0;
+	place[pn].xsize = 1;
+	place[pn].ysize = 1;
+	place[pn].data = 0;
+	place[pn].monst_type = TOWN_MONST_MONST;
+
+	/* Default name */
+	strcpy (place[pn].name, "Quest");
+}
+
+/*
+ * Selects a single bit from a flag set
+ * that contains possibly multiple bits
+ */
+static u32b select_bit(u32b flags)
+{
+	int i;
+	int bits=0;
+	int n;
+
+	if (flags == 0) return 0;
+
+	for (i = 0; i < 32; i++)
+	{
+		if (flags & (1 << i)) bits++;
+	}
+
+	n = randint1(bits);
+
+	for (i = 0; i < 32; i++)
+	{
+		if (flags & (1 << i))
+		{
+			bits--;
+			if (!bits) return (1 << i);
+		}
+	}
+
+	/* Should never get here */
+	return (0);
+}
 /*
  * Wipe a quest
  */
@@ -70,7 +196,7 @@ static s16b q_cnt = 0;
 u16b q_pop(void)
 {
 	int i;
-	
+
 	/* Initial allocation */
 	if (q_max < z_info->q_max)
 	{
@@ -79,19 +205,19 @@ u16b q_pop(void)
 
 		/* Count quests */
 		q_max++;
-		
+
 		/* Use this quest */
 		return (i);
 	}
-	
+
 	/* Recycle finished quests */
 	for (i = 1; i < q_max; i++)
 	{
 		quest_type *q_ptr;
-		
+
 		/* Make sure we have a linear algorithm */
 		q_cnt++;
-		
+
 		/* loop back to start */
 		if (q_cnt >= q_max) q_cnt = 0;
 
@@ -103,7 +229,7 @@ u16b q_pop(void)
 
 		/* Skip find_place quests as these can be completed as a group */
 		if (q_ptr->type == QUEST_TYPE_FIND_PLACE) continue;
-		
+
 		/* Clear the old data */
 		quest_wipe(q_cnt);
 
@@ -156,7 +282,7 @@ u16b insert_dungeon_monster_quest(u16b r_idx, u16b num, u16b level)
 	q_num = q_pop();
 
 	/* Paranoia */
-	if (!q_num) return (0);
+	if (!q_num) return (-1);
 
 	q_ptr = &quest[q_num];
 
@@ -183,12 +309,17 @@ u16b insert_dungeon_monster_quest(u16b r_idx, u16b num, u16b level)
 		plural_aux(buf);
 
 		/* XXX XXX Create quest name */
-		(void)strnfmt(q_ptr->name, 128, "Kill %d %s.", (int)num, buf);
+		(void)strnfmt(q_ptr->name, 128, "Kill the %d %s that are guarding dungeon level %d.", (int)num, buf, level);
+	}
+	else if (FLAG(r_ptr, RF_UNIQUE))
+	{
+		/* XXX XXX Create quest name */
+		(void)strnfmt(q_ptr->name, 128, "Kill %s, who is guarding dungeon level %d.", mon_race_name(r_ptr), level);
 	}
 	else
 	{
 		/* XXX XXX Create quest name */
-		(void)strnfmt(q_ptr->name, 128, "Kill %s.", mon_race_name(r_ptr));
+		(void)strnfmt(q_ptr->name, 128, "Kill one %s, who is guarding dungeon level %d.", mon_race_name(r_ptr), level);
 	}
 
 	/* Save the quest data */
@@ -197,6 +328,8 @@ u16b insert_dungeon_monster_quest(u16b r_idx, u16b num, u16b level)
 	q_ptr->data.dun.cur_num = 0;
 	q_ptr->data.dun.max_num = num;
 	q_ptr->data.dun.num_mon = 0;
+	q_ptr->level = level;
+	q_ptr->reward = r_ptr->level * r_ptr->level * 3;
 
 	/* Return number of quest */
 	return (q_num);
@@ -210,13 +343,417 @@ static void insert_winner_quest(u16b r_idx, u16b num, u16b level)
 {
 	/* Normal monster quest */
 	u16b q_idx = insert_dungeon_monster_quest(r_idx, num, level);
-	
+
 	/* Winner result of quest */
 	quest[q_idx].x_type = QX_KILL_WINNER;
-	quest[q_idx].flags |= QUEST_FLAG_KNOWN;
-	quest[q_idx].status = QUEST_STATUS_TAKEN;
+
+	quest[q_idx].status = QUEST_STATUS_UNTAKEN;
+
+	/* Exception: these need to be given in certain ironman games, or you can't win. */
+	if (vanilla_town || ironman_downward)
+	{
+	  quest[q_idx].flags |= QUEST_FLAG_KNOWN;
+	  quest[q_idx].status = QUEST_STATUS_TAKEN;
+	}
 }
 
+u16b insert_boss_quest(u16b r_idx)
+{
+	int q_num, p_num;
+	quest_type *q_ptr;
+	monster_race *r_ptr = &r_info[r_idx];
+	int x, y;
+	cptr town_name, town_dir;
+	char buf[80];
+	char pron[4];
+	char pron2[4];
+	char buf2[80];
+	char buf3[80];
+	char buf4[80];
+	char buf5[80];
+	dun_type *d_ptr;
+
+	/* get a new quest */
+	q_num = q_pop();
+
+	/* Paranoia */
+	if (!q_num) return (-1);
+
+	q_ptr = &quest[q_num];
+
+	q_ptr->type = QUEST_TYPE_FIXED_BOSS;
+
+	/* Completion when the level is wiped out */
+	q_ptr->x_type = QX_CLEAR_LEVEL;
+
+	q_ptr->status = QUEST_STATUS_UNTAKEN;
+	q_ptr->level = r_ptr->level;
+
+	q_ptr->reward = r_ptr->level * r_ptr->level * 30;
+
+	/* If the target is unique, quest ends when it dies... must
+	   also make sure not to have the target killed prematurely. */
+	if (FLAG(r_ptr, RF_UNIQUE) || FLAG(r_ptr, RF_UNIQUE_7))
+	{
+		q_ptr->x_type = QX_KILL_MONST;
+	}
+
+
+	/* Pick a location for the quest dungeon */
+	pick_quest_location(&x, &y, &p_num);
+
+	/* Get name of closest town + direction away from it */
+	town_name = describe_quest_location(&town_dir, x, y, FALSE);
+
+	if (FLAG(r_ptr, RF_UNIQUE))
+		strcpy(buf, mon_race_name(r_ptr));
+	else
+	{
+		strnfmt(buf, 80, "A %s", mon_race_name(r_ptr));
+		if (is_a_vowel(buf[2]))
+			strnfmt(buf, 80, "An %s", mon_race_name(r_ptr));
+	}
+
+	if (FLAG(r_ptr, RF_MALE))
+	{
+		strcpy(pron, "his");
+		strcpy(pron2, "him");
+	}
+	else if (FLAG(r_ptr, RF_FEMALE))
+	{
+		strcpy(pron, "her");
+		strcpy(pron2, "her");
+	}
+	else
+	{
+		strcpy(pron, "its");
+		strcpy(pron2, "it");
+	}
+
+	get_rnd_line("quest1.txt", 0, buf2);
+	get_rnd_line("quest2.txt", 0, buf3);
+	get_rnd_line("quest3.txt", 0, buf4);
+	get_rnd_line("quest4.txt", 0, buf5);
+
+	/* Create quest name */
+	if (FLAG(r_ptr, RF_UNIQUE) || FLAG(r_ptr, RF_UNIQUE_7))
+		(void)strnfmt(q_ptr->name, 256, "%s and %s %s have been %s the area %s of %s.  Find %s %s and %s %s.",
+				  buf, pron, buf4, buf2, town_dir, town_name, pron, buf3, buf5, pron2);
+	else
+		(void)strnfmt(q_ptr->name, 256, "%s and %s %s have been %s the area %s of %s.  Find their %s and %s them.",
+				  buf, pron, buf4, buf2, town_dir, town_name, buf3, buf5);
+
+	q_ptr->data.fix.d_type = DUN_TYPE_PURE_CASTLE;
+	q_ptr->data.fix.d_flags = DF_MEDIUM;
+	q_ptr->data.fix.seed = randint0(0x10000000);
+	q_ptr->data.fix.x = x;
+	q_ptr->data.fix.y = y;
+	q_ptr->data.fix.min_level = r_ptr->level - 5;
+	q_ptr->data.fix.data.boss.r_idx = r_idx;
+
+	/* Farming can be an issue here.  But since this will often be uniques, don't make it too restrictive.  */
+	q_ptr->data.fix.attempts = 6;
+
+	/* Set the quest number */
+	place[p_num].quest_num = q_num;
+
+	/* Set up the dungeon */
+	d_ptr = place[p_num].dungeon;
+
+	/* Paranoia */
+	if (d_ptr == NULL)
+	{
+		quit ("Couldn't allocate dungeon.");
+	}
+
+	/* Always use the "Pure Castle" dungeon for this quest type */
+	pick_dungeon(d_ptr, DUN_TYPE_PURE_CASTLE);
+
+	/* One level always */
+	d_ptr->min_level = d_ptr->max_level = r_ptr->level;
+
+	/* Always medium size */
+	d_ptr->flags &= ~(DF_BIG | DF_SMALL);
+	d_ptr->flags |= q_ptr->data.fix.d_flags;
+
+	return(q_num);
+}
+
+static u16b insert_clearout_quest(u16b d_idx, int level)
+{
+	int q_num, p_num;
+	quest_type *q_ptr;
+	dun_gen_type *dg_ptr = &dungeons[d_idx];
+	dun_type *d_ptr;
+	int x, y, n;
+	cptr town_name, town_dir;
+	char buf[80];
+
+	/* get a new quest */
+	q_num = q_pop();
+
+	/* Paranoia */
+	if (!q_num) return (-1);
+
+	q_ptr = &quest[q_num];
+
+	q_ptr->type = QUEST_TYPE_FIXED_CLEAROUT;
+
+	/* Completion when the dungeon is cleared */
+	q_ptr->x_type = QX_CLEAR_LEVEL;
+
+	q_ptr->status = QUEST_STATUS_UNTAKEN;
+	q_ptr->level = level + 2;
+
+	n = 1+rand_range(level/15, level/10);
+
+	q_ptr->reward = level * level * 5 * n;
+
+	pick_quest_location(&x, &y, &p_num);
+
+	/* Get name of closest town + direction away from it */
+	town_name = describe_quest_location(&town_dir, x, y, FALSE);
+
+	/* Describe the type of dungeon */
+	strcpy(buf, dungeon_type_name(dg_ptr->habitat));
+	buf[0] = tolower(buf[0]);
+
+	(void)strnfmt(q_ptr->name, 256, "Clear %i levels of a certain %s %s of %s.",
+				  n, buf, town_dir, town_name);
+
+	q_ptr->data.fix.d_type = (1 << (d_idx - 1));
+	q_ptr->data.fix.d_flags = 0;
+	q_ptr->data.fix.seed = randint0(0x10000000);
+	q_ptr->data.fix.x = x;
+	q_ptr->data.fix.y = y;
+	q_ptr->data.fix.min_level = level;
+	q_ptr->data.fix.data.clearout.cleared = 0;
+	q_ptr->data.fix.data.clearout.levels = n;
+
+	/* This should not be a quest you can bail on. */
+	q_ptr->data.fix.attempts = 10000;
+
+	/* Set the quest number */
+	place[p_num].quest_num = q_num;
+
+	/* Set up the dungeon */
+	d_ptr = place[p_num].dungeon;
+
+	/* Paranoia */
+	if (d_ptr == NULL)
+	{
+		quit ("Couldn't allocate dungeon.");
+	}
+
+	/* Use dungeon type d_idx */
+	pick_dungeon(d_ptr, 1 << d_idx);
+
+	/* Set up level bounds */
+	d_ptr->min_level = level;
+	d_ptr->max_level = level + n - 1;
+
+	return(q_num);
+}
+
+static u16b insert_den_quest(u16b mg_idx, int level)
+{
+	int q_num, p_num;
+	quest_type *q_ptr;
+	monster_group_type *mg_ptr = &mg_info[mg_idx];
+	int x, y, n;
+	cptr town_name, town_dir;
+	char buf[80];
+	char buf2[80];
+	char buf3[80];
+	char buf4[80];
+	char buf5[80];
+	dun_type * d_ptr;
+
+	/* get a new quest */
+	q_num = q_pop();
+
+	/* Paranoia */
+	if (!q_num) return (-1);
+
+	q_ptr = &quest[q_num];
+
+	q_ptr->type = QUEST_TYPE_FIXED_DEN;
+
+	/* Completion when all levels are cleared */
+	q_ptr->x_type = QX_CLEAR_LEVEL;
+
+	q_ptr->status = QUEST_STATUS_UNTAKEN;
+	q_ptr->level = level;
+
+	n = rand_range(mg_ptr->min_levels, mg_ptr->max_levels);
+
+	/* Paranoia */
+	n = MAX(n, 1);
+
+	q_ptr->reward = level * level * 20 * n;
+
+	/* Pick a location for the quest dungeon */
+	pick_quest_location(&x, &y, &p_num);
+
+	/* Get name of closest town + direction away from it */
+	town_name = describe_quest_location(&town_dir, x, y, FALSE);
+
+	get_rnd_line("quest1.txt", 0, buf2);
+	get_rnd_line("quest2.txt", 0, buf3);
+	get_rnd_line("quest4.txt", 0, buf5);
+	get_rnd_line("quest5.txt", 0, buf);
+
+	if (n > 1) strnfmt(buf4, 80, "  (%i levels)", n);
+	else buf4[0] = 0;
+
+	/* Create quest name */
+	(void)strnfmt(q_ptr->name, 256, "%s %s have been %s the area %s of %s.  Discover their %s and %s them all.%s",
+					buf, mg_ptr->name, buf2, town_dir, town_name, buf3, buf5, buf4);
+
+	q_ptr->data.fix.d_type = select_bit(mg_ptr->d_type);
+	q_ptr->data.fix.d_flags = mg_ptr->d_flags;
+	q_ptr->data.fix.seed = randint0(0x10000000);
+	q_ptr->data.fix.x = x;
+	q_ptr->data.fix.y = y;
+	q_ptr->data.fix.min_level = level;
+	q_ptr->data.fix.data.den.mg_idx = mg_idx;
+	q_ptr->data.fix.data.den.cleared = 0;
+	q_ptr->data.fix.data.den.levels = n;
+
+	/* Eminently farmable.  Few attempts. */
+	q_ptr->data.fix.attempts = 4;
+
+	/* Set the quest number */
+	place[p_num].quest_num = q_num;
+
+	/* Set up the dungeon */
+	d_ptr = place[p_num].dungeon;
+
+	/* Paranoia */
+	if (d_ptr == NULL)
+	{
+		quit ("Couldn't allocate dungeon.");
+	}
+
+	/* Pick a dungeon matching the group */
+	pick_dungeon(d_ptr, mg_ptr->d_type);
+
+	/* Levels */
+	d_ptr->min_level = level;
+	d_ptr->max_level = level+n-1;
+
+	/* Apply flags from the group */
+	d_ptr->flags |= mg_ptr->d_flags;
+
+	return(q_num);
+}
+
+static u16b insert_kill_quest(u16b r_idx)
+{
+	int q_num, p_num;
+	quest_type *q_ptr;
+	monster_race *r_ptr = &r_info[r_idx];
+	int x, y;
+	cptr town_name, town_dir;
+	char buf[80];
+	char pron[4];
+	char pron2[4];
+	char buf2[80];
+	char buf3[80];
+	char buf5[80];
+	dun_type * d_ptr;
+
+	/* get a new quest */
+	q_num = q_pop();
+
+	/* Paranoia */
+	if (!q_num) return (-1);
+
+	q_ptr = &quest[q_num];
+
+	q_ptr->type = QUEST_TYPE_FIXED_KILL;
+
+	/* Completion when the monster is killed */
+	q_ptr->x_type = QX_KILL_MONST;
+
+	q_ptr->status = QUEST_STATUS_UNTAKEN;
+	q_ptr->level = r_ptr->level - 5;
+
+	q_ptr->reward = r_ptr->level * r_ptr->level * 10;
+
+	/* Pick a location for the quest dungeon */
+	pick_quest_location(&x, &y, &p_num);
+
+	/* Get name of closest town + direction away from it */
+	town_name = describe_quest_location(&town_dir, x, y, FALSE);
+
+	if (FLAG(r_ptr, RF_UNIQUE))
+		strcpy(buf, mon_race_name(r_ptr));
+	else
+	{
+		strnfmt(buf, 80, "A %s", mon_race_name(r_ptr));
+		if (is_a_vowel(buf[2]))
+			strnfmt(buf, 80, "An %s", mon_race_name(r_ptr));
+	}
+
+	if (FLAG(r_ptr, RF_MALE))
+	{
+		strcpy(pron, "his");
+		strcpy(pron2, "him");
+	}
+	else if (FLAG(r_ptr, RF_FEMALE))
+	{
+		strcpy(pron, "her");
+		strcpy(pron2, "her");
+	}
+	else
+	{
+		strcpy(pron, "its");
+		strcpy(pron2, "it");
+	}
+
+	get_rnd_line("quest1.txt", 0, buf2);
+	get_rnd_line("quest2.txt", 0, buf3);
+	get_rnd_line("quest4.txt", 0, buf5);
+
+	/* Create quest name */
+	(void)strnfmt(q_ptr->name, 256, "%s has been %s the area %s of %s.  Track %s to %s %s and %s %s.",
+				  buf, buf2, town_dir, town_name, pron2, pron, buf3, buf5, pron2);
+
+	q_ptr->data.fix.d_type = DUN_TYPE_PURE_CASTLE;
+	q_ptr->data.fix.d_flags = DF_SMALL;
+	q_ptr->data.fix.seed = randint0(0x10000000);
+	q_ptr->data.fix.x = x;
+	q_ptr->data.fix.y = y;
+	q_ptr->data.fix.min_level = r_ptr->level - 5;
+	q_ptr->data.fix.data.kill.r_idx = r_idx;
+
+	/* Only one monster, so this should not be a quest you can bail on. */
+	q_ptr->data.fix.attempts = 10000;
+
+	/* Set the quest number */
+	place[p_num].quest_num = q_num;
+
+	/* Set up the dungeon */
+	d_ptr = place[p_num].dungeon;
+
+	/* Paranoia */
+	if (d_ptr == NULL)
+	{
+		quit ("Couldn't allocate dungeon.");
+	}
+
+	/* Always use the "Pure Castle" dungeon for this quest type */
+	pick_dungeon(d_ptr, DUN_TYPE_PURE_CASTLE);
+
+	/* One level always */
+	d_ptr->min_level = d_ptr->max_level = r_ptr->level;
+
+	/* Apply flags */
+	d_ptr->flags |= q_ptr->data.fix.d_flags;
+
+	return(q_num);
+}
 
 /*
  * Look for an appropriate dungeon for a given level
@@ -224,28 +761,28 @@ static void insert_winner_quest(u16b r_idx, u16b num, u16b level)
 static u16b find_good_dungeon(int level, bool repeat)
 {
 	int i;
-	
+
 	int score, best_score = 0;
-	
+
 	int best_place = 0;
-	
+
 	place_type *pl_ptr;
-	
+
 	for (i = 0; i < place_count; i++)
 	{
 		pl_ptr = &place[i];
-		
+
 		/* Want dungeons */
-		if (pl_ptr->type != TOWN_DUNGEON) continue;
+		if (pl_ptr->type != PL_DUNGEON) continue;
 
 		/* Reuse this dungeon? (relevant for quest_find_place) */
 		if (!repeat && pl_ptr->quest_num) continue;
-		
+
 		/* Get difference in levels */
 		score = ABS(pl_ptr->dungeon->max_level - level);
-		
+
 		/* The bigger the difference, the less likely a high score is */
-		score = randint1(127 - score); 
+		score = randint1(127 - score);
 
 		if (score > best_score)
 		{
@@ -253,7 +790,7 @@ static u16b find_good_dungeon(int level, bool repeat)
 			best_place = i;
 		}
 	}
-	
+
 	/* Best match to reward level */
 	return (best_place);
 }
@@ -265,40 +802,40 @@ static u16b find_good_dungeon(int level, bool repeat)
 static u16b find_good_town(int *dist)
 {
 	int i;
-	
+
 	int score, best_score = 0;
-	
+
 	int best_place = 0;
-	
+
 	place_type *pl_ptr;
-	
+
 	for (i = 0; i < place_count; i++)
 	{
 		/* Not current town */
 		if (i == p_ptr->place_num) continue;
-	
+
 		pl_ptr = &place[i];
-		
+
 		/* Want towns with buildings */
 		if (!pl_ptr->numstores) continue;
-		
+
 		/* Get difference of distance in wilderness blocks and difficulty level */
 		score = abs(distance(pl_ptr->x, pl_ptr->y, p_ptr->px / 16, p_ptr->py / 16) - *dist);
-		
+
 		/* The bigger the difference, the less likely a high score is */
-		score = randint1(WILD_SIZE - score); 
-	
+		score = randint1(WILD_SIZE - score);
+
 		if (score > best_score)
 		{
 			best_score = score;
 			best_place = i;
 		}
 	}
-	
+
 	/* Save distance to best town */
 	pl_ptr = &place[best_place];
 	*dist = distance(pl_ptr->x, pl_ptr->y, p_ptr->px / 16, p_ptr->py / 16);
-	
+
 	/* Best match to reward level */
 	return (best_place);
 }
@@ -311,8 +848,9 @@ static u16b find_good_town(int *dist)
 cptr describe_quest_location(cptr * dirn, int x, int y, bool known)
 {
 	int i;
+	int j;
 	int dx, dy;
-	
+
 	/* Find the nearest town */
 	int best_dist = 99999;
 	int best_town = 0;
@@ -322,10 +860,10 @@ cptr describe_quest_location(cptr * dirn, int x, int y, bool known)
 		bool visit = FALSE;
 		int d;
 
-		wild_done_type *w_ptr;
+		wild_type *w_ptr;
 
 		/* Only real towns */
-		if (place[i].type != TOWN_FRACT) continue;
+		if (place[i].type != PL_TOWN_FRACT) continue;
 
 		/* Should this be a known town? */
 		if (known)
@@ -335,13 +873,13 @@ cptr describe_quest_location(cptr * dirn, int x, int y, bool known)
 				for (dy = 0; dy < 8 && !visit; dy++)
 				{
 					/* Get wilderness square where the town could be */
-					w_ptr = &wild[place[i].y + dy][place[i].x + dx].done;
+					w_ptr = &wild[place[i].y + dy][place[i].x + dx];
 
 					/* Is this a town square */
-					if (w_ptr->place != i) continue;
+					if (w_ptr->trans.place != i) continue;
 
 					/* Has the player visited this square? */
-					visit |= (w_ptr->info & WILD_INFO_SEEN);
+					visit |= (w_ptr->trans.info & WILD_INFO_SEEN);
 				}
 			}
 
@@ -360,9 +898,9 @@ cptr describe_quest_location(cptr * dirn, int x, int y, bool known)
 		}
 	}
 
-	
-	dx = x - place[best_town].x;
-	dy = y - place[best_town].y;
+	/* Approximates the center of the city */
+	dx = x - (place[best_town].x + place[best_town].xsize/2);
+	dy = y - (place[best_town].y + place[best_town].ysize/2);
 
 	if (ABS(dy) > ABS(dx) * 3)
 	{
@@ -421,33 +959,6 @@ errr init_quests(void)
 
 
 
-/*
- * Quests
- *
- */
-void init_player_quests(void)
-{
-	int i;
-
-	/* Reset number of quests */
-	q_max = 1;
-
-	/* Clear all the quests */
-	for (i = 0; i < z_info->q_max; i++)
-	{
-		quest_wipe(i);
-	}
-
-	/* Add the winner quests */
-
-	/* Hack XXX XXX Oberon, hard coded */
-	insert_winner_quest(QW_OBERON, 1, 99);
-
-	/* Hack XXX XXX Serpent, hard coded */
-	insert_winner_quest(QW_SERPENT, 1, 100);
-}
-
-
 /* Array of places to find an inscription */
 static cptr find_quest[] =
 {
@@ -497,6 +1008,7 @@ void quest_discovery(void)
 			}
 
 			case QUEST_TYPE_BOUNTY:
+			case QUEST_TYPE_DEFEND:
 			{
 
 				/* Paranoia */
@@ -542,7 +1054,7 @@ void quest_discovery(void)
 				/* Paranoia */
 				continue;
 			}
-			
+
 			case QUEST_TYPE_FIND_ITEM:
 			{
 				msgf("You feel there is something interesting about this level.");
@@ -552,7 +1064,7 @@ void quest_discovery(void)
 
 				/* Paranoia */
 				continue;
-			
+
 			}
 
 			default:
@@ -566,23 +1078,23 @@ void quest_discovery(void)
 
 
 /*
- * Is this dungeon level a special (winner) quest level? */
+ * Is this dungeon level a special (no-stairs) quest level? */
 bool is_special_level(int level)
 {
 	int i;
-
 	quest_type *q_ptr;
 
+	/* The winner quest on this level would be a problem */
 	for (i = 0; i < q_max; i++)
 	{
 		q_ptr = &quest[i];
 
 		/* Must be dungeon quest */
 		if (q_ptr->type != QUEST_TYPE_DUNGEON) continue;
-		
+
 		/* Must be winner quest */
 		if (q_ptr->x_type != QX_KILL_WINNER) continue;
-		
+
 		/* Is the quest still there? */
 		if (q_ptr->status > QUEST_STATUS_TAKEN) continue;
 
@@ -593,19 +1105,86 @@ bool is_special_level(int level)
 	return (FALSE);
 }
 
+int active_level(quest_type *q_ptr)
+{
+	int max_dead, all_dead;
+
+	/* Paranoia */
+	if (!q_ptr) return(0);
+
+	max_dead = q_ptr->data.fix.min_level;
+	all_dead = max_dead;
+
+	switch (q_ptr->type)
+	{
+		case QUEST_TYPE_FIXED_KILL:
+		case QUEST_TYPE_FIXED_BOSS:
+			/* Never more than one level */
+			return(FALSE);
+		case QUEST_TYPE_FIXED_DEN:
+			max_dead += q_ptr->data.fix.data.den.cleared;
+			all_dead += q_ptr->data.fix.data.den.levels;
+			break;
+		case QUEST_TYPE_FIXED_CLEAROUT:
+			max_dead += q_ptr->data.fix.data.clearout.cleared;
+			all_dead += q_ptr->data.fix.data.clearout.levels;
+			break;
+		default:
+			/* Shouldn't happen... */
+			return (0);
+	}
+
+	/* If quest is dead, no active level anymore. */
+	if (current_quest->status > QUEST_STATUS_TAKEN ||
+		current_quest->data.fix.attempts == 0)
+	{
+		return (all_dead);
+	}
+
+	return(max_dead);
+}
+
+
 /*
- * Activate quests valid for this level
+ * This function is called in change_level.
+ *
+ * Its purpose is to handle transitional stuff about quests:
+ * maintain current_quest, check about entering or leaving levels in fixed quests,
+ * "turn on" bounty / artifact quests, et cetera.
  */
 void activate_quests(int level)
 {
 	int i;
-
+	monster_race *r_ptr;
 	quest_type *q_ptr;
+
+	/* First, deal with moving in or out of quest dungeons. */
+	if (current_quest && current_quest->status == QUEST_STATUS_TAKEN)
+	{
+		/* Did we just leave the first active level? */
+		if (level == 0 || level == active_level(current_quest)-1)
+		{
+			/* We just left a quest dungeon that isn't completed.  Decrease attempts. */
+			current_quest->data.fix.attempts--;
+			if (current_quest->data.fix.attempts == 0)
+			{
+				msgf ("The dungeon collapses behind you!");
+				msgf ("You failed to complete your quest!");
+				current_quest->status = QUEST_STATUS_FAILED;
+			}
+			else if (current_quest->data.fix.attempts == 1)
+				/* Warn */
+				msgf ("The stairs start to crumble...");
+		}
+	}
+
+	/* Set current quest */
+	current_quest = (level && place[p_ptr->place_num].quest_num ? &quest[place[p_ptr->place_num].quest_num] : NULL);
 
 	for (i = 0; i < q_max; i++)
 	{
 		q_ptr = &quest[i];
-		
+
 		/* Is the quest still there? */
 		if (q_ptr->status > QUEST_STATUS_TAKEN) continue;
 
@@ -619,98 +1198,134 @@ void activate_quests(int level)
 			{
 				/* Correct dungeon level? */
 				if (q_ptr->data.dun.level != level) break;
-				
+
+				/* Current quest? */
+				if (q_ptr->status != QUEST_STATUS_TAKEN ||
+					!(q_ptr->flags & QUEST_FLAG_KNOWN))
+					break;
+
 				/* Hack - toggle QUESTOR flag */
 				SET_FLAG(&r_info[q_ptr->data.dun.r_idx], RF_QUESTOR);
-				
+
 				/* Activate the quest */
 				q_ptr->flags |= QUEST_FLAG_ACTIVE;
 
 				break;
 			}
-			
+
 			case QUEST_TYPE_BOUNTY:
 			{
-				dun_type *d_ptr = dungeon();
-				monster_race *r_ptr = &r_info[q_ptr->data.bnt.r_idx];
+				/* Always active.  Previously this would have led to the quest monster
+				   being placed on the level all the time.  Now, we will do the necessary
+				   checks when we attempt to create the quest monsters.
+				   This way, quest monsters can come up at random.
+				*/
+				r_ptr = &r_info[q_ptr->data.bnt.r_idx];
+
+				/* Mark boss as questor if unique */
+				if (FLAG(r_ptr, RF_UNIQUE) || FLAG(r_ptr, RF_UNIQUE_7))
+					SET_FLAG(r_ptr, RF_QUESTOR);
+
+				/* Current quest? */
+				if (q_ptr->status != QUEST_STATUS_TAKEN ||
+					!(q_ptr->flags & QUEST_FLAG_KNOWN))
+					break;
 
 				/* Hack - toggle QUESTOR flag */
 				SET_FLAG(r_ptr, RF_QUESTOR);
 
-				/* Is the player inside the right sort of dungeon? */
-				if (level &&
-					r_ptr->flags[7] & d_ptr->habitat)
-				{
-					/* Create a starting level */
-					int min_level = d_ptr->min_level;
-
-					/* How deep is the dungeon? */
-					int depth = MIN(d_ptr->max_level, 99) - min_level;
-
-					/* How many have been killed? */
-					int cur_num = q_ptr->data.bnt.cur_num;
-
-					/* Top out at how many monsters? */
-					int max_num = q_ptr->data.bnt.max_num;
-
-					/* Spread the monsters evenly throughout the dungeon */
-					if (level == min_level + (depth * (cur_num + 1)) / (max_num + 1))
-					{
-						/* Activate the quest */
-						q_ptr->flags |= QUEST_FLAG_ACTIVE;
-					}
-				}
-				
+				q_ptr->flags |= QUEST_FLAG_ACTIVE;
 				break;
 			}
-			
+
 			case QUEST_TYPE_WILD:
 			{
 				/* In Wilderness? */
-				if (!level) q_ptr->flags |= QUEST_FLAG_ACTIVE;
+				if (!level)
+					q_ptr->flags |= QUEST_FLAG_ACTIVE;
 				break;
 			}
 
-			
 			case QUEST_TYPE_FIND_ITEM:
 			{
 				/* Always active until the relic has been id'd */
 				q_ptr->flags |= QUEST_FLAG_ACTIVE;
 			}
-			
+
 			case QUEST_TYPE_MESSAGE:
 			{
-				int place_num = q_ptr->data.msg.place;
-				
-				place_type *pl_ptr;
-				
-				/* Not correct place? */
-				if (place_num != p_ptr->place_num) break;
-				
-				pl_ptr = &place[place_num];
-				
 				/* Need to be on the surface */
-				if (p_ptr->depth) break;
-				
-				q_ptr->flags |= QUEST_FLAG_ACTIVE;
+				if (!p_ptr->depth)
+					q_ptr->flags |= QUEST_FLAG_ACTIVE;
+				break;
 			}
-			
+
 			case QUEST_TYPE_FIND_PLACE:
 			{
-				int place_num = q_ptr->data.fpl.place;
-				
-				place_type *pl_ptr;
-				
-				/* Not correct place? */
-				if (place_num != p_ptr->place_num) break;
-				
-				pl_ptr = &place[place_num];
-				
 				/* Need to be on the surface */
-				if (p_ptr->depth) break;
-				
-				q_ptr->flags |= QUEST_FLAG_ACTIVE;
+				if (!p_ptr->depth)
+					q_ptr->flags |= QUEST_FLAG_ACTIVE;
+				break;
 			}
+			case QUEST_TYPE_DEFEND:
+			{
+				/* Always active, while quest isn't overdue */
+				SET_FLAG(&r_info[q_ptr->data.bnt.r_idx], RF_QUESTOR);
+
+				q_ptr->flags |= QUEST_FLAG_ACTIVE;
+				break;
+			}
+			case QUEST_TYPE_LOAN:
+				/* Always active */
+				q_ptr->flags |= QUEST_FLAG_ACTIVE;
+				break;
+			case QUEST_TYPE_FIXED_CLEAROUT:
+				if (q_ptr == current_quest)
+					q_ptr->flags |= QUEST_FLAG_ACTIVE;
+				break;
+			case QUEST_TYPE_FIXED_BOSS:
+				if (q_ptr == current_quest)
+					q_ptr->flags |= QUEST_FLAG_ACTIVE;
+
+				r_ptr = &r_info[q_ptr->data.fix.data.boss.r_idx];
+
+				/* Mark boss as questor if unique */
+				if (FLAG(r_ptr, RF_UNIQUE) || FLAG(r_ptr, RF_UNIQUE_7))
+					SET_FLAG(r_ptr, RF_QUESTOR);
+
+				/* Mark boss as questor if we're in the level */
+				else if (q_ptr == current_quest)
+					SET_FLAG(r_ptr, RF_QUESTOR);
+
+				/* Otherwise, *unset* the questor flag. */
+				else
+					r_ptr->flags[0] &= ~RF0_QUESTOR;
+
+				break;
+			case QUEST_TYPE_FIXED_KILL:
+				if (q_ptr == current_quest)
+					q_ptr->flags |= QUEST_FLAG_ACTIVE;
+
+				r_ptr = &r_info[q_ptr->data.fix.data.kill.r_idx];
+
+				/* Mark boss as questor if unique */
+				if (FLAG(r_ptr, RF_UNIQUE) || FLAG(r_ptr, RF_UNIQUE_7))
+					SET_FLAG(r_ptr, RF_QUESTOR);
+
+				/* Mark boss as questor if we're in the level */
+				else if (q_ptr == current_quest)
+					SET_FLAG(r_ptr, RF_QUESTOR);
+
+				/* Otherwise, *unset* the questor flag. */
+				else
+					r_ptr->flags[0] &= ~RF0_QUESTOR;
+
+				break;
+			case QUEST_TYPE_FIXED_DEN:
+				if (q_ptr == current_quest)
+					q_ptr->flags |= QUEST_FLAG_ACTIVE;
+				break;
+
 		}
 	}
 }
@@ -726,7 +1341,7 @@ static void create_stairs(int x, int y)
 	int ny, nx;
 
 	cave_type *c_ptr = area(x, y);
-	
+
 	/* Paranoia - not on deepest dungeon level */
 	if (p_ptr->depth == dungeon()->max_level) return;
 
@@ -751,7 +1366,7 @@ static void create_stairs(int x, int y)
 
 	/* Explain the staircase */
 	msgf("A magical staircase appears...");
-	
+
 	/* Destroy the fields on the square */
 	delete_field(x, y);
 
@@ -764,7 +1379,7 @@ static void display_monster_quest(quest_type *q_ptr)
 {
 	int j, k;
 	cave_type *c_ptr;
-	
+
 	int x, y;
 
 	monster_race *r_ptr = &r_info[q_ptr->data.dun.r_idx];
@@ -779,7 +1394,13 @@ static void display_monster_quest(quest_type *q_ptr)
 	else
 	{
 		bool group;
-		int number, r_idx;
+		int number, r_idx = 0;
+		int ymax, ymin, xmax, xmin;
+
+		ymax = p_ptr->max_hgt - 2;
+		ymin = p_ptr->min_hgt + 1;
+		xmax = p_ptr->max_wid - 2;
+		xmin = p_ptr->min_wid + 1;
 
 		/* Create a number of monsters depending on quest_type */
 		if (q_ptr->type == QUEST_TYPE_BOUNTY)
@@ -790,13 +1411,32 @@ static void display_monster_quest(quest_type *q_ptr)
 			/* Which monster? */
 			r_idx = q_ptr->data.bnt.r_idx;
 		}
-		else
+		else if (q_ptr->type == QUEST_TYPE_DUNGEON)
 		{
 			/* All remaining at once */
 			number = q_ptr->data.dun.max_num - q_ptr->data.dun.cur_num;
 
 			/* Which monster? */
 			r_idx = q_ptr->data.dun.r_idx;
+		}
+		else if (q_ptr->type == QUEST_TYPE_FIXED_KILL || q_ptr->type == QUEST_TYPE_FIXED_BOSS)
+		{
+			/* Don't do anything; handled in cave_gen currently */
+			return;
+		}
+		else /* (q_ptr->type == QUEST_TYPE_DEFEND) */
+		{
+
+			/* All at once */
+			number = q_ptr->data.bnt.max_num - q_ptr->data.bnt.cur_num;
+
+			/* Which monster? */
+			r_idx = q_ptr->data.bnt.r_idx;
+
+			ymax = MIN(ymax, p_ptr->py + 30);
+			ymin = MAX(ymin, p_ptr->py - 30);
+			xmax = MIN(xmax, p_ptr->px + 30);
+			xmin = MAX(xmin, p_ptr->px - 30);
 		}
 
 		for (j = 0; j < number; j++)
@@ -806,10 +1446,8 @@ static void display_monster_quest(quest_type *q_ptr)
 				/* Find an empty grid */
 				while (TRUE)
 				{
-					y = rand_range(p_ptr->min_hgt + 1,
-								   p_ptr->max_hgt - 2);
-					x = rand_range(p_ptr->min_wid + 1,
-								   p_ptr->max_wid - 2);
+					y = rand_range(ymin, ymax);
+					x = rand_range(xmin, xmax);
 
 					/* Access the grid */
 					c_ptr = area(x, y);
@@ -847,7 +1485,7 @@ static void display_artifact_quest(quest_type *q_ptr)
 {
 	int	x = rand_range(p_ptr->min_wid + 1, p_ptr->max_wid - 2);
 	int y = rand_range(p_ptr->min_hgt + 1, p_ptr->max_hgt - 2);
-	
+
 	/* Drop artifact in dungeon */
 	create_named_art(q_ptr->data.fit.a_idx, x, y);
 }
@@ -860,6 +1498,7 @@ void trigger_quest_create(byte c_type, vptr data)
 {
 	int i;
 	quest_type *q_ptr;
+	int level = p_ptr->depth;
 
 	/* Ignore data - it may be unused */
 	(void)data;
@@ -867,6 +1506,13 @@ void trigger_quest_create(byte c_type, vptr data)
 	for (i = 0; i < q_max; i++)
 	{
 		q_ptr = &quest[i];
+
+		/* Mega-hack!  Only consider the current quest if there is one. */
+		if (current_quest) {
+			q_ptr = current_quest;
+			/* For efficiency... */
+			i = q_max;
+		}
 
 		/* Quest must be chosen */
 		if (q_ptr->status != QUEST_STATUS_TAKEN) continue;
@@ -888,26 +1534,52 @@ void trigger_quest_create(byte c_type, vptr data)
 
 			case QC_DUN_MONST:
 			{
-				display_monster_quest(q_ptr);
+				dun_type *d_ptr = dungeon();
+				monster_race *r_ptr;
+
+				if (q_ptr->type == QUEST_TYPE_DUNGEON)
+				{
+					if (level == q_ptr->data.dun.level)
+						display_monster_quest(q_ptr);
+				}
+				else if (q_ptr->type == QUEST_TYPE_BOUNTY)
+				{
+					r_ptr = &r_info[q_ptr->data.bnt.r_idx];
+
+					/* Is the player inside the right sort of dungeon? */
+					if (level && (r_ptr->flags[7] & d_ptr->habitat || !monster_theme))
+					{
+						/* Frequent when the monster would not be that much out of depth. */
+						if ((level >= r_ptr->level-5) && (one_in_(2)))
+						{
+							/* Activate the quest */
+							display_monster_quest(q_ptr);
+						}
+					}
+				}
+				else if (q_ptr->type == QUEST_TYPE_FIXED_KILL || q_ptr->type == QUEST_TYPE_FIXED_BOSS)
+				{
+					display_monster_quest(q_ptr);
+				}
 				continue;
 			}
-			
+
 			case QC_DUN_ARTIFACT:
 			{
 				int place_num = q_ptr->data.fit.place;
-				
+
 				place_type *pl_ptr;
-				
+
 				/* Not correct place? */
 				if (place_num != p_ptr->place_num) continue;
-				
+
 				pl_ptr = &place[place_num];
-				
+
 				/* Need to be in the dungeon */
 				if (!pl_ptr->dungeon) continue;
-			
-				/* Correct dungeon level? */
-				if (p_ptr->depth != pl_ptr->dungeon->max_level) continue;
+
+				/* Removed dungeon level check.  Now, we just have a not-so-great chance. */
+				if (!one_in_(15)) continue;
 
 				display_artifact_quest(q_ptr);
 
@@ -926,187 +1598,318 @@ void trigger_quest_complete(byte x_type, vptr data)
 	int i;
 	quest_type *q_ptr;
 
-	for (i = 0; i < q_max; i++)
+	/* This type always refers to the current quest only */
+	if (x_type == QX_CLEAR_LEVEL)
 	{
-		q_ptr = &quest[i];
+		/* Just in case ... */
+		if (!current_quest) return;
 
-		/* Quest must be chosen */
-		if (q_ptr->status != QUEST_STATUS_TAKEN) continue;
+		q_ptr = current_quest;
 
-		/* Quest must be active */
-		if (!(q_ptr->flags & QUEST_FLAG_ACTIVE)) continue;
-
-		/* Must be relevant */
-		if (q_ptr->x_type != x_type) continue;
-
-		/* Handle the trigger */
-		switch (x_type)
+		/* Count monsters */
+		for (i = 0; i < z_info->m_max; i++)
 		{
-			case QX_NONE:
+			if (m_list[i].r_idx)
 			{
-				/* Paranoia */
-				break;
-			}
-
-			case QX_KILL_MONST:
-			case QX_KILL_UNIQUE:
-			{
-				monster_type *m_ptr = ((monster_type *)data);
-
-				if (q_ptr->data.bnt.r_idx == m_ptr->r_idx)
-				{
-					/* Don't count clones */
-					if (m_ptr->smart & SM_CLONED) break;
-
-					/* Increment number killed */
-					q_ptr->data.bnt.cur_num++;
-
-					if (q_ptr->data.bnt.cur_num >= q_ptr->data.bnt.max_num)
-					{
-						/* Complete the quest */
-						q_ptr->status = QUEST_STATUS_COMPLETED;
-
-						/* Monster is no longer 'QUESTOR' */
-						r_info[q_ptr->data.bnt.r_idx].flags[0] &= ~(RF0_QUESTOR);
-					}
-				}
-
-				break;
-			}
-
-			case QX_KILL_WINNER:
-			{
-				monster_type *m_ptr = ((monster_type *)data);
-				monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-				if (q_ptr->data.dun.r_idx == m_ptr->r_idx)
-				{
-					/* Winner? */
-					if (mon_name_cont(r_ptr, "Serpent of Chaos"))
-					{
-						/* Total winner */
-						p_ptr->state.total_winner = TRUE;
-
-						/* Redraw the "title" */
-						p_ptr->redraw |= (PR_TITLE);
-
-						/* Congratulations */
-						msgf("*** CONGRATULATIONS ***");
-						msgf("You have won the game!");
-						msgf
-							("You may retire (commit suicide) when you are ready.");
-					}
-					else
-					{
-						/* Oberon */
-
-						/* A message */
-						msgf("Well done!");
-						msgf("You have beaten Oberon.");
-						msgf
-							("You now can meet the final challenge of the Serpent of Chaos.");
-					}
-
-					/* Complete the quest */
-					q_ptr->status = QUEST_STATUS_COMPLETED;
-
-					/* Mega-hack */
-					create_stairs(m_ptr->fx, m_ptr->fy);
-				}
-
-				break;
-			}
-
-			case QX_WILD_ENTER:
-			{
-				place_type *pl_ptr;
-			
-				/* Only trigger for the correct quest */
-				if (q_ptr != data) continue;
-				
-				pl_ptr = &place[p_ptr->place_num];
-				
-				/* Wilderness quests turn off the monsters */
-				if (q_ptr->type == QUEST_TYPE_WILD)
-				{
-				
-					/* Unlink location from wilderness */
-					int x = ((u16b)p_ptr->wilderness_x / WILD_BLOCK_SIZE);
-					int y = ((u16b)p_ptr->wilderness_y / WILD_BLOCK_SIZE);
-
-					wild_done_type *w_ptr = &wild[y][x].done;
-					
-					/* No more place here */
-					w_ptr->place = 0;
-					
-					/* Decrement active block counter */
-					pl_ptr->data--;
-					
-					/* Are we done yet? */
-					if (pl_ptr->data) break;
-
-					/* Finish the quest */
-					q_ptr->status = QUEST_STATUS_FINISHED;
-				}
-
-				if (q_ptr->type == QUEST_TYPE_FIND_PLACE)
-				{
-					msgf("You find the ruin you were looking for.");
-
-					/* Complete the quest */
-					q_ptr->status = QUEST_STATUS_COMPLETED;
-				}
-
-				break;
-			}
-			
-			case QX_KNOW_ARTIFACT:
-			{
-				if (*((int *) data) == q_ptr->data.fit.a_idx)
-				{
-					msgf("You find the relic you were looking for.");
-
-					/* Complete the quest */
-					q_ptr->status = QUEST_STATUS_COMPLETED;
-
-					break;
-				}
-			}
-			
-			case QX_FIND_SHOP:
-			{
-				place_type *pl_ptr;
-			
-				/* Towns must match */
-				if (p_ptr->place_num != q_ptr->data.msg.place) continue;
-				
-				pl_ptr = &place[p_ptr->place_num];
-				
-				/* Do the stores match? */
-				if ((store_type *) data != &pl_ptr->store[q_ptr->data.msg.shop]) continue;
-				
-				/* Complete the quest */
-				q_ptr->status = QUEST_STATUS_COMPLETED;
-				
-				msgf("You have found the place you were looking for and you deliver the message!");
-				message_flush();
-
-				break;
+				/* Found a non-dead monster. */
+				if (i > 20) compact_monsters(0);
+				return;
 			}
 		}
 
-		/* Finished the quest? */
-		if ((q_ptr->status == QUEST_STATUS_FINISHED) ||
-			(q_ptr->status == QUEST_STATUS_COMPLETED))
+
+		switch (q_ptr->type)
+		{
+			case QUEST_TYPE_FIXED_KILL:
+				/* Do nothing.  It is only the target that matters here. */
+				return;
+			case QUEST_TYPE_FIXED_CLEAROUT:
+				/* Only counts if this is the first uncleared level. */
+				if (p_ptr->depth == q_ptr->data.fix.min_level + q_ptr->data.fix.data.clearout.cleared)
+				{
+					q_ptr->data.fix.data.clearout.cleared++;
+					/* If we've cleared everything, quest is completed. */
+					if (q_ptr->data.fix.data.clearout.cleared == q_ptr->data.fix.data.clearout.levels)
+						q_ptr->status = QUEST_STATUS_COMPLETED;
+
+					/* Otherwise, create stairs down. */
+					else
+					{
+						msgf ("You have made progress in your quest!");
+						create_stairs(p_ptr->px, p_ptr->py);
+					}
+				}
+				break;
+			case QUEST_TYPE_FIXED_BOSS:
+				/* Clears the quest, only if the boss is a unique.  */
+				if (q_ptr->x_type != x_type) return;
+				else q_ptr->status = QUEST_STATUS_COMPLETED;
+				break;
+			case QUEST_TYPE_FIXED_DEN:
+				/* Only counts if this is the first uncleared level. */
+				if (p_ptr->depth == q_ptr->data.fix.min_level + q_ptr->data.fix.data.den.cleared)
+				{
+					q_ptr->data.fix.data.den.cleared++;
+					/* If we've cleared everything, quest is completed. */
+					if (q_ptr->data.fix.data.den.cleared == q_ptr->data.fix.data.den.levels)
+						q_ptr->status = QUEST_STATUS_COMPLETED;
+
+					/* Otherwise, create stairs down. */
+					else
+					{
+						msgf ("You have made progress in your quest!");
+						create_stairs(p_ptr->px, p_ptr->py);
+					}
+				}
+				break;
+			default:
+				break;
+		}
+
+		if (((q_ptr->status == QUEST_STATUS_FINISHED) ||
+			(q_ptr->status == QUEST_STATUS_COMPLETED)) && (x_type != QX_LOAN))
 		{
 			msgf("You just completed your quest!");
 		}
 	}
+	else
+	{
+		for (i = 0; i < q_max; i++)
+		{
+			q_ptr = &quest[i];
+
+			/* Quest must be chosen */
+			if (q_ptr->status != QUEST_STATUS_TAKEN) continue;
+
+			/* Quest must be active */
+			if (!(q_ptr->flags & QUEST_FLAG_ACTIVE)) continue;
+
+			/* Quest must be known */
+			if (!(q_ptr->flags & QUEST_FLAG_KNOWN)) continue;
+
+			/* Must be relevant */
+			if (q_ptr->x_type != x_type) continue;
+
+			/* Handle the trigger */
+			switch (x_type)
+			{
+				case QX_NONE:
+				{
+					/* Paranoia */
+					break;
+				}
+
+				case QX_KILL_MONST:
+				case QX_KILL_UNIQUE:
+				{
+					monster_type *m_ptr = ((monster_type *)data);
+					if (q_ptr->type == QUEST_TYPE_FIXED_KILL ||
+						q_ptr->type == QUEST_TYPE_FIXED_BOSS)
+					{
+						int r_idx;
+
+						if (q_ptr != current_quest) continue;
+
+						r_idx = (q_ptr->type == QUEST_TYPE_FIXED_KILL ?
+								q_ptr->data.fix.data.kill.r_idx :
+								q_ptr->data.fix.data.boss.r_idx);
+
+						if (r_idx == m_ptr->r_idx)
+						{
+							/* Don't count clones */
+							if (m_ptr->smart & SM_CLONED) break;
+
+							/* Complete the quest */
+							q_ptr->status = QUEST_STATUS_COMPLETED;
+
+							/* Monster is no longer 'QUESTOR' */
+							r_info[q_ptr->data.bnt.r_idx].flags[0] &= ~(RF0_QUESTOR);
+						}
+					}
+					else
+					{
+
+						if (q_ptr->data.dun.r_idx == m_ptr->r_idx)
+						{
+							/* Don't count clones */
+							if (m_ptr->smart & SM_CLONED) break;
+
+							/* Increment number killed */
+							q_ptr->data.dun.cur_num++;
+
+							if (q_ptr->data.dun.cur_num >= q_ptr->data.dun.max_num)
+							{
+								/* Complete the quest */
+								q_ptr->status = QUEST_STATUS_COMPLETED;
+
+								/* Monster is no longer 'QUESTOR' */
+								r_info[q_ptr->data.dun.r_idx].flags[0] &= ~(RF0_QUESTOR);
+							}
+						}
+					}
+
+					break;
+				}
+				case QX_KILL_WINNER:
+				{
+					monster_type *m_ptr = ((monster_type *)data);
+					monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+					if (q_ptr->data.dun.r_idx == m_ptr->r_idx)
+					{
+						/* Winner? */
+						if (mon_name_cont(r_ptr, "Serpent of Chaos") ||
+							(mon_name_cont(r_ptr, "Morgoth,") && !amber_monsters))
+						{
+							/* Total winner */
+							p_ptr->state.total_winner = TRUE;
+
+							/* Redraw the "title" */
+							p_ptr->redraw |= (PR_TITLE);
+
+							/* Congratulations */
+							msgf("*** CONGRATULATIONS ***");
+							msgf("You have won the game!");
+							msgf("You may retire (commit suicide) when you are ready.");
+						}
+						else
+						{
+							/* Oberon */
+
+							/* A message */
+							msgf("Well done!");
+							msgf((amber_monsters ? "You have beaten Oberon." : "You have beaten Sauron."));
+							msgf((amber_monsters ? "You now can meet the final challenge of the Serpent of Chaos."
+												: "You can now meet the final challenge of Morgoth."));
+						}
+
+						/* Complete the quest */
+						q_ptr->status = QUEST_STATUS_COMPLETED;
+
+						/* Mega-hack */
+						create_stairs(m_ptr->fx, m_ptr->fy);
+					}
+
+					break;
+				}
+
+				case QX_WILD_ENTER:
+				{
+					place_type *pl_ptr;
+
+					/* Only trigger for the correct quest */
+					if (q_ptr != data) continue;
+
+					pl_ptr = &place[p_ptr->place_num];
+
+					/* Wilderness quests turn off the monsters */
+					if (q_ptr->type == QUEST_TYPE_WILD)
+					{
+
+						/* Unlink location from wilderness */
+						int x = ((u16b)p_ptr->wilderness_x / WILD_BLOCK_SIZE);
+						int y = ((u16b)p_ptr->wilderness_y / WILD_BLOCK_SIZE);
+
+						wild_done_type *w_ptr = &wild[y][x].done;
+
+						/* No more place here */
+						w_ptr->place = 0;
+
+						/* Decrement active block counter */
+						pl_ptr->data--;
+
+						/* Are we done yet? */
+						if (pl_ptr->data) break;
+
+						/* Finish the quest */
+						q_ptr->status = QUEST_STATUS_FINISHED;
+					}
+
+					if (q_ptr->type == QUEST_TYPE_FIND_PLACE)
+					{
+						msgf("You find the ruin you were looking for.");
+
+						/* Complete the quest */
+						q_ptr->status = QUEST_STATUS_COMPLETED;
+					}
+
+					break;
+				}
+
+				case QX_KNOW_ARTIFACT:
+				{
+					if (*((int *) data) == q_ptr->data.fit.a_idx)
+					{
+						msgf("You find the relic you were looking for.");
+
+						/* Complete the quest */
+						q_ptr->status = QUEST_STATUS_COMPLETED;
+
+						break;
+					}
+				}
+
+				case QX_FIND_SHOP:
+				{
+					place_type *pl_ptr;
+
+					/* Towns must match */
+					if (p_ptr->place_num != q_ptr->data.msg.place) continue;
+
+					pl_ptr = &place[p_ptr->place_num];
+
+					/* Do the stores match? */
+					if ((store_type *) data != &pl_ptr->store[q_ptr->data.msg.shop]) continue;
+
+					/* Complete the quest */
+					q_ptr->status = QUEST_STATUS_COMPLETED;
+
+					msgf("You have found the place you were looking for and you deliver the message!");
+					message_flush();
+
+					break;
+				}
+
+				case QX_LOAN:
+				{
+					/* Quest is finished */
+					q_ptr->status = QUEST_STATUS_FINISHED;
+
+					/* Hack: We don't want repaid loans showing up in the list of quests. */
+					q_ptr->flags &= ~QUEST_FLAG_KNOWN;
+					break;
+				}
+			}
+
+			/* Finished the quest? */
+			if (((q_ptr->status == QUEST_STATUS_FINISHED) ||
+				(q_ptr->status == QUEST_STATUS_COMPLETED)) && (x_type != QX_LOAN))
+			{
+				msgf("You just completed your quest!");
+			}
+		}
+	}
 }
 
+/*
+ * Do whatever should be done when quest number num has
+ * run out of time.
+ *
+ * XXX not very sophisticated yet.
+ */
+void trigger_quest_fail(u16b num)
+{
+	if (quest[num].status != QUEST_STATUS_TAKEN) return;  /* Irrelevant */
+
+	msgf ("You failed to complete your quest in time.");
+	quest[num].status = QUEST_STATUS_FAILED;
+
+	/* No reward for overdue quests */
+	quest[num].reward = 0;
+}
 
 /*
- * Look up an open quest that corresponds to the given building.
+ * Look up an (taken) quest that corresponds to the given building.
  *
  * If there is none, return NULL.
  *
@@ -1116,25 +1919,29 @@ quest_type *lookup_quest_building(const store_type *b_ptr)
 {
 	int i;
 	quest_type *q_ptr;
-	
+
 	place_type *pl_ptr = &place[p_ptr->place_num];
-	
+
 	for (i = 0; i < q_max; i++)
 	{
 		q_ptr = &quest[i];
-		
-		if (q_ptr->place != p_ptr->place_num) continue; 
-		
+
+		if (q_ptr->place != p_ptr->place_num) continue;
+
 		/* Bounds checking */
 		if (q_ptr->shop >= pl_ptr->numstores) continue;
 
+		/* Disregard untaken quests */
+		if (q_ptr->status == QUEST_STATUS_UNTAKEN) continue;
+
 		/* Disregard finished quests */
 		if (q_ptr->status == QUEST_STATUS_FINISHED) continue;
-		
+
+		if (q_ptr->status == QUEST_STATUS_FINISHED_FAILED) continue;
+
 		/* A match? */
 		if (&pl_ptr->store[q_ptr->shop] == b_ptr)
 		{
-		
 			return (q_ptr);
 		}
 	}
@@ -1143,164 +1950,415 @@ quest_type *lookup_quest_building(const store_type *b_ptr)
 	return (NULL);
 }
 
+/*
+ * Look up the next quest that corresponds to the given building.
+ *
+ * If there is none, return NULL.
+ *
+ * (This assumes one current quest per building.)
+ */
+int lookup_quest_building_next(const store_type *b_ptr)
+{
+	int i, best = -1;
+	quest_type *q_ptr;
 
+	place_type *pl_ptr = &place[p_ptr->place_num];
+
+	for (i = 0; i < q_max; i++)
+	{
+		q_ptr = &quest[i];
+
+		if (q_ptr->place != p_ptr->place_num) continue;
+
+		/* Bounds checking */
+		if (q_ptr->shop >= pl_ptr->numstores) continue;
+
+		/* Only consider quests from this building */
+		if (&pl_ptr->store[q_ptr->shop] != b_ptr) continue;
+
+		/* If there's a quest that's taken, it is the right one */
+		if (q_ptr->status == QUEST_STATUS_TAKEN) return(i);
+
+		/* Reject quests that can't be taken */
+		if (q_ptr->status != QUEST_STATUS_UNTAKEN) continue;
+
+		/* Found a first one? */
+		if (best == -1)  best = i;
+
+		/* Found a better one? */
+		else if (q_ptr->level < quest[best].level)  best = i;
+	}
+
+	/* Never found it */
+	if (best == -1)
+	{
+		/* No further quests. */
+		if (b_ptr->type == BUILD_CASTLE0 || b_ptr->type == BUILD_CASTLE1 ||
+			b_ptr->type == BUILD_CASTLE2)
+		{
+			/* Find the first winner quest */
+			for (i = 0; i < q_max; i++)
+			{
+				q_ptr = &quest[i];
+				/* Disregard quests we can't start now */
+				if (q_ptr->status != QUEST_STATUS_UNTAKEN) continue;
+
+				/* Ignore non-winner quests */
+				if (q_ptr->x_type != QX_KILL_WINNER) continue;
+
+				/* Found it */
+				return (i);
+			}
+
+			/* If we get here, there was none */
+			return (-1);
+		}
+		else
+		{
+			/* Don't give out the winner quests in non-castles */
+			return (-1);
+		}
+	}
+	else
+	{
+		return (best);
+	}
+}
+
+/*
+ * Grant appropriate rewards for finishing the quest
+ */
+static void give_reward(store_type * st_ptr, quest_type * q_ptr)
+{
+	int stat = -1;
+	bool get_gold = FALSE;
+	bool get_xp = FALSE;
+	bool get_item = FALSE;
+	int gp = 0;
+	int xp = 0;
+	obj_theme theme;
+
+	int r = q_ptr->reward;
+
+	theme.treasure = 0;
+	theme.tools = 0;
+	theme.magic = 50;
+	theme.combat = 50;
+
+	/* Based on the building, decide on reward type */
+	switch(st_ptr->type)
+	{
+		/* Much gold, gain DEX or CHR */
+		case BUILD_THIEVES_GUILD:
+			get_gold = TRUE;
+			gp = r;
+			stat = (one_in_(2) ? A_DEX : A_CHR);
+			break;
+		/* Any stat to gain, including none, equally likely */
+		/* Experience and gold */
+		case BUILD_CASTLE0:
+		case BUILD_CASTLE1:
+		case BUILD_CASTLE2:
+			get_gold = TRUE;
+			gp = (r/2);
+			get_xp = TRUE;
+			xp = (r/25);
+			stat = randint0(7) - 1;
+			break;
+		/* Some xp, combat item, gain str / int / dex*/
+		case BUILD_RANGER_GUILD:
+			get_xp = TRUE;
+			xp = (r/25);
+			stat = (one_in_(3) ? A_STR : (one_in_(2) ? A_DEX : A_INT));
+			get_item = TRUE;
+			theme.combat = 100;
+			theme.magic = 0;
+			break;
+		/* Some gold, combat item, gain str or con */
+		case BUILD_WARRIOR_GUILD:
+			get_gold = TRUE;
+			gp = r/2;
+			stat = (one_in_(2) ? A_STR : A_CON);
+			get_item = TRUE;
+			theme.combat = 100;
+			theme.magic = 0;
+			break;
+		/* Some xp, magic item, gain wis or con */
+		case BUILD_CATHEDRAL:
+			get_xp = TRUE;
+			xp = (r/25);
+			stat = (one_in_(2) ? A_WIS : A_CON);
+			get_item = TRUE;
+			theme.combat = 0;
+			theme.magic = 100;
+			break;
+		/* Some gold, magic item, gain int or wis */
+		case BUILD_MAGE_GUILD:
+			get_gold = TRUE;
+			gp = r/2;
+			stat = (one_in_(2) ? A_INT : A_WIS);
+			get_item = TRUE;
+			theme.combat = 0;
+			theme.magic = 75;
+			theme.treasure = 25;
+			break;
+		/* Small amount of gold and XP */
+		case BUILD_FARM:
+			get_gold = TRUE;
+			gp = r/10;
+			get_xp = TRUE;
+			xp = r/100;
+			break;
+		/* Just gold */
+		case BUILD_COURIER:
+		default:
+			get_gold = TRUE;
+			gp = r;
+			break;
+	}
+
+	if (get_gold)
+	{
+		/* Give some gold */
+		p_ptr->au += gp;
+
+		/* Tell the player */
+		msgf ("You receive %d gold for your services.", gp);
+	}
+
+	if (get_xp)
+	{
+		/* Gain some experience */
+		gain_exp(xp);
+
+		/* Tell the player */
+		msgf ("You receive experience!");
+	}
+
+	if (stat != -1 && q_ptr->level >= 10)
+	{
+		int amt = 5 + (q_ptr->level / 10);
+
+		int cap = stat_cap(stat);
+
+		/* Don't get too close to maxing out */
+		amt = MIN(amt, MAX((cap - p_ptr->stat[stat].cur)/2, 1));
+
+		do_inc_stat_fixed(stat, amt);
+	}
+
+	if (get_item)
+	{
+		/* Give an OOD object */
+		msgf ("A reward awaits you outside.");
+
+		/* Usually gives one object, but if r > 4000 it goes up */
+		/* Must include q_ptr->level because we are currently in town. */
+		semi_acquirement(MAX(1, (r/1000)-3),
+						q_ptr->level + MIN(10, (r/500)),
+						&theme);
+	}
+}
+
+/*
+ * "Cash in" a quest, or be reminded that it's not done.
+ */
 void reward_quest(quest_type *q_ptr)
 {
-	switch (q_ptr->type)
+	bool completed = FALSE;
+	bool reward = FALSE;
+	store_type *st_ptr;
+
+	if (q_ptr->status == QUEST_STATUS_FAILED)
 	{
-		case QUEST_TYPE_FIND_ITEM:
+		msgf ("Thanks anyway.");
+
+		/* Allow the quest to be deleted */
+		q_ptr->status = QUEST_STATUS_FINISHED_FAILED;
+
+		/* Take note */
+		if (auto_notes)
 		{
-			if (q_ptr->status == QUEST_STATUS_COMPLETED)
-			{
-				msgf("You can keep it if you like.");
-				
-				/* Allow this quest to be deleted if needed */
-				q_ptr->status = QUEST_STATUS_FINISHED;
-				
-				/* Take note */
-				if (auto_notes)
-				{
-					add_note('Q', "Finished quest: %s", q_ptr->name);
-				}
-			}
-			else
-			{
-				msgf("%s", q_ptr->name);
-				msgf("Still looking?");
-			}
-			
-			break;
+			add_note('Q', "Failed quest: %s", q_ptr->name);
 		}
-		
-		case QUEST_TYPE_BOUNTY:
+	}
+
+	else
+	{
+		switch (q_ptr->type)
 		{
-			if (q_ptr->status == QUEST_STATUS_COMPLETED)
+			case QUEST_TYPE_FIND_ITEM:
 			{
-				/* Give to player */
-				p_ptr->au += q_ptr->reward;
-				
-				/* And tell him */
-				msgf("You are given %d gold pieces for your efforts.",
-					q_ptr->reward);
-				
-				/* Allow this quest to be deleted if needed */
-				q_ptr->status = QUEST_STATUS_FINISHED;
-				
-				/* Take note */
-				if (auto_notes)
+				if (q_ptr->status == QUEST_STATUS_COMPLETED)
 				{
-					add_note('Q', "Finished quest: %s", q_ptr->name);
-				}
-			}
-			else
-			{
-				/* Remind what the quest is */
-				msgf("%s", q_ptr->name);
+					msgf("You can keep it if you like.");
 
-				/* If you have killed all but one monster */
-				if (q_ptr->data.bnt.max_num - q_ptr->data.bnt.cur_num == 1)
-				{
-					monster_race *r_ptr = &r_info[q_ptr->data.bnt.r_idx];
+					/* Allow this quest to be deleted if needed */
+					q_ptr->status = QUEST_STATUS_FINISHED;
 
-					if (FLAG(r_ptr, RF_MALE))
+					/* Take note */
+					if (auto_notes)
 					{
-						/* Male reference */
-						msgf("Still looking for him?");
+						add_note('Q', "Finished quest: %s", q_ptr->name);
 					}
-					else if (FLAG(r_ptr, RF_FEMALE))
-					{
-						/* Female reference */
-						msgf("Still looking for her?");
-					}
-					else
-					{
-						/* Neuter reference */
-						msgf("Still looking for it?");
-					}
+					completed=TRUE;
 				}
 				else
 				{
-					/* More than one monster */
-					msgf("Still looking for them?");
+					msgf("%s", q_ptr->name);
+					msgf("Still looking?");
 				}
+				break;
 			}
-			
-			break;
-		}
-		
-		case QUEST_TYPE_MESSAGE:
-		{
-			if (q_ptr->status == QUEST_STATUS_COMPLETED)
+			case QUEST_TYPE_BOUNTY:
+			case QUEST_TYPE_DEFEND:
 			{
-				/* Give to player */
-				p_ptr->au += q_ptr->reward;
-				
-				msgf("You are given %d gold pieces for your efforts.",
-					q_ptr->reward);
-				
-				/* Allow this quest to be deleted if needed */
-				q_ptr->status = QUEST_STATUS_FINISHED;
-				
-				/* Take note */
-				if (auto_notes)
+				if (q_ptr->status == QUEST_STATUS_COMPLETED)
 				{
-					add_note('Q', "Finished quest: %s", q_ptr->name);
-				}
-			}
-			else
-			{
-				/* Tell the player what he was trying */
-				msgf("%s", q_ptr->name);
-				msgf("Please deliver the message as soon as possible!");
-			}
-			
-			break;
-		}
-		
-		case QUEST_TYPE_FIND_PLACE:
-		{
-			if (q_ptr->status == QUEST_STATUS_COMPLETED)
-			{
-				/* Give to player */
-				p_ptr->au += q_ptr->reward;
-				
-				msgf("You are given %d gold pieces for your efforts.",
-					q_ptr->reward);
-				
-				/* Break the link between place and quest */
-				place[q_ptr->data.fpl.place].quest_num = z_info->q_max;
+					/* Allow this quest to be deleted if needed */
+					q_ptr->status = QUEST_STATUS_FINISHED;
 
-				/* Allow this quest to be deleted if needed */
-				q_ptr->status = QUEST_STATUS_FINISHED;
-				
-				/* Take note */
-				if (auto_notes)
+					/* Take note */
+					if (auto_notes)
+					{
+						add_note('Q', "Finished quest: %s", q_ptr->name);
+					}
+					completed=TRUE;
+					reward = TRUE;
+				}
+				else  /* Still looking */
 				{
-					add_note('Q', "Finished quest: %s", q_ptr->name);
-				}
-			}
-			else
-			{
-				/* Remind the player what he was doing */
-				msgf("%s", q_ptr->name);
-				msgf("Please find the ruin as soon as possible!");
-			}
-			
-			break;
-		}
+					/* Remind what the quest is */
+					msgf("%s", q_ptr->name);
 
-		
-		default:
-		{
-		
+					/* If you have killed all but one monster */
+					if (q_ptr->data.bnt.max_num - q_ptr->data.bnt.cur_num == 1)
+					{
+						monster_race *r_ptr = &r_info[q_ptr->data.bnt.r_idx];
+
+						if (FLAG(r_ptr, RF_MALE))
+						{
+							/* Male reference */
+							msgf("Still looking for him?");
+						}
+						else if (FLAG(r_ptr, RF_FEMALE))
+						{
+							/* Female reference */
+							msgf("Still looking for her?");
+						}
+						else
+						{
+							/* Neuter reference */
+							msgf("Still looking for it?");
+						}
+					}
+					else
+					{
+						/* More than one monster */
+						msgf("Still looking for them?");
+					}
+				}
+				break;
+			}
+			case QUEST_TYPE_MESSAGE:
+			{
+				if (q_ptr->status == QUEST_STATUS_COMPLETED)
+				{
+					/* Allow this quest to be deleted if needed */
+					q_ptr->status = QUEST_STATUS_FINISHED;
+
+					/* Take note */
+					if (auto_notes)
+					{
+						add_note('Q', "Finished quest: %s", q_ptr->name);
+					}
+					completed=TRUE;
+					reward=TRUE;
+				}
+				else
+				{
+					/* Tell the player what he was trying */
+					msgf("%s", q_ptr->name);
+					msgf("Please deliver the message as soon as possible!");
+				}
+				break;
+			}
+			case QUEST_TYPE_FIND_PLACE:
+			{
+				if (q_ptr->status == QUEST_STATUS_COMPLETED)
+				{
+					/* Break the link between place and quest */
+					place[q_ptr->data.fpl.place].quest_num = z_info->q_max;
+
+					/* Allow this quest to be deleted if needed */
+					q_ptr->status = QUEST_STATUS_FINISHED;
+
+					/* Take note */
+					if (auto_notes)
+					{
+						add_note('Q', "Finished quest: %s", q_ptr->name);
+					}
+					completed=TRUE;
+					reward=TRUE;
+				}
+				else
+				{
+					/* Remind the player what he was doing */
+					msgf("%s", q_ptr->name);
+					msgf("Please find the ruin as soon as possible!");
+				}
+				break;
+			}
+			default:
+			{
+				if (q_ptr->status == QUEST_STATUS_COMPLETED)
+				{
+					q_ptr->status = QUEST_STATUS_FINISHED;
+
+					if (auto_notes)
+					{
+						add_note('Q', "Finished quest: %s", q_ptr->name);
+					}
+					completed = TRUE;
+					reward = TRUE;
+				}
+				else
+				{
+					msgf ("%s", q_ptr->name);
+				}
+				break;
+			}
 		}
 	}
 
 	message_flush();
-}
 
-static const store_type *curr_build;
-static int curr_scale;
+	st_ptr = get_current_store();
+
+	/* Check for anything else special we need to do */
+	if (completed)
+	{
+		/* Set the next quest level. */
+		st_ptr->data = 0;
+		build_set_qlevel();
+
+		/* If this was a Thieves' Guild, give "low" membership. */
+		if (st_ptr->type == BUILD_THIEVES_GUILD && st_ptr->max_cost == GS_NONMEMBER)
+		{
+			msgf ("Welcome to the guild.");
+			st_ptr->max_cost = GS_LOW_MEMBER;
+			message_flush();
+			/* Membership was your reward.  (Hack) */
+			reward = FALSE;
+		}
+	}
+
+	if (reward)
+	{
+		give_reward(st_ptr, q_ptr);
+	}
+
+}
 
 /* Save the quest giver (current town + building) */
 static void set_quest_giver(quest_type *q_ptr)
@@ -1310,104 +2368,116 @@ static void set_quest_giver(quest_type *q_ptr)
 	/* Remember quest giver for later */
 	q_ptr->place = p_ptr->place_num;
 	q_ptr->shop = GET_ARRAY_INDEX(pl_ptr->store, curr_build);
-	
+
 	/* We know of this quest */
 	q_ptr->flags |= QUEST_FLAG_KNOWN;
 }
 
 
-static quest_type *insert_artifact_quest(u16b a_idx)
+static int insert_artifact_quest(u16b a_idx)
 {
 	artifact_type *a_ptr = &a_info[a_idx];
-	
+
 	place_type *pl_ptr;
 
 	cptr town_name, town_dir;
-	
+
 	quest_type *q_ptr;
 
 	int q_num;
-	
+
+	char buf[80];
+
 	/* Skip "empty" artifacts */
-	if (!a_ptr->name) return (NULL);
-		
+	if (!a_ptr->name) return (-1);
+
 	/* Cannot make an artifact twice */
-	if (a_ptr->cur_num) return (NULL);
+	if (a_ptr->cur_num) return (-1);
 
 	/* No quest items */
-	if (FLAG(a_ptr, TR_QUESTITEM)) return (NULL);
-	
+	if (FLAG(a_ptr, TR_QUESTITEM)) return (-1);
+
 	/* get a new quest */
 	q_num = q_pop();
 
 	/* Paranoia */
-	if (!q_num) return (NULL);
+	if (!q_num) return (-1);
 
 	q_ptr = &quest[q_num];
 
 	/* Store in information */
 	q_ptr->type = QUEST_TYPE_FIND_ITEM;
-	
+
 	/* We have taken the quest */
 	q_ptr->status = QUEST_STATUS_TAKEN;
 
 	/* We need to place the artifact in the dungeon */
 	q_ptr->c_type = QC_DUN_ARTIFACT;
-	
+
 	/* Finished when the player identifies it */
 	q_ptr->x_type = QX_KNOW_ARTIFACT;
-	
+
 	/* Find an available dungeon to place it in */
-	
+
 	/* Save the quest data */
 	q_ptr->data.fit.a_idx = a_idx;
 
-	/* Boost the level to make this quest harder. */
-	q_ptr->data.fit.place = find_good_dungeon(a_ptr->level * MAX_DEPTH / 100, TRUE);
-	
+	/* Find a place for this artifact. */
+	q_ptr->data.fit.place = find_good_dungeon(a_ptr->level, TRUE);
+
 	/* Where is it? */
 	pl_ptr = &place[q_ptr->data.fit.place];
-	
+
 	/* Get name of closest town + direction away from it */
 	town_name = describe_quest_location(&town_dir, pl_ptr->x, pl_ptr->y, FALSE);
-				
+
+	strcpy(buf, dungeon_type_name(pl_ptr->dungeon->habitat));
+	buf[0] = tolower(buf[0]);
+
 	/* XXX XXX Create quest name */
-	(void)strnfmt(q_ptr->name, 128, "Find the relic %s, which is hidden %s of %s.",
-				  a_name + a_ptr->name, town_dir, town_name);
+	if (is_a_vowel(buf[0])) {
+		(void)strnfmt(q_ptr->name, 256, "Find the relic %s, which is hidden in an %s, %s of %s.",
+				  a_name + a_ptr->name, buf, town_dir, town_name);
+	} else {
+		(void)strnfmt(q_ptr->name, 256, "Find the relic %s, which is hidden in a %s, %s of %s.",
+				  a_name + a_ptr->name, buf, town_dir, town_name);
+	}
+
+	/* Set level.  +3 because of the effort needed for this type of quest. */
+	q_ptr->level = a_info[a_idx].level + 3;
 
 	/* Artifact is now a quest item */
+	/* We do this even before the quest is known, so it doesn't become irrelevant later. */
 	SET_FLAG(a_ptr, TR_QUESTITEM);
-	
+
 	/* Done */
-	return (q_ptr);
+	return (q_num);
 }
 
 
 
 
 /* This function returns TRUE if nr1 and nr2 share a divider > 1 */
+/* Uses the classic Euclidean algorithm, recursive and fast. */
 static bool share_divider(int nr1, int nr2)
 {
-	int i;
+	int a = nr1, b = nr2;
 
-	/* make sure that nr2 is larger/equal to nr1 */
-	if (nr1 > nr2)
+	if (nr1 < nr2)
 	{
-		/* swap them */
-		i = nr1;
-		nr1 = nr2;
-		nr2 = i;
+		a = nr2;
+		b = nr1;
 	}
 
-	/* Try all the numbers between 2 and nr1 */
-	for (i = 2; i <= nr1; i++)
+	while (b != 0)
 	{
-		/* if i can divide both nr1 and nr2 they share a divider */
-		if (!(nr1 % i) && !(nr2 % i)) return (TRUE);
+		int m = a % b;
+		a = b;
+		b = m;
 	}
 
-	/* The greatest common denominator of nr1 and nr2 is 1. */
-	return (FALSE);
+	if (a > 1 || a == 0) return (TRUE);
+	else return (FALSE);
 }
 
 
@@ -1432,7 +2502,7 @@ static u16b find_random_artifact(void)
 
 		/* Skip "empty" artifacts */
 		if (!a_ptr->name) continue;
-			
+
 		/* Cannot make an artifact twice */
 		if (a_ptr->cur_num) continue;
 
@@ -1457,7 +2527,7 @@ static u16b find_random_artifact(void)
 	 * share a divider with z_info->a_max to ensure that all artifacts are
 	 * tried.  (basic group theory)
 	 */
-	do step = randint(z_info->a_max);
+	do step = randint1(z_info->a_max);
 	while (share_divider(step, z_info->a_max));
 
 	/* Randomly loop through the artifacts */
@@ -1465,7 +2535,7 @@ static u16b find_random_artifact(void)
 	{
 		/* Finf the next artifact */
 		a_idx = (a_idx + step) % z_info->a_max;
-	
+
 		/* Make a pointer to the artifact */
 		a_ptr = &a_info[a_idx];
 
@@ -1483,57 +2553,66 @@ static u16b find_random_artifact(void)
 	}
 	/* No termnation needed because there is a garantee to find an artifact */
 	while (TRUE);
+
+	return (0);
 }
 
 static bool request_find_item(int dummy)
-{	
+{
 	quest_type *q_ptr;
+	int q_idx;
 
 	/* Hack - ignore parameter */
 	(void) dummy;
 
 	/* Try to find a artifact to quest for */
-	q_ptr = insert_artifact_quest(find_random_artifact());
-	
-	if (!q_ptr)
+	q_idx = insert_artifact_quest(find_random_artifact());
+
+	if (q_idx == -1)
 	{
 		msgf("You have found all the relics and still want more?  Impossible.");
-	
+
 		message_flush();
-		
+
 		/* No available quests, unfortunately. */
 		return (FALSE);
 	}
-				
+
+	q_ptr = &quest[q_idx];
+
 	/* Display a helpful message. */
 	msgf("%s", q_ptr->name);
-				  
+
 	message_flush();
-			
+
 	/* Remember who gave us the quest */
 	set_quest_giver(q_ptr);
-			
+
 	/* Exit */
 	return (TRUE);
 }
 
 
-static bool monster_quest(const monster_race *r_ptr)
+static bool monster_quest(int r_idx)
 {
 	int i;
+	monster_race * r_ptr = &r_info[r_idx];
 
 	/* No bounty quests for multiplying monsters */
 	if (FLAG(r_ptr, RF_MULTIPLY)) return (FALSE);
 
 	/* No bounty to kill friendly monsters */
 	if (FLAG(r_ptr, RF_FRIENDLY)) return (FALSE);
-	
-	/* Allow silly monsters only if the silly_monster flag is set */
+
+	/* Allow monsters only if they don't match a disallowed theme */
 	if (!silly_monsters && FLAG(r_ptr, RF_SILLY)) return (FALSE);
-	
+	if (!cthulhu_monsters && FLAG(r_ptr, RF_CTH)) return (FALSE);
+	if (!amber_monsters && FLAG(r_ptr, RF_AMBER)) return (FALSE);
+
 	/* Only "hard" monsters for quests */
 	if (FLAG(r_ptr, RF_NEVER_MOVE) || FLAG(r_ptr, RF_FRIENDS)) return (FALSE);
-	
+	if (r_ptr->d_char == 't' || FLAG(r_ptr, RF_WILD_TOWN)) return (FALSE);
+
 	/* No uniques that are already dead */
 	if ((FLAG(r_ptr, RF_UNIQUE) || FLAG(r_ptr, RF_UNIQUE_7))
 			&& (r_ptr->cur_num >= r_ptr->max_num))
@@ -1541,41 +2620,181 @@ static bool monster_quest(const monster_race *r_ptr)
 			return (FALSE);
 		}
 
+	/* No monsters that are quest-reserved */
+	if (FLAG(r_ptr, RF_QUESTOR)) return (FALSE);
+
 	/* For all the quests */
 	for (i = 0; i < q_max; i++)
 	{
-		/* If there is already a bounty quest for this monster then give up */
-		if (quest[i].type == QUEST_TYPE_BOUNTY &&
+		/* If there is already a quest for this monster then give up */
+		if ((quest[i].type == QUEST_TYPE_BOUNTY ||
+			 quest[i].type == QUEST_TYPE_DEFEND) &&
 			&r_info[quest[i].data.bnt.r_idx] == r_ptr) return (FALSE);
-
-		/* Don't accidentally quest for Oberon or the Serpent */
-		if (quest[i].x_type == QX_KILL_WINNER &&
+		if ((quest[i].type == QUEST_TYPE_DUNGEON) &&
 			&r_info[quest[i].data.dun.r_idx] == r_ptr) return (FALSE);
+
 	}
 
 	return (TRUE);
 }
 
+static char races[] = "WTyYuUoOpPAdDhHkLzVn";
+static char uraces[] = "qQwER#asSfGjJVBM";
 
-static quest_type *insert_bounty_quest(u16b r_idx, u16b num)
+static bool monster_boss(int r_idx)
+{
+	int i;
+	int len;
+	monster_race * r_ptr = &r_info[r_idx];
+
+	/* Reject quest-reserved monsters */
+	if (FLAG(r_ptr, RF_QUESTOR)) return (FALSE);
+
+	/* No bounty quests for multiplying monsters */
+	if (FLAG(r_ptr, RF_MULTIPLY)) return (FALSE);
+
+	/* No bounty to kill friendly monsters */
+	if (FLAG(r_ptr, RF_FRIENDLY)) return (FALSE);
+
+	/* For all the quests */
+	for (i = 0; i < q_max; i++)
+	{
+		/* If there is already a quest for this monster then give up */
+		if ((quest[i].type == QUEST_TYPE_BOUNTY ||
+			 quest[i].type == QUEST_TYPE_DEFEND) &&
+			&r_info[quest[i].data.bnt.r_idx] == r_ptr) return (FALSE);
+		if ((quest[i].type == QUEST_TYPE_DUNGEON) &&
+			&r_info[quest[i].data.dun.r_idx] == r_ptr) return (FALSE);
+
+	}
+
+	/* Allow monsters only if they don't match a disallowed theme */
+	if (!silly_monsters && FLAG(r_ptr, RF_SILLY)) return (FALSE);
+	if (!cthulhu_monsters && FLAG(r_ptr, RF_CTH)) return (FALSE);
+	if (!amber_monsters && FLAG(r_ptr, RF_AMBER)) return (FALSE);
+
+	/* HACK: Do not make Wormtongue a quest monster */
+	if (mon_name_cont(r_ptr, "Wormtongue")) return (FALSE);
+
+	/* Allow anything that comes with escorts */
+	if (FLAG(r_ptr, RF_ESCORT)) return (TRUE);
+	if (FLAG(r_ptr, RF_ESCORTS)) return (TRUE);
+
+	/* Allow anything that can summon its kin. */
+	if (FLAG(r_ptr, RF_S_KIN)) return (TRUE);
+
+	/* Allow certain monsters based on their race. */
+	len = strlen(races);
+	for (i = 0; i <= len; i++)
+	{
+		if (r_ptr->d_char == races[i]) return (TRUE);
+	}
+
+	/* Allow certain uniques */
+	if (!FLAG(r_ptr, RF_UNIQUE)) return (FALSE);
+
+	len = strlen(uraces);
+	for (i = 0; i <= len; i++)
+	{
+		if (r_ptr->d_char == uraces[i]) return (TRUE);
+	}
+
+	return (FALSE);
+}
+
+/*
+ * Checks that the given monster has lower-level "kin".
+ */
+static bool has_followers(int r_idx)
+{
+	int i;
+	monster_race *r_ptr, *r2_ptr = &r_info[r_idx];
+
+	for (i = 0; i < z_info->r_max; i++)
+	{
+		if (i == r_idx) continue;
+
+		r_ptr = &r_info[r_idx];
+
+		if (r_ptr->d_char == r2_ptr->d_char &&
+			r_ptr->level <= r2_ptr->level)
+			return(TRUE);
+	}
+
+	return (FALSE);
+}
+/*
+ * Check to make sure the monster fits the "theme" for this guild.
+ */
+static bool monster_quest_guild_theme(const monster_race *r_ptr)
+{
+	/* Aquatic monsters never okay */
+	if (FLAG(r_ptr, RF_AQUATIC)) return (FALSE);
+
+	switch(curr_build->type)
+	{
+		case BUILD_CASTLE0:
+		case BUILD_CASTLE2:
+			/* Anything okay */
+			break;
+		case BUILD_CASTLE1:
+			/* Non-uniques are USUALLY rejected.  */
+			if (!FLAG(r_ptr, RF_UNIQUE)) return (one_in_(25));
+			break;
+		case BUILD_WARRIOR_GUILD:
+			/* Warrior guild: orcs, trolls, dragons, and giants. */
+			if (!FLAG(r_ptr, RF_ORC) && !FLAG(r_ptr, RF_TROLL) && !FLAG(r_ptr, RF_DRAGON)
+				&& !FLAG(r_ptr, RF_GIANT)) return (FALSE);
+			break;
+		case BUILD_MAGE_GUILD:
+			/* Relatively frequent spellcasters. */
+			if (r_ptr->freq_spell < 10) return (FALSE);
+		case BUILD_CATHEDRAL:
+			/* Cathedrals: undead & demons always okay, intelligent evil okay. */
+			if (!FLAG(r_ptr, RF_UNDEAD) && !FLAG(r_ptr, RF_DEMON) &&
+				  !(FLAG(r_ptr, RF_SMART) && FLAG(r_ptr, RF_EVIL))) return (FALSE);
+			break;
+		case BUILD_THIEVES_GUILD:
+			/* Thieves guild: Good monsters okay, o.w. 'p' and 'h' only */
+			if (FLAG(r_ptr, RF_GOOD)) break;
+			if (r_ptr->d_char != 'p' && r_ptr->d_char != 'h') return (FALSE);
+			break;
+		case BUILD_RANGER_GUILD:
+			/* Ranger guild: unnatural monsters */
+			if (!FLAG(r_ptr, RF_DEMON) && !FLAG(r_ptr, RF_DRAGON) &&
+				!FLAG(r_ptr, RF_UNDEAD) && !FLAG(r_ptr, RF_TROLL) && !FLAG(r_ptr, RF_ORC)) return (FALSE);
+			break;
+		case BUILD_FARM:
+			/* Farm: Animals only */
+			if (!FLAG(r_ptr, RF_ANIMAL)) return (FALSE);
+			break;
+		default:
+			break;
+	}
+	return (TRUE);
+}
+
+
+
+static int insert_bounty_quest(u16b r_idx, u16b num)
 {
 	quest_type *q_ptr;
 
 	int q_num;
-	
+
 	monster_race *r_ptr = &r_info[r_idx];
-	
+
 	/* get a new quest */
 	q_num = q_pop();
 
 	/* Paranoia */
-	if (!q_num) return (NULL);
+	if (!q_num) return (-1);
 
 	q_ptr = &quest[q_num];
 
 	/* Bounty quest */
 	q_ptr->type = QUEST_TYPE_BOUNTY;
-	
+
 	/* We have taken the quest */
 	q_ptr->status = QUEST_STATUS_TAKEN;
 
@@ -1588,12 +2807,17 @@ static quest_type *insert_bounty_quest(u16b r_idx, u16b num)
 		/* XXX XXX Create quest name */
 		(void)strnfmt(q_ptr->name, 128, "Kill %d %s.", num, buf);
 	}
-	else
+	else if (FLAG(r_ptr, RF_UNIQUE))
 	{
 		/* XXX XXX Create quest name */
 		(void)strnfmt(q_ptr->name, 128, "Kill %s.", mon_race_name(r_ptr));
 	}
-	
+	else
+	{
+		/* XXX XXX Create quest name */
+		(void)strnfmt(q_ptr->name, 128, "Kill %d %s.", num, mon_race_name(r_ptr));
+	}
+
 	/* We need to place the monster(s) when the dungeon is made */
 	q_ptr->c_type = QC_DUN_MONST;
 
@@ -1606,7 +2830,7 @@ static quest_type *insert_bounty_quest(u16b r_idx, u16b num)
 	{
 		q_ptr->x_type = QX_KILL_MONST;
 	}
-	
+
 	/* Save the quest data */
 	q_ptr->data.bnt.r_idx = r_idx;
 	q_ptr->data.bnt.cur_num = 0;
@@ -1615,24 +2839,28 @@ static quest_type *insert_bounty_quest(u16b r_idx, u16b num)
 
 	/* bonus reward for uniques */
 	if (num == 1) q_ptr->reward *= 10;
-	
+
+	/* difficulty level is monster level, or higher if there are many */
+	q_ptr->level = r_ptr->level + (num > 10 ? 1 : 0);
+
 	/* Done */
-	return (q_ptr);
+	return (q_num);
 }
 
 static bool request_bounty(int dummy)
 {
 	int i;
-	
+
 	u16b num;
 	u16b best_r_idx = 1;
 	int best_level = 1;
+	int q_idx;
 
 	int r_idx;
 	monster_race *r_ptr;
-	
+
 	quest_type *q_ptr;
-	
+
 	/* Hack - ignore parameter */
 	(void) dummy;
 
@@ -1640,15 +2868,15 @@ static bool request_bounty(int dummy)
 	for (i = 0; i < MAX_TRIES; i++)
 	{
 		/*
-		 * Random monster out of depth
-		 * (depending on level + number of quests)
+		 * Random monster of specified depth.
 		 */
-		r_idx = get_mon_num(p_ptr->max_lev + curr_scale);
+		r_idx = get_filter_mon_num(curr_scale, monster_quest);
 
 		r_ptr = &r_info[r_idx];
-		
-		/* Look at the monster - only "hard" monsters for quests */
-		if (!monster_quest(r_ptr)) continue;
+
+		/* Require the monster to match the guild's theme */
+		if (!monster_quest_guild_theme(r_ptr)) continue;
+
 
 		/* Save the index if the monster is deeper than current monster */
 		if (!best_r_idx || (r_info[r_idx].level > best_level))
@@ -1658,7 +2886,18 @@ static bool request_bounty(int dummy)
 		}
 
 		/* Accept monsters that are a few levels out of depth */
-		if (best_level > p_ptr->max_lev * 2) break;
+		if (best_level > curr_scale + 10) break;
+	}
+
+	if (best_r_idx == 1 && curr_scale >= 100)
+	{
+		msgf("Sorry, I don't need any bounties today.");
+		message_flush();
+		return(FALSE);
+	} else if (best_r_idx == 1) {
+		/* We must be trying a scale that's too low.  Try again at a harder scale. */
+		curr_scale += 5;
+		return(request_bounty(dummy));
 	}
 
 	r_ptr = &r_info[best_r_idx];
@@ -1674,33 +2913,32 @@ static bool request_bounty(int dummy)
 	}
 	else
 	{
-		num = 5 + randint0(p_ptr->max_lev / 2) / r_ptr->rarity;
+		num = (10 + randint0(15)) / r_ptr->rarity;
 	}
-	
-	/* Generate the quest */
-	q_ptr = insert_bounty_quest(best_r_idx, num);
 
-	if (!q_ptr)
+	/* Generate the quest */
+	q_idx = insert_bounty_quest(best_r_idx, num);
+
+	if (q_idx == -1)
 	{
 		msgf("Sorry, I don't need any bounties today.");
-	
+
 		message_flush();
-	
+
 		/* No available quests, unfortunately. */
 		return (FALSE);
 	}
-		
-	/* Show it on the screen? */
-			
-			
+
+	q_ptr = &quest[q_idx];
+
 	/* Display a helpful message. */
 	msgf("%s", q_ptr->name);
-				  
+
 	message_flush();
-			
+
 	/* Remember who gave us the quest */
 	set_quest_giver(q_ptr);
-			
+
 	/* Exit */
 	return (TRUE);
 }
@@ -1709,7 +2947,7 @@ static bool request_bounty(int dummy)
 static quest_type *insert_message_quest(int dist)
 {
 	place_type *pl_ptr;
-	
+
 	quest_type *q_ptr;
 	store_type *st_ptr;
 
@@ -1718,27 +2956,27 @@ static quest_type *insert_message_quest(int dist)
 
 	/* Get a new quest */
 	int q_num = q_pop();
-		
+
 	/* Paranoia */
 	if (!q_num) return (NULL);
-	
+
 	q_ptr = &quest[q_num];
 
 	/* Store in information */
 	q_ptr->type = QUEST_TYPE_MESSAGE;
-	
+
 	/* We have taken the quest */
 	q_ptr->status = QUEST_STATUS_TAKEN;
 
 	/* We don't need any special creation operation */
 	q_ptr->c_type = QC_NONE;
-	
+
 	/* Finished when the player finds it */
 	q_ptr->x_type = QX_FIND_SHOP;
-	
+
 	/* Find a town that is roughly dist wilderness blocks away */
 	place_num = find_good_town(&dist);
-	
+
 	/* Get the place */
 	pl_ptr = &place[place_num];
 
@@ -1746,9 +2984,9 @@ static quest_type *insert_message_quest(int dist)
 	do
 	{
 		store = randint0(pl_ptr->numstores);
-		
+
 		st_ptr = &pl_ptr->store[store];
-		
+
 		/* Want a store with an owner */
 	}
 	while (st_ptr->type == BUILD_NONE ||
@@ -1760,15 +2998,15 @@ static quest_type *insert_message_quest(int dist)
 	(void)strnfmt(q_ptr->name, 128, "Carry a message to %s in %s.",
 					quark_str(st_ptr->owner_name),
 					pl_ptr->name);
-	
-	
+
+
 	/* Save the quest data */
 	q_ptr->data.msg.shop = store;
 	q_ptr->data.msg.place = place_num;
-	
+
 	/* Set the reward level */
 	q_ptr->reward = dist * 100;
-	
+
 	/* Done */
 	return (q_ptr);
 }
@@ -1776,10 +3014,10 @@ static quest_type *insert_message_quest(int dist)
 static bool request_message(int dummy)
 {
 	quest_type *q_ptr;
-	
+
 	/* Hack - ignore parameter */
 	(void) dummy;
-	
+
 	/*
 	 * Generate a quest to send a message to a town
 	 * roughly 20 to 50 wilderness squares away.
@@ -1789,23 +3027,23 @@ static bool request_message(int dummy)
 	if (!q_ptr)
 	{
 		msgf("Sorry, I don't need any to send any messages today.");
-	
+
 		message_flush();
-	
+
 		/* No available quests, unfortunately. */
 		return (FALSE);
 	}
-		
+
 	/* Show it on the screen? */
-			
+
 	/* Display a helpful message. */
 	msgf("%s", q_ptr->name);
-				  
+
 	message_flush();
-			
+
 	/* Remember who gave us the quest */
 	set_quest_giver(q_ptr);
-			
+
 	/* Exit */
 	return (TRUE);
 }
@@ -1813,7 +3051,7 @@ static bool request_message(int dummy)
 static quest_type *insert_find_place_quest(void)
 {
 	place_type *pl_ptr;
-	
+
 	quest_type *q_ptr;
 
 	cptr town_name, town_dir;
@@ -1827,41 +3065,41 @@ static quest_type *insert_find_place_quest(void)
 
 	/* All dungeons have been found */
 	if (!place_num)	return (NULL);
-	
+
 	/* Get a new quest */
 	q_num = q_pop();
-		
+
 	/* Paranoia */
 	if (!q_num) return (NULL);
-	
+
 	q_ptr = &quest[q_num];
 
 	/* Store in information */
 	q_ptr->type = QUEST_TYPE_FIND_PLACE;
-	
+
 	/* We have taken the quest */
 	q_ptr->status = QUEST_STATUS_TAKEN;
 
 	/* We don't need any special creation operation */
 	q_ptr->c_type = QC_NONE;
-	
+
 	/* Finished when the player finds it */
 	q_ptr->x_type = QX_WILD_ENTER;
-	
+
 	/* Get the place */
 	pl_ptr = &place[place_num];
-	
+
 	pl_ptr->quest_num = q_num;
-	
+
 	/* Get name of closest town + direction away from it */
 	town_name = describe_quest_location(&town_dir, pl_ptr->x, pl_ptr->y, FALSE);
-				
+
 	/* XXX XXX Create quest name */
 	(void)strnfmt(q_ptr->name, 128, "Find a certain lost ruin, which is hidden %s of %s.",
 				  town_dir, town_name);
 
 	q_ptr->data.fpl.place = place_num;
-	
+
 	/* Set the reward level */
 	q_ptr->reward = 100 * distance(pl_ptr->x, pl_ptr->y, p_ptr->wilderness_x / 16,
 					p_ptr->wilderness_y / 16);
@@ -1873,74 +3111,313 @@ static quest_type *insert_find_place_quest(void)
 static bool request_find_place(int dummy)
 {
 	quest_type *q_ptr;
-	
+
 	/* Hack - ignore parameter */
 	(void) dummy;
-	
+
 	/*Generate a quest to find an unknown dungeon */
 	q_ptr = insert_find_place_quest();
 
 	if (!q_ptr)
 	{
 		msgf("You've found all the ruins that I know of.");
-	
+
 		message_flush();
-	
+
 		/* No available quests, unfortunately. */
 		return (FALSE);
 	}
-		
+
 	/* Show it on the screen? */
-			
+
 	/* Display a helpful message. */
 	msgf("%s", q_ptr->name);
-				  
+
 	message_flush();
-			
+
 	/* Remember who gave us the quest */
 	set_quest_giver(q_ptr);
-			
+
 	/* Exit */
 	return (TRUE);
 }
 
 
-
-#define QUEST_MENU_MAX		7
-#define QUEST_MENU_RELIC	3
-
-/* The quest selection menu */
-static menu_type quest_menu[QUEST_MENU_MAX] =
+static quest_type *insert_defender_quest(u16b r_idx, u16b num)
 {
-	{"To hunt down a bounty of monsters", NULL, request_bounty, MN_ACTIVE},
-	{"To send a message to someone far away", NULL, request_message, MN_ACTIVE},
-	{"To find a lost ruin", NULL, request_find_place, MN_ACTIVE},
-	MENU_END,
-	MENU_END,
-	{"To find a lost relic", NULL, request_find_item, MN_ACTIVE},
-	MENU_END
-};
+	quest_type *q_ptr;
+
+	int q_num;
+
+	monster_race *r_ptr = &r_info[r_idx];
+
+	char buf2[80];
+
+	/* get a new quest */
+	q_num = q_pop();
+
+	/* Paranoia */
+	if (!q_num) return (NULL);
+
+	q_ptr = &quest[q_num];
+
+	/* Bounty quest */
+	q_ptr->type = QUEST_TYPE_DEFEND;
+
+	/* We have taken the quest */
+	q_ptr->status = QUEST_STATUS_TAKEN;
+
+	/* 1 hour */
+	q_ptr->timeout = turn+(10L*TOWN_DAWN)/24;
+
+	desc_time(q_ptr->timeout, buf2);
+
+	if (num != 1)
+	{
+		char buf[80];
+		strcpy(buf, mon_race_name(r_ptr));
+		plural_aux(buf);
+
+		/* XXX XXX Create quest name */
+		(void)strnfmt(q_ptr->name, 128, "Kill %d %s by %s", num, buf, buf2);
+	}
+	else
+	{
+		/* XXX XXX Create quest name */
+		(void)strnfmt(q_ptr->name, 128, "Kill %s by %s", mon_race_name(r_ptr), buf2);
+	}
+
+	/* We need to place the monster(s) when the dungeon is made */
+	q_ptr->c_type = QC_DUN_MONST;
+
+	/* We need to trigger when the monsters are killed */
+	if (FLAG(r_ptr, RF_UNIQUE))
+	{
+		q_ptr->x_type = QX_KILL_UNIQUE;
+	}
+	else
+	{
+		q_ptr->x_type = QX_KILL_MONST;
+	}
+
+	/* Save the quest data */
+	q_ptr->data.bnt.r_idx = r_idx;
+	q_ptr->data.bnt.cur_num = 0;
+	q_ptr->data.bnt.max_num = num;
+	q_ptr->reward = r_ptr->level * r_ptr->level * num * 2;
+
+
+	/* bonus reward for uniques */
+	if (num == 1) q_ptr->reward *= 10;
+
+	/* Set Questor flag */
+	SET_FLAG(&r_info[r_idx], RF_QUESTOR);
+
+	/* Activate right away */
+	q_ptr->flags |= QUEST_FLAG_ACTIVE;
+
+	/* Summon the monsters */
+	display_monster_quest(q_ptr);
+
+	/* Done */
+	return (q_ptr);
+}
+
+
+static bool request_defender(int dummy)
+{
+	int i;
+
+	u16b num;
+	u16b best_r_idx = 1;
+	int best_level = 1;
+
+	int r_idx;
+	monster_race *r_ptr;
+
+	quest_type *q_ptr;
+
+	/* Hack - ignore parameter */
+	(void) dummy;
+
+	/* Get monster */
+	for (i = 0; i < MAX_TRIES; i++)
+	{
+		/*
+		 * Random monster of specified depth.
+		 */
+		r_idx = get_filter_mon_num(curr_scale, monster_quest);
+
+		r_ptr = &r_info[r_idx];
+
+		/* Require the monster to match the guild's theme */
+		if (!monster_quest_guild_theme(r_ptr)) continue;
+
+
+		/* Save the index if the monster is deeper than current monster */
+		if (!best_r_idx || (r_info[r_idx].level > best_level))
+		{
+			best_r_idx = r_idx;
+			best_level = r_info[r_idx].level;
+		}
+
+		/* Accept monsters that are a few levels out of depth */
+		if (best_level > curr_scale + 5) break;
+	}
+
+	if (best_r_idx == 1 && curr_scale >= 100)
+	{
+		msgf("Sorry, I don't need defending right now.");
+		message_flush();
+		return(FALSE);
+	} else if (best_r_idx == 1) {
+		/* We must be trying a scale that's too low.  Try again at a harder scale. */
+		curr_scale += 5;
+		return(request_defender(dummy));
+	}
+
+	r_ptr = &r_info[best_r_idx];
+
+	/* Get the number of monsters */
+	if (FLAG(r_ptr, RF_UNIQUE))
+	{
+		num = 1;
+	}
+	else if (FLAG(r_ptr, RF_UNIQUE_7))
+	{
+		num = randint1(r_ptr->max_num - r_ptr->cur_num);
+	}
+	else
+	{
+		num = (5 + randint0(p_ptr->max_lev / 2)) / r_ptr->rarity;
+	}
+
+	/* Generate the quest */
+	q_ptr = insert_defender_quest(best_r_idx, num);
+
+	if (!q_ptr)
+	{
+		msgf("Sorry, I don't need defending right now.");
+
+		message_flush();
+
+		/* No available quests, unfortunately. */
+		return (FALSE);
+	}
+
+	/* Show it on the screen? */
+
+
+	/* Display a helpful message. */
+	msgf("%s", q_ptr->name);
+
+	message_flush();
+
+	/* Remember who gave us the quest */
+	set_quest_giver(q_ptr);
+
+	/* Exit */
+	return (TRUE);
+}
+
 
 void request_quest(const store_type *b_ptr, int scale)
 {
+	quest_type *q_ptr;
+	int q_num;
+	bool ok;
+
 	/* Save building so we can remember the quest giver */
 	curr_build = b_ptr;
-	
+
 	/* Save scale so we can work out how hard to make the quest */
 	curr_scale = scale;
-	
-	/* Only allow artifact quests from large castles */
-	if (scale >= 20)
+
+	/* For buildings with only one quest type, just request the quest. */
+	switch(b_ptr->type)
 	{
-		/* Copy this quest into the menu */
-		quest_menu[QUEST_MENU_RELIC] = quest_menu[QUEST_MENU_RELIC + 2];
+		case BUILD_COURIER:
+			/* Hack: quest difficulty should be random */
+			curr_scale = rand_range(20,80);
+			request_message(0);
+			return;
+		case BUILD_FARM:
+			/* Hack: quests should never be that hard */
+			curr_scale = MIN(curr_scale, 30);
+			request_defender(0);
+			return;
 	}
 
-	display_menu(quest_menu, -1, FALSE, NULL, "What type of quest would you like?");
+	/* What's the next quest? */
+	q_num = lookup_quest_building_next(b_ptr);
 
-	
-	/* Remove the artifact quest from the menu */
-	quest_menu[QUEST_MENU_RELIC] = quest_menu[QUEST_MENU_RELIC + 1];
+	if (q_num == -1)
+	{
+		/* No quests available */
+		msgf ("Sorry, we don't have any errands for you.");
+		return;
+	}
+	/* Available quest, but player level not sufficient */
+	else
+	{
+		q_ptr = &quest[q_num];
+		if (p_ptr->max_lev * 2 < q_ptr->level - 20)
+		{
+			msgf ("Come back when you are more powerful.");
+			return;
+		}
+
+		/* Explain the quest */
+		msgf ("%s", q_ptr->name);
+
+		/* Give the player q_ptr as a quest. */
+		q_ptr->flags |= QUEST_FLAG_KNOWN;
+		q_ptr->status = QUEST_STATUS_TAKEN;
+
+		/* If necessary, link the quest place to the wilderness */
+		if (q_ptr->type == QUEST_TYPE_FIXED_DEN ||
+			q_ptr->type == QUEST_TYPE_FIXED_KILL ||
+			q_ptr->type == QUEST_TYPE_FIXED_CLEAROUT ||
+			q_ptr->type == QUEST_TYPE_FIXED_BOSS)
+		{
+			int i;
+			place_type *pl_ptr = NULL;
+			wild_done_type *w_ptr;
+
+			/* Find the place */
+			for (i = 0; i < place_count; i++)
+			{
+				pl_ptr = &place[i];
+
+				if (pl_ptr->quest_num == q_num)
+					break;
+			}
+
+			/* Paranoia */
+			if (i == place_count)
+			{
+				msgf ("Warning: Couldn't find quest place to activate it.");
+			}
+
+			/* Redraw, there should be stairs now */
+			draw_quest_stair(pl_ptr);
+
+			incref_region(pl_ptr->region);
+
+			/* Link place to wilderness */
+			w_ptr = &wild[pl_ptr->y][pl_ptr->x].done;
+
+			w_ptr->place = i;
+
+			pl_ptr->region = unref_region(pl_ptr->region);
+
+			/* Hack: Set region back to wilderness.  This should always be right. */
+			set_region(0);
+
+			/* Hack: hopefully, this makes the stairs appear right away. */
+			move_wild();
+		}
+	}
 }
 
 /* Show the quest status as a string */
@@ -1964,8 +3441,10 @@ static cptr quest_status_string(quest_type *q_ptr)
 		/* Underway */
 		case QUEST_STATUS_TAKEN:
 		{
+			max_num = -1;
+
 			/* Count the bounty monsters */
-			if (q_ptr->type == QUEST_TYPE_BOUNTY)
+			if (q_ptr->type == QUEST_TYPE_BOUNTY || q_ptr->type == QUEST_TYPE_DEFEND)
 			{
 				monst_num = q_ptr->data.bnt.cur_num;
 				max_num = q_ptr->data.bnt.max_num;
@@ -1979,10 +3458,12 @@ static cptr quest_status_string(quest_type *q_ptr)
 			}
 
 			/* Don't show the count for zero or one monsters */
-			if (max_num <= 1) return ("\n\n");
+			if (max_num == 0) return ("\n\n");
 
 			/* Tell the world */
-			return (format("You have killed %d.\n\n", monst_num));
+			else if (max_num > 1) return (format("You have killed %d.\n\n", monst_num));
+
+			else return ("\n\n");
 		}
 
 		/* Report back to quest_giver */
@@ -1990,6 +3471,7 @@ static cptr quest_status_string(quest_type *q_ptr)
 		{
 			/* All done killing */
 			if (q_ptr->type == QUEST_TYPE_BOUNTY) return ("(Killed)\n\n");
+			if (q_ptr->type == QUEST_TYPE_DEFEND) return ("(Killed)\n\n");
 
 			/* All done killing */
 			if (q_ptr->type == QUEST_TYPE_DUNGEON) return ("(Killed)\n\n");
@@ -2005,10 +3487,17 @@ static cptr quest_status_string(quest_type *q_ptr)
 
 			/* All done finding */
 			if (q_ptr->type == QUEST_TYPE_FIND_PLACE) return ("(Found)\n\n");
+
+			/* Repaid */
+			if (q_ptr->type == QUEST_TYPE_LOAN) return ("(Paid)\n\n");
 		}
 
 		/* Finnished */
 		case QUEST_STATUS_FINISHED: return ("(Completed)\n");
+
+		case QUEST_STATUS_FAILED: return ("(Failed)\n");
+
+		case QUEST_STATUS_FINISHED_FAILED: return ("(Failed)\n");
 
 		default: return ("(BUG!)\n");
 	}
@@ -2025,8 +3514,9 @@ bool do_cmd_knowledge_quests(int dummy)
 	char tmp_str[256];
 
 	quest_type *q_ptr;
-	int i;
-	
+	int i, j, k, sz, w;
+	char * s;
+
 	/* Hack - ignore parameter */
 	(void) dummy;
 
@@ -2036,22 +3526,29 @@ bool do_cmd_knowledge_quests(int dummy)
 	/* Failure */
 	if (!fff) return (FALSE);
 
-	for (i = 0; i < q_max; i++)
+	for (i = 0; i < 2*q_max; i++)
 	{
-		q_ptr = &quest[i];
+		q_ptr = &quest[i % q_max];
+
+		if (q_ptr->status == QUEST_STATUS_UNTAKEN) continue;
 
 		/* Do we know about it? */
 		if (!(q_ptr->flags & QUEST_FLAG_KNOWN)) continue;
-		
+
+		if (q_ptr->type == QUEST_TYPE_NONE) continue;
+
+		/* First time through, only current quests */
+		if (i < q_max && q_ptr->status != QUEST_STATUS_TAKEN) continue;
+
+		/* Second time through, only finished quests */
+		if (i >= q_max && q_ptr->status == QUEST_STATUS_TAKEN) continue;
+
+		if (q_ptr->type != QUEST_TYPE_WILD)
+		froff(fff, "(Danger level: %i)  ", q_ptr->level);
+
 		/* See what type of quest it is */
 		switch (q_ptr->type)
 		{
-			case QUEST_TYPE_NONE:
-			{
-				/* Paranoia */
-				continue;
-			}
-
 			case QUEST_TYPE_DUNGEON:
 			{
 				char level[20];
@@ -2059,23 +3556,18 @@ bool do_cmd_knowledge_quests(int dummy)
 				/* In feet, or in levels */
 				if (depth_in_feet)
 				{
-					strnfmt(level, 20, "%4dft",
-							(int)q_ptr->data.dun.level * 50);
+					strnfmt(tmp_str, 256, "%s (%4dft) %s",
+							q_ptr->name, (int)q_ptr->data.dun.level * 50, quest_status_string(q_ptr));
 				}
 				else
 				{
-					strnfmt(level, 20, "%3d", (int)q_ptr->data.dun.level);
+					strnfmt(tmp_str, 256, "%s %s",
+							q_ptr->name, quest_status_string(q_ptr));
 				}
-
-				/* Hack - assume kill n monsters of type m */
-				strnfmt(tmp_str, 256,
-						"%s (Dungeon level: %s)  %s",
-						q_ptr->name, level,
-						quest_status_string(q_ptr));
 
 				break;
 			}
-			
+
 			case QUEST_TYPE_BOUNTY:
 			case QUEST_TYPE_MESSAGE:
 			case QUEST_TYPE_FIND_ITEM:
@@ -2088,16 +3580,81 @@ bool do_cmd_knowledge_quests(int dummy)
 
 				break;
 			}
+			case QUEST_TYPE_FIXED_DEN:
+			case QUEST_TYPE_FIXED_CLEAROUT:
+			case QUEST_TYPE_FIXED_KILL:
+			case QUEST_TYPE_FIXED_BOSS:
+			{
+				if (!p_ptr->state.wizard)
+					/* Hack - this is simple */
+					strnfmt(tmp_str, 256, "%s  %s",
+						q_ptr->name, quest_status_string(q_ptr));
+				else
+					strnfmt(tmp_str, 265, "%s %s",
+						q_ptr->name, quest_status_string(q_ptr));
 
+				break;
+			}
+			case QUEST_TYPE_DEFEND:
+			{
+				/* Hack - this is simple */
+				strnfmt(tmp_str, 256, "%s  %s",
+					q_ptr->name, quest_status_string(q_ptr));
+
+				break;
+			}
+			case QUEST_TYPE_LOAN:
+				if (q_ptr->status != QUEST_STATUS_FINISHED)
+						strnfmt(tmp_str, 256, "%s  %s",
+					q_ptr->name, quest_status_string(q_ptr));
+
+				break;
 			default:
 			{
 				/* Paranoia */
-				strnfmt(tmp_str, 256, "Invalid quest type!");
+				strnfmt(tmp_str, 256, "Invalid quest type!\n\n");
 			}
 		}
 
 		/* Copy to the file */
-		froff(fff, "%s", tmp_str);
+		(void)Term_get_size(&w, &j);
+		s = tmp_str;
+		j = strlen(tmp_str);
+		sz = (q_ptr->type == QUEST_TYPE_WILD ? w : w-22);
+
+		/* Break up tmp_str so that it displays nicely */
+		do
+		{
+			if (j <= sz)
+			{
+				froff(fff, "%s", s);
+				break;
+			}
+			for (k = sz; k >= sz-14; k--)
+			{
+				if (s[k] == ' ')
+				{
+					s[k] = 0;
+					froff(fff, "%s\n", s);
+					s[k] = ' ';
+					s = &s[k+1];
+					j -= k+1;
+					break;
+				}
+			}
+
+			if (k == sz-15)
+			{
+				char c_tmp = s[sz];
+				s[sz] = 0;
+				froff(fff, "%s\n", s);
+				s[sz] = c_tmp;
+				s = &s[sz+1];
+				j -= sz+1;
+			}
+
+			sz = w;
+		} while (TRUE);
 	}
 
 	/* Close the file */
@@ -2108,7 +3665,7 @@ bool do_cmd_knowledge_quests(int dummy)
 
 	/* Remove the file */
 	(void)fd_kill(file_name);
-	
+
 	return (FALSE);
 }
 
@@ -2130,11 +3687,15 @@ void dump_castle_info(FILE *fff, int town)
 		/* Is it from this town? */
 		if (town != q_ptr->place) continue;
 
+		/* It is ready to be seen? */
+		if (q_ptr->status < QUEST_STATUS_TAKEN) continue;
+		if (!(q_ptr->flags & QUEST_FLAG_KNOWN)) continue;
+
 		/* There is a quest */
 		quest_in_town = TRUE;
 
 		/* Show it */
-		froff(fff, "%s  %s", q_ptr->name, quest_status_string(q_ptr));
+		froff(fff, "%s %s", q_ptr->name, quest_status_string(q_ptr));
 	}
 
 	/* If no quest was issued  */
@@ -2256,6 +3817,336 @@ static bool quest_aux_giant(int r_idx)
 	if (FLAG(r_ptr, RF_UNDEAD)) return (FALSE);
 
 	/* Okay */
+	return (TRUE);
+}
+
+/*
+ * Returns "true" if the monster listed matches this rule.
+ * Ignores inclusion/exclusion and negation.
+ */
+static bool hook_rule_tester(int r_idx, hook_rule_type *rule)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+	bool pass = FALSE;
+	int j, m;
+
+	/* Paranoia */
+	if (!rule) return (TRUE);
+
+	switch (rule->type)
+	{
+		/* Shouldn't happen.  Default to FALSE, since an
+		   empty rule should be an "exclude". */
+		case HRT_NONE:
+			return (FALSE);
+
+		case HRT_GRAPHIC:
+			/* See if the monster's default character is in the
+			   data string. */
+			m = strlen(rule->data);
+			for (j = 0; j < m; j++)
+			{
+				if (r_ptr->d_char == rule->data[j])
+				{
+					return (TRUE);
+				}
+			}
+			break;
+		case HRT_FLAG:
+		{
+			/* Use the data string to put together a list of flag
+			   values.  See if any match any of the monster's flags */
+			u32b f = 0;
+			u32b v = 0;
+
+			/* Extract the flags from the string */
+			for (j = 0; j < 9; j++)
+			{
+				f = (u32b)rule->data[(4*j)];
+				f += ((u32b)(1 << 8) * rule->data[(4*j)+1]);
+				f += ((u32b)(1 << 16) * rule->data[(4*j)+2]);
+				f += ((u32b)(1 << 24) * rule->data[(4*j)+3]);
+
+				/* Accumulate from this batch of flags */
+				v |= (f & r_ptr->flags[j]);
+			}
+
+			/* Did we match any? */
+			if (v)  return (TRUE);
+			break;
+		}
+		case HRT_NAME:
+		{
+			/* Parse the data string into strings separated by colons. */
+			cptr s;
+			char buf[128];
+			char buf2[128];
+
+			strncpy(buf, rule->data, 128);
+			strncpy(buf2, mon_race_name(r_ptr), 128);
+
+			m = strlen(buf2);
+			/* De-capitalize monster name */
+
+			for (j = 0; j < m; j++)
+			{
+				buf2[j] = (char)tolower(buf2[j]);
+			}
+
+			m = strlen(buf);
+			/* De-capitalize the data string, so we are case-insensitive */
+			for (j = 0; j < m; j++)
+			{
+				buf[j] = (char)tolower(buf[j]);
+			}
+
+			/* Try each string */
+			s = &buf[0];
+
+			for (j = 0; j < m; j++)
+			{
+				if (buf[j] == ':')
+				{
+					buf[j] = 0;
+
+					if (strstr(buf2, s))
+						return (TRUE);
+					s = &buf[j+1];
+				}
+			}
+			if (strstr(buf2, s))
+				return (TRUE);
+			else
+				return (FALSE);
+			break;
+		}
+
+		case HRT_SPELL_FREQ:
+		{
+			/* Compare monster's spellcasting frequency to number in data */
+			int f = atoi(rule->data);
+
+			if (!f)
+			{
+				msgf ("Cannot test spell frequency 1 in 0");
+				break;
+			}
+
+			if (r_ptr->freq_spell >= (100 / f)) return (TRUE);
+			break;
+		}
+		case HRT_RIDX:
+		{
+			/* Compare monster's index to list of colon-separated numbers */
+			int idx = 0;
+			cptr s = rule->data;
+
+			m = strlen(rule->data);
+
+			for (j = 0; j < m; j++)
+			{
+				if (rule->data[j] != ':') continue;
+
+				rule->data[j] = 0;
+
+				if (!sscanf(s, "%i", &idx)) break;
+
+				rule->data[j] = ':';
+
+				if (idx == r_idx) return (TRUE);
+
+				s = &(rule->data[j+1]);
+			}
+
+			if (!sscanf(s, "%i", &idx)) break;
+
+			if (idx == r_idx) return (TRUE);
+
+			break;
+		}
+		case HRT_BLOW:
+		{
+			/* Compare each of monster's blows to list of methods / effects */
+			int k;
+
+			/* Loop two characters at a time */
+			for (j = 0;  j < 128 && rule->data[j]; j+= 2)
+			{
+				/* Method */
+				if (rule->data[j] == 'M')
+				{
+					for (k = 0; k < 4; k++)
+					{
+						if (r_ptr->blow[k].method ==
+								(byte)rule->data[j+1])
+						{
+							return(TRUE);
+						}
+					}
+				}
+				/* Effect */
+				else if (rule->data[j] == 'E')
+				{
+					for (k = 0; k < 4; k++)
+					{
+						if (r_ptr->blow[k].effect ==
+								(byte)rule->data[j+1])
+						{
+							return(TRUE);
+						}
+					}
+				}
+				else
+				{
+					msgf ("Error in rule internals: expected M or E");
+				}
+			}
+			break;
+		}
+		case HRT_HIT_DICE:
+		{
+			/* Compare monster's hit dice to number in data */
+			int f = atoi(rule->data);
+
+			if (r_ptr->hdice >= f) return (TRUE);
+			break;
+		}
+		case HRT_SPEED:
+		{
+			/* Compare monster's speed to number in data */
+			int f = atoi(rule->data);
+
+			if (r_ptr->speed >= f) return (TRUE);
+			break;
+		}
+		case HRT_DEPTH:
+		{
+			/* Compare monster's level to number in data */
+			int f = atoi(rule->data);
+
+			if (r_ptr->level >= f) return (TRUE);
+			break;
+		}
+		case HRT_RARITY:
+		{
+			/* Compare monster's rarity to number in data */
+			int f = atoi(rule->data);
+
+			if (r_ptr->rarity >= f) return (TRUE);
+			break;
+		}
+		case HRT_ARMOR:
+		{
+			/* Compare monster's ac to number in data */
+			int f = atoi(rule->data);
+
+			if (r_ptr->ac >= f) return (TRUE);
+			break;
+		}
+		default:
+		{
+			msgf ("Unknown hook type");
+			break;
+		}
+	}
+
+	/* Must not have passed */
+	return (FALSE);
+}
+
+bool monster_group_test(int r_idx, monster_group_type * mg_ptr)
+{
+	bool ok, test;
+	int i;
+	hook_rule_type * rule;
+
+	/* Paranoia */
+	if (!mg_ptr) return (TRUE);
+
+	rule = &mg_ptr->rule[0];
+
+	/* Paranoia */
+	if (rule->type == HRT_NONE) return (TRUE);
+
+	/* Start out with ok = FALSE, unless 1st rule is an exclude */
+	ok = (rule->include ? FALSE : TRUE);
+
+	for (i = 0; i < 6; i++)
+	{
+		rule = &mg_ptr->rule[i];
+
+		if (rule->type == HRT_NONE) break;
+
+		test = hook_rule_tester(r_idx, rule);
+
+		/* Invert the test result if we're supposed to. */
+		if (rule->neg)
+			test = (test ? FALSE : TRUE);
+
+		/* If result is TRUE, obey the include instruction */
+		if (test && rule->include)
+			ok = TRUE;
+
+		/* Or the exclude */
+		if (test && !rule->include)
+			ok = FALSE;
+
+	}
+
+	return (ok);
+}
+
+/*
+ * The general "quest theme hook"
+ *   Returns TRUE if the given r_idx is a monster we can generate
+ *   in the current quest.
+ */
+bool quest_theme_hook(int r_idx)
+{
+	monster_race * r_ptr = &r_info[r_idx];
+
+	/* Disallow questors */
+	if (FLAG(r_ptr, RF_QUESTOR)) return (FALSE);
+
+	/* Hack: disallow townsfolk */
+	if (!(r_ptr->flags[7] & RF7_DUN)) return (FALSE);
+
+	/* Hack: disallow friendly monsters */
+	if (FLAG(r_ptr, RF_FRIENDLY)) return (FALSE);
+
+	if (!current_quest) return (TRUE);
+
+	if (current_quest->type == QUEST_TYPE_FIXED_DEN)
+	{
+		if (FLAG(r_ptr, RF_UNIQUE) || FLAG(r_ptr, RF_UNIQUE_7)) return (FALSE);
+		return (monster_group_test(r_idx, &mg_info[current_quest->data.fix.data.den.mg_idx]));
+	}
+
+	if (current_quest->type == QUEST_TYPE_FIXED_CLEAROUT)
+		return (TRUE);
+
+	if (current_quest->type == QUEST_TYPE_FIXED_KILL)
+	{
+		/* For this type, we will just wipe the monsters later. */
+		return (TRUE);
+	}
+
+	/* XXX WRITE THIS */
+	/* Currently, just works like "summon kin" */
+	if (current_quest->type == QUEST_TYPE_FIXED_BOSS)
+	{
+		if (FLAG(r_ptr, RF_UNIQUE) || FLAG(r_ptr, RF_UNIQUE_7)) return (FALSE);
+
+		/* Never summon the boss.  We will deliberately place him. */
+		if (r_idx == current_quest->data.fix.data.kill.r_idx)
+			return (FALSE);
+		else if (r_info[r_idx].d_char == r_info[current_quest->data.fix.data.boss.r_idx].d_char &&
+				 r_info[r_idx].level <= r_info[current_quest->data.fix.data.boss.r_idx].level)
+			return (TRUE);
+		else
+			return (FALSE);
+	}
+
 	return (TRUE);
 }
 
@@ -2462,7 +4353,7 @@ bool create_quest(int x, int y, int place_num)
 	pl_ptr->seed = randint0(0x10000000);
 
 	/* Quest */
-	pl_ptr->type = TOWN_QUEST;
+	pl_ptr->type = PL_QUEST_PIT;
 	pl_ptr->monst_type = TOWN_MONST_MONST;
 	pl_ptr->x = x;
 	pl_ptr->y = y;
@@ -2502,7 +4393,7 @@ bool create_quest(int x, int y, int place_num)
 
 	/* We need to trigger when the player enters the wilderness block */
 	q_ptr->x_type = QX_WILD_ENTER;
-	
+
 	/* Get name and direction of closest town to quest */
 	town_name = describe_quest_location(&town_dir, pl_ptr->x, pl_ptr->y, FALSE);
 
@@ -2689,4 +4580,773 @@ void draw_quest(place_type *pl_ptr)
 
 	/* Remove the monster restriction */
 	get_mon_num_prep(NULL);
+}
+
+static quest_type * find_loan (void)
+{
+	int i;
+	quest_type * q_ptr;
+
+	for (i = 0; i < q_max; i++) {
+		q_ptr = &quest[i];
+
+		if (q_ptr->type != QUEST_TYPE_LOAN) continue;
+		if (q_ptr->status != QUEST_STATUS_TAKEN) continue;
+		return (q_ptr);
+	}
+
+	/* Didn't have one */
+	return (NULL);
+}
+
+
+/*
+ * Determine if the player has a loan, and if so, which bank is the lender.
+ */
+store_type * get_loaner(void)
+{
+	quest_type * q_ptr = find_loan();
+
+	if (q_ptr == NULL) return NULL;
+
+	return (&(place[q_ptr->data.msg.place].store[q_ptr->data.msg.shop]));
+}
+
+/*
+ * Find the current amount of the player's loan.
+ */
+int get_loan_amount(void)
+{
+	quest_type * q_ptr = find_loan();
+
+	if (q_ptr == NULL) return 0;
+
+	return (q_ptr->reward);
+}
+
+/*
+ * Set up a new loan quest
+ */
+quest_type * insert_loan(int amt)
+{
+	place_type *pl_ptr = &place[p_ptr->place_num];
+
+	quest_type *q_ptr;
+	store_type *st_ptr = get_current_store();
+	int store, i;
+	int q_num;
+
+	/* Determine which store this is */
+	store = -1;
+
+	for (i = 0; i < pl_ptr->numstores; i++) {
+		if (st_ptr == &pl_ptr->store[i])
+		{
+			store = i;
+			break;
+		}
+	}
+
+	/* Paranoia */
+	if (store == -1) return (NULL);
+
+	/* Get a new quest */
+	q_num = q_pop();
+
+	/* Paranoia */
+	if (!q_num) return (NULL);
+
+	q_ptr = &quest[q_num];
+
+	/* Store in information */
+	q_ptr->type = QUEST_TYPE_LOAN;
+
+	/* We have taken the quest */
+	q_ptr->status = QUEST_STATUS_TAKEN;
+
+	/* We don't need any special creation operation */
+	q_ptr->c_type = QC_NONE;
+
+	/* Finished when the player pays it off */
+	q_ptr->x_type = QX_LOAN;
+
+	/* XXX XXX Create quest name */
+	(void)strnfmt(q_ptr->name, 128, "Repay a loan of %i gold to the bank in %s.",
+					amt, pl_ptr->name);
+
+
+	/* Save the quest data */
+	q_ptr->data.msg.shop = store;
+	q_ptr->data.msg.place = p_ptr->place_num;
+
+	/* Set the reward level, which stores the amount of the loan */
+	q_ptr->reward = amt;
+
+	q_ptr->flags = QUEST_FLAG_ACTIVE;
+
+	/* Done */
+	return (q_ptr);
+
+}
+
+static int create_quest_dungeon(store_type * st_ptr, int lev)
+{
+	int r_idx;
+	monster_race * r_ptr;
+	int i;
+	int best_level = 0;
+	int best_r_idx = 0;
+	int num;
+
+	/* Save building */
+	curr_build = st_ptr;
+
+	for (i = 0; i < MAX_TRIES; i++)
+	{
+		r_idx = get_filter_mon_num(lev, monster_quest);
+		r_ptr = &r_info[r_idx];
+
+		if (!monster_quest_guild_theme(r_ptr)) continue;
+
+		if (!best_r_idx || r_ptr->level > best_level)
+		{
+			best_r_idx = r_idx;
+			best_level = r_ptr->level;
+		}
+
+		/* 5 levels OOD is enough */
+		if (best_level > lev+5)
+			break;
+	}
+
+	if (!best_r_idx)
+	{
+		/* Never generated one.  Level must be too low. */
+		if (lev < 96) return (create_quest_dungeon(st_ptr, lev+5));
+	}
+
+	r_ptr = &r_info[best_r_idx];
+
+	/* Get the number of monsters */
+	if (FLAG(r_ptr, RF_UNIQUE))
+	{
+		num = 1;
+	}
+	else if (FLAG(r_ptr, RF_UNIQUE_7))
+	{
+		num = randint1(r_ptr->max_num - r_ptr->cur_num);
+	}
+	else
+	{
+		num = (5 + randint0(p_ptr->max_lev / 2)) / r_ptr->rarity;
+	}
+
+	/* Generate the quest */
+	return(insert_dungeon_monster_quest(best_r_idx, num, lev));
+}
+
+
+static int create_quest_clearout(store_type * st_ptr, int lev)
+{
+	int i;
+	int tot = 0;
+	int x;
+	int d_idx=0;
+
+	/* Hack: Ignore input */
+	(void)st_ptr;
+
+	/* Paranoia: bounds checking */
+	lev = MIN(100, lev);
+	lev = MAX(1, lev);
+
+	for (i = 0; i < NUM_DUN_TYPES_BASIC; i++)
+	{
+		/* Is this type going to generate levels at the required depth? */
+		if (dungeons[i].min_level > lev || dungeons[i].max_level < lev) continue;
+
+		tot++;
+	}
+
+	/* Paranoia */
+	if (tot == 0)
+	{
+		msgf ("Failed to find suitable dungeon type in create_quest_clearout");
+		return (-1);
+	}
+
+	x = randint1(tot);
+
+	for (i = 0; i < NUM_DUN_TYPES_BASIC; i++)
+	{
+		/* Is this type going to generate levels at the required depth? */
+		if (dungeons[i].min_level > lev || dungeons[i].max_level < lev) continue;
+
+		tot--;
+		if (tot == 0)
+		{
+			d_idx = i;
+			break;
+		}
+	}
+
+	return(insert_clearout_quest(d_idx, lev));
+}
+
+
+static int create_quest_kill(store_type * st_ptr, int lev)
+{
+	int r_idx;
+	monster_race * r_ptr;
+	int i;
+	int best_level = 0;
+	int best_r_idx = 0;
+
+	/* Save building */
+	curr_build = st_ptr;
+
+	for (i = 0; i < MAX_TRIES; i++)
+	{
+		/* Choose only "hard" monsters */
+		r_idx = get_filter_mon_num(lev, monster_quest);
+		r_ptr = &r_info[r_idx];
+
+		if (!monster_quest_guild_theme(r_ptr)) continue;
+
+		/* Hack: don't let Wormtongue be in a quest */
+		if (mon_name_cont(r_ptr, "Wormtongue")) continue;
+
+		if (!best_r_idx || r_ptr->level > best_level)
+		{
+			best_r_idx = r_idx;
+			best_level = r_ptr->level;
+		}
+
+		/* 5 extra levels OOD is enough */
+		if (best_level > lev+10)
+			break;
+	}
+
+	if (!best_r_idx)
+	{
+		/* Never generated one.  Level must be too low. */
+		if (lev < 96) return (create_quest_kill(st_ptr, lev+5));
+	}
+
+	r_ptr = &r_info[best_r_idx];
+
+	/* Generate the quest */
+
+	/* Hack: no kill quests for ideal bosses; make boss quests instead. */
+	if (FLAG(r_ptr, RF_UNIQUE) && (FLAG(r_ptr, RF_ESCORT) || FLAG(r_ptr, RF_ESCORTS)))
+		return (insert_boss_quest(best_r_idx));
+
+	return(insert_kill_quest(best_r_idx));
+}
+
+static u16b store_type_to_mg_flags(int type)
+{
+	switch(type)
+	{
+		case BUILD_CASTLE0:
+			return MGF_CASTLE0;
+		case BUILD_CASTLE1:
+			return MGF_CASTLE1;
+		case BUILD_CASTLE2:
+			return MGF_CASTLE2;
+		case BUILD_WARRIOR_GUILD:
+			return MGF_WARRIOR_GUILD;
+		case BUILD_THIEVES_GUILD:
+			return MGF_THIEVES_GUILD;
+		case BUILD_RANGER_GUILD:
+			return MGF_RANGER_GUILD;
+		case BUILD_MAGE_GUILD:
+			return MGF_MAGE_GUILD;
+		case BUILD_CATHEDRAL:
+			return MGF_CATHEDRAL;
+		case BUILD_INN:
+			return MGF_INN;
+		case BUILD_FARM:
+			return MGF_FARM;
+		default:
+			return 0x0000;
+	}
+}
+
+
+int create_quest_den(store_type * st_ptr, int lev)
+{
+	monster_group_type *mg_ptr;
+	int i;
+	s32b tot = 0;
+	int mg_idx;
+	s32b x;
+
+	if (lev < 1) lev = 1;
+	if (lev > 100) lev = 100;
+
+	/* Gather total weights */
+	for (i = 0; i < z_info->mg_max; i++)
+	{
+		mg_ptr = &mg_info[i];
+
+		/* Only use groups that match this building */
+		if (!(store_type_to_mg_flags(st_ptr->type) & mg_ptr->flags)) continue;
+
+		/* lev must be in the range */
+		if (lev < mg_ptr->min_level - mg_ptr->adj_level) continue;
+		if (lev > mg_ptr->max_level - mg_ptr->adj_level) continue;
+
+		tot += mg_ptr->weight;
+	}
+
+	if (tot == 0)
+	{
+		/* No den quests available for this store at this level.  Try another
+		   level. */
+		return (create_quest_den(st_ptr, lev+rand_range(-5,5)));
+	}
+
+	x = randint1(tot);
+
+	mg_idx = -1;
+
+	/* Find the group we chose */
+	for (i = 0; i < z_info->mg_max; i++)
+	{
+		mg_ptr = &mg_info[i];
+
+		/* Only use groups that match this building */
+		if (!(store_type_to_mg_flags(st_ptr->type) & mg_ptr->flags)) continue;
+
+		/* lev must be in the range */
+		if (lev < mg_ptr->min_level - mg_ptr->adj_level) continue;
+		if (lev > mg_ptr->max_level - mg_ptr->adj_level) continue;
+
+		x -= mg_ptr->weight;
+		if (x <= 0)
+		{
+			/* This is it */
+			mg_idx = i;
+			break;
+		}
+	}
+
+	/* Paranoia */
+	if (mg_idx == -1) quit ("Error in selecting monster group in create_quest_den");
+
+	return (insert_den_quest(mg_idx, lev));
+}
+
+int create_quest_boss(store_type * st_ptr, int lev)
+{
+	int r_idx;
+	monster_race * r_ptr;
+	int i;
+	int best_level = 0;
+	int best_r_idx = 0;
+
+	/* Save building */
+	curr_build = st_ptr;
+
+	for (i = 0; i < MAX_TRIES; i++)
+	{
+		r_idx = get_filter_mon_num(lev, monster_boss);
+		r_ptr = &r_info[r_idx];
+
+		if (!monster_quest_guild_theme(r_ptr))
+		{
+			continue;
+		}
+
+		if (!best_r_idx || r_ptr->level > best_level)
+		{
+			best_r_idx = r_idx;
+			best_level = r_ptr->level;
+		}
+
+		/* 5 levels OOD is enough */
+		if (best_level > lev+5)
+			break;
+	}
+
+	if (!best_r_idx)
+	{
+
+
+		/* Never generated one.  Level must be too low. */
+		if (lev < 96) return (create_quest_boss(st_ptr, lev+5));
+	}
+
+	/* Hack: If this "boss" is the weakest of its race, make this a kill quest instead. */
+	if (has_followers(best_r_idx))
+		return (insert_boss_quest(best_r_idx));
+	else
+		return (insert_kill_quest(best_r_idx));
+}
+
+static int create_quest_bounty(store_type * st_ptr, int lev)
+{
+	int r_idx;
+	monster_race * r_ptr;
+	int i;
+	int best_level = 0;
+	int best_r_idx = 0;
+	int num;
+
+	/* Save building */
+	curr_build = st_ptr;
+
+	for (i = 0; i < MAX_TRIES; i++)
+	{
+		r_idx = get_filter_mon_num(lev, monster_quest);
+		r_ptr = &r_info[r_idx];
+
+		if (!monster_quest_guild_theme(r_ptr)) continue;
+
+		if (!best_r_idx || r_ptr->level > best_level)
+		{
+			best_r_idx = r_idx;
+			best_level = r_ptr->level;
+		}
+
+		/* 5 levels OOD is enough */
+		if (best_level > lev+5)
+			break;
+	}
+
+	if (!best_r_idx)
+	{
+		/* Never generated one.  Level must be too low. */
+		if (lev < 96) return (create_quest_bounty(st_ptr, lev+5));
+	}
+
+	r_ptr = &r_info[best_r_idx];
+
+	/* Get the number of monsters */
+	if (FLAG(r_ptr, RF_UNIQUE))
+	{
+		num = 1;
+	}
+	else if (FLAG(r_ptr, RF_UNIQUE_7))
+	{
+		num = randint1(r_ptr->max_num - r_ptr->cur_num);
+	}
+	else
+	{
+		num = (5 + randint0(p_ptr->max_lev / 2)) / r_ptr->rarity;
+	}
+
+	/* Generate the quest */
+	return(insert_bounty_quest(best_r_idx, num));
+}
+
+
+static int create_quest_artifact(store_type * st_ptr, int lev)
+{
+	int best_a_idx = find_random_artifact();
+	int a_idx;
+	int i;
+	int score = 0;
+	int best_score = ABS(lev - a_info[best_a_idx].level);
+
+	/* Ignore input */
+	(void)st_ptr;
+
+	/* Try several random artifacts */
+	for (i = 0; i < 20; i++)
+	{
+		a_idx = find_random_artifact();
+
+		/* Compare to "best" */
+		score = ABS(lev - a_info[a_idx].level);
+		if (score < best_score)
+		{
+			best_score = score;
+			best_a_idx = a_idx;
+		}
+	}
+
+	return(insert_artifact_quest(best_a_idx));
+}
+
+/*
+ * Creates a new quest for the given store at the specified
+ * level, and returns the index of the inserted quest.
+ *
+ * Should *REALLY* never fail; if it does, we will quit.
+ */
+int create_quest_one(store_type * st_ptr, int lev)
+{
+	int q_idx;
+	int n;
+
+	/*
+	 * Pick n, which determines what type of quest we try to
+	 * create.
+	 *  n = 1:  Dungeon guardian quest.
+	 *  n = 2:  Simple dungeon clearout.
+	 *  n = 3:  Single monster lair clearout.
+	 *  n = 4:  Themed monster den.
+	 *  n = 5:  Unique monster / Boss monster stronghold clearout.
+	 *  n = 6:  Monster bounty.
+	 *  n = 7:  Find an artifact.
+	 */
+
+	switch(st_ptr->type)
+	{
+		case BUILD_CASTLE0:
+		case BUILD_CASTLE2:
+			n = randint1(8);
+			if (n >= 7) n = 6;
+			break;
+		case BUILD_CASTLE1:
+			n = randint1(10);
+			if (n >= 9) n = 6;
+			break;
+		case BUILD_WARRIOR_GUILD:
+			n = rand_range(2,7);
+			break;
+		case BUILD_THIEVES_GUILD:
+			n = rand_range(2,7);
+			if (n == 7) n = 8;
+			break;
+		case BUILD_MAGE_GUILD:
+			n = rand_range(3,7);
+			if (n == 7) n = 8;
+			break;
+		case BUILD_CATHEDRAL:
+			n = rand_range(1,6);
+			break;
+		case BUILD_RANGER_GUILD:
+			n = rand_range(2,8);
+			if (n == 8) n = 4;
+			break;
+		default:
+			msgf ("Unknown quest building type.");
+			n = randint1(7);
+			break;
+	}
+
+	switch(n)
+	{
+		case 1:
+			q_idx = create_quest_dungeon(st_ptr, lev);
+			break;
+		case 2:
+			q_idx = create_quest_clearout(st_ptr, lev);
+			break;
+		case 3:
+			q_idx = create_quest_kill(st_ptr, lev);
+			break;
+		case 4:
+		case 5:
+			q_idx = create_quest_den(st_ptr, lev);
+			break;
+		case 6:
+			q_idx = create_quest_boss(st_ptr, lev);
+			break;
+		case 7:
+			q_idx = create_quest_bounty(st_ptr, lev);
+			break;
+		case 8:
+			q_idx = create_quest_artifact(st_ptr, lev);
+			break;
+		default:
+			q_idx = -1;
+			break;
+	}
+
+	if (q_idx == -1)
+	{
+		get_check("ERROR!  Unable to create quest.");
+		quit("Unable to create quest.");
+	}
+
+	quest[q_idx].status = QUEST_STATUS_UNTAKEN;
+
+	return (q_idx);
+}
+
+/*
+ * Create a sequenced list of quests for
+ * the given building.
+ *
+ * We are guaranteed that st_ptr->type >= BUILD_CASTLE0,
+ * but not that st_ptr is actually a quest building.
+ *
+ */
+void create_quest_list(int place_num, int store_num)
+{
+	int q_num;
+	int num_quests = 0;
+	int i, j, tmp, last;
+	store_type *st_ptr = &place[place_num].store[store_num];
+
+	/* Determine number of quests to create */
+	switch (st_ptr->type)
+	{
+		case BUILD_CASTLE2:
+		case BUILD_CATHEDRAL:
+		case BUILD_WARRIOR_GUILD:
+		case BUILD_THIEVES_GUILD:
+			num_quests = 3;
+			break;
+		case BUILD_CASTLE0:
+			num_quests = 4;
+			break;
+		case BUILD_CASTLE1:
+			num_quests = 5;
+			break;
+		case BUILD_MAGE_GUILD:
+		case BUILD_RANGER_GUILD:
+			num_quests = 2;
+			break;
+		default:
+			/* Non-quest building */
+			return;
+	}
+
+	/* Add 0-3 quests */
+	num_quests += randint0(4);
+
+	/* Create the quests */
+	for (i = 0; i < num_quests; i++)
+	{
+		q_num = create_quest_one(st_ptr, rand_range((100*i / num_quests), (100*(i+1) / num_quests)));
+
+		/* Remember the quest giver */
+		quest[q_num].place = place_num;
+		quest[q_num].shop = store_num;
+	}
+}
+
+/*
+ * Set up building quests
+ */
+void init_build_quests(void)
+{
+	int i, j;
+
+	clear_row(0);
+	prtf (0, 0, "Please wait: initializing quests");
+	Term_fresh();
+
+	/* Go through all guilds and castles, creating a list of quests for each. */
+	for (i = 0; i < place_count; i++)
+	{
+		curr_place_num = i;
+
+		if (!place[i].numstores) continue;
+
+		for (j = 0; j < place[i].numstores; j++)
+		{
+			store_type *st_ptr = &place[i].store[j];
+
+			/* not a quest building */
+			if (st_ptr->type < BUILD_CASTLE0) continue;
+
+			create_quest_list(i, j);
+		}
+
+		if (place[i].type != PL_TOWN_FRACT && place[i].type != PL_TOWN_OLD) continue;
+
+		prtf (32+i, 0, ".");
+		Term_fresh();
+	}
+}
+
+/*
+ * Initial quest setup
+ *
+ */
+void init_player_quests(void)
+{
+	int i;
+
+	/* Reset number of quests */
+	q_max = 1;
+
+	/* Clear all the quests */
+	for (i = 0; i < z_info->q_max; i++)
+	{
+		quest_wipe(i);
+	}
+
+	/* Add the winner quests */
+
+	if (amber_monsters) {
+		/* Hack XXX XXX Oberon, hard coded */
+		insert_winner_quest(QW_OBERON, 1, 99);
+
+		/* Hack XXX XXX Serpent, hard coded */
+		insert_winner_quest(QW_SERPENT, 1, 100);
+	} else {
+		int m[2];
+		int n[2];
+		int i, j;
+
+		/* MEGA-hack: when "amber monsters" option is off,
+		   make Sauron and Morgoth the winner quests again.. */
+		insert_winner_quest(QW_SAURON, 1, 99);
+		insert_winner_quest(QW_MORGOTH, 1, 100);
+
+		/* BUT, if we do this, make Sauron and Morgoth as tough
+		   as Oberon and the Serpent. */
+		m[0] = QW_SAURON;
+		n[0] = QW_OBERON;
+		m[1] = QW_MORGOTH;
+		n[1] = QW_SERPENT;
+
+		for (i = 0; i < 2; i++) {
+			r_info[m[i]].hdice = r_info[n[i]].hdice;
+			r_info[m[i]].hside = r_info[n[i]].hside;
+			r_info[m[i]].ac = r_info[n[i]].ac;
+			r_info[m[i]].sleep = r_info[n[i]].sleep;
+			r_info[m[i]].aaf = r_info[n[i]].aaf;
+			r_info[m[i]].speed = r_info[n[i]].speed;
+			r_info[m[i]].mexp = r_info[n[i]].mexp;
+			r_info[m[i]].extra = r_info[n[i]].extra;
+			for (j = 0; j < 9; j++) {
+				r_info[m[i]].flags[j] = r_info[n[i]].flags[j];
+			}
+			r_info[m[i]].level = r_info[n[i]].level;
+			r_info[m[i]].rarity = r_info[n[i]].rarity;
+			for (j = 0; j < 4; j++) {
+				r_info[m[i]].blow[j].method = r_info[n[i]].blow[j].method;
+				r_info[m[i]].blow[j].effect = r_info[n[i]].blow[j].effect;
+				r_info[m[i]].blow[j].d_dice = r_info[n[i]].blow[j].d_dice;
+				r_info[m[i]].blow[j].d_side = r_info[n[i]].blow[j].d_side;
+			}
+			r_info[m[i]].obj_drop.tools = r_info[n[i]].obj_drop.tools;
+			r_info[m[i]].obj_drop.magic = r_info[n[i]].obj_drop.magic;
+			r_info[m[i]].obj_drop.combat = r_info[n[i]].obj_drop.combat;
+			r_info[m[i]].obj_drop.treasure = r_info[n[i]].obj_drop.treasure;
+		}
+
+	}
+
+}
+
+/*
+ * Returns TRUE if there should be stairs available.
+ */
+bool quest_stairs_active(int p_num)
+{
+	place_type *pl_ptr = &place[p_num];
+	quest_type *q_ptr = &quest[pl_ptr->quest_num];
+
+	if (q_ptr->type != QUEST_TYPE_FIXED_DEN &&
+		q_ptr->type != QUEST_TYPE_FIXED_BOSS &&
+		q_ptr->type != QUEST_TYPE_FIXED_CLEAROUT &&
+		q_ptr->type != QUEST_TYPE_FIXED_KILL)
+			return (FALSE);
+
+	if (q_ptr->status != QUEST_STATUS_TAKEN)
+		return (FALSE);
+
+	if (q_ptr->data.fix.attempts == 0)
+		return (FALSE);
+
+	return (TRUE);
 }

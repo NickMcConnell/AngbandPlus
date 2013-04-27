@@ -23,7 +23,8 @@ static int wild_stairs_y = 0;
 /*
  * Building information
  *
- * Number currently created in this town
+ * Number in existence
+ * (Used to calculate probabilities)
  * Field to place, if applicable.
  * Type of building
  * Pop, magic, law levels
@@ -31,134 +32,145 @@ static int wild_stairs_y = 0;
  */
 wild_building_type wild_build[MAX_CITY_BUILD] =
 {
-	{0, FT_STORE_GENERAL, BT_STORE, 100, 150, 150, 2},
-	{0, FT_STORE_ARMOURY, BT_STORE, 150, 150, 100, 1},
-	{0, FT_STORE_WEAPON, BT_STORE, 150, 150, 100, 1},
-	{0, FT_STORE_TEMPLE, BT_STORE, 150, 150, 200, 1},
-	{0, FT_STORE_ALCHEMIST, BT_STORE, 100, 150, 200, 21},
-	{0, FT_STORE_MAGIC, BT_STORE, 200, 150, 200, 1},
-	{0, FT_STORE_BLACK, BT_STORE, 250, 150, 50, 5},
-	{0, FT_STORE_HOME, BT_STORE, 150, 150, 150, 2},
-	{0, FT_STORE_BOOK, BT_STORE, 250, 150, 150, 2},
-	{0, 0, BT_GENERAL, 150, 150, 150, 10},
-	{0, FT_BUILD_WEAPON, BT_BUILD, 100, 150, 150, 5},
-	{0, FT_BUILD_RECHARGE, BT_BUILD, 200, 150, 150, 10},
-	{0, FT_BUILD_PLUS_WEAPON, BT_BUILD, 200, 150, 200, 10},
-	{0, FT_BUILD_PLUS_ARMOUR, BT_BUILD, 200, 150, 200, 10},
-	{0, FT_BUILD_MUTATE, BT_BUILD, 200, 150, 50, 20},
-	{0, 0, BT_GENERAL, 150, 150, 150, 1},
-	{0, 0, BT_GENERAL, 150, 150, 150, 1},
-	{0, FT_BUILD_MAP, BT_BUILD, 150, 150, 150, 5},
-	{0, FT_STORE_WEAPON1, BT_STORE, 100, 100, 100, 10},
-	{0, FT_STORE_WEAPON2, BT_STORE, 100, 150, 100, 20},
-	{0, FT_STORE_WEAPON3, BT_STORE, 100, 50, 100, 50},
-	{0, FT_STORE_WEAPON4, BT_STORE, 150, 200, 100, 100},
-	{0, FT_STORE_WEAPON5, BT_STORE, 200, 200, 50, 200},
-	{0, FT_STORE_ARMOUR1, BT_STORE, 100, 100, 100, 10},
-	{0, FT_STORE_ARMOUR2, BT_STORE, 100, 150, 100, 20},
-	{0, FT_STORE_ARMOUR3, BT_STORE, 100, 150, 100, 50},
-	{0, FT_STORE_ARMOUR4, BT_STORE, 150, 200, 100, 100},
-	{0, FT_STORE_ARMOUR5, BT_STORE, 200, 250, 50, 200},
-	{0, FT_STORE_SWORD0, BT_STORE, 100, 50, 100, 5},
-	{0, FT_STORE_SWORD1, BT_STORE, 100, 50, 100, 10},
-	{0, FT_STORE_SWORD2, BT_STORE, 100, 100, 100, 25},
-	{0, FT_STORE_SWORD3, BT_STORE, 150, 150, 100, 50},
-	{0, FT_STORE_SWORD4, BT_STORE, 200, 150, 100, 100},
-	{0, FT_STORE_SWORD5, BT_STORE, 200, 200, 50, 200},
-	{0, FT_STORE_SHIELD0, BT_STORE, 100, 100, 100, 5},
-	{0, FT_STORE_SHIELD1, BT_STORE, 100, 100, 100, 10},
-	{0, FT_STORE_SHIELD2, BT_STORE, 100, 150, 100, 25},
-	{0, FT_STORE_SHIELD3, BT_STORE, 150, 150, 100, 50},
-	{0, FT_STORE_SHIELD4, BT_STORE, 200, 200, 50, 200},
-	{0, FT_STORE_SHIELD5, BT_STORE, 200, 250, 50, 400},
-	{0, FT_STORE_AXE0, BT_STORE, 150, 50, 100, 5},
-	{0, FT_STORE_AXE1, BT_STORE, 150, 50, 100, 10},
-	{0, FT_STORE_AXE2, BT_STORE, 150, 100, 100, 25},
-	{0, FT_STORE_AXE3, BT_STORE, 150, 100, 100, 50},
-	{0, FT_STORE_AXE4, BT_STORE, 200, 150, 100, 100},
-	{0, FT_STORE_AXE5, BT_STORE, 200, 150, 50, 200},
-	{0, FT_STORE_AMMO0, BT_STORE, 150, 100, 100, 5},
-	{0, FT_STORE_AMMO1, BT_STORE, 200, 200, 150, 10},
-	{0, FT_STORE_AMMO2, BT_STORE, 250, 250, 150, 100},
-	{0, FT_STORE_FLET0, BT_STORE, 100, 50, 100, 15},
-	{0, FT_STORE_FLET1, BT_STORE, 100, 100, 100, 25},
-	{0, FT_STORE_FLET2, BT_STORE, 150, 150, 150, 100},
-	{0, FT_STORE_FLET3, BT_STORE, 150, 200, 150, 400},
-	{0, FT_STORE_WARHALL0, BT_STORE, 50, 50, 50, 15},
-	{0, FT_STORE_WARHALL1, BT_STORE, 50, 50, 50, 50},
-	{0, FT_STORE_WARHALL2, BT_STORE, 100, 50, 100, 100},
-	{0, FT_STORE_WARHALL3, BT_STORE, 100, 100, 100, 150},
-	{0, FT_STORE_WARHALL4, BT_STORE, 150, 100, 200, 200},
-	{0, FT_STORE_WARHALL5, BT_STORE, 150, 150, 250, 250},
-	{0, FT_STORE_CLOTH0, BT_STORE, 200, 100, 150, 15},
-	{0, FT_STORE_CLOTH1, BT_STORE, 150, 150, 150, 25},
-	{0, FT_STORE_HARMOUR0, BT_STORE, 150, 100, 100, 25},
-	{0, FT_STORE_HARMOUR1, BT_STORE, 150, 100, 100, 25},
-	{0, FT_STORE_HARMOUR2, BT_STORE, 200, 150, 150, 50},
-	{0, FT_STORE_HARMOUR3, BT_STORE, 200, 150, 150, 100},
-	{0, FT_STORE_HARMOUR4, BT_STORE, 250, 200, 200, 200},
-	{0, FT_STORE_HARMOUR5, BT_STORE, 250, 250, 200, 400},
-	{0, FT_STORE_HAT0, BT_STORE, 200, 50, 150, 15},
-	{0, FT_STORE_HAT1, BT_STORE, 200, 150, 150, 25},
-	{0, FT_STORE_HAT2, BT_STORE, 200, 150, 200, 50},
-	{0, FT_STORE_HAT3, BT_STORE, 250, 200, 200, 400},
-	{0, FT_STORE_JEWEL0, BT_STORE, 150, 150, 150, 25},
-	{0, FT_STORE_JEWEL1, BT_STORE, 150, 200, 150, 50},
-	{0, FT_STORE_JEWEL2, BT_STORE, 200, 200, 200, 100},
-	{0, FT_STORE_JEWEL3, BT_STORE, 200, 250, 200, 200},
-	{0, FT_STORE_JEWEL4, BT_STORE, 200, 250, 250, 400},
-	{0, FT_STORE_STATUE0, BT_STORE, 250, 150, 150, 50},
-	{0, FT_STORE_STATUE1, BT_STORE, 250, 150, 150, 50},
-	{0, FT_STORE_FIGUR0, BT_STORE, 200, 200, 150, 50},
-	{0, FT_STORE_FIGUR1, BT_STORE, 200, 200, 200, 50},
-	{0, FT_STORE_POTION0, BT_STORE, 150, 150, 150, 15},
-	{0, FT_STORE_POTION1, BT_STORE, 150, 150, 150, 50},
-	{0, FT_STORE_POTION2, BT_STORE, 200, 200, 200, 100},
-	{0, FT_STORE_POTION3, BT_STORE, 200, 200, 200, 200},
-	{0, FT_STORE_POTION4, BT_STORE, 200, 200, 200, 400},
-	{0, FT_STORE_SCROLL0, BT_STORE, 150, 150, 150, 15},
-	{0, FT_STORE_SCROLL1, BT_STORE, 150, 150, 150, 50},
-	{0, FT_STORE_SCROLL2, BT_STORE, 200, 200, 200, 100},
-	{0, FT_STORE_SCROLL3, BT_STORE, 200, 200, 200, 200},
-	{0, FT_STORE_SCROLL4, BT_STORE, 200, 200, 200, 400},
-	{0, FT_STORE_MAGIC0, BT_STORE, 50, 150, 200, 15},
-	{0, FT_STORE_MAGIC1, BT_STORE, 100, 200, 200, 25},
-	{0, FT_STORE_MAGIC2, BT_STORE, 100, 200, 200, 50},
-	{0, FT_STORE_MAGIC3, BT_STORE, 150, 250, 250, 100},
-	{0, FT_STORE_MAGIC4, BT_STORE, 200, 250, 250, 150},
-	{0, FT_STORE_BOOK1, BT_STORE, 200, 250, 250, 50},
-	{0, FT_STORE_TEMPLE1, BT_STORE, 50, 100, 150, 25},
-	{0, FT_STORE_TEMPLE2, BT_STORE, 100, 150, 150, 50},
-	{0, FT_STORE_TEMPLE3, BT_STORE, 150, 200, 200, 200},
-	{0, FT_STORE_SUPPLIES0, BT_STORE, 150, 50, 150, 50},
-	{0, FT_STORE_SUPPLIES1, BT_STORE, 100, 100, 150, 20},
-	{0, FT_STORE_BLACK1, BT_STORE, 200, 150, 50, 75},
-	{0, FT_STORE_BLACK2, BT_STORE, 200, 200, 50, 200},
-	{0, FT_STORE_ALCHEMY1, BT_STORE, 100, 150, 150, 25},
-	{0, FT_STORE_ALCHEMY2, BT_STORE, 150, 200, 150, 100},
-	{0, FT_STORE_JUNK, BT_STORE, 200, 50, 150, 10},
-	{0, FT_STORE_FOOD, BT_STORE, 200, 100, 150, 10},
-	{0, FT_BUILD_LIBRARY, BT_BUILD, 200, 200, 200, 20},
-	{0, FT_BUILD_CASINO, BT_BUILD, 100, 200, 200, 20},
-	{0, FT_BUILD_INN, BT_BUILD, 100, 100, 200, 1},
-	{0, FT_BUILD_HEALER, BT_BUILD, 250, 250, 200, 20},
-	{0, FT_STORE_BLACK0, BT_STORE, 100, 100, 100, 10},
-	{0, FT_BUILD_MAGETOWER0, BT_BUILD, 100, 150, 100, 6},
-	{0, FT_BUILD_MAGETOWER1, BT_BUILD, 150, 250, 150, 20},
-	{0, FT_BUILD_CASTLE0, BT_BUILD, 100, 150, 150, 10},
-	{0, FT_BUILD_CASTLE1, BT_BUILD, 200, 150, 250, 20},
+	{0, 0, FT_STORE_GENERAL, BT_STORE, 100, 150, 150, 2},
+	{0, 0, FT_STORE_ARMOURY, BT_STORE, 150, 150, 100, 1},
+	{0, 0, FT_STORE_WEAPON, BT_STORE, 150, 150, 100, 1},
+	{0, 0, FT_STORE_TEMPLE, BT_STORE, 150, 150, 200, 1},
+	{0, 0, FT_STORE_ALCHEMIST, BT_STORE, 100, 150, 200, 2},
+	{0, 0, FT_STORE_MAGIC, BT_STORE, 200, 150, 200, 1},
+	{0, 0, FT_STORE_BLACK, BT_STORE, 250, 150, 50, 5},
+	{0, 0, FT_STORE_HOME, BT_STORE, 150, 150, 150, 2},
+	{0, 0, FT_STORE_BOOK, BT_STORE, 250, 150, 150, 2},
+	{0, 0, 0, BT_GENERAL, 150, 150, 150, 10},
+	{0, 0, FT_BUILD_WEAPON, BT_BUILD, 100, 150, 150, 5},
+	{0, 0, FT_BUILD_RECHARGE, BT_BUILD, 200, 150, 150, 8},
+	{0, 0, FT_BUILD_PLUS_WEAPON, BT_BUILD, 200, 150, 200, 8},
+	{0, 0, FT_BUILD_PLUS_ARMOUR, BT_BUILD, 200, 150, 200, 8},
+	{0, 0, FT_BUILD_MUTATE, BT_BUILD, 200, 150, 50, 15},
+	{0, 0, 0, BT_GENERAL, 150, 150, 150, 1},
+	{0, 0, 0, BT_GENERAL, 150, 150, 150, 1},
+	{0, 0, FT_BUILD_MAP, BT_BUILD, 150, 150, 150, 5},
+	{0, 0, FT_STORE_WEAPON1, BT_STORE, 100, 100, 100, 10},
+	{0, 0, FT_STORE_WEAPON2, BT_STORE, 100, 150, 100, 20},
+	{0, 0, FT_STORE_WEAPON3, BT_STORE, 100, 50, 100, 30},
+	{0, 0, FT_STORE_WEAPON4, BT_STORE, 150, 200, 100, 40},
+	{0, 0, FT_STORE_WEAPON5, BT_STORE, 200, 200, 50, 50},
+	{0, 0, FT_STORE_ARMOUR1, BT_STORE, 100, 100, 100, 10},
+	{0, 0, FT_STORE_ARMOUR2, BT_STORE, 100, 150, 100, 20},
+	{0, 0, FT_STORE_ARMOUR3, BT_STORE, 100, 150, 100, 30},
+	{0, 0, FT_STORE_ARMOUR4, BT_STORE, 150, 200, 100, 40},
+	{0, 0, FT_STORE_ARMOUR5, BT_STORE, 200, 250, 50, 50},
+	{0, 0, FT_STORE_SWORD0, BT_STORE, 100, 50, 100, 3},
+	{0, 0, FT_STORE_SWORD1, BT_STORE, 100, 50, 100, 10},
+	{0, 0, FT_STORE_SWORD2, BT_STORE, 100, 100, 100, 20},
+	{0, 0, FT_STORE_SWORD3, BT_STORE, 150, 150, 100, 30},
+	{0, 0, FT_STORE_SWORD4, BT_STORE, 200, 150, 100, 40},
+	{0, 0, FT_STORE_SWORD5, BT_STORE, 200, 200, 50, 50},
+	{0, 0, FT_STORE_SHIELD0, BT_STORE, 100, 100, 100, 3},
+	{0, 0, FT_STORE_SHIELD1, BT_STORE, 100, 100, 100, 10},
+	{0, 0, FT_STORE_SHIELD2, BT_STORE, 100, 150, 100, 20},
+	{0, 0, FT_STORE_SHIELD3, BT_STORE, 150, 150, 100, 30},
+	{0, 0, FT_STORE_SHIELD4, BT_STORE, 200, 200, 50, 40},
+	{0, 0, FT_STORE_SHIELD5, BT_STORE, 200, 250, 50, 50},
+	{0, 0, FT_STORE_AXE0, BT_STORE, 150, 50, 100, 3},
+	{0, 0, FT_STORE_AXE1, BT_STORE, 150, 50, 100, 10},
+	{0, 0, FT_STORE_AXE2, BT_STORE, 150, 100, 100, 20},
+	{0, 0, FT_STORE_AXE3, BT_STORE, 150, 100, 100, 30},
+	{0, 0, FT_STORE_AXE4, BT_STORE, 200, 150, 100, 40},
+	{0, 0, FT_STORE_AXE5, BT_STORE, 200, 150, 50, 50},
+	{0, 0, FT_STORE_AMMO0, BT_STORE, 150, 100, 100, 2},
+	{0, 0, FT_STORE_AMMO1, BT_STORE, 200, 200, 150, 10},
+	{0, 0, FT_STORE_AMMO2, BT_STORE, 250, 250, 150, 30},
+	{0, 0, FT_STORE_FLET0, BT_STORE, 100, 50, 100, 2},
+	{0, 0, FT_STORE_FLET1, BT_STORE, 100, 100, 100, 10},
+	{0, 0, FT_STORE_FLET2, BT_STORE, 150, 150, 150, 30},
+	{0, 0, FT_STORE_FLET3, BT_STORE, 150, 200, 150, 50},
+	{0, 0, FT_STORE_WARHALL0, BT_STORE, 50, 50, 50, 1},
+	{0, 0, FT_STORE_WARHALL1, BT_STORE, 50, 50, 50, 10},
+	{0, 0, FT_STORE_WARHALL2, BT_STORE, 100, 50, 100, 20},
+	{0, 0, FT_STORE_WARHALL3, BT_STORE, 100, 100, 100, 30},
+	{0, 0, FT_STORE_WARHALL4, BT_STORE, 150, 100, 200, 40},
+	{0, 0, FT_STORE_WARHALL5, BT_STORE, 150, 150, 250, 50},
+	{0, 0, FT_STORE_CLOTH0, BT_STORE, 200, 100, 150, 5},
+	{0, 0, FT_STORE_CLOTH1, BT_STORE, 150, 150, 150, 25},
+	{0, 0, FT_STORE_HARMOUR0, BT_STORE, 150, 100, 100, 8},
+	{0, 0, FT_STORE_HARMOUR1, BT_STORE, 150, 100, 100, 20},
+	{0, 0, FT_STORE_HARMOUR2, BT_STORE, 200, 150, 150, 30},
+	{0, 0, FT_STORE_HARMOUR3, BT_STORE, 200, 150, 150, 45},
+	{0, 0, FT_STORE_HARMOUR4, BT_STORE, 250, 200, 200, 60},
+	{0, 0, FT_STORE_HARMOUR5, BT_STORE, 250, 250, 200, 75},
+	{0, 0, FT_STORE_HAT0, BT_STORE, 200, 50, 150, 8},
+	{0, 0, FT_STORE_HAT1, BT_STORE, 200, 150, 150, 20},
+	{0, 0, FT_STORE_HAT2, BT_STORE, 200, 150, 200, 30},
+	{0, 0, FT_STORE_HAT3, BT_STORE, 250, 200, 200, 50},
+	{0, 0, FT_STORE_JEWEL0, BT_STORE, 150, 150, 150, 6},
+	{0, 0, FT_STORE_JEWEL1, BT_STORE, 150, 200, 150, 25},
+	{0, 0, FT_STORE_JEWEL2, BT_STORE, 200, 200, 200, 35},
+	{0, 0, FT_STORE_JEWEL3, BT_STORE, 200, 250, 200, 45},
+	{0, 0, FT_STORE_JEWEL4, BT_STORE, 200, 250, 250, 60},
+	{0, 0, FT_STORE_STATUE0, BT_STORE, 250, 150, 150, 40},
+	{0, 0, FT_STORE_STATUE1, BT_STORE, 250, 150, 150, 50},
+	{0, 0, FT_STORE_FIGUR0, BT_STORE, 200, 200, 150, 20},
+	{0, 0, FT_STORE_FIGUR1, BT_STORE, 200, 200, 200, 30},
+	{0, 0, FT_STORE_POTION0, BT_STORE, 150, 150, 150, 5},
+	{0, 0, FT_STORE_POTION1, BT_STORE, 150, 150, 150, 20},
+	{0, 0, FT_STORE_POTION2, BT_STORE, 200, 200, 200, 30},
+	{0, 0, FT_STORE_POTION3, BT_STORE, 200, 200, 200, 40},
+	{0, 0, FT_STORE_POTION4, BT_STORE, 200, 200, 200, 50},
+	{0, 0, FT_STORE_SCROLL0, BT_STORE, 150, 150, 150, 5},
+	{0, 0, FT_STORE_SCROLL1, BT_STORE, 150, 150, 150, 30},
+	{0, 0, FT_STORE_SCROLL2, BT_STORE, 200, 200, 200, 40},
+	{0, 0, FT_STORE_SCROLL3, BT_STORE, 200, 200, 200, 50},
+	{0, 0, FT_STORE_SCROLL4, BT_STORE, 200, 200, 200, 60},
+	{0, 0, FT_STORE_MAGIC0, BT_STORE, 50, 150, 200, 15},
+	{0, 0, FT_STORE_MAGIC1, BT_STORE, 100, 200, 200, 25},
+	{0, 0, FT_STORE_MAGIC2, BT_STORE, 100, 200, 200, 35},
+	{0, 0, FT_STORE_MAGIC3, BT_STORE, 150, 250, 250, 45},
+	{0, 0, FT_STORE_MAGIC4, BT_STORE, 200, 250, 250, 55},
+	{0, 0, FT_STORE_BOOK1, BT_STORE, 200, 250, 250, 30},
+	{0, 0, FT_STORE_TEMPLE1, BT_STORE, 50, 100, 150, 25},
+	{0, 0, FT_STORE_TEMPLE2, BT_STORE, 100, 150, 150, 35},
+	{0, 0, FT_STORE_TEMPLE3, BT_STORE, 150, 200, 200, 50},
+	{0, 0, FT_STORE_SUPPLIES0, BT_STORE, 150, 50, 150, 8},
+	{0, 0, FT_STORE_SUPPLIES1, BT_STORE, 100, 100, 150, 15},
+	{0, 0, FT_STORE_BLACK1, BT_STORE, 200, 150, 50, 15},
+	{0, 0, FT_STORE_BLACK2, BT_STORE, 200, 200, 50, 25},
+	{0, 0, FT_STORE_ALCHEMY1, BT_STORE, 100, 150, 150, 20},
+	{0, 0, FT_STORE_ALCHEMY2, BT_STORE, 150, 200, 150, 40},
+	{0, 0, FT_STORE_JUNK, BT_STORE, 200, 50, 150, 10},
+	{0, 0, FT_STORE_FOOD, BT_STORE, 200, 100, 150, 1},
+	{0, 0, FT_BUILD_LIBRARY, BT_BUILD, 200, 200, 200, 8},
+	{0, 0, FT_BUILD_CASINO, BT_BUILD, 100, 200, 200, 30},
+	{0, 0, FT_BUILD_INN, BT_BUILD, 100, 100, 200, 1},
+	{0, 0, FT_BUILD_HEALER, BT_BUILD, 250, 250, 200, 10},
+	{0, 0, FT_STORE_BLACK0, BT_STORE, 100, 100, 100, 10},
+	{0, 0, FT_BUILD_MAGETOWER0, BT_BUILD, 100, 150, 100, 4},
+	{0, 0, FT_BUILD_MAGETOWER1, BT_BUILD, 150, 250, 150, 4},
+	{0, 0, FT_BUILD_CASTLE0, BT_BUILD, 100, 150, 150, 0},
+	{0, 0, FT_BUILD_CASTLE1, BT_BUILD, 200, 150, 250, 0},
+	{0, 0, FT_BUILD_WARRIOR_GUILD, BT_BUILD, 150, 150, 150, 10},
+	{0, 0, FT_BUILD_MAGE_GUILD, BT_BUILD, 200, 250, 200, 10},
+	{0, 0, FT_BUILD_CATHEDRAL, BT_BUILD, 250, 200, 200, 10},
+	{0, 0, FT_BUILD_THIEVES_GUILD, BT_BUILD, 100, 100, 100, 4},
+	{0, 0, FT_BUILD_RANGER_GUILD, BT_BUILD, 100, 150, 100, 10},
+	{0, 0, FT_BUILD_COURIER, BT_BUILD, 150, 150, 150, 8},
+	{0, 0, FT_BUILD_FARM, BT_BUILD, 0, 0, 0, 0},
+	{0, 0, FT_BUILD_BLACKSMITH, BT_BUILD, 150, 150, 150, 10},
+	{0, 0, FT_BUILD_BANK, BT_BUILD, 200, 100, 200, 12},
+	{0, 0, FT_BUILD_CASTLE2, BT_BUILD, 0, 150, 150, 0}
 };
 
 /* The stores in the starting town */
 static byte wild_first_town[START_STORE_NUM] =
 {
 	BUILD_STAIRS,
+	BUILD_CASTLE2,
 	BUILD_STORE_HOME,
 	BUILD_SUPPLIES0,
 	BUILD_WARHALL0,
 	BUILD_STORE_TEMPLE,
 	BUILD_STORE_MAGIC,
-	BUILD_BLACK0
+	BUILD_BLACK0,
 };
 
 
@@ -182,10 +194,10 @@ cptr building_name(byte build_type)
 void building_char(byte build_type, byte *a, char *c)
 {
 	u16b field_num;
-	
+
 	/* Look up the field type */
 	field_num = wild_build[build_type].field;
-	
+
 	/* Get attr/char */
 	*a = t_info[field_num].d_attr;
 	*c = t_info[field_num].d_char;
@@ -219,6 +231,7 @@ static void place_player_start(s32b *x, s32b *y, u16b this_town)
 void select_town_name(char *name, int pop)
 {
 	char buf[T_NAME_LEN + 1];
+	char buf2[T_NAME_LEN + 1];
 	int len;
 
 	/* Get a normal 'elvish' name */
@@ -229,23 +242,15 @@ void select_town_name(char *name, int pop)
 
 	if (pop < T_SIZE_SMALL)
 	{
-		/* Hamlet */
-		if ((len < T_NAME_LEN - 5) && one_in_(2))
-		{
-			strnfmt(name, T_NAME_LEN + 1, "%sville", buf);
-		}
-		else
-		{
-			/* Simply copy it */
-			strnfmt(name, T_NAME_LEN + 1, "%s", buf);
-		}
+		/* Simply copy it */
+		strnfmt(name, T_NAME_LEN + 1, "%s", buf);
 	}
 	else if (pop < T_SIZE_TOWN)
 	{
 		/* Tiny town */
-		if ((len < T_NAME_LEN - 4) && one_in_(2))
+		if ((len < T_NAME_LEN - 6) && one_in_(2))
 		{
-			strnfmt(name, T_NAME_LEN + 1, "%s Dun", buf);
+			strnfmt(name, T_NAME_LEN + 1, "%s Watch", buf);
 		}
 				else
 		{
@@ -256,9 +261,9 @@ void select_town_name(char *name, int pop)
 	else if (pop < T_SIZE_CITY)
 	{
 		/* Large Town */
-		if ((len < T_NAME_LEN - 3) && one_in_(2))
+		if ((len < T_NAME_LEN - 5) && !one_in_(4))
 		{
-			strnfmt(name, T_NAME_LEN + 1, "%ston", buf);
+			strnfmt(name, T_NAME_LEN + 1, "%s Town", buf);
 		}
 				else
 		{
@@ -269,34 +274,13 @@ void select_town_name(char *name, int pop)
 	else if (pop < T_SIZE_CASTLE)
 	{
 		/* City */
-		if ((len < T_NAME_LEN - 4) && one_in_(4))
-		{
-			strnfmt(name, T_NAME_LEN + 1, "%sford", buf);
-		}
-		else if ((len < T_NAME_LEN - 5) && one_in_(3))
+		if ((len < T_NAME_LEN - 5) && one_in_(3))
 		{
 			strnfmt(name, T_NAME_LEN + 1, "%s City", buf);
 		}
 		else if ((len < T_NAME_LEN - 5) && one_in_(2))
 		{
 			strnfmt(name, T_NAME_LEN + 1, "%s View", buf);
-		}
-		else if ((len < T_NAME_LEN - 5) && one_in_(2))
-		{
-			strnfmt(name, T_NAME_LEN + 1, "%s Fort", buf);
-		}
-		else
-		{
-			/* Simply copy it */
-			strnfmt(name, T_NAME_LEN + 1, "%s", buf);
-		}
-	}
-	else
-	{
-		/* Castle */
-		if ((len < T_NAME_LEN - 7) && one_in_(2))
-		{
-			strnfmt(name, T_NAME_LEN + 1, "%s Castle", buf);
 		}
 		else if ((len < T_NAME_LEN - 5) && one_in_(2))
 		{
@@ -308,42 +292,45 @@ void select_town_name(char *name, int pop)
 			strnfmt(name, T_NAME_LEN + 1, "%s", buf);
 		}
 	}
+	else
+	{
+		get_table_name(buf2, FALSE);
+
+		/* Castle */
+		if ((len + strlen(buf2) < T_NAME_LEN - 1) && one_in_(2))
+		{
+			strnfmt(name, T_NAME_LEN + 1, "%s-%s", buf, buf2);
+		}
+		else if ((len < T_NAME_LEN - 5))
+		{
+			strnfmt(name, T_NAME_LEN + 1, "%s Hold", buf);
+		}
+		else
+		{
+			/* Simply copy it */
+			strnfmt(name, T_NAME_LEN + 1, "%s", buf);
+		}
+	}
 }
 
-
-/* Select a store or building "appropriate" for a given position */
-static byte select_building(byte pop, byte magic, int law, u16b *build,
+/*
+ * Impose certain artificial restrictions on the buildings that can
+ * be chosen in a city.
+ */
+static void select_building_restrictions(byte pop, byte magic, int law, u16b *build,
                             int build_num)
 {
 	int i;
 
-	s32b total = 0;
+	/* Hack: Avoid compiler warnings */
+	(void)pop;
+	(void)magic;
+	(void)law;
 
-	/* Draw stairs first for small towns */
-	if ((build_num < 11) && (!build[BUILD_STAIRS])) return (BUILD_STAIRS);
-
-
-	for (i = 0; i < MAX_CITY_BUILD; i++)
-	{
-		/* Work out total effects due to location */
-		total = (ABS(pop - wild_build[i].pop) +
-				 ABS(magic - wild_build[i].magic) +
-				 ABS(law - wild_build[i].law)) + 1;
-
-		/* Effect due to rarity */
-		total *= wild_build[i].rarity;
-
-		/* Effect due to total count */
-		total += build[i] * 200;
-
-		/* calculate probability based on location */
-		wild_build[i].gen = (u16b)(MAX_SHORT / total);
-	}
-
-	/* Note that cities of size 11 have a small chance to have stairs. */
+	/* Note that cities of size 12 have a small chance to have stairs. */
 
 	/* Effects for cities */
-	if (build_num > 11)
+	if (build_num > 12)
 	{
 		/* Hack - Dungeons are not in large cities */
 		wild_build[BUILD_STAIRS].gen = 0;
@@ -357,6 +344,7 @@ static byte select_building(byte pop, byte magic, int law, u16b *build,
 			}
 		}
 	}
+
 	/* Some buildings don't exist for small towns */
 	else
 	{
@@ -370,18 +358,84 @@ static byte select_building(byte pop, byte magic, int law, u16b *build,
 		}
 	}
 
-	/* Hack - Not more than one home per city */
+	/* Not more than one home per city */
 	if (build[BUILD_STORE_HOME])
 	{
 		wild_build[BUILD_STORE_HOME].gen = 0;
 	}
 
-	/* Hack - Not more than one magetower per city */
+	/* Not more than one magetower per city */
 	if (build[BUILD_MAGETOWER0] || build[BUILD_MAGETOWER1])
 	{
 		wild_build[BUILD_MAGETOWER0].gen = 0;
 		wild_build[BUILD_MAGETOWER1].gen = 0;
 	}
+
+	/* No farms in a city */
+	wild_build[BUILD_FARM].gen = 0;
+
+	/* We create these deliberately, not randomly */
+	wild_build[BUILD_CASTLE0].gen = 0;
+	wild_build[BUILD_CASTLE1].gen = 0;
+	wild_build[BUILD_CASTLE2].gen = 0;
+
+	/* No more than one of any guild / castle in a city */
+	if (build[BUILD_WARRIOR_GUILD])  wild_build[BUILD_WARRIOR_GUILD].gen = 0;
+	if (build[BUILD_RANGER_GUILD])  wild_build[BUILD_RANGER_GUILD].gen = 0;
+	if (build[BUILD_MAGE_GUILD])  wild_build[BUILD_MAGE_GUILD].gen = 0;
+	if (build[BUILD_THIEVES_GUILD])  wild_build[BUILD_THIEVES_GUILD].gen = 0;
+	if (build[BUILD_CATHEDRAL])  wild_build[BUILD_CATHEDRAL].gen = 0;
+	if (build[BUILD_COURIER])  wild_build[BUILD_COURIER].gen = 0;
+
+	for (i = 0; i < MAX_CITY_BUILD; i++) {
+		/* No more than two of *any* specific building in a city */
+		if (build[i] > 1)
+		{
+			wild_build[i].gen = 0;
+			continue;
+		}
+
+		/* Artificially prevent badly "out-of-depth" buildings */
+		/* if (law - wild_build[i].law > 50)
+			wild_build[i].gen = 0; */
+	}
+}
+
+
+/* Select a store or building "appropriate" for a given position */
+static byte select_building(byte pop, byte magic, int law, u16b *build,
+                            int build_num)
+{
+	int i;
+
+	s32b total = 0;
+
+	/* Draw stairs first for small towns */
+	if ((build_num < 12) && (!build[BUILD_STAIRS])) return (BUILD_STAIRS);
+
+
+	for (i = 0; i < MAX_CITY_BUILD; i++)
+	{
+		/* Work out total effects due to location */
+		total = (ABS(pop - wild_build[i].pop) +
+				 ABS(magic - wild_build[i].magic) +
+				 ABS(law - wild_build[i].law)) + 1;
+
+		/* Effect due to rarity */
+		total *= wild_build[i].rarity;
+
+		/* Effect due to total count in this city. */
+		total += build[i] * 200;
+
+		/* Favor buildings that don't exist anywhere else yet. */
+		if (!wild_build[i].num) total = (total <= 100 ? 1 : (total/2) - 50);
+
+		/* Calculate probability based on location.  Paranoia: avoid dividing by 0. */
+		wild_build[i].gen = (total ? (u16b)(MAX_SHORT / total) : 0);
+	}
+
+	/* Miscellaneous restrictions */
+	select_building_restrictions(pop, magic, law, build, build_num);
 
 	total = 0;
 
@@ -553,7 +607,7 @@ static void remove_islands(void)
 {
 	int i, j, k, l;
 	bool city_block;
-	
+
 	/* Rescan walls to avoid "islands" */
 	for (i = 0; i < WILD_BLOCK_SIZE; i++)
 	{
@@ -563,7 +617,7 @@ static void remove_islands(void)
 			if (temp_block[j][i] == CITY_WALL)
 			{
 				city_block = FALSE;
-				
+
 				/* Scan around */
 				for (k = -1; k <= 1; k++)
 				{
@@ -610,6 +664,7 @@ static bool create_city(int x, int y, int town_num)
 	byte count;
 	byte gate_value[MAX_GATES];
 	byte gate_num[MAX_GATES];
+	byte old_pop = pop;
 
 	u32b rng_seed_save;
 
@@ -623,7 +678,7 @@ static bool create_city(int x, int y, int town_num)
 	if (town_num == 1)
 	{
 		/* Use a low pop - we don't want too many blank buildings */
-		pop = 64 + 128;
+		pop = 64 + 160;
 	}
 
 	/* Wipe the list of allocated buildings */
@@ -634,7 +689,7 @@ static bool create_city(int x, int y, int town_num)
 	select_town_name(pl_ptr->name, pop);
 	pl_ptr->seed = randint0(0x10000000);
 
-	pl_ptr->type = TOWN_FRACT;
+	pl_ptr->type = PL_TOWN_FRACT;
 	pl_ptr->monst_type = TOWN_MONST_VILLAGER;
 	pl_ptr->x = x;
 	pl_ptr->y = y;
@@ -668,7 +723,7 @@ static bool create_city(int x, int y, int town_num)
 	count = fill_town_driver();
 
 	/* Too few squares??? */
-	if (count < 7) return (FALSE);
+	if (count < START_STORE_NUM) return (FALSE);
 
 	/* Make sure the city is self-connected properly */
 	remove_islands();
@@ -789,7 +844,7 @@ static bool create_city(int x, int y, int town_num)
 	 * Generate second fractal
 	 */
 	clear_temp_block();
-	set_temp_corner_val(WILD_BLOCK_SIZE * 64);
+	set_temp_corner_val(WILD_BLOCK_SIZE * ((law + 64)/2));
 	set_temp_mid((u16b)(WILD_BLOCK_SIZE * law));
 	frac_block();
 
@@ -815,8 +870,21 @@ static bool create_city(int x, int y, int town_num)
 		 */
 		building = select_building(pop, magic, law, build, build_tot);
 
+		if (count == build_tot && !ironman_downward)
+		{
+			if (old_pop < 125) building = BUILD_CASTLE2;
+			else if (old_pop < 185) building = BUILD_CASTLE0;
+			else building = BUILD_CASTLE1;
+		}
+
 		/* Count number of this type */
 		build[building]++;
+
+		/* Add to global count, except for 1st town. */
+		if (town_num != 1)
+		{
+			wild_build[building].num++;
+		}
 
 		/* Record list of created buildings */
 		build_list[build_num++] = building;
@@ -1141,6 +1209,244 @@ static void draw_building(byte type, byte x, byte y, u16b store, place_type *pl_
 	Rand_value = rng_save_seed;
 }
 
+void draw_farm(place_type *pl_ptr)
+{
+	int x, y, i, j, x1, x2, y1, y2, xx = 0, yy = 0;
+	byte t;
+
+	cave_type *c_ptr;
+
+	/* Paranoia */
+	if (pl_ptr->region) quit("Farm already has region during creation.");
+
+	/* Get region */
+	create_region(pl_ptr, pl_ptr->xsize * WILD_BLOCK_SIZE,
+						pl_ptr->ysize * WILD_BLOCK_SIZE, REGION_OVER);
+
+	/* Hack -- Use the "simple" RNG */
+	Rand_quick = TRUE;
+
+	/* Hack -- Induce consistant layout */
+	Rand_value = pl_ptr->seed;
+
+
+	for (i = 0; i < pl_ptr->xsize; i++)
+	{
+		for (j = 0; j < pl_ptr->ysize; j++)
+		{
+			switch(randint0(8))
+			{
+				/* grass */
+				case 0:
+				case 1:
+					t = 1;
+					break;
+				/* dirt */
+				case 2:
+					t = 2;
+					break;
+				/* horiz. field */
+				case 3:
+				case 4:
+					t = 3;
+					break;
+				/* orchard */
+				case 5:
+					t = 4;
+					break;
+				/* vert. field */
+				case 6:
+					t = 5;
+					break;
+				/* vegetable garden */
+				default:
+					t = 6;
+					break;
+			}
+
+			/* Now draw the block */
+			for (x = 0; x < WILD_BLOCK_SIZE; x++)
+			{
+				for (y = 0; y < WILD_BLOCK_SIZE; y++)
+				{
+					xx = x + i*WILD_BLOCK_SIZE;
+					yy = y + j*WILD_BLOCK_SIZE;
+
+					c_ptr = cave_p(x, y);
+					if (!c_ptr) continue;
+
+					set_feat_bold(xx,yy,FEAT_DIRT);
+
+					if (t == 1 || (t == 3 && y % 2 == 0) || (t == 5 && x % 2 == 1))
+						set_feat_bold(xx,yy,FEAT_GRASS);
+					if (t == 4 && x % 2 == 0 && y % 2 == 1)
+						set_feat_bold(xx,yy,FEAT_TREES);
+
+					if (t == 6 && x > 0 && x < WILD_BLOCK_SIZE-1 && y > 0
+						&& y < WILD_BLOCK_SIZE-1 && x != 6 && y != 7)
+					{
+						if (one_in_(4))	set_feat_bold(xx,yy,FEAT_DEAD_BUSH);
+						else set_feat_bold(xx,yy,FEAT_BUSH);
+					}
+				}
+			}
+		}
+	}
+
+
+	/* Get location of building */
+	x = rand_range(4, (pl_ptr->xsize-1)*WILD_BLOCK_SIZE - 6);
+	y = rand_range(3, (pl_ptr->ysize-1)*WILD_BLOCK_SIZE - 5);
+
+	/* Get size of building */
+	x1 = x - randint1(3);
+	x2 = x + randint1(3);
+	y1 = y - randint1(2);
+	y2 = y + randint1(2);
+
+	for (i = x1 - 1; i <= x2 + 1; i++)
+	{
+		for (j = y1-1; j <= y2+1; j++)
+		{
+			c_ptr = cave_p(i,j);
+			if (!c_ptr) continue;
+
+			if (i >= x1 && i <= x2 && j >= y1 && j <= y2)
+				set_feat_bold(i,j, FEAT_PERM_EXTRA);
+			else
+				set_feat_bold(i,j, FEAT_DIRT);
+		}
+	}
+
+	/* Pick a location on the edge of the building we selected */
+	switch(randint1(4))
+	{
+		case 1:
+			xx = x1;
+			yy = rand_range(y1, y2);
+			break;
+		case 2:
+			xx = x2;
+			yy = rand_range(y1, y2);
+			break;
+		case 3:
+			xx = rand_range(x1, x2);
+			yy = y1;
+			break;
+		case 4:
+			xx = rand_range(x1, x2);
+			yy = y2;
+			break;
+		default:
+			break;
+	}
+
+	c_ptr = cave_p(xx,yy);
+
+	if (!c_ptr)
+	{
+		msgf ("Couldn't create farmhouse.");
+	} else {
+
+		c_ptr->feat = FEAT_DIRT;
+
+		c_ptr->fld_idx = wild_build[BUILD_FARM].field;
+
+		pl_ptr->store[0].x = xx;
+		pl_ptr->store[0].y = yy;
+
+	}
+
+	/* Maybe create another building */
+	xx = rand_range(4, (pl_ptr->xsize)*WILD_BLOCK_SIZE - 6);
+	yy = rand_range(3, (pl_ptr->ysize)*WILD_BLOCK_SIZE - 5);
+
+	if (ABS(xx-x) > 6 && ABS(yy-y) > 6)
+	{
+		x = xx;
+		y = yy;
+
+		/* Get size of building */
+		x1 = x - randint1(3);
+		x2 = x + randint1(3);
+		y1 = y - randint1(2);
+		y2 = y + randint1(2);
+
+		for (i = x1 - 1; i <= x2 + 1; i++)
+		{
+			for (j = y1-1; j <= y2+1; j++)
+			{
+				c_ptr = cave_p(i,j);
+				if (!c_ptr) continue;
+
+				if (i >= x1 && i <= x2 && j >= y1 && j <= y2)
+					set_feat_bold(i,j, FEAT_PERM_EXTRA);
+				else
+					set_feat_bold(i,j, FEAT_DIRT);
+			}
+		}
+	}
+
+	/* Hack -- back to the "complex" RNG */
+	Rand_quick = FALSE;
+
+}
+
+
+void draw_quest_stair(place_type *pl_ptr)
+{
+	quest_type *q_ptr;
+	int i, j, x, y;
+
+	q_ptr = &quest[pl_ptr->quest_num];
+
+	/* Create a new region if we need to */
+	if (!pl_ptr->region)
+		create_region(pl_ptr, pl_ptr->xsize * WILD_BLOCK_SIZE, pl_ptr->ysize * WILD_BLOCK_SIZE,
+					REGION_OVER);
+	else (set_region(pl_ptr->region));
+
+	/* Start with nothing */
+	for (i = 0; i < WILD_BLOCK_SIZE; i++)
+	{
+		for (j = 0; j < WILD_BLOCK_SIZE; j++)
+		{
+			set_feat_bold(i, j, FEAT_NONE);
+		}
+	}
+
+
+	/* A really crappy dungeon entrance */
+
+	/* Get location of stairs */
+	x = 8;
+	y = 7;
+
+	/* Draw nothing if the quest hasn't been taken yet. */
+	if (q_ptr->status < QUEST_STATUS_TAKEN || !(q_ptr->flags & QUEST_FLAG_KNOWN))
+		return;
+
+	/* Put dungeon floor next to stairs so they are easy to find. */
+	for (i = -2; i <= 2; i++)
+	{
+		for (j = -2; j <= 2; j++)
+		{
+			/* Round off the corner */
+			if (ABS(i) == 2 && ABS(j) == 2) continue;
+
+			/* Convert square to dungeon floor */
+			set_feat_bold(x + i, y + j, pl_ptr->dungeon->floor);
+		}
+	}
+
+	/* Don't put the stairs if the quest is finished. */
+	if (q_ptr->status > QUEST_STATUS_TAKEN || q_ptr->data.fix.attempts == 0)
+		return;
+
+	/* Add special down stairs */
+	set_feat_bold(x, y, FEAT_QUEST_MORE);
+}
+
 
 /* Actually draw the city in the region */
 void draw_city(place_type *pl_ptr)
@@ -1183,9 +1489,9 @@ void draw_city(place_type *pl_ptr)
 
 	/* 'Fill' the town with buildings */
 	count = fill_town_driver();
-	
+
 	/* Paranoia */
-	if (count < 7) quit("Random number generator failure");
+	if (count < START_STORE_NUM) quit("Random number generator failure");
 
 	/* Make sure the city is self-connected properly */
 	remove_islands();
@@ -1266,23 +1572,23 @@ void draw_city(place_type *pl_ptr)
 static void set_place(byte place_num)
 {
 	int i, j, k, l;
-	
+
 	int xmax = 0, ymax = 0;
 
 	place_type *pl_ptr = &place[place_num];
-	
+
 	s16b ri_idx = pl_ptr->region;
-	
+
 	wild_gen2_type *w_ptr;
 	region_info *ri_ptr;
 	cave_type *c_ptr;
-	
+
 	if (!ri_idx) quit("Place does not have a region!");
-	
-	
+
+
 	/* Acquire region info */
 	ri_ptr = &ri_list[ri_idx];
-	
+
 	/* Look for blocks that are used */
 	for (i = 0; i < ri_ptr->xsize; i += WILD_BLOCK_SIZE)
 	{
@@ -1294,35 +1600,35 @@ static void set_place(byte place_num)
 				for (l = j; (l < j + WILD_BLOCK_SIZE) && (l < ri_ptr->ysize); l++)
 				{
 					c_ptr = access_region(k, l, ri_idx);
-				
+
 					/* Anything here? */
 					if (c_ptr->feat || c_ptr->o_idx || c_ptr->m_idx || c_ptr->fld_idx)
 					{
 						w_ptr = &wild[pl_ptr->y + j / WILD_BLOCK_SIZE]
 						 			 [pl_ptr->x + i / WILD_BLOCK_SIZE].trans;
-				
+
 						/* Link the block to the wilderness map */
 						w_ptr->place = (byte)place_num;
-						
+
 						/* Record max bounds */
 						if (i > xmax) xmax = i;
 						if (j > ymax) ymax = j;
-					
+
 						/* Break out two levels */
 						goto out;
 					}
 				}
 			}
-						
+
 			/* Found something */
 			out:;
 		}
 	}
-	
+
 	/* Shrink region size to minimum required */
 	ri_ptr->xsize = xmax + WILD_BLOCK_SIZE;
 	ri_ptr->ysize = ymax + WILD_BLOCK_SIZE;
-	
+
 	/* Shrink place size to minimum required */
 	pl_ptr->xsize = (ri_ptr->xsize / WILD_BLOCK_SIZE) + 1;
 	pl_ptr->ysize = (ri_ptr->ysize / WILD_BLOCK_SIZE) + 1;
@@ -1358,16 +1664,16 @@ static void entrance_monsters(int x_max, int y_max)
 {
 	int x, y;
 	int i;
-	
+
 	long size = x_max * y_max;
-	
+
 	int count = size / 25;
 
 	cave_type *c_ptr;
-	
+
 	/* Bail out if we don't want to make any monsters here */
 	if (!dun_habitat) return;
-	
+
 	/* Apply the monster restriction */
 	get_mon_num_prep(monster_habitat_ok);
 
@@ -1375,16 +1681,16 @@ static void entrance_monsters(int x_max, int y_max)
 	{
 		x = randint0(x_max);
 		y = randint0(y_max);
-		
+
 		c_ptr = cave_p(x, y);
-		
+
 		/* Only place monsters on 'nice' grids */
 		if (!cave_nice_grid(c_ptr)) continue;
-		
+
 		/* Hack  Pick a race, and store it into monster slot of cave_type */
 		c_ptr->m_idx = get_mon_num(dun_level);
 	}
-	
+
 	/* Remove the monster restriction */
 	get_mon_num_prep(NULL);
 }
@@ -1396,9 +1702,9 @@ static void entrance_monsters(int x_max, int y_max)
 static void open_clearing(int x_max, int y_max)
 {
 	int x, y;
-	
+
 	int dist, distx, disty;
-	
+
 	for (x = 0; x < x_max; x++)
 	{
 		for (y = 0; y < y_max; y++)
@@ -1406,14 +1712,14 @@ static void open_clearing(int x_max, int y_max)
 			/* Get distance to boundary */
 			distx = MIN(x, x_max - x);
 			disty = MIN(y, y_max - y);
-			
+
 			dist = MIN(x, y);
-		
+
 			/* Rough edges 5 squares deep */
 			if (randint0(6) < dist)
 			{
 				/* Add 'cleared' terrain */
-				
+
 				if (one_in_(3))
 				{
 					set_feat_bold(x, y, FEAT_PEBBLES);
@@ -1435,45 +1741,45 @@ static void make_dun_buildings(int count, int x_max, int y_max)
 {
 	int x, y;
 	int xwid, ywid;
-	
+
 	int i, j, k;
-	
+
 	cave_type *c_ptr;
-	
+
 	for (i = 0; i < count; i++)
 	{
 		/* Get location of building */
 		x = rand_range(2, x_max - 12);
 		y = rand_range(2, y_max - 12);
-		
+
 		/* Get size */
 		xwid = rand_range(6, 10);
 		ywid = rand_range(6, 10);
-		
+
 		/* Can we place it here? */
 		for (j = -1; j <= xwid + 1; j++)
 		{
 			for (k = -1; k <= ywid + 1; k++)
 			{
 				c_ptr = cave_p(x + j, y + k);
-				
+
 				/* Can't place a building here? */
 				if ((c_ptr->feat == FEAT_PERM_OUTER) ||
 					(c_ptr->feat == FEAT_MORE)) goto out;
 			}
 		}
-		
+
 		/* Make building */
-		
+
 		/* Add floor */
 		generate_fill(x, y, x + xwid, y + ywid, FEAT_FLOOR_WOOD);
-	
+
 		/* Add walls */
 		generate_draw(x, y, x + xwid, y + ywid, FEAT_PERM_OUTER);
 
 		/* Add a door */
 		generate_door(x, y, x + xwid, y + ywid, FALSE);
-	
+
 		out:;
 	}
 }
@@ -1486,31 +1792,42 @@ static void make_dun_buildings(int count, int x_max, int y_max)
  */
 static void draw_dun_dark_water(void)
 {
-	int i;
+	int i, j;
 
 	int x, y;
-	
+	cave_type *c_ptr;
+
 	/* Scatter swamp around */
 	for (i = 0; i < 200; i++)
 	{
 		x = randint0(32);
 		y = randint0(32);
-		
+
 		set_feat_bold(x, y, FEAT_SHAL_SWAMP);
 	}
-	
+
 	/* Add some rubble */
 	for (i = 0; i < 10; i++)
 	{
 		x = rand_range(16 - 4, 16 + 4);
 		y = rand_range(16 - 4, 16 + 4);
-		
+
 		set_feat_bold(x, y, FEAT_RUBBLE);
 	}
 
 	/* Add stairs */
 	set_feat_bold(16, 16, FEAT_MORE);
-	
+
+	/* Make grids near the stairs "icky" to prevent teleportation */
+	for (i = -8; i <= 8; i++)
+	{
+		for (j = -8; j <= 8; j++)
+		{
+			c_ptr = cave_p(16+i,16+j);
+			c_ptr->info |= CAVE_ICKY;
+		}
+	}
+
 	/* Add monsters */
 	entrance_monsters(32, 32);
 }
@@ -1518,19 +1835,19 @@ static void draw_dun_dark_water(void)
 static void draw_dun_cave(void)
 {
 	int xsize, ysize;
-	
+
 	int x, y;
 	int i = 0, j = 0;
-	
+
 	int c1, c2, c3;
-	
+
 	cave_type *c_ptr;
-	
+
 	while (TRUE)
 	{
 		xsize = rand_range(2, 4) * 16;
 		ysize = rand_range(2, 4) * 16;
-		
+
 		/* Floor */
 		c3 = xsize;
 
@@ -1539,24 +1856,24 @@ static void draw_dun_cave(void)
 
 		/* Only two types of terrain */
 		c2 = 0;
-		
+
 		/* Make a fractal heightmap */
 		generate_hmap(xsize / 2, ysize / 2, xsize, ysize, xsize / 2, 16, c3);
-		
+
 		/* Did it work? */
 		if (generate_lake(xsize / 2, ysize / 2, xsize, ysize,
 							c1, c2, c3,
 							FEAT_DIRT, FEAT_DIRT, FEAT_DIRT)) break;
-	
-	
+
+
 		/* Erase, and repeat until it works */
 		generate_fill(0, 0, xsize, ysize, FEAT_NONE);
 	}
-	
+
 	/* Remove outer edge */
 	generate_draw(0, 0, xsize, ysize, FEAT_NONE);
 	generate_draw(0, 0, xsize - 1, ysize - 1, FEAT_NONE);
-	
+
 	/* Make walls only one level thick */
 	for (x = 1; x < xsize - 1; x++)
 	{
@@ -1570,26 +1887,26 @@ static void draw_dun_cave(void)
 			{
 				/* Make sure we are permanent */
 				set_feat_grid(c_ptr, FEAT_PERM_OUTER);
-			
+
 				for (i = -1; i <= 1; i++)
 				{
 					for (j = -1; j <= 1; j++)
 					{
 						c_ptr = cave_p(x + i, y + j);
-						
+
 						/* We are next to floor? - Keep */
 						if (c_ptr->feat == FEAT_DIRT) goto out;
 					}
 				}
-				
+
 				/* Else we are not needed */
 				set_feat_bold(x, y, FEAT_NONE);
 			}
-			
+
 			out:;
 		}
 	}
-	
+
 	/* Scan in one of the cardinal directions */
 	switch (randint0(4))
 	{
@@ -1598,29 +1915,29 @@ static void draw_dun_cave(void)
 			i = -1;
 			j = 0;
 		}
-		
+
 		case 1:
 		{
 			i = 1;
 			j = 0;
 		}
-		
+
 		case 2:
 		{
 			i = 0;
 			j = -1;
 		}
-		
+
 		case 3:
 		{
 			i = 0;
 			j = 1;
 		}
 	}
-	
+
 	x = xsize / 2;
 	y = ysize / 2;
-	
+
 	/* Scan for first wall */
 	while (cave_p(x, y)->feat != FEAT_PERM_OUTER)
 	{
@@ -1631,12 +1948,22 @@ static void draw_dun_cave(void)
 	/* Paranoia */
 	if (x == 0) x = 1;
 	if (y == 0) y = 1;
-	
+
 	/* Finally, add entrance to cave */
 	generate_fill(x - 1, y - 1, x + 1, y + 1, FEAT_NONE);
-	
+
 	/* Add stairs */
 	set_feat_bold(xsize / 2, ysize / 2, FEAT_MORE);
+
+	/* Make area near the stairs "icky" to prevent teleportation. */
+	for (i = -8; i <= 8; i++)
+	{
+		for (j = -8; j <= 8; j++)
+		{
+			c_ptr = cave_p((xsize/2)+i,(ysize/2)+j);
+			c_ptr->info |= CAVE_ICKY;
+		}
+	}
 
 	/* XXX XXX XXX Hack - make sure we have the correct sized region later on */
 	set_feat_bold(xsize, ysize, FEAT_DIRT);
@@ -1650,9 +1977,11 @@ static void draw_dun_temple(void)
 {
 	int xsize, ysize;
 	int x0, y0;
-	
+	int i, j;
+	cave_type *c_ptr;
+
 	int x, y;
-		
+
 	xsize = rand_range(2, 4) * 16;
 	ysize = rand_range(2, 4) * 16;
 
@@ -1661,22 +1990,34 @@ static void draw_dun_temple(void)
 
 	/* Open clearing */
 	open_clearing(xsize, ysize);
-	
+
 	x = xsize / 4;
 	y = ysize / 4;
-	
+
 	/* Add floor */
 	generate_fill(x0 - x, y0 - y, x0 + x, y0 + y, FEAT_FLOOR_TILE);
-	
+
 	/* Draw outer walls */
 	generate_draw(x0 - x, y0 - y, x0 + x, y0 + y, FEAT_PERM_OUTER);
-	
+
+	/* Make area inside "icky" to prevent teleportation. */
+	for (i = x0-x; i <= x0+x; i++)
+	{
+		for (j = y0-y; j <= y0+y; j++)
+		{
+			c_ptr = cave_p(i,j);
+			c_ptr->info |= CAVE_ICKY;
+		}
+	}
+
+
+
 	/* Draw inner walls */
 	generate_draw(x0 - x, y0 - y, x0 - 1, y0 - 1, FEAT_PERM_OUTER);
 	generate_draw(x0 + 1, y0 - y, x0 + x, y0 - 1, FEAT_PERM_OUTER);
 	generate_draw(x0 - x, y0 + 1, x0 - 1, y0 + y, FEAT_PERM_OUTER);
 	generate_draw(x0 + 1, y0 + 1, x0 + x, y0 + y, FEAT_PERM_OUTER);
-	
+
 	/* Add some doors */
 	generate_door(x0 - x, y0 - y, x0 + x, y0 + y, FALSE);
 	generate_door(x0 - x, y0 - y, x0 - 1, y0 - 1, FALSE);
@@ -1687,7 +2028,7 @@ static void draw_dun_temple(void)
 	generate_door(x0 - x, y0 + 1, x0 - 1, y0 + y, FALSE);
 	generate_door(x0 + 1, y0 + 1, x0 + x, y0 + y, FALSE);
 	generate_door(x0 + 1, y0 + 1, x0 + x, y0 + y, FALSE);
-	
+
 	/* Add stairs */
 	switch (randint0(4))
 	{
@@ -1695,22 +2036,22 @@ static void draw_dun_temple(void)
 		{
 			set_feat_bold(x0 - x + 1, y0 - y + 1, FEAT_MORE);
 		}
-		
+
 		case 1:
 		{
 			set_feat_bold(x0 - x + 1, y0 + y - 1, FEAT_MORE);
 		}
-		
+
 		case 2:
 		{
 			set_feat_bold(x0 + x - 1, y0 - y + 1, FEAT_MORE);
 		}
-		
+
 		case 3:
 		{
 			set_feat_bold(x0 + x - 1, y0 + y - 1, FEAT_MORE);
 		}
-	}	
+	}
 
 	/* Add monsters */
 	entrance_monsters(xsize, ysize);
@@ -1721,9 +2062,12 @@ static void draw_dun_tower(void)
 {
 	int xsize, ysize;
 	int x0, y0;
-	
+
 	int x, y;
-		
+	int i, j;
+
+	cave_type *c_ptr;
+
 	xsize = rand_range(2, 4) * 16;
 	ysize = rand_range(2, 4) * 16;
 
@@ -1732,27 +2076,37 @@ static void draw_dun_tower(void)
 
 	/* Open clearing */
 	open_clearing(xsize, ysize);
-	
+
 	x = xsize / 4;
 	y = ysize / 4;
-	
+
 	/* Add floor */
 	generate_fill(x0 - x, y0 - y, x0 + x, y0 + y, FEAT_FLOOR_WOOD);
-	
+
 	/* Draw nested rectangles */
 	while ((x > 2) && (y > 2))
-	{	
+	{
 		/* Add walls */
 		generate_draw(x0 - x, y0 - y, x0 + x, y0 + y, FEAT_PERM_OUTER);
 
 		/* Add a door */
 		generate_door(x0 - x, y0 - y, x0 + x, y0 + y, FALSE);
-		
+
 		/* Make smaller room inside */
 		x /= 2;
 		y /= 2;
 	}
-	
+
+	/* Make area inside "icky" to prevent teleportation. */
+	for (i = xsize / 4; i <= (3*xsize)/4; i++)
+	{
+		for (j = ysize / 4; j <= (3*ysize)/4; j++)
+		{
+			c_ptr = cave_p((xsize/2)+i,(ysize/2)+j);
+			c_ptr->info |= CAVE_ICKY;
+		}
+	}
+
 	/* Add stairs */
 	set_feat_bold(xsize / 2, ysize / 2, FEAT_MORE);
 
@@ -1764,19 +2118,19 @@ static void draw_dun_ruin(void)
 {
 	int xsize, ysize;
 	int x0, y0;
-	
+
 	int i, j;
-	
+
 	int count;
 
 	cave_type *c_ptr;
-	
+
 	xsize = rand_range(2, 4) * 16;
 	ysize = rand_range(2, 4) * 16;
 
 	x0 = xsize / 2;
 	y0 = ysize / 2;
-	
+
 	/* Add entrance */
 	generate_draw(x0 - 1, y0 - 1, x0 + 1, y0 + 1, FEAT_PERM_OUTER);
 
@@ -1787,17 +2141,17 @@ static void draw_dun_ruin(void)
 	set_feat_bold(x0, y0, FEAT_MORE);
 
 	count = (xsize / 16) * (ysize / 16);
-	
+
 	/* Draw a random number of buildings */
 	make_dun_buildings(count, xsize, ysize);
-	
+
 	/* Wreck them! */
 	for (i = 0; i < xsize; i++)
 	{
 		for (j = 0; j < ysize; j++)
 		{
 			c_ptr = cave_p(i, j);
-		
+
 			switch (c_ptr->feat)
 			{
 				case FEAT_MORE:
@@ -1805,30 +2159,30 @@ static void draw_dun_ruin(void)
 					/* Keep the stairs */
 					continue;
 				}
-				
+
 				case FEAT_PERM_OUTER:
 				{
 					/* Convert wall to be diggable to prevent problems */
 					set_feat_grid(c_ptr, FEAT_WALL_OUTER);
-				
+
 					/* Wreck the walls */
 					if (one_in_(4)) set_feat_grid(c_ptr, FEAT_RUBBLE);
 					if (one_in_(4)) set_feat_grid(c_ptr, FEAT_DIRT);
 					if (one_in_(8)) set_feat_grid(c_ptr, FEAT_NONE);
-				
+
 					break;
 				}
-			
+
 				case FEAT_FLOOR_WOOD:
 				{
 					/* Wreck the floors less often */
 					if (one_in_(100)) set_feat_grid(c_ptr, FEAT_RUBBLE);
 					if (one_in_(10)) set_feat_grid(c_ptr, FEAT_DIRT);
 					if (one_in_(25)) set_feat_grid(c_ptr, FEAT_NONE);
-				
+
 					break;
 				}
-				
+
 				case FEAT_NONE:
 				{
 					/* Rarely affect the area between buildings */
@@ -1837,9 +2191,20 @@ static void draw_dun_ruin(void)
 					if (one_in_(100)) set_feat_grid(c_ptr, FEAT_FLOOR_WOOD);
 				}
 			}
-		}	
+		}
 	}
-	
+
+	/* Make area near the stairs "Icky" to prevent teleportation */
+	for (i = -8; i <= 8; i++)
+	{
+		for (j = -8; j <= 8; j++)
+		{
+			c_ptr = cave_p(x0+i,y0+j);
+			c_ptr->info |= CAVE_ICKY;
+		}
+	}
+
+
 	/* Add monsters */
 	entrance_monsters(xsize, ysize);
 }
@@ -1848,14 +2213,14 @@ static void draw_dun_grave(void)
 {
 	int xsize, ysize;
 	int x0, y0;
-	
+
 	int x, y;
-	
+
 	int i, count;
 	int j, k;
-	
+
 	cave_type *c_ptr;
-	
+
 	xsize = rand_range(2, 4) * 16;
 	ysize = rand_range(2, 4) * 16;
 
@@ -1864,7 +2229,7 @@ static void draw_dun_grave(void)
 
 	x0 = xsize / 2;
 	y0 = ysize / 2;
-	
+
 	/* Add crypt entrance */
 	generate_draw(x0 - 1, y0 - 1, x0 + 1, y0 + 1, FEAT_PERM_OUTER);
 
@@ -1874,28 +2239,38 @@ static void draw_dun_grave(void)
 	/* Place stairs */
 	set_feat_bold(x0, y0, FEAT_MORE);
 
+	/* Make area near the stairs "Icky" to prevent teleportation */
+	for (i = -8; i <= 8; i++)
+	{
+		for (j = -8; j <= 8; j++)
+		{
+			c_ptr = cave_p(x0+i,y0+j);
+			c_ptr->info |= CAVE_ICKY;
+		}
+	}
+
 	count = (xsize / 4) * (ysize / 4);
-	
+
 	/* Draw a random number of graves */
 	for (i = 0; i < count; i++)
 	{
 		x = randint1(xsize - 1);
 		y = randint1(ysize - 1);
-		
-		
+
+
 		/* Scan for empty space */
 		for (j = -1; j < 1; j++)
 		{
 			for (k = -1; k < 1; k++)
 			{
 				c_ptr = cave_p(x + j, y + k);
-			
+
 				/* Not next to or on top of other stuff */
 				if ((c_ptr->feat == FEAT_PERM_OUTER) ||
 					(c_ptr->feat == FEAT_MORE)) goto out;
 			}
 		}
-		
+
 		if (one_in_(5))
 		{
 			/* Draw obelisk */
@@ -1906,10 +2281,10 @@ static void draw_dun_grave(void)
 			/* Draw grave */
 			set_feat_grid(c_ptr, FEAT_BOULDER);
 		}
-		
+
 		out:;
-	} 
-	
+	}
+
 	/* Add monsters */
 	entrance_monsters(xsize, ysize);
 }
@@ -1922,6 +2297,8 @@ static void draw_dun_grave(void)
 static void draw_dun_mine(void)
 {
 	int x0 = 8, y0 = 8;
+	int i, j;
+	cave_type * c_ptr;
 
 	/* Add entrance */
 	generate_draw(x0 - 1, y0 - 1, x0 + 1, y0 + 1, FEAT_PERM_OUTER);
@@ -1931,7 +2308,17 @@ static void draw_dun_mine(void)
 
 	/* Place stairs */
 	set_feat_bold(x0, y0, FEAT_MORE);
-	
+
+	/* Make area near the stairs "Icky" to prevent teleportation */
+	for (i = -8; i <= 8; i++)
+	{
+		for (j = -8; j <= 8; j++)
+		{
+			c_ptr = cave_p(x0+i,y0+j);
+			c_ptr->info |= CAVE_ICKY;
+		}
+	}
+
 	/* Add monsters */
 	entrance_monsters(16, 16);
 }
@@ -1940,9 +2327,11 @@ static void draw_dun_city(void)
 {
 	int xsize, ysize;
 	int x0, y0;
-	
+
 	int count;
-	
+	int i, j;
+	cave_type * c_ptr;
+
 	xsize = rand_range(2, 4) * 16;
 	ysize = rand_range(2, 4) * 16;
 
@@ -1951,7 +2340,7 @@ static void draw_dun_city(void)
 
 	x0 = xsize / 2;
 	y0 = ysize / 2;
-	
+
 	/* Add entrance */
 	generate_draw(x0 - 1, y0 - 1, x0 + 1, y0 + 1, FEAT_PERM_OUTER);
 
@@ -1962,10 +2351,20 @@ static void draw_dun_city(void)
 	set_feat_bold(x0, y0, FEAT_MORE);
 
 	count = (xsize / 16) * (ysize / 16);
-	
+
 	/* Draw a random number of buildings */
 	make_dun_buildings(count, xsize, ysize);
-	
+
+	/* Make area near the stairs "Icky" to prevent teleportation */
+	for (i = -8; i <= 8; i++)
+	{
+		for (j = -8; j <= 8; j++)
+		{
+			c_ptr = cave_p(x0+i,y0+j);
+			c_ptr->info |= CAVE_ICKY;
+		}
+	}
+
 	/* Add monsters */
 	entrance_monsters(xsize, ysize);
 }
@@ -1993,84 +2392,85 @@ void draw_dungeon(place_type *pl_ptr)
 
 	/* Hack -- Induce consistant layout */
 	Rand_value = pl_ptr->seed;
-	
+
 	/* Save for monster placement on entrance */
 	dun_habitat = pl_ptr->dungeon->habitat;
 	dun_level = pl_ptr->dungeon->min_level + 1;
-	
+
 	/* Hack - no monsters if have been here before */
 	if (pl_ptr->dungeon->recall_depth) dun_habitat = 0;
-	
+
 	switch (pl_ptr->dungeon->habitat)
 	{
 		case RF7_DUN_DARKWATER:
 		{
 			draw_dun_dark_water();
-			
+
 			break;
 		}
-		
+
 		case RF7_DUN_LAIR:
 		case RF7_DUN_CAVERN:
 		case RF7_DUN_HELL:
 		{
 			draw_dun_cave();
-			
+
 			break;
 		}
-		
+
 		case RF7_DUN_TEMPLE:
 		{
 			draw_dun_temple();
-			
+
 			break;
 		}
-		
+
 		case RF7_DUN_TOWER:
 		case RF7_DUN_PLANAR:
 		case RF7_DUN_HORROR:
+		case RF7_DUN:
 		{
 			draw_dun_tower();
-			
+
 			break;
 		}
-		
+
 		case RF7_DUN_RUIN:
 		{
 			draw_dun_ruin();
-			
+
 			break;
 		}
-		
+
 		case RF7_DUN_GRAVE:
 		{
 			draw_dun_grave();
-			
+
 			break;
 		}
 
 		case RF7_DUN_MINE:
 		{
 			draw_dun_mine();
-			
+
 			break;
 		}
-		
+
 		case RF7_DUN_CITY:
 		{
 			draw_dun_city();
-		
+
 			break;
 		}
 
 		default:
 		{
 			/* A really crappy dungeon entrance */
-		
+
 			/* Get location of stairs */
 			x = randint1(14);
 			y = randint1(14);
-	
+
 			/* Put dungeon floor next to stairs so they are easy to find. */
 			for (i = -1; i <= 1; i++)
 			{
@@ -2085,7 +2485,7 @@ void draw_dungeon(place_type *pl_ptr)
 			set_feat_bold(x, y, FEAT_MORE);
 		}
 	}
-	
+
 	/* Hack -- use the "complex" RNG */
 	Rand_quick = FALSE;
 }
@@ -2099,7 +2499,7 @@ static bool blank_spot(int x, int y, int xsize, int ysize, int town_num, bool to
 {
 	int i, j;
 	wild_gen2_type *w_ptr;
-	
+
 	int dist;
 
 	/* Hack - Population check */
@@ -2107,7 +2507,7 @@ static bool blank_spot(int x, int y, int xsize, int ysize, int town_num, bool to
 	{
 		if (randint0(256) > wild[y][x].trans.pop_map) return (FALSE);
 	}
-	
+
 	for (i = x - 1; i < x + xsize + 2; i++)
 	{
 		for (j = y - 1; j < y + ysize + 2; j++)
@@ -2141,10 +2541,10 @@ static bool blank_spot(int x, int y, int xsize, int ysize, int town_num, bool to
 	{
 		dist = MIN_DIST_DUNGEON;
 	}
-	
+
 	/* Look to see if another place is too close */
 	for (i = 1; i < town_num; i++)
-	{ 
+	{
 		if (distance(place[i].x, place[i].y, x, y) < dist)
 		{
 			/* Too close? */
@@ -2156,118 +2556,58 @@ static bool blank_spot(int x, int y, int xsize, int ysize, int town_num, bool to
 	return (TRUE);
 }
 
+/*
+ * Look to see if a wilderness block is able to have
+ * a town/dungeon overlayed on top.
+ */
+static bool blank_spot_nodist(int x, int y, int xsize, int ysize, int town_num, bool town)
+{
+	int i, j;
+	wild_gen2_type *w_ptr;
+
+	/* Hack: avoid compiler warnings */
+	(void)town;
+
+	/* Hack - Population check */
+	if (town_num != 1)
+	{
+		if (randint0(256) > wild[y][x].trans.pop_map) return (FALSE);
+	}
+
+	for (i = x - 1; i < x + xsize + 2; i++)
+	{
+		for (j = y - 1; j < y + ysize + 2; j++)
+		{
+			/* Hack - Not next to boundary */
+			if ((i <= 0) || (i >= max_wild - 1) ||
+				(j <= 0) || (j >= max_wild - 1))
+			{
+				return (FALSE);
+			}
+
+			w_ptr = &wild[j][i].trans;
+
+			/* No place already */
+			if (w_ptr->place) return (FALSE);
+
+			/* No water or lava or acid */
+			if (w_ptr->info & (WILD_INFO_WATER | WILD_INFO_LAVA | WILD_INFO_ACID))
+				return (FALSE);
+
+			/* No Ocean */
+			if (w_ptr->hgt_map < (256 / SEA_FRACTION)) return (FALSE);
+		}
+	}
+
+	/* Ok then */
+	return (TRUE);
+}
+
+
 #define DUN_LIST_NUM		12
 
 /*
- * A few dungeon types.
- *
- * {Object theme}, habitat, minlevel, maxlevel, chance,
- * population, height,
- * rooms,
- * floor,
- * roads,
- * liquid,
- * flags}
- */
-static const dun_gen_type dungeons[] =
-{
-	{{0, 10, 0, 40}, RF7_DUN_DARKWATER, 1, 15, 1,
-		100, 0,
-		RT_SIMPLE | RT_NATURAL | RT_ANIMAL | RT_STRANGE,
-		FEAT_DRY_MUD,
-		LQ_WATER | LQ_SWAMP,
-		DF_TRACK | DF_ROAD},
-
-	{{50, 10, 10, 0}, RF7_DUN_LAIR, 10, 50, 1,
-		100, 100,
-		RT_NATURAL | RT_COMPLEX | RT_RUIN,
-		FEAT_DIRT,
-		LQ_WATER | LQ_ACID | LQ_SWAMP,
-		DF_NONE},
-
-	{{10, 30, 30, 30}, RF7_DUN_TEMPLE, 20, 60, 1,
-		250, 250,
-		RT_SIMPLE | RT_COMPLEX | RT_DENSE | RT_FANCY | RT_BUILDING | RT_CRYPT,
-		FEAT_FLOOR_TILE,
-		LQ_WATER | LQ_LAVA,
-		DF_ROAD},
-
-	{{20, 0, 80, 0}, RF7_DUN_TOWER, 20, 60, 1,
-		250, 200,
-		RT_SIMPLE | RT_COMPLEX | RT_BUILDING | RT_RVAULT,
-		FEAT_FLOOR_WOOD,
-		LQ_ACID | LQ_LAVA,
-		DF_TRACK},
-
-	{{10, 20, 20, 0}, RF7_DUN_RUIN, 20, 80, 1,
-		0, 150,
-		RT_RUIN,
-		FEAT_PEBBLES,
-		LQ_WATER | LQ_LAVA | LQ_SWAMP,
-		DF_TRACK | DF_ROAD},
-
-	{{50, 20, 20, 0}, RF7_DUN_GRAVE, 30, 100, 1,
-		50, 150,
-		RT_COMPLEX | RT_FANCY | RT_CRYPT,
-		FEAT_FLOOR_TILE,
-		LQ_WATER | LQ_SWAMP,
-		DF_TRACK | DF_ROAD},
-
-	{{30, 30, 30, 10}, RF7_DUN_CAVERN, 40, 80, 1,
-		50, 200,
-		RT_SIMPLE | RT_ANIMAL | RT_DENSE | RT_RUIN | RT_RVAULT,
-		FEAT_DIRT,
-		LQ_WATER | LQ_ACID | LQ_LAVA,
-		DF_TRACK},
-
-	{{30, 30, 40, 0}, RF7_DUN_PLANAR, 40, 127, 1,
-		0, 250,
-		RT_COMPLEX | RT_DENSE | RT_FANCY | RT_RVAULT,
-		FEAT_SAND,
-		LQ_ACID | LQ_LAVA,
-		DF_TRACK},
-
-	{{20, 40, 40, 0}, RF7_DUN_HELL, 60, 127, 1,
-		0, 0,
-		RT_SIMPLE | RT_NATURAL | RT_ANIMAL | RT_DENSE | RT_RUIN |
-		RT_FANCY | RT_RVAULT | RT_STRANGE,
-		FEAT_SOLID_LAVA,
-		LQ_LAVA,
-		DF_TRACK},
-
-	{{0, 20, 20, 0}, RF7_DUN_HORROR, 80, 127, 1,
-		0, 150,
-		RT_SIMPLE | RT_NATURAL | RT_ANIMAL | RT_DENSE | RT_RUIN | RT_STRANGE,
-		FEAT_SALT,
-		LQ_ACID,
-		DF_TRACK},
-
-	{{10, 20, 10, 40}, RF7_DUN_MINE, 1, 40, 1,
-		200, 200,
-		RT_SIMPLE | RT_NATURAL | RT_ANIMAL | RT_RUIN | RT_STRANGE,
-		FEAT_DIRT,
-		LQ_WATER | LQ_LAVA,
-		DF_ROAD},
-
-	{{30, 30, 10, 10}, RF7_DUN_CITY, 20, 60, 1,
-		200, 200,
-		RT_SIMPLE | RT_COMPLEX | RT_DENSE | RT_FANCY | RT_BUILDING |
-		RT_CRYPT | RT_RVAULT | RT_STRANGE,
-		FEAT_FLOOR_TILE,
-		LQ_WATER,
-		DF_TRACK | DF_ROAD},
-
-	{{0, 0, 0, 0}, 0, 0, 0, 0,
-		0, 0,
-		0,
-		FEAT_NONE,
-		LQ_NONE,
-		DF_NONE},
-};
-
-
-/*
- * Pick a type of dungeon from the above list
+ * Pick a type of dungeon from the dungeon list
  */
 const dun_gen_type *pick_dungeon_type(void)
 {
@@ -2282,7 +2622,7 @@ const dun_gen_type *pick_dungeon_type(void)
 		if (d_ptr->min_level > p_ptr->depth) continue;
 
 		/* Normal selection */
-		total += d_ptr->chance * MAX_DEPTH * 10 /
+		total += MAX_DEPTH * 10 /
 				(p_ptr->depth - d_ptr->min_level + 5);
 	}
 
@@ -2294,7 +2634,7 @@ const dun_gen_type *pick_dungeon_type(void)
 	{
 		/* Count this possibility */
 		if (d_ptr->min_level > p_ptr->depth) continue;
-		
+
 		total += d_ptr->chance * MAX_DEPTH * 10 /
 			(p_ptr->depth - d_ptr->min_level + 5);
 
@@ -2311,30 +2651,32 @@ cptr dungeon_type_name(u32b dun)
 {
 	switch(dun)
 	{
-		case RF7_DUN_DARKWATER: return ("Darkwater");
+		case RF7_DUN_DARKWATER: return ("Sewer");
 
 		case RF7_DUN_LAIR: return("Lair");
 
-		case RF7_DUN_TEMPLE: return("Temple");
+		case RF7_DUN_TEMPLE: return("Underground temple");
 
-		case RF7_DUN_TOWER: return("Tower");
-		
+		case RF7_DUN_TOWER: return("Tower dungeon");
+
 		case RF7_DUN_RUIN: return("Ruin");
-		
-		case RF7_DUN_GRAVE: return("Grave");
-		
+
+		case RF7_DUN_GRAVE: return("Crypt");
+
 		case RF7_DUN_CAVERN: return("Cavern");
-		
-		case RF7_DUN_PLANAR: return("Planar");
-		
-		case RF7_DUN_HELL: return("Hell");
-		
-		case RF7_DUN_HORROR: return("Horror");
-		
+
+		case RF7_DUN_PLANAR: return("Planar dungeon");
+
+		case RF7_DUN_HELL: return("Pit");
+
+		case RF7_DUN_HORROR: return("Catacombs");
+
 		case RF7_DUN_MINE: return("Mine");
-		
-		case RF7_DUN_CITY: return("City");
-		
+
+		case RF7_DUN_CITY: return("Underground city");
+
+		case RF7_DUN: return("Dungeon");
+
 		default: return ("Unknown");
 	}
 }
@@ -2344,6 +2686,7 @@ cptr dungeon_type_name(u32b dun)
 static void init_dungeon(place_type *pl_ptr, const dun_gen_type *d_ptr)
 {
 	dun_type *dt_ptr;
+	int i;
 
 	/* Create it */
 	MAKE(pl_ptr->dungeon, dun_type);
@@ -2352,10 +2695,10 @@ static void init_dungeon(place_type *pl_ptr, const dun_gen_type *d_ptr)
 
 	/* Set the object theme (structure copy) */
 	dt_ptr->theme = d_ptr->theme;
-	
+
 	/* Hack - Reset the dungeon habitat to be everything */
 	dt_ptr->habitat = d_ptr->habitat;
-	
+
 	/* Save level bounds */
 	dt_ptr->min_level = (d_ptr->min_level * rand_range(80, 120) + 50) / 100;
 	dt_ptr->max_level = (d_ptr->max_level * rand_range(80, 120) + 50) / 100;
@@ -2365,12 +2708,47 @@ static void init_dungeon(place_type *pl_ptr, const dun_gen_type *d_ptr)
 		dt_ptr->min_level = 1;
 	if (dt_ptr->max_level > 127)
 		dt_ptr->max_level = 127;
-	
+
 	/* Copy dungeon creation info */
 	dt_ptr->rooms = d_ptr->rooms;
 	dt_ptr->floor = d_ptr->floor;
-	dt_ptr->liquid = d_ptr->liquid;
-	
+	dt_ptr->wall = d_ptr->wall;
+	dt_ptr->perm_wall = d_ptr->perm_wall;
+
+	for (i = 0; i < 2; i++)
+	{
+		dt_ptr->vein[i].deep = d_ptr->vein[i].deep;
+		dt_ptr->vein[i].shal = d_ptr->vein[i].shal;
+		dt_ptr->vein[i].number = d_ptr->vein[i].number;
+		dt_ptr->vein[i].rarity = d_ptr->vein[i].rarity;
+		dt_ptr->vein[i].size = d_ptr->vein[i].size;
+
+		dt_ptr->river[i].deep = d_ptr->river[i].deep;
+		dt_ptr->river[i].shal = d_ptr->river[i].shal;
+		dt_ptr->river[i].number = d_ptr->river[i].number;
+		dt_ptr->river[i].rarity = d_ptr->river[i].rarity;
+		dt_ptr->river[i].size = d_ptr->river[i].size;
+	}
+
+	dt_ptr->lake.deep = d_ptr->lake.deep;
+	dt_ptr->lake.shal = d_ptr->lake.shal;
+	dt_ptr->lake.number = d_ptr->lake.number;
+	dt_ptr->lake.rarity = d_ptr->lake.rarity;
+	dt_ptr->lake.size = d_ptr->lake.size;
+
+	dt_ptr->freq_monsters = d_ptr->freq_monsters;
+	dt_ptr->freq_objects = d_ptr->freq_objects;
+	dt_ptr->freq_doors = d_ptr->freq_doors;
+	dt_ptr->freq_traps = d_ptr->freq_traps;
+	dt_ptr->freq_rubble = d_ptr->freq_rubble;
+	dt_ptr->freq_treasure = d_ptr->freq_treasure;
+	dt_ptr->freq_stairs = d_ptr->freq_stairs;
+	dt_ptr->freq_arena = d_ptr->freq_arena;
+	dt_ptr->freq_cavern = d_ptr->freq_cavern;
+	dt_ptr->freq_tunnel = d_ptr->freq_tunnel;
+
+	dt_ptr->room_limit = d_ptr->room_limit;
+
 	/* Extra flags */
 	dt_ptr->flags = d_ptr->flags;
 }
@@ -2381,7 +2759,7 @@ byte the_floor(void)
 {
 	/* In the wilderness */
 	if (!p_ptr->depth) return (FEAT_DIRT);
-	
+
 	/* In the dungeon */
 	return (place[p_ptr->place_num].dungeon->floor);
 }
@@ -2425,7 +2803,7 @@ static bool create_towns(int *xx, int *yy)
 		{
 			/* Need to make town on easiest place */
 			if (first_try) return (FALSE);
-		
+
 			continue;
 		}
 
@@ -2434,17 +2812,17 @@ static bool create_towns(int *xx, int *yy)
 		{
 			/* Need to make town on easiest place */
 			if (first_try) return (FALSE);
-		
+
 			continue;
 		}
-		
+
 		/* We have a town at the easiest spot */
 		first_try = FALSE;
-		
+
 		/* get wildernesss + place pointers */
 		w_ptr = &wild[y][x].trans;
 		pl_ptr = &place[place_count];
-				
+
 		/* Check to see if the town has stairs */
 		for (i = 0; i < pl_ptr->numstores; i++)
 		{
@@ -2456,7 +2834,7 @@ static bool create_towns(int *xx, int *yy)
 					/* Use sewer */
 					init_dungeon(pl_ptr, &dungeons[0]);
 				}
-				
+
 				/* Select easiest town */
 				if (w_ptr->law_map > town_value)
 				{
@@ -2469,14 +2847,14 @@ static bool create_towns(int *xx, int *yy)
 				}
 			}
 		}
-		
+
 		/* Increment number of places */
-		place_count++;		
+		place_count++;
 	}
-	
+
 	/* Paranoia */
 	if (!best_town) return (FALSE);
-	
+
 	/* Hack - the starting town uses pre-defined stores */
 	for (i = 0; i < place[best_town].numstores; i++)
 	{
@@ -2485,7 +2863,7 @@ static bool create_towns(int *xx, int *yy)
 			/* Hack - make stairs */
 			store_init(best_town, i, wild_first_town[i]);
 		}
-		else if (i < START_STORE_NUM)
+		else if (i < START_STORE_NUM - 1)
 		{
 			if (build_is_store(wild_first_town[i]))
 			{
@@ -2495,6 +2873,36 @@ static bool create_towns(int *xx, int *yy)
 			else
 			{
 				build_init(best_town, i, wild_first_town[i]);
+			}
+		}
+		else if (i < START_STORE_NUM)
+		{
+			switch (p_ptr->rp.pclass)
+			{
+				case CLASS_WARRIOR:
+				case CLASS_CHAOS_WARRIOR:
+				case CLASS_PALADIN:
+					build_init(best_town, i, BUILD_WARRIOR_GUILD);
+					break;
+				case CLASS_PRIEST:
+				case CLASS_MONK:
+					build_init(best_town, i, BUILD_CATHEDRAL);
+					break;
+				case CLASS_MAGE:
+				case CLASS_HIGH_MAGE:
+				case CLASS_WARRIOR_MAGE:
+					build_init(best_town, i, BUILD_MAGE_GUILD);
+					break;
+				case CLASS_ROGUE:
+					build_init(best_town, i, BUILD_THIEVES_GUILD);
+					break;
+				case CLASS_RANGER:
+					build_init(best_town, i, BUILD_RANGER_GUILD);
+					break;
+				case CLASS_MINDCRAFTER:
+				default:
+					general_init(best_town, i, BUILD_NONE);
+					break;
 			}
 		}
 		else
@@ -2513,7 +2921,7 @@ static bool create_towns(int *xx, int *yy)
 
 	/* Hack - No current region */
 	set_region(0);
-	
+
 	*xx = pl_ptr->x;
 	*yy = pl_ptr->y;
 
@@ -2530,23 +2938,23 @@ static bool create_towns(int *xx, int *yy)
 static long score_dungeon(const wild_gen2_type *w_ptr, const dun_gen_type *d_ptr, int dist)
 {
 	long score = 0, value;
-	
+
 	/* Height */
 	value = w_ptr->hgt_map - d_ptr->height;
 	score += value * value;
-	
+
 	/* Population */
 	value = w_ptr->pop_map - d_ptr->pop;
 	score += value * value;
-	
+
 	/* Lawless level */
 	value = w_ptr->law_map - d_ptr->min_level;
 	score += value * value;
-	
+
 	/* Near dungeons should be easy */
 	value = dist * d_ptr->min_level;
 	score += value * value;
-		
+
 	return (score);
 }
 
@@ -2555,19 +2963,19 @@ static long score_dungeon(const wild_gen2_type *w_ptr, const dun_gen_type *d_ptr
 static void create_dungeons(int xx, int yy)
 {
 	byte i, j;
-	
+
 	int x, y;
-	
+
 	int best;
-	
+
 	long best_val, score;
-	
+
 	place_type *pl_ptr;
-	
+
 	wild_gen2_type *w_ptr;
-	
+
 	int dungeon_list[NUM_DUNGEON];
-	
+
 	/*
 	 * Scan for places to add dungeons.
 	 */
@@ -2576,7 +2984,7 @@ static void create_dungeons(int xx, int yy)
 		/* Get a random position */
 		x = randint0(max_wild);
 		y = randint0(max_wild);
-		
+
 		pl_ptr = &place[place_count];
 
 		/*
@@ -2584,20 +2992,20 @@ static void create_dungeons(int xx, int yy)
 		 * (Need a 8x8 block free.)
 		 */
 		if (!blank_spot(x, y, 8, 8, place_count, FALSE)) continue;
-						
+
 		pl_ptr->x = x;
 		pl_ptr->y = y;
 
 		/* Hack - the size is constant...  (Is this even needed?) */
 		pl_ptr->xsize = 8;
 		pl_ptr->ysize = 8;
-		
+
 		/* We are a dugneon */
-		pl_ptr->type = TOWN_DUNGEON;
-		
+		pl_ptr->type = PL_DUNGEON;
+
 		/* We have monsters */
 		pl_ptr->monst_type = TOWN_MONST_ABANDONED;
-		
+
 		/* Hack - A really crap name */
 		strcpy(pl_ptr->name, "Dungeon");
 
@@ -2616,30 +3024,30 @@ static void create_dungeons(int xx, int yy)
 		else
 		{
 			dungeon_list[i] = randint0(DUN_LIST_NUM);
-		}	
+		}
 	}
-	
+
 	/* Match available dungeon types to locations */
 	for (i = 0; i < NUM_DUNGEON; i++)
 	{
 		/* Score each available location, and pick the best one. */
-		
+
 		best = -1;
 		best_val = -1;
-		
+
 		for (j = NUM_TOWNS; j < NUM_TOWNS + NUM_DUNGEON; j++)
 		{
 			pl_ptr = &place[j];
-			
+
 			/* Skip already created dungeons */
 			if (pl_ptr->dungeon) continue;
-			
+
 			/* Get location */
 			w_ptr = &wild[pl_ptr->y][pl_ptr->x].trans;
-			
+
 			score = score_dungeon(w_ptr, &dungeons[dungeon_list[i]],
 									distance(xx, yy, pl_ptr->x, pl_ptr->y));
-			
+
 			/* Better dungeon? */
 			if ((best == -1) || (score < best_val))
 			{
@@ -2647,32 +3055,134 @@ static void create_dungeons(int xx, int yy)
 				best_val = score;
 			}
 		}
-		
+
 		/* Initialise best dungeon */
 		init_dungeon(&place[best], &dungeons[dungeon_list[i]]);
 	}
-	
-	
+
+
 	/* Link dungeons to the wilderness */
 	for (i = NUM_TOWNS; i < NUM_TOWNS + NUM_DUNGEON; i++)
 	{
 		/* Get the place */
 		pl_ptr = &place[i];
-	
+
 		/* Draw it */
 		draw_dungeon(pl_ptr);
-		
+
 		/* We are now using the region */
 		incref_region(pl_ptr->region);
-		
+
 		/* Link to wilderness */
 		set_place(i);
-		
+
 		/* Finish with the region allocated by draw_dungeon() */
 		pl_ptr->region = unref_region(pl_ptr->region);
 	}
 }
 
+/*
+ * Place some farms in the wilderness.
+ */
+static void create_farms(int xx, int yy)
+{
+	int x, y, xsize, ysize, i;
+	int nfarms = 0;
+	int locs[2][NUM_FARMS];
+	byte pop;
+	byte law;
+	place_type *pl_ptr;
+	bool too_close;
+	int first = place_count;
+	int attempts = 0;
+	int pl_fail = 0;
+	int pl_blank = 0;
+	int pl_close = 0;
+
+	(void)xx;
+	(void)yy;
+
+	/* Try to add up to NUM_FARMS farms */
+	while (nfarms < NUM_FARMS)
+	{
+		attempts++;
+		if (attempts > 500) { msgf ("Quitting farm generation %i farms: %i,%i,%i", nfarms, pl_fail, pl_blank, pl_close); break; }
+
+		too_close = FALSE;
+
+		/* Get a random position */
+		x = randint0(max_wild);
+		y = randint0(max_wild);
+
+		pop = wild[y][x].trans.pop_map;
+    	law = wild[y][x].trans.law_map;
+
+		/* Make sure chosen location is okay for a farm */
+		if (pop < 141 || law < 141) { pl_fail++; continue; }
+
+		xsize = rand_range(2, 3);
+		ysize = 2;
+
+		/* Need some space */
+		/* Note use of 1 in town_count: we already avoid low-population spots. */
+		if (!blank_spot_nodist(x, y, xsize, ysize, 1, FALSE)) {pl_blank++; continue; }
+
+		/* Make sure farms aren't too close together */
+		for (i = 0; i < nfarms; i++)
+		{
+			if (distance(x, y, locs[0][i], locs[1][i]) < 15)
+				too_close = TRUE;
+		}
+		if (too_close) {pl_close++; continue;}
+
+		/* Save location for later */
+		locs[0][nfarms] = x;
+		locs[1][nfarms] = y;
+
+		/* Build it. */
+		pl_ptr = &place[place_count];
+
+		pl_ptr->seed = randint0(0x10000000);
+		pl_ptr->type = PL_FARM;
+
+		pl_ptr->numstores = 1;  /* Just the farmhouse */
+		C_MAKE(pl_ptr->store, 1, store_type);
+		build_init(place_count, 0, BUILD_FARM);
+
+		pl_ptr->x = x;
+		pl_ptr->y = y;
+
+		pl_ptr->xsize = xsize;
+		pl_ptr->ysize = ysize;
+
+		pl_ptr->monst_type = TOWN_MONST_MONST;  /* Use default monsters */
+
+		/* Boring name */
+		strcpy(pl_ptr->name, "Farm");
+
+		place_count++;
+		nfarms++;
+	}
+
+	/* Link farms to the wilderness */
+	for (i = first; i < nfarms + first; i++)
+	{
+		/* Get the place */
+		pl_ptr = &place[i];
+
+		/* Draw it */
+		draw_farm(pl_ptr);
+
+		/* We are now using the region */
+		incref_region(pl_ptr->region);
+
+		/* Link to wilderness */
+		set_place(i);
+
+		/* Finish with the region allocated by draw_farm() */
+		pl_ptr->region = unref_region(pl_ptr->region);
+	}
+}
 
 /*
  * Place the quests on the wilderness
@@ -2683,19 +3193,20 @@ static void create_quests(int xx, int yy)
 
 	int xsize, ysize;
 	byte flags;
+	int q = 0;
 
 	/*
-	 * Try to add z_info->wp_max towns.
+	 * Try to add NUM_TOWNS quests.
 	 */
-	while (place_count < z_info->wp_max)
+	while (q < NUM_TOWNS)
 	{
 		/* Get a random position */
 		x = randint0(max_wild);
 		y = randint0(max_wild);
-		
+
 		/* Not too close to the starting town */
 		if (distance(xx, yy, x, y) < 20) continue;
-	
+
 		/* Pick quest size / type */
 		pick_wild_quest(&xsize, &ysize, &flags);
 
@@ -2707,32 +3218,73 @@ static void create_quests(int xx, int yy)
 
 		/* Increment number of places */
 		place_count++;
+		q++;
 	}
 }
 
+static void create_quest_stairs(int start_num)
+{
+	int i;
+	place_type *pl_ptr;
+	wild_type *w_ptr;
+
+	/* Locations are already picked for us, just draw them all */
+
+	for (i = start_num; i < place_count; i++)
+	{
+		pl_ptr = &place[i];
+
+		draw_quest_stair(pl_ptr);
+
+		incref_region(pl_ptr->region);
+
+		/* Link to wilderness */
+		w_ptr = &wild[pl_ptr->y][pl_ptr->x];
+
+		w_ptr->trans.place = i;
+
+		pl_ptr->region = unref_region(pl_ptr->region);
+	}
+}
 
 /*
  * Initialise the place structures
  *
- * There are currently, cities and quests.
+ * There are currently, cities, dungeons, "pit" quests.
  *
  * Soon there will be:
  * Ruins, barracks, towers etc.
  */
 bool init_places(int xx, int yy)
 {
+	int cur;
+
 	/* No towns yet */
 	place_count = 1;
-	
+
 	/* Create towns */
 	if (!create_towns(&xx, &yy)) return (FALSE);
 
 	/* Create dungeons */
 	create_dungeons(xx, yy);
-	
+
+	/* Create farms */
+	create_farms(xx, yy);
+
 	/* Create quests */
 	create_quests(xx, yy);
-	
+
+	/* Connect the places with roads */
+	create_roads();
+
+	cur = place_count;
+
+	/* Initialize building quests */
+	init_build_quests();
+
+	/* Create quest stairs */
+	create_quest_stairs(cur);
+
 	/* Hack - set global region back to wilderness value */
 	set_region(0);
 
@@ -3011,7 +3563,7 @@ void init_vanilla_town(void)
 	strcpy(pl_ptr->name, "Town");
 	pl_ptr->seed = randint0(0x10000000);
 	pl_ptr->numstores = 9;
-	pl_ptr->type = TOWN_OLD;
+	pl_ptr->type = PL_TOWN_OLD;
 	pl_ptr->x = (max_wild / 2) - TOWN_WID / (WILD_BLOCK_SIZE * 2) - 1;
 	pl_ptr->y = (max_wild / 2) - TOWN_HGT / (WILD_BLOCK_SIZE * 2) - 1;
 	pl_ptr->xsize = V_TOWN_BLOCK_WID / WILD_BLOCK_SIZE;
@@ -3035,12 +3587,12 @@ void init_vanilla_town(void)
 			wild[j][i].done.place = 1;
 		}
 	}
-	
+
 	/* Create dungeon */
 	MAKE(pl_ptr->dungeon, dun_type);
-	
+
 	d_ptr = pl_ptr->dungeon;
-	
+
 	/* Set dungeon depths */
 	d_ptr->max_level = MAX_DEPTH - 1;
 	d_ptr->min_level = 1;
@@ -3057,3 +3609,298 @@ void init_vanilla_town(void)
 	set_region(0);
 }
 
+u16b place_pop(void)
+{
+	int i, j;
+	place_type *pl_ptr;
+
+	if (place_count < z_info->wp_max)
+	{
+		/* Returns current value of place_count and increments it */
+		return(place_count++);
+	}
+
+	/* We have wp_max places already.  Look for a dead one... */
+	for (i = 0; i < z_info->wp_max; i++)
+	{
+		pl_ptr = &place[i];
+
+		/* Skip permanent places */
+		if (pl_ptr->type == PL_TOWN_OLD ||
+			pl_ptr->type == PL_TOWN_FRACT ||
+			pl_ptr->type == PL_DUNGEON ||
+			pl_ptr->type == PL_FARM ||
+			pl_ptr->type == PL_TOWN_MINI)
+			continue;
+
+		/* Quest pits: done when pl_ptr->data == 0 */
+		if (pl_ptr->type == PL_QUEST_PIT && pl_ptr->data == 0)
+			break;
+
+		/* Quest stairs: done when the quest is done, or when no attempts are left. */
+		if (pl_ptr->type == PL_QUEST_STAIR)
+		{
+			quest_type *q_ptr = &quest[pl_ptr->quest_num];
+
+			/* Never reuse one we haven't started */
+			if (q_ptr->status == QUEST_STATUS_UNTAKEN)
+				continue;
+
+			/* Definitely reuse if the stairs are no longer needed */
+			if (q_ptr->status == QUEST_STATUS_COMPLETED ||
+				q_ptr->status == QUEST_STATUS_FINISHED ||
+				q_ptr->status == QUEST_STATUS_FINISHED_FAILED ||
+				q_ptr->status == QUEST_STATUS_FAILED)
+				break;
+
+			/* Can reuse if there are no attempts left */
+			if (q_ptr->status == QUEST_STATUS_TAKEN &&
+				q_ptr->data.fix.attempts == 0)
+				break;
+		}
+	}
+
+	/* No places available */
+	if (i == z_info->wp_max) return (-1);
+
+	/* Wipe the place */
+	pl_ptr = &place[i];
+
+	pl_ptr->seed = 0;
+	FREE(pl_ptr->store);
+	pl_ptr->store = NULL;
+	FREE(pl_ptr->dungeon);
+	pl_ptr->dungeon = NULL;
+	pl_ptr->numstores = 0;
+	pl_ptr->quest_num = 0;
+	pl_ptr->x = 0;
+	pl_ptr->y = 0;
+	pl_ptr->xsize = 0;
+	pl_ptr->ysize = 0;
+	pl_ptr->data = 0;
+	pl_ptr->monst_type = 0;
+	pl_ptr->region = 0;
+
+	for (j = 0; j < MAX_GATES; j++)
+	{
+		pl_ptr->gates_x[j] = 0;
+		pl_ptr->gates_y[j] = 0;
+	}
+
+	for (j = 0; j < T_NAME_LEN; j++)
+	{
+		pl_ptr->name[j] = 0;
+	}
+
+	return (i);
+}
+
+void draw_inn(place_type *pl_ptr)
+{
+	int x1, y1, x2, y2, x, y, orient;
+	int xsize, ysize;
+	cave_type * c_ptr;
+
+	/* Paranoia */
+	if (pl_ptr->region) quit("Inn already has region during creation.");
+
+	/* Get region.  Hack: Always 1x1 */
+	create_region(pl_ptr, WILD_BLOCK_SIZE, WILD_BLOCK_SIZE, REGION_OVER);
+
+	/* Hack: use the "simple" RNG */
+	Rand_quick = TRUE;
+
+	/* Hack: Induce consistent layout */
+	Rand_value = pl_ptr->seed;
+
+	/* Draw the inn */
+
+	/* Fill with solid rock */
+	generate_fill(0, 0, WILD_BLOCK_SIZE-1, WILD_BLOCK_SIZE-1, FEAT_PERM_EXTRA);
+
+	/* Empty interior */
+	generate_fill(1, 1, WILD_BLOCK_SIZE-2, WILD_BLOCK_SIZE-2, FEAT_NONE);
+
+	/* Pick size for the inn building */
+	xsize = rand_range(4,6);
+	ysize = rand_range(3,5);
+
+	/* Pick location of the inn building */
+	x1 = rand_range(4, WILD_BLOCK_SIZE-xsize-5);
+	y1 = rand_range(4, WILD_BLOCK_SIZE-ysize-5);
+	x2 = x1+xsize;
+	y2 = y1+ysize;
+
+	x1 = 5;
+	x2 = 10;
+	y1 = 4;
+	y2 = 7;
+
+	/* Draw a building */
+	generate_fill(x1, y1, x2, y2, FEAT_PERM_EXTRA);
+
+	/* Choose orientation for entrance and inn door */
+	switch(orient = randint0(4))
+	{
+		case 0:
+			x = rand_range(x1, x2);
+			y = y1;
+			break;
+		case 1:
+			x = rand_range(x1, x2);
+			y = y2;
+			break;
+		case 2:
+			x = x1;
+			y = rand_range(y1, y2);
+			break;
+		case 3:
+			x = x2;
+			y = rand_range(y1, y2);
+			break;
+	}
+
+	/* Create inn entrance */
+	c_ptr = cave_p(x,y);
+
+	if (!c_ptr)
+	{
+		msgf ("Couldn't create inn.");
+	}
+	else
+	{
+		c_ptr->feat = FEAT_DIRT;
+		c_ptr->fld_idx = wild_build[BUILD_INN].field;
+		pl_ptr->store[0].x = x;
+		pl_ptr->store[0].y = y;
+	}
+
+	/* Draw entrance to inn */
+	switch(orient)
+	{
+		case 0:
+			x1 = rand_range(4, WILD_BLOCK_SIZE-6);
+			y1 = 0;
+			break;
+		case 1:
+			x1 = rand_range(4, WILD_BLOCK_SIZE-6);
+			y1 = WILD_BLOCK_SIZE-1;
+			break;
+		case 2:
+			x1 = 0;
+			y1 = rand_range(4, WILD_BLOCK_SIZE-6);
+			break;
+		case 3:
+			x1 = WILD_BLOCK_SIZE-1;
+			y1 = rand_range(4, WILD_BLOCK_SIZE-6);
+			break;
+	}
+
+	/* Find the coordinates of the two doors */
+	x2 = x1;
+	y2 = y1;
+
+	switch(orient)
+	{
+		case 0:
+		case 1:
+			x2 = x1+1;
+			break;
+		case 2:
+		case 3:
+			y2 = y1+1;
+			break;
+	}
+
+	/* Make the doors */
+	make_lockjam_door(x1, y1, 0, FALSE);
+	make_lockjam_door(x2, y2, 0, FALSE);
+
+	Rand_quick = FALSE;
+
+	return;
+}
+
+static void select_inn_name(char * name)
+{
+	char buf[80];
+	char buf2[80];
+
+	get_rnd_line("inn_adj.txt", 0, buf);
+	get_rnd_line("inn_noun.txt", 0, buf2);
+
+	strnfmt(name, T_NAME_LEN, "The %s %s", buf, buf2);
+}
+
+/*
+ * Create a new place for an inn at wilderness location x, y, and
+ * return the place number.
+ */
+int create_inn(int x, int y)
+{
+	int pl_num;
+	place_type *pl_ptr;
+	wild_type *w_ptr;
+
+	int i;
+
+	/* First, check to make sure the inn wouldn't be placed in impossible terrain. */
+	for (i = 0; i < place_count; i++)
+	{
+		/* Don't place too close to any other places */
+		if (distance(x, y, place[i].x, place[i].y) < 5) return (-1);
+	}
+
+	/* Don't place inns on top of strange terrain. */
+	w_ptr = &wild[y][x];
+	if (w_ptr->trans.info & (WILD_INFO_WATER | WILD_INFO_LAVA | WILD_INFO_ACID | WILD_INFO_ROAD))
+		return (-1);
+
+    pl_num = place_pop();
+
+	pl_ptr = &place[pl_num];
+
+	/* We already know the location is fine.  Build it. */
+	pl_ptr->seed = randint0(0x10000000);
+	pl_ptr->type = PL_TOWN_MINI;
+
+	pl_ptr->numstores = 1;  /* Just the inn */
+	C_MAKE(pl_ptr->store, 1, store_type);
+	build_init(pl_num, 0, BUILD_INN);
+
+	select_inn_name(pl_ptr->name);
+
+	pl_ptr->x = x;
+	pl_ptr->y = y;
+
+	pl_ptr->xsize = 1;
+	pl_ptr->ysize = 1;
+
+	/* Draw it */
+	draw_inn(pl_ptr);
+
+	/* We are now using the region */
+	incref_region(pl_ptr->region);
+
+	/* Link to wilderness */
+	set_place(pl_num);
+
+	/* Mark the inn area as a road, to make the terrain flat */
+	for (i = 0; i < 9; i++)
+	{
+		int xx, yy;
+
+		xx = x+ddx[i];
+		yy = y+ddy[i];
+
+		if (xx < 0 || xx >= max_wild) continue;
+		if (yy < 0 || yy >= max_wild) continue;
+
+		wild[yy][xx].trans.info |= WILD_INFO_ROAD;
+	}
+
+	/* Finish with the region */
+	pl_ptr->region = unref_region(pl_ptr->region);
+
+	return (pl_num);
+}

@@ -29,7 +29,7 @@
  * True half the time for trees. (Block line of sight half the time.)
  */
 #define borg_cave_half_grid(C) \
-    ((f_info[(C)->feat].flags & FF_HALF_LOS) && (quick_rand()))
+    ((f_info[(C)->feat].flags & FF_BLOCK_LOS) && (quick_rand()))
 
 /*
  * Grid will block LOS.

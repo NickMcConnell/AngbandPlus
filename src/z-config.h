@@ -137,7 +137,9 @@
 /*
  * OPTION: Hack -- Compile in support for "Borg mode"
  */
-#define ALLOW_BORG
+/* Undefining for now, since the Borg is broken.
+#define ALLOW_BORG 
+*/
 
 /*
  * OPTION: Allow "do_cmd_colors" at run-time

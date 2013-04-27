@@ -176,12 +176,12 @@ static bool get_enemy_target(monster_type *m_ptr)
 			if (c_ptr->m_idx)
 			{
 				t_ptr = &m_list[c_ptr->m_idx];
-	
+
 				/* Is it a a good monster to target? */
 				if (nice_target(m_ptr, r_ptr, t_ptr)) return (TRUE);
 			}
 		}
-		
+
 		/* Forget target */
 		m_ptr->tx = 0;
 		m_ptr->ty = 0;
@@ -192,7 +192,7 @@ static bool get_enemy_target(monster_type *m_ptr)
 	 *
 	 * Scanning backwards seems to give the best results -
 	 * We tend to find the "newer" monsters first.
-	 * "Newer" monsters tend to be closer. 
+	 * "Newer" monsters tend to be closer.
 	 */
 	for (i = m_max; i > 0; i--)
 	{
@@ -219,15 +219,15 @@ static bool get_enemy_target(monster_type *m_ptr)
 /*
  * Can the monster enter this grid?  How easy is it for them to do so?
  *
- * The code that uses this function sometimes assumes that it will never 
+ * The code that uses this function sometimes assumes that it will never
  * return a value greater than 100.
  *
- * The usage of exp to determine whether one monster can kill another is 
- * a kludge.  Maybe use HPs, plus a big bonus for acidic monsters 
+ * The usage of exp to determine whether one monster can kill another is
+ * a kludge.  Maybe use HPs, plus a big bonus for acidic monsters
  * against monsters that don't like acid.
  *
- * The usage of exp to determine whether one monster can push past 
- * another is also a tad iffy, but ensures that black orcs can always 
+ * The usage of exp to determine whether one monster can push past
+ * another is also a tad iffy, but ensures that black orcs can always
  * push past other black orcs.
  */
 static int cave_passable_mon(monster_type *m_ptr, cave_type *c_ptr)
@@ -601,7 +601,7 @@ static int mon_will_run(monster_type *m_ptr)
 /*
  * Can the monster catch a whiff of the character?
  *
- * Many more monsters can smell, but they find it hard to smell and 
+ * Many more monsters can smell, but they find it hard to smell and
  * track down something at great range.
  *
  * XXX XXX Use SMELL_STRENGTH as a function of monster race...
@@ -958,23 +958,23 @@ static bool find_hiding(monster_type *m_ptr, int *xp, int *yp)
 
 /*
  * Helper function for monsters that want to advance toward the character.
- * Assumes that the monster isn't frightened, and is not in LOS of the 
+ * Assumes that the monster isn't frightened, and is not in LOS of the
  * character.
  *
- * Ghosts and rock-eaters do not use flow information, because they 
- * can - in general - move directly towards the character.  We could make 
- * them look for a grid at their preferred range, but the character 
- * would then be able to avoid them better (it might also be a little 
+ * Ghosts and rock-eaters do not use flow information, because they
+ * can - in general - move directly towards the character.  We could make
+ * them look for a grid at their preferred range, but the character
+ * would then be able to avoid them better (it might also be a little
  * hard on those poor warriors...).
  *
  * Other monsters will use target information, then their ears, then their
  * noses (if they can), and advance blindly if nothing else works.
- * 
+ *
  * When flowing, monsters prefer non-diagonal directions.
  *
- * XXX - At present, this function does not handle difficult terrain 
- * intelligently.  Monsters using flow may bang right into a door that 
- * they can't handle.  Fixing this may require code to set monster 
+ * XXX - At present, this function does not handle difficult terrain
+ * intelligently.  Monsters using flow may bang right into a door that
+ * they can't handle.  Fixing this may require code to set monster
  * paths.
  */
 static void get_move_advance(monster_type *m_ptr, int *tx, int *ty)
@@ -1108,15 +1108,15 @@ static void get_move_advance(monster_type *m_ptr, int *tx, int *ty)
 
 /*
  * Helper function for monsters that want to retreat from the character.
- * Used for any monster that is terrified, frightened, is looking for a 
- * temporary hiding spot, or just wants to open up some space between it 
+ * Used for any monster that is terrified, frightened, is looking for a
+ * temporary hiding spot, or just wants to open up some space between it
  * and the character.
  *
  * If the monster is well away from danger, let it relax.
  * If the monster's current target is not in LOS, use it (+).
- * If the monster is not in LOS, and cannot pass through walls, try to 
+ * If the monster is not in LOS, and cannot pass through walls, try to
  * use flow (noise) information.
- * If the monster is in LOS, even if it can pass through walls, 
+ * If the monster is in LOS, even if it can pass through walls,
  * search for a hiding place (helper function "find_safety()"):
  * search for a hiding place (helper function "find_safety()").
  * If no hiding place is found, and there seems no way out, go down
@@ -1124,10 +1124,10 @@ static void get_move_advance(monster_type *m_ptr, int *tx, int *ty)
  *
  * If none of the above solves the problem, run away blindly.
  *
- * (+) There is one exception to the automatic usage of a target.  If the 
- * target is only out of LOS because of "knight's move" rules (distance 
- * along one axis is 2, and along the other, 1), then the monster will try 
- * to find another adjacent grid that is out of sight.  What all this boils 
+ * (+) There is one exception to the automatic usage of a target.  If the
+ * target is only out of LOS because of "knight's move" rules (distance
+ * along one axis is 2, and along the other, 1), then the monster will try
+ * to find another adjacent grid that is out of sight.  What all this boils
  * down to is that monsters can now run around corners properly!
  *
  * Return TRUE if the monster did actually want to do anything.
@@ -1146,7 +1146,7 @@ static bool get_move_retreat(monster_type *m_ptr, int *tx, int *ty)
 		/* Don't go anywhere */
 		*tx = m_ptr->fx;
 		*ty = m_ptr->fy;
-	
+
 		return (FALSE);
 	}
 
@@ -1175,8 +1175,8 @@ static bool get_move_retreat(monster_type *m_ptr, int *tx, int *ty)
 				((dist_y == 1) && (dist_x == 2)))
 			{
 				/*
-				 * If there is another grid adjacent to the monster that 
-				 * the character cannot see into, and it isn't any harder 
+				 * If there is another grid adjacent to the monster that
+				 * the character cannot see into, and it isn't any harder
 				 * to enter, use it instead.  Prefer diagonals.
 				 */
 				for (i = 7; i >= 0; i--)
@@ -1341,7 +1341,8 @@ static bool get_moves(int m_idx, int *mm)
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	int xx, yy;
-	int tx, ty;
+	int tx = 0;
+	int ty = 0;
 
 	bool will_run = mon_will_run(m_ptr);
 	bool done = FALSE;
@@ -1417,7 +1418,7 @@ static bool get_moves(int m_idx, int *mm)
 			{
 				xx = m_ptr->fx + ddx_ddd[i];
 				yy = m_ptr->fy + ddy_ddd[i];
-				
+
 				if (!in_bounds2(xx, yy)) continue;
 
 				/* Require next to player */
@@ -1447,7 +1448,7 @@ static bool get_moves(int m_idx, int *mm)
 
 					xx = m_ptr->fx + ddx_ddd[i];
 					yy = m_ptr->fy + ddy_ddd[i];
-					
+
 					if (!in_bounds2(xx, yy)) continue;
 
 					c_ptr = area(xx, yy);
@@ -1467,7 +1468,7 @@ static bool get_moves(int m_idx, int *mm)
 					{
 						xx2 = fm_ptr->fx + ddx_ddd[i2];
 						yy2 = fm_ptr->fy + ddy_ddd[i2];
-						
+
 						if (!in_bounds2(xx2, yy2)) continue;
 
 						/* Require next to player */
@@ -1816,7 +1817,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 				{
 					/* We've spotted it */
 					msgf("You see %v!", MONSTER_FMT(t_ptr, 0x88));
-					
+
 					/* Toggle flag */
 					t_ptr->smart &= ~(SM_MIMIC);
 
@@ -2339,7 +2340,7 @@ static void take_move(int m_idx, int *mm)
 			 LUA_VAR_NAMED((!is_pet(m_ptr) || p_ptr->pet_open_doors), "allow_open"),
 			 LUA_RETURN(do_move), LUA_RETURN(did_open_door),
 			 LUA_RETURN(do_turn), LUA_RETURN(did_bash_door));
-		
+
 		/* Open / bash doors */
 		if (did_open_door)
 		{
@@ -2597,7 +2598,7 @@ static void take_move(int m_idx, int *mm)
 							did_take_item = TRUE;
 
 							/* Describe observable situations */
-							if (m_ptr->ml && see_grid)
+							if (m_ptr->ml && see_grid && (!SQUELCH(o_ptr->k_idx) || FLAG(o_ptr, TR_SQUELCH)))
 							{
 								/* Dump a message */
 								msgf("%^s tries to pick up %v, but fails.",
@@ -2613,7 +2614,7 @@ static void take_move(int m_idx, int *mm)
 						did_take_item = TRUE;
 
 						/* Describe observable situations */
-						if (see_grid)
+						if (see_grid && (!SQUELCH(o_ptr->k_idx) || FLAG(o_ptr, TR_SQUELCH)))
 						{
 							/* Dump a message */
 							msgf("%^s picks up %v.", m_name, OBJECT_FMT(o_ptr, TRUE, 3));
@@ -2639,7 +2640,7 @@ static void take_move(int m_idx, int *mm)
 						did_kill_item = TRUE;
 
 						/* Describe observable situations */
-						if (see_grid)
+						if (see_grid && (!SQUELCH(o_ptr->k_idx) || FLAG(o_ptr, TR_SQUELCH)))
 						{
 							/* Dump a message */
 							msgf("%^s destroys %v.", m_name, OBJECT_FMT(o_ptr, TRUE, 3));
@@ -3375,7 +3376,7 @@ void process_monsters(int min_energy)
 			test = TRUE;
 		}
 
-		/* 
+		/*
 		 * Hack -- Monsters can "smell" the player from far away
 		 * Note that most monsters have "aaf" of "20" or so
 		 */
@@ -3438,7 +3439,7 @@ void process_monsters(int min_energy)
 
 /*
  * Clear 'moved' status from all monsters.
- * 
+ *
  * Clear noise if appropriate???
  */
 void reset_monsters(void)

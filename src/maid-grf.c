@@ -1,4 +1,3 @@
-
 /* File: maid-grf.c */
 
 /* Purpose: Interface for graphical ports */
@@ -235,7 +234,7 @@ bool pick_graphics(int graphics, int *xsize, int *ysize, char *filename)
 
 	use_graphics = GRAPHICS_NONE;
 	use_transparency = FALSE;
-	
+
 	if ((graphics == GRAPHICS_ANY) || (graphics == GRAPHICS_DAVID_GERVAIS))
 	{
 		/* Try the "32x32.bmp" file */
@@ -249,13 +248,13 @@ bool pick_graphics(int graphics, int *xsize, int *ysize, char *filename)
 			*xsize = 32;
 			*ysize = 32;
 		}
-		
+
 		use_graphics = GRAPHICS_DAVID_GERVAIS;
-		
+
 		/* Did we change the graphics? */
 		return (old_graphics != use_graphics);
 	}
-	
+
 	/* We failed, or we want 16x16 graphics */
 	if ((graphics == GRAPHICS_ANY) || (graphics == GRAPHICS_ADAM_BOLT) ||
 		 (graphics == GRAPHICS_HALF_3D))
@@ -280,7 +279,7 @@ bool pick_graphics(int graphics, int *xsize, int *ysize, char *filename)
 			{
 				use_graphics = GRAPHICS_ADAM_BOLT;
 			}
-			
+
 			/* Did we change the graphics? */
 			return (old_graphics != use_graphics);
 		}
@@ -319,7 +318,7 @@ bool is_bigtiled(int x, int y)
 	{
 		return (TRUE);
 	}
-	
+
 	return (FALSE);
 }
 
@@ -329,14 +328,14 @@ void toggle_bigtile(void)
 	{
 		/* Hack - disable bigtile mode */
 		Term_bigregion(-1, -1, -1);
-		
+
 		use_bigtile = FALSE;
 	}
 	else
 	{
 		use_bigtile = TRUE;
 	}
-	
+
 	/* Hack - redraw everything + recalc bigtile regions */
 	angband_term[0]->resize_hook();
 }
@@ -386,14 +385,14 @@ void set_callback(callback_type call_func, int number, vptr data)
 {
 	/* Create a new callback */
 	callback_list *node;
-	
+
 	MAKE(node, callback_list);
-	
+
 	/* Save information into node */
 	node->next = callbacks[number];
 	node->data = data;
 	node->func = call_func;
-	
+
 	/* Insert at the head of the list */
 	callbacks[number] = node;
 }
@@ -402,9 +401,9 @@ void del_callback(int number, vptr data)
 {
 	callback_list **p;
 	callback_list *temp;
-	
+
 	p = &callbacks[number];
-	
+
 	/* Scan the list */
 	while (*p)
 	{
@@ -415,14 +414,14 @@ void del_callback(int number, vptr data)
 			temp = *p;
 			*p = (*p)->next;
 			FREE(temp);
-		
+
 			return;
 		}
-	
+
 		/* Point to next node */
 		p = &((*p)->next);
 	}
-	
+
 	quit("Callback does not exist");
 }
 
@@ -676,7 +675,7 @@ static void save_map_location(int x, int y, const term_map *map)
 	int y1 = y / WILD_BLOCK_SIZE;
 
 	int block_num;
-	
+
 	callback_list *callback;
 
 	/* Does the location exist? */
@@ -726,7 +725,7 @@ static void save_map_location(int x, int y, const term_map *map)
 			map_cache_refcount[block_num]--;
 		}
 	}
-	
+
 	/* Save the tile data */
 	mb_ptr->a = map->a;
 	mb_ptr->c = map->c;
@@ -791,7 +790,7 @@ map_block *map_loc(int x, int y)
 
 
 /* put the banners on the screen */
-static void display_banner(wild_done_type *w_ptr)
+void display_banner(wild_done_type *w_ptr)
 {
 	int wid, hgt;
 
@@ -815,7 +814,7 @@ static void display_banner(wild_done_type *w_ptr)
 		bool castle_in_town = FALSE;
 
 		/* Is it a town */
-		if (pl_ptr->numstores)
+		if (pl_ptr->type == PL_TOWN_OLD || pl_ptr->type == PL_TOWN_FRACT || pl_ptr->type == PL_TOWN_MINI)
 		{
 			/* Upper banner */
 			banner = pl_ptr->name;
@@ -833,7 +832,8 @@ static void display_banner(wild_done_type *w_ptr)
 
 				/* Is there a castle? */
 				if (st_ptr->type == BUILD_CASTLE0 ||
-					st_ptr->type == BUILD_CASTLE1) castle_in_town = TRUE;
+					st_ptr->type == BUILD_CASTLE1 ||
+					st_ptr->type == BUILD_CASTLE2) castle_in_town = TRUE;
 
 				/* Stores are not given coordinates until you visit a town */
 				if (st_ptr->x != 0 && st_ptr->y != 0) visited_town = TRUE;
@@ -846,30 +846,19 @@ static void display_banner(wild_done_type *w_ptr)
 			/* Find out the lower banner */
 			if (home_in_town)
 			{
-				if (castle_in_town)
-				{
-					/* Town with home and castle */
-					banner = "Move around, press * for town, h for home, c for castle or any key to exit.";
-				}
-				else
-				{
-					/* Town with home and no castle */
-					banner = "Move around, press * for town, h for home or any key to exit.";
-				}
+				/* Town with home and castle */
+				banner = "Move around, press * for town, h for home, q for quests or any key to exit.";
 			}
 			/* Town with no home */
+			else if (pl_ptr->type != PL_TOWN_MINI)
+			{
+				/* Town with castle and no home */
+				banner = "Move around, press * for town, q for quests or any key to exit.";
+			}
+			/* Inn */
 			else
 			{
-				if (castle_in_town)
-				{
-					/* Town with castle and no home */
-					banner = "Move around, press * for town, c for castle or any key to exit.";
-				}
-				else
-				{
-					/* Town with no castle and no home */
-					banner = "Move around, press * for town or any key to exit.";
-				}
+				banner = "Move around, press * for town, or any key to exit.";
 			}
 
 			/* Display lower banner */
@@ -883,7 +872,7 @@ static void display_banner(wild_done_type *w_ptr)
 					"Move around or hit any other key to continue.");
 
 			/* It is a wilderness dungeon */
-			if (pl_ptr->dungeon)
+			if (pl_ptr->type == PL_DUNGEON)
 			{
 				/* Fetch closest known town and direction */
 				banner = describe_quest_location(&place_dir,
@@ -893,23 +882,29 @@ static void display_banner(wild_done_type *w_ptr)
 				if (pl_ptr->dungeon->recall_depth == 0)
 				{
 					/* It is still guarded by monsters */
-					banner = format("Guarded dungeon %s of %s.", place_dir, banner);
+					banner = format("Guarded %s.", dungeon_type_name(pl_ptr->dungeon->habitat));
 				}
 				else
 				{
 					/* No monsters to guard it */
-					banner = format("Unguarded dungeon %s of %s.", place_dir, banner);
+					banner = format("Unguarded %s.", dungeon_type_name(pl_ptr->dungeon->habitat));
 				}
 			}
 			/* It is a wilderness quest */
-			else
+			else if (pl_ptr->type == PL_QUEST_PIT)
 			{
 				/* Fetch wilderness quest name */
 				banner = quest[pl_ptr->quest_num].name;
 			}
+			else if (pl_ptr->type == PL_QUEST_STAIR)
+			{
+				banner = "Quest";
+			}
+
 
 			/* Display wilderness place name */
-			put_fstr((wid - strlen(banner)) / 2, 0, banner);
+			if (pl_ptr->type != PL_FARM)
+				put_fstr((wid - strlen(banner)) / 2, 0, banner);
 		}
 	}
 	else
@@ -947,7 +942,7 @@ static bool dump_home_info(FILE *fff, int town)
 			if (st_ptr->stock)
 			{
 				char o_name[256];
-			
+
 				/* Initialise counter */
 				k = 0;
 
@@ -956,10 +951,10 @@ static bool dump_home_info(FILE *fff, int town)
 				{
 					/* Describe object */
 					object_desc(o_name, o_ptr, TRUE, 3, 256);
-					
+
 					/* Clean formatting escape sequences */
 					fmt_clean(o_name);
-				
+
 					/* List the item, inlcuding its colour */
 					froff(fff, " %s" CLR_SET_DEFAULT " %s\n",
 						color_seq[tval_to_attr[o_ptr->tval]], o_name);
@@ -996,7 +991,7 @@ static bool dump_info_test(char c, int town)
 
 	/* Paranoia */
 	if (place[town].numstores == 0) return (FALSE);
-	
+
 	/* Find out if this command makes sense */
 	switch (c)
 	{
@@ -1024,9 +1019,9 @@ static bool dump_info_test(char c, int town)
 			return (build_found && visited_town);
 		}
 
-		case 'c':
+		case 'q':
 		{
-			/* Display the items in the home needs a home */
+			/* Display the quests in the town */
 			for (i = 0; i < place[town].numstores; i++)
 			{
 				st_ptr = &place[town].store[i];
@@ -1034,9 +1029,17 @@ static bool dump_info_test(char c, int town)
 				/* Stores are not given coordinates until you visit a town */
 				if (st_ptr->x != 0 && st_ptr->y != 0) visited_town = TRUE;
 
-				/* The only interest is homes */
+				/* The only interest is quest buildings */
 				if (st_ptr->type == BUILD_CASTLE0 ||
-					st_ptr->type == BUILD_CASTLE1) build_found = TRUE;
+					st_ptr->type == BUILD_CASTLE1 ||
+					st_ptr->type == BUILD_CASTLE2 ||
+					st_ptr->type == BUILD_WARRIOR_GUILD ||
+					st_ptr->type == BUILD_THIEVES_GUILD ||
+					st_ptr->type == BUILD_MAGE_GUILD ||
+					st_ptr->type == BUILD_RANGER_GUILD ||
+					st_ptr->type == BUILD_CATHEDRAL ||
+					st_ptr->type == BUILD_COURIER)
+						build_found = TRUE;
 			}
 
 			/* Return success */
@@ -1090,7 +1093,7 @@ static bool do_cmd_view_map_aux(char c, int town)
 			break;
 		}
 
-		case 'c':
+		case 'q':
 		{
 			/* Display the quests taken */
 			dump_castle_info(fff, town);
@@ -1114,10 +1117,10 @@ static bool do_cmd_view_map_aux(char c, int town)
 }
 
 /* Keep the offset for the resize */
-static int map_cx = 0;
-static int map_cy = 0;
+int map_cx = 0;
+int map_cy = 0;
 
-static void resize_big_map(void)
+void resize_big_map(void)
 {
 	int cx, cy;
 	wild_done_type *w_ptr;
@@ -1209,9 +1212,9 @@ void do_cmd_view_map(void)
 
 		/* Input character */
 		char c;
-		
+
 		wild_done_type *w_ptr;
-		
+
 		/* No offset yet */
 		x = 0;
 		y = 0;
@@ -1889,7 +1892,7 @@ static void map_mon_info(monster_type *m_ptr, monster_race *r_ptr, byte *a, char
 
 		/* Get scaled monster hp */
 		map->m_hp = m_ptr->hp * 10 / m_ptr->maxhp;
-			
+
 		/* Hack -- hallucination */
 		if (p_ptr->tim.image)
 		{
@@ -1898,7 +1901,7 @@ static void map_mon_info(monster_type *m_ptr, monster_race *r_ptr, byte *a, char
 			return;
 		}
 		else
-		{		
+		{
 			feat_not_ascii = ((*a) & 0x80);
 
 			/* Desired attr */
@@ -1958,7 +1961,7 @@ static void map_mon_info(monster_type *m_ptr, monster_race *r_ptr, byte *a, char
 			}
 		}
 	}
-	
+
 	/* Save results */
 	*a = ma;
 	*c = mc;
@@ -2045,10 +2048,10 @@ static void map_info(int x, int y, byte *ap, char *cp, byte *tap, char *tcp)
 	/* Get location */
 	cave_type *c_ptr = area(x, y);
 	pcave_type *pc_ptr = parea(x, y);
-	
+
 	/* Get the memorized feature */
 	byte feat = pc_ptr->feat;
-	
+
 	/* Info flags */
 	byte player = pc_ptr->player;
 
@@ -2059,27 +2062,27 @@ static void map_info(int x, int y, byte *ap, char *cp, byte *tap, char *tcp)
 	bool visible = player & GRID_SEEN;
 	bool glow = c_ptr->info & CAVE_GLOW;
 	bool lite = (c_ptr->info & CAVE_MNLT) || (player & GRID_LITE);
-	
+
 	bool float_field = FALSE;
-	
+
 	term_map map;
-	
+
 	/* Clear map info */
 	(void)WIPE(&map, term_map);
-	
+
 	/* Save known data */
 	map.terrain = feat;
-	
+
 	/* Save location */
 	map.x = x;
 	map.y = y;
-	
+
 	/* Default priority */
 	map.priority = 0;
-	
+
 	/* Pointer to the feature */
 	f_ptr = &f_info[feat];
-		
+
 	/* Hack -- rare random hallucination, except on outer dungeon walls */
 	if (halluc && !p_ptr->tim.blind && (feat != FEAT_PERM_SOLID) && one_in_(256))
 	{
@@ -2090,7 +2093,7 @@ static void map_info(int x, int y, byte *ap, char *cp, byte *tap, char *tcp)
 		{
 			map.flags = MAP_GLOW;
 		}
-		
+
 		(*tap) = a;
 		(*tcp) = c;
 	}
@@ -2104,7 +2107,7 @@ static void map_info(int x, int y, byte *ap, char *cp, byte *tap, char *tcp)
 			if (glow) map.flags |= MAP_GLOW;
 			if (lite) map.flags |= MAP_LITE;
 		}
-	
+
 		/* The feats attr */
 		a = f_ptr->x_attr;
 
@@ -2154,14 +2157,14 @@ static void map_info(int x, int y, byte *ap, char *cp, byte *tap, char *tcp)
 				}
 			}
 		}
-		
+
 		/* Save the terrain info for the transparency effects */
 
 		/* Does the feature have "extended terrain" information? */
 		if (f_ptr->w_attr)
 		{
 			/*
-			 * Store extended terrain information. 
+			 * Store extended terrain information.
 			 * Note hack to get lighting right.
 			 */
 			(*tap) = f_ptr->w_attr + a - f_ptr->x_attr;
@@ -2187,10 +2190,10 @@ static void map_info(int x, int y, byte *ap, char *cp, byte *tap, char *tcp)
 
 			/* Keep this grid */
 			map.flags |= MAP_ONCE;
-			
+
 			/* High priority tile */
 			map.priority = 20;
-		
+
 			/* Which display level to use? */
 			if (fld_ptr->info & FIELD_INFO_FEAT)
 			{
@@ -2219,7 +2222,7 @@ static void map_info(int x, int y, byte *ap, char *cp, byte *tap, char *tcp)
 				/* Tile */
 				c = fld_ptr->f_char;
 				a = fld_ptr->f_attr;
-			
+
 				/* Do we need to look at objects? */
 				if (!(fld_ptr->info & (FIELD_INFO_IGNORE)))
 				{
@@ -2233,10 +2236,11 @@ static void map_info(int x, int y, byte *ap, char *cp, byte *tap, char *tcp)
 		}
 	}
 	FLD_ITT_END;
-	
+
 	/* Objects */
 	OBJ_ITT_START (c_ptr->o_idx, o_ptr)
 	{
+		if (SQUELCH(o_ptr->k_idx) && !FLAG(o_ptr, TR_SQUELCH)) continue;  /* completely ignore squelched objects */
 		/* Memorized objects */
 		if (o_ptr->info & (OB_SEEN))
 		{
@@ -2256,13 +2260,13 @@ static void map_info(int x, int y, byte *ap, char *cp, byte *tap, char *tcp)
 
 			/* Keep this grid */
 			map.flags |= MAP_ONCE;
-			
+
 			/* High priority tile */
 			map.priority = 20;
-		
+
 			/* A field is obscuring the view to the object */
 			if (float_field) break;
-			
+
 			/* Hack -- hallucination */
 			if (halluc)
 			{
@@ -2282,8 +2286,8 @@ static void map_info(int x, int y, byte *ap, char *cp, byte *tap, char *tcp)
 		}
 	}
 	OBJ_ITT_END;
-		
-	
+
+
 	/* Handle monsters */
 	if (c_ptr->m_idx)
 	{
@@ -2292,7 +2296,7 @@ static void map_info(int x, int y, byte *ap, char *cp, byte *tap, char *tcp)
 
 		/* Get monster tile info */
 		map_mon_info(m_ptr, r_ptr, &a, &c, &map);
-		
+
 		/* Not hallucinating and Mimic in los? */
 		if (!halluc && visible && !m_ptr->ml && FLAG(r_ptr, RF_CHAR_MIMIC))
 		{
@@ -2302,7 +2306,7 @@ static void map_info(int x, int y, byte *ap, char *cp, byte *tap, char *tcp)
 			/* Save mimic character */
 			map.unknown = r_ptr->d_char;
 		}
-		
+
 		/* High priority tile */
 		map.priority = 24;
 	}
@@ -2313,7 +2317,7 @@ static void map_info(int x, int y, byte *ap, char *cp, byte *tap, char *tcp)
 		if (p_ptr->tim.invuln || !use_color) a = TERM_WHITE;
 		else if (p_ptr->tim.wraith_form) a = TERM_L_DARK;
 	}
-	
+
 	/* Handle "player" */
 	if ((x == p_ptr->px) && (y == p_ptr->py))
 	{
@@ -2332,17 +2336,17 @@ static void map_info(int x, int y, byte *ap, char *cp, byte *tap, char *tcp)
 		/* High priority tile */
 		map.priority = 50;
 	}
-	
+
 	/* Save the info */
 	(*ap) = a;
 	(*cp) = c;
-	
+
 	/* Save tile information */
 	map.a = a;
 	map.c = c;
 	map.ta = (*tap);
 	map.tc = (*tcp);
-	
+
 	/* Save information in map */
 	save_map_location(x, y, &map);
 }
@@ -2363,7 +2367,7 @@ void update_overhead_map(void)
 	MAP_ITT_START (mb_ptr)
 	{
 		MAP_GET_LOC(x, y);
-		
+
 		if (in_boundsp(x, y))
 		{
 			/* Update the known tile at the location */
@@ -2426,13 +2430,13 @@ void prt_map(void)
 
 	/* Hide the cursor */
 	(void)Term_set_cursor(0);
-	
+
 	/* Get bounds */
 	xmin = p_ptr->panel_x1;
 	xmax = p_ptr->panel_x2 - 1;
 	ymin = p_ptr->panel_y1;
 	ymax = p_ptr->panel_y2 - 1;
-		
+
 	/* Pointers to current position in the string */
 	pa = mp_a;
 	pc = mp_c;
@@ -2451,7 +2455,7 @@ void prt_map(void)
 			mp_ta[x] = 0;
 			mp_tc[x] = 0;
 		}
-		
+
 		/* Scan the columns of row "y" */
 		for (x = xmin; x <= xmax; x++)
 		{
@@ -2634,32 +2638,32 @@ static byte priority(byte feat)
  *
  * We cheat by getting the symbol recorded previously.
  */
-static int display_map_info(int x, int y, char *c, byte *a, char *tc, byte *ta)
+int display_map_info(int x, int y, char *c, byte *a, char *tc, byte *ta)
 {
 	int tp;
 
 	byte feat;
 
 	map_block *mb_ptr;
-	
+
 	if (!map_in_bounds(x, y))
 	{
 		/*
-		 * Out of bounds 
-		 * XXX Hack try anyway. 
+		 * Out of bounds
+		 * XXX Hack try anyway.
 		 *
 		 * map_info() should bring the square in bounds.
 		 */
 		map_info(x, y, a, c, ta, tc);
 	}
-	
-	
+
+
 	/* Get overhead map square */
 	mb_ptr = map_loc(x, y);
 
 	/* Default to precalculated priority */
 	tp = mb_ptr->priority;
-	
+
 	if (!tp)
 	{
 		/* Get terrain feature */
@@ -2668,7 +2672,7 @@ static int display_map_info(int x, int y, char *c, byte *a, char *tc, byte *ta)
 		/* Extract the priority of that attr/char */
 		tp = priority(feat);
 	}
-	
+
 	/* Get tile */
 	if (mb_ptr->a)
 	{
@@ -2682,7 +2686,7 @@ static int display_map_info(int x, int y, char *c, byte *a, char *tc, byte *ta)
 	{
 		map_info(x, y, a, c, ta, tc);
 	}
-	
+
 	/* Return priority */
 	return (tp);
 }
@@ -2736,10 +2740,10 @@ void display_map(int *cx, int *cy)
 	char **mtc;
 
 	int hgt, wid, yrat, xrat, xfactor, yfactor;
-	
+
 	place_type *pl_ptr;
-	
-		
+
+
 	/* Hack - disable bigtile mode */
 	if (use_bigtile)
 	{
@@ -2750,7 +2754,7 @@ void display_map(int *cx, int *cy)
 	Term_get_size(&wid, &hgt);
 	hgt -= 2;
 	wid -= 2;
-	
+
 	/* Paranoia */
 	if ((hgt < 3) || (wid < 3))
 	{
@@ -2891,10 +2895,10 @@ void display_map(int *cx, int *cy)
 				if (twn)
 				{
 					pl_ptr = &place[twn];
-				
+
 					switch (place[twn].type)
 					{
-						case TOWN_QUEST:
+						case PL_QUEST_PIT:
 						{
 							/* Hack make a char / attr from depth */
 							wild_type *w_ptr = &wild[pl_ptr->y][pl_ptr->x];
@@ -2902,37 +2906,63 @@ void display_map(int *cx, int *cy)
 							int depth = (w_ptr->done.mon_gen + 9) / 10;
 
 							if (depth > 9) depth = 9;
-							
+
 							/* Quests are red */
 							ma[j + 1][i + 1] = TERM_RED;
 							mc[j + 1][i + 1] = '0' + depth;
 							feat = FEAT_NONE;
-							
+
 							break;
 						}
-						
-						case TOWN_DUNGEON:
+
+						case PL_DUNGEON:
 						{
 							/* Hack make a char / attr from depth */
 							int depth = (pl_ptr->dungeon->min_level + 9) / 10;
-							
+
 							if (depth > 9) depth = 9;
 
 							/* Dungeons are blue */
 							ma[j + 1][i + 1] = TERM_L_BLUE;
 							mc[j + 1][i + 1] = '0' + depth;
 							feat = FEAT_NONE;
-							
+
 							break;
 						}
-						
+
+						case PL_FARM:
+							/* Don't draw farms on the map. */
+							break;
+
+						case PL_QUEST_STAIR:
+							/* Make stairs appear if the quest is "on" */
+						{
+							if (!quest_stairs_active(twn))
+								break;
+
+							ma[j+1][i+1] = TERM_YELLOW;
+							mc[j+1][i+1] = '>';
+							feat = FEAT_NONE;
+
+							break;
+						}
+
+						/* Make inns look like inns */
+						case PL_TOWN_MINI:
+						{
+							ma[j+1][i+1] = TERM_YELLOW;
+							mc[j+1][i+1] = '8';
+							feat = FEAT_NONE;
+							break;
+						}
+
 						default:
 						{
 							/* Towns are white */
 							ma[j + 1][i + 1] = TERM_WHITE;
 							mc[j + 1][i + 1] = pl_ptr->name[0];
 							feat = FEAT_NONE;
-						
+
 							break;
 						}
 					}
@@ -3324,7 +3354,7 @@ static void set_basic_flags(term_list *l_ptr, object_type *o_ptr, bool in_store)
 
 	/* Known flags */
 	object_flags_known(o_ptr, &oflags);
-	
+
 	l_ptr->kn_flags[0] = oflags.flags[0];
 	l_ptr->kn_flags[1] = oflags.flags[1];
 	l_ptr->kn_flags[2] = oflags.flags[2];
@@ -3517,7 +3547,7 @@ void Term_write_list(s16b o_idx, byte list_type)
 		{
 			/* Set object flags */
 			set_basic_flags(l_ptr, o_ptr, TRUE);
-		
+
 			/* Describe the object */
 			object_desc_store(o_name, o_ptr, TRUE, 3, 256);
 		}
@@ -3525,7 +3555,7 @@ void Term_write_list(s16b o_idx, byte list_type)
 		{
 			/* Set object flags */
 			set_basic_flags(l_ptr, o_ptr, FALSE);
-		
+
 			/* Describe the object */
 			object_desc(o_name, o_ptr, TRUE, 3, 256);
 		}

@@ -12,7 +12,110 @@
 
 #include "angband.h"
 
+/*
+ * A structure to hold a tval and its description
+ */
+typedef struct tval_desc
+{
+	int tval;
+	cptr desc;
+}
+tval_desc;
 
+/*
+ * A list of tvals and their textual names
+ */
+static const tval_desc tvals[] =
+{
+	{TV_SWORD, "Sword"},
+	{TV_POLEARM, "Polearm"},
+	{TV_HAFTED, "Hafted Weapon"},
+	{TV_BOW, "Bow"},
+	{TV_ARROW, "Arrows"},
+	{TV_BOLT, "Bolts"},
+	{TV_SHOT, "Shots"},
+	{TV_SHIELD, "Shield"},
+	{TV_CROWN, "Crown"},
+	{TV_HELM, "Helm"},
+	{TV_GLOVES, "Gloves"},
+	{TV_BOOTS, "Boots"},
+	{TV_CLOAK, "Cloak"},
+	{TV_DRAG_ARMOR, "Dragon Scale Mail"},
+	{TV_HARD_ARMOR, "Hard Armor"},
+	{TV_SOFT_ARMOR, "Soft Armor"},
+	{TV_RING, "Ring"},
+	{TV_AMULET, "Amulet"},
+	{TV_LITE, "Lite"},
+	{TV_POTION, "Potion"},
+	{TV_SCROLL, "Scroll"},
+	{TV_WAND, "Wand"},
+	{TV_STAFF, "Staff"},
+	{TV_ROD, "Rod"},
+	{TV_LIFE_BOOK, "Life Spellbook"},
+	{TV_SORCERY_BOOK, "Sorcery Spellbook"},
+	{TV_NATURE_BOOK, "Nature Spellbook"},
+	{TV_CHAOS_BOOK, "Chaos Spellbook"},
+	{TV_DEATH_BOOK, "Death Spellbook"},
+	{TV_CONJ_BOOK, "Conjuration Spellbook"},
+	{TV_ARCANE_BOOK, "Arcane Spellbook"},
+	{TV_SPIKE, "Spikes"},
+	{TV_DIGGING, "Digger"},
+	{TV_CHEST, "Chest"},
+	{TV_FIGURINE, "Magical Figurine"},
+	{TV_STATUE, "Statue"},
+	{TV_FOOD, "Food"},
+	{TV_FLASK, "Flask"},
+	{TV_JUNK, "Junk"},
+	{TV_SKELETON, "Skeleton"},
+	{0, NULL}
+};
+
+static int tval_to_idx(u16b x)
+{
+	switch(x) {
+		case TV_SWORD: return 0;
+		case TV_POLEARM: return 1;
+		case TV_HAFTED: return 2;
+		case TV_BOW: return 3;
+		case TV_ARROW: return 4;
+		case TV_BOLT: return 5;
+		case TV_SHOT: return 6;
+		case TV_SHIELD: return 7;
+		case TV_CROWN: return 8;
+		case TV_HELM: return 9;
+		case TV_GLOVES: return 10;
+		case TV_BOOTS: return 11;
+		case TV_CLOAK: return 12;
+		case TV_DRAG_ARMOR: return 13;
+		case TV_HARD_ARMOR: return 14;
+		case TV_SOFT_ARMOR: return 15;
+		case TV_RING: return 16;
+		case TV_AMULET: return 17;
+		case TV_LITE: return 18;
+		case TV_POTION: return 19;
+		case TV_SCROLL: return 20;
+		case TV_WAND: return 21;
+		case TV_STAFF: return 22;
+		case TV_ROD: return 23;
+		case TV_LIFE_BOOK: return 24;
+		case TV_SORCERY_BOOK: return 25;
+		case TV_NATURE_BOOK: return 26;
+		case TV_CHAOS_BOOK: return 27;
+		case TV_DEATH_BOOK: return 28;
+		case TV_CONJ_BOOK: return 29;
+		case TV_ARCANE_BOOK: return 30;
+		case TV_SPIKE: return 31;
+		case TV_DIGGING: return 32;
+		case TV_CHEST: return 33;
+		case TV_FIGURINE: return 34;
+		case TV_STATUE: return 35;
+		case TV_FOOD: return 36;
+		case TV_FLASK: return 37;
+		case TV_JUNK: return 38;
+		case TV_SKELETON: return 39;
+		default: return 40;
+	}
+}
 
 /*
  * Display inventory
@@ -233,7 +336,7 @@ void do_cmd_wield(void)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER);
-	
+
 	/* Notice changes */
 	notice_item();
 
@@ -347,7 +450,7 @@ static bool high_level_book(const object_type *o_ptr)
 		(o_ptr->tval == TV_SORCERY_BOOK) ||
 		(o_ptr->tval == TV_NATURE_BOOK) ||
 		(o_ptr->tval == TV_CHAOS_BOOK) ||
-		(o_ptr->tval == TV_DEATH_BOOK) || (o_ptr->tval == TV_TRUMP_BOOK))
+		(o_ptr->tval == TV_DEATH_BOOK) || (o_ptr->tval == TV_CONJ_BOOK))
 	{
 		if (o_ptr->sval > 1)
 			return TRUE;
@@ -373,8 +476,8 @@ bool destroy_item_aux(object_type *o_ptr, int amt)
 		return (FALSE);
 	}
 
-	/* Take a turn */
-	p_ptr->state.energy_use += 100;
+	/* Changed this to a free action */
+	/* p_ptr->state.energy_use += 100; */
 
 	/* Message */
 	msgf("You destroy %v.", OBJECT_FMT(o_ptr, TRUE, 3));
@@ -470,8 +573,12 @@ void do_cmd_destroy(void)
 	/* See how many items */
 	if (o_ptr->number > 1)
 	{
-		/* Get a quantity */
-		amt = get_quantity(NULL, o_ptr->number);
+		/* Use the destroy_batch option */
+		if (!destroy_batch)
+			/* Get a quantity */
+			amt = get_quantity(NULL, o_ptr->number);
+
+		else amt = o_ptr->number;
 
 		/* Allow user abort */
 		if (amt <= 0) return;
@@ -481,7 +588,7 @@ void do_cmd_destroy(void)
 	/* Describe the objects to delete */
 	old_number = o_ptr->number;
 	o_ptr->number = amt;
-	
+
 
 	/* Verify unless quantity given */
 	if (!force)
@@ -496,7 +603,7 @@ void do_cmd_destroy(void)
 			}
 		}
 	}
-	
+
 	o_ptr->number = old_number;
 
 	/* No energy used yet */
@@ -552,7 +659,7 @@ void do_cmd_uninscribe(void)
 	object_type *o_ptr;
 
 	cptr q, s;
-	
+
 	/* Only inscribed items */
 	item_tester_hook = item_tester_inscribed;
 
@@ -570,7 +677,7 @@ void do_cmd_uninscribe(void)
 
     /* Remove the incription */
     quark_remove(&o_ptr->inscription);
-	
+
 	/* Notice changes */
 	notice_item();
 
@@ -710,7 +817,7 @@ static void do_cmd_refill_lamp(void)
 
 	/* Recalculate torch */
 	p_ptr->update |= (PU_TORCH);
-	
+
 	/* Notice changes */
 	notice_item();
 }
@@ -952,15 +1059,16 @@ static cptr ident_info[] =
 	".:Floor",
 	"/:A polearm (Axe/Pike/etc)",
 	/* "0:unused", XXX XXX XXX out of date */
-	"1:Entrance to General Store",
-	"2:Entrance to Armory",
-	"3:Entrance to Weaponsmith",
-	"4:Entrance to Temple",
-	"5:Entrance to Alchemy shop",
-	"6:Entrance to Magic store",
-	"7:Entrance to Black Market",
-	"8:Entrance to your home",
-	"9:Entrance to the bookstore",
+	"1:Store entrance(Miscellaneous / Supplies)",
+	"2:Store entrance (Weapons / Armor)",
+	"3:Specialist store (Weapons / Armor)",
+	"4:Temple entrance",
+	"5:Store entrance (Magic Items)",
+	"6:Specialist store (Magic Items)",
+	"7:Black Market entrance",
+	"8:Entrance to a lodging (Home or Guild)",
+	"9:Magical service",
+	"0:Mundane service",
 	"::Rubble / Rock",
 	";:Swamp / Rune",
 	"<:An up staircase",
@@ -1294,7 +1402,7 @@ void do_cmd_query_symbol(void)
 
 	/* Query */
 	query = inkey();
-	
+
 	/* Clear top line */
 	clear_msg();
 
@@ -1434,7 +1542,7 @@ void do_cmd_query_symbol(void)
 
 	/* Free the "who" array */
 	KILL(who);
-	
+
 	/* Clear top line */
 	clear_msg();
 }
@@ -1640,3 +1748,368 @@ bool research_mon(void)
 
 	return (picked && cost_gold);
 }
+
+extern void strip_name(char *buf, int k_idx);
+static int squelch_item_tval;
+static int squelch_item_k_idx;
+
+/*
+ * Select the item to use
+ */
+static bool unsquelch_aux2(int num)
+{
+	int i;
+
+	/* Look up the item to use */
+	for (i = 0; i < z_info->k_max; i++)
+	{
+		object_kind *k_ptr = &k_info[i];
+
+		if (k_ptr->tval == squelch_item_tval && SQUELCH(i))
+		{
+			/* Are we there yet? */
+			if (!num)
+			{
+				squelch_item_k_idx = i;
+				return (TRUE);
+			}
+
+			/* Count down the objects to go */
+			num--;
+		}
+	}
+
+	/* Paranoia */
+	return (FALSE);
+}
+
+
+static bool unsquelch_aux1(int tval_entry)
+{
+	int i, num = 0;
+	int tvs = 0;
+	int tval = 0;
+	int tve = tval_entry;
+
+	char buf[1024];
+	char prompt[80];
+
+	menu_type *item_menu;
+
+	bool result;
+	bool *squelched;
+
+	/* Count number of options */
+	while(tvals[tvs].tval) tvs++;
+
+	/* Create "squelched" array, to see what types are available to choose. */
+	C_MAKE(squelched, tvs + 1, bool);
+
+	/* Count number of tvals that have something squelched. */
+	for (i = 0; i < z_info->k_max; i++) {
+		if (squelched[tval_to_idx(k_info[i].tval)]) continue;
+		if (SQUELCH(i)) {
+			squelched[tval_to_idx(k_info[i].tval)] = TRUE;
+		}
+	}
+
+	/* Figure out which one is our tval. */
+	for (i = 0; i < tvs; i++) {
+		if (squelched[i]) {
+			if (tve == 0) {
+				tval = tvals[i].tval;
+				break;
+			}
+			else tve--;
+		}
+	}
+
+
+	/* Count number of options */
+	for (i = 0; i < z_info->k_max; i++)
+	{
+		if (k_info[i].tval == tval && SQUELCH(i)) num++;
+	}
+
+	/* Paranoia */
+	if (num == 0) {
+		FREE(squelched);
+		msgf("You haven't squelched any objects of that type.");
+		return (TRUE);
+	}
+
+
+	/* Create menu array */
+	C_MAKE(item_menu, num + 1, menu_type);
+
+	/* Collect all the objects and their descriptions */
+	num = 0;
+	for (i = 0; i < z_info->k_max; i++)
+	{
+		if (k_info[i].tval == tval && SQUELCH(i))
+		{
+			/* Acquire the "name" of object "i" */
+			strip_name(buf, i);
+
+			/* Create the menu entry */
+			item_menu[num].text = string_make(buf);
+			item_menu[num].help = NULL;
+			item_menu[num].action = unsquelch_aux2;
+			item_menu[num].flags = MN_ACTIVE;
+
+			num++;
+		}
+	}
+
+	/* Save tval so we can access it in do_unsquelch */
+	squelch_item_tval = tval;
+
+	/* Create the prompt */
+	strnfmt(prompt, 80, "Which kind of %s? ", tvals[tval_to_idx(tval)].desc);
+	result = display_menu(item_menu, -1, FALSE, NULL, prompt);
+
+	/* Free the option strings */
+	for (i = 0; i <= num; i++)
+	{
+		string_free(item_menu[i].text);
+	}
+
+	/* Free the arrays */
+	FREE(item_menu);
+	FREE(squelched);
+
+	return (result);
+}
+
+
+static void unsquelch(void)
+{
+	int i, j, num = 0;
+
+	int tvs = 0;
+
+	menu_type *item_menu;
+	bool *squelched;
+
+	/* Count number of options */
+	while(tvals[tvs].tval) tvs++;
+
+	/* Create "squelched" array, to see what types are available to choose. */
+	C_MAKE(squelched, tvs + 1, bool);
+
+	/* Count number of tvals that have something squelched. */
+	num = 0;
+
+	for (i = 0; i < tvs; i++) squelched[i]=FALSE; /* paranoia */
+
+	for (i = 0; i < z_info->k_max; i++) {
+		if (squelched[tval_to_idx(k_info[i].tval)]) continue;
+		if (SQUELCH(i)) {
+			squelched[tval_to_idx(k_info[i].tval)] = TRUE;
+			num++;
+		}
+	}
+
+	if (num == 0) {
+		/* Nothing squelched, skip the rest. */
+		FREE(squelched);
+		msgf ("You haven't squelched anything.");
+		return;
+	}
+
+	/* Create menu array */
+	C_MAKE(item_menu, num + 1, menu_type);
+
+	/* Collect all the tvals and their descriptions */
+	i = 0;
+	for (j = 0; j < tvs; j++)
+	{
+		if (squelched[j]) {
+			item_menu[i].text = tvals[j].desc;
+			item_menu[i].help = NULL;
+			item_menu[i].action = unsquelch_aux1;
+			item_menu[i].flags = MN_ACTIVE | MN_CLEAR;
+			i++;
+		}
+	}
+
+	/* Hack - we know that item_menu[num].text is NULL due to C_MAKE */
+
+	display_menu(item_menu, -1, FALSE, NULL, "What type of object? ");
+
+	/* Free the arrays */
+	FREE(item_menu);
+	FREE(squelched);
+}
+
+static void do_squelch(int k_idx, bool on)
+{
+	if (!k_idx) return;
+
+	if (!on && k_idx >= 0 && k_idx <= SQUELCHMAX) {
+		p_ptr->squelch[k_idx/32] &= ~(1 << k_idx%32);
+	} else {
+		if (k_info[k_idx].tval == TV_GOLD)
+		{
+			msgf ("You can't squelch that!");
+		} else if (k_idx >= 0 && k_idx <= SQUELCHMAX) {
+			p_ptr->squelch[k_idx/32] |= (1 << k_idx%32);
+		}
+	}
+}
+
+
+/*
+ * do_cmd_unsquelch -- un-"suppress" an item type to undo a squelch
+ */
+void do_cmd_unsquelch(void)
+{
+	screen_save();
+
+	/* Get object base type */
+	unsquelch();
+
+	do_squelch(squelch_item_k_idx, FALSE);
+
+	/* Restore the screen */
+	screen_load();
+
+	/* Everything probably needs redrawing now */
+	do_cmd_redraw();
+
+	/*
+	for (i = 0; i < view_n; i++)
+	{
+		pcave_type * pc_ptr;
+		int x, y;
+
+		y = view_y[i];
+		x = view_x[i];
+
+		if (!in_boundsp(x, y)) continue;
+
+		pc_ptr = parea(x, y);
+
+		if (player_has_los_grid(pc_ptr))
+		{
+			lite_spot(x,y);
+		}
+	} */
+}
+
+void do_cmd_squelch(void)
+{
+	object_type *o_ptr;
+	int k_idx;
+
+	cptr q, s;
+
+	/* Get an item */
+	q = "Squelch which item? ";
+	s = "You have nothing to squelch.";
+
+	o_ptr = get_item(q, s, (USE_INVEN | USE_FLOOR));
+
+	if (!o_ptr) return;
+
+	k_idx = o_ptr->k_idx;
+
+	/* Can't squelch objects that have "flavors" if un-id'ed. */
+	if (k_info[k_idx].flavor && !k_info[k_idx].aware) {
+		msgf ("You can't squelch %v without identifying it.", OBJECT_FMT(o_ptr, TRUE, 3));
+		return;
+	}
+
+	if (!get_check("Really squelch %v and all objects of the same type? ", OBJECT_FMT(o_ptr, TRUE, 3)))
+		return;
+
+	do_squelch(k_idx, TRUE);
+
+	/* hack: also destroy the item */
+	destroy_squelched_item(o_ptr, o_ptr->number);
+
+	/* Everything probably needs redrawing now */
+	do_cmd_redraw();
+
+	msgf ("You can unsquelch objects by pressing CTRL-U.");
+
+	/*
+	for (i = 0; i < view_n; i++)
+	{
+		pcave_type * pc_ptr;
+		int x, y;
+
+		y = view_y[i];
+		x = view_x[i];
+
+		if (!in_boundsp(x, y)) continue;
+
+		pc_ptr = parea(x, y);
+
+		if (player_has_los_grid(pc_ptr))
+		{
+			lite_spot(x,y);
+		}
+	} */
+}
+
+
+bool destroy_squelched_item(object_type *o_ptr, int amt)
+{
+	/* Can the player destroy the object? */
+	if (!can_player_destroy_object(o_ptr))
+	{
+		/* Message */
+		msgf("You cannot destroy %v.", OBJECT_FMT(o_ptr, TRUE, 3));
+
+		o_ptr->flags[3] |= TR3_SQUELCH;  /* hack: unsquelch this particular item now that we know this. */
+
+		/* Done */
+		return (FALSE);
+	}
+
+	/* Message */
+	if (!quiet_squelch) {
+		msgf("You destroy %v.", OBJECT_FMT(o_ptr, TRUE, 3));
+		sound(SOUND_DESTITEM);
+	}
+
+
+	if (high_level_book(o_ptr))
+	{
+		if (high_level_book(o_ptr) && o_ptr->tval == TV_LIFE_BOOK)
+		{
+			chg_virtue(V_UNLIFE, 1);
+			chg_virtue(V_VITALITY, -1);
+		}
+		else if (high_level_book(o_ptr) && o_ptr->tval == TV_DEATH_BOOK)
+		{
+			chg_virtue(V_UNLIFE, -1);
+			chg_virtue(V_VITALITY, 1);
+		}
+
+		if (o_ptr->to_a || o_ptr->to_h || o_ptr->to_d)
+			chg_virtue(V_ENCHANT, -1);
+
+		if (object_value_real(o_ptr) > 30000)
+			chg_virtue(V_SACRIFICE, 2);
+
+		else if (object_value_real(o_ptr) > 10000)
+			chg_virtue(V_SACRIFICE, 1);
+	}
+
+	if (o_ptr->to_a != 0 || o_ptr->to_d != 0 || o_ptr->to_h != 0)
+		chg_virtue(V_HARMONY, 1);
+
+	/* There is a disadvantage... */
+	make_noise(1);
+
+	/* Reduce the charges of rods/wands */
+	reduce_charges(o_ptr, amt);
+
+	/* Eliminate the item */
+	if (quiet_squelch) item_increase_silent(o_ptr, -amt);
+	else item_increase(o_ptr, -amt);
+	return (TRUE);
+}
+

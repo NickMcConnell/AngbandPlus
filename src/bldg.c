@@ -103,11 +103,11 @@ static void have_nightmare_aux(int r_idx)
 	/* Mind blast */
 	if (!player_save(power))
 	{
-		if (!(FLAG(p_ptr, TR_RES_CONF)))
+		if (!(FLAG(p_ptr, TR_RES_CONF)) && !p_ptr->tim.oppose_conf)
 		{
 			(void)inc_confused(rand_range(4, 8));
 		}
-		if (!(FLAG(p_ptr, TR_RES_CHAOS)) && one_in_(3))
+		if (!(FLAG(p_ptr, TR_RES_CHAOS)) && one_in_(3) && !p_ptr->tim.oppose_conf)
 		{
 			(void)inc_image(rand_range(250, 400));
 		}
@@ -125,7 +125,7 @@ static void have_nightmare_aux(int r_idx)
 	/* Brain smash */
 	if (!player_save(power))
 	{
-		if (!(FLAG(p_ptr, TR_RES_CONF)))
+		if (!(FLAG(p_ptr, TR_RES_CONF)) && !p_ptr->tim.oppose_conf)
 		{
 			(void)inc_confused(rand_range(4, 8));
 		}
@@ -140,7 +140,7 @@ static void have_nightmare_aux(int r_idx)
 			(void)do_dec_stat(A_WIS);
 		}
 
-		if (!(FLAG(p_ptr, TR_RES_CHAOS)))
+		if (!(FLAG(p_ptr, TR_RES_CHAOS))  && !p_ptr->tim.oppose_conf)
 		{
 			(void)inc_image(rand_range(250, 400));
 		}
@@ -307,9 +307,19 @@ bool build_has_quest(void)
 	return (FALSE);
 }
 
-void build_cmd_quest(int level)
+bool build_next_quest(void)
+{
+	if (lookup_quest_building_next(build_ptr) != -1) return (TRUE);
+
+	return (FALSE);
+}
+
+
+void build_cmd_quest(int level, field_type * f_ptr)
 {
 	quest_type *q_ptr = lookup_quest_building(build_ptr);
+
+	(void)f_ptr;
 
 	/* Do we already have a quest? */
 	if (q_ptr)
@@ -322,7 +332,7 @@ void build_cmd_quest(int level)
 		/* Make a new quest */
 		request_quest(build_ptr, level);
 	}
-	
+
 	/* Display messages */
 	message_flush();
 }
@@ -843,12 +853,12 @@ bool inn_rest(void)
 		return (FALSE);
 	}
 
-	/* Hurt? */
-	if ((p_ptr->tim.poisoned) || (p_ptr->tim.cut))
+	/* Hurt?  (Modified to allow people to rest if they are only cut */
+	if ((p_ptr->tim.poisoned))
 	{
 		msgf("You need a healer, not a room.");
 		message_flush();
-		msgf("Sorry, but don't want anyone dying in here.");
+		msgf("Sorry, but don't want anyone getting sick in here.");
 		message_flush();
 
 		return (FALSE);
@@ -867,12 +877,11 @@ bool inn_rest(void)
 		msgf("Horrible visions flit through your mind as you sleep.");
 
 		/* Have some nightmares */
-		while (TRUE)
+		do
 		{
 			have_nightmare();
-
-			if (!one_in_(3)) break;
 		}
+		while (one_in_(3));
 
 		msgf("You awake screaming.");
 		message_flush();
@@ -1106,7 +1115,7 @@ static void compare_weapon_aux1(const object_type *o_ptr)
 
 
 /*
- * Calculate the probability of critical hit for a weapon 
+ * Calculate the probability of critical hit for a weapon
  *
  * Only accurate for the current weapon, because it includes
  * player's +to_hit.
@@ -1430,7 +1439,8 @@ void building_recharge(s32b cost)
 		msgf("The item must be identified first!");
 		message_flush();
 
-		if ((p_ptr->au >= 50) && get_check("Identify for 50 gold? "))
+		/* Allow ID if wand/staff type already known but charges not known */
+		if (object_aware_p(o_ptr) && (p_ptr->au >= 50) && get_check("Identify for 50 gold? "))
 		{
 			/* Pay the price */
 			p_ptr->au -= 50;
@@ -1469,7 +1479,7 @@ void building_recharge(s32b cost)
 	else if (o_ptr->tval == TV_STAFF)
 	{
 		/*
-		 * Price per charge ( = double the price paid 
+		 * Price per charge ( = double the price paid
 		 * by shopkeepers for the charge)
 		 */
 		price = (o_ptr->cost / 10) * o_ptr->number;
@@ -1534,12 +1544,12 @@ void building_recharge(s32b cost)
 	else
 	{
 		char buf[160];
-	
+
 		if (o_ptr->tval == TV_STAFF)
 			max_charges = k_ptr->pval - o_ptr->pval;
 		else
 			max_charges = o_ptr->number * k_ptr->pval - o_ptr->pval;
-		
+
 		/* Get prompt */
 		strnfmt(buf, 160, "Add how many charges for %d gold? ", price);
 
@@ -1662,7 +1672,7 @@ void record_aura(void)
 		 * from store_type anyway.
 		 */
 		b_ptr->data = 1;
-		
+
 		msgf("The portal keeper notes your aura.");
 	}
 }
@@ -1688,9 +1698,9 @@ bool building_magetower(int factor, bool display)
 		{
 			put_fstr(35, 18, CLR_YELLOW " R) Record aura (%dgp)", factor * 5);
 		}
-		
+
 		put_fstr(35, 19, CLR_YELLOW " T) Teleport");
-	
+
 		for (i = 0; i < max_link; i++)
 		{
 			int row = i % 12 + 4;
@@ -1782,16 +1792,16 @@ bool building_magetower(int factor, bool display)
 static bool process_build_hook(const field_type *f_ptr)
 {
 	int factor;
-	
+
 	char command[2];
-	
+
 	bool done = FALSE;
 
 	/* The charisma factor */
 	factor = adj_chr_gold[p_ptr->stat[A_CHR].ind];
 
 	factor = ((factor + 200) * build_ptr->greed) / 400;
-	
+
 	/* Hack - lua expects a string instead of a character */
 	command[0] = (byte) p_ptr->cmd.cmd;
 	command[1] = '\0';
@@ -1799,7 +1809,7 @@ static bool process_build_hook(const field_type *f_ptr)
 	field_script_const(f_ptr, FIELD_ACT_BUILD_ACT2, "is:b",
 						LUA_VAR(factor), LUA_VAR(command),
 						LUA_RETURN(done));
-	
+
 	/* Redraw screen */
 	display_build(f_ptr);
 
@@ -1889,19 +1899,19 @@ void do_cmd_bldg(const field_type *f_ptr)
 	disturb(FALSE);
 
 	b_ptr = get_current_store();
-	
+
 	/* Paranoia */
 	if (!b_ptr) return;
-	
+
 	/* Save building pointer for lua hook */
 	build_ptr = b_ptr;
-	
+
 	/* Init building if required */
 	field_script_const(f_ptr, FIELD_ACT_SB_INIT, "");
-	
+
 	/* Some quests are finished by finding a building */
 	trigger_quest_complete(QX_FIND_SHOP, (vptr)b_ptr);
-	
+
 	/* Forget the view */
 	forget_view();
 
@@ -2002,7 +2012,7 @@ void build_init(int town_num, int build_num, byte build_type)
 
 	/* Pick an owner */
 	st_ptr->owner_name = quark_fmt("%s %s", own_name, own_suffix);
-	
+
 	/* These are set in place_sb() via lua hooks */
 	st_ptr->greed = 0;
 	st_ptr->max_cost = 0;
@@ -2013,4 +2023,323 @@ void build_init(int town_num, int build_num, byte build_type)
 	/* Initialize */
 	st_ptr->data = 0;
 	st_ptr->last_visit = 0;
+}
+
+/*
+ * Repair all equipped and weapons to +0, if worse than that
+ */
+void build_cmd_repair(void)
+{
+	int i = 0;
+	bool allcurse = FALSE;
+	bool known = FALSE;
+	bool repaired = FALSE;
+	object_type * o_ptr;
+
+	for (i = 0; i < EQUIP_MAX; i++)
+	{
+		o_ptr = &(p_ptr->equipment[i]);
+
+		/* Weapon */
+		if (i == EQUIP_WIELD || i == EQUIP_BOW) {
+			if (cursed_p(o_ptr)) {
+				if (!repaired) allcurse = TRUE;
+				continue;
+			}
+			if (o_ptr->to_d < 0 || o_ptr->to_h < 0) {
+				o_ptr->to_d = MAX(o_ptr->to_d, 0);
+				o_ptr->to_h = MAX(o_ptr->to_h, 0);
+				if (object_known_p(o_ptr)) known = TRUE;
+				repaired = TRUE;
+				allcurse = FALSE;
+			}
+		} else if (i < EQUIP_BODY) {
+			continue;
+		/* Armor */
+		} else {
+			if (cursed_p(o_ptr)) {
+				if (!repaired) allcurse = TRUE;
+				continue;
+			}
+			if (o_ptr->to_a < 0) {
+				o_ptr->to_a = 0;
+				if (object_known_p(o_ptr)) known = TRUE;
+				repaired = TRUE;
+				allcurse = FALSE;
+			}
+		}
+	}
+
+	/* Now let the player know the result */
+
+	if (allcurse && !repaired)
+	{
+		msgf ("We can't repair cursed equipment!");
+	}
+	else if (!repaired)
+	{
+		msgf ("Your equipment was in fine shape already.");
+	}
+	else if (!known)
+	{
+		msgf ("They repair your equipment, but you don't notice a difference.");
+	}
+	else
+		msgf ("Your equipment is repaired.");
+
+}
+
+/*
+ * Decide on the "level" for the next quest.
+ */
+void build_set_qlevel(void)
+{
+	store_type * st_ptr = get_current_store();
+
+	int level = st_ptr->data;  /* this is where we store it */
+
+	/* max_stock used in quest buildings as 'quest base' */
+	int base = st_ptr->max_stock;
+
+	/* Only set a level if there isn't one already */
+	if (level) return;
+
+	/* Level base: whichever is greater, the player's (max) level or the building's minimum */
+	level = MAX(p_ptr->max_lev, base);
+
+	/* Add a bit */
+	level += randint1(5);
+
+	/* The minimum goes up */
+	st_ptr->max_stock = level+3;
+
+	/* Set the level */
+	st_ptr->data = level;
+}
+
+int build_get_qlevel(void)
+{
+	store_type * st_ptr = get_current_store();
+	quest_type * q_ptr;
+	int q_num;
+
+	if (st_ptr->type == BUILD_FARM || st_ptr->type == BUILD_COURIER)
+		return (st_ptr->data);
+
+	q_num = lookup_quest_building_next(st_ptr);
+
+	if (q_num == -1) return (-1);
+
+	q_ptr = &quest[q_num];
+
+	return (q_ptr->level);
+}
+
+/*
+ * Player takes out or repays a loan.
+ */
+void build_cmd_loan(int factor)
+{
+	store_type * st_ptr = get_current_store();
+	store_type * st_ptr2 = get_loaner();
+	factor = (factor < 110 ? 110 : (factor > 135 ? 135 : factor));
+
+	if (st_ptr2 && st_ptr2 != st_ptr)
+	{
+		/* Player already has a loan, with a different bank. */
+		msgf ("You can't pay off your loan here.");
+		return;
+	}
+	else if (st_ptr2 == st_ptr)
+	{
+		/* Player has a loan; ask them if they want to pay it off. */
+		int amt = get_loan_amount();
+
+		if (p_ptr->au < amt)
+		{
+			/* Can't pay it off.  For now, just boot them.  Later, perhaps implement
+			   a partial pay-off. */
+			msgf ("You owe %i gold pieces.  Come back when you have the money.");
+			return;
+		}
+		if (get_check("Pay off your loan for %i gold pieces? ", amt))
+		{
+			/* Pay off the loan. */
+			p_ptr->au -= amt;
+			msgf ("Your loan is paid.");
+
+			/* Get rid of the loan quest */
+			trigger_quest_complete(QX_LOAN, (vptr)st_ptr);
+			return;
+		}
+	}
+	else
+	{
+		/* No loan; offer one. */
+		int amt;
+
+	   	/* Really simple loan qualification formula */
+	    amt = p_ptr->au + (p_ptr->lev * p_ptr->lev * 25);
+
+		message_flush();
+
+		if (get_check("We can loan you up to %i gp at %i%%.  Take out loan?", amt, (factor-100)))
+		{
+			/* How much */
+			int amt2 = get_quantity("How much gold? ", amt);
+
+			if (amt2 == 0) return;  /* No loan */
+
+			if (!insert_loan((amt2 * factor) / 100))
+			{
+				msgf ("Sorry, we ran out of gold.");
+				message_flush();
+				return;
+			}
+
+			p_ptr->au += amt2;
+
+			msgf ("Your loan is approved.  You will need to pay %d to repay your loan.", ((amt2 * factor) / 100));
+			message_flush();
+
+			/* Keep track of when the loan was issued. */
+			st_ptr->last_visit = turn;
+		}
+	}
+}
+
+/*
+ * Checks if the player has a mortgage that is past due.  This is called when the player tries to
+ * enter their home, and will explain why the player is not being let in.
+ *
+ * Currently, does not give the player an opportunity to pay the loan; the player still must go to the
+ * bank to do it.
+ */
+
+#define LOAN_PERIOD 20000
+
+bool check_mortgage(void)
+{
+	store_type * st_ptr = get_loaner();
+
+	/* No loan */
+	if (st_ptr == NULL) return FALSE;
+
+ 	/* Loan is not past due */
+ 	if (turn - st_ptr->last_visit < LOAN_PERIOD) return FALSE;
+
+ 	/* Otherwise, the home is "foreclosed". */
+ 	msgf ("The doors are locked.");
+	msgf ("A note reads: Loan is due.");
+	msgf ("(Press CTRL-Q to check your loan status.)");
+
+	return TRUE;
+}
+
+/*
+ * Player pays price for a complement of 1st-level spellbooks.
+ */
+void build_cmd_spellbooks(int price)
+{
+    object_type *o_ptr, *j_ptr;
+	int tv, sv;
+
+	/* Make sure the player casts spells.  This should not be a problem... */
+	if (p_ptr->spell.r[0].realm == REALM_NONE)
+	{
+		msgf ("You don't use spellbooks!");
+		return;
+	}
+
+	/* Make sure the player has enough gold. */
+	if (!test_gold(price)) return;
+
+	/* First realm spellbook. */
+	tv = TV_LIFE_BOOK + p_ptr->spell.r[0].realm - 1;
+	sv = 0;
+
+	o_ptr = object_prep(lookup_kind(tv,sv));
+
+	/* Make sure we can carry it */
+	if (!inven_carry_okay(o_ptr))
+	{
+		msgf ("You can't carry that many different items.");
+		return;
+	}
+
+	j_ptr = inven_carry(o_ptr);
+	p_ptr->au -= price/2;
+	msgf("You have %v (%c).", OBJECT_FMT(j_ptr, TRUE, 3), I2A(get_item_position(p_ptr->inventory, j_ptr)));
+
+	/* See if we have a second realm. */
+	if (p_ptr->spell.r[1].realm == REALM_NONE)
+	{
+		/* only 1 realm.  Charge full amount, though.  */
+		p_ptr->au -= (price - price/2);
+		return;
+	}
+
+	/* Prepare the second realm spellbook. */
+	tv = TV_LIFE_BOOK + p_ptr->spell.r[1].realm - 1;
+	/* sv = 0 already. */
+
+	o_ptr = object_prep(lookup_kind(tv,sv));
+
+	if (!inven_carry_okay(o_ptr))
+	{
+		msgf ("You can't carry that many different items.");
+		return;
+	}
+
+	/* Give the book, deduct the remaining fee */
+	j_ptr = inven_carry(o_ptr);
+	p_ptr->au -= (price - price/2);
+	msgf("You have %v (%c).", OBJECT_FMT(j_ptr, TRUE, 3), I2A(get_item_position(p_ptr->inventory, j_ptr)));
+}
+
+
+/*
+ * Do Word of recall if it will work.
+ */
+void build_cmd_recall (void)
+{
+	word_of_recall();
+}
+
+/*
+ * Show top scores.
+ */
+void build_cmd_grave (void)
+{
+	top_twenty();
+}
+
+/*
+ * Initializes a quest building.
+ */
+void place_qinit(int member, int base)
+{
+	store_type *st_ptr = get_current_store();
+
+	/* Only initialized if not already initialized. */
+	if (!st_ptr->max_cost)
+	{
+		/* max_cost stores membership, max_stock stores quest level base */
+		st_ptr->max_stock = base;
+		st_ptr->max_cost = member;
+	}
+}
+
+bool is_member(void)
+{
+	store_type *st_ptr = get_current_store();
+
+	return (st_ptr->max_cost == GS_MEMBER || st_ptr->max_cost == GS_LOW_MEMBER);
+}
+
+bool is_full_member(void)
+{
+	store_type *st_ptr = get_current_store();
+
+	return (st_ptr->max_cost == GS_MEMBER);
 }

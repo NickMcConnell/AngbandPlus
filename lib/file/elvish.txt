@@ -1,5 +1,5 @@
 N:*:Default
-216
+209
 adan
 ael
 in
@@ -38,7 +38,6 @@ gal
 en
 cam
 car
-ak
 cel
 eb
 cor
@@ -81,6 +80,7 @@ for
 men
 fuin
 gaer
+gal
 gaur
 gil
 gir
@@ -90,7 +90,6 @@ gol
 odh
 gond
 gor
-groth
 grod
 gul
 gurth
@@ -112,15 +111,10 @@ iant
 iath
 iaur
 ilm
-iluve
+ilu
 kal
 gal
-kano
-kel
 kemen
-khel
-ek
-khil
 kir
 lad
 laure
@@ -169,7 +163,6 @@ ram
 ran
 rant
 ras
-rauko
 ril
 rim
 ring
@@ -216,3 +209,5 @@ val
 wen
 wing
 yave
+
+

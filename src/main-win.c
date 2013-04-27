@@ -2027,7 +2027,8 @@ static errr Term_xtra_win_sound(int v)
 #ifdef WIN32
 
 	/* Play the sound, catch errors */
-	return (PlaySound(buf, 0, SND_FILENAME | SND_ASYNC));
+        /* HACK: disabling sounds
+        return (PlaySound(buf, 0, SND_FILENAME | SND_ASYNC)); */
 
 #else /* WIN32 */
 

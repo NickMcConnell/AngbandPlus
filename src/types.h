@@ -68,6 +68,7 @@ struct maxima
 	u16b t_max;	/* Max size for field types array */
 	u16b fld_max;	/* Max size for field list */
 	u16b rg_max;	/* Max size for region list */
+	u16b mg_max;    /* Max size for monster group list */
 
 	u16b wn_max;	/* Max size for wilderness tree nodes */
 	u16b wt_max;	/* Max size for wilderness gen types */
@@ -764,7 +765,7 @@ struct object_type
 
 	s16b ac;	/* Normal AC */
 
-	s16b timeout;	/* Timeout Counter */
+	s32b timeout;	/* Timeout Counter */
 
 	byte dd, ds;	/* Damage dice/sides */
 
@@ -784,7 +785,8 @@ struct object_type
 
 	byte feeling;	/* Game generated inscription number (eg, pseudo-id) */
 
-	byte a_idx;	/* Artifact type */
+	u16b a_idx;	/* Artifact type */
+	u16b e_idx; /* Ego item type */
 
 	byte info;	/* Special flags */
 
@@ -829,6 +831,8 @@ struct monster_type
 
 	byte monfear;	/* Monster is afraid */
 	byte invulner;	/* Monster is temporarily invulnerable */
+
+	u16b unsummon;  /* Monster will vanish soon */
 
 	s16b hold_o_idx;	/* Object being held (if any) */
 
@@ -901,7 +905,7 @@ struct field_thaum
  * The field structure.
  *
  * Fields will be used to create a variety of effects from
- * the ability to place traps on _all_ terrains (not just 
+ * the ability to place traps on _all_ terrains (not just
  * dungeon floor), to the nightmare mode automatic corpse raising.
  *
  * The new building / store code will use this structure.
@@ -988,6 +992,65 @@ struct option_type
  * Quest type-specific data.
  */
 
+/* Pseudo-fixed quests: */
+
+/* Simple dungeon clearout */
+typedef struct quest_fix_clearout quest_fix_clearout;
+
+struct quest_fix_clearout
+{
+	byte levels;  /* Number of levels */
+	byte cleared;  /* Number of levels cleared */
+};
+
+/* Single monster kill */
+typedef struct quest_fix_kill quest_fix_kill;
+
+struct quest_fix_kill
+{
+	u16b r_idx;   /* Monster to kill */
+};
+
+/* Monster theme */
+typedef struct quest_fix_den quest_fix_den;
+
+struct quest_fix_den
+{
+	u16b mg_idx;  /* Monster group */
+	byte levels;  /* Number of levels */
+	byte cleared;  /* Number of levels cleared */
+};
+
+/* Unique stronghold */
+typedef struct quest_fix_boss quest_fix_boss;
+
+struct quest_fix_boss
+{
+	u16b r_idx;   /* Boss */
+};
+
+typedef union quest_fix_data quest_fix_data;
+union quest_fix_data
+{
+	quest_fix_clearout clearout;
+	quest_fix_kill kill;
+	quest_fix_den den;
+	quest_fix_boss boss;
+};
+
+typedef struct quest_fix quest_fix;
+struct quest_fix
+{
+	u32b d_type;   /* Type of dungeon */
+	u32b d_flags;  /* Extra dungeon flags */
+	u32b seed;    /* dungeon generation seed */
+	s32b x;
+	s32b y;         /* Coordinates */
+	byte min_level;  /* First level */
+	s32b attempts;  /* Number of tries allowed */
+	quest_fix_data data;
+};
+
 /* Bounty */
 typedef struct quest_bnt quest_bnt;
 
@@ -1062,6 +1125,7 @@ union quest_data_type
 	quest_msg msg;
 	quest_fit fit;
 	quest_fpl fpl;
+	quest_fix fix;
 };
 
 /*
@@ -1085,9 +1149,11 @@ struct quest_type
 	byte c_type;	/* Type of creation trigger */
 	byte x_type;	/* Type of action trigger */
 
-	u32b timeout;	/* Time limits */
+	s32b timeout;	/* Time limits */
 
-	char name[128];	/* Quest name */
+	byte level;		/* "Danger level" of the quest */
+
+	char name[256];	/* Quest description */
 
 	quest_data_type data;	/* Quest-specific data */
 };
@@ -1232,7 +1298,7 @@ struct player_data
 	s16b ht;	/* Height */
 	s16b wt;	/* Weight */
 	s16b sc;	/* Social Class */
-	
+
 	byte hitdie;	/* Hit dice (sides) */
 
 	byte psex;	/* Sex index */
@@ -1251,7 +1317,7 @@ struct player_realm
 	u32b learned;	/* Spell flags */
 	u32b worked;	/* Spell flags */
 	u32b forgotten;	/* Spell flags */
-	
+
 	byte realm;	/* Realm number */
 };
 
@@ -1298,7 +1364,10 @@ struct player_timed
 	s16b esp;	/* Timed ESP */
 	s16b wraith_form;	/* Timed wraithform */
 	s16b resist_magic;	/* Timed Resist Magic (later) */
-	
+	s16b etherealness;	/* Timed etherealness (passwall without fancy wraithform stuff) */
+	s16b oppose_conf;   /* Timed -- resist confusion */
+	s16b oppose_blind;  /* Timed -- resist blindness */
+
 	s16b word_recall;	/* Word of recall counter */
 };
 
@@ -1310,7 +1379,7 @@ typedef struct player_state player_state;
 struct player_state
 {
 	char died_from[80];	/* Cause of death */
-	
+
 	s16b resting;	/* Resting counter */
 	s16b running;	/* Running counter */
 
@@ -1324,31 +1393,31 @@ struct player_state
 
 	bool is_dead;	/* Player is dead */
 	bool wizard;	/* Player is in wizard mode */
-	
+
 	bool playing;	/* True if player is playing */
 	bool leaving;	/* True if player is leaving */
 
 	bool create_up_stair;	/* Create up stair on next level */
 	bool create_down_stair;	/* Create down stair on next level */
-	
+
 	byte feeling;	/* Most recent feeling */
-	
+
 	s16b energy_use;	/* Energy use this turn */
-	
+
 	bool cumber_armor;	/* Mana draining armor */
 	bool cumber_glove;	/* Mana draining gloves */
 	bool heavy_wield;	/* Heavy weapon */
 	bool heavy_shoot;	/* Heavy shooter */
 	bool icky_wield;	/* Icky weapon */
 	bool detected;	/* Detected for traps? */
-	
+
 	bool skip_more;	/* Skip the --more-- prompt */
 	bool mon_fight;	/* Monster fighting indicator */
 
 	bool monk_armour_stat;	/* Status of monk armour */
-	
+
 	byte noise_level;	/* Amount of noise since last update */
-	
+
 	u16b store_top;		/* Top of store inventory list */
 };
 
@@ -1378,7 +1447,7 @@ struct player_command
 	s16b dir;	/* Gives direction of current command */
 
 	s16b new;	/* Hack -- command chaining XXX XXX */
-	
+
 	/* Inkey status */
 	bool inkey_base;	/* See the "inkey()" function */
 	bool inkey_xtra;	/* See the "inkey()" function */
@@ -1425,9 +1494,9 @@ struct player_type
 {
 	s16b px;	/* Player location */
 	s16b py;	/* Player location */
-	
+
 	player_data rp;	/* Role-play information */
-	
+
 	s16b depth;	/* Cur depth */
 
 	s16b max_lev;	/* Max level */
@@ -1483,13 +1552,13 @@ struct player_type
 	s16b chaos_patron;	/* Players Chaos Patron */
 
 	player_timed tim;	/* Timed effects */
-	
+
 	player_state state;	/* Internal state of the player */
-	
+
 	s16b skills[MAX_SKILL];	/* Player skills */
-	
+
 	player_command cmd;	/* The current command status */
-	
+
 	player_stat stat[A_MAX];	/* The player's stats */
 
 	/*** Pointers to player grid information ***/
@@ -1523,7 +1592,7 @@ struct player_type
 	u16b max_seen_r_idx;	/* Most powerful monster visible */
 
 	s16b object_kind_idx;	/* Object kind trackee */
-	
+
 	player_run run;		/* Current stat of the running routine */
 
 	s16b new_spells;	/* Number of spells available */
@@ -1535,7 +1604,7 @@ struct player_type
 	u32b redraw;	/* Normal Redraws (bit flags) */
 	u32b window;	/* Window Redraws (bit flags) */
 	u32b change;	/* Once per turn (bit flags) */
-	
+
 	/*
 	 * Flags on equipment items and the racial/class
 	 * effects logical-ored together.
@@ -1579,6 +1648,7 @@ struct player_type
 	/* Options */
 	bool options[OPT_PLAYER];
 	bool birth[OPT_BIRTH];
+	u32b squelch[(SQUELCHMAX/32)];
 };
 
 
@@ -1667,11 +1737,12 @@ typedef struct store_type store_type;
 struct store_type
 {
 	byte type;	/* Store type */
-	
+
 	byte greed;	/* Greed value */
+					/* SUPER-ugly hack: max_cost is used for membership in guilds. */
 	s16b max_cost;	/* Purse limit / 100 */
 	s16b owner_name;	/* Owner name */
-	
+
 	s16b data;	/* Data used for various things */
 
 	s32b last_visit;	/* Last visited on this turn */
@@ -1681,16 +1752,27 @@ struct store_type
 	u16b x;	/* Location x coord. */
 	u16b y;	/* Location y coord. */
 
+					/* SUPER-ugly hack: max_stock is used as quest base in quest buildings. */
 	byte max_stock;	/* Stock -- Max number of entries */
 };
 
+/* Stream generation type */
+typedef struct stream_gen_type stream_gen_type;
+struct stream_gen_type
+{
+	byte shal;
+	byte deep;
+	byte rarity;
+	byte size;  /* radius */
+	byte number;  /* how many? */
+};
 
 /* Dungeons */
 typedef struct dun_type dun_type;
 struct dun_type
 {
 	obj_theme theme;	/* Dungeon object theme */
-	
+
 	u32b habitat;	/* Flags describing habitat */
 
 	byte min_level;	/* Minimum level in the dungeon */
@@ -1699,18 +1781,35 @@ struct dun_type
 	s16b rating;	/* Level's current rating */
 
 	s16b region;	/* Hack - Region for current level */
-	
+
 	u16b rooms;		/* Room types available */
-	
+
 	byte recall_depth;	/* Recall depth */
-	
+
 	bool good_item_flag;	/* True if "Artifact" on this level */
-	
+
 	byte floor;		/* Floor terrain type */
-	
-	byte liquid;	/* Liquid type for lakes/ rivers etc. */
-	
-	byte flags;		/* Extra flags */
+	byte wall;      /* Wall terrain type */
+	byte perm_wall; /* Permanent wall terrain type */
+
+	stream_gen_type vein[2];  /* For magma veins, etc. */
+	stream_gen_type river[2];
+	stream_gen_type lake;
+
+	byte freq_monsters;
+	byte freq_objects;
+    byte freq_doors;
+    byte freq_traps;
+	byte freq_rubble;
+    byte freq_treasure;  /* Buried treasure */
+	byte freq_stairs;
+	byte freq_arena;
+	byte freq_cavern;
+	byte freq_tunnel;
+
+	byte room_limit;
+
+	u32b flags;		/* Extra flags */
 };
 
 
@@ -1722,29 +1821,42 @@ struct dun_gen_type
 	/* Theme information */
 	obj_theme theme;
 	u32b habitat;
-	
+
 	/* Level bounds for fixed dungeons */
 	int min_level;
 	int max_level;
 
 	/* Probability (inverse rarity) */
 	int chance;
-	
+
 	/* Wilderness location */
 	byte pop;
 	byte height;
-	
-	/* Room types available */
-	u16b rooms;
-	
-	/* Floor terrain type */
-	byte floor;
-	
-	/* Liquid type for lakes/ rivers etc. */
-	byte liquid;
-	
-	/* Extra flags */
-	byte flags;
+
+	u16b rooms;		/* Room types available */
+
+	byte floor;		/* Floor terrain type */
+	byte wall;      /* Wall terrain type */
+	byte perm_wall; /* Permanent wall terrain type */
+
+	stream_gen_type vein[2];  /* For magma veins, etc. */
+	stream_gen_type river[2];
+	stream_gen_type lake;
+
+	byte freq_monsters;
+	byte freq_objects;
+    byte freq_doors;
+    byte freq_traps;
+	byte freq_rubble;
+    byte freq_treasure;  /* Buried treasure */
+	byte freq_stairs;
+	byte freq_arena;
+	byte freq_cavern;
+	byte freq_tunnel;
+
+	byte room_limit;
+
+	u32b flags;		/* Extra flags */
 };
 
 
@@ -1893,4 +2005,53 @@ struct bonuses_type
 	int pspeed;
 	int extra_blows;
 	int extra_shots;
+};
+
+typedef struct hook_rule_type hook_rule_type;
+
+struct hook_rule_type
+{
+	/* What type of rule this is */
+	byte type;
+
+	/* An "include" rule or an "exclude" rule? */
+	bool include;
+
+	/* Whether or not to negate the result */
+	bool neg;
+
+	/* The text of the rule */
+	char data[128];
+};
+
+typedef struct monster_group_type monster_group_type;
+
+struct monster_group_type
+{
+	char name[32];
+
+	u16b flags;
+
+	/* Rules that define the group */
+	hook_rule_type rule[6];
+
+	/* What kind of dungeon to start with */
+	u32b d_type;
+
+	/* Flags to add to the dungeon type */
+	u32b d_flags;
+
+	/* Min and Max levels for quests */
+	byte min_level;
+	byte max_level;
+
+	/* Difficulty adjustment */
+	s16b adj_level;
+
+	/* Min and Max for number of levels in dungeon */
+	byte min_levels;
+	byte max_levels;
+
+	/* Weight: relates to probability of being picked */
+	byte weight;
 };

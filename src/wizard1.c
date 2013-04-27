@@ -107,7 +107,7 @@ static const grouper group_item[] =
 	{TV_NATURE_BOOK, "Books (Nature)"},
 	{TV_CHAOS_BOOK, "Books (Chaos)"},
 	{TV_DEATH_BOOK, "Books (Death)"},
-	{TV_TRUMP_BOOK, "Books (Trump)"},
+	{TV_CONJ_BOOK, "Books (Conjuration)"},
 	{TV_ARCANE_BOOK, "Books (Arcane)"},
 
 	{TV_CHEST, "Chests"},
@@ -948,7 +948,7 @@ static void analyze_misc(const object_type *o_ptr, char *misc_desc)
 			(uint)a_ptr->level, (uint)a_ptr->rarity,
 			a_ptr->weight / 10, a_ptr->weight % 10, a_ptr->cost, est_cost);
 	}
-#endif		
+#endif
 }
 
 
@@ -1224,7 +1224,7 @@ static object_type *make_fake_artifact(int a_idx)
 		if (a_ptr->trigger[i])
 			o_ptr->trigger[i] = quark_add(a_text + a_ptr->trigger[i]);
 	}
-		
+
 	/* Do not make another one */
 	a_ptr->cur_num = 1;
 
@@ -1497,11 +1497,11 @@ static cptr wd_lhe[3] =
 static void spoil_out(cptr fmt, ...)
 {
 	cptr r;
-	
+
 	va_list vp;
 
 	char buf[1024];
-	
+
 	char *str;
 
 	/* Line buffer */
@@ -1512,7 +1512,7 @@ static void spoil_out(cptr fmt, ...)
 
 	/* Last space saved into roff_buf */
 	static char *roff_s = NULL;
-	
+
 	/* Special handling for "new sequence" */
 	if (!fmt)
 	{
@@ -1529,7 +1529,7 @@ static void spoil_out(cptr fmt, ...)
 		roff_buf[0] = '\0';
 		return;
 	}
-	
+
 	/* Begin the Varargs Stuff */
 	va_start(vp, fmt);
 
@@ -1538,7 +1538,7 @@ static void spoil_out(cptr fmt, ...)
 
 	/* End the Varargs Stuff */
 	va_end(vp);
-	
+
 	/* Start at the head of the buffer */
 	str = buf;
 

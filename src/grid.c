@@ -20,13 +20,14 @@
  */
 bool new_player_spot(void)
 {
-	int x, y;
+	int x = 0;
+	int y = 0;
 	int max_attempts = 5000;
 
 	cave_type *c_ptr;
 
 	/* Place the player */
-	while (max_attempts--)
+	while (--max_attempts)
 	{
 		/* Pick a legal spot */
 		y = rand_range(p_ptr->min_hgt, p_ptr->max_hgt - 1);
@@ -44,7 +45,7 @@ bool new_player_spot(void)
 		break;
 	}
 
-	if (max_attempts < 1)		/* Should be -1, actually if we failed... */
+	if (!max_attempts)
 		return FALSE;
 
 	/* Save the new player grid */

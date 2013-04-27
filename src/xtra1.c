@@ -54,10 +54,10 @@ static void prt_field(cptr info, int col, int row)
 void stat_format(char *buf, uint max, cptr fmt, va_list *vp)
 {
     int arg;
-	
+
 	/* Unused parameter */
 	(void)fmt;
-	
+
 	/* Get the argument */
 	arg = va_arg(*vp, int);
 
@@ -247,6 +247,12 @@ static void prt_status(void)
 		num++;
 	}
 
+	if (p_ptr->tim.etherealness)
+	{
+		letter[num] = CLR_L_DARK "E";
+		num++;
+	}
+
 	/* Heroism */
 	if (p_ptr->tim.hero)
 	{
@@ -272,6 +278,20 @@ static void prt_status(void)
 	if (p_ptr->tim.shield)
 	{
 		letter[num] = CLR_WHITE "S";
+		num++;
+	}
+
+	/* Oppose Confusion */
+	if (p_ptr->tim.oppose_conf)
+	{
+		letter[num] = CLR_BLUE "C";
+		num++;
+	}
+
+	/* Oppose Blindness */
+	if (p_ptr->tim.oppose_blind)
+	{
+		letter[num] = CLR_BLUE "B";
 		num++;
 	}
 
@@ -456,7 +476,7 @@ static void prt_hp(void)
 	put_fstr(COL_MAXHP, ROW_MAXHP, "Max HP " CLR_L_GREEN "%5d", p_ptr->mhp);
 
 	color = CLR_L_GREEN;
-	
+
 	if (p_ptr->chp >= p_ptr->mhp)
 	{
 		color = CLR_L_GREEN;
@@ -554,10 +574,19 @@ static void prt_depth(void)
 					prtf(COL_DEPTH, Term->hgt - 1, "Ruin");
 				}
 				/* then it is this a wilderness quest */
-				else
+				else if (quest[q_num].type == QUEST_TYPE_WILD)
 				{
 					prtf(COL_DEPTH, Term->hgt - 1, "Quest");
 				}
+				/* fixed quest.  Only alert if there are stairs there. */
+				else
+				{
+					if (quest_stairs_active(p_ptr->place_num))
+						prtf(COL_DEPTH, Term->hgt -1, "Quest");
+					else
+						prtf(COL_DEPTH, Term->hgt -1, "Wilderness");
+				}
+
 			}
 			else
 			{
@@ -568,10 +597,6 @@ static void prt_depth(void)
 		{
 			prtf(COL_DEPTH, Term->hgt - 1, "Wilderness");
 		}
-	}
-	else if (p_ptr->depth == dungeon()->max_level)
-	{
-		prtf(COL_DEPTH, Term->hgt - 1, "Bottom");
 	}
 	else if (depth_in_feet)
 	{
@@ -763,7 +788,7 @@ static void prt_state(void)
 		{
 			text[1] = text[2] = text[3] = text[4] = text[5] = '&';
 		}
-		
+
 		/* Display the info (or blanks) */
 		put_fstr(COL_STATE, Term->hgt - 1, text);
 	}
@@ -2033,7 +2058,7 @@ static void calc_torch(void)
 	{
 		p_ptr->cur_lite = 1;
 	}
-	
+
 	/*
 	 * Hack - blindness gives a torch radius of zero.
 	 * This speeds up the map_info() function.
@@ -2303,7 +2328,7 @@ void object_bonuses(const object_type *o_ptr, bonuses_type *b)
 {
 	/* Zero the bonuses */
 	memset(b, 0, sizeof(bonuses_type));
-	
+
 	/* Affect stats */
 	if (FLAG(o_ptr, TR_STR)) b->stat[A_STR] = o_ptr->pval;
 	if (FLAG(o_ptr, TR_INT)) b->stat[A_INT] = o_ptr->pval;
@@ -2338,7 +2363,7 @@ void object_bonuses(const object_type *o_ptr, bonuses_type *b)
 
 	/* Boost shots */
 	if (FLAG(o_ptr, TR_XTRA_SHOTS)) b->extra_shots = 1;
-	
+
 	/* Boost saving throws */
 	if (FLAG(o_ptr, TR_LUCK_10)) b->skills[SKILL_SAV] = 10;
 
@@ -2351,7 +2376,7 @@ void object_bonuses_known(const object_type *o_ptr, bonuses_type *b)
 {
 	/* Zero the bonuses */
 	memset(b, 0, sizeof(bonuses_type));
-	
+
 	/* Affect stats */
 	if (KN_FLAG(o_ptr, TR_STR)) b->stat[A_STR] = o_ptr->pval;
 	if (KN_FLAG(o_ptr, TR_INT)) b->stat[A_INT] = o_ptr->pval;
@@ -2386,7 +2411,7 @@ void object_bonuses_known(const object_type *o_ptr, bonuses_type *b)
 
 	/* Boost shots */
 	if (KN_FLAG(o_ptr, TR_XTRA_SHOTS)) b->extra_shots = 1;
-	
+
 	/* Boost saving throws */
 	if (KN_FLAG(o_ptr, TR_LUCK_10)) b->skills[SKILL_SAV] = 10;
 
@@ -2573,7 +2598,7 @@ static void calc_bonuses(void)
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
-		
+
 		p_ptr->flags[0] |= o_ptr->flags[0];
 		p_ptr->flags[1] |= o_ptr->flags[1];
 		p_ptr->flags[2] |= o_ptr->flags[2];
@@ -2593,7 +2618,7 @@ static void calc_bonuses(void)
 		{
 			p_ptr->stat[j].add += b.stat[j];
 		}
-		
+
 		p_ptr->sp_bonus += b.sp_bonus;
 		p_ptr->see_infra += b.see_infra;
 		p_ptr->pspeed += b.pspeed;
@@ -2800,6 +2825,14 @@ static void calc_bonuses(void)
 		SET_FLAG(p_ptr, TR_REFLECT);
 	}
 
+	/* etherealness */
+	if (p_ptr->tim.etherealness)
+	{
+		p_ptr->to_a += 20;
+		p_ptr->dis_to_a += 20;
+		SET_FLAG(p_ptr, TR_PASS_WALL);
+	}
+
 	/* Temporary blessing */
 	if (p_ptr->tim.blessed)
 	{
@@ -2807,6 +2840,8 @@ static void calc_bonuses(void)
 		p_ptr->dis_to_a += 5;
 		p_ptr->to_h += 10;
 		p_ptr->dis_to_h += 10;
+		p_ptr->to_d += 3;
+		p_ptr->dis_to_d += 3;
 	}
 
 	/* Temporary shield */
@@ -2821,6 +2856,8 @@ static void calc_bonuses(void)
 	{
 		p_ptr->to_h += 12;
 		p_ptr->dis_to_h += 12;
+		p_ptr->to_d += 4;
+		p_ptr->dis_to_d += 4;
 	}
 
 	/* Temporary "Beserk" */
@@ -2830,6 +2867,8 @@ static void calc_bonuses(void)
 		p_ptr->dis_to_h += 24;
 		p_ptr->to_a -= 10;
 		p_ptr->dis_to_a -= 10;
+		p_ptr->to_d += 6;
+		p_ptr->dis_to_d += 6;
 	}
 
 	/* Temporary "fast" */
@@ -3414,23 +3453,23 @@ void update_stuff(void)
 
 	/* Character is in "icky" mode, no screen updates */
 	if (character_icky) return;
-	
+
 	/* Do not update map, it doesn't exist */
 	if (!character_dungeon) return;
-	
+
 	if (p_ptr->update & (PU_MAP))
 	{
 		p_ptr->update &= ~(PU_MAP);
 		map_panel_size();
 	}
-	
+
 	if ((p_ptr->update & (PU_MON_LITE)) && monster_light)
 	{
 		p_ptr->update &= ~(PU_MON_LITE);
 		update_mon_lite();
-		
+
 		/*
-		 * Hack - the odds are that since monsters moved, 
+		 * Hack - the odds are that since monsters moved,
 		 * we need to redraw the map.
 		 */
 		p_ptr->redraw |= (PR_MAP);
@@ -3442,7 +3481,7 @@ void update_stuff(void)
 		p_ptr->update &= ~(PU_VIEW);
 		update_view();
 	}
-	
+
 	if (p_ptr->update & (PU_FLOW))
 	{
 		p_ptr->update &= ~(PU_FLOW);
@@ -3653,10 +3692,10 @@ void redraw_stuff(void)
 		p_ptr->redraw &= ~(PR_STUDY);
 		prt_study();
 	}
-	
+
 	/* Do not update map it, doesn't exist */
 	if (!character_dungeon) return;
-	
+
 	if (p_ptr->redraw & (PR_MAP))
 	{
 		p_ptr->redraw &= ~(PR_MAP);
@@ -3731,7 +3770,7 @@ void window_stuff(void)
 		p_ptr->window &= ~(PW_OBJECT);
 		fix_object();
 	}
-	
+
 	/* Display monster recall */
 	if (p_ptr->window & (PW_MONSTER))
 	{
@@ -3791,31 +3830,31 @@ void change_stuff(void)
 	if (p_ptr->change & (PC_WIZ_LITE))
 	{
 		p_ptr->change &= ~(PC_WIZ_LITE);
-	
+
 		change_wiz_lite();
 	}
-	
+
 	/* Shimmer monsters */
 	if (p_ptr->change & (PC_SHIMMER))
 	{
 		p_ptr->change &= ~(PC_SHIMMER);
-		
+
 		change_shimmer();
 	}
-	
+
 	/* Repair monsters */
 	if (p_ptr->change & (PC_REPAIR))
 	{
 		p_ptr->change &= ~(PC_REPAIR);
-		
+
 		change_repair();
 	}
-	
+
 	/* Give beastman mutation at birth */
 	if (p_ptr->change & (PC_MUTATE))
 	{
 		p_ptr->change &= ~(PC_MUTATE);
-		
+
 		msgf("You feel different!");
 		(void)gain_mutation(0);
 	}

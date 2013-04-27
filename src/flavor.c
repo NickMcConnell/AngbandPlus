@@ -16,13 +16,13 @@
 /*
  * Max sizes of the following arrays
  */
-#define MAX_ROCKS      68		/* Used with rings (min 55) */
-#define MAX_AMULETS    30		/* Used with amulets (min 20) */
-#define MAX_WOODS      40		/* Used with staffs (min 30) */
-#define MAX_METALS     39		/* Used with wands/rods (min 30/29) */
-#define MAX_COLORS     76		/* Used with potions (min 64) */
-#define MAX_SHROOM     25		/* Used with mushrooms (min 20) */
-#define MAX_TITLES     54		/* Used with scrolls (min 48) */
+#define MAX_ROCKS      80		/* Used with rings (min 55) */
+#define MAX_AMULETS    45		/* Used with amulets (min 20) */
+#define MAX_WOODS      50		/* Used with staffs (min 30) */
+#define MAX_METALS     65		/* Used with wands/rods (min 30/29) */
+#define MAX_COLORS     100		/* Used with potions (min 64) */
+#define MAX_SHROOM     40		/* Used with mushrooms (min 20) */
+#define MAX_TITLES     75		/* Used with scrolls (min 48) */
 #define MAX_SYLLABLES 164		/* Used with scrolls (see below) */
 
 
@@ -39,7 +39,7 @@ static cptr ring_adj[MAX_ROCKS] =
 	"Emerald", "Fluorite", "Garnet", "Granite", "Jade",
 	"Jasper", "Lapis Lazuli", "Malachite", "Marble", "Moonstone",
 	/* 20-29 */
-	"Onyx", "Opal", "Pearl", "Quartz", "Quartzite",
+	"Onyx", "Opalescent", "Pearl", "Quartz", "Quartzite",
 	"Rhodonite", "Ruby", "Sapphire", "Tiger Eye", "Topaz",
 	/* 30-39 */
 	"Turquoise", "Zircon", "Platinum", "Bronze", "Gold",
@@ -50,9 +50,12 @@ static cptr ring_adj[MAX_ROCKS] =
 	/* 50-59 */
 	"Plain", "Brass", "Scarab", "Shining", "Rusty",
 	"Transparent", "Cat's-Eye", "Chrysoberyl", "Serpentine", "Spinel",
-	/* 60-67 */
+	/* 60-69 */
 	"Topaz", "Morganite", "Heliodor", "Tourmaline", "Chalcedony",
-	"Peridot", "Hematite", "Coral"
+	"Peridot", "Hematite", "Coral", "Citrine", "Copper",
+    /* 70-79 */
+	"Crystal", "Fire Opal", "Star Ruby", "Star Sapphire", "Pyrite",
+	"Soapstone", "Ivory", "Diamond-studded", "Tanzanite", "Olivine"
 };
 
 static byte ring_col[MAX_ROCKS] =
@@ -75,9 +78,12 @@ static byte ring_col[MAX_ROCKS] =
 	/* 50-59 */
 	TERM_YELLOW, TERM_ORANGE, TERM_L_GREEN, TERM_YELLOW, TERM_RED,
 	TERM_WHITE, TERM_YELLOW, TERM_YELLOW, TERM_L_GREEN, TERM_RED,
-	/* 60-67 */
+	/* 60-69 */
 	TERM_YELLOW, TERM_L_RED, TERM_YELLOW, TERM_GREEN, TERM_L_DARK,
-	TERM_L_GREEN, TERM_L_DARK, TERM_L_RED
+	TERM_L_GREEN, TERM_L_DARK, TERM_L_RED, TERM_L_RED, TERM_ORANGE,
+	/* 70-79 */
+	TERM_WHITE, TERM_RED, TERM_RED, TERM_BLUE, TERM_YELLOW,
+	TERM_WHITE, TERM_WHITE, TERM_L_WHITE, TERM_VIOLET, TERM_L_GREEN
 };
 
 
@@ -90,11 +96,16 @@ static cptr amulet_adj[MAX_AMULETS] =
 	"Amber", "Driftwood", "Coral", "Agate", "Ivory",
 	"Obsidian", "Bone", "Brass", "Bronze", "Pewter",
 	/* 10-19 */
-	"Tortoise Shell", "Golden", "Azure", "Crystal", "Silver", 
-	"Copper", "Rosetted", "Spiral", "Star", "Square", 
+	"Tortoise Shell", "Golden", "Azure", "Crystal", "Silver",
+	"Copper", "Rosetted", "Spiral", "Star", "Square",
 	/* 20-29 */
 	"Hexagonal", "Steel", "Skull", "Platinum", "Electrum",
-	"Glass", "Cracked", "Heartwood", "Bark", "Mirrored"
+	"Glass", "Cracked", "Heartwood", "Bark", "Mirrored",
+	/* 30-39 */
+	"Beaded", "Polished", "Stone", "Heavy", "Braided",
+	"Twisted", "Carven", "Demon's Tooth", "Dragon's Tooth", "Woven",
+	/* 40-44 */
+	"Iron", "Lead", "Adamant", "Stained Glass", "Ivory"
 };
 
 static byte amulet_col[MAX_AMULETS] =
@@ -107,7 +118,12 @@ static byte amulet_col[MAX_AMULETS] =
 	TERM_L_UMBER, TERM_VIOLET, TERM_VIOLET, TERM_YELLOW, TERM_L_UMBER,
 	/* 20-29 */
 	TERM_L_DARK, TERM_WHITE, TERM_L_DARK, TERM_L_WHITE, TERM_WHITE,
-	TERM_L_RED, TERM_RED, TERM_UMBER, TERM_UMBER, TERM_WHITE
+	TERM_L_RED, TERM_RED, TERM_UMBER, TERM_UMBER, TERM_WHITE,
+	/* 30-39 */
+	TERM_ORANGE, TERM_WHITE, TERM_L_WHITE, TERM_SLATE, TERM_L_UMBER,
+	TERM_L_BLUE, TERM_L_GREEN, TERM_RED, TERM_GREEN, TERM_UMBER,
+	/* 40-44 */
+	TERM_SLATE, TERM_SLATE, TERM_VIOLET, TERM_BLUE, TERM_WHITE
 };
 
 
@@ -127,7 +143,10 @@ static cptr staff_adj[MAX_WOODS] =
 	"Mistletoe", "Hawthorn", "Bamboo", "Silver", "Runed",
 	/* 30-39 */
 	"Golden", "Ashen", "Gnarled", "Ivory", "Sandalwood",
-	"Yew", "Thorned", "Charred", "Darkwood", "Flowering"
+	"Yew", "Thorned", "Charred", "Darkwood", "Flowering",
+	/* 40-49 */
+	"Holly", "Driftwood", "Larch", "Cherry", "Wormwood",
+	"Walnut", "Acacia", "Linden", "Mallorn", "Bleached"
 };
 
 static byte staff_col[MAX_WOODS] =
@@ -143,7 +162,10 @@ static byte staff_col[MAX_WOODS] =
 	TERM_GREEN, TERM_L_UMBER, TERM_L_UMBER, TERM_L_WHITE, TERM_UMBER,
 	/* 30-39 */
 	TERM_YELLOW, TERM_SLATE, TERM_UMBER, TERM_L_WHITE, TERM_YELLOW,
-	TERM_L_UMBER, TERM_L_UMBER, TERM_L_DARK, TERM_L_DARK, TERM_L_GREEN
+	TERM_L_UMBER, TERM_L_UMBER, TERM_L_DARK, TERM_L_DARK, TERM_L_GREEN,
+	/* 40-49 */
+	TERM_L_GREEN, TERM_L_WHITE, TERM_L_UMBER, TERM_L_RED, TERM_L_GREEN,
+	TERM_UMBER, TERM_UMBER, TERM_L_UMBER, TERM_YELLOW, TERM_WHITE
 };
 
 
@@ -161,9 +183,17 @@ static cptr wand_adj[MAX_METALS] =
 	/* 20-29 */
 	"Nickel-Plated", "Silver-Plated", "Steel-Plated", "Tin-Plated", "Zinc-Plated",
 	"Mithril-Plated", "Mithril", "Runed", "Bronze", "Brass",
-	/* 30-38 */
+	/* 30-39 */
 	"Platinum", "Lead", "Lead-Plated", "Ivory", "Adamantite",
-	"Uridium", "Long", "Short", "Hexagonal"
+	"Uridium", "Long", "Short", "Hexagonal", "Titanium-Plated",
+	/* 40-49 */
+	"Tungsten-Plated", "Chromuim-Plated", "Palladium", "Palladium-Plated", "Iridium",
+	"Zirconium-Plated", "Vanadium", "Carbon Steel", "Pewter", "Brass-Plated",
+	/* 50-59 */
+	"Bronze-Plated", "Electrum", "Electrum-Plated", "White Gold", "Thin",
+	"Gem-Tipped", "Gem-Studded", "Ivory", "Hollow", "Willow",
+	/* 60-64 */
+	"Wire", "Glass", "Magnesium-Plated", "Crystal", "Bone"
 };
 
 static byte wand_col[MAX_METALS] =
@@ -177,9 +207,17 @@ static byte wand_col[MAX_METALS] =
 	/* 20-29 */
 	TERM_L_UMBER, TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE,
 	TERM_L_BLUE, TERM_L_BLUE, TERM_UMBER, TERM_L_UMBER, TERM_L_UMBER,
-	/* 30-38 */
+	/* 30-39 */
 	TERM_WHITE, TERM_SLATE, TERM_SLATE, TERM_WHITE, TERM_VIOLET,
-	TERM_L_RED, TERM_L_BLUE, TERM_BLUE, TERM_RED
+	TERM_L_RED, TERM_L_BLUE, TERM_BLUE, TERM_RED, TERM_WHITE,
+	/* 40-49 */
+	TERM_WHITE, TERM_WHITE, TERM_L_WHITE, TERM_L_WHITE, TERM_L_RED,
+	TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE, TERM_L_DARK, TERM_L_UMBER,
+	/* 50-59 */
+	TERM_L_UMBER, TERM_YELLOW, TERM_YELLOW, TERM_WHITE, TERM_L_UMBER,
+	TERM_GREEN, TERM_VIOLET, TERM_WHITE, TERM_L_DARK, TERM_L_UMBER,
+	/* 60-64 */
+	TERM_L_DARK, TERM_L_BLUE, TERM_L_WHITE, TERM_L_BLUE, TERM_WHITE
 };
 
 
@@ -205,8 +243,12 @@ static cptr food_adj[MAX_SHROOM] =
 	/* 10-19 */
 	"Grey", "Light Blue", "Light Green", "Violet", "Red",
 	"Slimy", "Tan", "White", "White Spotted", "Wrinkled",
-	/* 20-24 */
+	/* 20-29 */
 	"Strange", "Silver", "Glowing", "Orange", "Dried",
+	"Grey Spotted", "Purple", "Indigo", "Pink", "Pink Spotted",
+	/* 30-39 */
+	"Withered", "Pungent", "Fragrant", "Delicate", "Orange Spotted",
+	"Blue Spotted", "Green Spotted", "Brown Spotted", "Chewy", "Revolting"
 };
 
 static byte food_col[MAX_SHROOM] =
@@ -217,8 +259,12 @@ static byte food_col[MAX_SHROOM] =
 	/* 10-19 */
 	TERM_SLATE, TERM_L_BLUE, TERM_L_GREEN, TERM_VIOLET, TERM_RED,
 	TERM_SLATE, TERM_L_UMBER, TERM_WHITE, TERM_WHITE, TERM_UMBER,
-	/* 20-24 */
+	/* 20-29 */
 	TERM_L_BLUE, TERM_WHITE, TERM_YELLOW, TERM_ORANGE, TERM_UMBER,
+	TERM_SLATE, TERM_VIOLET, TERM_BLUE, TERM_L_RED, TERM_L_RED,
+	/* 30-39 */
+	TERM_L_UMBER, TERM_ORANGE, TERM_UMBER, TERM_L_WHITE, TERM_ORANGE,
+	TERM_BLUE, TERM_GREEN, TERM_UMBER, TERM_L_DARK, TERM_L_GREEN
 };
 
 
@@ -231,7 +277,7 @@ static byte food_col[MAX_SHROOM] =
 static cptr potion_adj[MAX_COLORS] =
 {
 	/* Fixed colors */
-	"Clear", "Light Brown", "Icky Green", "xxx",
+	"Clear", "Light Brown", "Icky Green", "Puzzling",
 	/* 4-9 */
 	"Azure",
 	"Blue", "Blue Speckled", "Black", "Brown", "Brown Speckled",
@@ -249,13 +295,19 @@ static cptr potion_adj[MAX_COLORS] =
 	"Tangerine", "Violet", "Vermilion", "White", "Yellow",
 	/* 50-59 */
 	"Violet Speckled", "Pungent", "Clotted Red", "Viscous Pink", "Oily Yellow",
-	"Gloopy Green", "Shimmering", "Coagulated Crimson", "Yellow Speckled",
+	"Gloopy Green", "Shimmering", "Coagulated Crimson", "Yellow Speckled", "Gold",
 	/* 60-69 */
-	"Gold", "Manly", "Stinking", "Oily Black", "Ichor", "Ivory White",
+	"Manly", "Stinking", "Oily Black", "Ichor", "Ivory White",
 	"Sky Blue", "Bloody", "Inky Black", "Silver Flecked", "Red Flecked",
-	/* 70-75 */
+	/* 70-79 */
 	"Green Flecked", "Sea Green", "Umber", "Layered", "Fizzy Yellow",
-	"Fizzy Green",
+	"Fizzy Green", "Aqua", "Clear Blue", "Clear Green", "Clear Red",
+	/* 80-89 */
+	"Clear Purple", "Clear Yellow", "Clear White", "Clear Brown", "Volatile",
+	"Thick White", "Thick Black", "Thick Green", "Thick Blue", "Thick Red",
+	/* 90-99 */
+	"Thick Yellow", "Creamy", "Spicy", "Fizzy Blue", "Fizzy",
+	"Sweet", "Brownish", "Greenish", "Gold", "Silver"
 };
 
 static byte potion_col[MAX_COLORS] =
@@ -283,9 +335,15 @@ static byte potion_col[MAX_COLORS] =
 	/* 60-69 */
 	TERM_L_UMBER, TERM_UMBER, TERM_L_DARK, TERM_RED, TERM_WHITE,
 	TERM_L_BLUE, TERM_RED, TERM_L_DARK, TERM_WHITE, TERM_RED,
-	/* 70-75 */
+	/* 70-79 */
 	TERM_GREEN, TERM_L_GREEN, TERM_UMBER, TERM_L_BLUE, TERM_YELLOW,
-	TERM_L_GREEN,
+	TERM_L_GREEN, TERM_L_BLUE, TERM_L_BLUE, TERM_L_GREEN, TERM_L_RED,
+	/* 80-89 */
+	TERM_VIOLET, TERM_YELLOW, TERM_WHITE, TERM_L_UMBER, TERM_ORANGE,
+	TERM_WHITE, TERM_L_DARK, TERM_GREEN, TERM_BLUE, TERM_RED,
+	/* 90-99 */
+	TERM_YELLOW, TERM_L_WHITE, TERM_RED, TERM_BLUE, TERM_WHITE,
+	TERM_L_UMBER, TERM_L_UMBER, TERM_L_GREEN, TERM_YELLOW, TERM_L_WHITE
 };
 
 
@@ -326,7 +384,6 @@ static cptr syllables[MAX_SYLLABLES] =
 static char scroll_adj[MAX_TITLES][16];
 
 static byte scroll_col[MAX_TITLES];
-
 
 /*
  * Certain items, if aware, are known instantly
@@ -408,9 +465,11 @@ static bool object_flavor(int k_idx)
 void get_table_name(char *out_string, bool quotes)
 {
 	int testcounter = 2;
-	
+
 	int len = 0;
-	
+	char Syllable[80];
+	bool choice = one_in_(3);
+
 	/* Empty string */
 	out_string[0] = 0;
 
@@ -419,20 +478,11 @@ void get_table_name(char *out_string, bool quotes)
 		strnfcat(out_string, 18, &len, "'");
 	}
 
-	if (one_in_(3))
+	while (testcounter--)
 	{
-		while (testcounter--)
-			strnfcat(out_string, 18, &len, syllables[randint0(MAX_SYLLABLES)]);
-	}
-	else
-	{
-		char Syllable[80];
-
-		while (testcounter--)
-		{
-			(void)get_rnd_line("elvish.txt", 0, Syllable);
-			strnfcat(out_string, 18, &len, "%s", Syllable);
-		}
+		if (choice) (void)get_rnd_line("dwarvish.txt", 0, Syllable);
+		else (void)get_rnd_line("elvish.txt", 0, Syllable);
+		strnfcat(out_string, 18, &len, "%s", Syllable);
 	}
 
 	if (quotes)
@@ -593,7 +643,7 @@ void flavor_init(void)
 		while (TRUE)
 		{
 			char buf[80];
-			
+
 			int buf_len = 0;
 
 			bool okay;
@@ -607,7 +657,7 @@ void flavor_init(void)
 				int q, s;
 
 				char tmp[80];
-				
+
 				int len = 0;
 
 				/* Start a new word */
@@ -754,7 +804,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 	int dd, ds, db, energy_use;
 	int tmul;
 	long avgdam;
-	
+
 	int len = 0;
 
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
@@ -775,7 +825,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 
 	/* Assume no "modifier" string */
 	modstr = "";
-	
+
 	/* Empty description */
 	buf[0] = '\0';
 
@@ -798,7 +848,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 		{
 			/* Figurines/Statues */
 			cptr tmp = mon_race_name(r_ptr);
-			
+
 			char idol_name[512];
 
 			if (!FLAG(r_ptr, RF_UNIQUE))
@@ -857,6 +907,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 
 			/* Known artifacts */
 			if ((FLAG(k_ptr, TR_INSTA_ART)) && aware) break;
+			if (aware && o_ptr->sval == 31) break;  /* reserved for insta-artifacts */
 
 			/* Color the object */
 			modstr = amulet_adj[o_ptr->sval];
@@ -875,6 +926,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 
 			/* Known artifacts */
 			if ((FLAG(k_ptr, TR_INSTA_ART)) && aware) break;
+			if (aware && o_ptr->sval == 65) break;  /* reserved for insta-artifacts */
 
 			/* Color the object */
 			modstr = ring_adj[o_ptr->sval];
@@ -1018,13 +1070,13 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 			break;
 		}
 
-		case TV_TRUMP_BOOK:
+		case TV_CONJ_BOOK:
 		{
 			modstr = basenm;
 			if (mp_ptr->spell_book == TV_LIFE_BOOK)
-				basenm = "& Book~ of Trump Magic #";
+				basenm = "& Book~ of Conjuration #";
 			else
-				basenm = "& Trump Spellbook~ #";
+				basenm = "& Conjuration Spellbook~ #";
 			break;
 		}
 
@@ -1180,7 +1232,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 			/* Copy character */
 			strnfcat(buf, max, &len, "%c", *s);
 		}
-		
+
 		s++;
 	}
 
@@ -1386,7 +1438,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 		/* Show the tohit/todam on request */
 		if (show_weapon)
 		{
-			strnfcat(buf, max, &len, " (%+d,%+d%%)", o_ptr->to_h, 
+			strnfcat(buf, max, &len, " (%+d,%+d%%)", o_ptr->to_h,
 					deadliness_calc(o_ptr->to_d) - 100);
 		}
 
@@ -1500,7 +1552,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 		{
 			strnfcat(buf, max, &len, "%dx ", o_ptr->number);
 		}
-		
+
 		if (o_ptr->pval == 1)
 		{
 			strnfcat(buf, max, &len, "%d charge)", o_ptr->pval);
@@ -1618,7 +1670,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 	if (o_ptr->inscription)
 	{
 		cptr tmp = quark_str(o_ptr->inscription);
-	
+
 		/* Append the inscription */
 		strnfcat(buf, max, &len, " {");
 
@@ -1626,10 +1678,10 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 		while(*tmp && (*tmp != '#'))
 		{
 			strnfcat(buf, max, &len, "%c", *tmp);
-		
+
 			tmp++;
 		}
-		
+
 		/* Finish the inscription */
 		strnfcat(buf, max, &len, CLR_DEFAULT "}");
 	}
@@ -1682,19 +1734,19 @@ void object_fmt(char *buf, uint max, cptr fmt, va_list *vp)
 	const object_type *o_ptr;
 	int pref;
 	int mode;
-	
+
 	/* Unused parameter */
 	(void)fmt;
-	
+
 	/* Get the object */
 	o_ptr = va_arg(*vp, const object_type*);
-	
+
 	/* Get the pref */
 	pref = va_arg(*vp, int);
-	
+
 	/* Get the mode */
 	mode = va_arg(*vp, int);
-	
+
 	object_desc(buf, o_ptr, pref, mode, max);
 }
 
@@ -1760,19 +1812,19 @@ void object_store_fmt(char *buf, uint max, cptr fmt, va_list *vp)
 	const object_type *o_ptr;
 	int pref;
 	int mode;
-	
+
 	/* Unused parameter */
 	(void)fmt;
-	
+
 	/* Get the object */
 	o_ptr = va_arg(*vp, const object_type*);
-	
+
 	/* Get the pref */
 	pref = va_arg(*vp, int);
-	
+
 	/* Get the mode */
 	mode = va_arg(*vp, int);
-	
+
 	object_desc_store(buf, o_ptr, pref, mode, max);
 }
 

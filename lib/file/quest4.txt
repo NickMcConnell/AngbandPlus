@@ -1,0 +1,13 @@
+# euphamisms for "kill"
+N:*:Default
+9
+kill
+terminate
+kill
+slay
+slay
+exterminate
+destroy
+destroy
+kill
+kill

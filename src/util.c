@@ -392,16 +392,17 @@ static void handle_signal_abort(int sig)
 	signals_ignore_tstp();
 
 	/* Attempt to save */
+	/* DEBUG: disable this 
 	if (save_player())
 	{
 		put_fstr(45, 23, CLR_RED "Panic save succeeded!");
 	}
 
-	/* Save failed */
 	else
 	{
 		put_fstr(45, 23, CLR_RED "Panic save failed!");
 	}
+	*/
 
 	/* Flush output */
 	Term_fresh();

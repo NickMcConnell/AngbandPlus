@@ -290,7 +290,7 @@ static void mass_produce(object_type *o_ptr)
 		case TV_NATURE_BOOK:
 		case TV_CHAOS_BOOK:
 		case TV_DEATH_BOOK:
-		case TV_TRUMP_BOOK:
+		case TV_CONJ_BOOK:
 		case TV_ARCANE_BOOK:
 		{
 			if (cost <= 50L) size += damroll(2, 3);
@@ -347,7 +347,7 @@ static void mass_produce(object_type *o_ptr)
 				else if (cost < 3201L) size += damroll(1, 3);
 			}
 
-			/* 
+			/*
 			 * Ensure that mass-produced rods and wands
 			 * get the correct pvals.
 			 */
@@ -429,7 +429,7 @@ static bool store_object_similar(const object_type *o_ptr,
 
 	/* Hack -- Identical flags! */
 	if ((o_ptr->flags[0] != j_ptr->flags[0]) ||
-		(o_ptr->flags[1] != j_ptr->flags[1]) || 
+		(o_ptr->flags[1] != j_ptr->flags[1]) ||
 		(o_ptr->flags[2] != j_ptr->flags[2]) ||
 		(o_ptr->flags[3] != j_ptr->flags[3]))
 		return (FALSE);
@@ -463,7 +463,7 @@ static void store_object_absorb(object_type *o_ptr, const object_type *j_ptr)
 	/* Combine quantity, lose excess items */
 	o_ptr->number = (total > 99) ? 99 : total;
 
-	/* 
+	/*
 	 * Hack -- if rods are stacking, add the pvals
 	 * (maximum timeouts) together. -LM-
 	 */
@@ -561,7 +561,7 @@ static bool store_will_buy(const object_type *o_ptr)
 	init_match_theme(theme);
 
 	/*
-	 * Final check: 
+	 * Final check:
 	 * Does the object have a chance of being made?
 	 */
 	return (kind_is_theme(o_ptr->k_idx));
@@ -798,7 +798,7 @@ static void store_delete(void)
 	/* Hack -- sometimes, only destroy a single item */
 	if (one_in_(2)) num = 1;
 
-	/* 
+	/*
 	 * Hack -- decrement the maximum timeouts and
 	 * total charges of rods and wands. -LM-
 	 */
@@ -953,7 +953,7 @@ static void display_entry(int pos)
     	a = TERM_WHITE;
     	c = ' ';
     }
-    
+
     if (object_aware_p(o_ptr))
         Term_draw(3, i + 6, a, c);
 
@@ -1117,7 +1117,7 @@ static void display_store(void)
 
 	/* Draw in the inventory */
 	display_inventory();
-	
+
 	/* Basic commands */
 	prtf(0, 22, " ESC) Exit from Building.");
 
@@ -1249,11 +1249,11 @@ static void store_shuffle(store_type *st_ptr)
 
 	/* Pick a new owner */
 	st_ptr->owner_name = quark_fmt("%s %s", own_name, own_suffix);
-	
+
 	/* These are set in place_sb() via the lua hook below */
 	st_ptr->greed = 0;
 	st_ptr->max_cost = 0;
-		
+
 	/*
 	 * Hack - Init store
 	 *
@@ -1449,7 +1449,7 @@ static void store_purchase(void)
 
 	/* Determine the "best" price (per item) */
 	best = price_item(j_ptr, FALSE);
-	
+
 	/*
 	 * Paranoia - you can only buy one weapon / armour item at a time
 	 *
@@ -1530,7 +1530,7 @@ static void store_purchase(void)
 			/* Describe the transaction */
 			msgf("You bought %v for %ld gold.",
 				 OBJECT_FMT(j_ptr, TRUE, 3), (long)price);
-			
+
 			/* Now, reduce the original stack's pval. */
 			if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
 			{
@@ -1545,10 +1545,10 @@ static void store_purchase(void)
 
 			/* Erase the "feeling" */
 			j_ptr->feeling = FEEL_NONE;
-			
+
 			/* Give it to the player */
 			j_ptr = inven_carry(j_ptr);
-			
+
 			/* Paranoia */
 			if (!j_ptr)
 			{
@@ -1611,7 +1611,7 @@ static void store_purchase(void)
 					p_ptr->state.store_top -= 12;
 				}
 			}
-			
+
 			/* Redraw everything */
 			display_inventory();
 		}
@@ -1691,7 +1691,7 @@ static void store_sell(void)
 	object_type *o_ptr;
 
 	cptr q, s;
-	
+
 	s16b *list;
 
 	/* Get an item */
@@ -1704,7 +1704,7 @@ static void store_sell(void)
 
 		/* Home takes anything */
 		item_tester_hook = NULL;
-		
+
 		/* Get an item */
 		o_ptr = get_item(q, s, (USE_EQUIP | USE_INVEN));
 	}
@@ -1714,7 +1714,7 @@ static void store_sell(void)
 
 		/* Only allow items the store will buy */
 		item_tester_hook = store_will_stock;
-		
+
 		/* Get an item */
 		o_ptr = get_item(q, s, (USE_EQUIP | USE_INVEN | USE_STORE));
 	}
@@ -1838,10 +1838,10 @@ static void store_sell(void)
 
 			/* Duplicate the object */
 			q_ptr = object_dup(o_ptr);
-			
+
 			/* Identify sold item */
 			identify_item(q_ptr);
-			
+
 			/* Don't want to let out how many charges on wands */
 			if (o_ptr->tval != TV_WAND)
 			{
@@ -1866,7 +1866,7 @@ static void store_sell(void)
 
 			if (!((q_ptr->tval == TV_FIGURINE) && (value > 0)))
 			{
-				/* 
+				/*
 				 * Analyze the prices (and comment verbally)
 				 * unless object is a figurine
 				 */
@@ -1911,7 +1911,7 @@ static void store_sell(void)
 	{
 		/* Distribute charges of wands/rods */
 		distribute_charges(o_ptr, q_ptr, amt);
-		
+
 		/* Describe */
 		msgf("You drop %v.", OBJECT_FMT(q_ptr, TRUE, 3));
 
@@ -2033,6 +2033,17 @@ bool do_standard_command(s16b c)
 			return (TRUE);
 		}
 
+		case 'K':
+		{
+			do_cmd_squelch();
+			break;
+		}
+
+		case KTRL('U'):
+		{
+			do_cmd_unsquelch();
+			break;
+		}
 
 			/*** Various commands ***/
 
@@ -2459,7 +2470,7 @@ void do_cmd_store(const field_type *f1_ptr)
 	int i;
 
 	object_type *o_ptr;
-	
+
 	/* Disturb */
 	disturb(FALSE);
 
@@ -2471,10 +2482,10 @@ void do_cmd_store(const field_type *f1_ptr)
 
 	/* Paranoia */
 	if (!st_ptr) return;
-	
+
 	/* Init store if required */
 	field_script_const(f1_ptr, FIELD_ACT_SB_INIT, "");
-	
+
 	/* Some quests are finished by finding a shop */
 	trigger_quest_complete(QX_FIND_SHOP, (vptr)st_ptr);
 
@@ -2487,12 +2498,12 @@ void do_cmd_store(const field_type *f1_ptr)
 		msgf("The doors are locked.");
 		return;
 	}
-		
+
 	/* Calculate the number of store maintainances since the last visit */
 	maintain_num = (turn - st_ptr->last_visit) / (10L * STORE_TURNS);
 
 	/* Recalculate maximum number of items in store */
-	if (f_ptr->data[7] & ST_HALF_INVEN)
+	if (info_flags & ST_HALF_INVEN)
 	{
 		st_ptr->max_stock = STORE_INVEN_MAX / 2;
 	}
@@ -2703,13 +2714,13 @@ void do_cmd_store(const field_type *f1_ptr)
 
 	/* Flush messages XXX XXX XXX */
 	message_flush();
-	
+
 	/* Hack - reset the redraw hook */
 	angband_term[0]->resize_hook = resize_map;
 
 	/* Clear the screen */
 	Term_clear();
-	
+
 	/* Update for the changed screen size */
 	resize_map();
 
@@ -2731,7 +2742,7 @@ void store_init(int town_num, int store_num, byte store)
 
 	/* Pick an owner */
 	st_ptr->owner_name = quark_fmt("%s %s", own_name, own_suffix);
-	
+
 	/* These are set in place_sb() via lua hooks */
 	st_ptr->greed = 0;
 	st_ptr->max_cost = 0;

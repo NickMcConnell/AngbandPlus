@@ -22,10 +22,10 @@ void do_cmd_go_up(void)
 	/* Player grid */
 	c_ptr = area(p_ptr->px, p_ptr->py);
 
-	if (c_ptr->feat == FEAT_LESS)
+	if (c_ptr->feat == FEAT_LESS || c_ptr->feat == FEAT_QUEST_LESS)
 	{
 		/*
-		 * I'm experimenting without this... otherwise the monsters get to
+		 * I'm experimenting with this... otherwise the monsters get to
 		 * act first when we go up stairs, theoretically resulting in a
 		 * possible insta-death.
 		 */
@@ -65,7 +65,7 @@ void do_cmd_go_down(void)
 	/* Player grid */
 	c_ptr = area(p_ptr->px, p_ptr->py);
 
-	if (c_ptr->feat != FEAT_MORE)
+	if (c_ptr->feat != FEAT_MORE && c_ptr->feat != FEAT_QUEST_MORE)
 	{
 		msgf("I see no down staircase here.");
 		return;
@@ -79,7 +79,7 @@ void do_cmd_go_down(void)
 
 		/* Create a way back */
 		p_ptr->state.create_up_stair = TRUE;
-		
+
 		/* Go down */
 		move_dun_level(1);
 
@@ -199,7 +199,7 @@ static void chest_death(int x, int y, object_type *o_ptr)
 
 	int level;
 
-	/* 
+	/*
 	 * Pick type of item to find in the chest.
 	 *
 	 * Hack - chests are not on this list...
@@ -711,7 +711,7 @@ bool do_cmd_open_aux(int x, int y)
 
 		make_noise(3);
 	}
-	
+
 	/* We know about the change */
 	note_spot(x, y);
 
@@ -976,7 +976,7 @@ static bool twall(int x, int y, byte feat)
 	cave_type *c_ptr = area(x, y);
 
 	/* Paranoia -- Require a wall or door or some such */
-	if (cave_floor_grid(c_ptr)) return (FALSE);
+	if (cave_floor_grid(c_ptr) && !(cave_semi_grid(c_ptr))) return (FALSE);
 
 	/* Remove the feature */
 	cave_set_feat(x, y, feat);
@@ -1231,8 +1231,9 @@ static bool do_cmd_tunnel_aux(int x, int y)
 				/* Create a simple object */
 				place_object(x, y, FALSE, FALSE, 0);
 
-				/* Observe new object */
-				if (player_can_see_grid(pc_ptr))
+				/* Observe new object, if not squelched */
+				if (player_can_see_grid(pc_ptr) && (!quiet_squelch || (
+					!SQUELCH(o_list[c_ptr->o_idx].k_idx) || FLAG(&o_list[c_ptr->o_idx], TR_SQUELCH))))
 				{
 					msgf("You have found something!");
 				}
@@ -1987,7 +1988,7 @@ void do_cmd_stay(int pickup)
 	/* Handle "objects" */
 	carry(pickup);
 
-	/* 
+	/*
 	 * Fields you are standing on may do something.
 	 */
 	field_script(area(p_ptr->px, p_ptr->py), FIELD_ACT_PLAYER_ENTER, "");
@@ -2013,7 +2014,7 @@ void do_cmd_rest(void)
         {
         	return;
 		}
-        
+
 		/* Rest until done */
 		if (out_val[0] == '&')
 		{
@@ -2199,6 +2200,7 @@ static void throw_item_effect(object_type *o_ptr, bool hit_body, bool hit_wall,
 {
 	/* Chance of breakage (during attacks) */
 	int breakage = (hit_body ? breakage_chance(o_ptr) : 0);
+	monster_type *m_ptr;
 
 	/* Figurines transform */
 	if (o_ptr->tval == TV_FIGURINE)
@@ -2206,9 +2208,14 @@ static void throw_item_effect(object_type *o_ptr, bool hit_body, bool hit_wall,
 		/* Always break */
 		breakage = 100;
 
-		if (!(summon_named_creature(x, y, o_ptr->pval, FALSE, FALSE, TRUE)))
+		m_ptr = summon_named_creature(x, y, o_ptr->pval, FALSE, FALSE, TRUE);
+		if (!m_ptr)
 		{
 			msgf("The Figurine writhes and then shatters.");
+		}
+		else if (!use_upkeep)
+		{
+			m_ptr->unsummon = 500;  /* 500 duration for all figurine summons */
 		}
 	}
 
@@ -2248,7 +2255,7 @@ static void throw_item_effect(object_type *o_ptr, bool hit_body, bool hit_wall,
 					!(m_ptr->invulner))
 				{
 					monster_type *m2_ptr = &m_list[area(x, y)->m_idx];
-				
+
 					msgf("%^v gets angry!", MONSTER_FMT(m2_ptr, 0));
 					set_hostile(m2_ptr);
 				}
@@ -2325,7 +2332,7 @@ void do_cmd_fire_aux(int mult, object_type *o_ptr, const object_type *j_ptr)
 	int cur_dis;
 
 	int mul, div;
-		
+
 	int chance2;
 
 	object_type *i_ptr;
@@ -2399,7 +2406,7 @@ void do_cmd_fire_aux(int mult, object_type *o_ptr, const object_type *j_ptr)
 	if (j_ptr)
 	{
 		total_deadliness = p_ptr->to_d + i_ptr->to_d + j_ptr->to_d;
-		
+
 		bonus = (p_ptr->to_h + i_ptr->to_h + j_ptr->to_h);
 		chance = (p_ptr->skills[SKILL_THB] + (bonus * BTH_PLUS_ADJ));
 	}
@@ -2449,7 +2456,7 @@ void do_cmd_fire_aux(int mult, object_type *o_ptr, const object_type *j_ptr)
 
 	/* Distance -- Reward strength, penalize weight */
 	tdis = (adj_str_blow[p_ptr->stat[A_STR].ind] + 10) * mul / div;
-	
+
 	/* Maximum distance */
 	if (tdis > mul) tdis = mul;
 
@@ -2517,7 +2524,7 @@ void do_cmd_fire_aux(int mult, object_type *o_ptr, const object_type *j_ptr)
 		mmove(&nx, &ny, px, py);
 
 		/* Stopped by wilderness boundary */
-		if (!in_bounds2(nx, ny)) 
+		if (!in_bounds2(nx, ny))
 		{
 			hit_wall = TRUE;
 			break;
@@ -2525,7 +2532,7 @@ void do_cmd_fire_aux(int mult, object_type *o_ptr, const object_type *j_ptr)
 
 		/* Stopped by walls/doors */
 		c_ptr = area(nx, ny);
-		if (cave_wall_grid(c_ptr)) 
+		if (cave_wall_grid(c_ptr))
 		{
 			hit_wall = TRUE;
 			break;
@@ -2610,7 +2617,7 @@ void do_cmd_fire_aux(int mult, object_type *o_ptr, const object_type *j_ptr)
 			{
 				/* We've spotted it */
 				msgf("You've found %v!", MONSTER_FMT(m_ptr, 0x88));
-				
+
 				/* Toggle flag */
 				m_ptr->smart &= ~(SM_MIMIC);
 
@@ -2696,7 +2703,7 @@ void do_cmd_fire_aux(int mult, object_type *o_ptr, const object_type *j_ptr)
 
 				/* Modify the damage */
 				tdam = mon_damage_mod(m_ptr, tdam, 0);
-								
+
 				/* Drop (or break) near that location (i_ptr is now invalid) */
 				throw_item_effect(i_ptr, TRUE, FALSE, TRUE, x, y);
 

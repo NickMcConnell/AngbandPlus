@@ -1,22 +1,21 @@
 
 
-                             **********************
-                             **  ZAngband a.b.c  **
-                             **********************
+                            ***********************
+                            **  Z+Angband a.b.c  **
+                            *********(alpha)*******
 
               Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
                   and Umoria:    Copyright (c) 1989 James E. Wilson
+       and Angband 2.7 - 2.8:    Ben Harrison < benh@phial.com >
+                and Zangband:    (Mr) Topi Ylinen < topiy@luukku.com >
+                                 Robert Ruehlmann < rr9@angband.org >
+                                 The ZAngband DevTeam
+                              
+                   Z+Angband:    Mangojuice < mangojuice75@gmail.com >
 
-           Angband 2.7 - 2.8:    Ben Harrison < benh@phial.com >
+         Post all comments, bug reports, etc. on the Angband forums
+                   at "http://angband.oook.cz/forum" (Variants)
 
-           Old Zangband code:    (Mr) Topi Ylinen < topiy@luukku.com >
-           New Zangband code:    Robert Ruehlmann < rr9@angband.org >
-        ZAngband 2.3.0 - ???:    The ZAngband DevTeam
-
-          Visit the ZAngband Homepage at "http://www.zangband.org/"
-
-         Send all comments, patches, etc, to "feedback@zangband.org".
-                   Send bug reports to "bugs@zangband.org".
 
 
           Press ? for help and = for the options screen while playing.

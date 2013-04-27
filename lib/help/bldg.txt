@@ -1,28 +1,65 @@
-=== Functional Town Overview ===
+=== Stores and Buildings ===
 
-The town is composed of both stores and buildings. 
+Each town contains a variety of buildings you can enter.  Most such
+buildings are stores, where you can sell items you no longer need, or
+buy their offerings.  Each store has their own set of items they buy
+and sell, and you can best get used to which store buys and sells
+which items by entering and looking at their inventory.  A few of the
+less obvious store types include:
 
-Classical stores:
-Magic Shop: buy your wands, staffs, rings and amulets here.
-Alchemist: for all sorts of bubbling potions and scrolls.
-Weaponsmith: they deal in anything sharp and to the point.
-Armorer: to offer protection from the ravages of the dungeon.
-General Store: food, torches, ammo, some necessities.
-Temple Trade: those items permitted to the pious in life.
-Black Market: the prices are usurious, but some depths items!
-Home: to store some of your precious treasures.
+Temples: magic books, scrolls, potions, armor, ammunition, and
+hafted weapons.
+Black Market / Bazaar: they buy and sell all items, but at rather
+unfriendly prices.
+Fletcher: they buy and sell missile weapons and ammunition.
+Milliner: this store specializes in helms and crowns.
 
-Additional buildings:
-Weaponmaster: Compares two weapons to allow you to see which is
-  better.
-Zymurgist: Will identify items in your pack and recharge wands
-  and staves.
-Magesmith (weapon): Will enchant your weapon.
-Magesmith (armor): Will enchant your armor.
-Mutalist: Will add or cure mutations.
-Map Maker: Will provide a map of part of the surrounding
-  wilderness.
-All buildings are made of stone and unlikely to move around.
+Other buildings come in three general types.
 
-This file is accurate for Zangband 2.5.3
+Your home is a building like a store where you can store items you
+don't want to carry with you.
+
+Many other buildings offer magical or non-magical services you may
+wish to take advantage of.  Specifically,
+
+Weaponmaster: Examines and analyzes your weapon, for a price.
+Zymurgist: Can help you recharge your wands, staves, and rods.
+Magesmith: Can enchant your armor or weapons for you.
+Mutatilist: Can expose you to raw chaos to cause a mutation.
+Map Maker: Allows you to learn about the wilderness map in your area.
+Library: Allows you to learn a lot of information about monsters.
+Casino: Allows you to lose money, and will sometimes even pay you.
+Inn: You can get a satisfying meal here, and can sleep until morning
+  if it is nighttime.
+Healer: Will restore your stats if they have been temporarily damaged.
+Magetower: Can teleport you to any magetower you have visited where your
+  aura has formerly been recorded.
+Blacksmith: Can repair faulty but non-cursed weapons and armor, cheap.
+Bank: You can take out a loan here, but be aware that they may
+  confiscate your home if you don't pay the loan back promptly.
+
+Finally, some buildings are quest buildings where you can pick up
+adventuring work.  Some of these buildings also offer magical or
+non-magical services.  
+
+Keeps / Castles / Town halls are local leadership buildings that seek
+a wide variety of work.
+
+Couriers are always looking for messangers to travel from one town to
+another.
+
+Farms can be found in certain areas outside of town only, and like to
+employ adventurers to kill off nearby pests.  They are also a good
+place to buy food.
+
+Guilds offer services of various types, and may send you on quests of
+various types.  Each guild has members that belong to certain classes,
+and you will always find a guild you belong to in the starting town
+(except if you are a mindcrafter, as they have no guild of their own.)
+Thieves' Guilds extend a lower level of membership to anyone who
+proves their worth, but the other guilds do not allow outsiders to
+gain memership.  However, all guilds will send non-members on quests.
+Membership opens access to special services, and significant
+discounts.
+
 

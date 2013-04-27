@@ -41,6 +41,9 @@
 /* Number of wilderness places */
 #define NUM_TOWNS		20
 #define NUM_DUNGEON		20
+#define NUM_FARMS		10
+#define NUM_INNS		10
+
 
 /* Dodgy replacement for SCREEN_WID and SCREEN_HGT */
 
@@ -54,7 +57,7 @@
 	(((TOWN_HGT / WILD_BLOCK_SIZE) + 1) * WILD_BLOCK_SIZE)
 
 /* Starting town has pre-defined stores */
-#define START_STORE_NUM     7
+#define START_STORE_NUM     9
 
 /* Town monster types */
 #define TOWN_MONST_VILLAGER		1
@@ -99,6 +102,8 @@
 #define QUEST_STATUS_TAKEN			1
 #define QUEST_STATUS_COMPLETED		2
 #define QUEST_STATUS_FINISHED		3
+#define QUEST_STATUS_FINISHED_FAILED 4
+#define QUEST_STATUS_FAILED			5
 
 /* Quest creation flags */
 #define Q_GEN_PICKY		0x01
@@ -110,16 +115,12 @@
 #define QUEST_FLAG_ITEM			0x04	/* Player has art. quest item */
 #define QUEST_FLAG_DUMMY		0x08
 #define QUEST_FLAG_KNOWN		0x10	/* Player knows about this quest */
+#define QUEST_FLAG_FIRST		0x20	/* First quest for its building */
 
 /* Helper defines for random quests */
 #define QUEST_CAMP_MON		5	/* One in five squares has a monster */
 #define QUEST_CAMP_OBJ		5	/* One in five squares has an object */
 #define QUEST_CAMP_SCATTER	10	/* Non-camp sqaures have stuff */
-
-/* Dungeon flags */
-#define DF_NONE			0x00
-#define DF_ROAD			0x01
-#define DF_TRACK		0x02
 
 
 /* Building types */
@@ -142,6 +143,7 @@ typedef struct wild_building_type wild_building_type;
 
 struct wild_building_type
 {
+    u16b num;   /* Number in existence */
 	u16b gen;	/* Created */
 	u16b field;	/* Field type, if applicable */
 
@@ -173,12 +175,16 @@ extern void clear_temp_block(void);
 extern void set_temp_corner_val(u16b val);
 extern void set_temp_mid(u16b val);
 extern void frac_block(void);
+extern void create_roads(void);
 
 /* wild2.c */
+extern void draw_farm(place_type *pl_ptr);
 extern void draw_city(place_type *pl_ptr);
 extern void draw_dungeon(place_type *pl_ptr);
+extern void draw_inn(place_type *pl_ptr);
 extern void van_town_gen(place_type *pl_ptr);
 extern void init_vanilla_town(void);
+extern int create_inn(int x, int y);
 
 /* quest.c */
 extern void pick_wild_quest(int *xsize, int *ysize, byte *flags);

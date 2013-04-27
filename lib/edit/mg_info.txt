@@ -1,0 +1,854 @@
+# File: g_info.txt
+
+
+# This file is used to initialize the "lib/raw/g_info.raw" file, which is
+# used to initialize the "monster grouping" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# === Understanding g_info.txt ===
+
+# N:serial number:group name
+# G:guild list
+# H:<hook>  (up to 6 lines)
+# D:base dungeon type list
+# F:additional dungeon flags
+# L:min_level:max_level:level_adj:min_number:max_number
+# W:weight
+
+# Group name describes the monster group type.  
+# This should start in lower case and be plural.
+
+# G: guild list 
+#    Lists the quest buildings this quest can be given from.
+#    Keep in mind ALL_CASTLE, ALL_GUILD, and ALL - helpful shortcuts.
+
+# H:type:inc/exc:neg?:data
+#   type is a letter determining the type of test.
+#   G: graphic.  data is a string of symbols; will test if the monster's
+#          symbol matches one of these.
+#   F: flag.  data is a list of monster flags; will test if the monster
+#          has at least one of these flags.
+#   N: name.  data is a list of strings; will test if the monster's name
+#          contains one of these strings as a substring.  (case insensitive).
+#   S: spell frequency.  data is a number: will test if the monster casts
+#          spells at least 1 in n of the time.
+#   X: index.  data is a list of numbers: will test if the monster's r_idx
+#          (serial number) is in the list.
+#   B: blow.  data is a list of blow types or effects; will test if the monster
+#          attacks in the specified way.
+#   inc/exc determines whether the test is an inclusion test or an exclusion
+#   test.  I = inclusion, E = exclusion.  (Multiple tests are applied in the
+#   order listed.
+#
+#   neg? determines whether to negate the result of the test.
+# Examples:
+# H:G:I:+:CZ  will include any 'C' or 'Z' monster (i.e. hounds or canines).
+# H:F:I:-:NEVER_MOVE  will include any monster that does NOT have the 
+#             NEVER_MOVE flag.
+# H:N:E:+:of Nurgle  will exclude any monsters with "of Nurgle" in their 
+#             name that have been previously included.
+# H:X:I:+:2:4:21:33:192:221  will include monsters 2, 4, 21, 33, 192, and 221.
+
+# D: base dungeon type list, separated with |'s.
+
+# F: additional dungeon flags to apply.
+
+# L: specifies min and max actual level for the quest, a "level adjustment"
+# that will affect the described level (and the reward), and min and max for
+# the number of levels in the quest.
+#   If min number and max number omitted, they are assumed to be 1.
+#   If max number is omitted, it is assumed to be the same as min number.
+
+# W: specifies the weight for this type of quest.  This is used to determine
+# the relative probabilities for various quest types.  By convention, 60 is
+# a "full share."  The weight should be in the range 0 - 255.
+
+# Molds
+N:1:strange growths
+G:ALL_CASTLE | MAGE_GUILD | WARRIOR_GUILD
+H:G:I:+:m,
+D:HOUSE
+F:MEDIUM | DENSE
+L:6:20:-4
+W:60
+
+N:2:snakes and lizards
+G:ALL_CASTLE | WARRIOR_GUILD
+H:G:I:+:JR
+D:DESERT
+F:FORCE_LIT
+L:1:15:1
+W:60
+
+N:3:swarming insects
+G:ALL_CASTLE | WARRIOR_GUILD | RANGER_GUILD
+H:G:I:+:IF
+H:F:E:+:CTH
+D:SWAMP
+F:SMALL | MEDIUM
+L:1:30:6
+W:60
+
+N:4:biting insects
+G:ALL_CASTLE | WARRIOR_GUILD | RANGER_GUILD
+H:G:I:+:caK
+H:N:I:+:tick
+D:DESERT | SANDY_BURROW
+L:1:50:2
+W:45
+
+# slimes
+N:5:strange substances
+G:ALL_CASTLE | MAGE_GUILD | RANGER_GUILD | CATHEDRAL
+H:G:I:+:mij,
+D:SEWER | CAVERN
+L:1:50:2:2:4
+W:60
+
+N:6:rats
+G:ALL_CASTLE | RANGER_GUILD | CATHEDRAL
+H:G:I:+:r
+H:F:E:-:MULTIPLY
+H:N:I:+:skaven:rat-thing
+D:CAVERN
+F:SPARSE | MEDIUM
+L:1:15:6
+W:60
+
+N:7:kobolds
+G:ALL_CASTLE | WARRIOR_GUILD | THIEVES_GUILD | CATHEDRAL
+H:G:I:+:k
+H:X:I:+:35:40
+D:FOREST
+F:SMALL | CASTLE
+L:1:10:2
+W:20
+
+N:8:kobolds
+G:ALL_CASTLE | WARRIOR_GUILD | THIEVES_GUILD | CATHEDRAL
+H:G:I:+:k
+H:X:I:+:35:40
+D:LAIR
+F:SMALL
+L:1:10:4:2
+W:25
+
+N:9:kobolds
+G:ALL_CASTLE | WARRIOR_GUILD | THIEVES_GUILD | CATHEDRAL
+H:G:I:+:k
+H:X:I:+:35:40
+D:CAVERN
+F:MEDIUM | CASTLE
+L:1:10:2
+W:30
+
+N:10:worms
+G:ALL_CASTLE | WARRIOR_GUILD | RANGER_GUILD
+H:G:I:+:w
+H:F:E:-:MULTIPLY
+D:SWAMP | SEWER
+F:SMALL | SPARSE
+L:1:12:6
+W:60
+
+N:11:wolves
+G:ALL
+H:G:I:+:C
+D:MOUNTAIN | TUNDRA | FOREST
+F:FORCE_LIT | MEDIUM
+L:1:30:3
+W:120
+
+N:12:bats
+G:ALL_CASTLE | WARRIOR_GUILD | MAGE_GUILD
+H:G:I:+:b
+D:SANDY_BURROW
+L:1:40:2
+W:60
+
+# 13-14: fighters
+N:13:enemy warriors
+G:ALL
+H:N:I:+:warrior:knight
+H:X:I:+:116:150:216:293:410:532
+H:X:E:+:693
+H:G:E:-:p
+H:F:E:+:GOOD
+D:CITY
+F:CASTLE | DENSE
+L:5:40:5
+W:45
+
+N:14:raiders
+G:ALL
+H:N:I:+:warrior:knight
+H:X:I:+:116:150:216:293:410:532
+H:X:E:+:693
+H:G:E:-:p
+H:F:E:+:GOOD
+D:PURE_CASTLE
+F:BIG | DENSE
+L:5:40:5
+W:45
+
+# 15-17: thieves
+N:15:highwaymen
+G:ALL_CASTLE | MAGE_GUILD | RANGER_GUILD | WARRIOR_GUILD | CATHEDRAL
+H:N:I:+:rogue:thief
+H:X:I:+:150:485
+D:PURE_CASTLE
+F:SMALL | DENSE
+L:5:8:0
+W:60
+
+N:16:thieves
+G:ALL_CASTLE | MAGE_GUILD | RANGER_GUILD | WARRIOR_GUILD | CATHEDRAL
+H:N:I:+:rogue:thief
+H:X:I:+:150:485
+D:PURE_CASTLE
+F:MEDIUM | DENSE
+L:15:20:2
+W:60
+
+N:17:outlaws
+G:ALL_CASTLE | MAGE_GUILD | RANGER_GUILD | WARRIOR_GUILD | CATHEDRAL
+H:N:I:+:rogue:thief
+H:X:I:+:150:485
+D:PURE_CASTLE
+F:BIG | DENSE
+L:25:45:4
+W:60
+
+N:18:religious fanatics
+G:ALL_CASTLE | WARRIOR_GUILD | THIEVES_GUILD
+H:N:I:+:knight:paladin:monk:priest
+H:F:E:+:EVIL
+H:X:I:+:414
+H:G:E:-:p
+D:PURE_CASTLE
+F:MEDIUM
+L:10:55:0:1:3
+W:120
+
+N:19:wizards
+G:ALL_CASTLE | MAGE_GUILD
+H:N:I:+:mage:sorcer
+H:X:I:+:240:375:445:498:571:636:897:898
+H:X:E:+:430
+D:TOWER
+F:SMALL | SYM_2R | CENTER
+L:5:25:0
+W:30
+
+N:20:magic-users
+G:ALL_CASTLE | MAGE_GUILD
+H:N:I:+:mage:sorcer
+H:X:I:+:240:375:445:498:571:636:897:898
+H:X:E:+:430
+D:TOWER
+F:SMALL | SYM_2R | CENTER
+L:15:25:3:2:3
+W:30
+
+N:21:spellcasters
+G:ALL_CASTLE | MAGE_GUILD
+H:N:I:+:mage:sorcer
+H:X:I:+:240:375:445:498:571:636:897:898
+H:X:E:+:430
+D:TOWER
+F:SYM_2R | SPARSE | MEDIUM | POOLS
+L:25:45:3:2:4
+W:30
+
+N:22:wizards
+G:ALL_CASTLE | MAGE_GUILD
+H:N:I:+:mage:sorcer
+H:X:I:+:240:375:445:498:571:636:897:898
+H:X:E:+:430
+D:TOWER
+F:SYM_2R | CENTER | SMALL 
+L:40:55:3:5:7
+W:30
+
+N:23:warlocks
+G:ALL_CASTLE | MAGE_GUILD
+H:N:I:+:mage:sorcer
+H:X:I:+:240:375:445:498:571:636:897:898
+H:X:E:+:430
+D:PURE_CASTLE
+F:BIG | POOLS
+L:36:55:0
+W:30
+
+N:24:mages
+G:ALL_CASTLE | MAGE_GUILD
+H:N:I:+:mage:sorcer
+H:X:I:+:240:375:445:498:571:636:897:898
+H:X:E:+:430
+D:PURE_CASTLE
+F:MEDIUM | POOLS
+L:21:35:0
+W:30
+
+N:25:mages
+G:ALL_CASTLE | MAGE_GUILD
+H:N:I:+:mage:sorcer
+H:X:I:+:240:375:445:498:571:636:897:898
+H:X:E:+:430
+D:PURE_CASTLE
+F:SMALL
+L:5:20:0
+W:30
+
+N:26:venomous insects
+G:ALL_CASTLE | WARRIOR_GUILD | CATHEDRAL 
+H:G:I:+:SKcaI
+H:B:E:-:POISON | LOSE_STR | PARALYZE
+H:F:E:+:MULTIPLY
+D:CAVERN | DESERT
+L:5:45:0
+W:60
+
+N:27:spiders
+G:ALL_CASTLE | WARRIOR_GUILD | CATHEDRAL
+H:G:I:+:S
+H:N:E:+:tick:scorpion
+D:RUIN | CAVERN
+L:1:45:3
+W:60
+
+N:28:cats
+G:ALL_CASTLE
+H:G:I:+:f
+D:GRASSLAND
+F:SPARSE
+L:5:30:0
+W:60
+
+N:29:spirits
+G:ALL
+H:G:I:+:G
+D:SWAMP | GRAVE
+F:MEDIUM
+L:8:40:0
+W:45
+
+N:30:ghosts
+G:ALL
+H:G:I:+:G
+D:GRAVE | TEMPLE
+F:MEDIUM
+L:30:60:3:2
+W:45
+
+# aquatic
+N:31:terrors of the deep
+G:ALL
+H:G:I:+:l
+H:F:I:+:AQUATIC
+D:FLOOD_CAVE
+F:BIG
+L:10:80:4
+W:60
+
+N:32:nagas
+G:ALL
+H:G:I:+:JRl
+H:F:E:-:AQUATIC
+H:G:I:+:n
+H:D:E:+:45
+D:LAIR
+L:5:30:0
+W:60
+
+N:33:rogue druids
+G:ALL_CASTLE
+H:X:I:+:6
+H:N:I:+:ranger:mystic:druid
+D:FOREST
+L:5:45:2
+W:60
+
+# mimics
+N:34:mysterious things
+G:ALL_CASTLE | MAGE_GUILD
+H:F:I:+:CHAR_MIMIC
+D:MINE | TEMPLE
+L:5:40:2
+W:60
+
+N:35:orcs
+G:ALL_CASTLE | WARRIOR_GUILD | THIEVES_GUILD | CATHEDRAL | RANGER_GUILD
+H:G:I:+:o
+H:X:I:+:40
+D:GRAVE
+F:CASTLE
+L:5:20:2
+W:60
+
+N:36:orcs
+G:ALL_CASTLE | WARRIOR_GUILD | THIEVES_GUILD | CATHEDRAL | RANGER_GUILD
+H:G:I:+:o
+H:X:I:+:40
+D:MINE | CITY
+F:CASTLE
+L:5:20:2
+W:60
+
+N:37:living dead
+G:ALL
+H:G:I:+:sz
+D:SWAMP | GRAVE | TEMPLE
+L:10:45:0
+W:90
+
+N:38:elves
+G:ALL
+H:N:I:+:dark el
+D:PURE_CASTLE
+F:MEDIUM
+L:10:35:0
+W:60
+
+N:39:elves
+G:ALL
+H:N:I:+:dark el
+D:CITY
+L:10:35:0
+W:60
+
+N:40:demons
+G:ALL
+H:G:I:+:u
+D:HELL | HORROR
+F:BIG | POOLS
+L:10:55:0:1:2
+W:45
+
+N:41:demons
+G:ALL
+H:G:I:+:u
+D:ELEMENT_FIRE | ELEMENT_COLD
+F:MEDIUM | DENSE | CENTER
+L:10:55:2:1:2
+W:45
+
+N:42:yeeks
+G:ALL_CASTLE | WARRIOR_GUILD | THIEVES_GUILD
+H:G:I:+:yi,
+H:D:E:+:25
+D:MINE | ICE_CAVE
+L:5:18:3:2:3
+W:60
+
+N:43:fire-breathers
+G:ALL
+H:F:I:+:BR_FIRE
+H:F:E:+:DEMON | UNDEAD | NEVER_MOVE
+H:N:E:+:multi-hued:aether:many colo
+D:HELL
+F:CENTER | SYM_2 
+L:20:90:0
+W:30
+
+N:44:fire-breathers
+G:ALL
+H:F:I:+:BR_FIRE
+H:F:E:+:DEMON | UNDEAD | NEVER_MOVE
+H:N:E:+:multi-hued:aether:many colo
+D:ELEMENT_FIRE
+F:SYM_2 | CENTER 
+L:20:90:3
+W:30
+
+N:45:fiery monsters
+G:ALL_CASTLE | MAGE_GUILD 
+H:G:I:+:EvZ*d
+H:F:E:-:IM_FIRE | BR_FIRE
+H:B:E:-:FIRE
+D:ELEMENT_FIRE
+F:SYM_2R | BIG
+L:20:80:3
+W:60
+
+N:46:freezing monsters
+G:ALL
+H:F:I:+:BR_COLD | BA_COLD
+H:B:I:+:COLD
+H:F:E:+:DEMON | UNDEAD | NEVER_MOVE
+H:N:E:+:multi-hued:aether:many colo
+H:G:E:+:pO
+D:ICE_CAVE | ELEMENT_COLD
+F:SYM_2
+L:20:80:3
+W:60
+
+N:47:arctic monsters
+G:ALL
+H:G:I:+:EvZ*d
+H:F:E:-:IM_COLD | BR_COLD
+H:B:E:-:COLD
+D:ELEMENT_COLD
+F:SYM_2 | BIG
+L:20:80:3
+W:60
+
+N:48:women
+G:ALL
+H:F:I:+:FEMALE
+H:F:E:-:EVIL
+D:RUIN | LAIR
+L:5:80:0
+W:60
+
+N:49:bears
+G:ALL_CASTLE | WARRIOR_GUILD
+H:N:I:+:bear
+D:FOREST
+F:MEDIUM
+L:5:15:2
+W:60
+
+N:50:energy monsters
+H:F:I:+:BR_ELEC
+H:F:E:+:DEMON | UNDEAD | NEVER_MOVE
+H:N:E:+:multi-hued:aether:many colo
+D:PLANAR
+F:SYM_4 | CENTER 
+L:20:80:3
+W:60
+
+N:51:toxic monsters
+H:F:I:+:BR_POIS
+H:F:E:+:DEMON | UNDEAD | NEVER_MOVE
+H:N:E:+:multi-hued:aether:many colo
+D:CAVERN | SWAMP
+F:SYM_2 
+L:20:80:3
+W:30
+
+N:52:toxic monsters
+H:F:I:+:BR_POIS
+H:F:E:+:DEMON | UNDEAD | NEVER_MOVE
+H:N:E:+:multi-hued:aether:many colo
+D:SEWER
+F:SYM_2 
+L:20:40:3
+W:30
+
+N:53:corrosive monsters
+H:F:I:+:BR_ACID
+H:B:I:+:ACID
+H:F:E:+:DEMON | UNDEAD | NEVER_MOVE
+H:N:E:+:multi-hued:aether:many colo
+H:G:E:+:hp
+D:ELEMENT_ACID | RUIN
+F:SYM_2 | CENTER
+L:20:30:3
+W:60
+
+N:54:dragons
+H:G:I:+:d
+D:LAIR | PLANAR
+L:15:55:4
+W:90
+
+N:55:monsters
+H:G:I:+:HY
+D:HORROR | HELL
+L:10:80:2
+W:60
+
+N:56:prismatic monsters
+H:N:I:+:multi-hued:aether:many colo
+D:PLANAR
+L:20:85:3
+W:60
+
+N:57:evil priests
+H:N:I:+:knight:priest
+H:F:E:-:EVIL
+D:PURE_CASTLE
+L:10:70:3
+W:45
+
+N:58:evil priests
+H:N:I:+:knight:priest
+H:F:E:-:EVIL
+D:GRAVE | TEMPLE
+L:10:70:3
+W:30
+
+N:59:necromancers
+H:N:I:+:knight:priest
+H:F:E:-:EVIL
+H:G:I:+:sz
+D:PURE_CASTLE
+L:10:70:3
+W:45
+
+N:60:necromancers
+H:N:I:+:knight:priest
+H:F:E:-:EVIL
+H:G:I:+:sz
+D:GRAVE | TEMPLE
+L:10:70:3
+W:45
+
+N:61:cultists
+H:N:I:+:knight:priest
+H:F:E:-:EVIL
+H:G:I:+:g
+D:PURE_CASTLE
+L:10:70:3
+W:45
+
+N:62:cultists
+H:N:I:+:knight:priest
+H:F:E:-:EVIL
+H:G:I:+:g
+D:TOWER | TEMPLE
+L:10:70:3
+W:45
+
+N:63:winged monsters
+H:F:I:+:CAN_FLY
+H:F:E:+:BR_FIRE | BR_ACID | UNDEAD | DEMON | IM_FIRE | IM_ACID | CHAR_MIMIC
+H:G:I:+:B
+H:X:I:+:537
+D:MOUNTAIN
+F:BIG | SPARSE
+L:10:80:3
+W:60
+
+N:64:kobolds
+H:G:I:+:ky
+H:X:I:+:40
+D:FOREST | CAVERN
+F:SMALL | MEDIUM | CASTLE
+L:1:18:2
+W:45
+
+N:65:kobolds
+H:G:I:+:ky
+H:X:I:+:40
+D:LAIR
+L:1:18:2
+W:45
+
+N:66:orcs
+H:G:I:+:ko
+H:X:I:+:40
+D:FOREST | SWAMP | CAVERN | LAIR
+F:SMALL | MEDIUM | CASTLE
+L:1:20:2
+W:60
+
+N:67:orcs
+H:G:I:+:ko
+H:X:I:+:40
+D:CITY | MINE
+L:5:20:4:2:3
+W:60
+
+N:68:ogres
+H:G:I:+:oO
+H:X:I:+:40
+D:MOUNTAIN | CAVERN | CITY
+F:SMALL | MEDIUM | CASTLE
+L:5:40:3
+W:90
+
+N:69:ogres
+H:G:I:+:oO
+H:X:I:+:40
+D:PURE_CASTLE
+L:10:50:5:2:3
+W:30
+
+N:70:orcs and trolls
+H:G:I:+:oOT
+H:X:I:+:40
+D:MOUNTAIN | CAVERN | CITY
+F:SMALL | MEDIUM | CASTLE
+L:5:50:3
+W:90
+
+N:71:orcs and trolls
+H:G:I:+:oOT
+H:X:I:+:40
+D:PURE_CASTLE
+L:20:50:5:2:3
+W:30
+
+N:72:giants
+H:G:I:+:OP
+D:MOUNTAIN | CAVERN | CITY
+F:SMALL | MEDIUM | CASTLE
+L:20:60:3
+W:90
+
+N:73:giants
+H:G:I:+:OP
+D:PURE_CASTLE
+L:20:60:5:2:3
+W:30
+
+N:74:trolls and giants
+H:G:I:+:OPT
+D:MOUNTAIN | CAVERN | CITY
+F:SMALL | MEDIUM | CASTLE
+L:20:60:3
+W:90
+
+N:75:trolls and giants
+H:G:I:+:OPT
+D:PURE_CASTLE
+L:20:60:5:2:3
+W:30
+
+N:76:ogres and trolls
+H:G:I:+:OT
+D:MOUNTAIN | CAVERN | CITY
+F:SMALL | MEDIUM | CASTLE
+L:20:50:3
+W:90
+
+N:77:ogres and trolls
+H:G:I:+:OT
+D:PURE_CASTLE
+L:20:50:5:2:3
+W:30
+
+N:78:trolls
+H:G:I:+:T
+D:MOUNTAIN | CAVERN | CITY
+F:SMALL | MEDIUM | CASTLE
+L:20:60:3
+W:90
+
+N:79:trolls
+H:G:I:+:T
+D:PURE_CASTLE
+L:20:60:5:2:3
+W:30
+
+N:80:giants
+H:G:I:+:P
+D:MOUNTAIN | CAVERN | CITY
+F:SMALL | MEDIUM | CASTLE
+L:20:60:3
+W:90
+
+N:81:giants
+H:G:I:+:P
+D:PURE_CASTLE
+L:20:60:5:2:3
+W:30
+
+N:82:lycanthropes
+H:N:I:+:were
+D:HORROR
+L:10:30:2
+W:60
+
+N:83:hounds
+H:G:I:+:CZ
+D:PLANAR
+L:20:80:4
+W:120
+
+N:84:energy monsters
+H:F:I:+:BR_LITE | BR_MANA | AURA_ELEC
+D:PLANAR
+F:FORCE_LIT
+L:20:95:3
+W:45
+
+N:85:foul monsters
+H:F:I:+:BR_DARK | BR_NETH | BR_DISE
+H:G:E:+:U
+D:SMOKE_CAVE
+L:20:95:3:1:3
+W:60
+
+N:86:reptiles
+H:G:I:+:MR
+D:LAIR
+L:20:60:3:1:3
+W:60
+
+N:87:terrors of the deep
+H:F:I:+:AQUATIC
+H:N:I:+:water
+D:ELEMENT_WATER
+F:SYM_2R
+L:20:80:2
+W:60
+
+N:88:hard monsters
+H:F:I:+:HURT_ROCK | KILL_WALL
+D:ELEMENT_EARTH
+L:20:60:5:3:5
+W:60
+
+N:89:quylthulgs
+H:G:I:+:Q
+D:TOWER
+F:SYM_2R | SPARSE
+L:25:90:4
+W:60
+
+N:90:dragons
+H:F:I:+:DRAGON
+D:LAIR | HORROR | PLANAR
+L:15:95:3
+W:90
+
+N:91:dragons
+H:F:I:+:DRAGON
+D:LAIR | HORROR | PLANAR
+L:15:95:7:3:4
+W:90
+
+N:92:undead
+H:F:I:+:UNDEAD
+D:GRAVE | SWAMP | HORROR
+L:15:95:3
+W:90
+
+N:93:undead
+H:F:I:+:UNDEAD
+D:GRAVE | SWAMP | HORROR
+L:15:95:6:3:4
+W:90
+
+N:94:demons
+H:F:I:+:DEMON
+D:RUIN | HORROR | HELL | TEMPLE
+L:15:95:6:3:4
+W:90
+
+N:95:horrors
+H:F:I:+:ELDRITCH_HORROR
+D:HORROR
+L:15:95:4:1:2
+W:90
+
+N:96:angels
+H:G:I:+:A
+H:F:I:+:GOOD
+H:F:E:+:EVIL
+D:HEAVEN
+F:BIG
+L:45:70:3
+W:60
+
+N:97:demons
+H:F:I:+:DEMON
+D:RUIN | HORROR | HELL | TEMPLE
+L:15:95:3
+W:90
+

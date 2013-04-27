@@ -1,0 +1,16 @@
+# descriptions of what a monster is doing in an area.
+# should fit "(monster) has been ____ the area northwest of town"
+N:*:Default
+11
+terrorizing
+troubling
+rampaging
+running amok in
+killing people in
+lurking in
+hiding in
+spreading evil in
+seen in
+discovered in
+spotted in
+seen in

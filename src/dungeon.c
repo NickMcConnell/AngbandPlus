@@ -283,7 +283,7 @@ static void sense_inventory(void)
 
 	/* No sensing when confused */
 	if (p_ptr->tim.confused) return;
-	
+
 	/* Analyze the class */
 	switch (p_ptr->rp.pclass)
 	{
@@ -355,7 +355,7 @@ static void sense_inventory(void)
 		{
 			/* Bad sensing */
 			difficulty = 55000L;
-	
+
 			/* Done */
 			break;
 		}
@@ -387,7 +387,7 @@ static void sense_inventory(void)
 	}
 
 	/*
-	 * Scale difficulty depending on sensing ability 
+	 * Scale difficulty depending on sensing ability
 	 * This can be affected by objects.
 	 */
 	difficulty /= (p_ptr->skills[SKILL_SNS] > 0 ? p_ptr->skills[SKILL_SNS] : 1);
@@ -400,7 +400,7 @@ static void sense_inventory(void)
 
 	/* Does it work? */
 	if (!(one_in_(difficulty))) return;
-	
+
 	/* Heavy sensing? */
 	heavy = class_info[p_ptr->rp.pclass].heavy_sense;
 
@@ -772,7 +772,7 @@ static bool item_tester_unsensed(const object_type *o_ptr)
 
 	/* Check to see if we have identified the item */
 	if (object_known_p(o_ptr)) return (FALSE);
-	
+
 	/* Cannot sense flavoured items */
 	if (k_ptr->flavor) return (FALSE);
 
@@ -789,12 +789,12 @@ bool psychometry(void)
 	object_type *o_ptr;
 	byte feel;
 	cptr q, s;
-	
+
 	/* Only un-id'ed items */
 	item_tester_hook = item_tester_unsensed;
 
 	/* Get an item */
-	q = "Meditate on which item? ";
+	q = (p_ptr->rp.pclass == CLASS_MINDCRAFTER ? "Meditate on which item? " : "Focus on which item? ");
 	s = "You have nothing appropriate.";
 
 	o_ptr = get_item(q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR));
@@ -808,7 +808,7 @@ bool psychometry(void)
 	/* Skip non-feelings */
 	if (!feel)
 	{
-		msgf("You do not perceive anything unusual about the %v.",
+		msgf("You do not find anything unusual about the %v.",
 				   OBJECT_FMT(o_ptr, FALSE, 0));
 		return TRUE;
 	}
@@ -829,7 +829,7 @@ bool psychometry(void)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER);
-	
+
 	/* Notice changes */
 	notice_item();
 
@@ -883,7 +883,7 @@ static void recharged_notice(const object_type *o_ptr)
 				/* One is charged */
 				else if (o_ptr->number - power == 1)
 				{
-					msgf("One of your %v is charged.", 
+					msgf("One of your %v is charged.",
 						OBJECT_FMT(o_ptr, FALSE, 0));
 				}
 				/* Some are charged, some are recharging */
@@ -991,7 +991,7 @@ static void process_world(void)
 	/*** Process the monsters ***/
 
 	/* Check for creature generation. */
-	if (one_in_(MAX_M_ALLOC_CHANCE))
+	if (one_in_(MAX_M_ALLOC_CHANCE) && !current_quest)
 	{
 		/* Make a new monster */
 		(void)alloc_monster(MAX_SIGHT + 5, FALSE, 0);
@@ -999,7 +999,6 @@ static void process_world(void)
 
 	/* Hack -- Check for creature regeneration */
 	if (!(turn % 100)) regen_monsters();
-
 
 	/*** Damage over Time ***/
 
@@ -1009,7 +1008,6 @@ static void process_world(void)
 		/* Take damage */
 		take_hit(1, "poison");
 	}
-
 
 	/* (Vampires) Take damage from sunlight */
 	if (FLAG(p_ptr, TR_HURT_LITE))
@@ -1032,7 +1030,7 @@ static void process_world(void)
 
 		if (o_ptr->tval &&
 			(o_ptr->sval >= SV_LITE_GALADRIEL) &&
-			(o_ptr->sval < SV_LITE_THRAIN) && 
+			(o_ptr->sval < SV_LITE_THRAIN) &&
 			!(FLAG(p_ptr, TR_RES_LITE)) &&
 			!(FLAG(p_ptr, TR_IM_LITE)))
 		{
@@ -1043,7 +1041,7 @@ static void process_world(void)
 			cave_no_regen = TRUE;
 
 			strnfmt(ouch, 280, "wielding %v", OBJECT_FMT(o_ptr, TRUE, 0));
-			
+
 			if (!p_ptr->tim.invuln) take_hit(1, ouch);
 		}
 	}
@@ -1201,7 +1199,7 @@ static void process_world(void)
 	if (cave_wall_grid(c_ptr))
 	{
 		if (!p_ptr->tim.invuln && !p_ptr->tim.wraith_form &&
-			((p_ptr->chp > (depth / 10)) || 
+			((p_ptr->chp > (depth / 10)) ||
 			 !(FLAG(p_ptr, TR_PASS_WALL))))
 		{
 			cptr dam_desc;
@@ -1223,7 +1221,7 @@ static void process_world(void)
 		}
 	}
 
-	/* 
+	/*
 	 * Fields you are standing on may do something.
 	 */
 	field_script(c_ptr, FIELD_ACT_PLAYER_ON, "");
@@ -1417,7 +1415,7 @@ static void process_world(void)
 		{
 			regen_amount = regen_amount * 2;
 		}
-	
+
 		if (FLAG(p_ptr, TR_SLOW_HEAL))
 		{
 			regen_amount = regen_amount / 4;
@@ -1432,7 +1430,7 @@ static void process_world(void)
 		regen_amount = regen_amount * 2;
 	}
 
-	if (total_friends)
+	if (total_friends && use_upkeep)
 	{
 		if (total_friends > 1 + (p_ptr->lev / cp_ptr->pet_upkeep_div))
 		{
@@ -1495,6 +1493,18 @@ static void process_world(void)
 	if (p_ptr->tim.oppose_fire) (void)inc_oppose_fire(-1);
 	if (p_ptr->tim.oppose_cold) (void)inc_oppose_cold(-1);
 	if (p_ptr->tim.oppose_pois) (void)inc_oppose_pois(-1);
+	if (p_ptr->tim.oppose_conf) (void)inc_oppose_conf(-1);
+	if (p_ptr->tim.oppose_blind) (void)inc_oppose_blind(-1);
+	if (p_ptr->tim.etherealness) (void)inc_etherealness(-1);
+
+	/* Quest timeouts */
+	for (i = 0; i < z_info->q_max; i++)
+	{
+		if (quest[i].timeout && turn > quest[i].timeout)
+		{
+			trigger_quest_fail(i);
+		}
+	}
 
 
 	/*** Poison and Stun and Cut ***/
@@ -1549,7 +1559,7 @@ static void process_world(void)
 
 
 	/*** Process Inventory ***/
-
+	
 	/* Handle experience draining */
 	if (FLAG(p_ptr, TR_DRAIN_EXP))
 	{
@@ -1597,7 +1607,7 @@ static void process_world(void)
 		}
 
 		/* Auto-curse */
-		if ((FLAG(o_ptr, TR_AUTO_CURSE)) && 
+		if ((FLAG(o_ptr, TR_AUTO_CURSE)) &&
 				!(FLAG(o_ptr, TR_CURSED)) && one_in_(1000))
 		{
 			msgf("There is a malignant black aura surrounding you...");
@@ -1650,7 +1660,7 @@ static void process_world(void)
 					if (!o_ptr->timeout)
 					{
 						recharged_notice(o_ptr);
-						
+
 						/* Notice changes */
 						notice_equip();
 					}
@@ -1674,7 +1684,7 @@ static void process_world(void)
 				if (!o_ptr->timeout)
 				{
 					recharged_notice(o_ptr);
-					
+
 					/* Notice changes */
 					notice_equip();
 				}
@@ -1721,6 +1731,10 @@ static void process_world(void)
 
 	/* Feel the inventory */
 	sense_inventory();
+
+	/* Sometimes, check for inscribed "reminder" items */
+	if (turn % 2000 == 0)
+		inventory_remind();
 
 
 	/*** Process Objects ***/
@@ -1778,7 +1792,7 @@ static void process_world(void)
 		p_ptr->tim.word_recall--;
 
 		p_ptr->redraw |= (PR_STATUS);
-		
+
 		/* Hack - no recalling in the middle of the wilderness */
 		if ((!p_ptr->depth) && (!p_ptr->place_num)) return;
 
@@ -1801,18 +1815,18 @@ static void process_world(void)
 			else
 			{
 				dun_type *d_ptr = dungeon();
-				
+
 				msgf("You feel yourself yanked downwards!");
 
 				/* Not lower than bottom of dungeon */
 				p_ptr->depth = d_ptr->recall_depth;
-				
+
 				/* Go down at least to the start of the dungeon */
 				if (p_ptr->depth < d_ptr->min_level)
 				{
 					p_ptr->depth = d_ptr->min_level;
 				}
-				
+
 				/* Nightmare mode makes recall more dangerous */
 				if (ironman_nightmare && one_in_(666))
 				{
@@ -1828,7 +1842,7 @@ static void process_world(void)
 					{
 						p_ptr->depth = MAX_DEPTH - 1;
 					}
-					
+
 					if (p_ptr->depth > d_ptr->max_level)
 					{
 						p_ptr->depth = d_ptr->max_level;
@@ -2062,6 +2076,18 @@ static void process_command(void)
 		{
 			/* Destroy an item */
 			do_cmd_destroy();
+			break;
+		}
+
+		case 'K':
+		{
+			do_cmd_squelch();
+			break;
+		}
+
+		case KTRL('U'):
+		{
+			do_cmd_unsquelch();
 			break;
 		}
 
@@ -2561,7 +2587,7 @@ static void process_command(void)
 		default:
 		{
 			/* Hack -- Unknown command */
-			if (one_in_(2))
+			if (one_in_(20))
 			{
 				char error_m[1024];
 				sound(SOUND_ILLEGAL);
@@ -2657,7 +2683,7 @@ static void process_player(void)
 
 		/* Refresh (optional) */
 		if (fresh_before) Term_fresh();
-		
+
 		/* Hack -- Pack Overflow */
 		if (get_list_length(p_ptr->inventory) > INVEN_PACK)
 		{
@@ -2693,7 +2719,7 @@ static void process_player(void)
 			/* Update */
 			handle_stuff();
 		}
-		
+
 		/* Assume free turn */
 		p_ptr->state.energy_use = 0;
 
@@ -2772,7 +2798,7 @@ static void process_player(void)
 		{
 			/* Use some energy */
 			p_ptr->energy -= p_ptr->state.energy_use;
-			
+
 			/* Change stuff */
 			change_stuff();
 
@@ -2788,7 +2814,7 @@ static void process_player(void)
 		{
 			/* Hack - save game if asked */
 			if (autosave_l) do_cmd_save_game(TRUE);
-		
+
 			break;
 		}
 		/* Used up energy for this turn */
@@ -3122,7 +3148,7 @@ static void load_all_pref_files(void)
 {
 	/* Process global pref file */
 	(void)process_pref_file("player.prf");
-	
+
 	/* Process race pref file */
 	(void)process_pref_file("%s.prf", rp_ptr->title);
 
@@ -3169,7 +3195,7 @@ void play_game(bool new_game)
 	Term_activate(angband_term[0]);
 
 	if (!angband_term[0]) quit("Main term does not exist!");
-	
+
 	/* Hack -- Character is "icky" */
 	screen_save();
 
@@ -3280,7 +3306,7 @@ void play_game(bool new_game)
 		{
 			turn = 1;
 		}
-		
+
 		/* Create a new wilderness for the player */
 		create_wilderness();
 
@@ -3330,7 +3356,7 @@ void play_game(bool new_game)
 
 	/*
 	 * Set or clear "rogue_like_commands" if requested
-	 * (Do it again, because of loading the pref files 
+	 * (Do it again, because of loading the pref files
 	 *  can stomp on the options.)
 	 */
 	if (arg_force_original) rogue_like_commands = FALSE;
@@ -3344,10 +3370,10 @@ void play_game(bool new_game)
 
 	/* Hack -- Character is no longer "icky" */
 	screen_load();
-	
+
 	/* React to changes */
 	Term_xtra(TERM_XTRA_REACT, 0);
-	
+
 	/* Start game */
 	p_ptr->state.playing = TRUE;
 
@@ -3356,7 +3382,7 @@ void play_game(bool new_game)
 
 	/* Enter "xtra" mode */
 	character_xtra = TRUE;
-	
+
 	/* Resize / init the map */
 	p_ptr->update |= (PU_MAP);
 
@@ -3486,10 +3512,10 @@ void play_game(bool new_game)
 
 		/* Make a new level */
 		generate_cave();
-		
+
 		/* Update panels */
 		p_ptr->update |= (PU_MAP);
-		
+
 		update_stuff();
 	}
 

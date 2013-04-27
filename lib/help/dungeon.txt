@@ -2,11 +2,11 @@
 
 
 Although Zangband contains an extensive town level featuring multiple
-towns and a large wilderness area, the bulk of your adventuring will
-take place in the dungeon. Symbols appearing on your screen will
-represent the dungeon's walls, floor, objects, features, and creatures
-lurking about. In order to direct your character through his adventure,
-you will enter single character commands (see command.txt [1]).
+towns and a large wilderness area, much of your adventuring will take
+place in the dungeon. Symbols appearing on your screen will represent
+the dungeon's walls, floor, objects, features, and creatures lurking
+about. In order to direct your character through his adventure, you
+will enter single character commands (see command.txt [1]).
 
 
 ***** <MapSymbols>
@@ -253,58 +253,29 @@ it unless your character's continued survival is in question.
 ***** <RandomQuests>
 === Random Quests ===
 
-During character generation, you will be asked to input the number
-of random quests you wish to participate in. You may choose any
-number from 0 to 49. Random quests are always of the type 'Kill a
-random number of an out-of depth monster'. There is a limit to the
-number of levels a random quest monster may be out-of-depth but
-these quests can still be very dangerous. 
+Zangband no longer uses random dungeon quests.
 
-Random quests always appear on even levels and are equally spaced
-throughout the dungeon (for example, a choice of 49 random quests
-results in one such quest on every even level until level 98 (level
-100 is the Serpent quest)). On entering a random quest level you
-will be told what the quest monster is and how many you have to
-kill (for example, 'This level is guarded by 10 young green
-dragons').
+***** <Quests>
+=== Quest Dungeons ===
 
-On random quest levels, no down staircases are generated until the
-last monster is killed which means that you cannot continue further
-into the dungeon until you have completed your quests. When you
-kill the last quest monster, the down staircase will be created and
-the monster will drop an item of 'excellent' quality or above. This
-is true even of monsters that do not normally drop items. Using the
-services of the Trump Tower (see the Town section) can teleport you
-past a particularly nasty quest but you must come back and finish
-it later if you want your character to be a winner.
-
-Random quests can be either 'easy' or 'hard' and you must choose
-which type you want during character generation. This choice is
-irrevocable for the duration of the character's dungeon diving
-career. 'Easy' means that the game tracks how many quest monsters
-you have killed on each attempt at the quest and adds these to the
-total count. This allows you to kill one or more quest monsters,
-leave the level and return later to finish up. 'Hard' means that
-each time you enter the quest level the number of quest monsters
-remaining is reset. In other words, you have to kill all the quest
-monsters in one go.
-
-'Hard' quests can allow you to 'farm' the quest monsters by killing
-all but one, leaving the level and repeating. This allows you to
-collect and sell the dropped items and gain repeated experience for
-killing the monsters. This technique is frowned upon by many players
-and should be noted in any 'winner' post to the newsgroup.
-
-Note that to avoid some ugly abuses available to players, the Genocide,
-Mass-Genocide and *Destruction* spells are prevented from working
-on random quests monsters. Random quest monsters may also not be cloned
-or tamed.
+Quest dungeons are special locations you may go and explore when you
+are trying to fulfill a quest.  Quest dungeons are much like any other
+map (some may look more like wilderness than like an actual dungeon,
+though.)  Quest levels differ from ordinary dungeons in many ways,
+depending on the specific quest.  However, they share some features in
+common.  Quest dungeons can be attempted more than once, but some do
+not allow you to try as many times as you like.  This prevents
+"farming" where a player may purposely encounter certain fairly
+difficult monsters they know they can kill.  Some quest dungeons
+contain more than one level; keep in mind that a level must often be
+cleared before the down staircase appears.
 
 --
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Last update: May 29, 2000
+Updated    : Mangojuice
+Last update: June 21, 2008
 
 ***** Begin Hyperlinks
 ***** [1] command.txt

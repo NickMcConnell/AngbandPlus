@@ -95,7 +95,8 @@ static cptr desc_insult[] =
 	"defiles you!",
 	"dances around you!",
 	"makes obscene gestures!",
-	"moons you!!!"
+	"moons you!!!",
+	"goes 'HUHHHHHHH!'"
 };
 
 
@@ -117,10 +118,10 @@ static cptr desc_moan[] =
 void flee_message(cptr m_name, u16b r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
-	
+
 	/* Immobile monsters can never flee */
 	if (FLAG(r_ptr, RF_NEVER_MOVE)) return;
-	
+
 	/* Sound */
 	sound(SOUND_FLEE);
 
@@ -376,7 +377,7 @@ bool make_attack_normal(int m_idx)
 		if (!effect || check_hit(power, rlev))
 		{
 			int protect = 0;
-			
+
 			/* Always disturbing */
 			disturb(TRUE);
 
@@ -528,7 +529,7 @@ bool make_attack_normal(int m_idx)
 
 						/* Special damage */
 						obvious = pois_dam(damage, ddesc, randint1(rlev) + 5);
-						
+
 						/* Learn about the player */
 						update_smart_learn(m_idx, DRS_POIS);
 
@@ -562,14 +563,44 @@ bool make_attack_normal(int m_idx)
 						OBJ_ITT_START (p_ptr->inventory, o_ptr)
 						{
 							/* Only work some of the time */
+							object_kind *k_ptr = &k_info[o_ptr->k_idx];;
+
 							if (one_in_(2)) continue;
 
+							/* Modifying to drain rods as well */
 							/* Drain charged wands/staffs */
-							if (((o_ptr->tval == TV_STAFF) ||
-								 (o_ptr->tval == TV_WAND)) && (o_ptr->pval))
+							if ((((o_ptr->tval == TV_STAFF) ||
+								 (o_ptr->tval == TV_WAND)) && (o_ptr->pval)) ||
+								 (o_ptr->tval == TV_ROD && (o_ptr->timeout <= (o_ptr->number - 1) * k_ptr->pval)))
 							{
+								int heal, chdrain;
+								/* Calculate charges drained */
+								if (o_ptr->tval == TV_STAFF || o_ptr->tval == TV_WAND) {
+									if (one_in_(3))
+									{
+										chdrain = o_ptr->pval;
+									} else if (o_ptr->number > 1) {
+										/* drain fewer per item if in a stack. */
+										chdrain = rand_range(1,3);
+									} else {
+										/* drain about twice as much if by itself */
+										chdrain = rand_range(3,7);
+									}
+									/* cannot drain more than the maximum */
+									chdrain = MIN(chdrain, o_ptr->pval);
+								} else {
+								/* For rods, the "number of charges" drained is 3, for healing purposes. */
+									chdrain = 3;
+								}
+
 								/* Calculate healed hitpoints */
-								int heal = rlev * o_ptr->pval * o_ptr->number;
+								heal = rlev * o_ptr->pval * o_ptr->number;
+
+								/* For wands, multiply drain by number; stack shares charges. */
+								if (o_ptr->tval == TV_WAND) {
+									chdrain = MIN(chdrain * o_ptr->number, o_ptr->pval);
+								}
+
 
 								/* Don't heal more than max hp */
 								heal = MIN(heal, m_ptr->maxhp - m_ptr->hp);
@@ -590,10 +621,16 @@ bool make_attack_normal(int m_idx)
 								/* Uncharge */
 								if (o_ptr->tval == TV_WAND)
 								{
-									o_ptr->ac += o_ptr->pval;
+									o_ptr->ac += chdrain;
 								}
-								o_ptr->pval = 0;
-								
+								if (o_ptr->tval == TV_ROD)
+								{
+									o_ptr->timeout += k_ptr->pval * o_ptr->number;
+								} else {
+									/*  Wands and Staves */
+									o_ptr->pval -= chdrain;
+								}
+
 								/* Notice changes */
 								notice_inven();
 
@@ -794,7 +831,7 @@ bool make_attack_normal(int m_idx)
 								msgf("Your light dims.");
 								obvious = TRUE;
 							}
-							
+
 							/* Notice changes */
 							notice_equip();
 						}
@@ -864,7 +901,7 @@ bool make_attack_normal(int m_idx)
 						take_hit(damage, ddesc);
 
 						/* Increase "blind" */
-						if (!(FLAG(p_ptr, TR_RES_BLIND)))
+						if (!(FLAG(p_ptr, TR_RES_BLIND))  && !p_ptr->tim.oppose_blind)
 						{
 							if (inc_blind(10 + randint1(rlev)))
 							{
@@ -884,7 +921,7 @@ bool make_attack_normal(int m_idx)
 						take_hit(damage, ddesc);
 
 						/* Increase "confused" */
-						if (!(FLAG(p_ptr, TR_RES_CONF)))
+						if (!(FLAG(p_ptr, TR_RES_CONF)) && !p_ptr->tim.oppose_conf)
 						{
 							if (inc_confused(3 + randint1(rlev)))
 							{

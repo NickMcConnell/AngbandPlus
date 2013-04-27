@@ -43,9 +43,17 @@
 # lines may be used as are needed to specify all the flags and flags
 # are separated by the '|' symbol.
 
+# 'D' is for description. As many D: lines may be used as are needed
+# to describe the object. Note that lines may need spaces at their
+# ends to prevent words from running together in the monster memory.
+
+# 'L' is for lua scripts:
+# USE - self-explanatory. returns used,ident
+# SMASH - potion smash effect. returns angry,ident
+
 # Version stamp (required)
 
-V:2.7.5
+V:0.2.0
 
 
 # The Phial of Galadriel
@@ -56,9 +64,9 @@ W:20:1:10:2000
 P:0:1d1:0:0:0
 F:ACTIVATE | SENSE | INSTA_ART | LITE
 L:USE:	msgf("The phial wells with clear light...")
-L:USE:	lite_area(damroll(2, 15), 3)
+L:USE:	lite_area(damroll(10, 15), 3)
 L:USE:	object.timeout = rand_range(10, 20)
-L:DESC:	return "illumination every 10-20 turns"
+L:DESC:	return "illumination every 10-20 turns (dam 10d15)"
 
 
 # The Star of Elendil
@@ -78,7 +86,7 @@ L:DESC:	return "magic mapping and illumination every 50-100 turns"
 # The Arkenstone of Thrain -> JoJ
 # Was +2 WIS/DEX
 
-N:3:of Judgement
+N:3:of Judgment
 I:39:6:3
 W:80:50:5:15000
 P:0:1d1:0:0:0
@@ -87,15 +95,15 @@ F:INSTA_ART | SPEED | WIS | INT | LITE
 L:USE:	msgf("The Jewel flashes bright red!")
 L:USE:	wiz_lite()
 L:USE:	msgf("The Jewel drains your vitality...")
-L:USE:	take_hit(damroll(3, 8), "the Jewel of Judgement")
+L:USE:	take_hit(damroll(3, 8), "the Jewel of Judgment")
 L:USE:	detect_traps(TRUE); detect_doors(); detect_stairs()
 L:USE:	if (get_check("Activate recall? ") ~= nil) then word_of_recall() end
 L:USE:	object.timeout = rand_range(20, 40)
 L:DESC:	return "dangerous clairvoyance and recall every 20-40 turns"
 L:TIMED:	if randint0(999) == 0 and bAnd(player.flags[2], TR2_NO_MAGIC) == 0
 L:TIMED:	and not player.tim_invuln then
-L:TIMED:		msgf("The Jewel of Judgement drains life from you!")
-L:TIMED:		take_hit(player.lev, "The Jewel of Judgement")
+L:TIMED:		msgf("The Jewel of Judgment drains life from you!")
+L:TIMED:		take_hit(player.lev, "The Jewel of Judgment")
 L:TIMED:	end
 L:SPOIL:	return "Damages player randomly"
 
@@ -238,7 +246,7 @@ I:45:37:5
 W:100:100:2:5000000
 P:0:1d1:15:15:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE |
-F:ACTIVATE | CURSED | HEAVY_CURSE | PERMA_CURSE |
+F:ACTIVATE | CURSED | HEAVY_CURSE | PERMA_CURSE | STRANGE_LUCK
 F:AGGRAVATE | DRAIN_EXP | SEE_INVIS | REGEN | TY_CURSE |
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_ACID |
 F:SUST_STR | SUST_DEX | SUST_CON |
@@ -1445,8 +1453,8 @@ F:INSTA_ART
 
 # The Spear 'Aeglos' -> Runespear (of Odin)
 
-N:97:'Runespear'
-I:22:2:4
+N:97:'Aeglos'
+I:22:4:4
 W:26:45:50:29000
 P:0:1d20:15:25:5
 F:INT | WIS | HIDE_TYPE | BRAND_FIRE | BRAND_ELEC |
@@ -1464,8 +1472,8 @@ L:DESC:	return "lightning ball (200) every 500 turns"
 
 # The Spear of Orome -> Destiny
 
-N:98:of Destiny
-I:22:2:4
+N:98:of Orome
+I:22:4:4
 W:26:45:50:25000
 P:0:1d10:15:15:0
 F:INT | WIS | INFRA | HIDE_TYPE | SENSE | BRAND_FIRE |
@@ -1485,7 +1493,7 @@ L:DESC:	return "stone to mud every 5 turns"
 
 # Variable bonus: +1 speed per 5 levels (rounded up)
 N:99:of Hagen
-I:22:2:3
+I:22:4:3
 W:26:12:50:30000
 P:0:1d10:11:13:0
 F:STEALTH | RES_DARK | INFRA |
@@ -1497,7 +1505,7 @@ L:SPOIL:	return "+1 speed / 5 levels"
 # The Spear 'Soulsucker'
 
 N:100:'Soulsucker'
-I:22:2:4
+I:22:4:4
 W:35:20:50:3000
 P:0:1d8:16:20:0
 F:STEALTH | SENSE | VAMPIRIC | BRAND_POIS | RES_POIS | RES_DARK | 

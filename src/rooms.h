@@ -15,3 +15,5 @@
 /* Externs */
 
 extern bool room_build(void);
+extern bool castle_build(bool pure);
+extern void build_recursive_room(int x1, int y1, int x2, int y2, int power);

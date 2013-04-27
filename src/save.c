@@ -8,49 +8,25 @@
 #ifdef FUTURE_SAVEFILES
 
 /*
- * XXX XXX XXX Ignore this for now...
+ *  The basic format of the savefiles is highly dependent on the version of Zangband / Angband
+ *  they come from.  
  *
- * The basic format of Angband 2.8.0 (and later) savefiles is simple.
+ *  Savefiles are written a variable at a time in a certain order, and read back in the same order.
+ *  In order to check correctness, a system of two kinds of checksums are used.
+ * 
+ *  There are two simple checksums that check the sum of all the bytes written to the file,
+ *  and, sort of, "encrypt/decrypt" the file.  This is done by starting with a random byte, and
+ *  XORing the latest byte with the current byte before it is written.
  *
- * The savefile itself is a "header" (4 bytes) plus a series of "blocks",
- * plus, perhaps, some form of "footer" at the end.
+ *  In addition, there are "verbal" checksums that are checked periodically as the file is
+ *  processed: basically, these are the XOR of all the data (cast as u32b) since the previous
+ *  checksum.  If one fails, the program is explicit about where the failure occurred.
  *
- * The "header" contains information about the "version" of the savefile.
- * Conveniently, pre-2.8.0 savefiles also use a 4 byte header, though the
- * interpretation of the "sf_extra" byte is very different.  Unfortunately,
- * savefiles from Angband 2.5.X reverse the sf_major and sf_minor fields,
- * and must be handled specially, until we decide to start ignoring them.
+ *  Important: old savefiles are not supported.  Some may work, who knows.  However, this code
+ *  is a killer and I view my version as a new game.  With all the new quests and such, players
+ *  really ought to start from the beginning.  
  *
- * Each "block" is a "type" (2 bytes), plus a "size" (2 bytes), plus "data",
- * plus a "check" (2 bytes), plus a "stamp" (2 bytes).  The format of the
- * "check" and "stamp" bytes is still being contemplated, but it would be
- * nice for one to be a simple byte-checksum, and the other to be a complex
- * additive checksum of some kind.  Both should be zero if the block is empty.
- *
- * Standard types:
- *   TYPE_BIRTH --> creation info
- *   TYPE_OPTIONS --> option settings
- *   TYPE_MESSAGES --> message recall
- *   TYPE_PLAYER --> player information
- *   TYPE_SPELLS --> spell information
- *   TYPE_INVEN --> player inven/equip
- *   TYPE_STORES --> store information
- *   TYPE_RACES --> monster race data
- *   TYPE_KINDS --> object kind data
- *   TYPE_UNIQUES --> unique info
- *   TYPE_ARTIFACTS --> artifact info
- *   TYPE_QUESTS --> quest info
- *
- * Dungeon information:
- *   TYPE_DUNGEON --> dungeon info
- *   TYPE_FEATURES --> dungeon features
- *   TYPE_OBJECTS --> dungeon objects
- *   TYPE_MONSTERS --> dungeon monsters
- *
- * Question:
- *   Should there be a single "block" for info about all the stores, or one
- *   "block" for each store?  Or one "block", which contains "sub-blocks" of
- *   some kind?  Should we dump every "sub-block", or just the "useful" ones?
+ *  -- Mangojuice 7/3/08
  */
 
 
@@ -85,8 +61,6 @@ static byte *data_head;
  * Hack -- pointer into the data buffer
  */
 static byte *data_next;
-
-
 
 /*
  * Hack -- write the current "block" to the savefile
@@ -279,6 +253,7 @@ static errr wr_savefile(void)
 
 
 
+
 /*
  * Hack -- read the next "block" from the savefile
  */
@@ -458,6 +433,9 @@ static byte xor_byte;	/* Simple encryption */
 static u32b v_stamp = 0L;	/* A simple "checksum" on the actual values */
 static u32b x_stamp = 0L;	/* A simple "checksum" on the encoded bytes */
 
+static u32b checksum;
+static u32b checksum_base;
+
 
 
 /*
@@ -477,11 +455,13 @@ static void sf_put(byte v)
 
 static void wr_byte(byte v)
 {
+	checksum ^= (u32b)v;
 	sf_put(v);
 }
 
 static void wr_u16b(u16b v)
 {
+	checksum ^= (u32b)v;
 	sf_put((byte)(v & 0xFF));
 	sf_put((byte)((v >> 8) & 0xFF));
 }
@@ -493,6 +473,7 @@ static void wr_s16b(s16b v)
 
 static void wr_u32b(u32b v)
 {
+	checksum ^= (u32b)v;
 	sf_put((byte)(v & 0xFF));
 	sf_put((byte)((v >> 8) & 0xFF));
 	sf_put((byte)((v >> 16) & 0xFF));
@@ -514,6 +495,17 @@ static void wr_string(cptr str)
 	wr_byte(*str);
 }
 
+static void wr_checksum(void)
+{
+	/* Write it */
+	(void)putc((int)(checksum & 0xFF), fff);
+	(void)putc((int)((checksum >> 8)& 0xFF), fff);
+	(void)putc((int)((checksum >> 16)& 0xFF), fff);
+	(void)putc((int)((checksum >> 24)& 0xFF), fff);
+	
+	/* Reset the checksum */
+	checksum = checksum_base;
+}
 
 /*
  * These functions write info in larger logical records
@@ -526,7 +518,7 @@ static void wr_string(cptr str)
 static void wr_item(const object_type *o_ptr)
 {
 	byte i;
-	
+
 	wr_s16b(o_ptr->k_idx);
 
 	/* Location */
@@ -541,7 +533,7 @@ static void wr_item(const object_type *o_ptr)
 	wr_byte(o_ptr->number);
 	wr_s16b(o_ptr->weight);
 
-	wr_s16b(o_ptr->timeout);
+	wr_s32b(o_ptr->timeout);
 
 	wr_s16b(o_ptr->to_h);
 	wr_s16b(o_ptr->to_d);
@@ -602,7 +594,8 @@ static void wr_item(const object_type *o_ptr)
 	/* The new flags */
 	wr_s32b(o_ptr->cost);
 
-	wr_byte(o_ptr->a_idx);
+	wr_u16b(o_ptr->a_idx);
+	wr_u16b(o_ptr->e_idx);
 
 	for (i = 0; i < NUM_TR_SETS; i++)
 		wr_u32b(o_ptr->kn_flags[i]);
@@ -625,6 +618,7 @@ static void wr_monster(const monster_type *m_ptr)
 	wr_byte(m_ptr->stunned);
 	wr_byte(m_ptr->confused);
 	wr_byte(m_ptr->monfear);
+	wr_u16b(m_ptr->unsummon);
 	wr_byte(m_ptr->invulner);
 	wr_u32b(m_ptr->smart);
 	wr_s16b(m_ptr->hold_o_idx);
@@ -714,6 +708,9 @@ static void wr_lore(int r_idx)
 	wr_byte(0);
 	wr_byte(0);
 	wr_byte(0);
+	
+	/* Checksum */
+	wr_checksum();
 }
 
 
@@ -742,7 +739,7 @@ static void wr_store(const store_type *st_ptr)
 	wr_s16b(st_ptr->data);
 
 	/* Save the current owner */
-	
+
 	if (quark_str(st_ptr->owner_name))
 	{
 		wr_string(quark_str(st_ptr->owner_name));
@@ -789,6 +786,9 @@ static void wr_randomizer(void)
 	{
 		wr_u32b(Rand_state[i]);
 	}
+
+	/* Checksum */
+	wr_checksum();
 }
 
 
@@ -872,6 +872,12 @@ static void wr_options(void)
 
 	/* Dump the masks */
 	for (i = 0; i < ANGBAND_TERM_MAX; i++) wr_u32b(window_mask[i]);
+
+	/* Dump the squelches */
+	for (i = 0; i < SQUELCHMAX/32; i++) wr_u32b(p_ptr->squelch[i]);
+
+	/* Checksum */
+	wr_checksum();
 }
 
 
@@ -1002,6 +1008,9 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->tim.oppose_acid);
 	wr_s16b(p_ptr->tim.oppose_elec);
 	wr_s16b(p_ptr->tim.oppose_pois);
+	wr_s16b(p_ptr->tim.oppose_conf);
+	wr_s16b(p_ptr->tim.oppose_blind);
+	wr_s16b(p_ptr->tim.etherealness);
 	wr_s16b(p_ptr->tim.esp);
 	wr_s16b(p_ptr->tim.wraith_form);
 	wr_s16b(p_ptr->tim.resist_magic);
@@ -1066,6 +1075,9 @@ static void wr_extra(void)
 
 	/* Player inventory item */
 	wr_s16b(p_ptr->inventory);
+
+	/* Checksum */
+	wr_checksum();
 }
 
 /*
@@ -1293,17 +1305,12 @@ static void wr_dungeon(void)
 
 	/* Dungeon specific info follows */
 	wr_u16b(p_ptr->depth);
-	wr_u16b((u16b) base_level());
 	wr_u16b(num_repro);
 	wr_u16b(p_ptr->py);
 	wr_u16b(p_ptr->px);
 	wr_u16b(p_ptr->max_hgt);
 	wr_u16b(p_ptr->max_wid);
-	
-	/* Old panel stuff */
-	wr_u16b(0);
-	wr_u16b(0);
-	
+
 	/* Panel bounds */
 	wr_s16b(p_ptr->panel_x1);
 	wr_s16b(p_ptr->panel_y1);
@@ -1323,6 +1330,8 @@ static void wr_dungeon(void)
 	/* Compact the fields */
 	compact_fields(0);
 
+	wr_checksum();
+
 	/*** Dump objects ***/
 
 	/* Total objects */
@@ -1337,6 +1346,8 @@ static void wr_dungeon(void)
 		wr_item(o_ptr);
 	}
 
+
+	wr_checksum();
 
 	/*** Dump the monsters ***/
 
@@ -1353,6 +1364,8 @@ static void wr_dungeon(void)
 		wr_monster(m_ptr);
 	}
 
+	wr_checksum();
+
 	/*** Dump the fields ***/
 
 	/* Total fields */
@@ -1366,6 +1379,8 @@ static void wr_dungeon(void)
 		/* Dump it */
 		wr_field(f_ptr);
 	}
+	
+	wr_checksum();
 }
 
 
@@ -1396,7 +1411,6 @@ static bool wr_savefile_new(void)
 	/* Note the number of saves */
 	sf_saves++;
 
-
 	/*** Actually write the file ***/
 
 	/* Dump the file header */
@@ -1411,6 +1425,11 @@ static bool wr_savefile_new(void)
 	tmp8u = (byte)randint0(256);
 	wr_byte(tmp8u);
 
+	/* Setup the "verbal" checksum */
+	checksum_base = 0;
+	checksum = checksum_base;
+
+	wr_checksum();
 
 	/* Reset the checksum */
 	v_stamp = 0L;
@@ -1418,6 +1437,9 @@ static bool wr_savefile_new(void)
 
 	/* Write the savefile version */
 	wr_u32b(SAVEFILE_VERSION);
+
+	/* Checksum */
+	wr_checksum();
 
 	/* Operating system */
 	wr_u32b(sf_xtra);
@@ -1432,15 +1454,8 @@ static bool wr_savefile_new(void)
 	/* Number of times saved */
 	wr_u16b(sf_saves);
 
-
-	/* Space */
-	wr_u32b(0L);
-	wr_u32b(0L);
-
-
 	/* Write the RNG state */
 	wr_randomizer();
-
 
 	/* Write the boolean "options" */
 	wr_options();
@@ -1458,6 +1473,8 @@ static bool wr_savefile_new(void)
 		wr_byte((byte) message_type((s16b)i));
 	}
 
+	/* Checksum */
+	wr_checksum();
 
 	/* Dump the monster lore */
 	tmp16u = z_info->r_max;
@@ -1469,6 +1486,9 @@ static bool wr_savefile_new(void)
 	tmp16u = z_info->k_max;
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++) wr_xtra(i);
+
+	/* Checksum */
+	wr_checksum();
 
 	/* Dump the towns */
 	tmp16u = z_info->wp_max;
@@ -1491,7 +1511,10 @@ static bool wr_savefile_new(void)
 		wr_byte(quest[i].c_type);
 		wr_byte(quest[i].x_type);
 
-		wr_u32b(quest[i].timeout);
+		wr_s32b(quest[i].timeout);
+
+		wr_byte(quest[i].level);
+
 		wr_string(quest[i].name);
 
 		/* Data - quest-type specific */
@@ -1500,6 +1523,7 @@ static bool wr_savefile_new(void)
 			case QUEST_TYPE_NONE: break;
 
 			case QUEST_TYPE_BOUNTY:
+			case QUEST_TYPE_DEFEND:
 			{
 				/* Bounty quests */
 				wr_u16b(quest[i].data.bnt.r_idx);
@@ -1528,15 +1552,16 @@ static bool wr_savefile_new(void)
 				wr_byte(quest[i].data.wld.depth);
 				break;
 			}
-			
+
 			case QUEST_TYPE_MESSAGE:
+			case QUEST_TYPE_LOAN:
 			{
 				/* Message quests */
 				wr_u16b(quest[i].data.msg.place);
 				wr_u16b(quest[i].data.msg.shop);
 				break;
 			}
-			
+
 			case QUEST_TYPE_FIND_ITEM:
 			{
 				/* Find item quests */
@@ -1544,7 +1569,7 @@ static bool wr_savefile_new(void)
 				wr_u16b(quest[i].data.fit.place);
 				break;
 			}
-			
+
 			case QUEST_TYPE_FIND_PLACE:
 			{
 				/* Find place quests */
@@ -1552,12 +1577,65 @@ static bool wr_savefile_new(void)
 				break;
 			}
 
+			case QUEST_TYPE_FIXED_KILL:
+			{
+				wr_u32b(quest[i].data.fix.d_type);
+				wr_u32b(quest[i].data.fix.d_flags);
+				wr_u32b(quest[i].data.fix.seed);
+				wr_s32b(quest[i].data.fix.x);
+				wr_s32b(quest[i].data.fix.y);
+				wr_byte(quest[i].data.fix.min_level);
+				wr_s32b(quest[i].data.fix.attempts);
+				wr_u16b(quest[i].data.fix.data.kill.r_idx);
+				break;
+			}
+			case QUEST_TYPE_FIXED_BOSS:
+			{
+				wr_u32b(quest[i].data.fix.d_type);
+				wr_u32b(quest[i].data.fix.d_flags);
+				wr_u32b(quest[i].data.fix.seed);
+				wr_s32b(quest[i].data.fix.x);
+				wr_s32b(quest[i].data.fix.y);
+				wr_byte(quest[i].data.fix.min_level);
+				wr_s32b(quest[i].data.fix.attempts);
+				wr_u16b(quest[i].data.fix.data.boss.r_idx);
+				break;
+			}
+			case QUEST_TYPE_FIXED_CLEAROUT:
+			{
+				wr_u32b(quest[i].data.fix.d_type);
+				wr_u32b(quest[i].data.fix.d_flags);
+				wr_u32b(quest[i].data.fix.seed);
+				wr_s32b(quest[i].data.fix.x);
+				wr_s32b(quest[i].data.fix.y);
+				wr_byte(quest[i].data.fix.min_level);
+				wr_s32b(quest[i].data.fix.attempts);
+				wr_byte(quest[i].data.fix.data.clearout.levels);
+				wr_byte(quest[i].data.fix.data.clearout.cleared);
+				break;
+			}
+			case QUEST_TYPE_FIXED_DEN:
+			{
+				wr_u32b(quest[i].data.fix.d_type);
+				wr_u32b(quest[i].data.fix.d_flags);
+				wr_u32b(quest[i].data.fix.seed);
+				wr_s32b(quest[i].data.fix.x);
+				wr_s32b(quest[i].data.fix.y);
+				wr_byte(quest[i].data.fix.min_level);
+				wr_s32b(quest[i].data.fix.attempts);
+				wr_u16b(quest[i].data.fix.data.den.mg_idx);
+				wr_byte(quest[i].data.fix.data.den.levels);
+				wr_byte(quest[i].data.fix.data.den.cleared);
+				break;
+			}
 			default:
 			{
 				/* Unknown quest type... panic */
 				quit("Cannot save unknown quest type.");
 			}
 		}
+		/* Checksum */
+		wr_checksum();
 	}
 
 	/* Dump the position in the wilderness */
@@ -1566,6 +1644,9 @@ static bool wr_savefile_new(void)
 
 	wr_s32b((s32b)max_wild);
 	wr_s32b((s32b)max_wild);
+
+	/* Checksum */
+	wr_checksum();
 
 	/* Hack -- Dump the artifacts */
 	tmp16u = z_info->a_max;
@@ -1579,6 +1660,7 @@ static bool wr_savefile_new(void)
 		wr_byte(0);
 	}
 
+	wr_checksum();
 
 	/* Write the "extra" information */
 	wr_extra();
@@ -1606,6 +1688,8 @@ static bool wr_savefile_new(void)
 		wr_byte(p_ptr->spell.order[i]);
 	}
 
+	/* Checksum */
+	wr_checksum();
 
 	/* Write the equipment */
 	for (i = 0; i < EQUIP_MAX; i++)
@@ -1624,6 +1708,9 @@ static bool wr_savefile_new(void)
 
 	/* Add a sentinel */
 	wr_u16b(0xFFFF);
+
+	/* Checksum */
+	wr_checksum();
 
 	/* Note the towns */
 	tmp16u = place_count;
@@ -1672,34 +1759,67 @@ static bool wr_savefile_new(void)
 		if (pl_ptr->dungeon)
 		{
 			dun_type *dun_ptr;
-		
+
 			/* Is dungeon here */
 			wr_byte(TRUE);
-			
+
 			dun_ptr = pl_ptr->dungeon;
-			
+
 			/* Object theme */
 			wr_byte(dun_ptr->theme.treasure);
 			wr_byte(dun_ptr->theme.combat);
 			wr_byte(dun_ptr->theme.magic);
 			wr_byte(dun_ptr->theme.tools);
-					
+
 			/* Habitat */
 			wr_u32b(dun_ptr->habitat);
-					
+
 			/* Levels in dungeon */
 			wr_byte(dun_ptr->min_level);
 			wr_byte(dun_ptr->max_level);
-					
+
 			/* Rating + feeling */
 			wr_s16b(dun_ptr->rating);
-			
+
 			/* Extra info */
 			wr_u16b(dun_ptr->rooms);
 			wr_byte(dun_ptr->floor);
-			wr_byte(dun_ptr->liquid);
-			wr_byte(dun_ptr->flags);
-			
+			wr_byte(dun_ptr->wall);
+			wr_byte(dun_ptr->perm_wall);
+
+			for (j = 0; j < 2; j++) {
+				wr_byte(dun_ptr->vein[j].deep);
+				wr_byte(dun_ptr->vein[j].size);
+				wr_byte(dun_ptr->vein[j].number);
+			}
+
+			for (j = 0; j < 2; j++) {
+				wr_byte(dun_ptr->river[j].shal);
+				wr_byte(dun_ptr->river[j].deep);
+				wr_byte(dun_ptr->river[j].rarity);
+				wr_byte(dun_ptr->river[j].size);
+			}
+
+			wr_byte(dun_ptr->lake.shal);
+			wr_byte(dun_ptr->lake.deep);
+			wr_byte(dun_ptr->lake.rarity);
+			wr_byte(dun_ptr->lake.size);
+
+			wr_byte(dun_ptr->freq_monsters);
+			wr_byte(dun_ptr->freq_objects);
+			wr_byte(dun_ptr->freq_doors);
+			wr_byte(dun_ptr->freq_traps);
+			wr_byte(dun_ptr->freq_rubble);
+			wr_byte(dun_ptr->freq_treasure);
+			wr_byte(dun_ptr->freq_stairs);
+			wr_byte(dun_ptr->freq_arena);
+			wr_byte(dun_ptr->freq_cavern);
+			wr_byte(dun_ptr->freq_tunnel);
+
+			wr_byte(dun_ptr->room_limit);
+
+			wr_u32b(dun_ptr->flags);
+
 			/* Recall depth */
 			wr_byte(dun_ptr->recall_depth);
 		}
@@ -1714,6 +1834,9 @@ static bool wr_savefile_new(void)
 		{
 			wr_store(&pl_ptr->store[j]);
 		}
+
+		/* Checksum */
+		wr_checksum();
 	}
 
 	/* Write the pet command settings */
@@ -1726,12 +1849,15 @@ static bool wr_savefile_new(void)
 	{
 		/* Dump the dungeon */
 		wr_dungeon();
-
+		
 		/* Dump the ghost */
 		wr_ghost();
 
 		/* No scripts */
 		wr_s32b(0);
+
+		/* Checksum */
+		wr_checksum();
 	}
 
 
@@ -2056,7 +2182,7 @@ bool load_player(void)
 
 				/* If we are dead, then our inventory is corrupt */
 				p_ptr->inventory = 0;
-		
+
 				/* Done */
 				return (TRUE);
 			}

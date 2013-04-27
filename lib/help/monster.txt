@@ -198,12 +198,9 @@ target. This is something to think about before lighting up a room if
 you have pet orcs. Needless to say, nobody wants to be your friend if
 you are aggravating them.
 
-Finally, it takes a lot of mental energy to maintain the control over
-the charmed monsters. The first monster or the first few are 'free',
-but after that maintaining the control will start taxing your mana
-regain rate. The higher the sum of the levels of your pets the less
-mana you will be able to regain. Keep this in mind if you have a pet
-which can summon or otherwise produce more pets...
+Finally, true pets are only yours to control temporarily.  After a
+period of time, a summoned monster under your control will simply
+disappear.
 
 --- Obtaining a pet ---
 
@@ -232,14 +229,15 @@ will it necessarily attack your enemies.
 
 Like pets, if you annoy a friendly monster it will turn against you.
 Also like pets, any monsters a friendly monster summons will also be
-friendly. Unlike pets, friendly monsters require no mana upkeep and can
+friendly. Unlike pets, friendly monsters never unsummon and can
 not be commanded using the pet commands.
 
 --
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Last update: May 25, 2001
+Updated    : Mangojuice
+Last update: June 21, 2008
 
 ***** Begin Hyperlinks
 ***** [1] commdesc.txt#Looking

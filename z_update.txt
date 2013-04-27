@@ -2,6 +2,21 @@ This is a document file listing the changes in Zangband (compared to
 the standard Angband 2.8.1.) No long explanations, just a list. See
 code for details. In reversed chronological order (more or less):
 
+Chanves from Zangband 2.7.5pre1 to Z+Angband 0.2.0 alpha:
+
+(Too many to list.  See web site for further information.)
+
+TWO IMPORTANT NOTES:
+1.  In the default mode in this game you must get involved in quests in
+order to win.  The winner monsters will not show up until a building has
+given you one as a quest.  
+
+2.  The magic system has changed from Zangband too.  Since this may
+impact character generation, you may want to read about it on the website.
+
+http://mangojuice75.googlepages.com/
+
+
 Changes in Zangband 2.7.5pre1:
 
 2005-06-04 14:26  rr9
