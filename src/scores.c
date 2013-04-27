@@ -173,6 +173,9 @@ static long total_points(void)
 	/* Penalize preserve mode */
 	if (preserve_mode) mult -= 10;
 
+	/* Penalize the human "beginner" race */
+	if (p_ptr->rp.prace == RACE_HUMAN) mult -= 20;
+
 	/* Vanilla town is harder than normal */
 	if (vanilla_town) mult += 5;
 

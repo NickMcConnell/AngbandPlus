@@ -469,8 +469,8 @@ static bool do_cmd_open_chest(int x, int y, object_type *o_ptr)
 		i = p_ptr->skills[SKILL_DIS];
 
 		/* Penalize some conditions */
-		if (p_ptr->tim.blind || no_lite()) i = i / 10;
-		if (p_ptr->tim.confused || p_ptr->tim.image) i = i / 10;
+		if (query_timed(TIMED_BLIND) || no_lite()) i = i / 10;
+		if (query_timed(TIMED_CONFUSED) || query_timed(TIMED_IMAGE)) i = i / 10;
 
 		/* Extract the difficulty */
 		j = i - o_ptr->pval;
@@ -716,8 +716,8 @@ bool do_cmd_open_aux(int x, int y)
 		i = p_ptr->skills[SKILL_DIS];
 
 		/* Penalize some conditions */
-		if (p_ptr->tim.blind || no_lite()) i = i / 10;
-		if (p_ptr->tim.confused || p_ptr->tim.image) i = i / 10;
+		if (query_timed(TIMED_BLIND) || no_lite()) i = i / 10;
+		if (query_timed(TIMED_CONFUSED) || query_timed(TIMED_IMAGE)) i = i / 10;
 
 		/* Success? */
 		if (!field_script_single(f_ptr, FIELD_ACT_INTERACT,
@@ -1446,8 +1446,8 @@ static bool do_cmd_disarm_chest(int x, int y, object_type *o_ptr)
 	i = p_ptr->skills[SKILL_DIS];
 
 	/* Penalize some conditions */
-	if (p_ptr->tim.blind || no_lite()) i = i / 10;
-	if (p_ptr->tim.confused || p_ptr->tim.image) i = i / 10;
+	if (query_timed(TIMED_BLIND) || no_lite()) i = i / 10;
+	if (query_timed(TIMED_CONFUSED) || query_timed(TIMED_IMAGE)) i = i / 10;
 
 	/* Extract the difficulty */
 	j = i - o_ptr->pval;
@@ -1542,8 +1542,8 @@ bool do_cmd_disarm_aux(cave_type *c_ptr, int dir)
 	i = p_ptr->skills[SKILL_DIS];
 
 	/* Penalize some conditions */
-	if (p_ptr->tim.blind || no_lite()) i = i / 10;
-	if (p_ptr->tim.confused || p_ptr->tim.image) i = i / 10;
+	if (query_timed(TIMED_BLIND) || no_lite()) i = i / 10;
+	if (query_timed(TIMED_CONFUSED) || query_timed(TIMED_IMAGE)) i = i / 10;
 
 	/* Success */
 	if (!field_script_single(f_ptr, FIELD_ACT_INTERACT,
@@ -1976,7 +1976,7 @@ void do_cmd_run(void)
 	int dir;
 
 	/* Hack -- no running when confused */
-	if (p_ptr->tim.confused)
+	if (query_timed(TIMED_CONFUSED))
 	{
 		msgf("You are too confused!");
 		return;
@@ -2093,11 +2093,11 @@ void do_cmd_rest(void)
 	/* Why are you sleeping when there's no need?  WAKE UP! */
 	if ((p_ptr->chp == p_ptr->mhp) &&
 		(p_ptr->csp == p_ptr->msp) &&
-		!p_ptr->tim.blind && !p_ptr->tim.confused &&
-		!p_ptr->tim.poisoned && !p_ptr->tim.afraid &&
-		!p_ptr->tim.stun && !p_ptr->tim.cut &&
-		!p_ptr->tim.slow && !p_ptr->tim.paralyzed &&
-		!p_ptr->tim.image && !p_ptr->tim.word_recall)
+		!query_timed(TIMED_BLIND) && !query_timed(TIMED_CONFUSED) &&
+		!query_timed(TIMED_POISONED) && !query_timed(TIMED_SLOW) &&
+		!query_timed(TIMED_STUN) && !query_timed(TIMED_CUT) &&
+		!query_timed(TIMED_SLOW) && !query_timed(TIMED_PARALYZED) &&
+		!query_timed(TIMED_IMAGE) && !query_timed(TIMED_WORD_RECALL))
 		chg_virtue(V_DILIGENCE, -1);
 
 	/* Take a turn XXX XXX XXX (?) */
@@ -2252,7 +2252,7 @@ static void throw_item_effect(object_type *i_ptr, bool hit_body, bool hit_wall,
 	monster_type *m_ptr;
 
 	/* Figurines transform */
-	if (o_ptr->tval == TV_FIGURINE)
+	if (i_ptr->tval == TV_FIGURINE)
 	{
 		/* Always break */
 		breakage = 100;
@@ -2316,7 +2316,7 @@ static void throw_item_effect(object_type *i_ptr, bool hit_body, bool hit_wall,
 	}
 
 	/* Potions smash open */
-	if (object_is_potion(i_ptr))
+	if (object_is_potion(i_ptr) || i_ptr->tval == TV_FLASK)
 	{
 		if (hit_body || hit_wall || (randint1(100) < breakage))
 		{
@@ -2412,8 +2412,6 @@ void do_cmd_fire_aux(int mult, object_type *o_ptr, const object_type *j_ptr)
 	int mul, div;
 
 	int chance2;
-
-	bool returned = FALSE;
 
 	object_type *i_ptr;
 
@@ -2787,8 +2785,8 @@ void do_cmd_fire_aux(int mult, object_type *o_ptr, const object_type *j_ptr)
 				/* Drop (or break) near that location (i_ptr is now invalid) */
 				throw_item_effect(i_ptr, TRUE, FALSE, TRUE, x, y, o_ptr);
 
-				/* Complex message */
-				if (p_ptr->state.wizard)
+				/* Complex message in Wiz mode, or for Humans */
+				if (p_ptr->state.wizard || p_ptr->rp.prace == RACE_HUMAN)
 				{
 					msgf("You do %d (out of %d) damage.",
 							   tdam, m_ptr->hp);

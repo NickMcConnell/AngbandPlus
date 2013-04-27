@@ -1379,7 +1379,6 @@ void wrap_froff(FILE *fff, char *buf, int margin, int rowmax)
 	int len = strlen(buf);
 	int i = 0;
 	int j, brk;
-	char tmp;
 
 	/* Paranoia */
 	if (margin < 0 || rowmax <= 0 || len == 0)
@@ -1656,9 +1655,10 @@ static bool get_check_base(bool def, bool esc, cptr prompt)
 	{
 		i = inkey();
 		if (quick_messages) break;
-		if (i == ESCAPE) break;
+		/* Unreachable code now */
+		/* if (i == ESCAPE) break;
 		if (strchr("YyNn\n\r", i)) break;
-		bell("Illegal response to a 'yes/no' question!");
+		bell("Illegal response to a 'yes/no' question!"); */
 	}
 
 	/* Erase the prompt */
@@ -1751,9 +1751,9 @@ bool get_com(cptr prompt, char *command)
  *
  * Hack -- allow "command_arg" to specify a quantity
  */
-s16b get_quantity(cptr prompt, int max)
+s32b get_quantity_big(cptr prompt, s32b max)
 {
-	int amt;
+	s32b amt;
 
 	char tmp[80];
 
@@ -1777,7 +1777,7 @@ s16b get_quantity(cptr prompt, int max)
 	}
 
 	/* Get the item index */
-	if ((max != 1) && repeat_pull(&amt))
+	if ((max != 1) && repeat_pull((int *)&amt))
 	{
 		/* Enforce the maximum */
 		if (amt > max) amt = max;
@@ -1810,7 +1810,7 @@ s16b get_quantity(cptr prompt, int max)
 	if (!get_string(buf, 7, prompt)) return (0);
 
 	/* Extract a number */
-	amt = atoi(buf);
+	sscanf(buf, "%ld", &amt);
 
 	/* A letter means "all" */
 	if (isalpha(buf[0])) amt = max;
@@ -1827,6 +1827,10 @@ s16b get_quantity(cptr prompt, int max)
 	return (amt);
 }
 
+s16b get_quantity(cptr prompt, s16b max)
+{
+	return ((s16b)(get_quantity_big)(prompt, max));
+}
 
 /*
  * Pause for user response XXX XXX XXX

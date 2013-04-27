@@ -841,6 +841,8 @@ struct monster_type
 
 	byte stunned;	/* Monster is stunned */
 	byte confused;	/* Monster is confused */
+	byte silenced;	/* Monster is silenced */
+	byte imprisoned;/* Monster is imprisoned */
 
 	byte monfear;	/* Monster is afraid */
 	byte invulner;	/* Monster is temporarily invulnerable */
@@ -1177,7 +1179,8 @@ typedef struct magic_type magic_type;
 struct magic_type
 {
 	byte slevel;	/* Required level (to learn) */
-	byte smana;	/* Required mana (to cast) */
+	byte smana;	    /* Required mana (to cast) */
+	char power;		/* Power adjustment */
 };
 
 
@@ -1200,10 +1203,34 @@ struct player_magic
 	int spell_first;	/* Level of first spell */
 	int spell_weight;	/* Weight that hurts spells */
 
-	magic_type info[MAX_REALM][32];	/* The available spells */
+	int focus_offset;   /* Number of levels between spell focus */
+
+	int max_spells[SPELL_LAYERS];	/* Number of spell slots by tier. */
 };
 
+/*
+ * Information for the magic realms
+ */
+typedef struct spell_type spell_type;
 
+struct spell_type
+{
+	u32b name;   	/* Spell name (offset) */
+	byte s_idx;		/* Spell number */
+	byte sval;		/* Sval of the book this spell appears in */
+	byte realm;		/* Realm.  This spell is the same as "realm" spell number "s_idx". */
+
+	magic_type info[MAX_CLASS];		/* Level / cost information by class */
+};
+
+typedef struct spell spell_external;
+typedef struct spell spell_internal;
+
+struct spell
+{
+	byte s;		/* Spell number */
+	byte r;		/* Realm */
+};
 
 /*
  * Player sex info
@@ -1323,23 +1350,24 @@ struct player_data
 /*
  * Player spell data
  */
-typedef struct player_realm player_realm;
+typedef struct player_spell_learned player_spell_learned;
 
-struct player_realm
+struct player_spell_learned
 {
-	u32b learned;	/* Spell flags */
-	u32b worked;	/* Spell flags */
-	u32b forgotten;	/* Spell flags */
-
-	byte realm;	/* Realm number */
+	byte realm;  /* The "real" realm of the spell */
+	byte s_idx;  /*  ... and its number */
+	byte focus;  /* Focus level this time */
+	byte flags;	 /* Information about this slot */
+	byte spell[2];	/* "external" spell number in each realm */
 };
 
 typedef struct player_spell player_spell;
 
 struct player_spell
 {
-	player_realm r[2];	/* Magic realms */
-	byte order[PY_MAX_SPELLS];	/* Spell order */
+	byte realm[2];	/* Magic realms */
+	player_spell_learned data[PY_MAX_SPELLS];
+	byte spell_max;				/* Last spell filled */
 };
 
 /*
@@ -1366,7 +1394,7 @@ struct player_timed
 	s16b shero;	/* Timed -- Super Heroism */
 	s16b shield;	/* Timed -- Shield Spell */
 	s16b blessed;	/* Timed -- Blessed */
-	s16b invis;	/* Timed -- See Invisible */
+	s16b see_invis;	/* Timed -- See Invisible */
 	s16b infra;	/* Timed -- Infra Vision */
 
 	s16b oppose_acid;	/* Timed -- oppose acid */
@@ -1382,6 +1410,23 @@ struct player_timed
 	s16b oppose_blind;  /* Timed -- resist blindness */
 
 	s16b word_recall;	/* Word of recall counter */
+
+	s16b str;  /* Timed strength bonus */
+	s16b chr;  /* Timed charisma bonus */
+
+	s16b sust_all;  /* Timed sustain */
+	s16b xtra_fast; /* Timed extra haste */
+	s16b immune_acid;  /* Timed elemental immunities */
+	s16b immune_fire;
+	s16b immune_cold;
+	s16b immune_elec;
+	s16b sh_fire;   /* Temporary aura of fire */
+	s16b sh_elec;
+	s16b sh_cold;
+	s16b sh_acid;
+	s16b sh_fear;   /* Aura of fear */
+	s16b invis;     /* Invisibility */
+	s16b xtra_invis;	/* Extra invisibility */
 };
 
 /*
@@ -1398,6 +1443,7 @@ struct player_state
 
 	byte confusing;	/* Glowing hands */
 	byte searching;	/* Currently searching */
+	byte lich;      /* Is a Lich */
 
 	u16b total_winner;	/* Total winner */
 
@@ -1609,6 +1655,8 @@ struct player_type
 	player_run run;		/* Current stat of the running routine */
 
 	s16b new_spells;	/* Number of spells available */
+
+	s16b spell_slots[SPELL_LAYERS];   /* Slots remaining */
 
 	s16b cur_lite;	/* Radius of lite (if any) */
 

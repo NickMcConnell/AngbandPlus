@@ -160,7 +160,7 @@ static int get_mindcraft_power(int *sn)
 	/* Build a prompt (accept all spells) */
 	(void)strnfmt(out_val, 78, "(%^ss %c-%c, ESC=exit) Use which %s? ",
 				  p, I2A(0), I2A(num - 1), p);
-	
+
 	/* Save the screen */
 	screen_save();
 
@@ -197,8 +197,8 @@ static int get_mindcraft_power(int *sn)
 		if (chance < minfail) chance = minfail;
 
 		/* Stunning makes spells harder */
-		if (p_ptr->tim.stun > 50) chance += 25;
-		else if (p_ptr->tim.stun) chance += 15;
+		if (query_timed(TIMED_STUN) > 50) chance += 25;
+		else if (query_timed(TIMED_STUN)) chance += 15;
 
 		/* Always a 5 percent chance of working */
 		if (chance > 95) chance = 95;
@@ -395,10 +395,10 @@ static bool cast_mindcrafter_spell(int spell)
 			(void)clear_stun();
 
 			/*
-			 * Only heal when Adrenalin Channeling is not active. We check
+			 * Only heal when Adrenaline Channeling is not active. We check
 			 * that by checking if the player isn't fast and 'heroed' atm.
 			 */
-			if (!p_ptr->tim.fast || !(p_ptr->tim.hero || p_ptr->tim.shero))
+			if (!query_timed(TIMED_FAST) || !(query_timed(TIMED_HERO) || query_timed(TIMED_SHERO)))
 			{
 				(void)hp_player(plev);
 			}
@@ -455,7 +455,7 @@ void do_cmd_mindcraft(void)
 
 
 	/* not if confused */
-	if (p_ptr->tim.confused)
+	if (query_timed(TIMED_CONFUSED))
 	{
 		msgf("You are too confused!");
 		return;
@@ -498,8 +498,8 @@ void do_cmd_mindcraft(void)
 	if (chance < minfail) chance = minfail;
 
 	/* Stunning makes spells harder */
-	if (p_ptr->tim.stun > 50) chance += 25;
-	else if (p_ptr->tim.stun) chance += 15;
+	if (query_timed(TIMED_STUN) > 50) chance += 25;
+	else if (query_timed(TIMED_STUN)) chance += 15;
 
 	/* Always a 5 percent chance of working */
 	if (chance > 95) chance = 95;

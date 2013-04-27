@@ -6,12 +6,12 @@ ranger or a rogue (s)he can learn magic spells; if (s)he is a priest or
 a paladin, (s)he can learn prayers. All mages can learn the same spells
 and all priests can learn the same spells.
 
-Zangband uses a more complex "realms of magic" system inspired by the
-commercial fantasy strategy game Master of Magic (Microprose), which in
-turn has supposedly borrowed it from the card game Magic the Gathering
-(by Wizards of the Coast). The magic system, as implemented in
-Zangband, consists of seven realms: Life, Arcane, Sorcery, Nature,
-Trump, Chaos and Death.
+Z+Angband and its predecessor Zangband use a more complex "realms of
+magic" system inspired by the commercial fantasy strategy game Master
+of Magic (Microprose), which in turn has supposedly borrowed it from
+the card game Magic the Gathering (by Wizards of the Coast). The magic
+system, as implemented in Z+Angband, consists of eight realms: Life,
+Arcane, Sorcery, Nature, Conjuration, Chaos, Death, and Illusion.
 
 While any given realm of magic typically includes spells of a certain
 type or theme, each realm should have enough high-level spells to
@@ -21,41 +21,19 @@ some offer attacking spells which let you directly hurt your enemy,
 while others offer spells for protection, healing and gathering
 information.
 
-In general, Life is defensive although it offers some good attacking
-spells against evil monsters, Arcane offers utility spells with
-limited offensive capability, Sorcery offers utility spells and some
-defensive capability, Nature specializes in the elements and offers
-both defensive and offensive spells, Conjuration specializes in
-teleportation and summoning spells and Chaos and Death are offensive.
+In Z+Angband, spellcasting classes can select either one or two realms
+from those available. Not all realms are available to all classes.
 
-In Zangband, spellcasting classes can select either one or two realms
-from those available. Note that certain realms may be prohibited for
-some classes. Since a character can have (at most) two realms of magic,
-and the old spells have been split between the existing realms, on the
-first glance it may seem that this system makes spell-users less
-powerful. However, the opposite holds true. While a given realm of
-magic typically includes spells of a certain type, new ultra powerful
-rare high-level spells have been added to many realms.
+Unlike in Zangband and Angband and many other similar games, most
+characters are not capable of learning every spell in their chosen
+realm or realms.  Instead, players will need to make choices about
+which spells are best for them.  The choice to learn a spell is
+permanent.  
 
-Any spell realm except Arcane should have enough high-level spells
-even for the later stages of the game. The main difference lies in how
-they support your playing strategy: some offer "weapon" spells which
-let you directly hurt your enemy, while others offer spells for
-protection, healing and gathering information.
-
-In standard Angband, there were 9 spellbooks for all spellcasters. In
-Zangband, there are 4 spellbooks per realm. Two of them can be bought
-in the town stores and the remaining two must be found in the dungeon
-(although they may occasionally appear in the Black Market). The
-exception to this rule is the Arcane realm since all Arcane spellbooks
-can be found in the magic shop or book store. Just as one might expect,
-Arcane magic lacks the really powerful high level spells.
-
-A character with two realms of magic will thus need to carry a maximum
-of 8 spellbooks while a character with only one realm of magic will
-only need to carry a maximum of 4 spellbooks. All realms have 32
-spells, and each book contains 8 spells.
-
+Z+Angband 0.3.0 introduces "spell focus", a mechanic which allows
+characters to specialize in individual spells, "learning them"
+multiple times in exchange for power bonuses and reduced mana costs
+and failure rates.  
 
 ***** <ClassSpellAbil>
 === Class Spell Ability ===
@@ -67,14 +45,12 @@ Warriors
 Mages
      Mages have the least restrictions in choosing and learning spells.
      They can freely choose any two realms when a character is created:
-     in the current version, all seven realms are available to them,
-     although their natural inclination makes Life magic fairly hard
-     for them. Otherwise, a mage tends to learn and cast all the spells
-     in his / her realms better than any other character. The ability
-     to select both realms of magic (which no other character class can
-     do) allows the best support for experimenting and combining
-     different realms, and, thus, for different playing strategies as
-     well.
+     in the current version, all eight realms are available to them.
+     A mage tends to learn and cast all the spells in his / her realms 
+     better than any other character. The ability to freely select both 
+     realms of magic (which no other character class can do) allows the 
+     best support for experimenting and combining different realms, and, 
+     thus, for different playing strategies as well.
 
 Priests
      There are two types of priests in Zangband: the 'ordinary' priests
@@ -82,14 +58,12 @@ Priests
      priests, who select Death magic instead of Life magic. No priest
      can have both realms (unless (s)he was created in Zangband 2.0.0
      or 2.0.1). Priests can also select a secondary realm from the
-     other five realms, and should be able to learn all spells in it as
-     well, even if not as efficiently as mages. However, when learning
-     spells, priests cannot voluntarily decide which spells to study:
-     they are rewarded with new prayers by their patron deities, with
-     no money-back satisfaction guarantee. It should also be noted that
-     since the natural inclination of a priest is towards Life magic,
+     other six realms, excluding Illusion, and should be able to learn 
+     all spells in it as well, even if not as efficiently as mages. 
+     As the natural inclination of priests is towards life and healing,
      priests who select Life magic will be able to learn their prayers
-     faster and better than their evil colleagues with Death magic.
+     faster and better than their evil colleagues with Death magic, and
+     also faster and better than mages.
 
 Rogues
      There are several subtypes of Rogues in Zangband: the exact 'type'
@@ -99,37 +73,33 @@ Rogues
      other hand, is more interested in the Sorcery spells, which allow
      him or her to do the job fast and efficiently. The Assassins'
      partiality for Death magic is well known, and they are feared for
-     it. Finally, there is the Card Shark, who will opt for Conjuration
-     magic, and shuffles the decks with amazing proficiency. All Rogues
+     it. There is the Gambler, who will opt for Conjuration magic.  
+     And finally, the Trickster relies on Illusions.  All Rogues
      have certain limitations on which spells they can learn, and they
-     are not too fast to learn new spells.
+     are not too fast to learn new spells.  Rogues are not adept at
+     damage spells, and suffer a power penalty on them.
 
 Rangers
      All rangers are trained in Nature magic, and all Nature spells are
      available to them. They even learn these spells almost as fast as
-     mages. They can also select a secondary realm (from Sorcery,
-     Arcane, Trump, Nature, Chaos and Death), but they are slow
-     learners in them, and may find themselves unable to learn some of
-     the highest level spells.
+     mages. They can also select a secondary realm (any other than Life), 
+     but they are slow learners in them, and may find themselves unable 
+     to learn some of the highest level spells.
 
 Paladins
-     Paladins are trained in Life magic (only), and they despise the
-     other realms of magic (which they regard as the Devil's work).
-     Like priests, they cannot select which prayers to learn but are
+     Like priests, paladins cannot select which prayers to learn but are
      rewarded with new prayers by their deities. They can learn all
      Life spells, but not as fast as priests. Death Knights study Death
      magic instead of Life magic, but in other respects they are
      similar to normal paladins. Death Knights can learn all Death
      spells. The endless enmity between these two subtypes is most
-     evident in their attitudes to other realms of magic: an 'ordinary'
-     detests the other realms of magic (than Life) so strongly that he
+     evident in their attitudes to each others' realms of magic: an 
+     'ordinary' paladin detests Death magic so strongly that he
      or she will even gain experience for destroying their high-level
-     spellbooks. A Death Knight, on the other hand, is very tolerant of
-     the other realms -- to annoy Paladins, perhaps, if for no other
-     reason. A Death Knight will, however, be very offended by the
-     sight of Life spellbook, and will do anything to destroy it; and
-     this will even give him or her experience, if the Life spellbook
-     in question is a high-level one.
+     spellbooks. A Death Knight, on the other hand, will be very offended 
+     by the sight of a Life spellbook, and gains experience for destroying
+     high-level ones.
+
 
 Warrior-Mages
      Warrior-mages begin the game with Arcane magic, and they can
@@ -150,20 +120,24 @@ Monks
      Life magic, and try work to benefit his neighbor. But there also
      are dark monks, who specialize in Death magic. A monk can thus
      select any one of these three Realms. They will eventually learn
-     all prayers in the discipline of their choice.
+     almost all prayers in the discipline of their choice.
 
 Mindcrafter
      Although the powers of a Mindcrafter may seem like magic, this is
      not -- strictly speaking -- the case. They are mental powers,
      independent of the ordinary sources of magic. Consequently,
-     Mindcrafters are not interested in 'magic' and learn no spells.
+     Mindcrafters are not interested in 'magic' and learn no spells.  
+     Nonetheless, Mindcrafter powers are a type of magic, just not 
+     of the eight realms, so their powers are disrupted by anti-magic.
 
 High Mage
      High mages are mages who specialize in one particular field of
      magic and learn it very well -- much better than the ordinary
      mage. For the price of giving up a second realm of magic, they
      gain substantial benefits in the mana costs, minimum levels, and
-     failure rates in the spells of the realm of their specialty.
+     failure rates in the spells of the realm of their specialty.  In
+     addition, High Mages get enough spell slots to learn every spell
+     in their one chosen realm.
   
 
 ***** <MagicRealms>
@@ -175,7 +149,8 @@ Life
      these are mostly used for harming and banishing foul minions of
      evil. It is rumored that there is a secret high level prayer which
      will make the priest (or paladin) completely impervious to all
-     forms of hostile action.
+     forms of hostile action.  Life magic is the best realm for spells
+     to enhance or improve the caster.
 
 Sorcery
      Sorcery is a `meta` realm, including enchantment and general
@@ -201,7 +176,7 @@ Arcane
      Arcane spellbooks can be bought in town, and regardless of your
      class, you will eventually be able to cast every Arcane spell.
      Furthermore, the Arcane realm can be mastered much earlier than
-     other realsm because of its lack of high-power spells. It should
+     other realms because of its lack of high-power spells. It should
      also be noted that the 'specialized' realms (i.e. other than
      Arcane) usually offer the same spell at a lower level and
      cost. Arcane magic is therefore perhaps not recommendable as
@@ -230,15 +205,17 @@ Nature
      spellcaster be lucky enough to find an extremely rare spellbook
      called "Nature's Wrath". Nature also has a spell of Herbal
      Healing, which is the only high-power healing spell outside the
-     realm of Life magic.
+     realm of Life magic.  Nature magic is enhanced when the caster is
+     in the wilderness; all Nature spells get a 25% power bonus
+     while the caster is outside.
 
 Chaos
      There are few types of magic more unpredictable and difficult to
      control than Chaos magic. Chaos is the very element of unmaking,
      and the Chaos spells are the most terrible weapons of destruction
-     imaginable. From Magic Missile and Acid Bolt to the medium level
-     Fire Ball and Doom Bolt, and finally to the awesome spells of
-     Invoke Logrus, Mana Storm and Call the Void, Chaos offers an
+     imaginable. From Magic Missile and Fire Bolt to the medium level
+     Fire Ball and Disintegrate, and finally to the awesome spells of
+     Breathe Logrus, Mana Storm and Call the Void, Chaos offers an
      unsurpassable arsenal of attack spells. The caster can also call
      on the primal forces of Chaos to induce mutations in his/her
      opponents and even him/herself, but otherwise, Chaos has no
@@ -246,7 +223,9 @@ Chaos
      backfire easily and product undesired effects. This is especially
      true in the version 2.1.0 of Zangband and later, where the forces
      of Chaos can easily twist the hapless individual foolish enough to
-     invoke them, turning them horrendous spawns of Chaos.
+     invoke them, turning them horrendous spawns of Chaos.  Chaos magic
+     is mainly concerned with spells to deal direct damage to enemies,
+     and has relatively few utility spells.
 
 Death
      There is no fouler nor more evil category of spells than the
@@ -258,8 +237,119 @@ Death
      hurting the caster in the process of casting. Should a Death
      wizard find the legendary tome Necronomicon, he can expect to gain
      very great powers indeed, but at a cost: few that have studied the
-     accursed tome have retained their sanity.
+     accursed tome have retained their sanity.  It is rumored that the
+     secret of Liches lies in the Necronomicon, and that those who dare
+     may become a Lich themselves.
 
+Illusion
+     This realm of magic is subtle and strange.  Its spells primarily
+     deal with the creation or detection of illusions, semi-reality that
+     can be fully real to those who believe in it.  Illusion magic has
+     fairly limited offensive capabilities, but can create (real) light
+     and darkness attacks.  Other attack spells are mainly illusionary
+     attacks, which may sometimes be disbelieved by intelligent enemies.
+     Some illusion spells focus on affecting the mind of the victims,
+     such as Phantasmal Horror which causes mass fear and confusion.  
+     It is rumored that powerful Illusionists are able to create the
+     illusion of magic itself, and be able to access spells from other
+     realms through great effort.  Illusion magic has some limited 
+     information capabilities and no direct escape spells, but has a 
+     wide variety of trick spells that can aid an escape.  
+
+
+***** <SpellSlots>
+=== On Learning Spells ... ===
+
+All realms of magic have 38 spells, except for Arcane which has 40.
+However, only High Magi are capable of learning all the spells in the
+realm they choose: others get a smaller total number of spells than
+there are available in their realm combination choice.  Specifically,
+the total number of spells you can learn is determined by your class.
+
+Class		       Total spell slots
+----------------------------------------
+Mage	                     68 (2 realms)
+Priest                       64 (2 realms)
+Rogue                        30
+Ranger                       60 (2 realms)
+Paladin                      32
+Warrior-Mage                 64 (2 realms)
+Chaos Warrior                30
+Monk                         34
+High Mage                    40
+
+Furthermore, not all spell slots are created equal.  Your slots come
+in 5 tiers: one for the first 10 levels of spells you can learn, one
+for the next 10, and so on.  You can use a spell slot at one tier to
+learn a lower-level spell, but not vice-versa.  For instance, a Chaos
+Warrior gets 7 tier-1 slots, 6 tier-2, tier-3, and tier-4 slots, and 
+5 tier-5 slots.  Thus, a Chaos Warrior, whose first spells are at level
+2, can learn at most 5 spells of levels 42-50, at most 5+6 spells of
+levels 32-50, and so on.
+
+When studying a spell, you will automatically use the lowest possible
+tier slot to study it.  When you are close to running out of slots on
+a tier, or when you are about to "downgrade" a slot, the game will 
+check with you to confirm the action.  (You can disable the "study_warn"
+option if you don't need the warning.)
+
+The spell knowledge menu (in the knowledges menu, '~' to access) will
+give you information about which spell slots you have used and what
+you have left, and what spells you know.
+
+--- Overlapping Spells ---
+
+When you use more than one realm of magic, there will often be
+overlaps between your realms.  In some cases, different realms share
+spells that are exactly the same -- Light is a good example, as all
+realms except for Death have it.  The game is intelligent about
+overlapping spells: if you learn a spell in one realm, and it exists
+in the other, you will effectively learn both spells at once, for only
+one spell slot.  Furthermore, such overlap spells get a 10% bonus to
+spell power: when you study two realms that are both good at a
+particular magical spell, your expertise in both makes you better at
+casting that spell.
+
+If you learn a spell in one realm and it is too high a level for you
+to use in the other realm, the spell will be marked as "forgotten"
+in the other realm.
+
+--- Spell Focus ---
+
+Those who cast actual spells (as opposed to prayers) can focus on
+individual spells by learning the multiple times.  Each level of spell
+focus gives you higher and higher bonuses to the spell's power, its
+mana cost, and the rate of failure for the spell.  You can focus a
+spell up to three times, that is, you can "learn" a spell up to four
+times total.
+
+Focus level		Power	Mana	Fail    Min. Fail
+---------------------------------------------------------
+Learned			0%	0%	0%	0%
+Improved		+10%	-20%	-5%	-1%
+Specialized		+40%	-33%	-10%	-1%
+Mastered		+50%	-40%	-15%	-2%
+
+Spell focus occurs at higher levels than the original spell.  For
+instance, if a Mage wishes to Improve the level 1 Magic Missile spell,
+this will be a level 8 spell.  So it can't be improved until the
+character is 8th level, but it will still be a tier-1 spell.  To
+Specialize Magic Missile would be a level 15 spell: a tier-2 spell.
+The difference for spell focus depends on your class: Mages and High
+Mages can improve a spell every 7 levels, Warrior-Mages can improve a
+spell every 8 levels, and Rogues, Rangers, and Chaos Warriors can
+improve a spell every 10 levels.  Priests, Paladins, and Monks, since 
+they get their prayers randomly, can never improve spells.
+
+Mana cost and Failure adjustments are self-explanatory.  Power
+adjustments affect each spell differently, but there are common
+themes.  Power adjustments generally affect anything quantitative
+about the spell: damage, amount healed, duration, difficulty for
+monsters to save, the quality of monsters summoned with summoning
+spells, et cetera.  Status bonuses (e.g. the bonuses you get while you
+are "blessed" or under "heroism") do not change.  Power also has an
+interesting effect on enchantment spells.  With a large power bonus,
+you are more likely to succeed in enchanting heavily enchanted items.
 
 ***** <CastingSpells>
 === On Casting Spells ... ===
@@ -303,6 +393,10 @@ damaged. It may also cause you to faint from the effort which will
 effectively paralyze you for several turns (even with free action).
 The CON drain and the paralyzation may happen regardless of whether
 the casting was successful or not.
+
+High Mages are more likely to succeed at casting spells without
+sufficient mana.  However, they are equally prone to the damaging side
+effects of doing so.
 
 --- Spell Durations ---
 
@@ -381,33 +475,37 @@ spellbook, try using macros (either the 'full' macros or inscriptions).
 LIFE: Standard Spellbooks
 
 Book of Common Prayer
-     1. Detect Evil
-     2. Cure Light Wounds
-     3. Bless
-     4. Remove Fear
-     5. Call Light
-     6. Detect Traps and Secret Doors
-     7. Cure Medium Wounds
-     8. Satisfy Hunger
+     1.  Detect Evil
+     2.  Cure Light Wounds
+     3.  Bless
+     4.  Neutralize Poison
+     5.  Call Light
+     6.  Detect Traps and Doors
+     7.  Cure Medium Wounds
+     8.  Heroism
+     9.  Satisfy Hunger
+     10. Remove Curse
+     11. Turn Undead
 
 High Mass
-     1. Remove Curse
-     2. Cure Poison
-     3. Cure Critical Wounds
-     4. Sense Unseen
-     5. Holy Orb
-     6. Protection from Evil
-     7. Healing
-     8. Glyph of Warding
-
+     1.  Holy Prayer
+     2.  Strength
+     3.  Cure Serious Wounds
+     4.  Sense Unseen
+     5.  Holy Orb
+     6.  Preservation
+     7.  Protection from Evil
+     8.  Healing
+     9.  Glyph of Warding
+     10. Word of Recall
 
 LIFE: Rare Spellbooks
 
-Book of the Unicorn
+Sacred Rites
      This book has powerful prayers to ward off, banish and destroy the
      forces of evil.
 
-Blessings of the Grail
+Codex of Heaven
      This book has the most powerful prayers of protection and healing,
      as well as prayers of holy visions.
 
@@ -415,25 +513,29 @@ Blessings of the Grail
 SORCERY: Standard Spellbooks
 
 Beginner's Handbook
-     1. Detect Monsters
-     2. Phase Door
-     3. Detect Doors and Traps
-     4. Light Area
-     5. Confuse Monster
-     6. Teleport
-     7. Sleep Monster
-     8. Recharging
+     1.  Detect Monsters
+     2.  Phase Door
+     3.  Detect Doors and Traps
+     4.  Light Area
+     5.  Detect Objects and Treasure
+     6.  Confuse Monster
+     7.  Teleport
+     8.  Sleep Monster
+     9.  Slow Monster
+     10. Magic Mapping
+     11. Silence Monster
 
 Master Sorcerer's Handbook
-     1. Magic Mapping
-     2. Identify
-     3. Slow Monster
-     4. Mass Sleep
-     5. Teleport Away
-     6. Haste Self
-     7. Detection True
-     8. Identify True
-
+     1.  Charm Monster
+     2.  Mass Sleep
+     3.  Identify
+     4.  Teleport Away
+     5.  Haste Self
+     6.  Magic Shield
+     7.  Detection True
+     8.  Identify True
+     9.  Gather Mana
+     10. Mass Identify
 
 SORCERY: Rare Spellbooks
 
@@ -445,108 +547,32 @@ Grimoire of Power
      items, and the Globe of Invulnerability.
 
 
-ARCANE: All Spellbooks
-
-Cantrips for Beginners
-     1. Zap
-     2. Wizard Lock
-     3. Detect Invisibility
-     4. Detect Monsters
-     5. Blink
-     6. Light Area
-     7. Trap & Door Destruction
-     8. Cure Light Wounds
-
-Minor Arcana
-     1. Detect Doors & Traps
-     2. Phlogiston
-     3. Detect Treasure
-     4. Detect Enchantment
-     5. Detect Objects
-     6. Cure Poison
-     7. Resist Cold
-     8. Resist Fire
-
-Major Arcana
-     1. Resist Lightning
-     2. Resist Acid
-     3. Cure Medium Wounds
-     4. Teleport
-     5. Stone to Mud
-     6. Ray of Light
-     7. Satisfy Hunger
-     8. See Invisible
-
-Manual of Mastery
-     1. Recharging
-     2. Teleport Level
-     3. Identify
-     4. Teleport Away
-     5. Elemental Ball
-     6. Detection
-     7. Word of Recall
-     8. Clairvoyance
-
-
-
-TRUMP: Standard Spellbooks
-
-Conjurings & Tricks
-     1. Phase Door
-     2. Mind Blast
-     3. Shuffle
-     4. Reset Recall
-     5. Teleport
-     6. Dimension Door
-     7. Trump Spying
-     8. Teleport Away
-
-Deck of Many Things
-     1. Trump Reach
-     2. Trump Animal
-     3. Phantasmal Servant
-     4. Trump Monster
-     5. Conjure Elemental
-     6. Teleport Level
-     7. Word of Recall
-     8. Banish
-
-
-TRUMP: Rare Spellbooks
-
-Trumps of Doom
-     This tome tells you the secrets of the Living Trump treatment, as
-     well how to deal the Joker card and how to deal death. It also has
-     rather powerful summoning Trumps which may yet prove your own
-     Doom...
-
-Five Aces
-     A superb collection of the most classic summoning Trumps ever
-     crafted.
-
-
 NATURE: Standard Spellbooks
 
 Call of the Wild
-     1. Detect Creatures
-     2. First Aid
-     3. Detect Doors and Traps
-     4. Foraging
-     5. Daylight
-     6. Animal Taming
-     7. Resist Environment
-     8. Cure Wounds & Poison
+     1.  Detect Creatures
+     2.  First Aid
+     3.  Detect Doors and Traps
+     4.  Foraging
+     5.  Daylight
+     6.  Animal Taming
+     7.  Resist Environment
+     8.  Cure Wounds & Poison
+     9.  Stone to Mud
+     10. Lightning Bolt
+     11. Frost Bolt
 
 Nature Mastery
-     1. Stone to Mud
-     2. Lightning Bolt
-     3. Nature Awareness
-     4. Frost Bolt
-     5. Ray of Sunlight
-     6. Entangle
-     7. Summon Animal
-     8. Herbal Healing
-
+     1.  Wall of Wood
+     2.  Ray of Sunlight
+     3.  Fire Bolt
+     4.  Stone Skin
+     5.  Entangle
+     6.  Earthquake
+     7.  Wall of Stone
+     8.  Summon Animals
+     9.  Protect from Corrosion
+     10. Herbal Healing
 
 NATURE: Rare Spellbooks
 
@@ -562,25 +588,30 @@ Nature's Wrath
 CHAOS: Standard Spellbooks
 
 Sign of Chaos
-     1. Magic Missile
-     2. Trap / Door Destruction
-     3. Flash of Light
-     4. Touch of Confusion
-     5. Mana Burst
-     6. Fire Bolt
-     7. Fist of Force
-     8. Teleport Self
+     1.  Ray of Frost
+     2.  Magic Missile
+     3.  Trap / Door Destruction
+     4.  Flash of Light
+     5.  Blink
+     6.  Static Field
+     7.  Touch of Confusion
+     8.  Mana Burst
+     9.  Immolation
+     10. Polymorph Other
+     11. Fire Bolt
 
 Chaos Mastery
-     1. Wonder
-     2. Chaos Bolt
-     3. Sonic Boom
-     4. Doom Bolt
-     5. Fire Ball
-     6. Teleport Other
-     7. Word of Destruction
-     8. Invoke Logrus
-
+     1.  Fist of Force
+     2.  Teleport Self
+     3.  Chain Lightning
+     4.  Dispel Traps
+     5.  Wonder
+     6.  Field of Chaos
+     7.  Sonic Boom
+     8.  Beam of Energy
+     9.  Fire Ball
+     10. Teleport Other
+     11. Word of Destruction
 
 CHAOS: Rare Spellbooks
 
@@ -597,25 +628,29 @@ Armageddon Tome
 DEATH: Standard Spellbooks
 
 Black Prayers
-     1. Detect Unlife
-     2. Malediction
-     3. Detect Evil
-     4. Stinking Cloud
-     5. Black Sleep
-     6. Resist Poison
-     7. Horrify
-     8. Enslave Undead
+     1.  Detect Evil & Unlife
+     2.  Malediction
+     3.  Horrify
+     4.  Stinking Cloud
+     5.  Black Sleep
+     6.  Resist Poison
+     7.  Detect Aura
+     8.  Enslave Undead
+     9.  Nether Bolt
+     10. Orb of Entropy
+     11. Invisibility
 
 Black Mass
-     1. Orb of Entropy
-     2. Nether Bolt
-     3. Terror
-     4. Vampiric Drain
-     5. Poison Branding
-     6. Dispel Good
-     7. Genocide
-     8. Restore Life
-
+     1.  Shadow Gate
+     2.  Banshee's Wail
+     3.  Freezing Aura
+     4.  Summon Lesser Undead
+     5.  Vampiric Drain
+     6.  Cloak of Fear
+     7.  Identify
+     8.  Dispel Life
+     9.  Genocide
+     10.  Restore Life
 
 DEATH: Rare Spellbooks
 
@@ -627,9 +662,135 @@ Black Channels
 Necronomicon
      The legendary tome of unholy visions, death and destruction.
 
+
+CONJURATION: Standard Spellbooks
+
+Tricks for Beginners
+     1.  Phase Door
+     2.  Fuel
+     3.  Magic Missile
+     4.  Summon Animal
+     5.  Light
+     6.  Heal Wounds
+     7.  Teleport Self
+     8.  Summon Phantom
+     9.  Stinking Cloud
+     10. Acid Arrow
+     11. Plague of Insects
+
+Master Conjurer's Handbook
+     1.  Glitterdust
+     2.  Conjure Food
+     3.  Summon Animals
+     4.  Dimension Door
+     5.  Teleport Away
+     6.  Flame Arrow
+     7.  Haste
+     8.  Summon Elemental
+     9.  Teleport Level
+     10. Word of Recall
+
+CONJURATION: Rare Spellbooks
+
+Energy Conjuring
+     This book contains spells capable of summoning and manipulating 
+     energy itself.
+
+Manual of the Planes
+     This most powerful tome concerns travel and summoning across the
+     planes.
+
+ILLUSION: Standard Spellbooks
+
+Sleight of Hand
+     1.  Light
+     2.  Phantom Arrow
+     3.  Noble Visage
+     4.  Invisibility
+     5.  Detect Traps
+     6.  Dancing Lights
+     7.  Detect Magic
+     8.  See Invisible
+     9.  Confuse Monster
+     10. Mirror Image
+     11. Ray of Light
+
+Smoke and Mirrors
+     1.  Hypnotic Pattern
+     2.  Charm Monster
+     3.  Phantasmal Horror
+     4.  Horrid Visage
+     5.  Magic Mapping
+     6.  Globe of Darkness
+     7.  Sense Minds
+     8.  Scream
+     9.  Phantom Fire
+     10. Glimpse of Death
+
+ILLUSION: Rare Spellbooks
+
+Illusion and Deception
+     This book includes advanced spells capable of creating intelligent
+     illusions and weak illusions of magic.
+
+Tome of Shadows
+     This most powerful book of illusions includes the most powerful
+     tricks and secrets.
+
+ARCANE: All Spellbooks
+
+Cantrips for Beginners
+     1.  Zap
+     2.  Detect Monsters
+     3.  Blink
+     4.  Light Area
+     5.  Fuel
+     6.  Detect Traps
+     7.  Detect Invisibility
+     8.  Cure Poison and Fear
+     9.  Cure Medium Wounds
+     10. Resist Cold and Fire
+
+Minor Arcana
+     1.  Lore
+     2.  Dispel Traps
+     3.  See Invisible
+     4.  Resist Blindness
+     5.  Resist Confusion
+     6.  Stone to Mud
+     7.  Ray of Light
+     8.  Satisfy Hunger
+     9.  Teleport
+     10. Resist Elements
+
+Major Arcana
+     1.  Identify Type
+     2.  Resist Poison
+     3.  Sleep Monster
+     4.  Magic Mapping
+     5.  Elemental Bolt
+     6.  Detection
+     7.  Heroism
+     8.  Teleport Away
+     9.  Identify
+     10. Cure Mortal Wounds
+
+Manual of Mastery
+     1.  Teleport Level
+     2.  Elemental Ball
+     3.  Resistance
+     4.  Enchant Armor
+     5.  Probe Resistance
+     6.  Recharging
+     7.  Word of Recall
+     8.  ESP
+     9.  Enchant Weapon
+     10. Clairvoyance
+
+
 --
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
 Updated    : Mangojuice
-Last update: June 21, 2008
+Last update: November 4, 2008

@@ -55,7 +55,7 @@ static void have_nightmare_aux(int r_idx)
 		return;
 	}
 
-	if (p_ptr->tim.image)
+	if (query_timed(TIMED_IMAGE))
 	{
 		/* Something silly happens... */
 		msgf("You behold the %s visage of %s!",
@@ -103,11 +103,11 @@ static void have_nightmare_aux(int r_idx)
 	/* Mind blast */
 	if (!player_save(power))
 	{
-		if (!(FLAG(p_ptr, TR_RES_CONF)) && !p_ptr->tim.oppose_conf)
+		if (!(FLAG(p_ptr, TR_RES_CONF)) && !query_timed(TIMED_OPPOSE_CONF))
 		{
 			(void)inc_confused(rand_range(4, 8));
 		}
-		if (!(FLAG(p_ptr, TR_RES_CHAOS)) && one_in_(3) && !p_ptr->tim.oppose_conf)
+		if (!(FLAG(p_ptr, TR_RES_CHAOS)) && one_in_(3) && !query_timed(TIMED_OPPOSE_CONF))
 		{
 			(void)inc_image(rand_range(250, 400));
 		}
@@ -125,7 +125,7 @@ static void have_nightmare_aux(int r_idx)
 	/* Brain smash */
 	if (!player_save(power))
 	{
-		if (!(FLAG(p_ptr, TR_RES_CONF)) && !p_ptr->tim.oppose_conf)
+		if (!(FLAG(p_ptr, TR_RES_CONF)) && !query_timed(TIMED_OPPOSE_CONF))
 		{
 			(void)inc_confused(rand_range(4, 8));
 		}
@@ -140,7 +140,7 @@ static void have_nightmare_aux(int r_idx)
 			(void)do_dec_stat(A_WIS);
 		}
 
-		if (!(FLAG(p_ptr, TR_RES_CHAOS))  && !p_ptr->tim.oppose_conf)
+		if (!(FLAG(p_ptr, TR_RES_CHAOS))  && !query_timed(TIMED_OPPOSE_CONF))
 		{
 			(void)inc_image(rand_range(250, 400));
 		}
@@ -854,7 +854,7 @@ bool inn_rest(void)
 	}
 
 	/* Hurt?  (Modified to allow people to rest if they are only cut */
-	if ((p_ptr->tim.poisoned))
+	if ((query_timed(TIMED_POISONED)))
 	{
 		msgf("You need a healer, not a room.");
 		message_flush();
@@ -892,7 +892,7 @@ bool inn_rest(void)
 	/* Normally heal the player */
 	(void)clear_blind();
 	(void)clear_confused();
-	p_ptr->tim.stun = 0;
+	(void)clear_stun();
 	p_ptr->csp = p_ptr->msp;
 
 	msgf("You awake refreshed for the new day.");
@@ -1348,21 +1348,21 @@ bool enchant_item(s32b cost, bool to_hit, bool to_dam, bool to_ac, bool weap)
 
 	/* Enchant to hit */
 	if ((to_hit) && (enchant(o_ptr, maxenchant - o_ptr->to_h,
-							 (ENCH_TOHIT | ENCH_FORCE))))
+							 (ENCH_TOHIT | ENCH_FORCE), 0)))
 	{
 		okay = TRUE;
 	}
 
 	/* Enchant to damage */
 	if ((to_dam) && (enchant(o_ptr, maxenchant_d - o_ptr->to_d,
-							 (ENCH_TODAM | ENCH_FORCE))))
+							 (ENCH_TODAM | ENCH_FORCE), 0)))
 	{
 		okay = TRUE;
 	}
 
 	/* Enchant to AC */
 	if ((to_ac) && (enchant(o_ptr, maxenchant - o_ptr->to_a,
-							(ENCH_TOAC | ENCH_FORCE))))
+							(ENCH_TOAC | ENCH_FORCE), 0)))
 	{
 		okay = TRUE;
 	}
@@ -2153,7 +2153,7 @@ void build_cmd_loan(int factor)
 	else if (st_ptr2 == st_ptr)
 	{
 		/* Player has a loan; ask them if they want to pay it off. */
-		int amt = get_loan_amount();
+		s32b amt = get_loan_amount();
 
 		if (p_ptr->au < amt)
 		{
@@ -2186,7 +2186,7 @@ void build_cmd_loan(int factor)
 		if (get_check("We can loan you up to %i gp at %i%%.  Take out loan?", amt, (factor-100)))
 		{
 			/* How much */
-			int amt2 = get_quantity("How much gold? ", amt);
+			s32b amt2 = get_quantity_big("How much gold? ", amt);
 
 			if (amt2 == 0) return;  /* No loan */
 
@@ -2245,7 +2245,7 @@ void build_cmd_spellbooks(int price)
 	int tv, sv;
 
 	/* Make sure the player casts spells.  This should not be a problem... */
-	if (p_ptr->spell.r[0].realm == REALM_NONE)
+	if (p_ptr->spell.realm[0] == REALM_NONE)
 	{
 		msgf ("You don't use spellbooks!");
 		return;
@@ -2259,7 +2259,7 @@ void build_cmd_spellbooks(int price)
 	p_ptr->au -= price;
 
 	/* First realm spellbook. */
-	tv = TV_LIFE_BOOK + p_ptr->spell.r[0].realm - 1;
+	tv = TV_LIFE_BOOK + p_ptr->spell.realm[0] - 1;
 	sv = 0;
 
 	current_object_source.type = OM_STORE;
@@ -2283,14 +2283,14 @@ void build_cmd_spellbooks(int price)
 	}
 
 	/* See if we have a second realm. */
-	if (p_ptr->spell.r[1].realm == REALM_NONE)
+	if (p_ptr->spell.realm[1] == REALM_NONE)
 	{
 		/* only 1 realm */
 		return;
 	}
 
 	/* Second realm spellbook. */
-	tv = TV_LIFE_BOOK + p_ptr->spell.r[1].realm - 1;
+	tv = TV_LIFE_BOOK + p_ptr->spell.realm[1] - 1;
 	sv = 0;
 
 	o_ptr = object_prep(lookup_kind(tv,sv));

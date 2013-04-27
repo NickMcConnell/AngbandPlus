@@ -930,7 +930,7 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 		cave_type *c_ptr;
 
 		/* Handle player fear */
-		if (p_ptr->tim.afraid)
+		if (query_timed(TIMED_AFRAID))
 		{
 			/* Message */
 			msgf("You are too afraid!");
@@ -1109,7 +1109,7 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 
 	else if (mut_ptr->which == MUT1_BERSERK)
 	{
-		if (!p_ptr->tim.shero)
+		if (!query_timed(TIMED_SHERO))
 		{
 			(void)hp_player(30);
 		}
@@ -1135,7 +1135,7 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 
 		for (i = 0; i < 8; i++)
 		{
-			(void)player_summon(PSUM_MOLD, lvl, TRUE, 150, TRUE, 1);
+			(void)player_summon(PSUM_MOLD, lvl, TRUE, 150, 0, 1);
 		}
 	}
 
@@ -1369,7 +1369,7 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 	else if (mut_ptr->which == MUT2_COWARDICE)
 	{
 		if (!((FLAG(p_ptr, TR_RES_FEAR)) ||
-				p_ptr->tim.hero || p_ptr->tim.shero))
+				query_timed(TIMED_HERO) || query_timed(TIMED_SHERO)))
 		{
 			disturb(FALSE);
 			msgf("It's so dark... so scary!");
@@ -1402,12 +1402,12 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 			msgf("You feel a SSSCHtupor cOmINg over yOu... *HIC*!");
 		}
 
-		if (!(FLAG(p_ptr, TR_RES_CONF)) && !p_ptr->tim.oppose_conf)
+		if (!(FLAG(p_ptr, TR_RES_CONF)) && !query_timed(TIMED_OPPOSE_CONF))
 		{
 			(void)inc_confused(rand_range(15, 35));
 		}
 
-		if (!(FLAG(p_ptr, TR_RES_CHAOS))  && !p_ptr->tim.oppose_conf)
+		if (!(FLAG(p_ptr, TR_RES_CHAOS))  && !query_timed(TIMED_OPPOSE_CONF))
 		{
 			if (one_in_(20))
 			{
@@ -1433,7 +1433,7 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 
 	else if (mut_ptr->which == MUT2_HALLU)
 	{
-		if (!(FLAG(p_ptr, TR_RES_CHAOS))  && !p_ptr->tim.oppose_conf)
+		if (!(FLAG(p_ptr, TR_RES_CHAOS))  && !query_timed(TIMED_OPPOSE_CONF))
 		{
 			disturb(FALSE);
 			p_ptr->redraw |= PR_EXTRA;
@@ -1468,7 +1468,7 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 		bool pet = (one_in_(6));
 
 		if (pet) {
-			if (player_summon(PSUM_DEMON, p_ptr->depth, TRUE, 200, 2, 1))
+			if (player_summon(PSUM_DEMON, p_ptr->depth, TRUE, 200, PSUM_FORCE_SUCCESS, 1))
 			{
 				msgf("You have attracted a demon!");
 				disturb(FALSE);
@@ -1488,7 +1488,7 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 		if (one_in_(2))
 		{
 			msgf("You feel less energetic.");
-			if (p_ptr->tim.fast > 0)
+			if (query_timed(TIMED_FAST) > 0)
 			{
 				(void)clear_fast();
 			}
@@ -1500,7 +1500,7 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 		else
 		{
 			msgf("You feel more energetic.");
-			if (p_ptr->tim.slow > 0)
+			if (query_timed(TIMED_SLOW) > 0)
 			{
 				(void)clear_slow();
 			}
@@ -1568,7 +1568,7 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 		bool pet = (one_in_(3));
 
 		if (pet) {
-			if (player_summon(PSUM_ANIMAL, p_ptr->depth, TRUE, 200, 2, 1))
+			if (player_summon(PSUM_ANIMAL, p_ptr->depth, TRUE, 200, PSUM_FORCE_SUCCESS, 1))
 			{
 				msgf("You have attracted an animal!");
 				disturb(FALSE);
@@ -1659,7 +1659,7 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 		bool pet = (one_in_(5));
 
 		if (pet) {
-			if (player_summon(PSUM_DRAGON, p_ptr->depth, TRUE, 200, 2, 1))
+			if (player_summon(PSUM_DRAGON, p_ptr->depth, TRUE, 200, PSUM_FORCE_SUCCESS, 1))
 			{
 				msgf("You have attracted a dragon!");
 				disturb(FALSE);
@@ -1677,7 +1677,7 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 	else if ((mut_ptr->which == MUT2_WEIRD_MIND) &&
 		!(FLAG(p_ptr, TR_NO_MAGIC)))
 	{
-		if (p_ptr->tim.esp > 0)
+		if (query_timed(TIMED_ESP) > 0)
 		{
 			msgf("Your mind feels cloudy!");
 			(void)clear_tim_esp();

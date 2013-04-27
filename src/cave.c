@@ -383,6 +383,7 @@ static bool is_direct_projectable(int x1, int y1)
 			}
 		}
 	}
+	return(TRUE);
 }
 
 
@@ -642,6 +643,12 @@ static bool project_stop(const cave_type *c_ptr, u16b flg)
 		return (FALSE);
 	}
 
+	if (!cave_perma_grid(c_ptr) && (flg & (PROJECT_ROCK)))
+	{
+		/* Not blocked */
+		return (FALSE);
+	}
+
 	/* Blocked */
 	return (TRUE);
 }
@@ -722,6 +729,7 @@ sint project_path(coord *gp, int x1, int y1, int x2, int y2, u16b flg)
 
 	int sq, sl;
 
+	int range = (flg & PROJECT_SHORT ? MAX_SHORT_RANGE : MAX_RANGE);
 	/* Absolute */
 	int ay, ax;
 
@@ -844,7 +852,7 @@ sint project_path(coord *gp, int x1, int y1, int x2, int y2, u16b flg)
 	}
 
 	/* Scan over squares along path */
-	for (sq = 0; (sq < MAX_RANGE) && (sq < slope_count[sl]); sq++)
+	for (sq = 0; (sq < range) && (sq < slope_count[sl]); sq++)
 	{
 		if (ay < ax)
 		{
@@ -886,7 +894,7 @@ sint project_path(coord *gp, int x1, int y1, int x2, int y2, u16b flg)
 	sq++;
 
 	/* Paranoia */
-	if (sq > MAX_RANGE) sq = MAX_RANGE;
+	if (sq > range) sq = range;
 	if (sq >= slope_count[sl]) sq = slope_count[sl] - 1;
 
 	/* Length */
@@ -1107,7 +1115,7 @@ void note_spot(int x, int y)
 	/* Is it lit + in view + player is not blind? */
 	if (((c_ptr->info & (CAVE_GLOW | CAVE_MNLT))
 		 || (pc_ptr->player & (GRID_LITE)))
-		&& player_has_los_grid(pc_ptr) && !p_ptr->tim.blind)
+		&& player_has_los_grid(pc_ptr) && !query_timed(TIMED_BLIND))
 	{
 		/* Memorize certain non-torch-lit wall grids */
 		if (!cave_floor_grid(c_ptr) && !(pc_ptr->player & (GRID_LITE)))
@@ -2217,7 +2225,7 @@ void update_view(void)
 		info = c_ptr->info;
 
 		/* Handle blindness */
-		if ((p_ptr->tim.blind) && !(info & CAVE_XTRA))
+		if ((query_timed(TIMED_BLIND)) && !(info & CAVE_XTRA))
 		{
 			/* Grid cannot be memorised (wasn't before) */
 			forget_grid(pc_ptr);
@@ -2451,7 +2459,7 @@ void update_mon_lite(void)
 	s16b fx, fy;
 
 	/* Blindness check */
-	if (p_ptr->tim.blind)
+	if (query_timed(TIMED_BLIND))
 	{
 		/* Clear all the monster lit squares */
 		for (i = 0; i < lite_n; i++)
@@ -2985,8 +2993,8 @@ void map_area(void)
 	int y1, y2, x1, x2;
 	int xx, yy;
 
-	cave_type *c_ptr;
-	pcave_type *pc_ptr;
+	cave_type *c_ptr, *c2_ptr;
+	pcave_type *pc_ptr, *pc2_ptr;
 
 	dun_type *d_ptr = dungeon();
 
@@ -3013,11 +3021,10 @@ void map_area(void)
 
 			if (p_ptr->depth) {
 
-				/* Floor grids other than normal walls are checked. */
-				if (cave_floor_grid(c_ptr) && c_ptr->feat != d_ptr->wall &&
-					c_ptr->feat != d_ptr->vein[0].deep && c_ptr->feat != d_ptr->vein[1].deep)
+				/* Floor grids are checked. */
+				if (cave_floor_grid(c_ptr))
 				{
-					/* Memorize known walls */
+					/* Memorize feature transitions */
 					for (i = 0; i < 8; i++)
 					{
 						xx = x + ddx_ddd[i];
@@ -3025,15 +3032,19 @@ void map_area(void)
 
 						if (!in_boundsp(xx, yy)) continue;
 
-						c_ptr = area(xx, yy);
-						pc_ptr = parea(xx, yy);
+						c2_ptr = area(xx, yy);
+						pc2_ptr = parea(xx, yy);
 
-						/* Memorize walls */
-						if (cave_wall_grid(c_ptr) || c_ptr->feat == d_ptr->wall
-							|| c_ptr->feat == d_ptr->vein[0].deep || c_ptr->feat == d_ptr->vein[1].deep)
+						/* Memorize feature transitions, except for non-icky
+					   		open grids */
+						if (c2_ptr->feat != c_ptr->feat &&
+							(!cave_floor_grid(c2_ptr) ||
+						   !(f_info[c2_ptr->feat].flags & FF_ICKY &&
+						   	 c2_ptr->feat >= FEAT_DEEP_WATER &&
+							 c2_ptr->feat < FEAT_QUEST_LESS)))
 						{
-							/* Memorize the walls */
-							remember_grid(c_ptr, pc_ptr);
+							/* Memorize the grid */
+							remember_grid(c2_ptr, pc2_ptr);
 
 							/* Notice the change */
 							lite_spot(xx, yy);
@@ -3052,11 +3063,13 @@ void map_area(void)
 
 						if (!in_boundsp(xx, yy)) continue;
 
-						c_ptr = area(xx, yy);
-						pc_ptr = parea(xx, yy);
+						c2_ptr = area(xx, yy);
+						pc2_ptr = parea(xx, yy);
 
-						/* Memorize walls */
-						if (cave_wall_grid(c_ptr))
+						/* Memorize walls and liquid boundaries */
+						if (cave_wall_grid(c_ptr) || (!(f_info[c_ptr->feat].flags & FF_ICKY) &&
+													   (f_info[c2_ptr->feat].flags & FF_ICKY) &&
+												   		c2_ptr->feat >= FEAT_DEEP_WATER && c2_ptr->feat < FEAT_QUEST_LESS))
 						{
 							/* Memorize the walls */
 							remember_grid(c_ptr, pc_ptr);

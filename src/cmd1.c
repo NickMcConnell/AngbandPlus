@@ -146,7 +146,9 @@ static int critical_melee(int chance, int sleeping_bonus, cptr m_name,
 
 			bonus *= psi_bonus;
 
-			p_ptr->csp -= PSI_COST * psi_bonus;
+			/* I refuse to kill a Lich from such an obscure thing. */
+			if (!p_ptr->state.lich)
+				p_ptr->csp -= PSI_COST * psi_bonus;
 			p_ptr->redraw |= (PR_MANA);
 			p_ptr->window |= (PW_PLAYER);
 			p_ptr->window |= (PW_SPELL);
@@ -510,8 +512,8 @@ void search(void)
 	chance = p_ptr->skills[SKILL_SNS];
 
 	/* Penalize various conditions */
-	if (p_ptr->tim.blind || no_lite()) chance = chance / 10;
-	if (p_ptr->tim.confused || p_ptr->tim.image) chance = chance / 10;
+	if (query_timed(TIMED_BLIND) || no_lite()) chance = chance / 10;
+	if (query_timed(TIMED_CONFUSED) || query_timed(TIMED_IMAGE)) chance = chance / 10;
 
 	/* Search the nearby grids, which are always in bounds */
 	for (y = (py - 1); y <= (py + 1); y++)
@@ -694,8 +696,6 @@ bool auto_pickup_okay(const object_type *o_ptr)
 void py_pickup_aux(object_type *o_ptr)
 {
 	object_type *j_ptr;
-
-	int slot;
 
 	/* Duplicate the object */
 	j_ptr = object_dup(o_ptr);
@@ -1178,8 +1178,8 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 		/* Modify the damage */
 		k = mon_damage_mod(m_ptr, k, 0);
 
-		/* Complex message */
-		if (p_ptr->state.wizard)
+		/* Complex message in Wiz mode, or for Humans */
+		if (p_ptr->state.wizard || p_ptr->rp.prace == RACE_HUMAN)
 		{
 			msgf("You do %d (out of %d) damage.", k, m_ptr->hp);
 		}
@@ -1313,8 +1313,8 @@ static bool monster_bash(int *blows, int sleeping_bonus, const cave_type *c_ptr,
 		if (randint1(bash_dam) > 30 + randint1(bash_dam / 2))
 			msgf("WHAMM!");
 
-		/* Complex message */
-		if (p_ptr->state.wizard)
+		/* Complex message in Wiz mode, or for Humans */
+		if (p_ptr->state.wizard || p_ptr->rp.prace == RACE_HUMAN)
 		{
 			msgf("You do %d (out of %d) damage.", bash_dam, m_ptr->hp);
 		}
@@ -1385,7 +1385,7 @@ static void monk_attack(monster_type *m_ptr, long *k, cptr m_name)
 
 		/* keep the highest level attack available we found */
 		if ((ma_ptr->min_level > old_ptr->min_level) &&
-			!p_ptr->tim.stun && !p_ptr->tim.confused)
+			!query_timed(TIMED_STUN) && !query_timed(TIMED_CONFUSED))
 		{
 			old_ptr = ma_ptr;
 
@@ -1592,10 +1592,16 @@ void py_attack(int x, int y)
 	}
 
 	/* Stop if friendly and visible */
-	if (!is_hostile(m_ptr) && !p_ptr->tim.stun && !p_ptr->tim.confused
-		&& !p_ptr->tim.image && !((p_ptr->muta2 & MUT2_BERS_RAGE) && p_ptr->tim.shero)
+	if (!is_hostile(m_ptr) && !query_timed(TIMED_STUN) && !query_timed(TIMED_CONFUSED)
+		&& !query_timed(TIMED_IMAGE) && !((p_ptr->muta2 & MUT2_BERS_RAGE) && query_timed(TIMED_SHERO))
 		&& m_ptr->ml)
 	{
+		if (is_imprisoned(m_ptr))
+		{
+			msgf("Attacking %s has no effect.", m_name);
+			return;
+		}
+
 		if (!o_ptr->xtra_name)
 		{
 			msgf("You stop to avoid hitting %s.", m_name);
@@ -1618,7 +1624,7 @@ void py_attack(int x, int y)
 	}
 
 	/* Handle player fear */
-	if (p_ptr->tim.afraid)
+	if (query_timed(TIMED_AFRAID))
 	{
 		/* Message */
 		if (m_ptr->ml)
@@ -1894,8 +1900,8 @@ void py_attack(int x, int y)
 			/* Modify the damage */
 			k = mon_damage_mod(m_ptr, k, 0);
 
-			/* Complex message */
-			if (p_ptr->state.wizard)
+			/* Complex message in Wiz mode, or for Humans */
+			if (p_ptr->state.wizard || p_ptr->rp.prace == RACE_HUMAN)
 			{
 				msgf("You do %d (out of %d) damage.", k, m_ptr->hp);
 			}
@@ -2161,7 +2167,7 @@ static bool pattern_seq(int c_x, int c_y, int n_x, int n_y)
 	if (c2_ptr->feat == FEAT_PATTERN_START)
 	{
 		if (!cave_pattern_grid(c1_ptr) &&
-			!p_ptr->tim.confused && !p_ptr->tim.stun && !p_ptr->tim.image)
+			!query_timed(TIMED_CONFUSED) && !query_timed(TIMED_STUN) && !query_timed(TIMED_IMAGE))
 		{
 			if (get_check
 				("If you start walking the Pattern, you must walk the whole way. Ok? "))
@@ -2395,7 +2401,7 @@ void move_player(int dir, int do_pickup)
 
 	/* Player can not walk through "walls"... */
 	/* unless in Shadow Form */
-	if (p_ptr->tim.wraith_form || (FLAG(p_ptr, TR_PASS_WALL)) || p_ptr->tim.etherealness)
+	if (query_timed(TIMED_WRAITH_FORM) || (FLAG(p_ptr, TR_PASS_WALL)) || query_timed(TIMED_ETHEREALNESS))
 		p_can_pass_walls = TRUE;
 
 	/* Never walk through permanent features */
@@ -2413,8 +2419,8 @@ void move_player(int dir, int do_pickup)
 	{
 		/* Attack -- only if we can see it OR it is not in a wall */
 		if (!is_hostile(m_ptr) &&
-			!(p_ptr->tim.confused || p_ptr->tim.image || !m_ptr->ml || p_ptr->tim.stun ||
-			  ((p_ptr->muta2 & MUT2_BERS_RAGE) && p_ptr->tim.shero)) &&
+			!(query_timed(TIMED_CONFUSED) || query_timed(TIMED_IMAGE) || !m_ptr->ml || query_timed(TIMED_STUN) ||
+			  ((p_ptr->muta2 & MUT2_BERS_RAGE) && query_timed(TIMED_SHERO))) &&
 			(pattern_seq(px, py, x, y)) &&
 			((cave_floor_grid(c_ptr)) || p_can_pass_walls))
 		{
@@ -2540,7 +2546,7 @@ void move_player(int dir, int do_pickup)
 
 				msgf("There is a closed door blocking your way.");
 
-				if (!(p_ptr->tim.confused || p_ptr->tim.stun || p_ptr->tim.image))
+				if (!(query_timed(TIMED_CONFUSED) || query_timed(TIMED_STUN) || query_timed(TIMED_IMAGE)))
 					p_ptr->state.energy_use = 0;
 			}
 
@@ -2572,7 +2578,7 @@ void move_player(int dir, int do_pickup)
 			{
 				msgf(MSGT_HITWALL, "There is rubble blocking your way.");
 
-				if (!(p_ptr->tim.confused || p_ptr->tim.stun || p_ptr->tim.image))
+				if (!(query_timed(TIMED_CONFUSED) || query_timed(TIMED_STUN) || query_timed(TIMED_IMAGE)))
 					p_ptr->state.energy_use = 0;
 
 				/*
@@ -2587,7 +2593,7 @@ void move_player(int dir, int do_pickup)
 			{
 				msgf(MSGT_HITWALL, "The jungle is impassable.");
 
-				if (!(p_ptr->tim.confused || p_ptr->tim.stun || p_ptr->tim.image))
+				if (!(query_timed(TIMED_CONFUSED) || query_timed(TIMED_STUN) || query_timed(TIMED_IMAGE)))
 					p_ptr->state.energy_use = 0;
 			}
 
@@ -2596,7 +2602,7 @@ void move_player(int dir, int do_pickup)
 			{
 				msgf(MSGT_HITWALL, "There is a pillar blocking your way.");
 
-				if (!(p_ptr->tim.confused || p_ptr->tim.stun || p_ptr->tim.image))
+				if (!(query_timed(TIMED_CONFUSED) || query_timed(TIMED_STUN) || query_timed(TIMED_IMAGE)))
 					p_ptr->state.energy_use = 0;
 			}
 
@@ -2605,7 +2611,7 @@ void move_player(int dir, int do_pickup)
 			{
 				msgf(MSGT_HITWALL, "There is a wall blocking your way.");
 
-				if (!(p_ptr->tim.confused || p_ptr->tim.stun || p_ptr->tim.image))
+				if (!(query_timed(TIMED_CONFUSED) || query_timed(TIMED_STUN) || query_timed(TIMED_IMAGE)))
 					p_ptr->state.energy_use = 0;
 			}
 		}
@@ -2617,7 +2623,7 @@ void move_player(int dir, int do_pickup)
 	/* Normal movement */
 	if (!pattern_seq(px, py, x, y))
 	{
-		if (!(p_ptr->tim.confused || p_ptr->tim.stun || p_ptr->tim.image))
+		if (!(query_timed(TIMED_CONFUSED) || query_timed(TIMED_STUN) || query_timed(TIMED_IMAGE)))
 		{
 			p_ptr->state.energy_use = 0;
 		}

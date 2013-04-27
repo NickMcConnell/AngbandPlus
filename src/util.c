@@ -2981,9 +2981,10 @@ static void msg_flush(int x)
 			}
 
 			if (quick_messages) break;
+			/*  Unreachable now that quick_messages is hard-defined to be TRUE.
 			if (cmd == ' ') break;
 			if ((cmd == '\n') || (cmd == '\r')) break;
-			bell("Illegal response to a 'more' prompt!");
+			bell("Illegal response to a 'more' prompt!"); */
 		}
 	}
 

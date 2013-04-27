@@ -22,7 +22,7 @@ NORMOBJS := $(addprefix src/,\
 	store.o birth.o load.o ui.o\
 	wizard1.o wizard2.o grid.o streams.o rooms.o \
 	generate.o dungeon.o init1.o init2.o \
-	effects.o quest.o racial.o run.o script.o \
+	effects.o quest1.o quest2.o racial.o run.o script.o \
 	artifact.o mutation.o flavor.o spells3.o \
 	mspells1.o mspells2.o scores.o mind.o \
 	bldg.o obj_kind.o wild1.o wild2.o wild3.o avatar.o notes.o)
@@ -53,16 +53,10 @@ ZUTILOBJS := $(addprefix src/,\
 ## The Borg files
 ##
 
-BORGOBJS := $(addprefix src/,\
-	zborg1.o zborg2.o zborg3.o zborg4.o zborg5.o \
-	zborg6.o zborg7.o zborg8.o zborg9.o \
-	zbmagic1.o zbmagic2.o zbmagic3.o)
-
-
 ##
 ## Normal list of object files.
 ##
-objs-y += $(ANGOBJS) $(LUAWOBJS) $(ZUTILOBJS) $(BORGOBJS)
+objs-y += $(ANGOBJS) $(LUAWOBJS) $(ZUTILOBJS)
 
 ##
 ## Extra object files depending on the ports
@@ -132,7 +126,6 @@ INCS := $(addprefix src/,\
 
 $(ANGOBJS): $(INCS) .default_path
 $(ZUTILOBJS): $(HDRS)
-$(BORGOBJS): $(INCS)
 $(LUAWOBJS): $(INCS)
 
 
@@ -158,7 +151,8 @@ src/main-x11.o: src/maid-x11.h
 src/main-xaw.o: src/maid-x11.h
 src/main-xpj.o: src/maid-x11.h
 src/script.o: src/script.h
-src/quest.o: src/wild.h src/grid.h
+src/quest1.o: src/wild.h src/grid.h
+src/quest2.o: src/wild.h src/grid.h
 src/readdib.o: src/readdib.h
 src/wild1.o: src/wild.h src/grid.h
 src/wild2.o: src/wild.h src/grid.h
@@ -169,34 +163,6 @@ src/z-rand.o: src/z-rand.h
 src/z-term.o: src/z-term.h src/z-virt.h
 src/z-util.o: src/z-util.h
 src/z-virt.o: src/z-virt.h src/z-util.h
-
-## Each borg file depends on the ones before it.
-## Hack - the dependance on the .o files encodes this.
-
-src/zborg1.o: src/zborg1.h src/maid-grf.h
-src/zborg2.o: src/zborg1.h src/zborg2.h src/maid-grf.h
-src/zborg3.o: src/zborg1.h src/zborg3.h src/maid-grf.h
-src/zborg4.o: src/zborg1.h src/zborg2.h src/zborg3.h src/zborg4.h \
-				src/maid-grf.h
-src/zborg5.o: src/zborg1.h src/zborg2.h src/zborg3.h src/zborg4.h \
-				src/zborg5.h src/maid-grf.h
-src/zborg6.o: src/zborg1.h src/zborg2.h src/zborg3.h src/zborg4.h \
-				src/zborg5.h src/zborg6.h src/maid-grf.h src/zbmagic.h
-src/zborg7.o: src/zborg1.h src/zborg2.h src/zborg3.h src/zborg4.h \
-				src/zborg5.h src/zborg6.h src/zborg7.h src/maid-grf.h
-src/zborg8.o: src/zborg1.h src/zborg2.h src/zborg3.h src/zborg4.h \
-				src/zborg5.h src/zborg6.h src/zborg7.h src/zborg8.h \
-				src/maid-grf.h
-src/zborg9.o: src/zborg1.h src/zborg2.h src/zborg3.h src/zborg4.h \
-				src/zborg5.h src/zborg6.h src/zborg7.h src/zborg8.h \
-				src/zborg9.h src/maid-grf.h
-src/zbmagic1.o: src/zborg1.h src/zborg2.h src/zborg3.h src/zborg4.h \
-				src/zborg5.h src/zborg6.h src/maid-grf.h src/zbmagic.h
-src/zbmagic2.o: src/zborg1.h src/zborg2.h src/zborg3.h src/zborg4.h \
-				src/zborg5.h src/zborg6.h src/maid-grf.h src/zbmagic.h
-src/zbmagic3.o: src/zborg1.h src/zborg2.h src/zborg3.h src/zborg4.h \
-				src/zborg5.h src/zborg6.h src/maid-grf.h src/zbmagic.h
-
 
 ##
 ## Build wrappers

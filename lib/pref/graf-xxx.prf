@@ -3304,6 +3304,10 @@ F:136:0xCF:0x93
 #N:137:swamp
 F:137:0xCF:0x92
 
+# mountain
+F:139:0xCB:0x87
+
+
 # Object attr/char definitions
 
 # something

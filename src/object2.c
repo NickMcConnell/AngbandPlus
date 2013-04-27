@@ -93,7 +93,7 @@ static void excise_object_idx(s16b *o_idx_ptr, object_type *o_ptr)
  */
 void delete_held_object(s16b *o_idx_ptr, object_type *o_ptr)
 {
-	int contents = 0;
+	s16b contents = 0;
 	bool drop = FALSE;
 
 	/* For containers, save the contents to handle in a moment. */
@@ -1083,6 +1083,7 @@ s32b flag_cost(const object_type *o_ptr, int plusses)
 	if (FLAG(o_ptr, TR_SH_ELEC)) total += 2500;
 	if (FLAG(o_ptr, TR_SH_ACID)) total += 2500;
 	if (FLAG(o_ptr, TR_SH_COLD)) total += 2500;
+	if (FLAG(o_ptr, TR_SH_FEAR)) total += 2500;
 
 	if (FLAG(o_ptr, TR_QUESTITEM)) total += 0;
 	if (FLAG(o_ptr, TR_XXX4)) total += 0;
@@ -1791,7 +1792,7 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
  * Containers use pval to determine number of objects that can be contained,
  * and base ac to determine the number of stacks.
  */
-bool object_can_contain(object_type *j_ptr, object_type *o_ptr, int priority)
+bool object_can_contain(const object_type *j_ptr, const object_type *o_ptr, int priority)
 {
 	bool can_absorb = FALSE;
 	object_type * j2_ptr;
@@ -3934,6 +3935,7 @@ byte kind_is_theme(int k_idx)
 		case TV_DEATH_BOOK: return (match_theme.magic);
 		case TV_CONJ_BOOK: return (match_theme.magic);
 		case TV_ARCANE_BOOK: return (match_theme.magic);
+		case TV_ILLUSION_BOOK: return (match_theme.magic);
 
 			/* Paranoia */
 		default: return (0);
@@ -4150,12 +4152,34 @@ static bool put_object(object_type *o_ptr, int x, int y)
 	return (FALSE);
 }
 
+static bool put_object_restricted(object_type * o_ptr, int x, int y)
+{
+	cave_type *c_ptr = area(x,y);
+
+	/* Require floor space */
+	if (!cave_nice_grid(c_ptr)) return (FALSE);
+
+	/* Not on "nasty" terrains */
+	if ((c_ptr->feat == FEAT_SHAL_LAVA) ||
+		(c_ptr->feat == FEAT_SHAL_ACID) ||
+		(c_ptr->feat == FEAT_SHAL_WATER)) return (FALSE);
+
+	/* Check to see if fields dissallow placement */
+	if (fields_have_flags(c_ptr, FIELD_INFO_NO_OBJCT))
+	{
+		return (FALSE);
+	}
+
+	/* Otherwise, try. */
+	return (put_object(o_ptr, x, y));
+}
+
 /*
  * Put an object of the requested type on the location given.
  *
  * This is mostly used for creating items in quests.
  */
-void place_specific_object(int x, int y, int level, int k_idx)
+bool place_specific_object(int x, int y, int level, int k_idx, bool force)
 {
 	object_type *o_ptr;
 	object_kind *k_ptr;
@@ -4163,7 +4187,7 @@ void place_specific_object(int x, int y, int level, int k_idx)
 	int i;
 
 	/* Paranoia */
-	if (!k_idx) return;
+	if (!k_idx) return (FALSE);
 
 	k_ptr = &k_info[k_idx];
 
@@ -4182,12 +4206,12 @@ void place_specific_object(int x, int y, int level, int k_idx)
 			{
 				/* Found it */
 				create_named_art(i, x, y);
-				return;
+				return TRUE;
 			}
 		}
 
 		/* Exit */
-		return;
+		return TRUE;
 	}
 	else
 	{
@@ -4223,7 +4247,12 @@ void place_specific_object(int x, int y, int level, int k_idx)
 	}
 
 	/* Add the object to the ground */
-	drop_near(o_ptr, -1, x, y);
+	if (force)
+		return(put_object_restricted(o_ptr, x, y));
+	else
+		drop_near(o_ptr, -1, x, y);
+
+	return (TRUE);
 }
 
 
@@ -5425,7 +5454,7 @@ object_type *object_insert(object_type *j_ptr, object_type *o_ptr)
 	object_type *j2_ptr;
 
 	/* Paranoia */
-	if (j_ptr->tval != TV_CONTAINER) return;
+	if (j_ptr->tval != TV_CONTAINER) return (o_ptr);
 
 	/* Try to stack first */
 	OBJ_ITT_START (j_ptr->contents_o_idx, j2_ptr)
@@ -5478,7 +5507,6 @@ object_type *object_insert(object_type *j_ptr, object_type *o_ptr)
 object_type *inven_carry(object_type *o_ptr)
 {
 	object_type *j_ptr;
-	int i;
 
 	/* Check for combining */
 	OBJ_ITT_START (p_ptr->inventory, j_ptr)
@@ -5616,7 +5644,6 @@ object_type *inven_carry(object_type *o_ptr)
 object_type *inven_carry_no_containers(object_type *o_ptr)
 {
 	object_type *j_ptr;
-	int i;
 
 	/* Check for combining */
 	OBJ_ITT_START (p_ptr->inventory, j_ptr)
@@ -5956,6 +5983,8 @@ void display_koff(int k_idx)
 	/* Get local object */
 	object_type *q_ptr;
 
+	int realm;
+
 	/* Erase the window */
     clear_from(0);
 
@@ -5969,7 +5998,7 @@ void display_koff(int k_idx)
 	prtf(0, 0, "%v", OBJECT_STORE_FMT(q_ptr, FALSE, 0));
 
 	/* Warriors are illiterate */
-	if (!(p_ptr->spell.r[0].realm || p_ptr->spell.r[1].realm)) return;
+	if (!(p_ptr->spell.realm[0] || p_ptr->spell.realm[1])) return;
 
 	/* Display spells in readible books */
 	if ((q_ptr->tval == REALM1_BOOK) || (q_ptr->tval == REALM2_BOOK))
@@ -5979,15 +6008,16 @@ void display_koff(int k_idx)
 		int num = 0;
 		byte spells[PY_MAX_SPELLS];
 
+		realm = q_ptr->tval - TV_BOOKS_MIN;
 
 		/* Access the item's sval */
 		sval = q_ptr->sval;
 
 		/* Extract spells */
-		for (spell = 0; spell < 32; spell++)
+		for (spell = 0; spell < NUM_SPELLS; spell++)
 		{
 			/* Check for this spell */
-			if (fake_spell_flags[sval] & (1L << spell))
+			if (s_info[realm][spell].sval == sval)
 			{
 				/* Collect this spell */
 				spells[num++] = spell;
@@ -5997,6 +6027,7 @@ void display_koff(int k_idx)
 		/* Print spells */
 		print_spells(spells, num, 0, 2,
 					 ((q_ptr->tval == REALM1_BOOK) ?
-					 	 p_ptr->spell.r[0].realm - 1 : p_ptr->spell.r[1].realm - 1));
+					 	 p_ptr->spell.realm[0] - 1 : p_ptr->spell.realm[1] - 1));
 	}
 }
+

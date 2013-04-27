@@ -44,7 +44,7 @@ extern void del_callback(int number, vptr data);
 
 /*
  * Number of blocks in the overhead map cache.
- * 
+ *
  * This number must be bigger than the number of blocks
  * required to remember the biggest dungeon level.
  */
@@ -71,6 +71,8 @@ extern void del_callback(int number, vptr data);
 #define MONST_FEAR		0x10
 #define MONST_STUN		0x20
 #define MONST_INVULN	0x40
+#define MONST_SILENCED	0x80
+
 
 
 /*
@@ -133,10 +135,10 @@ struct term_map
 
 	/* Rough measure of monster hp */
 	byte m_hp;
-	
+
 	/* Priority for overhead mini map */
 	byte priority;
-	
+
 	/* Map information about square */
 	byte a;
 	char c;
@@ -151,7 +153,7 @@ struct map_block
 	/* Save what it looks like */
 	byte a;
 	char c;
-	
+
 	byte ta;
 	char tc;
 
@@ -180,7 +182,7 @@ struct map_block
 	u16b take;	/* Entry into "take" list */
 	u16b trap;	/* MT - Entry into "trap" list */
 	u16b m_effect;  /* MT - Magic Effect, like glyphs */
-	
+
 	byte feat;	/* Terrain feature */
 	byte info;	/* info flags */
 
@@ -193,7 +195,7 @@ struct map_block
 
 	/* We need to save the flags to get the refcounting right. */
 	byte flags;
-	
+
 	/* Priority of tile (For overhead map display) */
 	byte priority;
 };

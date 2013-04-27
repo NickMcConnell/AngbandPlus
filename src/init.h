@@ -107,6 +107,7 @@ extern errr parse_k_info(char *buf, header *head);
 extern errr parse_a_info(char *buf, header *head);
 extern errr parse_e_info(char *buf, header *head);
 extern errr parse_r_info(char *buf, header *head);
+extern errr parse_s_info(char *buf, header *head);
 
 /*
  * Error tracking

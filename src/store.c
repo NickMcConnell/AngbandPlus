@@ -298,6 +298,7 @@ static void mass_produce(object_type *o_ptr)
 		case TV_DEATH_BOOK:
 		case TV_CONJ_BOOK:
 		case TV_ARCANE_BOOK:
+		case TV_ILLUSION_BOOK:
 		{
 			if (cost <= 50L) size += damroll(2, 3);
 			if (cost <= 500L) size += damroll(1, 3);
@@ -1701,7 +1702,7 @@ static void store_purchase(void)
 /*
  * Sell an item to the store (or home)
  */
-static void store_sell(void)
+static bool store_sell(void)
 {
 	int item_pos;
 	int amt;
@@ -1742,7 +1743,7 @@ static void store_sell(void)
 	}
 
 	/* Not a valid item */
-	if (!o_ptr) return;
+	if (!o_ptr) return (FALSE);
 
 	/* Hack -- Cannot remove cursed items */
 	if ((!o_ptr->allocated) && cursed_p(o_ptr))
@@ -1754,7 +1755,7 @@ static void store_sell(void)
 		o_ptr->kn_flags[2] |= TR2_CURSED;
 
 		/* Nope */
-		return;
+		return (TRUE);
 	}
 
 	/* Assume one item */
@@ -1771,7 +1772,7 @@ static void store_sell(void)
 		amt = get_quantity(NULL, o_ptr->number);
 
 		/* Allow user abort */
-		if (amt <= 0) return;
+		if (amt <= 0) return (FALSE);
 	}
 
 	/* Duplicate the object */
@@ -1818,7 +1819,7 @@ static void store_sell(void)
 			msgf("Your home is full.");
 		else
 			msgf("I have not the room in my store to keep it.");
-		return;
+		return (FALSE);
 	}
 
 	/* Get list to ensure that the object is in the inv */
@@ -1855,7 +1856,7 @@ static void store_sell(void)
 				o_ptr = inven_takeoff(o_ptr);
 
 				/* Paranoia */
-				if (!o_ptr) return;
+				if (!o_ptr) return (FALSE);
 			}
 
 			/* Duplicate the object */
@@ -1938,7 +1939,7 @@ static void store_sell(void)
 			o_ptr = inven_takeoff(o_ptr);
 
 			/* Paranoia */
-			if (!o_ptr) return;
+			if (!o_ptr) return (FALSE);
 		}
 
 		/* Distribute charges of wands/rods */
@@ -1966,6 +1967,8 @@ static void store_sell(void)
 			display_inventory();
 		}
 	}
+
+	return (TRUE);
 }
 
 
@@ -2335,7 +2338,7 @@ static void store_process_command(void)
 		case 'd':
 		{
 			/* Drop (Sell) */
-			store_sell();
+			(void)store_sell();
 			break;
 		}
 
@@ -2825,4 +2828,93 @@ void place_sb(int greed, int max_cost)
 		st_ptr->greed = greed;
 		st_ptr->max_cost = max_cost;
 	}
+}
+
+/*
+ * Send an object from anywhere directly to home
+ */
+bool send_home (void)
+{
+	place_type *pl_ptr = &place[p_ptr->place_num];
+	int i, j, which = -1;
+	int dist;
+
+	/* Find nearest home */
+
+	/* Look in the current place first */
+	if (p_ptr->place_num && (pl_ptr->type == PL_TOWN_OLD || pl_ptr->type == PL_TOWN_FRACT))
+	{
+		/* Check this town first */
+		for (i = 0; i < pl_ptr->numstores; i++)
+		{
+			if (pl_ptr->store[i].type == BUILD_STORE_HOME)
+			{
+				/* Only use if there is an open slot. */
+				if (get_list_length(pl_ptr->store[i].stock) < pl_ptr->store[i].max_stock)
+					which = i;
+				break;
+			}
+		}
+	}
+
+	/* Look for other towns, if they exist */
+	if (which < 0 && !vanilla_town)
+	{
+		/* Search towns in order of distance from the player / the player's place. */
+		for (dist = 10; dist < 1000; dist += 10)
+		{
+			for (i = 0; i < place_count; i++)
+			{
+				/* Only look in towns */
+				if (place[i].type != PL_TOWN_FRACT) continue;
+
+				/* Use the distance threshold */
+				if (p_ptr->place_num && distance(pl_ptr->x, pl_ptr->y, place[i].x, place[i].y) > dist)
+					continue;
+				else if (!p_ptr->place_num && distance(p_ptr->px, p_ptr->py, place[i].x * 16, place[i].y * 16) > dist)
+					continue;
+
+				/* Look for a store */
+				for (j = 0; j < place[i].numstores; j++)
+				{
+					if (place[i].store[j].type == BUILD_STORE_HOME)
+					{
+						/* Only use if there is an open slot. */
+						if (get_list_length(place[i].store[j].stock) < place[i].store[j].max_stock)
+						{
+							which = j;
+							pl_ptr = &place[i];
+						}
+						break;
+					}
+				}
+
+				/* Cascade the break */
+				if (which >= 0) break;
+			}
+
+			/* Cascade the break */
+			if (which >= 0) break;
+		}
+	}
+
+	/* No space in any home in range */
+	if (which < 0)
+	{
+		if (vanilla_town) msgf ("Your home is too full.");
+		else msgf ("Your homes are too full.");
+		return (FALSE);
+	}
+
+	/* Otherwise, set the store pointer */
+	st_ptr = &pl_ptr->store[which];
+
+	screen_save();
+
+	/* "Sell" an item */
+	store_sell();
+	
+	pause_line(0);
+	
+	screen_load();
 }

@@ -195,7 +195,6 @@ static void roff_obj_aux(const object_type *o_ptr)
 {
 	object_kind *k_ptr;
 	bonuses_type b;
-	bool ammo = FALSE;
 
 	int i, n;
 
@@ -692,6 +691,7 @@ static void roff_obj_aux(const object_type *o_ptr)
 
 	/* Collect "produces" */
 	vn = 0;
+	if (FLAG(of_ptr, TR_SH_FEAR))  vp[vn++] = "an aura of fear";
 	if (FLAG(of_ptr, TR_SH_FIRE))  vp[vn++] = "a fiery sheath";
 	if (FLAG(of_ptr, TR_SH_ELEC))  vp[vn++] = "an electric sheath";
 	if (FLAG(of_ptr, TR_SH_ACID))  vp[vn++] = "an acidic sheath";
@@ -1048,11 +1048,11 @@ static void roff_obj_aux(const object_type *o_ptr)
 		case OM_CHEST:
 		{
 			if (depth_in_feet && o_ptr->mem.depth)
-				roff ("%s in a chest at %d'.", o_ptr->number > 1 ? "They were" : "It was", o_ptr->mem.depth);
+				roff ("%s in a chest at %d'.  ", o_ptr->number > 1 ? "They were" : "It was", 50*o_ptr->mem.depth);
 			else if (o_ptr->mem.depth)
-				roff ("%s in a chest (level %d).", o_ptr->number > 1 ? "They were" : "It was", o_ptr->mem.depth);
+				roff ("%s in a chest (level %d).  ", o_ptr->number > 1 ? "They were" : "It was", o_ptr->mem.depth);
 			else
-				roff ("%s in a chest in the wilderness.", o_ptr->number > 1 ? "They were" : "It was");
+				roff ("%s in a chest in the wilderness.  ", o_ptr->number > 1 ? "They were" : "It was");
 			break;
 		}
 		case OM_SCROLL:
@@ -1856,6 +1856,7 @@ bool item_tester_hook_is_book(const object_type *o_ptr)
 		case TV_CONJ_BOOK:
 		case TV_ARCANE_BOOK:
 		case TV_LIFE_BOOK:
+		case TV_ILLUSION_BOOK:
 
 			/* It is a book */
 			return (TRUE);
@@ -1865,6 +1866,34 @@ bool item_tester_hook_is_book(const object_type *o_ptr)
 	return (FALSE);
 }
 
+bool item_tester_hook_is_flavored(const object_type *o_ptr)
+{
+	switch (o_ptr->tval)
+	{
+		case TV_POTION:
+		case TV_SCROLL:
+		case TV_WAND:
+		case TV_ROD:
+		case TV_STAFF:
+		case TV_RING:
+		case TV_FOOD:
+		case TV_AMULET:
+
+			return (TRUE);
+	}
+
+	return (FALSE);
+}
+
+
+bool item_tester_hook_is_unknown_flavor(const object_type *o_ptr)
+{
+	if (!item_tester_hook_is_flavored(o_ptr)) return (FALSE);
+
+	if (k_info[o_ptr->k_idx].aware) return (FALSE);
+
+	return (TRUE);
+}
 
 /* Hack: Check if a spellbook is one of the realms we can use. -- TY */
 
@@ -2568,8 +2597,6 @@ void inventory_remind(void)
 static object_type *get_tag(bool *inven, char tag)
 {
 	int i;
-	s16b this_idx = p_ptr->inventory;
-	s16b suspend_idx = 0;
 
 	cptr s;
 
@@ -2745,7 +2772,7 @@ static bool toggle_windows(bool toggle, int command_wrk)
 
 bool (* item_tester_hook2) (const object_type *);
 
-bool item_tester_hook_okay_or_container(const object_type * o_ptr)
+static bool item_tester_hook_okay_or_container(const object_type * o_ptr)
 {
 	object_type * q_ptr;
 
@@ -2789,8 +2816,6 @@ static void show_item_prompt(bool inven, bool equip, bool floor, bool store,
 	{
 		case USE_INVEN:
 		{
-			bool (*hook)(const object_type *);
-
 			/* Extract the legal requests */
 			get_label_bounds(p_ptr->inventory, &n1, &n2);
 
@@ -3116,7 +3141,7 @@ object_type *get_item(cptr pmt, cptr str, int mode)
 	bool allow_floor = FALSE;
 
 
-	int command_wrk;
+	int command_wrk = 0;
 
 	bool toggle = FALSE;
 
@@ -3229,13 +3254,13 @@ object_type *get_item(cptr pmt, cptr str, int mode)
 	/* Use equipment if allowed */
 	else if (allow_equip)
 	{
-		command_wrk = (USE_EQUIP);
+		command_wrk |= (USE_EQUIP);
 	}
 
 	/* Use floor if allowed */
 	else if (allow_floor)
 	{
-		command_wrk = (USE_FLOOR);
+		command_wrk |= (USE_FLOOR);
 	}
 
 	/* Get the saved item index */
@@ -3643,7 +3668,6 @@ void dump_full_item(FILE *fff, object_type *o_ptr)
 {
 	object_kind *k_ptr;
 	bonuses_type b;
-	bool ammo = FALSE;
 	char desc[16384];
 
 	int i, n;
@@ -3702,7 +3726,7 @@ void dump_full_item(FILE *fff, object_type *o_ptr)
 				(o_ptr->flags[1] & ~TR1_XXX1) |
 				(o_ptr->flags[2] & ~(TR2_QUESTITEM | TR2_XXX4 | TR2_HIDDEN_POWERS | TR2_EASY_KNOW |
 									 TR2_HIDE_TYPE | TR2_SHOW_MODS | TR2_CURSED)) |
-				(o_ptr->flags[3] & ~(TR3_SQUELCH | TR3_XXX6 | TR3_XXX7 | TR3_XXX8 | TR3_XXX27 | TR3_XXX28))))
+				(o_ptr->flags[3] & ~(TR3_SQUELCH | TR3_XXX7 | TR3_XXX8 | TR3_XXX27 | TR3_XXX28))))
 		return;
 
 	if (FLAG(o_ptr, TR_HIDDEN_POWERS) && object_known_full(o_ptr))
@@ -4091,6 +4115,7 @@ void dump_full_item(FILE *fff, object_type *o_ptr)
 
 	/* Collect "produces" */
 	vn = 0;
+	if (FLAG(of_ptr, TR_SH_FEAR))  vp[vn++] = "an aura of fear";
 	if (FLAG(of_ptr, TR_SH_FIRE))  vp[vn++] = "a fiery sheath";
 	if (FLAG(of_ptr, TR_SH_ELEC))  vp[vn++] = "an electric sheath";
 	if (FLAG(of_ptr, TR_SH_ACID))  vp[vn++] = "an acidic sheath";
@@ -4440,11 +4465,11 @@ void dump_full_item(FILE *fff, object_type *o_ptr)
 			case OM_CHEST:
 			{
 				if (depth_in_feet && o_ptr->mem.depth)
-					strnfmt(desc, 16384, "%s%s in a chest at %d'.", desc, o_ptr->number > 1 ? "They were" : "It was", o_ptr->mem.depth);
+					strnfmt(desc, 16384, "%s%s in a chest at %d'.  ", desc, o_ptr->number > 1 ? "They were" : "It was", 50*o_ptr->mem.depth);
 				else if (o_ptr->mem.depth)
-					strnfmt(desc, 16384, "%s%s in a chest (level %d).", desc, o_ptr->number > 1 ? "They were" : "It was", o_ptr->mem.depth);
+					strnfmt(desc, 16384, "%s%s in a chest (level %d).  ", desc, o_ptr->number > 1 ? "They were" : "It was", o_ptr->mem.depth);
 				else
-					strnfmt(desc, 16384, "%s%s in a chest in the wilderness.", desc, o_ptr->number > 1 ? "They were" : "It was");
+					strnfmt(desc, 16384, "%s%s in a chest in the wilderness.  ", desc, o_ptr->number > 1 ? "They were" : "It was");
 				break;
 			}
 			case OM_SCROLL:
@@ -4516,3 +4541,30 @@ int object_weight(object_type *o_ptr)
 
 	return (wgt);
 }
+
+/*
+ * Strip an "object name" into a buffer
+ */
+void strip_name(char *buf, int k_idx)
+{
+	char *t;
+
+	object_kind *k_ptr = &k_info[k_idx];
+
+	cptr str = (k_name + k_ptr->name);
+
+
+	/* Skip past leading characters */
+	while ((*str == ' ') || (*str == '&')) str++;
+
+	/* Copy useful chars */
+	for (t = buf; *str; str++)
+	{
+		if (*str != '~') *t++ = *str;
+	}
+
+	/* Terminate the new name */
+	*t = '\0';
+}
+
+

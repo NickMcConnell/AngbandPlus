@@ -323,7 +323,7 @@ header k_head;
 header a_head;
 header e_head;
 header r_head;
-
+header s_head;
 
 
 /*** Initialize from binary image files ***/
@@ -487,7 +487,6 @@ static errr init_info(cptr filename, header *head,
 
 	/* General buffer */
 	char buf[1024];
-
 
 #ifdef ALLOW_TEMPLATES
 
@@ -845,6 +844,59 @@ static errr init_v_info(void)
 
 
 
+static errr init_s_info(void)
+{
+	errr rv;
+	spell_type *sp_ptr;
+	char * s_text;
+	int i, j, c;
+
+	/* Init the header */
+	init_header(&s_head, NUM_REALMS * NUM_SPELLS, sizeof(spell_type));
+
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	s_head.parse_info_txt = parse_s_info;
+
+#endif /* ALLOW_TEMPLATES */
+
+	rv = init_info("s_info", &s_head, (void *)&s_tmp_info, (void *)&s_name, (void *)&s_text);
+
+	/* If there's an error, return now. */
+	if (rv) return (rv);
+
+	for (i = 0; i < NUM_REALMS; i++)
+	{
+		for (j = 0; j < NUM_SPELLS; j++)
+		{
+			sp_ptr = &s_tmp_info[(i*NUM_SPELLS)+j];
+
+			s_info[i][j].sval = sp_ptr->sval;
+			s_info[i][j].name = sp_ptr->name;
+			s_info[i][j].s_idx = sp_ptr->s_idx;
+			s_info[i][j].realm = sp_ptr->realm;
+
+			/* Hack: avoid listing bad spells, if any */
+			if (!s_info[i][j].name)
+				s_info[i][j].sval = 99;
+
+			for (c = 0; c < MAX_CLASS; c++)
+			{
+				s_info[i][j].info[c].slevel = sp_ptr->info[c].slevel;
+				s_info[i][j].info[c].smana = sp_ptr->info[c].smana;
+				s_info[i][j].info[c].power = sp_ptr->info[c].power;
+
+				/* Hack: handle default to unlearnable */
+				if (!s_info[i][j].info[c].slevel)
+					s_info[i][j].info[c].slevel = 99;
+			}
+		}
+	}
+	
+	/* Success */
+	return (0);
+}
 
 /*** Initialize others ***/
 
@@ -1566,6 +1618,10 @@ void init_angband(void)
 	/* Initialize monster group array */
 	note("[Initializing arrays... (groups)]");
 	if (init_mg_info()) quit("Cannot initialize monster groups");
+
+	/* Initialize spell info */
+	note("[Initializing arrays... (spells)]");
+	if (init_s_info()) quit("Cannot initialize spells");
 
 	/*** Load default user pref files ***/
 

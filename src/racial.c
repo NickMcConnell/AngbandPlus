@@ -30,15 +30,15 @@ static int racial_chance(s16b min_level, int use_stat, int difficulty)
         stat += 18-180;
 
 	/* No chance for success */
-	if ((p_ptr->lev < min_level) || p_ptr->tim.confused)
+	if ((p_ptr->lev < min_level) || query_timed(TIMED_CONFUSED))
 	{
 		return (0);
 	}
 
 	/* Calculate difficulty */
-	if (p_ptr->tim.stun)
+	if (query_timed(TIMED_STUN))
 	{
-		difficulty += p_ptr->tim.stun;
+		difficulty += query_timed(TIMED_STUN);
 	}
 	else if (p_ptr->lev > min_level)
 	{
@@ -65,15 +65,15 @@ static int racial_chance(s16b min_level, int use_stat, int difficulty)
 		return (((sum * 100) / difficulty) / stat);
 }
 
-/* 
+/*
  * Helper function for ghouls.
  * I realize it is somewhat illogical to have this as a "power" rather
  * than an extension of the "eat" command, but I could not think of
  * a handy solution to the conceptual/UI problem of having food objects AND
  * an edible corpse in the same square...
- * Eating corpses should probably take more than 1 turn (realistically). 
+ * Eating corpses should probably take more than 1 turn (realistically).
  * (OTOH, you can swap your full-plate armour for a dragonscalemail in
- * 1 turn *shrug*) 
+ * 1 turn *shrug*)
  */
 static void eat_corpse(void)
 {
@@ -141,7 +141,7 @@ bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 	}
 
 	/* Too confused */
-	else if (p_ptr->tim.confused)
+	else if (query_timed(TIMED_CONFUSED))
 	{
 		msgf("You are too confused to use this power.");
 		p_ptr->state.energy_use = 0;
@@ -149,7 +149,8 @@ bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 	}
 
 	/* Risk death? */
-	else if (use_hp && (p_ptr->chp < cost))
+	else if ((!p_ptr->state.lich && use_hp && (p_ptr->chp < cost)) ||
+			 (p_ptr->state.lich && use_hp && (p_ptr->csp < cost)))
 	{
 		if (!get_check("Really use the power in your weakened state? "))
 		{
@@ -160,9 +161,9 @@ bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 
 	/* Else attempt to do it! */
 
-	if (p_ptr->tim.stun)
+	if (query_timed(TIMED_STUN))
 	{
-		difficulty += p_ptr->tim.stun;
+		difficulty += query_timed(TIMED_STUN);
 	}
 	else if (p_ptr->lev > min_level)
 	{
@@ -247,7 +248,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 			case RACE_HALF_TROLL:
 			{
 				msgf("RAAAGH!");
-				if (!p_ptr->tim.shero)
+				if (!query_timed(TIMED_SHERO))
 				{
 					(void)hp_player(30);
 				}
@@ -292,7 +293,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 			case RACE_BARBARIAN:
 			{
 				msgf("Raaagh!");
-				if (!p_ptr->tim.shero)
+				if (!query_timed(TIMED_SHERO))
 				{
 					(void)hp_player(30);
 				}
@@ -618,8 +619,8 @@ static int display_racial_header(int num)
 		prtf(0, 2, "                            Lv Cost Fail");
 	else
 		prtf(0, 2, "                            Lv Cost Fail                            Lv Cost Fail");
-		
-	
+
+
 	/* Move the options down one row */
 	return (1);
 }
@@ -668,13 +669,13 @@ void do_cmd_racial_power(void)
 {
 	menu_type racial_menu[37];
 	int num = 0, i = 0;
-	
+
 	char buf[1024];
 
 	const mutation_type *mut_ptr;
 
 	/* Not when we're confused */
-	if (p_ptr->tim.confused)
+	if (query_timed(TIMED_CONFUSED))
 	{
 		msgf("You are too confused to use any powers!");
 		p_ptr->state.energy_use = 0;
@@ -716,7 +717,7 @@ void do_cmd_racial_power(void)
 			num++;
 		}
 	}
-	
+
 	/* Not if we don't have any */
 	if (num == 0)
 	{
@@ -724,7 +725,7 @@ void do_cmd_racial_power(void)
 		p_ptr->state.energy_use = 0;
 		return;
 	}
-	
+
 	/* Initialise the options for the menu */
 	for (i = 0; i < num; i++)
 	{
@@ -732,27 +733,27 @@ void do_cmd_racial_power(void)
 				power_desc[i].name,
 				power_desc[i].level,
 				power_desc[i].cost, power_desc[i].fail);
-		
+
 		/* Add option to menu */
 		racial_menu[i].text = string_make(buf);
 		racial_menu[i].help = NULL;
 		racial_menu[i].action = do_cmd_power_aux;
 		racial_menu[i].flags = MN_ACTIVE | MN_CLEAR;
 	}
-	
+
 	/* Make sure the menu is terminated */
 	racial_menu[num].text = NULL;
 	racial_menu[num].help = NULL;
 	racial_menu[num].action = NULL;
 	racial_menu[num].flags = 0x00;
-	
-	
+
+
 	if (!display_menu(racial_menu, -1, FALSE, display_racial_header, "Use which power?"))
 	{
 		/* We aborted */
 		p_ptr->state.energy_use = 0;
 	}
-	
+
 	/* Free the allocated strings */
 	for (i = 0; i < num; i++)
 	{

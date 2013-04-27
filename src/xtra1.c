@@ -164,176 +164,249 @@ static void prt_status(void)
 	/* Collate active flags */
 
 	/* Hack -- Hallucinating */
-	if (p_ptr->tim.image)
+	if (query_timed(TIMED_IMAGE))
 	{
 		letter[num] = CLR_VIOLET "H";
 		num++;
 	}
 
 	/* Blindness */
-	if (p_ptr->tim.blind)
+	if (query_timed(TIMED_BLIND))
 	{
 		letter[num] = CLR_L_DARK "B";
 		num++;
 	}
 
 	/* Times see-invisible */
-	if (p_ptr->tim.invis)
+	if (query_timed(TIMED_SEE_INVIS))
 	{
 		letter[num] = CLR_L_BLUE "I";
 		num++;
 	}
 
 	/* Timed esp */
-	if (p_ptr->tim.esp)
+	if (query_timed(TIMED_ESP))
 	{
 		letter[num] = CLR_ORANGE "E";
 		num++;
 	}
 
 	/* Timed infra-vision */
-	if (p_ptr->tim.infra)
+	if (query_timed(TIMED_INFRA))
 	{
 		letter[num] = CLR_L_RED "I";
 		num++;
 	}
 
 	/* Paralysis */
-	if (p_ptr->tim.paralyzed)
+	if (query_timed(TIMED_PARALYZED))
 	{
 		letter[num] = CLR_RED "P";
 		num++;
 	}
 
 	/* Confusion */
-	if (p_ptr->tim.confused)
+	if (query_timed(TIMED_CONFUSED))
 	{
 		letter[num] = CLR_VIOLET "C";
 		num++;
 	}
 
 	/* Fast */
-	if (p_ptr->tim.fast)
+	if (query_timed(TIMED_FAST) || query_timed(TIMED_XTRA_FAST))
 	{
 		letter[num] = CLR_GREEN "S";
 		num++;
 	}
 
 	/* Slow */
-	if (p_ptr->tim.slow)
+	if (query_timed(TIMED_SLOW))
 	{
 		letter[num] = CLR_RED "S";
 		num++;
 	}
 
 	/* Protection from evil */
-	if (p_ptr->tim.protevil)
+	if (query_timed(TIMED_PROTEVIL))
 	{
 		letter[num] = CLR_L_DARK "E";
 		num++;
 	}
 
 	/* Invulnerability */
-	if (p_ptr->tim.invuln)
+	if (query_timed(TIMED_INVULN))
 	{
 		letter[num] = CLR_YELLOW "I";
 		num++;
 	}
 
 	/* Wraith form */
-	if (p_ptr->tim.wraith_form)
+	if (query_timed(TIMED_WRAITH_FORM))
 	{
 		letter[num] = CLR_L_DARK "W";
 		num++;
 	}
 
-	if (p_ptr->tim.etherealness)
+	if (query_timed(TIMED_ETHEREALNESS))
 	{
 		letter[num] = CLR_L_DARK "E";
 		num++;
 	}
 
 	/* Heroism */
-	if (p_ptr->tim.hero)
+	if (query_timed(TIMED_HERO))
 	{
 		letter[num] = CLR_WHITE "H";
 		num++;
 	}
 
 	/* Super Heroism / berserk */
-	if (p_ptr->tim.shero)
+	if (query_timed(TIMED_SHERO))
 	{
 		letter[num] = CLR_RED "B";
 		num++;
 	}
 
+	if (query_timed(TIMED_STR))
+	{
+		letter[num] = CLR_YELLOW "S";
+		num++;
+	}
+
+	if (query_timed(TIMED_CHR))
+	{
+		letter[num] = CLR_YELLOW "C";
+		num++;
+	}
+
+	if (query_timed(TIMED_SUST_ALL))
+	{
+		letter[num] = CLR_BLUE "A";
+		num++;
+	}
+
 	/* Blessed */
-	if (p_ptr->tim.blessed)
+	if (query_timed(TIMED_BLESSED))
 	{
 		letter[num] = CLR_WHITE "B";
 		num++;
 	}
 
 	/* Shield */
-	if (p_ptr->tim.shield)
+	if (query_timed(TIMED_SHIELD))
 	{
 		letter[num] = CLR_WHITE "S";
 		num++;
 	}
 
 	/* Oppose Confusion */
-	if (p_ptr->tim.oppose_conf)
+	if (query_timed(TIMED_OPPOSE_CONF))
 	{
 		letter[num] = CLR_BLUE "C";
 		num++;
 	}
 
 	/* Oppose Blindness */
-	if (p_ptr->tim.oppose_blind)
+	if (query_timed(TIMED_OPPOSE_BLIND))
 	{
 		letter[num] = CLR_BLUE "B";
 		num++;
 	}
 
 	/* Oppose Acid */
-	if (p_ptr->tim.oppose_acid)
+	if (query_timed(TIMED_IMMUNE_ACID))
+	{
+		letter[num] = CLR_WHITE "A";
+		num++;
+	}
+	else if (query_timed(TIMED_OPPOSE_ACID))
 	{
 		letter[num] = CLR_GREEN "A";
 		num++;
 	}
 
 	/* Oppose Lightning */
-	if (p_ptr->tim.oppose_elec)
+	if (query_timed(TIMED_IMMUNE_ELEC))
+	{
+		letter[num] = CLR_WHITE "E";
+		num++;
+	}
+	else if (query_timed(TIMED_OPPOSE_ELEC))
 	{
 		letter[num] = CLR_BLUE "E";
 		num++;
 	}
 
 	/* Oppose Fire */
-	if (p_ptr->tim.oppose_fire)
+	if (query_timed(TIMED_IMMUNE_FIRE))
+	{
+		letter[num] = CLR_WHITE "F";
+		num++;
+	}
+	else if (query_timed(TIMED_OPPOSE_FIRE))
 	{
 		letter[num] = CLR_RED "F";
 		num++;
 	}
 
 	/* Oppose Cold */
-	if (p_ptr->tim.oppose_cold)
+	if (query_timed(TIMED_IMMUNE_COLD))
+	{
+		letter[num] = CLR_WHITE "C";
+		num++;
+	}
+	else if (query_timed(TIMED_OPPOSE_COLD))
 	{
 		letter[num] = CLR_WHITE "C";
 		num++;
 	}
 
 	/* Oppose Poison */
-	if (p_ptr->tim.oppose_pois)
+	if (query_timed(TIMED_OPPOSE_POIS))
 	{
 		letter[num] = CLR_GREEN "P";
 		num++;
 	}
 
 	/* Word of Recall */
-	if (p_ptr->tim.word_recall)
+	if (query_timed(TIMED_WORD_RECALL))
 	{
 		letter[num] = CLR_WHITE "W";
+		num++;
+	}
+
+	/* Aura of Fire */
+	if (query_timed(TIMED_SH_FIRE))
+	{
+		letter[num] = CLR_RED "*";
+		num++;
+	}
+
+	/* Aura of Acid */
+	if (query_timed(TIMED_SH_ACID))
+	{
+		letter[num] = CLR_GREEN "*";
+		num++;
+	}
+
+	/* Aura of Electricity */
+	if (query_timed(TIMED_SH_ELEC))
+	{
+		letter[num] = CLR_BLUE "*";
+		num++;
+	}
+
+	/* Aura of Cold */
+	if (query_timed(TIMED_SH_COLD))
+	{
+		letter[num] = CLR_WHITE "*";
+		num++;
+	}
+
+	/* Aura of Cold */
+	if (query_timed(TIMED_SH_FEAR))
+	{
+		letter[num] = CLR_L_DARK "*";
 		num++;
 	}
 
@@ -341,6 +414,13 @@ static void prt_status(void)
 	if (p_ptr->state.confusing)
 	{
 		letter[num] = CLR_RED "C";
+		num++;
+	}
+
+	/* Invisibility */
+	if (query_timed(TIMED_INVIS) || query_timed(TIMED_XTRA_INVIS))
+	{
+		letter[num] = CLR_VIOLET "I";
 		num++;
 	}
 
@@ -657,7 +737,7 @@ static void prt_hunger(void)
  */
 static void prt_blind(void)
 {
-	if (p_ptr->tim.blind)
+	if (query_timed(TIMED_BLIND))
 	{
 		put_fstr(COL_BLIND, Term->hgt - 1, CLR_ORANGE "Blind");
 	}
@@ -673,7 +753,7 @@ static void prt_blind(void)
  */
 static void prt_confused(void)
 {
-	if (p_ptr->tim.confused)
+	if (query_timed(TIMED_CONFUSED))
 	{
 		put_fstr(COL_CONFUSED, Term->hgt - 1, CLR_ORANGE "Confused");
 	}
@@ -689,7 +769,7 @@ static void prt_confused(void)
  */
 static void prt_afraid(void)
 {
-	if (p_ptr->tim.afraid)
+	if (query_timed(TIMED_AFRAID))
 	{
 		put_fstr(COL_AFRAID, Term->hgt - 1, CLR_ORANGE "Afraid");
 	}
@@ -705,7 +785,7 @@ static void prt_afraid(void)
  */
 static void prt_poisoned(void)
 {
-	if (p_ptr->tim.poisoned)
+	if (query_timed(TIMED_POISONED))
 	{
 		put_fstr(COL_POISONED, Term->hgt - 1, CLR_ORANGE "Poisoned");
 	}
@@ -833,7 +913,7 @@ static void prt_speed(void)
 	if (p_ptr->state.searching) i += 10;
 
 	/* Paralysis */
-	if (p_ptr->tim.paralyzed)
+	if (query_timed(TIMED_PARALYZED))
 	{
 		put_fstr(COL_SPEED, Term->hgt - 1, CLR_RED "Paralyzed!");
 	}
@@ -900,7 +980,7 @@ static void prt_study(void)
 
 static void prt_cut(void)
 {
-	int c = p_ptr->tim.cut;
+	int c = query_timed(TIMED_CUT);
 
 	if (c > 1000)
 	{
@@ -939,7 +1019,7 @@ static void prt_cut(void)
 
 static void prt_stun(void)
 {
-	int s = p_ptr->tim.stun;
+	int s = query_timed(TIMED_STUN);
 
 	if (s > 100)
 	{
@@ -992,7 +1072,7 @@ static void health_redraw(void)
 	}
 
 	/* Tracking a hallucinatory monster */
-	else if (p_ptr->tim.image)
+	else if (query_timed(TIMED_IMAGE))
 	{
 		/* Indicate that the monster health is "unknown" */
 		put_fstr(COL_INFO, ROW_INFO, "[----------]");
@@ -1039,6 +1119,9 @@ static void health_redraw(void)
 		/* Invulnerable */
 		if (m_ptr->invulner) attr = CLR_WHITE;
 
+		/* Imprisoned */
+		if (m_ptr->imprisoned) attr = CLR_L_DARK;
+
 		/* Convert percent into "health" */
 		len = (pct < 10) ? 1 : (pct < 90) ? (pct / 10 + 1) : 10;
 
@@ -1060,7 +1143,7 @@ static void prt_frame_basic(void)
 	int i;
 
 	/* Race and Class */
-	prt_field(rp_ptr->title, COL_RACE, ROW_RACE);
+	prt_field(format("%s%s", p_ptr->state.lich ? "Lich " : "", rp_ptr->title), COL_RACE, ROW_RACE);
 	prt_field(cp_ptr->title, COL_CLASS, ROW_CLASS);
 
 	/* Title */
@@ -1500,19 +1583,29 @@ static void fix_object(void)
  */
 static void calc_spells(void)
 {
-	int i, j, k, levels;
-	int num_allowed, num_known;
+	int i, n, levels, r;
+	int num_allowed, num_known, lev;
+	bool new[PY_MAX_SPELLS][2];
+	byte forgot_flg[2];
+	byte present_flg[2];
+	spell_external sp[2];
 
-	const magic_type *s_ptr;
-	int use_realm1 = p_ptr->spell.r[0].realm - 1;
-	int use_realm2 = p_ptr->spell.r[1].realm - 1;
-	int which;
+	int realm;
 
 	/* Save the current number of spells to learn */
 	s16b old_spells = p_ptr->new_spells;
 
 	cptr p = ((mp_ptr->spell_book == TV_SORCERY_BOOK) ? "spell" : "prayer");
 
+	/* Realms are constant */
+	sp[0].r = p_ptr->spell.realm[0]-1;
+	sp[1].r = p_ptr->spell.realm[1]-1;
+
+
+	forgot_flg[0] = SP_FORGOTTEN_1;
+	forgot_flg[1] = SP_FORGOTTEN_2;
+	present_flg[0] = SP_PRESENT_1;
+	present_flg[1] = SP_PRESENT_2;
 
 	/* Hack -- must be literate */
 	if (!mp_ptr->spell_book) return;
@@ -1523,7 +1616,6 @@ static void calc_spells(void)
 	/* Hack -- handle "xtra" mode */
 	if (character_xtra) return;
 
-
 	/* Determine the number of spells allowed */
 	levels = p_ptr->lev - mp_ptr->spell_first + 1;
 
@@ -1532,205 +1624,280 @@ static void calc_spells(void)
 
 	/* Extract total allowed spells */
 	num_allowed =
-		(adj_mag_study[p_ptr->stat[mp_ptr->spell_stat].ind] * levels / 50);
+		(adj_mag_study[p_ptr->stat[mp_ptr->spell_stat].ind] * levels / PY_MAX_LEVEL);
 
-
-	/* Assume none known */
-	num_known = 0;
-
-	/* Count the number of spells we know */
-	for (j = 0; j < PY_MAX_SPELLS; j++)
+	/* Extract maximum slots by tier */
+	n = 0;
+	for (i = 0; i < SPELL_LAYERS; i++)
 	{
-		/* Count known spells */
-		if ((j < 32) ?
-			(p_ptr->spell.r[0].learned & (1L << j)) :
-			(p_ptr->spell.r[1].learned & (1L << (j - 32))))
-		{
-			num_known++;
-		}
+		n += mp_ptr->max_spells[i];
 	}
+
+	/* Use maximum */
+	num_allowed = MIN(num_allowed, n);
+
+	/* Number known  */
+	num_known = p_ptr->spell.spell_max;
 
 	/* See how many spells we must forget or may learn */
 	p_ptr->new_spells = num_allowed - num_known;
 
-
-	/* Forget spells which are too hard */
-	for (i = PY_MAX_SPELLS - 1; i >= 0; i--)
+	/* Check spells against the proper level for learning them */
+	for (i = p_ptr->spell.spell_max - 1; i >= 0; i--)
 	{
-		/* Efficiency -- all done */
-		if (!p_ptr->spell.r[0].learned && !p_ptr->spell.r[1].learned) break;
+		r = p_ptr->spell.data[i].realm;
 
-		/* Access the spell */
-		j = p_ptr->spell.order[i];
+		new[i][0] = new[i][1] = FALSE;
 
-		/* Skip non-spells */
-		if (j >= 99) continue;
-
-
-		/* Get the spell */
-		if (j < 32)
-			s_ptr = &mp_ptr->info[use_realm1][j];
-		else
-			s_ptr = &mp_ptr->info[use_realm2][j % 32];
-
-		/* Skip spells we are allowed to know */
-		if (s_ptr->slevel <= p_ptr->lev) continue;
-
-		/* Is it known? */
-		if ((j < 32) ?
-			(p_ptr->spell.r[0].learned & (1L << j)) :
-			(p_ptr->spell.r[1].learned & (1L << (j - 32))))
+		/* Spell exists in both realms */
+		if (p_ptr->spell.data[i].flags & SP_PRESENT_1 &&
+			p_ptr->spell.data[i].flags & SP_PRESENT_2)
 		{
-			/* Mark as forgotten - no longer known */
-			if (j < 32)
+			bool forgot[2];
+
+			forgot[0] = forgot[1] = FALSE;
+
+			for (r = 0; r < 2; r++)
 			{
-				p_ptr->spell.r[0].forgotten |= (1L << j);
-				p_ptr->spell.r[0].learned &= ~(1L << j);
-				which = use_realm1;
-			}
-			else
-			{
-				p_ptr->spell.r[1].forgotten |= (1L << (j - 32));
-				p_ptr->spell.r[1].learned &= ~(1L << (j - 32));
-				which = use_realm2;
+				realm = p_ptr->spell.realm[r]-1;
+
+				/* Calculate the spell's "level" */
+				lev = s_info[realm][p_ptr->spell.data[i].spell[r]].info[p_ptr->rp.pclass].slevel +
+						(p_ptr->spell.data[i].focus-1)*(mp_ptr->focus_offset);
+
+				/* Skip spells we shouldn't forget yet */
+				if (lev <= p_ptr->lev)
+					continue;
+
+				/* Do we need to mention it? */
+				if (!(p_ptr->spell.data[i].flags & forgot_flg[r]))
+				{
+					new[i][r] = TRUE;
+				}
+
+				/* Mark as forgotten in this realm */
+				p_ptr->spell.data[i].flags |= forgot_flg[r];
+				forgot[r] = TRUE;
 			}
 
-			/* Message */
-			msgf("You have forgotten the %s of %s.", p,
-					   spell_names[which][j % 32]);
+			/* One more spell can be learned, if we forgot this spell
+				in both realms */
+			if (forgot[0] && forgot[1])
+				p_ptr->new_spells++;
+		}
+		else if (p_ptr->spell.data[i].flags & SP_PRESENT_1 ||
+			p_ptr->spell.data[i].flags & SP_PRESENT_2)
+		{
+			r = ((p_ptr->spell.data[i].flags & SP_PRESENT_1) ? 0 : 1);
+			realm = p_ptr->spell.realm[r]-1;
 
-			/* One more can be learned */
+			/* Calculate the spell's "level" */
+			lev = s_info[realm][p_ptr->spell.data[i].spell[r]].info[p_ptr->rp.pclass].slevel +
+					(p_ptr->spell.data[i].focus-1)*(mp_ptr->focus_offset);
+
+			/* Skip spells we shouldn't forget yet */
+			if (lev <= p_ptr->lev)
+				continue;
+
+			/* Do we need to mention it? */
+			if (!(p_ptr->spell.data[i].flags & forgot_flg[r]))
+			{
+				new[i][r] = TRUE;
+			}
+
+			/* Mark as forgotten in this realm */
+			p_ptr->spell.data[i].flags |= forgot_flg[r];
+
+			/* One more spell can be learned */
 			p_ptr->new_spells++;
 		}
+
 	}
 
 
 	/* Forget spells if we know too many spells */
-	for (i = PY_MAX_SPELLS - 1; i >= 0; i--)
+	for (i = p_ptr->spell.spell_max - 1; i >= 0; i--)
 	{
+		bool forgot = FALSE;
+
 		/* Stop when possible */
 		if (p_ptr->new_spells >= 0) break;
 
-		/* Efficiency -- all done */
-		if (!p_ptr->spell.r[0].learned && !p_ptr->spell.r[1].learned) break;
-
-		/* Get the (i+1)th spell learned */
-		j = p_ptr->spell.order[i];
-
-		/* Skip unknown spells */
-		if (j >= 99) continue;
-
-		/* Forget it (if learned) */
-		if ((j < 32) ?
-			(p_ptr->spell.r[0].learned & (1L << j)) :
-			(p_ptr->spell.r[1].learned & (1L << (j - 32))))
+		for (r = 0; r < 2; r++)
 		{
-			/* Mark as forgotten - no longer known */
-			if (j < 32)
-			{
-				p_ptr->spell.r[0].forgotten |= (1L << j);
-				p_ptr->spell.r[0].learned &= ~(1L << j);
-				which = use_realm1;
-			}
-			else
-			{
-				p_ptr->spell.r[1].forgotten |= (1L << (j - 32));
-				p_ptr->spell.r[1].learned &= ~(1L << (j - 32));
-				which = use_realm2;
-			}
+			/* Skip when this realm doesn't have this spell, or we've already
+				forgotton this one. */
+			if (!p_ptr->spell.data[i].flags & present_flg[r] || new[i][r]) continue;
 
-			/* Message */
-			msgf("You have forgotten the %s of %s.", p,
-					   spell_names[which][j % 32]);
-
-			/* One more can be learned */
-			p_ptr->new_spells++;
+			if (!(p_ptr->spell.data[i].flags & forgot_flg[r]))
+			{
+				new[i][r] = TRUE;
+				forgot = TRUE;
+				p_ptr->spell.data[i].flags |= forgot_flg[r];
+			}
 		}
+
+		/* Did we forget the spell? */
+		if (forgot)
+			/* Can learn one more spell. */
+			p_ptr->new_spells++;
 	}
 
+	/* Mention forgotten spells */
+	for (i = p_ptr->spell.spell_max - 1; i >= 0; i--)
+	{
+		sp[0].s = p_ptr->spell.data[i].spell[0];
+		sp[1].s = p_ptr->spell.data[i].spell[1];
+
+		if (new[i][0] && new[i][1])
+		{
+
+			/* Mention we are forgtting both */
+			if (p_ptr->spell.data[i].focus == 1)
+				msgf("You have forgotten the %s of %s/%s.", p,
+						   	spell_name(sp[0]), spell_name(sp[1]));
+			else
+				msgf("You have forgotten how to %s the %s of %s/%s.",
+							focus_description[p_ptr->spell.data[i].focus-1], p,
+						   	spell_name(sp[0]), spell_name(sp[1]));
+		}
+		else if (new[i][0] || new[i][1])
+		{
+			r = (new[i][0] ? 0 : 1);
+
+			/* Mention we are forgetting it */
+			if (p_ptr->spell.data[i].focus == 1)
+				msgf("You have forgotten the %s of %s.", p,
+						   spell_name(sp[r]));
+			else
+				msgf("You have forgotten how to %s the %s of %s.",
+							focus_description[p_ptr->spell.data[i].focus-1], p,
+						   spell_name(sp[r]));
+		}
+	}
 
 	/* Check for spells to remember */
 	for (i = 0; i < PY_MAX_SPELLS; i++)
 	{
+		bool counts = FALSE;
+		bool both = FALSE;
+		bool done = FALSE;
+		byte flags = p_ptr->spell.data[i].flags;
+
+		new[i][0] = new[i][1] = FALSE;
+
 		/* None left to remember */
 		if (p_ptr->new_spells <= 0) break;
 
-		/* Efficiency -- all done */
-		if (!p_ptr->spell.r[0].forgotten && !p_ptr->spell.r[1].forgotten) break;
+		/* If the current spell is not at all forgotten, skip it. */
+		if (!(flags & (forgot_flg[0] | forgot_flg[1])))
+			continue;
 
-		/* Get the next spell we learned */
-		j = p_ptr->spell.order[i];
+		/* If the current spell is partially forgotten, perhaps restore it
+		   to total remembrance, but this won't count as a spell remembered. */
 
-		/* Skip unknown spells */
-		if (j >= 99) break;
-
-		/* Access the spell */
-		if (j < 32)
-			s_ptr = &mp_ptr->info[use_realm1][j];
+		/* Coutns if forgotten in both realms */
+		if ((flags & forgot_flg[0]) &&	(flags & forgot_flg[1]))
+			counts = both = TRUE;
+		/* Counts if forgotten in one realm and absent in the other */
+		else if (((flags & forgot_flg[0]) && !(flags & present_flg[1])) ||
+				 ((flags & forgot_flg[1]) && !(flags & present_flg[0])))
+			counts = TRUE;
 		else
-			s_ptr = &mp_ptr->info[use_realm2][j % 32];
+			counts = FALSE;
 
-		/* Skip spells we cannot remember */
-		if (s_ptr->slevel > p_ptr->lev) continue;
-
-		/* First set of spells */
-		if ((j < 32) ?
-			(p_ptr->spell.r[0].forgotten & (1L << j)) :
-			(p_ptr->spell.r[1].forgotten & (1L << (j - 32))))
+		/* If in both realms, might only remember it in one. */
+		if ((flags & present_flg[1]) && (flags & present_flg[0]))
 		{
-			/* No longer forgotten - known once more */
-			if (j < 32)
+			for (r = 0; r < 2; r++)
 			{
-				p_ptr->spell.r[0].forgotten &= ~(1L << j);
-				p_ptr->spell.r[0].learned |= (1L << j);
-				which = use_realm1;
+				realm = p_ptr->spell.realm[r]-1;
+
+				/* Calculate the spell's "level" */
+				lev = s_info[realm][p_ptr->spell.data[i].spell[r]].info[p_ptr->rp.pclass].slevel +
+					(p_ptr->spell.data[i].focus-1)*(mp_ptr->focus_offset);
+
+				/* Skip spells we cannot remember */
+				if (lev > p_ptr->lev)
+				{
+					/* Would only be a partial remember, so doesn't "count." */
+					if (both) counts = FALSE;
+					continue;
+				}
+				/* Going to remember something */
+				done = TRUE;
+
+				/* Mark the spell as remembered */
+				if (flags & forgot_flg[r])
+					new[i][r] = TRUE;
+
+				p_ptr->spell.data[i].flags &= ~forgot_flg[r];
+				flags = p_ptr->spell.data[i].flags;
 			}
+
+			/* If can't remember, skip it. */
+			if (!done) continue;
+		}
+		else
+		{
+			/* Get the realm the spell is in */
+			r = (flags & present_flg[0] ? 0 : 1);
+
+			realm = p_ptr->spell.realm[r]-1;
+
+			/* Calculate the spell's "level" */
+			lev = s_info[realm][p_ptr->spell.data[i].spell[r]].info[p_ptr->rp.pclass].slevel +
+				(p_ptr->spell.data[i].focus-1)*(mp_ptr->focus_offset);
+
+			/* Skip spells we can't remember */
+			if (lev > p_ptr->lev) continue;
+
+			/* Mark the spell as remembered */
+			if (flags & forgot_flg[r])
+				new[i][r] = TRUE;
+
+			p_ptr->spell.data[i].flags &= ~forgot_flg[r];
+			flags = p_ptr->spell.data[i].flags;
+		}
+
+		/* Prepare for messages */
+		sp[0].s = p_ptr->spell.data[i].spell[0];
+		sp[1].s = p_ptr->spell.data[i].spell[1];
+
+
+		/* Message, if the player remembered anything */
+		if (new[i][0] && new[i][1])
+		{
+			/* Newly remembered both */
+			if (p_ptr->spell.data[i].focus == 1)
+				msgf("You have remembered the %s of %s/%s.", p,
+							spell_name(sp[0]), spell_name(sp[1]));
 			else
-			{
-				p_ptr->spell.r[1].forgotten &= ~(1L << (j - 32));
-				p_ptr->spell.r[1].learned |= (1L << (j - 32));
-				which = use_realm2;
-			}
+				msgf("You have remembered how to %s the %s of %s/%s.",
+							focus_description[p_ptr->spell.data[i].focus-1], p,
+							spell_name(sp[0]), spell_name(sp[1]));
+		}
+		else if (new[i][0] || new[i][1])
+		{
+			r = (new[i][0] ? 0 : 1);
 
-			/* Message */
-			msgf("You have remembered the %s of %s.",
-					   p, spell_names[which][j % 32]);
+			/* Newly remembered one */
+			if (p_ptr->spell.data[i].focus == 1)
+				msgf("You have remembered the %s of %s.", p, spell_name(sp[r]));
+			else
+				msgf("You have remembered how to %s the %s of %s.",
+							focus_description[p_ptr->spell.data[i].focus-1], p, spell_name(sp[r]));
+		}
+		else
+			/* Paranoia - didn't remember either, shouldn't re-count spells */
+			continue;
 
+		if (counts)
+		{
 			/* One less can be learned */
 			p_ptr->new_spells--;
 		}
 	}
-
-
-	/* Assume no spells available */
-	k = 0;
-
-	/* Count spells that can be learned */
-	for (j = 0; j < (p_ptr->spell.r[1].realm != REALM_NONE ? 64 : 32); j++)
-	{
-		/* Access the spell */
-		if (j < 32)
-			s_ptr = &mp_ptr->info[use_realm1][j];
-		else
-			s_ptr = &mp_ptr->info[use_realm2][j % 32];
-
-		/* Skip spells we cannot remember */
-		if (s_ptr->slevel > p_ptr->lev) continue;
-
-		/* Skip spells we already know */
-		if ((j < 32) ?
-			(p_ptr->spell.r[0].learned & (1L << j)) :
-			(p_ptr->spell.r[1].learned & (1L << (j - 32))))
-		{
-			continue;
-		}
-
-		/* Count it */
-		k++;
-	}
-
-	/* Cannot learn more spells than exist */
-	if (p_ptr->new_spells > k) p_ptr->new_spells = k;
 
 	/* Spell count changed */
 	if (old_spells != p_ptr->new_spells)
@@ -1896,6 +2063,27 @@ static void calc_mana(void)
 	/* Mana can never be negative */
 	if (msp < 0) msp = 0;
 
+	/* Handle lich */
+	if (p_ptr->state.lich)
+	{
+		int bonus, mhp;
+
+		/* Un-inflate "half-hitpoint bonus per level" value */
+		bonus = ((int)(adj_con_mhp[p_ptr->stat[A_CON].ind]) - 128);
+
+		/* Calculate hitpoints */
+		mhp = p_ptr->player_hp[p_ptr->lev - 1] + (bonus * p_ptr->lev / 2);
+
+		/* Always have at least one hitpoint per level */
+		if (mhp < p_ptr->lev + 1) mhp = p_ptr->lev + 1;
+
+		/* Factor in the hero / superhero settings */
+		if (query_timed(TIMED_HERO)) mhp += 10;
+		if (query_timed(TIMED_SHERO)) mhp += 30;
+
+		/* New maximum SP */
+		msp = MAX(msp+(mhp/3), mhp+(msp/3));
+	}
 
 	/* Maximum mana has changed */
 	if (p_ptr->msp != msp)
@@ -1972,8 +2160,8 @@ static void calc_hitpoints(void)
 	if (mhp < p_ptr->lev + 1) mhp = p_ptr->lev + 1;
 
 	/* Factor in the hero / superhero settings */
-	if (p_ptr->tim.hero) mhp += 10;
-	if (p_ptr->tim.shero) mhp += 30;
+	if (query_timed(TIMED_HERO)) mhp += 10;
+	if (query_timed(TIMED_SHERO)) mhp += 30;
 
 	/* New maximum hitpoints */
 	if (p_ptr->mhp != mhp)
@@ -1987,6 +2175,19 @@ static void calc_hitpoints(void)
 
 		/* Save the new max-hitpoints */
 		p_ptr->mhp = mhp;
+
+		/* Display hitpoints (later) */
+		p_ptr->redraw |= (PR_HP);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_PLAYER);
+	}
+
+	/* Handle lich */
+	if (p_ptr->state.lich)
+	{
+		p_ptr->mhp = 0;
+		p_ptr->chp = 0;
 
 		/* Display hitpoints (later) */
 		p_ptr->redraw |= (PR_HP);
@@ -2063,7 +2264,7 @@ static void calc_torch(void)
 	 * Hack - blindness gives a torch radius of zero.
 	 * This speeds up the map_info() function.
 	 */
-	if (p_ptr->tim.blind)
+	if (query_timed(TIMED_BLIND))
 	{
 		/* No light */
 		p_ptr->cur_lite = 0;
@@ -2701,6 +2902,18 @@ static void calc_bonuses(void)
 		p_ptr->dis_to_a += 20 + (p_ptr->lev / 5);
 	}
 
+	/* Temporary strength */
+	if (query_timed(TIMED_STR))
+	{
+		p_ptr->stat[A_STR].add += MAX(2, p_ptr->lev / 10);
+	}
+
+	/* Temporary charisma */
+	if (query_timed(TIMED_CHR))
+	{
+		p_ptr->stat[A_CHR].add += 10;
+	}
+
 	/* Calculate stats */
 	for (i = 0; i < A_MAX; i++)
 	{
@@ -2798,14 +3011,14 @@ static void calc_bonuses(void)
 
 
 	/* Apply temporary "stun" */
-	if (p_ptr->tim.stun > 50)
+	if (query_timed(TIMED_STUN) > 50)
 	{
 		p_ptr->to_h -= 20;
 		p_ptr->dis_to_h -= 20;
 		p_ptr->to_d -= 20;
 		p_ptr->dis_to_d -= 20;
 	}
-	else if (p_ptr->tim.stun)
+	else if (query_timed(TIMED_STUN))
 	{
 		p_ptr->to_h -= 5;
 		p_ptr->dis_to_h -= 5;
@@ -2814,14 +3027,14 @@ static void calc_bonuses(void)
 	}
 
 	/* Invulnerability */
-	if (p_ptr->tim.invuln)
+	if (query_timed(TIMED_INVULN))
 	{
 		p_ptr->to_a += 100;
 		p_ptr->dis_to_a += 100;
 	}
 
 	/* wraith_form */
-	if (p_ptr->tim.wraith_form)
+	if (query_timed(TIMED_WRAITH_FORM))
 	{
 		p_ptr->to_a += 100;
 		p_ptr->dis_to_a += 100;
@@ -2829,7 +3042,7 @@ static void calc_bonuses(void)
 	}
 
 	/* etherealness */
-	if (p_ptr->tim.etherealness)
+	if (query_timed(TIMED_ETHEREALNESS))
 	{
 		p_ptr->to_a += 20;
 		p_ptr->dis_to_a += 20;
@@ -2837,7 +3050,7 @@ static void calc_bonuses(void)
 	}
 
 	/* Temporary blessing */
-	if (p_ptr->tim.blessed)
+	if (query_timed(TIMED_BLESSED))
 	{
 		p_ptr->to_a += 5;
 		p_ptr->dis_to_a += 5;
@@ -2848,23 +3061,24 @@ static void calc_bonuses(void)
 	}
 
 	/* Temporary shield */
-	if (p_ptr->tim.shield)
+	if (query_timed(TIMED_SHIELD))
 	{
 		p_ptr->to_a += 50;
 		p_ptr->dis_to_a += 50;
 	}
 
 	/* Temporary "Hero" */
-	if (p_ptr->tim.hero)
+	if (query_timed(TIMED_HERO))
 	{
 		p_ptr->to_h += 12;
 		p_ptr->dis_to_h += 12;
 		p_ptr->to_d += 4;
 		p_ptr->dis_to_d += 4;
+		SET_FLAG(p_ptr, TR_RES_FEAR);
 	}
 
 	/* Temporary "Beserk" */
-	if (p_ptr->tim.shero)
+	if (query_timed(TIMED_SHERO))
 	{
 		p_ptr->to_h += 24;
 		p_ptr->dis_to_h += 24;
@@ -2872,44 +3086,117 @@ static void calc_bonuses(void)
 		p_ptr->dis_to_a -= 10;
 		p_ptr->to_d += 6;
 		p_ptr->dis_to_d += 6;
+		SET_FLAG(p_ptr, TR_RES_FEAR);
 	}
 
 	/* Temporary "fast" */
-	if (p_ptr->tim.fast)
+	if (query_timed(TIMED_FAST))
 	{
 		p_ptr->pspeed += 10;
 	}
 
+	/* Temporary "extra fast" */
+	if (query_timed(TIMED_XTRA_FAST))
+	{
+		p_ptr->pspeed += 5;
+	}
+
+	/* Temporary stat sustain */
+	if (query_timed(TIMED_SUST_ALL))
+	{
+		SET_FLAG(p_ptr, TR_SUST_STR);
+		SET_FLAG(p_ptr, TR_SUST_INT);
+		SET_FLAG(p_ptr, TR_SUST_WIS);
+		SET_FLAG(p_ptr, TR_SUST_DEX);
+		SET_FLAG(p_ptr, TR_SUST_CON);
+		SET_FLAG(p_ptr, TR_SUST_CHR);
+	}
+
+	if (query_timed(TIMED_OPPOSE_BLIND))
+	{
+		SET_FLAG(p_ptr, TR_RES_BLIND);
+	}
+
+	if (query_timed(TIMED_OPPOSE_CONF))
+	{
+		SET_FLAG(p_ptr, TR_RES_CONF);
+	}
+
+
 	/* Temporary "slow" */
-	if (p_ptr->tim.slow)
+	if (query_timed(TIMED_SLOW))
 	{
 		p_ptr->pspeed -= 10;
 	}
 
 	/* Temporary "telepathy" */
-	if (p_ptr->tim.esp)
+	if (query_timed(TIMED_ESP))
 	{
 		SET_FLAG(p_ptr, TR_TELEPATHY);
 	}
 
 	/* Temporary see invisible */
-	if (p_ptr->tim.invis)
+	if (query_timed(TIMED_SEE_INVIS))
 	{
 		SET_FLAG(p_ptr, TR_SEE_INVIS);
 	}
 
 	/* Temporary infravision boost */
-	if (p_ptr->tim.infra)
+	if (query_timed(TIMED_INFRA))
 	{
 		p_ptr->see_infra += 3;
 	}
 
-
-	/* Hack -- Hero/Shero -> Res fear */
-	if (p_ptr->tim.hero || p_ptr->tim.shero)
+	/* Temporary immunity */
+	if (query_timed(TIMED_IMMUNE_ACID))
 	{
-		SET_FLAG(p_ptr, TR_RES_FEAR);
+		SET_FLAG(p_ptr, TR_IM_ACID);
 	}
+	if (query_timed(TIMED_IMMUNE_ELEC))
+	{
+		SET_FLAG(p_ptr, TR_IM_ELEC);
+	}
+	if (query_timed(TIMED_IMMUNE_FIRE))
+	{
+		SET_FLAG(p_ptr, TR_IM_FIRE);
+	}
+	if (query_timed(TIMED_IMMUNE_COLD))
+	{
+		SET_FLAG(p_ptr, TR_IM_COLD);
+	}
+
+	/* Temporary auras */
+	if (query_timed(TIMED_SH_ACID))
+	{
+		SET_FLAG(p_ptr, TR_SH_ACID);
+	}
+	if (query_timed(TIMED_SH_ELEC))
+	{
+		SET_FLAG(p_ptr, TR_SH_ELEC);
+	}
+	if (query_timed(TIMED_SH_FIRE))
+	{
+		SET_FLAG(p_ptr, TR_SH_FIRE);
+	}
+	if (query_timed(TIMED_SH_COLD))
+	{
+		SET_FLAG(p_ptr, TR_SH_COLD);
+	}
+	if (query_timed(TIMED_SH_FEAR))
+	{
+		SET_FLAG(p_ptr, TR_SH_FEAR);
+	}
+
+	/* Temporary invisibility */
+	if (query_timed(TIMED_INVIS))
+	{
+		p_ptr->skills[SKILL_STL] += 4;
+	}
+	if (query_timed(TIMED_XTRA_INVIS))
+	{
+		p_ptr->skills[SKILL_STL] += 3;
+	}
+
 
 	/* Hack -- Telepathy Change */
 	if (FLAG(p_ptr, TR_TELEPATHY) != old_telepathy)

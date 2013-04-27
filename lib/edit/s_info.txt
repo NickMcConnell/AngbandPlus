@@ -1,0 +1,3013 @@
+# This file is used to initialize the "lib/raw/s_info.raw" file, which is
+# used to initialize the "magic info" information for the Z+Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# After modifying this file, delete the "lib/raw/s_info.raw" file.
+
+# === Understanding s_info.txt ===
+
+# N: realm : serial number : Spell name
+# I: spell index : book sval [: realm]
+# C: class code : level : cost [: power adjustment]
+
+# 'N' indicates the beginning of an entry. 
+# The realm is indicated by a letter:
+#    'L':  Life
+#    'S':  Sorcery
+#    'N':  Nature
+#    'C':  Chaos
+#    'D':  Death
+#    'J':  Conjuration
+#    'A':  Arcane
+#    'I':  Illusion
+# The serial numbers must be increasing within each realm, and must not 
+# exceed 37, the current hard-coded maximum number of spells.  The
+# serial numbers are used to determine the order of the spells when
+# presented in a list: for this reason they should be sorted by (base)
+# level of acquisition.
+
+#'I' is for basic information.  
+# The spell index is the spell number to be passed to cast_spell_X.  
+# 
+# The book sval determines which book the spell appears in.  
+#
+# The Realm, by default, will be the realm of this spell, but can be
+# specified to another realm.  Example:
+#
+# N:S:3:Light Area
+# I:3:0:L
+#
+# Makes a Sorcery spell called "Light Area" that, when cast, uses
+# the same code as Life spell number 3 ("Call Light"). 
+# 
+# This trick should be used whenever possible: when two spells are
+# identical and this is recorded in this way, the player will 
+# "learn" both spells at the cost of one slot, which will avoid
+# inadvertent wasting of spell slots.
+
+#'C' is for casting information.  Each class has a code letter.
+#     'Z':  Warrior
+#     'M':  Mage
+#     'P':  Priest
+#     'T':  Rogue (Thief)
+#     'R':  Ranger
+#     'K':  Paladin (Knight)
+#     'W':  Warrior-Mage
+#     'C':  Chaos-Warrior
+#     'N':  MoNk
+#     'X':  Mindcrafter
+#     'H':  High Mage.
+# Note the unusual code letters for the non-casting classes.
+# Level is the level of acquisition of the spell:
+# Cost is the cost in mana of the spell.
+# Power adjustment defaults to 0: it is the percentage adjustment
+# made to the spell's power for this class.  
+# If no line is given for a character class, it is assumed the spell 
+# is uncastable by that class.
+
+# Version stamp (required)
+
+V:0.3.0
+
+
+##### LIFE #####
+
+N:L:0:Detect Evil
+I:0:0
+C:M:1:1
+C:H:1:1
+C:P:1:1
+C:K:1:1
+C:W:2:1
+C:N:1:1
+
+N:L:1:Cure Light Wounds
+I:1:0
+C:M:2:2
+C:H:2:2
+C:P:2:2:20
+C:K:2:2:10
+C:W:3:2
+C:N:3:2
+
+N:L:2:Bless
+I:2:0
+C:M:3:3
+C:H:3:3
+C:P:3:3
+C:K:4:3:20
+C:W:5:3
+C:N:4:3
+
+N:L:3:Neutralize Poison
+I:32:0
+C:M:5:3
+C:H:4:3
+C:P:4:3
+C:K:5:3
+C:W:6:3
+C:N:6:3
+
+N:L:4:Call Light
+I:3:0
+C:M:5:4
+C:H:5:4
+C:P:5:3
+C:K:6:4
+C:W:7:4
+C:N:6:5
+
+N:L:5:Detect Traps and Doors
+I:4:0
+C:M:6:4
+C:H:5:4
+C:P:5:4
+C:K:7:5
+C:W:8:5
+C:N:7:5
+
+N:L:6:Cure Medium Wounds
+I:5:0
+C:M:7:5
+C:H:6:5
+C:P:6:4:20
+C:K:8:6:10
+C:W:9:6
+C:N:8:6
+
+N:L:7:Heroism
+I:6:0
+C:M:8:5
+C:H:7:5
+C:P:7:4
+C:K:9:6:20
+C:W:10:6
+C:N:9:6
+
+N:L:8:Satisfy Hunger
+I:16:0
+C:M:9:5
+C:H:8:5
+C:P:8:5
+C:K:10:6
+C:W:11:6
+C:N:11:6
+
+N:L:9:Remove Curse
+I:7:0
+C:M:10:6
+C:H:9:5
+C:P:9:5
+C:K:11:7
+C:W:12:7
+C:N:12:7
+
+N:L:10:Turn Undead
+I:33:0
+C:M:11:7
+C:H:10:6
+C:P:9:6:40
+C:K:13:7
+C:W:14:7
+C:N:13:8
+
+N:L:11:Holy Prayer
+I:8:1
+C:M:12:7
+C:H:11:7
+C:P:10:6
+C:K:13:8
+C:W:14:8
+C:N:14:9
+
+N:L:12:Strength
+I:34:1
+C:M:14:8
+C:H:13:7
+C:P:12:7
+C:K:15:9:20
+C:W:16:9
+C:N:16:9
+
+N:L:13:Cure Serious Wounds
+I:9:1
+C:M:15:10
+C:H:14:9
+C:P:13:9:20
+C:K:17:11:10
+C:W:18:11
+C:N:17:12
+
+N:L:14:Sense Unseen
+I:10:1
+C:M:16:11
+C:H:14:10
+C:P:14:9
+C:K:18:12
+C:W:19:12
+C:N:18:13
+
+N:L:15:Holy Orb
+I:11:1
+C:M:16:12
+C:H:14:11
+C:P:14:10:20
+C:K:18:13
+C:W:19:13
+C:N:18:14
+
+N:L:16:Cure Mortal Wounds
+I:17:2
+C:M:17:8
+C:H:16:7
+C:P:14:7:10
+C:K:19:9
+C:W:20:9
+C:N:20:9
+
+N:L:17:Preservation
+I:35:1
+C:M:20:15
+C:H:18:14
+C:P:17:13
+C:K:22:17:20
+C:W:23:17
+C:N:23:17
+
+N:L:18:Dispel Undead & Demons
+I:18:2
+C:M:20:18
+C:H:19:16
+C:P:18:15:10
+C:K:22:20
+C:W:23:20
+C:N:23:21
+
+N:L:19:Holy Armor
+I:24:2
+C:M:21:18
+C:H:19:16
+C:P:18:15
+C:K:23:20:20
+C:W:24:20
+C:N:24:21
+
+N:L:20:Protection from Evil
+I:12:1
+C:M:23:18
+C:H:21:16
+C:P:20:16
+C:K:25:20
+C:W:26:20
+C:N:26:21
+
+N:L:21:Summon Angel
+I:19:2
+C:M:24:26
+C:H:22:23
+C:P:21:22
+C:K:26:29
+C:W:27:29
+C:N:28:30
+
+N:L:22:Purge
+I:36:2
+C:M:25:22
+C:H:23:20
+C:P:21:19
+C:K:28:24
+C:W:29:24
+C:N:29:25
+
+N:L:23:Healing
+I:13:1
+C:M:28:30
+C:H:25:27
+C:P:24:26:10
+C:K:31:33
+C:W:32:33
+C:N:32:35
+
+N:L:24:Dispel Evil
+I:20:2
+C:M:29:30
+C:H:26:27
+C:P:24:26:10
+C:K:31:33
+C:W:32:33
+C:N:32:35
+
+N:L:25:Banishment
+I:21:2
+C:M:29:35
+C:H:26:32
+C:P:25:30
+C:K:32:39
+C:W:33:39
+C:N:34:40
+
+N:L:26:Glyph of Warding
+I:14:1
+C:M:30:50
+C:H:27:45
+C:P:26:43
+C:K:33:55
+C:W:34:55
+C:N:35:58
+
+N:L:27:Word of Recall
+I:15:1
+C:M:33:30
+C:H:30:27
+C:P:28:26
+C:K:36:33
+C:W:37:33
+C:N:38:35
+
+N:L:28:Dispel Curse
+I:25:3
+C:M:35:30
+C:H:32:27
+C:P:30:26
+C:K:39:33
+C:W:40:33
+C:N:40:35
+
+N:L:29:Flame Strike
+I:26:3
+C:M:37:40
+C:H:33:36
+C:P:32:34
+C:K:41:44
+C:W:42:44
+C:N:43:46
+
+N:L:30:Blinding Radiance
+I:37:3
+C:M:38:50
+C:H:34:45
+C:P:33:43
+C:K:42:55
+C:W:43:55
+C:N:44:58
+
+N:L:31:Bless Weapon
+I:27:3
+C:M:39:60
+C:H:35:54
+C:P:33:43
+C:K:42:55
+C:W:43:55
+C:N:44:56
+
+N:L:32:Holy Word
+I:22:2
+C:M:40:40
+C:H:36:36
+C:P:35:34
+C:K:44:44
+C:W:45:44
+C:N:46:46
+
+N:L:33:Circle of Protection
+I:28:3
+C:M:42:75
+C:H:38:68
+C:P:37:64
+C:K:46:83
+C:W:47:83
+C:N:49:86
+
+N:L:34:Holy Vision
+I:29:3
+C:M:43:50
+C:H:39:45
+C:P:38:43
+C:K:47:55
+C:W:48:55
+C:N:50:58
+
+N:L:35:Restoration
+I:23:2
+C:M:44:75
+C:H:40:68
+C:P:39:64
+C:K:48:83
+C:W:49:83
+C:N:50:93
+
+# Monks cannot cast 
+N:L:36:Divine Intervention
+I:30:3
+C:M:47:90
+C:H:42:81
+C:P:42:77
+C:K:50:113
+C:W:50:120
+
+N:L:37:Holy Invulnerability
+I:31:3
+C:M:49:90
+C:H:44:81
+C:P:44:77
+C:K:50:110:20
+C:W:50:125
+C:N:50:130
+
+N:L:38:[no spell]
+I:99:99
+
+N:L:39:[no spell]
+I:99:99
+
+##### SORCERY #####
+
+N:S:0:Detect Monsters
+I:0:0
+C:M:1:1
+C:H:1:1
+C:P:2:1
+C:T:5:3
+C:R:4:2
+C:W:2:1
+
+N:S:1:Phase Door
+I:1:0
+C:M:1:2
+C:H:1:2
+C:P:3:2
+C:T:5:5
+C:R:3:4
+C:W:3:2
+
+# Use the Life spell.
+N:S:2:Detect Doors and Traps
+I:4:0:L
+C:M:3:3
+C:H:2:3
+C:P:4:4
+C:T:7:6
+C:R:5:5
+C:W:4:4
+
+# Use the Life spell.
+N:S:3:Light Area
+I:3:0:L
+C:M:3:3
+C:H:3:3
+C:P:4:4
+C:T:8:6
+C:R:6:5
+C:W:4:4
+
+N:S:4:Detect Objects and Treasure
+I:16:0
+C:M:3:3
+C:H:3:3
+C:P:4:4
+C:W:4:4
+C:R:6:5
+C:T:8:6
+
+N:S:5:Confuse Monster
+I:4:0
+C:M:4:4
+C:H:4:4
+C:P:5:5
+C:T:9:7
+C:W:5:5
+C:R:7:6
+
+N:S:6:Teleport
+I:5:0
+C:M:5:5
+C:H:5:4
+C:P:7:6
+C:T:10:9
+C:R:8:8
+C:W:7:6
+
+N:S:7:Sleep Monster
+I:6:0
+C:M:6:5
+C:H:5:5
+C:P:8:6
+C:W:8:6
+C:T:11:9
+C:R:9:8
+
+N:S:8:Slow Monster
+I:7:0
+C:M:7:7
+C:H:6:6
+C:P:9:8
+C:W:9:8
+C:T:12:11
+C:R:11:10
+
+N:S:9:Magic Mapping
+I:8:0
+C:M:9:8
+C:H:8:7
+C:P:11:10
+C:W:11:10
+C:T:14:13
+C:R:13:12
+
+N:S:10:Stasis
+I:24:3
+C:M:10:10
+C:H:9:9
+C:P:13:12
+C:W:13:12
+C:T:16:15
+C:R:15:14
+
+N:S:11:Silence Monster
+I:32:0
+C:M:11:7
+C:H:10:6
+C:P:13:9
+C:W:13:9
+C:T:17:12
+C:R:15:11
+
+N:S:12:Charm Monster
+I:9:1
+C:M:11:8
+C:H:10:7
+C:P:13:10
+C:W:13:10
+C:T:17:13
+C:R:15:12
+
+N:S:13:Alchemy
+I:25:2
+C:M:12:12
+C:H:11:11
+C:P:14:15
+C:T:18:18
+C:W:14:15
+C:R:16:17
+
+N:S:14:Mass Sleep
+I:10:1
+C:M:13:9
+C:H:12:8
+C:P:15:11
+C:W:15:11
+C:T:19:14
+C:R:18:13
+
+N:S:15:Dimension Door
+I:26:3
+C:M:14:12
+C:H:13:11
+C:P:16:15
+C:W:16:15
+C:T:20:18
+C:R:19:17
+
+N:S:16:Identify
+I:11:1
+C:M:15:10
+C:H:14:9
+C:P:18:12
+C:W:18:12
+C:T:21:15
+C:R:20:14
+
+N:S:17:Teleport Away
+I:12:1
+C:M:18:12
+C:H:16:11
+C:P:21:15
+C:W:21:15
+C:T:25:18
+C:R:24:17
+
+N:S:18:Recharging
+I:18:2
+C:M:19:15
+C:H:17:13
+C:P:22:18
+C:W:22:18
+C:T:26:22
+C:R:25:21
+
+N:S:19:Enchant Weapon
+I:19:2
+C:M:21:35
+C:H:19:31
+C:P:24:42
+C:W:24:42
+C:T:28:48
+C:R:27:47
+
+N:S:20:Haste Self
+I:13:1
+C:M:22:16
+C:H:20:14
+C:W:25:20
+C:P:25:20
+C:T:29:24
+C:R:28:23
+
+N:S:21:Enchant Armor
+I:20:2
+C:M:23:35
+C:H:21:31
+C:P:27:42
+C:T:31:48
+C:R:30:47
+C:W:27:42
+
+N:S:22:Sense Minds
+I:21:2
+C:M:24:18
+C:H:22:16
+C:P:27:22
+C:T:32:26
+C:W:27:22
+C:R:31:25
+
+# Copies the Nature spell.  
+N:S:23:Resistance
+I:19:2:N
+C:M:24:21
+C:H:22:18
+C:P:28:25
+C:W:28:25
+C:T:32:30
+C:R:31:29
+
+# Copies the Life Spell
+N:S:24:Magic Shield
+I:24:1:L
+C:M:25:23
+C:H:23:20
+C:P:29:28
+C:W:29:28
+C:T:33:32
+C:R:32:31
+
+N:S:25:Teleport Level
+I:22:2
+C:M:27:22
+C:H:25:19
+C:P:31:26
+C:T:35:31
+C:R:34:30
+C:W:31:26
+
+N:S:26:Detection True
+I:14:1
+C:M:28:20
+C:H:25:18
+C:P:32:24
+C:W:32:24
+C:T:36:29
+C:R:36:28
+
+# Copies the Life spell
+N:S:27:Word of Recall
+I:15:2:L
+C:M:30:25
+C:H:27:22
+C:P:34:31
+C:W:34:31
+C:T:39:35
+C:R:38:34
+
+N:S:28:Telekinesis
+I:33:3
+C:M:31:5
+C:H:28:4
+C:P:35:6
+C:T:40:7
+C:R:39:7
+C:W:35:6
+
+# Copies the Life spell
+N:S:29:Identify True
+I:29:1:L
+C:M:33:30
+C:H:30:27
+C:P:37:37
+C:W:37:37
+C:T:42:42
+C:R:42:41
+
+N:S:30:Clairvoyance
+I:29:3
+C:M:34:40
+C:H:31:36
+C:P:38:49
+C:R:43:54
+C:W:38:49
+C:T:43:55
+
+N:S:31:Gather Mana
+I:17:1
+C:M:35:0
+C:H:32:0
+C:P:40:0
+C:R:44:1
+C:T:44:2
+C:W:40:0
+
+N:S:32:Greater Haste
+I:34:2
+C:M:37:36
+C:H:33:32
+C:P:42:44
+C:W:42:44
+C:T:47:50
+C:R:46:49
+
+N:S:33:Mass Identify
+I:35:1
+C:M:41:45
+C:H:37:40
+C:P:46:55
+C:W:46:55
+C:T:48:69
+C:R:47:68
+
+# Rogues cannot cast 
+N:S:34:Brand Weapon
+I:30:3
+C:M:42:70
+C:H:38:62
+C:P:48:85
+C:W:48:85
+C:R:48:100
+
+# Rangers cannot cast
+N:S:35:Rune of Absorption
+I:36:3
+C:M:43:45
+C:H:39:40
+C:P:48:55
+C:W:48:55
+C:T:49:83
+
+# Rangers cannot cast
+N:S:36:Time Stop
+I:37:3
+C:M:46:59
+C:H:41:52
+C:P:49:86
+C:W:49:86
+C:T:50:110
+
+# Rogues cannot cast
+# Copies the Life spell
+N:S:37:Globe of Invulnerability
+I:31:3:L
+C:M:46:70
+C:H:42:62
+C:P:50:99
+C:W:50:99
+C:R:50:125
+
+N:S:38:[no spell]
+I:99:99
+
+N:S:39:[no spell]
+I:99:99
+
+
+
+##### NATURE #####
+
+N:N:0:Detect Creatures
+I:0:0:S
+C:M:1:1
+C:H:1:1
+C:P:2:1
+C:R:3:1
+C:W:2:1
+C:N:1:1
+
+N:N:1:First Aid
+I:1:0
+C:M:3:3
+C:H:3:2
+C:P:4:3
+C:R:5:3
+C:W:4:3
+C:N:3:3
+
+# Copy the Life spell.
+N:N:2:Detect Doors and Traps
+I:4:0:L
+C:M:3:3
+C:H:3:3
+C:P:5:3
+C:W:5:3
+C:R:5:4
+C:N:4:4
+
+# Copy the Life spell.
+N:N:3:Foraging
+I:16:0:L
+C:M:4:4
+C:H:4:3
+C:P:5:4
+C:W:5:4
+C:R:6:4
+C:N:5:4
+
+N:N:4:Daylight
+I:3:0:L
+C:M:4:4
+C:H:4:4
+C:P:6:5
+C:W:6:5
+C:R:6:5
+C:N:5:5
+
+N:N:5:Animal Taming
+I:5:0
+C:M:4:5
+C:H:4:4
+C:P:6:5
+C:R:6:6
+C:W:6:5
+C:N:5:5
+
+N:N:6:Resist Environment
+I:6:0
+C:M:5:5
+C:H:4:5
+C:P:6:5
+C:W:6:5
+C:R:7:6
+C:N:5:6
+
+N:N:7:Cure Wounds and Poison
+I:7:0
+C:M:5:5
+C:H:5:4
+C:P:6:6
+C:W:6:6
+C:R:7:6
+C:N:6:6
+
+N:N:8:Stone to Mud
+I:8:0
+C:M:5:5
+C:H:5:5
+C:P:7:6
+C:W:7:6
+C:R:7:6
+C:N:6:6
+
+N:N:9:Lightning Bolt
+I:9:0
+C:M:6:4
+C:H:5:3
+C:P:8:5
+C:W:8:5
+C:R:8:5
+C:N:7:5
+
+N:N:10:Frost Bolt
+I:10:0
+C:M:7:6
+C:H:7:5
+C:P:9:7
+C:W:9:7
+C:R:9:7
+C:N:8:7
+
+N:N:11:Wall of Wood
+I:16:1
+C:M:7:7
+C:H:7:6
+C:P:9:8
+C:R:10:8
+C:W:9:8
+C:N:8:8
+
+N:N:12:Ray of Sunlight
+I:11:1
+C:M:9:6
+C:H:9:5
+C:P:11:7
+C:W:11:7
+C:R:11:7
+C:N:10:7
+
+N:N:13:Nature Awareness
+I:17:2
+C:M:11:10
+C:H:10:9
+C:P:13:11
+C:R:13:12
+C:W:13:11
+C:N:13:12
+
+# Uses the Chaos spell.
+N:N:14:Fire Bolt
+I:9:1:C
+C:M:12:10
+C:H:11:9
+C:P:14:11
+C:R:14:12
+C:W:14:11
+C:N:14:12
+
+# Use the Life spell.
+N:N:15:Stone Skin
+I:24:1:L
+C:M:13:12
+C:H:12:11
+C:P:16:13
+C:W:16:13
+C:R:15:14
+C:N:15:14
+
+N:N:16:Entangle
+I:12:1
+C:M:15:12
+C:H:14:11
+C:P:18:13
+C:W:18:13
+C:R:17:14
+C:N:17:14
+
+N:N:17:Resistance True
+I:19:2
+C:M:15:15
+C:H:14:14
+C:P:18:17
+C:R:17:18
+C:W:18:17
+C:N:18:17
+
+N:N:18:Jet of Water
+I:32:2
+C:M:17:15
+C:H:15:14
+C:P:20:17
+C:W:20:17
+C:R:19:18
+C:N:20:17
+
+N:N:19:Earthquake
+I:24:1
+C:M:20:18
+C:H:18:16
+C:P:23:20
+C:W:23:20
+C:R:22:22
+C:N:23:21
+
+N:N:20:Whirlwind Attack
+I:25:3
+C:M:23:23
+C:H:21:21
+C:P:27:25
+C:W:27:25
+C:R:25:28
+C:N:27:26
+
+N:N:21:Wall of Stone
+I:20:1
+C:M:25:22
+C:H:22:20
+C:P:29:24
+C:W:29:24
+C:R:27:26
+C:N:29:25
+
+# Use the Conjuration spell
+N:N:22:Summon Animals
+I:9:1:J
+C:M:25:25
+C:H:23:23
+C:P:29:28
+C:W:29:28
+C:R:27:30
+C:N:29:29
+
+N:N:23:Blizzard
+I:26:3
+C:M:26:25
+C:H:23:23
+C:P:29:28
+C:W:29:28
+C:R:28:30
+C:N:29:29:-10
+
+N:N:24:Identify Resistances
+I:33:2
+C:M:26:20
+C:H:23:18
+C:P:30:22
+C:W:30:22
+C:R:28:24
+C:N:30:23
+
+# This is a new spell: other one with this name is now called "Greater Lore"
+N:N:25:Stone Tell
+I:34:2
+C:M:27:22
+C:H:24:20
+C:P:31:24
+C:W:31:24
+C:R:29:26
+C:N:31:25
+
+N:N:26:Wall of Water
+I:21:2
+C:M:28:22
+C:H:25:20
+C:P:32:24
+C:W:32:24
+C:R:30:26
+C:N:33:25
+
+# Uses the Conjuration spell
+N:N:27:Summon Elemental
+I:13:2:J
+C:M:30:35
+C:H:27:32
+C:P:34:39
+C:W:34:39
+C:R:32:42
+C:N:35:40
+
+N:N:28:Protect from Corrosion
+I:14:1
+C:M:32:60
+C:H:29:54
+C:P:36:66
+C:R:34:72
+C:W:36:66
+C:N:37:69
+
+# Was called "Stone Tell"
+# Use the Life spell.
+N:N:29:Greater Lore
+I:29:2:L
+C:M:33:36
+C:H:30:32
+C:P:37:40
+C:W:37:40
+C:R:35:43
+C:N:38:41
+
+N:N:30:Lightning Storm
+I:27:3
+C:M:33:27
+C:H:30:24
+C:P:38:30
+C:W:38:30
+C:R:36:32
+C:N:38:31:-10
+
+N:N:31:Volcanic Eruption
+I:23:3
+C:M:35:40
+C:H:32:36
+C:P:40:44
+C:W:40:44
+C:R:37:48
+C:N:40:46:-10
+
+N:N:32:Whirlpool
+I:28:3
+C:M:39:35
+C:H:35:32
+C:P:44:39
+C:W:44:39
+C:R:41:42
+C:N:45:40:-10
+
+# Note Rangers get this spell extra cheap.
+N:N:33:Herbal Healing
+I:15:1
+C:M:40:100
+C:H:36:90
+C:P:45:110
+C:R:42:90
+C:W:45:110
+C:N:46:115
+
+N:N:34:Call Sunlight
+I:29:3
+C:M:41:35
+C:H:37:32
+C:P:46:39
+C:W:46:39
+C:R:43:42
+C:N:47:40:-10
+
+N:N:35:Earthstride
+I:35:2
+C:M:42:30
+C:H:38:27
+C:P:47:33
+C:W:47:33
+C:R:44:36
+C:N:48:35
+
+# Use the Sorcery spell
+N:N:36:Elemental Branding
+I:30:3:S
+C:M:45:90
+C:H:41:81
+C:P:48:100
+C:W:48:100
+C:R:47:100
+C:N:50:110
+
+N:N:37:Nature's Wrath
+I:31:3
+C:M:47:75
+C:H:42:68
+C:P:50:100
+C:W:50:100
+C:R:49:90
+C:N:50:110:-10
+
+N:N:38:[no spell]
+I:99:99
+
+N:N:39:[no spell]
+I:99:99
+
+
+##### CHAOS #####
+
+N:C:0:Ray of Frost
+I:32:0
+C:M:1:0
+C:H:1:0
+C:P:2:0
+C:R:3:0
+C:W:2:0
+C:C:2:0
+
+N:C:1:Magic Missile
+I:0:0
+C:M:1:1
+C:H:1:1
+C:P:2:1
+C:R:3:2
+C:W:2:1
+C:C:2:1
+
+N:C:2:Trap / Door Destruction
+I:1:0
+C:M:1:2
+C:H:1:2
+C:P:3:2
+C:R:4:3
+C:W:3:2
+C:C:3:2
+
+# Use the Life spell
+N:C:3:Flash of Light
+I:3:0:L
+C:M:2:2
+C:H:2:2
+C:P:3:3
+C:R:4:4
+C:W:3:3
+C:C:3:3
+
+# Uses the Sorcery spell
+N:C:4:Blink
+I:1:0:S
+C:M:3:2
+C:H:3:2
+C:P:5:2
+C:R:6:3
+C:W:5:2
+C:C:4:2
+
+N:C:5:Static Field
+I:33:0
+C:M:4:4
+C:H:4:4
+C:P:6:4
+C:R:7:6
+C:W:6:4
+C:C:5:4
+
+N:C:6:Touch of Confusion
+I:3:0
+C:M:5:5
+C:H:5:5
+C:P:7:6
+C:W:7:6
+C:R:8:7
+C:C:6:6
+
+N:C:7:Mana Burst
+I:4:0
+C:M:9:6
+C:H:9:5
+C:P:11:7
+C:R:13:8
+C:W:11:7
+C:C:10:7
+
+N:C:8:Immolation
+I:34:0
+C:M:10:7
+C:H:9:6
+C:P:12:8
+C:W:12:8
+C:C:11:8
+C:R:14:9
+
+N:C:9:Polymorph Other
+I:5:0
+C:M:11:7
+C:H:10:6
+C:P:13:8
+C:W:13:8
+C:R:16:9
+C:C:12:8
+
+N:C:10:Fire Bolt
+I:9:0
+C:M:13:8
+C:H:12:7
+C:P:15:9
+C:R:18:11
+C:W:15:9
+C:C:14:9
+
+N:C:11:Fist of Force
+I:6:1
+C:M:14:9
+C:H:13:8
+C:P:16:10
+C:W:16:10
+C:R:19:12
+C:C:15:10
+
+# Use the Sorcery spell.
+N:C:12:Teleport Self
+I:5:1:S
+C:M:15:9
+C:H:14:8
+C:P:17:10
+C:W:17:10
+C:R:20:12
+C:C:16:10
+
+N:C:13:Chain Lightning
+I:16:1
+C:M:15:15
+C:H:14:14
+C:P:18:17
+C:W:18:17
+C:R:20:19
+C:C:16:17
+
+N:C:14:Dispel Traps
+I:35:2
+C:M:16:13
+C:H:14:12
+C:P:19:14
+C:W:19:14
+C:R:21:17
+C:C:17:15
+
+N:C:15:Wonder
+I:8:1
+C:M:17:7
+C:H:15:6
+C:P:20:7
+C:W:20:7
+C:R:22:9
+C:C:18:7
+
+N:C:16:Disintegrate
+I:36:2
+C:M:18:15
+C:H:16:14
+C:P:21:17
+C:W:21:17
+C:R:24:19
+C:C:19:17
+
+N:C:17:Consume Magic
+I:24:2
+C:M:20:3
+C:H:18:3
+C:P:23:3
+C:W:23:3
+C:R:26:5
+C:C:21:3
+
+N:C:18:Field of Chaos
+I:10:1
+C:M:21:13
+C:H:19:12
+C:P:24:14
+C:W:24:14
+C:R:27:17
+C:C:22:15
+
+N:C:19:Sonic Boom
+I:11:1
+C:M:23:15
+C:H:21:14
+C:P:26:17
+C:W:26:17
+C:R:30:19
+C:C:24:17
+
+N:C:20:Finger of Chaos
+I:17:2
+C:M:23:17
+C:H:21:15
+C:P:26:19
+C:W:26:19
+C:R:30:21
+C:C:24:19
+
+N:C:21:Beam of Energy
+I:12:1
+C:M:25:16
+C:H:23:14
+C:P:28:18
+C:W:28:18
+C:R:32:20
+C:C:26:18
+
+N:C:22:Fire Ball
+I:13:1
+C:M:25:18
+C:H:23:16
+C:P:29:20
+C:W:29:20
+C:R:32:23
+C:C:26:20
+
+# Same as the Sorcery spell
+N:C:23:Energize Item
+I:18:2:S
+C:M:28:25
+C:H:25:23
+C:P:32:28
+C:W:32:28
+C:R:36:31
+C:C:29:28
+
+# Use the Sorcery spell.
+N:C:24:Teleport Other
+I:12:1:S
+C:M:30:20
+C:H:27:18
+C:P:34:22
+C:W:34:22
+C:R:38:25
+C:C:32:22
+
+N:C:25:Alter Reality
+I:20:2
+C:M:32:25
+C:H:29:23
+C:P:36:28
+C:W:36:28
+C:R:40:31
+C:C:33:28
+
+N:C:26:Ice Storm
+I:37:3
+C:M:34:30
+C:H:31:27
+C:P:38:33
+C:W:38:33
+C:R:43:37
+C:C:35:34
+
+N:C:27:Polymorph Item
+I:25:3
+C:M:35:32
+C:H:31:29
+C:P:39:35
+C:R:44:39
+C:W:39:35
+C:C:36:36
+
+N:C:28:Word of Destruction
+I:15:1
+C:M:35:40
+C:H:32:36
+C:P:40:44
+C:R:44:49
+C:W:40:44
+C:C:36:45
+
+N:C:29:Meteor Swarm
+I:26:3
+C:M:37:34
+C:H:33:31
+C:P:42:37
+C:W:42:37
+C:R:46:42
+C:C:38:38
+
+N:C:30:Polymorph Self
+I:21:2
+C:M:40:40
+C:H:36:36
+C:P:45:44
+C:W:45:44
+C:R:47:49
+C:C:41:45
+
+N:C:31:Call Chaos
+I:27:2
+C:M:43:44
+C:H:39:40
+C:P:46:46
+C:W:46:46
+C:R:47:65
+C:C:42:47
+
+N:C:32:Magic Rocket
+I:28:3
+C:M:43:44
+C:H:39:40
+C:P:47:48
+C:W:47:48
+C:R:48:82
+C:C:44:49
+
+# Rangers cannot cast
+N:C:33:Summon Demon
+I:22:2
+C:M:45:80
+C:H:40:72
+C:P:48:88
+C:W:48:88
+C:C:46:90
+
+N:C:34:Mutation
+I:29:3
+C:M:45:95
+C:H:41:86
+C:P:48:100
+C:W:48:100
+C:R:48:100
+C:C:47:100
+
+# Rangers cannot cast
+N:C:35:Breathe Logrus
+I:23:3
+C:M:47:100
+C:H:42:90
+C:P:49:120
+C:W:49:120
+C:C:48:110
+
+N:C:36:Mana Storm
+I:30:3
+C:M:47:75
+C:H:43:68
+C:P:50:100
+C:W:50:100
+C:R:50:125
+C:C:48:84
+
+# Rangers cannot cast
+N:C:37:Call the Void
+I:31:3
+C:M:49:100
+C:H:44:90
+C:P:50:130
+C:W:50:130
+C:C:50:110
+
+N:C:38:[no spell]
+I:99:99
+
+N:C:39:[no spell]
+I:99:99
+
+##### DEATH #####
+
+N:D:0:Detect Evil & Unlife
+I:0:0
+C:M:1:1
+C:H:1:1
+C:P:2:1
+C:T:5:3
+C:R:3:2
+C:K:1:1
+C:W:2:1
+C:N:1:1
+
+N:D:1:Malediction
+I:1:0
+C:M:2:2
+C:H:2:1
+C:P:3:2
+C:T:7:4:-10
+C:R:5:3
+C:K:3:2
+C:W:3:2
+C:N:3:2:-10
+
+N:D:2:Horrify
+I:2:0
+C:M:2:3
+C:H:2:3
+C:P:4:3
+C:T:7:6
+C:R:5:5
+C:K:3:4
+C:W:4:3
+C:N:3:3
+
+N:D:3:Stinking Cloud
+I:3:0
+C:M:4:3
+C:H:4:3
+C:P:5:4
+C:T:9:6:-10
+C:R:7:5
+C:K:5:4
+C:W:5:4
+C:N:5:4:-10
+
+# Use the Sorcery spell 
+N:D:4:Black Sleep
+I:6:0:S
+C:M:6:4
+C:H:5:4
+C:P:8:4
+C:T:11:7
+C:R:9:6
+C:K:7:5
+C:W:8:4
+C:N:7:5
+
+N:D:5:Resist Poison
+I:5:0
+C:M:7:5
+C:H:6:5
+C:P:9:6
+C:T:12:8
+C:R:10:7
+C:K:8:6
+C:W:9:6
+C:N:8:6
+
+N:D:6:Detect Aura
+I:32:0
+C:M:8:5
+C:H:7:5
+C:P:10:6
+C:T:13:8
+C:R:12:7
+C:K:10:6
+C:W:10:6
+C:N:9:6
+
+N:D:7:Enslave Undead
+I:6:0
+C:M:9:8
+C:H:8:7
+C:P:11:9
+C:T:14:12
+C:R:13:11
+C:K:11:10
+C:W:11:9
+C:N:11:9
+
+N:D:8:Berserk
+I:16:2
+C:M:10:13
+C:H:9:12
+C:P:12:14
+C:T:16:18
+C:R:14:17
+C:K:12:16
+C:W:12:14
+C:N:12:15
+
+N:D:9:Drain Life
+I:17:2
+C:M:10:11
+C:H:9:10
+C:P:12:12
+C:T:16:15:-10
+C:R:14:14
+C:K:12:13
+C:W:12:12
+C:N:12:13:-10
+
+N:D:10:Nether Bolt
+I:33:0
+C:M:11:9
+C:H:10:8
+C:P:13:10
+C:T:17:13:-10
+C:R:15:12
+C:K:13:11
+C:W:13:10
+C:N:13:10:-10
+
+N:D:11:Orb of Entropy
+I:8:0
+C:M:12:10
+C:H:11:9
+C:P:14:11
+C:T:18:14:-10
+C:R:16:13
+C:K:14:12
+C:W:14:11
+C:N:14:12:-10
+
+N:D:12:Invisibility
+I:34:0
+C:M:13:9
+C:H:12:8
+C:P:15:10
+C:T:19:7
+C:R:17:12
+C:K:15:11
+C:W:15:10
+C:N:15:10
+
+N:D:13:Shadow Gate
+I:9:1
+C:M:13:12
+C:H:12:11
+C:P:16:13
+C:T:20:16
+C:R:18:15
+C:K:16:14
+C:W:16:13
+C:N:15:14
+
+N:D:14:Banshee's Wail
+I:18:1
+C:M:15:13
+C:H:14:12
+C:P:18:14
+C:T:21:18:-10
+C:R:20:17
+C:K:18:16
+C:W:18:14
+C:N:17:15:-10
+
+N:D:15:Freezing Aura
+I:35:1
+C:M:17:15
+C:H:15:14
+C:P:20:17
+C:T:24:20
+C:R:22:19
+C:K:20:18
+C:W:20:17
+C:N:20:17
+
+N:D:16:Summon Lesser Undead
+I:10:1
+C:M:18:22
+C:H:16:20
+C:P:21:24
+C:T:25:28
+C:R:24:27
+C:K:22:26
+C:W:21:24
+C:N:21:25
+
+N:D:17:Death Ray
+I:24:2
+C:M:20:22
+C:H:18:20
+C:P:23:24
+C:T:27:28:-50
+C:R:26:27
+C:K:24:26
+C:W:23:24
+C:N:23:25:-50
+
+N:D:18:Vampiric Drain
+I:11:1
+C:M:23:20
+C:H:21:18
+C:P:26:22
+C:T:30:26:-10
+C:R:30:25
+C:K:28:24
+C:W:26:22
+C:N:26:23:-10
+
+N:D:19:Cloak of Fear
+I:36:1
+C:M:24:16
+C:H:22:14
+C:P:27:18
+C:T:32:21
+C:R:31:20
+C:K:29:19
+C:W:27:18
+C:N:28:18
+
+N:D:20:Enslave Evil
+I:37:2
+C:M:25:20
+C:H:23:18
+C:P:29:22
+C:T:33:26
+C:R:32:25
+C:K:30:24
+C:W:29:22
+C:N:29:23
+
+N:D:21:Nether Ball
+I:39:2
+C:M:26:25
+C:H:23:23
+C:P:30:28
+C:T:34:32:-20
+C:R:33:31
+C:K:31:30
+C:W:30:28
+C:N:30:29:-20
+
+# Use the Sorcery spell
+N:D:22:Reveal Secrets
+I:29:3:S
+C:M:28:35
+C:H:25:31
+C:P:32:39
+C:T:36:44
+C:R:36:43
+C:K:34:42
+C:W:34:28
+C:N:34:29
+
+# Use the sorcery spell
+N:D:23:Identify
+I:11:1:S
+C:M:30:25
+C:H:27:23
+C:P:34:28
+C:T:38:32
+C:R:38:31
+C:K:36:30
+C:W:34:28
+C:N:35:29
+
+N:D:24:Battle Frenzy
+I:19:2
+C:M:31:25
+C:H:27:23
+C:P:34:28
+C:T:39:32
+C:R:39:31
+C:K:37:30
+C:W:34:28
+C:N:35:29
+
+N:D:25:Dispel Life
+I:13:1
+C:M:33:28
+C:H:30:25
+C:P:37:31
+C:T:42:36:-20
+C:R:42:35
+C:K:40:34
+C:W:37:31
+C:N:38:32:-20
+
+N:D:26:Consume Life
+I:20:3
+C:M:33:35
+C:H:30:32
+C:P:37:39
+C:T:42:44:-20
+C:R:42:43
+C:K:40:42
+C:W:37:39
+C:N:38:40:-20
+
+N:D:27:Genocide
+I:14:1
+C:M:37:35
+C:H:33:32
+C:P:42:39
+C:T:44:44
+C:R:44:43
+C:K:42:42
+C:W:42:39
+C:N:42:41
+
+# Use the Life spell
+N:D:28:Esoteria
+I:29:3:L
+C:M:38:35
+C:H:34:32
+C:P:43:39
+C:T:45:44
+C:R:45:43
+C:K:43:42
+C:W:43:39
+C:N:43:40
+
+N:D:29:Darkness Storm
+I:21:2
+C:M:40:40
+C:H:36:36
+C:P:45:44
+C:T:46:50:-20
+C:R:46:49
+C:K:45:48
+C:W:45:44
+C:N:46:46:-20
+
+N:D:30:Summon Greater Undead
+I:22:3
+C:M:40:75
+C:H:36:68
+C:P:45:83
+C:T:47:92
+C:R:47:91
+C:K:46:90
+C:W:46:83
+C:N:46:86
+
+N:D:31:Lich
+I:38:3
+C:M:40:85
+C:H:36:77
+C:P:45:94
+C:T:48:100
+C:R:48:100
+C:K:47:100
+C:W:45:94
+C:N:46:98
+
+N:D:32:Mass Genocide
+I:23:2
+C:M:42:75
+C:H:38:68
+C:P:46:83
+C:T:48:100
+C:R:48:100
+C:K:47:90
+C:W:48:83
+
+N:D:33:Oblivion
+I:27:3
+C:M:42:40
+C:H:38:36
+C:P:47:44
+C:T:49:71:-20
+C:R:49:70
+C:K:48:55
+C:W:48:44
+C:N:48:46:-20
+
+# Rogues, Rangers cannot cast.
+N:D:34:Hellfire
+I:29:2
+C:M:44:110
+C:H:40:99
+C:P:48:120
+C:K:49:130
+C:W:48:120
+C:N:49:130:-20
+
+# Rogues cannot cast.
+N:D:35:Restore Life
+I:15:1
+C:M:45:50
+C:H:41:45
+C:P:48:62
+C:R:49:103
+C:K:49:88
+C:W:48:62
+C:N:49:72
+
+# Rogues, Rangers cannot cast.
+N:D:36:Omnicide
+I:30:3
+C:M:45:100
+C:H:41:90
+C:P:50:110
+C:K:50:120
+C:W:50:110
+C:N:50:120
+
+# Rangers cannot cast.
+N:D:37:Wraithform
+I:31:3
+C:M:47:100
+C:H:42:90
+C:P:50:120
+C:T:50:135
+C:K:50:130
+C:W:50:120
+C:N:50:130
+
+N:D:38:[no spell]
+I:99:99
+
+N:D:39:[no spell]
+I:99:99
+
+##### CONJURATION #####
+
+# This one is more powerful; hence the power bonuses.
+N:J:0:Phase Door
+I:1:0:S
+C:M:1:1:50
+C:H:1:1:50
+C:P:2:1:50
+C:T:5:3:50
+C:R:3:2:50
+C:W:2:1:50
+
+# Use the Arcane spell
+N:J:1:Fuel
+I:4:0:A
+C:M:2:1
+C:H:2:1
+C:P:3:1
+C:T:7:3
+C:R:5:2
+C:W:3:1
+
+# Use the Chaos spell
+N:J:2:Magic Missile
+I:0:0:C
+C:M:2:1
+C:H:2:1
+C:P:3:2
+C:T:7:3:-10
+C:R:5:3
+C:W:3:2
+
+N:J:3:Summon Animal
+I:2:0
+C:M:3:3
+C:H:3:3
+C:P:4:4
+C:W:4:4
+C:T:7:6
+C:R:6:5
+
+# Use the Life spell
+N:J:4:Light
+I:3:0:L
+C:M:3:3
+C:H:3:3
+C:P:5:3
+C:T:8:6
+C:R:6:5
+C:W:5:3
+
+# Use the Arcane spell (Cure Medium Wounds)
+N:J:5:Heal Wounds
+I:8:0:A
+C:M:5:5
+C:H:5:4
+C:P:7:5
+C:W:7:5
+C:T:10:8
+C:R:8:7
+
+# Use the Sorcery spell, but at +20% power.
+N:J:6:Teleport Self
+I:5:0:S
+C:M:6:5:20
+C:H:6:4:20
+C:P:8:5:20
+C:W:8:5:20
+C:T:11:8:20
+C:R:9:7:20
+
+N:J:7:Summon Phantom
+I:6:0
+C:M:7:7
+C:H:7:6
+C:P:9:8
+C:W:9:8
+C:T:12:10
+C:R:11:9
+
+# Use the Death spell
+N:J:8:Stinking Cloud
+I:3:0:D
+C:M:9:4
+C:H:8:3
+C:P:11:5
+C:T:15:7:-10
+C:R:13:6
+C:W:11:5
+
+N:J:9:Acid Arrow
+I:16:0
+C:M:10:5
+C:H:9:5
+C:P:12:6
+C:W:12:6
+C:R:14:8
+C:T:16:9:-10
+
+N:J:10:Plague of Insects
+I:32:0
+C:M:11:9
+C:H:10:8
+C:P:13:10
+C:W:13:10
+C:T:17:13
+C:R:15:12
+
+N:J:11:Glitterdust
+I:8:1
+C:M:12:8
+C:H:11:7
+C:P:15:9
+C:W:15:9
+C:T:18:11:-10
+C:R:17:10
+
+# Use the Life spell
+N:J:12:Conjure Food
+I:16:1:L
+C:M:13:9
+C:H:12:8
+C:P:15:10
+C:R:18:12
+C:W:15:10
+C:T:19:13
+
+N:J:13:Summon Animals
+I:9:1
+C:M:14:14
+C:H:13:13
+C:P:17:15
+C:W:17:15
+C:R:19:18
+C:T:20:19
+
+# Use the Sorcery spell
+N:J:14:Dimension Door
+I:26:1:S
+C:M:15:11
+C:H:14:10
+C:P:18:12
+C:W:18:12
+C:R:20:14
+C:T:21:15
+
+# Use the Sorcery spell "Alchemy"
+N:J:15:Alchemy
+I:25:2:S
+C:M:16:12
+C:H:14:11
+C:P:19:13
+C:R:22:15
+C:W:19:13
+C:T:23:16
+
+# Use the Sorcery spell
+N:J:16:Teleport Away
+I:12:1:S
+C:M:17:12
+C:H:15:11
+C:P:20:13
+C:W:20:13
+C:R:23:15
+C:T:24:16
+
+N:J:17:Flame Arrow
+I:17:1
+C:M:18:9
+C:H:16:8
+C:P:21:10
+C:W:21:10
+C:T:25:13:-10
+C:R:24:12
+
+# Use the Sorcery spell
+N:J:18:Haste
+I:13:1:S
+C:M:21:17
+C:H:19:15
+C:P:24:19
+C:W:24:19
+C:R:27:22
+C:T:28:23
+
+# Use the Life spell
+N:J:19:Wall of Force
+I:24:2:L
+C:M:23:20
+C:H:21:18
+C:P:27:22
+C:W:27:22
+C:T:30:27
+C:R:30:26
+
+N:J:20:Summon Elemental
+I:13:1
+C:M:24:30
+C:H:22:27
+C:P:27:33
+C:W:27:33
+C:R:31:37
+C:T:32:38
+
+N:J:21:Send Home
+I:33:3
+C:M:25:25
+C:H:23:23
+C:P:29:28
+C:W:29:28
+C:R:32:31
+C:T:33:32
+
+N:J:22:Etherealness
+I:27:2
+C:M:26:25
+C:H:24:23
+C:P:30:28
+C:W:30:28
+C:R:33:31
+C:T:34:32
+
+N:J:23:Summon Hounds
+I:34:2
+C:M:28:34
+C:H:25:31
+C:P:32:37
+C:W:32:37
+C:R:36:42
+C:T:36:43
+
+N:J:24:Portal
+I:24:3
+C:M:30:20
+C:H:27:18
+C:P:34:22
+C:W:34:22
+C:R:38:25
+C:T:39:26
+
+# Use the Sorcery spell
+N:J:25:Teleport Level
+I:22:1:S
+C:M:31:27
+C:H:28:24
+C:P:35:30
+C:W:35:30
+C:R:40:33
+C:T:40:34
+
+# Use the Life spell
+N:J:26:Word of Recall
+I:15:1:L
+C:M:35:29
+C:H:31:26
+C:P:39:32
+C:W:39:32
+C:R:44:36
+C:T:44:37
+
+N:J:27:Summon Dragon
+I:20:2
+C:M:35:45
+C:H:32:41
+C:P:40:50
+C:W:40:50
+C:R:44:55
+C:T:44:56
+
+N:J:28:Cloudkill
+I:25:3
+C:M:35:40
+C:H:32:36
+C:P:40:44
+C:W:40:44
+C:R:44:49
+C:T:45:50:-20
+
+N:J:29:Descend
+I:35:2
+C:M:36:35
+C:H:32:32
+C:P:41:39
+C:W:41:39
+C:R:44:43
+C:T:45:44
+
+# Use the death Spell 
+N:J:30:Planar Rift
+I:27:3:D
+C:M:39:50
+C:H:35:45
+C:P:44:55
+C:W:44:55
+C:R:45:61
+C:T:45:62:-20
+
+N:J:31:Mass Teleport
+I:21:2
+C:M:40:45
+C:H:36:41
+C:P:43:50
+C:W:45:50
+C:R:46:55
+C:T:46:56
+
+N:J:32:Imprison
+I:36:3
+C:M:40:50
+C:H:36:45
+C:P:45:55
+C:W:45:55
+C:R:46:61
+C:T:46:62
+
+# Not the same as the Life spell
+N:J:33:Heal
+I:22:2
+C:M:42:50
+C:H:38:45
+C:P:43:55
+C:W:47:55
+C:R:47:75
+C:T:47:76
+
+# Use the Chaos spell
+# Rogues cannot cast
+N:J:34:Summon Demon
+I:28:3
+C:M:42:70
+C:H:38:63
+C:P:48:77
+C:W:48:77
+C:R:48:75
+
+# Use the Life Spell "Blinding Radiance"
+N:J:35:Summon Radiance
+I:37:2:L
+C:M:43:50
+C:H:39:45
+C:P:48:55
+C:W:48:55
+C:R:49:89
+C:T:49:83:-20
+
+# Rogues and Rangers cannot cast.
+N:J:36:Summon Ancient Dragon
+I:30:3
+C:M:48:80
+C:H:43:72
+C:P:50:110
+C:W:50:110
+
+# Rogues and Rangers cannot cast.
+N:J:37:Greater Summoning
+I:31:3
+C:M:49:90
+C:H:44:81
+C:P:50:130
+C:W:50:130
+
+N:J:38:[no spell]
+I:99:99
+
+N:J:39:[no spell]
+I:99:99
+
+##### ARCANE #####
+
+N:A:0:Zap
+I:0:0
+C:M:1:1
+C:H:1:1
+C:P:1:1
+C:W:1:1
+C:R:3:2
+C:T:5:2:-10
+
+# Use the Sorcery spell
+N:A:1:Detect Monsters
+I:0:0:S
+C:M:1:1
+C:H:1:1
+C:P:1:1
+C:W:1:1
+C:R:3:2
+C:T:5:2
+
+# Use the Sorcery spell
+N:A:2:Blink
+I:1:0:S
+C:M:1:1
+C:H:1:1
+C:P:2:1
+C:W:2:1
+C:R:4:2
+C:T:5:2
+
+# Use the Life spell
+N:A:3:Light Area
+I:3:0:L
+C:M:2:1
+C:H:2:1
+C:P:2:1
+C:W:2:1
+C:R:4:2
+C:T:5:2
+
+N:A:4:Fuel
+I:4:0
+C:M:2:2
+C:H:2:2
+C:P:3:2
+C:W:3:2
+C:R:5:3
+C:T:5:3
+
+N:A:5:Detect Traps
+I:5:0
+C:M:4:4
+C:H:4:4
+C:P:4:5
+C:T:7:6
+C:W:5:4
+C:R:6:6
+
+N:A:6:Detect Invisibility
+I:6:0
+C:M:5:5
+C:H:5:5
+C:P:6:6
+C:W:6:6
+C:R:8:7
+C:T:8:7
+
+N:A:7:Cure Poison and Fear
+I:7:0
+C:M:6:5
+C:H:5:5
+C:P:7:6
+C:W:7:6
+C:R:9:7
+C:T:9:7
+
+# Weaker than the Life spell.
+N:A:8:Cure Medium Wounds
+I:8:0
+C:M:7:6
+C:H:7:5
+C:P:8:7
+C:W:8:7
+C:R:10:8
+C:T:10:8
+
+N:A:9:Resist Cold and Fire
+I:9:0
+C:M:8:8
+C:H:7:7
+C:P:9:9
+C:W:9:9
+C:R:11:10
+C:T:12:10
+
+N:A:10:Lore
+I:10:1
+C:M:9:8
+C:H:8:7
+C:P:10:10
+C:W:10:9
+C:R:12:11
+C:T:12:11
+
+N:A:11:Dispel Traps
+I:11:1
+C:M:9:9
+C:H:8:8
+C:P:10:11
+C:W:10:10
+C:R:12:12
+C:T:12:12
+
+# Use the Life spell
+N:A:12:See Invisible
+I:10:1:L
+C:M:10:9
+C:H:9:8
+C:P:10:11
+C:W:10:10
+C:R:12:12
+C:T:13:12
+
+N:A:13:Resist Blindness
+I:13:1
+C:M:11:10
+C:H:10:9
+C:P:12:12
+C:W:12:11
+C:R:14:13
+C:T:14:13
+
+N:A:14:Resist Confusion
+I:32:1
+C:M:11:10
+C:H:10:9
+C:P:12:12
+C:W:12:11
+C:R:14:13
+C:T:15:13
+
+# Use the Nature spell
+N:A:15:Stone to Mud
+I:8:1:N
+C:M:12:12
+C:H:11:11
+C:P:13:14
+C:W:13:13
+C:R:15:15
+C:T:16:15
+
+# Use the Nature spell
+N:A:16:Ray of Light
+I:11:1:N
+C:M:13:12
+C:H:12:11
+C:P:15:14
+C:W:15:13
+C:R:17:15
+C:T:17:15
+
+# Use the Life spell
+N:A:17:Satisfy Hunger
+I:16:1:L
+C:M:14:12
+C:H:13:11
+C:P:15:15
+C:W:16:13
+C:R:17:16
+C:T:18:16
+
+# Use the Sorcery spell
+N:A:18:Teleport
+I:5:1:S
+C:M:15:12
+C:H:14:11
+C:P:17:15
+C:W:17:14
+C:R:19:16
+C:T:19:16
+
+# Not the same as any others
+N:A:19:Resist Elements
+I:18:1
+C:M:16:14
+C:H:14:13
+C:P:18:17
+C:W:18:15
+C:R:20:18
+C:T:20:18
+
+N:A:20:Identify Type
+I:33:2
+C:M:17:15
+C:H:15:14
+C:P:19:18
+C:W:19:17
+C:R:21:19
+C:T:22:19
+
+# Use the Death spell
+N:A:21:Resist Poison
+I:5:2:D
+C:M:18:15
+C:H:16:14
+C:P:20:18
+C:T:23:19
+C:R:22:19
+C:W:20:17
+
+# Use the Sorcery spell
+N:A:22:Sleep Monster
+I:6:2:S
+C:M:19:15
+C:H:17:14
+C:P:21:18
+C:T:24:19
+C:R:23:19
+C:W:21:17
+
+# Use the Sorcery spell
+N:A:23:Magic Mapping
+I:8:2:S
+C:M:20:16
+C:H:18:14
+C:P:22:19
+C:W:22:18
+C:T:25:20
+C:R:24:20
+
+N:A:24:Elemental Bolt
+I:34:2
+C:M:21:17
+C:H:19:15
+C:P:24:20
+C:T:27:21:-10
+C:R:26:21
+C:W:23:19
+
+# Use the Sorcery spell
+N:A:25:Detection
+I:14:2:S
+C:M:23:18
+C:H:21:16
+C:P:25:22
+C:T:28:23
+C:R:27:23
+C:W:25:20
+
+# Use the Life spell
+N:A:26:Heroism
+I:6:2:L
+C:M:24:19
+C:H:21:17
+C:P:26:23
+C:T:29:24
+C:R:28:24
+C:W:26:21
+
+# Use the Sorcery Spell
+N:A:27:Teleport Away
+I:12:2:S
+C:M:24:19
+C:H:22:17
+C:P:27:23
+C:T:30:24
+C:R:29:24
+C:W:27:21
+
+# Use the Sorcery Spell
+N:A:28:Identify
+I:11:2:S
+C:M:24:19
+C:H:22:17
+C:P:27:23
+C:T:30:24
+C:R:29:24
+C:W:27:21
+
+# Not equivalent to any previous spells
+N:A:29:Cure Mortal Wounds
+I:24:2
+C:M:27:25
+C:H:24:23
+C:P:30:30
+C:T:33:31
+C:R:32:31
+C:W:30:28
+
+# Use the Sorcery spell
+N:A:30:Teleport Level
+I:22:3:S
+C:M:28:26
+C:H:26:23
+C:P:31:31
+C:T:34:32
+C:R:33:32
+C:W:31:29
+
+N:A:31:Elemental Ball
+I:26:3
+C:M:29:27
+C:H:26:24
+C:P:32:32
+C:T:36:33:-20
+C:R:34:33
+C:W:32:30
+
+# Use the Nature spell
+N:A:32:Resistance
+I:19:3:N
+C:M:30:30
+C:H:27:27
+C:P:33:36
+C:T:37:37
+C:R:35:37
+C:W:33:33
+
+# Use the Sorcery spell
+N:A:33:Enchant Armor
+I:20:3:S
+C:M:31:37
+C:H:28:33
+C:P:35:44
+C:T:38:45
+C:R:37:45
+C:W:34:41
+
+# Use the Nature spell
+N:A:34:Probe Resistance
+I:33:3:N
+C:M:32:25
+C:H:29:23
+C:P:35:30
+C:T:39:31
+C:R:37:31
+C:W:35:28
+
+# Use the Sorcery spell
+N:A:35:Recharging
+I:18:3:S
+C:M:33:30
+C:H:30:27
+C:P:36:36
+C:T:40:37
+C:R:38:37
+C:W:36:33
+
+# Use the Life spell
+N:A:36:Word of Recall
+I:15:3:L
+C:M:35:30
+C:H:32:27
+C:P:39:36
+C:T:43:37
+C:R:41:37
+C:W:39:33
+
+# Use the Sorcery spell
+N:A:37:ESP
+I:21:3:S
+C:M:36:35
+C:H:33:31
+C:P:40:42
+C:T:43:43
+C:R:42:43
+C:W:40:38
+
+# Use the Sorcery spell
+N:A:38:Enchant Weapon
+I:19:3:S
+C:M:37:50
+C:H:33:45
+C:P:41:60
+C:T:45:61
+C:R:43:61
+C:W:41:55
+
+# Use the Sorcery spell
+N:A:39:Clairvoyance
+I:29:3:S
+C:M:38:35
+C:H:34:32
+C:P:42:42
+C:T:46:43
+C:R:44:43
+C:W:42:39
+
+##### ILLUSION #####
+
+# Use the Life spell
+N:I:0:Light
+I:3:0:L
+C:M:1:1
+C:H:1:1
+C:T:5:3
+C:W:2:1
+C:R:3:2
+
+N:I:1:Phantom Arrow
+I:1:0
+C:M:2:1
+C:H:2:1
+C:T:7:3:-10
+C:W:3:2
+C:R:5:2
+
+N:I:2:Noble Visage
+I:2:0
+C:M:3:3
+C:H:3:3
+C:T:7:6
+C:W:5:3
+C:R:6:5
+
+# Use the Death spell
+N:I:3:Invisibility
+I:34:0:D
+C:M:5:2
+C:H:5:2
+C:T:10:4
+C:W:7:2
+C:R:8:3
+
+# Use the Arcane spell
+N:I:4:Detect Traps
+I:5:0:A
+C:M:6:3
+C:H:5:3
+C:T:11:6
+C:W:8:3
+C:R:9:5
+
+N:I:5:Dancing Lights
+I:6:0
+C:M:7:5
+C:H:6:4
+C:T:12:7
+C:W:8:5
+C:R:10:6
+
+# Use the Death spell
+N:I:6:Detect Magic
+I:32:0:D
+C:M:7:5
+C:H:6:4
+C:T:12:8
+C:W:9:5
+C:R:11:7
+
+# Use the Life spell
+N:I:7:See Invisible
+I:10:0:L
+C:M:8:5
+C:H:7:5
+C:T:13:5
+C:W:10:6
+C:R:12:5
+
+# Use the Sorcery spell
+N:I:8:Confuse Monster
+I:4:0:S
+C:M:9:5
+C:H:8:5
+C:T:15:8
+C:W:11:6
+C:R:13:7
+
+N:I:9:Mirror Image
+I:9:0
+C:M:10:7
+C:H:9:6
+C:T:16:10
+C:W:12:8
+C:R:14:9
+
+# Use the Nature spell
+N:I:10:Ray of Light
+I:11:0:N
+C:M:11:7
+C:H:10:6
+C:T:17:10
+C:W:13:8
+C:R:16:9
+
+N:I:11:Hypnotic Pattern
+I:32:1
+C:M:12:8
+C:H:11:7
+C:T:18:12
+C:W:14:9
+C:R:16:11
+
+# Use the Sorcery spell
+N:I:12:Charm Monster
+I:9:1:S
+C:M:13:9
+C:H:12:8
+C:T:19:13
+C:W:15:10
+C:R:18:12
+
+N:I:13:Phantasmal Horror
+I:12:1
+C:M:14:10
+C:H:13:9
+C:T:20:14
+C:W:16:11
+C:R:19:13
+
+# Use the Death spell
+N:I:14:Horrid Visage
+I:36:1:D
+C:M:15:11
+C:H:14:10
+C:T:21:15
+C:W:18:12
+C:R:20:14
+
+# Use the Sorcery spell
+N:I:15:Magic Mapping
+I:8:1:S
+C:M:17:12
+C:H:15:11
+C:T:24:16
+C:W:20:13
+C:R:23:15
+
+N:I:16:Globe of Darkness
+I:15:1
+C:M:18:15
+C:H:16:14
+C:T:25:20:-10
+C:W:21:17
+C:R:24:19
+
+# Use the Sorcery spell
+N:I:17:Sense Minds
+I:21:1:S
+C:M:19:16
+C:H:18:14
+C:T:26:21
+C:W:22:18
+C:R:25:20
+
+N:I:18:True Seeing
+I:17:2
+C:M:20:17
+C:H:18:15
+C:T:27:22
+C:W:23:19
+C:R:26:21
+
+N:I:19:Scream
+I:3:1
+C:M:21:16
+C:H:19:14
+C:T:28:21
+C:W:21:17
+C:R:27:20
+
+N:I:20:Improved Invisibility
+I:18:2
+C:M:22:18
+C:H:20:16
+C:T:29:15
+C:W:25:20
+C:R:28:23
+
+N:I:21:Mind Blast
+I:19:3
+C:M:23:16
+C:H:21:14
+C:T:31:21:-10
+C:W:26:18
+C:R:30:20
+
+N:I:22:Phantom Fire
+I:20:1
+C:M:25:20
+C:H:23:18
+C:T:33:26:-10
+C:W:29:22
+C:R:32:25
+
+N:I:23:Invisible Stalker
+I:21:2
+C:M:26:30
+C:H:23:27
+C:T:34:38
+C:W:30:33
+C:R:33:37
+
+N:I:24:Imbue with Radiance
+I:22:3
+C:M:27:30
+C:H:24:27
+C:T:35:38
+C:W:31:33
+C:R:34:37
+
+N:I:25:Shadow Magic
+I:25:2
+C:M:30:50
+C:H:27:45
+C:T:39:62
+C:W:34:55
+C:R:38:61
+
+N:I:26:Clone Monster
+I:26:2
+C:M:31:25
+C:H:28:23
+C:T:40:32
+C:W:35:28
+C:R:39:31
+
+N:I:27:Shadow Monsters
+I:27:2
+C:M:33:40
+C:H:30:36
+C:T:42:50
+C:W:37:44
+C:R:42:49
+
+N:I:28:Glimpse of Death
+I:28:1
+C:M:34:30
+C:H:31:27
+C:T:43:38:-10
+C:W:38:33
+C:R:43:37
+
+# Use the Life spell
+N:I:29:True Nature
+I:29:3:L
+C:M:34:35
+C:H:31:32
+C:T:43:44
+C:W:38:39
+C:R:43:43
+
+# Use the Conjuration spell
+N:I:30:Passwall
+I:27:2:J
+C:M:35:30
+C:H:32:27
+C:T:44:38
+C:W:40:33
+C:R:44:37
+
+N:I:31:Nova Burst
+I:31:3
+C:M:37:35
+C:H:33:32
+C:T:46:44:-10
+C:W:42:39
+C:R:46:43
+
+# Use the Sorcery spell
+N:I:32:Clairvoyance
+I:29:2:S
+C:M:38:35
+C:H:34:32
+C:T:47:44
+C:W:43:39
+C:R:48:43
+
+N:I:33:Clone Self
+I:33:3
+C:M:41:50
+C:H:37:45
+C:T:48:69
+C:W:46:55
+C:R:48:68
+
+N:I:34:Medusa's Gaze
+I:34:2
+C:M:43:35
+C:H:38:32
+C:T:49:58
+C:W:47:39
+C:R:49:57
+
+N:I:35:Phantom Terrain
+I:35:3
+C:M:43:23
+C:H:39:21
+C:T:50:33
+C:W:48:26
+C:R:50:32
+
+# Rogues / Rangers cannot cast
+N:I:36:Greater Shadow Magic
+I:36:3
+C:M:45:100
+C:H:41:90
+C:W:50:115
+
+# Rogues cannot cast
+N:I:37:Hellscape
+I:37:3
+C:M:48:80
+C:H:43:72
+C:W:50:110
+C:R:50:125
+
+N:I:38:[no spell]
+I:99:99
+
+N:I:39:[no spell]
+I:99:99
+
+
+
+
+
+

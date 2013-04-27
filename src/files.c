@@ -1510,6 +1510,18 @@ void player_flags(object_flags *of_ptr)
 			;					/* Do nothing */
 	}
 
+	/* Lich */
+	if (p_ptr->state.lich)
+	{
+		SET_FLAG(of_ptr, TR_HOLD_LIFE);
+		SET_FLAG(of_ptr, TR_RES_DARK);
+		SET_FLAG(of_ptr, TR_RES_NETHER);
+		SET_FLAG(of_ptr, TR_RES_POIS);
+		SET_FLAG(of_ptr, TR_RES_COLD);
+		SET_FLAG(of_ptr, TR_CANT_EAT);
+		SET_FLAG(of_ptr, TR_FREE_ACT);
+	}
+
 	/* Hack - chaos patron */
 	if (p_ptr->muta2 & MUT2_CHAOS_GIFT)
 	{
@@ -2346,19 +2358,22 @@ static void display_player_top(void)
 	put_fstr(COL_NAME, 2,
     			"Name     : " CLR_L_BLUE "%s\n" CLR_WHITE
 				"Sex      : " CLR_L_BLUE "%s\n" CLR_WHITE
-				"Race     : " CLR_L_BLUE "%s\n" CLR_WHITE
+				"Race     : " CLR_L_BLUE "%s%s\n" CLR_WHITE
 				"Class    : " CLR_L_BLUE "%s",
-                player_name, sp_ptr->title, rp_ptr->title, cp_ptr->title);
+				player_name, sp_ptr->title, (p_ptr->state.lich ? "Lich " : ""),
+                rp_ptr->title, cp_ptr->title);
 
-	if (p_ptr->spell.r[0].realm || p_ptr->spell.r[1].realm)
+	if (p_ptr->spell.realm[0])
 	{
-		put_fstr(COL_NAME, 6, "Magic    : " CLR_L_BLUE "%s", realm_names[p_ptr->spell.r[0].realm]);
+		put_fstr(COL_NAME, 6, "Magic    : " CLR_L_BLUE "%s%s%s", realm_names[p_ptr->spell.realm[0]],
+			(p_ptr->spell.realm[1] ? ", " : ""),
+			(p_ptr->spell.realm[1] ? realm_names[p_ptr->spell.realm[1]] : ""));
 	}
 
-	if (p_ptr->spell.r[1].realm)
+	if (p_ptr->state.wizard || p_ptr->state.total_winner || !FLAG(p_ptr, TR_PATRON))
 	{
-		put_fstr(COL_NAME + WID_NAME, 7, CLR_L_BLUE "%s",
-				 realm_names[p_ptr->spell.r[1].realm]);
+		put_fstr(COL_NAME, 7, "Title    : " CLR_L_BLUE "%s", (p_ptr->state.wizard ? "[=-WIZARD-=]" :
+				(p_ptr->state.total_winner ? CLR_L_GREEN "***WINNER***" : player_title[p_ptr->rp.pclass][(p_ptr->lev - 1) / 5])));
 	}
 	else if (FLAG(p_ptr, TR_PATRON))
 	{
@@ -2757,13 +2772,16 @@ errr file_character(cptr name, bool full)
 	else
 		froff(fff, "\n Small Levels:       OFF");
 
-	if (vanilla_town) froff(fff, "\n Vanilla Town:       ON");
+	if (vanilla_town)       froff(fff, "\n Vanilla Town:       ON");
 
-	if (ironman_shops) froff(fff, "\n No Shops:           ON");
+	if (ironman_shops)      froff(fff, "\n No Shops:           ON");
 
-	if (ironman_downward) froff(fff, "\n Diving only:        ON");
+	if (ironman_downward)   froff(fff, "\n Diving only:        ON");
 
-	if (ironman_nightmare) froff(fff, "\n Nightmare Mode:     ON");
+	if (ironman_nightmare)  froff(fff, "\n Nightmare Mode:     ON");
+
+	if (!amber_monsters)    froff(fff, "\n Zelazny monsters:   OFF");
+	if (!cthulhu_monsters)  froff(fff, "\n Lovecraft monsters: OFF");
 
 	if (ironman_downward || vanilla_town)
 		froff(fff, "\n Recall Depth:       Level %d (%d')\n",
@@ -3070,6 +3088,38 @@ errr file_character(cptr name, bool full)
 
 	if (limit_messages && msg_max > 50)
 		msg_max = 50;
+
+	/* Dump spells, if the player has any */
+	if (p_ptr->spell.realm[0] && p_ptr->spell.spell_max)
+	{
+		froff(fff, "  [Spells]\n\n");
+		/* Basic info */
+		froff(fff, "You have learned %d spells and/or improvements.\n\n", p_ptr->spell.spell_max);
+
+		for (i = 0; i < SPELL_LAYERS; i++)
+		{
+			froff(fff, "You have %d tier-%d slot%s (levels %d-%d) remaining.\n", p_ptr->spell_slots[i], i+1,
+				(p_ptr->spell_slots[i] != 1 ? "s" : ""), mp_ptr->spell_first,
+			MIN(((i+1)*(PY_MAX_LEVEL/SPELL_LAYERS))+mp_ptr->spell_first-1,PY_MAX_LEVEL));
+		}
+
+		froff(fff, "\n\n");
+		froff(fff, "%s Magic:\n\n", realm_names[p_ptr->spell.realm[0]]);
+
+		/* Realm 1 spells */
+		do_cmd_knowledge_spells_aux(fff, p_ptr->spell.realm[0]-1, FALSE);
+
+		if (p_ptr->spell.realm[1])
+		{
+
+			froff(fff, "\n\n");
+			froff(fff, "%s Magic:\n\n", realm_names[p_ptr->spell.realm[1]]);
+
+			/* Realm 2 spells */
+			do_cmd_knowledge_spells_aux(fff, p_ptr->spell.realm[1]-1, FALSE);
+		}
+
+	}
 
 	/* Dump quest info */
 	froff(fff, "  [Quests]\n\n");
@@ -4018,14 +4068,12 @@ void do_cmd_save_game(int is_autosave)
 	(void)strcpy(p_ptr->state.died_from, "(alive and well)");
 
 	/* Implement autosave_b */
-	if (is_autosave && autosave_b)
+	if ((is_autosave && autosave_b) || p_ptr->state.is_dead)
 	{
 		/* Copy the file */
 		char newsf[1024];
 		char oldsf[1024];
 		char buf[1024];
-		FILE *oldfff;
-		FILE *newfff;
 
 		strnfmt(oldsf, 1024, "%s", savefile);
 		strnfmt(newsf, 1024, "%s.auto", savefile);
@@ -4036,35 +4084,20 @@ void do_cmd_save_game(int is_autosave)
 		/* Remove the old backup */
 		(void)fd_kill(newsf);
 
+		/* Preserve current savefile */
+		(void)fd_move(oldsf,newsf);
+
 		/* Drop permissions */
 		safe_setuid_drop();
 
-		oldfff = my_fopen(oldsf, "rb");
-		newfff = my_fopen(newsf, "wb");
-
-		if (!oldfff || !newfff)
+		if (!save_player())
 		{
 			msgf ("Autosave backup failed.");
-			my_fclose(oldfff);
-			my_fclose(newfff);
-			return;
+
+			safe_setuid_grab();
+			(void)fd_kill(oldsf);
+			(void)fd_move(newsf,oldsf);
 		}
-
-		C_WIPE(buf, 1024, char);
-
-		while(TRUE)
-		{
-			int bytes_read;
-
-			bytes_read = fread(buf, sizeof(char), 1024, oldfff);
-
-			if (!bytes_read) break;
-
-			fwrite(buf, sizeof(char), bytes_read, newfff);
-		}
-
-		my_fclose(oldfff);
-		my_fclose(newfff);
 	}
 }
 

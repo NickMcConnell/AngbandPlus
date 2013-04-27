@@ -19,14 +19,14 @@
  */
 cptr notes_file(void)
 {
-	char fname[15];
+	char fname[160];
 	static char buf[1024];
 
 	/*
 	 * Hack -- extract first 8 characters of name and
 	 * Create the file name from the character's name plus .txt
 	 */
-	(void)strnfmt(fname, 15, "%.8snotes.txt", player_base);
+	(void)strnfmt(fname, 160, "%.8snotes.txt", player_base);
 
 	path_make(buf, ANGBAND_DIR_USER, fname);
 
@@ -157,14 +157,14 @@ void add_note_type(int note_number)
 
 			/* No "Chaos-Warrior of Chaos" */
 			if (p_ptr->rp.pclass != CLASS_CHAOS_WARRIOR &&
-				p_ptr->spell.r[0].realm != REALM_NONE)
+				p_ptr->spell.realm[0] != REALM_NONE)
 			{
-				strnfcat(player, 100, &len, " of %s", realm_names[p_ptr->spell.r[0].realm]);
+				strnfcat(player, 100, &len, " of %s", realm_names[p_ptr->spell.realm[0]]);
 			}
 
-			if (p_ptr->spell.r[1].realm != REALM_NONE)
+			if (p_ptr->spell.realm[1] != REALM_NONE)
 			{
-				strnfcat(player, 100, &len, " and %s", realm_names[p_ptr->spell.r[1].realm]);
+				strnfcat(player, 100, &len, " and %s", realm_names[p_ptr->spell.realm[1]]);
 			}
 
 			/* Add in "character start" information */

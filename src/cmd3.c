@@ -58,6 +58,7 @@ static const tval_desc tvals[] =
 	{TV_DEATH_BOOK, "Death Spellbook"},
 	{TV_CONJ_BOOK, "Conjuration Spellbook"},
 	{TV_ARCANE_BOOK, "Arcane Spellbook"},
+	{TV_ILLUSION_BOOK, "Illusion Spellbook"},
 	{TV_SPIKE, "Spikes"},
 	{TV_DIGGING, "Digger"},
 	{TV_CHEST, "Chest"},
@@ -105,17 +106,18 @@ static int tval_to_idx(u16b x)
 		case TV_DEATH_BOOK: return 28;
 		case TV_CONJ_BOOK: return 29;
 		case TV_ARCANE_BOOK: return 30;
-		case TV_SPIKE: return 31;
-		case TV_DIGGING: return 32;
-		case TV_CHEST: return 33;
-		case TV_FIGURINE: return 34;
-		case TV_STATUE: return 35;
-		case TV_FOOD: return 36;
-		case TV_FLASK: return 37;
-		case TV_JUNK: return 38;
-		case TV_SKELETON: return 39;
-		case TV_CONTAINER: return 40;
-		default: return 41;
+		case TV_ILLUSION_BOOK: return 31;
+		case TV_SPIKE: return 32;
+		case TV_DIGGING: return 33;
+		case TV_CHEST: return 34;
+		case TV_FIGURINE: return 35;
+		case TV_STATUE: return 36;
+		case TV_FOOD: return 37;
+		case TV_FLASK: return 38;
+		case TV_JUNK: return 39;
+		case TV_SKELETON: return 40;
+		case TV_CONTAINER: return 41;
+		default: return 42;
 	}
 }
 
@@ -451,7 +453,7 @@ static bool high_level_book(const object_type *o_ptr)
 	if ((o_ptr->tval == TV_LIFE_BOOK) ||
 		(o_ptr->tval == TV_SORCERY_BOOK) ||
 		(o_ptr->tval == TV_NATURE_BOOK) ||
-		(o_ptr->tval == TV_CHAOS_BOOK) ||
+		(o_ptr->tval == TV_CHAOS_BOOK) || (o_ptr->tval == TV_ILLUSION_BOOK) ||
 		(o_ptr->tval == TV_DEATH_BOOK) || (o_ptr->tval == TV_CONJ_BOOK))
 	{
 		if (o_ptr->sval > 1)
@@ -493,7 +495,7 @@ bool destroy_item_aux(object_type *o_ptr, int amt)
 		}
 		else if (p_ptr->rp.pclass == CLASS_PALADIN)
 		{
-			if (p_ptr->spell.r[0].realm == REALM_LIFE)
+			if (p_ptr->spell.realm[0] == REALM_LIFE)
 			{
 				if (o_ptr->tval == TV_DEATH_BOOK) gain_expr = TRUE;
 			}
@@ -1770,7 +1772,6 @@ bool research_mon(void)
 	return (picked && cost_gold);
 }
 
-extern void strip_name(char *buf, int k_idx);
 static int squelch_item_tval;
 static int squelch_item_k_idx;
 
@@ -2135,14 +2136,15 @@ bool destroy_squelched_item(object_type *o_ptr, int amt)
 }
 
 /* See if the player has any containers that can contain the object. */
-bool item_tester_hook_organizable(object_type *o_ptr)
+static bool item_tester_hook_organizable(const object_type *o_ptr)
 {
-	int amt = o_ptr->number;
+	byte amt = o_ptr->number;
+	byte *num = &o_ptr->number;
 	bool test = FALSE;
 	object_type * j_ptr;
 
 	/* Temporarily set number to be 0. */
-	o_ptr->number = 0;
+	*num = 0;
 
 	OBJ_ITT_START(p_ptr->inventory, j_ptr)
 	{
@@ -2158,7 +2160,7 @@ bool item_tester_hook_organizable(object_type *o_ptr)
 	OBJ_ITT_END;
 
 	/* Reset quantity */
-	o_ptr->number = amt;
+	*num = amt;
 	return (test);
 }
 

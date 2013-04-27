@@ -137,7 +137,8 @@ void delete_monster_idx(int i)
 	m_cnt--;
 
 	/* We may have just cleared a level */
-	if (current_quest && !p_ptr->state.leaving && current_quest->x_type == QX_CLEAR_LEVEL)
+	if (current_quest && !p_ptr->state.leaving && current_quest->x_type == QX_CLEAR_LEVEL
+		&& current_quest->status == QUEST_STATUS_TAKEN)
 		trigger_quest_complete(QX_CLEAR_LEVEL, NULL);
 
 	/* Visual update */
@@ -1020,7 +1021,7 @@ void monster_desc(char *desc, const monster_type *m_ptr, int mode, int max)
 	int n;
 
 	/* Are we hallucinating? (Idea from Nethack...) */
-	if (p_ptr->tim.image)
+	if (query_timed(TIMED_IMAGE))
 	{
 		if (one_in_(2))
 		{
@@ -1219,7 +1220,7 @@ void monster_desc(char *desc, const monster_type *m_ptr, int mode, int max)
 	else
 	{
 		/* It could be a Unique */
-		if ((FLAG(r_ptr, RF_UNIQUE)) && !p_ptr->tim.image)
+		if ((FLAG(r_ptr, RF_UNIQUE)) && !query_timed(TIMED_IMAGE))
 		{
 			/* Start with the name (thus nominative and objective) */
 			n = strnfmt(desc, max, "%s", name);
@@ -1557,7 +1558,7 @@ void update_mon(int m_idx, bool full)
 			pc_ptr = parea(fx, fy);
 
 			/* Normal line of sight, and not blind */
-			if (player_has_los_grid(pc_ptr) && !p_ptr->tim.blind)
+			if (player_has_los_grid(pc_ptr) && !query_timed(TIMED_BLIND))
 			{
 				bool do_invisible = FALSE;
 				bool do_cold_blood = FALSE;
@@ -1698,8 +1699,8 @@ void update_mon(int m_idx, bool full)
 			if (islower(s[0])) s[0] = toupper(s[0]);
 
 			/* notice it vanish */
-			if (m_ptr->mflag & (MFLAG_VIEW)) 
-			{ 
+			if (m_ptr->mflag & (MFLAG_VIEW))
+			{
 				msgf(s);
 			}
 			delete_monster_idx(m_idx);
@@ -1728,7 +1729,6 @@ void update_monsters(bool full)
 		update_mon(i, full);
 	}
 }
-
 
 /*
  * Attempt to place a monster of the given race at the given location.
@@ -1872,6 +1872,8 @@ monster_type *place_monster_one(int x, int y, int r_idx, bool slp, bool friendly
 	m_ptr->confused = 0;
 	m_ptr->monfear = 0;
     m_ptr->unsummon = 0;
+	m_ptr->imprisoned = 0;
+	m_ptr->silenced = 0;
 
 	/* Unknown distance */
 	m_ptr->cdis = 0;
@@ -1886,7 +1888,7 @@ monster_type *place_monster_one(int x, int y, int r_idx, bool slp, bool friendly
 	if (pet)
 	{
 		set_pet(m_ptr);
-		m_ptr->unsummon = 2000;  /* large default to make sure */
+		m_ptr->unsummon = (pet_dur ? (pet_dur == -1 ? 0 : pet_dur) : 2000);  /* large default to make sure */
 		m_ptr->smart |= SM_CLONED;  /* No XP or treasure from pets */
 	}
 	/* Friendly? */
@@ -2783,7 +2785,7 @@ bool summon_monsters_near_player(int num, int type)
 	if (summoned == 0) return (FALSE);
 
 	/* Say something */
-	if (p_ptr->tim.blind > 0)
+	if (query_timed(TIMED_BLIND) > 0)
 		msgf ("You hear several monsters appear nearby.");
 	else
 		msgf ("There is a bright flash of light!");
@@ -3240,35 +3242,35 @@ void update_smart_learn(int m_idx, int what)
 		case DRS_ACID:
 		{
 			if (FLAG(p_ptr, TR_RES_ACID)) m_ptr->smart |= (SM_RES_ACID);
-			if (p_ptr->tim.oppose_acid) m_ptr->smart |= (SM_OPP_ACID);
+			if (query_timed(TIMED_OPPOSE_ACID)) m_ptr->smart |= (SM_OPP_ACID);
 			if (FLAG(p_ptr, TR_IM_ACID)) m_ptr->smart |= (SM_IMM_ACID);
 			break;
 		}
 		case DRS_ELEC:
 		{
 			if (FLAG(p_ptr, TR_RES_ELEC)) m_ptr->smart |= (SM_RES_ELEC);
-			if (p_ptr->tim.oppose_elec) m_ptr->smart |= (SM_OPP_ELEC);
+			if (query_timed(TIMED_OPPOSE_ELEC)) m_ptr->smart |= (SM_OPP_ELEC);
 			if (FLAG(p_ptr, TR_IM_ELEC)) m_ptr->smart |= (SM_IMM_ELEC);
 			break;
 		}
 		case DRS_FIRE:
 		{
 			if (FLAG(p_ptr, TR_RES_FIRE)) m_ptr->smart |= (SM_RES_FIRE);
-			if (p_ptr->tim.oppose_fire) m_ptr->smart |= (SM_OPP_FIRE);
+			if (query_timed(TIMED_OPPOSE_FIRE)) m_ptr->smart |= (SM_OPP_FIRE);
 			if (FLAG(p_ptr, TR_IM_FIRE)) m_ptr->smart |= (SM_IMM_FIRE);
 			break;
 		}
 		case DRS_COLD:
 		{
 			if (FLAG(p_ptr, TR_RES_COLD)) m_ptr->smart |= (SM_RES_COLD);
-			if (p_ptr->tim.oppose_cold) m_ptr->smart |= (SM_OPP_COLD);
+			if (query_timed(TIMED_OPPOSE_COLD)) m_ptr->smart |= (SM_OPP_COLD);
 			if (FLAG(p_ptr, TR_IM_COLD)) m_ptr->smart |= (SM_IMM_COLD);
 			break;
 		}
 		case DRS_POIS:
 		{
 			if (FLAG(p_ptr, TR_RES_POIS)) m_ptr->smart |= (SM_RES_POIS);
-			if (p_ptr->tim.oppose_pois) m_ptr->smart |= (SM_OPP_POIS);
+			if (query_timed(TIMED_OPPOSE_POIS)) m_ptr->smart |= (SM_OPP_POIS);
 			break;
 		}
 		case DRS_NETH:

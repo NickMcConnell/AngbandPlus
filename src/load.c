@@ -73,28 +73,6 @@ static u32b checksum;
 
 
 /*
- * The above function, adapted for Zangband
- */
-static bool z_older_than(byte x, byte y, byte z)
-{
-	/* Much older, or much more recent */
-	if (z_major < x) return (TRUE);
-	if (z_major > x) return (FALSE);
-
-	/* Distinctly older, or distinctly more recent */
-	if (z_minor < y) return (TRUE);
-	if (z_minor > y) return (FALSE);
-
-	/* Barely older, or barely more recent */
-	if (z_patch < z) return (TRUE);
-	if (z_patch > z) return (FALSE);
-
-	/* Identical versions */
-	return (FALSE);
-}
-
-
-/*
  * Hack -- Show information on the screen, one line at a time.
  *
  * Avoid the top two lines, to avoid interference with "msgf()".
@@ -662,6 +640,18 @@ static void rd_monster(monster_type *m_ptr)
 	{
 		rd_s16b(&m_ptr->hold_o_idx);
 	}
+
+	if (sf_version >= 57)
+	{
+		rd_byte(&m_ptr->silenced);
+		rd_byte(&m_ptr->imprisoned);
+	}
+	else
+	{
+		m_ptr->silenced = 0;
+		m_ptr->imprisoned = 0;
+	}
+
 }
 
 
@@ -1125,8 +1115,24 @@ static void rd_extra(void)
 	rd_byte(&p_ptr->rp.prace);
 	rd_byte(&p_ptr->rp.pclass);
 	rd_byte(&p_ptr->rp.psex);
-	rd_byte(&p_ptr->spell.r[0].realm);
-	rd_byte(&p_ptr->spell.r[1].realm);
+	rd_byte(&p_ptr->spell.realm[0]);
+	rd_byte(&p_ptr->spell.realm[1]);
+	if (sf_version >= 57)
+	{
+		for (i = 0; i < SPELL_LAYERS; i++)
+		{
+			rd_s16b(&p_ptr->spell_slots[i]);
+		}
+	}
+	else
+	{
+		/* Forgotten all spells, so assign spell_slots as in birth routine. */
+		for (i = 0; i < SPELL_LAYERS; i++)
+		{
+			p_ptr->spell_slots[i] =
+				magic_info[p_ptr->rp.pclass].max_spells[i];
+		}
+	}
 	rd_byte(&tmp8u);			/* oops */
 
 	/* Special Race/Class info */
@@ -1212,90 +1218,128 @@ static void rd_extra(void)
 	strip_bytes(2);
 
 	/* Read the flags */
-	strip_bytes(2);				/* Old "rest" */
-	rd_s16b(&p_ptr->tim.blind);
-	rd_s16b(&p_ptr->tim.paralyzed);
-	rd_s16b(&p_ptr->tim.confused);
-	rd_s16b(&p_ptr->food);
-	strip_bytes(4);				/* Old "food_digested" / "protection" */
-	rd_s16b(&p_ptr->energy);
-	rd_s16b(&p_ptr->tim.fast);
-	rd_s16b(&p_ptr->tim.slow);
-	rd_s16b(&p_ptr->tim.afraid);
-	rd_s16b(&p_ptr->tim.cut);
-	rd_s16b(&p_ptr->tim.stun);
-	rd_s16b(&p_ptr->tim.poisoned);
-	rd_s16b(&p_ptr->tim.image);
-	rd_s16b(&p_ptr->tim.protevil);
-	rd_s16b(&p_ptr->tim.invuln);
-	rd_s16b(&p_ptr->tim.hero);
-	rd_s16b(&p_ptr->tim.shero);
-	rd_s16b(&p_ptr->tim.shield);
-	rd_s16b(&p_ptr->tim.blessed);
-	rd_s16b(&p_ptr->tim.invis);
-	rd_s16b(&p_ptr->tim.word_recall);
-	rd_s16b(&p_ptr->see_infra);
-	rd_s16b(&p_ptr->tim.infra);
-	rd_s16b(&p_ptr->tim.oppose_fire);
-	rd_s16b(&p_ptr->tim.oppose_cold);
-	rd_s16b(&p_ptr->tim.oppose_acid);
-	rd_s16b(&p_ptr->tim.oppose_elec);
-	rd_s16b(&p_ptr->tim.oppose_pois);
-
-	/* Old savefiles do not have the following fields... */
-	if ((z_major == 2) && (z_minor == 0) && (z_patch == 6))
+	if (sf_version <= 56)
 	{
-		p_ptr->tim.esp = 0;
-		p_ptr->tim.wraith_form = 0;
-		p_ptr->tim.resist_magic = 0;
-		p_ptr->chaos_patron = get_chaos_patron();
-		p_ptr->muta1 = 0;
-		p_ptr->muta2 = 0;
-		p_ptr->muta3 = 0;
-		p_ptr->tim.oppose_conf = 0;
-		p_ptr->tim.oppose_blind = 0;
-		p_ptr->tim.etherealness = 0;
+		strip_bytes(2);				/* Old "rest" */
+		rd_s16b(&p_ptr->tim.blind);
+		rd_s16b(&p_ptr->tim.paralyzed);
+		rd_s16b(&p_ptr->tim.confused);
+		rd_s16b(&p_ptr->food);
+		strip_bytes(4);				/* Old "food_digested" / "protection" */
+		rd_s16b(&p_ptr->energy);
+		rd_s16b(&p_ptr->tim.fast);
+		rd_s16b(&p_ptr->tim.slow);
+		rd_s16b(&p_ptr->tim.afraid);
+		rd_s16b(&p_ptr->tim.cut);
+		rd_s16b(&p_ptr->tim.stun);
+		rd_s16b(&p_ptr->tim.poisoned);
+		rd_s16b(&p_ptr->tim.image);
+		rd_s16b(&p_ptr->tim.protevil);
+		rd_s16b(&p_ptr->tim.invuln);
+		rd_s16b(&p_ptr->tim.hero);
+		rd_s16b(&p_ptr->tim.shero);
+		rd_s16b(&p_ptr->tim.shield);
+		rd_s16b(&p_ptr->tim.blessed);
+		rd_s16b(&p_ptr->tim.see_invis);
+		rd_s16b(&p_ptr->tim.word_recall);
+		rd_s16b(&p_ptr->see_infra);
+		rd_s16b(&p_ptr->tim.infra);
+		rd_s16b(&p_ptr->tim.oppose_fire);
+		rd_s16b(&p_ptr->tim.oppose_cold);
+		rd_s16b(&p_ptr->tim.oppose_acid);
+		rd_s16b(&p_ptr->tim.oppose_elec);
+		rd_s16b(&p_ptr->tim.oppose_pois);
 
-		get_virtues();
+		/* Old savefiles do not have the following fields... */
+		if ((z_major == 2) && (z_minor == 0) && (z_patch == 6))
+		{
+			p_ptr->tim.esp = 0;
+			p_ptr->tim.wraith_form = 0;
+			p_ptr->tim.resist_magic = 0;
+			p_ptr->chaos_patron = get_chaos_patron();
+			p_ptr->muta1 = 0;
+			p_ptr->muta2 = 0;
+			p_ptr->muta3 = 0;
+			p_ptr->tim.oppose_conf = 0;
+			p_ptr->tim.oppose_blind = 0;
+			p_ptr->tim.etherealness = 0;
+
+			get_virtues();
+		}
+		else
+		{
+			rd_s16b(&p_ptr->tim.oppose_conf);
+			rd_s16b(&p_ptr->tim.oppose_blind);
+			rd_s16b(&p_ptr->tim.etherealness);
+			rd_s16b(&p_ptr->tim.esp);
+			rd_s16b(&p_ptr->tim.wraith_form);
+			rd_s16b(&p_ptr->tim.resist_magic);
+			if (sf_version < 32)
+			{
+				/* Ignore unused counters */
+				strip_bytes(16);
+			}
+			rd_s16b(&p_ptr->chaos_patron);
+			rd_u32b(&p_ptr->muta1);
+			rd_u32b(&p_ptr->muta2);
+			rd_u32b(&p_ptr->muta3);
+
+			if (sf_version < 5)
+			{
+				get_virtues();
+			}
+			else
+			{
+				for (i = 0; i < MAX_PLAYER_VIRTUES; i++)
+				{
+					rd_s16b(&p_ptr->virtues[i]);
+				}
+
+				for (i = 0; i < MAX_PLAYER_VIRTUES; i++)
+				{
+					rd_s16b(&p_ptr->vir_types[i]);
+				}
+			}
+		}
 	}
 	else
 	{
-		rd_s16b(&p_ptr->tim.oppose_conf);
-		rd_s16b(&p_ptr->tim.oppose_blind);
-		rd_s16b(&p_ptr->tim.etherealness);
-		rd_s16b(&p_ptr->tim.esp);
-		rd_s16b(&p_ptr->tim.wraith_form);
-		rd_s16b(&p_ptr->tim.resist_magic);
-		if (sf_version < 32)
-		{
-			/* Ignore unused counters */
-			strip_bytes(16);
-		}
+		rd_s16b(&p_ptr->food);
+		rd_s16b(&p_ptr->energy);
+		rd_s16b(&p_ptr->see_infra);
 		rd_s16b(&p_ptr->chaos_patron);
 		rd_u32b(&p_ptr->muta1);
 		rd_u32b(&p_ptr->muta2);
 		rd_u32b(&p_ptr->muta3);
 
-		if (sf_version < 5)
+		for (i = 0; i < MAX_TIMED_RESERVED; i++)
 		{
-			get_virtues();
-		}
-		else
-		{
-			for (i = 0; i < MAX_PLAYER_VIRTUES; i++)
+			s16b *tim_ptr;
+
+			if (i >= MAX_TIMED)
 			{
-				rd_s16b(&p_ptr->virtues[i]);
+				strip_bytes(2);
+				continue;
 			}
 
-			for (i = 0; i < MAX_PLAYER_VIRTUES; i++)
-			{
-				rd_s16b(&p_ptr->vir_types[i]);
-			}
+			tim_ptr = get_timed_ptr(i);
+			if (!tim_ptr) strip_bytes(2);
+			else rd_s16b(tim_ptr);
+		}
+
+		for (i = 0; i < MAX_PLAYER_VIRTUES; i++)
+		{
+			rd_s16b(&p_ptr->virtues[i]);
+		}
+
+		for (i = 0; i < MAX_PLAYER_VIRTUES; i++)
+		{
+			rd_s16b(&p_ptr->vir_types[i]);
 		}
 	}
 
 	rd_byte(&p_ptr->state.confusing);
-	rd_byte(&tmp8u);			/* oops */
+	rd_byte(&p_ptr->state.lich);
 	rd_byte(&tmp8u);			/* oops */
 	rd_byte(&tmp8u);			/* oops */
 	rd_byte((byte *)&p_ptr->state.searching);
@@ -1756,174 +1800,6 @@ static void load_map(int xmin, int ymin, int xmax, int ymax)
 
 
 /*
- * Strip old dungeon or wilderness map from the savefile
- */
-static void strip_map(int xmin, int ymin, int xmax, int ymax)
-{
-	int i, y, x;
-	byte count;
-	byte tmp8u;
-	s16b tmp16s;
-
-	/*** Run length decoding ***/
-
-	/* Load the dungeon data */
-	for (x = xmin, y = ymin; y < ymax;)
-	{
-		/* Grab RLE info */
-		rd_byte(&count);
-		rd_byte(&tmp8u);
-
-		/* Apply the RLE info */
-		for (i = count; i > 0; i--)
-		{
-			/* Advance/Wrap */
-			if (++x >= xmax)
-			{
-				/* Wrap */
-				x = xmin;
-
-				/* Advance/Wrap */
-				if (++y >= ymax) break;
-			}
-		}
-	}
-
-
-	/*** Run length decoding ***/
-
-	/* Load the dungeon data */
-	for (x = xmin, y = ymin; y < ymax;)
-	{
-		/* Grab RLE info */
-		rd_byte(&count);
-		rd_byte(&tmp8u);
-
-		/* Apply the RLE info */
-		for (i = count; i > 0; i--)
-		{
-			/* Advance/Wrap */
-			if (++x >= xmax)
-			{
-				/* Wrap */
-				x = xmin;
-
-				/* Advance/Wrap */
-				if (++y >= ymax) break;
-			}
-		}
-	}
-
-	if (sf_version > 26)
-	{
-		/* Load the dungeon data */
-		for (x = xmin, y = ymin; y < ymax;)
-		{
-			/* Grab RLE info */
-			rd_byte(&count);
-			rd_byte(&tmp8u);
-
-			/* Apply the RLE info */
-			for (i = count; i > 0; i--)
-			{
-				/* Advance/Wrap */
-				if (++x >= xmax)
-				{
-					/* Wrap */
-					x = xmin;
-
-					/* Advance/Wrap */
-					if (++y >= ymax) break;
-				}
-			}
-		}
-	}
-
-	if (sf_version > 28)
-	{
-		/* Load the dungeon data */
-		for (x = xmin, y = ymin; y < ymax;)
-		{
-			/* Grab RLE info */
-			rd_byte(&count);
-			rd_byte(&tmp8u);
-
-			/* Apply the RLE info */
-			for (i = count; i > 0; i--)
-			{
-				/* Advance/Wrap */
-				if (++x >= xmax)
-				{
-					/* Wrap */
-					x = xmin;
-
-					/* Advance/Wrap */
-					if (++y >= ymax) break;
-				}
-			}
-		}
-	}
-
-
-	if (sf_version < 29)
-	{
-		/*** Run length decoding ***/
-
-		/* Load the dungeon data */
-		for (x = xmin, y = ymin; y < ymax;)
-		{
-			/* Grab RLE info */
-			rd_byte(&count);
-			rd_byte(&tmp8u);
-
-			/* Apply the RLE info */
-			for (i = count; i > 0; i--)
-			{
-
-				/* Advance/Wrap */
-				if (++x >= xmax)
-				{
-					/* Wrap */
-					x = xmin;
-
-					/* Advance/Wrap */
-					if (++y >= ymax) break;
-				}
-			}
-		}
-	}
-
-	/*** Run length decoding ***/
-
-	/* This isn't stored in later versions. */
-	if (sf_version < 15)
-	{
-		/* Load the dungeon data */
-		for (x = xmin, y = ymin; y < ymax;)
-		{
-			/* Grab RLE info */
-			rd_byte(&count);
-			rd_s16b(&tmp16s);
-
-			/* Apply the RLE info */
-			for (i = count; i > 0; i--)
-			{
-				/* Advance/Wrap */
-				if (++x >= xmax)
-				{
-					/* Wrap */
-					x = xmin;
-
-					/* Advance/Wrap */
-					if (++y >= ymax) break;
-				}
-			}
-		}
-	}
-}
-
-
-/*
  * Size of the wilderness to load
  */
 static s32b wild_x_size;
@@ -2016,6 +1892,7 @@ static errr rd_dungeon(void)
 	int wid, hgt;
 	u16b limit;
 	cave_type *c_ptr;
+	monster_race *r_ptr;
 
 	bool ignore_stuff = FALSE;
 
@@ -2195,8 +2072,6 @@ static errr rd_dungeon(void)
 
 		monster_type *m_ptr;
 
-		monster_race *r_ptr;
-
 		/* Get a new record */
 		m_idx = m_pop();
 
@@ -2243,6 +2118,37 @@ static errr rd_dungeon(void)
 			/* Count monsters */
 			m_cnt--;
 		}
+	}
+
+	/* Dump info about the player clone */
+	if (sf_version >= 57)
+	{
+	    r_ptr = &r_info[QW_CLONE];
+		rd_s16b(&r_ptr->hdice);
+		rd_s16b(&r_ptr->hside);
+		rd_s16b(&r_ptr->ac);
+		rd_s16b(&r_ptr->sleep);
+		rd_byte(&r_ptr->aaf);
+		rd_byte(&r_ptr->speed);
+		rd_byte(&r_ptr->freq_inate);
+		rd_byte(&r_ptr->freq_spell);
+
+		for (i = 0; i < 9; i++)
+		{
+			rd_u32b(&r_ptr->flags[i]);
+		}
+
+		for (i = 0; i < 4; i++)
+		{
+			rd_byte(&r_ptr->blow[i].method);
+			rd_byte(&r_ptr->blow[i].effect);
+			rd_byte(&r_ptr->blow[i].d_dice);
+			rd_byte(&r_ptr->blow[i].d_side);
+		}
+	}
+	else
+	{
+		create_clone(FALSE);
 	}
 
 	rd_checksum("Current dungeon: monster info");
@@ -2535,193 +2441,47 @@ static void rd_quests(int max_quests)
 					refresh_quest_stair(pl_ptr);
 				}
 			}
+
+			/* Avoid lvl 0 dungeon quests */
+			if (q_ptr->type == QUEST_TYPE_DUNGEON && q_ptr->data.dun.level == 0)
+				q_ptr->data.dun.level++;
+
+			/* Avoid lvl >= 100 in quests */
+			if (q_ptr->type == QUEST_TYPE_FIXED_CLEAROUT ||
+				q_ptr->type == QUEST_TYPE_FIXED_DEN)
+			{
+				byte *n = (q_ptr->type == QUEST_TYPE_FIXED_CLEAROUT ? &q_ptr->data.fix.data.clearout.levels :
+												&q_ptr->data.fix.data.den.levels);
+
+				if (q_ptr->data.fix.min_level > 99)
+					q_ptr->data.fix.min_level = 99;
+
+				if (q_ptr->data.fix.min_level + *n > 100)
+					*n = 100 - q_ptr->data.fix.min_level;
+
+				if (q_ptr->data.fix.min_level == 0)
+					q_ptr->data.fix.min_level = 1;
+
+				/* Check if the quest is now complete, just in case */
+				if ((q_ptr->type == QUEST_TYPE_FIXED_CLEAROUT ? q_ptr->data.fix.data.clearout.cleared :
+						q_ptr->data.fix.data.den.cleared) >= *n)
+				{
+					if (q_ptr->status <= QUEST_STATUS_TAKEN)
+						q_ptr->status = QUEST_STATUS_FINISHED;
+				}
+			}
 		}
 	}
 }
 
 static void convert_spells(void)
 {
-	int use_realm1 = p_ptr->spell.r[0].realm;
-	int use_realm2 = p_ptr->spell.r[1].realm;
-	int i, j, r;
-
 	/* For earlier versions, no converting. */
-	if (sf_version < 54)
+	if (sf_version < 57)
 	{
-		msgf ("Warning: Spell knowledge may convert improperly.");
+		msgf ("Warning: You have forgotten all of your %s.",
+			mp_ptr->spell_book == TV_LIFE_BOOK ? "prayers" : "spells");
 		return;
-	}
-
-	if (sf_version == 54)
-	{
-		/* Conjuration changes */
-		if (use_realm1 == REALM_CONJ || use_realm2 == REALM_CONJ)
-		{
-			int shift = 0;
-			r = (use_realm1 == REALM_CONJ ? 0 : 1);
-
-			/* Move spells around.  An order that works is:
-				5 (Summon Phantom) replaces 6 (Magic Rope).
-				9 (Teleport Self) replaces 5.
-				11 (Summon Animals) replaces 9.
-				13 (Teleport Away) replaces 11.
-				14 (Summon Elemental) replaces 13.
-				12 (Dimension Door) replaces 10 (Web).
-				12 and 14 are reset completely. */
-			for (i = 0; i < 3; i ++)
-			{
-				u32b *m;
-
-				switch(i)
-				{
-					case 0:  m = &p_ptr->spell.r[r].learned; break;
-					case 1:  m = &p_ptr->spell.r[r].worked;  break;
-					case 2:  m = &p_ptr->spell.r[r].forgotten; break;
-				}
-
-				if (*m & (1L << 5))
-					*m |= (1L << 6);
-				else
-					*m &= ~(1L << 6);
-
-				if (*m & (1L << 9))
-					*m |= (1L << 5);
-				else
-					*m &= ~(1L << 5);
-
-				if (*m & (1L << 11))
-					*m |= (1L << 9);
-				else
-					*m &= ~(1L << 9);
-
-				if (*m & (1L << 13))
-					*m |= (1L << 11);
-				else
-					*m &= ~(1L << 11);
-
-				if (*m & (1L << 14))
-					*m |= (1L << 13);
-				else
-					*m &= ~(1L << 13);
-
-				if (*m & (1L << 12))
-					*m |= (1L << 10);
-				else
-					*m &= ~(1L << 10);
-
-				*m &= ~((1L << 12) | (1L << 14));
-			}
-
-			/* Change r into an offset */
-			r = (r ? 32 : 0);
-
-			/* Convert spell order */
-			for (i = 0; i < PY_MAX_SPELLS; i++)
-			{
-				switch (p_ptr->spell.order[i] - r)
-				{
-					case 5:
-						p_ptr->spell.order[i] = 6 + r;
-						break;
-					case 9:
-						p_ptr->spell.order[i] = 5 + r;
-						break;
-					case 11:
-						p_ptr->spell.order[i] = 9 + r;
-						break;
-					case 13:
-						p_ptr->spell.order[i] = 11 + r;
-						break;
-					case 14:
-						p_ptr->spell.order[i] = 13 + r;
-						break;
-					case 12:
-						p_ptr->spell.order[i] = 10 + r;
-						break;
-					case 6:
-					case 10:
-						p_ptr->spell.order[i] = 99;
-						shift++;
-						break;
-				}
-			}
-
-			/* Shift away empty slots */
-			/* This is bubblesort, but we know in advance how many passes to make. */
-			for (i = 0; i < shift; i++)
-			{
-				for (j = 0; j < PY_MAX_SPELLS - 1; j++)
-				{
-					if (p_ptr->spell.order[j] == 99 && p_ptr->spell.order[j+1] != 99)
-					{
-						p_ptr->spell.order[j] = p_ptr->spell.order[j+1];
-						p_ptr->spell.order[j+1] = 99;
-					}
-				}
-			}
-
-
-		}
-
-		/* Sorcery changes */
-		if (use_realm1 == REALM_SORCERY || use_realm2 == REALM_SORCERY)
-		{
-			r = (use_realm1 == REALM_SORCERY ? 0 : 1);
-
-			/* Move spells around.  An order that works is:
-				Save status of spell 9 (Identify)
-				Spell 10 (Charm monster) replaces spell 9.
-				Spell 11 (Mass sleep) replaces spell 10.
-				Spell 9 buffer (Identify) replaces spell 11. */
-			for (i = 0; i < 3; i ++)
-			{
-				u32b *m;
-				bool cycle;
-
-				switch(i)
-				{
-					case 0:  m = &p_ptr->spell.r[r].learned; break;
-					case 1:  m = &p_ptr->spell.r[r].worked;  break;
-					case 2:  m = &p_ptr->spell.r[r].forgotten; break;
-				}
-
-				cycle = (*m & (1L << 9) ? TRUE : FALSE);
-
-				if (*m & (1L << 10))
-					*m |= (1L << 9);
-				else
-					*m &= ~(1L << 9);
-
-				if (*m & (1L << 11))
-					*m |= (1L << 10);
-				else
-					*m &= ~(1L << 10);
-
-				if (cycle)
-					*m |= (1L << 11);
-				else
-					*m &= ~(1L << 11);
-			}
-			/* Change r into an offset */
-			r = (r ? 32 : 0);
-
-			/* Convert spell order */
-			for (i = 0; i < PY_MAX_SPELLS; i++)
-			{
-				switch (p_ptr->spell.order[i] - r)
-				{
-					case 9:
-						p_ptr->spell.order[i] = 11 + r;
-						break;
-					case 10:
-						p_ptr->spell.order[i] = 9 + r;
-						break;
-					case 11:
-						p_ptr->spell.order[i] = 10 + r;
-						break;
-				}
-			}
-		}
 	}
 }
 
@@ -2982,24 +2742,43 @@ static errr rd_savefile_new_aux(void)
 	/* Important -- Initialize the magic */
 	mp_ptr = &magic_info[p_ptr->rp.pclass];
 
-
 	/* Read spell info */
-	rd_u32b(&p_ptr->spell.r[0].learned);
-	rd_u32b(&p_ptr->spell.r[1].learned);
-	rd_u32b(&p_ptr->spell.r[0].worked);
-	rd_u32b(&p_ptr->spell.r[1].worked);
-	rd_u32b(&p_ptr->spell.r[0].forgotten);
-	rd_u32b(&p_ptr->spell.r[1].forgotten);
-
-	for (i = 0; i < PY_MAX_SPELLS; i++)
+	if (sf_version <= 56)
 	{
-		rd_byte(&p_ptr->spell.order[i]);
+		strip_bytes(24);
+		strip_bytes(PY_MAX_SPELLS_OLD);
+
+	}
+	else
+	{
+		rd_byte(&p_ptr->spell.spell_max);
+
+		for (i = 0; i < PY_MAX_SPELLS; i++)
+		{
+			rd_byte(&p_ptr->spell.data[i].s_idx);
+			rd_byte(&p_ptr->spell.data[i].realm);
+			rd_byte(&p_ptr->spell.data[i].focus);
+			rd_byte(&p_ptr->spell.data[i].flags);
+
+			for (j = 0; j < NUM_SPELLS; j++)
+			{
+				/* Find the "external" spell numbers */
+				if (s_info[p_ptr->spell.realm[0]-1][j].s_idx ==
+					p_ptr->spell.data[i].s_idx &&
+					s_info[p_ptr->spell.realm[0]-1][j].realm ==
+					p_ptr->spell.data[i].realm)
+						p_ptr->spell.data[i].spell[0] = j;
+				if (s_info[p_ptr->spell.realm[1]-1][j].s_idx ==
+					p_ptr->spell.data[i].s_idx &&
+					s_info[p_ptr->spell.realm[1]-1][j].realm ==
+					p_ptr->spell.data[i].realm)
+						p_ptr->spell.data[i].spell[1] = j;
+			}
+		}
 	}
 
 	/* Convert spells that changed */
-	if (sf_version <= 54)
-		convert_spells();
-
+	convert_spells();
 
 	/* Checksum */
 	rd_checksum ("Hit point and spell info");

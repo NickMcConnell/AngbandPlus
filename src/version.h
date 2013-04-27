@@ -9,8 +9,8 @@
 
 /* User-visible version */
 #define VER_MAJOR 0
-#define VER_MINOR 2
-#define VER_PATCH 3
+#define VER_MINOR 3
+#define VER_PATCH 0
 #define VER_EXTRA 0
 
 /* Versions after release */

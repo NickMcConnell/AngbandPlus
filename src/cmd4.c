@@ -3105,6 +3105,7 @@ void do_cmd_feeling(void)
 	if (p_ptr->depth && current_quest)
 	{
 		msgf("Looks like a typical quest.");
+		return;
 	}
 
 	/* Display the feeling */
@@ -3525,7 +3526,7 @@ void plural_aux(char *name)
 	}
 
 	/* Find the appropriate plural */
-	for (i = 0;; i += 2)
+	for (i = 0; i <= 40; i += 2)
 	{
 		if ((len >= (int)strlen(plural_table[i])) &&
 			streq(buf + len - strlen(plural_table[i]), plural_table[i]))
@@ -3780,6 +3781,156 @@ static bool do_cmd_knowledge_kill_count(int dummy)
 
 	/* Display the file contents */
 	(void)show_file(file_name, "Kill Count", 0, 0);
+
+	/* Remove the file */
+	(void)fd_kill(file_name);
+
+	return (FALSE);
+}
+
+void do_cmd_knowledge_spells_aux(FILE *fff, int realm, bool color)
+{
+	int sval, lev;
+	bool found;
+	cptr a = CLR_DEFAULT;
+
+	spell_external sp;
+
+	sp.r = realm;
+
+	switch (realm+1)
+	{
+		case REALM_LIFE:
+			a = CLR_WHITE;
+			break;
+		case REALM_SORCERY:
+			a = CLR_L_BLUE;
+			break;
+		case REALM_NATURE:
+			a = CLR_L_GREEN;
+			break;
+		case REALM_CHAOS:
+			a = CLR_RED;
+			break;
+		case REALM_DEATH:
+			a = CLR_SLATE;
+			break;
+		case REALM_CONJ:
+			a = CLR_L_UMBER;
+			break;
+		case REALM_ARCANE:
+			a = CLR_L_WHITE;
+			break;
+		case REALM_ILLUSION:
+			a = CLR_VIOLET;
+			break;
+	}
+
+	for (sval = 0; sval < 4; sval++)
+	{
+		found = FALSE;
+
+		/* Any spells in this book? */
+		for (sp.s = 0; sp.s < NUM_SPELLS; sp.s++)
+		{
+			if (s_info[sp.r][sp.s].sval != sval)
+				continue;
+
+			if (spell_level(sp))
+			{
+				found = TRUE;
+				break;
+			}
+		}
+
+		if (!found) continue;
+
+		froff(fff, "Book %d:                        Cost    Fail%%   Power%%\n", sval+1);
+		froff(fff, "--------------------------------------------------------\n");
+
+		for (sp.s = 0; sp.s < NUM_SPELLS; sp.s++)
+		{
+			if (s_info[sp.r][sp.s].sval != sval)
+				continue;
+
+			lev = spell_level(sp);
+
+			if (!lev)
+				continue;
+
+			if (color) froff (fff, "%s", a);
+			froff(fff, "%-28s   %4d    %4d%%    %4d%%  %s%s\n", spell_name(sp),
+					spell_mana(sp), spell_chance(sp), spell_power(sp),
+					((lev > 1 && color) ? focus_learned_color[lev] : ""),
+					(lev > 1 ? focus_learned[lev] : ""));
+		}
+
+		froff(fff, "\n\n");
+	}
+}
+
+
+/*
+ * Detailed spell information
+ */
+static bool do_cmd_knowledge_spells(int dummy)
+{
+	FILE *fff;
+
+	char file_name[1024];
+
+	int i;
+
+	/* Hack - ignore parameter */
+	(void) dummy;
+
+	/* Paranoia */
+	if (!p_ptr->spell.realm[0])
+	{
+		msgf ("You can't cast spells!");
+		return (FALSE);
+	}
+
+	/* Open a temporary file */
+	fff = my_fopen_temp(file_name, 1024);
+
+	/* Failure */
+	if (!fff)
+	{
+		return (FALSE);
+	}
+
+	/* Basic info */
+	froff(fff, "You have learned %d spells and/or improvements.\n\n", p_ptr->spell.spell_max);
+
+	for (i = 0; i < SPELL_LAYERS; i++)
+	{
+		froff(fff, "You have %d tier-%d slot%s (levels %d-%d) remaining.\n", p_ptr->spell_slots[i], i+1,
+			(p_ptr->spell_slots[i] != 1 ? "s" : ""), mp_ptr->spell_first,
+			MIN(((i+1)*(PY_MAX_LEVEL/SPELL_LAYERS))+mp_ptr->spell_first-1,PY_MAX_LEVEL));
+	}
+
+	froff(fff, "\n\n");
+	froff(fff, "%s Magic:\n\n", realm_names[p_ptr->spell.realm[0]]);
+
+	/* Realm 1 spells */
+	do_cmd_knowledge_spells_aux(fff, p_ptr->spell.realm[0]-1, TRUE);
+
+	if (p_ptr->spell.realm[1])
+	{
+
+		froff(fff, "\n\n");
+		froff(fff, "%s Magic: \n\n", realm_names[p_ptr->spell.realm[1]]);
+
+		/* Realm 2 spells */
+		do_cmd_knowledge_spells_aux(fff, p_ptr->spell.realm[1]-1, TRUE);
+	}
+
+	/* Close the file */
+	my_fclose(fff);
+
+	/* Display the file contents */
+	(void)show_file(file_name, "Spell knowledge", 0, 0);
 
 	/* Remove the file */
 	(void)fd_kill(file_name);
@@ -4230,6 +4381,16 @@ static bool do_cmd_knowledge_dungeon(int dummy)
 	/* Failure */
 	if (!fff) return (FALSE);
 
+
+	/* Mention current location */
+	if (!p_ptr->depth)
+		froff(fff, "You are currently outside.\n\n");
+	else if (place[p_ptr->place_num].type != PL_TOWN_OLD &&
+			place[p_ptr->place_num].type != PL_TOWN_FRACT &&
+			place[p_ptr->place_num].type != PL_DUNGEON)
+		froff(fff, "You are currently in a quest.\n\n");
+
+
 	/* Cycle through the places */
 	for (k = 1; k < place_count; k++)
 	{
@@ -4250,7 +4411,7 @@ static bool do_cmd_knowledge_dungeon(int dummy)
 
 
 /* Some gaps for options that should not show up always */
-static menu_type knowledge_menu[15] =
+static menu_type knowledge_menu[17] =
 {
 	{"Display known uniques", NULL, do_cmd_knowledge_uniques, MN_ACTIVE | MN_CLEAR},
 	{"Display known objects", NULL, do_cmd_knowledge_objects, MN_ACTIVE | MN_CLEAR},
@@ -4262,10 +4423,12 @@ static menu_type knowledge_menu[15] =
 	MENU_END,
 	MENU_END,
 	MENU_END,
+	MENU_END,
 	{"Display virtues", NULL, do_cmd_knowledge_virtues, MN_ACTIVE | MN_CLEAR},
 	{"Display notes", NULL, do_cmd_knowledge_notes, MN_ACTIVE | MN_CLEAR},
 	{"Display towns", NULL, do_cmd_knowledge_wild, MN_ACTIVE | MN_CLEAR},
 	{"Display dungeons", NULL, do_cmd_knowledge_dungeon, MN_ACTIVE | MN_CLEAR},
+	{"Display known spells", NULL, do_cmd_knowledge_spells, MN_ACTIVE | MN_CLEAR},
 	MENU_END
 };
 
@@ -4289,14 +4452,17 @@ void do_cmd_knowledge(void)
 	 */
 
 	/* Copy in the display notes */
-	if (take_notes) knowledge_menu[nr++] = knowledge_menu[11];
+	if (take_notes) knowledge_menu[nr++] = knowledge_menu[12];
 
 	/* Copy in the wilderness displays */
 	if (!vanilla_town)
 	{
-		knowledge_menu[nr++] = knowledge_menu[12];
 		knowledge_menu[nr++] = knowledge_menu[13];
+		knowledge_menu[nr++] = knowledge_menu[14];
 	}
+
+	if (p_ptr->spell.realm[0])
+		knowledge_menu[nr++] = knowledge_menu[15];
 
 	/* Display the menu */
 	display_menu(knowledge_menu, -1, FALSE, NULL, "Display current knowledge");
@@ -4305,7 +4471,7 @@ void do_cmd_knowledge(void)
 	for (; nr >= last_option; nr--)
 	{
 		/* menu item 14 contains a MENU_END */
-		knowledge_menu[nr] = knowledge_menu[14];
+		knowledge_menu[nr] = knowledge_menu[16];
 	}
 }
 
@@ -4369,7 +4535,7 @@ void do_cmd_time(void)
 
 	/* Message */
 	/* Find the path */
-	if (p_ptr->tim.image)
+	if (query_timed(TIMED_IMAGE))
 	{
 		msgf("You have no idea what time it is.");
 		path_make(buf, ANGBAND_DIR_FILE, "timefun.txt");

@@ -1,123 +1,64 @@
 
                     Z+Angband Official FAQ
 
-                       by Steven Fuerst
-                      svf@mssl.ucl.ac.uk
-
-                       April 2nd, 2000
-
-			modified by Mangojuice
+				by Mangojuice
 			mangojuice75@gmail.com
 
-                    September 12th, 2008
+                    September 23rd, 2008
 
 ==========================================================================
-1. About this FAQ
+Table of contents
 ==========================================================================
 
---------------------------------------------------------------------------
-1.1 Introduction
---------------------------------------------------------------------------
+1. General questions
+  1.1 What is Z+Angband?
+  1.2 On what computers can I play it?
+  1.3 Where can I download it?
 
-Z+Angband is a freeware roguelike computer roleplaying game,
-based on ZAngband, based on Angband. This document lists frequently
-asked questions and answers.
+2. Game-play questions
+  2.1 How to quests work in Z+Angband?
+  2.2 Where do I get a quest?
+  2.3 Do I have to do quests?
+  2.4 What else are guilds good for?
+  2.5 How come the potion of Cure Critical Wounds I just drank didn't 
+      cure my confusion?
+  2.6 Help!  I can't find this artifact I'm supposed to be questing for!
+  2.7 Where do I get my reward for clearing this Orc camp?
+  2.8 How do quivers work?
+  2.9 What does this item do?
+  2.10 What does this spell do?
+  2.11 What does this artifact do?
+  2.12 What does this monster do?
+  2.13 What magic realm(s) should I choose?
+  2.14 I just tried to learn a spell and I was warned that I am running 
+       out of "tier 1 slots."  What does that mean?
+  2.15 I accidentally tried to study a spell I already know, and the
+       game asked me if I want to "improve" it.  What does this mean?
+  2.16 How does the new magic system work for priests?
 
---------------------------------------------------------------------------
-1.2 Table of contents
---------------------------------------------------------------------------
-
-1. About this FAQ
-  1.1 Introduction
-  1.2 Table of contents
-  1.3 Where can I get this FAQ?
-
-2. General questions
-  2.1 What is Z+Angband?
-  2.2 On what computers can I play it?
-  2.3 Where can I download it?
-
-3. System-specific questions
-  3.1 DOS
-    3.1.1 Can I play it in the old ASCII-mode?
-    3.1.2 Can I use multiple savefiles?
-    3.1.3 Why uses the DOS version only 2/3 of the screen?
-  3.2 Windows 95/98/NT/XP
-    3.2.1 How do I run in the Windows version?
-    3.2.2 Why do I get an error message when I try to switch on
-          graphics?
-    3.2.3 Can I use graphics for some things but not others?
-  3.3 Unix
-    3.3.1 How do I change the number of terminals used?
-    3.3.2 How do I change the tileset used?
-
-4. Game-play questions
-  4.1 Artifacts
-    4.1.1 What does the artifact xyz do?
-    4.1.2 I've found an artifact, but it doesn't show up in the list of
-          known artifacts. Is that a bug?
-    4.1.3 I've found an artifact in a store, but I thought artifacts can
-          never appear there if not sold to the store. Is that a bug?
-    4.1.4 Why isn't there a list of 'seen' artifacts any more?
-  4.2 Monsters
-    4.2.1 I've found a 'Greater Hell Beast' that never does any damage to
-          me, and that seems to be immune to my attacks.  What is it?
-    4.2.2 These 'Greater Hell Beasts' annoy me.
-  4.3 Objects
-    4.3.1 What does a 'magical figurine' do?
-    4.3.2 What does a 'statue' do?
-    4.3.3 Why do I have a 'lantern of everburning' with a light radius
-          of one square?
-  4.4 Miscellaneous
-    4.4.1 What is an "anti-magic shell"?
-    4.4.2 What are virtues, and how can I affect them?
-    4.4.3 Why isn't there a staircase downwards on dungeon level 15?
-  4.5 Quests
-    4.5.1 What happened to the fixed quests after version 2.4.0?
-
-5. Other questions
-  5.1 Interface
-    5.1.1 Why can't I see my spells or missiles flying through the air?
-    5.1.2 What does the "(number / number)" on missiles mean?
-  5.2 Bugs
-    5.2.1 A monster "points at me and curses", and the game crashes!
-          What is going on?
-    5.2.1.1 Wait, I have version 2.1.0b and the game *still* crashes 
-            When a monster "points at me and curses"!
-
---------------------------------------------------------------------------
-1.3 Where can I get this FAQ?
---------------------------------------------------------------------------
-
-This FAQ is available in Z+Angband download packages, version 0.2.2 and
-later.  The Z+Angband website is at
-
-http://mangojuice75.googlepages.com/
 
 
 ==========================================================================
-2. General questions
+1. General questions
 ==========================================================================
 
 --------------------------------------------------------------------------
-2.1 What is Z+Angband?
+1.1 What is Z+Angband?
 --------------------------------------------------------------------------
 
-ZAngband is one of the many variants of the freeware roguelike
-computer roleplaying game Angband.
+Z+Angband is an unofficial further step in the development of ZAngband.
+ZAngband is a popular variant of the roguelike game Angband.
 
 --------------------------------------------------------------------------
-2.2 On what computers can I play it?
+1.2 On what computers can I play it?
 --------------------------------------------------------------------------
 
-ZAngband is available for many different systems, including
-MS-DOS, Windows, Macintosh, Amiga, OS/2, Acorn RISC OS,
-and the many different Unix-derivates including Linux.  Currently,
-however, the only executable download provided is for Windows; other
-versions can be compiled from the source code package.
+Z+Angband is available for Windows as a zipped package with an executable.
+Source code packages are available with ports to many other operating
+systems, including Unix and MAC.  
 
 --------------------------------------------------------------------------
-2.3 Where can I download it?
+1.3 Where can I download it?
 --------------------------------------------------------------------------
 
 The newest version of Z+Angband is always available from the Z+Angband
@@ -127,300 +68,301 @@ http://mangojuice75.googlepages.com/
 
 
 ==========================================================================
-3. System-specific questions
-==========================================================================
-
-
---------------------------------------------------------------------------
-3.1 DOS
---------------------------------------------------------------------------
-
---------------------------------------------------------------------------
-3.1.1 Can I play it in the old ASCII-mode?
---------------------------------------------------------------------------
-
-Yes, you can. The old IBM-mode is included in the DOS version and can
-be activated with the '-mibm' option. Just run ZAngband with
-'ZAngband.exe -mibm' to switch it on.
-
---------------------------------------------------------------------------
-3.1.2 Can I use multiple savefiles?
---------------------------------------------------------------------------
-
-Yes, you can. Run Z+Angband with the -u<name> option. For example:
-'z+angband.exe -uFred' loads the character called Fred. If no
-savefile called 'Fred' is found then a new one is created. To use
-another character just run ZAngband with a different name.
-
---------------------------------------------------------------------------
-3.1.3 Why uses the DOS version only 2/3 of the screen?
---------------------------------------------------------------------------
-
-The lower part of the screen is used for displaying two extra windows
-with additional information. To activate this feature, press '=' to
-access the ZAngband options, then press 'W' to enter the 'Window
-Flags' section. Now you can assign various informations to the two
-special windows lower part of the screen. Move the cursor to the
-'Mirror' column and switch on one of the options with the 'y' key.
-A good choice is the 'Display messages' option. Now move to the
-'Recall' column and select another option (for example 'Display
-inven/equip'). Now press the ESCAPE key two times to leave the
-options menu and press Ctrl-R to redraw the screen.
-
-
---------------------------------------------------------------------------
-3.2 Windows
---------------------------------------------------------------------------
-
---------------------------------------------------------------------------
-3.2.1 How do I run with the numeric keypad in the Windows version?
---------------------------------------------------------------------------
-
-Press the Num-Lock key to switch off Num-Lock mode. Now you should be
-able to run when pressing Shift and a key of the numeric keypad.
-
---------------------------------------------------------------------------
-3.2.2 Why do I get an error message when I try to switch on graphics?
---------------------------------------------------------------------------
-
-The 'Unusable bitmap palette (255 entries) - Could not initialize
-graphics' error means that you tried to use graphics with a desktop
-set to 256 colors. Switch to high-color or true-color mode to fix
-this problem.
-
---------------------------------------------------------------------------
-3.2.2 The screen isn't refreshing properly when I move around,
-	  how can I fix this?
---------------------------------------------------------------------------
-
-Try toggling the "bizzare display" option.  This seems to affect windows
-XP systems mostly.
-
-
---------------------------------------------------------------------------
-3.2 Unix
---------------------------------------------------------------------------
-
---------------------------------------------------------------------------
-3.2.1 How do I change the number of terminals used?
---------------------------------------------------------------------------
-
-Start the game with the '-- -n#' command-line option, with the '#' as
-the number of terminals you want (up to eight).  Start the game with 
-'-?' to get a list of all command-line options.
-
---------------------------------------------------------------------------
-3.2.2 How do I change the tileset used?
---------------------------------------------------------------------------
-
-Start the game with the '-g' command-line option to get graphics.  You
-can then use the '-b' option to pick the tileset.  '-b8' picks the
-old 8x8 tileset.  '-b16' picks the newer Adam Bolt 16x16 tileset.
-If you use the gtk port, then you can alter the tileset used while the
-game is running via the Options:graphics menu.  You can also toggle
-the use of graphics or transparency through the same menu.
-
---------------------------------------------------------------------------
-3.2.3 Can I use graphics for some things but not others?
---------------------------------------------------------------------------
-
-Packages are provided that allow you to use the old 8x8 tileset but only
-for boring features like walls, or walls and floors.  In the lib/pref 
-folder are the files you need.  graf-winhack.prf sets the 8x8 tileset up
-to use graphics only for walls and floor, while graf-winhack2.prf sets the
-8x8 tileset up to use graphics only for walls.  To use them:
-1.  Delete graf-win.prf
-2.  Rename the graf-winhack.prf (or graf-winhack2.prf) file to "graf-win.prf".
-3.  Run the game, and select the 8x8 tileset.
-
-
-==========================================================================
-4. Game-play questions
-==========================================================================
-
-
---------------------------------------------------------------------------
-4.1 Artifacts
---------------------------------------------------------------------------
-
---------------------------------------------------------------------------
-4.1.1 What does the artifact xyz do?
---------------------------------------------------------------------------
-
-Most of the artifacts in ZAngband have some random features, and some
-are even completely random, so you have to find out what an artifact
-does by yourself. Try reading a scroll of *Identify* (the stars are
-important), or use 'Research item' service offered by some buildings
-in the towns. Many spellcasting classes get the *Identify* spell at
-higher levels. You can also sell artifacts to a store and buy it back
-immediatly, but this will cost you a lot of money.
-The powers of items that have been *Identified* or bought from stores
-can be displayed at any time with the 'I' command.
-
---------------------------------------------------------------------------
-4.1.2 I've found an artifact, but it doesn't show up in the list of
-      known artifacts. Is that a bug?
---------------------------------------------------------------------------
-
-No. You've found a 'random artifact'.  These kind of artifacts get
-random powers and names, and they are not displayed in the list of
-known artifacts. The random artifacts can be found in addition to the
-normal ones, and they may even appear in stores from time to time.
-
---------------------------------------------------------------------------
-4.1.3 I've found an artifact in a store, but I thought artifacts can
-never appear there if not sold to the store. Is that a bug?
---------------------------------------------------------------------------
-
-No. The store is selling a 'random artifact'.  See question 4.1.2.
-
---------------------------------------------------------------------------
-4.1.4 Why isn't there a list of 'seen' artifacts any more?
---------------------------------------------------------------------------
-
-With the preparation for the ability to add external mods to the game,
-it no longer is possible to track which artifacts the player has seen
-with any certainty.  With the addition of random artifacts, the list
-becomes even less useful.  So rather than have a buggy list that leaves
-out most artifacts the player sees, it has been removed.
-
-
---------------------------------------------------------------------------
-4.2 Monsters
---------------------------------------------------------------------------
-
---------------------------------------------------------------------------
-4.2.1 I've found a 'Greater Hell Beast' that never does any damage to
-      me, and that seems to be immune to my attacks.  What is it?
---------------------------------------------------------------------------
-
-The 'Greater Hell Beast' is a joke to scare all the veterans who know
-that an "U" is normally a very dangerous greater demon.  It appears
-very early and can't hurt you directly, but it's very annoying.
-The huge amount of hitpoints and the big armor-class make it nearly
-invincible and even if you manage to kill it, it's not worth the
-efforts.
-
---------------------------------------------------------------------------
-4.2.2 These 'Greater Hell Beasts' annoy me.
---------------------------------------------------------------------------
-
-In your next game, consider setting the "silly_monsters" option to "No", 
-which will disallow silly monsters (like the GHB) from appearing in your
-game.
-
---------------------------------------------------------------------------
-4.3 Objects
---------------------------------------------------------------------------
-
---------------------------------------------------------------------------
-4.3.1 What does a 'magical figurine' do?
---------------------------------------------------------------------------
-
-A figurine is a small magical replica of a monster from the dungeon.
-When a figurine is thrown, a pet of the figurine's monster type will be
-generated.
-
---------------------------------------------------------------------------
-4.3.2 What does a 'statue' do?
---------------------------------------------------------------------------
-
-Statues made of various materials can be found throughout the dungeon.
-Unlike figurines, they have no magical attributes but may be worth
-selling depending upon the material from which they are made.
-
---------------------------------------------------------------------------
-
-4.3.3 Why do I have a 'lantern of everburning' with a light radius
-	  of one square?
---------------------------------------------------------------------------
-
-Your lantern was zapped by a trap of darkness.  You can refuel it to
-make it glow at the normal rate again.
-
---------------------------------------------------------------------------
-4.4 Miscellaneous
---------------------------------------------------------------------------
-
---------------------------------------------------------------------------
-4.4.1 What is an "anti-magic shell"?
---------------------------------------------------------------------------
-
-An anti-magic shell around you prevents you from casting any spells and
-using mindcrafter powers.  It also increases your saving throw vs. spells
-to 95%, prevents the activation of some mutations, and helps against the
-draining effects of the Jewel of Judgement.
-
---------------------------------------------------------------------------
-4.4.2 What are virtues and how can I affect them?
---------------------------------------------------------------------------
-
-The game keeps track of lots of little things you do as a player.  These
-affect a series of 'virtues' that are internally represented as counters
-that are either increased or decreased depending on those actions.  The
-virtues will be shown to you when you quaff a potion of self-knowledge.
-They also can be accessed via a not-so-hidden option in the '~' menu.
-The virtues have no gameplay effect - they are just there to give you a
-hint at what type of playing style you have.  However, don't take them
-too seriously as they are very unbalanced.  It is almost impossible to
-stay on the good side of nature, for example, because of the huge number
-of 'natural' creatures on the first few levels of the dungeon.
-
---------------------------------------------------------------------------
-4.4.3 Why isn't there a staircase downwards on dungeon level 25?
---------------------------------------------------------------------------
-
-The town dungeons only go down to level 25 (1250').  You need to travel
-to a dungeon in the wilderness to go any deeper.  The wilderness dungeons
-have different types of monsters, rooms, and objects in the them.
-
---------------------------------------------------------------------------
-4.5 Quests
---------------------------------------------------------------------------
-
---------------------------------------------------------------------------
-4.4.1 What happend to the fixed quests after version 2.4.0?
---------------------------------------------------------------------------
-
-The fixed quests are slowly being rewritten to fit into the new
-wilderness.  Unfortunately, this turned out to be much harder than we
-thought, so towards the end of the 2.5.x development branch we realised
-we wouldn't get them done in time.  This meant that the  2.6.x stable
-branch was released without the old fixed quests, and only with the
-random dungeon quests.
-  During the 2.7.0 branch, the fixed quests will be replaced with
-'randomised fixed quests' to fit in with the random wilderness and
-dungeon.  The 'camp' quests are not an indication of what these will
-be like other than the fact that they are merged seamlessly with the
-wilderness.  (Those were just for testing purposes.)  The next stable
-branch will have the replacement quest framework.
-
-  The next stable branch, however, never seemed to arrive, which is why
-Z+Angband got started.  Z+Angband has quests that are in some ways like
-the fixed quests of the earlier versions of ZAngband, but are actually
-random.
-
-==========================================================================
-5. Other questions
+2. Game-play questions
 ==========================================================================
 
 --------------------------------------------------------------------------
-5.1 Interface
+2.1 How do quests work in Z+Angband?
 --------------------------------------------------------------------------
 
+One of the key components of Z+Angband is the addition of a wide variety
+of quests.  Quests are assigned to you when you visit a quest building;
+when you complete the quest, you return there to claim your reward.  Quests
+of many different types are used in Z+Angband; you may be asked to clear
+out a dangerous place, kill a certain number of specific enemies, find a
+specific artifact, deliver a message through the wilderness, or defend a 
+farm from monsters.
+
 --------------------------------------------------------------------------
-5.1.1 Why can't I see my spells or missiles flying through the air?
+2.2 Where do I get a quest? 
 --------------------------------------------------------------------------
 
-First change the "base delay factor" in the options menu to a higher
-setting.  A value of 4 (64 milli-seconds) displays the graphical effects
-nicely.  Also check that "Flush output before every command" in the
-Efficience Options menu is turned on.
+You need to visit a quest building.  These come in four different types.
+
+- Castles (also Keeps / Town Halls): There is one of these in each town.  
+  They send you on quests of all types, and reward you with stat bonuses,
+  gold, and experience.
+- Guilds: There are one or more guilds in many towns but not all.  Each 
+  different type of guild sends you on a certain subset of the types of 
+  quests (for instance, Cathedrals are likely to send you after undead 
+  enemies), and each guild gives different types of rewards.  All except
+  for Thieves' guilds give you treasure as part of your reward... not 
+  that it is always especially good, and all give you stat bonuses.
+- Couriers: These exist in some cities; they will send you on quests to
+  deliver a message to a building somewhere else in the wilderness.  
+  Couriers reward you exclusively with gold.
+- Farms: These are found outside of cities in some areas of the map, but
+  are not marked on your Wilderness map.  They will give you small rewards
+  for defending them against a group of monsters.
+
+In addition, Banks exist in the game that can give you loans; when you
+take out a loan, you get a quest to repay the loan.  
 
 --------------------------------------------------------------------------
-5.1.2 What does the "(number / number)" on missiles mean?
+2.3 Do I have to do quests? 
 --------------------------------------------------------------------------
 
-The first number shows the average damage done per shot, and the
-second shows the average damage done per round.  The two can differ
-because you can fire weapons faster or slower than one per round.
+No, but you do have to if you want to win the game.  The final quests
+to kill Oberon and the Serpent of Chaos don't show up until you finish 
+all the quests in one of the Castle buildings.  You don't have to be
+successful in all the quests to move past them, however.
+
+If you want a game without these quests, there is no current way to 
+turn them off in a normal game.  However, if you play in "vanilla_town"
+mode (or "ironman_downwards" mode), quests will be disabled.
+
+--------------------------------------------------------------------------
+2.4 What else are guilds good for? 
+--------------------------------------------------------------------------
+
+Guilds provide services to all.  However, members of each guild get 
+access to some extra services, and generally at lower prices than other
+classes.  Guild membership is based on your class, so you can't change it
+after the start of the game, with one exception: if you aren't a Thief, 
+you can join a Thieves' guild by completing a first quest for no other
+reward.  Some classes are members of more than one guild.  All classes 
+except for Mindcrafters are members of at least one.  
+
+Mages' Guilds sell spellbooks to members, give them a free place to rest
+overnight, and offer a wand/staff/rod recharging service.  For members,
+this service is precisely controlled; for others, it involves some risk
+of backfiring.
+
+Cathedrals are the home guilds of priests and paladins.  They offer 
+long-lasting blessings for small donations, and can restore drained stats
+for a price.  Cathedrals in towns with dungeons also provide a free 
+Word of Recall service to members.
+
+Warriors' Guilds help adventurers understand the damage potential of their
+weapons.  They also provide a free place to rest for members, and also 
+can repair members' damaged (but not cursed) armor for free.
+
+Thieves' Guilds offer no services to non-members, and offer object
+identification and full identification services to members.  In addition,
+actual Rogues can sleep there for free.
+
+Rangers' Guilds sell spellbooks to members, give them a free place to rest
+overnight, and have maps of the surrounding wilderness that members may
+use for free, and that others may pay to consult.
+
+--------------------------------------------------------------------------
+2.5 How come the potion of Cure Critical Wounds I just drank didn't
+    cure my confusion?
+--------------------------------------------------------------------------
+
+They no longer do that.  To cure confusion, look for potions of Curing,
+or Mushrooms of Cure Critical Wounds.  
+
+--------------------------------------------------------------------------
+2.6 Help!  I can't find this artifact I'm supposed to be questing for!
+--------------------------------------------------------------------------
+
+These quests are a little tricky but very doable, don't panic.  Make sure
+you are in the right dungeon.  Make sure you go down to a sufficient 
+depth (equal to the danger level of the quest).  The artifact should be on
+the floor somewhere.
+
+--------------------------------------------------------------------------
+2.7 Where do I get my reward for clearing this Orc camp?
+--------------------------------------------------------------------------
+
+Those quests are not granted in buildings, and you get no reward for
+completing them.  However, they typically have a bunch of treasure in
+them; that's your reward.
+
+--------------------------------------------------------------------------
+2.8 How do quivers work?
+--------------------------------------------------------------------------
+
+Z+Angband introduced quivers (alpha testing) in version 0.2.3.  Quivers 
+are "containers", a new class of objects that can contain other objects.
+You do not equip quivers.  Generally speaking, you should automatically
+stash missile weapons in a quiver when you have one, if there's room.  
+
+You can use the ammunition out of a quiver at no penalty.  However, be
+aware the quivers can themselves be destroyed by damage from fire or 
+acid; if this happens you may end up the ammo you can no longer carry
+without the container.  
+
+Most object-interaction commands will automatically let you choose a 
+container that contains objects you could select.  If you want to
+manually reorganize your stuff in containers, the best way is by using
+the "Organize" command ('O' in the original keyset, ^O in roguelike.)
+
+Currently, containers are only for shots, arrows, and bolts, and 
+empty quests do not become containers.
+
+--------------------------------------------------------------------------
+2.9 What does this item do? 
+--------------------------------------------------------------------------
+
+Use the 'I' command to inspect it.  Most basic items are thoroughly
+explained.  Some items, that "may have hidden powers," require full
+identification before you can be sure you have learned everything about
+them.  Look for a scroll of *Identify*, or a Thieves' Guild.  
+
+--------------------------------------------------------------------------
+2.10 What does this spell do? 
+--------------------------------------------------------------------------
+
+Use the 'b' (browse) command (or 'I') to look through your spellbook.
+You can select spells you are high enough level to learn and read a
+description of them.
+
+--------------------------------------------------------------------------
+2.11 What does this artifact do? 
+--------------------------------------------------------------------------
+
+It depends on the artifact.  Some artifacts in the game are randomly
+generated, and there's no way to say in advance what they will be
+capable of.  Others are fixed artifacts with specific abilities;
+spoiler lists exist for them, but if you want to consult them you'll
+have to locate them yourself.
+
+In the game, you can find what an artifact does by using s scroll of
+*Identify* or fully identifying it in a Thieves' guild.  Some magic
+realms can also cast the spell to reveal an object's powers.  You can 
+then use the 'I' command any time to remind yourself of an object's
+powers.
+
+--------------------------------------------------------------------------
+2.11 What does this monster do? 
+--------------------------------------------------------------------------
+
+As in other roguelikes, you learn about the abilities of monsters as
+you face them.  You can also go to a Library, if you can find one, and
+research a monster to learn detailed information about its abilities 
+for a price.
+
+--------------------------------------------------------------------------
+2.13 What magic realm(s) should I choose? 
+--------------------------------------------------------------------------
+
+It's up to you, each has its strengths and weaknesses.  Here's a brief
+summary; more can be learned through the help menu.
+
+Life Magic: Good at healing and buffing spells.  Decent damage potential,
+especially against evil.  Has detect traps, but otherwise little in the 
+way of information spells.  Virtually no escape spells.
+
+Sorcery Magic: Has excellent utility, escape, and information spells,
+and some protective magic.  However, Sorcery has no healing and no 
+damage spells whatsoever.
+
+Nature Magic: Fairly well-balanced overall.  It lacks a common identify
+spell, and has no low-level attack spells, and not much in the way of
+escape magic at all.  Has some healing and some protective magic.
+
+Arcane Magic: Great utility spells but many of the Arcane spells become
+obsolete later in the game, and it doesn't have any especially powerful
+spells.  On the plus side, all of its books are commonly found in 
+stores.
+
+Chaos Magic: A great variety of damage-dealing magic, and some utility
+spells that have a destructive flavor.  No informative or defensive magic
+at all.
+
+Conjuration Magic: Specializes in summoning spells and escapes, and also
+has a decent complement of low-level damage spells.  No information
+magic at all.
+
+Death Magic: Has a wide range of attack spells, with only a few utility
+spells. 
+
+Illusion Magic: Specializes in trickery and defensive spells. Has a
+medium level of information and offensive spells.
+
+--------------------------------------------------------------------------
+2.14 I just tried to learn a spell and I was warned that I am running
+     out of "tier 1 slots."  What does this mean? 
+--------------------------------------------------------------------------
+
+In Z+Angband 0.3.0 and later, the spell system has changed.  In
+previous versions, every character would eventually be able to learn
+every spell in their chosen realms (except for specific spells
+unavailable to specific classes).  Now, you have a limited number of
+spells you can learn, and must choose which spells to learn and which
+to pass up.  
+
+The "slots" you have for spells you can learn come in one of five
+"tiers," which correspond to various power levels of spells.  Tier 1
+spells are the ones you learn earliest in the game, Tier 2 spells
+after that, and so on.  Your Tier 1 slots are only good for Tier 1
+spells, but Tier 2 slots can be used for Tier 1 or Tier 2 spells, et
+cetera.  So your Tier 5 slots can be used for any spell in the game.  
+
+The game warns you when you are running low on a particular tier
+slots, and also warns you before allowing you to "downgrade" a slot by
+using it for a lower Tier of spell.  In many cases, especially when
+Arcane is one of your realms, downgrades may be fairly routine.  But
+for top-heavy schools like Death or Chaos, you may want to preserve
+your high-tier slots for high-level spells later on.  
+
+You can use the "spell knowledge" screen (use '~' to access knowledges)
+to see how many spell slots you have left in each tier, and what 
+spells you have learned so far.
+
+--------------------------------------------------------------------------
+2.15 I accidentally tried to study a spell I already know, and the 
+     game asked me if I want to "improve" it.  What does this mean?
+--------------------------------------------------------------------------
+
+An interesting feature of the Z+Angband magic system (after version
+0.3.0) is the ability to "focus" spells by learning them multiple
+times in exchange for bonuses.  When you learn a spell for the second
+time, it becomes "improved", for the third time, "specialized", and
+for the fourth time, "mastered."  The more you specialize a spell, the
+better your chances of successfully casting the spell, and the less
+mana it costs you.  Also, if the spell does something quantitative
+(like damage, duration, or healing), the quantity of its effect will
+be improved. 
+
+You should be aware that spell focus uses higher-tier slots than the
+spell itself.  Each class has a "focus offset" that determines the
+difference.  For mages and high mages, the offset is 7; for Warrior
+Mages, it is 8, and for Rangers, Chaos Warriors, and Rogues, the
+offset is 10.  Each time you focus a spell, you add another multiple
+of the offset to the spell's base level.  For instance, a Warrior Mage
+can first learn Mana Burst at level 11 which makes it a tier 2 spell.
+The spell can be improved at level 19, also a tier 2 spell.  It can be
+specialized at level 27, a tier 3 spell, and finally mastered at level
+35, a tier 4 spell. 
+
+Note that since the maximum player level is 50, there will be levels
+of focus for certain spells that are simply unattainable, especially
+for spells that start out as high level ones.
+
+--------------------------------------------------------------------------
+2.16 How does the new magic system work for priests?
+--------------------------------------------------------------------------
+
+In Angband and most variants, Priests, Paladins, and Monks learn
+spells ("prayers") randomly.  For such characters, the new magic
+system has one major drawback but there is some good news to balance
+it.  The big drawback is that since these characters can no longer
+eventually learn all the prayers in their realms, and they cannot
+control the prayers they learn, they may never get the chance to learn
+specific spells they may want.  However, some other changes have been
+made that keep this negative to a minimum.  
+
+First, these types of spellcasters cannot focus prayers.  This is a
+disadvantage in some ways, but it helps ensure that slots are not
+wasted.  Second, instead of learning one randomly chosen prayer when
+they study, these characters have two prayers selected for them.  If
+the two prayers are different, the player will have the chance to
+decline the first prayer if they don't want to learn it, and will then
+learn the second random prayer.  Third, the game knows about spells
+that are present in both of the player's realms: if you learn such a
+spell or prayer (both as a magic user or as a priestly spellcaster),
+you learn it in both realms simultaneously.  Fourth, these characters
+have had their experience scale adjusted.  

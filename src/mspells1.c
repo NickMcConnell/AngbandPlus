@@ -744,7 +744,7 @@ bool make_attack_spell(int m_idx)
 	int count = 0;
 
 	/* Extract the blind-ness */
-	bool blind = (p_ptr->tim.blind ? TRUE : FALSE);
+	bool blind = (query_timed(TIMED_BLIND) ? TRUE : FALSE);
 
 	/* Extract the "see-able-ness" */
 	bool seen = (!blind && m_ptr->ml);
@@ -886,6 +886,10 @@ bool make_attack_spell(int m_idx)
 		{
 			/* RF3_SHRIEK */
 			if (!direct) break;
+
+			/* Check for silence... */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			msgf("%^s makes a high pitched shriek.", m_name);
 			aggravate_monsters(m_idx);
@@ -914,7 +918,7 @@ bool make_attack_spell(int m_idx)
 
 		case 96 + 3:
 		{
-			/* RF3_XXX4X4 */
+			/* RF3_ROCKET */
 			disturb(TRUE);
 			if (blind) msgf("%^s shoots something.", m_name);
 			else
@@ -1266,6 +1270,8 @@ bool make_attack_spell(int m_idx)
 		case 128 + 0:
 		{
 			/* RF4_BA_ACID */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
@@ -1278,6 +1284,8 @@ bool make_attack_spell(int m_idx)
 		case 128 + 1:
 		{
 			/* RF4_BA_ELEC */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
@@ -1290,6 +1298,8 @@ bool make_attack_spell(int m_idx)
 		case 128 + 2:
 		{
 			/* RF4_BA_FIRE */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
@@ -1302,6 +1312,8 @@ bool make_attack_spell(int m_idx)
 		case 128 + 3:
 		{
 			/* RF4_BA_COLD */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
@@ -1314,6 +1326,8 @@ bool make_attack_spell(int m_idx)
 		case 128 + 4:
 		{
 			/* RF4_BA_POIS */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
@@ -1326,6 +1340,8 @@ bool make_attack_spell(int m_idx)
 		case 128 + 5:
 		{
 			/* RF4_BA_NETH */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
@@ -1337,6 +1353,8 @@ bool make_attack_spell(int m_idx)
 
 		case 128 + 6:
 		{
+			if (m_ptr->silenced) break;
+
 			/* RF4_BA_WATE */
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
@@ -1349,6 +1367,8 @@ bool make_attack_spell(int m_idx)
 
 		case 128 + 7:
 		{
+			if (m_ptr->silenced) break;
+
 			/* RF4_BA_MANA */
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles powerfully.", m_name);
@@ -1360,6 +1380,8 @@ bool make_attack_spell(int m_idx)
 
 		case 128 + 8:
 		{
+			if (m_ptr->silenced) break;
+
 			/* RF4_BA_DARK */
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles powerfully.", m_name);
@@ -1373,6 +1395,8 @@ bool make_attack_spell(int m_idx)
 		case 128 + 9:
 		{
 			/* RF4_DRAIN_MANA */
+			if (m_ptr->silenced) break;
+
 			if (!direct) break;
 			if (p_ptr->csp)
 			{
@@ -1433,6 +1457,8 @@ bool make_attack_spell(int m_idx)
 		case 128 + 10:
 		{
 			/* RF4_MIND_BLAST */
+			if (m_ptr->silenced) break;
+
 			if (!direct) break;
 			disturb(TRUE);
 			if (!seen)
@@ -1452,12 +1478,12 @@ bool make_attack_spell(int m_idx)
 			{
 				msgf("Your mind is blasted by psionic energy.");
 
-				if (!(FLAG(p_ptr, TR_RES_CONF)) && !p_ptr->tim.oppose_conf)
+				if (!(FLAG(p_ptr, TR_RES_CONF)) && !query_timed(TIMED_OPPOSE_CONF))
 				{
 					(void)inc_confused(rand_range(4, 8));
 				}
 
-				if (!(FLAG(p_ptr, TR_RES_CHAOS)) && !p_ptr->tim.oppose_conf && one_in_(3))
+				if (!(FLAG(p_ptr, TR_RES_CHAOS)) && !query_timed(TIMED_OPPOSE_CONF) && one_in_(3))
 				{
 					(void)inc_image(rand_range(150, 400));
 				}
@@ -1470,6 +1496,8 @@ bool make_attack_spell(int m_idx)
 		case 128 + 11:
 		{
 			/* RF4_BRAIN_SMASH */
+			if (m_ptr->silenced) break;
+
 			if (!direct) break;
 			disturb(TRUE);
 			if (!seen)
@@ -1489,11 +1517,11 @@ bool make_attack_spell(int m_idx)
 			{
 				msgf("Your mind is blasted by psionic energy.");
 				take_hit(damroll(12, 15), ddesc);
-				if (!(FLAG(p_ptr, TR_RES_BLIND)) && !p_ptr->tim.oppose_blind)
+				if (!(FLAG(p_ptr, TR_RES_BLIND)) && !query_timed(TIMED_OPPOSE_BLIND))
 				{
 					(void)inc_blind(rand_range(8, 16));
 				}
-				if (!(FLAG(p_ptr, TR_RES_CONF)) && !p_ptr->tim.oppose_conf)
+				if (!(FLAG(p_ptr, TR_RES_CONF)) && !query_timed(TIMED_OPPOSE_CONF))
 				{
 					(void)inc_confused(rand_range(4, 8));
 				}
@@ -1509,7 +1537,7 @@ bool make_attack_spell(int m_idx)
 					(void)do_dec_stat(A_WIS);
 				}
 
-				if (!(FLAG(p_ptr, TR_RES_CHAOS))  && !p_ptr->tim.oppose_conf)
+				if (!(FLAG(p_ptr, TR_RES_CHAOS))  && !query_timed(TIMED_OPPOSE_CONF))
 				{
 					(void)inc_image(rand_range(150, 400));
 				}
@@ -1520,6 +1548,8 @@ bool make_attack_spell(int m_idx)
 		case 128 + 12:
 		{
 			/* RF4_CAUSE_1 */
+			if (m_ptr->silenced) break;
+
 			if (!direct) break;
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
@@ -1540,6 +1570,8 @@ bool make_attack_spell(int m_idx)
 		case 128 + 13:
 		{
 			/* RF4_CAUSE_2 */
+			if (m_ptr->silenced) break;
+
 			if (!direct) break;
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
@@ -1560,6 +1592,8 @@ bool make_attack_spell(int m_idx)
 		case 128 + 14:
 		{
 			/* RF4_CAUSE_3 */
+			if (m_ptr->silenced) break;
+
 			if (!direct) break;
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles loudly.", m_name);
@@ -1580,6 +1614,8 @@ bool make_attack_spell(int m_idx)
 		case 128 + 15:
 		{
 			/* RF4_CAUSE_4 */
+			if (m_ptr->silenced) break;
+
 			if (!direct) break;
 			disturb(TRUE);
 			if (blind) msgf("%^s screams the word 'DIE!'", m_name);
@@ -1601,6 +1637,8 @@ bool make_attack_spell(int m_idx)
 		case 128 + 16:
 		{
 			/* RF4_BO_ACID */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
@@ -1614,6 +1652,8 @@ bool make_attack_spell(int m_idx)
 		case 128 + 17:
 		{
 			/* RF4_BO_ELEC */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
@@ -1627,6 +1667,8 @@ bool make_attack_spell(int m_idx)
 		case 128 + 18:
 		{
 			/* RF4_BO_FIRE */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
@@ -1640,6 +1682,8 @@ bool make_attack_spell(int m_idx)
 		case 128 + 19:
 		{
 			/* RF4_BO_COLD */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
@@ -1660,6 +1704,8 @@ bool make_attack_spell(int m_idx)
 		case 128 + 21:
 		{
 			/* RF4_BO_NETH */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
@@ -1673,6 +1719,8 @@ bool make_attack_spell(int m_idx)
 		case 128 + 22:
 		{
 			/* RF4_BO_WATE */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
@@ -1685,6 +1733,8 @@ bool make_attack_spell(int m_idx)
 		case 128 + 23:
 		{
 			/* RF4_BO_MANA */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
@@ -1697,6 +1747,8 @@ bool make_attack_spell(int m_idx)
 		case 128 + 24:
 		{
 			/* RF4_BO_PLAS */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
@@ -1709,6 +1761,8 @@ bool make_attack_spell(int m_idx)
 		case 128 + 25:
 		{
 			/* RF4_BO_ICEE */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
@@ -1722,6 +1776,8 @@ bool make_attack_spell(int m_idx)
 		case 128 + 26:
 		{
 			/* RF4_MISSILE */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
@@ -1734,6 +1790,8 @@ bool make_attack_spell(int m_idx)
 		case 128 + 27:
 		{
 			/* RF4_SCARE */
+			if (m_ptr->silenced) break;
+
 			if (!direct) break;
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles, and you hear scary noises.",
@@ -1759,12 +1817,14 @@ bool make_attack_spell(int m_idx)
 		case 128 + 28:
 		{
 			/* RF4_BLIND */
+			if (m_ptr->silenced) break;
+
 			if (!direct) break;
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
 				msgf("%^s casts a spell, burning your eyes!", m_name);
-			if (FLAG(p_ptr, TR_RES_BLIND) && !p_ptr->tim.oppose_blind)
+			if (FLAG(p_ptr, TR_RES_BLIND) && !query_timed(TIMED_OPPOSE_BLIND))
 			{
 				msgf("You are unaffected!");
 			}
@@ -1783,13 +1843,15 @@ bool make_attack_spell(int m_idx)
 		case 128 + 29:
 		{
 			/* RF4_CONF */
+			if (m_ptr->silenced) break;
+
 			if (!direct) break;
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles, and you hear puzzling noises.",
 								  m_name);
 			else
 				msgf("%^s creates a mesmerising illusion.", m_name);
-			if (FLAG(p_ptr, TR_RES_CONF) || p_ptr->tim.oppose_conf)
+			if (FLAG(p_ptr, TR_RES_CONF) || query_timed(TIMED_OPPOSE_CONF))
 			{
 				msgf("You disbelieve the feeble spell.");
 			}
@@ -1808,6 +1870,8 @@ bool make_attack_spell(int m_idx)
 		case 128 + 30:
 		{
 			/* RF4_SLOW */
+			if (m_ptr->silenced) break;
+
 			if (!direct) break;
 			disturb(TRUE);
 			msgf("%^s drains power from your muscles!", m_name);
@@ -1830,6 +1894,8 @@ bool make_attack_spell(int m_idx)
 		case 128 + 31:
 		{
 			/* RF4_HOLD */
+			if (m_ptr->silenced) break;
+
 			if (!direct) break;
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
@@ -1854,6 +1920,8 @@ bool make_attack_spell(int m_idx)
 		case 160 + 0:
 		{
 			/* RF5_HASTE */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			if (blind)
 			{
@@ -1884,6 +1952,8 @@ bool make_attack_spell(int m_idx)
 		case 160 + 1:
 		{
 			/* RF5_HAND_DOOM */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			msgf("%^s invokes the Hand of Doom!", m_name);
 			if (player_save(power + 10))
@@ -1905,6 +1975,8 @@ bool make_attack_spell(int m_idx)
 		case 160 + 2:
 		{
 			/* RF5_HEAL */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 
 			/* Message */
@@ -1969,6 +2041,8 @@ bool make_attack_spell(int m_idx)
 		case 160 + 3:
 		{
 			/* RF5_INVULNER */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 
 			/* Message */
@@ -1990,6 +2064,8 @@ bool make_attack_spell(int m_idx)
 		case 160 + 4:
 		{
 			/* RF5_BLINK */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			msgf("%^s blinks away.", m_name);
 			(void)teleport_away(m_idx, 10);
@@ -1999,6 +2075,8 @@ bool make_attack_spell(int m_idx)
 		case 160 + 5:
 		{
 			/* RF5_TPORT */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			msgf("%^s teleports away.", m_name);
 			(void)teleport_away(m_idx, MAX_SIGHT * 2 + 5);
@@ -2020,6 +2098,8 @@ bool make_attack_spell(int m_idx)
 		case 160 + 8:
 		{
 			/* RF5_TELE_TO */
+			if (m_ptr->silenced) break;
+
 			if (!direct) break;
 			disturb(TRUE);
 			msgf("%^s commands you to return.", m_name);
@@ -2030,6 +2110,8 @@ bool make_attack_spell(int m_idx)
 		case 160 + 9:
 		{
 			/* RF5_TELE_AWAY */
+			if (m_ptr->silenced) break;
+
 			if (!direct) break;
 			disturb(TRUE);
 			msgf("%^s teleports you away.", m_name);
@@ -2040,6 +2122,8 @@ bool make_attack_spell(int m_idx)
 		case 160 + 10:
 		{
 			/* RF5_TELE_LEVEL */
+			if (m_ptr->silenced) break;
+
 			if (!direct) break;
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles strangely.", m_name);
@@ -2070,6 +2154,8 @@ bool make_attack_spell(int m_idx)
 		case 160 + 12:
 		{
 			/* RF5_DARKNESS */
+			if (m_ptr->silenced) break;
+
 			if (!direct) break;
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
@@ -2082,6 +2168,8 @@ bool make_attack_spell(int m_idx)
 		case 160 + 13:
 		{
 			/* RF5_TRAPS */
+			if (m_ptr->silenced) break;
+
 			if (!direct) break;
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles, and then cackles evilly.",
@@ -2095,6 +2183,8 @@ bool make_attack_spell(int m_idx)
 		case 160 + 14:
 		{
 			/* RF5_FORGET */
+			if (m_ptr->silenced) break;
+
 			if (!direct) break;
 			disturb(TRUE);
 			msgf("%^s tries to blank your mind.", m_name);
@@ -2113,6 +2203,8 @@ bool make_attack_spell(int m_idx)
 		case 160 + 15:
 		{
 			/* RF5_RAISE_DEAD */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			msgf("%^s mutters quietly.", m_name);
 
@@ -2123,6 +2215,8 @@ bool make_attack_spell(int m_idx)
 		case 160 + 16:
 		{
 			/* RF5_SUMMON_KIN */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
@@ -2146,6 +2240,8 @@ bool make_attack_spell(int m_idx)
 		case 160 + 17:
 		{
 			/* RF5_S_CYBER */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
@@ -2158,6 +2254,8 @@ bool make_attack_spell(int m_idx)
 		case 160 + 18:
 		{
 			/* RF5_S_MONSTER */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
@@ -2174,6 +2272,8 @@ bool make_attack_spell(int m_idx)
 		case 160 + 19:
 		{
 			/* RF5_S_MONSTERS */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
@@ -2191,6 +2291,8 @@ bool make_attack_spell(int m_idx)
 		case 160 + 20:
 		{
 			/* RF5_S_ANT */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
@@ -2209,6 +2311,8 @@ bool make_attack_spell(int m_idx)
 		case 160 + 21:
 		{
 			/* RF5_S_SPIDER */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
@@ -2227,6 +2331,8 @@ bool make_attack_spell(int m_idx)
 		case 160 + 22:
 		{
 			/* RF5_S_HOUND */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
@@ -2245,6 +2351,8 @@ bool make_attack_spell(int m_idx)
 		case 160 + 23:
 		{
 			/* RF5_S_HYDRA */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
@@ -2263,6 +2371,8 @@ bool make_attack_spell(int m_idx)
 		case 160 + 24:
 		{
 			/* RF5_S_ANGEL */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
@@ -2280,6 +2390,8 @@ bool make_attack_spell(int m_idx)
 		case 160 + 25:
 		{
 			/* RF5_S_DEMON */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
@@ -2299,6 +2411,8 @@ bool make_attack_spell(int m_idx)
 		case 160 + 26:
 		{
 			/* RF5_S_UNDEAD */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
@@ -2317,6 +2431,8 @@ bool make_attack_spell(int m_idx)
 		case 160 + 27:
 		{
 			/* RF5_S_DRAGON */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
@@ -2334,6 +2450,8 @@ bool make_attack_spell(int m_idx)
 		case 160 + 28:
 		{
 			/* RF5_S_HI_UNDEAD */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
@@ -2354,6 +2472,8 @@ bool make_attack_spell(int m_idx)
 		case 160 + 29:
 		{
 			/* RF5_S_HI_DRAGON */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
@@ -2374,6 +2494,8 @@ bool make_attack_spell(int m_idx)
 		case 160 + 30:
 		{
 			/* RF5_S_AMBERITES */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
 			else if (amber_monsters)
@@ -2402,6 +2524,8 @@ bool make_attack_spell(int m_idx)
 		case 160 + 31:
 		{
 			/* RF5_S_UNIQUE */
+			if (m_ptr->silenced) break;
+
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles.", m_name);
 			else

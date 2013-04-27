@@ -83,7 +83,7 @@ bool monst_spell_monst(int m_idx)
 	bool wake_up = FALSE;
 	bool fear = FALSE;
 
-	bool blind = (p_ptr->tim.blind ? TRUE : FALSE);
+	bool blind = (query_timed(TIMED_BLIND) ? TRUE : FALSE);
 
 	bool see_m = m_ptr->ml;
 	bool see_t;
@@ -246,6 +246,8 @@ bool monst_spell_monst(int m_idx)
 			case 96 + 0:
 			{
 				/* RF3_SHRIEK */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_m)
@@ -1184,6 +1186,8 @@ bool monst_spell_monst(int m_idx)
 			case 128 + 0:
 			{
 				/* RF4_BA_ACID */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -1215,6 +1219,8 @@ bool monst_spell_monst(int m_idx)
 			case 128 + 1:
 			{
 				/* RF4_BA_ELEC */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -1246,6 +1252,8 @@ bool monst_spell_monst(int m_idx)
 			case 128 + 2:
 			{
 				/* RF4_BA_FIRE */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -1277,6 +1285,8 @@ bool monst_spell_monst(int m_idx)
 			case 128 + 3:
 			{
 				/* RF4_BA_COLD */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -1308,6 +1318,8 @@ bool monst_spell_monst(int m_idx)
 			case 128 + 4:
 			{
 				/* RF4_BA_POIS */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -1339,6 +1351,8 @@ bool monst_spell_monst(int m_idx)
 			case 128 + 5:
 			{
 				/* RF4_BA_NETH */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -1370,6 +1384,8 @@ bool monst_spell_monst(int m_idx)
 			case 128 + 6:
 			{
 				/* RF4_BA_WATE */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -1403,6 +1419,8 @@ bool monst_spell_monst(int m_idx)
 			case 128 + 7:
 			{
 				/* RF4_BA_MANA */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -1434,6 +1452,8 @@ bool monst_spell_monst(int m_idx)
 			case 128 + 8:
 			{
 				/* RF4_BA_DARK */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -1465,9 +1485,10 @@ bool monst_spell_monst(int m_idx)
 			case 128 + 9:
 			{
 				/* RF4_DRAIN_MANA */
-
 				/* Attack power */
 				int power = (randint1(rlev) / 2) + 1;
+
+				if (m_ptr->silenced) break;
 
 				if (see_m)
 				{
@@ -1512,6 +1533,8 @@ bool monst_spell_monst(int m_idx)
 			case 128 + 10:
 			{
 				/* RF4_MIND_BLAST */
+				if (m_ptr->silenced) break;
+
 				if (see_m)
 				{
 					msgf("%^s gazes intently at %s.", m_name, t_name);
@@ -1555,6 +1578,8 @@ bool monst_spell_monst(int m_idx)
 			case 128 + 11:
 			{
 				/* RF4_BRAIN_SMASH */
+				if (m_ptr->silenced) break;
+
 				if (see_m)
 				{
 					msgf("%^s gazes intently at %s.", m_name, t_name);
@@ -1600,6 +1625,8 @@ bool monst_spell_monst(int m_idx)
 			case 128 + 12:
 			{
 				/* RF4_CAUSE_1 */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_m)
@@ -1631,6 +1658,8 @@ bool monst_spell_monst(int m_idx)
 			case 128 + 13:
 			{
 				/* RF4_CAUSE_2 */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_m)
@@ -1662,6 +1691,8 @@ bool monst_spell_monst(int m_idx)
 			case 128 + 14:
 			{
 				/* RF4_CAUSE_3 */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_m)
@@ -1693,6 +1724,8 @@ bool monst_spell_monst(int m_idx)
 			case 128 + 15:
 			{
 				/* RF4_CAUSE_4 */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_m)
@@ -1725,6 +1758,8 @@ bool monst_spell_monst(int m_idx)
 			case 128 + 16:
 			{
 				/* RF4_BO_ACID */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -1747,6 +1782,8 @@ bool monst_spell_monst(int m_idx)
 			case 128 + 17:
 			{
 				/* RF4_BO_ELEC */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -1769,6 +1806,8 @@ bool monst_spell_monst(int m_idx)
 			case 128 + 18:
 			{
 				/* RF4_BO_FIRE */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -1791,6 +1830,8 @@ bool monst_spell_monst(int m_idx)
 			case 128 + 19:
 			{
 				/* RF4_BO_COLD */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -1821,6 +1862,8 @@ bool monst_spell_monst(int m_idx)
 			case 128 + 21:
 			{
 				/* RF4_BO_NETH */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -1843,6 +1886,8 @@ bool monst_spell_monst(int m_idx)
 			case 128 + 22:
 			{
 				/* RF4_BO_WATE */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -1864,6 +1909,8 @@ bool monst_spell_monst(int m_idx)
 			case 128 + 23:
 			{
 				/* RF4_BO_MANA */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -1886,6 +1933,8 @@ bool monst_spell_monst(int m_idx)
 			case 128 + 24:
 			{
 				/* RF4_BO_PLAS */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -1908,6 +1957,8 @@ bool monst_spell_monst(int m_idx)
 			case 128 + 25:
 			{
 				/* RF4_BO_ICEE */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -1929,6 +1980,8 @@ bool monst_spell_monst(int m_idx)
 			case 128 + 26:
 			{
 				/* RF4_MISSILE */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -1951,6 +2004,8 @@ bool monst_spell_monst(int m_idx)
 			case 128 + 27:
 			{
 				/* RF4_SCARE */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -1990,6 +2045,8 @@ bool monst_spell_monst(int m_idx)
 			case 128 + 28:
 			{
 				/* RF4_BLIND */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -2028,6 +2085,8 @@ bool monst_spell_monst(int m_idx)
 			case 128 + 29:
 			{
 				/* RF4_CONF */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -2067,6 +2126,8 @@ bool monst_spell_monst(int m_idx)
 			case 128 + 30:
 			{
 				/* RF4_SLOW */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -2104,6 +2165,8 @@ bool monst_spell_monst(int m_idx)
 			case 128 + 31:
 			{
 				/* RF4_HOLD */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -2141,6 +2204,8 @@ bool monst_spell_monst(int m_idx)
 			case 160 + 0:
 			{
 				/* RF5_HASTE */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_m)
@@ -2176,6 +2241,8 @@ bool monst_spell_monst(int m_idx)
 			case 160 + 1:
 			{
 				/* RF5_HAND_DOOM */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_m)
@@ -2217,6 +2284,8 @@ bool monst_spell_monst(int m_idx)
 			case 160 + 2:
 			{
 				/* RF5_HEAL */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_m)
@@ -2285,6 +2354,8 @@ bool monst_spell_monst(int m_idx)
 			case 160 + 3:
 			{
 				/* RF5_INVULNER */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_m)
@@ -2307,6 +2378,8 @@ bool monst_spell_monst(int m_idx)
 			case 160 + 4:
 			{
 				/* RF5_BLINK */
+				if (m_ptr->silenced) break;
+
 				if (see_m)
 				{
 					msgf("%^s blinks away.", m_name);
@@ -2320,6 +2393,8 @@ bool monst_spell_monst(int m_idx)
 			case 160 + 5:
 			{
 				/* RF5_TPORT */
+				if (m_ptr->silenced) break;
+
 				if (see_m)
 				{
 					msgf("%^s teleports away.", m_name);
@@ -2354,6 +2429,8 @@ bool monst_spell_monst(int m_idx)
 			{
 				/* RF5_TELE_AWAY */
 				bool resists_tele = FALSE;
+
+				if (m_ptr->silenced) break;
 
 				if (known)
 				{
@@ -2416,6 +2493,8 @@ bool monst_spell_monst(int m_idx)
 			case 160 + 12:
 			{
 				/* RF5_DARKNESS */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_m)
@@ -2461,6 +2540,8 @@ bool monst_spell_monst(int m_idx)
 			case 160 + 15:
 			{
 				/* RF5_RAISE_DEAD */
+				if (m_ptr->silenced) break;
+
 				if (raise_dead
 					(m_ptr->fx, m_ptr->fy, (bool)(!is_hostile(m_ptr))) && known
 					&& see_m)
@@ -2473,6 +2554,8 @@ bool monst_spell_monst(int m_idx)
 			case 160 + 16:
 			{
 				/* RF5_SUMMON_KIN */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -2510,6 +2593,8 @@ bool monst_spell_monst(int m_idx)
 			case 160 + 17:
 			{
 				/* RF5_S_CYBER */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -2538,6 +2623,8 @@ bool monst_spell_monst(int m_idx)
 			case 160 + 18:
 			{
 				/* RF5_S_MONSTER */
+				if (m_ptr->silenced) break;
+
 				int type = (friendly ? SUMMON_NO_UNIQUES : 0);
 
 				if (known)
@@ -2569,6 +2656,8 @@ bool monst_spell_monst(int m_idx)
 			case 160 + 19:
 			{
 				/* RF5_S_MONSTERS */
+				if (m_ptr->silenced) break;
+
 				int type = (friendly ? SUMMON_NO_UNIQUES : 0);
 
 				if (known)
@@ -2603,6 +2692,8 @@ bool monst_spell_monst(int m_idx)
 			case 160 + 20:
 			{
 				/* RF5_S_ANT */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -2635,6 +2726,8 @@ bool monst_spell_monst(int m_idx)
 			case 160 + 21:
 			{
 				/* RF5_S_SPIDER */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -2667,6 +2760,8 @@ bool monst_spell_monst(int m_idx)
 			case 160 + 22:
 			{
 				/* RF5_S_HOUND */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -2699,6 +2794,8 @@ bool monst_spell_monst(int m_idx)
 			case 160 + 23:
 			{
 				/* RF5_S_HYDRA */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -2731,6 +2828,8 @@ bool monst_spell_monst(int m_idx)
 			case 160 + 24:
 			{
 				/* RF5_S_ANGEL */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -2763,6 +2862,8 @@ bool monst_spell_monst(int m_idx)
 			case 160 + 25:
 			{
 				/* RF5_S_DEMON */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -2797,6 +2898,8 @@ bool monst_spell_monst(int m_idx)
 			case 160 + 26:
 			{
 				/* RF5_S_UNDEAD */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -2829,6 +2932,8 @@ bool monst_spell_monst(int m_idx)
 			case 160 + 27:
 			{
 				/* RF5_S_DRAGON */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -2863,6 +2968,8 @@ bool monst_spell_monst(int m_idx)
 				/* RF5_S_HI_UNDEAD */
 				int type =
 					(friendly ? SUMMON_HI_UNDEAD_NO_UNIQUES : SUMMON_HI_UNDEAD);
+
+				if (m_ptr->silenced) break;
 
 				if (known)
 				{
@@ -2899,6 +3006,8 @@ bool monst_spell_monst(int m_idx)
 				int type =
 					(friendly ? SUMMON_HI_DRAGON_NO_UNIQUES : SUMMON_HI_DRAGON);
 
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -2932,6 +3041,8 @@ bool monst_spell_monst(int m_idx)
 			case 160 + 30:
 			{
 				/* RF5_S_AMBERITES */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)
@@ -2965,6 +3076,8 @@ bool monst_spell_monst(int m_idx)
 			case 160 + 31:
 			{
 				/* RF5_S_UNIQUE */
+				if (m_ptr->silenced) break;
+
 				if (known)
 				{
 					if (see_either)

@@ -1,7 +1,8 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/07/09 10:28:25 $
+# Last edit by Mangojuice 11/7/2008
 ##### Special attr/char values #####
 
-# This 8x8 graphics set uses graphics for only boring terrain: walls and floor (plus a couple of wall-mimic monsters.)
+# This 8x8 graphics set uses graphics for only boring terrain: walls and floor 
+# (plus a couple of wall-mimic monsters) and for spell animations.
 
 
 ## # Unused (@)
@@ -149,6 +150,9 @@ S:0x7E:0x84/0x9B
 S:0x7F:0x84/0x9B
 
 # Monster attr/char definitions
+
+# Stunwall
+R:326:0x80:0x82
 
 # Livingstone
 R:336:0x80:0x82
@@ -338,6 +342,10 @@ F:136:0xCF:0x93
 
 #N:137:swamp
 F:137:0xCF:0x92
+
+# mountain
+F:139:0xCB:0x87
+
 
 
 

@@ -294,7 +294,7 @@ static void random_resistance(int *gpts, long *flag, int *flagslt, bool force_lo
 static void random_misc(object_type *o_ptr, int *gpts, int *bpts, long *flag, int *flagslt, bool force_low)
 {
 	*flagslt = 2;
-	switch (randint1(force_low ? 11 : 52))
+	switch (randint1(force_low ? 11 : 53))
 	{
 		case 1: case 12:
 			*flag = TR1_SUST_STR;
@@ -437,8 +437,7 @@ static void random_misc(object_type *o_ptr, int *gpts, int *bpts, long *flag, in
 			*gpts = 6;
 			break;
 		case 47:
-			/* should be rarer */
-			if (one_in_(3)) {
+			if (one_in_(8)) {
 				*flag = TR3_PASS_WALL;
 				*flagslt = 3;
 				*gpts = 10;
@@ -451,6 +450,11 @@ static void random_misc(object_type *o_ptr, int *gpts, int *bpts, long *flag, in
 			*flag = TR1_SUST_CHR | TR1_SUST_STR | TR1_SUST_INT | TR1_SUST_WIS | TR1_SUST_CON | TR1_SUST_DEX;
 			*flagslt = 1;
 			*gpts = 6;
+			break;
+		case 53:
+			*flag = TR3_SH_FEAR;
+			*flagslt = 3;
+			*gpts = 8;
 			break;
 	}
 }
@@ -1938,6 +1942,9 @@ bool create_artifact(object_type *o_ptr, int level, bool a_scroll)
 
 	/* Check if random artifacts are allowed; doesn't apply to scrolls. */
 	if (!allow_randart && !a_scroll)  return (FALSE);
+
+	/* MEGA hack: Don't allow artifacts to be created in "rand_quick" mode */
+	if (Rand_quick) return (FALSE);
 
 	/* No activation yet */
 	o_ptr->a_idx = 0;

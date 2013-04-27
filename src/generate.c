@@ -479,6 +479,8 @@ static void apply_symmetry_connect(dun_type * d_ptr, bool horiz)
 	int xfirst, xlast;
 	cave_type * c_ptr;
 
+	xlast = ylast = 0;
+
 	/* Check the horizontal "seam" first */
 
 	if (d_ptr->flags & (DF_SYM_4 | DF_SYM_R4) || horiz)
@@ -995,15 +997,6 @@ static void try_door(int x, int y)
 	}
 }
 
-static const byte liquid_types[LQ_MAX][2] =
-{
-	{FEAT_SHAL_WATER, FEAT_DEEP_WATER},
-	{FEAT_SHAL_LAVA, FEAT_DEEP_LAVA},
-	{FEAT_SHAL_ACID, FEAT_DEEP_ACID},
-	{FEAT_SHAL_SWAMP, FEAT_DEEP_SWAMP}
-};
-
-
 static void add_monsters(int count)
 {
 	int i, j;
@@ -1156,7 +1149,7 @@ static bool cave_gen(dun_type *d_ptr)
 
 	int treasure_chance = 0;
 
-	cave_type *c_ptr, *c2_ptr;
+	cave_type *c_ptr;
 
 	bool empty_level = FALSE;
 	bool cavern = FALSE;
@@ -1165,6 +1158,12 @@ static bool cave_gen(dun_type *d_ptr)
 
 	/* Global data */
 	dun = &dun_body;
+
+	/* Initialize */
+	min_hgt = p_ptr->min_hgt;
+	min_wid = p_ptr->min_wid;
+	max_hgt = p_ptr->max_hgt;
+	max_wid = p_ptr->max_wid;
 
 	if (p_ptr->max_hgt - p_ptr->min_hgt < 23) max_vault_ok--;
 	if (p_ptr->max_wid - p_ptr->min_wid < 34) max_vault_ok--;
@@ -1734,12 +1733,10 @@ static bool cave_gen(dun_type *d_ptr)
 
 static bool castle_gen(dun_type *d_ptr)
 {
-	int x, y, xmid, ymid, gate, x0, y0;
+	int x, y, xmid, ymid, gate;
 	int min_hgt, max_hgt, min_wid, max_wid;
 	int i, k, p;
 	bool horiz = one_in_(2);
-
-	cave_type *c_ptr;
 
 	dun_data dun_body;
 
@@ -1751,6 +1748,12 @@ static bool castle_gen(dun_type *d_ptr)
 
 	/* No vaults yet */
 	dun->vaults = 0;
+
+	/* Initialize */
+	min_hgt = p_ptr->min_hgt;
+	min_wid = p_ptr->min_wid;
+	max_hgt = p_ptr->max_hgt;
+	max_wid = p_ptr->max_wid;
 
 	xmid = (p_ptr->min_wid + p_ptr->max_wid - 1)/2;
 	ymid = (p_ptr->min_hgt + p_ptr->max_hgt - 1)/2;

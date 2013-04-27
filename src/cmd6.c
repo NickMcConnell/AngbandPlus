@@ -366,7 +366,7 @@ void do_cmd_read_scroll(void)
 	cptr q, s;
 
 	/* Check some conditions */
-	if (p_ptr->tim.blind)
+	if (query_timed(TIMED_BLIND))
 	{
 		msgf("You can't see anything.");
 		return;
@@ -376,7 +376,7 @@ void do_cmd_read_scroll(void)
 		msgf("You have no light to read by.");
 		return;
 	}
-	if (p_ptr->tim.confused)
+	if (query_timed(TIMED_CONFUSED))
 	{
 		msgf("You are too confused!");
 		return;
@@ -411,6 +411,7 @@ static void do_cmd_use_staff_aux(object_type *o_ptr)
 {
 	int chance, lev;
 	bool ident, use_charge;
+	int o_idx = -1;
 
 	/* Mega-Hack -- refuse to use a pile from the ground */
 	if (floor_item(o_ptr) && (o_ptr->number > 1))
@@ -432,7 +433,7 @@ static void do_cmd_use_staff_aux(object_type *o_ptr)
 	chance = p_ptr->skills[SKILL_DEV];
 
 	/* Confusion hurts skill */
-	if (p_ptr->tim.confused) chance = chance / 2;
+	if (query_timed(TIMED_CONFUSED)) chance = chance / 2;
 
 	/* Hight level objects are harder */
 	chance = chance - lev / 2;
@@ -467,7 +468,6 @@ static void do_cmd_use_staff_aux(object_type *o_ptr)
 
 		return;
 	}
-
 
 	/* Sound */
 	sound(SOUND_ZAP);
@@ -633,7 +633,7 @@ static void do_cmd_aim_wand_aux(object_type *o_ptr)
 	chance = p_ptr->skills[SKILL_DEV];
 
 	/* Confusion hurts skill */
-	if (p_ptr->tim.confused) chance /= 2;
+	if (query_timed(TIMED_CONFUSED)) chance /= 2;
 
 	/* Hight level objects are harder */
 	chance = chance - lev / 2;
@@ -784,7 +784,7 @@ static void do_cmd_zap_rod_aux(object_type *o_ptr)
 	chance = p_ptr->skills[SKILL_DEV];
 
 	/* Confusion hurts skill */
-	if (p_ptr->tim.confused) chance = chance / 2;
+	if (query_timed(TIMED_CONFUSED)) chance = chance / 2;
 
 	/* Hight level objects are harder */
 	chance = chance - lev / 2;
@@ -974,7 +974,7 @@ static void do_cmd_activate_aux(object_type *o_ptr)
 	chance = p_ptr->skills[SKILL_DEV];
 
 	/* Confusion hurts skill */
-	if (p_ptr->tim.confused) chance /= 2;
+	if (query_timed(TIMED_CONFUSED)) chance /= 2;
 
 	/* Cursed items are difficult to activate */
 	if (cursed_p(o_ptr)) chance /= 3;

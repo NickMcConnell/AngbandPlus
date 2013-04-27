@@ -203,7 +203,7 @@ static void overlay_place(int x, int y, u16b w_place, blk_ptr block_ptr)
 			/*
 			 * Instantiate object
 			 */
-			place_specific_object(x2, y2, level, c_ptr->o_idx);
+			place_specific_object(x2, y2, level, c_ptr->o_idx, FALSE);
 
 			/*
 			 * Instantiate monster

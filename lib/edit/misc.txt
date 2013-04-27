@@ -11,7 +11,7 @@
 
 # Version stamp (required)
 
-V:0.2.3
+V:0.3.0
 
 # Maximum number of "monster groups"
 M:g:100
@@ -42,7 +42,7 @@ M:V:126
 M:Q:382
 
 # Maximum number of field types
-M:U:157
+M:U:160
 
 # Maximum size for "fld_list[]"
 M:D:512

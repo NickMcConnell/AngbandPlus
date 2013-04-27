@@ -19,6 +19,22 @@
 
 #define MUT_CHAOS_PATRON 57
 
+static int spell_index(const spell_external sp)
+{
+	int i = -1;
+
+	/* Find the index */
+	for (i = 0; i < p_ptr->spell.spell_max; i++)
+	{
+		if (p_ptr->spell.data[i].s_idx == s_info[sp.r][sp.s].s_idx &&
+			p_ptr->spell.data[i].realm == s_info[sp.r][sp.s].realm &&
+			p_ptr->spell.data[i].focus == 1)
+			/* Found it */
+			break;
+	}
+
+	return (i);
+}
 
 /*
  * Teleport a monster, normally up to "dis" grids away.
@@ -131,7 +147,7 @@ bool teleport_away(int m_idx, int dis)
 	update_mon(m_idx, TRUE);
 
 	/* Process fields under the monster. */
-	field_script(c_ptr, FIELD_ACT_MONSTER_ENTER, "");
+	field_script(area(nx,ny), FIELD_ACT_MONSTER_ENTER, "");
 
 	/* Redraw the old grid */
 	lite_spot(ox, oy);
@@ -265,7 +281,7 @@ void teleport_to_player(int m_idx)
 	update_mon(m_idx, TRUE);
 
 	/* Process fields under the monster. */
-	field_script(c_ptr, FIELD_ACT_MONSTER_ENTER, "");
+	field_script(area(nx,ny), FIELD_ACT_MONSTER_ENTER, "");
 
 	/* Redraw the old grid */
 	lite_spot(ox, oy);
@@ -615,7 +631,7 @@ void teleport_player_level(void)
 		del_level = -1;
 	}
 	/* Modified, so upwards not forced when max_level reached if dungeon_abyss is set. */
-        else if (p_ptr->depth >= dungeon()->max_level && !dungeon_abyss)
+    else if (p_ptr->depth >= dungeon()->max_level && !dungeon_abyss)
 	{
 		del_level = -1;
 	}
@@ -641,6 +657,57 @@ void teleport_player_level(void)
 	sound(SOUND_TPLEVEL);
 }
 
+/*
+ * Teleport the player one level down (when legal)
+ */
+void teleport_player_down(void)
+{
+	int del_level = 1;
+
+	/* Can't go down on final quest levels */
+	if (is_special_level(p_ptr->depth))
+	{
+		del_level = 0;
+	}
+
+	/* Doesn't work outside unless over a dungeon */
+	if (!check_down_wild())
+	{
+		del_level = 0;
+	}
+
+	if (FLAG(p_ptr, TR_NO_TELE))
+	{
+		msgf("A mysterious force prevents you from teleporting!");
+		return;
+	}
+
+	if (current_quest && p_ptr->depth >= active_level(current_quest))
+	{
+		del_level = 0;
+	}
+	/* Modified, so upwards not forced when max_level reached if dungeon_abyss is set. */
+    else if (p_ptr->depth >= dungeon()->max_level && !dungeon_abyss)
+	{
+		del_level = 0;
+	}
+
+	if (del_level == 1)
+	{
+		msgf(MSGT_TPLEVEL, "You sink through the floor.");
+	}
+	else
+	{
+		msgf("Nothing happens.");
+		return;
+	}
+
+	/* Go down */
+	move_dun_level(del_level);
+
+	/* Sound */
+	sound(SOUND_TPLEVEL);
+}
 
 bool check_down_wild(void)
 {
@@ -728,18 +795,8 @@ void recall_player(int turns)
 		d_ptr->recall_depth = (char) p_ptr->depth;
 	}
 
-	if (!p_ptr->tim.word_recall)
-	{
-		p_ptr->tim.word_recall = turns;
-		msgf("The air about you becomes charged...");
-		p_ptr->redraw |= (PR_STATUS);
-	}
-	else
-	{
-		p_ptr->tim.word_recall = 0;
-		msgf("A tension leaves the air around you...");
-		p_ptr->redraw |= (PR_STATUS);
-	}
+	set_timed(TIMED_WORD_RECALL, (query_timed(TIMED_WORD_RECALL) ? 0 : turns), "The air about you becomes charged...",
+		"A tension leaves the air around you...");
 }
 
 
@@ -1075,7 +1132,7 @@ void brand_weapon(int brand_type)
 
 		msgf("Your %v %s", OBJECT_FMT(o_ptr, FALSE, 0), act);
 
-		(void)enchant(o_ptr, rand_range(4, 6), ENCH_TOHIT | ENCH_TODAM);
+		(void)enchant(o_ptr, rand_range(4, 6), ENCH_TOHIT | ENCH_TODAM, 0);
 	}
 	else
 	{
@@ -1293,72 +1350,57 @@ void alter_reality(void)
 
 
 /*
- * Leave a "glyph of warding" which prevents monster movement
+ * Leave a "glyph" where the player is
  */
+static bool place_glyph(int typ)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	cave_type *c_ptr = area(px, py);
+
+	/* XXX XXX XXX */
+	if (!cave_naked_grid(c_ptr))
+	{
+		msgf("The object resists the spell.");
+		return FALSE;
+	}
+
+	/* Not in a wall */
+	if (cave_wall_grid(c_ptr))
+	{
+		msgf("You need open space to draw the rune.");
+		return FALSE;
+	}
+
+	/* Add the glyph here as a field */
+	(void)place_field(px, py, typ);
+
+	/* Notice it */
+	note_spot(px, py);
+
+	return TRUE;
+}
+
 bool warding_glyph(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	cave_type *c_ptr = area(px, py);
-
-	/* XXX XXX XXX */
-	if (!cave_naked_grid(c_ptr))
-	{
-		msgf("The object resists the spell.");
-		return FALSE;
-	}
-
-	/* Not in a wall */
-	if (cave_wall_grid(c_ptr))
-	{
-		msgf("You need open space to draw the rune.");
-		return FALSE;
-	}
-
-	/* Add the glyph here as a field */
-	(void)place_field(px, py, FT_GLYPH_WARDING);
-
-	/* Notice it */
-	note_spot(px, py);
-
-	return TRUE;
+	return (place_glyph(FT_GLYPH_WARDING));
 }
 
+bool absorption_glyph(void)
+{
+	return (place_glyph(FT_GLYPH_ABSORB));
+}
 
-/*
- * Leave an "explosive rune" which prevents monster movement
- */
+bool hypnotic_glyph(void)
+{
+	return (place_glyph(FT_GLYPH_HYPNO));
+}
+
 bool explosive_rune(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	cave_type *c_ptr = area(px, py);
-
-	/* XXX XXX XXX */
-	if (!cave_naked_grid(c_ptr))
-	{
-		msgf("The object resists the spell.");
-		return FALSE;
-	}
-
-	/* Not in a wall */
-	if (cave_wall_grid(c_ptr))
-	{
-		msgf("You need open space to draw the rune.");
-		return FALSE;
-	}
-
-	/* Add the glyph here as a field */
-	(void)place_field(px, py, FT_GLYPH_EXPLODE);
-
-	/* Notice it */
-	note_spot(px, py);
-
-	return TRUE;
+	return (place_glyph(FT_GLYPH_EXPLODE));
 }
-
 
 /*
  * Identify everything being carried.
@@ -1852,12 +1894,15 @@ static int enchant_table[ENCHANT_MAX + 1] =
  * Note that this function can now be used on "piles" of items, and
  * the larger the pile, the lower the chance of success.
  */
-bool enchant(object_type *o_ptr, int n, int eflag)
+bool enchant(object_type *o_ptr, int n, int eflag, char power)
 {
 	int i, chance, prob, change;
 	bool res = FALSE;
 	bool a = ((FLAG(o_ptr, TR_INSTA_ART)) ? TRUE : FALSE);
 	bool force = (eflag & ENCH_FORCE);
+	int to_h = POWER(o_ptr->to_h, -power);
+	int to_d = POWER(o_ptr->to_d, -power);
+	int to_a = POWER(o_ptr->to_a, -power);
 
 
 	/* Large piles resist enchantment */
@@ -1889,16 +1934,16 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		/* Enchant to hit */
 		if (eflag & ENCH_TOHIT)
 		{
-			if (o_ptr->to_h < 0) chance = 0;
-			else if (o_ptr->to_h > ENCHANT_MAX) chance = 1000;
+			if (to_h < 0) chance = 0;
+			else if (to_h > ENCHANT_MAX) chance = 1000;
 			else
-				chance = enchant_table[o_ptr->to_h];
+				chance = enchant_table[to_h];
 
 			if (force || ((randint1(1000) > chance) && (!a || one_in_(2))))
 			{
 				/* The amount you enchant varys */
-				if ((o_ptr->to_h > 7) || force) change = 1;
-				else if (o_ptr->to_h > 4) change = randint1(2);
+				if ((to_h > 7) || force) change = 1;
+				else if (to_h > 4) change = randint1(2);
 				else
 					change = randint1(3);
 
@@ -1914,16 +1959,16 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		/* Enchant to damage */
 		if (eflag & ENCH_TODAM)
 		{
-			if (o_ptr->to_d < 0) chance = 0;
-			else if (o_ptr->to_d > ENCHANT_MAX_DAM) chance = 1000;
+			if (to_d < 0) chance = 0;
+			else if (to_d > ENCHANT_MAX_DAM) chance = 1000;
 			else
-				chance = enchant_table_dam[o_ptr->to_d];
+				chance = enchant_table_dam[to_d];
 
 			if (force || ((randint1(1000) > chance) && (!a || one_in_(2))))
 			{
 				/* The amount you enchant varys */
-				if ((o_ptr->to_d > 7) || force) change = 1;
-				else if (o_ptr->to_d > 4) change = randint1(2);
+				if ((to_d > 7) || force) change = 1;
+				else if (to_d > 4) change = randint1(2);
 				else
 					change = randint1(3);
 
@@ -1939,16 +1984,16 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		/* Enchant to armor class */
 		if (eflag & ENCH_TOAC)
 		{
-			if (o_ptr->to_a < 0) chance = 0;
-			else if (o_ptr->to_a > ENCHANT_MAX) chance = 1000;
+			if (to_a < 0) chance = 0;
+			else if (to_a > ENCHANT_MAX) chance = 1000;
 			else
-				chance = enchant_table[o_ptr->to_a];
+				chance = enchant_table[to_a];
 
 			if (force || ((randint1(1000) > chance) && (!a || one_in_(2))))
 			{
 				/* The amount you enchant varys */
-				if ((o_ptr->to_a > 7) || force) change = 1;
-				else if (o_ptr->to_a > 4) change = randint1(2);
+				if ((to_a > 7) || force) change = 1;
+				else if (to_a > 4) change = randint1(2);
 				else
 					change = randint1(3);
 
@@ -1988,7 +2033,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
  * Note that "num_ac" requires armour, else weapon
  * Returns TRUE if attempted, FALSE if cancelled
  */
-bool enchant_spell(int num_hit, int num_dam, int num_ac)
+bool enchant_spell(int num_hit, int num_dam, int num_ac, char power)
 {
 	bool okay = FALSE;
 	object_type *o_ptr;
@@ -2015,9 +2060,9 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 			   ((o_ptr->number > 1) ? "" : "s"));
 
 	/* Enchant */
-	if (enchant(o_ptr, num_hit, ENCH_TOHIT)) okay = TRUE;
-	if (enchant(o_ptr, num_dam, ENCH_TODAM)) okay = TRUE;
-	if (enchant(o_ptr, num_ac, ENCH_TOAC)) okay = TRUE;
+	if (enchant(o_ptr, num_hit, ENCH_TOHIT, power)) okay = TRUE;
+	if (enchant(o_ptr, num_dam, ENCH_TODAM, power)) okay = TRUE;
+	if (enchant(o_ptr, num_ac, ENCH_TOAC, power)) okay = TRUE;
 
 	/* Failure */
 	if (!okay)
@@ -2507,6 +2552,46 @@ bool identify_fully(void)
 }
 
 /*
+ * Identify the resistances an object has.
+ */
+bool identify_resistances(void)
+{
+	object_type *o_ptr;
+	cptr q, s;
+
+	/* Only equip-able items */
+	item_tester_hook = item_tester_hook_wear;
+
+	/* Get an item */
+	q = "Probe which item? ";
+	s = "You have nothing to probe.";
+
+	o_ptr = get_item(q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR));
+
+	/* Not a valid item */
+	if (!o_ptr) return (FALSE);
+
+	object_known(o_ptr);
+	object_aware(o_ptr);
+
+	/* Save known flags corresponding to resistances */
+	o_ptr->kn_flags[0] |= (o_ptr->flags[0] & TR0_RES_MASK);
+	o_ptr->kn_flags[1] |= (o_ptr->flags[1] & TR1_RES_MASK);
+	o_ptr->kn_flags[2] |= (o_ptr->flags[2] & TR2_RES_MASK);
+	o_ptr->kn_flags[3] |= (o_ptr->flags[3] & TR3_RES_MASK);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Describe it fully */
+	identify_fully_aux(o_ptr);
+
+	/* Success */
+	return (TRUE);
+}
+
+
+/*
  * Recharge a wand/staff/rod from the pack or on the floor.
  * This function has been rewritten in Oangband and ZAngband.
  *
@@ -2696,24 +2781,24 @@ bool recharge(int power)
 			if ((p_ptr->rp.pclass == CLASS_MAGE) ||
 				(p_ptr->rp.pclass == CLASS_HIGH_MAGE))
 			{
-				/* 10% chance to blow up one rod, otherwise draining. */
+				/* 16.7% chance to blow up one rod, otherwise draining. */
 				if (o_ptr->tval == TV_ROD)
 				{
-					if (one_in_(8)) fail_type = 2;
+					if (one_in_(6)) fail_type = 2;
 					else
 						fail_type = 1;
 				}
-				/* 75% chance to blow up one wand, otherwise draining. */
+				/* 10% chance to blow up one wand, otherwise draining. */
 				else if (o_ptr->tval == TV_WAND)
 				{
-					if (!one_in_(20)) fail_type = 2;
+					if (one_in_(10)) fail_type = 2;
 					else
 						fail_type = 1;
 				}
-				/* 50% chance to blow up one staff, otherwise no effect. */
+				/* 10% chance to blow up one staff, otherwise no effect. */
 				else if (o_ptr->tval == TV_STAFF)
 				{
-					if (one_in_(20)) fail_type = 2;
+					if (one_in_(10)) fail_type = 2;
 					else
 						fail_type = 0;
 				}
@@ -2722,27 +2807,27 @@ bool recharge(int power)
 			/* All other classes get no special favors. */
 			else
 			{
-				/* 2.5% change to blow up entire stack, 22.5% chance to blow up one,
+				/* 3.3% change to blow up entire stack, 30% chance to blow up one,
 				   otherwise, drain the rod(s). */
 				if (o_ptr->tval == TV_ROD)
 				{
-					if (one_in_(4)) fail_type = (one_in_(10) ? 3 : 2);
+					if (one_in_(3)) fail_type = (one_in_(10) ? 3 : 2);
 					else
 						fail_type = 1;
 				}
-				/* 1.66% change to blow up entire stack, 15% chance to blow up one,
+				/* 5% change to blow up entire stack, 45% chance to blow up one,
 				   otherwise, drain the wand(s). */
 				else if (o_ptr->tval == TV_WAND)
 				{
-					if (one_in_(6)) fail_type = (one_in_(10) ? 3 : 2);
+					if (one_in_(2)) fail_type = (one_in_(10) ? 3 : 2);
 					else
 						fail_type = 1;
 				}
-				/* 1.66% change to blow up entire stack, 15% chance to blow up one,
+				/* 50% change to blow up one staff,
 				   otherwise, drain. */
 				else if (o_ptr->tval == TV_STAFF)
 				{
-					if (one_in_(6)) fail_type = (one_in_(10) ? 3 : 2);
+					if (one_in_(2)) fail_type = 2;
 					else
 						fail_type = 1;
 				}
@@ -2808,7 +2893,7 @@ bool recharge(int power)
 
 
 				/* Reduce and describe */
-				item_increase(o_ptr, -999);
+				item_increase(o_ptr, -o_ptr->number);
 			}
 		}
 	}
@@ -2882,6 +2967,8 @@ bool bless_weapon(void)
 		msgf("The %s shine%s!", o_name, ((o_ptr->number > 1) ? "" : "s"));
 		SET_FLAG(o_ptr, TR_BLESSED);
 		o_ptr->kn_flags[2] |= TR2_BLESSED;
+		/* Enchant the item too */
+		enchant_spell(1,1,0,0);
 	}
 	else
 	{
@@ -2890,7 +2977,7 @@ bool bless_weapon(void)
 		msgf("The artifact resists your blessing!");
 
 		/* Disenchant tohit */
-		if (o_ptr->to_h > 0)
+		if (o_ptr->to_h > 0 && (randint0(100) < 75))
 		{
 			o_ptr->to_h--;
 			dis_happened = TRUE;
@@ -2899,7 +2986,7 @@ bool bless_weapon(void)
 		if ((o_ptr->to_h > 5) && (randint0(100) < 33)) o_ptr->to_h--;
 
 		/* Disenchant todam */
-		if (o_ptr->to_d > 0)
+		if (o_ptr->to_d > 0  && (randint0(100) < 75))
 		{
 			o_ptr->to_d--;
 			dis_happened = TRUE;
@@ -2908,7 +2995,7 @@ bool bless_weapon(void)
 		if ((o_ptr->to_d > 5) && (randint0(100) < 33)) o_ptr->to_d--;
 
 		/* Disenchant toac */
-		if (o_ptr->to_a > 0)
+		if (o_ptr->to_a > 0  && (randint0(100) < 75))
 		{
 			o_ptr->to_a--;
 			dis_happened = TRUE;
@@ -2922,6 +3009,73 @@ bool bless_weapon(void)
 			msgf("The %s %s disenchanted!", o_name,
 					   ((o_ptr->number > 1) ? "were" : "was"));
 		}
+	}
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Notice changes */
+	notice_item();
+
+	return TRUE;
+}
+
+/*
+ * Add permanent lite to an object
+ */
+bool add_perm_lite(void)
+{
+	object_type *o_ptr;
+	char o_name[256];
+	cptr q, s;
+
+	/* Any weapon or armor */
+	item_tester_hook = item_tester_hook_weapon_armour;
+
+	/* Get an item */
+	q = "Enchant which weapon? ";
+	s = "You have weapon to enchant.";
+
+	o_ptr = get_item(q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR));
+
+	/* Not a valid item */
+	if (!o_ptr) return FALSE;
+
+	/* Description */
+	object_desc(o_name, o_ptr, FALSE, 0, 256);
+
+	if (cursed_p(o_ptr))
+	{
+		if (((FLAG(o_ptr, TR_HEAVY_CURSE)) && (randint1(100) < 33)) ||
+			(FLAG(o_ptr, TR_PERMA_CURSE)))
+		{
+			msgf("The black aura on the %s disrupts the light!",
+					   o_name);
+			return TRUE;
+		}
+	}
+
+	/*
+	 * Next, we try to make it glow. Artifacts have a 1/5 chance of
+	 * being affected, otherwise nothing happens.
+	 */
+	if (FLAG(o_ptr, TR_LITE))
+	{
+		msgf("The %s %s already glows with permanent light.", o_name,
+				   ((o_ptr->number > 1) ? "were" : "was"));
+		return FALSE;
+	}
+
+	if (!(o_ptr->xtra_name) || one_in_(5))
+	{
+		/* Describe */
+		msgf("The %s shine%s radiantly!", o_name, ((o_ptr->number > 1) ? "" : "s"));
+		SET_FLAG(o_ptr, TR_LITE);
+		o_ptr->kn_flags[2] |= TR2_LITE;
+	}
+	else
+	{
+		msgf("The artifact resists the spell!");
 	}
 
 	/* Recalculate bonuses */
@@ -2996,9 +3150,10 @@ void display_spell_list(void)
 	char out_val[160];
 	int row = 0, col = 0;
 	unsigned int max_wid = 0;
+	spell_external sp;
 
-	use_realm[0] = p_ptr->spell.r[0].realm - 1;
-	use_realm[1] = p_ptr->spell.r[1].realm - 1;
+	use_realm[0] = p_ptr->spell.realm[0] - 1;
+	use_realm[1] = p_ptr->spell.realm[1] - 1;
 
 	/* Erase window */
 	clear_from(0);
@@ -3051,8 +3206,8 @@ void display_spell_list(void)
 			if (chance < minfail) chance = minfail;
 
 			/* Stunning makes spells harder */
-			if (p_ptr->tim.stun > 50) chance += 25;
-			else if (p_ptr->tim.stun) chance += 15;
+			if (query_timed(TIMED_STUN) > 50) chance += 25;
+			else if (query_timed(TIMED_STUN)) chance += 15;
 
 			/* Always a 5 percent chance of working */
 			if (chance > 95) chance = 95;
@@ -3076,19 +3231,25 @@ void display_spell_list(void)
 	{
 		int n = 0;
 
+		sp.r = use_realm[j];
+		sp.s = 0;
+
 		/* Scan spells */
-		for (i = 0; i < 32; i++)
+		for (i = 0; i < NUM_SPELLS; i++)
 		{
 			cptr a = CLR_WHITE;
+			byte lev;
 
 			/* Access the spell */
-			s_ptr = &mp_ptr->info[use_realm[j]][i % 32];
+			s_ptr = &s_info[sp.r][sp.s].info[p_ptr->rp.pclass];
+
+			lev = spell_level(sp);
 
 			strcpy(name,
-				   spell_names[use_realm[j]][i % 32]);
+				   spell_name(sp));
 
 			/* Illegible */
-			if (s_ptr->slevel >= 99)
+			if (s_ptr->slevel > PY_MAX_LEVEL)
 			{
 				/* Illegible */
 				strcpy(name, "(illegible)");
@@ -3098,24 +3259,39 @@ void display_spell_list(void)
 			}
 
 			/* Forgotten */
-			else if (p_ptr->spell.r[j].forgotten & (1L << (i % 32)))
+			else if (spell_forgotten(sp))
 			{
 				/* Forgotten */
 				a = CLR_ORANGE;
 			}
 
 			/* Unknown */
-			else if (!(p_ptr->spell.r[j].learned & (1L << (i % 32))))
+			else if (!lev)
 			{
 				/* Unknown */
 				a = CLR_RED;
 			}
 
-			/* Untried */
-			else if (!(p_ptr->spell.r[j].worked & (1L << (i % 32))))
+			else if (spell_tried(sp))
 			{
 				/* Untried */
 				a = CLR_YELLOW;
+			}
+
+			else if (lev > 1)
+			{
+				switch (lev)
+				{
+					case 2:
+						a = CLR_L_GREEN;
+						break;
+					case 3:
+						a = CLR_L_BLUE;
+						break;
+					case 4:
+						a = CLR_VIOLET;
+						break;
+				}
 			}
 
 			/* Dump the spell --(-- */
@@ -3142,29 +3318,106 @@ void display_spell_list(void)
 	}
 }
 
+/*
+ * Returns the number of times the given spell has been learned
+ */
+byte spell_level(const spell_external sp)
+{
+	/* The "real" spell involved */
+	spell_internal real;
+	int slevel = s_info[sp.r][sp.s].info[p_ptr->rp.pclass].slevel;
+	int r = (sp.r == p_ptr->spell.realm[0]-1 ? 0 : 1);
+	int i;
 
+	byte lev = 0;
+
+	real.s = s_info[sp.r][sp.s].s_idx;
+	real.r = s_info[sp.r][sp.s].realm;
+
+	if (p_ptr->lev < slevel) return (0);
+
+	/* Find the top instance of this spell that isn't forgotten in this realm. */
+	for (i = p_ptr->spell.spell_max-1; i >= 0; i--)
+	{
+
+		if (p_ptr->spell.data[i].realm == real.r &&
+			p_ptr->spell.data[i].s_idx == real.s)
+		{
+			if (p_ptr->spell.data[i].flags & (r == 0 ?
+					SP_FORGOTTEN_1 : SP_FORGOTTEN_2))
+				continue;
+			return (p_ptr->spell.data[i].focus);
+		}
+	}
+
+	return(lev);
+}
+
+/*
+ * Returns the power level to use for the given spell.
+ */
+char spell_power(const spell_external sp)
+{
+	int lev = spell_level(sp);
+	int power = 0;
+	int i = spell_index(sp);
+
+	if (lev == 0) return 0;
+
+	/* Base power, from spell info. */
+	power = s_info[sp.r][sp.s].info[p_ptr->rp.pclass].power;
+
+	/* Bonus power from spell focus */
+	power = POWER(100+power,focus_power_bonus[lev])-100;
+
+	/* 5% power bonus from being a Lich */
+	if (p_ptr->state.lich)
+	{
+		power = POWER(100+power,5)-100;
+	}
+
+	/* 10% power bonus for spells in both of one's realms */
+	if (i > 0 &&
+		p_ptr->spell.data[i].flags & SP_PRESENT_1 &&
+		p_ptr->spell.data[i].flags & SP_PRESENT_2)
+	{
+		power = POWER(100+power,10)-100;
+	}
+
+	return ((char) power);
+}
 
 /*
  * Returns spell chance of failure for spell -RAK-
  */
-s16b spell_chance(int spell, int realm)
+s16b spell_chance(const spell_external sp)
 {
 	int chance, minfail;
 	const magic_type *s_ptr;
 	int smana;
+	int spell = sp.s;
+	int realm = sp.r;
+	int lev = spell_level(sp);
 
 
 	/* Paranoia -- must be literate */
 	if (!mp_ptr->spell_book) return (100);
 
 	/* Access the spell */
-	s_ptr = &mp_ptr->info[realm][spell];
+	s_ptr = &s_info[realm][spell].info[p_ptr->rp.pclass];
 
 	/* Extract the base spell failure rate */
 	if (realm == REALM_ARCANE-1)
 		chance = s_ptr->slevel + 20;
 	else
 		chance = s_ptr->slevel * 3 / 2 + 20;
+
+	/* Hack -- Priest prayer penalty for "edged" weapons  -DGK */
+	if ((p_ptr->rp.pclass == CLASS_PRIEST) && p_ptr->state.icky_wield) chance += 25;
+
+	/* Stunning makes spells harder */
+	if (query_timed(TIMED_STUN) > 50) chance += 25;
+	else if (query_timed(TIMED_STUN)) chance += 15;
 
 	/* Reduce failure rate by "effective" level adjustment */
 	chance -= 3 * (p_ptr->lev - s_ptr->slevel);
@@ -3173,7 +3426,7 @@ s16b spell_chance(int spell, int realm)
 	chance -= adj_mag_stat[p_ptr->stat[mp_ptr->spell_stat].ind];
 
 	/* Get mana cost */
-	smana = spell_mana(spell, realm);
+	smana = spell_mana(sp);
 
 	/* Not enough mana to cast */
 	if (smana > p_ptr->csp)
@@ -3200,6 +3453,9 @@ s16b spell_chance(int spell, int realm)
 		chance += s_ptr->slevel;
 	}
 
+	/* Reduce failure rate for spell focus, separately from the minimum fail rate bonus */
+	chance -= (lev-1)*5;
+
 	/* Extract the minimum failure rate */
 	minfail = adj_mag_fail[p_ptr->stat[mp_ptr->spell_stat].ind];
 
@@ -3212,33 +3468,29 @@ s16b spell_chance(int spell, int realm)
 	 * Min 0%: Priest (Life/Death), Mage, Mindcrafter, High Mage
 	 */
 	if (p_ptr->rp.pclass == CLASS_ROGUE ||
-		(p_ptr->rp.pclass == CLASS_RANGER && realm != REALM_NATURE-1) ||
+		(p_ptr->rp.pclass == CLASS_RANGER && realm != p_ptr->spell.realm[0]-1) ||
 		p_ptr->rp.pclass == CLASS_PALADIN ||
 		p_ptr->rp.pclass == CLASS_CHAOS_WARRIOR)
 	{
 		minfail = MAX(5, minfail);
 	}
 	else if (p_ptr->rp.pclass == CLASS_RANGER ||
-			 (p_ptr->rp.pclass == CLASS_WARRIOR_MAGE && realm != REALM_ARCANE-1))
+			 (p_ptr->rp.pclass == CLASS_WARRIOR_MAGE && realm != p_ptr->spell.realm[0]-1))
 	{
 		minfail = MAX(3, minfail);
 	}
 	else if (p_ptr->rp.pclass == CLASS_WARRIOR_MAGE ||
 			 p_ptr->rp.pclass == CLASS_MONK ||
-			 (p_ptr->rp.pclass == CLASS_PRIEST && realm != REALM_LIFE-1 && realm != REALM_DEATH-1))
+			 (p_ptr->rp.pclass == CLASS_PRIEST && realm != p_ptr->spell.realm[0]-1))
 	{
 		minfail = MAX(1, minfail);
 	}
 
-	/* Hack -- Priest prayer penalty for "edged" weapons  -DGK */
-	if ((p_ptr->rp.pclass == CLASS_PRIEST) && p_ptr->state.icky_wield) chance += 25;
+	/* Bonus from spell focus */
+	minfail = MAX(0, minfail + focus_failure_bonus[lev]);
 
 	/* Minimum failure rate */
 	if (chance < minfail) chance = minfail;
-
-	/* Stunning makes spells harder */
-	if (p_ptr->tim.stun > 50) chance += 25;
-	else if (p_ptr->tim.stun) chance += 15;
 
 	/* Always a 5 percent chance of working */
 	if (chance > 95) chance = 95;
@@ -3250,24 +3502,32 @@ s16b spell_chance(int spell, int realm)
 /*
  * Returns spell mana cost for spell
  */
-int spell_mana(int spell, int realm)
+int spell_mana(const spell_external sp)
 {
-	const magic_type *s_ptr;
 	int smana;
-
+	int i = spell_index(sp);
 
 	/* Paranoia -- must be literate */
 	if (!mp_ptr->spell_book) return (100);
 
 	/* Access the spell */
-	s_ptr = &mp_ptr->info[realm][spell];
+	smana = s_info[sp.r][sp.s].info[p_ptr->rp.pclass].smana;
 
-	smana = s_ptr->smana;
+	/* Mana bonus from spell focus */
+	smana = MIN(smana, MAX(POWER(smana,focus_mana_bonus[spell_level(sp)]), 1));
 
 	/* Chaos patrons improve chaos magic */
-	if ((realm == REALM_CHAOS - 1) && (FLAG(p_ptr, TR_PATRON)))
+	if ((sp.r == REALM_CHAOS - 1) && (FLAG(p_ptr, TR_PATRON)))
 	{
-		smana = (smana * 2 + 2) / 3;
+		smana = MIN(smana,MAX(1,POWER(smana, -10)));
+	}
+
+	/* A spell in both realms gets a boost */
+	if (i > 0 &&
+		p_ptr->spell.data[i].flags & SP_PRESENT_1 &&
+		p_ptr->spell.data[i].flags & SP_PRESENT_2)
+	{
+		smana = MIN(smana,MAX(1,POWER(smana, -10)));
 	}
 
 	return (smana);
@@ -3279,40 +3539,618 @@ int spell_mana(int spell, int realm)
  * Determine if a spell is "okay" for the player to cast or study
  * The spell must be legible, not forgotten, and also, to cast,
  * it must be known, and to study, it must not be known.
+ *
+ * known = 0: Unknown spells, but ones the player is high
+ *            enough level to use.
+ * known = 1: Known spells only.
+ * known = 2: Both of the above.
+ * known = 3: Always accept.
  */
-bool spell_okay(int spell, bool known, int realm)
+bool spell_okay(const spell_external sp, int known)
 {
 	const magic_type *s_ptr;
+	int lev = spell_level(sp);
+	int slot;
+
+	if (known == 3) return (TRUE);
 
 	/* Access the spell */
-	s_ptr = &mp_ptr->info[realm][spell];
+	s_ptr = &s_info[sp.r][sp.s].info[p_ptr->rp.pclass];
 
 	/* Spell is illegal */
 	if (s_ptr->slevel > p_ptr->lev) return (FALSE);
 
+	/* Bad realm */
+	if (sp.r != p_ptr->spell.realm[0] - 1 &&
+		sp.r != p_ptr->spell.realm[1] - 1) return (FALSE);
+
 	/* Spell is forgotten */
-	if ((realm == p_ptr->spell.r[1].realm - 1) ?
-		(p_ptr->spell.r[1].forgotten & (1L << spell)) :
-		(p_ptr->spell.r[0].forgotten & (1L << spell)))
+	if (spell_forgotten(sp))
 	{
-		/* Never okay */
-		return (FALSE);
+		/* Only okay for browsing */
+		return (known == 2);
 	}
 
 	/* Spell is learned */
-	if ((realm == p_ptr->spell.r[1].realm - 1) ?
-		(p_ptr->spell.r[1].learned & (1L << spell)) :
-		(p_ptr->spell.r[0].learned & (1L << spell)))
+	if (lev > 0)
 	{
-		/* Okay to cast, not to study */
-		return (known);
+		/* Okay to cast or browse */
+		if (known > 0) return (TRUE);
+
+		/* Can the player focus further on this spell? */
+
+		/* Not if the focus level is already maxed out */
+		if (lev == MAX_FOCUS - 1) return (FALSE);
+
+		/* Not if the player learns spells at random */
+		if (mp_ptr->spell_book == TV_LIFE_BOOK) return (FALSE);
+
+		/* Calculate the spell slot this would go in */
+		lev *= mp_ptr->focus_offset;
+		lev += s_ptr->slevel;
+		slot = (lev - mp_ptr->spell_first - 1)*SPELL_LAYERS/50;
+
+		while (!p_ptr->spell_slots[slot] && slot < SPELL_LAYERS)
+		{
+			slot++;
+		}
+
+		/* Can't learn if there are no slots left. */
+		if (slot == SPELL_LAYERS) return (FALSE);
+
+		/* Can learn. */
+		return (TRUE);
 	}
 
 	/* Okay to study, not to cast */
-	return (!known);
+	return (known != 1);
+}
+
+static void spell_info_life(char *p, int spell)
+{
+	int plev = p_ptr->lev;
+	/* Life */
+	switch (spell)
+	{
+		case 1:
+			strcpy(p, " heal 8+d10");
+			break;
+		case 2:
+			/* Actually rand_range(12,24) */
+			strcpy(p, " dur 12+d12");
+			break;
+		case 3:
+			strnfmt(p, 80, " dam 2d%d", (plev / 2));
+			break;
+		case 5:
+			strcpy(p, " heal 16+2d10");
+			break;
+		case 6:
+			/* Actually 25-50 */
+			strcpy(p, " dur 25+d25");
+			break;
+		case 8:
+			/* Actually 50-100 */
+			strcpy(p, " dur 50+d50");
+			break;
+		case 9:
+			strcpy(p, " heal 32+4d10");
+			break;
+		case 10:
+			/* Actually rand_range(24,48) */
+			strcpy(p, " dur 24+d24");
+			break;
+		case 11:
+			strnfmt(p, 80, " dam 3d6+%d", (5*plev)/4);
+			break;
+		case 12:
+			strnfmt(p, 80, " dur %d+d25", 3 * plev);
+			break;
+		case 13:
+			strcpy(p, " heal 250+10d10");
+			break;
+		case 17:
+			strcpy(p, " heal 64+8d10");
+			break;
+		case 18:
+			strnfmt(p, 80, " dam %d", (5*plev)/2);
+			break;
+		case 19:
+			strnfmt(p, 80, " dur 150");
+			break;
+		case 20:
+			strnfmt(p, 80, " dam %d", (10*plev)/3);
+			break;
+		case 22:
+			strnfmt(p, 80, " d %d, h 1000", 4 * plev);
+			break;
+		case 23:
+			strcpy(p, " heal 100");
+			break;
+		case 24:
+			/* Actually rand_range(30,50) */
+			strcpy(p, " dur 30+d20");
+			break;
+		case 26:
+			strcpy(p, " dam 150");
+			break;
+		case 30:
+			strnfmt(p, 80, " d %d, h 300", (plev * 4));
+			break;
+		case 31:
+			/* Actually rand_range(7,14) */
+			strcpy(p, " dur 7+d7");
+			break;
+		case 34: case 35:
+			strcpy(p, " dur 20+d20");
+			break;
+		case 37:
+			strcpy(p, " dam 80");
+			break;
+	}
 }
 
 
+static void spell_info_sorcery(char *p, int spell)
+{
+	int plev = p_ptr->lev;
+	switch (spell)
+	{
+		case 1:
+			strcpy(p, " range 10");
+			break;
+		case 3:
+			strnfmt(p, 80, " dam 2d%d", (plev / 2));
+			break;
+		case 5:
+			strnfmt(p, 80, " range %d", plev * 5);
+			break;
+		case 13:
+			strnfmt(p, 80, " dur 20+1d%d", plev);
+			break;
+		case 17:
+			strnfmt(p, 80, " %d mana", (2*p_ptr->lev)/3);
+			break;
+		case 21: case 29:
+			/* Actually rand_range(25,55) */
+			strcpy(p, " dur 25+d30");
+			break;
+		case 27:
+			/* Actually rand_range(30,50) */
+			strcpy(p, " dur 30+d20");
+			break;
+		case 31:
+			strcpy(p, " dur 8+d8");
+			break;
+		case 34:
+			strnfmt(p, 80, " dur 30+1d%d", (3*plev)/2);
+			break;
+	}
+}
+
+
+static void spell_info_nature(char *p, int spell)
+{
+	int plev = p_ptr->lev;
+	/* Nature */
+	switch (spell)
+	{
+		case 1:
+			strcpy(p, " heal 6+d8");
+			break;
+		case 4:
+			strnfmt(p, 80, " dam 2d%d", (plev / 2));
+			break;
+		case 6:
+			/* Actually rand_range(20,40) */
+			strcpy(p, " dur 20+d20");
+			break;
+		case 7:
+			strcpy(p, " heal 12+2d8");
+			break;
+		case 9:
+			strnfmt(p, 80, " dam %dd8", (3 + ((plev - 5) / 4)));
+			break;
+		case 10:
+			strnfmt(p, 80, " dam %dd8", (5 + ((plev - 5) / 4)));
+			break;
+		case 11:
+			strcpy(p, " dam 6d8");
+			break;
+		case 13:
+			strcpy(p, " dur 150");
+			break;
+		case 15:
+			strcpy(p, " heal 1000");
+			break;
+		case 18: case 19:
+			/* Actually rand_range(30,50) */
+			strcpy(p, " dur 30+d20");
+			break;
+		case 26:
+			strnfmt(p, 80, " dam %d", 70 + plev);
+			break;
+		case 27:
+			strnfmt(p, 80, " dam %d", 90 + plev);
+			break;
+		case 28:
+			strnfmt(p, 80, " dam %d", 120 + plev);
+			break;
+		case 29:
+			strcpy(p, " dam 150");
+			break;
+		case 31:
+			strnfmt(p, 80, " dam %d+%d", 4 * plev, (100 + plev) / 2);
+			break;
+		case 32:
+			strnfmt(p, 80, " dam %dd8", (9+((plev-5)/4)));
+			break;
+		case 33:
+			strcpy(p, " range 3000");
+			break;
+	}
+}
+
+
+static void spell_info_chaos(char *p, int spell)
+{
+	int plev = p_ptr->lev;
+	switch (spell)
+	{
+		case 0:
+			strnfmt(p, 80, " dam %dd4", 3 + ((plev - 1) / 5));
+			break;
+		case 2:
+			strnfmt(p, 80, " dam 2d%d", (plev / 2));
+			break;
+		case 4:
+			strnfmt(p, 80, " dam %d+3d5", plev + (plev / 4));
+			break;
+		case 6:
+			strnfmt(p, 80, " dam %dd6", (8 + ((plev - 5) / 4)));
+			break;
+		case 7:
+			strnfmt(p, 80, " range %d", plev * 5);
+			break;
+		case 8:
+			strcpy(p, " random");
+			break;
+		case 9:
+			strnfmt(p, 80, " dam %dd8", (8 + ((plev - 5) / 4)));
+			break;
+		case 10:
+			strnfmt(p, 80, " dam %d", 5 + plev/2);
+			break;
+		case 11:
+			strnfmt(p, 80, " dam %d", (45 + plev)/2);
+			break;
+		case 12:
+			strnfmt(p, 80, " dam %dd8", (11 + ((plev - 5) / 4)));
+			break;
+		case 13:
+			strnfmt(p, 80, " dam %d", 70 + plev);
+			break;
+		case 15:
+			strcpy(p, " range 15");
+			break;
+		case 16:
+			strnfmt(p, 80, " 9x dam %dd8 ", (5 + (plev / 10)));
+			break;
+		case 17:
+			strnfmt(p, 80, " dam %dd12", (12 + (plev-5) / 4));
+			break;
+		case 19:
+			strnfmt(p, 80, " d%d+d20", p_ptr->chp/2);
+			break;
+		case 22:
+			strcpy(p, " dur 350");
+			break;
+		case 23:
+			strnfmt(p, 80, " dam %d", (2*p_ptr->chp)/3);
+			break;
+		case 26:
+			strnfmt(p, 80, " 10-20x dam %d", (3 * plev) / 2);
+			break;
+		case 27:
+			strcpy(p, " random");
+			break;
+		case 28:
+			strnfmt(p, 80, " dam %d", 200 + plev);
+			break;
+		case 30:
+			strnfmt(p, 80, " dam %d", 300 + (plev * 2));
+			break;
+		case 31:
+			strcpy(p, " dam 3*175");
+			break;
+		case 32:
+			strnfmt(p, 80, " dam 1d4+%d, range %d", (plev+3)/4, MAX_SHORT_RANGE);
+			break;
+		case 33:
+			strnfmt(p, 80, " dam 8+%d", plev/4);
+			break;
+		case 34:
+			strcpy(p, " dur 20+d20");
+			break;
+		case 36:
+			strnfmt(p, 80, " dam %dd8", (7+(plev-5)/4));
+			break;
+		case 37:
+			strnfmt(p, 80, " dam %dd8", (10+(plev/6)));
+			break;
+	}
+}
+
+static void spell_info_death(char *p, int spell)
+{
+	int plev = p_ptr->lev;
+	switch (spell)
+	{
+		case 1:
+			strnfmt(p, 80, " dam %dd3", (3 + ((plev - 1) / 5)));
+			break;
+		case 3:
+			strnfmt(p, 80, " dam %d", 10 + (plev / 2));
+			break;
+		case 5:
+			/* Actually rand_range(20,40) */
+			strnfmt(p, 80, " dur 20+d20");
+			break;
+		case 8:
+			strnfmt(p, 80, " dam %d+3d6", plev +
+					(plev / 4));
+			break;
+		case 9:
+			strnfmt(p, 80, " range %d", 50+(plev/2));
+			break;
+		case 10:
+			strcpy(p, " dur 100");
+			break;
+		case 11:
+			strnfmt(p, 80, " dam %d+%dd%d", plev, MAX(1, plev / 10), plev);
+			break;
+		case 13:
+			strnfmt(p, 80, " dam 1d%d", plev * 3);
+			break;
+		case 16:
+			/* Actually rand_range(25,50) */
+			strcpy(p, " dur 25+d25");
+			break;
+		case 17:
+			strcpy(p, " dam 75");
+			break;
+		case 18:
+			strnfmt(p, 80, " dam %dd8", (8 + ((plev - 5) / 4)));
+			break;
+		case 19:
+			/* This is too complicated to give accurately */
+			strnfmt(p, 80, " max dur %d", MAX(50, 20+plev));
+			break;
+		case 20:
+			strnfmt(p, 80, " dam %d", 150+plev);
+			break;
+		case 21:
+			strnfmt(p, 80, " dam %d", 120+plev);
+			break;
+		case 22:
+			strcpy(p, " dur 200");
+			break;
+		case 24:
+			strnfmt(p, 80, " dam %d", plev * 50);
+			break;
+		case 27:
+			strnfmt(p, 80, " dam 1d%d", plev * 4);
+			break;
+		case 28:
+			strnfmt(p, 80, " dam %d, plus", plev * 3);
+			break;
+		case 29:
+			strcpy(p, " dam 666");
+			break;
+		case 31:
+			strnfmt(p, 80, " dur %d-%d", 3, (2*plev / 3));
+			break;
+		case 33:
+			strnfmt(p, 80, " dam %dd8", (3+(plev-4)/3));
+			break;
+		case 34:
+			strcpy(p, " dur 50+d50");
+			break;
+		case 35:
+			strcpy(p, " dur 20+d20");
+			break;
+		case 36:
+			strcpy(p, " dur 30+d20");
+			break;
+		case 39:
+			strnfmt(p, 80, " dam %d", plev+60);
+			break;
+	}
+}
+
+static void spell_info_conjuration(char *p, int spell)
+{
+	int plev = p_ptr->lev;
+	switch (spell)
+	{
+		case 0:
+			strcpy(p, " range 15");
+			break;
+		case 1:
+			strnfmt(p, 80, " dam %dd3", 3 + ((plev - 1) / 5));
+			break;
+		/* several summons: */
+		case 2: case 9: case 13: case 19: case 32: case 34:
+			strcpy(p, " dur 150");
+			break;
+		case 3:
+			strnfmt(p, 80, " dam 2d%d", plev / 4);
+			break;
+		case 4:
+			strcpy(p, " heal 6+d8");
+			break;
+		case 5:
+			strnfmt(p, 80, " range %d", MAX(250, plev*6));
+			break;
+		case 6:
+			strcpy(p, " dur 300");
+			break;
+		case 7:
+			/* Actually rand_range(25,55) */
+			strnfmt(p, 80, " dam %d", 10+(plev/2));
+			break;
+		case 8:
+			strnfmt(p, 80, " dam %d", 5+(plev/10));
+			break;
+		case 10:
+			strcpy(p, " range 25");
+			break;
+		case 12:
+			strnfmt(p, 80, " dur %d+d%d", plev, plev + 20);
+			break;
+		case 16:
+			strnfmt(p, 80, " dam %dd6", (5+(plev-1)/5));
+			break;
+		case 17:
+			strnfmt(p, 80, " dam %dd6", (9+(plev-1)/5));
+			break;
+		case 18:
+			strcpy(p, " dur 30+d20");
+			break;
+		case 20: case 28: case 30:
+			strcpy(p, " dur 350");
+			break;
+		case 22:
+			strcpy(p, " heal 150+15d8");
+			break;
+		case 24:
+			strnfmt(p, 80, " range %d", 30+plev);
+			break;
+		case 25:
+			strnfmt(p, 80, " dam %d each", 40+plev);
+			break;
+		case 27:
+			strcpy(p, " dur 20+d20");
+			break;
+		case 29:
+			strnfmt(p, 80, " dam 1d%d", 50+plev*3);
+			break;
+		case 31:
+			strcpy(p, " random");
+			break;
+	}
+}
+
+static void spell_info_arcane(char *p, int spell)
+{
+	int plev = p_ptr->lev;
+	switch (spell)
+	{
+		case 0:
+			strnfmt(p, 80, " dam %dd3", 3 + ((plev - 1) / 5));
+			break;
+		case 2:
+			strcpy(p, " range 10");
+			break;
+		case 3:
+			strnfmt(p, 80, " dam 2d%d", plev / 2);
+			break;
+		case 8:
+			strcpy(p, " heal 12+2d8");
+			break;
+		case 9: case 13: case 18: case 19: case 32:
+			/* Actually rand_range(20,40) */
+			strcpy(p, " dur 20+d20");
+			break;
+		case 12:
+			strcpy(p, " dur 24+d24");
+			break;
+		case 15:
+			strcpy(p, " dam 6d8");
+			break;
+		case 17:
+			strnfmt(p, 80, " range %d", plev * 5);
+			break;
+		case 24:
+			/* Actually rand_range(24,48) */
+			strcpy(p, " heal 48+8d8");
+			break;
+		case 26:
+			strnfmt(p, 80, " dam %d", 60 + plev);
+			break;
+		case 30:
+			strcpy(p, " delay 15+d21");
+			break;
+		case 31:
+			/* Actually rand_range(25,55) */
+			strcpy(p, " dur 25+d30");
+			break;
+		case 34:
+			strnfmt(p, 80, " dam %dd8", (8+(plev-5)/4));
+			break;
+
+	}
+}
+
+static void spell_info_illusion(char *p, int spell)
+{
+	int plev = p_ptr->lev;
+	switch (spell)
+	{
+		case 0:
+			strnfmt(p, 80, " dam 2d%d", plev / 2);
+			break;
+		case 1:
+			strnfmt(p, 80, " dam %dd3", 3 + ((plev-1)/5));
+			break;
+		case 2: case 7: case 17:
+			strcpy(p, " dur 20+d20");
+			break;
+		case 3:
+			strnfmt(p, 80, " dam %dd8", 8 + ((plev-5)/4));
+			break;
+		case 6:
+			strcpy(p, " dur 100");
+			break;
+		case 9: case 21: case 30: case 33:
+			strcpy(p, " dur 350");
+			break;
+		case 10:
+			strcpy(p, " dam 6d8");
+			break;
+		case 13:
+			strcpy(p, " dur 24+d24");
+			break;
+		case 15:
+			strnfmt(p, 80, " dam %d", 20+plev);
+			break;
+		case 18:
+			/* Not exactly right */
+			strnfmt(p, 80, " dur 100+3d%d", plev);
+			break;
+		case 19:
+			strnfmt(p, 80, " dam %d", 55+plev);
+			break;
+		case 20:
+			strnfmt(p, 80, " dam %d", 50+(3*plev/2));
+			break;
+		case 24:
+			strcpy(p, " dur 30+d20");
+			break;
+		case 27:
+			strcpy(p, " dur 200");
+			break;
+		case 28:
+			strnfmt(p, 80, " dam %d", 50*plev);
+			break;
+		case 31:
+			strnfmt(p, 80, " dam %d", 100+plev);
+			break;
+		case 37:
+			strnfmt(p, 80, " dam 1d%d+1d%d", plev*2, plev*3);
+			break;
+	}
+}
 
 /*
  * Extra information on a spell -DRS-
@@ -3322,685 +4160,47 @@ bool spell_okay(int spell, bool known, int realm)
  * The strings in this function were extracted from the code in the
  * functions "do_cmd_cast()" and "do_cmd_pray()" and may be dated.
  */
-void spell_info(char *p, int spell, int realm)
+void spell_info(char *p, const spell_external sp)
 {
+	spell_internal sp_i;
+
+	sp_i.r = s_info[sp.r][sp.s].realm;
+	sp_i.s = s_info[sp.r][sp.s].s_idx;
+
 	/* Default */
 	p[0] = 0;
 
+	/* Analyze the spell */
+	switch (sp_i.r)
 	{
-		int plev = p_ptr->lev;
-
-		/* See below */
-		int orb = (plev / ((p_ptr->rp.pclass == CLASS_PRIEST ||
-							p_ptr->rp.pclass == CLASS_HIGH_MAGE) ? 2 : 4));
-
-		/* Analyze the spell */
-		switch (realm)
+		case 0:
+			spell_info_life(p, sp_i.s);
+			break;
+		case 1:
+			spell_info_sorcery(p, sp_i.s);
+			break;
+		case 2:
+			spell_info_nature(p, sp_i.s);
+			break;
+		case 3:
+			spell_info_chaos(p, sp_i.s);
+			break;
+		case 4:
+			spell_info_death(p, sp_i.s);
+			break;
+		case 5:
+			spell_info_conjuration(p, sp_i.s);
+			break;
+		case 6:
+			spell_info_arcane(p, sp_i.s);
+			break;
+		case 7:
+			spell_info_illusion(p, sp_i.s);
+			break;
+		default:
 		{
-			case 0:
-			{
-				/* Life */
-				switch (spell)
-				{
-					case 1:
-					{
-						strcpy(p, " heal 8+d10");
-						break;
-					}
-					case 2:
-					{
-						/* Actually rand_range(12,24) */
-						strcpy(p, " dur 12+d12");
-						break;
-					}
-					case 3:
-					{
-						strnfmt(p, 80, " dam 2d%d", (plev / 2));
-						break;
-					}
-					case 5:
-					{
-						strcpy(p, " heal 16+2d10");
-						break;
-					}
-					case 6:
-					{
-						/* Actually 25-50 */
-						strcpy(p, " dur 25+d25");
-						break;
-					}
-					case 8:
-					{
-						/* Actually 50-100 */
-						strcpy(p, " dur 50+d50");
-						break;
-					}
-					case 9:
-					{
-						strcpy(p, " heal 32+4d10");
-						break;
-					}
-					case 10:
-					{
-						/* Actually rand_range(24,48) */
-						strcpy(p, " dur 24+d24");
-						break;
-					}
-					case 11:
-					{
-						strnfmt(p, 80, " dam %d+3d6", plev + orb);
-						break;
-					}
-					case 12:
-					{
-						strnfmt(p, 80, " dur %d+d25", 3 * plev);
-						break;
-					}
-					case 13:
-					{
-						strcpy(p, " heal 250+10d10");
-						break;
-					}
-					case 17:
-					{
-						strcpy(p, " heal 64+8d10");
-						break;
-					}
-					case 18:
-					{
-						strnfmt(p, 80, " dam %d", plev*3);
-						break;
-					}
-					case 19:
-					{
-						strnfmt(p, 80, " dur 150");
-						break;
-					}
-					case 20:
-					{
-						strnfmt(p, 80, " dam %d", 4 * plev);
-						break;
-					}
-					case 22:
-					{
-						strnfmt(p, 80, " d %d, h 1000", 4 * plev);
-						break;
-					}
-					case 24:
-					{
-						/* Actually rand_range(30,50) */
-						strcpy(p, " dur 30+d20");
-						break;
-					}
-					case 26:
-					{
-						strcpy(p, " dam 200");
-						break;
-					}
-					case 30:
-					{
-						strnfmt(p, 80, " d %d, h 300", (plev * 4));
-						break;
-					}
-					case 31:
-					{
-						/* Actually rand_range(7,14) */
-						strcpy(p, " dur 7+d7");
-						break;
-					}
-				}
-				break;
-			}
-
-			case 1:
-			{
-				/* Sorcery */
-				switch (spell)
-				{
-					case 1:
-					{
-						strcpy(p, " range 10");
-						break;
-					}
-					case 3:
-					{
-						strnfmt(p, 80, " dam 2d%d", (plev / 2));
-						break;
-					}
-					case 5:
-					{
-						strnfmt(p, 80, " range %d", plev * 5);
-						break;
-					}
-					case 13:
-					{
-						strnfmt(p, 80, " dur %d+d%d", plev, plev + 20);
-						break;
-					}
-					case 21:
-					{
-						/* Actually rand_range(25,55) */
-						strcpy(p, " dur 25+d30");
-						break;
-					}
-					case 27:
-					{
-						/* Actually rand_range(30,50) */
-						strcpy(p, " dur 30+d20");
-						break;
-					}
-					case 29:
-					{
-						/* Actually rand_range(25,55) */
-						strcpy(p, " dur 25+d30");
-						break;
-					}
-					case 31:
-					{
-						strcpy(p, " dur 8+d8");
-						break;
-					}
-				}
-				break;
-			}
-
-			case 2:
-			{
-				/* Nature */
-				switch (spell)
-				{
-					case 1:
-					{
-						strcpy(p, " 6+d8 heal");
-						break;
-					}
-					case 4:
-					{
-						strnfmt(p, 80, " dam 2d%d", (plev / 2));
-						break;
-					}
-					case 6:
-					{
-						/* Actually rand_range(20,40) */
-						strcpy(p, " dur 20+d20");
-						break;
-					}
-					case 9:
-					{
-						strnfmt(p, 80, " dam %dd8", (3 + ((plev - 5) / 4)));
-						break;
-					}
-					case 10:
-					{
-						strnfmt(p, 80, " dam %dd8", (5 + ((plev - 5) / 4)));
-						break;
-					}
-					case 11:
-					{
-						strcpy(p, " dam 6d8");
-						break;
-					}
-					case 13:
-					{
-						strcpy(p, " dur 150");
-						break;
-					}
-					case 15:
-					{
-						strcpy(p, " heal 1000");
-						break;
-					}
-					case 18: case 19:
-					{
-						/* Actually rand_range(30,50) */
-						strcpy(p, " dur 20+d30");
-						break;
-					}
-					case 26:
-					{
-						strnfmt(p, 80, " dam %d", 70 + plev);
-						break;
-					}
-					case 27:
-					{
-						strnfmt(p, 80, " dam %d", 90 + plev);
-						break;
-					}
-					case 28:
-					{
-						strnfmt(p, 80, " dam %d", 100 + plev);
-						break;
-					}
-					case 29:
-					{
-						strcpy(p, " dam 75");
-						break;
-					}
-					case 31:
-					{
-						strnfmt(p, 80, " dam %d+%d", 4 * plev, (100 + plev) / 2);
-						break;
-					}
-				}
-				break;
-			}
-
-			case 3:
-			{
-				/* Chaos */
-				switch (spell)
-				{
-					case 0:
-					{
-						strnfmt(p, 80, " dam %dd4", 3 + ((plev - 1) / 5));
-						break;
-					}
-					case 2:
-					{
-						strnfmt(p, 80, " dam 2d%d", (plev / 2));
-						break;
-					}
-					case 4:
-					{
-						strnfmt(p, 80, " dam %d+3d5", plev + (plev /
-														  (((p_ptr->rp.pclass ==
-															 CLASS_MAGE)
-															|| (p_ptr->rp.pclass ==
-																CLASS_HIGH_MAGE))
-														   ? 2 : 4)));
-						break;
-					}
-					case 6:
-					{
-						strnfmt(p, 80, " dam %dd8", (8 + ((plev - 5) / 4)));
-						break;
-					}
-					case 7:
-					{
-						strnfmt(p, 80, " range %d", plev * 5);
-						break;
-					}
-					case 8:
-					{
-						strcpy(p, " random");
-						break;
-					}
-					case 9:
-					{
-						strnfmt(p, 80, " dam %dd8", (8 + ((plev - 5) / 4)));
-						break;
-					}
-					case 10:
-					{
-						strnfmt(p, 80, " dam %d", 5 + plev/2);
-						break;
-					}
-					case 11:
-					{
-						strnfmt(p, 80, " dam %d", (45 + plev)/2);
-						break;
-					}
-					case 12:
-					{
-						strnfmt(p, 80, " dam %dd8", (11 + ((plev - 5) / 4)));
-						break;
-					}
-					case 13:
-					{
-						strnfmt(p, 80, " dam %d", 55 + plev);
-						break;
-					}
-					case 15:
-					{
-						strcpy(p, " range 15");
-						break;
-					}
-					case 16:
-					{
-						strnfmt(p, 80, " d %dd8 *10", (5 + (plev / 10)));
-						break;
-					}
-					case 17:
-					{
-						strnfmt(p, 80, " dam %dd8", (10 + (plev-5 / 4)));
-						break;
-					}
-					case 19:
-					{
-						strnfmt(p, 80, " d%d+d20", p_ptr->chp/2);
-						break;
-					}
-					case 22:
-					{
-						strcpy(p, " dur 350");
-						break;
-					}
-					case 23:
-					{
-						strnfmt(p, 80, " dam %d", p_ptr->chp);
-						break;
-					}
-					case 24:
-					{
-						strnfmt(p, 80, " dam %dd8", (9 + ((plev - 5) / 4)));
-						break;
-					}
-					case 26:
-					{
-						strnfmt(p, 80, " d %d *(10+d10)", (3 * plev) / 2);
-						break;
-					}
-					case 27:
-					{
-						strcpy(p, " dam 75 / 150");
-						break;
-					}
-					case 28:
-					{
-						strnfmt(p, 80, " dam %d", 120 + plev);
-						break;
-					}
-					case 30:
-					{
-						strnfmt(p, 80, " dam %d", 300 + (plev * 2));
-						break;
-					}
-					case 31:
-					{
-						strcpy(p, " dam 3*175");
-						break;
-					}
-				}
-				break;
-			}
-
-			case 4:
-			{
-				/* Death */
-				switch (spell)
-				{
-					case 1:
-					{
-						strnfmt(p, 80, " dam %dd3", (3 + ((plev - 1) / 5)));
-						break;
-					}
-					case 3:
-					{
-						strnfmt(p, 80, " dam %d", 10 + (plev / 2));
-						break;
-					}
-					case 5:
-					{
-						/* Actually rand_range(20,40) */
-						strnfmt(p, 80, " dur 20+d20");
-						break;
-					}
-					case 8:
-					{
-						strnfmt(p, 80, " dam %d+3d6", plev +
-								(plev / (((p_ptr->rp.pclass == CLASS_MAGE) ||
-										  (p_ptr->rp.pclass ==
-										   CLASS_HIGH_MAGE)) ? 2 : 4)));
-						break;
-					}
-					case 9:
-					{
-						strnfmt(p, 80, " range %d", 5*plev);
-						break;
-					}
-					case 10:
-					{
-						strcpy(p, " dur 100");
-						break;
-					}
-					case 11:
-					{
-						strnfmt(p, 80, " dm %d+%dd%d", plev, MAX(1, plev / 10), plev);
-						break;
-					}
-					case 13:
-					{
-						strnfmt(p, 80, " dam %d", (3 * plev)/2);
-						break;
-					}
-					case 16:
-					{
-						/* Actually rand_range(25,50) */
-						strcpy(p, " dur 25+d25");
-						break;
-					}
-					case 17:
-					{
-						strcpy(p, " dam 75");
-						break;
-					}
-					case 18:
-					{
-						strnfmt(p, 80, " dam %dd8", (6 + ((plev - 5) / 4)));
-						break;
-					}
-					case 19:
-					{
-						/* This is too complicated to give accurately */
-						strnfmt(p, 80, " max dur %d", MAX(50, 20+plev));
-						break;
-					}
-					case 20:
-					{
-						strnfmt(p, 80, " dam %d", 150+2*plev);
-						break;
-					}
-					case 21:
-					{
-						strcpy(p, " dam 120");
-						break;
-					}
-					case 22:
-					{
-						strcpy(p, " dur 350");
-						break;
-					}
-					case 24:
-					{
-						strnfmt(p, 80, " dam %d", plev * 50);
-						break;
-					}
-					case 27:
-					{
-						strnfmt(p, 80, " dam %d", plev * 4);
-						break;
-					}
-					case 28:
-					{
-						strnfmt(p, 80, " d %d, esc", plev * 3);
-						break;
-					}
-					case 29:
-					{
-						strcpy(p, " dam 666");
-						break;
-					}
-					case 31:
-					{
-						strnfmt(p, 80, " dur %d-%d", 3, (2*plev / 3));
-						break;
-					}
-				}
-				break;
-			}
-
-			case 5:
-			{
-				/* Conjuration */
-				switch (spell)
-				{
-					case 0:
-					{
-						strcpy(p, " range 15");
-						break;
-					}
-					case 1:
-					{
-						strnfmt(p, 80, " dam %dd3", 3 + ((plev - 1) / 5));
-						break;
-					}
-					/* several summons: */
-					case 2: case 9: case 13: case 19:
-					{
-						strcpy(p, " dur 150");
-						break;
-					}
-					case 3:
-					{
-						strnfmt(p, 80, " dam 2d%d", plev / 4);
-						break;
-					}
-					case 4:
-					{
-						strcpy(p, " heal 6+d8");
-						break;
-					}
-					case 5:
-					{
-						strnfmt(p, 80, " range %d", MAX(250, plev*6));
-						break;
-					}
-					case 6:
-					{
-						strcpy(p, " dur 300");
-						break;
-					}
-					case 7:
-					{
-						/* Actually rand_range(25,55) */
-						strnfmt(p, 80, " dam %d", 10+(plev/2));
-						break;
-					}
-					case 8:
-					{
-						strnfmt(p, 80, " dam %d", 5+(plev/10));
-						break;
-					}
-					case 10:
-						strcpy(p, " range 25");
-						break;
-					case 12:
-					{
-						strnfmt(p, 80, " dur %d+d%d", plev, plev + 20);
-						break;
-					}
-					case 16:
-						strnfmt(p, 80, " dam %dd6", (6+(plev-1)/5));
-						break;
-					case 17:
-						strnfmt(p, 80, " dam %dd6", (9+(plev-1)/5));
-						break;
-					case 18:
-						strcpy(p, " dur 30+d20");
-						break;
-					case 20: case 28: case 30:
-						strcpy(p, " dur 350");
-						break;
-					case 22:
-					{
-						strcpy(p, " heal 150+15d8");
-						break;
-					}
-					case 24:
-						strnfmt(p, 80, " range %d", 30+plev);
-						break;
-					case 25:
-						strnfmt(p, 80, " dam %d each", 40+plev);
-						break;
-					case 27:
-						strcpy(p, " dur 20+d20");
-						break;
-					case 29:
-						strnfmt(p, 80, " dam %d", 50+plev*3);
-						break;
-					case 31:
-						strcpy(p, " random");
-						break;
-				}
-				break;
-			}
-
-			case 6:
-			{
-				/* Arcane */
-				switch (spell)
-				{
-					case 0:
-					{
-						strnfmt(p, 80, " dam %dd3", 3 + ((plev - 1) / 5));
-						break;
-					}
-					case 2:
-					{
-						strcpy(p, " range 10");
-						break;
-					}
-					case 3:
-					{
-						strnfmt(p, 80, " dam 2d%d", plev / 2);
-						break;
-					}
-					case 8:
-					{
-						strcpy(p, " heal 12+2d8");
-						break;
-					}
-					case 9: case 13: case 18: case 19:
-					{
-						/* Actually rand_range(20,40) */
-						strcpy(p, " dur 20+d20");
-						break;
-					}
-					case 12:
-					{
-						strcpy(p, " dur 24+d24");
-						break;
-					}
-					case 15:
-					{
-						strcpy(p, " dam 6d8");
-						break;
-					}
-					case 17:
-					{
-						strnfmt(p, 80, " range %d", plev * 5);
-						break;
-					}
-					case 24:
-					{
-						/* Actually rand_range(24,48) */
-						strcpy(p, " heal 48+8d8");
-						break;
-					}
-					case 26:
-					{
-						strnfmt(p, 80, " dam %d", 75 + plev);
-						break;
-					}
-					case 30:
-					{
-						strcpy(p, " delay 15+d21");
-						break;
-					}
-					case 31:
-					{
-						/* Actually rand_range(25,55) */
-						strcpy(p, " dur 25+d30");
-						break;
-					}
-				}
-				break;
-			}
-
-			default:
-			{
-				strnfmt(p, 80, "Unknown type: %d.", realm);
-			}
+			strnfmt(p, 80, "Unknown type: %d.", sp_i.r);
+			break;
 		}
 	}
 }
@@ -4009,12 +4209,16 @@ void spell_info(char *p, int spell, int realm)
 /*
  * Print a list of spells (for browsing or casting or viewing)
  */
-void print_spells(byte *spells, int num, int x, int y, int realm)
+static void print_spells_aux(byte *spells, int num, int x, int y, int realm, bool warn)
 {
-	int i, spell;
+	int i;
 	const magic_type *s_ptr;
 	cptr comment;
 	char info[80];
+	spell_external sp;
+	int pow;
+
+	sp.r = realm;
 
 	if (((realm < 0) || (realm >= MAX_REALM)) && p_ptr->state.wizard)
 		msgf("Warning! print_spells called with null realm");
@@ -4022,20 +4226,20 @@ void print_spells(byte *spells, int num, int x, int y, int realm)
 	/* Title the list */
 	prtf(x, y, "");
 	put_fstr(x + 5, y, "Name");
-	put_fstr(x + 35, y, "Lv Mana Fail Info");
+	put_fstr(x + 35, y, "Lv Mana Fail Power Info");
 
 
 	/* Dump the spells */
 	for (i = 0; i < num; i++)
 	{
 		/* Access the spell */
-		spell = spells[i];
+		sp.s = spells[i];
 
 		/* Access the spell */
-		s_ptr = &mp_ptr->info[realm][spell];
+		s_ptr = &s_info[sp.r][sp.s].info[p_ptr->rp.pclass];
 
 		/* Skip illegible spells */
-		if (s_ptr->slevel >= 99)
+		if (s_ptr->slevel > PY_MAX_LEVEL)
 		{
 			prtf(x, y + i + 1, CLR_L_DARK "  %c) %-30s",
 					 I2A(i), "(illegible)");
@@ -4045,46 +4249,68 @@ void print_spells(byte *spells, int num, int x, int y, int realm)
 		/* XXX XXX Could label spells above the players level */
 
 		/* Get extra info */
-		spell_info(info, spell, realm);
+		spell_info(info, sp);
 
 		/* Use that info */
 		comment = info;
 
-		/* Analyze the spell */
-		if ((realm + 1 != p_ptr->spell.r[0].realm) && (realm + 1 != p_ptr->spell.r[1].realm))
+		if (warn)
 		{
-			comment = CLR_SLATE " uncastable";
+			/* Analyze the spell */
+			if ((realm + 1 != p_ptr->spell.realm[0]) && (realm + 1 != p_ptr->spell.realm[1]))
+			{
+				comment = CLR_SLATE " uncastable";
+			}
+
+			/* We know these books */
+			else if (spell_forgotten(sp))
+			{
+				comment = CLR_YELLOW " forgotten";
+			}
+			else if (spell_level(sp) == 0)
+			{
+				comment = CLR_L_BLUE " unknown";
+			}
+			else if (!spell_tried(sp))
+			{
+				comment = CLR_L_GREEN " untried";
+			}
 		}
 
-		/* We know these books */
-		else if ((realm + 1 == p_ptr->spell.r[0].realm) ?
-				 ((p_ptr->spell.r[0].forgotten & (1L << spell))) :
-				 ((p_ptr->spell.r[1].forgotten & (1L << spell))))
-		{
-			comment = CLR_YELLOW " forgotten";
-		}
-		else if (!((realm + 1 == p_ptr->spell.r[0].realm) ?
-				   (p_ptr->spell.r[0].learned & (1L << spell)) :
-				   (p_ptr->spell.r[1].learned & (1L << spell))))
-		{
-			comment = CLR_L_BLUE " unknown";
-		}
-		else if (!((realm + 1 == p_ptr->spell.r[0].realm) ?
-				   (p_ptr->spell.r[0].worked & (1L << spell)) :
-				   (p_ptr->spell.r[1].worked & (1L << spell))))
-		{
-			comment = CLR_L_GREEN " untried";
-		}
+		/* Get the power level */
+		pow = spell_power(sp);
+
+		/* Bonus for Nature shows up here. */
+		if (sp.r == REALM_NATURE-1 && !p_ptr->depth) pow = POWER(100+pow,25)-100;
 
 		/* Dump the spell --(-- */
-		prtf(x, y + i + 1, "  %c) %-30s%2d %4d %3d%%%s",
-				I2A(i), spell_names[realm][spell],
-				(int)s_ptr->slevel, spell_mana(spell, realm),
-				spell_chance(spell, realm), comment);
+		prtf(x, y + i + 1, "  %c) %-30s%2d %4d %3d%% %s%2d%%" CLR_DEFAULT "%s",
+				I2A(i), spell_name(sp),
+				(int)s_ptr->slevel, spell_mana(sp),
+				/* Hack: no warning means this is shadow magic: impose 5% min. failure rate in display. */
+				(warn ? spell_chance(sp) : MAX(5,spell_chance(sp))),
+				pow > 0 ? CLR_L_GREEN "+" : (pow == 0 ? " " : CLR_RED " "), pow,
+				comment);
 	}
 
 	/* Clear the bottom line */
 	prtf(x, y + i + 1, "");
+}
+
+/*
+ * Normally, we want info about which spells we can cast
+ */
+void print_spells(byte *spells, int num, int x, int y, int realm)
+{
+	print_spells_aux(spells, num, x, y, realm, TRUE);
+}
+
+/*
+ * Sometimes, we want just the spells and info.
+ */
+void print_all_spells(byte *spells, int num, int x, int y, int realm)
+{
+	print_spells_aux(spells, num, x, y, realm, FALSE);
 }
 
 
@@ -4092,7 +4318,6 @@ void print_spells(byte *spells, int num, int x, int y, int realm)
  * Note that amulets, rods, and high-level spell books are immune
  * to "inventory damage" of any kind.  Also sling ammo and shovels.
  */
-
 
 /*
  * Does a given class of objects (usually) hate acid?
@@ -4199,6 +4424,7 @@ bool hates_fire(const object_type *o_ptr)
 		case TV_DEATH_BOOK:
 		case TV_CONJ_BOOK:
 		case TV_ARCANE_BOOK:
+		case TV_ILLUSION_BOOK:
 		{
 			/* Books */
 			return (TRUE);
@@ -4558,7 +4784,7 @@ bool brand_bolts(void)
 		add_ego_flags(o_ptr, EGO_FLAME);
 
 		/* Enchant */
-		(void)enchant(o_ptr, rand_range(2, 6), ENCH_TOHIT | ENCH_TODAM);
+		(void)enchant(o_ptr, rand_range(2, 6), ENCH_TOHIT | ENCH_TODAM, 0);
 
 		/* Notice changes */
 		notice_inven();
@@ -4598,9 +4824,13 @@ static s16b poly_r_idx(int r_idx)
 	lev1 = r_ptr->level - ((randint1(20) / randint1(9)) + 1);
 	lev2 = r_ptr->level + ((randint1(20) / randint1(9)) + 1);
 
+	/* Prep the allocation table */
+	get_mon_num_prep(NULL);
+
 	/* Pick a (possibly new) non-unique race */
 	for (i = 0; i < 1000; i++)
 	{
+
 		/* Pick a new race, using a level calculation */
 		r = get_mon_num((p_ptr->depth + r_ptr->level) / 2 + 5);
 
@@ -4799,7 +5029,7 @@ void sanity_blast(const monster_type *m_ptr)
 	/* Do we pass the saving throw? */
 	if (player_save(power)) return;
 
-	if (p_ptr->tim.image)
+	if (query_timed(TIMED_IMAGE))
 	{
 		/* Something silly happens... */
 		msgf("You behold the %s visage of %v!",
@@ -4840,7 +5070,7 @@ void sanity_blast(const monster_type *m_ptr)
 			/* Get afraid, even if have resist fear! */
 			(void)inc_afraid(rand_range(10, 20));
 		}
-		if (!(FLAG(p_ptr, TR_RES_CHAOS))  && !p_ptr->tim.oppose_conf)
+		if (!(FLAG(p_ptr, TR_RES_CHAOS))  && !query_timed(TIMED_OPPOSE_CONF))
 		{
 			(void)inc_image(rand_range(150, 400));
 		}
@@ -4868,14 +5098,19 @@ void sanity_blast(const monster_type *m_ptr)
 bool player_summon (int type, int level, bool group, int dur, int pet, int number)
 {
 	int i, j, x, y, qual, r_idx = 0;
+	int cnt = 0;
 	cave_type *c_ptr;
-	monster_type *m_ptr;
-	bool p, succ = FALSE;
-	cptr q, s;
+	bool p;
+	cptr q, s, m, ms;
+
+	/* Determine the "quality rating" of the monster.  This will always be a number between 1 and 100. */
+	qual = level + damroll(8,4)-20;  /* allows some variation, but close to specified level. */
+	qual = (qual < 1 ? 1 : (qual > 100 ? 100 : qual));
 
 	/* determine success or failure */
 	if (pet == 0) {
-		p = !(one_in_(4));  /* simplistic. */
+		/* So minimum success chance is 75%, maximum is 95 */
+		p = !(randint1(250) > 187+(p_ptr->lev));
 	} else {
 		p = ((pet == PSUM_FORCE_SUCCESS) ? TRUE : FALSE);
 	}
@@ -4884,10 +5119,6 @@ bool player_summon (int type, int level, bool group, int dur, int pet, int numbe
 	if (type == 0 || type > PSUM_NUM_TYPES) {
 		return summon_specific((p ? -1 : 0), p_ptr->px, p_ptr->py, level, type, group, FALSE, p);
 	}
-
-	/* Determine the "quality rating" of the monster.  This will always be a number between 1 and 100. */
-	qual = level + damroll(8,4)-20;  /* allows some variation, but close to specified level. */
-	qual = (qual < 1 ? 1 : (qual > 100 ? 100 : qual));
 
 	/* Determine the monster type. NOTE: this is hard-coded for certain
 	   monster race numbers!  */
@@ -4906,6 +5137,8 @@ bool player_summon (int type, int level, bool group, int dur, int pet, int numbe
 			else r_idx = 196;			/* Wolf */
 			q = "An animal appears!";
 			s = "An angry animal appears!";
+			m = "Many animals appear!";
+			ms = "Many angry animals appear!";
 			break;
 		case PSUM_ANIMAL:
 			if (qual <= 10) r_idx = 172;  /* Eagle */
@@ -4920,6 +5153,8 @@ bool player_summon (int type, int level, bool group, int dur, int pet, int numbe
 			else r_idx = 389;			/* Tyrannosaurus */
 			q = "An animal appears!";
 			s = "An angry animal appears!";
+			m = "Many animals appear!";
+			ms = "Many angry animals appear!";
 			break;
 		case PSUM_ANGEL:
 			if (qual <= 50) r_idx = 417;   	/* Angel */
@@ -4929,11 +5164,20 @@ bool player_summon (int type, int level, bool group, int dur, int pet, int numbe
 			else r_idx = 661;				/* Archon */
 			q = "An angel appears!";
 			s = "An angel appears and turns on you!";
+			m = "Many angels appear!";
+			ms = "Many angry angels appear!";
 			break;
 		case PSUM_DEMON:
-			r_idx = 609;  /* Baron of Hell, for now. */
+			if (qual <= 30) r_idx = 609;  /* Baron of Hell */
+			else if (qual <= 50) r_idx = 659;  /* Byakhee */
+			else if (qual <= 75) r_idx = 915;  /* Lesser Balrog */
+			else if (qual <= 87) r_idx = 719;  /* Nycadaemon */
+			else if (qual <= 98) r_idx = 720;  /* Balrog */
+			else r_idx = 812;  /* Warp Demon */
 			q = "You smell brimstone...";
 			s = "You smell brimstone... uh oh!  Your binding failed!";
+			m = "You smell brimstone...";
+			ms = "You smell brimstone... uh oh!  Your binding failed!";
 			break;
 		case PSUM_UNDEAD:
 			if (qual <= 10) r_idx = 125;  		/* Rotting Corpse */
@@ -4948,6 +5192,8 @@ bool player_summon (int type, int level, bool group, int dur, int pet, int numbe
 			else r_idx = 533;			/* Headless Ghost */
 			q = "An undead creature appears to serve you!";
 			s = "An undead creature appears and attacks you!";
+			m = "Many undead creatures appear to serve you!";
+			ms = "Many undead creatures appear and attack you!";
 			break;
 		case PSUM_DRAGON:
 			if (qual <= 5)   /* baby dragon, determine type. */
@@ -4988,6 +5234,8 @@ bool player_summon (int type, int level, bool group, int dur, int pet, int numbe
 			}
 			q = "You summon forth a dragon!";
 			s = "An angry dragon appears!";
+			m = "Many dragons appear!";
+			ms = "Many angry dragons appear!";
 			break;
 		case PSUM_HI_UNDEAD:
 			if (qual <= 10) r_idx = 518;  		/* Lich */
@@ -5006,6 +5254,8 @@ bool player_summon (int type, int level, bool group, int dur, int pet, int numbe
 			else r_idx = 696;			/* Nazgul */
 			q = "An powerful undead creature appears to serve you!";
 			s = "An powerful undead creature appears and attacks you!";
+			m = "Many powerful undead creatures appear to serve you!";
+			ms = "Many powerful undead creatures appear and attack you!";
 			break;
 		case PSUM_HI_DRAGON:
 			if (qual <= 30) {  /* plain ancient dragon, determine type */
@@ -5023,9 +5273,12 @@ bool player_summon (int type, int level, bool group, int dur, int pet, int numbe
 			else if (qual <= 70) r_idx = 703;    /* Dracolisk */
 			else if (qual <= 80) r_idx = 728;    /* Great Storm Wyrm */
 			else if (qual <= 90) r_idx = 741;	 /* Great Ice Wyrm */
-			else r_idx = 754;					 /* Great Hell Wyrm */
+			else r_idx = 756;					 /* Great Hell Wyrm */
 			q = "You summon forth an ancient dragon!";
 			s = "An angry ancient dragon appears!";
+			m = "Many ancient dragons appear!";
+			ms = "Many angry ancient dragons appear!";
+			break;
 		case PSUM_ELEMENTAL:
 			if (qual <= 25) {  /* elemental spirit */
 				i = randint1(4);
@@ -5068,12 +5321,16 @@ bool player_summon (int type, int level, bool group, int dur, int pet, int numbe
 			}
 			q = "An elemental creature materializes to serve you!";
 			s = "An elemental creature materializes and attacks!";
+			m = "Many elementals materialize!";
+			ms = "Many elementals materialize and attack!";
 			break;
 		case PSUM_PHANTOM:
 			if (qual <= 50) r_idx = 152;
 			else r_idx = 385;
 			q = "A phantom steps forth.";
 			s = "A phantom steps forth to attack you!";
+			m = "Many phantoms step forth!";
+			ms = "Many phantoms step forth to attack you!";
 			break;
 		case PSUM_HYDRA:
 			if (qual <= 10) r_idx = 301;   /* 2-headed */
@@ -5084,11 +5341,15 @@ bool player_summon (int type, int level, bool group, int dur, int pet, int numbe
 			else r_idx = 688;  /* 11 */
 			q = "A hydra appears!";
 			s = "A hydra appears and attacks you!";
+			m = "Many hydras appear!";
+			ms = "Many angry hydras appear!";
 			break;
 		case PSUM_SPIDER:
 			r_idx = 175;
 			q = "A spider appears!";
 			s = "A spider appears and attacks you!";
+			m = "Many spiders appear!";
+			ms = "Many angry spiders appear!";
 			break;
 		case PSUM_MOLD:
 			if (qual <= 5) r_idx = 20;
@@ -5101,21 +5362,83 @@ bool player_summon (int type, int level, bool group, int dur, int pet, int numbe
 			else r_idx = 711;
 			q = "A mold appears!";
 			s = "A mold appears and attacks you!";
+			m = "Many molds appear!";
+			ms = "Many molds appear and attack you!";
 			break;
 		case PSUM_CYBER:
 			r_idx = 816;
 			q = "A cyberdemon appears to serve you!";
 			s = "A cyberdemon appears and attacks you!";
+			m = "Many cyberdemons appear!";
+			ms = "EXTERMINATE!";
+			break;
+		case PSUM_LIGHT:
+			r_idx = 81;
+			q = s = "A light appears";
+			m = ms = "Many lights appear";
+			break;
+		case PSUM_MIRROR:
+			r_idx = 968;
+			q = s = "You seem to split in two!";
+			m = ms = "You seem to split into many copies!";
+			break;
+		case PSUM_STALKER:
+			r_idx = 514;
+			q = s = "Something terrible steps forth.";
+			m = ms = "Some terrible things step forth.";
+			break;
+		case PSUM_SHADOW:
+			if (qual <= 50) r_idx = 471;
+			else if (qual <= 90) r_idx = 665;
+			else r_idx = 774;
+			q = "A shadowy form steps forth to serve you.";
+			s = "A shadowy form steps forth and attacks you!";
+			m = "Several shadowy forms step forth to serve you.";
+			ms = "Many shadows emerge and attack you!";
+			break;
+		case PSUM_CLONE:
+			r_idx = QW_CLONE;
+			q = s = m = ms = "You split in two!";
+			break;
+		case PSUM_BUGS:
+			if (qual <= 20) r_idx = 69;  /* White louse */
+			else if (qual <= 40) r_idx = 197;  /* Fruit fly */
+			else if (qual <= 70) r_idx = 259;  /* Giant flea */
+			else r_idx = 289;  /* Hummerhorn */
+			q = "An insect appears!";
+			s = "An insect appears and attacks you!";
+			m = "Many insects appear!";
+			ms = "Many angry insects appear!";
+			break;
+		case PSUM_HOUNDS:
+			if (qual <= 10) r_idx = 271;
+			else if (qual <= 20) r_idx = 307;
+			else if (qual <= 30) r_idx = 308;
+			else if (qual <= 40) r_idx = 337;
+			else if (qual <= 50) r_idx = 340;
+			else if (qual <= 60) r_idx = 429;
+			else if (qual <= 70) r_idx = 513;
+			else if (qual <= 85) r_idx = 542;
+			else if (qual <= 92) r_idx = 724;
+			else r_idx = 725;
+			q = "A zephyr hound appears!";
+			s = "A zephyr hound appears and attacks you!";
+			m = "Many zephyr hounds appear!";
+			ms = "Many angry zephyr hounds appear!";
 			break;
 		default:
 			r_idx = 17;  /* Mean looking mercenary, why not */
 			q = "Bad type in player_summon.";
 			s = "Bad type in player_summon.  It attacks you!";
+			m = "Bad type in player_summon.";
+			ms = "Bad type in player_summon.  It attacks you!";
 			break;
 	}
 
 	/* Handle failure */
 	if (!r_idx) return (FALSE);
+
+	pet_dur = dur;
 
 	/* Attempt to place number monsters (awake) */
 	for (j = 0; j < number; j++)
@@ -5159,21 +5482,22 @@ bool player_summon (int type, int level, bool group, int dur, int pet, int numbe
 		if (i != 20)
 		{
 			if (place_monster_aux(x,y, r_idx, FALSE, group, FALSE, p, TRUE))
-				/* Have summoned at least one thing. */
-				succ = TRUE;
+			{
+				cnt++;
+			}
+
 		}
 	}
 
-	if (!succ) return (FALSE);
+	pet_dur = 0;
 
 	/* Give a message. */
-	msgf(p ? q : s);
-
-	/* Find the monster. */
-	m_ptr = &m_list[(area(x,y))->m_idx];
-
-	/* Set unsummoning time, if it is a pet. */
-	m_ptr->unsummon = (p ? dur : 0);
+	if (cnt > 1)
+		msgf(p ? m : ms);
+	else if (cnt == 1)
+		msgf(p ? q : s);
+	else
+		return(FALSE);
 
 
 
@@ -5184,7 +5508,7 @@ bool player_summon (int type, int level, bool group, int dur, int pet, int numbe
  * Do what a mushroom of chaos does.
  * Could be LUA-fied but would be awfully long.
  */
-bool mushroom_chaos_aux(bool vocal)
+static bool mushroom_chaos_aux(bool vocal)
 {
 	int v = randint1(100);
 	bool rv = TRUE;
@@ -5263,4 +5587,328 @@ bool mushroom_chaos(void)
 	mushroom_chaos_aux(TRUE);
 
 	return TRUE;
+}
+
+
+/*
+ * Get the monster name from r_info[]
+ */
+cptr spell_name(const spell_external sp)
+{
+	return (s_name + s_info[sp.r][sp.s].name);
+}
+
+/*
+ * Have we cast this spell before?
+ */
+bool spell_tried(const spell_external sp)
+{
+	int i = spell_index(sp);
+
+	/* If we haven't learned it, we haven't tried it. */
+	if (i == p_ptr->spell.spell_max) return (FALSE);
+
+	if (p_ptr->spell.data[i].flags & SP_TRIED)
+		return (TRUE);
+
+	return (FALSE);
+}
+
+void spell_worked(const spell_external sp)
+{
+	int i = spell_index(sp);
+
+	/* Paranoia */
+	if (i == p_ptr->spell.spell_max) return;
+
+	p_ptr->spell.data[i].flags |= SP_TRIED;
+}
+
+
+bool spell_forgotten(const spell_external sp)
+{
+	int i = spell_index(sp);
+	int r = (sp.r == p_ptr->spell.realm[0]-1 ? 0 : 1);
+
+	/* If we haven't learned it, we haven't forgotten it. */
+	if (i == p_ptr->spell.spell_max) return (FALSE);
+
+	if (p_ptr->spell.data[i].flags & (r==0 ? SP_FORGOTTEN_1 : SP_FORGOTTEN_2))
+		return (TRUE);
+
+	return (FALSE);
+}
+
+/*
+ * Long-range, distance and direction selectable teleportation spell for use in the
+ * wilderness only.
+ */
+bool earthstride(void)
+{
+	int dir, ax, ay, tx, ty, x, y;
+	int dist;
+	int rd;
+
+	if (p_ptr->depth)
+	{
+		msgf ("You can only cast this spell in the Wilderness.");
+		return (FALSE);
+	}
+
+	if (vanilla_town)
+	{
+		msgf ("You can never cast this spell, because there is no Wilderness in your game.");
+		return (FALSE);
+
+		/* XXX someday: help the player forget the spell? */
+	}
+
+	if (!get_aim_dir(&dir)) return FALSE;
+
+	dist = 0;
+	while (dist < 100)
+	{
+		dist = get_quantity("Distance? (0: cancel, 100-3000) ", 3000);
+
+		if (!dist) return FALSE;
+
+		if (dist < 100)
+		{
+			msgf ("Minimum range is 100.");
+			message_flush();
+		}
+	}
+
+	/* Randomize */
+	dist = rand_range(POWER(dist,-10),POWER(dist,10));
+
+	ax = 99 * ddx[dir];
+	ay = 99 * ddy[dir];
+
+	/* Use target if necessary */
+	if (dir == 5 && target_okay())
+	{
+		ax = p_ptr->target_col - p_ptr->px;
+		ay = p_ptr->target_row - p_ptr->py;
+	}
+
+	rd = distance(0, 0, ax, ay);
+
+	/* Calculate destination */
+	tx = p_ptr->px + (dist * ax)/rd;
+	ty = p_ptr->py + (dist * ay)/rd;
+
+	/* Where in the wilderness is this? */
+	x = ((u16b)tx / WILD_BLOCK_SIZE);
+	y = ((u16b)ty / WILD_BLOCK_SIZE);
+
+	/* Check for overflow */
+	if (x < 0 || x >= (WILD_SIZE-1) || y < 0 || y >= (WILD_SIZE-1))
+	{
+		msgf ("You arrive somewhere you didn't expect.");
+		teleport_player(250);
+		return (TRUE);
+	}
+
+	/* No overflow, use the values. */
+	p_ptr->px = p_ptr->wilderness_x = tx;
+	p_ptr->py = p_ptr->wilderness_y = ty;
+
+	/* Hack: avoid getting stuck in something */
+	teleport_player(15);
+
+	/* Notice player location */
+	Term_move_player();
+
+	/* Remove all monster lights */
+	lite_n = 0;
+
+	/* Notice the move */
+	move_wild();
+
+	/* Check for new panel (redraw map) */
+	verify_panel();
+
+	/* Update stuff */
+	p_ptr->update |= (PU_VIEW | PU_FLOW | PU_MON_LITE);
+
+	/* Update the monsters */
+	p_ptr->update |= (PU_DISTANCE);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+
+	/* Success */
+	return (TRUE);
+}
+
+
+static int phantom_terrain_choices[7] =
+{
+	FEAT_DIRT,
+	FEAT_WALL_SOLID,
+	FEAT_DEEP_WATER,
+	FEAT_DEEP_LAVA,
+	FEAT_DEEP_ACID,
+	FEAT_DEEP_SWAMP,
+	FEAT_CLOSED
+};
+
+
+/*
+ * Multi-space terraforming
+ */
+bool phantom_terrain(void)
+{
+	int j;
+	char buf[80];
+	char m_name[80];
+	char choice;
+	bool ask;
+	int f_idx = -1;
+	int tx, ty;
+	monster_race *r_ptr;
+	monster_type *m_ptr;
+	bool rv = FALSE;
+
+	msgf("You cast phantom terrain.  Select a target.");
+
+
+	/* Get target */
+	if (!target_set(TARGET_KILL | TARGET_HOST))
+	{
+		return (FALSE);
+	}
+
+	/* Terrain choice menu */
+	f_idx = 0;
+
+	screen_save();
+
+	prtf(20,1,"     Feature");
+
+	for (j = 0; j < 7; j++)
+	{
+		strnfmt(buf, 80, "%s", f_name + f_info[phantom_terrain_choices[j]].name);
+
+		buf[0] = toupper(buf[0]);
+
+		prtf(20,j+2, "%c) %s", I2A(j), buf);
+	}
+
+	while (get_com("Form which terrain (ESC=exit ^R=redraw)", &choice))
+	{
+		if (choice == KTRL('R'))
+		{
+			do_cmd_redraw();
+			continue;
+		}
+
+		/* Note verify */
+		ask = (isupper(choice));
+
+		/* Lowercase */
+		if (ask) choice = tolower(choice);
+
+		/* Extract request */
+		j = (islower(choice) ? A2I(choice) : -1);
+
+		/* Verify it */
+		if (ask && !get_check("%s, are you sure?",
+					f_name + f_info[phantom_terrain_choices[j]].name))
+		{
+			continue;
+		}
+
+		/* Use it */
+		f_idx = j;
+		current_terrain = phantom_terrain_choices[f_idx];
+		break;
+	}
+
+	screen_load();
+
+	if (f_idx < 0)
+	{
+		return (FALSE);
+	}
+
+	/* We are going to try at this point. */
+	rv = TRUE;
+
+	tx = p_ptr->target_col;
+	ty = p_ptr->target_row;
+
+	/* If there's a monster, allow a saving throw
+		BEFORE affecting terrain. */
+
+	if (cave_data[ty][tx].m_idx)
+	{
+		m_ptr = &m_list[cave_data[ty][tx].m_idx];
+		r_ptr = &r_info[m_ptr->r_idx];
+
+		/* Get the monster name */
+		monster_desc(m_name, m_ptr, 0, 80);
+
+		if (randint1(3*p_ptr->lev) >= r_ptr->hdice)
+		{
+			msgf ("%s disbelieves!", m_name);
+
+			/* We used the spell */
+			return (TRUE);
+		}
+	}
+
+	/* Not on permanent grids */
+	if (cave_perma_grid(area(tx,ty))) return(rv);
+
+	/* Paranoia */
+	if (!current_terrain) return(rv);
+
+	/* Set it */
+	cave_set_feat(tx,ty, current_terrain);
+
+	/* Update stuff */
+	p_ptr->update |= (PU_VIEW | PU_FLOW);
+
+	/* Update the monsters */
+	p_ptr->update |= (PU_MONSTERS);
+
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+
+	/* A message */
+	msgf ("The dungeon changes...");
+
+	return (rv);
+}
+
+/*
+ * Apply stasis at a location, with given power level.
+ */
+bool do_stasis(int x, int y, int dam)
+{
+	cave_type *c_ptr = area(x, y);
+	monster_type *m_ptr = &m_list[c_ptr->m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	char m_name[80];
+	bool seen = m_ptr->ml;
+
+	/* Get the name */
+	monster_desc(m_name, m_ptr, 0, 80);
+
+	/* Allow a saving throw */
+	if (FLAG(r_ptr, RF_UNIQUE) || (r_ptr->hdice * 2 > randint1(dam * 4)))
+	{
+		if (seen) msgf ("%s is unaffected!", m_name);
+		return FALSE;
+	}
+
+	if (seen) msgf ("%s is hypnotized!", m_name);
+	m_ptr->csleep += 500;
+
+	return (TRUE);
 }

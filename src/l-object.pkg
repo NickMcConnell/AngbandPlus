@@ -241,7 +241,7 @@ typedef int sint;
 #define TR3_WILD_WALK           0x00000004L
 #define TR3_EASY_ENCHANT        0x00000008L
 #define TR3_SQUELCH             0x00000010L
-#define TR3_XXX6                0x00000020L
+#define TR3_SH_FEAR             0x00000020L
 #define TR3_XXX7                0x00000040L
 #define TR3_XXX8                0x00000080L
 #define TR3_IM_LITE             0x00000100L

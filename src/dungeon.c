@@ -299,7 +299,7 @@ static void sense_inventory(void)
 	/*** Check for "sensing" ***/
 
 	/* No sensing when confused */
-	if (p_ptr->tim.confused) return;
+	if (query_timed(TIMED_CONFUSED)) return;
 
 	/* Analyze the class */
 	switch (p_ptr->rp.pclass)
@@ -421,6 +421,9 @@ static void sense_inventory(void)
 	/* Heavy sensing? */
 	heavy = class_info[p_ptr->rp.pclass].heavy_sense;
 
+	/* Hack: force heavy sensing for humans */
+	if (p_ptr->rp.pclass == RACE_HUMAN) heavy = TRUE;
+
 	/*** Sense everything ***/
 
 	/* Scan Equipment */
@@ -519,7 +522,7 @@ static void wreck_the_pattern(void)
 	msgf("You bleed on the Pattern!");
 	msgf("Something terrible happens!");
 
-	if (!p_ptr->tim.invuln)
+	if (!query_timed(TIMED_INVULN))
 		take_hit(damroll(10, 8), "corrupting the Pattern");
 
 	to_ruin = rand_range(35, 80);
@@ -550,7 +553,7 @@ static bool pattern_effect(void)
 		(c_ptr->feat > FEAT_PATTERN_XTRA2))
 		return FALSE;
 
-	if ((p_ptr->rp.prace == RACE_AMBERITE) && (p_ptr->tim.cut > 0) && one_in_(10))
+	if ((p_ptr->rp.prace == RACE_AMBERITE) && (query_timed(TIMED_CUT) > 0) && one_in_(10))
 	{
 		wreck_the_pattern();
 	}
@@ -593,14 +596,14 @@ static bool pattern_effect(void)
 	}
 	else if (c_ptr->feat == FEAT_PATTERN_XTRA2)
 	{
-		if (!p_ptr->tim.invuln)
+		if (!query_timed(TIMED_INVULN))
 			take_hit(200, "walking the corrupted Pattern");
 	}
 	else
 	{
 		if ((p_ptr->rp.prace == RACE_AMBERITE) && one_in_(2))
 			return TRUE;
-		else if (!p_ptr->tim.invuln)
+		else if (!query_timed(TIMED_INVULN))
 			take_hit(damroll(1, 3), "walking the Pattern");
 	}
 
@@ -615,6 +618,9 @@ static void regenhp(int percent)
 {
 	u32b new_chp, new_chp_frac;
 	int old_chp;
+
+	/* Hack: Don't do this for liches. */
+	if (p_ptr->state.lich) return;
 
 	/* Save the old hitpoints */
 	old_chp = p_ptr->chp;
@@ -724,6 +730,9 @@ static void regen_monsters(void)
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
+		/* Skip imprisoned monsters */
+		if (m_ptr->imprisoned) continue;
+
 		/* Allow regeneration (if needed) */
 		if (m_ptr->hp < m_ptr->maxhp)
 		{
@@ -759,7 +768,7 @@ void notice_lite_change(object_type *o_ptr)
 	}
 
 	/* Hack -- Special treatment when blind */
-	if (p_ptr->tim.blind)
+	if (query_timed(TIMED_BLIND))
 	{
 		/* Hack -- save some light for later */
 		if (o_ptr->timeout == 0) o_ptr->timeout++;
@@ -1054,7 +1063,7 @@ static void process_world(void)
 	/*** Damage over Time ***/
 
 	/* Take damage from poison */
-	if (p_ptr->tim.poisoned && !p_ptr->tim.invuln)
+	if (query_timed(TIMED_POISONED) && !query_timed(TIMED_INVULN))
 	{
 		/* Take damage */
 		take_hit(1, "poison");
@@ -1065,14 +1074,12 @@ static void process_world(void)
 	{
 		if (!p_ptr->depth && !(FLAG(p_ptr, TR_RES_LITE)) &&
 			!(FLAG(p_ptr, TR_IM_LITE)) &&
-			!p_ptr->tim.invuln &&
+			!query_timed(TIMED_INVULN) &&
 			(!((turn / ((10L * TOWN_DAWN) / 2)) % 2)))
 		{
 			if (c_ptr->info & CAVE_GLOW)
 			{
-				/* Take damage */
-				msgf("The sun's rays scorch your flesh!");
-				take_hit(1, "sunlight");
+				/* Can't regenerate well */
 				cave_no_regen = TRUE;
 			}
 		}
@@ -1080,8 +1087,8 @@ static void process_world(void)
 		o_ptr = &p_ptr->equipment[EQUIP_LITE];
 
 		if (o_ptr->tval &&
-			(o_ptr->sval >= SV_LITE_GALADRIEL) &&
-			(o_ptr->sval < SV_LITE_THRAIN) &&
+			(o_ptr->sval != SV_LITE_TORCH) &&
+			(o_ptr->sval != SV_LITE_LANTERN) &&
 			!(FLAG(p_ptr, TR_RES_LITE)) &&
 			!(FLAG(p_ptr, TR_IM_LITE)))
 		{
@@ -1093,7 +1100,7 @@ static void process_world(void)
 
 			strnfmt(ouch, 280, "wielding %v", OBJECT_FMT(o_ptr, TRUE, 0));
 
-			if (!p_ptr->tim.invuln) take_hit(1, ouch);
+			if (!query_timed(TIMED_INVULN)) take_hit(1, ouch);
 		}
 	}
 
@@ -1196,7 +1203,7 @@ static void process_world(void)
 		}
 	}
 
-	else if ((c_ptr->feat == FEAT_DEEP_SWAMP) && !p_ptr->tim.invuln &&
+	else if ((c_ptr->feat == FEAT_DEEP_SWAMP) && !query_timed(TIMED_INVULN) &&
 		!FLAG(p_ptr, TR_WILD_WALK))
 	{
 		int damage = resist(adj_depth / 2 - dam_pois_adjust(), res_pois_lvl);
@@ -1249,7 +1256,7 @@ static void process_world(void)
 	 */
 	if (cave_wall_grid(c_ptr))
 	{
-		if (!p_ptr->tim.invuln && !p_ptr->tim.wraith_form &&
+		if (!query_timed(TIMED_INVULN) && !query_timed(TIMED_WRAITH_FORM) &&
 			((p_ptr->chp > (depth / 10)) ||
 			 !(FLAG(p_ptr, TR_PASS_WALL))))
 		{
@@ -1335,16 +1342,16 @@ static void process_world(void)
 	}
 
 	/* Take damage from cuts */
-	if (p_ptr->tim.cut && !p_ptr->tim.invuln)
+	if (query_timed(TIMED_CUT) && !query_timed(TIMED_INVULN))
 	{
 		/* Mortal wound or Deep Gash */
-		if (p_ptr->tim.cut > 200)
+		if (query_timed(TIMED_CUT) > 200)
 		{
 			i = 3;
 		}
 
 		/* Severe cut */
-		else if (p_ptr->tim.cut > 100)
+		else if (query_timed(TIMED_CUT) > 100)
 		{
 			i = 2;
 		}
@@ -1414,7 +1421,7 @@ static void process_world(void)
 		i = (PY_FOOD_STARVE - p_ptr->food) / 10;
 
 		/* Take damage */
-		if (!p_ptr->tim.invuln) take_hit(i, "starvation");
+		if (!query_timed(TIMED_INVULN)) take_hit(i, "starvation");
 	}
 
 	/* Default regeneration */
@@ -1441,7 +1448,7 @@ static void process_world(void)
 		if (p_ptr->food < PY_FOOD_FAINT)
 		{
 			/* Faint occasionally */
-			if (!p_ptr->tim.paralyzed && (randint0(100) < 10))
+			if (!query_timed(TIMED_PARALYZED) && (randint0(100) < 10))
 			{
 				/* Message */
 				msgf("You faint from the lack of food.");
@@ -1508,8 +1515,7 @@ static void process_world(void)
 	}
 
 	/* Poisoned or cut yields no healing */
-	if (p_ptr->tim.poisoned) regen_amount = 0;
-	if (p_ptr->tim.cut) regen_amount = 0;
+	if (query_timed(TIMED_POISONED) || query_timed(TIMED_CUT)) regen_amount = 0;
 
 	/* Special floor -- Pattern, in a wall -- yields no healing */
 	if (cave_no_regen) regen_amount = 0;
@@ -1522,31 +1528,47 @@ static void process_world(void)
 
 
 	/*** Timeout Various Things ***/
-	if (p_ptr->tim.image) (void)inc_image(-1);
-	if (p_ptr->tim.blind) (void)inc_blind(-1);
-	if (p_ptr->tim.invis) (void)inc_tim_invis(-1);
-	if (p_ptr->tim.esp) (void)inc_tim_esp(-1);
-	if (p_ptr->tim.infra) (void)inc_tim_infra(-1);
-	if (p_ptr->tim.paralyzed) (void)inc_paralyzed(-1);
-	if (p_ptr->tim.confused) (void)inc_confused(-1);
-	if (p_ptr->tim.afraid) (void)inc_afraid(-1);
-	if (p_ptr->tim.fast) (void)inc_fast(-1);
-	if (p_ptr->tim.slow) (void)inc_slow(-1);
-	if (p_ptr->tim.protevil) (void)inc_protevil(-1);
-	if (p_ptr->tim.invuln) (void)inc_invuln(-1);
-	if (p_ptr->tim.wraith_form) (void)inc_wraith_form(-1);
-	if (p_ptr->tim.hero) (void)inc_hero(-1);
-	if (p_ptr->tim.shero) (void)inc_shero(-1);
-	if (p_ptr->tim.blessed) (void)inc_blessed(-1);
-	if (p_ptr->tim.shield) (void)inc_shield(-1);
-	if (p_ptr->tim.oppose_acid) (void)inc_oppose_acid(-1);
-	if (p_ptr->tim.oppose_elec) (void)inc_oppose_elec(-1);
-	if (p_ptr->tim.oppose_fire) (void)inc_oppose_fire(-1);
-	if (p_ptr->tim.oppose_cold) (void)inc_oppose_cold(-1);
-	if (p_ptr->tim.oppose_pois) (void)inc_oppose_pois(-1);
-	if (p_ptr->tim.oppose_conf) (void)inc_oppose_conf(-1);
-	if (p_ptr->tim.oppose_blind) (void)inc_oppose_blind(-1);
-	if (p_ptr->tim.etherealness) (void)inc_etherealness(-1);
+	if (query_timed(TIMED_XTRA_FAST)) (void)inc_xtra_fast(-1);  /* Do this one first */
+	if (query_timed(TIMED_XTRA_INVIS)) (void)inc_tim_xtra_invisible(-1);  /* Do first also */
+	if (query_timed(TIMED_IMAGE)) (void)inc_image(-1);
+	if (query_timed(TIMED_BLIND)) (void)inc_blind(-1);
+	if (query_timed(TIMED_ESP)) (void)inc_tim_esp(-1);
+	if (query_timed(TIMED_INFRA)) (void)inc_tim_infra(-1);
+	if (query_timed(TIMED_PARALYZED)) (void)inc_paralyzed(-1);
+	if (query_timed(TIMED_CONFUSED)) (void)inc_confused(-1);
+	if (query_timed(TIMED_AFRAID)) (void)inc_afraid(-1);
+	if (query_timed(TIMED_FAST)) (void)inc_fast(-1);
+	if (query_timed(TIMED_SLOW)) (void)inc_slow(-1);
+	if (query_timed(TIMED_PROTEVIL)) (void)inc_protevil(-1);
+	if (query_timed(TIMED_INVULN)) (void)inc_invuln(-1);
+	if (query_timed(TIMED_WRAITH_FORM)) (void)inc_wraith_form(-1);
+	if (query_timed(TIMED_HERO)) (void)inc_hero(-1);
+	if (query_timed(TIMED_SHERO)) (void)inc_shero(-1);
+	if (query_timed(TIMED_BLESSED)) (void)inc_blessed(-1);
+	if (query_timed(TIMED_SHIELD)) (void)inc_shield(-1);
+	if (query_timed(TIMED_OPPOSE_ACID)) (void)inc_oppose_acid(-1);
+	if (query_timed(TIMED_OPPOSE_ELEC)) (void)inc_oppose_elec(-1);
+	if (query_timed(TIMED_OPPOSE_FIRE)) (void)inc_oppose_fire(-1);
+	if (query_timed(TIMED_OPPOSE_COLD)) (void)inc_oppose_cold(-1);
+	if (query_timed(TIMED_OPPOSE_POIS)) (void)inc_oppose_pois(-1);
+	if (query_timed(TIMED_OPPOSE_CONF)) (void)inc_oppose_conf(-1);
+	if (query_timed(TIMED_OPPOSE_BLIND)) (void)inc_oppose_blind(-1);
+	if (query_timed(TIMED_ETHEREALNESS)) (void)inc_etherealness(-1);
+	if (query_timed(TIMED_SEE_INVIS)) (void)inc_tim_invis(-1);
+	if (query_timed(TIMED_STR)) (void)inc_tim_str(-1);
+	if (query_timed(TIMED_CHR)) (void)inc_tim_chr(-1);
+	if (query_timed(TIMED_SUST_ALL)) (void)inc_tim_sust_all(-1);
+	if (query_timed(TIMED_IMMUNE_ACID)) (void)inc_immune_acid(-1);
+	if (query_timed(TIMED_IMMUNE_FIRE)) (void)inc_immune_fire(-1);
+	if (query_timed(TIMED_IMMUNE_COLD)) (void)inc_immune_cold(-1);
+	if (query_timed(TIMED_IMMUNE_ELEC)) (void)inc_immune_elec(-1);
+	if (query_timed(TIMED_SH_FIRE)) (void)inc_sh_fire(-1);
+	if (query_timed(TIMED_SH_COLD)) (void)inc_sh_cold(-1);
+	if (query_timed(TIMED_SH_ELEC)) (void)inc_sh_elec(-1);
+	if (query_timed(TIMED_SH_ACID)) (void)inc_sh_acid(-1);
+	if (query_timed(TIMED_SH_FEAR)) (void)inc_sh_fear(-1);
+	if (query_timed(TIMED_INVIS)) (void)inc_tim_invisible(-1);
+
 
 	/* Quest timeouts */
 	for (i = 0; i < z_info->q_max; i++)
@@ -1561,7 +1583,7 @@ static void process_world(void)
 	/*** Poison and Stun and Cut ***/
 
 	/* Poison */
-	if (p_ptr->tim.poisoned)
+	if (query_timed(TIMED_POISONED))
 	{
 		int adjust = adj_con_fix[p_ptr->stat[A_CON].ind] + 1;
 
@@ -1570,7 +1592,7 @@ static void process_world(void)
 	}
 
 	/* Stun */
-	if (p_ptr->tim.stun)
+	if (query_timed(TIMED_STUN))
 	{
 		int adjust = adj_con_fix[p_ptr->stat[A_CON].ind] + 1;
 
@@ -1579,7 +1601,7 @@ static void process_world(void)
 	}
 
 	/* Cut */
-	if (p_ptr->tim.cut)
+	if (query_timed(TIMED_CUT))
 	{
 		int adjust = adj_con_fix[p_ptr->stat[A_CON].ind] + 1;
 
@@ -1587,7 +1609,7 @@ static void process_world(void)
 			adjust /= 2;
 
 		/* Hack -- Truly "mortal" wound */
-		if (p_ptr->tim.cut > 1000) adjust = 0;
+		if (query_timed(TIMED_CUT) > 1000) adjust = 0;
 
 		/* Apply some healing */
 		(void)inc_cut(-adjust);
@@ -1829,7 +1851,7 @@ static void process_world(void)
 	/*** Involuntary Movement ***/
 
 	/* Delayed Word-of-Recall */
-	if (p_ptr->tim.word_recall)
+	if (query_timed(TIMED_WORD_RECALL))
 	{
 		place_type *pl_ptr;
 
@@ -1838,18 +1860,18 @@ static void process_world(void)
 		 * The player is yanked up/down as soon as
 		 * he loads the autosaved game.
 		 */
-		if (autosave_l && (p_ptr->tim.word_recall == 1))
+		if (autosave_l && (query_timed(TIMED_WORD_RECALL) == 1))
 			do_cmd_save_game(TRUE);
 
 		/* Count down towards recall */
-		p_ptr->tim.word_recall--;
+		*(get_timed_ptr(TIMED_WORD_RECALL)) = query_timed(TIMED_WORD_RECALL) - 1;
 
 		p_ptr->redraw |= (PR_STATUS);
 
 		/* Hack - no recalling in the middle of the wilderness */
 		if ((!p_ptr->depth) && (!p_ptr->place_num))
 		{
-			if (!p_ptr->tim.word_recall)
+			if (!query_timed(TIMED_WORD_RECALL))
 				msgf("You feel a momentary yank downwards, but it passes.");
 			return;
 		}
@@ -1859,13 +1881,13 @@ static void process_world(void)
 		/* No recalling if there's no dungeon, etc. */
 		if (!pl_ptr->dungeon || !(pl_ptr->dungeon->recall_depth))
 		{
-			if (!p_ptr->tim.word_recall)
+			if (!query_timed(TIMED_WORD_RECALL))
 				msgf("You feel a momentary yank downwards, but it passes.");
 			return;
 		}
 
 		/* Activate the recall */
-		if (!p_ptr->tim.word_recall)
+		if (!query_timed(TIMED_WORD_RECALL))
 		{
 			/* Disturbing! */
 			disturb(FALSE);
@@ -2324,7 +2346,7 @@ static void process_command(void)
 		case 'G':
 		{
 			/* Gain new spells/prayers */
-			do_cmd_study();
+			do_cmd_study(FALSE, NULL);
 			break;
 		}
 
@@ -2709,11 +2731,11 @@ static void process_player(void)
 			/* Stop resting */
 			if ((p_ptr->chp == p_ptr->mhp) &&
 				(p_ptr->csp == p_ptr->msp) &&
-				!p_ptr->tim.blind && !p_ptr->tim.confused &&
-				!p_ptr->tim.poisoned && !p_ptr->tim.afraid &&
-				!p_ptr->tim.stun && !p_ptr->tim.cut &&
-				!p_ptr->tim.slow && !p_ptr->tim.paralyzed &&
-				!p_ptr->tim.image && !p_ptr->tim.word_recall)
+				!query_timed(TIMED_BLIND) && !query_timed(TIMED_CONFUSED) &&
+				!query_timed(TIMED_POISONED) && !query_timed(TIMED_AFRAID) &&
+				!query_timed(TIMED_STUN) && !query_timed(TIMED_CUT) &&
+				!query_timed(TIMED_SLOW) && !query_timed(TIMED_PARALYZED) &&
+				!query_timed(TIMED_IMAGE) && !query_timed(TIMED_WORD_RECALL))
 			{
 				disturb(FALSE);
 			}
@@ -2800,7 +2822,7 @@ static void process_player(void)
 
 
 		/* Paralyzed or Knocked Out */
-		if (p_ptr->tim.paralyzed || (p_ptr->tim.stun >= 100))
+		if (query_timed(TIMED_PARALYZED) || (query_timed(TIMED_STUN) >= 100))
 		{
 			/* Take a turn */
 			p_ptr->state.energy_use = 100;
@@ -2878,7 +2900,7 @@ static void process_player(void)
 			change_stuff();
 
 			/* Hack -- constant hallucination */
-			if (p_ptr->tim.image) p_ptr->redraw |= (PR_MAP);
+			if (query_timed(TIMED_IMAGE)) p_ptr->redraw |= (PR_MAP);
 		}
 
 		/* Hack -- notice death */
@@ -2925,6 +2947,9 @@ static void process_energy(void)
 
 		/* Ignore "dead" monsters */
 		if (!m_ptr->r_idx) continue;
+
+		/* Skip imprisoned monsters */
+		if (m_ptr->imprisoned) continue;
 
 		speed = m_ptr->mspeed;
 
@@ -3234,17 +3259,17 @@ static void load_all_pref_files(void)
 	(void)process_pref_file("%s.prf", player_base);
 
 	/* Access the "realm 1" pref file */
-	if (p_ptr->spell.r[0].realm != REALM_NONE)
+	if (p_ptr->spell.realm[0] != REALM_NONE)
 	{
 		/* Process that file */
-		(void)process_pref_file("%s.prf", realm_names[p_ptr->spell.r[0].realm]);
+		(void)process_pref_file("%s.prf", realm_names[p_ptr->spell.realm[0]]);
 	}
 
 	/* Access the "realm 2" pref file */
-	if (p_ptr->spell.r[1].realm != REALM_NONE)
+	if (p_ptr->spell.realm[1] != REALM_NONE)
 	{
 		/* Process that file */
-		(void)process_pref_file("%s.prf", realm_names[p_ptr->spell.r[1].realm]);
+		(void)process_pref_file("%s.prf", realm_names[p_ptr->spell.realm[1]]);
 	}
 }
 
@@ -3557,14 +3582,14 @@ void play_game(bool new_game)
 				(void)set_food(PY_FOOD_MAX - 1);
 
 				/* Hack -- cancel recall */
-				if (p_ptr->tim.word_recall)
+				if (query_timed(TIMED_WORD_RECALL))
 				{
 					/* Message */
 					msgf("A tension leaves the air around you...");
 					message_flush();
 
 					/* Hack -- Prevent recall */
-					p_ptr->tim.word_recall = 0;
+					*(get_timed_ptr(TIMED_WORD_RECALL)) = 0;
 					p_ptr->redraw |= (PR_STATUS);
 				}
 

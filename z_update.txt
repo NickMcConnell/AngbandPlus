@@ -2,6 +2,85 @@ This is a document file listing the changes in Z+Angband (compared to
 ZAngband 2.7.5pre1).  No long explanations, just a list. See
 code for details. In reversed chronological order (more or less):
 
+Changes from Z+Angband 0.2.3 beta to Z+Angband 0.3.0 beta:
+
+Main feature: Spell system upgrade.  See FAQ for details.
+1.  Fixed bug that caused monsters summoned in groups to not have correct
+      unsummon counters.
+2.  Fixed bug that made loans over 2^15 gold behave strangely.
+3.  Fixed bug when pressing ^F in a quest; gave two feelings.
+4.  Fixed bug that gave a cleared-level message after the level is cleared
+      once.
+5.  Autosave_b repaired, should always work now.
+6.  Autosave_b makes the backup get written over in case of death.
+7.  Fixed bug that made it possible to kill unique targets of dungeon monster
+      quests when not on the right level.
+8.  Scroll of Rustproofing and Weapon Branding can be cancelled without using
+      up the scroll.
+9.  Fixed bug concerning minimum failure rates for Rangers, Priests, and
+      Warrior Mages.
+10.  Fixed bug that made Runes of Protection unbreakable.
+11.  Dungeon knowledge / Quest knowledge now mentions current location.
+12.  Magic mapping should work better in non-standard dungeons.
+13.  Fixed bug in dungeon generation that led to plus-shaped rooms causing
+       level disconnection.
+14.  Added !ElementalImmunity, !Preservation, !Invisibility, =Fear
+15.  Added Fear Sheath to some artifacts, can be on Randarts now.
+16.  Quest generation tries to avoid high-level uniques, which means
+       fewer high-level uniques are unavailable to be summoned.
+17.  Added "beginner" abilities to the Human race.
+18.  Recharge failure much more likely to destroy wands and staves now.
+19.  Polymorph in quests no longer behaves strangely.
+20.  Fixed strange messages when a unique corpse decomposes.
+21.  Fixed bug that could lead to duplicate randarts.
+22.  Fixed bug that could lead to duplicate fixed artifacts, when one is
+       dropped by an affiliated unique.
+23.  Non-obvious things happening to undiscovered mimics are now silent.
+24.  Removed duplicate "Ivory" flavor for wands, rods, and amulets.
+25.  Added DVG graphics preference files, still in progress.  (Thanks to
+       Buzzkill)
+26.  HURT_LITE no longer causes damage in sunlight; still causes no
+       regeneration, though.
+27.  Windows "hack" graphics pref files fixed to make spells graphical;
+       not doing this made the colors look wrong.
+
+Changes from Z+Angband 0.2.2 beta to Z+Angband 0.2.3 beta:
+
+1.  Fixed bug with auto_dump feature that would prevent you from quitting.
+2.  Fixed two "fall-through" spell bugs.
+3.  Fixed bug that made it possible to destroy artifacts with auto_destroy.
+4.  Life paladins no longer get XP for destroying all non-life books, only death.
+5.  Auto_destroy_bad no longer destroys pseudo-id'ed {dubious} or {tainted} items.
+6.  Quick_destroy now works properly on pseudo-ID'ed objects.
+7.  The game understands the difference between weakly pseudo-ID'ed objects and
+      strongly pseudo-ID'ed ones.
+8.  Fixed other pseudo-id issues.
+9.  Inscriptions now interact with pseudo-id.
+10.  Implemented (alpha testing!!) quivers as physical containers.
+11.  Fixed bug that allowed quests of level 0 or >= 100.
+12.  Object recall now gives more information about quest or chest-found objects.
+13.  Fixed LUA script for Terror Mask.
+14.  White and Black DSM no longer have EASY_KNOW.
+15.  Old quest bugs are corrected on import now.
+16.  Changed / added many object descriptions.
+17.  Reduced depth of 4th spellbooks; now equal across all realms exc. Arcane.
+18.  Flasks of oil do fire-based damage when thrown again.
+19.  Fixed bug that prevented EAT_LITE attacks from doing anything.
+20.  Removed "enable_panic_save" option, wasn't working.
+21.  Added "autosave_b" option to make backups during autosave.
+22.  Fixed bug in evaluating de-cursed objects; adjusted object value code.
+23.  No longer possible to "repeat actions" while confused to move straight.
+24.  Object knowledge now sorted by type and level.
+25.  Fixed crash when requesting courier quests.
+26.  Fixed wilderness wandering crash.
+27.  Fixed Magetower teleportation crash.
+28.  Implemented "organize" ('O') command to sort quivers; ^O in roguelike keyset.
+29.  Fixed bug allowing +4 attacks on various ego items.
+30.  Fixed bug: weapons of Fury were (+0).
+31.  Fixed bug: Drain Life (Death) didn't prompt for direction.
+32.  Removed plain (no-ability) "a Ring" / "an Amulet", etc, objects.
+33.  Added Mushroom of Cure Mutations.
+
 Changes from Z+Angband 0.2.1 beta to Z+Angband 0.2.2 beta:
 
 1.  Enhanced the squelch system in a rudimentary way via player options.

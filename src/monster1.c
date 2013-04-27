@@ -34,6 +34,10 @@ monster_race *monst_race(int r_idx)
  */
 cptr mon_race_name(const monster_race *r_ptr)
 {
+	/* Hack: name the clone */
+	if (r_ptr == &r_info[QW_CLONE])
+		return (format("%s, the %s", player_name, class_info[p_ptr->rp.pclass].title));
+
 	return (r_name + r_ptr->name);
 }
 
@@ -274,8 +278,12 @@ static void roff_mon_aux(int r_idx, int remem)
 		COPY_FLAG(r_ptr, mf_ptr, RF_FORCE_MAXHP);
 	}
 
+	if (r_idx == QW_CLONE)
+	{
+		roff(CLR_L_DARK "This foe doesn't really exist.  ");
+	}
 	/* Treat uniques differently */
-	if (FLAG(mf_ptr, RF_UNIQUE))
+	else if (FLAG(mf_ptr, RF_UNIQUE))
 	{
 		/* Hack -- Determine if the unique is "dead" */
 		bool dead = (r_ptr->max_num == 0) ? TRUE : FALSE;
@@ -445,7 +453,7 @@ static void roff_mon_aux(int r_idx, int remem)
 		{
 			roff(CLR_SLATE " in water");
 		}
-		
+
 		if (depth_in_feet)
 		{
 			roff(CLR_SLATE " at depths of %d feet", r_ptr->level * 50);
@@ -1545,7 +1553,7 @@ void roff_mon_top(int r_idx)
 
 	/* Clear the top line */
 	clear_msg();
-    
+
 	/* Reset the cursor */
 	Term_gotoxy(0, 0);
 
@@ -1631,7 +1639,7 @@ void display_visible(void)
     clear_from(0);
 
 	/* Are we hallucinating? */
-	if (p_ptr->tim.image)
+	if (query_timed(TIMED_IMAGE))
 	{
 		put_fstr(0, 10, CLR_VIOLET "Hallucinations");
 
@@ -1805,7 +1813,7 @@ bool monster_living(const monster_race *r_ptr)
 void change_shimmer(void)
 {
 	int i;
-	
+
 	monster_type *m_ptr;
 	monster_race *r_ptr;
 
@@ -1840,7 +1848,7 @@ void change_repair(void)
 	int i;
 
 	monster_type *m_ptr;
-	
+
 	/* Rotate detection flags */
 	for (i = 1; i < m_max; i++)
 	{
@@ -1878,3 +1886,384 @@ void change_repair(void)
 		}
 	}
 }
+
+
+/*
+ * Set up the racial characteristics of clones, based on the
+ * player's current state
+
+ * ToDo: Needs more features.
+
+ */
+void create_clone(bool new)
+{
+	monster_race *r_ptr = &r_info[QW_CLONE];
+	int i, n, bl, dd, ds;
+	object_type *o_ptr;
+
+	/* Hack: your clone should not be described as "a",
+	   so should be unique.. but should not be unique. */
+	if (new)
+		r_ptr->cur_num = 0;
+
+	for (i = 0; i < m_max; i++)
+	{
+		if (!new) break;
+		if (m_list[i].r_idx == QW_CLONE)
+		{
+			msgf ("Your previous clone disintegrates!");
+			delete_monster(m_list[i].fx, m_list[i].fy);
+		}
+	}
+
+	/* Basic data */
+	r_ptr->hdice = p_ptr->lev;
+	r_ptr->hside = (p_ptr->mhp/2)/p_ptr->lev;
+
+	r_ptr->ac = p_ptr->ac / 2;
+	r_ptr->sleep = 0;
+	r_ptr->aaf = p_ptr->skills[SKILL_SNS];
+	r_ptr->speed = p_ptr->pspeed;
+
+	r_ptr->mexp = 0;
+	r_ptr->extra = 0;
+
+	/* Spell frequency */
+	switch (p_ptr->rp.pclass)
+	{
+		case CLASS_WARRIOR:
+			n = 0;
+			break;
+		case CLASS_ROGUE:
+		case CLASS_PALADIN:
+		case CLASS_MONK:
+			n = (100/12);
+			break;
+		case CLASS_RANGER:
+		case CLASS_PRIEST:
+		case CLASS_CHAOS_WARRIOR:
+			n = (100/8);
+			break;
+		case CLASS_MINDCRAFTER:
+		case CLASS_WARRIOR_MAGE:
+			n = (100/6);
+			break;
+		case CLASS_MAGE:
+			n = (100/4);
+			break;
+		case CLASS_HIGH_MAGE:
+			n = (200/7);
+			break;
+		default:
+			n = 0;
+			break;
+	}
+
+	r_ptr->freq_inate = r_ptr->freq_spell = n;
+
+	for (i = 0; i < 9; i++)
+	{
+		p_ptr->flags[i] = 0;
+	}
+
+	SET_FLAG(r_ptr, RF_UNIQUE);
+	SET_FLAG(r_ptr, RF_FORCE_MAXHP);
+
+	/* Basic Flags */
+	if (p_ptr->rp.psex == SEX_MALE) SET_FLAG(r_ptr, RF_MALE);
+	else SET_FLAG(r_ptr, RF_FEMALE);
+	if (p_ptr->stat[A_INT].ind < 8) SET_FLAG(r_ptr, RF_STUPID);
+	else if (p_ptr->stat[A_INT].ind > 16) SET_FLAG(r_ptr, RF_SMART);
+
+	switch (p_ptr->rp.prace)
+	{
+		case RACE_SPECTRE:
+			SET_FLAG(r_ptr, RF_INVISIBLE);
+		case RACE_GHOUL:
+		case RACE_SKELETON:
+		case RACE_VAMPIRE:
+		case RACE_ZOMBIE:
+			if (p_ptr->rp.prace == RACE_VAMPIRE) SET_FLAG(r_ptr, RF_HURT_LITE);
+			SET_FLAG(r_ptr, RF_NONLIVING);
+			SET_FLAG(r_ptr, RF_UNDEAD);
+			SET_FLAG(r_ptr, RF_COLD_BLOOD);
+			break;
+		case RACE_GOLEM:
+			SET_FLAG(r_ptr, RF_NONLIVING);
+			SET_FLAG(r_ptr, RF_HURT_ROCK);
+			SET_FLAG(r_ptr, RF_COLD_BLOOD);
+			SET_FLAG(r_ptr, RF_NO_STUN);
+			break;
+		case RACE_HALF_TROLL:
+			SET_FLAG(r_ptr, RF_TROLL);
+		case RACE_AMBERITE:
+			SET_FLAG(r_ptr, RF_REGENERATE);
+			break;
+		case RACE_BARBARIAN:
+			SET_FLAG(r_ptr, RF_NO_FEAR);
+			break;
+		case RACE_YEEK:
+			SET_FLAG(r_ptr, RF_IM_ACID);
+			break;
+		case RACE_IMP:
+			SET_FLAG(r_ptr, RF_IM_FIRE);
+		case RACE_SPRITE:
+			SET_FLAG(r_ptr, RF_CAN_FLY);
+			break;
+		case RACE_BEASTMAN:
+			SET_FLAG(r_ptr, RF_ELDRITCH_HORROR);
+		case RACE_KLACKON:
+			SET_FLAG(r_ptr, RF_NO_CONF);
+			break;
+		case RACE_HALF_GIANT:
+		case RACE_HALF_TITAN:
+			SET_FLAG(r_ptr, RF_GIANT);
+			break;
+		case RACE_HALF_ORC:
+			SET_FLAG(r_ptr, RF_ORC);
+			break;
+		case RACE_DRACONIAN:
+			SET_FLAG(r_ptr, RF_CAN_FLY);
+			SET_FLAG(r_ptr, RF_DRAGON);
+			break;
+	}
+
+	switch (p_ptr->rp.pclass)
+	{
+		case CLASS_PALADIN:
+		case CLASS_PRIEST:
+			if (p_ptr->spell.realm[0] == REALM_LIFE)
+				SET_FLAG(r_ptr, RF_GOOD);
+			else
+				SET_FLAG(r_ptr, RF_EVIL);
+		case CLASS_ROGUE:
+		case CLASS_RANGER:
+		case CLASS_WARRIOR:
+			SET_FLAG(r_ptr, RF_ARROW);
+	}
+
+	/* Blows */
+
+	/* Max number of blows */
+	switch (p_ptr->rp.pclass)
+	{
+		case CLASS_MAGE:
+		case CLASS_HIGH_MAGE:
+		case CLASS_MINDCRAFTER:
+			n = 2;
+			break;
+		case CLASS_PRIEST:
+			n = 3;
+			break;
+		default:
+			n = 4;
+			break;
+	}
+
+	/* Actual number of blows */
+	n = MAX(n, p_ptr->num_blow);
+
+	/* Number of dice */
+	if (p_ptr->rp.pclass == CLASS_MONK)
+	{
+		for (i = 0; i < MAX_MA && ma_blows[i].min_level < p_ptr->lev; i++)
+		{
+			const martial_arts *ma_ptr = &ma_blows[i];
+
+			dd = ma_ptr->dd;
+			ds = ma_ptr->ds;
+		}
+	}
+	else
+	{
+		o_ptr = &p_ptr->equipment[EQUIP_WIELD];
+
+		dd = o_ptr->dd;
+		ds = (o_ptr->ds * deadliness_calc(o_ptr->to_d + p_ptr->to_d)) / 100;
+	}
+
+	for (i = 0; i < 4; i++)
+	{
+		r_ptr->blow[i].method = (i < n ? RBM_HIT : 0);
+		r_ptr->blow[i].effect = (i < n ? RBE_HURT : 0);
+		r_ptr->blow[i].d_dice = (i < n ? dd : 0);
+		r_ptr->blow[i].d_side = (i < n ? ds : 0);
+	}
+
+	/* Spells */
+
+	if (p_ptr->spell.realm[0] == REALM_LIFE || p_ptr->spell.realm[1] == REALM_LIFE)
+	{
+		if (p_ptr->lev > 15)
+			SET_FLAG(r_ptr, RF_HEAL);
+		if (p_ptr->lev > 48)
+			SET_FLAG(r_ptr, RF_INVULNER);
+		if (p_ptr->lev > 30)
+			SET_FLAG(r_ptr, RF_SCARE);
+	}
+
+	if (p_ptr->spell.realm[0] == REALM_SORCERY || p_ptr->spell.realm[1] == REALM_SORCERY)
+	{
+		SET_FLAG(r_ptr, RF_BLINK);
+		if (p_ptr->lev > 10)
+		{
+			SET_FLAG(r_ptr, RF_CONF);
+			SET_FLAG(r_ptr, RF_SLOW);
+			SET_FLAG(r_ptr, RF_HOLD);
+			SET_FLAG(r_ptr, RF_TPORT);
+		}
+		if (p_ptr->lev > 25)
+			SET_FLAG(r_ptr, RF_HASTE);
+		if (p_ptr->lev > 48)
+			SET_FLAG(r_ptr, RF_INVULNER);
+		if (p_ptr->lev > 20)
+			SET_FLAG(r_ptr, RF_TELE_AWAY);
+	}
+
+	if (p_ptr->spell.realm[0] == REALM_NATURE || p_ptr->spell.realm[1] == REALM_NATURE)
+	{
+		SET_FLAG(r_ptr, RF_BO_ELEC);
+		SET_FLAG(r_ptr, RF_BO_COLD);
+
+		if (p_ptr->lev > 40)
+			SET_FLAG(r_ptr, RF_HEAL);
+		if (p_ptr->lev > 30)
+			SET_FLAG(r_ptr, RF_BO_WATE);
+
+		if (p_ptr->lev > 35)
+			SET_FLAG(r_ptr, RF_BA_ELEC);
+		if (p_ptr->lev > 45)
+			SET_FLAG(r_ptr, RF_BA_WATE);
+	}
+
+	if (p_ptr->spell.realm[0] == REALM_CHAOS || p_ptr->spell.realm[1] == REALM_CHAOS)
+	{
+		if (p_ptr->lev < 20)
+			SET_FLAG(r_ptr, RF_MISSILE);
+
+		SET_FLAG(r_ptr, RF_BLINK);
+
+		if (p_ptr->lev > 10)
+			SET_FLAG(r_ptr, RF_BO_FIRE);
+		if (p_ptr->lev > 20)
+		{
+			SET_FLAG(r_ptr, RF_BA_FIRE);
+			SET_FLAG(r_ptr, RF_CONF);
+		}
+		if (p_ptr->lev > 30)
+			SET_FLAG(r_ptr, RF_BO_PLAS);
+		if (p_ptr->lev > 38)
+			SET_FLAG(r_ptr, RF_BA_CHAO);
+		if (p_ptr->lev > 40)
+			SET_FLAG(r_ptr, RF_BO_MANA);
+		if (p_ptr->lev > 45)
+			SET_FLAG(r_ptr, RF_BR_CHAO);
+		if (p_ptr->lev > 46)
+			SET_FLAG(r_ptr, RF_ROCKET);
+		if (p_ptr->lev > 47)
+			SET_FLAG(r_ptr, RF_BA_MANA);
+		if (p_ptr->lev > 48)
+			SET_FLAG(r_ptr, RF_BR_DISI);
+
+	}
+
+	if (p_ptr->spell.realm[0] == REALM_DEATH || p_ptr->spell.realm[1] == REALM_DEATH)
+	{
+		if (p_ptr->lev > 10)
+		{
+			SET_FLAG(r_ptr, RF_SCARE);
+			SET_FLAG(r_ptr, RF_BA_POIS);
+			SET_FLAG(r_ptr, RF_CAUSE_1);
+		}
+		if (p_ptr->lev > 18)
+		{
+			SET_FLAG(r_ptr, RF_BO_NETH);
+			SET_FLAG(r_ptr, RF_CAUSE_2);
+		}
+		if (p_ptr->lev > 25)
+			SET_FLAG(r_ptr, RF_CAUSE_3);
+		if (p_ptr->lev > 30)
+		{
+			SET_FLAG(r_ptr, RF_CAUSE_4);
+			SET_FLAG(r_ptr, RF_S_UNDEAD);
+		}
+		if (p_ptr->lev > 38)
+			SET_FLAG(r_ptr, RF_BA_DARK);
+		if (p_ptr->lev > 40)
+			SET_FLAG(r_ptr, RF_ELDRITCH_HORROR);
+		if (p_ptr->lev > 45)
+			SET_FLAG(r_ptr, RF_BA_NETH);
+	}
+
+	if (p_ptr->spell.realm[0] == REALM_CONJ || p_ptr->spell.realm[1] == REALM_CONJ)
+	{
+		SET_FLAG(r_ptr, RF_BLINK);
+		SET_FLAG(r_ptr, RF_TPORT);
+		SET_FLAG(r_ptr, RF_TELE_AWAY);
+		SET_FLAG(r_ptr, RF_TELE_TO);
+		SET_FLAG(r_ptr, RF_S_MONSTER);
+
+		if (p_ptr->lev > 15)
+		{
+			SET_FLAG(r_ptr, RF_BO_ACID);
+			SET_FLAG(r_ptr, RF_HASTE);
+		}
+
+		if (p_ptr->lev > 20)
+			SET_FLAG(r_ptr, RF_S_MONSTERS);
+		if (p_ptr->lev > 28)
+			SET_FLAG(r_ptr, RF_S_UNDEAD);
+		if (p_ptr->lev > 35)
+			SET_FLAG(r_ptr, RF_S_HOUND);
+		if (p_ptr->lev > 42)
+		{
+			SET_FLAG(r_ptr, RF_S_DRAGON);
+			SET_FLAG(r_ptr, RF_S_DEMON);
+		}
+	}
+
+	if (p_ptr->spell.realm[0] == REALM_ARCANE || p_ptr->spell.realm[1] == REALM_ARCANE)
+	{
+		SET_FLAG(r_ptr, RF_BLINK);
+		SET_FLAG(r_ptr, RF_BO_ELEC);
+		SET_FLAG(r_ptr, RF_TPORT);
+
+		if (p_ptr->lev > 30)
+			SET_FLAG(r_ptr, RF_BA_FIRE);
+	}
+
+	if (p_ptr->spell.realm[0] == REALM_ILLUSION || p_ptr->spell.realm[1] == REALM_ILLUSION)
+	{
+		SET_FLAG(r_ptr, RF_SCARE);
+		SET_FLAG(r_ptr, RF_CONF);
+		SET_FLAG(r_ptr, RF_BLIND);
+
+		if (p_ptr->lev > 25)
+			SET_FLAG(r_ptr, RF_MIND_BLAST);
+		if (p_ptr->lev > 15)
+			SET_FLAG(r_ptr, RF_BO_FIRE);
+		if (p_ptr->lev > 35)
+		{
+			SET_FLAG(r_ptr, RF_S_MONSTER);
+			SET_FLAG(r_ptr, RF_BRAIN_SMASH);
+		}
+	}
+
+	if (p_ptr->rp.pclass == CLASS_MINDCRAFTER)
+	{
+		SET_FLAG(r_ptr, RF_BLINK);
+		SET_FLAG(r_ptr, RF_TPORT);
+
+		SET_FLAG(r_ptr, RF_MIND_BLAST);
+
+		if (p_ptr->lev > 20)
+			SET_FLAG(r_ptr, RF_BRAIN_SMASH);
+	}
+
+	/* Hack: Have the player learn all about this race. */
+	r_ptr->r_flags[6] |= RF6_LIBRARY;
+	r_ptr->r_sights = 1000;
+	r_ptr->r_tkills = 1000;
+}
+
+

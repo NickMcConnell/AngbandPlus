@@ -157,31 +157,31 @@ void self_knowledge(void)
 		}
 	}
 
-	if (p_ptr->tim.blind)
+	if (query_timed(TIMED_BLIND))
 	{
 		info[i++] = "You cannot see.";
 	}
-	if (p_ptr->tim.confused)
+	if (query_timed(TIMED_CONFUSED))
 	{
 		info[i++] = "You are confused.";
 	}
-	if (p_ptr->tim.afraid)
+	if (query_timed(TIMED_AFRAID))
 	{
 		info[i++] = "You are terrified.";
 	}
-	if (p_ptr->tim.cut)
+	if (query_timed(TIMED_CUT))
 	{
 		info[i++] = "You are bleeding.";
 	}
-	if (p_ptr->tim.stun)
+	if (query_timed(TIMED_STUN))
 	{
 		info[i++] = "You are stunned.";
 	}
-	if (p_ptr->tim.poisoned)
+	if (query_timed(TIMED_POISONED))
 	{
 		info[i++] = "You are poisoned.";
 	}
-	if (p_ptr->tim.image)
+	if (query_timed(TIMED_IMAGE))
 	{
 		info[i++] = "You are hallucinating.";
 	}
@@ -197,19 +197,19 @@ void self_knowledge(void)
 	{
 		info[i++] = "You cannot survive on normal food.";
 	}
-	if (p_ptr->tim.blessed)
+	if (query_timed(TIMED_BLESSED))
 	{
 		info[i++] = "You feel righteous.";
 	}
-	if (p_ptr->tim.hero)
+	if (query_timed(TIMED_HERO))
 	{
 		info[i++] = "You feel heroic.";
 	}
-	if (p_ptr->tim.shero)
+	if (query_timed(TIMED_SHERO))
 	{
 		info[i++] = "You are in a battle rage.";
 	}
-	if (p_ptr->tim.protevil || (FLAG(p_ptr, TR_SLAY_EVIL)))
+	if (query_timed(TIMED_PROTEVIL) || (FLAG(p_ptr, TR_SLAY_EVIL)))
 	{
 		info[i++] = "You are protected from evil.";
 	}
@@ -241,15 +241,15 @@ void self_knowledge(void)
 	{
 		info[i++] = "You are protected from dragons.";
 	}
-	if (p_ptr->tim.shield)
+	if (query_timed(TIMED_SHIELD))
 	{
 		info[i++] = "You are protected by a mystic shield.";
 	}
-	if (p_ptr->tim.invuln)
+	if (query_timed(TIMED_INVULN))
 	{
 		info[i++] = "You are temporarily invulnerable.";
 	}
-	if (p_ptr->tim.wraith_form)
+	if (query_timed(TIMED_WRAITH_FORM))
 	{
 		info[i++] = "You are temporarily incorporeal.";
 	}
@@ -265,15 +265,15 @@ void self_knowledge(void)
 	{
 		info[i++] = "You can learn some spells/prayers.";
 	}
-	if (p_ptr->tim.word_recall)
+	if (query_timed(TIMED_WORD_RECALL))
 	{
 		info[i++] = "You will soon be recalled.";
 	}
-	if (p_ptr->tim.oppose_conf)
+	if (query_timed(TIMED_OPPOSE_CONF))
 	{
 		info[i++] = "You are temporarily immune to confusion.";
 	}
-	if (p_ptr->tim.oppose_blind)
+	if (query_timed(TIMED_OPPOSE_BLIND))
 	{
 		info[i++] = "You are temporarily immune to blindness.";
 	}
@@ -360,6 +360,10 @@ void self_knowledge(void)
 	if (FLAG(p_ptr, TR_SH_COLD))
 	{
 		info[i++] = "You are surrounded by a freezing aura.";
+	}
+	if (FLAG(p_ptr, TR_SH_FEAR))
+	{
+		info[i++] = "You have a terrifying aura.";
 	}
 	if (FLAG(p_ptr, TR_NO_MAGIC))
 	{
@@ -596,6 +600,8 @@ void self_knowledge(void)
 	{
 		info[i++] = "Your strength is affected by your equipment.";
 	}
+	if (query_timed(TIMED_STR))
+		info[i++] = "Your strength is temporarily augmented.";
 	if (ff[0] & (TR0_INT))
 	{
 		info[i++] = "Your intelligence is affected by your equipment.";
@@ -616,6 +622,8 @@ void self_knowledge(void)
 	{
 		info[i++] = "Your charisma is affected by your equipment.";
 	}
+	if (query_timed(TIMED_CHR))
+		info[i++] = "Your charisma is temporarily augmented.";
 
 	if (ff[0] & (TR0_STEALTH))
 	{
@@ -841,69 +849,69 @@ void report_magics(void)
 	int info2[128];
 
 
-	if (p_ptr->tim.blind)
+	if (query_timed(TIMED_BLIND))
 	{
-		info2[i] = report_magics_aux(p_ptr->tim.blind);
+		info2[i] = report_magics_aux(query_timed(TIMED_BLIND));
 		info[i++] = "You cannot see";
 	}
-	if (p_ptr->tim.confused)
+	if (query_timed(TIMED_CONFUSED))
 	{
-		info2[i] = report_magics_aux(p_ptr->tim.confused);
+		info2[i] = report_magics_aux(query_timed(TIMED_CONFUSED));
 		info[i++] = "You are confused";
 	}
-	if (p_ptr->tim.afraid)
+	if (query_timed(TIMED_AFRAID))
 	{
-		info2[i] = report_magics_aux(p_ptr->tim.afraid);
+		info2[i] = report_magics_aux(query_timed(TIMED_AFRAID));
 		info[i++] = "You are terrified";
 	}
-	if (p_ptr->tim.poisoned)
+	if (query_timed(TIMED_POISONED))
 	{
-		info2[i] = report_magics_aux(p_ptr->tim.poisoned);
+		info2[i] = report_magics_aux(query_timed(TIMED_POISONED));
 		info[i++] = "You are poisoned";
 	}
-	if (p_ptr->tim.image)
+	if (query_timed(TIMED_IMAGE))
 	{
-		info2[i] = report_magics_aux(p_ptr->tim.image);
+		info2[i] = report_magics_aux(query_timed(TIMED_IMAGE));
 		info[i++] = "You are hallucinating";
 	}
-	if (p_ptr->tim.blessed)
+	if (query_timed(TIMED_BLESSED))
 	{
-		info2[i] = report_magics_aux(p_ptr->tim.blessed);
+		info2[i] = report_magics_aux(query_timed(TIMED_BLESSED));
 		info[i++] = "You feel righteous";
 	}
-	if (p_ptr->tim.hero)
+	if (query_timed(TIMED_HERO))
 	{
-		info2[i] = report_magics_aux(p_ptr->tim.hero);
+		info2[i] = report_magics_aux(query_timed(TIMED_HERO));
 		info[i++] = "You feel heroic";
 	}
-	if (p_ptr->tim.shero)
+	if (query_timed(TIMED_SHERO))
 	{
-		info2[i] = report_magics_aux(p_ptr->tim.shero);
+		info2[i] = report_magics_aux(query_timed(TIMED_SHERO));
 		info[i++] = "You are in a battle rage";
 	}
-	if (p_ptr->tim.protevil)
+	if (query_timed(TIMED_PROTEVIL))
 	{
-		info2[i] = report_magics_aux(p_ptr->tim.protevil);
+		info2[i] = report_magics_aux(query_timed(TIMED_PROTEVIL));
 		info[i++] = "You are protected from evil";
 	}
-	if (p_ptr->tim.shield)
+	if (query_timed(TIMED_SHIELD))
 	{
-		info2[i] = report_magics_aux(p_ptr->tim.shield);
+		info2[i] = report_magics_aux(query_timed(TIMED_SHIELD));
 		info[i++] = "You are protected by a mystic shield";
 	}
-	if (p_ptr->tim.invuln)
+	if (query_timed(TIMED_INVULN))
 	{
-		info2[i] = report_magics_aux(p_ptr->tim.invuln);
+		info2[i] = report_magics_aux(query_timed(TIMED_INVULN));
 		info[i++] = "You are invulnerable";
 	}
-	if (p_ptr->tim.wraith_form)
+	if (query_timed(TIMED_WRAITH_FORM))
 	{
-		info2[i] = report_magics_aux(p_ptr->tim.wraith_form);
+		info2[i] = report_magics_aux(query_timed(TIMED_WRAITH_FORM));
 		info[i++] = "You are in the form of a wraith";
 	}
-	if (p_ptr->tim.etherealness)
+	if (query_timed(TIMED_ETHEREALNESS))
 	{
-		info2[i] = report_magics_aux(p_ptr->tim.etherealness);
+		info2[i] = report_magics_aux(query_timed(TIMED_ETHEREALNESS));
 		info[i++] = "You are incorporeal";
 	}
 	if (p_ptr->state.confusing)
@@ -911,45 +919,90 @@ void report_magics(void)
 		info2[i] = 7;
 		info[i++] = "Your hands are glowing dull red.";
 	}
-	if (p_ptr->tim.word_recall)
+	if (query_timed(TIMED_WORD_RECALL))
 	{
-		info2[i] = report_magics_aux(p_ptr->tim.word_recall);
+		info2[i] = report_magics_aux(query_timed(TIMED_WORD_RECALL));
 		info[i++] = "You are waiting to be recalled";
 	}
-	if (p_ptr->tim.oppose_conf)
+	if (query_timed(TIMED_OPPOSE_CONF))
 	{
-		info2[i] = report_magics_aux(p_ptr->tim.oppose_conf);
+		info2[i] = report_magics_aux(query_timed(TIMED_OPPOSE_CONF));
 		info[i++] = "You are temporarily immune to confusion.";
 	}
-	if (p_ptr->tim.oppose_blind)
+	if (query_timed(TIMED_OPPOSE_BLIND))
 	{
-		info2[i] = report_magics_aux(p_ptr->tim.oppose_blind);
+		info2[i] = report_magics_aux(query_timed(TIMED_OPPOSE_BLIND));
 		info[i++] = "You are temporarily immune to blindness.";
 	}
-	if (p_ptr->tim.oppose_acid)
+	if (query_timed(TIMED_OPPOSE_ACID))
 	{
-		info2[i] = report_magics_aux(p_ptr->tim.oppose_acid);
+		info2[i] = report_magics_aux(query_timed(TIMED_OPPOSE_ACID));
 		info[i++] = "You are resistant to acid";
 	}
-	if (p_ptr->tim.oppose_elec)
+	if (query_timed(TIMED_OPPOSE_ELEC))
 	{
-		info2[i] = report_magics_aux(p_ptr->tim.oppose_elec);
+		info2[i] = report_magics_aux(query_timed(TIMED_OPPOSE_ELEC));
 		info[i++] = "You are resistant to lightning";
 	}
-	if (p_ptr->tim.oppose_fire)
+	if (query_timed(TIMED_OPPOSE_FIRE))
 	{
-		info2[i] = report_magics_aux(p_ptr->tim.oppose_fire);
+		info2[i] = report_magics_aux(query_timed(TIMED_OPPOSE_FIRE));
 		info[i++] = "You are resistant to fire";
 	}
-	if (p_ptr->tim.oppose_cold)
+	if (query_timed(TIMED_OPPOSE_COLD))
 	{
-		info2[i] = report_magics_aux(p_ptr->tim.oppose_cold);
+		info2[i] = report_magics_aux(query_timed(TIMED_OPPOSE_COLD));
 		info[i++] = "You are resistant to cold";
 	}
-	if (p_ptr->tim.oppose_pois)
+	if (query_timed(TIMED_OPPOSE_POIS))
 	{
-		info2[i] = report_magics_aux(p_ptr->tim.oppose_pois);
+		info2[i] = report_magics_aux(query_timed(TIMED_OPPOSE_POIS));
 		info[i++] = "You are resistant to poison";
+	}
+	if (query_timed(TIMED_IMMUNE_ACID))
+	{
+		info2[i] = report_magics_aux(query_timed(TIMED_IMMUNE_ACID));
+		info[i++] = "You are immune to acid";
+	}
+	if (query_timed(TIMED_IMMUNE_ELEC))
+	{
+		info2[i] = report_magics_aux(query_timed(TIMED_IMMUNE_ELEC));
+		info[i++] = "You are immune to electricity";
+	}
+	if (query_timed(TIMED_IMMUNE_FIRE))
+	{
+		info2[i] = report_magics_aux(query_timed(TIMED_IMMUNE_FIRE));
+		info[i++] = "You are immune to fire";
+	}
+	if (query_timed(TIMED_IMMUNE_COLD))
+	{
+		info2[i] = report_magics_aux(query_timed(TIMED_IMMUNE_COLD));
+		info[i++] = "You are immune to cold";
+	}
+	if (query_timed(TIMED_SH_ACID))
+	{
+		info2[i] = report_magics_aux(query_timed(TIMED_SH_ACID));
+		info[i++] = "You are acidic";
+	}
+	if (query_timed(TIMED_SH_ELEC))
+	{
+		info2[i] = report_magics_aux(query_timed(TIMED_SH_ELEC));
+		info[i++] = "You are electric";
+	}
+	if (query_timed(TIMED_SH_FIRE))
+	{
+		info2[i] = report_magics_aux(query_timed(TIMED_SH_FIRE));
+		info[i++] = "You have fire running through your veins";
+	}
+	if (query_timed(TIMED_SH_COLD))
+	{
+		info2[i] = report_magics_aux(query_timed(TIMED_SH_COLD));
+		info[i++] = "You have ice running through your veins";
+	}
+	if (query_timed(TIMED_SH_FEAR))
+	{
+		info2[i] = report_magics_aux(query_timed(TIMED_SH_FEAR));
+		info[i++] = "You have a terrifying aura";
 	}
 
 	/* Save the screen */
@@ -994,23 +1047,28 @@ void report_magics(void)
  * This is an "engine" function that does all the work, and
  * prevents a huge amount of code duplication.
  */
-static bool detect_sq_aux(bool tester(int x, int y), cptr msg)
+static bool detect_sq_aux2(bool tester(int x, int y), cptr msg, bool limit)
 {
 	int px = p_ptr->px;
 	int py = p_ptr->py;
+
+	int min_x = (limit ? px - MAX_DETECT : p_ptr->min_wid);
+	int min_y = (limit ? py - MAX_DETECT : p_ptr->min_hgt);
+	int max_x = (limit ? px + MAX_DETECT : p_ptr->max_wid);
+	int max_y = (limit ? py + MAX_DETECT : p_ptr->max_hgt);
 
 	int x, y;
 
 	bool detect = FALSE;
 
-	/* Scan a radius MAX_DETECT circle */
-	for (y = py - MAX_DETECT; y <= py + MAX_DETECT; y++)
+	/* Scan the range */
+	for (y = min_y; y <= max_y; y++)
 	{
-		for (x = px - MAX_DETECT; x <= px + MAX_DETECT; x++)
+		for (x = min_x; x <= max_x; x++)
 		{
 			if (!in_bounds2(x, y)) continue;
 
-			if (distance(px, py, x, y) > MAX_DETECT) continue;
+			if (limit && distance(px, py, x, y) > MAX_DETECT) continue;
 
 			/* Detect something? */
 			if (tester(x, y)) detect = TRUE;
@@ -1029,6 +1087,10 @@ static bool detect_sq_aux(bool tester(int x, int y), cptr msg)
 	return (detect);
 }
 
+static bool detect_sq_aux(bool tester(int x, int y), cptr msg)
+{
+	return(detect_sq_aux2(tester, msg, TRUE));
+}
 
 /* Test for the existance of traps here */
 static bool trap_tester(int x, int y)
@@ -1153,8 +1215,6 @@ bool detect_doors(void)
 	return (detect_sq_aux(door_tester, "You sense the presence of doors!"));
 }
 
-
-
 /* Test for the existance of stairs here */
 static bool stair_tester(int x, int y)
 {
@@ -1184,7 +1244,6 @@ bool detect_stairs(void)
 {
 	return (detect_sq_aux(stair_tester, "You sense the presence of stairs!"));
 }
-
 
 /* Test for the existance of treasure here */
 static bool treasure_tester(int x, int y)
@@ -1216,6 +1275,22 @@ bool detect_treasure(void)
 {
 	return (detect_sq_aux(treasure_tester,
 			"You sense the presence of buried treasure!"));
+}
+
+bool stone_tell(void)
+{
+	bool rv;
+
+	rv = detect_sq_aux2(trap_tester, "You sense the presence of traps!", FALSE);
+
+	p_ptr->state.detected = TRUE;
+
+	if (detect_sq_aux2(door_tester, "You sense the presence of doors!", FALSE) ||
+		detect_sq_aux2(stair_tester, "You sense the presence of stairs!", FALSE) ||
+		detect_sq_aux2(treasure_tester, "You sense the presence of buried treasure!", FALSE))
+		rv = TRUE;
+
+	return (rv);
 }
 
 
@@ -1336,6 +1411,7 @@ static bool magic_tester(const object_type *o_ptr)
 			(tv == TV_DEATH_BOOK) ||
 			(tv == TV_CONJ_BOOK) ||
 			(tv == TV_ARCANE_BOOK) ||
+			(tv == TV_ILLUSION_BOOK) ||
 			((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)));
 }
 
@@ -1440,7 +1516,7 @@ static bool norm_mon_tester(const monster_type *m_ptr, vptr data)
 
 	/* Detect all non-invisible monsters */
 	if (!FLAG(r_ptr, RF_INVISIBLE) ||
-		FLAG(p_ptr, TR_SEE_INVIS) || p_ptr->tim.invis) return (TRUE);
+		FLAG(p_ptr, TR_SEE_INVIS) || query_timed(TIMED_SEE_INVIS)) return (TRUE);
 
 	return (FALSE);
 }
@@ -1648,11 +1724,13 @@ bool detect_all(void)
  * To avoid misbehavior when monster deaths have side-effects,
  * this is done in two passes. -- JDL
  */
-bool project_hack(int typ, int dam)
+static bool project_hack_aux(int typ, int dam, u16b flg)
 {
 	int i, x, y;
-	u16b flg = PROJECT_JUMP | PROJECT_KILL | PROJECT_HIDE;
 	bool obvious = FALSE;
+
+	/* Enforce, for good visuals etc.  */
+	flg |= PROJECT_HIDE | PROJECT_JUMP;
 
 	/* Mark all (nearby) monsters */
 	for (i = 1; i < m_max; i++)
@@ -1695,6 +1773,41 @@ bool project_hack(int typ, int dam)
 	return (obvious);
 }
 
+/*
+ * Apply a "project()" directly to all viewable grids.
+ *
+ * Note that this should not be used for projections that
+ * can kill monsters, since there may be side effects.
+ */
+bool project_hack2(int typ, int dam, u16b flg)
+{
+	int i, x, y;
+	bool obvious = FALSE;
+
+	/* Enforce, for good visuals etc.  */
+	flg |= PROJECT_HIDE | PROJECT_JUMP;
+
+	/* Affect all viewable grids */
+	for (x = p_ptr->min_wid; x < p_ptr->max_wid; x++)
+	{
+		for (y = p_ptr->min_hgt; y < p_ptr->max_hgt; y++)
+		{
+			/* Require line of sight */
+			if (!player_has_los_grid(parea(x, y))) continue;
+
+			/* Jump directly to the target */
+			if (project(0, 0, x, y, dam, typ, flg)) obvious = TRUE;
+		}
+	}
+
+	/* Result */
+	return (obvious);
+}
+
+bool project_hack(int typ, int dam)
+{
+	return (project_hack_aux(typ, dam, PROJECT_JUMP | PROJECT_KILL | PROJECT_HIDE));
+}
 
 /*
  * Speed monsters
@@ -1733,9 +1846,9 @@ bool banish_evil(int dist)
 /*
  * Turn undead
  */
-bool turn_undead(void)
+bool turn_undead(int dam)
 {
-	bool tester = (project_hack(GF_TURN_UNDEAD, p_ptr->lev));
+	bool tester = (project_hack(GF_TURN_UNDEAD, randint1(dam)));
 
 	if (tester)
 		chg_virtue(V_UNLIFE, -1);
@@ -1749,7 +1862,7 @@ bool turn_undead(void)
  */
 bool dispel_undead(int dam)
 {
-	bool tester = (project_hack(GF_DISP_UNDEAD, dam));
+	bool tester = (project_hack(GF_DISP_UNDEAD, randint1(dam)));
 
 	if (tester)
 		chg_virtue(V_UNLIFE, -2);
@@ -1762,7 +1875,7 @@ bool dispel_undead(int dam)
  */
 bool dispel_evil(int dam)
 {
-	return (project_hack(GF_DISP_EVIL, dam));
+	return (project_hack(GF_DISP_EVIL, randint1(dam)));
 }
 
 /*
@@ -1770,7 +1883,7 @@ bool dispel_evil(int dam)
  */
 bool dispel_good(int dam)
 {
-	return (project_hack(GF_DISP_GOOD, dam));
+	return (project_hack(GF_DISP_GOOD, randint1(dam)));
 }
 
 /*
@@ -1778,7 +1891,7 @@ bool dispel_good(int dam)
  */
 bool dispel_monsters(int dam)
 {
-	return (project_hack(GF_DISP_ALL, dam));
+	return (project_hack(GF_DISP_ALL, randint1(dam)));
 }
 
 /*
@@ -1786,7 +1899,7 @@ bool dispel_monsters(int dam)
  */
 bool dispel_living(int dam)
 {
-	return (project_hack(GF_DISP_LIVING, dam));
+	return (project_hack(GF_DISP_LIVING, randint1(dam)));
 }
 
 /*
@@ -1794,7 +1907,7 @@ bool dispel_living(int dam)
  */
 bool dispel_demons(int dam)
 {
-	return (project_hack(GF_DISP_DEMON, dam));
+	return (project_hack(GF_DISP_DEMON, randint1(dam)));
 }
 
 
@@ -3074,7 +3187,7 @@ bool lite_area(int dam, int rad)
 	u16b flg = PROJECT_GRID | PROJECT_KILL;
 
 	/* Hack -- Message */
-	if (!p_ptr->tim.blind)
+	if (!query_timed(TIMED_BLIND))
 	{
 		msgf("You are surrounded by a white light.");
 	}
@@ -3099,7 +3212,7 @@ bool unlite_area(int dam, int rad)
 	u16b flg = PROJECT_GRID | PROJECT_KILL;
 
 	/* Hack -- Message */
-	if (!p_ptr->tim.blind)
+	if (!query_timed(TIMED_BLIND))
 	{
 		msgf("Darkness surrounds you.");
 	}
@@ -3421,6 +3534,23 @@ bool sleep_monster(int dir)
 	return (project_hook(GF_OLD_SLEEP, dir, p_ptr->lev, flg));
 }
 
+bool silence_monster(int dir, int pow)
+{
+	u16b flg = PROJECT_STOP | PROJECT_KILL;
+	return (project_hook(GF_SILENCE, dir, pow, flg));
+}
+
+bool petrify_monster(int dir, int pow)
+{
+	u16b flg = PROJECT_STOP | PROJECT_KILL;
+	return (project_hook(GF_PETRIFY, dir, pow, flg));
+}
+
+bool imprison_monster(int dir, int pow)
+{
+	u16b flg = PROJECT_STOP | PROJECT_KILL;
+	return (project_hook(GF_IMPRISON, dir, pow, flg));
+}
 
 bool stasis_monster(int dir)
 {
@@ -3433,6 +3563,12 @@ bool confuse_monster(int dir, int plev)
 {
 	u16b flg = PROJECT_STOP | PROJECT_KILL;
 	return (project_hook(GF_OLD_CONF, dir, plev, flg));
+}
+
+bool clone_monster_pet(int dir, int plev)
+{
+	u16b flg = PROJECT_STOP | PROJECT_KILL;
+	return (project_hook(GF_CLONE_PET, dir, plev, flg));
 }
 
 
@@ -3489,19 +3625,58 @@ bool teleport_monster(int dir)
 bool door_creation(void)
 {
 	u16b flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-	return (project(0, 1, p_ptr->px, p_ptr->py, 0, GF_MAKE_DOOR, flg) &&
+
+	/* Update stuff */
+	p_ptr->update |= (PU_VIEW | PU_FLOW);
+
+	/* Update the monsters */
+	p_ptr->update |= (PU_MONSTERS);
+
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+
+	return (project(0, 1, p_ptr->px, p_ptr->py, 0, GF_MAKE_DOOR, flg) ||
 			project(0, 1, p_ptr->px, p_ptr->py, 0, GF_JAM_DOOR, flg));
 }
 
 bool lava_creation(void)
 {
 	u16b flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
+
+	/* Update stuff */
+	p_ptr->update |= (PU_VIEW | PU_FLOW);
+
+	/* Update the monsters */
+	p_ptr->update |= (PU_MONSTERS);
+
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+
 	return (project(0, 1, p_ptr->px, p_ptr->py, 0, GF_MAKE_LAVA, flg));
 }
 
 bool water_creation(void)
 {
 	u16b flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
+
+	/* Update stuff */
+	p_ptr->update |= (PU_VIEW | PU_FLOW);
+
+	/* Update the monsters */
+	p_ptr->update |= (PU_MONSTERS);
+
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+
 	return (project(0, 1, p_ptr->px, p_ptr->py, 0, GF_MAKE_WATER, flg));
 }
 
@@ -3524,6 +3699,9 @@ bool wall_stone(void)
 	u16b flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
 
 	bool dummy = (project(0, 1, p_ptr->px, p_ptr->py, 0, GF_STONE_WALL, flg));
+
+	/* Ugly hack: destroy rock in the center */
+	project(0, 0, p_ptr->px, p_ptr->py, 0, GF_KILL_WALL, flg);
 
 	/* Update stuff */
 	p_ptr->update |= (PU_VIEW | PU_FLOW);
@@ -3555,7 +3733,7 @@ bool sleep_monsters_touch(void)
 }
 
 
-void call_chaos(void)
+void call_chaos(char power)
 {
 	int dummy, dir;
 	int plev = p_ptr->lev;
@@ -3582,23 +3760,23 @@ void call_chaos(void)
 			if (dummy - 5)
 			{
 				if (line_chaos)
-					(void)fire_beam(hurt_types[randint0(30)], dummy, 75);
+					(void)fire_beam(hurt_types[randint0(30)], dummy, POWER(75,power));
 				else
-					(void)fire_ball(hurt_types[randint0(30)], dummy, 75, 2);
+					(void)fire_ball(hurt_types[randint0(30)], dummy, POWER(75,power), 2);
 			}
 		}
 	}
 	else if (one_in_(3))
 	{
-		(void)fire_ball(hurt_types[randint0(30)], 0, 300, 8);
+		(void)fire_ball(hurt_types[randint0(30)], 0, POWER(300,power), 8);
 	}
 	else
 	{
 		if (!get_aim_dir(&dir)) return;
 		if (line_chaos)
-			(void)fire_beam(hurt_types[randint0(30)], dir, 150);
+			(void)fire_beam(hurt_types[randint0(30)], dir, POWER(150,power));
 		else
-			(void)fire_ball(hurt_types[randint0(30)], dir, 150, 3 + (plev / 35));
+			(void)fire_ball(hurt_types[randint0(30)], dir, POWER(150,power), 3 + (plev / 35));
 	}
 }
 
@@ -4011,6 +4189,13 @@ bool stasis_monsters(int dam)
 	return (project_hack(GF_STASIS, dam));
 }
 
+/*
+ * Petrify monsters
+ */
+bool petrify_monsters(int dam)
+{
+	return (project_hack(GF_PETRIFY, dam));
+}
 
 /*
  * Mindblast monsters
@@ -4070,6 +4255,11 @@ bool control_one_undead(int dir, int plev)
 	return (project_hook(GF_CONTROL_UNDEAD, dir, plev, flg));
 }
 
+bool control_one_evil(int dir, int plev)
+{
+	u16b flg = PROJECT_STOP | PROJECT_KILL;
+	return (project_hook(GF_CONTROL_EVIL, dir, plev, flg));
+}
 
 bool charm_animal(int dir, int plev)
 {
@@ -4167,24 +4357,23 @@ void create_food()
 
 void whirlwind_attack()
 {
-	int y = 0, x = 0, dir;
-	cave_type *c_ptr;
-	monster_type *m_ptr;
+	project(0, 1, p_ptr->px, p_ptr->py, 0, GF_TELE_ATTACK,
+		(PROJECT_KILL | PROJECT_HIDE | PROJECT_ROCK | PROJECT_THRU));
 
-	for (dir = 0; dir <= 9; dir++)
-	{
-		y = p_ptr->py + ddy[dir];
-		x = p_ptr->px + ddx[dir];
-
-		/* paranoia */
-		if (!in_bounds2(x, y)) return;
-		c_ptr = area(x, y);
-
-		/* Get the monster */
-		m_ptr = &m_list[c_ptr->m_idx];
-
-		/* Hack -- attack monsters */
-		if (c_ptr->m_idx && (m_ptr->ml || cave_floor_grid(c_ptr)))
-			py_attack(x, y);
-	}
 }
+
+bool purge_area(void)
+{
+	bool rv = remove_curse();
+
+	if (project_hack2(GF_KILL_CURSE, p_ptr->lev, PROJECT_ITEM))
+		rv = TRUE;
+
+	return (rv);
+}
+
+bool mass_identify(void)
+{
+	return (project_hack2(GF_IDENT, p_ptr->lev, PROJECT_ITEM));
+}
+

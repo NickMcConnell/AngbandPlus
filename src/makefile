@@ -33,7 +33,7 @@
 # (rr9@angband.objrg) for inclusion in future versions.
 #
 
-DEFAULT := zangband
+DEFAULT := install_game
 
 
 ##
@@ -81,7 +81,7 @@ ANGOBJS := $(LUAWOBJS) \
         store.obj birth.obj load.obj ui.obj\
         wizard1.obj wizard2.obj grid.obj streams.obj rooms.obj \
         generate.obj dungeon.obj init1.obj init2.obj \
-        effects.obj quest.obj racial.obj run.obj script.obj \
+        effects.obj quest1.obj quest2.obj racial.obj run.obj script.obj \
         artifact.obj mutation.obj flavor.obj spells3.obj \
         mspells1.obj mspells2.obj scores.obj mind.obj maid-x11.obj\
         bldg.obj obj_kind.obj wild1.obj wild2.obj wild3.obj avatar.obj notes.obj\
@@ -95,16 +95,6 @@ ANGOBJS := $(LUAWOBJS) \
 ##
 
 ZUTILOBJS := z-util.obj z-virt.obj z-form.obj z-rand.obj z-term.obj
-
-##
-## The Borg files
-##
-
-BORGOBJS := \
-        zborg1.obj zborg2.obj zborg3.obj zborg4.obj zborg5.obj \
-        zborg6.obj zborg7.obj zborg8.obj zborg9.obj \
-        zbmagic1.obj zbmagic2.obj zbmagic3.obj
-
 
 ##
 ## The Tk port files
@@ -140,7 +130,6 @@ TOLUAOBJS := \
 
 ANGSRCS := $(ANGOBJS:.obj=.c)
 ZUTILSRCS := $(ZUTILOBJS:.obj=.c)
-BORGSRCS := $(BORGOBJS:.obj=.c)
 LUAWSRCS := $(LUAWOBJS:.obj=.c)
 
 ##
@@ -295,7 +284,7 @@ HDRS := \
 
 INCS := \
 	angband.h \
-	z-config.h defines.h types.h externs.h \
+        z-config.h defines.h types.h externs.h version.h \
 	z-term.h z-rand.h z-util.h z-virt.h z-form.h $(HDRS)
 
 ##
@@ -304,7 +293,6 @@ INCS := \
 
 $(ANGOBJS): $(INCS)
 $(ZUTILOBJS): $(HDRS)
-$(BORGOBJS): $(INCS)
 
 ##
 ## Extra dependancies
@@ -328,7 +316,8 @@ main-x11.obj: maid-grf.h maid-x11.h
 main-xaw.obj: maid-grf.h maid-x11.h
 main-xpj.obj: maid-grf.h maid-x11.h
 script.obj: script.h
-quest.obj: wild.h grid.h
+quest1.obj: wild.h grid.h
+quest2.obj: wild.h grid.h
 readdib.obj: readdib.h
 wild1.obj: wild.h grid.h
 wild2.obj: wild.h grid.h
@@ -339,30 +328,6 @@ z-rand.obj: z-rand.h
 z-term.obj: z-term.h z-virt.h
 z-util.obj: z-util.h
 z-virt.obj: z-virt.h z-util.h
-
-## Each borg file depends on the ones before it.
-## Hack - the dependance on the .obj files encodes this.
-
-zborg1.obj: zborg1.h maid-grf.h
-zborg2.obj: zborg1.h zborg2.h maid-grf.h
-zborg3.obj: zborg1.h zborg3.h maid-grf.h
-zborg4.obj: zborg1.h zborg2.h zborg3.h zborg4.h maid-grf.h
-zborg5.obj: zborg1.h zborg2.h zborg3.h zborg4.h zborg5.h maid-grf.h
-zborg6.obj: zborg1.h zborg2.h zborg3.h zborg4.h zborg5.h zborg6.h maid-grf.h \
-			zbmagic.h
-zborg7.obj: zborg1.h zborg2.h zborg3.h zborg4.h zborg5.h zborg6.h zborg7.h \
-			maid-grf.h
-zborg8.obj: zborg1.h zborg2.h zborg3.h zborg4.h zborg5.h zborg6.h zborg7.h \
-			zborg8.h maid-grf.h
-zborg9.obj: zborg1.h zborg2.h zborg3.h zborg4.h zborg5.h zborg6.h zborg7.h \
-			zborg8.h zborg9.h maid-grf.h
-zbmagic1.obj: zborg1.h zborg2.h zborg3.h zborg4.h zborg5.h zborg6.h maid-grf.h \
-			zbmagic.h
-zbmagic2.obj: zborg1.h zborg2.h zborg3.h zborg4.h zborg5.h zborg6.h maid-grf.h \
-			zbmagic.h
-zbmagic3.obj: zborg1.h zborg2.h zborg3.h zborg4.h zborg5.h zborg6.h maid-grf.h \
-			zbmagic.h
-
 
 ##
 ## Compiling angband.rc

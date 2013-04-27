@@ -362,6 +362,10 @@ static void get_money(void)
 			gold -= (stat_use[i] - 80);
 	}
 
+	/* Bonus for humans */
+	if (p_ptr->rp.prace == RACE_HUMAN)
+		gold += 300;
+
 	/* Minimum 100 gold */
 	if (gold < 100) gold = 100;
 
@@ -441,7 +445,17 @@ static void player_wipe(void)
 
 
 	/* None of the spells have been learned yet */
-	for (i = 0; i < PY_MAX_SPELLS; i++) p_ptr->spell.order[i] = 99;
+	p_ptr->spell.spell_max = 0;
+
+	for (i = 0; i < PY_MAX_SPELLS; i++)
+	{
+		p_ptr->spell.data[i].s_idx = 0;
+		p_ptr->spell.data[i].realm = 0;
+		p_ptr->spell.data[i].focus = 0;
+		p_ptr->spell.data[i].flags = 0;
+		p_ptr->spell.data[i].spell[0] = 0;
+		p_ptr->spell.data[i].spell[1] = 0;
+	}
 
 	/* Clear "cheat" options */
 	cheat_peek = FALSE;
@@ -670,8 +684,8 @@ static void player_outfit(void)
 		sv = player_init[p_ptr->rp.pclass][i][1];
 
 		/* Hack to initialize spellbooks */
-		if (tv == TV_SORCERY_BOOK) tv = TV_LIFE_BOOK + p_ptr->spell.r[0].realm - 1;
-		else if (tv == TV_DEATH_BOOK) tv = TV_LIFE_BOOK + p_ptr->spell.r[1].realm - 1;
+		if (tv == TV_SORCERY_BOOK) tv = TV_LIFE_BOOK + p_ptr->spell.realm[0] - 1;
+		else if (tv == TV_DEATH_BOOK) tv = TV_LIFE_BOOK + p_ptr->spell.realm[1] - 1;
 
 		else if (tv == TV_RING && sv == SV_RING_RES_FEAR &&
 				 p_ptr->rp.prace == RACE_BARBARIAN)
@@ -912,6 +926,12 @@ static bool get_player_realms(void)
 	int select[MAX_REALM];
 	int choose;
 
+	/* Starting spell slots */
+	for (i = 0; i < SPELL_LAYERS; i++)
+	{
+		p_ptr->spell_slots[i] = magic_info[p_ptr->rp.pclass].max_spells[i];
+	}
+
 	/* No realms at all? */
 	select[0] = REALM_NONE;
 
@@ -945,7 +965,7 @@ static bool get_player_realms(void)
 	if (choose == INVALID_CHOICE) return (FALSE);
 
 	/* Save the choice */
-	p_ptr->spell.r[0].realm = select[choose];
+	p_ptr->spell.realm[0] = select[choose];
 
 	/* Paranoia - No realms at all? */
 	select[0] = REALM_NONE;
@@ -958,7 +978,7 @@ static bool get_player_realms(void)
 	{
 		/* Can we use this realm? */
 		if ((realm_choices2[p_ptr->rp.pclass] & (1 << (i - 1)))
-			&& (i != p_ptr->spell.r[0].realm))
+			&& (i != p_ptr->spell.realm[0]))
 		{
 			/* Save the information */
 			select[count] = i;
@@ -979,7 +999,7 @@ static bool get_player_realms(void)
 	if (choose == INVALID_CHOICE) return (FALSE);
 
 	/* Save the choice */
-	p_ptr->spell.r[1].realm = select[choose];
+	p_ptr->spell.realm[1] = select[choose];
 
 	/* Done */
 	return (TRUE);
@@ -1040,14 +1060,14 @@ static bool player_birth_aux_1(void)
 				"Class    : " CLR_L_BLUE "%s\n",
 				player_name, sp_ptr->title, rp_ptr->title, cp_ptr->title);
 
-	if (p_ptr->spell.r[0].realm || p_ptr->spell.r[1].realm)
+	if (p_ptr->spell.realm[0] || p_ptr->spell.realm[1])
 	{
-		put_fstr(0, 6, "Magic    : " CLR_L_BLUE "%s", realm_names[p_ptr->spell.r[0].realm]);
+		put_fstr(0, 6, "Magic    : " CLR_L_BLUE "%s", realm_names[p_ptr->spell.realm[0]]);
 	}
 
-	if (p_ptr->spell.r[1].realm)
+	if (p_ptr->spell.realm[1])
 	{
-		put_fstr(11, 7, CLR_L_BLUE "%s", realm_names[p_ptr->spell.r[1].realm]);
+		put_fstr(11, 7, CLR_L_BLUE "%s", realm_names[p_ptr->spell.realm[1]]);
 	}
 
 	/* Initialize player quests */
@@ -1689,5 +1709,8 @@ void player_birth(void)
 	/* Set the inv/equip window flag as default */
 	if (!window_flag[2])
 		window_flag[2] |= PW_INVEN;
+
+	/* Extract current clone */
+	create_clone(FALSE);
 }
 

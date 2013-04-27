@@ -117,17 +117,16 @@ there are no significant gameplay differences between the two sexes.
 ***** <TheRaces>
 === Races ===
 
-There are thirty different races that you can choose from in Zangband.
+There are thirty different races that you can choose from in Z+Angband.
 Each race has various strengths and weaknesses and its own adjustments
 to a character's stats and abilities. Many races also have intrinsic
 abilities and powers.
  
 Human
-     The human is the base character. All other races are compared
-     to them. Humans can choose any class and are average at
-     everything. Humans tend to go up levels faster than any other
-     race because of their shorter life spans. No racial adjustments or
-     intrinsics occur to characters choosing human.
+     Humans are the basic character race, meant for beginning players.
+     Humans are reasonably adept at hand-to-hand combat, and benefit
+     from an improved ability to sense the quality of armor and weapons
+     without magical means.  Humans begin the game with extra gold.
 
 Half-Elf
      Half-elves tend to be smarter and faster than a human, but not as

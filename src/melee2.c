@@ -1825,7 +1825,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 					update_mon_vis(t_ptr->r_idx, 1);
 				}
 
-				if ((p_ptr->tim.image) && one_in_(3))
+				if ((query_timed(TIMED_IMAGE)) && one_in_(3))
 				{
 					strnfmt(temp, 80, "%s %s.",
 								 silly_attacks[randint0(MAX_SILLY_ATTACK)],
@@ -2537,7 +2537,7 @@ static void take_move(int m_idx, int *mm)
 			update_mon(m_idx, TRUE);
 
 			/* Process fields under the monster. */
-			field_script(old_ptr, FIELD_ACT_MONSTER_ENTER, "");
+			field_script(area(nx,ny), FIELD_ACT_MONSTER_ENTER, "p", LUA_OBJECT(m_ptr));
 
 			/* Redraw the old grid */
 			lite_spot(ox, oy);
@@ -2956,6 +2956,25 @@ static void process_monster(int m_idx)
 		}
 	}
 
+	/* Handle silence */
+	if (m_ptr->silenced)
+	{
+		/* Reduce by one, note if expires */
+		m_ptr->silenced--;
+
+		if (!(m_ptr->silenced) && m_ptr->ml)
+		{
+			/* Dump a message */
+			msgf("%^v is no longer mute.", MONSTER_FMT(m_ptr, 0));
+		}
+	}
+
+	/* Handle imprisoned
+	 *
+     * Nothing needed: being imprisoned is permanent.
+     */
+
+
 	/* No one wants to be your friend if you're aggravating */
 	if (!is_hostile(m_ptr) && (FLAG(p_ptr, TR_AGGRAVATE)))
 		gets_angry = TRUE;
@@ -3310,6 +3329,9 @@ void process_monsters(int min_energy)
 
 		/* Ignore "dead" monsters */
 		if (!m_ptr->r_idx) continue;
+
+		/* Ignore "imprisoned" monsters */
+		if (m_ptr->imprisoned) continue;
 
 		/* Calculate "upkeep" for pets */
 		if (is_pet(m_ptr))

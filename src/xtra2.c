@@ -708,7 +708,7 @@ bool monster_death(int m_idx, bool explode)
 
 			if ((a_idx > 0) && ((randint1(99) < chance) || (p_ptr->state.wizard)))
 			{
-				if (a_info[a_idx].cur_num == 0)
+				if (a_info[a_idx].cur_num == 0 && !(FLAG(&a_info[a_idx], TR_QUESTITEM)))
 				{
 					/* Create the artifact */
 					create_named_art(a_idx, x, y);
@@ -1613,7 +1613,7 @@ bool target_able(int m_idx)
 	if (!projectable(px, py, m_ptr->fx, m_ptr->fy)) return (FALSE);
 
 	/* Hack -- no targeting hallucinations */
-	if (p_ptr->tim.image) return (FALSE);
+	if (query_timed(TIMED_IMAGE)) return (FALSE);
 
 	/* Assume okay */
 	return (TRUE);
@@ -1889,7 +1889,7 @@ static bool target_set_accept(int x, int y)
 
 
 	/* Handle hallucination */
-	if (p_ptr->tim.image) return (FALSE);
+	if (query_timed(TIMED_IMAGE)) return (FALSE);
 
 	/* paranoia */
 	if (!in_boundsp(x, y)) return (FALSE);
@@ -2073,7 +2073,7 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 
 
 		/* Hack -- hallucination */
-		if (p_ptr->tim.image)
+		if (query_timed(TIMED_IMAGE))
 		{
 			cptr name = "something strange";
 
@@ -3002,7 +3002,7 @@ bool get_aim_dir(int *dp)
 	p_ptr->cmd.dir = dir;
 
 	/* Check for confusion */
-	if (p_ptr->tim.confused)
+	if (query_timed(TIMED_CONFUSED))
 	{
 		/* Random direction */
 		dir = ddd[randint0(8)];
@@ -3049,7 +3049,7 @@ bool get_rep_dir(int *dp)
 	if (repeat_pull(dp))
 	{
 		/* Done, if not confused. */
-		if (!p_ptr->tim.confused) return (TRUE);
+		if (!query_timed(TIMED_CONFUSED)) return (TRUE);
 
 		/* Standard confusion */
 		if (randint0(100) < 75)
@@ -3057,6 +3057,8 @@ bool get_rep_dir(int *dp)
 			/* Random direction */
 			dir = ddd[randint0(8)];
 		}
+		else
+			dir = p_ptr->cmd.dir;
 
 		/* Notice confusion */
 		if (p_ptr->cmd.dir != dir)
@@ -3099,7 +3101,7 @@ bool get_rep_dir(int *dp)
 	p_ptr->cmd.dir = dir;
 
 	/* Apply "confusion" */
-	if (p_ptr->tim.confused)
+	if (query_timed(TIMED_CONFUSED))
 	{
 		/* Standard confusion */
 		if (randint0(100) < 75)
@@ -3389,7 +3391,7 @@ void gain_level_reward(int chosen_reward)
 			msgf("The voice of %s booms out:",
 					   chaos_patrons[patron]);
 			msgf("'Death and destruction! This pleaseth me!'");
-			call_chaos();
+			call_chaos(0);
 			break;
 		}
 		case REW_GAIN_ABL:
@@ -3759,7 +3761,7 @@ bool get_hack_dir(int *dp)
 	p_ptr->cmd.dir = dir;
 
 	/* Check for confusion */
-	if (p_ptr->tim.confused)
+	if (query_timed(TIMED_CONFUSED))
 	{
 		/* XXX XXX XXX */
 		/* Random direction */

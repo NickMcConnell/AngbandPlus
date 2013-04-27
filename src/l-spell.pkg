@@ -96,6 +96,8 @@ typedef int errr;
 #define PROJECT_HIDE    0x0080
 #define PROJECT_FRND	0x0100
 #define PROJECT_MFLD	0x0200
+#define PROJECT_ROCK    0x0400
+#define PROJECT_SHORT   0x0800
 
 
 /***** Types *****/
@@ -110,6 +112,7 @@ typedef int errr;
 
 /* spells1.c */
 extern bool project(int who, int rad, int x, int y, int dam, int typ, u16b flg);
+extern bool project_m(int who, int r, int x, int y, int dam, int typ);
 
 /* spells2.c */
 extern void self_knowledge(void);
@@ -151,7 +154,7 @@ extern bool lite_area(int dam, int rad);
 extern bool unlite_area(int dam, int rad);
 extern bool fire_ball(int typ, int dir, int dam, int rad);
 extern bool fire_bolt(int typ, int dir, int dam);
-extern void call_chaos(void);
+extern void call_chaos(byte power);
 extern bool fire_beam(int typ, int dir, int dam);
 extern bool fire_bolt_or_beam(int prob, int typ, int dir, int dam);
 extern bool lite_line(int dir, int dam);
@@ -196,6 +199,7 @@ extern bool control_one_undead(int dir, int plev);
 extern bool charm_animal(int dir, int plev);
 extern bool mindblast_monsters(int dam);
 extern bool teleport_swap(int dir);
+extern bool project_hook(int typ, int dir, int dam, u16b flg);
 
 /* spells3.c */
 extern bool teleport_away(int m_idx, int dis);
@@ -219,8 +223,8 @@ extern bool remove_curse(void);
 extern bool remove_all_curse(void);
 extern bool alchemy(void);
 extern void stair_creation(void);
-extern bool enchant(object_type *o_ptr, int n, int eflag);
-extern bool enchant_spell(int num_hit, int num_dam, int num_ac);
+extern bool enchant(object_type *o_ptr, int n, int eflag, byte power);
+extern bool enchant_spell(int num_hit, int num_dam, int num_ac, byte power);
 extern bool artifact_scroll(void);
 extern bool ident_spell(void);
 extern bool ident_scroll(int k_idx);
@@ -241,6 +245,7 @@ extern bool brand_bolts(void);
 extern bool polymorph_monster(int x, int y);
 extern bool dimension_door(void);
 extern void map_wilderness(int radius, s32b x, s32b y);
+extern bool do_stasis(int x, int y, int dam);
 
 extern void map_area(void);
 extern void wiz_lite(void);

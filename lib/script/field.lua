@@ -103,10 +103,17 @@ function corpse_decay()
 	local name
 	local r_idx
 	local race
+      local t
+	local s = "The "
 	r_idx = field.data[1] * 256 + field.data[2]
 	
 	race = monst_race(r_idx)
 	name = mon_race_name(race)
+      if (field.t_idx == 4) then t = "corpse decays."
+            else t = "skeleton crumbles." end
+	if (bAnd(race.flags[0], RF0_UNIQUE) ~= 0) then
+		t = "decays."
+		s = "" end
 	
 	if (ironman_nightmare == TRUE) then
 
@@ -114,7 +121,7 @@ function corpse_decay()
 		if (summon_cloned_creature(field.fx, field.fy, race, FALSE)) then
 			if (visible == TRUE) then
 				if (disturb_minor == TRUE) then
-					msgf("The "..name.." rises.")
+					msgf(""..s..""..name.." rises.")
 					disturb(FALSE)
 				end
 			end
@@ -123,7 +130,7 @@ function corpse_decay()
 
 				-- Let the player know what happened
 				if (disturb_minor == TRUE) then
-					msgf("The "..name.." decays.")
+					msgf(""..s..""..name.." "..t.."")
 					disturb(FALSE)
 				end
 			end
@@ -133,7 +140,7 @@ function corpse_decay()
 		
 			-- Let the player know what happened
 			if (disturb_minor == TRUE) then
-				msgf("The "..name.." decays.")
+				msgf(""..s..""..name.." "..t.."")
 				disturb(FALSE)
 			end
 		end

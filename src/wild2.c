@@ -2772,7 +2772,7 @@ byte the_floor(void)
 
 static bool create_towns(int *xx, int *yy)
 {
-	int x, y, i;
+	int x, y, i, j, used, cur_score;
 	bool first_try = TRUE;
 
 	wild_gen2_type *w_ptr;
@@ -2840,15 +2840,38 @@ static bool create_towns(int *xx, int *yy)
 					init_dungeon(pl_ptr, &dungeons[0]);
 				}
 
+
 				/* Select easiest town */
-				if (w_ptr->law_map > town_value)
+
+				/* Collect some score points.  To make sure
+				   we get at least one, use the data at the town. */
+				cur_score = w_ptr->law_map;
+				used = 1;
+
+				for (j = 0; j < 20; j++)
+				{
+					int y1, x1;
+
+					y1 = rand_range(y-10,y+10);
+					x1 = rand_range(x-10,x+10);
+
+					/* Check for boundary */
+					if (x1 < 0 || y1 < 0) continue;
+					if (x1 > max_wild-1 || y1 > max_wild-1) continue;
+
+					/* Used this one */
+					used++;
+
+					cur_score += wild[y][x].trans.law_map;
+				}
+
+				cur_score = cur_score / used;
+
+				if (cur_score > town_value)
 				{
 					/* Save this town */
-					town_value = w_ptr->law_map;
+					town_value = cur_score;
 					best_town = place_count;
-
-					/* Done */
-					continue;
 				}
 			}
 		}
@@ -3794,6 +3817,7 @@ void draw_inn(place_type *pl_ptr)
 			y = rand_range(y1, y2);
 			break;
 		case 3:
+		default:
 			x = x2;
 			y = rand_range(y1, y2);
 			break;

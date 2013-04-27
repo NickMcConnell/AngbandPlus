@@ -69,7 +69,7 @@ L:MENTT:local race
 L:MENTT:race = monst_race(r_idx)
 L:MENTT:do_turn = TRUE
 L:MENTT:if (do_move == TRUE) then
-L:MENTT:	if (bAnd(race.flags[0], RF0_NEVER_BLOW) ~= 0) and
+L:MENTT:	if (bAnd(race.flags[0], RF0_NEVER_BLOW) == 0) and
 L:MENTT:		(randint1(BREAK_GLYPH) < race.level) then
 L:MENTT:		if visible == TRUE then
 L:MENTT:			msgf("The rune of protection is broken!")
@@ -90,7 +90,7 @@ L:MENTT:local race
 L:MENTT:race = monst_race(r_idx)
 L:MENTT:do_turn = TRUE
 L:MENTT:if (do_move == TRUE) then
-L:MENTT:	if (bAnd(race.flags[0], RF0_NEVER_BLOW) ~= 0) and
+L:MENTT:	if (bAnd(race.flags[0], RF0_NEVER_BLOW) == 0) and
 L:MENTT:		(randint1(BREAK_MINOR_GLYPH) < race.level) then
 L:MENTT:		if (field.fx == player.px) and (field.fy = player.py) then
 L:MENTT:			msgf("The rune explodes!")
@@ -2467,3 +2467,21 @@ L:BUILD2:if (command == 'Q') then
 L:BUILD2:	build_cmd_quest(0, field)
 L:BUILD2:	done = TRUE
 L:BUILD2:end
+
+##### Back to some traps/runes
+
+N:157:Hypnotic Pattern
+G:;:v
+W:100:6:0
+I:FEAT | VIS | NO_OBJECT | TRANS | NO_MPLACE
+D:0:0:0:0:0:0:0:0
+L:MENTER: do_stasis(field.fx, field.fy, 20)
+L:MENTER: deleteme()
+
+# No LUA script: this one is hard-coded.
+N:158:Rune of Absorption
+G:;:B
+W:100:6:0
+I:FEAT | VIS | NO_OBJECT | TRANS | NO_MPLACE
+D:0:0:0:0:0:0:0:0
+

@@ -586,6 +586,14 @@ char *k_name;
 char *k_text;
 
 /*
+ * The spell arrays
+ */
+spell_type s_info[NUM_REALMS][NUM_SPELLS];
+spell_type *s_tmp_info;
+char *s_name;
+char *s_text;
+
+/*
  * The artifact arrays
  */
 artifact_type *a_info;
@@ -782,3 +790,15 @@ monster_group_type *current_monster_group = NULL;
  * Used in object generation
  */
 object_memory_type current_object_source;
+
+/*
+ * Used for "phantom terrain" function
+ */
+int current_terrain;
+
+/*
+ * Used to set "unsummon" values when creating pets
+ */
+int pet_dur = 0;
+
+

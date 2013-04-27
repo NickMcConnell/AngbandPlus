@@ -404,7 +404,7 @@ bool make_attack_normal(int m_idx)
 			else if (FLAG(p_ptr, TR_SLAY_EVIL) &&
 					FLAG(r_ptr, RF_EVIL))
 				protect = 3;
-			else if ((p_ptr->tim.protevil > 0) &&
+			else if ((query_timed(TIMED_PROTEVIL) > 0) &&
 					FLAG(r_ptr, RF_EVIL))
 				protect = 3;
 
@@ -429,6 +429,23 @@ bool make_attack_normal(int m_idx)
 				continue;
 			}
 
+			/* Apply "aura of fear" */
+			if (FLAG(p_ptr, TR_SH_FEAR) && !(FLAG(r_ptr, RF_NO_FEAR) || FLAG(r_ptr, RF_UNIQUE)))
+			{
+				if (rlev < randint1((p_ptr->lev * 5)/2))
+				{
+					msgf("%^s is suddenly afraid!", m_name);
+
+					/* Apply fear */
+					m_ptr->monfear += damroll(3, p_ptr->lev/2);
+
+					flee_message(m_name, m_ptr->r_idx);
+
+					/* Hack: Other attacks aborted. */
+					if (ap_cnt) return (TRUE);
+					else return (FALSE);
+				}
+			}
 
 			/* Get action */
 			act = format(rbm_info[method].action, "you");
@@ -472,7 +489,7 @@ bool make_attack_normal(int m_idx)
 			/* Message */
 			if (act)
 			{
-				if ((p_ptr->tim.image) && one_in_(3))
+				if (query_timed(TIMED_IMAGE) && one_in_(3))
 				{
 					msgf("%^s %s you.", m_name,
 							   silly_attacks[randint0(MAX_SILLY_ATTACK)]);
@@ -654,7 +671,7 @@ bool make_attack_normal(int m_idx)
 						obvious = TRUE;
 
 						/* Saving throw (unless paralyzed) based on dex and level */
-						if (!p_ptr->tim.paralyzed &&
+						if (!query_timed(TIMED_PARALYZED) &&
 							(randint0(100) <
 							 (adj_dex_safe[p_ptr->stat[A_DEX].ind] +
 							  p_ptr->lev)))
@@ -717,7 +734,7 @@ bool make_attack_normal(int m_idx)
 						if (m_ptr->confused) break;
 
 						/* Saving throw (unless paralyzed) based on dex and level */
-						if (!p_ptr->tim.paralyzed &&
+						if (!query_timed(TIMED_PARALYZED) &&
 							(randint0(100) <
 							 (adj_dex_safe[p_ptr->stat[A_DEX].ind] +
 							  p_ptr->lev)))
@@ -825,7 +842,7 @@ bool make_attack_normal(int m_idx)
 							if (o_ptr->timeout < 1) o_ptr->timeout = 1;
 
 							/* Notice */
-							if (!p_ptr->tim.blind)
+							if (!query_timed(TIMED_BLIND))
 							{
 								msgf("Your light dims.");
 								obvious = TRUE;
@@ -900,7 +917,7 @@ bool make_attack_normal(int m_idx)
 						take_hit(damage, ddesc);
 
 						/* Increase "blind" */
-						if (!(FLAG(p_ptr, TR_RES_BLIND))  && !p_ptr->tim.oppose_blind)
+						if (!(FLAG(p_ptr, TR_RES_BLIND))  && !query_timed(TIMED_OPPOSE_BLIND))
 						{
 							if (inc_blind(10 + randint1(rlev)))
 							{
@@ -920,7 +937,7 @@ bool make_attack_normal(int m_idx)
 						take_hit(damage, ddesc);
 
 						/* Increase "confused" */
-						if (!(FLAG(p_ptr, TR_RES_CONF)) && !p_ptr->tim.oppose_conf)
+						if (!(FLAG(p_ptr, TR_RES_CONF)) && !query_timed(TIMED_OPPOSE_CONF))
 						{
 							if (inc_confused(3 + randint1(rlev)))
 							{
@@ -973,7 +990,7 @@ bool make_attack_normal(int m_idx)
 						int power = MAX(r_ptr->hdice * 2, damage);
 
 						/* Hack -- Prevent perma-paralysis via damage */
-						if (p_ptr->tim.paralyzed && (damage < 1)) damage = 1;
+						if (query_timed(TIMED_PARALYZED) && (damage < 1)) damage = 1;
 
 						/* Take damage */
 						take_hit(damage, ddesc);

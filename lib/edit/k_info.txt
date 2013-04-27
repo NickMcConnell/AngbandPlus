@@ -75,7 +75,7 @@
 
 # Version stamp (required)
 
-V:0.2.3
+V:0.3.0
 
 
 ##### Something special #####
@@ -1727,7 +1727,7 @@ I:70:17:0
 W:8:0:5:250
 A:8/1
 F:EASY_KNOW
-L:USE:  if not enchant_spell(1, 0, 0) then result = FALSE end
+L:USE:  if not enchant_spell(1, 0, 0, 0) then result = FALSE end
 L:USE:  ident = TRUE
 D:This scroll makes a single weapon easier to hit with.
 D:  It might not work on a weapon that's already enchanted.
@@ -1738,7 +1738,7 @@ I:70:18:0
 W:8:0:5:250
 A:8/1
 F:EASY_KNOW
-L:USE:  if not enchant_spell(0, 1, 0) then result = FALSE end
+L:USE:  if not enchant_spell(0, 1, 0, 0) then result = FALSE end
 L:USE:  ident = TRUE
 D:This scroll makes a single weapon more damaging.
 D:  It might not work on a weapon that's already enchanted.
@@ -1749,7 +1749,7 @@ I:70:16:0
 W:10:0:5:250
 A:10/1
 F:EASY_KNOW
-L:USE:  if not enchant_spell(0, 0, 1) then result = FALSE end
+L:USE:  if not enchant_spell(0, 0, 1, 0) then result = FALSE end
 L:USE:  ident = TRUE
 D:This scroll makes a single piece of armor more effective protection.
 D:  It might not work on armor that's already enchanted.
@@ -1832,8 +1832,10 @@ L:USE:  fire_ball(GF_FIRE, 0, 350, 4)
 L:USE:  if res_fire_lvl() > 3 then take_hit(rand_range(100, 200),
 L:USE:          "a Scroll of Fire") end
 L:USE:  ident = TRUE
+L:USE:  inc_sh_fire(rand_range(20,40))
 D:This scroll creates a fire burst (350) centered on you, but
-D: will hurt you as well.
+D: will hurt you as well.  For 20-40 turns after reading it, you
+D: will be surrounded by an aura of fire.
 
 N:183:Ice
 G:?:d
@@ -1842,11 +1844,13 @@ W:75:0:5:600
 A:75/1
 F:IGNORE_COLD | EASY_KNOW
 L:USE:  fire_ball(GF_COLD, 0, 300, 4)
-L:USE:  if res_fire_lvl() > 3 then take_hit(rand_range(50, 100),
+L:USE:  if res_cold_lvl() > 3 then take_hit(rand_range(50, 100),
 L:USE:          "a Scroll of Ice") end
 L:USE:  ident = TRUE
+L:USE:  inc_sh_cold(rand_range(20,40))
 D:This scroll creates a cold burst (300) centered on you, but
-D: will hurt you as well.
+D: will hurt you as well.  For 20-40 turns after reading it, you
+D: will be surrounded by an aura of cold.
 
 N:184:Summon Monster
 G:?:d
@@ -2160,7 +2164,7 @@ I:70:21:0
 W:50:0:5:500
 A:20/3:50/1
 F:EASY_KNOW
-L:USE:  if not enchant_spell(randint1(5), randint1(5), 0) then result = FALSE end
+L:USE:  if not enchant_spell(randint1(5), randint1(5), 0, 5) then result = FALSE end
 L:USE:  ident = TRUE
 D:This scroll magically enchants one weapon.
 D:  It might not work on a weapon that's already enchanted.
@@ -2180,7 +2184,7 @@ I:70:20:0
 W:50:0:5:500
 A:20/3:50/1
 F:EASY_KNOW
-L:USE:  if not enchant_spell(0, 0, rand_range(2, 7)) then result = FALSE end
+L:USE:  if not enchant_spell(0, 0, rand_range(2, 7), 5) then result = FALSE end
 L:USE:  ident = TRUE
 D:This scroll magically enchants one piece of armor.
 D:  It might not work on armor that's already enchanted.
@@ -3687,11 +3691,11 @@ F:EASY_KNOW
 L:USE:  ident = detect_traps(ident)
 D:This rod magically detects nearby traps.
 
+# Removed in v 0.3.0: too common.  Was 18/2.
 N:353:Sense Monsters
 G:-:d
 I:66:7:50
 W:18:0:15:350
-A:18/2
 P:0:1d1:0:0:0
 F:EASY_KNOW
 L:USE:  ident = probing()
@@ -6148,7 +6152,7 @@ A:40/4
 F:EASY_KNOW
 D:This scroll infuses your weilded weapon with elemental power.
 L:USE: ident=TRUE
-L:USE: brand_weapon(0)
+L:USE: if not brand_weapon(0) then result=FALSE end
 
 N:632:Rustproofing
 G:?:d
@@ -6158,7 +6162,7 @@ A:30/4
 F:EASY_KNOW
 D:This scroll protects an armor of your choice from corrosion.
 L:USE: ident=TRUE
-L:USE: rustproof()
+L:USE: if not rustproof() then result=FALSE end
 
 N:633:Disenchantment
 G:?:d
@@ -6196,7 +6200,7 @@ I:75:63:0
 W:30:0:4:350
 A:30/4:62/1
 F:EASY_KNOW
-L:USE:  ident = inc_fast(rand_range(75, 120))
+L:USE:  ident = inc_xtra_fast(rand_range(75, 120))
 L:SMASH:project(who, 2, x, y, 0, GF_OLD_SPEED,
 L:SMASH:    (PROJECT_JUMP + PROJECT_ITEM + PROJECT_KILL)); return FALSE,TRUE
 D:This potion increases your speed for a long period of time.
@@ -6304,8 +6308,8 @@ G:-:d
 I:65:37:5
 W:70:0:10:5000
 A:70/3
-L:USE:  ident = fire_ball(GF_LITE, dir, 250, 3)
-D:This wand makes blasts of bright light (250).
+L:USE:  ident = fire_ball(GF_LITE, dir, 150, 3)
+D:This wand makes blasts of bright light (150).
 
 N:647:Wondrous Bolts
 G:-:d
@@ -6603,7 +6607,7 @@ G:-:d
 I:66:30:800
 W:90:0:10:30000
 A:90/16
-L:USE:  if not enchant_spell(0,0,1) then result=FALSE end
+L:USE:  if not enchant_spell(0,0,1,0) then result=FALSE end
 L:USE:  ident = TRUE
 D:This powerful rod enhances a piece of armor.
 
@@ -6612,7 +6616,7 @@ G:-:d
 I:66:31:800
 W:90:0:10:30000
 A:90/16
-L:USE:  if not enchant_spell(1,1,0) then result=FALSE end
+L:USE:  if not enchant_spell(1,1,0,0) then result=FALSE end
 L:USE:  ident = TRUE
 D:This powerful rod enhances a weapon.
 
@@ -6697,7 +6701,7 @@ W:60:0:3:0
 
 N:671:Blood
 G:=:d
-I:45:0:0
+I:45:66:0
 W:65:0:2:0
 A:65/2
 F:CURSED | SLOW_HEAL | EASY_KNOW
@@ -6705,8 +6709,6 @@ L:TIMED:  if (one_in_(4)) then take_hit(dam_roll(2,4), "a ring of blood") end
 D:This ring bites deep into your finger and drains your blood.
 
 # Quivers below are in ALPHA testing.
-# If you change nothing, they will have no effect on your game.
-# To allow them, remove the '#' before the "A:" lines in each of these entries.
 # Most commands will let you navigate into containers to select objects;
 # many will not let you use a container if it's not empty.  To reoganize, use
 # the 'O' (organize) command (^O in the roguelike keyset).  
@@ -6715,7 +6717,7 @@ N:672:& Small quiver~
 G:&:u
 I:6:92:60
 W:10:0:10:100
-#A:10/2
+A:10/2
 P:4:1d1:0:0:0
 F:EASY_KNOW
 D:It is a container for ammunition.  It can hold up to 60 arrows, bolts, or shots.
@@ -6724,7 +6726,7 @@ N:673:& Quiver~
 G:&:u
 I:6:91:100
 W:20:0:20:100
-#A:20/2
+A:20/2
 P:6:1d1:0:0:0
 F:EASY_KNOW
 D:It is a container for ammunition.  It can hold up to 100 arrows, bolts, or shots.
@@ -6733,7 +6735,7 @@ N:674:& Large quiver~
 G:&:U
 I:6:90:150
 W:40:0:30:750
-#A:40/2
+A:40/2
 P:8:1d1:0:0:0
 F:EASY_KNOW
 D:It is a container for ammunition.  It can hold up to 150 arrows, bolts, or shots.
@@ -6742,7 +6744,93 @@ N:675:& Flameproof quiver~
 G:&:U
 I:6:75:100
 W:60:0:20:750
-#A:60/2
+A:60/2
 P:6:1d1:0:0:0
 F:IGNORE_FIRE | EASY_KNOW
 D:It is a container for ammunition.  It can hold up to 100 arrows, bolts, or shots.
+
+N:676:[Sleight of Hand]
+G:?:v
+I:97:0:0
+W:17:0:30:100
+A:17/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+D:This lavender book contains simple spells of illusion magic.
+L:MAKE:  if level > 70 and (one_in_(60) ~= 0) then
+L:MAKE:    set_obj_flag(object, 2, TR2_IGNORE_FIRE) end
+
+N:677:[Smoke and Mirrors]
+G:?:v
+I:97:1:0
+W:20:0:30:1000
+A:35/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+D:This purple book contains powerful spells of illusion magic.
+L:MAKE:  if level > 70 and (one_in_(60) ~= 0) then
+L:MAKE:    set_obj_flag(object, 2, TR2_IGNORE_FIRE) end
+
+N:678:[Illusion and Deception]
+G:?:v
+I:97:2:0
+W:65:0:30:25000
+A:65/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:EASY_KNOW
+D:An intense violet book of powerful illusionary magic.
+
+N:679:[Tome of Shadows]
+G:?:v
+I:97:3:0
+W:90:0:30:100000
+A:90/3
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:EASY_KNOW
+D:This tome seems to be made of nothing but air.
+
+N:680:Fear
+G:=:d
+I:45:67:0
+W:30:0:2:1000
+A:30/3
+F:SH_FEAR
+
+N:681:Elemental Immunity
+G:!:d
+I:75:64:0
+W:80:0:4:8000
+A:80/4
+P:0:1d1:0:0:0
+F:EASY_KNOW
+L:USE:  local type
+L:USE:  type=rand_range(0,3) 
+L:USE:  if (type == 0) then ident = inc_immune_fire(rand_range(20, 40))
+L:USE:  elseif (type == 1) then ident = inc_immune_cold(rand_range(20, 40))
+L:USE:  elseif (type == 2) then ident = inc_immune_acid(rand_range(20, 40))
+L:USE:  else ident = inc_immune_elec(rand_range(20, 40)) end
+D:This potion grants immunity to acid, fire, cold, or electricity
+D: for 20-40 turns.
+
+N:682:Invisibility
+G:!:d
+I:75:65:0
+W:5:0:4:80
+A:5/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+L:USE:  ident = inc_tim_invisible(rand_range(50, 100))
+D:This potion makes you invisible for 50-100 turns.  While you are invisible,
+D: your stealth is substantially improved.  
+
+N:683:Preservation
+G:!:d
+I:75:65:0
+W:15:0:4:200
+A:15/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+L:USE:  ident = inc_tim_sust_all(rand_range(20, 40))
+D:This potion makes you resistant to stat draining for 20-40 turns.

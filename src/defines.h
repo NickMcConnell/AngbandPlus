@@ -38,8 +38,7 @@
 /* Debug modes depend on version */
 
 /* Dev version? */
-#if ((VER_MINOR == 1) || (VER_MINOR == 3) || (VER_MINOR == 5) || \
-    (VER_MINOR == 7) || (VER_MINOR == 9))
+#if FALSE
 
 #define DEBUG
 #endif /* Dev version */
@@ -61,7 +60,7 @@
 #endif /* !DEBUG */
 
 /* Savefile version */
-#define SAVEFILE_VERSION 56
+#define SAVEFILE_VERSION 57
 
 
 /*
@@ -228,6 +227,11 @@
 #define QW_OBERON				860
 #define QW_MORGOTH				861
 #define QW_SERPENT				862
+
+/*
+ * r_idx for "Clone Self."
+ */
+#define QW_CLONE				969
 
 /* Quest status */
 #define QUEST_STATUS_UNTAKEN		0
@@ -846,6 +850,7 @@
 #define MAX_DETECT		30		/* Maximum detection range */
 #define MAX_SIGHT       20		/* Maximum view distance */
 #define MAX_RANGE       18		/* Maximum range (spells, etc) < MAX_SIGHT */
+#define MAX_SHORT_RANGE  8      /* Maximum range for short-distance spells */
 
 
 /*
@@ -909,7 +914,31 @@
 /*
  * Maximum number of players spells
  */
-#define PY_MAX_SPELLS 64
+#define PY_MAX_SPELLS_OLD 64
+#define PY_MAX_SPELLS 80
+
+/*
+ * Maximum number of levels for focus +1
+ */
+#define MAX_FOCUS		5
+
+/*
+ * Distinct layers of levels.
+ * Currently 5, meaning slots go by 10 levels each.
+ */
+#define SPELL_LAYERS	5
+
+/*
+ * For spell info flags
+ */
+
+#define SP_FORGOTTEN_1 	0x01
+#define SP_FORGOTTEN_2	0x02
+#define SP_TRIED		0x04
+#define SP_FOCUS		0x08
+#define SP_PRESENT_1	0x10
+#define SP_PRESENT_2	0x20
+
 
 /*
  * Possible realms that can be chosen;
@@ -924,6 +953,7 @@
 #define CH_TRUMP        0x20  /* keeping for compatibility */
 #define CH_CONJ			0x20
 #define CH_ARCANE       0x40
+#define CH_ILLUSION		0x80
 
 
 /*
@@ -938,13 +968,17 @@
 #define REALM_TRUMP        6
 #define REALM_CONJ 	       6  /* keeping for compatibility */
 #define REALM_ARCANE       7
-#define MAX_REALM          8
+#define REALM_ILLUSION     8
+#define MAX_REALM          9
+
+#define NUM_REALMS (MAX_REALM-1)
+#define NUM_SPELLS 40
 
 /*
  * Magic-books for the realms
  */
-#define REALM1_BOOK     (p_ptr->spell.r[0].realm + TV_LIFE_BOOK - 1)
-#define REALM2_BOOK     (p_ptr->spell.r[1].realm + TV_LIFE_BOOK - 1)
+#define REALM1_BOOK     (p_ptr->spell.realm[0] + TV_LIFE_BOOK - 1)
+#define REALM2_BOOK     (p_ptr->spell.realm[1] + TV_LIFE_BOOK - 1)
 
 
 /*
@@ -1502,6 +1536,8 @@
 #define FT_BUILD_BLACKSMITH		0x009A
 #define FT_BUILD_BANK           0x009B
 #define FT_BUILD_CASTLE2		0x009C
+#define FT_GLYPH_HYPNO			0x009D
+#define FT_GLYPH_ABSORB			0x009E
 
 
 /*** Artifact indexes (see "lib/edit/a_info.txt") ***/
@@ -1886,10 +1922,11 @@
 #define TV_TRUMP_BOOK   95		/* Keeping for compatibility */
 #define TV_CONJ_BOOK   	95
 #define TV_ARCANE_BOOK  96
+#define TV_ILLUSION_BOOK  97
 #define TV_GOLD         100		/* Gold can only be picked up by players */
 
 #define TV_BOOKS_MIN    TV_LIFE_BOOK	/* First tval of spellbooks */
-#define TV_BOOKS_MAX    TV_ARCANE_BOOK	/* Last tval of spellbooks */
+#define TV_BOOKS_MAX    TV_ILLUSION_BOOK	/* Last tval of spellbooks */
 
 /* Any subvalue */
 #define SV_ANY 					255
@@ -2543,6 +2580,8 @@
  *   HIDE: Hack -- disable "visual" feedback from projection
  *   FRND: Stop if hit a friendly monster / player.
  *	 MFLD: Make fields using GF_XXX value as type. (unused as of yet)
+ *   ROCK: Not stopped by rock unless permanent.
+ *   SHORT: maximum distance is 4.
  */
 #define PROJECT_JUMP    0x0001
 #define PROJECT_BEAM    0x0002
@@ -2554,6 +2593,9 @@
 #define PROJECT_HIDE    0x0080
 #define PROJECT_FRND	0x0100
 #define PROJECT_MFLD	0x0200
+#define PROJECT_ROCK	0x0400
+#define PROJECT_SHORT	0x0800
+
 
 /*
  * Bit flags for the "enchant()" function
@@ -2781,7 +2823,68 @@
 #define PSUM_SPIDER					12
 #define PSUM_MOLD					13
 #define PSUM_CYBER					14
-#define PSUM_NUM_TYPES				14
+#define PSUM_LIGHT					15
+#define PSUM_MIRROR					16
+#define PSUM_STALKER				17
+#define PSUM_SHADOW					18
+#define PSUM_CLONE					19
+#define PSUM_HOUNDS					20
+#define PSUM_BUGS					21
+
+#define PSUM_NUM_TYPES				21
+
+/*
+ * Categories of timed things
+ */
+#define TIMED_FAST					0
+#define TIMED_SLOW					1
+#define TIMED_BLIND					2
+#define TIMED_PARALYZED				3
+#define TIMED_CONFUSED				4
+#define TIMED_AFRAID				5
+#define TIMED_IMAGE					6
+#define TIMED_POISONED				7
+#define TIMED_CUT					8
+#define TIMED_STUN					9
+#define TIMED_PROTEVIL				10
+#define TIMED_INVULN				11
+#define TIMED_HERO					12
+#define TIMED_SHERO					13
+#define TIMED_SHIELD				14
+#define TIMED_BLESSED				15
+#define TIMED_SEE_INVIS				16
+#define TIMED_INFRA					17
+#define TIMED_OPPOSE_ACID			18
+#define TIMED_OPPOSE_ELEC			19
+#define TIMED_OPPOSE_FIRE			20
+#define TIMED_OPPOSE_COLD			21
+#define TIMED_OPPOSE_POIS			22
+#define TIMED_ESP					23
+#define TIMED_WRAITH_FORM			24
+#define TIMED_RESIST_MAGIC			25
+#define TIMED_ETHEREALNESS			26
+#define TIMED_OPPOSE_CONF			27
+#define TIMED_OPPOSE_BLIND			28
+#define TIMED_WORD_RECALL			29
+#define TIMED_STR					30
+#define TIMED_CHR					31
+#define TIMED_SUST_ALL				32
+#define TIMED_XTRA_FAST				33
+#define TIMED_IMMUNE_ACID			34
+#define TIMED_IMMUNE_ELEC			35
+#define TIMED_IMMUNE_FIRE			36
+#define TIMED_IMMUNE_COLD			37
+#define TIMED_SH_ACID				38
+#define TIMED_SH_ELEC				39
+#define TIMED_SH_FIRE				40
+#define TIMED_SH_COLD				41
+#define TIMED_SH_FEAR				42
+#define TIMED_INVIS					43
+#define TIMED_XTRA_INVIS			44
+
+#define MAX_TIMED 45
+
+#define MAX_TIMED_RESERVED  64
 
 
 /*
@@ -2862,9 +2965,22 @@
 #define GF_JAM_DOOR     88
 #define GF_DOMINATION   89
 #define GF_DISP_GOOD    90
-#define GF_MAKE_LAVA	91
+#define GF_MAKE_LAVA	91		/* New types for Z+ begin here... */
 #define GF_MAKE_WATER	92
-#define MAX_GF			92
+#define GF_IDENT		93
+#define GF_CONTROL_EVIL	94
+#define GF_TELE_ATTACK	95
+#define GF_IMPRISON 	96
+#define GF_CLONE_PET	97
+#define GF_KILL_CURSE	98
+#define GF_PETRIFY		99
+#define GF_SILENCE		100
+#define GF_TERRAFORM	101
+
+#define MAX_GF			101
+
+#define GF_ILLUSION		128   /* Illusion _offset_.  Illusionary fire, e.g. is GF_FIRE + GF_ILLUSION. */
+#define GF_STRONG_ILLUSION	256  /* Double-strength illusion. */
 
 /*
  * Some things which induce learning
@@ -3035,6 +3151,8 @@
 #define TR0_BRAND_FIRE          0x40000000L
 #define TR0_BRAND_COLD          0x80000000L
 
+#define TR0_RES_MASK			0x00000000L
+
 #define TR1_SUST_STR            0x00000001L
 #define TR1_SUST_INT            0x00000002L
 #define TR1_SUST_WIS            0x00000004L
@@ -3067,6 +3185,8 @@
 #define TR1_RES_NEXUS           0x20000000L
 #define TR1_RES_CHAOS           0x40000000L
 #define TR1_RES_DISEN           0x80000000L
+
+#define TR1_RES_MASK			0xFFFFCF80L
 
 #define TR2_SH_FIRE             0x00000001L	/* Immolation (Fire) */
 #define TR2_SH_ELEC             0x00000002L	/* Electric Sheath */
@@ -3101,13 +3221,14 @@
 #define TR2_HEAVY_CURSE         0x40000000L	/* Item is Heavily Cursed */
 #define TR2_PERMA_CURSE         0x80000000L	/* Item is Perma Cursed */
 
+#define TR2_RES_MASK			0x00F00000L
 
-#define TR3_LUCK_10             0x00000001L
-#define TR3_WILD_SHOT           0x00000002L
-#define TR3_WILD_WALK           0x00000004L
-#define TR3_EASY_ENCHANT        0x00000008L
+#define TR3_LUCK_10             0x00000001L /* Bonus to saving throws */
+#define TR3_WILD_SHOT           0x00000002L /* Arrows not hindered by trees */
+#define TR3_WILD_WALK           0x00000004L /* No slowdown from terrain */
+#define TR3_EASY_ENCHANT        0x00000008L /* Easy to enchant */
 #define TR3_SQUELCH             0x00000010L /* Item ignores squelching */
-#define TR3_XXX6                0x00000020L
+#define TR3_SH_FEAR             0x00000020L /* Aura of fear */
 #define TR3_XXX7                0x00000040L
 #define TR3_XXX8                0x00000080L
 #define TR3_IM_LITE             0x00000100L
@@ -3134,6 +3255,8 @@
 #define TR3_DRAIN_STATS         0x20000000L
 #define TR3_CANT_EAT            0x40000000L
 #define TR3_SLOW_HEAL           0x80000000L
+
+#define TR3_RES_MASK			0x03F00300L
 
 
 /*
@@ -3270,11 +3393,9 @@
 #define TR_WILD_WALK            3,  TR3_WILD_WALK
 #define TR_EASY_ENCHANT		3,  TR3_EASY_ENCHANT
 #define TR_SQUELCH 		 	3,  TR3_SQUELCH
+#define TR_SH_FEAR 		 	3,  TR3_SH_FEAR
+#define TR_XXX7 		 	3,  TR3_XXX7
 #define TR_XXX8 		 	3,  TR3_XXX8
-#define TR_XXX9 		 	3,  TR3_XXX9
-#define TR_XXX10 		 	3,  TR3_XXX10
-#define TR_XXX11		 	3,  TR3_XXX11
-#define TR_XXX12 		 	3,  TR3_XXX12
 #define TR_IM_LITE  	 	3,  TR3_IM_LITE
 #define TR_IM_DARK  	 	3,  TR3_IM_DARK
 #define TR_SH_ACID  	 	3,  TR3_SH_ACID
@@ -4325,7 +4446,7 @@ static __inline void COPY_FLAG_AUX(const u32b *flags1, u32b *flags2, int num, u3
 
 /* Option Set 3 */
 
-/* {TRUE,  0, NULL,					"Number 96" }, p_ptr->options[81] */
+#define study_warn				p_ptr->options[81]
 /* {TRUE,  0, NULL,					"Number 97" }, p_ptr->options[82] */
 /* {TRUE,  0, NULL,					"Number 98" }, p_ptr->options[83] */
 /* {TRUE,  0, NULL,					"Number 99" }, p_ptr->options[84] */
@@ -4824,12 +4945,18 @@ static __inline void COPY_FLAG_AUX(const u32b *flags1, u32b *flags2, int num, u3
 #define is_friendly(T) \
 	 ((bool)(((T)->smart & SM_FRIENDLY) != 0))
 
+/*
+ * Is the monster imprisoned?
+ */
+#define is_imprisoned(T) \
+	 ((bool)(((T)->imprisoned > 0)))
+
 
 /*
  * Is the monster hostile toward the player?
  */
 #define is_hostile(T) \
-	 ((bool)(!(is_pet(T) || is_friendly(T))))
+	 ((bool)(!(is_pet(T) || is_friendly(T) || is_imprisoned(T))))
 
 
 /*
@@ -4844,6 +4971,12 @@ static __inline void COPY_FLAG_AUX(const u32b *flags1, u32b *flags2, int num, u3
 	while (FALSE)
 
 
+
+/*
+ * Macro for use in spell power calculations
+ */
+#define POWER(N, P) \
+	((((N)*(100+P))+50)/100)
 
 /*
  * Hack -- Prepare to use the "Secure" routines

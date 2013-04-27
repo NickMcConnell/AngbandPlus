@@ -233,9 +233,9 @@ void get_virtues(void)
 	}
 
 	/* Get a virtue for r[0].realm */
-	if (p_ptr->spell.r[0].realm)
+	if (p_ptr->spell.realm[0])
 	{
-		switch (p_ptr->spell.r[0].realm)
+		switch (p_ptr->spell.realm[0])
 		{
 			case 1:
 				if (exist_virtue(V_VITALITY))
@@ -273,9 +273,9 @@ void get_virtues(void)
 	}
 
 	/* Get a virtue for r[1].realm */
-	if (p_ptr->spell.r[1].realm)
+	if (p_ptr->spell.realm[1])
 	{
-		switch (p_ptr->spell.r[1].realm)
+		switch (p_ptr->spell.realm[1])
 		{
 			case 1:
 				if (exist_virtue(V_VITALITY))

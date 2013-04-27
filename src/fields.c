@@ -32,7 +32,7 @@ static bool field_visible(field_type *f_ptr)
 			return (TRUE);
 		}
 	}
-	
+
 	return (FALSE);
 }
 
@@ -63,15 +63,15 @@ void excise_field_idx(int fld_idx)
 {
 	/* Field */
 	field_type *f_ptr = &fld_list[fld_idx];
-	
+
 	field_type *j_ptr = NULL;
 	field_type *q_ptr;
-	
-	int y = j_ptr->fy;
-	int x = j_ptr->fx;
+
+	int y = f_ptr->fy;
+	int x = f_ptr->fx;
 
 	s16b *f_idx_ptr = &area(x, y)->fld_idx;
-	
+
 	/* Scan all fields in the list */
 	FLD_ITT_START (*f_idx_ptr, q_ptr)
 	{
@@ -118,10 +118,10 @@ void delete_field_ptr(field_type *f_ptr)
 	cave_type *c_ptr = area(x, y);
 	field_type *j_ptr;
 	field_type *q_ptr = NULL;
-	
+
 	/* Paranoia */
 	if (f_ptr->region != cur_region) quit("Trying to find unregioned field");
-	
+
 	/* Find field to delete */
 	FLD_ITT_START (c_ptr->fld_idx, j_ptr);
 	{
@@ -137,7 +137,7 @@ void delete_field_ptr(field_type *f_ptr)
 			{
 				c_ptr->fld_idx = f_ptr->next_f_idx;
 			}
-			
+
 			/* Notice the change */
 			notice_field(f_ptr);
 
@@ -146,15 +146,15 @@ void delete_field_ptr(field_type *f_ptr)
 
 			/* Count fields */
 			fld_cnt--;
-			
+
 			return;
 		}
-	
+
 		/* Remember previous field */
 		q_ptr = j_ptr;
 	}
 	FLD_ITT_END;
-	
+
 	/* We shouldn't get here! */
 	quit("Cannot find field to delete!");
 	return;
@@ -169,7 +169,7 @@ void delete_field_ptr(field_type *f_ptr)
 void delete_field_location(cave_type *c_ptr)
 {
 	field_type *f_ptr;
-	
+
 	/* Scan all fields in the grid */
 	FLD_ITT_START (c_ptr->fld_idx, f_ptr)
 	{
@@ -609,17 +609,17 @@ void field_copy(field_type *f_ptr, field_type *j_ptr)
 s16b field_add(field_type *f_ptr, cave_type *c_ptr)
 {
 	s16b new_idx;
-	
+
 	field_type *j_ptr;
 	field_type *q_ptr = NULL;
-	
+
 	FLD_ITT_START (c_ptr->fld_idx, j_ptr)
 	{
 		/* Look for fields that can be merged */
 		if ((f_ptr->info & FIELD_INFO_MERGE) && (f_ptr->t_idx == j_ptr->t_idx))
 		{
 			s32b counter;
-		
+
 			/* Merge the two together */
 			counter = j_ptr->counter + f_ptr->counter;
 
@@ -639,10 +639,10 @@ s16b field_add(field_type *f_ptr, cave_type *c_ptr)
 				return (c_ptr->fld_idx);
 			}
 		}
-		
+
 		/* Sort in priority order */
 		if (j_ptr->priority < f_ptr->priority) break;
-	
+
 		/* Save previous object */
 		q_ptr = j_ptr;
 	}
@@ -803,7 +803,7 @@ field_type *field_is_type(const cave_type *c_ptr, byte typ)
 		if (t_info[f_ptr->t_idx].type == typ) return (f_ptr);
 	}
 	FLD_ITT_END;
-	
+
 	/* Nothing found */
 	return (NULL);
 }
@@ -943,7 +943,7 @@ field_type *place_field(int x, int y, s16b t_idx)
 	if (ri_ptr->flags & REGION_OVER)
 	{
 		cave_data[y][x].fld_idx = t_idx;
-	
+
 		/* Hack - we didn't actually place a real field */
 		return (NULL);
 	}
@@ -985,31 +985,31 @@ bool field_script_single(field_type *f_ptr, int action, cptr format, ...)
 
 	/* Point to the field */
 	field_thaum *t_ptr = &t_info[f_ptr->t_idx];
-    
+
 	/* Paranoia - Is there a function to call? */
 	if (t_ptr->action[action])
 	{
 		bool exists = TRUE;
-	
+
 		 /* Begin the Varargs Stuff */
 		va_start(vp, format);
-	
+
 		/* Get script to use */
 		script = quark_str(t_ptr->action[action]);
-	
+
 		/* Call the action script */
 		if (apply_field_trigger(script, f_ptr, format, vp))
 		{
 			/* The field wants to be deleted */
 			delete_field_ptr(f_ptr);
-            
+
 			/* The field no longer exists */
 			exists = FALSE;
 		}
-		
+
 		/* End the Varargs Stuff */
 		va_end(vp);
-		
+
 		/* Does the field exist still? */
 		return (exists);
 	}
@@ -1043,19 +1043,19 @@ void field_script_const(const field_type *f_ptr, int action, cptr format, ...)
 
 	/* Point to the field */
 	field_thaum *t_ptr = &t_info[f_ptr->t_idx];
-    
+
 	/* Paranoia - Is there a function to call? */
 	if (t_ptr->action[action])
 	{
 		 /* Begin the Varargs Stuff */
 		va_start(vp, format);
-	
+
 		/* Get script to use */
 		script = quark_str(t_ptr->action[action]);
-	
+
 		/* Call the action script */
 		const_field_trigger(script, f_ptr, format, vp);
-		
+
 		/* End the Varargs Stuff */
 		va_end(vp);
 	}
@@ -1073,14 +1073,14 @@ void field_script(cave_type *c_ptr, int action, cptr format, ...)
 {
 	field_type *f_ptr;
 	field_thaum *t_ptr;
-	
+
 	cptr script;
 
 	FLD_ITT_START (c_ptr->fld_idx, f_ptr);
 	{
 		/* Point to the field */
 		t_ptr = &t_info[f_ptr->t_idx];
-		
+
 		/* Get script to use */
 		script = quark_str(t_ptr->action[action]);
 
@@ -1088,17 +1088,17 @@ void field_script(cave_type *c_ptr, int action, cptr format, ...)
 		if (script)
 		{
 			va_list vp;
-		
+
 			/* Begin the Varargs Stuff */
 			va_start(vp, format);
-					
+
 			/* Call the action script */
 			if (apply_field_trigger(script, f_ptr, format, vp))
 			{
 				/* The field wants to be deleted */
 				delete_field_ptr(f_ptr);
 			}
-			
+
 			/* End the Varargs Stuff */
 			va_end(vp);
 		}
@@ -1118,14 +1118,14 @@ bool field_script_special(cave_type *c_ptr, u16b ftype, cptr format, ...)
 	field_thaum *t_ptr;
 
 	bool deleted = FALSE;
-	
+
 	cptr script;
-    
+
 	FLD_ITT_START (c_ptr->fld_idx, f_ptr)
 	{
 		/* Point to the field */
 		t_ptr = &t_info[f_ptr->t_idx];
-		
+
 		/* Get script to use */
 		script = quark_str(t_ptr->action[FIELD_ACT_SPECIAL]);
 
@@ -1133,10 +1133,10 @@ bool field_script_special(cave_type *c_ptr, u16b ftype, cptr format, ...)
 		if ((t_ptr->type == ftype) && script)
 		{
 			va_list vp;
-		
+
 			/* Begin the Varargs Stuff */
 			va_start(vp, format);
-		
+
 			/* Call the action script */
 			if (apply_field_trigger(script, f_ptr, format, vp))
 			{
@@ -1145,7 +1145,7 @@ bool field_script_special(cave_type *c_ptr, u16b ftype, cptr format, ...)
 
 				deleted = TRUE;
 			}
-			
+
 			/* End the Varargs Stuff */
 			va_end(vp);
 		}
@@ -1165,30 +1165,30 @@ field_type *field_script_find(cave_type *c_ptr, int action, cptr format, ...)
 {
 	field_type *f_ptr;
 	field_thaum *t_ptr;
-	
+
 	va_list vp;
 	cptr script;
-    
+
 	FLD_ITT_START (c_ptr->fld_idx, f_ptr)
 	{
 		/* Point to the field */
 		t_ptr = &t_info[f_ptr->t_idx];
-		
+
 		/* Get script to use */
 		script = quark_str(t_ptr->action[action]);
-		
+
 		if (script)
 		{
 			/* Begin the Varargs Stuff */
 			va_start(vp, format);
-		
+
 			/* Call the action script */
 			if (apply_field_trigger(script, f_ptr, format, vp))
 			{
 				/* The field wants to be deleted */
 				delete_field_ptr(f_ptr);
 			}
-		 
+
         	/* End the Varargs Stuff */
 			va_end(vp);
 
@@ -1197,7 +1197,7 @@ field_type *field_script_find(cave_type *c_ptr, int action, cptr format, ...)
 		}
 	}
 	FLD_ITT_END;
-    
+
 	/* Found nothing */
 	return (NULL);
 }
@@ -1248,7 +1248,7 @@ void test_field_data_integrity(void)
 	int i, j;
 	cave_type *c_ptr;
 	field_type *f_ptr, *j_ptr;
-	
+
 	bool found;
 
 	/* Test cave data structure */
@@ -1284,25 +1284,25 @@ void test_field_data_integrity(void)
 			FLD_ITT_END;
 		}
 	}
-	
+
 	/* Test linkage to cave data structures */
 	for (i = 0; i < fld_max; i++)
 	{
 		f_ptr = &fld_list[i];
-		
+
 		if (!f_ptr->t_idx) continue;
-		
+
 		/* Needs to be in bounds */
 		if (!in_bounds2(f_ptr->fx, f_ptr->fy))
 		{
 			msgf("Field out of bounds: %d", i);
 			continue;
 		}
-		
+
 		c_ptr = area(f_ptr->fx, f_ptr->fy);
-		
+
 		found = FALSE;
-		
+
 		/* We need to be in the linked list at the location */
 		FLD_ITT_START (c_ptr->fld_idx, j_ptr)
 		{
@@ -1313,7 +1313,7 @@ void test_field_data_integrity(void)
 			}
 		}
 		FLD_ITT_END;
-		
+
 		if (!found)
 		{
 			msgf("Field not linked correctly (%d,%d): %d", f_ptr->fx, f_ptr->fy, i);
@@ -1495,7 +1495,7 @@ void place_trap(int x, int y)
 
 		/* Hack -- no trap doors on special levels */
 		if (is_special_level(p_ptr->depth)) continue;
-		
+
 		/* Probably should prevent trap doors in the wilderness */
 		if (!p_ptr->depth) continue;
 
@@ -1506,7 +1506,7 @@ void place_trap(int x, int y)
 	}
 
 	f_ptr = place_field(x, y, t_idx);
-	
+
 	/* Activate the trap */
 	if (f_ptr)
 	{
@@ -1545,7 +1545,7 @@ void hit_trap(field_type *f_ptr)
 }
 
 
-/* 
+/*
  * Trap interaction functions.
  * What horrible fate awaits the player after stepping
  * on this particular trap?
@@ -1623,13 +1623,13 @@ void drain_lite(void)
 		/* Drain all light. */
 		o_ptr->timeout = 0;
 	}
-	
+
 	/* Recalculate torch */
 	p_ptr->update |= (PU_TORCH);
 
 	/* Notice changes */
 	notice_equip();
-	
+
 	/* Darkeness */
 	unlite_room(p_ptr->px, p_ptr->py);
 }
@@ -1648,7 +1648,7 @@ void drain_food(void)
 void drain_magic(void)
 {
 	object_type *o_ptr;
-	
+
 	/* Find an item */
 	OBJ_ITT_START (p_ptr->inventory, o_ptr)
 	{
@@ -1683,13 +1683,13 @@ void make_lockjam_door(int x, int y, int power, bool jam)
 
 	int old_power = 0;
 
-	
+
 	/* Overlays are simpler */
 	if (ri_list[cur_region].flags & REGION_OVER)
 	{
 		/* Make a closed door on the square */
 		set_feat_bold(x, y, FEAT_CLOSED);
-	
+
 		/* Make a new field */
 		if (jam)
 		{
@@ -1704,7 +1704,7 @@ void make_lockjam_door(int x, int y, int power, bool jam)
 
 		return;
 	}
-	
+
 	/* Make a closed door on the square */
 	cave_set_feat(x, y, FEAT_CLOSED);
 
@@ -1720,7 +1720,7 @@ void make_lockjam_door(int x, int y, int power, bool jam)
 		/* HACK - Look at type */
 		if (!((f_ptr->t_idx == FT_JAM_DOOR) || (f_ptr->t_idx == FT_LOCK_DOOR)))
 		{
-			/* 
+			/*
 			 * Not a locked door or a jammed door.
 			 *
 			 * Probably a store or building... exit.
@@ -1755,13 +1755,13 @@ void make_lockjam_door(int x, int y, int power, bool jam)
 	if (!f_ptr)
 	{
 		msgf("Cannot make door! Too many fields.");
-		
+
 		return;
 	}
 
 	power = power + old_power;
 
-	/* 
+	/*
 	 * Initialise it.
 	 */
 	(void)field_script_single(f_ptr, FIELD_ACT_INIT, "i:", LUA_VAR(power));
@@ -1783,25 +1783,25 @@ bool monster_can_open(monster_race *r_ptr, int power)
 
 /*
  * Take num strings in an array, and then print them on the screen.
- * 
+ *
  * The strings are centered on the term.
  */
 void print_building_options(cptr strings[], int num)
 {
 	int i;
-	
+
 	int max = 0, len;
-	
+
 	int wid, hgt;
 
 	/* Get size */
 	Term_get_size(&wid, &hgt);
-	
+
 	/* Get size of longest string */
 	for (i = 0; i < num; i++)
 	{
 		len = strlen(strings[i]);
-		
+
 		if (len > max) max = len;
 	}
 

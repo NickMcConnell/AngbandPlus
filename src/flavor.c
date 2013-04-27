@@ -105,7 +105,7 @@ static cptr amulet_adj[MAX_AMULETS] =
 	"Beaded", "Polished", "Stone", "Heavy", "Braided",
 	"Twisted", "Carven", "Demon's Tooth", "Dragon's Tooth", "Woven",
 	/* 40-44 */
-	"Iron", "Lead", "Adamant", "Stained Glass", "Ivory"
+	"Iron", "Lead", "Adamant", "Stained Glass", "Alabaster"
 };
 
 static byte amulet_col[MAX_AMULETS] =
@@ -191,7 +191,7 @@ static cptr wand_adj[MAX_METALS] =
 	"Zirconium-Plated", "Vanadium", "Carbon Steel", "Pewter", "Brass-Plated",
 	/* 50-59 */
 	"Bronze-Plated", "Electrum", "Electrum-Plated", "White Gold", "Thin",
-	"Gem-Tipped", "Gem-Studded", "Ivory", "Hollow", "Willow",
+	"Gem-Tipped", "Gem-Studded", "Bone", "Hollow", "Willow",
 	/* 60-64 */
 	"Wire", "Glass", "Magnesium-Plated", "Crystal", "Bone"
 };
@@ -1090,6 +1090,16 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 		}
 
 
+		case TV_ILLUSION_BOOK:
+		{
+			modstr = basenm;
+			if (mp_ptr->spell_book == TV_LIFE_BOOK)
+				basenm = "& Book~ of Illusion Magic #";
+			else
+				basenm = "& Illusion Spellbook~ #";
+			break;
+		}
+
 		case TV_GOLD:
 		{
 			/* Hack -- Gold/Gems */
@@ -1430,9 +1440,11 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 		}
 	}
 
-
+	/* Hack: Humans who normally have Heavy sense get to see weapon bonuses without ID */
 	/* Add the weapon bonuses */
-	if (known)
+	if (known ||
+		(p_ptr->rp.prace == RACE_HUMAN && class_info[p_ptr->rp.pclass].heavy_sense &&
+		 o_ptr->feeling != FEEL_NONE))
 	{
 		/* Show the tohit/todam on request */
 		if (show_weapon)
@@ -1453,6 +1465,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 			strnfcat(buf, max, &len, " (%+d%%)", o_ptr->to_d * 5);
 		}
 	}
+		
 
 	bow_ptr = &p_ptr->equipment[EQUIP_BOW];
 
@@ -1511,7 +1524,9 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 	}
 
 	/* Add the armor bonuses */
-	if (known)
+	if (known ||
+		(p_ptr->rp.prace == RACE_HUMAN && class_info[p_ptr->rp.pclass].heavy_sense &&
+		 o_ptr->feeling != FEEL_NONE))
 	{
 		/* Show the armor class info */
 		if (show_armour)

@@ -13,42 +13,347 @@
 #include "angband.h"
 
 /*
- * Set "p_ptr->blind", notice observable changes
+ * Returns a pointer to the value that stores the time left on the given type of effect.
+ * This function may return NULL if typ is bad.
  */
-static bool set_blind(int v)
+s16b * get_timed_ptr(int typ)
+{
+	switch (typ)
+	{
+		case TIMED_FAST:
+			return &p_ptr->tim.fast;
+		case TIMED_SLOW:
+			return &p_ptr->tim.slow;
+		case TIMED_BLIND:
+			return &p_ptr->tim.blind;
+		case TIMED_PARALYZED:
+			return &p_ptr->tim.paralyzed;
+		case TIMED_CONFUSED:
+			return &p_ptr->tim.confused;
+		case TIMED_AFRAID:
+			return &p_ptr->tim.afraid;
+		case TIMED_IMAGE:
+			return &p_ptr->tim.image;
+		case TIMED_POISONED:
+			return &p_ptr->tim.poisoned;
+		case TIMED_CUT:
+			return &p_ptr->tim.cut;
+		case TIMED_STUN:
+			return &p_ptr->tim.stun;
+		case TIMED_PROTEVIL:
+			return &p_ptr->tim.protevil;
+		case TIMED_INVULN:
+			return &p_ptr->tim.invuln;
+		case TIMED_HERO:
+			return &p_ptr->tim.hero;
+		case TIMED_SHERO:
+			return &p_ptr->tim.shero;
+		case TIMED_SHIELD:
+			return &p_ptr->tim.shield;
+		case TIMED_BLESSED:
+			return &p_ptr->tim.blessed;
+		case TIMED_SEE_INVIS:
+			return &p_ptr->tim.see_invis;
+		case TIMED_INFRA:
+			return &p_ptr->tim.infra;
+		case TIMED_OPPOSE_ACID:
+			return &p_ptr->tim.oppose_acid;
+		case TIMED_OPPOSE_ELEC:
+			return &p_ptr->tim.oppose_elec;
+		case TIMED_OPPOSE_FIRE:
+			return &p_ptr->tim.oppose_fire;
+		case TIMED_OPPOSE_COLD:
+			return &p_ptr->tim.oppose_cold;
+		case TIMED_OPPOSE_POIS:
+			return &p_ptr->tim.oppose_pois;
+		case TIMED_OPPOSE_CONF:
+			return &p_ptr->tim.oppose_conf;
+		case TIMED_OPPOSE_BLIND:
+			return &p_ptr->tim.oppose_blind;
+		case TIMED_ESP:
+			return &p_ptr->tim.esp;
+		case TIMED_WRAITH_FORM:
+			return &p_ptr->tim.wraith_form;
+		case TIMED_RESIST_MAGIC:
+			return &p_ptr->tim.resist_magic;
+		case TIMED_ETHEREALNESS:
+			return &p_ptr->tim.etherealness;
+		case TIMED_WORD_RECALL:
+			return &p_ptr->tim.word_recall;
+		case TIMED_STR:
+			return &p_ptr->tim.str;
+		case TIMED_CHR:
+			return &p_ptr->tim.chr;
+		case TIMED_SUST_ALL:
+			return &p_ptr->tim.sust_all;
+		case TIMED_XTRA_FAST:
+			return &p_ptr->tim.xtra_fast;
+		case TIMED_IMMUNE_ACID:
+			return &p_ptr->tim.immune_acid;
+		case TIMED_IMMUNE_ELEC:
+			return &p_ptr->tim.immune_elec;
+		case TIMED_IMMUNE_FIRE:
+			return &p_ptr->tim.immune_fire;
+		case TIMED_IMMUNE_COLD:
+			return &p_ptr->tim.immune_cold;
+		case TIMED_SH_ACID:
+			return &p_ptr->tim.sh_acid;
+		case TIMED_SH_ELEC:
+			return &p_ptr->tim.sh_elec;
+		case TIMED_SH_FIRE:
+			return &p_ptr->tim.sh_fire;
+		case TIMED_SH_COLD:
+			return &p_ptr->tim.sh_cold;
+		case TIMED_SH_FEAR:
+			return &p_ptr->tim.sh_fear;
+		case TIMED_INVIS:
+			return &p_ptr->tim.invis;
+		case TIMED_XTRA_INVIS:
+			return &p_ptr->tim.xtra_invis;
+		default:
+			msgf ("Bad type given to get_timed_ptr().  Crash is likely.");
+			while (!get_check("Ready to crash?")) ;
+			return (NULL);
+	}
+}
+
+/*
+ * Change the update/notice/redraw/window flags as needed,
+ * based on the type.  This is called only when a change in status (0/non-0) occurs.
+ */
+static void update_timed(int typ)
+{
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
+
+	switch (typ)
+	{
+		case TIMED_STR:
+		case TIMED_CHR:
+		case TIMED_SUST_ALL:
+		case TIMED_IMMUNE_ACID:
+		case TIMED_IMMUNE_ELEC:
+		case TIMED_IMMUNE_FIRE:
+		case TIMED_IMMUNE_COLD:
+		case TIMED_SH_ACID:
+		case TIMED_SH_ELEC:
+		case TIMED_SH_FIRE:
+		case TIMED_SH_COLD:
+		case TIMED_SH_FEAR:
+		case TIMED_XTRA_INVIS:
+		case TIMED_INVIS:
+		case TIMED_FAST:
+		case TIMED_SLOW:
+		case TIMED_XTRA_FAST:
+		case TIMED_SHIELD:
+		case TIMED_BLESSED:
+			/* Recalculate bonuses */
+			p_ptr->update |= (PU_BONUS);
+
+			break;
+		case TIMED_HERO:
+		case TIMED_SHERO:
+			/* Recalculate bonuses and hitpoints */
+			p_ptr->update |= (PU_BONUS | PU_HP);
+
+			break;
+
+		case TIMED_BLIND:
+			/* Fully update the visuals - hack set torch to be radius 0 */
+			p_ptr->update |= (PU_VIEW | PU_MONSTERS | PU_TORCH);
+
+			/* Redraw map */
+			p_ptr->redraw |= (PR_MAP);
+
+			/* Redraw the "blind" */
+			p_ptr->redraw |= (PR_BLIND);
+
+			/* Window stuff */
+			p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+
+			break;
+		case TIMED_PARALYZED:
+			/* Redraw the state */
+			p_ptr->redraw |= (PR_STATE | PR_SPEED);
+
+			break;
+		case TIMED_CONFUSED:
+			/* Redraw the "confused" */
+			p_ptr->redraw |= (PR_CONFUSED);
+
+			break;
+		case TIMED_AFRAID:
+			/* Redraw the "afraid" */
+			p_ptr->redraw |= (PR_AFRAID);
+
+			break;
+		case TIMED_IMAGE:
+			/* Update the monster vis window */
+			p_ptr->window |= PW_VISIBLE;
+
+			/* Redraw map */
+			p_ptr->redraw |= (PR_MAP);
+
+			/* Update monsters */
+			p_ptr->update |= (PU_MONSTERS);
+
+			/* Window stuff */
+			p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+
+			break;
+		case TIMED_POISONED:
+			/* Redraw the "poisoned" */
+			p_ptr->redraw |= (PR_POISONED);
+
+			break;
+		case TIMED_CUT:
+			/* Recalculate bonuses */
+			p_ptr->update |= (PU_BONUS);
+
+			/* Redraw the "cut" */
+			p_ptr->redraw |= (PR_CUT);
+			break;
+		case TIMED_STUN:
+			/* Recalculate bonuses */
+			p_ptr->update |= (PU_BONUS);
+
+			/* Redraw the "stun" */
+			p_ptr->redraw |= (PR_STUN);
+			break;
+
+		case TIMED_INFRA:
+		case TIMED_SEE_INVIS:
+			/* Recalculate bonuses */
+			p_ptr->update |= (PU_BONUS);
+
+			/* Update the monsters */
+			p_ptr->update |= (PU_MONSTERS);
+
+			break;
+		case TIMED_ESP:
+			/* Recalculate bonuses */
+			p_ptr->update |= (PU_BONUS);
+
+			/* Update the monsters */
+			p_ptr->update |= (PU_MONSTERS);
+
+			/* Window stuff */
+			p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+
+			break;
+		case TIMED_INVULN:
+		case TIMED_WRAITH_FORM:
+			/* Redraw map */
+			p_ptr->redraw |= (PR_MAP);
+
+			/* Update monsters */
+			p_ptr->update |= (PU_MONSTERS);
+
+			/* Window stuff */
+			p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+
+			/* Recalculate bonuses */
+			p_ptr->update |= (PU_BONUS);
+
+			break;
+		case TIMED_ETHEREALNESS:
+			p_ptr->update |= (PU_BONUS);
+			break;
+
+		case TIMED_RESIST_MAGIC:
+		case TIMED_WORD_RECALL:
+		case TIMED_OPPOSE_ACID:
+		case TIMED_OPPOSE_ELEC:
+		case TIMED_OPPOSE_FIRE:
+		case TIMED_OPPOSE_COLD:
+		case TIMED_OPPOSE_POIS:
+		case TIMED_OPPOSE_CONF:
+		case TIMED_OPPOSE_BLIND:
+		case TIMED_PROTEVIL:
+		default:
+			/* No updating required */
+			break;
+	}
+}
+
+
+/*
+ * Returns the timed value of the requested type.
+ */
+s16b query_timed(int typ)
+{
+	s16b *val;
+
+	val = get_timed_ptr(typ);
+
+	if (val == NULL) return (0);
+	else return (*val);
+}
+
+/*
+ * Sets a timed value of a given type to a specified value.
+ * Two messages are given: the "open message" which is written when the player
+ * first enters the temporary state, and a "shut message" when the player leaves
+ * the state.  E.g. for TIMED_BLIND the messages are "You are blind!" and "You can see again.".
+ *
+ * Bounds-checks the value v before using it.
+ * Calls update_timed to update various things.
+ */
+bool set_timed(int typ, int v, cptr open_msg, cptr shut_msg)
 {
 	bool notice = FALSE;
+	s16b *val;
 
-	/* Hack -- Force good values */
+	/* Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim.blind)
-		{
-			msgf("You are blind!");
-			notice = TRUE;
+	val = get_timed_ptr(typ);
 
-			chg_virtue(V_ENLIGHTEN, -1);
+	/* Paranoia */
+	if (val == NULL) return (FALSE);
+
+	/* Open */
+	if (v && !(*val))
+	{
+		if (open_msg)
+			msgf ("%s", open_msg);
+		notice = TRUE;
+
+		/* Virtues */
+		switch(typ)
+		{
+			case TIMED_BLIND:
+				chg_virtue(V_ENLIGHTEN, -1);
+				break;
+			case TIMED_CONFUSED:
+				chg_virtue(V_HARMONY, -1);
+				break;
+			case TIMED_AFRAID:
+				chg_virtue(V_VALOUR, -1);
+				break;
+			case TIMED_FAST:
+				chg_virtue(V_PATIENCE, -1);
+				chg_virtue(V_DILIGENCE, 1);
+				break;
+			case TIMED_INVULN:
+				chg_virtue(V_TEMPERANCE, -5);
+				chg_virtue(V_HONOUR, -5);
+				chg_virtue(V_SACRIFICE, -5);
+				chg_virtue(V_VALOUR, -10);
+				break;
 		}
 	}
 
 	/* Shut */
-	else
+	else if (!v && *val)
 	{
-		if (p_ptr->tim.blind)
-		{
-			msgf("You can see again.");
-			notice = TRUE;
-		}
+		if (shut_msg)
+			msgf ("%s", shut_msg);
+		notice = TRUE;
 	}
 
 	/* Use the value */
-	p_ptr->tim.blind = v;
-
-	/* Redraw status bar */
-	p_ptr->redraw |= (PR_STATUS);
+	*val = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -56,1634 +361,398 @@ static bool set_blind(int v)
 	/* Disturb */
 	if (disturb_state) disturb(FALSE);
 
-	/* Fully update the visuals - hack set torch to be radius 0 */
-	p_ptr->update |= (PU_VIEW | PU_MONSTERS | PU_TORCH);
+	/* Refresh/update things, based on the type */
+	update_timed(typ);
 
-	/* Redraw map */
-	p_ptr->redraw |= (PR_MAP);
-
-	/* Redraw the "blind" */
-	p_ptr->redraw |= (PR_BLIND);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-
-	/* Handle stuff */
+	/* Do the updating */
 	handle_stuff();
 
-	/* Result */
+	/* Noticed */
 	return (TRUE);
 }
 
-/*
- * Increase the blind counter
- */
-bool inc_blind(int v)
+static bool set_blind(int v)
 {
-	return(set_blind(p_ptr->tim.blind + v));
+	return (set_timed(TIMED_BLIND, v, "You are blind!", "You can see again."));
 }
 
-/*
- * No more blindness
- */
+bool inc_blind(int v)
+{
+	return(set_blind(query_timed(TIMED_BLIND) + v));
+}
+
 bool clear_blind(void)
 {
 	return(set_blind(0));
 }
 
-
-/*
- * Set "p_ptr->confused", notice observable changes
- */
 static bool set_confused(int v)
 {
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim.confused)
-		{
-			msgf("You are confused!");
-			notice = TRUE;
-
-			chg_virtue(V_HARMONY, -1);
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim.confused)
-		{
-			msgf("You feel less confused now.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim.confused = v;
-
-	/* Redraw status bar */
-	p_ptr->redraw |= (PR_STATUS);
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(FALSE);
-
-	/* Redraw the "confused" */
-	p_ptr->redraw |= (PR_CONFUSED);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
+	return (set_timed(TIMED_CONFUSED, v, "You are confused!", "You feel less confused now."));
 }
 
-
-/*
- * Increase the confusion counter
- */
 bool inc_confused(int v)
 {
-	return(set_confused(p_ptr->tim.confused + v));
+	return(set_confused(query_timed(TIMED_CONFUSED) + v));
 }
 
-
-/*
- * No more confusion
- */
 bool clear_confused(void)
 {
 	return(set_confused(0));
 }
 
-
-/*
- * Set "p_ptr->poisoned", notice observable changes
- */
 static bool set_poisoned(int v)
 {
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim.poisoned)
-		{
-			msgf("You are poisoned!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim.poisoned)
-		{
-			msgf("You are no longer poisoned.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim.poisoned = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(FALSE);
-
-	/* Redraw the "poisoned" */
-	p_ptr->redraw |= (PR_POISONED);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
+	return (set_timed(TIMED_POISONED, v, "You are poisoned!", "You are no longer poisoned."));
 }
 
-/*
- * Increase the poison counter
- */
 bool inc_poisoned(int v)
 {
-	return(set_poisoned(p_ptr->tim.poisoned + v));
+	return(set_poisoned(query_timed(TIMED_POISONED) + v));
 }
 
-
-/*
- * No more poison
- */
 bool clear_poisoned(void)
 {
 	return(set_poisoned(0));
 }
 
-
-/*
- * Set "p_ptr->afraid", notice observable changes
- */
 static bool set_afraid(int v)
 {
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim.afraid)
-		{
-			msgf("You are terrified!");
-			notice = TRUE;
-
-			chg_virtue(V_VALOUR, -1);
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim.afraid)
-		{
-			msgf("You feel bolder now.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim.afraid = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(FALSE);
-
-	/* Redraw the "afraid" */
-	p_ptr->redraw |= (PR_AFRAID);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
+	return (set_timed(TIMED_AFRAID, v, "You are terrified!", "You feel bolder now."));
 }
 
-
-/*
- * Increase the afraid counter
- */
 bool inc_afraid(int v)
 {
-	return(set_afraid(p_ptr->tim.afraid + v));
+	return(set_afraid(query_timed(TIMED_AFRAID) + v));
 }
 
-
-/*
- * No more fear
- */
 bool clear_afraid(void)
 {
 	return(set_afraid(0));
 }
 
-/*
- * Set "p_ptr->paralyzed", notice observable changes
- */
 static bool set_paralyzed(int v)
 {
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim.paralyzed)
-		{
-			msgf("You are paralyzed!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim.paralyzed)
-		{
-			msgf("You can move again.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim.paralyzed = v;
-
-	/* Redraw status bar + message*/
-	p_ptr->redraw |= (PR_STATUS);
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(FALSE);
-
-	/* Redraw the state */
-	p_ptr->redraw |= (PR_STATE | PR_SPEED);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
+	return (set_timed(TIMED_PARALYZED, v, "You are paralyzed!", "You can move again."));
 }
 
-
-/*
- * Increase the paralyzed counter
- */
 bool inc_paralyzed(int v)
 {
-	return(set_paralyzed(p_ptr->tim.paralyzed + v));
+	return(set_paralyzed(query_timed(TIMED_PARALYZED) + v));
 }
 
-
-/*
- * No more paralyzation
- */
 bool clear_paralyzed(void)
 {
 	return(set_paralyzed(0));
 }
 
-
-/*
- * Set "p_ptr->image", notice observable changes
- *
- * Note that we must redraw the map when hallucination changes.
- */
 static bool set_image(int v)
 {
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim.image)
-		{
-			msgf("Oh, wow! Everything looks so cosmic now!");
-			notice = TRUE;
-
-			/* Update the monster vis window */
-			p_ptr->window |= PW_VISIBLE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim.image)
-		{
-			msgf("You can see clearly again.");
-			notice = TRUE;
-
-			/* Update the monster vis window */
-			p_ptr->window |= PW_VISIBLE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim.image = v;
-
-	/* Redraw status bar */
-	p_ptr->redraw |= (PR_STATUS);
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(FALSE);
-
-	/* Redraw map */
-	p_ptr->redraw |= (PR_MAP);
-
-	/* Update monsters */
-	p_ptr->update |= (PU_MONSTERS);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
+	return (set_timed(TIMED_IMAGE, v, "Oh, wow! Everything looks so cosmic now!", "You can see clearly again."));
 }
 
-/*
- * Increase the image counter
- */
 bool inc_image(int v)
 {
-	return(set_image(p_ptr->tim.image + v));
+	return(set_image(query_timed(TIMED_IMAGE) + v));
 }
 
-
-/*
- * No more hallucination
- */
 bool clear_image(void)
 {
 	return(set_image(0));
 }
 
-
-/*
- * Set "p_ptr->fast", notice observable changes
- */
 static bool set_fast(int v)
 {
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim.fast)
-		{
-			msgf("You feel yourself moving faster!");
-			notice = TRUE;
-
-			chg_virtue(V_PATIENCE, -1);
-			chg_virtue(V_DILIGENCE, 1);
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim.fast)
-		{
-			msgf("You feel yourself slow down.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim.fast = v;
-
-	/* Redraw status bar */
-	p_ptr->redraw |= (PR_STATUS);
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(FALSE);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
+	return (set_timed(TIMED_FAST, v, "You feel yourself moving faster!", "You feel yourself slow down."));
 }
-
 
 /*
  * Increase the "fast" counter.
- *
  * Hack - only increase speed a little bit if already hasted.
  */
 bool inc_fast(int v)
 {
+	s16b cur = query_timed(TIMED_FAST);
+
 	/* Haste */
-	if ((!p_ptr->tim.fast) || (v < 0))
+	if ((!cur) || (v < 0))
 	{
-		 return (set_fast(p_ptr->tim.fast + v));
+		 return (set_fast(cur + v));
 	}
 	else
 	{
-		return (set_fast(p_ptr->tim.fast + randint1(5)));
+		return (set_fast(cur + randint1(5)));
 	}
 }
 
-
-/*
- * No more increased speed
- */
 bool clear_fast(void)
 {
 	return(set_fast(0));
 }
 
-
-/*
- * Set "p_ptr->slow", notice observable changes
- */
 static bool set_slow(int v)
 {
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim.slow)
-		{
-			msgf("You feel yourself moving slower!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim.slow)
-		{
-			msgf("You feel yourself speed up.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim.slow = v;
-
-	/* Redraw status bar */
-	p_ptr->redraw |= (PR_STATUS);
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(FALSE);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
+	return (set_timed(TIMED_SLOW, v, "You feel yourself moving slower!", "You feel yourself speed up."));
 }
 
-
-/*
- * Increase the "slow" counter
- */
 bool inc_slow(int v)
 {
-	return(set_slow(p_ptr->tim.slow + v));
+	return(set_slow(query_timed(TIMED_SLOW) + v));
 }
 
-
-/*
- * No more "slowness"
- */
 bool clear_slow(void)
 {
 	return(set_slow(0));
 }
 
-/*
- * Increment "p_ptr->shield", notice observable changes
- */
 bool inc_shield(int v)
 {
-	bool notice = FALSE;
-
-	/* What will the new value be? */
-	v = v + p_ptr->tim.shield;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim.shield)
-		{
-			msgf("Your skin turns to stone.");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim.shield)
-		{
-			msgf("Your skin returns to normal.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim.shield = v;
-
-	/* Redraw status bar */
-	p_ptr->redraw |= (PR_STATUS);
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(FALSE);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
+	return (set_timed(TIMED_SHIELD, query_timed(TIMED_SHIELD)+v,
+		"Your skin turns to stone!", "Your skin returns to normal."));
 }
 
-
-
-/*
- * Increment "p_ptr->blessed", notice observable changes
- */
 bool inc_blessed(int v)
 {
-	bool notice = FALSE;
-
-	/* What will the new value be? */
-	v = v + p_ptr->tim.blessed;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim.blessed)
-		{
-			msgf("You feel righteous!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim.blessed)
-		{
-			msgf("The prayer has expired.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim.blessed = v;
-
-	/* Redraw status bar */
-	p_ptr->redraw |= (PR_STATUS);
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(FALSE);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
+	return (set_timed(TIMED_BLESSED, query_timed(TIMED_BLESSED)+v,
+		"You feel righteous!", "The prayer has expired."));
 }
 
-
-/*
- * Increment "p_ptr->hero", notice observable changes
- */
 bool inc_hero(int v)
 {
-	bool notice = FALSE;
-
-	/* What will the new value be? */
-	v = v + p_ptr->tim.hero;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim.hero)
-		{
-			msgf("You feel like a hero!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim.hero)
-		{
-			msgf("The heroism wears off.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim.hero = v;
-
-	/* Redraw status bar */
-	p_ptr->redraw |= (PR_STATUS);
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(FALSE);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Recalculate hitpoints */
-	p_ptr->update |= (PU_HP);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
+	return (set_timed(TIMED_HERO, query_timed(TIMED_HERO)+v,
+		"You feel like a hero!", "The heroism wears off."));
 }
 
-
-/*
- * Increment "p_ptr->shero", notice observable changes
- */
 bool inc_shero(int v)
 {
-	bool notice = FALSE;
-
-	/* What will the new value be? */
-	v = v + p_ptr->tim.shero;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim.shero)
-		{
-			msgf("You feel like a killing machine!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim.shero)
-		{
-			msgf("You feel less Berserk.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim.shero = v;
-
-	/* Redraw status bar */
-	p_ptr->redraw |= (PR_STATUS);
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(FALSE);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Recalculate hitpoints */
-	p_ptr->update |= (PU_HP);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
+	return (set_timed(TIMED_SHERO, query_timed(TIMED_SHERO)+v,
+		"You feel like a killing machine!", "You feel less Berserk."));
 }
 
-
-/*
- * Increment "p_ptr->protevil", notice observable changes
- */
 bool inc_protevil(int v)
 {
-	bool notice = FALSE;
-
-	/* What will the new value be? */
-	v = v + p_ptr->tim.protevil;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim.protevil)
-		{
-			msgf("You feel safe from evil!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim.protevil)
-		{
-			msgf("You no longer feel safe from evil.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim.protevil = v;
-
-	/* Redraw status bar */
-	p_ptr->redraw |= (PR_STATUS);
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(FALSE);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
+	return (set_timed(TIMED_PROTEVIL, query_timed(TIMED_PROTEVIL)+v,
+		"You feel safe from evil!", "You no longer feel safe from evil."));
 }
 
-/*
- * Increment "p_ptr->etherealness", notice observable changes
- */
 bool inc_etherealness(int v)
 {
-	bool notice = FALSE;
-
-	/* What will the new value be? */
-	v = v + p_ptr->tim.etherealness;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim.etherealness)
-		{
-			msgf
-				("You become incorporeal.");
-			notice = TRUE;
-
-			/* Redraw map */
-			p_ptr->redraw |= (PR_MAP);
-
-			/* Update monsters */
-			p_ptr->update |= (PU_MONSTERS);
-
-			/* Window stuff */
-			p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim.etherealness)
-		{
-			msgf("You are solid again.");
-			notice = TRUE;
-
-			/* Redraw map */
-			p_ptr->redraw |= (PR_MAP);
-
-			/* Update monsters */
-			p_ptr->update |= (PU_MONSTERS);
-
-			/* Window stuff */
-			p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim.etherealness = v;
-
-	/* Redraw status bar */
-	p_ptr->redraw |= (PR_STATUS);
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(FALSE);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-
+	return (set_timed(TIMED_ETHEREALNESS, query_timed(TIMED_ETHEREALNESS)+v,
+		"You feel incorporeal!", "You feel solid again."));
 }
 
-/*
- * Increment "p_ptr->wraith_form", notice observable changes
- */
 bool inc_wraith_form(int v)
 {
-	bool notice = FALSE;
-
-	/* What will the new value be? */
-	v = v + p_ptr->tim.wraith_form;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim.wraith_form)
-		{
-			msgf
-				("You leave the physical world and turn into a wraith-being!");
-			notice = TRUE;
-
-			/* Redraw map */
-			p_ptr->redraw |= (PR_MAP);
-
-			/* Update monsters */
-			p_ptr->update |= (PU_MONSTERS);
-
-			/* Window stuff */
-			p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim.wraith_form)
-		{
-			msgf("You feel opaque.");
-			notice = TRUE;
-
-			/* Redraw map */
-			p_ptr->redraw |= (PR_MAP);
-
-			/* Update monsters */
-			p_ptr->update |= (PU_MONSTERS);
-
-			/* Window stuff */
-			p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim.wraith_form = v;
-
-	/* Redraw status bar */
-	p_ptr->redraw |= (PR_STATUS);
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(FALSE);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-
+	return (set_timed(TIMED_WRAITH_FORM, query_timed(TIMED_WRAITH_FORM)+v,
+		"You leave the physical world and turn into a wraith-being!", "You feel opaque."));
 }
 
-
-/*
- * Increment "p_ptr->invuln", notice observable changes
- */
 bool inc_invuln(int v)
 {
-	bool notice = FALSE;
-
-	/* What will the new value be? */
-	v = v + p_ptr->tim.invuln;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim.invuln)
-		{
-			msgf("Invulnerability!");
-			notice = TRUE;
-
-			chg_virtue(V_TEMPERANCE, -5);
-			chg_virtue(V_HONOUR, -5);
-			chg_virtue(V_SACRIFICE, -5);
-			chg_virtue(V_VALOUR, -10);
-
-			/* Redraw map */
-			p_ptr->redraw |= (PR_MAP);
-
-			/* Update monsters */
-			p_ptr->update |= (PU_MONSTERS);
-
-			/* Window stuff */
-			p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim.invuln)
-		{
-			msgf("The invulnerability wears off.");
-			notice = TRUE;
-
-			/* Redraw map */
-			p_ptr->redraw |= (PR_MAP);
-
-			/* Update monsters */
-			p_ptr->update |= (PU_MONSTERS);
-
-			/* Window stuff */
-			p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim.invuln = v;
-
-	/* Redraw status bar */
-	p_ptr->redraw |= (PR_STATUS);
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(FALSE);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
+	return (set_timed(TIMED_INVULN, query_timed(TIMED_INVULN)+v,
+		"You feel invulnerable!", "The invulnerability wears off."));
 }
 
-
-/*
- * Set "p_ptr->tim.esp", notice observable changes
- */
 static bool set_tim_esp(int v)
 {
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim.esp)
-		{
-			msgf("You feel your consciousness expand!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim.esp)
-		{
-			msgf("Your consciousness contracts again.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim.esp = v;
-
-	/* Redraw status bar */
-	p_ptr->redraw |= (PR_STATUS);
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(FALSE);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Update the monsters */
-	p_ptr->update |= (PU_MONSTERS);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
+	return (set_timed(TIMED_ESP, v, "You feel your consciousness expand!", "Your consciousness contracts again."));
 }
 
-/*
- * Increase the "esp" counter
- */
 bool inc_tim_esp(int v)
 {
-	return(set_tim_esp(p_ptr->tim.esp + v));
+	return(set_tim_esp(query_timed(TIMED_ESP) + v));
 }
 
-
-/*
- * No more "esp"
- */
 bool clear_tim_esp(void)
 {
 	return(set_tim_esp(0));
 }
 
-
-/*
- * Increment "p_ptr->tim_invis", notice observable changes
- */
 bool inc_tim_invis(int v)
 {
-	bool notice = FALSE;
-
-	/* What will the new value be? */
-	v = v + p_ptr->tim.invis;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim.invis)
-		{
-			msgf("Your eyes feel very sensitive!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim.invis)
-		{
-			msgf("Your eyes feel less sensitive.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim.invis = v;
-
-	/* Redraw status bar */
-	p_ptr->redraw |= (PR_STATUS);
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(FALSE);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Update the monsters */
-	p_ptr->update |= (PU_MONSTERS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
+	return (set_timed(TIMED_SEE_INVIS, query_timed(TIMED_SEE_INVIS)+v,
+		"Your eyes feel very sensitive!", "Your eyes feel less sensitive."));
 }
 
-
-/*
- * Increment "p_ptr->tim_infra", notice observable changes
- */
 bool inc_tim_infra(int v)
 {
-	bool notice = FALSE;
-
-	/* What will the new value be? */
-	v = v + p_ptr->tim.invuln;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim.infra)
-		{
-			msgf("Your eyes begin to tingle!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim.infra)
-		{
-			msgf("Your eyes stop tingling.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim.infra = v;
-
-	/* Redraw status bar */
-	p_ptr->redraw |= (PR_STATUS);
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(FALSE);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Update the monsters */
-	p_ptr->update |= (PU_MONSTERS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
+	return (set_timed(TIMED_INFRA, query_timed(TIMED_INFRA)+v,
+		"Your eyes begin to tinge!", "Your eyes stop tingling."));
 }
 
-
-/*
- * Increment "p_ptr->oppose_acid", notice observable changes
- */
 bool inc_oppose_acid(int v)
 {
-	bool notice = FALSE;
-
-	/* What will the new value be? */
-	v = v + p_ptr->tim.oppose_acid;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim.oppose_acid)
-		{
-			msgf("You feel resistant to acid!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim.oppose_acid)
-		{
-			msgf("You feel less resistant to acid.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim.oppose_acid = v;
-
-	/* Redraw status bar */
-	p_ptr->redraw |= (PR_STATUS);
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(FALSE);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
+	return (set_timed(TIMED_OPPOSE_ACID, query_timed(TIMED_OPPOSE_ACID)+v,
+		"You feel resistant to acid!", "You feel less resistant to acid."));
 }
 
-
-/*
- * Increment "p_ptr->oppose_elec", notice observable changes
- */
 bool inc_oppose_elec(int v)
 {
-	bool notice = FALSE;
-
-	/* What will the new value be? */
-	v = v + p_ptr->tim.oppose_elec;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim.oppose_elec)
-		{
-			msgf("You feel resistant to electricity!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim.oppose_elec)
-		{
-			msgf("You feel less resistant to electricity.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim.oppose_elec = v;
-
-	/* Redraw status bar */
-	p_ptr->redraw |= (PR_STATUS);
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(FALSE);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
+	return (set_timed(TIMED_OPPOSE_ELEC, query_timed(TIMED_OPPOSE_ELEC)+v,
+		"You feel resistant to electricity!", "You feel less resistant to electricity."));
 }
 
-
-/*
- * Increment "p_ptr->oppose_fire", notice observable changes
- */
 bool inc_oppose_fire(int v)
 {
-	bool notice = FALSE;
-
-	/* What will the new value be? */
-	v = v + p_ptr->tim.oppose_fire;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim.oppose_fire)
-		{
-			msgf("You feel resistant to fire!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim.oppose_fire)
-		{
-			msgf("You feel less resistant to fire.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim.oppose_fire = v;
-
-	/* Redraw status bar */
-	p_ptr->redraw |= (PR_STATUS);
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(FALSE);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
+	return (set_timed(TIMED_OPPOSE_FIRE, query_timed(TIMED_OPPOSE_FIRE)+v,
+		"You feel resistant to fire!", "You feel less resistant to fire."));
 }
 
-
-/*
- * Increment "p_ptr->oppose_cold", notice observable changes
- */
 bool inc_oppose_cold(int v)
 {
-	bool notice = FALSE;
-
-	/* What will the new value be? */
-	v = v + p_ptr->tim.oppose_cold;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim.oppose_cold)
-		{
-			msgf("You feel resistant to cold!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim.oppose_cold)
-		{
-			msgf("You feel less resistant to cold.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim.oppose_cold = v;
-
-	/* Redraw status bar */
-	p_ptr->redraw |= (PR_STATUS);
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(FALSE);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
+	return (set_timed(TIMED_OPPOSE_COLD, query_timed(TIMED_OPPOSE_COLD)+v,
+		"You feel resistant to cold!", "You feel less resistant to cold."));
 }
 
-
-/*
- * Increment "p_ptr->oppose_pois", notice observable changes
- */
 bool inc_oppose_pois(int v)
 {
-	bool notice = FALSE;
-
-	/* What will the new value be? */
-	v = v + p_ptr->tim.oppose_pois;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim.oppose_pois)
-		{
-			msgf("You feel resistant to poison!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim.oppose_pois)
-		{
-			msgf("You feel less resistant to poison.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim.oppose_pois = v;
-
-	/* Redraw status bar */
-	p_ptr->redraw |= (PR_STATUS);
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(FALSE);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
+	return (set_timed(TIMED_OPPOSE_POIS, query_timed(TIMED_OPPOSE_POIS)+v,
+		"You feel resistant to poison!", "You feel less resistant to poison."));
 }
 
-/*
- * Increment "p_ptr->oppose_conf", notice observable changes
- */
 bool inc_oppose_conf(int v)
 {
-	bool notice = FALSE;
+	return (set_timed(TIMED_OPPOSE_CONF, query_timed(TIMED_OPPOSE_CONF)+v,
+		"Your mind feels very steady.", "Your mind feels normal again."));
+}
 
-	/* What will the new value be? */
-	v = v + p_ptr->tim.oppose_conf;
+bool inc_oppose_blind(int v)
+{
+	return (set_timed(TIMED_OPPOSE_BLIND, query_timed(TIMED_OPPOSE_BLIND)+v,
+		"You feel resistant to blindness!", "You feel less resistant to blindness."));
+}
 
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+bool inc_tim_str(int v)
+{
+	return (set_timed(TIMED_STR, query_timed(TIMED_STR)+v,
+		"Your muscles bulge!", "Your muscles return to normal."));
+}
 
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim.oppose_conf)
-		{
-			msgf("Your mind feels very steady.");
-			notice = TRUE;
-		}
-	}
+bool inc_tim_chr(int v)
+{
+	return (set_timed(TIMED_CHR, query_timed(TIMED_CHR)+v,
+		"Your face becomes noble and admirable!", "Your face returns to normal."));
+}
 
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim.oppose_conf)
-		{
-			msgf("Your mind feels normal again.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim.oppose_conf = v;
-
-	/* Redraw status bar */
-	p_ptr->redraw |= (PR_STATUS);
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(FALSE);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
+bool inc_tim_sust_all(int v)
+{
+	return (set_timed(TIMED_SUST_ALL, query_timed(TIMED_SUST_ALL)+v,
+		"You feel preserved!", "You feel less preserved."));
 }
 
 /*
- * Increment "p_ptr->oppose_blind", notice observable changes
+ * Set the "xtra_fast" counter, notice obvservable changes.
  */
-bool inc_oppose_blind(int v)
+static bool set_xtra_fast(int v)
 {
-	bool notice = FALSE;
+	bool notice = set_timed(TIMED_XTRA_FAST, v, "You feel yourself moving much faster!",
+			"You feel yourself slow down.");
 
-	/* What will the new value be? */
-	v = v + p_ptr->tim.oppose_blind;
+	/* Force "fast" counter up to this minimum */
+	if (query_timed(TIMED_FAST) < v)
+		set_timed(TIMED_FAST, v, NULL, NULL);
 
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+	return (notice);
+}
 
-	/* Open */
-	if (v)
+/*
+ * Increase the "xtra_fast" counter.
+ * Hack - only increase speed a little bit if already hasted.
+ */
+bool inc_xtra_fast(int v)
+{
+	s16b cur = query_timed(TIMED_XTRA_FAST);
+	bool notice;
+
+	/* Haste */
+	if ((!cur) || (v < 0))
 	{
-		if (!p_ptr->tim.oppose_blind)
-		{
-			msgf("You feel resistant to blindness!");
-			notice = TRUE;
-		}
+		 notice = set_xtra_fast(cur + v);
 	}
-
-	/* Shut */
 	else
 	{
-		if (p_ptr->tim.oppose_blind)
-		{
-			msgf("You feel less resistant to blindness.");
-			notice = TRUE;
-		}
+		 notice = set_xtra_fast(cur + randint1(5));
 	}
 
-	/* Use the value */
-	p_ptr->tim.oppose_blind = v;
+	/* Hack: decrease last unit of basic speed here. */
+	if (v == -1 && query_timed(TIMED_FAST) == 1)
+	{
+		set_timed(TIMED_FAST, v, NULL, NULL);
+	}
 
-	/* Redraw status bar */
-	p_ptr->redraw |= (PR_STATUS);
+	return (notice);
+}
 
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
+bool inc_immune_acid(int v)
+{
+	return (set_timed(TIMED_IMMUNE_ACID, query_timed(TIMED_IMMUNE_ACID)+v,
+		"You feel immune to acid!", "You no longer feel immune to acid."));
+}
 
-	/* Disturb */
-	if (disturb_state) disturb(FALSE);
+bool inc_immune_fire(int v)
+{
+	return (set_timed(TIMED_IMMUNE_FIRE, query_timed(TIMED_IMMUNE_FIRE)+v,
+		"You feel immune to fire!", "You no longer feel immune to fire."));
+}
 
-	/* Handle stuff */
-	handle_stuff();
+bool inc_immune_cold(int v)
+{
+	return (set_timed(TIMED_IMMUNE_COLD, query_timed(TIMED_IMMUNE_COLD)+v,
+		"You feel immune to cold!", "You no longer feel immune to cold."));
+}
 
-	/* Result */
-	return (TRUE);
+bool inc_immune_elec(int v)
+{
+	return (set_timed(TIMED_IMMUNE_ELEC, query_timed(TIMED_IMMUNE_ELEC)+v,
+		"You feel immune to electricity!", "You no longer feel immune to electricity."));
+}
+
+bool inc_sh_elec(int v)
+{
+	return (set_timed(TIMED_SH_ELEC, query_timed(TIMED_SH_ELEC)+v,
+		"You feel electric!", "You no longer feel electric."));
+}
+
+bool inc_sh_acid(int v)
+{
+	return (set_timed(TIMED_SH_ACID, query_timed(TIMED_SH_ACID)+v,
+		"You feel acidic!", "You no longer feel acidic."));
+}
+
+bool inc_sh_cold(int v)
+{
+	return (set_timed(TIMED_SH_COLD, query_timed(TIMED_SH_COLD)+v,
+		"You begin to emit a freezing aura!", "You no longer emit a freezing aura."));
+}
+
+bool inc_sh_fire(int v)
+{
+	return (set_timed(TIMED_SH_FIRE, query_timed(TIMED_SH_FIRE)+v,
+		"You are surrounded with flames!", "The flames die down."));
+}
+
+bool inc_sh_fear(int v)
+{
+	return (set_timed(TIMED_SH_FEAR, query_timed(TIMED_SH_FEAR)+v,
+		"Your appearnace twists with eldritch terror!", "Your appearance returns to normal."));
+}
+
+bool inc_tim_invisible(int v)
+{
+	return (set_timed(TIMED_INVIS, query_timed(TIMED_INVIS)+v,
+		"You become transparent!", "The invisbility has worn off."));
+}
+
+bool inc_tim_xtra_invisible(int v)
+{
+	bool notice = set_timed(TIMED_XTRA_INVIS, v, "You become transparent!",
+			"The invisibility has worn off.");
+
+	/* Force "fast" counter up to this minimum */
+	if (query_timed(TIMED_INVIS) < v)
+		set_timed(TIMED_INVIS, v, NULL, NULL);
+
+	return (notice);
 }
 
 /*
@@ -1705,13 +774,13 @@ int res_acid_lvl(void)
 	if (FLAG(p_ptr, TR_IM_ACID)) return (0);
 
 	if (FLAG(p_ptr, TR_RES_ACID))  level -= 3;
-	if (p_ptr->tim.oppose_acid)    level -= 3;
+	if (query_timed(TIMED_OPPOSE_ACID))    level -= 3;
 	if (FLAG(p_ptr, TR_HURT_ACID)) level += 2;
 
 	if (level < 0)  level = 0;
 	if (level > 11) level = 11;
 
-	return resist_table[level];;
+	return resist_table[level];
 }
 
 /*
@@ -1724,7 +793,7 @@ int res_elec_lvl(void)
 	if (FLAG(p_ptr, TR_IM_ELEC)) return (0);
 
 	if (FLAG(p_ptr, TR_RES_ELEC))  level -= 3;
-	if (p_ptr->tim.oppose_elec)    level -= 3;
+	if (query_timed(TIMED_OPPOSE_ELEC))    level -= 3;
 	if (FLAG(p_ptr, TR_HURT_ELEC)) level += 2;
 
 	if (level < 0)  level = 0;
@@ -1743,7 +812,7 @@ int res_fire_lvl(void)
 	if (FLAG(p_ptr, TR_IM_FIRE)) return (0);
 
 	if (FLAG(p_ptr, TR_RES_FIRE))  level -= 3;
-	if (p_ptr->tim.oppose_fire)    level -= 3;
+	if (query_timed(TIMED_OPPOSE_FIRE))    level -= 3;
 	if (FLAG(p_ptr, TR_HURT_FIRE)) level += 2;
 
 	if (level < 0)  level = 0;
@@ -1762,7 +831,7 @@ int res_cold_lvl(void)
 	if (FLAG(p_ptr, TR_IM_COLD)) return (0);
 
 	if (FLAG(p_ptr, TR_RES_COLD))  level -= 3;
-	if (p_ptr->tim.oppose_cold)    level -= 3;
+	if (query_timed(TIMED_OPPOSE_COLD))    level -= 3;
 	if (FLAG(p_ptr, TR_HURT_COLD)) level += 2;
 
 	if (level < 0)  level = 0;
@@ -1780,8 +849,8 @@ int res_pois_lvl(void)
 
 	if (FLAG(p_ptr, TR_IM_POIS)) return (0);
 
-	if (FLAG(p_ptr, TR_RES_POIS)) level -= 3;
-	if (p_ptr->tim.oppose_pois)   level -= 3;
+	if (FLAG(p_ptr, TR_RES_POIS))  level -= 3;
+	if (query_timed(TIMED_OPPOSE_POIS))    level -= 3;
 
 	if (level < 0)  level = 0;
 	if (level > 11) level = 11;
@@ -1795,7 +864,7 @@ int res_pois_lvl(void)
 int resist(int dam, int (*f_func) (void))
 {
 	/* Invulnerability */
-	if (p_ptr->tim.invuln) return (0);
+	if (query_timed(TIMED_INVULN)) return (0);
 
 	/* Use the function we were passed, and round up the damage */
 	return ((dam * f_func() + 99) / 100);
@@ -2034,15 +1103,15 @@ bool pois_dam(int dam, cptr kb_str, int pois)
  * Set "p_ptr->stun", notice observable changes
  *
  * Note the special code to only notice "range" changes.
+ *
+ * Doesn't use the set_timed() function, as there are varying levels.
  */
 static bool set_stun(int v)
 {
+	s16b stun_lvl = query_timed(TIMED_STUN);
+	s16b *stun_ptr = get_timed_ptr(TIMED_STUN);
 	int old_aux, new_aux;
-	bool notice = FALSE;
-
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+	bool notice;
 
 	/*
 	 * Golems cannot be stunned when they are being used as a
@@ -2057,19 +1126,19 @@ static bool set_stun(int v)
 	}
 
 	/* Knocked out */
-	if (p_ptr->tim.stun > 100)
+	if (stun_lvl > 100)
 	{
 		old_aux = 3;
 	}
 
 	/* Heavy stun */
-	else if (p_ptr->tim.stun > 50)
+	else if (stun_lvl > 50)
 	{
 		old_aux = 2;
 	}
 
 	/* Stun */
-	else if (p_ptr->tim.stun > 0)
+	else if (stun_lvl > 0)
 	{
 		old_aux = 1;
 	}
@@ -2104,7 +1173,7 @@ static bool set_stun(int v)
 		new_aux = 0;
 	}
 
-	/* Increase cut */
+	/* Increase stun level */
 	if (new_aux > old_aux)
 	{
 		/* Describe the state */
@@ -2165,7 +1234,7 @@ static bool set_stun(int v)
 		notice = TRUE;
 	}
 
-	/* Decrease cut */
+	/* Decrease stun_level */
 	else if (new_aux < old_aux)
 	{
 		/* Describe the state */
@@ -2185,7 +1254,7 @@ static bool set_stun(int v)
 	}
 
 	/* Use the value */
-	p_ptr->tim.stun = v;
+	*stun_ptr = v;
 
 	/* No change */
 	if (!notice) return (FALSE);
@@ -2206,19 +1275,11 @@ static bool set_stun(int v)
 	return (TRUE);
 }
 
-
-/*
- * Increase the "stun" counter
- */
 bool inc_stun(int v)
 {
-	return(set_stun(p_ptr->tim.stun + v));
+	return(set_stun(query_timed(TIMED_STUN) + v));
 }
 
-
-/*
- * No more "stun"
- */
 bool clear_stun(void)
 {
 	return(set_stun(0));
@@ -2229,10 +1290,14 @@ bool clear_stun(void)
  * Set "p_ptr->cut", notice observable changes
  *
  * Note the special code to only notice "range" changes.
+ *
+ * Doesn't use the set_timed() function, as there are varying levels.
  */
 static bool set_cut(int v)
 {
 	int old_aux, new_aux;
+	s16b cut_lvl = query_timed(TIMED_CUT);
+	s16b *cut_ptr = get_timed_ptr(TIMED_CUT);
 
 	bool notice = FALSE;
 
@@ -2246,43 +1311,43 @@ static bool set_cut(int v)
 		v = 0;
 
 	/* Mortal wound */
-	if (p_ptr->tim.cut > 1000)
+	if (cut_lvl > 1000)
 	{
 		old_aux = 7;
 	}
 
 	/* Deep gash */
-	else if (p_ptr->tim.cut > 200)
+	else if (cut_lvl > 200)
 	{
 		old_aux = 6;
 	}
 
 	/* Severe cut */
-	else if (p_ptr->tim.cut > 100)
+	else if (cut_lvl > 100)
 	{
 		old_aux = 5;
 	}
 
 	/* Nasty cut */
-	else if (p_ptr->tim.cut > 50)
+	else if (cut_lvl > 50)
 	{
 		old_aux = 4;
 	}
 
 	/* Bad cut */
-	else if (p_ptr->tim.cut > 25)
+	else if (cut_lvl > 25)
 	{
 		old_aux = 3;
 	}
 
 	/* Light cut */
-	else if (p_ptr->tim.cut > 10)
+	else if (cut_lvl > 10)
 	{
 		old_aux = 2;
 	}
 
 	/* Graze */
-	else if (p_ptr->tim.cut > 0)
+	else if (cut_lvl > 0)
 	{
 		old_aux = 1;
 	}
@@ -2431,7 +1496,7 @@ static bool set_cut(int v)
 	}
 
 	/* Use the value */
-	p_ptr->tim.cut = v;
+	*cut_ptr = v;
 
 	/* No change */
 	if (!notice) return (FALSE);
@@ -2452,19 +1517,11 @@ static bool set_cut(int v)
 	return (TRUE);
 }
 
-
-/*
- * Increase the "cut" counter
- */
 bool inc_cut(int v)
 {
-	return(set_cut(p_ptr->tim.cut + v));
+	return(set_cut(query_timed(TIMED_CUT) + v));
 }
 
-
-/*
- * No more "cuts"
- */
 bool clear_cut(void)
 {
 	return(set_cut(0));
@@ -2859,7 +1916,7 @@ bool sp_player(int num)
 		if ((num > 0) && (p_ptr->csp < (p_ptr->msp / 3)))
 			chg_virtue(V_TEMPERANCE, 1);
 
-		/* Gain hitpoints */
+		/* Gain mana */
 		p_ptr->csp += num;
 
 		/* Enforce maximum */
@@ -2874,6 +1931,34 @@ bool sp_player(int num)
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER);
+
+		if (p_ptr->state.lich)
+		{
+			/* Heal 0-4 */
+			if (num < 15)
+			{
+				msgf("You feel a little better.");
+			}
+
+			/* Heal 5-14 */
+			else if (num < 35)
+			{
+				msgf("You feel better.");
+			}
+
+			/* Heal 15-34 */
+			else if (num < 100)
+			{
+				msgf("You feel much better.");
+			}
+
+			/* Heal 35+ */
+			else
+			{
+				msgf("You feel very good.");
+			}
+			return (TRUE);
+		}
 
 		/* Heal 0-14 */
 		if (num < 15)
@@ -2906,6 +1991,10 @@ bool sp_player(int num)
  */
 bool hp_player(int num)
 {
+	/* Liches don't respond much to healing */
+	if (p_ptr->state.lich)
+		return (sp_player(num/10));
+
 	/* Healing needed */
 	if (p_ptr->chp < p_ptr->mhp)
 	{
@@ -2930,19 +2019,19 @@ bool hp_player(int num)
 		p_ptr->window |= (PW_PLAYER);
 
 		/* Heal 0-4 */
-		if (num < 5)
+		if (num < 15)
 		{
 			msgf("You feel a little better.");
 		}
 
 		/* Heal 5-14 */
-		else if (num < 15)
+		else if (num < 35)
 		{
 			msgf("You feel better.");
 		}
 
 		/* Heal 15-34 */
-		else if (num < 35)
+		else if (num < 100)
 		{
 			msgf("You feel much better.");
 		}
@@ -3172,6 +2261,8 @@ bool do_inc_stat_fixed(int stat, int amt)
 
 		return(TRUE);
 	}
+
+	return (FALSE);
 }
 
 
@@ -3301,7 +2392,7 @@ bool lose_all_info(void)
 void do_poly_wounds(void)
 {
 	/* Changed to always provide at least _some_ healing */
-	s16b wounds = p_ptr->tim.cut;
+	s16b wounds = query_timed(TIMED_CUT);
 	s16b hit_p = (p_ptr->mhp - p_ptr->chp);
 	s16b change = damroll(p_ptr->lev, 5);
 	bool Nasty_effect = (one_in_(5));
@@ -3318,7 +2409,7 @@ void do_poly_wounds(void)
 	}
 	else
 	{
-		(void)set_cut(p_ptr->tim.cut - (change / 2));
+		(void)set_cut(query_timed(TIMED_CUT) - (change / 2));
 	}
 }
 
@@ -3548,6 +2639,8 @@ void take_hit(int damage, cptr hit_from)
 
 	int warning = (p_ptr->mhp * hitpoint_warn / 10);
 
+	if (p_ptr->state.lich)
+		warning = (p_ptr->msp * hitpoint_warn / 10);
 
 	/* Paranoia */
 	if (p_ptr->state.is_dead) return;
@@ -3556,7 +2649,7 @@ void take_hit(int damage, cptr hit_from)
 	disturb(TRUE);
 
 	/* Mega-Hack -- Apply "invulnerability" */
-	if (p_ptr->tim.invuln && (damage < 9000))
+	if (query_timed(TIMED_INVULN) && (damage < 9000))
 	{
 		if (one_in_(PENETRATE_INVULNERABILITY))
 		{
@@ -3568,17 +2661,23 @@ void take_hit(int damage, cptr hit_from)
 		}
 	}
 
-	if (p_ptr->tim.wraith_form)
+	if (query_timed(TIMED_WRAITH_FORM))
 	{
 		damage /= 5;
 		if ((damage == 0) && one_in_(10)) damage = 1;
 	}
 
 	/* Hurt the player */
-	p_ptr->chp -= damage;
+	if (p_ptr->state.lich)
+		p_ptr->csp -= damage;
+	else
+		p_ptr->chp -= damage;
 
 	/* Display the hitpoints */
-	p_ptr->redraw |= (PR_HP);
+	if (p_ptr->state.lich)
+		p_ptr->redraw |= (PR_MANA);
+	else
+		p_ptr->redraw |= (PR_HP);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER);
@@ -3589,9 +2688,9 @@ void take_hit(int damage, cptr hit_from)
 	if (pen_invuln)
 		msgf("The attack penetrates your shield of invulnerability!");
 
-	if (!(p_ptr->tim.invuln) || (pen_invuln))
+	if (!(query_timed(TIMED_INVULN)) || (pen_invuln))
 	{
-		if (p_ptr->chp == 0)
+		if (p_ptr->chp == 0 && !p_ptr->state.lich)
 		{
 			chg_virtue(V_SACRIFICE, 1);
 			chg_virtue(V_CHANCE, 2);
@@ -3599,7 +2698,8 @@ void take_hit(int damage, cptr hit_from)
 	}
 
 	/* Dead player */
-	if (p_ptr->chp < 0)
+	if ((p_ptr->chp < 0 && !p_ptr->state.lich) ||
+		(p_ptr->csp < 0 && p_ptr->state.lich))
 	{
 		int len;
 
@@ -3617,16 +2717,18 @@ void take_hit(int damage, cptr hit_from)
 		else
 		{
 			if (!get_rnd_line("death.txt", 0, death_message))
-				msgf("%s  You die.", death_message);
+			{
+				if (p_ptr->state.lich)
+					msgf("%s  You are destroyed.", death_message);
+				else
+					msgf("%s  You die.", death_message);
+			}
 		}
 
 		/* Note cause of death */
 		len = strnfmt(p_ptr->state.died_from, 80, hit_from);
 
-		if (p_ptr->tim.image) strnfcat(p_ptr->state.died_from, 80, &len, "(?)");
-
-		/* No longer a winner */
-		p_ptr->state.total_winner = FALSE;
+		if (query_timed(TIMED_IMAGE)) strnfcat(p_ptr->state.died_from, 80, &len, "(?)");
 
 		/* Leaving */
 		p_ptr->state.leaving = TRUE;
@@ -3644,7 +2746,8 @@ void take_hit(int damage, cptr hit_from)
 	}
 
 	/* Hitpoint warning */
-	if (p_ptr->chp <= warning)
+	if ((p_ptr->chp <= warning && !p_ptr->state.lich) ||
+		(p_ptr->csp <= warning && p_ptr->state.lich))
 	{
 		/* Hack -- bell on first notice */
 		if (old_chp > warning)

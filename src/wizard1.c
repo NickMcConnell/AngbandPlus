@@ -109,6 +109,7 @@ static const grouper group_item[] =
 	{TV_DEATH_BOOK, "Books (Death)"},
 	{TV_CONJ_BOOK, "Books (Conjuration)"},
 	{TV_ARCANE_BOOK, "Books (Arcane)"},
+	{TV_ILLUSION_BOOK, "Books (Illusion)"},
 
 	{TV_CHEST, "Chests"},
 

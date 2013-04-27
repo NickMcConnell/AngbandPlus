@@ -632,6 +632,8 @@ static void wr_monster(const monster_type *m_ptr)
 	wr_byte(m_ptr->invulner);
 	wr_u32b(m_ptr->smart);
 	wr_s16b(m_ptr->hold_o_idx);
+	wr_byte(m_ptr->silenced);
+	wr_byte(m_ptr->imprisoned);
 }
 
 /*
@@ -928,8 +930,12 @@ static void wr_extra(void)
 	wr_byte(p_ptr->rp.prace);
 	wr_byte(p_ptr->rp.pclass);
 	wr_byte(p_ptr->rp.psex);
-	wr_byte(p_ptr->spell.r[0].realm);
-	wr_byte(p_ptr->spell.r[1].realm);
+	wr_byte(p_ptr->spell.realm[0]);
+	wr_byte(p_ptr->spell.realm[1]);
+	for (i = 0; i < SPELL_LAYERS; i++)
+	{
+		wr_s16b(p_ptr->spell_slots[i]);
+	}
 	wr_byte(0);					/* oops */
 
 	wr_byte(p_ptr->rp.hitdie);
@@ -989,47 +995,33 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->rp.sc);
 	wr_s16b(0);					/* oops */
 
-	wr_s16b(0);					/* old "rest" */
-	wr_s16b(p_ptr->tim.blind);
-	wr_s16b(p_ptr->tim.paralyzed);
-	wr_s16b(p_ptr->tim.confused);
 	wr_s16b(p_ptr->food);
-	wr_s16b(0);					/* old "food_digested" */
-	wr_s16b(0);					/* old "protection" */
 	wr_s16b(p_ptr->energy);
-	wr_s16b(p_ptr->tim.fast);
-	wr_s16b(p_ptr->tim.slow);
-	wr_s16b(p_ptr->tim.afraid);
-	wr_s16b(p_ptr->tim.cut);
-	wr_s16b(p_ptr->tim.stun);
-	wr_s16b(p_ptr->tim.poisoned);
-	wr_s16b(p_ptr->tim.image);
-	wr_s16b(p_ptr->tim.protevil);
-	wr_s16b(p_ptr->tim.invuln);
-	wr_s16b(p_ptr->tim.hero);
-	wr_s16b(p_ptr->tim.shero);
-	wr_s16b(p_ptr->tim.shield);
-	wr_s16b(p_ptr->tim.blessed);
-	wr_s16b(p_ptr->tim.invis);
-	wr_s16b(p_ptr->tim.word_recall);
 	wr_s16b(p_ptr->see_infra);
-	wr_s16b(p_ptr->tim.infra);
-	wr_s16b(p_ptr->tim.oppose_fire);
-	wr_s16b(p_ptr->tim.oppose_cold);
-	wr_s16b(p_ptr->tim.oppose_acid);
-	wr_s16b(p_ptr->tim.oppose_elec);
-	wr_s16b(p_ptr->tim.oppose_pois);
-	wr_s16b(p_ptr->tim.oppose_conf);
-	wr_s16b(p_ptr->tim.oppose_blind);
-	wr_s16b(p_ptr->tim.etherealness);
-	wr_s16b(p_ptr->tim.esp);
-	wr_s16b(p_ptr->tim.wraith_form);
-	wr_s16b(p_ptr->tim.resist_magic);
-
 	wr_s16b(p_ptr->chaos_patron);
 	wr_u32b(p_ptr->muta1);
 	wr_u32b(p_ptr->muta2);
 	wr_u32b(p_ptr->muta3);
+
+	/* Timed stuff in a loop */
+	/* Note that we go up to RESERVED rather than
+	   the current max.  This is to allow addition of
+	   more timed things without making a savefile
+	   compatibility issue. */
+	for (i = 0; i < MAX_TIMED_RESERVED; i++)
+	{
+		s16b *tim_ptr;
+
+		if (i >= MAX_TIMED)
+		{
+			wr_s16b(0);
+			continue;
+		}
+
+		tim_ptr = get_timed_ptr(i);
+		if (!tim_ptr) wr_s16b(0);
+		else wr_s16b(*tim_ptr);
+	}
 
 	for (i = 0; i < MAX_PLAYER_VIRTUES; i++)
 	{
@@ -1042,7 +1034,7 @@ static void wr_extra(void)
 	}
 
 	wr_byte(p_ptr->state.confusing);
-	wr_byte(0);					/* oops */
+	wr_byte(p_ptr->state.lich);
 	wr_byte(0);					/* oops */
 	wr_byte(0);					/* oops */
 	wr_byte(p_ptr->state.searching);
@@ -1311,6 +1303,7 @@ static void save_wild_data(void)
 static void wr_dungeon(void)
 {
 	int i;
+	monster_race *r_ptr = &r_info[QW_CLONE];
 
 	/*** Basic info ***/
 
@@ -1374,6 +1367,28 @@ static void wr_dungeon(void)
 		/* Dump it */
 		wr_monster(m_ptr);
 	}
+
+	/* Dump info about the player clone */
+	wr_s16b(r_ptr->hdice);
+	wr_s16b(r_ptr->hside);
+	wr_s16b(r_ptr->ac);
+	wr_s16b(r_ptr->sleep);
+	wr_byte(r_ptr->aaf);
+	wr_byte(r_ptr->speed);
+	wr_byte(r_ptr->freq_inate);
+	wr_byte(r_ptr->freq_spell);
+	for (i = 0; i < 9; i++)
+	{
+		wr_u32b(r_ptr->flags[i]);
+	}
+	for (i = 0; i < 4; i++)
+	{
+		wr_byte(r_ptr->blow[i].method);
+		wr_byte(r_ptr->blow[i].effect);
+		wr_byte(r_ptr->blow[i].d_dice);
+		wr_byte(r_ptr->blow[i].d_side);
+	}
+	/* Note: player memory-related stuff is saved elsewhere */
 
 	wr_checksum();
 
@@ -1686,17 +1701,14 @@ static bool wr_savefile_new(void)
 
 
 	/* Write spell data */
-	wr_u32b(p_ptr->spell.r[0].learned);
-	wr_u32b(p_ptr->spell.r[1].learned);
-	wr_u32b(p_ptr->spell.r[0].worked);
-	wr_u32b(p_ptr->spell.r[1].worked);
-	wr_u32b(p_ptr->spell.r[0].forgotten);
-	wr_u32b(p_ptr->spell.r[1].forgotten);
+	wr_byte(p_ptr->spell.spell_max);
 
-	/* Dump the ordered spells */
 	for (i = 0; i < PY_MAX_SPELLS; i++)
 	{
-		wr_byte(p_ptr->spell.order[i]);
+		wr_byte(p_ptr->spell.data[i].s_idx);
+		wr_byte(p_ptr->spell.data[i].realm);
+		wr_byte(p_ptr->spell.data[i].focus);
+		wr_byte(p_ptr->spell.data[i].flags);
 	}
 
 	/* Checksum */
