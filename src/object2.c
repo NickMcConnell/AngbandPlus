@@ -2961,6 +2961,14 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 
 		case TV_CLOAK:
 		{
+			if (o_ptr->sval == SV_DRAGON_CLOAK)
+			{
+				/* Mention the item */
+				if (cheat_peek) object_mention(o_ptr);
+				dragon_resist(o_ptr);
+				if (!one_in_(3)) break;
+			}
+
 			/* Very good */
 			if (power > 1)
 			{
@@ -3034,6 +3042,13 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 
 				case SV_RING_SHOTS:
 				{
+					break;
+				}
+				
+				case SV_RING_SPELL_POWER:
+				{
+					/* Stat bonus ... these wizard rings decrease STR, DEX, CON */
+					o_ptr->pval = 0 - 1 - m_bonus(5, level);
 					break;
 				}
 
@@ -4309,6 +4324,7 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
 #if 1
 			if (power ||
 			     ((o_ptr->tval == TV_HELM) && (o_ptr->sval == SV_DRAGON_HELM)) ||
+			     ((o_ptr->tval == TV_CLOAK) && (o_ptr->sval == SV_DRAGON_CLOAK)) ||
 			     ((o_ptr->tval == TV_SHIELD) && (o_ptr->sval == SV_DRAGON_SHIELD)) ||
 			     ((o_ptr->tval == TV_GLOVES) && (o_ptr->sval == SV_SET_OF_DRAGON_GLOVES)) ||
 			     ((o_ptr->tval == TV_BOOTS) && (o_ptr->sval == SV_PAIR_OF_DRAGON_GREAVE)))
@@ -4521,6 +4537,7 @@ static bool kind_is_good(int k_idx)
 		case TV_CRUSADE_BOOK:
 		case TV_MUSIC_BOOK:
 		case TV_HISSATSU_BOOK:
+		case TV_HEX_BOOK:
 		{
 			if (k_ptr->sval >= SV_BOOK_MIN_GOOD) return (TRUE);
 			return (FALSE);

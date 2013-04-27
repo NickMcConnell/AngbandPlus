@@ -34,6 +34,7 @@ static bool object_easy_know(int i)
 		case TV_CRUSADE_BOOK:
 		case TV_MUSIC_BOOK:
 		case TV_HISSATSU_BOOK:
+		case TV_HEX_BOOK:
 		{
 			return (TRUE);
 		}
@@ -232,6 +233,9 @@ static void shuffle_flavors(byte tval)
 		k1_ptr->flavor = k2_ptr->flavor;
 		k2_ptr->flavor = tmp;
 	}
+
+	/* Free an array for a list of k_idx */
+	C_KILL(k_idx_list, max_k_idx, s16b);
 }
 
 /*
@@ -450,6 +454,7 @@ char *object_desc_kosuu(char *t, object_type *o_ptr)
       case  TV_CRUSADE_BOOK:
       case  TV_MUSIC_BOOK:
       case  TV_HISSATSU_BOOK:
+	  case TV_HEX_BOOK:
       {
 	  t = object_desc_str(t, "ºý");
 	  break;
@@ -623,7 +628,8 @@ static flag_insc_table flag_insc_resistance[] =
 
 static flag_insc_table flag_insc_misc[] =
 {
-	{ "ËâÎÏ", "Ma", TR_DEC_MANA, -1 },
+	{ "°×", "Es", TR_EASY_SPELL, -1 },
+	{ "¸º", "Dm", TR_DEC_MANA, -1 },
 	{ "Åê", "Th", TR_THROW, -1 },
 	{ "È¿", "Rf", TR_REFLECT, -1 },
 	{ "Ëã", "Fa", TR_FREE_ACT, -1 },
@@ -781,7 +787,8 @@ static flag_insc_table flag_insc_resistance[] =
 
 static flag_insc_table flag_insc_misc[] =
 {
-	{ "Ma", TR_DEC_MANA, -1 },
+	{ "Es", TR_EASY_SPELL, -1 },
+	{ "Dm", TR_DEC_MANA, -1 },
 	{ "Th", TR_THROW, -1 },
 	{ "Rf", TR_REFLECT, -1 },
 	{ "Fa", TR_FREE_ACT, -1 },
@@ -1736,6 +1743,20 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 			basenm = "& Éð·Ý¤Î½ñ%";
 #else
 			basenm = "Book~ of Kendo %";
+#endif
+
+			break;
+		}
+
+		case TV_HEX_BOOK:
+		{
+#ifdef JP
+			basenm = "¼ö½Ñ¤ÎËâË¡½ñ%";
+#else
+			if (mp_ptr->spell_book == TV_LIFE_BOOK)
+				basenm = "& Book~ of Crusade Magic %";
+			else
+				basenm = "& Crusade Spellbook~ %";
 #endif
 
 			break;

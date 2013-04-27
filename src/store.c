@@ -630,7 +630,7 @@ static byte rgold_adj[MAX_RACES][MAX_RACES] =
 	/*Hum, HfE, Elf,  Hal, Gno, Dwa, HfO, HfT, Dun, HiE, Barbarian,
 	 HfOg, HGn, HTn, Cyc, Yek, Klc, Kbd, Nbl, DkE, Drc, Mind Flayer,
 	 Imp,  Glm, Skl, Zombie, Vampire, Spectre, Fairy, Beastman, Ent,
-	 Angel, Demon, Kuta*/
+	 Angel, Demon, Kutar */
 
 	/* Human */
 	{ 100, 105, 105, 110, 113, 115, 120, 125, 100, 105, 100,
@@ -842,7 +842,7 @@ static byte rgold_adj[MAX_RACES][MAX_RACES] =
 	  110, 110, 112, 122, 110, 110, 110, 115, 110, 120, 120,
 	  110, 101, 115, 110 },
 
-	/* Kuta */
+	/* Kutar */
 	{ 110, 110, 105, 105, 110, 115, 115, 115, 110, 105, 110,
 	  115, 115, 115, 115, 115, 115, 115, 115, 115, 115, 115,
 	  115, 115, 125, 125, 125, 125, 105, 115, 105,  95, 140,
@@ -990,6 +990,7 @@ static void mass_produce(object_type *o_ptr)
 		case TV_CRUSADE_BOOK:
 		case TV_MUSIC_BOOK:
 		case TV_HISSATSU_BOOK:
+		case TV_HEX_BOOK:
 		{
 			if (cost <= 50L) size += damroll(2, 3);
 			if (cost <= 500L) size += damroll(1, 3);
@@ -1057,12 +1058,6 @@ static void mass_produce(object_type *o_ptr)
 				if (cost < 1601L) size += damroll(1, 5);
 				else if (cost < 3201L) size += damroll(1, 3);
 			}
-
-			/* Ensure that mass-produced rods and wands get the correct pvals. */
-			if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
-			{
-				o_ptr->pval *= size;
-			}
 			break;
 		}
 	}
@@ -1110,6 +1105,12 @@ msg_print("ランダムアーティファクトは値引きなし。");
 
 	/* Save the total pile size */
 	o_ptr->number = size - (size * discount / 100);
+
+	/* Ensure that mass-produced rods and wands get the correct pvals. */
+	if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
+	{
+		o_ptr->pval *= o_ptr->number;
+	}
 }
 
 
@@ -1461,6 +1462,7 @@ static bool store_will_buy(object_type *o_ptr)
 				case TV_CRAFT_BOOK:
 				case TV_DAEMON_BOOK:
 				case TV_MUSIC_BOOK:
+				case TV_HEX_BOOK:
 				case TV_AMULET:
 				case TV_RING:
 				case TV_STAFF:
@@ -1497,6 +1499,7 @@ static bool store_will_buy(object_type *o_ptr)
 				case TV_DAEMON_BOOK:
 				case TV_CRUSADE_BOOK:
 				case TV_MUSIC_BOOK:
+				case TV_HEX_BOOK:
 					break;
 				default:
 					return (FALSE);
@@ -2364,6 +2367,18 @@ static void display_inventory(void)
 		put_str(format("(Page %d)  ", store_top/store_bottom + 1), 5, 20);
 #endif
 
+	}
+
+	if (cur_store_num == STORE_HOME || cur_store_num == STORE_MUSEUM)
+	{
+		k = st_ptr->stock_size;
+
+		if (cur_store_num == STORE_HOME && !powerup_home) k /= 10;
+#ifdef JP
+		put_str(format("アイテム数:  %4d/%4d", st_ptr->stock_num, k), 19 + xtra_stock, 27);
+#else
+		put_str(format("Objects:  %4d/%4d", st_ptr->stock_num, k), 19 + xtra_stock, 30);
+#endif
 	}
 }
 
@@ -4543,7 +4558,7 @@ static void store_process_command(void)
 			else if (p_ptr->pclass == CLASS_MAGIC_EATER)
 				do_cmd_magic_eater(TRUE);
 			else if (p_ptr->pclass == CLASS_SNIPER)
-				do_cmd_snipe();
+				do_cmd_snipe_browse();
 			else do_cmd_browse();
 			break;
 		}
@@ -4831,6 +4846,8 @@ void do_cmd_store(void)
 	/* No automatic command */
 	command_new = 0;
 
+	/* Do not expand macros */
+	get_com_no_macros = TRUE;
 
 	/* Save the store number */
 	cur_store_num = which;
@@ -5102,6 +5119,8 @@ void do_cmd_store(void)
 	/* Hack -- Cancel "see" mode */
 	command_see = FALSE;
 
+	/* Allow expanding macros */
+	get_com_no_macros = FALSE;
 
 	/* Flush messages XXX XXX XXX */
 	msg_print(NULL);

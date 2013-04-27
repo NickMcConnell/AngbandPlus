@@ -126,7 +126,18 @@ msg_format("レベル %d にようこそ。", p_ptr->lev);
 
 		if (level_inc_stat)
 		{
-			if(!(p_ptr->max_plv % 10))
+			/* one of the most frustrating things in heng is the early random stat rolls! */
+			if(  p_ptr->max_plv == 3	/* quicker starts, please! */
+			  || p_ptr->max_plv == 7 
+			  || p_ptr->max_plv == 10
+			  || p_ptr->max_plv == 15
+			  || p_ptr->max_plv == 20
+			  || p_ptr->max_plv == 25
+			  || p_ptr->max_plv == 30
+			  || p_ptr->max_plv == 35
+			  || p_ptr->max_plv == 40
+			  || p_ptr->max_plv == 45
+			  || p_ptr->max_plv == 50 )
 			{
 				int choice;
 				screen_save();
@@ -183,8 +194,6 @@ msg_format("レベル %d にようこそ。", p_ptr->lev);
 				do_inc_stat(choice - 'a');
 				screen_load();
 			}
-			else if(!(p_ptr->max_plv % 2))
-				do_inc_stat(randint0(6));
 		}
 
 		if (level_mutation)

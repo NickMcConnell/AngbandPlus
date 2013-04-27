@@ -1096,6 +1096,7 @@ void do_cmd_cast(void)
 	int	increment = 0;
 	int	use_realm;
 	int	need_mana;
+	int take_mana;
 
 	cptr prayer;
 
@@ -1143,6 +1144,23 @@ void do_cmd_cast(void)
 #endif
 		flush();
 		return;
+	}
+
+	/* Hex */
+	if (p_ptr->realm1 == REALM_HEX)
+	{
+		if (hex_spell_fully())
+		{
+			bool flag = FALSE;
+#ifdef JP
+			msg_print("これ以上新しい呪文を詠唱することはできない。");
+#else
+			msg_print("Can not spell new spells more.");
+#endif
+			flush();
+			if (p_ptr->lev >= 35) flag = stop_hex_spell();
+			if (!flag) return;
+		}
 	}
 
 	if (p_ptr->pclass == CLASS_FORCETRAINER)
@@ -1237,6 +1255,20 @@ void do_cmd_cast(void)
 
 	use_realm = tval2realm(o_ptr->tval);
 
+	/* Hex */
+	if (use_realm == REALM_HEX)
+	{
+		if (hex_spelling(spell))
+		{
+#ifdef JP
+			msg_print("その呪文はすでに詠唱中だ。");
+#else
+			msg_print("You are already casting it.");
+#endif
+			return;
+		}
+	}
+
 	if (!is_magic(use_realm))
 	{
 		s_ptr = &technic_info[use_realm - MIN_TECHNIC][spell];
@@ -1276,6 +1308,16 @@ msg_format("その%sを%sのに十分なマジックポイントがない。",prayer,
 
 	}
 
+	/* Take spell cost eagerly unless we are exerting ourselves.
+	   This is to prevent death from using a force weapon with a spell
+	   that also attacks, like Cyclone.
+	*/
+	take_mana = 0;
+	if (need_mana <= p_ptr->csp)
+	{
+		p_ptr->csp -= need_mana;
+		take_mana = need_mana;
+	}
 
 	/* Spell failure chance */
 	chance = spell_chance(spell, use_realm);
@@ -1309,6 +1351,9 @@ msg_format("%sをうまく唱えられなかった！", prayer);
 			break;
 		case REALM_CRUSADE:
 			if (randint1(100) < chance) chg_virtue(V_JUSTICE, -1);
+			break;
+		case REALM_HEX:
+			if (randint1(100) < chance) chg_virtue(V_COMPASSION, -1);
 			break;
 		default:
 			if (randint1(100) < chance) chg_virtue(V_KNOWLEDGE, -1);
@@ -1371,7 +1416,13 @@ msg_print("An infernal sound echoed.");
 	else
 	{
 		/* Canceled spells cost neither a turn nor mana */
-		if (!do_spell(realm, spell, SPELL_CAST)) return;
+		if (!do_spell(realm, spell, SPELL_CAST))
+		{
+			/* If we eagerly took mana for this spell, then put it back! */
+			if (take_mana > 0)
+				p_ptr->csp += take_mana;
+			return;
+		}
 
 		if (randint1(100) < chance)
 			chg_virtue(V_CHANCE,1);
@@ -1431,6 +1482,12 @@ msg_print("An infernal sound echoed.");
 				chg_virtue(V_NATURE, 1);
 				chg_virtue(V_HARMONY, 1);
 				break;
+			case REALM_HEX:
+				chg_virtue(V_JUSTICE, -1);
+				chg_virtue(V_FAITH, -1);
+				chg_virtue(V_HONOUR, -1);
+				chg_virtue(V_COMPASSION, -1);
+				break;
 			default:
 				chg_virtue(V_KNOWLEDGE, 1);
 				break;
@@ -1466,6 +1523,12 @@ msg_print("An infernal sound echoed.");
 			if (randint1(100 + p_ptr->lev) < need_mana) chg_virtue(V_NATURE, 1);
 			if (randint1(100 + p_ptr->lev) < need_mana) chg_virtue(V_HARMONY, 1);
 			break;
+		case REALM_HEX:
+			if (randint1(100 + p_ptr->lev) < need_mana) chg_virtue(V_JUSTICE, -1);
+			if (randint1(100 + p_ptr->lev) < need_mana) chg_virtue(V_FAITH, -1);
+			if (randint1(100 + p_ptr->lev) < need_mana) chg_virtue(V_HONOUR, -1);
+			if (randint1(100 + p_ptr->lev) < need_mana) chg_virtue(V_COMPASSION, -1);
+			break;
 		}
 		if (mp_ptr->spell_xtra & MAGIC_GAIN_EXP)
 		{
@@ -1496,70 +1559,82 @@ msg_print("An infernal sound echoed.");
 	/* Take a turn */
 	energy_use = 100;
 
-	/* Sufficient mana */
-	if (need_mana <= p_ptr->csp)
+	/* In general, we already charged the players sp.  However, in the event the 
+	   player knowingly exceeded their csp, then, well, they get what they deserve!
+	*/
+	if (take_mana == 0)
 	{
-		/* Use some mana */
-		p_ptr->csp -= need_mana;
-	}
-
-	/* Over-exert the player */
-	else
-	{
-		int oops = need_mana;
-
-		/* No mana left */
-		p_ptr->csp = 0;
-		p_ptr->csp_frac = 0;
-
-		/* Message */
-#ifdef JP
-msg_print("精神を集中しすぎて気を失ってしまった！");
-#else
-		msg_print("You faint from the effort!");
-#endif
-
-
-		/* Hack -- Bypass free action */
-		(void)set_paralyzed(p_ptr->paralyzed + randint1(5 * oops + 1));
-
-		switch (realm)
+		/* Sufficient mana ... this should no longer fire ... unless we add a spell
+		   to gain spellpoints, but that seems unlikely ;)  Actually, there is a mincrafter
+		   spell that might do just that, but I don't think that spell comes thru this fn.
+		   So it is prudent to double check for overexertion ...
+		*/
+		if (need_mana <= p_ptr->csp)
 		{
-		case REALM_LIFE:
-			chg_virtue(V_VITALITY, -10);
-			break;
-		case REALM_DEATH:
-			chg_virtue(V_UNLIFE, -10);
-			break;
-		case REALM_DAEMON:
-			chg_virtue(V_JUSTICE, 10);
-			break;
-		case REALM_NATURE:
-			chg_virtue(V_NATURE, -10);
-			break;
-		case REALM_CRUSADE:
-			chg_virtue(V_JUSTICE, -10);
-			break;
-		default:
-			chg_virtue(V_KNOWLEDGE, -10);
-			break;
+			p_ptr->csp -= need_mana;
 		}
 
-		/* Damage CON (possibly permanently) */
-		if (randint0(100) < 50)
+		/* Over-exert the player */
+		else
 		{
-			bool perm = (randint0(100) < 25);
+			int oops = need_mana;
+
+			/* No mana left */
+			p_ptr->csp = 0;
+			p_ptr->csp_frac = 0;
 
 			/* Message */
-#ifdef JP
-msg_print("体を悪くしてしまった！");
-#else
-			msg_print("You have damaged your health!");
-#endif
+	#ifdef JP
+	msg_print("精神を集中しすぎて気を失ってしまった！");
+	#else
+			msg_print("You faint from the effort!");
+	#endif
 
 
-			/* Reduce constitution */
-			(void)dec_stat(A_CON, 15 + randint1(10), perm);
+			/* Hack -- Bypass free action */
+			(void)set_paralyzed(p_ptr->paralyzed + randint1(5 * oops + 1));
+
+			switch (realm)
+			{
+			case REALM_LIFE:
+				chg_virtue(V_VITALITY, -10);
+				break;
+			case REALM_DEATH:
+				chg_virtue(V_UNLIFE, -10);
+				break;
+			case REALM_DAEMON:
+				chg_virtue(V_JUSTICE, 10);
+				break;
+			case REALM_NATURE:
+				chg_virtue(V_NATURE, -10);
+				break;
+			case REALM_CRUSADE:
+				chg_virtue(V_JUSTICE, -10);
+				break;
+			case REALM_HEX:
+				chg_virtue(V_COMPASSION, 10);
+				break;
+			default:
+				chg_virtue(V_KNOWLEDGE, -10);
+				break;
+			}
+
+			/* Damage CON (possibly permanently) */
+			if (randint0(100) < 50)
+			{
+				bool perm = (randint0(100) < 25);
+
+				/* Message */
+	#ifdef JP
+	msg_print("体を悪くしてしまった！");
+	#else
+				msg_print("You have damaged your health!");
+	#endif
+
+
+				/* Reduce constitution */
+				(void)dec_stat(A_CON, 15 + randint1(10), perm);
+			}
 		}
 	}
 

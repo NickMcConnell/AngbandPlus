@@ -57,7 +57,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 11
 #define FAKE_VER_MINOR 7
-#define FAKE_VER_PATCH 1
+#define FAKE_VER_PATCH 3
 
 
 /*
@@ -75,8 +75,8 @@
  */
 #define H_VER_MAJOR 1
 #define H_VER_MINOR 7
-#define H_VER_PATCH 1
-#define H_VER_EXTRA 6
+#define H_VER_PATCH 3
+#define H_VER_EXTRA 0
 
 
 #define ANGBAND_2_8_1
@@ -717,8 +717,9 @@
 #define CH_DAEMON       0x100
 #define CH_CRUSADE      0x200
 
-#define CH_MUSIC        0x10000
-#define CH_HISSATSU     0x20000
+#define CH_MUSIC        0x08000	/* This is 16th bit */
+#define CH_HISSATSU     0x10000
+#define CH_HEX          0x20000
 
 
 /*
@@ -739,7 +740,8 @@
 #define MIN_TECHNIC        16
 #define REALM_MUSIC        16
 #define REALM_HISSATSU     17
-#define MAX_REALM          17
+#define REALM_HEX          18
+#define MAX_REALM          18
 
 #define VALID_REALM        (MAX_REALM + MAX_MAGIC - MIN_TECHNIC + 1)
 #define NUM_TECHNIC        (MAX_REALM - MIN_TECHNIC + 1)
@@ -865,7 +867,7 @@
 #define RACE_DEMON              32
 #define RACE_DUNADAN            33
 #define RACE_S_FAIRY            34
-#define RACE_KUTA               35
+#define RACE_KUTAR              35
 #define RACE_ANDROID            36
 
 /*
@@ -1370,6 +1372,7 @@
 #define ART_LUTHIEN             49
 #define ART_TUOR                50
 #define ART_MOOK                205
+#define ART_HEAVENLY_MAIDEN     233
 
 /* Gloves */
 #define ART_CAMBELEG            52
@@ -1912,6 +1915,7 @@
 #define TV_CRUSADE_BOOK 99
 #define TV_MUSIC_BOOK   105
 #define TV_HISSATSU_BOOK 106
+#define TV_HEX_BOOK     107
 #define TV_GOLD         127     /* Gold can only be picked up by players */
 
 #define TV_EQUIP_BEGIN    TV_SHOT
@@ -2094,6 +2098,8 @@
 #define SV_FUR_CLOAK                     3
 #define SV_ETHEREAL_CLOAK                5
 #define SV_SHADOW_CLOAK                  6
+#define SV_DRAGON_CLOAK                  7
+#define SV_WIZARD_CLOAK                  8
 
 /* The "sval" codes for TV_GLOVES */
 #define SV_SET_OF_LEATHER_GLOVES         1
@@ -2253,6 +2259,8 @@
 #define SV_RING_DEC_MANA                53
 #define SV_RING_WARNING                 54
 #define SV_RING_MUSCLE                  55
+#define SV_RING_FRODO                   56
+#define SV_RING_SPELL_POWER              57
 
 #define SV_EXPRESS_CARD                  0
 
@@ -2888,6 +2896,7 @@
 #define ACTION_KATA     6
 #define ACTION_SING     7
 #define ACTION_HAYAGAKE 8
+#define ACTION_SPELL    9
 
 
 /* Empty hand status */
@@ -3193,7 +3202,7 @@
  * Object flags
  *
  * Old variables for object flags such as flags1, flags2, and flags3
- * are obsolated.  Now single array flgs[TR_FLAG_SIZE] contains all
+ * are obsoleted.  Now single array flgs[TR_FLAG_SIZE] contains all
  * object flags.  And each flag is refered by single index number
  * instead of a bit mask.
  *
@@ -3343,8 +3352,9 @@
 #define TR_ESP_UNIQUE          115
 #define TR_FULL_NAME           116
 #define TR_FIXED_FLAVOR        117
+#define TR_SPELL_POWER          118
 
-#define TR_FLAG_MAX            118
+#define TR_FLAG_MAX            119
 #define TR_FLAG_SIZE           4
 
 
@@ -5389,13 +5399,13 @@ extern int PlayerUID;
 #define IS_FAST() (p_ptr->fast || music_singing(MUSIC_SPEED) || music_singing(MUSIC_SHERO))
 #define IS_INVULN() (p_ptr->invuln || music_singing(MUSIC_INVULN))
 #define IS_HERO() (p_ptr->hero || music_singing(MUSIC_HERO) || music_singing(MUSIC_SHERO))
-#define IS_BLESSED() (p_ptr->blessed || music_singing(MUSIC_BLESS))
+#define IS_BLESSED() (p_ptr->blessed || music_singing(MUSIC_BLESS) || hex_spelling(HEX_BLESS))
 #define IS_OPPOSE_ACID() (p_ptr->oppose_acid || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU))
 #define IS_OPPOSE_ELEC() (p_ptr->oppose_elec || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU))
 #define IS_OPPOSE_FIRE() (p_ptr->oppose_fire || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU))
 #define IS_OPPOSE_COLD() (p_ptr->oppose_cold || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU))
 #define IS_OPPOSE_POIS() (p_ptr->oppose_pois || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU))
-#define IS_TIM_ESP() (p_ptr->tim_esp || music_singing(MUSIC_MIND))
+#define IS_TIM_ESP() (p_ptr->tim_esp || music_singing(MUSIC_MIND) || (p_ptr->concent >= CONCENT_TELE_THRESHOLD))
 #define IS_TIM_STEALTH() (p_ptr->tim_stealth || music_singing(MUSIC_STEALTH))
 
 /* Multishadow effects is determined by turn */
@@ -5498,3 +5508,45 @@ extern int PlayerUID;
 
 #define CONCENT_RADAR_THRESHOLD 2
 #define CONCENT_TELE_THRESHOLD  5
+
+/* Hex */
+#define hex_spelling_any() \
+	((p_ptr->realm1 == REALM_HEX) && (p_ptr->magic_num1[0]))
+#define hex_spelling(X) \
+	((p_ptr->realm1 == REALM_HEX) && (p_ptr->magic_num1[0] & (1L << (X))))
+/* 1st book */
+#define HEX_BLESS             0
+#define HEX_CURE_LIGHT        1
+#define HEX_DEMON_AURA        2
+#define HEX_STINKING_MIST     3
+#define HEX_XTRA_MIGHT        4
+#define HEX_CURSE_WEAPON      5
+#define HEX_DETECT_EVIL       6
+#define HEX_PATIENCE          7
+/* 2nd book */
+#define HEX_ICE_ARMOR         8
+#define HEX_CURE_SERIOUS      9
+#define HEX_INHAIL           10
+#define HEX_VAMP_MIST        11
+#define HEX_RUNESWORD        12
+#define HEX_CONFUSION        13
+#define HEX_BUILDING         14
+#define HEX_ANTI_TELE        15
+/* 3rd book */
+#define HEX_SHOCK_CLOAK      16
+#define HEX_CURE_CRITICAL    17
+#define HEX_RECHARGE         18
+#define HEX_RAISE_DEAD       19
+#define HEX_CURSE_ARMOUR     20
+#define HEX_SHADOW_CLOAK     21
+#define HEX_PAIN_TO_MANA     22
+#define HEX_EYE_FOR_EYE      23
+/* 4th book */
+#define HEX_ANTI_MULTI       24
+#define HEX_RESTORE          25
+#define HEX_DRAIN_CURSE      26
+#define HEX_VAMP_BLADE       27
+#define HEX_STUN_MONSTERS    28
+#define HEX_SHADOW_MOVE      29
+#define HEX_ANTI_MAGIC       30
+#define HEX_REVENGE          31

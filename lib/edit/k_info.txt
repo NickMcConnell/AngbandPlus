@@ -470,7 +470,7 @@ A:30/1:40/1
 P:0:3d6:0:0:0
 F:SHOW_MODS
 D:$A great, double-edged broadsword which few can wield in one hand.
-D:非常に大きな両刃の直刀で、これを片手も持てる者はほとんどいない。
+D:非常に大きな両刃の直刀で、これを片手で持てる者はほとんどいない。
 
 N:38:マン・ゴーシュ
 E:& Main Gauche~
@@ -573,7 +573,7 @@ A:5/1
 P:0:1d6:0:0:0
 F:SHOW_MODS
 D:$A smaller version of the longsword, perfectly sized for Hobbits.
-D:ロングソードを少し短かくしたような剣。ホビットにぴったりのサイズだ。
+D:ロングソードを少し短くしたような剣だ。ホビットにぴったりのサイズだ。
 
 N:47:折れた剣
 E:& Broken Sword~
@@ -621,7 +621,7 @@ P:0:2d6:0:0:0
 F:SHOW_MODS | RIDING
 D:$Two heavy bars of wood connected by a short link of chain, capable of 
 D:$delivering crushing blows.
-D:２本の重い木製の棒を短かい鎖で繋げた物だ。対象を叩き潰す為に用いる。
+D:2本の重い木製の棒を短い鎖で繋げた物だ。対象を叩き潰す為に用いる。
 
 N:51:ヘヴィ・フレイル
 E:& Two-Handed Flail~
@@ -633,7 +633,7 @@ P:0:3d6:0:0:0
 F:SHOW_MODS
 D:$Two great bars of wood connected by a massive chain, needing two hands 
 D:$to properly wield.
-D:２本の非常に大きな木製の棒を重い鎖で継いである。うまく用いるためには両手が必要だ。
+D:2本の非常に大きな木製の棒を重い鎖で継いである。うまく用いるためには両手が必要だ。
 
 N:52:モーニング・スター
 E:& Morning Star~
@@ -978,7 +978,7 @@ A:3/1:25/1
 P:0:1d5:0:0:0
 F:SHOW_MODS
 D:$A short, heavy arrow shot from a crossbow.
-D:発射時の強い負荷に耐えるように作られた短かく重いクロスボウ用の矢だ。
+D:発射時の強い負荷に耐えるように作られた短く重いクロスボウ用の矢だ。
 
 N:81:追尾クロスボウの矢
 E:& Seeker Bolt~
@@ -1219,7 +1219,7 @@ W:1:0:20:4
 A:1/1:50/1
 P:2:0d0:0:0:0
 D:$A practical garment of thick wool or velvet, draping from neck to heels.
-D:首から踵までをおおう、ビロードまたは綿製の実用的な衣服だ。
+D:首から踵までを覆う、ビロードまたは綿製の実用的な衣服だ。
 
 N:102:汚れたボロ服
 E:& Filthy Rag~
@@ -2419,7 +2419,7 @@ E:Strength:Azure
 G:!:B
 I:75:48:0
 W:20:0:4:30000
-A:20/8:30/4:80/4
+A:20/8:30/3:80/3
 P:0:1d1:0:0:0
 D:$It increases your strength when you quaff it.
 D:それは飲むと腕力の最大値が上がる。
@@ -2449,7 +2449,7 @@ E:Intelligence:Black
 G:!:D
 I:75:49:0
 W:20:0:4:30000
-A:20/8:30/4:80/4
+A:20/8:30/3:80/3
 P:0:1d1:0:0:0
 D:$It increases your intellingence when you quaff it.
 D:それは飲むと知能の最大値が上がる。
@@ -2479,7 +2479,7 @@ E:Wisdom:Bubbling
 G:!:W
 I:75:50:0
 W:20:0:4:30000
-A:20/8:30/4:80/4
+A:20/8:30/3:80/3
 P:0:1d1:0:0:0
 D:$It increases your wisdom when you quaff it.
 D:それは飲むと賢さの最大値が上がる。
@@ -2509,7 +2509,7 @@ E:Charisma:Copper Speckled
 G:!:U
 I:75:53:0
 W:20:0:4:4000
-A:10/8:20/4:70/4
+A:10/8:20/3:70/3
 P:0:1d1:0:0:0
 D:$It increases your charisma when you quaff it.
 D:それは飲むと魅力の最大値が上がる。
@@ -2564,7 +2564,7 @@ E:New Life:Dark Red
 G:!:r
 I:75:63:100
 W:50:0:4:25000
-A:30/8
+A:30/5
 P:0:1d1:0:0:0
 D:$It changes your life rating and max of all your stats and cures all 
 D:$mutations when you quaff it.
@@ -2609,7 +2609,7 @@ E:Constitution:Green
 G:!:g
 I:75:52:0
 W:20:0:4:30000
-A:20/8:30/4:80/4
+A:20/8:30/3:80/3
 P:0:1d1:0:0:0
 D:$It increases your constitution when you quaff it.
 D:それは飲むと耐久力の最大値が上がる。
@@ -2691,7 +2691,7 @@ E:Dexterity:Metallic Red
 G:!:r
 I:75:51:0
 W:20:0:4:30000
-A:20/8:30/4:80/4
+A:20/8:30/3:80/3
 P:0:1d1:0:0:0
 D:$It increases your dexterity when you quaff it.
 D:それは飲むと器用さの最大値が上がる。
@@ -6317,3 +6317,72 @@ G:":w
 I:40:28:0
 W:50:0:2:55555
 F:INSTA_ART
+
+N:663:[呪術入門]
+E:[Handbook of Hex]
+G:?:v
+I:107:0:0
+W:10:0:30:100
+A:10/1
+P:0:1d1:0:0:0
+
+N:664:[上級呪法]
+E:[High Curse]
+G:?:v
+I:107:1:0
+W:20:0:30:1000
+A:20/1
+P:0:1d1:0:0:0
+
+N:665:[怨恨呪縛]
+E:[Curse and Spelling]
+G:?:D
+I:107:2:0
+W:50:0:30:25000
+A:50/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:666:[禁呪法大全]
+E:[Forbidden Cursebook]
+G:?:D
+I:107:3:0
+W:90:0:30:100000
+A:90/3
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:667:ドラゴン・グローブ
+E:& Pair~ of Dragon Wings
+G:(:G
+I:35:7:0
+W:60:0:5:10000
+A:60/5
+P:4:0d0:0:0:10
+F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD
+F:LEVITATION
+
+N:668:指輪:ディリシウムの
+E:& Ring~:Dilithium
+G:=:W
+I:45:56:0
+W:50:0:2:65000
+F:INSTA_ART
+
+N:669:ドラゴン・グローブ
+E:& Wizard Cloak~
+G:(:v
+I:35:8:0
+W:60:0:5:10000
+A:60/80
+P:4:0d0:0:0:10
+F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD
+F:DEC_MANA | EASY_SPELL
+
+N:670:消費魔力減少:鋼鉄の
+E:Spell Power:Steel
+G:=:v
+I:45:57:0
+W:20:0:2:1000
+A:20/2
+F:SPELL_POWER | STR | DEX | CON

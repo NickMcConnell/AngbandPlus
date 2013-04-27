@@ -284,6 +284,13 @@ static void alloc_object(int set, int typ, int num)
 	int dummy = 0;
 	cave_type *c_ptr;
 
+	/* Mega Hack -- No object at first level of deeper dungeon */
+	if (p_ptr->enter_dungeon && dun_level > 1)
+	{
+		/* No stair scum! */
+		return;
+	}
+
 	/* A small level has few objects. */
 	num = num * cur_hgt * cur_wid / (MAX_HGT*MAX_WID) +1;
 
@@ -823,7 +830,7 @@ static bool cave_gen(void)
 		if (dun->destroyed) destroy_level();
 
 		/* Hack -- Add some rivers */
-		if (one_in_(3) && (randint1(dun_level) > 5))
+		if (one_in_(7) && (randint1(dun_level) > 5))
 		{
 			int feat1 = 0, feat2 = 0;
 

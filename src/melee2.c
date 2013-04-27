@@ -2149,20 +2149,38 @@ act = "%sにむかって歌った。";
 	/* Blink away */
 	if (blinked && m_ptr->r_idx)
 	{
-		if (see_m)
+		if (teleport_barrier(m_idx))
 		{
+			if (see_m)
+			{
 #ifdef JP
-			msg_print("泥棒は笑って逃げた！");
+				msg_print("泥棒は笑って逃げ...ようとしたがバリアに防がれた。");
 #else
-			msg_print("The thief flees laughing!");
+				msg_print("The thief flees laughing...? But magic barrier obstructs it.");
 #endif
+			}
+			else if (known)
+			{
+				mon_fight = TRUE;
+			}
 		}
-		else if (known)
+		else
 		{
-			mon_fight = TRUE;
-		}
+			if (see_m)
+			{
+#ifdef JP
+				msg_print("泥棒は笑って逃げた！");
+#else
+				msg_print("The thief flees laughing!");
+#endif
+			}
+			else if (known)
+			{
+				mon_fight = TRUE;
+			}
 
-		teleport_away(m_idx, MAX_SIGHT * 2 + 5, 0L);
+			teleport_away(m_idx, MAX_SIGHT * 2 + 5, 0L);
+		}
 	}
 
 	return TRUE;
@@ -2539,6 +2557,9 @@ static void process_monster(int m_idx)
 				if (cave[y][x].m_idx) k++;
 			}
 		}
+
+		/* Hex */
+		if (multiply_barrier(m_idx)) k = 8;
 
 		/* Hack -- multiply slower in crowded areas */
 		if ((k < 4) && (!k || !randint0(k * MON_MULT_ADJ)))
@@ -4550,10 +4571,21 @@ bool process_the_world(int num, int who, bool vs_player)
 
 void monster_gain_exp(int m_idx, int s_idx)
 {
-	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-	monster_race *s_ptr = &r_info[s_idx];
+	monster_type *m_ptr;
+	monster_race *r_ptr;
+	monster_race *s_ptr;
 	int new_exp;
+
+	/* Paranoia */
+	if (m_idx <= 0 || s_idx <= 0) return;
+
+	m_ptr = &m_list[m_idx];
+
+	/* Paranoia -- Skip dead monsters */
+	if (!m_ptr->r_idx) return;
+
+	r_ptr = &r_info[m_ptr->r_idx];
+	s_ptr = &r_info[s_idx];
 
 	if (p_ptr->inside_battle) return;
 

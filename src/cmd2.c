@@ -2834,6 +2834,9 @@ void do_cmd_rest(void)
 		stop_singing();
 	}
 
+	/* Hex */
+	if (hex_spelling_any()) stop_hex_spell_all();
+
 	/* Prompt for time if needed */
 	if (command_arg <= 0)
 	{
@@ -3368,7 +3371,7 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 {
 	int dir;
 	int i, j, y, x, ny, nx, ty, tx, prev_y, prev_x;
-	int tdam, tdis, thits, tmul;
+	int tdam_base, tdis, thits, tmul;
 	int bonus, chance;
 	int cur_dis, visible;
 
@@ -3380,6 +3383,8 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 	bool hit_body = FALSE;
 
 	char o_name[MAX_NLEN];
+
+	u16b path_g[512];	/* For calcuration of path length */
 
 	int msec = delay_factor * delay_factor * delay_factor;
 
@@ -3409,7 +3414,7 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 	tdis = 10;
 
 	/* Base damage from thrown object plus launcher bonus */
-	tdam = damroll(o_ptr->dd, o_ptr->ds) + o_ptr->to_d + j_ptr->to_d;
+	tdam_base = damroll(o_ptr->dd, o_ptr->ds) + o_ptr->to_d + j_ptr->to_d;
 
 	/* Actually "fire" the object */
 	bonus = (p_ptr->to_h_b + o_ptr->to_h + j_ptr->to_h);
@@ -3427,11 +3432,8 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 	tmul = tmul * (100 + (int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
 
 	/* Boost the damage */
-	tdam *= tmul;
-	tdam /= 100;
-
-	/* Get extra damage from concentration */
-	if (p_ptr->concent) tdam = boost_concentration_damage(tdam);
+	tdam_base *= tmul;
+	tdam_base /= 100;
 
 	/* Base range */
 	tdis = 13 + tmul/80;
@@ -3467,6 +3469,9 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 		tx = target_col;
 		ty = target_row;
 	}
+
+	/* Get projection path length */
+	tdis = project_path(path_g, project_length, py, px, ty, tx, PROJECT_PATH|PROJECT_THRU) - 1;
 
 	project_length = 0; /* reset to default */
 
@@ -3614,20 +3619,8 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 		/* Sniper */
 		if (snipe_type == SP_KILL_TRAP)
 		{
-			if (is_trap(cave[ny][nx].feat))
-			{
-				if (player_can_see_bold(ny, nx))
-				{
-#ifdef JP
-					msg_print("まばゆい閃光が走った！");
-#else
-					msg_print("There is a bright flash of light!");
-#endif
-					cave[ny][nx].info &= ~(CAVE_UNSAFE);
-				}
-
-				cave_alter_feat(ny, nx, FF_DISARM);
-			}
+			project(0, 0, ny, nx, 0, GF_KILL_TRAP,
+				(PROJECT_JUMP | PROJECT_HIDE | PROJECT_GRID | PROJECT_ITEM), -1);
 		}
 
 		/* Sniper */
@@ -3710,6 +3703,10 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 			if (test_hit_fire(chance - cur_dis, armour, m_ptr->ml))
 			{
 				bool fear = FALSE;
+				int tdam = tdam_base;
+
+				/* Get extra damage from concentration */
+				if (p_ptr->concent) tdam = boost_concentration_damage(tdam);
 
 				/* Handle unseen monster */
 				if (!visible)

@@ -716,7 +716,7 @@ I:33:10:-25
 W:40:12:20:0
 P:0:1d1:0:0:25
 F:STR | DEX | CON | HIDE_TYPE | DEC_MANA | EASY_SPELL |
-F:FREE_ACT | SEE_INVIS | TELEPATHY | CURSED | XTRA_POWER
+F:FREE_ACT | SEE_INVIS | TELEPATHY | CURSED | XTRA_POWER | SPELL_POWER
 D:$The midnight-hued steel circlet of the sorceress-queen Beruthiel, which 
 D:$grants extraordinary powers of sight and awareness at a terrible physical 
 D:$cost.
@@ -1518,7 +1518,7 @@ D:$An utterly perfect, cleanly chiseled sword, with a edge that effortlessly
 D:$ slices rock and bone and spells to render the wearer lithe and nimble. It
 D:$ is combat incarnate.
 D:シンダール語で「誉の鋼」を意味する美しい完全無欠の刀だ。
-D:の刃は岩や骨を苦もなく切り裂き、
+D:その刃は岩や骨を苦もなく切り裂き、
 D:手にする者にしなやかで敏捷な動作を授ける魔法が込められている。
 D:それはまさに戦いの化身だ。
 
@@ -3150,7 +3150,7 @@ F:SLAY_ORC | SLAY_TROLL | RES_FIRE
 D:$A blade of Elendil that was broken by his fall as the battled Sauron upon
 D:$ the steps of Barad-Dur.
 D:「金はすべて光るとは限らぬ、
-D:放浪する者すべてが、まよう者ではない
+D:放浪する者すべてが、まよう者ではない。
 D:年ふるも、強きは枯れぬ、
 D:深き根に、霜は届かぬ。
 D:灰の中から火はよみがえり、
@@ -3238,8 +3238,8 @@ P:40:2d4:-3:0:30
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC |
 F:RES_DARK | RES_CONF | RES_POIS |
 F:FREE_ACT | SEE_INVIS | ACTIVATE
-D:玄武，白虎，朱雀とともに四獣と呼ばれる青龍の鱗鎧を
-D:身に纏えば，神の如き守護の力が得られる。
+D:玄武、白虎、朱雀とともに四獣と呼ばれる青龍の鱗鎧を
+D:身に纏えば、神の如き守護の力が得られる。
 
 N:202:『天の沼矛』
 E:'Ama-no-NumaHoko'
@@ -3317,7 +3317,7 @@ F:STR | SLAY_EVIL | SLAY_DEMON | BRAND_ELEC |
 F:RES_ELEC | RES_FIRE | RES_NETHER |
 F:LITE | SEE_INVIS | SHOW_MODS | ACTIVATE
 D:天地魔界のバランスを保つ使命を持つ竜の騎士に代々伝わる
-D:オリハルコンの剣で，竜騎将バランが所有している。
+D:オリハルコンの剣で、竜騎将バランが所有している。
 
 N:208:『イージス・ファング』
 E:'Aegis Fang'
@@ -3640,3 +3640,78 @@ D:$This is farmer Maggot's sickle. He left it behind on his
 D:$farm.
 D:これは農夫マゴットの農作業用の鎌だ。どうやら農場に置き忘れ
 D:てしまったようだ。
+
+N:233:『天女の羽衣』
+E:of the Heavenly Maiden
+I:35:5:4
+W:50:3:0:45000
+P:0:0d0:0:0:20
+F:CHR | LEVITATION | SEE_INVIS | FREE_ACT | ACTIVATE |
+F:RES_COLD | RES_ELEC | XTRA_H_RES | XTRA_POWER
+D:$This is a heavenly cloak of the maiden which was stolen 
+D:$by a man, when she was having a bath at a lake with her 
+D:$friend maidens.
+D:豫章新喩縣男子，見田中有六七女，皆衣毛衣，不知是鳥。
+D:匍匐往得其一女所解毛衣，取藏之，即往就諸鳥。
+D:諸鳥各飛去，一鳥獨不得去。男子取以為婦。生三女。
+D:其母后使女問父，知衣在積稻下，得之，衣而飛去，後復以迎三女，
+D:女亦得飛去。(捜神記)
+
+N:234:源義経の
+E:of Yositsune
+I:32:8:2
+W:50:20:60:96000
+P:7:1d2:0:0:8
+F:DEX | CON | CHR | SEARCH | INFRA | HIDE_TYPE |
+F:RES_FEAR | RES_BLIND | RES_SOUND |
+F:WARNING | ESP_HUMAN |
+D:$This is Yositsune's kabuto. It defended his head against 
+D:$many arrows and blades from his ememies.
+D:源氏の勇者源義経の飾りのついた星兜だ。義経はこれをかぶり、
+D:平氏からの刃や矢の攻撃を防いだ。
+
+N:235:源義経の
+E:of Yositsune
+I:37:14:2
+W:50:20:200:192000
+P:17:1d4:0:0:28
+F:DEX | SPEED | STEALTH | HIDE_TYPE |
+F:FREE_ACT | REGEN | SLOW_DIGEST |
+F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_CONF |
+F:RES_CHAOS | RES_NEXUS |
+D:$This is the haramakido of Yositsune who is the best brave 
+D:$warrior of Genji. You can feel his agility and dexterity, 
+D:$when you put it on.
+D:源義経の赤糸威胴丸鎧だ。義経はこれを着て舟から舟へと飛び移
+D:った。身につけると彼の身軽さと器用さを感じることができる。
+
+N:236:畠山重忠の赤糸威
+E:of the Bando Musha
+I:37:16:2
+W:45:15:320:90000
+P:24:1d4:5:5:20
+F:STR | CON | CHR | HIDE_TYPE | SHOW_MODS |
+F:RES_ACID | RES_COLD | RES_ELEC | RES_BLIND | RES_DISEN |
+F:RES_FEAR | XTRA_H_RES
+D:$This is Shigetada Hatakeyama's O-yoroi. He is brave, wise 
+D:$and honest warrior, so he was called the best model of 
+D:$eastern samurai. This O-yoroi is majestical like him.
+D:知勇兼備の武者畠山重忠の赤糸威大鎧だ。清廉潔白をもって知ら
+D:れた重忠は「坂東武士の鑑」と称された。この大鎧は、あたかも
+D:彼がここにいるかのように威風堂々としている。
+
+N:237:『コルイン』
+E:'Bruce Lee'
+I:35:1:3
+W:5:85:10:80000
+P:1:0d0:5:5:15
+F:STR | CON | DEX | HIDE_TYPE | SHOW_MODS | REGEN |
+F:RES_SOUND | RES_DISEN | XTRA_H_RES
+D:$A cape worn by a hero from Hong Kong
+D:精霊達が争う渦中の地ヴァリノールの英雄が身に付けていたマントだ。
+
+N:238:《ネンヤ》という
+E:of Frodo
+I:45:56:4
+W:40:100:2:50000
+F:SPEED | HIDE_TYPE | FREE_ACT | SEE_INVIS | STEALTH | INSTA_ART

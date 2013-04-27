@@ -277,11 +277,12 @@ F:a:BUILDING_0:3:0:0:0:0:NONE:33
 F:a:BUILDING_0:3:0:0:0:0:NONE:33
 
 # Quest 33 rewarding
-# reward is The Pair of Soft Leather Boots of Shiva's Avatar
+# reward is The Pair of Soft Leather Boots of Shiva's Avatar (Nope ... Ring of Speed +4)
 # no new quest is available
 ?:[EQU $QUEST33 3]
 F:a:BUILDING_0:3:0:0:0:0:NONE:27
-F:@:FLOOR:3:0:0:0:63
+#F:@:FLOOR:3:0:0:0:63
+F:@:FLOOR:3:0:0:0:238
 
 # Quest 33 finished, continue with quest 27
 ?:[EQU $QUEST33 4]
@@ -355,10 +356,11 @@ F:@:FLOOR:3:0:0:0:77
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:134
 
-# Quest 27 rewarding (Monk gets The Leather Jacket of Shiva's Avatar)
+# Quest 27 rewarding (Monk gets The Leather Jacket of Shiva's Avatar ... Not!  Palantir for you!)
 ?:[AND [EQU $QUEST27 3] [EQU $CLASS Monk] ]
 F:a:BUILDING_0:3
-F:@:FLOOR:3:0:0:0:26
+#F:@:FLOOR:3:0:0:0:26
+F:@:FLOOR:3:0:0:0:15
 
 # Quest 27 rewarding (Ninja gets The Amulet of the Pitch Dark Night)
 ?:[AND [EQU $QUEST27 3] [EQU $CLASS Ninja] ]

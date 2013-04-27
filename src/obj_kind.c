@@ -139,6 +139,7 @@ bool object_is_rare(object_type *o_ptr)
 	case TV_CLOAK:
 		if (o_ptr->sval == SV_ELVEN_CLOAK ||
 		    o_ptr->sval == SV_ETHEREAL_CLOAK ||
+		    o_ptr->sval == SV_DRAGON_CLOAK ||
 		    o_ptr->sval == SV_SHADOW_CLOAK) return TRUE;
 		break;
 

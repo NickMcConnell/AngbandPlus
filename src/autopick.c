@@ -210,7 +210,7 @@ static bool autopick_new_entry(autopick_type *entry, cptr str, bool allow_defaul
 	cptr prev_ptr, ptr, old_ptr;
 	int prev_flg;
 
-	if (str[1] == ':') switch (str[0])
+	if (str[0] && str[1] == ':') switch (str[0])
 	{
 	case '?': case '%':
 	case 'A': case 'P': case 'C':
@@ -219,6 +219,7 @@ static bool autopick_new_entry(autopick_type *entry, cptr str, bool allow_defaul
 
 	entry->flag[0] = entry->flag[1] = 0L;
 	entry->dice = 0;
+	entry->bonus = 0;
 
 	act = DO_AUTOPICK | DO_DISPLAY;
 	while (TRUE)
@@ -688,6 +689,8 @@ static void autopick_free_entry(autopick_type *entry)
 {
 	string_free(entry->name);
 	string_free(entry->insc);
+	entry->name = NULL;
+	entry->insc = NULL;
 }
 
 
@@ -870,7 +873,11 @@ errr process_autopick_file_command(char *buf)
 		   && entry->flag[0] == autopick_list[i].flag[0]
 		   && entry->flag[1] == autopick_list[i].flag[1]
 		   && entry->dice == autopick_list[i].dice
-		   && entry->bonus == autopick_list[i].bonus) return 0;
+		   && entry->bonus == autopick_list[i].bonus)
+		{
+			autopick_free_entry(entry);
+			return 0;
+		}
 
 	add_autopick_list(entry);
 	return 0;
@@ -3707,6 +3714,8 @@ static void search_for_object(text_body_type *tb, object_type *o_ptr, bool forwa
 
 	while (TRUE)
 	{
+		bool match;
+
 		/* End of list? */
 		if (forward)
 		{
@@ -3721,8 +3730,9 @@ static void search_for_object(text_body_type *tb, object_type *o_ptr, bool forwa
 		if (!autopick_new_entry(entry, tb->lines_list[i], FALSE)) continue;
 
 		/* Does this line match to the object? */
-		if (!is_autopick_aux(o_ptr, entry, o_name)) continue;
-
+		match = is_autopick_aux(o_ptr, entry, o_name);
+		autopick_free_entry(entry);
+		if (!match)	continue;
 
 		/* Found a line but it's inactive */
 		if (tb->states[i] & LSTAT_BYPASS)
@@ -4619,12 +4629,12 @@ static void draw_text_editor(text_body_type *tb)
 			/* Parse the expr */
 			v = process_pref_file_expr(&ss, &f);
 
-			/* Cannot use string_free() because the string was "destroyed" */
-			C_FREE(s_keep, s_len + 1, char);
-
 			/* Set flag */
 			if (streq(v, "0")) state |= LSTAT_BYPASS;
 			else state &= ~LSTAT_BYPASS;
+
+			/* Cannot use string_free() because the string was "destroyed" */
+			C_FREE(s_keep, s_len + 1, char);
 
 			/* Re-update this line's state */
 			tb->states[y] = state | LSTAT_EXPRESSION;
@@ -4783,7 +4793,7 @@ static void draw_text_editor(text_body_type *tb)
 			str1 = "This line is a comment.";
 #endif
 		}
-		else if (tb->lines_list[tb->cy][1] == ':')
+		else if (tb->lines_list[tb->cy][0] && tb->lines_list[tb->cy][1] == ':')
 		{
 			switch(tb->lines_list[tb->cy][0])
 			{
@@ -6320,6 +6330,7 @@ void do_cmd_edit_autopick(void)
 
 	free_text_lines(tb->lines_list);
 
+	string_free(tb->search_str);
 	string_free(tb->last_destroyed);
 
 	/* Destroy string chain */

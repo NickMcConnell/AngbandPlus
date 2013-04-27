@@ -133,6 +133,18 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:5
 ?:[EQU $QUEST5 2]
 F:b:BUILDING_1:3:0:0:0:0:NONE:5
 
+?:[EQU $QUEST5 5]
+F:b:BUILDING_1:3:0:0:0:0:NONE:5
+
+?:[EQU $QUEST5 6]
+F:b:BUILDING_1:3:0:0:0:0:NONE:26
+
+?:[AND [EQU $QUEST5 6] [AND [EQU $CLASS Paladin] [EQU $REALM1 Death] ] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:16
+
+?:[AND [EQU $QUEST5 6] [AND [EQU $CLASS Paladin] [EQU $REALM1 Death] ] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:16
+
 # Quest 5 rewarding, continue with quest 26,
 # reward is cheaper *Identify* at the Library (see buildings)
 ?:[EQU $QUEST5 3]
@@ -336,8 +348,8 @@ B:$7:A:0:Enchant weapon:400:800:w:23:0
 B:7:A:0:武器を強化する:400:800:w:23:0
 B:$7:A:1:Enchant armor:300:600:a:24:0
 B:7:A:1:防具を強化する:300:600:a:24:0
-B:$7:C:2:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:2:0:0:2:2:2:0:0:0
-B:7:C:2:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:2:0:0:2:2:2:0:0:0
+B:$7:C:2:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:2:0:0:2:2:2:0:0:0
+B:7:C:2:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:2:0:0:2:2:2:0:0:0
 
 B:$9:N:Temple of Life:Crysania:Human
 B:9:N:生命魔術の塔:クリサニア:人間

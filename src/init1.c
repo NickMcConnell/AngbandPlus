@@ -772,6 +772,7 @@ static cptr k_info_flags[] =
 	"ESP_UNIQUE",
 	"FULL_NAME",
 	"FIXED_FLAVOR",
+	"SPELL_POWER",
 };
 
 

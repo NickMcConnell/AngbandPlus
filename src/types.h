@@ -1280,6 +1280,7 @@ struct player_type
 	bool pass_wall;     /* Permanent wraithform */
 	bool kill_wall;
 	bool dec_mana;
+	s16b spell_power;
 	bool easy_spell;
 	bool heavy_spell;
 	bool warning;

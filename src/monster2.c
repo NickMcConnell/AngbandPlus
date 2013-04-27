@@ -2392,7 +2392,7 @@ void update_mon(int m_idx, bool full)
 
 			/* Basic telepathy */
 			/* Snipers get telepathy when they concentrate deeper */
-			else if ((p_ptr->telepathy) || (p_ptr->concent >= CONCENT_TELE_THRESHOLD))
+			else if (p_ptr->telepathy)
 			{
 				/* Empty mind, no telepathy */
 				if (r_ptr->flags2 & (RF2_EMPTY_MIND))
@@ -3887,6 +3887,13 @@ bool alloc_monster(int dis, u32b mode)
 {
 	int			y = 0, x = 0;
 	int         attempts_left = 10000;
+
+	/* Mega Hack -- No monster at first level of deeper dungeon */
+	if (p_ptr->enter_dungeon && dun_level > 1)
+	{
+		/* No stair scum! */
+		return TRUE;
+	}
 
 	/* Put the Guardian */
 	if (alloc_guardian(FALSE)) return TRUE;

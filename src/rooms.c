@@ -6388,6 +6388,16 @@ bool generate_rooms(void)
 		prob_list[ROOM_T_GLASS] = 0;
 	}
 
+	/* Mega Hack -- No interesting rooms at first level of deeper dungeon */
+	if (p_ptr->enter_dungeon && dun_level > 1)
+	{
+		/* No stair scum! */
+		for (i = 0; i < ROOM_T_MAX; i++)
+		{
+			if (i == ROOM_T_NORMAL) prob_list[i] = 1;
+			else prob_list[i] = 0;
+		}
+	}
 
 	/*
 	 * Initialize number of rooms,

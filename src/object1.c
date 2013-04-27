@@ -1182,6 +1182,7 @@ return "ドア/トラップ粉砕 : 10 ターン毎";
 		}
 		case ART_AVAVIR:
 		case ART_MAGATAMA:
+		case ART_HEAVENLY_MAIDEN:
 		{
 #ifdef JP
 return "帰還の詔 : 200 ターン毎";
@@ -2362,6 +2363,7 @@ bool screen_object(object_type *o_ptr, u32b mode)
 
 	u32b flgs[TR_FLAG_SIZE];
 
+	char temp[70 * 20];
 	cptr            info[128];
 	char o_name[MAX_NLEN];
 	int wid, hgt;
@@ -2373,8 +2375,6 @@ bool screen_object(object_type *o_ptr, u32b mode)
 
 	/* Extract the description */
 	{
-		char temp[70 * 20];
-
 		roff_to_buf(o_ptr->name1 ? (a_text + a_info[o_ptr->name1].text) :
 			    (k_text + k_info[o_ptr->k_idx].text),
 			    77 - 15, temp, sizeof(temp));
@@ -3053,6 +3053,10 @@ info[i++] = "それは魔力の消費を押さえる。";
 		info[i++] = "It decreases your mana consumption.";
 #endif
 
+	}
+	if (have_flag(flgs, TR_SPELL_POWER))
+	{
+		info[i++] = "It increases your spell power.";
 	}
 	if (have_flag(flgs, TR_SUST_STR))
 	{
@@ -4424,7 +4428,7 @@ void display_inven(void)
 		Term_erase(3+n, i, 255);
 
 		/* Display the weight if needed */
-		if (show_weights && o_ptr->weight)
+		if (show_weights)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
 #ifdef JP
@@ -4516,7 +4520,7 @@ void display_equip(void)
 		Term_erase(3+n, i - INVEN_RARM, 255);
 
 		/* Display the weight (if needed) */
-		if (show_weights && o_ptr->weight)
+		if (show_weights)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
 #ifdef JP

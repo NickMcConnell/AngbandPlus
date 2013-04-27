@@ -60,6 +60,7 @@ static void do_cmd_eat_food_aux(int item)
 	object_type *o_ptr;
 
 	if (music_singing_any()) stop_singing();
+	if (hex_spelling_any()) stop_hex_spell_all();
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -519,6 +520,9 @@ msg_print("あなたの飢えは新鮮な血によってのみ満たされる！");
 			floor_item_charges(0 - item);
 		}
 
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
 		/* Don't eat a staff/wand itself */
 		return;
 	}
@@ -729,6 +733,10 @@ static void do_cmd_quaff_potion_aux(int item)
 	}
 
 	if (music_singing_any()) stop_singing();
+	if (hex_spelling_any())
+	{
+		if (!hex_spelling(HEX_INHAIL)) stop_hex_spell_all();
+	}
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -1432,7 +1440,7 @@ msg_print("液体の一部はあなたのアゴを素通りして落ちた！");
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
-	if (!(object_is_aware(o_ptr)))
+	if (!(object_is_aware(q_ptr)))
 	{
 		chg_virtue(V_PATIENCE, -1);
 		chg_virtue(V_CHANCE, 1);
@@ -1459,7 +1467,7 @@ msg_print("液体の一部はあなたのアゴを素通りして落ちた！");
 		switch (p_ptr->prace)
 		{
 			case RACE_VAMPIRE:
-				(void)set_food(p_ptr->food + (o_ptr->pval / 10));
+				(void)set_food(p_ptr->food + (q_ptr->pval / 10));
 				break;
 			case RACE_SKELETON:
 				/* Do nothing */
@@ -1468,7 +1476,7 @@ msg_print("液体の一部はあなたのアゴを素通りして落ちた！");
 			case RACE_ZOMBIE:
 			case RACE_DEMON:
 			case RACE_SPECTRE:
-				set_food(p_ptr->food + ((o_ptr->pval) / 20));
+				set_food(p_ptr->food + ((q_ptr->pval) / 20));
 				break;
 			case RACE_ANDROID:
 				if (q_ptr->tval == TV_FLASK)
@@ -1482,7 +1490,7 @@ msg_print("液体の一部はあなたのアゴを素通りして落ちた！");
 				}
 				else
 				{
-					set_food(p_ptr->food + ((o_ptr->pval) / 20));
+					set_food(p_ptr->food + ((q_ptr->pval) / 20));
 				}
 				break;
 			case RACE_ENT:
@@ -1491,22 +1499,22 @@ msg_print("液体の一部はあなたのアゴを素通りして落ちた！");
 #else
 				msg_print("You are moistened.");
 #endif
-				set_food(MIN(p_ptr->food + o_ptr->pval + MAX(0, o_ptr->pval * 10) + 2000, PY_FOOD_MAX - 1));
+				set_food(MIN(p_ptr->food + q_ptr->pval + MAX(0, q_ptr->pval * 10) + 2000, PY_FOOD_MAX - 1));
 				break;
 			default:
-				(void)set_food(p_ptr->food + o_ptr->pval);
+				(void)set_food(p_ptr->food + q_ptr->pval);
 				break;
 		}
 		break;
 	case MIMIC_DEMON:
 	case MIMIC_DEMON_LORD:
-		set_food(p_ptr->food + ((o_ptr->pval) / 20));
+		set_food(p_ptr->food + ((q_ptr->pval) / 20));
 		break;
 	case MIMIC_VAMPIRE:
-		(void)set_food(p_ptr->food + (o_ptr->pval / 10));
+		(void)set_food(p_ptr->food + (q_ptr->pval / 10));
 		break;
 	default:
-		(void)set_food(p_ptr->food + o_ptr->pval);
+		(void)set_food(p_ptr->food + q_ptr->pval);
 		break;
 	}
 }
@@ -1615,6 +1623,9 @@ static void do_cmd_read_scroll_aux(int item, bool known)
 	}
 
 	if (music_singing_any()) stop_singing();
+
+	/* Hex */
+	if (hex_spelling_any() && ((p_ptr->lev < 35) || hex_spell_fully())) stop_hex_spell_all();
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -4619,6 +4630,18 @@ msg_print("天国の歌が聞こえる...");
 				break;
 			}
 
+			case ART_HEAVENLY_MAIDEN:
+			{
+#ifdef JP
+				msg_print("クロークが柔らかく白く輝いた...");
+#else
+				msg_print("Your cloak glows soft white...");
+#endif
+				if (!word_of_recall()) return;
+				o_ptr->timeout = 200;
+				break;
+			}
+
 			case ART_CAMMITHRIM:
 			{
 #ifdef JP
@@ -5288,6 +5311,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 			case ART_BOROMIR:
 			{
 				if (music_singing_any()) stop_singing();
+				if (hex_spelling_any()) stop_hex_spell_all();
 #ifdef JP
 				msg_print("あなたは力強い突風を吹き鳴らした。周囲の敵が震え上っている!");
 #else
@@ -5930,6 +5954,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 		if (!get_aim_dir(&dir)) return;
 
 		if (music_singing_any()) stop_singing();
+		if (hex_spelling_any()) stop_hex_spell_all();
 
 		/* Branch on the sub-type */
 		switch (o_ptr->sval)
@@ -6376,6 +6401,7 @@ msg_print("あなたはエレメントのブレスを吐いた。");
 	else if (o_ptr->tval == TV_WHISTLE)
 	{
 		if (music_singing_any()) stop_singing();
+		if (hex_spelling_any()) stop_hex_spell_all();
 
 #if 0
 		if (object_is_cursed(o_ptr))

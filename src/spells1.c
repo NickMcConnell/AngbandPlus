@@ -2974,10 +2974,12 @@ note_dies = "は蒸発した！";
 			{
 				int b = damroll(5, dam) / 4;
 #ifdef JP
-				msg_format("あなたは%sの苦痛を超能力パワーに変換した！", m_name);
+				cptr str = (p_ptr->pclass == CLASS_MINDCRAFTER) ? "超能力パワー" : "魔力";
+				msg_format("あなたは%sの苦痛を%sに変換した！", m_name, str);
 #else
-				msg_format("You convert %s%s pain into psychic energy!",
-				    m_name, (seen ? "'s" : "s"));
+				cptr str = (p_ptr->pclass == CLASS_MINDCRAFTER) ? "psychic energy" : "mana";
+				msg_format("You convert %s%s pain into %s!",
+				    m_name, (seen ? "'s" : "s"), str);
 #endif
 
 				b = MIN(p_ptr->msp, p_ptr->csp + b);
@@ -3379,7 +3381,7 @@ note = "には効果がなかった。";
 		{
 			if (seen) obvious = TRUE;
 
-			if (is_pet(m_ptr) || (r_ptr->flags1 & (RF1_UNIQUE | RF1_QUESTOR)) || (r_ptr->flags7 & (RF7_NAZGUL | RF7_UNIQUE2)))
+			if ((p_ptr->inside_arena) || is_pet(m_ptr) || (r_ptr->flags1 & (RF1_UNIQUE | RF1_QUESTOR)) || (r_ptr->flags7 & (RF7_NAZGUL | RF7_UNIQUE2)))
 			{
 #ifdef JP
 note = "には効果がなかった。";
@@ -6024,7 +6026,7 @@ note = "には効果がなかった。";
 				}
 			}
 
-			monster_gain_exp(who, m_ptr->r_idx);
+			if (who > 0) monster_gain_exp(who, m_ptr->r_idx);
 
 			/* Generate treasure, etc */
 			monster_death(c_ptr->m_idx, FALSE);
@@ -7346,7 +7348,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			if (fuzzy) msg_print("You are hit by something sharp and cold!");
 #endif
 
-			cold_dam(dam, killer, monspell);
+			get_damage = cold_dam(dam, killer, monspell);
 			if (!CHECK_MULTISHADOW())
 			{
 				if (!p_ptr->resist_shard)
@@ -7714,7 +7716,11 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 		}
 	}
 
-	if (p_ptr->tim_eyeeye && (get_damage > 0) && !p_ptr->is_dead && (who > 0))
+	/* Hex - revenge damage stored */
+	revenge_store(get_damage);
+
+	if ((p_ptr->tim_eyeeye || hex_spelling(HEX_EYE_FOR_EYE))
+		&& (get_damage > 0) && !p_ptr->is_dead && (who > 0))
 	{
 #ifdef JP
 		msg_format("攻撃が%s自身を傷つけた！", m_name);
@@ -7727,7 +7733,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 		msg_format("The attack of %s has wounded %s!", m_name, m_name_self);
 #endif
 		project(0, 0, m_ptr->fy, m_ptr->fx, get_damage, GF_MISSILE, PROJECT_KILL, -1);
-		set_tim_eyeeye(p_ptr->tim_eyeeye-5, TRUE);
+		if (p_ptr->tim_eyeeye) set_tim_eyeeye(p_ptr->tim_eyeeye-5, TRUE);
 	}
 
 	if (p_ptr->riding && dam > 0)

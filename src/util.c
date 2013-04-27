@@ -504,8 +504,8 @@ errr my_fgets(FILE *fff, char *buf, huge n)
 				if (i >= n) break;
 			}
 #endif
-			/* Handle printables */
-			else if (isprint(*s))
+			/* Handle printables HACK: msvcr100d will assert the character belongs to the ASCII code set*/
+			else if ((unsigned)(*s + 1) <= 256 && isprint(*s))
 			{
 				/* Copy */
 				buf[i++] = *s;
@@ -3626,7 +3626,10 @@ bool get_com(cptr prompt, char *command, bool z_escape)
 	prt(prompt, 0, 0);
 
 	/* Get a key */
-	*command = inkey_special(FALSE);
+	if (get_com_no_macros)
+		*command = inkey_special(FALSE);
+	else
+		*command = inkey();
 
 	/* Clear the prompt */
 	prt("", 0, 0);
@@ -5218,26 +5221,29 @@ size_t my_strcpy(char *buf, const char *src, size_t bufsize)
 	const char *s = src;
 	size_t len = 0;
 
-	/* reserve for NUL termination */
-	bufsize--;
+	if (bufsize > 0) {
+		/* reserve for NUL termination */
+		bufsize--;
 
-	/* Copy as many bytes as will fit */
-	while (len < bufsize)
-	{
-		if (iskanji(*s))
+		/* Copy as many bytes as will fit */
+		while (*s && (len < bufsize))
 		{
-			if (len + 1 >= bufsize || !*(s+1)) break;
-			*d++ = *s++;
-			*d++ = *s++;
-			len += 2;
+			if (iskanji(*s))
+			{
+				if (len + 1 >= bufsize || !*(s+1)) break;
+				*d++ = *s++;
+				*d++ = *s++;
+				len += 2;
+			}
+			else
+			{
+				*d++ = *s++;
+				len++;
+			}
 		}
-		else
-		{
-			*d++ = *s++;
-			len++;
-		}
+		*d = '\0';
 	}
-	*d = '\0';
+
 	while(*s++) len++;
 
 	return len;
