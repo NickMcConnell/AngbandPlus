@@ -125,18 +125,16 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 
-SUBDIRS = lua
-
-bin_PROGRAMS = zangband
+bin_PROGRAMS = xband
 
 WRES = windres
 
 SUFFIXES = .rc
 
-zangband_LDADD = lua/liblua.a @ANGBAND_OBJS@
-zangband_DEPENDENCIES = lua/liblua.a @ANGBAND_OBJS@
+xband_LDADD = @ANGBAND_OBJS@
+xband_DEPENDENCIES = @ANGBAND_OBJS@
 
-zangband_SOURCES = \
+xband_SOURCES = \
   z-util.c z-virt.c z-form.c z-rand.c z-term.c \
   variable.c tables.c util.c cave.c \
   object1.c object2.c monster1.c monster2.c \
@@ -149,7 +147,7 @@ zangband_SOURCES = \
   effects.c quest.c racial.c \
   artifact.c mutation.c flavor.c spells3.c \
   mspells1.c mspells2.c scores.c mind.c \
-  bldg.c obj_kind.c wild1.c wild2.c avatar.c notes.c\
+  bldg.c obj_kind.c wild1.c wild2.c notes.c\
   angband.h autoconf.h defines.h externs.h \
   generate.h grid.h h-basic.h h-config.h h-define.h \
   h-system.h h-type.h maid-x11.h readdib.h rooms.h \
@@ -159,16 +157,12 @@ zangband_SOURCES = \
   main-win.c main-xpj.c main-vcs.c \
   script.c script.h maid-grf.c maid-grf.h \
   l-monst.c l-object.c l-player.c l-random.c l-ui.c \
-  l-misc.c l-spell.c \
-  zborg1.c zborg2.c zborg3.c zborg4.c zborg5.c \
-  zborg6.c zborg7.c zborg8.c zborg9.c \
-  zborg1.h zborg2.h zborg3.h zborg4.h zborg5.h \
-  zborg6.h zborg7.h zborg8.h zborg9.h
+  l-misc.c l-spell.c
 
 
-EXTRA_zangband_SOURCES := \
+EXTRA_xband_SOURCES := \
   main-acn.c main-ami.c main-dos.c main-emx.c main-ibm.c main-lsl.c \
-  main-mac.c main-mac-carbon.c main-sla.c main-tnb.c main-vme.c \
+  main-mac.c main-mac-carbon.c main-sla.c main-vme.c \
   main-xxx.c \
   makefile.bcc makefile.std makefile.wat makefile.win \
   angband.rc angband.ico readdib.c readdib.h \
@@ -180,10 +174,10 @@ subdir = src
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = autoconf.h
 CONFIG_CLEAN_FILES =
-bin_PROGRAMS = zangband$(EXEEXT)
+bin_PROGRAMS = xband$(EXEEXT)
 PROGRAMS = $(bin_PROGRAMS)
 
-am_zangband_OBJECTS = z-util.$(OBJEXT) z-virt.$(OBJEXT) z-form.$(OBJEXT) \
+am_xband_OBJECTS = z-util.$(OBJEXT) z-virt.$(OBJEXT) z-form.$(OBJEXT) \
 	z-rand.$(OBJEXT) z-term.$(OBJEXT) variable.$(OBJEXT) \
 	tables.$(OBJEXT) util.$(OBJEXT) cave.$(OBJEXT) \
 	object1.$(OBJEXT) object2.$(OBJEXT) monster1.$(OBJEXT) \
@@ -200,23 +194,20 @@ am_zangband_OBJECTS = z-util.$(OBJEXT) z-virt.$(OBJEXT) z-form.$(OBJEXT) \
 	mutation.$(OBJEXT) flavor.$(OBJEXT) spells3.$(OBJEXT) \
 	mspells1.$(OBJEXT) mspells2.$(OBJEXT) scores.$(OBJEXT) \
 	mind.$(OBJEXT) bldg.$(OBJEXT) obj_kind.$(OBJEXT) \
-	wild1.$(OBJEXT) wild2.$(OBJEXT) avatar.$(OBJEXT) \
+	wild1.$(OBJEXT) wild2.$(OBJEXT) \
 	notes.$(OBJEXT) main-cap.$(OBJEXT) main-gcu.$(OBJEXT) \
 	main-x11.$(OBJEXT) main-xaw.$(OBJEXT) main.$(OBJEXT) \
 	main-win.$(OBJEXT) main-xpj.$(OBJEXT) main-vcs.$(OBJEXT) \
 	script.$(OBJEXT) maid-grf.$(OBJEXT) l-monst.$(OBJEXT) \
 	l-object.$(OBJEXT) l-player.$(OBJEXT) l-random.$(OBJEXT) \
-	l-ui.$(OBJEXT) l-misc.$(OBJEXT) l-spell.$(OBJEXT) \
-	zborg1.$(OBJEXT) zborg2.$(OBJEXT) zborg3.$(OBJEXT) \
-	zborg4.$(OBJEXT) zborg5.$(OBJEXT) zborg6.$(OBJEXT) \
-	zborg7.$(OBJEXT) zborg8.$(OBJEXT) zborg9.$(OBJEXT)
-zangband_OBJECTS = $(am_zangband_OBJECTS)
-zangband_LDFLAGS =
+	l-ui.$(OBJEXT) l-misc.$(OBJEXT) l-spell.$(OBJEXT)
+xband_OBJECTS = $(am_xband_OBJECTS)
+xband_LDFLAGS =
 
 DEFAULT_INCLUDES =  -I. -I$(srcdir) -I.
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/artifact.Po ./$(DEPDIR)/avatar.Po \
+@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/artifact.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/birth.Po ./$(DEPDIR)/bldg.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/cave.Po ./$(DEPDIR)/cmd1.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/cmd2.Po ./$(DEPDIR)/cmd3.Po \
@@ -237,7 +228,6 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/main-ibm.Po ./$(DEPDIR)/main-lsl.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/main-mac-carbon.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/main-mac.Po ./$(DEPDIR)/main-sla.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/main-tnb.Po ./$(DEPDIR)/main-vcs.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/main-vme.Po ./$(DEPDIR)/main-win.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/main-x11.Po ./$(DEPDIR)/main-xaw.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/main-xpj.Po ./$(DEPDIR)/main-xxx.Po \
@@ -260,17 +250,12 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/wizard2.Po ./$(DEPDIR)/xtra1.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/xtra2.Po ./$(DEPDIR)/z-form.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/z-rand.Po ./$(DEPDIR)/z-term.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/z-util.Po ./$(DEPDIR)/z-virt.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/zborg1.Po ./$(DEPDIR)/zborg2.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/zborg3.Po ./$(DEPDIR)/zborg4.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/zborg5.Po ./$(DEPDIR)/zborg6.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/zborg7.Po ./$(DEPDIR)/zborg8.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/zborg9.Po
+@AMDEP_TRUE@	./$(DEPDIR)/z-util.Po ./$(DEPDIR)/z-virt.Po 
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-DIST_SOURCES = $(zangband_SOURCES) $(EXTRA_zangband_SOURCES)
+DIST_SOURCES = $(xband_SOURCES) $(EXTRA_xband_SOURCES)
 
 RECURSIVE_TARGETS = info-recursive dvi-recursive pdf-recursive \
 	ps-recursive install-info-recursive uninstall-info-recursive \
@@ -279,7 +264,7 @@ RECURSIVE_TARGETS = info-recursive dvi-recursive pdf-recursive \
 	check-recursive installcheck-recursive
 DIST_COMMON = autoconf.h.in makefile.am makefile.in
 DIST_SUBDIRS = $(SUBDIRS)
-SOURCES = $(zangband_SOURCES) $(EXTRA_zangband_SOURCES)
+SOURCES = $(xband_SOURCES) $(EXTRA_xband_SOURCES)
 
 all: autoconf.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
@@ -332,9 +317,9 @@ uninstall-binPROGRAMS:
 
 clean-binPROGRAMS:
 	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
-zangband$(EXEEXT): $(zangband_OBJECTS) $(zangband_DEPENDENCIES) 
-	@rm -f zangband$(EXEEXT)
-	$(LINK) $(zangband_LDFLAGS) $(zangband_OBJECTS) $(zangband_LDADD) $(LIBS)
+xband$(EXEEXT): $(xband_OBJECTS) $(xband_DEPENDENCIES) 
+	@rm -f xband$(EXEEXT)
+	$(LINK) $(xband_LDFLAGS) $(xband_OBJECTS) $(xband_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT) core *.core
@@ -343,7 +328,6 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/artifact.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/avatar.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/birth.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bldg.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cave.Po@am__quote@
@@ -383,7 +367,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main-mac-carbon.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main-mac.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main-sla.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main-tnb.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main-vcs.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main-vme.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main-win.Po@am__quote@
@@ -431,15 +414,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/z-term.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/z-util.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/z-virt.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zborg1.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zborg2.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zborg3.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zborg4.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zborg5.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zborg6.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zborg7.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zborg8.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zborg9.Po@am__quote@
 
 distclean-depend:
 	-rm -rf ./$(DEPDIR)
@@ -730,39 +704,9 @@ uninstall-info: uninstall-info-recursive
 angband.res: angband.rc
 	$(WRES) $< -O coff -o $@
 
-#
-# Build wrappers
-#
-# (This probably should be cleaned up a little.)
-#
-# $(subst l-,,$*) removes the leading "l-", and
-# trailing ".c" from the filename.
-#
-
-$(srcdir)/l-monst.c: l-monst.pkg lua/tolua
-	lua/tolua -n $(subst l-,,$*) -o $@ $<
-
-$(srcdir)/l-object.c: l-object.pkg lua/tolua
-	lua/tolua -n $(subst l-,,$*) -o $@ $<
-
-$(srcdir)/l-player.c: l-player.pkg lua/tolua
-	lua/tolua -n $(subst l-,,$*) -o $@ $<
-
-$(srcdir)/l-random.c: l-random.pkg lua/tolua
-	lua/tolua -n $(subst l-,,$*) -o $@ $<
-
-$(srcdir)/l-ui.c: l-ui.pkg lua/tolua
-	lua/tolua -n $(subst l-,,$*) -o $@ $<
-
-$(srcdir)/l-misc.c: l-misc.pkg lua/tolua
-	lua/tolua -n $(subst l-,,$*) -o $@ $<
-
-$(srcdir)/l-spell.c: l-spell.pkg lua/tolua
-	lua/tolua -n $(subst l-,,$*) -o $@ $<
-
 install-exec-hook:
-@SET_GID_TRUE@	chgrp "@GAMEGROUP@" "$(DESTDIR)$(bindir)/zangband"
-@SET_GID_TRUE@	chmod g+s "$(DESTDIR)$(bindir)/zangband"
+@SET_GID_TRUE@	chgrp "@GAMEGROUP@" "$(DESTDIR)$(bindir)/xband"
+@SET_GID_TRUE@	chmod g+s "$(DESTDIR)$(bindir)/xband"
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

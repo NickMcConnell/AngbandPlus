@@ -530,18 +530,6 @@ startup-options can only be accessed while creating a new character
 (press '=' while creating the character). There is no way to turn them
 off after the creation is finished!
 
-***** <stupid_monsters>
-Monsters behave stupidly    [stupid_monsters]
-    Zangband 2.1.0 incorporates Keldon Jones' improved monster
-    Artificial Intelligence patch. While this patch most certainly
-    makes monsters behave more realistically, they will also be more
-    deadly with the improved AI. If you are a sissy, set this option to
-    get the old, really stupid monster AI.
-    Note that the new AI is a bit processing power expensive. If you
-    have an old computer (386sx) and Zangband is running too slowly,
-    you could try turning stupid_monsters on. Or buying that Pentium II
-    so you can run Zangband. :-)
-
 ***** <vanilla_town>
 Use 'vanilla' town without quests and wilderness   [vanilla_town]
     Uses the basic town known from the standard Angband and older
@@ -604,13 +592,6 @@ The good old days ...   [ironman_moria]
     high resists, no targetting, and several other changes to game
     play.
 
-***** <munchkin_death>
-Ask for saving death   [munchkin_death]
-    If your character dies and this option is enabled, you will be
-    asked if you will be given the opportunity to avoid dying.
-    Enabling this option will prevent your character's score from being
-    entered into the high-score table and is considered cheating.
-
 ***** <ironman_rooms>
 Always generate very unusual rooms   [ironman_rooms]
     Forces the game to always generate intersting rooms such as pits,
@@ -624,15 +605,6 @@ Maximize stats   [maximize_mode]
     bonuses. This usually makes the character harder at the beginning
     of the game, but easier later on, since the stats are no longer
     limited to a "natural" value of "18/100".
-
-***** <preserve_mode>
-Preserve artifacts  [preserve_mode]
-    The "preserve" flag, if set when the character was created, cancels
-    all level feelings of the "special" variety, but allows "missed"
-    artifacts to be "saved" by wandering monsters and found again at a
-    later time. This only works for non-identified artifacts. Anything
-    that would have caused a 'special' feeling contributes to the level
-    feeling that your character receives instead.
 
 ***** <autoroller>
 Specify 'minimal' stats   [autoroller]
@@ -659,12 +631,6 @@ Nightmare mode   [ironman_nightmare]
 
 ***** <AI>
 === Artificial Intelligence Options ===
-
-***** <smart_packs>
-Pack monsters use new AI    [smart_packs]
-    Allows monsters which normally appear in groups to behave
-    "smarter".
-
 
 ***** <Testing>
 === Testing Options ===

@@ -1192,27 +1192,6 @@ void macro_add(cptr pat, cptr act)
 	macro__use[(byte)(pat[0])] = TRUE;
 }
 
-/* This is never used. */
-#if 0
-
-/*
- * Initialize the "macro" package
- */
-errr macro_init(void)
-{
-	/* Macro patterns */
-	C_MAKE(macro__pat, MACRO_MAX, cptr);
-
-	/* Macro actions */
-	C_MAKE(macro__act, MACRO_MAX, cptr);
-
-	/* Success */
-	return (0);
-}
-
-#endif /* 0 */
-
-
 /*
  * Local variable -- we are inside a "macro action"
  *
@@ -1405,21 +1384,6 @@ static char inkey_aux(void)
  */
 static cptr inkey_next = NULL;
 
-
-#ifdef ALLOW_BORG
-
-/*
- * Mega-Hack -- special "inkey_hack" hook.  XXX XXX XXX
- *
- * This special function hook allows the "Borg" (see elsewhere) to take
- * control of the "inkey()" function, and substitute in fake keypresses.
- */
-char (*inkey_hack) (int flush_first) = NULL;
-
-#endif /* ALLOW_BORG */
-
-
-
 /*
  * Get a keypress from the user.
  *
@@ -1479,8 +1443,6 @@ char (*inkey_hack) (int flush_first) = NULL;
  *
  * Hack -- Note the use of "inkey_next" to allow "keymaps" to be processed.
  *
- * Mega-Hack -- Note the use of "inkey_hack" to allow the "Borg" to steal
- * control of the keyboard from the user.
  */
 char inkey(void)
 {
@@ -1508,24 +1470,6 @@ char inkey(void)
 
 	/* Forget pointer */
 	inkey_next = NULL;
-
-
-#ifdef ALLOW_BORG
-
-	/* Mega-Hack -- Use the special hook */
-	if (inkey_hack && ((ch = (*inkey_hack) (p_ptr->inkey_xtra)) != 0))
-	{
-		/* Cancel the various "global parameters" */
-		p_ptr->inkey_base = FALSE;
-		p_ptr->inkey_xtra = FALSE;
-		p_ptr->inkey_flag = FALSE;
-		p_ptr->inkey_scan = FALSE;
-
-		/* Accept result */
-		return (ch);
-	}
-
-#endif /* ALLOW_BORG */
 
 	/* Hack -- handle delayed "flush()" */
 	if (p_ptr->inkey_xtra)
@@ -2448,7 +2392,7 @@ static void msg_print_aux(u16b type, cptr msg)
 
 
 	/* Hack -- fake monochrome */
-	if (!use_color || ironman_moria) type = MSG_GENERIC;
+	if (!use_color) type = MSG_GENERIC;
 
 	/* Hack -- Reset */
 	if (!msg_flag) message_column = 0;

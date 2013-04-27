@@ -1873,7 +1873,7 @@ void map_info(const cave_type *c_ptr, const pcave_type *pc_ptr,
 			/* Hack -- fake monochrome */
 			if (fake_monochrome)
 			{
-				if (p_ptr->invuln || !use_color || ironman_moria)
+				if (p_ptr->invuln || !use_color)
 				{
 					a = TERM_WHITE;
 				}
@@ -1979,7 +1979,7 @@ void map_info(const cave_type *c_ptr, const pcave_type *pc_ptr,
 	/* Hack -- fake monochrome */
 	if (fake_monochrome)
 	{
-		if (p_ptr->invuln || !use_color || ironman_moria) a = TERM_WHITE;
+		if (p_ptr->invuln || !use_color) a = TERM_WHITE;
 		else if (p_ptr->wraith_form) a = TERM_L_DARK;
 	}
 
@@ -2016,7 +2016,7 @@ void print_rel(char c, byte a, int x, int y)
 		/* Hack -- fake monochrome */
 		if (fake_monochrome)
 		{
-			if (p_ptr->invuln || !use_color || ironman_moria) a = TERM_WHITE;
+			if (p_ptr->invuln || !use_color) a = TERM_WHITE;
 			else if (p_ptr->wraith_form) a = TERM_L_DARK;
 		}
 
@@ -4843,14 +4843,6 @@ void update_flow(void)
 				continue;
 			}
 
-#if 0
-			/*
-			 * Hack - do not overwrite loud sounds with quiet ones,
-			 * unless some time has passed
-			 */
-			if (c_ptr->cost + c_ptr->when > n + flow_n) continue;
-#endif
-
 			/* Save the time-stamp */
 			c_ptr->when = flow_n;
 
@@ -4969,9 +4961,6 @@ void wiz_lite(void)
 	int i, y, x;
 
 	object_type *o_ptr;
-
-	chg_virtue(V_KNOWLEDGE, 1);
-	chg_virtue(V_ENLIGHTEN, 1);
 
 	/* Detect monsters */
 	for (i = 1; i < m_max; i++)

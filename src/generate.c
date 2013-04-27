@@ -413,9 +413,6 @@ static bool cave_gen(void)
 	if (p_ptr->max_hgt - p_ptr->min_hgt < 23) max_vault_ok--;
 	if (p_ptr->max_wid - p_ptr->min_wid < 34) max_vault_ok--;
 
-	/* Hack - no vaults in moria mode */
-	if (ironman_moria) max_vault_ok = 0;
-
 	/* Randomize the dungeon creation values */
 	dun_rooms = rand_range(DUN_ROOMS_MIN, DUN_ROOMS_MAX);
 	dun_tun_rnd = rand_range(DUN_TUN_RND_MIN, DUN_TUN_RND_MAX);
@@ -1024,9 +1021,6 @@ static byte extract_feeling(void)
 	/* Hack -- no feeling in the town */
 	if (!p_ptr->depth) return 0;
 
-	/* Hack -- Have a special feeling sometimes */
-	if (dun_ptr->good_item_flag && !preserve_mode) return 1;
-
 	if (dun_ptr->rating > 100) return 2;
 	if (dun_ptr->rating > 80) return 3;
 	if (dun_ptr->rating > 60) return 4;
@@ -1035,9 +1029,6 @@ static byte extract_feeling(void)
 	if (dun_ptr->rating > 20) return 7;
 	if (dun_ptr->rating > 10) return 8;
 	if (dun_ptr->rating > 0) return 9;
-
-	if ((turn - old_turn) > 50000L)
-		chg_virtue(V_PATIENCE, 1);
 
 	return 10;
 }
@@ -1397,18 +1388,6 @@ void generate_cave(void)
 
 	/* Verify the panel */
 	verify_panel();
-
-#if 0
-	/* Remove the CAVE_ROOM flags... reused as CAVE_MNLT */
-	for (x = p_ptr->min_wid; x < p_ptr->max_wid; x++)
-	{
-		for (y = p_ptr->min_hgt; y < p_ptr->max_hgt; y++)
-		{
-			/* Clear the flag */
-			cave_p(x, y)->info &= ~(CAVE_ROOM);
-		}
-	}
-#endif /* 0 */
 
 	/* Remember when this level was "created" */
 	old_turn = turn;

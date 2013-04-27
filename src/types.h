@@ -69,6 +69,8 @@ struct maxima
 	u16b fld_max;	/* Max size for field list */
 	u16b rg_max;	/* Max size for region list */
 
+	u16b s_max;   /* Max types of souls */
+
 	u16b wn_max;	/* Max size for wilderness tree nodes */
 	u16b wt_max;	/* Max size for wilderness gen types */
 	u16b wp_max;	/* Max places in the wilderness */
@@ -382,7 +384,7 @@ struct monster_race
 	byte r_wake;	/* Number of times woken up (?) */
 	byte r_ignore;	/* Number of times ignored (?) */
 
-	byte r_xtra1;	/* Something (unused) */
+	byte r_xtra1;	/* Number of souls sold */
 	byte r_xtra2;	/* Something (unused) */
 
 	byte r_drop_gold;	/* Max number of gold dropped at once */
@@ -762,6 +764,12 @@ struct object_type
 	s16b ac;	/* Normal AC */
 
 	s16b timeout;	/* Timeout Counter */
+
+	s16b exp;   /* amount of experience this item has */
+	s16b level; /* experience level of this item */
+	u16b soul_source;
+	u16b soul_type1;
+	u16b soul_type2;
 
 	byte dd, ds;	/* Damage dice/sides */
 
@@ -1322,8 +1330,8 @@ struct player_type
 	u32b muta2;	/* Mutations */
 	u32b muta3;	/* Mutations */
 
-	s16b virtues[MAX_PLAYER_VIRTUES];
-	s16b vir_types[MAX_PLAYER_VIRTUES];
+	s16b virtues[MAX_PLAYER_VIRTUES];    /* Not used */
+	s16b vir_types[MAX_PLAYER_VIRTUES];  /* Not used */
 
 	s16b chaos_patron;	/* Players Chaos Patron */
 	s16b word_recall;	/* Word of recall counter */
@@ -1807,4 +1815,17 @@ struct menu_type
 	menu_select_type action;	/* Action to do */
 
 	byte flags;					/* Flags controling option behaviour */
+};
+
+typedef struct soul_type soul_type;
+
+struct soul_type
+{
+  u32b flags1[6];
+	u32b flags2[6];
+	u32b flags3[6];
+
+	byte max_to_h;
+	byte max_to_d;
+	byte max_to_a;
 };

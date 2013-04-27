@@ -414,7 +414,7 @@ Beastman
     an independent race but rather a humanoid creature, most often a
     human, twisted by the Chaos, or a nightmarish crossbreed of a human
     and a beast. All Beastmen are accustomed to Chaos so much that they
-    are untroubled by confusion and sound, although raw logrus can
+    are untroubled by confusion and sound, although raw warpstone can
     still have effects on them. Beastmen revel in chaos, as it twists
     them more and more. Beastmen are subject to mutations: when they
     have been created, they receive a random mutation. After that,

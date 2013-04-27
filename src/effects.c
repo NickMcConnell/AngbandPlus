@@ -29,8 +29,6 @@ bool set_blind(int v)
 		{
 			msgf("You are blind!");
 			notice = TRUE;
-
-			chg_virtue(V_ENLIGHTEN, -1);
 		}
 	}
 
@@ -93,8 +91,6 @@ bool set_confused(int v)
 		{
 			msgf("You are confused!");
 			notice = TRUE;
-
-			chg_virtue(V_HARMONY, -1);
 		}
 	}
 
@@ -198,8 +194,6 @@ bool set_afraid(int v)
 		{
 			msgf("You are terrified!");
 			notice = TRUE;
-
-			chg_virtue(V_VALOUR, -1);
 		}
 	}
 
@@ -370,9 +364,6 @@ bool set_fast(int v)
 		{
 			msgf("You feel yourself moving faster!");
 			notice = TRUE;
-
-			chg_virtue(V_PATIENCE, -1);
-			chg_virtue(V_DILIGENCE, 1);
 		}
 	}
 
@@ -820,11 +811,6 @@ bool set_invuln(int v)
 		{
 			msgf("Invulnerability!");
 			notice = TRUE;
-
-			chg_virtue(V_TEMPERANCE, -5);
-			chg_virtue(V_HONOUR, -5);
-			chg_virtue(V_SACRIFICE, -5);
-			chg_virtue(V_VALOUR, -10);
 
 			/* Redraw map */
 			p_ptr->redraw |= (PR_MAP);
@@ -1807,15 +1793,6 @@ bool set_food(int v)
 		new_aux = 5;
 	}
 
-	if (old_aux < 1 && new_aux > 0)
-		chg_virtue(V_PATIENCE, 2);
-	else if (old_aux < 3 && (old_aux != new_aux))
-		chg_virtue(V_PATIENCE, 1);
-	if (old_aux == 2)
-		chg_virtue(V_TEMPERANCE, 1);
-	if (old_aux == 0)
-		chg_virtue(V_TEMPERANCE, -1);
-
 	/* Food increase */
 	if (new_aux > old_aux)
 	{
@@ -1855,9 +1832,6 @@ bool set_food(int v)
 				/* Bloated */
 				msgf("You have gorged yourself!");
 
-				chg_virtue(V_HARMONY, -1);
-				chg_virtue(V_PATIENCE, -1);
-				chg_virtue(V_TEMPERANCE, -2);
 				break;
 			}
 		}
@@ -2056,10 +2030,6 @@ bool dec_stat(int stat, int amount, int permanent)
 	/* Damage "max" value */
 	if (permanent && (max > 30))
 	{
-		chg_virtue(V_SACRIFICE, 1);
-		if (stat == A_WIS || stat == A_INT)
-			chg_virtue(V_ENLIGHTEN, -2);
-
 		/* Handle "low" values */
 		if (max <= 180)
 		{
@@ -2140,10 +2110,6 @@ bool hp_player(int num)
 	/* Healing needed */
 	if (p_ptr->chp < p_ptr->mhp)
 	{
-		chg_virtue(V_CHANCE, -1);
-		if ((num > 0) && (p_ptr->chp < (p_ptr->mhp / 3)))
-			chg_virtue(V_TEMPERANCE, 1);
-
 		/* Gain hitpoints */
 		p_ptr->chp += num;
 
@@ -2322,19 +2288,6 @@ bool do_inc_stat(int stat)
 	/* Attempt to increase */
 	if (inc_stat(stat))
 	{
-		if (stat == A_WIS)
-		{
-			chg_virtue(V_ENLIGHTEN, 1);
-			chg_virtue(V_FAITH, 1);
-		}
-		else if (stat == A_INT)
-		{
-			chg_virtue(V_KNOWLEDGE, 1);
-			chg_virtue(V_ENLIGHTEN, 1);
-		}
-		else if (stat == A_CON)
-			chg_virtue(V_VITALITY, 1);
-
 		/* Message */
 		msgf("Wow!  You feel very %s!", desc_stat_pos[stat]);
 
@@ -2391,9 +2344,6 @@ bool lose_all_info(void)
 	int i, k;
 
 	object_type *o_ptr;
-
-	chg_virtue(V_KNOWLEDGE, -5);
-	chg_virtue(V_ENLIGHTEN, -5);
 
 	/* Forget info about equipment */
 	for (i = 0; i < EQUIP_MAX; i++)
@@ -2504,8 +2454,6 @@ void do_poly_self(void)
 
 	msgf("You feel a change coming over you...");
 
-	chg_virtue(V_CHANCE, 1);
-
 	if ((power > randint0(20)) && one_in_(3))
 	{
 		char effect_msg[80] = "";
@@ -2601,8 +2549,6 @@ void do_poly_self(void)
 			msgf("You turn into a %s%s!", effect_msg,
 					   race_info[new_race].title);
 		}
-
-		chg_virtue(V_CHANCE, 2);
 
 		old_race = p_ptr->prace;
 		p_ptr->prace = new_race;
@@ -2763,15 +2709,6 @@ void take_hit(int damage, cptr hit_from)
 	if (pen_invuln)
 		msgf("The attack penetrates your shield of invulnerability!");
 
-	if (!(p_ptr->invuln) || (pen_invuln))
-	{
-		if (p_ptr->chp == 0)
-		{
-			chg_virtue(V_SACRIFICE, 1);
-			chg_virtue(V_CHANCE, 2);
-		}
-	}
-
 	/* Dead player */
 	if (p_ptr->chp < 0)
 	{
@@ -2779,8 +2716,6 @@ void take_hit(int damage, cptr hit_from)
 	
 		/* Sound */
 		sound(SOUND_DEATH);
-
-		chg_virtue(V_SACRIFICE, 10);
 
 		/* Hack -- Note death */
 		if (!last_words)
@@ -2831,6 +2766,79 @@ void take_hit(int damage, cptr hit_from)
 	}
 }
 
+void gain_soul_exp_aux( object_type* o_ptr, s32b amount )
+{
+	char o_name[256];
+
+	soul_type* s_ptr;
+
+	//only count if we pass a minimum xp threshold
+	if (amount < (o_ptr->level * o_ptr->level) ) return;
+
+	if (o_ptr->level > 0)
+	{
+		o_ptr->exp++;
+
+		if ( (o_ptr->exp >= 100 * o_ptr->level) && (o_ptr->level < 6) )
+		{
+			o_ptr->level++;
+
+			/* zap the accumulated XP down to 0 */
+			o_ptr->exp = 0;
+
+			/* Get a description */
+			object_desc(o_name, o_ptr, FALSE, 3, 256);
+
+			/* Message */
+			msgf("Your %s pulses blue. It is now level %i.",  o_name, o_ptr->level );
+
+			/* Increase the pval */
+			o_ptr->pval++;
+
+			s_ptr = &s_info[o_ptr->soul_type1];
+
+			o_ptr->to_h = (o_ptr->level * s_ptr->max_to_h) / 6;
+			o_ptr->to_d = (o_ptr->level * s_ptr->max_to_d) / 6;
+			o_ptr->to_a = (o_ptr->level * s_ptr->max_to_a) / 6;
+
+			/* gain new flags */
+			o_ptr->flags1 |= s_ptr->flags1[o_ptr->level - 1];
+			o_ptr->flags2 |= s_ptr->flags2[o_ptr->level - 1];
+			o_ptr->flags3 |= s_ptr->flags3[o_ptr->level - 1];
+
+			/* Identify it fully */
+			object_aware (o_ptr);
+			object_known (o_ptr);
+			object_mental(o_ptr);
+
+			/* Save all the known flags */
+			o_ptr->kn_flags1 = o_ptr->flags1;
+			o_ptr->kn_flags2 = o_ptr->flags2;
+			o_ptr->kn_flags3 = o_ptr->flags3;
+
+			/* Window stuff */
+			p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+		}
+	}
+}
+
+void gain_soul_exp(s32b amount)
+{
+	int i;
+	object_type* o_ptr;
+
+	/* Scan the inventory */
+	OBJ_ITT_START (p_ptr->inventory, o_ptr)
+	{
+		gain_soul_exp_aux( o_ptr, amount );
+	}
+	OBJ_ITT_END;
+
+	for (i=0; i<EQUIP_MAX; i++)
+	{
+		gain_soul_exp_aux( &p_ptr->equipment[i], amount );
+	}
+}
 
 /*
  * Gain experience
@@ -2846,6 +2854,8 @@ void gain_exp(s32b amount)
 		/* Gain max experience (20%) (was 10%) */
 		p_ptr->max_exp += amount / 5;
 	}
+
+  gain_soul_exp(amount);
 
 	/* Check Experience */
 	check_experience();

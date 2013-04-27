@@ -45,12 +45,6 @@ bool teleport_away(int m_idx, int dis)
 	/* Minimum distance */
 	min = dis / 2;
 
-	if ((((p_ptr->chp * 10) / p_ptr->mhp) < 5) &&
-		(randint1(5) > ((p_ptr->chp * 10) / p_ptr->mhp)))
-	{
-		chg_virtue(V_VALOUR, -1);
-	}
-
 	/* Look until done */
 	while (look)
 	{
@@ -873,9 +867,6 @@ bool apply_disenchant(void)
 	msgf("Your %s (%c) %s disenchanted!",
 			   o_name, I2A(t), ((o_ptr->number != 1) ? "were" : "was"));
 
-	chg_virtue(V_HARMONY, 1);
-	chg_virtue(V_ENCHANT, -2);
-
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
@@ -1045,7 +1036,7 @@ void brand_weapon(int brand_type)
 		{
 			case 1:
 			{
-				act = "is engulfed in raw Logrus!";
+				act = "is engulfed in raw Chaos!";
 				ego = EGO_CHAOTIC;
 				break;
 			}
@@ -1094,8 +1085,6 @@ void brand_weapon(int brand_type)
 		if (flush_failure) flush();
 
 		msgf("The Branding failed.");
-
-		chg_virtue(V_ENCHANT, -2);
 	}
 
 	if (ego)
@@ -1181,7 +1170,7 @@ void fetch(int dir, int wgt, bool require_los)
 	}
 
 	/* Use a target */
-	if (!ironman_moria && (dir == 5) && target_okay())
+	if ((dir == 5) && target_okay())
 	{
 		tx = p_ptr->target_col;
 		ty = p_ptr->target_row;
@@ -1251,7 +1240,6 @@ void fetch(int dir, int wgt, bool require_los)
 
 	/* 
 	 * Hack - do not get artifacts.
-	 * This interacts badly with preserve mode.
 	 */
 	if (o_ptr->flags3 & TR3_INSTA_ART)
 	{
@@ -1395,8 +1383,8 @@ void identify_pack(void)
 /*
  * Try to remove a curse from an item
  *
- * Note that Items which are "Perma-Cursed" (The One Ring,
- * The Crown of Morgoth) can NEVER be uncursed.
+ * Note that Items which are "Perma-Cursed"
+ * (The Crown of Morgoth) can NEVER be uncursed.
  *
  * Note that if "all" is FALSE, then Items which are
  * "Heavy-Cursed" (Mormegil, Calris, and Weapons of Morgul)
@@ -1631,16 +1619,6 @@ void stair_creation(void)
 
 	/* XXX XXX XXX */
 	delete_object(px, py);
-
-#if 0
-	/* Create a staircase */
-	if (p_ptr->inside_quest)
-	{
-		/* Quest? */
-		msgf("There is no effect!");
-		return;
-	}
-#endif /* 0 */
 
 	if (!p_ptr->depth || ironman_downward)
 	{
@@ -1892,11 +1870,7 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 
 		/* Message */
 		msgf("The enchantment failed.");
-
-		if (one_in_(3)) chg_virtue(V_ENCHANT, -1);
 	}
-	else
-		chg_virtue(V_ENCHANT, 1);
 
 	/* Something happened */
 	return (TRUE);
@@ -1975,10 +1949,7 @@ bool artifact_scroll(void)
 
 		/* Message */
 		msgf("The enchantment failed.");
-		if (one_in_(3)) chg_virtue(V_ENCHANT, -1);
 	}
-	else
-		chg_virtue(V_ENCHANT, 1);
 
 	/* Something happened */
 	return (TRUE);
@@ -2060,14 +2031,6 @@ void identify_item(object_type *o_ptr)
 	if (p_ptr->muta3 & MUT3_BAD_LUCK)
 	{
 		bad_luck(o_ptr);
-	}
-
-	if (!object_known_full(o_ptr))
-	{
-		if (o_ptr->flags3 & TR3_INSTA_ART)
-			chg_virtue(V_KNOWLEDGE, 3);
-		else
-			chg_virtue(V_KNOWLEDGE, 1);
 	}
 
 	/* Identify it fully */
@@ -3918,7 +3881,7 @@ void print_spells(byte *spells, int num, int x, int y, int realm)
 
 
 /*
- * Note that amulets, rods, and high-level spell books are immune
+ * Note that rods, and high-level spell books are immune
  * to "inventory damage" of any kind.  Also sling ammo and shovels.
  */
 
@@ -3986,7 +3949,8 @@ bool hates_elec(const object_type *o_ptr)
 	switch (o_ptr->tval)
 	{
 		case TV_RING:
-		case TV_WAND:
+		case TV_SOUL_GEM:
+		case TV_AMULET:
 		{
 			return (TRUE);
 		}
@@ -4039,6 +4003,7 @@ bool hates_fire(const object_type *o_ptr)
 		}
 
 		case TV_STAFF:
+		case TV_WAND:
 		case TV_SCROLL:
 		{
 			/* Staffs/Scrolls burn */
@@ -4483,8 +4448,6 @@ bool curse_armor(void)
 		/* Oops */
 		msgf("A terrible black aura blasts your %s!", o_name);
 
-		chg_virtue(V_ENCHANT, -5);
-
 		/* Blast the armor */
 		o_ptr->to_a = 0 - (s16b)rand_range(5, 10);
 		o_ptr->to_h = 0;
@@ -4548,8 +4511,6 @@ bool curse_weapon(void)
 	{
 		/* Oops */
 		msgf("A terrible black aura blasts your %s!", o_name);
-
-		chg_virtue(V_ENCHANT, -5);
 
 		/* Shatter the weapon */
 		o_ptr->to_h = 0 - (s16b)rand_range(5, 10);

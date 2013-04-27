@@ -25,14 +25,6 @@
  */
 static const module_type modules[] =
 {
-#ifdef USE_TNB
-	INIT_MODULE(tnb),
-#endif /* USE_TNB */
-
-#ifdef USE_GTK
-	INIT_MODULE(gtk),
-#endif /* USE_GTK */
-
 #ifdef USE_XAW
 	INIT_MODULE(xaw),
 #endif /* USE_XAW */
@@ -318,13 +310,6 @@ static void change_path(cptr info)
 			break;
 		}
 
-		case 'z':
-		{
-			string_free(ANGBAND_DIR_SCRIPT);
-			ANGBAND_DIR_SCRIPT = string_make(s + 1);
-			break;
-		}
-
 #endif /* VERIFY_SAVEFILE */
 
 #endif /* FIXED_PATHS */
@@ -469,22 +454,6 @@ int main(int argc, char *argv[])
 #endif /* defined(HAVE_SETEGID) || defined(SAFE_SETUID_POSIX) */
 
 	/* XXX XXX XXX */
-#if 0
-
-	/* Redundant setting necessary in case root is running the game */
-	/* If not root or game not setuid the following two calls do nothing */
-
-	if (setgid(getegid()) != 0)
-	{
-		quit("setgid(): cannot set permissions correctly!");
-	}
-
-	if (setuid(geteuid()) != 0)
-	{
-		quit("setuid(): cannot set permissions correctly!");
-	}
-
-#endif /* 0 */
 
 #endif /* SAFE_SETUID */
 
@@ -510,11 +479,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* Get the "user name" as a default player name */
-#ifdef ANGBAND_2_8_1
 	user_name(player_name, player_uid);
-#else  /* ANGBAND_2_8_1 */
-	user_name(op_ptr->full_name, player_uid);
-#endif /* ANGBAND_2_8_1 */
 
 #ifdef PRIVATE_USER_PATH
 
@@ -596,19 +561,13 @@ int main(int argc, char *argv[])
 			case 'U':
 			{
 				if (!argv[i][2]) game_usage();
-#ifdef ANGBAND_2_8_1
+
 				/* Get the savefile name */
 				strncpy(player_name, &argv[i][2], 32);
 
 				/* Make sure it's terminated */
 				player_name[31] = '\0';
-#else  /* ANGBAND_2_8_1 */
-				/* Get the savefile name */
-				strncpy(op_ptr->full_name, &argv[i][2], 32);
 
-				/* Make sure it's terminated */
-				op_ptr->full_name[31] = '\0';
-#endif /* ANGBAND_2_8_1 */
 				break;
 			}
 
@@ -683,15 +642,12 @@ int main(int argc, char *argv[])
 	/* Make sure we have a display! */
 	if (!done) quit("Unable to prepare any 'display module'!");
 
-	/* Gtk and Tk initialise earlier */
-	if (!(streq(ANGBAND_SYS, "gtk") || streq(ANGBAND_SYS, "tnb")))
-	{
-		/* Catch nasty signals */
-		signals_init();
 
-		/* Initialize */
-		init_angband();
-	}
+	/* Catch nasty signals */
+	signals_init();
+
+	/* Initialize */
+	init_angband();
 
 	/* Hack -- If requested, display scores and quit */
 	if (show_score > 0) display_scores(0, show_score);

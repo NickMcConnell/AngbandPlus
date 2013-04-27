@@ -1,0 +1,122 @@
+**** 09/17/03
+
+Edited the makefiles to match changes I have made. Probably broke all kinds of stuff.
+
+**** 09/11/03
+
+More soul gem rebalancing, took away some flags from any gem with SPEED (good enough already)
+Made sure uniques never drop soul gems
+Made quest levels give level feelings
+Re-Fixed a bug that prevented soul items from giving AC / acc / dam bonuses until L2.
+
+**** 09/10/03
+
+Finished massive re-balancing of soul gems. Most are now much weaker.
+Soul gems now go from level 1-6, gaining pval (and possibly flags) at each level.
+Made rings, amulets more common (but did not change depth)
+Fixed a bug that prevented soul items from giving AC / acc / dam bonuses until L2.
+
+**** 09/08/03
+
+Re-Implemented Staves, Wands
+Soul Dealer now hands out rewards for turned-in soul gems
+Monster description now lists whether or not a monster has had it's soul captured
+
+**** 09/05/03
+
+Made rings / amulets a little deeper, and a little rarer
+Made soul gems destroyable by lightning
+Wands are no longer vulnerable to lightning, now harmed by fire
+Monsters now drop souls 1 time in 100
+Souls need 100 exp * level to level up
+Big changes to how soul types are stored. Now every item has a soul source, and two soul types.
+  Currently, the soul source is used for naming, and the second soul type is unused.
+  Due to this change, un-imbued rings / amulets are now listed as "A Silver Amulet (Empty)"
+Added 'E'valuate soul to soul dealer, this tells you how a soul will turn out.
+Re-Implemented Scrolls, Potions, Food
+
+**** 09/04/03
+
+Removed code for the One Ring
+Made amulets destroyable by lightning
+Finished populating initial 53 soul types
+Initial 53 soul types now work
+Altered naming for rings / amulets. Was "an Amulet of Silver (Imbued)" now "A Silver Amulet (Newt)"
+
+**** 09/03/03
+
+s_info.txt can now indicate which abilities are gained at which levels
+Soul coins now set into rings / amulets instead of weapons / armor
+Renamed soul coins to soul gems (makes more sense with setting it into jewelery)
+Stripped out ego & artifact rings + amulets
+Added to hit, to damage, and AC bonuses to soul types, and imbued items
+Imbued items now only gain xp if a certain xp threshold is passed (xp = item level)
+
+**** 09/02/03
+
+No code changes yet; working on table of soul types
+
+**** 08/29/03
+
+Imbued items now gain experience, soul coins no longer gain experience
+Added soul dealer to base town
+Now supports multiple soul types; they are read from s_info.txt
+
+**** 08/28/03
+
+Soul data now named soul coins
+Added new field to object_type to track soul type seperately from pval
+Soul data now provides a pval, that increases with level
+Soul data no longer has it's pval / flags wiped out when loading savefiles
+Gave some random flags to all souls
+Added new option at Soul Dealer, 'Imbue Soul'
+  Imbue Soul gives flags / pval on a given soul to a weapon / piece of armor, deletes soul
+
+**** 08/27/03
+
+Removed non-preserve mode
+Removed the option to use old stupid monster AI
+Removed birth option munchkin_death
+Removed borg stuff
+Removed virtues
+Removed a lot of #if 0 stuff
+Updated news.txt
+Changed some instances of ZAngband -> XBand
+Soul data can now gain experience and levels. They still don't do anything.
+
+**** 08/26/03
+
+Modified Rogue Arcane spells to start at level 5
+Removed racial price adjustment
+Removed Moria mode
+Removed TK code, remaining Lua code
+Removed references to Logrus, replaced with Chaos / The Warp / Warpstone as appropriate
+Added new shop type, Soul Dealer. 
+  Can deposit souls, view soul library
+
+**** 08/25/03
+
+Stripped out Lua code
+Added new item type, Soul Data.
+  Monsters drop Soul Data when killed.
+  Soul Data is displayed as Soul Data (Monster Name).
+  Currently Soul Data doesn't do anything.
+  
+**** TODO
+
+Diablo - style weapon generation
+Need better way of associating soul types with monsters
+Make imbued items 'A'ctivateble
+Make Soul Dealer give out better rewards for depositing souls
+Possibly fix soul memory across characters bug
+Cleanup savefile format
+Add more artifacts
+Strip out Amberites
+Remove Pattern stuff
+Fix version numbering
+Change 'ZAngband' -> 'XBand'
+Fix save file brokenness due to Z 2.7.2 bug
+Item descriptions in character dump
+Last 50 messages in character dump
+Update official FAQ
+Update help files

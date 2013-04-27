@@ -973,6 +973,18 @@ errr parse_z_info(char *buf, header *head)
 		z_info->rg_max = max;
 	}
 
+	/* Process 'S' for "Maximum soul progressions" */
+	else if (buf[2] == 'S')
+	{
+		int max;
+
+		/* Scan for the value */
+		if (1 != sscanf(buf + 4, "%d", &max)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the value */
+		z_info->s_max = max;
+	}
+
 	/* Process 'W' for "Maximum wilderness values" */
 	else if (buf[2] == 'W')
 	{
@@ -1504,6 +1516,131 @@ errr parse_k_info(char *buf, header *head)
 	return (0);
 }
 
+/*
+ * Grab one flag in a ego-item_type from a textual string
+ */
+static bool grab_one_soul_flag(soul_type *s_ptr, cptr what, int lev)
+{
+	if (grab_one_flag(&s_ptr->flags1[lev], k_info_flags1, what) == 0)
+		return (0);
+
+	if (grab_one_flag(&s_ptr->flags2[lev], k_info_flags2, what) == 0)
+		return (0);
+
+	if (grab_one_flag(&s_ptr->flags3[lev], k_info_flags3, what) == 0)
+		return (0);
+
+	/* Oops */
+	msgf("Unknown soul progression flag '%s'.", what);
+
+	/* Error */
+	return (PARSE_ERROR_GENERIC);
+}
+
+
+/*
+ * Initialize the s_info array,
+ *  by parsing an ascii "template" file
+ */
+errr init_s_info_txt(FILE *fp, char *buf)
+{
+	char *s, *t;
+
+	u16b i = 0;
+
+	/* Current entry */
+	soul_type* s_ptr = NULL;
+
+	/* Just before the first line */
+	error_line = -1;
+
+	/* The last index used */
+	error_idx = -1;
+
+	/* Parse */
+	while (0 == my_fgets(fp, buf, 1024))
+	{
+		/* Advance the line number */
+		error_line++;
+
+		/* Skip comments and blank lines */
+		if (!buf[0] || (buf[0] == '#')) continue;
+
+		/* Verify correct "colon" format */
+		if (buf[1] != ':') return (PARSE_ERROR_GENERIC);
+
+		/* Process 'N' for "Number" (one line only) */
+		if (buf[0] == 'N')
+		{
+			/* Get the index */
+			i = atoi(buf + 2);
+
+			/* Verify information */
+			if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
+
+			/* Check to see if there is room in array */
+			if (i > z_info->wt_max - 1) return (PARSE_ERROR_OUT_OF_MEMORY);
+
+			/* Save the index */
+			error_idx = i;
+
+			/* point to new position in array */
+			s_ptr = &s_info[i];
+
+			continue;
+		}
+
+		/* There better be a current s_ptr */
+		if (!s_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Process 'C' for extra info (single line) */
+		if (buf[0] == 'C')
+		{
+			int th, td, ta;
+
+			if (3 != sscanf(buf + 2, "%d:%d:%d", &th, &td, &ta)) return (PARSE_ERROR_GENERIC);
+
+			s_ptr->max_to_h = th;
+			s_ptr->max_to_d = td;
+			s_ptr->max_to_a = ta;
+		}
+		/* Process 'F' for "Level Flags" (Each line indicates a level) */
+		else if (buf[0] == 'F')
+		{
+			int lev;
+
+			if (1 != sscanf(buf + 2, "%d:", &lev)) return (PARSE_ERROR_GENERIC);
+
+			if (lev > 5) return (PARSE_ERROR_GENERIC);
+
+			/* Parse every entry */
+			for (s = buf + 4; *s;)
+			{
+				/* Find the end of this entry */
+				for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */ ;
+
+				/* Nuke and skip any dividers */
+				if (*t)
+				{
+					*t++ = '\0';
+					while (*t == ' ' || *t == '|') t++;
+				}
+
+				/* Parse this entry */
+				if (0 !=	grab_one_soul_flag(s_ptr, s, lev)) return (PARSE_ERROR_INVALID_FLAG);
+
+				/* Start the next entry */
+				s = t;
+			}
+		}
+		/* Oops */
+		else return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
+	}
+
+	/* Success */
+	return (0);
+}
+
 
 /*
  * Grab one flag in an artifact_type from a textual string
@@ -1698,9 +1835,6 @@ static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what)
 	/* Error */
 	return (PARSE_ERROR_GENERIC);
 }
-
-
-
 
 /*
  * Initialize the "e_info" array, by parsing an ascii "template" file

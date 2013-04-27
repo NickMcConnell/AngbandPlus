@@ -109,14 +109,6 @@ void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 	(*f1) = k_ptr->flags1 | o_ptr->flags1;
 	(*f2) = k_ptr->flags2 | o_ptr->flags2;
 	(*f3) = k_ptr->flags3 | o_ptr->flags3;
-
-	/* Remove the Moria flags */
-	if (ironman_moria)
-	{
-		(*f1) &= TR1_MORIA_MASK;
-		(*f2) &= TR2_MORIA_MASK;
-		(*f3) &= TR3_MORIA_MASK;
-	}
 }
 
 
@@ -161,14 +153,6 @@ void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 	if (o_ptr->flags3 & TR3_INSTA_ART)
 	{
 		(*f3) |= TR3_INSTA_ART;
-	}
-
-	/* Remove the Moria flags */
-	if (ironman_moria)
-	{
-		(*f1) &= TR1_MORIA_MASK;
-		(*f2) &= TR2_MORIA_MASK;
-		(*f3) &= TR3_MORIA_MASK;
 	}
 }
 
@@ -704,61 +688,11 @@ cptr item_activation(const object_type *o_ptr)
 			{
 				return "clairvoyance and recall, draining you";
 			}
-			case ART_INGWE:
-			{
-				return "dispel evil (x5) every 300+d300 turns";
-			}
-			case ART_CARLAMMAS:
-			{
-				return "protection from evil every 225+d225 turns";
-			}
-			case ART_BARAHIR:
-			{
-				return "a strangling attack (200) every 100+d100 turns";
-			}
-			case ART_TULKAS:
-			{
-				return "haste self (75+d75 turns) every 150+d150 turns";
-			}
-			case ART_NARYA:
-			{
-				return "large fire ball (250) every 225+d225 turns";
-			}
-			case ART_NENYA:
-			{
-				return "large frost ball (400) every 325+d325 turns";
-			}
-			case ART_VILYA:
-			{
-				return "large lightning ball (500) every 425+d425 turns";
-			}
-			case ART_POWER:
-			{
-				return "bizarre things every 450+d450 turns";
-			}
-			case ART_ELEMENTS:
-			{
-				return "the elements (800) every 250+d250 turns";
-			}
+
 			case ART_DOR:  case ART_TERROR:
 			{
 				return "rays of fear in every direction";
 			}
-		}
-	}
-
-	if (o_ptr->tval == TV_RING)
-	{
-		switch (o_ptr->sval)
-		{
-			case SV_RING_FLAMES:
-				return "ball of fire and resist fire";
-			case SV_RING_ICE:
-				return "ball of cold and resist cold";
-			case SV_RING_ACID:
-				return "ball of acid and resist acid";
-			default:
-				return NULL;
 		}
 	}
 
@@ -871,6 +805,20 @@ bool identify_fully_aux(const object_type *o_ptr)
 		info[i++] = "It will transform into a pet when thrown.";
 	}
 
+	/* An imbued item - big hack */
+	if (o_ptr->level > 0)
+	{
+		temp = string_make(format("A soul is trapped within. It is level %i.", o_ptr->level));
+		info[i++] = temp;
+		reclaim[num_reclaim++] = temp;
+	}
+
+	/* Soul gem, a hack */
+	if (o_ptr->tval == TV_SOUL_GEM)
+	{
+		info[i++] = "It can be set into a ring or amulet";
+	}
+
 	/* Hack -- describe lite's */
 	if (o_ptr->tval == TV_LITE)
 	{
@@ -887,7 +835,6 @@ bool identify_fully_aux(const object_type *o_ptr)
 			info[i++] = "It provides light (radius 1) when fueled.";
 		}
 	}
-
 
 	/* And then describe it fully */
 
@@ -1869,7 +1816,43 @@ bool item_tester_hook_nonsword(const object_type *o_ptr)
 	return (FALSE);
 }
 
+/*
+ * Hook to specify Soul Gems
+ */
+bool item_tester_hook_soulgem(const object_type *o_ptr)
+{
+	if (o_ptr->tval == TV_SOUL_GEM)
+	{
+		return (TRUE);
+	}
 
+	return (FALSE);
+}
+
+/*
+ * Hook to specify items with a soul
+ */
+bool item_tester_hook_hassoul(const object_type *o_ptr)
+{
+	if (o_ptr->soul_source != 0)
+	{
+		return (TRUE);
+	}
+
+	return (FALSE);
+}
+
+/*
+ * Hook to specify if an item can be imbued
+ */
+bool item_tester_hook_imbue(const object_type *o_ptr)
+{
+	if (item_tester_hook_jewel(o_ptr) == FALSE) return FALSE;
+	if (!object_known_p(o_ptr)) return FALSE;
+	if (o_ptr->soul_source) return FALSE;
+
+	return (TRUE);
+}
 
 /*
  * Hook to specify "ammo"
@@ -2498,7 +2481,7 @@ void show_list(s16b o_list_ptr)
 		c = object_char(o_ptr);
 
 		/* Fake monochrome */
-		if (!use_color || ironman_moria)
+		if (!use_color)
 		{
 			/* Hack - no equippy char */
 			a = TERM_WHITE;
@@ -2640,7 +2623,7 @@ void show_equip(void)
 		if (!o_ptr->number) c = ' ';
 
 		/* Fake monochrome */
-		if (!use_color || ironman_moria)
+		if (!use_color)
 		{
 			/* Hack - no equippy char */
 			a = TERM_WHITE;

@@ -92,9 +92,6 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
 		/* Comment */
 		msgf(MSGT_STORE1, comment_7a[randint0(MAX_COMMENT_7A)]);
 
-		chg_virtue(V_HONOUR, -1);
-		chg_virtue(V_JUSTICE, -1);
-
 		/* Sound */
 		sound(SOUND_STORE1);
 	}
@@ -104,9 +101,6 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
 	{
 		/* Comment */
 		msgf(MSGT_STORE2, comment_7b[randint0(MAX_COMMENT_7B)]);
-
-		chg_virtue(V_JUSTICE, -1);
-		if (one_in_(4)) chg_virtue(V_HONOUR, -1);
 
 		/* Sound */
 		sound(SOUND_STORE2);
@@ -118,11 +112,6 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
 		/* Comment */
 		msgf(MSGT_STORE3, comment_7c[randint0(MAX_COMMENT_7C)]);
 
-		if (one_in_(4))
-			chg_virtue(V_HONOUR, -1);
-		else if (one_in_(4))
-			chg_virtue(V_HONOUR, 1);
-
 		/* Sound */
 		sound(SOUND_STORE3);
 	}
@@ -132,14 +121,6 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
 	{
 		/* Comment */
 		msgf(MSGT_STORE4, comment_7d[randint0(MAX_COMMENT_7D)]);
-
-		if (one_in_(2))
-			chg_virtue(V_HONOUR, -1);
-		if (one_in_(4))
-			chg_virtue(V_HONOUR, 1);
-
-		if (10 * price < value)
-			chg_virtue(V_SACRIFICE, 1);
 
 		/* Sound */
 		sound(SOUND_STORE4);
@@ -197,13 +178,7 @@ static s32b price_item(object_type *o_ptr, bool flip)
 	/* Worthless items */
 	if (price <= 0) return (0L);
 
-
-	/* Compute the racial factor */
-	factor = rgold_adj[ot_ptr->owner_race][p_ptr->prace];
-
-	/* Add in the charisma factor */
-	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
-
+	factor = 100 + adj_chr_gold[p_ptr->stat_ind[A_CHR]];
 
 	/* Shop is buying */
 	if (flip)
@@ -693,8 +668,6 @@ static object_type *home_carry(object_type *o_ptr)
 	/* Reorder the items */
 	o_ptr = reorder_objects_aux(o_ptr, reorder_store_comp, st_ptr->stock);
 
-	chg_virtue(V_SACRIFICE, -1);
-
 	/* Return the location */
 	return (o_ptr);
 }
@@ -960,7 +933,7 @@ static void display_entry(int pos)
 	c = object_char(o_ptr);
 
 	/* Hack -- fake monochrome */
-	if (!use_color || ironman_moria)
+	if (!use_color)
     {
     	a = TERM_WHITE;
     	c = ' ';
@@ -1637,8 +1610,6 @@ static void store_purchase(int *store_top)
 
 			/* Redraw everything */
 			display_inventory(*store_top);
-
-			chg_virtue(V_SACRIFICE, 1);
 		}
 	}
 }

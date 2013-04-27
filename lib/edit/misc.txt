@@ -35,7 +35,7 @@ M:V:126
 M:Q:125
 
 # Maximum number of field types
-M:U:145
+M:U:146
 
 # Maximum size for "fld_list[]"
 M:D:512
@@ -51,6 +51,9 @@ M:W:P:40
 
 # Maximum number of active "regions" in dungeon / wilderness
 M:G:10
+
+# Maximum number of soul types
+M:S:53
 
 # This needs to be larger than STORE_CACHE_AMNT * 24
 # Maximum number of objects

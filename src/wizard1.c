@@ -1861,7 +1861,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags4 & (RF4_BA_NUKE)) vp[vn++] = "produce balls of radiation";
 		if (flags5 & (RF5_BA_MANA)) vp[vn++] = "produce mana storms";
 		if (flags5 & (RF5_BA_DARK)) vp[vn++] = "produce darkness storms";
-		if (flags4 & (RF4_BA_CHAO)) vp[vn++] = "invoke raw Logrus";
+		if (flags4 & (RF4_BA_CHAO)) vp[vn++] = "invoke raw Chaos";
 		if (flags6 & (RF6_HAND_DOOM)) vp[vn++] = "invoke the Hand of Doom";
 		if (flags5 & (RF5_DRAIN_MANA)) vp[vn++] = "drain mana";
 		if (flags5 & (RF5_MIND_BLAST)) vp[vn++] = "cause mind blasting";

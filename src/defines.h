@@ -29,13 +29,13 @@
 /*
  * Name of the version/variant
  */
-#define VERSION_NAME "ZAngband"
+#define VERSION_NAME "XBand"
 
 
 /*
  * Current version string
  */
-#define VERSION_STRING	"2.7.2"
+#define VERSION_STRING	"0.1.0"
 
 
 /*
@@ -49,17 +49,9 @@
 
 /* Added for ZAngband */
 /* Why do we need a fake version number? */
-#define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 2
 #define FAKE_VER_MINOR 7
 #define FAKE_VER_PATCH 1
-
-#define ANGBAND_2_8_1
-#define ZANGBAND
-#define ZANGBAND_BIGSCREEN
-#define ZANGBAND_WILDERNESS
-/* hack - define if the source contains the cleanup_angband() function. */
-#define HAS_CLEANUP
 
 /*
  * This value is not currently used
@@ -179,21 +171,21 @@
 #define MAX_BLDG			10
 
 /* List of building types */
-#define	BUILD_STORE_GENERAL		0
-#define BUILD_STORE_ARMOURY		1
-#define BUILD_STORE_WEAPON		2
-#define BUILD_STORE_TEMPLE		3
-#define BUILD_STORE_ALCHEMIST	4
-#define BUILD_STORE_MAGIC		5
-#define BUILD_STORE_BLACK		6
-#define BUILD_STORE_HOME		7
-#define BUILD_STORE_BOOK		8
-#define BUILD_STAIRS			9
-#define BUILD_WEAPONMASTER		10
-#define BUILD_RECHARGE			11
-#define BUILD_PLUS_WEAPON		12
-#define BUILD_PLUS_ARMOUR		13
-#define BUILD_MUTATE			14
+#define	BUILD_STORE_GENERAL     0
+#define BUILD_STORE_ARMOURY     1
+#define BUILD_STORE_WEAPON      2
+#define BUILD_STORE_TEMPLE      3
+#define BUILD_STORE_ALCHEMIST   4
+#define BUILD_STORE_MAGIC       5
+#define BUILD_STORE_BLACK       6
+#define BUILD_STORE_HOME        7
+#define BUILD_STORE_BOOK        8
+#define BUILD_STAIRS            9
+#define BUILD_WEAPONMASTER      10
+#define BUILD_RECHARGE          11
+#define BUILD_PLUS_WEAPON       12
+#define BUILD_PLUS_ARMOUR       13
+#define BUILD_MUTATE            14
 #define BUILD_NONE				15
 #define BUILD_BLANK				16
 #define BUILD_MAP				17
@@ -293,9 +285,10 @@
 #define BUILD_BLACK0            111
 #define BUILD_MAGETOWER0        112
 #define BUILD_MAGETOWER1        113
+#define BUILD_SOULDEALER          114
 
 /* Maximum number of "building" types in a city */
-#define MAX_CITY_BUILD			114
+#define MAX_CITY_BUILD			115
 
 
 /*
@@ -1329,6 +1322,7 @@
 #define FT_STORE_BLACK0         0x008E
 #define FT_BUILD_MAGETOWER0     0x008F
 #define FT_BUILD_MAGETOWER1     0x0090
+#define FT_BUILD_SOULDEALER 			0x0091
 
 
 /*** Artifact indexes (see "lib/edit/a_info.txt") ***/
@@ -1337,20 +1331,6 @@
 #define ART_GALADRIEL            1
 #define ART_ELENDIL              2
 #define ART_THRAIN               3
-
-/* Amulets */
-#define ART_CARLAMMAS            4
-#define ART_INGWE                5
-#define ART_DWARVES              6
-
-/* Rings */
-#define ART_BARAHIR              8
-#define ART_TULKAS               9
-#define ART_NARYA               10
-#define ART_NENYA               11
-#define ART_VILYA               12
-#define ART_POWER               13
-#define ART_ELEMENTS			14
 
 /* Dragon Scale */
 #define ART_RAZORBACK           16
@@ -1789,6 +1769,7 @@
 #define TV_DEATH_BOOK   94
 #define TV_TRUMP_BOOK   95
 #define TV_ARCANE_BOOK  96
+#define TV_SOUL_GEM     11
 #define TV_GOLD         100		/* Gold can only be picked up by players */
 
 #define TV_BOOKS_MIN    TV_LIFE_BOOK	/* First tval of spellbooks */
@@ -2015,78 +1996,6 @@
 #define SV_LITE_GALADRIEL                4
 #define SV_LITE_ELENDIL                  5
 #define SV_LITE_THRAIN                   6
-
-/* The "sval" codes for TV_AMULET */
-#define SV_AMULET_DOOM                   0
-#define SV_AMULET_TELEPORT               1
-#define SV_AMULET_BERSERK                2
-#define SV_AMULET_SLOW_DIGEST            3
-#define SV_AMULET_RESIST_ACID            4
-#define SV_AMULET_SEARCHING              5
-#define SV_AMULET_WISDOM                 6
-#define SV_AMULET_CHARISMA               7
-#define SV_AMULET_THE_MAGI               8
-#define SV_AMULET_REFLECTION             9
-#define SV_AMULET_CARLAMMAS             10
-#define SV_AMULET_INGWE                 11
-#define SV_AMULET_DWARVES               12
-#define SV_AMULET_NO_MAGIC              13
-#define SV_AMULET_NO_TELE               14
-#define SV_AMULET_RESISTANCE            15
-
-/* The sval codes for TV_RING */
-#define SV_RING_WOE                      0
-#define SV_RING_AGGRAVATION              1
-#define SV_RING_WEAKNESS                 2
-#define SV_RING_STUPIDITY                3
-#define SV_RING_TELEPORTATION            4
-#define SV_RING_SLOW_DIGESTION           6
-#define SV_RING_FEATHER_FALL             7
-#define SV_RING_RESIST_FIRE              8
-#define SV_RING_RESIST_COLD              9
-#define SV_RING_SUSTAIN_STR             10
-#define SV_RING_SUSTAIN_INT             11
-#define SV_RING_SUSTAIN_WIS             12
-#define SV_RING_SUSTAIN_DEX             13
-#define SV_RING_SUSTAIN_CON             14
-#define SV_RING_SUSTAIN_CHR             15
-#define SV_RING_PROTECTION              16
-#define SV_RING_ACID                    17
-#define SV_RING_FLAMES                  18
-#define SV_RING_ICE                     19
-#define SV_RING_RESIST_POIS             20
-#define SV_RING_FREE_ACTION             21
-#define SV_RING_SEE_INVIS               22
-#define SV_RING_SEARCHING               23
-#define SV_RING_STR                     24
-#define SV_RING_INT                     25
-#define SV_RING_DEX                     26
-#define SV_RING_CON                     27
-#define SV_RING_ACCURACY                28
-#define SV_RING_DAMAGE                  29
-#define SV_RING_SLAYING                 30
-#define SV_RING_SPEED                   31
-#define SV_RING_BARAHIR                 32
-#define SV_RING_TULKAS                  33
-#define SV_RING_NARYA                   34
-#define SV_RING_NENYA                   35
-#define SV_RING_VILYA                   36
-#define SV_RING_POWER                   37
-#define SV_RING_RES_FEAR                38
-#define SV_RING_RES_LD                  39
-#define SV_RING_RES_NETHER              40
-#define SV_RING_RES_NEXUS               41
-#define SV_RING_RES_SOUND               42
-#define SV_RING_RES_CONFUSION           43
-#define SV_RING_RES_SHARDS              44
-#define SV_RING_RES_DISENCHANT          45
-#define SV_RING_RES_CHAOS               46
-#define SV_RING_RES_BLINDNESS           47
-#define SV_RING_LORDLY                  48
-#define SV_RING_ATTACKS                 49
-#define SV_RING_ELEMENTS				50
-#define SV_RING_RES_FIRE_COLD           51
-#define SV_RING_CAT                     52
 
 /* The "sval" codes for TV_STAFF */
 #define SV_STAFF_DARKNESS                0
@@ -2592,8 +2501,6 @@
 #define PW_EQUIP            0x00000002L	/* Display equip/inven */
 #define PW_SPELL            0x00000004L	/* Display spell list */
 #define PW_PLAYER           0x00000008L	/* Display character */
-#define PW_SCRIPT_VARS      0x00000010L	/* Display script messages */
-#define PW_SCRIPT_SOURCE    0x00000020L	/* Display script messages */
 #define PW_MESSAGE          0x00000040L	/* Display messages */
 #define PW_OVERHEAD         0x00000080L	/* Display overhead view */
 #define PW_MONSTER          0x00000100L	/* Display monster recall */
@@ -2601,10 +2508,6 @@
 #define PW_DUNGEON          0x00000400L	/* Display dungeon view */
 #define PW_SNAPSHOT         0x00000800L	/* Display snap-shot */
 #define PW_VISIBLE          0x00001000L	/* Display monster visible list */
-/* xxx */
-#define PW_BORG_1           0x00004000L	/* Display borg messages */
-#define PW_BORG_2           0x00008000L	/* Display borg status */
-
 
 /*** General index values ***/
 
@@ -2701,7 +2604,7 @@
 #define GF_DISP_UNDEAD  67
 #define GF_DISP_EVIL    68
 #define GF_DISP_ALL 	69
-#define GF_DISP_DEMON   70		/* New types for Zangband begin here... */
+#define GF_DISP_DEMON   70
 #define GF_DISP_LIVING  71
 #define GF_ROCKET       72
 #define GF_NUKE         73
@@ -2901,7 +2804,7 @@
 #define TR2_RES_FIRE            0x00040000L
 #define TR2_RES_COLD            0x00080000L
 #define TR2_RES_POIS            0x00100000L
-#define TR2_RES_FEAR            0x00200000L	/* Added for Zangband */
+#define TR2_RES_FEAR            0x00200000L
 #define TR2_RES_LITE            0x00400000L
 #define TR2_RES_DARK            0x00800000L
 #define TR2_RES_BLIND           0x01000000L
@@ -2973,26 +2876,6 @@
 #define TR3_IGNORE_MASK \
 	(TR3_IGNORE_ACID | TR3_IGNORE_ELEC | TR3_IGNORE_FIRE | \
 	 TR3_IGNORE_COLD )
-
-
-/*
- * Hack - Flags that were not part of Moria.
- */
-#define TR1_MORIA_MASK \
-	(~(TR1_CHAOTIC | TR1_VAMPIRIC | TR1_VORPAL | \
-	 TR1_BRAND_POIS | TR1_BRAND_ACID | TR1_BRAND_ELEC | \
-	 TR1_BRAND_FIRE | TR1_BRAND_COLD))
-
-#define TR2_MORIA_MASK \
-	(~(TR2_REFLECT | TR2_RES_POIS | TR2_RES_FEAR | TR2_RES_LITE | \
-	 TR2_RES_DARK | TR2_RES_CONF | TR2_RES_SOUND | \
-	 TR2_RES_SHARDS | TR2_RES_NETHER | TR2_RES_NEXUS | \
-	 TR2_RES_CHAOS | TR2_RES_DISEN))
-
-#define TR3_MORIA_MASK \
-	(~(TR3_SH_FIRE | TR3_SH_ELEC | TR3_NO_TELE | TR3_NO_MAGIC | \
-	 TR3_TY_CURSE | TR3_LITE))
-
 
 /*** Monster blow constants ***/
 
@@ -3207,7 +3090,7 @@
 #define RF4_BR_MANA         0x08000000	/* Breathe Mana */
 #define RF4_BA_NUKE         0x10000000	/* TY: Nuke Ball */
 #define RF4_BR_NUKE         0x20000000	/* TY: Toxic Breath */
-#define RF4_BA_CHAO         0x40000000	/* TY: Logrus Ball */
+#define RF4_BA_CHAO         0x40000000	/* TY: Chaos Ball */
 #define RF4_BR_DISI         0x80000000	/* Breathe Disintegration */
 
 /*
@@ -3627,7 +3510,7 @@
 /* {TRUE,  0, NULL,					"Number 43" }, svr_ptr->options[10] */
 /* {TRUE,  0, NULL,					"Number 44" }, svr_ptr->options[11] */
 /* {TRUE,  0, NULL,					"Number 45" }, svr_ptr->options[12] */
-#define smart_packs				svr_ptr->options[13]
+/* {TRUE,  0, NULL,					"Number 45" }, svr_ptr->options[13] */
 /* {TRUE,  0, NULL,					"Number 47" }, svr_ptr->options[14] */
 /* {TRUE,  0, NULL,					"Number 48" }, p_ptr->options[33] */
 /* {TRUE,  0, NULL,					"Number 49" }, p_ptr->options[34] */
@@ -3755,7 +3638,7 @@
 
 /* {TRUE,  0, NULL,					"Number 160" }, p_ptr->options[145] */
 #define	plain_descriptions		p_ptr->options[146]
-#define stupid_monsters			p_ptr->birth[0]
+/* {TRUE,  0, NULL,					"Number 162" }, p_ptr->birth[0]     */
 #define auto_destroy			p_ptr->options[147]
 #define confirm_wear			p_ptr->options[148]
 #define confirm_stairs			p_ptr->options[149]
@@ -3798,11 +3681,11 @@
 /* {TRUE,  0, NULL,					"Number 199" }, p_ptr->birth[7] */
 #define ironman_empty_levels	p_ptr->birth[8]
 #define terrain_streams			p_ptr->birth[9]
-#define ironman_moria			p_ptr->birth[10]
-#define munchkin_death			p_ptr->birth[11]
+/* {TRUE,  0, NULL,					"Number 202" }, p_ptr->birth[10] */
+/* {TRUE,  0, NULL,					"Number 203" }, p_ptr->birth[11] */
 #define ironman_rooms			p_ptr->birth[12]
 /* {TRUE,  0, NULL,					"Number 205" }, p_ptr->birth[13] */
-#define preserve_mode			p_ptr->birth[14]
+/* {TRUE,  0, NULL,					"Number 206" }, p_ptr->birth[14] */
 #define autoroller				p_ptr->birth[15]
 #define point_based				p_ptr->birth[16]
 #define silly_monsters			p_ptr->birth[17]
@@ -4316,28 +4199,6 @@ extern int PlayerUID;
  * Mega-Hack -- maximum known sounds
  */
 #define SOUND_MAX 65
-
-
-#define V_COMPASSION	1
-#define V_HONOUR		2
-#define V_JUSTICE	    3
-#define V_SACRIFICE	    4
-#define V_KNOWLEDGE	    5
-#define V_FAITH 	    6
-#define V_ENLIGHTEN	    7
-#define V_ENCHANT	    8
-#define V_CHANCE	    9
-#define V_NATURE	   10
-#define V_HARMONY	   11
-#define V_VITALITY	   12
-#define V_UNLIFE	   13
-#define V_PATIENCE	   14
-#define V_TEMPERANCE   15
-#define V_DILIGENCE	   16
-#define V_VALOUR	   17
-#define V_INDIVIDUALISM    18
-
-#define MAX_VIRTUE		18
 
 /*
  * Number of virtues the player can have

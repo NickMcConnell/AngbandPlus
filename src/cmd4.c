@@ -923,7 +923,7 @@ static bool do_cmd_options_win(int dummy)
 				a = TERM_WHITE;
 
 				/* Use color */
-				if (use_color && (i == y) && (j == x) && !ironman_moria)
+				if (use_color && (i == y) && (j == x))
 				{
 					a = TERM_L_BLUE;
 				}
@@ -1004,7 +1004,7 @@ static bool do_cmd_options_win(int dummy)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL |
 					  PW_PLAYER | PW_MESSAGE | PW_OVERHEAD |
 					  PW_MONSTER | PW_OBJECT | PW_SNAPSHOT |
-					  PW_BORG_1 | PW_BORG_2 | PW_DUNGEON);
+					  PW_DUNGEON);
 
 
 	/* Notice changes */
@@ -3077,13 +3077,6 @@ void do_cmd_feeling(void)
 		return;
 	}
 
-	/* No useful feeling in quests */
-	if (is_quest_level(p_ptr->depth))
-	{
-		msgf("Looks like a typical quest level.");
-		return;
-	}
-
 	/* Display the feeling */
 	if (turn - old_turn >= 1000)
 	{
@@ -3168,7 +3161,7 @@ void do_cmd_load_screen(void)
 			}
 
 			/* Hack -- fake monochrome */
-			if (!use_color || ironman_moria) a = TERM_WHITE;
+			if (!use_color) a = TERM_WHITE;
 
 			/* Put the attr/char */
 			Term_draw(x, y, a, c);
@@ -3796,40 +3789,6 @@ static bool do_cmd_knowledge_objects(int dummy)
 	return (FALSE);
 }
 
-
-/*
- * List virtues & status
- */
-static bool do_cmd_knowledge_virtues(int dummy)
-{
-	FILE *fff;
-
-	char file_name[1024];
-	
-	/* Hack -ignore parameter */
-	(void) dummy;
-
-	/* Open a temporary file */
-	fff = my_fopen_temp(file_name, 1024);
-
-	/* Failure */
-	if (!fff) return (FALSE);
-	
-	dump_virtues(fff);
-
-	/* Close the file */
-	my_fclose(fff);
-
-	/* Display the file contents */
-	(void)show_file(file_name, "Virtues", 0, 0);
-
-	/* Remove the file */
-	(void)fd_kill(file_name);
-	
-	return (FALSE);
-}
-
-
 /*
  * Print notes file
  */
@@ -3960,7 +3919,6 @@ static menu_type knowledge_menu[10] =
 	{"Display mutations", NULL, do_cmd_knowledge_mutations, MN_ACTIVE | MN_CLEAR},
 	{"Display current pets", NULL, do_cmd_knowledge_pets, MN_ACTIVE | MN_CLEAR},
 	{"Display current quests", NULL, do_cmd_knowledge_quests, MN_ACTIVE | MN_CLEAR},
-	{"Display virtues", NULL, do_cmd_knowledge_virtues, MN_ACTIVE | MN_CLEAR},
 	{NULL, NULL, do_cmd_knowledge_notes, MN_ACTIVE | MN_CLEAR},
 	{NULL, NULL, do_cmd_knowledge_wild, MN_ACTIVE | MN_CLEAR},
 	MENU_END
@@ -3977,31 +3935,27 @@ void do_cmd_knowledge(void)
 	
 	/* Turn off unavailable options */
 	
-	/* Hack - turn off virtues */
-	knowledge_menu[6].text = "";
-	knowledge_menu[6].flags &= ~(MN_ACTIVE);
-	
 	if (!take_notes)
 	{
 		/* Turn off note taking menu */
+		knowledge_menu[6].text = "";
+		knowledge_menu[6].flags &= ~(MN_ACTIVE);
+	}
+	else
+	{
+		knowledge_menu[6].text = "Display notes";
+		knowledge_menu[6].flags |= MN_ACTIVE;
+	}
+	
+	if (vanilla_town)
+	{
 		knowledge_menu[7].text = "";
 		knowledge_menu[7].flags &= ~(MN_ACTIVE);
 	}
 	else
 	{
-		knowledge_menu[7].text = "Display notes";
+		knowledge_menu[7].text = "Display town information";
 		knowledge_menu[7].flags |= MN_ACTIVE;
-	}
-	
-	if (vanilla_town)
-	{
-		knowledge_menu[8].text = "";
-		knowledge_menu[8].flags &= ~(MN_ACTIVE);
-	}
-	else
-	{
-		knowledge_menu[8].text = "Display town information";
-		knowledge_menu[8].flags |= MN_ACTIVE;
 	}
 	
 	/* Display the menu */

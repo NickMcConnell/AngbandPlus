@@ -143,7 +143,7 @@ says, 'Yum! Adventurer sandwiches!'
 says, 'I killed Calvin, now I'll kill YOU!'
 says, 'I'll make your short life nasty and brutish!'
 
-N:140:Lagduf, the Snaga
+N:140:Lagduf, the Goblin
 N:186:Grishnakh, the Hill Orc
 7
 says, 'Saruman is a fool, and a dirty treacherous fool.'
@@ -301,7 +301,7 @@ says: 'I am Borel, Duke of Hendrake, Master of Arms of the Ways of Hendrake.'
 #N:595:Father Dagon
 #N:596:Mother Hydra
 
-N:598:Mandor, Master of the Logrus
+N:598:Mandor, Master of Chaos
 2
 'Well, well, well.'
 'It is a great pleasure to fight with such a worthy opponent as you.'

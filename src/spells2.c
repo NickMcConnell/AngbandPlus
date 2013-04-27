@@ -30,9 +30,6 @@ void self_knowledge(void)
 {
 	int i = 0, j, k, x;
 
-	int v_nr;
-	char v_string[8][128];
-
 	u32b f1 = 0L, f2 = 0L, f3 = 0L;
 
 	object_type *o_ptr;
@@ -56,9 +53,6 @@ void self_knowledge(void)
 	strnfmt(Liferating, 80, "Your current Life Rating is %d/100.", percent);
 	info[i++] = Liferating;
 
-	chg_virtue(V_KNOWLEDGE, 1);
-	chg_virtue(V_ENLIGHTEN, 1);
-
 	/* Acquire item flags from equipment */
 	for (k = 0; k < EQUIP_MAX; k++)
 	{
@@ -76,59 +70,6 @@ void self_knowledge(void)
 		f1 |= t1;
 		f2 |= t2;
 		f3 |= t3;
-	}
-
-	for (v_nr = 0; v_nr < MAX_PLAYER_VIRTUES; v_nr++)
-	{
-		char virt_name[20];
-		char vir_desc[80];
-		int tester = p_ptr->virtues[v_nr];
-
-		strcpy(virt_name, virtue[(p_ptr->vir_types[v_nr]) - 1]);
-
-		strnfmt(vir_desc, 80, "Oops. No info about %s.", virt_name);
-		if (tester < -100)
-			strnfmt(vir_desc, 80, "You are the polar opposite of %s (%d).",
-					virt_name, tester);
-		else if (tester < -80)
-			strnfmt(vir_desc, 80, "You are an arch-enemy of %s (%d).",
-					virt_name, tester);
-		else if (tester < -60)
-			strnfmt(vir_desc, 80, "You are a bitter enemy of %s (%d).",
-					virt_name, tester);
-		else if (tester < -40)
-			strnfmt(vir_desc, 80, "You are an enemy of %s (%d).",
-					virt_name, tester);
-		else if (tester < -20)
-			strnfmt(vir_desc, 80, "You have sinned against %s (%d).",
-					virt_name, tester);
-		else if (tester < 0)
-			strnfmt(vir_desc, 80, "You have strayed from the path of %s (%d).",
-					virt_name, tester);
-		else if (tester == 0)
-			strnfmt(vir_desc, 80, "You are neutral to %s (%d).", virt_name, tester);
-		else if (tester < 20)
-			strnfmt(vir_desc, 80, "You are somewhat virtuous in %s (%d).",
-					virt_name, tester);
-		else if (tester < 40)
-			strnfmt(vir_desc, 80, "You are virtuous in %s (%d).",
-					virt_name, tester);
-		else if (tester < 60)
-			strnfmt(vir_desc, 80, "You are very virtuous in %s (%d).",
-					virt_name, tester);
-		else if (tester < 80)
-			strnfmt(vir_desc, 80, "You are a champion of %s (%d).",
-					virt_name, tester);
-		else if (tester < 100)
-			strnfmt(vir_desc, 80, "You are a great champion of %s (%d).",
-					virt_name, tester);
-		else
-			strnfmt(vir_desc, 80, "You are the living embodiment of %s (%d).",
-					virt_name, tester);
-
-		strcpy(v_string[v_nr], vir_desc);
-
-		info[i++] = v_string[v_nr];
 	}
 
 	/* Racial powers... */
@@ -493,7 +434,7 @@ void self_knowledge(void)
 
 		if (f1 & (TR1_CHAOTIC))
 		{
-			info[i++] = "Your weapon is branded with the Sign of Logrus.";
+			info[i++] = "Your weapon is branded with the Sign of Chaos.";
 		}
 
 		/* Hack */
@@ -1188,7 +1129,7 @@ bool detect_objects_normal(void)
  * Detect all "magic" objects in range.
  *
  * This will light up all spaces with "magic" items, including artifacts,
- * ego-items, potions, scrolls, books, rods, wands, staves, amulets, rings,
+ * ego-items, potions, scrolls, books, rods, wands, staves
  * and "enchanted" items of the "good" variety.
  *
  * It can probably be argued that this function is now too powerful.
@@ -1225,8 +1166,6 @@ bool detect_objects_magic(void)
 
 		/* Artifacts, misc magic items, or enchanted wearables */
 		if (o_ptr->xtra_name ||
-			(tv == TV_AMULET) ||
-			(tv == TV_RING) ||
 			(tv == TV_STAFF) ||
 			(tv == TV_WAND) ||
 			(tv == TV_ROD) ||
@@ -1839,9 +1778,6 @@ bool turn_undead(void)
 {
 	bool tester = (project_hack(GF_TURN_UNDEAD, p_ptr->lev));
 
-	if (tester)
-		chg_virtue(V_UNLIFE, -1);
-
 	return tester;
 }
 
@@ -1852,9 +1788,6 @@ bool turn_undead(void)
 bool dispel_undead(int dam)
 {
 	bool tester = (project_hack(GF_DISP_UNDEAD, dam));
-
-	if (tester)
-		chg_virtue(V_UNLIFE, -2);
 
 	return tester;
 }
@@ -2014,13 +1947,6 @@ bool genocide(int player_cast)
 	int msec = delay_factor * delay_factor * delay_factor;
 
 	/* Need a better way to control this... (wilderness is a major problem) */
-#if 0
-	/* Prevent genocide in quest levels */
-	if (p_ptr->inside_quest)
-	{
-		return (FALSE);
-	}
-#endif /* 0 */
 
 	/* Mega-Hack -- Get a monster symbol */
 	(void)(get_com("Choose a monster race (by symbol) to genocide: ", &typ));
@@ -2081,9 +2007,6 @@ bool genocide(int player_cast)
 		result = TRUE;
 	}
 
-	if (result)
-		chg_virtue(V_VITALITY, -2);
-
 	return (result);
 }
 
@@ -2098,13 +2021,6 @@ bool mass_genocide(int player_cast)
 	int msec = delay_factor * delay_factor * delay_factor;
 
 	/* This needs to be rethought - the wilderness is a problem... */
-#if 0
-	/* Prevent mass genocide in quest levels */
-	if (p_ptr->inside_quest)
-	{
-		return (FALSE);
-	}
-#endif /* 0 */
 
 	/* Delete the (nearby) monsters */
 	for (i = 1; i < m_max; i++)
@@ -2161,9 +2077,6 @@ bool mass_genocide(int player_cast)
 		result = TRUE;
 	}
 
-	if (result)
-		chg_virtue(V_VITALITY, -2);
-
 	return (result);
 }
 
@@ -2208,9 +2121,6 @@ bool probing(void)
 	/* Done */
 	if (probe)
 	{
-		if (probe)
-			chg_virtue(V_KNOWLEDGE, 1);
-
 		msgf("That's all.");
 	}
 
@@ -3274,7 +3184,7 @@ bool fire_ball(int typ, int dir, int dam, int rad)
 	ty = p_ptr->py + 99 * ddy[dir];
 
 	/* Hack -- Use an actual "target" */
-	if (!ironman_moria && (dir == 5) && target_okay())
+	if ((dir == 5) && target_okay())
 	{
 		flg &= ~(PROJECT_STOP);
 		tx = p_ptr->target_col;
@@ -3301,7 +3211,7 @@ bool teleport_swap(int dir)
 	monster_type *m_ptr;
 	monster_race *r_ptr;
 
-	if (!ironman_moria && (dir == 5) && target_okay())
+	if ((dir == 5) && target_okay())
 	{
 		tx = p_ptr->target_col;
 		ty = p_ptr->target_row;
@@ -3440,7 +3350,7 @@ bool project_hook(int typ, int dir, int dam, u16b flg)
 	ty = p_ptr->py + 99 * ddy[dir];
 
 	/* Hack -- Use an actual "target" */
-	if (!ironman_moria && (dir == 5) && target_okay())
+	if ((dir == 5) && target_okay())
 	{
 		tx = p_ptr->target_col;
 		ty = p_ptr->target_row;
@@ -3595,9 +3505,6 @@ bool poly_monster(int dir)
 {
 	u16b flg = PROJECT_STOP | PROJECT_KILL;
 	bool tester = (project_hook(GF_OLD_POLY, dir, p_ptr->lev, flg));
-
-	if (tester)
-		chg_virtue(V_CHANCE, 1);
 
 	return (tester);
 }

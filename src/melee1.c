@@ -622,15 +622,11 @@ bool make_attack_normal(int m_idx)
 								msgf("Your purse feels lighter.");
 								msgf("%ld coins were stolen!",
 										   (long)gold);
-
-								chg_virtue(V_SACRIFICE, 1);
 							}
 							else
 							{
 								msgf("Your purse feels lighter.");
 								msgf("All of your coins were stolen!");
-
-								chg_virtue(V_SACRIFICE, 2);
 							}
 
 							/* Redraw gold */
@@ -686,8 +682,6 @@ bool make_attack_normal(int m_idx)
 							msgf("%sour %v was stolen!",
 									   ((o_ptr->number > 1) ? "One of y" : "Y"),
 									   OBJECT_FMT(o_ptr, FALSE, 3));
-
-							chg_virtue(V_SACRIFICE, 1);
 
 							/* Split object */
 							o_ptr = item_split(o_ptr, 1);

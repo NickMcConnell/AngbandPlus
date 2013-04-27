@@ -153,13 +153,10 @@ bool monst_spell_monst(int m_idx)
 		if (friendly && (p_ptr->chp > p_ptr->mhp / 4)) f6 &= ~(RF6_TELE_AWAY);
 
 		/* Remove some spells if necessary */
-		if (!stupid_monsters &&
-			((f4 & RF4_BOLT_MASK) ||
-			 (f5 & RF5_BOLT_MASK) ||
-			 (f6 & RF6_BOLT_MASK)) &&
+		if (
+			((f4 & RF4_BOLT_MASK) || (f5 & RF5_BOLT_MASK) || (f6 & RF6_BOLT_MASK)) &&
 			!(r_ptr->flags2 & RF2_STUPID) &&
-			!clean_shot(m_ptr->fx, m_ptr->fy, t_ptr->fx, t_ptr->fy,
-						is_pet(m_ptr)))
+			!clean_shot(m_ptr->fx, m_ptr->fy, t_ptr->fx, t_ptr->fy,	is_pet(m_ptr)))
 		{
 			f4 &= ~(RF4_BOLT_MASK);
 			f5 &= ~(RF5_BOLT_MASK);
@@ -1199,7 +1196,7 @@ bool monst_spell_monst(int m_idx)
 						}
 						else
 						{
-							msgf("%^s invokes raw Logrus upon %s.",
+							msgf("%^s invokes raw Chaos upon %s.",
 									   m_name, t_name);
 						}
 					}

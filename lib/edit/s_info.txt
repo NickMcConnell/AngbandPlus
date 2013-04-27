@@ -1,0 +1,501 @@
+# This file is used to initialize the "lib/raw/s_info.raw" file, which is
+# used to initialize the "soul type" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# After modifying this file, delete the "lib/raw/s_info.raw" file.
+
+# === Understanding s_info.txt ===
+
+# N: serial number : name
+# C: max to-hit : max to-dam : max to-ac
+# F: level : flag | flag | etc
+
+# 'N' indicates the beginning of an entry. The serial number must
+# increase for each new item. The name is only for reference here,
+# and is not used in-game.
+
+# 'C' is for creation bonusses - maximum to-hit, to-dam, and to-ac.
+# A soul will provide the full bonus when it reaches maximum level.
+
+# 'F' is for flags.  The level indicates when the flags on that
+# line are learned by the soul. The flags themselves are fairly
+#  self-explanatory.
+
+N:0:Ants 'a'
+C:0:0:40
+F:0:
+F:1:SUST_CON
+F:2:
+F:3:RES_CONF
+F:4:RES_SHARDS
+F:5:
+
+N:1:Bats 'b'
+C:0:0:0
+F:0:SENSE | INFRA
+F:1:FEATHER
+F:2:RES_BLIND
+F:3:SEE_INVIS
+F:4:RES_DISEN
+F:5:
+
+N:2:Centipedes 'c'
+C:0:0:0
+F:0:SPEED
+F:1:
+F:2:
+F:3:RES_BLIND
+F:4:RES_SOUND
+F:5:
+
+N:3:Young dragons 'd'
+C:0:0:0
+F:0:STR | INFRA | SENSE
+F:1:FEATHER
+F:2:REGEN
+F:3:SEE_INVIS
+F:4:FREE_ACT
+F:5:TELEPATHY
+
+N:4:Floating eyes 'e'
+C:0:0:0
+F:0:SENSE | INFRA
+F:1:SUST_INT
+F:2:SEE_INVIS
+F:3:RES_BLIND
+F:4:REFLECT | FEATHER
+F:5:TELEPATHY
+
+N:5:Felines 'f'
+C:0:0:0
+F:0:STEALTH | INFRA
+F:1:SUST_DEX
+F:2:SEE_INVIS
+F:3:FREE_ACT
+F:4:SH_ELEC
+F:5:
+
+N:6:Golems 'g'
+C:0:0:40
+F:0:STR | RES_FIRE
+F:1:RES_COLD
+F:2:RES_ELEC
+F:3:RES_ACID
+F:4:RES_POIS
+F:5:
+
+N:7:Humanoids 'h'
+C:0:0:0
+F:0:WIS
+F:1:SUST_WIS
+F:2:
+F:3:TELEPATHY
+F:4:
+F:5:RES_DISEN
+
+N:8:Icky things 'i'
+C:0:0:0
+F:0:TUNNEL
+F:1:RES_ACID
+F:2:
+F:3:REGEN
+F:4:
+F:5:IM_ACID
+
+N:9:Jellies 'j'
+C:0:0:0
+F:0:TUNNEL
+F:1:RES_ELEC
+F:2:
+F:3:RES_DARK
+F:4:RES_NEXUS
+F:5:
+
+N:10:Kobolds 'k'
+C:0:0:0
+F:0:STR
+F:1:SLOW_DIGEST
+F:2:
+F:3:RES_FEAR
+F:4:RES_POIS
+F:5:
+
+N:11:Aquatic creatures 'l'
+C:0:0:0
+F:0:DEX
+F:1:RES_COLD
+F:2:
+F:3:FREE_ACT
+F:4:IM_COLD
+F:5:
+
+N:12:Molds 'm'
+C:0:0:0
+F:0:CON
+F:1:RES_ELEC
+F:2:
+F:3:RES_CONF
+F:4:IM_ELEC
+F:5:
+
+N:13:Nagas 'n'
+C:0:0:0
+F:0:STEALTH | SENSE
+F:1:RES_FIRE
+F:2:RES_FEAR
+F:3:HOLD_LIFE
+F:4:IM_FIRE
+F:5:
+
+N:14:Orcs 'o'
+C:0:0:0
+F:0:STR
+F:1:SUST_STR
+F:2:
+F:3:RES_DARK
+F:4:RES_POIS
+F:5:
+
+N:15:People 'p'
+C:0:0:0
+F:0:INT
+F:1:LITE
+F:2:
+F:3:TELEPATHY
+F:4:REFLECT
+F:5:
+
+N:16:Quadrapeds 'q'
+C:0:0:0
+F:0:WIS | CHR
+F:1:RES_FEAR
+F:2:HOLD_LIFE
+F:3:RES_CONF
+F:4:RES_DISEN
+F:5:
+
+N:17:Rats 'r'
+C:0:0:0
+F:0:DEX
+F:1:SUST_DEX
+F:2:
+F:3:FREE_ACT
+F:4:RES_POIS
+F:5:
+
+N:18:Skeletons 's'
+C:0:0:40
+F:0:INFRA | SENSE
+F:1:RES_COLD
+F:2:SLOW_DIGEST
+F:3:HOLD_LIFE
+F:4:RES_SHARDS
+F:5:RES_NETHER
+
+N:19:Townspeople 't'
+C:0:0:0
+F:0:CHR
+F:1:LITE
+F:2:
+F:3:RES_LITE
+F:4:RES_NEXUS
+F:5:
+
+N:20:Minor Demons 'u'
+C:0:0:0
+F:0:DEX | STEALTH | INFRA
+F:1:RES_FIRE | RES_ACID
+F:2:SH_FIRE
+F:3:RES_CONF
+F:4:RES_CHAOS
+F:5:IM_FIRE
+
+N:21:Vorticies 'v'
+C:0:0:0
+F:0:SPEED | INFRA | SENSE
+F:1:FEATHER | LITE
+F:2:RES_NEXUS
+F:3:RES_LITE
+F:4:RES_DISEN
+F:5:
+
+N:22:Worms 'w'
+C:20:0:0
+F:0:
+F:1:LITE
+F:2:REGEN
+F:3:
+F:4:RES_POIS
+F:5:
+
+N:23:UNUSED 'x'
+C:0:0:0
+F:0:RES_LITE
+F:1:
+F:2:
+F:3:
+F:4:
+F:5:
+
+N:24:Yeeks 'y'
+C:20:0:0
+F:0:RES_ACID
+F:1:
+F:2:FREE_ACT
+F:3:
+F:4:IM_ACID
+F:5:
+
+N:25:Zombies 'z'
+C:0:0:0
+F:0:CON | INFRA | SENSE
+F:1:RES_COLD
+F:2:SLOW_DIGEST
+F:3:RES_DARK
+F:4:RES_NETHER
+F:5:
+
+N:26:Angels 'A'
+C:0:0:0
+F:0:WIS | CHR | SPEED
+F:1:RES_FEAR | RES_BLIND
+F:2:RES_LITE | RES_DARK
+F:3:RES_CONF
+F:4:HOLD_LIFE
+F:5:SUST_CON | SUST_DEX | SUST_INT | SUST_WIS | SUST_CHR | SUST_STR
+
+N:27:Birds 'B'
+C:0:0:0
+F:0:WIS
+F:1:FEATHER
+F:2:
+F:3:RES_LITE
+F:4:SH_FIRE
+F:5:
+
+N:28:Canines 'C'
+C:0:0:0
+F:0:CON
+F:1:SUST_CON
+F:2:SUST_CHR
+F:3:RES_FEAR
+F:4:IM_COLD
+F:5:
+
+N:29:Ancient Dragons 'D'
+C:0:0:0
+F:0:STR | CON | SPEED
+F:1:FEATHER | REGEN
+F:2:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
+F:3:SEE_INVIS | FREE_ACT
+F:4:RES_POIS
+F:5:TELEPATHY
+
+N:30:Elementals 'E'
+C:20:0:0
+F:0:DEX
+F:1:RES_LITE
+F:2:RES_BLIND
+F:3:TELEPATHY
+F:4:RES_NEXUS
+F:5:RES_DISEN
+
+N:31:Dragon Flies 'F'
+C:0:0:0
+F:0:SPEED | DEX
+F:1:
+F:2:
+F:3:RES_CONF
+F:4:FREE_ACT
+F:5:
+
+N:32:Ghosts 'G'
+C:0:0:0
+F:0:INT
+F:1:SUST_INT
+F:2:
+F:3:SEE_INVIS
+F:4:
+F:5:RES_NETHER
+
+N:33:Hybrids 'H'
+C:0:20:0
+F:0:
+F:1:SUST_STR
+F:2:
+F:3:RES_CONF
+F:4:
+F:5:RES_CHAOS
+
+N:34:Insects 'I'
+C:0:0:0
+F:0:SPEED
+F:1:
+F:2:
+F:3:
+F:4:RES_CONF
+F:5:
+
+N:35:Snakes 'J'
+C:0:0:0
+F:0:CHR
+F:1:SUST_CHR
+F:2:
+F:3:HOLD_LIFE
+F:4:RES_NETHER
+F:5:
+
+N:36:Killer Beetles 'K'
+C:20:20:0
+F:0:
+F:1:RES_FEAR
+F:2:
+F:3:REFLECT
+F:4:RES_SHARDS
+F:5:
+
+N:37:Liches 'L'
+C:0:0:40
+F:0:INT | SPEED
+F:1:SEE_INVIS | TELEPATHY
+F:2:HOLD_LIFE
+F:3:RES_DARK
+F:4:RES_NETHER | REFLECT
+F:5:RES_POIS
+
+N:38:Hydras 'M'
+C:0:0:0
+F:0:BLOWS | AGGRAVATE | NO_TELE
+F:1:
+F:2:
+F:3:
+F:4:
+F:5:
+
+N:39:UNUSED 'N'
+C:0:0:0
+F:0:RES_LITE
+F:1:
+F:2:
+F:3:
+F:4:
+F:5:
+
+N:40:Ogres 'O'
+C:0:20:0
+F:0:WIS
+F:1:SUST_STR | SUST_CON
+F:2:SUST_DEX | RES_FEAR
+F:3:
+F:4:REFLECT
+F:5:
+
+N:41:Giants 'P'
+C:0:0:0
+F:0:CHR | CON
+F:1:SLOW_DIGEST | RES_LITE
+F:2:RES_SHARDS
+F:3:RES_SOUND
+F:4:RES_DISEN
+F:5:
+
+N:42:Qulthyugs 'Q'
+C:0:0:40
+F:0:INFRA | SENSE
+F:1:RES_CONF
+F:2:RES_NEXUS
+F:3:
+F:4:RES_CHAOS
+F:5:
+
+N:43:Reptiles 'R'
+C:0:20:0
+F:0:
+F:1:SLOW_DIGEST
+F:2:RES_FEAR
+F:3:
+F:4:RES_SOUND
+F:5:
+
+N:44:Spiders 'S'
+C:0:0:40
+F:0:
+F:1:SLOW_DIGEST
+F:2:
+F:3:RES_BLIND
+F:4:RES_POIS
+F:5:
+
+N:45:Trolls 'T'
+C:0:0:0
+F:0:STR | TUNNEL
+F:1:REGEN
+F:2:RES_FEAR
+F:3:RES_DARK
+F:4:RES_POIS
+F:5:
+
+N:46:Greater Demons 'U'
+C:20:20:0
+F:0:SPEED | FEATHER
+F:1:RES_FIRE | RES_ACID
+F:2:SEE_INVIS
+F:3:SH_FIRE
+F:4:RES_CHAOS
+F:5:IM_FIRE
+
+N:47:Vampires 'V'
+C:0:0:0
+F:0:INT | STR | SPEED
+F:1:FEATHER | SEE_INVIS
+F:2:RES_COLD | REGEN
+F:3:HOLD_LIFE
+F:4:RES_NETHER | RES_POIS
+F:5:IM_COLD
+
+N:48:Wraiths 'W'
+C:0:0:0
+F:0:STEALTH | SENSE | WIS | DEX
+F:1:FEATHER | SEE_INVIS
+F:2:HOLD_LIFE
+F:3:RES_NETHER
+F:4:TELEPATHY
+F:5:
+
+N:49:Xorn 'X'
+C:0:0:0
+F:0:TUNNEL | CON
+F:1:RES_ELEC
+F:2:RES_CONF
+F:3:RES_BLIND
+F:4:RES_SHARDS
+F:5:IM_ELEC
+
+N:50:Yetis 'Y'
+C:0:0:0
+F:0:TUNNEL | CON
+F:1:RES_COLD
+F:2:REGEN
+F:3:FREE_ACT
+F:4:IM_COLD
+F:5:
+
+N:51:Zepyhr Hounds 'Z'
+C:0:0:0
+F:0:SPEED | DEX
+F:1:
+F:2:FREE_ACT
+F:3:
+F:4:RES_NEXUS | RES_SOUND
+F:5:
+
+N:52:MISC
+C:0:0:0
+F:0:RES_CONF | TELEPORT
+F:1:RES_FEAR
+F:2:FREE_ACT
+F:3:RES_NEXUS
+F:4:RES_SOUND | RES_SHARDS
+F:5:RES_CHAOS | RES_DISEN

@@ -1119,9 +1119,6 @@ static bool do_cmd_tunnel_aux(int x, int y)
 		if ((p_ptr->skill_dig > 10 + randint0(400)) && twall(x, y, FEAT_GRASS))
 		{
 			msgf("You have cleared away the trees.");
-
-			chg_virtue(V_DILIGENCE, 1);
-			chg_virtue(V_NATURE, -1);
 		}
 
 		/* Keep trying */
@@ -1142,9 +1139,6 @@ static bool do_cmd_tunnel_aux(int x, int y)
 		if ((p_ptr->skill_dig > 10 + randint0(400)) && twall(x, y, FEAT_SNOW))
 		{
 			msgf("You have cleared away the trees.");
-
-			chg_virtue(V_DILIGENCE, 1);
-			chg_virtue(V_NATURE, -1);
 		}
 
 		/* Keep trying */
@@ -1166,9 +1160,6 @@ static bool do_cmd_tunnel_aux(int x, int y)
 		if ((p_ptr->skill_dig > 10 + randint0(800)) && twall(x, y, FEAT_BUSH))
 		{
 			msgf("You have cleared away the jungle.");
-
-			chg_virtue(V_DILIGENCE, 1);
-			chg_virtue(V_NATURE, -2);
 		}
 
 		/* Keep trying */
@@ -1194,9 +1185,6 @@ static bool do_cmd_tunnel_aux(int x, int y)
 		if ((p_ptr->skill_dig > 40 + randint0(1600)) && twall(x, y, FEAT_FLOOR))
 		{
 			msgf("You have finished the tunnel.");
-
-			chg_virtue(V_DILIGENCE, 1);
-			chg_virtue(V_NATURE, -1);
 		}
 
 		/* Keep trying */
@@ -1251,9 +1239,6 @@ static bool do_cmd_tunnel_aux(int x, int y)
 			{
 				/* Message */
 				msgf("You have finished the tunnel.");
-
-				chg_virtue(V_DILIGENCE, 1);
-				chg_virtue(V_NATURE, -1);
 			}
 		}
 
@@ -2107,20 +2092,6 @@ void do_cmd_rest(void)
 	/* Paranoia */
 	if (p_ptr->command_arg > 9999) p_ptr->command_arg = 9999;
 
-	/* The sin of sloth */
-	if (p_ptr->command_arg > 100)
-		chg_virtue(V_DILIGENCE, -1);
-
-	/* Why are you sleeping when there's no need?  WAKE UP! */
-	if ((p_ptr->chp == p_ptr->mhp) &&
-		(p_ptr->csp == p_ptr->msp) &&
-		!p_ptr->blind && !p_ptr->confused &&
-		!p_ptr->poisoned && !p_ptr->afraid &&
-		!p_ptr->stun && !p_ptr->cut &&
-		!p_ptr->slow && !p_ptr->paralyzed &&
-		!p_ptr->image && !p_ptr->word_recall)
-		chg_virtue(V_DILIGENCE, -1);
-
 	/* Take a turn XXX XXX XXX (?) */
 	p_ptr->energy_use = 100;
 
@@ -2306,12 +2277,6 @@ void do_cmd_fire_aux(object_type *o_ptr, const object_type *j_ptr)
 	long tdam;
 	int slay;
 
-#if 0
-	/* Assume no weapon of velocity or accuracy bonus. */
-	int special_dam = 0;
-	int special_hit = 0;
-#endif /* 0 */
-
 	int tdis, thits, tmul;
 	int cur_dis;
 
@@ -2325,24 +2290,6 @@ void do_cmd_fire_aux(object_type *o_ptr, const object_type *j_ptr)
 	int msec = delay_factor * delay_factor * delay_factor;
 
 	cave_type *c_ptr;
-
-	/* This "exception" will have to be added via python. */
-#if 0
-	/* Missile launchers of Velocity and Accuracy sometimes "supercharge" */
-	if ((j_ptr->name2 == EGO_VELOCITY) || (j_ptr->name2 == EGO_ACCURACY))
-	{
-		/* Occasional boost to shot. */
-		if (one_in_(16))
-		{
-			if (j_ptr->name2 == EGO_VELOCITY) special_dam = TRUE;
-			else if (j_ptr->name2 == EGO_ACCURACY) special_hit = TRUE;
-
-			/* Let player know that weapon is activated. */
-			msgf("You feel your %v tremble in your hand.",
-				 OBJECT_FMT(j_ptr, FALSE, 0));
-		}
-	}
-#endif /* 0 */
 
 	/* Get a direction (or cancel) */
 	if (!get_aim_dir(&dir)) return;
@@ -2393,27 +2340,6 @@ void do_cmd_fire_aux(object_type *o_ptr, const object_type *j_ptr)
 	/* The real number of shots per round is (1 + n)/2 */
 	p_ptr->energy_use = (2 * p_ptr->energy_use / (1 + thits));
 
-	/* Another thing to do in python */
-#if 0
-
-	/* Fire ammo of backbiting, and it will turn on you. -LM- */
-	if (i_ptr->name2 == EGO_BACKBITING)
-	{
-		/* Message. */
-		msgf("Your missile turns in midair and strikes you!");
-
-		/* Calculate damage. */
-		tdam = damroll(tmul * 4, i_ptr->ds);
-
-		/* Inflict both normal and wound damage. */
-		take_hit(tdam, "ammo of backbiting.");
-		set_cut(randint1(tdam * 3));
-
-		/* That ends that shot! */
-		return;
-	}
-#endif /* 0 */
-
 	/* Start at the player */
 	y = py;
 	x = px;
@@ -2423,7 +2349,7 @@ void do_cmd_fire_aux(object_type *o_ptr, const object_type *j_ptr)
 	tx = px + 99 * ddx[dir];
 
 	/* Check for "target request" */
-	if (!ironman_moria && (dir == 5) && target_okay())
+	if ((dir == 5) && target_okay())
 	{
 		tx = p_ptr->target_col;
 		ty = p_ptr->target_row;
@@ -2524,11 +2450,6 @@ void do_cmd_fire_aux(object_type *o_ptr, const object_type *j_ptr)
 			/* Adjacent monsters are harder to hit if awake */
 			if ((cur_dis == 1) && (!sleeping_bonus)) armour += armour;
 
-#if 0
-			/* Weapons of velocity sometimes almost negate monster armour. */
-			if (special_hit) armour /= 3;
-#endif /* 0 */
-
 			/* Look to see if we've spotted a mimic */
 			if ((m_ptr->smart & SM_MIMIC) && m_ptr->ml)
 			{
@@ -2606,14 +2527,6 @@ void do_cmd_fire_aux(object_type *o_ptr, const object_type *j_ptr)
 
 				/* Add in extra effect due to slays */
 				tdam += (slay - 10);
-
-#if 0
-				/* If a weapon of velocity activates, increase damage. */
-				if (special_dam)
-				{
-					tdam += 15;
-				}
-#endif /* 0 */
 
 				/* No negative damage */
 				if (tdam < 0) tdam = 0;
@@ -2891,7 +2804,7 @@ void do_cmd_throw_aux(int mult)
 	ty = py + 99 * ddy[dir];
 
 	/* Check for "target request" */
-	if (!ironman_moria && (dir == 5) && target_okay())
+	if ((dir == 5) && target_okay())
 	{
 		tx = p_ptr->target_col;
 		ty = p_ptr->target_row;

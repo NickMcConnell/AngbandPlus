@@ -31,9 +31,6 @@
 ?:[IOR [EQU $SYS xaw] [EQU $SYS x11] [EQU $SYS xpj]]
 %:pref-x11.prf
 
-?:[EQU $SYS gtk]
-%:pref-gtk.prf
-
 ?:[IOR [EQU $SYS gcu] [EQU $SYS lsl] [EQU $SYS vcs]]
 %:pref-gcu.prf
 
@@ -51,9 +48,6 @@
 
 ?:[EQU $SYS acn]
 %:pref-acn.prf
-
-?:[EQU $SYS tnb]
-%:pref-tnb.prf
 
 ?:1
 

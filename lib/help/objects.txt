@@ -364,35 +364,12 @@ have both random names and random properties. Once created, there
 is only a vanishingly small chance you will ever see one exactly
 the same again.
 
-
---- (Non-) Preserve Mode ---
-
-One important thing to note when considering artifacts is your
-initial choice of (non-)preserve mode. in non-preserve mode, once a
-fixed artifact is generated (either on the dungeon floor or in a
-monster drop), it will never be generated again during that game.
-This means that if you miss the artifact by leaving the level before
-you pick it up it is gone forever. On the other hand, in preserve mode
-this behavior is only exhibited once you have identified the artifact.
-It is therefor safer to leave a level before it is completely explored
-as any fixed artifact can be regenerated in subsequent levels.
-
 --- Special feelings ---
 
 If you have stayed on the previous level long enough, on entering a
 new level you will receive a 'feeling' which reflects the quality
 of the monsters and objects on the level. Feelings are discussed in
-more detail in the Town and Dungeon section. One possible feeling
-is 'You have a special feeling about this level'. This message is
-only given when playing in non-preserve mode and is an indicator
-that you have either a monster pit, vault or artifact on the level.
-Artifacts always cause special feelings but pits and vaults are
-increasingly less likely to do so as you get deeper in the dungeon.
-At very deep levels, special feelings are almost always artifacts.
-
-Note: In non-preserve mode, you can still find artifacts on
-levels that did not give a special feeling but these will always
-be the result of a monster dropping them.
+more detail in the Town and Dungeon section. 
 
 --- Random Artifacts ---
 

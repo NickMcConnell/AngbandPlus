@@ -615,13 +615,6 @@ static bool monster_can_smell(monster_type *m_ptr)
 	/* No information? */
 	if (!c_ptr->when) return (FALSE);
 
-#if 0
-
-	/* Scent is too old */
-	if (age > SMELL_STRENGTH) return (FALSE);
-
-#endif /* 0 */
-
 	/* Canines and Zephyer Hounds are amazing trackers */
 	if (strchr("CZ", r_ptr->d_char)) return (TRUE);
 
@@ -631,17 +624,6 @@ static bool monster_can_smell(monster_type *m_ptr)
 		/* Bloodscent! */
 		return (TRUE);
 	}
-#if 0
-	/* Other monsters can sometimes make good use of scent */
-	else if (strchr("fkoqyHORTY", r_ptr->d_char))
-	{
-		if (age <= SMELL_STRENGTH - 10)
-		{
-			/* Something's in the air... */
-			return (TRUE);
-		}
-	}
-#endif /* 0 */
 
 	/* You're imagining things. */
 	return (FALSE);
@@ -1028,16 +1010,6 @@ static void get_move_advance(monster_type *m_ptr, int *tx, int *ty)
 		return;
 	}
 
-#if 0
-	/* Use target information if available */
-	if ((m_ptr->ty) || (m_ptr->tx))
-	{
-		*tx = m_ptr->tx;
-		*ty = m_ptr->ty;
-		return;
-	}
-#endif /* 0 */
-
 	/* Monster location */
 	c_ptr = area(mx, my);
 
@@ -1287,33 +1259,7 @@ static bool get_move_retreat(monster_type *m_ptr, int *tx, int *ty)
 		/* Find a nearby grid not in LOS of the character. */
 
 		find_safety(m_ptr, tx, ty);
-#if 0
-		/*
-		 * No safe place found.  If monster is in LOS and close,
-		 * it will turn to fight.
-		 */
-		if ((player_has_los_bold(m_ptr->fx, m_ptr->fy)) &&
-			(m_ptr->cdis < TURN_RANGE))
-		{
-			/* Turn and fight */
-			m_ptr->monfear = 0;
 
-			/* Recalculate combat range (later) */
-			m_ptr->min_range = 0;
-
-			/* Visible */
-			if (m_ptr->ml)
-			{
-				/* Dump a message */
-				msgf("%^v turns to fight!", MONSTER_FMT(m_ptr, 0));
-			}
-
-			/* Charge! */
-			*tx = p_ptr->px;
-			*ty = p_ptr->py;
-
-		}
-#endif /* 0 */
 		return (TRUE);
 	}
 
@@ -1356,7 +1302,7 @@ static bool get_moves(int m_idx, int *mm)
 		get_move_advance(m_ptr, &tx, &ty);
 	}
 
-	if (!stupid_monsters && !will_run && is_hostile(m_ptr))
+	if (!will_run && is_hostile(m_ptr))
 	{
 		/*
 		 * Animal packs try to get the player out of corridors
@@ -1364,7 +1310,7 @@ static bool get_moves(int m_idx, int *mm)
 		 */
 		if ((r_ptr->flags1 & RF1_FRIENDS) &&
 			(r_ptr->flags3 & RF3_ANIMAL) &&
-			!(r_ptr->flags2 & (RF2_PASS_WALL | RF2_KILL_WALL)) && smart_packs)
+			!(r_ptr->flags2 & (RF2_PASS_WALL | RF2_KILL_WALL)))
 		{
 			int i, room = 0;
 
@@ -1483,11 +1429,8 @@ static bool get_moves(int m_idx, int *mm)
 		}
 	}
 
-	if (!stupid_monsters)
-	{
-		/* Check for no move */
-		if (!tx && !ty) return (FALSE);
-	}
+	/* Check for no move */
+	if (!tx && !ty) return (FALSE);
 
 	/* Set our target? */
 	m_ptr->tx = tx;
@@ -2616,8 +2559,7 @@ static void take_move(int m_idx, int *mm)
 	}
 
 	/* If we haven't done anything, try casting a spell again */
-	if (!do_turn && !do_move && !m_ptr->monfear && !stupid_monsters &&
-		!make_attack_spell(m_idx))
+	if (!do_turn && !do_move && !m_ptr->monfear && !make_attack_spell(m_idx))
 	{
 		/* Cast spell */
 		if (make_attack_spell(m_idx)) return;
@@ -2667,8 +2609,6 @@ static void take_move(int m_idx, int *mm)
 		{
 			/* Dump a message */
 			msgf("%^v turns to fight!", MONSTER_FMT(m_ptr, 0));
-
-			chg_virtue(V_COMPASSION, -1);
 		}
 
 		/* XXX XXX XXX Actually do something now (?) */
@@ -3136,11 +3076,6 @@ static void process_monster(int m_idx)
 		}
 	}
 	/* Normal movement */
-	else if (stupid_monsters)
-	{
-		/* Logical moves */
-		(void)get_moves(m_idx, mm);
-	}
 	else
 	{
 		/* Logical moves, may do nothing */
@@ -3413,15 +3348,4 @@ void reset_monsters(void)
 		/* Monster is ready to go again */
 		m_ptr->mflag &= ~(MFLAG_MOVE);
 	}
-
-#if 0
-
-	/* Clear the current noise after it is used to wake up monsters */
-	if (turn % 10 == 0)
-	{
-		total_wakeup_chance = 0L;
-		add_wakeup_chance = 0;
-	}
-
-#endif /* 0 */
 }

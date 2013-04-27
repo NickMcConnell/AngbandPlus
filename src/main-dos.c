@@ -910,11 +910,7 @@ static errr Term_user_dos(int n)
 				Term_xtra_dos_react();
 
 				/* Reset visuals */
-#ifdef ANGBAND_2_8_1
 				reset_visuals();
-#else /* ANGBAND_2_8_1 */
-				reset_visuals(TRUE);
-#endif /* ANGBAND_2_8_1 */
 				break;
 			}
 

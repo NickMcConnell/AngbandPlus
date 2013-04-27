@@ -280,87 +280,55 @@ errr init_object_alloc(void)
 
 byte get_object_level(const object_type *o_ptr)
 {
-#if 0
-	return (byte)get_object_level_callback(o_ptr);
-#else
 	return k_info[o_ptr->k_idx].level;
-#endif
 }
 
 
 cptr get_object_name(const object_type *o_ptr)
 {
-#if 0
-	return get_object_name_callback(o_ptr);
-#else
 	return (k_name + k_info[o_ptr->k_idx].name);
-#endif
 }
 
 
 /* Default object attribute */
 byte get_object_d_attr(const object_type *o_ptr)
 {
-#if 0
-	return get_object_d_attr_callback(o_ptr);
-#else
 	return k_info[o_ptr->k_idx].d_attr;
-#endif
 }
 
 
 /* Default object character */
 byte get_object_x_attr(const object_type *o_ptr)
 {
-#if 0
-	return get_object_x_attr_callback(o_ptr);
-#else
 	return k_info[o_ptr->k_idx].x_attr;
-#endif
 }
 
 
 /* Desired object attribute */
 char get_object_d_char(const object_type *o_ptr)
 {
-#if 0
-	return get_object_d_char_callback(o_ptr);
-#else
 	return k_info[o_ptr->k_idx].d_char;
-#endif
 }
 
 
 /* Desired object character */
 char get_object_x_char(const object_type *o_ptr)
 {
-#if 0
-	return get_object_x_char_callback(o_ptr);
-#else
 	return k_info[o_ptr->k_idx].x_char;
-#endif
 }
 
 
 /* The player is "aware" of the item's effects */
 bool get_object_aware(const object_type *o_ptr)
 {
-#if 0
-	return get_object_aware_callback(o_ptr);
-#else
 	return k_info[o_ptr->k_idx].aware;
-#endif
 }
 
 
 /* The player has "tried" one of the items */
 bool get_object_tried(const object_type *o_ptr)
 {
-#if 0
-	return get_object_tried_callback(o_ptr);
-#else
 	return k_info[o_ptr->k_idx].tried;
-#endif
 }
 
 

@@ -146,7 +146,7 @@ example, use "\" + "." + "6", to specify "run east".
  ,  Stay still (with pickup)            ^W  (special - wizard mode)
  <  Go up staircase                     ^X  Save and quit
  .  Run                                 ^Y  (unused)
- >  Go down staircase                   ^Z  (special - borg command)
+ >  Go down staircase                   ^Z  (unused)
  \  (special - bypass keymap)            |  Check various information
  `  (special - escape)                   ~  Check various information
  /  Identify symbol                      ?  Help
@@ -212,7 +212,7 @@ example, use "\" + "." + "6", to specify "run east".
  ,  Run                                 ^W  (special - wizard mode)
  <  Go up staircase                     ^X  Save and quit
  .  Stay still (with pickup)            ^Y  (tunnel - north west)
- >  Go down staircase                   ^Z  (special - borg command)
+ >  Go down staircase                   ^Z  (unused)
  \  (special - bypass keymap)            |  Check information
  `  (special - escape)                   ~  Check information
  /  Identify symbol                      ?  Help

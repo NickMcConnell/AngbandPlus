@@ -1324,8 +1324,7 @@ static void give_activation_power(object_type *o_ptr, int artifact_bias)
 
 static void get_random_name(char *return_name, byte tval, int power)
 {
-	if ((randint1(100) <= TABLE_NAME) ||
-		(tval == TV_AMULET) || (tval == TV_RING))
+	if (randint1(100) <= TABLE_NAME)
 	{
 		get_table_name(return_name, TRUE);
 	}
@@ -1384,9 +1383,6 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 	bool a_cursed = FALSE;
 	int warrior_artifact_bias = 0;
 	int artifact_bias = 0;
-
-	/* Moria had no artifacts */
-	if (ironman_moria) return (FALSE);
 
 	/* No activation yet */
 	o_ptr->activate = 0;
@@ -1587,9 +1583,6 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 			msgf("No bias in artifact.");
 	}
 
-	chg_virtue(V_INDIVIDUALISM, 2);
-	chg_virtue(V_ENCHANT, 5);
-
 	/* Save the inscription */
 	o_ptr->xtra_name = quark_add(new_name);
 
@@ -1663,92 +1656,6 @@ bool activate_effect(object_type *o_ptr)
 				}
 
 				o_ptr->timeout = (s16b)rand_range(20, 40);
-				break;
-			}
-
-			case ART_CARLAMMAS:
-			{
-				msgf("The amulet lets out a shrill wail...");
-				k = 3 * p_ptr->lev;
-				(void)set_protevil(p_ptr->protevil + randint1(25) + k);
-				o_ptr->timeout = (s16b)rand_range(225, 450);
-				break;
-			}
-
-			case ART_INGWE:
-			{
-				msgf("The amulet floods the area with goodness...");
-				(void)dispel_evil(p_ptr->lev * 5);
-				o_ptr->timeout = (s16b)rand_range(300, 600);
-				break;
-			}
-
-			case ART_BARAHIR:
-			{
-				msgf("You order Frakir to strangle your opponent.");
-				if (!get_aim_dir(&dir)) return FALSE;
-				if (drain_life(dir, 200))
-					o_ptr->timeout = (s16b)rand_range(100, 200);
-				break;
-			}
-
-			case ART_TULKAS:
-			{
-				msgf("The ring glows brightly...");
-				if (!p_ptr->fast)
-				{
-					(void)set_fast(rand_range(75, 150));
-				}
-				else
-				{
-					(void)set_fast(p_ptr->fast + 5);
-				}
-				o_ptr->timeout = (s16b)rand_range(150, 300);
-				break;
-			}
-
-			case ART_NARYA:
-			{
-				msgf("The ring glows deep red...");
-				if (!get_aim_dir(&dir)) return FALSE;
-				(void)fire_ball(GF_FIRE, dir, 250, 3);
-				o_ptr->timeout = (s16b)rand_range(225, 450);
-				break;
-			}
-
-			case ART_NENYA:
-			{
-				msgf("The ring glows bright white...");
-				if (!get_aim_dir(&dir)) return FALSE;
-				(void)fire_ball(GF_COLD, dir, 400, 3);
-				o_ptr->timeout = (s16b)rand_range(325, 650);
-				break;
-			}
-
-			case ART_VILYA:
-			{
-				msgf("The ring glows deep blue...");
-				if (!get_aim_dir(&dir)) return FALSE;
-				(void)fire_ball(GF_ELEC, dir, 500, 3);
-				o_ptr->timeout = (s16b)rand_range(425, 850);
-				break;
-			}
-
-			case ART_POWER:
-			{
-				msgf("The ring glows intensely black...");
-				if (!get_aim_dir(&dir)) return FALSE;
-				ring_of_power(dir);
-				o_ptr->timeout = (s16b)rand_range(450, 900);
-				break;
-			}
-
-			case ART_ELEMENTS:
-			{
-				msgf("The ring glows in multiple colours...");
-				if (!get_aim_dir(&dir)) return FALSE;
-				fire_ball(GF_MISSILE, dir, 800, 3);
-				o_ptr->timeout = (s16b)rand_range(250, 500);
 				break;
 			}
 
@@ -3127,8 +3034,6 @@ void random_artifact_resistance(object_type *o_ptr)
 				give_power = TRUE;
 		}
 			break;
-		case ART_NENYA:
-		case ART_VILYA:
 		case ART_BERUTHIEL:
 		case ART_FINGOLFIN:
 		case ART_THINGOL:
@@ -3139,7 +3044,6 @@ void random_artifact_resistance(object_type *o_ptr)
 			give_power = TRUE;
 		}
 			break;
-		case ART_POWER:
 		case ART_GONDOR:
 		case ART_AULE:
 		{

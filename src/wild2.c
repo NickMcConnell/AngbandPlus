@@ -153,6 +153,7 @@ static wild_building_type wild_build[MAX_CITY_BUILD] =
 	{0, FT_STORE_BLACK0, BT_STORE, 100, 100, 100, 10},
 	{0, FT_BUILD_MAGETOWER0, BT_BUILD, 100, 150, 100, 6},
 	{0, FT_BUILD_MAGETOWER1, BT_BUILD, 150, 250, 150, 20},
+	{0, FT_BUILD_SOULDEALER, BT_BUILD, 150, 150, 150, 2},
 };
 
 /* The stores in the starting town */
@@ -164,7 +165,8 @@ static int wild_first_town[START_STORE_NUM] =
 	BUILD_WARHALL0,
 	BUILD_STORE_TEMPLE,
 	BUILD_STORE_MAGIC,
-	BUILD_BLACK0
+	BUILD_BLACK0,
+	BUILD_SOULDEALER
 };
 
 
@@ -374,6 +376,14 @@ static u16b select_building(byte pop, byte magic, byte law, u16b *build,
 		wild_build[BUILD_MAGETOWER0].gen = 0;
 		wild_build[BUILD_MAGETOWER1].gen = 0;
 	}
+
+	/* Hack - Not more than one soul dealer per city */
+	/*
+	if (build[BUILD_SOULDEALER])
+	{
+		wild_build[BUILD_SOULDEALER].gen = 0;
+	}
+	*/
 
 	total = 0;
 
@@ -661,7 +671,7 @@ static bool create_city(int x, int y, int town_num)
 	count = fill_town_driver();
 
 	/* Too few squares??? */
-	if (count < 7) return (FALSE);
+	if (count < START_STORE_NUM) return (FALSE);
 
 	/* Make sure the city is self-connected properly */
 	remove_islands();
@@ -2820,14 +2830,6 @@ static void make_wild_04(blk_ptr block_ptr, byte *data, bool road)
 			break;
 		}
 		case 3:
-#if 0
-		{
-			/* Use "underlying" type */
-			gen_block_helper(block_ptr, wild_gen_data[data[0]].data,
-							 wild_gen_data[data[0]].gen_routine, road);
-			return;
-		}
-#endif
 		case 4:
 		{
 			/* Alternating grass & dirt */
@@ -3801,7 +3803,7 @@ static bool in_bounds_wild_player(int x, int y)
 
 
 /* Allocate all grids around player */
-void init_wild_cache(void)
+static void init_wild_cache(void)
 {
 	int x = p_ptr->old_wild_x, y = p_ptr->old_wild_y;
 	int i, j;

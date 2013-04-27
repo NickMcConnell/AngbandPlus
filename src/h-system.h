@@ -186,19 +186,9 @@ extern errr init_lsl(void);
 extern cptr help_lsl[];
 #endif
 
-#ifdef USE_GTK
-extern errr init_gtk(int argc, char **argv, unsigned char *new_game);
-extern cptr help_gtk[];
-#endif
-
 #ifdef USE_VCS
 extern errr init_vcs(int argc, char **argv);
 extern cptr help_vcs[];
-#endif
-
-#ifdef USE_TNB
-extern errr init_tnb(int argc, cptr *argv);
-extern cptr help_tnb[];
 #endif
 
 /*

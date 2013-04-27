@@ -886,7 +886,7 @@ static void put_cstr(int col, int row, cptr str, bool clear)
 				c++;
 				
 				/* Hack -- fake monochrome */
-				if (!use_color || ironman_moria) a = TERM_WHITE;
+				if (!use_color) a = TERM_WHITE;
 				
 				continue;
 			}
@@ -1068,7 +1068,7 @@ void roff(cptr str, ...)
 				a = *s - 'A';
 								
 				/* Hack -- fake monochrome */
-				if (!use_color || ironman_moria) a = TERM_WHITE;
+				if (!use_color) a = TERM_WHITE;
 				
 				continue;
 			}

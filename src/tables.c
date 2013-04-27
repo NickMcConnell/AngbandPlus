@@ -1471,175 +1471,6 @@ const b_own_type b_owners[MAX_BLDG][MAX_B_OWN] =
 
 
 /*
- * Buying and selling adjustments for race combinations.
- * Entry[owner][player] gives the basic "cost inflation".
- */
-const byte rgold_adj[MAX_RACES][MAX_RACES] =
-{
-	/*
-	 * Hum, HfE, Elf,  Hal, Gno, Dwa, HfO, HfT, Dun, HiE, Barbarian,
-	 * HfOg, HGn, HTn, Cyc, Yek, Klc, Kbd, Nbl, DkE, Drc, Mind Flayer,
-	 * Imp,  Glm, Skl, Zombie, Vampire, Spectre, Sprite, Beastman, Ghoul
-	 */
-
-	/* Human */
-	{ 100, 105, 105, 110, 113, 115, 120, 125, 100, 105, 100,
-	  124, 120, 110, 125, 115, 120, 120, 120, 120, 115, 120,
-	  115, 105, 125, 125, 125, 125, 105, 120, 125 },
-
-	/* Half-Elf */
-	{ 110, 100, 100, 105, 110, 120, 125, 130, 110, 100, 110,
-	  120, 115, 108, 115, 110, 110, 120, 120, 115, 115, 110,
-	  120, 110, 110, 110, 120, 110, 100, 125, 110 },
-
-	/* Elf */
-	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
-	  120, 120, 105, 120, 110, 105, 125, 125, 110, 115, 108,
-	  120, 115, 110, 110, 120, 110, 100, 125, 125},
-
-	/* Halfling */
-	{ 115, 110, 105,  95, 105, 110, 115, 130, 115, 105, 115,
-	  125, 120, 120, 125, 115, 110, 120, 120, 120, 115, 115,
-	  120, 110, 120, 120, 130, 110, 110, 130, 120 },
-
-	/* Gnome */
-	{ 115, 115, 110, 105,  95, 110, 115, 130, 115, 110, 115,
-	  120, 125, 110, 120, 110, 105, 120, 110, 110, 105, 110,
-	  120, 101, 110, 110, 120, 120, 115, 130, 110 },
-
-	/* Dwarf */
-	{ 115, 120, 120, 110, 110,	95, 125, 135, 115, 120, 115,
-	  125, 140, 130, 130, 120, 115, 115, 115, 135, 125, 120,
-	  120, 105, 115, 115, 115, 115, 120, 130, 125 },
-
-	/* Half-Orc */
-	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
-	  110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
-	  115, 125, 120, 120, 115, 120, 125, 115, 120},
-
-	/* Half-Troll */
-	{ 110, 115, 115, 110, 110, 130, 110, 110, 110, 115, 110,
-	  110, 115, 120, 110, 120, 120, 110, 110, 110, 115, 110,
-	  110, 115, 112, 112, 115, 112, 120, 110, 110 },
-
-	/* Amberite (Dunedain)	*/
-	{ 100, 105, 105, 110, 113, 115, 120, 125, 100, 105, 100,
-	  120, 120, 105, 120, 115, 105, 115, 120, 110, 105, 105,
-	  120, 105, 120, 120, 125, 120, 105, 135, 120 },
-
-	/* High_Elf */
-	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
-	  125, 125, 101, 120, 115, 110, 115, 125, 110, 110, 110,
-	  125, 115, 120, 120, 125, 120, 100, 125, 120 },
-
-	/* Human / Barbarian (copied from human) */
-	{ 100, 105, 105, 110, 113, 115, 120, 125, 100, 105, 100,
-	  124, 120, 110, 125, 115, 120, 120, 120, 120, 115, 120,
-	  115, 105, 125, 125, 130, 125, 115, 120, 125 },
-
-	/* Half-Ogre: theoretical, copied from half-troll */
-	{ 110, 115, 115, 110, 110, 130, 110, 110, 110, 115, 110,
-	  110, 115, 120, 110, 120, 120, 110, 110, 110, 115, 110,
-	  110, 115, 112, 112, 115, 112, 120, 110, 110 },
-
-	/* Half-Giant: theoretical, copied from half-troll */
-	{ 110, 115, 115, 110, 110, 130, 110, 110, 110, 115, 110,
-	  110, 115, 120, 110, 120, 120, 110, 110, 110, 115, 110,
-	  110, 115, 112, 112, 115, 112, 130, 120, 110 },
-
-	/* Half-Titan: theoretical, copied from High_Elf */
-	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
-	  125, 125, 101, 120, 115, 110, 115, 125, 110, 110, 110,
-	  125, 115, 120, 120, 120, 120, 130, 130, 120   },
-
-	/* Cyclops: theoretical, copied from half-troll */
-	{ 110, 115, 115, 110, 110, 130, 110, 110, 110, 115, 110,
-	  110, 115, 120, 110, 120, 120, 110, 110, 110, 115, 110,
-	  110, 115, 112, 112, 115, 112, 130, 130, 110  },
-
-	/* Yeek: theoretical, copied from Half-Orc */
-	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
-	  110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
-	  115, 125, 120, 120, 120, 120, 130, 130, 120  },
-
-	/* Klackon: theoretical, copied from Gnome */
-	{ 115, 115, 110, 105,  95, 110, 115, 130, 115, 110, 115,
-	  120, 125, 110, 120, 110, 105, 120, 110, 110, 105, 110,
-	  120, 101, 110, 110, 120, 120, 130, 130, 110  },
-
-	/* Kobold: theoretical, copied from Half-Orc */
-	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
-	  110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
-	  115, 125, 120, 120, 120, 120, 130, 130, 110  },
-
-	/* Nibelung: theoretical, copied from Dwarf */
-	{ 115, 120, 120, 110, 110,	95, 125, 135, 115, 120, 115,
-	  125, 140, 130, 130, 120, 115, 115, 115, 135, 125, 120,
-	  120, 105, 115, 115, 120, 120, 130, 130, 115   },
-
-	/* Dark Elf */
-	{ 110, 110, 110, 115, 120, 130, 115, 115, 120, 110, 115,
-	  115, 115, 116, 115, 120, 120, 115, 115, 101, 110, 110,
-	  110, 110, 112, 122, 110, 110, 110, 115, 122  },
-
-	/* Draconian: theoretical, copied from High_Elf */
-	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
-	  125, 125, 101, 120, 115, 110, 115, 125, 110, 110, 110,
-	  125, 115, 120, 120, 120, 120, 130, 130, 120  },
-
-	/* Mind Flayer: theoretical, copied from High_Elf */
-	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
-	  125, 125, 101, 120, 115, 110, 115, 125, 110, 110, 110,
-	  125, 115, 120, 120, 120, 120, 130, 130, 115   },
-
-	/* Imp: theoretical, copied from High_Elf */
-	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
-	  125, 125, 101, 120, 115, 110, 115, 125, 110, 110, 110,
-	  125, 115, 120, 120, 120, 120, 130, 130, 110   },
-
-	/* Golem: theoretical, copied from High_Elf */
-	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
-	  125, 125, 101, 120, 115, 110, 115, 125, 110, 110, 110,
-	  125, 115, 120, 120, 120, 120, 130, 130, 120 },
-
-	/* Skeleton: theoretical, copied from half-orc */
-	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
-	  110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
-	  115, 125, 120, 120, 120, 120, 130, 130, 110   },
-
-	/* Zombie: Theoretical, copied from half-orc */
-	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
-	  110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
-	  115, 125, 120, 120, 120, 120, 130, 130, 110   },
-
-	/* Vampire: Theoretical, copied from half-orc */
-	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
-	  110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
-	  115, 125, 120, 120, 120, 120, 130, 130, 110   },
-
-	/* Spectre: Theoretical, copied from half-orc */
-	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
-	  110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
-	  115, 125, 120, 120, 120, 120, 130, 130, 110   },
-
-	/* Sprite: Theoretical, copied from half-orc */
-	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
-	  110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
-	  115, 125, 120, 120, 120, 120, 130, 130, 130   },
-
-	/* Beastman: Theoretical, copied from half-orc */
-	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
-	  110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
-	  115, 125, 120, 120, 120, 120, 130, 130, 115   },
-
-	/* Ghoul  */
-	{ 120, 125, 125, 120, 117, 120, 113, 110, 120, 125, 115,
-	  112, 111, 120, 111, 125, 120, 116, 115, 110, 115, 105,
-	  105, 120, 105, 105, 105, 105, 130, 115, 100   },
-};
-
-
-/*
  * This table allows quick conversion from "speed" to "energy"
  * The basic function WAS ((S>=110) ? (S-110) : (100 / (120-S)))
  * Note that table access is *much* quicker than computation.
@@ -3348,11 +3179,11 @@ player_magic magic_info[MAX_CLASS] =
 
 			/* Rogue (Thief): Arcane Magic */
 			{
-				{ 1, 1, 20, 4 },
-				{ 1, 1, 33, 5 },
-				{ 2, 1, 33, 4 },
-				{ 2, 2, 33, 5 },
-				{ 3, 3, 33, 5 },
+				{ 5, 1, 20, 4 },
+				{ 5, 1, 33, 5 },
+				{ 5, 1, 33, 4 },
+				{ 5, 2, 33, 5 },
+				{ 5, 3, 33, 5 },
 				{ 5, 5, 40, 6 },
 				{ 6, 6, 33, 7 },
 				{ 7, 7, 44, 5 },
@@ -5594,7 +5425,7 @@ cptr spell_names[7][32] =
 		"Fire Ball",
 		"Teleport Other",
 		"Word of Destruction",
-		"Invoke Logrus",
+		"Invoke the Warp",
 
 		/* Rare Chaos Spellbooks */
 		"Polymorph Other",
@@ -5612,7 +5443,7 @@ cptr spell_names[7][32] =
 		"Call Chaos",
 		"Magic Rocket",
 		"Mana Storm",
-		"Breathe Logrus",
+		"Breathe Chaos",
 		"Call the Void"
 	},
 
@@ -6109,8 +5940,8 @@ cptr window_flag_desc[32] =
 	"Display equip/inven",
 	"Display spell list",
 	"Display character",
-	"Display script variables",
-	"Display script source",
+	NULL,
+	NULL,
 	"Display messages",
 	"Display overhead view",
 	"Display monster recall",
@@ -6119,8 +5950,8 @@ cptr window_flag_desc[32] =
 	"Display snap-shot",
 	"Display visible monsters",
 	NULL,
-	"Display borg messages",
-	"Display borg status",
+	NULL,
+	NULL,
 	NULL,
 	NULL,
 	NULL,
@@ -6154,11 +5985,11 @@ option_type option_info[OPT_MAX] =
 	{TRUE,  1, "always_repeat",			"Repeat obvious commands" },
 	{FALSE, 5, "depth_in_feet",			"Show dungeon level in feet" },
 	{TRUE,  0, NULL,					"Number 8" },
-	{FALSE, 1, "stack_force_costs",		"Merge discounts when stacking" },
+	{TRUE,  1, "stack_force_costs",		"Merge discounts when stacking" },
 	{TRUE,  5, "show_labels",			"Show labels in object listings" },
 	{TRUE,  5, "show_weights",			"Show weights in object listings" },
 	{FALSE, 8, "view_monster_grids",	"Map remembers monster-lit grids" },
-	{FALSE, 1, "toggle_xp",				"Reverse experience display" },
+	{TRUE,  1, "toggle_xp",				"Reverse experience display" },
 	{FALSE, 2, "ring_bell",				"Audible bell (on errors, etc)" },
 	{TRUE,  5, "use_color",				"Use color if possible (slow)" },
 	{FALSE, 2, "find_ignore_stairs",	"Run past stairs" },
@@ -6192,7 +6023,7 @@ option_type option_info[OPT_MAX] =
 	{TRUE,  0, NULL,					"Number 43" },
 	{TRUE,  0, NULL,					"Number 44" },
 	{TRUE,  0, NULL,					"Number 45" },
-	{TRUE,  7, "smart_packs",			"Pack monsters use new AI" },
+	{TRUE,  0, NULL,					"Number 46" },
 	{FALSE, 0, NULL,					"Number 47" },
 	{FALSE, 0, NULL,					"Number 48" },
 	{FALSE, 0, NULL,					"Number 49" },
@@ -6205,11 +6036,11 @@ option_type option_info[OPT_MAX] =
 	{FALSE, 4, "fresh_after",			"Flush output after every command" },
 	{FALSE, 0, NULL,					"Number 57" },
 	{TRUE,  4, "compress_savefile",		"Compress messages in savefiles" },
-	{TRUE,  5, "hilite_player",			"Hilite the player with the cursor" },
-	{FALSE, 5, "view_yellow_lite",		"Use special colors for torch-lit grids" },
-	{FALSE, 5, "view_bright_lite",		"Use special colors for 'viewable' grids" },
-	{FALSE, 5, "view_granite_lite",		"Use special colors for wall grids (slow)" },
-	{FALSE, 5, "view_special_lite",		"Use special colors for floor grids (slow)" },
+	{FALSE, 5, "hilite_player",			"Hilite the player with the cursor" },
+	{TRUE,  5, "view_yellow_lite",		"Use special colors for torch-lit grids" },
+	{TRUE,  5, "view_bright_lite",		"Use special colors for 'viewable' grids" },
+	{TRUE,  5, "view_granite_lite",		"Use special colors for wall grids (slow)" },
+	{TRUE,  5, "view_special_lite",		"Use special colors for floor grids (slow)" },
 
 	{TRUE,  5, "view_player_colour",	"Use special colours for the player" },
 	{TRUE,  0, NULL,					"Number 65" },
@@ -6312,15 +6143,15 @@ option_type option_info[OPT_MAX] =
 
 	{TRUE,  0, NULL,					"Number 160" },
 	{FALSE, 5, "plain_descriptions",	"Plain object descriptions" },
-	{FALSE, 6, "stupid_monsters",		"Monsters behave stupidly" },
+	{TRUE,  0, NULL,		      "Number 162" },
 	{FALSE, 1, "auto_destroy",			"No query to destroy known worthless items" },
-	{FALSE, 1, "confirm_wear",			"Confirm to wear/wield known cursed items" },
+	{TRUE,  1, "confirm_wear",			"Confirm to wear/wield known cursed items" },
 	{FALSE, 1, "confirm_stairs",		"Prompt before exiting a dungeon level" },
 	{TRUE,  1, "easy_open",				"Automatically open doors" },
 	{TRUE,  1, "easy_disarm",			"Automatically disarm traps" },
 	{FALSE, 1, "easy_floor",			"Display floor stacks in a list" },
 	{TRUE,  0, NULL,					"Number 169" },
-	{FALSE, 5, "center_player",			"Always center on the player (*slow*)" },
+	{TRUE,  5, "center_player",			"Always center on the player (*slow*)" },
 	{FALSE, 5, "avoid_center",			"Avoid centering while running" },
 	{TRUE,  0, NULL,					"Number 172" },
 	{TRUE,  5, "limit_messages",			"Only display last 50 messages in dumps" },
@@ -6353,11 +6184,11 @@ option_type option_info[OPT_MAX] =
 	{TRUE,	0, NULL,						"Number 199" },
 	{FALSE, 6, "ironman_empty_levels",	"Always create empty 'arena' levels" },
 	{TRUE,  6, "terrain_streams",		"Create terrain 'streamers' in the dungeon" },
-	{FALSE, 6, "ironman_moria",			"The good old days..." },
-	{FALSE, 6, "munchkin_death",		"Ask for saving death" },
+	{TRUE,  0, NULL,					"Number 202" },
+	{TRUE,  0, NULL,		      "Number 203" },
 	{FALSE, 6, "ironman_rooms",			"Always generate very unusual rooms" },
 	{TRUE,  0, NULL,					"Number 205" },
-	{TRUE,  6, "preserve_mode",			"Preserve artifacts" },
+	{TRUE,  0, NULL,			    "Number 206" },
 	{TRUE,  6, "autoroller",			"Specify stat weightings" },
 	{FALSE, 6, "point_based",			"Generate character using a point system" },
 	{TRUE,  6, "silly_monsters",		"Allow silly monsters" },
@@ -6376,7 +6207,7 @@ option_type option_info[OPT_MAX] =
 	{TRUE,  0, NULL,					"Number 222" },
 	{TRUE,  0, NULL,					"Number 223" },
 	{FALSE, 0, NULL,					"Number 224" },
-	{FALSE, 5, "monster_light",			"Allow monsters to carry lights" },
+	{TRUE, 5, "monster_light",			"Allow monsters to carry lights" },
 	{TRUE,  0, NULL,					"Turn on muliplayer client - server code" },
 	{TRUE,  0, NULL,					"Number 227" },
 	{TRUE,  0, NULL,					"Number 228" },
@@ -7054,13 +6885,13 @@ const field_action f_action[] =
 	{field_action_healer1, "field_action_healer1"},
 	
 	/* Healer part 2 */
-    {field_action_healer2, "field_action_healer2"},
+  {field_action_healer2, "field_action_healer2"},
 
-    /* Mage Tower part 1 */
-    {field_action_magetower1, "field_action_magetower1"},
+	/* Mage Tower part 1 */
+  {field_action_magetower1, "field_action_magetower1"},
 
-    /* Mage Tower part 2 */
-    {field_action_magetower2, "field_action_magetower2"},
+  /* Mage Tower part 2 */
+  {field_action_magetower2, "field_action_magetower2"},
 	
 	/* Bookstore */
 	{field_action_isbook_tester, "field_action_isbook_tester"},
@@ -7127,6 +6958,12 @@ const field_action f_action[] =
 	
 	/* Non-scroll magic items maker */
 	{field_action_issupplies_tester, "field_action_issupplies_tester"},
+
+	/* Soul Shop 1 */
+	{field_action_souldealer1, "field_action_souldealer1"},
+	
+	/* Soul Shop 2 */
+	{field_action_souldealer2, "field_action_souldealer2"},
 
 	/* Done */
 	{NULL, NULL}

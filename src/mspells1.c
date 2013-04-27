@@ -519,7 +519,7 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 	int i;
 
 	/* Smart monsters restrict their spell choices. */
-	if (!stupid_monsters && !(r_ptr->flags2 & (RF2_STUPID)))
+	if (!(r_ptr->flags2 & (RF2_STUPID)))
 	{
 		/* What have we got? */
 		has_escape = ((f4 & (RF4_ESCAPE_MASK)) || (f5 & (RF5_ESCAPE_MASK)) ||
@@ -816,36 +816,33 @@ bool make_attack_spell(int m_idx)
 	/* No spells left */
 	if (!f4 && !f5 && !f6) return (FALSE);
 
-	if (!stupid_monsters)
+	/* Check for a clean bolt shot */
+	if (((f4 & RF4_BOLT_MASK) ||
+			(f5 & RF5_BOLT_MASK) ||
+			(f6 & RF6_BOLT_MASK)) &&
+		!(r_ptr->flags2 & RF2_STUPID) &&
+		!clean_shot(m_ptr->fx, m_ptr->fy, px, py, FALSE))
 	{
-		/* Check for a clean bolt shot */
-		if (((f4 & RF4_BOLT_MASK) ||
-			 (f5 & RF5_BOLT_MASK) ||
-			 (f6 & RF6_BOLT_MASK)) &&
-			!(r_ptr->flags2 & RF2_STUPID) &&
-			!clean_shot(m_ptr->fx, m_ptr->fy, px, py, FALSE))
-		{
-			/* Remove spells that will only hurt friends */
-			f4 &= ~(RF4_BOLT_MASK);
-			f5 &= ~(RF5_BOLT_MASK);
-			f6 &= ~(RF6_BOLT_MASK);
-		}
-
-		/* Check for a possible summon */
-		if (((f4 & RF4_SUMMON_MASK) ||
-			 (f5 & RF5_SUMMON_MASK) ||
-			 (f6 & RF6_SUMMON_MASK)) &&
-			!(r_ptr->flags2 & RF2_STUPID) && !(summon_possible(px, py)))
-		{
-			/* Remove summoning spells */
-			f4 &= ~(RF4_SUMMON_MASK);
-			f5 &= ~(RF5_SUMMON_MASK);
-			f6 &= ~(RF6_SUMMON_MASK);
-		}
-
-		/* No spells left */
-		if (!f4 && !f5 && !f6) return (FALSE);
+		/* Remove spells that will only hurt friends */
+		f4 &= ~(RF4_BOLT_MASK);
+		f5 &= ~(RF5_BOLT_MASK);
+		f6 &= ~(RF6_BOLT_MASK);
 	}
+
+	/* Check for a possible summon */
+	if (((f4 & RF4_SUMMON_MASK) ||
+			(f5 & RF5_SUMMON_MASK) ||
+			(f6 & RF6_SUMMON_MASK)) &&
+		!(r_ptr->flags2 & RF2_STUPID) && !(summon_possible(px, py)))
+	{
+		/* Remove summoning spells */
+		f4 &= ~(RF4_SUMMON_MASK);
+		f5 &= ~(RF5_SUMMON_MASK);
+		f6 &= ~(RF6_SUMMON_MASK);
+	}
+
+	/* No spells left */
+	if (!f4 && !f5 && !f6) return (FALSE);
 
 	/* Get the monster name (or "it") */
 	monster_desc(m_name, m_ptr, 0x00, 80);
@@ -1253,7 +1250,7 @@ bool make_attack_spell(int m_idx)
 			disturb(TRUE);
 			if (blind) msgf("%^s mumbles frighteningly.", m_name);
 			else
-				msgf("%^s invokes raw Logrus.", m_name);
+				msgf("%^s invokes raw Chaos.", m_name);
 			breath(m_idx, GF_CHAOS, (rlev * 2) + damroll(10, 10), 4, FALSE);
 			update_smart_learn(m_idx, DRS_CHAOS);
 			break;

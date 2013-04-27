@@ -395,9 +395,7 @@ void wipe_o_list(void)
 		if (!(o_ptr->ix || o_ptr->iy)) continue;
 
 		/* Preserve artifacts */
-		if (preserve_mode && (o_ptr->flags3 & TR3_INSTA_ART) &&
-			(o_ptr->activate > 127) &&
-			(a_info[o_ptr->activate - 128].cur_num == 1))
+		if ( (o_ptr->flags3 & TR3_INSTA_ART) && (o_ptr->activate > 127) && (a_info[o_ptr->activate - 128].cur_num == 1) )
 		{
 			a_info[o_ptr->activate - 128].cur_num = 0;
 		}
@@ -442,9 +440,7 @@ void wipe_objects(int rg_idx)
 		if (o_ptr->region != rg_idx) continue;
 
 		/* Preserve artifacts */
-		if (preserve_mode && (o_ptr->flags3 & TR3_INSTA_ART) &&
-			(o_ptr->activate > 127) &&
-			(a_info[o_ptr->activate - 128].cur_num == 1))
+		if ( (o_ptr->flags3 & TR3_INSTA_ART) && (o_ptr->activate > 127) && (a_info[o_ptr->activate - 128].cur_num == 1) )
 		{
 			a_info[o_ptr->activate - 128].cur_num = 0;
 		}
@@ -924,18 +920,6 @@ static s32b object_value_base(const object_type *o_ptr)
 			/* Un-aware Rods */
 			return (90L);
 		}
-
-		case TV_RING:
-		{
-			/* Un-aware Rings */
-			return (45L);
-		}
-
-		case TV_AMULET:
-		{
-			/* Un-aware Amulets */
-			return (45L);
-		}
 	}
 
 	/* Paranoia -- Oops */
@@ -1283,33 +1267,6 @@ s32b object_value_real(const object_type *o_ptr)
 			break;
 		}
 
-		case TV_RING:
-		case TV_AMULET:
-		{
-            /* Rings/Amulets */
-
-            /* Hack -- special handling for amulets of Berserk Strength */
-            if (o_ptr->sval == SV_AMULET_BERSERK)
-            {
-                value += (bonus_value(o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) * 20);
-
-                /* Done */
-                break;
-            }
-
-			/* Hack -- negative bonuses are bad */
-			if (o_ptr->to_a < 0) return (0L);
-			if (o_ptr->to_h < 0) return (0L);
-			if (o_ptr->to_d < 0) return (0L);
-
-			/* Factor in the bonuses */
-			value += (bonus_value(o_ptr->to_h + o_ptr->to_d) * 20 +
-					  bonus_value(o_ptr->to_a * 2) * 10);
-
-			/* Done */
-			break;
-		}
-
 		case TV_BOOTS:
 		case TV_GLOVES:
 		case TV_CLOAK:
@@ -1572,6 +1529,12 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 			return (FALSE);
 		}
 
+		case TV_SOUL_GEM:
+		{
+			/* Never okay */
+			return (FALSE);
+		}
+
 		case TV_FOOD:
 		case TV_POTION:
 		case TV_SCROLL:
@@ -1632,6 +1595,8 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
 		case TV_DRAG_ARMOR:
+		case TV_RING:
+		case TV_AMULET:
 		{
 			/* Weapons and Armor never stack */
 
@@ -1643,17 +1608,6 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 			/* Hack - Require identical fuel levels */
 			if (o_ptr->timeout != j_ptr->timeout) return (FALSE);
 
-			/* Fall through */
-		}
-
-		case TV_RING:
-		case TV_AMULET:
-		{
-			/* Rings, Amulets, Lites */
-
-			/* Require full knowledge of both items */
-			if (!object_known_p(o_ptr)
-				|| !object_known_p(j_ptr)) return (FALSE);
 			/* Fall through */
 		}
 
@@ -2261,9 +2215,6 @@ static object_type *make_artifact(void)
 	int k_idx = 0;
 
 	object_type *o_ptr;
-
-	/* Moria had no artifacts */
-	if (ironman_moria) return (NULL);
 
 	/* Check the artifact list */
 	for (i = 1; i < z_info->a_max; i++)
@@ -3197,483 +3148,6 @@ static void a_m_aux_2(object_type *o_ptr, int level, int lev_dif, byte flags)
 	}
 }
 
-
-/*
- * Apply magic to an item known to be a "ring" or "amulet"
- *
- * Hack -- note special rating boost for ring of speed
- * Hack -- note special rating boost for amulet of the magi
- * Hack -- note special "pval boost" code for ring of speed
- * Hack -- note that some items must be cursed (or blessed)
- */
-static void a_m_aux_3(object_type *o_ptr, int level, byte flags)
-{
-	if (!(flags & OC_FORCE_GOOD) && one_in_(2))
-	{
-		/* Half the time, the stuff can be bad */
-
-		flags |= OC_FORCE_BAD;
-	}
-
-	/* Apply magic (good or bad) according to type */
-	switch (o_ptr->tval)
-	{
-		case TV_RING:
-		{
-			/* Analyze */
-			switch (o_ptr->sval)
-			{
-				case SV_RING_ATTACKS:
-				{
-					/* Rarely have a ring +2 */
-					if (one_in_(7))
-					{
-						o_ptr->pval = 2;
-					}
-
-					/* Cursed */
-					if (flags & OC_FORCE_BAD)
-					{
-						/* Broken */
-						o_ptr->cost = 0;
-
-						/* Cursed */
-						o_ptr->flags3 |= (TR3_CURSED);
-
-						/* Reverse pval */
-						o_ptr->pval = 0 - (o_ptr->pval);
-					}
-
-					break;
-				}
-
-				case SV_RING_STR:
-				case SV_RING_CON:
-				case SV_RING_DEX:
-				case SV_RING_INT:
-				{
-					/* Strength, Constitution, Dexterity, Intelligence */
-
-					/* Stat bonus */
-					o_ptr->pval = 1 + m_bonus(o_ptr->pval, level);
-
-					/* Cursed */
-					if (flags & OC_FORCE_BAD)
-					{
-						/* Broken */
-						o_ptr->cost = 0;
-
-						/* Cursed */
-						o_ptr->flags3 |= (TR3_CURSED);
-
-						/* Reverse pval */
-						o_ptr->pval = 0 - (o_ptr->pval);
-					}
-
-					break;
-				}
-
-				case SV_RING_SPEED:
-				{
-					/* Ring of Speed! */
-
-					/* Base speed (1 to 10) */
-					o_ptr->pval = randint1(o_ptr->pval / 2) +
-						m_bonus(o_ptr->pval, level);
-
-					/* Super-charge the ring */
-					while (one_in_(2)) o_ptr->pval++;
-
-					/* Cursed Ring */
-					if (flags & OC_FORCE_BAD)
-					{
-						/* Broken */
-						o_ptr->cost = 0;
-
-						/* Cursed */
-						o_ptr->flags3 |= (TR3_CURSED);
-
-						/* Reverse pval */
-						o_ptr->pval = 0 - (o_ptr->pval);
-
-						break;
-					}
-
-					/* Rating boost */
-					dun_ptr->rating += 25;
-
-					/* Mention the item */
-					if (cheat_peek) object_mention(o_ptr);
-
-					break;
-				}
-
-				case SV_RING_LORDLY:
-				{
-					if (one_in_(7))
-					{
-						/* Randart ring */
-						(void)create_artifact(o_ptr, FALSE);
-					}
-					else
-					{
-						do
-						{
-							(void)random_resistance(o_ptr, rand_range(19, 38),
-													0);
-						}
-						while (one_in_(4));
-
-						/* Bonus to armor class */
-						o_ptr->to_a = rand_range(10, 15) + m_bonus(10, level);
-						dun_ptr->rating += 5;
-					}
-				}
-					break;
-
-				case SV_RING_SEARCHING:
-				{
-					/* Searching */
-
-					/* Bonus to searching */
-					o_ptr->pval = 1 + m_bonus(o_ptr->pval, level);
-
-					/* Cursed */
-					if (flags & OC_FORCE_BAD)
-					{
-						/* Broken */
-						o_ptr->cost = 0;
-
-						/* Cursed */
-						o_ptr->flags3 |= (TR3_CURSED);
-
-						/* Reverse pval */
-						o_ptr->pval = 0 - (o_ptr->pval);
-					}
-
-					break;
-				}
-
-				case SV_RING_FLAMES:
-				case SV_RING_ACID:
-				case SV_RING_ICE:
-				{
-					/* Flames, Acid, Ice */
-
-					/* Bonus to armor class */
-					o_ptr->to_a = rand_range(5, 10) + m_bonus(10, level);
-					break;
-				}
-
-				case SV_RING_WEAKNESS:
-				case SV_RING_STUPIDITY:
-				{
-					/* Weakness, Stupidity */
-
-					/* Broken */
-					o_ptr->cost = 0;
-
-					/* Cursed */
-					o_ptr->flags3 |= (TR3_CURSED);
-
-					/* Penalize */
-					o_ptr->pval = 0 - (1 + m_bonus(-(o_ptr->pval), level));
-
-					break;
-				}
-
-				case SV_RING_WOE:
-				{
-					/* WOE, Stupidity */
-
-					/* Broken */
-					o_ptr->cost = 0;
-
-					/* Cursed */
-					o_ptr->flags3 |= (TR3_CURSED);
-
-					/* Penalize */
-					o_ptr->to_a = 0 - (5 + m_bonus(10, level));
-					o_ptr->pval = 0 - (1 + m_bonus(-(o_ptr->pval), level));
-
-					break;
-				}
-
-				case SV_RING_DAMAGE:
-				{
-					/* Ring of damage */
-
-					/* Bonus to damage */
-					o_ptr->to_d = rand_range(5, 13) + m_bonus(10, level);
-
-					/* Cursed */
-					if (flags & OC_FORCE_BAD)
-					{
-						/* Broken */
-						o_ptr->cost = 0;
-
-						/* Cursed */
-						o_ptr->flags3 |= (TR3_CURSED);
-
-						/* Reverse bonus */
-						o_ptr->to_d = 0 - o_ptr->to_d;
-					}
-
-					break;
-				}
-
-				case SV_RING_ACCURACY:
-				{
-					/* Ring of Accuracy */
-
-					/* Bonus to hit */
-					o_ptr->to_h = rand_range(5, 13) + m_bonus(10, level);
-
-					/* Cursed */
-					if (flags & OC_FORCE_BAD)
-					{
-						/* Broken */
-						o_ptr->cost = 0;
-
-						/* Cursed */
-						o_ptr->flags3 |= (TR3_CURSED);
-
-						/* Reverse tohit */
-						o_ptr->to_h = 0 - o_ptr->to_h;
-					}
-
-					break;
-				}
-
-				case SV_RING_PROTECTION:
-				{
-					/* Ring of Protection */
-
-					/* Bonus to armor class */
-					o_ptr->to_a = rand_range(5, 13) + m_bonus(10, level);
-
-					/* Cursed */
-					if (flags & OC_FORCE_BAD)
-					{
-						/* Broken */
-						o_ptr->cost = 0;
-
-						/* Cursed */
-						o_ptr->flags3 |= (TR3_CURSED);
-
-						/* Reverse toac */
-						o_ptr->to_a = 0 - o_ptr->to_a;
-					}
-
-					break;
-				}
-
-				case SV_RING_SLAYING:
-				{
-					/* Ring of Slaying */
-
-					/* Bonus to damage and to hit */
-					o_ptr->to_d = randint1(7) + m_bonus(10, level);
-					o_ptr->to_h = randint1(7) + m_bonus(10, level);
-
-					/* Cursed */
-					if (flags & OC_FORCE_BAD)
-					{
-						/* Broken */
-						o_ptr->cost = 0;
-
-						/* Cursed */
-						o_ptr->flags3 |= (TR3_CURSED);
-
-						/* Reverse bonuses */
-						o_ptr->to_h = 0 - o_ptr->to_h;
-						o_ptr->to_d = 0 - o_ptr->to_d;
-					}
-
-					break;
-				}
-
-				case SV_RING_CAT:
-				{
-					/* Bonus to searching and infravision */
-					o_ptr->pval = 1 + m_bonus(o_ptr->pval, level);
-
-					/* Sometimes add random sustain */
-					if (one_in_(3)) o_ptr->flags2 |= TR2_SUST_DEX;
-
-					/* Cursed */
-					if (flags & OC_FORCE_BAD)
-					{
-						/* Broken */
-						o_ptr->cost = 0;
-
-						/* Cursed */
-						o_ptr->flags3 |= (TR3_CURSED);
-
-						/* Reverse pval */
-						o_ptr->pval = 0 - (o_ptr->pval);
-					}
-
-					break;
-				}
-			}
-
-			break;
-		}
-
-		case TV_AMULET:
-		{
-			/* Analyze */
-			switch (o_ptr->sval)
-			{
-				case SV_AMULET_WISDOM:
-				case SV_AMULET_CHARISMA:
-				{
-					/* Amulet of wisdom/charisma */
-
-					o_ptr->pval = 1 + m_bonus(o_ptr->pval, level);
-
-					/* Cursed */
-					if (flags & OC_FORCE_BAD)
-					{
-						/* Broken */
-						o_ptr->cost = 0;
-
-						/* Cursed */
-						o_ptr->flags3 |= (TR3_CURSED);
-
-						/* Reverse bonuses */
-						o_ptr->pval = 0 - o_ptr->pval;
-					}
-
-					break;
-				}
-
-				case SV_AMULET_NO_MAGIC:
-				case SV_AMULET_NO_TELE:
-				{
-					if (flags & OC_FORCE_BAD)
-					{
-						o_ptr->flags3 |= (TR3_CURSED);
-					}
-					break;
-				}
-
-				case SV_AMULET_RESISTANCE:
-				{
-					if (one_in_(3))
-					{
-						(void)random_resistance(o_ptr, rand_range(5, 38), 0);
-					}
-
-					if (one_in_(5))
-					{
-						o_ptr->flags2 |= TR2_RES_POIS;
-					}
-				}
-					break;
-
-				case SV_AMULET_SEARCHING:
-				{
-					/* Amulet of searching */
-					o_ptr->pval = randint1(5) + m_bonus(o_ptr->pval, level);
-
-					/* Cursed */
-					if (flags & OC_FORCE_BAD)
-					{
-						/* Broken */
-						o_ptr->cost = 0;
-
-						/* Cursed */
-						o_ptr->flags3 |= (TR3_CURSED);
-
-						/* Reverse bonuses */
-						o_ptr->pval = 0 - (o_ptr->pval);
-					}
-
-					break;
-                }
-
-                case SV_AMULET_BERSERK:
-                {
-                    /* Amulet of Berserk Strength */
-
-                    /* Bonus to damage and to hit */
-                    o_ptr->to_d = randint1(7) + m_bonus(10, level);
-                    o_ptr->to_h = randint1(7) + m_bonus(10, level);
-
-                    /* Penalty to AC */
-                    o_ptr->to_a = -(rand_range(5, 10));
-
-                    /* Curse */
-                    if (flags & OC_FORCE_BAD)
-                    {
-                        /* Cursed */
-                        o_ptr->flags3 |= (TR3_CURSED);
-
-                        /* Larger AC penalty */
-                        o_ptr->to_a -= rand_range(10, 20);
-                    }
-
-                    break;
-                }
-
-				case SV_AMULET_THE_MAGI:
-				{
-					/* Amulet of the Magi */
-					if (one_in_(7))
-					{
-						/* Randart amulet */
-						(void)create_artifact(o_ptr, FALSE);
-
-						if (o_ptr->pval == 0)
-						{
-							/* No amulets of "+0 searching" */
-							o_ptr->pval = 1;
-						}
-					}
-					else
-					{
-						o_ptr->pval = randint1(5) + m_bonus(o_ptr->pval, level);
-						o_ptr->to_a = randint1(5) + m_bonus(5, level);
-
-						if (one_in_(3)) o_ptr->flags3 |= TR3_SLOW_DIGEST;
-
-						/* Boost the rating */
-						dun_ptr->rating += 25;
-					}
-
-					/* Mention the item */
-					if (cheat_peek) object_mention(o_ptr);
-
-					break;
-				}
-
-				case SV_AMULET_DOOM:
-				{
-					/* Amulet of Destruction -- always cursed */
-
-					/* Broken */
-					o_ptr->cost = 0;
-
-					/* Cursed */
-					o_ptr->flags3 |= (TR3_CURSED);
-
-					/* Penalize */
-					o_ptr->pval =
-						0 - (randint1(5) + m_bonus(-(o_ptr->pval), level));
-					o_ptr->to_a = 0 - (randint1(5) + m_bonus(5, level));
-
-					break;
-				}
-			}
-
-			break;
-		}
-	}
-}
-
-
 /*
  * Apply magic to an item known to be "boring"
  *
@@ -4020,9 +3494,6 @@ void add_ego_power(int power, object_type *o_ptr)
  * if it is "cursed", there is a chance it will be "broken".  These chances
  * are related to the "good" / "great" chances above.
  *
- * Otherwise "normal" rings and amulets will be "good" half the time and
- * "cursed" half the time, unless the ring/amulet is always good or cursed.
- *
  * If "okay" is true, and the object is going to be "great", then there is
  * a chance that an artifact will be created.  This is true even if both the
  * "good" and "great" arguments are false.  As a total hack, if "great" is
@@ -4088,13 +3559,6 @@ void apply_magic(object_type *o_ptr, int lev, int lev_dif, byte flags)
 		case TV_BOOTS:
 		{
 			a_m_aux_2(o_ptr, lev, lev_dif, flags);
-			break;
-		}
-
-		case TV_RING:
-		case TV_AMULET:
-		{
-			a_m_aux_3(o_ptr, lev, flags);
 			break;
 		}
 
@@ -4427,8 +3891,7 @@ static bool put_object(object_type *o_ptr, int x, int y)
 	msgf("Failed to place object!");
 
 	/* Paranoia - preserve artifacts */
-	if ((preserve_mode) && (o_ptr->flags3 & TR3_INSTA_ART) &&
-		(o_ptr->activate > 127))
+	if ((o_ptr->flags3 & TR3_INSTA_ART) && (o_ptr->activate > 127))
 	{
 		a_info[o_ptr->activate - 128].cur_num = 0;
 	}

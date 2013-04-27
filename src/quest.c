@@ -88,76 +88,6 @@ static void quest_wipe(int q_idx)
 	 */
 }
 
-/* The quest list will be dynamic soon... */
-#if 0
-
-/*
- * Copy a quest from one slot to another
- */
-static void quest_copy(int src, int dst)
-{
-	/* Copy the structure */
-	COPY(&quest[src], &quest[dst], quest_type);
-
-	/* Insert other needed copy code here - ie fixing info / item array */
-}
-
-
-/*
- * Remove a quest from the list
- */
-static void quest_remove(int q_idx)
-{
-	int i;
-
-	/* Paranoia */
-	if ((q_idx < 0) || (q_idx >= q_max)) return;
-
-	/* Shift quests down */
-	for (i = q_idx + 1; i < q_max; i++)
-	{
-		quest_copy(i, i - 1);
-	}
-
-	/* Paranoia */
-	if (!q_max) return;
-
-	/* Wipe empty slot */
-	quest_wipe(q_max);
-
-	/* Decrease total number of quests */
-	q_max--;
-}
-
-
-/*
- * Clean the list of quests, removing 'completed' ones
- */
-static void prune_quests(void)
-{
-	int i;
-
-	quest_type *q_ptr;
-
-	for (i = 0; i < q_max; i++)
-	{
-		q_ptr = &quest[i];
-
-		/*
-		 * Remove 'completed' quests.
-		 *
-		 * Set a quest to be 'finished' if you want to
-		 * keep the player memory of it.
-		 */
-		if (q_ptr->status == QUEST_STATUS_COMPLETED)
-		{
-			quest_remove(i);
-		}
-	}
-}
-
-#endif /* 0 */
-
 /*
  * Make a quest for killing n monsters of a certain type on a certain level
  */
@@ -316,15 +246,6 @@ void get_player_quests(int q_num)
 	{
 		v = q_num;
 	}
-#if 0
-
-	/*
-	 * Hard-code number of dungeon quests until
-	 * we get the quest-giver stores working.
-	 */
-	v = 20;
-
-#endif /* 0 */
 
 	/* Prepare allocation table */
 	get_mon_num_prep(monster_quest, NULL);
@@ -363,9 +284,6 @@ void get_player_quests(int q_num)
 			r_idx = get_mon_num(depth);
 
 			r_ptr = &r_info[r_idx];
-
-			/* Look at the monster - only "hard" monsters for quests */
-			if (r_ptr->flags1 & (RF1_NEVER_MOVE | RF1_FRIENDS)) continue;
 
 			/* Save the index if the monster is deeper than current monster */
 			if (!best_r_idx || (r_info[r_idx].level > best_level))
@@ -923,149 +841,11 @@ void trigger_quest_complete(byte x_type, vptr data)
 		/* if (q_ptr->status == QUEST_STATUS_COMPLETED) */
 		if (q_ptr->status == QUEST_STATUS_FINISHED)
 		{
-#if 0
-			/* Take note */
-			if (auto_notes)
-			{
-				add_note('Q', "Finished quest: %d %s",
-						quest[i].max_num,
-						(r_name + r_info[quest[i].r_idx].name));
-			}
-#endif /* 0 */
-
 			msgf("You just completed your quest!");
 		}
 
 	}
 }
-
-#if 0
-/*
- * Display quest information
- */
-static void get_questinfo(int questnum)
-{
-	int i;
-	int old_quest;
-	char tmp_str[80];
-
-
-	/* Clear the text */
-	for (i = 0; i < 10; i++)
-	{
-		quest_text[i][0] = '\0';
-	}
-
-
-	/* Print the quest info */
-	prtf(0, 5, "Quest Information (Danger level: %d)",
-			quest[questnum].level);
-
-	prtf(0, 7, quest[questnum].name);
-
-	for (i = 0; i < 10; i++)
-	{
-		put_fstr(0, i + 8, CLR_YELLOW "%s", quest_text[i]);
-	}
-}
-
-
-/*
- * Request a quest from the Lord.
- */
-static void castle_quest(void)
-{
-	int px = p_ptr->px;
-	int py = p_ptr->py;
-
-	int q_index = 0;
-	monster_race *r_ptr;
-	quest_type *q_ptr;
-	cptr name;
-
-
-	clear_bldg(7, 18);
-
-	/* Current quest of the building */
-	q_index = get_qindex();
-
-	/* Is there a quest available at the building? */
-	if (!q_index)
-	{
-		put_fstr(0, 8, "I don't have a quest for you at the moment.");
-		return;
-	}
-
-	q_ptr = &quest[q_index];
-
-	/* Quest is completed */
-	if (q_ptr->status == QUEST_STATUS_COMPLETED)
-	{
-		/* Rewarded quest */
-		q_ptr->status = QUEST_STATUS_REWARDED;
-
-		get_questinfo(q_index);
-	}
-	/* Failed quest */
-	else if (q_ptr->status == QUEST_STATUS_FAILED)
-	{
-		get_questinfo(q_index);
-
-		/* Mark quest as done (but failed) */
-		q_ptr->status = QUEST_STATUS_FAILED_DONE;
-	}
-	/* Quest is still unfinished */
-	else if (q_ptr->status == QUEST_STATUS_TAKEN)
-	{
-		put_fstr(0, 8, "You have not completed your current quest yet!");
-		put_fstr(0, 9, "Use CTRL-Q to check the status of your quest.");
-		put_fstr(0, 12, "Return when you have completed your quest.");
-	}
-	/* No quest yet */
-	else if (q_ptr->status == QUEST_STATUS_UNTAKEN)
-	{
-		q_ptr->status = QUEST_STATUS_TAKEN;
-
-		/* Assign a new quest */
-		if (q_ptr->type == QUEST_TYPE_KILL_ANY_LEVEL)
-		{
-			if (q_ptr->r_idx == 0)
-			{
-				/* Random monster at least 5 - 10 levels out of deep */
-				q_ptr->r_idx = get_mon_num(q_ptr->level + rand_range(5, 10));
-			}
-
-			r_ptr = &r_info[q_ptr->r_idx];
-
-			while ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->rarity != 1))
-			{
-				q_ptr->r_idx = get_mon_num(q_ptr->level) + rand_range(5, 10);
-				r_ptr = &r_info[q_ptr->r_idx];
-			}
-
-			if (q_ptr->max_num == 0)
-			{
-				/* Random monster number */
-				if (randint1(10) > 7)
-					q_ptr->max_num = 1;
-				else
-					q_ptr->max_num = rand_range(2, 4);
-			}
-
-			q_ptr->cur_num = 0;
-			name = (r_name + r_ptr->name);
-			msgf("Your quest: kill %d %s", q_ptr->max_num, name);
-			message_flush();
-		}
-		else
-		{
-			get_questinfo(q_index);
-		}
-	}
-}
-
-#endif /* 0 */
-
 
 /*
  * Print quest status of all active quests

@@ -240,7 +240,7 @@ Chaos
      and the Chaos spells are the most terrible weapons of destruction
      imaginable. From Magic Missile and Acid Bolt to the medium level
      Fire Ball and Doom Bolt, and finally to the awesome spells of
-     Invoke Logrus, Mana Storm and Call the Void, Chaos offers an
+     Invoke the Warp, Mana Storm and Call the Void, Chaos offers an
      unsurpassable arsenal of attack spells. The caster can also call
      on the primal forces of Chaos to induce mutations in his/her
      opponents and even him/herself, but otherwise, Chaos has no
@@ -581,7 +581,7 @@ Chaos Mastery
      5. Fire Ball
      6. Teleport Other
      7. Word of Destruction
-     8. Invoke Logrus
+     8. Invoke the Warp
 
 
 CHAOS: Rare Spellbooks

@@ -416,11 +416,6 @@ void do_cmd_study(void)
 				   [(increment ? p_ptr->realm2 - 1 : p_ptr->realm1 -
 					 1)][spell % 32]);
 
-	if (mp_ptr->spell_book == TV_LIFE_BOOK)
-		chg_virtue(V_FAITH, 1);
-	else
-		chg_virtue(V_KNOWLEDGE, 1);
-
 	/* Sound */
 	sound(SOUND_STUDY);
 
@@ -1185,9 +1180,6 @@ static bool cast_chaos_spell(int spell)
 			 */
 			int die = randint1(100) + plev / 5;
 
-			if (die < 26)
-				chg_virtue(V_CHANCE, 1);
-
 			if (!get_aim_dir(&dir)) return FALSE;
 			if (die > 100)
 				msgf("You feel a surge of power!");
@@ -1271,7 +1263,7 @@ static bool cast_chaos_spell(int spell)
 		case 14:				/* Word of Destruction */
 			(void)destroy_area(px, py, 15);
 			break;
-		case 15:				/* Invoke Logrus */
+		case 15:				/* Invoke the Warp */
 			if (!get_aim_dir(&dir)) return FALSE;
 
 			(void)fire_ball(GF_CHAOS, dir, plev + 66, plev / 5);
@@ -1375,7 +1367,7 @@ static bool cast_chaos_spell(int spell)
 
 			(void)fire_ball(GF_MANA, dir, 300 + (plev * 2), 4);
 			break;
-		case 30:				/* Breathe Logrus */
+		case 30:				/* Breathe Chaos */
 			if (!get_aim_dir(&dir)) return FALSE;
 
 			(void)fire_ball(GF_CHAOS, dir, p_ptr->chp, 2);
@@ -1495,8 +1487,6 @@ static bool cast_death_spell(int spell)
 				 * Hack - this only happens when monster is seen to
 				 * be hit.
 				 */
-				chg_virtue(V_SACRIFICE, -1);
-				chg_virtue(V_VITALITY, -1);
 
 				/* Gain nutritional sustenance: 150/hp drained */
 				/* A Food ration gives 5000 food points (by contrast) */
@@ -1532,9 +1522,6 @@ static bool cast_death_spell(int spell)
 
 			msgf("You call on the power of the dead...");
 
-			if (die < 26)
-				chg_virtue(V_CHANCE, 1);
-
 			if (die > 100)
 				msgf("You feel a surge of eldritch force!");
 
@@ -1544,8 +1531,6 @@ static bool cast_death_spell(int spell)
 					("Oh no! Mouldering forms rise from the earth around you!");
 				(void)summon_specific(0, px, py, p_ptr->depth, SUMMON_UNDEAD,
 									  TRUE, FALSE, FALSE);
-
-				chg_virtue(V_UNLIFE, 1);
 			}
 			else if (die < 14)
 			{
@@ -1674,9 +1659,6 @@ static bool cast_death_spell(int spell)
 		case 20:				/* Vampirism True */
 			if (!get_aim_dir(&dir)) return FALSE;
 
-			chg_virtue(V_SACRIFICE, -1);
-			chg_virtue(V_VITALITY, -1);
-
 			for (dummy = 0; dummy < 3; dummy++)
 			{
 				(void)drain_gain_life(dir, 100);
@@ -1702,9 +1684,7 @@ static bool cast_death_spell(int spell)
 		{
 			if (raise_dead(px, py, (bool)(!one_in_(3))))
 			{
-				msgf
-					("Cold winds begin to blow around you, carrying with them the stench of decay...");
-				chg_virtue(V_UNLIFE, 1);
+				msgf ("Cold winds begin to blow around you, carrying with them the stench of decay...");
 			}
 			else
 			{
@@ -1859,9 +1839,6 @@ static bool cast_trump_spell(int spell, bool success)
 				/* Card sharks and high mages get a level bonus */
 
 				msgf("You shuffle the deck and draw a card...");
-
-				if (die < 30)
-					chg_virtue(V_CHANCE, 1);
 
 				if (die < 7)
 				{
@@ -2763,12 +2740,6 @@ void do_cmd_cast(void)
 		msgf("You failed to get the %s off!", prayer);
 		sound(SOUND_FAIL);
 
-		if ((randint1(100) < chance) && (mp_ptr->spell_book == TV_LIFE_BOOK))
-			chg_virtue(V_FAITH, -1);
-		else if (randint1(100) < chance)
-			chg_virtue(V_KNOWLEDGE, -1);
-
-
 		if (realm == REALM_TRUMP)
 		{
 			(void)cast_trump_spell(spell, FALSE);
@@ -2817,14 +2788,6 @@ void do_cmd_cast(void)
 	/* Process spell */
 	else
 	{
-		if ((randint1(100) < chance) && (chance < 50))
-		{
-			if (mp_ptr->spell_book == TV_LIFE_BOOK)
-				chg_virtue(V_FAITH, 1);
-			else
-				chg_virtue(V_KNOWLEDGE, 1);
-		}
-
 		/* Spells. */
 		switch (realm)
 		{
@@ -2878,11 +2841,6 @@ void do_cmd_cast(void)
 
 			/* Gain experience */
 			gain_exp(e * s_ptr->slevel);
-
-			if (mp_ptr->spell_book == TV_LIFE_BOOK)
-				chg_virtue(V_FAITH, 1);
-			else
-				chg_virtue(V_KNOWLEDGE, 1);
 		}
 	}
 
@@ -2911,11 +2869,6 @@ void do_cmd_cast(void)
 		/* Hack -- Bypass free action */
 		(void)set_paralyzed(p_ptr->paralyzed + randint1(5 * oops + 1));
 
-		if (mp_ptr->spell_book == TV_LIFE_BOOK)
-			chg_virtue(V_FAITH, -10);
-		else
-			chg_virtue(V_KNOWLEDGE, -10);
-
 		/* Damage CON (possibly permanently) */
 		if (one_in_(2))
 		{
@@ -2937,15 +2890,6 @@ void do_cmd_cast(void)
 	p_ptr->window |= (PW_SPELL);
 }
 
-
-/*
- * Pray a prayer -- Unused in Zangband
- */
-void do_cmd_pray(void)
-{
-	msgf("Praying is not used in %s. Use magic spell casting instead.",
-			   VERSION_NAME);
-}
 
 /* Forward declare */
 extern menu_type pet_menu[PET_CHOICE_MAX + 1];

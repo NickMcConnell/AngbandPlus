@@ -54,7 +54,7 @@ extern void del_callback(int number, vptr data);
 #define MAP_CACHE	(WILD_VIEW * WILD_VIEW * 2)
 
 /*
- * This is used by the Borg and by ports that like to
+ * This is used by ports that like to
  * draw a "graphical" small-scale map
  */
 #ifdef TERM_USE_MAP
@@ -164,40 +164,6 @@ struct map_block
 	char tc;
 #endif /* TERM_MAP_GLYPH */
 
-	/* Save the cave info itself - used by the borg */
-#ifdef TERM_CAVE_MAP
-	s16b object;
-	s16b monster;
-	s16b field;
-	byte terrain;
-
-	/* unknown mimics or flavoured objects */
-	char unknown;
-
-	/* Monster flags */
-	byte m_flags;
-
-	/* Monster hp (scaled) */
-	byte m_hp;
-#endif /* TERM_CAVE_MAP */
-
-	/* Borg-specific stuff */
-#ifdef ALLOW_BORG
-	u16b fear;	/* fear value */
-
-	u16b kill;	/* Entry into "kill" list */
-	u16b take;	/* Entry into "take" list */
-
-	byte feat;	/* Terrain feature */
-	byte info;	/* info flags */
-
-	byte flow;	/* "flow" data */
-	byte cost;	/* "cost" data */
-
-	byte detect;	/* Detection flags */
-	byte xtra;	/* search count */
-#endif /* ALLOW_BORG */
-
 	/* We need to save the flags to get the refcounting right. */
 	byte flags;
 };
@@ -213,7 +179,7 @@ typedef void (*player_move_hook_type) (int x, int y, vptr data);
 
 
 /*
- * This is used by the Borg and by ports that would
+ * This is used by ports that would
  * like to access lists of objects
  */
 #ifdef TERM_USE_LIST
@@ -290,10 +256,6 @@ struct list_item
 #ifdef TERM_OBJ_GLYPH
 	u16b feature_code;
 #endif /* TERM_OBJ_GLYPH */
-
-#ifdef ALLOW_BORG
-	byte treat_as;	/* Treat item as if it is in a different list */
-#endif /* ALLOW_BORG */
 };
 
 typedef void (*list_notice_hook_type) (byte, vptr data);

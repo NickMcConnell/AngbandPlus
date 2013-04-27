@@ -694,7 +694,7 @@ static void roff_aux(int r_idx, int remem)
 	if (flags4 & (RF4_BA_NUKE)) vp[vn++] = "produce balls of radiation";
 	if (flags5 & (RF5_BA_MANA)) vp[vn++] = "invoke mana storms";
 	if (flags5 & (RF5_BA_DARK)) vp[vn++] = "invoke darkness storms";
-	if (flags4 & (RF4_BA_CHAO)) vp[vn++] = "invoke raw Logrus";
+	if (flags4 & (RF4_BA_CHAO)) vp[vn++] = "invoke raw Chaos";
 	if (flags6 & (RF6_HAND_DOOM)) vp[vn++] = "invoke the Hand of Doom";
 	if (flags5 & (RF5_DRAIN_MANA)) vp[vn++] = "drain mana";
 	if (flags5 & (RF5_MIND_BLAST)) vp[vn++] = "cause mind blasting";
@@ -814,6 +814,7 @@ static void roff_aux(int r_idx, int remem)
 		roff(".  ");
 	}
 
+	if (r_ptr->r_xtra1 == 0) roff("The soul dealer needs this creature's soul.  ");
 
 	/* Describe monster "toughness" */
 	if (know_armour(r_idx))
@@ -1477,7 +1478,7 @@ void roff_top(int r_idx)
 	a2 = r_ptr->x_attr;
 
 	/* Hack -- fake monochrome */
-	if (!use_color || ironman_moria)
+	if (!use_color)
 	{
 		a1 = TERM_WHITE;
 		a2 = TERM_WHITE;
@@ -1604,7 +1605,7 @@ void display_visible(void)
 		a2 = r_ptr->x_attr;
 
 		/* Hack -- fake monochrome */
-		if (!use_color || ironman_moria)
+		if (!use_color)
 		{
 			a1 = TERM_WHITE;
 			a2 = TERM_WHITE;
@@ -1680,6 +1681,9 @@ bool monster_quest(int r_idx)
 
 	/* No quests to kill friendly monsters */
 	if (r_ptr->flags7 & RF7_FRIENDLY) return FALSE;
+
+  /* Only "hard" monsters for quests */
+  if (r_ptr->flags1 & (RF1_NEVER_MOVE | RF1_FRIENDS)) return FALSE;
 
 	return TRUE;
 }
@@ -2053,11 +2057,6 @@ void anger_monster(monster_type *m_ptr)
 	{
 		msgf("%^v gets angry!", MONSTER_FMT(m_ptr, 0));
 		set_hostile(m_ptr);
-
-		chg_virtue(V_INDIVIDUALISM, 1);
-		chg_virtue(V_HONOUR, -1);
-		chg_virtue(V_JUSTICE, -1);
-		chg_virtue(V_COMPASSION, -1);
 	}
 }
 

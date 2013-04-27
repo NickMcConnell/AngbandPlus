@@ -91,7 +91,7 @@ N:200:Hobbes the Tiger
 1
 yells, 'Ow! Get me back to the comics!'
 
-N:140:Lagduf, the Snaga
+N:140:Lagduf, the Goblin
 N:186:Grishnakh, the Hill Orc
 N:215:Golfimbul, the Hill Orc Chief
 N:260:Ufthak of Cirith Ungol
@@ -196,7 +196,7 @@ whines: 'Why do you threaten me?'
 
 #N:517:Jurt the Living Trump
 #N:573:Lord Borel of Hendrake
-#N:598:Mandor, Master of the Logrus
+#N:598:Mandor, Master of Chaos
 
 N:595:Father Dagon
 N:596:Mother Hydra

@@ -1,5 +1,4 @@
 # File: r_info.txt
-# With new monsters for Zangband 2.2 (or 2.3)
 
 # This file is used to initialize the "lib/raw/r_info.raw" file, which is
 # used to initialize the "monster race" information for the Angband game.
@@ -8,8 +7,6 @@
 # unless you wish to risk possible system crashes and broken savefiles.
 
 # After modifying this file, delete the "lib/raw/r_info.raw" file.
-
-# Zangband notes:
 
 # Semantics of S_AMBERITES: Since all non-Tolkienian unique Ringwraiths
 # have been removed (i.e. all except the Witch-king of Angmar and
@@ -352,7 +349,7 @@ F:RAND_50 |
 F:ONLY_GOLD | DROP_60 | DROP_SKELETON | DROP_CORPSE
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | WILD_TOWN | LITE_1
 D:The typical ponce around town, with purse jingling, and looking for more 
-D:amulets of adornment to buy.
+D:jewelery to buy.
 
 N:17:Mean looking mercenary
 G:t:R
@@ -1224,7 +1221,7 @@ F:MALE | WILD_DUNGEON_01
 F:FRIENDS | DROP_60 | RAND_50 | DROP_SKELETON | DROP_CORPSE
 F:OPEN_DOOR | BASH_DOOR | WILD_FOREST1 | WILD_FOREST2 |
 F:EVIL | ORC | HURT_LITE
-D:A pathetic breed of tiny snaga-like creatures. They are running 
+D:A pathetic breed of tiny goblin-like creatures. They are running 
 D:wild and screaming all the time!
 
 N:88:Swordfish
@@ -1600,7 +1597,7 @@ F:COLD_BLOOD | BASH_DOOR |
 F:ANIMAL | IM_POIS | NO_CONF | NO_SLEEP | 
 D:It is a pile of coins, crawling forward on thousands of tiny legs.
 
-N:118:Snaga
+N:118:Goblin
 G:o:G
 I:110:6d9:20:16:30
 W:6:1:0:50
@@ -1611,7 +1608,7 @@ F:FRIENDS | DROP_60 | WILD_FOREST1 | WILD_WASTE1 | DROP_SKELETON | DROP_CORPSE
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | ORC | HURT_LITE
 D:He is one of the many weaker 'slave' orcs, often mistakenly known as a 
-D:goblin.
+D:snaga.
 
 N:119:Rattlesnake
 G:J:r
@@ -1895,7 +1892,7 @@ F:EVIL | DEMON | IM_FIRE | NO_FEAR
 D:It is a minor demon servitor of Nurgle. It looks like a hairless 
 D:teddy bear, with twisted eyes and rotting, ghoulish skin.
 
-N:140:Lagduf, the Snaga
+N:140:Lagduf, the Goblin
 G:o:u
 I:110:14d10:20:20:30
 W:11:2:0:660
@@ -3425,7 +3422,7 @@ S:1_IN_10 |
 S:BR_COLD
 D:It is a large fly that drips frost.
 
-N:251:Snaga sapper
+N:251:Goblin sapper
 G:o:G
 I:111:6d8:20:16:30
 W:21:1:0:670
@@ -7153,7 +7150,7 @@ S:1_IN_4
 S:HOLD | SCARE | BLIND | CAUSE_3 | TRAPS | DARKNESS | FORGET | HASTE
 D:An embodiment of all the cardinal vices, he beholds you scornfully.
 
-N:498:Logrus master
+N:498:Chaos master
 G:p:v
 I:120:30d7:30:25:5
 W:52:3:0:35000
@@ -7169,7 +7166,7 @@ F:IM_ACID | IM_POIS | NO_CONF | NO_SLEEP | LITE_1
 S:1_IN_6 | 
 S:HEAL | 
 S:S_SPIDER | BA_CHAO | S_DEMON
-D:An adept of chaos, feared for his skill of invoking raw Logrus.
+D:An adept of chaos, feared for his skill of invoking the Warp.
 
 N:499:Barrow wight
 G:W:W
@@ -7307,7 +7304,7 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:EVIL | GIANT | IM_COLD | IM_POIS 
 D:Big, brawny, powerful and with a greed for gold.
 
-N:507:Logrus ghost
+N:507:Warp ghost
 G:G:r
 I:120:14d14:20:15:10
 W:51:3:0:19000
@@ -7323,7 +7320,7 @@ F:NO_CONF | NO_SLEEP | ATTR_MULTI | ATTR_ANY |
 S:1_IN_15 | 
 S:BLIND | HOLD | DRAIN_MANA | FORGET
 D:An almost life-like creature which is nothing more than a phantom 
-D:created by the Logrus.
+D:created out of Chaos.
 
 N:508:Spectre
 G:G:G
@@ -7489,7 +7486,7 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | LITE_1
 F:EVIL |
 S:1_IN_6
 S:TPORT | BLINK | BA_CHAO
-D:A magical treatment has turned Jurt, an adept of Logrus, 
+D:A magical treatment has turned Jurt, an adept of Chaos, 
 D:into a Living Trump.
 
 N:518:Lich
@@ -8842,7 +8839,7 @@ D:It is a humanoid form dressed in armour of an ancient form.  From beneath
 D:its helmet, eyes glow a baleful red and seem to pierce you like lances of 
 D:fire.
 
-N:598:Mandor, Master of the Logrus
+N:598:Mandor, Master of Chaos
 G:p:v
 I:120:53d10:20:35:40
 W:59:5:0:130000
@@ -8859,7 +8856,7 @@ F:EVIL | RES_TELE | LITE_2
 S:1_IN_2 |
 S:BO_FIRE | BO_COLD | HOLD | BO_MANA | S_MONSTER
 S:TRAPS | BO_ICEE | HEAL | BO_PLAS | BA_CHAO
-D:Mandor is one of the greatest Logrus Masters, a formidable magician.
+D:Mandor is one of the greatest Chaos Masters, a formidable magician.
 
 N:599:Time vortex
 G:v:G
@@ -9978,7 +9975,7 @@ F:SMART | OPEN_DOOR | BASH_DOOR | CAN_SWIM
 F:IM_ACID | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP | RES_TELE
 S:1_IN_2 | 
 S:CAUSE_3 | BO_WATE | BO_MANA | BA_CHAO
-D:The madman's son is a Logrus Master, almost as great a 
+D:The madman's son is a Chaos Master, almost as great a 
 D:menace as his father.
 
 N:661:Archon
@@ -11488,7 +11485,7 @@ S:1_IN_2 |
 S:HEAL | MIND_BLAST | BA_CHAO |
 S:S_SPIDER | S_HOUND | S_DEMON
 D:He is one of the few true masters of the art, being extremely skillful in 
-D:all forms of unarmed combat and controlling the Logrus 
+D:all forms of unarmed combat and controlling Chaos 
 D:with disdainful ease.
 
 N:738:Khamul the Easterling
@@ -13175,7 +13172,7 @@ F:BASH_DOOR | IM_ELEC | IM_FIRE | RES_NEXU
 F:IM_POIS | IM_ACID | RES_PLAS | RES_DISE | COLD_BLOOD | NONLIVING | RAND_50
 S:1_IN_5 |
 S:BR_CHAO 
-D:Summoned from the Courts of Chaos, it is a mass of sentient Logrus, 
+D:Summoned from the Realm of Chaos, it is a mass of sentient warpstone, 
 D:spreading uncontrollably and destroying everything in its path.
 
 N:816:Cyberdemon
@@ -14127,7 +14124,7 @@ D:somewhat bloated corpulence... It lumbered slobberingly into sight
 D:and gropingly squeezed its gelatinous green immensity through the 
 D:black doorway... A mountain shambled or walked."
 
-# Sauron is no longer a quest monster (in Zangband), just a "normal" one.
+# Sauron is no longer a quest monster, just a "normal" one.
 
 N:858:Sauron, the Sorcerer
 G:p:o
@@ -14184,7 +14181,7 @@ D:of chaos, is watching the events unfold with growing distress. It
 D:regards you as a mortal meddling in the affairs of immortals, and 
 D:attempts to eliminate you.
 
-# Oberon is the first Quest monster in Zangband: he must be killed before
+# Oberon is the first Quest monster: he must be killed before
 # the Serpent of Chaos
 
 N:860:Oberon, King of Amber

@@ -5864,7 +5864,7 @@ fi
 done
 
 
-                                                                                                                                                                ac_config_files="$ac_config_files Makefile src/makefile src/lua/makefile lib/Makefile lib/apex/Makefile lib/bone/Makefile lib/data/Makefile lib/edit/Makefile lib/file/Makefile lib/help/Makefile lib/info/Makefile lib/pref/Makefile lib/save/Makefile lib/script/Makefile lib/user/Makefile lib/xtra/Makefile"
+                                                                                                                                                                ac_config_files="$ac_config_files Makefile src/makefile lib/Makefile lib/apex/Makefile lib/bone/Makefile lib/data/Makefile lib/edit/Makefile lib/file/Makefile lib/help/Makefile lib/info/Makefile lib/pref/Makefile lib/save/Makefile lib/script/Makefile lib/user/Makefile lib/xtra/Makefile"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -6429,7 +6429,6 @@ do
   # Handling of arguments.
   "Makefile" ) CONFIG_FILES="$CONFIG_FILES Makefile" ;;
   "src/makefile" ) CONFIG_FILES="$CONFIG_FILES src/makefile" ;;
-  "src/lua/makefile" ) CONFIG_FILES="$CONFIG_FILES src/lua/makefile" ;;
   "lib/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/Makefile" ;;
   "lib/apex/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/apex/Makefile" ;;
   "lib/bone/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/bone/Makefile" ;;

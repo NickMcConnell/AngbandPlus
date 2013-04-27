@@ -238,21 +238,6 @@ and press 'Ctrl-F', you will be given the prompt:
 
      'Looks like any other level.'
 
-If you are playing in non-preserve mode, you may also occasionally
-receive the following prompt:
-
-     'You feel there is something special about this level.'
-
-A special feeling means one of two things, there is either a special
-room or vault on the level or there is an artifact on the level. As you
-get deeper on the dungeon, special feelings become increasingly less
-common for special room and vaults and are only commonly given when an
-artifact has been generated. Note it is possible that there could be
-both a vault and an artifact or more than one artifact on a special
-level so you should never leave a special level without fully exploring
-it unless your character's continued survival is in question.
-
-
 ***** <RandomQuests>
 === Random Quests ===
 

@@ -11,8 +11,6 @@
 
 #include "angband.h"
 
-#include "script.h"
-
 #include "init.h"
 
 #ifdef CHECK_MODIFICATION_TIME
@@ -101,7 +99,6 @@ void init_file_paths(char *path)
 	string_free(ANGBAND_DIR_BONE);
 	string_free(ANGBAND_DIR_DATA);
 	string_free(ANGBAND_DIR_EDIT);
-	string_free(ANGBAND_DIR_SCRIPT);
 	string_free(ANGBAND_DIR_FILE);
 	string_free(ANGBAND_DIR_HELP);
 	string_free(ANGBAND_DIR_INFO);
@@ -130,7 +127,6 @@ void init_file_paths(char *path)
 	ANGBAND_DIR_BONE = string_make("");
 	ANGBAND_DIR_DATA = string_make("");
 	ANGBAND_DIR_EDIT = string_make("");
-	ANGBAND_DIR_SCRIPT = string_make("");
 	ANGBAND_DIR_FILE = string_make("");
 	ANGBAND_DIR_HELP = string_make("");
 	ANGBAND_DIR_INFO = string_make("");
@@ -160,10 +156,6 @@ void init_file_paths(char *path)
 	/* Build a path name */
 	strcpy(tail, "edit");
 	ANGBAND_DIR_EDIT = string_make(path);
-
-	/* Build a path name */
-	strcpy(tail, "script");
-	ANGBAND_DIR_SCRIPT = string_make(path);
 
 	/* Build a path name */
 	strcpy(tail, "file");
@@ -832,6 +824,54 @@ errr init_w_info(void)
 	return (0);
 }
 
+errr init_s_info(void)
+{
+	errr err;
+	FILE *fp;
+	/* General buffer */
+	char buf[1024];
+
+	C_MAKE(s_info, z_info->s_max, soul_type);
+
+	/*** Load the ascii template file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "s_info.txt");
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+	if (!fp) quit("Cannot open 's_info.txt' file.");
+
+	/* Parse the file */
+	err = init_s_info_txt(fp, buf);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+		cptr oops;
+
+		/* Error string */
+		oops =
+			(((err > 0) && (err < PARSE_ERROR_MAX)) ? err_str[err] : "unknown");
+
+		/* Oops */
+		msgf("Error %d at line %d of 's_info.txt'.", err, error_line);
+		msgf("Record %d contains a '%s' error.", error_idx, oops);
+		msgf("Parsing '%s'.", buf);
+		message_flush();
+
+		/* Quit */
+		quit("Error in 's_info.txt' file.");
+	}
+
+	/* Success */
+	return (0);
+}
 /*
  * Initialize the field data structures
  */
@@ -1373,10 +1413,6 @@ void init_angband(void)
 	note("[Initializing array sizes...]");
 	if (init_z_info()) quit("Cannot initialize sizes");
 
-	/* Initialize scripting */
-	note("[Initializing scripts... (scripts)]");
-	if (script_init()) quit("Cannot initialize scripts");
-
 	/* Initialize feature info */
 	note("[Initializing arrays... (features)]");
 	if (init_f_info()) quit("Cannot initialize features");
@@ -1392,6 +1428,10 @@ void init_angband(void)
 	/* Initialize ego-item info */
 	note("[Initializing arrays... (ego-items)]");
 	if (init_e_info()) quit("Cannot initialize ego-items");
+
+	/* Initialize soul info */
+	note("[Initializing arrays... (souls)]");
+	if (init_s_info()) quit("Cannot initialize soul progressions");
 
 	/* Initialize monster info */
 	note("[Initializing arrays... (monsters)]");
@@ -1496,47 +1536,6 @@ void cleanup_angband(void)
  * parsing the info files since at that point the wilderness is not
  * initiated. It works fine thereafter.
  */
-#if 0
-
-	This code is wrong - the wilderness works differently now. - SF -
-		/* Free the wilderness */
-	for (i = 0; i < WILD_SIZE; i++)
-	{
-		/* Free one row of the wilderness */
-		FREE(wild[i]);
-	}
-
-	/* Free the wilderness itself */
-	FREE(wild);
-
-
-	/* Free cache of wilderness blocks */
-	for (i = 0; i < WILD_BLOCKS; i++)
-	{
-		/* Free rows of a block */
-		for (j = 0; j < WILD_BLOCK_SIZE; j++)
-		{
-			FREE(wild_cache[i][j]);
-		}
-
-		/* Free block */
-		FREE(wild_cache[i]);
-	}
-
-	/* Free temporary wilderness block */
-	for (i = 0; i < WILD_BLOCK_SIZE + 1; i++)
-	{
-		/* Allocate one row of the temp_block */
-		FREE(temp_block[i]);
-	}
-
-	/* Free the cave */
-	for (i = 0; i < MAX_HGT; i++)
-	{
-		/* Allocate one row of the cave */
-		FREE(cave[i]);
-	}
-#endif /* 0 */
 
 	/* Free the messages */
 	messages_free();
@@ -1562,7 +1561,6 @@ void cleanup_angband(void)
 	string_free(ANGBAND_DIR_BONE);
 	string_free(ANGBAND_DIR_DATA);
 	string_free(ANGBAND_DIR_EDIT);
-	string_free(ANGBAND_DIR_SCRIPT);
 	string_free(ANGBAND_DIR_FILE);
 	string_free(ANGBAND_DIR_HELP);
 	string_free(ANGBAND_DIR_INFO);

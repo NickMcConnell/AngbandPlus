@@ -511,8 +511,6 @@ bool gain_mutation(int choose_mut)
 	}
 	else
 	{
-		chg_virtue(V_CHANCE, 1);
-
 		if (p_ptr->prace == RACE_VAMPIRE &&
 			!(p_ptr->muta1 & MUT1_HYPN_GAZE) && (randint1(10) < 7))
 		{

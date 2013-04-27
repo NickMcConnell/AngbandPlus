@@ -88,9 +88,7 @@ void check_experience(void)
 		/* Save the highest level */
 		if (p_ptr->lev > p_ptr->max_lev)
 		{
-			int vir, i;
-			for (vir = 0; vir < MAX_PLAYER_VIRTUES; vir++)
-				p_ptr->virtues[vir] = p_ptr->virtues[vir] + 1;
+			int i;
 
 			if (p_ptr->prace == RACE_BEASTMAN)
 			{
@@ -204,9 +202,9 @@ static int get_coin_type(const monster_race *r_ptr)
 bool monster_death(int m_idx, bool explode)
 {
 	int i, j, y, x;
-
 	int dump_item = 0;
 	int dump_gold = 0;
+	char c;
 
 	int number = 0;
 
@@ -661,11 +659,6 @@ bool monster_death(int m_idx, bool explode)
 				a_idx = ART_THRAIN;
 				chance = 20;
 			}
-			else if (strstr((r_name + r_ptr->name), "Sauron,"))
-			{
-				a_idx = ART_POWER;
-				chance = 25;
-			}
 			else if (strstr((r_name + r_ptr->name), "Brand, "))
 			{
 				if (one_in_(3))
@@ -740,6 +733,26 @@ bool monster_death(int m_idx, bool explode)
 				}
 			}
 		}
+	}
+
+	/* (Non-unique) Monsters (sometimes) drop soul gems */
+	if (!(r_ptr->flags1 & RF1_UNIQUE) && one_in_(100))
+	{
+		q_ptr = object_prep(lookup_kind(TV_SOUL_GEM, 0));
+
+		q_ptr->soul_source = m_ptr->r_idx;
+
+		//figure out what soul type this gem sould have
+		c = r_ptr->d_char;
+
+		if ((c>='a')&&(c<='z')) q_ptr->soul_type1 = c-'a';
+		else if ((c>='A')&&(c<='Z')) q_ptr->soul_type1 = c-'A'+26;
+		else q_ptr->soul_type1 = 52;
+
+		q_ptr->soul_type2 = 0;
+
+		/* Drop it in the dungeon */
+		drop_near(q_ptr, -1, x, y);
 	}
 
 	/* Determine how much we can drop */
@@ -894,11 +907,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	s32b new_exp, new_exp_frac;
 
-	/* Innocent until proven otherwise */
-	bool innocent = TRUE, thief = FALSE;
 	bool corpse = FALSE;
 	bool visible = FALSE;
-	int i;
 
 	/* Redraw (later) if needed */
 	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
@@ -946,107 +956,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 					p_ptr->au += reward;
 					p_ptr->redraw |= (PR_GOLD);
-
-					chg_virtue(V_JUSTICE, 5);
 				}
 			}
-		}
-
-		if (r_ptr->level > p_ptr->depth)
-		{
-			if (randint1(10) <= (p_ptr->depth - r_ptr->level))
-				chg_virtue(V_VALOUR, 1);
-		}
-		if (r_ptr->level >= 2 * (p_ptr->lev))
-			chg_virtue(V_VALOUR, 1);
-
-		if ((r_ptr->flags1 & RF1_UNIQUE) && ((r_ptr->flags3 & RF3_EVIL) ||
-											 (r_ptr->flags3 & RF3_GOOD)))
-
-			chg_virtue(V_HARMONY, 2);
-
-		if ((r_ptr->flags1 & RF1_UNIQUE) && (r_ptr->flags3 & RF3_GOOD))
-		{
-			chg_virtue(V_UNLIFE, 2);
-			chg_virtue(V_VITALITY, -2);
-		}
-
-		if ((r_ptr->flags1 & RF1_UNIQUE) && one_in_(3))
-			chg_virtue(V_INDIVIDUALISM, -1);
-
-		if ((strstr((r_name + r_ptr->name), "beggar")) ||
-			(strstr((r_name + r_ptr->name), "leper")))
-		{
-			chg_virtue(V_COMPASSION, -1);
-		}
-
-		if ((r_ptr->flags1 & RF3_GOOD) &&
-			((r_ptr->level) / 10 + (3 * p_ptr->depth) >= randint1(100)))
-
-			chg_virtue(V_UNLIFE, 1);
-
-		/* "Good" angels */
-		if ((r_ptr->d_char == 'A') && !(r_ptr->flags1 & RF3_EVIL))
-		{
-			if (r_ptr->flags1 & RF1_UNIQUE)
-				chg_virtue(V_FAITH, -2);
-			else if ((r_ptr->level) / 10 + (3 * p_ptr->depth) >= randint1(100))
-				chg_virtue(V_FAITH, -1);
-		}
-
-		/* "Evil" angel or a demon (what's the theological difference,
-		   anyway...) */
-		else if ((r_ptr->d_char == 'A') || (r_ptr->flags3 & RF3_DEMON))
-		{
-			if (r_ptr->flags1 & RF1_UNIQUE)
-				chg_virtue(V_FAITH, 2);
-			else if ((r_ptr->level) / 10 + (3 * p_ptr->depth) >= randint1(100))
-				chg_virtue(V_FAITH, 1);
-		}
-
-		if ((r_ptr->flags3 & RF3_UNDEAD) && (r_ptr->flags1 & RF1_UNIQUE))
-			chg_virtue(V_VITALITY, 2);
-
-		if (r_ptr->r_deaths)
-		{
-			if (r_ptr->flags1 & RF1_UNIQUE)
-			{
-				chg_virtue(V_HONOUR, 10);
-			}
-			else if ((r_ptr->level) / 10 + (2 * p_ptr->depth) >= randint1(100))
-			{
-				chg_virtue(V_HONOUR, 1);
-			}
-		}
-
-		for (i = 0; i < 4; i++)
-		{
-			if (r_ptr->blow[i].d_dice != 0) innocent = FALSE;	/* Murderer! */
-
-			if ((r_ptr->blow[i].effect == RBE_EAT_ITEM) ||
-				(r_ptr->blow[i].effect == RBE_EAT_GOLD))
-				thief = TRUE;	/* Thief! */
-		}
-
-		/* The new law says it is illegal to live in the dungeon */
-		if (r_ptr->level != 0) innocent = FALSE;
-
-		if (thief)
-		{
-			if (r_ptr->flags1 & RF1_UNIQUE)
-				chg_virtue(V_JUSTICE, 3);
-			else if (1 + (r_ptr->level / 10 + (2 * p_ptr->depth)) >=
-					 randint1(100))
-				chg_virtue(V_JUSTICE, 1);
-		}
-		else if (innocent)
-		{
-			chg_virtue(V_JUSTICE, -1);
-		}
-
-		if ((r_ptr->flags3 & RF3_ANIMAL) && !(r_ptr->flags3 & RF3_EVIL))
-		{
-			if (one_in_(3)) chg_virtue(V_NATURE, -1);
 		}
 
 		/* Make a sound */
@@ -3034,7 +2945,7 @@ bool get_aim_dir(int *dp)
 	dir = p_ptr->command_dir;
 
 	/* Hack -- auto-target if requested */
-	if (use_old_target && !ironman_moria && target_okay()) dir = 5;
+	if (use_old_target && target_okay()) dir = 5;
 
 	if (repeat_pull(dp))
 	{

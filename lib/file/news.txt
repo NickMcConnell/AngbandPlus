@@ -1,22 +1,21 @@
 
-
-                             **********************
-                             **  ZAngband 2.7.2  **
-                             **********************
-
-              Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
+    /   \
+   /     \                  **********************
+  / \   / \                 **    XBAND 0.1.0   **
+     \ /                    **********************
+      X
+     / \        Presented by:    Chris Watkins < xis@prodigy.net >
+  \ /   \ /
+   \     /
+    \   /     Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
                   and Umoria:    Copyright (c) 1989 James E. Wilson
+       and Angband 2.7 - 2.8:    Ben Harrison < benh@phial.com >
+       and Old Zangband code:    (Mr) Topi Ylinen < topiy@luukku.com >
+       and New Zangband code:    Robert Ruehlmann < rr9@angband.org >
+     and Newer Zangband code:    The ZAngband DevTeam
 
-           Angband 2.7 - 2.8:    Ben Harrison < benh@phial.com >
-
-           Old Zangband code:    (Mr) Topi Ylinen < topiy@luukku.com >
-           New Zangband code:    Robert Ruehlmann < rr9@angband.org >
-        ZAngband 2.3.0 - ???:    The ZAngband DevTeam
-
-          Visit the ZAngband Homepage at "http://www.zangband.org/"
-
-         Send all comments, patches, etc, to "feedback@zangband.org".
-                   Send bug reports to "bugs@zangband.org".
+           Visit the XBand Homepage at "http://pages.prodigy.net/xis/"
+        Send all comments, patches, bug reports, etc, to "xis@prodigy.net".
 
 
           Press ? for help and = for the options screen while playing.

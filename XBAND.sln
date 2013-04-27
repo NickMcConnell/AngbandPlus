@@ -1,0 +1,23 @@
+Microsoft Visual Studio Solution File, Format Version 7.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XBAND", "XBAND.vcproj", "{66C3CCE7-16CB-454E-BE02-50687C9AD5F0}"
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		ConfigName.0 = Debug
+		ConfigName.1 = Release
+	EndGlobalSection
+	GlobalSection(ProjectDependencies) = postSolution
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{66C3CCE7-16CB-454E-BE02-50687C9AD5F0}.Debug.ActiveCfg = Debug|Win32
+		{66C3CCE7-16CB-454E-BE02-50687C9AD5F0}.Debug.Build.0 = Debug|Win32
+		{66C3CCE7-16CB-454E-BE02-50687C9AD5F0}.Release.ActiveCfg = Release|Win32
+		{66C3CCE7-16CB-454E-BE02-50687C9AD5F0}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionItems) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

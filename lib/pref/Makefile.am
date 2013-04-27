@@ -28,7 +28,6 @@ angband_files = \
   pref-ami.prf \
   pref-emx.prf \
   pref-gcu.prf \
-  pref-gtk.prf \
   pref-key.prf \
   pref-mac.prf \
   pref-win.prf \

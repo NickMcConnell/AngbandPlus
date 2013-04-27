@@ -62,7 +62,6 @@ questions and answers.
     4.3.2 What does a 'statue' do?
   4.4 Miscellaneous
     4.4.1 What is an "anti-magic shell"?
-    4.4.2 What are virtues, and how can I affect them?
   4.5 Quests
     4.5.1 What happened to the fixed quests after version 2.4.0?	
 
@@ -304,21 +303,6 @@ An anti-magic shell around you prevents you from casting any spells and
 using mindcrafter powers.  It also increases your saving throw vs. spells
 to 95%, prevents the activation of some mutations, and helps against the
 draining effects of the Jewel of Judgement.
-
---------------------------------------------------------------------------
-4.4.1 What are virtues and how can I affect them?
---------------------------------------------------------------------------
-
-The game keeps track of lots of little things you do as a player.  These
-affect a series of 'virtues' that are internally represented as counters
-that are either increased or decreased depending on those actions.  The
-virtues will be shown to you when you quaff a potion of self-knowledge.
-They also can be accessed via a not-so-hidden option in the '~' menu.
-The virtues have no gameplay effect - they are just there to give you a
-hint at what type of playing style you have.  However, don't take them
-too seriously as they are very unbalanced.  It is almost impossible to
-stay on the good side of nature, for example, because of the huge number
-of 'natural' creatures on the first few levels of the dungeon.
 
 --------------------------------------------------------------------------
 4.5 Quests

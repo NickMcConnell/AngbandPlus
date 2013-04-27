@@ -165,13 +165,6 @@
  */
 /* #define VERIFY_SAVEFILE */
 
-
-
-/*
- * OPTION: Hack -- Compile in support for "Borg mode"
- */
-#define ALLOW_BORG
-
 #ifdef USE_DEBUG
 
 /*
@@ -270,10 +263,6 @@
  */
 /* #define SCORE_WIZARDS */
 
-/*
- * OPTION: Allow "Borgs" to yield "high scores"
- */
-/* #define SCORE_BORGS */
 
 /*
  * OPTION: Allow "Cheaters" to yield "high scores"
@@ -484,7 +473,6 @@
 # undef ALLOW_VISUALS
 # undef ALLOW_MACROS
 # undef ALLOW_OLD_SAVEFILES
-# undef ALLOW_BORG
 # undef USE_DEBUG
 # undef ALLOW_SPOILERS
 # undef ALLOW_TEMPLATES
@@ -509,17 +497,6 @@
 # define VERIFY_TIMESTAMP
 #endif
 
-
-/*
- * Allow the Borg to use graphics.
- */
-#ifdef ALLOW_BORG
-# ifdef USE_GRAPHICS
-#  define ALLOW_BORG_GRAPHICS
-# endif	/* USE_GRAPHICS */
-#endif /* ALLOW_BORG */
-
-
 /* Do we want different characters for different races? */
 /*
  * Too slow for general use - note that the 16x16 tiles use a
@@ -542,11 +519,6 @@
 /* #define MONK_HACK */
 
 /*
- * Use a scripting language (required)
- */
-#define USE_SCRIPT
-
-/*
  * Monsters can drop corpses when killed
  */
 #define USE_CORPSES
@@ -567,23 +539,11 @@
 /* #define USE_64B */
 
 /* Include maid-grf.c stuff */
-#ifdef ALLOW_BORG
-#define TERM_USE_MAP
-#define TERM_CAVE_MAP
-#define TERM_USE_LIST
-#endif /* ALLOW_BORG */
 
 #ifdef USE_AMI
 #define TERM_USE_MAP
 #define TERM_MAP_GLYPH
 #endif /* USE_AMI */
-
-#ifdef USE_TNB
-#define TERM_USE_MAP
-#define TERM_MAP_GLYPH
-#define TERM_CAVE_MAP
-#define TERM_MAP_INFO
-#endif /* USE_TNB */
 
 /*
  * Defining parts of the new term interface requires

@@ -2748,31 +2748,6 @@ static void calc_bonuses(void)
 		mutation_effect();
 	}
 
-
-	/* Remove flags that were not in Moria */
-	if (ironman_moria)
-	{
-		p_ptr->reflect = FALSE;
-		p_ptr->resist_pois = FALSE;
-		p_ptr->resist_fear = FALSE;
-		p_ptr->resist_lite = FALSE;
-		p_ptr->resist_dark = FALSE;
-		p_ptr->resist_confu = FALSE;
-		p_ptr->resist_sound = FALSE;
-		p_ptr->resist_shard = FALSE;
-		p_ptr->resist_nethr = FALSE;
-		p_ptr->resist_nexus = FALSE;
-		p_ptr->resist_chaos = FALSE;
-		p_ptr->resist_disen = FALSE;
-
-		p_ptr->sh_fire = FALSE;
-		p_ptr->sh_elec = FALSE;
-		p_ptr->anti_tele = FALSE;
-		p_ptr->anti_magic = FALSE;
-
-		p_ptr->lite = FALSE;
-	}
-
 	/* Scan the usable inventory */
 	for (i = 0; i < EQUIP_MAX; i++)
 	{

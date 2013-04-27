@@ -319,6 +319,9 @@ E:5:0x02
 # CHEST
 E:7:0x02
 
+# SOUL GEM
+E:11:0x0D
+
 # SHOT
 E:16:0x0F
 

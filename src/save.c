@@ -541,6 +541,12 @@ static void wr_item(const object_type *o_ptr)
 
 	wr_s16b(o_ptr->timeout);
 
+	wr_s16b(o_ptr->exp);
+	wr_s16b(o_ptr->level);
+	wr_u16b(o_ptr->soul_source);
+	wr_u16b(o_ptr->soul_type1);
+	wr_u16b(o_ptr->soul_type2);
+
 	wr_s16b(o_ptr->to_h);
 	wr_s16b(o_ptr->to_d);
 	wr_s16b(o_ptr->to_a);
@@ -1286,25 +1292,6 @@ static void wr_dungeon(void)
 		/* Save dungeon map */
 		save_map(p_ptr->min_wid, p_ptr->min_hgt, p_ptr->max_wid,
 				 p_ptr->max_hgt);
-#if 0
-		/* Hack - the player is not in this dungeon */
-		character_dungeon = FALSE;
-
-		/* Save wilderness map */
-		change_level(0);
-
-		save_map(wild_grid.y_max, wild_grid.y_min,
-				 wild_grid.x_max, wild_grid.x_min);
-
-		change_level(p_ptr->depth);
-
-		/* The character is back in the dungeon */
-		character_dungeon = TRUE;
-
-		/* Restore bounds */
-		max_hgt = cur_hgt;
-		max_wid = cur_wid;
-#endif /* 0 */
 	}
 	else
 	{

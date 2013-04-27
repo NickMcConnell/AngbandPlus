@@ -1475,59 +1475,6 @@ void test_decision_tree(void)
 
 #endif /* DEBUG */
 
-
-#if 0
-/*
- * "Testing" function, used to find where the "invisible monster" bug
- * is being caused.
- * This tests the wilderness to see if everything is ok in the monster-
- * wilderness data structures.
- */
-void test_mon_wild_integrity(void)
-{
-	int i, j;
-	cave_type *c_ptr;
-	monster_type *m_ptr;
-
-	/* Only when in wilderness */
-	if (p_ptr->depth) return;
-
-	/* Check the wilderness */
-	for (i = min_wid; i < max_wid; i++)
-	{
-		for (j = min_hgt; j < max_hgt; j++)
-		{
-			/* Point to location */
-			c_ptr = area(i, j);
-
-			/* Want a monster */
-			if (!c_ptr->m_idx) continue;
-
-			m_ptr = &m_list[c_ptr->m_idx];
-
-			/* Dead monster? */
-			if (!m_ptr->r_idx)
-			{
-				msgf("Dead Monster");
-			}
-
-			if (c_ptr->m_idx > m_max)
-			{
-				msgf("Monster index inconsistancy.");
-			}
-
-			if ((m_ptr->fy != j) || (m_ptr->fx != i))
-			{
-				msgf("Monster location inconsistancy.");
-				msgf("Monster x, cave x,%d,%d", m_ptr->fx, i);
-				msgf("Monster y, cave y,%d,%d", m_ptr->fy, j);
-			}
-		}
-	}
-}
-#endif /* 0 */
-
-
 /*
  * Test to see that there are no null nodes in the decision tree.
  */

@@ -161,12 +161,6 @@ static long total_points(void)
 	long temp;
 	long mult = 85;
 
-	/* AI is not that big a deal (yet) */
-	if (stupid_monsters) mult -= 20;
-
-	/* Penalize preserve mode */
-	if (preserve_mode) mult -= 10;
-
 	/* Vanilla town is harder than normal */
 	if (vanilla_town) mult += 5;
 
@@ -176,9 +170,6 @@ static long total_points(void)
 
 	/* Not too much of a reward since some people like playing with this. */
 	if (ironman_small_levels) mult += 5;
-
-	/* Moria mode is very hard */
-	if (ironman_moria) mult += 20;
 
 	/* More ironman options */
 	if (ironman_empty_levels) mult += 10;
@@ -424,17 +415,6 @@ void enter_score(void)
 	if (p_ptr->noscore & 0x003F)
 	{
 		msgf("Score not registered for wizards.");
-		message_flush();
-		score_idx = -1;
-		return;
-	}
-#endif
-
-#ifndef SCORE_BORGS
-	/* Borg-mode pre-empts scoring */
-	if (p_ptr->noscore & 0x00C0)
-	{
-		msgf("Score not registered for borgs.");
 		message_flush();
 		score_idx = -1;
 		return;

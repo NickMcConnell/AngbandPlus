@@ -46,7 +46,6 @@ extern const byte adj_con_mhp[];
 extern const byte blows_table[12][12];
 extern const owner_type owners[MAX_STORES][MAX_OWNERS];
 extern const b_own_type b_owners[MAX_BLDG][MAX_B_OWN];
-extern const byte rgold_adj[MAX_RACES][MAX_RACES];
 extern const byte extract_energy[200];
 extern const s32b player_exp[PY_MAX_LEVEL];
 extern player_sex sex_info[MAX_SEXES];
@@ -256,6 +255,7 @@ extern monster_race *r_info;
 extern char *r_name;
 extern char *r_text;
 extern field_thaum *t_info;
+extern soul_type *s_info;
 extern quest_type *quest;
 extern cptr ANGBAND_SYS;
 extern cptr ANGBAND_DIR;
@@ -263,7 +263,6 @@ extern cptr ANGBAND_DIR_APEX;
 extern cptr ANGBAND_DIR_BONE;
 extern cptr ANGBAND_DIR_DATA;
 extern cptr ANGBAND_DIR_EDIT;
-extern cptr ANGBAND_DIR_SCRIPT;
 extern cptr ANGBAND_DIR_FILE;
 extern cptr ANGBAND_DIR_HELP;
 extern cptr ANGBAND_DIR_INFO;
@@ -416,7 +415,6 @@ extern void do_cmd_browse(void);
 extern void do_cmd_browse_aux(const object_type *o_ptr);
 extern void do_cmd_study(void);
 extern void do_cmd_cast(void);
-extern void do_cmd_pray(void);
 extern void do_cmd_pet(void);
 
 /* cmd6.c */
@@ -428,7 +426,6 @@ extern void do_cmd_use_staff(void);
 extern void do_cmd_zap_rod(void);
 extern void do_cmd_activate(void);
 extern void do_cmd_rerate(void);
-extern void ring_of_power(int dir);
 
 /* dungeon.c */
 extern void sense_item(object_type *o_ptr, bool heavy, bool wield, bool msg);
@@ -486,6 +483,7 @@ extern errr init_t_info_txt(FILE *fp, char *buf);
 /* init2.c */
 extern errr init_w_info(void);
 extern errr init_t_info(void);
+extern errr init_s_info(void);
 extern void init_file_paths(char *path);
 extern void init_angband(void);
 extern void cleanup_angband(void);
@@ -612,6 +610,9 @@ extern bool item_tester_hook_is_blessed(const object_type *o_ptr);
 extern bool item_tester_hook_is_good(const object_type *o_ptr);
 extern bool item_tester_hook_is_great(const object_type *o_ptr);
 extern bool item_tester_hook_is_book(const object_type *o_ptr);
+extern bool item_tester_hook_soulgem(const object_type *o_ptr);
+extern bool item_tester_hook_hassoul(const object_type *o_ptr);
+extern bool item_tester_hook_imbue(const object_type *o_ptr);
 extern bool item_tester_okay(const object_type *o_ptr);
 extern void display_inven(void);
 extern void display_equip(void);
@@ -871,6 +872,10 @@ extern bool enchant_item(s32b cost, bool to_hit, bool to_dam, bool to_ac);
 extern void building_recharge(s32b cost);
 extern bool building_healer(void);
 extern bool building_magetower(int factor, bool display);
+extern void building_sellsoul(void);
+extern void building_viewsouls(int delta);
+extern void building_examinesoul();
+extern void building_imbuesoul();
 extern void gamble_help(void);
 extern void gamble_in_between(void);
 extern void gamble_craps(void);
@@ -1083,12 +1088,6 @@ extern void change_level(int);
 extern void wipe_all_list(void);
 extern cptr building_name(byte build_type);
 
-/* avatar.c */
-extern cptr virtue[MAX_VIRTUE];
-extern void get_virtues(void);
-extern void chg_virtue(int virtue, int amount);
-extern void dump_virtues(FILE *OutFile);
-
 /* notes.c */
 extern cptr notes_file(void);
 extern void output_note(cptr final_note, ...);
@@ -1221,6 +1220,8 @@ DECL_FIELD_ACTION(ishardarmour_tester);
 DECL_FIELD_ACTION(isphardarmour_tester);
 DECL_FIELD_ACTION(ishelm_tester);
 DECL_FIELD_ACTION(issupplies_tester);
+DECL_FIELD_ACTION(souldealer1);
+DECL_FIELD_ACTION(souldealer2);
 
 /* compress.c */
 extern void test_compress_module(void);
@@ -1274,10 +1275,6 @@ extern bool get_com(cptr prompt, char *command);
 extern s16b get_quantity(cptr prompt, int max);
 extern void pause_line(int row);
 extern int get_keymap_dir(char ch);
-
-
-/* borg.c */
-extern void do_cmd_borg(void);
 
 /*
  * Hack -- conditional (or "bizarre") externs

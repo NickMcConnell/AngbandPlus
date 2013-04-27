@@ -16,76 +16,12 @@
 /*
  * Max sizes of the following arrays
  */
-#define MAX_ROCKS      68		/* Used with rings (min 51) */
-#define MAX_AMULETS    17		/* Used with amulets (min 16) */
 #define MAX_WOODS      32		/* Used with staffs (min 30) */
 #define MAX_METALS     39		/* Used with wands/rods (min 30/29) */
 #define MAX_COLORS     66		/* Used with potions (min 64) */
 #define MAX_SHROOM     20		/* Used with mushrooms (min 20) */
 #define MAX_TITLES     54		/* Used with scrolls (min 48) */
 #define MAX_SYLLABLES 164		/* Used with scrolls (see below) */
-
-
-/*
- * Rings (adjectives and colors)
- */
-
-static cptr ring_adj[MAX_ROCKS] =
-{
-	"Alexandrite", "Amethyst", "Aquamarine", "Azurite", "Beryl",
-	"Bloodstone", "Calcite", "Carnelian", "Corundum", "Diamond",
-	"Emerald", "Fluorite", "Garnet", "Granite", "Jade",
-	"Jasper", "Lapis Lazuli", "Malachite", "Marble", "Moonstone",
-	"Onyx", "Opal", "Pearl", "Quartz", "Quartzite",
-	"Rhodonite", "Ruby", "Sapphire", "Tiger Eye", "Topaz",
-	"Turquoise", "Zircon", "Platinum", "Bronze", "Gold",
-	"Obsidian", "Silver", "Tortoise Shell", "Mithril", "Jet",
-	"Engagement", "Adamantite", "Wire", "Dilithium", "Bone",
-	"Wooden", "Iron", "Serpent", "Wedding", "Double",
-	"Plain", "Brass", "Scarab", "Shining", "Rusty",
-	"Transparent", "Cat's-Eye", "Chrysoberyl", "Serpentine", "Spinel",
-	"Topaz", "Morganite", "Heliodor", "Tourmaline", "Chalcedony",
-	"Peridot", "Hematite", "Coral"
-};
-
-static byte ring_col[MAX_ROCKS] =
-{
-	TERM_GREEN, TERM_VIOLET, TERM_L_BLUE, TERM_L_BLUE, TERM_L_GREEN,
-	TERM_RED, TERM_WHITE, TERM_RED, TERM_SLATE, TERM_WHITE,
-	TERM_GREEN, TERM_L_GREEN, TERM_RED, TERM_L_DARK, TERM_L_GREEN,
-	TERM_UMBER, TERM_BLUE, TERM_GREEN, TERM_WHITE, TERM_L_WHITE,
-	TERM_L_RED, TERM_L_WHITE, TERM_WHITE, TERM_L_WHITE, TERM_L_WHITE,
-	TERM_L_RED, TERM_RED, TERM_BLUE, TERM_YELLOW, TERM_YELLOW,
-	TERM_L_BLUE, TERM_L_UMBER, TERM_WHITE, TERM_L_UMBER, TERM_YELLOW,
-	TERM_L_DARK, TERM_L_WHITE, TERM_GREEN, TERM_L_BLUE, TERM_L_DARK,
-	TERM_YELLOW, TERM_VIOLET, TERM_UMBER, TERM_L_WHITE, TERM_WHITE,
-	TERM_UMBER, TERM_BLUE, TERM_GREEN, TERM_YELLOW, TERM_ORANGE,
-	TERM_YELLOW, TERM_ORANGE, TERM_L_GREEN, TERM_YELLOW, TERM_RED,
-	TERM_WHITE, TERM_YELLOW, TERM_YELLOW, TERM_L_GREEN, TERM_RED,
-	TERM_YELLOW, TERM_L_RED, TERM_YELLOW, TERM_GREEN, TERM_L_DARK,
-	TERM_L_GREEN, TERM_L_DARK, TERM_L_RED
-};
-
-
-/*
- * Amulets (adjectives and colors)
- */
-static cptr amulet_adj[MAX_AMULETS] =
-{
-	"Amber", "Driftwood", "Coral", "Agate", "Ivory",
-	"Obsidian", "Bone", "Brass", "Bronze", "Pewter",
-	"Tortoise Shell", "Golden", "Azure", "Crystal", "Silver",
-	"Copper", "Rosetted"
-};
-
-static byte amulet_col[MAX_AMULETS] =
-{
-	TERM_YELLOW, TERM_L_UMBER, TERM_WHITE, TERM_L_WHITE, TERM_WHITE,
-	TERM_L_DARK, TERM_WHITE, TERM_L_UMBER, TERM_L_UMBER, TERM_SLATE,
-	TERM_GREEN, TERM_YELLOW, TERM_L_BLUE, TERM_L_BLUE, TERM_L_WHITE,
-	TERM_L_UMBER, TERM_VIOLET	/* Hack */
-};
-
 
 /*
  * Staffs (adjectives and colors)
@@ -279,16 +215,6 @@ static bool object_flavor(int k_idx)
 	/* Analyze the item */
 	switch (k_ptr->tval)
 	{
-		case TV_AMULET:
-		{
-			return (0x80 + amulet_col[k_ptr->sval]);
-		}
-
-		case TV_RING:
-		{
-			return (0x90 + ring_col[k_ptr->sval]);
-		}
-
 		case TV_STAFF:
 		{
 			return (0xA0 + staff_col[k_ptr->sval]);
@@ -379,7 +305,7 @@ void get_table_name(char *out_string, bool quotes)
  * For the most part, flavors are assigned randomly each game.
  *
  * Initialize descriptions for the "colored" objects, including:
- * Rings, Amulets, Staffs, Wands, Rods, Food, Potions, Scrolls.
+ * Staffs, Wands, Rods, Food, Potions, Scrolls.
  *
  * The first 4 entries for potions are fixed (Water, Apple Juice,
  * Slime Mold Juice, Unused Potion).
@@ -424,31 +350,6 @@ void flavor_init(void)
 	{
 		rod_adj[i] = wand_adj[i];
 		rod_col[i] = wand_col[i];
-	}
-
-
-	/* Rings have "ring colors" */
-	for (i = 0; i < MAX_ROCKS; i++)
-	{
-		j = randint0(MAX_ROCKS);
-		temp_adj = ring_adj[i];
-		ring_adj[i] = ring_adj[j];
-		ring_adj[j] = temp_adj;
-		temp_col = ring_col[i];
-		ring_col[i] = ring_col[j];
-		ring_col[j] = temp_col;
-	}
-
-	/* Amulets have "amulet colors" */
-	for (i = 0; i < MAX_AMULETS; i++)
-	{
-		j = randint0(MAX_AMULETS);
-		temp_adj = amulet_adj[i];
-		amulet_adj[i] = amulet_adj[j];
-		amulet_adj[j] = temp_adj;
-		temp_col = amulet_col[i];
-		amulet_col[i] = amulet_col[j];
-		amulet_col[j] = temp_col;
 	}
 
 	/* Staffs */
@@ -632,22 +533,12 @@ void flavor_init(void)
  * the item is also an artifact, which should NEVER happen.
  *
  * Note that all artifacts (when known) append an "Artifact Name", so we
- * have special processing for "Specials" (artifact Lites, Rings, Amulets).
+ * have special processing for "Specials" (artifact Lites).
  * The "Specials" never use "modifiers" if they are "known", since they
  * have special "descriptions", such as "The Necklace of the Dwarves".
  *
  * Special Lite's use the "k_info" base-name (Phial, Star, or Arkenstone),
  * plus the artifact name, just like any other artifact, if known.
- *
- * Special Ring's and Amulet's, if not "aware", use the same code as normal
- * rings and amulets, and if "aware", use the "k_info" base-name (Ring or
- * Amulet or Necklace).  They will NEVER "append" the "k_info" name.  But,
- * they will append the artifact name, just like any artifact, if known.
- *
- * None of the Special Rings/Amulets are "EASY_KNOW", though they could be,
- * at least, those which have no "pluses", such as the three artifact lites.
- *
- * Hack -- Display "The One Ring" as "a Plain Gold Ring" until aware.
  *
  * If "pref" then a "numeric" prefix will be pre-pended.
  *
@@ -775,48 +666,6 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 		case TV_LITE:
 		{
 			/* Lites (including a few "Specials") */
-			break;
-		}
-
-		case TV_AMULET:
-		{
-			/* Amulets (including a few "Specials") */
-
-			/* Known artifacts */
-			if ((o_ptr->flags3 & TR3_INSTA_ART) && aware &&
-				(o_ptr->activate > 128)) break;
-
-			/* Color the object */
-			modstr = amulet_adj[o_ptr->sval];
-			if (aware) append_name = TRUE;
-
-			if (((plain_descriptions) && (aware)) || (o_ptr->info & OB_STOREB))
-				basenm = "& Amulet~";
-			else
-				basenm = "& # Amulet~";
-			break;
-		}
-
-		case TV_RING:
-		{
-			/* Rings (including a few "Specials") */
-
-			/* Known artifacts */
-			if ((o_ptr->flags3 & TR3_INSTA_ART) && aware &&
-				(o_ptr->activate > 128)) break;
-
-			/* Color the object */
-			modstr = ring_adj[o_ptr->sval];
-			if (aware) append_name = TRUE;
-
-			if (((plain_descriptions) && (aware)) || (o_ptr->info & OB_STOREB))
-				basenm = "& Ring~";
-			else
-				basenm = "& # Ring~";
-
-			/* Hack -- The One Ring */
-			if (!aware && (o_ptr->sval == SV_RING_POWER)) modstr = "Plain Gold";
-
 			break;
 		}
 
@@ -973,6 +822,22 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 			/* Hack -- Gold/Gems */
 			strcpy(buf, basenm);
 			return;
+		}
+
+		case TV_SOUL_GEM:
+		case TV_AMULET:
+		case TV_RING:
+		{
+			if (o_ptr->soul_source != 0)
+			{
+				r_ptr = &r_info[o_ptr->soul_source];
+				modstr = r_name + r_ptr->name;
+			}
+			else
+			{
+				modstr = "Empty";
+			}
+			break;
 		}
 
 		default:

@@ -14,8 +14,6 @@
 #   29, 29, 90, 177, 178, 179, 182, 183, 195, 196, 205,
 #   268, 270, 293, 299, 350, 351, 399, 413, 414, 423-479
 
-# XXX XXX Add some "IGNORE_XXX" flags to Rings, Amulets, etc.
-
 # The old "MULTI_HUED" objects are now "violet", and no other object
 # is violet, so all six violet objects can be made "multi-hued", though
 # this would be a heinous hack.  XXX XXX
@@ -1102,273 +1100,81 @@ P:8:1d5:0:0:0
 
 ##### Rings #####
 
-N:132:Strength
-G:=:d
+N:132:& Copper Ring (#)
+G:=:o
 I:45:24:5
-W:52:0:2:500
-A:52/1
-F:STR | HIDE_TYPE
+W:1:0:2:50
+A:5/1
+F:EASY_KNOW
 
-N:133:Dexterity
-G:=:d
+N:133:& Silver Ring (#)
+G:=:w
 I:45:26:5
-W:52:0:2:500
-A:52/1
-F:DEX | HIDE_TYPE
+W:10:0:2:250
+A:15/1
+F:EASY_KNOW
 
-N:134:Constitution
-G:=:d
+N:134:& Gold Ring (#)
+G:=:y
 I:45:27:5
-W:52:0:2:500
-A:52/1
-F:CON | HIDE_TYPE
+W:20:0:2:1000
+A:25/1
+F:EASY_KNOW
 
-N:135:Intelligence
-G:=:d
+N:135:& Platinum Ring (#)
+G:=:W
 I:45:25:5
-W:52:0:2:500
-A:52/1
-F:INT | HIDE_TYPE
+W:40:0:2:5000
+A:45/1
+F:EASY_KNOW
 
-N:136:Speed
-G:=:d
+N:136:& Adamantite Ring (#)
+G:=:G
 I:45:31:10
-W:100:0:2:10000
-A:100/1
-F:SPEED | HIDE_TYPE
-
-N:137:Sensing
-G:=:d
-I:45:23:5
-W:9:0:2:50
-A:9/2
-F:SENSE | HIDE_TYPE
-
-N:138:Teleportation
-G:=:d
-I:45:4:0
-W:9:0:2:50
-A:9/2
-F:CURSED | TELEPORT | EASY_KNOW
-
-N:139:Slow Digestion
-G:=:d
-I:45:6:0
-W:9:0:2:100
-A:9/2
-F:SLOW_DIGEST | EASY_KNOW
-
-N:140:Resist Fire
-G:=:d
-I:45:8:0
-W:17:0:2:200
-A:17/2
-F:RES_FIRE | IGNORE_FIRE | EASY_KNOW
-
-N:141:Resist Cold
-G:=:d
-I:45:9:0
-W:17:0:2:200
-A:17/2
-F:RES_COLD | IGNORE_COLD | EASY_KNOW
-
-N:142:Levitation
-G:=:d
-I:45:7:0
-W:9:0:2:150
-A:9/2
-F:FEATHER | EASY_KNOW
-
-N:143:Poison Resistance
-G:=:d
-I:45:20:0
-W:60:0:2:16000
-A:50/8:85/2
-F:RES_POIS | EASY_KNOW
-
-N:144:Free Action
-G:=:d
-I:45:21:0
-W:25:0:2:1500
-A:25/2
-F:FREE_ACT | EASY_KNOW
-
-N:145:Weakness
-G:=:d
-I:45:2:-5
-W:9:0:2:0
-A:9/2
-F:CURSED | STR | HIDE_TYPE
-
-N:146:Flames
-G:=:d
-I:45:18:0
-W:75:0:2:1500
-A:75/1
-P:0:0d0:0:0:15
-F:RES_FIRE | IGNORE_FIRE | ACTIVATE
-
-N:147:Acid
-G:=:d
-I:45:17:0
-W:75:0:2:1500
-A:75/1
-P:0:0d0:0:0:15
-F:RES_ACID | IGNORE_ACID | ACTIVATE
-
-N:148:Ice
-G:=:d
-I:45:19:0
-W:75:0:2:1500
-A:75/1
-P:0:0d0:0:0:15
-F:RES_COLD | IGNORE_COLD | ACTIVATE
-
-N:149:Woe
-G:=:d
-I:45:0:-5
-W:75:0:2:0
-A:75/2
-F:CURSED | TELEPORT | WIS | CHR | HIDE_TYPE
-
-N:150:Stupidity
-G:=:d
-I:45:3:-5
-W:9:0:2:0
-A:9/2
-F:CURSED | INT | HIDE_TYPE
-
-N:151:Combat
-G:=:d
-I:45:29:0
-W:35:0:2:500
-A:35/1
-
-N:152:Skill
-G:=:d
-I:45:28:0
-W:35:0:2:500
-A:35/1
-
-N:153:Protection
-G:=:d
-I:45:16:0
-W:17:0:2:200
-A:17/2
-
-N:154:Aggravate Monster
-G:=:d
-I:45:1:0
-W:9:0:2:0
-A:9/3
-F:CURSED | AGGRAVATE | EASY_KNOW
-
-N:155:See Invisible
-G:=:d
-I:45:22:0
-W:30:0:2:340
-A:30/3:52/1
-F:SEE_INVIS | EASY_KNOW
-
-N:156:Sustain Strength
-G:=:d
-I:45:10:0
-W:20:0:2:100
-A:20/8:52/8
-F:SUST_STR | EASY_KNOW
-
-N:157:Sustain Intelligence
-G:=:d
-I:45:11:0
-W:20:0:2:100
-A:20/8:52/8
-F:SUST_INT | EASY_KNOW
-
-N:158:Sustain Wisdom
-G:=:d
-I:45:12:0
-W:20:0:2:100
-A:20/8:52/8
-F:SUST_WIS | EASY_KNOW
-
-N:159:Sustain Constitution
-G:=:d
-I:45:13:0
-W:20:0:2:100
-A:20/8:52/8
-F:SUST_CON | EASY_KNOW
-
-N:160:Sustain Dexterity
-G:=:d
-I:45:14:0
-W:20:0:2:100
-A:20/8:52/8
-F:SUST_DEX | EASY_KNOW
-
-N:161:Sustain Charisma
-G:=:d
-I:45:15:0
-W:20:0:2:75
-A:20/16:52/16
-F:SUST_CHR | EASY_KNOW
-
-N:162:Slaying
-G:=:d
-I:45:30:0
-W:65:0:2:1000
+W:60:0:2:10000
 A:65/1
-F:SHOW_MODS
+F:EASY_KNOW | IGNORE_ACID | IGNORE_FIRE | IGNORE_COLD | IGNORE_ELEC
+
+# 137 - 162 unused
 
 ##### Amulets #####
 
-N:163:Brilliance
-G:":d
+N:163:& Copper Amulet (#)
+G:":o
 I:40:6:4
-W:35:0:3:500
-A:35/2:85/1
-F:INT | WIS | HIDE_TYPE
+W:1:0:3:50
+A:10/1
+F:EASY_KNOW
 
-N:164:Charisma
-G:":d
+N:164:& Silver Amulet (#)
+G:":w
 I:40:7:4
-W:20:0:3:250
-A:20/2
-F:CHR | HIDE_TYPE
+W:10:0:3:250
+A:20/1
+F:EASY_KNOW
 
-N:165:Sensing
-G:":d
+N:165:& Gold Amulet (#)
+G:":y
 I:40:5:5
-W:12:0:3:100
-A:12/2
-F:SENSE | HIDE_TYPE
+W:20:0:3:1000
+A:30/1
+F:EASY_KNOW
 
-N:166:Teleportation
-G:":d
+N:166:& Platinum Amulet (#)
+G:":W
 I:40:1:0
-W:26:0:3:150
-A:26/2
-F:CURSED | TELEPORT | EASY_KNOW
+W:40:0:3:5000
+A:50/1
+F:EASY_KNOW
 
-N:167:Slow Digestion
-G:":d
+N:167:& Adamantite Amulet (#)
+G:":G
 I:40:3:0
-W:26:0:3:50
-A:26/2
-F:SLOW_DIGEST | EASY_KNOW
+W:60:0:3:10000
+A:70/1
+F:EASY_KNOW | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_ACID
 
-N:168:Resist Acid
-G:":d
-I:40:4:0
-W:35:0:3:150
-A:35/2
-F:RES_ACID | IGNORE_ACID | EASY_KNOW
-
-N:169:Berserk Strength
-G:":d
-I:40:2:0
-W:33:0:3:50
-A:33/3
-F:AGGRAVATE
+# 168 - 169 unused
 
 ##### Extra armor #####
 
@@ -1379,25 +1185,7 @@ W:43:0:230:1000
 A:43/1
 P:15:1d4:-2:0:0
 
-##### Additional amulets #####
-
-N:171:the Magi
-G:":d
-I:40:8:5
-W:75:0:3:5000
-A:75/4:100/3
-P:0:0d0:0:0:3
-F:FREE_ACT | SEE_INVIS | SENSE |
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-N:172:Destruction
-G:":d
-I:40:0:-5
-W:80:0:3:0
-A:80/2
-P:0:7d7:-5:-5:5
-F:CURSED | HEAVY_CURSE | STR | INT | WIS | DEX | CON | CHR | 
-F:TY_CURSE | NO_TELE | NO_MAGIC | REGEN | HIDE_TYPE
+# 171- 172 unused
 
 
 ##### Scrolls #####
@@ -1444,7 +1232,7 @@ W:1:0:5:10
 A:1/1
 F:EASY_KNOW
 
-N:179:Logrus
+N:179:Chaos
 G:?:d
 I:70:50:0
 W:80:0:5:1000
@@ -3281,8 +3069,6 @@ F:RES_NETHER | RES_NEXUS | RES_CHAOS | RES_LITE | RES_DARK |
 F:RES_SHARDS | RES_SOUND | RES_DISEN | RES_CONF |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-## PDSM has been restored to (almost) its former glory in Zangband
-
 N:413:& Dragon Helm~
 G:]:G
 I:32:7:0
@@ -3383,89 +3169,7 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
 
-N:425:Fear Resistance
-G:=:d
-I:45:38:0
-W:17:0:2:150 
-A:17/2
-F:RES_FEAR | EASY_KNOW
-
-N:426:Light and Darkness Resistance
-G:=:d
-I:45:39:0
-W:52:0:2:1000
-A:52/2
-F:RES_LITE | RES_DARK | EASY_KNOW
-
-N:427:Nether Resistance
-G:=:d
-I:45:40:0
-W:60:0:2:14500
-A:60/2
-F:RES_NETHER | HOLD_LIFE | EASY_KNOW
-
-N:428:Nexus Resistance
-G:=:d
-I:45:41:0
-W:42:0:2:3000
-A:42/2
-F:RES_NEXUS | EASY_KNOW
-
-N:429:Sound Resistance
-G:=:d
-I:45:42:0
-W:45:0:2:3000
-A:45/2
-F:RES_SOUND | EASY_KNOW
-
-N:430:Confusion Resistance
-G:=:d
-I:45:43:0
-W:39:0:2:5000
-A:39/2
-F:RES_CONF | EASY_KNOW
-
-N:431:Shard Resistance
-G:=:d
-I:45:44:0
-W:43:0:2:3000
-A:43/2
-F:RES_SHARDS | EASY_KNOW
-
-N:432:Disenchantment Resistance
-G:=:d
-I:45:45:0
-W:100:0:2:15000
-A:100/10
-F:RES_DISEN | EASY_KNOW
-
-N:433:Chaos Resistance
-G:=:d
-I:45:46:0
-W:75:0:2:13000
-A:75/2
-F:RES_CHAOS | RES_CONF | EASY_KNOW
-
-N:434:Blindness Resistance
-G:=:d
-I:45:47:0
-W:20:0:2:2500
-A:20/4
-F:RES_BLIND | EASY_KNOW
-
-N:435:Lordly Protection
-G:=:d
-I:45:48:0
-W:105:0:2:100000
-A:100/5
-F:RES_DISEN | RES_POIS | HOLD_LIFE | FREE_ACT
-
-N:436:Extra Attacks
-G:=:d
-I:45:49:1
-W:75:0:2:10000
-A:75/8:100/2
-F:BLOWS
+# 425 - 436 unused
 
 N:437:Cure Light Wounds
 G:!:d
@@ -3617,23 +3321,11 @@ F:INSTA_ART
 # These objects do specify a "base name", which is used when the object
 # is "aware" (always true for lites)
 #
-# The Lites (and the One Ring) specify "physical colors", which
-# over-ride the "flavor" colors, if any.  Note that the "One Ring"
-# also has a specific check for "unknown" in which it changes its
-# name to "a plain gold ring".  See "obj-desc.c"  (Hack XXX)
+# The Lites specify "physical colors", which
+# over-ride the "flavor" colors, if any. See "obj-desc.c"  (Hack XXX)
 #
 # Note that ALL artifacts are given "IGNORE_ACID/ELEC/FIRE/COLD",
 # so we do not need to specify that here.
-#
-# The only reason for having six different "ring" templates and three
-# different "amulet" templates is to allow each "special artifact" to
-# have a different "color" and "flavor", and also to allow the use of
-# special "base names" (such as "Necklace").
-#
-# It is also nice to simplify the artifact creation code.  (Otherwise
-# these would be special cases.)  Also, this allows us to have a the
-# debug command that creates objects able to create these artifacts.
-
 
 # The Phial of Galadriel -- see artifact list
 
@@ -3662,79 +3354,7 @@ W:60:0:5:60000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
-# The Amulet of Carlammas -- see artifact list
-
-N:503:& Amulet~
-G:":d
-I:40:10:0
-W:50:0:3:60000
-F:INSTA_ART
-
-# The Amulet of Ingwe -- see artifact list
-
-N:504:& Amulet~
-G:":d
-I:40:11:0
-W:60:0:3:90000
-F:INSTA_ART
-
-# The Necklace of the Dwarves -- see artifact list
-
-N:505:& Necklace~
-G:":d
-I:40:12:0
-W:70:0:3:75000
-F:INSTA_ART
-
-# The Ring of Barahir -- see artifact list
-
-N:506:& Ring~
-G:=:d
-I:45:32:0
-W:50:0:2:65000
-F:INSTA_ART
-
-# The Ring of Tulkas -- see artifact list
-
-N:507:& Ring~
-G:=:d
-I:45:33:0
-W:90:0:2:150000
-F:INSTA_ART
-
-# The Ring of Power (Narya) -- see artifact list
-
-N:508:& Ring~
-G:=:d
-I:45:34:0
-W:80:0:2:100000
-F:INSTA_ART
-
-# The Ring of Power (Nenya) -- see artifact list
-
-N:509:& Ring~
-G:=:d
-I:45:35:0
-W:90:0:2:200000
-F:INSTA_ART
-
-# The Ring of Power (Vilya) -- see artifact list
-
-N:510:& Ring~
-G:=:d
-I:45:36:0
-W:100:0:2:300000
-F:INSTA_ART
-
-# The Ring of Power (The One Ring) -- see artifact list
-
-N:511:& Ring~
-G:=:y
-I:45:37:0
-W:110:0:2:5000000
-F:INSTA_ART
-
-### Room for new objects added after 511 (Zangband 2.1.0): 512-575
+# 503 - 511 unused
 
 # Trump Spellbooks
 
@@ -3806,41 +3426,7 @@ A:35/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
 
-N:520:Reflection
-G:":d
-I:40:9:0
-W:85:0:3:10000
-A:85/4
-F:REFLECT | EASY_KNOW
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-#521 and 522 cannot have EASY_KNOW because they may be cursed
-
-N:521:Anti-Magic
-G:":d
-I:40:13:0
-W:85:0:3:10000
-A:85/4
-F:NO_MAGIC
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-N:522:Anti-Teleportation
-G:":d
-I:40:14:0
-W:52:0:3:15000
-A:52/4
-F:NO_TELE
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-#523 cannot have EASY_KNOW because it can get random resistances
-
-N:523:Resistance
-G:":d
-I:40:15:0
-W:75:0:3:5000
-A:75/4
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+# 520 - 523 unused
 
 ##### New arms #####
 
@@ -3919,6 +3505,15 @@ W:17:0:60:120
 A:17/8
 P:0:1d5:0:0:0
 F:SHOW_MODS
+
+##### Soul Gem #####
+
+N:534:Soul Gem (#)
+G:*:G
+I:11:0:0
+W:17:0:1:100
+P:0:1d1:0:0:0
+F:EASY_KNOW
 
 ##### New armor #####
 
@@ -4277,33 +3872,7 @@ A:43/2:70/2
 P:0:1d15:0:0:0
 F:SHOW_MODS
 
-##### New artifact ring #####
-
-# The Ring of Power (Vilya) -- see artifact list
-
-N:582:& Ring~
-G:=:d
-I:45:50:0
-W:100:0:2:300000
-F:INSTA_ART
-
-##### New rings #####
-
-N:583:Resist Fire and Cold
-G:=:d
-I:45:51:0
-W:21:0:2:450
-A:21/4
-F:RES_FIRE | RES_COLD | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
-
-N:584:the Cat
-G:=:d
-I:45:52:4
-W:13:0:2:150
-A:13/2
-F:STEALTH | INFRA
-
-# 585-589 are unused
+# 582 - 589 unused
 
 ##### New weapon types #####
 N:590:& Elfblade~

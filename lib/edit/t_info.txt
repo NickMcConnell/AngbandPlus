@@ -1398,3 +1398,11 @@ D:1:5:0:0:0:0:0:0
 F:2,field_action_door_build
 F:18,field_action_magetower1 | 19,field_action_magetower2
 
+# Soul Dealer
+N:145:Soul Dealer
+G:7:G
+W:100:3:0
+I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
+D:1:5:0:0:0:0:0:0
+F:2,field_action_door_build
+F:18,field_action_souldealer1 | 19,field_action_souldealer2 

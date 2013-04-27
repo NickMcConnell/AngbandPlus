@@ -1841,11 +1841,7 @@ static void process_world(void)
 static bool enter_wizard_mode(void)
 {
 	/* Ask first time */
-#if 0
-	if (!(p_ptr->noscore & 0x0002))
-#else
 	if (!p_ptr->noscore)
-#endif
 	{
 		/* Mention effects */
 		msgf("Wizard mode is for debugging and experimenting.");
@@ -1875,11 +1871,7 @@ static bool enter_wizard_mode(void)
 static bool enter_debug_mode(void)
 {
 	/* Ask first time */
-#if 0
-	if (!(p_ptr->noscore & 0x0008))
-#else
 	if (!p_ptr->noscore)
-#endif
 	{
 		/* Mention effects */
 		msgf("The debug commands are for debugging and experimenting.");
@@ -1906,40 +1898,6 @@ static bool enter_debug_mode(void)
 extern void do_cmd_debug(void);
 
 #endif /* ALLOW_WIZARD */
-
-
-#ifdef ALLOW_BORG
-
-/*
- * Verify use of "borg" commands
- */
-static bool enter_borg_mode(void)
-{
-	/* Ask first time */
-	if (!(p_ptr->noscore & 0x0040))
-	{
-		/* Mention effects */
-		msgf("The borg commands are for debugging and experimenting.");
-		msgf("The game will not be scored if you use borg commands.");
-		message_flush();
-
-		/* Verify request */
-		if (!get_check("Are you sure you want to use borg commands? "))
-		{
-			return (FALSE);
-		}
-
-		/* Mark savefile */
-		p_ptr->noscore |= 0x0040;
-	}
-
-	/* Success */
-	return (TRUE);
-}
-
-#endif /* ALLOW_BORG */
-
-
 
 /*
  * Parse and execute the current command
@@ -2007,23 +1965,6 @@ static void process_command(void)
 		}
 
 #endif /* ALLOW_WIZARD */
-
-
-#ifdef ALLOW_BORG
-
-		case KTRL('Z'):
-		{
-			/* Enter borg mode */
-			if (enter_borg_mode())
-			{
-				do_cmd_borg();
-			}
-
-			break;
-		}
-
-#endif /* ALLOW_BORG */
-
 
 
 		/*** Inventory Commands ***/
@@ -2997,8 +2938,7 @@ static void dungeon(void)
 			FALSE;
 
 	/* Option -- no connected stairs */
-	if (!dungeon_stair ||
-		ironman_moria) p_ptr->create_down_stair = p_ptr->create_up_stair =
+	if (!dungeon_stair) p_ptr->create_down_stair = p_ptr->create_up_stair =
 FALSE;
 
 	/* Nightmare mode is no fun... */
@@ -3305,7 +3245,6 @@ void play_game(bool new_game)
 
 	/* Initialize field info */
 	if (init_t_info()) quit("Cannot initialize fields");
-
 
 	/* Attempt to load */
 	if (!load_player())

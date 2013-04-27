@@ -703,21 +703,6 @@ static void save_map_location(int x, int y, term_map *map)
 
 	/* Save the flags */
 	mb_ptr->flags = map->flags;
-
-#ifdef TERM_CAVE_MAP
-
-	/* Save the information */
-	mb_ptr->terrain = map->terrain;
-	mb_ptr->field = map->field;
-
-	mb_ptr->object = map->object;
-	mb_ptr->unknown = map->unknown;
-
-	mb_ptr->monster = map->monster;
-	mb_ptr->m_flags = map->m_flags;
-	mb_ptr->m_hp = map->m_hp;
-
-#endif /* TERM_CAVE_MAP */
 }
 
 /*
@@ -1009,7 +994,7 @@ static void delete_list(list_item **l_ptr_ptr, int *num)
  * Copy a list from t_ptr to l_ptr_ptr
  *
  * The first list comes from the game, the second is
- * stored here for later use by the ports / borg.
+ * stored here for later use by the ports
  *
  * We assume l_ptr_ptr points to a NULL pointer.
  */

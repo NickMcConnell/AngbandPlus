@@ -65,10 +65,6 @@ static u32b v_check = 0L;
  */
 static u32b x_check = 0L;
 
-
-/*
- * The above function, adapted for Zangband
- */
 static bool z_older_than(byte x, byte y, byte z)
 {
 	/* Much older, or much more recent */
@@ -357,6 +353,12 @@ static void rd_item(object_type *o_ptr)
 
 	rd_s16b(&o_ptr->timeout);
 
+	rd_s16b(&o_ptr->exp);
+	rd_s16b(&o_ptr->level);
+	rd_u16b(&o_ptr->soul_source);
+	rd_u16b(&o_ptr->soul_type1);
+	rd_u16b(&o_ptr->soul_type2);
+
 	rd_s16b(&o_ptr->to_h);
 	rd_s16b(&o_ptr->to_d);
 	rd_s16b(&o_ptr->to_a);
@@ -518,7 +520,7 @@ static void rd_item(object_type *o_ptr)
 	}
 
 	/* Repair non "wearable" items */
-	if (!wearable_p(o_ptr))
+	if ( (!wearable_p(o_ptr)) && (o_ptr->tval != TV_SOUL_GEM) )
 	{
 		/* Acquire correct fields */
 		o_ptr->to_h = k_ptr->to_h;
@@ -1293,8 +1295,6 @@ static void rd_extra(void)
 		p_ptr->muta1 = 0;
 		p_ptr->muta2 = 0;
 		p_ptr->muta3 = 0;
-
-		get_virtues();
 	}
 	else
 	{
@@ -1313,7 +1313,6 @@ static void rd_extra(void)
 
 		if (sf_version < 5)
 		{
-			get_virtues();
 		}
 		else
 		{
@@ -2784,18 +2783,6 @@ static errr rd_savefile_new_aux(void)
 	if (z_older_than(2, 2, 7))
 		terrain_streams = TRUE;
 
-	/*
-	 * Munchkin players are marked
-	 *
-	 * XXX - should be replaced with a better method,
-	 * after the new scorefile-handling is implemented.
-	 */
-	if (munchkin_death)
-	{
-		/* Mark savefile */
-		p_ptr->noscore |= 0x0001;
-	}
-
 	/* Then the "messages" */
 	rd_messages();
 	if (arg_fiddle) note("Loaded Messages");
@@ -2992,7 +2979,6 @@ static errr rd_savefile_new_aux(void)
 		rd_byte(&tmp8u);
 	}
 	if (arg_fiddle) note("Loaded Artifacts");
-
 
 	/* Read the extra stuff */
 	rd_extra();

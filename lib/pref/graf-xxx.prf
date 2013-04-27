@@ -648,7 +648,7 @@ R:116:0x9C:0x81
 # Creeping silver coins
 R:117:0x8E:0x81
 
-# Snaga
+# Goblin
 R:118:0x9A:0x97
 
 # Rattlesnake
@@ -714,7 +714,7 @@ R:138:0xBB:0x88
 # Nurgling
 R:139:0xBD:0x94
 
-# Lagduf, the Snaga
+# Lagduf, the Goblin
 R:140:0x9A:0x99
 
 # Brown yeek
@@ -1047,7 +1047,7 @@ R:249:0xBF:0x8C
 # Giant white dragon fly
 R:250:0x90:0x97
 
-# Snaga sapper
+# Goblin sapper
 R:251:0xBF:0x8D
 
 # Blue icky thing
@@ -1788,7 +1788,7 @@ R:496:0x94:0x93
 # Anti-paladin
 R:497:0xA1:0x84
 
-# Logrus master
+# Chaos master
 R:498:0xBB:0x84
 
 # Barrow wight
@@ -1815,7 +1815,7 @@ R:505:0xA1:0x81
 # Fasolt the Giant
 R:506:0xBB:0x83
 
-# Logrus ghost
+# Warp ghost
 R:507:0x91:0x83
 
 # Spectre
@@ -2088,7 +2088,7 @@ R:596:0xC1:0x97
 # Death knight
 R:597:0x9C:0x9E
 
-# Mandor, Master of the Logrus
+# Mandor, Master of Chaos
 R:598:0xBB:0x89
 
 # Time vortex
@@ -3789,7 +3789,7 @@ K:177:0x86:0x82
 # Rumour
 K:178:0x86:0x80
 
-# Logrus
+# Chaos
 K:179:0x86:0x80
 
 # Remove Curse

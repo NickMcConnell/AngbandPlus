@@ -297,11 +297,8 @@ static void display_build(const field_type *f_ptr, const store_type *b_ptr)
 	cptr owner_name = (bo_ptr->owner_name);
 	cptr race_name = race_info[bo_ptr->owner_race].title;
 
-	/* Compute the racial factor */
-	factor = rgold_adj[bo_ptr->owner_race][p_ptr->prace];
-
 	/* Add in the charisma factor */
-	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
+	factor = 100 + adj_chr_gold[p_ptr->stat_ind[A_CHR]];
 
 	factor = ((factor + 100) * bo_ptr->inflate) / 400;
 
@@ -1227,7 +1224,314 @@ bool enchant_item(s32b cost, bool to_hit, bool to_dam, bool to_ac)
 	}
 }
 
+/*
+ * Sell a soul to the soul dealer
+ */
+void building_sellsoul(void)
+{
+	object_type *o_ptr;
+	object_kind *k_ptr;
+	monster_race *r_ptr;
+	cptr q, s;
+	int delta_level, i;
+	obj_theme theme;
+	object_type* q_ptr;
 
+	/* Only accept legal items */
+	item_tester_hook = item_tester_hook_soulgem;
+
+	/* Get an item */
+	q = "Deposit which soul gem? ";
+	s = "You have no soul gems to deposit.";
+
+	o_ptr = get_item(q, s, (USE_INVEN | USE_FLOOR));
+
+	/* No valid item */
+	if (!o_ptr) return;
+
+	k_ptr = &k_info[o_ptr->k_idx];
+
+	r_ptr = &r_info[o_ptr->soul_source];
+
+	// we already have a soul of this type
+	if (r_ptr->r_xtra1 > 0)
+	{
+		msgf("I have no need of this soul.");
+		return;
+	}
+	else 
+	{
+		msgf("A trinket awaits for you outside.");
+	}
+
+	/* Mark the monster race as added to the library */
+	r_ptr->r_xtra1 = 1;
+
+	/* Take the soul gem from the player, describe the result */
+	item_increase(o_ptr, -1);
+
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN);
+
+
+	/* Make an object as reward*/
+	theme.combat   = 40;
+	theme.magic    = 20;
+	theme.tools    = 20;
+	theme.treasure = 20;
+
+	// the 'level' of the object is based on the number of soul types we have turned in
+
+	/* set the base level */
+	object_level = 0;
+
+	delta_level = 0;
+	for (i=0; i<z_info->r_max; i++)
+	{
+		if (r_info[i].r_xtra1 > 0) delta_level++;
+	}
+
+	// scale the object level
+	delta_level = (delta_level * 300) / z_info->r_max;
+
+	// if the object level is too high
+	if (delta_level > 120) delta_level = 120;
+
+  for (i = 0; i < 1000; i++)
+  {
+      /* Make an object */
+      q_ptr = make_object(delta_level, theme);
+
+      if (!q_ptr) continue;
+
+      /* should not be worthless */
+      if (cursed_p(q_ptr)) continue;
+      if (object_value_real(q_ptr) <= 0) continue;
+
+      break;
+  }
+
+	/* Paranoia */
+	if (q_ptr)
+	{
+		/* Drop it outside */
+		drop_near(q_ptr, -1, p_ptr->px, p_ptr->py);
+	}
+
+	/* Finished */
+	return;
+}
+
+/*
+ * View souls sold to the soul dealer
+ */
+void building_viewsouls(int delta)
+{
+	monster_race *r_ptr;
+	int i, j, row, col, limit;
+	static int page = 0;
+	int pagesize = 24;
+	int base = 0;
+
+	if (delta > 0) page++;
+	if (delta < 0) page--;
+
+	if (page < 0) page = 0;
+
+	limit = z_info->r_max;
+
+  clear_region(0, 4, 17);
+
+	if ( page * pagesize > limit ) page--;
+
+	for (j=0; j<pagesize; j++)
+	{
+		row = j % 12 + 4;
+		col = (j / 12) * 40;
+
+		i = (page*pagesize + j);
+
+		if ( i < limit)
+		{
+			r_ptr = &r_info[i];
+
+	 		if (!(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags3 & RF3_UNIQUE_7))
+			{
+				base++;
+			}
+
+			/* Label it, clear the line --(-- */
+	 		prtf(col, row, "%i) ", i);
+
+			// if we have previously sold a soul of this type
+			if (r_ptr->r_xtra1 == 1)	prtf(col + 5, row, "X");
+				else prtf(col + 5, row, "-");
+
+			// an unobtainable soul
+			if ( (r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags3 & RF3_UNIQUE_7) || (i == 0) )
+			{
+				/* Print monster name */
+				prtf(col + 7, row, "XXX" );
+			}
+			// if we have previously seen this monster or sold a soul of this type
+			else if ( (r_ptr->r_xtra1 == 1) || (r_ptr->r_sights))
+			{
+				/* Print monster name */
+				prtf(col + 7, row, r_name + r_ptr->name);
+			}
+			else
+			{
+				prtf(col + 7, row, "???");
+			}
+		}
+	}
+
+	/* Finished */
+	return;
+}
+
+/*
+ * Examine a soul
+ */
+void building_examinesoul()
+{
+	object_type* o_ptr;
+	soul_type*   s_ptr;
+	u32b save_flags1;
+	u32b save_flags2;
+	u32b save_flags3;
+	s16b save_pval;
+	s16b save_level;
+	int i;
+	cptr q, s;
+
+	/* Only accept legal items */
+	item_tester_hook = item_tester_hook_hassoul;
+
+	/* Get an item */
+	q = "Examine which soul?";
+	s = "You have no soul to examine.";
+
+	o_ptr = get_item(q, s, (USE_INVEN | USE_FLOOR));
+
+	/* No valid item */
+	if (!o_ptr) return;
+
+	/* Big hack, save the old flags */
+	save_flags1 = o_ptr->kn_flags1;
+	save_flags2 = o_ptr->kn_flags2;
+	save_flags3 = o_ptr->kn_flags3;
+	save_pval   = o_ptr->pval;
+	save_level  = o_ptr->level;
+
+	o_ptr->kn_flags1 = 0;
+	o_ptr->kn_flags2 = 0;
+	o_ptr->kn_flags3 = 0;
+	o_ptr->pval      = 5;
+	o_ptr->level     = 20;
+
+	s_ptr = &s_info[o_ptr->soul_type1];
+
+	for (i=0; i<6; i++)
+	{
+		o_ptr->kn_flags1 |= s_ptr->flags1[i];
+		o_ptr->kn_flags2 |= s_ptr->flags2[i];
+		o_ptr->kn_flags3 |= s_ptr->flags3[i];
+	}
+
+	msgf("When fully powered, the %v will look like:", OBJECT_FMT(o_ptr, TRUE, 3));
+
+	/* Describe it fully */
+	(void)identify_fully_aux(o_ptr);
+
+	o_ptr->kn_flags1 = save_flags1;
+	o_ptr->kn_flags2 = save_flags2;
+	o_ptr->kn_flags3 = save_flags3;
+	o_ptr->pval      = save_pval;
+	o_ptr->level     = save_level;
+
+	/* Finished */
+	return;
+}
+
+
+/*
+ * Imbue Item
+ *
+ * Imbues a soul into an amulet or ring
+ */
+void building_imbuesoul(void)
+{
+	object_type *o_ptr;
+	object_type *s_ptr;
+	cptr q, s;
+
+	/* Only accept legal items */
+	item_tester_hook = item_tester_hook_imbue;
+
+	/* Get an item */
+	q = "Imbue which item? ";
+	s = "You have no imbueable items";
+
+	o_ptr = get_item(q, s, (USE_INVEN | USE_FLOOR | USE_EQUIP));
+
+	/* No valid item */
+	if (!o_ptr) return;
+
+	/* Only accept legal items */
+	item_tester_hook = item_tester_hook_soulgem;
+
+	/* Get an item */
+	q = "Which soul will be imbued? ";
+	s = "You have no soul gems";
+
+	s_ptr = get_item(q, s, (USE_INVEN | USE_FLOOR ));
+
+	/* No valid item */
+	if (!s_ptr) return;
+
+	//give it a soul type
+
+	o_ptr->soul_source = s_ptr->soul_source;
+	o_ptr->soul_type1  = s_ptr->soul_type1;
+	o_ptr->soul_type2  = s_ptr->soul_type2;
+
+	/* Set the first flags */
+	o_ptr->flags1 |= s_info[o_ptr->soul_type1].flags1[0];
+	o_ptr->flags2 |= s_info[o_ptr->soul_type1].flags2[0];
+	o_ptr->flags3 |= s_info[o_ptr->soul_type1].flags3[0];
+
+	o_ptr->flags1 |= s_ptr->flags1;
+	o_ptr->flags2 |= s_ptr->flags2;
+	o_ptr->flags3 |= s_ptr->flags3;
+
+	o_ptr->pval = 1;
+
+	//start the levels counting
+	o_ptr->level = 1;
+
+	/* gain any bonuses to AC / Damage / Accuracy */
+
+	o_ptr->to_h = (o_ptr->level * s_info[o_ptr->soul_type1].max_to_h) / 6;
+	o_ptr->to_d = (o_ptr->level * s_info[o_ptr->soul_type1].max_to_d) / 6;
+	o_ptr->to_a = (o_ptr->level * s_info[o_ptr->soul_type1].max_to_a) / 6;
+
+
+	/* Identify the weapon */
+	identify_item(o_ptr);
+	object_mental(o_ptr);
+
+	/* Save all the known flags */
+	o_ptr->kn_flags1 = o_ptr->flags1;
+	o_ptr->kn_flags2 = o_ptr->flags2;
+	o_ptr->kn_flags3 = o_ptr->flags3;
+
+	/* Take the soul away from the player, describe the result */
+	item_increase(s_ptr, -1);
+}
 
 /*
  * Recharge rods, wands and staves
@@ -1607,151 +1911,13 @@ bool building_magetower(int factor, bool display)
 	return (FALSE);
 }
 
-#if 0
-/*
- * Execute a building command
- */
-static void bldg_process_command(building_type * bldg, int i)
-{
-
-
-	switch (bact)
-	{
-		case BACT_NOTHING:
-		{
-			/* Do nothing */
-			break;
-		}
-		case BACT_RESEARCH_ITEM:
-		{
-			paid = identify_fully();
-			break;
-		}
-		case BACT_TOWN_HISTORY:
-		{
-			town_history();
-			break;
-		}
-		case BACT_RACE_LEGENDS:
-		{
-			race_legends();
-			break;
-		}
-		case BACT_KING_LEGENDS:
-		case BACT_ARENA_LEGENDS:
-		case BACT_LEGENDS:
-		{
-			show_highclass();
-			break;
-
-		}
-		case BACT_IDENTS:
-		{
-			/* needs work */
-			identify_pack();
-
-			/* Combine / Reorder the pack (later) */
-			p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-			msgf("Your posessions have been identified.");
-			message_flush();
-			paid = TRUE;
-			break;
-		}
-		case BACT_LEARN:
-		{
-			do_cmd_study();
-			break;
-		}
-		case BACT_HEALING:
-		{
-			/* needs work */
-			hp_player(200);
-			set_poisoned(0);
-			set_blind(0);
-			set_confused(0);
-			set_cut(0);
-			set_stun(0);
-			paid = TRUE;
-			break;
-		}
-		case BACT_RESTORE:
-		{
-			/* needs work */
-			if (do_res_stat(A_STR)) paid = TRUE;
-			if (do_res_stat(A_INT)) paid = TRUE;
-			if (do_res_stat(A_WIS)) paid = TRUE;
-			if (do_res_stat(A_DEX)) paid = TRUE;
-			if (do_res_stat(A_CON)) paid = TRUE;
-			if (do_res_stat(A_CHR)) paid = TRUE;
-			break;
-		}
-		case BACT_GOLD:
-		{
-			/* set timed reward flag */
-			if (!p_ptr->rewards[BACT_GOLD])
-			{
-				share_gold();
-				p_ptr->rewards[BACT_GOLD] = TRUE;
-			}
-			else
-			{
-				msgf("You just had your daily allowance!");
-				message_flush();
-			}
-			break;
-		}
-		case BACT_ENCHANT_ARROWS:
-		{
-			item_tester_hook = item_tester_hook_ammo;
-			enchant_item(bcost, 1, 1, 0);
-			break;
-		}
-		case BACT_ENCHANT_BOW:
-		{
-			item_tester_tval = TV_BOW;
-			enchant_item(bcost, 1, 1, 0);
-			break;
-		}
-		case BACT_RECALL:
-		{
-			p_ptr->word_recall = 1;
-			msgf("The air about you becomes charged...");
-			paid = TRUE;
-			p_ptr->redraw |= (PR_STATUS);
-			break;
-		}
-		case BACT_TELEPORT_LEVEL:
-		{
-			amt = get_quantity("Teleport to which level? ", 98);
-			if (amt > 0)
-			{
-				p_ptr->word_recall = 1;
-				p_ptr->max_depth = amt;
-				msgf("The air about you becomes charged...");
-				paid = TRUE;
-				p_ptr->redraw |= (PR_STATUS);
-			}
-			break;
-		}
-	}
-}
-
-
-#endif /* 0 */
-
-
 static bool process_build_hook(field_type *f_ptr, store_type *b_ptr)
 {
 	const b_own_type *bo_ptr = &b_owners[f_ptr->data[0]][b_ptr->owner];
 
 	int factor;
 
-	/* Compute the racial factor */
-	factor = rgold_adj[bo_ptr->owner_race][p_ptr->prace];
-
-	/* Add in the charisma factor */
-	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
+	factor = 100 + adj_chr_gold[p_ptr->stat_ind[A_CHR]];
 
 	factor = ((factor + 100) * bo_ptr->inflate) / 400;
 

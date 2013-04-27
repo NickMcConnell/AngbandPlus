@@ -39,10 +39,10 @@
 
 
 /* What variant is this? Used in the highscore dump */
-#define VARIANT "Zangband 2.7.1"
+#define VARIANT "XBand 0.0.1"
 
 /* Main 'assign' needed. Kick2.0+ systems usually don't need it anyway */
-#define VERPATH "Zangband:"
+#define VERPATH "XBand:"
 
 #define CGXSUPPORT					/* Define for RTG support. Leave on */
 #define ZANGBAND						/* Define if this is Zangband. Zangband now has extra gfx */

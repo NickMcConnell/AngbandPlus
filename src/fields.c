@@ -1398,7 +1398,7 @@ void test_field_data_integrity(void)
 }
 
 
-/* Field action functions - later will be implemented in lua */
+/* Field action functions */
 
 
 /*
@@ -3874,6 +3874,95 @@ bool field_action_buymap2(field_type *f_ptr, va_list vp)
 		}
 
 		/* Hack, use factor as a return value */
+		*factor = TRUE;
+	}
+	else
+	{
+		*factor = FALSE;
+	}
+
+	/* Done */
+	return (FALSE);
+}
+
+/*
+ * Sellsoul1
+ */
+bool field_action_souldealer1(field_type *f_ptr, va_list vp)
+{
+	int factor = va_arg(vp, int);
+
+	building_viewsouls( 0 );
+
+	put_fstr(20, 18, CLR_L_GREEN
+				"I) Imbue jewlery (%dgp)\n"
+				"D) Deposit soul gem\n"
+				"E) Evaluate soul potential (%dgp)", 2 * factor, 10 * factor);
+
+	put_fstr(50, 18, CLR_L_GREEN
+				"N) Next Page\n"
+				"P) Prev page");
+
+	/* Done */
+	return (FALSE);
+}
+
+/*
+ * Sellsoul2
+ */
+bool field_action_souldealer2(field_type *f_ptr, va_list vp)
+{
+	int *factor = va_arg(vp, int *);
+	int cost;
+
+	/* Deposit a soul gem */
+	if (p_ptr->command_cmd == 'D')
+	{
+		building_sellsoul();
+
+		// refresh screen
+		building_viewsouls(0);
+
+		*factor = TRUE;
+	}
+	/* Previous page */
+	else if (p_ptr->command_cmd == 'P')
+	{
+		building_viewsouls(-1);
+
+		*factor = TRUE;
+	}
+	/* Next page */
+	else if (p_ptr->command_cmd == 'N')
+	{
+		building_viewsouls(1);
+
+		*factor = TRUE;
+	}
+	/* Imbue jewelery */
+	else if (p_ptr->command_cmd == 'I')
+	{
+		cost = 2 * *factor;
+
+		if (test_gold(&cost))
+		{
+			p_ptr->au -= cost;
+			building_imbuesoul();
+		}
+
+		*factor = TRUE;
+	}
+	/* Evaluate a soul */
+	else if (p_ptr->command_cmd == 'E')
+	{
+		cost = 10 * *factor;
+
+		if (test_gold(&cost))
+		{
+			p_ptr->au -= cost;
+			building_examinesoul();
+		}
+
 		*factor = TRUE;
 	}
 	else

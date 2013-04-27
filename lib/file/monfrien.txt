@@ -49,7 +49,7 @@ N:55:Fang, Farmer Maggot's dog
 #N:180:Orfax, Son of Boldor
 #N:237:Boldor, King of the Yeeks
 #N:200:Hobbes the Tiger
-#N:140:Lagduf, the Snaga
+#N:140:Lagduf, the Goblin
 #N:186:Grishnakh, the Hill Orc
 #N:215:Golfimbul, the Hill Orc Chief
 #N:260:Ufthak of Cirith Ungol
@@ -80,7 +80,7 @@ N:55:Fang, Farmer Maggot's dog
 #N:573:Lord Borel of Hendrake
 #N:595:Father Dagon
 #N:596:Mother Hydra
-#N:598:Mandor, Master of the Logrus
+#N:598:Mandor, Master of Chaos
 #N:606:Loge, Spirit of Fire
 #N:615:Moire, Queen of Rebma
 #N:616:Kavlax the Many-Headed

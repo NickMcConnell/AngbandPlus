@@ -13,8 +13,6 @@
 # Note that the "spacing" in the "description" lines is very important!
 
 
-# New vault types added for Zangband -TY
-
 # === Understanding v_info.txt ===
 
 # N:serial number:vault name

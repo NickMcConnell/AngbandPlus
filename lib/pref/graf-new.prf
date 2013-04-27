@@ -1155,7 +1155,7 @@ K:177:0x83/0x9C
 # Scroll of Rumour
 K:178:0x83/0x9C
 
-# Scroll of Logrus
+# Scroll of Chaos
 K:179:0x83/0x9C
 
 # Scroll of Remove Curse
@@ -2598,7 +2598,7 @@ R:116:0xAA/0x97
 # Creeping silver coins
 R:117:0x9D/0x81
 
-# Snaga
+# Goblin
 R:118:0xA9/0x8E
 
 # Rattlesnake
@@ -2664,7 +2664,7 @@ R:138:0xB0/0x8C
 # Nurgling
 R:139:0xB7/0x91
 
-# Lagduf, the Snaga
+# Lagduf, the Goblin
 R:140:0xA9/0x90
 
 # Brown yeek
@@ -2997,7 +2997,7 @@ R:249:0xB8/0x8C
 # Giant white dragon fly
 R:250:0x9F/0x93
 
-# Snaga sapper
+# Goblin sapper
 R:251:0xB8/0x8D
 
 # Blue icky thing
@@ -3737,7 +3737,7 @@ R:496:0xA3/0x8E
 # Anti-paladin
 R:497:0xB1/0x9C
 
-# Logrus master
+# Chaos master
 R:498:0xB1/0x9D
 
 # Barrow wight
@@ -3764,7 +3764,7 @@ R:505:0xB1/0x9E
 # Fasolt the Giant
 R:506:0xB1/0x9F
 
-# Logrus ghost
+# Warp ghost
 R:507:0xB1/0x9D
 
 # Spectre
@@ -4036,7 +4036,7 @@ R:596:0xB4/0x9A
 # Death knight
 R:597:0xAB/0x94
 
-# Mandor, Master of the Logrus
+# Mandor, Master of Chaos
 R:598:0xB2/0x90
 
 # Time vortex

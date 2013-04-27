@@ -76,34 +76,7 @@ P:0:1d1:0:0:0
 F:ACTIVATE | SEE_INVIS | HOLD_LIFE | RES_CONF | RES_CHAOS |
 F:INSTA_ART | SPEED | WIS | INT | LITE
 
-
-# The Amulet of Carlammas
-
-N:4:of Carlammas
-I:40:10:2
-W:80:10:3:60000
-F:CON | HIDE_TYPE | ACTIVATE | RES_FIRE | INSTA_ART
-
-
-# The Amulet of Ingwe
-
-N:5:of Ingwe
-I:40:11:3
-W:95:30:3:90000
-F:WIS | CHR | INFRA | HIDE_TYPE |
-F:SEE_INVIS | FREE_ACT | ACTIVATE |
-F:RES_ACID | RES_COLD | RES_ELEC |
-F:INSTA_ART
-
-
-# The Necklace of the Dwarves
-
-N:6:of the Dwarves
-I:40:12:3
-W:100:50:3:75000
-F:STR | CON | INFRA | HIDE_TYPE |
-F:SEE_INVIS | FREE_ACT | REGEN | LITE | INSTA_ART
-
+# Artifacts 4-6 unused
 
 # The Incandescent Globe of Sawall
 
@@ -113,87 +86,7 @@ W:35:10:5:20000
 P:0:1d1:0:0:0
 F:INSTA_ART | INFRA | SH_FIRE | SH_ELEC | LITE
 
-
-# The Ring of Barahir -> Frakir
-
-N:8:'Frakir'
-I:45:32:1
-W:80:25:2:75000
-F:STR | INT | WIS | DEX | CON | CHR | STEALTH | HIDE_TYPE |
-F:RES_POIS | ACTIVATE | SEE_INVIS | SENSE | INSTA_ART
-
-
-# The Ring of Tulkas
-
-N:9:of Tulkas
-I:45:33:4
-W:100:50:2:175000
-F:STR | DEX | CON | HIDE_TYPE | ACTIVATE | SPEED | INSTA_ART
-
-
-# The Ring of Power (Narya)
-
-N:10:of Power (Narya)
-I:45:34:1
-W:100:30:2:100000
-P:0:1d1:10:10:0
-F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE |
-F:ACTIVATE | FREE_ACT | SEE_INVIS |
-F:SLOW_DIGEST | REGEN | SUST_STR | SUST_DEX | IM_FIRE |
-F:INSTA_ART
-
-
-# The Ring of Power (Nenya)
-
-N:11:of Power (Nenya)
-I:45:35:2
-W:105:40:2:200000
-P:0:1d1:11:11:0
-F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE |
-F:ACTIVATE | HOLD_LIFE | FREE_ACT | SEE_INVIS |
-F:FEATHER | REGEN | SHOW_MODS |
-F:SUST_INT | SUST_WIS | IM_COLD |
-F:INSTA_ART
-
-
-# The Ring of Power (Vilya)
-
-N:12:of Power (Vilya)
-I:45:36:3
-W:105:50:2:300000
-P:0:1d1:12:12:0
-F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE |
-F:ACTIVATE | HOLD_LIFE | FREE_ACT | SEE_INVIS |
-F:FEATHER | SLOW_DIGEST | REGEN |
-F:SUST_INT | SUST_WIS | SUST_STR | SUST_DEX | IM_ELEC |
-F:INSTA_ART
-
-
-# The Ring of Power (The One Ring)
-
-N:13:of Power (The One Ring)
-I:45:37:5
-W:100:100:2:5000000
-P:0:1d1:15:15:0
-F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE |
-F:ACTIVATE | CURSED | HEAVY_CURSE | PERMA_CURSE |
-F:AGGRAVATE | DRAIN_EXP | SEE_INVIS | REGEN | TY_CURSE |
-F:IM_FIRE | IM_COLD | IM_ELEC | IM_ACID |
-F:SUST_STR | SUST_DEX | SUST_CON |
-F:SUST_INT | SUST_WIS | SUST_CHR |
-F:INSTA_ART
-
-
-N:14:of Elemental Mastery
-I:45:50:4
-W:105:50:2:300000
-F:STR | INT | DEX | SPEED | STEALTH | HIDE_TYPE |
-F:RES_FIRE | RES_COLD | RES_ACID | RES_ELEC | RES_POIS |
-F:TELEPATHY |
-F:INSTA_ART | ACTIVATE
-
-
-# Artifact 15 is unused
+# Artifacts 8-15 unused
 
 
 # The Multi-Hued Dragon Scale Mail 'Razorback'

@@ -633,6 +633,11 @@ char *r_name;
 char *r_text;
 
 /*
+ * The soul data arrays
+ */
+soul_type *s_info;
+
+/*
  * The field thaumatergical array
  */
 field_thaum *t_info;
@@ -678,12 +683,6 @@ cptr ANGBAND_DIR_DATA;
  * These files are portable between platforms
  */
 cptr ANGBAND_DIR_EDIT;
-
-/*
- * Script files
- * These files are portable between platforms.
- */
-cptr ANGBAND_DIR_SCRIPT;
 
 /*
  * Various extra files (ascii)

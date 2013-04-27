@@ -1836,14 +1836,6 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3)
 			(*f2) |= TR2_FREE_ACT;
 		}
 	}
-
-	/* Remove flags that were not in Moria */
-	if (ironman_moria)
-	{
-		(*f1) &= TR1_MORIA_MASK;
-		(*f2) &= TR2_MORIA_MASK;
-		(*f3) &= TR3_MORIA_MASK;
-	}
 }
 
 
@@ -1870,7 +1862,7 @@ static void display_player_equippy(int x, int y)
 		c = object_char(o_ptr);
 
 		/* No color */
-		if (!use_color || ironman_moria) a = TERM_WHITE;
+		if (!use_color) a = TERM_WHITE;
 
 		/* Clear the part of the screen */
 		if (!o_ptr->k_idx)
@@ -2172,7 +2164,7 @@ static void display_player_stat_info(void)
 			}
 
 			/* Handle monochrome */
-			if (!use_color || ironman_moria) a = TERM_WHITE;
+			if (!use_color) a = TERM_WHITE;
 
 			/* Dump proper character */
 			Term_putch(col, row + stat, a, c);
@@ -2269,7 +2261,7 @@ static void display_player_stat_info(void)
 
 
 		/* No color */
-		if (!use_color || ironman_moria) a = TERM_WHITE;
+		if (!use_color) a = TERM_WHITE;
 
 		/* Dump */
 		Term_putch(col, row + stat, a, c);
@@ -2736,11 +2728,6 @@ errr file_character(cptr name, bool full)
 
 	fprintf(fff, "\n\n  [Miscellaneous information]\n");
 
-	if (preserve_mode)
-		fprintf(fff, "\n Preserve Mode:      ON");
-	else
-		fprintf(fff, "\n Preserve Mode:      OFF");
-
 	if (ironman_autoscum)
 		fprintf(fff, "\n Autoscum:           ON");
 	else
@@ -2772,20 +2759,11 @@ errr file_character(cptr name, bool full)
 
 	if (ironman_nightmare) fprintf(fff, "\n Nightmare Mode:     ON");
 
-	if (ironman_moria) fprintf(fff, "\n Moria Mode:         ON");
-
-
 	fprintf(fff, "\n Recall Depth:       Level %d (%d')\n", p_ptr->max_depth,
 			50 * p_ptr->max_depth);
 
 	if (p_ptr->noscore)
 		fprintf(fff, "\n You have done something illegal.");
-
-	if (stupid_monsters)
-		fprintf(fff, "\n Your opponents are behaving stupidly.");
-
-	if (munchkin_death)
-		fprintf(fff, "\n You possess munchkinish power over death.");
 
 	/* Show (known) flags grid */
 	if (full)
@@ -2911,11 +2889,6 @@ errr file_character(cptr name, bool full)
         /* Free the "who" array */
         KILL(who);
     }
-
-#if 0
-	fprintf(fff, "\n\n  [Virtues]\n\n");
-	dump_virtues(fff);
-#endif /* 0 */
 
 	if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
 	{
@@ -4192,15 +4165,7 @@ static void close_game_handle_death(void)
 	}
 
 	/* Save memories */
-	if (!munchkin_death || get_check("Save death? "))
-	{
-		if (!save_player()) msgf("death save failed!");
-	}
-
-#if 0
-	/* Dump bones file */
-	make_bones();
-#endif
+	if (!save_player()) msgf("death save failed!");
 
 	/* Inform notes file that you are dead */
 	if (take_notes)
@@ -4258,11 +4223,6 @@ static void close_game_handle_death(void)
 						msgf("Death save failed!");
 						message_flush();
 					}
-
-#if 0
-					/* Dump bones file */
-					make_bones();
-#endif
 
 					/* XXX We now have an unmatched Term_save() */
 					Term_load();

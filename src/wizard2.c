@@ -12,9 +12,6 @@
 
 #include "angband.h"
 
-#include "script.h"
-
-
 /*
  * Hack -- Rerate Hitpoints
  */
@@ -1809,13 +1806,6 @@ void do_cmd_debug(void)
 		{
 			/* Hack -- whatever I desire */
 			do_cmd_wiz_hack_ben();
-			break;
-		}
-
-		case '@':
-		{
-			/* Execute script */
-			do_cmd_script();
 			break;
 		}
 

@@ -1444,13 +1444,6 @@ void py_attack(int x, int y)
 		if (!(m_ptr->csleep)) ghoul_hack = TRUE;
 	}
 
-	/* It is not honorable etc to attack helpless victims -- in most cases */
-	if ((m_ptr->csleep) && (ghoul_paral > -1))
-	{
-		chg_virtue(V_COMPASSION, -1);
-		if (!(p_ptr->pclass == CLASS_ROGUE)) chg_virtue(V_HONOUR, -1);
-	}
-
 	if (p_ptr->pclass == CLASS_ROGUE)
 	{
 		if (m_ptr->csleep && m_ptr->ml)
@@ -1508,11 +1501,6 @@ void py_attack(int x, int y)
 		}
 
 		msgf("Your black blade greedily attacks %s!", m_name);
-
-		chg_virtue(V_INDIVIDUALISM, 1);
-		chg_virtue(V_HONOUR, -1);
-		chg_virtue(V_JUSTICE, -1);
-		chg_virtue(V_COMPASSION, -1);
 	}
 
 	/* Handle player fear */
@@ -1577,8 +1565,6 @@ void py_attack(int x, int y)
 			/* Select a chaotic effect (50% chance) */
 			if ((f1 & TR1_CHAOTIC) && (one_in_(2)))
 			{
-				if (one_in_(10)) chg_virtue(V_CHANCE, 1);
-
 				if (randint1(5) < 3)
 				{
 					/* Vampiric (20%) */
@@ -1983,11 +1969,6 @@ void py_attack(int x, int y)
 	else if (fear && m_ptr->ml)
 	{
 		flee_message(m_name, m_ptr->r_idx);
-	}
-
-	if (drain_left != MAX_VAMPIRIC_DRAIN)
-	{
-		if (one_in_(4)) chg_virtue(V_VITALITY, 1);
 	}
 
 	/* Mega-Hack -- apply earthquake brand */
