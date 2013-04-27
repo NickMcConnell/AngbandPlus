@@ -1,4 +1,5 @@
-/* File: prefs.c */
+
+/* $Id: prefs.c,v 1.3 2003/03/17 22:45:22 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -11,20 +12,18 @@
 #include "ironhells.h"
 #include "prefs.h"
 
-bool IH_GetPrefs(void)
+bool
+IH_GetPrefs(void)
 {
-     bool success = FALSE;
-
-
+     bool            success = FALSE;
 
      return success;
 }
 
-bool IH_SavePrefs(void)
+bool
+IH_SavePrefs(void)
 {
-     bool success = FALSE;
-
-
+     bool            success = FALSE;
 
      return success;
 }

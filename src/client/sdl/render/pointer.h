@@ -1,7 +1,8 @@
+
+/* $Id: pointer.h,v 1.5 2003/03/17 22:45:39 cipher Exp $ */
+
 #ifndef IH_SDL_RENDER_POINTER_H
 #define IH_SDL_RENDER_POINTER_H
-
-/* File: sdl/render/pointer.h */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -15,25 +16,25 @@
 
 /* Function prototypes.
  */
-errr IH_LoadPointers(void);
-void IH_RenderPointer(void);
+errr            IH_LoadPointers(void);
+void            IH_RenderPointer(void);
 
 /* Data definitions.
  */
 enum
 {
      IH_POINTER_NONE,
-	IH_POINTER_STANDARD,
-	IH_POINTER_FORBID,
-	IH_POINTER_ATTACK,
-	IH_POINTER_DIG,
-	IH_POINTER_TARGET,
-	IH_POINTER_OPEN,
-	IH_POINTER_CLOSE,
-	IH_POINTER_DISARM,
-	IH_POINTER_SPELL,
+     IH_POINTER_STANDARD,
+     IH_POINTER_FORBID,
+     IH_POINTER_ATTACK,
+     IH_POINTER_DIG,
+     IH_POINTER_TARGET,
+     IH_POINTER_OPEN,
+     IH_POINTER_CLOSE,
+     IH_POINTER_DISARM,
+     IH_POINTER_SPELL,
 
-	IH_POINTER_MAX
+     IH_POINTER_MAX
 };
 
 #endif /* IH_SDL_RENDER_POINTER_H */

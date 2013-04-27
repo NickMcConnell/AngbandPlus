@@ -1,1 +1,1 @@
-SUBDIRS = video sound music
+SUBDIRS = sound music video

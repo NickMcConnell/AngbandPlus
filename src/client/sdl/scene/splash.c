@@ -1,4 +1,5 @@
-/* File: splash.c */
+
+/* $Id: splash.c,v 1.3 2003/03/17 22:45:40 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -14,17 +15,20 @@
 #include "ironhells.h"
 #include "sdl/scene/splash.h"
 
-void IH_InitScene_Splash(void)
+void
+IH_InitScene_Splash(void)
 {
      ih.pointer = IH_POINTER_NONE;
 
 }
 
-void IH_ProcessScene_Splash(SDL_Event *event)
+void
+IH_ProcessScene_Splash(SDL_Event * event)
 {
 
 }
 
-void IH_RenderScene_Splash(void)
+void
+IH_RenderScene_Splash(void)
 {
 }

@@ -1,5 +1,3 @@
-AUTOMAKE_OPTIONS = subdir-objects
-
 #-----------------------------------------------------------------------------
 ## Rules similar to `automake 1.2f' for building ObjC files, with dependencies
 OBJC = gcc
@@ -27,7 +25,7 @@ gen_deps_lo = @MAINT@-Wp,-MD,.deps/$(*F).p
 
 #-----------------------------------------------------------------------------
 
-SUBDIRS = angband platform sdl
+SUBDIRS = angband lua platform sdl
 
 bin_PROGRAMS = ironhells
 
@@ -36,8 +34,8 @@ WRES = windres
 angband/angband.res: angband/angband.rc
 	$(WRES) $< -O coff -o $@
 
-ironhells_LDADD = angband/lua/liblua.a $(SDLTTF_LIBS) $(SDLDRAW_LIBS) $(SDLIMAGE_LIBS) $(SDL_LIBS)
-ironhells_DEPENDENCIES = angband/lua/liblua.a
+ironhells_LDADD = lua/liblua.a $(SDLTTF_LIBS) $(SDLDRAW_LIBS) $(SDLIMAGE_LIBS) $(SDL_LIBS)
+ironhells_DEPENDENCIES = lua/liblua.a
 ironhells_CFLAGS = $(SDL_CFLAGS) $(SDLTTF_CFLAGS) $(SDLDRAW_CFLAGS) $(SDLIMAGE_CFLAGS)
 
 ironhells_SOURCES = \
@@ -49,7 +47,7 @@ ironhells_SOURCES = \
 	angband/h-type.h angband/init.h angband/init1.c angband/init2.c \
 	angband/l-misc.c angband/l-monst.c angband/l-object.c \
 	angband/l-player.c angband/l-random.c angband/l-spell.c \
-	angband/l-ui.c angband/load.c angband/main.c angband/main.h \
+	angband/l-ui.c angband/load.c angband/ang-main.c angband/main.h \
 	angband/melee1.c angband/melee2.c angband/monster1.c \
 	angband/monster2.c angband/obj-info.c angband/object1.c \
 	angband/object2.c angband/randart.c angband/readdib.c \
@@ -66,53 +64,29 @@ ironhells_SOURCES = \
 	platform/mac/osx/SDLMain.m platform/mac/osx/file-osx.m \
 	platform/win/file-win.c \
 	sdl/render/icon.c sdl/render/icon.h sdl/render/misc.c sdl/render/misc.h \
-	sdl/render/overlay.c sdl/render/overlay.h sdl/render/pointer.c \
-	sdl/render/pointer.h sdl/render/text.c sdl/render/text.h sdl/render/tile.c \
-	sdl/render/tile.h \
+	sdl/render/overlay.c sdl/render/overlay.h \
+	sdl/render/overlay/character.c sdl/render/overlay/inventory.c \
+	sdl/render/overlay/equipment.c sdl/render/overlay/book.c \
+	sdl/render/overlay/messages.c sdl/render/overlay/error.c \
+	sdl/render/overlay/dialog.c sdl/render/overlay/options.c \
+	sdl/render/pointer.c sdl/render/pointer.h \
+	sdl/render/text.c sdl/render/text.h \
+	sdl/render/tile.c sdl/render/tile.h \
 	sdl/bfont.c sdl/bfont.h sdl/helper.c sdl/helper.h sdl/render.c \
 	sdl/render.h sdl/scene.c sdl/scene.h sdl/setup.c sdl/setup.h \
 	sdl/strings.h \
 	sdl/scene/grave.c sdl/scene/grave.h sdl/scene/intro.c sdl/scene/intro.h \
 	sdl/scene/mhost.c sdl/scene/mhost.h sdl/scene/mjoin.c sdl/scene/mjoin.h \
 	sdl/scene/newchar.c sdl/scene/newchar.h sdl/scene/play.c sdl/scene/play.h \
-	sdl/scene/selchar.c sdl/scene/selchar.h sdl/scene/splash.c sdl/scene/splash.h \
-	sdl/scene/title.c sdl/scene/title.h
-
-#
-# Build wrappers
-#
-# (This probably should be cleaned up a little.)
-#
-# $(subst l-,,$*) removes the leading "l-", and
-# trailing ".c" from the filename.
-#
-$(srcdir)/angband/l-monst.c: angband/l-monst.pkg angband/lua/tolua
-	angband/lua/tolua -n $(subst angband/l-,,$*) -o $@ $<
-
-$(srcdir)/angband/l-object.c: angband/l-object.pkg angband/lua/tolua
-	angband/lua/tolua -n $(subst angband/l-,,$*) -o $@ $<
-
-$(srcdir)/angband/l-player.c: angband/l-player.pkg angband/lua/tolua
-	angband/lua/tolua -n $(subst angband/l-,,$*) -o $@ $<
-
-$(srcdir)/angband/l-random.c: angband/l-random.pkg angband/lua/tolua
-	angband/lua/tolua -n $(subst angband/l-,,$*) -o $@ $<
-
-$(srcdir)/angband/l-ui.c: angband/l-ui.pkg angband/lua/tolua
-	angband/lua/tolua -n $(subst angband/l-,,$*) -o $@ $<
-
-$(srcdir)/angband/l-misc.c: angband/l-misc.pkg angband/lua/tolua
-	angband/lua/tolua -n $(subst angband/l-,,$*) -o $@ $<
-
-$(srcdir)/angband/l-spell.c: angband/l-spell.pkg angband/lua/tolua
-	angband/lua/tolua -n $(subst angband/l-,,$*) -o $@ $<
+	sdl/scene/selchar.c sdl/scene/selchar.h sdl/scene/splash.c \
+	sdl/scene/splash.h sdl/scene/title.c sdl/scene/title.h
 
 EXTRA_ironhells_SOURCES = \
 	angband/l-monst.pkg angband/l-object.pkg angband/l-player.pkg \
 	angband/l-random.pkg angband/l-ui.pkg angband/l-misc.pkg \
 	angband/l-spell.pkg
 
-INCLUDES = -I$(srcdir) -I$(srcdir)/angband 
+INCLUDES = -I. -I.. -I../.. -I$(srcdir) -I$(srcdir)/angband $(SDL_CFLAGS) $(SDLTTF_CFLAGS) $(SDLIMAGE_CFLAGS) $(SDLDRAW_CFLAGS)
 
 install-exec-hook:
 if SET_GID

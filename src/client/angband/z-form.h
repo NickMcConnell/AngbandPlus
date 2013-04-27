@@ -1,3 +1,4 @@
+
 /* File z-form.h */
 
 /*
@@ -24,34 +25,41 @@
  * This file makes use of both "z-util.c" and "z-virt.c"
  */
 
-
 /**** Available Functions ****/
 
 /* Format arguments into given bounded-length buffer */
-extern size_t vstrnfmt(char *buf, size_t max, cptr fmt, va_list vp);
+extern size_t   vstrnfmt(char *buf,
+                         size_t max,
+                         cptr fmt,
+                         va_list vp);
 
 /* Simple interface to "vstrnfmt()" */
-extern size_t strnfmt(char *buf, size_t max, cptr fmt, ...);
+extern size_t   strnfmt(char *buf,
+                        size_t max,
+                        cptr fmt,
+                        ...);
 
 /* Format arguments into a static resizing buffer */
-extern char *vformat(cptr fmt, va_list vp);
+extern char    *vformat(cptr fmt,
+                        va_list vp);
 
 /* Free the memory allocated for the format buffer */
-extern void vformat_kill(void);
+extern void     vformat_kill(void);
 
 /* Simple interface to "vformat()" */
-extern char *format(cptr fmt, ...);
+extern char    *format(cptr fmt,
+                       ...);
 
 /* Vararg interface to "plog()", using "format()" */
-extern void plog_fmt(cptr fmt, ...);
+extern void     plog_fmt(cptr fmt,
+                         ...);
 
 /* Vararg interface to "quit()", using "format()" */
-extern void quit_fmt(cptr fmt, ...);
+extern void     quit_fmt(cptr fmt,
+                         ...);
 
 /* Vararg interface to "core()", using "format()" */
-extern void core_fmt(cptr fmt, ...);
-
+extern void     core_fmt(cptr fmt,
+                         ...);
 
 #endif
-
-

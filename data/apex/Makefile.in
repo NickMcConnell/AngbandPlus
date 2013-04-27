@@ -145,17 +145,17 @@ target_os = @target_os@
 target_vendor = @target_vendor@
 
 ironhells_files = \
-  delete.me
+	delete.me
 
 
 EXTRA_DIST = \
-  $(ironhells_files)
+	$(ironhells_files)
 
 
 ironhellsdir = @DATA_PATH@apex
 
 ironhells_DATA = \
-  $(ironhells_files)
+	$(ironhells_files)
 
 subdir = data/apex
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -328,10 +328,9 @@ uninstall-am: uninstall-info-am uninstall-ironhellsDATA
 
 
 install-data-hook:
-	echo "apexdir = $(ironhellsdir)"
-#	touch "$(DESTDIR)$(ironhellsdir)/scores.raw"
-#	chown -R root.@GAMEGROUP@ "$(DESTDIR)$(ironhellsdir)"
-#	chmod -R g+w "$(DESTDIR)$(ironhellsdir)"
+@SET_GID_TRUE@	touch "$(DESTDIR)$(ironhellsdir)/scores.raw"
+@SET_GID_TRUE@	chown -R root.@GAMEGROUP@ "$(DESTDIR)$(ironhellsdir)"
+@SET_GID_TRUE@	chmod -R g+w "$(DESTDIR)$(ironhellsdir)"
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

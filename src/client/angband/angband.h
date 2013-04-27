@@ -1,4 +1,5 @@
-/* File: angband.h */
+
+/* $Id: angband.h,v 1.3 2003/03/17 22:45:23 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -33,10 +34,7 @@
 #include "types.h"
 #include "externs.h"
 
-
-
 /***** Some older copyright messages follow below *****/
-
 
 /*
  * Note that these copyright messages apply to an ancient version
@@ -82,6 +80,4 @@
  *	 of the author Robert Alan Koeneke.
  */
 
-
 #endif
-

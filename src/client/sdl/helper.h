@@ -1,7 +1,8 @@
+
+/* $Id: helper.h,v 1.4 2003/03/17 22:45:37 cipher Exp $ */
+
 #ifndef IH_SDL_HELPER_H
 #define IH_SDL_HELPER_H
-
-/* File: sdl/helper.h */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -13,15 +14,21 @@
 
 #include "angband.h"
 
-inline errr SDL_GetPixel(SDL_Surface *f,
-                         Uint32 x, Uint32 y,
-                         Uint8 *r, Uint8 *g, Uint8 *b);
-inline errr SDL_PutPixel(SDL_Surface *f,
-                         Uint32 x, Uint32 y,
-                         Uint8 r, Uint8 g, Uint8 b);
-errr SDL_ScaleBlit(SDL_Surface *src,
-                   SDL_Rect *sr,
-                   SDL_Surface *dst,
-                   SDL_Rect *dr);
+inline errr     SDL_GetPixel(SDL_Surface * f,
+                             Uint32 x,
+                             Uint32 y,
+                             Uint8 * r,
+                             Uint8 * g,
+                             Uint8 * b);
+inline errr     SDL_PutPixel(SDL_Surface * f,
+                             Uint32 x,
+                             Uint32 y,
+                             Uint8 r,
+                             Uint8 g,
+                             Uint8 b);
+errr            SDL_ScaleBlit(SDL_Surface * src,
+                              SDL_Rect * sr,
+                              SDL_Surface * dst,
+                              SDL_Rect * dr);
 
 #endif /* IH_SDL_HELPER_H */

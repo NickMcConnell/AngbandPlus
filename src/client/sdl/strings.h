@@ -1,7 +1,8 @@
+
+/* $Id: strings.h,v 1.6 2003/03/17 22:45:39 cipher Exp $ */
+
 #ifndef IH_SDL_STRINGS_H
 #define IH_SDL_STRINGS_H
-
-/* File: sdl/strings.h */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -10,7 +11,6 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  */
-
 
 #define IH_TEXT_TITLE_PROGRAM "Iron Hells"
 #define IH_TEXT_TITLE_COPYRIGHT "Copyright (c) 2003 Paul A. Schifferer"
@@ -35,12 +35,19 @@
 #define IH_TEXT_NEWCHAR_DEX "Dexterity"
 #define IH_TEXT_NEWCHAR_CON "Constitution"
 #define IH_TEXT_NEWCHAR_CHA "Charisma"
+#define IH_TEXT_NEWCHAR_GETNAME "Name Character"
+#define IH_TEXT_NEWCHAR_DONE "Done"
+#define IH_TEXT_NEWCHAR_FINALIZE "Finalize Character"
 #define IH_TEXT_NEWCHAR_REROLL "Roll Again"
 #define IH_TEXT_NEWCHAR_LOADPREV "Load Previous"
+#define IH_TEXT_NEWCHAR_GETNAME "Name Character"
+#define IH_TEXT_NEWCHAR_FINALIZE "Finalize Character"
+#define IH_TEXT_NEWCHAR_DONE "Done"
 #define IH_TEXT_NEWCHAR_BACK "Back"
 #define IH_TEXT_NEWCHAR_STARTOVER "Start Over"
 #define IH_TEXT_NEWCHAR_RANDOM "Random"
-#define IH_TEXT_NEWCHAR_NEXT "Play"
+#define IH_TEXT_NEWCHAR_NEXT "Next"
+#define IH_TEXT_NEWCHAR_PLAY "Play"
 
 #define IH_TEXT_CHARINFO_NAME "Name"
 #define IH_TEXT_CHARINFO_GENDER "Gender"

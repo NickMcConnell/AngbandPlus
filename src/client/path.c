@@ -1,4 +1,5 @@
-/* File: path.c */
+
+/* $Id: path.c,v 1.7 2003/03/18 19:17:39 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -14,59 +15,49 @@
 #include "path.h"
 #include "z-util.h"
 
-#undef DEBUG
-
-cptr IH_PathBuild(cptr dir, ...)
+char           *
+IH_PathBuild(cptr dir,
+             ...)
 {
-     va_list ap;
-     cptr path = NULL;
-     cptr item;
-     int len;
+     va_list         ap;
+     char           *path = NULL;
+     char           *item;
+     int             len;
 
-#ifdef DEBUG
-     fprintf(stderr, "initial dir = %s\n", dir);
-#endif
-     
      len = strlen(dir) + 1;
      path = ralloc(len);
      my_strcpy(path, dir, len);
-#ifdef DEBUG
-     fprintf(stderr, "initial path = %s\n", path);
-#endif
-     
-     va_start(ap, dir);
-     while(item = va_arg(ap, cptr))
-     {
-          cptr tmp;
-          int len;
-          
-#ifdef DEBUG
-          fprintf(stderr, "item = %s\n", item);
-#endif
 
-          len = strlen(path) + strlen(item) + strlen(PATH_SEP) + 1;
-#ifdef DEBUG
-          fprintf(stderr, "len = %d\n", len);
-#endif
+     va_start(ap, dir);
+     while(item = va_arg(ap, char *))
+     {
+          char           *tmp, *exp = NULL;
+          int             len;
+
+          /* Check for expandable items.
+           */
+          if(!strcmp(item, "~"))
+          {
+               exp = IH_PathBuild(getenv("HOME"), NULL);
+          }
+
+          len =
+              strlen(path) + strlen(exp ? exp : item) + strlen(PATH_SEP) +
+              1;
+
           tmp = ralloc(len);
           if(tmp)
           {
-               path_build(tmp, len, path, item);
-#ifdef DEBUG
-               fprintf(stderr, "tmp = %s\n", tmp);
-#endif
+               path_build(tmp, len, path, exp ? exp : item);
+
                rnfree(path);
                path = tmp;
-#ifdef DEBUG
-               fprintf(stderr, "path = %s\n", path);
-#endif
           }
+
+          if(exp)
+               rnfree(exp);
      }
      va_end(ap);
 
-#ifdef DEBUG
-     fprintf(stderr, "final path = %s\n", path);
-#endif
-     
-     return path;     
+     return path;
 }

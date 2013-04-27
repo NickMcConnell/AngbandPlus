@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl Initialize autoconf - look for the existance of a file to make sure
 dnl the source distribution is installed correctly.
-AC_INIT(ironhells, 1.0)
+AC_INIT(ironhells, 1.0a2)
 AC_CONFIG_SRCDIR([src/client/main.c])
 AM_INIT_AUTOMAKE
 
@@ -169,6 +169,7 @@ AC_CHECK_LIB(SDL_draw, Draw_Init, [
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT([data/font/Makefile
+data/gfx/creature/Makefile
 data/gfx/icon/large/Makefile
 data/gfx/icon/medium/Makefile
 data/gfx/icon/small/Makefile
@@ -178,6 +179,7 @@ data/gfx/misc/medium/Makefile
 data/gfx/misc/small/Makefile
 data/gfx/misc/Makefile
 data/gfx/Makefile
+data/gfx/object/Makefile
 data/gfx/tile/Makefile
 data/gfx/screen/Makefile
 data/map/Makefile
@@ -225,14 +227,15 @@ lib/user/Makefile
 lib/xtra/font/Makefile
 lib/xtra/graf/Makefile
 lib/xtra/Makefile
-src/client/angband/lua/Makefile
 src/client/angband/Makefile
+src/client/lua/Makefile
 src/client/platform/mac/osx/Makefile
 src/client/platform/mac/Makefile
 src/client/platform/linux/Makefile
 src/client/platform/win/Makefile
 src/client/platform/Makefile
 src/client/sdl/render/Makefile
+src/client/sdl/render/overlay/Makefile
 src/client/sdl/scene/Makefile
 src/client/sdl/Makefile
 src/client/Makefile

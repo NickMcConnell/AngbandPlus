@@ -143,7 +143,10 @@ target_alias = @target_alias@
 target_cpu = @target_cpu@
 target_os = @target_os@
 target_vendor = @target_vendor@
+
 SUBDIRS = render scene
+
+INCLUDES = -I. -I.. -I../angband -I../lua
 subdir = src/client/sdl
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/src/client/angband/autoconf.h

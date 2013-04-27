@@ -2,6 +2,8 @@
 ## gfx/screen
 
 ironhells_files = \
+	character-info.png \
+	character-info-scale.png \
 	grave.png
 
 EXTRA_DIST = \

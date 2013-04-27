@@ -1,7 +1,8 @@
+
+/* $Id: intro.h,v 1.4 2003/03/17 22:45:40 cipher Exp $ */
+
 #ifndef IH_SDL_SCENE_INTRO_H
 #define IH_SDL_SCENE_INTRO_H
-
-/* File: sdl/scene/intro.h */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -15,9 +16,9 @@
 
 /* Function prototypes.
 */
-void IH_InitScene_Intro(void);
-void IH_ProcessScene_Intro(SDL_Event *event);
-void IH_RenderScene_Intro(void);
+void            IH_InitScene_Intro(void);
+void            IH_ProcessScene_Intro(SDL_Event * event);
+void            IH_RenderScene_Intro(void);
 
 /* Data definitions.
 */

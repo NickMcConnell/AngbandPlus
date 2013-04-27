@@ -1,4 +1,5 @@
-/* File: config.h */
+
+/* $Id: config.h,v 1.4 2003/03/17 22:45:24 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -7,7 +8,6 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  */
-
 
 /*
  * Look through the following lines, and where a comment includes the
@@ -20,7 +20,6 @@
  * And finally, remember that the "Makefile" will specify some rather
  * important compile time options, like what visual module to use.
  */
-
 
 /*
  * OPTION: See the Makefile(s), where several options may be declared.
@@ -39,22 +38,23 @@
  * "SOLARIS" (for Solaris), etc, see "h-config.h" for more info.
  */
 
-
 /*
  * OPTION: Use the POSIX "termios" methods in "main-gcu.c"
  */
+
 /* #define USE_TPOSIX */
 
 /*
  * OPTION: Use the "termio" methods in "main-gcu.c"
  */
+
 /* #define USE_TERMIO */
 
 /*
  * OPTION: Use the icky BSD "tchars" methods in "main-gcu.c"
  */
-/* #define USE_TCHARS */
 
+/* #define USE_TCHARS */
 
 /*
  * OPTION: Use "blocking getch() calls" in "main-gcu.c".
@@ -66,7 +66,6 @@
 # define USE_GETCH
 #endif
 
-
 /*
  * OPTION: Use the "curs_set()" call in "main-gcu.c".
  * Hack -- This option will not work on most BSD machines
@@ -75,12 +74,11 @@
 # define USE_CURS_SET
 #endif
 
-
 /*
  * OPTION: Include "ncurses.h" instead of "curses.h" in "main-gcu.c"
  */
-/* #define USE_NCURSES */
 
+/* #define USE_NCURSES */
 
 /*
  * OPTION: for multi-user machines running the game setuid to some other
@@ -93,14 +91,12 @@
  */
 #define SAFE_SETUID
 
-
 /*
  * This flag enables the "POSIX" methods for "SAFE_SETUID".
  */
 #ifdef _POSIX_SAVED_IDS
 # define SAFE_SETUID_POSIX
 #endif
-
 
 /*
  * Prevent problems on (non-Solaris) Suns using "SAFE_SETUID".
@@ -109,9 +105,6 @@
 #if defined(SUNOS) && !defined(SOLARIS)
 # undef SAFE_SETUID_POSIX
 #endif
-
-
-
 
 /*
  * OPTION: for the AFS distributed file system, define this to ensure that
@@ -122,10 +115,8 @@
  * bePlayer(), beGames() to enforce the proper priviledges.
  * You may need to turn "SAFE_SETUID" off to use this option.
  */
+
 /* #define SECURE */
-
-
-
 
 /*
  * OPTION: Verify savefile Checksums (Angband 2.7.0 and up)
@@ -133,7 +124,6 @@
  * stop intentional modification by amateur users.
  */
 #define VERIFY_CHECKSUMS
-
 
 /*
  * OPTION: Forbid the use of "fiddled" savefiles.  As far as I can tell,
@@ -145,8 +135,8 @@
  * this should prevent the use of backup savefiles.  It may also stop
  * the use of savefiles from other platforms, so be careful.
  */
-/* #define VERIFY_TIMESTAMP */
 
+/* #define VERIFY_TIMESTAMP */
 
 /*
  * OPTION: Forbid the "savefile over-write" cheat, in which you simply
@@ -155,15 +145,14 @@
  * either locks the savefile, or creates a fake "xxx.lok" file to prevent
  * the use of the savefile until the file is deleted.  Not ready yet.
  */
+
 /* #define VERIFY_SAVEFILE */
-
-
 
 /*
  * OPTION: Hack -- Compile in support for "Borg mode"
  */
-/* #define ALLOW_BORG */
 
+/* #define ALLOW_BORG */
 
 /*
  * OPTION: Hack -- Compile in support for "Debug Commands"
@@ -195,12 +184,10 @@
  */
 #define ALLOW_MACROS
 
-
 /*
  * OPTION: Allow characteres to be "auto-rolled"
  */
 #define ALLOW_AUTOROLLER
-
 
 /*
  * OPTION: Allow monsters to "flee" when hit hard
@@ -212,7 +199,6 @@
  */
 #define ALLOW_TERROR
 
-
 /*
  * OPTION: Allow parsing of the ascii template files in "init.c".
  * This must be defined if you do not have valid binary image files.
@@ -220,12 +206,10 @@
  */
 #define ALLOW_TEMPLATES
 
-
 /*
  * OPTION: Allow repeating of last command.
  */
 #define ALLOW_REPEAT
-
 
 /*
  * OPTION: Allow open/disarm/close without direction.
@@ -242,29 +226,28 @@
  */
 #define ALLOW_EASY_FLOOR
 
-
 /*
  * OPTION: Handle signals
  */
 #define HANDLE_SIGNALS
 
-
 /*
  * OPTION: Allow "Wizards" to yield "high scores"
  */
+
 /* #define SCORE_WIZARDS */
 
 /*
  * OPTION: Allow "Borgs" to yield "high scores"
  */
+
 /* #define SCORE_BORGS */
 
 /*
  * OPTION: Allow "Cheaters" to yield "high scores"
  */
+
 /* #define SCORE_CHEATERS */
-
-
 
 /*
  * OPTION: Allow use of the "flow_by_smell" and "flow_by_sound"
@@ -272,12 +255,10 @@
  */
 #define MONSTER_FLOW
 
-
 /*
  * OPTION: Maximum flow depth when using "MONSTER_FLOW"
  */
 #define MONSTER_FLOW_DEPTH 32
-
 
 /*
  * OPTION: Allow use of the "smart_monsters" and "smart_packs"
@@ -288,30 +269,25 @@
  */
 #define MONSTER_AI
 
-
 /*
  * OPTION: Support multiple "player" grids in "map_info()"
  */
 #define MAP_INFO_MULTIPLE_PLAYERS
-
 
 /*
  * OPTION: Use the "complex" wall illumination code
  */
 #define UPDATE_VIEW_COMPLEX_WALL_ILLUMINATION
 
-
 /*
  * OPTION: Gamma correct colours (with X11)
  */
 #define SUPPORT_GAMMA
 
-
 /*
  * OPTION: Check the modification time of *_info.raw files
  */
 #define CHECK_MODIFICATION_TIME
-
 
 /*
  * OPTION: Enable the "smart_learn" and "smart_cheat" options.
@@ -327,12 +303,10 @@
  */
 #define DRS_SMART_OPTIONS
 
-
 /*
  * OPTION: Allow the use of random artifacts (see "randart.c").
  */
 #define GJW_RANDART
-
 
 /*
  * OPTION: Allow the use of "sound" in various places.
@@ -344,7 +318,6 @@
  */
 #define USE_GRAPHICS
 
-
 /*
  * Hack -- Macintosh stuff
  */
@@ -354,7 +327,6 @@
 # undef HANDLE_SIGNALS
 
 #endif
-
 
 /*
  * Hack -- Windows stuff
@@ -366,7 +338,6 @@
 
 #endif
 
-
 /*
  * Hack -- EMX stuff
  */
@@ -376,7 +347,6 @@
 # undef HANDLE_SIGNALS
 
 #endif
-
 
 /*
  * OPTION: Set the "default" path to the angband "lib" directory.
@@ -403,7 +373,6 @@
 # define DEFAULT_PATH "/usr/local/share/games/ironhells/"
 #endif /* DEFAULT_PATH */
 
-
 /*
  * OPTION: Create and use a hidden directory in the users home directory
  * for storing pref-files and character-dumps.
@@ -414,14 +383,12 @@
 # endif /* PRIVATE_USER_PATH */
 #endif /* SET_UID */
 
-
 /*
  * On multiuser systems, add the "uid" to savefile names
  */
 #ifdef SET_UID
 # define SAVEFILE_USE_UID
 #endif /* SET_UID */
-
 
 /*
  * Allow the user to execute his own scripts in debug mode.
@@ -434,18 +401,18 @@
 # define ALLOW_USER_SCRIPTS
 #endif /* SET_UID */
 
-
 /*
  * OPTION: Check the "time" against "lib/file/hours.txt"
  */
+
 /* #define CHECK_TIME */
 
 /*
  * OPTION: Check the "load" against "lib/file/load.txt"
  * This may require the 'rpcsvs' library
  */
-/* #define CHECK_LOAD */
 
+/* #define CHECK_LOAD */
 
 /*
  * OPTION: Prevent usage of the "ANGBAND_PATH" environment variable and
@@ -458,26 +425,21 @@
 #define FIXED_PATHS
 #endif /* SET_UID */
 
-
 /*
  * OPTION: Capitalize the "user_name" (for "default" player name)
  * This option is only relevant on SET_UID machines.
  */
 #define CAPITALIZE_USER_NAME
 
-
-
 /*
  * OPTION: Person to bother if something goes wrong.
  */
 #define MAINTAINER	"cipher@users.sourceforge.net"
 
-
 /*
  * OPTION: Default font (when using X11).
  */
 #define DEFAULT_X11_FONT		"9x15"
-
 
 /*
  * OPTION: Default fonts (when using X11)
@@ -490,7 +452,6 @@
 #define DEFAULT_X11_FONT_5		"5x8"
 #define DEFAULT_X11_FONT_6		"5x8"
 #define DEFAULT_X11_FONT_7		"5x8"
-
 
 /*
  * Hack -- Special "ancient machine" versions
@@ -505,6 +466,7 @@
  * OPTION: Attempt to minimize the size of the game
  */
 #ifndef ANGBAND_LITE
+
 /* #define ANGBAND_LITE */
 #endif
 
@@ -526,13 +488,11 @@
 # undef MONSTER_AI
 #endif
 
-
-
 /*
  * OPTION: Attempt to prevent all "cheating"
  */
-/* #define VERIFY_HONOR */
 
+/* #define VERIFY_HONOR */
 
 /*
  * React to the "VERIFY_HONOR" flag
@@ -542,7 +502,6 @@
 # define VERIFY_CHECKSUMS
 # define VERIFY_TIMESTAMP
 #endif
-
 
 /*
  * Allow the Borg to use graphics.

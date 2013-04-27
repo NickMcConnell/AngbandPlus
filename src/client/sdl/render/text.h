@@ -1,7 +1,8 @@
+
+/* $Id: text.h,v 1.6 2003/03/17 22:45:39 cipher Exp $ */
+
 #ifndef IH_SDL_RENDER_TEXT_H
 #define IH_SDL_RENDER_TEXT_H
-
-/* File: sdl/render/text.h */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -28,11 +29,18 @@ typedef struct _ihFontPos ihFontPos;
 
 /* Function prototypes.
  */
-void IH_RenderText(int size, cptr text, ihFontPos *font_pos, SDL_Color color, SDL_Rect *rect);
-errr IH_InitFonts(void);
-void IH_FreeFonts(void);
-void IH_ProcessFontPos(SDL_Surface *image, ihFontPos *font_pos, SDL_Rect *rect);
-int IH_GetTextWidth(int size, cptr text);
+void            IH_RenderText(int size,
+                              cptr text,
+                              ihFontPos * font_pos,
+                              SDL_Color color,
+                              SDL_Rect * rect);
+errr            IH_InitFonts(void);
+void            IH_FreeFonts(void);
+void            IH_ProcessFontPos(SDL_Surface * image,
+                                  ihFontPos * font_pos,
+                                  SDL_Rect * rect);
+int             IH_GetTextWidth(int size,
+                                cptr text);
 
 /* Data definitions.
  */
@@ -47,16 +55,20 @@ enum
 
 struct _ihFontPos
 {
-     struct {
-          int type;
-          int pixel;
-          float perc;
-     } x;
-     struct {
-          int type;
-          int pixel;
-          float perc;
-     } y;
+     struct
+     {
+          int             type;
+          int             pixel;
+          float           perc;
+     }
+     x;
+     struct
+     {
+          int             type;
+          int             pixel;
+          float           perc;
+     }
+     y;
 };
 
 enum

@@ -1,4 +1,5 @@
-/* File: title.c */
+
+/* $Id: title.c,v 1.4 2003/03/17 22:45:41 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -21,21 +22,23 @@
 #include "sdl/render/text.h"
 #include "sdl/render/icon.h"
 
-void IH_InitScene_Title(void)
+void
+IH_InitScene_Title(void)
 {
      ih.pointer = IH_POINTER_NONE;
 
 }
 
-void IH_ProcessScene_Title(SDL_Event *event)
+void
+IH_ProcessScene_Title(SDL_Event * event)
 {
      if(!event)
           return;
-     
-     switch(ih.stage)
+
+     switch (ih.stage)
      {
           case IH_SCENE_TITLE_STAGE_COMPLETE:
-               switch(event->type)
+               switch (event->type)
                {
                     case SDL_MOUSEBUTTONDOWN:
                     case SDL_KEYDOWN:
@@ -47,13 +50,14 @@ void IH_ProcessScene_Title(SDL_Event *event)
      }
 }
 
-void IH_RenderScene_Title(void)
+void
+IH_RenderScene_Title(void)
 {
-     ihFontPos pos;
-     SDL_Rect srect, drect;
-     SDL_Color color;
-     int center_x, center_y;
-     
+     ihFontPos       pos;
+     SDL_Rect        srect, drect;
+     SDL_Color       color;
+     int             center_x, center_y;
+
 #ifdef DEBUG
      fprintf(stderr, "IH_RenderScene_Title()\n");
 #endif
@@ -76,7 +80,7 @@ void IH_RenderScene_Title(void)
      srect.y = 0;
      srect.w = ih.splash->w;
      srect.h = ih.splash->h;
-     
+
      drect.x = 0;
      drect.y = 0;
      drect.w = ih.display_width;
@@ -95,23 +99,17 @@ void IH_RenderScene_Title(void)
 //     font_pos.x.width = IH_GetTextWidth(IH_TEXT_TITLE_PROGRAM);
      font_pos.y.type = IH_POSITION_TYPE_PERCENT;
      font_pos.y.perc = .75;
-     IH_RenderText(IH_TEXT_TITLE_PROGRAM,
-                   &font_pos,
-                   255, 255, 255);
+     IH_RenderText(IH_TEXT_TITLE_PROGRAM, &font_pos, 255, 255, 255);
 
      font_pos.x.type = IH_POSITION_TYPE_CENTER;
 //     font_pos.x.width = IH_GetTextWidth(IH_TEXT_TITLE_COPYRIGHT);
      font_pos.y.type = IH_POSITION_TYPE_PIXEL;
      font_pos.y.pixel += ih.font_size;
-     IH_RenderText(IH_TEXT_TITLE_COPYRIGHT,
-                   &font_pos,
-                   255, 255, 255);
+     IH_RenderText(IH_TEXT_TITLE_COPYRIGHT, &font_pos, 255, 255, 255);
 
      font_pos.x.type = IH_POSITION_TYPE_LEFT;
      font_pos.y.type = IH_POSITION_TYPE_BOTTOM;
-     IH_RenderText(IH_TEXT_TITLE_VERSION,
-                   &font_pos,
-                   255, 255, 255);
+     IH_RenderText(IH_TEXT_TITLE_VERSION, &font_pos, 255, 255, 255);
 #endif
 
      if(ih.load_message)
@@ -121,13 +119,10 @@ void IH_RenderScene_Title(void)
           pos.y.perc = .5;
           color.r = color.g = color.b = 200;
           IH_RenderText(IH_FONT_NORMAL,
-                        ih.load_message,
-                        &pos,
-                        color,
-                        NULL);
+                        ih.load_message, &pos, color, NULL);
      }
 
-     switch(ih.stage)
+     switch (ih.stage)
      {
           case IH_SCENE_TITLE_STAGE_ICONS:
                ih.stage = IH_SCENE_TITLE_STAGE_TILES;

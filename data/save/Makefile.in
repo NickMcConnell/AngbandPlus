@@ -328,10 +328,8 @@ uninstall-am: uninstall-info-am uninstall-ironhellsDATA
 
 
 install-data-hook:
-	echo "savedir = $(savedir)"
-#	touch "$(DESTDIR)$(ironhellsdir)/delete.me"
-#	chown -R root.@GAMEGROUP@ "$(DESTDIR)$(ironhellsdir)"
-#	chmod -R g+w "$(DESTDIR)$(ironhellsdir)"
+@SET_GID_TRUE@	chown -R root.@GAMEGROUP@ "$(DESTDIR)$(ironhellsdir)"
+@SET_GID_TRUE@	chmod -R 070 "$(DESTDIR)$(ironhellsdir)"
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

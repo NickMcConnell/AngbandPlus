@@ -145,6 +145,8 @@ target_os = @target_os@
 target_vendor = @target_vendor@
 
 ironhells_files = \
+	character-info.png \
+	character-info-scale.png \
 	grave.png
 
 

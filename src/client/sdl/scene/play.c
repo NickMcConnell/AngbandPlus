@@ -1,4 +1,5 @@
-/* File: play.c */
+
+/* $Id: play.c,v 1.5 2003/03/17 22:45:40 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -19,14 +20,14 @@
 #include "sdl/render/overlay.h"
 #include "sdl/render/text.h"
 
-void IH_InitScene_Play(void)
+void
+IH_InitScene_Play(void)
 {
      ih.pointer = IH_POINTER_STANDARD;
 
      ih.screen = SDL_SetVideoMode(ih.desired_display_width,
                                   ih.desired_display_height,
-                                  ih.display_depth,
-                                  ih.display_flags);
+                                  ih.display_depth, ih.display_flags);
      if(ih.screen == NULL)
      {
           fprintf(stderr,
@@ -47,17 +48,20 @@ void IH_InitScene_Play(void)
      IH_PositionMisc();
 }
 
-void IH_ProcessScene_Play(SDL_Event *event)
+void
+IH_ProcessScene_Play(SDL_Event * event)
 {
 }
 
-void IH_RenderScene_Play(void)
+void
+IH_RenderScene_Play(void)
 {
-#ifdef DEBUG
-     fprintf(stderr, "Rendering play screen.\n");
-#endif
+     fprintf(stderr, "IH_RenderScene_Play(): Rendering play screen.\n");
+
      IH_RenderTiles();
      IH_RenderIcons();
      IH_RenderMisc();
      IH_RenderOverlays();
+
+     IH_RenderError();
 }

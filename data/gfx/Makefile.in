@@ -144,7 +144,7 @@ target_cpu = @target_cpu@
 target_os = @target_os@
 target_vendor = @target_vendor@
 
-SUBDIRS = icon misc screen tile
+SUBDIRS = creature icon misc object screen tile
 
 ironhells_files = \
 	background.png \

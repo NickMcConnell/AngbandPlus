@@ -1,7 +1,8 @@
+
+/* $Id: selchar.h,v 1.5 2003/03/17 22:45:40 cipher Exp $ */
+
 #ifndef IH_SDL_SCENE_SELCHAR_H
 #define IH_SDL_SCENE_SELCHAR_H
-
-/* File: sdl/scene/selchar.h */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -16,9 +17,9 @@
 
 /* Function prototypes.
 */
-void IH_InitScene_SelChar(void);
-void IH_ProcessScene_SelChar(SDL_Event *event);
-void IH_RenderScene_SelChar(void);
+void            IH_InitScene_SelChar(void);
+void            IH_ProcessScene_SelChar(SDL_Event * event);
+void            IH_RenderScene_SelChar(void);
 
 /* Data definitions.
 */

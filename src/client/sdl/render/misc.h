@@ -1,7 +1,8 @@
+
+/* $Id: misc.h,v 1.8 2003/03/17 22:45:39 cipher Exp $ */
+
 #ifndef IH_SDL_RENDER_MISC_H
 #define IH_SDL_RENDER_MISC_H
-
-/* File: sdl/render/misc.h */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -17,12 +18,20 @@
 
 /* Function prototypes.
 */
-errr IH_LoadLMX(void);
-errr IH_LoadImages(void);
-void IH_PositionMisc(void);
-void IH_RenderMisc(void);
-void IH_GetButtonColor(int hilite, SDL_Color *color);
-bool IH_IsPointerInRect(int x, int y, SDL_Rect *rect);
+errr            IH_LoadLMX(void);
+errr            IH_LoadImages(void);
+void            IH_PositionMisc(void);
+void            IH_RenderMisc(void);
+void            IH_RenderError(void);
+void            IH_GetButtonColor(int hilite,
+                                  SDL_Color * color);
+bool            IH_IsPointerInRect(int x,
+                                   int y,
+                                   SDL_Rect * rect);
+void            IH_ShadeArea(int x,
+                             int y,
+                             int w,
+                             int h);
 
 /* Data definitions.
 */

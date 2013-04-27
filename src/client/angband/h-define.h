@@ -1,4 +1,5 @@
-/* File: h-define.h */
+
+/* $Id: h-define.h,v 1.3 2003/03/17 22:45:24 cipher Exp $ */
 
 #ifndef INCLUDED_H_DEFINE_H
 #define INCLUDED_H_DEFINE_H
@@ -6,7 +7,6 @@
 /*
  * Define some simple constants
  */
-
 
 /*
  * Hack -- Define NULL
@@ -19,7 +19,6 @@
 # endif /* __STDC__ */
 #endif /* NULL */
 
-
 /*
  * Hack -- assist "main-ros.c" XXX XXX XXX
  */
@@ -28,7 +27,6 @@
 # define O_WRONLY	1
 # define O_RDWR		2
 #endif
-
 
 /*
  * Hack -- force definitions -- see fd_seek()
@@ -56,7 +54,6 @@
 # define F_WRLCK	2
 #endif
 
-
 /*
  * The constants "TRUE" and "FALSE"
  */
@@ -67,9 +64,6 @@
 #undef FALSE
 #define FALSE	0
 
-
-
-
 /**** Simple "Macros" ****/
 
 /*
@@ -77,7 +71,6 @@
  */
 #define FORCELOWER(A)  ((isupper((unsigned char)(A))) ? tolower((unsigned char)(A)) : (A))
 #define FORCEUPPER(A)  ((islower((unsigned char)(A))) ? toupper((unsigned char)(A)) : (A))
-
 
 /*
  * Non-typed minimum value macro
@@ -102,7 +95,6 @@
  */
 #undef SGN
 #define SGN(a)		(((a) < 0)   ? (-1) : ((a) != 0))
-
 
 /*
  * Hack -- allow use of "ASCII" and "EBCDIC" for "indexes", "digits",
@@ -130,7 +122,4 @@
 #  define ESCAPE	'\033'
 #endif
 
-
 #endif
-
-

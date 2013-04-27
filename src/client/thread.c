@@ -1,4 +1,5 @@
-/* File: thread.c */
+
+/* $Id: thread.c,v 1.7 2003/03/18 19:17:40 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -20,10 +21,11 @@
 #include "file.h"
 #include "init.h"
 
-int IH_GameThread(void *data)
+int
+IH_GameThread(void *data)
 {
-     cptr path_lib;
-     bool new_game;
+     char           *path_lib;
+     bool            new_game = TRUE;
 
      IH_SetScene(IH_SCENE_TITLE);
      IH_SetStage(IH_SCENE_TITLE_STAGE_ICONS);
@@ -33,7 +35,7 @@ int IH_GameThread(void *data)
      IH_SetScene(IH_SCENE_TITLE);
      IH_SetStage(IH_SCENE_TITLE_STAGE_TILES);
      IH_SetLoadMessage("Loading tile data...");
-     IH_LoadTiles();
+     IH_InitTiles();
 
      IH_SetScene(IH_SCENE_TITLE);
      IH_SetStage(IH_SCENE_TITLE_STAGE_MISC);
@@ -45,49 +47,50 @@ int IH_GameThread(void *data)
      IH_LoadPointers();
 
      /* Initialize */
-     fprintf(stderr, "Getting lib directory.\n");
-	path_lib = IH_GetDataDir("lib/");
+     fprintf(stderr, "IH_GameThread(): Getting lib directory.\n");
+     path_lib = IH_GetDataDir("lib/");
 
-     fprintf(stderr, "Initializing file paths...\n");
+     fprintf(stderr, "IH_GameThread(): Initializing file paths...\n");
      IH_SetLoadMessage("Initializing file paths...");
-	init_file_paths(path_lib);
-     
-     fprintf(stderr, "Initializing angband...\n");
+     init_file_paths(path_lib);
+
+     fprintf(stderr, "IH_GameThread(): Initializing angband...\n");
      IH_SetLoadMessage("Initializing angband...");
-	init_angband();
-     
-     fprintf(stderr, "Freeing path_lib.\n");
-	rnfree(path_lib);
+     init_angband();
+
+     fprintf(stderr, "IH_GameThread(): Freeing path_lib.\n");
+     rnfree(path_lib);
 
      IH_InitMisc();
 
      IH_SetLoadMessage(NULL);
-     
+
      /* This loop waits for the playing flag to be set by the drawing
       * thread, to let us know that the user has either elected to create
       * a new character, or wants to load one.
       */
-     fprintf(stderr, "Entering game loop.\n");
+     fprintf(stderr, "IH_GameThread(): Entering game loop.\n");
      for(;;)
-	{
-		bool playing = FALSE;
-		
-		if(!SDL_SemWait(ih.sem.talk))
-		{
-			playing = ih.playing;
+     {
+          bool            playing = FALSE;
+
+          if(!SDL_SemWait(ih.sem.talk))
+          {
+               playing = ih.playing;
                new_game = ih.new_game;
 
                SDL_SemPost(ih.sem.talk);
-		}
+          }
 
           if(playing)
                break;
-	}
+     }
 
      /* Start the game.
       */
-     fprintf(stderr, "play_game\n");
+     fprintf(stderr, "IH_GameThread(): play_game\n");
      play_game(new_game);
+     fprintf(stderr, "IH_GameThread(): play_game exited\n");
 
 #if 0
      IH_FreeMisc();
@@ -97,12 +100,15 @@ int IH_GameThread(void *data)
      IH_FreeIcons();
 #endif
 
+     fprintf(stderr, "IH_GameThread(): cleanup_angband\n");
      cleanup_angband();
-     
+
+     fprintf(stderr, "IH_GameThread(): return 0\n");
      return 0;
 }
 
-bool IH_InitSemaphores(void)
+bool
+IH_InitSemaphores(void)
 {
      ih.sem.msg = SDL_CreateSemaphore(1);
      if(!ih.sem.msg)
@@ -131,7 +137,8 @@ bool IH_InitSemaphores(void)
      return TRUE;
 }
 
-void IH_DestroySemaphores(void)
+void
+IH_DestroySemaphores(void)
 {
      if(ih.sem.msg)
           SDL_DestroySemaphore(ih.sem.msg);

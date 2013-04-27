@@ -1,7 +1,8 @@
+
+/* $Id: init.h,v 1.4 2003/03/17 22:45:22 cipher Exp $ */
+
 #ifndef IH_INIT_H
 #define IH_INIT_H
-
-/* File: init.h */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -11,6 +12,6 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-void IH_InitMisc(void);
+void            IH_InitMisc(void);
 
 #endif /* IH_INIT_H */

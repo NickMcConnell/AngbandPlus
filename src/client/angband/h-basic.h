@@ -1,4 +1,5 @@
-/* File: h-basic.h */
+
+/* $Id: h-basic.h,v 1.3 2003/03/17 22:45:24 cipher Exp $ */
 
 #ifndef INCLUDED_H_BASIC_H
 #define INCLUDED_H_BASIC_H
@@ -26,5 +27,3 @@
 #include "h-define.h"
 
 #endif
-
-

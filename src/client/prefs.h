@@ -1,7 +1,8 @@
+
+/* $Id: prefs.h,v 1.3 2003/03/17 22:45:22 cipher Exp $ */
+
 #ifndef IH_PREFS_H
 #define IH_PREFS_H
-
-/* File: prefs.h */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -15,7 +16,7 @@
 
 /* Function prototypes.
  */
-bool IH_GetPrefs(void);
-bool IH_SavePrefs(void);
+bool            IH_GetPrefs(void);
+bool            IH_SavePrefs(void);
 
 #endif /* IH_PREFS_H */

@@ -1,7 +1,8 @@
+
+/* $Id: play.h,v 1.4 2003/03/17 22:45:40 cipher Exp $ */
+
 #ifndef IH_SDL_SCENE_PLAY_H
 #define IH_SDL_SCENE_PLAY_H
-
-/* File: sdl/scene/play.h */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -15,9 +16,9 @@
 
 /* Function prototypes.
 */
-void IH_InitScene_Play(void);
-void IH_ProcessScene_Play(SDL_Event *event);
-void IH_RenderScene_Play(void);
+void            IH_InitScene_Play(void);
+void            IH_ProcessScene_Play(SDL_Event * event);
+void            IH_RenderScene_Play(void);
 
 /* Data definitions.
 */

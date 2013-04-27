@@ -1,4 +1,5 @@
-/* File: text.c */
+
+/* $Id: text.c,v 1.8 2003/03/18 19:17:41 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -26,18 +27,24 @@
 #include "sdl/render/text.h"
 #include "sdl/render/misc.h"
 
-void IH_RenderText(int size, cptr text, ihFontPos *pos, SDL_Color color, SDL_Rect *rect)
+void
+IH_RenderText(int size,
+              cptr text,
+              ihFontPos * pos,
+              SDL_Color color,
+              SDL_Rect * rect)
 {
-     SDL_Surface *text_surface;
-     SDL_Rect drect;
-     Uint32 rmask, gmask, bmask, amask;
+     SDL_Surface    *text_surface;
+     SDL_Rect        drect;
+     Uint32          rmask, gmask, bmask, amask;
+
 #ifdef USE_SDLTTF
-     TTF_Font *font;
+     TTF_Font       *font;
 #else
-     BFont_Info *font;
-     int w, h;
+     BFont_Info     *font;
+     int             w, h;
 #endif
-     
+
      if(!text)
           return;
      if(!pos)
@@ -46,7 +53,7 @@ void IH_RenderText(int size, cptr text, ihFontPos *pos, SDL_Color color, SDL_Rec
      if(!*text)
           return;
 
-     switch(size)
+     switch (size)
      {
           case IH_FONT_LARGE:
                font = ih.large_font;
@@ -63,9 +70,7 @@ void IH_RenderText(int size, cptr text, ihFontPos *pos, SDL_Color color, SDL_Rec
           return;
 
 #ifdef USE_SDLTTF
-     if(text_surface = TTF_RenderText_Blended(font,
-                                            text,
-                                            color))
+     if(text_surface = TTF_RenderText_Blended(font, text, color))
      {
           IH_ProcessFontPos(text_surface, pos, &drect);
 
@@ -80,10 +85,10 @@ void IH_RenderText(int size, cptr text, ihFontPos *pos, SDL_Color color, SDL_Rec
                rect->h = text_surface->h;
           }
 #ifdef DEBUG
-          fprintf(stderr, "Blitting text at position %d,%d\n", drect.x, drect.y);
+          fprintf(stderr, "Blitting text at position %d,%d\n", drect.x,
+                  drect.y);
 #endif
-          SDL_BlitSurface(text_surface, NULL,
-                          ih.screen, &drect);
+          SDL_BlitSurface(text_surface, NULL, ih.screen, &drect);
 
           SDL_FreeSurface(text_surface);
      }
@@ -103,10 +108,11 @@ void IH_RenderText(int size, cptr text, ihFontPos *pos, SDL_Color color, SDL_Rec
      h = FontHeight(font);
      if(text_surface = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA,
                                             w, h,
-                                            ih.screen->format->BitsPerPixel,
-                                            rmask, gmask, bmask, amask))
+                                            ih.screen->format->
+                                            BitsPerPixel, rmask, gmask,
+                                            bmask, amask))
      {
-          BFont_Info *new_font;
+          BFont_Info     *new_font;
 
 #if 0
           if(new_font = SetFontColor(font, color.r, color.g, color.b))
@@ -115,7 +121,7 @@ void IH_RenderText(int size, cptr text, ihFontPos *pos, SDL_Color color, SDL_Rec
                PutStringFont(text_surface, /* new_ */ font, 0, 0, text);
 
                IH_ProcessFontPos(text_surface, pos, &drect);
-               
+
                drect.x = pos->x.pixel;
                drect.y = pos->y.pixel;
 
@@ -127,51 +133,66 @@ void IH_RenderText(int size, cptr text, ihFontPos *pos, SDL_Color color, SDL_Rec
                     rect->h = text_surface->h;
                }
 #ifdef DEBUG
-               fprintf(stderr, "Blitting text at position %d,%d\n", drect.x, drect.y);
+               fprintf(stderr, "Blitting text at position %d,%d\n",
+                       drect.x, drect.y);
 #endif
-               SDL_BlitSurface(text_surface, NULL,
-                               ih.screen, &drect);
+               SDL_BlitSurface(text_surface, NULL, ih.screen, &drect);
 
 #if 0
                FreeFont(new_font);
           }
 #endif
-          
+
           SDL_FreeSurface(text_surface);
      }
 #endif
 }
 
-errr IH_InitFonts(void)
+errr
+IH_InitFonts(void)
 {
-     cptr path_data;
-     cptr path_font;
-     errr rc = 0;
+     char           *path_data;
+     char           *path_font;
+     errr            rc = 0;
+
+     fprintf(stderr, "IH_InitFonts()\n");
 
 #ifdef USE_SDLTTF
+     fprintf(stderr, "IH_InitFonts(): TTF_Init\n");
      if(TTF_Init())
      {
-          fprintf(stderr, "Can't initialize font library: %s\n", TTF_GetError());
+          fprintf(stderr,
+                  "Can't initialize font library: %s\n", TTF_GetError());
           return IH_ERROR_CANT_LOAD_FONT;
      }
 #endif
 
+     fprintf(stderr, "IH_InitFonts(): Get font data dir\n");
      path_data = IH_GetDataDir("font");
+     fprintf(stderr, "IH_InitFonts(): path_data = %s\n", path_data);
 
 #ifdef USE_SDLTTF
+     fprintf(stderr, "IH_InitFonts(): get font file path\n");
      path_font = IH_PathBuild(path_data, "Angband.ttf", NULL);
+     fprintf(stderr, "IH_InitFonts(): path_font = %s\n", path_font);
 
+     fprintf(stderr, "IH_InitFonts(): TTF_OpenFont(%s, %d)\n", path_font,
+             IH_FONT_NORMAL_SIZE);
      ih.normal_font = TTF_OpenFont(path_font, IH_FONT_NORMAL_SIZE);
      if(!ih.normal_font)
      {
-          fprintf(stderr, "Can't load font: Angband.ttf: %s\n", TTF_GetError());
+          fprintf(stderr, "Can't load font: Angband.ttf: %s\n",
+                  TTF_GetError());
           return IH_ERROR_CANT_LOAD_FONT;
      }
 
+     fprintf(stderr, "IH_InitFonts(): TTF_OpenFont(%s, %d)\n", path_font,
+             IH_FONT_LARGE_SIZE);
      ih.large_font = TTF_OpenFont(path_font, IH_FONT_LARGE_SIZE);
      if(!ih.large_font)
      {
-          fprintf(stderr, "Can't load font: Angband.ttf: %s\n", TTF_GetError());
+          fprintf(stderr, "Can't load font: Angband.ttf: %s\n",
+                  TTF_GetError());
           return IH_ERROR_CANT_LOAD_FONT;
      }
 #else
@@ -192,13 +213,18 @@ errr IH_InitFonts(void)
           return IH_ERROR_CANT_LOAD_FONT;
      }
 #endif
+
+     fprintf(stderr, "IH_InitFonts(): free path_font\n");
      rnfree(path_font);
+     fprintf(stderr, "IH_InitFonts(): free path_data\n");
      rnfree(path_data);
 
+     fprintf(stderr, "IH_InitFonts(): return (rc = %d)\n", rc);
      return rc;
 }
 
-void IH_FreeFonts(void)
+void
+IH_FreeFonts(void)
 {
      if(ih.normal_font)
      {
@@ -221,19 +247,21 @@ void IH_FreeFonts(void)
      }
 }
 
-int IH_GetTextWidth(int size, cptr text)
+int
+IH_GetTextWidth(int size,
+                cptr text)
 {
 #ifdef USE_SDLTTF
-     TTF_Font *font;
+     TTF_Font       *font;
 #else
-     BFont_Info *font;
+     BFont_Info     *font;
 #endif
-     int width = 0, height;
+     int             width = 0, height;
 
      if(!text)
           return 0;
 
-     switch(size)
+     switch (size)
      {
           case IH_FONT_LARGE:
                font = ih.large_font;
@@ -259,9 +287,12 @@ int IH_GetTextWidth(int size, cptr text)
      return width;
 }
 
-void IH_ProcessFontPos(SDL_Surface *image, ihFontPos *font_pos, SDL_Rect *rect)
+void
+IH_ProcessFontPos(SDL_Surface * image,
+                  ihFontPos * font_pos,
+                  SDL_Rect * rect)
 {
-     int width, height;
+     int             width, height;
 
      if(!image)
           return;
@@ -273,7 +304,7 @@ void IH_ProcessFontPos(SDL_Surface *image, ihFontPos *font_pos, SDL_Rect *rect)
      width = image->w;
      height = image->h;
 
-     switch(font_pos->x.type)
+     switch (font_pos->x.type)
      {
           case IH_POSITION_TYPE_PIXEL:
                rect->x = font_pos->x.pixel;
@@ -325,7 +356,7 @@ void IH_ProcessFontPos(SDL_Surface *image, ihFontPos *font_pos, SDL_Rect *rect)
                break;
      }
 
-     switch(font_pos->y.type)
+     switch (font_pos->y.type)
      {
           case IH_POSITION_TYPE_PIXEL:
                rect->y = font_pos->y.pixel;
@@ -377,4 +408,3 @@ void IH_ProcessFontPos(SDL_Surface *image, ihFontPos *font_pos, SDL_Rect *rect)
                break;
      }
 }
-

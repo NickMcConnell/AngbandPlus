@@ -1,7 +1,8 @@
+
+/* $Id: ipc.h,v 1.4 2003/03/17 22:45:22 cipher Exp $ */
+
 #ifndef IH_IPC_H
 #define IH_IPC_H
-
-/* File: ipc.h */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -13,13 +14,15 @@
 
 /* Function prototypes.
  */
-bool IH_GetIPCValue(long *value);
-bool IH_GetIPCPtr(void *ptr);
-bool IH_GetIPCEvent(SDL_Event *event);
-void IH_SetIPCValue(long value);
-void IH_SetIPCPtr(void *ptr);
-void IH_SetIPCEvent(SDL_Event *event);
-void IH_CreateFakeEvent(SDL_Event *event, Uint8 type, ...);
+bool            IH_GetIPCValue(long *value);
+bool            IH_GetIPCPtr(void *ptr);
+bool            IH_GetIPCEvent(SDL_Event * event);
+void            IH_SetIPCValue(long value);
+void            IH_SetIPCPtr(void *ptr);
+void            IH_SetIPCEvent(SDL_Event * event);
+void            IH_CreateFakeEvent(SDL_Event * event,
+                                   Uint8 type,
+                                   ...);
 
 /* Data structures.
  */

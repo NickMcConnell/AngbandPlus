@@ -1,7 +1,8 @@
+
+/* $Id: mhost.h,v 1.4 2003/03/17 22:45:40 cipher Exp $ */
+
 #ifndef IH_SDL_SCENE_MHOST_H
 #define IH_SDL_SCENE_MHOST_H
-
-/* File: sdl/scene/mhost.h */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -15,9 +16,9 @@
 
 /* Function prototypes.
 */
-void IH_InitScene_MultiHost(void);
-void IH_ProcessScene_MultiHost(SDL_Event *event);
-void IH_RenderScene_MultiHost(void);
+void            IH_InitScene_MultiHost(void);
+void            IH_ProcessScene_MultiHost(SDL_Event * event);
+void            IH_RenderScene_MultiHost(void);
 
 /* Data definitions.
 */

@@ -1,7 +1,8 @@
+
+/* $Id: icon.h,v 1.6 2003/03/18 19:17:40 cipher Exp $ */
+
 #ifndef IH_SDL_RENDER_ICON_H
 #define IH_SDL_RENDER_ICON_H
-
-/* File: sdl/render/icon.h */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -15,10 +16,11 @@
 
 /* Function prototypes.
  */
-errr IH_LoadIcons(void);
-void IH_PositionIcons(void);
-void IH_RenderIcons(void);
-int IH_GetIconSize(int size);
+errr            IH_LoadIcons(void);
+void            IH_PositionIcons(void);
+void            IH_RenderIcons(void);
+int             IH_GetIconSize(int size);
+errr            IH_LoadCharacterIcon(void);
 
 /* Data definitions.
  */

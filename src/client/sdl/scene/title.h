@@ -1,7 +1,8 @@
+
+/* $Id: title.h,v 1.4 2003/03/17 22:45:41 cipher Exp $ */
+
 #ifndef IH_SDL_SCENE_TITLE_H
 #define IH_SDL_SCENE_TITLE_H
-
-/* File: sdl/scene/title.h */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -15,9 +16,9 @@
 
 /* Function prototypes.
 */
-void IH_InitScene_Title(void);
-void IH_ProcessScene_Title(SDL_Event *event);
-void IH_RenderScene_Title(void);
+void            IH_InitScene_Title(void);
+void            IH_ProcessScene_Title(SDL_Event * event);
+void            IH_RenderScene_Title(void);
 
 /* Data definitions.
 */

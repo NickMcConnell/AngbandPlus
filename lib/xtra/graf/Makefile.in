@@ -14,6 +14,8 @@
 
 @SET_MAKE@
 
+# lib/xtra/graf
+
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 VPATH = @srcdir@
@@ -143,11 +145,31 @@ target_alias = @target_alias@
 target_cpu = @target_cpu@
 target_os = @target_os@
 target_vendor = @target_vendor@
+
+ironhells_files = \
+	16x16.bmp \
+	8X8.bmp \
+	8x13.bmp \
+	backgrnd.bmp \
+	mask.bmp
+
+
+EXTRA_DIST = \
+	$(ironhells_files)
+
+
+ironhellsdir = @DATA_PATH@xtra/graf
+
+ironhells_DATA = \
+	$(ironhells_files)
+
 subdir = lib/xtra/graf
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/src/client/angband/autoconf.h
 CONFIG_CLEAN_FILES =
 DIST_SOURCES =
+DATA = $(ironhells_DATA)
+
 DIST_COMMON = Makefile.am Makefile.in
 all: all-am
 
@@ -167,6 +189,24 @@ clean-libtool:
 distclean-libtool:
 	-rm -f libtool
 uninstall-info-am:
+ironhellsDATA_INSTALL = $(INSTALL_DATA)
+install-ironhellsDATA: $(ironhells_DATA)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(ironhellsdir)
+	@list='$(ironhells_DATA)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  f="`echo $$p | sed -e 's|^.*/||'`"; \
+	  echo " $(ironhellsDATA_INSTALL) $$d$$p $(DESTDIR)$(ironhellsdir)/$$f"; \
+	  $(ironhellsDATA_INSTALL) $$d$$p $(DESTDIR)$(ironhellsdir)/$$f; \
+	done
+
+uninstall-ironhellsDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(ironhells_DATA)'; for p in $$list; do \
+	  f="`echo $$p | sed -e 's|^.*/||'`"; \
+	  echo " rm -f $(DESTDIR)$(ironhellsdir)/$$f"; \
+	  rm -f $(DESTDIR)$(ironhellsdir)/$$f; \
+	done
 tags: TAGS
 TAGS:
 
@@ -207,9 +247,10 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile
+all-am: Makefile $(DATA)
 
 installdirs:
+	$(mkinstalldirs) $(DESTDIR)$(ironhellsdir)
 
 install: install-am
 install-exec: install-exec-am
@@ -251,7 +292,7 @@ info: info-am
 
 info-am:
 
-install-data-am:
+install-data-am: install-ironhellsDATA
 
 install-exec-am:
 
@@ -277,17 +318,17 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-info-am
+uninstall-am: uninstall-info-am uninstall-ironhellsDATA
 
 .PHONY: all all-am check check-am clean clean-generic clean-libtool \
 	distclean distclean-generic distclean-libtool distdir dvi \
 	dvi-am info info-am install install-am install-data \
 	install-data-am install-exec install-exec-am install-info \
-	install-info-am install-man install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
+	install-info-am install-ironhellsDATA install-man install-strip \
+	installcheck installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-generic \
 	mostlyclean-libtool pdf pdf-am ps ps-am uninstall uninstall-am \
-	uninstall-info-am
+	uninstall-info-am uninstall-ironhellsDATA
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

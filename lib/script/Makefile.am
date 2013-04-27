@@ -7,7 +7,7 @@ ironhells_files = \
 EXTRA_DIST = \
 	$(ironhells_files)
 
-ironhellsdir = @DATA_PATH@script
+ironhellsdir = @DATA_PATH@lib/script
 
 ironhells_DATA = \
 	$(ironhells_files)

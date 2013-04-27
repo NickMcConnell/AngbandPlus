@@ -1,4 +1,5 @@
-/* File: h-system.h */
+
+/* $Id: h-system.h,v 1.3 2003/03/17 22:45:24 cipher Exp $ */
 
 #ifndef INCLUDED_H_SYSTEM_H
 #define INCLUDED_H_SYSTEM_H
@@ -13,7 +14,6 @@
  * This file has been rebuilt -- it may need a little more work.
  */
 
-
 #include <stdio.h>
 #include <ctype.h>
 #include <errno.h>
@@ -23,7 +23,6 @@
 #else
 # include <stdlib.h>
 #endif
-
 
 #ifdef SET_UID
 
@@ -42,10 +41,7 @@
 
 #endif
 
-
 #include <time.h>
-
-
 
 #if defined(MACINTOSH) && !defined(MACOSX)
 # include <unix.h>
@@ -64,11 +60,9 @@
 # endif
 #endif
 
-
 #if !defined(NeXT) && !defined(RISCOS)
 # include <fcntl.h>
 #endif
-
 
 #ifdef SET_UID
 
@@ -101,7 +95,4 @@
 
 #include <stdarg.h>
 
-
 #endif
-
-

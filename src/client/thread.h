@@ -1,7 +1,8 @@
+
+/* $Id: thread.h,v 1.4 2003/03/17 22:45:22 cipher Exp $ */
+
 #ifndef IH_THREAD_H
 #define IH_THREAD_H
-
-/* File: thread.h */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -13,8 +14,8 @@
 
 #include "angband.h"
 
-int IH_GameThread(void *data);
-bool IH_InitSemaphores(void);
-void IH_DestroySemaphores(void);
+int             IH_GameThread(void *data);
+bool            IH_InitSemaphores(void);
+void            IH_DestroySemaphores(void);
 
 #endif /* IH_THREAD_H */

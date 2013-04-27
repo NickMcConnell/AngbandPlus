@@ -14,6 +14,8 @@
 
 @SET_MAKE@
 
+# lib/xtra/font
+
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 VPATH = @srcdir@
@@ -144,25 +146,25 @@ target_cpu = @target_cpu@
 target_os = @target_os@
 target_vendor = @target_vendor@
 
-angband_files = \
-  16x16.txt
+ironhells_files = \
+	16x16.txt
 
 
 EXTRA_DIST = \
-  $(angband_files)
+	$(ironhells_files)
 
 
-@SET_GID_TRUE@angbanddir = @DEFAULT_PATH@xtra/font
+ironhellsdir = @DATA_PATH@xtra/font
 
-@SET_GID_TRUE@angband_DATA = \
-@SET_GID_TRUE@  $(angband_files)
+ironhells_DATA = \
+	$(ironhells_files)
 
 subdir = lib/xtra/font
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/src/client/angband/autoconf.h
 CONFIG_CLEAN_FILES =
 DIST_SOURCES =
-DATA = $(angband_DATA)
+DATA = $(ironhells_DATA)
 
 DIST_COMMON = Makefile.am Makefile.in
 all: all-am
@@ -183,23 +185,23 @@ clean-libtool:
 distclean-libtool:
 	-rm -f libtool
 uninstall-info-am:
-angbandDATA_INSTALL = $(INSTALL_DATA)
-install-angbandDATA: $(angband_DATA)
+ironhellsDATA_INSTALL = $(INSTALL_DATA)
+install-ironhellsDATA: $(ironhells_DATA)
 	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(angbanddir)
-	@list='$(angband_DATA)'; for p in $$list; do \
+	$(mkinstalldirs) $(DESTDIR)$(ironhellsdir)
+	@list='$(ironhells_DATA)'; for p in $$list; do \
 	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
 	  f="`echo $$p | sed -e 's|^.*/||'`"; \
-	  echo " $(angbandDATA_INSTALL) $$d$$p $(DESTDIR)$(angbanddir)/$$f"; \
-	  $(angbandDATA_INSTALL) $$d$$p $(DESTDIR)$(angbanddir)/$$f; \
+	  echo " $(ironhellsDATA_INSTALL) $$d$$p $(DESTDIR)$(ironhellsdir)/$$f"; \
+	  $(ironhellsDATA_INSTALL) $$d$$p $(DESTDIR)$(ironhellsdir)/$$f; \
 	done
 
-uninstall-angbandDATA:
+uninstall-ironhellsDATA:
 	@$(NORMAL_UNINSTALL)
-	@list='$(angband_DATA)'; for p in $$list; do \
+	@list='$(ironhells_DATA)'; for p in $$list; do \
 	  f="`echo $$p | sed -e 's|^.*/||'`"; \
-	  echo " rm -f $(DESTDIR)$(angbanddir)/$$f"; \
-	  rm -f $(DESTDIR)$(angbanddir)/$$f; \
+	  echo " rm -f $(DESTDIR)$(ironhellsdir)/$$f"; \
+	  rm -f $(DESTDIR)$(ironhellsdir)/$$f; \
 	done
 tags: TAGS
 TAGS:
@@ -244,7 +246,7 @@ check: check-am
 all-am: Makefile $(DATA)
 
 installdirs:
-	$(mkinstalldirs) $(DESTDIR)$(angbanddir)
+	$(mkinstalldirs) $(DESTDIR)$(ironhellsdir)
 
 install: install-am
 install-exec: install-exec-am
@@ -286,7 +288,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-angbandDATA
+install-data-am: install-ironhellsDATA
 
 install-exec-am:
 
@@ -312,17 +314,17 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-angbandDATA uninstall-info-am
+uninstall-am: uninstall-info-am uninstall-ironhellsDATA
 
 .PHONY: all all-am check check-am clean clean-generic clean-libtool \
 	distclean distclean-generic distclean-libtool distdir dvi \
-	dvi-am info info-am install install-am install-angbandDATA \
-	install-data install-data-am install-exec install-exec-am \
-	install-info install-info-am install-man install-strip \
+	dvi-am info info-am install install-am install-data \
+	install-data-am install-exec install-exec-am install-info \
+	install-info-am install-ironhellsDATA install-man install-strip \
 	installcheck installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-generic \
 	mostlyclean-libtool pdf pdf-am ps ps-am uninstall uninstall-am \
-	uninstall-angbandDATA uninstall-info-am
+	uninstall-info-am uninstall-ironhellsDATA
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

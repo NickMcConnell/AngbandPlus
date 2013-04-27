@@ -1,7 +1,8 @@
+
+/* $Id: setup.h,v 1.5 2003/03/17 22:45:38 cipher Exp $ */
+
 #ifndef IH_SDL_SETUP_H
 #define IH_SDL_SETUP_H
-
-/* File: sdl/setup.h */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -13,5 +14,7 @@
 
 #include "angband.h"
 
+int             IH_CreateShader(int w,
+                                int h);
 
 #endif /* IH_SDL_SETUP_H */

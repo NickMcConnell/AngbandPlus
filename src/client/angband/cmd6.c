@@ -1,4 +1,5 @@
-/* File: cmd6.c */
+
+/* $Id: cmd6.c,v 1.3 2003/03/17 22:45:24 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -11,7 +12,6 @@
 #include "angband.h"
 
 #include "script.h"
-
 
 /*
  * This file includes code for eating food, drinking potions,
@@ -53,179 +53,167 @@
  * but instead use the "sval" (which is also used to sort the objects).
  */
 
-
-
-
-
-
 /*
  * Eat some food (from the pack or floor)
  */
-void do_cmd_eat_food(void)
+void
+do_cmd_eat_food(void)
 {
-	int item, lev;
-	bool ident;
+     int             item, lev;
+     bool            ident;
 
-	object_type *o_ptr;
+     object_type    *o_ptr;
 
-	cptr q, s;
+     cptr            q, s;
 
+     /* Restrict choices to food */
+     item_tester_tval = TV_FOOD;
 
-	/* Restrict choices to food */
-	item_tester_tval = TV_FOOD;
+     /* Get an item */
+     q = "Eat which item? ";
+     s = "You have nothing to eat.";
+     if(!get_item(&item, q, s, (USE_INVEN | USE_FLOOR)))
+          return;
 
-	/* Get an item */
-	q = "Eat which item? ";
-	s = "You have nothing to eat.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+     /* Get the item (in the pack) */
+     if(item >= 0)
+     {
+          o_ptr = &inventory[item];
+     }
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
+     /* Get the item (on the floor) */
+     else
+     {
+          o_ptr = &o_list[0 - item];
+     }
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+     /* Sound */
+     sound(MSG_EAT);
 
+     /* Take a turn */
+     p_ptr->energy_use = 100;
 
-	/* Sound */
-	sound(MSG_EAT);
+     /* Identity not known yet */
+     ident = FALSE;
 
+     /* Object level */
+     lev = k_info[o_ptr->k_idx].level;
 
-	/* Take a turn */
-	p_ptr->energy_use = 100;
+     /* Eat the food */
+     use_object(o_ptr, &ident);
 
-	/* Identity not known yet */
-	ident = FALSE;
+     /* Combine / Reorder the pack (later) */
+     p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
-	/* Object level */
-	lev = k_info[o_ptr->k_idx].level;
+     /* We have tried it */
+     object_tried(o_ptr);
 
-	/* Eat the food */
-	use_object(o_ptr, &ident);
+     /* The player is now aware of the object */
+     if(ident && !object_aware_p(o_ptr))
+     {
+          object_aware(o_ptr);
+          gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
+     }
 
-	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+     /* Window stuff */
+     p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-	/* We have tried it */
-	object_tried(o_ptr);
+     /* Destroy a food in the pack */
+     if(item >= 0)
+     {
+          inven_item_increase(item, -1);
+          inven_item_describe(item);
+          inven_item_optimize(item);
+     }
 
-	/* The player is now aware of the object */
-	if (ident && !object_aware_p(o_ptr))
-	{
-		object_aware(o_ptr);
-		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
-	}
-
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
-
-	/* Destroy a food in the pack */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Destroy a food on the floor */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_describe(0 - item);
-		floor_item_optimize(0 - item);
-	}
+     /* Destroy a food on the floor */
+     else
+     {
+          floor_item_increase(0 - item, -1);
+          floor_item_describe(0 - item);
+          floor_item_optimize(0 - item);
+     }
 }
-
-
-
 
 /*
  * Quaff a potion (from the pack or the floor)
  */
-void do_cmd_quaff_potion(void)
+void
+do_cmd_quaff_potion(void)
 {
-	int item, lev;
-	bool ident;
-	object_type *o_ptr;
-	cptr q, s;
+     int             item, lev;
+     bool            ident;
+     object_type    *o_ptr;
+     cptr            q, s;
 
+     /* Restrict choices to potions */
+     item_tester_tval = TV_POTION;
 
-	/* Restrict choices to potions */
-	item_tester_tval = TV_POTION;
+     /* Get an item */
+     q = "Quaff which potion? ";
+     s = "You have no potions to quaff.";
+     if(!get_item(&item, q, s, (USE_INVEN | USE_FLOOR)))
+          return;
 
-	/* Get an item */
-	q = "Quaff which potion? ";
-	s = "You have no potions to quaff.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+     /* Get the item (in the pack) */
+     if(item >= 0)
+     {
+          o_ptr = &inventory[item];
+     }
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
+     /* Get the item (on the floor) */
+     else
+     {
+          o_ptr = &o_list[0 - item];
+     }
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+     /* Sound */
+     sound(MSG_QUAFF);
 
+     /* Take a turn */
+     p_ptr->energy_use = 100;
 
-	/* Sound */
-	sound(MSG_QUAFF);
+     /* Not identified yet */
+     ident = FALSE;
 
+     /* Object level */
+     lev = k_info[o_ptr->k_idx].level;
 
-	/* Take a turn */
-	p_ptr->energy_use = 100;
+     /* Quaff the potion */
+     use_object(o_ptr, &ident);
 
-	/* Not identified yet */
-	ident = FALSE;
+     /* Combine / Reorder the pack (later) */
+     p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
-	/* Object level */
-	lev = k_info[o_ptr->k_idx].level;
+     /* The item has been tried */
+     object_tried(o_ptr);
 
-	/* Quaff the potion */
-	use_object(o_ptr, &ident);
+     /* An identification was made */
+     if(ident && !object_aware_p(o_ptr))
+     {
+          object_aware(o_ptr);
+          gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
+     }
 
-	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+     /* Window stuff */
+     p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-	/* The item has been tried */
-	object_tried(o_ptr);
+     /* Destroy a potion in the pack */
+     if(item >= 0)
+     {
+          inven_item_increase(item, -1);
+          inven_item_describe(item);
+          inven_item_optimize(item);
+     }
 
-	/* An identification was made */
-	if (ident && !object_aware_p(o_ptr))
-	{
-		object_aware(o_ptr);
-		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
-	}
-
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
-	/* Destroy a potion in the pack */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Destroy a potion on the floor */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_describe(0 - item);
-		floor_item_optimize(0 - item);
-	}
+     /* Destroy a potion on the floor */
+     else
+     {
+          floor_item_increase(0 - item, -1);
+          floor_item_describe(0 - item);
+          floor_item_optimize(0 - item);
+     }
 }
-
 
 /*
  * Read a scroll (from the pack or floor).
@@ -234,110 +222,102 @@ void do_cmd_quaff_potion(void)
  * include scrolls with no effects but recharge or identify, which are
  * cancelled before use.  XXX Reading them still takes a turn, though.
  */
-void do_cmd_read_scroll(void)
+void
+do_cmd_read_scroll(void)
 {
-	int item, used_up, lev;
-	bool ident;
+     int             item, used_up, lev;
+     bool            ident;
 
-	object_type *o_ptr;
+     object_type    *o_ptr;
 
-	cptr q, s;
+     cptr            q, s;
 
+     /* Check some conditions */
+     if(p_ptr->blind)
+     {
+          msg_print("You can't see anything.");
+          return;
+     }
+     if(no_lite())
+     {
+          msg_print("You have no light to read by.");
+          return;
+     }
+     if(p_ptr->confused)
+     {
+          msg_print("You are too confused!");
+          return;
+     }
 
-	/* Check some conditions */
-	if (p_ptr->blind)
-	{
-		msg_print("You can't see anything.");
-		return;
-	}
-	if (no_lite())
-	{
-		msg_print("You have no light to read by.");
-		return;
-	}
-	if (p_ptr->confused)
-	{
-		msg_print("You are too confused!");
-		return;
-	}
+     /* Restrict choices to scrolls */
+     item_tester_tval = TV_SCROLL;
 
+     /* Get an item */
+     q = "Read which scroll? ";
+     s = "You have no scrolls to read.";
+     if(!get_item(&item, q, s, (USE_INVEN | USE_FLOOR)))
+          return;
 
-	/* Restrict choices to scrolls */
-	item_tester_tval = TV_SCROLL;
+     /* Get the item (in the pack) */
+     if(item >= 0)
+     {
+          o_ptr = &inventory[item];
+     }
 
-	/* Get an item */
-	q = "Read which scroll? ";
-	s = "You have no scrolls to read.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+     /* Get the item (on the floor) */
+     else
+     {
+          o_ptr = &o_list[0 - item];
+     }
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
+     /* Take a turn */
+     p_ptr->energy_use = 100;
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+     /* Not identified yet */
+     ident = FALSE;
 
+     /* Object level */
+     lev = k_info[o_ptr->k_idx].level;
 
-	/* Take a turn */
-	p_ptr->energy_use = 100;
+     /* Read the scroll */
+     used_up = use_object(o_ptr, &ident);
 
-	/* Not identified yet */
-	ident = FALSE;
+     /* Combine / Reorder the pack (later) */
+     p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
-	/* Object level */
-	lev = k_info[o_ptr->k_idx].level;
+     /* The item was tried */
+     object_tried(o_ptr);
 
-	/* Read the scroll */
-	used_up = use_object(o_ptr, &ident);
+     /* An identification was made */
+     if(ident && !object_aware_p(o_ptr))
+     {
+          object_aware(o_ptr);
+          gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
+     }
 
-	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+     /* Window stuff */
+     p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-	/* The item was tried */
-	object_tried(o_ptr);
+     /* Hack -- allow certain scrolls to be "preserved" */
+     if(!used_up)
+          return;
 
-	/* An identification was made */
-	if (ident && !object_aware_p(o_ptr))
-	{
-		object_aware(o_ptr);
-		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
-	}
+     /* Destroy a scroll in the pack */
+     if(item >= 0)
+     {
+          inven_item_increase(item, -1);
+          inven_item_describe(item);
+          inven_item_optimize(item);
+     }
 
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
-
-	/* Hack -- allow certain scrolls to be "preserved" */
-	if (!used_up) return;
-
-
-	/* Destroy a scroll in the pack */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Destroy a scroll on the floor */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_describe(0 - item);
-		floor_item_optimize(0 - item);
-	}
+     /* Destroy a scroll on the floor */
+     else
+     {
+          floor_item_increase(0 - item, -1);
+          floor_item_describe(0 - item);
+          floor_item_optimize(0 - item);
+     }
 }
-
-
-
-
-
-
 
 /*
  * Use a staff
@@ -346,164 +326,161 @@ void do_cmd_read_scroll(void)
  *
  * Hack -- staffs of identify can be "cancelled".
  */
-void do_cmd_use_staff(void)
+void
+do_cmd_use_staff(void)
 {
-	int item, chance, lev;
+     int             item, chance, lev;
 
-	bool ident;
-	
-	object_type *o_ptr;
+     bool            ident;
 
-	bool use_charge;
+     object_type    *o_ptr;
 
-	cptr q, s;
+     bool            use_charge;
 
+     cptr            q, s;
 
-	/* Restrict choices to staves */
-	item_tester_tval = TV_STAFF;
+     /* Restrict choices to staves */
+     item_tester_tval = TV_STAFF;
 
-	/* Get an item */
-	q = "Use which staff? ";
-	s = "You have no staff to use.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+     /* Get an item */
+     q = "Use which staff? ";
+     s = "You have no staff to use.";
+     if(!get_item(&item, q, s, (USE_INVEN | USE_FLOOR)))
+          return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
+     /* Get the item (in the pack) */
+     if(item >= 0)
+     {
+          o_ptr = &inventory[item];
+     }
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+     /* Get the item (on the floor) */
+     else
+     {
+          o_ptr = &o_list[0 - item];
+     }
 
+     /* Mega-Hack -- refuse to use a pile from the ground */
+     if((item < 0) && (o_ptr->number > 1))
+     {
+          msg_print("You must first pick up the staffs.");
+          return;
+     }
 
-	/* Mega-Hack -- refuse to use a pile from the ground */
-	if ((item < 0) && (o_ptr->number > 1))
-	{
-		msg_print("You must first pick up the staffs.");
-		return;
-	}
+     /* Take a turn */
+     p_ptr->energy_use = 100;
 
+     /* Not identified yet */
+     ident = FALSE;
 
-	/* Take a turn */
-	p_ptr->energy_use = 100;
+     /* Extract the item level */
+     lev = k_info[o_ptr->k_idx].level;
 
-	/* Not identified yet */
-	ident = FALSE;
+     /* Base chance of success */
+     chance = p_ptr->skill_dev;
 
-	/* Extract the item level */
-	lev = k_info[o_ptr->k_idx].level;
+     /* Confusion hurts skill */
+     if(p_ptr->confused)
+          chance = chance / 2;
 
-	/* Base chance of success */
-	chance = p_ptr->skill_dev;
+     /* High level objects are harder */
+     chance = chance - ((lev > 50) ? 50 : lev);
 
-	/* Confusion hurts skill */
-	if (p_ptr->confused) chance = chance / 2;
+     /* Give everyone a (slight) chance */
+     if((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
+     {
+          chance = USE_DEVICE;
+     }
 
-	/* High level objects are harder */
-	chance = chance - ((lev > 50) ? 50 : lev);
+     /* Roll for usage */
+     if((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
+     {
+          if(flush_failure)
+               flush();
+          msg_print("You failed to use the staff properly.");
+          return;
+     }
 
-	/* Give everyone a (slight) chance */
-	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
-	{
-		chance = USE_DEVICE;
-	}
+     /* Notice empty staffs */
+     if(o_ptr->pval <= 0)
+     {
+          if(flush_failure)
+               flush();
+          msg_print("The staff has no charges left.");
+          o_ptr->ident |= (IDENT_EMPTY);
+          p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+          p_ptr->window |= (PW_INVEN);
+          return;
+     }
 
-	/* Roll for usage */
-	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
-	{
-		if (flush_failure) flush();
-		msg_print("You failed to use the staff properly.");
-		return;
-	}
+     /* Sound */
+     sound(MSG_ZAP);
 
-	/* Notice empty staffs */
-	if (o_ptr->pval <= 0)
-	{
-		if (flush_failure) flush();
-		msg_print("The staff has no charges left.");
-		o_ptr->ident |= (IDENT_EMPTY);
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-		p_ptr->window |= (PW_INVEN);
-		return;
-	}
+     /* Use the staff */
+     use_charge = use_object(o_ptr, &ident);
 
+     /* Combine / Reorder the pack (later) */
+     p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
-	/* Sound */
-	sound(MSG_ZAP);
+     /* Tried the item */
+     object_tried(o_ptr);
 
+     /* An identification was made */
+     if(ident && !object_aware_p(o_ptr))
+     {
+          object_aware(o_ptr);
+          gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
+     }
 
-	/* Use the staff */
-	use_charge = use_object(o_ptr, &ident);
+     /* Window stuff */
+     p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
+     /* Hack -- some uses are "free" */
+     if(!use_charge)
+          return;
 
-	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+     /* Use a single charge */
+     o_ptr->pval--;
 
-	/* Tried the item */
-	object_tried(o_ptr);
+     /* XXX Hack -- unstack if necessary */
+     if((item >= 0) && (o_ptr->number > 1))
+     {
+          object_type    *i_ptr;
+          object_type     object_type_body;
 
-	/* An identification was made */
-	if (ident && !object_aware_p(o_ptr))
-	{
-		object_aware(o_ptr);
-		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
-	}
+          /* Get local object */
+          i_ptr = &object_type_body;
 
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+          /* Obtain a local object */
+          object_copy(i_ptr, o_ptr);
 
+          /* Modify quantity */
+          i_ptr->number = 1;
 
-	/* Hack -- some uses are "free" */
-	if (!use_charge) return;
+          /* Restore the charges */
+          o_ptr->pval++;
 
+          /* Unstack the used item */
+          o_ptr->number--;
+          p_ptr->total_weight -= i_ptr->weight;
+          item = inven_carry(i_ptr);
 
-	/* Use a single charge */
-	o_ptr->pval--;
+          /* Message */
+          msg_print("You unstack your staff.");
+     }
 
-	/* XXX Hack -- unstack if necessary */
-	if ((item >= 0) && (o_ptr->number > 1))
-	{
-		object_type *i_ptr;
-		object_type object_type_body;
+     /* Describe charges in the pack */
+     if(item >= 0)
+     {
+          inven_item_charges(item);
+     }
 
-		/* Get local object */
-		i_ptr = &object_type_body;
-
-		/* Obtain a local object */
-		object_copy(i_ptr, o_ptr);
-
-		/* Modify quantity */
-		i_ptr->number = 1;
-
-		/* Restore the charges */
-		o_ptr->pval++;
-
-		/* Unstack the used item */
-		o_ptr->number--;
-		p_ptr->total_weight -= i_ptr->weight;
-		item = inven_carry(i_ptr);
-
-		/* Message */
-		msg_print("You unstack your staff.");
-	}
-
-	/* Describe charges in the pack */
-	if (item >= 0)
-	{
-		inven_item_charges(item);
-	}
-
-	/* Describe charges on the floor */
-	else
-	{
-		floor_item_charges(0 - item);
-	}
+     /* Describe charges on the floor */
+     else
+     {
+          floor_item_charges(0 - item);
+     }
 }
-
 
 /*
  * Aim a wand (from the pack or floor).
@@ -525,116 +502,110 @@ void do_cmd_use_staff(void)
  * basic "bolt" rods, but the basic "ball" wands do the same damage
  * as the basic "ball" rods.
  */
-void do_cmd_aim_wand(void)
+void
+do_cmd_aim_wand(void)
 {
-	int item, lev;
+     int             item, lev;
 
-	bool ident;
+     bool            ident;
 
-	object_type *o_ptr;
+     object_type    *o_ptr;
 
-	cptr q, s;
+     cptr            q, s;
 
+     /* Restrict choices to wands */
+     item_tester_tval = TV_WAND;
 
-	/* Restrict choices to wands */
-	item_tester_tval = TV_WAND;
+     /* Get an item */
+     q = "Aim which wand? ";
+     s = "You have no wand to aim.";
+     if(!get_item(&item, q, s, (USE_INVEN | USE_FLOOR)))
+          return;
 
-	/* Get an item */
-	q = "Aim which wand? ";
-	s = "You have no wand to aim.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+     /* Get the item (in the pack) */
+     if(item >= 0)
+     {
+          o_ptr = &inventory[item];
+     }
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
+     /* Get the item (on the floor) */
+     else
+     {
+          o_ptr = &o_list[0 - item];
+     }
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+     /* Mega-Hack -- refuse to aim a pile from the ground */
+     if((item < 0) && (o_ptr->number > 1))
+     {
+          msg_print("You must first pick up the wands.");
+          return;
+     }
 
+     /* Aim the wand */
+     if(!use_object(o_ptr, &ident))
+          return;
 
-	/* Mega-Hack -- refuse to aim a pile from the ground */
-	if ((item < 0) && (o_ptr->number > 1))
-	{
-		msg_print("You must first pick up the wands.");
-		return;
-	}
+     /* Combine / Reorder the pack (later) */
+     p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
+     /* Mark it as tried */
+     object_tried(o_ptr);
 
-	/* Aim the wand */
-	if (!use_object(o_ptr, &ident)) return;
+     /* Object level */
+     lev = k_info[o_ptr->k_idx].level;
 
+     /* Apply identification */
+     if(ident && !object_aware_p(o_ptr))
+     {
+          object_aware(o_ptr);
+          gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
+     }
 
-	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+     /* Window stuff */
+     p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-	/* Mark it as tried */
-	object_tried(o_ptr);
+     /* Use a single charge */
+     o_ptr->pval--;
 
-	/* Object level */
-	lev = k_info[o_ptr->k_idx].level;
+     /* Hack -- unstack if necessary */
+     if((item >= 0) && (o_ptr->number > 1))
+     {
+          object_type    *i_ptr;
+          object_type     object_type_body;
 
-	/* Apply identification */
-	if (ident && !object_aware_p(o_ptr))
-	{
-		object_aware(o_ptr);
-		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
-	}
+          /* Get local object */
+          i_ptr = &object_type_body;
 
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+          /* Obtain a local object */
+          object_copy(i_ptr, o_ptr);
 
+          /* Modify quantity */
+          i_ptr->number = 1;
 
-	/* Use a single charge */
-	o_ptr->pval--;
+          /* Restore the charges */
+          o_ptr->pval++;
 
-	/* Hack -- unstack if necessary */
-	if ((item >= 0) && (o_ptr->number > 1))
-	{
-		object_type *i_ptr;
-		object_type object_type_body;
+          /* Unstack the used item */
+          o_ptr->number--;
+          p_ptr->total_weight -= i_ptr->weight;
+          item = inven_carry(i_ptr);
 
-		/* Get local object */
-		i_ptr = &object_type_body;
+          /* Message */
+          msg_print("You unstack your wand.");
+     }
 
-		/* Obtain a local object */
-		object_copy(i_ptr, o_ptr);
+     /* Describe the charges in the pack */
+     if(item >= 0)
+     {
+          inven_item_charges(item);
+     }
 
-		/* Modify quantity */
-		i_ptr->number = 1;
-
-		/* Restore the charges */
-		o_ptr->pval++;
-
-		/* Unstack the used item */
-		o_ptr->number--;
-		p_ptr->total_weight -= i_ptr->weight;
-		item = inven_carry(i_ptr);
-
-		/* Message */
-		msg_print("You unstack your wand.");
-	}
-
-	/* Describe the charges in the pack */
-	if (item >= 0)
-	{
-		inven_item_charges(item);
-	}
-
-	/* Describe the charges on the floor */
-	else
-	{
-		floor_item_charges(0 - item);
-	}
+     /* Describe the charges on the floor */
+     else
+     {
+          floor_item_charges(0 - item);
+     }
 }
-
-
-
-
 
 /*
  * Activate (zap) a Rod
@@ -644,115 +615,115 @@ void do_cmd_aim_wand(void)
  * Hack -- rods of perception/banishment can be "cancelled"
  * All rods can be cancelled at the "Direction?" prompt
  */
-void do_cmd_zap_rod(void)
+void
+do_cmd_zap_rod(void)
 {
-	int item;
-	bool ident;
-	object_type *o_ptr;
-	cptr q, s;
+     int             item;
+     bool            ident;
+     object_type    *o_ptr;
+     cptr            q, s;
 
+     /* Restrict choices to rods */
+     item_tester_tval = TV_ROD;
 
-	/* Restrict choices to rods */
-	item_tester_tval = TV_ROD;
+     /* Get an item */
+     q = "Zap which rod? ";
+     s = "You have no rod to zap.";
+     if(!get_item(&item, q, s, (USE_INVEN | USE_FLOOR)))
+          return;
 
-	/* Get an item */
-	q = "Zap which rod? ";
-	s = "You have no rod to zap.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+     /* Get the item (in the pack) */
+     if(item >= 0)
+     {
+          o_ptr = &inventory[item];
+     }
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
+     /* Get the item (on the floor) */
+     else
+     {
+          o_ptr = &o_list[0 - item];
+     }
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+     /* Mega-Hack -- refuse to zap a pile from the ground */
+     if((item < 0) && (o_ptr->number > 1))
+     {
+          msg_print("You must first pick up the rods.");
+          return;
+     }
 
+     /* Zap the rod */
+     if(!use_object(o_ptr, &ident))
+          return;
 
-	/* Mega-Hack -- refuse to zap a pile from the ground */
-	if ((item < 0) && (o_ptr->number > 1))
-	{
-		msg_print("You must first pick up the rods.");
-		return;
-	}
+     /* Combine / Reorder the pack (later) */
+     p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
-	/* Zap the rod */
-	if (!use_object(o_ptr, &ident)) return;
+     /* Tried the object */
+     object_tried(o_ptr);
 
-	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+     /* Successfully determined the object function */
+     if(ident && !object_aware_p(o_ptr))
+     {
+          /* Object level */
+          int             lev = k_info[o_ptr->k_idx].level;
 
-	/* Tried the object */
-	object_tried(o_ptr);
+          object_aware(o_ptr);
+          gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
+     }
 
-	/* Successfully determined the object function */
-	if (ident && !object_aware_p(o_ptr))
-	{
-		/* Object level */
-		int lev = k_info[o_ptr->k_idx].level;
+     /* Window stuff */
+     p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-		object_aware(o_ptr);
-		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
-	}
+     /* XXX Hack -- unstack if necessary */
+     if((item >= 0) && (o_ptr->number > 1) && (o_ptr->pval > 0))
+     {
+          object_type    *i_ptr;
+          object_type     object_type_body;
 
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+          /* Get local object */
+          i_ptr = &object_type_body;
 
-	/* XXX Hack -- unstack if necessary */
-	if ((item >= 0) && (o_ptr->number > 1) && (o_ptr->pval > 0))
-	{
-		object_type *i_ptr;
-		object_type object_type_body;
+          /* Obtain a local object */
+          object_copy(i_ptr, o_ptr);
 
-		/* Get local object */
-		i_ptr = &object_type_body;
+          /* Modify quantity */
+          i_ptr->number = 1;
 
-		/* Obtain a local object */
-		object_copy(i_ptr, o_ptr);
+          /* Restore "charge" */
+          o_ptr->pval = 0;
 
-		/* Modify quantity */
-		i_ptr->number = 1;
+          /* Unstack the used item */
+          o_ptr->number--;
+          p_ptr->total_weight -= i_ptr->weight;
+          item = inven_carry(i_ptr);
 
-		/* Restore "charge" */
-		o_ptr->pval = 0;
-
-		/* Unstack the used item */
-		o_ptr->number--;
-		p_ptr->total_weight -= i_ptr->weight;
-		item = inven_carry(i_ptr);
-
-		/* Message */
-		msg_print("You unstack your rod.");
-	}
+          /* Message */
+          msg_print("You unstack your rod.");
+     }
 }
-
-
-
 
 /*
  * Hook to determine if an object is activatable
  */
-static bool item_tester_hook_activate(const object_type *o_ptr)
+static          bool
+item_tester_hook_activate(const object_type * o_ptr)
 {
-	u32b f1, f2, f3;
+     u32b            f1, f2, f3;
 
-	/* Not known */
-	if (!object_known_p(o_ptr)) return (FALSE);
+     /* Not known */
+     if(!object_known_p(o_ptr))
+          return (FALSE);
 
-	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+     /* Extract the flags */
+     object_flags(o_ptr, &f1, &f2, &f3);
 
-	/* Check activation flag */
-	if (f3 & (TR3_ACTIVATE)) return (TRUE);
+     /* Check activation flag */
+     if(f3 & (TR3_ACTIVATE))
+          return (TRUE);
 
-	/* Assume not */
-	return (FALSE);
+     /* Assume not */
+     return (FALSE);
 }
-
 
 /*
  * Activate a wielded object.  Wielded objects never stack.
@@ -761,68 +732,71 @@ static bool item_tester_hook_activate(const object_type *o_ptr)
  * Note that it always takes a turn to activate an artifact, even if
  * the user hits "escape" at the "direction" prompt.
  */
-void do_cmd_activate(void)
+void
+do_cmd_activate(void)
 {
-	int item, lev, chance;
-	bool ident;
-	object_type *o_ptr;
+     int             item, lev, chance;
+     bool            ident;
+     object_type    *o_ptr;
 
-	cptr q, s;
+     cptr            q, s;
 
+     /* Prepare the hook */
+     item_tester_hook = item_tester_hook_activate;
 
-	/* Prepare the hook */
-	item_tester_hook = item_tester_hook_activate;
+     /* Get an item */
+     q = "Activate which item? ";
+     s = "You have nothing to activate.";
+     if(!get_item(&item, q, s, (USE_EQUIP)))
+          return;
 
-	/* Get an item */
-	q = "Activate which item? ";
-	s = "You have nothing to activate.";
-	if (!get_item(&item, q, s, (USE_EQUIP))) return;
+     /* Get the item (in the pack) */
+     if(item >= 0)
+     {
+          o_ptr = &inventory[item];
+     }
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
+     /* Get the item (on the floor) */
+     else
+     {
+          o_ptr = &o_list[0 - item];
+     }
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+     /* Take a turn */
+     p_ptr->energy_use = 100;
 
+     /* Extract the item level */
+     lev = k_info[o_ptr->k_idx].level;
 
-	/* Take a turn */
-	p_ptr->energy_use = 100;
+     /* Hack -- use artifact level instead */
+     if(artifact_p(o_ptr))
+          lev = a_info[o_ptr->name1].level;
 
-	/* Extract the item level */
-	lev = k_info[o_ptr->k_idx].level;
+     /* Base chance of success */
+     chance = p_ptr->skill_dev;
 
-	/* Hack -- use artifact level instead */
-	if (artifact_p(o_ptr)) lev = a_info[o_ptr->name1].level;
+     /* Confusion hurts skill */
+     if(p_ptr->confused)
+          chance = chance / 2;
 
-	/* Base chance of success */
-	chance = p_ptr->skill_dev;
+     /* High level objects are harder */
+     chance = chance - ((lev > 50) ? 50 : lev);
 
-	/* Confusion hurts skill */
-	if (p_ptr->confused) chance = chance / 2;
+     /* Give everyone a (slight) chance */
+     if((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
+     {
+          chance = USE_DEVICE;
+     }
 
-	/* High level objects are harder */
-	chance = chance - ((lev > 50) ? 50 : lev);
+     /* Roll for usage */
+     if((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
+     {
+          if(flush_failure)
+               flush();
+          msg_print("You failed to activate it properly.");
+          return;
+     }
 
-	/* Give everyone a (slight) chance */
-	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
-	{
-		chance = USE_DEVICE;
-	}
-
-	/* Roll for usage */
-	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
-	{
-		if (flush_failure) flush();
-		msg_print("You failed to activate it properly.");
-		return;
-	}
-
-	/* Activate the object */
-	(void)use_object(o_ptr, &ident);
+     /* Activate the object */
+     (void) use_object(o_ptr, &ident);
 }

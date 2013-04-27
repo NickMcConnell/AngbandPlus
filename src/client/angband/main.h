@@ -1,4 +1,5 @@
-/* File: main.h */
+
+/* $Id: main.h,v 1.3 2003/03/17 22:45:27 cipher Exp $ */
 
 /*
  * Copyright (c) 2002 Robert Ruehlmann
@@ -13,21 +14,34 @@
 
 #include "angband.h"
 
-extern errr init_gtk(int argc, char **argv);
-extern errr init_xaw(int argc, char **argv);
-extern errr init_x11(int argc, char **argv);
-extern errr init_xpj(int argc, char **argv);
-extern errr init_gcu(int argc, char **argv);
-extern errr init_cap(int argc, char **argv);
-extern errr init_dos(int argc, char **argv);
-extern errr init_ibm(int argc, char **argv);
-extern errr init_emx(int argc, char **argv);
-extern errr init_sla(int argc, char **argv);
-extern errr init_lsl(int argc, char **argv);
-extern errr init_ami(int argc, char **argv);
-extern errr init_vme(int argc, char **argv);
-extern errr init_vcs(int argc, char **argv);
-
+extern errr     init_gtk(int argc,
+                         char **argv);
+extern errr     init_xaw(int argc,
+                         char **argv);
+extern errr     init_x11(int argc,
+                         char **argv);
+extern errr     init_xpj(int argc,
+                         char **argv);
+extern errr     init_gcu(int argc,
+                         char **argv);
+extern errr     init_cap(int argc,
+                         char **argv);
+extern errr     init_dos(int argc,
+                         char **argv);
+extern errr     init_ibm(int argc,
+                         char **argv);
+extern errr     init_emx(int argc,
+                         char **argv);
+extern errr     init_sla(int argc,
+                         char **argv);
+extern errr     init_lsl(int argc,
+                         char **argv);
+extern errr     init_ami(int argc,
+                         char **argv);
+extern errr     init_vme(int argc,
+                         char **argv);
+extern errr     init_vcs(int argc,
+                         char **argv);
 
 extern const char help_xpj[];
 extern const char help_xaw[];
@@ -44,12 +58,12 @@ extern const char help_emx[];
 extern const char help_ibm[];
 extern const char help_dos[];
 
-
 struct module
 {
-	cptr name;
-	cptr help;
-	errr (*init)(int argc, char **argv);
+     cptr            name;
+     cptr            help;
+                     errr(*init) (int argc,
+                                  char **argv);
 };
 
 #endif /* INCLUDED_MAIN_H */

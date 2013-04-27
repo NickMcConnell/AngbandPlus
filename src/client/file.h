@@ -1,7 +1,8 @@
+
+/* $Id: file.h,v 1.8 2003/03/18 22:02:56 cipher Exp $ */
+
 #ifndef IH_FILE_H
 #define IH_FILE_H
-
-/* File: file.h */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -12,12 +13,16 @@
  */
 
 #include "angband.h"
+#include "list.h"
 
 /* Function prototypes.
 */
 
-cptr IH_GetDataDir(cptr dir);
-bool IH_CreateConfigDir(void);
-cptr IH_GetConfigDir(void);
+char           *IH_GetDataDir(cptr dir);
+bool            IH_CreateConfigDir(void);
+char           *IH_GetConfigDir(void);
+char           *IH_GetManifestFilename(cptr path,
+                                       int item_num);
+ihList         *IH_GetSaveFiles(void);
 
 #endif /* IH_FILE_H */

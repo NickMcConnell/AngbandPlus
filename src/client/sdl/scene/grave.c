@@ -1,4 +1,5 @@
-/* File: grave.c */
+
+/* $Id: grave.c,v 1.3 2003/03/17 22:45:39 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -14,17 +15,20 @@
 #include "ironhells.h"
 #include "sdl/scene/grave.h"
 
-void IH_InitScene_Grave(void)
+void
+IH_InitScene_Grave(void)
 {
      ih.pointer = IH_POINTER_STANDARD;
 
 }
 
-void IH_ProcessScene_Grave(SDL_Event *event)
+void
+IH_ProcessScene_Grave(SDL_Event * event)
 {
 
 }
 
-void IH_RenderScene_Grave(void)
+void
+IH_RenderScene_Grave(void)
 {
 }

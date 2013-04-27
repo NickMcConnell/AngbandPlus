@@ -1,7 +1,7 @@
 ## Makefile.am -- Process this file with automake to process Makefile.in
 ## gfx
  
-SUBDIRS = icon misc screen tile
+SUBDIRS = creature icon misc object screen tile
 
 ironhells_files = \
 	background.png \

@@ -1,4 +1,5 @@
-/* File: init.c */
+
+/* $Id: init.c,v 1.3 2003/03/17 22:45:22 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -10,8 +11,8 @@
 
 #include "init.h"
 
-void IH_InitMisc(void)
+void
+IH_InitMisc(void)
 {
 
 }
-

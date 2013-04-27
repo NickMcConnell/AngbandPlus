@@ -1,15 +1,14 @@
 ## Makefile.am -- Process this file with automake to process Makefile.in
+# lib/xtra/font
 
-angband_files = \
-  16x16.txt
+ironhells_files = \
+	16x16.txt
 
 EXTRA_DIST = \
-  $(angband_files)
+	$(ironhells_files)
 
-if SET_GID
-angbanddir = @DEFAULT_PATH@xtra/font
+ironhellsdir = @DATA_PATH@xtra/font
 
-angband_DATA = \
-  $(angband_files)
-endif
+ironhells_DATA = \
+	$(ironhells_files)
 

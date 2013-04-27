@@ -1,4 +1,5 @@
-/* File: z-virt.h */
+
+/* $Id: z-virt.h,v 1.3 2003/03/17 22:45:30 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison
@@ -41,10 +42,7 @@
  * in particular, that it returns its first argument.
  */
 
-
-
 /**** Available macros ****/
-
 
 /* Size of 'N' things of type 'T' */
 #define C_SIZE(N,T) \
@@ -54,7 +52,6 @@
 #define SIZE(T) \
 	(sizeof(T))
 
-
 /* Compare two arrays of type T[N], at locations P1 and P2 */
 #define C_DIFF(P1,P2,N,T) \
 	(memcmp((P1),(P2),C_SIZE(N,T)))
@@ -62,7 +59,6 @@
 /* Compare two things of type T, at locations P1 and P2 */
 #define DIFF(P1,P2,T) \
 	(memcmp((P1),(P2),SIZE(T)))
-
 
 /* Set every byte in an array of type T[N], at location P, to V, and return P */
 #define C_BSET(P,V,N,T) \
@@ -72,7 +68,6 @@
 #define BSET(P,V,T) \
 	(memset((P),(V),SIZE(T)))
 
-
 /* Wipe an array of type T[N], at location P, and return P */
 #define C_WIPE(P,N,T) \
 	(memset((P),0,C_SIZE(N,T)))
@@ -80,7 +75,6 @@
 /* Wipe a thing of type T, at location P, and return P */
 #define WIPE(P,T) \
 	(memset((P),0,SIZE(T)))
-
 
 /* Load an array of type T[N], at location P1, from another, at location P2 */
 #define C_COPY(P1,P2,N,T) \
@@ -90,7 +84,6 @@
 #define COPY(P1,P2,T) \
 	(memcpy((P1),(P2),SIZE(T)))
 
-
 /* Allocate, and return, an array of type T[N] */
 #define C_RNEW(N,T) \
 	(ralloc(C_SIZE(N,T)))
@@ -98,7 +91,6 @@
 /* Allocate, and return, a thing of type T */
 #define RNEW(T) \
 	(ralloc(SIZE(T)))
-
 
 /* Allocate, wipe, and return an array of type T[N] */
 #define C_ZNEW(N,T) \
@@ -108,7 +100,6 @@
 #define ZNEW(T) \
 	(WIPE(RNEW(T),T))
 
-
 /* Allocate a wiped array of type T[N], assign to pointer P */
 #define C_MAKE(P,N,T) \
 	((P)=C_ZNEW(N,T))
@@ -116,7 +107,6 @@
 /* Allocate a wiped thing of type T, assign to pointer P */
 #define MAKE(P,T) \
 	((P)=ZNEW(T))
-
 
 /* Free one thing at P, return NULL */
 #define FREE(P) \
@@ -126,35 +116,32 @@
 #define KILL(P) \
 	((P)=FREE(P))
 
-
-
 /**** Available variables ****/
 
 /* Replacement hook for "rnfree()" */
-extern void* (*rnfree_aux)(void*);
+extern void    *(*rnfree_aux) (void *);
 
 /* Replacement hook for "rpanic()" */
-extern void* (*rpanic_aux)(size_t);
+extern void    *(*rpanic_aux) (size_t);
 
 /* Replacement hook for "ralloc()" */
-extern void* (*ralloc_aux)(size_t);
-
+extern void    *(*ralloc_aux) (size_t);
 
 /**** Available functions ****/
 
 /* De-allocate memory */
-extern void* rnfree(void *p);
+extern void    *rnfree(void *p);
 
 /* Panic, attempt to allocate 'len' bytes */
-extern void* rpanic(size_t len);
+extern void    *rpanic(size_t len);
 
 /* Allocate (and return) 'len', or dump core */
-extern void* ralloc(size_t len);
+extern void    *ralloc(size_t len);
 
 /* Create a "dynamic string" */
-extern cptr string_make(cptr str);
+extern cptr     string_make(cptr str);
 
 /* Free a string allocated with "string_make()" */
-extern errr string_free(cptr str);
+extern errr     string_free(cptr str);
 
 #endif /* INCLUDED_Z_VIRT_H */

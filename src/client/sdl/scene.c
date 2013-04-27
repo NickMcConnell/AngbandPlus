@@ -1,4 +1,5 @@
-/* File: scene.c */
+
+/* $Id: scene.c,v 1.8 2003/03/18 19:17:40 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -18,6 +19,7 @@
 #include "file.h"
 #include "sdl/render/icon.h"
 #include "sdl/render/misc.h"
+#include "sdl/render/overlay.h"
 #include "sdl/scene/selchar.h"
 #include "sdl/scene/newchar.h"
 #include "sdl/scene/intro.h"
@@ -28,25 +30,28 @@
 #include "sdl/scene/play.h"
 #include "sdl/scene/grave.h"
 
-void IH_InitScene(void)
+void
+IH_InitScene(void)
 {
-     int scene;
-     
-     if(!ih.scene_dirty)
-          return;
+     int             scene = 0;
+     bool            dirty = FALSE;
 
-#ifdef DEBUG
-     fprintf(stderr, "Scene is dirty.\n");
-#endif
+     fprintf(stderr, "IH_InitScene()\n");
 
      if(!SDL_SemWait(ih.sem.scene))
      {
           scene = ih.scene;
+          dirty = ih.scene_dirty;
 
           SDL_SemPost(ih.sem.scene);
      }
 
-     switch(ih.scene)
+     fprintf(stderr, "IH_InitScene(): Check if scene is dirty.\n");
+
+     if(!dirty)
+          return;
+
+     switch (scene)
      {
           case IH_SCENE_SPLASH:
                IH_InitScene_Splash();
@@ -91,18 +96,21 @@ void IH_InitScene(void)
 
           SDL_SemPost(ih.sem.scene);
      }
+
+     fprintf(stderr, "IH_InitScene: return\n");
 }
 
-void IH_ProcessScene(SDL_Event *event)
+void
+IH_ProcessScene(SDL_Event * event)
 {
-	if(ih.changing_scene)
-	{
+     if(ih.changing_scene)
+     {
 #ifdef DEBUG
           fprintf(stderr, "Changing scene.\n");
 #endif
-		ih.changing_scene = FALSE;
-		return;
-	}
+          ih.changing_scene = FALSE;
+          return;
+     }
 
      if(!event)
           return;
@@ -110,7 +118,7 @@ void IH_ProcessScene(SDL_Event *event)
 #ifdef DEBUG
      fprintf(stderr, "scene = %d\n", ih.scene);
 #endif
-     switch(ih.scene)
+     switch (ih.scene)
      {
           case IH_SCENE_SPLASH:
 #ifdef DEBUG
@@ -132,7 +140,7 @@ void IH_ProcessScene(SDL_Event *event)
 #endif
                IH_ProcessScene_Title(event);
                break;
-               
+
           case IH_SCENE_SELECT_CHARACTER:
 #ifdef DEBUG
                fprintf(stderr, "process scene IH_SCENE_SELCHAR.\n");
@@ -177,41 +185,46 @@ void IH_ProcessScene(SDL_Event *event)
      }
 }
 
-SceneObject *IH_GetIconAtPosition(int x, int y)
+SceneObject    *
+IH_GetIconAtPosition(int x,
+                     int y)
 {
-     ihNode *node;
+     ihNode         *node;
 
      /* Iterate over the list of graphic elements and find out which icon
       * the mouse is over.  Must account for layering.
       */
      for(node = IH_ListFirst(&ih.icons);
-         node;
-         node = IH_ListNext(&ih.icons, node))
+         node; node = IH_ListNext(&ih.icons, node))
      {
-          SceneObject *object;
+          SceneObject    *object;
 
-          object = (SceneObject *)node->data;
+          object = (SceneObject *) node->data;
           if(!object)
                continue;
 
           if((x >= object->x) &&
              (x < (object->x + ih.icon_size)) &&
-             (y >= object->y) &&
-             (y < (object->y + ih.icon_size)))
+             (y >= object->y) && (y < (object->y + ih.icon_size)))
                return object;
      }
 
      return NULL;
 }
 
-void IH_CalcIconPosition(int icon, int *x, int *y)
+void
+IH_CalcIconPosition(int icon,
+                    int *x,
+                    int *y)
 {
-     
+
 }
 
-SceneObject *IH_SceneObjectAlloc(int type, int object)
+SceneObject    *
+IH_SceneObjectAlloc(int type,
+                    int object)
 {
-     SceneObject *obj = NULL;
+     SceneObject    *obj = NULL;
 
      obj = ralloc(sizeof(SceneObject));
      if(obj)
@@ -229,46 +242,72 @@ SceneObject *IH_SceneObjectAlloc(int type, int object)
      return obj;
 }
 
-void IH_SceneObjectFree(SceneObject *object)
+void
+IH_SceneObjectFree(SceneObject * object)
 {
      if(!object)
           return;
 
-#ifdef DEBUG
      fprintf(stderr, "Freeing SceneObject.\n");
-#endif
-     
+
      rnfree(object);
 }
 
-void IH_SetLoadMessage(cptr msg)
+void
+IH_SetLoadMessage(cptr msg)
 {
-     int len;
+     int             len;
 
-     fprintf(stderr, "IH_SetLoadMessage()\n");
      if(!SDL_SemWait(ih.sem.msg))
      {
-          fprintf(stderr, "Freeing old message...\n");
           if(ih.load_message)
                rnfree(ih.load_message);
           ih.load_message = NULL;
 
           if(msg)
           {
-               fprintf(stderr, "Set new message...\n");
                len = strlen(msg) + 1;
                ih.load_message = ralloc(len);
                my_strcpy(ih.load_message, msg, len - 1);
           }
 
-          fprintf(stderr, "Free semaphore.\n");
+          SDL_SemPost(ih.sem.msg);
+     }
+}
+
+void
+IH_SetErrorMessage(cptr msg)
+{
+     int             len;
+
+     if(!SDL_SemWait(ih.sem.msg))
+     {
+          if(ih.err_message)
+               rnfree(ih.err_message);
+          ih.err_message = NULL;
+
+          if(msg)
+          {
+               len = strlen(msg) + 1;
+               ih.err_message = ralloc(len);
+               my_strcpy(ih.err_message, msg, len - 1);
+          }
+
           SDL_SemPost(ih.sem.msg);
      }
 
-     fprintf(stderr, "IH_SetLoadMessage() [exit]\n");
+     if(ih.err_message)
+     {
+          IH_ActivateOverlay(IH_OVERLAY_ERROR);
+     }
+     else
+     {
+          IH_DeactivateOverlay(IH_OVERLAY_ERROR);
+     }
 }
 
-void IH_SetScene(int scene)
+void
+IH_SetScene(int scene)
 {
      if(!SDL_SemWait(ih.sem.scene))
      {
@@ -280,7 +319,8 @@ void IH_SetScene(int scene)
      }
 }
 
-void IH_SetStage(int stage)
+void
+IH_SetStage(int stage)
 {
      if(!SDL_SemWait(ih.sem.scene))
      {
@@ -289,10 +329,7 @@ void IH_SetStage(int stage)
           ih.changing_scene = TRUE;
           ih.scene_dirty = TRUE;
 #endif
-          
+
           SDL_SemPost(ih.sem.scene);
      }
 }
-
-
-

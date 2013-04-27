@@ -1,7 +1,7 @@
 #ifndef IH_SDL_RENDER_H
 #define IH_SDL_RENDER_H
 
-/* File: sdl/render.h */
+/* $Id: render.h,v 1.4 2003/03/17 22:45:38 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -17,7 +17,7 @@
 
 /* Function prototypes.
  */
-void IH_RenderScene(void);
+void            IH_RenderScene(void);
 
 /* Data definitions.
  */

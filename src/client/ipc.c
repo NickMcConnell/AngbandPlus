@@ -1,4 +1,5 @@
-/* File: misc.c */
+
+/* $Id: ipc.c,v 1.4 2003/03/17 22:45:22 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -12,9 +13,10 @@
 #include "ironhells.h"
 #include "ipc.h"
 
-bool IH_GetIPCValue(long *value)
+bool
+IH_GetIPCValue(long *value)
 {
-     bool valid = FALSE;
+     bool            valid = FALSE;
 
      if(!SDL_SemWait(ih.sem.talk))
      {
@@ -23,8 +25,7 @@ bool IH_GetIPCValue(long *value)
           if(ih.ipc.type != IH_IPC_TYPE_VALUE)
                valid = FALSE;
 
-          if(valid &&
-             value)
+          if(valid && value)
           {
                ih.ipc.valid = FALSE;
                *value = ih.ipc.data.value;
@@ -37,9 +38,10 @@ bool IH_GetIPCValue(long *value)
      return valid;
 }
 
-bool IH_GetIPCPtr(void *ptr)
+bool
+IH_GetIPCPtr(void *ptr)
 {
-     bool valid = FALSE;
+     bool            valid = FALSE;
 
      if(!SDL_SemWait(ih.sem.talk))
      {
@@ -48,8 +50,7 @@ bool IH_GetIPCPtr(void *ptr)
           if(ih.ipc.type != IH_IPC_TYPE_PTR)
                valid = FALSE;
 
-          if(valid &&
-             ptr)
+          if(valid && ptr)
           {
                ih.ipc.valid = FALSE;
                ptr = ih.ipc.data.ptr;
@@ -62,9 +63,10 @@ bool IH_GetIPCPtr(void *ptr)
      return valid;
 }
 
-bool IH_GetIPCEvent(SDL_Event *event)
+bool
+IH_GetIPCEvent(SDL_Event * event)
 {
-     bool valid = FALSE;
+     bool            valid = FALSE;
 
      if(!SDL_SemWait(ih.sem.talk))
      {
@@ -72,9 +74,8 @@ bool IH_GetIPCEvent(SDL_Event *event)
 
           if(ih.ipc.type != IH_IPC_TYPE_EVENT)
                valid = FALSE;
-          
-          if(valid &&
-             event)
+
+          if(valid && event)
           {
                ih.ipc.valid = FALSE;
                memcpy(event, &ih.ipc.data.event, sizeof(SDL_Event));
@@ -87,7 +88,8 @@ bool IH_GetIPCEvent(SDL_Event *event)
      return valid;
 }
 
-void IH_SetIPCValue(long value)
+void
+IH_SetIPCValue(long value)
 {
      if(!SDL_SemWait(ih.sem.talk))
      {
@@ -99,7 +101,8 @@ void IH_SetIPCValue(long value)
      }
 }
 
-void IH_SetIPCPtr(void *ptr)
+void
+IH_SetIPCPtr(void *ptr)
 {
      if(!SDL_SemWait(ih.sem.talk))
      {
@@ -111,7 +114,8 @@ void IH_SetIPCPtr(void *ptr)
      }
 }
 
-void IH_SetIPCEvent(SDL_Event *event)
+void
+IH_SetIPCEvent(SDL_Event * event)
 {
      if(!SDL_SemWait(ih.sem.talk))
      {
@@ -127,18 +131,19 @@ void IH_SetIPCEvent(SDL_Event *event)
      }
 }
 
-void IH_CreateFakeEvent(SDL_Event *event,
-                        Uint8 type,
-                        ...)
+void
+IH_CreateFakeEvent(SDL_Event * event,
+                   Uint8 type,
+                   ...)
 {
-     va_list ap;
+     va_list         ap;
 
      if(!event)
           return;
-     
+
      va_start(ap, type);
 
-     switch(type)
+     switch (type)
      {
           case SDL_KEYDOWN:
                event->key.type = type;

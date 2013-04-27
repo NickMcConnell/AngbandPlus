@@ -1,7 +1,8 @@
+
+/* $Id: path.h,v 1.5 2003/03/18 19:17:39 cipher Exp $ */
+
 #ifndef IH_PATH_H
 #define IH_PATH_H
-
-/* File: path.h */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -13,6 +14,7 @@
 
 #include "angband.h"
 
-cptr IH_PathBuild(cptr dir, ...);
+char           *IH_PathBuild(cptr dir,
+                             ...);
 
 #endif /* IH_PATH_H */

@@ -1,4 +1,5 @@
-/* File: mjoin.c */
+
+/* $Id: mjoin.c,v 1.3 2003/03/17 22:45:40 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -13,17 +14,20 @@
 #include "ironhells.h"
 #include "sdl/scene/mjoin.h"
 
-void IH_InitScene_MultiJoin(void)
+void
+IH_InitScene_MultiJoin(void)
 {
      ih.pointer = IH_POINTER_STANDARD;
 
 }
 
-void IH_ProcessScene_MultiJoin(SDL_Event *event)
+void
+IH_ProcessScene_MultiJoin(SDL_Event * event)
 {
 
 }
 
-void IH_RenderScene_MultiJoin(void)
+void
+IH_RenderScene_MultiJoin(void)
 {
 }

@@ -1,7 +1,8 @@
+
+/* $Id: tile.h,v 1.9 2003/03/17 06:09:04 cipher Exp $ */
+
 #ifndef IH_SDL_RENDER_TILE_H
 #define IH_SDL_RENDER_TILE_H
-
-/* File: sdl/render/tile.h */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -11,14 +12,25 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
+#include "SDL.h"
+
 #include "angband.h"
+#include "sdl/scene.h"
 
 /* Function prototypes.
  */
-errr IH_LoadTiles(void);
-void IH_RenderTiles(void);
+errr            IH_InitTiles(void);
+void            IH_RenderTiles(void);
 
 /* Data definitions.
  */
+#define IH_TILE_BASE_WIDTH 108
+#define IH_TILE_ACTUAL_WIDTH 108
+#define IH_TILE_BASE_HEIGHT 54
+#define IH_TILE_ACTUAL_HEIGHT 98
+
+#define IH_MAX_TILES 1024
+#define IH_MAX_OBJS 1024
+#define IH_MAX_CREATURES 1024
 
 #endif /* IH_SDL_RENDER_TILE_H */

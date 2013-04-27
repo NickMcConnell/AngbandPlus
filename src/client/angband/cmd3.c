@@ -1,4 +1,5 @@
-/* File: cmd3.c */
+
+/* $Id: cmd3.c,v 1.3 2003/03/17 22:45:23 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -10,1120 +11,1069 @@
 
 #include "angband.h"
 
-
-
-
-
-
 /*
  * Display inventory
  */
-void do_cmd_inven(void)
+void
+do_cmd_inven(void)
 {
-	/* Hack -- Start in "inventory" mode */
-	p_ptr->command_wrk = (USE_INVEN);
+     /* Hack -- Start in "inventory" mode */
+     p_ptr->command_wrk = (USE_INVEN);
 
-	/* Save screen */
-	screen_save();
+     /* Save screen */
+     screen_save();
 
-	/* Hack -- show empty slots */
-	item_tester_full = TRUE;
+     /* Hack -- show empty slots */
+     item_tester_full = TRUE;
 
-	/* Display the inventory */
-	show_inven();
+     /* Display the inventory */
+     show_inven();
 
-	/* Hack -- hide empty slots */
-	item_tester_full = FALSE;
+     /* Hack -- hide empty slots */
+     item_tester_full = FALSE;
 
-	/* Prompt for a command */
-	prt("(Inventory) Command: ", 0, 0);
+     /* Prompt for a command */
+     prt("(Inventory) Command: ", 0, 0);
 
-	/* Hack -- Get a new command */
-	p_ptr->command_new = inkey();
+     /* Hack -- Get a new command */
+     p_ptr->command_new = inkey();
 
-	/* Load screen */
-	screen_load();
+     /* Load screen */
+     screen_load();
 
+     /* Hack -- Process "Escape" */
+     if(p_ptr->command_new == ESCAPE)
+     {
+          /* Reset stuff */
+          p_ptr->command_new = 0;
+     }
 
-	/* Hack -- Process "Escape" */
-	if (p_ptr->command_new == ESCAPE)
-	{
-		/* Reset stuff */
-		p_ptr->command_new = 0;
-	}
-
-	/* Hack -- Process normal keys */
-	else
-	{
-		/* Hack -- Use "display" mode */
-		p_ptr->command_see = TRUE;
-	}
+     /* Hack -- Process normal keys */
+     else
+     {
+          /* Hack -- Use "display" mode */
+          p_ptr->command_see = TRUE;
+     }
 }
-
 
 /*
  * Display equipment
  */
-void do_cmd_equip(void)
+void
+do_cmd_equip(void)
 {
-	/* Hack -- Start in "equipment" mode */
-	p_ptr->command_wrk = (USE_EQUIP);
+     /* Hack -- Start in "equipment" mode */
+     p_ptr->command_wrk = (USE_EQUIP);
 
-	/* Save screen */
-	screen_save();
+     /* Save screen */
+     screen_save();
 
-	/* Hack -- show empty slots */
-	item_tester_full = TRUE;
+     /* Hack -- show empty slots */
+     item_tester_full = TRUE;
 
-	/* Display the equipment */
-	show_equip();
+     /* Display the equipment */
+     show_equip();
 
-	/* Hack -- undo the hack above */
-	item_tester_full = FALSE;
+     /* Hack -- undo the hack above */
+     item_tester_full = FALSE;
 
-	/* Prompt for a command */
-	prt("(Equipment) Command: ", 0, 0);
+     /* Prompt for a command */
+     prt("(Equipment) Command: ", 0, 0);
 
-	/* Hack -- Get a new command */
-	p_ptr->command_new = inkey();
+     /* Hack -- Get a new command */
+     p_ptr->command_new = inkey();
 
-	/* Load screen */
-	screen_load();
+     /* Load screen */
+     screen_load();
 
+     /* Hack -- Process "Escape" */
+     if(p_ptr->command_new == ESCAPE)
+     {
+          /* Reset stuff */
+          p_ptr->command_new = 0;
+     }
 
-	/* Hack -- Process "Escape" */
-	if (p_ptr->command_new == ESCAPE)
-	{
-		/* Reset stuff */
-		p_ptr->command_new = 0;
-	}
-
-	/* Hack -- Process normal keys */
-	else
-	{
-		/* Enter "display" mode */
-		p_ptr->command_see = TRUE;
-	}
+     /* Hack -- Process normal keys */
+     else
+     {
+          /* Enter "display" mode */
+          p_ptr->command_see = TRUE;
+     }
 }
-
 
 /*
  * The "wearable" tester
  */
-static bool item_tester_hook_wear(const object_type *o_ptr)
+static          bool
+item_tester_hook_wear(const object_type * o_ptr)
 {
-	/* Check for a usable slot */
-	if (wield_slot(o_ptr) >= INVEN_WIELD) return (TRUE);
+     /* Check for a usable slot */
+     if(wield_slot(o_ptr) >= INVEN_WIELD)
+          return (TRUE);
 
-	/* Assume not wearable */
-	return (FALSE);
+     /* Assume not wearable */
+     return (FALSE);
 }
-
 
 /*
  * Wield or wear a single item from the pack or floor
  */
-void do_cmd_wield(void)
+void
+do_cmd_wield(void)
 {
-	int item, slot;
+     int             item, slot;
+     object_type    *o_ptr;
+     object_type    *i_ptr;
+     object_type     object_type_body;
+     cptr            act;
+     cptr            q, s;
+     char            o_name[80];
 
-	object_type *o_ptr;
+     /* Restrict the choices */
+     item_tester_hook = item_tester_hook_wear;
 
-	object_type *i_ptr;
-	object_type object_type_body;
+     /* Get an item */
+     q = "Wear/Wield which item? ";
+     s = "You have nothing you can wear or wield.";
+     if(!get_item(&item, q, s, (USE_INVEN | USE_FLOOR)))
+          return;
 
-	cptr act;
+     /* Get the item (in the pack) */
+     if(item >= 0)
+     {
+          o_ptr = &inventory[item];
+     }
 
-	cptr q, s;
+     /* Get the item (on the floor) */
+     else
+     {
+          o_ptr = &o_list[0 - item];
+     }
 
-	char o_name[80];
+     /* Check the slot */
+     slot = wield_slot(o_ptr);
 
+     /* Prevent wielding into a cursed slot */
+     if(cursed_p(&inventory[slot]))
+     {
+          /* Describe it */
+          object_desc(o_name, sizeof(o_name), &inventory[slot], FALSE, 0);
 
-	/* Restrict the choices */
-	item_tester_hook = item_tester_hook_wear;
+          /* Message */
+          msg_format("The %s you are %s appears to be cursed.",
+                     o_name, describe_use(slot));
 
-	/* Get an item */
-	q = "Wear/Wield which item? ";
-	s = "You have nothing you can wear or wield.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+          /* Cancel the command */
+          return;
+     }
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
+     /* Take a turn */
+     p_ptr->energy_use = 100;
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+     /* Get local object */
+     i_ptr = &object_type_body;
 
+     /* Obtain local object */
+     object_copy(i_ptr, o_ptr);
 
-	/* Check the slot */
-	slot = wield_slot(o_ptr);
+     /* Modify quantity */
+     i_ptr->number = 1;
 
-	/* Prevent wielding into a cursed slot */
-	if (cursed_p(&inventory[slot]))
-	{
-		/* Describe it */
-		object_desc(o_name, sizeof(o_name), &inventory[slot], FALSE, 0);
+     /* Decrease the item (from the pack) */
+     if(item >= 0)
+     {
+          inven_item_increase(item, -1);
+          inven_item_optimize(item);
+     }
 
-		/* Message */
-		msg_format("The %s you are %s appears to be cursed.",
-		           o_name, describe_use(slot));
+     /* Decrease the item (from the floor) */
+     else
+     {
+          floor_item_increase(0 - item, -1);
+          floor_item_optimize(0 - item);
+     }
 
-		/* Cancel the command */
-		return;
-	}
+     /* Get the wield slot */
+     o_ptr = &inventory[slot];
 
+     /* Take off existing item */
+     if(o_ptr->k_idx)
+     {
+          /* Take off existing item */
+          (void) inven_takeoff(slot, 255);
+     }
 
-	/* Take a turn */
-	p_ptr->energy_use = 100;
+     /* Wear the new stuff */
+     object_copy(o_ptr, i_ptr);
 
-	/* Get local object */
-	i_ptr = &object_type_body;
+     /* Increase the weight */
+     p_ptr->total_weight += i_ptr->weight;
 
-	/* Obtain local object */
-	object_copy(i_ptr, o_ptr);
+     /* Increment the equip counter by hand */
+     p_ptr->equip_cnt++;
 
-	/* Modify quantity */
-	i_ptr->number = 1;
+     /* Where is the item now */
+     if(slot == INVEN_WIELD)
+     {
+          act = "You are wielding";
+     }
+     else if(slot == INVEN_BOW)
+     {
+          act = "You are shooting with";
+     }
+     else if(slot == INVEN_LITE)
+     {
+          act = "Your light source is";
+     }
+     else
+     {
+          act = "You are wearing";
+     }
 
-	/* Decrease the item (from the pack) */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_optimize(item);
-	}
+     /* Describe the result */
+     object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
-	/* Decrease the item (from the floor) */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_optimize(0 - item);
-	}
+     /* Message */
+     msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
 
-	/* Get the wield slot */
-	o_ptr = &inventory[slot];
+     /* Cursed! */
+     if(cursed_p(o_ptr))
+     {
+          /* Warn the player */
+          msg_print("Oops! It feels deathly cold!");
 
-	/* Take off existing item */
-	if (o_ptr->k_idx)
-	{
-		/* Take off existing item */
-		(void)inven_takeoff(slot, 255);
-	}
+          /* Remove special inscription, if any */
+          if(o_ptr->discount >= INSCRIP_NULL)
+               o_ptr->discount = 0;
 
-	/* Wear the new stuff */
-	object_copy(o_ptr, i_ptr);
+          /* Sense the object if allowed */
+          if(o_ptr->discount == 0)
+               o_ptr->discount = INSCRIP_CURSED;
 
-	/* Increase the weight */
-	p_ptr->total_weight += i_ptr->weight;
+          /* The object has been "sensed" */
+          o_ptr->ident |= (IDENT_SENSE);
+     }
 
-	/* Increment the equip counter by hand */
-	p_ptr->equip_cnt++;
+     /* Recalculate bonuses */
+     p_ptr->update |= (PU_BONUS);
 
-	/* Where is the item now */
-	if (slot == INVEN_WIELD)
-	{
-		act = "You are wielding";
-	}
-	else if (slot == INVEN_BOW)
-	{
-		act = "You are shooting with";
-	}
-	else if (slot == INVEN_LITE)
-	{
-		act = "Your light source is";
-	}
-	else
-	{
-		act = "You are wearing";
-	}
+     /* Recalculate torch */
+     p_ptr->update |= (PU_TORCH);
 
-	/* Describe the result */
-	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+     /* Recalculate mana */
+     p_ptr->update |= (PU_MANA);
 
-	/* Message */
-	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
+     /* Window stuff */
+     p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
-	/* Cursed! */
-	if (cursed_p(o_ptr))
-	{
-		/* Warn the player */
-		msg_print("Oops! It feels deathly cold!");
-
-		/* Remove special inscription, if any */
-		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
-
-		/* Sense the object if allowed */
-		if (o_ptr->discount == 0) o_ptr->discount = INSCRIP_CURSED;
-
-		/* The object has been "sensed" */
-		o_ptr->ident |= (IDENT_SENSE);
-	}
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Recalculate torch */
-	p_ptr->update |= (PU_TORCH);
-
-	/* Recalculate mana */
-	p_ptr->update |= (PU_MANA);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
-
-	p_ptr->redraw |= (PR_EQUIPPY);
+     p_ptr->redraw |= (PR_EQUIPPY);
 }
-
-
 
 /*
  * Take off an item
  */
-void do_cmd_takeoff(void)
+void
+do_cmd_takeoff(void)
 {
-	int item;
+     int             item;
+     object_type    *o_ptr;
+     cptr            q, s;
 
-	object_type *o_ptr;
+     /* Get an item */
+     q = "Take off which item? ";
+     s = "You are not wearing anything to take off.";
+     if(!get_item(&item, q, s, (USE_EQUIP)))
+          return;
 
-	cptr q, s;
+     /* Get the item (in the pack) */
+     if(item >= 0)
+     {
+          o_ptr = &inventory[item];
+     }
 
+     /* Get the item (on the floor) */
+     else
+     {
+          o_ptr = &o_list[0 - item];
+     }
 
-	/* Get an item */
-	q = "Take off which item? ";
-	s = "You are not wearing anything to take off.";
-	if (!get_item(&item, q, s, (USE_EQUIP))) return;
+     /* Item is cursed */
+     if(cursed_p(o_ptr))
+     {
+          /* Oops */
+          msg_print("Hmmm, it seems to be cursed.");
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
+          /* Nope */
+          return;
+     }
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+     /* Take a partial turn */
+     p_ptr->energy_use = 50;
 
-
-	/* Item is cursed */
-	if (cursed_p(o_ptr))
-	{
-		/* Oops */
-		msg_print("Hmmm, it seems to be cursed.");
-
-		/* Nope */
-		return;
-	}
-
-
-	/* Take a partial turn */
-	p_ptr->energy_use = 50;
-
-	/* Take off the item */
-	(void)inven_takeoff(item, 255);
+     /* Take off the item */
+     (void) inven_takeoff(item, 255);
 }
-
 
 /*
  * Drop an item
  */
-void do_cmd_drop(void)
+void
+do_cmd_drop(void)
 {
-	int item, amt;
+     int             item, amt;
+     object_type    *o_ptr;
+     cptr            q, s;
 
-	object_type *o_ptr;
+     /* Get an item */
+     q = "Drop which item? ";
+     s = "You have nothing to drop.";
+     if(!get_item(&item, q, s, (USE_EQUIP | USE_INVEN)))
+          return;
 
-	cptr q, s;
+     /* Get the item (in the pack) */
+     if(item >= 0)
+     {
+          o_ptr = &inventory[item];
+     }
 
+     /* Get the item (on the floor) */
+     else
+     {
+          o_ptr = &o_list[0 - item];
+     }
 
-	/* Get an item */
-	q = "Drop which item? ";
-	s = "You have nothing to drop.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) return;
+     /* Get a quantity */
+     amt = get_quantity(NULL, o_ptr->number);
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
+     /* Allow user abort */
+     if(amt <= 0)
+          return;
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+     /* Hack -- Cannot remove cursed items */
+     if((item >= INVEN_WIELD) && cursed_p(o_ptr))
+     {
+          /* Oops */
+          msg_print("Hmmm, it seems to be cursed.");
 
-	/* Get a quantity */
-	amt = get_quantity(NULL, o_ptr->number);
+          /* Nope */
+          return;
+     }
 
-	/* Allow user abort */
-	if (amt <= 0) return;
+     /* Take a partial turn */
+     p_ptr->energy_use = 50;
 
-	/* Hack -- Cannot remove cursed items */
-	if ((item >= INVEN_WIELD) && cursed_p(o_ptr))
-	{
-		/* Oops */
-		msg_print("Hmmm, it seems to be cursed.");
-
-		/* Nope */
-		return;
-	}
-
-	/* Take a partial turn */
-	p_ptr->energy_use = 50;
-
-	/* Drop (some of) the item */
-	inven_drop(item, amt);
+     /* Drop (some of) the item */
+     inven_drop(item, amt);
 }
-
-
 
 /*
  * Destroy an item
  */
-void do_cmd_destroy(void)
+void
+do_cmd_destroy(void)
 {
-	int item, amt;
-	int old_number;
+     int             item, amt;
+     int             old_number;
+     object_type    *o_ptr;
+     char            o_name[80];
+     char            out_val[160];
+     cptr            q, s;
 
-	object_type *o_ptr;
+     /* Get an item */
+     q = "Destroy which item? ";
+     s = "You have nothing to destroy.";
+     if(!get_item(&item, q, s, (USE_INVEN | USE_FLOOR)))
+          return;
 
-	char o_name[80];
+     /* Get the item (in the pack) */
+     if(item >= 0)
+     {
+          o_ptr = &inventory[item];
+     }
 
-	char out_val[160];
+     /* Get the item (on the floor) */
+     else
+     {
+          o_ptr = &o_list[0 - item];
+     }
 
-	cptr q, s;
+     /* Get a quantity */
+     amt = get_quantity(NULL, o_ptr->number);
 
+     /* Allow user abort */
+     if(amt <= 0)
+          return;
 
-	/* Get an item */
-	q = "Destroy which item? ";
-	s = "You have nothing to destroy.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+     /* Describe the object */
+     old_number = o_ptr->number;
+     o_ptr->number = amt;
+     object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+     o_ptr->number = old_number;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
+     /* Verify destruction */
+     if(verify_destroy)
+     {
+          strnfmt(out_val, sizeof(out_val), "Really destroy %s? ", o_name);
+          if(!get_check(out_val))
+               return;
+     }
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+     /* Take a turn */
+     p_ptr->energy_use = 100;
 
-	/* Get a quantity */
-	amt = get_quantity(NULL, o_ptr->number);
+     /* Artifacts cannot be destroyed */
+     if(artifact_p(o_ptr))
+     {
+          /* Message */
+          msg_format("You cannot destroy %s.", o_name);
 
-	/* Allow user abort */
-	if (amt <= 0) return;
+          /* Don't mark id'ed objects */
+          if(object_known_p(o_ptr))
+               return;
 
-	/* Describe the object */
-	old_number = o_ptr->number;
-	o_ptr->number = amt;
-	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
-	o_ptr->number = old_number;
+          /* It has already been sensed */
+          if(o_ptr->ident & (IDENT_SENSE))
+          {
+               /* Already sensed objects always get improved feelings */
+               if(cursed_p(o_ptr) || broken_p(o_ptr))
+                    o_ptr->discount = INSCRIP_TERRIBLE;
+               else
+                    o_ptr->discount = INSCRIP_SPECIAL;
+          }
+          else
+          {
+               /* Mark the object as indestructible */
+               o_ptr->discount = INSCRIP_INDESTRUCTIBLE;
+          }
 
-	/* Verify destruction */
-	if (verify_destroy)
-	{
-		strnfmt(out_val, sizeof(out_val), "Really destroy %s? ", o_name);
-		if (!get_check(out_val)) return;
-	}
+          /* Combine the pack */
+          p_ptr->notice |= (PN_COMBINE);
 
-	/* Take a turn */
-	p_ptr->energy_use = 100;
+          /* Window stuff */
+          p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-	/* Artifacts cannot be destroyed */
-	if (artifact_p(o_ptr))
-	{
-		/* Message */
-		msg_format("You cannot destroy %s.", o_name);
+          p_ptr->redraw |= (PR_EQUIPPY);
 
-		/* Don't mark id'ed objects */
-		if (object_known_p(o_ptr)) return;
+          /* Done */
+          return;
+     }
 
-		/* It has already been sensed */
-		if (o_ptr->ident & (IDENT_SENSE))
-		{
-			/* Already sensed objects always get improved feelings */
-			if (cursed_p(o_ptr) || broken_p(o_ptr))
-				o_ptr->discount = INSCRIP_TERRIBLE;
-			else
-				o_ptr->discount = INSCRIP_SPECIAL;
-		}
-		else
-		{
-			/* Mark the object as indestructible */
-			o_ptr->discount = INSCRIP_INDESTRUCTIBLE;
-		}
+     /* Message */
+     msg_format("You destroy %s.", o_name);
 
-		/* Combine the pack */
-		p_ptr->notice |= (PN_COMBINE);
+     /* Eliminate the item (from the pack) */
+     if(item >= 0)
+     {
+          inven_item_increase(item, -amt);
+          inven_item_describe(item);
+          inven_item_optimize(item);
+     }
 
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
-		p_ptr->redraw |= (PR_EQUIPPY);
-
-		/* Done */
-		return;
-	}
-
-	/* Message */
-	msg_format("You destroy %s.", o_name);
-
-	/* Eliminate the item (from the pack) */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -amt);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Eliminate the item (from the floor) */
-	else
-	{
-		floor_item_increase(0 - item, -amt);
-		floor_item_describe(0 - item);
-		floor_item_optimize(0 - item);
-	}
+     /* Eliminate the item (from the floor) */
+     else
+     {
+          floor_item_increase(0 - item, -amt);
+          floor_item_describe(0 - item);
+          floor_item_optimize(0 - item);
+     }
 }
-
 
 /*
  * Observe an item which has been *identify*-ed
  */
-void do_cmd_observe(void)
+void
+do_cmd_observe(void)
 {
-	int item;
+     int             item;
+     object_type    *o_ptr;
+     cptr            q, s;
 
-	object_type *o_ptr;
+     /* Get an item */
+     q = "Examine which item? ";
+     s = "You have nothing to examine.";
+     if(!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR)))
+          return;
 
-	cptr q, s;
+     /* Get the item (in the pack) */
+     if(item >= 0)
+     {
+          o_ptr = &inventory[item];
+     }
 
+     /* Get the item (on the floor) */
+     else
+     {
+          o_ptr = &o_list[0 - item];
+     }
 
-	/* Get an item */
-	q = "Examine which item? ";
-	s = "You have nothing to examine.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-	/* Describe */
-	object_info_screen(o_ptr);
+     /* Describe */
+     object_info_screen(o_ptr);
 }
-
-
 
 /*
  * Remove the inscription from an object
  * XXX Mention item (when done)?
  */
-void do_cmd_uninscribe(void)
+void
+do_cmd_uninscribe(void)
 {
-	int item;
+     int             item;
+     object_type    *o_ptr;
+     cptr            q, s;
 
-	object_type *o_ptr;
+     /* Get an item */
+     q = "Un-inscribe which item? ";
+     s = "You have nothing to un-inscribe.";
+     if(!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR)))
+          return;
 
-	cptr q, s;
+     /* Get the item (in the pack) */
+     if(item >= 0)
+     {
+          o_ptr = &inventory[item];
+     }
 
+     /* Get the item (on the floor) */
+     else
+     {
+          o_ptr = &o_list[0 - item];
+     }
 
-	/* Get an item */
-	q = "Un-inscribe which item? ";
-	s = "You have nothing to un-inscribe.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
+     /* Nothing to remove */
+     if(!o_ptr->note)
+     {
+          msg_print("That item had no inscription to remove.");
+          return;
+     }
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
+     /* Message */
+     msg_print("Inscription removed.");
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+     /* Remove the inscription */
+     o_ptr->note = 0;
 
-	/* Nothing to remove */
-	if (!o_ptr->note)
-	{
-		msg_print("That item had no inscription to remove.");
-		return;
-	}
+     /* Combine the pack */
+     p_ptr->notice |= (PN_COMBINE);
 
-	/* Message */
-	msg_print("Inscription removed.");
-
-	/* Remove the inscription */
-	o_ptr->note = 0;
-
-	/* Combine the pack */
-	p_ptr->notice |= (PN_COMBINE);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+     /* Window stuff */
+     p_ptr->window |= (PW_INVEN | PW_EQUIP);
 }
-
 
 /*
  * Inscribe an object with a comment
  */
-void do_cmd_inscribe(void)
+void
+do_cmd_inscribe(void)
 {
-	int item;
+     int             item;
+     object_type    *o_ptr;
+     char            o_name[80];
+     char            tmp[80];
+     cptr            q, s;
 
-	object_type *o_ptr;
+     /* Get an item */
+     q = "Inscribe which item? ";
+     s = "You have nothing to inscribe.";
+     if(!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR)))
+          return;
 
-	char o_name[80];
+     /* Get the item (in the pack) */
+     if(item >= 0)
+     {
+          o_ptr = &inventory[item];
+     }
 
-	char tmp[80];
+     /* Get the item (on the floor) */
+     else
+     {
+          o_ptr = &o_list[0 - item];
+     }
 
-	cptr q, s;
+     /* Describe the activity */
+     object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
+     /* Message */
+     msg_format("Inscribing %s.", o_name);
+     message_flush();
 
-	/* Get an item */
-	q = "Inscribe which item? ";
-	s = "You have nothing to inscribe.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
+     /* Start with nothing */
+     strcpy(tmp, "");
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
+     /* Use old inscription */
+     if(o_ptr->note)
+     {
+          /* Start with the old inscription */
+          strnfmt(tmp, sizeof(tmp), "%s", quark_str(o_ptr->note));
+     }
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+     /* Get a new inscription (possibly empty) */
+     if(get_string("Inscription: ", tmp, sizeof(tmp)))
+     {
+          /* Save the inscription */
+          o_ptr->note = quark_add(tmp);
 
-	/* Describe the activity */
-	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+          /* Combine the pack */
+          p_ptr->notice |= (PN_COMBINE);
 
-	/* Message */
-	msg_format("Inscribing %s.", o_name);
-	message_flush();
-
-	/* Start with nothing */
-	strcpy(tmp, "");
-
-	/* Use old inscription */
-	if (o_ptr->note)
-	{
-		/* Start with the old inscription */
-		strnfmt(tmp, sizeof(tmp), "%s", quark_str(o_ptr->note));
-	}
-
-	/* Get a new inscription (possibly empty) */
-	if (get_string("Inscription: ", tmp, sizeof(tmp)))
-	{
-		/* Save the inscription */
-		o_ptr->note = quark_add(tmp);
-
-		/* Combine the pack */
-		p_ptr->notice |= (PN_COMBINE);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
-	}
+          /* Window stuff */
+          p_ptr->window |= (PW_INVEN | PW_EQUIP);
+     }
 }
-
-
 
 /*
  * An "item_tester_hook" for refilling lanterns
  */
-static bool item_tester_refill_lantern(const object_type *o_ptr)
+static          bool
+item_tester_refill_lantern(const object_type * o_ptr)
 {
-	/* Flasks of oil are okay */
-	if (o_ptr->tval == TV_FLASK) return (TRUE);
+     /* Flasks of oil are okay */
+     if(o_ptr->tval == TV_FLASK)
+          return (TRUE);
 
-	/* Non-empty lanterns are okay */
-	if ((o_ptr->tval == TV_LITE) &&
-	    (o_ptr->sval == SV_LITE_LANTERN) &&
-	    (o_ptr->pval > 0))
-	{
-		return (TRUE);
-	}
+     /* Non-empty lanterns are okay */
+     if((o_ptr->tval == TV_LITE) &&
+        (o_ptr->sval == SV_LITE_LANTERN) && (o_ptr->pval > 0))
+     {
+          return (TRUE);
+     }
 
-	/* Assume not okay */
-	return (FALSE);
+     /* Assume not okay */
+     return (FALSE);
 }
-
 
 /*
  * Refill the players lamp (from the pack or floor)
  */
-static void do_cmd_refill_lamp(void)
+static void
+do_cmd_refill_lamp(void)
 {
-	int item;
+     int             item;
+     object_type    *o_ptr;
+     object_type    *j_ptr;
+     cptr            q, s;
 
-	object_type *o_ptr;
-	object_type *j_ptr;
+     /* Restrict the choices */
+     item_tester_hook = item_tester_refill_lantern;
 
-	cptr q, s;
+     /* Get an item */
+     q = "Refill with which source of oil? ";
+     s = "You have no sources of oil.";
+     if(!get_item(&item, q, s, (USE_INVEN | USE_FLOOR)))
+          return;
 
+     /* Get the item (in the pack) */
+     if(item >= 0)
+     {
+          o_ptr = &inventory[item];
+     }
 
-	/* Restrict the choices */
-	item_tester_hook = item_tester_refill_lantern;
+     /* Get the item (on the floor) */
+     else
+     {
+          o_ptr = &o_list[0 - item];
+     }
 
-	/* Get an item */
-	q = "Refill with which source of oil? ";
-	s = "You have no sources of oil.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+     /* Take a partial turn */
+     p_ptr->energy_use = 50;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
+     /* Get the lantern */
+     j_ptr = &inventory[INVEN_LITE];
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+     /* Refuel */
+     j_ptr->pval += o_ptr->pval;
 
+     /* Message */
+     msg_print("You fuel your lamp.");
 
-	/* Take a partial turn */
-	p_ptr->energy_use = 50;
+     /* Comment */
+     if(j_ptr->pval >= FUEL_LAMP)
+     {
+          j_ptr->pval = FUEL_LAMP;
+          msg_print("Your lamp is full.");
+     }
 
-	/* Get the lantern */
-	j_ptr = &inventory[INVEN_LITE];
+     /* Use fuel from a lantern */
+     if(o_ptr->sval == SV_LITE_LANTERN)
+     {
+          /* No more fuel */
+          o_ptr->pval = 0;
 
-	/* Refuel */
-	j_ptr->pval += o_ptr->pval;
+          /* Combine / Reorder the pack (later) */
+          p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
-	/* Message */
-	msg_print("You fuel your lamp.");
+          /* Window stuff */
+          p_ptr->window |= (PW_INVEN);
+     }
 
-	/* Comment */
-	if (j_ptr->pval >= FUEL_LAMP)
-	{
-		j_ptr->pval = FUEL_LAMP;
-		msg_print("Your lamp is full.");
-	}
+     /* Decrease the item (from the pack) */
+     else if(item >= 0)
+     {
+          inven_item_increase(item, -1);
+          inven_item_describe(item);
+          inven_item_optimize(item);
+     }
 
-	/* Use fuel from a lantern */
-	if (o_ptr->sval == SV_LITE_LANTERN)
-	{
-		/* No more fuel */
-		o_ptr->pval = 0;
+     /* Decrease the item (from the floor) */
+     else
+     {
+          floor_item_increase(0 - item, -1);
+          floor_item_describe(0 - item);
+          floor_item_optimize(0 - item);
+     }
 
-		/* Combine / Reorder the pack (later) */
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+     /* Recalculate torch */
+     p_ptr->update |= (PU_TORCH);
 
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN);
-	}
-
-	/* Decrease the item (from the pack) */
-	else if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Decrease the item (from the floor) */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_describe(0 - item);
-		floor_item_optimize(0 - item);
-	}
-
-	/* Recalculate torch */
-	p_ptr->update |= (PU_TORCH);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_EQUIP);
+     /* Window stuff */
+     p_ptr->window |= (PW_EQUIP);
 }
-
-
 
 /*
  * An "item_tester_hook" for refilling torches
  */
-static bool item_tester_refill_torch(const object_type *o_ptr)
+static          bool
+item_tester_refill_torch(const object_type * o_ptr)
 {
-	/* Torches are okay */
-	if ((o_ptr->tval == TV_LITE) &&
-	    (o_ptr->sval == SV_LITE_TORCH)) return (TRUE);
+     /* Torches are okay */
+     if((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_TORCH))
+          return (TRUE);
 
-	/* Assume not okay */
-	return (FALSE);
+     /* Assume not okay */
+     return (FALSE);
 }
-
 
 /*
  * Refuel the players torch (from the pack or floor)
  */
-static void do_cmd_refill_torch(void)
+static void
+do_cmd_refill_torch(void)
 {
-	int item;
+     int             item;
+     object_type    *o_ptr;
+     object_type    *j_ptr;
+     cptr            q, s;
 
-	object_type *o_ptr;
-	object_type *j_ptr;
+     /* Restrict the choices */
+     item_tester_hook = item_tester_refill_torch;
 
-	cptr q, s;
+     /* Get an item */
+     q = "Refuel with which torch? ";
+     s = "You have no extra torches.";
+     if(!get_item(&item, q, s, (USE_INVEN | USE_FLOOR)))
+          return;
 
+     /* Get the item (in the pack) */
+     if(item >= 0)
+     {
+          o_ptr = &inventory[item];
+     }
 
-	/* Restrict the choices */
-	item_tester_hook = item_tester_refill_torch;
+     /* Get the item (on the floor) */
+     else
+     {
+          o_ptr = &o_list[0 - item];
+     }
 
-	/* Get an item */
-	q = "Refuel with which torch? ";
-	s = "You have no extra torches.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+     /* Take a partial turn */
+     p_ptr->energy_use = 50;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
+     /* Get the primary torch */
+     j_ptr = &inventory[INVEN_LITE];
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+     /* Refuel */
+     j_ptr->pval += o_ptr->pval + 5;
 
+     /* Message */
+     msg_print("You combine the torches.");
 
-	/* Take a partial turn */
-	p_ptr->energy_use = 50;
+     /* Over-fuel message */
+     if(j_ptr->pval >= FUEL_TORCH)
+     {
+          j_ptr->pval = FUEL_TORCH;
+          msg_print("Your torch is fully fueled.");
+     }
 
-	/* Get the primary torch */
-	j_ptr = &inventory[INVEN_LITE];
+     /* Refuel message */
+     else
+     {
+          msg_print("Your torch glows more brightly.");
+     }
 
-	/* Refuel */
-	j_ptr->pval += o_ptr->pval + 5;
+     /* Decrease the item (from the pack) */
+     if(item >= 0)
+     {
+          inven_item_increase(item, -1);
+          inven_item_describe(item);
+          inven_item_optimize(item);
+     }
 
-	/* Message */
-	msg_print("You combine the torches.");
+     /* Decrease the item (from the floor) */
+     else
+     {
+          floor_item_increase(0 - item, -1);
+          floor_item_describe(0 - item);
+          floor_item_optimize(0 - item);
+     }
 
-	/* Over-fuel message */
-	if (j_ptr->pval >= FUEL_TORCH)
-	{
-		j_ptr->pval = FUEL_TORCH;
-		msg_print("Your torch is fully fueled.");
-	}
+     /* Recalculate torch */
+     p_ptr->update |= (PU_TORCH);
 
-	/* Refuel message */
-	else
-	{
-		msg_print("Your torch glows more brightly.");
-	}
-
-	/* Decrease the item (from the pack) */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Decrease the item (from the floor) */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_describe(0 - item);
-		floor_item_optimize(0 - item);
-	}
-
-	/* Recalculate torch */
-	p_ptr->update |= (PU_TORCH);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_EQUIP);
+     /* Window stuff */
+     p_ptr->window |= (PW_EQUIP);
 }
-
-
-
 
 /*
  * Refill the players lamp, or restock his torches
  */
-void do_cmd_refill(void)
+void
+do_cmd_refill(void)
 {
-	object_type *o_ptr;
+     object_type    *o_ptr;
 
-	/* Get the light */
-	o_ptr = &inventory[INVEN_LITE];
+     /* Get the light */
+     o_ptr = &inventory[INVEN_LITE];
 
-	/* It is nothing */
-	if (o_ptr->tval != TV_LITE)
-	{
-		msg_print("You are not wielding a light.");
-	}
+     /* It is nothing */
+     if(o_ptr->tval != TV_LITE)
+     {
+          msg_print("You are not wielding a light.");
+     }
 
-	/* It's a lamp */
-	else if (o_ptr->sval == SV_LITE_LANTERN)
-	{
-		do_cmd_refill_lamp();
-	}
+     /* It's a lamp */
+     else if(o_ptr->sval == SV_LITE_LANTERN)
+     {
+          do_cmd_refill_lamp();
+     }
 
-	/* It's a torch */
-	else if (o_ptr->sval == SV_LITE_TORCH)
-	{
-		do_cmd_refill_torch();
-	}
+     /* It's a torch */
+     else if(o_ptr->sval == SV_LITE_TORCH)
+     {
+          do_cmd_refill_torch();
+     }
 
-	/* No torch to refill */
-	else
-	{
-		msg_print("Your light cannot be refilled.");
-	}
+     /* No torch to refill */
+     else
+     {
+          msg_print("Your light cannot be refilled.");
+     }
 }
-
-
-
-
-
 
 /*
  * Target command
  */
-void do_cmd_target(void)
+void
+do_cmd_target(void)
 {
-	/* Target set */
-	if (target_set_interactive(TARGET_KILL))
-	{
-		msg_print("Target Selected.");
-	}
+     /* Target set */
+     if(target_set_interactive(TARGET_KILL))
+     {
+          msg_print("Target Selected.");
+     }
 
-	/* Target aborted */
-	else
-	{
-		msg_print("Target Aborted.");
-	}
+     /* Target aborted */
+     else
+     {
+          msg_print("Target Aborted.");
+     }
 }
-
-
 
 /*
  * Look command
  */
-void do_cmd_look(void)
+void
+do_cmd_look(void)
 {
-	/* Look around */
-	if (target_set_interactive(TARGET_LOOK))
-	{
-		msg_print("Target Selected.");
-	}
+     /* Look around */
+     if(target_set_interactive(TARGET_LOOK))
+     {
+          msg_print("Target Selected.");
+     }
 }
-
-
 
 /*
  * Allow the player to examine other sectors on the map
  */
-void do_cmd_locate(void)
+void
+do_cmd_locate(void)
 {
-	int dir, y1, x1, y2, x2;
+     int             dir, y1, x1, y2, x2;
+     char            tmp_val[80];
+     char            out_val[160];
 
-	char tmp_val[80];
+     /* Start at current panel */
+     y1 = p_ptr->wy;
+     x1 = p_ptr->wx;
 
-	char out_val[160];
+     /* Show panels until done */
+     while(1)
+     {
+          /* Get the current panel */
+          y2 = p_ptr->wy;
+          x2 = p_ptr->wx;
 
+          /* Describe the location */
+          if((y2 == y1) && (x2 == x1))
+          {
+               tmp_val[0] = '\0';
+          }
+          else
+          {
+               strnfmt(tmp_val, sizeof(tmp_val), "%s%s of",
+                       ((y2 < y1) ? " north" : (y2 > y1) ? " south" : ""),
+                       ((x2 < x1) ? " west" : (x2 > x1) ? " east" : ""));
+          }
 
-	/* Start at current panel */
-	y1 = p_ptr->wy;
-	x1 = p_ptr->wx;
+          /* Prepare to ask which way to look */
+          strnfmt(out_val, sizeof(out_val),
+                  "Map sector [%d,%d], which is%s your sector.  Direction?",
+                  (y2 / PANEL_HGT), (x2 / PANEL_WID), tmp_val);
 
-	/* Show panels until done */
-	while (1)
-	{
-		/* Get the current panel */
-		y2 = p_ptr->wy;
-		x2 = p_ptr->wx;
-		
-		/* Describe the location */
-		if ((y2 == y1) && (x2 == x1))
-		{
-			tmp_val[0] = '\0';
-		}
-		else
-		{
-			strnfmt(tmp_val, sizeof(tmp_val), "%s%s of",
-			        ((y2 < y1) ? " north" : (y2 > y1) ? " south" : ""),
-			        ((x2 < x1) ? " west" : (x2 > x1) ? " east" : ""));
-		}
+          /* More detail */
+          if(center_player)
+          {
+               strnfmt(out_val, sizeof(out_val),
+                       "Map sector [%d(%02d),%d(%02d)], which is%s your sector.  Direction?",
+                       (y2 / PANEL_HGT), (y2 % PANEL_HGT),
+                       (x2 / PANEL_WID), (x2 % PANEL_WID), tmp_val);
+          }
 
-		/* Prepare to ask which way to look */
-		strnfmt(out_val, sizeof(out_val),
-		        "Map sector [%d,%d], which is%s your sector.  Direction?",
-		        (y2 / PANEL_HGT), (x2 / PANEL_WID), tmp_val);
+          /* Assume no direction */
+          dir = 0;
 
-		/* More detail */
-		if (center_player)
-		{
-			strnfmt(out_val, sizeof(out_val),
-		        	"Map sector [%d(%02d),%d(%02d)], which is%s your sector.  Direction?",
-		        	(y2 / PANEL_HGT), (y2 % PANEL_HGT),
-		        	(x2 / PANEL_WID), (x2 % PANEL_WID), tmp_val);
-		}
+          /* Get a direction */
+          while(!dir)
+          {
+               char            command;
 
-		/* Assume no direction */
-		dir = 0;
+               /* Get a command (or Cancel) */
+               if(!get_com(out_val, &command))
+                    break;
 
-		/* Get a direction */
-		while (!dir)
-		{
-			char command;
+               /* Extract direction */
+               dir = target_dir(command);
 
-			/* Get a command (or Cancel) */
-			if (!get_com(out_val, &command)) break;
+               /* Error */
+               if(!dir)
+                    bell("Illegal direction for locate!");
+          }
 
-			/* Extract direction */
-			dir = target_dir(command);
+          /* No direction */
+          if(!dir)
+               break;
 
-			/* Error */
-			if (!dir) bell("Illegal direction for locate!");
-		}
+          /* Apply the motion */
+          change_panel(dir);
 
-		/* No direction */
-		if (!dir) break;
+          /* Handle stuff */
+          handle_stuff();
+     }
 
-		/* Apply the motion */
-		change_panel(dir);
-
-		/* Handle stuff */
-		handle_stuff();
-	}
-
-	/* Verify panel */
-	verify_panel();
+     /* Verify panel */
+     verify_panel();
 }
-
-
-
-
-
 
 /*
  * The table of "symbol info" -- each entry is a string of the form
  * "X:desc" where "X" is the trigger, and "desc" is the "info".
  */
-static cptr ident_info[] =
-{
-	" :A dark grid",
-	"!:A potion (or oil)",
-	"\":An amulet (or necklace)",
-	"#:A wall (or secret door)",
-	"$:Treasure (gold or gems)",
-	"%:A vein (magma or quartz)",
-	/* "&:unused", */
-	"':An open door",
-	"(:Soft armor",
-	"):A shield",
-	"*:A vein with treasure",
-	"+:A closed door",
-	",:Food (or mushroom patch)",
-	"-:A wand (or rod)",
-	".:Floor",
-	"/:A polearm (Axe/Pike/etc)",
-	/* "0:unused", */
-	"1:Entrance to General Store",
-	"2:Entrance to Armory",
-	"3:Entrance to Weaponsmith",
-	"4:Entrance to Temple",
-	"5:Entrance to Alchemy shop",
-	"6:Entrance to Magic store",
-	"7:Entrance to Black Market",
-	"8:Entrance to your home",
-	/* "9:unused", */
-	"::Rubble",
-	";:A glyph of warding",
-	"<:An up staircase",
-	"=:A ring",
-	">:A down staircase",
-	"?:A scroll",
-	"@:You",
-	"A:Angel",
-	"B:Bird",
-	"C:Canine",
-	"D:Ancient Dragon/Wyrm",
-	"E:Elemental",
-	"F:Dragon Fly",
-	"G:Ghost",
-	"H:Hybrid",
-	"I:Insect",
-	"J:Snake",
-	"K:Killer Beetle",
-	"L:Lich",
-	"M:Multi-Headed Reptile",
-	/* "N:unused", */
-	"O:Ogre",
-	"P:Giant Humanoid",
-	"Q:Quylthulg (Pulsing Flesh Mound)",
-	"R:Reptile/Amphibian",
-	"S:Spider/Scorpion/Tick",
-	"T:Troll",
-	"U:Major Demon",
-	"V:Vampire",
-	"W:Wight/Wraith/etc",
-	"X:Xorn/Xaren/etc",
-	"Y:Yeti",
-	"Z:Zephyr Hound",
-	"[:Hard armor",
-	"\\:A hafted weapon (mace/whip/etc)",
-	"]:Misc. armor",
-	"^:A trap",
-	"_:A staff",
-	/* "`:unused", */
-	"a:Ant",
-	"b:Bat",
-	"c:Centipede",
-	"d:Dragon",
-	"e:Floating Eye",
-	"f:Feline",
-	"g:Golem",
-	"h:Hobbit/Elf/Dwarf",
-	"i:Icky Thing",
-	"j:Jelly",
-	"k:Kobold",
-	"l:Louse",
-	"m:Mold",
-	"n:Naga",
-	"o:Orc",
-	"p:Person/Human",
-	"q:Quadruped",
-	"r:Rodent",
-	"s:Skeleton",
-	"t:Townsperson",
-	"u:Minor Demon",
-	"v:Vortex",
-	"w:Worm/Worm-Mass",
-	/* "x:unused", */
-	"y:Yeek",
-	"z:Zombie/Mummy",
-	"{:A missile (arrow/bolt/shot)",
-	"|:An edged weapon (sword/dagger/etc)",
-	"}:A launcher (bow/crossbow/sling)",
-	"~:A tool (or miscellaneous item)",
-	NULL
+static cptr     ident_info[] = {
+     " :A dark grid",
+     "!:A potion (or oil)",
+     "\":An amulet (or necklace)",
+     "#:A wall (or secret door)",
+     "$:Treasure (gold or gems)",
+     "%:A vein (magma or quartz)",
+     /* "&:unused", */
+     "':An open door",
+     "(:Soft armor",
+     "):A shield",
+     "*:A vein with treasure",
+     "+:A closed door",
+     ",:Food (or mushroom patch)",
+     "-:A wand (or rod)",
+     ".:Floor",
+     "/:A polearm (Axe/Pike/etc)",
+     /* "0:unused", */
+     "1:Entrance to General Store",
+     "2:Entrance to Armory",
+     "3:Entrance to Weaponsmith",
+     "4:Entrance to Temple",
+     "5:Entrance to Alchemy shop",
+     "6:Entrance to Magic store",
+     "7:Entrance to Black Market",
+     "8:Entrance to your home",
+     /* "9:unused", */
+     "::Rubble",
+     ";:A glyph of warding",
+     "<:An up staircase",
+     "=:A ring",
+     ">:A down staircase",
+     "?:A scroll",
+     "@:You",
+     "A:Angel",
+     "B:Bird",
+     "C:Canine",
+     "D:Ancient Dragon/Wyrm",
+     "E:Elemental",
+     "F:Dragon Fly",
+     "G:Ghost",
+     "H:Hybrid",
+     "I:Insect",
+     "J:Snake",
+     "K:Killer Beetle",
+     "L:Lich",
+     "M:Multi-Headed Reptile",
+     /* "N:unused", */
+     "O:Ogre",
+     "P:Giant Humanoid",
+     "Q:Quylthulg (Pulsing Flesh Mound)",
+     "R:Reptile/Amphibian",
+     "S:Spider/Scorpion/Tick",
+     "T:Troll",
+     "U:Major Demon",
+     "V:Vampire",
+     "W:Wight/Wraith/etc",
+     "X:Xorn/Xaren/etc",
+     "Y:Yeti",
+     "Z:Zephyr Hound",
+     "[:Hard armor",
+     "\\:A hafted weapon (mace/whip/etc)",
+     "]:Misc. armor",
+     "^:A trap",
+     "_:A staff",
+     /* "`:unused", */
+     "a:Ant",
+     "b:Bat",
+     "c:Centipede",
+     "d:Dragon",
+     "e:Floating Eye",
+     "f:Feline",
+     "g:Golem",
+     "h:Hobbit/Elf/Dwarf",
+     "i:Icky Thing",
+     "j:Jelly",
+     "k:Kobold",
+     "l:Louse",
+     "m:Mold",
+     "n:Naga",
+     "o:Orc",
+     "p:Person/Human",
+     "q:Quadruped",
+     "r:Rodent",
+     "s:Skeleton",
+     "t:Townsperson",
+     "u:Minor Demon",
+     "v:Vortex",
+     "w:Worm/Worm-Mass",
+     /* "x:unused", */
+     "y:Yeek",
+     "z:Zombie/Mummy",
+     "{:A missile (arrow/bolt/shot)",
+     "|:An edged weapon (sword/dagger/etc)",
+     "}:A launcher (bow/crossbow/sling)",
+     "~:A tool (or miscellaneous item)",
+     NULL
 };
-
-
 
 /*
  * Sorting hook -- Comp function -- see below
@@ -1131,74 +1081,77 @@ static cptr ident_info[] =
  * We use "u" to point to array of monster indexes,
  * and "v" to select the type of sorting to perform on "u".
  */
-bool ang_sort_comp_hook(const void *u, const void *v, int a, int b)
+bool
+ang_sort_comp_hook(const void *u,
+                   const void *v,
+                   int a,
+                   int b)
 {
-	u16b *who = (u16b*)(u);
+     u16b           *who = (u16b *) (u);
+     u16b           *why = (u16b *) (v);
+     int             w1 = who[a];
+     int             w2 = who[b];
+     int             z1, z2;
 
-	u16b *why = (u16b*)(v);
+     /* Sort by player kills */
+     if(*why >= 4)
+     {
+          /* Extract player kills */
+          z1 = l_list[w1].pkills;
+          z2 = l_list[w2].pkills;
 
-	int w1 = who[a];
-	int w2 = who[b];
+          /* Compare player kills */
+          if(z1 < z2)
+               return (TRUE);
+          if(z1 > z2)
+               return (FALSE);
+     }
 
-	int z1, z2;
+     /* Sort by total kills */
+     if(*why >= 3)
+     {
+          /* Extract total kills */
+          z1 = l_list[w1].tkills;
+          z2 = l_list[w2].tkills;
 
+          /* Compare total kills */
+          if(z1 < z2)
+               return (TRUE);
+          if(z1 > z2)
+               return (FALSE);
+     }
 
-	/* Sort by player kills */
-	if (*why >= 4)
-	{
-		/* Extract player kills */
-		z1 = l_list[w1].pkills;
-		z2 = l_list[w2].pkills;
+     /* Sort by monster level */
+     if(*why >= 2)
+     {
+          /* Extract levels */
+          z1 = r_info[w1].level;
+          z2 = r_info[w2].level;
 
-		/* Compare player kills */
-		if (z1 < z2) return (TRUE);
-		if (z1 > z2) return (FALSE);
-	}
+          /* Compare levels */
+          if(z1 < z2)
+               return (TRUE);
+          if(z1 > z2)
+               return (FALSE);
+     }
 
+     /* Sort by monster experience */
+     if(*why >= 1)
+     {
+          /* Extract experience */
+          z1 = r_info[w1].mexp;
+          z2 = r_info[w2].mexp;
 
-	/* Sort by total kills */
-	if (*why >= 3)
-	{
-		/* Extract total kills */
-		z1 = l_list[w1].tkills;
-		z2 = l_list[w2].tkills;
+          /* Compare experience */
+          if(z1 < z2)
+               return (TRUE);
+          if(z1 > z2)
+               return (FALSE);
+     }
 
-		/* Compare total kills */
-		if (z1 < z2) return (TRUE);
-		if (z1 > z2) return (FALSE);
-	}
-
-
-	/* Sort by monster level */
-	if (*why >= 2)
-	{
-		/* Extract levels */
-		z1 = r_info[w1].level;
-		z2 = r_info[w2].level;
-
-		/* Compare levels */
-		if (z1 < z2) return (TRUE);
-		if (z1 > z2) return (FALSE);
-	}
-
-
-	/* Sort by monster experience */
-	if (*why >= 1)
-	{
-		/* Extract experience */
-		z1 = r_info[w1].mexp;
-		z2 = r_info[w2].mexp;
-
-		/* Compare experience */
-		if (z1 < z2) return (TRUE);
-		if (z1 > z2) return (FALSE);
-	}
-
-
-	/* Compare indexes */
-	return (w1 <= w2);
+     /* Compare indexes */
+     return (w1 <= w2);
 }
-
 
 /*
  * Sorting hook -- Swap function -- see below
@@ -1206,21 +1159,23 @@ bool ang_sort_comp_hook(const void *u, const void *v, int a, int b)
  * We use "u" to point to array of monster indexes,
  * and "v" to select the type of sorting to perform.
  */
-void ang_sort_swap_hook(void *u, void *v, int a, int b)
+void
+ang_sort_swap_hook(void *u,
+                   void *v,
+                   int a,
+                   int b)
 {
-	u16b *who = (u16b*)(u);
+     u16b           *who = (u16b *) (u);
+     u16b            holder;
 
-	u16b holder;
+     /* Unused parameter */
+     (void) v;
 
-	/* Unused parameter */
-	(void)v;
-
-	/* Swap */
-	holder = who[a];
-	who[a] = who[b];
-	who[b] = holder;
+     /* Swap */
+     holder = who[a];
+     who[a] = who[b];
+     who[b] = holder;
 }
-
 
 /*
  * Identify a character, allow recall of monsters
@@ -1234,219 +1189,221 @@ void ang_sort_swap_hook(void *u, void *v, int a, int b)
  *
  * Note that the player ghosts are ignored, since they do not exist.
  */
-void do_cmd_query_symbol(void)
+void
+do_cmd_query_symbol(void)
 {
-	int i, n, r_idx;
-	char sym, query;
-	char buf[128];
+     int             i, n, r_idx;
+     char            sym, query;
+     char            buf[128];
+     bool            all = FALSE;
+     bool            uniq = FALSE;
+     bool            norm = FALSE;
+     bool            recall = FALSE;
+     u16b            why = 0;
+     u16b           *who;
 
-	bool all = FALSE;
-	bool uniq = FALSE;
-	bool norm = FALSE;
+     /* Get a character, or abort */
+     if(!get_com("Enter character to be identified: ", &sym))
+          return;
 
-	bool recall = FALSE;
+     /* Find that character info, and describe it */
+     for(i = 0; ident_info[i]; ++i)
+     {
+          if(sym == ident_info[i][0])
+               break;
+     }
 
-	u16b why = 0;
-	u16b *who;
+     /* Describe */
+     if(sym == KTRL('A'))
+     {
+          all = TRUE;
+          strcpy(buf, "Full monster list.");
+     }
+     else if(sym == KTRL('U'))
+     {
+          all = uniq = TRUE;
+          strcpy(buf, "Unique monster list.");
+     }
+     else if(sym == KTRL('N'))
+     {
+          all = norm = TRUE;
+          strcpy(buf, "Non-unique monster list.");
+     }
+     else if(ident_info[i])
+     {
+          strnfmt(buf, sizeof(buf), "%c - %s.", sym, ident_info[i] + 2);
+     }
+     else
+     {
+          strnfmt(buf, sizeof(buf), "%c - %s.", sym, "Unknown Symbol");
+     }
 
+     /* Display the result */
+     prt(buf, 0, 0);
 
-	/* Get a character, or abort */
-	if (!get_com("Enter character to be identified: ", &sym)) return;
+     /* Allocate the "who" array */
+     C_MAKE(who, z_info->r_max, u16b);
 
-	/* Find that character info, and describe it */
-	for (i = 0; ident_info[i]; ++i)
-	{
-		if (sym == ident_info[i][0]) break;
-	}
+     /* Collect matching monsters */
+     for(n = 0, i = 1; i < z_info->r_max - 1; i++)
+     {
+          monster_race   *r_ptr = &r_info[i];
+          monster_lore   *l_ptr = &l_list[i];
 
-	/* Describe */
-	if (sym == KTRL('A'))
-	{
-		all = TRUE;
-		strcpy(buf, "Full monster list.");
-	}
-	else if (sym == KTRL('U'))
-	{
-		all = uniq = TRUE;
-		strcpy(buf, "Unique monster list.");
-	}
-	else if (sym == KTRL('N'))
-	{
-		all = norm = TRUE;
-		strcpy(buf, "Non-unique monster list.");
-	}
-	else if (ident_info[i])
-	{
-		strnfmt(buf, sizeof(buf), "%c - %s.", sym, ident_info[i] + 2);
-	}
-	else
-	{
-		strnfmt(buf, sizeof(buf), "%c - %s.", sym, "Unknown Symbol");
-	}
+          /* Nothing to recall */
+          if(!cheat_know && !l_ptr->sights)
+               continue;
 
-	/* Display the result */
-	prt(buf, 0, 0);
+          /* Require non-unique monsters if needed */
+          if(norm && (r_ptr->flags1 & (RF1_UNIQUE)))
+               continue;
 
+          /* Require unique monsters if needed */
+          if(uniq && !(r_ptr->flags1 & (RF1_UNIQUE)))
+               continue;
 
-	/* Allocate the "who" array */
-	C_MAKE(who, z_info->r_max, u16b);
+          /* Collect "appropriate" monsters */
+          if(all || (r_ptr->d_char == sym))
+               who[n++] = i;
+     }
 
-	/* Collect matching monsters */
-	for (n = 0, i = 1; i < z_info->r_max - 1; i++)
-	{
-		monster_race *r_ptr = &r_info[i];
-		monster_lore *l_ptr = &l_list[i];
+     /* Nothing to recall */
+     if(!n)
+     {
+          /* XXX XXX Free the "who" array */
+          FREE(who);
 
-		/* Nothing to recall */
-		if (!cheat_know && !l_ptr->sights) continue;
+          return;
+     }
 
-		/* Require non-unique monsters if needed */
-		if (norm && (r_ptr->flags1 & (RF1_UNIQUE))) continue;
+     /* Prompt */
+     put_str("Recall details? (k/p/y/n): ", 0, 40);
 
-		/* Require unique monsters if needed */
-		if (uniq && !(r_ptr->flags1 & (RF1_UNIQUE))) continue;
+     /* Query */
+     query = inkey();
 
-		/* Collect "appropriate" monsters */
-		if (all || (r_ptr->d_char == sym)) who[n++] = i;
-	}
+     /* Restore */
+     prt(buf, 0, 0);
 
-	/* Nothing to recall */
-	if (!n)
-	{
-		/* XXX XXX Free the "who" array */
-		FREE(who);
+     /* Sort by kills (and level) */
+     if(query == 'k')
+     {
+          why = 4;
+          query = 'y';
+     }
 
-		return;
-	}
+     /* Sort by level */
+     if(query == 'p')
+     {
+          why = 2;
+          query = 'y';
+     }
 
+     /* Catch "escape" */
+     if(query != 'y')
+     {
+          /* XXX XXX Free the "who" array */
+          FREE(who);
 
-	/* Prompt */
-	put_str("Recall details? (k/p/y/n): ", 0, 40);
+          return;
+     }
 
-	/* Query */
-	query = inkey();
+     /* Sort if needed */
+     if(why)
+     {
+          /* Select the sort method */
+          ang_sort_comp = ang_sort_comp_hook;
+          ang_sort_swap = ang_sort_swap_hook;
 
-	/* Restore */
-	prt(buf, 0, 0);
+          /* Sort the array */
+          ang_sort(who, &why, n);
+     }
 
+     /* Start at the end */
+     i = n - 1;
 
-	/* Sort by kills (and level) */
-	if (query == 'k')
-	{
-		why = 4;
-		query = 'y';
-	}
+     /* Scan the monster memory */
+     while(1)
+     {
+          /* Extract a race */
+          r_idx = who[i];
 
-	/* Sort by level */
-	if (query == 'p')
-	{
-		why = 2;
-		query = 'y';
-	}
+          /* Hack -- Auto-recall */
+          monster_race_track(r_idx);
 
-	/* Catch "escape" */
-	if (query != 'y')
-	{
-		/* XXX XXX Free the "who" array */
-		FREE(who);
+          /* Hack -- Handle stuff */
+          handle_stuff();
 
-		return;
-	}
+          /* Hack -- Begin the prompt */
+          roff_top(r_idx);
 
-	/* Sort if needed */
-	if (why)
-	{
-		/* Select the sort method */
-		ang_sort_comp = ang_sort_comp_hook;
-		ang_sort_swap = ang_sort_swap_hook;
+          /* Hack -- Complete the prompt */
+          Term_addstr(-1, TERM_WHITE, " [(r)ecall, ESC]");
 
-		/* Sort the array */
-		ang_sort(who, &why, n);
-	}
+          /* Interact */
+          while(1)
+          {
+               /* Recall */
+               if(recall)
+               {
+                    /* Save screen */
+                    screen_save();
 
+                    /* Recall on screen */
+                    screen_roff(who[i]);
 
-	/* Start at the end */
-	i = n - 1;
+                    /* Hack -- Complete the prompt (again) */
+                    Term_addstr(-1, TERM_WHITE, " [(r)ecall, ESC]");
+               }
 
-	/* Scan the monster memory */
-	while (1)
-	{
-		/* Extract a race */
-		r_idx = who[i];
+               /* Command */
+               query = inkey();
 
-		/* Hack -- Auto-recall */
-		monster_race_track(r_idx);
+               /* Unrecall */
+               if(recall)
+               {
+                    /* Load screen */
+                    screen_load();
+               }
 
-		/* Hack -- Handle stuff */
-		handle_stuff();
+               /* Normal commands */
+               if(query != 'r')
+                    break;
 
-		/* Hack -- Begin the prompt */
-		roff_top(r_idx);
+               /* Toggle recall */
+               recall = !recall;
+          }
 
-		/* Hack -- Complete the prompt */
-		Term_addstr(-1, TERM_WHITE, " [(r)ecall, ESC]");
+          /* Stop scanning */
+          if(query == ESCAPE)
+               break;
 
-		/* Interact */
-		while (1)
-		{
-			/* Recall */
-			if (recall)
-			{
-				/* Save screen */
-				screen_save();
+          /* Move to "prev" monster */
+          if(query == '-')
+          {
+               if(++i == n)
+               {
+                    i = 0;
+                    if(!expand_list)
+                         break;
+               }
+          }
 
-				/* Recall on screen */
-				screen_roff(who[i]);
+          /* Move to "next" monster */
+          else
+          {
+               if(i-- == 0)
+               {
+                    i = n - 1;
+                    if(!expand_list)
+                         break;
+               }
+          }
+     }
 
-				/* Hack -- Complete the prompt (again) */
-				Term_addstr(-1, TERM_WHITE, " [(r)ecall, ESC]");
-			}
+     /* Re-display the identity */
+     prt(buf, 0, 0);
 
-			/* Command */
-			query = inkey();
-
-			/* Unrecall */
-			if (recall)
-			{
-				/* Load screen */
-				screen_load();
-			}
-
-			/* Normal commands */
-			if (query != 'r') break;
-
-			/* Toggle recall */
-			recall = !recall;
-		}
-
-		/* Stop scanning */
-		if (query == ESCAPE) break;
-
-		/* Move to "prev" monster */
-		if (query == '-')
-		{
-			if (++i == n)
-			{
-				i = 0;
-				if (!expand_list) break;
-			}
-		}
-
-		/* Move to "next" monster */
-		else
-		{
-			if (i-- == 0)
-			{
-				i = n - 1;
-				if (!expand_list) break;
-			}
-		}
-	}
-
-
-	/* Re-display the identity */
-	prt(buf, 0, 0);
-
-	/* Free the "who" array */
-	FREE(who);
+     /* Free the "who" array */
+     FREE(who);
 }

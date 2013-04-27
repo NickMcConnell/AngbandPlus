@@ -1,7 +1,8 @@
+
+/* $Id: splash.h,v 1.4 2003/03/17 22:45:40 cipher Exp $ */
+
 #ifndef IH_SDL_SCENE_SPLASH_H
 #define IH_SDL_SCENE_SPLASH_H
-
-/* File: sdl/scene/splash.h */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -15,9 +16,9 @@
 
 /* Function prototypes.
 */
-void IH_InitScene_Splash(void);
-void IH_ProcessScene_Splash(SDL_Event *event);
-void IH_RenderScene_Splash(void);
+void            IH_InitScene_Splash(void);
+void            IH_ProcessScene_Splash(SDL_Event * event);
+void            IH_RenderScene_Splash(void);
 
 /* Data definitions.
 */

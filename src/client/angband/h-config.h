@@ -1,4 +1,5 @@
-/* File: h-config.h */
+
+/* $Id: h-config.h,v 1.4 2003/03/17 22:45:24 cipher Exp $ */
 
 #ifndef INCLUDED_H_CONFIG_H
 #define INCLUDED_H_CONFIG_H
@@ -13,15 +14,17 @@
  * should not be defined by the user.
  */
 
-
 /*
  * OPTION: Compile on a Macintosh or OS X machine
  */
 #ifndef MACINTOSH
+
 /* #define MACINTOSH */
 #endif
 #ifndef MACOSX
+
 /* #define MACOSX */
+
 /* #undef MACINTOSH */
 #endif
 
@@ -29,6 +32,7 @@
  * OPTION: Compile on a Windows machine
  */
 #ifndef WINDOWS
+
 /* #define WINDOWS */
 #endif
 
@@ -36,6 +40,7 @@
  * OPTION: Compile on an MSDOS machine
  */
 #ifndef MSDOS
+
 /* #define MSDOS */
 #endif
 
@@ -43,6 +48,7 @@
  * OPTION: Compile on a SYS III version of UNIX
  */
 #ifndef SYS_III
+
 /* #define SYS_III */
 #endif
 
@@ -50,6 +56,7 @@
  * OPTION: Compile on a SYS V version of UNIX
  */
 #ifndef SYS_V
+
 /* #define SYS_V */
 #endif
 
@@ -57,6 +64,7 @@
  * OPTION: Compile on a HPUX version of UNIX
  */
 #ifndef HPUX
+
 /* #define HPUX */
 #endif
 
@@ -64,6 +72,7 @@
  * OPTION: Compile on an SGI running IRIX
  */
 #ifndef SGI
+
 /* #define SGI */
 #endif
 
@@ -71,6 +80,7 @@
  * OPTION: Compile on a SunOS machine
  */
 #ifndef SUNOS
+
 /* #define SUNOS */
 #endif
 
@@ -78,6 +88,7 @@
  * OPTION: Compile on a Solaris machine
  */
 #ifndef SOLARIS
+
 /* #define SOLARIS */
 #endif
 
@@ -86,10 +97,9 @@
  * Do not define this if you are on any kind of SunOS.
  */
 #ifndef ULTRIX
+
 /* #define ULTRIX */
 #endif
-
-
 
 /*
  * Extract the "SUNOS" flag from the compiler
@@ -174,8 +184,6 @@
 # endif
 #endif
 
-
-
 /*
  * OPTION: Define "L64" if a "long" is 64-bits.  See "h-types.h".
  * The only such platform that angband is ported to is currently
@@ -184,8 +192,6 @@
 #if defined(__alpha) && defined(__osf__)
 # define L64
 #endif
-
-
 
 /*
  * OPTION: set "SET_UID" if the machine is a "multi-user" machine.
@@ -204,7 +210,6 @@
 # define SET_UID
 #endif
 
-
 /*
  * OPTION: Set "USG" for "System V" versions of Unix
  * This is used to choose a "lock()" function, and to choose
@@ -220,7 +225,6 @@
 #  endif
 # endif
 #endif
-
 
 /*
  * Every system seems to use its own symbol as a path separator.
@@ -258,7 +262,6 @@
 # define PATH_SEP ""
 #endif
 
-
 /*
  * The Macintosh allows the use of a "file type" when creating a file
  */
@@ -270,7 +273,6 @@
 #else
 # define FILE_TYPE(X) ((void)0)
 #endif
-
 
 /*
  * OPTION: Define "HAVE_USLEEP" only if "usleep()" exists.
@@ -285,8 +287,4 @@
 # endif
 #endif
 
-
-
 #endif
-
-
