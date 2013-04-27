@@ -95,36 +95,43 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 	/* Cheat if requested */
 	if (smart_cheat)
 	{
-		/* Know basic info */
-		if (p_ptr->resist_acid) smart |= (SM_RES_ACID);
-		if (IS_OPPOSE_ACID()) smart |= (SM_OPP_ACID);
-		if (p_ptr->immune_acid) smart |= (SM_IMM_ACID);
-		if (p_ptr->resist_elec) smart |= (SM_RES_ELEC);
-		if (IS_OPPOSE_ELEC()) smart |= (SM_OPP_ELEC);
-		if (p_ptr->immune_elec) smart |= (SM_IMM_ELEC);
-		if (p_ptr->resist_fire) smart |= (SM_RES_FIRE);
-		if (IS_OPPOSE_FIRE()) smart |= (SM_OPP_FIRE);
-		if (p_ptr->immune_fire) smart |= (SM_IMM_FIRE);
-		if (p_ptr->resist_cold) smart |= (SM_RES_COLD);
-		if (IS_OPPOSE_COLD()) smart |= (SM_OPP_COLD);
-		if (p_ptr->immune_cold) smart |= (SM_IMM_COLD);
+		int pct;
+		/* Know basic info ... Unfortunately, the resistance system has changed! */
+		pct = res_pct(RES_ACID);
+		if (pct >= 50) smart |= (SM_RES_ACID);
+		if (pct >= 65) smart |= (SM_OPP_ACID);
+		if (pct >= 100) smart |= (SM_IMM_ACID);
 
-		/* Know poison info */
-		if (p_ptr->resist_pois) smart |= (SM_RES_POIS);
-		if (IS_OPPOSE_POIS()) smart |= (SM_OPP_POIS);
+		pct = res_pct(RES_ELEC);
+		if (pct >= 50) smart |= (SM_RES_ELEC);
+		if (pct >= 65) smart |= (SM_OPP_ELEC);
+		if (pct >= 100) smart |= (SM_IMM_ELEC);
 
-		/* Know special resistances */
-		if (p_ptr->resist_neth) smart |= (SM_RES_NETH);
-		if (p_ptr->resist_lite) smart |= (SM_RES_LITE);
-		if (p_ptr->resist_dark) smart |= (SM_RES_DARK);
-		if (p_ptr->resist_fear) smart |= (SM_RES_FEAR);
-		if (p_ptr->resist_conf) smart |= (SM_RES_CONF);
-		if (p_ptr->resist_chaos) smart |= (SM_RES_CHAOS);
-		if (p_ptr->resist_disen) smart |= (SM_RES_DISEN);
-		if (p_ptr->resist_blind) smart |= (SM_RES_BLIND);
-		if (p_ptr->resist_nexus) smart |= (SM_RES_NEXUS);
-		if (p_ptr->resist_sound) smart |= (SM_RES_SOUND);
-		if (p_ptr->resist_shard) smart |= (SM_RES_SHARD);
+		pct = res_pct(RES_FIRE);
+		if (pct >= 50) smart |= (SM_RES_FIRE);
+		if (pct >= 65) smart |= (SM_OPP_FIRE);
+		if (pct >= 100) smart |= (SM_IMM_FIRE);
+
+		pct = res_pct(RES_COLD);
+		if (pct >= 50) smart |= (SM_RES_COLD);
+		if (pct >= 65) smart |= (SM_OPP_COLD);
+		if (pct >= 100) smart |= (SM_IMM_COLD);
+
+		pct = res_pct(RES_POIS);
+		if (pct >= 50) smart |= (SM_RES_POIS);
+		if (pct >= 65) smart |= (SM_OPP_POIS);
+
+		if (res_pct(RES_NETHER) >= 50) smart |= (SM_RES_NETH);
+		if (res_pct(RES_LITE) >= 50) smart |= (SM_RES_LITE);
+		if (res_pct(RES_DARK) >= 50) smart |= (SM_RES_DARK);
+		if (res_pct(RES_FEAR) >= 50) smart |= (SM_RES_FEAR);
+		if (res_pct(RES_CONF) >= 50) smart |= (SM_RES_CONF);
+		if (res_pct(RES_CHAOS) >= 50) smart |= (SM_RES_CHAOS);
+		if (res_pct(RES_DISEN) >= 50) smart |= (SM_RES_DISEN);
+		if (res_pct(RES_BLIND) >= 50) smart |= (SM_RES_BLIND);
+		if (res_pct(RES_NEXUS) >= 50) smart |= (SM_RES_NEXUS);
+		if (res_pct(RES_SOUND) >= 50) smart |= (SM_RES_SOUND);
+		if (res_pct(RES_SHARDS) >= 50) smart |= (SM_RES_SHARD);
 		if (p_ptr->reflect) smart |= (SM_IMM_REFLECT);
 
 		/* Know bizarre "resistances" */
@@ -574,78 +581,62 @@ u32b get_curse(int power, object_type *o_ptr)
 	return new_curse;
 }
 
+static bool _object_is_any(object_type *o_ptr) { return TRUE; }
 void curse_equipment(int chance, int heavy_chance)
 {
-	bool        changed = FALSE;
-	int         curse_power = 0;
-	u32b        new_curse;
-	u32b oflgs[TR_FLAG_SIZE];
-	object_type *o_ptr = &inventory[INVEN_RARM + randint0(12)];
-	char o_name[MAX_NLEN];
-
-	if (randint1(100) > chance) return;
-
-	if (!o_ptr->k_idx) return;
-
-	object_flags(o_ptr, oflgs);
-
-	object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
-
-	if (have_flag(o_ptr->art_flags, TR_SIGNATURE))
+	int slot = equip_random_slot(_object_is_any);
+	if (slot)
 	{
-		msg_format("Your %s resists cursing!", o_name);
-		return;
-	}
+		bool         changed = FALSE;
+		int          curse_power = 0;
+		u32b         new_curse;
+		u32b         oflgs[TR_FLAG_SIZE];
+		object_type *o_ptr = equip_obj(slot);
+		char         o_name[MAX_NLEN];
 
-	/* Extra, biased saving throw for blessed items */
-	if (have_flag(oflgs, TR_BLESSED) && (randint1(888) > chance))
-	{
-#ifdef JP
-msg_format("%sは呪いを跳ね返した！", o_name,
-#else
-		msg_format("Your %s resist%s cursing!", o_name,
-#endif
+		if (!o_ptr) return;
+		if (randint1(100) > chance) return;
 
-			((o_ptr->number > 1) ? "" : "s"));
-		/* Hmmm -- can we wear multiple items? If not, this is unnecessary */
-		return;
-	}
+		object_flags(o_ptr, oflgs);
+		object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
-	if ((randint1(100) <= heavy_chance) &&
-	    (object_is_artifact(o_ptr) || object_is_ego(o_ptr)))
-	{
-		if (!(o_ptr->curse_flags & TRC_HEAVY_CURSE))
+		if (have_flag(oflgs, TR_BLESSED) && (randint1(888) > chance))
+		{
+			msg_format("Your %s resists cursing!", o_name);
+			return;
+		}
+
+		if ((randint1(100) <= heavy_chance) &&
+			(object_is_artifact(o_ptr) || object_is_ego(o_ptr)))
+		{
+			if (!(o_ptr->curse_flags & TRC_HEAVY_CURSE))
+				changed = TRUE;
+			o_ptr->curse_flags |= TRC_HEAVY_CURSE;
+			o_ptr->curse_flags |= TRC_CURSED;
+			curse_power++;
+		}
+		else
+		{
+			if (!object_is_cursed(o_ptr))
+				changed = TRUE;
+			o_ptr->curse_flags |= TRC_CURSED;
+		}
+		if (heavy_chance >= 50) curse_power++;
+
+		new_curse = get_curse(curse_power, o_ptr);
+		if (!(o_ptr->curse_flags & new_curse))
+		{
 			changed = TRUE;
-		o_ptr->curse_flags |= TRC_HEAVY_CURSE;
-		o_ptr->curse_flags |= TRC_CURSED;
-		curse_power++;
-	}
-	else
-	{
-		if (!object_is_cursed(o_ptr))
-			changed = TRUE;
-		o_ptr->curse_flags |= TRC_CURSED;
-	}
-	if (heavy_chance >= 50) curse_power++;
+			o_ptr->curse_flags |= new_curse;
+		}
 
-	new_curse = get_curse(curse_power, o_ptr);
-	if (!(o_ptr->curse_flags & new_curse))
-	{
-		changed = TRUE;
-		o_ptr->curse_flags |= new_curse;
+		if (changed)
+		{
+			msg_format("There is a malignant black aura surrounding %s...", o_name);
+			o_ptr->feeling = FEEL_NONE;
+		}
+		p_ptr->update |= PU_BONUS;
 	}
-
-	if (changed)
-	{
-#ifdef JP
-msg_format("悪意に満ちた黒いオーラが%sをとりまいた...", o_name);
-#else
-		msg_format("There is a malignant black aura surrounding %s...", o_name);
-#endif
-
-		o_ptr->feeling = FEEL_NONE;
-	}
-	p_ptr->update |= (PU_BONUS);
 }
 
 
@@ -871,7 +862,7 @@ static bool anti_magic_check(void)
 	{
 	case CLASS_WARRIOR:
 	case CLASS_BERSERKER:
-	case CLASS_SMITH:
+	case CLASS_WEAPONSMITH:
 	case CLASS_ARCHER:
 	case CLASS_CAVALRY:
 		return FALSE;
@@ -962,38 +953,32 @@ bool dispel_check(int m_idx)
 	/* Elemental resistances */
 	if (r_ptr->flags4 & RF4_BR_ACID)
 	{
-		if (!p_ptr->immune_acid && (p_ptr->oppose_acid || music_singing(MUSIC_RESIST))) return (TRUE);
+		if (res_pct(RES_ACID) <= 75 && (p_ptr->oppose_acid || music_singing(MUSIC_RESIST))) return (TRUE);
 		if (p_ptr->special_defense & DEFENSE_ACID) return (TRUE);
 	}
 
 	if (r_ptr->flags4 & RF4_BR_FIRE)
 	{
-		if (!((p_ptr->prace == RACE_BALROG) && p_ptr->lev > 44))
-		{
-			if (!p_ptr->immune_fire && (p_ptr->oppose_fire || music_singing(MUSIC_RESIST))) return (TRUE);
-			if (p_ptr->special_defense & DEFENSE_FIRE) return (TRUE);
-		}
+		if (res_pct(RES_FIRE) <= 75 && (p_ptr->oppose_fire || music_singing(MUSIC_RESIST))) return (TRUE);
+		if (p_ptr->special_defense & DEFENSE_FIRE) return (TRUE);
 	}
 
 	if (r_ptr->flags4 & RF4_BR_ELEC)
 	{
-		if (!p_ptr->immune_elec && (p_ptr->oppose_elec || music_singing(MUSIC_RESIST))) return (TRUE);
+		if (res_pct(RES_ELEC) <= 75 && (p_ptr->oppose_elec || music_singing(MUSIC_RESIST))) return (TRUE);
 		if (p_ptr->special_defense & DEFENSE_ELEC) return (TRUE);
 	}
 
 	if (r_ptr->flags4 & RF4_BR_COLD)
 	{
-		if (!p_ptr->immune_cold && (p_ptr->oppose_cold || music_singing(MUSIC_RESIST))) return (TRUE);
+		if (res_pct(RES_COLD) <= 75 && (p_ptr->oppose_cold || music_singing(MUSIC_RESIST))) return (TRUE);
 		if (p_ptr->special_defense & DEFENSE_COLD) return (TRUE);
 	}
 
 	if (r_ptr->flags4 & (RF4_BR_POIS | RF4_BR_NUKE))
 	{
-		if (!((p_ptr->pclass == CLASS_NINJA) && p_ptr->lev > 44))
-		{
-			if (p_ptr->oppose_pois || music_singing(MUSIC_RESIST)) return (TRUE);
-			if (p_ptr->special_defense & DEFENSE_POIS) return (TRUE);
-		}
+		if (p_ptr->oppose_pois || music_singing(MUSIC_RESIST)) return (TRUE);
+		if (p_ptr->special_defense & DEFENSE_POIS) return (TRUE);
 	}
 
 	/* Ultimate resistance */
@@ -1473,11 +1458,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
 
 
 	/* Sometimes forbid inate attacks (breaths) */
-	if (ticked_off)
-	{
-		if (randint0(100) >= (r_ptr->freq_spell * 3)) no_inate = TRUE;
-	}
-	else if (randint0(100) >= (r_ptr->freq_spell * 2)) no_inate = TRUE;
+	if (randint0(100) >= (r_ptr->freq_spell * 2)) no_inate = TRUE;
 
 	/* XXX XXX XXX Handle "track_target" option (?) */
 
@@ -1684,6 +1665,11 @@ bool make_attack_spell(int m_idx, bool ticked_off)
 	/* Remove the "ineffective" spells */
 	remove_bad_spells(m_idx, &f4, &f5, &f6);
 
+	/* Remove Forgotten Spells */
+	f4 &= ~m_ptr->forgot4;
+	f5 &= ~m_ptr->forgot5;
+	f6 &= ~m_ptr->forgot6;
+
 	if (p_ptr->inside_arena || p_ptr->inside_battle)
 	{
 		f4 &= ~(RF4_SUMMON_MASK);
@@ -1871,48 +1857,30 @@ bool make_attack_spell(int m_idx, bool ticked_off)
 		case 96+0:
 		{
 			disturb(1, 0);
-#ifdef JP
-msg_format("%^sがかん高い金切り声をあげた。", m_name);
-#else
 			msg_format("%^s makes a high pitched shriek.", m_name);
-#endif
-
 			aggravate_monsters(m_idx);
 			break;
 		}
-
-		/* RF4_THROW ... Shamelessly snagged from TinyAngband! Thanks guys :)
-		 */
+		/* RF4_THROW ... Shamelessly snagged from TinyAngband! Thanks guys :) */
 		case 96+1:
 		{
 			disturb(1, 0);
-#ifdef JP
-			if (blind) msg_format("%^s「ふんっ！」", m_name);
-			else msg_format("%^sが大きな岩を投げた。", m_name);
-#else
 			if (blind) msg_format("%^s shouts, 'Haa!!'.", m_name);
 			else msg_format("%^s throws a large rock.", m_name);
-#endif
  			sound(SOUND_MISS); /* (Sound substitute) Throwing a rock isn't a rocket sound anyway */ 
-			dam = (rlev * 3) + damroll(5+rlev/20, 5+rlev/20);
-			breath(y, x, m_idx, GF_SHARDS, dam, 1, FALSE, MS_THROW, learnable);
+			dam = rlev * 3;
+			breath(y, x, m_idx, GF_ROCK, dam, 1, FALSE, MS_THROW, learnable);
 			update_smart_learn(m_idx, DRS_SHARD);
 			break;
 		}
-
 		/* RF4_DISPEL */
 		case 96+2:
 		{
 			if (!direct) return (FALSE);
 			disturb(1, 0);
-#ifdef JP
-			if (blind) msg_format("%^sが何かを力強くつぶやいた。", m_name);
-			else msg_format("%^sが魔力消去の呪文を念じた。", m_name);
-#else
 			if (blind) msg_format("%^s mumbles powerfully.", m_name);
 			else msg_format("%^s invokes a dispel magic.", m_name);
-#endif
-			if (psion_check_foresight())
+			if (check_foresight())
 			{
 			}
 			else if (mut_present(MUT_ONE_WITH_MAGIC) && one_in_(2))
@@ -1923,39 +1891,22 @@ msg_format("%^sがかん高い金切り声をあげた。", m_name);
 			{
 				dispel_player();
 				if (p_ptr->riding) dispel_monster_status(p_ptr->riding);
-
-	#ifdef JP
-				if ((p_ptr->personality == PERS_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON))
-					msg_print("やりやがったな！");
-	#endif
 				learn_spell(MS_DISPEL);
 			}
 			break;
 		}
-
 		/* RF4_ROCKET */
 		case 96+3:
 		{
 			disturb(1, 0);
-#ifdef JP
-if (blind) msg_format("%^sが何かを射った。", m_name);
-#else
 			if (blind) msg_format("%^s shoots something.", m_name);
-#endif
-
-#ifdef JP
-else msg_format("%^sがロケットを発射した。", m_name);
-#else
 			else msg_format("%^s fires a rocket.", m_name);
-#endif
-
-			dam = ((m_ptr->hp / 4) > 800 ? 800 : (m_ptr->hp / 4));
+			dam = MIN(m_ptr->hp / 4, 800);
 			breath(y, x, m_idx, GF_ROCKET,
 				dam, 2, FALSE, MS_ROCKET, learnable);
 			update_smart_learn(m_idx, DRS_SHARD);
 			break;
 		}
-
 		/* RF4_SHOOT */
 		case 96+4:
 		{
@@ -1980,7 +1931,6 @@ else msg_format("%^sがロケットを発射した。", m_name);
 			}
 			break;
 		}
-
 		/* RF4_ANTI_MAGIC */
 		case 96+5:
 		{
@@ -1989,7 +1939,7 @@ else msg_format("%^sがロケットを発射した。", m_name);
 			
 			if (randint1(100) <= duelist_skill_sav(m_idx) - r_ptr->level/2)
 				msg_print("You resist the effects!");
-			else if (psion_check_foresight())
+			else if (check_foresight())
 			{
 			}
 			else if (mut_present(MUT_ONE_WITH_MAGIC) && one_in_(2))
@@ -2000,215 +1950,160 @@ else msg_format("%^sがロケットを発射した。", m_name);
 				set_tim_no_spells(p_ptr->tim_no_spells + 3 + randint1(3), FALSE);
 			break;
 		}
-
-		/* RF4_XXX3 */
+		/* RF4_POLY */
 		case 96+6:
 		{
-			/* XXX XXX XXX */
+			if (blind) msg_format("%^s mumbles powerfully.", m_name);
+			else msg_format("%^s invokes polymorph other.", m_name);
+			if (prace_is_(RACE_ANDROID) || p_ptr->pclass == CLASS_MONSTER)
+				msg_print("You are unaffected!");
+			else if (randint1(100) <= duelist_skill_sav(m_idx) - r_ptr->level/2)
+				msg_print("You resist the effects!");
+			else if (check_foresight())
+			{
+			}
+			else
+			{
+				int which;
+				/* TODO: MIMIC_GIANT_TOAD ... */
+				switch(randint1(5))
+				{
+				case 1:
+					if (p_ptr->prace != RACE_SNOTLING)
+					{
+						which = RACE_SNOTLING;
+						break;
+					}
+				case 2:
+					if (p_ptr->prace != RACE_YEEK)
+					{
+						which = RACE_YEEK;
+						break;
+					}
+				case 3:
+					which = MIMIC_SMALL_KOBOLD;
+					break;
+				case 4:
+					which = MIMIC_MANGY_LEPER;
+					break;
+				default:
+					for (;;)
+					{
+						which = randint0(MAX_RACES);
+						if ( which != RACE_HUMAN 
+						  && which != RACE_DEMIGOD 
+						  && which != RACE_ANDROID 
+						  && p_ptr->prace != which 
+						  && !(get_race_t_aux(which, 0)->flags & RACE_IS_MONSTER) )
+						{
+							break;
+						}
+					}
+				}
+				set_mimic(50 + randint1(50), which, FALSE);
+			}
 			break;
 		}
-
 		/* RF4_XXX4 */
 		case 96+7:
 		{
-			/* XXX XXX XXX */
 			break;
 		}
-
 		/* RF4_BR_ACID */
 		case 96+8:
 		{
 			disturb(1, 0);
-#ifdef JP
-if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
-#else
 			if (blind) msg_format("%^s breathes.", m_name);
-#endif
-
-#ifdef JP
-else msg_format("%^sが酸のブレスを吐いた。", m_name);
-#else
 			else msg_format("%^s breathes acid.", m_name);
-#endif
-
-			dam = ((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 3));
+			dam = MIN(m_ptr->hp / 3, 900);
 			breath(y, x, m_idx, GF_ACID, dam, 0, TRUE, MS_BR_ACID, learnable);
 			update_smart_learn(m_idx, DRS_ACID);
 			break;
 		}
-
 		/* RF4_BR_ELEC */
 		case 96+9:
 		{
 			disturb(1, 0);
-#ifdef JP
-if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
-#else
 			if (blind) msg_format("%^s breathes.", m_name);
-#endif
-
-#ifdef JP
-else msg_format("%^sが稲妻のブレスを吐いた。", m_name);
-#else
 			else msg_format("%^s breathes lightning.", m_name);
-#endif
-
-			dam = ((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 3));
+			dam = MIN(m_ptr->hp / 3, 900);
 			breath(y, x, m_idx, GF_ELEC, dam,0, TRUE, MS_BR_ELEC, learnable);
 			update_smart_learn(m_idx, DRS_ELEC);
 			break;
 		}
-
 		/* RF4_BR_FIRE */
 		case 96+10:
 		{
 			disturb(1, 0);
-#ifdef JP
-if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
-#else
 			if (blind) msg_format("%^s breathes.", m_name);
-#endif
-
-#ifdef JP
-else msg_format("%^sが火炎のブレスを吐いた。", m_name);
-#else
 			else msg_format("%^s breathes fire.", m_name);
-#endif
-
-			dam = ((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 3));
+			dam = MIN(m_ptr->hp / 3, 900);
 			breath(y, x, m_idx, GF_FIRE, dam,0, TRUE, MS_BR_FIRE, learnable);
 			update_smart_learn(m_idx, DRS_FIRE);
 			break;
 		}
-
 		/* RF4_BR_COLD */
 		case 96+11:
 		{
 			disturb(1, 0);
-#ifdef JP
-if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
-#else
 			if (blind) msg_format("%^s breathes.", m_name);
-#endif
-
-#ifdef JP
-else msg_format("%^sが冷気のブレスを吐いた。", m_name);
-#else
 			else msg_format("%^s breathes frost.", m_name);
-#endif
-
-			dam = ((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 3));
+			dam = MIN(m_ptr->hp / 3, 900);
 			breath(y, x, m_idx, GF_COLD, dam,0, TRUE, MS_BR_COLD, learnable);
 			update_smart_learn(m_idx, DRS_COLD);
 			break;
 		}
-
 		/* RF4_BR_POIS */
 		case 96+12:
 		{
 			disturb(1, 0);
-#ifdef JP
-if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
-#else
 			if (blind) msg_format("%^s breathes.", m_name);
-#endif
-
-#ifdef JP
-else msg_format("%^sがガスのブレスを吐いた。", m_name);
-#else
 			else msg_format("%^s breathes gas.", m_name);
-#endif
-
-			dam = ((m_ptr->hp / 3) > 800 ? 800 : (m_ptr->hp / 3));
+			dam = MIN(m_ptr->hp / 3, 700);
 			breath(y, x, m_idx, GF_POIS, dam, 0, TRUE, MS_BR_POIS, learnable);
 			update_smart_learn(m_idx, DRS_POIS);
 			break;
 		}
-
-
 		/* RF4_BR_NETH */
 		case 96+13:
 		{
 			disturb(1, 0);
-#ifdef JP
-if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
-#else
 			if (blind) msg_format("%^s breathes.", m_name);
-#endif
-
-#ifdef JP
-else msg_format("%^sが地獄のブレスを吐いた。", m_name);
-#else
 			else msg_format("%^s breathes nether.", m_name);
-#endif
-
-			dam = ((m_ptr->hp / 6) > 550 ? 550 : (m_ptr->hp / 6));
+			dam = MIN(m_ptr->hp / 6, 650);
 			breath(y, x, m_idx, GF_NETHER, dam,0, TRUE, MS_BR_NETHER, learnable);
 			update_smart_learn(m_idx, DRS_NETH);
 			break;
 		}
-
 		/* RF4_BR_LITE */
 		case 96+14:
 		{
 			disturb(1, 0);
-#ifdef JP
-if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
-#else
 			if (blind) msg_format("%^s breathes.", m_name);
-#endif
-
-#ifdef JP
-else msg_format("%^sが閃光のブレスを吐いた。", m_name);
-#else
 			else msg_format("%^s breathes light.", m_name);
-#endif
-
-			dam = ((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6));
+			dam = MIN(m_ptr->hp / 6, 500);
 			breath(y_br_lite, x_br_lite, m_idx, GF_LITE, dam,0, TRUE, MS_BR_LITE, learnable);
 			update_smart_learn(m_idx, DRS_LITE);
 			break;
 		}
-
 		/* RF4_BR_DARK */
 		case 96+15:
 		{
 			disturb(1, 0);
-#ifdef JP
-if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
-#else
 			if (blind) msg_format("%^s breathes.", m_name);
-#endif
-
-#ifdef JP
-else msg_format("%^sが暗黒のブレスを吐いた。", m_name);
-#else
 			else msg_format("%^s breathes darkness.", m_name);
-#endif
-
-			dam = ((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6));
+			dam = MIN(m_ptr->hp / 6, 500);
 			breath(y, x, m_idx, GF_DARK, dam,0, TRUE, MS_BR_DARK, learnable);
 			update_smart_learn(m_idx, DRS_DARK);
 			break;
 		}
-
 		/* RF4_BR_CONF */
 		case 96+16:
 		{
 			disturb(1, 0);
-#ifdef JP
-if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
-#else
 			if (blind) msg_format("%^s breathes.", m_name);
-#endif
-
-#ifdef JP
-else msg_format("%^sが混乱のブレスを吐いた。", m_name);
-#else
 			else msg_format("%^s breathes confusion.", m_name);
-#endif
-
-			dam = ((m_ptr->hp / 6) > 450 ? 450 : (m_ptr->hp / 6));
+			dam = MIN(m_ptr->hp / 6, 600);
 			breath(y, x, m_idx, GF_CONFUSION, dam,0, TRUE, MS_BR_CONF, learnable);
 			update_smart_learn(m_idx, DRS_CONF);
 			break;
@@ -2218,360 +2113,173 @@ else msg_format("%^sが混乱のブレスを吐いた。", m_name);
 		case 96+17:
 		{
 			disturb(1, 0);
-			if (m_ptr->r_idx == MON_JAIAN)
-#ifdef JP
-				msg_format("「ボォエ〜〜〜〜〜〜」");
-#else
-				msg_format("'Booooeeeeee'");
-#endif
-#ifdef JP
-else if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
-#else
+			if (m_ptr->r_idx == MON_JAIAN) msg_format("'Booooeeeeee'");
 			else if (blind) msg_format("%^s breathes.", m_name);
-#endif
-
-#ifdef JP
-else msg_format("%^sが轟音のブレスを吐いた。", m_name);
-#else
 			else msg_format("%^s breathes sound.", m_name);
-#endif
-
-			dam = ((m_ptr->hp / 6) > 450 ? 450 : (m_ptr->hp / 6));
+			dam = MIN(m_ptr->hp / 6, 700);
 			breath(y, x, m_idx, GF_SOUND, dam,0, TRUE, MS_BR_SOUND, learnable);
 			update_smart_learn(m_idx, DRS_SOUND);
 			break;
 		}
-
 		/* RF4_BR_CHAO */
 		case 96+18:
 		{
 			disturb(1, 0);
-#ifdef JP
-if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
-#else
 			if (blind) msg_format("%^s breathes.", m_name);
-#endif
-
-#ifdef JP
-else msg_format("%^sがカオスのブレスを吐いた。", m_name);
-#else
 			else msg_format("%^s breathes chaos.", m_name);
-#endif
-
-			dam = ((m_ptr->hp / 6) > 600 ? 600 : (m_ptr->hp / 6));
+			dam = MIN(m_ptr->hp / 6, 800);
 			breath(y, x, m_idx, GF_CHAOS, dam,0, TRUE, MS_BR_CHAOS, learnable);
 			update_smart_learn(m_idx, DRS_CHAOS);
 			break;
 		}
-
 		/* RF4_BR_DISE */
 		case 96+19:
 		{
 			disturb(1, 0);
-#ifdef JP
-if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
-#else
 			if (blind) msg_format("%^s breathes.", m_name);
-#endif
-
-#ifdef JP
-else msg_format("%^sが劣化のブレスを吐いた。", m_name);
-#else
 			else msg_format("%^s breathes disenchantment.", m_name);
-#endif
-
-			dam = ((m_ptr->hp / 6) > 500 ? 500 : (m_ptr->hp / 6));
+			dam = MIN(m_ptr->hp / 6, 700);
 			breath(y, x, m_idx, GF_DISENCHANT, dam,0, TRUE, MS_BR_DISEN, learnable);
 			update_smart_learn(m_idx, DRS_DISEN);
 			break;
 		}
-
 		/* RF4_BR_NEXU */
 		case 96+20:
 		{
 			disturb(1, 0);
-#ifdef JP
-if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
-#else
 			if (blind) msg_format("%^s breathes.", m_name);
-#endif
-
-#ifdef JP
-else msg_format("%^sが因果混乱のブレスを吐いた。", m_name);
-#else
 			else msg_format("%^s breathes nexus.", m_name);
-#endif
-
-			dam = ((m_ptr->hp / 3) > 250 ? 250 : (m_ptr->hp / 3));
+			dam = MIN(m_ptr->hp / 5, 400);
 			breath(y, x, m_idx, GF_NEXUS, dam,0, TRUE, MS_BR_NEXUS, learnable);
 			update_smart_learn(m_idx, DRS_NEXUS);
 			break;
 		}
-
 		/* RF4_BR_TIME */
 		case 96+21:
 		{
 			disturb(1, 0);
-#ifdef JP
-if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
-#else
 			if (blind) msg_format("%^s breathes.", m_name);
-#endif
-
-#ifdef JP
-else msg_format("%^sが時間逆転のブレスを吐いた。", m_name);
-#else
 			else msg_format("%^s breathes time.", m_name);
-#endif
-
-			dam = ((m_ptr->hp / 3) > 150 ? 150 : (m_ptr->hp / 3));
+			dam = MIN(m_ptr->hp / 3, 200);
 			breath(y, x, m_idx, GF_TIME, dam,0, TRUE, MS_BR_TIME, learnable);
 			break;
 		}
-
 		/* RF4_BR_INER */
 		case 96+22:
 		{
 			disturb(1, 0);
-#ifdef JP
-if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
-#else
 			if (blind) msg_format("%^s breathes.", m_name);
-#endif
-
-#ifdef JP
-else msg_format("%^sが遅鈍のブレスを吐いた。", m_name);
-#else
 			else msg_format("%^s breathes inertia.", m_name);
-#endif
-
-			dam = ((m_ptr->hp / 6) > 200 ? 200 : (m_ptr->hp / 6));
+			dam = MIN(m_ptr->hp / 6, 200);
 			breath(y, x, m_idx, GF_INERT, dam,0, TRUE, MS_BR_INERTIA, learnable);
 			break;
 		}
-
 		/* RF4_BR_GRAV */
 		case 96+23:
 		{
 			disturb(1, 0);
-#ifdef JP
-if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
-#else
 			if (blind) msg_format("%^s breathes.", m_name);
-#endif
-
-#ifdef JP
-else msg_format("%^sが重力のブレスを吐いた。", m_name);
-#else
 			else msg_format("%^s breathes gravity.", m_name);
-#endif
-
-			dam = ((m_ptr->hp / 3) > 200 ? 200 : (m_ptr->hp / 3));
+			dam = MIN(m_ptr->hp / 3, 200);
 			breath(y, x, m_idx, GF_GRAVITY, dam,0, TRUE, MS_BR_GRAVITY, learnable);
 			break;
 		}
-
 		/* RF4_BR_SHAR */
 		case 96+24:
 		{
 			disturb(1, 0);
-			if (m_ptr->r_idx == MON_BOTEI)
-#ifdef JP
-				msg_format("「ボ帝ビルカッター！！！」");
-#else
-				msg_format("'Boty-Build cutter!!!'");
-#endif
-#ifdef JP
-else if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
-#else
+			if (m_ptr->r_idx == MON_BOTEI) msg_format("'Boty-Build cutter!!!'");
 			else if (blind) msg_format("%^s breathes.", m_name);
-#endif
-
-#ifdef JP
-else msg_format("%^sが破片のブレスを吐いた。", m_name);
-#else
 			else msg_format("%^s breathes shards.", m_name);
-#endif
-
-			dam = ((m_ptr->hp / 6) > 500 ? 500 : (m_ptr->hp / 6));
+			dam = MIN(m_ptr->hp / 6, 700);
 			breath(y, x, m_idx, GF_SHARDS, dam,0, TRUE, MS_BR_SHARDS, learnable);
 			update_smart_learn(m_idx, DRS_SHARD);
 			break;
 		}
-
 		/* RF4_BR_PLAS */
 		case 96+25:
 		{
 			disturb(1, 0);
-#ifdef JP
-if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
-#else
 			if (blind) msg_format("%^s breathes.", m_name);
-#endif
-
-#ifdef JP
-else msg_format("%^sがプラズマのブレスを吐いた。", m_name);
-#else
 			else msg_format("%^s breathes plasma.", m_name);
-#endif
-
-			dam = ((m_ptr->hp / 6) > 150 ? 150 : (m_ptr->hp / 6));
+			dam = MIN(m_ptr->hp / 6, 200);
 			breath(y, x, m_idx, GF_PLASMA, dam,0, TRUE, MS_BR_PLASMA, learnable);
 			break;
 		}
-
 		/* RF4_BR_WALL */
 		case 96+26:
 		{
 			disturb(1, 0);
-#ifdef JP
-if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
-#else
 			if (blind) msg_format("%^s breathes.", m_name);
-#endif
-
-#ifdef JP
-else msg_format("%^sがフォースのブレスを吐いた。", m_name);
-#else
 			else msg_format("%^s breathes force.", m_name);
-#endif
-
-			dam = ((m_ptr->hp / 6) > 200 ? 200 : (m_ptr->hp / 6));
+			dam = MIN(m_ptr->hp / 3, 200);
 			breath(y, x, m_idx, GF_FORCE, dam,0, TRUE, MS_BR_FORCE, learnable);
 			break;
 		}
-
 		/* RF4_BR_MANA */
 		case 96+27:
 		{
 			disturb(1, 0);
-#ifdef JP
-if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
-#else
 			if (blind) msg_format("%^s breathes.", m_name);
-#endif
-
-#ifdef JP
-else msg_format("%^sが魔力のブレスを吐いた。", m_name);
-#else
 			else msg_format("%^s breathes mana.", m_name);
-#endif
-			dam = ((m_ptr->hp / 3) > 250 ? 250 : (m_ptr->hp / 3));
+			dam = MIN(m_ptr->hp / 3, 250);
 			breath(y, x, m_idx, GF_MANA, dam,0, TRUE, MS_BR_MANA, learnable);
 			break;
 		}
-
 		/* RF4_BA_NUKE */
 		case 96+28:
 		{
 			disturb(1, 0);
-#ifdef JP
-if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
-#else
 			if (blind) msg_format("%^s mumbles.", m_name);
-#endif
-
-#ifdef JP
-else msg_format("%^sが放射能球を放った。", m_name);
-#else
 			else msg_format("%^s casts a ball of radiation.", m_name);
-#endif
-
 			dam = (rlev + damroll(10, 6)) * ((r_ptr->flags2 & RF2_POWERFUL) ? 2 : 1);
 			breath(y, x, m_idx, GF_NUKE, dam, 2, FALSE, MS_BALL_NUKE, learnable);
 			update_smart_learn(m_idx, DRS_POIS);
 			break;
 		}
-
 		/* RF4_BR_NUKE */
 		case 96+29:
 		{
 			disturb(1, 0);
-#ifdef JP
-if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
-#else
 			if (blind) msg_format("%^s breathes.", m_name);
-#endif
-
-#ifdef JP
-else msg_format("%^sが放射性廃棄物のブレスを吐いた。", m_name);
-#else
 			else msg_format("%^s breathes toxic waste.", m_name);
-#endif
-
-			dam = ((m_ptr->hp / 3) > 800 ? 800 : (m_ptr->hp / 3));
+			dam = MIN(m_ptr->hp / 3, 700);
 			breath(y, x, m_idx, GF_NUKE, dam,0, TRUE, MS_BR_NUKE, learnable);
 			update_smart_learn(m_idx, DRS_POIS);
 			break;
 		}
-
 		/* RF4_BA_CHAO */
 		case 96+30:
 		{
 			disturb(1, 0);
-#ifdef JP
-if (blind) msg_format("%^sが恐ろしげにつぶやいた。", m_name);
-#else
 			if (blind) msg_format("%^s mumbles frighteningly.", m_name);
-#endif
-
-#ifdef JP
-else msg_format("%^sが純ログルスを放った。", m_name);/*nuke me*/
-#else
 			else msg_format("%^s invokes a raw Logrus.", m_name);
-#endif
-
 			dam = ((r_ptr->flags2 & RF2_POWERFUL) ? (rlev * 3) : (rlev * 2))+ damroll(10, 10);
 			breath(y, x, m_idx, GF_CHAOS, dam, 4, FALSE, MS_BALL_CHAOS, learnable);
 			update_smart_learn(m_idx, DRS_CHAOS);
 			break;
 		}
-
 		/* RF4_BR_DISI */
 		case 96+31:
 		{
 			disturb(1, 0);
-#ifdef JP
-if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
-#else
 			if (blind) msg_format("%^s breathes.", m_name);
-#endif
-
-#ifdef JP
-else msg_format("%^sが分解のブレスを吐いた。", m_name);
-#else
 			else msg_format("%^s breathes disintegration.", m_name);
-#endif
-
-			dam = ((m_ptr->hp / 6) > 150 ? 150 : (m_ptr->hp / 6));
+			dam = MIN(m_ptr->hp / 6, 150);
 			breath(y, x, m_idx, GF_DISINTEGRATE, dam,0, TRUE, MS_BR_DISI, learnable);
 			break;
 		}
-
-
-
 		/* RF5_BA_ACID */
 		case 128+0:
 		{
 			disturb(1, 0);
-#ifdef JP
-if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
-#else
 			if (blind) msg_format("%^s mumbles.", m_name);
-#endif
-
-#ifdef JP
-else msg_format("%^sがアシッド・ボールの呪文を唱えた。", m_name);
-#else
 			else msg_format("%^s casts an acid ball.", m_name);
-#endif
-
 			dam = (randint1(rlev * 3) + 15) * ((r_ptr->flags2 & RF2_POWERFUL) ? 2 : 1);
 			breath(y, x, m_idx, GF_ACID, dam, 2, FALSE, MS_BALL_ACID, learnable);
 			update_smart_learn(m_idx, DRS_ACID);
 			break;
 		}
-
 		/* RF5_BA_ELEC */
 		case 128+1:
 		{
@@ -3220,40 +2928,15 @@ else msg_format("%^sが恐ろしげな幻覚を作り出した。", m_name);
 		{
 			if (!direct) return (FALSE);
 			disturb(1, 0);
-#ifdef JP
-if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
-#else
 			if (blind) msg_format("%^s mumbles.", m_name);
-#endif
-
-#ifdef JP
-else msg_format("%^sが呪文を唱えてあなたの目をくらました！", m_name);
-#else
 			else msg_format("%^s casts a spell, burning your eyes!", m_name);
-#endif
 
-			if (p_ptr->resist_blind)
-			{
-#ifdef JP
-msg_print("しかし効果がなかった！");
-#else
+			if (res_save_default(RES_BLIND))
 				msg_print("You are unaffected!");
-#endif
-
-			}
 			else if (randint0(100 + rlev/2) < duelist_skill_sav(m_idx))
-			{
-#ifdef JP
-msg_print("しかし効力を跳ね返した！");
-#else
 				msg_print("You resist the effects!");
-#endif
-
-			}
 			else
-			{
 				(void)set_blind(12 + randint0(4), FALSE);
-			}
 			learn_spell(MS_BLIND);
 			update_smart_learn(m_idx, DRS_BLIND);
 			if (p_ptr->tim_spell_reaction && !p_ptr->fast)
@@ -3268,40 +2951,15 @@ msg_print("しかし効力を跳ね返した！");
 		{
 			if (!direct) return (FALSE);
 			disturb(1, 0);
-#ifdef JP
-if (blind) msg_format("%^sが何かをつぶやくと、頭を悩ます音がした。", m_name);
-#else
 			if (blind) msg_format("%^s mumbles, and you hear puzzling noises.", m_name);
-#endif
-
-#ifdef JP
-else msg_format("%^sが誘惑的な幻覚を作り出した。", m_name);
-#else
 			else msg_format("%^s creates a mesmerising illusion.", m_name);
-#endif
-
-			if (p_ptr->resist_conf)
-			{
-#ifdef JP
-msg_print("しかし幻覚にはだまされなかった。");
-#else
+			
+			if (res_save_default(RES_CONF))
 				msg_print("You disbelieve the feeble spell.");
-#endif
-
-			}
 			else if (randint0(100 + rlev/2) < duelist_skill_sav(m_idx))
-			{
-#ifdef JP
-msg_print("しかし幻覚にはだまされなかった。");
-#else
 				msg_print("You disbelieve the feeble spell.");
-#endif
-
-			}
 			else
-			{
 				(void)set_confused(p_ptr->confused + randint0(4) + 4, FALSE);
-			}
 			learn_spell(MS_CONF);
 			update_smart_learn(m_idx, DRS_CONF);
 			if (p_ptr->tim_spell_reaction && !p_ptr->fast)
@@ -3316,34 +2974,14 @@ msg_print("しかし幻覚にはだまされなかった。");
 		{
 			if (!direct) return (FALSE);
 			disturb(1, 0);
-#ifdef JP
-msg_format("%^sがあなたの筋力を吸い取ろうとした！", m_name);
-#else
 			msg_format("%^s drains power from your muscles!", m_name);
-#endif
 
 			if (p_ptr->free_act)
-			{
-#ifdef JP
-msg_print("しかし効果がなかった！");
-#else
 				msg_print("You are unaffected!");
-#endif
-
-			}
 			else if (randint0(100 + rlev/2) < duelist_skill_sav(m_idx))
-			{
-#ifdef JP
-msg_print("しかし効力を跳ね返した！");
-#else
 				msg_print("You resist the effects!");
-#endif
-
-			}
 			else
-			{
 				(void)set_slow(p_ptr->slow + randint0(4) + 4, FALSE);
-			}
 			learn_spell(MS_SLOW);
 			update_smart_learn(m_idx, DRS_FREE);
 			if (p_ptr->tim_spell_reaction && !p_ptr->fast)
@@ -3358,39 +2996,17 @@ msg_print("しかし効力を跳ね返した！");
 		{
 			if (!direct) return (FALSE);
 			disturb(1, 0);
-#ifdef JP
-if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
-#else
 			if (blind) msg_format("%^s mumbles.", m_name);
-#endif
-
-#ifdef JP
-else msg_format("%^sがあなたの目をじっと見つめた！", m_name);
-#else
 			else msg_format("%^s stares deep into your eyes!", m_name);
-#endif
 
 			if (p_ptr->free_act)
-			{
-#ifdef JP
-msg_print("しかし効果がなかった！");
-#else
 				msg_print("You are unaffected!");
-#endif
-
-			}
 			else if (randint0(100 + rlev/2) < duelist_skill_sav(m_idx))
-			{
-#ifdef JP
-msg_format("しかし効力を跳ね返した！");
-#else
 				msg_format("You resist the effects!");
-#endif
-
-			}
 			else
 			{
-				(void)set_paralyzed(p_ptr->paralyzed + randint0(4) + 4, FALSE);
+				if (!p_ptr->paralyzed)
+					(void)set_paralyzed(randint1(3), FALSE);
 			}
 			learn_spell(MS_SLEEP);
 			update_smart_learn(m_idx, DRS_FREE);
@@ -3405,34 +3021,12 @@ msg_format("しかし効力を跳ね返した！");
 		case 160+0:
 		{
 			disturb(1, 0);
-			if (blind)
-			{
-#ifdef JP
-msg_format("%^sが何かをつぶやいた。", m_name);
-#else
-				msg_format("%^s mumbles.", m_name);
-#endif
-
-			}
-			else
-			{
-#ifdef JP
-msg_format("%^sが自分の体に念を送った。", m_name);
-#else
-				msg_format("%^s concentrates on %s body.", m_name, m_poss);
-#endif
-
-			}
+			if (blind) msg_format("%^s mumbles.", m_name);
+			else msg_format("%^s concentrates on %s body.", m_name, m_poss);
 
 			/* Allow quick speed increases to base+10 */
 			if (set_monster_fast(m_idx, MON_FAST(m_ptr) + 100))
-			{
-#ifdef JP
-				msg_format("%^sの動きが速くなった。", m_name);
-#else
 				msg_format("%^s starts moving faster.", m_name);
-#endif
-			}
 			break;
 		}
 
@@ -3441,11 +3035,7 @@ msg_format("%^sが自分の体に念を送った。", m_name);
 		{
 			if (!direct) return (FALSE);
 			disturb(1, 0);
-#ifdef JP
-msg_format("%^sが<破滅の手>を放った！", m_name);
-#else
 			msg_format("%^s invokes the Hand of Doom!", m_name);
-#endif
 			dam = (((s32b) ((40 + randint1(20)) * (p_ptr->chp))) / 100);
 			breath(y, x, m_idx, GF_HAND_DOOM, dam, 0, FALSE, MS_HAND_DOOM, learnable);
 			break;
@@ -3478,7 +3068,7 @@ msg_format("%^sが自分の傷に集中した。", m_name);
 
 			/* Heal some */
 			if (m_ptr->r_idx == MON_DEMETER)
-				m_ptr->hp += 3000;
+				m_ptr->hp += 1000;
 			else
 				m_ptr->hp += (rlev * 6);
 
@@ -3765,27 +3355,26 @@ msg_format("%sは無傷の球の呪文を唱えた。", m_name);
 			{
 				int num = randint1(4);
 				msg_format("%^s summons friends!", m_name);
-				if (one_in_(3) && r_info[MON_ZEUS].cur_num == 0 && r_info[MON_ZEUS].max_num == 1)
+				if (one_in_(3) && r_info[MON_ZEUS].max_num == 1)
 				{
-					summon_named_creature(m_idx, y, x, MON_ZEUS, mode);
+					if (summon_named_creature(m_idx, y, x, MON_ZEUS, mode))
+						break;
 				}
-				else
+
+				for (k = 0; k < num; k++)
 				{
-					for (k = 0; k < num; k++)
-					{
-						summon_named_creature(m_idx, y, x, MON_ULT_MAGUS, mode);
-					}
+					summon_named_creature(m_idx, y, x, MON_ULT_MAGUS, mode);
 				}
 				break;
 			}
 			case MON_ARES:
 			{
 				msg_format("%^s yells 'Mommy! Daddy! Help!!'", m_name);
-				if (r_info[MON_ZEUS].cur_num == 0 && r_info[MON_ZEUS].max_num == 1)
+				if (r_info[MON_ZEUS].max_num == 1)
 				{
-					summon_named_creature(m_idx, y, x, MON_ZEUS, mode);
+					summon_named_creature(m_idx, y, x, MON_ZEUS, mode); 
 				}
-				if (r_info[MON_HERA].cur_num == 0 && r_info[MON_HERA].max_num == 1)
+				if (r_info[MON_HERA].max_num == 1)
 				{
 					summon_named_creature(m_idx, y, x, MON_HERA, mode);
 				}
@@ -3795,23 +3384,21 @@ msg_format("%sは無傷の球の呪文を唱えた。", m_name);
 			{
 				int num = randint1(4);
 				msg_format("%^s summons help!", m_name);
-				if (one_in_(3) && r_info[MON_ARTEMIS].cur_num == 0 && r_info[MON_ARTEMIS].max_num == 1)
+				if (one_in_(3) && r_info[MON_ARTEMIS].max_num == 1)
 				{
-					summon_named_creature(m_idx, y, x, MON_ARTEMIS, mode);
+					if (summon_named_creature(m_idx, y, x, MON_ARTEMIS, mode))
+						break;
 				}
-				else
+				for (k = 0; k < num; k++)
 				{
-					for (k = 0; k < num; k++)
-					{
-						summon_named_creature(m_idx, y, x, MON_FENGHUANG, mode);
-					}
+					summon_named_creature(m_idx, y, x, MON_FENGHUANG, mode);
 				}
 				break;
 			}
 			case MON_ARTEMIS:
 			{
 				msg_format("%^s summons help!", m_name);
-				if (r_info[MON_APOLLO].cur_num == 0 && r_info[MON_APOLLO].max_num == 1)
+				if (r_info[MON_APOLLO].max_num == 1)
 				{
 					summon_named_creature(m_idx, y, x, MON_APOLLO, mode);
 				}
@@ -3821,11 +3408,13 @@ msg_format("%sは無傷の球の呪文を唱えた。", m_name);
 			{
 				int num = randint1(4);
 				msg_format("%^s summons friends!", m_name);
-				if (one_in_(3) && r_info[MON_ZEUS].cur_num == 0 && r_info[MON_ZEUS].max_num == 1)
+				if (one_in_(3) && r_info[MON_ZEUS].max_num == 1)
 				{
-					summon_named_creature(m_idx, y, x, MON_ZEUS, mode);
+					if (summon_named_creature(m_idx, y, x, MON_ZEUS, mode))
+						break;
 				}
-				else if (one_in_(3) && r_info[MON_HERA].cur_num == 0 && r_info[MON_HERA].max_num == 1)
+				
+				if (one_in_(3) && r_info[MON_HERA].max_num == 1)
 				{
 					summon_named_creature(m_idx, y, x, MON_HERA, mode);
 				}
@@ -3852,11 +3441,11 @@ msg_format("%sは無傷の球の呪文を唱えた。", m_name);
 			{
 				int num = randint1(4);
 				msg_format("%^s summons aid!'", m_name);
-				if (one_in_(3) && r_info[MON_ARES].cur_num == 0 && r_info[MON_ARES].max_num == 1)
+				if (one_in_(3) && r_info[MON_ARES].max_num == 1)
 				{
 					summon_named_creature(m_idx, y, x, MON_ARES, mode);
 				}
-				else if (one_in_(3) && r_info[MON_HEPHAESTUS].cur_num == 0 && r_info[MON_HEPHAESTUS].max_num == 1)
+				else if (one_in_(3) && r_info[MON_HEPHAESTUS].max_num == 1)
 				{
 					summon_named_creature(m_idx, y, x, MON_HEPHAESTUS, mode);
 				}
@@ -3954,6 +3543,9 @@ msg_format("%sは無傷の球の呪文を唱えた。", m_name);
 						   -- henkma
 						 */
 						get_damage = take_hit(DAMAGE_NOESCAPE, dam, m_name, -1);
+						if (get_damage > 0)
+							weaponmaster_do_readied_shot(m_ptr);
+
 						if (IS_REVENGE() && get_damage > 0 && !p_ptr->is_dead)
 						{
 							char m_name_self[80];
@@ -3996,6 +3588,10 @@ msg_format("%^sがあなたを引き戻した。", m_name);
 			{
 				msg_print("You resist the effects!");
 			}
+			else if (res_save_default(RES_TELEPORT))
+			{
+				msg_print("You resist the effects!");
+			}
 			else
 			{
 				teleport_player_to(m_ptr->fy, m_ptr->fx, TELEPORT_PASSIVE);
@@ -4028,15 +3624,11 @@ msg_format("%^sがあなたを引き戻した。", m_name);
 				}
 			}
 
-#ifdef JP
-msg_format("%^sにテレポートさせられた。", m_name);
-			if ((p_ptr->personality == PERS_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON))
-				msg_print("くっそ〜");
-#else
 			msg_format("%^s teleports you away.", m_name);
-#endif
-
-			teleport_player_away(m_idx, 100);
+			if (res_save_default(RES_TELEPORT))
+				msg_print("You resist the effects!");
+			else
+				teleport_player_away(m_idx, 100);
 			break;
 		}
 
@@ -4045,40 +3637,15 @@ msg_format("%^sにテレポートさせられた。", m_name);
 		{
 			if (!direct) return (FALSE);
 			disturb(1, 0);
-#ifdef JP
-if (blind) msg_format("%^sが何か奇妙な言葉をつぶやいた。", m_name);
-#else
 			if (blind) msg_format("%^s mumbles strangely.", m_name);
-#endif
-
-#ifdef JP
-else msg_format("%^sがあなたの足を指さした。", m_name);
-#else
 			else msg_format("%^s gestures at your feet.", m_name);
-#endif
 
-			if (p_ptr->resist_nexus)
-			{
-#ifdef JP
-msg_print("しかし効果がなかった！");
-#else
+			if (res_save_default(RES_NEXUS))
 				msg_print("You are unaffected!");
-#endif
-
-			}
 			else if (randint0(100 + rlev/2) < duelist_skill_sav(m_idx))
-			{
-#ifdef JP
-msg_print("しかし効力を跳ね返した！");
-#else
 				msg_print("You resist the effects!");
-#endif
-
-			}
 			else
-			{
 				teleport_level(0);
-			}
 			learn_spell(MS_TELE_LEVEL);
 			update_smart_learn(m_idx, DRS_NEXUS);
 			break;
@@ -4160,30 +3727,15 @@ else msg_format("%^sが呪文を唱えて邪悪に微笑んだ。", m_name);
 		{
 			if (!direct) return (FALSE);
 			disturb(1, 0);
-#ifdef JP
-msg_format("%^sがあなたの記憶を消去しようとしている。", m_name);
-#else
 			msg_format("%^s tries to blank your mind.", m_name);
-#endif
-
 
 			if (randint0(100 + rlev/2) < duelist_skill_sav(m_idx))
 			{
-#ifdef JP
-msg_print("しかし効力を跳ね返した！");
-#else
 				msg_print("You resist the effects!");
-#endif
-
 			}
 			else if (lose_all_info())
 			{
-#ifdef JP
-msg_print("記憶が薄れてしまった。");
-#else
 				msg_print("Your memories fade away.");
-#endif
-
 			}
 			learn_spell(MS_FORGET);
 			break;

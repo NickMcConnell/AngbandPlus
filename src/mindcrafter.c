@@ -327,7 +327,7 @@ void _psychometry_spell(int cmd, variant *res)
 		if (p_ptr->lev < 25)
 			var_set_bool(res, psychometry());
 		else
-			var_set_bool(res, ident_spell(FALSE));
+			var_set_bool(res, ident_spell(NULL));
 		break;
 	}
 	default:
@@ -488,11 +488,10 @@ void psycho_spear_spell(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Psycho-Spear", "光の剣"));
+		var_set_string(res, "Psycho-Spear");
 		break;
 	case SPELL_DESC:
-		var_set_string(res, T("Fires a beam of pure energy which penetrate the invulnerability barrier.",
-							  "無傷球をも切り裂く純粋なエネルギーのビームを放つ。"));
+		var_set_string(res, "Fires a beam of pure energy which penetrate the invulnerability barrier.");
 		break;
 	case SPELL_SPOIL_DESC:
 		var_set_string(res, "Fires a beam of pure energy (Damage L*4 + 1d(L*4)) which penetrates the invulnerability barrier.");
@@ -629,7 +628,7 @@ static power_info _powers[] =
 
 static int _get_spells(spell_info* spells, int max)
 {
-	return get_spells_aux(spells, max, _spells, p_ptr->stat_ind[A_WIS]);
+	return get_spells_aux(spells, max, _spells);
 }
 
 static int _get_powers(spell_info* spells, int max)
@@ -639,9 +638,9 @@ static int _get_powers(spell_info* spells, int max)
 
 static void _calc_bonuses(void)
 {
-	if (p_ptr->lev >= 10) p_ptr->resist_fear = TRUE;
+	if (p_ptr->lev >= 10) res_add(RES_FEAR);
 	if (p_ptr->lev >= 20) p_ptr->sustain_wis = TRUE;
-	if (p_ptr->lev >= 30) p_ptr->resist_conf = TRUE;
+	if (p_ptr->lev >= 30) res_add(RES_CONF);
 	if (p_ptr->lev >= 40) p_ptr->telepathy = TRUE;
 }
 
@@ -653,17 +652,17 @@ static void _on_fail(const spell_info *spell)
 
 		if (b < 5)
 		{
-			msg_print(T("Oh, no! Your mind has gone blank!", "なんてこった！頭の中が真っ白になった！"));
+			msg_print("Oh, no! Your mind has gone blank!");
 			lose_all_info();
 		}
 		else if (b < 15)
 		{
-			msg_print(T("Weird visions seem to dance before your eyes...", "奇妙な光景が目の前で踊っている..."));
+			msg_print("Weird visions seem to dance before your eyes...");
 			set_image(p_ptr->image + 5 + randint1(10), FALSE);
 		}
 		else if (b < 45)
 		{
-			msg_print(T("Your brain is addled!", "あなたの頭は混乱した！"));
+			msg_print("Your brain is addled!");
 			set_confused(p_ptr->confused + randint1(8), FALSE);
 		}
 		else if (b < 90)
@@ -672,7 +671,7 @@ static void _on_fail(const spell_info *spell)
 		}
 		else
 		{
-			msg_print(T("Your mind unleashes its power in an uncontrollable storm!", "の力が制御できない氾流となって解放された！"));
+			msg_print("Your mind unleashes its power in an uncontrollable storm!");
 
 			project(PROJECT_WHO_UNCTRL_POWER, 2 + p_ptr->lev / 10, py, px, p_ptr->lev * 2,
 				GF_MANA, PROJECT_JUMP | PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM, -1);
@@ -687,26 +686,14 @@ static caster_info * _caster_info(void)
 	static bool init = FALSE;
 	if (!init)
 	{
-		me.magic_desc = T("mindcraft", "超能力");
-		me.use_sp = TRUE;
+		me.magic_desc = "mindcraft";
+		me.which_stat = A_WIS;
+		me.weight = 400;
 		me.on_fail = _on_fail;
 		me.options = CASTER_ALLOW_DEC_MANA;
 		init = TRUE;
 	}
 	return &me;
-}
-
-static void _spoiler_dump(FILE* fff)
-{
-	spoil_spells_aux(fff, _spells);
-	spoil_powers_aux(fff, _powers);
-
-	fprintf(fff, "\n== Abilities ==\n");
-	fprintf(fff, "|| *Lvl* || *Ability* ||\n");
-	fprintf(fff, "|| 10 || Resist Fear ||\n");
-	fprintf(fff, "|| 20 || Sustain Wisdom ||\n");
-	fprintf(fff, "|| 30 || Resist Confusion ||\n");
-	fprintf(fff, "|| 40 || Telepathy ||\n");
 }
 
 class_t *mindcrafter_get_class_t(void)
@@ -722,12 +709,17 @@ class_t *mindcrafter_get_class_t(void)
 
 		me.name = "Mindcrafter";
 		me.desc = "The Mindcrafter is a unique class that uses the powers of the mind "
-		          "instead of magic.  These powers are unique to Mindcrafters, and "
-				  "vary from simple extrasensory powers to mental domination of others.  "
-				  "Since these powers are developed by the practice of certain "
-				  "disciplines, a Mindcrafter requires no spellbooks to use them.  "
-				  "The available powers are simply determined by the character's "
-				  "level.  Wisdom determines a Mindcrafter's ability to use mind powers.";
+					"instead of magic. These powers are unique to Mindcrafters, and "
+					"vary from simple extrasensory powers to mental domination of "
+					"others. Since these powers are developed by the practice of "
+					"certain disciplines, a Mindcrafter requires no spellbooks to use "
+					"them. The available powers are simply determined by the "
+					"character's level. Wisdom determines a Mindcrafter's ability to "
+					"use mind powers.\n \n"
+					"Mindcrafters gain new mindcrafting powers and their existing ones "
+					"become stronger as they gain levels. They can use their power "
+					"even when blinded. They have a class power - 'Clear Mind' - which "
+					"allows them to rapidly regenerate their mana.";
 		me.stats[A_STR] = -1;
 		me.stats[A_INT] =  0;
 		me.stats[A_WIS] =  3;
@@ -736,7 +728,7 @@ class_t *mindcrafter_get_class_t(void)
 		me.stats[A_CHR] =  2;
 		me.base_skills = bs;
 		me.extra_skills = xs;
-		me.hd = 2;
+		me.life = 100;
 		me.exp = 125;
 		me.pets = 35;
 
@@ -744,7 +736,6 @@ class_t *mindcrafter_get_class_t(void)
 		me.caster_info = _caster_info;
 		me.get_spells = _get_spells;
 		me.get_powers = _get_powers;
-		me.spoiler_dump = _spoiler_dump;
 		init = TRUE;
 	}
 

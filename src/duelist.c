@@ -7,37 +7,19 @@
    keep the user up to date as to why their powers don't work. */
 cptr _equip_error(void)
 {
-	int wgt = 0;
-
-	/* weapons are not weighed ...*/
-	if(inventory[INVEN_RARM].tval > TV_SWORD) wgt += inventory[INVEN_RARM].weight;
-	if(inventory[INVEN_LARM].tval > TV_SWORD) wgt += inventory[INVEN_LARM].weight;
-
-	wgt += inventory[INVEN_BODY].weight;
-	wgt += inventory[INVEN_HEAD].weight;
-	wgt += inventory[INVEN_OUTER].weight;
-	wgt += inventory[INVEN_HANDS].weight;
-	wgt += inventory[INVEN_FEET].weight;
+	int wgt = equip_weight(object_is_armour);
 
 	if (wgt > (100 + (p_ptr->lev * 4)))
 		return "The weight of your equipment is disrupting your talents.";
 
-	if ( inventory[INVEN_RARM].tval == TV_SHIELD
-	  || inventory[INVEN_RARM].tval == TV_CAPTURE
-	  || inventory[INVEN_LARM].tval == TV_SHIELD
-	  || inventory[INVEN_LARM].tval == TV_CAPTURE )
-	{
+	if (equip_find_object(TV_SHIELD, SV_ANY) || equip_find_object(TV_CAPTURE, SV_ANY))
 		return "Your shield is disrupting your talents.";
-	}
 
-	if (inventory[INVEN_RARM].k_idx && inventory[INVEN_LARM].k_idx)
+	if (p_ptr->weapon_ct > 1)
 		return "Dual wielding is disrupting your talents.";
 
-	if ( (inventory[INVEN_RARM].tval == TV_SWORD && inventory[INVEN_RARM].sval == SV_DOKUBARI)
-	  || (inventory[INVEN_LARM].tval == TV_SWORD && inventory[INVEN_LARM].sval == SV_DOKUBARI))
-	{
+	if (equip_find_object(TV_SWORD, SV_POISON_NEEDLE))
 		return "The Poison Needle is not an honorable dueling weapon.";
-	}
 
 	if (p_ptr->anti_magic)
 		return "An anti-magic barrier disrupts your talents.";
@@ -582,8 +564,11 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 		/* Blows should always be 1 ... even with Quickthorn and Shiva's Jacket! 
 		   But, don't make Tonberry gloves a gimme.  Negative attacks now are 0 attacks!
 		*/
-		if (info_ptr->num_blow > 1)
-			info_ptr->num_blow = 1;
+		if (info_ptr->base_blow + info_ptr->xtra_blow > 1)
+		{
+			info_ptr->base_blow = 1;
+			info_ptr->xtra_blow = 0;
+		}
 	}
 }
 
@@ -594,7 +579,7 @@ static caster_info * _caster_info(void)
 	if (!init)
 	{
 		me.magic_desc = "challenge";
-		me.use_hp = TRUE;
+		me.options = CASTER_USE_HP;
 		init = TRUE;
 	}
 	return &me;
@@ -622,7 +607,7 @@ class_t *duelist_get_class_t(void)
 		me.stats[A_CHR] =  2;
 		me.base_skills = bs;
 		me.extra_skills = xs;
-		me.hd = 2;
+		me.life = 100;
 		me.exp = 150;
 		me.pets = 35;
 

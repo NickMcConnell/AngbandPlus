@@ -3782,140 +3782,6 @@ typedef struct
 	bool fin;
 } menu_naiyou;
 
-#ifdef JP
-menu_naiyou menu_info[10][10] =
-{
-	{
-		{"魔法/特殊能力", 1, FALSE},
-		{"行動", 2, FALSE},
-		{"道具(使用)", 3, FALSE},
-		{"道具(その他)", 4, FALSE},
-		{"装備", 5, FALSE},
-		{"扉/箱", 6, FALSE},
-		{"情報", 7, FALSE},
-		{"設定", 8, FALSE},
-		{"その他", 9, FALSE},
-		{"", 0, FALSE},
-	},
-
-	{
-		{"使う(m)", 'm', TRUE},
-		{"調べる(b/P)", 'b', TRUE},
-		{"覚える(G)", 'G', TRUE},
-		{"特殊能力を使う(U/O)", 'U', TRUE},
-		{"", 0, FALSE},
-		{"", 0, FALSE},
-		{"", 0, FALSE},
-		{"", 0, FALSE},
-		{"", 0, FALSE},
-		{"", 0, FALSE}
-	},
-
-	{
-		{"休息する(R)", 'R', TRUE},
-		{"トラップ解除(D)", 'D', TRUE},
-		{"探す(s)", 's', TRUE},
-		{"周りを調べる(l/x)", 'l', TRUE},
-		{"ターゲット指定(*)", '*', TRUE},
-		{"穴を掘る(T/^t)", 'T', TRUE},
-		{"階段を上る(<)", '<', TRUE},
-		{"階段を下りる(>)", '>', TRUE},
-		{"ペットに命令する(p)", 'p', TRUE},
-		{"探索モードのON/OFF(S/#)", 'S', TRUE}
-	},
-
-	{
-		{"読む(r)", 'r', TRUE},
-		{"飲む(q)", 'q', TRUE},
-		{"杖を使う(u/Z)", 'u', TRUE},
-		{"魔法棒で狙う(a/z)", 'a', TRUE},
-		{"ロッドを振る(z/a)", 'z', TRUE},
-		{"始動する(A)", 'A', TRUE},
-		{"食べる(E)", 'E', TRUE},
-		{"飛び道具で撃つ(f/t)", 'f', TRUE},
-		{"投げる(v)", 'v', TRUE},
-		{"", 0, FALSE}
-	},
-
-	{
-		{"拾う(g)", 'g', TRUE},
-		{"落とす(d)", 'd', TRUE},
-		{"壊す(k/^d)", 'k', TRUE},
-		{"銘を刻む({)", '{', TRUE},
-		{"銘を消す(})", '}', TRUE},
-		{"調査(I)", 'I', TRUE},
-		{"アイテム一覧(i)", 'i', TRUE},
-		{"", 0, FALSE},
-		{"", 0, FALSE},
-		{"", 0, FALSE}
-	},
-
-	{
-		{"装備する(w)", 'w', TRUE},
-		{"装備を外す(t/T)", 't', TRUE},
-		{"燃料を補給(F)", 'F', TRUE},
-		{"装備一覧(e)", 'e', TRUE},
-		{"", 0, FALSE},
-		{"", 0, FALSE},
-		{"", 0, FALSE},
-		{"", 0, FALSE},
-		{"", 0, FALSE},
-		{"", 0, FALSE}
-	},
-
-	{
-		{"開ける(o)", 'o', TRUE},
-		{"閉じる(c)", 'c', TRUE},
-		{"体当たりする(B/f)", 'B', TRUE},
-		{"くさびを打つ(j/S)", 'j', TRUE},
-		{"", 0, FALSE},
-		{"", 0, FALSE},
-		{"", 0, FALSE},
-		{"", 0, FALSE},
-		{"", 0, FALSE},
-		{"", 0, FALSE}
-	},
-
-	{
-		{"ダンジョンの全体図(M)", 'M', TRUE},
-		{"位置を確認(L/W)", 'L', TRUE},
-		{"階の雰囲気(^f)", KTRL('F'), TRUE},
-		{"ステータス(C)", 'C', TRUE},
-		{"文字の説明(/)", '/', TRUE},
-		{"メッセージ履歴(^p)", KTRL('P'), TRUE},
-		{"現在の時刻(^t/')", KTRL('T'), TRUE},
-		{"現在の知識(~)", '~', TRUE},
-		{"プレイ記録(|)", '|', TRUE},
-		{"", 0, FALSE}
-	},
-
-	{
-		{"オプション(=)", '=', TRUE},
-		{"マクロ(@)", '@', TRUE},
-		{"画面表示(%)", '%', TRUE},
-		{"カラー(&)", '&', TRUE},
-		{"設定変更コマンド(\")", '\"', TRUE},
-		{"自動拾いをロード($)", '$', TRUE},
-		{"システム(!)", '!', TRUE},
-		{"", 0, FALSE},
-		{"", 0, FALSE},
-		{"", 0, FALSE}
-	},
-
-	{
-		{"セーブ&中断(^x)", KTRL('X'), TRUE},
-		{"セーブ(^s)", KTRL('S'), TRUE},
-		{"ヘルプ(?)", '?', TRUE},
-		{"再描画(^r)", KTRL('R'), TRUE},
-		{"メモ(:)", ':', TRUE},
-		{"記念撮影())", ')', TRUE},
-		{"記念撮影の表示(()", '(', TRUE},
-		{"バージョン情報(V)", 'V', TRUE},
-		{"引退する(Q)", 'Q', TRUE},
-		{"", 0, FALSE}
-	},
-};
-#else
 menu_naiyou menu_info[10][10] =
 {
 	{
@@ -4048,7 +3914,6 @@ menu_naiyou menu_info[10][10] =
 		{"", 0, FALSE}
 	},
 };
-#endif
 
 typedef struct
 {
@@ -4071,7 +3936,7 @@ special_menu_naiyou special_menu_info[] =
 	{"必殺技/特殊能力", 0, 0, MENU_CLASS, CLASS_SAMURAI},
 	{"練気術/魔法/特殊能力", 0, 0, MENU_CLASS, CLASS_FORCETRAINER},
 	{"技/特殊能力", 0, 0, MENU_CLASS, CLASS_BERSERKER},
-	{"技術/特殊能力", 0, 0, MENU_CLASS, CLASS_SMITH},
+	{"技術/特殊能力", 0, 0, MENU_CLASS, CLASS_WEAPONSMITH},
 	{"鏡魔法/特殊能力", 0, 0, MENU_CLASS, CLASS_MIRROR_MASTER},
 	{"忍術/特殊能力", 0, 0, MENU_CLASS, CLASS_NINJA},
 	{"広域マップ(<)", 2, 6, MENU_WILD, FALSE},
@@ -4087,7 +3952,7 @@ special_menu_naiyou special_menu_info[] =
 	{"Technique/Special", 0, 0, MENU_CLASS, CLASS_SAMURAI},
 	{"Mind/Magic/Special", 0, 0, MENU_CLASS, CLASS_FORCETRAINER},
 	{"BrutalPower/Special", 0, 0, MENU_CLASS, CLASS_BERSERKER},
-	{"Technique/Special", 0, 0, MENU_CLASS, CLASS_SMITH},
+	{"Technique/Special", 0, 0, MENU_CLASS, CLASS_WEAPONSMITH},
 	{"MirrorMagic/Special", 0, 0, MENU_CLASS, CLASS_MIRROR_MASTER},
 	{"Ninjutsu/Special", 0, 0, MENU_CLASS, CLASS_NINJA},
 	{"Enter global map(<)", 2, 6, MENU_WILD, FALSE},
@@ -4561,49 +4426,26 @@ prt(format("回数: %d", command_arg), 0, 0);
 #endif
 
 	/* Hack -- Scan equipment */
-	for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
+	for (i = EQUIP_BEGIN; i < EQUIP_BEGIN + equip_count(); i++)
 	{
 		cptr s;
+		object_type *o_ptr = equip_obj(i);
 
-		object_type *o_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* No inscription */
+		if (!o_ptr) continue;
 		if (!o_ptr->inscription) continue;
 
-		/* Obtain the inscription */
 		s = quark_str(o_ptr->inscription);
-
-		/* Find a '^' */
 		s = my_strchr(s, '^');
-
-		/* Process preventions */
 		while (s)
 		{
-			/* Check the "restriction" character */
-#ifdef JP
-			if ((s[1] == caretcmd) || (s[1] == '*'))
-#else
 			if ((s[1] == command_cmd) || (s[1] == '*'))
-#endif
-
 			{
-				/* Hack -- Verify command */
-#ifdef JP
-				if (!get_check("本当ですか? "))
-#else
 				if (!get_check("Are you sure? "))
-#endif
-
 				{
 					/* Hack -- Use space */
 					command_cmd = ' ';
 				}
 			}
-
-			/* Find another '^' */
 			s = my_strchr(s + 1, '^');
 		}
 	}

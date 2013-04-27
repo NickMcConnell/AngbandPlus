@@ -143,6 +143,7 @@ typedef bool (*mut_pred)(int mut_idx);
 extern bool mut_good_pred(int mut_idx);
 extern bool mut_bad_pred(int mut_idx);
 extern bool mut_human_pred(int mut_idx);
+extern bool mut_demigod_pred(int mut_idx);
 extern bool mut_unlocked_pred(int mut_idx);
 
 extern void mut_calc_bonuses(void);
@@ -160,6 +161,7 @@ extern bool mut_lose(int mut_idx);
 extern void mut_lose_all(void);
 extern bool mut_lose_random(mut_pred pred);
 extern void mut_name(int i, char* buf);
+extern void mut_help_desc(int i, char* buf);
 extern bool mut_present(int mut_idx);
 extern void mut_process(void);
 extern int  mut_rating(int mut_idx);

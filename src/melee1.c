@@ -63,11 +63,6 @@ int check_hit(int power, int level, int stun, int m_idx)
 	/* Percentile dice */
 	k = randint0(100);
 
-	if (stun && one_in_(2)) return FALSE;
-
-	/* Hack -- Always miss or hit */
-	if (k < 10) return (k < 5);
-
 	/* Calculate the "attack quality" */
 	i = (power + (level * 3));
 
@@ -81,9 +76,22 @@ int check_hit(int power, int level, int stun, int m_idx)
 		ac += 100;
 	}
 
+#ifdef _DEBUG
+	{
+		int odds = 95*(i - ac*3/4)*1000/(i*100);
+		if (stun) odds /= 2;
+		if (odds < 50) odds = 50;
+		msg_format("MonHit?: %d.%d%% (AC=%d, Lvl=%d, Power=%d)", odds/10, odds%10, ac, level, power);
+	}
+#endif
+
+	if (stun && one_in_(2)) return FALSE;
+
+	/* Hack -- Always miss or hit */
+	if (k < 10) return (k < 5);
+
 	/* Power and Level compete against Armor */
-	/* Hack: Calc was AC * 3/4 ... */
-	if ((i > 0) && (randint1(i) > ((ac * 21) / 32))) return (TRUE);
+	if ((i > 0) && (randint1(i) > ((ac * 3) / 4))) return (TRUE);
 
 	/* Assume miss */
 	return (FALSE);
@@ -148,10 +156,6 @@ int reduce_melee_dam_p(int dam)
 	int result = dam;
 	switch (weaponmaster_get_toggle())
 	{
-	case TOGGLE_STONE_BONES:
-		result -= p_ptr->lev * p_ptr->lev / 50;
-		break;
-
 	case TOGGLE_BULWARK:
 		result -= (result + 2)/3;
 		break;
@@ -213,11 +217,7 @@ bool make_attack_normal(int m_idx)
 	if (!is_hostile(m_ptr)) return FALSE;
 
 	/* Extract the effective monster level */
-	rlev = r_ptr->melee_level;
-	if (!rlev)
-		rlev = r_ptr->level;
-	if (!rlev)
-		rlev = 1; /* Townies */
+	rlev = MON_MELEE_LVL(r_ptr, m_ptr);
 
 	/* Get the monster name (or "it") */
 	monster_desc(m_name, m_ptr, 0);
@@ -333,401 +333,141 @@ bool make_attack_normal(int m_idx)
 				!mon_save_p(m_ptr->r_idx, A_WIS) &&
 				!one_in_(3))
 			{
-				/* Remember the Evil-ness */
 				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_EVIL;
-
-				/* Message */
-#ifdef JP
-				if (abbreviate)
-				    msg_format("撃退した。");
-				else
-				    msg_format("%^sは撃退された。", m_name);
-				abbreviate = 1;/*２回目以降は省略 */
-#else
 				msg_format("%^s is repelled.", m_name);
-#endif
-
-
-				/* Hack -- Next attack */
 				if (retaliation_hack) break;
 				continue;
 			}
 			ht_cnt++;
 
-			/* Assume no cut or stun */
 			do_cut = do_stun = 0;
 
 			/* Describe the attack method */
 			switch (method)
 			{
-				case RBM_HIT:
+			case RBM_HIT:
+				act = "hits you.";
+				do_cut = do_stun = 1;
+				touched = TRUE;
+				sound(SOUND_HIT);
+				break;
+			case RBM_TOUCH:
+				act = "touches you.";
+				touched = TRUE;
+				sound(SOUND_TOUCH);
+				break;
+			case RBM_PUNCH:
+				act = "punches you.";
+				touched = TRUE;
+				do_stun = 1;
+				sound(SOUND_HIT);
+				break;
+			case RBM_KICK:
+				act = "kicks you.";
+				touched = TRUE;
+				do_stun = 1;
+				sound(SOUND_HIT);
+				break;
+			case RBM_CLAW:
+				act = "claws you.";
+				touched = TRUE;
+				do_cut = 1;
+				sound(SOUND_CLAW);
+				break;
+			case RBM_BITE:
+				act = "bites you.";
+				do_cut = 1;
+				touched = TRUE;
+				sound(SOUND_BITE);
+				break;
+			case RBM_STING:
+				act = "stings you.";
+				touched = TRUE;
+				sound(SOUND_STING);
+				break;
+			case RBM_SLASH:
+				act = "slashes you.";
+				touched = TRUE;
+				do_cut = 1;
+				sound(SOUND_CLAW);
+				break;
+			case RBM_BUTT:
+				act = "butts you.";
+				do_stun = 1;
+				touched = TRUE;
+				sound(SOUND_HIT);
+				break;
+			case RBM_CRUSH:
+				act = "crushes you.";
+				do_stun = 1;
+				touched = TRUE;
+				sound(SOUND_CRUSH);
+				break;
+			case RBM_ENGULF:
+				act = "engulfs you.";
+				touched = TRUE;
+				sound(SOUND_CRUSH);
+				break;
+			case RBM_CHARGE:
+				act = "charges you.";
+				touched = TRUE;
+				sound(SOUND_BUY); /* Note! This is "charges", not "charges at". */
+				break;
+			case RBM_CRAWL:
+				act = "crawls on you.";
+				touched = TRUE;
+				sound(SOUND_SLIME);
+				break;
+			case RBM_DROOL:
+				act = "drools on you.";
+				sound(SOUND_SLIME);
+				break;
+			case RBM_SPIT:
+				act = "spits on you.";
+				sound(SOUND_SLIME);
+				break;
+			case RBM_EXPLODE:
+				act = "explodes.";
+				explode = TRUE;
+				break;
+			case RBM_GAZE:
+				act = "gazes at you.";
+				break;
+			case RBM_WAIL:
+				act = "wails at you.";
+				sound(SOUND_WAIL);
+				break;
+			case RBM_SPORE:
+				act = "releases spores at you.";
+				sound(SOUND_SLIME);
+				break;
+			case RBM_XXX4:
+				act = "projects XXX4's at you.";
+				break;
+			case RBM_BEG:
+				act = "begs you for money.";
+				sound(SOUND_MOAN);
+				break;
+			case RBM_INSULT:
+				act = desc_insult[randint0(m_ptr->r_idx == MON_DEBBY ? 10 : 8)];
+				sound(SOUND_MOAN);
+				break;
+			case RBM_MOAN:
+				act = desc_moan[randint0(4)];
+				sound(SOUND_MOAN);
+				break;
+			case RBM_SHOW:
+				if (m_ptr->r_idx == MON_JAIAN)
+					act = "horribly sings 'I AM GIAAAAAN. THE BOOOSS OF THE KIIIIDS.'";
+				else
 				{
-#ifdef JP
-					act = "殴られた。";
-#else
-					act = "hits you.";
-#endif
-
-					do_cut = do_stun = 1;
-					touched = TRUE;
-					sound(SOUND_HIT);
-					break;
-				}
-
-				case RBM_TOUCH:
-				{
-#ifdef JP
-					act = "触られた。";
-#else
-					act = "touches you.";
-#endif
-
-					touched = TRUE;
-					sound(SOUND_TOUCH);
-					break;
-				}
-
-				case RBM_PUNCH:
-				{
-#ifdef JP
-					act = "パンチされた。";
-#else
-					act = "punches you.";
-#endif
-
-					touched = TRUE;
-					do_stun = 1;
-					sound(SOUND_HIT);
-					break;
-				}
-
-				case RBM_KICK:
-				{
-#ifdef JP
-					act = "蹴られた。";
-#else
-					act = "kicks you.";
-#endif
-
-					touched = TRUE;
-					do_stun = 1;
-					sound(SOUND_HIT);
-					break;
-				}
-
-				case RBM_CLAW:
-				{
-#ifdef JP
-					act = "ひっかかれた。";
-#else
-					act = "claws you.";
-#endif
-
-					touched = TRUE;
-					do_cut = 1;
-					sound(SOUND_CLAW);
-					break;
-				}
-
-				case RBM_BITE:
-				{
-#ifdef JP
-					act = "噛まれた。";
-#else
-					act = "bites you.";
-#endif
-
-					do_cut = 1;
-					touched = TRUE;
-					sound(SOUND_BITE);
-					break;
-				}
-
-				case RBM_STING:
-				{
-#ifdef JP
-					act = "刺された。";
-#else
-					act = "stings you.";
-#endif
-
-					touched = TRUE;
-					sound(SOUND_STING);
-					break;
-				}
-
-				case RBM_SLASH:
-				{
-#ifdef JP
-					act = "斬られた。";
-#else
-					act = "slashes you.";
-#endif
-
-					touched = TRUE;
-					do_cut = 1;
-					sound(SOUND_CLAW);
-					break;
-				}
-
-				case RBM_BUTT:
-				{
-#ifdef JP
-					act = "角で突かれた。";
-#else
-					act = "butts you.";
-#endif
-
-					do_stun = 1;
-					touched = TRUE;
-					sound(SOUND_HIT);
-					break;
-				}
-
-				case RBM_CRUSH:
-				{
-#ifdef JP
-					act = "体当たりされた。";
-#else
-					act = "crushes you.";
-#endif
-
-					do_stun = 1;
-					touched = TRUE;
-					sound(SOUND_CRUSH);
-					break;
-				}
-
-				case RBM_ENGULF:
-				{
-#ifdef JP
-					act = "飲み込まれた。";
-#else
-					act = "engulfs you.";
-#endif
-
-					touched = TRUE;
-					sound(SOUND_CRUSH);
-					break;
-				}
-
-				case RBM_CHARGE:
-				{
-#ifdef JP
-					abbreviate = -1;
-					act = "は請求書をよこした。";
-#else
-					act = "charges you.";
-#endif
-
-					touched = TRUE;
-					sound(SOUND_BUY); /* Note! This is "charges", not "charges at". */
-					break;
-				}
-
-				case RBM_CRAWL:
-				{
-#ifdef JP
-					abbreviate = -1;
-					act = "が体の上を這い回った。";
-#else
-					act = "crawls on you.";
-#endif
-
-					touched = TRUE;
-					sound(SOUND_SLIME);
-					break;
-				}
-
-				case RBM_DROOL:
-				{
-#ifdef JP
-					act = "よだれをたらされた。";
-#else
-					act = "drools on you.";
-#endif
-
-					sound(SOUND_SLIME);
-					break;
-				}
-
-				case RBM_SPIT:
-				{
-#ifdef JP
-					act = "唾を吐かれた。";
-#else
-					act = "spits on you.";
-#endif
-
-					sound(SOUND_SLIME);
-					break;
-				}
-
-				case RBM_EXPLODE:
-				{
-#ifdef JP
-					abbreviate = -1;
-					act = "は爆発した。";
-#else
-					act = "explodes.";
-#endif
-
-					explode = TRUE;
-					break;
-				}
-
-				case RBM_GAZE:
-				{
-#ifdef JP
-					act = "にらまれた。";
-#else
-					act = "gazes at you.";
-#endif
-
-					break;
-				}
-
-				case RBM_WAIL:
-				{
-#ifdef JP
-					act = "泣き叫ばれた。";
-#else
-					act = "wails at you.";
-#endif
-
-					sound(SOUND_WAIL);
-					break;
-				}
-
-				case RBM_SPORE:
-				{
-#ifdef JP
-					act = "胞子を飛ばされた。";
-#else
-					act = "releases spores at you.";
-#endif
-
-					sound(SOUND_SLIME);
-					break;
-				}
-
-				case RBM_XXX4:
-				{
-#ifdef JP
-					abbreviate = -1;
-					act = "が XXX4 を発射した。";
-#else
-					act = "projects XXX4's at you.";
-#endif
-
-					break;
-				}
-
-				case RBM_BEG:
-				{
-#ifdef JP
-					act = "金をせがまれた。";
-#else
-					act = "begs you for money.";
-#endif
-
-					sound(SOUND_MOAN);
-					break;
-				}
-
-				case RBM_INSULT:
-				{
-#ifdef JP
-					abbreviate = -1;
-#endif
-					act = desc_insult[randint0(m_ptr->r_idx == MON_DEBBY ? 10 : 8)];
-					sound(SOUND_MOAN);
-					break;
-				}
-
-				case RBM_MOAN:
-				{
-#ifdef JP
-					abbreviate = -1;
-#endif
-					act = desc_moan[randint0(4)];
-					sound(SOUND_MOAN);
-					break;
-				}
-
-				case RBM_SHOW:
-				{
-#ifdef JP
-					abbreviate = -1;
-#endif
-					if (m_ptr->r_idx == MON_JAIAN)
-					{
-#ifdef JP
-						switch(randint1(15))
-						{
-						  case 1:
-						  case 6:
-						  case 11:
-							act = "「♪お〜れはジャイアン〜〜ガ〜キだいしょう〜」";
-							break;
-						  case 2:
-							act = "「♪て〜んかむ〜てきのお〜とこだぜ〜〜」";
-							break;
-						  case 3:
-							act = "「♪の〜び太スネ夫はメじゃないよ〜〜」";
-							break;
-						  case 4:
-							act = "「♪け〜んかスポ〜ツ〜どんとこい〜」";
-							break;
-						  case 5:
-							act = "「♪うた〜も〜〜う〜まいぜ〜まかしとけ〜」";
-							break;
-						  case 7:
-							act = "「♪ま〜ちいちば〜んのに〜んきもの〜〜」";
-							break;
-						  case 8:
-							act = "「♪べんきょうしゅくだいメじゃないよ〜〜」";
-							break;
-						  case 9:
-							act = "「♪きはやさし〜くて〜ち〜からもち〜」";
-							break;
-						  case 10:
-							act = "「♪かお〜も〜〜スタイルも〜バツグンさ〜」";
-							break;
-						  case 12:
-							act = "「♪がっこうい〜ちの〜あ〜ばれんぼう〜〜」";
-							break;
-						  case 13:
-							act = "「♪ド〜ラもドラミもメじゃないよ〜〜」";
-							break;
-						  case 14:
-							act = "「♪よじげんぽけっと〜な〜くたって〜」";
-							break;
-						  case 15:
-							act = "「♪あし〜の〜〜ながさ〜は〜まけないぜ〜」";
-							break;
-						}
-#else
-						act = "horribly sings 'I AM GIAAAAAN. THE BOOOSS OF THE KIIIIDS.'";
-#endif
-					}
+					if (one_in_(3))
+						act = "sings 'We are a happy family.'";
 					else
-					{
-						if (one_in_(3))
-#ifdef JP
-							act = "は♪僕らは楽しい家族♪と歌っている。";
-						else
-							act = "は♪アイ ラブ ユー、ユー ラブ ミー♪と歌っている。";
-#else
-							act = "sings 'We are a happy family.'";
-						else
-							act = "sings 'I love you, you love me.'";
-#endif
-					}
-
-					sound(SOUND_SHOW);
-					break;
+						act = "sings 'I love you, you love me.'";
 				}
+				sound(SOUND_SHOW);
+				break;
 			}
 
 			/* Message */
@@ -810,7 +550,7 @@ bool make_attack_normal(int m_idx)
 					obvious = TRUE;
 
 					/* Hack -- Player armor reduces total damage */
-					damage -= (damage * ((ac < 200) ? ac : 200) / 333);
+					damage -= (damage * ((ac < 150) ? ac : 150) / 250);
 					damage = reduce_melee_dam_p(damage);
 
 					/* Take damage */
@@ -824,7 +564,7 @@ bool make_attack_normal(int m_idx)
 					if (explode) break;
 
 					/* Take "poison" effect */
-					if (!(p_ptr->resist_pois || IS_OPPOSE_POIS()) && !CHECK_MULTISHADOW())
+					if (!res_save_default(RES_POIS) && !CHECK_MULTISHADOW())
 					{
 						if (set_poisoned(p_ptr->poisoned + randint1(rlev) + 5, FALSE))
 						{
@@ -848,7 +588,7 @@ bool make_attack_normal(int m_idx)
 
 					if (one_in_(3))
 					{
-						if ((p_ptr->resist_disen || CHECK_MULTISHADOW()) && one_in_(2))
+						if ((res_save_default(RES_DISEN) || CHECK_MULTISHADOW()) && one_in_(2))
 						{
 						}
 						else if (disenchant_player())
@@ -858,7 +598,7 @@ bool make_attack_normal(int m_idx)
 					}
 					else 
 					{
-						if (!p_ptr->resist_disen && !CHECK_MULTISHADOW())
+						if (!res_save(RES_DISEN, 51) && !CHECK_MULTISHADOW())
 						{
 							/* Apply disenchantment */
 							if (apply_disenchant(0))
@@ -917,22 +657,8 @@ bool make_attack_normal(int m_idx)
 
 							obvious = TRUE;
 
-							/* Hack: Resist Charge Drain 
-							   We could make this a general ability, but for now,
-							   high level Demon Warlocks get this at CL40
-							*/
-							if ( p_ptr->pclass == CLASS_WARLOCK
-							  && p_ptr->psubclass == PACT_DEMON
-							  && p_ptr->lev > 39 
-							  /*&& saving_throw(p_ptr->skills.sav - r_ptr->level/2)*/ )
-							{
+							if (p_ptr->no_charge_drain)
 								break;
-							}
-
-							if (mut_present(MUT_DEMONIC_GRASP))
-							{
-								break;
-							}
 
 							msg_print(T("Energy drains from your pack!", "ザックからエネルギーが吸い取られた！"));
 							drained = TRUE;
@@ -959,7 +685,7 @@ bool make_attack_normal(int m_idx)
 					}
 
 					if ( !drained 
-					  && !(prace_is_(RACE_BALROG) || prace_is_(RACE_SKELETON) || prace_is_(MIMIC_DEMON) || prace_is_(MIMIC_DEMON_LORD)) )
+					  && !(prace_is_(RACE_BALROG) || prace_is_(RACE_MON_DEMON) || prace_is_(RACE_SKELETON) || prace_is_(MIMIC_DEMON) || prace_is_(MIMIC_DEMON_LORD)) )
 					{
 						msg_print("Food drains from your belly!");
 						set_food(MAX(0, MIN(p_ptr->food - 1000, p_ptr->food/2)));
@@ -1242,41 +968,28 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_EAT_LITE:
 				{
-					/* Access the lite */
-					o_ptr = &inventory[INVEN_LITE];
+					int slot = equip_find_object(TV_LITE, SV_ANY);
 
-					/* Take some damage */
 					damage = reduce_melee_dam_p(damage);
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
-
 					if (p_ptr->is_dead || CHECK_MULTISHADOW()) break;
 
-					if ((r_ptr->flags2 & RF2_THIEF) && is_original_ap_and_seen(m_ptr))
-						r_ptr->r_flags2 |= RF2_THIEF;
-
-					/* Drain fuel */
-					if ((o_ptr->xtra4 > 0) && (!object_is_fixed_artifact(o_ptr)))
+					if (slot)
 					{
-						/* Reduce fuel */
-						o_ptr->xtra4 -= (250 + randint1(250));
-						if (o_ptr->xtra4 < 1) o_ptr->xtra4 = 1;
-
-						/* Notice */
-						if (!p_ptr->blind)
+						o_ptr = equip_obj(slot);
+						if (o_ptr->xtra4 > 0 && !object_is_fixed_artifact(o_ptr))
 						{
-#ifdef JP
-							msg_print("明かりが暗くなってしまった。");
-#else
-							msg_print("Your light dims.");
-#endif
+							o_ptr->xtra4 -= (250 + randint1(250));
+							if (o_ptr->xtra4 < 1) o_ptr->xtra4 = 1;
 
-							obvious = TRUE;
+							if (!p_ptr->blind)
+							{
+								msg_print("Your light dims.");
+								obvious = TRUE;
+							}
+							p_ptr->window |= (PW_EQUIP);
 						}
-
-						/* Window stuff */
-						p_ptr->window |= (PW_EQUIP);
 					}
-
 					break;
 				}
 
@@ -1383,7 +1096,7 @@ bool make_attack_normal(int m_idx)
 					if (p_ptr->is_dead) break;
 
 					/* Increase "blind" */
-					if (!p_ptr->resist_blind && !CHECK_MULTISHADOW())
+					if (!res_save_default(RES_BLIND) && !CHECK_MULTISHADOW())
 					{
 						if (set_blind(p_ptr->blind + 10 + randint1(rlev), FALSE))
 						{
@@ -1412,7 +1125,7 @@ bool make_attack_normal(int m_idx)
 					if (p_ptr->is_dead) break;
 
 					/* Increase "confused" */
-					if (!p_ptr->resist_conf && !CHECK_MULTISHADOW())
+					if (!res_save_default(RES_CONF) && !CHECK_MULTISHADOW())
 					{
 						if (set_confused(p_ptr->confused + 3 + randint1(rlev), FALSE))
 						{
@@ -1488,7 +1201,7 @@ bool make_attack_normal(int m_idx)
 					{
 						if (!p_ptr->paralyzed)
 						{
-							if (set_paralyzed(3 + randint1(rlev), FALSE))
+							if (set_paralyzed(randint1(3), FALSE))
 							{
 								obvious = TRUE;
 							}
@@ -1610,7 +1323,7 @@ bool make_attack_normal(int m_idx)
 					obvious = TRUE;
 
 					/* Hack -- Reduce damage based on the player armor class */
-					damage -= (damage * ((ac < 200) ? ac : 200) / 333);
+					damage -= (damage * ((ac < 150) ? ac : 150) / 250);
 
 					/* Take damage */
 					damage = reduce_melee_dam_p(damage);
@@ -1702,7 +1415,7 @@ bool make_attack_normal(int m_idx)
 					if (p_ptr->is_dead || CHECK_MULTISHADOW()) break;
 
 					/* Take "poison" effect */
-					if (!(p_ptr->resist_pois || IS_OPPOSE_POIS()))
+					if (!res_save_default(RES_POIS))
 					{
 						if (set_poisoned(p_ptr->poisoned + randint1(rlev) + 5, FALSE))
 						{
@@ -1732,7 +1445,7 @@ bool make_attack_normal(int m_idx)
 				case RBE_TIME:
 				{
 					if (explode) break;
-					if (!p_ptr->resist_time && !CHECK_MULTISHADOW())
+					if (!res_save_default(RES_TIME) && !CHECK_MULTISHADOW())
 					{
 						switch (randint1(10))
 						{
@@ -1973,17 +1686,20 @@ msg_format("%sは体力を回復したようだ。", m_name);
 			{
 				bool do_retaliate = FALSE;
 
+				/* Hack for Bowmaster */
+				weaponmaster_do_readied_shot(m_ptr);
+
 				if (weaponmaster_get_toggle() == TOGGLE_TRADE_BLOWS)
 				{
 					if (m_ptr->ml && !p_ptr->confused && !p_ptr->stun && !p_ptr->blind && !p_ptr->paralyzed)
 						do_retaliate = TRUE;
 				}
-				else if (p_ptr->pclass == CLASS_MONK && (empty_hands(TRUE) & EMPTY_HAND_RARM))
+				else if (p_ptr->pclass == CLASS_MONK && p_ptr->weapon_info[0].bare_hands)
 				{
 					if (m_ptr->ml && !p_ptr->confused && !p_ptr->stun && !p_ptr->blind && !p_ptr->paralyzed && !mon_save_p(m_ptr->r_idx, A_DEX))
 						do_retaliate = TRUE;
 				}
-				else if (p_ptr->pclass == CLASS_FORCETRAINER && (empty_hands(TRUE) & EMPTY_HAND_RARM))
+				else if (p_ptr->pclass == CLASS_FORCETRAINER && p_ptr->weapon_info[0].bare_hands)
 				{
 					if (m_ptr->ml && !p_ptr->confused && !p_ptr->stun && !p_ptr->blind && !p_ptr->paralyzed && !mon_save_p(m_ptr->r_idx, A_DEX) && one_in_(2))
 						do_retaliate = TRUE;
@@ -2124,25 +1840,15 @@ msg_format("%sは体力を回復したようだ。", m_name);
 				}
 
 				/* by henkma */
-				if (p_ptr->dustrobe && alive && !p_ptr->is_dead)
+				if ((p_ptr->dustrobe || p_ptr->sh_shards) && alive && !p_ptr->is_dead)
 				{
 					if (!(r_ptr->flagsr & RFR_EFF_RES_SHAR_MASK))
 					{
 						int dam = _aura_dam_p();
 
-						/* Modify the damage */
 						dam = mon_damage_mod(m_ptr, dam, FALSE);
-
-#ifdef JP
-						msg_format("%^sは鏡の破片をくらった！", m_name);
-						if (mon_take_hit(m_idx, dam, &fear,
-						    "はズタズタになった。"))
-#else
-						msg_format("%^s gets zapped!", m_name);
-
-						if (mon_take_hit(m_idx, dam, &fear,
-						    " had torn to pieces."))
-#endif
+						msg_format("%^s gets shredded!", m_name);
+						if (mon_take_hit(m_idx, dam, &fear," was torn to pieces."))
 						{
 							blinked = FALSE;
 							alive = FALSE;
@@ -2154,9 +1860,35 @@ msg_format("%sは体力を回復したようだ。", m_name);
 							r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_RES_SHAR_MASK);
 					}
 
-					if (is_mirror_grid(&cave[py][px]))
-					{
+					if (p_ptr->dustrobe && is_mirror_grid(&cave[py][px]))
 						teleport_player(10, 0L);
+				}
+
+				if (p_ptr->tim_sh_time && alive && !p_ptr->is_dead)
+				{
+					if (!(r_ptr->flagsr & RFR_EFF_RES_TIME_MASK))
+					{
+						int dam = _aura_dam_p();
+						switch (randint1(3))
+						{
+						case 1:
+							msg_format("%^s gets chronosmashed!", m_name);
+							break;
+						case 2:
+							msg_format("%^s gets flux capacitated!", m_name);
+							break;
+						case 3:
+							msg_format("%^s withers!", m_name);
+							break;
+						}
+						project(0, 0, m_ptr->fy, m_ptr->fx, dam, GF_TIME, PROJECT_STOP | PROJECT_KILL | PROJECT_GRID, -1);
+						if (MON_CSLEEP(m_ptr))
+							break;
+					}
+					else
+					{
+						if (is_original_ap_and_seen(m_ptr))
+							r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_RES_TIME_MASK);
 					}
 				}
 
@@ -2166,7 +1898,7 @@ msg_format("%sは体力を回復したようだ。", m_name);
 					{
 						if (!(r_ptr->flagsr & RFR_RES_ALL))
 						{
-							int dam = damroll(2, 6);
+							int dam = _aura_dam_p();
 
 							/* Modify the damage */
 							dam = mon_damage_mod(m_ptr, dam, FALSE);
@@ -2200,7 +1932,7 @@ msg_format("%sは体力を回復したようだ。", m_name);
 				{
 					if (!(r_ptr->flagsr & RFR_RES_ALL))
 					{
-						int dam = damroll(2, 6);
+						int dam = _aura_dam_p();
 
 						/* Modify the damage */
 						dam = mon_damage_mod(m_ptr, dam, FALSE);
@@ -2230,53 +1962,60 @@ msg_format("%sは体力を回復したようだ。", m_name);
 
 				if (hex_spelling(HEX_SHADOW_CLOAK) && alive && !p_ptr->is_dead)
 				{
-					int dam = 1;
-					object_type *o_ptr = &inventory[INVEN_RARM];
-
 					if (!(r_ptr->flagsr & RFR_RES_ALL || r_ptr->flagsr & RFR_RES_DARK))
 					{
-						if (o_ptr->k_idx)
+						int dam = 1;
+						int slot, hand;
+						
+						for (hand = 0; hand < MAX_HANDS; hand++)
 						{
-							int basedam = ((o_ptr->dd + p_ptr->weapon_info[0].to_dd) * (o_ptr->ds + p_ptr->weapon_info[0].to_ds + 1));
-							dam = basedam / 2 + o_ptr->to_d + p_ptr->weapon_info[0].to_d;
+							object_type *o_ptr = NULL;
+							if (p_ptr->weapon_info[hand].wield_how != WIELD_NONE)
+								o_ptr = equip_obj(p_ptr->weapon_info[hand].slot);
+							if (o_ptr)
+							{
+								int dd = o_ptr->dd + p_ptr->weapon_info[hand].to_dd;
+								int ds = o_ptr->ds + p_ptr->weapon_info[hand].to_ds;
+								dam = dd * (ds + 1) / 2 + o_ptr->to_d + p_ptr->weapon_info[hand].to_d;
+								break;
+							}	
+						}
+						slot = equip_find_first(object_is_body_armour);
+						if (slot)
+						{
+							object_type *o_ptr = equip_obj(slot);
+							if (object_is_cursed(o_ptr))
+								dam *= 2;
 						}
 
-						/* Cursed armor makes damages doubled */
-						o_ptr = &inventory[INVEN_BODY];
-						if ((o_ptr->k_idx) && object_is_cursed(o_ptr)) dam *= 2;
-
-						/* Modify the damage */
 						dam = mon_damage_mod(m_ptr, dam, FALSE);
 
-#ifdef JP
-						msg_format("影のオーラが%^sに反撃した！", m_name);
-						if (mon_take_hit(m_idx, dam, &fear, "は倒れた。"))
-#else
 						msg_format("Enveloped shadows attack %^s.", m_name);
 
 						if (mon_take_hit(m_idx, dam, &fear, " is destroyed."))
-#endif
 						{
 							blinked = FALSE;
 							alive = FALSE;
 						}
-						else /* monster does not dead */
+						else
 						{
-							int j;
-							int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
-							int typ[4][2] = {
-								{ INVEN_HEAD, GF_OLD_CONF },
-								{ INVEN_LARM,  GF_OLD_SLEEP },
-								{ INVEN_HANDS, GF_TURN_ALL },
-								{ INVEN_FEET, GF_OLD_SLOW }
-							};
-
-							/* Some cursed armours gives an extra effect */
-							for (j = 0; j < 4; j++)
+							for (slot = equip_find_first(object_is_cursed);
+									slot;
+									slot = equip_find_next(object_is_cursed, slot))
 							{
-								o_ptr = &inventory[typ[j][0]];
-								if ((o_ptr->k_idx) && object_is_cursed(o_ptr) && object_is_armour(o_ptr))
-									project(0, 0, m_ptr->fy, m_ptr->fx, (p_ptr->lev * 2), typ[j][1], flg, -1);
+								object_type *o_ptr = equip_obj(slot);
+								int          effect = 0;
+								int          flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
+								
+								switch (equip_slot_type(slot))
+								{
+								case EQUIP_SLOT_HELMET: effect = GF_OLD_CONF; break;
+								case EQUIP_SLOT_GLOVES: effect = GF_TURN_ALL; break;
+								case EQUIP_SLOT_BOOTS: effect = GF_OLD_SLOW; break;
+								default: if (object_is_shield(o_ptr)) effect = GF_OLD_SLEEP;
+								}
+								if (effect)
+									project(0, 0, m_ptr->fy, m_ptr->fx, (p_ptr->lev * 2), effect, flg, -1);
 							}
 						}
 					}

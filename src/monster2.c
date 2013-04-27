@@ -148,6 +148,34 @@ cptr funny_comments[MAX_SAN_COMMENT] =
 
 };
 
+monster_type *mon_get_parent(monster_type *m_ptr)
+{
+	monster_type *result = NULL;
+	if (m_ptr->parent_m_idx)
+	{
+		result = &m_list[m_ptr->parent_m_idx];
+		if (!result->r_idx)
+			result = NULL;
+	}
+	return result;
+}
+
+void mon_set_parent(monster_type *m_ptr, int pm_idx)
+{
+	monster_type *pm_ptr;
+
+	if (pm_idx == m_ptr->parent_m_idx)
+		return;
+
+	pm_ptr = mon_get_parent(m_ptr);
+	if (pm_ptr && pm_ptr->summon_ct)
+		pm_ptr->summon_ct--;
+
+	m_ptr->parent_m_idx = pm_idx;
+	pm_ptr = mon_get_parent(m_ptr);
+	if (pm_ptr && pm_ptr->summon_ct < MAX_SHORT)
+		pm_ptr->summon_ct++;
+}
 
 /*
  * Set the target of counter attack
@@ -242,6 +270,7 @@ void delete_monster_idx(int i)
 	if (MON_MONFEAR(m_ptr)) (void)set_monster_monfear(i, 0);
 	if (MON_INVULNER(m_ptr)) (void)set_monster_invulner(i, 0, FALSE);
 
+	mon_set_parent(m_ptr, 0);
 
 	/* Hack -- remove target monster */
 	if (i == target_who) target_who = 0;
@@ -391,7 +420,10 @@ static void compact_monsters_aux(int i1, int i2)
 			monster_type *m2_ptr = &m_list[i];
 
 			if (m2_ptr->parent_m_idx == i1)
+			{
+				/* Don't call mon_set_parent() ... its the same parent! */
 				m2_ptr->parent_m_idx = i2;
+			}
 		}
 	}
 
@@ -484,14 +516,6 @@ void compact_monsters(int size)
 
 			/* All monsters get a saving throw */
 			if (randint0(100) < chance) continue;
-
-			if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
-			{
-				char m_name[80];
-
-				monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
-				do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_COMPACT, m_name);
-			}
 
 			/* Delete the monster */
 			delete_monster_idx(i);
@@ -596,6 +620,7 @@ void wipe_m_list(void)
 
 	/* Hack -- reset "reproducer" count */
 	num_repro = 0;
+	num_repro_kill = 0;
 
 	/* Hack -- no more target */
 	target_who = 0;
@@ -795,35 +820,20 @@ s16b m_pop(void)
 	/* Normal allocation */
 	if (m_max < max_m_idx)
 	{
-		/* Access the next hole */
 		i = m_max;
-
-		/* Expand the array */
 		m_max++;
-
-		/* Count monsters */
 		m_cnt++;
-
-		/* Return the index */
+		WIPE(&m_list[i], monster_type);
 		return (i);
 	}
-
-
 	/* Recycle dead monsters */
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type *m_ptr;
-
-		/* Acquire monster */
 		m_ptr = &m_list[i];
-
-		/* Skip live monsters */
 		if (m_ptr->r_idx) continue;
-
-		/* Count monsters */
 		m_cnt++;
-
-		/* Use this monster */
+		WIPE(m_ptr, monster_type);
 		return (i);
 	}
 
@@ -1489,7 +1499,7 @@ errr get_mon_num_prep(monster_hook_type monster_hook,
 			if (r_ptr->flags1 & RF1_QUESTOR)
 				continue;
 
-			if (r_ptr->flags7 & RF7_GUARDIAN)
+			if ((r_ptr->flags7 & RF7_GUARDIAN) && !(vanilla_town || lite_town))
 				continue;
 
 			/* Depth Monsters never appear out of depth */
@@ -1665,12 +1675,9 @@ s16b get_mon_num(int level)
 		r_idx = table[i].index;
 		r_ptr = &r_info[r_idx];
 
-		/* Hack: Only Olympians can summon Olympians ... */
-		if ((r_ptr->flags3 & RF3_OLYMPIAN) && summon_specific_who)
-		{
-			monster_race *sr_ptr = &r_info[m_list[summon_specific_who].r_idx];
-			if ((sr_ptr->flags3 & RF3_OLYMPIAN) != 0 && randint1(777) > sr_ptr->level) continue;
-		}
+		/* Hack: Camelot monsters only appear in Camelot. Olympians in Mt Olympus. */
+		if ((r_ptr->flags2 & RF2_CAMELOT) && dungeon_type != DUNGEON_CAMELOT) continue;
+		if ((r_ptr->flags3 & RF3_OLYMPIAN) && dungeon_type != DUNGEON_OLYMPUS) continue;
 
 		if (!p_ptr->inside_battle && !chameleon_change_m_idx)
 		{
@@ -2188,6 +2195,10 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 			break;
 		}
 	}
+	if (p_ptr->wizard && m_ptr->summon_ct)
+	{
+		strcat(desc, format("(%d summons)", m_ptr->summon_ct));
+	}
 }
 
 
@@ -2345,8 +2356,7 @@ void sanity_blast(monster_type *m_ptr, bool necro)
 	int power = 100;
 
 	if (p_ptr->inside_battle || !character_dungeon) return;
-	if (mut_present(MUT_WEIRD_MIND)) return;
-	if (p_ptr->rune_mind) return;
+	if (p_ptr->no_eldritch) return;
 
 	if (!necro)
 	{
@@ -2419,7 +2429,6 @@ void sanity_blast(monster_type *m_ptr, bool necro)
 
 		/* Demon characters are unaffected */
 		if (get_race_t()->flags & RACE_IS_DEMON) return;
-		if (p_ptr->pclass == CLASS_WARLOCK && p_ptr->psubclass == PACT_DEMON && p_ptr->lev > 29) return;
 
 		if (p_ptr->wizard) return;
 
@@ -2441,11 +2450,11 @@ msg_print("ネクロノミコンを読んで正気を失った！");
 
 	if (!saving_throw(p_ptr->skills.sav - power)) /* Mind blast */
 	{
-		if (!p_ptr->resist_conf)
+		if (!res_save_default(RES_CONF))
 		{
 			(void)set_confused(p_ptr->confused + randint0(4) + 4, FALSE);
 		}
-		if (!p_ptr->resist_chaos && one_in_(3))
+		if (!res_save_default(RES_CHAOS) && one_in_(3))
 		{
 			(void)set_image(p_ptr->image + randint0(25) + 15, FALSE);
 		}
@@ -2462,7 +2471,7 @@ msg_print("ネクロノミコンを読んで正気を失った！");
 
 	if (!saving_throw(p_ptr->skills.sav - power)) /* Brain smash */
 	{
-		if (!p_ptr->resist_conf)
+		if (!res_save_default(RES_CONF))
 		{
 			(void)set_confused(p_ptr->confused + randint0(4) + 4, FALSE);
 		}
@@ -2474,7 +2483,7 @@ msg_print("ネクロノミコンを読んで正気を失った！");
 			(void)do_dec_stat(A_INT);
 		while (randint0(100) > p_ptr->skills.sav)
 			(void)do_dec_stat(A_WIS);
-		if (!p_ptr->resist_chaos)
+		if (!res_save_default(RES_CHAOS))
 		{
 			(void)set_image(p_ptr->image + randint0(25) + 15, FALSE);
 		}
@@ -2501,8 +2510,8 @@ msg_print("あまりの恐怖に全てのことを忘れてしまった！");
 
 	/* Else gain permanent insanity */
 	if (mut_present(MUT_MORONIC) && /*(p_ptr->muta2 & MUT2_BERS_RAGE) &&*/
-		(mut_present(MUT_COWARDICE) || (p_ptr->resist_fear)) &&
-		(mut_present(MUT_HALLUCINATION) || (p_ptr->resist_chaos)))
+		(mut_present(MUT_COWARDICE) || res_save_default(RES_FEAR)) &&
+		(mut_present(MUT_HALLUCINATION) || res_save_default(RES_CHAOS)))
 	{
 		/* The poor bastard already has all possible insanities! */
 		return;
@@ -2549,7 +2558,7 @@ msg_print("あまりの恐怖に全てのことを忘れてしまった！");
 			case 9:
 			case 10:
 			case 11:
-				if (!mut_present(MUT_COWARDICE) && !p_ptr->resist_fear)
+				if (!mut_present(MUT_COWARDICE) && !res_save_default(RES_FEAR))
 				{
 					mut_gain(MUT_COWARDICE);
 					happened = TRUE;
@@ -2565,7 +2574,7 @@ msg_print("あまりの恐怖に全てのことを忘れてしまった！");
 			case 19:
 			case 20:
 			case 21:
-				if (!mut_present(MUT_HALLUCINATION) && !p_ptr->resist_chaos)
+				if (!mut_present(MUT_HALLUCINATION) && !res_save_default(RES_CHAOS))
 				{
 					mut_gain(MUT_HALLUCINATION);
 					happened = TRUE;
@@ -2694,6 +2703,9 @@ void update_mon(int m_idx, bool full)
 
 		/* Save the distance */
 		m_ptr->cdis = d;
+
+		if (m_ptr->cdis <= 2 && projectable(py, px, fy, fx))
+			do_disturb = TRUE;
 	}
 
 	/* Extract distance */
@@ -3569,11 +3581,11 @@ msg_print("守りのルーンが壊れた！");
 		/* Your pet summons its pet. */
 		if (is_pet(&m_list[who]))
 			mode |= PM_FORCE_PET;
-		m_ptr->parent_m_idx = who;
+		mon_set_parent(m_ptr, who);
 	}
 	else
 	{
-		m_ptr->parent_m_idx = 0;
+		mon_set_parent(m_ptr, 0);
 	}
 
 	if (r_ptr->flags7 & RF7_CHAMELEON)
@@ -3648,15 +3660,14 @@ msg_print("守りのルーンが壊れた！");
 	/* Extract the monster base speed */
 	m_ptr->mspeed = get_mspeed(r_ptr);
 	m_ptr->ac_adj = 0;
+	m_ptr->melee_adj = 0;
 
 	if (mode & PM_HASTE) (void)set_monster_fast(c_ptr->m_idx, 100);
 
 	/* Give a random starting energy */
 	if (!ironman_nightmare)
 	{
-		/*m_ptr->energy_need = ENERGY_NEED() - (s16b)randint0(100);*/
-		m_ptr->energy_need = ENERGY_NEED();
-		/*m_ptr->energy_need = ENERGY_NEED() - (s16b)randint0(30);*/
+		m_ptr->energy_need = ENERGY_NEED() - (s16b)randint0(100);
 	}
 	else
 	{
@@ -4179,8 +4190,9 @@ bool alloc_horde(int y, int x)
 		r_ptr = &r_info[r_idx];
 
 		if (r_ptr->flags1 & RF1_UNIQUE) continue;
-
 		if (r_idx == MON_HAGURE) continue;
+		if (r_ptr->flags4 & RF4_THROW) continue;
+
 		break;
 	}
 	if (attempts < 1) return FALSE;
@@ -4424,6 +4436,58 @@ bool summon_specific(int who, int y1, int x1, int lev, int type, u32b mode)
 	/* Save the "summon" type */
 	summon_specific_type = type;
 
+	/* Limit monster summons. But try to bring one back if possible */
+	if (who > 0 && m_list[who].summon_ct >= MAX_SUMMONS)
+	{
+		int i;
+		int monsters[MAX_SUMMONS];
+		int ct = 0;
+		monster_type *m_ptr;
+
+		/* Build a list of potential returnees */
+		for (i = 1; i < max_m_idx; i++)
+		{
+			m_ptr = &m_list[i];
+			if (!m_ptr->r_idx) continue;
+			if (m_ptr->parent_m_idx != who) continue;
+			if (!summon_specific_aux(m_ptr->r_idx)) continue;
+			if (los(m_ptr->fy, m_ptr->fx, y1, x1)) continue;
+			monsters[ct++] = i;
+			if (ct == MAX_SUMMONS) break;
+		}
+
+		/* Choose one randomly */
+		if (ct)
+		{
+			int oy, ox;
+			char buf[MAX_NLEN];
+	
+			i = monsters[randint0(ct)];
+			m_ptr = &m_list[i];
+
+			oy = m_ptr->fy;
+			ox = m_ptr->fx;
+			cave[oy][ox].m_idx = 0;
+
+			cave[y][x].m_idx = i;
+			m_ptr->fy = y;
+			m_ptr->fx = x;
+
+			reset_target(m_ptr);
+			update_mon(i, TRUE);
+			lite_spot(oy, ox);
+			lite_spot(y, x);
+			if (r_info[m_ptr->r_idx].flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
+				p_ptr->update |= (PU_MON_LITE);
+
+			monster_desc(buf, m_ptr, 0);
+			msg_format("%^s returns!", buf);
+
+			return TRUE;
+		}
+		return FALSE;
+	}
+
 	summon_unique_okay = (mode & PM_ALLOW_UNIQUE) ? TRUE : FALSE;
 	summon_cloned_okay = (mode & PM_ALLOW_CLONED) ? TRUE : FALSE;
 
@@ -4486,20 +4550,65 @@ bool summon_specific(int who, int y1, int x1, int lev, int type, u32b mode)
 /* A "dangerous" function, creates a pet of the specified type */
 bool summon_named_creature (int who, int oy, int ox, int r_idx, u32b mode)
 {
-	int x, y;
+	bool result = FALSE;
+	int x, y, i;
+	monster_race *r_ptr;
+	bool do_return = FALSE;
 
-	/* Paranoia */
-	/* if (!r_idx) return; */
-
-	/* Prevent illegal monsters */
 	if (r_idx >= max_r_idx) return FALSE;
-
 	if (p_ptr->inside_arena) return FALSE;
-
 	if (!mon_scatter(r_idx, &y, &x, oy, ox, 2)) return FALSE;
 
-	/* Place it (allow groups) */
-	return place_monster_aux(who, y, x, r_idx, (mode | PM_NO_KAGE));
+	r_ptr = &r_info[r_idx];
+
+	if (who > 0 && m_list[who].summon_ct >= MAX_SUMMONS)
+	{
+		do_return = TRUE;
+	}
+	else
+	{
+		if (!(r_ptr->flags7 & RF7_GUARDIAN) && r_ptr->cur_num < r_ptr->max_num)
+			result = place_monster_aux(who, y, x, r_idx, (mode | PM_NO_KAGE));
+		
+		if (!result && (r_ptr->flags1 & RF1_UNIQUE) && one_in_(2))
+			do_return = TRUE;
+	}
+
+	if (do_return)
+	{
+		for (i = 1; i < max_m_idx; i++)
+		{
+		monster_type *m_ptr = &m_list[i];
+		char buf[MAX_NLEN];
+
+			if (m_ptr->r_idx != r_idx) continue;
+			if (who > 0 && m_ptr->parent_m_idx != who) continue;
+			if (los(m_ptr->fy, m_ptr->fx, oy, ox)) continue;
+
+			oy = m_ptr->fy;
+			ox = m_ptr->fx;
+			cave[oy][ox].m_idx = 0;
+
+			cave[y][x].m_idx = i;
+			m_ptr->fy = y;
+			m_ptr->fx = x;
+
+			reset_target(m_ptr);
+			update_mon(i, TRUE);
+			lite_spot(oy, ox);
+			lite_spot(y, x);
+			if (r_info[m_ptr->r_idx].flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
+				p_ptr->update |= (PU_MON_LITE);
+
+			monster_desc(buf, m_ptr, 0);
+			msg_format("%^s returns!", buf);
+
+			result = TRUE;
+			break;
+		}
+	}
+
+	return result;
 }
 
 
@@ -4528,6 +4637,17 @@ bool multiply_monster(int m_idx, bool clone, u32b mode)
 	{
 		m_list[hack_m_idx_ii].smart |= SM_CLONED;
 		m_list[hack_m_idx_ii].mflag2 |= MFLAG2_NOPET;
+	}
+
+	/* Discourage farming ... */
+	if (num_repro_kill >= 50)
+	{
+		monster_race *r_ptr = &r_info[m_list[hack_m_idx_ii].r_idx];
+		m_list[hack_m_idx_ii].mspeed += MIN(5 * num_repro_kill / 50, 20);
+		m_list[hack_m_idx_ii].maxhp += MIN(m_list[hack_m_idx_ii].maxhp * num_repro_kill / 50, 2000);
+		m_list[hack_m_idx_ii].hp = m_list[hack_m_idx_ii].maxhp;
+		m_list[hack_m_idx_ii].ac_adj += MIN(10 * num_repro_kill / 50, 100);
+		m_list[hack_m_idx_ii].melee_adj += MIN(5 * num_repro_kill / 50, 100);
 	}
 
 	return TRUE;
@@ -5254,8 +5374,8 @@ msg_format("%^sはかすかにうめいた。", m_name);
 void update_smart_learn(int m_idx, int what)
 {
 	monster_type *m_ptr = &m_list[m_idx];
-
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	int pct;
 
 
 	/* Not allowed to learn */
@@ -5274,77 +5394,82 @@ void update_smart_learn(int m_idx, int what)
 	switch (what)
 	{
 	case DRS_ACID:
-		if (p_ptr->resist_acid) m_ptr->smart |= (SM_RES_ACID);
-		if (IS_OPPOSE_ACID()) m_ptr->smart |= (SM_OPP_ACID);
-		if (p_ptr->immune_acid) m_ptr->smart |= (SM_IMM_ACID);
+		pct = res_pct(RES_ACID);
+		if (pct >= 50) m_ptr->smart |= (SM_RES_ACID);
+		if (pct >= 65) m_ptr->smart |= (SM_OPP_ACID);
+		if (pct >= 100) m_ptr->smart |= (SM_IMM_ACID);
 		break;
 
 	case DRS_ELEC:
-		if (p_ptr->resist_elec) m_ptr->smart |= (SM_RES_ELEC);
-		if (IS_OPPOSE_ELEC()) m_ptr->smart |= (SM_OPP_ELEC);
-		if (p_ptr->immune_elec) m_ptr->smart |= (SM_IMM_ELEC);
+		pct = res_pct(RES_ELEC);
+		if (pct >= 50) m_ptr->smart |= (SM_RES_ELEC);
+		if (pct >= 65) m_ptr->smart |= (SM_OPP_ELEC);
+		if (pct >= 100) m_ptr->smart |= (SM_IMM_ELEC);
 		break;
 
 	case DRS_FIRE:
-		if (p_ptr->resist_fire) m_ptr->smart |= (SM_RES_FIRE);
-		if (IS_OPPOSE_FIRE()) m_ptr->smart |= (SM_OPP_FIRE);
-		if (p_ptr->immune_fire) m_ptr->smart |= (SM_IMM_FIRE);
+		pct = res_pct(RES_FIRE);
+		if (pct >= 50) m_ptr->smart |= (SM_RES_FIRE);
+		if (pct >= 65) m_ptr->smart |= (SM_OPP_FIRE);
+		if (pct >= 100) m_ptr->smart |= (SM_IMM_FIRE);
 		break;
 
 	case DRS_COLD:
-		if (p_ptr->resist_cold) m_ptr->smart |= (SM_RES_COLD);
-		if (IS_OPPOSE_COLD()) m_ptr->smart |= (SM_OPP_COLD);
-		if (p_ptr->immune_cold) m_ptr->smart |= (SM_IMM_COLD);
+		pct = res_pct(RES_COLD);
+		if (pct >= 50) m_ptr->smart |= (SM_RES_COLD);
+		if (pct >= 65) m_ptr->smart |= (SM_OPP_COLD);
+		if (pct >= 100) m_ptr->smart |= (SM_IMM_COLD);
 		break;
 
 	case DRS_POIS:
-		if (p_ptr->resist_pois) m_ptr->smart |= (SM_RES_POIS);
-		if (IS_OPPOSE_POIS()) m_ptr->smart |= (SM_OPP_POIS);
+		pct = res_pct(RES_POIS);
+		if (pct >= 50) m_ptr->smart |= (SM_RES_POIS);
+		if (pct >= 65) m_ptr->smart |= (SM_OPP_POIS);
 		break;
 
 
 	case DRS_NETH:
-		if (p_ptr->resist_neth) m_ptr->smart |= (SM_RES_NETH);
+		if (res_pct(RES_NETHER) >= 50) m_ptr->smart |= (SM_RES_NETH);
 		break;
 
 	case DRS_LITE:
-		if (p_ptr->resist_lite) m_ptr->smart |= (SM_RES_LITE);
+		if (res_pct(RES_LITE) >= 50) m_ptr->smart |= (SM_RES_LITE);
 		break;
 
 	case DRS_DARK:
-		if (p_ptr->resist_dark) m_ptr->smart |= (SM_RES_DARK);
+		if (res_pct(RES_DARK) >= 50) m_ptr->smart |= (SM_RES_DARK);
 		break;
 
 	case DRS_FEAR:
-		if (p_ptr->resist_fear) m_ptr->smart |= (SM_RES_FEAR);
+		if (res_pct(RES_FEAR) >= 50) m_ptr->smart |= (SM_RES_FEAR);
 		break;
 
 	case DRS_CONF:
-		if (p_ptr->resist_conf) m_ptr->smart |= (SM_RES_CONF);
+		if (res_pct(RES_CONF) >= 50) m_ptr->smart |= (SM_RES_CONF);
 		break;
 
 	case DRS_CHAOS:
-		if (p_ptr->resist_chaos) m_ptr->smart |= (SM_RES_CHAOS);
+		if (res_pct(RES_CHAOS) >= 50) m_ptr->smart |= (SM_RES_CHAOS);
 		break;
 
 	case DRS_DISEN:
-		if (p_ptr->resist_disen) m_ptr->smart |= (SM_RES_DISEN);
+		if (res_pct(RES_DISEN) >= 50) m_ptr->smart |= (SM_RES_DISEN);
 		break;
 
 	case DRS_BLIND:
-		if (p_ptr->resist_blind) m_ptr->smart |= (SM_RES_BLIND);
+		if (res_pct(RES_BLIND) >= 50) m_ptr->smart |= (SM_RES_BLIND);
 		break;
 
 	case DRS_NEXUS:
-		if (p_ptr->resist_nexus) m_ptr->smart |= (SM_RES_NEXUS);
+		if (res_pct(RES_NEXUS) >= 50) m_ptr->smart |= (SM_RES_NEXUS);
 		break;
 
 	case DRS_SOUND:
-		if (p_ptr->resist_sound) m_ptr->smart |= (SM_RES_SOUND);
+		if (res_pct(RES_SOUND) >= 50) m_ptr->smart |= (SM_RES_SOUND);
 		break;
 
 	case DRS_SHARD:
-		if (p_ptr->resist_shard) m_ptr->smart |= (SM_RES_SHARD);
+		if (res_pct(RES_SHARDS) >= 50) m_ptr->smart |= (SM_RES_SHARD);
 		break;
 
 	case DRS_FREE:

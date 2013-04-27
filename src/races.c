@@ -4,6 +4,18 @@
 /****************************************************************
  * Public Entrypoints
  ****************************************************************/
+int get_race_idx(cptr name)
+{
+	int i;
+	for (i = 0; i < MAX_RACES; i++)
+	{
+		race_t *race_ptr = get_race_t_aux(i, 0);
+		if (strcmp(name, race_ptr->name) == 0)
+			return i;
+	}
+	return -1;
+}
+
 race_t *get_race_t_aux(int prace, int psubrace)
 {
 	race_t *result = NULL;
@@ -95,6 +107,36 @@ race_t *get_race_t_aux(int prace, int psubrace)
 	case RACE_MIND_FLAYER:
 		result = mindflayer_get_race_t();
 		break;
+	case RACE_MON_ANGEL:
+		result = mon_angel_get_race_t();
+		break;
+	case RACE_MON_BEHOLDER:
+		result = mon_beholder_get_race_t();
+		break;
+	case RACE_MON_DEMON:
+		result = mon_demon_get_race_t();
+		break;
+	case RACE_MON_DRAGON:
+		result = mon_dragon_get_race_t(psubrace);
+		break;
+	case RACE_MON_GIANT:
+		result = mon_giant_get_race_t(psubrace);
+		break;
+	case RACE_MON_HOUND:
+		result = mon_hound_get_race_t();
+		break;
+	case RACE_MON_JELLY:
+		result = mon_jelly_get_race_t();
+		break;
+	case RACE_MON_LICH:
+		result = mon_lich_get_race_t();
+		break;
+	case RACE_MON_SPIDER:
+		result = mon_spider_get_race_t();
+		break;
+	case RACE_MON_XORN:
+		result = mon_xorn_get_race_t();
+		break;
 	case RACE_NIBELUNG:
 		result = nibelung_get_race_t();
 		break;
@@ -146,6 +188,12 @@ race_t *get_race_t_aux(int prace, int psubrace)
 		break;
 	case MIMIC_VAMPIRE:
 		result = vampire_lord_get_race_t();
+		break;
+	case MIMIC_SMALL_KOBOLD:
+		result = small_kobold_get_race_t();
+		break;
+	case MIMIC_MANGY_LEPER:
+		result = mangy_leper_get_race_t();
 		break;
 	}
 

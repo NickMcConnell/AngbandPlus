@@ -14,8 +14,8 @@ static int _klackon_get_powers(spell_info* spells, int max)
 }
 static void _klackon_calc_bonuses(void)
 {
-	p_ptr->resist_conf = TRUE;
-	p_ptr->resist_acid = TRUE;
+	res_add(RES_CONF);
+	res_add(RES_ACID);
 	p_ptr->pspeed += (p_ptr->lev) / 10;
 }
 static void _klackon_get_flags(u32b flgs[TR_FLAG_SIZE])
@@ -24,14 +24,6 @@ static void _klackon_get_flags(u32b flgs[TR_FLAG_SIZE])
 	add_flag(flgs, TR_RES_ACID);
 	if (p_ptr->lev > 9)
 		add_flag(flgs, TR_SPEED);
-}
-static void _klackon_spoiler_dump(FILE *fff)
-{
-	spoil_powers_aux(fff, _klackon_powers);
-	fprintf(fff, "\n== Abilities ==\n");
-	fprintf(fff, "  * Resist Acid\n");
-	fprintf(fff, "  * Resist Confusion\n");
-	fprintf(fff, "  * +L/10 Speed\n");
 }
 race_t *klackon_get_race_t(void)
 {
@@ -47,11 +39,11 @@ race_t *klackon_get_race_t(void)
 					"nimble, and become faster as they advance levels. They are also very acidic, "
 					"inherently resisting acid, and capable of spitting acid at higher levels.";
 
-		me.stats[A_STR] =  2;
+		me.stats[A_STR] =  1;
 		me.stats[A_INT] = -1;
 		me.stats[A_WIS] = -1;
 		me.stats[A_DEX] =  1;
-		me.stats[A_CON] =  2;
+		me.stats[A_CON] =  1;
 		me.stats[A_CHR] =  1;
 		
 		me.skills.dis = 10;
@@ -63,14 +55,13 @@ race_t *klackon_get_race_t(void)
 		me.skills.thn = 5;
 		me.skills.thb = 5;
 
-		me.hd = 12;
-		me.exp = 205;
+		me.life = 105;
+		me.exp = 170;
 		me.infra = 2;
 
 		me.calc_bonuses = _klackon_calc_bonuses;
 		me.get_powers = _klackon_get_powers;
 		me.get_flags = _klackon_get_flags;
-		me.spoiler_dump = _klackon_spoiler_dump;
 		init = TRUE;
 	}
 
@@ -91,17 +82,11 @@ static int _kobold_get_powers(spell_info* spells, int max)
 }
 static void _kobold_calc_bonuses(void)
 {
-	p_ptr->resist_pois = TRUE;
+	res_add(RES_POIS);
 }
 static void _kobold_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
 	add_flag(flgs, TR_RES_POIS);
-}
-static void _kobold_spoiler_dump(FILE *fff)
-{
-	spoil_powers_aux(fff, _kobold_powers);
-	fprintf(fff, "\n== Abilities ==\n");
-	fprintf(fff, "  * Resist Poison\n");
 }
 race_t *kobold_get_race_t(void)
 {
@@ -131,14 +116,13 @@ race_t *kobold_get_race_t(void)
 		me.skills.thn = 10;
 		me.skills.thb = -8;
 
-		me.hd = 9;
+		me.life = 98;
 		me.exp = 90;
 		me.infra = 3;
 
 		me.calc_bonuses = _kobold_calc_bonuses;
 		me.get_powers = _kobold_get_powers;
 		me.get_flags = _kobold_get_flags;
-		me.spoiler_dump = _kobold_spoiler_dump;
 		init = TRUE;
 	}
 
@@ -159,17 +143,11 @@ static int _kutar_get_powers(spell_info* spells, int max)
 }
 static void _kutar_calc_bonuses(void)
 {
-	p_ptr->resist_conf = TRUE;
+	res_add(RES_CONF);
 }
 static void _kutar_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
 	add_flag(flgs, TR_RES_CONF);
-}
-static void _kutar_spoiler_dump(FILE *fff)
-{
-	spoil_powers_aux(fff, _kutar_powers);
-	fprintf(fff, "\n== Abilities ==\n");
-	fprintf(fff, "  * Resist Confusion\n");
 }
 race_t *kutar_get_race_t(void)
 {
@@ -203,14 +181,13 @@ race_t *kutar_get_race_t(void)
 		me.skills.thn = 0;
 		me.skills.thb = -5;
 
-		me.hd = 11;
+		me.life = 102;
 		me.exp = 175;
 		me.infra = 0;
 
 		me.calc_bonuses = _kutar_calc_bonuses;
 		me.get_powers = _kutar_get_powers;
 		me.get_flags = _kutar_get_flags;
-		me.spoiler_dump = _kutar_spoiler_dump;
 		init = TRUE;
 	}
 
@@ -245,15 +222,6 @@ static void _mindflayer_get_flags(u32b flgs[TR_FLAG_SIZE])
 	if (p_ptr->lev >= 30)
 		add_flag(flgs, TR_TELEPATHY);
 }
-static void _mindflayer_spoiler_dump(FILE *fff)
-{
-	spoil_powers_aux(fff, _mindflayer_powers);
-	fprintf(fff, "\n== Abilities ==\n");
-	fprintf(fff, "  * Sustain Intelligence\n");
-	fprintf(fff, "  * Sustain Wisdom\n");
-	fprintf(fff, "  * See Invisible at L15\n");
-	fprintf(fff, "  * Telepathy at L30\n");
-}
 race_t *mindflayer_get_race_t(void)
 {
 	static race_t me = {0};
@@ -269,11 +237,11 @@ race_t *mindflayer_get_race_t(void)
 					"a good deal less admirable.  As they advance levels, they gain the powers of "
 					"See Invisible and Telepathy.";
 
-		me.stats[A_STR] = -3;
-		me.stats[A_INT] =  4;
-		me.stats[A_WIS] =  4;
+		me.stats[A_STR] = -2;
+		me.stats[A_INT] =  3;
+		me.stats[A_WIS] =  2;
 		me.stats[A_DEX] =  0;
-		me.stats[A_CON] = -2;
+		me.stats[A_CON] = -1;
 		me.stats[A_CHR] = -1;
 		
 		me.skills.dis = 10;
@@ -285,91 +253,13 @@ race_t *mindflayer_get_race_t(void)
 		me.skills.thn = -10;
 		me.skills.thb = -5;
 
-		me.hd = 9;
-		me.exp = 145;
+		me.life = 97;
+		me.exp = 150;
 		me.infra = 4;
 
 		me.calc_bonuses = _mindflayer_calc_bonuses;
 		me.get_powers = _mindflayer_get_powers;
 		me.get_flags = _mindflayer_get_flags;
-		me.spoiler_dump = _mindflayer_spoiler_dump;
-		init = TRUE;
-	}
-
-	return &me;
-}
-
-/****************************************************************
- * Mithril-Golem
- ****************************************************************/
-static void _mithril_golem_calc_bonuses(void)
-{
-	p_ptr->free_act = TRUE;
-	p_ptr->see_inv = TRUE;
-	p_ptr->hold_life = TRUE;
-	p_ptr->resist_pois = TRUE;
-	p_ptr->resist_shard = TRUE;
-	p_ptr->reflect = TRUE;
-	p_ptr->pspeed -= 2;
-	p_ptr->to_a += 20;
-	p_ptr->dis_to_a += 20;
-}
-static void _mithril_golem_get_flags(u32b flgs[TR_FLAG_SIZE])
-{
-	add_flag(flgs, TR_FREE_ACT);
-	add_flag(flgs, TR_SEE_INVIS);
-	add_flag(flgs, TR_HOLD_LIFE);
-	add_flag(flgs, TR_RES_POIS);
-	add_flag(flgs, TR_SPEED);
-	add_flag(flgs, TR_RES_SHARDS);
-	add_flag(flgs, TR_REFLECT);
-}
-static void _mithril_golem_spoiler_dump(FILE *fff)
-{
-	fprintf(fff, "\n== Abilities ==\n");
-	fprintf(fff, "  * -2 to Speed\n");
-	fprintf(fff, "  * +20 to Armor Class\n");
-	fprintf(fff, "  * Free Action\n");
-	fprintf(fff, "  * See Invisible\n");
-	fprintf(fff, "  * Hold Life\n");
-	fprintf(fff, "  * Resist Poison\n");
-	fprintf(fff, "  * Resist Shards\n");
-	fprintf(fff, "  * Reflection\n");
-}
-race_t *mithril_golem_get_race_t(void)
-{
-	static race_t me = {0};
-	static bool init = FALSE;
-
-	if (!init)
-	{
-		me.name = "Mithril-Golem";
-		me.desc = "";
-
-		me.stats[A_STR] =  5;
-		me.stats[A_INT] =  1;
-		me.stats[A_WIS] =  1;
-		me.stats[A_DEX] = -3;
-		me.stats[A_CON] =  5;
-		me.stats[A_CHR] =  2;
-		
-		me.skills.dis =  0;
-		me.skills.dev =  0;
-		me.skills.sav = 25;
-		me.skills.stl = -3;
-		me.skills.srh = -2;
-		me.skills.fos = 5;
-		me.skills.thn = 50;
-		me.skills.thb = -10;
-
-		me.hd = 13;
-		me.exp = 500;
-		me.infra = 4;
-		me.flags = RACE_IS_NONLIVING;
-
-		me.calc_bonuses = _mithril_golem_calc_bonuses;
-		me.get_flags = _mithril_golem_get_flags;
-		me.spoiler_dump = _mithril_golem_spoiler_dump;
 		init = TRUE;
 	}
 
@@ -392,20 +282,13 @@ static int _nibelung_get_powers(spell_info* spells, int max)
 }
 static void _nibelung_calc_bonuses(void)
 {
-	p_ptr->resist_disen = TRUE;
-	p_ptr->resist_dark = TRUE;
+	res_add(RES_DISEN);
+	res_add(RES_DARK);
 }
 static void _nibelung_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
 	add_flag(flgs, TR_RES_DISEN);
 	add_flag(flgs, TR_RES_DARK);
-}
-static void _nibelung_spoiler_dump(FILE *fff)
-{
-	spoil_powers_aux(fff, _nibelung_powers);
-	fprintf(fff, "\n== Abilities ==\n");
-	fprintf(fff, "  * Resist Dark\n");
-	fprintf(fff, "  * Resist Disenchantment\n");
 }
 race_t *nibelung_get_race_t(void)
 {
@@ -423,7 +306,7 @@ race_t *nibelung_get_race_t(void)
 		me.stats[A_INT] = -1;
 		me.stats[A_WIS] =  2;
 		me.stats[A_DEX] =  0;
-		me.stats[A_CON] =  2;
+		me.stats[A_CON] =  1;
 		me.stats[A_CHR] = -2;
 		
 		me.skills.dis =  3;
@@ -435,14 +318,13 @@ race_t *nibelung_get_race_t(void)
 		me.skills.thn =  9;
 		me.skills.thb =  0;
 
-		me.hd = 11;
+		me.life = 103;
 		me.exp = 165;
 		me.infra = 5;
 
 		me.calc_bonuses = _nibelung_calc_bonuses;
 		me.get_powers = _nibelung_get_powers;
 		me.get_flags = _nibelung_get_flags;
-		me.spoiler_dump = _nibelung_spoiler_dump;
 		init = TRUE;
 	}
 
@@ -459,17 +341,11 @@ static void _shadow_fairy_calc_bonuses(void)
 static void _shadow_fairy_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
 	add_flag(flgs, TR_LEVITATION);
+	res_add_vuln(RES_LITE);
 }
 static void _shadow_fairy_get_vulnerabilities(u32b flgs[TR_FLAG_SIZE])
 {
 	add_flag(flgs, TR_RES_LITE);
-}
-static void _shadow_fairy_spoiler_dump(FILE *fff)
-{
-	fprintf(fff, "\n== Abilities ==\n");
-	fprintf(fff, "  * Levitation\n");
-	fprintf(fff, "  * Vulnerability to Light\n");
-	fprintf(fff, "  * Resist Aggravation\n");
 }
 race_t *shadow_fairy_get_race_t(void)
 {
@@ -488,8 +364,8 @@ race_t *shadow_fairy_get_race_t(void)
 					"itself, the advantage will be lost).";
 
 		me.stats[A_STR] = -2;
-		me.stats[A_INT] =  2;
-		me.stats[A_WIS] =  2;
+		me.stats[A_INT] =  1;
+		me.stats[A_WIS] =  1;
 		me.stats[A_DEX] =  1;
 		me.stats[A_CON] = -1;
 		me.stats[A_CHR] = -3;
@@ -503,14 +379,13 @@ race_t *shadow_fairy_get_race_t(void)
 		me.skills.thn =-10;
 		me.skills.thb = -5;
 
-		me.hd = 7;
+		me.life = 91;
 		me.exp = 140;
 		me.infra = 4;
 
 		me.calc_bonuses = _shadow_fairy_calc_bonuses;
 		me.get_flags = _shadow_fairy_get_flags;
 		me.get_vulnerabilities = _shadow_fairy_get_vulnerabilities;
-		me.spoiler_dump = _shadow_fairy_spoiler_dump;
 		init = TRUE;
 	}
 
@@ -532,11 +407,11 @@ static int _skeleton_get_powers(spell_info* spells, int max)
 }
 static void _skeleton_calc_bonuses(void)
 {
-	p_ptr->resist_shard = TRUE;
+	res_add(RES_SHARDS);
 	p_ptr->hold_life = TRUE;
 	p_ptr->see_inv = TRUE;
-	p_ptr->resist_pois = TRUE;
-	if (p_ptr->lev >= 10) p_ptr->resist_cold = TRUE;
+	res_add(RES_POIS);
+	if (p_ptr->lev >= 10) res_add(RES_COLD);
 }
 static void _skeleton_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
@@ -546,16 +421,6 @@ static void _skeleton_get_flags(u32b flgs[TR_FLAG_SIZE])
 	add_flag(flgs, TR_RES_POIS);
 	if (p_ptr->lev >= 10)
 		add_flag(flgs, TR_RES_COLD);
-}
-static void _skeleton_spoiler_dump(FILE *fff)
-{
-	spoil_powers_aux(fff, _skeleton_powers);
-	fprintf(fff, "\n== Abilities ==\n");
-	fprintf(fff, "  * See Invisible\n");
-	fprintf(fff, "  * Hold Life\n");
-	fprintf(fff, "  * Resist Poison\n");
-	fprintf(fff, "  * Resist Shards\n");
-	fprintf(fff, "  * Resist Cold at L10\n");
 }
 race_t *skeleton_get_race_t(void)
 {
@@ -591,7 +456,7 @@ race_t *skeleton_get_race_t(void)
 		me.skills.thn = 10;
 		me.skills.thb = 0;
 
-		me.hd = 10;
+		me.life = 100;
 		me.exp = 115;
 		me.infra = 2;
 		me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD;
@@ -599,7 +464,6 @@ race_t *skeleton_get_race_t(void)
 		me.calc_bonuses = _skeleton_calc_bonuses;
 		me.get_powers = _skeleton_get_powers;
 		me.get_flags = _skeleton_get_flags;
-		me.spoiler_dump = _skeleton_spoiler_dump;
 		init = TRUE;
 	}
 
@@ -607,7 +471,7 @@ race_t *skeleton_get_race_t(void)
 }
 
 /****************************************************************
- * Snotling
+ * Snotling (A Joke Race)
  ****************************************************************/
 static void _devour_flesh_spell(int cmd, variant *res)
 {
@@ -620,6 +484,8 @@ static void _devour_flesh_spell(int cmd, variant *res)
 		var_set_string(res, "Devour flesh (yours) in order to fill your belly.");
 		break;
 	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (!get_check("It might hurt a bit. Are you sure?")) return;
 		msg_print("You devour your own flesh!");
 		set_food(PY_FOOD_MAX - 1);
 		set_cut(p_ptr->cut + CUT_SEVERE, FALSE);
@@ -647,15 +513,6 @@ static void _snotling_calc_bonuses(void)
 static void _snotling_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
 }
-static void _snotling_spoiler_dump(FILE *fff)
-{
-	spoil_powers_aux(fff, _snotling_powers);
-	fprintf(fff, "\n== Abilities ==\n");
-	fprintf(fff, "  * *Bullied* - Every time you are attacked (melee, ranged, or spell), you must make a save or be in Fear. If you resist fear, then this still applies but only 1 in 7.\n");
-	fprintf(fff, "  * *Recoil* - Whenever you fire a missile weapon, you are pushed 1 square back in the opposite direction.  If you would be pushed into a wall, you take damage instead.\n");
-	fprintf(fff, "  * *Mushroom Addict* - Eating any Mushroom gives +10 speed, Stone Skin, Heroism, and Giant Strength for X+dX turns (where X is native level of mushroom), in addition to normal mushroom effects.\n");
-	fprintf(fff, "  * *Treasured Mushroom* - You can read a Scroll of Artifact Creation on a mushroom to make it `The Eternal Mushroom of xxx` (where xxx is whatever you used it on, presumably Restoring).  If you eat the Eternal Mushroom, it goes into `(charging)` for 100 rounds, and then becomes available for eating again!\n");
-}
 race_t *snotling_get_race_t(void)
 {
 	static race_t me = {0};
@@ -669,30 +526,29 @@ race_t *snotling_get_race_t(void)
 					"or even cannon missiles. They are on the lowest rung of greenskin society and "
 					"are bullied by all. Snotlings often wield mushrooms or sticks into battle.";
 
-		me.stats[A_STR] = -1;
-		me.stats[A_INT] = -3;
+		me.stats[A_STR] = -2;
+		me.stats[A_INT] = -2;
 		me.stats[A_WIS] = -2;
-		me.stats[A_DEX] = -1;
-		me.stats[A_CON] = -1;
-		me.stats[A_CHR] = -2;
+		me.stats[A_DEX] = -2;
+		me.stats[A_CON] = -2;
+		me.stats[A_CHR] = -10;
 		
 		me.skills.dis = -3;
 		me.skills.dev = -3;
 		me.skills.sav = -2;
-		me.skills.stl = 1;
+		me.skills.stl = 2;
 		me.skills.srh = 0;
 		me.skills.fos = 7;
 		me.skills.thn = -5;
 		me.skills.thb = -5;
 
-		me.hd = 8;
-		me.exp = 65;
-		me.infra = 3;
+		me.life = 85;
+		me.exp = 35;
+		me.infra = 2;
 
 		me.calc_bonuses = _snotling_calc_bonuses;
 		me.get_powers = _snotling_get_powers;
 		me.get_flags = _snotling_get_flags;
-		me.spoiler_dump = _snotling_spoiler_dump;
 		init = TRUE;
 	}
 
@@ -714,12 +570,12 @@ static int _spectre_get_powers(spell_info* spells, int max)
 static void _spectre_calc_bonuses(void)
 {
 	p_ptr->levitation = TRUE;
-	p_ptr->resist_neth = TRUE;
+	res_add(RES_NETHER);
 	p_ptr->hold_life = TRUE;
 	p_ptr->see_inv = TRUE;
-	p_ptr->resist_pois = TRUE;
+	res_add(RES_POIS);
 	p_ptr->slow_digest = TRUE;
-	p_ptr->resist_cold = TRUE;
+	res_add(RES_COLD);
 	p_ptr->pass_wall = TRUE;
 }
 static void _spectre_get_flags(u32b flgs[TR_FLAG_SIZE])
@@ -731,19 +587,6 @@ static void _spectre_get_flags(u32b flgs[TR_FLAG_SIZE])
 	add_flag(flgs, TR_RES_NETHER);
 	add_flag(flgs, TR_RES_POIS);
 	add_flag(flgs, TR_SLOW_DIGEST);
-}
-static void _spectre_spoiler_dump(FILE *fff)
-{
-	spoil_powers_aux(fff, _spectre_powers);
-	fprintf(fff, "\n== Abilities ==\n");
-	fprintf(fff, "  * Slow Digestion\n");
-	fprintf(fff, "  * Levitation\n");
-	fprintf(fff, "  * See Invisible\n");
-	fprintf(fff, "  * Hold Life\n");
-	fprintf(fff, "  * Resist Cold\n");
-	fprintf(fff, "  * Resist Poison\n");
-	fprintf(fff, "  * *Resist* Nether\n");
-	fprintf(fff, "  * Pass Wall _(Note: Damage 1d(MHP/24) per round)_\n");
 }
 race_t *spectre_get_race_t(void)
 {
@@ -763,7 +606,7 @@ race_t *spectre_get_race_t(void)
 					"from staves and wands as their energy source.";
 
 		me.stats[A_STR] = -5;
-		me.stats[A_INT] =  4;
+		me.stats[A_INT] =  3;
 		me.stats[A_WIS] =  2;
 		me.stats[A_DEX] =  2;
 		me.stats[A_CON] = -2;
@@ -778,15 +621,14 @@ race_t *spectre_get_race_t(void)
 		me.skills.thn =-15;
 		me.skills.thb = -5;
 
-		me.hd = 7;
-		me.exp = 300;
+		me.life = 90;
+		me.exp = 250;
 		me.infra = 5;
 		me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD;
 
 		me.calc_bonuses = _spectre_calc_bonuses;
 		me.get_powers = _spectre_get_powers;
 		me.get_flags = _spectre_get_flags;
-		me.spoiler_dump = _spectre_spoiler_dump;
 		init = TRUE;
 	}
 
@@ -808,7 +650,7 @@ static int _sprite_get_powers(spell_info* spells, int max)
 static void _sprite_calc_bonuses(void)
 {
 	p_ptr->levitation = TRUE;
-	p_ptr->resist_lite = TRUE;
+	res_add(RES_LITE);
 	p_ptr->pspeed += (p_ptr->lev) / 10;
 }
 static void _sprite_get_flags(u32b flgs[TR_FLAG_SIZE])
@@ -817,14 +659,6 @@ static void _sprite_get_flags(u32b flgs[TR_FLAG_SIZE])
 	add_flag(flgs, TR_LEVITATION);
 	if (p_ptr->lev >= 10)
 		add_flag(flgs, TR_SPEED);
-}
-static void _sprite_spoiler_dump(FILE *fff)
-{
-	spoil_powers_aux(fff, _sprite_powers);
-	fprintf(fff, "\n== Abilities ==\n");
-	fprintf(fff, "  * Levitation\n");
-	fprintf(fff, "  * Resist Light\n");
-	fprintf(fff, "  * +L/10 Speed\n");
 }
 race_t *sprite_get_race_t(void)
 {
@@ -841,12 +675,12 @@ race_t *sprite_get_race_t(void)
 					"Sprites have the special power of spraying Sleeping Dust, and at higher levels they "
 					"learn to fly faster.";
 
-		me.stats[A_STR] = -4;
-		me.stats[A_INT] =  3;
-		me.stats[A_WIS] =  3;
-		me.stats[A_DEX] =  3;
-		me.stats[A_CON] = -2;
-		me.stats[A_CHR] = -2;
+		me.stats[A_STR] = -2;
+		me.stats[A_INT] =  1;
+		me.stats[A_WIS] =  1;
+		me.stats[A_DEX] =  1;
+		me.stats[A_CON] = -1;
+		me.stats[A_CHR] = -1;
 		
 		me.skills.dis = 10;
 		me.skills.dev =  8;
@@ -857,14 +691,13 @@ race_t *sprite_get_race_t(void)
 		me.skills.thn =-12;
 		me.skills.thb =  0;
 
-		me.hd = 7;
-		me.exp = 185;
+		me.life = 91;
+		me.exp = 135;
 		me.infra = 4;
 
 		me.calc_bonuses = _sprite_calc_bonuses;
 		me.get_powers = _sprite_get_powers;
 		me.get_flags = _sprite_get_flags;
-		me.spoiler_dump = _sprite_spoiler_dump;
 		init = TRUE;
 	}
 
@@ -876,30 +709,22 @@ race_t *sprite_get_race_t(void)
  ****************************************************************/
 static void _tonberry_calc_bonuses(void)
 {
-	int dam = 15+(p_ptr->lev/10);
+	int dam = 15*p_ptr->lev/50;
+	int hand;
 
 	p_ptr->sustain_str = TRUE;
 	p_ptr->sustain_con = TRUE;
-	p_ptr->resist_fear = TRUE;
-	p_ptr->pspeed -= 3;
+	res_add(RES_FEAR);
+	p_ptr->pspeed -= 5*p_ptr->lev/50;
 	p_ptr->to_d_m  += dam;
 
-	if (buki_motteruka(INVEN_LARM) && buki_motteruka(INVEN_RARM))
+	for (hand = 0; hand < MAX_HANDS; hand++)
 	{
-		p_ptr->weapon_info[0].to_d += (dam + 1) / 2;
-		p_ptr->weapon_info[1].to_d += dam/2;
-		p_ptr->weapon_info[0].dis_to_d += (dam + 1) / 2;
-		p_ptr->weapon_info[1].dis_to_d += dam/2;
-	}
-	else if (buki_motteruka(INVEN_LARM)) /* Cursed in offhand, shield in leading hand */
-	{
-		p_ptr->weapon_info[1].to_d += dam;
-		p_ptr->weapon_info[1].dis_to_d += dam;
-	}
-	else
-	{
-		p_ptr->weapon_info[0].to_d += dam;
-		p_ptr->weapon_info[0].dis_to_d += dam;
+		if (p_ptr->weapon_info[hand].wield_how != WIELD_NONE)
+		{
+			p_ptr->weapon_info[hand].to_d += dam / p_ptr->weapon_ct;
+			p_ptr->weapon_info[hand].dis_to_d += dam / p_ptr->weapon_ct;
+		}
 	}
 }
 static void _tonberry_get_flags(u32b flgs[TR_FLAG_SIZE])
@@ -908,15 +733,6 @@ static void _tonberry_get_flags(u32b flgs[TR_FLAG_SIZE])
 	add_flag(flgs, TR_SUST_CON);
 	add_flag(flgs, TR_SPEED);
 	add_flag(flgs, TR_RES_FEAR);
-}
-static void _tonberry_spoiler_dump(FILE *fff) 
-{ 
-	fprintf(fff, "\n== Abilities ==\n");
-	fprintf(fff, "  * +15+L/10 to Damage\n");
-	fprintf(fff, "  * -3 to Speed\n");
-	fprintf(fff, "  * Sustain Strength\n");
-	fprintf(fff, "  * Sustain Constitution\n");
-	fprintf(fff, "  * Resist Fear\n");
 }
 race_t *tonberry_get_race_t(void)
 {
@@ -933,11 +749,11 @@ race_t *tonberry_get_race_t(void)
 					"They possess human-like intelligence, but rarely become mages due "
 					"to their culture and physiology.";
 		
-		me.stats[A_STR] =  4;
+		me.stats[A_STR] =  3;
 		me.stats[A_INT] =  0;
-		me.stats[A_WIS] = -2;
-		me.stats[A_DEX] = -4;
-		me.stats[A_CON] =  5;
+		me.stats[A_WIS] = -1;
+		me.stats[A_DEX] = -3;
+		me.stats[A_CON] =  3;
 		me.stats[A_CHR] =  0;
 		
 		me.skills.dis = -5;
@@ -949,13 +765,12 @@ race_t *tonberry_get_race_t(void)
 		me.skills.thn = 20;
 		me.skills.thb =-10;
 
-		me.hd = 13;
-		me.exp = 195;
+		me.life = 108;
+		me.exp = 175;
 		me.infra = 2;
 
 		me.calc_bonuses = _tonberry_calc_bonuses;
 		me.get_flags = _tonberry_get_flags;
-		me.spoiler_dump = _tonberry_spoiler_dump;
 		init = TRUE;
 	}
 
@@ -976,11 +791,12 @@ static int _vampire_get_powers(spell_info* spells, int max)
 }
 static void _vampire_calc_bonuses(void)
 {
-	p_ptr->resist_dark = TRUE;
+	res_add(RES_DARK);
+	res_add(RES_NETHER);
+	res_add(RES_COLD);
+	res_add(RES_POIS);
+	res_add_vuln(RES_LITE);
 	p_ptr->hold_life = TRUE;
-	p_ptr->resist_neth = TRUE;
-	p_ptr->resist_cold = TRUE;
-	p_ptr->resist_pois = TRUE;
 	if (p_ptr->pclass != CLASS_NINJA) p_ptr->lite = TRUE;
 }
 static void _vampire_get_flags(u32b flgs[TR_FLAG_SIZE])
@@ -1000,18 +816,6 @@ static void _vampire_get_vulnerabilities(u32b flgs[TR_FLAG_SIZE])
 {
 	add_flag(flgs, TR_RES_LITE);
 }
-static void _vampire_spoiler_dump(FILE *fff)
-{
-	spoil_powers_aux(fff, _vampire_powers);
-	fprintf(fff, "\n== Abilities ==\n");
-	fprintf(fff, "  * Resist Cold\n");
-	fprintf(fff, "  * Resist Poison\n");
-	fprintf(fff, "  * Resist Nether\n");
-	fprintf(fff, "  * Hold Life\n");
-	fprintf(fff, "  * Immunity to Dark\n");
-	fprintf(fff, "  * Vulnerability to Light\n");
-	fprintf(fff, "  * +1 Light Radius (unless a Ninja)\n");
-}
 race_t *vampire_get_race_t(void)
 {
 	static race_t me = {0};
@@ -1029,9 +833,9 @@ race_t *vampire_get_race_t(void)
 					"perpetual hunger for fresh blood, which can only be satiated by sucking the blood "
 					"from a nearby monster.";
 
-		me.stats[A_STR] =  3;
-		me.stats[A_INT] =  3;
-		me.stats[A_WIS] = -1;
+		me.stats[A_STR] =  2;
+		me.stats[A_INT] =  2;
+		me.stats[A_WIS] = -2;
 		me.stats[A_DEX] = -1;
 		me.stats[A_CON] =  1;
 		me.stats[A_CHR] =  2;
@@ -1045,8 +849,8 @@ race_t *vampire_get_race_t(void)
 		me.skills.thn = 5;
 		me.skills.thb = 0;
 
-		me.hd = 11;
-		me.exp = 245;
+		me.life = 100;
+		me.exp = 200;
 		me.infra = 5;
 		me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD;
 
@@ -1055,110 +859,6 @@ race_t *vampire_get_race_t(void)
 		me.get_flags = _vampire_get_flags;
 		me.get_immunities = _vampire_get_immunities;
 		me.get_vulnerabilities = _vampire_get_vulnerabilities;
-		me.spoiler_dump = _vampire_spoiler_dump;
-		init = TRUE;
-	}
-
-	return &me;
-}
-
-/****************************************************************
- * Vampire-Lord (cf Polymorph Vampire)
- ****************************************************************/
-static power_info _vampire_lord_powers[] =
-{
-	{ A_CON, {2, 1, 60, vampirism_spell}},
-	{ -1, {-1, -1, -1, NULL} }
-};
-static int _vampire_lord_get_powers(spell_info* spells, int max)
-{
-	return get_powers_aux(spells, max, _vampire_lord_powers);
-}
-static void _vampire_lord_calc_bonuses(void)
-{
-	p_ptr->resist_dark = TRUE;
-	p_ptr->hold_life = TRUE;
-	p_ptr->resist_neth = TRUE;
-	p_ptr->resist_cold = TRUE;
-	p_ptr->resist_pois = TRUE;
-	if (p_ptr->pclass != CLASS_NINJA) p_ptr->lite = TRUE;
-
-	p_ptr->see_inv = TRUE;
-	p_ptr->pspeed += 3;
-	p_ptr->to_a += 10;
-	p_ptr->dis_to_a += 10;
-}
-static void _vampire_lord_get_flags(u32b flgs[TR_FLAG_SIZE])
-{
-	add_flag(flgs, TR_HOLD_LIFE);
-	add_flag(flgs, TR_RES_DARK);
-	add_flag(flgs, TR_RES_NETHER);
-	if (p_ptr->pclass != CLASS_NINJA) add_flag(flgs, TR_LITE);
-	add_flag(flgs, TR_RES_POIS);
-	add_flag(flgs, TR_RES_COLD);
-	add_flag(flgs, TR_SEE_INVIS);
-	add_flag(flgs, TR_SPEED);
-}
-static void _vampire_lord_get_immunities(u32b flgs[TR_FLAG_SIZE])
-{
-	add_flag(flgs, TR_RES_DARK);
-}
-static void _vampire_lord_get_vulnerabilities(u32b flgs[TR_FLAG_SIZE])
-{
-	add_flag(flgs, TR_RES_LITE);
-}
-static void _vampire_lord_spoiler_dump(FILE *fff)
-{
-	spoil_powers_aux(fff, _vampire_lord_powers);
-	fprintf(fff, "\n== Abilities ==\n");
-	fprintf(fff, "  * +3 Speed\n");
-	fprintf(fff, "  * +10 Armor Class\n");
-	fprintf(fff, "  * Resist Cold\n");
-	fprintf(fff, "  * Resist Poison\n");
-	fprintf(fff, "  * Resist Nether\n");
-	fprintf(fff, "  * Hold Life\n");
-	fprintf(fff, "  * Immunity to Dark\n");
-	fprintf(fff, "  * Vulnerability to Light\n");
-	fprintf(fff, "  * See Invisible\n");
-	fprintf(fff, "  * +1 Light Radius (unless a Ninja)\n");
-}
-race_t *vampire_lord_get_race_t(void)
-{
-	static race_t me = {0};
-	static bool init = FALSE;
-
-	if (!init)
-	{
-		me.name = "Vampire-Lord";
-		me.desc = "";
-
-		me.stats[A_STR] =  4;
-		me.stats[A_INT] =  4;
-		me.stats[A_WIS] =  1;
-		me.stats[A_DEX] =  1;
-		me.stats[A_CON] =  2;
-		me.stats[A_CHR] =  3;
-		
-		me.skills.dis = 6;
-		me.skills.dev = 12;
-		me.skills.sav = 8;
-		me.skills.stl = 6;
-		me.skills.srh = 2;
-		me.skills.fos = 12;
-		me.skills.thn = 30;
-		me.skills.thb = 20;
-
-		me.hd = 11;
-		me.exp = 300;
-		me.infra = 5;
-		me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD;
-
-		me.calc_bonuses = _vampire_lord_calc_bonuses;
-		me.get_powers = _vampire_lord_get_powers;
-		me.get_flags = _vampire_lord_get_flags;
-		me.get_immunities = _vampire_lord_get_immunities;
-		me.get_vulnerabilities = _vampire_lord_get_vulnerabilities;
-		me.spoiler_dump = _vampire_lord_spoiler_dump;
 		init = TRUE;
 	}
 
@@ -1179,8 +879,8 @@ static int _yeek_get_powers(spell_info* spells, int max)
 }
 static void _yeek_calc_bonuses(void)
 {
-	p_ptr->resist_acid = TRUE;
-	if (p_ptr->lev >= 20) p_ptr->immune_acid = TRUE;
+	res_add(RES_ACID);
+	if (p_ptr->lev >= 20) res_add_immune(RES_ACID);
 }
 static void _yeek_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
@@ -1190,13 +890,6 @@ static void _yeek_get_immunities(u32b flgs[TR_FLAG_SIZE])
 {
 	if (p_ptr->lev >= 20) 
 		add_flag(flgs, TR_RES_ACID);
-}
-static void _yeek_spoiler_dump(FILE *fff)
-{
-	spoil_powers_aux(fff, _yeek_powers);
-	fprintf(fff, "\n== Abilities ==\n");
-	fprintf(fff, "  * Resist Acid\n");
-	fprintf(fff, "  * Immunity to Acid at L20\n");
 }
 race_t *yeek_get_race_t(void)
 {
@@ -1227,7 +920,7 @@ race_t *yeek_get_race_t(void)
 		me.skills.thn = -5;
 		me.skills.thb = -5;
 
-		me.hd = 7;
+		me.life = 90;
 		me.exp = 70;
 		me.infra = 2;
 
@@ -1235,7 +928,6 @@ race_t *yeek_get_race_t(void)
 		me.get_powers = _yeek_get_powers;
 		me.get_flags = _yeek_get_flags;
 		me.get_immunities = _yeek_get_immunities;
-		me.spoiler_dump = _yeek_spoiler_dump;
 		init = TRUE;
 	}
 
@@ -1256,12 +948,12 @@ static int _zombie_get_powers(spell_info* spells, int max)
 }
 static void _zombie_calc_bonuses(void)
 {
-	p_ptr->resist_neth = TRUE;
+	res_add(RES_NETHER);
 	p_ptr->hold_life = TRUE;
 	p_ptr->see_inv = TRUE;
-	p_ptr->resist_pois = TRUE;
+	res_add(RES_POIS);
 	p_ptr->slow_digest = TRUE;
-	if (p_ptr->lev >= 5) p_ptr->resist_cold = TRUE;
+	if (p_ptr->lev >= 5) res_add(RES_COLD);
 }
 static void _zombie_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
@@ -1272,17 +964,6 @@ static void _zombie_get_flags(u32b flgs[TR_FLAG_SIZE])
 	add_flag(flgs, TR_SLOW_DIGEST);
 	if (p_ptr->lev >= 5)
 		add_flag(flgs, TR_RES_COLD);
-}
-static void _zombie_spoiler_dump(FILE *fff)
-{
-	spoil_powers_aux(fff, _zombie_powers);
-	fprintf(fff, "\n== Abilities ==\n");
-	fprintf(fff, "  * Slow Digestion\n");
-	fprintf(fff, "  * See Invisible\n");
-	fprintf(fff, "  * Hold Life\n");
-	fprintf(fff, "  * Resist Poison\n");
-	fprintf(fff, "  * Resist Nether\n");
-	fprintf(fff, "  * Resist Cold at L5\n");
 }
 race_t *zombie_get_race_t(void)
 {
@@ -1303,7 +984,7 @@ race_t *zombie_get_race_t(void)
 		me.stats[A_INT] = -6;
 		me.stats[A_WIS] = -6;
 		me.stats[A_DEX] =  1;
-		me.stats[A_CON] =  4;
+		me.stats[A_CON] =  3;
 		me.stats[A_CHR] = -3;
 		
 		me.skills.dis = -5;
@@ -1315,7 +996,7 @@ race_t *zombie_get_race_t(void)
 		me.skills.thn = 15;
 		me.skills.thb = 0;
 
-		me.hd = 13;
+		me.life = 110;
 		me.exp = 180;
 		me.infra = 2;
 		me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD;
@@ -1323,7 +1004,6 @@ race_t *zombie_get_race_t(void)
 		me.calc_bonuses = _zombie_calc_bonuses;
 		me.get_powers = _zombie_get_powers;
 		me.get_flags = _zombie_get_flags;
-		me.spoiler_dump = _zombie_spoiler_dump;
 		init = TRUE;
 	}
 

@@ -1,3 +1,4 @@
+
 /* File: spells1.c */
 
 /*
@@ -128,6 +129,7 @@ static byte spell_color(int type)
 
 			case GF_ARROW:          return (0x0F);
 			case GF_WATER:          return (0x04);
+			case GF_WEB:          return (0x04);
 			case GF_NETHER:         return (0x07);
 			case GF_CHAOS:          return (mh_attr(15));
 			case GF_DISENCHANT:     return (0x05);
@@ -135,9 +137,11 @@ static byte spell_color(int type)
 			case GF_CONFUSION:      return (mh_attr(4));
 			case GF_SOUND:          return (0x09);
 			case GF_SHARDS:         return (0x08);
+			case GF_ROCK:         return (0x08);
 			case GF_FORCE:          return (0x09);
 			case GF_INERT:        return (0x09);
 			case GF_GRAVITY:        return (0x09);
+			case GF_AMNESIA:          return (0x09);
 			case GF_TIME:           return (0x09);
 			case GF_LITE_WEAK:      return (0x06);
 			case GF_LITE:           return (0x06);
@@ -866,6 +870,50 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 	/* Reduce damage by distance */
 	dam = (dam + r) / (r + 1);
 
+	if (have_flag(f_ptr->flags, FF_WEB))
+	{
+		cptr message = NULL;
+		switch (typ)
+		{
+		case GF_FIRE:
+		case GF_ELEC:
+		case GF_PLASMA:
+			message = "burns up."; 
+			break;
+		case GF_METEOR:
+		case GF_CHAOS:
+		case GF_MANA:
+		case GF_SHARDS:
+		case GF_ROCK:
+		case GF_ROCKET:
+		case GF_FORCE:
+			message = "is blasted."; 
+			break;
+		case GF_ACID:
+			message = "melts.";
+			break;
+		case GF_COLD:
+		case GF_ICE:
+			message = "is frozen.";
+			break;
+		case GF_PSY_SPEAR:
+		case GF_LITE:
+			message = "shrivels in the light.";
+			break;
+		case GF_WATER:
+			message = "is washed away.";
+			break;
+		case GF_GRAVITY:
+			message = "disappears";
+			break;
+		}
+		if (message)
+		{
+			msg_format("The web %s", message);
+			cave_set_feat(y, x, feat_floor);
+			if (c_ptr->info & (CAVE_MARK)) obvious = TRUE;
+		}
+	}
 
 	if (have_flag(f_ptr->flags, FF_TREE))
 	{
@@ -916,6 +964,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		case GF_SEEKER:
 		case GF_SUPER_RAY:
 		case GF_SHARDS:
+		case GF_ROCK:
 		case GF_ROCKET:
 		case GF_SOUND:
 		case GF_DISENCHANT:
@@ -1177,6 +1226,14 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
+		case GF_WEB:
+		{
+			if (!cave_clean_bold(y,x) || cave[y][x].m_idx) break;
+			cave_set_feat(y, x, feat_web);
+			if (c_ptr->info & (CAVE_MARK)) obvious = TRUE;
+			break;
+		}
+
 		/* Make doors */
 		case GF_MAKE_TREE:
 		{
@@ -1373,6 +1430,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		}
 
 		case GF_SHARDS:
+		case GF_ROCK:
 		case GF_ROCKET:
 		{
 			if (is_mirror_grid(c_ptr))
@@ -1669,6 +1727,7 @@ note_kill = "砕け散ってしまった！";
 			/* Hack -- break potions and such */
 			case GF_ICE:
 			case GF_SHARDS:
+			case GF_ROCK:
 			case GF_FORCE:
 			case GF_SOUND:
 			{
@@ -1953,7 +2012,7 @@ msg_format("%sは%s", o_name, note_kill);
  * We attempt to return "TRUE" if the player saw anything "useful" happen.
  */
 /* "flg" was added. */
-static bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see_s_msg)
+bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see_s_msg)
 {
 	int tmp;
 
@@ -2540,6 +2599,11 @@ note = "には耐性がある。";
 				}
 				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_WATE);
 			}
+			else
+			{
+				if (who || !mon_save_p(m_ptr->r_idx, A_NONE))
+					do_stun = (randint1(15) + 1) / (r + 1);
+			}
 			break;
 		}
 
@@ -2655,11 +2719,7 @@ note = "には耐性がある。";
 
 			if (r_ptr->flagsr & RFR_RES_ALL)
 			{
-#ifdef JP
-				note = "には完全な耐性がある！";
-#else
-				note = " is immune.";
-#endif
+				note = T(" is immune.", "には完全な耐性がある！");
 				dam = 0;
 				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
 				break;
@@ -2670,12 +2730,14 @@ note = "には耐性がある。";
 			}
 			else if (r_ptr->flags3 & RF3_NO_STUN)
 			{
+				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= (RF3_NO_STUN);
 			}
 			else if (MON_STUNNED(m_ptr))
 			{
 				note = " is already stunned.";
 			}
-			else if (mon_save_p(m_ptr->r_idx, A_CHR))
+			else if (mon_save_p(m_ptr->r_idx, A_CHR) 
+			      || ((r_ptr->flags1 & RF1_UNIQUE) && mon_save_p(m_ptr->r_idx, A_CHR)) )
 			{
 				note = " resists stunning.";
 			}
@@ -2684,31 +2746,38 @@ note = "には耐性がある。";
 			break;
 		}
 
+		case GF_ROCK:
+			if (seen) obvious = TRUE;
+			if (r_ptr->flagsr & RFR_RES_ALL)
+			{
+				note = " is immune.";
+				dam = 0;
+				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
+				break;
+			}
+			if (!(r_ptr->flagsr & RFR_RES_SOUN))
+			{
+				if (who == 0  && mon_save_p(m_ptr->r_idx, A_STR))
+					note = " resists stunning.";
+				else
+					do_stun = (10 + randint1(15) + r) / (r + 1);
+			}
+			break;
 
 		/* Sound -- Sound breathers resist */
 		case GF_SOUND:
 		{
 			if (seen) obvious = TRUE;
-
 			if (r_ptr->flagsr & RFR_RES_ALL)
 			{
-#ifdef JP
-				note = "には完全な耐性がある！";
-#else
 				note = " is immune.";
-#endif
 				dam = 0;
 				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
 				break;
 			}
 			if (r_ptr->flagsr & RFR_RES_SOUN)
 			{
-#ifdef JP
-				note = "には耐性がある。";
-#else
 				note = " resists.";
-#endif
-
 				dam *= 2; dam /= randint1(6) + 6;
 				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_SOUN);
 			}
@@ -2983,7 +3052,30 @@ note = "には耐性がある。";
 			}
 			break;
 		}
+		case GF_AMNESIA:
+		{
+			int ml = r_ptr->level;
+			if (r_ptr->flags1 & RF1_UNIQUE)
+				ml += 10;
+			
+			if (seen) obvious = TRUE;
 
+			if (r_ptr->flagsr & RFR_RES_ALL)
+			{
+				note = " is immune.";
+				dam = 0;
+				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
+				break;
+			}
+			if (randint1(dam) <= randint1(ml))
+				note = " resists.";
+			else if (mon_amnesia(c_ptr->m_idx))
+				note = " seems to have forgotten something.";
+			else
+				note = " doesn't seem to know much.";
+			dam = 0;
+			break;
+		}
 		/* Time -- breathers resist */
 		case GF_TIME:
 		{
@@ -2991,27 +3083,127 @@ note = "には耐性がある。";
 
 			if (r_ptr->flagsr & RFR_RES_ALL)
 			{
-#ifdef JP
-				note = "には完全な耐性がある！";
-#else
 				note = " is immune.";
-#endif
 				dam = 0;
 				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
 				break;
 			}
 			if (r_ptr->flagsr & RFR_RES_TIME)
 			{
-#ifdef JP
-				note = "には耐性がある。";
-#else
 				note = " resists.";
-#endif
-
 				dam *= 3; dam /= randint1(6) + 6;
 				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_TIME);
 			}
-			else do_time = (dam + 1) / 2;
+			else if (!who)
+			{
+				int ml = r_ptr->level;
+				int pl = p_ptr->lev;
+				bool unique = FALSE;
+
+				if (r_ptr->flags1 & RF1_UNIQUE)
+					unique = TRUE;
+
+				if (unique)
+					ml += 10;
+
+				if (p_ptr->lev > 40)
+					pl += (p_ptr->lev - 40) * 2;
+
+				if (randint1(pl) <= randint1(ml))
+				{
+					#ifdef _DEBUG
+					note = " resists the ravages of time.";
+					#endif
+				}
+				else
+				{
+					int which = randint1(100);
+					if (which <= 15)
+					{
+						if (unique)
+						{
+							#ifdef _DEBUG
+							note = " cannot be slowed.";
+							#endif
+						}
+						else if(set_monster_slow(c_ptr->m_idx, MON_SLOW(m_ptr) + 50))
+						{
+							#ifdef _DEBUG
+							note = " starts moving slower.";
+							#endif
+						}
+						else
+						{
+							#ifdef _DEBUG
+							note = " is already slow.";
+							#endif
+						}
+					}
+					else if (which <= 20)
+					{
+						if (devolve_monster(c_ptr->m_idx, p_ptr->wizard))
+							return TRUE;
+					}
+					else if (which <= 25)
+					{
+						if (evolve_monster(c_ptr->m_idx, p_ptr->wizard))
+							return TRUE;
+					}
+					else if (which <= 40)
+					{
+						if (!unique)
+						{
+							note = " is suspended!";
+							do_sleep = 500;
+						}
+						else
+						{
+							#ifdef _DEBUG
+							note = " cannot be suspended.";
+							#endif
+						}
+					}
+					else if (which <= 50)
+					{
+						m_ptr->ac_adj -= randint1(10);
+						note = " is more exposed!";
+					}
+					else if (which <= 60)
+					{
+						do_time = (dam + 1) / 2;
+					}
+					else if (which <= 70)
+					{
+						m_ptr->mspeed -= randint1(2);
+						note = " is permanently slowed!";
+					}
+					else if (which <= 80)
+					{
+						if (mon_amnesia(c_ptr->m_idx))
+							note = " seems to have forgotten something.";
+						else
+						{
+							#ifdef _DEBUG
+							note = " is unaffected by memory loss.";
+							#endif
+						}
+					}
+					else if (which <= 90)
+					{
+						m_ptr->melee_adj -= randint1(1 + r_ptr->level/10);
+						note = " shrinks!";
+					}
+					else
+					{
+						note = " is suddenly sluggish.";
+						m_ptr->energy_need += ENERGY_NEED();
+					}
+				}
+			}
+			else
+			{
+				do_time = (dam + 1) / 2;
+			}
 			break;
 		}
 
@@ -3654,7 +3846,8 @@ note = "があなたに隷属した。";
 				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
 				break;
 			}
-			do_stun = (randint1(15) + 1) / (r + 1);
+			if (who || !mon_save_p(m_ptr->r_idx, A_NONE))
+				do_stun = (randint1(15) + 1) / (r + 1);
 			if (r_ptr->flagsr & RFR_IM_COLD)
 			{
 #ifdef JP
@@ -4033,42 +4226,22 @@ note = "が分裂した！";
 
 			if (r_ptr->flagsr & RFR_RES_ALL)
 			{
-#ifdef JP
-				note = "には効果がなかった！";
-#else
 				note = " is immune.";
-#endif
 				dam = 0;
 				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
 				break;
 			}
-			/* Powerful monsters can resist */
-			if ((r_ptr->flags1 & RF1_UNIQUE) ||
-			    (r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+			if ( (r_ptr->flags1 & RF1_UNIQUE) 
+			  || r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10 )
 			{
-#ifdef JP
-note = "には効果がなかった！";
-#else
 				note = " is unaffected!";
-#endif
-
 				obvious = FALSE;
 			}
-
-			/* Normal monsters slow down */
 			else
 			{
 				if (set_monster_slow(c_ptr->m_idx, MON_SLOW(m_ptr) + 50))
-				{
-#ifdef JP
-					note = "の動きが遅くなった。";
-#else
 					note = " starts moving slower.";
-#endif
-				}
 			}
-
-			/* No "real" damage */
 			dam = 0;
 			break;
 		}
@@ -4222,8 +4395,7 @@ note = "は動けなくなった！";
 				break;
 			}
 			/* Attempt a saving throw */
-			if ((r_ptr->flags1 & RF1_UNIQUE) ||
-			    (r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+			if ((r_ptr->flags1 & RF1_UNIQUE) || r_ptr->level > randint1(dam))
 			{
 #ifdef JP
 note = "には効果がなかった！";
@@ -5643,7 +5815,7 @@ note_dies = "はドロドロに溶けた！";
 			   do the dirty work for us */
 			(void)set_monster_csleep(c_ptr->m_idx, 0);
 			m_ptr->ego_whip_ct = 5;
-			m_ptr->ego_whip_pow = psion_power();
+			m_ptr->ego_whip_pow = dam;
 			p_ptr->redraw |= PR_HEALTH;
 			return TRUE;
 			break;
@@ -5659,22 +5831,13 @@ note_dies = "はドロドロに溶けた！";
 				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
 				break;
 			}
-			if (r_ptr->flags3 & RF3_NO_CONF)
-			{
-				if (r_ptr->flags3 & (RF3_NO_CONF))
-				{
-					if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= (RF3_NO_CONF);
-				}
-				note = T(" is unaffected!", "には効果がなかった。");
-				dam = 0;
-			}
 			else if (r_ptr->flags2 & RF2_EMPTY_MIND)
 			{
 				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags2 |= (RF2_EMPTY_MIND);
 				note = T(" is immune!", "には完全な耐性がある！");
 				dam = 0;
 			}
-			else if (psion_mon_save_p(m_ptr->r_idx, psion_power()))
+			else if (psion_mon_save_p(m_ptr->r_idx, dam))
 			{
 				note = T(" resists!", "には耐性がある！");
 				dam = 0;
@@ -5690,7 +5853,14 @@ note_dies = "はドロドロに溶けた！";
 			{
 				note = T(" is blasted by psionic energy.", "は精神攻撃を食らった。");
 
-				do_conf = 2*dam;
+				if (r_ptr->flags3 & RF3_NO_CONF)
+				{
+					if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= (RF3_NO_CONF);
+				}
+				else
+				{
+					do_conf = 2*dam;
+				}
 				if (r_ptr->flags3 & RF3_NO_STUN)
 				{
 					if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_NO_STUN;
@@ -5806,7 +5976,7 @@ note_dies = "はドロドロに溶けた！";
 
 			/* Attempt a saving throw */
 			if ((r_ptr->flags1 & RF1_UNIQUE) ||
-				 (r_ptr->flags3 & RF3_NO_CONF) ||
+				/* (r_ptr->flags3 & RF3_NO_CONF) || */
 				 (r_ptr->level > randint1((caster_lev - 10) < 1 ? 1 : (caster_lev - 10)) + 10))
 			{
 				/* Memorize a flag */
@@ -5862,6 +6032,7 @@ note_dies = "はドロドロに溶けた！";
 					do_stun = randint0(8) + 8;
 				}
 				(void)set_monster_slow(c_ptr->m_idx, MON_SLOW(m_ptr) + 10);
+				if (r_ptr->flags3 & RF3_NO_CONF) do_conf = 0;
 			}
 			break;
 		}
@@ -5870,20 +6041,11 @@ note_dies = "はドロドロに溶けた！";
 		case GF_CAUSE_1:
 		{
 			if (seen) obvious = TRUE;
-			/* Message */
-#ifdef JP
-			if (!who) msg_format("%sを指差して呪いをかけた。", m_name);
-#else
-			if (!who) msg_format("You point at %s and curse.", m_name);
-#endif
+			if (!who) msg_format("You %s at %s and curse.", prace_is_(RACE_MON_BEHOLDER) ? "gaze" : "point", m_name);
 
 			if (r_ptr->flagsr & RFR_RES_ALL)
 			{
-#ifdef JP
-				note = "には完全な耐性がある！";
-#else
 				note = " is immune.";
-#endif
 				skipped = TRUE;
 				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
 				break;
@@ -5895,7 +6057,7 @@ note_dies = "はドロドロに溶けた！";
 #ifdef JP
 				note = "には効果がなかった。";
 #else
-				note = "is unaffected!";
+				note = " is unaffected!";
 #endif
 				dam = 0;
 			}
@@ -5906,20 +6068,11 @@ note_dies = "はドロドロに溶けた！";
 		case GF_CAUSE_2:
 		{
 			if (seen) obvious = TRUE;
-			/* Message */
-#ifdef JP
-			if (!who) msg_format("%sを指差して恐ろしげに呪いをかけた。", m_name);
-#else
-			if (!who) msg_format("You point at %s and curse horribly.", m_name);
-#endif
+			if (!who) msg_format("You %s at %s and curse horribly.", prace_is_(RACE_MON_BEHOLDER) ? "gaze" : "point", m_name);
 
 			if (r_ptr->flagsr & RFR_RES_ALL)
 			{
-#ifdef JP
-				note = "には完全な耐性がある！";
-#else
 				note = " is immune.";
-#endif
 				skipped = TRUE;
 				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
 				break;
@@ -5931,7 +6084,7 @@ note_dies = "はドロドロに溶けた！";
 #ifdef JP
 				note = "には効果がなかった。";
 #else
-				note = "is unaffected!";
+				note = " is unaffected!";
 #endif
 				dam = 0;
 			}
@@ -5967,7 +6120,7 @@ note_dies = "はドロドロに溶けた！";
 #ifdef JP
 				note = "には効果がなかった。";
 #else
-				note = "is unaffected!";
+				note = " is unaffected!";
 #endif
 				dam = 0;
 			}
@@ -5979,12 +6132,7 @@ note_dies = "はドロドロに溶けた！";
 		{
 			bool save = FALSE;
 			if (seen) obvious = TRUE;
-			/* Message */
-#ifdef JP
-			if (!who) msg_format("%sの秘孔を突いて、「お前は既に死んでいる」と叫んだ。", m_name);
-#else
-			if (!who) msg_format("You point at %s, screaming the word, 'DIE!'.", m_name);
-#endif
+			if (!who) msg_format("You %s at %s and scream the word, 'DIE!'.", prace_is_(RACE_MON_BEHOLDER) ? "gaze" : "point", m_name);
 
 			if (r_ptr->flagsr & RFR_RES_ALL)
 			{
@@ -6547,11 +6695,7 @@ note = "には効果がなかった。";
 		dam = mon_damage_mod_mon(m_ptr, dam, (bool)(typ == GF_PSY_SPEAR));
 	else
 		dam = mon_damage_mod(m_ptr, dam, (bool)(typ == GF_PSY_SPEAR));
-#ifdef JP
-	if ((tmp > 0) && (dam == 0)) note = "はダメージを受けていない。";
-#else
 	if ((tmp > 0) && (dam == 0)) note = " is unharmed.";
-#endif
 
 	/* Check for death */
 	if (dam > m_ptr->hp)
@@ -6572,22 +6716,12 @@ note = "には効果がなかった。";
 			/* Get stunned */
 			if (MON_STUNNED(m_ptr))
 			{
-#ifdef JP
-				note = "はひどくもうろうとした。";
-#else
 				note = " is more dazed.";
-#endif
-
 				tmp = MON_STUNNED(m_ptr) + (do_stun / 2);
 			}
 			else
 			{
-#ifdef JP
-				note = "はもうろうとした。";
-#else
 				note = " is dazed.";
-#endif
-
 				tmp = do_stun;
 			}
 
@@ -6609,24 +6743,14 @@ note = "には効果がなかった。";
 			/* Already partially confused */
 			if (MON_CONFUSED(m_ptr))
 			{
-#ifdef JP
-				note = "はさらに混乱したようだ。";
-#else
 				note = " looks more confused.";
-#endif
-
 				tmp = MON_CONFUSED(m_ptr) + (do_conf / 2);
 			}
 
 			/* Was not confused */
 			else
 			{
-#ifdef JP
-				note = "は混乱したようだ。";
-#else
 				note = " looks confused.";
-#endif
-
 				tmp = do_conf;
 			}
 
@@ -6646,11 +6770,7 @@ note = "には効果がなかった。";
 
 			if (do_time)
 			{
-#ifdef JP
-				note = "は弱くなったようだ。";
-#else
 				note = " seems weakened.";
-#endif
 				m_ptr->maxhp -= do_time;
 				if ((m_ptr->hp - dam) > m_ptr->maxhp) dam = m_ptr->hp - m_ptr->maxhp;
 			}
@@ -6666,23 +6786,14 @@ note = "には効果がなかった。";
 				if (seen) obvious = TRUE;
 
 				/* Monster polymorphs */
-#ifdef JP
-				note = "が変身した！";
-#else
 				note = " changes!";
-#endif
-
 				/* Turn off the damage */
 				dam = 0;
 			}
 			else
 			{
 				/* No polymorph */
-#ifdef JP
-				note = "には効果がなかった！";
-#else
 				note = " is unaffected!";
-#endif
 			}
 
 			/* Hack -- Get new monster */
@@ -6699,12 +6810,7 @@ note = "には効果がなかった。";
 			if (seen) obvious = TRUE;
 
 			/* Message */
-#ifdef JP
-			note = "が消え去った！";
-#else
 			note = " disappears!";
-#endif
-
 			if (!who) chg_virtue(V_VALOUR, -1);
 
 			/* Teleport */
@@ -6734,7 +6840,6 @@ note = "には効果がなかった。";
 	{
 		/* Drain mana does nothing */
 	}
-
 	/* If another monster did the damage, hurt the monster by hand */
 	else if (who)
 	{
@@ -6808,26 +6913,11 @@ note = "には効果がなかった。";
 			if (do_sleep) (void)set_monster_csleep(c_ptr->m_idx, do_sleep);
 		}
 	}
-
 	else if (heal_leper)
 	{
-#ifdef JP
-		if (seen_msg) msg_print("不潔な病人は病気が治った！");
-#else
 		if (seen_msg) msg_print("The Mangy looking leper is healed!");
-#endif
-
-		if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
-		{
-			char m2_name[80];
-
-			monster_desc(m2_name, m_ptr, MD_INDEF_VISIBLE);
-			do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_HEAL_LEPER, m2_name);
-		}
-
 		delete_monster_idx(c_ptr->m_idx);
 	}
-
 	/* If the player did it, give him experience, check fear */
 	else
 	{
@@ -7161,7 +7251,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 		set_fast(4, FALSE);
 	}
 
-	if ((p_ptr->reflect || ((p_ptr->special_defense & KATA_FUUJIN) && !p_ptr->blind)) && (flg & PROJECT_REFLECTABLE) && !one_in_(10))
+	if ((p_ptr->reflect || ((p_ptr->special_defense & KATA_FUUJIN) && !p_ptr->blind)) && (flg & PROJECT_REFLECTABLE) && !one_in_(4))
 	{
 		byte t_y, t_x;
 		int max_attempts = 10;
@@ -7181,8 +7271,8 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 		{
 			do
 			{
-				t_y = m_list[who].fy - 1 + randint1(3);
-				t_x = m_list[who].fx - 1 + randint1(3);
+				t_y = m_list[who].fy - 2 + randint0(5);
+				t_x = m_list[who].fx - 2 + randint0(5);
 				max_attempts--;
 			}
 			while (max_attempts && in_bounds2u(t_y, t_x) && !projectable(py, px, t_y, t_x));
@@ -7195,8 +7285,8 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 		}
 		else
 		{
-			t_y = py - 1 + randint1(3);
-			t_x = px - 1 + randint1(3);
+			t_y = py - 2 + randint0(5);
+			t_x = px - 2 + randint0(5);
 		}
 
 		project(0, 0, t_y, t_x, dam, typ, (PROJECT_STOP|PROJECT_KILL|PROJECT_REFLECTABLE), monspell);
@@ -7230,21 +7320,6 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 	/* Reduce damage by distance */
 	dam = (dam + r) / (r + 1);
 
-	/* Apply Absorption before subsequent damage reduction */
-	if (p_ptr->magic_absorption && hack_m_spell)
-	{
-		int gain = MAX(dam * p_ptr->magic_absorption / 100, (p_ptr->lev/12 + 1));
-		int new_sp = MIN(p_ptr->csp + gain, p_ptr->msp);
-		if (new_sp > p_ptr->csp)
-		{
-			p_ptr->csp = new_sp;
-			p_ptr->csp_frac = 0;
-			p_ptr->redraw |= (PR_MANA);
-			p_ptr->window |= (PW_PLAYER);
-			p_ptr->window |= (PW_SPELL);
-		}
-	}
-
 	/* Yes, it is as ugly as this ... sigh */
 	if (hack_m_spell >= 96+8 && hack_m_spell <= 96+31)
 	{
@@ -7264,7 +7339,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 		if (!evaded && mut_present(MUT_EVASION))
 		{
 			msg_print("You evade the attack!");
-			dam -= dam/3;
+			dam -= dam * (10 + randint1(10))/100;
 		}		
 	}
 
@@ -7275,28 +7350,13 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 		dam -= dam/3;
 	}
 
-	if (p_ptr->tim_blood_shield)
-	{
-		int factor = (p_ptr->lev * 7/10) * (p_ptr->mhp - p_ptr->chp) / p_ptr->mhp;
-		dam -= dam * factor / 100;
-	}
-
-	if (weaponmaster_get_toggle() == TOGGLE_STONE_BONES)
-	{
-		switch (typ)
-		{
-		case GF_ACID: case GF_ELEC: case GF_POIS: case GF_COLD: case GF_FIRE:
-		case GF_PLASMA: case GF_WATER: case GF_LITE: case GF_DARK: case GF_SHARDS:
-		case GF_SOUND: case GF_CONFUSION: case GF_FORCE: case GF_ICE: case GF_CHAOS:
-		case GF_NETHER: case GF_DISENCHANT: case GF_NEXUS: case GF_ROCKET: case GF_DISINTEGRATE:
-			dam -= p_ptr->lev * p_ptr->lev / 50;
-			if (dam < 0) dam = 0;
-			break;
-		}
-	}
-
 	if (p_ptr->magic_resistance)
-		dam -= dam * p_ptr->magic_resistance / 100;
+	{
+		int x = dam * p_ptr->magic_resistance / 100;
+		dam -= x;
+		if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
+			sp_player(MAX(x, 3 + p_ptr->lev/5));
+	}
 
 	/* If the player is blind, be more descriptive */
 	if (blind) fuzzy = TRUE;
@@ -7321,27 +7381,15 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 		switch (who)
 		{
 		case PROJECT_WHO_UNCTRL_POWER:
-#ifdef JP
-			strcpy(killer, "制御できない力の氾流");
-#else
 			strcpy(killer, "uncontrollable power storm");
-#endif
 			break;
 
 		case PROJECT_WHO_GLASS_SHARDS:
-#ifdef JP
-			strcpy(killer, "ガラスの破片");
-#else
 			strcpy(killer, "shards of glass");
-#endif
 			break;
 
 		default:
-#ifdef JP
-			strcpy(killer, "罠");
-#else
 			strcpy(killer, "a trap");
-#endif
 			break;
 		}
 
@@ -7352,148 +7400,74 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 	/* Analyze the damage */
 	switch (typ)
 	{
-		/* Standard damage -- hurts inventory too */
 		case GF_ACID:
 		{
-#ifdef JP
-			if (fuzzy) msg_print("酸で攻撃された！");
-#else
 			if (fuzzy) msg_print("You are hit by acid!");
-#endif
-			
 			get_damage = acid_dam(dam, killer, monspell);
 			break;
 		}
-
-		/* Standard damage -- hurts inventory too */
 		case GF_FIRE:
 		{
-#ifdef JP
-			if (fuzzy) msg_print("火炎で攻撃された！");
-#else
 			if (fuzzy) msg_print("You are hit by fire!");
-#endif
-
 			get_damage = fire_dam(dam, killer, monspell);
 			break;
 		}
-
-		/* Standard damage -- hurts inventory too */
 		case GF_COLD:
 		{
-#ifdef JP
-			if (fuzzy) msg_print("冷気で攻撃された！");
-#else
 			if (fuzzy) msg_print("You are hit by cold!");
-#endif
-
 			get_damage = cold_dam(dam, killer, monspell);
 			break;
 		}
-
-		/* Standard damage -- hurts inventory too */
 		case GF_ELEC:
 		{
-#ifdef JP
-			if (fuzzy) msg_print("電撃で攻撃された！");
-#else
 			if (fuzzy) msg_print("You are hit by lightning!");
-#endif
-
 			get_damage = elec_dam(dam, killer, monspell);
 			break;
 		}
-
-		/* Standard damage -- also poisons player */
 		case GF_POIS:
 		{
-			bool double_resist = IS_OPPOSE_POIS();
-#ifdef JP
-			if (fuzzy) msg_print("毒で攻撃された！");
-#else
 			if (fuzzy) msg_print("You are hit by poison!");
-#endif
-
-			if (p_ptr->resist_pois) dam = (dam + 2) / 3;
-			if (double_resist) dam = (dam + 2) / 3;
-
-			if ((!(double_resist || p_ptr->resist_pois)) &&
-			     one_in_(HURT_CHANCE) && !CHECK_MULTISHADOW())
-			{
+			dam = res_calc_dam(RES_POIS, dam);
+			if (!res_save_default(RES_POIS) && one_in_(HURT_CHANCE) && !CHECK_MULTISHADOW())
 				do_dec_stat(A_CON);
-			}
-
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
-
-			if (!(double_resist || p_ptr->resist_pois) && !CHECK_MULTISHADOW())
+			if (!res_save_default(RES_POIS) && !CHECK_MULTISHADOW())
 			{
 				set_poisoned(p_ptr->poisoned + randint0(dam) + 10, FALSE);
 			}
 			break;
 		}
-
-		/* Standard damage -- also poisons / mutates player */
 		case GF_NUKE:
 		{
-			bool double_resist = IS_OPPOSE_POIS();
-#ifdef JP
-			if (fuzzy) msg_print("放射能で攻撃された！");
-#else
 			if (fuzzy) msg_print("You are hit by radiation!");
-#endif
-
-			if (p_ptr->resist_pois) dam = (2 * dam + 2) / 5;
-			if (double_resist) dam = (2 * dam + 2) / 5;
+			dam = res_calc_dam(RES_POIS, dam);
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
-			if (!(double_resist || p_ptr->resist_pois) && !CHECK_MULTISHADOW())
+			if (!res_save_default(RES_POIS) && !CHECK_MULTISHADOW())
 			{
 				set_poisoned(p_ptr->poisoned + randint0(dam) + 10, FALSE);
 
-				if (one_in_(5)) /* 6 */
+				if (one_in_(5))
 				{
-#ifdef JP
-					msg_print("奇形的な変身を遂げた！");
-#else
 					msg_print("You undergo a freakish metamorphosis!");
-#endif
-
-					if (one_in_(4)) /* 4 */
+					if (one_in_(4))
 						do_poly_self();
 					else
 						mutate_player();
 				}
-
-				if (one_in_(6))
-				{
-					inven_damage(set_acid_destroy, 2);
-				}
+				inven_damage(set_acid_destroy, 2, RES_POIS);
 			}
 			break;
 		}
-
-		/* Standard damage */
 		case GF_MISSILE:
 		case GF_BLOOD:  /* Monsters can't do this ... */
 		{
-#ifdef JP
-			if (fuzzy) msg_print("何かで攻撃された！");
-#else
 			if (fuzzy) msg_print("You are hit by something!");
-#endif
-
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
-
-		/* Holy Orb -- Player only takes partial damage */
 		case GF_HOLY_FIRE:
 		{
-#ifdef JP
-			if (fuzzy) msg_print("何かで攻撃された！");
-#else
 			if (fuzzy) msg_print("You are hit by something!");
-#endif
-
 			if (p_ptr->align > 10)
 				dam /= 2;
 			else if (p_ptr->align < -10)
@@ -7501,155 +7475,76 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
-
 		case GF_HELL_FIRE:
 		{
-#ifdef JP
-			if (fuzzy) msg_print("何かで攻撃された！");
-#else
 			if (fuzzy) msg_print("You are hit by something!");
-#endif
-
 			if (p_ptr->align > 10)
 				dam *= 2;
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
-
-		/* Arrow -- XXX no dodging */
 		case GF_ARROW:
 		{
-#ifdef JP
-			if (fuzzy) msg_print("何か鋭いもので攻撃された！");
-#else
 			if (fuzzy) msg_print("You are hit by something sharp!");
-#endif
-
-			else if ((inventory[INVEN_RARM].name1 == ART_ZANTETSU) || (inventory[INVEN_LARM].name1 == ART_ZANTETSU))
+			else if (equip_find_artifact(ART_ZANTETSU))
 			{
-#ifdef JP
-				msg_print("矢を斬り捨てた！");
-#else
 				msg_print("You cut down the arrow!");
-#endif
 				break;
 			}
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
-
-		/* Plasma -- XXX No resist */
 		case GF_PLASMA:
 		{
-#ifdef JP
-			if (fuzzy) msg_print("何かとても熱いもので攻撃された！");
-#else
 			if (fuzzy) msg_print("You are hit by something *HOT*!");
-#endif
-
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
-
-			if (!p_ptr->resist_sound && !CHECK_MULTISHADOW())
+			if (!res_save_default(RES_SOUND) && !CHECK_MULTISHADOW())
 			{
 				int k = (randint1((dam > 40) ? 35 : (dam * 3 / 4 + 5)));
 				(void)set_stun(p_ptr->stun + k, FALSE);
 			}
 
-			if (!(p_ptr->resist_fire ||
-			      IS_OPPOSE_FIRE() ||
-			      p_ptr->immune_fire))
-			{
-				inven_damage(set_acid_destroy, 3);
-			}
-
+			inven_damage(set_acid_destroy, 3, RES_FIRE);
 			break;
 		}
-
-		/* Nether -- drain experience */
 		case GF_NETHER:
 		{
-#ifdef JP
-			if (fuzzy) msg_print("地獄の力で攻撃された！");
-#else
 			if (fuzzy) msg_print("You are hit by nether forces!");
-#endif
-
-			if (p_ptr->resist_neth)
-			{
-				dam *= 6; dam /= (randint1(4) + 7);
-			}
-			else if (!CHECK_MULTISHADOW()) drain_exp(200 + (p_ptr->exp / 100), 200 + (p_ptr->exp / 1000), 75);
-
+			dam = res_calc_dam(RES_NETHER, dam);
+			if (!res_save_default(RES_NETHER) && !CHECK_MULTISHADOW()) 
+				drain_exp(200 + (p_ptr->exp / 100), 200 + (p_ptr->exp / 1000), 75);
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
-
 			break;
 		}
-
-		/* Water -- stun/confuse */
 		case GF_WATER:
 		{
-#ifdef JP
-			if (fuzzy) msg_print("何か湿ったもので攻撃された！");
-#else
 			if (fuzzy) msg_print("You are hit by something wet!");
-#endif
-
 			if (!CHECK_MULTISHADOW())
 			{
-				if (!p_ptr->resist_sound)
-				{
+				if (!res_save_default(RES_SOUND))
 					set_stun(p_ptr->stun + randint1(40), FALSE);
-				}
-				if (!p_ptr->resist_conf)
-				{
+				if (!res_save_default(RES_CONF))
 					set_confused(p_ptr->confused + randint1(5) + 5, FALSE);
-				}
-
-				if (one_in_(5))
-				{
-					inven_damage(set_cold_destroy, 3);
-				}
+				inven_damage(set_cold_destroy, 3, RES_SOUND);
 			}
-
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
-
-		/* Chaos -- many effects */
 		case GF_CHAOS:
 		{
-#ifdef JP
-			if (fuzzy) msg_print("無秩序の波動で攻撃された！");
-#else
 			if (fuzzy) msg_print("You are hit by a wave of anarchy!");
-#endif
-
-			if (p_ptr->resist_chaos)
-			{
-				dam *= 6; dam /= (randint1(4) + 7);
-			}
-
+			dam = res_calc_dam(RES_CHAOS, dam);
 			if (!CHECK_MULTISHADOW())
 			{
-				if (!p_ptr->resist_conf)
-				{
+				if (!res_save_default(RES_CONF))
 					(void)set_confused(p_ptr->confused + randint0(20) + 10, FALSE);
-				}
-				if (!p_ptr->resist_chaos)
+				if (!res_save_default(RES_CHAOS))
 				{
-					/* Let's make mutation scumming a bit harder ... */
 					int count = mut_count(mut_unlocked_pred);
-
 					if (prace_is_(RACE_BEASTMAN)) count = 0;
-
 					if (one_in_(3 + count*count))
 					{
-#ifdef JP
-						msg_print("あなたの身体はカオスの力で捻じ曲げられた！");
-#else
 						msg_print("Your body is twisted by chaos!");
-#endif
-
 						mut_gain_random(NULL);
 					}
 					if (p_ptr->pclass == CLASS_WILD_TALENT && one_in_(7))
@@ -7657,324 +7552,167 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 
 					(void)set_image(p_ptr->image + randint1(10), FALSE);
 				}
-				if (!p_ptr->resist_neth && !p_ptr->resist_chaos)
-				{
+				if (!res_save_default(RES_NETHER) && !res_save_default(RES_CHAOS))
 					drain_exp(5000 + (p_ptr->exp / 100), 500 + (p_ptr->exp / 1000), 75);
-				}
 
-				if (!p_ptr->resist_chaos || one_in_(9))
-				{
-					inven_damage(set_elec_destroy, 2);
-					inven_damage(set_fire_destroy, 2);
-				}
+				inven_damage(set_elec_destroy, 2, RES_CHAOS);
+				inven_damage(set_fire_destroy, 2, RES_CHAOS);
 			}
-
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
-
-		/* Shards -- mostly cutting */
+		case GF_ROCK:
+		{
+			if (fuzzy) msg_print("You are hit by something solid!");
+			if (one_in_(2))
+			{
+				if (!res_save_default(RES_SHARDS) && !CHECK_MULTISHADOW())
+					(void)set_cut(p_ptr->cut + dam/2, FALSE);
+				inven_damage(set_cold_destroy, 2, RES_SHARDS);
+			}
+			else
+			{
+				if (!res_save_default(RES_SOUND) && !CHECK_MULTISHADOW())
+				{
+					int k = (randint1((dam > 90) ? 35 : (dam / 3 + 5)));
+					(void)set_stun(p_ptr->stun + k, FALSE);
+				}
+				inven_damage(set_cold_destroy, 2, RES_SOUND);
+			}
+			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
+			break;
+		}
 		case GF_SHARDS:
 		{
-#ifdef JP
-			if (fuzzy) msg_print("何か鋭いもので攻撃された！");
-#else
 			if (fuzzy) msg_print("You are hit by something sharp!");
-#endif
-
-			if (p_ptr->resist_shard)
-			{
-				dam *= 6; dam /= (randint1(4) + 7);
-			}
-			else if (!CHECK_MULTISHADOW())
-			{
+			dam = res_calc_dam(RES_SHARDS, dam);
+			if (!res_save_default(RES_SHARDS) && !CHECK_MULTISHADOW())
 				(void)set_cut(p_ptr->cut + dam, FALSE);
-			}
-
-			if (!p_ptr->resist_shard || one_in_(13))
-			{
-				inven_damage(set_cold_destroy, 2);
-			}
-
+			inven_damage(set_cold_destroy, 2, RES_SHARDS);
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
-
-		/* Sound -- mostly stunning */
 		case GF_SOUND:
 		{
-#ifdef JP
-			if (fuzzy) msg_print("轟音で攻撃された！");
-#else
 			if (fuzzy) msg_print("You are hit by a loud noise!");
-#endif
-
-			if (p_ptr->resist_sound)
-			{
-				dam *= 5; dam /= (randint1(4) + 7);
-			}
-			else if (!CHECK_MULTISHADOW())
+			dam = res_calc_dam(RES_SOUND, dam);
+			if (!res_save_default(RES_SOUND) && !CHECK_MULTISHADOW())
 			{
 				int k = (randint1((dam > 90) ? 35 : (dam / 3 + 5)));
 				(void)set_stun(p_ptr->stun + k, FALSE);
 			}
-
-			if (!p_ptr->resist_sound || one_in_(13))
-			{
-				inven_damage(set_cold_destroy, 2);
-			}
-
+			inven_damage(set_cold_destroy, 2, RES_SOUND);
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
-
-		/* Pure confusion */
 		case GF_CONFUSION:
 		{
-#ifdef JP
-			if (fuzzy) msg_print("何か混乱するもので攻撃された！");
-#else
 			if (fuzzy) msg_print("You are hit by something puzzling!");
-#endif
-
-			if (p_ptr->resist_conf)
-			{
-				dam *= 5; dam /= (randint1(4) + 7);
-			}
-			else if (!CHECK_MULTISHADOW())
-			{
+			dam = res_calc_dam(RES_CONF, dam);
+			if (!res_save_default(RES_CONF) && !CHECK_MULTISHADOW())
 				(void)set_confused(p_ptr->confused + randint1(20) + 10, FALSE);
-			}
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
-
-		/* Disenchantment -- see above */
 		case GF_DISENCHANT:
 		{
-#ifdef JP
-			if (fuzzy) msg_print("何かさえないもので攻撃された！");
-#else
 			if (fuzzy) msg_print("You are hit by something static!");
-#endif
-
-			if (p_ptr->resist_disen)
-			{
-				dam *= 6; dam /= (randint1(4) + 7);
-			}
-			else if (!CHECK_MULTISHADOW())
-			{
+			dam = res_calc_dam(RES_DISEN, dam);
+			if (!res_save_default(RES_DISEN) && !CHECK_MULTISHADOW())
 				(void)apply_disenchant(0);
-			}
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
-
-		/* Nexus -- see above */
 		case GF_NEXUS:
 		{
-#ifdef JP
-			if (fuzzy) msg_print("何か奇妙なもので攻撃された！");
-#else
 			if (fuzzy) msg_print("You are hit by something strange!");
-#endif
-
-			if (p_ptr->resist_nexus)
-			{
-				dam *= 6; dam /= (randint1(4) + 7);
-			}
-			else if (!CHECK_MULTISHADOW())
-			{
+			dam = res_calc_dam(RES_NEXUS, dam);
+			if (!res_save_default(RES_NEXUS) && !CHECK_MULTISHADOW())
 				apply_nexus(m_ptr);
-			}
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
-
-		/* Force -- mostly stun */
 		case GF_FORCE:
 		{
-#ifdef JP
-			if (fuzzy) msg_print("運動エネルギーで攻撃された！");
-#else
 			if (fuzzy) msg_print("You are hit by kinetic force!");
-#endif
-
-			if (!p_ptr->resist_sound && !CHECK_MULTISHADOW())
-			{
+			if (!res_save_default(RES_SOUND) && !CHECK_MULTISHADOW())
 				(void)set_stun(p_ptr->stun + randint1(20), FALSE);
-			}
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
-
-
-		/* Rocket -- stun, cut */
 		case GF_ROCKET:
 		{
-#ifdef JP
-			if (fuzzy) msg_print("爆発があった！");
-#else
 			if (fuzzy) msg_print("There is an explosion!");
-#endif
-
-			if (!p_ptr->resist_sound && !CHECK_MULTISHADOW())
-			{
+			dam = res_calc_dam(RES_SHARDS, dam);
+			if (!res_save_default(RES_SOUND) && !CHECK_MULTISHADOW())
 				(void)set_stun(p_ptr->stun + randint1(20), FALSE);
-			}
-
-			if (p_ptr->resist_shard)
-			{
-				dam /= 2;
-			}
-			else if (!CHECK_MULTISHADOW())
-			{
+			if (!res_save_default(RES_SHARDS) && !CHECK_MULTISHADOW())
 				(void)set_cut(p_ptr->cut + (dam / 2), FALSE);
-			}
-
-			if (!p_ptr->resist_shard || one_in_(12))
-			{
-				inven_damage(set_cold_destroy, 3);
-			}
-
+			inven_damage(set_cold_destroy, 3, RES_SHARDS);
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
-
-		/* Inertia -- slowness */
 		case GF_INERT:
 		{
-#ifdef JP
-			if (fuzzy) msg_print("何か遅いもので攻撃された！");
-#else
 			if (fuzzy) msg_print("You are hit by something slow!");
-#endif
-
-			if (!CHECK_MULTISHADOW()) (void)set_slow(p_ptr->slow + randint0(4) + 4, FALSE);
+			if (!CHECK_MULTISHADOW()) 
+				(void)set_slow(p_ptr->slow + randint0(4) + 4, FALSE);
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
-
-		/* Lite -- blinding */
 		case GF_LITE:
 		{
-#ifdef JP
-			if (fuzzy) msg_print("何かで攻撃された！");
-#else
 			if (fuzzy) msg_print("You are hit by something!");
-#endif
-
-			if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_APOLLO)
-			{
-				msg_print("You bask in the light!");
-				dam = 0;
-			}
-			else if (p_ptr->resist_lite)
-			{
-				dam *= 4; dam /= (randint1(4) + 7);
-			}
-			else if (!blind && !p_ptr->resist_blind && !CHECK_MULTISHADOW())
-			{
+			dam = res_calc_dam(RES_LITE, dam);
+			if (!blind && !res_save_default(RES_LITE) && !res_save_default(RES_BLIND) && !CHECK_MULTISHADOW())
 				(void)set_blind(p_ptr->blind + randint1(5) + 2, FALSE);
-			}
 
-			if (prace_is_(RACE_VAMPIRE) || (p_ptr->mimic_form == MIMIC_VAMPIRE))
-			{
-#ifdef JP
-				if (!CHECK_MULTISHADOW()) msg_print("光で肉体が焦がされた！");
-#else
-				if (!CHECK_MULTISHADOW()) msg_print("The light scorches your flesh!");
-#endif
-
-				dam *= 2;
-			}
-			else if (prace_is_(RACE_SHADOW_FAIRY))
-			{
-				dam = dam * 4 / 3;
-			}
-
-			if (IS_WRAITH()) dam *= 2;
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 
 			if (IS_WRAITH() && !CHECK_MULTISHADOW())
 			{
 				p_ptr->wraith_form = 0;
 				wild_reset_counter(WILD_WRAITH);
-#ifdef JP
-				msg_print("閃光のため非物質的な影の存在でいられなくなった。");
-#else
 				msg_print("The light forces you out of your incorporeal shadow form.");
-#endif
-
 				p_ptr->redraw |= PR_MAP;
-				/* Update monsters */
 				p_ptr->update |= (PU_MONSTERS);
-				/* Window stuff */
 				p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-
-				/* Redraw status bar */
 				p_ptr->redraw |= (PR_STATUS);
-
 			}
-
 			break;
 		}
-
-		/* Dark -- blinding */
 		case GF_DARK:
 		{
-#ifdef JP
-			if (fuzzy) msg_print("何かで攻撃された！");
-#else
 			if (fuzzy) msg_print("You are hit by something!");
-#endif
-
-			if (p_ptr->resist_dark)
-			{
-				dam *= 4; dam /= (randint1(4) + 7);
-
-				if (prace_is_(RACE_VAMPIRE) || (p_ptr->mimic_form == MIMIC_VAMPIRE) || IS_WRAITH()) dam = 0;
-			}
-			else if (!blind && !p_ptr->resist_blind && !CHECK_MULTISHADOW())
-			{
+			dam = res_calc_dam(RES_DARK, dam);
+			if (!blind && !res_save_default(RES_DARK) && !res_save_default(RES_BLIND) && !CHECK_MULTISHADOW())
 				(void)set_blind(p_ptr->blind + randint1(5) + 2, FALSE);
-			}
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
-
-		/* Time -- bolt fewer effects XXX */
+		case GF_AMNESIA:
+			if (randint0(100 + r_ptr->level/2) < duelist_skill_sav(who))
+			{
+				msg_print("You resist the effects!");
+			}
+			else if (lose_all_info())
+			{
+				msg_print("Your memories fade away.");
+			}
+			dam = 0;
+			break;
 		case GF_TIME:
 		{
-#ifdef JP
-			if (fuzzy) msg_print("過去からの衝撃に攻撃された！");
-#else
 			if (fuzzy) msg_print("You are hit by a blast from the past!");
-#endif
-
-			if (p_ptr->resist_time)
-			{
-				dam *= 4;
-				dam /= (randint1(4) + 7);
-#ifdef JP
-				msg_print("時間が通り過ぎていく気がする。");
-#else
-				msg_print("You feel as if time is passing you by.");
-#endif
-			}
-			else if (!CHECK_MULTISHADOW())
+			dam = res_calc_dam(RES_TIME, dam);
+			if (!res_save_default(RES_TIME) && !CHECK_MULTISHADOW())
 			{
 				switch (randint1(10))
 				{
 					case 1: case 2: case 3: case 4: case 5:
 					{
 						if (p_ptr->prace == RACE_ANDROID) break;
-#ifdef JP
-						msg_print("人生が逆戻りした気がする。");
-#else
 						msg_print("You feel life has clocked back.");
-#endif
-
 						lose_exp(100 + (p_ptr->exp / 100) * MON_DRAIN_LIFE);
 						break;
 					}
@@ -7983,43 +7721,22 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 					{
 						switch (randint1(6))
 						{
-#ifdef JP
-							case 1: k = A_STR; act = "強く"; break;
-							case 2: k = A_INT; act = "聡明で"; break;
-							case 3: k = A_WIS; act = "賢明で"; break;
-							case 4: k = A_DEX; act = "器用で"; break;
-							case 5: k = A_CON; act = "健康で"; break;
-							case 6: k = A_CHR; act = "美しく"; break;
-#else
 							case 1: k = A_STR; act = "strong"; break;
 							case 2: k = A_INT; act = "bright"; break;
 							case 3: k = A_WIS; act = "wise"; break;
 							case 4: k = A_DEX; act = "agile"; break;
 							case 5: k = A_CON; act = "hale"; break;
 							case 6: k = A_CHR; act = "confident"; break;
-#endif
 						}
-
-#ifdef JP
-						msg_format("あなたは以前ほど%sなくなってしまった...。", act);
-#else
 						msg_format("You're not as %s as you used to be...", act);
-#endif
-
 						p_ptr->stat_cur[k] = (p_ptr->stat_cur[k] * 3) / 4;
 						if (p_ptr->stat_cur[k] < 3) p_ptr->stat_cur[k] = 3;
 						p_ptr->update |= (PU_BONUS);
 						break;
 					}
-
 					case 10:
 					{
-#ifdef JP
-						msg_print("あなたは以前ほど力強くなくなってしまった...。");
-#else
 						msg_print("You're not as powerful as you used to be...");
-#endif
-
 						for (k = 0; k < 6; k++)
 						{
 							p_ptr->stat_cur[k] = (p_ptr->stat_cur[k] * 7) / 8;
@@ -8030,28 +7747,19 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 					}
 				}
 			}
-
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
-
-		/* Gravity -- stun plus slowness plus teleport */
 		case GF_GRAVITY:
 		{
-#ifdef JP
-			if (fuzzy) msg_print("何か重いもので攻撃された！");
-			msg_print("周辺の重力がゆがんだ。");
-#else
 			if (fuzzy) msg_print("You are hit by something heavy!");
 			msg_print("Gravity warps around you.");
-#endif
-
 			if (!CHECK_MULTISHADOW())
 			{
 				teleport_player(5, TELEPORT_PASSIVE);
 				if (!p_ptr->levitation)
 					(void)set_slow(p_ptr->slow + randint0(4) + 4, FALSE);
-				if (!(p_ptr->resist_sound || p_ptr->levitation))
+				if (!(res_save_default(RES_SOUND) || p_ptr->levitation))
 				{
 					int k = (randint1((dam > 90) ? 35 : (dam / 3 + 5)));
 					(void)set_stun(p_ptr->stun + k, FALSE);
@@ -8061,25 +7769,13 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			{
 				dam = (dam * 2) / 3;
 			}
-
-			if (!p_ptr->levitation || one_in_(13))
-			{
-				inven_damage(set_cold_destroy, 2);
-			}
-
+			inven_damage(set_cold_destroy, 2, RES_SOUND);
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
-
-		/* Standard damage */
 		case GF_DISINTEGRATE:
 		{
-#ifdef JP
-			if (fuzzy) msg_print("純粋なエネルギーで攻撃された！");
-#else
 			if (fuzzy) msg_print("You are hit by pure energy!");
-#endif
-
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
@@ -8193,42 +7889,24 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 #endif
 
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
-			if (!p_ptr->resist_shard || one_in_(13))
-			{
-				if (!p_ptr->immune_fire) inven_damage(set_fire_destroy, 2);
-				inven_damage(set_cold_destroy, 2);
-			}
-
+			inven_damage(set_fire_destroy, 2, RES_FIRE);
+			inven_damage(set_cold_destroy, 2, RES_SHARDS);
 			break;
 		}
 
 		/* Ice -- cold plus stun plus cuts */
 		case GF_ICE:
 		{
-#ifdef JP
-			if (fuzzy) msg_print("何か鋭く冷たいもので攻撃された！");
-#else
 			if (fuzzy) msg_print("You are hit by something sharp and cold!");
-#endif
-
 			get_damage = cold_dam(dam, killer, monspell);
 			if (!CHECK_MULTISHADOW())
 			{
-				if (!p_ptr->resist_shard)
-				{
+				if (!res_save_default(RES_SHARDS))
 					(void)set_cut(p_ptr->cut + damroll(5, 8), FALSE);
-				}
-				if (!p_ptr->resist_sound)
-				{
+				if (!res_save_default(RES_SOUND))
 					(void)set_stun(p_ptr->stun + randint1(15), FALSE);
-				}
-
-				if ((!(p_ptr->resist_cold || IS_OPPOSE_COLD())) || one_in_(12))
-				{
-					if (!p_ptr->immune_cold) inven_damage(set_cold_destroy, 3);
-				}
+				inven_damage(set_cold_destroy, 3, RES_COLD);
 			}
-
 			break;
 		}
 
@@ -8333,38 +8011,24 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			dam = 0;
 			break;
 		}
-
-		/* Mind blast */
 		case GF_MIND_BLAST:
 		{
 			if ((randint0(100 + rlev / 2) < MAX(5, duelist_skill_sav(who))) && !CHECK_MULTISHADOW())
 			{
-#ifdef JP
-				msg_print("しかし効力を跳ね返した！");
-#else
 				msg_print("You resist the effects!");
-#endif
 				learn_spell(monspell);
 			}
 			else
 			{
 				if (!CHECK_MULTISHADOW())
 				{
-#ifdef JP
-					msg_print("霊的エネルギーで精神が攻撃された。");
-#else
 					msg_print("Your mind is blasted by psyonic energy.");
-#endif
 
-					if (!p_ptr->resist_conf)
-					{
+					if (!res_save_default(RES_CONF))
 						(void)set_confused(p_ptr->confused + randint0(4) + 4, FALSE);
-					}
 
-					if (!p_ptr->resist_chaos && one_in_(3))
-					{
+					if (!res_save_default(RES_CHAOS) && one_in_(3))
 						(void)set_image(p_ptr->image + randint0(25) + 15, FALSE);
-					}
 
 					p_ptr->csp -= 50;
 					if (p_ptr->csp < 0)
@@ -8374,7 +8038,6 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 					}
 					p_ptr->redraw |= PR_MANA;
 				}
-
 				get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			}
 			break;
@@ -8385,11 +8048,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 		{
 			if ((randint0(100 + rlev / 2) < MAX(5, duelist_skill_sav(who))) && !CHECK_MULTISHADOW())
 			{
-#ifdef JP
-				msg_print("しかし効力を跳ね返した！");
-#else
 				msg_print("You resist the effects!");
-#endif
 				learn_spell(monspell);
 			}
 			else
@@ -8402,12 +8061,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 				}
 				else if (!CHECK_MULTISHADOW())
 				{
-#ifdef JP
-					msg_print("霊的エネルギーで精神が攻撃された。");
-#else
 					msg_print("Your mind is blasted by psionic energy.");
-#endif
-
 					p_ptr->csp -= 100;
 					if (p_ptr->csp < 0)
 					{
@@ -8416,18 +8070,13 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 					}
 					p_ptr->redraw |= PR_MANA;
 				}
-
 				get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 				if (!CHECK_MULTISHADOW())
 				{
-					if (!p_ptr->resist_blind)
-					{
+					if (!res_save_default(RES_BLIND))
 						(void)set_blind(p_ptr->blind + 8 + randint0(8), FALSE);
-					}
-					if (!p_ptr->resist_conf)
-					{
+					if (!res_save_default(RES_CONF))
 						(void)set_confused(p_ptr->confused + randint0(4) + 4, FALSE);
-					}
 					if (!p_ptr->free_act)
 					{
 						(void)set_paralyzed(p_ptr->paralyzed + randint0(4) + 4, FALSE);
@@ -8439,10 +8088,8 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 					while (randint0(100 + rlev / 2) > (MAX(5, duelist_skill_sav(who))))
 						(void)do_dec_stat(A_WIS);
 
-					if (!p_ptr->resist_chaos)
-					{
+					if (!res_save_default(RES_CHAOS))
 						(void)set_image(p_ptr->image + randint0(25) + 15, FALSE);
-					}
 				}
 			}
 			break;
@@ -8571,6 +8218,8 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 
 	/* Hex - revenge damage stored */
 	revenge_store(get_damage);
+	if (get_damage > 0)
+		weaponmaster_do_readied_shot(m_ptr);
 
 	if (IS_REVENGE()
 		&& (get_damage > 0) && !p_ptr->is_dead && (who > 0))
@@ -9930,7 +9579,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 
 				if ((flg & PROJECT_REFLECTABLE) && cave[y][x].m_idx && (ref_ptr->flags2 & RF2_REFLECTING) &&
 				    ((cave[y][x].m_idx != p_ptr->riding) || !(flg & PROJECT_PLAYER)) &&
-				    (!who || dist_hack > 1) && !one_in_(10))
+				    (!who || dist_hack > 1) && !one_in_(4))
 				{
 					byte t_y, t_x;
 					int max_attempts = 10;
@@ -9938,8 +9587,8 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 					/* Choose 'new' target */
 					do
 					{
-						t_y = y_saver - 1 + randint1(3);
-						t_x = x_saver - 1 + randint1(3);
+						t_y = y_saver - 2 + randint0(5);
+						t_x = x_saver - 2 + randint0(5);
 						max_attempts--;
 					}
 					while (max_attempts && in_bounds2u(t_y, t_x) && !projectable(y, x, t_y, t_x));
@@ -10348,27 +9997,4 @@ bool binding_field( int dam )
 	return TRUE;
 }
 
-void seal_of_mirror( int dam )
-{
-	int x,y;
-
-	for( x = 0 ; x < cur_wid ; x++ )
-	{
-		for( y = 0 ; y < cur_hgt ; y++ )
-		{
-			if( is_mirror_grid(&cave[y][x]))
-			{
-				if(project_m(0,0,y,x,dam,GF_GENOCIDE,
-							 (PROJECT_GRID|PROJECT_ITEM|PROJECT_KILL|PROJECT_JUMP),TRUE))
-				{
-					if( !cave[y][x].m_idx )
-					{
-						remove_mirror(y,x);
-					}
-				}
-			}
-		}
-	}
-	return;
-}
      

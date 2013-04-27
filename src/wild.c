@@ -357,6 +357,7 @@ static void generate_area(int y, int x, bool border, bool corner)
 	if (wilderness[y][x].entrance && !wilderness[y][x].town && (p_ptr->total_winner || !(d_info[wilderness[y][x].entrance].flags1 & DF1_WINNER)))
 	{
 		int dy, dx;
+		int which = wilderness[y][x].entrance;
 
 		/* Hack -- Use the "simple" RNG */
 		Rand_quick = TRUE;
@@ -367,8 +368,15 @@ static void generate_area(int y, int x, bool border, bool corner)
 		dy = rand_range(6, cur_hgt - 6);
 		dx = rand_range(6, cur_wid - 6);
 
-		cave[dy][dx].feat = feat_entrance;
-		cave[dy][dx].special = wilderness[y][x].entrance;
+		if (dungeon_flags[which] & DUNGEON_NO_ENTRANCE)
+		{
+			cave[dy][dx].feat = feat_mountain;
+		}
+		else
+		{
+			cave[dy][dx].feat = feat_entrance;
+			cave[dy][dx].special = which;
+		}
 
 		/* Use the complex RNG */
 		Rand_quick = FALSE;

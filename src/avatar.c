@@ -303,7 +303,7 @@ void get_virtues(void)
 		p_ptr->vir_types[i++] = V_VALOUR;
 		p_ptr->vir_types[i++] = V_INDIVIDUALISM;
 		break;
-	case CLASS_SMITH:
+	case CLASS_WEAPONSMITH:
 		p_ptr->vir_types[i++] = V_HONOUR;
 		p_ptr->vir_types[i++] = V_KNOWLEDGE;
 		break;

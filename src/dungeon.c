@@ -165,33 +165,21 @@ static void sense_inventory_aux(int slot, bool heavy)
 	object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
 	/* Message (equipment) */
-	if (slot >= INVEN_RARM)
+	if (equip_is_valid_slot(slot))
 	{
-#ifdef JP
-msg_format("%s%s(%c)は%sという感じがする...",
-describe_use(slot),o_name, index_to_label(slot),game_inscriptions[feel]);
-#else
 		msg_format("You feel the %s (%c) you are %s %s %s...",
 			   o_name, index_to_label(slot), describe_use(slot),
 			   ((o_ptr->number == 1) ? "is" : "are"),
 				   game_inscriptions[feel]);
-#endif
-
 	}
 
 	/* Message (inventory) */
 	else
 	{
-#ifdef JP
-msg_format("ザックの中の%s(%c)は%sという感じがする...",
-o_name, index_to_label(slot),game_inscriptions[feel]);
-#else
 		msg_format("You feel the %s (%c) in your pack %s %s...",
 			   o_name, index_to_label(slot),
 			   ((o_ptr->number == 1) ? "is" : "are"),
 				   game_inscriptions[feel]);
-#endif
-
 	}
 
 	/* We have "felt" it */
@@ -224,7 +212,21 @@ o_name, index_to_label(slot),game_inscriptions[feel]);
  */
 static int _adj_pseudo_id(int num)
 {
-	return num * adj_pseudo_id[p_ptr->stat_ind[A_WIS]] / 100;
+	int result = num * adj_pseudo_id[p_ptr->stat_ind[A_WIS]] / 100;
+	int slot;
+
+	/* TODO: p_ptr->enhanced_psuedo_id ... */
+	for (slot = equip_find_first(object_is_helmet);
+			slot;
+			slot = equip_find_next(object_is_helmet, slot))
+	{
+		if (equip_obj(slot)->rune == RUNE_UNDERSTANDING)
+		{
+			result /= 10;
+			break;
+		}
+	}
+	return result;
 }
 
 static void sense_inventory1(void)
@@ -253,6 +255,7 @@ static void sense_inventory1(void)
 		case CLASS_WEAPONMASTER:
 		case CLASS_RAGE_MAGE:
 		case CLASS_MAULER:
+		case CLASS_MONSTER:
 		{
 			/* Good sensing */
 			if (0 != randint0(_adj_pseudo_id(9000) / (plev * plev + 40))) return;
@@ -264,7 +267,7 @@ static void sense_inventory1(void)
 			break;
 		}
 
-		case CLASS_SMITH:
+		case CLASS_WEAPONSMITH:
 		{
 			/* Good sensing */
 			if (0 != randint0(_adj_pseudo_id(6000) / (plev * plev + 50))) return;
@@ -463,7 +466,7 @@ static void sense_inventory1(void)
 		if (!okay) continue;
 
 		/* Occasional failure on inventory items */
-		if ((i < INVEN_RARM) && (0 != randint0(5))) continue;
+		if ((i < INVEN_PACK) && (0 != randint0(5))) continue;
 
 		/* Good luck */
 		if (p_ptr->good_luck && !randint0(13))
@@ -502,11 +505,12 @@ static void sense_inventory2(void)
 		case CLASS_WEAPONMASTER:
 		case CLASS_RAGE_MAGE:
 		case CLASS_MAULER:
+		case CLASS_MONSTER:
 		{
 			return;
 		}
 
-		case CLASS_SMITH:
+		case CLASS_WEAPONSMITH:
 		case CLASS_PALADIN:
 		case CLASS_CHAOS_WARRIOR:
 		case CLASS_IMITATOR:
@@ -605,7 +609,7 @@ static void sense_inventory2(void)
 		if (!okay) continue;
 
 		/* Occasional failure on inventory items */
-		if ((i < INVEN_RARM) && (0 != randint0(5))) continue;
+		if ((i < INVEN_PACK) && (0 != randint0(5))) continue;
 
 		sense_inventory_aux(i, TRUE);
 	}
@@ -688,12 +692,7 @@ static void pattern_teleport(void)
 	if (command_arg > max_level) command_arg = max_level;
 
 	/* Accept request */
-#ifdef JP
-	msg_format("%d 階にテレポートしました。", command_arg);
-#else
 	msg_format("You teleport to dungeon level %d.", command_arg);
-#endif
-
 
 	if (autosave_l) do_cmd_save_game(TRUE);
 
@@ -701,8 +700,6 @@ static void pattern_teleport(void)
 	dun_level = command_arg;
 
 	leave_quest_check();
-
-	if (record_stair) do_cmd_write_nikki(NIKKI_PAT_TELE,0,NULL);
 
 	p_ptr->inside_quest = 0;
 	energy_use = 0;
@@ -856,8 +853,10 @@ static void regenhp(int percent)
 	s32b old_chp;
 
 	if (p_ptr->special_defense & KATA_KOUKIJIN) return;
-	if (p_ptr->action == ACTION_HAYAGAKE) return;
+	if (p_ptr->action == ACTION_QUICK_WALK) return;
+	if (p_ptr->action == ACTION_STALK) return;
 	if (mimic_no_regen()) return;
+	if (weaponmaster_get_toggle() == TOGGLE_SHADOW_STANCE) return;
 
 	/* Save the old hitpoints */
 	old_chp = p_ptr->chp;
@@ -897,7 +896,7 @@ static void regenhp(int percent)
 		if (p_ptr->pclass == CLASS_BLOOD_KNIGHT)
 			p_ptr->update |= PU_BONUS;
 
-		if (strcmp(weaponmaster_speciality1_name(), "Staves") == 0)
+		if (weaponmaster_is_(WEAPONMASTER_STAVES))
 			p_ptr->update |= (PU_BONUS);
 
 		wild_regen = 20;
@@ -996,42 +995,6 @@ static void regenmana(int percent)
 		wild_regen = 20;
 	}
 }
-
-
-
-/*
- * Regenerate magic
- */
-static void regenmagic(int percent)
-{
-	s32b        new_mana;
-	int i;
-
-	for (i = 0; i < EATER_EXT*2; i++)
-	{
-		if (!p_ptr->magic_num2[i]) continue;
-		if (p_ptr->magic_num1[i] == ((long)p_ptr->magic_num2[i] << 16)) continue;
-		new_mana = ((long)p_ptr->magic_num2[i]+adj_mag_mana[A_INT]+13) * percent / 8;
-		p_ptr->magic_num1[i] += new_mana;
-
-		/* Check maximum charge */
-		if (p_ptr->magic_num1[i] > (p_ptr->magic_num2[i] << 16))
-		{
-			p_ptr->magic_num1[i] = ((long)p_ptr->magic_num2[i] << 16);
-		}
-		wild_regen = 20;
-	}
-	for (i = EATER_EXT*2; i < EATER_EXT*3; i++)
-	{
-		if (!p_ptr->magic_num1[i]) continue;
-		if (!p_ptr->magic_num2[i]) continue;
-		p_ptr->magic_num1[i] -= (long)(p_ptr->magic_num2[i] * (adj_mag_mana[A_INT] + 10)) * EATER_ROD_CHARGE/16;
-		if (p_ptr->magic_num1[i] < 0) p_ptr->magic_num1[i] = 0;
-		wild_regen = 20;
-	}
-}
-
-
 
 
 
@@ -1226,14 +1189,10 @@ void leave_quest_check(void)
 		{
 			if (quest[leaving_quest].r_idx)
 				r_info[quest[leaving_quest].r_idx].flags1 &= ~(RF1_QUESTOR);
-			if (record_rand_quest)
-				do_cmd_write_nikki(NIKKI_RAND_QUEST_F, leaving_quest, NULL);
 
 			/* Floor of random quest will be blocked */
 			prepare_change_floor_mode(CFM_NO_RETURN);
 		}
-		else if (record_fix_quest)
-			do_cmd_write_nikki(NIKKI_FIX_QUEST_F, leaving_quest, NULL);
 	}
 }
 
@@ -1422,104 +1381,21 @@ static void recharged_notice(object_type *o_ptr)
 }
 
 
-static void check_music(void)
-{
-	magic_type *s_ptr;
-	int spell;
-	s32b need_mana;
-	u32b need_mana_frac;
-
-	/* Music singed by player */
-	if (p_ptr->pclass != CLASS_BARD) return;
-	if (!p_ptr->magic_num1[0] && !p_ptr->magic_num1[1]) return;
-
-	if (p_ptr->anti_magic)
-	{
-		bard_stop_singing();
-		return;
-	}
-
-	spell = p_ptr->magic_num2[0];
-	s_ptr = &technic_info[REALM_MUSIC - MIN_TECHNIC][spell];
-
-	need_mana = mod_need_mana(s_ptr->smana, spell, REALM_MUSIC);
-	need_mana_frac = 0;
-
-	/* Divide by 2 */
-	s64b_RSHIFT(need_mana, need_mana_frac, 1);
-
-	if (s64b_cmp(p_ptr->csp, p_ptr->csp_frac, need_mana, need_mana_frac) < 0)
-	{
-		bard_stop_singing();
-		return;
-	}
-	else
-	{
-		s64b_sub(&(p_ptr->csp), &(p_ptr->csp_frac), need_mana, need_mana_frac);
-
-		p_ptr->redraw |= PR_MANA;
-		if (p_ptr->magic_num1[1])
-		{
-			p_ptr->magic_num1[0] = p_ptr->magic_num1[1];
-			p_ptr->magic_num1[1] = 0;
-#ifdef JP
-			msg_print("歌を再開した。");
-#else
-			msg_print("You restart singing.");
-#endif
-			p_ptr->action = ACTION_SING;
-
-			/* Recalculate bonuses */
-			p_ptr->update |= (PU_BONUS | PU_HP);
-
-			/* Redraw map and status bar */
-			p_ptr->redraw |= (PR_MAP | PR_STATUS | PR_STATE);
-
-			/* Update monsters */
-			p_ptr->update |= (PU_MONSTERS);
-
-			/* Window stuff */
-			p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-		}
-	}
-	if (p_ptr->spell_exp[spell] < SPELL_EXP_BEGINNER)
-		p_ptr->spell_exp[spell] += 5;
-	else if(p_ptr->spell_exp[spell] < SPELL_EXP_SKILLED)
-	{ if (one_in_(2) && (dun_level > 4) && ((dun_level + 10) > p_ptr->lev)) p_ptr->spell_exp[spell] += 1; }
-	else if(p_ptr->spell_exp[spell] < SPELL_EXP_EXPERT)
-	{ if (one_in_(5) && ((dun_level + 5) > p_ptr->lev) && ((dun_level + 5) > s_ptr->slevel)) p_ptr->spell_exp[spell] += 1; }
-	else if(p_ptr->spell_exp[spell] < SPELL_EXP_MASTER)
-	{ if (one_in_(5) && ((dun_level + 5) > p_ptr->lev) && (dun_level > s_ptr->slevel)) p_ptr->spell_exp[spell] += 1; }
-
-	/* Do any effects of continual song */
-	do_spell(REALM_MUSIC, spell, SPELL_CONT);
-}
-
-
 /* Choose one of items that have cursed flag */
+static u32b _curse_flag = 0;
+static bool _object_is_cursed(object_type *o_ptr) {
+	if (o_ptr->curse_flags & _curse_flag)
+		return TRUE;
+	return FALSE;
+}
 static object_type *choose_cursed_obj_name(u32b flag)
 {
-	int i;
-	int choices[INVEN_TOTAL-INVEN_RARM];
-	int number = 0;
-
-	/* Paranoia -- Player has no warning-item */
-	if (!(p_ptr->cursed & flag)) return NULL;
-
-	/* Search Inventry */
-	for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
-	{
-		object_type *o_ptr = &inventory[i];
-
-		if (o_ptr->curse_flags & flag)
-		{
-			choices[number] = i;
-			number++;
-		}
-	}
-
-	/* Choice one of them */
-	return (&inventory[choices[randint0(number)]]);
+	int slot;
+	_curse_flag = flag;
+	slot = equip_random_slot(_object_is_cursed);
+	if (slot)
+		return equip_obj(slot);
+	return NULL;
 }
 
 
@@ -1604,61 +1480,44 @@ static void process_world_aux_hp_and_sp(void)
 	}
 
 
-	/* (Vampires) Take damage from sunlight */
+	/* (Vampires) Take damage from sunlight. Note, Vampires are vulnerable
+	   to light so start with -50% resistance. Rather than res_save(RES_LIGHT)
+	   we will simply take damage so long as there is light vulnerability. */
 	if (prace_is_(RACE_VAMPIRE) || (p_ptr->mimic_form == MIMIC_VAMPIRE))
 	{
-		if (!dun_level && !p_ptr->resist_lite && !IS_INVULN() && is_daytime())
+		int slot;
+		if (!dun_level && res_pct(RES_LITE) < 0 && !IS_INVULN() && is_daytime())
 		{
 			if ((cave[py][px].info & (CAVE_GLOW | CAVE_MNDK)) == CAVE_GLOW)
 			{
-				/* Take damage */
-#ifdef JP
-msg_print("日光があなたのアンデッドの肉体を焼き焦がした！");
-take_hit(DAMAGE_NOESCAPE, 1, "日光", -1);
-#else
 				msg_print("The sun's rays scorch your undead flesh!");
 				take_hit(DAMAGE_NOESCAPE, 1, "sunlight", -1);
-#endif
-
 				cave_no_regen = TRUE;
 			}
 		}
 
-		if ( inventory[INVEN_LITE].tval 
-		  && inventory[INVEN_LITE].name2 != EGO_LITE_DARKNESS 
-		  && !have_flag(inventory[INVEN_LITE].art_flags, TR_DARKNESS)
-		  && !p_ptr->resist_lite)
+		slot = equip_find_object(TV_LITE, SV_ANY);
+		if (slot)
 		{
-			object_type * o_ptr = &inventory[INVEN_LITE];
-			char o_name [MAX_NLEN];
-			char ouch [MAX_NLEN+40];
+			object_type *lite = equip_obj(slot);
+			if ( lite->name2 != EGO_LITE_DARKNESS
+			  && !have_flag(lite->art_flags, TR_DARKNESS)
+			  && res_pct(RES_LITE) < 0)
+			{
+				char o_name [MAX_NLEN];
+				char ouch [MAX_NLEN+40];
 
-			/* Get an object description */
-			object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
-
-#ifdef JP
-msg_format("%sがあなたのアンデッドの肉体を焼き焦がした！", o_name);
-#else
-			msg_format("The %s scorches your undead flesh!", o_name);
-#endif
-
-
-			cave_no_regen = TRUE;
-
-			/* Get an object description */
-			object_desc(o_name, o_ptr, OD_NAME_ONLY);
-
-#ifdef JP
-sprintf(ouch, "%sを装備したダメージ", o_name);
-#else
-			sprintf(ouch, "wielding %s", o_name);
-#endif
-
-			if (!IS_INVULN()) take_hit(DAMAGE_NOESCAPE, 1, ouch, -1);
+				object_desc(o_name, lite, OD_OMIT_PREFIX | OD_NAME_ONLY);
+				msg_format("The %s scorches your undead flesh!", o_name);
+				cave_no_regen = TRUE;
+				object_desc(o_name, lite, OD_NAME_ONLY);
+				sprintf(ouch, "wielding %s", o_name);
+				if (!IS_INVULN()) take_hit(DAMAGE_NOESCAPE, 1, ouch, -1);
+			}
 		}
 	}
 
-	if (have_flag(f_ptr->flags, FF_LAVA) && !IS_INVULN() && !p_ptr->immune_fire)
+	if (have_flag(f_ptr->flags, FF_LAVA) && !IS_INVULN())
 	{
 		int damage = 0;
 
@@ -1671,14 +1530,11 @@ sprintf(ouch, "%sを装備したダメージ", o_name);
 			damage = 3000 + randint0(2000);
 		}
 
+		damage = res_calc_dam(RES_FIRE, damage);
+		if (p_ptr->levitation) damage = damage / 5;
+
 		if (damage)
 		{
-			if (prace_is_(RACE_ENT)) damage += damage / 3;
-			if (p_ptr->resist_fire) damage = damage / 3;
-			if (IS_OPPOSE_FIRE()) damage = damage / 3;
-
-			if (p_ptr->levitation) damage = damage / 5;
-
 			damage = damage / 100 + (randint0(100) < (damage % 100));
 
 			if (p_ptr->levitation)
@@ -1726,47 +1582,37 @@ sprintf(ouch, "%sを装備したダメージ", o_name);
 
 	if (p_ptr->riding)
 	{
-		int damage;
-		if ((r_info[m_list[p_ptr->riding].r_idx].flags2 & RF2_AURA_FIRE) && !p_ptr->immune_fire)
+		if (r_info[m_list[p_ptr->riding].r_idx].flags2 & RF2_AURA_FIRE)
 		{
-			damage = r_info[m_list[p_ptr->riding].r_idx].level / 2;
-			if (prace_is_(RACE_ENT)) damage += damage / 3;
-			if (p_ptr->resist_fire) damage = damage / 3;
-			if (IS_OPPOSE_FIRE()) damage = damage / 3;
-#ifdef JP
-msg_print("熱い！");
-take_hit(DAMAGE_NOESCAPE, damage, "炎のオーラ", -1);
-#else
-			msg_print("It's hot!");
-			take_hit(DAMAGE_NOESCAPE, damage, "Fire aura", -1);
-#endif
+			int dam = r_info[m_list[p_ptr->riding].r_idx].level / 2;
+			dam = res_calc_dam(RES_FIRE, dam);
+
+			if (dam > 0)
+			{
+				msg_print("It's hot!");
+				take_hit(DAMAGE_NOESCAPE, dam, "Fire aura", -1);
+			}
 		}
-		if ((r_info[m_list[p_ptr->riding].r_idx].flags2 & RF2_AURA_ELEC) && !p_ptr->immune_elec)
+		if (r_info[m_list[p_ptr->riding].r_idx].flags2 & RF2_AURA_ELEC)
 		{
-			damage = r_info[m_list[p_ptr->riding].r_idx].level / 2;
-			if (prace_is_(RACE_ANDROID)) damage += damage / 3;
-			if (p_ptr->resist_elec) damage = damage / 3;
-			if (IS_OPPOSE_ELEC()) damage = damage / 3;
-#ifdef JP
-msg_print("痛い！");
-take_hit(DAMAGE_NOESCAPE, damage, "電気のオーラ", -1);
-#else
-			msg_print("It hurts!");
-			take_hit(DAMAGE_NOESCAPE, damage, "Elec aura", -1);
-#endif
+			int dam = r_info[m_list[p_ptr->riding].r_idx].level / 2;
+			dam = res_calc_dam(RES_ELEC, dam);
+
+			if (dam > 0)
+			{
+				msg_print("It hurts!");
+				take_hit(DAMAGE_NOESCAPE, dam, "Elec aura", -1);
+			}
 		}
-		if ((r_info[m_list[p_ptr->riding].r_idx].flags3 & RF3_AURA_COLD) && !p_ptr->immune_cold)
+		if (r_info[m_list[p_ptr->riding].r_idx].flags3 & RF3_AURA_COLD)
 		{
-			damage = r_info[m_list[p_ptr->riding].r_idx].level / 2;
-			if (p_ptr->resist_cold) damage = damage / 3;
-			if (IS_OPPOSE_COLD()) damage = damage / 3;
-#ifdef JP
-msg_print("冷たい！");
-take_hit(DAMAGE_NOESCAPE, damage, "冷気のオーラ", -1);
-#else
-			msg_print("It's cold!");
-			take_hit(DAMAGE_NOESCAPE, damage, "Cold aura", -1);
-#endif
+			int dam = r_info[m_list[p_ptr->riding].r_idx].level / 2;
+			dam = res_calc_dam(RES_COLD, dam);
+			if (dam > 0)
+			{
+				msg_print("It's cold!");
+				take_hit(DAMAGE_NOESCAPE, dam, "Cold aura", -1);
+			}
 		}
 	}
 
@@ -1779,51 +1625,35 @@ take_hit(DAMAGE_NOESCAPE, damage, "冷気のオーラ", -1);
 	 */
 	if (!have_flag(f_ptr->flags, FF_MOVE) && !have_flag(f_ptr->flags, FF_CAN_FLY))
 	{
-		if (!IS_INVULN() && !IS_WRAITH() && !IS_PASSWALL() &&
-		    ((p_ptr->chp > (p_ptr->lev / 5)) || !p_ptr->pass_wall))
+		if (!IS_INVULN() && !IS_WRAITH())
 		{
 			int dam;
 			cptr dam_desc;
 
-			cave_no_regen = TRUE;
-
+			dam = MAX(1 + (p_ptr->lev/5), 1 + p_ptr->mhp/24);
 			if (p_ptr->pass_wall)
 			{
-#ifdef JP
-				msg_print("体の分子が分解した気がする！");
-				dam_desc = "密度";
-#else
-				msg_print("Your molecules feel disrupted!");
-				dam_desc = "density";
-#endif
+				if (p_ptr->no_passwall_dam) 
+					dam = 0;
+				else
+				{
+					msg_print("Your molecules feel disrupted!");
+					dam_desc = "density";
+					if (p_ptr->prace == RACE_SPECTRE && dam > p_ptr->chp)
+						dam = p_ptr->chp;
+				}
 			}
 			else
 			{
-#ifdef JP
-				msg_print("崩れた岩に押し潰された！");
-				dam_desc = "硬い岩";
-#else
 				msg_print("You are being crushed!");
 				dam_desc = "solid rock";
-#endif
 			}
 
-			/* Biff the spectre ... they are too powerful */
-			if (p_ptr->prace == RACE_SPECTRE)
+			if (dam)
 			{
-				int old = 1 + (p_ptr->lev/5);
-				dam = randint1(1 + p_ptr->mhp/24);
-
-				if (dam < old)
-					dam = old;
-
-				if (dam > p_ptr->chp)
-					dam = p_ptr->chp;
+				cave_no_regen = TRUE;			
+				take_hit(DAMAGE_NOESCAPE, dam, dam_desc, -1);
 			}
-			else
-				dam = MAX(1 + (p_ptr->lev/5), 1 + p_ptr->mhp/24);
-
-			take_hit(DAMAGE_NOESCAPE, dam, dam_desc, -1);
 		}
 	}
 
@@ -1882,9 +1712,11 @@ take_hit(DAMAGE_NOESCAPE, damage, "冷気のオーラ", -1);
 	upkeep_factor = calculate_upkeep();
 
 	/* No regeneration while special action */
-	if ((p_ptr->action == ACTION_LEARN) ||
-	    (p_ptr->action == ACTION_HAYAGAKE) ||
-	    (p_ptr->special_defense & KATA_KOUKIJIN))
+	if (p_ptr->action == ACTION_LEARN ||
+	    p_ptr->action == ACTION_QUICK_WALK ||
+		p_ptr->action == ACTION_STALK ||
+	    (p_ptr->special_defense & KATA_KOUKIJIN) ||
+		weaponmaster_get_toggle() == TOGGLE_SHADOW_STANCE)
 	{
 		upkeep_factor += 100;
 	}
@@ -1901,33 +1733,27 @@ take_hit(DAMAGE_NOESCAPE, damage, "冷気のオーラ", -1);
 	}
 	regenmana(upkeep_regen);
 
-
-	/* Recharge magic eater's power */
-	if (p_ptr->pclass == CLASS_MAGIC_EATER)
-	{
-		regenmagic(regen_amount);
-	}
+	if (magic_eater_regen(regen_amount))
+		wild_regen = 20;
 
 	if ((p_ptr->csp == 0) && (p_ptr->csp_frac == 0))
 	{
-		while (upkeep_factor > 100)
+		if (p_ptr->msp == 0 && !one_in_(5))
 		{
-#ifdef JP
-			msg_print("こんなに多くのペットを制御できない！");
-#else
-			msg_print("Too many pets to control at once!");
-#endif
-			msg_print(NULL);
-			do_cmd_pet_dismiss();
-
-			upkeep_factor = calculate_upkeep();
-
-#ifdef JP
-			msg_format("維持ＭＰは %d%%", upkeep_factor);
-#else
-			msg_format("Upkeep: %d%% mana.", upkeep_factor);
-#endif
-			msg_print(NULL);
+			/* Currently, non-mana characters can't have many pets. Maybe this is OK for
+			   warriors but what about a Trump Blood Mage? */
+		}
+		else
+		{
+			while (upkeep_factor > 100)
+			{
+				msg_print("Too many pets to control at once!");
+				msg_print(NULL);
+				do_cmd_pet_dismiss();
+				upkeep_factor = calculate_upkeep();
+				msg_format("Upkeep: %d%% mana.", upkeep_factor);
+				msg_print(NULL);
+			}
 		}
 	}
 
@@ -1944,25 +1770,6 @@ take_hit(DAMAGE_NOESCAPE, damage, "冷気のオーラ", -1);
 	if ((p_ptr->chp < p_ptr->mhp) && !cave_no_regen)
 	{
 		regenhp(regen_amount);
-	}
-
-	if (p_ptr->rune_regen)
-	{
-		int gain = (1<<(1 + p_ptr->lev/10));
-		int new_hp = MIN(p_ptr->chp + gain, p_ptr->mhp);
-
-		if (new_hp != p_ptr->chp)
-		{
-			p_ptr->chp = new_hp;
-			p_ptr->chp_frac = 0;
-
-			p_ptr->redraw |= (PR_HP);
-			p_ptr->window |= (PW_PLAYER);
-
-			/* Blood Knights get extra attacks depending on how wounded they are */
-			if (p_ptr->pclass == CLASS_BLOOD_KNIGHT)
-				p_ptr->update |= PU_BONUS;
-		}
 	}
 }
 
@@ -2002,11 +1809,6 @@ static void process_world_aux_timeout(void)
 	if (p_ptr->tim_invis)
 	{
 		(void)set_tim_invis(p_ptr->tim_invis - 1, TRUE);
-	}
-
-	if (multi_rew)
-	{
-		multi_rew = FALSE;
 	}
 
 	/* Timed esp */
@@ -2370,6 +2172,15 @@ static void process_world_aux_timeout(void)
 	if (p_ptr->tim_inven_prot)
 		set_tim_inven_prot(p_ptr->tim_inven_prot - 1, TRUE);
 
+	if (p_ptr->tim_device_power)
+		set_tim_device_power(p_ptr->tim_device_power - 1, TRUE);
+
+	if (p_ptr->tim_sh_time)
+		set_tim_sh_time(p_ptr->tim_sh_time - 1, TRUE);
+
+	if (p_ptr->tim_foresight)
+		set_tim_foresight(p_ptr->tim_foresight - 1, TRUE);
+
 	if (p_ptr->tim_dark_stalker)
 		set_tim_dark_stalker(p_ptr->tim_dark_stalker - 1, TRUE);
 
@@ -2454,24 +2265,19 @@ static void process_world_aux_timeout(void)
  */
 static void process_world_aux_light(void)
 {
-	/* Check for light being wielded */
-	object_type *o_ptr = &inventory[INVEN_LITE];
-
-	/* Burn some fuel in the current lite */
-	if (o_ptr->tval == TV_LITE)
+	int slot = equip_find_object(TV_LITE, SV_ANY);
+	if (slot)
 	{
-		/* Hack -- Use some fuel (except on artifacts) */
-		if (!(o_ptr->name1 || o_ptr->name3 || o_ptr->art_name || o_ptr->sval == SV_LITE_FEANOR) && (o_ptr->xtra4 > 0))
+		object_type *lite = equip_obj(slot);
+		if ( !(lite->name1 || lite->name3 || lite->art_name || lite->sval == SV_LITE_FEANOR) 
+		  && lite->xtra4 > 0 )
 		{
-			/* Decrease life-span */
-			if (o_ptr->name2 == EGO_LITE_LONG)
+			if (lite->name2 == EGO_LITE_LONG)
 			{
-				if (turn % (TURNS_PER_TICK*2)) o_ptr->xtra4--;
+				if (turn % (TURNS_PER_TICK*2)) lite->xtra4--;
 			}
-			else o_ptr->xtra4--;
-
-			/* Notice interesting fuel steps */
-			notice_lite_change(o_ptr);
+			else lite->xtra4--;
+			notice_lite_change(lite);
 		}
 	}
 }
@@ -2495,17 +2301,13 @@ static void process_world_aux_curse(void)
 			int i, i_keep = 0, count = 0;
 
 			/* Scan the equipment with random teleport ability */
-			for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
+			for (i = EQUIP_BEGIN; i < EQUIP_BEGIN + equip_count(); i++)
 			{
 				u32b flgs[TR_FLAG_SIZE];
-				o_ptr = &inventory[i];
+				o_ptr = equip_obj(i);
 
-				/* Skip non-objects */
-				if (!o_ptr->k_idx) continue;
-
-				/* Extract the item flags */
+				if (!o_ptr) continue;
 				object_flags(o_ptr, flgs);
-
 				if (have_flag(flgs, TR_TELEPORT))
 				{
 					/* {.} will stop random teleportation. */
@@ -2517,43 +2319,28 @@ static void process_world_aux_curse(void)
 				}
 			}
 
-			o_ptr = &inventory[i_keep];
-			object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
-
-#ifdef JP
-			msg_format("%sがテレポートの能力を発動させようとしている。", o_name);
-#else
-			msg_format("Your %s is activating teleportation.", o_name);
-#endif
-
-#ifdef JP
-			if (get_check_strict("テレポートしますか？", CHECK_OKAY_CANCEL))
-#else
-			if (get_check_strict("Teleport? ", CHECK_OKAY_CANCEL))
-#endif
+			if (i_keep)
 			{
-				disturb(0, 0);
-				teleport_player(50, 0L);
-			}
-			else
-			{
-#ifdef JP
-				msg_format("%sに{.}(ピリオド)と銘を刻むと発動を抑制できます。", o_name);
-#else
-				msg_format("You can inscribe {.} on your %s to disable random teleportation. ", o_name);
-#endif
-				disturb(1, 0);
+				o_ptr = &inventory[i_keep];
+				object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+				msg_format("Your %s is activating teleportation.", o_name);
+				if (get_check_strict("Teleport? ", CHECK_OKAY_CANCEL))
+				{
+					disturb(0, 0);
+					teleport_player(50, 0L);
+				}
+				else
+				{
+					msg_format("You can inscribe {.} on your %s to disable random teleportation. ", o_name);
+					disturb(1, 0);
+				}
 			}
 		}
 		/* Make a chainsword noise */
 		if ((p_ptr->cursed & TRC_CHAINSWORD) && one_in_(CHAINSWORD_NOISE))
 		{
 			char noise[1024];
-#ifdef JP
-			if (!get_rnd_line("chainswd_j.txt", 0, noise))
-#else
 			if (!get_rnd_line("chainswd.txt", 0, noise))
-#endif
 				msg_print(noise);
 			disturb(FALSE, FALSE);
 		}
@@ -2582,7 +2369,7 @@ static void process_world_aux_curse(void)
 			o_ptr = choose_cursed_obj_name(TRC_ADD_L_CURSE);
 
 			new_curse = get_curse(0, o_ptr);
-			if (!(o_ptr->curse_flags & new_curse) && !have_flag(o_ptr->art_flags, TR_SIGNATURE))
+			if (!(o_ptr->curse_flags & new_curse))
 			{
 				char o_name[MAX_NLEN];
 
@@ -2609,7 +2396,7 @@ static void process_world_aux_curse(void)
 			o_ptr = choose_cursed_obj_name(TRC_ADD_H_CURSE);
 
 			new_curse = get_curse(1, o_ptr);
-			if (!(o_ptr->curse_flags & new_curse) && !have_flag(o_ptr->art_flags, TR_SIGNATURE))
+			if (!(o_ptr->curse_flags & new_curse))
 			{
 				char o_name[MAX_NLEN];
 
@@ -2739,31 +2526,24 @@ static void process_world_aux_curse(void)
 	/* Rarely, take damage from the Jewel of Judgement */
 	if (one_in_(999) && !p_ptr->anti_magic)
 	{
-		object_type *o_ptr = &inventory[INVEN_LITE];
-
-		if (o_ptr->name1 == ART_JUDGE)
+		int slot = equip_find_artifact(ART_JUDGE);
+		if (slot)
 		{
-#ifdef JP
-			if (object_is_known(o_ptr))
-				msg_print("『審判の宝石』はあなたの体力を吸収した！");
-			else
-				msg_print("なにかがあなたの体力を吸収した！");
-			take_hit(DAMAGE_LOSELIFE, MIN(p_ptr->lev, 50), "審判の宝石", -1);
-#else
+			object_type *o_ptr = equip_obj(slot);
 			if (object_is_known(o_ptr))
 				msg_print("The Jewel of Judgement drains life from you!");
 			else
 				msg_print("Something drains life from you!");
 			take_hit(DAMAGE_LOSELIFE, MIN(p_ptr->lev, 50), "the Jewel of Judgement", -1);
-#endif
 		}
 	}
 
 	if (one_in_(666))
 	{
-		object_type *o_ptr = &inventory[INVEN_HANDS];
-		if (o_ptr->name1 == ART_HAND_OF_VECNA)
+		int slot = equip_find_artifact(ART_HAND_OF_VECNA);
+		if (slot)
 		{
+			object_type *o_ptr = equip_obj(slot);
 			if (object_is_known(o_ptr))
 				msg_print("The Hand of Vecna strangles you!");
 			else
@@ -2774,9 +2554,10 @@ static void process_world_aux_curse(void)
 
 	if (one_in_(666))
 	{
-		object_type *o_ptr = &inventory[INVEN_LITE];
-		if (o_ptr->name1 == ART_EYE_OF_VECNA)
+		int slot = equip_find_artifact(ART_EYE_OF_VECNA);
+		if (slot)
 		{
+			object_type *o_ptr = equip_obj(slot);
 			if (object_is_known(o_ptr))
 				msg_print("The Eye of Vecna causes mental anquish!");
 			else
@@ -2792,13 +2573,20 @@ static void process_world_aux_curse(void)
 		}
 	}
 
-	if ( (inventory[INVEN_RARM].name1 == ART_BLOODRIP || inventory[INVEN_LARM].name1 == ART_BLOODRIP) 
-	  && !p_ptr->wild_mode
-	  && one_in_(66) )
+	if (!p_ptr->wild_mode && one_in_(66))
 	{
-		/* TODO: Check whether object is known ... */
-		if (set_cut(p_ptr->cut + 66, FALSE))
-			msg_print("Bloodrip feeds on you!");
+		int slot = equip_find_artifact(ART_BLOODRIP);
+		if (slot)
+		{
+			object_type *o_ptr = equip_obj(slot);
+			if (set_cut(p_ptr->cut + 66, FALSE))
+			{
+				if (object_is_known(o_ptr))
+					msg_print("Bloodrip feeds on you!");
+				else
+					msg_print("Something feeds on you!");
+			}
+		}
 	}
 }
 
@@ -2806,40 +2594,30 @@ static void process_world_aux_curse(void)
 /*
  * Handle recharging objects once every 10 game turns
  */
-static void process_world_aux_recharge(void)
+static bool _recharge_changed = FALSE;
+static void _recharge_aux(object_type *o_ptr)
 {
-	int i;
-	bool changed;
-
-	/* Process equipment */
-	for (changed = FALSE, i = INVEN_RARM; i < INVEN_TOTAL; i++)
+	if (o_ptr->timeout > 0)
 	{
-		/* Get the object */
-		object_type *o_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Recharge activatable objects */
 		if (o_ptr->timeout > 0)
 		{
-			/* Recharge */
 			o_ptr->timeout--;
-
-			/* Notice changes */
 			if (!o_ptr->timeout)
 			{
 				recharged_notice(o_ptr);
-				changed = TRUE;
+				_recharge_changed = TRUE;
 			}
 		}
 	}
-
-	/* Notice changes */
-	if (changed)
+}
+static void process_world_aux_recharge(void)
+{
+	int i;
+	_recharge_changed = FALSE;
+	equip_for_each_obj(_recharge_aux);
+	if (_recharge_changed)
 	{
-		/* Window stuff */
-		p_ptr->window |= (PW_EQUIP);
+		p_ptr->window |= PW_EQUIP;
 		wild_regen = 20;
 	}
 
@@ -2848,16 +2626,13 @@ static void process_world_aux_recharge(void)
 	 * and each charging rod in a stack decreases the stack's timeout by
 	 * one per turn. -LM-
 	 */
-	for (changed = FALSE, i = 0; i < INVEN_PACK; i++)
+	_recharge_changed = FALSE;
+	for (i = 0; i < INVEN_PACK; i++)
 	{
 		object_type *o_ptr = &inventory[i];
 		object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
-		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
-
-		/* Examine all charging rods or stacks of charging rods. 
-		   Hack: Treasured Mushrooms now 'recharge' */
 		if ((o_ptr->tval == TV_ROD || object_is_mushroom(o_ptr)) && (o_ptr->timeout))
 		{
 			/* Determine how many rods are charging. */
@@ -2874,22 +2649,19 @@ static void process_world_aux_recharge(void)
 			if (!(o_ptr->timeout))
 			{
 				recharged_notice(o_ptr);
-				changed = TRUE;
+				_recharge_changed = TRUE;
 			}
 
 			/* One of the stack of rod is charged */
 			else if (o_ptr->timeout % k_ptr->pval)
 			{
-				changed = TRUE;
+				_recharge_changed = TRUE;
 			}
 		}
 	}
-
-	/* Notice changes */
-	if (changed)
+	if (_recharge_changed)
 	{
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN);
+		p_ptr->window |= PW_INVEN;
 		wild_regen = 20;
 	}
 
@@ -2945,39 +2717,19 @@ void process_world_aux_movement(void)
 			/* Determine the level */
 			if (dun_level || p_ptr->inside_quest)
 			{
-#ifdef JP
-msg_print("上に引っ張りあげられる感じがする！");
-#else
 				msg_print("You feel yourself yanked upwards!");
-#endif
-
 				if (dungeon_type) p_ptr->recall_dungeon = dungeon_type;
-				if (record_stair)
-					do_cmd_write_nikki(NIKKI_RECALL, dun_level, NULL);
 
 				dun_level = 0;
 				dungeon_type = 0;
-
 				leave_quest_check();
-
 				p_ptr->inside_quest = 0;
-
 				p_ptr->leaving = TRUE;
 			}
 			else
 			{
-#ifdef JP
-msg_print("下に引きずり降ろされる感じがする！");
-#else
 				msg_print("You feel yourself yanked downwards!");
-#endif
-
 				dungeon_type = p_ptr->recall_dungeon;
-
-				if (record_stair)
-					do_cmd_write_nikki(NIKKI_RECALL, dun_level, NULL);
-
-				/* New depth */
 				dun_level = max_dlv[dungeon_type];
 				if (dun_level < 1) dun_level = 1;
 
@@ -3700,7 +3452,6 @@ msg_print("今、アングバンドへの門が閉ざされました。");
 	{
 		if (min != prev_min)
 		{
-			do_cmd_write_nikki(NIKKI_HIGAWARI, 0, NULL);
 			determine_today_mon(FALSE);
 		}
 	}
@@ -3886,12 +3637,15 @@ static bool enter_wizard_mode(void)
 		/* Wizard mode is not permitted */
 		if (!allow_debug_opts || arg_wizard)
 		{
-#ifdef JP
-			msg_print("ウィザードモードは許可されていません。 ");
-#else
 			msg_print("Wizard mode is not permitted.");
-#endif
 			return FALSE;
+		}
+		else
+		{
+#ifndef ALLOW_WIZARD
+			msg_print("Wizard mode is only permitted in _DEBUG builds.");
+			return FALSE;
+#endif
 		}
 
 		/* Mention effects */
@@ -3906,20 +3660,11 @@ static bool enter_wizard_mode(void)
 		msg_print(NULL);
 
 		/* Verify request */
-#ifdef JP
-		if (!get_check("本当にウィザードモードに入りたいのですか? "))
-#else
 		if (!get_check("Are you sure you want to enter wizard mode? "))
-#endif
 		{
 			return (FALSE);
 		}
 
-#ifdef JP
-		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "ウィザードモードに突入してスコアを残せなくなった。");
-#else
-		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "give up recording score to enter wizard mode.");
-#endif
 		/* Mark savefile */
 		p_ptr->noscore |= 0x0002;
 	}
@@ -3962,20 +3707,11 @@ static bool enter_debug_mode(void)
 		msg_print(NULL);
 
 		/* Verify request */
-#ifdef JP
-		if (!get_check("本当にデバッグ・コマンドを使いますか? "))
-#else
 		if (!get_check("Are you sure you want to use debug commands? "))
-#endif
 		{
 			return (FALSE);
 		}
 
-#ifdef JP
-		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "デバッグモードに突入してスコアを残せなくなった。");
-#else
-		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "give up sending score to use debug commands.");
-#endif
 		/* Mark savefile */
 		p_ptr->noscore |= 0x0008;
 	}
@@ -3990,58 +3726,6 @@ static bool enter_debug_mode(void)
 extern void do_cmd_debug(void);
 
 #endif /* ALLOW_WIZARD */
-
-
-#ifdef ALLOW_BORG
-
-/*
- * Verify use of "borg" commands
- */
-static bool enter_borg_mode(void)
-{
-	/* Ask first time */
-	if (!(p_ptr->noscore & 0x0010))
-	{
-		/* Mention effects */
-#ifdef JP
-		msg_print("ボーグ・コマンドはデバッグと実験のためのコマンドです。 ");
-		msg_print("ボーグ・コマンドを使うとスコアは記録されません。");
-#else
-		msg_print("The borg commands are for debugging and experimenting.");
-		msg_print("The game will not be scored if you use borg commands.");
-#endif
-
-		msg_print(NULL);
-
-		/* Verify request */
-#ifdef JP
-		if (!get_check("本当にボーグ・コマンドを使いますか? "))
-#else
-		if (!get_check("Are you sure you want to use borg commands? "))
-#endif
-		{
-			return (FALSE);
-		}
-
-#ifdef JP
-		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "ボーグ・コマンドを使用してスコアを残せなくなった。");
-#else
-		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "give up recording score to use borg commands.");
-#endif
-		/* Mark savefile */
-		p_ptr->noscore |= 0x0010;
-	}
-
-	/* Success */
-	return (TRUE);
-}
-
-/*
- * Hack -- Declare the Ben Borg
- */
-extern void do_cmd_borg(void);
-
-#endif /* ALLOW_BORG */
 
 
 
@@ -4161,14 +3845,14 @@ msg_print("ウィザードモード突入。");
 		/* Wear/wield equipment */
 		case 'w':
 		{
-			if (!p_ptr->wild_mode) do_cmd_wield();
+			if (!p_ptr->wild_mode) equip_wield();
 			break;
 		}
 
 		/* Take off equipment */
 		case 't':
 		{
-			if (!p_ptr->wild_mode) do_cmd_takeoff();
+			if (!p_ptr->wild_mode) equip_takeoff();
 			break;
 		}
 
@@ -4433,7 +4117,7 @@ msg_print("ウィザードモード突入。");
 			else if (p_ptr->pclass == CLASS_RAGE_MAGE)
 				rage_mage_gain_spell();
 			else if (p_ptr->pclass == CLASS_MAGIC_EATER)
-				cast_absorb_magic();
+				magic_eater_gain();
 			else if (p_ptr->pclass == CLASS_PSION)
 			{
 				msg_print("You can only gain spells at certain levels.");
@@ -4446,24 +4130,24 @@ msg_print("ウィザードモード突入。");
 		/* Browse a book */
 		case 'b':
 		{
-			if ( (p_ptr->pclass == CLASS_BERSERKER) ||
-			     (p_ptr->pclass == CLASS_NINJA) ||
-			     (p_ptr->pclass == CLASS_MIRROR_MASTER) )
-				do_cmd_mind_browse();
-			else if (p_ptr->pclass == CLASS_SMITH)
+			if (p_ptr->pclass == CLASS_WEAPONSMITH)
 				do_cmd_kaji(TRUE);
 			else if (p_ptr->pclass == CLASS_MAGIC_EATER)
-				do_cmd_magic_eater(TRUE);
+				magic_eater_browse();
 			else if (p_ptr->pclass == CLASS_SNIPER)
 				do_cmd_snipe_browse();
 			else if (p_ptr->pclass == CLASS_RAGE_MAGE)
 				rage_mage_browse_spell();
 			else if (p_ptr->pclass == CLASS_ARCHAEOLOGIST ||
+					 p_ptr->pclass == CLASS_BERSERKER ||
 			         p_ptr->pclass == CLASS_DUELIST ||
 					 p_ptr->pclass == CLASS_WARLOCK ||
 					 p_ptr->pclass == CLASS_PSION || 
 					 p_ptr->pclass == CLASS_BLOOD_KNIGHT ||
 					 p_ptr->pclass == CLASS_MINDCRAFTER ||
+					 p_ptr->pclass == CLASS_MIRROR_MASTER ||
+					 p_ptr->pclass == CLASS_MONSTER ||
+					 p_ptr->pclass == CLASS_NINJA ||
 					 p_ptr->pclass == CLASS_RUNE_KNIGHT ||
 					 p_ptr->pclass == CLASS_WILD_TALENT ||
 					 p_ptr->pclass == CLASS_WEAPONMASTER ||
@@ -4481,164 +4165,109 @@ msg_print("ウィザードモード突入。");
 
 		/* Cast a spell */
 		case 'm':
-		{
 			/* -KMW- */
-			if (!p_ptr->wild_mode)
+			if (p_ptr->wild_mode) break;
+			if (p_ptr->pclass == CLASS_WARRIOR || p_ptr->pclass == CLASS_ARCHER || p_ptr->pclass == CLASS_CAVALRY)
 			{
-				if ((p_ptr->pclass == CLASS_WARRIOR) || (p_ptr->pclass == CLASS_ARCHER) || (p_ptr->pclass == CLASS_CAVALRY))
-				{
-#ifdef JP
-					msg_print("呪文を唱えられない！");
-#else
-					msg_print("You cannot cast spells!");
-#endif
-				}
-				else if (p_ptr->tim_no_spells)
-				{
-					msg_print("Your spells are blocked!");
-					energy_use = 100;
-				}
-				else if (!fear_allow_magic())
-				{
-					msg_print("You are too scared!");
-					energy_use = 100;
-				}
-				else if (dun_level && (d_info[dungeon_type].flags1 & DF1_NO_MAGIC) 
-					&& p_ptr->pclass != CLASS_BERSERKER 
-					&& p_ptr->pclass != CLASS_SMITH 
+				msg_print("You cannot cast spells!");
+			}
+			else if (p_ptr->tim_no_spells)
+			{
+				msg_print("Your spells are blocked!");
+				energy_use = 100;
+			}
+			else if (!fear_allow_magic())
+			{
+				msg_print("You are too scared!");
+				energy_use = 100;
+			}
+			else if (dun_level && (d_info[dungeon_type].flags1 & DF1_NO_MAGIC) 
+				&& p_ptr->pclass != CLASS_BERSERKER 
+				&& p_ptr->pclass != CLASS_WEAPONSMITH 
+				&& p_ptr->pclass != CLASS_BLOOD_KNIGHT
+				&& p_ptr->pclass != CLASS_WEAPONMASTER
+				&& p_ptr->pclass != CLASS_MAULER )
+			{
+				msg_print("The dungeon absorbs all attempted magic!");
+				msg_print(NULL);
+			}
+			else if (p_ptr->anti_magic 
+				    && p_ptr->pclass != CLASS_BERSERKER 
+				    && p_ptr->pclass != CLASS_WEAPONSMITH 
 					&& p_ptr->pclass != CLASS_BLOOD_KNIGHT
-					&& p_ptr->pclass != CLASS_WEAPONMASTER
+					&& p_ptr->pclass != CLASS_WEAPONMASTER 
 					&& p_ptr->pclass != CLASS_MAULER )
-				{
-#ifdef JP
-					msg_print("ダンジョンが魔法を吸収した！");
-#else
-					msg_print("The dungeon absorbs all attempted magic!");
-#endif
-					msg_print(NULL);
-				}
-				else if (p_ptr->anti_magic 
-				     && p_ptr->pclass != CLASS_BERSERKER 
-				     && p_ptr->pclass != CLASS_SMITH 
-					 && p_ptr->pclass != CLASS_BLOOD_KNIGHT
-					 && p_ptr->pclass != CLASS_WEAPONMASTER 
-					 && p_ptr->pclass != CLASS_MAULER )
-				{
-#ifdef JP
+			{
+				cptr which_power = "magic";
+				if (p_ptr->pclass == CLASS_MINDCRAFTER || p_ptr->pclass == CLASS_PSION)
+					which_power = "psionic powers";
+				else if (p_ptr->pclass == CLASS_IMITATOR)
+					which_power = "imitation";
+				else if (p_ptr->pclass == CLASS_SAMURAI)
+					which_power = "hissatsu";
+				else if (p_ptr->pclass == CLASS_MIRROR_MASTER)
+					which_power = "mirror magic";
+				else if (p_ptr->pclass == CLASS_NINJA)
+					which_power = "ninjutsu";
+				else if (mp_ptr->spell_book == TV_LIFE_BOOK)
+					which_power = "prayer";
+				else if (mp_ptr->spell_book == TV_RAGE_BOOK)
+					which_power = "rage";
 
-					cptr which_power = "魔法";
-#else
-					cptr which_power = "magic";
-#endif
-					if (p_ptr->pclass == CLASS_MINDCRAFTER || p_ptr->pclass == CLASS_PSION)
-#ifdef JP
-						which_power = "超能力";
-#else
-						which_power = "psionic powers";
-#endif
-					else if (p_ptr->pclass == CLASS_IMITATOR)
-#ifdef JP
-						which_power = "ものまね";
-#else
-						which_power = "imitation";
-#endif
-					else if (p_ptr->pclass == CLASS_SAMURAI)
-#ifdef JP
-						which_power = "必殺剣";
-#else
-						which_power = "hissatsu";
-#endif
-					else if (p_ptr->pclass == CLASS_MIRROR_MASTER)
-#ifdef JP
-						which_power = "鏡魔法";
-#else
-						which_power = "mirror magic";
-#endif
-					else if (p_ptr->pclass == CLASS_NINJA)
-#ifdef JP
-						which_power = "忍術";
-#else
-						which_power = "ninjutsu";
-#endif
-					else if (mp_ptr->spell_book == TV_LIFE_BOOK)
-#ifdef JP
-						which_power = "祈り";
-#else
-						which_power = "prayer";
-#endif
-					else if (mp_ptr->spell_book == TV_RAGE_BOOK)
-						which_power = "rage";
-
-#ifdef JP
-					msg_format("反魔法バリアが%sを邪魔した！", which_power);
-#else
-					msg_format("An anti-magic shell disrupts your %s!", which_power);
-#endif
-					energy_use = 0;
-				}
-				else if (IS_SHERO() && (p_ptr->pclass != CLASS_BERSERKER) && p_ptr->pclass != CLASS_BLOOD_KNIGHT && p_ptr->pclass != CLASS_RAGE_MAGE)
+				msg_format("An anti-magic shell disrupts your %s!", which_power);
+				energy_use = 0;
+			}
+			else if (IS_SHERO() && p_ptr->pclass != CLASS_BERSERKER && p_ptr->pclass != CLASS_BLOOD_KNIGHT && p_ptr->pclass != CLASS_RAGE_MAGE)
+			{
+				msg_format("You cannot think directly!");
+				energy_use = 0;
+			}
+			else
+			{
+				if (p_ptr->pclass == CLASS_IMITATOR)
+					imitator_cast(FALSE);
+				else if (p_ptr->pclass == CLASS_MAGIC_EATER)
+					magic_eater_cast();
+				else if (p_ptr->pclass == CLASS_SAMURAI)
+					do_cmd_hissatsu();
+				else if (p_ptr->pclass == CLASS_BLUE_MAGE)
+					do_cmd_cast_learned();
+				else if (p_ptr->pclass == CLASS_WEAPONSMITH)
+					do_cmd_kaji(FALSE);
+				else if (p_ptr->pclass == CLASS_SNIPER)
+					do_cmd_snipe();
+				else if (p_ptr->pclass == CLASS_ARCHAEOLOGIST ||
+							p_ptr->pclass == CLASS_BERSERKER ||
+					        p_ptr->pclass == CLASS_DUELIST ||
+							p_ptr->pclass == CLASS_WARLOCK ||
+							p_ptr->pclass == CLASS_BLOOD_KNIGHT ||
+							p_ptr->pclass == CLASS_MINDCRAFTER ||
+							p_ptr->pclass == CLASS_MIRROR_MASTER ||
+							p_ptr->pclass == CLASS_MONSTER ||
+							p_ptr->pclass == CLASS_NINJA ||
+							p_ptr->pclass == CLASS_PSION ||
+							p_ptr->pclass == CLASS_RUNE_KNIGHT ||
+							p_ptr->pclass == CLASS_WILD_TALENT ||
+							p_ptr->pclass == CLASS_WEAPONMASTER ||
+							p_ptr->pclass == CLASS_RAGE_MAGE ||
+							p_ptr->pclass == CLASS_SCOUT ||
+							p_ptr->pclass == CLASS_MAULER ||
+							p_ptr->pclass == CLASS_PSION ||
+							p_ptr->pclass == CLASS_TIME_LORD )
 				{
-#ifdef JP
-					msg_format("狂戦士化していて頭が回らない！");
-#else
-					msg_format("You cannot think directly!");
-#endif
-					energy_use = 0;
+					/* This is the preferred entrypoint for spells ...
+						I'm still working on coverting everything else */
+					do_cmd_spell();
 				}
 				else
-				{
-					if ((p_ptr->pclass == CLASS_BERSERKER) ||
-					    (p_ptr->pclass == CLASS_NINJA) ||
-					    (p_ptr->pclass == CLASS_MIRROR_MASTER) 
-					    )
-						do_cmd_mind();
-					else if (p_ptr->pclass == CLASS_IMITATOR)
-						do_cmd_mane(FALSE);
-					else if (p_ptr->pclass == CLASS_MAGIC_EATER)
-						do_cmd_magic_eater(FALSE);
-					else if (p_ptr->pclass == CLASS_SAMURAI)
-						do_cmd_hissatsu();
-					else if (p_ptr->pclass == CLASS_BLUE_MAGE)
-						do_cmd_cast_learned();
-					else if (p_ptr->pclass == CLASS_SMITH)
-						do_cmd_kaji(FALSE);
-					else if (p_ptr->pclass == CLASS_SNIPER)
-						do_cmd_snipe();
-					else if (p_ptr->pclass == CLASS_PSION)
-					{
-						psion_spell();
-					}
-					else if (p_ptr->pclass == CLASS_ARCHAEOLOGIST ||
-					         p_ptr->pclass == CLASS_DUELIST ||
-							 p_ptr->pclass == CLASS_WARLOCK ||
-							 p_ptr->pclass == CLASS_BLOOD_KNIGHT ||
-							 p_ptr->pclass == CLASS_MINDCRAFTER ||
-							 p_ptr->pclass == CLASS_PSION ||
-							 p_ptr->pclass == CLASS_RUNE_KNIGHT ||
-							 p_ptr->pclass == CLASS_WILD_TALENT ||
-							 p_ptr->pclass == CLASS_WEAPONMASTER ||
-							 p_ptr->pclass == CLASS_RAGE_MAGE ||
-							 p_ptr->pclass == CLASS_SCOUT ||
-							 p_ptr->pclass == CLASS_MAULER ||
-							 p_ptr->pclass == CLASS_TIME_LORD )
-					{
-						/* This is the preferred entrypoint for spells ...
-						   I'm still working on coverting everything else */
-						do_cmd_spell();
-					}
-					else
-						do_cmd_cast();
-				}
+					do_cmd_cast();
 			}
 			break;
-		}
 
 		/* Issue a pet command */
 		case 'p':
-		{
 			if (!p_ptr->wild_mode) do_cmd_pet();
 			break;
-		}
 
 		/*** Use various objects ***/
 
@@ -5046,12 +4675,6 @@ msg_print("アリーナが魔法を吸収した！");
 			break;
 		}
 
-		case '|':
-		{
-			do_cmd_nikki();
-			break;
-		}
-
 		/* Check artifacts, uniques, objects */
 		case '~':
 		{
@@ -5070,20 +4693,6 @@ msg_print("アリーナが魔法を吸収した！");
 		case ')':
 		{
 			do_cmd_save_screen();
-			break;
-		}
-
-		/* Record/stop "Movie" */
-		case ']':
-		{
-			prepare_movie_hooks();
-			break;
-		}
-
-		/* Make random artifact list */
-		case KTRL('V'):
-		{
-			spoil_random_artifact("randifact.txt");
 			break;
 		}
 
@@ -5240,11 +4849,12 @@ static void process_player(void)
 		if (resting == -1)
 		{
 			/* Stop resting */
-			if ((p_ptr->chp == p_ptr->mhp || mimic_no_regen()) &&
-			    (p_ptr->csp >= p_ptr->msp || 
-					p_ptr->pclass == CLASS_RUNE_KNIGHT || 
-					p_ptr->pclass == CLASS_RAGE_MAGE ||
-					mimic_no_regen()))
+			if ( (p_ptr->chp == p_ptr->mhp || mimic_no_regen()) 
+			  && ( p_ptr->csp >= p_ptr->msp 
+			    || p_ptr->pclass == CLASS_RUNE_KNIGHT 
+				|| p_ptr->pclass == CLASS_RAGE_MAGE 
+				|| mimic_no_regen() ) 
+			  && !magic_eater_can_regen() )
 			{
 				set_action(ACTION_NONE);
 			}
@@ -5254,17 +4864,23 @@ static void process_player(void)
 		else if (resting == -2)
 		{
 			/* Stop resting */
-			if ((p_ptr->chp == p_ptr->mhp || mimic_no_regen()) &&
-			    (p_ptr->csp >= p_ptr->msp || 
-					p_ptr->pclass == CLASS_RUNE_KNIGHT || 
-					p_ptr->pclass == CLASS_RAGE_MAGE ||
-					mimic_no_regen()) &&
-			    !p_ptr->blind && !p_ptr->confused &&
-			    !p_ptr->poisoned && !p_ptr->afraid &&
-			    !p_ptr->stun && !p_ptr->cut &&
-			    !p_ptr->slow && !p_ptr->paralyzed &&
-			    !p_ptr->image && !p_ptr->word_recall &&
-			    !p_ptr->alter_reality)
+			if ( (p_ptr->chp == p_ptr->mhp || mimic_no_regen()) 
+			  && ( p_ptr->csp >= p_ptr->msp 
+			    || p_ptr->pclass == CLASS_RUNE_KNIGHT 
+				|| p_ptr->pclass == CLASS_RAGE_MAGE 
+				|| mimic_no_regen() ) 
+			  && !magic_eater_can_regen() 
+			  && !p_ptr->blind 
+			  && !p_ptr->confused 
+			  && !p_ptr->poisoned 
+			  && !p_ptr->afraid 
+			  && !p_ptr->stun 
+			  && !p_ptr->cut 
+			  && !p_ptr->slow 
+			  && !p_ptr->paralyzed 
+			  && !p_ptr->image 
+			  && !p_ptr->word_recall 
+			  && !p_ptr->alter_reality )
 			{
 				set_action(ACTION_NONE);
 			}
@@ -5426,7 +5042,7 @@ msg_print("中断しました。");
 	}
 
 	/* Handle the player song */
-	if (!load) check_music();
+	if (!load) bard_check_music();
 
 	/* Hex - Handle the hex spells */
 	if (!load) check_hex();
@@ -5649,8 +5265,15 @@ msg_print("中断しました。");
 			
 			if (class_ptr && class_ptr->player_action)
 				class_ptr->player_action(energy_use);
+
+			if (p_ptr->free_turns)
+			{
+				p_ptr->redraw |= PR_STATUS;
+				p_ptr->free_turns--;
+				if (p_ptr->free_turns)
+					energy_use = 0;
+			}
 			
-			/* Use some energy */
 			if (world_player || energy_use > 400)
 			{
 				/* The Randomness is irrelevant */
@@ -5659,14 +5282,14 @@ msg_print("中断しました。");
 			else
 			{
 				int amt = (s16b)((s32b)energy_use * ENERGY_NEED() / 100L);
-			/*	if (p_ptr->wizard)
-					msg_format("Used %d energy.", amt);*/
+				#if 0
+				msg_format("Used %d energy.", amt);
+				#endif
 				p_ptr->energy_need += amt;
 			}
 
 			/* Hack -- constant hallucination */
 			if (p_ptr->image) p_ptr->redraw |= (PR_MAP);
-
 
 			/* Shimmer monsters if needed */
 			if (shimmer_monsters)
@@ -5680,85 +5303,50 @@ msg_print("中断しました。");
 					monster_type *m_ptr;
 					monster_race *r_ptr;
 
-					/* Access monster */
 					m_ptr = &m_list[i];
-
-					/* Skip dead monsters */
 					if (!m_ptr->r_idx) continue;
-
-					/* Skip unseen monsters */
 					if (!m_ptr->ml) continue;
-
-					/* Access the monster race */
 					r_ptr = &r_info[m_ptr->ap_r_idx];
-
-					/* Skip non-multi-hued monsters */
 					if (!(r_ptr->flags1 & (RF1_ATTR_MULTI | RF1_SHAPECHANGER)))
 						continue;
 
-					/* Reset the flag */
 					shimmer_monsters = TRUE;
-
-					/* Redraw regardless */
 					lite_spot(m_ptr->fy, m_ptr->fx);
 				}
 			}
 
-			fear_process_p();
+			if (randint1(200) < energy_use)
+				fear_process_p();
 
-			/* Handle monster detection */
 			if (repair_monsters)
 			{
-				/* Reset the flag */
 				repair_monsters = FALSE;
 
-				/* Rotate detection flags */
 				for (i = 1; i < m_max; i++)
 				{
 					monster_type *m_ptr;
 
-					/* Access monster */
 					m_ptr = &m_list[i];
-
-					/* Skip dead monsters */
 					if (!m_ptr->r_idx) continue;
-
-					/* Nice monsters get mean */
 					if (m_ptr->mflag & MFLAG_NICE)
 					{
-						/* Nice monsters get mean */
 						m_ptr->mflag &= ~(MFLAG_NICE);
 					}
 
-					/* Handle memorized monsters */
 					if (m_ptr->mflag2 & MFLAG2_MARK)
 					{
-						/* Maintain detection */
 						if (m_ptr->mflag2 & MFLAG2_SHOW)
 						{
-							/* Forget flag */
 							m_ptr->mflag2 &= ~(MFLAG2_SHOW);
-
-							/* Still need repairs */
 							repair_monsters = TRUE;
 						}
-
-						/* Remove detection */
 						else
 						{
-							/* Forget flag */
 							m_ptr->mflag2 &= ~(MFLAG2_MARK);
-
-							/* Assume invisible */
 							m_ptr->ml = FALSE;
-
-							/* Update the monster */
 							update_mon(i, FALSE);
-
 							if (p_ptr->health_who == i) p_ptr->redraw |= (PR_HEALTH);
 							if (p_ptr->riding == i) p_ptr->redraw |= (PR_UHEALTH);
-
-							/* Redraw regardless */
 							lite_spot(m_ptr->fy, m_ptr->fx);
 						}
 					}
@@ -5786,30 +5374,17 @@ msg_print("中断しました。");
 
 			if (world_player && (p_ptr->energy_need > - 1000))
 			{
-				/* Redraw map */
 				p_ptr->redraw |= (PR_MAP | PR_STATUS);
-
-				/* Update monsters */
 				p_ptr->update |= (PU_MONSTERS);
-
-				/* Window stuff */
 				p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-
-#ifdef JP
-				msg_print("「時は動きだす…」");
-#else
 				msg_print("You feel time flowing around you once more.");
-#endif
 				msg_print(NULL);
 				world_player = FALSE;
 				p_ptr->energy_need = ENERGY_NEED();
-
-				/* Handle "p_ptr->update" and "p_ptr->redraw" and "p_ptr->window" */
 				handle_stuff();
 			}
 		}
 
-		/* Hack -- notice death */
 		if (!p_ptr->playing || p_ptr->is_dead)
 		{
 			world_player = FALSE;
@@ -5819,7 +5394,6 @@ msg_print("中断しました。");
 		/* Sniper */
 		if (energy_use && reset_concent) reset_concentration(TRUE);
 
-		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
 	}
 
@@ -5900,7 +5474,6 @@ static void dungeon(bool load_game)
 	if ((max_dlv[dungeon_type] < dun_level) && !p_ptr->inside_quest)
 	{
 		max_dlv[dungeon_type] = dun_level;
-		if (record_maxdepth) do_cmd_write_nikki(NIKKI_MAXDEAPTH, dun_level, NULL);
 	}
 
 	(void)calculate_upkeep();
@@ -6178,7 +5751,7 @@ static void load_all_pref_files(void)
 	process_pref_file(buf);
 
 	/* Access the "class" pref file */
-	sprintf(buf, "%s.prf", cp_ptr->title);
+	sprintf(buf, "%s.prf", get_class_t()->name);
 
 	/* Process that file */
 	process_pref_file(buf);
@@ -6347,27 +5920,6 @@ void play_game(bool new_game)
 	int i;
 	bool load_game = TRUE;
 
-#ifdef CHUUKEI
-	if (chuukei_client)
-	{
-		reset_visuals();
-		browse_chuukei();
-		return;
-	}
-
-	else if (chuukei_server)
-	{
-		prepare_chuukei_hooks();
-	}
-#endif
-
-	if (browsing_movie)
-	{
-		reset_visuals();
-		browse_movie();
-		return;
-	}
-
 	autosave_l = TRUE;
 
 	/* Hack -- Character is "icky" */
@@ -6396,13 +5948,7 @@ void play_game(bool new_game)
 	/* Attempt to load */
 	if (!load_player())
 	{
-		/* Oops */
-#ifdef JP
-quit("セーブファイルが壊れています");
-#else
 		quit("broken savefile");
-#endif
-
 	}
 
 	/* Extract the options */
@@ -6414,24 +5960,15 @@ quit("セーブファイルが壊れています");
 		char buf[1024];
 		bool success;
 
-#ifdef JP
-		if (!get_check_strict("待機していたスコア登録を今行ないますか？", CHECK_NO_HISTORY))
-#else
 		if (!get_check_strict("Do you register score now? ", CHECK_NO_HISTORY))
-#endif
 			quit(0);
 
-		/* Update stuff */
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
-
-		/* Update stuff */
 		update_stuff();
 
 		p_ptr->is_dead = TRUE;
-
 		start_time = time(NULL);
 
-		/* No suspending now */
 		signals_ignore_tstp();
 		
 		/* Hack -- Character is now "icky" */
@@ -6446,28 +5983,16 @@ quit("セーブファイルが壊れています");
 		/* Handle score, show Top scores */
 		success = send_world_score(TRUE);
 
-#ifdef JP
-		if (!success && !get_check_strict("スコア登録を諦めますか？", CHECK_NO_HISTORY))
-#else
 		if (!success && !get_check_strict("Do you give up score registration? ", CHECK_NO_HISTORY))
-#endif
 		{
-#ifdef JP
-			prt("引き続き待機します。", 0, 0);
-#else
 			prt("standing by for future registration...", 0, 0);
-#endif
 			(void)inkey();
 		}
 		else
 		{
 			p_ptr->wait_report_score = FALSE;
 			top_twenty();
-#ifdef JP
-			if (!save_player()) msg_print("セーブ失敗！");
-#else
 			if (!save_player()) msg_print("death save failed!");
-#endif
 		}
 		/* Shut the high score file */
 		(void)fd_close(highscore_fd);
@@ -6572,17 +6097,6 @@ quit("セーブファイルが壊れています");
 	else
 	{
 		write_level = FALSE;
-
-#ifdef JP
-		do_cmd_write_nikki(NIKKI_GAMESTART, 1, "                            ----ゲーム再開----");
-#else
-		do_cmd_write_nikki(NIKKI_GAMESTART, 1, "                            ---- Restart Game ----");
-#endif
-
-/*
- * 1.0.9 以前はセーブ前に p_ptr->riding = -1 としていたので、再設定が必要だった。
- * もう不要だが、以前のセーブファイルとの互換のために残しておく。
- */
 		if (p_ptr->riding == -1)
 		{
 			p_ptr->riding = 0;
@@ -6708,20 +6222,6 @@ quit("セーブファイルが壊れています");
 	/* Hack -- Character is no longer "icky" */
 	character_icky = FALSE;
 
-
-	if (new_game)
-	{
-		char buf[80];
-
-#ifdef JP
-		sprintf(buf, "%sに降り立った。", map_name());
-#else
-		sprintf(buf, "You are standing in the %s.", map_name());
-#endif
-		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, buf);
-	}
-
-
 	/* Start game */
 	p_ptr->playing = TRUE;
 
@@ -6746,18 +6246,11 @@ quit("セーブファイルが壊れています");
 			race_ptr->birth();
 	}
 
-	/* React to changes */
+
 	Term_xtra(TERM_XTRA_REACT, 0);
-
-	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
-
-	/* Window stuff */
 	p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_DUNGEON | PW_MONSTER | PW_OBJECT);
-
-	/* Window stuff */
 	window_stuff();
-
 
 	/* Set or clear "rogue_like_commands" if requested */
 	if (arg_force_original) rogue_like_commands = FALSE;
@@ -6878,17 +6371,8 @@ quit("セーブファイルが壊れています");
 					p_ptr->chp = p_ptr->mhp;
 					p_ptr->chp_frac = 0;
 
-					if (p_ptr->pclass == CLASS_MAGIC_EATER)
-					{
-						for (i = 0; i < EATER_EXT*2; i++)
-						{
-							p_ptr->magic_num1[i] = p_ptr->magic_num2[i]*EATER_CHARGE;
-						}
-						for (; i < EATER_EXT*3; i++)
-						{
-							p_ptr->magic_num1[i] = 0;
-						}
-					}
+					magic_eater_restore_all();
+
 					/* Restore spell points */
 					p_ptr->csp = p_ptr->msp;
 					p_ptr->csp_frac = 0;
@@ -6975,12 +6459,6 @@ quit("セーブファイルが壊れています");
 					p_ptr->wild_mode = FALSE;
 					p_ptr->leaving = TRUE;
 
-#ifdef JP
-					do_cmd_write_nikki(NIKKI_BUNSHOU, 1, "                            しかし、生き返った。");
-#else
-					do_cmd_write_nikki(NIKKI_BUNSHOU, 1, "                            but revived.");
-#endif
-
 					/* Prepare next floor */
 					leave_floor();
 					wipe_m_list();
@@ -6993,7 +6471,6 @@ quit("セーブファイルが壊れています");
 
 		/* Make a new level */
 		change_floor();
-		quest_mega_hack = 0;
 	}
 
 	/* Close stuff */

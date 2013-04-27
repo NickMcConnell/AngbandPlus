@@ -37,8 +37,8 @@ Q:1:T:地元のドルイド教会に応援を頼む羽目になりましたよ。
 # Floor with Giant white rat
 F:a:FLOOR:8:86
 
-# Floor with Snotling
-F:b:FLOOR:8:202
+# Floor with Bat of Gorgoroth
+F:b:FLOOR:8:877
 
 # Shallow water with Giang slug
 F:c:SHALLOW_WATER:8:120
@@ -81,8 +81,8 @@ D:Xa.....a........VVVVVVVVV.....................%%%%%%%%%%%%%%%%%%%%%%X
 D:X%%%%%%%%%%%%%%.........VVVVVVVVVVVVVVVVVVVVV...........WWWWW%%%%%%%X
 D:X%%%%%%%%%%%%%%%%%%%%%%..V.%................VVVVVVVV...WWWWWWW%%%%%%X
 D:X%%%%%%%%%%%%%%%%%%%%%%%.V.%%%%%%%%%%%%%%%%........VVVVWWWWWWW%%%%%%X
-D:X%%%%%%%%%%%%%%%%%%%%%%%.V.........bb%%%%%%%%%%%%%h....WWWWWWW%%%%%%X
-D:X%%%%%%%%%%%%%%%%%%%%%%%.VVVVVVVVVVVb%%%%%%%%%%%%%%%%%%kWWWW%%%%%%%%X
+D:X%%%%%%%%%%%%%%%%%%%%%%%.V..........b%%%%%%%%%%%%%h....WWWWWWW%%%%%%X
+D:X%%%%%%%%%%%%%%%%%%%%%%%.VVVVVVVVVVV.%%%%%%%%%%%%%%%%%%kWWWW%%%%%%%%X
 D:X%%%%%%%%%%%%%%%%%%%%%%%.......WWWWV.%%%%%%WWWWW%%%%%%%%%%%%%%%%W%%%X
 D:X%%%%%dVd%%%%%%%%%%%%%i........WWWWV.%%%%%%WWWWW%%%%%%%%%%%%..WWW.%%X
 D:X%%%%%.V.%%%%%%%%%%%%%.VVVVVVVVVVVVV.%%%%%%%WWWW%%%%%%%%%%%%j..WW.%%X

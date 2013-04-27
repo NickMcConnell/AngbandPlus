@@ -1,21 +1,19 @@
 === Creating a Character ===
 
-Hengband is a role playing game, in which you, the player, control a
-character in the world of Hengband.  Perhaps the most important thing
-you control is the birth of your character, in which you choose or
-allow to be chosen various attributes that will affect the future life
-of your character.
+PosChengband is a role playing game, in which you, the player, control a
+character in a dangerous world of myth and magic. The most imporatant
+decision you make on your quest to the Kill the Serpent of Chaos is
+what kind of character to play: Spell-wielding magician or sword-waving
+warrior? Stealthy rogue or muscial bard? Holy priest or evil spawn of
+chaos? The choices are myriad and the process of generating a new
+character is described in this help file.
 
 Character creation, or birth, is controlled through a variety of
-choices as to constraints on the type of character you wish to play,
-followed by a series of random calculations to generate ("roll up") a
-random character matching the appropriate constraints.
-
-Once your character has been generated, you will be given the choice
-to generate a new character obeying the same constraints, and once you
-have generated more than one character, you can switch back and forth
-between the two most recent characters, until you are presented with a
-character that you feel comfortable with.
+choices. You must choose your character's race (Human, Elf, Hobbit,
+Orc, Undead, Demon, etc), your character's class (Warrior, Mage, 
+Priest, Rogue, etc) and you character's personality (Mighty, Shrewd, 
+Patient, etc). Each of these choices are described in the help
+files.
 
 You may start the entire process over at any time by pressing 'S' at
 any prompt.
@@ -30,17 +28,8 @@ personality.  If you have selected a spellcasting class, you will also
 be prompted for your choice of magic realm(s).  Your character's sex
 has a minimal effect on game play, but some personalities are
 restricted to male only or female only.  More details of attributes
-are found in the Races, Classes and Personalities section (see
-raceclas.hlp [a]) and the Magic System section (see magic.hlp [b]).
-
-Each character has a few secondary attributes, height, weight, social
-class, and background history, which are randomly determined, but
-which are affected by the sex and race of the character.  In general,
-these attributes are only used to provide "flavor" to the character,
-to assist in the roll playing, but they do have a few minor effects on
-the game.  For example, background history affects social class, which
-affects the amount of money the character will start with.  And weight
-affects riding ability.
+are found in the Races, Classes and Personalities section (see [a]) 
+and the Magic System section (see [b]).
 
 In addition to these attributes, there are several statistics which
 are used to determine your character's relative skills and abilities
@@ -53,17 +42,17 @@ Each character has six primary statistics or 'stats'.  These are
 strength, intelligence, wisdom, dexterity, constitution and charisma,
 which modify the abilities of the character in a variety of ways.  For
 example, strength affects your carrying capacity, the amount of damage
-you to a monster when you hit it and the number of blows per round you
-get with a weapon.  A more complete discussion of the primary
+you do to a monster when you hit it and the number of blows per round 
+you get with a weapon. A more complete discussion of the primary
 statistics is contained later in this document (see below [c]).
 
 --- Experience ---
 
 Experience affects almost everything else about your character.
 Experience can be gained as your character kills monsters, casts
-spells or prays for the first time, learns about an object kind by
-using it, disarms traps and unlocks doors.  Certain classes may also
-gain experience by destroying specific dungeon spell books and there
+spells for the first time, learns about an object kind by using it, 
+disarms traps and unlocks doors.  Certain classes may also gain 
+experience by destroying specific dungeon spell books and there
 are potions in the dungeon that will boost your experience if you
 quaff them.
 
@@ -90,11 +79,9 @@ can be obtained by selling items to the shops, taking it from the
 corpses of dead monsters, mining it and by finding it lying on the
 dungeon floor.
 
-Each character starts out with some gold, the amount of which is based
-on the character's social class, charisma, and other stats (less
-powerful characters start with more gold).  Each character also starts
-out with a few useful items, which may be kept, or sold to a
-shop-keeper for more gold.
+Each character starts out with some gold, the amount of which is random.
+Each character also starts out with a few useful items, which may be kept, 
+or sold to a shop-keeper for more gold.
 
 --- Hit Points ---
 
@@ -129,15 +116,13 @@ increase with the level of the character (see below for details [d]).
 
 During character generation you may press '=' at any time to access
 the birth options.  A more detailed description of the various birth
-options can be found in the section on the Options Page (see
-option.txt#Birth [e]).  Some options have "(*)" mark that means
-these options effect to the difficulty of the game and effect to
-estimation of your score.
+options can be found in the section on the Options Page (see [e]).  
+Some options have "(*)" mark that means these options effect to the 
+difficulty of the game and effect to estimation of your score.
 
 Perhaps one of the most important features of the birth options is the
 ability to decide what type of town level you want.  The various town
-options are discussed on the Town page (see dungeon.txt#TownLevel
-[f]).
+options are discussed on the Town page (see [f]).
 
 
 ***** <AutoRoller>
@@ -147,8 +132,8 @@ The auto-roller is a quick means of generating start-up characters
 based on a set of user-selected criteria.  If you choose to use the
 auto-roller, you will be presented with a column giving the maximum
 possible statistics (see below [c]) for your choice of race, class and
-personality (see raceclas.hlp [a]).  Then you can specify your desired
-statistics using keypad or cursor keys.
+personality (see [a]).  Then you can specify your desired statistics 
+using keypad or cursor keys.
 
 Once you have specified your desired statistics, the computer will
 then randomly roll successive start-up characters and compare them to
@@ -156,10 +141,10 @@ your specified criteria.  Each stat is rolled as a number from 8 to
 17, with a normal distribution, and is then immediately modified based
 upon the race, class and personality which you have chosen.  The exact
 quantum of this modification can be found in the stat bonus table (see
-raceclas.txt#StatBonusTable [h]).
+[h], [i] and [j]).
 
 Once a character that matches or exceeds your expectations has been
-rolled, Hengband stops to ask you whether you accept or not.  If you
+rolled, PosChengband stops to ask you whether you accept or not.  If you
 accept the rolled character (by pressing Enter), you will be asked for
 its name.  If not, you may press 'r' to resume rolling and searching
 for the next match or, if this is not your first match, 'p' to return
@@ -171,12 +156,17 @@ to specify statistics close to maximum that are critical for your
 class (for example, high wisdom for priests, intelligence for mages
 and strength and dexterity for warriors).  You should set minimum
 acceptable levels for the remaining statistics rather than looking for
-high rolls.
+high rolls. Also note that PosChengband significantly "nerfs" the power
+of the Auto-roller relative to other variants such as Hengband. After
+50,000 rolls the Auto-roller simply stops and forces you to accept the
+best match (if any) or to repick minimums. In general, you can pick 2 
+stats to be maximal but no more.
 
 If you select not to use the auto-roller, the computer will roll one
 random character at a time and then display it for you to either
 accept or reject.  The 'r', 'p' and Enter keys will work as outlined
-above.
+above. Since PosChengband is a difficult game, we recommend using the
+auto-roller.
 
 
 ***** <BackgroundEditor>
@@ -192,17 +182,18 @@ background information text from "histpref-<<playername>>.prf" or
 
 You can use conditional expressions like other pref files. Background
 information text can be modified in background information pref files
-as lines of the form "H:<str>". Text area is not much large, so too
-long text will cut down.
+as lines of the form "H:<str>".
 
 
 ***** <QuickStart>
 === Quick Start ===
 
-Once you have generated a character and dead or quit game, you will be
-asked whether you want to use quick start or not at start up.  If you
-choose to use quick start, you get new character with exactly same
-race, class, stat, background and etc. as your last character.
+Once an existing character dies you may create a new one from the same
+savefile. If so, you will be asked whether you want to use quick start 
+or not at start up.  If you choose to use quick start, you get new 
+character with exactly same race, class, stat, background and etc. as 
+your last character. Since it is common to die early on, this option
+can save you the tedium of re-rolling a new character from scratch.
 
 
 ***** <PrimaryStats>
@@ -213,9 +204,9 @@ wisdom, dexterity, constitution, and charisma, which modify the
 abilities of the character in a variety of ways.  Every stat has a
 numerical value, ranging from a minimum of 3, up to a normal maximum
 of 18, and even higher, into the "percentile" range, represented as
-"18/01" through "18/130".  True maximum of each base stat is randomly
-ranging from 18/70 to 18/130, and average of all your stat maximums
-are always 18/100.  These maximums are chosen randomly when your
+"18/01" through "18/120".  The true maximum of each base stat is 
+randomly chosen from 18/80 to 18/120, and average of all your stat 
+maximums are always 18/100. These maximums are chosen randomly when your
 character is created or your character quaffs a Potion of New Life.
 Actually, every stat can be raised even above these maximum of base
 stat by modification from race, class, personality and magical
@@ -229,7 +220,7 @@ after the "18/" is as "tenth" points, since it often takes the same
 magic to raise a stat from, say, 4 to 5, or 16 to 17, as it does from,
 say, 18/40 to 18/50.  The important thing to remember is that almost all
 internal calculations "ignore" the final digit of any "bonus", so that,
-for example, "18/40" and "18/49" are always have the same effects.
+for example, "18/40" and "18/49" always have the same effects.
 
 --- The Primary Statistics ---
 
@@ -245,13 +236,15 @@ Strength
  
 Intelligence
      Intelligence affects the spellcasting abilities of mage-like
-     spellcasters (high mages, mages, warrior-mages, rangers, chaos
-     warriors and rogues).  Intelligence will affect the number of
-     spells these classes may learn each level, the number of spell
-     points they receive and their spell fail rates.  These classes
-     cannot learn spells if their intelligence is 7 or lower.  Also,
-     intelligent characters are better at using magic devices, picking
-     locks and disarming traps.
+     spellcasters (high mages, mages, warrior-mages, chaos-warriors 
+     and rogues).  Intelligence will affect the number of spells 
+     these classes may learn each level, the number of spell points 
+     they receive and their spell fail rates.  These classes cannot 
+     learn spells if their intelligence is 7 or lower.  Also, intelligent 
+     characters are better at using magic devices, picking locks and 
+     disarming traps. Finally, intelligence influences how quickly all
+     characters learn from their experiences.
+
  
 Wisdom
      Wisdom affects the ability of priest-like spellcasters (priests,
@@ -261,7 +254,9 @@ Wisdom
      is also used to determine a Mindcrafter's ability to use his or
      her mental powers.  These classes cannot learn spells if their
      wisdom is 7 or lower.  Wise character's will have better chances
-     of resisting magical spells cast upon them by monsters.
+     of resisting magical spells cast upon them by monsters. Wisdom
+     also affects the players awareness of their surroundings, granting
+     faster or slower pseudo-id and level feelings.
  
 Dexterity
      Dexterity is a combination of agility and quickness.  A high
@@ -279,13 +274,16 @@ Constitution
      recover them faster while resting.
 
 Charisma
-     Charisma represents a character's personality and physical
-     appearance.  A character with a high charisma will receive better
-     prices from store owners, whereas a character with a very low
-     charisma may be robbed blind.  A high charisma will also mean
-     more starting money for the character.  Charisma is also used
-     when calculating the success of a Mindcrafter at dominating a
-     monster.
+     Charisma represents a character's personality and force of will.
+     A character with a high charisma will be better able to dominate
+     foes as pets. Also, charisma is the primary stat used for 
+     determining player and monster fear. A low charisma player is
+     often frightened, sometimes even to the point of paralysis! A
+     high charisma player can more easily break the morale of their
+     foes. In PosChengband, Fear is a very important and deadly component
+     of gameplay. As such, charisma is a very important stat. Finally,
+     some classes (Bards, Sorcerers, etc) use Charisma as their primary
+     spell stat.
 
 
 ***** <PrimarySkills>
@@ -362,7 +360,7 @@ Infra-vision
      player to see walls and objects.  Infra-vision will allow a
      character to see any warm-blooded creatures up to a certain
      distance.  This ability works equally well with or with out a
-     light source.  The majority of Hengband's creatures are
+     light source.  The majority of PosChengband's creatures are
      cold-blooded, and will not be detected unless lit up by a light
      source.  Most non-human races have innate infra-vision ability.
      Humans can gain infra-vision only if it is magically enhanced.
@@ -371,7 +369,7 @@ Infra-vision
 ***** <Proficiency>
 === Proficiency Levels ===
 
-In Hengband, characters possess different proficiency levels or
+In PosChengband, characters possess different proficiency levels or
 experiences for each weapon type, spells, and a few other skills.  The
 starting proficiency levels and the maximum proficiency levels of a
 character are based upon class.  Each proficiency level may increase
@@ -385,10 +383,12 @@ is dependent upon the level of the character and the level of the
 opponents.
 
 For spell proficiency, you need to cast the spell many times in a deep
-level of the dungeon to practice.  And the fail-rate and mana
-consumption rate of the spell decreases when the proficiency level
-increases.  The level of the dungeon you need is dependent upon the
-level of the character and the level of the spell.
+level of the dungeon to practice. However, simply casting the spell
+repeatedly for no purpose other than gaining experience will not work.
+Rather, the game detects this "spamming" so you really should practice
+spells out in the real world, not sequestered in some safe corner
+of the dungeon.  Finally, the fail-rate and mana consumption rate 
+of the spell decreases when the proficiency level increases.
 
 The effect of the proficiency level of the Dual Wielding and the
 Martial Arts is almost same as the weapon proficiency; These will
@@ -397,8 +397,7 @@ combat.
 
 For the proficiency level of the Riding, you need to attack in melee
 or shoot with missile weapon when riding.  And your speed increases up
-to the mount's speed when the proficiency level increases.  (see
-monster.txt#Pets [i])
+to the mount's speed when the proficiency level increases.  (see [k])
 
 
 --
@@ -406,6 +405,7 @@ Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
 Updated    : Hengband 1.5.2
+Updated    : PosChengband 1.0.0
 
 ***** [a] raceclas.hlp
 ***** [b] magic.hlp
@@ -413,5 +413,7 @@ Updated    : Hengband 1.5.2
 ***** [d] birth.txt#PrimarySkills
 ***** [e] option.txt#Birth
 ***** [f] town.txt#TownLevel
-***** [h] raceclas.txt#StatBonusTable
-***** [i] monster.txt#Pets
+***** [h] Races.txt#Tables
+***** [i] Classes.txt#Tables
+***** [j] Personalities.txt#Tables
+***** [k] monster.txt#Pets

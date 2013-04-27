@@ -848,26 +848,26 @@ int _aberration_get_powers(spell_info* spells, int max)
 
 static void _undead_calc_bonuses(void)
 {
-	p_ptr->resist_cold = TRUE;
+	res_add(RES_COLD);
 	p_ptr->skills.stl += 7 * p_ptr->lev/50;
-	if (p_ptr->lev > 14) p_ptr->resist_pois = TRUE;
+	if (p_ptr->lev > 14) res_add(RES_POIS);
 	p_ptr->stat_add[A_CON] += 5 * p_ptr->lev/50;
 	if (p_ptr->lev > 29) 
 	{
-		p_ptr->resist_neth = TRUE;
+		res_add(RES_NETHER);
 		p_ptr->hold_life = TRUE;
 	}
 	if (p_ptr->lev > 34) 
 	{
-		p_ptr->resist_dark = TRUE;
-		p_ptr->resist_blind = TRUE;
+		res_add(RES_DARK);
+		res_add(RES_BLIND);
 	}
-	if (p_ptr->lev > 44) p_ptr->resist_shard = TRUE;
+	if (p_ptr->lev > 44) res_add(RES_SHARDS);
 }
 
 static void _dragon_calc_bonuses(void)
 {
-	p_ptr->resist_fear = TRUE;
+	res_add(RES_FEAR);
 	p_ptr->skills.thn += 100 * p_ptr->lev / 50;
 	/*if (p_ptr->lev > 14) p_ptr->levitation = TRUE; */
 	p_ptr->stat_add[A_STR] += 5 * p_ptr->lev / 50;
@@ -923,20 +923,24 @@ static void _angel_calc_bonuses(void)
 
 static void _demon_calc_bonuses(void)
 {
-	p_ptr->resist_fire = TRUE;
+	res_add(RES_FIRE);
 	p_ptr->skills.dev += 50 * p_ptr->lev/50;
 	p_ptr->device_power += 5 * p_ptr->lev/50;
 	if (p_ptr->lev > 14) p_ptr->hold_life = TRUE;
 	p_ptr->stat_add[A_INT] += 5 * p_ptr->lev/50;
+	if (p_ptr->lev >= 30)
+		p_ptr->no_eldritch = TRUE;
+	if (p_ptr->lev >= 40)
+		p_ptr->no_charge_drain = TRUE;
 	if (p_ptr->lev > 44)
 		p_ptr->kill_wall = TRUE;
 	if (p_ptr->lev > 49)
-		p_ptr->immune_fire = TRUE;
+		res_add_immune(RES_FIRE);
 }
 
 static void _aberration_calc_bonuses(void)
 {
-	p_ptr->resist_chaos = TRUE;
+	res_add(RES_CHAOS);
 	p_ptr->skills.thb += 100 * p_ptr->lev/50;
 	p_ptr->stat_add[A_DEX] += 5 * p_ptr->lev/50;
 	if (p_ptr->lev > 34) p_ptr->telepathy = TRUE;	/* Easier then granting MUT3_ESP :) */
@@ -949,6 +953,8 @@ static caster_info * _caster_info(void)
 	if (!init)
 	{
 		me.magic_desc = "blast";
+		me.which_stat = A_CHR;
+		me.options = CASTER_NO_SPELL_COST;
 		init = TRUE;
 	}
 	return &me;
@@ -982,7 +988,7 @@ class_t *warlock_get_class_t(int psubclass)
 		me.base_skills = bs;
 		me.extra_skills = xs;
 
-		me.hd = 2;
+		me.life = 100;
 		me.exp = 125;
 		me.pets = 25;
 

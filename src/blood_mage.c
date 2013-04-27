@@ -48,7 +48,7 @@ static void _calc_bonuses(void)
 static void _on_cast(const spell_info *spell)
 {
 	int cut = spell->level - p_ptr->lev/2;
-	if (cut > 0)
+	if (cut > 0 && one_in_(13))
 		set_cut(p_ptr->cut + cut, FALSE);
 }
 
@@ -59,7 +59,9 @@ static caster_info * _caster_info(void)
 	if (!init)
 	{
 		me.magic_desc = "blood spell";
-		me.use_hp = TRUE;
+		me.which_stat = A_INT;
+		me.weight = 430;
+		me.options = CASTER_USE_HP | CASTER_ALLOW_DEC_MANA | CASTER_GLOVE_ENCUMBRANCE;
 		me.on_cast = _on_cast;
 		init = TRUE;
 	}
@@ -86,12 +88,12 @@ class_t *blood_mage_get_class_t(void)
 		me.stats[A_STR] = -4;
 		me.stats[A_INT] =  3;
 		me.stats[A_WIS] = -2;
-		me.stats[A_DEX] =  1;
+		me.stats[A_DEX] =  0;
 		me.stats[A_CON] =  2;
 		me.stats[A_CHR] = -2;
 		me.base_skills = bs;
 		me.extra_skills = xs;
-		me.hd = 5;
+		me.life = 110;
 		me.exp = 150;
 		me.pets = 30;
 
@@ -100,6 +102,7 @@ class_t *blood_mage_get_class_t(void)
 		/* TODO: This class uses spell books, so we are SOL
 		me.get_spells = _get_spells;*/
 		me.get_powers = _get_powers;
+		me.character_dump = spellbook_character_dump;
 		init = TRUE;
 	}
 

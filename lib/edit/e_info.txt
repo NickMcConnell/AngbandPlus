@@ -774,15 +774,13 @@ F:STR | CON |
 F:SLAY_EVIL | SLAY_DEMON | SLAY_UNDEAD |
 F:FREE_ACT | SEE_INVIS | XTRA_H_RES
 
-#J0#
-#J0# ´ß¤µ¤ó¤ÎÌõ¤Ç¤¹
-#J0#
+#Rarity 0 means this won't be picked for non-diggers
 N:100:·ê·¡¤ê¤Î
 E:of Digging
 X:24:4
 W:0:0:0:500
 C:0:0:0:5
-F:TUNNEL | BRAND_ACID | 
+F:TUNNEL | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:101:¿Í¶ô¤¤¤Î
@@ -1508,7 +1506,7 @@ E:(Life)
 X:24:10
 C:0:0:0:4
 W:0:40:0:10000
-F:HOLD_LIFE | CON
+F:HOLD_LIFE | LIFE
 F:SLAY_UNDEAD | SLAY_DEMON
 
 N:245:TRANSLATE
@@ -1554,8 +1552,27 @@ W:0:0:0:20000
 C:0:0:0:0
 F:ACTIVATE | RES_POIS
 
+#Rarity 0 means this won't be picked for non-diggers
+N:251:·ê·¡¤ê¤Î
+E:of Dissolving
+X:24:7
+W:0:0:0:2000
+C:0:3:0:5
+F:TUNNEL | BRAND_ACID | 
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+#Rarity 0 means this won't be picked for non-diggers
+N:252:·ê·¡¤ê¤Î
+E:of Disruption
+X:24:15
+W:0:0:0:5000
+C:0:7:0:5
+F:TUNNEL | BRAND_ACID | STR
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
 # N: serial number : ego type
 # X: inventory slot : rating
 # C: max to-hit : max to-dam : max to-ac : pval
 # W: depth : rarity : weight : cost
 # F: flag | flag | etc
+

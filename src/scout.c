@@ -126,8 +126,8 @@ static void _greater_whirlwind_attack_spell(int cmd, variant *res)
 
 				if (panel_contains(y, x) && player_can_see_bold(y, x))
 				{
-					char c = object_char(&inventory[INVEN_RARM]);
-					byte a = object_attr(&inventory[INVEN_RARM]);
+					char c = 0x30;
+					byte a = TERM_WHITE;
 
 					print_rel(c, a, y, x);
 					move_cursor_relative(y, x);
@@ -239,7 +239,7 @@ static int _get_spells(spell_info* spells, int max)
 		msg_print("Your talents are disrupted!");
 		return 0;
 	}	
-	ct = get_spells_aux(spells, max, _spells, p_ptr->stat_ind[A_WIS]);
+	ct = get_spells_aux(spells, max, _spells);
 	if (ct == 0)
 		msg_print("You have no powers yet! Why not go kill stuff?");
 
@@ -324,7 +324,7 @@ static caster_info * _caster_info(void)
 	if (!init)
 	{
 		me.magic_desc = "technique";
-		me.use_sp = TRUE;
+		me.which_stat = A_WIS;
 		init = TRUE;
 	}
 	return &me;
@@ -333,20 +333,6 @@ static caster_info * _caster_info(void)
 static void _move_player(void)
 {
 	p_ptr->update |= PU_BONUS;
-}
-
-static void _spoiler_dump(FILE* fff)
-{
-	spoil_spells_aux(fff, _spells);
-
-	fprintf(fff, "\n== Abilities ==\n");
-	fprintf(fff, "|| *Lvl* || *Ability* || *Description* ||\n");
-	fprintf(fff, "|| 1 || Unfettered Body || `+((X+1)*(X+1)-41) AC` || \n");
-	fprintf(fff, "|| 15 || Unfettered Mind || `+((X+1)*(X+1)/2-20) saving throws` ||\n");
-	fprintf(fff, "|| 30 || Ambush || First strike against sleeping opponent does triple damage if it hits. ||\n");
-	fprintf(fff, "|| 35 || Telepathy ||  ||\n");
-	fprintf(fff, "|| 50 || Peerless Stealth || The Scout never aggravates, even if his equipment normally would cause him to aggravate (Stealth is instead halved, just like a Shadow Fairy). Even Sexy personality characters can have their aggravation canceled in this way. ||\n");
-	fprintf(fff, "\n_Where X is the number of open squares adjacent to the player._\n");
 }
 
 class_t *scout_get_class_t(void)
@@ -376,7 +362,7 @@ class_t *scout_get_class_t(void)
 		me.stats[A_CHR] =  0;
 		me.base_skills = bs;
 		me.extra_skills = xs;
-		me.hd = 4;
+		me.life = 105;
 		me.exp = 130;
 		me.pets = 40;
 
@@ -384,7 +370,6 @@ class_t *scout_get_class_t(void)
 		me.caster_info = _caster_info;
 		me.get_spells = _get_spells;
 		me.move_player = _move_player;
-		me.spoiler_dump = _spoiler_dump;
 		init = TRUE;
 	}
 

@@ -180,7 +180,7 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 #ifdef JP
 put_str("                変愚蛮怒: 勇者の殿堂", 0, 0);
 #else
-		put_str("                Chengband Hall of Fame", 0, 0);
+		put_str("                PosChengband Hall of Fame", 0, 0);
 #endif
 
 
@@ -255,7 +255,7 @@ sprintf(tmp_val, "( %d 位以下 )", k + 1);
 			sprintf(out_val, "%3d.%9s  %s %s the %s %s, Level %d",
 				place, the_score.pts,
 				seikaku_info[pa].title,
-				the_score.who, get_race_t_aux(pr, 0)->name, class_info[pc].title,
+				the_score.who, get_race_t_aux(pr, 0)->name, get_class_t_aux(pc, 0)->name,
 				clev);
 
 
@@ -476,7 +476,7 @@ errr top_twenty(void)
 
 	/* Save the version */
 	sprintf(the_score.what, "%u.%u.%u",
-		FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
+		VER_MAJOR, VER_MINOR, VER_PATCH);
 
 	/* Calculate and save the points */
 	sprintf(the_score.pts, "%9ld", (long)total_points());
@@ -603,7 +603,7 @@ msg_print("スコア・ファイルが使用できません。");
 
 	/* Save the version */
 	sprintf(the_score.what, "%u.%u.%u",
-		FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
+		VER_MAJOR, VER_MINOR, VER_PATCH);
 
 	/* Calculate and save the points */
 	sprintf(the_score.pts, "%9ld", (long)total_points());
@@ -917,18 +917,6 @@ void kingly(void)
 	put_str(format("All Hail the Mighty %s!", sp_ptr->winner), cy + 5, cx - 13);
 #endif
 
-	/* If player did Seppuku, that is already written in playrecord */
-	if (!seppuku)
-	{
-#ifdef JP
-		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "ダンジョンの探索から引退した。");
-		do_cmd_write_nikki(NIKKI_GAMESTART, 1, "-------- ゲームオーバー --------");
-#else
-		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "retired exploring dungeons.");
-		do_cmd_write_nikki(NIKKI_GAMESTART, 1, "--------   Game  Over   --------");
-#endif
-		do_cmd_write_nikki(NIKKI_BUNSHOU, 1, "\n\n\n\n");
-	}
 
 	/* Flush input */
 	flush();

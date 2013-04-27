@@ -212,6 +212,7 @@ static grouper group_item[] =
 	{ TV_DAEMON_BOOK,   "Books (Daemon)" },
 	{ TV_CRUSADE_BOOK,  "Books (Crusade)" },
 	{ TV_NECROMANCY_BOOK, "Books (Necromancy)" },
+	{ TV_ARMAGEDDON_BOOK, "Books (Armageddon)" },
 	{ TV_MUSIC_BOOK,    "Song Books" },
 	{ TV_HISSATSU_BOOK, "Books (Kendo)" },
 	{ TV_HEX_BOOK,      "Books (Hex)" },
@@ -386,8 +387,8 @@ static void spoil_obj_desc(cptr fname)
 
 
 	/* Header */
-	fprintf(fff, "Spoiler File -- Basic Items (Hengband %d.%d.%d)\n\n\n",
-		FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
+	fprintf(fff, "Spoiler File -- Basic Items (PosChengband %d.%d.%d)\n\n\n",
+		VER_MAJOR, VER_MINOR, VER_PATCH);
 
 	/* More Header */
 	fprintf(fff, "%-45s     %8s%7s%5s%9s\n",
@@ -1362,9 +1363,8 @@ static void object_analyze(object_type *o_ptr, obj_desc_list *desc_ptr)
 static void print_header(void)
 {
 	char buf[80];
-
-	sprintf(buf, "Artifact Spoilers for Hengband Version %d.%d.%d",
-		FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
+	sprintf(buf, "Spoiler File -- Artifacts (PosChengband %d.%d.%d)\n\n\n",
+		VER_MAJOR, VER_MINOR, VER_PATCH);
 	spoiler_underline(buf);
 }
 
@@ -1731,8 +1731,8 @@ static void spoil_mon_desc(cptr fname)
 	C_MAKE(who, max_r_idx, s16b);
 
 	/* Dump the header */
-	fprintf(fff, "Monster Spoilers for Hengband Version %d.%d.%d\n",
-		FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
+	fprintf(fff, "Spoiler File -- Monsters (PosChengband %d.%d.%d)\n\n\n",
+		VER_MAJOR, VER_MINOR, VER_PATCH);
 	fprintf(fff, "------------------------------------------\n\n");
 
 	/* Dump the header */
@@ -2064,8 +2064,8 @@ static void spoil_mon_info(cptr fname)
 
 
 	/* Dump the header */
-	sprintf(buf, "Monster Spoilers for Hengband Version %d.%d.%d\n",
-	     FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
+	sprintf(buf, "Spoiler File -- Monsters (PosChengband %d.%d.%d)\n\n\n",
+		VER_MAJOR, VER_MINOR, VER_PATCH);
 
 	spoil_out(buf);
 	spoil_out("------------------------------------------\n\n");
@@ -2324,8 +2324,8 @@ static void spoil_mon_evol(cptr fname)
 	}
 
 	/* Dump the header */
-	sprintf(buf, "Monster Spoilers for Hengband Version %d.%d.%d\n",
-	     FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
+	sprintf(buf, "Monster Spoilers for PosChengband Version %d.%d.%d\n",
+	     VER_MAJOR, VER_MINOR, VER_PATCH);
 
 	spoil_out(buf);
 	spoil_out("------------------------------------------\n\n");
@@ -2625,88 +2625,10 @@ static void spoil_random_artifact_aux(object_type *o_ptr, int i)
 	spoiler_print_randart(o_ptr, &artifact);
 }
 
-/*
- * Create a list file for random artifacts
- */
-void spoil_random_artifact(cptr fname)
-{
-	int i,j;
-
-	store_type  *st_ptr;
-	object_type *q_ptr;
-
-	char buf[1024];
-
-
-	/* Build the filename */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
-
-	/* File type is "TEXT" */
-	FILE_TYPE(FILE_TYPE_TEXT);
-
-	/* Open the file */
-	fff = my_fopen(buf, "w");
-
-	/* Oops */
-	if (!fff)
-	{
-		msg_print("Cannot create list file.");
-		return;
-	}
-
-	/* Dump the header */
-	sprintf(buf, "Random artifacts list.\r");
-	spoiler_underline(buf);
-
-	/* List the artifacts by tval */
-	for (j = 0; group_artifact[j].tval; j++)
-	{
-		/* random artifacts wielding */
-		for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
-		{
-			q_ptr = &inventory[i];
-			spoil_random_artifact_aux(q_ptr, j);
-		}
-
-		/* random artifacts in inventory */
-		for (i = 0; i < INVEN_PACK; i++)
-		{
-			q_ptr = &inventory[i];
-			spoil_random_artifact_aux(q_ptr, j);
-		}
-
-		/* random artifacts in home */
-		st_ptr = &town[1].store[STORE_HOME];
-		for (i = 0; i < st_ptr->stock_num; i++)
-		{
-			q_ptr = &st_ptr->stock[i];
-			spoil_random_artifact_aux(q_ptr, j);
-		}
-
-		/* random artifacts in museum */
-		st_ptr = &town[1].store[STORE_MUSEUM];
-		for (i = 0; i < st_ptr->stock_num; i++)
-		{
-			q_ptr = &st_ptr->stock[i];
-			spoil_random_artifact_aux(q_ptr, j);
-		}
-	}
-
-	/* Check for errors */
-	if (ferror(fff) || my_fclose(fff))
-	{
-		msg_print("Cannot close list file.");
-		return;
-	}
-
-	/* Message */
-	msg_print("Successfully created a list file.");
-}
-
 #else
 
 #ifdef MACINTOSH
 static int i = 0;
-#endif /* MACINTOSH */
+#endif
 
 #endif

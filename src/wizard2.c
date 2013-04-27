@@ -14,84 +14,82 @@
 
 
 /*
- * Roll the hitdie -- aux of do_cmd_rerate()
+ * Strip an "object name" into a buffer
  */
+void strip_name(char *buf, int k_idx)
+{
+	char *t;
+
+	object_kind *k_ptr = &k_info[k_idx];
+
+	cptr str = (k_name + k_ptr->name);
+
+
+	/* Skip past leading characters */
+	while ((*str == ' ') || (*str == '&') || (*str == '[')) str++;
+
+	/* Copy useful chars */
+	for (t = buf; *str; str++)
+	{
+		if (*str != '~' && *str != ']') *t++ = *str;
+	}
+
+	/* Terminate the new name */
+	*t = '\0';
+}
+
+int _life_rating_aux(int lvl)
+{
+	return (p_ptr->player_hp[lvl-1]-100) * 100 / (50*(lvl-1));
+}
+
+int life_rating(void)
+{
+	return _life_rating_aux(PY_MAX_LEVEL);
+}
+
 void do_cmd_rerate_aux(void)
 {
-	/* Minimum hitpoints at highest level */
-	int min_value = p_ptr->hitdie + ((PY_MAX_LEVEL + 2) * (p_ptr->hitdie + 1)) * 3 / 8;
-
-	/* Maximum hitpoints at highest level */
-	int max_value = p_ptr->hitdie + ((PY_MAX_LEVEL + 2) * (p_ptr->hitdie + 1)) * 5 / 8;
-
-	int i;
-
-	/* Rerate */
-	while (1)
+	for(;;)
 	{
-		/* Pre-calculate level 1 hitdice */
-		p_ptr->player_hp[0] = p_ptr->hitdie;
+		int i, pct;
+		p_ptr->player_hp[0] = 100;
 
-		for (i = 1; i < 4; i++)
-		{
-			p_ptr->player_hp[0] += randint1(p_ptr->hitdie);
-		}
-
-		/* Roll the hitpoint values */
 		for (i = 1; i < PY_MAX_LEVEL; i++)
-		{
-			p_ptr->player_hp[i] = p_ptr->player_hp[i - 1] + randint1(p_ptr->hitdie);
-		}
+			p_ptr->player_hp[i] = p_ptr->player_hp[i - 1] + randint1(100);
 
-		/* Require "valid" hitpoints at highest level */
-		if ((p_ptr->player_hp[PY_MAX_LEVEL - 1] >= min_value) &&
-		    (p_ptr->player_hp[PY_MAX_LEVEL - 1] <= max_value)) break;
+		/* These extra early checks give a slight boost to average life ratings (~102%) */
+		pct = _life_rating_aux(5);
+		if (pct < 85) continue;
+
+		pct = _life_rating_aux(10);
+		if (pct < 85) continue;
+
+		pct = _life_rating_aux(25);
+		if (pct < 85) continue;
+
+		pct = life_rating();
+		if (85 <= pct && pct <= 115) break;
 	}
 }
 
-
-/*
- * Hack -- Rerate Hitpoints
- */
 void do_cmd_rerate(bool display)
 {
-	int percent;
-
-	/* Rerate */
 	do_cmd_rerate_aux();
 
-	percent = (int)(((long)p_ptr->player_hp[PY_MAX_LEVEL - 1] * 200L) /
-		(2 * p_ptr->hitdie +
-		((PY_MAX_LEVEL - 1+3) * (p_ptr->hitdie + 1))));
-
-
-	/* Update and redraw hitpoints */
 	p_ptr->update |= (PU_HP);
 	p_ptr->redraw |= (PR_HP);
-
-	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER);
-
-	/* Handle stuff */
 	handle_stuff();
 
-	/* Message */
 	if (display)
 	{
-#ifdef JP
-		msg_format("現在の体力ランクは %d/100 です。", percent);
-#else
-		msg_format("Your life rate is %d/100 now.", percent);
-#endif
+		msg_format("Your life rate is %d/100 now.", life_rating());
 		p_ptr->knowledge |= KNOW_HPRATE;
 	}
 	else
 	{
-#ifdef JP
-		msg_print("体力ランクが変わった。");
-#else
 		msg_print("Life rate is changed.");
-#endif
 		p_ptr->knowledge &= ~(KNOW_HPRATE);
 	}
 }
@@ -164,7 +162,7 @@ static void do_cmd_wiz_hack_chris1(void)
 		char buf[MAX_NLEN];
 		int value;
 
-		if (1)
+		if (0)
 		{
 			create_replacement_art(a_idx, &forge);
 		}
@@ -179,7 +177,7 @@ static void do_cmd_wiz_hack_chris1(void)
 		identify_item(&forge);
 
 		forge.ident |= (IDENT_MENTAL); 
-		forge.art_name = dummy_name;
+	/*	forge.art_name = dummy_name; */
 		object_desc(buf, &forge, 0);
 		value = object_value_real(&forge);
 		ct_pval += forge.pval;
@@ -292,7 +290,7 @@ static void do_cmd_wiz_hack_chris3_imp(FILE* file)
 			apply_magic(&forge, depth, 0);
 
 			#if 1
-			if (forge.name2 == EGO_MIGHT)
+			if (forge.name2 == EGO_LIFE)
 			{
 				char buf[MAX_NLEN];
 
@@ -300,7 +298,7 @@ static void do_cmd_wiz_hack_chris3_imp(FILE* file)
 				forge.ident |= (IDENT_MENTAL); 
 				object_desc(buf, &forge, 0);
 				msg_print(buf);
-			/*	drop_near(&forge, -1, py, px); */
+				drop_near(&forge, -1, py, px);
 			}
 			#endif
 
@@ -566,7 +564,7 @@ static void do_cmd_wiz_hack_chris6_imp(FILE *file, bool replace)
 			identify_item(&forge);
 
 			forge.ident |= (IDENT_MENTAL); 
-			forge.art_name = dummy_name;
+		/*	forge.art_name = dummy_name; */
 			object_desc(buf, &forge, 0);
 
 			fprintf(file, "%s (%.1f%%)\n", buf, (double)pow/(double)pow_base*100.0);
@@ -631,6 +629,8 @@ static void do_cmd_wiz_hack_chris7_imp(FILE* file)
 {
 	int ct = get_quantity("How Many Thousands?", 1000);
 	int depths[] = { 1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, -1 };
+	/*int depths[] = { 1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 99, 100, 110, 120, -1 };*/
+	/*int depths[] = { 99, 120, -1 };*/
 	int i, j;
 	int counts[1024];
 	int good_counts[1024];
@@ -667,8 +667,12 @@ static void do_cmd_wiz_hack_chris7_imp(FILE* file)
 				counts[k]++;
 			}
 
+			if (forge.name1)
+				a_info[forge.name1].cur_num = 0;
+
 			object_wipe(&forge);
 			if (!make_object(&forge, AM_GOOD)) continue;
+
 			identify_item(&forge);
 			forge.ident |= (IDENT_MENTAL); 
 
@@ -677,6 +681,9 @@ static void do_cmd_wiz_hack_chris7_imp(FILE* file)
 			{
 				good_counts[k]++;
 			}
+
+			if (forge.name1)
+				a_info[forge.name1].cur_num = 0;
 		}
 
 		for (j = 1; j < 1024; j++)
@@ -715,622 +722,6 @@ static void do_cmd_wiz_hack_chris7(void)
 	my_fclose(fff);
 	msg_print("Successful.");
 	msg_print(NULL);
-}
-
-static void _strip_class_name(char *buf, int idx)
-{
-	char *t;
-	cptr str = class_info[idx].title;
-
-	for (t = buf; *str; str++)
-	{
-		if (*str != '-') *t++ = *str;
-	}
-	*t = '\0';
-}
-
-static void _strip_race_name(char *buf, int idx)
-{
-	char *t;
-	cptr str = get_race_t_aux(idx, 0)->name;
-
-	for (t = buf; *str; str++)
-	{
-		if (*str != '-') *t++ = *str;
-	}
-	*t = '\0';
-}
-
-static void _auto_class_spoiler_name(char *buf, int idx)
-{
-	char tmp[256];
-	_strip_class_name(tmp, idx);
-	sprintf(buf, "Auto%sSpoilers", tmp);
-}
-
-static void _auto_realm_spoiler_name(char *buf, int idx)
-{
-	sprintf(buf, "Auto%sSpoilers", realm_names[idx]);
-}
-
-static void _auto_race_spoiler_name(char *buf, int idx)
-{
-	char tmp[256];
-	_strip_race_name(tmp, idx);
-	sprintf(buf, "Auto%sSpoilers", tmp);
-}
-
-typedef void(*_file_fn)(FILE*);
-static void _wiki_file(cptr name, _file_fn fn)
-{
-	int		fd = -1;
-	FILE	*fff = NULL;
-	char	buf[1024];
-
-	/* HARD CODED!!! Sorry :( */
-	sprintf(buf, "c:\\src\\cheng\\chengband.wiki\\%s", name);
-	fff = my_fopen(buf, "w");
-
-	if (!fff)
-	{
-		path_build(buf, sizeof(buf), ANGBAND_DIR_USER, name);
-		fff = my_fopen(buf, "w");
-
-		if (!fff)
-		{
-			prt("Failed!", 0, 0);
-			(void)inkey();
-			return;
-		}
-	}
-
-	fprintf(fff, "#summary Automatically Generated (Do not make manual updates!)\n");
-	fn(fff);
-	fprintf(fff, "\n\n_Automatically generated for Chengband %d.%d.%d._\n",
-		    FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
-
-
-	my_fclose(fff);
-	msg_print("Successful.");
-	msg_print(NULL);
-}
-
-static cptr _race_design_page(int i)
-{
-	if (i == RACE_DEMIGOD)
-		return "DemigodParentage";
-	return 0;
-}
-
-cptr race_spoiler_page(int i)
-{
-	static char buf[256];
-	_auto_race_spoiler_name(buf, i);
-	return buf;
-}
-
-static void _race_tbl1(FILE* fff)
-{
-	int i;
-	char buf[1024];
-
-	for (i = 0; i < MAX_RACES; i++)
-	{
-		race_t *race_ptr = get_race_t_aux(i, 0);
-		cptr spoiler = race_spoiler_page(i);
-		if (i % 5 == 0)
-			fprintf(fff, "|| || *Str* || *Int* || *Wis* || *Dex* || *Con* || *Chr* || *Dis* || *Dev* || *Sav* || *Stl* || *Srh* || *Fos* || *Thn* || *Thb* || *HD* || *If* || *Exp* ||\n");
-
-		if (spoiler)
-			sprintf(buf, "[%s %s]", spoiler, race_ptr->name);
-		else
-			sprintf(buf, "%s", race_ptr->name);
-
-
-		fprintf(fff, "||%s||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%4d||\n",
-			buf, 
-			race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
-			race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR], 
-			race_ptr->skills.dis, race_ptr->skills.dev, race_ptr->skills.sav,
-			race_ptr->skills.stl, race_ptr->skills.srh, race_ptr->skills.fos,
-			race_ptr->skills.thn, race_ptr->skills.thb,
-			race_ptr->hd, race_ptr->infra,
-			race_ptr->exp
-		);
-	}
-}
-
-static void _mimic_race_tbl1(FILE* fff)
-{
-	int i;
-	char buf[1024];
-
-	fprintf(fff, "|| || *Str* || *Int* || *Wis* || *Dex* || *Con* || *Chr* || *Dis* || *Dev* || *Sav* || *Stl* || *Srh* || *Fos* || *Thn* || *Thb* || *HD* || *If* || *Exp* ||\n");
-
-	for (i = MIMIC_MIN; i <= MIMIC_MAX; i++)
-	{
-		race_t *race_ptr = get_race_t_aux(i, 0);
-		cptr spoiler = race_spoiler_page(i);
-
-		if (spoiler)
-			sprintf(buf, "[%s %s]", spoiler, race_ptr->name);
-		else
-			sprintf(buf, "%s", race_ptr->name);
-
-
-		fprintf(fff, "||%s||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%4d||\n",
-			buf, 
-			race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
-			race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR], 
-			race_ptr->skills.dis, race_ptr->skills.dev, race_ptr->skills.sav,
-			race_ptr->skills.stl, race_ptr->skills.srh, race_ptr->skills.fos,
-			race_ptr->skills.thn, race_ptr->skills.thb,
-			race_ptr->hd, race_ptr->infra,
-			race_ptr->exp
-		);
-	}
-}
-
-static void _demigod_wiki(FILE* fff)
-{ 
-	int i;
-
-	fprintf(fff, "_Note: This is the automatically generated spoiler page. For the design page, please go [DemigodParentage here]._\n\n");
-	fprintf(fff, "\n\n[http://angband.oook.cz/ladder-browse.php?v=Chengband&r=%s&c=&n=&e=&s=0 View Ladder]\n", "Demigod");
-	fprintf(fff, "\n= Stats =\n\n");
-	fprintf(fff, "|| || *Str* || *Int* || *Wis* || *Dex* || *Con* || *Chr* || *Dis* || *Dev* || *Sav* || *Stl* || *Srh* || *Fos* || *Thn* || *Thb* || *HD* || *Exp* ||\n");
-	for (i = 0; i < MAX_DEMIGOD_TYPES; i++)
-	{
-		race_t *race_ptr = get_race_t_aux(RACE_DEMIGOD, i);
-		fprintf(fff, "||%s||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%4d||\n",
-			demigod_info[i].name,
-			race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
-			race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR], 
-			race_ptr->skills.dis, race_ptr->skills.dev, race_ptr->skills.sav,
-			race_ptr->skills.stl, race_ptr->skills.srh, race_ptr->skills.fos,
-			race_ptr->skills.thn, race_ptr->skills.thb,
-			race_ptr->hd,
-			race_ptr->exp
-		); 
-	}
-
-	fprintf(fff, "\nDemigods gain [SpecialAbilities special abilities] of their choice at L20 and L40.\n");
-
-	for (i = 0; i < MAX_DEMIGOD_TYPES; i++) 
-	{
-		race_t *race_ptr = get_race_t_aux(RACE_DEMIGOD, i);
-
-		if (race_ptr)
-		{
-			fprintf(fff, "\n\n= %s =\n\n", demigod_info[i].name);
-			fprintf(fff, "%s\n", demigod_info[i].desc);
-
-			if (race_ptr->spoiler_dump)
-				race_ptr->spoiler_dump(fff);
-		}
-	}
-}
-
-
-static void _personality_tbl1(FILE* fff)
-{
-	int i;
-
-	fprintf(fff, "|| || *Str* || *Int* || *Wis* || *Dex* || *Con* || *Chr* || *Dis* || *Dev* || *Sav* || *Stl* || *Srh* || *Fos* || *Thn* || *Thb* || *HD* || *Exp* ||\n");
-	for (i = 0; i < MAX_SEIKAKU; i++)
-	{
-		player_seikaku *a_ptr = &seikaku_info[i];
-
-		fprintf(fff, "||%s||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%4d||\n",
-			a_ptr->title, 
-			a_ptr->a_adj[0], a_ptr->a_adj[1], a_ptr->a_adj[2], 
-			a_ptr->a_adj[3], a_ptr->a_adj[4], a_ptr->a_adj[5], 
-			a_ptr->skills.dis, a_ptr->skills.dev, a_ptr->skills.sav,
-			a_ptr->skills.stl, a_ptr->skills.srh, a_ptr->skills.fos,
-			a_ptr->skills.thn, a_ptr->skills.thb, 
-			a_ptr->a_mhp,
-			a_ptr->a_exp
-		);
-	}
-
-	fprintf(fff, "\n= Descriptions =\n\n");
-	for (i = 0; i < MAX_SEIKAKU; i++)
-	{
-		fprintf(fff, "*%s*\n", seikaku_info[i].title);
-		fprintf(fff, "%s\n\n", birth_get_personality_desc(i));
-	}
-}
-
-static cptr _class_design_page(int i)
-{
-	switch (i)
-	{
-	case CLASS_MAULER: return "MaulerSpoilers";
-	case CLASS_PSION: return "PsionSpoilers";
-	case CLASS_SCOUT: return "ScoutSpoilers";
-	case CLASS_RAGE_MAGE: return "RageMageSpoilers";
-	case CLASS_WARLOCK: return "WarlockSpoilers";
-	case CLASS_WEAPONMASTER: return "WeaponmasterSpoilers";
-	case CLASS_RUNE_KNIGHT: return "RuneKnightSpoilers";
-	case CLASS_DUELIST: return "DuelistSpoilers";
-	case CLASS_BLOOD_KNIGHT: return "BloodKnightSpoilers";
-	}
-	return 0;
-}
-
-static cptr _class_spoiler_page(int i)
-{
-	static char buf[256];
-	_auto_class_spoiler_name(buf, i);
-	return buf;
-}
-
-static void _class_tbl1(FILE* fff)
-{
-	int i;
-	char buf[1024];
-
-	for (i = 0; i < MAX_CLASS; i++)
-	{
-		player_class *class_ptr = &class_info[i];
-		cptr title = class_ptr->title;
-		cptr spoiler = _class_spoiler_page(i);
-
-		if (spoiler)
-			sprintf(buf, "[%s %s]", spoiler, title);
-		else
-			sprintf(buf, "%s", title);
-
-		if (i % 5 == 0)
-			fprintf(fff, "|| || *Str* || *Int* || *Wis* || *Dex* || *Con* || *Chr* || *Dis* || *Dev* || *Sav* || *Stl* || *Srh* || *Fos* || *Thn* || *Thb* || *HD* || *Exp* || *Pet* ||\n");
-
-		fprintf(fff, "||%s||%3d||%3d||%3d||%3d||%3d||%3d||%d,%d||%d,%d||%d,%d||%3d||%3d||%3d||%d,%d||%d,%d||%3d||%4d||%3d||\n",
-			buf, 
-			class_ptr->c_adj[0], class_ptr->c_adj[1], class_ptr->c_adj[2], 
-			class_ptr->c_adj[3], class_ptr->c_adj[4], class_ptr->c_adj[5], 
-			class_ptr->base_skills.dis, class_ptr->extra_skills.dis, 
-			class_ptr->base_skills.dev, class_ptr->extra_skills.dev, 
-			class_ptr->base_skills.sav, class_ptr->extra_skills.sav,
-			class_ptr->base_skills.stl, 
-			class_ptr->base_skills.srh, 
-			class_ptr->base_skills.fos,
-			class_ptr->base_skills.thn, class_ptr->extra_skills.thn, 
-			class_ptr->base_skills.thb, class_ptr->extra_skills.thb, 
-			class_ptr->c_mhp,
-			class_ptr->c_exp,
-			class_ptr->pet_upkeep_div
-		);
-	}
-}
-
-static int _next_skill_desc(char *buf, int class_idx, int tv, int sv)
-{
-	int kval;
-
-	if (sv == -1) return -1;
-
-	for (;;)
-	{
-		sv++;
-		if (sv >= 64)
-		{
-			sprintf(buf, " || || ");;
-			return -1;
-		}
-
-		if (tv == TV_BOW && (sv == SV_CRIMSON || sv == SV_RAILGUN)) continue;
-
-		kval = lookup_kind(tv, sv);
-		if (kval)
-		{
-			int min = s_info[class_idx].w_start[tv-TV_WEAPON_BEGIN][sv];
-			int max = s_info[class_idx].w_max[tv-TV_WEAPON_BEGIN][sv];
-			char name[1024];
-
-			strip_name(name, kval);
-			sprintf(buf, " %s || %d || %d ", name, min, max);
-			return sv;
-		}
-	}
-
-	return -1;
-}
-
-static void _spell_info(char *buf, cptr name, magic_type *info)
-{
-	if (info->slevel == 99)
-		sprintf(buf, "%s||--||--||--", name);
-	else
-		sprintf(buf, "%s||%d||%d||%d", name, info->slevel, info->smana, info->sfail);
-}
-
-static void _spellbook_name(char *buf, int tval, int sval)
-{
-	int kval = lookup_kind(tval, sval);
-	strip_name(buf, kval);
-}
-
-static void _class_spoilers(FILE* fff, int idx)
-{
-	int i;
-	int counters[5];
-	char bufs[5][1024];
-	cptr design = _class_design_page(idx);
-	
-	player_class *class_ptr = &class_info[idx];
-	player_magic *magic_ptr = &m_info[idx];
-	class_t      *class_ptr2 = get_class_t_aux(idx, 0);
-
-	if (design)
-	{
-		fprintf(fff, "_Note: This is the automatically generated spoiler page. For the design page, please go [%s here]._\n\n", design);
-	}
-
-	fprintf(fff, "= %s =\n\n", class_ptr->title);
-	fprintf(fff, "== Description ==\n");
-	if (class_ptr2)
-		fprintf(fff, "%s\n\n", class_ptr2->desc);
-	else
-		fprintf(fff, "%s\n\n", birth_get_class_desc(idx));
-
-	fprintf(fff, "\n\n[http://angband.oook.cz/ladder-browse.php?v=Chengband&r=&c=%s&n=&e=&s=0 View Ladder]\n", class_ptr->title);
-
-	if (magic_ptr->spell_stat)
-	{
-		int j,k;
-		bool first = TRUE;
-
-		for (i = 1; i <= MAX_MAGIC; i++)
-		{
-			int bit = (1 << (i-1));
-			bool ok = FALSE;
-			int max = 4;
-
-			if (idx == CLASS_RED_MAGE && i != REALM_NECROMANCY)
-			{
-				ok = TRUE;
-				max = 2;
-			}
-			if (idx == CLASS_SORCERER && i != REALM_NECROMANCY) ok = TRUE;
-			if (realm_choices1[idx] & bit) ok = TRUE;
-			if (realm_choices2[idx] & bit) ok = TRUE;
-
-			if (ok)
-			{
-				char books[4][1024];
-				int tval = TV_LIFE_BOOK + (i - 1);
-
-				if (first)
-				{
-					fprintf(fff, "\n== Spells ==\n");
-					first = FALSE;
-				}
-
-				for (k = 0; k < max; k++)
-				{
-					_spellbook_name(books[k], tval, k);
-				}
-
-				if (max == 2)
-				{
-					char spoil[256];
-					_auto_realm_spoiler_name(spoil, i);
-					fprintf(fff, "|| *[%s %s]* || || || || || || || ||\n", spoil, realm_names[i]);
-					fprintf(fff, "|| *%s* || *Lvl* || *Mana* || *Fail* || *%s* || *Lvl* || *Mana* || *Fail* ||\n", books[0], books[1]);
-				}
-				else
-				{
-					char spoil[256];
-					_auto_realm_spoiler_name(spoil, i);
-					fprintf(fff, "|| *[%s %s]* || || || || || || || || || || || || || || || ||\n", spoil, realm_names[i]);
-					fprintf(fff, "|| *%s* || *Lvl* || *Mana* || *Fail* || *%s* || *Lvl* || *Mana* || *Fail* || *%s* || *Lvl* || *Mana* || *Fail* || *%s* || *Lvl* || *Mana* || *Fail* ||\n", books[0], books[1], books[2], books[3]);
-				}
-
-				for (j = 0; j < 8; j++)
-				{
-					char names[4][1024];
-					char bufs[4][1024];
-
-					for (k = 0; k < max; k++)
-					{
-						int l = 8*k + j;
-						sprintf(names[k], "%s", do_spell(i, l, SPELL_NAME));
-
-						_spell_info(bufs[k], names[k], &magic_ptr->info[i-1][l]);
-					}
-
-					if (max == 2)
-						fprintf(fff, "||%s||%s||\n", bufs[0], bufs[1]);
-					else
-						fprintf(fff, "||%s||%s||%s||%s||\n", bufs[0], bufs[1], bufs[2], bufs[3]);
-				}
-			}
-		}
-	}
-
-	{
-	class_t *class_ptr = get_class_t_aux(idx, 0);
-
-		/* Hook for extra info */
-		if (class_ptr && class_ptr->spoiler_dump)
-			class_ptr->spoiler_dump(fff);
-	}
-
-	fprintf(fff, "\n== Skills ==\n");
-	fprintf(fff, "|| *Skill* || *Min* || *Max* ||\n");
-	fprintf(fff, "|| Martial Arts || %d || %d ||\n", s_info[idx].s_start[SKILL_MARTIAL_ARTS], s_info[idx].s_max[SKILL_MARTIAL_ARTS]);
-	fprintf(fff, "|| Dual Wielding || %d || %d ||\n", s_info[idx].s_start[SKILL_DUAL_WIELDING], s_info[idx].s_max[SKILL_DUAL_WIELDING]);
-	fprintf(fff, "|| Riding || %d || %d ||\n", s_info[idx].s_start[SKILL_RIDING], s_info[idx].s_max[SKILL_RIDING]);
-
-	fprintf(fff, "\n== Weapon Skills ==\n");
-
-	/* Yuk to get 5 tables in 1 side by side ... Sorry :( */
-	for (i = 0; i < 5; i++)
-		counters[i] = 0;
-
-	fprintf(fff, "\n|| *Bows* || *Min* || *Max* || *Diggers* || *Min* || *Max* || *Hafted* || *Min* || *Max* || *Polearms* || *Min* || *Max* || *Swords* || *Min* || *Max* ||\n");
-	for (;;)
-	{
-		for (i = 0; i < 5; i++)
-			counters[i] = _next_skill_desc(bufs[i], idx, TV_WEAPON_BEGIN + i, counters[i]);
-
-		if (counters[0] == -1 && counters[1] == -1 && counters[2] == -1 && counters[3] == -1 && counters[4] == -1)
-			break;
-
-		fprintf(fff, "|| %s || %s || %s || %s || %s ||\n", bufs[0], bufs[1], bufs[2], bufs[3], bufs[4]);
-	}
-}
-
-static int _class_idx_hack = 0;
-static void _class_wiki_imp(FILE* fff) { _class_spoilers(fff, _class_idx_hack); }
-static void _class_wiki_file(int idx)
-{
-	char buf[256];
-	char file_name[256];
-	_auto_class_spoiler_name(buf, idx);
-	sprintf(file_name, "%s.wiki", buf);
-	_class_idx_hack = idx;
-	_wiki_file(file_name, _class_wiki_imp);
-}
-
-static void _spell_tbl1(FILE* fff)
-{
-	int i;
-	char buf[256];
-	for (i = 1; i <= MAX_MAGIC; i++)
-	{
-		_auto_realm_spoiler_name(buf, i);
-		fprintf(fff, "*[%s %s]*\n", buf, realm_names[i]);
-		fprintf(fff, "%s\n\n", birth_get_realm_desc(i));
-	}
-}
-
-static void _realm_spoilers(FILE* fff, int idx)
-{
-	int i, j, k;
-	int tval = TV_LIFE_BOOK + (idx - 1);
-
-	fprintf(fff, "= *%s* =\n", realm_names[idx]);
-	for (i = 0; i < 4; i++)
-	{
-		char book_name[256];
-		char spell_name[256];
-		char spell_desc[1024];
-
-		_spellbook_name(book_name, tval, i);
-
-		fprintf(fff, "\n== *%s* ==\n", book_name);
-		for (j = 0; j < 8; j++)
-		{
-			cptr val;
-			k = 8*i + j;
-
-			/* do_spell() is old school. It uses a cptr to encode all the info.
-			   In case a verb is not handled, it returns "". BTW, NULL means
-			   that casting was canceled ... Also, the return value often
-			   (sometimes?) points to a global buffer so you need to know
-			   when this happens and act accordingly. */
-			val = do_spell(idx, k, SPELL_SPOIL_NAME);
-			if (strlen(val) == 0)
-				val = do_spell(idx, k, SPELL_NAME);
-			sprintf(spell_name, "`%s`", val);
-
-			val = do_spell(idx, k, SPELL_SPOIL_DESC);
-			if (strlen(val) == 0)
-				val = do_spell(idx, k, SPELL_DESC);
-			sprintf(spell_desc, "`%s`", val);
-
-			fprintf(fff, "  * %s: %s\n", spell_name, spell_desc);
-		}
-	}
-}
-
-static int _realm_idx_hack = 0;
-static void _realm_wiki_imp(FILE* fff) { _realm_spoilers(fff, _realm_idx_hack); }
-static void _realm_wiki_file(int idx)
-{
-	char buf[256];
-	char file_name[256];
-	_auto_realm_spoiler_name(buf, idx);
-	sprintf(file_name, "%s.wiki", buf);
-	_realm_idx_hack = idx;
-	_wiki_file(file_name, _realm_wiki_imp);
-}
-
-static void _race_spoilers(FILE *fff, int idx)
-{
-	race_t *race_ptr = get_race_t_aux(idx, 0);
-	if (!race_ptr)
-	{
-		fprintf(fff, "Under Construction\n");
-		return;
-	}
-
-	fprintf(fff, "= %s =\n\n", race_ptr->name);
-	fprintf(fff, "%s\n", race_ptr->desc);
-	if (idx >= MIMIC_MIN)
-		fprintf(fff, "\n\n[http://angband.oook.cz/ladder-browse.php?v=Chengband&r=%%5B%s%%5D&c=&n=&e=&s=0 View Ladder]\n", race_ptr->name);
-	else
-		fprintf(fff, "\n\n[http://angband.oook.cz/ladder-browse.php?v=Chengband&r=%s&c=&n=&e=&s=0 View Ladder]\n", race_ptr->name);
-
-	fprintf(fff, "\n== Stats and Skills ==\n");
-	fprintf(fff, "|| *Stat* || *Adj* || *Skill* || *Amt* ||\n");
-	fprintf(fff, "|| Str || %d || Device || %d ||\n", race_ptr->stats[A_STR], race_ptr->skills.dev);
-	fprintf(fff, "|| Int || %d || Disarm || %d ||\n", race_ptr->stats[A_INT], race_ptr->skills.dis);
-	fprintf(fff, "|| Wis || %d || Save || %d ||\n", race_ptr->stats[A_WIS], race_ptr->skills.sav);
-	fprintf(fff, "|| Dex || %d || Stealth || %d ||\n", race_ptr->stats[A_DEX], race_ptr->skills.stl);
-	fprintf(fff, "|| Con || %d || Search || %d ||\n", race_ptr->stats[A_CON], race_ptr->skills.srh);
-	fprintf(fff, "|| Chr || %d || Frequency || %d ||\n", race_ptr->stats[A_CHR], race_ptr->skills.fos);
-	fprintf(fff, "|| HD || %d || Melee || %d ||\n", race_ptr->hd, race_ptr->skills.thn);
-	fprintf(fff, "|| Exp || %d%% || Bows || %d ||\n", race_ptr->exp, race_ptr->skills.thb);
-
-	if (race_ptr->spoiler_dump)
-		race_ptr->spoiler_dump(fff);
-}
-
-static int _race_idx_hack = 0;
-static void _race_wiki_imp(FILE* fff) { _race_spoilers(fff, _race_idx_hack); }
-static void _race_wiki_file(int idx)
-{
-	char buf[256];
-	char file_name[256];
-	_auto_race_spoiler_name(buf, idx);
-	sprintf(file_name, "%s.wiki", buf);
-	_race_idx_hack = idx;
-	_wiki_file(file_name, _race_wiki_imp);
-}
-
-bool spoiler_hack = FALSE;
-static void do_cmd_wiz_hack_chris8(void)
-{
-	int i;
-	spoiler_hack = TRUE;
-	_wiki_file("AutoRacesSpoilers.wiki", _race_tbl1);
-	_wiki_file("AutoMimicRacesSpoilers.wiki", _mimic_race_tbl1);
-	_wiki_file("AutoDemigodSpoilers.wiki", _demigod_wiki);
-
-	_wiki_file("AutoClassesSpoilers.wiki", _class_tbl1);
-	_wiki_file("AutoPersonalitiesSpoilers.wiki", _personality_tbl1);
-	_wiki_file("AutoSpellsSpoilers.wiki", _spell_tbl1);
-
-	for (i = 0; i < MAX_RACES; i++)
-	{
-		if (i == RACE_DEMIGOD) continue;
-		_race_wiki_file(i);
-	}
-
-	for (i = MIMIC_MIN; i <= MIMIC_MAX; i++)
-	{
-		_race_wiki_file(i);
-	}
-
-	for (i = 0; i < MAX_CLASS; i++)
-		_class_wiki_file(i);
-
-	for (i = 1; i <= MAX_MAGIC; i++)
-		_realm_wiki_file(i);
-
-	spoiler_hack = FALSE;
 }
 
 #ifdef MONSTER_HORDES
@@ -1847,6 +1238,7 @@ static tval_desc tvals[] =
 	{ TV_DAEMON_BOOK,       "Daemon Spellbook"},
 	{ TV_CRUSADE_BOOK,      "Crusade Spellbook"},
 	{ TV_NECROMANCY_BOOK,   "Necromancy Spellbook"},
+	{ TV_ARMAGEDDON_BOOK,   "Armageddon Spellbook"},
 	{ TV_MUSIC_BOOK,        "Music Spellbook"      },
 	{ TV_HISSATSU_BOOK,     "Book of Kendo"        },
 	{ TV_HEX_BOOK,          "Hex Spellbook"        },
@@ -1869,34 +1261,6 @@ static tval_desc tvals[] =
 	{ 0,                    NULL                   }
 };
 
-
-/*
- * Strip an "object name" into a buffer
- */
-void strip_name(char *buf, int k_idx)
-{
-	char *t;
-
-	object_kind *k_ptr = &k_info[k_idx];
-
-	cptr str = (k_name + k_ptr->name);
-
-
-	/* Skip past leading characters */
-	while ((*str == ' ') || (*str == '&') || (*str == '[')) str++;
-
-	/* Copy useful chars */
-	for (t = buf; *str; str++)
-	{
-#ifdef JP
-		if (iskanji(*str)) {*t++ = *str++; *t++ = *str; continue;}
-#endif
-		if (*str != '~' && *str != ']') *t++ = *str;
-	}
-
-	/* Terminate the new name */
-	*t = '\0';
-}
 
 
 /*
@@ -2740,8 +2104,6 @@ static void do_cmd_wiz_jump(void)
 
 	leave_quest_check();
 
-	if (record_stair) do_cmd_write_nikki(NIKKI_WIZ_TELE,0,NULL);
-
 	p_ptr->inside_quest = 0;
 	energy_use = 0;
 
@@ -2869,14 +2231,6 @@ static void do_cmd_wiz_zap(void)
 		/* Delete nearby monsters */
 		if (m_ptr->cdis <= MAX_SIGHT)
 		{
-			if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
-			{
-				char m_name[80];
-
-				monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
-				do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_WIZ_ZAP, m_name);
-			}
-
 			delete_monster_idx(i);
 		}
 	}
@@ -2900,14 +2254,6 @@ static void do_cmd_wiz_zap_all(void)
 
 		/* Skip the mount */
 		if (i == p_ptr->riding) continue;
-
-		if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
-		{
-			char m_name[80];
-
-			monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
-			do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_WIZ_ZAP, m_name);
-		}
 
 		/* Delete this monster */
 		delete_monster_idx(i);
@@ -3033,8 +2379,8 @@ static void do_cmd_dump_options(void)
 		if (ot_ptr->o_var) exist[ot_ptr->o_set][ot_ptr->o_bit] = i + 1;
 	}
 
-	fprintf(fff, "[Option bits usage on Hengband %d.%d.%d]\n\n",
-	        FAKE_VER_MAJOR - 10, FAKE_VER_MINOR, FAKE_VER_PATCH);
+	fprintf(fff, "[Option bits usage on PosChengband %d.%d.%d]\n\n",
+	        VER_MAJOR, VER_MINOR, VER_PATCH);
 
 	fputs("Set - Bit (Page) Option Name\n", fff);
 	fputs("------------------------------------------------\n", fff);
@@ -3182,7 +2528,7 @@ void do_cmd_debug(void)
 
 	/* View item info */
 	case 'f':
-		identify_fully(FALSE);
+		identify_fully(NULL);
 		break;
 
 	/* Create desired feature */
@@ -3198,9 +2544,25 @@ void do_cmd_debug(void)
 
 	/* Hitpoint rerating */
 	case 'h':
-		do_cmd_rerate(TRUE);
-		break;
+	{
+		int i, r;
+		int tot = 0, min = 0, max = 0;
 
+		for (i = 0; i < 100; i++)
+		{
+			do_cmd_rerate_aux();
+			r = life_rating();
+			tot += r;
+			if (!min) min = r;
+			else min = MIN(min, r);
+			max = MAX(max, r);
+		}
+		msg_format("Life Ratings: %d%% (%d%%-%d%%)", tot/100, min, max);
+
+	/*	do_cmd_rerate(TRUE); */
+
+		break;
+	}
 #ifdef MONSTER_HORDES
 	case 'H':
 		do_cmd_summon_horde();
@@ -3209,7 +2571,7 @@ void do_cmd_debug(void)
 
 	/* Identify */
 	case 'i':
-		(void)identify_fully(FALSE);
+		(void)identify_fully(NULL);
 		break;
 
 	/* Go up or down in the dungeon */
@@ -3230,6 +2592,8 @@ void do_cmd_debug(void)
 	/* Magic Mapping */
 	case 'm':
 		map_area(DETECT_RAD_ALL * 3);
+		(void)detect_monsters_invis(255);
+		(void)detect_monsters_normal(255);
 		break;
 
 	/* Mutation */
@@ -3238,7 +2602,7 @@ void do_cmd_debug(void)
 	/*
 		for (n = 0; n < 120; n++)
 			mut_gain_random(NULL);*/
-		mut_gain_choice(mut_human_pred);
+		mut_gain_choice(mut_demigod_pred);
 	/*
 		n = get_quantity("Which One? ", 500);
 		if (n == 500)
@@ -3251,10 +2615,6 @@ void do_cmd_debug(void)
 			mut_gain(n);*/
 		break;
 	}
-	/* Specific reward */
-	case 'r':
-		(void)gain_level_reward(command_arg);
-		break;
 
 	/* Summon _friendly_ named monster */
 	case 'N':
@@ -3384,14 +2744,18 @@ void do_cmd_debug(void)
 		do_cmd_wiz_hack_chris7();
 		break;
 
-	case '8':
-		do_cmd_wiz_hack_chris8();
+	case 'S':
+		generate_spoilers();
 		break;
 
-	/* Not a Wizard Command */
+	case '_':
+		mut_gain(MUT_HORNS);
+		mut_gain(MUT_TRUNK);
+		mut_gain(MUT_TENTACLES);
+		break;
+
 	default:
-		dispel_player();
-		/*msg_print("That is not a valid debug command.");*/
+		msg_print("That is not a valid debug command.");
 		break;
 	}
 }

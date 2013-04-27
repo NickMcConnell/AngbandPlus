@@ -363,8 +363,8 @@ void cast_wonder(int dir)
 	else /* RARE */
 	{
 		dispel_monsters(150);
-		slow_monsters();
-		sleep_monsters();
+		slow_monsters(p_ptr->lev);
+		sleep_monsters(p_ptr->lev);
 		hp_player(300);
 	}
 }
@@ -521,8 +521,8 @@ static void cast_invoke_spirits(int dir)
 	else
 	{ /* RARE */
 		dispel_monsters(150);
-		slow_monsters();
-		sleep_monsters();
+		slow_monsters(p_ptr->lev);
+		sleep_monsters(p_ptr->lev);
 		hp_player(300);
 	}
 
@@ -1095,7 +1095,7 @@ static bool item_tester_offer(object_type *o_ptr)
 /*
  * Daemon spell Summon Greater Demon
  */
-static bool cast_summon_greater_demon(void)
+bool cast_summon_greater_demon(void)
 {
 	int plev = p_ptr->lev;
 	int item;
@@ -1567,7 +1567,7 @@ static cptr do_life_spell(int spell, int mode)
 		{
 			if (cast)
 			{
-				if (!ident_spell(FALSE)) return NULL;
+				if (!ident_spell(NULL)) return NULL;
 			}
 		}
 		break;
@@ -1856,7 +1856,7 @@ static cptr do_life_spell(int spell, int mode)
 		{
 			if (cast)
 			{
-				if (!identify_fully(FALSE)) return NULL;
+				if (!identify_fully(NULL)) return NULL;
 			}
 		}
 		break;
@@ -2121,7 +2121,7 @@ static cptr do_sorcery_spell(int spell, int mode)
 		{
 			if (cast)
 			{
-				if (!ident_spell(FALSE)) return NULL;
+				if (!ident_spell(NULL)) return NULL;
 			}
 		}
 		break;
@@ -2150,22 +2150,28 @@ static cptr do_sorcery_spell(int spell, int mode)
 		break;
 
 	case 11:
-#ifdef JP
-		if (name) return "周辺スリープ";
-		if (desc) return "視界内の全てのモンスターを眠らせる。抵抗されると無効。";
-#else
-		if (name) return "Mass Sleep";
-		if (desc) return "Attempts to sleep all monsters in sight.";
-#endif
+		if (plev < 35)
+		{
+			if (name) return "Mass Sleep";
+			if (desc) return "Attempts to sleep all monsters in sight.";
+		}
+		else
+		{
+			if (name) return "Mass Stasis";
+			if (desc) return "Attempts to suspend all monsters in sight.";
+		}
     
 		{
-			int power = spell_power(plev * 2);
+			int power = spell_power(plev * 4);
 
 			if (info) return info_power(power);
 
 			if (cast)
 			{
-				sleep_monsters();
+				if (plev < 35)
+					sleep_monsters(power);
+				else
+					stasis_monsters(power);
 			}
 		}
 		break;
@@ -2248,55 +2254,36 @@ static cptr do_sorcery_spell(int spell, int mode)
 		{
 			if (cast)
 			{
-				if (!identify_fully(FALSE)) return NULL;
+				if (!identify_fully(NULL)) return NULL;
 			}
 		}
 		break;
 
 	case 16:
-#ifdef JP
-		if (name) return "物体と財宝感知";
-		if (desc) return "近くの全てのアイテムと財宝を感知する。";
-#else
-		if (name) return "Detect items and Treasure";
-		if (desc) return "Detects all treasures and items in your vicinity.";
-#endif
+		if (name) return "Inventory Protection";
+		if (desc) return "For a short while, items in your pack have a chance to resist destruction.";
     
 		{
-			int rad = DETECT_RAD_DEFAULT;
+			int base = spell_power(30);
 
-			if (info) return info_radius(rad);
+			if (info) return info_duration(30, base);
 
 			if (cast)
-			{
-				detect_objects_normal(rad);
-				detect_treasure(rad);
-				detect_objects_gold(rad);
-			}
+				set_tim_inven_prot(base + randint1(base), FALSE);
 		}
 		break;
 
 	case 17:
 #ifdef JP
-		if (name) return "チャーム・モンスター";
-		if (desc) return "モンスター1体を魅了する。抵抗されると無効。";
+		if (name) return "階段生成";
+		if (desc) return "自分のいる位置に階段を作る。";
 #else
-		if (name) return "Charm Monster";
-		if (desc) return "Attempts to charm a monster.";
+		if (name) return "Stair Creation";
+		if (desc) return "Creates a stair which goes down or up.";
 #endif
     
-		{
-			int power = spell_power(plev);
-
-			if (info) return info_power(power);
-
-			if (cast)
-			{
-				if (!get_aim_dir(&dir)) return NULL;
-
-				charm_monster(dir, power);
-			}
-		}
+		if (cast)
+			stair_creation(FALSE);
 		break;
 
 	case 18:
@@ -2444,25 +2431,14 @@ static cptr do_sorcery_spell(int spell, int mode)
 		break;
 
 	case 25:
-#ifdef JP
-		if (name) return "爆発のルーン";
-		if (desc) return "自分のいる床の上に、モンスターが通ると爆発してダメージを与えるルーンを描く。";
-#else
-		if (name) return "Explosive Rune";
-		if (desc) return "Sets a glyph under you. The glyph will explode when a monster moves on it.";
-#endif
+		if (name) return "Door Creation";
+		if (desc) return "Creates doors on all surrounding squares.";
     
+		if (cast)
 		{
-			int dice = 7;
-			int sides = 7;
-			int base = plev;
-
-			if (info) return info_damage(dice, sides, base);
-
-			if (cast)
-			{
-				explosive_rune();
-			}
+			project(0, 1, py, px, 0, GF_MAKE_DOOR, PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE, -1);
+			p_ptr->update |= (PU_FLOW);
+			p_ptr->redraw |= (PR_MAP);
 		}
 		break;
 
@@ -2520,23 +2496,16 @@ static cptr do_sorcery_spell(int spell, int mode)
 		break;
 
 	case 28:
-#ifdef JP
-		if (name) return "魅了の視線";
-		if (desc) return "視界内の全てのモンスターを魅了する。抵抗されると無効。";
-#else
-		if (name) return "Charm monsters";
-		if (desc) return "Attempts to charm all monsters in sight.";
-#endif
-    
-		{
-			int power = spell_power(plev * 2);
+		if (name) return "Device Mastery";
+		if (desc) return "For a very short time, your magical devices are more powerful.";
 
-			if (info) return info_power(power);
+		{
+			int base = spell_power(p_ptr->lev/10);
+
+			if (info) return info_duration(base, base);
 
 			if (cast)
-			{
-				charm_monsters(power);
-			}
+				set_tim_device_power(base + randint1(base), FALSE);
 		}
 		break;
 
@@ -2745,19 +2714,10 @@ static cptr do_nature_spell(int spell, int mode)
 			{
 				lite_area(damroll(dice, sides), rad);
 
-				if ((prace_is_(RACE_VAMPIRE) || (p_ptr->mimic_form == MIMIC_VAMPIRE)) && !p_ptr->resist_lite)
+				if ((prace_is_(RACE_VAMPIRE) || (p_ptr->mimic_form == MIMIC_VAMPIRE)) && !res_save_default(RES_LITE))
 				{
-#ifdef JP
-					msg_print("日の光があなたの肉体を焦がした！");
-#else
 					msg_print("The daylight scorches your flesh!");
-#endif
-
-#ifdef JP
-					take_hit(DAMAGE_NOESCAPE, damroll(2, 2), "日の光", -1);
-#else
 					take_hit(DAMAGE_NOESCAPE, damroll(2, 2), "daylight", -1);
-#endif
 				}
 			}
 		}
@@ -2966,8 +2926,7 @@ static cptr do_nature_spell(int spell, int mode)
 
 			if (cast)
 			{
-				/*slow_monsters();*/
-				project_hack(GF_OLD_SLOW, power);
+				slow_monsters(power);
 			}
 		}
 		break;
@@ -3128,7 +3087,7 @@ static cptr do_nature_spell(int spell, int mode)
 		{
 			if (cast)
 			{
-				if (!identify_fully(FALSE)) return NULL;
+				if (!identify_fully(NULL)) return NULL;
 			}
 		}
 		break;
@@ -3189,19 +3148,10 @@ static cptr do_nature_spell(int spell, int mode)
 				chg_virtue(V_ENLIGHTEN, 1);
 				wiz_lite(FALSE);
 
-				if ((prace_is_(RACE_VAMPIRE) || (p_ptr->mimic_form == MIMIC_VAMPIRE)) && !p_ptr->resist_lite)
+				if ((prace_is_(RACE_VAMPIRE) || (p_ptr->mimic_form == MIMIC_VAMPIRE)) && !res_save_default(RES_LITE))
 				{
-#ifdef JP
-					msg_print("日光があなたの肉体を焦がした！");
-#else
 					msg_print("The sunlight scorches your flesh!");
-#endif
-
-#ifdef JP
-					take_hit(DAMAGE_NOESCAPE, 50, "日光", -1);
-#else
 					take_hit(DAMAGE_NOESCAPE, 50, "sunlight", -1);
-#endif
 				}
 			}
 		}
@@ -4375,8 +4325,8 @@ static cptr do_death_spell(int spell, int mode)
 		if (name) return "耐毒";
 		if (desc) return "一定時間、毒への耐性を得る。装備による耐性に累積する。";
 #else
-		if (name) return "Resist Poison";
-		if (desc) return "Gives resistance to poison. This resistance can be added to which from equipment for more powerful resistance.";
+		if (name) return "Undead Resistance";
+		if (desc) return "Gives resistance to poison and cold. This resistance can be added to which from equipment for more powerful resistance.";
 #endif
     
 		{
@@ -4386,6 +4336,7 @@ static cptr do_death_spell(int spell, int mode)
 
 			if (cast)
 			{
+				set_oppose_cold(randint1(base) + base, FALSE);
 				set_oppose_pois(randint1(base) + base, FALSE);
 			}
 		}
@@ -4922,11 +4873,11 @@ static cptr do_death_spell(int spell, int mode)
 			{
 				if (randint1(50) > spell_power(plev))
 				{
-					if (!ident_spell(FALSE)) return NULL;
+					if (!ident_spell(NULL)) return NULL;
 				}
 				else
 				{
-					if (!identify_fully(FALSE)) return NULL;
+					if (!identify_fully(NULL)) return NULL;
 				}
 			}
 		}
@@ -5783,7 +5734,7 @@ static cptr do_trump_spell(int spell, int mode)
 		{
 			if (cast)
 			{
-				if (!identify_fully(FALSE)) return NULL;
+				if (!identify_fully(NULL)) return NULL;
 			}
 		}
 		break;
@@ -6438,7 +6389,7 @@ static cptr do_arcane_spell(int spell, int mode)
 		{
 			if (cast)
 			{
-				if (!ident_spell(FALSE)) return NULL;
+				if (!ident_spell(NULL)) return NULL;
 			}
 		}
 		break;
@@ -7274,7 +7225,7 @@ static cptr do_craft_spell(int spell, int mode)
 		{
 			if (cast)
 			{
-				if (!identify_fully(FALSE)) return NULL;
+				if (!identify_fully(NULL)) return NULL;
 			}
 		}
 		break;
@@ -7310,6 +7261,29 @@ static cptr do_craft_spell(int spell, int mode)
 
 	case 29:
 #ifdef JP
+		if (name) return "人間トランプ";
+		if (desc) return "ランダムにテレポートする突然変異か、自分の意思でテレポートする突然変異が身につく。";
+#else
+		if (name) return "Living Trump";
+		if (desc) return "Gives mutation which makes you teleport randomly or makes you able to teleport at will.";
+#endif
+    
+		if (cast)
+		{
+			int mutation;
+
+			if (one_in_(7) || dun_level == 0)
+				mutation = MUT_TELEPORT;
+			else
+				mutation = MUT_TELEPORT_RND;
+
+			if (mut_gain(mutation))
+				msg_print(T("You have turned into a Living Trump.", "あなたは生きているカードに変わった。"));
+		}
+		break;
+
+	case 30:
+#ifdef JP
 		if (name) return "属性への免疫";
 		if (desc) return "一定時間、冷気、炎、電撃、酸のいずれかに対する免疫を得る。";
 #else
@@ -7325,21 +7299,6 @@ static cptr do_craft_spell(int spell, int mode)
 			if (cast)
 			{
 				if (!choose_ele_immune(base + randint1(base))) return NULL;
-			}
-		}
-		break;
-
-	case 30:
-		if (name) return "Way of Genji";
-		if (desc) return "Temporarily improves your skill with dual wielding.";
-    
-		{
-		int base = spell_power(plev / 4);
-
-			if (info) return info_duration(base, base);
-			if (cast)
-			{
-				set_tim_genji(base + randint1(base), FALSE);
 			}
 		}
 		break;
@@ -7455,7 +7414,7 @@ static cptr do_daemon_spell(int spell, int mode)
 		if (desc) return "一定時間、炎への耐性を得る。装備による耐性に累積する。";
 #else
 		if (name) return "Resist Fire";
-		if (desc) return "Gives resistance to fire, cold and electricity for a while. These resistances can be added to which from equipment for more powerful resistances.";
+		if (desc) return "Gives resistance to fire for a while. This resistance can be added to which from equipment for more powerful resistances.";
 #endif
     
 		{
@@ -7816,8 +7775,8 @@ static cptr do_daemon_spell(int spell, int mode)
 		if (name) return "悪魔のクローク";
 		if (desc) return "恐怖を取り除き、一定時間、炎と冷気の耐性、炎のオーラを得る。耐性は装備による耐性に累積する。";
 #else
-		if (name) return "Devil Cloak";
-		if (desc) return "Gives resistance to fire and cold, and aura of fire. These resistances can be added to which from equipment for more powerful resistances.";
+		if (name) return "Devilish Cloak";
+		if (desc) return "Gives resistance to fire, acid and poison as well as an aura of fire. These resistances can be added to which from equipment for more powerful resistances.";
 #endif
     
 		{
@@ -7830,7 +7789,8 @@ static cptr do_daemon_spell(int spell, int mode)
 				int dur = randint1(base) + base;
 					
 				set_oppose_fire(dur, FALSE);
-				set_oppose_cold(dur, FALSE);
+				set_oppose_acid(dur, FALSE);
+				set_oppose_pois(dur, FALSE);
 				set_tim_sh_fire(dur, FALSE);
 				break;
 			}
@@ -8576,13 +8536,8 @@ static cptr do_crusade_spell(int spell, int mode)
 		break;
 
 	case 18:
-#ifdef JP
-		if (name) return "聖なるオーラ";
-		if (desc) return "一定時間、邪悪なモンスターを傷つける聖なるオーラを得る。";
-#else
-		if (name) return "Holy Aura";
-		if (desc) return "Gives aura of holy power which injures evil monsters which attacked you for a while.";
-#endif
+		if (name) return "Angelic Cloak";
+		if (desc) return "Gives resistance to acid, cold and lightning. Gives aura of holy power which injures evil monsters which attacked you for a while.";
     
 		{
 			int base = 20;
@@ -8591,6 +8546,9 @@ static cptr do_crusade_spell(int spell, int mode)
 
 			if (cast)
 			{
+				set_oppose_acid(randint1(base) + base, FALSE);
+				set_oppose_cold(randint1(base) + base, FALSE);
+				set_oppose_elec(randint1(base) + base, FALSE);
 				set_tim_sh_holy(randint1(base) + base, FALSE);
 			}
 		}
@@ -8885,7 +8843,7 @@ static cptr do_crusade_spell(int spell, int mode)
 			{
 				project(0, 1, py, px, b_dam, GF_HOLY_FIRE, PROJECT_KILL, -1);
 				dispel_monsters(d_dam);
-				slow_monsters();
+				slow_monsters(power);
 				stun_monsters(power);
 				confuse_monsters(power);
 				turn_monsters(power);
@@ -8993,7 +8951,7 @@ static cptr do_music_spell(int spell, int mode)
 
 			if (cont)
 			{
-				slow_monsters();
+				slow_monsters(power);
 			}
 		}
 		break;
@@ -9799,8 +9757,8 @@ static cptr do_music_spell(int spell, int mode)
 
 			if (cont)
 			{
-				slow_monsters();
-				sleep_monsters();
+				slow_monsters(power);
+				sleep_monsters(power);
 			}
 		}
 
@@ -10179,1222 +10137,6 @@ static cptr do_music_spell(int spell, int mode)
 	return "";
 }
 
-
-static cptr do_hissatsu_spell(int spell, int mode)
-{
-	bool name = (mode == SPELL_NAME) ? TRUE : FALSE;
-	bool desc = (mode == SPELL_DESC) ? TRUE : FALSE;
-	bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
-	bool spoil = (mode == SPELL_SPOIL_DESC) ? TRUE : FALSE;
-
-	int dir;
-	int plev = p_ptr->lev;
-
-	switch (spell)
-	{
-	case 0:
-#ifdef JP
-		if (name) return "飛飯綱";
-		if (desc) return "2マス離れたところにいるモンスターを攻撃する。";
-#else
-		if (name) return "Tobi-Izuna";
-		if (desc) return "Attacks a two squares distant monster.";
-#endif
-    
-		if (cast)
-		{
-			project_length = 2;
-			if (!get_aim_dir(&dir)) return NULL;
-
-			project_hook(GF_ATTACK, dir, HISSATSU_2, PROJECT_STOP | PROJECT_KILL);
-		}
-		break;
-
-	case 1:
-#ifdef JP
-		if (name) return "五月雨斬り";
-		if (desc) return "3方向に対して攻撃する。";
-#else
-		if (name) return "3-Way Attack";
-		if (desc) return "Attacks in 3 directions in one time.";
-#endif
-    
-		if (cast)
-		{
-			int cdir;
-			int y, x;
-
-			if (!get_rep_dir2(&dir)) return NULL;
-			if (dir == 5) return NULL;
-
-			for (cdir = 0;cdir < 8; cdir++)
-			{
-				if (cdd[cdir] == dir) break;
-			}
-
-			if (cdir == 8) return NULL;
-
-			y = py + ddy_cdd[cdir];
-			x = px + ddx_cdd[cdir];
-			if (cave[y][x].m_idx)
-				py_attack(y, x, 0);
-			else
-#ifdef JP
-				msg_print("攻撃は空を切った。");
-#else
-				msg_print("You attack the empty air.");
-#endif
-			y = py + ddy_cdd[(cdir + 7) % 8];
-			x = px + ddx_cdd[(cdir + 7) % 8];
-			if (cave[y][x].m_idx)
-				py_attack(y, x, 0);
-			else
-#ifdef JP
-				msg_print("攻撃は空を切った。");
-#else
-				msg_print("You attack the empty air.");
-#endif
-			y = py + ddy_cdd[(cdir + 1) % 8];
-			x = px + ddx_cdd[(cdir + 1) % 8];
-			if (cave[y][x].m_idx)
-				py_attack(y, x, 0);
-			else
-#ifdef JP
-				msg_print("攻撃は空を切った。");
-#else
-				msg_print("You attack the empty air.");
-#endif
-		}
-		break;
-
-	case 2:
-#ifdef JP
-		if (name) return "ブーメラン";
-		if (desc) return "武器を手元に戻ってくるように投げる。戻ってこないこともある。";
-#else
-		if (name) return "Boomerang";
-		if (desc) return "Throws current weapon. And it'll return to your hand unless failed.";
-#endif
-    
-		if (cast)
-		{
-			if (!do_cmd_throw_aux(1, TRUE, 0)) return NULL;
-		}
-		break;
-
-	case 3:
-#ifdef JP
-		if (name) return "焔霊";
-		if (desc) return "火炎耐性のないモンスターに大ダメージを与える。";
-#else
-		if (name) return "Burning Strike";
-		if (desc) return "Attacks a monster with more damage unless it has resistance to fire.";
-#endif
-    
-		if (cast)
-		{
-			int y, x;
-
-			if (!get_rep_dir2(&dir)) return NULL;
-			if (dir == 5) return NULL;
-
-			y = py + ddy[dir];
-			x = px + ddx[dir];
-
-			if (cave[y][x].m_idx)
-				py_attack(y, x, HISSATSU_FIRE);
-			else
-			{
-#ifdef JP
-				msg_print("その方向にはモンスターはいません。");
-#else
-				msg_print("There is no monster.");
-#endif
-				return NULL;
-			}
-		}
-		break;
-
-	case 4:
-#ifdef JP
-		if (name) return "殺気感知";
-		if (desc) return "近くの思考することができるモンスターを感知する。";
-#else
-		if (name) return "Detect Ferocity";
-		if (desc) return "Detects all monsters except mindless in your vicinity.";
-#endif
-    
-		if (cast)
-		{
-			detect_monsters_mind(DETECT_RAD_DEFAULT);
-		}
-		break;
-
-	case 5:
-#ifdef JP
-		if (name) return "みね打ち";
-		if (desc) return "相手にダメージを与えないが、朦朧とさせる。";
-#else
-		if (name) return "Strike to Stun";
-		if (desc) return "Attempts to stun a monster in the adjacent.";
-#endif
-    
-		if (cast)
-		{
-			int y, x;
-
-			if (!get_rep_dir2(&dir)) return NULL;
-			if (dir == 5) return NULL;
-
-			y = py + ddy[dir];
-			x = px + ddx[dir];
-
-			if (cave[y][x].m_idx)
-				py_attack(y, x, HISSATSU_MINEUCHI);
-			else
-			{
-#ifdef JP
-				msg_print("その方向にはモンスターはいません。");
-#else
-				msg_print("There is no monster.");
-#endif
-				return NULL;
-			}
-		}
-		break;
-
-	case 6:
-#ifdef JP
-		if (name) return "カウンター";
-		if (desc) return "相手に攻撃されたときに反撃する。反撃するたびにMPを消費。";
-#else
-		if (name) return "Counter";
-		if (desc) return "Prepares to counterattack. When attack by a monster, strikes back using SP each time.";
-#endif
-    
-		if (cast)
-		{
-			if (p_ptr->riding)
-			{
-#ifdef JP
-				msg_print("乗馬中には無理だ。");
-#else
-				msg_print("You cannot do it when riding.");
-#endif
-				return NULL;
-			}
-#ifdef JP
-			msg_print("相手の攻撃に対して身構えた。");
-#else
-			msg_print("You prepare to counter blow.");
-#endif
-			p_ptr->counter = TRUE;
-		}
-		break;
-
-	case 7:
-#ifdef JP
-		if (name) return "払い抜け";
-		if (desc) return "攻撃した後、反対側に抜ける。";
-#else
-		if (name) return "Harainuke";
-		if (desc) return "Attacks monster with your weapons normally, then move through counter side of the monster.";
-#endif
-    
-		if (cast)
-		{
-			int y, x;
-
-			if (p_ptr->riding)
-			{
-#ifdef JP
-				msg_print("乗馬中には無理だ。");
-#else
-				msg_print("You cannot do it when riding.");
-#endif
-				return NULL;
-			}
-	
-			if (!get_rep_dir2(&dir)) return NULL;
-	
-			if (dir == 5) return NULL;
-			y = py + ddy[dir];
-			x = px + ddx[dir];
-	
-			if (!cave[y][x].m_idx)
-			{
-#ifdef JP
-				msg_print("その方向にはモンスターはいません。");
-#else
-				msg_print("There is no monster.");
-#endif
-				return NULL;
-			}
-	
-			py_attack(y, x, 0);
-	
-			if (!player_can_enter(cave[y][x].feat, 0) || is_trap(cave[y][x].feat))
-				break;
-	
-			y += ddy[dir];
-			x += ddx[dir];
-	
-			if (player_can_enter(cave[y][x].feat, 0) && !is_trap(cave[y][x].feat) && !cave[y][x].m_idx)
-			{
-				msg_print(NULL);
-	
-				/* Move the player */
-				(void)move_player_effect(y, x, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
-			}
-		}
-		break;
-
-	case 8:
-#ifdef JP
-		if (name) return "サーペンツタン";
-		if (desc) return "毒耐性のないモンスターに大ダメージを与える。";
-#else
-		if (name) return "Serpent's Tongue";
-		if (desc) return "Attacks a monster with more damage unless it has resistance to poison.";
-#endif
-    
-		if (cast)
-		{
-			int y, x;
-
-			if (!get_rep_dir2(&dir)) return NULL;
-			if (dir == 5) return NULL;
-
-			y = py + ddy[dir];
-			x = px + ddx[dir];
-
-			if (cave[y][x].m_idx)
-				py_attack(y, x, HISSATSU_POISON);
-			else
-			{
-#ifdef JP
-				msg_print("その方向にはモンスターはいません。");
-#else
-				msg_print("There is no monster.");
-#endif
-				return NULL;
-			}
-		}
-		break;
-
-	case 9:
-#ifdef JP
-		if (name) return "斬魔剣弐の太刀";
-		if (desc) return "生命のない邪悪なモンスターに大ダメージを与えるが、他のモンスターには全く効果がない。";
-#else
-		if (name) return "Zammaken";
-		if (desc) return "Attacks an evil unliving monster with great damage. No effect to other  monsters.";
-#endif
-    
-		if (cast)
-		{
-			int y, x;
-
-			if (!get_rep_dir2(&dir)) return NULL;
-			if (dir == 5) return NULL;
-
-			y = py + ddy[dir];
-			x = px + ddx[dir];
-
-			if (cave[y][x].m_idx)
-				py_attack(y, x, HISSATSU_ZANMA);
-			else
-			{
-#ifdef JP
-				msg_print("その方向にはモンスターはいません。");
-#else
-				msg_print("There is no monster.");
-#endif
-				return NULL;
-			}
-		}
-		break;
-
-	case 10:
-#ifdef JP
-		if (name) return "裂風剣";
-		if (desc) return "攻撃した相手を後方へ吹き飛ばす。";
-#else
-		if (name) return "Wind Blast";
-		if (desc) return "Attacks an adjacent monster, and blow it away.";
-#endif
-    
-		if (cast)
-		{
-			int y, x;
-
-			if (!get_rep_dir2(&dir)) return NULL;
-			if (dir == 5) return NULL;
-
-			y = py + ddy[dir];
-			x = px + ddx[dir];
-
-			if (cave[y][x].m_idx)
-				py_attack(y, x, 0);
-			else
-			{
-#ifdef JP
-				msg_print("その方向にはモンスターはいません。");
-#else
-				msg_print("There is no monster.");
-#endif
-				return NULL;
-			}
-			if (d_info[dungeon_type].flags1 & DF1_NO_MELEE)
-			{
-				return "";
-			}
-			if (cave[y][x].m_idx)
-			{
-				int i;
-				int ty = y, tx = x;
-				int oy = y, ox = x;
-				int m_idx = cave[y][x].m_idx;
-				monster_type *m_ptr = &m_list[m_idx];
-				char m_name[80];
-	
-				monster_desc(m_name, m_ptr, 0);
-	
-				for (i = 0; i < 5; i++)
-				{
-					y += ddy[dir];
-					x += ddx[dir];
-					if (cave_empty_bold(y, x))
-					{
-						ty = y;
-						tx = x;
-					}
-					else break;
-				}
-				if ((ty != oy) || (tx != ox))
-				{
-#ifdef JP
-					msg_format("%sを吹き飛ばした！", m_name);
-#else
-					msg_format("You blow %s away!", m_name);
-#endif
-					cave[oy][ox].m_idx = 0;
-					cave[ty][tx].m_idx = m_idx;
-					m_ptr->fy = ty;
-					m_ptr->fx = tx;
-	
-					update_mon(m_idx, TRUE);
-					lite_spot(oy, ox);
-					lite_spot(ty, tx);
-	
-					if (r_info[m_ptr->r_idx].flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
-						p_ptr->update |= (PU_MON_LITE);
-				}
-			}
-		}
-		break;
-
-	case 11:
-#ifdef JP
-		if (name) return "刀匠の目利き";
-		if (desc) return "武器・防具を1つ識別する。レベル45以上で武器・防具の能力を完全に知ることができる。";
-#else
-		if (name) return "Judge";
-		if (desc) return "Identifies a weapon or armor. Or *identifies* these at level 45.";
-#endif
-    
-		if (cast)
-		{
-			if (plev > 44)
-			{
-				if (!identify_fully(TRUE)) return NULL;
-			}
-			else
-			{
-				if (!ident_spell(TRUE)) return NULL;
-			}
-		}
-		break;
-
-	case 12:
-#ifdef JP
-		if (name) return "破岩斬";
-		if (desc) return "岩を壊し、岩石系のモンスターに大ダメージを与える。";
-#else
-		if (name) return "Rock Smash";
-		if (desc) return "Breaks rock. Or greatly damage a monster made by rocks.";
-#endif
-    
-		if (cast)
-		{
-			int y, x;
-
-			if (!get_rep_dir2(&dir)) return NULL;
-			if (dir == 5) return NULL;
-
-			y = py + ddy[dir];
-			x = px + ddx[dir];
-
-			if (cave[y][x].m_idx)
-				py_attack(y, x, HISSATSU_HAGAN);
-	
-			if (!cave_have_flag_bold(y, x, FF_HURT_ROCK)) break;
-	
-			/* Destroy the feature */
-			cave_alter_feat(y, x, FF_HURT_ROCK);
-	
-			/* Update some things */
-			p_ptr->update |= (PU_FLOW);
-		}
-		break;
-
-	case 13:
-#ifdef JP
-		if (name) return "乱れ雪月花";
-		if (desc) return "攻撃回数が増え、冷気耐性のないモンスターに大ダメージを与える。";
-#else
-		if (name) return "Midare-Setsugekka";
-		if (desc) return "Attacks a monster with increased number of attacks and more damage unless it has resistance to cold.";
-#endif
-    
-		if (cast)
-		{
-			int y, x;
-
-			if (!get_rep_dir2(&dir)) return NULL;
-			if (dir == 5) return NULL;
-
-			y = py + ddy[dir];
-			x = px + ddx[dir];
-
-			if (cave[y][x].m_idx)
-				py_attack(y, x, HISSATSU_COLD);
-			else
-			{
-#ifdef JP
-				msg_print("その方向にはモンスターはいません。");
-#else
-				msg_print("There is no monster.");
-#endif
-				return NULL;
-			}
-		}
-		break;
-
-	case 14:
-#ifdef JP
-		if (name) return "急所突き";
-		if (desc) return "モンスターを一撃で倒す攻撃を繰り出す。失敗すると1点しかダメージを与えられない。";
-#else
-		if (name) return "Spot Aiming";
-		if (desc) return "Attempts to kill a monster instantly. If failed cause only 1HP of damage.";
-#endif
-    
-		if (cast)
-		{
-			int y, x;
-
-			if (!get_rep_dir2(&dir)) return NULL;
-			if (dir == 5) return NULL;
-
-			y = py + ddy[dir];
-			x = px + ddx[dir];
-
-			if (cave[y][x].m_idx)
-				py_attack(y, x, HISSATSU_KYUSHO);
-			else
-			{
-#ifdef JP
-				msg_print("その方向にはモンスターはいません。");
-#else
-				msg_print("There is no monster.");
-#endif
-				return NULL;
-			}
-		}
-		break;
-
-	case 15:
-#ifdef JP
-		if (name) return "魔神斬り";
-		if (desc) return "会心の一撃で攻撃する。攻撃がかわされやすい。";
-#else
-		if (name) return "Majingiri";
-		if (desc) return "Attempts to attack with critical hit. But this attack is easy to evade for a monster.";
-#endif
-    
-		if (cast)
-		{
-			int y, x;
-
-			if (!get_rep_dir2(&dir)) return NULL;
-			if (dir == 5) return NULL;
-
-			y = py + ddy[dir];
-			x = px + ddx[dir];
-
-			if (cave[y][x].m_idx)
-				py_attack(y, x, HISSATSU_MAJIN);
-			else
-			{
-#ifdef JP
-				msg_print("その方向にはモンスターはいません。");
-#else
-				msg_print("There is no monster.");
-#endif
-				return NULL;
-			}
-		}
-		break;
-
-	case 16:
-#ifdef JP
-		if (name) return "捨て身";
-		if (desc) return "強力な攻撃を繰り出す。次のターンまでの間、食らうダメージが増える。";
-#else
-		if (name) return "Desperate Attack";
-		if (desc) return "Attacks with all of your power. But all damages you take will be doubled for one turn.";
-#endif
-    
-		if (cast)
-		{
-			int y, x;
-
-			if (!get_rep_dir2(&dir)) return NULL;
-			if (dir == 5) return NULL;
-
-			y = py + ddy[dir];
-			x = px + ddx[dir];
-
-			if (cave[y][x].m_idx)
-				py_attack(y, x, HISSATSU_SUTEMI);
-			else
-			{
-#ifdef JP
-				msg_print("その方向にはモンスターはいません。");
-#else
-				msg_print("There is no monster.");
-#endif
-				return NULL;
-			}
-			p_ptr->sutemi = TRUE;
-		}
-		break;
-
-	case 17:
-#ifdef JP
-		if (name) return "雷撃鷲爪斬";
-		if (desc) return "電撃耐性のないモンスターに非常に大きいダメージを与える。";
-#else
-		if (name) return "Lightning Eagle";
-		if (desc) return "Attacks a monster with more damage unless it has resistance to electricity.";
-#endif
-    
-		if (cast)
-		{
-			int y, x;
-
-			if (!get_rep_dir2(&dir)) return NULL;
-			if (dir == 5) return NULL;
-
-			y = py + ddy[dir];
-			x = px + ddx[dir];
-
-			if (cave[y][x].m_idx)
-				py_attack(y, x, HISSATSU_ELEC);
-			else
-			{
-#ifdef JP
-				msg_print("その方向にはモンスターはいません。");
-#else
-				msg_print("There is no monster.");
-#endif
-				return NULL;
-			}
-		}
-		break;
-
-	case 18:
-#ifdef JP
-		if (name) return "入身";
-		if (desc) return "素早く相手に近寄り攻撃する。";
-#else
-		if (name) return "Rush Attack";
-		if (desc) return "Steps close to a monster and attacks at a time.";
-#endif
-    
-		if (cast)
-		{
-			if (!rush_attack(NULL)) return NULL;
-		}
-		break;
-
-	case 19:
-#ifdef JP
-		if (name) return "赤流渦";
-		if (desc) return "自分自身も傷を作りつつ、その傷が深いほど大きい威力で全方向の敵を攻撃できる。生きていないモンスターには効果がない。";
-#else
-		if (name) return "Bloody Maelstrom";
-		if (desc) return "Attacks all adjacent monsters with power corresponding to your cut status. Then increases your cut status. No effect to unliving monsters.";
-#endif
-    
-		if (cast)
-		{
-			int y = 0, x = 0;
-
-			cave_type       *c_ptr;
-			monster_type    *m_ptr;
-	
-			if (p_ptr->cut < 300)
-				set_cut(p_ptr->cut + 300, FALSE);
-			else
-				set_cut(p_ptr->cut * 2, FALSE);
-	
-			for (dir = 0; dir < 8; dir++)
-			{
-				y = py + ddy_ddd[dir];
-				x = px + ddx_ddd[dir];
-				c_ptr = &cave[y][x];
-	
-				/* Get the monster */
-				m_ptr = &m_list[c_ptr->m_idx];
-	
-				/* Hack -- attack monsters */
-				if (c_ptr->m_idx && (m_ptr->ml || cave_have_flag_bold(y, x, FF_PROJECT)))
-				{
-					if (!monster_living(&r_info[m_ptr->r_idx]))
-					{
-						char m_name[80];
-	
-						monster_desc(m_name, m_ptr, 0);
-#ifdef JP
-						msg_format("%sには効果がない！", m_name);
-#else
-						msg_format("%s is unharmed!", m_name);
-#endif
-					}
-					else py_attack(y, x, HISSATSU_SEKIRYUKA);
-				}
-			}
-		}
-		break;
-
-	case 20:
-#ifdef JP
-		if (name) return "激震撃";
-		if (desc) return "地震を起こす。";
-#else
-		if (name) return "Earthquake Blow";
-		if (desc) return "Shakes dungeon structure, and results in random swapping of floors and walls.";
-#endif
-    
-		if (cast)
-		{
-			int y,x;
-
-			if (!get_rep_dir2(&dir)) return NULL;
-			if (dir == 5) return NULL;
-
-			y = py + ddy[dir];
-			x = px + ddx[dir];
-
-			if (cave[y][x].m_idx)
-				py_attack(y, x, HISSATSU_QUAKE);
-			else
-				earthquake(py, px, 10);
-		}
-		break;
-
-	case 21:
-#ifdef JP
-		if (name) return "地走り";
-		if (desc) return "衝撃波のビームを放つ。";
-#else
-		if (name) return "Crack";
-		if (desc) return "Fires a beam of shock wave.";
-#endif
-    
-		if (cast)
-		{
-			int total_damage = 0, basedam, i;
-			u32b flgs[TR_FLAG_SIZE];
-			object_type *o_ptr;
-			if (!get_aim_dir(&dir)) return NULL;
-#ifdef JP
-			msg_print("武器を大きく振り下ろした。");
-#else
-			msg_print("You swing your weapon downward.");
-#endif
-			for (i = 0; i < 2; i++)
-			{
-				int damage;
-	
-				if (!buki_motteruka(INVEN_RARM+i)) break;
-				o_ptr = &inventory[INVEN_RARM+i];
-				basedam = (o_ptr->dd * (o_ptr->ds + 1)) * 50;
-				damage = o_ptr->to_d * 100;
-				object_flags(o_ptr, flgs);
-				if ((o_ptr->name1 == ART_VORPAL_BLADE) || (o_ptr->name1 == ART_CHAINSWORD))
-				{
-					/* vorpal blade */
-					basedam *= 5;
-					basedam /= 3;
-				}
-				else if (have_flag(flgs, TR_VORPAL))
-				{
-					/* vorpal flag only */
-					basedam *= 11;
-					basedam /= 9;
-				}
-				damage += basedam;
-				damage *= p_ptr->weapon_info[i].num_blow;
-				total_damage += damage / 200;
-				if (i) total_damage = total_damage*7/10;
-			}
-			fire_beam(GF_FORCE, dir, total_damage);
-		}
-		break;
-
-	case 22:
-#ifdef JP
-		if (name) return "気迫の雄叫び";
-		if (desc) return "視界内の全モンスターに対して轟音の攻撃を行う。さらに、近くにいるモンスターを怒らせる。";
-#else
-		if (name) return "War Cry";
-		if (desc) return "Damages all monsters in sight with sound. Aggravate nearby monsters.";
-#endif
-    
-		if (cast)
-		{
-#ifdef JP
-			msg_print("雄叫びをあげた！");
-#else
-			msg_print("You roar out!");
-#endif
-			project_hack(GF_SOUND, randint1(plev * 3));
-			aggravate_monsters(0);
-		}
-		break;
-
-	case 23:
-#ifdef JP
-		if (name) return "無双三段";
-		if (desc) return "強力な3段攻撃を繰り出す。";
-#else
-		if (name) return "Musou-Sandan";
-		if (desc) return "Attacks with powerful 3 strikes.";
-#endif
-    
-		if (cast)
-		{
-			int i;
-
-			if (!get_rep_dir2(&dir)) return NULL;
-			if (dir == 5) return NULL;
-
-			for (i = 0; i < 3; i++)
-			{
-				int y, x;
-				int ny, nx;
-				int m_idx;
-				cave_type *c_ptr;
-				monster_type *m_ptr;
-	
-				y = py + ddy[dir];
-				x = px + ddx[dir];
-				c_ptr = &cave[y][x];
-	
-				if (c_ptr->m_idx)
-					py_attack(y, x, HISSATSU_3DAN);
-				else
-				{
-#ifdef JP
-					msg_print("その方向にはモンスターはいません。");
-#else
-					msg_print("There is no monster.");
-#endif
-					return NULL;
-				}
-	
-				if (d_info[dungeon_type].flags1 & DF1_NO_MELEE)
-				{
-					return "";
-				}
-	
-				/* Monster is dead? */
-				if (!c_ptr->m_idx) break;
-	
-				ny = y + ddy[dir];
-				nx = x + ddx[dir];
-				m_idx = c_ptr->m_idx;
-				m_ptr = &m_list[m_idx];
-	
-				/* Monster cannot move back? */
-				if (!monster_can_enter(ny, nx, &r_info[m_ptr->r_idx], 0))
-				{
-					/* -more- */
-					if (i < 2) msg_print(NULL);
-					continue;
-				}
-	
-				c_ptr->m_idx = 0;
-				cave[ny][nx].m_idx = m_idx;
-				m_ptr->fy = ny;
-				m_ptr->fx = nx;
-	
-				update_mon(m_idx, TRUE);
-	
-				/* Redraw the old spot */
-				lite_spot(y, x);
-	
-				/* Redraw the new spot */
-				lite_spot(ny, nx);
-	
-				/* Player can move forward? */
-				if (player_can_enter(c_ptr->feat, 0))
-				{
-					/* Move the player */
-					if (!move_player_effect(y, x, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP)) break;
-				}
-				else
-				{
-					break;
-				}
-
-				/* -more- */
-				if (i < 2) msg_print(NULL);
-			}
-		}
-		break;
-
-	case 24:
-#ifdef JP
-		if (name) return "吸血鬼の牙";
-		if (desc) return "攻撃した相手の体力を吸いとり、自分の体力を回復させる。生命を持たないモンスターには通じない。";
-#else
-		if (name) return "Vampire's Fang";
-		if (desc) return "Attacks with vampiric strikes which absorbs HP from a monster and gives them to you. No effect to unliving monsters.";
-#endif
-    
-		if (cast)
-		{
-			int y, x;
-
-			if (!get_rep_dir2(&dir)) return NULL;
-			if (dir == 5) return NULL;
-
-			y = py + ddy[dir];
-			x = px + ddx[dir];
-
-			if (cave[y][x].m_idx)
-				py_attack(y, x, HISSATSU_DRAIN);
-			else
-			{
-#ifdef JP
-					msg_print("その方向にはモンスターはいません。");
-#else
-					msg_print("There is no monster.");
-#endif
-				return NULL;
-			}
-		}
-		break;
-
-	case 25:
-#ifdef JP
-		if (name) return "幻惑";
-		if (desc) return "視界内の起きている全モンスターに朦朧、混乱、眠りを与えようとする。";
-#else
-		if (name) return "Moon Dazzling";
-		if (desc) return "Attempts to stun, confuse and sleep all waking monsters.";
-#endif
-    
-		if (cast)
-		{
-#ifdef JP
-			msg_print("武器を不規則に揺らした．．．");
-#else
-			msg_print("You irregularly wave your weapon...");
-#endif
-			project_hack(GF_ENGETSU, plev * 4);
-			project_hack(GF_ENGETSU, plev * 4);
-			project_hack(GF_ENGETSU, plev * 4);
-		}
-		break;
-
-	case 26:
-#ifdef JP
-		if (name) return "百人斬り";
-		if (desc) return "連続して入身でモンスターを攻撃する。攻撃するたびにMPを消費。MPがなくなるか、モンスターを倒せなかったら百人斬りは終了する。";
-#else
-		if (name) return "Hundred Slaughter";
-		if (desc) return "Performs a series of rush attacks. The series continues while killing each monster in a time and SP remains.";
-#endif
-    
-		if (cast)
-		{
-			const int mana_cost_per_monster = 8;
-			bool new = TRUE;
-			bool mdeath;
-
-			do
-			{
-				if (!rush_attack(&mdeath)) break;
-				if (new)
-				{
-					/* Reserve needed mana point */
-					p_ptr->csp -= technic_info[REALM_HISSATSU - MIN_TECHNIC][26].smana;
-					new = FALSE;
-				}
-				else
-					p_ptr->csp -= mana_cost_per_monster;
-
-				if (!mdeath) break;
-				command_dir = 0;
-
-				p_ptr->redraw |= PR_MANA;
-				handle_stuff();
-			}
-			while (p_ptr->csp > mana_cost_per_monster);
-
-			if (new) return NULL;
-	
-			/* Restore reserved mana */
-			p_ptr->csp += technic_info[REALM_HISSATSU - MIN_TECHNIC][26].smana;
-		}
-		break;
-
-	case 27:
-#ifdef JP
-		if (name) return "天翔龍閃";
-		if (desc) return "視界内の場所を指定して、その場所と自分の間にいる全モンスターを攻撃し、その場所に移動する。";
-#else
-		if (name) return "Dragonic Flash";
-		if (desc) return "Runs toward given location while attacking all monsters on the path.";
-#endif
-    
-		if (cast)
-		{
-			int y, x;
-
-			if (!tgt_pt(&x, &y)) return NULL;
-
-			if (!cave_player_teleportable_bold(y, x, 0L) ||
-			    (distance(y, x, py, px) > MAX_SIGHT / 2) ||
-			    !projectable(py, px, y, x))
-			{
-#ifdef JP
-				msg_print("失敗！");
-#else
-				msg_print("You cannot move to that place!");
-#endif
-				break;
-			}
-			if (p_ptr->anti_tele)
-			{
-#ifdef JP
-				msg_print("不思議な力がテレポートを防いだ！");
-#else
-				msg_print("A mysterious force prevents you from teleporting!");
-#endif
-	
-				break;
-			}
-			project(0, 0, y, x, HISSATSU_ISSEN, GF_ATTACK, PROJECT_BEAM | PROJECT_KILL, -1);
-			teleport_player_to(y, x, 0L);
-		}
-		break;
-
-	case 28:
-#ifdef JP
-		if (name) return "二重の剣撃";
-		if (desc) return "1ターンで2度攻撃を行う。";
-#else
-		if (name) return "Twin Slash";
-		if (desc) return "double attacks at a time.";
-#endif
-    
-		if (cast)
-		{
-			int x, y;
-	
-			if (!get_rep_dir(&dir, FALSE)) return NULL;
-
-			y = py + ddy[dir];
-			x = px + ddx[dir];
-
-			if (cave[y][x].m_idx)
-			{
-				py_attack(y, x, 0);
-				if (cave[y][x].m_idx)
-				{
-					handle_stuff();
-					py_attack(y, x, 0);
-				}
-			}
-			else
-			{
-#ifdef JP
-	msg_print("その方向にはモンスターはいません。");
-#else
-				msg_print("You don't see any monster in this direction");
-#endif
-				return NULL;
-			}
-		}
-		break;
-
-	case 29:
-#ifdef JP
-		if (name) return "虎伏絶刀勢";
-		if (desc) return "強力な攻撃を行い、近くの場所にも効果が及ぶ。";
-#else
-		if (name) return "Kofuku-Zettousei";
-		if (desc) return "Performs a powerful attack which even effect nearby monsters.";
-#endif
-    
-		if (cast)
-		{
-			int total_damage = 0, basedam, i;
-			int y, x;
-			u32b flgs[TR_FLAG_SIZE];
-			object_type *o_ptr;
-	
-			if (!get_rep_dir2(&dir)) return NULL;
-			if (dir == 5) return NULL;
-
-			y = py + ddy[dir];
-			x = px + ddx[dir];
-
-			if (d_info[dungeon_type].flags1 & DF1_NO_MELEE)
-			{
-#ifdef JP
-				msg_print("なぜか攻撃することができない。");
-#else
-				msg_print("Something prevent you from attacking.");
-#endif
-				return "";
-			}
-#ifdef JP
-			msg_print("武器を大きく振り下ろした。");
-#else
-			msg_print("You swing your weapon downward.");
-#endif
-			for (i = 0; i < 2; i++)
-			{
-				int damage;
-				if (!buki_motteruka(INVEN_RARM+i)) break;
-				o_ptr = &inventory[INVEN_RARM+i];
-				basedam = (o_ptr->dd * (o_ptr->ds + 1)) * 50;
-				damage = o_ptr->to_d * 100;
-				object_flags(o_ptr, flgs);
-				if ((o_ptr->name1 == ART_VORPAL_BLADE) || (o_ptr->name1 == ART_CHAINSWORD))
-				{
-					/* vorpal blade */
-					basedam *= 5;
-					basedam /= 3;
-				}
-				else if (have_flag(flgs, TR_VORPAL))
-				{
-					/* vorpal flag only */
-					basedam *= 11;
-					basedam /= 9;
-				}
-				damage += basedam;
-				damage += p_ptr->weapon_info[i].to_d * 100;
-				damage *= p_ptr->weapon_info[i].num_blow;
-				total_damage += (damage / 100);
-			}
-			project(0, (cave_have_flag_bold(y, x, FF_PROJECT) ? 5 : 0), y, x, total_damage * 3 / 2, GF_METEOR, PROJECT_KILL | PROJECT_JUMP | PROJECT_ITEM, -1);
-		}
-		break;
-
-	case 30:
-#ifdef JP
-		if (name) return "慶雲鬼忍剣";
-		if (desc) return "自分もダメージをくらうが、相手に非常に大きなダメージを与える。アンデッドには特に効果がある。";
-#else
-		if (name) return "Keiun-Kininken";
-		if (desc) return "Attacks a monster with extremely powerful damage. But you also takes some damages. Hurts a undead monster greatly.";
-#endif
-    
-		if (cast)
-		{
-			int y, x;
-
-			if (!get_rep_dir2(&dir)) return NULL;
-			if (dir == 5) return NULL;
-
-			y = py + ddy[dir];
-			x = px + ddx[dir];
-
-			if (cave[y][x].m_idx)
-				py_attack(y, x, HISSATSU_UNDEAD);
-			else
-			{
-#ifdef JP
-				msg_print("その方向にはモンスターはいません。");
-#else
-				msg_print("There is no monster.");
-#endif
-				return NULL;
-			}
-#ifdef JP
-			take_hit(DAMAGE_NOESCAPE, 100 + randint1(100), "慶雲鬼忍剣を使った衝撃", -1);
-#else
-			take_hit(DAMAGE_NOESCAPE, 100 + randint1(100), "exhaustion on using Keiun-Kininken", -1);
-#endif
-		}
-		break;
-
-	case 31:
-#ifdef JP
-		if (name) return "切腹";
-		if (desc) return "「武士道とは、死ぬことと見つけたり。」";
-#else
-		if (name) return "Harakiri";
-		if (desc) return "'Busido is found in death'";
-#endif
-
-		if (cast)
-		{
-			int i;
-#ifdef JP
-	if (!get_check("本当に自殺しますか？")) return NULL;
-#else
-			if (!get_check("Do you really want to commit suicide? ")) return NULL;
-#endif
-				/* Special Verification for suicide */
-#ifdef JP
-	prt("確認のため '@' を押して下さい。", 0, 0);
-#else
-			prt("Please verify SUICIDE by typing the '@' sign: ", 0, 0);
-#endif
-	
-			flush();
-			i = inkey();
-			prt("", 0, 0);
-			if (i != '@') return NULL;
-			if (p_ptr->total_winner)
-			{
-				take_hit(DAMAGE_FORCE, 9999, "Seppuku", -1);
-				p_ptr->total_winner = TRUE;
-			}
-			else
-			{
-#ifdef JP
-				msg_print("武士道とは、死ぬことと見つけたり。");
-#else
-				msg_print("Meaning of Bushi-do is found in the death.");
-#endif
-				take_hit(DAMAGE_FORCE, 9999, "Seppuku", -1);
-			}
-		}
-		break;
-	}
-
-	return "";
-}
 
 
 /* Hex */
@@ -11836,32 +10578,17 @@ static cptr do_hex_spell(int spell, int mode)
 		break;
 
 	case 12:
-#ifdef JP
-		if (name) return "魔剣化";
-		if (desc) return "武器の攻撃力を上げる。切れ味を得、呪いに応じて与えるダメージが上昇し、善良なモンスターに対するダメージが2倍になる。";
-#else
 		if (name) return "Swords to runeswords";
 		if (desc) return "Gives vorpal ability to your weapon. Increases damages by your weapon acccording to curse of your weapon.";
-#endif
 		if (cast)
 		{
-#ifdef JP
-			msg_print("あなたの武器が黒く輝いた。");
-#else
-			if (!empty_hands(FALSE))
+			if (p_ptr->weapon_ct > 1)
 				msg_print("Your weapons glow bright black.");
 			else
 				msg_print("Your weapon glows bright black.");
-#endif
 		}
 		if (stop)
-		{
-#ifdef JP
-			msg_print("武器の輝きが消え去った。");
-#else
-			msg_format("Brightness of weapon%s disappeared.", (empty_hands(FALSE)) ? "" : "s");
-#endif
-		}
+			msg_format("Brightness of weapon%s disappeared.", (p_ptr->weapon_ct <= 1) ? "" : "s");
 		break;
 
 	case 13:
@@ -12130,49 +10857,33 @@ static cptr do_hex_spell(int spell, int mode)
 		break;
 
 	case 21:
-#ifdef JP
-		if (name) return "影のクローク";
-		if (desc) return "影のオーラを身にまとい、敵に影のダメージを与える。";
-#else
 		if (name) return "Cloak of shadow";
 		if (desc) return "Gives aura of shadow.";
-#endif
 		if (cast)
 		{
-			object_type *o_ptr = &inventory[INVEN_OUTER];
+			int slot = equip_find_first(object_is_cloak);
+			object_type *o_ptr = NULL;
 
-			if (!o_ptr->k_idx)
+			if (!slot)
 			{
-#ifdef JP
-				msg_print("クロークを身につけていない！");
-#else
-				msg_print("You don't ware any cloak.");
-#endif
+				msg_print("You are not wearing a cloak.");
 				return NULL;
 			}
-			else if (!object_is_cursed(o_ptr))
+			o_ptr = equip_obj(slot);
+			if (!object_is_cursed(o_ptr))
 			{
-#ifdef JP
-				msg_print("クロークは呪われていない！");
-#else
 				msg_print("Your cloak is not cursed.");
-#endif
 				return NULL;
 			}
 			else
 			{
-#ifdef JP
-				msg_print("影のオーラを身にまとった。");
-#else
 				msg_print("You have enveloped by shadow aura!");
-#endif
 			}
 		}
 		if (cont)
 		{
-			object_type *o_ptr = &inventory[INVEN_OUTER];
-
-			if ((!o_ptr->k_idx) || (!object_is_cursed(o_ptr)))
+			int slot = equip_find_first(object_is_cloak);
+			if (!slot || !object_is_cursed(equip_obj(slot)))
 			{
 				do_spell(REALM_HEX, spell, SPELL_STOP);
 				p_ptr->magic_num1[0] &= ~(1L << spell);
@@ -12182,11 +10893,7 @@ static cptr do_hex_spell(int spell, int mode)
 		}
 		if (stop)
 		{
-#ifdef JP
-			msg_print("影のオーラが消え去った。");
-#else
 			msg_print("Shadow aura disappeared.");
-#endif
 		}
 		break;
 
@@ -12381,32 +11088,17 @@ static cptr do_hex_spell(int spell, int mode)
 		break;
 
 	case 27:
-#ifdef JP
-		if (name) return "吸血の刃";
-		if (desc) return "吸血属性で攻撃する。";
-#else
 		if (name) return "Swords to vampires";
 		if (desc) return "Gives vampiric ability to your weapon.";
-#endif
 		if (cast)
 		{
-#ifdef JP
-			msg_print("あなたの武器が血を欲している。");
-#else
-			if (!empty_hands(FALSE))
+			if (p_ptr->weapon_ct > 1)
 				msg_print("Your weapons want more blood now.");
 			else
 				msg_print("Your weapon wants more blood now.");
-#endif
 		}
 		if (stop)
-		{
-#ifdef JP
-			msg_print("武器の渇望が消え去った。");
-#else
-			msg_format("Thirsty of weapon%s disappeared.", (empty_hands(FALSE)) ? "" : "s");
-#endif
-		}
+			msg_format("Thirsty of weapon%s disappeared.", (p_ptr->weapon_ct <= 1) ? "" : "s");
 		break;
 
 	case 28:
@@ -12609,17 +11301,20 @@ static cptr do_hex_spell(int spell, int mode)
 
 static bool _necro_check_touch(void)
 {
+	int slot;
 	if (p_ptr->afraid)
 	{
 		msg_print("You are too scared to do that!");
 		return FALSE;
 	}
-	if (inventory[INVEN_RARM].k_idx)
+	if (equip_find_first(object_is_melee_weapon))
 	{
 		msg_print("You can't touch while wielding a weapon.");
 		return FALSE;
 	}
-	if (inventory[INVEN_HANDS].k_idx && inventory[INVEN_HANDS].name1 != ART_HAND_OF_VECNA)
+
+	slot = equip_find_object(TV_GLOVES, SV_ANY);
+	if (slot && equip_obj(slot)->name1 != ART_HAND_OF_VECNA)
 	{
 		msg_print("You can't touch while wielding gloves.");
 		return FALSE;
@@ -12629,7 +11324,7 @@ static bool _necro_check_touch(void)
 
 static cptr _necro_info_damage(int dice, int sides, int base)
 {
-	if (inventory[INVEN_HANDS].name1 == ART_HAND_OF_VECNA)
+	if (equip_find_artifact(ART_HAND_OF_VECNA))
 	{
 		dice *= 2;
 		base *= 2;
@@ -12639,7 +11334,7 @@ static cptr _necro_info_damage(int dice, int sides, int base)
 
 static int _necro_damroll(int dice, int sides, int base)
 {
-	if (inventory[INVEN_HANDS].name1 == ART_HAND_OF_VECNA)
+	if (equip_find_artifact(ART_HAND_OF_VECNA))
 	{
 		dice *= 2;
 		base *= 2;
@@ -12807,7 +11502,7 @@ static cptr do_necromancy_spell(int spell, int mode)
 		if (name) return "Detect Life";
 		if (desc) return "Detects all living monsters in your vicinity.";
 		if (info) return info_radius(DETECT_RAD_DEFAULT);
-		if (cast) detect_monsters_living(DETECT_RAD_DEFAULT);
+		if (cast) detect_monsters_living(DETECT_RAD_DEFAULT, "You sense the presence of life around you.");
 		break;
 
 	case 3:
@@ -12888,7 +11583,7 @@ static cptr do_necromancy_spell(int spell, int mode)
 		if (name) return "Undead Lore";
 		if (desc) return "Ask the dead to examine an object for you.";
 		if (spoil) return "Identifies a chosen object.";
-		if (cast) ident_spell(FALSE);
+		if (cast) ident_spell(NULL);
 		break;
 
 	case 12:
@@ -13563,7 +12258,7 @@ static cptr do_burglary_spell(int spell, int mode)
     
 		if (cast)
 		{
-			if (!ident_spell(FALSE)) 
+			if (!ident_spell(NULL)) 
 				return NULL;
 		}
 		break;
@@ -13880,6 +12575,573 @@ static cptr do_burglary_spell(int spell, int mode)
 	return "";
 }
 
+static cptr do_armageddon_spell(int spell, int mode)
+{
+	bool name = (mode == SPELL_NAME) ? TRUE : FALSE;
+	bool desc = (mode == SPELL_DESC) ? TRUE : FALSE;
+	bool info = (mode == SPELL_INFO) ? TRUE : FALSE;
+	bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
+	bool fail = (mode == SPELL_FAIL) ? TRUE : FALSE;
+	bool spoil = (mode == SPELL_SPOIL_DESC) ? TRUE : FALSE;
+
+	int plev = p_ptr->lev;
+	int dir;
+
+	switch (spell)
+	{
+	/* Book of Elements */
+	case 0:
+		if (name) return "Lightning Bolt";
+		if (desc) return "Fires a bolt or beam of electricity.";
+    
+		{
+			int dice = 3 + plev / 4;
+			int sides = 8;
+
+			if (info) return info_damage(spell_power(dice), sides, 0);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_bolt_or_beam(beam_chance(), GF_ELEC, dir, spell_power(damroll(dice, sides)));
+			}
+		}
+		break;
+	case 1:
+		if (name) return "Frost Bolt";
+		if (desc) return "Fires a bolt or beam of cold.";
+    
+		{
+			int dice = 4 + plev / 4;
+			int sides = 8;
+
+			if (info) return info_damage(spell_power(dice), sides, 0);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_bolt_or_beam(beam_chance(), GF_COLD, dir, spell_power(damroll(dice, sides)));
+			}
+		}
+		break;
+	case 2:
+		if (name) return "Fire Bolt";
+		if (desc) return "Fires a bolt or beam of fire.";
+    
+		{
+			int dice = 5 + plev / 4;
+			int sides = 8;
+
+			if (info) return info_damage(spell_power(dice), sides, 0);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_bolt_or_beam(beam_chance(), GF_FIRE, dir, spell_power(damroll(dice, sides)));
+			}
+		}
+		break;
+	case 3:
+		if (name) return "Acid Bolt";
+		if (desc) return "Fires a bolt or beam of acid.";
+    
+		{
+			int dice = 5 + plev / 4;
+			int sides = 8;
+
+			if (info) return info_damage(spell_power(dice), sides, 0);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_bolt_or_beam(beam_chance(), GF_ACID, dir, spell_power(damroll(dice, sides)));
+			}
+		}
+		break;
+	case 4:
+		if (name) return "Lightning Ball";
+		if (desc) return "Fires a ball of electricity.";
+    
+		{
+			int dam = spell_power(3*plev/2 + 20);
+			int rad = 2;
+
+			if (info) return info_damage(0, 0, dam);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_ball(GF_ELEC, dir, dam, rad);
+			}
+		}
+		break;
+	case 5:
+		if (name) return "Frost Ball";
+		if (desc) return "Fires a ball of cold.";
+    
+		{
+			int dam = spell_power(3*plev/2 + 25);
+			int rad = 2;
+
+			if (info) return info_damage(0, 0, dam);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_ball(GF_COLD, dir, dam, rad);
+			}
+		}
+		break;
+	case 6:
+		if (name) return "Fire Ball";
+		if (desc) return "Fires a ball of fire.";
+    
+		{
+			int dam = spell_power(3*plev/2 + 30);
+			int rad = 2;
+
+			if (info) return info_damage(0, 0, dam);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_ball(GF_FIRE, dir, dam, rad);
+			}
+		}
+		break;
+	case 7:
+		if (name) return "Acid Ball";
+		if (desc) return "Fires a ball of acid.";
+    
+		{
+			int dam = spell_power(3*plev/2 + 35);
+			int rad = 2;
+
+			if (info) return info_damage(0, 0, dam);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_ball(GF_ACID, dir, dam, rad);
+			}
+		}
+		break;
+
+	/* Earth, Wind and Fire */
+	case 8:
+		if (name) return "Shard Bolt";
+		if (desc) return "Fires a bolt or beam of shards.";
+    
+		{
+			int dice = 7 + plev / 4;
+			int sides = 8;
+
+			if (info) return info_damage(spell_power(dice), sides, 0);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_bolt_or_beam(beam_chance(), GF_SHARDS, dir, spell_power(damroll(dice, sides)));
+			}
+		}
+		break;
+	case 9:
+		if (name) return "Gravity Bolt";
+		if (desc) return "Fires a bolt or beam of gravity.";
+    
+		{
+			int dice = 5 + plev / 4;
+			int sides = 8;
+
+			if (info) return info_damage(spell_power(dice), sides, 0);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_bolt_or_beam(beam_chance(), GF_GRAVITY, dir, spell_power(damroll(dice, sides)));
+			}
+		}
+		break;
+	case 10:
+		if (name) return "Plasma Bolt";
+		if (desc) return "Fires a bolt or beam of plasma.";
+    
+		{
+			int dice = 11 + plev / 4;
+			int sides = 8;
+
+			if (info) return info_damage(spell_power(dice), sides, 0);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_bolt_or_beam(beam_chance(), GF_PLASMA, dir, spell_power(damroll(dice, sides)));
+			}
+		}
+		break;
+	case 11:
+		if (name) return "Meteor";
+		if (desc) return "Fires a meteor.";
+    
+		{
+			int dam = spell_power(plev + 60);
+			int rad = 2;
+
+			if (info) return info_damage(0, 0, dam);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_ball(GF_METEOR, dir, dam, rad);
+			}
+		}
+		break;
+	case 12:
+		if (name) return "Thunderclap";
+		if (desc) return "Generates a ball of sound centered on you.";
+
+		{
+			int dam = spell_power((40 + plev)*2);
+			int rad = plev / 10 + 2;
+
+			if (info) return info_damage(0, 0, dam/2);
+
+			if (cast)
+			{
+				msg_print("BOOM!");
+				project(0, rad, py, px, dam, GF_SOUND, PROJECT_KILL | PROJECT_ITEM, -1);
+			}
+		}
+		break;
+
+	case 13:
+		if (name) return "Windblast";
+		if (desc) return "Fires a microburst of strong winds.";
+    
+		{
+			int dam = spell_power(plev + 40);
+			int rad = 2;
+
+			if (info) return info_damage(0, 0, dam);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_ball(GF_TELEKINESIS, dir, dam, rad);
+			}
+		}
+		break;
+	case 14:
+		if (name) return "Hellstorm";
+		if (desc) return "Generates a huge ball of fire centered on you.";
+
+		{
+			int dam = spell_power((6 * plev)*2);
+			int rad = 8;
+
+			if (info) return info_damage(0, 0, dam/2);
+
+			if (cast)
+				fire_ball(GF_FIRE, 0, dam, rad);
+		}
+		break;
+	case 15:
+		if (name) return "Rocket";
+		if (desc) return "Fires a rocket.";
+    
+		{
+			int dam = spell_power(60 + plev * 4);
+			int rad = 2;
+
+			if (info) return info_damage(0, 0, dam);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				msg_print("You launch a rocket!");
+				fire_rocket(GF_ROCKET, dir, dam, rad);
+			}
+		}
+		break;
+
+	/* Path of Destruction */
+	case 16:
+		if (name) return "Ice Bolt";
+		if (desc) return "Fires a bolt of ice.";
+    
+		{
+			int dice = 5 + plev/4;
+			int sides = 15;
+
+			if (info) return info_damage(spell_power(dice), sides, 0);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_bolt(GF_ICE, dir, spell_power(damroll(dice, sides)));
+			}
+		}
+		break;
+	case 17:
+		if (name) return "Water Ball";
+		if (desc) return "Fires a ball of water.";
+    
+		{
+			int dam = spell_power(2*plev + 30);
+			int rad = 2;
+
+			if (info) return info_damage(0, 0, dam);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_ball(GF_WATER, dir, dam, rad);
+			}
+		}
+		break;
+	case 18:
+		if (name) return "Breathe Lightning";
+		if (desc) return "Breathes a cone of electricity at chosen target.";
+    
+		{
+			int dam = spell_power(9*plev/2);
+			int rad = plev > 40 ? -3 : -2;
+
+			if (info) return info_damage(0, 0, dam);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_ball(GF_ELEC, dir, dam, rad);
+			}
+		}
+		break;
+	case 19:
+		if (name) return "Breathe Frost";
+		if (desc) return "Breathes a cone of cold at chosen target.";
+    
+		{
+			int dam = spell_power(9*plev/2);
+			int rad = plev > 40 ? -3 : -2;
+
+			if (info) return info_damage(0, 0, dam);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_ball(GF_COLD, dir, dam, rad);
+			}
+		}
+		break;
+	case 20:
+		if (name) return "Breathe Fire";
+		if (desc) return "Breathes a cone of fire at chosen target.";
+    
+		{
+			int dam = spell_power(5*plev);
+			int rad = plev > 40 ? -3 : -2;
+
+			if (info) return info_damage(0, 0, dam);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_ball(GF_FIRE, dir, dam, rad);
+			}
+		}
+		break;
+	case 21:
+		if (name) return "Breathe Acid";
+		if (desc) return "Breathes a cone of acid at chosen target.";
+    
+		{
+			int dam = spell_power(5*plev);
+			int rad = plev > 40 ? -3 : -2;
+
+			if (info) return info_damage(0, 0, dam);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_ball(GF_ACID, dir, dam, rad);
+			}
+		}
+		break;
+	case 22:
+		if (name) return "Breathe Plasma";
+		if (desc) return "Breathes a cone of plasma at chosen target.";
+    
+		{
+			int dam = spell_power(11*plev/2);
+			int rad = plev > 40 ? -3 : -2;
+
+			if (info) return info_damage(0, 0, dam);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_ball(GF_PLASMA, dir, dam, rad);
+			}
+		}
+		break;
+	case 23:
+		if (name) return "Breathe Gravity";
+		if (desc) return "Breathes a cone of gravity at chosen target.";
+    
+		{
+			int dam = spell_power(4*plev);
+			int rad = plev > 40 ? -3 : -2;
+
+			if (info) return info_damage(0, 0, dam);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_ball(GF_GRAVITY, dir, dam, rad);
+			}
+		}
+		break;
+
+	/* Day of Ragnarok */
+	case 24:
+		if (name) return "Mana Bolt";
+		if (desc) return "Fires a bolt of mana.";
+    
+		{
+			int dice = 1;
+			int sides = 5*plev;
+
+			if (info) return info_damage(dice, spell_power(sides), spell_power(50));
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_bolt(GF_MANA, dir, spell_power(damroll(dice, sides) + 50));
+			}
+		}
+		break;
+	case 25:
+		if (name) return "Plasma Ball";
+		if (desc) return "Fires a ball of plasma.";
+    
+		{
+			int dam = spell_power(2*plev + 90);
+			int rad = 3;
+
+			if (info) return info_damage(0, 0, dam);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_ball(GF_PLASMA, dir, dam, rad);
+			}
+		}
+		break;
+	case 26:
+		if (name) return "Mana Ball";
+		if (desc) return "Fires a ball of pure mana.";
+    
+		{
+			int dam = spell_power(4*plev + 100);
+			int rad = 3;
+
+			if (info) return info_damage(0, 0, dam);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_ball(GF_MANA, dir, dam, rad);
+			}
+		}
+		break;
+	case 27:
+		if (name) return "Breathe Sound";
+		if (desc) return "Breathes a cone of sound at chosen target.";
+    
+		{
+			int dam = spell_power(6*plev);
+			int rad = plev > 40 ? -3 : -2;
+
+			if (info) return info_damage(0, 0, dam);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_ball(GF_SOUND, dir, dam, rad);
+			}
+		}
+		break;
+	case 28:
+		if (name) return "Breathe Inertia";
+		if (desc) return "Breathes a cone of inertia at chosen target.";
+    
+		{
+			int dam = spell_power(7*plev);
+			int rad = plev > 40 ? -3 : -2;
+
+			if (info) return info_damage(0, 0, dam);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_ball(GF_INERT, dir, dam, rad);
+			}
+		}
+		break;
+	case 29:
+		if (name) return "Breathe Disintegration";
+		if (desc) return "Breathes a cone of disintegration at chosen target.";
+    
+		{
+			int dam = spell_power(8*plev);
+			int rad = plev > 40 ? -3 : -2;
+
+			if (info) return info_damage(0, 0, dam);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_ball(GF_DISINTEGRATE, dir, dam, rad);
+			}
+		}
+		break;
+	case 30:
+		if (name) return "Breathe Mana";
+		if (desc) return "Breathes a cone of mana at chosen target.";
+    
+		{
+			int dam = spell_power(9*plev);
+			int rad = plev > 40 ? -3 : -2;
+
+			if (info) return info_damage(0, 0, dam);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_ball(GF_MANA, dir, dam, rad);
+			}
+		}
+		break;
+	case 31:
+		if (name) return "Breathe Shards";
+		if (desc) return "Breathes a cone of shards at chosen target.";
+    
+		{
+			int dam = spell_power(10*plev);
+			int rad = plev > 40 ? -3 : -2;
+
+			if (info) return info_damage(0, 0, dam);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_ball(GF_SHARDS, dir, dam, rad);
+			}
+		}
+		break;
+	}
+	return "";
+}
 /*
  * Do everything for each spell
  */
@@ -13905,9 +13167,21 @@ cptr do_spell(int realm, int spell, int mode)
 	case REALM_HISSATSU: result = do_hissatsu_spell(spell, mode); break;
 	case REALM_HEX:      result = do_hex_spell(spell, mode); break;
 	case REALM_NECROMANCY: result = do_necromancy_spell(spell, mode); break;
+	case REALM_ARMAGEDDON: result = do_armageddon_spell(spell, mode); break;
 	case REALM_BURGLARY: result = do_burglary_spell(spell, mode); break;
 	}
 
 	_current_realm_hack = 0;
 	return result;
+}
+
+int get_realm_idx(cptr name)
+{
+	int i;
+	for (i = 0; i < MAX_REALM; i++)
+	{
+		if (strcmp(name, realm_names[i]) == 0)
+			return i;
+	}
+	return -1;
 }

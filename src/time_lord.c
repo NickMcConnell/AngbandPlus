@@ -41,8 +41,9 @@ static int _find_devolution_idx(int r_idx)
 */
 static void _change_monster_race(int m_idx, int new_r_idx)
 {
-	char m_name[80];
+	char m_name[80], new_name[80];
 	int old_hp, old_maxhp, old_r_idx;
+	int old_lvl, new_lvl;
 	byte old_sub_align;
 	monster_type *m_ptr;
 	monster_race *r_ptr;
@@ -54,6 +55,7 @@ static void _change_monster_race(int m_idx, int new_r_idx)
 	old_maxhp = m_ptr->max_maxhp;
 	old_r_idx = m_ptr->r_idx;
 	old_sub_align = m_ptr->sub_align;
+	old_lvl = r_info[m_ptr->r_idx].level;
 
 	real_r_ptr(m_ptr)->cur_num--;
 
@@ -64,6 +66,7 @@ static void _change_monster_race(int m_idx, int new_r_idx)
 
 	m_ptr->ap_r_idx = m_ptr->r_idx;
 	r_ptr = &r_info[m_ptr->r_idx];
+	new_lvl = r_ptr->level;
 
 	if (r_ptr->flags1 & RF1_FORCE_MAXHP)
 	{
@@ -110,10 +113,14 @@ static void _change_monster_race(int m_idx, int new_r_idx)
 				msg_format(T("%^s changed into %s.", "%sは%sに進化した。"), m_name, r_name + hallu_race->name);
 			}
 			else
-				msg_format(T("%^s changed into %s.", "%sは%sに進化した。"), m_name, r_name + r_ptr->name);
+			{
+				cptr txt = (new_lvl > old_lvl) ? "evolved" : "devolved";
+				monster_desc(new_name, m_ptr, 0);
+				msg_format(T("%^s %s into %s.", "%sは%sに進化した。"), m_name, txt, new_name);
+			}
 		}
 		if (!p_ptr->image) r_info[old_r_idx].r_xtra1 |= MR1_SINKA;
-		m_ptr->parent_m_idx = 0;
+		mon_set_parent(m_ptr, 0);
 	}
 	update_mon(m_idx, FALSE);
 	lite_spot(m_ptr->fy, m_ptr->fx);
@@ -128,16 +135,436 @@ static bool _monster_save(monster_race* r_ptr, int power)
 	else
 		return r_ptr->level > randint1(power);
 }
+
+bool devolve_monster(int m_idx, bool msg)
+{
+	monster_type* m_ptr = &m_list[m_idx];
+	monster_race *r_ptr;
+	int r_idx = real_r_idx(m_ptr);
+	char m_name[MAX_NLEN];
+
+	if (r_idx <= 0) return FALSE;
+
+	r_ptr = &r_info[r_idx];	/* We'll use the current race for a saving throw */
+	r_idx = _find_devolution_idx(r_idx);
+	monster_desc(m_name, m_ptr, 0);
+
+	if (r_idx <= 0)
+	{
+		if (msg)
+			msg_format("%^s is too primitive for further devolution.", m_name);
+		return FALSE;
+	}
+		
+	if (_monster_save(r_ptr, 2*p_ptr->lev))
+	{
+		if (msg)
+			msg_format("%^s resists.", m_name);
+		return FALSE;
+	}
+
+	set_monster_csleep(m_idx, 0);
+	_change_monster_race(m_idx, r_idx);
+	return TRUE;
+}
+
+bool evolve_monster(int m_idx, bool msg)
+{
+	monster_type* m_ptr = &m_list[m_idx];
+	monster_race *r_ptr;
+	int r_idx = real_r_idx(m_ptr);
+	char m_name[MAX_NLEN];
+
+	if (r_idx <= 0) return FALSE;
+	monster_desc(m_name, m_ptr, 0);
+	r_idx = _find_evolution_idx(r_idx);
+			
+	if (r_idx <= 0)
+	{
+		if (msg)
+			msg_format("%^s has reached evolutionary perfection.", m_name);
+		return FALSE;
+	}
+	r_ptr = &r_info[r_idx];	/* We'll use the target race for a saving throw */
+	set_monster_csleep(m_idx, 0);
+	if (_monster_save(r_ptr, 2*p_ptr->lev))
+	{
+		if (msg)
+			msg_format("%^s resists.", m_name);
+		return FALSE;
+	}
+	_change_monster_race(m_idx, r_idx);
+	return TRUE;
+}
+
+static int _count_bits(u32b f)
+{
+	int ct = 0;
+	for (; f; f >>= 1)
+	{
+		if (f % 2 == 1)
+			ct++;
+	}
+	return ct;
+}
+
+static u32b _forget_imp(u32b f)
+{
+	int ct = _count_bits(f);
+	u32b result = 0;
+
+	if (ct)
+	{
+		int which = randint1(ct);
+		
+		result = 1;
+		for (;;)
+		{
+			if (f % 2 == 1)
+			{
+				which--;
+				if (!which)
+					break;
+			}
+			f >>= 1;
+			result <<= 1;
+		}
+	}
+
+	return result;
+}
+
+/* One of the nastiest GF_TIME effects (from a monster's perspective) is
+   spell amnesia. Hopefully, The Serpent forgets to summon ;)
+*/
+bool mon_amnesia(int m_idx)
+{
+	monster_type* m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	u32b          forget;
+	bool          result = FALSE;
+
+	switch (randint1(3))
+	{
+	case 1:
+		forget = _forget_imp(r_ptr->flags4);
+		if (forget && !(m_ptr->forgot4 & forget))
+		{
+			m_ptr->forgot4 |= forget;
+			result = TRUE;
+		}
+		break;
+	case 2:
+		forget = _forget_imp(r_ptr->flags5);
+		if (forget && !(m_ptr->forgot5 & forget))
+		{
+			m_ptr->forgot5 |= forget;
+			result = TRUE;
+		}
+		break;
+	case 3:
+		forget = _forget_imp(r_ptr->flags6);
+		if (forget && !(m_ptr->forgot6 & forget))
+		{
+			m_ptr->forgot6 |= forget;
+			result = TRUE;
+		}
+		break;
+	}
+	return result;
+}
+
+bool check_foresight(void)
+{
+	if (psion_check_foresight())
+		return TRUE;
+
+	if (p_ptr->tim_foresight && randint1(100) <= 25)
+	{
+		msg_print("You saw that one coming!");
+		return TRUE;
+	}
+
+	return FALSE;
+}
 		
 /****************************************************************
  * Private Spells
  ****************************************************************/
+static void _bolt_spell(int cmd, variant *res)
+{
+	int dd = 3 + p_ptr->lev/4;
+	int ds = 4;
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Bolt");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Fires a temporal bolt at chosen foe. Time based attacks may produce various "
+		                    "effects on a monster including slowing, stasis, and many others.");
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(spell_power(dd), ds, 0));
+		break;
+	case SPELL_CAST:
+	{
+		int dir;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+
+		fire_bolt_or_beam(beam_chance() - 10, GF_TIME, dir, spell_power(damroll(dd, ds)));
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _slow_poison_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Slow Poison");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Reduces the effects of poison.");
+		break;
+	case SPELL_CAST:
+		set_poisoned(p_ptr->poisoned / 2, TRUE);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _slow_bleeding_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Slow Bleeding");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Reduces the effects of cuts.");
+		break;
+	case SPELL_CAST:
+		set_cut(p_ptr->cut / 2, TRUE);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _regeneration_spell(int cmd, variant *res)
+{
+	int b = spell_power(80);
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Regeneration");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Speeds your recovery from physical damage.");
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_duration(b, b));
+		break;
+	case SPELL_CAST:
+		set_tim_regen(b + randint1(b), FALSE);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _foretell_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Foretell");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Detects nearby monsters.");
+		break;
+	case SPELL_CAST:
+		detect_monsters_normal(DETECT_RAD_DEFAULT);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _quicken_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Quicken");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Gives a small speed boost for a short while.");
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_duration(7, 7));
+		break;
+	case SPELL_CAST:
+		set_tim_spurt(spell_power(7 + randint1(7)), FALSE);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _withering_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Wither");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Destroy an adjacent wall, tree or door.");
+		break;
+	case SPELL_CAST:
+	{
+		int y, x, dir;
+
+		var_set_bool(res, FALSE);
+		if (!get_rep_dir2(&dir)) return;
+		var_set_bool(res, TRUE);
+
+		if (dir == 5) return;
+
+		y = py + ddy[dir];
+		x = px + ddx[dir];
+
+		if (!in_bounds(y, x)) return;
+		if (cave_have_flag_bold(y, x, FF_DOOR))
+		{
+			cave_alter_feat(y, x, FF_TUNNEL);
+			if (!cave_have_flag_bold(y, x, FF_DOOR)) /* Hack: Permanent Door in Arena! */
+			{
+				msg_print("The door withers away.");
+				p_ptr->update |= (PU_FLOW);
+			}
+		}
+		else if (cave_have_flag_bold(y, x, FF_HURT_ROCK))
+		{
+			cave_alter_feat(y, x, FF_HURT_ROCK);
+			msg_print("The wall turns to dust.");
+	
+			p_ptr->update |= (PU_FLOW);
+		}
+		else if (cave_have_flag_bold(y, x, FF_TREE))
+		{
+			cave_set_feat(y, x, one_in_(3) ? feat_brake : feat_grass);
+			msg_print("The tree shrivels and dies.");
+		}
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _blast_spell(int cmd, variant *res)
+{
+	int dam = spell_power(3*p_ptr->lev/2 + 15);
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Blast");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Fires a temporal blast at chosen foe. Time based attacks may produce various "
+		                    "effects on a monster including slowing, stasis, and many others.");
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(0, 0, dam));
+		break;
+	case SPELL_CAST:
+	{
+		int dir;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+
+		fire_ball(GF_TIME, dir, dam, 2);
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _devolve_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Devolve");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Attempts to reverse evolution for a single opponent.");
+		break;
+	case SPELL_CAST:
+	{
+		int y, x, m_idx, dir;
+		monster_type *m_ptr;
+
+		var_set_bool(res, FALSE);
+		if (!get_rep_dir2(&dir)) return;
+		var_set_bool(res, TRUE);
+
+		if (dir == 5) return;
+
+		y = py + ddy[dir];
+		x = px + ddx[dir];
+
+		if (!in_bounds(y, x)) return;
+
+		m_idx = cave[y][x].m_idx;
+		if (!m_idx)
+		{
+			msg_print("There is no monster there!");
+			return;
+		}
+
+		m_ptr = &m_list[m_idx];
+		if (!m_ptr->r_idx) return;
+
+		devolve_monster(m_idx, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 static void _back_to_origins_spell(int cmd, variant *res)
 {
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, "Back to Origins");
+		var_set_string(res, "Revert");
 		break;
 	case SPELL_DESC:
 		var_set_string(res, "Eliminate monster offspring.");
@@ -176,163 +603,45 @@ static void _back_to_origins_spell(int cmd, variant *res)
 	}
 }
 
-static void _decay_door_spell(int cmd, variant *res)
+static void _haste_spell(int cmd, variant *res)
 {
+	int base = spell_power(p_ptr->lev);
+	int sides = spell_power(20 + p_ptr->lev);
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, "Decay Door");
+		var_set_string(res, "Haste");
 		break;
 	case SPELL_DESC:
-		var_set_string(res, "Destroy an adjacent door.");
+		var_set_string(res, "You gain a temporary speed boost.");
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_duration(base, sides));
 		break;
 	case SPELL_CAST:
-	{
-		int y, x, dir;
-
-		var_set_bool(res, FALSE);
-		if (!get_rep_dir2(&dir)) return;
+		set_fast(base + randint1(sides), FALSE);
 		var_set_bool(res, TRUE);
-
-		if (dir == 5) return;
-
-		y = py + ddy[dir];
-		x = px + ddx[dir];
-
-		if (!in_bounds(y, x)) return;
-		if (!cave_have_flag_bold(y, x, FF_DOOR)) return;
-	
-		cave_alter_feat(y, x, FF_TUNNEL);
-		if (!cave_have_flag_bold(y, x, FF_DOOR)) /* Hack: Permanent Door in Arena! */
-		{
-			msg_print("The door withers away.");
-			p_ptr->update |= (PU_FLOW);
-		}
 		break;
-	}
 	default:
 		default_spell(cmd, res);
 		break;
 	}
 }
 
-static void _decay_wall_spell(int cmd, variant *res)
+static void _evolve_spell(int cmd, variant *res)
 {
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, "Decay Wall");
-		break;
-	case SPELL_DESC:
-		var_set_string(res, "Destroy an adjacent wall.");
-		break;
-	case SPELL_CAST:
-	{
-		int y, x, dir;
-
-		var_set_bool(res, FALSE);
-		if (!get_rep_dir2(&dir)) return;
-		var_set_bool(res, TRUE);
-
-		if (dir == 5) return;
-
-		y = py + ddy[dir];
-		x = px + ddx[dir];
-			
-		if (!in_bounds(y, x)) return;
-		if (!cave_have_flag_bold(y, x, FF_HURT_ROCK)) return;
-	
-		cave_alter_feat(y, x, FF_HURT_ROCK);
-		msg_print("The wall turns to dust.");
-	
-		p_ptr->update |= (PU_FLOW);
-		break;
-	}
-	default:
-		default_spell(cmd, res);
-		break;
-	}
-}
-
-static void _devolution_spell(int cmd, variant *res)
-{
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, "Devolution");
-		break;
-	case SPELL_DESC:
-		var_set_string(res, "Attempts to reverse evolution for a single opponent.");
-		break;
-	case SPELL_CAST:
-	{
-		int y, x, r_idx, m_idx, dir;
-		monster_type *m_ptr;
-		monster_race *r_ptr;
-		char m_name[80];
-
-		var_set_bool(res, FALSE);
-		if (!get_rep_dir2(&dir)) return;
-		var_set_bool(res, TRUE);
-
-		if (dir == 5) return;
-
-		y = py + ddy[dir];
-		x = px + ddx[dir];
-
-		if (!in_bounds(y, x)) return;
-
-		m_idx = cave[y][x].m_idx;
-		if (!m_idx)
-		{
-			msg_print("There is no monster there!");
-			return;
-		}
-
-		m_ptr = &m_list[m_idx];
-		if (!m_ptr->r_idx) return;
-		monster_desc(m_name, m_ptr, 0);
-
-		r_idx = real_r_idx(m_ptr);
-		if (r_idx <= 0) return;
-		r_ptr = &r_info[r_idx];	/* We'll use the current race for a saving throw */
-		r_idx = _find_devolution_idx(r_idx);
-			
-		if (r_idx <= 0)
-		{
-			msg_format("%^s is too primitive for further devolution.", m_name);
-			return;
-		}
-
-		set_monster_csleep(m_idx, 0);
-		if (_monster_save(r_ptr, 2*p_ptr->lev))
-			msg_format("%^s resists.", m_name);
-		else
-			_change_monster_race(m_idx, r_idx);
-		break;
-	}
-	default:
-		default_spell(cmd, res);
-		break;
-	}
-}
-
-static void _evolution_spell(int cmd, variant *res)
-{
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, "Evolution");
+		var_set_string(res, "Evolve");
 		break;
 	case SPELL_DESC:
 		var_set_string(res, "Attempts to advance evolution for a single opponent.");
 		break;
 	case SPELL_CAST:
 	{
-		int y, x, r_idx, m_idx, dir;
+		int y, x, m_idx, dir;
 		monster_type *m_ptr;
-		monster_race *r_ptr;
-		char m_name[80];
 
 		var_set_bool(res, FALSE);
 		if (!get_rep_dir2(&dir)) return;
@@ -354,23 +663,8 @@ static void _evolution_spell(int cmd, variant *res)
 
 		m_ptr = &m_list[m_idx];
 		if (!m_ptr->r_idx) break;
-		monster_desc(m_name, m_ptr, 0);
 
-		r_idx = real_r_idx(m_ptr);
-		if (r_idx <= 0) return;
-		r_idx = _find_evolution_idx(r_idx);
-			
-		if (r_idx <= 0)
-		{
-			msg_format("%^s has reached evolutionary perfection.", m_name);
-			return;
-		}
-		r_ptr = &r_info[r_idx];	/* We'll use the target race for a saving throw */
-		set_monster_csleep(m_idx, 0);
-		if (_monster_save(r_ptr, 2*p_ptr->lev))
-			msg_format("%^s resists.", m_name);
-		else
-			_change_monster_race(m_idx, r_idx);
+		evolve_monster(m_idx, TRUE);
 		break;
 	}
 	default:
@@ -379,50 +673,22 @@ static void _evolution_spell(int cmd, variant *res)
 	}
 }
 
-static void _haste_monster_spell(int cmd, variant *res)
+static void _wave_spell(int cmd, variant *res)
 {
+	int ds = spell_power(3*p_ptr->lev/2);
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, "Haste Monster");
+		var_set_string(res, "Wave");
 		break;
 	case SPELL_DESC:
-		var_set_string(res, "Target monster gains a temporary speed boost.");
-		break;
-	case SPELL_CAST:
-	{
-		int dir;
-		var_set_bool(res, FALSE);
-		if (!get_aim_dir(&dir)) return;
-		var_set_bool(res, TRUE);
-
-		speed_monster(dir);
-		break;
-	}
-	default:
-		default_spell(cmd, res);
-		break;
-	}
-}
-
-static void _haste_self_spell(int cmd, variant *res)
-{
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, "Haste Self");
-		break;
-	case SPELL_DESC:
-		var_set_string(res, "You gain a temporary speed boost.");
-		break;
-	case SPELL_SPOIL_DESC:
-		var_set_string(res, "Grants +15 speed for 10+d(3L/2) rounds.");
+		var_set_string(res, "Produce a wave of time, affecting all monsters in sight.");
 		break;
 	case SPELL_INFO:
-		var_set_string(res, info_duration(10, p_ptr->lev * 3 / 2));
+		var_set_string(res, info_damage(1, ds, 0));
 		break;
 	case SPELL_CAST:
-		set_fast(10 + randint1(p_ptr->lev * 3 / 2), FALSE);
+		project_hack(GF_TIME, randint1(ds));
 		var_set_bool(res, TRUE);
 		break;
 	default:
@@ -431,44 +697,22 @@ static void _haste_self_spell(int cmd, variant *res)
 	}
 }
 
-static void _mass_slow_spell(int cmd, variant *res)
+static void _shield_spell(int cmd, variant *res)
 {
+	int b = spell_power(15);
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, "Mass Slow");
+		var_set_string(res, "Shield");
 		break;
 	case SPELL_DESC:
-		var_set_string(res, "Slow all monsters in sight.");
+		var_set_string(res, "Grants an Aura of Time for a short while.");
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_duration(b, b));
 		break;
 	case SPELL_CAST:
-		project_hack(GF_OLD_SLOW, 3*p_ptr->lev + 10);
-		var_set_bool(res, TRUE);
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
-}
-
-static void _remembrance_spell(int cmd, variant *res)
-{
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, "Remembrance");
-		break;
-	case SPELL_DESC:
-		var_set_string(res, "Restores life and stats.");
-		break;
-	case SPELL_CAST:
-		do_res_stat(A_STR);
-		do_res_stat(A_INT);
-		do_res_stat(A_WIS);
-		do_res_stat(A_DEX);
-		do_res_stat(A_CON);
-		do_res_stat(A_CHR);
-		restore_level();
+		set_tim_sh_time(b + randint1(b), FALSE);
 		var_set_bool(res, TRUE);
 		break;
 	default:
@@ -482,7 +726,7 @@ static void _rewind_time_spell(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, "Rewind Time");
+		var_set_string(res, "Rewind");
 		break;
 	case SPELL_DESC:
 		var_set_string(res, "Temporal escape:  You flee to safety, but forget some of your recent experiences.");
@@ -537,24 +781,58 @@ static void _rewind_time_spell(int cmd, variant *res)
 	}
 }
 
-static void _shrike_spell(int cmd, variant *res)
+static int  _breath_dam(void) {
+	int l = (p_ptr->lev - 30);
+	return spell_power(9*p_ptr->lev/2 + l*l/4); /* 325 max damage ... */
+}
+static void _breath_spell(int cmd, variant *res)
 {
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, "Time Mastery");
+		var_set_string(res, "Breath");
 		break;
 	case SPELL_DESC:
-		var_set_string(res, "You control the rate of the flow of time. Many actions require the normal "
-		                    "passage of time, such as attacking, casting spells or using magical devices. "
-							"But other actions, such as movement, reading scrolls or quaffing potions, "
-							"are performed much more quickly.");
+		var_set_string(res, "Breathe time at chosen foe. Time based attacks may produce various "
+		                    "effects on a monster including slowing, stasis, and many others.");
 		break;
 	case SPELL_INFO:
-		var_set_string(res, info_duration(5, 5));
+		var_set_string(res, info_damage(0, 0, _breath_dam()));
 		break;
 	case SPELL_CAST:
-		set_tim_shrike(5 + randint1(5), FALSE);
+	{
+		int dir;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+
+		fire_ball(GF_TIME, dir, _breath_dam(), -3);
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _remember_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Remember");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Restores life and stats.");
+		break;
+	case SPELL_CAST:
+		do_res_stat(A_STR);
+		do_res_stat(A_INT);
+		do_res_stat(A_WIS);
+		do_res_stat(A_DEX);
+		do_res_stat(A_CON);
+		do_res_stat(A_CHR);
+		restore_level();
 		var_set_bool(res, TRUE);
 		break;
 	default:
@@ -563,81 +841,70 @@ static void _shrike_spell(int cmd, variant *res)
 	}
 }
 
-static void _slow_monster_spell(int cmd, variant *res)
+static void _stasis_spell(int cmd, variant *res)
 {
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, "Slow Monster");
+		var_set_string(res, "Stasis");
 		break;
 	case SPELL_DESC:
-		var_set_string(res, "Slow a single adjacent monster.");
+		var_set_string(res, "Attempts to suspend all monsters in view.");
 		break;
 	case SPELL_CAST:
-	{
-		int y, x, m_idx, dir;
-		monster_type *m_ptr;
-		monster_race *r_ptr;
-		char m_name[80];
-
-		var_set_bool(res, FALSE);
-		if (!get_rep_dir2(&dir)) return;
+		stasis_monsters(spell_power(4 * p_ptr->lev));
 		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
-		if (dir == 5) return;
+static void _travel_spell(int cmd, variant *res)
+{
+	int r = spell_power(p_ptr->lev / 2 + 10);
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Travel");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Travel instantaneously to given location. Be careful you don't accidentally get lost!");
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_range(r));
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, dimension_door(r));
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
-		y = py + ddy[dir];
-		x = px + ddx[dir];
-
-		if (!in_bounds(y, x)) return;
-
-		m_idx = cave[y][x].m_idx;
-		if (!m_idx)
+static void _double_move_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Double Move");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "After casting this spell, you may take two additional free moves. Make the most of them!");
+		break;
+	case SPELL_CAST:
+		if (p_ptr->free_turns)
 		{
-			msg_print("There is no monster there!");
-			return;
+			msg_print("You're wasting your free turns!");
 		}
-
-		m_ptr = &m_list[m_idx];
-		if (!m_ptr->r_idx) return;
-		monster_desc(m_name, m_ptr, 0);
-		r_ptr = &r_info[m_ptr->r_idx];
-		set_monster_csleep(m_idx, 0);
-
-		if (_monster_save(r_ptr, 3*p_ptr->lev))
-		{		
-			msg_format("%^s resists.", m_name);
-		}
-		else if (set_monster_slow(m_idx, MON_SLOW(m_ptr) + 50))
-			msg_format("%^s starts moving slower.", m_name);
 		else
-			msg_format("%^s is already slow.", m_name);
-		break;
-	}
-	default:
-		default_spell(cmd, res);
-		break;
-	}
-}
-
-static void _speed_essentia_spell(int cmd, variant *res)
-{
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, "Speed Essentia");
-		break;
-	case SPELL_DESC:
-		var_set_string(res, "Increases your melee and missile attacks for a bit.");
-		break;
-	case SPELL_SPOIL_DESC:
-		var_set_string(res, "Grants +2 attacks and +1 shots for 3 + (L-43)/3 rounds.");
-		break;
-	case SPELL_INFO:
-		var_set_string(res, format("dur %d", 3 + (p_ptr->lev - 43)/3));
-		break;
-	case SPELL_CAST:
-		set_tim_speed_essentia(3 + (p_ptr->lev - 43)/3, FALSE);
+		{
+			/* 3 is a bit of a hack to prevent chain casting this spell.
+			   See process_player in dungeon.c for details */
+			p_ptr->free_turns = 3;
+		}
 		var_set_bool(res, TRUE);
 		break;
 	default:
@@ -646,134 +913,22 @@ static void _speed_essentia_spell(int cmd, variant *res)
 	}
 }
 
-void _stop_time_spell(int cmd, variant *res)
+static void _foresee_spell(int cmd, variant *res)
 {
+	int b = spell_power(7);
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, "Stop Time");
+		var_set_string(res, "Foresee");
 		break;
 	case SPELL_DESC:
-		var_set_string(res, "Spend all of your spell points to stop time. You gain a number of free moves depending on the amount of spell points spent.");
-		break;
-	case SPELL_SPOIL_DESC:
-		var_set_string(res, "Stops time for (SP+50)/80 actions (but no more than 6 free actions).");
+		var_set_string(res, "For a very short time, you will be able to look into the future.");
 		break;
 	case SPELL_INFO:
-		var_set_string(res, format(T("%ld acts.", "行動:%ld回"), MIN((p_ptr->csp + 100-p_ptr->energy_need - 50)/100, 5)));
+		var_set_string(res, format("dur %d", b));
 		break;
 	case SPELL_CAST:
-	{
-		var_set_bool(res, FALSE);
-		if (world_player)
-		{
-			msg_print(T("Time is already stopped.", "既に時は止まっている。"));
-			return;
-		}
-
-		world_player = TRUE;
-		msg_print(T("You yell 'Time!'", "「時よ！」"));
-		msg_print(NULL);
-
-		/* Note: We pay the casting cost up front these days.  So, add back the 150
-		   to figure the starting sp, and then bash sp down to 0. We can't use the 
-		   SPELL_COST_EXTRA mechanism here ... */
-		p_ptr->energy_need -= 1000 + (100 + (p_ptr->csp + 150) - 50)*TURNS_PER_TICK/10;
-		p_ptr->energy_need = MAX(-1550, p_ptr->energy_need);
-
-		p_ptr->csp = 0;
-		p_ptr->csp_frac = 0;
-
-		p_ptr->redraw |= (PR_MAP | PR_STATUS);
-		p_ptr->update |= (PU_MONSTERS);
-		p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-		handle_stuff();
-
-		var_set_bool(res, TRUE);
-		break;
-	}
-	default:
-		default_spell(cmd, res);
-		break;
-	}
-}
-
-static void _temporal_prison_spell(int cmd, variant *res)
-{
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, "Temporal Prison");
-		break;
-	case SPELL_DESC:
-		var_set_string(res, "Imprison a single opponent in a time cage.");
-		break;
-	case SPELL_CAST:
-	{
-		int y, x, m_idx, dir;
-		monster_type *m_ptr;
-		monster_race *r_ptr;
-		char m_name[80];
-
-		var_set_bool(res, FALSE);
-		if (!get_rep_dir2(&dir)) return;
-		var_set_bool(res, TRUE);
-
-		if (dir == 5) return;
-
-		y = py + ddy[dir];
-		x = px + ddx[dir];
-
-		if (!in_bounds(y, x)) return;
-
-		m_idx = cave[y][x].m_idx;
-		if (!m_idx)
-		{
-			msg_print("There is no monster there!");
-			return;
-		}
-		m_ptr = &m_list[m_idx];
-
-		if (!m_ptr->r_idx) return;
-		monster_desc(m_name, m_ptr, 0);
-		r_ptr = &r_info[m_ptr->r_idx];
-		set_monster_csleep(m_idx, 0);
-
-		if (_monster_save(r_ptr, 3*p_ptr->lev))
-		{		
-			msg_format("%^s resists.", m_name);
-		}
-		else 
-		{
-			msg_format("%^s is suspended!", m_name);
-			set_monster_csleep(m_idx, 1500);
-		}			
-		break;
-	}
-	default:
-		default_spell(cmd, res);
-		break;
-	}
-}
-
-static void _time_spurt_spell(int cmd, variant *res)
-{
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, "Time Spurt");
-		break;
-	case SPELL_DESC:
-		var_set_string(res, "Gives a very short speed boost.");
-		break;
-	case SPELL_INFO:
-		var_set_string(res, info_duration(3, 3));
-		break;
-	case SPELL_SPOIL_DESC:
-		var_set_string(res, "Grants +5 speed for 3+d3 rounds. This speed boost does not stack with Haste Self.");
-		break;
-	case SPELL_CAST:
-		set_tim_spurt(spell_power(3 + randint1(3)), FALSE);
+		set_tim_foresight(b, FALSE);
 		var_set_bool(res, TRUE);
 		break;
 	default:
@@ -788,39 +943,41 @@ static void _time_spurt_spell(int cmd, variant *res)
 static spell_info _spells[] = 
 {
     /*lvl cst fail spell */
-    {  1,  5, 30, _time_spurt_spell},
-	{  5,  4, 30, _decay_door_spell},
-	{ 10, 10, 50, _decay_wall_spell},
-	{ 13, 10, 50, _devolution_spell},
-	{ 15, 10, 50, _evolution_spell},
-	{ 17, 15, 50, _slow_monster_spell},
-	{ 20, 15, 50, _back_to_origins_spell},
-	{ 23, 15, 60, _haste_self_spell},
-	{ 23, 15, 60, _haste_monster_spell},
-	{ 27, 20, 50, _mass_slow_spell},
-	{ 30, 20, 50, _temporal_prison_spell},
-	{ 35, 90, 70, _rewind_time_spell},
-	{ 40, 80, 70, _remembrance_spell},
-	{ 43, 60, 70, _speed_essentia_spell},
-	{ 47, 70, 75, _shrike_spell},
-/*	{ 50,150, 70, _stop_time_spell}, */
+    {  1,  2, 30, _bolt_spell},
+	{  3,  3, 40, _regeneration_spell},
+	{  6,  4, 40, _foretell_spell},
+	{  8,  8, 50, _quicken_spell},
+	{ 10,  9, 50, _withering_spell},
+    { 13, 10, 50, _blast_spell},
+	{ 17, 12, 50, _back_to_origins_spell},
+	{ 23, 15, 60, _haste_spell},
+	{ 27, 20, 60, _wave_spell},
+	{ 30, 10, 60, _shield_spell},
+	{ 33, 50, 70, _rewind_time_spell},
+	{ 35, 35, 70, _breath_spell},
+	{ 37, 50, 70, _remember_spell},
+	{ 39, 30, 70, _stasis_spell},
+	{ 41, 20, 80, _travel_spell},
+	{ 45, 80, 80, _double_move_spell},
+	{ 49,100, 80, _foresee_spell},
 	{ -1, -1, -1, NULL}
 };
 
 static int _get_spells(spell_info* spells, int max)
 {
-	return get_spells_aux(spells, max, _spells, p_ptr->stat_ind[A_CHR]);
+	return get_spells_aux(spells, max, _spells);
 }
 
 static void _calc_bonuses(void)
 {
-	if (p_ptr->lev > 29) p_ptr->resist_time = TRUE;
-	p_ptr->pspeed += 3;
+	if (p_ptr->lev >= 30) res_add(RES_TIME);
 	p_ptr->pspeed += (p_ptr->lev) / 7;
-	if (p_ptr->lev >= 35) 
-		p_ptr->pspeed += 3;
-	if (p_ptr->lev >= 45) 
-		p_ptr->pspeed += 3;
+}
+
+static void _get_flags(u32b flgs[TR_FLAG_SIZE])
+{
+	if (p_ptr->lev >= 30) add_flag(flgs, TR_RES_TIME);
+	if (p_ptr->lev >= 7) add_flag(flgs, TR_SPEED);
 }
 
 static void _on_fail(const spell_info *spell)
@@ -828,16 +985,16 @@ static void _on_fail(const spell_info *spell)
 	if (randint1(100) < (spell->fail / 2))
 	{
 		int b = randint1(100);
-		if (b <= 80)
+		if (b <= 90)
 		{
-		}
-		else if (b <= 90)
-		{
-			set_fast(0, TRUE);
-			set_slow(randint1(50) + 25, FALSE);
-			msg_print("You feel caught in a temporal inversion!");
 		}
 		else if (b <= 95)
+		{
+			set_fast(0, TRUE);
+			set_slow(randint1(5) + 5, FALSE);
+			msg_print("You feel caught in a temporal inversion!");
+		}
+		else if (b <= 99)
 		{
 			lose_exp(p_ptr->exp / 4);
 			msg_print("You feel life's experiences fade away!");
@@ -862,31 +1019,13 @@ static caster_info * _caster_info(void)
 	if (!init)
 	{
 		me.magic_desc = "timecraft";
-		me.use_sp = TRUE;
+		me.which_stat = A_CHR;
+		me.weight = 400;
 		me.on_fail = _on_fail;
+		me.options = CASTER_ALLOW_DEC_MANA;
 		init = TRUE;
 	}
 	return &me;
-}
-
-static void _spoiler_dump(FILE* fff)
-{
-	spoil_spells_aux(fff, _spells);
-	fprintf(fff, "\n\n*Note:* Failing to cast a spell can have bad side effects if 1d100 < Fail/2. Effects include:\n");
-	fprintf(fff, "  * Nothing (80%%)\n");
-	fprintf(fff, "  * Temporal Inversion (10%%): Player is slowed\n");
-	fprintf(fff, "  * Forgetfulness (5%%): Player loses 25%% of their XP\n");
-	fprintf(fff, "  * Diminution (5%%): All stats are reduced\n");
-
-
-	fprintf(fff, "\n== Abilities ==\n");
-	fprintf(fff, "  * +3+L/7 to Speed\n");
-	fprintf(fff, "  * +3 to Speed and -2 to Str,Dex,Con at L35 and again at L45\n");
-	fprintf(fff, "  * Resist Time at L30\n");
-	fprintf(fff, "  * Durations of good effects are increased\n");
-	fprintf(fff, "  * Durations of bad effects are decreased\n");
-	fprintf(fff, "  * Haste gives +15 speed rather than +10\n");
-	fprintf(fff, "  * Slow gives -5 speed rather than -10\n");
 }
 
 class_t *time_lord_get_class_t(void)
@@ -897,42 +1036,32 @@ class_t *time_lord_get_class_t(void)
 	/* static info never changes */
 	if (!init)
 	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
-	skills_t bs = { 25,  18,  35,   1,  16,   8,  48,  20 };
-	skills_t xs = {  7,   7,  10,   0,   0,   0,  13,  13 };
+	skills_t bs = { 25,  35,  35,   2,  16,   8,  48,  20 };
+	skills_t xs = {  7,  11,  10,   0,   0,   0,  13,  13 };
 
 		me.name = "Time-Lord";
 		me.desc = "Time-Lords are masters of time.  They are mediocre fighters, but their temporal "
 					"mastery gives them great speed, as well as the ability to manipulate time.";
 
+		me.stats[A_STR] = -1;
+		me.stats[A_INT] =  0;
+		me.stats[A_WIS] =  0;
+		me.stats[A_DEX] = -1;
+		me.stats[A_CON] = -1;
+		me.stats[A_CHR] =  3;
+
 		me.base_skills = bs;
 		me.extra_skills = xs;
-		me.hd = 0; 
+		me.life = 95; 
 		me.exp = 125;
 		me.pets = 20;
 
 		me.calc_bonuses = _calc_bonuses;
+		me.get_flags = _get_flags;
 		me.caster_info = _caster_info;
 		me.get_spells = _get_spells;
-		me.spoiler_dump = _spoiler_dump;
 		init = TRUE;
 	}
 
-	me.stats[A_STR] =  0;
-	me.stats[A_INT] =  0;
-	me.stats[A_WIS] =  1;
-	me.stats[A_DEX] =  0;
-	me.stats[A_CON] =  0;
-	me.stats[A_CHR] =  3;
-	if (!spoiler_hack)
-	{
-		int amount = 0;
-		
-		if (p_ptr->lev >= 35) amount += 2;
-		if (p_ptr->lev >= 45) amount += 2;
-
-		me.stats[A_STR] -= amount;
-		me.stats[A_DEX] -= amount;
-		me.stats[A_CON] -= amount;
-	}
 	return &me;
 }

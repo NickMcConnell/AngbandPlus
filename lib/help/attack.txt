@@ -1,11 +1,10 @@
 === Attacking and Weapons===
  
-Attacking is simple in Hengband. If you move into a creature, you
-attack it. If you are wielding a weapon (including digging implements
-which are considered to be weapons) when you do so, the damage for the
-weapon is used when you hit a creature. Otherwise, you will attack with
-your bare hands which does minimal damage (unless you are playing a
-monk).
+Attacking is simple in PosChengband. If you move into a creature, you
+attack it provided you are wielding a weapon (including digging implements
+which are considered to be weapons). Unlike most other classes, monks
+and forcetrainers can attack using their bare hands to great effect 
+and generally prefer not to use a weapon at all.
 
 Melee can do more damage per turn than any other form of attack, and
 the basic equipment (a weapon) is easy to find. On the other hand,
@@ -14,7 +13,7 @@ training and equipment to come into its own deeper in the dungeon.
 Upgrading to weapons with higher base damages is vital but heavy
 weapons are harder to master. You will have to find a compromise,
 depending on class, experience level, and available equipment (use the
-'C'haracter screen to see how various weapons affect your melee skill).
+~W screen to see how various weapons affect your melee skill).
 
 You may wield both a primary weapon for melee combat, and a bow or
 other missile launcher for launching missiles at the same time. Most
@@ -70,13 +69,13 @@ when needed.
 
 Weapons have two main magical characteristics, their enchanted ability
 to hit and their enchanted ability to do damage, expressed as
-`(+#,+#)'. A normal weapon would be `(+0,+0)'. Many weapons in Hengband
+`(+#,+#)'. A normal weapon would be `(+0,+0)'. Many weapons in PosChengband
 have bonuses to hit and/or do damage. Some weapons are cursed, and have
 penalties that hurt the player. Cursed weapons cannot be unwielded
 until the curse is lifted. Identifying a weapon will inform you of the
 magical bonuses and penalties and whether or not it is cursed.
 
-Hengband assumes that your youth in the rough environment near the
+PosChengband assumes that your youth in the rough environment near the
 dungeons has taught you the relative merits of different weapons, and
 displays as part of their description the damage dice which define
 their capabilities. Any damage enchantment is added to the dice roll
@@ -446,8 +445,8 @@ realms contain equivalent spells.
 ***** <MonkAttacks>
 === Monk Attacks ===
 
-The Monk and ForceTrainer is designed to be a barehanded fighter
-rather than using a weapon like the other Hengband classes. As a
+The Monk and ForceTrainer are designed to be a barehanded fighter
+rather than using a weapon like the other PosChengband classes. As a
 Monk's level increases the number of attacks they get per round
 increases and new, increasingly powerful attacks become
 available. Higher level attacks have a chance to stun the Monk's
@@ -457,7 +456,9 @@ While the type of attack that a Monk uses for each blow is chosen at
 random from the list of available attacks, at higher levels there is a
 bias towards the attacks which do greater damage. This is because at
 these levels, the game will roll several times for each blow with the
-highest attack type chosen.
+highest attack type chosen. For a detailed breakdown of your current
+attack odds, be sure to check the in-game weapon information display
+by pressing ~ then w.
 
 
 ***** <MonkAttackTypes>
@@ -465,23 +466,27 @@ highest attack type chosen.
 
 Attack Name   Min.lvl   Damage   Stun    Notes
 -----------------------------------------------------------------------
-Punch            1       1d5       -
-Kick             2       1d7       -
-Strike           3       1d9       -
-Knee             5       2d4       *     Likely to stun male opponents
-Elbow            7       1d12      -
-Butt             9       2d6       -
-Ankle Kick      11       3d6       -     May slow down the opponent
-Uppercut        13       5d5       6
-Double-kick     16       5d6       8
-Cat's Claw      20       5d8       -
-Jump Kick       24       6d8      10
-Eagle's Claw    28       7d9       -
-Circle Kick     32       8d10     10
-Iron Fist       35       8d11     10
-Flying Kick     39       8d12     12
-Dragon Fist     43       9d12     16
-Crushing Blow   48      10d13     18
+Punch            1       1d4       -
+Kick             2       1d6       -
+Strike           3       1d7       -
+Knee             5       2d3       *     Likely to stun male opponents
+Elbow            7       1d8      -
+Butt             9       2d5       -
+Ankle Kick      11       3d4       -     May slow down the opponent
+Uppercut        13       4d4       6
+Double-kick     16       5d4       8
+Cat's Claw      20       5d5       -
+Jump Kick       24       5d6      10
+Eagle's Claw    28       6d6       -
+Circle Kick     32       6d8      10
+Iron Fist       35       8d8      10
+Flying Kick     39       8d10     12
+Dragon Fist     43      10d10     16
+Crushing Blow   48      10d12     18
+
+Note: This information is available in game by pressing ~ then w. Moreover,
+the information displayed there is always accurate while this table may become
+out of date as code evolves.
 
 
 ***** <MeleeTactics>
@@ -490,7 +495,7 @@ Crushing Blow   48      10d13     18
 
 Pillardancing
 -------------
-Not recommended in Hengband:  monsters move at irregular speeds.
+Not recommended in PosChengband:  monsters move at irregular speeds.
 
 
 Shoot'n Scoot
@@ -528,6 +533,7 @@ Original   : (??) Chris Weisiger and Leon Marrick
 Updated    : (??)
 Updated    : Zangband DevTeam
 Updated    : Hengband 1.5.2
+Updated    : PosChengband 1.0.0
 
 ***** Begin Hyperlinks
 ***** [b] commdesc.txt#ThrowFire

@@ -173,8 +173,20 @@ static bool alloc_stairs(int feat, int num, int walls)
 	{
 		/* No up stairs in town or in ironman mode */
 		if (ironman_downward || !dun_level) return TRUE;
+		
+		/* No way out!! */
+		if ( dun_level == d_info[dungeon_type].mindepth
+		  && (dungeon_flags[dungeon_type] & DUNGEON_NO_ENTRANCE) )
+		{
+			return TRUE;
+		}
 
-		if (dun_level > d_info[dungeon_type].mindepth)
+		if ( dun_level == d_info[dungeon_type].mindepth + 1
+		  && (dungeon_flags[dungeon_type] & DUNGEON_NO_ENTRANCE) )
+		{
+			shaft_num = 0;
+		}
+		else if (dun_level > d_info[dungeon_type].mindepth)
 			shaft_num = (randint1(num+1))/2;
 	}
 	else if (have_flag(f_ptr->flags, FF_MORE))
@@ -788,8 +800,7 @@ static bool cave_gen(void)
 
 
 	/* Build maze */
-	if ( dungeon_type != DUNGEON_ARENA 
-	  && ((d_info[dungeon_type].flags1 & DF1_MAZE) || (dun_level >= 30 && one_in_(150-dun_level))) )
+	if (d_info[dungeon_type].flags1 & DF1_MAZE)
 	{
 		build_maze_vault(cur_wid/2-1, cur_hgt/2-1, cur_wid-4, cur_hgt-4, FALSE);
 
@@ -1319,7 +1330,6 @@ static void quest_gen(void)
 {
 	int x, y;
 
-
 	/* Start with perm walls */
 	for (y = 0; y < cur_hgt; y++)
 	{
@@ -1334,8 +1344,6 @@ static void quest_gen(void)
 	dun_level = base_level;
 	object_level = base_level;
 	monster_level = base_level;
-
-	if (record_stair) do_cmd_write_nikki(NIKKI_TO_QUEST, p_ptr->inside_quest, NULL);
 
 	/* Prepare allocation table */
 	get_mon_num_prep(get_monster_hook(), NULL);
@@ -1357,11 +1365,7 @@ static bool level_gen(cptr *why)
 	    !(d_info[dungeon_type].flags1 & DF1_BIG))
 	{
 		if (cheat_room)
-#ifdef JP
-			msg_print("小さなフロア");
-#else
 			msg_print("A 'small' dungeon level.");
-#endif
 
 		if (d_info[dungeon_type].flags1 & DF1_SMALLEST)
 		{
@@ -1381,8 +1385,6 @@ static bool level_gen(cptr *why)
 				level_width = randint1(MAX_WID/SCREEN_WID);
 			}
 			while (level_height + level_width > MAX_HGT/SCREEN_HGT + MAX_WID/SCREEN_WID - 2);
-		/*	while ((level_height == MAX_HGT/SCREEN_HGT) &&
-				   (level_width == MAX_WID/SCREEN_WID)); */
 		}
 
 		cur_hgt = level_height * SCREEN_HGT;
@@ -1409,15 +1411,10 @@ static bool level_gen(cptr *why)
 	/* Make a dungeon */
 	if (!cave_gen())
 	{
-#ifdef JP
-*why = "ダンジョン生成に失敗";
-#else
 		*why = "could not place player";
-#endif
-
 		return FALSE;
 	}
-	else return TRUE;
+	return TRUE;
 }
 
 
@@ -1468,12 +1465,10 @@ void clear_cave(void)
 	   multiple times!
 	  wipe_o_list();*/
 
-
 	wipe_m_list();
 
 	/* Pre-calc cur_num of pets in party_mon[] */
 	precalc_cur_num_of_pet();
-
 
 	/* Start with a blank cave */
 	for (y = 0; y < MAX_HGT; y++)
@@ -1537,31 +1532,24 @@ void generate_cave(void)
 	for (num = 0; TRUE; num++)
 	{
 		bool okay = TRUE;
-
 		cptr why = NULL;
 
-		/* Clear and empty the cave */
 		clear_cave();
 
 		/* Build the arena -KMW- */
 		if (p_ptr->inside_arena)
 		{
-			/* Small arena */
 			arena_gen();
 		}
-
 		/* Build the battle -KMW- */
 		else if (p_ptr->inside_battle)
 		{
-			/* Small arena */
 			battle_gen();
 		}
-
 		else if (p_ptr->inside_quest)
 		{
 			quest_gen();
 		}
-
 		/* Build the town */
 		else if (!dun_level)
 		{
@@ -1576,59 +1564,25 @@ void generate_cave(void)
 		}
 
 
-		/* Prevent object over-flow */
 		if (o_max >= max_o_idx)
 		{
-			/* Message */
-#ifdef JP
-why = "アイテムが多すぎる";
-#else
 			why = "too many objects";
-#endif
-
-
-			/* Message */
 			okay = FALSE;
 		}
-		/* Prevent monster over-flow */
 		else if (m_max >= max_m_idx)
 		{
-			/* Message */
-#ifdef JP
-why = "モンスターが多すぎる";
-#else
 			why = "too many monsters";
-#endif
-
-
-			/* Message */
 			okay = FALSE;
 		}
 
-		/* Accept */
 		if (okay) break;
-
-		/* Message */
-#ifdef JP
-if (why) msg_format("生成やり直し(%s)", why);
-#else
 		if (why) 
 			msg_format("Generation restarted (%s)", why);
-#endif
-
-
-		/* Wipe the objects */
+		
 		wipe_o_list();
-
-		/* Wipe the monsters */
 		wipe_m_list();
 	}
-
-	/* Glow deep lava and building entrances */
 	glow_deep_lava_and_bldg();
-
-	/* Reset flag */
 	p_ptr->enter_dungeon = FALSE;
-
 	wipe_generate_cave_flags();
 }

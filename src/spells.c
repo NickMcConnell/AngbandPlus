@@ -181,7 +181,7 @@ static void _list_spells(spell_info* spells, int ct, int max_cost)
 	char temp[140];
 	int  i;
 	int  y = 1;
-	int  x = 10;
+	int  x = 13;
 	int  col_height = _col_height(ct);
 	int  col_width;
 	variant name, info, color;
@@ -256,7 +256,7 @@ static void _list_spells(spell_info* spells, int ct, int max_cost)
 			c_prt(attr, temp, y + (i - col_height) + 1, (x + col_width));
 		}
 	}
-
+	Term_erase(x, y + col_height + 1, 255);
 	var_clear(&name);
 	var_clear(&info);
 	var_clear(&color);
@@ -272,7 +272,7 @@ static void _describe_spell(spell_info *spell, int col_height)
 
 	/* 2 lines below list of spells, 5 lines for description */
 	for (i = 0; i < 7; i++)
-		Term_erase(12, col_height + i + 2, 255);
+		Term_erase(13, col_height + i + 2, 255);
 
 	/* Get the description, and line break it (max 5 lines) */
 	(spell->fn)(SPELL_DESC, &info);
@@ -384,6 +384,16 @@ void browse_spells(spell_info* spells, int ct, cptr desc)
 	screen_load();
 }
 
+static bool _allow_dec_mana(caster_info *caster_ptr)
+{
+	if ( (caster_ptr && (caster_ptr->options & CASTER_ALLOW_DEC_MANA))
+	  || prace_is_(RACE_MON_LICH) ) /* TODO: I was never expecting race to influence casting ... */
+	{
+		return TRUE;
+	}
+	return FALSE;
+}
+
 int calculate_cost(int cost)
 {
 	int result = cost;
@@ -392,12 +402,11 @@ int calculate_cost(int cost)
 	if (caster_ptr && (caster_ptr->options & CASTER_NO_SPELL_COST))
 		return 0;
 
-	if (caster_ptr && (caster_ptr->options & CASTER_ALLOW_DEC_MANA))
+	if (_allow_dec_mana(caster_ptr))
 	{
 		if (p_ptr->dec_mana)
-			result = result * 3 / 4;
+			result = MAX(1, result * 3 / 4);
 	}
-
 	return result;
 }
 
@@ -422,7 +431,7 @@ int calculate_fail_rate(int level, int base_fail, int stat_idx)
 	fail -= 3 * (adj_mag_stat[stat_idx] - 1);
 	if (p_ptr->heavy_spell) fail += 20;
 
-	if (caster_ptr && (caster_ptr->options & CASTER_ALLOW_DEC_MANA))
+	if (_allow_dec_mana(caster_ptr))
 	{
 		if (p_ptr->dec_mana && p_ptr->easy_spell) fail -= 4;
 		else if (p_ptr->easy_spell) fail -= 3;
@@ -436,11 +445,11 @@ int calculate_fail_rate(int level, int base_fail, int stat_idx)
 		min = caster_ptr->min_fail;
 
 	if (mut_present(MUT_ARCANE_MASTERY))
-		fail -= 5;
+		fail -= 3;
 
 	if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ATHENA)
 	{
-		fail -= 5;
+		fail -= 2;
 		if (min > 0)
 			min -= 1;
 	}
@@ -457,12 +466,13 @@ int calculate_fail_rate(int level, int base_fail, int stat_idx)
 	/* Some effects violate the Min/Max Fail Rates */
 	if (p_ptr->heavy_spell) fail += 5; /* Fail could go to 100% */
 
-	if (caster_ptr && (caster_ptr->options & CASTER_ALLOW_DEC_MANA))
+	if (_allow_dec_mana(caster_ptr))
 	{
 		if (p_ptr->dec_mana) fail--; /* 5% casters could get 4% fail rates */
 	}
 
 	if (fail < 0) fail = 0;
+	if (fail > 100) fail = 100;
 	return fail;
 }
  
@@ -485,20 +495,16 @@ static void _add_extra_costs(spell_info* spells, int max)
 }
 
 
-static int _get_spell_table(spell_info* spells, int max, caster_info **info)
+static int _get_spell_table(spell_info* spells, int max)
 {
 	int ct = 0;
 	class_t *class_ptr = get_class_t();
+	race_t  *race_ptr = get_race_t();
 
-	*info = NULL;
-	if (class_ptr != NULL)
-	{
-		if (class_ptr->get_spells != NULL)
-			ct = (class_ptr->get_spells)(spells, max);
-
-		if (class_ptr->caster_info != NULL)
-			*info = (class_ptr->caster_info)();
-	}
+	if (race_ptr->get_spells != NULL) /* Monster Races ... */
+		ct = (race_ptr->get_spells)(spells, max);
+	else if (class_ptr->get_spells != NULL)
+		ct = (class_ptr->get_spells)(spells, max);
 
 	_add_extra_costs(spells, ct);
 	return ct;
@@ -507,8 +513,8 @@ static int _get_spell_table(spell_info* spells, int max, caster_info **info)
 void do_cmd_spell_browse(void)
 {
 	spell_info spells[MAX_SPELLS];
-	caster_info *caster = NULL;
-	int ct = _get_spell_table(spells, MAX_SPELLS, &caster);
+	caster_info *caster = get_caster_info();
+	int ct = _get_spell_table(spells, MAX_SPELLS);
 	if (ct == 0)
 	{
 		/* User probably canceled the prompt for a spellbook */
@@ -520,10 +526,16 @@ void do_cmd_spell_browse(void)
 void do_cmd_spell(void)
 {
 	spell_info spells[MAX_SPELLS];
-	caster_info *caster = NULL;
+	caster_info *caster = get_caster_info();
 	int ct = 0; 
 	int choice = 0;
 	int max_cost = 0;
+
+	if (!caster) 
+	{
+		msg_print("You cannot cast spells.");
+		return;
+	}
 	
 	if (p_ptr->confused)
 	{
@@ -536,19 +548,19 @@ void do_cmd_spell(void)
 		set_action(ACTION_NONE);
 	}
 	
-	ct = _get_spell_table(spells, MAX_SPELLS, &caster);
+	ct = _get_spell_table(spells, MAX_SPELLS);
 	if (ct == 0)
 	{
 		/* User probably canceled the prompt for a spellbook */
 		return;
 	}
 
-	if (caster->use_hp)
+	if (caster->options & CASTER_USE_HP)
 		max_cost = p_ptr->chp;
-	else if (caster->use_sp)
-		max_cost = p_ptr->csp;
-	else
+	else if (caster->options & CASTER_NO_SPELL_COST)
 		max_cost = 10000;
+	else
+		max_cost = p_ptr->csp;
 	choice = choose_spell(spells, ct, caster->magic_desc, max_cost);
 
 	if (choice >= 0 && choice < ct)
@@ -559,7 +571,7 @@ void do_cmd_spell(void)
 		   Also note we now pay casting costs up front for mana casters.  
 		   If the user cancels, then we return the cost below.
 		*/
-		if (caster->use_hp)
+		if (caster->options & CASTER_USE_HP)
 		{
 			if (spell->cost > p_ptr->chp)
 			{
@@ -567,7 +579,7 @@ void do_cmd_spell(void)
 				return;
 			}
 		}
-		else if (caster->use_sp)
+		else if (!(caster->options & CASTER_NO_SPELL_COST))
 		{
 			if (spell->cost > p_ptr->csp)
 			{
@@ -584,8 +596,8 @@ void do_cmd_spell(void)
 			fail_spell(spell->fn);
 			if (flush_failure) flush();
 			msg_print("You failed to concentrate hard enough!");
-			if (caster->use_sp && prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ATHENA) 
-				p_ptr->csp += spell->cost;
+			if (!(caster->options & CASTER_USE_HP) && demigod_is_(DEMIGOD_ATHENA) )
+				p_ptr->csp += spell->cost/2;
 			if (caster->on_fail != NULL)
 				(caster->on_fail)(spell);
 		}
@@ -594,16 +606,15 @@ void do_cmd_spell(void)
 			if (!cast_spell(spell->fn))
 			{
 				/* Give back the spell cost, since the user canceled the spell */
-				if (caster->use_sp) p_ptr->csp += spell->cost;
+				if (!(caster->options & CASTER_USE_HP)) p_ptr->csp += spell->cost;
 				return;
 			}
 			sound(SOUND_ZAP); /* Wahoo! */
 		}
 
-		/* Pay Energy Use ... we already paid casting cost */
 		energy_use = get_spell_energy(spell->fn);
 
-		if (caster->use_hp && spell->cost > 0)
+		if ((caster->options & CASTER_USE_HP) && spell->cost > 0)
 			take_hit(DAMAGE_USELIFE, spell->cost, "concentrating too hard", -1);
 
 		if (caster->on_cast != NULL)
@@ -649,8 +660,6 @@ void do_cmd_power(void)
 	{
 		ct += (class_ptr->get_powers)(spells + ct, MAX_SPELLS - ct);
 	}
-	/* Temp Hack during refactoring ... */
-	ct += get_class_powers(spells + ct, MAX_SPELLS - ct);
 
 	ct += mut_get_powers(spells + ct, MAX_SPELLS - ct);
 
@@ -701,14 +710,10 @@ void do_cmd_power(void)
 			sound(SOUND_ZAP); /* Wahoo! */
 		}
 
-		/* Pay Energy Use ... we already paid casting cost */
 		energy_use = get_spell_energy(spell->fn);
 
 		/* Casting costs spill over into hit points */
-		if (fail && prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ATHENA) 
-		{
-		}
-		else if (p_ptr->csp < spell->cost)
+		if (p_ptr->csp < spell->cost)
 		{
 			int cost = spell->cost - p_ptr->csp;
 			p_ptr->csp = 0;

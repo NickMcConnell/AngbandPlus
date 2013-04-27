@@ -2,6 +2,55 @@
 
 #include "angband.h"
 
+bool is_pval_flag(int which)
+{
+	switch (which)
+	{
+	case TR_STR: 
+	case TR_INT: 
+	case TR_WIS: 
+	case TR_DEX: 
+	case TR_CON: 
+	case TR_CHR:
+	case TR_MAGIC_MASTERY:
+	case TR_STEALTH:
+	case TR_SEARCH:
+	case TR_INFRA:
+	case TR_TUNNEL:
+	case TR_SPEED:
+	case TR_BLOWS:
+	case TR_SPELL_POWER:
+	case TR_SPELL_CAP:
+	case TR_WEAPONMASTERY:
+	case TR_LIFE:
+		return TRUE;
+	}
+	return FALSE;
+}
+bool have_pval_flags(u32b flgs[TR_FLAG_SIZE])
+{
+	if ( have_flag(flgs, TR_STR)
+	  || have_flag(flgs, TR_INT)
+	  || have_flag(flgs, TR_WIS)
+	  || have_flag(flgs, TR_DEX)
+	  || have_flag(flgs, TR_CON)
+	  || have_flag(flgs, TR_CHR)
+	  || have_flag(flgs, TR_MAGIC_MASTERY)
+	  || have_flag(flgs, TR_STEALTH)
+	  || have_flag(flgs, TR_SEARCH)
+	  || have_flag(flgs, TR_INFRA)
+	  || have_flag(flgs, TR_TUNNEL)
+	  || have_flag(flgs, TR_SPEED)
+	  || have_flag(flgs, TR_BLOWS)
+	  || have_flag(flgs, TR_SPELL_POWER)
+	  || have_flag(flgs, TR_SPELL_CAP) 
+	  || have_flag(flgs, TR_WEAPONMASTERY) 
+	  || have_flag(flgs, TR_LIFE) )
+	{
+		return TRUE;
+	}
+	return FALSE;
+}
 
 bool object_is_mushroom(object_type *o_ptr)
 {
@@ -173,6 +222,10 @@ bool object_is_rare(object_type *o_ptr)
 	return FALSE;
 }
 
+bool object_is_cursed(object_type *o_ptr)
+{
+	return o_ptr->curse_flags;
+}
 
 /*
  * Check if an object is weapon (including bows and ammo)
@@ -184,6 +237,38 @@ bool object_is_weapon(object_type *o_ptr)
 	return FALSE;
 }
 
+bool object_is_cloak(object_type *o_ptr)
+{
+	if (o_ptr->tval == TV_CLOAK) return TRUE;
+	return FALSE;
+}
+bool object_is_gloves(object_type *o_ptr)
+{
+	if (o_ptr->tval == TV_GLOVES) return TRUE;
+	return FALSE;
+}
+bool object_is_helmet(object_type *o_ptr)
+{
+	if (o_ptr->tval == TV_HELM || o_ptr->tval == TV_CROWN) return TRUE;
+	return FALSE;
+}
+
+bool object_is_device(object_type *o_ptr)
+{
+	switch (o_ptr->tval)
+	{
+	case TV_ROD: case TV_WAND: case TV_STAFF: case TV_SCROLL:
+		return TRUE;
+	}
+	return FALSE;
+}
+
+bool object_can_activate(object_type *o_ptr)
+{
+	u32b flgs[TR_FLAG_SIZE];
+	object_flags(o_ptr, flgs);
+	return have_flag(flgs, TR_ACTIVATE);
+}
 
 /*
  * Check if an object is weapon (including bows and ammo)
@@ -194,7 +279,10 @@ bool object_is_weapon_ammo(object_type *o_ptr)
 
 	return FALSE;
 }
-
+bool object_is_bow(object_type *o_ptr)
+{
+	return o_ptr->tval == TV_BOW;
+}
 
 /*
  * Check if an object is ammo

@@ -46,7 +46,7 @@ void _blood_sight_spell(int cmd, variant *res)
 	case SPELL_CAST:
 	{
 		if (p_ptr->lev < 30)
-			detect_monsters_living(DETECT_RAD_DEFAULT);
+			detect_monsters_living(DETECT_RAD_DEFAULT, "You sense potential blood!");
 		else
 			set_tim_blood_sight(randint1(30) + 30, FALSE);
 		var_set_bool(res, TRUE);
@@ -394,7 +394,7 @@ static spell_info _spells[] =
 
 static int _get_spells(spell_info* spells, int max)
 {
-	return get_spells_aux(spells, max, _spells, p_ptr->stat_ind[A_CON]);
+	return get_spells_aux(spells, max, _spells);
 }
 
 static int _get_powers(spell_info* spells, int max)
@@ -405,7 +405,7 @@ static int _get_powers(spell_info* spells, int max)
 static void _calc_bonuses(void)
 {
 	p_ptr->regenerate = TRUE;
-	if (p_ptr->lev >= 30) p_ptr->resist_fear = TRUE;
+	if (p_ptr->lev >= 30) res_add(RES_FEAR);
 
 	if (p_ptr->cut > 0)
 	{
@@ -492,15 +492,15 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 {
 	int frac = p_ptr->chp * 100 / p_ptr->mhp;
 	if (frac < 20 && p_ptr->lev > 48)
-		info_ptr->num_blow += 9;
+		info_ptr->xtra_blow += 9;
 	else if (frac < 40 && p_ptr->lev > 36)
-		info_ptr->num_blow += 6;
+		info_ptr->xtra_blow += 6;
 	else if (frac < 60 &&  p_ptr->lev > 24)
-		info_ptr->num_blow += 4;
+		info_ptr->xtra_blow += 4;
 	else if (frac < 80 && p_ptr->lev > 12)
-		info_ptr->num_blow += 2;
+		info_ptr->xtra_blow += 2;
 	else if (p_ptr->chp < p_ptr->mhp) /* Hack: frac might be 100 if we are just slightly wounded */
-		info_ptr->num_blow += 1;
+		info_ptr->xtra_blow += 1;
 }
 
 static void _on_cast(const spell_info *spell)
@@ -516,42 +516,12 @@ static caster_info * _caster_info(void)
 	if (!init)
 	{
 		me.magic_desc = "bloodcraft";
-		me.use_hp = TRUE;
+		me.options = CASTER_USE_HP;
+		me.which_stat = A_CON;
 		me.on_cast = _on_cast;
 		init = TRUE;
 	}
 	return &me;
-}
-
-static void _spoiler_dump(FILE* fff)
-{
-	spoil_spells_aux(fff, _spells);
-	fprintf(fff, "\nCasting spells increases your cut status by the spell's level.\n");
-
-	spoil_powers_aux(fff, _powers);
-	
-	fprintf(fff, "\n== Abilities ==\n");
-	fprintf(fff, "  * Regeneration\n");
-	fprintf(fff, "  * Resist Fear at L30\n"); 
-	fprintf(fff, "  * All Healing Effects are Halved\n");
-
-	fprintf(fff, "\n\nThe Blood-Knight gains extra attacks depending on how wounded they are. The following numbers are cummulative!\n");
-	fprintf(fff, "|| *Health* || *Lvl* || *Extra Blows* ||\n");
-	fprintf(fff, "|| <100%% || 1 || +1 ||\n");
-	fprintf(fff, "|| <80%% || 13 || +1 ||\n");
-	fprintf(fff, "|| <60%% || 25 || +2 ||\n");
-	fprintf(fff, "|| <40%% || 37 || +2 ||\n");
-	fprintf(fff, "|| <20%% || 49 || +3 ||\n");
-
-	fprintf(fff, "\n\nThe Blood-Knight gains combat bonuses depending on how cut they are.\n");
-	fprintf(fff, "|| *Cuts* || *Min* || *Max* || *Bonus* ||\n");
-	fprintf(fff, "|| Graze || 1 || 9 || (+1, +1) ||\n");
-	fprintf(fff, "|| Light Cut || 10 || 24 || (+2, +2) ||\n");
-	fprintf(fff, "|| Bad Cut || 25 || 49 || (+4, +4) ||\n");
-	fprintf(fff, "|| Nasty Cut || 50 || 99 || (+6, +6) ||\n");
-	fprintf(fff, "|| Severe Cut || 100 || 199 || (+8, +8) ||\n");
-	fprintf(fff, "|| Deep Gash || 200 || 999 || (+15, +15) ||\n");
-	fprintf(fff, "|| Mortal Wound || 1000 || --- || (+25, +25) ||\n");
 }
 
 class_t *blood_knight_get_class_t(void)
@@ -581,7 +551,7 @@ class_t *blood_knight_get_class_t(void)
 		me.base_skills = bs;
 		me.extra_skills = xs;
 		
-		me.hd = 10;
+		me.life = 115;
 		me.exp = 150;
 		me.pets = 40;
 
@@ -590,7 +560,6 @@ class_t *blood_knight_get_class_t(void)
 		me.caster_info = _caster_info;
 		me.get_spells = _get_spells;
 		me.get_powers = _get_powers;
-		me.spoiler_dump = _spoiler_dump;
 		init = TRUE;
 	}
 

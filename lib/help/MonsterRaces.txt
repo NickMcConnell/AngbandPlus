@@ -1,0 +1,244 @@
+=== Monster Races ===
+
+***** <Jelly>
+--- Jelly ---
+
+  Jellies are acidic creatures, quietly patrolling their surroundings in search
+  of objects to absorb. They are quite stealthy for most of their lives. They
+  don't wear equipment on their bodies the way normal races do. Instead, they
+  are capable of absorbing objects into their gelatinous frames. In fact, each
+  equipment slot (except their pseudopod) is capable of holding any type of
+  equipment whatsoever, and the number of slots increases with experience. For
+  attacking, jellies are capable of forming a single pseudopod which they may
+  either use for grasping a normal melee weapon, or leave empty to use their
+  innate acid based attacks.
+   
+  Jellies are monsters and cannot pick a normal player class. Lacking a mouth,
+  they are unable to speak. Lacking eyes, they are unable to see so cannot use
+  magical scrolls which they would be too stupid to read anyway. On the plus
+  side, their lack of normal vision makes them immune to blindness. Rather than
+  relying on sight, jellies use a little understood sense of their surroundings
+  which allows them to see in the dark with neither light nor infravision. So
+  while jellies can equip a torch or lantern, there is little reason for them
+  to do so.
+   
+  Jellies feed off the objects they find gaining nutrition in proportion to the
+  weight of the object absorbed. They can eat rations of food if desired, but
+  these are so light as to offer very little nutritional value. Jellies prefer
+  to eat heavy armors and weapons. For convenience, destroying an object ('k'
+  or the autodestroyer) automatically eats the object, and jellies never become
+  bloated, their appetite being insatiable.
+   
+  Like all monster races, jellies begin as weak monster of their race and
+  evolve to better forms as they gain experience. Jellies begin life as a small
+  puddle of black ooze with very little carrying capacity for equipment.
+  However, they quickly evolve into a Gelatinous Cube and then into an Acidic
+  Cytoplasm. Jellies take one additional powerful evolutionary step late in
+  life.
+
+
+***** <Spider>
+--- Spider ---
+
+  Spiders are stealthy monsters that prefer to wait for their prey. They have
+  poisonous attacks and can weave sticky webs to entangle their enemies. They
+  have 8 legs, 4 of which may wear rings and the remaining may equip 2 pairs of
+  boots. They are unable to wield weapons or bows, but may wear a helmet, an
+  amulet, a cloak and even a suit of body armor (after slight adjustments, of
+  course). They cannot wield a light source, but this is not an issue as
+  spiders have grown accustomed to the dark.
+   
+  There are two paths of evolution for the spider: The Phase Spider and The
+  Aranea. The former is somewhat weaker than the latter in fortitude, stats and
+  melee, but this is compensated by the Phase Spider's amazing powers of
+  teleportation. However, the Elder Aranea's poison touch is more powerful than
+  that of the Phase Spider and often paralyzes its opponents.
+   
+  All spiders begin in the very weak form of the Cave Spider. Lacking any
+  special talents, the cave spider must play carefully if it is to survive.
+
+
+***** <Dragon>
+--- Dragon ---
+
+  Dragons are powerful winged serpents. They are the strongest fighters with
+  razor sharp claws and a bone crushing bite. Each dragon has a unique type of
+  breath that becomes more deadly as the dragon grows and matures.
+   
+  Due to their non-humanoid bodies, dragons are unable to wear armor, gloves or
+  boots. However, being creatures of magic, they are able to wear 6 rings. They
+  can also wear a helmet, a light source, a cloak and an amulet. Because of
+  these equipment restrictions, dragons may have a difficult time covering all
+  resistances despite the fact that each dragon has one or more innate
+  resistances (or even immunities).
+   
+  Dragons begin life in a weak form, being very young. As their bodies mature,
+  their scales grow tough and their claws sharp. Their breath grows more deadly
+  and they frequently gain additional magical powers and resistances. All
+  dragons can fly, but younger dragons are not so quick as their elders.
+
+
+***** <Lich>
+--- Lich ---
+
+  Liches are the undead forms of former sorcerers. Their magic is strong but
+  their fighting is weak. As undead, they quickly gain resistance to cold,
+  poison and nether, and these resistances increase as the lich evolves.
+   
+  Liches are monsters and cannot choose a normal class. Instead, they are born
+  with magical powers and gain additional powers as they advance. Of all the
+  monster races, none can surpass the firepower of an Archlich, but managing to
+  evolve that far can be a challenge. Intelligence is the primary spell stat.
+   
+  Liches are humanoid so use the standard set of equipment items. Should they
+  forgo the use of a normal weapon, they may touch their opponents for various
+  powerful effects. However, melee is not the strong suit of the Lich and even
+  their deadly touch is often not enough.
+
+
+***** <Xorn>
+--- Xorn ---
+
+  Xorn are huge creatures of the element earth. They begin life as an Umber
+  Hulk which is a bizarre creature with glaring eyes capable of confusing their
+  foes, and large mandibles capable of slicing through rock. At this stage in
+  their evolution, their body is vaguely humanoid allowing them to wear a
+  helmet, an amulet, a cloak and even a pair of boots. However, once the Umber
+  Hulk evolves it can no longer wear these items. Instead, it can use its four
+  massive arms for weapons, shields, rings and gloves. At this stage, the Xorn
+  can pass effortlessly through rock.
+   
+  Xorns are monsters so cannot choose a normal class. They have no active
+  powers but instead rely on their ability to hide in rocks combined with their
+  ability to attack with up to four weapons. They play like warriors and are
+  strong as such.
+
+
+***** <Angel>
+--- Angel ---
+
+  Angels are heavenly beings on a holy mission. They are winged creatures able
+  to fly over chasms and pits. They also become resistant to the elements as
+  they mature and are not fooled by invisibility. Their stats are truly
+  awe-inspiring making them one of the most powerful monster races.
+   
+  Angels are monsters so cannot choose a normal class. Instead, they rely on
+  their divine powers which function like spells but need not be learned or
+  cast from books. These powers can be used while blinded, but not while
+  confused and they are also blocked by Anti-magic. The divine powers of the
+  angel are quite powerful offering good offense combined with detection,
+  healing and melee enhancement.  Wisdom is the primary spell stat.
+   
+  Angels use the same equipment slots as normal player races and have no innate
+  attacks.
+
+
+***** <Hound>
+--- Hound ---
+
+  While Hounds typically hunt in packs, you have chosen to go it alone. You
+  will begin life in the weak form of a Clear Hound. As you mature you will
+  take a number of evolutionary steps. At each such step, the form you evolve
+  into will be randomly determined. But each tier offers more powerful choices
+  than the last and who knows? You may even evolve into an Aether Hound some
+  day.
+   
+  Hounds are monsters so cannot choose a normal class. They are not magical so
+  cannot cast spells. However, they are fantastic hunters so learn a small
+  number of abilities to aid in this endeavor. And of course, you are probably
+  aware that hounds love to breathe!
+   
+  The body of the Hound is canine, so they cannot wield weapons. Instead, they
+  attack with their vicious bite and razor sharp claws. They are not so
+  powerful in melee as are dragons, but they are not that bad either. Hounds
+  can wear four rings on their front paws, a pair of boots on their hind legs,
+  an amulet around their neck and even a cloak and a suit of body armor.
+
+
+***** <Giant>
+--- Giant ---
+
+  Giants are humanoids of immense stature. There are several types of giants.
+  Fire, Frost and Storm giants are elemental giants and gain extra resistance,
+  elementals slays and even elemental attacks of their respective element.
+  Titans are powerful immortal beings of legend. Their attacks often confuse
+  their foes and they rarely fight alone.
+   
+  Giants are monsters so cannot choose a normal class. Instead, they must rely
+  on their superior physical stature to pummel their opponents with mighty
+  blows. Against a distant foe, giants are capable of hurling large boulders
+  with devastating effect.
+   
+  Giants use the same equipment slots as normal player races and have no innate
+  attacks.
+
+
+***** <Beholder>
+--- Beholder ---
+
+  Beholders are floating orbs of flesh with a single central eye surrounded by
+  numerous smaller eyestalks. They attack with their gaze which often confuses
+  or even paralyzes their foes. They are unable to wield normal weapons or
+  armor, but may equip a single ring on each of their eyestalks, and the number
+  of eyestalks increases as the beholder evolves.
+   
+  Beholders are monsters so cannot choose a normal class. Instead, they gain
+  powers as they evolve, including some limited offensive capabilities. But the
+  beholders primary offense will always be their powerful gaze. Intelligence is
+  the primary spell stat and beholders are quite intelligent indeed. Their
+  searching and perception are legendary and they are quite capable with
+  magical devices. However, they are not very strong and won't be able to stand
+  long against multiple foes.
+
+
+***** <Demon>
+--- Demon ---
+
+  Demons are powerful servants of evil. At the moment, the only subspecies of
+  demon is the Balrog, but more will certainly be added in the future.
+   
+  Balrogs are powerful in melee and have access to a wide array of demonic
+  spells of great power. Their devilish offense is unrivaled among all the
+  monster races and at high levels they may unleash deadly hellfire upon their
+  foes. Their summoning talents are also very good, but summoning a high demon
+  requires a human sacrifice. Intelligence determines their casting abilities.
+   
+  Demons cannot eat normal food, but must feast upon the remains of their human
+  enemies. Demons are unaffected by the Eldritch Horror and at high enough
+  level, they become immune to the charge draining attacks of their enemies.
+
+
+***** <Tables>
+--- Table 1 - Race Statistic Bonus Table ---
+
+               STR  INT  WIS  DEX  CON  CHR  Life  Exp
+Jelly           +1   -5   -5   +1   +1   -2  100%  150%
+Spider          -2   -1   -1   +2   -2   -3   70%  200%
+Dragon          +1   -1   -6   -2   +0   -1  100%  250%
+Lich            +0   +3   -3   +1   +0   +0  100%  300%
+Xorn            +2   -4   -2   -3   +1   -1  105%  150%
+Angel           +1   +1   +4   +1   +1   +1  100%  350%
+Hound           +1   -3   -5   +2   +1   +0  100%  150%
+Giant           +3   -3   -6   -2   +3   +0  115%  250%
+Beholder        -3   +4   +0   +1   +0   +0  100%  250%
+Demon           +4   +3  -10   +2   +4   +2  110%  350%
+
+
+--- Table 2 - Race Skill Bonus Table ---
+
+               Dsrm  Dvce  Save  Stlh  Srch  Prcp  Melee  Bows  Infra
+Jelly            +0    +0   +10    +8    +5   +12    +10    +0     0'
+Spider           +4   +20   +10    +6   +15   +12     +5    +0    50'
+Dragon           +4   +20   +10    +1    +5   +10    +15    +0    50'
+Lich             +7   +30   +10    +5   +10   +10    -20    +0    50'
+Xorn             +3    +5   +10    +1    +5   +10    +25    +0    50'
+Angel            +0   +20   +10    +2    +2   +11    +10   +10    30'
+Hound            +3    +5   +10    +5   +15   +20    +10    +0    50'
+Giant            +4   +10   +15    +0    +5   +10    +35   +10    50'
+Beholder        +20   +30   +15    +5   +20   +20    -20    +0    80'
+Demon            -5   +20   +20    -2    +3   +10    +40   +20    50'
+
+
+
+
+Automatically generated for PosChengband 1.0.0.

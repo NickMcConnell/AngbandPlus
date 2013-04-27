@@ -417,9 +417,9 @@ static errr init_info_raw(int fd, header *head)
 static void init_header(header *head, int num, int len)
 {
 	/* Save the "version" */
-	head->v_major = FAKE_VER_MAJOR;
-	head->v_minor = FAKE_VER_MINOR;
-	head->v_patch = FAKE_VER_PATCH;
+	head->v_major = VER_MAJOR;
+	head->v_minor = VER_MINOR;
+	head->v_patch = VER_PATCH;
 	head->v_extra = 0;
 
 	/* Save the "record" information */
@@ -1136,9 +1136,9 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		/* Alchemy shop */
 
 		{ TV_SCROLL, SV_SCROLL_MAPPING },
-		{ TV_SCROLL, SV_SCROLL_DETECT_INVIS },
-		{ TV_SCROLL, SV_SCROLL_DETECT_ITEM },
-		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
+		{ TV_POTION, SV_POTION_CLARITY },
+		{ TV_POTION, SV_POTION_BOLDNESS },
+		{ TV_POTION, SV_POTION_BOLDNESS },
 
 		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
 		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
@@ -1391,6 +1391,11 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_NECROMANCY_BOOK, 0 },
 		{ TV_NECROMANCY_BOOK, 1 },
 		{ TV_NECROMANCY_BOOK, 1 },
+
+		{ TV_ARMAGEDDON_BOOK, 0 },
+		{ TV_ARMAGEDDON_BOOK, 0 },
+		{ TV_ARMAGEDDON_BOOK, 1 },
+		{ TV_ARMAGEDDON_BOOK, 1 },
 	},
 
 	{
@@ -1750,6 +1755,7 @@ static errr init_feat_variables(void)
 	feat_mountain = f_tag_to_index_in_init("MOUNTAIN");
 	feat_swamp = f_tag_to_index_in_init("SWAMP");
 	feat_dark_pit = f_tag_to_index_in_init("DARK_PIT");
+	feat_web = f_tag_to_index_in_init("WEB");
 
 	/* Unknown grid (not detected) */
 	feat_undetected = f_tag_to_index_in_init("UNDETECTED");
@@ -1787,6 +1793,7 @@ static errr init_other(void)
 
 	/* Allocate and Wipe the max dungeon level */
 	C_MAKE(max_dlv, max_d_idx, s16b);
+	C_MAKE(dungeon_flags, max_d_idx, u32b);
 
 	/* Allocate and wipe each line of the cave */
 	for (i = 0; i < MAX_HGT; i++)
@@ -1880,7 +1887,7 @@ static errr init_other(void)
 	/*** Pre-allocate space for the "format()" buffer ***/
 
 	/* Hack -- Just call the "format()" function */
-	(void)format("%s (%s).", "Chengband", "Hack Whack");
+	(void)format("%s (%s).", "PosChengband", "Hack Whack");
 
 
 	/* Success */

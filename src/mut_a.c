@@ -83,17 +83,17 @@ void alcohol_mut(int cmd, variant *res)
 	case SPELL_PROCESS:
 		if (randint1(6400) == 321)
 		{
-			if (!p_ptr->resist_conf && !p_ptr->resist_chaos)
+			if (!res_save_default(RES_CONF) && !res_save_default(RES_CHAOS))
 			{
 				disturb(0, 0);
 				p_ptr->redraw |= PR_EXTRA;
 				msg_print(T("You feel a SSSCHtupor cOmINg over yOu... *HIC*!", "いひきがもーろーとひてきたきがふる...ヒック！"));
 			}
 
-			if (!p_ptr->resist_conf)
+			if (!res_save_default(RES_CONF))
 				set_confused(p_ptr->confused + randint0(20) + 15, FALSE);
 
-			if (!p_ptr->resist_chaos)
+			if (!res_save_default(RES_CHAOS))
 			{
 				if (one_in_(20))
 				{
@@ -135,6 +135,9 @@ void ambidexterity_mut(int cmd, variant *res)
 	case SPELL_MUT_DESC:
 		var_set_string(res, T("You are ambidextrous.", ""));
 		break;
+	case SPELL_HELP_DESC:
+		var_set_string(res, "You will be able to dual wield more effectively.");
+		break;
 	default:
 		default_spell(cmd, res);
 		break;
@@ -155,7 +158,10 @@ void arcane_mastery_mut(int cmd, variant *res)
 		msg_print(T("You feel your arcane mastery slipping away.", ""));
 		break;
 	case SPELL_MUT_DESC:
-		var_set_string(res, T("You have arcane mastery (-5% spell fail).", ""));
+		var_set_string(res, T("You have arcane mastery.", ""));
+		break;
+	case SPELL_HELP_DESC:
+		var_set_string(res, "Your spells will fail less often.");
 		break;
 	default:
 		default_spell(cmd, res);
@@ -204,6 +210,9 @@ void astral_guide_mut(int cmd, variant *res)
 		break;
 	case SPELL_MUT_DESC:
 		var_set_string(res, T("You are an astral guide (Teleport costs less energy).", ""));
+		break;
+	case SPELL_HELP_DESC:
+		var_set_string(res, "Teleportation costs less energy.");
 		break;
 	default:
 		default_spell(cmd, res);
@@ -379,18 +388,30 @@ void beak_mut(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Beak", ""));
+		var_set_string(res, "Beak");
 		break;
 	case SPELL_GAIN_MUT:
-		msg_print(T("Your mouth turns into a sharp, powerful beak!", "口が鋭く強いクチバシに変化した！"));
+		msg_print("Your mouth turns into a sharp, powerful beak!");
 		mut_lose(MUT_TRUNK);
 		break;
 	case SPELL_LOSE_MUT:
-		msg_print(T("Your mouth reverts to normal!", "口が普通に戻った！"));
+		msg_print("Your mouth reverts to normal!");
 		break;
 	case SPELL_MUT_DESC:
-		var_set_string(res, T("You have a beak (dam. 2d4).", "あなたはクチバシが生えている。(ダメージ 2d4)"));
+		var_set_string(res, "You have a beak.");
 		break;
+	case SPELL_CALC_BONUS:
+	{
+		innate_attack_t	a = {0};
+		a.dd = 2;
+		a.ds = 4;
+		a.weight = 30;
+		a.blows = 1;
+		a.msg = "You hit %s with your beak.";
+		a.name = "Beak";
+		p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
+		break;
+	}
 	default:
 		default_spell(cmd, res);
 		break;
@@ -467,7 +488,7 @@ void cowardice_mut(int cmd, variant *res)
 		var_set_string(res, T("You are subject to cowardice.", "あなたは時々臆病になる。"));
 		break;
 	case SPELL_PROCESS:
-		if (!p_ptr->resist_fear && (randint1(3000) == 13))
+		if (!res_save_default(RES_FEAR) && (randint1(3000) == 13))
 		{
 			disturb(0, 0);
 			msg_print(T("It's so dark... so scary!", "とても暗い... とても恐い！"));
@@ -496,6 +517,9 @@ void cult_of_personality_mut(int cmd, variant *res)
 	case SPELL_MUT_DESC:
 		var_set_string(res, T("Summoned monsters are sometimes friendly.", ""));
 		break;
+	case SPELL_HELP_DESC:
+		var_set_string(res, "Summoned monsters may sometimes switch alliances.");
+		break;
 	default:
 		default_spell(cmd, res);
 		break;
@@ -518,6 +542,9 @@ void demonic_grasp_mut(int cmd, variant *res)
 	case SPELL_MUT_DESC:
 		var_set_string(res, T("You resist charge draining.", ""));
 		break;
+	case SPELL_HELP_DESC:
+		var_set_string(res, "You resist charge draining.");
+		break;
 	default:
 		default_spell(cmd, res);
 		break;
@@ -529,54 +556,42 @@ void eat_light_mut(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Eat Light", ""));
+		var_set_string(res, "Eat Light");
 		break;
 	case SPELL_GAIN_MUT:
-		msg_print(T("You feel a strange kinship with Ungoliant.", "あなたはウンゴリアントに奇妙な親しみを覚えるようになった。"));
+		msg_print("You feel a strange kinship with Ungoliant.");
 		break;
 	case SPELL_LOSE_MUT:
-		msg_print(T("You feel the world's a brighter place.", "世界が明るいと感じる。"));
+		msg_print("You feel the world's a brighter place.");
 		break;
 	case SPELL_MUT_DESC:
-		var_set_string(res, T("You sometimes feed off of the light around you.", "あなたは時々周囲の光を吸収して栄養にする。"));
+		var_set_string(res, "You sometimes feed off of the light around you.");
 		break;
 	case SPELL_PROCESS:
 		if (one_in_(3000))
 		{
-			object_type *o_ptr;
+			int slot = equip_find_object(TV_LITE, SV_ANY);
 
-			msg_print(T("A shadow passes over you.", "影につつまれた。"));
+			msg_print("A shadow passes over you.");
 			msg_print(NULL);
 
-			/* Absorb light from the current possition */
 			if ((cave[py][px].info & (CAVE_GLOW | CAVE_MNDK)) == CAVE_GLOW)
 			{
 				hp_player(10);
 			}
 
-			o_ptr = &inventory[INVEN_LITE];
-
-			/* Absorb some fuel in the current lite */
-			if (o_ptr->tval == TV_LITE)
+			if (slot)
 			{
-				/* Use some fuel (except on artifacts) */
+				object_type *o_ptr = equip_obj(slot);
 				if (!object_is_fixed_artifact(o_ptr) && (o_ptr->xtra4 > 0))
 				{
-					/* Heal the player a bit */
 					hp_player(o_ptr->xtra4 / 20);
-
-					/* Decrease life-span of lite */
 					o_ptr->xtra4 /= 2;
 
-					msg_print(T("You absorb energy from your light!", "光源からエネルギーを吸収した！"));
+					msg_print("You absorb energy from your light!");
 					notice_lite_change(o_ptr);
 				}
 			}
-
-			/*
-			 * Unlite the area (radius 10) around player and
-			 * do 50 points damage to every affected monster
-			 */
 			unlite_area(50, 10);
 		}
 		break;
@@ -652,7 +667,10 @@ void evasion_mut(int cmd, variant *res)
 		msg_print(T("You lose the power of evasion.", ""));
 		break;
 	case SPELL_MUT_DESC:
-		var_set_string(res, T("You are never crushed by earthquakes and you dodge monster breath attacks.", ""));
+		var_set_string(res, T("You can avoid being crushed by earthquakes and you dodge monster breath attacks.", ""));
+		break;
+	case SPELL_HELP_DESC:
+		var_set_string(res, "You will dodge enemy breath attacks and have better odds for avoiding earthquakes.");
 		break;
 	default:
 		default_spell(cmd, res);
@@ -752,6 +770,8 @@ void fantastic_frenzy_mut(int cmd, variant *res)
 	case SPELL_MUT_DESC:
 		var_set_string(res, T("You have the power of Fantastic Frenzy.", ""));
 		break;
+	case SPELL_HELP_DESC:
+		var_set_string(res, "You kill weak monsters more efficiently.");
 		break;
 	default:
 		massacre_spell(cmd, res);
@@ -774,6 +794,9 @@ void fast_learner_mut(int cmd, variant *res)
 		break;
 	case SPELL_MUT_DESC:
 		var_set_string(res, T("You are a fast learner.", ""));
+		break;
+	case SPELL_HELP_DESC:
+		var_set_string(res, "You will gain a bonus to experience for each monster slain.");
 		break;
 	default:
 		default_spell(cmd, res);
@@ -825,7 +848,7 @@ void fearless_mut(int cmd, variant *res)
 		var_set_string(res, T("You are completely fearless.", "あなたは全く恐怖を感じない。"));
 		break;
 	case SPELL_CALC_BONUS:
-		p_ptr->resist_fear = TRUE;
+		res_add(RES_FEAR);
 		break;
 	default:
 		default_spell(cmd, res);
@@ -907,6 +930,9 @@ void fleet_of_foot_mut(int cmd, variant *res)
 	case SPELL_MUT_DESC:
 		var_set_string(res, T("You are fleet of foot (Movement costs less energy).", ""));
 		break;
+	case SPELL_HELP_DESC:
+		var_set_string(res, "Movement costs less energy.");
+		break;
 	default:
 		default_spell(cmd, res);
 		break;
@@ -918,58 +944,44 @@ void fumbling_mut(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Fumbling", ""));
+		var_set_string(res, "Fumbling");
 		break;
 	case SPELL_GAIN_MUT:
-		msg_print(T("Your feet grow to four times their former size.", "あなたの脚は長さが四倍になった。"));
+		msg_print("Your feet grow to four times their former size.");
 		break;
 	case SPELL_LOSE_MUT:
-		msg_print(T("Your feet shrink to their former size.", "脚が元の大きさに戻った。"));
+		msg_print("Your feet shrink to their former size.");
 		break;
 	case SPELL_MUT_DESC:
-		var_set_string(res, T("You occasionally stumble and drop things.", "あなたはよくつまづいて物を落とす。"));
+		var_set_string(res, "You occasionally stumble and drop things.");
 		break;
 	case SPELL_PROCESS:
 		if (one_in_(10000))
 		{
-			int slot = 0;
-			object_type *o_ptr = NULL;
-
+			int slot = equip_random_slot(object_is_melee_weapon);
+			
 			disturb(0, 0);
-			msg_print(T("You trip over your own feet!", "足がもつれて転んだ！"));
-			take_hit(DAMAGE_NOESCAPE, randint1(150 / 6), T("tripping", "転倒"), -1);
+			msg_print("You trip over your own feet!");
+			take_hit(DAMAGE_NOESCAPE, randint1(150 / 6), "tripping", -1);
 			msg_print(NULL);
 
-			if (buki_motteruka(INVEN_RARM))
+			if (slot)
 			{
-				slot = INVEN_RARM;
-				o_ptr = &inventory[INVEN_RARM];
-
-				if (buki_motteruka(INVEN_LARM) && one_in_(2))
+				object_type *o_ptr = equip_obj(slot);
+				if (!object_is_cursed(o_ptr))
 				{
-					o_ptr = &inventory[INVEN_LARM];
-					slot = INVEN_LARM;
+					msg_print("You drop your weapon!");
+					inven_drop(slot, 1);
+					msg_print("Press 'Y' to continue.");
+					flush();
+					for (;;)
+					{
+						char ch = inkey();
+						if (ch == 'Y') break;
+					}
+					prt("", 0, 0);
+					msg_flag = FALSE;
 				}
-			}
-			else if (buki_motteruka(INVEN_LARM))
-			{
-				o_ptr = &inventory[INVEN_LARM];
-				slot = INVEN_LARM;
-			}
-
-			if (slot && !object_is_cursed(o_ptr))
-			{
-				msg_print(T("You drop your weapon!", "武器を落としてしまった！"));
-				inven_drop(slot, 1);
-				msg_print("Press 'Y' to continue.");
-				flush();
-				for (;;)
-				{
-					char ch = inkey();
-					if (ch == 'Y') break;
-				}
-				prt("", 0, 0);
-				msg_flag = FALSE;
 			}
 		}
 		break;
@@ -1007,19 +1019,19 @@ void hallucination_mut(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Hallucination", ""));
+		var_set_string(res, "Hallucination");
 		break;
 	case SPELL_GAIN_MUT:
-		msg_print(T("You are afflicted by a hallucinatory insanity!", "あなたは幻覚を引き起こす精神錯乱に侵された。"));
+		msg_print("You are afflicted by a hallucinatory insanity!");
 		break;
 	case SPELL_LOSE_MUT:
-		msg_print(T("You are no longer afflicted by a hallucinatory insanity!", "幻覚をひき起こす精神障害を起こさなくなった！"));
+		msg_print("You are no longer afflicted by a hallucinatory insanity!");
 		break;
 	case SPELL_MUT_DESC:
-		var_set_string(res, T("You have a hallucinatory insanity.", "あなたは幻覚を引き起こす精神錯乱に侵されている。"));
+		var_set_string(res, "You have a hallucinatory insanity.");
 		break;
 	case SPELL_PROCESS:
-		if (!p_ptr->resist_chaos && randint1(6400) == 42)
+		if (!res_save_default(RES_CHAOS) && randint1(6400) == 42 && !res_save_default(RES_CHAOS))
 		{
 			disturb(0, 0);
 			p_ptr->redraw |= PR_EXTRA;
@@ -1063,17 +1075,29 @@ void horns_mut(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Horns", ""));
+		var_set_string(res, "Horns");
 		break;
 	case SPELL_GAIN_MUT:
-		msg_print(T("Horns pop forth into your forehead!", "額に角が生えた！"));
+		msg_print("Horns pop forth into your forehead!");
 		break;
 	case SPELL_LOSE_MUT:
-		msg_print(T("Your horns vanish from your forehead!", "額から角が消えた！"));
+		msg_print("Your horns vanish from your forehead!");
 		break;
 	case SPELL_MUT_DESC:
-		var_set_string(res, T("You have horns (dam. 2d6).", "あなたは角が生えている。(ダメージ 2d6)"));
+		var_set_string(res, "You have horns.");
 		break;
+	case SPELL_CALC_BONUS:
+	{
+		innate_attack_t	a = {0};
+		a.dd = 2;
+		a.ds = 6;
+		a.weight = 150;
+		a.blows = 1;
+		a.msg = "You hit %s with your horns.";
+		a.name = "Horns";
+		p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
+		break;
+	}
 	default:
 		default_spell(cmd, res);
 		break;
@@ -1118,6 +1142,9 @@ void infernal_deal_mut(int cmd, variant *res)
 		break;
 	case SPELL_MUT_DESC:
 		var_set_string(res, T("You have made an infernal deal.", ""));
+		break;
+	case SPELL_HELP_DESC:
+		var_set_string(res, "You will regain hp and sp whenever a nearby monster is slain.");
 		break;
 	default:
 		default_spell(cmd, res);
@@ -1217,7 +1244,6 @@ void loremaster_mut(int cmd, variant *res)
 		break;
 	case SPELL_GAIN_MUT:
 		msg_print(T("You feel quite knowledgeable.", ""));
-		mut_lose(MUT_ARTHRITIS);
 		break;
 	case SPELL_LOSE_MUT:
 		msg_print(T("You know longer know so much.", ""));
@@ -1225,8 +1251,8 @@ void loremaster_mut(int cmd, variant *res)
 	case SPELL_MUT_DESC:
 		var_set_string(res, T("You are a Loremaster.", ""));
 		break;
-	case SPELL_CAST:
-		var_set_bool(res, cast_probing());
+	case SPELL_HELP_DESC:
+		var_set_string(res, "Items will automatically identify as you pick them up.");
 		break;
 	default:
 		default_spell(cmd, res);
@@ -1274,6 +1300,9 @@ void merchants_friend_mut(int cmd, variant *res)
 		break;
 	case SPELL_MUT_DESC:
 		var_set_string(res, T("You are a Merchant's Friend.", ""));
+		break;
+	case SPELL_HELP_DESC:
+		var_set_string(res, "You will gain new powers of shopping.");
 		break;
 	default:
 		default_spell(cmd, res);
@@ -1415,6 +1444,9 @@ void one_with_magic_mut(int cmd, variant *res)
 	case SPELL_MUT_DESC:
 		var_set_string(res, T("You have a chance of resisting Dispel Magic and Antimagic.", ""));
 		break;
+	case SPELL_HELP_DESC:
+		var_set_string(res, "You will have a chance of resisting Dispel Magic.");
+		break;
 	default:
 		default_spell(cmd, res);
 		break;
@@ -1436,6 +1468,9 @@ void peerless_sniper_mut(int cmd, variant *res)
 		break;
 	case SPELL_MUT_DESC:
 		var_set_string(res, T("Your missiles are less likely to anger monsters.", ""));
+		break;
+	case SPELL_HELP_DESC:
+		var_set_string(res, "Damaging a monster with a missile weapon is less likely to provoke a retaliation.");
 		break;
 	default:
 		default_spell(cmd, res);
@@ -1461,6 +1496,9 @@ void peerless_tracker_mut(int cmd, variant *res)
 		break;
 	case SPELL_DESC:
 		var_set_string(res, T("Maps nearby area. Detects all monsters, traps, doors and stairs.", ""));
+		break;
+	case SPELL_HELP_DESC:
+		var_set_string(res, "You will gain the ability to map your surroundings.");
 		break;
 	case SPELL_CAST:
 	{
@@ -1520,7 +1558,10 @@ void potion_chugger_mut(int cmd, variant *res)
 		msg_print(T("You no longer feel like chugging your potions.", ""));
 		break;
 	case SPELL_MUT_DESC:
-		var_set_string(res, T("You chug potions twice as fast as normal.", ""));
+		var_set_string(res, T("You chug potions faster than normal.", ""));
+		break;
+	case SPELL_HELP_DESC:
+		var_set_string(res, "You will be able to chug potions much faster than normal.");
 		break;
 	default:
 		default_spell(cmd, res);
@@ -1652,7 +1693,7 @@ void random_teleport_mut(int cmd, variant *res)
 		var_set_string(res, T("You are teleporting randomly.", "あなたはランダムにテレポートする。"));
 		break;
 	case SPELL_PROCESS:
-		if (!p_ptr->resist_nexus && !p_ptr->anti_tele && (randint1(5000) == 88))
+		if (!res_save_default(RES_NEXUS) && !p_ptr->anti_tele && (randint1(5000) == 88))
 		{
 			disturb(0, 0);
 			msg_print(T("Your position suddenly seems very uncertain...", "あなたの位置は突然ひじょうに不確定になった..."));
@@ -1794,6 +1835,9 @@ void sacred_vitality_mut(int cmd, variant *res)
 	case SPELL_MUT_DESC:
 		var_set_string(res, T("You gain a bonus to all healing effects.", ""));
 		break;
+	case SPELL_HELP_DESC:
+		var_set_string(res, "You will gain a bonus to all healing effects.");
+		break;
 	default:
 		default_spell(cmd, res);
 		break;
@@ -1833,17 +1877,30 @@ void scorpion_tail_mut(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Scorpion Tail", ""));
+		var_set_string(res, "Scorpion Tail");
 		break;
 	case SPELL_GAIN_MUT:
-		msg_print(T("You grow a scorpion tail!", "サソリの尻尾が生えてきた！"));
+		msg_print("You grow a scorpion tail!");
 		break;
 	case SPELL_LOSE_MUT:
-		msg_print(T("You lose your scorpion tail!", "サソリの尻尾がなくなった！"));
+		msg_print("You lose your scorpion tail!");
 		break;
 	case SPELL_MUT_DESC:
-		var_set_string(res, T("You have a scorpion tail (poison, 3d7).", "あなたはサソリの尻尾が生えている。(毒、ダメージ 3d7)"));
+		var_set_string(res, "You have a scorpion tail.");
 		break;
+	case SPELL_CALC_BONUS:
+	{
+		innate_attack_t	a = {0};
+		a.dd = 3;
+		a.ds = 7;
+		a.weight = 50;
+		a.blows = 1;
+		a.effect[0] = GF_POIS;
+		a.msg = "You hit %s with your tail.";
+		a.name = "Tail";
+		p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
+		break;
+	}
 	default:
 		default_spell(cmd, res);
 		break;
@@ -2018,6 +2075,9 @@ void subtle_casting_mut(int cmd, variant *res)
 	case SPELL_MUT_DESC:
 		var_set_string(res, T("Your spells are less likely to anger monsters.", ""));
 		break;
+	case SPELL_HELP_DESC:
+		var_set_string(res, "Damaging a monster with distance magic is less likely to provoke a retaliation.");
+		break;
 	default:
 		default_spell(cmd, res);
 		break;
@@ -2054,17 +2114,29 @@ void tentacles_mut(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Tentacles", ""));
+		var_set_string(res, "Tentacles");
 		break;
 	case SPELL_GAIN_MUT:
-		msg_print(T("Evil-looking tentacles sprout from your sides.", "邪悪な触手が体の両側に生えてきた。"));
+		msg_print("Evil-looking tentacles sprout from your sides.");
 		break;
 	case SPELL_LOSE_MUT:
-		msg_print(T("Your tentacles vanish from your sides.", "触手が消えた。"));
+		msg_print("Your tentacles vanish from your sides.");
 		break;
 	case SPELL_MUT_DESC:
-		var_set_string(res, T("You have evil looking tentacles (dam 2d5).", "あなたは邪悪な触手を持っている。(ダメージ 2d5)"));
+		var_set_string(res, "You have evil looking tentacles.");
 		break;
+	case SPELL_CALC_BONUS:
+	{
+		innate_attack_t	a = {0};
+		a.dd = 2;
+		a.ds = 5;
+		a.weight = 50;
+		a.blows = 1;
+		a.msg = "You hit %s with your tentacles.";
+		a.name = "Tentacles";
+		p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
+		break;
+	}
 	default:
 		default_spell(cmd, res);
 		break;
@@ -2076,18 +2148,30 @@ void trunk_mut(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Elephantine Trunk", ""));
+		var_set_string(res, "Elephantine Trunk");
 		break;
 	case SPELL_GAIN_MUT:
-		msg_print(T("Your nose grows into an elephant-like trunk.", "あなたの鼻は伸びて象の鼻のようになった。"));
+		msg_print("Your nose grows into an elephant-like trunk.");
 		mut_lose(MUT_BEAK);
 		break;
 	case SPELL_LOSE_MUT:
-		msg_print(T("Your nose returns to a normal length.", "鼻が普通の長さに戻った。"));
+		msg_print("Your nose returns to a normal length.");
 		break;
 	case SPELL_MUT_DESC:
-		var_set_string(res, T("You have an elephantine trunk (dam 1d4).", "あなたは象のような鼻を持っている。(ダメージ 1d4)"));
+		var_set_string(res, "You have an elephantine trunk.");
 		break;
+	case SPELL_CALC_BONUS:
+	{
+		innate_attack_t	a = {0};
+		a.dd = 1;
+		a.ds = 4;
+		a.weight = 200;
+		a.blows = 1;
+		a.msg = "You hit %s with your trunk.";
+		a.name = "Trunk";
+		p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
+		break;
+	}
 	default:
 		default_spell(cmd, res);
 		break;
@@ -2108,11 +2192,14 @@ void untouchable_mut(int cmd, variant *res)
 		msg_print(T("Your feel touchable!", ""));
 		break;
 	case SPELL_MUT_DESC:
-		var_set_string(res, T("You are untouchable (+30 AC).", ""));
+		var_set_string(res, T("You are untouchable and gain a bonus to AC.", ""));
+		break;
+	case SPELL_HELP_DESC:
+		var_set_string(res, "You will gain a bonus to armor class.");
 		break;
 	case SPELL_CALC_BONUS:
-		p_ptr->to_a += 30;
-		p_ptr->dis_to_a += 30;
+		p_ptr->to_a += 15;
+		p_ptr->dis_to_a += 15;
 		break;
 	default:
 		default_spell(cmd, res);
@@ -2134,7 +2221,10 @@ void unyielding_mut(int cmd, variant *res)
 		msg_print(T("Heck!  Might as well give up ...", ""));
 		break;
 	case SPELL_MUT_DESC:
-		var_set_string(res, T("You are unyielding (+1.5 HP per level).", ""));
+		var_set_string(res, T("You are unyielding and gain extra hp.", ""));
+		break;
+	case SPELL_HELP_DESC:
+		var_set_string(res, "You will gain a bonus to hitpoints.");
 		break;
 	default:
 		default_spell(cmd, res);
@@ -2332,6 +2422,9 @@ void weapon_skills_mut(int cmd, variant *res)
 	case SPELL_MUT_DESC:
 		var_set_string(res, T("You may master any weapon.", ""));
 		break;
+	case SPELL_HELP_DESC:
+		var_set_string(res, "You will be able to master any weapon.");
+		break;
 	default:
 		default_spell(cmd, res);
 		break;
@@ -2389,10 +2482,13 @@ void weird_mind_mut(int cmd, variant *res)
 		msg_print(T("You feel susceptible to the Eldritch Horror again.", ""));
 		break;
 	case SPELL_MUT_DESC:
-		var_set_string(res, T("Your mind is weird.", ""));
+		var_set_string(res, T("Your weird mind is unaffected by the Eldritch Horror and Hallucination", ""));
+		break;
+	case SPELL_HELP_DESC:
+		var_set_string(res, "You resist the Eldritch Horror.");
 		break;
 	case SPELL_CALC_BONUS:
-		p_ptr->resist_conf = TRUE;
+		p_ptr->no_eldritch = TRUE;
 		break;
 	default:
 		default_spell(cmd, res);

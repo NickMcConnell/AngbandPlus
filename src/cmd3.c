@@ -39,7 +39,7 @@ void do_cmd_inven(void)
 	item_tester_full = TRUE;
 
 	/* Display the inventory */
-	(void)show_inven(0);
+	(void)show_inven(0, 0);
 
 	/* Hack -- hide empty slots */
 	item_tester_full = FALSE;
@@ -112,7 +112,7 @@ void do_cmd_equip(void)
 	item_tester_full = TRUE;
 
 	/* Display the equipment */
-	(void)show_equip(0);
+	(void)show_equip(0, 0);
 
 	/* Hack -- undo the hack above */
 	item_tester_full = FALSE;
@@ -161,22 +161,6 @@ void do_cmd_equip(void)
 }
 
 
-/*
- * The "wearable" tester
- */
-static bool item_tester_hook_wear(object_type *o_ptr)
-{
-	/*if ((o_ptr->tval == TV_SOFT_ARMOR) && (o_ptr->sval == SV_ABUNAI_MIZUGI))
-		if (p_ptr->psex == SEX_MALE) return FALSE;*/
-
-	/* Check for a usable slot */
-	if (wield_slot(o_ptr) >= INVEN_RARM) return (TRUE);
-
-	/* Assume not wearable */
-	return (FALSE);
-}
-
-
 static bool item_tester_hook_mochikae(object_type *o_ptr)
 {
 	/* Check for a usable slot */
@@ -199,680 +183,9 @@ static bool item_tester_hook_melee_weapon(object_type *o_ptr)
 }
 
 
-bool select_ring_slot = FALSE;
-
-/*
- * Wield or wear a single item from the pack or floor
- */
-void do_cmd_wield(void)
-{
-	int i, item, slot;
-
-	object_type forge;
-	object_type *q_ptr;
-
-	object_type *o_ptr;
-
-	cptr act;
-
-	char o_name[MAX_NLEN];
-
-	cptr q, s;
-
-	int need_switch_wielding = 0;
-
-	if (p_ptr->special_defense & KATA_MUSOU)
-	{
-		set_action(ACTION_NONE);
-	}
-
-	/* Restrict the choices */
-	item_tester_hook = item_tester_hook_wear;
-
-	/* Get an item */
-#ifdef JP
-	q = "どれを装備しますか? ";
-	s = "装備可能なアイテムがない。";
-#else
-	q = "Wear/Wield which item? ";
-	s = "You have nothing you can wear or wield.";
-#endif
-
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-
-	/* Check the slot */
-	slot = wield_slot(o_ptr);
-
-	/* Ugly hack! */
-	if ( object_is_melee_weapon(o_ptr) 
-	  && p_ptr->pclass == CLASS_PSION
-	  && psion_weapon_graft() )
-	{
-		msg_print("Failed!  Your weapon is currently grafted to your arm!");
-		return;
-	}
-
-	switch (o_ptr->tval)
-	{
-	/* Shields and some misc. items */
-	case TV_CAPTURE:
-	case TV_SHIELD:
-	case TV_CARD:
-		/* Dual wielding */
-		if (buki_motteruka(INVEN_RARM) && buki_motteruka(INVEN_LARM))
-		{
-			/* Restrict the choices */
-			item_tester_hook = item_tester_hook_melee_weapon;
-			item_tester_no_ryoute = TRUE;
-
-			/* Choose a weapon from the equipment only */
-#ifdef JP
-			q = "どちらの武器と取り替えますか?";
-			s = "おっと。";
-#else
-			q = "Replace which weapon? ";
-			s = "Oops.";
-#endif
-
-			if (!get_item(&slot, q, s, (USE_EQUIP))) return;
-			if (slot == INVEN_RARM) need_switch_wielding = INVEN_LARM;
-		}
-
-		else if (buki_motteruka(INVEN_LARM)) slot = INVEN_RARM;
-
-		/* Both arms are already used by non-weapon */
-		else if (inventory[INVEN_RARM].k_idx && !object_is_melee_weapon(&inventory[INVEN_RARM]) &&
-		         inventory[INVEN_LARM].k_idx && !object_is_melee_weapon(&inventory[INVEN_LARM]))
-		{
-			/* Restrict the choices */
-			item_tester_hook = item_tester_hook_mochikae;
-
-			/* Choose a hand */
-#ifdef JP
-			q = "どちらの手に装備しますか?";
-			s = "おっと。";
-#else
-			q = "Equip which hand? ";
-			s = "Oops.";
-#endif
-
-			if (!get_item(&slot, q, s, (USE_EQUIP))) return;
-		}
-		break;
-
-	/* Melee weapons */
-	case TV_DIGGING:
-	case TV_HAFTED:
-	case TV_POLEARM:
-	case TV_SWORD:
-		/* Asking for dual wielding */
-		if (slot == INVEN_LARM)
-		{
-#ifdef JP
-			if (!get_check("二刀流で戦いますか？")) slot = INVEN_RARM;
-#else
-			if (!get_check("Dual wielding? ")) slot = INVEN_RARM;
-#endif
-		}
-
-		else if (!inventory[INVEN_RARM].k_idx && buki_motteruka(INVEN_LARM))
-		{
-#ifdef JP
-			if (!get_check("二刀流で戦いますか？")) slot = INVEN_LARM;
-#else
-			if (!get_check("Dual wielding? ")) slot = INVEN_LARM;
-#endif
-		}
-
-		/* Both arms are already used */
-		else if (inventory[INVEN_LARM].k_idx && inventory[INVEN_RARM].k_idx)
-		{
-			/* Restrict the choices */
-			item_tester_hook = item_tester_hook_mochikae;
-
-			/* Choose a hand */
-#ifdef JP
-			q = "どちらの手に装備しますか?";
-			s = "おっと。";
-#else
-			q = "Equip which hand? ";
-			s = "Oops.";
-#endif
-
-			if (!get_item(&slot, q, s, (USE_EQUIP))) return;
-			if ((slot == INVEN_LARM) && !buki_motteruka(INVEN_RARM))
-				need_switch_wielding = INVEN_RARM;
-		}
-		break;
-
-	/* Rings */
-	case TV_RING:
-		/* Choose a ring slot */
-		if (inventory[INVEN_LEFT].k_idx && inventory[INVEN_RIGHT].k_idx)
-		{
-#ifdef JP
-			q = "どちらの指輪と取り替えますか?";
-#else
-			q = "Replace which ring? ";
-#endif
-		}
-		else
-		{
-#ifdef JP
-			q = "どちらの手に装備しますか?";
-#else
-			q = "Equip which hand? ";
-#endif
-		}
-
-#ifdef JP
-		s = "おっと。";
-#else
-		s = "Oops.";
-#endif
-
-		/* Restrict the choices */
-		select_ring_slot = TRUE;
-		item_tester_no_ryoute = TRUE;
-
-		if (!get_item(&slot, q, s, (USE_EQUIP)))
-		{
-			select_ring_slot = FALSE;
-			return;
-		}
-		select_ring_slot = FALSE;
-		break;
-	}
-
-	/* Prevent wielding into a cursed slot */
-	if (object_is_cursed(&inventory[slot]))
-	{
-		/* Describe it */
-		object_desc(o_name, &inventory[slot], (OD_OMIT_PREFIX | OD_NAME_ONLY));
-
-		/* Message */
-#ifdef JP
-		msg_format("%s%sは呪われているようだ。",
-			   describe_use(slot) , o_name );
-#else
-		msg_format("The %s you are %s appears to be cursed.",
-			   o_name, describe_use(slot));
-#endif
-
-		/* Cancel the command */
-		return;
-	}
-
-	if (have_flag(inventory[slot].art_flags, TR_SIGNATURE))
-	{
-		object_desc(o_name, &inventory[slot], (OD_OMIT_PREFIX | OD_NAME_ONLY));
-		msg_format("The %s you are %s is your signature item and may not be removed.",
-			   o_name, describe_use(slot));
-		return;
-	}
-
-	if (confirm_wear &&
-		((object_is_cursed(o_ptr) && object_is_known(o_ptr)) ||
-		((o_ptr->ident & IDENT_SENSE) &&
-			(FEEL_BROKEN <= o_ptr->feeling) && (o_ptr->feeling <= FEEL_CURSED))))
-	{
-		char dummy[MAX_NLEN+80];
-
-		/* Describe it */
-		object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
-
-#ifdef JP
-sprintf(dummy, "本当に%s{呪われている}を使いますか？", o_name);
-#else
-		sprintf(dummy, "Really use the %s {cursed}? ", o_name);
-#endif
-
-		if (!get_check(dummy)) return;
-	}
-
-	if ((o_ptr->name1 == ART_STONEMASK) && object_is_known(o_ptr) && (p_ptr->prace != RACE_VAMPIRE) && (p_ptr->prace != RACE_ANDROID) && (p_ptr->pclass != CLASS_BLOOD_KNIGHT))
-	{
-		char dummy[MAX_NLEN+80];
-
-		/* Describe it */
-		object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
-
-#ifdef JP
-sprintf(dummy, "%sを装備すると吸血鬼になります。よろしいですか？", o_name);
-#else
-		msg_format("%s will transforms you into a vampire permanently when equiped.", o_name);
-		sprintf(dummy, "Do you become a vampire?");
-#endif
-
-		if (!get_check(dummy)) return;
-	}
-
-	if (need_switch_wielding && !object_is_cursed(&inventory[need_switch_wielding]))
-	{
-		object_type *slot_o_ptr = &inventory[slot];
-		object_type *switch_o_ptr = &inventory[need_switch_wielding];
-		object_type object_tmp;
-		object_type *otmp_ptr = &object_tmp;
-		char switch_name[MAX_NLEN];
-
-		object_desc(switch_name, switch_o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
-
-		object_copy(otmp_ptr, switch_o_ptr);
-		object_copy(switch_o_ptr, slot_o_ptr);
-		object_copy(slot_o_ptr, otmp_ptr);
-#ifdef JP
-		msg_format("%sを%sに構えなおした。", switch_name, (slot == INVEN_RARM) ? (left_hander ? "左手" : "右手") : (left_hander ? "右手" : "左手"));
-#else
-		msg_format("You wield %s at %s hand.", switch_name, (slot == INVEN_RARM) ? (left_hander ? "left" : "right") : (left_hander ? "right" : "left"));
-#endif
-
-		slot = need_switch_wielding;
-	}
-
-	/* Check if completed a quest */
-	for (i = 0; i < max_quests; i++)
-	{
-		if ((quest[i].type == QUEST_TYPE_FIND_ARTIFACT) &&
-		    (quest[i].status == QUEST_STATUS_TAKEN) &&
-		    (quest[i].k_idx == o_ptr->name1 || quest[i].k_idx == o_ptr->name3))
-		{
-			if (record_fix_quest) do_cmd_write_nikki(NIKKI_FIX_QUEST_C, i, NULL);
-			quest[i].status = QUEST_STATUS_COMPLETED;
-			quest[i].complev = (byte)p_ptr->lev;
-#ifdef JP
-msg_print("クエストを達成した！");
-#else
-			msg_print("You completed the quest!");
-#endif
-
-			msg_print(NULL);
-		}
-	}
-
-	if (p_ptr->personality == PERS_MUNCHKIN)
-	{
-		identify_item(o_ptr);
-
-		/* Auto-inscription */
-		autopick_alter_item(item, FALSE);
-	}
-
-	/* Take a turn */
-	energy_use = weaponmaster_wield_hack(o_ptr);
-
-	/* Get local object */
-	q_ptr = &forge;
-
-	/* Obtain local object */
-	object_copy(q_ptr, o_ptr);
-
-	/* Modify quantity */
-	q_ptr->number = 1;
-
-	/* Decrease the item (from the pack) */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_optimize(item);
-	}
-
-	/* Decrease the item (from the floor) */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_optimize(0 - item);
-	}
-
-	/* Access the wield slot */
-	o_ptr = &inventory[slot];
-
-	/* Take off existing item */
-	if (o_ptr->k_idx)
-	{
-		/* Take off existing item */
-		(void)inven_takeoff(slot, 255);
-	}
-
-	/* Wear the new stuff */
-	object_copy(o_ptr, q_ptr);
-
-	/* Player touches it */
-	o_ptr->marked |= OM_TOUCHED;
-
-	/* Increase the weight */
-	p_ptr->total_weight += q_ptr->weight;
-
-	/* Increment the equip counter by hand */
-	equip_cnt++;
-
-#ifdef JP
-#define STR_WIELD_RARM "%s(%c)を右手に装備した。"
-#define STR_WIELD_LARM "%s(%c)を左手に装備した。"
-#define STR_WIELD_ARMS "%s(%c)を両手で構えた。"
-#else
-#define STR_WIELD_RARM "You are wielding %s (%c) in your right hand."
-#define STR_WIELD_LARM "You are wielding %s (%c) in your left hand."
-#define STR_WIELD_ARMS "You are wielding %s (%c) with both hands."
-#endif
-
-	/* Where is the item now */
-	switch (slot)
-	{
-	case INVEN_RARM:
-		if (object_allow_two_hands_wielding(o_ptr) && (empty_hands(FALSE) == EMPTY_HAND_LARM) && CAN_TWO_HANDS_WIELDING())
-			act = STR_WIELD_ARMS;
-		else
-			act = (left_hander ? STR_WIELD_LARM : STR_WIELD_RARM);
-		break;
-
-	case INVEN_LARM:
-		if (object_allow_two_hands_wielding(o_ptr) && (empty_hands(FALSE) == EMPTY_HAND_RARM) && CAN_TWO_HANDS_WIELDING())
-			act = STR_WIELD_ARMS;
-		else
-			act = (left_hander ? STR_WIELD_RARM : STR_WIELD_LARM);
-		break;
-
-	case INVEN_BOW:
-#ifdef JP
-		act = "%s(%c)を射撃用に装備した。";
-#else
-		act = "You are shooting with %s (%c).";
-#endif
-		break;
-
-	case INVEN_LITE:
-#ifdef JP
-		act = "%s(%c)を光源にした。";
-#else
-		act = "Your light source is %s (%c).";
-#endif
-		break;
-
-	default:
-#ifdef JP
-		act = "%s(%c)を装備した。";
-#else
-		act = "You are wearing %s (%c).";
-#endif
-		break;
-	}
-
-	/* Describe the result */
-	object_desc(o_name, o_ptr, 0);
-
-	/* Message */
-	msg_format(act, o_name, index_to_label(slot));
-
-
-	/* Cursed! */
-	if (object_is_cursed(o_ptr))
-	{
-		/* Warn the player */
-#ifdef JP
-		msg_print("うわ！ すさまじく冷たい！");
-#else
-		msg_print("Oops! It feels deathly cold!");
-#endif
-
-
-		chg_virtue(V_HARMONY, -1);
-
-		/* Note the curse */
-		o_ptr->ident |= (IDENT_SENSE);
-	}
-
-	if (o_ptr->name1 == ART_HAND_OF_VECNA)
-	{
-		msg_print("You chop off your own hand to wield the Hand of Vecna!");
-		set_cut(CUT_MORTAL_WOUND, FALSE);
-	}
-
-	if (o_ptr->name1 == ART_EYE_OF_VECNA)
-	{
-		msg_print("You pluck out your own eye to wield the Eye of Vecna!");
-		set_cut(CUT_MORTAL_WOUND, FALSE);
-	}
-
-	/* The Stone Mask make the player turn into a vampire! */
-	if ((o_ptr->name1 == ART_STONEMASK) && (p_ptr->prace != RACE_VAMPIRE) && (p_ptr->prace != RACE_ANDROID) && (p_ptr->pclass != CLASS_BLOOD_KNIGHT)  && (p_ptr->pclass != CLASS_BLOOD_MAGE))
-	{
-		/* Turn into a vampire */
-		change_race(RACE_VAMPIRE, "");
-	}
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Recalculate torch */
-	p_ptr->update |= (PU_TORCH);
-
-	/* Recalculate mana */
-	p_ptr->update |= (PU_MANA);
-
-	p_ptr->redraw |= (PR_EQUIPPY);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
-
-	calc_android_exp();
-}
-
-
 void kamaenaoshi(int item)
 {
-	object_type *o_ptr, *new_o_ptr;
-	char o_name[MAX_NLEN];
-
-	if (item == INVEN_RARM)
-	{
-		if (buki_motteruka(INVEN_LARM))
-		{
-			o_ptr = &inventory[INVEN_LARM];
-			object_desc(o_name, o_ptr, 0);
-
-			if (!object_is_cursed(o_ptr))
-			{
-				new_o_ptr = &inventory[INVEN_RARM];
-				object_copy(new_o_ptr, o_ptr);
-				p_ptr->total_weight += o_ptr->weight;
-				inven_item_increase(INVEN_LARM, -((int)o_ptr->number));
-				inven_item_optimize(INVEN_LARM);
-				if (object_allow_two_hands_wielding(o_ptr) && CAN_TWO_HANDS_WIELDING())
-#ifdef JP
-					msg_format("%sを両手で構えた。", o_name);
-#else
-					msg_format("You are wielding %s with both hands.", o_name);
-#endif
-				 else
-#ifdef JP
-					msg_format("%sを%sで構えた。", o_name, (left_hander ? "左手" : "右手"));
-#else
-					msg_format("You are wielding %s in your %s hand.", o_name, (left_hander ? "left":"right"));
-#endif
-			}
-			else
-			{
-				if (object_allow_two_hands_wielding(o_ptr) && CAN_TWO_HANDS_WIELDING())
-#ifdef JP
-					msg_format("%sを両手で構えた。", o_name);
-#else
-					msg_format("You are wielding %s with both hands.", o_name);
-#endif
-			}
-		}
-	}
-	else if (item == INVEN_LARM)
-	{
-		o_ptr = &inventory[INVEN_RARM];
-		if (o_ptr->k_idx) object_desc(o_name, o_ptr, 0);
-
-		if (buki_motteruka(INVEN_RARM))
-		{
-			if (object_allow_two_hands_wielding(o_ptr) && CAN_TWO_HANDS_WIELDING())
-#ifdef JP
-				msg_format("%sを両手で構えた。", o_name);
-#else
-				msg_format("You are wielding %s with both hands.", o_name);
-#endif
-		}
-		else if (!(empty_hands(FALSE) & EMPTY_HAND_RARM) && !object_is_cursed(o_ptr))
-		{
-			new_o_ptr = &inventory[INVEN_LARM];
-			object_copy(new_o_ptr, o_ptr);
-			p_ptr->total_weight += o_ptr->weight;
-			inven_item_increase(INVEN_RARM, -((int)o_ptr->number));
-			inven_item_optimize(INVEN_RARM);
-#ifdef JP
-			msg_format("%sを持ち替えた。", o_name);
-#else
-			msg_format("You switched hand of %s.", o_name);
-#endif
-		}
-	}
 }
-
-
-/*
- * Take off an item
- */
-void do_cmd_takeoff(void)
-{
-	int item;
-
-	object_type *o_ptr;
-
-	cptr q, s;
-
-	if (p_ptr->special_defense & KATA_MUSOU)
-	{
-		set_action(ACTION_NONE);
-	}
-
-	item_tester_no_ryoute = TRUE;
-	/* Get an item */
-#ifdef JP
-	q = "どれを装備からはずしますか? ";
-	s = "はずせる装備がない。";
-#else
-	q = "Take off which item? ";
-	s = "You are not wearing anything to take off.";
-#endif
-
-	if (!get_item(&item, q, s, (USE_EQUIP))) return;
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-		
-		/* Ugly hack! */
-		if ( object_is_melee_weapon(o_ptr) 
-		  && p_ptr->pclass == CLASS_PSION
-		  && psion_weapon_graft() )
-		{
-			msg_print("Failed!  Your weapon is currently grafted to your arm!");
-			return;
-		}
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		/* Umm ... How can you take off something on the floor? */
-		o_ptr = &o_list[0 - item];
-	}
-
-	if (have_flag(o_ptr->art_flags, TR_SIGNATURE))
-	{
-		msg_print("You can not remove your signature item.");
-		return;
-	}
-
-	/* Item is cursed */
-	if (object_is_cursed(o_ptr))
-	{
-		if ((o_ptr->curse_flags & TRC_PERMA_CURSE) || (p_ptr->pclass != CLASS_BERSERKER))
-		{
-			/* Oops */
-#ifdef JP
-			msg_print("ふーむ、どうやら呪われているようだ。");
-#else
-			msg_print("Hmmm, it seems to be cursed.");
-#endif
-
-			/* Nope */
-			return;
-		}
-
-		if (((o_ptr->curse_flags & TRC_HEAVY_CURSE) && one_in_(7)) || one_in_(4))
-		{
-#ifdef JP
-			msg_print("呪われた装備を力づくで剥がした！");
-#else
-			msg_print("You teared a cursed equipment off by sheer strength!");
-#endif
-
-			/* Hack -- Assume felt */
-			o_ptr->ident |= (IDENT_SENSE);
-
-			o_ptr->curse_flags = 0L;
-
-			/* Take note */
-			o_ptr->feeling = FEEL_NONE;
-
-			/* Recalculate the bonuses */
-			p_ptr->update |= (PU_BONUS);
-
-			/* Window stuff */
-			p_ptr->window |= (PW_EQUIP);
-
-#ifdef JP
-			msg_print("呪いを打ち破った。");
-#else
-			msg_print("You break the curse.");
-#endif
-		}
-		else
-		{
-#ifdef JP
-			msg_print("装備を外せなかった。");
-#else
-			msg_print("You couldn't remove the equipment.");
-#endif
-			energy_use = 50;
-			return;
-		}
-	}
-
-	/* Take a partial turn */
-	energy_use = 50;
-
-	/* Take off the item */
-	(void)inven_takeoff(item, 255);
-
-	if (strcmp(weaponmaster_speciality1_name(), "Shields") == 0)
-		handle_stuff();
-
-	kamaenaoshi(item);
-
-	calc_android_exp();
-
-	p_ptr->redraw |= (PR_EQUIPPY);
-}
-
 
 /*
  * Drop an item
@@ -909,7 +222,7 @@ void do_cmd_drop(void)
 
 		/* Ugly hack! */
 		if ( object_is_melee_weapon(o_ptr) 
-		  && (item == INVEN_LARM || item == INVEN_RARM)
+		  && equip_is_valid_slot(item)
 		  && p_ptr->pclass == CLASS_PSION
 		  && psion_weapon_graft() )
 		{
@@ -926,17 +239,9 @@ void do_cmd_drop(void)
 
 
 	/* Hack -- Cannot remove cursed items */
-	if ((item >= INVEN_RARM) && object_is_cursed(o_ptr))
+	if (equip_is_valid_slot(item) && object_is_cursed(o_ptr))
 	{
-		/* Oops */
-#ifdef JP
-		msg_print("ふーむ、どうやら呪われているようだ。");
-#else
 		msg_print("Hmmm, it seems to be cursed.");
-#endif
-
-
-		/* Nope */
 		return;
 	}
 
@@ -963,11 +268,8 @@ void do_cmd_drop(void)
 	/* Drop (some of) the item */
 	inven_drop(item, amt);
 
-	if (item >= INVEN_RARM)
-	{
-		kamaenaoshi(item);
+	if (equip_is_valid_slot(item))
 		calc_android_exp();
-	}
 
 	p_ptr->redraw |= (PR_EQUIPPY);
 }
@@ -985,6 +287,7 @@ static bool high_level_book(object_type *o_ptr)
 	    (o_ptr->tval == TV_DAEMON_BOOK) ||
 	    (o_ptr->tval == TV_CRUSADE_BOOK) ||
 		(o_ptr->tval == TV_NECROMANCY_BOOK) ||
+		(o_ptr->tval == TV_ARMAGEDDON_BOOK) ||
 	    (o_ptr->tval == TV_MUSIC_BOOK) ||
 		(o_ptr->tval == TV_HEX_BOOK))
 	{
@@ -1047,7 +350,7 @@ void do_cmd_destroy(void)
 	if (item >= 0)
 	{
 		o_ptr = &inventory[item];
-		is_equipped = item >= INVEN_RARM && item <= INVEN_FEET;
+		is_equipped = equip_is_valid_slot(item);
 	}
 
 	/* Get the item (on the floor) */
@@ -1059,7 +362,7 @@ void do_cmd_destroy(void)
 	/* Hack for Rune Knight: They can destroy worn equipment, but only
 	   if it has the Sacrifice rune.  get_item() is not smart enough
 	   to handle this restriction ... */
-	if (is_equipped && !(o_ptr->rune_flags & RUNE_SACRIFICE))
+	if (is_equipped && o_ptr->rune != RUNE_SACRIFICE)
 	{
 		msg_print("You must first remove that item before destroying it.");
 		return;
@@ -1164,14 +467,12 @@ void do_cmd_destroy(void)
 
 	object_copy(q_ptr, o_ptr);
 
-	/* Message */
-#ifdef JP
-	msg_format("%sを壊した。", o_name);
-#else
-	msg_format("You destroy %s.", o_name);
-#endif
+	if (prace_is_(RACE_MON_JELLY))
+		jelly_eat_object(o_ptr);
+	else
+		msg_format("You destroy %s.", o_name);
 
-	if (o_ptr->rune_flags & RUNE_SACRIFICE)
+	if (o_ptr->rune == RUNE_SACRIFICE)
 	{
 		int add_hp = is_equipped ? p_ptr->mhp : p_ptr->mhp/3;
 		int add_sp = is_equipped ? p_ptr->msp : p_ptr->msp/3;
@@ -1187,9 +488,14 @@ void do_cmd_destroy(void)
 		p_ptr->window |= (PW_PLAYER);
 		p_ptr->window |= (PW_SPELL);
 		p_ptr->redraw |= (PR_HP);
-	}
 
-	if (is_equipped)
+		if (is_equipped)
+		{
+			blast_object(o_ptr);
+			o_ptr->curse_flags = TRC_HEAVY_CURSE;
+		}
+	}
+	else if (is_equipped)
 		blast_object(o_ptr);
 
 	sound(SOUND_DESTITEM);
@@ -1300,7 +606,8 @@ void do_cmd_destroy(void)
 	if (q_ptr->to_a != 0 || q_ptr->to_d != 0 || q_ptr->to_h != 0)
 		chg_virtue(V_HARMONY, 1);
 
-	if (item >= INVEN_RARM) calc_android_exp();
+	if (equip_is_valid_slot(item)) 
+		calc_android_exp();
 }
 
 
@@ -1547,106 +854,53 @@ static bool item_tester_refill_lantern(object_type *o_ptr)
 	return (FALSE);
 }
 
+static bool _lite_is_darkness(object_type *lite)
+{
+	if (lite->name2 == EGO_LITE_DARKNESS || have_flag(lite->art_flags, TR_DARKNESS))
+		return TRUE;
+	return FALSE;
+}
 
 /*
  * Refill the players lamp (from the pack or floor)
  */
-static void do_cmd_refill_lamp(void)
+static void do_cmd_refill_lamp(object_type *lantern)
 {
 	int item;
-
 	object_type *o_ptr;
-	object_type *j_ptr;
 
-	cptr q, s;
-
-
-	/* Restrict the choices */
 	item_tester_hook = item_tester_refill_lantern;
-
-	/* Get an item */
-#ifdef JP
-	q = "どの油つぼから注ぎますか? ";
-	s = "油つぼがない。";
-#else
-	q = "Refill with which flask? ";
-	s = "You have no flasks of oil.";
-#endif
-
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the item (in the pack) */
+	if (!get_item(&item, "Refill with which flask? ", "You have no flasks of oil.", USE_INVEN | USE_FLOOR)) return;
 	if (item >= 0)
-	{
 		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
 	else
-	{
 		o_ptr = &o_list[0 - item];
-	}
 
-
-	/* Take a partial turn */
 	energy_use = 50;
-
-	/* Access the lantern */
-	j_ptr = &inventory[INVEN_LITE];
-
-	/* Refuel */
-	j_ptr->xtra4 += o_ptr->xtra4;
-
-	/* Message */
-#ifdef JP
-	msg_print("ランプに油を注いだ。");
-#else
+	lantern->xtra4 += o_ptr->xtra4;
 	msg_print("You fuel your lamp.");
-#endif
-
-	/* Comment */
-	if ( (o_ptr->name2 == EGO_LITE_DARKNESS || have_flag(o_ptr->art_flags, TR_DARKNESS)) 
-	  && j_ptr->xtra4 > 0)
+	if ( _lite_is_darkness(o_ptr) && lantern->xtra4 > 0)
 	{
-		j_ptr->xtra4 = 0;
-#ifdef JP
-		msg_print("ランプが消えてしまった！");
-#else
+		lantern->xtra4 = 0;
 		msg_print("Your lamp has gone out!");
-#endif
 	}
-	else if ( o_ptr->name2 == EGO_LITE_DARKNESS 
-	       || have_flag(o_ptr->art_flags, TR_DARKNESS) 
-		   || j_ptr->name2 == EGO_LITE_DARKNESS 
-		   || have_flag(j_ptr->art_flags, TR_DARKNESS))
+	else if (_lite_is_darkness(o_ptr) || _lite_is_darkness(lantern))
 	{
-		j_ptr->xtra4 = 0;
-#ifdef JP
-		msg_print("しかしランプは全く光らない。");
-#else
+		lantern->xtra4 = 0;
 		msg_print("Curiously, your lamp doesn't light.");
-#endif
 	}
-	else if (j_ptr->xtra4 >= FUEL_LAMP)
+	else if (lantern->xtra4 >= FUEL_LAMP)
 	{
-		j_ptr->xtra4 = FUEL_LAMP;
-#ifdef JP
-		msg_print("ランプの油は一杯だ。");
-#else
+		lantern->xtra4 = FUEL_LAMP;
 		msg_print("Your lamp is full.");
-#endif
-
 	}
 
-	/* Decrease the item (from the pack) */
 	if (item >= 0)
 	{
 		inven_item_increase(item, -1);
 		inven_item_describe(item);
 		inven_item_optimize(item);
 	}
-
-	/* Decrease the item (from the floor) */
 	else
 	{
 		floor_item_increase(0 - item, -1);
@@ -1654,133 +908,56 @@ static void do_cmd_refill_lamp(void)
 		floor_item_optimize(0 - item);
 	}
 
-	/* Recalculate torch */
-	p_ptr->update |= (PU_TORCH);
-}
-
-
-/*
- * An "item_tester_hook" for refilling torches
- */
-static bool item_tester_refill_torch(object_type *o_ptr)
-{
-	/* Torches are okay */
-	if ((o_ptr->tval == TV_LITE) &&
-	    (o_ptr->sval == SV_LITE_TORCH)) return (TRUE);
-
-	/* Assume not okay */
-	return (FALSE);
+	p_ptr->update |= PU_TORCH;
 }
 
 
 /*
  * Refuel the players torch (from the pack or floor)
  */
-static void do_cmd_refill_torch(void)
+static bool _is_torch(object_type *o_ptr) {
+	return object_is_(o_ptr, TV_LITE, SV_LITE_TORCH);
+}
+static void do_cmd_refill_torch(object_type *torch)
 {
 	int item;
-
 	object_type *o_ptr;
-	object_type *j_ptr;
 
-	cptr q, s;
-
-
-	/* Restrict the choices */
-	item_tester_hook = item_tester_refill_torch;
-
-	/* Get an item */
-#ifdef JP
-	q = "どの松明で明かりを強めますか? ";
-	s = "他に松明がない。";
-#else
-	q = "Refuel with which torch? ";
-	s = "You have no extra torches.";
-#endif
-
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the item (in the pack) */
+	item_tester_hook = _is_torch;
+	if (!get_item(&item, "Refuel with which torch? ", "You have no extra torches.", USE_INVEN | USE_FLOOR)) return;
 	if (item >= 0)
-	{
 		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
 	else
-	{
 		o_ptr = &o_list[0 - item];
-	}
 
-
-	/* Take a partial turn */
 	energy_use = 50;
+	torch->xtra4 += o_ptr->xtra4 + 5;
 
-	/* Access the primary torch */
-	j_ptr = &inventory[INVEN_LITE];
-
-	/* Refuel */
-	j_ptr->xtra4 += o_ptr->xtra4 + 5;
-
-	/* Message */
-#ifdef JP
-	msg_print("松明を結合した。");
-#else
 	msg_print("You combine the torches.");
-#endif
-
-
-	/* Comment */
-	if ((o_ptr->name2 == EGO_LITE_DARKNESS || have_flag(o_ptr->art_flags, TR_DARKNESS)) && (j_ptr->xtra4 > 0))
+	if (_lite_is_darkness(o_ptr) && torch->xtra4 > 0)
 	{
-		j_ptr->xtra4 = 0;
-#ifdef JP
-		msg_print("松明が消えてしまった！");
-#else
+		torch->xtra4 = 0;
 		msg_print("Your torch has gone out!");
-#endif
 	}
-	else if ((o_ptr->name2 == EGO_LITE_DARKNESS || have_flag(o_ptr->art_flags, TR_DARKNESS)) || (j_ptr->name2 == EGO_LITE_DARKNESS || have_flag(j_ptr->art_flags, TR_DARKNESS)))
+	else if (_lite_is_darkness(o_ptr) || _lite_is_darkness(torch))
 	{
-		j_ptr->xtra4 = 0;
-#ifdef JP
-		msg_print("しかし松明は全く光らない。");
-#else
-		msg_print("Curiously, your torche don't light.");
-#endif
+		torch->xtra4 = 0;
+		msg_print("Curiously, your torch does not light.");
 	}
-	/* Over-fuel message */
-	else if (j_ptr->xtra4 >= FUEL_TORCH)
+	else if (torch->xtra4 >= FUEL_TORCH)
 	{
-		j_ptr->xtra4 = FUEL_TORCH;
-#ifdef JP
-		msg_print("松明の寿命は十分だ。");
-#else
+		torch->xtra4 = FUEL_TORCH;
 		msg_print("Your torch is fully fueled.");
-#endif
-
 	}
-
-	/* Refuel message */
 	else
-	{
-#ifdef JP
-		msg_print("松明はいっそう明るく輝いた。");
-#else
 		msg_print("Your torch glows more brightly.");
-#endif
 
-	}
-
-	/* Decrease the item (from the pack) */
 	if (item >= 0)
 	{
 		inven_item_increase(item, -1);
 		inven_item_describe(item);
 		inven_item_optimize(item);
 	}
-
-	/* Decrease the item (from the floor) */
 	else
 	{
 		floor_item_increase(0 - item, -1);
@@ -1788,8 +965,7 @@ static void do_cmd_refill_torch(void)
 		floor_item_optimize(0 - item);
 	}
 
-	/* Recalculate torch */
-	p_ptr->update |= (PU_TORCH);
+	p_ptr->update |= PU_TORCH;
 }
 
 
@@ -1798,51 +974,30 @@ static void do_cmd_refill_torch(void)
  */
 void do_cmd_refill(void)
 {
-	object_type *o_ptr;
+	int slot = equip_find_object(TV_LITE, SV_ANY);
 
-	/* Get the light */
-	o_ptr = &inventory[INVEN_LITE];
-
-	if (p_ptr->special_defense & KATA_MUSOU)
+	if (slot)
 	{
-		set_action(ACTION_NONE);
+		object_type *o_ptr = equip_obj(slot);
+
+		if (p_ptr->special_defense & KATA_MUSOU)
+			set_action(ACTION_NONE);
+
+		switch (o_ptr->sval)
+		{
+		case SV_LITE_LANTERN:
+			do_cmd_refill_lamp(o_ptr);
+			break;
+		case SV_LITE_TORCH:
+			do_cmd_refill_torch(o_ptr);
+			break;
+		default:
+			msg_print("Your light cannot be refilled.");
+		}
 	}
-
-	/* It is nothing */
-	if (o_ptr->tval != TV_LITE)
-	{
-#ifdef JP
-		msg_print("光源を装備していない。");
-#else
-		msg_print("You are not wielding a light.");
-#endif
-
-	}
-
-	/* It's a lamp */
-	else if (o_ptr->sval == SV_LITE_LANTERN)
-	{
-		do_cmd_refill_lamp();
-	}
-
-	/* It's a torch */
-	else if (o_ptr->sval == SV_LITE_TORCH)
-	{
-		do_cmd_refill_torch();
-	}
-
-	/* No torch to refill */
 	else
-	{
-#ifdef JP
-		msg_print("この光源は寿命を延ばせない。");
-#else
-		msg_print("Your light cannot be refilled.");
-#endif
-
-	}
+		msg_print("You are not wielding a light.");
 }
-
 
 /*
  * Target command
@@ -2221,7 +1376,7 @@ void do_cmd_query_symbol(void)
 		monster_race *r_ptr = &r_info[i];
 
 		/* Nothing to recall */
-		if (!cheat_know && !r_ptr->r_sights) continue;
+		if (!(cheat_know || p_ptr->wizard) && !r_ptr->r_sights) continue;
 
 		/* Require non-unique monsters if needed */
 		if (norm && (r_ptr->flags1 & (RF1_UNIQUE))) continue;

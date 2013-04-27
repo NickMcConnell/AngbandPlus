@@ -1,6 +1,11 @@
+=== History of PosChengband ===
+
+PosChengband 1.0.0 Released
+
+
+PosChengband is a fork of the excellent variant Hengband.
+
 === History of Hengband ===
-
-
 Jan. 9th, 2004  hengband 1.6.0 (New stable branch) released.
  This is a bug-fix version of 1.5.4, and 
  the first version of the new stable branch (1.6.x) .

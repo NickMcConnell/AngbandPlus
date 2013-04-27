@@ -10,9 +10,6 @@
 
 /* Purpose: Angband specific configuration stuff */
 
-/* Allow debug commands */
-#define USE_DEBUG
-
 /* Allow various special stuff (sound, graphics, etc.) */
 #define USE_SPECIAL
 
@@ -203,7 +200,7 @@
  */
 /*#define ALLOW_BORG*/
 
-#ifdef USE_DEBUG
+#ifdef _DEBUG
 
 /*
  * OPTION: Hack -- Compile in support for "Wizard Commands"
@@ -231,12 +228,6 @@
  * OPTION: Allow "do_cmd_macros" at run-time
  */
 #define ALLOW_MACROS
-
-/*
- * OPTION: Allow characteres to be "auto-rolled"
- */
-#define ALLOW_AUTOROLLER
-
 
 /*
  * OPTION: Allow monsters to "flee" when hit hard

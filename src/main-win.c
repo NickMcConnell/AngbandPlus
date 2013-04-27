@@ -757,12 +757,10 @@ static void validate_file(cptr s)
 	/* Verify or fail */
 	if (!check_file(s))
 	{
-#ifdef JP
-		quit_fmt("必要なファイル[%s]が見あたりません。", s);
-#else
-		quit_fmt("Cannot find required file:\n%s", s);
-#endif
-
+		char buf[1024];
+		path_build(buf, sizeof(buf), ANGBAND_DIR_SAVE, s);
+		if (!check_file(buf))
+			quit_fmt("Cannot find required file:\n%s", buf);
 	}
 }
 
@@ -1721,11 +1719,7 @@ static errr Term_xtra_win_react(void)
 		use_graphics = arg_graphics;
 
 		/* Reset visuals */
-#ifdef ANGBAND_2_8_1
 		reset_visuals();
-#else /* ANGBAND_2_8_1 */
-		reset_visuals(TRUE);
-#endif /* ANGBAND_2_8_1 */
 	}
 
 #endif /* USE_GRAPHICS */
@@ -3028,9 +3022,12 @@ static void check_for_save_file(LPSTR cmd_line)
 
 	/* Extract filename */
 	strcat(savefile, s);
-
-	/* Validate the file */
-	validate_file(savefile);
+	if (!check_file(savefile))
+	{
+		path_build(savefile, sizeof(savefile), ANGBAND_DIR_SAVE, s);
+		if (!check_file(savefile))
+			quit_fmt("Cannot find required file:\n%s", savefile);
+	}
 
 	/* Game in progress */
 	game_in_progress = TRUE;
@@ -3152,11 +3149,7 @@ static void process_menus(WORD wCmd)
 				msg_flag = FALSE;
 
 				/* Save the game */
-#ifdef ZANGBAND
 				do_cmd_save_game(FALSE);
-#else /* ZANGBAND */
-				do_cmd_save_game();
-#endif /* ZANGBAND */
 			}
 			else
 			{
@@ -3194,12 +3187,6 @@ static void process_menus(WORD wCmd)
 				forget_view();
 				clear_mon_lite();
 
-				/* Save the game */
-#ifdef ZANGBAND
-				/* do_cmd_save_game(FALSE); */
-#else /* ZANGBAND */
-				/* do_cmd_save_game(); */
-#endif /* ZANGBAND */
 				Term_key_push(SPECIAL_KEY_QUIT);
 				break;
 			}
@@ -3249,50 +3236,6 @@ static void process_menus(WORD wCmd)
 
 			break;
 		}
-
-		/* Open game */
-		case IDM_FILE_MOVIE:
-		{
-			if (!initialized)
-			{
-#ifdef JP
-				plog("まだ初期化中です...");
-#else
-				plog("You cannot do that yet...");
-#endif
-			}
-			else if (game_in_progress)
-			{
-#ifdef JP
-				plog("プレイ中はムービーをロードすることができません！");
-#else
-				plog("You can't open a movie while you're playing!");
-#endif
-			}
-			else
-			{
-				memset(&ofn, 0, sizeof(ofn));
-				ofn.lStructSize = sizeof(ofn);
-				ofn.hwndOwner = data[0].w;
-				ofn.lpstrFilter = "Angband Movie Files (*.amv)\0*.amv\0";
-				ofn.nFilterIndex = 1;
-				ofn.lpstrFile = savefile;
-				ofn.nMaxFile = 1024;
-				ofn.lpstrInitialDir = ANGBAND_DIR_USER;
-				ofn.Flags = OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
-
-				if (GetOpenFileName(&ofn))
-				{
-					/* Load 'savefile' */
-					prepare_browse_movie_aux(savefile);
-					play_game(FALSE);
-					quit(NULL);
-					return;
-				}
-			}
-			break;
-		}
-
 
 		case IDM_WINDOW_VIS_0:
 		{
@@ -4073,12 +4016,6 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 				forget_view();
 				clear_mon_lite();
 
-				/* Save the game */
-#ifdef ZANGBAND
-				/* do_cmd_save_game(FALSE); */
-#else /* ZANGBAND */
-				/* do_cmd_save_game(); */
-#endif /* ZANGBAND */
 				Term_key_push(SPECIAL_KEY_QUIT);
 				return 0;
 			}
@@ -4096,11 +4033,6 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 				/* Mega-Hack -- Delay death */
 				if (p_ptr->chp < 0) p_ptr->is_dead = FALSE;
 
-#ifdef JP
-				do_cmd_write_nikki(NIKKI_GAMESTART, 0, "----ゲーム中断----");
-#else
-				do_cmd_write_nikki(NIKKI_GAMESTART, 0, "---- Save and Exit Game ----");
-#endif
 
 				/* Hardcode panic save */
 				p_ptr->panic_save = 1;
@@ -4109,11 +4041,7 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 				signals_ignore_tstp();
 
 				/* Indicate panic save */
-#ifdef JP
-				(void)strcpy(p_ptr->died_from, "(緊急セーブ)");
-#else
 				(void)strcpy(p_ptr->died_from, "(panic save)");
-#endif
 
 				/* Panic save */
 				(void)save_player();
@@ -4963,61 +4891,11 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 
 	/* We are now initialized */
 	initialized = TRUE;
-#ifdef CHUUKEI
-	if(lpCmdLine[0] == '-'){
-	  switch(lpCmdLine[1])
-	  {
-	  case 'p':
-	  case 'P':
-	    {
-	      if (!lpCmdLine[2]) break;
-	      chuukei_server = TRUE;
-	      if(connect_chuukei_server(&lpCmdLine[2])<0){
-		msg_print("connect fail");
-		return 0;
-	      }
-	      msg_print("connect");
-	      msg_print(NULL);
-	      break;
-	    }
 
-	  case 'c':
-	  case 'C':
-	    {
-	      if (!lpCmdLine[2]) break;
-	      chuukei_client = TRUE;
-	      connect_chuukei_server(&lpCmdLine[2]);
-	      play_game(FALSE);
-	      quit(NULL);
-	      return 0;
-	    }
-	  case 'X':
-	  case 'x':
-	    {
-	      if (!lpCmdLine[2]) break;
-	      prepare_browse_movie(&lpCmdLine[2]);
-	      play_game(FALSE);
-	      quit(NULL);
-	      return 0;
-	    }
-	  }
-	}
-#endif
-
-#ifdef CHUUKEI
-	/* Did the user double click on a save file? */
-	if(!chuukei_server) check_for_save_file(lpCmdLine);
-#else
 	/* Did the user double click on a save file? */
 	check_for_save_file(lpCmdLine);
-#endif
 
-	/* Prompt the user */
-#ifdef JP
-	prt("[ファイル] メニューの [新規] または [開く] を選択してください。", 23, 8);
-#else
 	prt("[Choose 'New' or 'Open' from the 'File' menu]", 23, 17);
-#endif
 
 	Term_fresh();
 

@@ -1,295 +1,165 @@
 #include "angband.h"
 
-/*
- * Hook to determine if an object is contertible in an arrow/bolt
- */
-static bool item_tester_hook_convertible(object_type *o_ptr)
+static bool _create_ammo_p(object_type *o_ptr)
 {
-	if((o_ptr->tval==TV_JUNK) || (o_ptr->tval==TV_SKELETON)) return TRUE;
-
-	if ((o_ptr->tval == TV_CORPSE) && (o_ptr->sval == SV_SKELETON)) return TRUE;
-	/* Assume not */
-	return (FALSE);
+	if (o_ptr->tval == TV_JUNK || o_ptr->tval == TV_SKELETON) return TRUE;
+	if (object_is_(o_ptr, TV_CORPSE, SV_SKELETON)) return TRUE;
+	return FALSE;
 }
 
-
-/*
- * do_cmd_cast calls this function if the player's class
- * is 'archer'.
- */
-static bool do_cmd_archer(void)
+static bool _create_arrows(void)
 {
-	int ext=0;
-	char ch;
+	int			 item, slot;
+	object_type  forge;
 
-	object_type	forge;
-	object_type     *q_ptr;
+	item_tester_hook = _create_ammo_p;
+	if (!get_item(&item, "Convert which item? ", "You have no item to convert.", USE_INVEN | USE_FLOOR)) 
+		return FALSE;
 
-	char com[80];
-	char o_name[MAX_NLEN];
+	object_prep(&forge, lookup_kind(TV_ARROW, m_bonus(1, p_ptr->lev)+ 1));
+	forge.number = (byte)rand_range(5, 10);
+	object_aware(&forge);
+	object_known(&forge);
+	apply_magic(&forge, p_ptr->lev, AM_NO_FIXED_ART);
+	forge.discount = 99;
 
-	q_ptr = &forge;
-
-	if(p_ptr->lev >= 20)
-#ifdef JP
-		sprintf(com, "[S]弾, [A]矢, [B]クロスボウの矢 :");
-#else
-		sprintf(com, "Create [S]hots, Create [A]rrow or Create [B]olt ?");
-#endif
-	else if(p_ptr->lev >= 10)
-#ifdef JP
-		sprintf(com, "[S]弾, [A]矢:");
-#else
-		sprintf(com, "Create [S]hots or Create [A]rrow ?");
-#endif
+	msg_print("You make some ammo.");
+	if (item >= 0)
+	{
+		inven_item_increase(item, -1);
+		inven_item_describe(item);
+		inven_item_optimize(item);
+	}
 	else
-#ifdef JP
-		sprintf(com, "[S]弾:");
-#else
-		sprintf(com, "Create [S]hots ?");
-#endif
+	{
+		floor_item_increase(0 - item, -1);
+		floor_item_describe(0 - item);
+		floor_item_optimize(0 - item);
+	}
+
+	slot = inven_carry(&forge);
+	if (slot >= 0) 
+		autopick_alter_item(slot, FALSE);
+	return TRUE;
+}
+
+static bool _create_bolts(void)
+{
+	int			 item, slot;
+	object_type  forge;
+
+	item_tester_hook = _create_ammo_p;
+	if (!get_item(&item, "Convert which item? ", "You have no item to convert.", USE_INVEN | USE_FLOOR)) 
+		return FALSE;
+
+	/* Note: You won't ever get Steel Bolts this way since I:18:1 is shared with 
+	   by Bolts and Steel Bolts and lookup_kind() picks the first match in k_info.txt.
+	   However, getting Steel from Bones/Junk would be a bit odd anyway ... */
+	object_prep(&forge, lookup_kind(TV_BOLT, m_bonus(1, p_ptr->lev)+ 1));
+	forge.number = (byte)rand_range(4, 8);
+	object_aware(&forge);
+	object_known(&forge);
+	apply_magic(&forge, p_ptr->lev, AM_NO_FIXED_ART);
+	forge.discount = 99;
+
+	msg_print("You make some ammo.");
+	if (item >= 0)
+	{
+		inven_item_increase(item, -1);
+		inven_item_describe(item);
+		inven_item_optimize(item);
+	}
+	else
+	{
+		floor_item_increase(0 - item, -1);
+		floor_item_describe(0 - item);
+		floor_item_optimize(0 - item);
+	}
+
+	slot = inven_carry(&forge);
+	if (slot >= 0) 
+		autopick_alter_item(slot, FALSE);
+	return TRUE;
+}
+
+static bool _create_shots(void)
+{
+	int         x, y, dir, slot;
+	cave_type  *c_ptr;
+	object_type forge;
+
+	if (!get_rep_dir(&dir, FALSE)) 
+		return FALSE;
+
+	y = py + ddy[dir];
+	x = px + ddx[dir];
+	c_ptr = &cave[y][x];
+
+	if (!have_flag(f_info[get_feat_mimic(c_ptr)].flags, FF_CAN_DIG))
+	{
+		msg_print("You need pile of rubble.");
+		return FALSE;
+	}
+
+	if (!cave_have_flag_grid(c_ptr, FF_CAN_DIG) || !cave_have_flag_grid(c_ptr, FF_HURT_ROCK))
+	{
+		msg_print("You failed to make ammo.");
+		return FALSE;
+	}
+
+	object_prep(&forge, lookup_kind(TV_SHOT, m_bonus(1, p_ptr->lev) + 1));
+	forge.number = (byte)rand_range(15,30);
+	object_aware(&forge);
+	object_known(&forge);
+	apply_magic(&forge, p_ptr->lev, AM_NO_FIXED_ART);
+	forge.discount = 99;
+
+	msg_print("You make some ammo.");
+
+	slot = inven_carry(&forge);
+	if (slot >= 0) 
+		autopick_alter_item(slot, FALSE);
+
+	cave_alter_feat(y, x, FF_HURT_ROCK);
+	p_ptr->update |= PU_FLOW;
+	return TRUE;
+}
+
+static bool _create_ammo(void)
+{
+	char com[256];
 
 	if (p_ptr->confused)
 	{
-#ifdef JP
-		msg_print("混乱してる！");
-#else
 		msg_print("You are too confused!");
-#endif
 		return FALSE;
 	}
-
 	if (p_ptr->blind)
 	{
-#ifdef JP
-		msg_print("目が見えない！");
-#else
-		msg_print("You are blind!");
-#endif
+		msg_print("You can't see!");
 		return FALSE;
 	}
 
-	while (TRUE)
+	if (p_ptr->lev >= 20)
+		sprintf(com, "Create [S]hots, Create [A]rrow or Create [B]olt ?");
+	else if (p_ptr->lev >= 10)
+		sprintf(com, "Create [S]hots or Create [A]rrow ?");
+	else
+		sprintf(com, "Create [S]hots ?");
+
+	for(;;)
 	{
+		char ch;
 		if (!get_com(com, &ch, TRUE))
-		{
 			return FALSE;
-		}
 		if (ch == 'S' || ch == 's')
-		{
-			ext = 1;
-			break;
-		}
-		if ((ch == 'A' || ch == 'a')&&(p_ptr->lev >= 10))
-		{
-			ext = 2;
-			break;
-		}
-		if ((ch == 'B' || ch == 'b')&&(p_ptr->lev >= 20))
-		{
-			ext = 3;
-			break;
-		}
+			return _create_shots();
+		if ((ch == 'A' || ch == 'a') && p_ptr->lev >= 10)
+			return _create_arrows();
+		else if ((ch == 'B' || ch == 'b') && p_ptr->lev >= 20)
+			return _create_bolts();
 	}
-
-	/**********Create shots*********/
-	if (ext == 1)
-	{
-		int x,y, dir;
-		cave_type *c_ptr;
-
-		if (!get_rep_dir(&dir, FALSE)) return FALSE;
-		y = py + ddy[dir];
-		x = px + ddx[dir];
-		c_ptr = &cave[y][x];
-
-		if (!have_flag(f_info[get_feat_mimic(c_ptr)].flags, FF_CAN_DIG))
-		{
-#ifdef JP
-			msg_print("そこには岩石がない。");
-#else
-			msg_print("You need pile of rubble.");
-#endif
-			return FALSE;
-		}
-		else if (!cave_have_flag_grid(c_ptr, FF_CAN_DIG) || !cave_have_flag_grid(c_ptr, FF_HURT_ROCK))
-		{
-#ifdef JP
-			msg_print("硬すぎて崩せなかった。");
-#else
-			msg_print("You failed to make ammo.");
-#endif
-		}
-		else
-		{
-			s16b slot;
-
-			/* Get local object */
-			q_ptr = &forge;
-
-			/* Hack -- Give the player some small firestones */
-			object_prep(q_ptr, lookup_kind(TV_SHOT, m_bonus(1, p_ptr->lev) + 1));
-			q_ptr->number = (byte)rand_range(15,30);
-			object_aware(q_ptr);
-			object_known(q_ptr);
-			apply_magic(q_ptr, p_ptr->lev, AM_NO_FIXED_ART);
-			q_ptr->discount = 99;
-
-			slot = inven_carry(q_ptr);
-
-			object_desc(o_name, q_ptr, 0);
-#ifdef JP
-			msg_format("%sを作った。", o_name);
-#else
-			msg_print("You make some ammo.");
-#endif
-
-			/* Auto-inscription */
-			if (slot >= 0) autopick_alter_item(slot, FALSE);
-
-			/* Destroy the wall */
-			cave_alter_feat(y, x, FF_HURT_ROCK);
-
-			p_ptr->update |= (PU_FLOW);
-		}
-	}
-	/**********Create arrows*********/
-	else if (ext == 2)
-	{
-		int item;
-		cptr q, s;
-		s16b slot;
-
-		item_tester_hook = item_tester_hook_convertible;
-
-		/* Get an item */
-#ifdef JP
-		q = "どのアイテムから作りますか？ ";
-		s = "材料を持っていない。";
-#else
-		q = "Convert which item? ";
-		s = "You have no item to convert.";
-#endif
-		if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return FALSE;
-
-		/* Get the item (in the pack) */
-		if (item >= 0)
-		{
-			q_ptr = &inventory[item];
-		}
-
-		/* Get the item (on the floor) */
-		else
-		{
-			q_ptr = &o_list[0 - item];
-		}
-
-		/* Get local object */
-		q_ptr = &forge;
-
-		/* Hack -- Give the player some small firestones */
-		object_prep(q_ptr, lookup_kind(TV_ARROW, m_bonus(1, p_ptr->lev)+ 1));
-		q_ptr->number = (byte)rand_range(5, 10);
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		apply_magic(q_ptr, p_ptr->lev, AM_NO_FIXED_ART);
-
-		q_ptr->discount = 99;
-
-		object_desc(o_name, q_ptr, 0);
-#ifdef JP
-		msg_format("%sを作った。", o_name);
-#else
-		msg_print("You make some ammo.");
-#endif
-
-		if (item >= 0)
-		{
-			inven_item_increase(item, -1);
-			inven_item_describe(item);
-			inven_item_optimize(item);
-		}
-		else
-		{
-			floor_item_increase(0 - item, -1);
-			floor_item_describe(0 - item);
-			floor_item_optimize(0 - item);
-		}
-
-		slot = inven_carry(q_ptr);
-
-		/* Auto-inscription */
-		if (slot >= 0) autopick_alter_item(slot, FALSE);
-	}
-	/**********Create bolts*********/
-	else if (ext == 3)
-	{
-		int item;
-		cptr q, s;
-		s16b slot;
-
-		item_tester_hook = item_tester_hook_convertible;
-
-		/* Get an item */
-#ifdef JP
-		q = "どのアイテムから作りますか？ ";
-		s = "材料を持っていない。";
-#else
-		q = "Convert which item? ";
-		s = "You have no item to convert.";
-#endif
-		if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return FALSE;
-
-		/* Get the item (in the pack) */
-		if (item >= 0)
-		{
-			q_ptr = &inventory[item];
-		}
-
-		/* Get the item (on the floor) */
-		else
-		{
-			q_ptr = &o_list[0 - item];
-		}
-
-		/* Get local object */
-		q_ptr = &forge;
-
-		/* Hack -- Give the player some small firestones */
-		object_prep(q_ptr, lookup_kind(TV_BOLT, m_bonus(1, p_ptr->lev)+1));
-		q_ptr->number = (byte)rand_range(4, 8);
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		apply_magic(q_ptr, p_ptr->lev, AM_NO_FIXED_ART);
-
-		q_ptr->discount = 99;
-
-		object_desc(o_name, q_ptr, 0);
-#ifdef JP
-		msg_format("%sを作った。", o_name);
-#else
-		msg_print("You make some ammo.");
-#endif
-
-		if (item >= 0)
-		{
-			inven_item_increase(item, -1);
-			inven_item_describe(item);
-			inven_item_optimize(item);
-		}
-		else
-		{
-			floor_item_increase(0 - item, -1);
-			floor_item_describe(0 - item);
-			floor_item_optimize(0 - item);
-		}
-
-		slot = inven_carry(q_ptr);
-
-		/* Auto-inscription */
-		if (slot >= 0) autopick_alter_item(slot, FALSE);
-	}
-	return TRUE;
+	return FALSE;
 }
 
 void create_ammo_spell(int cmd, variant *res)
@@ -303,10 +173,69 @@ void create_ammo_spell(int cmd, variant *res)
 		var_set_string(res, T("Create arrows, bolts or shots.", ""));
 		break;
 	case SPELL_CAST:
-		var_set_bool(res, do_cmd_archer());
+		var_set_bool(res, _create_ammo());
 		break;
 	default:
 		default_spell(cmd, res);
 		break;
 	}
+}
+
+static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
+{
+	if (info_ptr->tval_ammo == TV_ARROW)
+		info_ptr->num_fire += p_ptr->lev*5 + 50;
+	else if (info_ptr->tval_ammo == TV_BOLT || info_ptr->tval_ammo == TV_SHOT)
+		info_ptr->num_fire += p_ptr->lev*4;
+}
+
+static int _get_powers(spell_info* spells, int max)
+{
+	int ct = 0;
+
+	spell_info* spell = &spells[ct++];
+	spell->level = 1;
+	spell->cost = 0;
+	spell->fail = 0;
+	spell->fn = create_ammo_spell;
+
+	return ct;
+}
+
+class_t *archer_get_class_t(void)
+{
+	static class_t me = {0};
+	static bool init = FALSE;
+	if (!init)
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 38,  24,  35,   4,  24,  16,  56,  82};
+	skills_t xs = { 12,  10,  10,   0,   0,   0,  18,  36};
+
+		me.name = "Archer";
+		me.desc = "Archers are to bows what warriors are to melee. They are the best "
+					"class around with any bow, crossbow, or sling. They need a lot of "
+					"ammunition, but will learn how to make it from junk found in the "
+					"dungeon. An archer is better than a warrior at stealth, "
+					"perception, searching and magical devices.\n \n"
+					"Archers have a class power - 'Create Ammo' - which creates stones "
+					"or shots from pile of rubble, and arrows and crossbow bolts from "
+					"bones.";
+
+		me.stats[A_STR] =  1;
+		me.stats[A_INT] = -1;
+		me.stats[A_WIS] = -1;
+		me.stats[A_DEX] =  1;
+		me.stats[A_CON] =  1;
+		me.stats[A_CHR] =  0;
+		me.base_skills = bs;
+		me.extra_skills = xs;
+		me.life = 110;
+		me.exp = 110;
+		me.pets = 40;
+		
+		me.calc_shooter_bonuses = _calc_shooter_bonuses;
+		me.get_powers = _get_powers;
+		init = TRUE;
+	}
+	return &me;
 }

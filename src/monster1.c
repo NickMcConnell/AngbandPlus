@@ -906,7 +906,7 @@ else                            hooked_roff("モンスター");
 #ifdef JP
 		hooked_roff(format("%^sは矢の呪文を跳ね返す。", wd_he[msex]));
 #else
-		hooked_roff(format("%^s reflects bolt spells.  ", wd_he[msex]));
+		hooked_roff(format("%^s reflects bolt spells and arrows.  ", wd_he[msex]));
 #endif
 
 	}
@@ -1422,6 +1422,7 @@ if (flags4 & RF4_DISPEL)    {vp[vn] = "魔力消去";color[vn++] = TERM_L_WHITE;}
 #endif
 
 	if (flags4 & RF4_ANTI_MAGIC) {vp[vn] = "anti-magic";color[vn++] = TERM_L_WHITE;}
+	if (flags4 & RF4_ANTI_MAGIC) {vp[vn] = "polymorph";color[vn++] = TERM_L_RED;}
 
 #ifdef JP
 if (flags6 & (RF6_BLINK))           {vp[vn] = "ショートテレポート";color[vn++] = TERM_UMBER;}
@@ -3022,7 +3023,7 @@ case RBE_DR_MANA:  q = "魔力を奪う"; break;
 
 	}
 
-	else if (flags7 & RF7_GUARDIAN)
+	else if ((flags7 & RF7_GUARDIAN) && !(vanilla_town || lite_town))
 	{
 #ifdef JP
 		hook_c_roff(TERM_L_RED, "このモンスターはダンジョンの主である。");

@@ -250,6 +250,7 @@ static cptr f_info_flags[] =
 	"ROGUE_TRAP_1",
 	"ROGUE_TRAP_2",
 	"ROGUE_TRAP_3",
+	"WEB",
 };
 
 
@@ -381,7 +382,7 @@ static cptr r_info_flags4[] =
 	"ROCKET",
 	"SHOOT",
 	"ANTI_MAGIC",
-	"XXX3",
+	"POLY",
 	"XXX4",
 	"BR_ACID",
 	"BR_ELEC",
@@ -777,7 +778,7 @@ static cptr k_info_flags[] =
 	"SPELL_POWER",
 	"RES_TIME",
 	"SPELL_CAP",
-	"TR_SIGNATURE",
+	"LIFE",
 	"WILD",
 	"ORDER",
 	"DARKNESS"
@@ -802,7 +803,7 @@ static cptr k_info_gen_flags[] =
 	"RANDOM_CURSE0",
 	"RANDOM_CURSE1",
 	"RANDOM_CURSE2",
-	"XXX",
+	"STACK",
 	"XXX",
 	"XXX",
 	"XXX",
@@ -3324,7 +3325,6 @@ static int i = 0;
 #define RANDOM_EGO          0x00000008
 #define RANDOM_ARTIFACT     0x00000010
 #define RANDOM_TRAP         0x00000020
-#define UBER_MEGA_HACK		0x00000040
 
 
 typedef struct dungeon_grid dungeon_grid;
@@ -3402,11 +3402,6 @@ static errr parse_line_feature(char *buf)
 				else
 				{
 					letter[index].artifact = atoi(zz[6]);
-					if (letter[index].artifact == 555)
-					{
-						letter[index].random |= UBER_MEGA_HACK;
-						letter[index].artifact = 0;
-					}
 				}
 				/* Fall through */
 			/* Ego-item */
@@ -3564,32 +3559,68 @@ static errr parse_line_building(char *buf)
 			return (PARSE_ERROR_TOO_FEW_ARGUMENTS);
 		}
 
-		/* Building Classes */
+		/* Building Classes 
+			The old way:
+			B:$7:C:2:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:2:0:0:2:2:2:0:0:0:0:0:2:0:0:2:0:2:2:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+
+			The new way:
+			B:$7:C:*:None to set a default
+			B:$7:C:Warrior:Owner to set an owner
+			B:$7:C:Ranger:Member to set a member
+			(You probably should always specify a default first since I am unsure if
+			code cleans up properly.)
+		*/
 		case 'C':
 		{
-			if (tokenize(s + 2, MAX_CLASS, zz, 0) == MAX_CLASS)
+			if (tokenize(s + 2, 2, zz, 0) == 2)
 			{
-				for (i = 0; i < MAX_CLASS; i++)
-				{
-					building[index].member_class[i] = atoi(zz[i]);
-				}
+				int c = get_bldg_member_code(zz[1]);
 
+				if (c < 0)
+					return PARSE_ERROR_GENERIC;
+
+				if (strcmp(zz[0], "*") == 0)
+				{
+					for (i = 0; i < MAX_CLASS; i++)
+						building[index].member_class[i] = c;
+				}
+				else
+				{
+					int idx = get_class_idx(zz[0]);
+					if (idx < 0 || idx >= MAX_CLASS)
+						return PARSE_ERROR_GENERIC;
+					building[index].member_class[idx] = c;
+				}
 				break;
 			}
 
 			return (PARSE_ERROR_TOO_FEW_ARGUMENTS);
 		}
 
-		/* Building Races */
+		/* Building Races 
+			Same as with classes ...
+		*/
 		case 'R':
 		{
-			if (tokenize(s+2, MAX_RACES, zz, 0) == MAX_RACES)
+			if (tokenize(s + 2, 2, zz, 0) == 2)
 			{
-				for (i = 0; i < MAX_RACES; i++)
-				{
-					building[index].member_race[i] = atoi(zz[i]);
-				}
+				int c = get_bldg_member_code(zz[1]);
 
+				if (c < 0)
+					return PARSE_ERROR_GENERIC;
+
+				if (strcmp(zz[0], "*") == 0)
+				{
+					for (i = 0; i < MAX_RACES; i++)
+						building[index].member_race[i] = c;
+				}
+				else
+				{
+					int idx = get_race_idx(zz[0]);
+					if (idx < 0 || idx >= MAX_RACES)
+						return PARSE_ERROR_GENERIC;
+					building[index].member_race[idx] = c;
+				}
 				break;
 			}
 
@@ -3599,13 +3630,25 @@ static errr parse_line_building(char *buf)
 		/* Building Realms */
 		case 'M':
 		{
-			if (tokenize(s+2, MAX_MAGIC, zz, 0) == MAX_MAGIC)
+			if (tokenize(s + 2, 2, zz, 0) == 2)
 			{
-				for (i = 0; i < MAX_MAGIC; i++)
-				{
-					building[index].member_realm[i+1] = atoi(zz[i]);
-				}
+				int c = get_bldg_member_code(zz[1]);
 
+				if (c < 0)
+					return PARSE_ERROR_GENERIC;
+
+				if (strcmp(zz[0], "*") == 0)
+				{
+					for (i = 0; i <= MAX_REALM; i++)
+						building[index].member_realm[i] = c;
+				}
+				else
+				{
+					int idx = get_realm_idx(zz[0]);
+					if (idx < 0 || idx > MAX_REALM)
+						return PARSE_ERROR_GENERIC;
+					building[index].member_realm[idx] = c;
+				}
 				break;
 			}
 
@@ -3802,27 +3845,6 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 				}
 
 				object_level = base_level;
-			}
-			else if (random & UBER_MEGA_HACK)
-			{
-				/* My deep apologies, but I need a way to handle quest rewards
-				   that just can't be done with the current external files! */
-				if (quest_mega_hack == 27)
-				{
-					/* Old Castle Reward: Randart specialization weapon, generated as dlvl 80. */
-					if (p_ptr->pclass == CLASS_WEAPONMASTER)
-					{
-						object_type forge;
-
-						object_level = 80;
-
-						object_prep(&forge, weaponmaster_specialty2_k_idx());
-						create_artifact(&forge, CREATE_ART_GOOD);
-						drop_here(&forge, *y, *x);
-
-						object_level = base_level;
-					}
-				}
 			}
 			else if (random & RANDOM_OBJECT)
 			{
@@ -4344,18 +4366,13 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 
 			else if (streq(b+1, "RACE"))
 			{
-				get_true_race_t()->name;
-			/*	get_race_t()->name; */
+				v = get_true_race_t()->name;
 			}
 
 			/* Class */
 			else if (streq(b+1, "CLASS"))
 			{
-#ifdef JP
-				v = cp_ptr->E_title;
-#else
-				v = cp_ptr->title;
-#endif
+				v = get_class_t()->name;
 			}
 
 			/* First realm */
@@ -4470,7 +4487,9 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 			else if (streq(b+1, "SPECIALITY"))
 			{
 				if (p_ptr->pclass == CLASS_WEAPONMASTER)
-					sprintf(tmp, weaponmaster_speciality1_name());
+					sprintf(tmp, weaponmaster_speciality_name(p_ptr->psubclass));
+				else
+					sprintf(tmp, "None");
 				v = tmp;
 			}
 		}

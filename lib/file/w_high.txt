@@ -10,6 +10,7 @@ N: 1:BIAS_ELEC
 'Rising Thunder'
 of Djinni
 of Poseidon
+of Raijin
 
 N: 2:BIAS_POIS
 'Dragon Fang'
@@ -189,8 +190,6 @@ of Irmo
 of Venus
 
 N:*:Default
-'Impuls 255'
-'BGF-9000'
 'Bloodscourge'
 'Soul Searer'
 'Cosmic Horror'
@@ -201,9 +200,9 @@ N:*:Default
 'Conqueror'
 'Angel of Death'
 'Destroying Angel'
+'Avenging Angel'
 'Black Star'
 'Kalma'
-'Fat Boy'
 'Megadeath'
 'Doomsday'
 'Eternity's End'

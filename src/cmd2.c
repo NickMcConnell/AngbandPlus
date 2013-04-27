@@ -12,7 +12,6 @@
 
 #include "angband.h"
 
-
 /*
  * Go up one level
  */
@@ -47,14 +46,7 @@ void do_cmd_go_up(void)
 	if (have_flag(f_ptr->flags, FF_QUEST))
 	{
 		/* Success */
-#ifdef JP
-		if ((p_ptr->personality == PERS_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON))
-			msg_print("なんだこの階段は！");
-		else
-			msg_print("上の階に登った。");
-#else
 		msg_print("You enter the up staircase.");
-#endif
 
 		leave_quest_check();
 
@@ -164,26 +156,11 @@ void do_cmd_go_up(void)
 			up_num = dun_level;
 	}
 
-#ifdef JP
-	if (record_stair) do_cmd_write_nikki(NIKKI_STAIR, 0-up_num, "階段を上った");
-#else
-	if (record_stair) do_cmd_write_nikki(NIKKI_STAIR, 0-up_num, "climbed up the stairs to");
-#endif
-
 	/* Success */
-#ifdef JP
-	if ((p_ptr->personality == PERS_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON))
-		msg_print("なんだこの階段は！");
-	else if (up_num == dun_level)
-		msg_print("地上に戻った。");
-	else
-		msg_print("階段を上って新たなる迷宮へと足を踏み入れた。");
-#else
 	if (up_num == dun_level)
 		msg_print("You go back to the surface.");
 	else
 		msg_print("You enter a maze of up staircases.");
-#endif
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;
@@ -230,15 +207,7 @@ void do_cmd_go_down(void)
 	/* Quest down stairs */
 	else if (have_flag(f_ptr->flags, FF_QUEST))
 	{
-#ifdef JP
-		if ((p_ptr->personality == PERS_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON))
-			msg_print("なんだこの階段は！");
-		else
-			msg_print("下の階に降りた。");
-#else
-			msg_print("You enter the down staircase.");
-#endif
-
+		msg_print("You enter the down staircase.");
 
 		leave_quest_check();
 
@@ -319,46 +288,20 @@ void do_cmd_go_down(void)
 			down_num = d_info[dungeon_type].mindepth;
 		}
 
-		if (record_stair)
-		{
-#ifdef JP
-			if (fall_trap) do_cmd_write_nikki(NIKKI_STAIR, down_num, "落とし戸に落ちた");
-			else do_cmd_write_nikki(NIKKI_STAIR, down_num, "階段を下りた");
-#else
-			if (fall_trap) do_cmd_write_nikki(NIKKI_STAIR, down_num, "fell through a trap door");
-			else do_cmd_write_nikki(NIKKI_STAIR, down_num, "climbed down the stairs to");
-#endif
-		}
-
 		if (fall_trap)
 		{
-#ifdef JP
-			msg_print("わざと落とし戸に落ちた。");
-#else
 			msg_print("You deliberately jump through the trap door.");
-#endif
 		}
 		else
 		{
 			/* Success */
 			if (target_dungeon)
 			{
-#ifdef JP
-				msg_format("%sへ入った。", d_text + d_info[dungeon_type].text);
-#else
 				msg_format("You entered %s.", d_text + d_info[dungeon_type].text);
-#endif
 			}
 			else
 			{
-#ifdef JP
-				if ((p_ptr->personality == PERS_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON))
-					msg_print("なんだこの階段は！");
-				else
-					msg_print("階段を下りて新たなる迷宮へと足を踏み入れた。");
-#else
 				msg_print("You enter a maze of down staircases.");
-#endif
 			}
 		}
 
@@ -380,10 +323,12 @@ void do_cmd_go_down(void)
 			else
 			{
 				/* Create a way back */
-				if (p_ptr->enter_dungeon && down_num > 30 && one_in_(14))
+				if (p_ptr->enter_dungeon && down_num >= 20 && one_in_(14))
 				{
 					/* Hack:  No stair scum */
-					prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_DOWN | CFM_RAND_PLACE | CFM_RAND_CONNECT);
+					msg_print("The stairs collapse behind you! You are trapped!!");
+					dungeon_flags[target_dungeon] |= DUNGEON_NO_ENTRANCE;
+					prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_DOWN | CFM_RAND_PLACE);
 				}
 				else
 				{
@@ -616,16 +561,9 @@ static void chest_trap(int y, int x, s16b o_idx)
 	/* Poison */
 	if (trap & (CHEST_POISON))
 	{
-#ifdef JP
-		msg_print("突如吹き出した緑色のガスに包み込まれた！");
-#else
 		msg_print("A puff of green gas surrounds you!");
-#endif
-
-		if (!(p_ptr->resist_pois || IS_OPPOSE_POIS()))
-		{
+		if (!res_save_default(RES_POIS))
 			(void)set_poisoned(p_ptr->poisoned + 10 + randint1(20), FALSE);
-		}
 	}
 
 	/* Paralyze */
@@ -2722,10 +2660,15 @@ void do_cmd_walk(bool pickup)
 		/* Hack -- In small scale wilderness it takes MUCH more time to move */
 		if (p_ptr->wild_mode) energy_use *= ((MAX_HGT + MAX_WID) / 2);
 		
-		if (p_ptr->action == ACTION_HAYAGAKE) energy_use = energy_use * (45-(p_ptr->lev/2)) / 100;
+		if (p_ptr->action == ACTION_QUICK_WALK) energy_use = energy_use * (45-(p_ptr->lev/2)) / 100;
+		if (p_ptr->action == ACTION_STALK) energy_use = energy_use * (175 - p_ptr->lev) / 100;
+		if (weaponmaster_get_toggle() == TOGGLE_SHADOW_STANCE)
+			energy_use = energy_use * (45-(p_ptr->lev/2)) / 100;
 		
-		if (!p_ptr->wild_mode && p_ptr->tim_shrike) energy_use /= 3;
-		else if (p_ptr->quick_walk)  energy_use /= 2;
+		if (!p_ptr->wild_mode && p_ptr->tim_shrike) 
+			energy_use /= 3;
+		else if (p_ptr->quick_walk)
+			energy_use -= energy_use * (20 + randint1(20)) / 100;
 			
 
 		/* Actually move the character */
@@ -2974,6 +2917,10 @@ static int breakage_chance(object_type *o_ptr)
 {
 	int archer_bonus = (p_ptr->pclass == CLASS_ARCHER ? (p_ptr->lev-1)/7 + 4: 0);
 
+	/* Hack: Bowmasters should have 75% protection ... */
+	if (weaponmaster_is_(WEAPONMASTER_BOWS) && p_ptr->lev >= 20)
+		archer_bonus = 7;
+
 	/* Examine the snipe type */
 	if (snipe_type)
 	{
@@ -2985,6 +2932,11 @@ static int breakage_chance(object_type *o_ptr)
 		if (snipe_type == SP_EVILNESS) return (40);
 		if (snipe_type == SP_HOLYNESS) return (40);
 	}
+
+	if (shoot_hack == SHOOT_SHATTER) return 100;
+	if (weaponmaster_get_toggle() == TOGGLE_EXPLODING_BOLT) return 100;
+	if (shoot_hack == SHOOT_ELEMENTAL) return 100;
+	if (weaponmaster_get_toggle() == TOGGLE_OVERDRAW) return 100;
 
 	/* Examine the item type */
 	switch (o_ptr->tval)
@@ -3023,14 +2975,12 @@ static int breakage_chance(object_type *o_ptr)
 static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 {
 	int mult = 10;
-	bool hephaestus_hack = FALSE;
-
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	u32b flgs[TR_FLAG_SIZE];
 
 	/* Extract the flags */
-	object_flags(o_ptr, flgs);
+	missile_flags(o_ptr, flgs);
 
 	/* Some "weapons" and "ammo" do extra damage */
 	switch (o_ptr->tval)
@@ -3254,10 +3204,12 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 
 				if (mult < 30) mult = 30;
 
-				if ((o_ptr->name1 == ART_BARD_ARROW) &&
-				    (m_ptr->r_idx == MON_SMAUG) &&
-				    (inventory[INVEN_BOW].name1 == ART_BARD))
+				if ( o_ptr->name1 == ART_BARD_ARROW 
+				  && m_ptr->r_idx == MON_SMAUG 
+				  && equip_find_artifact(ART_BARD) )
+				{
 					mult *= 5;
+				}
 			}
 
 			/* Brand (Acid) */
@@ -3370,22 +3322,14 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				}
 			}
 
-			if (mult > 10 && prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_HEPHAESTUS)
-			{
-				hephaestus_hack = TRUE;
-				mult += 5;
-			}
-
 			if ( (have_flag(flgs, TR_FORCE_WEAPON) || p_ptr->tim_force) 
 			  && (p_ptr->csp > (p_ptr->msp / 30)))
 			{
 				p_ptr->csp -= (1+(p_ptr->msp / 30));
 				p_ptr->redraw |= (PR_MANA);
-				mult = mult * 5 / 2;
+				mult = mult * 3 / 2;
 			}
 
-			if (mult > 10 && prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_HEPHAESTUS && !hephaestus_hack)
-				mult += 5;
 			break;
 		}
 	}
@@ -3427,55 +3371,74 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
  * Note that Bows of "Extra Shots" give an extra shot.
  */
 #define SIGN(x) ((x) > 0 ? 1 : ((x) < 0 ? -1: 0))
-bool do_cmd_fire_aux1(int item, object_type *j_ptr)
+bool do_cmd_fire_aux1(int item, object_type *bow)
 {
 	int dir;
 	int tdis, tx, ty;
 
-	tdis = bow_range(j_ptr->sval);
+	tdis = bow_range(bow->sval);
 	project_length = tdis + 1;
 
-	/* Get a direction (or cancel) */
-	if (!get_aim_dir(&dir))
+	if (shoot_hack == SHOOT_DISINTEGRATE)
 	{
-		energy_use = 0;
+		if (target_set(TARGET_DISI))
+		{
+			msg_flag = FALSE; /* Bug ... we get an extra -more- prompt after target_set() ... */
+			if (target_who > 0)
+			{
+				tx = m_list[target_who].fx;
+				ty = m_list[target_who].fy;
+			}
+			else
+			{
+				tx = target_col;
+				ty = target_row;
+			}
+		}
+		else
+		{
+			energy_use = 0;
+			return FALSE;
+		}
+	}
+	else
+	{
+		if (!get_aim_dir(&dir))
+		{
+			energy_use = 0;
+			if (snipe_type == SP_AWAY) snipe_type = SP_NONE;
+			return FALSE;
+		}
 
-		if (snipe_type == SP_AWAY) snipe_type = SP_NONE;
+		/* Predict the "target" location */
+		tx = px + 99 * ddx[dir];
+		ty = py + 99 * ddy[dir];
 
-		/* need not to reset project_length (already did)*/
-
-		return FALSE;
+		/* Check for "target request" */
+		if ((dir == 5) && target_okay())
+		{
+			tx = target_col;
+			ty = target_row;
+		}
 	}
 
-	/* Predict the "target" location */
-	tx = px + 99 * ddx[dir];
-	ty = py + 99 * ddy[dir];
-
-	/* Check for "target request" */
-	if ((dir == 5) && target_okay())
-	{
-		tx = target_col;
-		ty = target_row;
-	}
 	/* Don't shoot at my feet */
 	if (tx == px && ty == py)
 	{
 		energy_use = 0;
-
 		/* project_length is already reset to 0 */
-
 		return FALSE;
 	}
 
 	if (!fear_allow_shoot())
 	{
 		msg_print("You are too scared!");
-		energy_use = bow_energy(j_ptr->sval)/p_ptr->num_fire;
+		energy_use = bow_energy(bow->sval)/p_ptr->shooter_info.num_fire;
 		if (snipe_type == SP_AWAY) snipe_type = SP_NONE;
 		return FALSE;
 	}
 
-	do_cmd_fire_aux2(item, j_ptr, px, py, tx, ty);
+	do_cmd_fire_aux2(item, bow, px, py, tx, ty);
 
 	/* Hack! Snotlings recoil when shooting ... */
 	if (prace_is_(RACE_SNOTLING))
@@ -3545,7 +3508,7 @@ bool do_cmd_fire_aux1(int item, object_type *j_ptr)
 
 	return TRUE;
 }
-void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int ty)
+void do_cmd_fire_aux2(int item, object_type *bow, int sx, int sy, int tx, int ty)
 {
 	int i, j, y, x, ny, nx, prev_y, prev_x, dd;
 	int tdam_base, tdis, thits, tmul;
@@ -3565,10 +3528,10 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 	char o_name[MAX_NLEN];
 
 	u16b path_g[512];	/* For calcuration of path length */
+	int flgs = PROJECT_PATH | PROJECT_THRU;
 
 	int msec = delay_factor * delay_factor * delay_factor;
 
-	/* STICK TO */
 	bool stick_to = FALSE;
 
 	/* Access the item (if in the pack) */
@@ -3576,7 +3539,7 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 	{
 		if (item == INVEN_UNLIMITED_QUIVER)
 		{
-			int k_idx = lookup_kind(p_ptr->tval_ammo, SV_AMMO_NORMAL);
+			int k_idx = lookup_kind(p_ptr->shooter_info.tval_ammo, SV_AMMO_NORMAL);
 			object_prep(&forge2, k_idx);
 			o_ptr = &forge2;
 		}
@@ -3593,47 +3556,61 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 	if (snipe_type == SP_DOUBLE) num_shots = 2;
 
 	/* Describe the object */
-	object_desc(o_name, o_ptr, OD_OMIT_PREFIX);
+	object_desc(o_name, o_ptr, OD_OMIT_PREFIX | OD_NO_PLURAL | OD_OMIT_INSCRIPTION);
 
 	/* Use the proper number of shots */
-	thits = p_ptr->num_fire;
+	thits = p_ptr->shooter_info.num_fire;
 
 	/* Base damage from thrown object plus launcher bonus */
 	dd = o_ptr->dd;
 	if (p_ptr->big_shot)
 		dd *= 2;
-	tdam_base = damroll(dd, o_ptr->ds) + o_ptr->to_d + j_ptr->to_d;
+	tdam_base = damroll(dd, o_ptr->ds) + o_ptr->to_d + bow->to_d;
+	if (weaponmaster_is_(WEAPONMASTER_CROSSBOWS) && p_ptr->lev >= 15)
+		tdam_base += 1 + p_ptr->lev/10;
 
 	/* Actually "fire" the object */
-	bonus = (p_ptr->to_h_b + o_ptr->to_h + j_ptr->to_h);
+	bonus = (p_ptr->shooter_info.to_h + o_ptr->to_h + bow->to_h);
 
-	if (shoot_hack == SHOOT_BOUNCE)
+	switch (shoot_hack)
 	{
+	case SHOOT_BOUNCE:
 		bonus -= 20 * shoot_count;
-	}
-
-	if (shoot_hack == SHOOT_RUN)
-	{
+		break;
+	case SHOOT_RUN:
 		bonus -= 10;
 		no_energy = TRUE;
-	}
-
-	if (shoot_hack == SHOOT_MANY)
-	{
+		break;
+	case SHOOT_MANY:
 		bonus -= 10;
 		no_energy = TRUE;
-	}
-
-	if (shoot_hack == SHOOT_ALL)
-	{
+		break;
+	case SHOOT_ALL:
 		bonus -= 20;
 		no_energy = TRUE;
+		break;
+	case SHOOT_RETALIATE:
+		no_energy = TRUE;
+		break;
+	case SHOOT_VOLLEY:
+	case SHOOT_TRANQUILIZE:
+	case SHOOT_NEEDLE:
+	case SHOOT_DISINTEGRATE:
+	case SHOOT_SHATTER:
+	case SHOOT_KNOCKBACK:
+	case SHOOT_ELEMENTAL:
+		no_energy = TRUE;
+		energy_use = 100;
+		break;
 	}
+	
+	if (weaponmaster_get_toggle() == TOGGLE_PIERCING_ARROW || shoot_hack == SHOOT_PIERCE)
+		shoot_count = 0;
 
 	if (weaponmaster_get_toggle() == TOGGLE_RAPID_SHOT)
 	{
-	int  frac;
-	s16b energy_fire = bow_energy(j_ptr->sval);
+		int  frac;
+		s16b energy_fire = bow_energy(bow->sval);
 
 		bonus -= 20;
 		/* In this mode, whenever the player fires, all of their shots go
@@ -3646,7 +3623,7 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 		/* Calculate shots per round 
 		   CTK: energy_fire has four decimal places implied
 		        p_ptr->num_fire only has two decimal places implied */
-		num_shots = p_ptr->num_fire * 100;  /* rescale to 4 decimal places */
+		num_shots = p_ptr->shooter_info.num_fire * 100;  /* rescale to 4 decimal places */
 		num_shots = num_shots * 120 / 100;  /* rapid fire gives 1.2x the number of shots */
 		frac = (num_shots * 100 / energy_fire) % 100;
 		num_shots /= energy_fire;
@@ -3655,31 +3632,42 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 			num_shots++;
 	}
 
-	if ((j_ptr->sval == SV_LIGHT_XBOW) || (j_ptr->sval == SV_HEAVY_XBOW))
-		chance = (p_ptr->skills.thb + (p_ptr->weapon_exp[0][j_ptr->sval] / 400 + bonus) * BTH_PLUS_ADJ);
+	if (bow->sval == SV_LIGHT_XBOW || bow->sval == SV_HEAVY_XBOW)
+		chance = (p_ptr->skills.thb + (p_ptr->weapon_exp[0][bow->sval] / 400 + bonus) * BTH_PLUS_ADJ);
 	else
-		chance = (p_ptr->skills.thb + ((p_ptr->weapon_exp[0][j_ptr->sval] - (WEAPON_EXP_MASTER / 2)) / 200 + bonus) * BTH_PLUS_ADJ);
+		chance = (p_ptr->skills.thb + ((p_ptr->weapon_exp[0][bow->sval] - (WEAPON_EXP_MASTER / 2)) / 200 + bonus) * BTH_PLUS_ADJ);
 
 	if (!no_energy)
-		energy_use = bow_energy(j_ptr->sval);
+		energy_use = bow_energy(bow->sval);
 
-	tmul = bow_tmul(j_ptr->sval);
-
-	/* Get extra "power" from "extra might" */
+	/* Calculate the Multiplier */
+	tmul = bow_tmul(bow->sval);
 	if (p_ptr->xtra_might) tmul++;
+	tmul += p_ptr->shooter_info.to_mult;
 
-	tmul = tmul * (100 + (int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+	if (weaponmaster_is_(WEAPONMASTER_CROSSBOWS))
+	{
+		int idx = p_ptr->stat_ind[A_STR] + 4;
+		if (idx > 40-3)
+			idx = 40-3;
+		tmul = tmul * (100 + (int)(adj_str_td[idx]) - 128);
+	}
+	else
+		tmul = tmul * (100 + (int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
 
 	/* Boost the damage */
 	tdam_base *= tmul;
 	tdam_base /= 100;
 
 	/* Base range */
-	tdis = bow_range(j_ptr->sval);
+	tdis = bow_range(bow->sval);
 	project_length = tdis + 1;
 
 	/* Get projection path length */
-	tdis = project_path(path_g, project_length, sy, sx, ty, tx, PROJECT_PATH|PROJECT_THRU) - 1;
+	if (shoot_hack == SHOOT_DISINTEGRATE)
+		flgs |= PROJECT_DISI;
+
+	tdis = project_path(path_g, project_length, sy, sx, ty, tx, flgs) - 1;
 
 	project_length = 0; /* reset to default */
 
@@ -3698,7 +3686,7 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 		/* Make sure there is ammo left over for this shot */
 		if (item != INVEN_UNLIMITED_QUIVER)
 		{
-			if (inventory[item].tval != p_ptr->tval_ammo)
+			if (inventory[item].tval != p_ptr->shooter_info.tval_ammo)
 			{
 				msg_print("Your ammo has run out.  Time to reload!");
 				break;
@@ -3761,8 +3749,11 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 		{
 			cave_type *c_ptr;
 
-			/* Hack -- Stop at the target */
-			if ((y == ty) && (x == tx)) break;
+			if (weaponmaster_get_toggle() != TOGGLE_PIERCING_ARROW && shoot_hack != SHOOT_PIERCE)
+			{
+				/* Hack -- Stop at the target */
+				if ((y == ty) && (x == tx)) break;
+			}
 
 			/* Calculate the new location (see "project()") */
 			ny = y;
@@ -3776,24 +3767,25 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 			if (snipe_type == SP_KILL_WALL)
 			{
 				c_ptr = &cave[ny][nx];
-
 				if (cave_have_flag_grid(c_ptr, FF_HURT_ROCK) && !c_ptr->m_idx)
 				{
-	#ifdef JP
-					if (c_ptr->info & (CAVE_MARK)) msg_print("岩が砕け散った。");
-	#else
 					if (c_ptr->info & (CAVE_MARK)) msg_print("Wall rocks were shattered.");
-	#endif
-					/* Forget the wall */
 					c_ptr->info &= ~(CAVE_MARK);
-
 					p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
-
-					/* Destroy the wall */
 					cave_alter_feat(ny, nx, FF_HURT_ROCK);
-
 					hit_body = TRUE;
 					break;
+				}
+			}
+
+			if (shoot_hack == SHOOT_DISINTEGRATE)
+			{
+				c_ptr = &cave[ny][nx];
+				if (cave_have_flag_grid(c_ptr, FF_HURT_ROCK) && !c_ptr->m_idx)
+				{
+					c_ptr->info &= ~(CAVE_MARK);
+					p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
+					cave_alter_feat(ny, nx, FF_HURT_ROCK);
 				}
 			}
 
@@ -3807,11 +3799,7 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 			if (snipe_type == SP_LITE)
 			{
 				cave[ny][nx].info |= (CAVE_GLOW);
-
-				/* Notice */
 				note_spot(ny, nx);
-
-				/* Redraw */
 				lite_spot(ny, nx);
 			}
 
@@ -3829,7 +3817,6 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 				lite_spot(ny, nx);
 				Term_fresh();
 			}
-
 			/* The player cannot see the missile */
 			else
 			{
@@ -3843,16 +3830,10 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 				project(0, 0, ny, nx, 0, GF_KILL_TRAP,
 					(PROJECT_JUMP | PROJECT_HIDE | PROJECT_GRID | PROJECT_ITEM), -1);
 			}
-
-			/* Sniper */
 			if (snipe_type == SP_EVILNESS)
 			{
 				cave[ny][nx].info &= ~(CAVE_GLOW | CAVE_MARK);
-
-				/* Notice */
 				note_spot(ny, nx);
-
-				/* Redraw */
 				lite_spot(ny, nx);
 			}
 
@@ -3866,6 +3847,7 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 
 			/* Hack: Shoot all monsters fires over the heads of intervening monsters */
 			if (shoot_hack == SHOOT_ALL && (x != tx || y != ty)) continue;
+			if (shoot_hack == SHOOT_VOLLEY && (x != tx || y != ty)) continue;
 
 			/* Monster here, Try to hit it */
 			if (cave[y][x].m_idx)
@@ -3890,7 +3872,7 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 				}
 
 				if ((r_ptr->level + 10) > p_ptr->lev)
-					skills_bow_gain(j_ptr->sval);
+					skills_bow_gain(bow->sval);
 
 				if (p_ptr->riding)
 				{
@@ -3903,7 +3885,6 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 					}
 				}
 
-				/* Some shots have hit bonus */
  				armour = MON_AC(r_ptr, m_ptr);
 				if (p_ptr->concent)
 				{
@@ -3911,7 +3892,24 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 					armour /= 10;
 				}
 
-				/* A painted target (almost) always hits */
+				if ( (r_ptr->flags2 & RF2_REFLECTING) 
+				  && one_in_((prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ARTEMIS) ? 4 : 2))
+				{
+					int max_attempts = 10;
+
+					do
+					{
+						ty = py - 2 + randint0(5);
+						tx = px - 2 + randint0(5);
+						max_attempts--;
+					}
+					while (max_attempts && in_bounds2u(ty, tx) && !projectable(y, x, ty, tx));
+
+					msg_print("The attack bounces!");
+					do_cmd_fire_aux2(item, bow, x, y, tx, ty);
+					return;
+				}
+
 				if ( p_ptr->painted_target 
 				  && p_ptr->painted_target_idx == c_ptr->m_idx 
 				  && p_ptr->painted_target_ct >= 3)
@@ -3919,10 +3917,18 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 					if (randint1(100) <= 95)
 						hit = TRUE;
 				}
+				else if (weaponmaster_is_(WEAPONMASTER_BOWS) && cur_dis == 1)
+				{
+					hit = TRUE;
+				}
 				else
 				{
-					/* Did we hit it? (penalize range) */
-					hit = test_hit_fire(chance - cur_dis, armour, m_ptr->ml);
+					int chance2 = chance;
+
+					if (weaponmaster_is_(WEAPONMASTER_BOWS) && p_ptr->lev >= 15)
+						chance2 += 2*(bow_range(bow->sval) - cur_dis);
+
+					hit = test_hit_fire(chance2 - cur_dis, armour, m_ptr->ml);
 				}
 
 				if (p_ptr->painted_target)
@@ -3959,97 +3965,111 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 					/* Handle unseen monster */
 					if (!visible)
 					{
-						/* Invisible monster */
-	#ifdef JP
-						msg_format("%sが敵を捕捉した。", o_name);
-	#else
 						msg_format("The %s finds a mark.", o_name);
-	#endif
-
 					}
-
 					/* Handle visible monster */
 					else
 					{
 						char m_name[80];
-
-						/* Get "the monster" or "it" */
 						monster_desc(m_name, m_ptr, 0);
-
-						/* Message */
-	#ifdef JP
-						msg_format("%sが%sに命中した。", o_name, m_name);
-	#else
 						msg_format("The %s hits %s.", o_name, m_name);
-	#endif
 
 						if (m_ptr->ml)
 						{
-							/* Hack -- Track this monster race */
 							if (!p_ptr->image) monster_race_track(m_ptr->ap_r_idx);
-
-							/* Hack -- Track this monster */
 							health_track(c_ptr->m_idx);
 						}
 					}
 
-					if (snipe_type == SP_NEEDLE)
+					if (shoot_hack == SHOOT_NEEDLE)
+					{
+						if ((randint1(randint1(r_ptr->level/7)+5) == 1) && (!(r_ptr->flags1 & RF1_UNIQUE) || m_ptr->r_idx == MON_HAGURE2) && !(r_ptr->flags7 & RF7_UNIQUE2))
+						{
+							char m_name[80];
+							monster_desc(m_name, m_ptr, 0);
+							tdam = m_ptr->hp + 1;
+							msg_format("Your shot hit a fatal spot of %s!", m_name);
+						}
+						else 
+							tdam = 1;
+					}
+					else if (snipe_type == SP_NEEDLE)
 					{
 						if ((randint1(randint1(r_ptr->level / (3 + p_ptr->concent)) + (8 - p_ptr->concent)) == 1)
 							&& !(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags7 & RF7_UNIQUE2))
 						{
 							char m_name[80];
-
-							/* Get "the monster" or "it" */
 							monster_desc(m_name, m_ptr, 0);
-
 							tdam = m_ptr->hp + 1;
-	#ifdef JP
-							msg_format("%sの急所に突き刺さった！", m_name);
-	#else
-							msg_format("Your shot sticked on a fatal spot of %s!", m_name);
-	#endif
+							msg_format("Your shot hit a fatal spot of %s!", m_name);
 						}
-						else tdam = 1;
+						else 
+							tdam = 1;
 					}
 					else
 					{
-						/* Apply special damage XXX XXX XXX */
-						tdam = tot_dam_aux_shot(q_ptr, tdam, m_ptr);
+						if (shoot_hack != SHOOT_SHATTER && shoot_hack != SHOOT_ELEMENTAL)
+							tdam = tot_dam_aux_shot(q_ptr, tdam, m_ptr);
 						tdam = critical_shot(q_ptr->weight, q_ptr->to_h, tdam);
+						tdam += p_ptr->shooter_info.to_d;
+						if (weaponmaster_is_(WEAPONMASTER_CROSSBOWS))
+						{
+							if (p_ptr->lev >= 20)
+								tdam += bow_range(bow->sval) - cur_dis;
 
-						/* Testing */
-						tdam += p_ptr->to_d_b;
-
-						/* No negative damage */
+							if (p_ptr->lev >= 45)
+							{
+								int mult = 100 + (m_ptr->maxhp - m_ptr->hp)*100/(2*m_ptr->maxhp);
+								tdam = tdam * mult / 100;
+							}
+						}
 						if (tdam < 0) tdam = 0;
-
-						/* Modify the damage */
 						tdam = mon_damage_mod(m_ptr, tdam, FALSE);
 					}
 
-					/* Sniper */
 					if (snipe_type == SP_EXPLODE)
 					{
 						u16b flg = (PROJECT_STOP | PROJECT_JUMP | PROJECT_KILL | PROJECT_GRID);
-
 						sound(SOUND_EXPLODE); /* No explode sound - use breath fire instead */
 						project(0, ((p_ptr->concent + 1) / 2 + 1), ny, nx, tdam, GF_MISSILE, flg, -1);
 						break;
 					}
-
-					/* Sniper */
+					if (shoot_hack == SHOOT_ELEMENTAL)
+					{
+						int rad = 0;
+						int flg = PROJECT_STOP | PROJECT_JUMP | PROJECT_KILL | PROJECT_GRID;
+						if (weaponmaster_get_toggle() == TOGGLE_EXPLODING_BOLT)
+							rad = randint1(2+p_ptr->lev/40);
+						project(0, rad, ny, nx, tdam, GF_FIRE, flg, -1);
+						project(0, rad, ny, nx, tdam, GF_COLD, flg, -1);
+						project(0, rad, ny, nx, tdam, GF_ELEC, flg, -1);
+						project(0, rad, ny, nx, tdam, GF_ACID, flg, -1);
+						project(0, rad, ny, nx, tdam, GF_POIS, flg, -1);
+						break;
+					}
+					if (shoot_hack == SHOOT_SHATTER)
+					{
+						int rad = 0;
+						int flg = PROJECT_STOP | PROJECT_JUMP | PROJECT_KILL | PROJECT_GRID;
+						if (weaponmaster_get_toggle() == TOGGLE_EXPLODING_BOLT)
+							rad = randint1(2+p_ptr->lev/40);
+						tdam = tdam * (100 + p_ptr->lev*2)/100;
+						project(0, rad, ny, nx, tdam, GF_SHARDS, flg, -1);
+						break;
+					}
+					if (weaponmaster_get_toggle() == TOGGLE_EXPLODING_BOLT)
+					{
+						int flg = PROJECT_STOP | PROJECT_JUMP | PROJECT_KILL | PROJECT_GRID;
+						sound(SOUND_EXPLODE); /* No explode sound - use breath fire instead */
+						project(0, randint1(2+p_ptr->lev/40), ny, nx, tdam, GF_MISSILE, flg, -1);
+						break;
+					}
 					if (snipe_type == SP_HOLYNESS)
 					{
 						cave[ny][nx].info |= (CAVE_GLOW);
-
-						/* Notice */
 						note_spot(ny, nx);
-
-						/* Redraw */
 						lite_spot(ny, nx);
 					}
-
 					if (mon_take_hit(c_ptr->m_idx, tdam, &fear, NULL))
 					{
 						/* Dead monster ... abort firing additional shots */
@@ -4057,11 +4077,35 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 						p_ptr->painted_target_idx = 0;
 						p_ptr->painted_target_ct = 0;
 					}
-
 					/* No death */
 					else
 					{
-						if (tdam > 0 && m_ptr->cdis > 1 && allow_ticked_off(r_ptr))
+						bool anger = TRUE;
+
+						message_pain(c_ptr->m_idx, tdam);
+
+						if (shoot_hack == SHOOT_TRANQUILIZE)
+						{
+							if (MON_CSLEEP(m_ptr))
+							{
+								if (!one_in_(5))
+									anger = FALSE;
+							}
+							else if (one_in_(3))
+							{
+								char m_name[80];
+								monster_desc(m_name, m_ptr, 0);
+								msg_format("%^s is put to sleep!", m_name);
+								set_monster_csleep(c_ptr->m_idx, 500);
+								anger = FALSE;
+							}
+
+							/* mon_take_hit() in xtra2.c hacked to not auto wakeup for SHOOT_TRANQUILIZE */
+							if (anger)
+								(void)set_monster_csleep(c_ptr->m_idx, 0);
+						}
+
+						if (anger && tdam > 0 && m_ptr->cdis > 1 && allow_ticked_off(r_ptr))
 						{
 							if (!(m_ptr->smart & SM_TICKED_OFF))
 							{
@@ -4081,11 +4125,8 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 							}
 						}
 
-						/* Message */
-						message_pain(c_ptr->m_idx, tdam);
-
-						/* Anger the monster */
-						if (tdam > 0) anger_monster(m_ptr);
+						if (anger && tdam > 0) 
+							anger_monster(m_ptr);
 
 						/* Artifact arrows stick to target. Note, we now do this
 						   after hurting/angering the monster since Cupid's Arrow
@@ -4094,7 +4135,6 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 						if (object_is_fixed_artifact(q_ptr))
 						{
 							char m_name[80];
-
 							monster_desc(m_name, m_ptr, 0);
 
 							stick_to = TRUE;
@@ -4135,30 +4175,17 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 								msg_format(T("%^s have stuck into %s!", "%sは%sに突き刺さった！"),o_name, m_name);
 						}
 
-						/* Take note */
 						if (fear && m_ptr->ml)
 						{
 							char m_name[80];
-
-							/* Sound */
 							sound(SOUND_FLEE);
-
-							/* Get the monster name (or "it") */
 							monster_desc(m_name, m_ptr, 0);
-
-							/* Message */
-	#ifdef JP
-							msg_format("%^sは恐怖して逃げ出した！", m_name);
-	#else
 							msg_format("%^s flees in terror!", m_name);
-	#endif
-
 						}
 
 						set_target(m_ptr, py, px);
 
-						/* Sniper */
-						if (snipe_type == SP_RUSH)
+						if (snipe_type == SP_RUSH || shoot_hack == SHOOT_KNOCKBACK)
 						{
 							int n = randint1(5) + 3;
 							int m_idx = c_ptr->m_idx;
@@ -4205,6 +4232,12 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 						}
 					}
 				}
+				else
+				{
+					char m_name[80];
+					monster_desc(m_name, m_ptr, 0);
+					msg_format("The %s misses %s.", o_name, m_name);
+				}
 
 				/* The following effects (piercing and bouncing) should
 				   not take place when artifact ammo has stuck to a unique! */
@@ -4217,15 +4250,17 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 						continue;
 					}
 
-					if (shoot_hack == SHOOT_PIERCE)
+					if (hit && shoot_count < 5 && (shoot_hack == SHOOT_PIERCE || weaponmaster_get_toggle() == TOGGLE_PIERCING_ARROW))
 					{
+						/*  @.....+......o
+						    Is there a ghost standing on the door? Double check the terrain
+							before allowing a pierce to continue towards that orc.
+						*/
+						if (!cave_have_flag_bold(ny, nx, FF_PROJECT)) break;
+						chance -= 20 * BTH_PLUS_ADJ;
 						shoot_count++;
-						if (one_in_(shoot_count) || randint1(100) < p_ptr->lev)
-							continue;
-					}
-
-					if (ballista_hack)
 						continue;
+					}
 
 					if (shoot_hack == SHOOT_BOUNCE)
 					{
@@ -4240,7 +4275,7 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 							{
 								tx = x + 99 * ddx[dir];
 								ty = y + 99 * ddy[dir];
-								do_cmd_fire_aux2(item, j_ptr, x, y, tx, ty);
+								do_cmd_fire_aux2(item, bow, x, y, tx, ty);
 								return;
 							}
 						}
@@ -4254,6 +4289,7 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 
 		/* Chance of breakage (during attacks) */
 		j = (hit_body ? breakage_chance(q_ptr) : 0);
+		if (shoot_hack == SHOOT_DISINTEGRATE) j = 100;
 
 		if (item == INVEN_UNLIMITED_QUIVER)
 		{
@@ -4273,36 +4309,21 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 
 			if (!o_idx)
 			{
-	#ifdef JP
-				msg_format("%sはどこかへ行った。", o_name);
-	#else
 				msg_format("The %s have gone to somewhere.", o_name);
-	#endif
 				if (object_is_fixed_artifact(q_ptr))
-				{
-					a_info[j_ptr->name1].cur_num = 0;
-				}
+					a_info[bow->name1].cur_num = 0;
 				if (q_ptr->name3)
-					a_info[j_ptr->name3].cur_num = 0;
+					a_info[bow->name3].cur_num = 0;
 				return;
 			}
 
 			o_ptr = &o_list[o_idx];
 			object_copy(o_ptr, q_ptr);
 
-			/* Forget mark */
 			o_ptr->marked &= OM_TOUCHED;
-
-			/* Forget location */
 			o_ptr->iy = o_ptr->ix = 0;
-
-			/* Memorize monster */
 			o_ptr->held_m_idx = m_idx;
-
-			/* Build a stack */
 			o_ptr->next_o_idx = m_ptr->hold_o_idx;
-
-			/* Carry object */
 			m_ptr->hold_o_idx = o_idx;
 		}
 		else if (cave_have_flag_bold(y, x, FF_PROJECT))
@@ -4328,36 +4349,27 @@ bool do_cmd_fire(void)
 {
 	bool result = FALSE;
 	int item;
-	object_type *j_ptr;
+	int slot = equip_find_first(object_is_bow);
+	object_type *bow = NULL;
 	cptr q, s;
 
-	/* Get the "bow" (if any) */
-	j_ptr = &inventory[INVEN_BOW];
-
-	/* Require a launcher */
-	if (!j_ptr->tval)
+	if (!slot)
 	{
-#ifdef JP
-		msg_print("射撃用の武器を持っていない。");
-#else
 		msg_print("You have nothing to fire with.");
-#endif
 		flush();
 		return FALSE;
 	}
 
-	if (j_ptr->sval == SV_CRIMSON || j_ptr->sval == SV_RAILGUN)
+	bow = equip_obj(slot);
+
+	if (bow->sval == SV_CRIMSON || bow->sval == SV_RAILGUN)
 	{
-#ifdef JP
-		msg_print("この武器は発動して使うもののようだ。");
-#else
 		msg_print("You should activate your Gun instead.");
-#endif
 		flush();
 		return FALSE;
 	}
 
-	if (j_ptr->sval == SV_HARP)
+	if (bow->sval == SV_HARP)
 	{
 		msg_print("You play a soothing melody, but not much else happens.");
 		flush();
@@ -4365,45 +4377,26 @@ bool do_cmd_fire(void)
 	}
 
 	if (p_ptr->special_defense & KATA_MUSOU)
-	{
 		set_action(ACTION_NONE);
-	}
 
-	/* Require proper missile */
-	item_tester_tval = p_ptr->tval_ammo;
-
-	/* Get an item */
-#ifdef JP
-	q = "どれを撃ちますか? ";
-	s = "発射されるアイテムがありません。";
-#else
+	item_tester_tval = p_ptr->shooter_info.tval_ammo;
 	q = "Fire which item? ";
 	s = "You have nothing to fire.";
-#endif
-
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_QUIVER)))
 	{
 		flush();
 		return FALSE;
 	}
 
-	/* Fire the item */
-	result = do_cmd_fire_aux1(item, j_ptr);
+	result = do_cmd_fire_aux1(item, bow);
 
 	if (p_ptr->pclass == CLASS_SNIPER)
 	{
-		/* Sniper actions after some shootings */
 		if (snipe_type == SP_AWAY)
-		{
 			teleport_player(10 + (p_ptr->concent * 2), 0L);
-		}
 		if (snipe_type == SP_FINAL)
 		{
-	#ifdef JP
-			msg_print("射撃の反動が体を襲った。");
-	#else
-			msg_print("A reactionary of shooting attacked you. ");
-	#endif
+			msg_print("You experience a powerful recoil!");
 			(void)set_slow(p_ptr->slow + randint0(7) + 7, FALSE);
 			(void)set_stun(p_ptr->stun + randint1(25), FALSE);
 		}
@@ -4471,29 +4464,19 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 	}
 	else if (boomerang)
 	{
-		if (buki_motteruka(INVEN_RARM) && buki_motteruka(INVEN_LARM))
+		if (p_ptr->weapon_ct > 1)
 		{
 			item_tester_hook = item_tester_hook_boomerang;
-#ifdef JP
-			q = "どの武器を投げますか? ";
-			s = "投げる武器がない。";
-#else
 			q = "Throw which item? ";
 			s = "You have nothing to throw.";
-#endif
-
-			if (!get_item(&item, q, s, (USE_EQUIP)))
+			if (!get_item(&item, q, s, USE_EQUIP))
 			{
 				flush();
 				return FALSE;
 			}
 		}
-		else if (buki_motteruka(INVEN_LARM)) item = INVEN_LARM;
-		else item = INVEN_RARM;
-	}
-	else if (shoot_hack == SHOOT_DAGGER_TOSS && shoot_count == 1 && (shoot_item == INVEN_RARM || shoot_item == INVEN_LARM))
-	{
-		item = INVEN_RARM; /* assume combine_pack has occurred */
+		else
+			item = equip_find_first(object_is_melee_weapon);
 	}
 	else
 	{
@@ -4517,17 +4500,10 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 	if (item >= 0)
 	{
 		o_ptr = &inventory[item];
-		if (shoot_hack == SHOOT_DAGGER_TOSS)
-		{
-			shoot_count++;
-			shoot_item = item;
-			if (!object_is_melee_weapon(o_ptr))
-				return FALSE;
-		}
 
 		/* Ugly hack! */
 		if ( object_is_melee_weapon(o_ptr) 
-		  && (item == INVEN_LARM || item == INVEN_RARM)
+		  && equip_is_valid_slot(item)
 		  && p_ptr->pclass == CLASS_PSION
 		  && psion_weapon_graft() )
 		{
@@ -4540,12 +4516,6 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 		o_ptr = &o_list[0 - item];
 	}
 
-	if (have_flag(o_ptr->art_flags, TR_SIGNATURE))
-	{
-		msg_print("You may not toss your signature item.  It is precious to you!");
-		return FALSE;
-	}
-
 	if (!fear_allow_shoot())
 	{
 		msg_print("You are too scared!");
@@ -4556,16 +4526,9 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 	}
 
 	/* Item is cursed */
-	if (object_is_cursed(o_ptr) && (item >= INVEN_RARM))
+	if (object_is_cursed(o_ptr) && equip_is_valid_slot(item))
 	{
-		/* Oops */
-#ifdef JP
-		msg_print("ふーむ、どうやら呪われているようだ。");
-#else
 		msg_print("Hmmm, it seems to be cursed.");
-#endif
-
-		/* Nope */
 		return FALSE;
 	}
 
@@ -4670,15 +4633,14 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 		floor_item_increase(0 - item, -1);
 		floor_item_optimize(0 - item);
 	}
-	if (item >= INVEN_RARM)
+	if (equip_is_valid_slot(item))
 	{
 		equiped_item = TRUE;
 		p_ptr->redraw |= (PR_EQUIPPY);
 	}
 
 	/* Take a turn */
-	if (shoot_hack != SHOOT_DAGGER_TOSS)
-		energy_use = 100;
+	energy_use = 100;
 
 	/* Rogue and Ninja gets bonus */
 	if ((p_ptr->pclass == CLASS_ROGUE) || (p_ptr->pclass == CLASS_NINJA))
@@ -4696,9 +4658,9 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 	else shuriken = FALSE;
 
 	/* Chance of hitting */
-	if (have_flag(flgs, TR_THROW) || (shoot_hack == SHOOT_DAGGER_TOSS)) chance = ((p_ptr->skill_tht) +
-		((p_ptr->to_h_b + q_ptr->to_h) * BTH_PLUS_ADJ));
-	else chance = (p_ptr->skill_tht + (p_ptr->to_h_b * BTH_PLUS_ADJ));
+	if (have_flag(flgs, TR_THROW)) chance = ((p_ptr->skill_tht) +
+		((p_ptr->shooter_info.to_h + q_ptr->to_h) * BTH_PLUS_ADJ));
+	else chance = (p_ptr->skill_tht + (p_ptr->shooter_info.to_h * BTH_PLUS_ADJ));
 
 	if (shuriken) chance *= 2;
 
@@ -4817,7 +4779,7 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 				tdam = damroll(q_ptr->dd, q_ptr->ds);
 				/* Apply special damage XXX XXX XXX */
 				tdam = tot_dam_aux(q_ptr, tdam, m_ptr, 0, 0, TRUE);
-				tdam = critical_shot(q_ptr->weight, q_ptr->to_h, tdam);
+				tdam = critical_throw(q_ptr->weight, q_ptr->to_h, tdam);
 				if (q_ptr->to_d > 0)
 					tdam += q_ptr->to_d;
 				else
@@ -4825,7 +4787,7 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 
 				if (boomerang)
 				{
-					tdam *= (mult+p_ptr->weapon_info[item - INVEN_RARM].num_blow);
+					tdam *= mult + NUM_BLOWS(0); /* TODO */
 					tdam += p_ptr->to_d_m;
 				}
 				else if (have_flag(flgs, TR_THROW))
@@ -5035,7 +4997,7 @@ msg_print("これはあまり良くない気がする。");
 
 	if (come_back)
 	{
-		if (item == INVEN_RARM || item == INVEN_LARM)
+		if (equip_is_valid_slot(item))
 		{
 			/* Access the wield slot */
 			o_ptr = &inventory[item];
@@ -5045,9 +5007,6 @@ msg_print("これはあまり良くない気がする。");
 
 			/* Increase the weight */
 			p_ptr->total_weight += q_ptr->weight;
-
-			/* Increment the equip counter by hand */
-			equip_cnt++;
 
 			p_ptr->update |= (PU_BONUS);
 			p_ptr->update |= (PU_TORCH);
@@ -5062,7 +5021,6 @@ msg_print("これはあまり良くない気がする。");
 	}
 	else if (equiped_item)
 	{
-		kamaenaoshi(item);
 		calc_android_exp();
 	}
 
@@ -5080,9 +5038,6 @@ msg_print("これはあまり良くない気がする。");
 			(void)drop_near(q_ptr, j, prev_y, prev_x);
 		}
 	}
-
-	if (shoot_hack == SHOOT_DAGGER_TOSS && (shoot_item == INVEN_RARM || shoot_item == INVEN_LARM) && shoot_count == 1)
-		do_cmd_throw_aux(4, FALSE, 0); /* Don't use current parms ... they've been mutated */
 
 	return TRUE;
 }

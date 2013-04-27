@@ -42,6 +42,37 @@ void hide_in_mud_spell(int cmd, variant *res)
 	}
 }
 
+void ice_bolt_spell(int cmd, variant *res)
+{
+	int dd = 5 + p_ptr->lev / 4;
+	int ds = 15;
+
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Ice Bolt");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Fires a bolt of ice.");
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(dd, spell_power(ds), 0));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		fire_bolt(GF_ICE, dir, spell_power(damroll(dd, ds)));
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void identify_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -53,7 +84,7 @@ void identify_spell(int cmd, variant *res)
 		var_set_string(res, "Identify a single object.");
 		break;
 	case SPELL_CAST:
-		var_set_bool(res, ident_spell(FALSE));
+		var_set_bool(res, ident_spell(NULL));
 		break;
 	default:
 		default_spell(cmd, res);
@@ -73,7 +104,7 @@ void identify_fully_spell(int cmd, variant *res)
 		var_set_string(res, "");
 		break;
 	case SPELL_CAST:
-		var_set_bool(res, identify_fully(FALSE));
+		var_set_bool(res, identify_fully(NULL));
 		break;
 	default:
 		default_spell(cmd, res);
@@ -82,15 +113,40 @@ void identify_fully_spell(int cmd, variant *res)
 }
 bool cast_identify_fully(void) { return cast_spell(identify_fully_spell); }
 
+void haste_self_spell(int cmd, variant *res)
+{
+	int base = spell_power(p_ptr->lev);
+	int sides = spell_power(20 + p_ptr->lev);
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Haste Self");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Hastes you for a while.");
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_duration(base, sides));
+		break;
+	case SPELL_CAST:
+		set_fast(base + randint1(sides), FALSE);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void healing_I_spell(int cmd, variant *res)
 {
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Healing I", "体力回復"));
+		var_set_string(res, "Healing");
 		break;
 	case SPELL_DESC:
-		var_set_string(res, T("Powerful healing magic:  heals hitpoints, cuts and stun.", "極めて強力な回復呪文で、負傷と朦朧状態も全快する。"));
+		var_set_string(res, "Powerful healing magic:  heals hitpoints, cuts and stun.");
 		break;
 	case SPELL_INFO:
 		var_set_string(res, format("Heals %d", spell_power(300)));
@@ -112,10 +168,10 @@ void healing_II_spell(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Healing II", "体力回復"));
+		var_set_string(res, "*Healing*");
 		break;
 	case SPELL_DESC:
-		var_set_string(res, T("Powerful healing magic:  heals hitpoints, cuts and stun.", "極めて強力な回復呪文で、負傷と朦朧状態も全快する。"));
+		var_set_string(res, "Powerful healing magic:  heals hitpoints, cuts and stun.");
 		break;
 	case SPELL_INFO:
 		var_set_string(res, format("Heals %d", spell_power(500)));
@@ -132,16 +188,47 @@ void healing_II_spell(int cmd, variant *res)
 	}
 }
 
+void hellfire_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Hellfire");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Fires a powerful ball of evil power directly from the bowels of hell. Good monsters are especially susceptible.");
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(0, 0, spell_power(666)));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (get_aim_dir(&dir))
+		{
+			fire_ball(GF_HELL_FIRE, dir, spell_power(666), 3);
+			take_hit(DAMAGE_USELIFE, 20 + randint1(30), "the strain of casting Hellfire", -1);
+			var_set_bool(res, TRUE);
+		}
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void hell_lance_spell(int cmd, variant *res)
 {
 	int dam = spell_power(p_ptr->lev * 3);
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Hell Lance", "ヘル・ランス"));
+		var_set_string(res, "Hell Lance");
 		break;
 	case SPELL_DESC:
-		var_set_string(res, T("Fires a beam of pure hellfire.", ""));
+		var_set_string(res, "Fires a beam of pure hellfire.");
 		break;
 	case SPELL_INFO:
 		var_set_string(res, info_damage(0, 0, dam));
@@ -352,15 +439,44 @@ void imp_fire_spell(int cmd, variant *res)
 	}
 }
 
+void kiss_of_succubus_spell(int cmd, variant *res)
+{
+	int dam = spell_power(100 + p_ptr->lev * 2);
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Kiss of Succubus");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Fires a ball of nexus.");
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(0, 0, dam));
+		break;
+	case SPELL_CAST:
+	{
+		int dir;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) break;
+		fire_ball(GF_NEXUS, dir, dam, 4);
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void kutar_expand_spell(int cmd, variant *res)
 {
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Expand Horizontally", "横に伸びる"));
+		var_set_string(res, "Expand Horizontally");
 		break;
 	case SPELL_DESC:
-		var_set_string(res, T("Expand like a cat, gaining +50 AC but becoming more susceptible to magical attacks.", ""));
+		var_set_string(res, "Expand like a cat, gaining +50 AC but becoming more susceptible to magical attacks.");
 		break;
 	case SPELL_CAST:
 		set_tsubureru(randint1(20) + 30, FALSE);
@@ -445,6 +561,65 @@ void light_area_spell(int cmd, variant *res)
 	}
 }
 bool cast_light_area(void) { return cast_spell(light_area_spell); }
+
+void lightning_ball_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Lightning Ball");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Fires a ball of electricity.");
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(0, 0, spell_power(3*p_ptr->lev/2 + 20)));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		fire_ball(GF_ELEC, dir, spell_power(3*p_ptr->lev/2 + 20), 2);
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void lightning_bolt_spell(int cmd, variant *res)
+{
+	int dd = 3 + p_ptr->lev / 4;
+	int ds = 8;
+
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Lightning Bolt");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Fires a bolt or beam of electricity.");
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(dd, spell_power(ds), 0));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		fire_bolt_or_beam(beam_chance(), GF_ELEC, dir, spell_power(damroll(dd, ds)));
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
 void living_trump_spell(int cmd, variant *res)
 {

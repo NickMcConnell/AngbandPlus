@@ -356,6 +356,13 @@ static int _group_size(int i)
 	return result;
 }
 
+static int _which_stat(int idx)
+{
+	int which = p_ptr->magic_num1[idx] - 1;	/* Magic Numbers are base 1, Table indices base 0 */
+	talent_t *talent = &_talents[idx][which];
+	return talent->stat;
+}
+
 static int _get_spells_imp(spell_info* spells, int max, int start, int stop)
 {
 	int ct = 0, i;
@@ -399,27 +406,32 @@ group_choice _groups[] =  {
 	{ "Wild Destructions", "Your most powerful wild talents.  Death!  Destruction!  Devastation!  Monsters tremble in fear before the awesomeness of your power!", 17, _MAX_TALENTS - 1, TERM_RED},
 };
 
-static cptr _group_name(menu_choices choices, int which) {
-	return _groups[which].name;
-}
-
-static cptr _group_help(menu_choices choices, int which) {
-	return _groups[which].help;
-}
-
-static int _group_color(menu_choices choices, int which) {
-	return _groups[which].color;
+static void _spell_menu_fn(int cmd, int which, vptr cookie, variant *res)
+{
+	switch (cmd)
+	{
+	case MENU_TEXT:
+		var_set_string(res, _groups[which].name);
+		break;
+	case MENU_HELP:
+		var_set_string(res, _groups[which].help);
+		break;
+	case MENU_COLOR:
+		var_set_int(res, _groups[which].color);
+		break;
+	default:
+		default_menu(cmd, which, cookie, res);
+	}
 }
 
 static int _get_spells(spell_info* spells, int max)
 {
 	int idx = -1;
 	int ct = 0;
-	menu_list_t list = { "Use which group of talents?", "Browse which group of talents?", NULL,
-						_group_name, _group_help, _group_color, 
-						_groups, 3};
+	menu_t menu = { "Use which group of talents?", "Browse which group of talents?", NULL,
+					_spell_menu_fn, _groups, 3};
 	
-	idx = menu_choose(&list);
+	idx = menu_choose(&menu);
 	if (idx < 0) return 0;
 
 	/* Hack: Add innate Wonder attack to Wild Beginnings */
@@ -610,8 +622,8 @@ static void _character_dump(FILE* file)
 		var_init(&name);
 		var_init(&info);
 
-		fprintf(file, "\n\n  [Wild Talents]\n\n");
-		fprintf(file, "%-23.23s Lv Cost Fail Info\n", "");
+		fprintf(file, "\n\n================================= Wild Talents ================================\n\n");
+		fprintf(file, "%-23.23s Lv Stat Cost Fail Info\n", "");
 		for (i = 0; i < ct; ++i)
 		{
 			spell_info *spell = &spells[i];
@@ -619,9 +631,10 @@ static void _character_dump(FILE* file)
 			(spell->fn)(SPELL_NAME, &name);
 			(spell->fn)(SPELL_INFO, &info);
 
-			fprintf(file, "%-23.23s %2d %4d %3d%% %s\n", 
+			fprintf(file, "%-23.23s %2d %4.4s %4d %3d%% %s\n", 
 							var_get_string(&name),
 							spell->level,
+							stat_abbrev_true[_which_stat(i)],
 							spell->cost,
 							spell->fail,
 							var_get_string(&info));
@@ -639,48 +652,11 @@ static caster_info * _caster_info(void)
 	if (!init)
 	{
 		me.magic_desc = "wild spell";
-		me.use_sp = TRUE;
+		me.which_stat = A_INT;
+		me.weight = 450;
 		init = TRUE;
 	}
 	return &me;
-}
-
-static void _spoiler_dump(FILE* fff)
-{
-	int i, j, lv = 1;
-	variant vn, vd;
-	var_init(&vn);
-	var_init(&vd);
-
-	fprintf(fff, "\n== Spells ==\n\n");
-	fprintf(fff, "The Wild-Talent gains one spell randomly from each group at the indicated level. Potions of New Life and Polymorph as well as Chaos attacks can scramble the Wild-Talent's powers.\n\n");
-	for (i = 0; i < _MAX_TALENTS; i++)
-	{
-		fprintf(fff, "|| *L%d Power* || *Stat* || *Lvl* || *Mana* || *Fail* || *Description* ||\n", lv);
-
-		for (j = 0; j < _MAX_TALENTS_PER_GROUP; j++)
-		{
-			talent_t *talent_ptr = &_talents[i][j];
-
-			if (talent_ptr->stat == -1) break;
-
-			talent_ptr->spell.fn(SPELL_SPOIL_NAME, &vn);
-			if (var_is_null(&vn)) talent_ptr->spell.fn(SPELL_NAME, &vn);
-
-			talent_ptr->spell.fn(SPELL_SPOIL_DESC, &vd);
-			if (var_is_null(&vd)) talent_ptr->spell.fn(SPELL_DESC, &vd);
-
-			fprintf(fff, "||%s||%s||%d||%d||%d||%s||\n", 
-				var_get_string(&vn), stat_abbrev_true[talent_ptr->stat], 
-				talent_ptr->spell.level, talent_ptr->spell.cost, talent_ptr->spell.fail,
-				var_get_string(&vd)
-			);
-		}
-		lv += 2;
-	}
-
-	var_clear(&vn);
-	var_clear(&vd);
 }
 
 class_t *wild_talent_get_class_t(void)
@@ -710,7 +686,7 @@ class_t *wild_talent_get_class_t(void)
 		me.base_skills = bs;
 		me.extra_skills = xs;
 		
-		me.hd = 2;
+		me.life = 100;
 		me.exp = 110;
 		me.pets = 35;
 		
@@ -719,7 +695,6 @@ class_t *wild_talent_get_class_t(void)
 		me.caster_info = _caster_info;
 		me.gain_level = _gain_level;
 		me.character_dump = _character_dump;
-		me.spoiler_dump = _spoiler_dump;
 		init = TRUE;
 	}
 

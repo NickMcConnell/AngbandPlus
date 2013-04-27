@@ -456,24 +456,6 @@ static void preserve_pet(void)
 		}
 	}
 
-	if (record_named_pet)
-	{
-		for (i = m_max - 1; i >=1; i--)
-		{
-			monster_type *m_ptr = &m_list[i];
-			char m_name[80];
-
-			if (!m_ptr->r_idx) continue;
-			if (!is_pet(m_ptr)) continue;
-			if (!m_ptr->nickname) continue;
-			if (p_ptr->riding == i) continue;
-
-			monster_desc(m_name, m_ptr, MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE);
-			do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_MOVED, m_name);
-		}
-	}
-
-
 	/* Pet of other pet may disappear. */
 	for (i = m_max - 1; i >=1; i--)
 	{
@@ -634,16 +616,7 @@ static void place_pet(void)
 			char m_name[80];
 
 			monster_desc(m_name, m_ptr, 0);
-#ifdef JP
-			msg_format("%sとはぐれてしまった。", m_name);
-#else
 			msg_format("You have lost sight of %s.", m_name);
-#endif
-			if (record_named_pet && m_ptr->nickname)
-			{
-				monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
-				do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_LOST_SIGHT, m_name);
-			}
 
 			/* Pre-calculated in precalc_cur_num_of_pet(), but need to decrease */
 			if (r_ptr->cur_num) r_ptr->cur_num--;

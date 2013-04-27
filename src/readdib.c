@@ -16,7 +16,6 @@
  *   Microsoft has no warranty obligations or liability for any
  *   Sample Application Files which are modified.
  */
-
 #include <windows.h>
 
 #include "readdib.h"

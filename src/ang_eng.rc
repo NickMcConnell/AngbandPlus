@@ -10,7 +10,6 @@ ANGBAND MENU
 		MENUITEM "&Save", 110
 		MENUITEM SEPARATOR
 		MENUITEM "Show S&cores", 120
-		MENUITEM "Show &Movies", 121
 		MENUITEM SEPARATOR
 		MENUITEM "E&xit", 130
 	}
@@ -129,12 +128,6 @@ ANGBAND MENU
 		MENUITEM "&HTML dump", 450
 	}
 
-/*
-	POPUP "&Help"
-	{
-		MENUITEM "&Contents", 901
-	}
-*/
 }
 
 ANGBAND ICON "angband.ico"

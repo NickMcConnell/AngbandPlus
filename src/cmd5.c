@@ -16,16 +16,6 @@ cptr spell_category_name(int tval)
 {
 	switch (tval)
 	{
-#ifdef JP
-	case TV_HISSATSU_BOOK:
-		return "必殺技";
-	case TV_LIFE_BOOK:
-		return "祈り";
-	case TV_MUSIC_BOOK:
-		return "歌";
-	default:
-		return "呪文";
-#else
 	case TV_HISSATSU_BOOK:
 		return "art";
 	case TV_LIFE_BOOK:
@@ -34,7 +24,6 @@ cptr spell_category_name(int tval)
 		return "song";
 	default:
 		return "spell";
-#endif
 	}
 }
 
@@ -132,14 +121,8 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
 	window_stuff();
 
 	/* Build a prompt (accept all spells) */
-#ifdef JP
-	jverb1( prompt, jverb_buf );
-	(void) strnfmt(out_val, 78, "(%^s:%c-%c, '*'で一覧, ESCで中断) どの%sを%^sますか? ",
-		p, I2A(0), I2A(num - 1), p, jverb_buf );
-#else
 	(void)strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) %^s which %s? ",
 		p, I2A(0), I2A(num - 1), prompt, p);
-#endif
 
 	/* Get a spell from the user */
 
@@ -249,12 +232,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
 		if (!spell_okay(spell, learned, FALSE, use_realm))
 		{
 			bell();
-#ifdef JP
-			msg_format("その%sを%sことはできません。", p, prompt);
-#else
 			msg_format("You may not %s that %s.", prompt, p);
-#endif
-
 			continue;
 		}
 
@@ -284,18 +262,9 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
 			}
 
 			/* Prompt */
-#ifdef JP
-			jverb1( prompt, jverb_buf );
-			/* 英日切り替え機能に対応 */
-			(void) strnfmt(tmp_val, 78, "%s(MP%d, 失敗率%d%%)を%sますか? ",
-				do_spell(use_realm, spell, SPELL_NAME), need_mana,
-				       spell_chance(spell, use_realm),jverb_buf);
-#else
 			(void)strnfmt(tmp_val, 78, "%^s %s (%d mana, %d%% fail)? ",
 				prompt, do_spell(use_realm, spell, SPELL_NAME), need_mana,
 				spell_chance(spell, use_realm));
-#endif
-
 
 			/* Belay that order */
 			if (!get_check(tmp_val)) continue;
@@ -397,11 +366,7 @@ static void confirm_use_force(bool browse_only)
 #endif /* ALLOW_REPEAT */
 
 	/* Show the prompt */
-#ifdef JP
-	prt("('w'練気術, ESC) 'w'かESCを押してください。 ", 0, 0);
-#else
 	prt("(w for the Force, ESC) Hit 'w' or ESC. ", 0, 0);
-#endif
 
 	while (1)
 	{
@@ -613,8 +578,6 @@ void do_cmd_browse(void)
 static void change_realm2(int next_realm)
 {
 	int i, j = 0;
-	char tmp[80];
-
 	for (i = 0; i < 64; i++)
 	{
 		p_ptr->spell_order[j] = p_ptr->spell_order[i];
@@ -631,12 +594,6 @@ static void change_realm2(int next_realm)
 	p_ptr->spell_worked2 = 0L;
 	p_ptr->spell_forgotten2 = 0L;
 
-#ifdef JP
-	sprintf(tmp,"魔法の領域を%sから%sに変更した。", realm_names[p_ptr->realm2], realm_names[next_realm]);
-#else
-	sprintf(tmp,"change magic realm from %s to %s.", realm_names[p_ptr->realm2], realm_names[next_realm]);
-#endif
-	do_cmd_write_nikki(NIKKI_BUNSHOU, 0, tmp);
 	p_ptr->old_realm |= 1 << (p_ptr->realm2-1);
 	p_ptr->realm2 = next_realm;
 
@@ -1284,7 +1241,7 @@ void do_cmd_cast(void)
 	need_mana = mod_need_mana(s_ptr->smana, spell, realm);
 
 	/* Verify "dangerous" spells */
-	if (caster_ptr && caster_ptr->use_hp)
+	if (caster_ptr && (caster_ptr->options & CASTER_USE_HP))
 	{
 		if (need_mana > p_ptr->chp)
 		{
@@ -1326,7 +1283,7 @@ msg_format("その%sを%sのに十分なマジックポイントがない。",prayer,
 	   This is to prevent death from using a force weapon with a spell
 	   that also attacks, like Cyclone.
 	*/
-	if (caster_ptr && caster_ptr->use_hp)
+	if (caster_ptr && (caster_ptr->options & CASTER_USE_HP))
 	{
 		take_mana = 0;
 	}
@@ -1354,11 +1311,11 @@ msg_format("その%sを%sのに十分なマジックポイントがない。",prayer,
 #ifdef JP
 msg_format("%sをうまく唱えられなかった！", prayer);
 #else
-		msg_format("You failed to get the %s off!", prayer);
+		msg_format("You failed to cast %s!", do_spell(increment ? p_ptr->realm2 : p_ptr->realm1, spell % 32, SPELL_NAME));
 #endif
 
 		if (take_mana && prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ATHENA) 
-			p_ptr->csp += take_mana;
+			p_ptr->csp += take_mana/2;
 
 		sound(SOUND_FAIL);
 
@@ -1370,7 +1327,7 @@ msg_format("%sをうまく唱えられなかった！", prayer);
 			hack.fail = chance;
 			(caster_ptr->on_fail)(&hack);
 		}
-		if (caster_ptr && caster_ptr->use_hp)
+		if (caster_ptr && (caster_ptr->options & CASTER_USE_HP))
 			take_hit(DAMAGE_USELIFE, need_mana, "concentrating too hard", -1);
 
 		switch (realm)
@@ -1463,7 +1420,7 @@ msg_print("An infernal sound echoed.");
 			return;
 		}
 
-		if (caster_ptr && caster_ptr->use_hp)
+		if (caster_ptr && (caster_ptr->options & CASTER_USE_HP))
 			take_hit(DAMAGE_USELIFE, need_mana, "concentrating too hard", -1);
 
 		if (caster_ptr && caster_ptr->on_cast != NULL)
@@ -1635,7 +1592,7 @@ msg_print("An infernal sound echoed.");
 		   spell that might do just that, but I don't think that spell comes thru this fn.
 		   So it is prudent to double check for overexertion ...
 		*/
-		if (caster_ptr && caster_ptr->use_hp)
+		if (caster_ptr && (caster_ptr->options & CASTER_USE_HP))
 		{
 		}
 		else if (need_mana <= p_ptr->csp)
@@ -1822,7 +1779,7 @@ int calculate_upkeep(void)
 	if (total_friends)
 	{
 		int upkeep_factor;
-		int div = cp_ptr->pet_upkeep_div;
+		int div = get_class_t()->pets;
 
 		/* Lower divs are better ... I think. */
 		if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_APHRODITE)
@@ -1941,35 +1898,16 @@ void do_cmd_pet_dismiss(void)
 
 		if ((all_pets && !kakunin) || (!all_pets && delete_this))
 		{
-			if (record_named_pet && m_ptr->nickname)
-			{
-				char m_name[80];
-
-				monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
-				do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_DISMISS, m_name);
-			}
-
 			if (pet_ctr == p_ptr->riding)
 			{
-#ifdef JP
-				msg_format("%sから降りた。", friend_name);
-#else
 				msg_format("You have got off %s. ", friend_name);
-#endif
-
 				p_ptr->riding = 0;
-
-				/* Update the monsters */
 				p_ptr->update |= (PU_BONUS | PU_MONSTERS);
 				p_ptr->redraw |= (PR_EXTRA | PR_UHEALTH);
 			}
 
-			/* HACK : Add the line to message buffer */
-#ifdef JP
-			sprintf(buf, "%s を放した。", friend_name);
-#else
 			sprintf(buf, "Dismissed %s.", friend_name);
-#endif
+
 			message_add(buf);
 			p_ptr->window |= (PW_MESSAGE);
 			window_stuff();
@@ -2414,34 +2352,14 @@ static void do_name_pet(void)
 		}
 
 		/* Get a new inscription (possibly empty) */
-#ifdef JP
-		if (get_string("名前: ", out_val, 15))
-#else
 		if (get_string("Name: ", out_val, 15))
-#endif
-
 		{
 			if (out_val[0])
 			{
-				/* Save the inscription */
 				m_ptr->nickname = quark_add(out_val);
-				if (record_named_pet)
-				{
-					char m_name[80];
-
-					monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
-					do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_NAME, m_name);
-				}
 			}
 			else
 			{
-				if (record_named_pet && old_name)
-				{
-					char m_name[80];
-
-					monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
-					do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_UNNAME, m_name);
-				}
 				m_ptr->nickname = 0;
 			}
 		}
@@ -2673,82 +2591,13 @@ void do_cmd_pet(void)
 
 	if (p_ptr->riding)
 	{
-		if ((p_ptr->migite && (empty_hands(FALSE) == EMPTY_HAND_LARM) &&
-		     object_allow_two_hands_wielding(&inventory[INVEN_RARM])) ||
-		    (p_ptr->hidarite && (empty_hands(FALSE) == EMPTY_HAND_RARM) &&
-			 object_allow_two_hands_wielding(&inventory[INVEN_LARM])))
-		{
-			if (p_ptr->pet_extra_flags & PF_RYOUTE)
-			{
-#ifdef JP
-				power_desc[num] = "武器を片手で持つ";
-#else
-				power_desc[num] = "use one hand to control a riding pet";
-#endif
-			}
-			else
-			{
-#ifdef JP
-				power_desc[num] = "武器を両手で持つ";
-#else
-				power_desc[num] = "use both hands for a weapon";
-#endif
-			}
-
-			powers[num++] = PET_RYOUTE;
-		}
+		/* TODO: We used to check weapons to see if 2-handed was an option ... */
+		if (p_ptr->pet_extra_flags & PF_RYOUTE)
+			power_desc[num] = "use one hand to control a riding pet";
 		else
-		{
-			switch (p_ptr->pclass)
-			{
-			case CLASS_MONK:
-			case CLASS_FORCETRAINER:
-			case CLASS_BERSERKER:
-				if (empty_hands(FALSE) == (EMPTY_HAND_RARM | EMPTY_HAND_LARM))
-				{
-					if (p_ptr->pet_extra_flags & PF_RYOUTE)
-					{
-#ifdef JP
-						power_desc[num] = "片手で格闘する";
-#else
-						power_desc[num] = "use one hand to control a riding pet";
-#endif
-					}
-					else
-					{
-#ifdef JP
-						power_desc[num] = "両手で格闘する";
-#else
-						power_desc[num] = "use both hands for melee";
-#endif
-					}
+			power_desc[num] = "use both hands for a weapon";
 
-					powers[num++] = PET_RYOUTE;
-				}
-				else if ((empty_hands(FALSE) != EMPTY_HAND_NONE) && !buki_motteruka(INVEN_RARM) && !buki_motteruka(INVEN_LARM))
-				{
-					if (p_ptr->pet_extra_flags & PF_RYOUTE)
-					{
-#ifdef JP
-						power_desc[num] = "格闘を行わない";
-#else
-						power_desc[num] = "use one hand to control a riding pet";
-#endif
-					}
-					else
-					{
-#ifdef JP
-						power_desc[num] = "格闘を行う";
-#else
-						power_desc[num] = "use one hand for melee";
-#endif
-					}
-
-					powers[num++] = PET_RYOUTE;
-				}
-				break;
-			}
-		}
+		powers[num++] = PET_RYOUTE;
 	}
 
 	if (p_ptr->pet_extra_flags & PF_NO_BREEDING)

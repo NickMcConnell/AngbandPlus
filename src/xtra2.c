@@ -144,16 +144,59 @@ int exp_requirement(int level)
 		return base * p_ptr->expfact / 100;
 }
 
+void gain_chosen_stat(void)
+{
+	int choice;
+	screen_save();
+	while(1)
+	{
+		int n;
+		char tmp[32];
+
+		cnv_stat(p_ptr->stat_max[0], tmp);
+		prt(format("        a) Str (cur %s)", tmp), 2, 14);
+		cnv_stat(p_ptr->stat_max[1], tmp);
+		prt(format("        b) Int (cur %s)", tmp), 3, 14);
+		cnv_stat(p_ptr->stat_max[2], tmp);
+		prt(format("        c) Wis (cur %s)", tmp), 4, 14);
+		cnv_stat(p_ptr->stat_max[3], tmp);
+		prt(format("        d) Dex (cur %s)", tmp), 5, 14);
+		cnv_stat(p_ptr->stat_max[4], tmp);
+		prt(format("        e) Con (cur %s)", tmp), 6, 14);
+		cnv_stat(p_ptr->stat_max[5], tmp);
+		prt(format("        f) Chr (cur %s)", tmp), 7, 14);
+		prt("", 8, 14);
+		prt("        Which stat do you want to raise?", 1, 14);
+
+		while(1)
+		{
+			choice = inkey();
+			if ((choice >= 'a') && (choice <= 'f')) break;
+		}
+		for(n = 0; n < 6; n++)
+		{
+			if (n != choice - 'a')
+				prt("",n+2,14);
+		}
+		if (get_check("Are you sure? ")) break;
+	}
+	do_inc_stat(choice - 'a');
+	screen_load();
+}
+
 /*
  * Advance experience levels and print experience
  */
 
 void check_experience(void)
 {
-	bool level_reward = FALSE;
 	bool level_inc_stat = FALSE;
 	bool android = (p_ptr->prace == RACE_ANDROID ? TRUE : FALSE);
 	int  old_lev = p_ptr->lev;
+	race_t *race_ptr = get_true_race_t(); /* So players don't miss if they Polymorph Demon, etc */
+
+	if (p_ptr->prace == RACE_DOPPELGANGER) /* But a doppelganger should use the mimicked race! */
+		race_ptr = get_race_t();
 
 	/* Hack -- lower limit */
 	if (p_ptr->exp < 0) p_ptr->exp = 0;
@@ -210,30 +253,22 @@ void check_experience(void)
 		if (p_ptr->lev > p_ptr->max_plv)
 		{
 			class_t *class_ptr = get_class_t();
-			race_t *race_ptr = get_true_race_t(); /* So players don't miss if they Polymorph Demon, etc */
-
-			if (p_ptr->prace == RACE_DOPPELGANGER) /* But a doppelganger should use the mimicked race! */
-				race_ptr = get_race_t();
 
 			p_ptr->max_plv = p_ptr->lev;
 
-			if (class_ptr != NULL && class_ptr->gain_level != NULL)
+			sound(SOUND_LEVEL);
+			msg_format("Welcome to level %d.", p_ptr->lev);
+
+			if (class_ptr->gain_level != NULL)
 				(class_ptr->gain_level)(p_ptr->lev);
 
-			if (race_ptr != NULL && race_ptr->gain_level != NULL)
+			if (race_ptr->gain_level != NULL)
 				(race_ptr->gain_level)(p_ptr->lev);
 
-			if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) ||
-			    mut_present(MUT_CHAOS_GIFT))
-			{
-				level_reward = TRUE;
-			}
+			if (mut_present(MUT_CHAOS_GIFT))
+				chaos_warrior_reward();
+
 			level_inc_stat = TRUE;
-
-			do_cmd_write_nikki(NIKKI_LEVELUP, p_ptr->lev, NULL);
-
-			sound(SOUND_LEVEL);
-			msg_format(T("Welcome to level %d.", "レベル %d にようこそ。"), p_ptr->lev);
 		}
 
 
@@ -256,106 +291,21 @@ void check_experience(void)
 
 		if (level_inc_stat)
 		{
-			if ( p_ptr->pclass == CLASS_TIME_LORD
-			  && (p_ptr->max_plv == 35 || p_ptr->max_plv == 45) )
-			{
-				msg_print("You feel more temporally focused.");
-			}
-			/* one of the most frustrating things in heng is the early random stat rolls! */
-			if(  p_ptr->max_plv == 4	/* quicker starts, please! */
-			  || p_ptr->max_plv == 8 
-			  || p_ptr->max_plv == 12
-			  || p_ptr->max_plv == 16
-			  || p_ptr->max_plv == 20   /* now pick every 5 */
-			  || p_ptr->max_plv == 25
-			  || p_ptr->max_plv == 30
-			  || p_ptr->max_plv == 35
-			  || p_ptr->max_plv == 40
-			  || p_ptr->max_plv == 45
-			  || p_ptr->max_plv == 50 )
-			{
-				int choice;
-				screen_save();
-				while(1)
-				{
-					int n;
-					char tmp[32];
-
-#ifdef JP
-					cnv_stat(p_ptr->stat_max[0], tmp);
-					prt(format("        a) 腕力 (現在値 %s)", tmp), 2, 14);
-					cnv_stat(p_ptr->stat_max[1], tmp);
-					prt(format("        b) 知能 (現在値 %s)", tmp), 3, 14);
-					cnv_stat(p_ptr->stat_max[2], tmp);
-					prt(format("        c) 賢さ (現在値 %s)", tmp), 4, 14);
-					cnv_stat(p_ptr->stat_max[3], tmp);
-					prt(format("        d) 器用 (現在値 %s)", tmp), 5, 14);
-					cnv_stat(p_ptr->stat_max[4], tmp);
-					prt(format("        e) 耐久 (現在値 %s)", tmp), 6, 14);
-					cnv_stat(p_ptr->stat_max[5], tmp);
-					prt(format("        f) 魅力 (現在値 %s)", tmp), 7, 14);
-					prt("", 8, 14);
-					prt("        どの能力値を上げますか？", 1, 14);
-#else
-					cnv_stat(p_ptr->stat_max[0], tmp);
-					prt(format("        a) Str (cur %s)", tmp), 2, 14);
-					cnv_stat(p_ptr->stat_max[1], tmp);
-					prt(format("        b) Int (cur %s)", tmp), 3, 14);
-					cnv_stat(p_ptr->stat_max[2], tmp);
-					prt(format("        c) Wis (cur %s)", tmp), 4, 14);
-					cnv_stat(p_ptr->stat_max[3], tmp);
-					prt(format("        d) Dex (cur %s)", tmp), 5, 14);
-					cnv_stat(p_ptr->stat_max[4], tmp);
-					prt(format("        e) Con (cur %s)", tmp), 6, 14);
-					cnv_stat(p_ptr->stat_max[5], tmp);
-					prt(format("        f) Chr (cur %s)", tmp), 7, 14);
-					prt("", 8, 14);
-					prt("        Which stat do you want to raise?", 1, 14);
-#endif
-					while(1)
-					{
-						choice = inkey();
-						if ((choice >= 'a') && (choice <= 'f')) break;
-					}
-					for(n = 0; n < 6; n++)
-						if (n != choice - 'a')
-							prt("",n+2,14);
-#ifdef JP
-					if (get_check("よろしいですか？")) break;
-#else
-					if (get_check("Are you sure? ")) break;
-#endif
-				}
-				do_inc_stat(choice - 'a');
-				screen_load();
-			}
+			if(p_ptr->max_plv % 5 == 0)
+				gain_chosen_stat();
 		}
-
-		/*
-		 * 報酬でレベルが上ると再帰的に check_experience() が
-		 * 呼ばれるので順番を最後にする。
-		 */
-		if (level_reward)
-		{
-			gain_level_reward(0);
-			level_reward = FALSE;
-		}
-
-		/* Update some stuff */
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
-
-		/* Redraw some stuff */
 		p_ptr->redraw |= (PR_LEV | PR_TITLE);
-
-		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER | PW_SPELL);
-
-		/* Handle stuff */
 		handle_stuff();
 	}
 
-	/* Load an autopick preference file */
-	if (old_lev != p_ptr->lev) autopick_load_pref(FALSE);
+	if (old_lev != p_ptr->lev) 
+	{
+		if (race_ptr->change_level)
+			race_ptr->change_level(old_lev, p_ptr->lev);
+		autopick_load_pref(FALSE);
+	}
 }
 
 
@@ -584,19 +534,13 @@ void check_quest_completion(monster_type *m_ptr)
 
 				if (quest[i].cur_num >= quest[i].num_mon)
 				{
-					if (record_fix_quest) do_cmd_write_nikki(NIKKI_FIX_QUEST_C, i, NULL);
 					/* completed quest */
 					quest[i].status = QUEST_STATUS_COMPLETED;
 					quest[i].complev = (byte)p_ptr->lev;
 
 					if (!(quest[i].flags & QUEST_FLAG_SILENT))
 					{
-#ifdef JP
-msg_print("クエストを達成した！");
-#else
 						msg_print("You just completed your quest!");
-#endif
-
 						msg_print(NULL);
 					}
 
@@ -619,7 +563,6 @@ msg_print("クエストを達成した！");
 
 				if ((number_mon - 1) == 0)
 				{
-					if (record_fix_quest) do_cmd_write_nikki(NIKKI_FIX_QUEST_C, i, NULL);
 					/* completed */
 					if (quest[i].flags & QUEST_FLAG_SILENT)
 					{
@@ -629,12 +572,7 @@ msg_print("クエストを達成した！");
 					{
 						quest[i].status = QUEST_STATUS_COMPLETED;
 						quest[i].complev = (byte)p_ptr->lev;
-#ifdef JP
-msg_print("クエストを達成した！");
-#else
 						msg_print("You just completed your quest!");
-#endif
-
 						msg_print(NULL);
 					}
 				}
@@ -651,8 +589,6 @@ msg_print("クエストを達成した！");
 
 				if (quest[i].cur_num >= quest[i].max_num)
 				{
-					if (record_fix_quest && (quest[i].type == QUEST_TYPE_KILL_LEVEL)) do_cmd_write_nikki(NIKKI_FIX_QUEST_C, i, NULL);
-					if (record_rand_quest && (quest[i].type == QUEST_TYPE_RANDOM)) do_cmd_write_nikki(NIKKI_RAND_QUEST_C, i, NULL);
 					/* completed quest */
 					quest[i].status = QUEST_STATUS_COMPLETED;
 					quest[i].complev = (byte)p_ptr->lev;
@@ -664,12 +600,7 @@ msg_print("クエストを達成した！");
 
 					if (!(quest[i].flags & QUEST_FLAG_SILENT))
 					{
-#ifdef JP
-msg_print("クエストを達成した！");
-#else
 						msg_print("You just completed your quest!");
-#endif
-
 						msg_print(NULL);
 					}
 
@@ -692,19 +623,13 @@ msg_print("クエストを達成した！");
 				quest[i].cur_num++;
 				if (quest[i].cur_num >= quest[i].max_num)
 				{
-					if (record_fix_quest) do_cmd_write_nikki(NIKKI_FIX_QUEST_C, i, NULL);
 					 /* completed quest */
 					quest[i].status = QUEST_STATUS_COMPLETED;
 					quest[i].complev = (byte)p_ptr->lev;
 
 					if (!(quest[i].flags & QUEST_FLAG_SILENT))
 					{
-#ifdef JP
-msg_print("クエストを達成した！");
-#else
 						msg_print("You just completed your quest!");
-#endif
-
 						msg_print(NULL);
 					}
 					quest[i].cur_num = 0;
@@ -816,11 +741,28 @@ byte get_monster_drop_ct(monster_type *m_ptr)
 		number = 0; /* Pets drop no stuff */
 
 	/* No more farming quartz veins for millions in gold */
-	if ((r_ptr->flags2 & RF2_MULTIPLY) && r_ptr->r_akills > 1200)
+	if ((r_ptr->flags2 & RF2_MULTIPLY) && r_ptr->r_akills > 600)
 		number = 0;
 
-	if (m_ptr->parent_m_idx && r_ptr->r_akills > 1200)
-		number = 0;
+	/* No more farming summoners for drops (The Hoard, That Bat, Draconic Qs, etc) */
+	if (m_ptr->parent_m_idx && !(r_ptr->flags1 & RF1_UNIQUE))
+	{
+		monster_type *pm_ptr = &m_list[m_ptr->parent_m_idx];
+
+		if (pm_ptr->r_idx)
+		{
+			int max_kills = 250;
+			monster_race *pr_ptr = &r_info[pm_ptr->r_idx];
+
+			if (pr_ptr->flags1 & RF1_UNIQUE)
+				max_kills = 100;
+			else if (pr_ptr->d_char == 'Q')
+				max_kills = 100;
+
+			if (pr_ptr->r_skills > max_kills)
+				number = 0;
+		}
+	}
 
 	return number;
 }
@@ -916,23 +858,18 @@ void monster_death(int m_idx, bool drop_item)
 	{
 		if (p_ptr->msp > 0 && p_ptr->pclass != CLASS_RUNE_KNIGHT)
 		{
-			hp_player_aux(20);
-			sp_player(10);
+			hp_player_aux(10);
+			sp_player(5);
 		}
 		else
-			hp_player_aux(30);
+			hp_player_aux(15);
 	}
+
+	if (r_ptr->flags2 & RF2_MULTIPLY) 
+		num_repro_kill++;
 
 	y = m_ptr->fy;
 	x = m_ptr->fx;
-
-	if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
-	{
-		char m_name[80];
-
-		monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
-		do_cmd_write_nikki(NIKKI_NAMED_PET, 3, m_name);
-	}
 
 	/* Let monsters explode! */
 	for (i = 0; i < 4; i++)
@@ -990,12 +927,6 @@ msg_print("勝利！チャンピオンへの道を進んでいる。");
 
 		if (p_ptr->arena_number > MAX_ARENA_MONS) p_ptr->arena_number++;
 		p_ptr->arena_number++;
-		if (record_arena)
-		{
-			char m_name[80];
-			monster_desc(m_name, m_ptr, MD_IGNORE_HALLU | MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE);
-			do_cmd_write_nikki(NIKKI_ARENA, p_ptr->arena_number, m_name);
-		}
 	}
 
 	if (m_idx == p_ptr->riding)
@@ -1388,6 +1319,7 @@ msg_print("地面に落とされた。");
 	{
 		int a_idx = 0;
 		int chance = 0;
+		race_t *race_ptr = get_race_t();
 
 		switch (m_ptr->r_idx)
 		{
@@ -1481,11 +1413,6 @@ msg_print("地面に落とされた。");
 			}
 			break;
 
-		case MON_SURTUR:
-			a_idx = ART_TWILIGHT;
-			chance = 66;
-			break;
-
 		case MON_SARUMAN:
 			a_idx = ART_ELENDIL;
 			chance = 33;
@@ -1508,69 +1435,61 @@ msg_print("地面に落とされた。");
 
 		case MON_GOEMON:
 			a_idx = ART_ZANTETSU;
-			chance = 75;
+			chance = 10;
 			break;
 
 		case MON_MASTER_TONBERRY:
 			a_idx = ART_MASTER_TONBERRY;
-			chance = 50;
+			chance = 25;
 			break;
 
 		case MON_ZEUS:
 			a_idx = ART_ZEUS;
-			chance = 100;
+			chance = 25;
 			break;
 		case MON_POSEIDON:
 			a_idx = ART_POSEIDON;
-			chance = 100;
+			chance = 25;
 			break;
 		case MON_HADES:
 			a_idx = ART_HADES;
-			chance = 100;
+			chance = 25;
 			break;
 		case MON_ATHENA:
 			a_idx = ART_ATHENA;
-			chance = 100;
+			chance = 25;
 			break;
 		case MON_ARES:
 			a_idx = ART_ARES;
-			chance = 100;
+			chance = 25;
 			break;
 		case MON_HERMES:
 			a_idx = ART_HERMES;
-			chance = 100;
+			chance = 25;
 			break;
 		case MON_APOLLO:
 			a_idx = ART_APOLLO;
-			chance = 100;
+			chance = 25;
 			break;
 		case MON_ARTEMIS:
 			a_idx = ART_ARTEMIS;
-			chance = 100;
+			chance = 25;
 			break;
 		case MON_HEPHAESTUS:
 			a_idx = ART_HEPHAESTUS;
-			chance = 100;
+			chance = 25;
 			break;
 		case MON_HERA:
 			a_idx = ART_HERA;
-			chance = 100;
+			chance = 25;
 			break;
 		case MON_DEMETER:
 			a_idx = ART_DEMETER;
-			chance = 100;
+			chance = 25;
 			break;
-		case MON_VECNA:
-			if (p_ptr->pclass == CLASS_NECROMANCER)
-			{
-				a_idx = ART_HAND_OF_VECNA;
-				chance = 100;
-			}
-			break;
-
 		case MON_APHRODITE:
 			a_idx = ART_APHRODITE;
-			chance = 100;
+			chance = 25;
 			break;
 
 		case MON_HAGEN:
@@ -1618,11 +1537,6 @@ msg_print("地面に落とされた。");
 			chance = 33;
 			break;
 
-		case MON_GOTHMOG:
-			a_idx = ART_GOTHMOG;
-			chance = 33;
-			break;
-
 		case MON_FUNDIN:
 			a_idx = ART_FUNDIN;
 			chance = 5;
@@ -1634,10 +1548,10 @@ msg_print("地面に落とされた。");
 			break;
 
 		case MON_ARTHUR:
-			if (one_in_(20))
+			if (one_in_(2))
 			{
 				a_idx = ART_EXCALIBUR;
-				chance = 100;
+				chance = 5;
 			}
 			else
 			{
@@ -1650,6 +1564,70 @@ msg_print("地面に落とされた。");
 			a_idx = ART_HOLY_GRAIL;
 			chance = 10;
 			break;
+
+		/* Monster boss rewards */
+		case MON_VECNA:
+			if (p_ptr->pclass == CLASS_NECROMANCER)
+			{
+				a_idx = ART_HAND_OF_VECNA;
+				chance = 100;
+			}
+			else
+			{
+				a_idx = ART_VECNA;
+				chance = 5;
+			}
+			break;
+		case MON_UBBO_SATHLA:
+			a_idx = ART_UBBO_SATHLA;
+			chance = 5;
+			break;
+		case MON_UNGOLIANT:
+			a_idx = ART_UNGOLIANT;
+			chance = 5;
+			break;
+		case MON_GLAURUNG:
+			a_idx = ART_GLAURUNG;
+			chance = 5;
+			break;
+		case MON_RAPHAEL:
+			a_idx = ART_LOHENGRIN;
+			chance = 5;
+			break;
+		case MON_CARCHAROTH:
+			a_idx = ART_CARCHAROTH;
+			chance = 5;
+			break;
+		case MON_SURTUR:
+			a_idx = ART_TWILIGHT;
+			chance = 5;
+			break;
+		case MON_YMIR:
+			a_idx = ART_YMIR;
+			chance = 5;
+			break;
+		case MON_ATLAS:
+			a_idx = ART_RAIJIN;
+			chance = 5;
+			break;
+		case MON_KRONOS:
+			a_idx = ART_KRONOS;
+			chance = 5;
+			break;
+		case MON_OMARAX:
+			a_idx = ART_OMARAX;
+			chance = 5;
+			break;
+		case MON_GOTHMOG:
+			a_idx = ART_GOTHMOG;
+			chance = 5;
+			break;
+		}
+
+		if (race_ptr->boss_r_idx == m_ptr->r_idx)
+		{
+			msg_print("Congratulations! You have killed the boss of your race!");
+			chance = 100;
 		}
 
 		if ((a_idx > 0) && ((randint0(100) < chance) || p_ptr->wizard))
@@ -1676,6 +1654,8 @@ msg_print("地面に落とされた。");
 			int k_idx = d_info[dungeon_type].final_object ? d_info[dungeon_type].final_object
 				: lookup_kind(TV_SCROLL, SV_SCROLL_ACQUIREMENT);
 
+			gain_chosen_stat();
+
 			if (d_info[dungeon_type].final_artifact)
 			{
 				int a_idx = d_info[dungeon_type].final_artifact;
@@ -1695,6 +1675,13 @@ msg_print("地面に落とされた。");
 						a_ptr->cur_num = 1;
 
 					/* Prevent rewarding both artifact and "default" object */
+					if (!d_info[dungeon_type].final_object) k_idx = 0;
+				}
+				else
+				{
+					object_type forge;
+					create_replacement_art(a_idx, &forge);
+					drop_here(&forge, y, x);
 					if (!d_info[dungeon_type].final_object) k_idx = 0;
 				}
 			}
@@ -1721,6 +1708,7 @@ msg_print("地面に落とされた。");
 				case REALM_RAGE: k_idx = 690; break;
 				case REALM_ARCANE: k_idx = 519; break;
 				case REALM_BURGLARY: k_idx = 703; break;
+				case REALM_ARMAGEDDON: k_idx = 721; break;
 				}
 			}
 
@@ -1743,6 +1731,7 @@ msg_print("地面に落とされた。");
 				case REALM_RAGE: k_idx = 691; break;
 				case REALM_ARCANE: k_idx = 519; break;
 				case REALM_BURGLARY: k_idx = 704; break;
+				case REALM_ARMAGEDDON: k_idx = 722; break;
 				}
 			}
 
@@ -1759,11 +1748,7 @@ msg_print("地面に落とされた。");
 				/* Drop it in the dungeon */
 				(void)drop_near(q_ptr, -1, y, x);
 			}
-#ifdef JP
-			msg_format("あなたは%sを制覇した！",d_name+d_info[dungeon_type].name);
-#else
 			msg_format("You have conquered %s!",d_name+d_info[dungeon_type].name);
-#endif
 		}
 	}
 
@@ -1802,41 +1787,16 @@ msg_print("地面に落とされた。");
 		/* Redraw the "title" */
 		p_ptr->redraw |= (PR_TITLE);
 
-#ifdef JP
-		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "見事に変愚蛮怒の勝利者となった！");
-#else
-		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "become *WINNER* of Hengband finely!");
-#endif
-
 		if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) || mut_present(MUT_CHAOS_GIFT))
 		{
-#ifdef JP
-			msg_format("%sからの声が響いた。", chaos_patrons[p_ptr->chaos_patron]);
-			msg_print("『よくやった、定命の者よ！』");
-#else
 			msg_format("The voice of %s booms out:", chaos_patrons[p_ptr->chaos_patron]);
 			msg_print("'Thou art donst well, mortal!'");
-#endif
 		}
 
 		/* Congratulations */
-#ifdef JP
-		msg_print("*** おめでとう ***");
-#else
 		msg_print("*** CONGRATULATIONS ***");
-#endif
-
-#ifdef JP
-		msg_print("あなたはゲームをコンプリートしました。");
-#else
 		msg_print("You have won the game!");
-#endif
-
-#ifdef JP
-		msg_print("準備が整ったら引退(自殺コマンド)しても結構です。");
-#else
 		msg_print("You may retire (commit suicide) when you are ready.");
-#endif
 	}
 }
 
@@ -1957,10 +1917,17 @@ static void get_exp_from_mon(int dam, monster_type *m_ptr)
 
 	/*
 	 * - Ratio of monster's level to player's level effects
-	 * - Varying speed effects
+	 * - Varying speed effects (Skipped for Breeders)
 	 * - Get a fraction in proportion of damage point
 	 */
-	new_exp = r_ptr->level * SPEED_TO_ENERGY(m_ptr->mspeed) * dam;
+	if (r_ptr->flags2 & RF2_MULTIPLY)
+	{
+		dam = dam * (r_ptr->hdice * (r_ptr->hside + 1) / 2) / m_ptr->maxhp;
+		new_exp = r_ptr->level * SPEED_TO_ENERGY(r_ptr->speed) * dam;
+	}
+	else
+		new_exp = r_ptr->level * SPEED_TO_ENERGY(m_ptr->mspeed) * dam;
+
 	new_exp_frac = 0;
 	div_h = 0L;
 	div_l = (p_ptr->max_plv+2) * SPEED_TO_ENERGY(r_ptr->speed);
@@ -1971,19 +1938,13 @@ static void get_exp_from_mon(int dam, monster_type *m_ptr)
 	else
 		s64b_mul(&div_h, &div_l, 0, r_ptr->hdice * (ironman_nightmare ? 2 : 1) * r_ptr->hside * 2);
 
-	/* Special penalty in the wilderness
-	if (!dun_level && (!(r_ptr->flags8 & RF8_WILD_ONLY) || !(r_ptr->flags1 & RF1_UNIQUE)))
-		s64b_mul(&div_h, &div_l, 0, 2); */
-
 	/* Do division first to prevent overflaw */
 	s64b_div(&new_exp, &new_exp_frac, div_h, div_l);
 
-	/* Special penalty for mutiply-monster 
-	   Also, no more farming The Queen Ant for levelling
-	*/
-	if ((r_ptr->flags2 & RF2_MULTIPLY) || (m_ptr->r_idx == MON_DAWN) || m_ptr->parent_m_idx)
+	/* Special penalty for mutiply-monster	*/
+	if ((r_ptr->flags2 & RF2_MULTIPLY) || (m_ptr->r_idx == MON_DAWN))
 	{
-		int monnum_penarty = r_ptr->r_akills / 800;
+		int monnum_penarty = r_ptr->r_akills / 400;
 		if (monnum_penarty > 8) monnum_penarty = 8;
 
 		while (monnum_penarty--)
@@ -1993,13 +1954,41 @@ static void get_exp_from_mon(int dam, monster_type *m_ptr)
 		}
 	}
 
+	/* Wilderness Penalty */
+	if ( !dun_level 
+	  && (!(r_ptr->flags8 & RF8_WILD_ONLY) || !(r_ptr->flags1 & RF1_UNIQUE)) )
+	{
+		s64b_RSHIFT(new_exp, new_exp_frac, 3);
+	}
+
+	/* Farming Summoners for xp is now biffed! */
+	if (m_ptr->parent_m_idx)
+	{
+		monster_type *pm_ptr = &m_list[m_ptr->parent_m_idx];
+
+		if (pm_ptr->r_idx)
+		{
+			monster_race *pr_ptr = &r_info[pm_ptr->r_idx];
+			int           biff;
+
+			if (pr_ptr->flags1 & RF1_UNIQUE)
+				biff = pr_ptr->r_skills / 100;
+			else
+				biff = pr_ptr->r_skills / 250;
+			
+			if (biff > 8) biff = 8;
+			while (biff--)
+				s64b_RSHIFT(new_exp, new_exp_frac, 1);
+		}
+	}
+
 	/* Finally multiply base experience point of the monster */
 	s64b_mul(&new_exp, &new_exp_frac, 0, r_ptr->mexp);
 
 	if (mut_present(MUT_FAST_LEARNER))
 	{
-		s64b_mul(&new_exp, &new_exp_frac, 0, 5);
-		s64b_div(&new_exp, &new_exp_frac, 0, 3);
+		s64b_mul(&new_exp, &new_exp_frac, 0, 6);
+		s64b_div(&new_exp, &new_exp_frac, 0, 5);
 	}
 
 	/* Intelligence affects learning! */
@@ -2071,7 +2060,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
 
 	/* Wake it up */
-	(void)set_monster_csleep(m_idx, 0);
+	if (shoot_hack != SHOOT_TRANQUILIZE)
+		(void)set_monster_csleep(m_idx, 0);
 
 	/* Hack - Cancel any special player stealth magics. -LM- */
 	if (p_ptr->special_defense & NINJA_S_STEALTH)
@@ -2089,12 +2079,12 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	    p_ptr->psubrace == DEMIGOD_POSEIDON &&
 		note == NULL && /* Hack: Trying to just get melee and shooting */
 		(-m_ptr->ac_adj) < r_ptr->ac/2 && 
-		!mon_save_p(m_ptr->r_idx, A_DEX) )
+		!mon_save_p(m_ptr->r_idx, A_NONE) )
 	{
 		char m_name[MAX_NLEN];
 		monster_desc(m_name, m_ptr, MD_POSSESSIVE);
 		msg_format("%^s armor melts.", m_name);
-		m_ptr->ac_adj -= 4;
+		m_ptr->ac_adj -= randint1(2);
 		if (p_ptr->wizard || cheat_xtra)
 			msg_format("Melt Armor: AC is now %d", MON_AC(r_ptr, m_ptr));
 	}
@@ -2194,6 +2184,18 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 		/* Count all monsters killed */
 		if (r_ptr->r_akills < MAX_SHORT) r_ptr->r_akills++;
+
+		/* Count all summons killed */
+		if (m_ptr->parent_m_idx)
+		{
+			monster_type *pm_ptr = &m_list[m_ptr->parent_m_idx];
+			if (pm_ptr->r_idx)
+			{
+				monster_race *pr_ptr = &r_info[pm_ptr->r_idx];
+				if (pr_ptr->r_skills < MAX_SHORT)
+					pr_ptr->r_skills++;
+			}
+		}
 
 		/* Recall even invisible uniques or winners */
 		if ((m_ptr->ml && !p_ptr->image) || (r_ptr->flags1 & RF1_UNIQUE))
@@ -2366,17 +2368,6 @@ msg_format("%^sは恐ろしい血の呪いをあなたにかけた！", m_name);
 			if (one_in_(4)) chg_virtue(V_NATURE, -1);
 		}
 
-		if ((r_ptr->flags1 & RF1_UNIQUE) && record_destroy_uniq)
-		{
-			char note_buf[160];
-#ifdef JP
-			sprintf(note_buf, "%s%s", r_name + r_ptr->name, (m_ptr->smart & SM_CLONED) ? "(クローン)" : "");
-#else
-			sprintf(note_buf, "%s%s", r_name + r_ptr->name, (m_ptr->smart & SM_CLONED) ? "(Clone)" : "");
-#endif
-			do_cmd_write_nikki(NIKKI_UNIQUE, 0, note_buf);
-		}
-
 		/* Make a sound */
 		sound(SOUND_KILL);
 
@@ -2389,15 +2380,7 @@ msg_format("%^sは恐ろしい血の呪いをあなたにかけた！", m_name);
 		/* Death by physical attack -- invisible monster */
 		else if (!m_ptr->ml)
 		{
-#ifdef JP
-			if ((p_ptr->personality == PERS_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON))
-				msg_format("せっかくだから%sを殺した。", m_name);
-			else
-msg_format("%sを殺した。", m_name);
-#else
-				msg_format("You have killed %s.", m_name);
-#endif
-
+			msg_format("You have killed %s.", m_name);
 		}
 
 		/* Death by Physical attack -- non-living monster */
@@ -2413,48 +2396,22 @@ msg_format("%sを殺した。", m_name);
 
 			/* Special note at death */
 			if (explode)
-#ifdef JP
-				msg_format("%sは爆発して粉々になった。", m_name);
-#else
 				msg_format("%^s explodes into tiny shreds.", m_name);
-#endif
 			else
-			{
-#ifdef JP
-				if ((p_ptr->personality == PERS_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON))
-					msg_format("せっかくだから%sを倒した。", m_name);
-				else
-msg_format("%sを倒した。", m_name);
-#else
 				msg_format("You have destroyed %s.", m_name);
-#endif
-			}
 		}
 
 		/* Death by Physical attack -- living monster */
 		else
-		{
-#ifdef JP
-			if ((p_ptr->personality == PERS_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON))
-				msg_format("せっかくだから%sを葬り去った。", m_name);
-			else
-msg_format("%sを葬り去った。", m_name);
-#else
-				msg_format("You have slain %s.", m_name);
-#endif
+			msg_format("You have slain %s.", m_name);
 
-		}
 		if ((r_ptr->flags1 & RF1_UNIQUE) && !(m_ptr->smart & SM_CLONED) && !vanilla_town)
 		{
 			for (i = 0; i < MAX_KUBI; i++)
 			{
 				if ((kubi_r_idx[i] == m_ptr->r_idx) && !(m_ptr->mflag2 & MFLAG2_CHAMELEON))
 				{
-#ifdef JP
-msg_format("%sの首には賞金がかかっている。", m_name);
-#else
 					msg_format("There is a price on %s's head.", m_name);
-#endif
 					break;
 				}
 			}
@@ -3340,7 +3297,7 @@ static void target_set_prepare(int mode)
 			if ((mode & (TARGET_KILL)) && !target_pet && is_pet(&m_list[c_ptr->m_idx])) continue;
 
 			/* Duelist is attempting to mark a target ... only visible monsters, please! */
-			if ( (mode & TARGET_MARK) 
+			if ( ((mode & TARGET_MARK) || (mode & TARGET_DISI))
 			  && (!c_ptr->m_idx || !m_list[c_ptr->m_idx].ml) )
 			{
 				continue;
@@ -3354,7 +3311,7 @@ static void target_set_prepare(int mode)
 	}
 
 	/* Set the sort hooks */
-	if ((mode & TARGET_KILL) || (mode & TARGET_MARK))
+	if ((mode & TARGET_KILL) || (mode & TARGET_MARK) || (mode & TARGET_DISI))
 	{
 		/* Target the nearest monster for shooting */
 		ang_sort_comp = ang_sort_comp_distance;
@@ -4158,7 +4115,7 @@ bool target_set(int mode)
 
 			/* Allow target */
 			if ( target_able(c_ptr->m_idx) 
-			 || ((mode & TARGET_MARK) && m_list[c_ptr->m_idx].ml))
+			 || ((mode & (TARGET_MARK|TARGET_DISI)) && m_list[c_ptr->m_idx].ml))
 			{
 #ifdef JP
 strcpy(info, "q止 t決 p自 o現 +次 -前");
@@ -4209,7 +4166,7 @@ strcpy(info, "q止 p自 o現 +次 -前");
 				case '0':
 				{
 					if ( target_able(c_ptr->m_idx) 
-					 || ((mode & TARGET_MARK) && m_list[c_ptr->m_idx].ml))
+					 || ((mode & (TARGET_MARK|TARGET_DISI)) && m_list[c_ptr->m_idx].ml))
 					{
 						health_track(c_ptr->m_idx);
 						target_who = c_ptr->m_idx;
@@ -5010,981 +4967,6 @@ msg_print("あなたは混乱している。");
 }
 
 
-void gain_level_reward(int chosen_reward)
-{
-	object_type *q_ptr;
-	object_type forge;
-	char        wrath_reason[32] = "";
-	int         nasty_chance = 6;
-	int         dummy = 0, dummy2 = 0;
-	int         type, effect;
-	cptr        reward = NULL;
-	char o_name[MAX_NLEN];
-
-	int count = 0;
-
-	if (!chosen_reward)
-	{
-		if (multi_rew) return;
-		else multi_rew = TRUE;
-	}
-
-
-	if (p_ptr->lev == 13) nasty_chance = 2;
-	else if (!(p_ptr->lev % 13)) nasty_chance = 3;
-	else if (!(p_ptr->lev % 14)) nasty_chance = 12;
-
-	if (one_in_(nasty_chance))
-		type = randint1(20); /* Allow the 'nasty' effects */
-	else
-		type = randint1(15) + 5; /* Or disallow them */
-
-	if (type < 1) type = 1;
-	if (type > 20) type = 20;
-	type--;
-
-
-#ifdef JP
-sprintf(wrath_reason, "%sの怒り",
-		chaos_patrons[p_ptr->chaos_patron]);
-#else
-	sprintf(wrath_reason, "the Wrath of %s",
-		chaos_patrons[p_ptr->chaos_patron]);
-#endif
-
-
-	effect = chaos_rewards[p_ptr->chaos_patron][type];
-
-	if (one_in_(6) && !chosen_reward)
-	{
-#ifdef JP
-msg_format("%^sは褒美としてあなたを突然変異させた。",
-			chaos_patrons[p_ptr->chaos_patron]);
-#else
-		msg_format("%^s rewards you with a mutation!",
-			chaos_patrons[p_ptr->chaos_patron]);
-#endif
-	
-		mut_gain_random(NULL);
-#ifdef JP
-		reward = "変異した。";
-#else
-		reward = "mutation";
-#endif
-	}
-	else
-	{
-	switch (chosen_reward ? chosen_reward : effect)
-	{
-		case REW_POLY_SLF:
-#ifdef JP
-msg_format("%sの声が響き渡った:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#else
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#endif
-
-#ifdef JP
-msg_print("「汝、新たなる姿を必要とせり！」");
-#else
-			msg_print("'Thou needst a new form, mortal!'");
-#endif
-
-			do_poly_self();
-#ifdef JP
-			reward = "変異した。";
-#else
-			reward = "polymorphing";
-#endif
-			break;
-		case REW_GAIN_EXP:
-#ifdef JP
-msg_format("%sの声が響き渡った:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#else
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#endif
-
-#ifdef JP
-msg_print("「汝は良く行いたり！続けよ！」");
-#else
-			msg_print("'Well done, mortal! Lead on!'");
-#endif
-
-			if (p_ptr->prace == RACE_ANDROID)
-			{
-#ifdef JP
-				msg_print("しかし何も起こらなかった。");
-#else
-				msg_print("But, nothing happen.");
-#endif
-			}
-			else if (p_ptr->exp < PY_MAX_EXP)
-			{
-				s32b ee = (p_ptr->exp / 2) + 10;
-				if (ee > 100000L) ee = 100000L;
-#ifdef JP
-msg_print("更に経験を積んだような気がする。");
-#else
-				msg_print("You feel more experienced.");
-#endif
-
-				gain_exp(ee);
-#ifdef JP
-				reward = "経験値を得た";
-#else
-				reward = "experience";
-#endif
-			}
-			break;
-		case REW_LOSE_EXP:
-#ifdef JP
-msg_format("%sの声が響き渡った:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#else
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#endif
-
-#ifdef JP
-msg_print("「下僕よ、汝それに値せず。」");
-#else
-			msg_print("'Thou didst not deserve that, slave.'");
-#endif
-
-			if (p_ptr->prace == RACE_ANDROID)
-			{
-#ifdef JP
-				msg_print("しかし何も起こらなかった。");
-#else
-				msg_print("But, nothing happen.");
-#endif
-			}
-			else
-			{
-				lose_exp(p_ptr->exp / 6);
-#ifdef JP
-				reward = "経験値を失った。";
-#else
-				reward = "losing experience";
-#endif
-			}
-			break;
-		case REW_GOOD_OBJ:
-#ifdef JP
-msg_format("%sの声がささやいた:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#else
-			msg_format("The voice of %s whispers:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#endif
-
-#ifdef JP
-msg_print("「我が与えし物を賢明に使うべし。」");
-#else
-			msg_print("'Use my gift wisely.'");
-#endif
-
-			acquirement(py, px, 1, FALSE, FALSE);
-#ifdef JP
-			reward = "上質なアイテムを手に入れた。";
-#else
-			reward = "a good item";
-#endif
-			break;
-		case REW_GREA_OBJ:
-#ifdef JP
-msg_format("%sの声が響き渡った:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#else
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#endif
-
-#ifdef JP
-msg_print("「我が与えし物を賢明に使うべし。」");
-#else
-			msg_print("'Use my gift wisely.'");
-#endif
-
-			acquirement(py, px, 1, TRUE, FALSE);
-#ifdef JP
-			reward = "高級品のアイテムを手に入れた。";
-#else
-			reward = "an excellent item";
-#endif
-			break;
-		case REW_CHAOS_WP:
-#ifdef JP
-msg_format("%sの声が響き渡った:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#else
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#endif
-
-#ifdef JP
-msg_print("「汝の行いは貴き剣に値せり。」");
-#else
-			msg_print("'Thy deed hath earned thee a worthy blade.'");
-#endif
-
-			/* Get local object */
-			q_ptr = &forge;
-			dummy = TV_SWORD;
-			switch (randint1(p_ptr->lev))
-			{
-				case 0: case 1:
-					dummy2 = SV_DAGGER;
-					break;
-				case 2: case 3:
-					dummy2 = SV_MAIN_GAUCHE;
-					break;
-				case 4:
-					dummy2 = SV_TANTO;
-					break;
-				case 5: case 6:
-					dummy2 = SV_RAPIER;
-					break;
-				case 7: case 8:
-					dummy2 = SV_SMALL_SWORD;
-					break;
-				case 9: case 10:
-					dummy2 = SV_BASILLARD;
-					break;
-				case 11: case 12: case 13:
-					dummy2 = SV_SHORT_SWORD;
-					break;
-				case 14: case 15:
-					dummy2 = SV_SABRE;
-					break;
-				case 16: case 17:
-					dummy2 = SV_CUTLASS;
-					break;
-				case 18:
-					dummy2 = SV_WAKIZASHI;
-					break;
-				case 19:
-					dummy2 = SV_KHOPESH;
-					break;
-				case 20:
-					dummy2 = SV_TULWAR;
-					break;
-				case 21:
-					dummy2 = SV_BROAD_SWORD;
-					break;
-				case 22: case 23:
-					dummy2 = SV_LONG_SWORD;
-					break;
-				case 24: case 25:
-					dummy2 = SV_SCIMITAR;
-					break;
-				case 26:
-					dummy2 = SV_NINJATO;
-					break;
-				case 27:
-					dummy2 = SV_KATANA;
-					break;
-				case 28: case 29:
-					dummy2 = SV_BASTARD_SWORD;
-					break;
-				case 30:
-					dummy2 = SV_GREAT_SCIMITAR;
-					break;
-				case 31:
-					dummy2 = SV_CLAYMORE;
-					break;
-				case 32:
-					dummy2 = SV_ESPADON;
-					break;
-				case 33:
-					dummy2 = SV_TWO_HANDED_SWORD;
-					break;
-				case 34:
-					dummy2 = SV_FLAMBERGE;
-					break;
-				case 35:
-					dummy2 = SV_NO_DACHI;
-					break;
-				case 36:
-					dummy2 = SV_EXECUTIONERS_SWORD;
-					break;
-				case 37:
-					dummy2 = SV_ZWEIHANDER;
-					break;
-				case 38:
-					dummy2 = SV_HAYABUSA;
-					break;
-				default:
-					dummy2 = SV_BLADE_OF_CHAOS;
-			}
-
-			object_prep(q_ptr, lookup_kind(dummy, dummy2));
-			q_ptr->to_h = 3 + randint1(dun_level) % 10;
-			q_ptr->to_d = 3 + randint1(dun_level) % 10;
-			one_resistance(q_ptr);
-			q_ptr->name2 = EGO_CHAOTIC;
-
-			/* Drop it in the dungeon */
-			(void)drop_near(q_ptr, -1, py, px);
-#ifdef JP
-			reward = "(混沌)の武器を手に入れた。";
-#else
-			reward = "chaos weapon";
-#endif
-			break;
-		case REW_GOOD_OBS:
-#ifdef JP
-msg_format("%sの声が響き渡った:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#else
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#endif
-
-#ifdef JP
-msg_print("「汝の行いは貴き報いに値せり。」");
-#else
-			msg_print("'Thy deed hath earned thee a worthy reward.'");
-#endif
-
-			acquirement(py, px, randint1(2) + 1, FALSE, FALSE);
-#ifdef JP
-			reward = "上質なアイテムを手に入れた。";
-#else
-			reward = "good items";
-#endif
-			break;
-		case REW_GREA_OBS:
-#ifdef JP
-msg_format("%sの声が響き渡った:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#else
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#endif
-
-#ifdef JP
-msg_print("「下僕よ、汝の献身への我が惜しみ無き報いを見るがよい。」");
-#else
-			msg_print("'Behold, mortal, how generously I reward thy loyalty.'");
-#endif
-
-			acquirement(py, px, randint1(2) + 1, TRUE, FALSE);
-#ifdef JP
-			reward = "高級品のアイテムを手に入れた。";
-#else
-			reward = "excellent items";
-#endif
-			break;
-		case REW_TY_CURSE:
-#ifdef JP
-msg_format("%sの声が轟き渡った:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#else
-			msg_format("The voice of %s thunders:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#endif
-
-#ifdef JP
-msg_print("「下僕よ、汝傲慢なり。」");
-#else
-			msg_print("'Thou art growing arrogant, mortal.'");
-#endif
-
-			(void)activate_ty_curse(FALSE, &count);
-#ifdef JP
-			reward = "禍々しい呪いをかけられた。";
-#else
-			reward = "cursing";
-#endif
-			break;
-		case REW_SUMMON_M:
-#ifdef JP
-msg_format("%sの声が響き渡った:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#else
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#endif
-
-#ifdef JP
-msg_print("「我が下僕たちよ、かの傲慢なる者を倒すべし！」");
-#else
-			msg_print("'My pets, destroy the arrogant mortal!'");
-#endif
-
-			for (dummy = 0; dummy < randint1(5) + 1; dummy++)
-			{
-				(void)summon_specific(0, py, px, dun_level, 0, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
-			}
-#ifdef JP
-			reward = "モンスターを召喚された。";
-#else
-			reward = "summoning hostile monsters";
-#endif
-			break;
-		case REW_H_SUMMON:
-#ifdef JP
-msg_format("%sの声が響き渡った:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#else
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#endif
-
-#ifdef JP
-msg_print("「汝、より強き敵を必要とせり！」");
-#else
-			msg_print("'Thou needst worthier opponents!'");
-#endif
-
-			activate_hi_summon(py, px, FALSE);
-#ifdef JP
-			reward = "モンスターを召喚された。";
-#else
-			reward = "summoning many hostile monsters";
-#endif
-			break;
-		case REW_DO_HAVOC:
-#ifdef JP
-msg_format("%sの声が響き渡った:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#else
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#endif
-
-#ifdef JP
-msg_print("「死と破壊こそ我が喜びなり！」");
-#else
-			msg_print("'Death and destruction! This pleaseth me!'");
-#endif
-
-			call_chaos();
-#ifdef JP
-			reward = "カオスの力が渦巻いた。";
-#else
-			reward = "calling chaos";
-#endif
-			break;
-		case REW_GAIN_ABL:
-#ifdef JP
-msg_format("%sの声が鳴り響いた:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#else
-			msg_format("The voice of %s rings out:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#endif
-
-#ifdef JP
-msg_print("「留まるのだ、下僕よ。余が汝の肉体を鍛えん。」");
-#else
-			msg_print("'Stay, mortal, and let me mold thee.'");
-#endif
-
-			if (one_in_(3) && !(chaos_stats[p_ptr->chaos_patron] < 0))
-				do_inc_stat(chaos_stats[p_ptr->chaos_patron]);
-			else
-				do_inc_stat(randint0(6));
-#ifdef JP
-			reward = "能力値が上がった。";
-#else
-			reward = "increasing a stat";
-#endif
-			break;
-		case REW_LOSE_ABL:
-#ifdef JP
-msg_format("%sの声が響き渡った:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#else
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#endif
-
-#ifdef JP
-msg_print("「下僕よ、余は汝に飽みたり。」");
-#else
-			msg_print("'I grow tired of thee, mortal.'");
-#endif
-
-			if (one_in_(3) && !(chaos_stats[p_ptr->chaos_patron] < 0))
-				do_dec_stat(chaos_stats[p_ptr->chaos_patron]);
-			else
-				(void)do_dec_stat(randint0(6));
-#ifdef JP
-			reward = "能力値が下がった。";
-#else
-			reward = "decreasing a stat";
-#endif
-			break;
-		case REW_RUIN_ABL:
-#ifdef JP
-msg_format("%sの声が轟き渡った:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#else
-			msg_format("The voice of %s thunders:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#endif
-
-#ifdef JP
-msg_print("「汝、謙虚たることを学ぶべし！」");
-msg_print("あなたは以前より弱くなった！");
-#else
-			msg_print("'Thou needst a lesson in humility, mortal!'");
-			msg_print("You feel less powerful!");
-#endif
-
-			for (dummy = 0; dummy < 6; dummy++)
-			{
-				(void)dec_stat(dummy, 10 + randint1(15), TRUE);
-			}
-#ifdef JP
-			reward = "全能力値が下がった。";
-#else
-			reward = "decreasing all stats";
-#endif
-			break;
-		case REW_POLY_WND:
-#ifdef JP
-msg_format("%sの力が触れるのを感じた。",
-#else
-			msg_format("You feel the power of %s touch you.",
-#endif
-
-				chaos_patrons[p_ptr->chaos_patron]);
-			do_poly_wounds();
-#ifdef JP
-			reward = "傷が変化した。";
-#else
-			reward = "polymorphing wounds";
-#endif
-			break;
-		case REW_AUGM_ABL:
-#ifdef JP
-msg_format("%sの声が響き渡った:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#else
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#endif
-
-#ifdef JP
-msg_print("「我がささやかなる賜物を受けとるがよい！」");
-#else
-			msg_print("'Receive this modest gift from me!'");
-#endif
-
-			for (dummy = 0; dummy < 6; dummy++)
-			{
-				(void)do_inc_stat(dummy);
-			}
-#ifdef JP
-			reward = "全能力値が上がった。";
-#else
-			reward = "increasing all stats";
-#endif
-			break;
-		case REW_HURT_LOT:
-#ifdef JP
-msg_format("%sの声が響き渡った:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#else
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#endif
-
-#ifdef JP
-msg_print("「苦しむがよい、無能な愚か者よ！」");
-#else
-			msg_print("'Suffer, pathetic fool!'");
-#endif
-
-			fire_ball(GF_DISINTEGRATE, 0, p_ptr->lev * 4, 4);
-			take_hit(DAMAGE_NOESCAPE, p_ptr->lev * 4, wrath_reason, -1);
-#ifdef JP
-			reward = "分解の球が発生した。";
-#else
-			reward = "generating disintegration ball";
-#endif
-			break;
-	   case REW_HEAL_FUL:
-#ifdef JP
-msg_format("%sの声が響き渡った:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#else
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#endif
-
-#ifdef JP
-msg_print("「甦るがよい、我が下僕よ！」");
-#else
-			msg_print("'Rise, my servant!'");
-#endif
-
-			restore_level();
-			(void)set_poisoned(0, TRUE);
-			(void)set_blind(0, TRUE);
-			(void)set_confused(0, TRUE);
-			(void)set_image(0, TRUE);
-			(void)set_stun(0, TRUE);
-			(void)set_cut(0, TRUE);
-			hp_player(5000);
-			for (dummy = 0; dummy < 6; dummy++)
-			{
-				(void)do_res_stat(dummy);
-			}
-#ifdef JP
-			reward = "体力が回復した。";
-#else
-			reward = "healing";
-#endif
-			break;
-		case REW_CURSE_WP:
-			if (!buki_motteruka(INVEN_RARM) && !buki_motteruka(INVEN_LARM)) break;
-#ifdef JP
-msg_format("%sの声が響き渡った:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#else
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#endif
-
-#ifdef JP
-msg_print("「汝、武器に頼ることなかれ。」");
-#else
-			msg_print("'Thou reliest too much on thy weapon.'");
-#endif
-
-			dummy = INVEN_RARM;
-			if (buki_motteruka(INVEN_LARM))
-			{
-				dummy = INVEN_LARM;
-				if (buki_motteruka(INVEN_RARM) && one_in_(2)) dummy = INVEN_RARM;
-			}
-			object_desc(o_name, &inventory[dummy], OD_NAME_ONLY);
-			(void)curse_weapon(FALSE, dummy);
-#ifdef JP
-			reward = format("%sが破壊された。", o_name);
-#else
-			reward = format("destroying %s", o_name);
-#endif
-			break;
-		case REW_CURSE_AR:
-			if (!inventory[INVEN_BODY].k_idx) break;
-#ifdef JP
-msg_format("%sの声が響き渡った:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#else
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#endif
-
-#ifdef JP
-msg_print("「汝、防具に頼ることなかれ。」");
-#else
-			msg_print("'Thou reliest too much on thine equipment.'");
-#endif
-
-			object_desc(o_name, &inventory[INVEN_BODY], OD_NAME_ONLY);
-			(void)curse_armor();
-#ifdef JP
-			reward = format("%sが破壊された。", o_name);
-#else
-			reward = format("destroying %s", o_name);
-#endif
-			break;
-		case REW_PISS_OFF:
-#ifdef JP
-msg_format("%sの声がささやいた:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#else
-			msg_format("The voice of %s whispers:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#endif
-
-#ifdef JP
-msg_print("「我を怒りしめた罪を償うべし。」");
-#else
-			msg_print("'Now thou shalt pay for annoying me.'");
-#endif
-
-			switch (randint1(4))
-			{
-				case 1:
-					(void)activate_ty_curse(FALSE, &count);
-#ifdef JP
-					reward = "禍々しい呪いをかけられた。";
-#else
-					reward = "cursing";
-#endif
-					break;
-				case 2:
-					activate_hi_summon(py, px, FALSE);
-#ifdef JP
-					reward = "モンスターを召喚された。";
-#else
-					reward = "summoning hostile monsters";
-#endif
-					break;
-				case 3:
-					if (one_in_(2))
-					{
-						if (!buki_motteruka(INVEN_RARM) && !buki_motteruka(INVEN_LARM)) break;
-						dummy = INVEN_RARM;
-						if (buki_motteruka(INVEN_LARM))
-						{
-							dummy = INVEN_LARM;
-							if (buki_motteruka(INVEN_RARM) && one_in_(2)) dummy = INVEN_RARM;
-						}
-						object_desc(o_name, &inventory[dummy], OD_NAME_ONLY);
-						(void)curse_weapon(FALSE, dummy);
-#ifdef JP
-						reward = format("%sが破壊された。", o_name);
-#else
-						reward = format("destroying %s", o_name);
-#endif
-					}
-					else
-					{
-						if (!inventory[INVEN_BODY].k_idx) break;
-						object_desc(o_name, &inventory[INVEN_BODY], OD_NAME_ONLY);
-						(void)curse_armor();
-#ifdef JP
-						reward = format("%sが破壊された。", o_name);
-#else
-						reward = format("destroying %s", o_name);
-#endif
-					}
-					break;
-				default:
-					for (dummy = 0; dummy < 6; dummy++)
-					{
-						(void)dec_stat(dummy, 10 + randint1(15), TRUE);
-					}
-#ifdef JP
-					reward = "全能力値が下がった。";
-#else
-					reward = "decreasing all stats";
-#endif
-					break;
-			}
-			break;
-		case REW_WRATH:
-#ifdef JP
-msg_format("%sの声が轟き渡った:",
-#else
-			msg_format("The voice of %s thunders:",
-#endif
-
-				chaos_patrons[p_ptr->chaos_patron]);
-#ifdef JP
-msg_print("「死ぬがよい、下僕よ！」");
-#else
-			msg_print("'Die, mortal!'");
-#endif
-
-			take_hit(DAMAGE_LOSELIFE, p_ptr->lev * 4, wrath_reason, -1);
-			for (dummy = 0; dummy < 6; dummy++)
-			{
-				(void)dec_stat(dummy, 10 + randint1(15), FALSE);
-			}
-			activate_hi_summon(py, px, FALSE);
-			(void)activate_ty_curse(FALSE, &count);
-			if (one_in_(2))
-			{
-				dummy = 0;
-
-				if (buki_motteruka(INVEN_RARM))
-				{
-					dummy = INVEN_RARM;
-					if (buki_motteruka(INVEN_LARM) && one_in_(2)) dummy = INVEN_LARM;
-				}
-				else if (buki_motteruka(INVEN_LARM)) dummy = INVEN_LARM;
-
-				if (dummy) (void)curse_weapon(FALSE, dummy);
-			}
-			if (one_in_(2)) (void)curse_armor();
-			break;
-		case REW_DESTRUCT:
-#ifdef JP
-msg_format("%sの声が響き渡った:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#else
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#endif
-
-#ifdef JP
-msg_print("「死と破壊こそ我が喜びなり！」");
-#else
-			msg_print("'Death and destruction! This pleaseth me!'");
-#endif
-
-			(void)destroy_area(py, px, 25, 3 * p_ptr->lev);
-#ifdef JP
-			reward = "ダンジョンが*破壊*された。";
-#else
-			reward = "*destruct*ing dungeon";
-#endif
-			break;
-		case REW_GENOCIDE:
-#ifdef JP
-msg_format("%sの声が響き渡った:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#else
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#endif
-
-#ifdef JP
-msg_print("「我、汝の敵を抹殺せん！」");
-#else
-			msg_print("'Let me relieve thee of thine oppressors!'");
-#endif
-
-			(void)symbol_genocide(0, FALSE);
-#ifdef JP
-			reward = "モンスターが抹殺された。";
-#else
-			reward = "genociding monsters";
-#endif
-			break;
-		case REW_MASS_GEN:
-#ifdef JP
-msg_format("%sの声が響き渡った:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#else
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
-#endif
-
-#ifdef JP
-msg_print("「我、汝の敵を抹殺せん！」");
-#else
-			msg_print("'Let me relieve thee of thine oppressors!'");
-#endif
-
-			(void)mass_genocide(0, FALSE);
-#ifdef JP
-			reward = "モンスターが抹殺された。";
-#else
-			reward = "genociding nearby monsters";
-#endif
-			break;
-		case REW_DISPEL_C:
-#ifdef JP
-msg_format("%sの力が敵を攻撃するのを感じた！",
-				chaos_patrons[p_ptr->chaos_patron]);
-#else
-			msg_format("You can feel the power of %s assault your enemies!",
-				chaos_patrons[p_ptr->chaos_patron]);
-#endif
-
-			(void)dispel_monsters(p_ptr->lev * 4);
-			break;
-		case REW_IGNORE:
-#ifdef JP
-msg_format("%sはあなたを無視した。",
-				chaos_patrons[p_ptr->chaos_patron]);
-#else
-			msg_format("%s ignores you.",
-				chaos_patrons[p_ptr->chaos_patron]);
-#endif
-
-			break;
-		case REW_SER_DEMO:
-#ifdef JP
-msg_format("%sは褒美として悪魔の使いをよこした！",chaos_patrons[p_ptr->chaos_patron]);
-#else
-			msg_format("%s rewards you with a demonic servant!",chaos_patrons[p_ptr->chaos_patron]);
-#endif
-
-			if (!summon_specific(-1, py, px, dun_level, SUMMON_DEMON, PM_FORCE_PET))
-#ifdef JP
-msg_print("何も現れなかった...");
-#else
-				msg_print("Nobody ever turns up...");
-#endif
-			else
-#ifdef JP
-				reward = "悪魔がペットになった。";
-#else
-				reward = "a demonic servant";
-#endif
-
-			break;
-		case REW_SER_MONS:
-#ifdef JP
-msg_format("%sは褒美として使いをよこした！",chaos_patrons[p_ptr->chaos_patron]);
-#else
-			msg_format("%s rewards you with a servant!",chaos_patrons[p_ptr->chaos_patron]);
-#endif
-
-			if (!summon_specific(-1, py, px, dun_level, 0, PM_FORCE_PET))
-#ifdef JP
-msg_print("何も現れなかった...");
-#else
-				msg_print("Nobody ever turns up...");
-#endif
-			else
-#ifdef JP
-				reward = "モンスターがペットになった。";
-#else
-				reward = "a servant";
-#endif
-
-			break;
-		case REW_SER_UNDE:
-#ifdef JP
-msg_format("%sは褒美としてアンデッドの使いをよこした。",chaos_patrons[p_ptr->chaos_patron]);
-#else
-			msg_format("%s rewards you with an undead servant!",chaos_patrons[p_ptr->chaos_patron]);
-#endif
-
-			if (!summon_specific(-1, py, px, dun_level, SUMMON_UNDEAD, PM_FORCE_PET))
-#ifdef JP
-msg_print("何も現れなかった...");
-#else
-				msg_print("Nobody ever turns up...");
-#endif
-			else
-#ifdef JP
-				reward = "アンデッドがペットになった。";
-#else
-				reward = "an undead servant";
-#endif
-
-			break;
-		default:
-#ifdef JP
-msg_format("%sの声がどもった:",
-#else
-			msg_format("The voice of %s stammers:",
-#endif
-
-				chaos_patrons[p_ptr->chaos_patron]);
-#ifdef JP
-msg_format("「あー、あー、答えは %d/%d。質問は何？」", type, effect);
-#else
-			msg_format("'Uh... uh... the answer's %d/%d, what's the question?'", type, effect);
-#endif
-
-	}
-	}
-	if (reward)
-	{
-#ifdef JP
-		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, format("パトロンの報酬で%s", reward));
-#else
-		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, format("The patron rewards you with %s.", reward));
-#endif
-	}
-}
-
 
 /*
  * XAngband: determine if a given location is "interesting"
@@ -6480,6 +5462,7 @@ int bow_range(int sval)
 	default:
 		tmul = bow_tmul(sval);
 		if (p_ptr->xtra_might) tmul++;
+		tmul += p_ptr->shooter_info.to_mult;
 		tmul = tmul * (100 + (int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
 		tdis = 13 + tmul/80;
 		if (sval == SV_LIGHT_XBOW || sval == SV_HEAVY_XBOW)

@@ -1,89 +1,119 @@
 #include "angband.h"
+#include "menu.h"
 
-static void _describe(menu_list_t *menu_list, int which)
+void default_menu(int cmd, int which, vptr cookie, variant *res)
 {
-	char tmp[62*5];
-	cptr help;
-	int i, line;
-
-	if (!menu_list->help_fn) return;
-	if (which < 0 || which >= menu_list->count) return;
-
-	/* 2 lines for prompt and heading.  5 lines for browse info. */
-	for (i = 0; i < 7; i++)
-		Term_erase(12, menu_list->count + i + 2, 255);
-
-	/* Get the description, and line break it (max 5 lines)
-	   Note that help may well point to a global buffer, so we
-	   must copy it immediately some place else! */
-	help = (menu_list->help_fn)(menu_list->choices, which);
-	roff_to_buf(help, 62, tmp, sizeof(tmp));
-
-	for(i = 0, line = menu_list->count + 3; tmp[i]; i += 1+strlen(&tmp[i]))
-	{
-		prt(&tmp[i], line, 15);
-		line++;
-	}
+	var_clear(res);
 }
 
-static void _list(menu_list_t *menu_list)
+static void _describe(menu_ptr menu, int which)
+{
+	variant v;
+
+	var_init(&v);
+	menu->fn(MENU_HELP, which, menu->cookie, &v);
+	if (!var_is_null(&v))
+	{
+		char tmp[255*10];
+		int i, line;
+
+		for (i = 0; i < 2+10; i++)
+			Term_erase(13, menu->count + i + 1 + (menu->heading ? 1 : 0), 255);
+
+		roff_to_buf(var_get_string(&v), 80-15, tmp, sizeof(tmp));
+
+		for(i = 0, line = menu->count + 2 + (menu->heading ? 1 : 0); tmp[i]; i += 1+strlen(&tmp[i]))
+		{
+			prt(&tmp[i], line, 15);
+			line++;
+		}
+	}
+	var_clear(&v);
+}
+
+static bool _owner_draw(menu_ptr menu, int which, int y, int x)
+{
+	return FALSE;
+}
+
+static void _list(menu_ptr menu, char *keys)
 {
 	char temp[255];
 	int  i;
 	int  y = 1;
-	int  x = 10;
+	int  x = 13;
 
 	Term_erase(x, y, 255);
 
-	if (menu_list->heading)
-		put_str(format("     %s", menu_list->heading), y++, x);
+	if (menu->heading)
+		put_str(format("     %s", menu->heading), y++, x);
 
-	/* List */
-	for (i = 0; i < menu_list->count; i++)
+	for (i = 0; i < menu->count; i++)
 	{
-		char letter = '\0';
 		byte attr = TERM_WHITE;
+		variant key, text, color;
 
-		if (menu_list->color_fn)
-			attr = (byte)(menu_list->color_fn)(menu_list->choices, i);
+		var_init(&key);
+		var_init(&text);
+		var_init(&color);
 
-		if (i < 26)
-			letter = I2A(i);
-		else if (i < 52)
-			letter = 'A' + i - 26;
+		menu->fn(MENU_KEY, i, menu->cookie, &key);
+		if (var_is_null(&key))
+			keys[i] = I2A(i);
 		else
-			letter = '0' + i - 52;
+			keys[i] = (char)var_get_int(&key);
 
-		sprintf(temp, "  %c) %s", letter, (menu_list->text_fn)(menu_list->choices, i));
+		if (menu->count <= 26)
+			keys[i] = tolower(keys[i]);
+
+		menu->fn(MENU_TEXT, i, menu->cookie, &text);
+		if (var_is_null(&text))
+			var_set_string(&text, "");
+
+		menu->fn(MENU_COLOR, i, menu->cookie, &color);
+		if (!var_is_null(&color))
+			attr = var_get_int(&color);
+
+		if (attr == TERM_DARK)
+			keys[i] = '\0';
+
+		sprintf(temp, "  %c) %s", keys[i], var_get_string(&text));
 		c_prt(attr, temp, y + i, x);
+
+		var_clear(&key);
+		var_clear(&text);
+		var_clear(&color);
 	}
+	Term_erase(x, y + menu->count, 255);
 }
 
-static int _choose(menu_list_t *menu_list)
+static int _choose(menu_ptr menu)
 {
 	int	 choice = -1;
 	bool describe = FALSE;
 	bool allow_browse = FALSE;
 	char choose_prompt[255];
 	char browse_prompt[255];
+	char keys[100];
 	
-	if (menu_list->browse_prompt && menu_list->help_fn)
+	if (menu->browse_prompt)
 	{
 		allow_browse = TRUE;
-		sprintf(choose_prompt, "%s (Type '?' to browse)", menu_list->choose_prompt);
-		sprintf(browse_prompt, "%s (Type '?' to choose)", menu_list->browse_prompt);
+		sprintf(choose_prompt, "%s (Type '?' to browse)", menu->choose_prompt);
+		sprintf(browse_prompt, "%s (Type '?' to choose)", menu->browse_prompt);
 	}
 	else
 	{
-		sprintf(choose_prompt, "%s", menu_list->choose_prompt);
+		sprintf(choose_prompt, "%s", menu->choose_prompt);
 		sprintf(browse_prompt, "%s", "");
 	}
 	
-	_list(menu_list);
+	_list(menu, keys);
 
 	for (;;)
 	{
 		char ch = '\0';
+		int i;
 
 		choice = -1;
 		if (!get_com(describe ? browse_prompt : choose_prompt, &ch, FALSE)) break;
@@ -94,14 +124,24 @@ static int _choose(menu_list_t *menu_list)
 			continue;
 		}
 
-		if (isupper(ch))
-			choice = ch - 'A' + 26;
-		else if (islower(ch))
-			choice = ch - 'a';
-		else if (ch >= '0' && ch <= '9')
-			choice = ch - '0' + 52;
+		for (i = 0; i < menu->count; i++)
+		{
+			if (menu->count <= 26)
+			{
+				if (toupper(keys[i]) == toupper(ch))
+				{
+					choice = i;
+					break;
+				}
+			}
+			else if (keys[i] == ch)
+			{
+				choice = i;
+				break;
+			}
+		}
 
-		if (choice < 0 || choice >= menu_list->count)
+		if (choice < 0 || choice >= menu->count)
 		{
 			bell();
 			continue;
@@ -109,7 +149,7 @@ static int _choose(menu_list_t *menu_list)
 
 		if (describe)
 		{
-			_describe(menu_list, choice);
+			_describe(menu, choice);
 			continue;
 		}
 
@@ -118,19 +158,19 @@ static int _choose(menu_list_t *menu_list)
 	return choice;
 }
 
-int menu_choose(menu_list_t *menu_list)
+int menu_choose(menu_ptr menu)
 {
 	int choice = -1;
 
 	if (REPEAT_PULL(&choice))
 	{
-		if (choice >= 0 && choice < menu_list->count)
+		if (choice >= 0 && choice < menu->count)
 			return choice;
 	}
 
 	screen_save();
 
-	choice = _choose(menu_list);
+	choice = _choose(menu);
 	REPEAT_PUSH(choice);
 
 	screen_load();

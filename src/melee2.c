@@ -2412,30 +2412,15 @@ static void process_monster(int m_idx)
 		*/
 		if (!is_pet(m_ptr))
 		{
-			m_ptr->parent_m_idx = 0;
+			mon_set_parent(m_ptr, 0);
 		}
 		else 
 		{
 			if (see_m)
 			{
 				char m_name[80];
-
-				/* Acquire the monster name */
 				monster_desc(m_name, m_ptr, 0);
-
-	#ifdef JP
-				msg_format("%sは消え去った！", m_name);
-	#else
 				msg_format("%^s disappears!", m_name);
-	#endif
-			}
-
-			if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
-			{
-				char m_name[80];
-
-				monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
-				do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_LOSE_PARENT, m_name);
 			}
 
 			/* Delete the monster */
@@ -2807,7 +2792,7 @@ msg_format("%^s%s", m_name, monmessage);
 		}
 	}
 
-	/* Pack AI ... Attempt to wake up your buddies! */
+	/* Pack AI ... Attempt to wake up your buddies!
 	{
 	pack_info_t *pack_ptr = pack_info_ptr(m_idx);
 	int dir, x, y;
@@ -2840,7 +2825,7 @@ msg_format("%^s%s", m_name, monmessage);
 
 			if (count < max_wake) return;
 		}
-	}
+	} */
 
 	/* Try to cast spell occasionally */
 	{
@@ -2850,15 +2835,17 @@ msg_format("%^s%s", m_name, monmessage);
 	bool blocked_magic = FALSE;
 
 		if (ticked_off || is_glyph_grid(&cave[py][px]))
-			freq += (30 + r_ptr->level/5);
+			freq += 5 + r_ptr->level/10;
 		else if (pack_ptr)
 		{
 			switch (pack_ptr->ai)
 			{
 			case AI_SHOOT:
 			case AI_LURE:
+				freq += 15;
+				break;
 			case AI_FEAR:
-				freq += 30;
+				freq += 10;
 				break;
 			}
 		}
@@ -3528,6 +3515,8 @@ msg_format("%^s%s", m_name, monmessage);
 					m_ptr->energy_need += ENERGY_NEED();
 				}
 			}
+			if (have_flag(f_ptr->flags, FF_WEB) && r_ptr->d_char != 'S')
+				m_ptr->energy_need += ENERGY_NEED();
 
 			if (!is_riding_mon)
 			{
@@ -3578,8 +3567,9 @@ msg_format("%^s%s", m_name, monmessage);
 			/* Possible disturb */
 			if (m_ptr->ml && 
 			    (ap_r_ptr->level || p_ptr->lev < 10) && /* Town dweller don't disturb! */
-			    (disturb_move ||
-			     (disturb_near /*&& (m_ptr->mflag & MFLAG_VIEW)*/ && projectable(py, px, m_ptr->fy, m_ptr->fx)) ||
+			    (disturb_move || 
+				 (m_ptr->cdis <= 2 && projectable(py, px, m_ptr->fy, m_ptr->fx)) || 
+			     (disturb_near && projectable(py, px, m_ptr->fy, m_ptr->fx)) ||
 			     (disturb_high && ap_r_ptr->r_tkills && ap_r_ptr->level >= p_ptr->lev)))
 			{
 				/* Disturb */
@@ -4022,11 +4012,6 @@ void process_monsters(void)
 
 		/* Use up "some" energy */
 		m_ptr->energy_need += ENERGY_NEED();
-
-		if (m_ptr->mflag2 & MFLAG2_ENCLOSED)
-		{
-			m_ptr->mflag2 &= ~MFLAG2_ENCLOSED;
-		}
 
 		if (m_ptr->mflag2 & MFLAG2_TRIPPED)
 		{
@@ -4502,13 +4487,6 @@ static void process_monsters_mtimed_aux(int m_idx, int mtimed_idx)
 			/* Nightmare monsters are more alert */
 			if (ironman_nightmare) notice /= 2;
 
-			/* Hack: Duelist Stealthy Approach
-			if ( p_ptr->pclass == CLASS_DUELIST
-			  && p_ptr->duelist_target_idx == m_idx )
-			{
-				noise = (1L << (30 - p_ptr->skill_stl - 5));
-			}*/
-
 			/* Hack -- See if monster "notices" player */
 			if ((notice * notice * notice) <= noise)
 			{
@@ -4940,7 +4918,7 @@ void monster_gain_exp(int m_idx, int s_idx)
 			if (!p_ptr->image) r_info[old_r_idx].r_xtra1 |= MR1_SINKA;
 
 			/* Now you feel very close to this pet. */
-			m_ptr->parent_m_idx = 0;
+			mon_set_parent(m_ptr, 0);
 		}
 		update_mon(m_idx, FALSE);
 		lite_spot(m_ptr->fy, m_ptr->fx);

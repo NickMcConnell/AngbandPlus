@@ -1,11 +1,11 @@
 #include "angband.h"
 
-void rodeo_spell(int cmd, variant *res)
+void _rodeo_spell(int cmd, variant *res)
 {
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Rodeo", "荒馬ならし"));
+		var_set_string(res, "Rodeo");
 		break;
 	case SPELL_DESC:
 		var_set_string(res, "");
@@ -20,7 +20,7 @@ void rodeo_spell(int cmd, variant *res)
 		var_set_bool(res, FALSE);
 		if (p_ptr->riding)
 		{
-			msg_print(T("You are already riding.", "今は乗馬中だ。"));
+			msg_print("You are already riding.");
 			return;
 		}
 		if (!do_riding(TRUE)) return;
@@ -30,7 +30,7 @@ void rodeo_spell(int cmd, variant *res)
 		m_ptr = &m_list[p_ptr->riding];
 		r_ptr = &r_info[m_ptr->r_idx];
 		monster_desc(m_name, m_ptr, 0);
-		msg_format(T("You ride on %s.", "%sに乗った。"),m_name);
+		msg_format("You ride on %s.", m_name);
 		if (is_pet(m_ptr)) break;
 		rlev = r_ptr->level;
 		if (r_ptr->flags1 & RF1_UNIQUE) rlev = rlev * 3 / 2;
@@ -40,16 +40,13 @@ void rodeo_spell(int cmd, variant *res)
 			&& !(r_ptr->flags7 & (RF7_GUARDIAN)) && !(r_ptr->flags1 & (RF1_QUESTOR))
 			&& (rlev < p_ptr->lev * 3 / 2 + randint0(p_ptr->lev / 5)))
 		{
-			msg_format(T("You tame %s.", "%sを手なずけた。"),m_name);
+			msg_format("You tame %s.", m_name);
 			set_pet(m_ptr);
 		}
 		else
 		{
-			msg_format(T("You have thrown off by %s.", "%sに振り落とされた！"),m_name);
+			msg_format("You have thrown off by %s.", m_name);
 			rakuba(1,TRUE);
-
-			/* Paranoia */
-			/* 落馬処理に失敗してもとにかく乗馬解除 */
 			p_ptr->riding = 0;
 		}
 		break;
@@ -58,4 +55,78 @@ void rodeo_spell(int cmd, variant *res)
 		default_spell(cmd, res);
 		break;
 	}
+}
+
+static void _calc_bonuses(void)
+{
+}
+
+static void _get_flags(u32b flgs[TR_FLAG_SIZE])
+{
+}
+
+static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
+{
+}
+
+static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
+{
+	if (info_ptr->tval_ammo == TV_ARROW)
+		info_ptr->num_fire += p_ptr->lev*3;
+}
+
+static int _get_powers(spell_info* spells, int max)
+{
+	int ct = 0;
+
+	spell_info* spell = &spells[ct++];
+	spell->level = 10;
+	spell->cost = 0;
+	spell->fail = calculate_fail_rate(spell->level, 50, p_ptr->stat_ind[A_STR]);
+	spell->fn = _rodeo_spell;
+
+	return ct;
+}
+
+class_t *cavalry_get_class_t(void)
+{
+	static class_t me = {0};
+	static bool init = FALSE;
+
+	if (!init)
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 20,  18,  32,   1,  16,  10,  60,  66};
+	skills_t xs = { 10,   7,  10,   0,   0,   0,  22,  26};
+
+		me.name = "Cavalry";
+		me.desc = "Cavalry ride on horses into battle. Although they cannot cast "
+					"spells, they are proud of their overwhelming offensive strength on "
+					"horseback. They are good at shooting. At high levels, they learn "
+					"to forcibly saddle and tame wild monsters. Since they take pride "
+					"in the body and the soul, they don't use magical devices well.\n \n"
+					"Like Warriors and Archers, the cavalry don't use magic. Since "
+					"they are very good at riding, they have a class power - 'Rodeo' - "
+					"which allows them to forcibly saddle and tame wild monsters.";
+
+		me.stats[A_STR] =  2;
+		me.stats[A_INT] = -2;
+		me.stats[A_WIS] = -2;
+		me.stats[A_DEX] =  1;
+		me.stats[A_CON] =  2;
+		me.stats[A_CHR] =  1;
+		me.base_skills = bs;
+		me.extra_skills = xs;
+		me.life = 110;
+		me.exp = 120;
+		me.pets = 35;
+		
+		me.calc_bonuses = _calc_bonuses;
+		me.calc_weapon_bonuses = _calc_weapon_bonuses;
+		me.calc_shooter_bonuses = _calc_shooter_bonuses;
+		me.get_powers = _get_powers;
+		me.get_flags = _get_flags;
+		init = TRUE;
+	}
+
+	return &me;
 }

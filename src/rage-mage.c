@@ -1037,7 +1037,6 @@ static caster_info * _caster_info(void)
 	if (!init)
 	{
 		me.magic_desc = "rage";
-		me.use_sp = TRUE;
 		init = TRUE;
 	}
 	return &me;
@@ -1066,6 +1065,8 @@ static void _player_action(int energy_use)
 
 static void _calc_bonuses(void)
 {
+	p_ptr->spell_cap += 3;
+
 	/* Squishy */
 	p_ptr->to_a -= p_ptr->lev + 10;
 	p_ptr->dis_to_a -= p_ptr->lev + 10;
@@ -1076,10 +1077,6 @@ static void _calc_bonuses(void)
 		if (p_ptr->shero)
 			p_ptr->skills.sav += 20;
 	}
-}
-
-static cptr _book_name(menu_choices choices, int which) {
-	return _books[which].name;
 }
 
 static int _get_spells_imp(spell_info* spells, int max, int book)
@@ -1108,16 +1105,26 @@ static int _get_spells_imp(spell_info* spells, int max, int book)
 	return ct;
 }
 
+static void _book_menu_fn(int cmd, int which, vptr cookie, variant *res)
+{
+	switch (cmd)
+	{
+	case MENU_TEXT:
+		var_set_string(res, _books[which].name);
+		break;
+	default:
+		default_menu(cmd, which, cookie, res);
+	}
+}
 
 static int _get_spells(spell_info* spells, int max)
 {
 	int idx = -1;
 	int ct = 0;
-	menu_list_t list = { "Use which group?", NULL, NULL,
-						_book_name, NULL, NULL, 
-						_books, 4};
+	menu_t menu = { "Use which group?", NULL, NULL,
+					_book_menu_fn, _books, 4 };
 	
-	idx = menu_choose(&list);
+	idx = menu_choose(&menu);
 	if (idx < 0) return 0;
 
 	ct = _get_spells_imp(spells, max, idx);
@@ -1148,7 +1155,7 @@ class_t *rage_mage_get_class_t(void)
 		me.stats[A_CHR] =  1;
 		me.base_skills = bs;
 		me.extra_skills = xs;
-		me.hd = 3;
+		me.life = 105;
 		me.exp = 150;
 		me.pets = 40;
 

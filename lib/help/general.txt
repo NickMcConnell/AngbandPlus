@@ -1,12 +1,12 @@
 === General Information ===
 
-This document gives a brief introduction to Hengband. You will probably
+This document gives a brief introduction to PosChengband. You will probably
 want to browse through all the "help files", especially the sections on
 available commands (see command.txt [b] and commdesc.txt [c]), before
 beginning any serious adventuring...
 
 
-The game of Hengband is a single player dungeon simulation. A player
+The game of PosChengband is a single player dungeon simulation. A player
 may choose from a number of races, classes and magic realms when
 creating a character (see birth.hlp [d]), and then "run" that
 character over a period of days, weeks, even months. Deep down inside,
@@ -24,12 +24,17 @@ with various shop owners. After preparing for his adventure, the
 player can descend into the dungeon where fantastic adventures await
 his coming!
 
-We recommend that you go to the Yeek cave next to your starting
-position in the town of Outpost.  Although the King of Yeeks at the
-lowest level is a fierce enemy, the rest of the cave should be fairly
-safe.  Once you complete this dungeon, you will be strong enough to
-leave Outpost in search of greater adventures.  Carry lots of food and
-fuel, for the journey can be a long one.
+We recommend that you first explore the initial levels of Camelot.
+The entrance to this dungeon, populated by Humans, Dragons and the
+mythical Knights of the Round Table, is located next to your starting
+position in the town of Outpost. The dungeon is fairly deep, though, 
+and it will take quite some time to become powerful enough to defeat
+Arthur Pendragon. (While he is not the most powerful of the Knights, 
+he does command great support). By the time you are comfortable at
+level 10, you might consider switching to the Orc Caves. To do so
+will require you to leave Outpost and enter the wilderness outside.
+Be sure to carry lots of food and fuel, for the journey can be a long
+one.
 
 --- The Global Map ---
 
@@ -42,7 +47,7 @@ safe grids such as roads or plains; seas and lava fields are best
 avoided for a while.
 
 Many towns and dungeons await you; good ones to explore early on
-include the orc caves and the Labyrinth.  To the northeast of the town
+include the Orc Caves and the Labyrinth.  To the northeast of the town
 of Morivant, near the center of the map, is the dread dungeon of
 Angband.  It is home to the Serpent of Chaos, whom you must kill in
 order to win the game. (see town.txt [f])
@@ -85,12 +90,10 @@ before wandering into a hoard of Cyberdemons...
 --- Upon Death and Dying ---
 
 If your character falls below 0 hit points, he has died and cannot be
-restored. You can write last word for the World Score Board on the
-Internet.  And then, tombstone showing information about your
-character will be displayed. You are also permitted to get a record of
-your character, and all your equipment (identified) either on the
-screen or in a file. If you wish, the record of your character will be
-send to the World Score Board.
+restored. You can write last word for posting on the Internet after
+which time, a tombstone showing information about your character will
+be displayed. You are also permitted to get a record of your character, 
+and all your equipment (identified) either on the screen or in a file. 
 
 Whether your character is killed or you retire victorious, it will
 leave behind a reduced save file, which contains only the monster
@@ -98,57 +101,13 @@ memory (see attack.txt#MonsterMemory [e]) and your option choices. It
 may be restored, in which case the new character is generated exactly
 as if the file was not there, but the new player will find his monster
 memory containing all the experience of past incarnations.
-
-
  
-***** <Web>
-=== Hengband on the Web ===
-
-
---- The official Hengband website ---
-(http://hengband.sourceforge.jp/en/)
-
-http://hengband.sourceforge.jp/en/ is the official Hengband website.
-It includes information on where to download the Hengband source code
-and current executables for most popular operating systems as well as
-information on current development issues.
-
---- Hengband World Score Board ---
-(http://hengband.sourceforge.jp/en/score.html)
-
-The official Hengband website includes this score board. You can see
-hundreds of character records at here. And there is translated version
-of Japanese score board which includes over 5000 records already!
-
---- Hengband BBS ---
-(http://6904.teacup.com/combatechizen/bbs)
-
-If you read and write Japanese, you can ask question and get various
-information from this BBS (Bulletin Board System).
-
---- FTP Sites ---
-(ftp://clockwork.dementia.org/angband/Variant/Hengband/)
-
-Hengband sources and executables are uploaded to
-clockwork.dementia.org FTP site which include most variant of Angband.
-Links to the files are available at Thangorodrim.
-(http://www.thangorodrim.net)
-
---- The Newsgroup (rec.games.roguelike.angband) ---
-
-The newsgroup is a forum for the discussion of all things relating to
-Angband and its variants (including Hengband) and is a good place to
-ask various questions about both game play and game design. Be sure to
-include '[Heng]' in your subject heading so people know your question
-is about Hengband.
-
-
 --
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
 Updated    : Hengband 1.5.4
-
+Updated    : PosChengband 1.0.0
 
 ***** Begin Hyperlinks
 ***** [b] birth.hlp

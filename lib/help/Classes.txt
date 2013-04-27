@@ -1,0 +1,730 @@
+=== The Classes ===
+
+***** <Warrior>
+--- Warrior ---
+
+  A Warrior is a hack-and-slash character, who solves most of his problems by
+  cutting them to pieces, but will occasionally fall back on the help of a
+  magical device.  Unfortunately, many high-level devices may be forever beyond
+  their use.
+   
+  Warriors cast no spells.  They hate magic.  In fact, they even gain
+  experience for destroying high level spellbooks.  They have a class power -
+  'Sword Dancing' - which allows them to conduct a melee attack in six random
+  directions.
+
+
+***** <Mage>
+--- Mage ---
+
+  A Mage is a spell caster that must live by his wits as he cannot hope to
+  simply hack his way through the dungeon like a warrior. In addition to his
+  spellbooks, a Mage should carry a range of magical devices to help him in his
+  endeavors which he can master far more easily than anyone else.  A Mage's
+  prime statistic is Intelligence as this determines his spell casting ability.
+   
+  Mages have the least restrictions in choosing and learning spells. They can
+  freely choose any two realms when a character is created. Their natural
+  inclination makes Life magic fairly hard to learn. Otherwise, a mage tends to
+  learn and cast all the spells in his or her realms better than any other
+  character.  The ability to choose second realm of magic has a special
+  meaning: Only the second realm can be changed in the middle of the game.  You
+  can change second realm by studying ('G') from a spellbook of new realm. 
+  They have a class power - 'Eat Magic' - which absorbs mana from wands, staves
+  or rods.
+
+
+***** <Priest>
+--- Priest ---
+
+  A Priest is a character devoted to serving a higher power. They explore the
+  dungeon in the service of their God. They are fairly familiar with magical
+  devices which they believe act as foci for divine intervention in the natural
+  order of things. Priests abhor bloodshed, and therefore are not comfortable
+  with edged weapons. Wielding one will disrupt their ability to concentrate
+  during prayers. A Priest's primary stat is Wisdom.
+   
+  Priests can select from Life, Death, Daemon, or Crusade as a first realm, and
+  choose almost any second realm. However, if they choose a good realm (Life or
+  Crusade) for their first realm, then they are precluded from choosing an evil
+  realm (Death or Daemon) for their second realm, and vice versa. Priests can
+  learn all spells in the selected realms, even if not as efficiently as mages.
+  However, when learning spells, priests cannot voluntarily decide which spells
+  to study: they are rewarded with new prayers by their patron deities, with no
+  money-back satisfaction guarantee. Priests that select a good realm have a
+  class power - 'Bless Weapon' - which allows the priest to wield an edged
+  weapon without penalty. Priests that select an Evil Realm have a class power
+  - 'Evocation' - which damages, scares and banish all monsters in sight.
+
+
+***** <Rogue>
+--- Rogue ---
+
+  A Rogue is a character that prefers to live by his cunning, but is capable of
+  fighting his way out of a tight spot. Rogues are good at locating hidden
+  traps and doors and are masters of disarming traps and picking locks. A rogue
+  has a high stealth allowing him to sneak around many creatures without having
+  to fight, or to get in a telling first blow. A rogue may also backstab a
+  fleeing monster. Rogues also gain shooting bonuses when using a sling.
+  Intelligence determines a rogue's spell casting ability.
+   
+  Rogues can select one realm from Sorcery, Death, Trump, Arcane, Craft, or
+  Burglary. Except for this last realm, rogues have certain limitations on
+  which spells they can learn, and they do not learn new spells very quickly.
+  The Burglary Realm however is unique to the rogue and offers spells for
+  setting traps, picking pockets, negotiating with other thieves, and escaping
+  from a tight spot. Burglary rogues are agents of the Black Market and receive
+  favorable pricing from that shop.
+
+
+***** <Ranger>
+--- Ranger ---
+
+  A Ranger is a combination of a warrior and a mage who has developed a special
+  affinity for the natural world around him. He is a good fighter and also
+  excellent with a bow. A ranger has good stealth, perception, searching and
+  magical resistance. Also, rangers are familiar with magical devices and use
+  them well. Wisdom determines a Ranger's spell casting ability.
+   
+  All rangers are trained in Nature magic, and all of these spells are
+  available to them. They even learn these spells almost as fast as mages. They
+  can also select a secondary realm (from Sorcery, Chaos, Death, Trump, Arcane,
+  and Daemon), but they are slow learners here, and may find themselves unable
+  to learn some of the highest level spells. They have a class power - 'Probe
+  Monster' - which allows them to know a monster's HP, speed, and experience
+  required to evolve.
+
+
+***** <Paladin>
+--- Paladin ---
+
+  A Paladin is a combination of a warrior and a priest. Paladins are very good
+  fighters, but not very good at missile weapons. A paladin lacks much in the
+  way of abilities. He is poor at stealth, perception, searching, and magical
+  devices but has a decent saving throw due to his divine alliance. Wisdom
+  determines a Paladin's success at praying to his deity.
+   
+  Paladins can select a realm from Life, Crusade, Daemon and Death. Like
+  priests, they cannot select which prayers to learn, but are rewarded with new
+  prayers by their deities. They can learn all spells, but not as fast as
+  priests. They detest paganism so strongly that they will even gain experience
+  for destroying high-level pagan spellbooks: 'pagan' means Life or Crusade
+  spellbooks for a Death/Daemon Paladin and all spellbooks other than Life or
+  Crusade for a Life/Crusade Paladin. Depending on their realm, they have a
+  class power - 'Holy Lance' or 'Hell Lance'.
+
+
+***** <Warrior-Mage>
+--- Warrior-Mage ---
+
+  A Warrior-Mage is precisely what the name suggests: a cross between the
+  warrior and mage classes. While their brothers, the rangers, specialize in
+  Nature magic and survival skills, true Warrior-Mages attempt to reach the
+  best of both worlds. As warriors they are much superior to the usual Mage
+  class. Intelligence determines a Warrior-Mage's spell casting ability.
+   
+  Warrior-mages begin the game with Arcane magic, and they can freely select
+  another realm of magic. Although they do not gain new spells as fast as
+  regular mages, they will eventually learn every spell in both realms, thus
+  making them a very competitive choice for players who appreciate Arcane
+  magic. They have two class powers - 'Convert HP to SP' and 'Convert SP to HP'
+  - which allow them to heal HP using mana or gain mana using HP.
+
+
+***** <Chaos-Warrior>
+--- Chaos-Warrior ---
+
+  Chaos Warriors are the feared servants of the terrible Demon Lords of Chaos.
+  Every Chaos Warrior has a Patron Demon and, when gaining a level, may receive
+  a reward from his Patron. He might be healed or polymorphed, his stats could
+  be increased, or he might be rewarded with an awesome weapon. On the other
+  hand, the Patrons might surround him with monsters, drain his stats or wreck
+  his equipment or they might simply ignore him. The Demon Lords of Chaos are
+  chaotic and unpredictable indeed. The exact type of reward depends on both
+  the Patron Demon (different Demons give different rewards) and chance.
+   
+  Chaos Warriors can select a realm from Chaos and Daemon. They are not
+  interested in any other form of magic. They can learn every spell. They have
+  a class power - 'Confusing Light' - which stuns, confuses, and scares all
+  monsters in sight.
+
+
+***** <Monk>
+--- Monk ---
+
+  The Monk character class is very different from all other classes. Their
+  training in martial arts makes them much more powerful with no armor or
+  weapons. To gain the resistances necessary for survival a monk may need to
+  wear some kind of armor, but if the armor he wears is too heavy, it will
+  severely disturb his martial arts maneuvers. As the monk advances levels,
+  new, powerful forms of attack become available. Their defensive capabilities
+  increase likewise, but if armour is being worn, this effect decreases. Wisdom
+  determines a Monk's spell casting ability.
+   
+  The different sects of monks are devoted to different areas of magic. They
+  select a realm from Life, Nature, Craft, Trump and Death. They will
+  eventually learn all prayers in the discipline of their choice. They have two
+  class powers - 'Assume a Posture' and 'Double Attack'. They can choose
+  different forms of postures in different situations, and use powerful
+  combinations of attacks for the finishing blow.
+
+
+***** <Mindcrafter>
+--- Mindcrafter ---
+
+  The Mindcrafter is a unique class that uses the powers of the mind instead of
+  magic. These powers are unique to Mindcrafters, and vary from simple
+  extrasensory powers to mental domination of others. Since these powers are
+  developed by the practice of certain disciplines, a Mindcrafter requires no
+  spellbooks to use them. The available powers are simply determined by the
+  character's level. Wisdom determines a Mindcrafter's ability to use mind
+  powers.
+   
+  Mindcrafters gain new mindcrafting powers and their existing ones become
+  stronger as they gain levels. They can use their power even when blinded.
+  They have a class power - 'Clear Mind' - which allows them to rapidly
+  regenerate their mana.
+
+
+***** <High-Mage>
+--- High-Mage ---
+
+  High-mages are mages who specialize in one particular field of magic and
+  learn it very well - much better than the ordinary mage. A high mage's prime
+  statistic is intelligence as this determines his spell casting ability.
+   
+  For the price of giving up a second realm of magic, High-mages gain
+  substantial benefits in the mana costs, power, minimum levels, and failure
+  rates of the spells in their speciality realm. They have a class power - 'Eat
+  Magic' - which absorbs mana from wands, staves, or rods.
+   
+  And then, only High-Mages are able to cast Hex spells.
+
+
+***** <Tourist>
+--- Tourist ---
+
+  Tourists have visited this world for the purpose of sightseeing. Their
+  fighting skills are bad and they cannot cast powerful spells. They are the
+  most difficult class to win the game with. Intelligence determines a
+  tourist's spell casting ability.
+   
+  Tourists are always seeing more of the world to add to their stock of
+  information; no other class can compete with their identification skills.
+  They have two class powers - 'Take a Photograph' and 'Identify True'. Their
+  magic is based on Arcane, and - aside from identify - is very weak indeed.
+
+
+***** <Imitator>
+--- Imitator ---
+
+  Imitators have enough fighting skills to survive, but rely on their unique
+  technique - 'Imitation' - which imitates monster spells/techniques including
+  their damage and duration. Dexterity determines general imitation ability,
+  but a stat related to the specific action is often also taken into account.
+   
+  To use imitation, Imitators must see monster's spell at first. When a
+  viewable monsters uses a spell, it is added to a temporary spell list which
+  the imitator can choose from. Spells should be imitated quickly, because
+  timing and situation are everything. An imitator can only repeat a spell once
+  each time he observes it. They only have a small long-term memory for spells,
+  which ranges from one to three, depending on their level. When they memorize
+  more spells than this, they will forget the oldest spell in the list. They
+  have a class power - 'Double Revenge' - which allows them to imitate spells
+  at double damage or duration.
+
+
+***** <Beastmaster>
+--- Beastmaster ---
+
+  Beastmasters are in tune with the minds of the creatures of the world. They
+  are very good at riding, and have enough fighting ability. They use monsters
+  which have been summoned or dominated as their hands and feet. Beastmasters
+  can cast trump magic, and are very good at summoning spells, but they can not
+  summon non-living creatures. Charisma determines a Beastmaster's spell
+  casting ability.
+   
+  Beastmasters use Trump magic to make good use of their monster domination and
+  riding abilities. They are very good at summoning living creatures, and they
+  learn summoning spells quicker than Mages. However, they cannot summon
+  non-living creatures. They have two class powers - 'Dominate a Living Thing'
+  and 'Dominate Living Things'.
+
+
+***** <Sorcerer>
+--- Sorcerer ---
+
+  Sorcerers are the all-around best magicians, being able to cast any spell
+  from most magic realms without having to learn it. On the downside, they are
+  the worst fighters in the dungeon, being unable to use any weapon but a
+  Wizardstaff.
+   
+  Sorcerers can cast any spell from any spellbooks of all magic realms with
+  'Master' proficiency level without having to learn it. They have a class
+  power - 'Eat Magic' - which absorbs mana from wands, staves or rods.
+
+
+***** <Archer>
+--- Archer ---
+
+  Archers are to bows what warriors are to melee. They are the best class
+  around with any bow, crossbow, or sling. They need a lot of ammunition, but
+  will learn how to make it from junk found in the dungeon. An archer is better
+  than a warrior at stealth, perception, searching and magical devices.
+   
+  Archers have a class power - 'Create Ammo' - which creates stones or shots
+  from pile of rubble, and arrows and crossbow bolts from bones.
+
+
+***** <Magic-Eater>
+--- Magic-Eater ---
+
+  Magic-Eaters can absorb magic devices, and use these magics as their spells. 
+  They are middling-poor at fighting.  A Magic-Eater's prime statistic is
+  intelligence.
+   
+  Magic-Eaters can absorb the energy of wands, staffs, and rods, and can then
+  use these magics as if they were carrying all of these absorbed devices. 
+  Mana and changes of absorbed devices are regenerated naturally by a
+  Magic-Eater's power, and speed of regeneration is influenced by their
+  intelligence.  They have a class power - 'Absorb Magic' - which is used to
+  absorb magic devices.
+   
+  Note: Magic-Eaters may now use the resting commands (R* or R&) to
+  automatically regenerate all charges the same way that other spellcasters can
+  use these commands to regenerate all mana.
+
+
+***** <Bard>
+--- Bard ---
+
+  Bards are something like traditional musicians. Their magical attacks are
+  sound-based, and last as long as the Bard has mana. Although a bard cannot
+  sing two or more songs at the same time, he or she does have the advantage
+  that many songs affect all areas in sight. A bard's prime statistic is
+  charisma.
+   
+  The songs are found in four songbooks, of which two are sold in town. There
+  is a special feature of music; many songs continue to be sung until either
+  the Bard chooses to stop, or he runs out of the energy required to sing that
+  type of song. Bards have a class power - 'Stop Singing'.
+
+
+***** <Red-Mage>
+--- Red-Mage ---
+
+  Red Mages are similar to Warrior-Mage; they are decent fighters and
+  spellcasters. Red-Mages can use almost all spells from lower rank spellbooks
+  of all realms, but they cannot cast spells from higher rank spellbooks, and
+  they are extremely slow learners in them. They are not bad at using magical
+  devices and magic resistance, but are bad at other skills. A red-mage's prime
+  statistic is intelligence.
+   
+  Red-Mages can use almost all spells from lower rank spellbooks of all realms:
+  first and second spellbooks of all realms and third and fourth Arcane
+  spellbooks, without having to learn it, but they cannot cast spells from
+  higher rank spellbooks; third and fourth spellbooks for all realms other than
+  Arcane. Since they use all realms at once, they have large penalties in the
+  mana costs, minimum levels, and failure rates of spells. They have a class
+  power - 'Double Magic' - which allows them to cast two spells at once.
+
+
+***** <Samurai>
+--- Samurai ---
+
+  Samurai, masters of the art of the blade, are the next strongest fighters
+  after Warriors, and can use various special combat techniques. Samurai are
+  not good at most other skills, and many magical devices may be too difficult
+  for them to use. Wisdom determines a Samurai's ability to use the special
+  combat techniques available to him.
+   
+  Samurai use the art of the blade called Kendo (or Bugei). Books of Kendo are
+  similar to spellbooks, but Samurai don't need to carry them around; the books
+  are needed only when they study new combat techniques. Samurai need a weapon
+  wielded to use the techniques of Kendo, and most techniques will add powerful
+  special properties to their blows; such as flaming, poisoning, vampiric,
+  etc... Their maximum spellpoints don't depend on their level but solely on
+  wisdom, and they can use the class power 'Concentration' to temporarily
+  increase SP beyond its usual maximum value. They have one more class power -
+  'Assume a Posture'. They can choose different forms of posture in different
+  situations.
+
+
+***** <Force-Trainer>
+--- Force-Trainer ---
+
+  A ForceTrainer is a master of the spiritual Force. They prefer fighting with
+  neither weapon nor armor. They are not as good fighters as are Monks, but
+  they can use both magic and the spiritual Force. Wielding weapons or wearing
+  heavy armor disturbs use of the Force. Wisdom is a ForceTrainer's primary
+  stat.
+   
+  ForceTrainers use both spellbook magic and the special spiritual power called
+  the Force. They can select a realm from Life, Nature, Craft, Death, and
+  Crusade. To use The Force, you select it just as if it were spellbook 'w';
+  which means you need to press 'm' and then 'w' to select the Force. The most
+  important spell of the Force is 'Improve Force'; each time a ForceTrainer
+  activates it, their Force power becomes more powerful, and their attack power
+  in bare-handed melee fighting is increased temporarily. The strengthened
+  Force can be released at one stroke when a ForceTrainer activates some other
+  Force spell, typically an attack spell. They have a class power - 'Clear
+  Mind' - which allows them to rapidly regenerate their mana.
+
+
+***** <Blue-Mage>
+--- Blue-Mage ---
+
+  A Blue-Mage is a spell caster that must live by his wits, as he cannot hope
+  to simply hack his way through the dungeon like a warrior. A major difference
+  between the Mage and the Blue-Mage is the method of learning spells:
+  Blue-Mages may learn spells from monsters. A Blue-Mage's prime statistic is
+  Intelligence as this determines his spell casting ability.
+   
+  A Blue-Mage can learn and cast monster ranged attacks, spells, or summons as
+  their own spells; this technique is called Blue magic. Unlike Imitators,
+  Blue-Mages remember their spells permanently, but they must get hit by a
+  monster's spell while their class power 'Learning' is active to learn spells.
+  Because of this requirement, they do not learn spells, like healing, that
+  affect the monster itself.
+
+
+***** <Cavalry>
+--- Cavalry ---
+
+  Cavalry ride on horses into battle. Although they cannot cast spells, they
+  are proud of their overwhelming offensive strength on horseback. They are
+  good at shooting. At high levels, they learn to forcibly saddle and tame wild
+  monsters. Since they take pride in the body and the soul, they don't use
+  magical devices well.
+   
+  Like Warriors and Archers, the cavalry don't use magic. Since they are very
+  good at riding, they have a class power - 'Rodeo' - which allows them to
+  forcibly saddle and tame wild monsters.
+
+
+***** <Berserker>
+--- Berserker ---
+
+  A Berserker is a fearful fighter indeed, immune to fear and paralysis. At
+  high levels, Berserkers can reflect bolt spells with their tough flesh.
+  Furthermore, they can fight without weapons, can remove cursed equipment by
+  force, and can even use their special combat techniques when surrounded by an
+  anti-magic barrier. Berserkers, however, cannot use any magical devices or
+  read any scrolls, and are hopeless at all non-combat skills. Since Berserker
+  Spectres are quite easy to *win* with, their scores are lowered.
+   
+  Berserkers use a unique system of techniques called 'Rage'. They gain more
+  techniques as they gain levels. They use no magic: indeed, they cannot use
+  any magic devices or activate any artifacts, and cannot read scrolls. To
+  offset these great disadvantages, Berserkers are allowed to have an important
+  class power - 'Recall'.
+
+
+***** <Weaponsmith>
+--- Weaponsmith ---
+
+  A Weaponsmith can improve weapons and armors for him or herself. They are
+  good at fighting, and they have potential ability to become even better than
+  Warriors using improved equipments. They cannot cast spells, and are poor at
+  skills such as stealth or magic defense.
+   
+  A Weaponsmith extracts the essences of special effects from weapons or armors
+  which have various special abilities, and can add these essences to another
+  weapon or armor. Normally, each equipment can be improved only once, but they
+  can remove a previously added essence from improved equipment to improve it
+  with another essence. To-hit, to-damage bonus, and AC can be improved freely
+  up to a maximum value depending on level. Weaponsmiths have a class power -
+  'Judgment' - which allows them to identify (later *identify*) weapons and
+  armor.
+
+
+***** <Mirror-Master>
+--- Mirror-Master ---
+
+  Mirror-Masters are spell casters; like other mages, they must live by their
+  wits. They can create magical mirrors, and employ them in the casting of
+  Mirror-Magic spells. Intelligence determines a Mirror-Master's spell casting
+  ability.
+   
+  Mirror-Masters gain more spells and each spell becomes more powerful as they
+  gain levels. They can use their spells even when blinded. For Mirror-Masters,
+  the arrangement of mirrors is very important: Some attack spells reflect from
+  mirrors, and some other spells are effective only against monsters standing
+  on a mirror. A Mirror-Master standing on a mirror has greater ability and,
+  for example, can perform quick teleports. The maximum number of magical
+  Mirrors which can be controlled simultaneously depends on the level, and
+  breaking unnecessary mirrors is important work for them. They have two class
+  powers - 'Break Mirrors', which breaks all mirrors in current dungeon level
+  and 'Mirror Concentration', which allows them to rapidly regenerate their
+  mana on a mirror.
+
+
+***** <Ninja>
+--- Ninja ---
+
+  A Ninja is a fearful assassin lurking in darkness. He or she can navigate
+  effectively with no light source, catch enemies by surprise, and kill with a
+  single blow. Ninjas can use Ninjutsu, and are good at locating hidden traps
+  and doors, disarming traps and picking locks. Since heavy armors, heavy
+  weapons, or shields will restrict their motion greatly, they prefer light
+  clothes, and become faster and more stealthy as they gain levels. A Ninja
+  knows no fear and, at high level, becomes almost immune to poison and able to
+  see invisible things. Dexterity determines a Ninja's ability to use Ninjutsu.
+   
+  A Ninja can use Ninjutsu for lurking and surprise attacks. They gain more
+  Ninjutsu techniques as they gain levels. They have a class power - 'Quick
+  Walk' - which makes their walking speed extremely fast.
+
+
+***** <Sniper>
+--- Sniper ---
+
+  Snipers are specialists in marksmanship, but not like archers who fire off
+  arrow after arrow in swift succession. They don't just increase accuracy and
+  power of shots by concentration, they can use fearsome archery techniques.
+   
+  What they require is powerful bows or crossbows, good quality ammunition and
+  the fortitude to bear up without flinching under any situation.
+   
+  Snipers know their enemies well and can shoot them from the shadows. They
+  have no time for magic.
+
+
+***** <Time-Lord>
+--- Time-Lord ---
+
+  Time-Lords are masters of time.  They are mediocre fighters, but their
+  temporal mastery gives them great speed, as well as the ability to manipulate
+  time.
+
+
+***** <Blood-Knight>
+--- Blood-Knight ---
+
+  A blood knight is a fighter who has delved into the dark arts and can perform
+  a limited number of offense effects using his own health.  In addition to the
+  HP cost, using an ability also causes bleeding/wounds, with an amount
+  proportional to the cost of the ability.
+
+
+***** <Warlock>
+--- Warlock ---
+
+  A warlock, unlike typical mages, derives his powers from pacts with arcane
+  creatures, rather than through careful study.  They can cast all magic they
+  know at will without requiring any SP, and depending on the type of Warlock,
+  have different abilities.
+
+
+***** <Archaeologist>
+--- Archaeologist ---
+
+  The Archaeologist is an erudite treasure hunter, seeking out the most
+  valuable prizes that the dungeon has to offer. At home in subterranean
+  caverns and vaults, he is rarely lost or snared in traps. His powers of
+  perception and detection are very great, as is his skill with arcane devices.
+  At high levels he can use the dark magic of the entombed Pharaohs. The powers
+  of the Archaeologist are enhanced by Wisdom.
+
+
+***** <Duelist>
+--- Duelist ---
+
+  The duelist is the ultimate one-on-one fighter, but finds himself at a severe
+  disadvantage when facing numerous strong foes.
+
+
+***** <Wild-Talent>
+--- Wild-Talent ---
+
+  The Wild-Talent gains random talents and abilities as they level up.  They
+  are good fighters, and decent with magical devices, but their true forte is
+  their vast array of potential random powers.  Except you never know what
+  those might be!
+
+
+***** <Rune-Knight>
+--- Rune-Knight ---
+
+  The Rune Knight is a mythical warrior-mage who is dedicated to the power of
+  ancient Runes that hold immense power.  By affixing these Runes to his
+  equipment, the Rune Knight can become an avatar of destruction, or an
+  invulnerable bastion.  Unlike the Warrior-Mage and all other casters, the
+  Rune Knight's mana does not regenerate on its own; rather, the Rune Knight
+  must siphon mana from magical attacks directed at him.  The Rune Knight has a
+  fixed (though very large) selection of spells that he can use his mana on, in
+  addition to his unique Rune spells.
+
+
+***** <Weaponmaster>
+--- Weaponmaster ---
+
+  The weaponmaster is great with a single class of weapons. The character gets
+  combat bonuses and special powers depending on the type of specialization.
+  Alas, the weaponmaster is truly lousy when using any weapon outside their
+  chosen specialty so focus is key.
+
+
+***** <Blood-Mage>
+--- Blood-Mage ---
+
+  A blood mage is similar to a normal mage in his selection and variety of
+  spells, but differs in that he has no separate Spell Point pool.  Instead,
+  all his spells are powered by his HP.  However, due to the Blood Mage's
+  abnormal constitution, all healing (spells, potions) is only half as
+  effective.
+
+
+***** <Necromancer>
+--- Necromancer ---
+
+  A necromancer attempts to gain both power and knowledge through communion
+  with the dead.  A powerful necromancer is truly awe inspiring, and may even
+  kill foes with a single touch! They forever hunt for the legendary Eye and
+  Hand of Vecna in order to complete their power.
+
+
+***** <Psion>
+--- Psion ---
+
+  The Psion is like a Mindcrafter, and uses innate mental powers. Unlike the
+  Mindcrafter, however, Psions have the freedom to learn powers that enforce
+  their own styles. They learn very few powers, but they can scale their powers
+  to determine the SP cost and the powers' potency. Psionic powers require
+  great concentration, however, and psions do not have the mind to spare to
+  care for others. The Psion gains powers a the following levels: 1, 10, 15,
+  20, 30, 35, 40 and 50.
+
+
+***** <Rage-Mage>
+--- Rage-Mage ---
+
+  The Rage Mage is part of a secret sect descending from the Barbarians in
+  response to their natural foes, the mages. As time passed, other races have
+  also begun to learn their arts. 
+
+
+***** <Scout>
+--- Scout ---
+
+  The scout is the vanguard of any attack, and excels at stealth and
+  observation skills. The scout is not the best at one-on-one combat, but is
+  unparalleled at ambush techniques to destroy groups of weak sentries. The
+  scout is lightly armored, and heavy armors disrupt their abilities.
+  Furthermore, the scout can only effectively dodge in open areas, being
+  confined severely hampers the scout's defensive abilities.
+
+
+***** <Mauler>
+--- Mauler ---
+
+  The Mauler favors extremely heavy weapons, and possesses powerful abilities
+  whose effectiveness depends on the weight of the weapon. While they only gain
+  a limited number of blows which can never be magically increased, they are
+  capable of hitting opponents very hard to make the most of each strike. The
+  Mauler is required to use both hands on a single weapon when wielding if they
+  wish their talents to function properly.
+
+
+***** <Monster>
+--- Monster ---
+
+
+
+***** <Tables>
+--- Table 1 - Class Statistic Bonus Table ---
+
+               STR  INT  WIS  DEX  CON  CHR  Life  Exp
+Warrior         +3   -2   -2   +1   +2   +1  115%  100%
+Mage            -3   +3   +0   +0   -2   -2   90%  130%
+Priest          -1   -3   +3   -1   +0   +2  100%  120%
+Rogue           +0   +1   -1   +3   +1   +0  110%  125%
+Ranger          +1   +0   +2   +2   +1   +0  105%  140%
+Paladin         +2   -3   +1   +0   +2   +2  110%  135%
+Warrior-Mage    +2   +2   +0   +0   +0   +1  105%  140%
+Chaos-Warrior   +2   +1   -1   +0   +1   +1  110%  125%
+Monk            +2   -1   +1   +3   +2   +1  110%  130%
+Mindcrafter     -1   +0   +3   -1   -1   +2  100%  125%
+High-Mage       -4   +4   +0   +0   -2   -2   90%  130%
+Tourist         -1   -1   -1   -1   -1   -3   95%   70%
+Imitator        +0   +1   -1   +2   +0   -1  107%  110%
+Beastmaster     +1   -1   -1   +1   +0   +2  103%  120%
+Sorcerer        -5   +0   -2   +0   +0   +6   65%  160%
+Archer          +1   -1   -1   +1   +1   +0  110%  110%
+Magic-Eater     -1   +2   +0   +0   -1   -1  105%  130%
+Bard            -2   +1   +1   -1   -2   +4  100%  140%
+Red-Mage        +2   +2   -1   +1   +0   -1  105%  140%
+Samurai         +2   -2   +1   +1   +1   +1  110%  130%
+Force-Trainer   +0   -1   +3   +2   +1   +0  100%  135%
+Blue-Mage       -3   +4   -1   +0   -2   -2  100%  130%
+Cavalry         +2   -2   -2   +1   +2   +1  110%  120%
+Berserker       +8  -20  -20   +4   +4  -20  200%  160%
+Weaponsmith     +2   -1   -1   +1   +0   +0  110%  130%
+Mirror-Master   -2   +3   +1   -1   -2   -2  100%  130%
+Ninja           +0   -1   -1   +3   +2   +2  100%  120%
+Sniper          +1   -1   -1   +1   +1   +0  100%  110%
+Time-Lord       -1   +0   +0   -1   -1   +3   95%  125%
+Blood-Knight    +2   -2   -2   +0   +3   +2  115%  150%
+Warlock         -2   +1   +2   -1   -2   +4  100%  125%
+Archaeologist   -1   +1   +2   +1   -1   +0  105%  120%
+Duelist         +2   +1   -2   +2   -3   +2  100%  150%
+Wild-Talent     -1   +2   -1   +2   -2   +1  100%  110%
+Rune-Knight     +2   +1   +0   +1   +0   +1  105%  150%
+Weaponmaster    +2   -1   -1   +1   +1   +1  110%  135%
+Blood-Mage      -4   +3   -2   +0   +2   -2  110%  150%
+Necromancer     -2   +3   -4   +0   -1   -2   95%  125%
+Psion           -1   +2   +2   -1   -1   +2  100%  150%
+Rage-Mage       +3   -2   -2   -2   +2   +1  105%  150%
+Scout           +1   -1   +2   +3   +0   +0  105%  130%
+Mauler          +4   -2   -2   -1   +1   +1  115%  120%
+
+
+--- Table 2 - Class Skill Bonus Table ---
+
+               Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+Warrior        25+12  18+7   31+10     1    14     2  70+30  55+30
+Mage           30+7   40+15  38+11     3    16    20  34+6   20+7 
+Priest         25+7   35+11  40+12     2    16     8  48+13  35+11
+Rogue          45+15  37+12  36+10     5    32    24  60+21  66+18
+Ranger         30+8   37+11  36+10     3    24    16  56+18  72+28
+Paladin        20+7   24+10  34+11     1    12     2  68+21  40+18
+Warrior-Mage   30+7   35+10  36+10     2    18    16  50+15  25+11
+Chaos-Warrior  20+7   25+11  34+10     1    14    12  65+20  40+17
+Monk           45+15  34+11  36+10     5    32    24  64+18  60+18
+Mindcrafter    30+10  33+11  38+10     3    22    16  50+14  40+18
+High-Mage      30+7   40+15  38+11     3    16    20  34+6   20+7 
+Tourist        15+5   18+7   28+9      1    12     2  40+11  20+11
+Imitator       25+7   30+10  36+10     2    18    16  60+18  50+20
+Beastmaster    20+7   25+10  32+10     2    18    16  52+14  63+25
+Sorcerer       30+7   48+18  75+13     2    12    22   0+0    0+0 
+Archer         38+12  24+10  35+10     4    24    16  56+18  82+36
+Magic-Eater    25+7   42+16  36+10     2    20    16  48+13  35+11
+Bard           20+8   33+13  34+11    -5    16    20  34+10  20+8 
+Red-Mage       20+7   34+11  34+11     1    16    10  56+18  25+11
+Samurai        25+12  18+7   32+10     2    16     6  70+23  40+18
+Force-Trainer  30+10  34+11  38+11     4    32    24  50+14  40+15
+Blue-Mage      30+7   40+16  36+11     3    20    16  40+6   25+7 
+Cavalry        20+10  18+7   32+10     1    16    10  60+22  66+26
+Weaponsmith    30+10  28+10  28+10     1    20    10  60+21  45+15
+Mirror-Master  30+10  33+11  40+12     3    14    16  34+6   30+10
+Ninja          45+15  24+10  36+10     8    48    32  70+25  66+18
+Sniper         25+12  24+10  28+10     5    32    18  35+12  72+28
+Time-Lord      25+7   35+11  35+10     2    16     8  48+13  20+13
+Blood-Knight   25+12  18+7   32+10     2    16     6  70+23  20+15
+Warlock        20+8   24+10  34+11     1    16    20  34+10  20+8 
+Archaeologist  45+15  50+12  36+10     4    50    32  48+13  35+11
+Duelist        30+10  33+11  23+10     3    22    16  50+14   0+0 
+Wild-Talent    30+8   40+15  31+10     1    24    16  68+18  50+20
+Rune-Knight    30+7   35+10  36+10     2    18    16  50+15  25+11
+Weaponmaster   30+10  28+10  28+10     1    20    10  60+21  45+15
+Blood-Mage     30+7   40+15  38+11     3    16    20  34+6   20+7 
+Necromancer    30+7   40+15  38+11     4    16    20  34+6   20+7 
+Psion          25+7   35+11  40+12     2    16     8  48+13  35+11
+Rage-Mage      20+7   24+10  40+15    -1    12     2  50+15  30+15
+Scout          30+15  33+11  34+10     6    50    24  50+20  50+20
+Mauler         25+12  25+11  35+12     0    14     2  70+30  20+7 
+
+
+
+
+Automatically generated for PosChengband 1.0.0.

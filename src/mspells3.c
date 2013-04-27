@@ -83,13 +83,14 @@ static void learned_info(char *p, int power)
 			break;
 		case MS_SHOOT:
 		{
-			object_type *o_ptr = NULL;
-			if (buki_motteruka(INVEN_RARM)) o_ptr = &inventory[INVEN_RARM];
-			else if (buki_motteruka(INVEN_LARM)) o_ptr = &inventory[INVEN_LARM];
+			int slot = equip_find_first(object_is_melee_weapon);
+			if (slot)
+			{
+				object_type *o_ptr = equip_obj(slot);
+				sprintf(p, " %s%dd%d+%d", s_dam, o_ptr->dd, spell_power(o_ptr->ds), spell_power(o_ptr->to_d));
+			}
 			else
 				sprintf(p, " %s1", s_dam);
-			if (o_ptr)
-				sprintf(p, " %s%dd%d+%d", s_dam, o_ptr->dd, spell_power(o_ptr->ds), spell_power(o_ptr->to_d));
 			break;
 		}
 		case MS_BR_ACID:
@@ -747,27 +748,19 @@ msg_print("ロケットを発射した。");
 		break;
 	case MS_SHOOT:
 	{
-		object_type *o_ptr = NULL;
-
+		int slot;
 		if (!get_aim_dir(&dir)) return FALSE;
-		else
+
+		msg_print("You fire an arrow.");
+		damage = 1;
+		slot = equip_find_first(object_is_melee_weapon);
+		if (slot)
 		{
-#ifdef JP
-msg_print("矢を放った。");
-#else
-			msg_print("You fire an arrow.");
-#endif
-			if (buki_motteruka(INVEN_RARM)) o_ptr = &inventory[INVEN_RARM];
-			else if (buki_motteruka(INVEN_LARM)) o_ptr = &inventory[INVEN_LARM];
-			else
-			damage = 1;
-			if (o_ptr)
-			{
-				damage = damroll(o_ptr->dd, o_ptr->ds)+ o_ptr->to_d;
-				if (damage < 1) damage = 1;
-			}
-			fire_bolt(GF_ARROW, dir, spell_power(damage));
+			object_type *o_ptr = equip_obj(slot);
+			damage = damroll(o_ptr->dd, o_ptr->ds)+ o_ptr->to_d;
+			if (damage < 1) damage = 1;
 		}
+		fire_bolt(GF_ARROW, dir, spell_power(damage));
 		break;
 	}
 	case MS_XXX2:

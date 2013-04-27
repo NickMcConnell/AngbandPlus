@@ -1,0 +1,264 @@
+#include "angband.h"
+
+static cptr _desc = 
+	"Angels are heavenly beings on a holy mission. They are winged creatures able "
+	"to fly over chasms and pits. They also become resistant to the elements as they "
+	"mature and are not fooled by invisibility. Their stats are truly awe-inspiring "
+	"making them one of the most powerful monster races.\n \n"
+	"Angels are monsters so cannot choose a normal class. Instead, they rely on their "
+	"divine powers which function like spells but need not be learned or cast from books. "
+	"These powers can be used while blinded, but not while confused and they are also "
+	"blocked by Anti-magic. The divine powers of the angel are quite powerful offering good "
+	"offense combined with detection, healing and melee enhancement.  Wisdom is the "
+	"primary spell stat.\n \n"
+	"Angels use the same equipment slots as normal player races and have no innate attacks.";
+
+static void _birth(void) 
+{ 
+	object_type	forge;
+
+	p_ptr->current_r_idx = MON_ANGEL;
+	
+	object_prep(&forge, lookup_kind(TV_STAFF, SV_STAFF_HEALING));
+	apply_magic(&forge, 1, AM_AVERAGE);
+	add_outfit(&forge);
+
+	object_prep(&forge, lookup_kind(TV_SCROLL, SV_SCROLL_ACQUIREMENT));
+	apply_magic(&forge, 1, AM_AVERAGE);
+	add_outfit(&forge);
+
+	object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL));
+	add_outfit(&forge);
+
+	object_prep(&forge, lookup_kind(TV_SWORD, SV_LONG_SWORD));
+	add_outfit(&forge);
+}
+
+/******************************************************************************
+ *              10           20        30        40        45          50 
+ * Angel: Angel -> Archangel -> Cherub -> Seraph -> Archon -> Planetar -> Solar
+ ******************************************************************************/
+static spell_info _spells[] = {
+	{  1,  1, 30, punishment_spell},
+	{  2,  2, 30, bless_spell},
+	{  3,  2, 30, confuse_spell},
+	{  5,  3, 30, scare_spell},
+	{  7,  4, 30, detect_monsters_spell},
+	{ 10,  7, 40, heroism_spell},
+	{ 15, 10, 40, magic_mapping_spell},
+	{ 20, 15, 50, mana_bolt_I_spell},
+	{ 23, 15, 50, brain_smash_spell},
+	{ 25, 17, 50, haste_self_spell},
+	{ 27, 20, 50, protection_from_evil_spell},
+	{ 29, 20, 60, dispel_evil_spell}, 
+	{ 31, 20, 60, teleport_other_spell}, 
+	{ 32, 20, 60, healing_I_spell},
+	{ 35, 25, 60, destruction_spell},
+	{ 37, 25, 60, summon_monsters_spell},
+	{ 40, 30, 65, psycho_spear_spell},
+	{ 42, 30, 65, restoration_spell},
+	{ 45, 80, 65, clairvoyance_spell},
+	{ 47, 60, 70, summon_angel_spell},
+	{ 49, 90, 70, summon_hi_dragon_spell},
+	{ 50, 50, 68, starburst_II_spell},
+	{ -1, -1, -1, NULL}
+};
+static int _get_spells(spell_info* spells, int max) {
+	return get_spells_aux(spells, max, _spells);
+}
+static void _calc_bonuses(void) {
+	/* cf calc_torch in xtra1.c for the 'extra light' */
+
+	p_ptr->align += 200;
+	p_ptr->levitation = TRUE;
+	res_add(RES_POIS);
+
+	if (p_ptr->lev >= 10)
+	{
+		res_add(RES_FIRE);
+		p_ptr->see_inv = TRUE;
+	}
+	if (p_ptr->lev >= 20)
+	{
+		p_ptr->pspeed += 1;
+		res_add(RES_COLD);
+	}
+	if (p_ptr->lev >= 30)
+	{
+		p_ptr->pspeed += 1;
+		res_add(RES_ACID);
+		res_add(RES_ELEC);
+		res_add(RES_CONF);
+	}
+	if (p_ptr->lev >= 40)
+	{
+		p_ptr->pspeed += 3;
+		p_ptr->reflect = TRUE;
+		res_add(RES_TELEPORT);
+		res_add(RES_LITE);
+	}
+	if (p_ptr->lev >= 45)
+	{
+		p_ptr->pspeed += 1;
+	}
+	if (p_ptr->lev >= 50)
+	{
+		p_ptr->pspeed += 1;
+	}
+}
+static void _get_flags(u32b flgs[TR_FLAG_SIZE]) {
+	add_flag(flgs, TR_LEVITATION);
+	add_flag(flgs, TR_RES_POIS);
+
+	if (p_ptr->lev >= 10)
+	{
+		add_flag(flgs, TR_RES_FIRE);
+		add_flag(flgs, TR_SEE_INVIS);
+	}
+	if (p_ptr->lev >= 20)
+	{
+		add_flag(flgs, TR_SPEED);
+		add_flag(flgs, TR_RES_COLD);
+	}
+	if (p_ptr->lev >= 30)
+	{
+		add_flag(flgs, TR_RES_ACID);
+		add_flag(flgs, TR_RES_ELEC);
+		add_flag(flgs, TR_RES_CONF);
+	}
+	if (p_ptr->lev >= 40)
+	{
+		add_flag(flgs, TR_REFLECT);
+		add_flag(flgs, TR_RES_LITE);
+	}
+	if (p_ptr->lev >= 45)
+	{
+	}
+	if (p_ptr->lev >= 50)
+	{
+	}
+}
+static void _gain_level(int new_level) {
+	if (p_ptr->current_r_idx == MON_ANGEL && new_level >= 10)
+	{
+		p_ptr->current_r_idx = MON_ARCHANGEL;
+		msg_print("You have evolved into an Archangel.");
+		p_ptr->redraw |= PR_MAP;
+	}
+	if (p_ptr->current_r_idx == MON_ARCHANGEL && new_level >= 20)
+	{
+		p_ptr->current_r_idx = MON_CHERUB;
+		msg_print("You have evolved into a Cherub.");
+		p_ptr->redraw |= PR_MAP;
+	}
+	if (p_ptr->current_r_idx == MON_CHERUB && new_level >= 30)
+	{
+		p_ptr->current_r_idx = MON_SERAPH;
+		msg_print("You have evolved into a Seraph.");
+		p_ptr->redraw |= PR_MAP;
+	}
+	if (p_ptr->current_r_idx == MON_SERAPH && new_level >= 40)
+	{
+		p_ptr->current_r_idx = MON_ARCHON;
+		msg_print("You have evolved into an Archon.");
+		p_ptr->redraw |= PR_MAP;
+	}
+	if (p_ptr->current_r_idx == MON_ARCHON && new_level >= 45)
+	{
+		p_ptr->current_r_idx = MON_PLANETAR;
+		msg_print("You have evolved into a Planetar.");
+		p_ptr->redraw |= PR_MAP;
+	}
+	if (p_ptr->current_r_idx == MON_PLANETAR && new_level >= 50)
+	{
+		p_ptr->current_r_idx = MON_SOLAR;
+		msg_print("You have evolved into a Solar.");
+		p_ptr->redraw |= PR_MAP;
+	}
+}
+static race_t *_solar_get_race_t(void)
+{
+	static race_t me = {0};
+	static bool   init = FALSE;
+	static cptr   titles[7] =  {"Angel", "Archangel", "Cherub", "Seraph", "Archon", "Planetar", "Solar"};	
+	int           rank = 0;
+
+	if (p_ptr->lev >= 10) rank++;
+	if (p_ptr->lev >= 20) rank++;
+	if (p_ptr->lev >= 30) rank++;
+	if (p_ptr->lev >= 40) rank++;
+	if (p_ptr->lev >= 45) rank++;
+	if (p_ptr->lev >= 50) rank++;
+
+	if (!init)
+	{
+		me.skills.dis =  0;
+		me.skills.dev = 20;
+		me.skills.stl =  2;
+		me.skills.srh =  2;
+		me.skills.fos = 11;
+		me.skills.thn = 10;
+		me.skills.thb = 10;
+
+		me.infra = 3;
+		me.exp = 350;
+
+		me.get_spells = _get_spells;
+		me.calc_bonuses = _calc_bonuses;
+		me.get_flags = _get_flags;
+		me.gain_level = _gain_level;
+		init = TRUE;
+	}
+
+	me.subname = titles[rank];
+	me.stats[A_STR] =  1 + rank/2;
+	me.stats[A_INT] =  1 + rank/2;
+	me.stats[A_WIS] =  4 + rank/2;
+	me.stats[A_DEX] =  1 + rank/2;
+	me.stats[A_CON] =  1 + rank/2;
+	me.stats[A_CHR] =  1 + rank;
+	me.skills.sav = 10 + 5*rank;
+	me.skills.thn = 10 + 5*rank;
+	me.life = 100 + 3*rank;
+
+	return &me;
+}
+
+static caster_info * _caster_info(void)
+{
+	static caster_info me = {0};
+	static bool init = FALSE;
+	if (!init)
+	{
+		me.magic_desc = "divine power";
+		me.which_stat = A_WIS;
+		me.weight = 450;
+		me.options = CASTER_ALLOW_DEC_MANA;
+		init = TRUE;
+	}
+	return &me;
+}
+
+/**********************************************************************
+ * Public
+ **********************************************************************/
+race_t *mon_angel_get_race_t(void)
+{
+	race_t *result = NULL;
+
+	switch (p_ptr->psubrace)
+	{
+	/* TODO: Fallen Angel ? */
+	default: /* Birth Menus */
+		result = _solar_get_race_t();
+	}
+
+	result->name = "Angel";
+	result->desc = _desc;
+	result->flags = RACE_IS_MONSTER;
+	result->birth = _birth;
+	result->caster_info = _caster_info;
+
+	result->boss_r_idx = MON_RAPHAEL;
+	return result;
+}

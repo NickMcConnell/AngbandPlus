@@ -279,7 +279,7 @@ bool cave_player_teleportable_bold(int y, int x, u32b mode)
 			if (!p_ptr->levitation && !p_ptr->can_swim) return FALSE;
 		}
 
-		if (have_flag(f_ptr->flags, FF_LAVA) && !p_ptr->immune_fire && !IS_INVULN())
+		if (have_flag(f_ptr->flags, FF_LAVA) && res_pct(RES_FIRE) < 100 && !IS_INVULN())
 		{
 			/* Always forbid deep lava */
 			if (have_flag(f_ptr->flags, FF_DEEP)) return FALSE;
@@ -422,11 +422,6 @@ bool teleport_player_aux(int dis, u32b mode)
 
 	/* Sound */
 	sound(SOUND_TELEPORT);
-
-#ifdef JP
-	if ((p_ptr->personality == PERS_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON))
-		msg_format("『こっちだぁ、%s』", player_name);
-#endif
 
 	/* Move the player */
 	(void)move_player_effect(y, x, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
@@ -575,7 +570,16 @@ void teleport_player_to(int ny, int nx, u32b mode)
 	(void)move_player_effect(y, x, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
 }
 
-
+static u32b _flag = 0;
+static bool _has_flag(object_type *o_ptr) {
+	if (!object_is_cursed(o_ptr))
+	{
+		u32b flgs[TR_FLAG_SIZE];
+		object_flags(o_ptr, flgs);
+		return have_flag(flgs, _flag);
+	}
+	return FALSE;
+}
 void teleport_away_followable(int m_idx)
 {
 	monster_type *m_ptr = &m_list[m_idx];
@@ -599,41 +603,19 @@ void teleport_away_followable(int m_idx)
 		}
 		else
 		{
-			u32b flgs[TR_FLAG_SIZE];
-			object_type *o_ptr;
-			int i;
-
-			for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
-			{
-				o_ptr = &inventory[i];
-				if (o_ptr->k_idx && !object_is_cursed(o_ptr))
-				{
-					object_flags(o_ptr, flgs);
-					if (have_flag(flgs, TR_TELEPORT))
-					{
-						follow = TRUE;
-						break;
-					}
-				}
-			}
+			_flag = TR_TELEPORT;
+			if (equip_find_first(_has_flag))
+				follow = TRUE;
 		}
 
 		if (follow)
 		{
-#ifdef JP
-			if (get_check_strict("ついていきますか？", CHECK_OKAY_CANCEL))
-#else
 			if (get_check("Do you follow it? "))
-#endif
 			{
 				if (one_in_(3))
 				{
 					teleport_player(200, TELEPORT_PASSIVE);
-#ifdef JP
-					msg_print("失敗！");
-#else
 					msg_print("Failed!");
-#endif
 				}
 				else 
 				{
@@ -729,8 +711,6 @@ void teleport_level(int m_idx)
 				p_ptr->oldpx = px;
 			}
 
-			if (record_stair) do_cmd_write_nikki(NIKKI_TELE_LEV, 1, NULL);
-
 			if (autosave_l) do_cmd_save_game(TRUE);
 
 			if (!dun_level)
@@ -761,8 +741,6 @@ void teleport_level(int m_idx)
 
 		if (m_idx <= 0) /* To player */
 		{
-			if (record_stair) do_cmd_write_nikki(NIKKI_TELE_LEV, -1, NULL);
-
 			if (autosave_l) do_cmd_save_game(TRUE);
 
 			prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_UP | CFM_RAND_PLACE | CFM_RAND_CONNECT);
@@ -786,8 +764,6 @@ void teleport_level(int m_idx)
 
 		if (m_idx <= 0) /* To player */
 		{
-			if (record_stair) do_cmd_write_nikki(NIKKI_TELE_LEV, -1, NULL);
-
 			if (autosave_l) do_cmd_save_game(TRUE);
 
 			prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_UP | CFM_RAND_PLACE | CFM_RAND_CONNECT);
@@ -810,8 +786,6 @@ void teleport_level(int m_idx)
 			/* Never reach this code on the surface */
 			/* if (!dun_level) dungeon_type = p_ptr->recall_dungeon; */
 
-			if (record_stair) do_cmd_write_nikki(NIKKI_TELE_LEV, 1, NULL);
-
 			if (autosave_l) do_cmd_save_game(TRUE);
 
 			prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_DOWN | CFM_RAND_PLACE | CFM_RAND_CONNECT);
@@ -829,15 +803,6 @@ void teleport_level(int m_idx)
 
 		/* Check for quest completion */
 		check_quest_completion(m_ptr);
-
-		if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
-		{
-			char m2_name[80];
-
-			monster_desc(m2_name, m_ptr, MD_INDEF_VISIBLE);
-			do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_TELE_LEVEL, m2_name);
-		}
-
 		delete_monster_idx(m_idx);
 	}
 
@@ -960,19 +925,9 @@ msg_print("何も起こらなかった。");
 
 	if (dun_level && (max_dlv[dungeon_type] > dun_level) && !p_ptr->inside_quest && !p_ptr->word_recall)
 	{
-#ifdef JP
-if (get_check("ここは最深到達階より浅い階です。この階に戻って来ますか？ "))
-#else
 		if (get_check("Reset recall depth? "))
-#endif
 		{
 			max_dlv[dungeon_type] = dun_level;
-			if (record_maxdepth)
-#ifdef JP
-				do_cmd_write_nikki(NIKKI_TRUMP, dungeon_type, "帰還のときに");
-#else
-				do_cmd_write_nikki(NIKKI_TRUMP, dungeon_type, "when recall from dungeon");
-#endif
 		}
 
 	}
@@ -981,22 +936,14 @@ if (get_check("ここは最深到達階より浅い階です。この階に戻って来ますか？ "))
 		if (!dun_level)
 		{
 			int select_dungeon;
-#ifdef JP
-			select_dungeon = choose_dungeon("に帰還", 2, 14);
-#else
 			select_dungeon = choose_dungeon("recall", 2, 14);
-#endif
 			if (!select_dungeon) return FALSE;
 			p_ptr->recall_dungeon = select_dungeon;
 		}
 		p_ptr->word_recall = turns;
 		p_ptr->leaving_method = LEAVING_RECALL;
 
-#ifdef JP
-msg_print("回りの大気が張りつめてきた...");
-#else
 		msg_print("The air about you becomes charged...");
-#endif
 
 		p_ptr->redraw |= (PR_STATUS);
 	}
@@ -1073,19 +1020,7 @@ sprintf(ppp, "何階にセットしますか (%d-%d):", d_info[select_dungeon].mindepth, m
 
 		max_dlv[select_dungeon] = dummy;
 
-		if (record_maxdepth)
-#ifdef JP
-			do_cmd_write_nikki(NIKKI_TRUMP, select_dungeon, "フロア・リセットで");
-#else
-			do_cmd_write_nikki(NIKKI_TRUMP, select_dungeon, "using a scroll of reset recall");
-#endif
-					/* Accept request */
-#ifdef JP
-msg_format("%sの帰還レベルを %d 階にセット。", d_name+d_info[select_dungeon].name, dummy, dummy * 50);
-#else
 		msg_format("Recall depth set to level %d (%d').", dummy, dummy * 50);
-#endif
-
 	}
 	else
 	{
@@ -1104,118 +1039,62 @@ msg_format("%sの帰還レベルを %d 階にセット。", d_name+d_info[select_dungeon].nam
  */
 bool apply_disenchant(int mode)
 {
-	int             t = 0;
-	object_type     *o_ptr;
-	char            o_name[MAX_NLEN];
-	int to_h, to_d, to_a, pval;
+	int slot = equip_random_slot(object_is_weapon_armour_ammo);
 
-	/* Pick a random slot */
-	switch (randint1(8))
+	if (slot)
 	{
-		case 1: t = INVEN_RARM; break;
-		case 2: t = INVEN_LARM; break;
-		case 3: t = INVEN_BOW; break;
-		case 4: t = INVEN_BODY; break;
-		case 5: t = INVEN_OUTER; break;
-		case 6: t = INVEN_HEAD; break;
-		case 7: t = INVEN_HANDS; break;
-		case 8: t = INVEN_FEET; break;
+		object_type     *o_ptr = equip_obj(slot);
+		int             t = 0;
+		char            o_name[MAX_NLEN];
+		int to_h, to_d, to_a, pval;
+
+		if (o_ptr->to_h <= 0 && o_ptr->to_d <= 0 && o_ptr->to_a <= 0 && o_ptr->pval <= 1)
+			return FALSE;
+
+		object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+
+		if (object_is_artifact(o_ptr) && (randint0(100) < 71))
+		{
+			msg_format("Your %s (%c) resists disenchantment!", o_name, index_to_label(t));
+			return TRUE;
+		}
+
+		/* Memorize old value */
+		to_h = o_ptr->to_h;
+		to_d = o_ptr->to_d;
+		to_a = o_ptr->to_a;
+		pval = o_ptr->pval;
+
+		/* Disenchant tohit */
+		if (o_ptr->to_h > 0) o_ptr->to_h--;
+		if ((o_ptr->to_h > 5) && (randint0(100) < 20)) o_ptr->to_h--;
+
+		/* Disenchant todam */
+		if (o_ptr->to_d > 0) o_ptr->to_d--;
+		if ((o_ptr->to_d > 5) && (randint0(100) < 20)) o_ptr->to_d--;
+
+		/* Disenchant toac */
+		if (o_ptr->to_a > 0) o_ptr->to_a--;
+		if ((o_ptr->to_a > 5) && (randint0(100) < 20)) o_ptr->to_a--;
+
+		/* Disenchant pval (occasionally) */
+		/* Unless called from wild_magic() */
+		if ((o_ptr->pval > 1) && one_in_(13) && !(mode & 0x01)) o_ptr->pval--;
+
+		if ((to_h != o_ptr->to_h) || (to_d != o_ptr->to_d) ||
+			(to_a != o_ptr->to_a) || (pval != o_ptr->pval))
+		{
+			msg_format("Your %s (%c) was disenchanted!", o_name, index_to_label(t));
+			chg_virtue(V_HARMONY, 1);
+			chg_virtue(V_ENCHANT, -2);
+
+			p_ptr->update |= (PU_BONUS);
+			p_ptr->window |= (PW_EQUIP | PW_PLAYER);
+			calc_android_exp();
+		}
+		return TRUE;
 	}
-
-	/* Get the item */
-	o_ptr = &inventory[t];
-
-	/* No item, nothing happens */
-	if (!o_ptr->k_idx) return (FALSE);
-
-	/* Disenchant equipments only -- No disenchant on monster ball */
-	if (!object_is_weapon_armour_ammo(o_ptr))
-		return FALSE;
-
-	if (have_flag(o_ptr->art_flags, TR_SIGNATURE))
-	{
-		return FALSE;
-	}
-
-	/* Nothing to disenchant */
-	if ((o_ptr->to_h <= 0) && (o_ptr->to_d <= 0) && (o_ptr->to_a <= 0) && (o_ptr->pval <= 1))
-	{
-		/* Nothing to notice */
-		return (FALSE);
-	}
-
-
-	/* Describe the object */
-	object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
-
-
-	/* Artifacts have 71% chance to resist */
-	if (object_is_artifact(o_ptr) && (randint0(100) < 71))
-	{
-		/* Message */
-#ifdef JP
-msg_format("%s(%c)は劣化を跳ね返した！",o_name, index_to_label(t) );
-#else
-		msg_format("Your %s (%c) resist%s disenchantment!",
-			   o_name, index_to_label(t),
-			   ((o_ptr->number != 1) ? "" : "s"));
-#endif
-
-
-		/* Notice */
-		return (TRUE);
-	}
-
-
-	/* Memorize old value */
-	to_h = o_ptr->to_h;
-	to_d = o_ptr->to_d;
-	to_a = o_ptr->to_a;
-	pval = o_ptr->pval;
-
-	/* Disenchant tohit */
-	if (o_ptr->to_h > 0) o_ptr->to_h--;
-	if ((o_ptr->to_h > 5) && (randint0(100) < 20)) o_ptr->to_h--;
-
-	/* Disenchant todam */
-	if (o_ptr->to_d > 0) o_ptr->to_d--;
-	if ((o_ptr->to_d > 5) && (randint0(100) < 20)) o_ptr->to_d--;
-
-	/* Disenchant toac */
-	if (o_ptr->to_a > 0) o_ptr->to_a--;
-	if ((o_ptr->to_a > 5) && (randint0(100) < 20)) o_ptr->to_a--;
-
-	/* Disenchant pval (occasionally) */
-	/* Unless called from wild_magic() */
-	if ((o_ptr->pval > 1) && one_in_(13) && !(mode & 0x01)) o_ptr->pval--;
-
-	if ((to_h != o_ptr->to_h) || (to_d != o_ptr->to_d) ||
-	    (to_a != o_ptr->to_a) || (pval != o_ptr->pval))
-	{
-		/* Message */
-#ifdef JP
-		msg_format("%s(%c)は劣化してしまった！",
-			   o_name, index_to_label(t) );
-#else
-		msg_format("Your %s (%c) %s disenchanted!",
-			   o_name, index_to_label(t),
-			   ((o_ptr->number != 1) ? "were" : "was"));
-#endif
-
-		chg_virtue(V_HARMONY, 1);
-		chg_virtue(V_ENCHANT, -2);
-
-		/* Recalculate bonuses */
-		p_ptr->update |= (PU_BONUS);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_EQUIP | PW_PLAYER);
-
-		calc_android_exp();
-	}
-
-	/* Notice */
-	return (TRUE);
+	return FALSE;
 }
 
 
@@ -1307,157 +1186,42 @@ msg_print("しかし効力を跳ね返した！");
  */
 void phlogiston(void)
 {
-	int max_flog = 0;
-	object_type * o_ptr = &inventory[INVEN_LITE];
-
-	/* It's a lamp */
-	if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_LANTERN))
+	int slot = equip_find_object(TV_LITE, SV_ANY);
+	if (slot)
 	{
-		max_flog = FUEL_LAMP;
-	}
+		int max_flog = 0;
+		object_type *o_ptr = equip_obj(slot);
 
-	/* It's a torch */
-	else if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_TORCH))
-	{
-		max_flog = FUEL_TORCH;
-	}
+		if (o_ptr->sval == SV_LITE_LANTERN)
+			max_flog = FUEL_LAMP;
+		else if (o_ptr->sval == SV_LITE_TORCH)
+			max_flog = FUEL_TORCH;
 
-	/* No torch to refill */
+		if (o_ptr->xtra4 >= max_flog || !max_flog)
+		{
+			msg_print("No more phlogiston can be put in this item.");
+			return;
+		}
+
+		o_ptr->xtra4 += (max_flog / 2);
+		msg_print("You add phlogiston to your light item.");
+		if (o_ptr->xtra4 >= max_flog)
+		{
+			o_ptr->xtra4 = max_flog;
+			msg_print("Your light item is full.");
+		}
+
+		p_ptr->update |= PU_TORCH;
+	}
 	else
-	{
-#ifdef JP
-msg_print("燃素を消費するアイテムを装備していません。");
-#else
-		msg_print("You are not wielding anything which uses phlogiston.");
-#endif
-
-		return;
-	}
-
-	if (o_ptr->xtra4 >= max_flog)
-	{
-#ifdef JP
-msg_print("このアイテムにはこれ以上燃素を補充できません。");
-#else
-		msg_print("No more phlogiston can be put in this item.");
-#endif
-
-		return;
-	}
-
-	/* Refuel */
-	o_ptr->xtra4 += (max_flog / 2);
-
-	/* Message */
-#ifdef JP
-msg_print("照明用アイテムに燃素を補充した。");
-#else
-	msg_print("You add phlogiston to your light item.");
-#endif
-
-
-	/* Comment */
-	if (o_ptr->xtra4 >= max_flog)
-	{
-		o_ptr->xtra4 = max_flog;
-#ifdef JP
-msg_print("照明用アイテムは満タンになった。");
-#else
-		msg_print("Your light item is full.");
-#endif
-
-	}
-
-	/* Recalculate torch */
-	p_ptr->update |= (PU_TORCH);
+		msg_print("Nothing happens.");
 }
 
 
 /*
  * Brand the current weapon
  */
-
-typedef struct {
-	int ego_type;
-	cptr info;
-	int min_depth;
-	int max_depth;
-} _brand_type;
-
-#define _MAX_BRANDS 38
-
-_brand_type _brand_types[_MAX_BRANDS] = {
-	{ EGO_BRAND_COLD, T("glows deep, icy blue!", "は深く冷たいブルーに輝いた！"), 0, 70 },
-	{ EGO_BRAND_FIRE, T("is covered in a fiery shield!", "は炎のシールドに覆われた！"), 0, 70 },
-	{ EGO_CHAOTIC, T("is engulfed in raw Logrus!", "は純ログルスに飲み込まれた。") }, 
-	{ EGO_BRAND_POIS, T("is coated with poison.", "は毒に覆われた。"), 0, 75 },
-	{ EGO_VAMPIRIC, T("thirsts for blood!", "は血を求めている！"), 30, 2000 },
-	{ EGO_TRUMP, T("seems very unstable now.", "は非常に不安定になったようだ。"), 30, 2000 },
-	{ EGO_SLAY_GIANT, T("seems to be looking for giants!", "は巨人の血を求めている！"), 0, 50 },
-	{ EGO_SLAY_ORC, T("seems to be looking for orcs!", "はオークの血を求めている！"), 0, 40 },
-	{ EGO_SLAY_TROLL, T("seems to be looking for trolls!", "はトロルの血を求めている！"), 0, 45 },
-	{ EGO_SLAY_DRAGON, T("seems to be looking for dragons!", "はドラゴンの血を求めている！"), 20, 60 },
-
-	{ EGO_SLAY_ANIMAL, T("seems to be looking for animals!", "は動物の血を求めている！"), 0, 40 },
-	{ EGO_SLAY_UNDEAD, T("seems to be looking for undead!", "は屍を求めている！"), 20, 50 },
-	{ EGO_SLAY_DEMON, T("seems to be looking for demons!", "は異世界の住人の肉体を求めている！"), 20, 60 },
-	{ EGO_SLAY_EVIL, T("seems to be looking for evil monsters!", "は邪悪なる怪物を求めている！"), 30, 90 },
-	{ EGO_BRAND_ACID, T("coated with acid!", "は酸に覆われた！"), 30, 80 },
-	{ EGO_BRAND_ELEC, T("covered with lightning!", "は電撃に覆われた！"), 30, 90  },
-	{ EGO_SLAY_HUMAN, T("seems to be looking for humans!", "は人間の血を求めている！"), 20, 60 }, 
-	{ EGO_SHARPNESS, T("becomes very sharp!", "は鋭さを増した！"), 0, 40 },
-	{ EGO_EARTHQUAKES, T("seems very powerful!", "は破壊力を増した！"), 0, 40 },
-	{ EGO_SLAYING_WEAPON, T("seems very deadly!", ""), 20, 2000 },
-
-	{ EGO_PATTERN, T("glows with great power!", ""), 80, 2000 },
-	{ EGO_FORCE_WEAPON, T("seems to thrive off your mana!", ""), 70, 2000 },
-	{ EGO_PRISM, T("is covered in ice, fire and lightning!", ""), 50, 2000 },
-	{ EGO_KILL_GIANT, T("seems to thirst for giants!", "は巨人の血を求めている！"), 40, 80 },
-	{ EGO_KILL_ORC, T("seems to thirst for orcs!", "はオークの血を求めている！"), 20, 50 },
-	{ EGO_KILL_TROLL, T("seems to thirst for trolls!", "はトロルの血を求めている！"), 20, 65 },
-	{ EGO_KILL_DRAGON, T("seems to thirst for dragons!", "はドラゴンの血を求めている！"), 50, 90 },
-	{ EGO_KILL_ANIMAL, T("seems to thirst for animals!", "は動物の血を求めている！"), 20, 70 },
-	{ EGO_KILL_UNDEAD, T("seems to thirst for undead!", "は屍を求めている！"), 50, 95 },
-	{ EGO_KILL_DEMON, T("seems to thirst for demons!", "は異世界の住人の肉体を求めている！"), 50, 95 },
-	
-	{ EGO_KILL_EVIL, T("seems to thirst for evil monsters!", "は邪悪なる怪物を求めている！"), 90, 2000 },
-	{ EGO_KILL_HUMAN, T("seems to thirst for humans!", "は人間の血を求めている！"), 60, 90 }, 
-	{ EGO_HA, T("seems on a crusade for justice!", ""), 80, 2000 },
-	{ EGO_DF, T("seems to protect its wielder!", ""), 50, 2000 },
-	{ EGO_BLESS_BLADE, T("seems ok for priests to use.", ""), 0, 40 },
-	{ EGO_WEST, T("seems to hunt the servants of Morgoth!", ""), 20, 70 },
-	{ EGO_WILD, T("seems completely random!", ""), 150, 2000 },
-	{ EGO_ORDER, T("seems completely predictable!", ""), 150, 2000 },
-};
-
-int _find_brand_type(int ego_type)
-{
-	int result = 0;
-
-	if (ego_type <= 0) return -1;
-
-	for (; result < _MAX_BRANDS; result++)
-	{
-		if (_brand_types[result].ego_type == ego_type) return result;
-	}
-	return -1;
-}
-int _get_random_brand(int depth)
-{
-	if (depth < 0) depth = 0;
-	if (depth > 100) depth = 100;
-
-	for (;;)	/* Make sure the table above accepts something for every possible depth!!! */
-	{
-		int i = randint0(_MAX_BRANDS);
-		if (_brand_types[i].min_depth > depth && !one_in_(_brand_types[i].min_depth - depth + 1)) continue;
-		if (depth > _brand_types[i].max_depth && !one_in_(depth - _brand_types[i].max_depth + 1)) continue;
-		return i;
-	}
-	return -1; /* unreachable */
-}
-
-bool brand_weapon(int ego_type)
+bool brand_weapon(int brand_type)
 {
 	int         item;
 	cptr        q, s;
@@ -1475,203 +1239,24 @@ s = "強化できる武器がない。";
 #endif
 
 	if (!get_item(&item, q, s, (USE_EQUIP))) return FALSE;	
-	return brand_weapon_aux(ego_type, item);
-}
 
-bool brand_weapon_aux(int ego_type, int item)
-{
-	object_type *o_ptr;
-	int  idx = _find_brand_type(ego_type);
-
-	if (no_egos) return FALSE;
-
-	if (idx < 0) idx = _get_random_brand(dun_level);
-	if (idx < 0) 
-	{
-		msg_format("Software Bug:  No brand found for depth %d.", dun_level);
-		return FALSE;
-	}
-
-	if (item >= 0)
-		o_ptr = &inventory[item];
-	else
-		o_ptr = &o_list[0 - item];
-
-	/* Only swords can be sharp */
-	if (_brand_types[idx].ego_type == EGO_SHARPNESS && o_ptr->tval != TV_SWORD)
-		idx = _find_brand_type(EGO_EARTHQUAKES);
+	if (brand_type == -1)
+		return brand_weapon_aux(item);
 	
-	/* Swords never cause earthquakes */
-	if (_brand_types[idx].ego_type == EGO_EARTHQUAKES && o_ptr->tval == TV_SWORD)
-		idx = _find_brand_type(EGO_SHARPNESS);
-
-	/* you can never modify artifacts / ego-items */
-	/* you can never modify cursed items */
-	/* TY: You _can_ modify broken items (if you're silly enough) */
-	if (o_ptr->k_idx && !object_is_artifact(o_ptr) && !object_is_ego(o_ptr) &&
-	    !object_is_cursed(o_ptr) &&
-	    !((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DOKUBARI)) &&
-	    !((o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_DEATH_SCYTHE)) /*&&
-	    !((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DIAMOND_EDGE))*/)
-	{
-		/* Let's get the name before it is changed... */
-		char o_name[MAX_NLEN];
-		object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
-
-		o_ptr->name2 = _brand_types[idx].ego_type;
-
-		switch (o_ptr->name2)
-		{
-		case EGO_SLAYING_WEAPON:
-		{
-			int odds = o_ptr->dd * o_ptr->ds / 2;
-			if (odds < 3) odds = 3;
-			if (one_in_(odds)) /* double damage */
-				o_ptr->dd *= 2;
-			else
-			{
-				do
-				{
-					o_ptr->dd++;
-				}
-				while (one_in_(o_ptr->dd));
-						
-				do
-				{
-					o_ptr->ds++;
-				}
-				while (one_in_(o_ptr->ds));
-			}
-					
-			if (one_in_(5))
-			{
-				add_flag(o_ptr->art_flags, TR_BRAND_POIS);
-			}
-			if (o_ptr->tval == TV_SWORD && one_in_(3))
-			{
-				add_flag(o_ptr->art_flags, TR_VORPAL);
-			}
-			break;
-		}
-		case EGO_PATTERN:
-			o_ptr->pval = randint1(2);
-			if (one_in_(3))
-				add_flag(o_ptr->art_flags, TR_HOLD_LIFE);
-			if (one_in_(3))
-				add_flag(o_ptr->art_flags, TR_DEX);
-			if (one_in_(5))
-				add_flag(o_ptr->art_flags, TR_RES_FEAR);
-
-			one_high_resistance(o_ptr);
-			break;
-
-
-		case EGO_TRUMP:
-			o_ptr->pval = randint1(2);
-			if (one_in_(5))
-				add_flag(o_ptr->art_flags, TR_SLAY_DEMON);
-			if (one_in_(7))
-				one_ability(o_ptr);
-
-			one_high_resistance(o_ptr);
-			break;
-
-		case EGO_FORCE_WEAPON:
-		case EGO_KILL_GIANT:
-		case EGO_KILL_ORC:
-		case EGO_KILL_TROLL:
-		case EGO_KILL_DRAGON:
-		case EGO_KILL_ANIMAL:
-		case EGO_KILL_UNDEAD:
-		case EGO_KILL_DEMON:
-		case EGO_KILL_EVIL:
-		case EGO_KILL_HUMAN:
-			o_ptr->pval = randint1(2);
-			break;
-
-		case EGO_LIFE:
-			o_ptr->pval = randint1(4);
-			break;
-
-		case EGO_ARCANE:
-			o_ptr->pval = -randint1(2);
-			if (one_in_(30))
-				o_ptr->pval--;
-			o_ptr->to_h = -10;
-			o_ptr->to_d = -10;
-			break;
-
-		case EGO_SHARPNESS:
-			o_ptr->pval = m_bonus(5, dun_level) + 1;
-			if (o_ptr->sval == SV_HAYABUSA && o_ptr->pval > 2)
-				o_ptr->pval = 2;
-			break;
-
-		case EGO_EARTHQUAKES:
-			o_ptr->pval = m_bonus(3, dun_level);
-			break;
-
-		case EGO_HA:
-			if (one_in_(4) && (dun_level > 40))
-			{
-				add_flag(o_ptr->art_flags, TR_BLOWS);
-				o_ptr->pval = 1;
-			}
-			else
-				o_ptr->pval = randint1(4);
-			break;
-
-		case EGO_DF:
-			if (one_in_(3))
-				add_flag(o_ptr->art_flags, TR_RES_POIS);
-			if (one_in_(3))
-				add_flag(o_ptr->art_flags, TR_WARNING);
-			if (one_in_(3))
-				add_flag(o_ptr->art_flags, TR_LEVITATION);
-			if (one_in_(13))
-				add_flag(o_ptr->art_flags, TR_REGEN);
-			o_ptr->pval = randint1(4);
-			break;
-
-		case EGO_BLESS_BLADE:
-			o_ptr->pval = randint1(4);
-			break;
-
-		case EGO_WILD:
-			o_ptr->ds = o_ptr->dd * o_ptr->ds;
-			o_ptr->dd = 1;
-			break;
-				
-		case EGO_ORDER:
-			o_ptr->dd = o_ptr->dd * o_ptr->ds;
-			o_ptr->ds = 1;
-			break;
-
-		case EGO_WEST:
-			if (one_in_(3))
-				add_flag(o_ptr->art_flags, TR_RES_FEAR);
-			o_ptr->pval = randint1(2);
-			break;
-		}			
-
-		msg_format(T("Your %s %s", "あなたの%s%s"), o_name, _brand_types[idx].info);
-		enchant(o_ptr, randint0(3) + 4, ENCH_TOHIT | ENCH_TODAM);
-
-		o_ptr->discount = 99;
-		chg_virtue(V_ENCHANT, 2);
-	}
-	else
-	{
-		if (flush_failure) flush();
-
-		msg_print(T("You can't improve that item.", "属性付加に失敗した。"));
-		chg_virtue(V_ENCHANT, -2);
-		return FALSE;
-	}
-	calc_android_exp();
+	inventory[item].name2 = brand_type;
 	return TRUE;
 }
 
+bool brand_weapon_aux(int item)
+{
+	apply_magic(&inventory[item], dun_level, AM_GOOD | AM_GREAT | AM_NO_FIXED_ART | AM_CRAFTING);
+	return TRUE;
+}
+bool brand_armour_aux(int item)
+{
+	apply_magic(&inventory[item], dun_level, AM_GOOD | AM_GREAT | AM_NO_FIXED_ART | AM_CRAFTING);
+	return TRUE;
+}
 
 /*
  * Vanish all walls in this floor
@@ -2203,53 +1788,35 @@ static int enchant_table[16] =
  * "Heavy-Cursed" (Mormegil, Calris, and Weapons of Morgul)
  * will not be uncursed.
  */
+
 static int remove_curse_aux(int all)
 {
-	int i, cnt = 0;
+	int slot;
+	int ct = 0;
 
-	/* Attempt to uncurse items being worn */
-	for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
+	for (slot = equip_find_first(object_is_cursed); 
+			slot; 
+			slot = equip_find_next(object_is_cursed, slot))
 	{
-		object_type *o_ptr = &inventory[i];
+		object_type *o_ptr = equip_obj(slot);
 
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Uncursed already */
-		if (!object_is_cursed(o_ptr)) continue;
-
-		/* Heavily Cursed Items need a special spell */
 		if (!all && (o_ptr->curse_flags & TRC_HEAVY_CURSE)) continue;
 
-		/* Perma-Cursed Items can NEVER be uncursed */
 		if (o_ptr->curse_flags & TRC_PERMA_CURSE)
 		{
-			/* Uncurse it */
 			o_ptr->curse_flags &= (TRC_CURSED | TRC_HEAVY_CURSE | TRC_PERMA_CURSE);
 			continue;
 		}
 
-		/* Uncurse it */
 		o_ptr->curse_flags = 0L;
-
-		/* Hack -- Assume felt */
 		o_ptr->ident |= (IDENT_SENSE);
-
-		/* Take note */
 		o_ptr->feeling = FEEL_NONE;
-
-		/* Recalculate the bonuses */
 		p_ptr->update |= (PU_BONUS);
-
-		/* Window stuff */
 		p_ptr->window |= (PW_EQUIP);
-
-		/* Count the uncursings */
-		cnt++;
+		ct++;
 	}
 
-	/* Return "something uncursed" */
-	return (cnt);
+	return ct;
 }
 
 
@@ -2498,8 +2065,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 			int idx = o_ptr->to_h;
 			if (eflag & ENCH_PSI_HACK)
 			{
-				idx -= 2*(psion_power() - 1);
-				if (idx <= 0) idx = 1;	/* 0 is hard ... */
+				idx -= 2*(psion_enchant_power() - 1);
 			}
 
 			if (idx < 0) chance = 0;
@@ -2526,8 +2092,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 			int idx = o_ptr->to_d;
 			if (eflag & ENCH_PSI_HACK)
 			{
-				idx -= 2*(psion_power() - 1);
-				if (idx <= 0) idx = 1;	/* 0 is hard ... */
+				idx -= 2*(psion_enchant_power() - 1);
 			}
 
 			if (idx < 0) chance = 0;
@@ -2555,8 +2120,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 
 			if (eflag & ENCH_PSI_HACK)
 			{
-				idx -= 2*(psion_power() - 1);
-				if (idx <= 0) idx = 1;	/* 0 is hard ... */
+				idx -= 2*(psion_enchant_power() - 1);
 			}
 
 			if (idx < 0) chance = 0;
@@ -2694,6 +2258,7 @@ bool item_tester_hook_nameless_weapon_armour(object_type *o_ptr)
 {
 	if ( !object_is_weapon_armour_ammo(o_ptr)
 	  && !(o_ptr->tval == TV_LITE && o_ptr->sval == SV_LITE_FEANOR) 
+	  && !(o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET) /* Testing ... */
 	  && !(prace_is_(RACE_SNOTLING) && object_is_mushroom(o_ptr)) )
 	{
 		return FALSE;
@@ -2707,7 +2272,6 @@ bool item_tester_hook_nameless_weapon_armour(object_type *o_ptr)
 
 	return TRUE;
 }
-
 
 bool artifact_scroll(void)
 {
@@ -2894,34 +2458,26 @@ bool identify_item(object_type *o_ptr)
 
 	/* Description */
 	object_desc(o_name, o_ptr, OD_NAME_ONLY);
-
-	if(record_fix_art && !old_known && object_is_fixed_artifact(o_ptr))
-		do_cmd_write_nikki(NIKKI_ART, 0, o_name);
-	if(record_rand_art && !old_known && o_ptr->art_name)
-		do_cmd_write_nikki(NIKKI_ART, 0, o_name);
-
 	return old_known;
 }
 
-
-static bool item_tester_hook_identify(object_type *o_ptr)
-{
-	return (bool)!object_is_known(o_ptr);
-}
-
-static bool item_tester_hook_identify_weapon_armour(object_type *o_ptr)
-{
-	if (object_is_known(o_ptr))
-		return FALSE;
-	return object_is_weapon_armour_ammo(o_ptr);
-}
 
 /*
  * Identify an object in the inventory (or on the floor)
  * This routine does *not* automatically combine objects.
  * Returns TRUE if something was identified, else FALSE.
  */
-bool ident_spell(bool only_equip)
+static object_p _hack_obj_p = NULL;
+static bool item_tester_hook_identify(object_type *o_ptr)
+{
+	if ( !object_is_known(o_ptr)
+	  && (!_hack_obj_p || _hack_obj_p(o_ptr)) )
+	{
+		return TRUE;
+	}
+	return FALSE;
+}
+bool ident_spell(object_p p)
 {
 	int             item;
 	object_type     *o_ptr;
@@ -2930,92 +2486,38 @@ bool ident_spell(bool only_equip)
 	bool old_known;
 
 	item_tester_no_ryoute = TRUE;
-
-	if (only_equip)
-		item_tester_hook = item_tester_hook_identify_weapon_armour;
-	else
-		item_tester_hook = item_tester_hook_identify;
+	_hack_obj_p = p;
+	item_tester_hook = item_tester_hook_identify;
 
 	if (can_get_item())
 	{
-#ifdef JP
-		q = "どのアイテムを鑑定しますか? ";
-#else
 		q = "Identify which item? ";
-#endif
 	}
 	else
 	{
-		if (only_equip)
-			item_tester_hook = object_is_weapon_armour_ammo;
-		else
-			item_tester_hook = NULL;
-
-#ifdef JP
-		q = "すべて鑑定済みです。 ";
-#else
+		item_tester_hook = p;
 		q = "All items are identified. ";
-#endif
 	}
 
-	/* Get an item */
-#ifdef JP
-	s = "鑑定するべきアイテムがない。";
-#else
 	s = "You have nothing to identify.";
-#endif
-
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
-
-	/* Get the item (in the pack) */
 	if (item >= 0)
-	{
 		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
 	else
-	{
 		o_ptr = &o_list[0 - item];
-	}
 
-	/* Identify it */
 	old_known = identify_item(o_ptr);
-
-	/* Description */
 	object_desc(o_name, o_ptr, 0);
 
-	/* Describe */
-	if (item >= INVEN_RARM)
-	{
-#ifdef JP
-		msg_format("%^s: %s(%c)。", describe_use(item), o_name, index_to_label(item));
-#else
-		msg_format("%^s: %s (%c).", describe_use(item), o_name, index_to_label(item));
-#endif
-	}
+	if (equip_is_valid_slot(item))
+		msg_format("%^s: %s (%c).", equip_describe_slot(item), o_name, index_to_label(item));
 	else if (item >= 0)
-	{
-#ifdef JP
-		msg_format("ザック中: %s(%c)。", o_name, index_to_label(item));
-#else
 		msg_format("In your pack: %s (%c).", o_name, index_to_label(item));
-#endif
-	}
 	else
-	{
-#ifdef JP
-		msg_format("床上: %s。", o_name);
-#else
 		msg_format("On the ground: %s.", o_name);
-#endif
-	}
 
-	/* Auto-inscription/destroy */
 	autopick_alter_item(item, (bool)(destroy_identify && !old_known));
-
-	/* Something happened */
-	return (TRUE);
+	return TRUE;
 }
 
 
@@ -3054,12 +2556,6 @@ s = "使えるものがありません。";
 	else
 	{
 		o_ptr = &o_list[0 - item];
-	}
-
-	if (have_flag(o_ptr->art_flags, TR_SIGNATURE))
-	{
-		msg_print("There is no effect.");
-		return FALSE;
 	}
 
 	if (o_ptr->name1 == ART_HAND_OF_VECNA || o_ptr->name1 == ART_EYE_OF_VECNA)
@@ -3102,21 +2598,19 @@ s = "使えるものがありません。";
 
 static bool item_tester_hook_identify_fully(object_type *o_ptr)
 {
-	return (bool)(!object_is_known(o_ptr) || !(o_ptr->ident & IDENT_MENTAL));
-}
-
-static bool item_tester_hook_identify_fully_weapon_armour(object_type *o_ptr)
-{
-	if (!item_tester_hook_identify_fully(o_ptr))
-		return FALSE;
-	return object_is_weapon_armour_ammo(o_ptr);
+	if ( (!object_is_known(o_ptr) || !(o_ptr->ident & IDENT_MENTAL))
+	  && (!_hack_obj_p || _hack_obj_p(o_ptr)) )
+	{
+		return TRUE;
+	}
+	return FALSE;
 }
 
 /*
  * Fully "identify" an object in the inventory  -BEN-
  * This routine returns TRUE if an item was identified.
  */
-bool identify_fully(bool only_equip)
+bool identify_fully(object_p p)
 {
 	int             item;
 	object_type     *o_ptr;
@@ -3125,106 +2619,44 @@ bool identify_fully(bool only_equip)
 	bool old_known;
 
 	item_tester_no_ryoute = TRUE;
-	if (only_equip)
-		item_tester_hook = item_tester_hook_identify_fully_weapon_armour;
-	else
-		item_tester_hook = item_tester_hook_identify_fully;
+	_hack_obj_p = p;
+	item_tester_hook = item_tester_hook_identify_fully;
 
 	if (can_get_item())
 	{
-#ifdef JP
-		q = "どのアイテムを*鑑定*しますか? ";
-#else
 		q = "*Identify* which item? ";
-#endif
 	}
 	else
 	{
-		if (only_equip)
-			item_tester_hook = object_is_weapon_armour_ammo;
-		else
-			item_tester_hook = NULL;
-
-#ifdef JP
-		q = "すべて*鑑定*済みです。 ";
-#else
+		item_tester_hook = p;
 		q = "All items are *identified*. ";
-#endif
 	}
 
 	/* Get an item */
-#ifdef JP
-	s = "*鑑定*するべきアイテムがない。";
-#else
 	s = "You have nothing to *identify*.";
-#endif
 
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
-
-	/* Get the item (in the pack) */
 	if (item >= 0)
-	{
 		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
 	else
-	{
 		o_ptr = &o_list[0 - item];
-	}
 
-	/* Identify it */
 	old_known = identify_item(o_ptr);
-
-	/* Mark the item as fully known */
 	o_ptr->ident |= (IDENT_MENTAL);
-
-	/* Handle stuff */
 	handle_stuff();
-
-	/* Description */
 	object_desc(o_name, o_ptr, 0);
 
-	/* Describe */
-	if (item >= INVEN_RARM)
-	{
-#ifdef JP
-		msg_format("%^s: %s(%c)。", describe_use(item), o_name, index_to_label(item));
-#else
-		msg_format("%^s: %s (%c).", describe_use(item), o_name, index_to_label(item));
-#endif
-
-
-	}
+	if (equip_is_valid_slot(item))
+		msg_format("%^s: %s (%c).", equip_describe_slot(item), o_name, index_to_label(item));
 	else if (item >= 0)
-	{
-#ifdef JP
-		msg_format("ザック中: %s(%c)。", o_name, index_to_label(item));
-#else
 		msg_format("In your pack: %s (%c).", o_name, index_to_label(item));
-#endif
-	}
 	else
-	{
-#ifdef JP
-		msg_format("床上: %s。", o_name);
-#else
 		msg_format("On the ground: %s.", o_name);
-#endif
-	}
 
-	/* Describe it fully */
 	(void)screen_object(o_ptr, 0L);
-
-	/* Auto-inscription/destroy */
 	autopick_alter_item(item, (bool)(destroy_identify && !old_known));
-
-	/* Success */
-	return (TRUE);
+	return TRUE;
 }
-
-
-
 
 /*
  * Hook for "get_item()".  Determine if something is rechargable.
@@ -4027,231 +3459,6 @@ bool potion_smash_effect(int who, int y, int x, int k_idx)
 
 
 /*
- * Hack -- Display all known spells in a window
- *
- * XXX XXX XXX Need to analyze size of the window.
- *
- * XXX XXX XXX Need more color coding.
- */
-void display_spell_list(void)
-{
-	int             i, j;
-	int             y, x;
-	int             m[9];
-	magic_type      *s_ptr;
-	char            name[80];
-	char            out_val[160];
-
-
-	/* Erase window */
-	clear_from(0);
-
-	/* They have too many spells to list */
-	if (p_ptr->pclass == CLASS_SORCERER) return;
-	if (p_ptr->pclass == CLASS_RED_MAGE) return;
-
-	/* Snipers */
-	if (p_ptr->pclass == CLASS_SNIPER)
-	{
-		display_snipe_list();
-		return;
-	}
-
-	/* mind.c type classes */
-	if ((p_ptr->pclass == CLASS_BERSERKER) ||
-	    (p_ptr->pclass == CLASS_NINJA) ||
-	    (p_ptr->pclass == CLASS_MIRROR_MASTER) ||
-	    (p_ptr->pclass == CLASS_FORCETRAINER))
-	{
-		int             i;
-		int             y = 1;
-		int             x = 1;
-		int             minfail = 0;
-		int             plev = p_ptr->lev;
-		int             chance = 0;
-		mind_type       spell;
-		char            comment[80];
-		char            psi_desc[80];
-		int             use_mind;
-		bool use_hp = FALSE;
-
-		/* Display a list of spells */
-		prt("", y, x);
-#ifdef JP
-put_str("名前", y, x + 5);
-put_str("Lv   MP 失率 効果", y, x + 35);
-#else
-		put_str("Name", y, x + 5);
-		put_str("Lv Mana Fail Info", y, x + 35);
-#endif
-
-		switch(p_ptr->pclass)
-		{
-		case CLASS_BERSERKER: use_mind = MIND_BERSERKER; use_hp = TRUE; break;
-		case CLASS_MIRROR_MASTER: use_mind = MIND_MIRROR_MASTER; break;
-		case CLASS_NINJA: use_mind = MIND_NINJUTSU; use_hp = TRUE; break;
-		default:                use_mind = 0;break;
-		}
-
-		/* Dump the spells */
-		for (i = 0; i < MAX_MIND_POWERS; i++)
-		{
-			byte a = TERM_WHITE;
-
-			/* Access the available spell */
-			spell = mind_powers[use_mind].info[i];
-			if (spell.min_lev > plev) break;
-
-			/* Get the failure rate */
-			chance = spell.fail;
-
-			/* Reduce failure rate by "effective" level adjustment */
-			chance -= 3 * (p_ptr->lev - spell.min_lev);
-
-			/* Reduce failure rate by INT/WIS adjustment */
-			chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
-
-			if (!use_hp)
-			{
-				/* Not enough mana to cast */
-				if (spell.mana_cost > p_ptr->csp)
-				{
-					chance += 5 * (spell.mana_cost - p_ptr->csp);
-					a = TERM_ORANGE;
-				}
-			}
-			else
-			{
-				/* Not enough hp to cast */
-				if (spell.mana_cost > p_ptr->chp)
-				{
-					chance += 100;
-					a = TERM_RED;
-				}
-			}
-
-			/* Extract the minimum failure rate */
-			minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
-
-			/* Minimum failure rate */
-			if (chance < minfail) chance = minfail;
-
-			/* Stunning makes spells harder */
-			if (p_ptr->stun > 50) chance += 25;
-			else if (p_ptr->stun) chance += 15;
-
-			/* Always a 5 percent chance of working */
-			if (chance > 95) chance = 95;
-
-			/* Get info */
-			mindcraft_info(comment, use_mind, i);
-
-			/* Dump the spell */
-			sprintf(psi_desc, "  %c) %-30s%2d %4d %3d%%%s",
-			    I2A(i), spell.name,
-			    spell.min_lev, spell.mana_cost, chance, comment);
-
-			Term_putstr(x, y + i + 1, -1, a, psi_desc);
-		}
-		return;
-	}
-
-	/* Cannot read spellbooks */
-	if (REALM_NONE == p_ptr->realm1) return;
-
-	/* Normal spellcaster with books */
-
-	/* Scan books */
-	for (j = 0; j < ((p_ptr->realm2 > REALM_NONE) ? 2 : 1); j++)
-	{
-		int n = 0;
-
-		/* Reset vertical */
-		m[j] = 0;
-
-		/* Vertical location */
-		y = (j < 3) ? 0 : (m[j - 3] + 2);
-
-		/* Horizontal location */
-		x = 27 * (j % 3);
-
-		/* Scan spells */
-		for (i = 0; i < 32; i++)
-		{
-			byte a = TERM_WHITE;
-
-			/* Access the spell */
-			if (!is_magic((j < 1) ? p_ptr->realm1 : p_ptr->realm2))
-			{
-				s_ptr = &technic_info[((j < 1) ? p_ptr->realm1 : p_ptr->realm2) - MIN_TECHNIC][i % 32];
-			}
-			else
-			{
-				s_ptr = &mp_ptr->info[((j < 1) ? p_ptr->realm1 : p_ptr->realm2) - 1][i % 32];
-			}
-
-			strcpy(name, do_spell((j < 1) ? p_ptr->realm1 : p_ptr->realm2, i % 32, SPELL_NAME));
-
-			/* Illegible */
-			if (s_ptr->slevel >= 99)
-			{
-				/* Illegible */
-#ifdef JP
-strcpy(name, "(判読不能)");
-#else
-				strcpy(name, "(illegible)");
-#endif
-
-
-				/* Unusable */
-				a = TERM_L_DARK;
-			}
-
-			/* Forgotten */
-			else if ((j < 1) ?
-				((p_ptr->spell_forgotten1 & (1L << i))) :
-				((p_ptr->spell_forgotten2 & (1L << (i % 32)))))
-			{
-				/* Forgotten */
-				a = TERM_ORANGE;
-			}
-
-			/* Unknown */
-			else if (!((j < 1) ?
-				(p_ptr->spell_learned1 & (1L << i)) :
-				(p_ptr->spell_learned2 & (1L << (i % 32)))))
-			{
-				/* Unknown */
-				a = TERM_RED;
-			}
-
-			/* Untried */
-			else if (!((j < 1) ?
-				(p_ptr->spell_worked1 & (1L << i)) :
-				(p_ptr->spell_worked2 & (1L << (i % 32)))))
-			{
-				/* Untried */
-				a = TERM_YELLOW;
-			}
-
-			/* Dump the spell --(-- */
-			sprintf(out_val, "%c/%c) %-20.20s",
-				I2A(n / 8), I2A(n % 8), name);
-
-			/* Track maximum */
-			m[j] = y + n;
-
-			/* Dump onto the window */
-			Term_putstr(x, m[j], -1, a, out_val);
-
-			/* Next */
-			n++;
-		}
-	}
-}
-
-
-/*
  * Returns experience of a spell
  */
 s16b experience_of_spell(int spell, int use_realm)
@@ -4328,9 +3535,9 @@ int mod_spell_chance_1(int chance, int realm)
 	else if (dec_mana) chance -= 2;
 
 	if (mut_present(MUT_ARCANE_MASTERY))
-		chance -= 5;
+		chance -= 3;
 	if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ATHENA)
-		chance -= 5;
+		chance -= 2;
 
 	return chance;
 }
@@ -4398,7 +3605,7 @@ s16b spell_chance(int spell, int use_realm)
 	need_mana = mod_need_mana(s_ptr->smana, spell, use_realm);
 
 	/* Not enough mana to cast */
-	if (caster_ptr && caster_ptr->use_hp)
+	if (caster_ptr && (caster_ptr->options & CASTER_USE_HP))
 	{
 		/* Spells can't be cast without enough hp, so just leave the fail rate alone! */
 	}
@@ -4534,36 +3741,23 @@ void print_spells(int target_spell, byte *spells, int num, int y, int x, int use
 
 
 	if (((use_realm <= REALM_NONE) || (use_realm > MAX_REALM)) && p_ptr->wizard)
-#ifdef JP
-msg_print("警告！ print_spell が領域なしに呼ばれた");
-#else
 		msg_print("Warning! print_spells called with null realm");
-#endif
 
 
 	/* Title the list */
 	prt("", y, x);
 	if (use_realm == REALM_HISSATSU)
-#ifdef JP
-		strcpy(buf,"  Lv   MP");
-#else
 		strcpy(buf,"  Lv   SP");
-#endif
 	else
 	{
-		if (caster_ptr && caster_ptr->use_hp)
+		if (caster_ptr && (caster_ptr->options & CASTER_USE_HP))
 			strcpy(buf,"Profic Lv   HP Fail Effect");
 		else
 			strcpy(buf,"Profic Lv   SP Fail Effect");
 	}
 
-#ifdef JP
-put_str("名前", y, x + 5);
-put_str(buf, y, x + 29);
-#else
 	put_str("Name", y, x + 5);
 	put_str(buf, y, x + 29);
-#endif
 
 	if ((p_ptr->pclass == CLASS_SORCERER) || (p_ptr->pclass == CLASS_RED_MAGE)) increment = 0;
 	else if (use_realm == p_ptr->realm1) increment = 0;
@@ -4852,6 +4046,7 @@ bool hates_fire(object_type *o_ptr)
 		case TV_DAEMON_BOOK:
 		case TV_CRUSADE_BOOK:
 		case TV_NECROMANCY_BOOK:
+		case TV_ARMAGEDDON_BOOK:
 		case TV_MUSIC_BOOK:
 		case TV_HISSATSU_BOOK:
 		case TV_HEX_BOOK:
@@ -4955,17 +4150,18 @@ int set_cold_destroy(object_type *o_ptr)
  * New-style wands and rods handled correctly. -LM-
  * Returns number of items destroyed.
  */
-int inven_damage(inven_func typ, int perc)
+int inven_damage(inven_func typ, int p1, int which)
 {
 	int         i, j, k, amt;
 	object_type *o_ptr;
 	char        o_name[MAX_NLEN];
+	int         p2 = 100;
 
 	if (CHECK_MULTISHADOW()) return 0;
-	if (p_ptr->rune_elem_prot && one_in_(2)) return 0;
-	if (p_ptr->inven_prot && one_in_(2)) return 0;
-
 	if (p_ptr->inside_arena) return 0;
+
+	if (p_ptr->rune_elem_prot) p2 = 50;
+	if (p_ptr->inven_prot) p2 = 50;
 
 	/* Count the casualties */
 	k = 0;
@@ -4987,7 +4183,12 @@ int inven_damage(inven_func typ, int perc)
 			/* Count the casualties */
 			for (amt = j = 0; j < o_ptr->number; ++j)
 			{
-				if (randint0(100) < perc) amt++;
+				if ( randint0(100) < p1	/* Effects of Breath Quality */
+				  && randint0(100) < p2 /* Effects of Inventory Protection (Rune or Spell) */
+				  && !res_save_inventory(which) ) /* Effects of Resistance */
+				{ 
+					amt++;
+				}
 			}
 
 			/* Some casualities */
@@ -4996,30 +4197,8 @@ int inven_damage(inven_func typ, int perc)
 				/* Get a description */
 				object_desc(o_name, o_ptr, OD_OMIT_PREFIX);
 
-				/* Message */
-#ifdef JP
-msg_format("%s(%c)が%s壊れてしまった！",
-#else
-				msg_format("%sour %s (%c) %s destroyed!",
-#endif
-
-#ifdef JP
-o_name, index_to_label(i),
-    ((o_ptr->number > 1) ?
-    ((amt == o_ptr->number) ? "全部" :
-    (amt > 1 ? "何個か" : "一個")) : "")    );
-#else
-				    ((o_ptr->number > 1) ?
-				    ((amt == o_ptr->number) ? "All of y" :
-				    (amt > 1 ? "Some of y" : "One of y")) : "Y"),
-				    o_name, index_to_label(i),
-				    ((amt > 1) ? "were" : "was"));
-#endif
-
-#ifdef JP
-				if ((p_ptr->personality == PERS_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON))
-					msg_print("やりやがったな！");
-#endif
+				msg_format("%d of your %s (%c) %s destroyed!", 
+							amt, o_name, index_to_label(i), (amt > 1) ? "were" : "was");
 
 				/* Potions smash open */
 				if (object_is_potion(o_ptr))
@@ -5054,98 +4233,62 @@ o_name, index_to_label(i),
  */
 static int minus_ac(void)
 {
-	object_type *o_ptr = NULL;
-	u32b flgs[TR_FLAG_SIZE];
-	char        o_name[MAX_NLEN];
+	int slot = equip_random_slot(object_is_armour);
 
-
-	/* Pick a (possibly empty) inventory slot */
-	switch (randint1(7))
+	if (slot)
 	{
-		case 1: o_ptr = &inventory[INVEN_RARM]; break;
-		case 2: o_ptr = &inventory[INVEN_LARM]; break;
-		case 3: o_ptr = &inventory[INVEN_BODY]; break;
-		case 4: o_ptr = &inventory[INVEN_OUTER]; break;
-		case 5: o_ptr = &inventory[INVEN_HANDS]; break;
-		case 6: o_ptr = &inventory[INVEN_HEAD]; break;
-		case 7: o_ptr = &inventory[INVEN_FEET]; break;
+		object_type *o_ptr = equip_obj(slot);
+		u32b         flgs[TR_FLAG_SIZE];
+		char         o_name[MAX_NLEN];
+
+		if (o_ptr->ac + o_ptr->to_a <= 0) return FALSE;
+
+		object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+		object_flags(o_ptr, flgs);
+
+		if ( have_flag(flgs, TR_IGNORE_ACID)
+		  || demigod_is_(DEMIGOD_HEPHAESTUS) )
+		{
+			msg_format("Your %s is unaffected!", o_name);
+			return TRUE;
+		}
+
+		msg_format("Your %s is damaged!", o_name);
+		o_ptr->to_a--;
+		p_ptr->update |= (PU_BONUS);
+		p_ptr->window |= (PW_EQUIP | PW_PLAYER);
+		calc_android_exp();
+		return TRUE;
 	}
-
-	/* Nothing to damage */
-	if (!o_ptr->k_idx) return (FALSE);
-
-	if (!object_is_armour(o_ptr)) return (FALSE);
-
-	/* No damage left to be done */
-	if (o_ptr->ac + o_ptr->to_a <= 0) return (FALSE);
-
-
-	/* Describe */
-	object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
-
-	/* Extract the flags */
-	object_flags(o_ptr, flgs);
-
-	/* Object resists */
-	if ( have_flag(flgs, TR_IGNORE_ACID)
-	  || (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_HEPHAESTUS) )
-	{
-		msg_format(T("Your %s is unaffected!", "しかし%sには効果がなかった！"), o_name);
-		return (TRUE);
-	}
-
-	/* Message */
-#ifdef JP
-msg_format("%sがダメージを受けた！", o_name);
-#else
-	msg_format("Your %s is damaged!", o_name);
-#endif
-
-
-	/* Damage the item */
-	o_ptr->to_a--;
-
-	/* Calculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_EQUIP | PW_PLAYER);
-
-	calc_android_exp();
-
-	/* Item was damaged */
-	return (TRUE);
+	return FALSE;
 }
 
 
 /*
  * Hurt the player with Acid
  */
+static int _inv_dam_pct(int dam)
+{
+	return (dam < 30) ? 3 : (dam < 60) ? 6 : 9;
+}
+
 int acid_dam(int dam, cptr kb_str, int monspell)
 {
 	int get_damage;  
-	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
-	bool double_resist = IS_OPPOSE_ACID();
+	int inv = _inv_dam_pct(dam);
 
+	dam = res_calc_dam(RES_ACID, dam);
+	
 	/* Total Immunity */
-	if (p_ptr->immune_acid || (dam <= 0))
+	if (dam <= 0)
 	{
 		learn_spell(monspell);
 		return 0;
 	}
 
-	/* Vulnerability (Ouch!) */
-	if (mut_present(MUT_VULN_ELEM)) dam *= 2;
-	if (p_ptr->special_defense & KATA_KOUKIJIN) dam += dam / 3;
-
-	/* Resist the damage */
-	if (p_ptr->resist_acid) dam = (dam + 2) / 3;
-	if (double_resist) dam = (dam + 2) / 3;
-
 	if (!CHECK_MULTISHADOW())
 	{
-		if ((!(double_resist || p_ptr->resist_acid)) &&
-		    one_in_(HURT_CHANCE))
+		if (!res_save_default(RES_ACID) && one_in_(HURT_CHANCE))
 			(void)do_dec_stat(A_CHR);
 
 		/* If any armor gets hit, defend the player */
@@ -5156,10 +4299,8 @@ int acid_dam(int dam, cptr kb_str, int monspell)
 	get_damage = take_hit(DAMAGE_ATTACK, dam, kb_str, monspell);
 
 	/* Inventory damage */
-	if (!(double_resist && p_ptr->resist_acid))
-	{
-		inven_damage(set_acid_destroy, inv);
-	}
+	inven_damage(set_acid_destroy, inv, RES_ACID);
+
 	return get_damage;
 }
 
@@ -5170,35 +4311,28 @@ int acid_dam(int dam, cptr kb_str, int monspell)
 int elec_dam(int dam, cptr kb_str, int monspell)
 {
 	int get_damage;  
-	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
-	bool double_resist = IS_OPPOSE_ELEC();
+	int inv = _inv_dam_pct(dam);
+
+	dam = res_calc_dam(RES_ELEC, dam);
 
 	/* Total immunity */
-	if (p_ptr->immune_elec || (dam <= 0))
+	if (dam <= 0)
 	{
 		learn_spell(monspell);
 		return 0;
 	}
 
-	/* Vulnerability (Ouch!) */
-	if (mut_present(MUT_VULN_ELEM)) dam *= 2;
-	if (p_ptr->special_defense & KATA_KOUKIJIN) dam += dam / 3;
-	if (prace_is_(RACE_ANDROID)) dam += dam / 3;
-
-	/* Resist the damage */
-	if (p_ptr->resist_elec) dam = (dam + 2) / 3;
-	if (double_resist) dam = (dam + 2) / 3;
-
-	if ((!(double_resist || p_ptr->resist_elec)) &&
-	    one_in_(HURT_CHANCE) && !CHECK_MULTISHADOW())
-		(void)do_dec_stat(A_DEX);
+	if (!CHECK_MULTISHADOW())
+	{
+		if (!res_save_default(RES_ELEC) && one_in_(HURT_CHANCE))
+			(void)do_dec_stat(A_DEX);
+	}
 
 	/* Take damage */
 	get_damage = take_hit(DAMAGE_ATTACK, dam, kb_str, monspell);
 
 	/* Inventory damage */
-	if (!(double_resist && p_ptr->resist_elec))
-		inven_damage(set_elec_destroy, inv);
+	inven_damage(set_elec_destroy, inv, RES_ELEC);
 
 	return get_damage;
 }
@@ -5210,35 +4344,28 @@ int elec_dam(int dam, cptr kb_str, int monspell)
 int fire_dam(int dam, cptr kb_str, int monspell)
 {
 	int get_damage;  
-	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
-	bool double_resist = IS_OPPOSE_FIRE();
+	int inv = _inv_dam_pct(dam);
+
+	dam = res_calc_dam(RES_FIRE, dam);
 
 	/* Totally immune */
-	if (p_ptr->immune_fire || (dam <= 0))
+	if (dam <= 0)
 	{
 		learn_spell(monspell);
 		return 0;
 	}
 
-	/* Vulnerability (Ouch!) */
-	if (mut_present(MUT_VULN_ELEM)) dam *= 2;
-	if (prace_is_(RACE_ENT)) dam += dam / 3;
-	if (p_ptr->special_defense & KATA_KOUKIJIN) dam += dam / 3;
-
-	/* Resist the damage */
-	if (p_ptr->resist_fire) dam = (dam + 2) / 3;
-	if (double_resist) dam = (dam + 2) / 3;
-
-	if ((!(double_resist || p_ptr->resist_fire)) &&
-	    one_in_(HURT_CHANCE) && !CHECK_MULTISHADOW())
-		(void)do_dec_stat(A_STR);
+	if (!CHECK_MULTISHADOW())
+	{
+		if (!res_save_default(RES_FIRE) && one_in_(HURT_CHANCE))
+			(void)do_dec_stat(A_STR);
+	}
 
 	/* Take damage */
 	get_damage = take_hit(DAMAGE_ATTACK, dam, kb_str, monspell);
 
 	/* Inventory damage */
-	if (!(double_resist && p_ptr->resist_fire))
-		inven_damage(set_fire_destroy, inv);
+	inven_damage(set_fire_destroy, inv, RES_FIRE);
 
 	return get_damage;
 }
@@ -5250,34 +4377,28 @@ int fire_dam(int dam, cptr kb_str, int monspell)
 int cold_dam(int dam, cptr kb_str, int monspell)
 {
 	int get_damage;  
-	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
-	bool double_resist = IS_OPPOSE_COLD();
+	int inv = _inv_dam_pct(dam);
+
+	dam = res_calc_dam(RES_COLD, dam);
 
 	/* Total immunity */
-	if (p_ptr->immune_cold || (dam <= 0))
+	if (dam <= 0)
 	{
 		learn_spell(monspell);
 		return 0;
 	}
 
-	/* Vulnerability (Ouch!) */
-	if (mut_present(MUT_VULN_ELEM)) dam *= 2;
-	if (p_ptr->special_defense & KATA_KOUKIJIN) dam += dam / 3;
-
-	/* Resist the damage */
-	if (p_ptr->resist_cold) dam = (dam + 2) / 3;
-	if (double_resist) dam = (dam + 2) / 3;
-
-	if ((!(double_resist || p_ptr->resist_cold)) &&
-	    one_in_(HURT_CHANCE) && !CHECK_MULTISHADOW())
-		(void)do_dec_stat(A_STR);
+	if (!CHECK_MULTISHADOW())
+	{
+		if (!res_save_default(RES_COLD) && one_in_(HURT_CHANCE))
+			(void)do_dec_stat(A_STR);
+	}
 
 	/* Take damage */
 	get_damage = take_hit(DAMAGE_ATTACK, dam, kb_str, monspell);
 
 	/* Inventory damage */
-	if (!(double_resist && p_ptr->resist_cold))
-		inven_damage(set_cold_destroy, inv);
+	inven_damage(set_cold_destroy, inv, RES_COLD);
 
 	return get_damage;
 }
@@ -5295,13 +4416,8 @@ bool rustproof(void)
 	item_tester_hook = object_is_armour;
 
 	/* Get an item */
-#ifdef JP
-q = "どの防具に錆止めをしますか？";
-s = "錆止めできるものがありません。";
-#else
 	q = "Rustproof which piece of armour? ";
 	s = "You have nothing to rustproof.";
-#endif
 
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return FALSE;
 
@@ -5325,28 +4441,17 @@ s = "錆止めできるものがありません。";
 
 	if ((o_ptr->to_a < 0) && !object_is_cursed(o_ptr))
 	{
-#ifdef JP
-msg_format("%sは新品同様になった！",o_name);
-#else
 		msg_format("%s %s look%s as good as new!",
 			((item >= 0) ? "Your" : "The"), o_name,
 			((o_ptr->number > 1) ? "" : "s"));
-#endif
-
 		o_ptr->to_a = 0;
 	}
 
-#ifdef JP
-msg_format("%sは腐食しなくなった。", o_name);
-#else
 	msg_format("%s %s %s now protected against corrosion.",
 		((item >= 0) ? "Your" : "The"), o_name,
 		((o_ptr->number > 1) ? "are" : "is"));
-#endif
-
 
 	calc_android_exp();
-
 	return TRUE;
 }
 
@@ -5383,7 +4488,7 @@ void blast_object(object_type *o_ptr)
 	for (i = 0; i < TR_FLAG_SIZE; i++)
 		o_ptr->art_flags[i] = 0;
 
-	o_ptr->rune_flags = 0;
+	o_ptr->rune = 0;
 
 	o_ptr->ident |= (IDENT_BROKEN);
 
@@ -5395,60 +4500,30 @@ void blast_object(object_type *o_ptr)
 /*
  * Curse the players armor
  */
-bool curse_armor(void)
+bool curse_armor(int slot)
 {
 	object_type *o_ptr;
-
 	char o_name[MAX_NLEN];
 
-
-	/* Curse the body armor */
-	o_ptr = &inventory[INVEN_BODY];
-
-	/* Nothing to curse */
+	o_ptr = &inventory[slot];
 	if (!o_ptr->k_idx) return (FALSE);
 
-
-	/* Describe */
 	object_desc(o_name, o_ptr, OD_OMIT_PREFIX);
 
-	if (have_flag(o_ptr->art_flags, TR_SIGNATURE))
-	{
-		msg_format("Your %s resists cursing!", o_name);
-		return TRUE;
-	}
-
-	/* Attempt a saving throw for artifacts */
 	if (object_is_artifact(o_ptr) && (randint0(100) < 50))
 	{
-		/* Cool */
-#ifdef JP
-msg_format("%sが%sを包み込もうとしたが、%sはそれを跳ね返した！",
-"恐怖の暗黒オーラ", "防具", o_name);
-#else
 		msg_format("A %s tries to %s, but your %s resists the effects!",
 			   "terrible black aura", "surround your armor", o_name);
-#endif
-
 	}
-
-	/* not artifact or failed save... */
 	else
 	{
-		/* Oops */
-#ifdef JP
-msg_format("恐怖の暗黒オーラがあなたの%sを包み込んだ！", o_name);
-#else
 		msg_format("A terrible black aura blasts your %s!", o_name);
-#endif
-
 		chg_virtue(V_ENCHANT, -5);
-
 		blast_object(o_ptr);
 		o_ptr->curse_flags = TRC_CURSED;
 	}
 
-	return (TRUE);
+	return TRUE;
 }
 
 
@@ -5458,119 +4533,28 @@ msg_format("恐怖の暗黒オーラがあなたの%sを包み込んだ！", o_name);
 bool curse_weapon(bool force, int slot)
 {
 	object_type *o_ptr;
-
 	char o_name[MAX_NLEN];
 
-
-	/* Curse the weapon */
 	o_ptr = &inventory[slot];
+	if (!o_ptr->k_idx) return FALSE;
 
-	/* Nothing to curse */
-	if (!o_ptr->k_idx) return (FALSE);
-
-
-	/* Describe */
 	object_desc(o_name, o_ptr, OD_OMIT_PREFIX);
-
-	if (have_flag(o_ptr->art_flags, TR_SIGNATURE))
-	{
-		msg_format("Your %s resists cursing!", o_name);
-		return TRUE;
-	}
 
 	/* Attempt a saving throw */
 	if (object_is_artifact(o_ptr) && (randint0(100) < 50) && !force)
 	{
-		/* Cool */
-#ifdef JP
-msg_format("%sが%sを包み込もうとしたが、%sはそれを跳ね返した！",
-"恐怖の暗黒オーラ", "武器", o_name);
-#else
 		msg_format("A %s tries to %s, but your %s resists the effects!",
 			   "terrible black aura", "surround your weapon", o_name);
-#endif
-
 	}
-
-	/* not artifact or failed save... */
 	else
 	{
-		/* Oops */
-#ifdef JP
-if (!force) msg_format("恐怖の暗黒オーラがあなたの%sを包み込んだ！", o_name);
-#else
 		if (!force) msg_format("A terrible black aura blasts your %s!", o_name);
-#endif
-
 		chg_virtue(V_ENCHANT, -5);
-
 		blast_object(o_ptr);
 		o_ptr->curse_flags = TRC_CURSED;
 	}
-
-	/* Notice */
-	return (TRUE);
+	return TRUE;
 }
-
-
-/*
- * Enchant some bolts
- */
-bool brand_bolts(void)
-{
-	int i;
-
-	/* Use the first acceptable bolts */
-	for (i = 0; i < INVEN_PACK; i++)
-	{
-		object_type *o_ptr = &inventory[i];
-
-		/* Skip non-bolts */
-		if (o_ptr->tval != TV_BOLT) continue;
-
-		/* Skip artifacts and ego-items */
-		if (object_is_artifact(o_ptr) || object_is_ego(o_ptr))
-			continue;
-
-		/* Skip cursed/broken items */
-		if (object_is_cursed(o_ptr) || object_is_broken(o_ptr)) continue;
-
-		/* Randomize */
-		if (randint0(100) < 75) continue;
-
-		/* Message */
-#ifdef JP
-msg_print("クロスボウの矢が炎のオーラに包まれた！");
-#else
-		msg_print("Your bolts are covered in a fiery aura!");
-#endif
-
-
-		/* Ego-item */
-		o_ptr->name2 = EGO_FLAME;
-
-		/* Enchant */
-		enchant(o_ptr, randint0(3) + 4, ENCH_TOHIT | ENCH_TODAM);
-
-		/* Notice */
-		return (TRUE);
-	}
-
-	/* Flush */
-	if (flush_failure) flush();
-
-	/* Fail */
-#ifdef JP
-msg_print("炎で強化するのに失敗した。");
-#else
-	msg_print("The fiery enchantment failed.");
-#endif
-
-
-	/* Notice */
-	return (TRUE);
-}
-
 
 /*
  * Helper function -- return a "nearby" race for polymorphing
@@ -5665,7 +4649,7 @@ bool polymorph_monster(int y, int x)
 		if (place_monster_aux(0, y, x, new_r_idx, mode))
 		{
 			m_list[hack_m_idx_ii].nickname = back_m.nickname;
-			m_list[hack_m_idx_ii].parent_m_idx = back_m.parent_m_idx;
+			mon_set_parent(&m_list[hack_m_idx_ii], back_m.parent_m_idx);
 			m_list[hack_m_idx_ii].hold_o_idx = back_m.hold_o_idx;
 
 			/* Success */
@@ -5763,11 +4747,10 @@ bool dimension_door(int rng)
 
 	if (dimension_door_aux(x, y, rng)) return TRUE;
 
-#ifdef JP
-	msg_print("精霊界から物質界に戻る時うまくいかなかった！");
-#else
-	msg_print("You fail to exit the astral plane correctly!");
-#endif
+	if (p_ptr->pclass == CLASS_TIME_LORD)
+		msg_print("You fail to exit the temporal plane correctly!");
+	else
+		msg_print("You fail to exit the astral plane correctly!");
 
 	return TRUE;
 }
@@ -6218,5 +5201,9 @@ bool summon_kin_player(int level, int y, int x, u32b mode)
 		summon_kin_type = 'g';
 		break;
 	}	
+
+	if (p_ptr->current_r_idx)
+		summon_kin_type = r_info[p_ptr->current_r_idx].d_char;
+
 	return summon_specific((pet ? -1 : 0), y, x, level, SUMMON_KIN, mode);
 }

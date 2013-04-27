@@ -3,6 +3,7 @@
  ****************************************************************/
 
 #include "angband.h"
+#include "equip.h"
 
 /* Confirm 1 or 2 whip weapons for whip techniques.  Fail if no whip
    is worn, or if a non-whip weapon is warn.  Do not fail if shields
@@ -10,26 +11,19 @@
 static bool _whip_check(void)
 {
 	bool result = FALSE;
-	if (inventory[INVEN_RARM].k_idx)
+	int i;
+
+	for (i = 0; i < MAX_HANDS; i++)
 	{
-		if ( inventory[INVEN_RARM].tval != TV_SHIELD
-		  && inventory[INVEN_RARM].tval != TV_CAPTURE )
+		object_type *o = NULL;
+		if (p_ptr->weapon_info[i].wield_how != WIELD_NONE)
+			o = equip_obj(p_ptr->weapon_info[i].slot);
+		if (o)
 		{
-			if (inventory[INVEN_RARM].tval == TV_HAFTED && inventory[INVEN_RARM].sval == SV_WHIP)
-				result = TRUE;
+			if (object_is_(o, TV_HAFTED, SV_WHIP))
+				result = TRUE; /* Found a whip weapon */
 			else
-				return FALSE;
-		}
-	}
-	if (inventory[INVEN_LARM].k_idx)
-	{
-		if ( inventory[INVEN_LARM].tval != TV_SHIELD
-		  && inventory[INVEN_LARM].tval != TV_CAPTURE )
-		{
-			if (inventory[INVEN_LARM].tval == TV_HAFTED && inventory[INVEN_LARM].sval == SV_WHIP)
-				result = TRUE;
-			else
-				return FALSE;
+				return FALSE; /* Found a non-whip weapon */
 		}
 	}
 	return result;
@@ -39,8 +33,8 @@ static bool _whip_check(void)
 static bool _whip_fetch(int dir, int rng)
 {
 	int             ty, tx;
-	cave_type       *c_ptr;
-	object_type     *o_ptr;
+	cave_type      *c_ptr;
+	object_type    *o_ptr;
 	char            o_name[MAX_NLEN];
 
 	/* Use a target */
@@ -327,7 +321,7 @@ static void _excavation_spell(int cmd, variant *res)
 		{
 			int n = 200;
 			
-			if (inventory[INVEN_RARM].tval == TV_DIGGING || inventory[INVEN_LARM].tval == TV_DIGGING)
+			if (equip_find_object(TV_DIGGING, SV_ANY))
 				n -= 120 * p_ptr->lev / 50;
 			else
 				n -= 80 * p_ptr->lev / 50;
@@ -527,9 +521,9 @@ static void _identify_spell(int cmd, variant *res)
 		{
 			bool b = TRUE;
 			if (p_ptr->lev < 25)
-				b = ident_spell(FALSE);
+				b = ident_spell(NULL);
 			else
-				b = identify_fully(FALSE);
+				b = identify_fully(NULL);
 			var_set_bool(res, b);
 		}
 		break;
@@ -614,7 +608,7 @@ static void _pharaohs_curse_spell(int cmd, variant *res)
 			if (p_ptr->lev >= 46)
 				confuse_monsters(power);
 			if (p_ptr->lev >= 47)
-				slow_monsters();
+				slow_monsters(power);
 			if (p_ptr->lev >= 48)
 				turn_monsters(power);
 			if (p_ptr->lev >= 49)
@@ -731,16 +725,10 @@ static spell_info _spells[] =
 	{ -1,  -1, -1, NULL }
 };
 
-int archaeologist_spell_stat_idx(void)
-{
-	/*return (p_ptr->stat_ind[A_INT] + p_ptr->stat_ind[A_WIS]) / 2;*/
-	return p_ptr->stat_ind[A_WIS];
-}
 
 static int _get_spells(spell_info* spells, int max)
 {
-	int stat_idx = archaeologist_spell_stat_idx();
-	return get_spells_aux(spells, max, _spells, stat_idx);
+	return get_spells_aux(spells, max, _spells);
 }
 
 static bool _is_favored_weapon(object_type *o_ptr)
@@ -783,7 +771,7 @@ static void _calc_bonuses(void)
 	if (p_ptr->lev >= 20)
 		p_ptr->see_inv = TRUE;
 	if (p_ptr->lev >= 38)
-		p_ptr->resist_dark = TRUE;
+		res_add(RES_DARK);
 }
 
 static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
@@ -804,24 +792,11 @@ static caster_info * _caster_info(void)
 	if (!init)
 	{
 		me.magic_desc = "spell";
-		me.use_sp = TRUE;
+		me.which_stat = A_WIS;
+		me.weight = 400;
 		init = TRUE;
 	}
 	return &me;
-}
-
-static void _spoiler_dump(FILE* fff)
-{
-	spoil_spells_aux(fff, _spells);
-	
-	fprintf(fff, "\n== Abilities ==\n");
-	fprintf(fff, "  * +L/10 to Infravision\n");
-	fprintf(fff, "  * +2L to Digging\n");
-	fprintf(fff, "  * See Invisible at L20\n");
-	fprintf(fff, "  * Resist Darkness at L38\n");
-	fprintf(fff, "  * Sense Artifacts (Range: 3+L/10)\n");
-	fprintf(fff, "  * The Archaeologist Favors Whips and Diggers\n");
-	fprintf(fff, "  * +10L/50 To Hit and Damage with Favored Weapons\n");
 }
 
 class_t *archaeologist_get_class_t(void)
@@ -851,7 +826,7 @@ class_t *archaeologist_get_class_t(void)
 		me.stats[A_CHR] =  0;
 		me.base_skills = bs;
 		me.extra_skills = xs;
-		me.hd = 4;
+		me.life = 105;
 		me.exp = 120;
 		me.pets = 40;
 
@@ -860,7 +835,6 @@ class_t *archaeologist_get_class_t(void)
 		me.process_player = _process_player;
 		me.caster_info = _caster_info;
 		me.get_spells = _get_spells;
-		me.spoiler_dump = _spoiler_dump;
 		init = TRUE;
 	}
 

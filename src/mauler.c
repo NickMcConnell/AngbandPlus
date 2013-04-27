@@ -4,6 +4,22 @@
  * Helpers
  ****************************************************************/
 
+static bool _weapon_check(void)
+{
+	/* Fail if any weapon is not wielded with 2 hands */
+	int hand;
+	for (hand = 0; hand < MAX_HANDS; hand++)
+	{
+		if ( p_ptr->weapon_info[hand].wield_how != WIELD_NONE
+		  && !p_ptr->weapon_info[hand].wield_how != WIELD_TWO_HANDS )
+		{
+			return FALSE;
+		}
+	}
+	/* Fail if there is no wielded weapon */
+	return equip_find_first(object_is_melee_weapon);
+}
+
 static int _get_toggle(void)
 {
 	return p_ptr->magic_num1[0];
@@ -30,7 +46,7 @@ int mauler_get_toggle(void)
 	   this is easier than rewriting the status code so that classes can maintain it!
 	*/
 	int result = TOGGLE_NONE;
-	if (p_ptr->pclass == CLASS_MAULER)
+	if (p_ptr->pclass == CLASS_MAULER && _weapon_check())
 		result = _get_toggle();
 	return result;
 }
@@ -73,29 +89,69 @@ void process_maul_of_vice(void)
 	}
 }
 
+static bool _do_blow(int type)
+{
+	int x, y;
+	int dir;
+	int m_idx = 0;
+
+	/* For ergonomics sake, use currently targeted monster.  This allows
+	   a macro of \e*tmaa or similar to pick an adjacent foe, while
+	   \emaa*t won't work, since get_rep_dir2() won't allow a target. */
+	if (use_old_target && target_okay())
+	{
+		y = target_row;
+		x = target_col;
+		m_idx = cave[y][x].m_idx;
+		if (m_idx)
+		{
+			if (m_list[m_idx].cdis > 1)
+				m_idx = 0;
+			else
+				dir = 5;
+		}
+	}
+
+	if (!m_idx)
+	{
+		if (!get_rep_dir2(&dir)) return FALSE;
+		if (dir == 5) return FALSE;
+
+		y = py + ddy[dir];
+		x = px + ddx[dir];
+		m_idx = cave[y][x].m_idx;
+
+		if (!m_idx)
+		{
+			msg_print("There is no monster there.");
+			return FALSE;
+		}
+
+	}
+
+	if (m_idx)
+		py_attack(y, x, type);
+
+	return TRUE;
+}
+
 /****************************************************************
  * Spells
  ****************************************************************/
-static void _cursed_wounds_spell(int cmd, variant *res)
+static void _toggle_spell(int which, int cmd, variant *res)
 {
 	switch (cmd)
 	{
-	case SPELL_NAME:
-		var_set_string(res, "Cursed Wounds");
-		break;
-	case SPELL_DESC:
-		var_set_string(res, "When using this technique, any wounds that you inflict on your enemies will never fully heal.");
-		break;
 	case SPELL_CAST:
 		var_set_bool(res, FALSE);
-		if (_get_toggle() == TOGGLE_CURSED_WOUNDS)
+		if (_get_toggle() == which)
 			_set_toggle(TOGGLE_NONE);
 		else
-			_set_toggle(TOGGLE_CURSED_WOUNDS);
+			_set_toggle(which);
 		var_set_bool(res, TRUE);
 		break;
 	case SPELL_ENERGY:
-		if (_get_toggle() != TOGGLE_CURSED_WOUNDS)
+		if (_get_toggle() != which)
 			var_set_int(res, 0);	/* no charge for dismissing a technique */
 		else
 			var_set_int(res, 100);
@@ -106,32 +162,116 @@ static void _cursed_wounds_spell(int cmd, variant *res)
 	}
 }
 
-static void _death_force_spell(int cmd, variant *res)
+
+static void _block_spell(int cmd, variant *res)
 {
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, "Death Force");
+		var_set_string(res, "Block");
 		break;
 	case SPELL_DESC:
-		var_set_string(res, "When using this technique your weapon gains a force brand. However, since you lack mana, each force strike will decrease the duration of your hasted status. If you are not hasted, the force brand will cease to function.");
+		var_set_string(res, "When using this technique, you will gain an AC bonus based on the weight of your current weapon.");
+		break;
+	default:
+		_toggle_spell(MAULER_TOGGLE_BLOCK, cmd, res);
+		break;
+	}
+}
+
+static void _close_in_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Close In");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Close in for the kill on a nearby monster.");
 		break;
 	case SPELL_CAST:
-		var_set_bool(res, FALSE);
-		if (_get_toggle() == TOGGLE_DEATH_FORCE)
-			_set_toggle(TOGGLE_NONE);
-		else
-			_set_toggle(TOGGLE_DEATH_FORCE);
+	{
+		bool dummy;
+		rush_attack(&dummy);
 		var_set_bool(res, TRUE);
 		break;
-	case SPELL_ENERGY:
-		if (_get_toggle() != TOGGLE_DEATH_FORCE)
-			var_set_int(res, 0);	/* no charge for dismissing a technique */
-		else
-			var_set_int(res, 100);
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _critical_blow_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Critical Blow");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Attack an adjacent opponent with a single devastating blow.");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, _do_blow(MAULER_CRITICAL_BLOW));
 		break;
 	default:
 		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _crushing_blow_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Crushing Blow");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Attack an adjacent opponent with a single powerful blow.");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, _do_blow(MAULER_CRUSHING_BLOW));
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _detect_ferocity_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Detect Ferocity");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Detects all monsters except mindless in your vicinity.");
+		break;
+	case SPELL_CAST:
+		detect_monsters_mind(DETECT_RAD_DEFAULT);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+	
+static void _drain_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Drain");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "When using this technique you will drain life from your foes. In addition, enemies will never fully recover from the wounds you inflict.");
+		break;
+	default:
+		_toggle_spell(MAULER_TOGGLE_DRAIN, cmd, res);
 		break;
 	}
 }
@@ -162,29 +302,18 @@ static void _killing_spree_spell(int cmd, variant *res)
 	}
 }
 
-static void _no_earthquake_spell(int cmd, variant *res)
+static void _knockback_spell(int cmd, variant *res)
 {
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, "Prevent Earthquake");
+		var_set_string(res, "Knockback");
 		break;
 	case SPELL_DESC:
-		var_set_string(res, "When using this technique your weapon will not produce earthquakes.");
+		var_set_string(res, "Attack an adjacent opponent with a single blow. If landed, your foe will be knocked back away from you.");
 		break;
 	case SPELL_CAST:
-		var_set_bool(res, FALSE);
-		if (_get_toggle() == TOGGLE_NO_EARTHQUAKE)
-			_set_toggle(TOGGLE_NONE);
-		else
-			_set_toggle(TOGGLE_NO_EARTHQUAKE);
-		var_set_bool(res, TRUE);
-		break;
-	case SPELL_ENERGY:
-		if (_get_toggle() != TOGGLE_NO_EARTHQUAKE)
-			var_set_int(res, 0);	/* no charge for dismissing a technique */
-		else
-			var_set_int(res, 100);
+		var_set_bool(res, _do_blow(MAULER_KNOCKBACK));
 		break;
 	default:
 		default_spell(cmd, res);
@@ -192,51 +321,89 @@ static void _no_earthquake_spell(int cmd, variant *res)
 	}
 }
 
-static void _slay_sentient_spell(int cmd, variant *res)
+static void _knockout_blow_spell(int cmd, variant *res)
 {
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, "Slay Sentient");
+		var_set_string(res, "Knockout Blow");
 		break;
 	case SPELL_DESC:
-		var_set_string(res, "For a short time, your weapon will slay all monsters except those than cannot be stunned.");
+		var_set_string(res, "Attack an adjacent opponent with a single blow aimed to knock your opponent out cold.");
 		break;
 	case SPELL_CAST:
-		var_set_bool(res, FALSE);
-		if (p_ptr->tim_slay_sentient)
+		var_set_bool(res, _do_blow(MAULER_KNOCKOUT_BLOW));
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _maul_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Maul");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "When using this technique you will maul your opponents.");
+		break;
+	default:
+		_toggle_spell(MAULER_TOGGLE_MAUL, cmd, res);
+		break;
+	}
+}
+
+void _scatter_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Scatter");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Attack all adjacent monsters with a single strike. If landed, your enemies will be scattered away from you.");
+		break;
+	case SPELL_CAST:
+	{
+		int              dir, x, y;
+		cave_type       *c_ptr;
+		monster_type    *m_ptr;
+
+		for (dir = 0; dir < 8; dir++)
 		{
-			msg_print("Your weapon is already far too powerful!");
-			return;
+			y = py + ddy_ddd[dir];
+			x = px + ddx_ddd[dir];
+			c_ptr = &cave[y][x];
+
+			m_ptr = &m_list[c_ptr->m_idx];
+
+			if (c_ptr->m_idx && (m_ptr->ml || cave_have_flag_bold(y, x, FF_PROJECT)))
+				py_attack(y, x, MAULER_SCATTER);
 		}
-		set_tim_slay_sentient(6 + randint1(6), FALSE);
 		var_set_bool(res, TRUE);
 		break;
+	}
 	default:
 		default_spell(cmd, res);
 		break;
 	}
 }
 
-static void _smash_ground_spell(int cmd, variant *res)
+static void _shatter_spell(int cmd, variant *res)
 {
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, "Smash Ground");
+		var_set_string(res, "Shatter");
 		break;
 	case SPELL_DESC:
-		var_set_string(res, "Create an earthquake by smashing your weapon powerfully on the ground.");
+		var_set_string(res, "When using this technique, your weapon will cause earthquakes.");
 		break;
-	case SPELL_CAST:
-	{
-		int w = inventory[INVEN_RARM].weight;
-		earthquake(py, px, w/40);
-		var_set_bool(res, TRUE);
-		break;
-	}
 	default:
-		default_spell(cmd, res);
+		_toggle_spell(MAULER_TOGGLE_SHATTER, cmd, res);
 		break;
 	}
 }
@@ -246,7 +413,7 @@ static void _smash_wall_spell(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, "Smash Wall");
+		var_set_string(res, "Smash");
 		break;
 	case SPELL_DESC:
 		var_set_string(res, "Destroys adjacent targeted wall, door, tree, or trap.");
@@ -287,32 +454,53 @@ static void _smash_wall_spell(int cmd, variant *res)
 	}
 }
 
-static void _weapon_as_shield_spell(int cmd, variant *res)
+static void _splatter_spell(int cmd, variant *res)
 {
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, "Weapon as Shield");
+		var_set_string(res, "Splatter");
 		break;
 	case SPELL_DESC:
-		var_set_string(res, "When using this technique, you will gain an AC bonus based on the weight of your current weapon.");
+		var_set_string(res, "When using this technique, monsters will explode as you kill them.");
+		break;
+	default:
+		_toggle_spell(MAULER_TOGGLE_SPLATTER, cmd, res);
+		break;
+	}
+}
+
+static void _stunning_blow_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Stunning Blow");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Attack an adjacent opponent with a single blow aimed to stun.");
 		break;
 	case SPELL_CAST:
-		var_set_bool(res, FALSE);
-		if (_get_toggle() == TOGGLE_WEAPON_AS_SHIELD)
-			_set_toggle(TOGGLE_NONE);
-		else
-			_set_toggle(TOGGLE_WEAPON_AS_SHIELD);
-		var_set_bool(res, TRUE);
-		break;
-	case SPELL_ENERGY:
-		if (_get_toggle() != TOGGLE_WEAPON_AS_SHIELD)
-			var_set_int(res, 0);	/* no charge for dismissing a technique */
-		else
-			var_set_int(res, 100);
+		var_set_bool(res, _do_blow(MAULER_STUNNING_BLOW));
 		break;
 	default:
 		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _tunnel_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Tunnel");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "When using this technique you may move through walls.");
+		break;
+	default:
+		_toggle_spell(MAULER_TOGGLE_TUNNEL, cmd, res);
 		break;
 	}
 }
@@ -323,15 +511,22 @@ static void _weapon_as_shield_spell(int cmd, variant *res)
 static spell_info _spells[] = 
 {
     /*lvl cst fail spell */
-    {  5,  5, 40, _smash_wall_spell},
-	{ 10, 30, 70, _smash_ground_spell},
-	{ 15,  0,  0, _weapon_as_shield_spell},
-	{ 20,  0, 60, awesome_blow_spell},
-	{ 26,  0,  0, _cursed_wounds_spell},
-	{ 32, 44, 50, _killing_spree_spell},
-	{ 38,  0,  0, _no_earthquake_spell},
-	{ 44,100, 90, _slay_sentient_spell},
-	{ 50,  0,  0, _death_force_spell},
+    {  5,  5, 30, _smash_wall_spell},
+	{  8,  5, 30, _detect_ferocity_spell},
+	{ 10,  7,  0, _stunning_blow_spell},
+	{ 12, 10,  0, _critical_blow_spell},
+	{ 15,  0,  0, _splatter_spell},
+	{ 17,  0,  0, _block_spell},
+	{ 19,  0,  0, _shatter_spell},
+	{ 21, 15, 40, _close_in_spell},
+	{ 23, 20,  0, _knockback_spell},
+	{ 25, 20,  0, _knockout_blow_spell},
+	{ 30, 30,  0, _crushing_blow_spell},
+	{ 32, 30, 50, _killing_spree_spell},
+	{ 35, 30, 50, _scatter_spell},
+	{ 37,  0,  0, _tunnel_spell},
+	{ 40,  0,  0, _drain_spell},
+	{ 45,  0,  0, _maul_spell},
 	{ -1, -1, -1, NULL}
 };
 
@@ -339,13 +534,13 @@ static int _get_spells(spell_info* spells, int max)
 {
 	int ct;
 
-	if (!p_ptr->ryoute)
+	if (!_weapon_check())
 	{
 		msg_print("Rargh! You need to wield a single weapon with both hands to properly maul stuff!");
 		return 0;
 	}
 
-	ct = get_spells_aux(spells, max, _spells, p_ptr->stat_ind[A_STR]);
+	ct = get_spells_aux(spells, max, _spells);
 	
 	if (ct == 0)
 		msg_print("Rargh! Go maul something for more experience!");
@@ -355,56 +550,79 @@ static int _get_spells(spell_info* spells, int max)
 
 static void _calc_bonuses(void)
 {
-	if (p_ptr->ryoute)
+	int w = equip_weight(object_is_melee_weapon);
+	if (_weapon_check())
 	{
-		if (_get_toggle() == TOGGLE_WEAPON_AS_SHIELD)
+		if (_get_toggle() == MAULER_TOGGLE_BLOCK)
 		{
-			int w = inventory[INVEN_RARM].weight;
 			int a = w/20 + (w/100)*(w/100);
 			p_ptr->to_a += a;
 			p_ptr->dis_to_a += a;
 		}
+
+		/* TODO: This should cost more energy too ...  */
+		if (_get_toggle() == MAULER_TOGGLE_TUNNEL)
+			p_ptr->kill_wall = TRUE;
 	}
 }
 
 static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 {
-	if (p_ptr->ryoute)
+	if (_weapon_check())
 	{
 		/* CL1: Mighty */
 		if (p_ptr->lev >= 1)
 		{
 			int w = o_ptr->weight;
-			int d = w/50 + (w/100)*(w/100);
+			int h = (w - 150)/20;
+			int d = (w - 150)/10;
 
-			if (w >= 200)
-			{
-				int i = p_ptr->stat_ind[A_STR];
-				int d2 = (int)(adj_str_td[i]) - 128;
-				d += d2;
-			}
+			if (w > 200)
+				d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
 
+			info_ptr->to_h += h;
+			info_ptr->dis_to_h += h;
+			
 			info_ptr->to_d += d;
 			info_ptr->dis_to_d += d;
+
 		}
 
-		/* CL15: Splattering is handled as a hack in cmd1.c py_attack_aux() */
+		/* CL25: Impact 
+			20lb +1d0
+			25lb +1d1
+			30lb +2d1
+			40lb +2d2
+			50lb +3d2
+			60lb +3d3
 
-		/* CL30: Impact */
-		if (p_ptr->lev >= 30)
+			Stagger in bonuses with level. Also, I'm debating > rather than >= for cutoffs.
+		*/
+		if (p_ptr->lev >= 25 )
 		{
 			int w = o_ptr->weight;
-			int x = w/250;
-			
-			if (x > 0)
-			{
-				info_ptr->to_dd += x;
-				info_ptr->to_ds += x;
-			}
+
+			if (w >= 200)
+				info_ptr->to_dd++;
+			if (p_ptr->lev >= 30 && w >= 250)
+				info_ptr->to_ds++;
+			if (p_ptr->lev >= 35 && w >= 300)
+				info_ptr->to_dd++;
+			if (p_ptr->lev >= 40 && w >= 400)
+				info_ptr->to_ds++;
+			if (p_ptr->lev >= 45 && w >= 500)
+				info_ptr->to_dd++;
+			if (p_ptr->lev >= 50 && w >= 600)
+				info_ptr->to_ds++;
 		}
 
-		/* CL45: Destroyer is handled as a hack in cmd1.c critical_norm() */
+		/* Destroyer is handled as a hack in cmd1.c critical_norm() and now scales with level */
 
+		if (_get_toggle() == MAULER_TOGGLE_MAUL)
+		{
+			info_ptr->to_dd += 1;
+			info_ptr->to_ds += 1;
+		}
 	}
 }
 
@@ -415,23 +633,11 @@ static caster_info * _caster_info(void)
 	if (!init)
 	{
 		me.magic_desc = "technique";
-		me.use_hp = TRUE;
+		me.options = CASTER_USE_HP;
+		me.which_stat = A_STR;
 		init = TRUE;
 	}
 	return &me;
-}
-
-static void _spoiler_dump(FILE* fff)
-{
-	spoil_spells_aux(fff, _spells);
-
-	fprintf(fff, "\n== Abilities ==\n");
-	fprintf(fff, "|| *Lvl* || *Ability* || *Description* ||\n");
-	fprintf(fff, "|| 1 || Mighty || +(W/50)+(W/100)^2 todam. Str bonus to damage is doubled for weapons >= 20 pounds. || \n");
-	fprintf(fff, "|| 15 || Splattering || Whenever you kill a monster, your last strike damage is applied to all foes within radius 2 ball of recently deceased enemy. ||\n");
-	fprintf(fff, "|| 30 || Impact || +(W/250) to dice and sides of wielded weapon. ||\n");
-	fprintf(fff, "|| 45 || Destroyer || +(W/20)%% chance of crits (e.g. a 40 lb heavy lance gets +20%% chance to crit). ||\n");
-	fprintf(fff, "\n_Where W is your weapon's weight in tenths of a pound._\n");
 }
 
 class_t *mauler_get_class_t(void)
@@ -442,8 +648,8 @@ class_t *mauler_get_class_t(void)
 	/* static info never changes */
 	if (!init)
 	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
-	skills_t bs = { 25,  25,  35,   0,  14,   2,  70,  40 };
-	skills_t xs = { 12,  11,  12,   0,   0,   0,  30,  18 };
+	skills_t bs = { 25,  25,  35,   0,  14,   2,  70,  20 };
+	skills_t xs = { 12,  11,  12,   0,   0,   0,  30,   7 };
 
 		me.name = "Mauler";
 		me.desc = 
@@ -454,15 +660,15 @@ class_t *mauler_get_class_t(void)
 			"required to use both hands on a single weapon when wielding if they wish their "
 			"talents to function properly.",
 
-		me.stats[A_STR] =  6;
-		me.stats[A_INT] =  1;
+		me.stats[A_STR] =  4;
+		me.stats[A_INT] = -2;
 		me.stats[A_WIS] = -2;
-		me.stats[A_DEX] = -4;
-		me.stats[A_CON] =  3;
-		me.stats[A_CHR] =  2;
+		me.stats[A_DEX] = -1;
+		me.stats[A_CON] =  1;
+		me.stats[A_CHR] =  1;
 		me.base_skills = bs;
 		me.extra_skills = xs;
-		me.hd = 9;
+		me.life = 115;
 		me.exp = 120;
 		me.pets = 40;
 
@@ -470,7 +676,6 @@ class_t *mauler_get_class_t(void)
 		me.calc_weapon_bonuses = _calc_weapon_bonuses;
 		me.caster_info = _caster_info;
 		me.get_spells = _get_spells;
-		me.spoiler_dump = _spoiler_dump;
 		init = TRUE;
 	}
 

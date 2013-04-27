@@ -1,23 +1,82 @@
 #include "angband.h"
 
+void acid_ball_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Acid Ball");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Generate an Acid Ball on chosen target.");
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(0, 0, spell_power(3*p_ptr->lev/2 + 35)));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		fire_ball(GF_ACID, dir, spell_power(3*p_ptr->lev/2 + 35), 2);
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void acid_bolt_spell(int cmd, variant *res)
+{
+	int dd = 5 + p_ptr->lev / 4;
+	int ds = 8;
+
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Acid Bolt");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Fires a bolt or beam of acid.");
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(dd, spell_power(ds), 0));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		fire_bolt_or_beam(beam_chance(), GF_ACID, dir, spell_power(damroll(dd, ds)));
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void alchemy_spell(int cmd, variant *res)
 {
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Alchemy", "ミダスの手"));
+		var_set_string(res, "Alchemy");
 		break;
 	case SPELL_DESC:
 		var_set_string(res, "Turns valuable items into gold.");
 		break;
 	case SPELL_GAIN_MUT:
-		msg_print(T("You gain the Midas touch.", "「ミダス王の手」の能力を得た。"));
+		msg_print("You gain the Midas touch.");
 		break;
 	case SPELL_LOSE_MUT:
-		msg_print(T("You lose the Midas touch.", "ミダスの手の能力を失った。"));
+		msg_print("You lose the Midas touch.");
 		break;
 	case SPELL_MUT_DESC:
-		var_set_string(res, T("You can turn ordinary items to gold.", "あなたは通常アイテムを金に変えることができる。"));
+		var_set_string(res, "You can turn ordinary items to gold.");
 		break;
 	case SPELL_CAST:
 		var_set_bool(res, FALSE);
@@ -36,10 +95,10 @@ void alter_reality_spell(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Alter Reality", "真実の祭壇"));
+		var_set_string(res, "Alter Reality");
 		break;
 	case SPELL_DESC:
-		var_set_string(res, T("Recreates current dungeon level.", "現在の階を再構成する。"));
+		var_set_string(res, "Recreates current dungeon level.");
 		break;
 	case SPELL_INFO:
 		var_set_string(res, info_delay(15, 20));
@@ -54,16 +113,44 @@ void alter_reality_spell(int cmd, variant *res)
 	}
 }
 
+void amnesia_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Amnesia");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Attempt to make target monster forget something.");
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		int lvl = p_ptr->lev;
+		if (p_ptr->lev > 40)
+			lvl += (p_ptr->lev - 40) * 2;
+
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		project_hook(GF_AMNESIA, dir, lvl, PROJECT_STOP | PROJECT_KILL | PROJECT_REFLECTABLE);
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
 void android_ray_gun_spell(int cmd, variant *res)
 {
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Ray Gun", "レイガン"));
+		var_set_string(res, "Ray Gun");
 		break;
 	case SPELL_DESC:
-		var_set_string(res, T("", ""));
+		var_set_string(res, "Fires unresistable damage at chosen foe.");
 		break;
 	case SPELL_INFO:
 		var_set_string(res, info_damage(0, 0, spell_power(5 + (p_ptr->lev+1) / 2)));
@@ -74,7 +161,7 @@ void android_ray_gun_spell(int cmd, variant *res)
 		var_set_bool(res, FALSE);
 		if (!get_aim_dir(&dir)) return;
 		
-		msg_print(T("You fire your ray gun.", "レイガンを発射した。"));
+		msg_print("You fire your ray gun.");
 		fire_bolt(GF_MISSILE, dir, spell_power(5 + (p_ptr->lev+1) / 2));
 		
 		var_set_bool(res, TRUE);
@@ -325,14 +412,6 @@ void banish_evil_spell(int cmd, variant *res)
 			(r_ptr->level < randint1(p_ptr->lev+50)) &&
 			!(m_ptr->mflag2 & MFLAG2_NOGENO))
 		{
-			if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
-			{
-				char m_name[80];
-
-				monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
-				do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_GENOCIDE, m_name);
-			}
-
 			/* Delete the monster, rather than killing it. */
 			delete_monster_idx(c_ptr->m_idx);
 			msg_print(T("The evil creature vanishes in a puff of sulfurous smoke!", "その邪悪なモンスターは硫黄臭い煙とともに消え去った！"));
@@ -418,10 +497,10 @@ void bless_spell(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Bless", "祝福"));
+		var_set_string(res, "Bless");
 		break;
 	case SPELL_DESC:
-		var_set_string(res, T("Gives bonus to hit and AC for a few turns.", "一定時間、命中率とACにボーナスを得る。"));
+		var_set_string(res, "Gives bonus to hit and AC for a few turns.");
 		break;
 	case SPELL_INFO:
 		var_set_string(res, info_duration(base, base));

@@ -1334,7 +1334,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 	/* Handle "player" */
 	if (player_bold(y, x))
 	{
-		monster_race *r_ptr = &r_info[0];
+		monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
 
 		/* Get the "player" attr */
 		*ap = r_ptr->x_attr;
@@ -1713,13 +1713,16 @@ void prt_path(int y, int x)
 	int path_n;
 	u16b path_g[512];
 	int default_color = TERM_SLATE;
+	int flgs = PROJECT_PATH|PROJECT_THRU;
 
 	if (!display_path) return;
 	if (-1 == project_length)
 		return;
 
 	/* Get projection path */
-	path_n = project_path(path_g, (project_length ? project_length : MAX_RANGE), py, px, y, x, PROJECT_PATH|PROJECT_THRU);
+	if (shoot_hack == SHOOT_DISINTEGRATE)
+		flgs |= PROJECT_DISI;
+	path_n = project_path(path_g, (project_length ? project_length : MAX_RANGE), py, px, y, x, flgs);
 
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);
@@ -1769,7 +1772,10 @@ void prt_path(int y, int x)
 		}
 
 		/* Known Wall */
-		if ((c_ptr->info & CAVE_MARK) && !cave_have_flag_grid(c_ptr, FF_PROJECT)) break;
+		if (shoot_hack != SHOOT_DISINTEGRATE)
+		{
+			if ((c_ptr->info & CAVE_MARK) && !cave_have_flag_grid(c_ptr, FF_PROJECT)) break;
+		}
 
 		/* Change color */
 		if (nx == x && ny == y) default_color = TERM_L_DARK;
@@ -4710,7 +4716,7 @@ void cave_alter_feat(int y, int x, int action)
 	cave_set_feat(y, x, newfeat);
 
 	/* Earthen Shield needs to recalc # of nearby walls ... */
-	if (strcmp(weaponmaster_speciality1_name(), "Diggers") == 0)
+	if (weaponmaster_is_(WEAPONMASTER_DIGGERS))
 		p_ptr->update |= PU_BONUS;
 
 	if (p_ptr->pclass == CLASS_SCOUT)

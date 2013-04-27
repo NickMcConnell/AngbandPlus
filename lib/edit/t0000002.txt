@@ -57,9 +57,9 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:3
 ?:[EQU $QUEST2 5]
 F:b:BUILDING_1:3:0:0:0:0:NONE:2
 
-# Quest 2 failed but done, continue with quest 3
+# Quest 2 failed
 ?:[EQU $QUEST2 6]
-F:b:BUILDING_1:3:0:0:0:0:NONE:3
+F:b:BUILDING_1:3
 
 ?:1
 
@@ -88,9 +88,9 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:4
 ?:[EQU $QUEST3 5]
 F:b:BUILDING_1:3:0:0:0:0:NONE:3
 
-# Quest 3 failed but done, continue with quest 4
+# Quest 3 failed
 ?:[EQU $QUEST3 6]
-F:b:BUILDING_1:3:0:0:0:0:NONE:4
+F:b:BUILDING_1:3
 
 ?:1
 
@@ -117,13 +117,13 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:5
 ?:[EQU $QUEST4 5]
 F:b:BUILDING_1:3:0:0:0:0:NONE:4
 
-# Quest 4 failed but done, continue with quest 5
+# Quest 4 failed
 ?:[EQU $QUEST4 6]
-F:b:BUILDING_1:3:0:0:0:0:NONE:5
+F:b:BUILDING_1:3
 
 ?:1
 
-#################### Quest 5 - The Tower ####################
+#################### Quest 5 - The Barrow Downs ####################
 
 # Quest 5 assigned, entrance is quest entrance
 ?:[EQU $QUEST5 1]
@@ -138,13 +138,7 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:5
 F:b:BUILDING_1:3:0:0:0:0:NONE:5
 
 ?:[EQU $QUEST5 6]
-F:b:BUILDING_1:3:0:0:0:0:NONE:26
-
-?:[AND [EQU $QUEST5 6] [AND [EQU $CLASS Paladin] [EQU $REALM1 Death Daemon] ] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:16
-
-?:[AND [EQU $QUEST5 6] [AND [EQU $CLASS Paladin] [EQU $REALM1 Death Daemon] ] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:16
+F:b:BUILDING_1:3
 
 # Quest 5 rewarding, continue with quest 26,
 # reward is cheaper *Identify* at the Library (see buildings)
@@ -190,9 +184,9 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:26
 ?:[EQU $QUEST16 5]
 F:b:BUILDING_1:3:0:0:0:0:NONE:16
 
-# Quest 16 failed but done, continue with quest 26
+# Quest 16 failed
 ?:[EQU $QUEST16 6]
-F:b:BUILDING_1:3:0:0:0:0:NONE:26
+F:b:BUILDING_1:3
 
 ?:1
 
@@ -221,9 +215,9 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:15
 ?:[EQU $QUEST26 5]
 F:b:BUILDING_1:3:0:0:0:0:NONE:26
 
-# Quest 26 failed but done, continue with quest 15
+# Quest 26 failed
 ?:[EQU $QUEST26 6]
-F:b:BUILDING_1:3:0:0:0:0:NONE:15
+F:b:BUILDING_1:3
 
 ?:1
 
@@ -318,8 +312,15 @@ B:$4:A:2:Listen for rumors:10:10:u:19:0
 B:4:A:2:噂を聞く:10:10:u:19:0
 B:$4:A:3:Teleport to other town:500:500:m:42:0
 B:4:A:3:他の町へ移動:500:500:m:42:0
-B:$4:R:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:0:0:0:0:0:1:1:0:1:0:1:1:1:0:1:1
-B:4:R:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:0:0:0:0:0:1:1:0:1:0:1:1:1:0:1:1
+B:$4:R:*:Member
+B:$4:R:Golem:None
+B:$4:R:Skeleton:None
+B:$4:R:Zombie:None
+B:$4:R:Vampire:None
+B:$4:R:Spectre:None
+B:$4:R:Ent:None
+B:$4:R:Balrog:None
+B:$4:R:Android:None
 
 B:$5:N:Beastmaster:Lorien:Elf
 B:5:N:モンスター仙人:ロリエン:エルフ
@@ -345,12 +346,17 @@ B:6:A:1:防御について調べる:150:150:a:46:0
 
 B:$7:N:Fighters Hall:Barak:Human
 B:7:N:戦士の集会所:バラク:人間
-B:$7:A:0:Enchant weapon:400:800:w:23:0
-B:7:A:0:武器を強化する:400:800:w:23:0
-B:$7:A:1:Enchant armor:300:600:a:24:0
-B:7:A:1:防具を強化する:300:600:a:24:0
-B:$7:C:2:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:2:0:0:2:2:2:0:0:0:0:2:0:0:2:0:2:2:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-B:7:C:2:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:2:0:0:2:2:2:0:0:0:0:2:0:0:2:0:2:2:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+B:$7:A:0:Enchant weapon:0:0:w:23:0
+B:7:A:0:武器を強化する:0:0:w:23:0
+B:$7:A:1:Enchant armor:0:0:a:24:0
+B:7:A:1:防具を強化する:0:0:a:24:0
+B:$7:C:*:None
+B:$7:C:Warrior:Owner
+B:$7:C:Samurai:Owner
+B:$7:C:Cavalry:Owner
+B:$7:C:Berserker:Owner
+B:$7:C:Blood-Knight:Owner
+B:$7:C:Mauler:Owner
 
 B:$9:N:Temple of Life:Crysania:Human
 B:9:N:生命魔術の塔:クリサニア:人間
@@ -358,8 +364,8 @@ B:$9:A:0:Healing prayer:0:150:h:28:0
 B:9:A:0:治療の祈祷:0:150:h:28:0
 B:$9:A:1:Restoration:400:1500:r:29:0
 B:9:A:1:能力回復:400:1500:r:29:0
-B:$9:M:2:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-B:9:M:2:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+B:$9:M:*:None
+B:$9:M:Life:Owner
 
 B:$10:N:Thieves Guild:Lardbottom:Hobbit
 B:10:N:盗賊のギルド:ラードボトム:ホビット
@@ -367,17 +373,19 @@ B:$10:A:1:Rest for the night:0:100:r:17:0
 B:10:A:1:一泊する:0:100:r:17:0
 B:$10:A:2:Identify possessions:100:2000:i:26:0
 B:10:A:2:持ち物全てを鑑定:100:2000:i:26:0
-B:$10:C:0:0:0:2:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-B:10:C:0:0:0:2:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+B:$10:C:*:None
+B:$10:C:Rogue:Owner
 
 B:$11:N:Archers Guild:Trallin:Half-elf
 B:11:N:アーチャーのギルド:トゥラリン:ハーフエルフ
 B:$11:A:0:Enchant missiles:20:40:a:30:0
 B:11:A:0:矢や石等を強化する:20:40:a:30:0
-B:$11:A:1:Enchant bow:400:800:b:31:0
-B:11:A:1:弓を強化する:400:800:b:31:0
-B:$11:C:0:0:0:0:2:0:0:0:0:0:0:0:0:0:0:2:0:0:0:0:0:0:0:0:0:0:0:2:0:0:0:0:0:0:0:2:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-B:11:C:0:0:0:0:2:0:0:0:0:0:0:0:0:0:0:2:0:0:0:0:0:0:0:0:0:0:0:2:0:0:0:0:0:0:0:2:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+B:$11:A:1:Enchant bow:0:0:b:31:0
+B:11:A:1:弓を強化する:0:0:b:31:0
+B:$11:C:*:None
+B:$11:C:Ranger:Owner
+B:$11:C:Archer:Owner
+B:$11:C:Sniper:Owner
 
 B:$12:N:Paladins Guild:Langordathur:Human
 B:12:N:パラディンのギルド:ランゴルダスール:人間
@@ -385,8 +393,8 @@ B:$12:A:0:Enchant armor:300:600:a:24:0
 B:12:A:0:防具を強化する:300:600:a:24:0
 B:$12:A:1:See Healers:0:150:h:28:0
 B:12:A:1:治療家に会う:0:150:h:28:0
-B:$12:C:0:0:0:0:0:2:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-B:12:C:0:0:0:0:0:2:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+B:$12:C:*:None
+B:$12:C:Paladin:Owner
 
 D:######################################################################################################################################################################################################
 D:#---------------------TTTT-------------------------------------------------------------TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#

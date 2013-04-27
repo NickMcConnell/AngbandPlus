@@ -1,474 +1,454 @@
-# autopick.txt 変愚蛮怒仕様
+# autopick.txt for Hengband
 #
-# このファイルの一番最後は実際に使用できる設定ファイルの具体例になって
-# います。このファイルを 'picktype.prf' という名前で
-# lib\user\picktype.prf か ~/.angband/Hengband/picktype.prf としてコピー
-# すれば、そのまま自動拾いファイルとして使用することができます。
-# (Unix の場合は ~/.angband/Hengband/ のみが使用可能。Windows等、Unix以
-# 外の場合は、lib\user\ のみが使用可能です。)
+# The last part of this file is an example of 'pickpref.prf'. 
+# You can copy this file to lib\user\ or ~/.angband/Hengband/ 
+# to use as preference of auto-picker.
+# (UNIX user must copy to ~/.angband/Hengband/. Others must 
+# copy to lib\user\ .)
 #
-#    ●自動拾いの使い方
+#    =====   How to use auto-picker/destroyer   ========
 #    
-#      プレイ中に'_'コマンドを実行すると設定を編集するエディターに入り
-#      ます。このエディターを使って1行に1つのアイテムの名前を書くと、
-#      そのアイテムは自動的に拾います。基本の操作は vi に似ていて、い
-#      くつかの emacs と同じコマンドも使えます。必要なコマンドは全て一
-#      行目と画面の右半分に表示されています。
+#     Press the _ in a game to enter editor mode for preference of
+#     auto-picker/destroyer.  Basic usage of the editor is almost same
+#     as vi, and also have emacs like commands.  Most commands is
+#     always displayed on the first line and the right half of the
+#     screen.
 #
-#      重要なコマンド
-#       'a' と 'i' と ^Q :  コマンドモードから入力モードに移ります。
-#       ESC と ^Q        :  入力モードからコマンドモードに戻ります。
-#       'q'              :  エディターを終了します。(コマンドモードのみ)
-#       'hjkl2468'       :  カーソルを移動します。(コマンドモードのみ)
-#       ^B ^N ^P ^F      :  カーソルを移動します。(いつでも使えます)
-#       ^I  : 持ち物/装備からアイテムを選んでその名前を挿入します。
-#       ^S  : カーソル位置のアイテムの 拾う/破壊/放置 の切り換え
-#       ^U  : 未鑑定/未判明/鑑定済み/*鑑定*済み の制限の切り換え
-#       ^L  : 最後に自動破壊したアイテムの名前を挿入。
-#       '/' : 検索。続けて ^I か ^L を押すと直接指定したアイテムを検索します。
-#       'n' : 次にマッチする行を検索。(条件分岐を考慮しません)
-#       'N' : 前にマッチする行を検索。(条件分岐を考慮しません)
+#     Important commands 
+#      'a', 'i' or ^Q :  Enter insert mode from command mode
+#      ESC  or ^Q     :  Return to command mode from insert mode
+#      'q'            :  Quit the editor (command mode only)
+#      'hjkl2468'     :  Move cursor (command mode only)
+#      ^B ^N ^P ^F    :  Move cursor (always)
+#      ^I  : Choose an item from inventry/equipment, then insert its name
+#      ^S  : Rotates action (pick up / destroy / leave on floor)
+#      ^U  : Rotates identify state (identified / unidentified / ...)
+#      ^L  : Insert name of the last auto-destroyed item.
+#      '/' : Search string, or search an item specified by ^I or ^L.
+#      'n' : Search next
+#      'N' : Search previous
 #
-#      設定は全て変愚蛮怒ディレクトリの中の lib\user\ の下か 
-#      ~/.angband/Hengband/ の下に「picktype-(名前).prf」 という名前の
-#      ファイルで記録されるので、これをメモ帳等の適当なエディタで編集
-#      して、'$'コマンドで読み込み直すこともできます。このファイルはプ
-#      レイヤーキャラクターの名前が「(名前)」であるときに使用されます
-#      が、内蔵のエディタを使わない場合は「picktype.prf」という名前の
-#      ファイルを作っておけば、どんな名前のキャラでプレイするときでも
-#      読み込まれます。
+#      The preference will be saved in a file named
+#      "pickpref-<<name>>.prf" in your user directory; This will be
+#      ~/.angband/Hengband/ for UNIX, or hengband\lib\user\ for other
+#      operating systems.  You may edit this file using any text
+#      editor, and may use the '$' command within the game to reread
+#      this file.  When you don't use the in-game editor, you may use
+#      "pickpref.prf" as preference file.
 #
-#      両方ある場合は、起動時に両方読み込みますが、「picktype-(名前).
-#      prf」の内容のほうが「picktype.prf」より優先されます。
-#      (「picktype.prf」「picktype-(名前).prf」合わせて)最大1009個まで
-#      登録できます。頭が#の行や空行は無視されます。
+#      When there are both files, the game will read the file
+#      "pickpref-<<current character name>>.prf" first and then read
+#      the file "pickpref.prf".  The first-read file takes priority.
 #
-#      以下は実際のpicktype.prfの内容の例です。
-#    ---------
-#    賞金首のアイテム
-#    !無価値のアイテム
+#      Notes:
+#      Maximum number of active lines is 1009.
+#      A line with a header '#' is a comment.
 #
-#    未判明の薬
-#    未判明の巻物
-#    未判明の指輪
-#    未判明のアミュレット
-#    未判明のロッド
-#    未判明の杖
-#    未判明の魔法棒
 #
-#    ~未鑑定の光源
-#
-#    未鑑定のダイス目の違う武器
-#    未鑑定のダイス目25以上の武器
-#    ~未鑑定の武器
-#    ~未鑑定の防具
-#
-#    獲得
-#    経験の薬
-#    増強の薬
-#    *破壊*
-#    抹殺
-#    体力回復
-#    生命の薬
-#    スピードの
-#    致命傷の治癒の薬
-#
-#    ---------
-#    
-#      基本的に、名前の一部にファイルに書いた文字列が含まれていれば、
-#      そのアイテムを自動的に拾います。ただし頭に…、
-#
-#      ・「!」がついている場合はそのアイテムを自動的に破壊します。
-#      ・「~」がついている場合は拾いも破壊もせずに床に残します。
-#      ・「;」がついている場合は拾う前に確認メッセージが出ます。
-#
-#      さらに、これらに加えて、「(」を付け加える事でマップコマンド中で
-#      のそのアイテムの表示を抑止する事ができます。(以下のTipsを参照し
-#      てください。)
-#
-#      (注意! always_pickup オプションが有効の時は !と書いたアイテムで
-#      も拾います。)
-#
-#      picktype.prf の先頭から順番に優先的に評価するので、不要なものの
-#      破壊の設定の下にその他のアイテムを拾う設定を書いたり、高級なア
-#      イテムを拾う設定の下にその他の低質なアイテムを破壊する設定を書
-#      くのが便利な方法です。
-#    
-#      ☆ Tips
-#      ☆ マップコマンド('M'キー)の使用中にさらに 'M','N','K'や'D'を押
-#      ☆ すことで、それぞれ自動的に拾うアイテム、床に放置するアイテム、
-#      ☆ 破壊するアイテムを表示する事が出来ます。'D'は'M'と'N'を両方
-#      ☆ 押すのと同じです。ただし、アイテム名の先頭に'('を付けて登録
-#      ☆ したものは表示しません。
-#      ☆
-#    
-#      以下のようなキーワードで始まるものは特別扱いになります。
-#      ・すべての〜        : すべてのアイテムが対象になります。
-#      ・収集中の〜        : 既に同じ種類の物を持っているアイテムが対象になります。
-#      ・未判明の〜        : 効果の分からないアイテムが対象になります。
-#      ・未鑑定の〜        : 鑑定されていないアイテムが対象になります。
-#      ・鑑定済みの〜      : 鑑定されているアイテムが対象になります。
-#      ・*鑑定*済みの〜    : *鑑定*されているアイテムが対象になります。
-#      ・ダイス目の違う〜  : 殺戮の武器等でダイスの目が通常と異なるアイテムが対象になります。
-#      ・ダイス目n以上の〜 : ダイス数×面数が n 以上のアイテムが対象になります。
-#      ・修正値n以上の〜   : 能力修正値が(+n)以上のアイテムが対象になります。
-#                            能力修正が無い場合は他の数値が+n以上なら対象になります。
-#      ・無価値の〜        : 価値のない(売却できない)アイテムが対象になります。
-#      ・アーティファクト〜: 判明しているアーティファクトが対象になります。
-#      ・エゴ〜            : 判明しているエゴ装備が対象になります。
-#      ・上質の〜          : {上質}の装備が対象になります。
-#      ・無銘の〜          : 非エゴ, 非アーティファクトの装備が対象になります。
-#      ・並の〜            : {並}の装備が対象になります。
-#      ・レアな〜          : ドラゴン防具等の珍しいベースアイテムの装備が対象になります。
-#      ・ありふれた〜      : ドラゴン防具等以外の普通のベースアイテムの装備が対象になります。
-#      ・賞金首の〜        : 賞金首の死体または骨が対象になります。
-#      ・ユニーク・モンスターの〜： ユニーク・モンスターの死体、骨、彫像が対象になります。
-#      ・人間の〜          : 人間の死体または骨が対象になります。(悪魔魔法で使用)
-#      ・読めない〜        : 専門としない魔法領域の魔法書が対象になります。
-#      ・第一領域の〜      : 第一領域の魔法書が対象になります。
-#      ・第二領域の〜      : 第二領域の魔法書が対象になります。
-#      ・n冊目の           : nが1から4のとき、n冊目の魔法書が対象になります。
-#    
-#      〜の部分では、アイテムの種類を表す以下のようなキーワードが特別扱いになります
-#      ・アイテム          : すべてのアイテムが対象になります。
-#      ・武器              : 武器が対象になります。
-#      ・防具              : 防具が対象になります。
-#      ・矢                : 矢、クロスボウの矢、石、弾が対象になります。
-#      ・光源              : たいまつやランタン等が対象になります。
-#      ・魔法アイテム      : 巻物・杖・魔法棒・ロッドが対象になります。
-#      ・がらくた          : 折れた棒や像等の役に立たないものが対象になります。
-#      ・死体や骨          : モンスターの死体や骨が対象になります。
-#      ・魔法書            : 魔法書、武芸の書、歌集が対象になります。
-#      ・得意武器          : プリースト、修行僧、魔獣使い、練気術師、騎兵、忍者にとって、
-#                            特別に扱いやすい種類の武器が対象になります。
-#
-#      他に部位別の装備品を対象とするキーワード: 盾、弓、指輪、アミュ
-#      レット、鎧、クローク、兜、籠手、靴 が使用できます。
-#    
-#      この後に区切り記号のコロン「:」を挟んでさらに文字列が続く場合は、
-#      その文字列が名前の一部に含まれているアイテムが対象になります。
-#      ここで、アイテムの種類を表すキーワード(アイテム、武器、防具等)
-#      を使用しない場合は区切り記号は省略できます。また、文字列の頭に
-#      記号「^」を入れるとそれはアイテム名の先頭部分に一致します。
-#
+#    Editing the file
 #    ---------
 #
-#    光源:石	 // 名前に"石"を含む光源を拾う。「光源石」 は使用不可。
-#    籠手:腕力の // 腕力のガントレットを拾うが、腕力の指輪は拾わない。
-#    !ローブ	 // 名前に"ローブ"を含むもの(ローブ、グローブ等)を破壊。
-#    !^ローブ	 // グローブは破壊しない。
-#    !防具:^耐	 // 耐火、耐冷、耐電、耐酸の防具を破壊。全耐性は破壊しない。
+#    Command letter:
+#           Each line determines the actions taken when you step over
+#      a kind of object.  Starting a line with '!' indicates that you
+#      wish to destroy this kind of object.  Starting a line with '~'
+#      indicates that you wish to leave this kind of object on the
+#      floor.  Starting a line with ';' indicates that you wish to
+#      force the game to ask you if you want to pick the item up or
+#      not.  Otherwise, your character will automatically attempt to
+#      pick up the object.
+#           There is an additional command letter '('.  It indicates that 
+#      you don't wish this item to be displayed in full map. see below.
 #
-#    ---------
+#      Notes:
+#      If you want to disable the effect of the '!' indicator temporally, 
+#      use 'always_pickup' option.
 #
-#      また、行の最後に # で始まる文字列を書くと、鑑定したりアイテムの
-#      上に立った瞬間に自動的にその文字列がアイテムに刻まれます。
+#
+#    Keywords:
+#           After the command letter may come one or more keywords.  They are:
+#
+#      all               : All items match.
+#      collecting        : Matches if you already have that same item.
+#      unaware           : Items with unknown effects match.
+#      unidentified      : Unidentified items match.
+#      identified        : Identified items match.
+#      *identified*      : *Identified* items match.
+#      dice boosted      : Weapons with boosted damage dice match.
+#      more than N dice  : Weapons with dice (dd * ds) better than +N match.
+#      more bonus than N : Items which has more magical bonus than (+N) match.
+#      worthless         : Items which you cannot sell match.
+#      artifacts         : Artifact items match.
+#      ego               : Ego items match.
+#      good              : {good} items match.
+#      nameless          : Non ego/non artifact items match.
+#      average           : {average} items match.
+#      rare              : Rare equipment such as Dragon armors etc. match.
+#      common            : Any equipments except 'rare' equipment match.
+#      wanted            : Wanted monster's corpses or skeletons match.
+#      unique monster's  : Unique monster's corpses, skeletons or statues match.
+#      human             : Human corpses or skeletons match.
+#      unreadable        : Spellbooks other than those you can read match.
+#      first realm's     : Your first magic realm's spellbooks match.
+#      second realm's    : Your second magic realm's spellbooks match.
+#      first             : First one of four spellbooks in each realm match.
+#      second            : Second one of four spellbooks in each realm match.
+#      third             : Third one of four spellbooks in each realm match.
+#      fourth            : Fourth one of four spellbooks in each realm match.
+#
+#      items             : All items match. Use it with an adjective for 
+#                          readability (i.e. "unaware items").
+#      weapons           : All weapons including missile weapons match.
+#      armors            : All armors match.
+#      missiles          : Arrows, bolts, and shots match.
+#      magical devices   : Wands, staffs, rods and scrolls match.
+#      lights            : Light sources match.
+#      junks             : Junk items like Shard of Pottery or etc. match.
+#      corpses or skeletons : Corpses or skeletons of monsters match.
+#      spellbooks        : All books match.
+#      favorite weapons  : Weapons suitable for your class (for Priest, Monk,
+#                          BeastMaster, ForceTrainer, Cavalry, and Ninja)
+#
+#      You may also use keywords which match specified kinds of equipment:
+#      weapons, armors, missiles, magical devices, lights, junks, spellbooks, 
+#      hafted weapons, shields, bows, rings, amulets, suits, cloaks, helms, 
+#      gloves, boots
 #
 #
-#      各行の書式は次のようになります。
+#    Character strings:
+#           After the keywords, you may write a character string. Only items 
+#      whose name contains this character string as part of their name match. 
+#      Upper or lower case makes no difference.
+#           You must insert a ':' between your special keywords and character 
+#      string, if both exist in one line.
 #
-#         [! ~ ; (]
-#         [[すべての] [収集中の]
-#          [未判明の] [未鑑定の] [鑑定済みの] [*鑑定*済みの]
-#          [アーティファクト] [エゴ] [上質の] [無銘の] [並の] 
-#          [無価値の] [レアな] [ありふれた]
-#          [ダイス目の違う] [ダイス目n以上の] [修正値n以上の]
-#          [賞金首の] [ユニーク・モンスターの] [人間の]
-#          [読めない] [第一領域の] [第二領域の] [n冊目の]
-#          [アイテム|アーティファクト|武器|得意武器|防具|矢|魔法アイテム|
-#           がらくた|死体や骨|魔法書|鈍器|盾|弓|指輪|アミュレット|光源|鎧|
-#           クローク|兜|籠手|靴] :]
-#         [[^]その他の文字列] [#自動刻み文字列]
+#    Force start-of-line matching:
+#      If the first character in a character string is '^', then the 
+#      character string must match the beginning of a line.
+#
+#    !Mace           // Destroy Maces and Lead-Filled Maces.
+#    !^Mace          // Destroy only Maces.
+#
+#
+#    Examples:
+#
+#    !worthless items
+#    Meaning:  "destroy all items that are worthless"
+#
+#    unaware potion
+#    Meaning:  "pick up all unaware potions"
+#
+#    ~unidentified lites
+#    Meaning:  "leave all unidentified light sources on the ground"
+#
+#    unidentified more than 25 dice weapons
+#    Meaning:  "pick up all weapons with dice that total more than 25.  A 
+#         weapon that is 2d13 qualifies, a weapon that is 5d5 does not."
+#
+#    Acquirement
+#    Meaning:  "pick up anything that includes in its name the word 
+#    'Acquirement'"
+#
+#    potion of Experience
+#    Meaning:  "pick up anything named 'potion of experience'"
+#
+#    Lights:stone
+#    Meaning:  "Pick up light sources named stone"
+#
+#    gloves:slaying
+#    Meaning:  "Pick up gauntlets of slaying. Not rings of slaying."
+#
+#
+#    Special Notes:
 #    
-#      ☆ Tips
-#      ☆   未鑑定の や ダイス目の違う 等のキーワードは一行に並べて書く
-#      ☆   事で両方の制限を適用させる事が出来ます。
-#      ☆   現在のバージョンではキーワードの順番も自由です。
-#      ☆ 
+#      Lines will be evaluated in order, and first matched line will be 
+#      applied. So you can write names of specific excellent items to pick 
+#      up, followed by a general item name with '!' to destroy useless items.
+#    
+#      ! Tips
+#      !     In full map command ('M'), you can press M, N, K, or D to 
+#      ! display locations of items for auto-pickup, leaving, auto-destroy 
+#      ! or both auto-pickup and leaving.
+#      !     Additional command letter '(' prevents this display.
+#      !
+#
+#      If you begin the last string in a line with '#', this string will
+#      be automatically inscribed on the item.
+#
+#
+#      Strict syntax of each line is below.
+#      
+#      [! ~ ; (]
+#      [[all] [collecting]
+#       [unaware] [unidentified] [identified] [*identified*] 
+#       [artifact] [ego] [good] [nameless] [average]
+#       [worthless] [rare] [common]
+#       [dice boosted] [more than N dice] [more bonus than N] 
+#       [wanted] [unique monster's] [human] [unreadable] 
+#       [first realm's] [second realm's] [first] [second] [third] [fourth] 
+#       [items | weapons | favorite weapons | armors | missiles |
+#        magical devices | lights | junks | corpses or skeletons | spellbooks |
+#        hafted weapons | shields | bows | rings | amulets | suits | cloaks |
+#        helms | gloves | boots] :]
+#      [[^]part-of-item-name] [#auto-inscription-string]
 #    
 #    
-#    ● 条件分岐の使い方
+#    =======  How to use Conditional Expressions  ========
 #    
-#      自動拾いの設定は種族や職業、レベル等に条件を付けて設定すること
-#      が出来ます。
+#      The lines of pickpref.prf can be disabled/enabled using 
+#      conditional expressions. 
+#      The syntax is the same as that of other preference files.
 #    
-#      ☆ Tips
-#      ☆   マクロ定義のファイル(プレイヤー名.prf 等)でも全く同じ書式で
-#      ☆   条件分岐を使う事が出来ます。
-#      ☆
+#      - usage of condition expressions
+#        ?:expr
+#          If result of expr is "0", all lines below are disabled.
+#          If result of expr is "1", all lines below are enabled.
+#          Caution:It cannot be nested.
 #    
-#      ・条件分岐の書式
-#        ?:引数
-#          引数が"0"なら以降の自動拾い／破壊の登録をスキップする。
-#          引数が"1"なら以降の登録を行う。 引数が"0"以外は全て"1"と見なす。
-#        (注意!)条件分岐を入れ子にすることは出来ません。
+#      - usage to include other file
+#        %:filename
+#          Read a file named 'filename' as a new pick-pref file. The file 
+#          must be in the user directory.
 #    
-#      ・ファイルの挿入の書式
-#        %:ファイル名
-#          lib\user\ファイル名 か ~/.angband/Hengband/ファイル名 を自
-#          動拾いの登録ファイルとして読み込みます。
+#      - usage of operators
+#        [EQU arg1 arg2 ...]
+#          If all args are the same as arg1, returns "1", or else returns "0".
+#        [IOR arg1 arg2 ...]
+#        [AND arg1 arg2 ...]
+#          IOR evaluates and returns all args' logical OR. AND is logical AND.
+#        [NOT arg]
+#          Returns "0" if arg is "1", or else returns "1"
+#        [LEQ arg1 arg2 ...]
+#        [GEQ arg1 arg2 ...]
+#          Compare args as string. LEQ returns "1" if (arg1 <= arg2 <= ...) ,
+#          GEQ returns "1" if (arg1 >= arg2 >= ...) otherwise returns "0".
 #    
-#      ・使用可能な演算子
-#        [EQU 引数１ 引数２ ...]
-#          引数１と他のどれかの引数が等しいと"1"、どれも等しくないと"0"を返す。
-#        [IOR 引数１ 引数２ ...]
-#        [AND 引数１ 引数２ ...]
-#          IORは引数の論理和、ANDは引数の論理積をとって真なら"1"、偽なら"0"を返す。
-#        [NOT 引数]
-#          引数が"1"なら"0"、"0"なら"1"を返す。
-#        [LEQ 引数１ 引数２ ...]
-#        [GEQ 引数１ 引数２ ...]
-#          LEQは引数の大きさを「文字列として比較」して
-#          引数１≦引数２≦...のとき"1"を返す。
-#          GEQは引数１≧引数２≧...のとき"1"を返す。
-#    
-#      ・変数説明
+#      - Special variables
 #        $RACE
-#          種族を英語名で返す。
+#         Returns name of player race. One of below:
 #          Human, Half-Elf, Elf, Hobbit, Gnome, Dwarf, Half-Orc,
 #          Half-Troll, Amberite, High-Elf, Barbarian, Half-Ogre,
 #          Half-Giant, Half-Titan, Cyclops, Yeek, Klackon, Kobold,
 #          Nibelung, Dark-Elf, Draconian, Mindflayer, Imp, Golem,
 #          Skeleton, Zombie, Vampire, Spectre, Sprite, Beastman, Ent,
 #          Archon, Balrog, Dunadan, Shadow-Fairy, Kutar, Android,
-#          のどれか
+#
 #        $CLASS
-#          職業を英語名で返す。
+#         Returns name of player class. One of below:
 #          Warrior, Mage, Priest, Rogue, Ranger, Paladin,
 #          Warrior-Mage, Chaos-Warrior, Monk, Mindcrafter, High-Mage,
 #          Tourist, Imitator, BeastMaster, Sorcerer, Archer,
 #          Magic-Eater, Bard, Red-Mage, Samurai, ForceTrainer,
 #          Blue-Mage, Cavalry, Berserker, Weaponsmith, Mirror-Master,
 #          Ninja, Sniper
-#          のどれか
+#
 #        $PLAYER
-#          プレイヤーの名前を返す。ただし、' '(スペース)、'['、']'は
-#          prefの制約でそのまま使えないため、'_'に置き換えて返す。
-#          例: 名前が"[ Temp ]"ならば、$PLAYERは"__Temp__"を返す。
+#         Returns player name.
 #        $REALM1
-#          第１魔法領域を英語名で返す。
+#         Returns player's first magic realm
 #          none, Life, Sorcery, Nature, Chaos, Death, Trump, Arcane,
 #          Craft, Daemon, Crusade, Music, Kendo, Hex
-#          のどれか。魔法書を使えない場合は none になる。
 #        $REALM2
-#          第２魔法領域を英語名で返す。第２領域を使えない場合は none になる。
+#         Returns player's second magic realm
 #        $LEVEL
-#          プレイヤーのレベルを２桁の文字列で返す。
-#          "01","09","10","50" 等
+#         Returns player level as two-character string.
+#          Ex. "01","09","10","50" etc.
 #        $MONEY
-#          プレイヤーの所持金を９桁の文字列で返す。
-#          "000012345" 等
+#         Returns player money as 9 character string.
+#         Ex. "000012345" etc.
 #
 #------------------------------------------------------------------
 #
-#    これ以下は具体的に使用可能な設定例です。
-#    このファイルをpicktype.prfという名前でlib\user\ か 
-#    ~/.angband/Hengband/ にコピーすれば自動拾いファイルとして
-#    使用することができます。
+#    Below is an example 'pickpref.prf' file.
+#    You can copy this file to lib\user\ or ~/.angband/Hengband/.
+#    (UNIX user must copy to ~/.angband/Hengband/. Others must copy 
+#    to  lib\user\ .)
 #
 #------------------------------------------------------------------
 
-#
-# 基本的な設定
-#
+wanted corpse
+wanted Skeleton
 
-賞金首の死体
-賞金首の骨
-
-# 狂戦士は使用できない巻物、杖、魔法棒、ロッドを全て破壊する。
+# Berserker cannot use magical devices; rods, wands, and scrolls.
 ?:[EQU $CLASS Berserker]
-!魔法アイテム
+!magical devices
 ?:1
 
-未判明のアイテム
+unaware items
 
-# 未鑑定名が、玻璃瓶、石、白熱灯、星、宝石 の光源は
-# アーティファクトなので拾う。
-未鑑定の光源:宝石#!!
-未鑑定の光源:石
-未鑑定の光源:星#!!
-未鑑定の光源:白熱灯
-未鑑定の光源:玻璃瓶#!!
+#Artifact lights
+unidentified lights:^Jewel#!!
+unidentified lights:^levitation stone#!!
+unidentified lights:^Palantir#!!
+unidentified lights:^stone#@A0
+unidentified lights:^star#!!
+unidentified lights:^Incandescent Light
+unidentified lights:^Phial#!!
 
-# アーティファクトを*鑑定*した瞬間に耐性自動刻み'%'をする。
-~*鑑定*済みのアーティファクト#%
-
-# 既に持っている種類の薬、巻物、ロッド等は重ねられるので全て拾う。
-
-収集中の薬
-収集中の巻物
-収集中のロッド
-収集中の矢
-(収集中のアイテム
-
-# よく拾う物
-鑑定のロッド#!k!!
-全感知のロッド#@z0!k!!
-スピードのロッド#!k!!
-
-無敵の薬#!k
-獲得#!k
-経験の薬#!k
-増強の薬#!k
-*破壊*
-抹殺
-
-腕力の薬#!k
-賢さの薬#!k
-器用さの薬#!k
-耐久力の薬#!k
-知能の薬#!k
-魅力の薬#!k
-
-生命の薬#!k
-体力回復#!k
+# auto inscribe resistances (see lib/help/objects.txt#Inscriptions)
+~*identified* artifacts#%all
 
 #
-# 魔道具術士は吸収できるものをすべて拾う。
-# アーチャーは矢の材料を拾う。
-# 忍者は暗闇の光源を破壊しない。
-# 吸血鬼は暗闇を作るアイテムを破壊しない。
+# pick all items which can stack your inventory without inscription.
+#
+collecting rod
+collecting potion
+collecting scroll
+collecting missiles
+(collecting items
+
+#
+# good items
+#
+~rod of Perception#@z0!k!!
+~rod of speed#!k!!
+~rod of Healing#!k!!
+~rod of Enlightenment#k!!
+~rod of Detection#!k!!
+
+potion of Invulnerability#!k
+Acquirement#!k
+potion of Experience
+potion of Augmentation
+*Destruction*
+Genocide
+
+potion of strength
+potion of wisdom
+potion of dexterity
+potion of constitution
+potion of intelligence
+potion of Charisma
+
+potion of life#!k
+healing#!k
+
+#
+# Magic-Eaters pick up all magical device to absorb.
+# Skeletons is material of missiles for Archers.
+# Ninja needs lights of darkness.
+# Vampire needs darkness.
 # 
 ?:[EQU $CLASS Magic-Eater]
-のロッド
-の杖
-の魔法棒
+rod of 
+staff of 
+wand of 
 ?:[EQU $CLASS Archer]
-の骨
+worthless skeleton
 ?:[EQU $CLASS Ninja]
-~光源:暗闇の
-鉄のくさび#@v0
+~lights:darkness
+Iron Spike#@v0
 ?:[EQU $RACE Vampire]
-(~暗闇の巻物
-(~暗闇の杖
+(~scroll of darkness
+(~staff of darkness
 ?:1
 
-# レベルが10以上なら破壊する例
-#   レベルが10以上に上がった直後から有効です。
-#   条件のレベルを変更した場合は'$'コマンドで読み込むかゲームを再開すると
-#   ちゃんと読み込まれます。
-#
+# Destroy unless very early stage.
 ?:[GEQ $LEVEL 10]
-(!リンゴジュースの薬
-(!空のビン
-(!水の薬
+(!amulet of Adornment
+(!potion of Apple Juice
+(!Empty Bottle
+(!potion of water
 ?:1
 
-# レベルが20以下なら自動破壊禁止で床に放置する例
-# '('を指定する事で、マップ'M'コマンドで表示しないように指示します。
+# These worthless potions have some use at very early stage.
+# Command letter '(' means, 'Don't display its location in full map command.'
 ?:[LEQ $LEVEL 20]
-(~のろまの薬
-(~眠りの薬
+(~potion of booze
+(~potion of Slowness
+(~potion of Sleep
 ?:1
 
-# 複雑な例（誰も使わないでしょう。このままコピーする場合以外は…）
+# complex example; destroy needless food items.
 ?:[AND [GEQ $LEVEL 20] [IOR [EQU $REALM1 Life Nature Craft] [EQU $REALM2 Life Nature Craft]]]
-(!食料
-(!スライムモルド
-(!エルフの行糧
+(!food
+(!Slime Mold
+(!of Elvish Waybread
 ?:1
 
 
 #
-# 高レベルで弱い装備品を全て壊す例。「無銘の〜」の使用には細心の注意が必要。
-# 何もしないとドラゴン装備等も壊すので放置のコマンド文字'~'で守る必要があります。
+# Destroy useless equipment at high level.
 #
+# Beware!!!!
+#    The line '!nameless armors' destroy all dragon armour!
+#    '~identified armors:dragon' will prevent this dangerous behavior.
+#
+
 ?:[GEQ $LEVEL 40]
-~無銘の防具:ドラゴン
-~無銘の防具:エルフのクローク
-~無銘の防具:影のクローク
-~無銘の防具:ミラー・シールド
-~無銘の武器:ダイヤモンド・エッジ
-~無銘の武器:粉砕のメイス
-(!無銘の武器
-(!無銘の防具
+~identified armors:dragon
+~nameless armors:Elven Cloak
+~nameless armors:Shadow Cloak
+~nameless weapons:Diamond Edge
+~nameless weapons:Mace of Disruption
+~nameless weapons:Shield of Deflection
+!nameless weapons
+!nameless armors
 
 ?:[GEQ $LEVEL 20]
-(!無銘の武器:(+0,+0)
-(!無銘の防具:,+0]
+!nameless weapons:) (+0,+0)
+!nameless armors:,+0]
 ?:1
 
-#
-#自分の魔法領域の魔法書に適切な自動刻みをする例。
-#上級魔法書と下級魔法書の中間の優先順位に挿入する例として、
-#未鑑定の武器、防具、矢を床に放置する設定を入れてあります。
-#
+# higher rank of your spellbooks
+first realm's fourth Book of Kendo#!k
+first realm's third Book of Kendo#!k
+first realm's fourth spellbooks#@md!k
+first realm's third spellbooks#@mc!k
+second realm's fourth spellbooks#@mh!k
+second realm's third spellbooks#@mg!k
 
-#
-#  上級魔法書
-#
-第一領域の4冊目の武芸の書#!k
-第一領域の3冊目の武芸の書#!k
-第一領域の4冊目の魔法書#@md!k
-第一領域の3冊目の魔法書#@mc!k
-第二領域の4冊目の魔法書#@mh!k
-第二領域の3冊目の魔法書#@mg!k
+# unidentified equipment
+unidentified dice boosted weapons
+unidentified more than 25 dice weapons
+unidentified weapons
+unidentified armors
+~unidentified missiles
 
-# ここに上級魔法書よりは優先順位が低くて
-# 下級よりは高くしたいものを書く。
-# 例えば、
-未鑑定のダイス目の違う武器
-~未鑑定の武器
-~未鑑定の防具
-~未鑑定の矢
+# lower rank of your spellbooks
+collecting spellbooks
+~first realm's second spellbooks#@mb!k
+~first realm's first spellbooks#@ma!k
+~second realm's second spellbooks#@mf!k
+~second realm's first spellbooks#@me!k
 
-#
-#  下級魔法書
-#
-# 職業と領域によってはわざと特定の魔法書を持たない事があるので、
-# 既に持っていなければ放置。
+# other spellbooks
 
-収集中の魔法書
-~第一領域の2冊目の魔法書#@mb!k
-~第一領域の1冊目の魔法書#@ma!k
-~第二領域の2冊目の魔法書#@mf!k
-~第二領域の1冊目の魔法書#@me!k
-
-
-# その他の魔法書
-
-# 専門外の下級魔法書はレベル30以上なら全て自動破壊する。
 ?:[GEQ $LEVEL 30]
-(!読めない1冊目の魔法書
-(!読めない2冊目の魔法書
-(!読めない3冊目の秘術の魔法書
-(!読めない4冊目の秘術の魔法書
+(!unreadable first spellbooks
+(!unreadable second spellbooks
+(!unreadable third spellbooks:arcane
+(!unreadable fourth spellbooks:arcane
 ?:1
 
-# 戦士と狂戦士は上級魔法書を手動で破壊すると経験値になるので、拾う。
+# pick up for experience
 ?:[EQU $CLASS Warrior Berserker]
-(~読めない4冊目の秘術の魔法書
-読めない4冊目の魔法書
-(~読めない3冊目の秘術の魔法書
-読めない3冊目の魔法書
+(~unreadable fourth spellbooks:arcane
+unreadable fourth spellbooks
+(~unreadable third spellbooks:arcane
+unreadable third spellbooks
 ?:1
-
-# 破邪パラディンは生命と破邪以外の魔法書を手動で破壊すると経験値になる。
-# 経験値にならない生命の上級魔法書は高く売れるが高レベルでは放置する。
 ?:[AND [EQU $CLASS Paladin] [EQU $REALM1 Crusade] [GEQ $LEVEL 30]]
-(~読めない4冊目の生命の魔法書
-(~読めない3冊目の生命の魔法書
+(~unreadable fourth spellbooks:life
+(~unreadable third spellbooks:life
 ?:[AND [EQU $CLASS Paladin] [EQU $REALM1 Crusade]]
-(~読めない4冊目の秘術の魔法書
-読めない4冊目の魔法書
-(~読めない3冊目の秘術の魔法書
-読めない3冊目の魔法書
+(~unreadable fourth spellbooks:arcane
+unreadable fourth spellbooks
+(~unreadable third spellbooks:arcane
+unreadable third spellbooks
 ?:1
-
-# 暗黒パラディンは生命と破邪の魔法書を手動で破壊すると経験値になる。
 ?:[AND [EQU $CLASS Paladin] [EQU $REALM1 Death]]
-読めない4冊目の生命の魔法書
-読めない4冊目の破邪の魔法書
-読めない3冊目の生命の魔法書
-読めない3冊目の破邪の魔法書
+unreadable fourth spellbooks:life
+unreadable fourth spellbooks:crusade
+unreadable third spellbooks:life
+unreadable third spellbooks:crusade
 ?:1
 
-# その他の場合も上級魔法書は高く売れるので低レベルでは拾う。
+# pick up for money
 ?:[LEQ $LEVEL 29]
-(~読めない4冊目の秘術の魔法書
-読めない4冊目の魔法書
-(~読めない3冊目の秘術の魔法書
-読めない3冊目の魔法書
+(~unreadable third spellbooks:arcane
+(~unreadable fourth spellbooks:arcane
+unreadable fourth spellbooks
+unreadable third spellbooks
 ?:1
-
 

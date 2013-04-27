@@ -11,7 +11,7 @@
 /* Purpose: Interface commands */
 
 #include "angband.h"
-
+#include "equip.h"
 
 
 /*
@@ -332,7 +332,6 @@ static void close_auto_dump(void)
 }
 
 
-#ifndef JP
 /*
  * Return suffix of ordinal number
  */
@@ -350,800 +349,6 @@ cptr get_ordinal_number_suffix(int num)
 	default:
 		return "th";
 	}
-}
-#endif
-
-
-/*
- *   Take note to the diary.
- */
-errr do_cmd_write_nikki(int type, int num, cptr note)
-{
-	int day, hour, min;
-	FILE *fff = NULL;
-	char file_name[80];
-	char buf[1024];
-	cptr note_level = "";
-	bool do_level = TRUE;
-	char note_level_buf[40];
-	int q_idx;
-
-	static bool disable_nikki = FALSE;
-
-	extract_day_hour_min(&day, &hour, &min);
-
-	if (disable_nikki) return(-1);
-
-	if (type == NIKKI_FIX_QUEST_C ||
-	    type == NIKKI_FIX_QUEST_F ||
-	    type == NIKKI_RAND_QUEST_C ||
-	    type == NIKKI_RAND_QUEST_F ||
-	    type == NIKKI_TO_QUEST)
-	{
-		int old_quest;
-
-		old_quest = p_ptr->inside_quest;
-		p_ptr->inside_quest = (quest[num].type == QUEST_TYPE_RANDOM) ? 0 : num;
-
-		/* Get the quest text */
-		init_flags = INIT_ASSIGN;
-
-		process_dungeon_file("q_info.txt", 0, 0, 0, 0);
-
-		/* Reset the old quest number */
-		p_ptr->inside_quest = old_quest;
-	}
-
-#ifdef JP
-	sprintf(file_name,"playrecord-%s.txt",savefile_base);
-#else
-	/* different filne name to avoid mixing */
-	sprintf(file_name,"playrec-%s.txt",savefile_base);
-#endif
-
-	/* Build the filename */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, file_name);
-
-	/* File type is "TEXT" */
-	FILE_TYPE(FILE_TYPE_TEXT);
-
-	fff = my_fopen(buf, "a");
-
-	/* Failure */
-	if (!fff)
-	{
-#ifdef JP
-		msg_format("%s を開くことができませんでした。プレイ記録を一時停止します。", buf);
-#else
-		msg_format("Failed to open %s. Play-Record is disabled temporally.", buf);
-#endif
-		msg_format(NULL);
-		disable_nikki=TRUE;
-		return (-1);
-	}
-
-	q_idx = quest_number(dun_level);
-
-	if (write_level)
-	{
-		if (p_ptr->inside_arena)
-#ifdef JP
-			note_level = "アリーナ:";
-#else
-			note_level = "Arena:";
-#endif
-		else if (!dun_level)
-#ifdef JP
-			note_level = "地上:";
-#else
-			note_level = "Surface:";
-#endif
-		else if (q_idx && (is_fixed_quest_idx(q_idx)
-		         && !((q_idx == QUEST_OBERON) || (q_idx == QUEST_SERPENT))))
-#ifdef JP
-			note_level = "クエスト:";
-#else
-			note_level = "Quest:";
-#endif
-		else
-		{
-#ifdef JP
-			sprintf(note_level_buf, "%d階(%s):", dun_level, d_name+d_info[dungeon_type].name);
-#else
-			sprintf(note_level_buf, "%s L%d:", d_name+d_info[dungeon_type].name, dun_level);
-#endif
-			note_level = note_level_buf;
-		}
-	}
-
-	switch(type)
-	{
-		case NIKKI_HIGAWARI:
-		{
-#ifdef JP
-			if (day < MAX_DAYS) fprintf(fff, "%d日目\n", day);
-			else fputs("*****日目\n", fff);
-#else
-			if (day < MAX_DAYS) fprintf(fff, "Day %d\n", day);
-			else fputs("Day *****\n", fff);
-#endif
-			do_level = FALSE;
-			break;
-		}
-		case NIKKI_BUNSHOU:
-		{
-			if (num)
-			{
-				fprintf(fff, "%s\n",note);
-				do_level = FALSE;
-			}
-			else
-				fprintf(fff, " %2d:%02d %20s %s\n",hour, min, note_level, note);
-			break;
-		}
-		case NIKKI_ART:
-		{
-#ifdef JP
-			fprintf(fff, " %2d:%02d %20s %sを発見した。\n", hour, min, note_level, note);
-#else
-			fprintf(fff, " %2d:%02d %20s discovered %s.\n", hour, min, note_level, note);
-#endif
-			break;
-		}
-		case NIKKI_UNIQUE:
-		{
-#ifdef JP
-			fprintf(fff, " %2d:%02d %20s %sを倒した。\n", hour, min, note_level, note);
-#else
-			fprintf(fff, " %2d:%02d %20s defeated %s.\n", hour, min, note_level, note);
-#endif
-			break;
-		}
-		case NIKKI_FIX_QUEST_C:
-		{
-			if (quest[num].flags & QUEST_FLAG_SILENT) break;
-#ifdef JP
-			fprintf(fff, " %2d:%02d %20s クエスト「%s」を達成した。\n", hour, min, note_level, quest[num].name);
-#else
-			fprintf(fff, " %2d:%02d %20s completed quest '%s'.\n", hour, min, note_level, quest[num].name);
-#endif
-			break;
-		}
-		case NIKKI_FIX_QUEST_F:
-		{
-			if (quest[num].flags & QUEST_FLAG_SILENT) break;
-#ifdef JP
-			fprintf(fff, " %2d:%02d %20s クエスト「%s」から命からがら逃げ帰った。\n", hour, min, note_level, quest[num].name);
-#else
-			fprintf(fff, " %2d:%02d %20s run away from quest '%s'.\n", hour, min, note_level, quest[num].name);
-#endif
-			break;
-		}
-		case NIKKI_RAND_QUEST_C:
-		{
-			char name[80];
-			strcpy(name, r_name+r_info[quest[num].r_idx].name);
-#ifdef JP
-			fprintf(fff, " %2d:%02d %20s ランダムクエスト(%s)を達成した。\n", hour, min, note_level, name);
-#else
-			fprintf(fff, " %2d:%02d %20s completed random quest '%s'\n", hour, min, note_level, name);
-#endif
-			break;
-		}
-		case NIKKI_RAND_QUEST_F:
-		{
-			char name[80];
-			strcpy(name, r_name+r_info[quest[num].r_idx].name);
-#ifdef JP
-			fprintf(fff, " %2d:%02d %20s ランダムクエスト(%s)から逃げ出した。\n", hour, min, note_level, name);
-#else
-			fprintf(fff, " %2d:%02d %20s ran away from quest '%s'.\n", hour, min, note_level, name);
-#endif
-			break;
-		}
-		case NIKKI_MAXDEAPTH:
-		{
-#ifdef JP
-			fprintf(fff, " %2d:%02d %20s %sの最深階%d階に到達した。\n", hour, min, note_level, d_name+d_info[dungeon_type].name, num);
-#else
-			fprintf(fff, " %2d:%02d %20s reached level %d of %s for the first time.\n", hour, min, note_level, num, d_name+d_info[dungeon_type].name);
-#endif
-			break;
-		}
-		case NIKKI_TRUMP:
-		{
-#ifdef JP
-			fprintf(fff, " %2d:%02d %20s %s%sの最深階を%d階にセットした。\n", hour, min, note_level, note, d_name + d_info[num].name, max_dlv[num]);
-#else
-			fprintf(fff, " %2d:%02d %20s reset recall level of %s to %d %s.\n", hour, min, note_level, d_name + d_info[num].name, max_dlv[num], note);
-#endif
-			break;
-		}
-		case NIKKI_STAIR:
-		{
-			cptr to;
-			if (q_idx && (is_fixed_quest_idx(q_idx)
-			     && !((q_idx == QUEST_OBERON) || (q_idx == QUEST_SERPENT))))
-			{
-#ifdef JP
-				to = "地上";
-#else
-				to = "the surface";
-#endif
-			}
-			else
-			{
-#ifdef JP
-				if (!(dun_level+num)) to = "地上";
-				else to = format("%d階", dun_level+num);
-#else
-				if (!(dun_level+num)) to = "the surface";
-				else to = format("level %d", dun_level+num);
-#endif
-			}
-
-#ifdef JP 
-			fprintf(fff, " %2d:%02d %20s %sへ%s。\n", hour, min, note_level, to, note);
-#else
-			fprintf(fff, " %2d:%02d %20s %s %s.\n", hour, min, note_level, note, to);
-#endif
-			break;
-		}
-		case NIKKI_RECALL:
-		{
-			if (!num)
-#ifdef JP
-				fprintf(fff, " %2d:%02d %20s 帰還を使って%sの%d階へ下りた。\n", hour, min, note_level, d_name+d_info[dungeon_type].name, max_dlv[dungeon_type]);
-#else
-				fprintf(fff, " %2d:%02d %20s recalled to dungeon level %d of %s.\n", hour, min, note_level, max_dlv[dungeon_type], d_name+d_info[dungeon_type].name);
-#endif
-			else
-#ifdef JP
-				fprintf(fff, " %2d:%02d %20s 帰還を使って地上へと戻った。\n", hour, min, note_level);
-#else
-				fprintf(fff, " %2d:%02d %20s recalled from dungeon to surface.\n", hour, min, note_level);
-#endif
-			break;
-		}
-		case NIKKI_TO_QUEST:
-		{
-			if (quest[num].flags & QUEST_FLAG_SILENT) break;
-#ifdef JP
-			fprintf(fff, " %2d:%02d %20s クエスト「%s」へと突入した。\n", hour, min, note_level, quest[num].name);
-#else
-			fprintf(fff, " %2d:%02d %20s entered the quest '%s'.\n", hour, min, note_level, quest[num].name);
-#endif
-			break;
-		}
-		case NIKKI_TELE_LEV:
-		{
-#ifdef JP
-			fprintf(fff, " %2d:%02d %20s レベル・テレポートで脱出した。\n", hour, min, note_level);
-#else
-			fprintf(fff, " %2d:%02d %20s Got out using teleport level.\n", hour, min, note_level);
-#endif
-			break;
-		}
-		case NIKKI_BUY:
-		{
-#ifdef JP
-			fprintf(fff, " %2d:%02d %20s %sを購入した。\n", hour, min, note_level, note);
-#else
-			fprintf(fff, " %2d:%02d %20s bought %s.\n", hour, min, note_level, note);
-#endif
-			break;
-		}
-		case NIKKI_SELL:
-		{
-#ifdef JP
-			fprintf(fff, " %2d:%02d %20s %sを売却した。\n", hour, min, note_level, note);
-#else
-			fprintf(fff, " %2d:%02d %20s sold %s.\n", hour, min, note_level, note);
-#endif
-			break;
-		}
-		case NIKKI_ARENA:
-		{
-			if (num < 0)
-			{
-#ifdef JP
-				fprintf(fff, " %2d:%02d %20s 闘技場の%d回戦で、%sの前に敗れ去った。\n", hour, min, note_level, -num, note);
-#else
-				int n = -num;
-				fprintf(fff, " %2d:%02d %20s beaten by %s in the %d%s fight.\n", hour, min, note_level, note, n, get_ordinal_number_suffix(n));
-#endif
-				break;
-			}
-#ifdef JP
-			fprintf(fff, " %2d:%02d %20s 闘技場の%d回戦(%s)に勝利した。\n", hour, min, note_level, num, note);
-#else
-			fprintf(fff, " %2d:%02d %20s won the %d%s fight (%s).\n", hour, min, note_level, num, get_ordinal_number_suffix(num), note);
-#endif
-			if (num == MAX_ARENA_MONS)
-			{
-#ifdef JP
-				fprintf(fff, "                 闘技場のすべての敵に勝利し、チャンピオンとなった。\n");
-#else
-				fprintf(fff, "                 won all fight to become a Chanpion.\n");
-#endif
-				do_level = FALSE;
-			}
-			break;
-		}
-		case NIKKI_HANMEI:
-		{
-#ifdef JP
-			fprintf(fff, " %2d:%02d %20s %sを識別した。\n", hour, min, note_level, note);
-#else
-			fprintf(fff, " %2d:%02d %20s identified %s.\n", hour, min, note_level, note);
-#endif
-			break;
-		}
-		case NIKKI_WIZ_TELE:
-		{
-			cptr to;
-			if (!dun_level)
-#ifdef JP
-				to = "地上";
-#else
-				to = "the surface";
-#endif
-			else
-#ifdef JP
-				to = format("%d階(%s)", dun_level, d_name+d_info[dungeon_type].name);
-#else
-				to = format("level %d of %s", dun_level, d_name+d_info[dungeon_type].name);
-#endif
-
-#ifdef JP
-			fprintf(fff, " %2d:%02d %20s %sへとウィザード・テレポートで移動した。\n", hour, min, note_level, to);
-#else
-			fprintf(fff, " %2d:%02d %20s wizard-teleport to %s.\n", hour, min, note_level, to);
-#endif
-			break;
-		}
-		case NIKKI_PAT_TELE:
-		{
-			cptr to;
-			if (!dun_level)
-#ifdef JP
-				to = "地上";
-#else
-				to = "the surface";
-#endif
-			else
-#ifdef JP
-				to = format("%d階(%s)", dun_level, d_name+d_info[dungeon_type].name);
-#else
-				to = format("level %d of %s", dun_level, d_name+d_info[dungeon_type].name);
-#endif
-
-#ifdef JP
-			fprintf(fff, " %2d:%02d %20s %sへとパターンの力で移動した。\n", hour, min, note_level, to);
-#else
-			fprintf(fff, " %2d:%02d %20s used Pattern to teleport to %s.\n", hour, min, note_level, to);
-#endif
-			break;
-		}
-		case NIKKI_LEVELUP:
-		{
-#ifdef JP
-			fprintf(fff, " %2d:%02d %20s レベルが%dに上がった。\n", hour, min, note_level, num);
-#else
-			fprintf(fff, " %2d:%02d %20s reached player level %d.\n", hour, min, note_level, num);
-#endif
-			break;
-		}
-		case NIKKI_GAMESTART:
-		{
-			time_t ct = time((time_t*)0);
-			do_level = FALSE;
-			if (num)
-			{
-				fprintf(fff, "%s %s",note, ctime(&ct));
-			}
-			else
-				fprintf(fff, " %2d:%02d %20s %s %s",hour, min, note_level, note, ctime(&ct));
-			break;
-		}
-		case NIKKI_NAMED_PET:
-		{
-			fprintf(fff, " %2d:%02d %20s ", hour, min, note_level);
-			switch (num)
-			{
-				case RECORD_NAMED_PET_NAME:
-#ifdef JP
-					fprintf(fff, "%sを旅の友にすることに決めた。\n", note);
-#else
-					fprintf(fff, "decided to travel together with %s.\n", note);
-#endif
-					break;
-				case RECORD_NAMED_PET_UNNAME:
-#ifdef JP
-					fprintf(fff, "%sの名前を消した。\n", note);
-#else
-					fprintf(fff, "unnamed %s.\n", note);
-#endif
-					break;
-				case RECORD_NAMED_PET_DISMISS:
-#ifdef JP
-					fprintf(fff, "%sを解放した。\n", note);
-#else
-					fprintf(fff, "dismissed %s.\n", note);
-#endif
-					break;
-				case RECORD_NAMED_PET_DEATH:
-#ifdef JP
-					fprintf(fff, "%sが死んでしまった。\n", note);
-#else
-					fprintf(fff, "%s died.\n", note);
-#endif
-					break;
-				case RECORD_NAMED_PET_MOVED:
-#ifdef JP
-					fprintf(fff, "%sをおいて別のマップへ移動した。\n", note);
-#else
-					fprintf(fff, "moved to another map leaving %s behind.\n", note);
-#endif
-					break;
-				case RECORD_NAMED_PET_LOST_SIGHT:
-#ifdef JP
-					fprintf(fff, "%sとはぐれてしまった。\n", note);
-#else
-					fprintf(fff, "lost sight of %s.\n", note);
-#endif
-					break;
-				case RECORD_NAMED_PET_DESTROY:
-#ifdef JP
-					fprintf(fff, "%sが*破壊*によって消え去った。\n", note);
-#else
-					fprintf(fff, "%s was made disappeared by *destruction*.\n", note);
-#endif
-					break;
-				case RECORD_NAMED_PET_EARTHQUAKE:
-#ifdef JP
-					fprintf(fff, "%sが岩石に押し潰された。\n", note);
-#else
-					fprintf(fff, "%s was crushed by falling rocks.\n", note);
-#endif
-					break;
-				case RECORD_NAMED_PET_GENOCIDE:
-#ifdef JP
-					fprintf(fff, "%sが抹殺によって消え去った。\n", note);
-#else
-					fprintf(fff, "%s was made disappeared by genocide.\n", note);
-#endif
-					break;
-				case RECORD_NAMED_PET_WIZ_ZAP:
-#ifdef JP
-					fprintf(fff, "%sがデバッグコマンドによって消え去った。\n", note);
-#else
-					fprintf(fff, "%s was removed by debug command.\n", note);
-#endif
-					break;
-				case RECORD_NAMED_PET_TELE_LEVEL:
-#ifdef JP
-					fprintf(fff, "%sがテレポート・レベルによって消え去った。\n", note);
-#else
-					fprintf(fff, "%s was made disappeared by teleport level.\n", note);
-#endif
-					break;
-				case RECORD_NAMED_PET_BLAST:
-#ifdef JP
-					fprintf(fff, "%sを爆破した。\n", note);
-#else
-					fprintf(fff, "blasted %s.\n", note);
-#endif
-					break;
-				case RECORD_NAMED_PET_HEAL_LEPER:
-#ifdef JP
-					fprintf(fff, "%sの病気が治り旅から外れた。\n", note);
-#else
-					fprintf(fff, "%s was healed and left.\n", note);
-#endif
-					break;
-				case RECORD_NAMED_PET_COMPACT:
-#ifdef JP
-					fprintf(fff, "%sがモンスター情報圧縮によって消え去った。\n", note);
-#else
-					fprintf(fff, "%s was made disappeared by compacting monsters.\n", note);
-#endif
-					break;
-				case RECORD_NAMED_PET_LOSE_PARENT:
-#ifdef JP
-					fprintf(fff, "%sの召喚者が既にいないため消え去った。\n", note);
-#else
-					fprintf(fff, "%s disappeared because there does not exist summoner.\n", note);
-#endif
-					break;
-				default:
-					fprintf(fff, "\n");
-					break;
-			}
-			break;
-		}
-		default:
-			break;
-	}
-
-	my_fclose(fff);
-
-	if (do_level) write_level = FALSE;
-
-	return (0);
-}
-
-
-#define MAX_SUBTITLE (sizeof(subtitle)/sizeof(subtitle[0]))
-
-static void do_cmd_disp_nikki(void)
-{
-	char nikki_title[256];
-	char file_name[80];
-	char buf[1024];
-	char tmp[80];
-#ifdef JP
-	static const char subtitle[][30] = {"最強の肉体を求めて",
-					   "人生それははかない",
-					   "明日に向かって",
-					   "棚からぼたもち",
-					   "あとの祭り",
-					   "それはいい考えだ",
-					   "何とでも言え",
-					   "兎にも角にも",
-					   "ウソだけど",
-					   "もはやこれまで",
-					   "なんでこうなるの",
-					   "それは無理だ",
-					   "倒すべき敵はゲ○ツ",
-					   "ん〜？聞こえんなぁ",
-					   "オレの名を言ってみろ",
-					   "頭が変になっちゃった",
-					   "互換しません",
-					   "せっかくだから",
-					   "まだまだ甘いね",
-					   "むごいむごすぎる",
-					   "こんなもんじゃない",
-					   "だめだこりゃ",
-					   "次いってみよう",
-					   "ちょっとだけよ",
-					   "哀しき冒険者",
-					   "野望の果て",
-					   "無限地獄",
-					   "神に喧嘩を売る者",
-					   "未知の世界へ",
-					   "最高の頭脳を求めて"};
-#else
-	static const char subtitle[][51] ={"Quest of The World's Toughest Body",
-					   "Attack is the best form of defence.",
-					   "Might is right.",
-					   "An unexpected windfall",
-					   "A drowning man will catch at a straw",
-					   "Don't count your chickens before they are hatched.",
-					   "It is no use crying over spilt milk.",
-					   "Seeing is believing.",
-					   "Strike the iron while it is hot.",
-					   "I don't care what follows.",
-					   "To dig a well to put out a house on fire.",
-					   "Tomorrow is another day.",
-					   "Easy come, easy go.",
-					   "The more haste, the less speed.",
-					   "Where there is life, there is hope.",
-					   "There is no royal road to *WINNER*.",
-					   "Danger past, God forgotten.",
-					   "The best thing to do now is to run away.",
-					   "Life is but an empty dream.",
-					   "Dead men tell no tales.",
-					   "A book that remains shut is but a block.",
-					   "Misfortunes never come singly.",
-					   "A little knowledge is a dangerous thing.",
-					   "History repeats itself.",
-					   "*WINNER* was not built in a day.",
-					   "Ignorance is bliss.",
-					   "To lose is to win?",
-					   "No medicine can cure folly.",
-					   "All good things come to an end.",
-					   "M$ Empire strikes back.",
-					   "To see is to believe",
-					   "Time is money.",
-					   "Quest of The World's Greatest Brain"};
-#endif
-#ifdef JP
-	sprintf(file_name,"playrecord-%s.txt",savefile_base);
-#else
-	sprintf(file_name,"playrec-%s.txt",savefile_base);
-#endif
-
-	/* Build the filename */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, file_name);
-
-	if (p_ptr->pclass == CLASS_WARRIOR || p_ptr->pclass == CLASS_MONK || p_ptr->pclass == CLASS_SAMURAI || p_ptr->pclass == CLASS_BERSERKER)
-		strcpy(tmp,subtitle[randint0(MAX_SUBTITLE-1)]);
-	else if (p_ptr->pclass == CLASS_MAGE || p_ptr->pclass == CLASS_HIGH_MAGE || p_ptr->pclass == CLASS_SORCERER)
-		strcpy(tmp,subtitle[randint0(MAX_SUBTITLE-1)+1]);
-	else strcpy(tmp,subtitle[randint0(MAX_SUBTITLE-2)+1]);
-
-#ifdef JP
-	sprintf(nikki_title, "「%s%s%sの伝説 -%s-」",
-		ap_ptr->title, ap_ptr->no ? "の" : "", player_name, tmp);
-#else
-	sprintf(nikki_title, "Legend of %s %s '%s'",
-		ap_ptr->title, player_name, tmp);
-#endif
-
-	/* Display the file contents */
-	show_file(FALSE, buf, nikki_title, -1, 0);
-}
-
-static void do_cmd_bunshou(void)
-{
-	char tmp[80] = "\0";
-	char bunshou[80] = "\0";
-
-#ifdef JP
-	if (get_string("内容: ", tmp, 79))
-#else
-	if (get_string("diary note: ", tmp, 79))
-#endif
-	{
-		strcpy(bunshou, tmp);
-
-		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, bunshou);
-	}
-}
-
-static void do_cmd_last_get(void)
-{
-	char buf[256];
-	s32b turn_tmp;
-
-	if (record_o_name[0] == '\0') return;
-
-#ifdef JP
-	sprintf(buf,"%sの入手を記録します。",record_o_name);
-#else
-	sprintf(buf,"Do you really want to record getting %s? ",record_o_name);
-#endif
-	if (!get_check(buf)) return;
-
-	turn_tmp = turn;
-	turn = record_turn;
-#ifdef JP
-	sprintf(buf,"%sを手に入れた。", record_o_name);
-#else
-	sprintf(buf,"descover %s.", record_o_name);
-#endif
-	do_cmd_write_nikki(NIKKI_BUNSHOU, 0, buf);
-	turn = turn_tmp;
-}
-
-static void do_cmd_erase_nikki(void)
-{
-	char file_name[80];
-	char buf[256];
-	FILE *fff = NULL;
-
-#ifdef JP
-	if (!get_check("本当に記録を消去しますか？")) return;
-#else
-	if (!get_check("Do you really want to delete all your record? ")) return;
-#endif
-
-#ifdef JP
-	sprintf(file_name,"playrecord-%s.txt",savefile_base);
-#else
-	sprintf(file_name,"playrec-%s.txt",savefile_base);
-#endif
-
-	/* Build the filename */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, file_name);
-
-	/* Remove the file */
-	fd_kill(buf);
-
-	fff = my_fopen(buf, "w");
-	if(fff){
-		my_fclose(fff);
-#ifdef JP
-		msg_format("記録を消去しました。");
-#else
-		msg_format("deleted record.");
-#endif
-	}else{
-#ifdef JP
-		msg_format("%s の消去に失敗しました。", buf);
-#else
-		msg_format("failed to delete %s.", buf);
-#endif
-	}
-	msg_print(NULL);
-}
-
-
-void do_cmd_nikki(void)
-{
-	int i;
-
-	/* File type is "TEXT" */
-	FILE_TYPE(FILE_TYPE_TEXT);
-
-	/* Save the screen */
-	screen_save();
-
-	/* Interact until done */
-	while (1)
-	{
-		/* Clear screen */
-		Term_clear();
-
-		/* Ask for a choice */
-#ifdef JP
-		prt("[ 記録の設定 ]", 2, 0);
-#else
-		prt("[ Play Record ]", 2, 0);
-#endif
-
-
-		/* Give some choices */
-#ifdef JP
-		prt("(1) 記録を見る", 4, 5);
-		prt("(2) 文章を記録する", 5, 5);
-		prt("(3) 直前に入手又は鑑定したものを記録する", 6, 5);
-		prt("(4) 記録を消去する", 7, 5);
-
-		prt("(R) プレイ動画を記録する/中止する", 9, 5);
-#else
-		prt("(1) Display your record", 4, 5);
-		prt("(2) Add record", 5, 5);
-		prt("(3) Record item you last get/identify", 6, 5);
-		prt("(4) Delete your record", 7, 5);
-
-		prt("(R) Record playing movie / or stop it", 9, 5);
-#endif
-
-
-		/* Prompt */
-#ifdef JP
-		prt("コマンド:", 18, 0);
-#else
-		prt("Command: ", 18, 0);
-#endif
-
-
-		/* Prompt */
-		i = inkey();
-
-		/* Done */
-		if (i == ESCAPE) break;
-
-		switch (i)
-		{
-		case '1':
-			do_cmd_disp_nikki();
-			break;
-		case '2':
-			do_cmd_bunshou();
-			break;
-		case '3':
-			do_cmd_last_get();
-			break;
-		case '4':
-			do_cmd_erase_nikki();
-			break;
-		case 'r': case 'R':
-			screen_load();
-			prepare_movie_hooks();
-			return;
-		default: /* Unknown option */
-			bell();
-		}
-
-		/* Flush messages */
-		msg_print(NULL);
-	}
-
-	/* Restore the screen */
-	screen_load();
 }
 
 /*
@@ -1231,11 +436,11 @@ void do_cmd_redraw(void)
 void do_cmd_change_name(void)
 {
 	char	c;
-
 	int		mode = 0;
-
 	char	tmp[160];
+	int      w, h;
 
+	Term_get_size(&w, &h);
 
 	/* Save the screen */
 	screen_save();
@@ -1255,14 +460,8 @@ void do_cmd_change_name(void)
 		}
 
 		/* Prompt */
-#ifdef JP
-		Term_putstr(2, 23, -1, TERM_WHITE,
-			    "['c'で名前変更, 'f'でファイルへ書出, 'h'でモード変更, ESCで終了]");
-#else
-		Term_putstr(2, 23, -1, TERM_WHITE,
+		Term_putstr(2, h - 1, -1, TERM_WHITE,
 			"['c' to change name, 'f' to file, 'h' to change mode, or ESC]");
-#endif
-
 
 		/* Query */
 		c = inkey();
@@ -1757,12 +956,6 @@ static void do_cmd_options_cheat(cptr info)
 			case 'Y':
 			case '6':
 			{
-				if(!p_ptr->noscore)
-#ifdef JP
-					do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "詐欺オプションをONにして、スコアを残せなくなった。");
-#else
-					do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "give up sending score to use cheating options.");
-#endif
 				p_ptr->noscore |= (cheat_info[k].o_set * 256 + cheat_info[k].o_bit);
 				(*cheat_info[k].o_var) = TRUE;
 				k = (k + 1) % n;
@@ -2377,7 +1570,6 @@ option_fields[OPT_NUM] =
 	{ '4', "Game-Play Options", 6 },
 	{ '5', "Disturbance Options", 7 },
 	{ '6', "Easy Auto-Destroyer Options", 8 },
-	{ 'r', "Play record Options", 9 },
 
 	{ 'p', "Auto-picker/destroyer editor", 11 },
 	{ 'd', "Base Delay Factor", 12 },
@@ -2422,7 +1614,7 @@ void do_cmd_options(void)
 #ifdef JP
 		prt("[ オプションの設定 ]", 1, 0);
 #else
-		prt("TinyAngband options", 1, 0);
+		prt("PosChengband options", 1, 0);
 #endif
 
 		while(1)
@@ -2547,29 +1739,11 @@ void do_cmd_options(void)
 				break;
 			}
 
-			/* Play-record Options */
-			case 'R':
-			case 'r':
-			{
-				/* Spawn */
-#ifdef JP
-				do_cmd_options_aux(OPT_PAGE_PLAYRECORD, "プレイ記録オプション");
-#else
-				do_cmd_options_aux(OPT_PAGE_PLAYRECORD, "Play-record Options");
-#endif
-				break;
-			}
-
 			/* Birth Options */
 			case 'B':
 			case 'b':
 			{
-				/* Spawn */
-#ifdef JP
-				do_cmd_options_aux(OPT_PAGE_BIRTH, (!p_ptr->wizard || !allow_debug_opts) ? "初期オプション(参照のみ)" : "初期オプション((*)はスコアに影響)");
-#else
 				do_cmd_options_aux(OPT_PAGE_BIRTH, (!p_ptr->wizard || !allow_debug_opts) ? "Birth Options(browse only)" : "Birth Options((*)s effect score)");
-#endif
 				break;
 			}
 
@@ -4802,23 +3976,13 @@ void do_cmd_note(void)
 	strcpy(buf, "");
 
 	/* Input */
-#ifdef JP
-	if (!get_string("メモ: ", buf, 60)) return;
-#else
 	if (!get_string("Note: ", buf, 60)) return;
-#endif
-
 
 	/* Ignore empty notes */
 	if (!buf[0] || (buf[0] == ' ')) return;
 
 	/* Add the note to the message recall */
-#ifdef JP
-	msg_format("メモ: %s", buf);
-#else
 	msg_format("Note: %s", buf);
-#endif
-
 }
 
 
@@ -4827,15 +3991,7 @@ void do_cmd_note(void)
  */
 void do_cmd_version(void)
 {
-
-	/* Silly message */
-#ifdef JP
-	msg_format("変愚蛮怒(Chengband) %d.%d.%d",
-		    FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
-#else
-	msg_format("You are playing Chengband %d.%d.%d.",
-		    FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
-#endif
+	msg_format("You are playing PosChengband %d.%d.%d.", VER_MAJOR, VER_MINOR, VER_PATCH);
 }
 
 
@@ -4845,159 +4001,36 @@ void do_cmd_version(void)
  */
 static cptr do_cmd_feeling_text[11] =
 {
-#ifdef JP
-	"この階の雰囲気を感じとれなかった...",
-#else
 	"Looks like any other level.",
-#endif
-
-#ifdef JP
-	"この階には何か特別なものがあるような気がする。",
-#else
 	"You feel there is something special about this level.",
-#endif
-
-#ifdef JP
-	"恐ろしい死の幻が目に浮かび、気絶しそうになった！",
-#else
 	"You nearly faint as horrible visions of death fill your mind!",
-#endif
-
-#ifdef JP
-	"この階はとても危険なようだ。",
-#else
 	"This level looks very dangerous.",
-#endif
-
-#ifdef JP
-	"とても悪い予感がする...",
-#else
 	"You have a very bad feeling...",
-#endif
-
-#ifdef JP
-	"悪い予感がする...",
-#else
 	"You have a bad feeling...",
-#endif
-
-#ifdef JP
-	"何か緊張する。",
-#else
 	"You feel nervous.",
-#endif
-
-#ifdef JP
-	"少し不運な気がする...",
-#else
 	"You feel your luck is turning...",
-#endif
-
-#ifdef JP
-	"この場所は好きになれない。",
-#else
 	"You don't like the look of this place.",
-#endif
-
-#ifdef JP
-	"この階はそれなりに安全なようだ。",
-#else
 	"This level looks reasonably safe.",
-#endif
-
-#ifdef JP
-	"なんて退屈なところだ..."
-#else
 	"What a boring place..."
-#endif
-
 };
 
 static cptr do_cmd_feeling_text_combat[11] =
 {
-#ifdef JP
-	"この階の雰囲気を感じとれなかった...",
-#else
 	"Looks like any other level.",
-#endif
-
-#ifdef JP
-	"この階には何か特別なものがあるような気がする。",
-#else
 	"You feel there is something special about this level.",
-#endif
-
-#ifdef JP
-	"今夜もまた、誰かが命を落とす...",
-#else
 	"You nearly faint as horrible visions of death fill your mind!",
-#endif
-
-#ifdef JP
-	"この階はとても危険なようだ。",
-#else
 	"This level looks very dangerous.",
-#endif
-
-#ifdef JP
-	"とても悪い予感がする...",
-#else
 	"You have a very bad feeling...",
-#endif
-
-#ifdef JP
-	"悪い予感がする...",
-#else
 	"You have a bad feeling...",
-#endif
-
-#ifdef JP
-	"何か緊張する。",
-#else
 	"You feel nervous.",
-#endif
-
-#ifdef JP
-	"少し不運な気がする...",
-#else
 	"You feel your luck is turning...",
-#endif
-
-#ifdef JP
-	"この場所は好きになれない。",
-#else
 	"You don't like the look of this place.",
-#endif
-
-#ifdef JP
-	"この階はそれなりに安全なようだ。",
-#else
 	"This level looks reasonably safe.",
-#endif
-
-#ifdef JP
-	"なんて退屈なところだ..."
-#else
 	"What a boring place..."
-#endif
-
 };
 
 static cptr do_cmd_feeling_text_lucky[11] =
 {
-#ifdef JP
-	"この階の雰囲気を感じとれなかった...",
-	"この階には何か特別なものがあるような気がする。",
-	"この階はこの上なく素晴らしい感じがする。",
-	"素晴らしい感じがする...",
-	"とても良い感じがする...",
-	"良い感じがする...",
-	"ちょっと幸運な感じがする...",
-	"多少は運が向いてきたか...",
-	"見た感じ悪くはない...",
-	"全然駄目ということはないが...",
-	"なんて退屈なところだ..."
-#else
 	"Looks like any other level.",
 	"You feel there is something special about this level.",
 	"You have a superb feeling about this level.",
@@ -5009,7 +4042,6 @@ static cptr do_cmd_feeling_text_lucky[11] =
 	"You like the look of this place...",
 	"This level can't be all bad...",
 	"What a boring place..."
-#endif
 };
 
 
@@ -5075,8 +4107,7 @@ void do_cmd_feeling(void)
 	/* Display the feeling */
 	if (p_ptr->good_luck || p_ptr->pclass == CLASS_ARCHAEOLOGIST)
 		msg_print(do_cmd_feeling_text_lucky[p_ptr->feeling]);
-	else if (p_ptr->personality == PERS_COMBAT ||
-		 inventory[INVEN_BOW].name1 == ART_CRIMSON)
+	else if (p_ptr->personality == PERS_COMBAT || equip_find_artifact(ART_CRIMSON))
 		msg_print(do_cmd_feeling_text_combat[p_ptr->feeling]);
 	else
 		msg_print(do_cmd_feeling_text[p_ptr->feeling]);
@@ -6023,9 +5054,11 @@ static void do_cmd_knowledge_inven(void)
 #else
 		strcpy(where, "E ");
 #endif
-		for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
+		for (i = EQUIP_BEGIN; i < EQUIP_BEGIN + equip_count(); i++)
 		{
-			do_cmd_knowledge_inven_aux(fff, &inventory[i], &j, tval, where);
+			object_type *o_ptr = equip_obj(i);
+			if (o_ptr)
+				do_cmd_knowledge_inven_aux(fff, o_ptr, &j, tval, where);
 		}
 
 #ifdef JP
@@ -6875,6 +5908,74 @@ static void do_cmd_knowledge_uniques(void)
 	fd_kill(file_name);
 }
 
+
+static void do_cmd_knowledge_weapon(void)
+{
+	int i, r;
+	int used_hands[MAX_HANDS];
+	int ct = 0;
+
+	screen_save();
+
+	for (i = 0; i < MAX_HANDS; i++)
+	{
+		if (p_ptr->weapon_info[i].wield_how == WIELD_NONE) continue;
+		used_hands[ct++] = i;
+	}
+
+	for (i = 0; i < ct;)
+	{
+		int hand = used_hands[i++];
+		Term_clear();
+		if (p_ptr->weapon_info[hand].bare_hands)
+			monk_display_attack_info(hand, 0, 1);
+		else
+		{
+			r = display_weapon_info(hand, 0, 1);
+			if (i < ct && r < 20 && !p_ptr->weapon_info[used_hands[i]].bare_hands)
+			{
+				hand = used_hands[i++];
+				display_weapon_info(hand, r+2, 1);
+			}
+		}
+
+		flush();
+		(void)inkey();
+	}
+
+	for (i = 0; i < p_ptr->innate_attack_ct;)
+	{
+		Term_clear();
+		r = display_innate_attack_info(i++, 0, 1);
+		if (i < p_ptr->innate_attack_ct && r < 20)
+			display_innate_attack_info(i++, r+2, 1);
+		flush();
+		(void)inkey();
+	}
+
+	screen_load();
+}
+
+static void do_cmd_knowledge_extra(void)
+{
+	FILE *fff;
+	char file_name[1024];
+	class_t *class_ptr = get_class_t();
+
+	fff = my_fopen_temp(file_name, 1024);
+	if (!fff) {
+	    msg_format("Failed to create temporary file %s.", file_name);
+	    msg_print(NULL);
+	    return;
+	}
+
+	if (class_ptr && class_ptr->character_dump)
+		class_ptr->character_dump(fff);
+
+	my_fclose(fff);
+	show_file(TRUE, file_name, "Extra", 0, 0);
+	fd_kill(file_name);
+}
 
 /*
  * Display weapon-exp
@@ -9176,35 +8277,22 @@ static void do_cmd_knowledge_stat(void)
 	FILE *fff;
 	
 	char file_name[1024];
-	int percent, v_nr;
+	int v_nr;
 	
-	/* Open a new file */
 	fff = my_fopen_temp(file_name, 1024);
-	if (!fff) {
-#ifdef JP
-	    msg_format("一時ファイル %s を作成できませんでした。", file_name);
-#else
+	if (!fff) 
+	{
 	    msg_format("Failed to create temporary file %s.", file_name);
-#endif
 	    msg_print(NULL);
 	    return;
 	}
 	
 	if (fff)
 	{
-		percent = (int)(((long)p_ptr->player_hp[PY_MAX_LEVEL - 1] * 200L) /
-			(2 * p_ptr->hitdie +
-			((PY_MAX_LEVEL - 1+3) * (p_ptr->hitdie + 1))));
-
-#ifdef JP
-		if (p_ptr->knowledge & KNOW_HPRATE) fprintf(fff, "現在の体力ランク : %d/100\n\n", percent);
-		else fprintf(fff, "現在の体力ランク : ???\n\n");
-		fprintf(fff, "能力の最大値\n\n");
-#else
-		if (p_ptr->knowledge & KNOW_HPRATE) fprintf(fff, "Your current Life Rating is %d/100.\n\n", percent);
+		if (p_ptr->knowledge & KNOW_HPRATE) fprintf(fff, "Your current Life Rating is %d/100.\n\n", life_rating());
 		else fprintf(fff, "Your current Life Rating is ???.\n\n");
 		fprintf(fff, "Limits of maximum stats\n\n");
-#endif
+
 		for (v_nr = 0; v_nr < 6; v_nr++)
 		{
 			if ((p_ptr->knowledge & KNOW_STAT) || p_ptr->stat_max[v_nr] == p_ptr->stat_max_max[v_nr]) fprintf(fff, "%s 18/%d\n", stat_names[v_nr], p_ptr->stat_max_max[v_nr]-18);
@@ -9213,19 +8301,8 @@ static void do_cmd_knowledge_stat(void)
 	}
 
 	dump_yourself(fff);
-
-	/* Close the file */
 	my_fclose(fff);
-	
-	/* Display the file contents */
-#ifdef JP
-	show_file(TRUE, file_name, "自分に関する情報", 0, 0);
-#else
 	show_file(TRUE, file_name, "HP-rate & Max stat", 0, 0);
-#endif
-
-	
-	/* Remove the file */
 	fd_kill(file_name);
 }
 
@@ -9964,42 +9041,10 @@ void do_cmd_knowledge(void)
 		Term_clear();
 
 		/* Ask for a choice */
-#ifdef JP
-		prt(format("%d/2 ページ", (p+1)), 2, 65);
-		prt("現在の知識を確認する", 3, 0);
-#else
 		prt(format("page %d/2", (p+1)), 2, 65);
 		prt("Display current knowledge", 3, 0);
-#endif
 
 		/* Give some choices */
-#ifdef JP
-		if (p == 0)
-		{
-			prt("(1) 既知の伝説のアイテム                 の一覧", 6, 5);
-			prt("(2) 既知のアイテム                       の一覧", 7, 5);
-			prt("(3) 既知の生きているユニーク・モンスター の一覧", 8, 5);
-			prt("(4) 既知のモンスター                     の一覧", 9, 5);
-			prt("(5) 倒した敵の数                         の一覧", 10, 5);
-			if (!vanilla_town) prt("(6) 賞金首                               の一覧", 11, 5);
-			prt("(7) 現在のペット                         の一覧", 12, 5);
-			prt("(8) 我が家のアイテム                     の一覧", 13, 5);
-			prt("(9) *鑑定*済み装備の耐性                 の一覧", 14, 5);
-			prt("(0) 地形の表示文字/タイル                の一覧", 15, 5);
-		}
-		else
-		{
-			prt("(a) 自分に関する情報                     の一覧", 6, 5);
-			prt("(b) 突然変異                             の一覧", 7, 5);
-			prt("(c) 武器の経験値                         の一覧", 8, 5);
-			prt("(d) 魔法の経験値                         の一覧", 9, 5);
-			prt("(e) 技能の経験値                         の一覧", 10, 5);
-			prt("(f) プレイヤーの徳                       の一覧", 11, 5);
-			prt("(g) 入ったダンジョン                     の一覧", 12, 5);
-			prt("(h) 実行中のクエスト                     の一覧", 13, 5);
-			prt("(i) 現在の自動拾い/破壊設定              の一覧", 14, 5);
-		}
-#else
 		if (p == 0)
 		{
 			prt("(1) Display known artifacts", 6, 5);
@@ -10024,22 +9069,16 @@ void do_cmd_knowledge(void)
 			prt("(g) Display dungeons", 12, 5);
 			prt("(h) Display current quests", 13, 5);
 			prt("(i) Display auto pick/destroy", 14, 5);
+			prt("(w) Display weapon effectiveness", 15, 5);
+			prt("(x) Display extra info", 16, 5);
 		}
-#endif
+
 		/* Prompt */
-#ifdef JP
-		prt("-続く-", 17, 8);
-		prt("ESC) 抜ける", 21, 1);
-		prt("SPACE) 次ページ", 21, 30);
-		/*prt("-) 前ページ", 21, 60);*/
-		prt("コマンド:", 20, 0);
-#else
 		prt("-more-", 17, 8);
 		prt("ESC) Exit menu", 21, 1);
 		prt("SPACE) Next page", 21, 30);
 		/*prt("-) Previous page", 21, 60);*/
 		prt("Command: ", 20, 0);
-#endif
 
 		/* Prompt */
 		i = inkey();
@@ -10052,68 +9091,74 @@ void do_cmd_knowledge(void)
 		case '-':
 			p = 1 - p;
 			break;
-		case '1': /* Artifacts */
+		case '1':
 			do_cmd_knowledge_artifacts();
 			break;
-		case '2': /* Objects */
+		case '2':
 			do_cmd_knowledge_objects(&need_redraw, FALSE, -1);
 			break;
-		case '3': /* Uniques */
+		case '3':
 			do_cmd_knowledge_uniques();
 			break;
-		case '4': /* Monsters */
+		case '4':
 			do_cmd_knowledge_monsters(&need_redraw, FALSE, -1);
 			break;
-		case '5': /* Kill count  */
+		case '5':
 			do_cmd_knowledge_kill_count();
 			break;
-		case '6': /* wanted */
+		case '6':
 			if (!vanilla_town) do_cmd_knowledge_kubi();
 			break;
-		case '7': /* Pets */
+		case '7':
 			do_cmd_knowledge_pets();
 			break;
-		case '8': /* Home */
+		case '8':
 			do_cmd_knowledge_home();
 			break;
-		case '9': /* Resist list */
+		case '9':
 			do_cmd_knowledge_inven();
 			break;
-		case '0': /* Feature list */
+		case '0':
 			{
 				int lighting_level = F_LIT_STANDARD;
 				do_cmd_knowledge_features(&need_redraw, FALSE, -1, &lighting_level);
 			}
 			break;
 		/* Next page */
-		case 'a': /* Max stat */
+		case 'a':
 			do_cmd_knowledge_stat();
 			break;
-		case 'b': /* Mutations */
+		case 'b':
 			mut_do_cmd_knowledge();
 			break;
-		case 'c': /* weapon-exp */
+		case 'c':
 			do_cmd_knowledge_weapon_exp();
 			break;
-		case 'd': /* spell-exp */
+		case 'd':
 			do_cmd_knowledge_spell_exp();
 			break;
-		case 'e': /* skill-exp */
+		case 'e':
 			do_cmd_knowledge_skill_exp();
 			break;
-		case 'f': /* Virtues */
+		case 'f':
 			do_cmd_knowledge_virtues();
 			break;
-		case 'g': /* Dungeon */
+		case 'g':
 			do_cmd_knowledge_dungeon();
 			break;
-		case 'h': /* Quests */
+		case 'h':
 			do_cmd_knowledge_quests();
 			break;
-		case 'i': /* Autopick */
+		case 'i':
 			do_cmd_knowledge_autopick();
 			break;
-		default: /* Unknown option */
+		case 'w':
+			do_cmd_knowledge_weapon();
+			break;
+		case 'x':
+			do_cmd_knowledge_extra();
+			break;
+		default:
 			bell();
 		}
 

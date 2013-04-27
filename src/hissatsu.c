@@ -347,40 +347,23 @@ void do_cmd_hissatsu(void)
 	/* not if confused */
 	if (p_ptr->confused)
 	{
-#ifdef JP
-msg_print("混乱していて集中できない！");
-#else
 		msg_print("You are too confused!");
-#endif
-
 		return;
 	}
-	if (!buki_motteruka(INVEN_RARM) && !buki_motteruka(INVEN_LARM))
+	if (!equip_find_first(object_is_melee_weapon))
 	{
 		if (flush_failure) flush();
-#ifdef JP
-msg_print("武器を持たないと必殺技は使えない！");
-#else
 		msg_print("You need to wield a weapon!");
-#endif
-
 		return;
 	}
 	if (!p_ptr->spell_learned1)
 	{
-#ifdef JP
-msg_print("何も技を知らない。");
-#else
 		msg_print("You don't know any special attacks.");
-#endif
-
 		return;
 	}
 
 	if (p_ptr->special_defense & KATA_MASK)
-	{
 		set_action(ACTION_NONE);
-	}
 
 	/* get power */
 	if (!get_hissatsu_power(&n)) return;

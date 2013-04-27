@@ -48,17 +48,17 @@ static mutation_info _mutations[MAX_MUTATIONS] =
 	{MUT_RATING_BAD,		MUT_TYPE_EFFECT,	     0, 2, {0,  0,   0, alcohol_mut}},
 	{MUT_RATING_BAD,		MUT_TYPE_EFFECT,	     0, 2, {0,  0,   0, hallucination_mut}},
 	{MUT_RATING_AVERAGE,	MUT_TYPE_EFFECT,	     0, 2, {0,  0,   0, flatulence_mut}},
-	{MUT_RATING_GOOD,		              0,	     0, 4, {0,  0,   0, scorpion_tail_mut}},
-	{MUT_RATING_GOOD,		              0,	     0, 4, {0,  0,   0, horns_mut}},
-	{MUT_RATING_GOOD,		              0,	     0, 4, {0,  0,   0, beak_mut}},
+	{MUT_RATING_GOOD,		MUT_TYPE_BONUS,		     0, 4, {0,  0,   0, scorpion_tail_mut}},
+	{MUT_RATING_GOOD,		MUT_TYPE_BONUS,	         0, 4, {0,  0,   0, horns_mut}},
+	{MUT_RATING_GOOD,		MUT_TYPE_BONUS,	         0, 4, {0,  0,   0, beak_mut}},
 	{MUT_RATING_BAD,		MUT_TYPE_EFFECT,	     0, 4, {0,  0,   0, attract_demon_mut}},
 	{MUT_RATING_AVERAGE,	MUT_TYPE_EFFECT,	     0, 2, {0,  0,   0, produce_mana_mut}},
 	{MUT_RATING_BAD,		MUT_TYPE_EFFECT,	     0, 4, {0,  0,   0, speed_flux_mut}},
 	{MUT_RATING_AVERAGE,	MUT_TYPE_EFFECT,	     0, 4, {0,  0,   0, random_banish_mut}},
 	{MUT_RATING_AVERAGE,	MUT_TYPE_EFFECT,	     0, 2, {0,  0,   0, eat_light_mut}},
-	{MUT_RATING_GOOD,		              0,	     0, 4, {0,  0,   0, trunk_mut}},
+	{MUT_RATING_GOOD,		MUT_TYPE_BONUS,	         0, 4, {0,  0,   0, trunk_mut}},
 	{MUT_RATING_BAD,		MUT_TYPE_EFFECT,	     0, 2, {0,  0,   0, attract_animal_mut}},
-	{MUT_RATING_GOOD,		              0,	     0, 2, {0,  0,   0, tentacles_mut}},
+	{MUT_RATING_GOOD,		MUT_TYPE_BONUS,	         0, 2, {0,  0,   0, tentacles_mut}},
 	{MUT_RATING_AVERAGE,	MUT_TYPE_EFFECT,	     0, 2, {0,  0,   0, raw_chaos_mut}},
 	{MUT_RATING_BAD,		MUT_TYPE_EFFECT,	     0, 6, {0,  0,   0, normality_mut}},
 	{MUT_RATING_GOOD,		MUT_TYPE_EFFECT,	     0, 2, {0,  0,   0, wraith_mut}},
@@ -113,7 +113,7 @@ static mutation_info _mutations[MAX_MUTATIONS] =
 	{MUT_RATING_GOOD,				     0,			 0, 0, {0,  0,   0, unyielding_mut}},
 	{MUT_RATING_GREAT,				     0,			 0, 0, {0,  0,   0, ambidexterity_mut}},
 	{MUT_RATING_GOOD,		MUT_TYPE_BONUS,			 0, 0, {0,  0,   0, untouchable_mut}},
-	{MUT_RATING_GOOD,		MUT_TYPE_ACTIVATION, A_INT, 0, {20, 25, 55, loremaster_mut}},
+	{MUT_RATING_GOOD,		             0,      A_INT, 0, {0,  0,   0, loremaster_mut}},
 	{MUT_RATING_GREAT,				     0,			 0, 0, {0,  0,   0, arcane_mastery_mut}},
 	{MUT_RATING_GREAT,				     0,			 0, 0, {0,  0,   0, evasion_mut}},
 	{MUT_RATING_GOOD,				     0,			 0, 0, {0,  0,   0, potion_chugger_mut}},
@@ -127,7 +127,7 @@ static mutation_info _mutations[MAX_MUTATIONS] =
 	{MUT_RATING_GOOD,				     0,			 0, 0, {0,  0,   0, astral_guide_mut}},
 	{MUT_RATING_GOOD,				     0,			 0, 0, {0,  0,   0, demonic_grasp_mut}},
 	{MUT_RATING_GOOD,       MUT_TYPE_BONUS,			 0, 0, {0,  0,   0, weird_mind_mut}},
-	{MUT_RATING_GREAT,	    MUT_TYPE_ACTIVATION, A_STR, 0, {50, 50, 70, fantastic_frenzy_mut}},
+	{MUT_RATING_GREAT,	    MUT_TYPE_ACTIVATION, A_STR, 0, {40, 50, 80, fantastic_frenzy_mut}},
 };
 
 int _mut_prob_gain(int i)
@@ -311,10 +311,21 @@ bool mut_gain(int mut_idx)
 	return TRUE;
 }
 
-static cptr _mut_name(menu_choices choices, int which) {
-	static char buf[255];
-	mut_name(((int*)choices)[which], buf);
-	return buf;
+static void _mut_menu_fn(int cmd, int which, vptr cookie, variant *res)
+{
+	int idx = ((int*)cookie)[which];
+	switch (cmd)
+	{
+	case MENU_TEXT:
+	{
+		char buf[255];
+		mut_name(idx, buf);
+		var_set_string(res, buf);
+		break;
+	}
+	default:
+		default_menu(cmd, which, cookie, res);
+	}
 }
 
 int mut_gain_choice(mut_pred pred)
@@ -322,9 +333,8 @@ int mut_gain_choice(mut_pred pred)
 	int choices[MAX_MUTATIONS];
 	int i;
 	int ct = 0;
-	menu_list_t list = { "Gain which mutation?", "Browse which mutation?", NULL,
-						_mut_name, NULL, NULL, 
-						choices, 0};
+	menu_t menu = { "Gain which mutation?", "Browse which mutation?", NULL,
+					_mut_menu_fn, choices, 0};
 
 	for (i = 0; i < MAX_MUTATIONS; i++)
 	{
@@ -337,11 +347,11 @@ int mut_gain_choice(mut_pred pred)
 
 	if (ct == 0) return -1;
 
-	list.count = ct;
+	menu.count = ct;
 
 	for (;;)
 	{
-		i = menu_choose(&list);
+		i = menu_choose(&menu);
 		if (i >= 0)
 		{
 			char buf[1024];
@@ -415,26 +425,6 @@ int mut_get_powers(spell_info* spells, int max)
 	int i;
 	int ct = 0;
 
-	if (mut_present(MUT_ASTRAL_GUIDE))
-	{
-		spell_info *spell = NULL;
-		if (ct >= max) return ct;
-		
-		spell = &spells[ct++];
-		spell->level = 5;
-		spell->cost = 2;
-		spell->fail = calculate_fail_rate(5, 50, p_ptr->stat_ind[A_DEX]);
-		spell->fn = phase_door_spell;
-
-		if (ct >= max) return ct;
-		
-		spell = &spells[ct++];
-		spell->level = 15;
-		spell->cost = 6;
-		spell->fail = calculate_fail_rate(15, 50, p_ptr->stat_ind[A_DEX]);
-		spell->fn = teleport_spell;
-	}
-	
 	for (i = 0; i < MAX_MUTATIONS; i++)
 	{
 		if ( mut_present(i)
@@ -471,6 +461,27 @@ bool mut_bad_pred(int mut_idx)
 }
 
 bool mut_human_pred(int mut_idx)
+{
+	switch (mut_idx)
+	{
+	case MUT_FAST_LEARNER:
+	case MUT_WEAPON_SKILLS:
+	case MUT_SUBTLE_CASTING:
+	case MUT_PEERLESS_SNIPER:
+	case MUT_LOREMASTER:
+	case MUT_ONE_WITH_MAGIC:
+	case MUT_PEERLESS_TRACKER:
+	case MUT_MERCHANTS_FRIEND:
+	case MUT_SACRED_VITALITY:
+	case MUT_CULT_OF_PERSONALITY:
+	case MUT_WEIRD_MIND:
+		return TRUE;
+		break;
+	}
+	return FALSE;
+}
+
+bool mut_demigod_pred(int mut_idx)
 {
 	switch (mut_idx)
 	{
@@ -607,6 +618,24 @@ void mut_name(int i, char* buf)
 		(_mutations[i].spell.fn)(SPELL_NAME, &v);
 	else
 		var_set_string(&v, "None");
+
+	sprintf(buf, "%s", var_get_string(&v));
+	var_clear(&v);
+}
+
+void mut_help_desc(int i, char* buf)
+{
+	variant v;
+	var_init(&v);
+
+	if (i >= 0 && i < MAX_MUTATIONS)
+	{
+		(_mutations[i].spell.fn)(SPELL_HELP_DESC, &v);
+		if (strlen(var_get_string(&v)) == 0)
+			(_mutations[i].spell.fn)(SPELL_DESC, &v);
+	}
+	else
+		var_set_string(&v, "");
 
 	sprintf(buf, "%s", var_get_string(&v));
 	var_clear(&v);

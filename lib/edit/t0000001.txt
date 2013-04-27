@@ -122,7 +122,7 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:1
 
 # Quest 1 failed but done, continue with quest 14
 ?:[EQU $QUEST1 6]
-F:b:BUILDING_1:3:0:0:0:0:NONE:14
+F:b:BUILDING_1:3
 
 ?:1
 
@@ -228,9 +228,9 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:28
 ?:[EQU $QUEST25 5]
 F:b:BUILDING_1:3:0:0:0:0:NONE:25
 
-# Quest 25 failed but done, continue with quest 28
+# Quest 25 failed
 ?:[EQU $QUEST25 6]
-F:b:BUILDING_1:3:0:0:0:0:NONE:28
+F:b:BUILDING_1:3
 
 ?:1
 
@@ -296,9 +296,9 @@ F:a:BUILDING_0:3:0:0:0:0:NONE:32
 ?:[EQU $QUEST31 5]
 F:a:BUILDING_0:3:0:0:0:0:NONE:31
 
-# Quest 31 failed but done, continue with quest 32
+# Quest 31 failed
 ?:[EQU $QUEST31 6]
-F:a:BUILDING_0:3:0:0:0:0:NONE:32
+F:a:BUILDING_0:3
 
 ?:1
 
@@ -328,9 +328,9 @@ F:a:BUILDING_0:3:0:0:0:0:NONE:33
 ?:[EQU $QUEST32 5]
 F:a:BUILDING_0:3:0:0:0:0:NONE:32
 
-# Quest 32 failed but done, continue with quest 33
+# Quest 32 failed
 ?:[EQU $QUEST32 6]
-F:a:BUILDING_0:3:0:0:0:0:NONE:33
+F:a:BUILDING_0:3
 
 ?:1
 
@@ -365,9 +365,9 @@ F:a:BUILDING_0:3:0:0:0:0:NONE:27
 ?:[EQU $QUEST33 5]
 F:a:BUILDING_0:3:0:0:0:0:NONE:33
 
-# Quest 33 failed but done, continue with quest 27
+# Quest 33 failed
 ?:[EQU $QUEST33 6]
-F:a:BUILDING_0:3:0:0:0:0:NONE:27
+F:a:BUILDING_0:3
 
 ?:1
 
@@ -387,6 +387,66 @@ F:a:BUILDING_0:3:0:0:0:0:NONE:27
 ?:[EQU $QUEST27 3]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:80
+
+##########################################################################
+# Beholder
+# Amber
+?:[AND [EQU $QUEST27 3] [EQU $RACE Beholder] [EQU [MOD $RANDOM27 5] 0] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:42
+
+# Tulkas
+?:[AND [EQU $QUEST27 3] [EQU $RACE Beholder] [GEQ [MOD $RANDOM27 5] 1] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:9
+
+##########################################################################
+# Dragon
+# Colluin
+?:[AND [EQU $QUEST27 3] [EQU $RACE Dragon] [EQU [MOD $RANDOM27 5] 0] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:44
+
+# Stone of War
+?:[AND [EQU $QUEST27 3] [EQU $RACE Dragon] [GEQ [MOD $RANDOM27 5] 1] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:291
+
+##########################################################################
+# Hound
+# Jack of Shadows
+?:[AND [EQU $QUEST27 3] [EQU $RACE Hound] [EQU [MOD $RANDOM27 5] 0] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:43
+
+# Harness of the Hell
+?:[AND [EQU $QUEST27 3] [EQU $RACE Hound] [GEQ [MOD $RANDOM27 5] 1] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:218
+
+##########################################################################
+# Lich
+# Kaschei
+?:[AND [EQU $QUEST27 3] [EQU $RACE Lich] [EQU [MOD $RANDOM27 5] 0] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:250
+
+# Indra
+?:[AND [EQU $QUEST27 3] [EQU $RACE Lich] [GEQ [MOD $RANDOM27 5] 1] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:33
+
+##########################################################################
+# Spider
+# Luthien
+?:[AND [EQU $QUEST27 3] [EQU $RACE Spider] [EQU [MOD $RANDOM27 5] 0] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:49
+
+# Pitch Dark Night
+?:[AND [EQU $QUEST27 3] [EQU $RACE Spider] [GEQ [MOD $RANDOM27 5] 1] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:215
 
 ##########################################################################
 # Archaeologist
@@ -535,10 +595,111 @@ F:@:FLOOR:3:0:0:0:80
 
 ##########################################################################
 # Weaponmaster
-# 555 is a hack.  This is handled in code
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] ]
+
+# Balli Stonehand
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Axes] [EQU [MOD $RANDOM27 5] 0] ]
 F:a:BUILDING_0:3
-F:@:FLOOR:3:0:0:0:555
+F:@:FLOOR:3:0:0:0:103
+
+# Hurin
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Axes] [GEQ [MOD $RANDOM27 5] 1] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:133
+
+# Yoichi
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Bows] [EQU [MOD $RANDOM27 5] 0] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:148
+
+# Bard
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Bows] [GEQ [MOD $RANDOM27 5] 1] ] 
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:125
+
+# Aegis Fang
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Clubs] [EQU [MOD $RANDOM27 5] 0] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:208
+
+# Aegir
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Clubs] [GEQ [MOD $RANDOM27 5] 1] ] 
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:251
+
+# Wilhelm Tell
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Crossbows] [EQU [MOD $RANDOM27 5] 0] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:223
+
+# Brand
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Crossbows] [GEQ [MOD $RANDOM27 5] 1] ] 
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:126
+
+# Fiona
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Daggers] [EQU [MOD $RANDOM27 5] 0] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:70
+
+# Silver Chariot
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Daggers] [GEQ [MOD $RANDOM27 5] 1] ] 
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:140
+
+# Undertaker
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Diggers] [EQU [MOD $RANDOM27 5] 0] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:296
+
+# Nain
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Diggers] [GEQ [MOD $RANDOM27 5] 1] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:211
+
+# Avavir
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Polearms] [EQU [MOD $RANDOM27 5] 0] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:109
+
+# Glaive of Pain
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Polearms] [GEQ [MOD $RANDOM27 5] 1] ] 
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:94
+
+# Gil-Galad
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Shields] [EQU [MOD $RANDOM27 5] 0] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:138
+
+# Thorin
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Shields] [GEQ [MOD $RANDOM27 5] 1] ] 
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:30
+
+# Buckland
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Slings] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:134
+
+# Nar-i-vagil
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Staves] [EQU [MOD $RANDOM27 5] 0] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:118
+
+# Monkey King's Cudgel
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Staves] [GEQ [MOD $RANDOM27 5] 1] ] 
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:255
+
+# Anduril
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Swords] [EQU [MOD $RANDOM27 5] 0] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:83
+
+# Werewindle
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Swords] [GEQ [MOD $RANDOM27 5] 1] ] 
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:84
 
 ##########################################################################
 # Warlock
@@ -792,8 +953,15 @@ B:$0:A:3:request Quest:0:0:q:6:0
 B:0:A:3:クエスト:0:0:q:6:0
 B:$0:A:4:Teleport to other town:500:500:m:42:0
 B:0:A:4:他の町へ移動:500:500:m:42:0
-B:$0:R:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:0:0:0:0:0:1:1:0:1:0:1:1:1:0:1
-B:0:R:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:0:0:0:0:0:1:1:0:1:0:1:1:1:0:1
+B:$0:R:*:Member
+B:$0:R:Golem:None
+B:$0:R:Skeleton:None
+B:$0:R:Zombie:None
+B:$0:R:Vampire:None
+B:$0:R:Spectre:None
+B:$0:R:Ent:None
+B:$0:R:Balrog:None
+B:$0:R:Android:None
 
 B:$1:N:Mayor:Uldrik:Human
 B:1:N:村長:ウルドリック:人間

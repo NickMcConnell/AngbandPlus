@@ -34,6 +34,7 @@ void self_knowledge(void)
 	int v_nr = 0;
 	char v_string [8] [128];
 	char s_string [6] [128];
+	char r_string [RES_MAX] [128];
 
 	u32b flgs[TR_FLAG_SIZE];
 
@@ -46,24 +47,13 @@ void self_knowledge(void)
 
 	int plev = p_ptr->lev;
 
-	int percent;
-
 	for (j = 0; j < TR_FLAG_SIZE; j++)
 		flgs[j] = 0L;
 
 	p_ptr->knowledge |= (KNOW_STAT | KNOW_HPRATE);
 
 	strcpy(Dummy, "");
-
-	percent = (int)(((long)p_ptr->player_hp[PY_MAX_LEVEL - 1] * 200L) /
-		(2 * p_ptr->hitdie +
-		((PY_MAX_LEVEL - 1+3) * (p_ptr->hitdie + 1))));
-
-#ifdef JP
-sprintf(Dummy, "現在の体力ランク : %d/100", percent);
-#else
-	sprintf(Dummy, "Your current Life Rating is %d/100.", percent);
-#endif
+	sprintf(Dummy, "Your current Life Rating is %d/100.", life_rating());
 
 	strcpy(buf[0], Dummy);
 	info[i++] = buf[0];
@@ -73,14 +63,12 @@ sprintf(Dummy, "現在の体力ランク : %d/100", percent);
 	chg_virtue(V_ENLIGHTEN, 1);
 
 	/* Acquire item flags from equipment */
-	for (k = INVEN_RARM; k < INVEN_TOTAL; k++)
+	for (k = EQUIP_BEGIN; k < EQUIP_BEGIN + equip_count(); k++)
 	{
 		u32b tflgs[TR_FLAG_SIZE];
 
-		o_ptr = &inventory[k];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
+		o_ptr = equip_obj(k);
+		if (!o_ptr) continue;
 
 		/* Extract the flags */
 		object_flags(o_ptr, tflgs);
@@ -90,11 +78,7 @@ sprintf(Dummy, "現在の体力ランク : %d/100", percent);
 			flgs[j] |= tflgs[j];
 	}
 
-#ifdef JP
-	info[i++] = "能力の最大値";
-#else
 	info[i++] = "Limits of maximum stats";
-#endif
 
 	for (v_nr = 0; v_nr < 6; v_nr++)
 	{
@@ -1408,18 +1392,11 @@ info[i++] = "あなたは矢やボルトを反射する。";
 
 	}
 	if (p_ptr->sh_fire)
-	{
-#ifdef JP
-info[i++] = "あなたは炎のオーラに包まれている。";
-#else
 		info[i++] = "You are surrounded with a fiery aura.";
-#endif
-
-	}
+	if (p_ptr->sh_shards)
+		info[i++] = "You are surrounded with a shard aura.";
 	if (p_ptr->tim_blood_revenge)
-	{
 		info[i++] = "You are surrounded with a bloody aura.";
-	}
 	if (p_ptr->sh_elec)
 	{
 #ifdef JP
@@ -1529,299 +1506,18 @@ info[i++] = "あなたは強く物を投げる。";
 
 	}
 
-	if (p_ptr->immune_acid)
+	for (j = 0; j < RES_MAX; j++)
 	{
-#ifdef JP
-info[i++] = "あなたは酸に対する完全なる免疫を持っている。";
-#else
-		info[i++] = "You are completely immune to acid.";
-#endif
-
+		int pct = res_pct(j);
+		if (pct != 0)
+		{
+			if (j == RES_FEAR)
+				sprintf(r_string[j], "You are %s to %s.", pct > 0 ? "resistant" : "vulnerable", res_name(j));
+			else
+				sprintf(r_string[j], "You are %d%% %s to %s.", ABS(pct), pct > 0 ? "resistant" : "vulnerable", res_name(j));
+			info[i++] = r_string[j];
+		}
 	}
-	else if (p_ptr->resist_acid && IS_OPPOSE_ACID())
-	{
-#ifdef JP
-info[i++] = "あなたは酸への強力な耐性を持っている。";
-#else
-		info[i++] = "You resist acid exceptionally well.";
-#endif
-
-	}
-	else if (p_ptr->resist_acid || IS_OPPOSE_ACID())
-	{
-#ifdef JP
-info[i++] = "あなたは酸への耐性を持っている。";
-#else
-		info[i++] = "You are resistant to acid.";
-#endif
-
-	}
-
-	if (p_ptr->immune_elec)
-	{
-#ifdef JP
-info[i++] = "あなたは電撃に対する完全なる免疫を持っている。";
-#else
-		info[i++] = "You are completely immune to lightning.";
-#endif
-
-	}
-	else if (p_ptr->resist_elec && IS_OPPOSE_ELEC())
-	{
-#ifdef JP
-info[i++] = "あなたは電撃への強力な耐性を持っている。";
-#else
-		info[i++] = "You resist lightning exceptionally well.";
-#endif
-
-	}
-	else if (p_ptr->resist_elec || IS_OPPOSE_ELEC())
-	{
-#ifdef JP
-info[i++] = "あなたは電撃への耐性を持っている。";
-#else
-		info[i++] = "You are resistant to lightning.";
-#endif
-
-	}
-
-	if (prace_is_(RACE_ANDROID) && !p_ptr->immune_elec)
-	{
-#ifdef JP
-info[i++] = "あなたは電撃に弱い。";
-#else
-		info[i++] = "You are susceptible to damage from lightning.";
-#endif
-
-	}
-
-	if (p_ptr->immune_fire)
-	{
-#ifdef JP
-info[i++] = "あなたは火に対する完全なる免疫を持っている。";
-#else
-		info[i++] = "You are completely immune to fire.";
-#endif
-
-	}
-	else if (p_ptr->resist_fire && IS_OPPOSE_FIRE())
-	{
-#ifdef JP
-info[i++] = "あなたは火への強力な耐性を持っている。";
-#else
-		info[i++] = "You resist fire exceptionally well.";
-#endif
-
-	}
-	else if (p_ptr->resist_fire || IS_OPPOSE_FIRE())
-	{
-#ifdef JP
-info[i++] = "あなたは火への耐性を持っている。";
-#else
-		info[i++] = "You are resistant to fire.";
-#endif
-
-	}
-
-	if (prace_is_(RACE_ENT) && !p_ptr->immune_fire)
-	{
-#ifdef JP
-info[i++] = "あなたは火に弱い。";
-#else
-		info[i++] = "You are susceptible to damage from fire.";
-#endif
-
-	}
-
-	if (p_ptr->immune_cold)
-	{
-#ifdef JP
-info[i++] = "あなたは冷気に対する完全なる免疫を持っている。";
-#else
-		info[i++] = "You are completely immune to cold.";
-#endif
-
-	}
-	else if (p_ptr->resist_cold && IS_OPPOSE_COLD())
-	{
-#ifdef JP
-info[i++] = "あなたは冷気への強力な耐性を持っている。";
-#else
-		info[i++] = "You resist cold exceptionally well.";
-#endif
-
-	}
-	else if (p_ptr->resist_cold || IS_OPPOSE_COLD())
-	{
-#ifdef JP
-info[i++] = "あなたは冷気への耐性を持っている。";
-#else
-		info[i++] = "You are resistant to cold.";
-#endif
-
-	}
-
-	if (p_ptr->resist_pois && IS_OPPOSE_POIS())
-	{
-#ifdef JP
-info[i++] = "あなたは毒への強力な耐性を持っている。";
-#else
-		info[i++] = "You resist poison exceptionally well.";
-#endif
-
-	}
-	else if (p_ptr->resist_pois || IS_OPPOSE_POIS())
-	{
-#ifdef JP
-info[i++] = "あなたは毒への耐性を持っている。";
-#else
-		info[i++] = "You are resistant to poison.";
-#endif
-
-	}
-
-	if (p_ptr->resist_lite)
-	{
-#ifdef JP
-info[i++] = "あなたは閃光への耐性を持っている。";
-#else
-		if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_APOLLO)
-			info[i++] = "You are immune to bright light.";
-		else
-			info[i++] = "You are resistant to bright light.";
-#endif
-
-	}
-
-	if (prace_is_(RACE_VAMPIRE) || prace_is_(RACE_SHADOW_FAIRY) || (p_ptr->mimic_form == MIMIC_VAMPIRE))
-	{
-#ifdef JP
-info[i++] = "あなたは閃光に弱い。";
-#else
-		info[i++] = "You are susceptible to damage from bright light.";
-#endif
-
-	}
-
-	if (prace_is_(RACE_VAMPIRE) || (p_ptr->mimic_form == MIMIC_VAMPIRE) || IS_WRAITH())
-	{
-#ifdef JP
-info[i++] = "あなたは暗黒に対する完全なる免疫を持っている。";
-#else
-		info[i++] = "You are completely immune to darkness.";
-#endif
-	}
-
-	else if (p_ptr->resist_dark)
-	{
-#ifdef JP
-info[i++] = "あなたは暗黒への耐性を持っている。";
-#else
-		info[i++] = "You are resistant to darkness.";
-#endif
-
-	}
-	if (p_ptr->resist_conf)
-	{
-#ifdef JP
-info[i++] = "あなたは混乱への耐性を持っている。";
-#else
-		info[i++] = "You are resistant to confusion.";
-#endif
-
-	}
-	if (p_ptr->resist_sound)
-	{
-#ifdef JP
-info[i++] = "あなたは音波の衝撃への耐性を持っている。";
-#else
-		info[i++] = "You are resistant to sonic attacks.";
-#endif
-
-	}
-	if (p_ptr->resist_disen)
-	{
-#ifdef JP
-info[i++] = "あなたは劣化への耐性を持っている。";
-#else
-		info[i++] = "You are resistant to disenchantment.";
-#endif
-
-	}
-	if (p_ptr->resist_chaos)
-	{
-#ifdef JP
-info[i++] = "あなたはカオスの力への耐性を持っている。";
-#else
-		info[i++] = "You are resistant to chaos.";
-#endif
-
-	}
-	if (p_ptr->resist_shard)
-	{
-#ifdef JP
-info[i++] = "あなたは破片の攻撃への耐性を持っている。";
-#else
-		info[i++] = "You are resistant to blasts of shards.";
-#endif
-
-	}
-	if (p_ptr->resist_nexus)
-	{
-#ifdef JP
-info[i++] = "あなたは因果混乱の攻撃への耐性を持っている。";
-#else
-		info[i++] = "You are resistant to nexus attacks.";
-#endif
-
-	}
-
-	if (prace_is_(RACE_SPECTRE))
-	{
-#ifdef JP
-info[i++] = "あなたは地獄の力を吸収できる。";
-#else
-		info[i++] = "You can drain nether forces.";
-#endif
-
-	}
-	else if (p_ptr->resist_neth)
-	{
-#ifdef JP
-info[i++] = "あなたは地獄の力への耐性を持っている。";
-#else
-		info[i++] = "You are resistant to nether forces.";
-#endif
-
-	}
-	if (p_ptr->resist_fear)
-	{
-#ifdef JP
-info[i++] = "あなたは全く恐怖を感じない。";
-#else
-		info[i++] = "You are resistant to fear.";
-#endif
-
-	}
-	if (p_ptr->resist_blind)
-	{
-#ifdef JP
-info[i++] = "あなたの目は盲目への耐性を持っている。";
-#else
-		info[i++] = "Your eyes are resistant to blindness.";
-#endif
-
-	}
-	if (p_ptr->resist_time)
-	{
-#ifdef JP
-info[i++] = "あなたは時間逆転への耐性を持っている。";
-#else
-		info[i++] = "You are resistant to time.";
-#endif
-
-	}
-
 	if (p_ptr->sustain_str)
 	{
 #ifdef JP
@@ -1987,296 +1683,14 @@ info[i++] = "あなたの攻撃速度は装備によって影響を受けている。";
 
 	}
 
+	if (p_ptr->no_eldritch)
+		info[i++] = "You are unaffected by the Eldritch Horror.";
+	if (p_ptr->no_cut)
+		info[i++] = "You cannot be cut.";
+	if (p_ptr->no_charge_drain)
+		info[i++] = "You are immune to charge draining attacks.";
 
-	/* Access the current weapon */
-	o_ptr = &inventory[INVEN_RARM];
-
-	/* Analyze the weapon */
-	if (o_ptr->k_idx)
-	{
-		/* Indicate Blessing */
-		if (have_flag(flgs, TR_BLESSED))
-		{
-#ifdef JP
-info[i++] = "あなたの武器は神の祝福を受けている。";
-#else
-			info[i++] = "Your weapon has been blessed by the gods.";
-#endif
-
-		}
-
-		if (have_flag(flgs, TR_CHAOTIC))
-		{
-#ifdef JP
-info[i++] = "あなたの武器はログルスの徴の属性をもつ。";
-#else
-			info[i++] = "Your weapon is branded with the Sign of Logrus.";
-#endif
-
-		}
-
-		/* Hack */
-		if (have_flag(flgs, TR_IMPACT))
-		{
-#ifdef JP
-info[i++] = "あなたの武器は打撃で地震を発生することができる。";
-#else
-			info[i++] = "The impact of your weapon can cause earthquakes.";
-#endif
-
-		}
-
-		if (have_flag(flgs, TR_VORPAL))
-		{
-#ifdef JP
-info[i++] = "あなたの武器は非常に鋭い。";
-#else
-			info[i++] = "Your weapon is very sharp.";
-#endif
-
-		}
-
-		if (have_flag(flgs, TR_VAMPIRIC))
-		{
-#ifdef JP
-info[i++] = "あなたの武器は敵から生命力を吸収する。";
-#else
-			info[i++] = "Your weapon drains life from your foes.";
-#endif
-
-		}
-
-		/* Special "Attack Bonuses" */
-		if (have_flag(flgs, TR_BRAND_ACID))
-		{
-#ifdef JP
-info[i++] = "あなたの武器は敵を溶かす。";
-#else
-			info[i++] = "Your weapon melts your foes.";
-#endif
-
-		}
-		if (have_flag(flgs, TR_BRAND_ELEC))
-		{
-#ifdef JP
-info[i++] = "あなたの武器は敵を感電させる。";
-#else
-			info[i++] = "Your weapon shocks your foes.";
-#endif
-
-		}
-		if (have_flag(flgs, TR_BRAND_FIRE))
-		{
-#ifdef JP
-info[i++] = "あなたの武器は敵を燃やす。";
-#else
-			info[i++] = "Your weapon burns your foes.";
-#endif
-
-		}
-		if (have_flag(flgs, TR_BRAND_COLD))
-		{
-#ifdef JP
-info[i++] = "あなたの武器は敵を凍らせる。";
-#else
-			info[i++] = "Your weapon freezes your foes.";
-#endif
-
-		}
-		if (have_flag(flgs, TR_BRAND_POIS))
-		{
-#ifdef JP
-info[i++] = "あなたの武器は敵を毒で侵す。";
-#else
-			info[i++] = "Your weapon poisons your foes.";
-#endif
-
-		}
-
-		/* Special "slay" flags */
-		if (have_flag(flgs, TR_KILL_ANIMAL))
-		{
-#ifdef JP
-info[i++] = "あなたの武器は動物の天敵である。";
-#else
-			info[i++] = "Your weapon is a great bane of animals.";
-#endif
-
-		}
-		else if (have_flag(flgs, TR_SLAY_ANIMAL))
-		{
-#ifdef JP
-info[i++] = "あなたの武器は動物に対して強い力を発揮する。";
-#else
-			info[i++] = "Your weapon strikes at animals with extra force.";
-#endif
-
-		}
-		if (have_flag(flgs, TR_KILL_EVIL))
-		{
-#ifdef JP
-info[i++] = "あなたの武器は邪悪なる存在の天敵である。";
-#else
-			info[i++] = "Your weapon is a great bane of evil.";
-#endif
-
-		}
-		else if (have_flag(flgs, TR_SLAY_EVIL))
-		{
-#ifdef JP
-info[i++] = "あなたの武器は邪悪なる存在に対して強い力を発揮する。";
-#else
-			info[i++] = "Your weapon strikes at evil with extra force.";
-#endif
-
-		}
-		if (have_flag(flgs, TR_KILL_HUMAN))
-		{
-#ifdef JP
-info[i++] = "あなたの武器は人間の天敵である。";
-#else
-			info[i++] = "Your weapon is a great bane of humans.";
-#endif
-
-		}
-		else if (have_flag(flgs, TR_SLAY_HUMAN))
-		{
-#ifdef JP
-info[i++] = "あなたの武器は人間に対して特に強い力を発揮する。";
-#else
-			info[i++] = "Your weapon is especially deadly against humans.";
-#endif
-
-		}
-		if (have_flag(flgs, TR_KILL_UNDEAD))
-		{
-#ifdef JP
-info[i++] = "あなたの武器はアンデッドの天敵である。";
-#else
-			info[i++] = "Your weapon is a great bane of undead.";
-#endif
-
-		}
-		else if (have_flag(flgs, TR_SLAY_UNDEAD))
-		{
-#ifdef JP
-info[i++] = "あなたの武器はアンデッドに対して神聖なる力を発揮する。";
-#else
-			info[i++] = "Your weapon strikes at undead with holy wrath.";
-#endif
-
-		}
-		if (have_flag(flgs, TR_KILL_DEMON))
-		{
-#ifdef JP
-info[i++] = "あなたの武器はデーモンの天敵である。";
-#else
-			info[i++] = "Your weapon is a great bane of demons.";
-#endif
-
-		}
-		else if (have_flag(flgs, TR_SLAY_DEMON))
-		{
-#ifdef JP
-info[i++] = "あなたの武器はデーモンに対して神聖なる力を発揮する。";
-#else
-			info[i++] = "Your weapon strikes at demons with holy wrath.";
-#endif
-
-		}
-		if (have_flag(flgs, TR_KILL_ORC))
-		{
-#ifdef JP
-info[i++] = "あなたの武器はオークの天敵である。";
-#else
-			info[i++] = "Your weapon is a great bane of orcs.";
-#endif
-
-		}
-		else if (have_flag(flgs, TR_SLAY_ORC))
-		{
-#ifdef JP
-info[i++] = "あなたの武器はオークに対して特に強い力を発揮する。";
-#else
-			info[i++] = "Your weapon is especially deadly against orcs.";
-#endif
-
-		}
-		if (have_flag(flgs, TR_KILL_TROLL))
-		{
-#ifdef JP
-info[i++] = "あなたの武器はトロルの天敵である。";
-#else
-			info[i++] = "Your weapon is a great bane of trolls.";
-#endif
-
-		}
-		else if (have_flag(flgs, TR_SLAY_TROLL))
-		{
-#ifdef JP
-info[i++] = "あなたの武器はトロルに対して特に強い力を発揮する。";
-#else
-			info[i++] = "Your weapon is especially deadly against trolls.";
-#endif
-
-		}
-		if (have_flag(flgs, TR_KILL_GIANT))
-		{
-#ifdef JP
-info[i++] = "あなたの武器はジャイアントの天敵である。";
-#else
-			info[i++] = "Your weapon is a great bane of giants.";
-#endif
-
-		}
-		else if (have_flag(flgs, TR_SLAY_GIANT))
-		{
-#ifdef JP
-info[i++] = "あなたの武器はジャイアントに対して特に強い力を発揮する。";
-#else
-			info[i++] = "Your weapon is especially deadly against giants.";
-#endif
-
-		}
-		/* Special "kill" flags */
-		if (have_flag(flgs, TR_KILL_DRAGON))
-		{
-#ifdef JP
-info[i++] = "あなたの武器はドラゴンの天敵である。";
-#else
-			info[i++] = "Your weapon is a great bane of dragons.";
-#endif
-
-		}
-		else if (have_flag(flgs, TR_SLAY_DRAGON))
-		{
-#ifdef JP
-info[i++] = "あなたの武器はドラゴンに対して特に強い力を発揮する。";
-#else
-			info[i++] = "Your weapon is especially deadly against dragons.";
-#endif
-
-		}
-
-		if (have_flag(flgs, TR_FORCE_WEAPON))
-		{
-#ifdef JP
-info[i++] = "あなたの武器はMPを使って攻撃する。";
-#else
-			info[i++] = "Your weapon causes greate damages using your MP.";
-#endif
-
-		}
-		if (have_flag(flgs, TR_THROW))
-		{
-#ifdef JP
-info[i++] = "あなたの武器は投げやすい。";
-#else
-			info[i++] = "Your weapon can be thrown well.";
-#endif
-		}
-	}
-
+	/* TODO: We used to spoil your first weapon, and ignore any alternate weapons. Rethink ... */
 
 	/* Save the screen */
 	screen_save();
@@ -2999,6 +2413,7 @@ bool detect_objects_magic(int range)
 			(tv == TV_DAEMON_BOOK) ||
 			(tv == TV_CRUSADE_BOOK) ||
 			(tv == TV_NECROMANCY_BOOK) ||
+			(tv == TV_ARMAGEDDON_BOOK) ||
 			(tv == TV_MUSIC_BOOK) ||
 			(tv == TV_HISSATSU_BOOK) ||
 			(tv == TV_HEX_BOOK) ||
@@ -3308,67 +2723,42 @@ msg_print("自然でないモンスターの存在を感じた！");
 /*
  * Detect all "living" monsters on current panel
  */
-bool detect_monsters_living(int range)
+bool detect_monsters_living(int range, cptr msg)
 {
 	int     i, y, x;
 	bool    flag = FALSE;
 
 	if (d_info[dungeon_type].flags1 & DF1_DARKNESS) range /= 3;
 
-	/* Scan monsters */
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type *m_ptr = &m_list[i];
 		monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
-		/* Location */
 		y = m_ptr->fy;
 		x = m_ptr->fx;
 
-		/* Only detect nearby monsters */
 		if (distance(py, px, y, x) > range) continue;
 
-		/* Detect non-living monsters */
 		if (monster_living(r_ptr))
 		{
 			/* Update monster recall window */
 			if (p_ptr->monster_race_idx == m_ptr->r_idx)
-			{
-				/* Window stuff */
 				p_ptr->window |= (PW_MONSTER);
-			}
 
-			/* Repair visibility later */
 			repair_monsters = TRUE;
-
-			/* Hack -- Detect monster */
 			m_ptr->mflag2 |= (MFLAG2_MARK | MFLAG2_SHOW);
-
-			/* Update the monster */
 			update_mon(i, FALSE);
-
-			/* Detect */
 			flag = TRUE;
 		}
 	}
 
-	/* Describe */
-	if (flag)
-	{
-		/* Describe result */
-#ifdef JP
-msg_print("自然でないモンスターの存在を感じた！");
-#else
-		msg_print("You sense potential blood!");
-#endif
+	if (flag && msg)
+		msg_print(msg);
 
-	}
-
-	/* Result */
-	return (flag);
+	return flag;
 }
 
 bool detect_monsters_magical(int range)
@@ -3757,17 +3147,17 @@ bool speed_monsters(void)
 /*
  * Slow monsters
  */
-bool slow_monsters(void)
+bool slow_monsters(int power)
 {
-	return (project_hack(GF_OLD_SLOW, p_ptr->lev));
+	return (project_hack(GF_OLD_SLOW, power));
 }
 
 /*
  * Sleep monsters
  */
-bool sleep_monsters(void)
+bool sleep_monsters(int power)
 {
-	return (project_hack(GF_OLD_SLEEP, p_ptr->lev));
+	return (project_hack(GF_OLD_SLEEP, power));
 }
 
 
@@ -3938,14 +3328,6 @@ bool genocide_aux(int m_idx, int power, bool player_cast, int dam_side, cptr spe
 	/* Delete the monster */
 	else
 	{
-		if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
-		{
-			char m_name[80];
-
-			monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
-			do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_GENOCIDE, m_name);
-		}
-
 		delete_monster_idx(m_idx);
 	}
 
@@ -3957,11 +3339,7 @@ bool genocide_aux(int m_idx, int power, bool player_cast, int dam_side, cptr spe
 		monster_desc(m_name, m_ptr, 0);
 		if (see_m)
 		{
-#ifdef JP
-			msg_format("%^sには効果がなかった。", m_name);
-#else
 			msg_format("%^s is unaffected.", m_name);
-#endif
 		}
 		if (MON_CSLEEP(m_ptr))
 		{
@@ -4463,15 +3841,6 @@ bool destroy_area(int y1, int x1, int r, int power)
 						}
 						else
 						{
-							if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
-							{
-								char m_name[80];
-
-								monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
-								do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_DESTROY, m_name);
-							}
-
-							/* Delete the monster (if any) */
 							delete_monster(y, x);
 						}
 					}
@@ -4652,7 +4021,7 @@ bool destroy_area(int y1, int x1, int r, int power)
 #endif
 
 			/* Blind the player */
-			if (!p_ptr->resist_blind && !p_ptr->resist_lite)
+			if (!res_save_default(RES_BLIND) && !res_save_default(RES_LITE))
 			{
 				/* Become blind */
 				(void)set_blind(p_ptr->blind + 10 + randint1(10), FALSE);
@@ -4667,7 +4036,7 @@ bool destroy_area(int y1, int x1, int r, int power)
 		/* Update stuff */
 		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE | PU_MONSTERS);
 
-		if (strcmp(weaponmaster_speciality1_name(), "Diggers") == 0)
+		if (weaponmaster_is_(WEAPONMASTER_DIGGERS))
 			p_ptr->update |= PU_BONUS;
 
 		/* Redraw map */
@@ -4835,7 +4204,7 @@ bool earthquake_aux(int cy, int cx, int r, int m_idx)
 		damage = 0;
 		if (!sn)
 		{
-			if (!mut_present(MUT_EVASION))
+			if (!mut_present(MUT_EVASION) || one_in_(2))
 			{
 				/* Message and damage */
 	#ifdef JP
@@ -4864,7 +4233,7 @@ bool earthquake_aux(int cy, int cx, int r, int m_idx)
 				}
 				case 2:
 				{
-					if (!mut_present(MUT_EVASION))
+					if (!mut_present(MUT_EVASION) || one_in_(2))
 					{
 	#ifdef JP
 						msg_print("岩石があなたに直撃した!");
@@ -4878,7 +4247,7 @@ bool earthquake_aux(int cy, int cx, int r, int m_idx)
 				}
 				case 3:
 				{
-					if (!mut_present(MUT_EVASION))
+					if (!mut_present(MUT_EVASION) || one_in_(2))
 					{
 	#ifdef JP
 						msg_print("あなたは床と壁との間に挟まれてしまった！");
@@ -5031,23 +4400,7 @@ bool earthquake_aux(int cy, int cx, int r, int m_idx)
 					/* Delete (not kill) "dead" monsters */
 					if (m_ptr->hp < 0)
 					{
-						/* Message */
-#ifdef JP
-						if (!ignore_unview || is_seen(m_ptr)) msg_format("%^sは岩石に埋もれてしまった！", m_name);
-#else
 						if (!ignore_unview || is_seen(m_ptr)) msg_format("%^s is embedded in the rock!", m_name);
-#endif
-
-						if (c_ptr->m_idx)
-						{
-							if (record_named_pet && is_pet(&m_list[c_ptr->m_idx]) && m_list[c_ptr->m_idx].nickname)
-							{
-								char m2_name[80];
-
-								monster_desc(m2_name, m_ptr, MD_INDEF_VISIBLE);
-								do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_EARTHQUAKE, m2_name);
-							}
-						}
 
 						/* Delete the monster */
 						delete_monster(yy, xx);
@@ -5194,7 +4547,7 @@ bool earthquake_aux(int cy, int cx, int r, int m_idx)
 	/* Update stuff */
 	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE | PU_MONSTERS);
 
-	if (strcmp(weaponmaster_speciality1_name(), "Diggers") == 0)
+	if (weaponmaster_is_(WEAPONMASTER_DIGGERS))
 		p_ptr->update |= PU_BONUS;
 
 	/* Update the health bar */
@@ -5282,14 +4635,6 @@ void discharge_minion(void)
 		project(i, 2+(r_ptr->level/20), m_ptr->fy,
 			m_ptr->fx, dam, typ, 
 			PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL, -1);
-
-		if (record_named_pet && m_ptr->nickname)
-		{
-			char m_name[80];
-
-			monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
-			do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_BLAST, m_name);
-		}
 
 		delete_monster_idx(i);
 	}
@@ -6286,7 +5631,7 @@ bool animate_dead(int who, int y, int x)
 
 void call_chaos(void)
 {
-	int Chaos_type, dummy, dir;
+	int chaos_type, dummy, dir;
 	int plev = p_ptr->lev;
 	bool line_chaos = FALSE;
 
@@ -6302,7 +5647,7 @@ void call_chaos(void)
 		GF_HELL_FIRE, GF_DISINTEGRATE, GF_PSY_SPEAR
 	};
 
-	Chaos_type = hurt_types[randint0(31)];
+	chaos_type = hurt_types[randint0(31)];
 	if (one_in_(4)) line_chaos = TRUE;
 
 	if (one_in_(6))
@@ -6312,23 +5657,23 @@ void call_chaos(void)
 			if (dummy - 5)
 			{
 				if (line_chaos)
-					fire_beam(Chaos_type, dummy, 150);
+					fire_beam(chaos_type, dummy, 150);
 				else
-					fire_ball(Chaos_type, dummy, 150, 2);
+					fire_ball(chaos_type, dummy, 150, 2);
 			}
 		}
 	}
 	else if (one_in_(3))
 	{
-		fire_ball(Chaos_type, 0, 500, 8);
+		fire_ball(chaos_type, 0, 500, 8);
 	}
 	else
 	{
 		if (!get_aim_dir(&dir)) return;
 		if (line_chaos)
-			fire_beam(Chaos_type, dir, 250);
+			fire_beam(chaos_type, dir, 250);
 		else
-			fire_ball(Chaos_type, dir, 250, 3 + (plev / 35));
+			fire_ball(chaos_type, dir, 250, 3 + (plev / 35));
 	}
 }
 
@@ -6441,7 +5786,7 @@ msg_print("彫像になった気分だ！");
 #endif
 
 				if (p_ptr->free_act)
-					set_paralyzed(p_ptr->paralyzed + randint1(3), FALSE);
+					set_paralyzed(p_ptr->paralyzed + randint1(2), FALSE);
 				else
 					set_paralyzed(p_ptr->paralyzed + randint1(13), FALSE);
 				stop_ty = TRUE;
@@ -6768,8 +6113,6 @@ bool charm_living(int dir, int plev)
 
 bool kawarimi(bool success)
 {
-	object_type forge;
-	object_type *q_ptr = &forge;
 	int y, x;
 
 	if (p_ptr->is_dead) return FALSE;
@@ -6778,11 +6121,7 @@ bool kawarimi(bool success)
 
 	if (!success && one_in_(3))
 	{
-#ifdef JP
-		msg_print("失敗！逃げられなかった。");
-#else
-		msg_print("Failed! You couldn't run away.");
-#endif
+		msg_print("Failed! You could not escape.");
 		p_ptr->special_defense &= ~(NINJA_KAWARIMI);
 		p_ptr->redraw |= (PR_STATUS);
 		return FALSE;
@@ -6793,27 +6132,21 @@ bool kawarimi(bool success)
 
 	teleport_player(10 + randint1(90), 0L);
 
-	object_wipe(q_ptr);
+	if (p_ptr->pclass == CLASS_NINJA)
+	{
+		object_type forge;
+		object_wipe(&forge);
+		object_prep(&forge, lookup_kind(TV_STATUE, SV_WOODEN_STATUE));
+		forge.pval = MON_NINJA;
+		drop_near(&forge, -1, y, x);
+	}
 
-	object_prep(q_ptr, lookup_kind(TV_STATUE, SV_WOODEN_STATUE));
-
-	q_ptr->pval = MON_NINJA;
-
-	/* Drop it in the dungeon */
-	(void)drop_near(q_ptr, -1, y, x);
-
-#ifdef JP
-	if (success) msg_print("攻撃を受ける前に素早く身をひるがえした。");
-	else msg_print("失敗！攻撃を受けてしまった。");
-#else
-	if (success) msg_print("You have turned around just before the attack hit you.");
+	if (success) msg_print("You have escaped just before the attack hit you.");
 	else msg_print("Failed! You are hit by the attack.");
-#endif
 
 	p_ptr->special_defense &= ~(NINJA_KAWARIMI);
 	p_ptr->redraw |= (PR_STATUS);
 
-	/* Teleported */
 	return TRUE;
 }
 
@@ -6836,6 +6169,9 @@ bool rush_attack(bool *mdeath)
 	if (mdeath) *mdeath = FALSE;
 
 	project_length = 5;
+
+	if (p_ptr->pclass == CLASS_MAULER)
+		project_length = 2;
 
 	/* Mega Hack for the Duelist */
 	if (p_ptr->pclass == CLASS_DUELIST)

@@ -126,7 +126,8 @@ static s32b _activation_p(object_type *o_ptr)
 	{
 		switch (o_ptr->name1)
 		{
-		case ART_GALADRIEL: return 500;
+		case ART_GALADRIEL: return 2500;
+		case ART_STONE_LORE: return 5000;
 		case ART_ELENDIL: return 5000;
 		case ART_JUDGE: return 20000;
 		case ART_CARLAMMAS: return 10000;
@@ -200,11 +201,8 @@ static s32b _activation_p(object_type *o_ptr)
 		case ART_ERIRIL: return 1200;
 		case ART_GANDALF: return 10000;
 		case ART_TURMIL: return 800;
-		case ART_BRAND: 
-		case ART_HELLFIRE: return 5000;
 		case ART_CRIMSON: return 2000;
 		case ART_PALANTIR: return 12000;
-		case ART_STONE_LORE: return 1000;
 		case ART_BOROMIR: return 1000;
 		case ART_FARAMIR: return 1000;
 		case ART_HIMRING: return 10000;
@@ -265,6 +263,7 @@ static s32b _activation_p(object_type *o_ptr)
 		case ART_STONE_OF_DAEMON: return 100000;
 		case ART_STONE_OF_CRUSADE: return 100000;
 		case ART_STONE_OF_CRAFT: return 125000;
+		case ART_STONE_OF_ARMAGEDDON: return 125000;
 		}
 	}
 	
@@ -361,13 +360,15 @@ static s32b _aura_p(u32b flgs[TR_FLAG_SIZE])
 	if (have_flag(flgs, TR_SH_FIRE)) ct++;
 	if (have_flag(flgs, TR_SH_ELEC)) ct++;
 	if (have_flag(flgs, TR_SH_COLD)) ct++;
+	if (have_flag(flgs, TR_SH_SHARDS)) ct++;
 	switch (ct)
 	{
 	case 0: p = 0; break;
 	case 1: p = 2000; break;
 	case 2: p = 5000; break;
 	case 3: p = 10000; break;
-	default: p = 10000; break; /* Do we add more auras and forget to update? */
+	case 4: p = 20000; break;
+	default: p = 20000; break; /* Do we add more auras and forget to update? */
 	}
 	return p;
 }
@@ -407,6 +408,9 @@ static s32b _stats_q(u32b flgs[TR_FLAG_SIZE], int pval)
 
 	if (have_flag(flgs, TR_SPELL_CAP))
 		q += 1000 * pval;
+
+	if (have_flag(flgs, TR_LIFE))
+		q += 5000 * pval;
 
 	return q;
 }
@@ -879,8 +883,8 @@ s32b jewelry_cost(object_type *o_ptr)
 		int x = o_ptr->to_h * ABS(o_ptr->to_h);
 		int y = o_ptr->to_d * ABS(o_ptr->to_d);
 
-		p += 100 * x;
-		p += 200 * y;
+		p += 50 * x;
+		p += 100 * y;
 
 		if (cost_calc_hook)
 		{
@@ -1133,7 +1137,7 @@ s32b weapon_cost(object_type *o_ptr)
 
 		if (have_flag(flgs, TR_FORCE_WEAPON))
 		{
-			s = (s * 1.50 + 2.0) * 0.25 + s * 0.75;
+			s = (s * 1.50 + 1.0) * 0.25 + s * 0.75;
 		}
 
 		if (have_flag(flgs, TR_VORPAL))
@@ -1354,6 +1358,12 @@ s32b bow_cost(object_type *o_ptr)
 
 	/* Base Cost calculated from expected damage output */
 	t = _avg_dam_bow(o_ptr->sval, o_ptr->to_d, have_flag(flgs, TR_XTRA_MIGHT));
+	if (have_flag(flgs, TR_BRAND_POIS)) t *= 1.25;
+	if (have_flag(flgs, TR_BRAND_ACID)) t *= 1.25;
+	if (have_flag(flgs, TR_BRAND_ELEC)) t *= 1.25;
+	if (have_flag(flgs, TR_BRAND_FIRE)) t *= 1.25;
+	if (have_flag(flgs, TR_BRAND_COLD)) t *= 1.25;
+
 	w = t * t * 5;
 	if (have_flag(flgs, TR_XTRA_SHOTS))
 		w = w * 3 / 2;

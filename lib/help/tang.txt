@@ -1,39 +1,51 @@
-=== The Hengband Newbie Guide ===
+=== The PosChengband Newbie Guide ===
 
 
 Note: This guide has been adapted from The Angband Newbie Guide by
 Chris Weisiger and has undergone certain revisions to conform more
-closely to Hengband.
+closely to PosChengband. And since PosChengband is a fork of PosChengband, it
+has again been modified to account for gameplay changes. So even
+if you are not a PosChengband Newbie (or even if you have played the
+beta releases of PosChengband) this guide might still be worth a quick
+look.
 
  
 === Basic Training ===
  
-When you load the game, select "Start a new character." Go through the
-step-by-step instructions for picking a gender, race, and class. For
-your first time, we recommend choosing a Golem Warrior. Avoid the
-spellcaster types; they're much more difficult to play. If you want
-basic information about races and classes, go to the on-line help
-(type "?") and read "Character Attributes". You should probably read
-most of the help files here; the commands list is especially important
-to someone new to Hengband.
+When you load the game, select "Start a new character." Go through 
+the step-by-step instructions for picking a gender, race, class and 
+personality. For your first time, we recommend choosing a Golem Warrior. 
+Avoid the spellcaster types; they're much more difficult to play. 
+Another option to try is a High-Elf Ninja. While Ninja's possess a
+unique playstyle very different from anything else in PosChengband, they
+are rather Newbie friendly. They have wonderful stealth and great
+early detection. They learn spells intrinsically as they gain levels
+so their are no books to find/buy (Simply press 'm' to use a power).
+Plus, they are my favorite class so I can't resist a shameless plug :)
+If you want basic information about races and classes, go to the on-line 
+help (type "?") and read "Character Attributes". You should probably 
+read most of the help files here; the commands list is especially 
+important to someone new to PosChengband.
 
 After naming your character, you'll start in the town. The various
 numbers represent stores, where you can buy new equipment and sell
 stuff you've found in the dungeon. The little ">" is a staircase, the
 entrance to the dungeon.  Stand on the entrance to the dungeon, and
-type ">", and you enters into the dungeon, and then type "<", and you
-return to the surface.
+type ">", and you enter into the dungeon, and then type "<", and you
+return to the surface. (Beware, when entering some of the dangerous
+dungeons from the wilderness, the stairs may sometimes collapse behind
+you, trapping you. This won't happen with the early dungeons, however).
 
 Next, type "<" again on the surface. If there are no hostile monsters
 near you, you will enters the Global Map mode which displays all the
-world of Hengband. Type ">" to return from global map mode to normal
+world of PosChengband. Type ">" to return from global map mode to normal
 map mode.
 
 If you want to know what a specific symbol stands for, type "/", and
 then the symbol. For instance, if you're wondering what all the t's
 are, type "/t", and the game will tell you that these are
-townspeople. You can also "l"ook at an item, feature, or
-monster. While looking, pressing space or enter will cycle through the
+townspeople. You can also "l"ook at an item, feature, or monster. 
+While looking, pressing space or enter will cycle through the
 different "interesting" things in view. There is also a full map
 function: type "M". It will bring up a map of the entire area (just a
 single screen in the case of the town, but useful later on in the
@@ -62,12 +74,13 @@ purchase a scroll of Phase Door. If you get surrounded by monsters,
 read it, and you'll be teleported a short distance away.
 
 Of course, it's possible that these items will not be available in the
-stores. The stores will "refresh" themselves every 1000 turns, getting
+stores. The stores will "refresh" themselves every so often, getting
 rid of old items and buying new ones. If you ever find that there's
-something you need which the stores don't currently have, you can wait
-a while for the stores to refresh.
+something you need which the stores don't currently have, you can 
+come back a bit later. However, to prevent "town scumming," the stores
+won't actually restock unless you do a bit of adventuring first.
 
-Hengband's not actually all that difficult to learn to play. You should
+PosChengband's not actually all that difficult to learn to play. You should
 get the hang of it fairly quickly.
  
 From here on we'll be giving detailed dungeon survival information.
@@ -78,7 +91,7 @@ you're sick and tired of dying, read ahead.
  
 === On weapons and multiple blows ===
 
-Most characters will start the game being able to get two blows per
+Some characters will start the game being able to get two blows per
 round with their weapon when attacking.  Whether or not you get more
 blows than this later in the game will be determined by your class, 
 your weapon weight, your Strength, and your Dexterity. Check your
@@ -111,18 +124,22 @@ Teleport
 Teleport Away
      teleports a monster (or several monsters) away from you. Safer
      than Teleport, but you might not be able to get them all in one
-     strike.
+     strike. Plus, many monsters resist teleportation and some are
+     completely immune.
 
 Teleport Level
      moves you up or down one level. If the level you're on is full of
      dangerous monsters and you need to teleport, this could be your
      ticket to safety.
 
-*Destruction*
-     this powerful spell removes everything (including artifacts!)
+Destruction
+     This powerful spell removes everything (including artifacts!)
      from the area around you, blasting the surroundings and causing
      rock to fall from the ceiling. If you're ever in deep trouble,
-     this is the safest way to escape.
+     this is the safest way to escape. However, even Destruction
+     isn't foolproof. Monsters get a saving throw and can avoid being
+     removed. And their is even a certain monster that is completely
+     immune to Destruction!
 
 --- Healing Items ---
 
@@ -208,7 +225,7 @@ not a perfect escape method.
 
 === On Resistances ====
 
-There are many different kinds of attacks in Hengband, generally
+There are many different kinds of attacks in PosChengband, generally
 falling under physical, magical, and breath attacks. They can all cause
 specialized kinds of damage, which can kill a character if he/she does
 not have resistance to that attack. The majority of attack types have a
@@ -230,18 +247,31 @@ of the basic resistances, and also perhaps one or two "high"
 resistances.
 
 Resistances generally chop off a significant amount of damage, ranging
-from 1/5 to 2/3. Also, it is possible to doubly resist the basic four
-resistances and poison. When you doubly resist these, damage is chopped
-to 1/9. Double resistance is NOT having two permanent sources of the
-same resist! Double resistance is having both a permanent source and a
-temporary source. Multiple permanent sources do nothing for you.
+from 35% to 75%. Also, resistances in PosChengband stack, so having multiple
+sources of a single type of resistance is beneficial, although each added
+source of the resistance offers diminishing returns. Finally, their are
+spells (and potions) that provide temporary resistances that likewise
+stack with those provided by your equipment. Having a single source of
+resistance provides 50% damage reduction on average, though the actual
+damage reduction per attack is slightly randomized. Having a second source
+bumps the coverage up to 65%, and so on (These numbers are subject to change,
+of course. Quaff a potion of self knowledge to view the correct values).
+
 Resistances are vital to survival in the dungeon. For instance, the
 most powerful of fire dragons, the Great Hell Wyrm, can breath fire
-(big surprise). Unresisted, the damage caused is 1600 HPs worth; more
-than enough to kill the mightiest of warriors (if he's lucky, a warrior
-might top out at about 1200 HPs at level 50). However, if you have fire
-resistance, this is chopped to 1/3-533 damage. If you doubly resist the
-breath, the damage is a paltry 178 HP.
+(big surprise). Unresisted, the damage caused is 900 HPs worth; more
+than enough to kill the average character. However, if you have fire
+resistance, this is chopped to 360 HP to 540 HP (depending on the 
+randomness of your 50% damage reduction) which is far easier to survive. 
+Add a second source of resistance to fire and your damage is reduced 
+even more: 220 HP to 390 HP. Add a third source and ... You get the idea.
+
+In PosChengband, every resistance matters so you will eventually want
+to cover them all. As you gain experience, you will learn which situations
+warrant which resistances and may be able to play successfully even
+with multiple "resistance holes." But it is only a matter of time before
+some monster (probably off-screen) takes you down, so err on the side
+of caution.
  
 === On Important Depths ===
 
@@ -256,10 +286,10 @@ message.
 25 (1250'): Basic four Resistances
 30 (1500'): Confusion Res, Blindness Res(Magician only), (Nexus Res)
 35 (1750'): Poison Resistance, Blindness Resistance (for all)
-40 (2000'): Nether Res, Chaos Res, (Darkness Res; sometimes)
+40 (2000'): Nether Res, Chaos Res, Darkness Res (Beware of Jack!)
 50 (2500'): Hold Life, Telepathy
 60 (3000'): Permanent Speed of +10 or greater
-70 (3500'): Permanent Speed of +15 or greater, Shard Res, Darkness Res
+70 (3500'): Permanent Speed of +15 or greater, Shard Res
 90 (4500'): Permanent Speed of +25 or greater
 99 (4950'): As much as you can get. Sustains, Speed, every resistance, 
  
@@ -280,13 +310,16 @@ when blinded or confused, although with a decent failure rate. Scrolls
 are fail-safe.
 
 Poison Resistance is necessary because two monsters, Ancient
-Multi-Hued Dragons, and Drolems, start showing up at about depth. Both
+Multi-Hued Dragons, and Drolems, start showing up at about L38. Both
 of these monsters breath poison for huge amounts of damage (700 and
 800 points, respectively). Moreover Poison Resistance is necessary
 to prevent fearful side effect of Toxic waste.
 
 Hold Life is very nice, but not important. If you can't get it, carry
-lots of Potions of Restore Life Levels.
+lots of Potions of Restore Life Levels. Or you can have your life
+restored in the town, but it can be aggravating to have to wait for
+a recall, especially if you are in the middle of exploring an
+interesting level.
 
 Chaos Resistance is *vital* since it not only does significant damage
 but can also have nasty side effects like causing hallucinations or
@@ -318,28 +351,15 @@ while and don't find anything, just give up and move on. Sometimes a
 dead end will occur near the end of a map, where there is no room to
 have a continuing corridor, and so no secret door is generated.
  
-=== On the Maximize/Preserve modes ===
+=== On the Preserve mode ===
 
-These are selected on or off at character creation, and cannot be
+This is selected on or off at character creation, and cannot be
 changed after that.
-
-Maximize mode: with Maximize mode off, your statistics max out at
-18/100, without outside magical effects, like a Ring of Strength. When
-Maximize mode is on, where your stats max out at is determined by your
-race and class. For instance, any Mage has -5 to Strength. A Human
-Mage's strength (Humans have no racial stat differences), therefore,
-could max out at 18/50, instead of 18/100. However, Mages also have +3
-to Intelligence. A Human Mage's Intelligence would max out at 18/130.
-When Maximize mode is off, it is possible to achieve higher starting
-stats for characters; a Gnomish Mage might be able to start with 18/80
-Intelligence. However, since your stats can't reach as high levels,
-the end game is harder than with Maximize mode on.
 
 Preserve mode: with Preserve mode off, if a level is created with an
 artifact on it, and you don't get that artifact, it is gone forever.
 When Preserve mode is on, you always can find the artifact again unless
-you have already identified it and then leave it behind. However, in
-preserve mode you lose the "special" level feeling (more below). 
+you have already identified it and then leave it behind.
  
 === On Level Feelings ===
 
@@ -355,13 +375,14 @@ anything special; a normal, non-magical katana could provoke a high
 level feeling at low depths, because it is so unusual. Also, pits
 (large rooms filled with a single type of monster) and vaults (dense,
 dangerous rooms with many out of depth monsters and items) can cause
-high level feelings. There is also a Special feeling, available only to
-players with Preserve mode off, which tells the player that there is an
-artifact on the level (most of the time. Sometimes, especially in the
-earlier levels, a monster pit or a vault will often trigger a special
-feeling). Also, if you have not spent enough time on the previous level
-before entering the new one, you get the feeling "Looks like any other
-level" which gives you no information whatsoever.
+high level feelings. There is also a Special feeling which tells the 
+player that there is an artifact on the level. Also, if you have not 
+spent enough time on the previous level before entering the new one, 
+you get the feeling "Looks like any other level" which gives you no 
+information whatsoever. The speed at which you receive level feelings
+is influenced by your Wisdom, so if your big, stupid warrior seems to
+wait forever for level feeling, check out his Wisdom and maybe roll
+up a better one next time.
  
 === On weapons and armor ===
 
@@ -392,7 +413,7 @@ body armors have a small negative number before the base armor bonus
 that you have trouble moving around in it). However, this penalty is
 small enough for all but the youngest of characters to ignore.
 
-Rings of Combat or Skill have a single (+y) or (+x). When worn, they
+Rings of Damage or Accuracy have a single (+y) or (+x). When worn, they
 affect your to-damage and to-hit bonus in melee battle respectively.
 
 [a,+b]. This is the item's base armor class and magical bonus to
@@ -400,9 +421,10 @@ armor. The higher, the better. While theoretically, a weapon could
 provide a base armor bonus, none of them do, and only a few weapons
 have a magical bonus to armor.
 
-Rings of Protection have a single [+b], which increases your AC. They
-are also practically worthless; the valuable ring slot is almost
-certainly better off being used for something else.
+Rings of Protection have a single [+b], which increases your AC and
+are very useful if you find that monsters are hitting to hard in 
+melee. With a better AC, monsters will miss more often, and when they
+do hit, their damage will be slightly lessened.
 
 (+c). This is the item's magical bonus to other statistics: Strength,
 Intelligence, Wisdom, Constitution, Dexterity, Charisma, Speed,
@@ -412,7 +434,7 @@ does not affect every stat in this list! Most items that have a +c only
 affect one or two of these stats. Some items affect more (A Weapon of
 Westernesse affects Strength, Dexterity, and Constitution)].
  
-As a side note for the above: Hengband follows the parenthesis for any
+As a side note for the above: PosChengband follows the parenthesis for any
 item. If you see a number in brackets, like this: [b], it is a bonus to
 AC. If it is in parenthesis, like this: (+x), it is either a bonus to a
 stat or to hit/damage (and which should normally be obvious by the name
@@ -449,18 +471,20 @@ melee weapons.)
 Many weapons you find in the dungeon are considered to be particularly
 deadly against a type of creature. These qualities are collectively
 known as slays. They double, triple, or multiply by five *the damage
-done by the damage dice*. They DO NOT affect bonuses to damage. Thus,
-while slays may play an important part in the early game (especially if
-you find a weapon of Slay Orc), in the later part of the game, where
-magical bonuses to damage all but take over combat, slays play a very
-minor role. The rundown on slays:
+done by the damage dice*. They DO NOT affect bonuses to damage. Thus
+the utility of slays is highly dependant on the type of weapon in question.
+For example, a Broken dagger (1d1) with a slay is hardly useful, but
+a Mace of Disruption (5d8) with a slay is. Especially when you also
+factor in Critical Hits.
+
+The rundown on slays:
 
      Slay (or *Slay*) Evil: x2 damage dice against evil monsters
-     Slay (or *Slay*) Animal, Undead, Demon, Giant, Dragon: x2 damage
+     Slay (or *Slay*) Animal, Undead, Demon, Giant, Dragon: x3 damage
        dice against the relevant monster type
 
 The brands ("of Melting", "of Burning", "of Freezing", "of Shocking",
-and "of Poisoning") all do x2 damage dice to those monsters not
+and "of Poisoning") all do x2.5 damage dice to those monsters not
 resistant to the relevant element. There is also a "(Vampiric)" brand
 which will suck life from your foes and heal you at the same time and
 a "(Chaotic)" brand which can cause some unexpected results when using
@@ -470,7 +494,7 @@ it!
 === On the Monster Memory ===
 
 In many other games, you are required to take notes on monster's
-weaknesses, strengths, spells, et cetera. Hengband takes care of this
+weaknesses, strengths, spells, et cetera. PosChengband takes care of this
 for you, with the handy Monster Memory. Every time you find out
 something new about a monster, like that it can breathe fire, this is
 added to your knowledge of the monster. To look over this knowledge,
@@ -502,7 +526,7 @@ are poisonous. A Multi-Hued monster is all of these.
 === On the Preferences ===
 
 The preferences screen is reached by typing "=". It contains many
-different preferences that make Hengband more enjoyable. There are a few
+different preferences that make PosChengband more enjoyable. There are a few
 that I would recommend. Turn both stacking options ON. This maximizes
 your treasure collection. Turn the Low Hitpoint Warning ON, and place
 the warning percent at about 50%. You'll see the effects of this
@@ -517,32 +541,34 @@ map, and others.
  
 === On Death ===
 
-Death in Hengband is permanent. Saving in Hengband is meant only to let
+Death in PosChengband is permanent. Saving in PosChengband is meant only to let
 you pick up where you left off; if you die, your savefile is marked.
 The next time you try to use the savefile, you will get the new
 character dialogue. Ancestors of dead characters will retain their
 monster memory and preferences. Many people here have characters like
-"Yuppy XIV"; people die very often in Hengband.
+"Yuppy XIV"; people die very often in PosChengband, so don't get discouraged
+if you do too.
 
 Some people make backup savefiles; if their character dies, they simply
 load the older character, and pick up where they left off. They lose
 what happened after making the backup, but they're alive. However, this
 is considered cheating of the highest degree. The only really legal
 reason to use savefile abuse ("savefile scumming") is if your computer
-crashed or some other external problem killed your character.
+crashed or some other external problem killed your character (e.g.
+a software bug, but PosChengband has been rigorously proven to be bug
+free so this should never happen </sarc>).
 
 There is an option in the Cheating menu in the preferences which
 allows you to cheat death. However, like all the other cheating
 options, it invalidates your high-score and makes it impossible to
-truly win the game. It also sets your Social Status to zero, so
-everyone knows what a scumbag you are.
+truly win the game.
 
  
-=== On Hengband Time ===
+=== On PosChengband Time ===
 
-If there is one feature of Hengband that tends to confuse people
+If there is one feature of PosChengband that tends to confuse people
 (especially veterans of other *band), it is how the speed system in
-Hengband works. 
+PosChengband works. 
 
 As in other variants, the energy you and monsters get each turn depends 
 on speed.  Unlike in other variants, this value is only an average; be 
@@ -563,7 +589,14 @@ Be aware that speeds increases above about +28 to +35 are much less useful.
 === Advanced techniques for killing monsters ===
 
 Pillardancing.
-     Not recommended in Hengband:  monsters move at irregular speeds.
+     Not recommended in PosChengband:  monsters move at irregular speeds.
+     Also, monsters may "splash" the player with powerful breaths or
+     spells, so you will quickly take life threatening damage when 
+     facing high level opponents. Monsters can also summon if they
+     can see the square next to you, so this is also a good way
+     to become surrounded by powerful enemies. Finally, the most
+     deadly of foes can simply disintegrate the pillar, exposing
+     you to the full wrath of their fury.
 
 Shoot'n Scoot.
      Requires a large room, Phase Door, and some type of missile
@@ -588,10 +621,15 @@ The Anti-Summoning Corridor.
      yourself at one end of it. When your opponent arrives, he won't be
      able to summon any monsters next to you. This is a very important
      technique for fighting many higher-end monsters which very quickly
-     bring in a horde of other monsters.
+     bring in a horde of other monsters. Well, actually monsters might
+     be able to summon a bit as they approach and gain line of sight to
+     a square adjacent to you, but having a single monster or two appear
+     is far, far better than facing a rampant, scummy summoner out in
+     the open!
  
 
 --
 Original   : Chris Weisiger (TANG version 1.6.2)
 Updated    : Zangband DevTeam
 Updated    : Hengband 1.0.11
+Updated    : PosChengband 1.0.0

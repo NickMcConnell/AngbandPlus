@@ -1,13 +1,13 @@
-=== Hengband Magic System ===
+=== PosChengband Magic System ===
 
 
-The magic system of Hengband is a modified version of Zangband's, with many
-new features added.  There are two kind of magic in Hengband:  Spellbook
+The magic system of PosChengband is a modified version of Zangband's, with many
+new features added.  There are two kind of magic in PosChengband:  Spellbook
 magic, similar to the normal magic system of Zangband, and class-specific
 magic, similar to Zangband's mindcrafting.
 
 You might not be able to understand the function of every magic spell
-by reading its name or casting it a few times.  In Hengband, spells
+by reading its name or casting it a few times.  In PosChengband, spells
 have descriptions.  Use the browse command ("b"/"P") and choose a
 spell from the list to see its description.
 
@@ -21,7 +21,7 @@ intelligence, wisdom, or charisma.  For spellcasting, you must always
 carry spellbooks which include spells which you want to cast.  You can
 choose either one or two realms, depending on class.  
 
-In Hengband, you cannot be as proficient in secondary realm as in
+In PosChengband, you cannot be as proficient in secondary realm as in
 first realm.  But you can change secondary realm to other realm of
 magic even in the middle of the game.  For that, you must choose a
 spellbook of new realm in the study command ('G').  But beware! After

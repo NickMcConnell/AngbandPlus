@@ -31,9 +31,6 @@
  * object or monster lists are already nearly full.  Rooms will not
  * appear above their minimum depth.  Tiny levels will not have space
  * for all the rooms you ask for.
-
- * CTK: I've heavily hacked this ... OVERLAP, FRACAVE and CRYPT rooms
- *      no longer spawn. I've toned down room sizes as well.
  */
 static room_info_type room_info_normal[ROOM_T_MAX] =
 {
@@ -686,8 +683,6 @@ static bool build_type2(void)
 	bool		light;
 	cave_type   *c_ptr;
 
-return build_type1();
-
 	/* Find and reserve some space in the dungeon.  Get center of room. */
 	if (!find_space(&yval, &xval, 11, 25)) return FALSE;
 
@@ -1066,8 +1061,6 @@ static bool build_type4(void)
 	int         y2, x2, tmp, yval, xval;
 	bool        light;
 	cave_type   *c_ptr;
-
-/*return build_type1();*/
 
 	/* Find and reserve some space in the dungeon.  Get center of room. */
 	if (!find_space(&yval, &xval, 11, 25)) return FALSE;
@@ -1655,18 +1648,12 @@ static bool vault_aux_giant(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Validate the monster */
 	if (!vault_monster_okay(r_idx)) return (FALSE);
-
-	/* Require giant */
 	if (!(r_ptr->flags3 & RF3_GIANT)) return (FALSE);
-
+	if (r_ptr->flags4 & RF4_THROW) return FALSE;
 	if (r_ptr->flags3 & RF3_GOOD) return (FALSE);
-
-	/* Decline undead */
 	if (r_ptr->flags3 & RF3_UNDEAD) return (FALSE);
 
-	/* Okay */
 	return (TRUE);
 }
 
@@ -1964,7 +1951,7 @@ static vault_aux_type pit_types[] =
 #ifdef JP
 	{"オーク",       vault_aux_orc,      NULL,               5, 6},
 	{"トロル",       vault_aux_troll,    NULL,              20, 6},
-	{"ジャイアント", vault_aux_giant,    NULL,              50, 6},
+	{"ジャイアント", vault_aux_giant,    NULL,              20, 6},
 	{"狂気",         vault_aux_cthulhu,  NULL,              80, 2},
 	{"シンボル(善)", vault_aux_symbol_g, vault_prep_symbol, 70, 1},
 	{"シンボル(悪)", vault_aux_symbol_e, vault_prep_symbol, 70, 1},
@@ -1976,7 +1963,7 @@ static vault_aux_type pit_types[] =
 #else
 	{"orc",          vault_aux_orc,      NULL,               5, 6},
 	{"troll",        vault_aux_troll,    NULL,              20, 6},
-	{"giant",        vault_aux_giant,    NULL,              50, 6},
+	{"giant",        vault_aux_giant,    NULL,              20, 6},
 	{"lovecraftian", vault_aux_cthulhu,  NULL,              80, 2},
 	{"symbol good",  vault_aux_symbol_g, vault_prep_symbol, 70, 1},
 	{"symbol evil",  vault_aux_symbol_e, vault_prep_symbol, 70, 1},
@@ -3748,11 +3735,9 @@ static bool build_type9(void)
 
 	bool done, light, room;
 
-return build_type1();
-
 	/* get size: note 'Evenness'*/
-	xsize = randint1(22) * 2 + 6;
-	ysize = randint1(15) * 2 + 6;
+	xsize = randint1(10) * 2 + 8;
+	ysize = randint1(6) * 2 + 6;
 
 	/* Find and reserve some space in the dungeon.  Get center of room. */
 	if (!find_space(&y0, &x0, ysize + 1, xsize + 1))
@@ -5501,8 +5486,6 @@ static bool build_type12(void)
 	h2 = randint1(16);
 	h3 = randint1(32);
 	h4 = randint1(32) - 16;
-
-return build_type1();
 
 	/* Occasional light */
 	if ((randint1(dun_level) <= 5) && !(d_info[dungeon_type].flags1 & DF1_DARKNESS)) light = TRUE;

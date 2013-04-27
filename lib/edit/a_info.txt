@@ -199,7 +199,7 @@ N:6:ドワーフの
 E:of the Dwarves
 I:40:12:3
 W:70:70:3:75000
-F:STR | CON | INFRA | HIDE_TYPE |
+F:STR | CON | INFRA | HIDE_TYPE | RES_BLIND
 F:SEE_INVIS | FREE_ACT | REGEN | LITE | INSTA_ART
 D:$The Nauglamir; a carencet of gold set with a multitude of shining gems of 
 D:$Valinor, accenting a radiant Silmaril.  The sturdy spirits of Dwarvish 
@@ -1457,18 +1457,14 @@ D:恐怖の黒いルーン文字が鋼の刃身にくっきりと浮かび上がっている
 D:恐るべき剣。敵に近付くにつれ激しい殺戮のエネルギーを発する。
 
 
-# The Two-Handed Sword 'Mormegil' -> Twilight
-
-#JZ# 炎の巨人スルトが世界に火を放った燃える剣
-N:78:『神々の黄昏』
+N:78:'Twilight'
 E:'Twilight'
 I:23:25:10
 W:30:15:250:0
 P:0:4d6:-40:-60:-50
+F:QUESTITEM
 F:SPEED | IM_FIRE | RES_FIRE | BRAND_FIRE | RES_DISEN | 
-F:AGGRAVATE | CURSED | HEAVY_CURSE | SHOW_MODS | TY_CURSE | LITE
-F:RANDOM_CURSE2
-D:北欧神話において炎の巨人スルトが世界に火を放った燃える剣だ。
+F:SHOW_MODS | LITE
 
 # The Cutlass 'Gondricam'
 
@@ -1509,10 +1505,10 @@ D:刀身には生ける者と不死の者の双方にとっての破滅の呪文が刻まれている。
 
 N:81:『アグララング』
 E:'Aglarang'
-I:23:20:2
+I:23:20:3
 W:50:25:50:150000
-P:0:8d4:0:0:0
-F:DEX | HIDE_TYPE | BLOWS | VORPAL |
+P:0:8d6:0:0:0
+F:DEX | HIDE_TYPE | VORPAL |
 F:SUST_DEX | SHOW_MODS | SPEED
 D:$An utterly perfect, cleanly chiseled sword, with a edge that effortlessly
 D:$ slices rock and bone and spells to render the wearer lithe and nimble. It
@@ -1573,14 +1569,14 @@ D:手下もその刃に耐えることはできない。
 #JZ# アンバー後半である人が使うらしい
 N:84:『ワーウィンドル』
 E:'Werewindle'
-I:23:17:2
+I:23:17:3
 W:20:40:130:120000
-P:0:2d5:8:12:0
+P:0:3d5:8:12:0
 F:STR | CON | HIDE_TYPE | CHAOTIC | REGEN | SLOW_DIGEST |
 F:SLAY_EVIL | BRAND_ELEC | SLAY_DEMON | FREE_ACT | RES_ELEC |
 F:RES_LITE | LITE | SEE_INVIS | SHOW_MODS | ACTIVATE | SPEED |
 F:SUST_CON | SUST_STR | SUST_INT | SUST_WIS | RES_DARK |
-F:RES_DISEN | BLOWS
+F:RES_DISEN
 D:夜の剣グレイスワンダーと対をなす昼の剣で、トランプの魔力が込められている。
 D:「それは黄金の素晴らしい打出し模様が施された、長い濃緑色の鞘だった。
 D:そこから突き出ている剣の柄は金メッキされているらしく、柄頭には
@@ -1596,7 +1592,7 @@ N:85:『チェンソー』
 E:'Chainsword'
 I:23:16:-2
 W:50:50:130:66666
-P:0:11d5:-30:7:0
+P:0:7d5:-30:7:0
 F:DEX | CHR | STEALTH | HIDE_TYPE | SPEED | AGGRAVATE | VORPAL |
 F:SLAY_HUMAN | SLAY_TROLL | SLAY_ORC | SEE_INVIS | SHOW_MODS |
 F:ESP_ORC | ESP_TROLL | ESP_HUMAN
@@ -1658,10 +1654,10 @@ D:内なる勇気と試練を切りぬける力を呼び覚ます。
 #JZ# ???
 N:89:『ソウルソード』
 E:'Soulsword'
-I:23:18:2
+I:23:18:3
 W:20:20:130:111111
-P:0:2d5:9:11:0
-F:INT | WIS | BLOWS | SEE_INVIS | BLESSED |
+P:0:3d5:9:11:0
+F:INT | WIS | SEE_INVIS | BLESSED |
 F:SLAY_ANIMAL | SLAY_EVIL | SLAY_UNDEAD | SLAY_DRAGON | SLAY_DEMON |
 F:RES_CHAOS | RES_DISEN | RES_NEXUS | RES_NETHER | HOLD_LIFE |
 F:SHOW_MODS | XTRA_RES_OR_POWER
@@ -1687,14 +1683,14 @@ D:一つだ。（R.ゼラズニイ、真世界アンバーシリーズ 6-10 巻）
 #J0#N:91:『悪運招致者』
 N:91:『災いを招く者』
 E:'Doomcaller'
-I:23:30:-5
+I:23:30:-3
 W:70:25:180:250000
 P:0:6d6:18:28:0
 F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | BRAND_COLD | SLAY_TROLL |
 F:SLAY_ORC | FREE_ACT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
 F:RES_CONF | RES_CHAOS | SEE_INVIS | TELEPATHY | AGGRAVATE | SHOW_MODS |
 F:SLAY_HUMAN | CHAOTIC | VORPAL | BRAND_FIRE | BRAND_POIS | LITE | 
-F:CON | VAMPIRIC
+F:LIFE | CON | VAMPIRIC
 D:$This weapon of wrath, cursed with a violent anger, dives hungrily 
 D:$into the flesh of its enemies. It gathers shadows of death into its 
 D:$owner as they inflict wounds that will never heal.
@@ -2340,8 +2336,9 @@ N:126:狂気の夢想家ブランドの
 E:of Brand
 I:19:23:5
 W:50:25:110:100000
-P:0:0d0:15:19:0
-F:SPEED | RES_FIRE | XTRA_MIGHT | ACTIVATE | SHOW_MODS | XTRA_RES_OR_POWER
+P:0:0d0:10:12:0
+F:SPEED | RES_FIRE | XTRA_MIGHT | SHOW_MODS | XTRA_RES_OR_POWER
+F:BRAND_FIRE
 D:トランプの魔力を自分の物にし、新たな宇宙を創造しようとした
 D:アンバーの王子ブランドが使っていたクロスボウだ。
 D:その魔力により装備するものは非常に素早く行動できる。
@@ -2647,7 +2644,7 @@ I:40:19:3
 W:65:50:3:90000
 F:INT | CHR | SEARCH | HIDE_TYPE |
 F:SEE_INVIS | FREE_ACT | ACTIVATE |
-F:RES_FIRE | RES_COLD | RES_ELEC | SPELL_CAP
+F:RES_FIRE | RES_COLD | RES_ELEC | 
 F:INSTA_ART
 
 N:150:『斬鉄剣』
@@ -3360,8 +3357,8 @@ D:軽く感じられるだろう。
 
 N:211:ナインの
 E:of Nain
-I:20:7:6
-W:60:5:250:80000
+I:20:7:5
+W:60:10:250:80000
 P:0:3d8:12:18:0
 F:TUNNEL | INFRA | SEARCH | STR | 
 F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT | SLAY_DRAGON | 
@@ -3385,8 +3382,8 @@ E:of Gothmog
 I:21:2:-2
 W:60:35:90:66666
 P:0:3d6:13:15:0
+F:QUESTITEM
 F:INT | WIS | DEX | STEALTH | HIDE_TYPE | SLAY_HUMAN |
-F:HEAVY_CURSE | CURSED | AGGRAVATE | 
 F:BRAND_FIRE | IM_FIRE | RES_ELEC | RES_DARK | LITE
 F:SLAY_ANIMAL | SLAY_ORC | SLAY_TROLL | SLAY_GIANT | 
 F:ACTIVATE | SHOW_MODS
@@ -3506,9 +3503,10 @@ N:222:『ヘルファイア』
 E:of Hellfire
 I:19:23:4
 W:30:15:110:60000
-P:0:2d1:15:17:0
+P:0:2d1:10:12:0
 F:STR | INFRA | RES_FIRE | SH_FIRE |
-F:ACTIVATE | HIDE_TYPE | SHOW_MODS
+F:HIDE_TYPE | SHOW_MODS
+F:BRAND_FIRE
 D:$This crossbow gives flame energy to bolts which it fires.
 D:この燃えるような色のクロスボウは、発射するボルトに炎の力を
 D:与えることができる。
@@ -3519,6 +3517,7 @@ I:19:23:4
 W:35:30:110:50000
 P:0:0d0:40:13:0
 F:DEX | HIDE_TYPE | SEE_INVIS | XTRA_MIGHT | SHOW_MODS
+F:SLAY_HUMAN
 D:$With this crossbow, Swiss hero Tell shot an apple exactly 
 D:$though it was on his son's head, and then he defeated evil 
 D:$magistrate Gessler.
@@ -3902,15 +3901,15 @@ I:40:29:5
 W:90:127:2:555555
 P:0:0d0:5:5:5
 F:SPEED | MAGIC_MASTERY | LITE | REGEN | FREE_ACT |
-F:RES_SHARDS | SH_ELEC | PERMA_CURSE | ACTIVATE | QUESTITEM
+F:RES_SHARDS | SH_ELEC | PERMA_CURSE | ACTIVATE | QUESTITEM | INSTA_ART
 D:$This is the charm worn by Zeus, King of the Olympians and Bane of the Titans.
 
 N:257:TRANSLATE
 E:of Poseidon
 I:22:5:3
 W:90:127:70:555555
-P:0:24d1:24:24:0
-F:STR | DEX | CON | SPEED | BRAND_ACID | SLAY_EVIL
+P:0:30d1:30:30:0
+F:STR | DEX | SPEED | BRAND_ACID | SLAY_EVIL
 F:ORDER | RES_ACID | RES_FIRE | RES_SOUND | ACTIVATE |
 F:PERMA_CURSE | QUESTITEM
 
@@ -3928,11 +3927,12 @@ D:$This simple tunic belongs to Hades, Lord of the Underworld.
 
 N:259:TRANSLATE
 E:of Athena
-I:22:2:5
+I:22:2:-4
 W:90:127:50:555555
 P:0:3d6:15:15:15
-F:DEX | INT | WIS | SUST_INT | SUST_WIS | DEC_MANA | BLESSED
+F:SUST_INT | SUST_WIS | DEC_MANA | BLESSED
 F:HOLD_LIFE | TELEPATHY | PERMA_CURSE | ACTIVATE | QUESTITEM
+F:STR | DEX | CON | SPELL_POWER
 D:$This is the favored weapon of Athena, the great goddess of War and Wisdom.
 
 N:260:TRANSLATE
@@ -4010,7 +4010,7 @@ P:0:1d1:0:0:25
 F:CHR | SUST_CHR | RES_POIS | RES_BLIND | RES_NEXUS |
 F:RES_CHAOS | RES_DISEN | FREE_ACT | SEE_INVIS | LEVITATION |
 F:TELEPATHY | REFLECT | AGGRAVATE | PERMA_CURSE | ACTIVATE |
-F:QUESTITEM
+F:QUESTITEM | INSTA_ART
 D:$The legendary Apple of Discord, created by Eris in revenge for 
 D:$not being invited to the wedding of Peleus and Thetis. On this 
 D:$apple is engrave "For the Fairest," and Athena, Hera, and Aphrodite 
@@ -4023,7 +4023,7 @@ I:31:6:-2
 W:66:222:1:666666
 P:0:1d1:0:0:0
 F:CHR | DEC_MANA
-F:FREE_ACT | PERMA_CURSE | QUESTITEM
+F:FREE_ACT | PERMA_CURSE | QUESTITEM | INSTA_ART
 D:$It is a charred and rotting vestige of the once
 D:$great Emperor Lich.
 
@@ -4033,7 +4033,7 @@ I:39:10:2
 W:66:222:1:666666
 P:0:1d1:0:0:0
 F:INT | ACTIVATE | EASY_SPELL | SPELL_CAP
-F:TELEPATHY | PERMA_CURSE | QUESTITEM
+F:TELEPATHY | PERMA_CURSE | QUESTITEM | INSTA_ART
 D:$It is a shriveled vestige of the once
 D:$great Emperor Lich.
 
@@ -4049,19 +4049,19 @@ N:271:TRANSLATE
 E:'Ballista'
 I:19:24:3
 W:30:15:110:60000
-P:0:2d1:10:24:0
+P:0:2d1:10:12:0
 F:XTRA_MIGHT | ACTIVATE | HIDE_TYPE | SHOW_MODS
 F:STR | RES_CONF
 
 N:272:Translate
 E:of the Kamikaze Warrior
-I:36:2:5
+I:36:2:2
 W:50:40:20:80000
-P:2:0d0:0:0:-20
-F:STR | DEX | HIDE_TYPE | ACTIVATE 
+P:2:0d0:10:10:-50
+F:STR | DEX | SPEED | HIDE_TYPE | ACTIVATE 
 F:SUST_STR | SUST_DEX | HOLD_LIFE | LEVITATION
-F:RES_FIRE | RES_POIS | RES_CONF | RES_SOUND | RES_NETHER
-F:NO_MAGIC
+F:RES_FIRE | RES_POIS | RES_CONF | RES_SOUND | RES_NETHER | RES_FEAR
+F:NO_MAGIC | WEAPONMASTERY
 D:$This robe is stained with the the blood of many fallen heros.
 D:$So much death. So much destruction. What could cause such a thing?
 
@@ -4079,7 +4079,7 @@ I:45:59:4
 W:70:70:2:100000
 P:0:0d0:0:0:20
 F:CON | SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR
-F:RES_TIME | HOLD_LIFE
+F:RES_TIME | HOLD_LIFE | INSTA_ART
 D:$Forged you know not when, this ring seems to have withstood the test of time.
 
 N:275:TRANSLATE
@@ -4128,7 +4128,7 @@ I:45:59:4
 W:90:70:2:100000
 P:0:0d0:0:0:-50
 F:BRAND_ELEC | BRAND_FIRE | BRAND_COLD | BRAND_ACID | BRAND_POIS | TY_CURSE | AGGRAVATE
-F:WEAPONMASTERY
+F:WEAPONMASTERY | INSTA_ART
 
 N:281:TRANSLATE
 E:of Ancalagon
@@ -4141,76 +4141,76 @@ F:XTRA_H_RES | XTRA_RES_OR_POWER
 N:282:TRANSLATE
 E:& Stone of Nature
 I:39:11:0
-W:50:50:20:100000
+W:50:150:20:100000
 P:0:1d1:0:0:5
-F:ACTIVATE | FULL_NAME
+F:ACTIVATE | FULL_NAME | INSTA_ART
 D:$At first glance, it appears to be just an ordinary rock.
 D:$But as you grasp the stone it emits an earthly glow, and you
 D:$begin to feel yourself in tune with the world around you.
 
 N:283:TRANSLATE
 E:& Stone of Life
-I:39:12:0
-W:50:50:20:100000
+I:39:12:3
+W:50:150:20:100000
 P:0:1d1:0:0:0
-F:ACTIVATE | FULL_NAME | HOLD_LIFE
+F:ACTIVATE | FULL_NAME | HOLD_LIFE | LIFE | INSTA_ART
 
 N:284:TRANSLATE
 E:& Sorcerer's Stone
 I:39:13:2
-W:50:50:20:100000
+W:50:150:20:100000
 P:0:1d1:0:0:0
-F:ACTIVATE | FULL_NAME | INT
+F:ACTIVATE | FULL_NAME | INT | INSTA_ART
 
 N:285:TRANSLATE
 E:& Stone of Chaos
 I:39:14:0
-W:50:50:20:100000
+W:50:150:20:100000
 P:0:1d1:0:0:0
-F:ACTIVATE | FULL_NAME | RES_CHAOS
+F:ACTIVATE | FULL_NAME | RES_CHAOS | INSTA_ART
 
 N:286:TRANSLATE
 E:& Stone of Death
 I:39:15:0
-W:50:50:20:100000
+W:50:150:20:100000
 P:0:1d1:0:0:0
-F:ACTIVATE | FULL_NAME | RES_NETHER
+F:ACTIVATE | FULL_NAME | RES_NETHER | INSTA_ART
 
 N:287:TRANSLATE
 E:& Trump Card
 I:39:16:2
-W:50:50:20:100000
+W:50:150:20:100000
 P:0:1d1:0:0:0
-F:ACTIVATE | FULL_NAME | CHR
+F:ACTIVATE | FULL_NAME | CHR | INSTA_ART
 
 N:288:TRANSLATE
 E:& Brimstone
 I:39:17:0
-W:50:50:20:100000
+W:50:150:20:100000
 P:0:1d1:0:0:0
-F:ACTIVATE | FULL_NAME
+F:ACTIVATE | FULL_NAME | INSTA_ART
 
 N:289:TRANSLATE
 E:& Crusader's Stone
 I:39:18:2
-W:50:50:20:100000
+W:50:150:20:100000
 P:0:1d1:0:0:0
-F:ACTIVATE | FULL_NAME | WIS
+F:ACTIVATE | FULL_NAME | WIS | INSTA_ART
 
 N:290:TRANSLATE
 E:& Stone of Craft
 I:39:19:2
-W:50:50:20:100000
+W:50:150:20:100000
 P:0:1d1:0:0:0
-F:ACTIVATE | FULL_NAME | SPEED
+F:ACTIVATE | FULL_NAME | SPEED | INSTA_ART
 
 #So Warriors don't feel neglected :)
 N:291:TRANSLATE
 E:& Stone of War
 I:39:20:0
-W:50:50:20:100000
+W:50:150:20:100000
 P:0:1d1:6:6:0
-F:ACTIVATE | FULL_NAME | FREE_ACT
+F:ACTIVATE | FULL_NAME | FREE_ACT | INSTA_ART
 
 N:292:TRANSLATE
 E:of David
@@ -4225,6 +4225,124 @@ I:40:35:3
 W:30:250:3:60000
 F:HIDE_TYPE | ACTIVATE | INSTA_ART | FULL_NAME
 F:WIS | CHR | RES_NETHER
+
+N:294:TRANSLATE
+E:'Eternal Blade'
+I:23:31:2
+W:90:50:130:120000
+P:0:7d7:32:32:0
+F:STR | CON | HIDE_TYPE | REGEN | SPEED | RES_TIME
+
+N:295:TRANSLATE
+E:of Khazad-dum
+I:20:7:4
+W:60:25:400:80000
+P:0:4d8:12:12:0
+F:TUNNEL | INFRA | REGEN | STR | CON | RES_BLIND
+F:SLAY_EVIL | RES_DISEN | 
+D:$"The Dwarves delved too greedily and too deep. You know what
+D:$they awoke in the darkness of Khazad-dum: Shadow and Flame!"
+
+N:296:TRANSLATE
+E:of the Undertaker
+I:20:1:5
+W:50:20:250:50000
+P:0:7d2:15:15:0
+F:TUNNEL | RES_POIS | RES_NETHER | RES_DARK
+F:SLAY_HUMAN | VAMPIRIC | BRAND_POIS
+
+N:297:TRANSLATE
+E:& Armageddon Stone
+I:39:20:0
+W:50:250:20:100000
+P:0:1d1:0:0:0
+F:ACTIVATE | FULL_NAME | INSTA_ART
+
+N:298:of Ubbo-Sathla
+E:of Ubbo-Sathla
+I:36:12:1
+W:30:50:120:40000
+P:12:1d2:2:3:15
+F:QUESTITEM
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
+F:RES_CONF | RES_CHAOS | STR | CON 
+F:HOLD_LIFE | SEE_INVIS | REGEN
+
+N:299:of Devouring Darkness
+E:of Devouring Darkness
+I:45:62:5
+W:50:40:2:10000
+P:0:1d2:10:12:0
+F:INSTA_ART | QUESTITEM
+F:STEALTH | SEE_INVIS | HOLD_LIFE | FREE_ACT
+F:RES_BLIND | RES_DARK | RES_NETHER | RES_POIS
+
+N:300:of Dragonkind
+E:of Dragonkind
+I:33:11:2
+W:40:40:30:125000
+P:0:1d1:5:5:15
+F:QUESTITEM | HIDE_TYPE 
+F:STR | INT | WIS | DEX | CON | CHR | SPEED |
+F:RES_COLD | RES_FIRE | RES_ACID | RES_ELEC | RES_POIS
+F:HOLD_LIFE | REGEN | XTRA_H_RES
+
+N:301:of Vecna
+E:of the Emperor Lich
+I:33:11:3
+W:40:40:30:125000
+P:0:1d1:0:0:12
+F:QUESTITEM | HIDE_TYPE 
+F:INT | CHR | SPEED |
+F:RES_COLD | RES_FIRE | RES_ACID | RES_ELEC | RES_POIS | RES_NETHER | RES_DARK | RES_LITE
+F:DEC_MANA | SPELL_CAP
+F:REGEN | XTRA_H_RES
+
+N:302:of Carcharoth
+E:of Carcharoth
+I:40:36:0
+W:50:40:30:66666
+P:0:0d0:3:17:25
+F:QUESTITEM | HIDE_TYPE 
+F:RES_FEAR | TELEPATHY
+F:INSTA_ART
+
+N:303:of Ymir
+E:of Ymir
+I:23:25:0
+W:30:15:350:0
+P:0:5d10:7:17:0
+F:QUESTITEM
+F:IM_COLD | RES_COLD | BRAND_COLD | VORPAL
+
+N:304:of Raijin
+E:of Raijin
+I:23:25:0
+W:30:15:400:0
+P:0:5d12:4:14:0
+F:QUESTITEM
+F:IM_ELEC | RES_ELEC | BRAND_ELEC | VORPAL
+
+N:305:of Kronos
+E:of Kronos
+I:22:3:3
+W:10:4:200:10000
+P:0:10d3:15:15:0
+F:QUESTITEM
+F:STR | INT | WIS | DEX | CON | CHR | SPEED
+F:RES_FIRE | RES_SOUND | RES_CHAOS | RES_CONF 
+F:VORPAL | KILL_GIANT | SLAY_EVIL | KILL_HUMAN
+D:$An incredibly sharp sickle rumored to have been wielded 
+D:$by Kronos to castrate his father, Uranus.
+
+N:306:of Eyes
+E:of Eyes
+I:33:12:3
+W:60:15:40:50000
+P:0:1d1:0:0:25
+F:QUESTITEM | ACTIVATE
+F:SEE_INVIS | TELEPATHY | RES_BLIND | RES_DISEN
+F:WARNING | INT | SEARCH
 
 # N: serial number : item name
 # I: tval : sval : pval

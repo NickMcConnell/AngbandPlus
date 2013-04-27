@@ -12,179 +12,77 @@
 
 #include "angband.h"
 
-/* Hacks for the Time Lord
-   Positive effects last longer
-   Negative effects last shorter 
-   I might also expand this sort of effect to items, mutations, etc.
-   So, basically, all the set_* methods that wrap "timed effects"
-   will delegate here.  I'm not happy about the "bool do_dec" style
-   of programming, but I did not want to fight the existing codebase
-   too much just yet.
-   */
-int recalc_duration_pos(int d)
-{
-	if (d > 0 && p_ptr->pclass == CLASS_TIME_LORD)
-		return d + 2 + randint1((p_ptr->lev)/10 + 1);
-	return d;
-}
-
-int recalc_duration_neg(int d)
-{
-	int x;
-
-	x = d;
-	if (x > 0 && p_ptr->pclass == CLASS_TIME_LORD)
-	{
-		x -= 2 + randint1((p_ptr->lev)/10 + 1);
-		if (x < 0)
-			x = 0;
-	}
-	return x;
-}
-
 void set_action(int typ)
 {
 	int prev_typ = p_ptr->action;
 
 	if (typ == prev_typ)
-	{
 		return;
-	}
 	else
 	{
 		switch (prev_typ)
 		{
-			case ACTION_SEARCH:
-			{
-#ifdef JP
-				msg_print("探索をやめた。");
-#else
-				msg_print("You no longer walk carefully.");
-#endif
-				p_ptr->redraw |= (PR_SPEED);
-				break;
-			}
-			case ACTION_REST:
-			{
-				resting = 0;
-				break;
-			}
-			case ACTION_LEARN:
-			{
-#ifdef JP
-				msg_print("学習をやめた。");
-#else
-				msg_print("You stop Learning");
-#endif
-				new_mane = FALSE;
-				break;
-			}
-			case ACTION_KAMAE:
-			{
-#ifdef JP
-				msg_print("構えをといた。");
-#else
-				msg_print("You stop assuming the posture.");
-#endif
-				p_ptr->special_defense &= ~(KAMAE_MASK);
-				break;
-			}
-			case ACTION_KATA:
-			{
-#ifdef JP
-				msg_print("型を崩した。");
-#else
-				msg_print("You stop assuming the posture.");
-#endif
-				p_ptr->special_defense &= ~(KATA_MASK);
-				p_ptr->update |= (PU_MONSTERS);
-				p_ptr->redraw |= (PR_STATUS);
-				break;
-			}
-			case ACTION_SING:
-			{
-#ifdef JP
-				msg_print("歌うのをやめた。");
-#else
-				msg_print("You stop singing.");
-#endif
-				break;
-			}
-			case ACTION_HAYAGAKE:
-			{
-#ifdef JP
-				msg_print("足が重くなった。");
-#else
-				msg_print("You are no longer walking extremely fast.");
-#endif
-				break;
-			}
-			case ACTION_SPELL:
-			{
-#ifdef JP
-				msg_print("呪文の詠唱を中断した。");
-#else
-				msg_print("You stopped spelling all spells.");
-#endif
-				break;
-			}
+		case ACTION_SEARCH:
+			msg_print("You no longer walk carefully.");
+			p_ptr->redraw |= (PR_SPEED);
+			break;
+		case ACTION_REST:
+			resting = 0;
+			break;
+		case ACTION_LEARN:
+			msg_print("You stop Learning");
+			new_mane = FALSE;
+			break;
+		case ACTION_KAMAE:
+			msg_print("You stop assuming the posture.");
+			p_ptr->special_defense &= ~(KAMAE_MASK);
+			break;
+		case ACTION_KATA:
+			msg_print("You stop assuming the posture.");
+			p_ptr->special_defense &= ~(KATA_MASK);
+			p_ptr->update |= (PU_MONSTERS);
+			p_ptr->redraw |= (PR_STATUS);
+			break;
+		case ACTION_SING:
+			msg_print("You stop singing.");
+			break;
+		case ACTION_QUICK_WALK:
+			msg_print("You are no longer moving extremely fast.");
+			break;
+		case ACTION_SPELL:
+			msg_print("You stopped spelling all spells.");
+			break;
+		case ACTION_STALK:
+			msg_print("You no longer stalk your prey.");
+			break;
 		}
 	}
 
 	p_ptr->action = typ;
 
-	/* If we are requested other action, stop singing */
 	if (prev_typ == ACTION_SING) bard_stop_singing();
 
 	switch (p_ptr->action)
 	{
-		case ACTION_SEARCH:
-		{
-#ifdef JP
-			msg_print("注意深く歩き始めた。");
-#else
-			msg_print("You begin to walk carefully.");
-#endif
-			p_ptr->redraw |= (PR_SPEED);
-			break;
-		}
-		case ACTION_LEARN:
-		{
-#ifdef JP
-			msg_print("学習を始めた。");
-#else
-			msg_print("You begin Learning");
-#endif
-			break;
-		}
-		case ACTION_FISH:
-		{
-#ifdef JP
-			msg_print("水面に糸を垂らした．．．");
-#else
-			msg_print("You begin fishing...");
-#endif
-			break;
-		}
-		case ACTION_HAYAGAKE:
-		{
-#ifdef JP
-			msg_print("足が羽のように軽くなった。");
-#else
-			msg_print("You begin to walk extremely fast.");
-#endif
-			break;
-		}
-		default:
-		{
-			break;
-		}
+	case ACTION_SEARCH:
+		msg_print("You begin to walk carefully.");
+		p_ptr->redraw |= (PR_SPEED);
+		break;
+	case ACTION_LEARN:
+		msg_print("You begin Learning");
+		break;
+	case ACTION_FISH:
+		msg_print("You begin fishing...");
+		break;
+	case ACTION_QUICK_WALK:
+		msg_print("You begin to move extremely fast.");
+		break;
+	case ACTION_STALK:
+		msg_print("You begin to stalk your prey.");
+		break;
 	}
 
-	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
-
-	/* Redraw the state */
 	p_ptr->redraw |= (PR_STATE);
 }
 
@@ -261,6 +159,9 @@ void reset_tim_flags(void)
 	p_ptr->tim_transcendence = 0;
 	p_ptr->tim_quick_walk = 0;
 	p_ptr->tim_inven_prot = 0;
+	p_ptr->tim_device_power = 0;
+	p_ptr->tim_sh_time = 0;
+	p_ptr->tim_foresight = 0;
 
 	p_ptr->oppose_acid = 0;     /* Timed -- oppose acid */
 	p_ptr->oppose_elec = 0;     /* Timed -- oppose lightning */
@@ -282,8 +183,6 @@ void reset_tim_flags(void)
 	while(p_ptr->energy_need < 0) p_ptr->energy_need += ENERGY_NEED();
 	world_player = FALSE;
 
-	if (prace_is_(RACE_BALROG) && (p_ptr->lev > 44)) p_ptr->oppose_fire = 1;
-	if ((p_ptr->pclass == CLASS_NINJA) && (p_ptr->lev > 44)) p_ptr->oppose_pois = 1;
 	if (p_ptr->pclass == CLASS_BERSERKER) p_ptr->shero = 1;
 
 	if (p_ptr->riding)
@@ -692,6 +591,9 @@ void dispel_player(void)
 	set_tim_transcendence(0, TRUE);
 	set_tim_quick_walk(0, TRUE);
 	set_tim_inven_prot(0, TRUE);
+	set_tim_device_power(0, TRUE);
+	set_tim_sh_time(0, TRUE);
+	set_tim_foresight(0, TRUE);
 
 	set_tim_dark_stalker(0, TRUE);
 	set_tim_nimble_dodge(0, TRUE);
@@ -780,11 +682,7 @@ bool set_mimic(int v, int p, bool do_dec)
 		}
 		else if ((!p_ptr->tim_mimic) || (p_ptr->mimic_form != p))
 		{
-#ifdef JP
-			msg_print("自分の体が変わってゆくのを感じた。");
-#else
 			msg_print("You feel that your body changes.");
-#endif
 			p_ptr->mimic_form=p;
 			notice = TRUE;
 		}
@@ -795,11 +693,7 @@ bool set_mimic(int v, int p, bool do_dec)
 	{
 		if (p_ptr->tim_mimic)
 		{
-#ifdef JP
-			msg_print("変身が解けた。");
-#else
 			msg_print("You are no longer transformed.");
-#endif
 			if (p_ptr->mimic_form == MIMIC_DEMON) set_oppose_fire(0, TRUE);
 			p_ptr->mimic_form= MIMIC_NONE;
 			notice = TRUE;
@@ -809,6 +703,7 @@ bool set_mimic(int v, int p, bool do_dec)
 
 	/* Use the value */
 	p_ptr->tim_mimic = v;
+	equip_on_change_race();
 
 	/* Nothing to notice */
 	if (!notice)
@@ -841,8 +736,6 @@ bool set_mimic(int v, int p, bool do_dec)
 bool set_blind(int v, bool do_dec)
 {
 	bool notice = FALSE;
-	if (!do_dec)
-		v = recalc_duration_neg(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -916,6 +809,8 @@ msg_print("やっと目が見えるようになった。");
 
 	/* Fully update the visuals */
 	p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE | PU_VIEW | PU_LITE | PU_MONSTERS | PU_MON_LITE);
+	if (prace_is_(RACE_MON_BEHOLDER))
+		p_ptr->update |= PU_BONUS;
 
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);
@@ -937,8 +832,6 @@ msg_print("やっと目が見えるようになった。");
 bool set_confused(int v, bool do_dec)
 {
 	bool notice = FALSE;
-	if (!do_dec)
-		v = recalc_duration_neg(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1049,8 +942,6 @@ msg_print("やっと混乱がおさまった。");
 bool set_poisoned(int v, bool do_dec)
 {
 	bool notice = FALSE;
-	if (!do_dec)
-		v = recalc_duration_neg(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1112,8 +1003,6 @@ msg_print("やっと毒の痛みがなくなった。");
 bool set_paralyzed(int v, bool do_dec)
 {
 	bool notice = FALSE;
-	if (!do_dec)
-		v = recalc_duration_neg(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1223,8 +1112,6 @@ msg_print("やっと動けるようになった。");
 bool set_image(int v, bool do_dec)
 {
 	bool notice = FALSE;
-	if (!do_dec)
-		v = recalc_duration_neg(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1307,12 +1194,6 @@ bool set_tim_speed_essentia(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
-	/* Don't rescale the duration ... this is a very
-	   powerful Time-Lord spell and should only work
-	   for a very short time.  Thx.
-	if (!do_dec)
-		v = recalc_duration_pos(v);*/
-
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -1365,12 +1246,6 @@ bool set_tim_shrike(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
-	/* Don't rescale the duration ... this is a very
-	   powerful Time-Lord spell and should only work
-	   for a very short time.  Thx.
-	if (!do_dec)
-		v = recalc_duration_pos(v);*/
-
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -1411,12 +1286,6 @@ bool set_tim_shrike(int v, bool do_dec)
 bool set_tim_spurt(int v, bool do_dec)
 {
 	bool notice = FALSE;
-
-	/* Don't rescale the duration ... this is a very
-	   weak Time-Lord spell and should only work
-	   for a very short time.  Thx.
-	if (!do_dec)
-		v = recalc_duration_pos(v);*/
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1470,9 +1339,6 @@ bool set_tim_blood_shield(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
-	if (!do_dec)
-		v = recalc_duration_pos(v);
-
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -1525,9 +1391,6 @@ bool set_tim_blood_revenge(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
-	if (!do_dec)
-		v = recalc_duration_pos(v);
-
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -1578,9 +1441,6 @@ bool set_tim_blood_revenge(int v, bool do_dec)
 bool set_tim_blood_seek(int v, bool do_dec)
 {
 	bool notice = FALSE;
-
-	if (!do_dec)
-		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1633,9 +1493,6 @@ bool set_tim_blood_seek(int v, bool do_dec)
 bool set_tim_blood_sight(int v, bool do_dec)
 {
 	bool notice = FALSE;
-
-	if (!do_dec)
-		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1690,9 +1547,6 @@ bool set_tim_blood_feast(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
-	if (!do_dec)
-		v = recalc_duration_pos(v);
-
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -1744,9 +1598,6 @@ bool set_tim_blood_feast(int v, bool do_dec)
 bool set_tim_superstealth(int v, bool do_dec)
 {
 	bool notice = FALSE;
-
-	if (!do_dec)
-		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1906,9 +1757,6 @@ bool set_tim_genji(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
-	if (!do_dec)
-		v = recalc_duration_pos(v);
-
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -1961,9 +1809,6 @@ bool set_tim_force(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
-	if (!do_dec)
-		v = recalc_duration_pos(v);
-
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -2015,9 +1860,6 @@ bool set_tim_force(int v, bool do_dec)
 bool set_tim_building_up(int v, bool do_dec)
 {
 	bool notice = FALSE;
-
-	if (!do_dec)
-		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -2072,9 +1914,6 @@ bool set_tim_vicious_strike(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
-	if (!do_dec)
-		v = recalc_duration_pos(v);
-
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -2126,9 +1965,6 @@ bool set_tim_vicious_strike(int v, bool do_dec)
 bool set_tim_enlarge_weapon(int v, bool do_dec)
 {
 	bool notice = FALSE;
-
-	if (!do_dec)
-		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -2182,9 +2018,6 @@ bool set_tim_spell_reaction(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
-	if (!do_dec)
-		v = recalc_duration_pos(v);
-
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -2225,9 +2058,6 @@ bool set_tim_spell_reaction(int v, bool do_dec)
 bool set_tim_resist_curses(int v, bool do_dec)
 {
 	bool notice = FALSE;
-
-	if (!do_dec)
-		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -2270,9 +2100,6 @@ bool set_tim_armor_of_fury(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
-	if (!do_dec)
-		v = recalc_duration_pos(v);
-
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -2313,9 +2140,6 @@ bool set_tim_armor_of_fury(int v, bool do_dec)
 bool set_tim_spell_turning(int v, bool do_dec)
 {
 	bool notice = FALSE;
-
-	if (!do_dec)
-		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -2358,9 +2182,6 @@ bool set_tim_spell_turning(int v, bool do_dec)
 bool set_tim_blood_rite(int v, bool do_dec)
 {
 	bool notice = FALSE;
-
-	if (!do_dec)
-		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -2415,8 +2236,6 @@ bool set_tim_blood_rite(int v, bool do_dec)
 bool set_fast(int v, bool do_dec)
 {
 	bool notice = FALSE;
-	if (!do_dec)
-		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -2462,9 +2281,6 @@ msg_print("動きの素早さがなくなったようだ。");
 	/* Use the value */
 	p_ptr->fast = v;
 
-	if (mauler_get_toggle() == TOGGLE_DEATH_FORCE)
-		p_ptr->redraw |= PR_STATUS;
-
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
@@ -2488,9 +2304,6 @@ msg_print("動きの素早さがなくなったようだ。");
 bool set_lightspeed(int v, bool do_dec)
 {
 	bool notice = FALSE;
-
-	if (!do_dec)
-		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -2562,9 +2375,6 @@ bool set_slow(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
-	if (!do_dec)
-		v = recalc_duration_neg(v);
-
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -2632,9 +2442,6 @@ msg_print("動きの遅さがなくなったようだ。");
 bool set_shield(int v, bool do_dec)
 {
 	bool notice = FALSE;
-
-	if (!do_dec)
-		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -2776,9 +2583,6 @@ bool set_magicdef(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
-	if (!do_dec)
-		v = recalc_duration_pos(v);
-
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -2848,8 +2652,6 @@ bool set_magicdef(int v, bool do_dec)
 bool set_blessed(int v, bool do_dec)
 {
 	bool notice = FALSE;
-	if (!do_dec)
-		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -2919,8 +2721,6 @@ msg_print("高潔な気分が消え失せた。");
 bool set_hero(int v, bool do_dec)
 {
 	bool notice = FALSE;
-	if (!do_dec)
-		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -2993,8 +2793,6 @@ msg_print("ヒーローの気分が消え失せた。");
 bool set_shero(int v, bool do_dec)
 {
 	bool notice = FALSE;
-	if (!do_dec)
-		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -3068,8 +2866,6 @@ msg_print("野蛮な気持ちが消え失せた。");
 bool set_protevil(int v, bool do_dec)
 {
 	bool notice = FALSE;
-	if (!do_dec)
-		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -3135,9 +2931,6 @@ msg_print("邪悪なる存在から守られている感じがなくなった。");
 bool set_wraith_form(int v, bool do_dec)
 {
 	bool notice = FALSE;
-
-	if (!do_dec)
-		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -3231,9 +3024,6 @@ msg_print("不透明になった感じがする。");
 bool set_invuln(int v, bool do_dec)
 {
 	bool notice = FALSE;
-
-	if (!do_dec)
-		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -3329,9 +3119,6 @@ bool set_tim_esp(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
-	if (!do_dec)
-		v = recalc_duration_pos(v);
-
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -3400,9 +3187,6 @@ bool set_tim_esp_magical(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
-	if (!do_dec)
-		v = recalc_duration_pos(v);
-
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -3464,9 +3248,6 @@ bool set_tim_esp_magical(int v, bool do_dec)
 bool set_tim_invis(int v, bool do_dec)
 {
 	bool notice = FALSE;
-
-	if (!do_dec)
-		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -3540,9 +3321,6 @@ bool set_tim_infra(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
-	if (!do_dec)
-		v = recalc_duration_pos(v);
-
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -3615,9 +3393,6 @@ bool set_tim_regen(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
-	if (!do_dec)
-		v = recalc_duration_pos(v);
-
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -3686,9 +3461,6 @@ msg_print("素早く回復する感じがなくなった。");
 bool set_tim_stealth(int v, bool do_dec)
 {
 	bool notice = FALSE;
-
-	if (!do_dec)
-		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -3858,9 +3630,6 @@ bool set_tim_levitation(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
-	if (!do_dec)
-		v = recalc_duration_pos(v);
-
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -3995,9 +3764,6 @@ msg_print("闘気が消えた。");
 bool set_tim_sh_fire(int v, bool do_dec)
 {
 	bool notice = FALSE;
-
-	if (!do_dec)
-		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -4831,9 +4597,6 @@ bool set_oppose_acid(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
-	if (!do_dec)
-		v = recalc_duration_pos(v);
-
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -4881,6 +4644,7 @@ msg_print("酸への耐性が薄れた気がする。");
 
 	/* Redraw status bar */
 	p_ptr->redraw |= (PR_STATUS);
+	p_ptr->update |= (PU_BONUS);
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
@@ -4899,9 +4663,6 @@ msg_print("酸への耐性が薄れた気がする。");
 bool set_oppose_elec(int v, bool do_dec)
 {
 	bool notice = FALSE;
-
-	if (!do_dec)
-		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -4950,6 +4711,7 @@ msg_print("電撃への耐性が薄れた気がする。");
 
 	/* Redraw status bar */
 	p_ptr->redraw |= (PR_STATUS);
+	p_ptr->update |= (PU_BONUS);
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
@@ -4968,9 +4730,6 @@ msg_print("電撃への耐性が薄れた気がする。");
 bool set_oppose_fire(int v, bool do_dec)
 {
 	bool notice = FALSE;
-
-	if (!do_dec)
-		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -5020,6 +4779,7 @@ msg_print("火への耐性が薄れた気がする。");
 
 	/* Redraw status bar */
 	p_ptr->redraw |= (PR_STATUS);
+	p_ptr->update |= (PU_BONUS);
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
@@ -5038,9 +4798,6 @@ msg_print("火への耐性が薄れた気がする。");
 bool set_oppose_cold(int v, bool do_dec)
 {
 	bool notice = FALSE;
-
-	if (!do_dec)
-		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -5089,6 +4846,7 @@ msg_print("冷気への耐性が薄れた気がする。");
 
 	/* Redraw status bar */
 	p_ptr->redraw |= (PR_STATUS);
+	p_ptr->update |= (PU_BONUS);
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
@@ -5107,9 +4865,6 @@ msg_print("冷気への耐性が薄れた気がする。");
 bool set_oppose_pois(int v, bool do_dec)
 {
 	bool notice = FALSE;
-
-	if (!do_dec)
-		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -5159,6 +4914,7 @@ msg_print("毒への耐性が薄れた気がする。");
 
 	/* Redraw status bar */
 	p_ptr->redraw |= (PR_STATUS);
+	p_ptr->update |= (PU_BONUS);
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
@@ -5178,7 +4934,7 @@ msg_print("毒への耐性が薄れた気がする。");
  */
 bool set_stun(int v, bool do_dec)
 {
-	int old_aux, new_aux;
+	int old_aux, new_aux, slot;
 	bool notice = FALSE;
 
 	/* Hack -- Force good values */
@@ -5186,10 +4942,10 @@ bool set_stun(int v, bool do_dec)
 
 	if (p_ptr->is_dead) return FALSE;
 
-	if (prace_is_(RACE_GOLEM) || ((p_ptr->pclass == CLASS_BERSERKER) && (p_ptr->lev > 34))) v = 0;
-	if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_POSEIDON) v = 0;
+	if (p_ptr->no_stun) v = 0;
+	slot = equip_find_first(object_is_body_armour);
+	if (slot && equip_obj(slot)->rune == RUNE_WATER) v = 0;
 	if (psion_mental_fortress()) v = 0;
-	if (mut_present(MUT_WEIRD_MIND)) v = 0;
 
 	/* Knocked out */
 	if (p_ptr->stun > 100)
@@ -5384,6 +5140,9 @@ bool set_cut(int v, bool do_dec)
 	if (p_ptr->is_dead) return FALSE;
 
 	if (get_race_t()->flags & RACE_IS_NONLIVING)
+		v = 0;
+
+	if (p_ptr->no_cut)
 		v = 0;
 
 	/* Mortal wound */
@@ -5891,10 +5650,7 @@ bool inc_stat(int stat)
 		/* Gain one (sometimes two) points */
 		if (value < 18)
 		{
-			if (p_ptr->prace == RACE_DEMIGOD && p_ptr->psubrace == DEMIGOD_ZEUS)
-				gain = 2;
-			else
-				gain = ((randint0(100) < 75) ? 1 : 2);
+			gain = ((randint0(100) < 75) ? 1 : 2);
 			value += gain;
 		}
 
@@ -5908,10 +5664,7 @@ bool inc_stat(int stat)
 			if (gain < 1) gain = 1;
 
 			/* Apply the bonus */
-			if (p_ptr->prace == RACE_DEMIGOD && p_ptr->psubrace == DEMIGOD_ZEUS)
-				value += gain + gain/2;
-			else
-				value += randint1(gain) + gain / 2;
+			value += randint1(gain) + gain / 2;
 
 			/* Maximal value */
 			if (value > (p_ptr->stat_max_max[stat]-1)) value = p_ptr->stat_max_max[stat]-1;
@@ -6123,7 +5876,7 @@ bool hp_player_aux(int num)
 
 	if (mut_present(MUT_SACRED_VITALITY))
 	{
-		num += MIN(MAX(p_ptr->lev, num/3), num);
+		num += num/5;
 	}
 
 	/* Healing needed */
@@ -6140,7 +5893,7 @@ bool hp_player_aux(int num)
 			p_ptr->chp = p_ptr->mhp;
 			p_ptr->chp_frac = 0;
 
-			if (strcmp(weaponmaster_speciality1_name(), "Staves") == 0)
+			if (weaponmaster_is_(WEAPONMASTER_STAVES))
 				p_ptr->update |= (PU_BONUS);
 		}
 
@@ -6562,6 +6315,10 @@ void change_race(int new_race, cptr effect_msg)
 	cptr title = get_race_t_aux(new_race, 0)->name;
 	int  old_race = p_ptr->prace;
 
+	if (get_race_t()->flags & RACE_IS_MONSTER) return;
+	if (get_race_t_aux(new_race, 0)->flags & RACE_IS_MONSTER) return;
+	if (old_race == RACE_ANDROID) return;
+
 	if (new_race == old_race) return;
 
 	if (old_race == RACE_HUMAN || old_race == RACE_DEMIGOD)
@@ -6601,12 +6358,6 @@ void change_race(int new_race, cptr effect_msg)
 
 	/* Experience factor */
 	p_ptr->expfact = calc_exp_factor();
-
-	/* Hitdice */
-	if (p_ptr->pclass == CLASS_SORCERER)
-		p_ptr->hitdie = get_race_t()->hd/2 + cp_ptr->c_mhp + ap_ptr->a_mhp;
-	else
-		p_ptr->hitdie = get_race_t()->hd + cp_ptr->c_mhp + ap_ptr->a_mhp;
 
 	do_cmd_rerate(FALSE);
 
@@ -6834,8 +6585,6 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 	int old_chp = p_ptr->chp;
 
 	char death_message[1024];
-	char tmp[80];
-
 	int warning = (p_ptr->mhp * hitpoint_warn / 10);
 
 	/* Paranoia */
@@ -6843,7 +6592,7 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 
 	if (p_ptr->sutemi) damage *= 2;
 	if (p_ptr->special_defense & KATA_IAI) damage += (damage + 4) / 5;
-	if (psion_check_foresight()) return 0;
+	if (check_foresight()) return 0;
 
 	if (easy_band) damage = (damage+1)/2;
 
@@ -6988,7 +6737,7 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 	if (p_ptr->pclass == CLASS_BLOOD_KNIGHT)
 		p_ptr->update |= (PU_BONUS);
 
-	if (strcmp(weaponmaster_speciality1_name(), "Staves") == 0)
+	if (weaponmaster_is_(WEAPONMASTER_STAVES))
 		p_ptr->update |= (PU_BONUS);
 
 	handle_stuff();
@@ -7023,13 +6772,8 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 		if (p_ptr->inside_arena)
 		{
 			cptr m_name = r_name+r_info[arena_info[p_ptr->arena_number].r_idx].name;
-#ifdef JP
-			msg_format("あなたは%sの前に敗れ去った。", m_name);
-#else
 			msg_format("You are beaten by %s.", m_name);
-#endif
 			msg_print(NULL);
-			if (record_arena) do_cmd_write_nikki(NIKKI_ARENA, -1 - p_ptr->arena_number, m_name);
 		}
 		else
 		{
@@ -7037,93 +6781,22 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 			bool seppuku = streq(hit_from, "Seppuku");
 			bool winning_seppuku = p_ptr->total_winner && seppuku;
 
-#ifdef WORLD_SCORE
-			/* Make screen dump */
-			screen_dump = make_screen_dump();
-#endif
-
 			/* Note cause of death */
 			if (seppuku)
 			{
 				strcpy(p_ptr->died_from, hit_from);
-#ifdef JP
-				if (!winning_seppuku) strcpy(p_ptr->died_from, "切腹");
-#endif
 			}
 			else
 			{
 				char dummy[1024];
-#ifdef JP
-				sprintf(dummy, "%s%s%s", !p_ptr->paralyzed ? "" : p_ptr->free_act ? "彫像状態で" : "麻痺状態で", p_ptr->image ? "幻覚に歪んだ" : "", hit_from);
-#else
 				sprintf(dummy, "%s%s", hit_from, !p_ptr->paralyzed ? "" : " while helpless");
-#endif
 				my_strcpy(p_ptr->died_from, dummy, sizeof p_ptr->died_from);
 			}
 
-			/* No longer a winner */
 			p_ptr->total_winner = FALSE;
-
-			if (winning_seppuku)
-			{
-#ifdef JP
-				do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "勝利の後切腹した。");
-#else
-				do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "did Seppuku after the winning.");
-#endif
-			}
-			else
-			{
-				char buf[50];
-
-				if (p_ptr->inside_arena)
-#ifdef JP
-					strcpy(buf,"アリーナ");
-#else
-					strcpy(buf,"in the Arena");
-#endif
-				else if (!dun_level)
-#ifdef JP
-					strcpy(buf,"地上");
-#else
-					strcpy(buf,"on the surface");
-#endif
-				else if (q_idx && (is_fixed_quest_idx(q_idx) &&
-				         !((q_idx == QUEST_OBERON) || (q_idx == QUEST_SERPENT))))
-#ifdef JP
-					strcpy(buf,"クエスト");
-#else
-					strcpy(buf,"in a quest");
-#endif
-				else
-#ifdef JP
-					sprintf(buf,"%d階", dun_level);
-#else
-					sprintf(buf,"level %d", dun_level);
-#endif
-
-#ifdef JP
-				sprintf(tmp, "%sで%sに殺された。", buf, p_ptr->died_from);
-#else
-				sprintf(tmp, "killed by %s %s.", p_ptr->died_from, buf);
-#endif
-				do_cmd_write_nikki(NIKKI_BUNSHOU, 0, tmp);
-			}
-
-#ifdef JP
-			do_cmd_write_nikki(NIKKI_GAMESTART, 1, "-------- ゲームオーバー --------");
-#else
-			do_cmd_write_nikki(NIKKI_GAMESTART, 1, "--------   Game  Over   --------");
-#endif
-			do_cmd_write_nikki(NIKKI_BUNSHOU, 1, "\n\n\n\n");
-
 			flush();
 
-#ifdef JP
-			if (get_check_strict("画面を保存しますか？", CHECK_NO_HISTORY))
-#else
 			if (get_check_strict("Dump the screen? ", CHECK_NO_HISTORY))
-#endif
 			{
 				do_cmd_save_screen();
 			}
@@ -7137,113 +6810,33 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 			/* Hack -- Note death */
 			if (!last_words)
 			{
-#ifdef JP
-				msg_format("あなたは%sました。", android ? "壊れ" : "死に");
-#else
 				msg_print(android ? "You are broken." : "You die.");
-#endif
-
 				msg_print(NULL);
 			}
 			else
 			{
 				if (winning_seppuku)
 				{
-#ifdef JP
-					get_rnd_line("seppuku_j.txt", 0, death_message);
-#else
 					get_rnd_line("seppuku.txt", 0, death_message);
-#endif
 				}
 				else
 				{
-#ifdef JP
-					get_rnd_line("death_j.txt", 0, death_message);
-#else
 					get_rnd_line("death.txt", 0, death_message);
-#endif
 				}
 
 				do
 				{
-#ifdef JP
-					while (!get_string(winning_seppuku ? "辞世の句: " : "断末魔の叫び: ", death_message, 1024)) ;
-#else
 					while (!get_string("Last word: ", death_message, 1024)) ;
-#endif
 				}
-#ifdef JP
-				while (winning_seppuku && !get_check_strict("よろしいですか？", CHECK_NO_HISTORY));
-#else
 				while (winning_seppuku && !get_check_strict("Are you sure? ", CHECK_NO_HISTORY));
-#endif
 
 				if (death_message[0] == '\0')
 				{
-#ifdef JP
-					strcpy(death_message, format("あなたは%sました。", android ? "壊れ" : "死に"));
-#else
 					strcpy(death_message, android ? "You are broken." : "You die.");
-#endif
 				}
 				else p_ptr->last_message = string_make(death_message);
-
-#ifdef JP
-				if (winning_seppuku)
-				{
-					int i, len;
-					int w = Term->wid;
-					int h = Term->hgt;
-					int msg_pos_x[9] = {  5,  7,  9, 12,  14,  17,  19,  21, 23};
-					int msg_pos_y[9] = {  3,  4,  5,  4,   5,   4,   5,   6,  4};
-					cptr str;
-					char* str2;
-
-					Term_clear();
-
-					/* 桜散る */
-					for (i = 0; i < 40; i++)
-						Term_putstr(randint0(w / 2) * 2, randint0(h), 2, TERM_VIOLET, "υ");
-
-					str = death_message;
-					if (strncmp(str, "「", 2) == 0) str += 2;
-
-					str2 = my_strstr(str, "」");
-					if (str2 != NULL) *str2 = '\0';
-
-					i = 0;
-					while (i < 9)
-					{
-						str2 = my_strstr(str, " ");
-						if (str2 == NULL) len = strlen(str);
-						else len = str2 - str;
-
-						if (len != 0)
-						{
-							Term_putstr_v(w * 3 / 4 - 2 - msg_pos_x[i] * 2, msg_pos_y[i], len,
-							TERM_WHITE, str);
-							if (str2 == NULL) break;
-							i++;
-						}
-						str = str2 + 1;
-						if (*str == 0) break;
-					}
-
-					/* Hide cursor */
-					Term_putstr(w-1, h-1, 1, TERM_WHITE, " ");
-
-					flush();
-#ifdef WORLD_SCORE
-					/* Make screen dump */
-					screen_dump = make_screen_dump();
-#endif
-
-					/* Wait a key press */
-					(void)inkey();
-				}
-				else
-#endif
-					msg_print(death_message);
+				
+				msg_print(death_message);
 			}
 		}
 
@@ -7255,23 +6848,6 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 	if (p_ptr->chp < warning && !world_monster)
 	{
 		sound(SOUND_WARN);
-
-		if (record_danger && (old_chp >= warning))
-		{
-			if (p_ptr->image && damage_type == DAMAGE_ATTACK)
-#ifdef JP
-				hit_from = "何か";
-#else
-				hit_from = "something";
-#endif
-
-#ifdef JP
-			sprintf(tmp,"%sによってピンチに陥った。",hit_from);
-#else
-			sprintf(tmp,"A critical situation because of %s.",hit_from);
-#endif
-			do_cmd_write_nikki(NIKKI_BUNSHOU, 0, tmp);
-		}
 
 		if (auto_more)
 		{
@@ -7342,29 +6918,23 @@ void gain_exp(s32b amount)
 
 void calc_android_exp(void)
 {
-	int i;
+	int slot;
 	s32b total_exp = 0;
+
 	if (p_ptr->is_dead) return;
 
 	if (p_ptr->prace != RACE_ANDROID) return;
 
-	for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
+	for (slot = EQUIP_BEGIN; slot < EQUIP_BEGIN + equip_count(); slot++)
 	{
-		object_type *o_ptr = &inventory[i];
-		object_type forge;
-		object_type *q_ptr = &forge;
-		s32b value, exp;
-		int level = MAX(k_info[o_ptr->k_idx].level - 8, 1);
+		object_type *o_ptr = equip_obj(slot);
+		int          value, exp, level;
 
-		if ((i == INVEN_RIGHT) || (i == INVEN_LEFT) || (i == INVEN_NECK) || (i == INVEN_LITE)) continue;
-		if (!o_ptr->k_idx) continue;
+		if (!o_ptr) continue;
+		if (object_is_jewelry(o_ptr)) continue;
+		if (o_ptr->tval == TV_LITE) continue;
 
-		/* Wipe the object */
-		object_wipe(q_ptr);
-
-		object_copy(q_ptr, o_ptr);
-		q_ptr->discount = 0;
-		q_ptr->curse_flags = 0L;
+		level = MAX(k_info[o_ptr->k_idx].level - 8, 1);
 
 		if (object_is_fixed_artifact(o_ptr))
 		{
@@ -7398,21 +6968,29 @@ void calc_android_exp(void)
 			level = MAX(level, (level + MAX(fake_level - 8, 5)) / 2 + 3);
 		}
 
-		value = object_value_real(q_ptr);
+		{
+			object_type  copy = {0};
+			object_copy(&copy, o_ptr);
+			copy.discount = 0;
+			copy.curse_flags = 0L;
+			value = object_value_real(&copy);
+		}
 
 		if (value <= 0) continue;
-		if ((o_ptr->tval == TV_SOFT_ARMOR) && (o_ptr->sval == SV_ABUNAI_MIZUGI) && (p_ptr->personality != PERS_SEXY)) value /= 32;
+		if (object_is_(o_ptr, TV_SOFT_ARMOR, SV_ABUNAI_MIZUGI) && p_ptr->personality != PERS_SEXY) 
+			value /= 32;
 		if (value > 5000000L) value = 5000000L;
-		if ((o_ptr->tval == TV_DRAG_ARMOR) || (o_ptr->tval == TV_CARD)) level /= 2;
+		if (o_ptr->tval == TV_DRAG_ARMOR || o_ptr->tval == TV_CARD) level /= 2;
 
-		if (object_is_artifact(o_ptr) || object_is_ego(o_ptr) ||
-		    (o_ptr->tval == TV_DRAG_ARMOR) ||
-		    ((o_ptr->tval == TV_HELM) && (o_ptr->sval == SV_DRAGON_HELM)) ||
-		    ((o_ptr->tval == TV_CLOAK) && (o_ptr->sval == SV_DRAGON_CLOAK)) ||
-		    ((o_ptr->tval == TV_SHIELD) && (o_ptr->sval == SV_DRAGON_SHIELD)) ||
-		    ((o_ptr->tval == TV_GLOVES) && (o_ptr->sval == SV_SET_OF_DRAGON_GLOVES)) ||
-		    ((o_ptr->tval == TV_BOOTS) && (o_ptr->sval == SV_PAIR_OF_DRAGON_GREAVE)) ||
-		    ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DIAMOND_EDGE)))
+		if ( object_is_artifact(o_ptr) 
+		  || object_is_ego(o_ptr) 
+		  || o_ptr->tval == TV_DRAG_ARMOR 
+		  || object_is_(o_ptr, TV_HELM, SV_DRAGON_HELM)
+		  || object_is_(o_ptr, TV_CLOAK, SV_DRAGON_CLOAK)
+		  || object_is_(o_ptr, TV_SHIELD, SV_DRAGON_SHIELD)
+		  || object_is_(o_ptr, TV_GLOVES, SV_SET_OF_DRAGON_GLOVES)
+		  || object_is_(o_ptr, TV_BOOTS, SV_PAIR_OF_DRAGON_GREAVE)
+		  || object_is_(o_ptr, TV_SWORD, SV_DIAMOND_EDGE) )
 		{
 			if (level > 65) level = 35 + (level - 65) / 5;
 			else if (level > 35) level = 25 + (level - 35) / 3;
@@ -7427,13 +7005,15 @@ void calc_android_exp(void)
 			if (value > 100000L)
 				exp += (value - 100000L) * level / 4;
 		}
-		if ((((i == INVEN_RARM) || (i == INVEN_LARM)) && (buki_motteruka(i))) || (i == INVEN_BOW)) total_exp += exp / 48;
-		else total_exp += exp / 16;
-		if (i == INVEN_BODY) total_exp += exp / 32;
+		if (object_is_melee_weapon(o_ptr) || o_ptr->tval == TV_BOW)
+			total_exp += exp / 48;
+		else 
+			total_exp += exp / 16;
+
+		if (object_is_body_armour(o_ptr)) 
+			total_exp += exp / 32;
 	}
 	p_ptr->exp = p_ptr->max_exp = total_exp;
-
-	/* Check Experience */
 	check_experience();
 }
 
@@ -7900,9 +7480,6 @@ bool set_tim_sustain_str(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
-	if (!do_dec)
-		v = recalc_duration_pos(v);
-
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -7943,9 +7520,6 @@ bool set_tim_sustain_str(int v, bool do_dec)
 bool set_tim_sustain_int(int v, bool do_dec)
 {
 	bool notice = FALSE;
-
-	if (!do_dec)
-		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -7988,9 +7562,6 @@ bool set_tim_sustain_wis(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
-	if (!do_dec)
-		v = recalc_duration_pos(v);
-
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -8031,9 +7602,6 @@ bool set_tim_sustain_wis(int v, bool do_dec)
 bool set_tim_sustain_dex(int v, bool do_dec)
 {
 	bool notice = FALSE;
-
-	if (!do_dec)
-		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -8076,9 +7644,6 @@ bool set_tim_sustain_con(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
-	if (!do_dec)
-		v = recalc_duration_pos(v);
-
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -8119,9 +7684,6 @@ bool set_tim_sustain_con(int v, bool do_dec)
 bool set_tim_sustain_chr(int v, bool do_dec)
 {
 	bool notice = FALSE;
-
-	if (!do_dec)
-		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -8164,9 +7726,6 @@ bool set_tim_hold_life(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
-	if (!do_dec)
-		v = recalc_duration_pos(v);
-
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -8208,9 +7767,6 @@ bool set_tim_transcendence(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
-	if (!do_dec)
-		v = recalc_duration_pos(v);
-
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -8251,9 +7807,6 @@ bool set_tim_transcendence(int v, bool do_dec)
 bool set_tim_dark_stalker(int v, bool do_dec)
 {
 	bool notice = FALSE;
-
-	if (!do_dec)
-		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -8302,9 +7855,6 @@ bool set_tim_nimble_dodge(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
-	if (!do_dec)
-		v = recalc_duration_pos(v);
-
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -8345,9 +7895,6 @@ bool set_tim_nimble_dodge(int v, bool do_dec)
 bool set_tim_stealthy_snipe(int v, bool do_dec)
 {
 	bool notice = FALSE;
-
-	if (!do_dec)
-		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -8390,9 +7937,6 @@ bool set_tim_killing_spree(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
-	if (!do_dec)
-		v = recalc_duration_pos(v);
-
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -8433,9 +7977,6 @@ bool set_tim_killing_spree(int v, bool do_dec)
 bool set_tim_slay_sentient(int v, bool do_dec)
 {
 	bool notice = FALSE;
-
-	if (!do_dec)
-		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -8478,9 +8019,6 @@ bool set_tim_quick_walk(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
-	if (!do_dec)
-		v = recalc_duration_pos(v);
-
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -8521,9 +8059,6 @@ bool set_tim_quick_walk(int v, bool do_dec)
 bool set_tim_inven_prot(int v, bool do_dec)
 {
 	bool notice = FALSE;
-
-	if (!do_dec)
-		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -8567,8 +8102,7 @@ bool set_tim_sh_elements(int v, bool do_dec)
 	bool notice = FALSE;
 
 	if (p_ptr->is_dead) return FALSE;
-	if (!do_dec)
-		v = recalc_duration_pos(v);
+
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
 	if (v)
@@ -8606,8 +8140,6 @@ bool set_tim_weaponmastery(int v, bool do_dec)
 	bool notice = FALSE;
 
 	if (p_ptr->is_dead) return FALSE;
-	if (!do_dec)
-		v = recalc_duration_pos(v);
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
 	if (v)
@@ -8638,4 +8170,127 @@ bool set_tim_weaponmastery(int v, bool do_dec)
 	p_ptr->update |= (PU_BONUS);
 	handle_stuff();
 	return (TRUE);
+}
+
+bool set_tim_device_power(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_device_power)
+		{
+			if (p_ptr->tim_device_power > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("Your magical devices feel more powerful.");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_device_power)
+		{
+			msg_print("Your magical devices return to normal.");
+			notice = TRUE;
+		}
+	}
+
+	p_ptr->tim_device_power = v;
+	if (!notice) return FALSE;
+	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= PR_STATUS;
+	p_ptr->update |= PU_BONUS;
+	handle_stuff();
+	return TRUE;
+}
+
+bool set_tim_sh_time(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_sh_time)
+		{
+			if (p_ptr->tim_sh_time > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("You are cloaked in time.");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_sh_time)
+		{
+			msg_print("You are no longer cloaked in time.");
+			notice = TRUE;
+		}
+	}
+
+	p_ptr->tim_sh_time = v;
+	if (!notice) return FALSE;
+	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= PR_STATUS;
+	p_ptr->update |= PU_BONUS;
+	handle_stuff();
+	return TRUE;
+}
+
+bool set_tim_foresight(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_foresight)
+		{
+			if (p_ptr->tim_foresight > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("You can see the future!");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_foresight)
+		{
+			msg_print("You can no longer see the future.");
+			notice = TRUE;
+		}
+	}
+
+	p_ptr->tim_foresight = v;
+	if (!notice) return FALSE;
+	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= PR_STATUS;
+	p_ptr->update |= PU_BONUS;
+	handle_stuff();
+	return TRUE;
 }

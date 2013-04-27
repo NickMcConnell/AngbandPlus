@@ -1529,7 +1529,8 @@ static bool is_opt_confirm_destroy(object_type *o_ptr)
 
 	if (leave_special)
 	{
-		if (p_ptr->prace == RACE_BALROG || p_ptr->realm1 == REALM_DAEMON || p_ptr->realm2 == REALM_DAEMON)
+		if (prace_is_(RACE_BALROG) || prace_is_(RACE_MON_DEMON) 
+			|| p_ptr->realm1 == REALM_DAEMON || p_ptr->realm2 == REALM_DAEMON)
 		{
 			if (o_ptr->tval == TV_CORPSE &&
 			    o_ptr->sval == SV_CORPSE &&
@@ -1633,6 +1634,21 @@ static void auto_destroy_item(object_type *o_ptr, int autopick_idx)
 		}
 		/* End of Evil Experiment! */
 	}
+	if (leave_good)
+	{
+		if ( !object_is_known(o_ptr) 
+		  && !object_is_ego(o_ptr)
+		  && !object_is_artifact(o_ptr)
+		  && (o_ptr->to_a > 0 || o_ptr->to_h + o_ptr->to_d > 0) )
+		{
+			byte feel = FEEL_GOOD;
+			o_ptr->feeling = feel;
+			o_ptr->ident |= (IDENT_SENSE);
+			p_ptr->notice |= (PN_COMBINE);
+			p_ptr->window |= (PW_INVEN | PW_EQUIP);
+			return;
+		}
+	}
 
 	/* Artifact? */
 	if (!can_player_destroy_object(o_ptr))
@@ -1681,8 +1697,10 @@ static void autopick_delayed_alter_aux(int item)
 	{
 		char o_name[MAX_NLEN];
 
-		/* Describe the object (with {terrible/special}) */
-		object_desc(o_name, o_ptr, 0);
+		if (prace_is_(RACE_MON_JELLY))
+			jelly_eat_object(o_ptr);
+		else
+			object_desc(o_name, o_ptr, 0);
 
 		/* Eliminate the item (from the pack) */
 		if (item >= 0)
@@ -1698,11 +1716,8 @@ static void autopick_delayed_alter_aux(int item)
 		}
 
 		/* Print a message */
-#ifdef JP
-		msg_format("%sを自動破壊します。", o_name);
-#else
-		msg_format("Auto-destroying %s.", o_name);
-#endif
+		if (!prace_is_(RACE_MON_JELLY))
+			msg_format("Auto-destroying %s.", o_name);
 	}
 }
 
@@ -5912,12 +5927,11 @@ static bool do_editor_command(text_body_type *tb, int com_id)
 		/* Insert a conditinal expression line */
 		char expression[80];
 		race_t *race_ptr = get_race_t();
+		class_t *class_ptr = get_class_t();
 
 		/* Conditional Expression for Class and Race */
 		sprintf(expression, "?:[AND [EQU $RACE %s] [EQU $CLASS %s] [GEQ $LEVEL %02d]]", 
-			race_ptr->name, cp_ptr->title,
-			p_ptr->lev
-			);
+			race_ptr->name, class_ptr->name, p_ptr->lev);
 
 		tb->cx = 0;
 		insert_return_code(tb);

@@ -434,7 +434,6 @@ void _light_speed_spell(int cmd, variant *res)
 
 #define MAX_FORCETRAINER_SPELLS	14
 
-
 static spell_info _spells[MAX_FORCETRAINER_SPELLS] = 
 {
     /*lvl cst fail spell */
@@ -456,7 +455,7 @@ static spell_info _spells[MAX_FORCETRAINER_SPELLS] =
 
 static int _get_spells(spell_info* spells, int max)
 {
-	int i;
+	int i, hand;
 	int ct = 0;
 	int stat_idx = p_ptr->stat_ind[A_WIS];
 	int penalty1 = 0;
@@ -470,25 +469,19 @@ static int _get_spells(spell_info* spells, int max)
 		penalty1 += 20;
 		penalty2 += 5;
 	}
-	if (p_ptr->weapon_info[0].icky_wield) 
+	for (hand = 0; hand < MAX_HANDS; hand++)
 	{
-		penalty1 += 20;
-		penalty2 += 5;
+		if (p_ptr->weapon_info[hand].icky_wield) 
+		{
+			penalty1 += 20;
+			penalty2 += 5;
+		}
+		else if ( p_ptr->weapon_info[hand].wield_how != WIELD_NONE
+		      && !p_ptr->weapon_info[hand].bare_hands )
+		{
+			penalty1 += 10;
+		}
 	}
-	else if (buki_motteruka(INVEN_RARM)) 
-	{
-		penalty1 += 10;
-	}
-	if (p_ptr->weapon_info[1].icky_wield)
-	{
-		penalty1 += 20;
-		penalty2 += 5;
-	}
-	else if (buki_motteruka(INVEN_LARM))
-	{
-		penalty1 += 10;
-	}
-
 	for (i = 0; i < MAX_FORCETRAINER_SPELLS; i++)
 	{
 		spell_info *base = &_spells[i];
@@ -528,6 +521,25 @@ static int _get_powers(spell_info* spells, int max)
 
 static void _calc_bonuses(void)
 {
+	if (!(heavy_armor()))
+	{
+		p_ptr->pspeed += (p_ptr->lev) / 10;
+		if  (p_ptr->lev >= 25)
+			p_ptr->free_act = TRUE;
+
+	}
+	monk_ac_bonus();
+}
+
+static void _get_flags(u32b flgs[TR_FLAG_SIZE])
+{
+	if (!heavy_armor())
+	{
+		if (p_ptr->lev >= 10)
+			add_flag(flgs, TR_SPEED);
+		if (p_ptr->lev >= 25)
+			add_flag(flgs, TR_FREE_ACT);
+	}
 }
 
 static void _on_fail(const spell_info *spell)
@@ -557,8 +569,9 @@ static caster_info * _caster_info(void)
 	static bool init = FALSE;
 	if (!init)
 	{
-		me.magic_desc = T("force", "Îýµ¤½Ñ");
-		me.use_sp = TRUE;
+		me.magic_desc = "force";
+		me.which_stat = A_WIS;
+		me.weight = 350;
 		me.on_fail = _on_fail;
 		me.on_cast = _on_cast;
 		me.options = CASTER_ALLOW_DEC_MANA;
@@ -579,11 +592,23 @@ class_t *force_trainer_get_class_t(void)
 	skills_t xs = { 10,  11,  11,   0,   0,   0,  14,  15 };
 
 		me.name = "Force-Trainer";
-		me.desc = "A Force Trainer is a master of the spiritual Force.  They prefer fighting "
-		          "with neither weapon nor armor.  They are not as good fighters as are Monks, "
-				  "but they can use both magic and the spiritual Force.  Wielding weapons or "
-				  "wearing heavy armor disturbs use of the Force.  Wisdom is a Force Trainer's "
-				  "primary stat.";
+		me.desc = "A ForceTrainer is a master of the spiritual Force. They prefer "
+					"fighting with neither weapon nor armor. They are not as good "
+					"fighters as are Monks, but they can use both magic and the "
+					"spiritual Force. Wielding weapons or wearing heavy armor disturbs "
+					"use of the Force. Wisdom is a ForceTrainer's primary stat.\n \n"
+					"ForceTrainers use both spellbook magic and the special spiritual "
+					"power called the Force. They can select a realm from Life, "
+					"Nature, Craft, Death, and Crusade. To use The Force, you select "
+					"it just as if it were spellbook 'w'; which means you need to press "
+					"'m' and then 'w' to select the Force. The most important spell of "
+					"the Force is 'Improve Force'; each time a ForceTrainer activates "
+					"it, their Force power becomes more powerful, and their attack "
+					"power in bare-handed melee fighting is increased temporarily. The "
+					"strengthened Force can be released at one stroke when a "
+					"ForceTrainer activates some other Force spell, typically an attack "
+					"spell. They have a class power - 'Clear Mind' - which allows them "
+					"to rapidly regenerate their mana.";
 		
 		me.stats[A_STR] =  0;
 		me.stats[A_INT] = -1;
@@ -593,14 +618,16 @@ class_t *force_trainer_get_class_t(void)
 		me.stats[A_CHR] =  0;
 		me.base_skills = bs;
 		me.extra_skills = xs;
-		me.hd = 2;
+		me.life = 100;
 		me.exp = 135;
 		me.pets = 40;
 
 		me.calc_bonuses = _calc_bonuses;
+		me.get_flags = _get_flags;
 		me.caster_info = _caster_info;
 		me.get_spells = _get_spells;
 		me.get_powers = _get_powers;
+		me.character_dump = spellbook_character_dump;
 		init = TRUE;
 	}
 

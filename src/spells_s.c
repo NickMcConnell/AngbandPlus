@@ -51,6 +51,36 @@ void scare_monster_spell(int cmd, variant *res)
 	}
 }
 
+void scare_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Terrify");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Attempt to scare one or more monsters.");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (p_ptr->lev < 30)
+		{
+			int dir = 0;
+			if (!get_aim_dir(&dir)) return;
+			fear_monster(dir, p_ptr->lev);
+		}
+		else
+		{
+			turn_monsters(p_ptr->lev);
+		}
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void sense_surroundings_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -162,7 +192,35 @@ void sleeping_dust_spell(int cmd, variant *res)
 	case SPELL_CAST:
 		msg_print(T("You throw some magic dust...", "あなたは魔法の粉を投げつけた..."));
 		if (p_ptr->lev < 25) sleep_monsters_touch();
-		else sleep_monsters();
+		else sleep_monsters(p_ptr->lev);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void slow_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Slow");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Attempt to slow one or more monsters.");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (p_ptr->lev < 30)
+		{
+			int dir = 0;
+			if (!get_aim_dir(&dir)) return;
+			slow_monster(dir);
+		}
+		else
+			slow_monsters(p_ptr->lev * 2);
 		var_set_bool(res, TRUE);
 		break;
 	default:
@@ -341,10 +399,10 @@ void starburst_I_spell(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Star Burst", "スターバースト"));
+		var_set_string(res, "Star Burst");
 		break;
 	case SPELL_DESC:
-		var_set_string(res, T("Fires a huge ball of powerful light.", "巨大な閃光の球を放つ。"));
+		var_set_string(res, "Fires a huge ball of powerful light.");
 		break;
 	case SPELL_INFO:
 		var_set_string(res, info_damage(0, 0, spell_power(100 + p_ptr->lev * 2)));
@@ -354,7 +412,7 @@ void starburst_I_spell(int cmd, variant *res)
 		int dir = 0;
 		var_set_bool(res, FALSE);
 		if (!get_aim_dir(&dir)) return;
-		msg_print(T("You invoke a starburst.", "スターバーストの呪文を念じた。"));
+		msg_print("You invoke a starburst.");
 		fire_ball(GF_LITE, dir, spell_power(100 + p_ptr->lev * 2), spell_power(4));
 		var_set_bool(res, TRUE);
 		break;
@@ -370,22 +428,22 @@ void starburst_II_spell(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Star Burst", "スターバースト"));
+		var_set_string(res, "Star Burst");
 		break;
 	case SPELL_DESC:
-		var_set_string(res, T("Fires a huge ball of powerful light.", "巨大な閃光の球を放つ。"));
+		var_set_string(res, "Fires a huge ball of powerful light.");
 		break;
 	case SPELL_INFO:
-		var_set_string(res, info_damage(10, spell_power(10), spell_power(50 + p_ptr->lev * 8)));
+		var_set_string(res, info_damage(10, spell_power(10), spell_power(50 + p_ptr->lev * 6)));
 		break;
 	case SPELL_CAST:
 	{
 		int dir = 0;
 		var_set_bool(res, FALSE);
 		if (!get_aim_dir(&dir)) return;
-		msg_print(T("You invoke a starburst.", "スターバーストの呪文を念じた。"));
+		msg_print("You invoke a starburst.");
 		fire_ball(GF_LITE, dir, 
-			spell_power(50 + p_ptr->lev * 8 + damroll(10, 10)), 
+			spell_power(50 + p_ptr->lev * 6 + damroll(10, 10)), 
 			spell_power(4));
 		var_set_bool(res, TRUE);
 		break;
@@ -477,22 +535,261 @@ void stone_to_mud_spell(int cmd, variant *res)
 }
 bool cast_stone_to_mud(void) { return cast_spell(stone_to_mud_spell); }
 
+void summon_angel_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Summon Angel");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Attempts to summon a single angel for assistance.");
+		break;
+	case SPELL_CAST:
+	{
+		int ct = 0;
+		int l = p_ptr->lev + randint1(p_ptr->lev);
+
+		ct += summon_specific(-1, py, px, l, SUMMON_ANGEL, PM_FORCE_PET);
+		if (!ct)
+			msg_print("No angel arrives.");
+
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void summon_demon_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Summon Demon");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Attempts to summon a single demon for assistance.");
+		break;
+	case SPELL_CAST:
+	{
+		bool pet = !one_in_(3);
+		u32b mode = 0L;
+
+		if (pet) mode |= PM_FORCE_PET;
+		else mode |= PM_NO_PET;
+		if (!(pet && (p_ptr->lev < 50))) mode |= PM_ALLOW_GROUP;
+
+		if (summon_specific((pet ? -1 : 0), py, px, spell_power(p_ptr->lev*2/3+randint1(p_ptr->lev/2)), SUMMON_DEMON, mode))
+		{
+			msg_print("The area fills with a stench of sulphur and brimstone.");
+			if (pet)
+				msg_print("'What is thy bidding... Master?'");
+			else
+				msg_print("'NON SERVIAM! Wretch! I shall feast on thy mortal soul!'");
+		}
+		else
+			msg_print("No demons arrive.");
+		break;
+	}
+/*	{
+		int ct = 0;
+		int l = p_ptr->lev + randint1(p_ptr->lev);
+
+		ct += summon_specific(-1, py, px, l, SUMMON_DEMON, PM_FORCE_PET);
+		if (ct)
+			msg_print("The area fills with a stench of sulphur and brimstone.");
+		else
+			msg_print("No demon arrives.");
+
+		var_set_bool(res, TRUE);
+		break;
+	} */
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void summon_dragon_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Summon Dragon");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Attempts to summon a single dragon for assistance.");
+		break;
+	case SPELL_CAST:
+	{
+		int ct = 0;
+		int l = p_ptr->lev + randint1(p_ptr->lev);
+
+		ct += summon_specific(-1, py, px, l, SUMMON_DRAGON, PM_FORCE_PET);
+		if (!ct)
+			msg_print("No dragon arrives.");
+
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void summon_greater_demon_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Summon Greater Demon");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Summons greater demon. It need to sacrifice a corpse of human ('p','h' or 't').");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, cast_summon_greater_demon());
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void summon_hi_dragon_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Summon Ancient Dragons");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Summon one or more ancient dragons for assistance.");
+		break;
+	case SPELL_CAST:
+	{
+		int num = randint0(p_ptr->lev/10);
+		int ct = 0, i;
+		int l = p_ptr->lev + randint1(p_ptr->lev);
+
+		for (i = 0; i < num; i++)
+		{
+			ct += summon_specific(-1, py, px, l, SUMMON_HI_DRAGON, PM_FORCE_PET);
+		}
+		if (!ct)
+			msg_print("No dragons arrive.");
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void summon_hi_undead_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Summon Greater Undead");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Attempts to summon greater undead for assistance.");
+		break;
+	case SPELL_CAST:
+	{
+		int num = randint0(p_ptr->lev/10);
+		int ct = 0, i;
+		int l = p_ptr->lev + randint1(p_ptr->lev);
+
+		for (i = 0; i < num; i++)
+		{
+			ct += summon_specific(-1, py, px, l, SUMMON_HI_UNDEAD, PM_FORCE_PET);
+		}
+		if (!ct)
+			msg_print("No undead arrive.");
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void summon_kin_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Summon Kin");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Summon related monsters for assistance.");
+		break;
+	case SPELL_CAST:
+		if (!summon_kin_player(p_ptr->lev, py, px, PM_FORCE_PET | PM_ALLOW_GROUP))
+			msg_print("No help arrives.");
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void summon_manes_spell(int cmd, variant *res)
 {
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Summon Manes", "古代の死霊召喚"));
+		var_set_string(res, "Summon Manes");
 		break;
 	case SPELL_DESC:
-		var_set_string(res, T("Attempts to summon some demonic friends.", "古代の死霊を召喚する。"));
+		var_set_string(res, "Attempts to summon some demonic friends.");
 		break;
 	case SPELL_CAST:
 		if (!summon_specific(-1, py, px, (p_ptr->lev * 3) / 2, SUMMON_MANES, (PM_ALLOW_GROUP | PM_FORCE_PET)))
-			msg_print(T("No Manes arrive.", "古代の死霊は現れなかった。"));
+			msg_print("No Manes arrive.");
 
 		var_set_bool(res, TRUE);
 		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void summon_monsters_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Summon Monsters");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Summon monsters for assistance.");
+		break;
+	case SPELL_CAST:
+	{
+		int num = randint0(p_ptr->lev/10);
+		int ct = 0, i;
+		int l = p_ptr->lev + randint1(p_ptr->lev);
+
+		for (i = 0; i < num; i++)
+		{
+			ct += summon_specific(-1, py, px, l, 0, PM_FORCE_PET | PM_ALLOW_GROUP | PM_ALLOW_UNIQUE);
+		}
+		if (!ct)
+			msg_print("No monsters arrive.");
+		var_set_bool(res, TRUE);
+		break;
+	}
 	default:
 		default_spell(cmd, res);
 		break;
@@ -572,6 +869,37 @@ void summon_tree_spell(int cmd, variant *res)
 	}
 }
 bool cast_summon_tree(void) { return cast_spell(summon_tree_spell); }
+
+void summon_undead_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Summon Undead");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Attempts to summon undead for assistance.");
+		break;
+	case SPELL_CAST:
+	{
+		int num = randint0(p_ptr->lev/10);
+		int ct = 0, i;
+		int l = p_ptr->lev + randint1(p_ptr->lev);
+
+		for (i = 0; i < num; i++)
+		{
+			ct += summon_specific(-1, py, px, l, SUMMON_UNDEAD, PM_FORCE_PET);
+		}
+		if (!ct)
+			msg_print("No undead arrive.");
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
 void super_stealth_spell(int cmd, variant *res)
 {
@@ -668,32 +996,6 @@ void sword_dance_spell(int cmd, variant *res)
 			else
 				msg_print(T("You attack the empty air.", "攻撃が空をきった。"));
 		}
-		var_set_bool(res, TRUE);
-		break;
-	}
-	default:
-		default_spell(cmd, res);
-		break;
-	}
-}
-
-void take_photo_spell(int cmd, variant *res)
-{
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Take Photograph", "写真撮影"));
-		break;
-	case SPELL_DESC:
-		var_set_string(res, T("Creates something to show the kids back home!", ""));
-		break;
-	case SPELL_CAST:
-	{
-		int dir = 0;
-		var_set_bool(res, TRUE);
-		if (!get_aim_dir(&dir)) return;
-		project_length = 1;
-		fire_beam(GF_PHOTO, dir, 1);
 		var_set_bool(res, TRUE);
 		break;
 	}
@@ -818,10 +1120,10 @@ void teleport_spell(int cmd, variant *res)
 		break;
 	case SPELL_ENERGY:
 		if (mut_present(MUT_ASTRAL_GUIDE))
+		{
 			var_set_int(res, 30);
-		else
-			default_spell(cmd, res);
-		break;
+			break;
+		}
 	default:
 		default_spell(cmd, res);
 		break;
@@ -903,32 +1205,38 @@ void teleport_to_spell(int cmd, variant *res)
 	}
 }
 
+static int _boulder_dam(void)
+{
+	int l = p_ptr->lev;
+	int dam = 2*l + l*l/50 + l*l*l/2500;
+	return dam;
+}
 void throw_boulder_spell(int cmd, variant *res)
 {
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Throw Boulder", "岩石投げ（ダメージ"));
+		var_set_string(res, "Throw Boulder");
 		break;
 	case SPELL_DESC:
 		var_set_string(res, "Hurls a huge boulder at chosen target.");
 		break;
-	case SPELL_SPOIL_DESC:
-		var_set_string(res, "Hurls a huge boulder at chosen target for 3L damage.");
-		break;
 	case SPELL_INFO:
-		var_set_string(res, info_damage(0, 0, spell_power(3 * p_ptr->lev)));
+		var_set_string(res, info_damage(0, 0, _boulder_dam()));
 		break;
 	case SPELL_CAST:
 	{
 		int dir = 0;
 		var_set_bool(res, FALSE);
 		if (!get_aim_dir(&dir)) return;
-		msg_print(T("You throw a huge boulder.", "巨大な岩を投げた。"));
-		fire_bolt(GF_MISSILE, dir, spell_power(3 * p_ptr->lev));
+		msg_print("You throw a huge boulder.");
+		fire_bolt(GF_ROCK, dir, _boulder_dam());
 		var_set_bool(res, TRUE);
 		break;
 	}
+	case SPELL_COST_EXTRA:
+		var_set_int(res, (_boulder_dam() + 4)/5);
+		break;
 	default:
 		default_spell(cmd, res);
 		break;

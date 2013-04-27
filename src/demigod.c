@@ -30,9 +30,10 @@ static void _kiss_spell(int cmd, variant *res)
 		if (m_idx)
 		{
 			monster_type *m_ptr = &m_list[m_idx];
+			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 			char desc[MAX_NLEN];
 			monster_desc(desc, m_ptr, 0);
-			if (mon_save_p(m_ptr->r_idx, A_CHR))
+			if ((r_ptr->flags1 & RF1_UNIQUE) || mon_save_p(m_ptr->r_idx, A_CHR))
 			{
 				set_monster_csleep(m_idx, 0);
 				if (is_hostile(m_ptr))
@@ -51,6 +52,13 @@ static void _kiss_spell(int cmd, variant *res)
 					default:
 						msg_format("%^s resists your charms.", desc);
 					}
+
+					if (allow_ticked_off(r_ptr))
+					{
+						msg_format("%^s is ticked off!", desc);
+						m_ptr->smart |= SM_TICKED_OFF;
+					}
+
 				}
 				else
 					msg_format("%^s ignores you.", desc);
@@ -95,13 +103,13 @@ static void _demeter_clw_spell(int cmd, variant *res)
 		var_set_string(res, T("Heals cut and HP a little.", ""));
 		break;
 	case SPELL_SPOIL_DESC:
-		var_set_string(res, "Decreases cut status by 10 and heals (L/7 + 1)d10 hp.");
+		var_set_string(res, "Decreases cut status by 10 and heals (L/12 + 1)d10 hp.");
 		break;
 	case SPELL_INFO:
-		var_set_string(res, info_damage(p_ptr->lev/7 + 1, 10, 0));
+		var_set_string(res, info_damage(p_ptr->lev/12 + 1, 10, 0));
 		break;
 	case SPELL_CAST:
-		hp_player(damroll(p_ptr->lev/7 + 1, 10));
+		hp_player(damroll(p_ptr->lev/12 + 1, 10));
 		set_cut(p_ptr->cut - 10, TRUE);
 		var_set_bool(res, TRUE);
 		break;
@@ -116,23 +124,20 @@ static void _shine_spell(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Shine", ""));
+		var_set_string(res, "Shine");
 		break;
 	case SPELL_DESC:
-		var_set_string(res, T("Generates a large ball of sunlight.", ""));
-		break;
-	case SPELL_SPOIL_DESC:
-		var_set_string(res, "Generates a radius 5 ball of light centered on the player. Damage is 6L.");
+		var_set_string(res, "Generates a large ball of sunlight.");
 		break;
 	case SPELL_INFO:
-		var_set_string(res, info_damage(0, 0, p_ptr->lev * 6));
+		var_set_string(res, info_damage(0, 0, p_ptr->lev * 3));
 		break;
 	case SPELL_CAST:
-		fire_ball(GF_LITE, 0, p_ptr->lev * 6 * 2, 5);
+		fire_ball(GF_LITE, 0, p_ptr->lev * 3 * 2, 3);
 		var_set_bool(res, TRUE);
 		break;
 	case SPELL_COST_EXTRA:
-		var_set_int(res, p_ptr->lev);
+		var_set_int(res, (p_ptr->lev - 20)/2);
 		break;
 	default:
 		default_spell(cmd, res);
@@ -143,38 +148,26 @@ static void _shine_spell(int cmd, variant *res)
 /****************************************************************
  * Demigod
  ****************************************************************/
-
+static void _gain_power(int which)
+{
+	if (p_ptr->demigod_power[which] < 0)
+	{
+		int idx = mut_gain_choice(mut_demigod_pred);
+		mut_lock(idx);
+		p_ptr->demigod_power[which] = idx;
+	}
+	else if (!mut_present(p_ptr->demigod_power[which]))
+	{
+		mut_gain(p_ptr->demigod_power[which]);
+		mut_lock(p_ptr->demigod_power[which]);
+	}
+}
 static void _gain_level(int new_level)
 {
 	if (new_level >= 20)
-	{
-		if (p_ptr->demigod_power[0] < 0)
-		{
-			int idx = mut_gain_choice(mut_human_pred);
-			mut_lock(idx);
-			p_ptr->demigod_power[0] = idx;
-		}
-		else if (!mut_present(p_ptr->demigod_power[0]))
-		{
-			mut_gain(p_ptr->demigod_power[0]);
-			mut_lock(p_ptr->demigod_power[0]);
-		}
-	}
-
+		_gain_power(0);
 	if (new_level >= 40)
-	{
-		if (p_ptr->demigod_power[1] < 0)
-		{
-			int idx = mut_gain_choice(mut_human_pred);
-			mut_lock(idx);
-			p_ptr->demigod_power[1] = idx;
-		}
-		else if (!mut_present(p_ptr->demigod_power[1]))
-		{
-			mut_gain(p_ptr->demigod_power[1]);
-			mut_lock(p_ptr->demigod_power[1]);
-		}
-	}
+		_gain_power(1);
 }
 
 void demigod_rechoose_powers(void)
@@ -213,31 +206,21 @@ static void _aphrodite_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
 	add_flag(flgs, TR_SUST_CHR);
 }
-static void _aphrodite_spoiler_dump(FILE *fff) 
-{ 
-	spoil_powers_aux(fff, _aphrodite_powers); 
-	fprintf(fff, "\n== Abilities ==\n");
-	fprintf(fff, "  * Sustain Charisma\n");
-	fprintf(fff, "  * Pet Upkeep Halved\n");
-	fprintf(fff, "  * Gains Sexy Swimsuit Bonus (Even if not sexy, or not female).\n");
-	fprintf(fff, "  * Sells to Shopkeepers at Full Price\n");
-}
-
 
 /****************************************************************
  * Apollo
  ****************************************************************/
 static power_info _apollo_powers[] =
 {
-	{ A_CHR, {1, 10, 70, _shine_spell}},
-	{ A_INT, {5, 3, 50, light_area_spell}},
-	{ A_WIS, {12, 7, 60, ray_of_sunlight_spell}},
+	{ A_INT, { 5,  3, 50, light_area_spell}},
+	{ A_WIS, {12,  7, 60, ray_of_sunlight_spell}},
+	{ A_CHR, {20, 10, 40, _shine_spell}},
 	{ -1, {-1, -1, -1, NULL} }
 };
 static void _apollo_calc_bonuses(void)
 {
-	p_ptr->resist_lite = TRUE;
-	p_ptr->resist_blind = TRUE;
+	res_add_immune(RES_LITE);
+	res_add(RES_BLIND);
 	/* cf calc_torch in xtra1.c for the 'extra light' */
 }
 static int _apollo_get_powers(spell_info* spells, int max)
@@ -253,14 +236,6 @@ static void _apollo_get_immunities(u32b flgs[TR_FLAG_SIZE])
 {
 	add_flag(flgs, TR_LITE);
 }
-static void _apollo_spoiler_dump(FILE *fff) 
-{ 
-	spoil_powers_aux(fff, _apollo_powers); 
-	fprintf(fff, "\n== Abilities ==\n");
-	fprintf(fff, "  * Immune to Light\n");
-	fprintf(fff, "  * Resist Blindness\n");
-	fprintf(fff, "  * Extra Light (+1 to light radius)\n");
-}
 
 /****************************************************************
  * Ares
@@ -272,8 +247,8 @@ static power_info _ares_powers[] =
 };
 static void _ares_calc_bonuses(void)
 {
-	int dam = 5 + p_ptr->lev/7;
-	int ac = 10 + p_ptr->lev/5;
+	int dam = 1 + p_ptr->lev/7;
+	int ac = 1 + p_ptr->lev/5;
 
 	p_ptr->sustain_str = TRUE;
 
@@ -294,37 +269,19 @@ static void _ares_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
 	add_flag(flgs, TR_SUST_STR);
 }
-static void _ares_spoiler_dump(FILE *fff) 
-{ 
-	spoil_powers_aux(fff, _ares_powers); 
-	fprintf(fff, "\n== Abilities ==\n");
-	fprintf(fff, "  * +5+L/7 to Damage\n");
-	fprintf(fff, "  * +10+L/5 to Armor Class\n");
-	fprintf(fff, "  * Sustain Strength\n");
-	fprintf(fff, "  * Starts as Beginner in All Weapon Skills\n");
-}
 
 /****************************************************************
  * Artemis
  ****************************************************************/
 static void _artemis_calc_bonuses(void)
 {
-	p_ptr->to_d_b += 5 + p_ptr->lev/7;
-	p_ptr->dis_to_d_b += 5 + p_ptr->lev/7;
+	p_ptr->shooter_info.to_d += 1 + p_ptr->lev/7;
+	p_ptr->shooter_info.dis_to_d += 1 + p_ptr->lev/7;
 	p_ptr->sustain_dex = TRUE;
 }
 static void _artemis_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
 	add_flag(flgs, TR_SUST_DEX);
-}
-static void _artemis_spoiler_dump(FILE *fff) 
-{ 
-	fprintf(fff, "\n== Abilities ==\n");
-	fprintf(fff, "  * Sustain Dexterity\n");
-	fprintf(fff, "  * +5+L/7 Damage with a Bow\n");
-	fprintf(fff, "  * +1+L/12 Shooting Range\n");
-	fprintf(fff, "  * Starts as Beginner in All Shooter Skills\n");
-	fprintf(fff, "  * Can Master Any Shooter\n");
 }
 
 /****************************************************************
@@ -337,14 +294,6 @@ static void _athena_calc_bonuses(void)
 static void _athena_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
 	add_flag(flgs, TR_SUST_INT);
-}
-static void _athena_spoiler_dump(FILE *fff) 
-{ 
-	fprintf(fff, "\n== Abilities ==\n");
-	fprintf(fff, "  * -5%% Spell Fail Rates\n");
-	fprintf(fff, "  * -1%% Spell Minimum Fails\n");
-	fprintf(fff, "  * Spells that Fail Cost 0sp\n");
-	fprintf(fff, "  * Sustain Intelligence\n");
 }
 
 /****************************************************************
@@ -359,7 +308,8 @@ static void _demeter_calc_bonuses(void)
 {
 	p_ptr->regenerate = TRUE;
 	p_ptr->slow_digest = TRUE;
-	p_ptr->resist_time = TRUE;
+	if (p_ptr->lev >= 40)
+		res_add(RES_TIME);
 }
 static int _demeter_get_powers(spell_info* spells, int max)
 {
@@ -369,15 +319,8 @@ static void _demeter_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
 	add_flag(flgs, TR_REGEN);
 	add_flag(flgs, TR_SLOW_DIGEST);
-	add_flag(flgs, TR_RES_TIME);
-}
-static void _demeter_spoiler_dump(FILE *fff) 
-{ 
-	spoil_powers_aux(fff, _demeter_powers); 
-	fprintf(fff, "\n== Abilities ==\n");
-	fprintf(fff, "  * Regeneration\n");
-	fprintf(fff, "  * Slow Digestion\n");
-	fprintf(fff, "  * Resist Time\n");
+	if (p_ptr->lev >= 40)
+		add_flag(flgs, TR_RES_TIME);
 }
 
 /****************************************************************
@@ -385,25 +328,15 @@ static void _demeter_spoiler_dump(FILE *fff)
  ****************************************************************/
 static void _hades_calc_bonuses(void)
 {
-	p_ptr->resist_neth = TRUE;
+	res_add(RES_NETHER);
 	p_ptr->hold_life = TRUE;
 	p_ptr->sustain_con = TRUE;
-	p_ptr->free_act = TRUE;
 }
 static void _hades_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
 	add_flag(flgs, TR_RES_NETHER);
 	add_flag(flgs, TR_HOLD_LIFE);
 	add_flag(flgs, TR_SUST_CON);
-	add_flag(flgs, TR_FREE_ACT);
-}
-static void _hades_spoiler_dump(FILE *fff) 
-{ 
-	fprintf(fff, "\n== Abilities ==\n");
-	fprintf(fff, "  * Resist Nether\n");
-	fprintf(fff, "  * Hold Life\n");
-	fprintf(fff, "  * Sustain Constitution\n");
-	fprintf(fff, "  * Free Action\n");
 }
 
 /****************************************************************
@@ -411,18 +344,11 @@ static void _hades_spoiler_dump(FILE *fff)
  ****************************************************************/
 static void _hephaestus_calc_bonuses(void)
 {
-	p_ptr->resist_disen = TRUE;
+	res_add(RES_DISEN);
 }
 static void _hephaestus_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
 	add_flag(flgs, TR_RES_DISEN);
-}
-static void _hephaestus_spoiler_dump(FILE *fff) 
-{ 
-	fprintf(fff, "\n== Abilities ==\n");
-	fprintf(fff, "  * Resist Disenchantment\n");
-	fprintf(fff, "  * Acid Proof: Equipment will not be damaged by acid\n");
-	fprintf(fff, "  * Fell Branding: Any brand/slay gain +1 dice\n");
 }
 
 /****************************************************************
@@ -435,7 +361,7 @@ static power_info _hera_powers[] =
 };
 static void _hera_calc_bonuses(void)
 {
-	p_ptr->spell_cap += 3;
+	p_ptr->spell_cap += 2;
 }
 static int _hera_get_powers(spell_info* spells, int max)
 {
@@ -445,30 +371,17 @@ static void _hera_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
 	add_flag(flgs, TR_SPELL_CAP);
 }
-static void _hera_spoiler_dump(FILE *fff) 
-{ 
-	spoil_powers_aux(fff, _hera_powers); 
-	fprintf(fff, "\n== Abilities ==\n");
-	fprintf(fff, "  * +%d%% Spell Capacity\n", spell_cap_aux(100, 3) - 100);
-	fprintf(fff, "  * Resist Mana Drain: Player gets a saving throw to resist all mana draining attacks. This save succeeds if 1d100 > ML-(2*WIS).\n");
-}
 
 /****************************************************************
  * Hermes
  ****************************************************************/
 static void _hermes_calc_bonuses(void)
 {
-	p_ptr->pspeed += 2;
+	p_ptr->pspeed += 5 * p_ptr->lev/50;
 }
 static void _hermes_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
 	add_flag(flgs, TR_SPEED);
-}
-static void _hermes_spoiler_dump(FILE *fff) 
-{ 
-	fprintf(fff, "\n== Abilities ==\n");
-	fprintf(fff, "  * +2 Speed\n");
-	fprintf(fff, "  * Player Cannot be Slowed\n");
 }
 
 /****************************************************************
@@ -476,49 +389,34 @@ static void _hermes_spoiler_dump(FILE *fff)
  ****************************************************************/
 static void _poseidon_calc_bonuses(void)
 {
-	p_ptr->resist_acid = TRUE;
-	p_ptr->resist_cold = TRUE;
-	p_ptr->resist_elec = TRUE;
-	/*p_ptr->resist_stun = TRUE; Handled as a hack elsewhere ... */
+	if (p_ptr->lev >= 5)
+		res_add(RES_ACID);
+	if (p_ptr->lev >= 10)
+		res_add(RES_COLD);
+	if (p_ptr->lev >= 20)
+		res_add(RES_ELEC);
 }
 static void _poseidon_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
-	add_flag(flgs, TR_RES_ACID);
-	add_flag(flgs, TR_RES_COLD);
-	add_flag(flgs, TR_RES_ELEC);
+	if (p_ptr->lev >= 5)
+		add_flag(flgs, TR_RES_ACID);
+	if (p_ptr->lev >= 10)
+		add_flag(flgs, TR_RES_COLD);
+	if (p_ptr->lev >= 20)
+		add_flag(flgs, TR_RES_ELEC);
 }
-static void _poseidon_spoiler_dump(FILE *fff) 
-{ 
-	fprintf(fff, "\n== Abilities ==\n");
-	fprintf(fff, "  * Resist Acid\n");
-	fprintf(fff, "  * Resist Cold\n");
-	fprintf(fff, "  * Resist Electricity\n");
-	fprintf(fff, "  * Immune to Stuns\n");
-	fprintf(fff, "  * Melt Armor: Every melee or ranged hit permanently decreases monster AC by 4, unless monster saves (ML + 1d100 > 2*L + Dex)\n");
-}
-
 /****************************************************************
  * Zeus
  ****************************************************************/
 static void _zeus_calc_bonuses(void)
 {
-	p_ptr->resist_elec = TRUE;
+	res_add(RES_ELEC);
 	p_ptr->sh_elec = TRUE;
-	p_ptr->levitation = TRUE;
 }
 static void _zeus_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
 	add_flag(flgs, TR_RES_ELEC);
 	add_flag(flgs, TR_SH_ELEC);
-	add_flag(flgs, TR_LEVITATION);
-}
-static void _zeus_spoiler_dump(FILE *fff) 
-{ 
-	fprintf(fff, "\n== Abilities ==\n");
-	fprintf(fff, "  * Resist Electricity\n");
-	fprintf(fff, "  * Aura of Electricity\n");
-	fprintf(fff, "  * Levitation\n");
-	fprintf(fff, "  * All Stat Boosts are \"Double\".\n");
 }
 
 race_t *demigod_get_race_t(int psubrace)
@@ -554,120 +452,106 @@ race_t *demigod_get_race_t(int psubrace)
 		me.stats[A_CON] =  1;
 		me.stats[A_CHR] =  1;
 		
-		me.skills.dis = 4;
-		me.skills.dev = 5;
-		me.skills.sav = 3;
-		me.skills.stl = -2;
-		me.skills.srh = 3;
-		me.skills.fos = 13;
-		me.skills.thn = 15;
-		me.skills.thb = 10;
+		me.skills.dis = 2;
+		me.skills.dev = 3;
+		me.skills.sav = 1;
+		me.skills.stl = 0;
+		me.skills.srh = 0;
+		me.skills.fos = 7;
+		me.skills.thn = 10;
+		me.skills.thb = 5;
 
-		me.hd = 10;
-		me.exp = 220;
+		me.life = 100;
+		me.exp = 180;
 
 		me.calc_bonuses = NULL;
 		me.get_powers = NULL;
 		me.get_flags = NULL;
 		me.get_immunities = NULL;
-		me.spoiler_dump = NULL;
 
 		/* Override with New Type */
 		switch (psubrace)
 		{
 		case DEMIGOD_APHRODITE:
-			me.stats[A_CHR] += 2;
-			me.exp += 60;
+			me.stats[A_CHR] += 1;
+			me.exp += 40;
 			me.calc_bonuses = _aphrodite_calc_bonuses;
 			me.get_powers = _aphrodite_get_powers;
 			me.get_flags = _aphrodite_get_flags;
-			me.spoiler_dump = _aphrodite_spoiler_dump;
 			break;
 		case DEMIGOD_APOLLO:
-			me.exp += 80;
+			me.exp += 50;
 			me.calc_bonuses = _apollo_calc_bonuses;
 			me.get_powers = _apollo_get_powers;
 			me.get_flags = _apollo_get_flags;
 			me.get_immunities = _apollo_get_immunities;
-			me.spoiler_dump = _apollo_spoiler_dump;
 			break;
 		case DEMIGOD_ARES:
-			me.stats[A_STR] += 2;
-			me.skills.sav -= 10;
-			me.skills.stl -= 2;
-			me.exp += 100;
+			me.stats[A_STR] += 1;
+			me.skills.sav -= 5;
+			me.skills.stl -= 1;
+			me.skills.thn += 15;
+			me.exp += 60;
 			me.calc_bonuses = _ares_calc_bonuses;
 			me.get_powers = _ares_get_powers;
 			me.get_flags = _ares_get_flags;
-			me.spoiler_dump = _ares_spoiler_dump;
 			break;
 		case DEMIGOD_ARTEMIS:
-			me.stats[A_DEX] += 2;
+			me.stats[A_DEX] += 1;
 			me.skills.thb += 15;
-			me.exp += 80;
+			me.exp += 50;
 			me.calc_bonuses = _artemis_calc_bonuses;
 			me.get_flags = _artemis_get_flags;
-			me.spoiler_dump = _artemis_spoiler_dump;
 			break;
 		case DEMIGOD_ATHENA:
-			me.stats[A_INT] += 2;
-			me.exp += 100;
+			me.stats[A_INT] += 1;
+			me.exp += 60;
 			me.calc_bonuses = _athena_calc_bonuses;
 			me.get_flags = _athena_get_flags;
-			me.spoiler_dump = _athena_spoiler_dump;
 			break;
 		case DEMIGOD_DEMETER:
-			me.exp += 60;
+			me.exp += 40;
 			me.calc_bonuses = _demeter_calc_bonuses;
 			me.get_powers = _demeter_get_powers;
 			me.get_flags = _demeter_get_flags;
-			me.spoiler_dump = _demeter_spoiler_dump;
 			break;
 		case DEMIGOD_HADES:
-			me.stats[A_CON] += 3;
-			me.skills.sav += 15;
-			me.hd += 3;
-			me.exp += 120;
+			me.stats[A_CON] += 1;
+			me.skills.sav += 7;
+			me.life += 7;
+			me.exp += 60;
 			me.calc_bonuses = _hades_calc_bonuses;
 			me.get_flags = _hades_get_flags;
-			me.spoiler_dump = _hades_spoiler_dump;
 			break;
 		case DEMIGOD_HEPHAESTUS:
-			me.exp += 80;
+			me.exp += 50;
 			me.calc_bonuses = _hephaestus_calc_bonuses;
 			me.get_flags = _hephaestus_get_flags;
-			me.spoiler_dump = _hephaestus_spoiler_dump;
 			break;
 		case DEMIGOD_HERA:
-			me.stats[A_WIS] += 2;
-			me.exp += 60;
+			me.stats[A_WIS] += 1;
+			me.exp += 40;
 			me.calc_bonuses = _hera_calc_bonuses;
 			me.get_powers = _hera_get_powers;
 			me.get_flags = _hera_get_flags;
-			me.spoiler_dump = _hera_spoiler_dump;
 			break;
 		case DEMIGOD_HERMES:
-			me.skills.stl += 5;
-			me.exp += 100;
+			me.skills.stl += 2;
+			me.exp += 60;
 			me.calc_bonuses = _hermes_calc_bonuses;
 			me.get_flags = _hermes_get_flags;
-			me.spoiler_dump = _hermes_spoiler_dump;
 			break;
 		case DEMIGOD_POSEIDON:
-			me.stats[A_STR] += 1;
-			me.stats[A_DEX] += 1;
-			me.exp += 120;
+			me.exp += 60;
 			me.calc_bonuses = _poseidon_calc_bonuses;
 			me.get_flags = _poseidon_get_flags;
-			me.spoiler_dump = _poseidon_spoiler_dump;
 			break;
 		case DEMIGOD_ZEUS:
 			for (i = 0; i < 6; i++)
 				me.stats[i]++;
-			me.exp += 120;
+			me.exp += 70;
 			me.calc_bonuses = _zeus_calc_bonuses;
 			me.get_flags = _zeus_get_flags;
-			me.spoiler_dump = _zeus_spoiler_dump;
 			break;
 		}
 		

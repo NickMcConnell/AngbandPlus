@@ -61,6 +61,7 @@ void mimic_race(int new_race)
 	p_ptr->redraw |= (PR_BASIC | PR_STATUS);
 	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
 
+	equip_on_change_race();
 	handle_stuff();
 }
 
@@ -421,68 +422,6 @@ static int _get_powers(spell_info* spells, int max)
 	return get_powers_aux(spells, max, _powers);
 }
 
-static void _spoiler_dump(FILE *fff) 
-{ 
-	int i;
-
-	spoil_powers_aux(fff, _powers);
-
-	fprintf(fff, "\n== Mimic Forms ==\n");
-	fprintf(fff, "||  || *Lvl* || *Mana* || *Fail* || *Upkeep* ||\n");
-	for (i = 0; ; i++)
-	{
-		int    level = _forms[i].level;
-		int    race_idx = _forms[i].race;
-		race_t *race_ptr = NULL;
-		int    cost;
-		int    upkeep;
-		int    fail;
-		cptr   spoiler;
-
-		if (race_idx == MIMIC_NONE) break;
-
-		spoiler = race_spoiler_page(race_idx);
-		race_ptr = get_race_t_aux(race_idx, 0);
-		cost = _form_cost(race_ptr->exp);
-		upkeep = _form_upkeep(race_ptr->exp);
-		fail = _forms[i].fail;
-
-		if (spoiler)
-		{
-			fprintf(fff, "||[%s %s]||%d||%d||%d||%d||\n", 
-				spoiler,
-				race_ptr->name, 
-				level,
-				cost, 
-				fail,
-				upkeep
-			);
-		}
-		else
-		{
-			fprintf(fff, "||%s||%d||%d||%d||%d||\n", 
-				race_ptr->name, 
-				level,
-				cost, 
-				fail,
-				upkeep
-			);
-		}
-	}
-
-	fprintf(fff, "\n\n");
-	fprintf(fff, "  * Mimic fail rates are determined by Dexterity.\n");
-	fprintf(fff, "  * While mimicking, a player will not regenerate.\n");
-	fprintf(fff, "  * If the player rests, they will revert to their true form.\n");
-	fprintf(fff, "  * To assume a new form, the player must first revert to their true form.\n");
-	fprintf(fff, "  * The player loses all mutations each time they shape shift.\n");
-	fprintf(fff, "  * When mimicking a Beastman, the player will gain random mutations as if they "
-						"leveled up from 1 to their current level as a Beastman\n");
-	fprintf(fff, "  * When mimicking a Human or Demigod, the player may choose [SpecialAbilities abilities] "
-						"if appropriate. However, once this choice is made, it is remembered, and the same "
-						"choice will be used for all future transformations to this race.\n");
-}
-
 race_t *doppelganger_get_race_t(void)
 {
 	static race_t me = {0};
@@ -511,12 +450,11 @@ race_t *doppelganger_get_race_t(void)
 		me.skills.thn = -20;
 		me.skills.thb = -20;
 
-		me.hd = 6;
+		me.life = 85;
 		me.exp = 150;
 		me.infra = 0;
 
 		me.get_powers = _get_powers;
-		me.spoiler_dump = _spoiler_dump;
 		init = TRUE;
 	}
 

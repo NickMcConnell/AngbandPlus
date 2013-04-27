@@ -47,6 +47,7 @@
  */
 #include "defines.h"
 #include "variant.h"
+#include "resist.h"
 #include "types.h"
 #include "externs.h"
 
@@ -54,6 +55,7 @@
 #include "spells.h"
 #include "menu.h"
 #include "fear.h"
+#include "equip.h"
 
 /***** Some copyright messages follow below *****/
 

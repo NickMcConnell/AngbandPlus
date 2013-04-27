@@ -118,6 +118,7 @@ s16b cur_wid;			/* Current dungeon width */
 s16b dun_level;			/* Current dungeon level */
 s16b unique_count;
 s16b num_repro;			/* Current reproducer count */
+s16b num_repro_kill;
 s16b object_level;		/* Current object creation level */
 s16b monster_level;		/* Current monster creation level */
 s16b base_level;        /* Base dungeon level */
@@ -167,7 +168,6 @@ s16b hack_m_idx = 0;	/* Hack -- see "process_monsters()" */
 int hack_m_spell = 0;   /* Hack -- see process_monsters(), make_attack_spell() and project_p() */
                         /* This is used to implement spell absorption */
 s16b hack_m_idx_ii = 0;
-bool multi_rew = FALSE;
 char summon_kin_type;   /* Hack, by Julian Lighton: summon 'relatives' */
 
 int total_friends = 0;
@@ -332,22 +332,6 @@ bool leave_junk;	/* Auto-destroyer leaves junk */
 bool leave_special;	/* Auto-destroyer leaves items your race/class needs */
 
 
-/*** Play-record Options ***/
-
-bool record_fix_art;	/* Record fixed artifacts */
-bool record_rand_art;	/* Record random artifacts */
-bool record_destroy_uniq;	/* Record when destroy unique monster */
-bool record_fix_quest;	/* Record fixed quests */
-bool record_rand_quest;	/* Record random quests */
-bool record_maxdepth;	/* Record movements to deepest level */
-bool record_stair;	/* Record recall and stair movements */
-bool record_buy;	/* Record purchased items */
-bool record_sell;	/* Record sold items */
-bool record_danger;	/* Record hitpoint warning */
-bool record_arena;	/* Record arena victories */
-bool record_ident;	/* Record first identified items */
-bool record_named_pet;	/* Record informations of named pets */
-
 
 /* Cheating options */
 
@@ -362,10 +346,10 @@ bool cheat_save;	/* Ask for saving death */
 
 /* Special options */
 
-byte hitpoint_warn;	/* Hitpoint warning (0 to 9) */
+byte hitpoint_warn = 3;	/* Hitpoint warning (0 to 9) */
 byte mana_warn;	/* Mana color (0 to 9) */
 
-byte delay_factor;	/* Delay factor (0 to 9) */
+byte delay_factor = 2;	/* Delay factor (0 to 9) */
 
 bool autosave_l;	/* Autosave before entering new levels */
 bool autosave_t;	/* Timed autosave */
@@ -555,7 +539,7 @@ term *angband_term[8];
  */
 char angband_term_name[8][16] =
 {
-	"Chengband",
+	"PosChengband",
 	"Term-1",
 	"Term-2",
 	"Term-3",
@@ -793,7 +777,6 @@ player_type *p_ptr = &p_body;
  * (sex, race, class, magic)
  */
 player_sex *sp_ptr;
-player_class *cp_ptr;
 player_seikaku *ap_ptr;
 player_magic *mp_ptr;
 
@@ -1044,6 +1027,7 @@ bool leave_junk;
 bool leave_chest;
 bool leave_special;
 bool leave_excellent;
+bool leave_good;
 
 /* Nikki */
 bool record_fix_art;
@@ -1279,6 +1263,7 @@ s16b feat_tree;
 s16b feat_mountain;
 s16b feat_swamp;
 s16b feat_dark_pit;
+s16b feat_web;
 
 /* Unknown grid (not detected) */
 s16b feat_undetected;
@@ -1288,6 +1273,7 @@ s16b feat_undetected;
  */
 byte dungeon_type;
 s16b *max_dlv;
+u32b *dungeon_flags;
 
 s16b feat_wall_outer;
 s16b feat_wall_inner;
@@ -1298,15 +1284,6 @@ bool now_damaged;
 s16b now_message;
 bool use_menu;
 
-#ifdef CHUUKEI
-bool chuukei_server;
-bool chuukei_client;
-char *server_name;
-int server_port;
-#endif
-
-/* for movie */
-bool browsing_movie;
 
 #ifdef TRAVEL
 /* for travel */
@@ -1317,6 +1294,3 @@ travel_type travel;
 int snipe_type = SP_NONE;
 bool reset_concent = FALSE;   /* Concentration reset flag */
 bool is_fired = FALSE;
-bool ballista_hack = FALSE;
-
-int quest_mega_hack = 0;

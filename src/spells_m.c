@@ -26,10 +26,10 @@ void magic_missile_spell(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Magic Missile", "マジック・ミサイル"));
+		var_set_string(res, "Magic Missile");
 		break;
 	case SPELL_DESC:
-		var_set_string(res, T("Fires a weak bolt of unresistable magic.", "弱い魔法の矢を放つ。"));
+		var_set_string(res, "Fires a weak bolt of unresistable magic.");
 		break;
 	case SPELL_INFO:
 		var_set_string(res, info_damage(spell_power(3 + ((p_ptr->lev - 1) / 5)), 4, 0));
@@ -77,13 +77,13 @@ void mana_bolt_I_spell(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Mana Bolt I", ""));
+		var_set_string(res, "Mana Bolt");
 		break;
 	case SPELL_DESC:
-		var_set_string(res, T("Fires a bolt of pure mana.", ""));
+		var_set_string(res, "Fires a bolt of pure mana.");
 		break;
 	case SPELL_INFO:
-		var_set_string(res, info_damage(1, spell_power(p_ptr->lev * 7 / 2), spell_power(50)));
+		var_set_string(res, info_damage(1, spell_power(p_ptr->lev * 7 / 2), spell_power(p_ptr->lev)));
 		break;
 	case SPELL_CAST:
 	{
@@ -91,8 +91,8 @@ void mana_bolt_I_spell(int cmd, variant *res)
 		var_set_bool(res, FALSE);
 		if (!get_aim_dir(&dir)) return;
 
-		msg_print(T("You cast a mana bolt.", "魔力の矢の呪文を唱えた。"));
-		fire_bolt(GF_MANA, dir, spell_power(randint1(p_ptr->lev * 7 / 2) + 50));
+		msg_print("You cast a mana bolt.");
+		fire_bolt(GF_MANA, dir, spell_power(randint1(p_ptr->lev * 7 / 2) + p_ptr->lev));
 
 		var_set_bool(res, TRUE);
 		break;
@@ -108,13 +108,13 @@ void mana_bolt_II_spell(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Mana Bolt II", ""));
+		var_set_string(res, "*Mana Bolt*");
 		break;
 	case SPELL_DESC:
-		var_set_string(res, T("Fires a powerful bolt of pure mana.", ""));
+		var_set_string(res, "Fires a powerful bolt of pure mana.");
 		break;
 	case SPELL_INFO:
-		var_set_string(res, info_damage(1, spell_power(p_ptr->lev * 7), spell_power(100)));
+		var_set_string(res, info_damage(1, spell_power(p_ptr->lev * 7), spell_power(p_ptr->lev*2)));
 		break;
 	case SPELL_CAST:
 	{
@@ -122,8 +122,8 @@ void mana_bolt_II_spell(int cmd, variant *res)
 		var_set_bool(res, FALSE);
 		if (!get_aim_dir(&dir)) return;
 
-		msg_print(T("You cast a mana bolt.", "魔力の矢の呪文を唱えた。"));
-		fire_bolt(GF_MANA, dir, spell_power(randint1(p_ptr->lev * 7) + 100));
+		msg_print("You cast a mana bolt.");
+		fire_bolt(GF_MANA, dir, spell_power(randint1(p_ptr->lev * 7) + p_ptr->lev*2));
 
 		var_set_bool(res, TRUE);
 		break;
@@ -275,6 +275,66 @@ void mind_blast_spell(int cmd, variant *res)
 }
 bool cast_mind_blast(void) { return cast_spell(mind_blast_spell); }
 
+void nether_ball_spell(int cmd, variant *res)
+{
+	int dam = spell_power(p_ptr->lev * 3 / 2 + 100);
+	int rad = spell_power(p_ptr->lev / 20 + 2);
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Nether Ball");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Fires a huge ball of nether.");
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(0, 0, dam));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		fire_ball(GF_NETHER, dir, dam, rad);
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void nether_bolt_spell(int cmd, variant *res)
+{
+	int dd = 8 + (p_ptr->lev - 5) / 4;
+	int ds = 8;
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Nether Bolt");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Fires a bolt or beam of nether.");
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(dd, spell_power(ds), 0));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		fire_bolt_or_beam(beam_chance(), GF_NETHER, dir, spell_power(damroll(dd, ds)));
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void orb_of_entropy_spell(int cmd, variant *res)
 {
 	int base;
@@ -367,6 +427,31 @@ void panic_hit_spell(int cmd, variant *res)
 }
 bool cast_panic_hit(void) { return cast_spell(panic_hit_spell); }
 
+void paralyze_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Paralyze");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Attempt to freeze a monster.");
+		break;
+	case SPELL_CAST:
+	{
+		int dir;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		stasis_monster(dir);
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void pattern_mindwalk_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -440,16 +525,78 @@ void phase_door_spell(int cmd, variant *res)
 		break;
 	case SPELL_ENERGY:
 		if (mut_present(MUT_ASTRAL_GUIDE))
+		{
 			var_set_int(res, 30);
-		else
-			default_spell(cmd, res);
-		break;
+			break;
+		}
 	default:
 		default_spell(cmd, res);
 		break;
 	}
 }
 bool cast_phase_door(void) { return cast_spell(phase_door_spell); }
+
+void plasma_ball_spell(int cmd, variant *res)
+{
+	int dam = spell_power(p_ptr->lev * 3 / 2 + 80);
+	int rad = spell_power(2 + p_ptr->lev / 40);
+
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Plasma Ball");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Fires a ball of plasma.");
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(0, 0, dam));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		fire_ball(GF_PLASMA, dir, dam, rad);
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void plasma_bolt_spell(int cmd, variant *res)
+{
+	int dd = 11 + p_ptr->lev / 4;
+	int ds = 8;
+
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Plasma Bolt");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Fires a bolt or beam of plasma.");
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(dd, spell_power(ds), 0));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		fire_bolt_or_beam(beam_chance(), GF_PLASMA, dir, spell_power(damroll(dd, ds)));
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
 void poison_dart_spell(int cmd, variant *res)
 {
@@ -686,6 +833,36 @@ void protection_from_evil_spell(int cmd, variant *res)
 	}
 }
 bool cast_protection_from_evil(void) { return cast_spell(protection_from_evil_spell); }
+
+void punishment_spell(int cmd, variant *res)
+{
+	int dd = 3 + (p_ptr->lev - 1)/5;
+	int ds = 4;
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Punishment");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Fires a bolt or beam of lightning.");
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(spell_power(dd), ds, 0));
+		break;
+	case SPELL_CAST:
+	{
+		int dir;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		fire_bolt_or_beam(beam_chance() - 10, GF_ELEC, dir, spell_power(damroll(dd, ds)));
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
 void radiation_spell(int cmd, variant *res)
 {
@@ -993,16 +1170,40 @@ void resist_environment_spell(int cmd, variant *res)
 	}
 }
 
+void resist_fire_spell(int cmd, variant *res)
+{
+	int base = spell_power(20);
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Resist Fire");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Gives extra resistance to fire for a bit.");
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_duration(base, base));
+		break;
+	case SPELL_CAST:
+		set_oppose_fire(randint1(base) + base, FALSE);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void resist_heat_cold_spell(int cmd, variant *res)
 {
 	int base = spell_power(20);
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Resist Heat and Cold", "耐熱耐寒"));
+		var_set_string(res, "Resist Heat and Cold");
 		break;
 	case SPELL_DESC:
-		var_set_string(res, T("Gives resistance to fire and cold. These resistances can be added to which from equipment for more powerful resistances.", "一定時間、火炎と冷気に対する耐性を得る。装備による耐性に累積する。"));
+		var_set_string(res, "Gives resistance to fire and cold. These resistances can be added to which from equipment for more powerful resistances.");
 		break;
 	case SPELL_INFO:
 		var_set_string(res, info_duration(base, base));
@@ -1030,6 +1231,32 @@ void resist_poison_spell(int cmd, variant *res)
 		break;
 	case SPELL_CAST:
 		set_oppose_pois(randint1(20) + 20, FALSE);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void restoration_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Restoration");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Restores all stats and experience.");
+		break;
+	case SPELL_CAST:
+		do_res_stat(A_STR);
+		do_res_stat(A_INT);
+		do_res_stat(A_WIS);
+		do_res_stat(A_DEX);
+		do_res_stat(A_CON);
+		do_res_stat(A_CHR);
+		restore_level();
 		var_set_bool(res, TRUE);
 		break;
 	default:

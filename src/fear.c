@@ -85,7 +85,7 @@ bool fear_set_p(int v)
 	if (new_lvl > old_lvl)
 	{
 		msg_format("You feel %s.", _get_level_name(new_lvl));
-		if (old_lvl <= FEAR_SCARED && !fear_save_p(v/5))
+		if (old_lvl <= FEAR_SCARED && one_in_(6) && !fear_save_p(v/5))
 			do_dec_stat(A_CHR);
 		if (p_ptr->special_defense & KATA_MASK)
 		{
@@ -225,49 +225,53 @@ bool fear_allow_shoot(void)
 	return TRUE;
 }
 
+static int _plev(void)
+{
+	if (p_ptr->lev <= 40)
+		return p_ptr->lev;
+
+	return 40 + (p_ptr->lev - 40)*2;
+}
+
 /* Fear Saving Throws */
 bool fear_save_p(int ml)
 {
 	bool result = FALSE;
 	int pl;
 
+	if (!hack_mind) return TRUE;
 	if (ml <= 1) return TRUE;
 
 	/* Immunity to Fear? */
 	if (!ml) return TRUE;
+	if (res_pct(RES_FEAR) >= 100) return TRUE;
 	if (p_ptr->pclass == CLASS_BERSERKER) return TRUE;
-	if (inventory[INVEN_HEAD].name1 == ART_ARES) return TRUE;
+	if (equip_find_artifact(ART_ARES)) return TRUE;
 
-	pl = p_ptr->lev + adj_stat_save[p_ptr->stat_ind[A_CHR]];
+	pl = _plev() + adj_stat_save[p_ptr->stat_ind[A_CHR]];
 	if (pl < 1) pl = 1;
 
-	if (prace_is_(RACE_SNOTLING)) ml *= 2;
-
 	if (randint1(ml) <= randint1(pl)) result = TRUE;
-	else if (p_ptr->resist_fear && randint1(ml) <= randint1(pl)) result = TRUE;
-
-#ifndef _DEBUG
-	if (p_ptr->wizard)
-#endif
+	else
 	{
-		double s = _save_odds(ml, pl);
-
-		if (p_ptr->resist_fear)
+		int j;
+		for (j = 0; j < p_ptr->resist[RES_FEAR]; j++)
 		{
-			double f = 1.0 - s;
-			double s2 = 1.0 - (f*f);
-			msg_format("Fear: 1d%d <= 1d%d => %.2lf%%, %.2lf%% %s", ml, pl, s*100.0, s2*100.0, result?"Y":"N");
-		}
-		else
-			msg_format("Fear: 1d%d <= 1d%d => %.2lf%% %s", ml, pl, s*100.0, result?"Y":"N");
+			if (randint1(ml) <= randint1(pl)) 
+			{
+				result = TRUE;
+				break;
+			}
+		}	
 	}
+
 
 	return result;
 }
 
 bool fear_save_m(monster_type *m_ptr)
 {
-	int           pl = p_ptr->lev;
+	int           pl = _plev();
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	int           ml = _r_level(r_ptr);
 	bool          result = FALSE;
@@ -279,14 +283,6 @@ bool fear_save_m(monster_type *m_ptr)
 	if (pl <= 1) return TRUE;
 
 	if (randint1(pl) <= randint1(ml)) result = TRUE;
-
-#ifndef _DEBUG
-	if (p_ptr->wizard)
-#endif
-	{
-		double s = _save_odds(pl, ml);
-		msg_format("MonFear: 1d%d <= 1d%d => %.2lf%% %s", pl, ml, s*100.0, result?"Y":"N");
-	}
 
 	return result;
 }
@@ -345,6 +341,7 @@ void fear_process_p(void)
 		r_ptr = &r_info[m_ptr->ap_r_idx];
 
 		if (!(r_ptr->flags2 & RF2_AURA_FEAR)) continue;
+		if (is_pet(m_ptr) || is_friendly(m_ptr)) continue;
 		if (!projectable(py, px, m_ptr->fy, m_ptr->fx)) continue;
 
 		r_level = _r_level(r_ptr);
@@ -362,7 +359,7 @@ void fear_process_p(void)
 void fear_update_m(monster_type *m_ptr)
 {
 	monster_race *r_ptr = &r_info[m_ptr->ap_r_idx];
-	if ((r_ptr->flags2 & RF2_AURA_FEAR) && m_ptr->ml)
+	if ((r_ptr->flags2 & RF2_AURA_FEAR) && m_ptr->ml && !is_pet(m_ptr) && !is_friendly(m_ptr))
 	{
 		int r_level = _r_level(r_ptr);
 		if (!fear_save_p(r_level))
@@ -419,17 +416,8 @@ bool fear_p_hurt_m(int m_idx, int dam)
 		{
 			if (!fear_save_m(m_ptr))
 			{
-				if (m_ptr->mflag2 & MFLAG2_ENCLOSED)
-				{
-					char m_name[80];
-					monster_desc(m_name, m_ptr, 0);
-					msg_format("%^s is enclosed and unable to run away!", m_name);
-				}
-				else
-				{
-					result = TRUE;
-					set_monster_monfear(m_idx, randint1(10) + 20);
-				}
+				result = TRUE;
+				set_monster_monfear(m_idx, randint1(10) + 20);
 			}
 		}
 	}
@@ -462,7 +450,7 @@ void fear_scare_p(monster_type *m_ptr)
 bool fear_process_m(int m_idx)
 {
 	monster_type *m_ptr = &m_list[m_idx];
-	if (MON_MONFEAR(m_ptr))
+	if (MON_MONFEAR(m_ptr) && !MON_CSLEEP(m_ptr))
 	{
 		if (fear_save_m(m_ptr))
 		{
@@ -518,19 +506,42 @@ static int _get_hurt_level(int chp)
 {
 	int pct = (p_ptr->mhp - MAX(chp, 0)) * 100 / p_ptr->mhp;
 
-	if (pct >= HURT_95)
-		return HURT_95;
-	if (pct >= HURT_90)
-		return HURT_90;
-	if (pct >= HURT_80)
-		return HURT_80;
-	if (pct >= HURT_65)
-		return HURT_65;
-	if (pct >= HURT_50)
-		return HURT_50;
-	if (pct >= HURT_25)
-		return HURT_25;
-
+	if (p_ptr->mhp < 50)
+	{
+		if (pct >= HURT_50)
+			return HURT_50;
+	}
+	else if (p_ptr->mhp < 150)
+	{
+		if (pct >= HURT_80)
+			return HURT_80;
+		if (pct >= HURT_50)
+			return HURT_50;
+	}
+	else if (p_ptr->mhp < 300)
+	{
+		if (pct >= HURT_90)
+			return HURT_90;
+		if (pct >= HURT_65)
+			return HURT_65;
+		if (pct >= HURT_25)
+			return HURT_25;
+	}
+	else
+	{
+		if (pct >= HURT_95)
+			return HURT_95;
+		if (pct >= HURT_90)
+			return HURT_90;
+		if (pct >= HURT_80)
+			return HURT_80;
+		if (pct >= HURT_65)
+			return HURT_65;
+		if (pct >= HURT_50)
+			return HURT_50;
+		if (pct >= HURT_25)
+			return HURT_25;
+	}
 	return HURT_0;
 }
 

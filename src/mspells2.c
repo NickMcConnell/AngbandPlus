@@ -3304,6 +3304,8 @@ bool monst_spell_monst(int m_idx)
 						   -- henkma
 						 */
 						get_damage = take_hit(DAMAGE_NOESCAPE, dam, m_name, -1);
+						if (get_damage > 0)
+							weaponmaster_do_readied_shot(m_ptr);
 						if (IS_REVENGE() && get_damage > 0 && !p_ptr->is_dead)
 						{
 							char m_name_self[80];
