@@ -1543,7 +1543,7 @@ void building_imbuesoul(void)
 	o_ptr->to_a = (o_ptr->level * s_info[o_ptr->soul_type1].max_to_a) / 6;
 
 
-	/* Identify the weapon */
+	/* Identify the item */
 	identify_item(o_ptr);
 	object_mental(o_ptr);
 
@@ -1551,6 +1551,18 @@ void building_imbuesoul(void)
 	o_ptr->kn_flags1 = o_ptr->flags1;
 	o_ptr->kn_flags2 = o_ptr->flags2;
 	o_ptr->kn_flags3 = o_ptr->flags3;
+
+	/* if we are imbuing a stack of rings, put a stop to that nonsense */
+	if (o_ptr->number > 1)
+	{
+		msgf("You cannot imbue more than one item.");
+		msgf("I have taken the excess %d.", (o_ptr->number) - 1);
+
+		o_ptr->number = 1;
+
+		/* Notice weight changes */
+		p_ptr->update |= PU_WEIGHT;
+	}
 
 	/* Take the soul away from the player, describe the result */
 	item_increase(s_ptr, -1);

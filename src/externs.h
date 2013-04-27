@@ -428,7 +428,7 @@ extern void do_cmd_activate(void);
 extern void do_cmd_rerate(void);
 
 /* dungeon.c */
-extern void sense_item(object_type *o_ptr, bool heavy, bool wield, bool msg);
+extern bool sense_item(object_type *o_ptr, bool heavy, bool wield, bool msg);
 extern void notice_lite_change(object_type *o_ptr);
 extern bool psychometry(void);
 extern void play_game(bool new_game);
@@ -1021,8 +1021,7 @@ extern bool monst_spell_monst(int m_idx);
 
 /* artifact.c */
 extern bool create_artifact(object_type *o_ptr, bool a_scroll);
-extern int random_resistance(object_type *o_ptr, int specific,
-							 int artifact_bias);
+extern void random_low_resist(object_type *o_ptr);
 extern bool activate_effect(object_type *o_ptr);
 extern void random_artifact_resistance(object_type *o_ptr);
 extern void create_named_art(int a_idx, int x, int y);

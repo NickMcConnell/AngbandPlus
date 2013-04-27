@@ -1,3 +1,84 @@
+**** 11/11/03
+
+Added armor of Bravery
+Made Orfax deeper, now he only summons kin
+
+**** 11/07/03
+
+Ring / Amulet material is now *very* important - cheaper materials won't allow souls to fully develop
+Made higher material rings / amulets rarer, but much more valuable
+Rings / amulets once again stack, if unimbued.
+Made worthless armors possible, and added two new "worthless" armors
+Made the two worthless gloves a tiny bit less worthless
+
+**** 10/31/03
+
+Chaotic weapons now get a random resist, slay, sustain, and ability
+Fixed some artifact-generation stuff I broke
+
+**** 10/30/03
+
+Removed a lot of the Modrons, greatly increased the AC of those that remain to make them more interesting
+Added some new ego-types (original, this time!)
+Weakened the most powerful soul gems
+Added soul gem information for Modrons
+
+**** 10/10/03
+
+Fixed a bug with generating artifact shields
+Improved randarts slightly, now rerolls second ego-type indefinately if the two ego-types chosen are identical.
+Add another improvment to randarts: they all get one free resist, power, or sustain (equal chance, random).
+
+**** 10/09/03
+
+Made mutant mushroom patches more annoying.
+Massively de-powered randarts, now they are basically ego-items with multiple ego-types.
+Fixed the bug with imbuing stacks of rings / amulets.
+Increased the chance ego items might have inflated damage dice
+Permanent Walls should now appear as light brown
+Added many, many new ego types, all ripped from Angband.
+
+**** 10/08/03
+
+Now, high-level characters will automatically pseudo-id weapons/armor when they are prompted to pick it up.
+Mages, Priests, High-Mages, Mindcrafters, and monks gain this ability at level 50, 
+Paladins, Rangers, Warrior-Mages, and Chaos-Warriors gain it at 40,
+Warriors gain it at level 30,
+and Rogues gain it at level 20.
+
+At very high levels, some classes will now automatically identify weapons/armor when they are prompted to pick it up.
+Paladins, Rangers, Warrior-Mages, and Chaos-Warriors gain it at 50,
+Warriors gain it at level 40,
+and Rogues gain it at level 30.
+
+At level 40, Rogues automatically identify all items when they are prompted to pick them up.
+At level 50, Rogues automatically *Identify* all items when they are prompted to pick them up.
+
+Rogues now gain Identify and *Identify* spells earlier.
+
+**** 10/02/03
+
+Added a bunch of new room types from Z 2.7.3
+Made unusual rooms about twice as common
+Made higher-metal rings & amulets less common
+
+**** 09/30/03
+
+Removed void mushrooms, tweaked mutant mushrooms a bit more
+Added the Modrons!
+
+**** 09/30/03
+
+Tweaked the character dump a little
+Tweaked the mutant mushrooms, were *far* too annoying before.
+
+**** 09/29/03
+
+Fixed the bug that allowed slay animal on armor
+Added some new monsters: mutant mushroom patch, yeek necromancer
+Renamed ewoks -> forest gnomes, removed SILLY flag
+Changed color of kamikaze yeeks and serpent men to remove conflicts
+
 **** 09/26/03
 
 Tweaked rewards for depositing soul gems at the soul dealer
@@ -13,7 +94,7 @@ Now only non-weapons show bonuses to accuracy and damage when inspected.
 Now only non-armor shows bonuses to armor when inspected.
 Randomization of secondary soul types gives preference to better types
 Powered-down soul types big time
-Made souls about half as common, and made them level about half as fast
+Made souls about half as rare, and made them level about half as fast
 Set leveling threshold for souls higher
 
 **** 09/24/03
@@ -55,7 +136,7 @@ Updated the character info screen to show above flags
 **** 09/17/03
 
 Edited the makefiles to match changes I have made. Probably broke all kinds of stuff.
-XBAND 0.1.0 released
+First release
 
 Fixed a bug that misdisplayed soul potentials
 Potential of wielded imbued items can now be displayed
@@ -167,7 +248,6 @@ Added new item type, Soul Data.
 Diablo - style weapon generation
 Need better way of associating soul types with monsters
 Make imbued items 'A'ctivateble
-Make Soul Dealer give out better rewards for depositing souls
 Possibly fix soul memory across characters bug
 Cleanup savefile format
 Add more artifacts
@@ -180,3 +260,4 @@ Item descriptions in character dump
 Update official FAQ
 Update help files
 I don't think the HURT_FIRE and HURT_COLD flags work
+Add more ego-types! (Very important with new artifact system)

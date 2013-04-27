@@ -2309,7 +2309,7 @@ static bool item_is_recharging(object_type *o_ptr)
 
 	/* Is the item recharging? */
 	if (o_ptr->timeout &&
-		((o_ptr->tval != TV_LITE) || (o_ptr->flags3 & TR3_INSTA_ART)))
+		((o_ptr->tval != TV_LITE) || (o_ptr->flags3 & TR3_ACTIVATE)))
 	{
 		if (o_ptr->tval == TV_ROD)
 		{

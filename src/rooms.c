@@ -17,6 +17,7 @@
 #include "rooms.h"
 
 
+
 /*
  * Array of minimum room depths
  */
@@ -38,6 +39,15 @@ static const s16b roomdep[] =
 	5, /* 13 = Large with feature (50x36) */
 	3, /* 14 = Large version 2 (33x11) */
 	3, /* 15 = Parallelagram room (37x15) */
+	0, // Type 16 -- Rectangular room with chunks removed
+  3, // Type 17 -- Room made of Triangles
+  6, // Type 18 -- Large room with many small rooms inside.
+  9, // Type 19 -- Channel or reservoir.
+  12, // Type 20 -- Collapsed room.
+  15, // Type 21 -- Crypt Mk II.
+  18, // Type 22 -- Large Chambe
+  21, // Type 23 -- Semicircular room.
+  24, // Type 24 -- Hourglass-shaped room.
 };
 
 
@@ -3863,8 +3873,9 @@ static void build_type10(int bx0, int by0)
  */
 static void build_type11(int bx0, int by0)
 {
-	int rad, x, y, x0, y0;
+	int rad, rand, x, y, x0, y0;
 	int light = FALSE;
+	int feat;
 
 	/* Occasional light */
 	if (randint1(p_ptr->depth) <= 15) light = TRUE;
@@ -3895,6 +3906,44 @@ static void build_type11(int bx0, int by0)
 
 	/* Find visible outer walls and set to be FEAT_OUTER */
 	add_outer_wall(x0, y0, light, x0 - rad, y0 - rad, x0 + rad, y0 + rad);
+
+	if (one_in_(3))
+	{
+		rad = randint1(rad);
+
+		rand = randint0(15);
+	
+		if (rand < 8)
+		{
+			feat = FEAT_SHAL_WATER;
+		}
+		else if (rand < 12)
+		{
+			feat = FEAT_SHAL_SWAMP;
+		}
+		else if (rand < 14)
+		{
+			feat = FEAT_SHAL_ACID;
+		}
+		else
+		{
+			feat = FEAT_SHAL_LAVA;
+		}
+
+		/* Make circular liquid feature */
+		for (x = x0 - rad; x <= x0 + rad; x++)
+		{
+			for (y = y0 - rad; y <= y0 + rad; y++)
+			{
+				/* inside- so is floor */
+				if (distance(x0, y0, x, y) <= rad - 1)
+				{
+					set_feat_bold(x, y, feat);
+				}
+			}
+		}
+	}
+
 }
 
 
@@ -4247,6 +4296,729 @@ static void build_type15(int bx0, int by0)
 	add_outer_wall(xval, yval, light, x1, y1, x1 + h + w, y1 + h);
 }
 
+/*
+ * Type 16 -- Rectangular room with chunks removed
+ */
+static void build_type16(int bx0, int by0)
+{
+	int xval, yval;
+	int y1, x1, y2, x2;
+	int tx1 = 0, tx2 = 0, ty1 = 0, ty2 = 0;
+	bool light;
+
+	int num, i;
+	
+	int xsize, ysize;
+	
+	/* Pick a room size */
+	y1 = randint1(4);
+	x1 = randint1(11);
+	y2 = randint1(3);
+	x2 = randint1(11);
+
+	xsize = x1 + x2 + 1;
+	ysize = y1 + y2 + 1;
+
+	/* Try to allocate space for room.  If fails, exit */
+	if (!room_alloc(xsize + 2, ysize + 2, FALSE, bx0, by0, &xval, &yval))
+		return;
+
+	/* Choose lite or dark */
+	light = (p_ptr->depth <= randint1(25));
+
+
+	/* Get corner values */
+	y1 = yval - ysize / 2;
+	x1 = xval - xsize / 2;
+	y2 = yval + (ysize - 1) / 2;
+	x2 = xval + (xsize - 1) / 2;
+
+	/* Generate inner floors */
+	generate_fill(x1, y1, x2, y2, FEAT_FLOOR);
+
+	/* Fill boundary with random rectangles */
+
+	/* Determine number of sections to use */
+	num = rand_range(1, 2);
+
+	for (i = 0; i < num; i++)
+	{
+		switch (randint1(4))
+		{
+			case 1:
+			{
+				/* Top Left */
+				tx1 = x1;
+				tx2 = rand_range((x1 + xval) / 2, xval - 1);
+				ty1 = y1;
+				ty2 = rand_range((y1 + yval) / 2, yval - 1);
+
+				break;
+			}
+			
+			case 2:
+			{
+				/* Bottom Left */
+				tx1 = x1;
+				tx2 = rand_range((x1 + xval) / 2, xval - 1);
+				ty1 = rand_range(yval + 1, (yval + y2) / 2);
+				ty2 = y2;
+			
+				break;
+			}
+		
+			case 3:
+			{
+				/* Top Right */
+				tx1 = rand_range(xval + 1, (xval + x2) / 2);
+				tx2 = x2;
+				ty1 = y1;
+				ty2 = rand_range((y1 + yval) / 2, yval - 1);
+
+				break;
+			}
+			
+			case 4:
+			{
+				/* Bottom Right */
+				tx1 = rand_range(xval + 1, (xval + x2) / 2);
+				tx2 = x2;
+				ty1 = rand_range(yval + 1, (yval + y2) / 2);
+				ty2 = y2;
+
+				break;
+			}
+		}
+	
+		/* Create regions */
+		generate_fill(tx1, ty1, tx2, ty2, FEAT_WALL_EXTRA);
+	}
+	
+	/* Find visible outer walls and set to be FEAT_OUTER */
+	add_outer_wall(xval, yval, light, x1 - 1, y1 - 1, x2 + 1, y2 + 1);
+}
+
+/*
+ * Test a point to see if it lies within a triangular
+ * shaped region defined by three other points.
+ *
+ * det is the determinate of two vectors.
+ *
+ * (It is the sign of the "handedness" of the triangle * 1/2
+ * of its area.)
+ */
+static bool test_tri(int px, int py, int x1, int y1, int x2, int y2, int x3, int y3, int det)
+{
+	/*
+	 * Use the cross product to make sure the point is on the 'right side'
+	 * of the angle defined by the particular side, and the vector from a
+	 * vertex of that side to the specified point.
+	 *
+	 * Do this three times, once for each side of the triangle.
+	 */
+	if (det > 0)
+	{
+		if ((x2 - x1) * (py - y1) - (px - x1) * (y2 - y1) < 0) return (FALSE);
+		if ((x3 - x2) * (py - y2) - (px - x2) * (y3 - y2) < 0) return (FALSE);
+		if ((x1 - x3) * (py - y3) - (px - x3) * (y1 - y3) < 0) return (FALSE);
+	}
+	else
+	{
+		if ((x2 - x1) * (py - y1) - (px - x1) * (y2 - y1) > 0) return (FALSE);
+		if ((x3 - x2) * (py - y2) - (px - x2) * (y3 - y2) > 0) return (FALSE);
+		if ((x1 - x3) * (py - y3) - (px - x3) * (y1 - y3) > 0) return (FALSE);
+	}
+
+	/* Inside the region. */
+	return (TRUE);
+}
+
+/*
+ * Make sure two squares are connected by floors.
+ */
+static void connect(int x1, int y1, int x2, int y2)
+{
+	int x, y;
+	int l, length = distance(x1, y1, x2, y2);
+	
+	/* Paranoia */
+
+	if (!length) return;
+
+	/* Be dumb, and use a straight line */
+	for (l = 0; l <= length; l++)
+	{
+		x = x1 + l * (x2 - x1) / length;
+		y = y1 + l * (y2 - y1) / length;
+	
+		set_feat_bold(x, y, FEAT_FLOOR);
+	}
+}
+
+/*
+ * Type 17 -- Room made of Triangles
+ */
+static void build_type17(int bx0, int by0)
+{
+	int xval, yval;
+	int y1, x1, y2, x2;
+	bool light;
+
+	int det;
+
+	int x, y;
+	int vx1, vy1, vx2, vy2, vx3, vy3;
+
+	int num, i;
+	
+	int xsize, ysize;
+	
+	/* Pick a room size */
+	y1 = randint1(14);
+	x1 = randint1(14);
+	y2 = randint1(14);
+	x2 = randint1(14);
+
+	xsize = x1 + x2 + 1;
+	ysize = y1 + y2 + 1;
+
+	/* Try to allocate space for room.  If fails, exit */
+	if (!room_alloc(xsize + 2, ysize + 2, FALSE, bx0, by0, &xval, &yval))
+		return;
+
+	/* Choose lite or dark */
+	light = (p_ptr->depth <= randint1(25));
+
+	/* Get corner values */
+	y1 = yval - ysize / 2;
+	x1 = xval - xsize / 2;
+	y2 = yval + (ysize - 1) / 2;
+	x2 = xval + (xsize - 1) / 2;
+	
+	/* Paranoia - Room is too small, just make a rectangle */
+	if (xsize * ysize < 20)
+	{
+		/* Generate new room */
+		generate_room(x1, y1, x2, y2, light);
+
+		/* Generate inner floors */
+		generate_fill(x1 + 1, y1 + 1, x2 - 1, y2 - 1, FEAT_FLOOR);
+	
+		/* Generate outer walls */
+		generate_draw(x1, y1, x2, y2, FEAT_WALL_OUTER);
+	
+		/* Done */
+		return;
+	}
+	
+	/* Determine number of shapes to use */
+	num = rand_range(2, 4);
+
+	/* Fill with random triangles */
+
+	/* Make num rooms */
+	for (i = 0; i < num; i++)
+	{
+		do
+		{
+			/* Get vertices */
+			vx1 = rand_range(x1, x2);
+			vx2 = rand_range(x1, x2);
+			vx3 = rand_range(x1, x2);
+		
+			vy1 = rand_range(y1, y2);
+			vy2 = rand_range(y1, y2);
+			vy3 = rand_range(y1, y2);
+			
+			/*
+			 * Calculate the cross product of two vectors that
+			 * define the sides of the triangle.
+			 *
+			 * This will be equal to twice the area of the triangle
+			 * times a sign factor that depends on the ordering
+			 * of the vertex points in space.
+			 */
+			det = (vx2 - vx1) * (vy3 - vy1) - (vx3 - vx1) * (vy2 - vy1);
+		
+			/* Make sure the triangle is large enough. */
+		} while (abs(det) < 10);
+		
+		for (x = x1; x <= x2; x++)
+		{
+			for (y = y1; y <= y2; y++)
+			{
+				if (test_tri(x, y, vx1, vy1, vx2, vy2, vx3, vy3, det))
+				{
+					set_feat_bold(x, y, FEAT_FLOOR);
+				}
+			}
+		}
+		
+		/* Hack - connect to room center */
+		connect(xval, yval, (vx1 + vx2 + vx3) / 3, (vy1 + vy2 + vy3) / 3);
+		
+		/* Hack - connect vertexes to avoid problems with rounding */
+		connect(vx1, vy1, vx2, vy2);
+		connect(vx1, vy1, vx3, vy3);
+		connect(vx3, vy3, vx2, vy2);
+	}
+	
+	/* Find visible outer walls and set to be FEAT_OUTER */
+	add_outer_wall(xval, yval, light, x1 - 1, y1 - 1, x2 + 1, y2 + 1);
+}
+
+/*
+ * Type 18 -- Large room with many small rooms inside.
+ *
+ * (A jail).
+ */
+static void build_type18(int bx0, int by0)
+{
+	int y1, x1;
+	int y2, x2, yval, xval;
+	bool light;
+	
+	int i;
+
+	/* Try to allocate space for room. */
+	if (!room_alloc(25, 11, FALSE, bx0, by0, &xval, &yval)) return;
+
+	/* Choose lite or dark */
+	light = (p_ptr->depth <= randint1(25));
+
+	/* Large room */
+	y1 = yval - 4;
+	y2 = yval + 4;
+	x1 = xval - 11;
+	x2 = xval + 11;
+
+	/* Generate new room */
+	generate_room(x1 - 1, y1 - 1, x2 + 1, y2 + 1, light);
+
+	/* Generate inner floors */
+	generate_fill(x1, y1, x2, y2, FEAT_FLOOR);
+	
+	for (i = 0; i < 6; i++)
+	{
+		generate_draw(x1 - 1 + i * 4, y1 - 1, x1 + 3 + i * 4, yval - 1, FEAT_WALL_INNER);
+		generate_draw(x1 - 1 + i * 4, yval + 1, x1 + 3 + i * 4, y2 + 1, FEAT_WALL_INNER);
+		place_random_door(x1 + 1 + i * 4, yval - 1);
+		place_random_door(x1 + 1 + i * 4, yval + 1);
+	}
+	
+	/* Generate outer walls */
+	generate_draw(x1 - 1, y1 - 1, x2 + 1, y2 + 1, FEAT_WALL_OUTER);
+}
+
+/*
+ * Type 19 -- Channel or reservoir.
+ */
+static void build_type19(int bx0, int by0)
+{
+	int y1, x1;
+	int y2, x2, yval, xval;
+	bool light;
+	int rand, feat1, feat2;
+
+	rand = randint0(15);
+
+	if (rand < 8)
+	{
+		feat1 = FEAT_SHAL_WATER;
+		feat2 = FEAT_DEEP_WATER;
+	}
+	else if (rand < 12)
+	{
+		feat1 = FEAT_SHAL_SWAMP;
+		feat2 = FEAT_DEEP_SWAMP;
+	}
+	else if (rand < 14)
+	{
+		feat1 = FEAT_SHAL_ACID;
+		feat2 = FEAT_DEEP_ACID;
+	}
+	else
+	{
+		feat1 = FEAT_SHAL_LAVA;
+		feat2 = FEAT_DEEP_LAVA;
+	}
+	
+
+	
+	/* Choose lite or dark */
+	light = (p_ptr->depth <= randint1(25));
+	
+	/* Vertical */
+	if (one_in_(2))
+	{
+		/* Try to allocate space for room. */
+		if (!room_alloc(41, 11, FALSE, bx0, by0, &xval, &yval)) return;
+		
+		/* Large, long room */
+		y1 = yval - 4;
+		y2 = yval + 4;
+		x1 = xval - 19;
+		x2 = xval + 19;
+		
+		/* Generate new room */
+		generate_room(x1 - 1, y1 - 1, x2 + 1, y2 + 1, light);
+		
+		/* Generate outer walls */
+		generate_draw(x1 - 1, y1 - 1, x2 + 1, y2 + 1, FEAT_WALL_OUTER);
+		
+		/* Generate floor */
+		generate_draw(x1, y1, x2, y2, FEAT_FLOOR);
+		
+		/* Generate liquid */
+		generate_draw(x1, y1 + 1, x2, y2 - 1, feat1);
+		generate_fill(x1, y1 + 2, x2, y2 - 2, feat2);
+	}
+	else
+	{
+		/* Try to allocate space for room. */
+		if (!room_alloc(11, 33, FALSE, bx0, by0, &xval, &yval)) return;
+		
+		/* Large, long room */
+		y1 = yval - 15;
+		y2 = yval + 15;
+		x1 = xval - 4;
+		x2 = xval + 4;
+		
+		/* Generate new room */
+		generate_room(x1 - 1, y1 - 1, x2 + 1, y2 + 1, light);
+		
+		/* Generate outer walls */
+		generate_draw(x1 - 1, y1 - 1, x2 + 1, y2 + 1, FEAT_WALL_OUTER);
+		
+		/* Generate floor */
+		generate_draw(x1, y1, x2, y2, FEAT_FLOOR);
+		
+		/* Generate liquid */
+		generate_draw(x1 + 1, y1, x2 - 1, y2, feat1);
+		generate_fill(x1 + 2, y1, x2 - 2, y2, feat2);
+	}
+}
+
+/*
+ * Type 20 -- Collapsed room.
+ */
+static void build_type20(int bx0, int by0)
+{
+	int y1, x1;
+	int y2, x2, yval, xval;
+	bool light;
+	
+	int xsize, ysize;
+	
+	int i;
+	
+	/* Pick a room size */
+	y1 = randint1(4);
+	x1 = randint1(11);
+	y2 = randint1(3);
+	x2 = randint1(11);
+
+	xsize = x1 + x2 + 1;
+	ysize = y1 + y2 + 1;
+
+	/* Try to allocate space for room.  If fails, exit */
+	if (!room_alloc(xsize + 2, ysize + 2, FALSE, bx0, by0, &xval, &yval))
+		return;
+
+	/* Choose lite or dark */
+	light = (p_ptr->depth <= randint1(25));
+	
+	/* Get corner values */
+	y1 = yval - ysize / 2;
+	x1 = xval - xsize / 2;
+	y2 = yval + (ysize - 1) / 2;
+	x2 = xval + (xsize - 1) / 2;
+	
+	/* Generate new room */
+	generate_room(x1 - 1, y1 - 1, x2 + 1, y2 + 1, light);
+
+	/* Generate outer walls */
+	generate_draw(x1 - 1, y1 - 1, x2 + 1, y2 + 1, FEAT_WALL_OUTER);
+
+	/* Generate inner floors */
+	generate_fill(x1, y1, x2, y2, FEAT_FLOOR);
+	
+	/* Fill with rock and rubble */
+	for (i = randint1(xsize * ysize / 4); i > 0; i--)
+	{
+		if (one_in_(2))
+		{
+			/* Rock */
+			set_feat_bold(rand_range(x1, x2), rand_range(y1, y2), FEAT_WALL_INNER);
+		}
+		else
+		{
+			/* Rubble */
+			set_feat_bold(rand_range(x1, x2), rand_range(y1, y2), FEAT_RUBBLE);
+		}
+	}
+}
+
+
+/*
+ * Type 21 -- Crypt Mk II.
+ */
+static void build_type21(int bx0, int by0)
+{
+	int y1, x1;
+	int y2, yval, xval;
+	bool light;
+		
+	int i;
+	
+	/* Try to allocate space for room. */
+	if (!room_alloc(25, 11, FALSE, bx0, by0, &xval, &yval)) return;
+
+	/* Choose lite or dark */
+	light = (p_ptr->depth <= randint1(25));
+
+	/* Large room */
+	y1 = yval - 4;
+	y2 = yval + 4;
+	x1 = xval - 11;
+	
+	
+	/* Generate new room */
+	generate_room(x1 - 1, y1 - 1, x1 + 21, y2 + 1, light);
+	
+	/* Draw the chambers */
+	for (i = 0; i < 3; i++)
+	{
+		/* Top room */
+	
+		/* Generate outer walls */
+		generate_draw(x1 - 1 + i * 8, y1 - 1, x1 + 5 + i * 8, y1 + 3, FEAT_WALL_OUTER);
+		
+		/* Generate inner floors */
+		generate_fill(x1 + i * 8, y1, x1 + 4 + i * 8, y1 + 2, FEAT_FLOOR);
+		
+		
+		/* Bottom room */
+
+		/* Generate outer walls */
+		generate_draw(x1 - 1 + i * 8, y2 - 3, x1 + 5 + i * 8, y2 + 1, FEAT_WALL_OUTER);
+		
+		/* Generate inner floors */
+		generate_fill(x1 + i * 8, y2 - 2, x1 + 4 + i * 8, y2, FEAT_FLOOR);
+	}
+	
+	/*
+	 * Hack - fill middle area with FEAT_WALL_INNER
+	 * so it doesn't get disturbed.
+	 */
+	generate_draw(x1, yval - 1, x1 + 20, yval + 1, FEAT_WALL_INNER);
+	
+	/* Draw the connecting tunnels */
+	for (i = 0; i < 3; i++)
+	{
+		generate_line(x1 + i * 8 + 2, y1 + 3, x1 + i * 8 + 2, y2 - 3, FEAT_FLOOR);
+	}
+
+	
+	/* Finally - connect the chambers */
+	generate_line(x1 - 1, yval, x1 + 21, yval, FEAT_FLOOR);
+}
+
+
+/*
+ * Type 22 -- Large Chamber
+ */
+static void build_type22(int bx0, int by0)
+{
+	int xval, yval;
+	int y1, x1, y2, x2;
+	bool light;
+
+	int x, y;
+
+	int xcount, ycount;
+	
+	int xsize, ysize;
+	
+	/* Pick a room size */
+	y1 = rand_range(5, 14);
+	x1 = rand_range(5, 20);
+	y2 = rand_range(5, 14);
+	x2 = rand_range(5, 20);
+
+	xsize = x1 + x2 + 1;
+	ysize = y1 + y2 + 1;
+
+	/* Try to allocate space for room.  If fails, exit */
+	if (!room_alloc(xsize + 2, ysize + 2, FALSE, bx0, by0, &xval, &yval))
+		return;
+
+	/* Choose lite or dark */
+	light = (p_ptr->depth <= randint1(25));
+
+	/* Get corner values */
+	y1 = yval - ysize / 2;
+	x1 = xval - xsize / 2;
+	y2 = yval + (ysize - 1) / 2;
+	x2 = xval + (xsize - 1) / 2;
+	
+	/* Generate new room */
+	generate_room(x1 - 1, y1 - 1, x2 + 1, y2 + 1, light);
+
+	/* Generate outer walls */
+	generate_draw(x1 - 1, y1 - 1, x2 + 1, y2 + 1, FEAT_WALL_OUTER);
+
+	/* Generate inner floors */
+	generate_fill(x1, y1, x2, y2, FEAT_FLOOR);
+
+	/* Work out how many pillars to use in each direction */
+	xcount = xsize / 5;
+	ycount = ysize / 5;
+
+	/* Add some pillars */
+	for (y = 0; y <= ycount; y++)
+	{
+		for (x = 0; x <= xcount; x++)
+		{
+			set_feat_bold(x1 + (xsize - 1) * x / xcount,
+						  y1 + (ysize - 1) * y / ycount, FEAT_PILLAR);
+		}
+	}
+}
+
+/*
+ * Type 23 -- Semicircular room.
+ */
+static void build_type23(int bx0, int by0)
+{
+	int rad, x, y, x0, y0;
+	int light = FALSE;
+
+	int xc, yc;
+
+	/* Occasional light */
+	if (randint1(p_ptr->depth) <= 15) light = TRUE;
+	
+	rad = rand_range(2, 9);
+
+	/* Get orientation */
+	if (one_in_(2))
+	{
+		/* Allocate in room_map.  If will not fit, exit */
+		if (!room_alloc(rad + 1, rad * 2 + 1, FALSE, bx0, by0, &x0, &y0))
+			return;
+		
+		/* Flip left or right? */
+		if (one_in_(2))
+		{
+			xc = x0 - rad / 2;
+		}
+		else
+		{
+			xc = x0 + rad / 2;
+		}
+		
+		/* Make semicircular floor */
+		for (x = x0 - rad / 2; x <= x0 + rad / 2; x++)
+		{
+			for (y = y0 - rad; y <= y0 + rad; y++)
+			{
+				if (distance(xc, y0, x, y) <= rad - 1)
+				{
+					/* inside- so is floor */
+					set_feat_bold(x, y, FEAT_FLOOR);
+				}
+					else if (distance(xc, y0, x, y) <= rad + 1)
+				{
+					/* make granite outside so arena works */
+					set_feat_bold(x, y, FEAT_WALL_EXTRA);
+				}
+			}
+		}
+	}
+	else
+	{
+		/* Allocate in room_map.  If will not fit, exit */
+		if (!room_alloc(rad * 2 + 1, rad + 1, FALSE, bx0, by0, &x0, &y0))
+			return;
+		
+		/* Flip up or down? */
+		if (one_in_(2))
+		{
+			yc = y0 - rad / 2;
+		}
+		else
+		{
+			yc = y0 + rad / 2;
+		}
+	
+		/* Make semicircular floor */
+		for (x = x0 - rad; x <= x0 + rad; x++)
+		{
+			for (y = y0 - rad / 2; y <= y0 + rad / 2; y++)
+			{
+				if (distance(x0, yc, x, y) <= rad - 1)
+				{
+					/* inside- so is floor */
+					set_feat_bold(x, y, FEAT_FLOOR);
+				}
+				else if (distance(x0, yc, x, y) <= rad + 1)
+				{
+					/* make granite outside so arena works */
+					set_feat_bold(x, y, FEAT_WALL_EXTRA);
+				}
+			}
+		}
+	}
+	
+	/* Find visible outer walls and set to be FEAT_OUTER */
+	add_outer_wall(x0, y0, light, x0 - rad, y0 - rad, x0 + rad, y0 + rad);
+}
+
+
+/*
+ * Type 24 -- Hourglass-shaped room.
+ */
+static void build_type24(int bx0, int by0)
+{
+	int y1, x1;
+	int y2, x2, yval, xval;
+	bool light;
+	
+	int i;
+
+	/* Try to allocate space for room. */
+	if (!room_alloc(25, 11, FALSE, bx0, by0, &xval, &yval)) return;
+
+	/* Choose lite or dark */
+	light = (p_ptr->depth <= randint1(25));
+
+	/* Large room */
+	y1 = yval - 4;
+	y2 = yval + 4;
+	x1 = xval - 11;
+	x2 = xval + 11;
+
+	/* Generate new room */
+	generate_room(x1 - 1, y1 - 1, x2 + 1, y2 + 1, light);
+	
+	/* Generate outer walls */
+	generate_draw(x1 - 1, y1 - 1, x2 + 1, y2 + 1, FEAT_WALL_OUTER);
+
+	/* Generate inner floors */
+	generate_fill(x1, y1, x2, y2, FEAT_FLOOR);
+	
+	/* Create triangular features */
+	for (i = 1; i < 4; i++)
+	{
+		generate_line(x1 + i * 3, y1 + i, x2 - i * 3, y1 + i, FEAT_WALL_INNER);
+		generate_line(x1 + i * 3, y2 - i, x2 - i * 3, y2 - i, FEAT_WALL_INNER);
+	}
+	
+	/* Put a door in the middle */
+	place_random_door(xval, yval);
+}
+
 
 /*
  * Attempt to build a room of the given type at the given block
@@ -4265,6 +5037,51 @@ bool room_build(int bx0, int by0, int typ)
 	/* Build a room */
 	switch (typ)
 	{
+		case 24:
+		{
+			build_type24(bx0, by0);
+			break;
+		}
+		case 23:
+		{
+			build_type23(bx0, by0);
+			break;
+		}
+		case 22:
+		{
+			build_type22(bx0, by0);
+			break;
+		}
+		case 21:
+		{
+			build_type21(bx0, by0);
+			break;
+		}
+		case 20:
+		{
+			build_type20(bx0, by0);
+			break;
+		}
+		case 19:
+		{
+			build_type19(bx0, by0);
+			break;
+		}
+		case 18:
+		{
+			build_type18(bx0, by0);
+			break;
+		}
+		case 17:
+		{
+			build_type17(bx0, by0);
+			break;
+		}
+		case 16:
+		{
+			build_type16(bx0, by0);
+			break;
+		}
 		case 15:
 		{
 			build_type15(bx0, by0);

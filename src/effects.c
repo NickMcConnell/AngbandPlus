@@ -2774,6 +2774,7 @@ void gain_soul_exp_aux( object_type* o_ptr, s32b amount )
 	soul_type* s_ptr2;
 
 	int lev = o_ptr->level;
+	int maxlev = o_ptr->sval;
 
 	//only count if we pass a minimum xp threshold
 	if (amount < (lev * lev * lev) ) return;
@@ -2782,7 +2783,7 @@ void gain_soul_exp_aux( object_type* o_ptr, s32b amount )
 	{
 		o_ptr->exp++;
 
-		if ( (o_ptr->exp >= 200 * lev) && (lev < 6) )
+		if ( (o_ptr->exp >= 200 * lev) && (lev < maxlev) )
 		{
 			o_ptr->level++;
 

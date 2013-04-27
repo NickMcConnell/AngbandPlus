@@ -80,13 +80,13 @@ F:58:1/-79
 F:59:1/-79
 
 #
-# Permanent rock (white / solid block)
+# Permanent rock (light brown / solid block)
 #
 
-F:60:1/-79
-F:61:1/-79
-F:62:1/-79
-F:63:1/-79
+F:60:15/-79
+F:61:15/-79
+F:62:15/-79
+F:63:15/-79
 
 # Space monster
 R:144:0x00:-7

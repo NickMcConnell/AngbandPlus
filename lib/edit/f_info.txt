@@ -213,25 +213,25 @@ F:BLOCK | USE_TRANS | ICKY | OBJECT
 # 0x3C --> permanent wall -- basic
 
 N:60:permanent wall
-G:#:w
+G:#:U
 F:BLOCK | USE_TRANS | ICKY | PERM | OBJECT
 
 # 0x3D --> permanent wall -- inner
 
 N:61:permanent wall
-G:#:w
+G:#:U
 F:BLOCK | USE_TRANS | ICKY | PERM | OBJECT
 
 # 0x3E --> permanent wall -- outer
 
 N:62:permanent wall
-G:#:w
+G:#:U
 F:BLOCK | USE_TRANS | ICKY | PERM | OBJECT
 
 # 0x3F --> permanent wall -- solid
 
 N:63:permanent wall
-G:#:w
+G:#:U
 F:BLOCK | USE_TRANS | ICKY | PERM | OBJECT
 
 N:64:explosive rune

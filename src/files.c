@@ -2758,7 +2758,7 @@ errr file_character(cptr name, bool full)
 
 		for (y = 2; y < 23; y++)
 		{
-			for (x = 0; x < 80; x++)
+			for (x = 0; x < 76; x++)
 			{
 				(void)(Term_what(x, y, &a, &c));
 				buf[x] = c;

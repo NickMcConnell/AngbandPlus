@@ -4,7 +4,7 @@
 /*
  * Dungeon generation values
  */
-#define DUN_UNUSUAL 200			/* Level/chance of unusual room (was 200) */
+#define DUN_UNUSUAL 100			/* Level/chance of unusual room (was 200) */
 #define DUN_DEST    18			/* 1/chance of having a destroyed level */
 #define SMALL_LEVEL 5			/* 1/chance of smaller size (5) */
 #define EMPTY_LEVEL 15			/* 1/chance of being 'empty' (15) */

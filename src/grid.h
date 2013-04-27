@@ -73,6 +73,7 @@ extern void generate_vault(int x1, int y1, int x2, int y2);
 extern void clear_vault(int x1, int y1, int x2, int y2);
 extern void generate_fill(int x1, int y1, int x2, int y2, int feat);
 extern void generate_draw(int x1, int y1, int x2, int y2, int feat);
+extern void generate_line(int x1, int y1, int x2, int y2, int feat);
 extern void generate_plus(int x1, int y1, int x2, int y2, int feat);
 extern void generate_door(int x1, int y1, int x2, int y2, bool secret);
 

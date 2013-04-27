@@ -614,6 +614,20 @@ F:WILD_FOREST1 | WILD_FOREST2 | WILD_SWAMP1 | WILD_SWAMP2
 D:A lone insect may be harmless, but there's a whole swarm of 
 D:them here!
 
+N:39:Yeek Necromancer
+G:y:w
+I:110:3d24:18:15:10
+W:25:2:0:1000
+O:0:50:0
+B:HIT:HURT:1d8
+F:FORCE_SLEEP | WILD_DUNGEON_01
+F:OPEN_DOOR | BASH_DOOR | LITE_2
+F:ESCORT | ESCORTS | DROP_60
+F:ANIMAL | EVIL | IM_ACID | DROP_CORPSE
+S:1_IN_5 | 
+S:ANIM_DEAD
+D:It is a strange small humanoid, with leprous white skin. It wears a black cloak.
+
 N:40:Shrieker mushroom patch
 G:,:R
 I:110:1d1:4:3:0
@@ -695,7 +709,7 @@ S:1_IN_12 |
 S:HEAL | SCARE | CAUSE_1
 D:This kobold is wearing a necklace made of bones.
 
-N:46:Yeek shaman
+N:46:Yeek mage
 G:y:R
 I:110:4d5:20:7:10
 W:5:1:0:30
@@ -1148,7 +1162,7 @@ B:BITE:HURT:1d5
 F:ANIMAL | CAN_SWIM | DROP_CORPSE | WILD_DUNGEON_01
 D:It is an armoured lizard with a powerful bite.
 
-# 83 Unused
+# 83 is unused
 
 N:84:Blue jelly
 G:j:b
@@ -1245,18 +1259,18 @@ F:EVIL | UNDEAD | IM_COLD | IM_POIS |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 D:It is a small animated kobold skeleton.
 
-N:92:Ewok
+N:92:Forest Gnome
 G:h:G
 I:110:2d6:10:15:10
 W:6:2:0:19
 O:50:0:50
 B:HIT:HURT:1d6
 B:HIT:HURT:1d6
-F:WILD_DUNGEON_01 | WILD_FOREST2 | SILLY | LITE_1
+F:WILD_DUNGEON_01 | WILD_FOREST2 | LITE_1
 F:DROP_60 | OPEN_DOOR | BASH_DOOR | FRIENDS | DROP_CORPSE |
 S:1_IN_8
 S:ARROW_1
-D:A cute, furry little animal, full of merchandising potential. 
+D:He is dressed in green; leaves are sprouting from his hat.
 
 N:93:Novice mage
 G:p:R
@@ -1306,7 +1320,19 @@ B:BITE:HURT:1d10
 F:AQUATIC | ANIMAL | WILD_SHORE | WILD_DUNGEON_01
 D:A predatory fish with razor-sharp teeth.
 
-# 97 Unused
+N:97:Mutant Mushroom patch
+G:,:G
+I:100:1d1:40:10:0
+W:33:2:0:500
+O:0:0:0
+B:SPORE:CONFUSE:1d1
+F:WILD_DUNGEON_01
+F:FORCE_SLEEP | NEVER_MOVE | FRIENDS
+F:STUPID | RES_TELE
+F:NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_30 | 
+S:TELE_AWAY
+D:Bleah! It does not looks very tasty. It seems to be undulating.
 
 N:98:Zog
 G:h:b
@@ -2385,7 +2411,7 @@ S:BLIND | CONF | MISSILE | DARKNESS | BA_POIS
 D:A dark elven figure, dressed all in black, hurling spells at you.
 
 N:179:Kamikaze yeek
-G:y:u
+G:y:U
 I:113:3d8:18:15:10
 W:15:1:0:400
 O:0:0:0
@@ -2398,7 +2424,7 @@ D:The evil wizard Bruce has trained them to be living weapons.
 N:180:Orfax, Son of Boldor
 G:y:B
 I:120:8d10:18:16:10
-W:9:3:0:950
+W:13:3:0:950
 O:0:50:50
 B:HIT:HURT:1d9
 B:HIT:HURT:1d8
@@ -2412,7 +2438,7 @@ F:SMART | OPEN_DOOR | BASH_DOOR |
 F:ANIMAL | EVIL | IM_ACID | LITE_2
 S:1_IN_4 | 
 S:HEAL | BLINK | TELE_TO | SLOW | CONF | 
-S:S_MONSTER
+S:S_KIN
 D:He's just like daddy!  He knows mighty spells, but fortunately he is a 
 D:yeek.
 
@@ -3396,7 +3422,7 @@ F:WILD_GRASS | WILD_MOUNT1
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | ORC | HURT_LITE
 D:He is one of the many weaker 'slave' orcs, often mistakenly known as a 
-D:goblin. He is equipped with an explosive charge.
+D:snaga. He is equipped with an explosive charge.
 
 N:252:Blue icky thing
 G:i:b
@@ -5016,7 +5042,7 @@ F:ANIMAL
 D:An almost beautiful, deadly beast.
 
 N:364:Serpent man
-G:J:g
+G:J:G
 I:120:12d10:20:20:20
 W:32:3:0:1900
 O:30:20:30
@@ -13485,7 +13511,7 @@ F:FORCE_SLEEP | FORCE_MAXHP | OPEN_DOOR | BASH_DOOR | MOVE_BODY |
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | DROP_GREAT |
 F:IM_FIRE | RES_PLAS | RES_NETH | AURA_FIRE |
 F:NO_CONF | NO_SLEEP | NONLIVING | EVIL | DEMON |
-F:ESCORTS | IM_COLD | IM_POIS
+F:ESCORT | ESCORTS | IM_COLD | IM_POIS
 S:1_IN_3 |
 S:TELE_TO | SCARE | HOLD | BRAIN_SMASH |
 S:S_DEMON | S_HI_UNDEAD | S_UNDEAD |
@@ -14664,3 +14690,56 @@ S:1_IN_5 |
 S:BR_TIME | HASTE | SLOW
 D:It wasn't there a second ago....
 
+N:889:Monodrone
+G:N:D
+I:110:10d10:10:70:10
+W:40:4:0:5000
+O:0:0:0
+B:HIT:HURT:1d10
+F:WILD_DUNGEON_01 | FORCE_MAXHP
+F:IM_COLD | IM_FIRE | IM_ACID | RES_NETH
+F:EMPTY_MIND | STUPID | FRIENDS
+F:NO_FEAR | NO_CONF | NO_SLEEP | CAN_FLY
+D:It is a small sphere, with one eye, two arms, two legs, and wings.
+
+N:890:Duodrone
+G:N:s
+I:110:15d10:11:80:15
+W:45:4:0:7500
+O:0:0:0
+B:HIT:HURT:1d12
+B:HIT:HURT:1d12
+F:WILD_DUNGEON_01 | FORCE_MAXHP
+F:IM_COLD | IM_FIRE | IM_ACID | RES_NETH
+F:EMPTY_MIND | STUPID | FRIENDS
+F:NO_FEAR | NO_CONF | NO_SLEEP | CAN_FLY
+D:This creature looks like a rectangle with arms, legs, and wings.
+
+N:891:Tridrone
+G:N:W
+I:110:20d10:12:90:20
+W:50:4:0:10000
+O:0:0:0
+B:HIT:HURT:1d14
+B:HIT:HURT:1d14
+B:HIT:HURT:1d14
+F:WILD_DUNGEON_01 | FORCE_MAXHP
+F:IM_COLD | IM_FIRE | IM_ACID | RES_NETH
+F:EMPTY_MIND | STUPID | FRIENDS
+F:NO_FEAR | NO_CONF | NO_SLEEP | CAN_FLY
+D:It is a three-sided pyramid, with three arms, and three spidery legs.
+
+N:892:Quadrone
+G:N:w
+I:110:25d10:13:100:25
+W:55:4:0:15000
+O:0:0:0
+B:HIT:HURT:1d16
+B:HIT:HURT:1d16
+B:HIT:HURT:1d16
+B:HIT:HURT:1d16
+F:WILD_DUNGEON_01 | FORCE_MAXHP
+F:IM_COLD | IM_FIRE | IM_ACID | RES_NETH
+F:EMPTY_MIND | STUPID | FRIENDS
+F:NO_FEAR | NO_CONF | NO_SLEEP | CAN_FLY
+D:A cube-shaped creature. It has small wings on its back.

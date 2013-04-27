@@ -2163,3 +2163,30 @@ bool generate_lake(int x0, int y0, int xsize, int ysize,
 	/* Done */
 	return TRUE;
 }
+
+/*
+ * Generate helper -- draw a line with a feature in a room
+ */
+void generate_line(int x1, int y1, int x2, int y2, int feat)
+{
+	int i;
+	
+	if (x1 == x2)
+	{
+		for (i = y1; i <= y2; i++)
+		{
+			set_feat_bold(x1, i, feat);
+		}
+	}
+	else if (y1 == y2)
+	{
+		for (i = x1; i <= x2; i++)
+		{
+			set_feat_bold(i, y1, feat);
+		}
+	}
+	else
+	{
+		quit("Not a horizontal or vertical line in generate_line()");
+	}
+}

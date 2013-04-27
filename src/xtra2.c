@@ -3510,8 +3510,9 @@ void gain_level_reward(int chosen_reward)
 			q_ptr->to_h = 3 + randint1(p_ptr->depth) % 10;
 			q_ptr->to_d = 3 + randint1(p_ptr->depth) % 10;
 
-			(void)random_resistance(q_ptr, rand_range(5, 38), 0);
-
+			add_ego_power(EGO_XTRA_POWER  , q_ptr);
+			add_ego_power(EGO_XTRA_ABILITY, q_ptr);
+			add_ego_power(EGO_XTRA_SLAY   , q_ptr);
 			add_ego_flags(q_ptr, EGO_CHAOTIC);
 
 			/* Drop it in the dungeon */

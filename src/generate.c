@@ -528,9 +528,6 @@ static bool cave_gen(void)
 			if ((ironman_rooms && (randint0(DUN_UNUSUAL) < p_ptr->depth * 2)) ||
 				(randint0(DUN_UNUSUAL) < p_ptr->depth))
 			{
-#ifdef FORCE_V_IDX
-				if (room_build(x, y, 8)) continue;
-#else
 				/* Type 8 -- Greater vault (10%) */
 				if (k < 10)
 				{
@@ -578,33 +575,58 @@ static bool cave_gen(void)
 						if (cheat_room) msgf("Refusing a random vault.");
 					}
 				}
-#endif
-
 			}
 
-			/* Type 4 -- Large room (15%) */
-			if ((k < 15) && room_build(x, y, 4)) continue;
+			/* Type 4 -- Large room (10%) */
+			if ((k < 10) && room_build(x, y, 4)) continue;
 
-			/* Type 14 -- Large room (10%) */
-			if ((k < 25) && room_build(x, y, 14)) continue;
+			/* Type 21 -- (5%) */
+			if ((k < 15) && room_build(x, y, 21)) continue;
+
+			/* Type 14 -- Large room (5%) */
+			if ((k < 20) && room_build(x, y, 14)) continue;
+
+			/* Type 22 -- (5%) */
+			if ((k < 25) && room_build(x, y, 22)) continue;
 
 			/* Type 13 -- Large Feature room (5%) */
 			if ((k < 30) && room_build(x, y, 13)) continue;
 
-			/* Type 3 -- Cross room (20%) */
-			if ((k < 50) && room_build(x, y, 3)) continue;
+			/* Type 3 -- Cross room (10%) */
+			if ((k < 40) && room_build(x, y, 3)) continue;
 
-			/* Type 2 -- Overlapping (25%) */
-			if ((k < 75) && room_build(x, y, 2)) continue;
+			/* Type 19 -- (5%) */
+			if ((k < 45) && room_build(x, y, 19)) continue;
 
-			/* Type 11 -- Parallelagram (5%) */
+			/* Type 20 -- (5%) */
+			if ((k < 50) && room_build(x, y, 20)) continue;
+
+			/* Type 2 -- Overlapping (10%) */
+			if ((k < 60) && room_build(x, y, 2)) continue;
+
+			/* Type 23 -- (5%) */
+			if ((k < 65) && room_build(x, y, 23)) continue;
+
+			/* Type 17 -- (5%) */
+			if ((k < 70) && room_build(x, y, 17)) continue;
+
+			/* Type 18 -- (5%) */
+			if ((k < 75) && room_build(x, y, 18)) continue;
+
+			/* Type 15 -- Parallelagram (5%) */
 			if ((k < 80) && room_build(x, y, 15)) continue;
 
 			/* Type 11 -- Circular (5%) */
 			if ((k < 85) && room_build(x, y, 11)) continue;
 
-			/* Type 12 -- Crypt (15%) */
-			if ((k < 100) && room_build(x, y, 12)) continue;
+			/* Type 12 -- Crypt (5%) */
+			if ((k < 90) && room_build(x, y, 12)) continue;
+
+			/* Type 24-- Overlapping (5%) */
+			if ((k < 95) && room_build(x, y, 24)) continue;
+
+			/* Type 16 (5%) */
+			if ((k < 100) && room_build(x, y, 16)) continue;
 		}
 
 		/* The deeper you are, the more cavelike the rooms are */

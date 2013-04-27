@@ -35,7 +35,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.2.0"
+#define VERSION_STRING	"0.3.0"
 
 
 /*
@@ -1478,8 +1478,8 @@
 
 
 /* Nothing */
-/* xxx */
-/* xxx */
+#define EGO_SORCERY							1
+#define EGO_FURY								2
 /* xxx */
 
 /* Body Armor */
@@ -1489,13 +1489,13 @@
 #define EGO_RESIST_COLD         7
 #define EGO_RESISTANCE          8
 #define EGO_ELVENKIND           9
-/* xxx */
+#define EGO_DWARVEN             10
 #define EGO_PERMANENCE          11
 
 /* Lites */
-#define EGO_EVERBURN			12
+#define EGO_EVERBURN						12
 #define EGO_VISION              13
-#define EGO_WARMTH				14
+#define EGO_WARMTH							14
 #define EGO_SEARCH              15
 
 
@@ -1506,8 +1506,8 @@
 #define EGO_ENDURE_COLD         19
 #define EGO_ENDURANCE           20
 #define EGO_REFLECTION          21
-/* xxx */
-/* xxx */
+#define EGO_PRESERVATION        22
+#define EGO_ELVEN_GUARD					23
 
 /* Crowns and Helms */
 #define EGO_INTELLIGENCE        24
@@ -1542,7 +1542,7 @@
 #define EGO_SLAYING             49
 #define EGO_AGILITY             50
 #define EGO_POWER               51
-/* xxx */
+#define EGO_THIEVERY						52
 /* xxx */
 #define EGO_WEAKNESS            54
 #define EGO_CLUMSINESS          55
@@ -1552,7 +1552,7 @@
 #define EGO_QUIET               57
 #define EGO_MOTION              58
 #define EGO_SPEED               59
-/* xxx */
+#define EGO_STABILITY						60
 #define EGO_NOISE               61
 #define EGO_SLOWNESS            62
 #define EGO_ANNOYANCE           63
@@ -1561,11 +1561,10 @@
 #define EGO_HA                  64
 #define EGO_DF                  65
 #define EGO_BLESS_BLADE         66
-/* xxx */
+#define EGO_GONDOLIN						67
 #define EGO_WEST                68
 #define EGO_ATTACKS             69
 #define EGO_SLAYING_WEAPON      70
-/* xxx */
 #define EGO_BRAND_ACID          71
 #define EGO_BRAND_ELEC          72
 #define EGO_BRAND_FIRE          73
@@ -1595,24 +1594,21 @@
 #define EGO_KILL_GIANT          97
 #define EGO_KILL_DRAGON         98
 #define EGO_VAMPIRIC            99
-/* xxx */
-/* xxx */
 #define EGO_TRUMP               100
 #define EGO_PATTERN             101
 #define EGO_DIGGING             102
-/* xxx */
 #define EGO_MORGUL              103
 /* xxx */
 
 /* Bows */
 #define EGO_ACCURACY            104
 #define EGO_VELOCITY            105
-/* xxx */
-/* xxx */
+#define EGO_LOTHLORIEN					106
+#define EGO_HARADRIM						107
 #define EGO_EXTRA_MIGHT         108
 #define EGO_EXTRA_SHOTS         109
-/* xxx */
-/* xxx */
+#define EGO_BUCKLAND						110
+#define EGO_NAZGUL							111
 
 /* Ammo */
 #define EGO_HURT_ANIMAL         112
@@ -2692,6 +2688,9 @@
 
 /* Special ability */
 #define EGO_XTRA_ABILITY        3
+
+/* Slay or brand */
+#define EGO_XTRA_SLAY		        4
 
 
 /*** Object flag values ***/

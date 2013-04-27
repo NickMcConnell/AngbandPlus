@@ -105,7 +105,7 @@ static byte value_check_aux2(const object_type *o_ptr)
 /*
  * Psuedo-id the item
  */
-void sense_item(object_type *o_ptr, bool heavy, bool wield, bool msg)
+bool sense_item(object_type *o_ptr, bool heavy, bool wield, bool msg)
 {
 	byte feel;
 
@@ -146,18 +146,18 @@ void sense_item(object_type *o_ptr, bool heavy, bool wield, bool msg)
 		default:
 		{
 			/* Skip */
-			return;
+			return FALSE;
 		}
 	}
 
 	/* We know about it already, do not tell us again */
-	if (o_ptr->info & (OB_SENSE)) return;
+	if (o_ptr->info & (OB_SENSE)) return TRUE;
 
 	/* It is fully known, no information needed */
-	if (object_known_p(o_ptr)) return;
+	if (object_known_p(o_ptr)) return TRUE;
 
 	/* Occasional failure on inventory items */
-	if (!wield && !one_in_(5)) return;
+	if (!wield && !one_in_(5)) return TRUE;
 
 	/* Good luck */
 	if ((p_ptr->muta3 & MUT3_GOOD_LUCK) && !one_in_(13))
@@ -169,7 +169,7 @@ void sense_item(object_type *o_ptr, bool heavy, bool wield, bool msg)
 	feel = (heavy ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
 
 	/* Skip non-changes */
-	if (feel == o_ptr->feeling) return;
+	if (feel == o_ptr->feeling) return FALSE;
 
 	/* Bad luck */
 	if ((p_ptr->muta3 & MUT3_BAD_LUCK) && !one_in_(13))
@@ -256,6 +256,8 @@ void sense_item(object_type *o_ptr, bool heavy, bool wield, bool msg)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+	return TRUE;
 }
 
 

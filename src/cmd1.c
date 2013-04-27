@@ -648,6 +648,7 @@ void carry(int pickup)
 
 	char o_name[256];
 	object_type *o_ptr, *fo_ptr = NULL;
+	bool sense=FALSE;
 
 	int floor_num = 0;
 
@@ -667,10 +668,57 @@ void carry(int pickup)
 
 	/* Handle stuff */
 	handle_stuff();
-
+  
 	/* Scan the pile of objects */
 	OBJ_ITT_START (area(px, py)->o_idx, o_ptr)
 	{
+		switch (p_ptr->pclass)
+		{
+		case CLASS_ROGUE:
+				if  (p_ptr->lev >= 20) sense = sense_item(o_ptr, TRUE, TRUE, FALSE);
+
+				//if it's a weapon or armor, ID it at level 30, otherwise, ID it at level 40.
+				if ((p_ptr->lev >= 30) && sense) identify_item(o_ptr);
+					else if (p_ptr->lev >= 40) identify_item(o_ptr);
+
+				if (p_ptr->lev >= 50)
+				{
+						object_mental(o_ptr);
+
+						/* Save all the known flags */
+						o_ptr->kn_flags1 = o_ptr->flags1;
+						o_ptr->kn_flags2 = o_ptr->flags2;
+						o_ptr->kn_flags3 = o_ptr->flags3;
+				}
+				break;
+
+		case CLASS_WARRIOR:
+				if (p_ptr->lev >= 30)	sense = sense_item(o_ptr, TRUE, TRUE, FALSE);
+				if ((p_ptr->lev >= 40)	&& sense) identify_item(o_ptr);
+				break;
+
+		case CLASS_RANGER:
+		case CLASS_PALADIN:
+		case CLASS_WARRIOR_MAGE:
+		case CLASS_CHAOS_WARRIOR:
+				if (p_ptr->lev >= 40)	sense = sense_item(o_ptr, TRUE, TRUE, FALSE);
+				if ((p_ptr->lev >= 50) && sense)	identify_item(o_ptr);
+				break;
+
+		case CLASS_MONK:
+		case CLASS_MINDCRAFTER:
+		case CLASS_HIGH_MAGE:
+		case CLASS_MAGE:
+		case CLASS_PRIEST:
+				if (p_ptr->lev >= 50)	sense_item(o_ptr, TRUE, TRUE, FALSE);
+				break;
+
+		default:
+				if (p_ptr->lev >= 50)	sense_item(o_ptr, TRUE, TRUE, FALSE);
+				break;
+		}
+
+
 		/* Describe the object */
 		object_desc(o_name, o_ptr, TRUE, 3, 256);
 

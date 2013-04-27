@@ -1904,17 +1904,7 @@ bool artifact_scroll(void)
 	msgf("The %s radiate%s a blinding light!", o_name,
 			   ((o_ptr->number > 1) ? "" : "s"));
 
-	/* No artifact creation of Dragon Scale Mail */
-	if (o_ptr->tval == TV_DRAG_ARMOR)
-	{
-		/* ToDo: Maybe allow some of the DSMs to be enchanted */
-		msgf("The %s %s already magical!",
-				   o_name, ((o_ptr->number > 1) ? "are" : "is"));
-
-		okay = FALSE;
-	}
-
-	else if (o_ptr->xtra_name)
+	if (o_ptr->xtra_name)
 	{
 		msgf("The %s %s already %s!",
 				   o_name, ((o_ptr->number > 1) ? "are" : "is"),

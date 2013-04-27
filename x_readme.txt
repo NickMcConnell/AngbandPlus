@@ -1,4 +1,4 @@
-XBAND 0.2.0
+XBAND 0.3.0
 
 Author: Chris Watkins (xis@prodigy.net)
 
@@ -6,11 +6,8 @@ XBAND is an Angband variant based off of ZAngband 2.7.2. I made this game
 to bring new gameplay elements into the world of Angband variants. XBAND
 features one major new element; that of capturing and raising souls. 
 
-There are five grades of rings and amulets. Copper, Silver, Gold, Platinum,
-and Adamantium. Adamantium is immmune to being destroyed by the elements,
-but other than that, they all are basically the same, they just sell for
-different prices. The more valuable ones may be a source of cash later in
-the game.
+Sometimes, when you kill a monster, it will drop a soul gem. These soul
+gems can be imbued into rings and amulets at the soul dealer. 
 
 Souls level up as you fight, their maximum level is level 6. Their pval is
 equal to their level. As they level up, they gain more resists and abilities.
@@ -26,6 +23,19 @@ level. Kills that give less XP than the threshold don't count toward
 leveling up the items. When I say kill monsters, I really mean anything that
 gains XP. Disarming traps also works, for example. 
 
+There are five grades of rings and amulets. Copper, Silver, Gold, Platinum,
+and Adamantium. The more valuable the material, the higher level an imbued 
+soul can reach. 
+
+Level 2 - Copper
+Level 3 - Silver
+Level 4 - Gold
+Level 5 - Platinum
+Level 6 - Adamantium
+
+In addition, Adamantium is immmune to being destroyed by
+the elements. 
+
 Currently, each monster letter has a soul type associated with it. This
 means that the soul of a snotling gives the same benefits as that of a black
 orc. Monster types that you encounter in the first few levels of the game
@@ -40,9 +50,46 @@ elemental attack, it's soul will have bonuses related to that element. If
 a monster has multiple elemental attacks, it's soul gem will be created
 with an elemental sub-type chosen randomly from it's attacks.
 
+Changes from version 0.2.0 include:
 
+Many new ego-item types. Some are lifted from Vanilla, others are original.
+Added some "semi-cursed" items, items with both good and bad properties.
+Ring / Amulet material is now *very* important - cheaper materials won't allow souls to fully develop
+Made higher material rings / amulets rarer, but much more valuable
+Rings / amulets once again stack, if unimbued.
+Chaotic weapons (now called Warpstone weapons), are now created with random abilities.
+The artifact system is completely re-worked. Randarts should be much weaker now.
+Added a whole new monster race - the Modrons. They appear as 'N'.
+Added a new monster - the Mutant Mushroom Patch. They should prove to be very annoying.
+Added a new monster - the Yeek Necromancer.
+Weakened the most powerful soul gems.
+Fixed the bug with imbuing a stack of rings / amulets.
+Changed the color of permanent walls, they now appear light brown.
+Added many new room types from Z 2.7.3
+Made unusual rooms about twice as common
+Tweaked the character dump a bit
+Fixed the bug that allowed the slay animal flag on armor.
+Renamed ewoks -> forest gnomes, removed SILLY flag.
+Changed color of kamikaze yeeks and serpent men to remove conflicts.
+Tweaked rewards for depositing soul gems at the soul dealer
+Added two more elemental soul types; law and balance. 
 
+Added a new automatic-ID system for high-level characters.
+High-level characters will automatically pseudo-id weapons/armor when they are prompted to pick them up.
+Mages, Priests, High-Mages, Mindcrafters, and monks gain this ability at level 50, 
+Paladins, Rangers, Warrior-Mages, and Chaos-Warriors gain it at level 40,
+Warriors gain it at level 30,
+and Rogues gain it at level 20.
 
+At very high levels, some classes will now automatically identify weapons/armor when they are prompted to pick them up.
+Paladins, Rangers, Warrior-Mages, and Chaos-Warriors gain it at level 50,
+Warriors gain it at level 40,
+and Rogues gain it at level 30.
+
+At level 40, Rogues automatically identify all items when they are prompted to pick them up.
+At level 50, Rogues automatically *Identify* all items when they are prompted to pick them up.
+
+Rogues now gain Identify and *Identify* spells earlier.
 
 Changes from version 0.1.0 include:
 
