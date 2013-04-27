@@ -20,7 +20,27 @@
 
 #include "angband.h"
 #include "game-event.h"
+#include "wind_flg.h"
 
+#include "keypad.h"
+
+/*
+ * Yet more bit flags for the "p_ptr->window" variable (etc)
+ *
+ * Ultimately, this is the only file that should need them.
+ */
+#define PW_PLAYER_0         0x00000004L /* Display player (basic) */
+#define PW_PLAYER_1         0x00000008L /* Display player (extra) */
+#define PW_PLAYER_2         0x00000010L /* Display player (compact) */
+#define PW_MESSAGE          0x00000040L /* Display messages */
+#define PW_OVERHEAD         0x00000080L /* Display overhead view */
+#define PW_MONSTER          0x00000100L /* Display monster recall */
+#define PW_OBJECT           0x00000200L /* Display object recall */
+#define PW_MONLIST          0x00000400L /* Display monster list */
+#ifdef 	ALLOW_BORG
+#define PW_BORG_1           0x00004000L /* Display borg messages */
+#define PW_BORG_2           0x00008000L /* Display borg status */
+#endif
 
 /* 
  * There are a few functions installed to be triggered by several 
@@ -53,6 +73,24 @@ game_event_type statusline_events[] =
 	EVENT_STUDYSTATUS
 };
 
+/**
+ *  Counts windows that match a given bitflag map at all
+ */
+size_t
+player_other::count_flagged_windows(u32b flag_test) const
+{
+	size_t count = 0;
+
+	/* Scan windows */
+	size_t i = ANGBAND_TERM_MAX;
+	do	{
+		if (!angband_term[--i]) continue;	/* Unused */
+		if (window_flag[i] & flag_test) ++count;
+		}
+	while(0 < i);
+
+	return count;
+}
 
 /*
  * Converts stat num into a six-char (right justified) string
@@ -77,6 +115,176 @@ void cnv_stat(int val, char *out_val, size_t out_len)
 	}
 }
 
+/*
+ * Perform the minimum "whole panel" adjustment to ensure that the given
+ * location is contained inside the current panel, and return TRUE if any
+ * such adjustment was performed.
+ */
+bool adjust_panel(coord g)
+{
+	bool changed = FALSE;
+
+	int j;
+
+	/* Scan windows */
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
+	{
+		int wx, wy;
+		int screen_hgt, screen_wid;
+
+		term *t = angband_term[j];
+
+		/* No window */
+		if (!t) continue;
+
+		/* No relevant flags */
+		if ((j > 0) && !(op_ptr->window_flag[j] & PW_MAP)) continue;
+
+		wy = t->offset_y;
+		wx = t->offset_x;
+
+		screen_hgt = (j == 0) ? (Term->hgt - ROW_MAP - 1) : t->hgt;
+		screen_wid = (j == 0) ? (Term->wid - COL_MAP - 1) : t->wid;
+
+		/* Bigtile panels only have half the width */
+		if (use_bigtile) screen_wid /= 2;
+
+		/* Adjust as needed */
+		while ((int)(g.y) >= wy + screen_hgt) wy += screen_hgt / 2;
+		while ((int)(g.y) < wy) wy -= screen_hgt / 2;
+
+		/* Adjust as needed */
+		while ((int)(g.x) >= wx + screen_wid) wx += screen_wid / 2;
+		while ((int)(g.x) < wx) wx -= screen_wid / 2;
+
+		/* Use "modify_panel" */
+		if (modify_panel(t, wy, wx)) changed = TRUE;
+	}
+
+	return (changed);
+}
+
+
+/*
+ * Change the current panel to the panel lying in the given direction.
+ *
+ * Return TRUE if the panel was changed.
+ */
+bool change_panel(int dir)
+{
+	bool changed = FALSE;
+	int j;
+
+	/* Scan windows */
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
+	{
+		int screen_hgt, screen_wid;
+		int wx, wy;
+
+		term *t = angband_term[j];
+
+		/* No window */
+		if (!t) continue;
+
+		/* No relevant flags */
+		if ((j > 0) && !(op_ptr->window_flag[j] & PW_MAP)) continue;
+
+		screen_hgt = (j == 0) ? (Term->hgt - ROW_MAP - 1) : t->hgt;
+		screen_wid = (j == 0) ? (Term->wid - COL_MAP - 1) : t->wid;
+
+		/* Bigtile panels only have half the width */
+		if (use_bigtile) screen_wid = screen_wid / 2;
+
+		/* Shift by half a panel */
+		wy = t->offset_y + ddy[dir] * screen_hgt / 2;
+		wx = t->offset_x + ddx[dir] * screen_wid / 2;
+
+		/* Use "modify_panel" */
+		if (modify_panel(t, wy, wx)) changed = TRUE;
+	}
+
+	return (changed);
+}
+
+
+/*
+ * Verify the current panel (relative to the player location).
+ *
+ * By default, when the player gets "too close" to the edge of the current
+ * panel, the map scrolls one panel in that direction so that the player
+ * is no longer so close to the edge.
+ *
+ * The "center_player" option allows the current panel to always be centered
+ * around the player, which is very expensive, and also has some interesting
+ * gameplay ramifications.
+ */
+static void verify_panel(void)
+{
+	int wy, wx;
+	int screen_hgt, screen_wid;
+
+	int panel_wid, panel_hgt;
+
+	int py = p_ptr->loc.y;
+	int px = p_ptr->loc.x;
+
+	int j;
+
+	/* Scan windows */
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
+	{
+		term *t = angband_term[j];
+
+		/* No window */
+		if (!t) continue;
+
+		/* No relevant flags */
+		if ((j > 0) && !(op_ptr->window_flag[j] & (PW_MAP))) continue;
+
+		wy = t->offset_y;
+		wx = t->offset_x;
+
+		screen_hgt = (j == 0) ? (Term->hgt - ROW_MAP - 1) : t->hgt;
+		screen_wid = (j == 0) ? (Term->wid - COL_MAP - 1) : t->wid;
+
+		/* Bigtile panels only have half the width */
+		if (use_bigtile) screen_wid = screen_wid / 2;
+
+		panel_wid = screen_wid / 2;
+		panel_hgt = screen_hgt / 2;
+
+		/* Scroll screen vertically when off-center */
+		if (center_player && (!p_ptr->running || !run_avoid_center) &&
+		    (py != wy + panel_hgt))
+		{
+			wy = py - panel_hgt;
+		}
+
+		/* Scroll screen vertically when 3 grids from top/bottom edge */
+		else if ((py < wy + 3) || (py >= wy + screen_hgt - 3))
+		{
+			wy = py - panel_hgt;
+		}
+
+
+		/* Scroll screen horizontally when off-center */
+		if (center_player && (!p_ptr->running || !run_avoid_center) &&
+		    (px != wx + panel_wid))
+		{
+			wx = px - panel_wid;
+		}
+
+		/* Scroll screen horizontally when 3 grids from left/right edge */ 
+		else if ((px < wx + 3) || (px >= wx + screen_wid - 3))
+		{
+			wx = px - panel_wid;
+		}
+
+		/* Scroll if needed */
+		modify_panel(t, wy, wx);
+	}
+}
+
 /* ------------------------------------------------------------------------
  * Sidebar display functions
  * ------------------------------------------------------------------------ */
@@ -84,7 +292,7 @@ void cnv_stat(int val, char *out_val, size_t out_len)
 /*
  * Print character info at given row, column in a 13 char field
  */
-static void prt_field(cptr info, int row, int col)
+static void prt_field(const char* const info, int row, int col)
 {
 	/* Dump 13 spaces to clear */
 	c_put_str(TERM_WHITE, "             ", row, col);
@@ -211,8 +419,6 @@ static void prt_equippy(int row, int col)
 	byte a;
 	char c;
 
-	object_type *o_ptr;
-
 	/* No equippy chars in bigtile mode */
 	if (use_bigtile) return;
 
@@ -220,7 +426,7 @@ static void prt_equippy(int row, int col)
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
 		/* Object */
-		o_ptr = &p_ptr->inventory[i];
+		const object_type* const o_ptr = &p_ptr->inventory[i];
 
 		a = o_ptr->attr_user();
 		c = o_ptr->char_user();
@@ -306,6 +512,30 @@ static void prt_sp(int row, int col)
 	c_put_str(TERM_L_GREEN, max_sp, row, col + 8);
 }
 
+void
+agent_type::stars_color(int& stars, byte& attr) const
+{
+	/* Extract the "percent" of health */
+	int pct = 100L * (long)chp / (long)mhp;
+
+	/* Default to almost dead */
+	attr = TERM_RED;
+
+	/* Badly wounded */
+	if (pct >= 10) attr = TERM_L_RED;
+
+	/* Wounded */
+	if (pct >= 25) attr = TERM_ORANGE;
+
+	/* Somewhat Wounded */
+	if (pct >= 60) attr = TERM_YELLOW;
+
+	/* Healthy */
+	if (pct >= 100) attr = TERM_L_GREEN;
+
+	/* Convert percent into "health" */
+	stars = (pct < 10) ? 1 : (pct < 90) ? (pct / 10 + 1) : 10;
+}
 
 /*
  * Redraw the "monster health bar"
@@ -341,7 +571,7 @@ static void prt_health(int row, int col)
 	}
 
 	/* Tracking a dead monster (?) */
-	else if (!mon_list[p_ptr->health_who].hp < 0)
+	else if (0 > mon_list[p_ptr->health_who].chp)
 	{
 		/* Indicate that the monster health is "unknown" */
 		Term_putstr(col, row, 12, TERM_WHITE, "[----------]");
@@ -350,27 +580,12 @@ static void prt_health(int row, int col)
 	/* Tracking a visible monster */
 	else
 	{
-		int pct, len;
-
-		monster_type *m_ptr = &mon_list[p_ptr->health_who];
-
-		/* Default to almost dead */
+		const monster_type* const m_ptr = &mon_list[p_ptr->health_who];
+		int len;
 		byte attr = TERM_RED;
 
-		/* Extract the "percent" of health */
-		pct = 100L * m_ptr->hp / m_ptr->maxhp;
-
-		/* Badly wounded */
-		if (pct >= 10) attr = TERM_L_RED;
-
-		/* Wounded */
-		if (pct >= 25) attr = TERM_ORANGE;
-
-		/* Somewhat Wounded */
-		if (pct >= 60) attr = TERM_YELLOW;
-
-		/* Healthy */
-		if (pct >= 100) attr = TERM_L_GREEN;
+		/* Get stars and color for health bar */
+		m_ptr->stars_color(len, attr);
 
 		/* Afraid */
 		if (m_ptr->monfear) attr = TERM_VIOLET;
@@ -384,9 +599,6 @@ static void prt_health(int row, int col)
 		/* Asleep */
 		if (m_ptr->csleep) attr = TERM_BLUE;
 
-		/* Convert percent into "health" */
-		len = (pct < 10) ? 1 : (pct < 90) ? (pct / 10 + 1) : 10;
-
 		/* Default to "unknown" */
 		Term_putstr(col, row, 12, TERM_WHITE, "[----------]");
 
@@ -395,13 +607,101 @@ static void prt_health(int row, int col)
 	}
 }
 
+/*
+ * Redraw maximum monster hit points.
+ */
+static void prt_max_mon_hp(int row, int col)
+{
+	if (   !p_ptr->health_who						/* Not tracking */
+		|| !mon_list[p_ptr->health_who].ml			/* Unseen */
+		|| p_ptr->timed[TMD_IMAGE]					/* Hallucinatory */
+		|| (0 > mon_list[p_ptr->health_who].chp))	/* Dead */
+	{
+		/* Erase the health bar */
+		Term_erase(col, row, 12);
+	}
+
+	/* Tracking a visible monster */
+	else
+	{
+		char tmp[32];
+		const monster_type* const m_ptr = &mon_list[p_ptr->health_who];
+
+		sprintf(tmp, "M. MHP %5d", (int)(m_ptr->mhp));
+		Term_putstr(col, row, 12, TERM_WHITE, tmp);
+	}
+}
+
+/*
+ * Redraw the move ratio.
+ */
+static void prt_move_ratio(int row, int col)
+{
+	if (   !p_ptr->health_who						/* Not tracking */
+		|| !mon_list[p_ptr->health_who].ml			/* Unseen */
+		|| p_ptr->timed[TMD_IMAGE]					/* Hallucinatory */
+		|| (0 > mon_list[p_ptr->health_who].chp))	/* Dead */
+	{
+		/* Erase the health bar */
+		Term_erase(col, row, 12);
+	}
+
+	/* Tracking a visible monster */
+	else
+	{
+		char tmp[32];
+		const monster_type* const m_ptr = &mon_list[p_ptr->health_who];
+		int player_moves = 1;
+		int monster_moves = 1;
+
+		/* calculate move ratio */
+		p_ptr->move_ratio(monster_moves, player_moves, *m_ptr, 0, 0);
+		if (9<player_moves) player_moves = 9;
+		if (9<monster_moves) monster_moves = 9;
+
+		sprintf(tmp, "Nxt Turn %d/%d", player_moves, monster_moves);
+		Term_putstr(col, row, 12, TERM_WHITE, tmp);
+	}
+}
+
+static void prt_energy(int row, int col)
+{
+	put_str("Energy    ", row, col);
+
+
+	int i = p_ptr->speed;
+
+	byte attr = TERM_L_GREEN;
+	char buf[32] = "";
+
+	/* Hack -- Visually "undo" the Search Mode Slowdown */
+	if (p_ptr->searching) i += 10;
+
+	/* Fast */
+	if (i > 110)
+	{
+		attr = TERM_GREEN;
+	}
+
+	/* Slow */
+	else if (i < 110)
+	{
+		attr = TERM_L_UMBER;
+	};
+
+	sprintf(buf, "%2d", (int)(extract_energy[i]));
+
+	/* Display the speed */
+	c_put_str(attr, buf, row, col+10);
+
+}
 
 /*
  * Prints the speed of a character.
  */
 static void prt_speed(int row, int col)
 {
-	int i = p_ptr->pspeed;
+	int i = p_ptr->speed;
 
 	byte attr = TERM_WHITE;
 	const char *type = NULL;
@@ -482,27 +782,27 @@ static const struct side_handler_t
 {
 	{ prt_race,    19, EVENT_RACE_CLASS },
 	{ prt_title,   18, EVENT_PLAYERTITLE },
-	{ prt_class,   22, EVENT_RACE_CLASS },
+	{ prt_class,   20, EVENT_RACE_CLASS },
 	{ prt_level,   10, EVENT_DUNGEONLEVEL },
 	{ prt_exp,     16, EVENT_EXPERIENCE },
 	{ prt_gold,    11, EVENT_GOLD },
 	{ prt_equippy, 17, EVENT_EQUIPMENT },
-	{ prt_str,      6, EVENT_STATS },
-	{ prt_int,      5, EVENT_STATS },
-	{ prt_wis,      4, EVENT_STATS },
-	{ prt_dex,      3, EVENT_STATS },
-	{ prt_con,      2, EVENT_STATS },
-	{ prt_chr,      1, EVENT_STATS },
-	{ NULL,        15, EVENT_NO_CHANGE },
+	{ prt_str,      1, EVENT_STATS },
+	{ prt_int,      2, EVENT_STATS },
+	{ prt_wis,      3, EVENT_STATS },
+	{ prt_dex,      4, EVENT_STATS },
+	{ prt_con,      5, EVENT_STATS },
+	{ prt_chr,      6, EVENT_STATS },
 	{ prt_ac,       7, EVENT_AC },
 	{ prt_hp,       8, EVENT_HP },
 	{ prt_sp,       9, EVENT_MANA },
-	{ NULL,        21, EVENT_NO_CHANGE },
 	{ prt_health,  12, EVENT_MONSTERHEALTH },
-	{ NULL,        20, EVENT_NO_CHANGE },
+	{ prt_max_mon_hp,	13, EVENT_MONSTERHEALTH },
 	{ NULL,        22, EVENT_NO_CHANGE },
-	{ prt_speed,   13, EVENT_SPEED }, /* Slow (-NN) / Fast (+NN) */
-	{ prt_depth,   14, EVENT_DUNGEONLEVEL }, /* Lev NNN / NNNN ft */
+	{ prt_move_ratio,	21, EVENT_MONSTERHEALTH },
+	{ prt_energy,  15, EVENT_SPEED },
+	{ prt_speed,   14, EVENT_SPEED }, /* Slow (-NN) / Fast (+NN) */
+	{ prt_depth,    1, EVENT_DUNGEONLEVEL }, /* Lev NNN / NNNN ft */	/* status line starts at col 13 */
 };
 
 
@@ -888,6 +1188,7 @@ static void update_statusline(game_event_type type, game_event_data *data, void 
 /* ------------------------------------------------------------------------
  * Map redraw.
  * ------------------------------------------------------------------------ */
+#if 0
 static void trace_map_updates(game_event_type type, game_event_data *data, void *user)
 {
 	if (data->point.x == -1 && data->point.y == -1)
@@ -899,6 +1200,7 @@ static void trace_map_updates(game_event_type type, game_event_data *data, void 
 		printf("Redraw (%i, %i)\n", data->point.x, data->point.y);
 	}
 }
+#endif
 
 static void update_maps(game_event_type type, game_event_data *data, void *user)
 {
@@ -912,7 +1214,6 @@ static void update_maps(game_event_type type, game_event_data *data, void *user)
 	/* Single point to be redrawn */
 	else
 	{
-		grid_data g;
 		byte a, ta;
 		char c, tc;
 		
@@ -956,8 +1257,8 @@ static void update_maps(game_event_type type, game_event_data *data, void *user)
 
 		
 		/* Redraw the grid spot */
-		map_info(data->point.y, data->point.x, g);
-		grid_data_as_text(g, a, c, ta, tc);
+		grid_data(data->point.y, data->point.x).as_text(a, c, ta, tc);
+
 		Term_queue_char(t, vx, vy, a, c, ta, tc);
 #if 0
 		/* Plot 'spot' updates in light green to make them visible */
@@ -985,7 +1286,7 @@ static void update_maps(game_event_type type, game_event_data *data, void *user)
  * TRUE when we're supposed to display the equipment in the inventory 
  * window, or vice-versa.
  */
-static bool flip_inven;
+static bool flip_inven = false;
 
 static void update_inven_subwindow(game_event_type type, game_event_data *data,
 				       void *user)
@@ -1063,6 +1364,24 @@ static void update_monster_subwindow(game_event_type type, game_event_data *data
 	/* Display monster race info */
 	if (p_ptr->monster_race_idx)
 		display_roff(p_ptr->monster_race_idx);
+
+	Term_fresh();
+	
+	/* Restore */
+	Term_activate(old);
+}
+
+static void update_object_subwindow(game_event_type type, game_event_data *data, void *user)
+{
+	term *old = Term;
+	term *inv_term = reinterpret_cast<term*>(user);
+
+	/* Activate */
+	Term_activate(inv_term);
+
+	/* Display object kind info */
+	if (p_ptr->object_kind_idx)
+		display_koff(p_ptr->object_kind_idx);
 
 	Term_fresh();
 	
@@ -1241,6 +1560,15 @@ static void update_player_compact_subwindow(game_event_type type, game_event_dat
 	/* Monster health */
 	prt_health(row++, col);
 
+	/* maximum monster hitpoints */
+	prt_max_mon_hp(row++, col);
+
+	/* move ratio */
+	prt_move_ratio(row++, col);
+
+	/* Energy */
+	prt_energy(row++, col);
+
 	Term_fresh();
 	
 	/* Restore */
@@ -1340,7 +1668,7 @@ static void subwindow_flag_changed(int win_idx, u32b flag, bool new_state)
 
 		case PW_MESSAGE:
 		{
-			register_or_deregister(EVENT_MONSTERTARGET,
+			register_or_deregister(EVENT_MESSAGES,
 					       update_messages_subwindow,
 					       angband_term[win_idx]);
 			break;
@@ -1368,6 +1696,14 @@ static void subwindow_flag_changed(int win_idx, u32b flag, bool new_state)
 			break;
 		}
 
+		case PW_OBJECT:
+		{
+			register_or_deregister(EVENT_OBJECTTARGET,
+					       update_object_subwindow,
+					       angband_term[win_idx]);
+			break;
+		}
+
 		case PW_MONLIST:
 		{
 			register_or_deregister(EVENT_MONSTERLIST,
@@ -1382,7 +1718,7 @@ static void subwindow_flag_changed(int win_idx, u32b flag, bool new_state)
 /*
  * Set the flags for one Term, calling "subwindow_flag_changed" with each flag that
  * has changed setting so that it can do any housekeeping to do with 
- * siaplying hte new thing or no longer displaying the old one.
+ * displaying the new thing or no longer displaying the old one.
  */
 static void subwindow_set_flags(int win_idx, u32b new_flags)
 {
@@ -1446,7 +1782,7 @@ void subwindows_set_flags(u32b *new_flags, size_t n_subwindows)
 /*
  * Hack -- Explain a broken "lib" folder and quit (see below).
  */
-static void init_angband_aux(cptr why)
+static void init_angband_aux(const char* const why)
 {
 	quit_fmt("%s\n\n%s", why,
 	         "The 'lib' directory is probably missing or broken.\n"

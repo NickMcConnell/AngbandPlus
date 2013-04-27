@@ -9,11 +9,11 @@ VERSION = 3.0.7
 
 HDRS = h-basic.h
 INCS = angband.h config.h defines.h externs.h types.h types2.h \
-       ui.h ui-event.h z-term.h z-rand.h z-type.h z-util.h z-virt.h z-form.h z-file.h z-msg.h
+       ui.h ui-event.h z-term.h z-rand.h z-type.h z-util.h z-virt.h z-form.h z-file.h z-msg.h z-probability.h
 
 HEADERS = $(HDRS) $(INCS)
 
-ZFILES = flow.o game-event.o keypad.o z-file.o z-form.o z-msg.o z-quark.o z-rand.o z-term.o z-type.o z-util.o z-virt.o
+ZFILES = flow.o game-event.o keypad.o z-file.o z-form.o z-msg.o z-probability.o z-quark.o z-rand.o z-term.o z-type.o z-util.o z-virt.o
 MAINFILES = main.o maid-x11.o main-crb.o main-gcu.o main-gtk.o \
 	main-ros.o main-sdl.o main-win.o main-x11.o main-xaw.o snd-sdl.o
 
@@ -44,12 +44,11 @@ ANGFILES = \
 	object2.o \
 	randart.o \
 	randname.o \
-	pathfind.o \
 	signals.o \
 	save.o \
+	score.o \
 	spells1.o \
 	spells2.o \
-	squelch.o \
 	store.o \
 	tables.o \
 	trap.o \

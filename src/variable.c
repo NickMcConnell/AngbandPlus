@@ -3,9 +3,16 @@
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -14,7 +21,7 @@
 /*
  * Hack -- Link a copyright message into the executable
  */
-cptr copyright =
+const char* const copyright =
 	"Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Keoneke\n"
 	"\n"
 	"This software may be copied and distributed for educational, research,\n"
@@ -152,18 +159,18 @@ s16b macro__num;
 /*
  * Array of macro patterns [MACRO_MAX]
  */
-cptr *macro__pat;
+const char** macro__pat;
 
 /*
  * Array of macro actions [MACRO_MAX]
  */
-cptr *macro__act;
+const char** macro__act;
 
 
 /*
  * The array[ANGBAND_TERM_MAX] of window pointers
  */
-term *angband_term[ANGBAND_TERM_MAX];
+term* angband_term[ANGBAND_TERM_MAX];
 
 
 /*
@@ -185,11 +192,11 @@ char angband_term_name[ANGBAND_TERM_MAX][16] =
 
 
 int max_macrotrigger = 0;
-cptr macro_template = NULL;
-cptr macro_modifier_chr;
-cptr macro_modifier_name[MAX_MACRO_MOD];
-cptr macro_trigger_name[MAX_MACRO_TRIGGER];
-cptr macro_trigger_keycode[2][MAX_MACRO_TRIGGER];
+const char* macro_template = NULL;
+const char* macro_modifier_chr;
+const char* macro_modifier_name[MAX_MACRO_MOD];
+const char* macro_trigger_name[MAX_MACRO_TRIGGER];
+const char* macro_trigger_keycode[2][MAX_MACRO_TRIGGER];
 
 
 /*
@@ -364,7 +371,7 @@ char macro_buffer[1024];
 /*
  * Keymaps for each "mode" associated with each keypress.
  */
-cptr keymap_act[KEYMAP_MODES][256];
+const char* keymap_act[KEYMAP_MODES][256];
 
 
 
@@ -487,85 +494,85 @@ char* flavor_type::flavor_text;
  * Hack -- The special Angband "System Suffix"
  * This variable is used to choose an appropriate "pref-xxx" file
  */
-cptr ANGBAND_SYS = "xxx";
+const char* ANGBAND_SYS = "xxx";
 
 /*
  * Hack -- The special Angband "Graphics Suffix"
  * This variable is used to choose an appropriate "graf-xxx" file
  */
-cptr ANGBAND_GRAF = "old";
+const char* ANGBAND_GRAF = "old";
 
 /*
  * Path name: The main "lib" directory
  * This variable is not actually used anywhere in the code
  */
-cptr ANGBAND_DIR;
+const char* ANGBAND_DIR;
 
 /*
  * High score files (binary)
  * These files may be portable between platforms
  */
-cptr ANGBAND_DIR_APEX;
+const char* ANGBAND_DIR_APEX;
 
 /*
  * Bone files for player ghosts (ascii)
  * These files are portable between platforms
  */
-cptr ANGBAND_DIR_BONE;
+const char* ANGBAND_DIR_BONE;
 
 /*
  * Binary image files for the "*_info" arrays (binary)
  * These files are not portable between platforms
  */
-cptr ANGBAND_DIR_DATA;
+const char* ANGBAND_DIR_DATA;
 
 /*
  * Textual template files for the "*_info" arrays (ascii)
  * These files are portable between platforms
  */
-cptr ANGBAND_DIR_EDIT;
+const char* ANGBAND_DIR_EDIT;
 
 /*
  * Various extra files (ascii)
  * These files may be portable between platforms
  */
-cptr ANGBAND_DIR_FILE;
+const char* ANGBAND_DIR_FILE;
 
 /*
  * Help files (normal) for the online help (ascii)
  * These files are portable between platforms
  */
-cptr ANGBAND_DIR_HELP;
+const char* ANGBAND_DIR_HELP;
 
 /*
  * Help files (spoilers) for the online help (ascii)
  * These files are portable between platforms
  */
-cptr ANGBAND_DIR_INFO;
+const char* ANGBAND_DIR_INFO;
 
 /*
  * Savefiles for current characters (binary)
  * These files are portable between platforms
  */
-cptr ANGBAND_DIR_SAVE;
+const char* ANGBAND_DIR_SAVE;
 
 /*
  * Default user "preference" files (ascii)
  * These files are rarely portable between platforms
  */
-cptr ANGBAND_DIR_PREF;
+const char* ANGBAND_DIR_PREF;
 
 /*
  * User defined "preference" files (ascii)
  * These files are rarely portable between platforms
  */
-cptr ANGBAND_DIR_USER;
+const char* ANGBAND_DIR_USER;
 
 /*
  * Various extra files (binary)
  * These files are rarely portable between platforms
  */
-cptr ANGBAND_DIR_XTRA;
+const char* ANGBAND_DIR_XTRA;
 
 /*
  * Total Hack -- allow all items to be listed (even empty ones)
@@ -580,13 +587,11 @@ bool item_tester_full;
  */
 byte item_tester_tval;
 
-
 /*
  * Here is a "hook" used during calls to "get_item()" and
  * "show_inven()" and "show_equip()", and the choice window routines.
  */
 bool (*item_tester_hook)(const object_type*);
-
 
 
 /*
@@ -602,20 +607,7 @@ void (*ang_sort_swap)(void *u, void *v, int a, int b);
 
 
 
-/*
- * Hack -- function hook to restrict "get_mon_num_prep()" function
- */
-bool (*get_mon_num_hook)(int r_idx);
-
-
-
-/*
- * Hack -- function hook to restrict "get_obj_num_prep()" function
- */
-bool (*get_obj_num_hook)(int k_idx);
-
-
-void (*object_info_out_flags)(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3);
+void (*object_info_out_flags)(const object_type *o_ptr, u32b* f);
 
 
 /*
@@ -628,7 +620,7 @@ FILE *text_out_file = NULL;
  * Hack -- function hook to output (colored) text to the
  * screen or to a file.
  */
-void (*text_out_hook)(byte a, cptr str);
+void (*text_out_hook)(byte a, const char* str);
 
 
 /*

@@ -19,6 +19,7 @@
 #include "angband.h"
 #include "z-quark.h"
 #include "cmds.h"
+#include "tvalsval.h"
 
 /*** Inscriptions ***/
 
@@ -35,9 +36,8 @@ static void obj_uninscribe(object_type *o_ptr, int item)
 	msg_print("Inscription removed.");
 
 //	p_ptr->notice |= (PN_COMBINE | PN_SQUELCH);
-//	p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
+	p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
 	p_ptr->notice |= (PN_COMBINE);
-	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 }
 
 /* Add inscription */
@@ -46,7 +46,7 @@ static void obj_inscribe(object_type *o_ptr, int item)
 	char o_name[80];
 	char tmp[80] = "";
 
-	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, ODESC_FULL);
 	msg_format("Inscribing %s.", o_name);
 	message_flush();
 
@@ -60,9 +60,8 @@ static void obj_inscribe(object_type *o_ptr, int item)
 		o_ptr->note = quark_add(tmp);
 
 //		p_ptr->notice |= (PN_COMBINE | PN_SQUELCH);
-//		p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
+		p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
 		p_ptr->notice |= (PN_COMBINE);
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 	}
 }
 
@@ -100,21 +99,18 @@ static void obj_takeoff(object_type *o_ptr, int item)
 /* Wield or wear an item */
 static void obj_wear(object_type *o_ptr, int item)
 {
-	int slot;
-	object_type *equip_o_ptr;
-
 	char o_name[80];
 
-
 	/* Check the slot */
-	slot = wield_slot(o_ptr);
-	equip_o_ptr = &p_ptr->inventory[slot];
+	int slot = wield_slot(o_ptr);
+	assert((INVEN_PACK < slot) && (slot < INVEN_TOTAL) && "retval precondition");
+	const object_type* const equip_o_ptr = &p_ptr->inventory[slot];
 
 	/* Prevent wielding into a cursed slot */
 	if (equip_o_ptr->is_cursed())
 	{
 		/* Message */
-		object_desc(o_name, sizeof(o_name), equip_o_ptr, FALSE, 0);
+		object_desc(o_name, sizeof(o_name), equip_o_ptr, FALSE, ODESC_BASE);
 		msg_format("The %s you are %s appears to be cursed.",
 		           o_name, describe_use(slot));
 
@@ -125,7 +121,7 @@ static void obj_wear(object_type *o_ptr, int item)
 	if (check_for_inscrip(o_ptr, "!t"))
 	{
 		/* Prompt */
-		object_desc(o_name, sizeof(o_name), equip_o_ptr, TRUE, 3);
+		object_desc(o_name, sizeof(o_name), equip_o_ptr, TRUE, ODESC_FULL);
 
 		/* Forget it */
 		if (!get_check(format("Really take off %s? ", o_name))) return;
@@ -218,7 +214,7 @@ static bool obj_study_pre(void)
 
 	if (!p_ptr->new_spells)
 	{
-		cptr p = ((p_ptr->spell_book() == TV_MAGIC_BOOK) ? "spell" : "prayer");
+		const char* const p = ((p_ptr->spell_book() == TV_MAGIC_BOOK) ? "spell" : "prayer");
 		msg_format("You cannot learn any new %ss!", p);
 		return FALSE;
 	}
@@ -255,7 +251,7 @@ static void obj_study(object_type *o_ptr, int item)
 static void obj_cast(object_type *o_ptr, int item)
 {
 	int spell;
-	cptr verb = ((p_ptr->spell_book() == TV_MAGIC_BOOK) ? "cast" : "recite");
+	const char* const verb = ((p_ptr->spell_book() == TV_MAGIC_BOOK) ? "cast" : "recite");
 
 	/* Track the object kind */
 	object_kind_track(o_ptr->k_idx);
@@ -265,7 +261,7 @@ static void obj_cast(object_type *o_ptr, int item)
 	spell = get_spell(o_ptr, verb, TRUE);
 	if (spell < 0)
 	{
-		cptr p = ((p_ptr->spell_book() == TV_MAGIC_BOOK) ? "spell" : "prayer");
+		const char* const p = ((p_ptr->spell_book() == TV_MAGIC_BOOK) ? "spell" : "prayer");
 
 		if (spell == -2) msg_format("You don't know any %ss in that book.", p);
 		return;
@@ -335,7 +331,7 @@ static bool obj_can_zap(const object_type *o_ptr)
 /* Determine if an object is activatable */
 static bool obj_can_activate(const object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b f[OBJECT_FLAG_STRICT_UB];
 
 	/* Not known */
 	if (!o_ptr->known()) return (FALSE);
@@ -344,10 +340,10 @@ static bool obj_can_activate(const object_type *o_ptr)
 	if (o_ptr->timeout) return (FALSE);
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, f);
 
 	/* Check activation flag */
-	return (f3 & TR3_ACTIVATE);
+	return (f[2] & TR3_ACTIVATE);
 }
 
 
@@ -397,10 +393,10 @@ static void obj_use_scroll(object_type *o_ptr, int item)
 
 static bool obj_refill_pre(void)
 {
-   	object_type *o_ptr = &p_ptr->inventory[INVEN_LITE];
-	u32b f1, f2, f3;
+   	const object_type* const o_ptr = &p_ptr->inventory[INVEN_LITE];
+//	u32b f[OBJECT_FLAG_STRICT_UB];
 
-	object_flags(o_ptr, &f1, &f2, &f3);
+//	object_flags(o_ptr, f);
 
 	if (o_ptr->tval != TV_LITE)
 	{
@@ -420,11 +416,11 @@ static bool obj_refill_pre(void)
 
 static bool obj_can_refill(const object_type *o_ptr)
 {
-	u32b f1, f2, f3;
-	const object_type *j_ptr = &p_ptr->inventory[INVEN_LITE];
+//	u32b f[OBJECT_FLAG_STRICT_UB];
+	const object_type* const j_ptr = &p_ptr->inventory[INVEN_LITE];
 
 	/* Get flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+//	object_flags(o_ptr, f);
 
 	if (j_ptr->sval == SV_LITE_LANTERN)
 	{
@@ -448,7 +444,7 @@ static bool obj_can_refill(const object_type *o_ptr)
 
 static void obj_refill(object_type *o_ptr, int item)
 {
-	object_type *j_ptr = &p_ptr->inventory[INVEN_LITE];
+	object_type* const j_ptr = &p_ptr->inventory[INVEN_LITE];
 	p_ptr->energy_use = 50;
 
 	/* It's a lamp */
@@ -596,8 +592,8 @@ static void do_item(item_act act)
 {
 	int item;
 	object_type *o_ptr;
-
-	cptr q, s;
+	const char* q;
+	const char* s;
 
 	if (item_actions[act].prereq)
 	{

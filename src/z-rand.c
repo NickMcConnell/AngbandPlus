@@ -1,11 +1,18 @@
 /* File: z-rand.c */
 
 /*
- * Copyright (c) 1997 Ben Harrison, and others
+ * Copyright (c) 1997 Ben Harrison, Randy Hutson
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 
@@ -43,38 +50,38 @@
 #include "z-rand.h"
 
 
-/*
+/**
  * Random Number Generator -- Linear Congruent RNG
  */
 #define LCRNG(X)        ((X) * 1103515245 + 12345)
 
 
 
-/*
+/**
  * Use the "simple" LCRNG
  */
 bool Rand_quick = TRUE;
 
 
-/*
+/**
  * Current "value" of the "simple" RNG
  */
 u32b Rand_value;
 
 
-/*
+/**
  * Current "index" for the "complex" RNG
  */
 u16b Rand_place;
 
-/*
+/**
  * Current "state" table for the "complex" RNG
  */
 u32b Rand_state[RAND_DEG];
 
 
 
-/*
+/**
  * Initialize the "complex" RNG using a new seed
  */
 void Rand_state_init(u32b seed)
@@ -103,10 +110,10 @@ void Rand_state_init(u32b seed)
 }
 
 
-/*
+/**
  * Extract a "random" number from 0 to m-1, via "division"
  *
- * This method selects "random" 28-bit numbers, and then uses
+ * \param m This method selects "random" 28-bit numbers, and then uses
  * division to drop those numbers into "m" different partitions,
  * plus a small non-partition to reduce bias, taking as the final
  * value the first "good" partition that a number falls into.
@@ -114,14 +121,15 @@ void Rand_state_init(u32b seed)
  * This method has no bias, and is much less affected by patterns
  * in the "low" bits of the underlying RNG's.
  *
- * Note that "m" must not be greater than 0x1000000, or division
+ * \pre "m" must not be greater than 0x10000000, or division
  * by zero will result.
- *
- * ToDo: Check for m > 0x1000000.
  */
 u32b Rand_div(u32b m)
 {
 	u32b r, n;
+
+	/* Division by zero will result if m is larger than 0x10000000 */ 
+ 	assert(0x10000000 >=  m); 
 
 	/* Hack -- simple case */
 	if (m <= 1) return (0);
@@ -179,17 +187,17 @@ u32b Rand_div(u32b m)
 
 
 
-/*
+/**
  * The number of entries in the "Rand_normal_table"
  */
 #define RANDNOR_NUM	256
 
-/*
+/**
  * The standard deviation of the "Rand_normal_table"
  */
 #define RANDNOR_STD	64
 
-/*
+/**
  * The normal distribution table for the "Rand_normal()" function (below)
  */
 static s16b Rand_normal_table[RANDNOR_NUM] =
@@ -233,10 +241,10 @@ static s16b Rand_normal_table[RANDNOR_NUM] =
 
 
 
-/*
+/**
  * Generate a random integer number of NORMAL distribution
  *
- * The table above is used to generate a psuedo-normal distribution,
+ * ::Rand_normal_table is used to generate a psuedo-normal distribution,
  * in a manner which is much faster than calling a transcendental
  * function to calculate a true normal distribution.
  *
@@ -245,7 +253,7 @@ static s16b Rand_normal_table[RANDNOR_NUM] =
  * will fall within N standard deviations of the mean.  That is, about
  * 68 percent of the time for N=1 and 95 percent of the time for N=2.
  *
- * The table above contains a "faked" final entry which allows us to
+ * ::Rand_normal_table contains a "faked" final entry which allows us to
  * pretend that all values in a normal distribution are strictly less
  * than four standard deviations away from the mean.  This results in
  * "conservative" distribution of approximately 1/32768 values.
@@ -295,14 +303,12 @@ s16b Rand_normal(int mean, int stand)
 }
 
 
-/*
+/**
  * Extract a "random" number from 0 to m-1, using the "simple" RNG.
  *
  * This function should be used when generating random numbers in
  * "external" program parts like the main-*.c files.  It preserves
  * the current RNG state to prevent influences on game-play.
- *
- * Could also use rand() from <stdlib.h> directly. XXX XXX XXX
  */
 u32b Rand_simple(u32b m)
 {
@@ -345,3 +351,18 @@ u32b Rand_simple(u32b m)
 	/* Use the value */
 	return (result);
 }
+
+/** 
+ * Generates a random signed long integer X where `A` <= X <= `B`. 
+ * The integer X falls along a uniform distribution. 
+ * 
+ * \note "rand_range(0, N-1)" == "rand_int(N)". 
+ */ 
+int rand_range(int A, int B) 
+{ 
+	if (A == B) return A; 
+
+	assert(A < B); 
+
+	return A + (s32b)Rand_div(1 + B - A); 
+} 

@@ -1,17 +1,27 @@
-/* File: use_obj.c */
+/* File: use-obj.c */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
 #include "cmds.h"
-#include "keypad.h"
+#include "project.h"
+#include "summon.h"
+#include "tvalsval.h"
 
+#include "keypad.h"
 /*
  * Check to see if the player can use a rod/wand/staff/activatable object.
  */
@@ -27,7 +37,7 @@ static bool check_devices(object_type *o_ptr)
 		case TV_ROD:   msg = "zap the rod";   break;
 		case TV_WAND:  msg = "use the wand";  what = "wand";  break;
 		case TV_STAFF: msg = "use the staff"; what = "staff"; break;
-		default:       msg = "activate it";  break;
+		default:       msg = "activate it";
 	}
 
 	/* Base chance of success */
@@ -52,7 +62,7 @@ static bool check_devices(object_type *o_ptr)
 		msg_format("The %s has no charges left.", what);
 		o_ptr->ident |= (IDENT_EMPTY);
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-		p_ptr->window |= (PW_INVEN);
+		p_ptr->redraw |= (PR_INVEN);
 		return (FALSE);
 	}
 
@@ -138,7 +148,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 		case SV_FOOD_WEAKNESS:
 		{
-			take_hit(damroll(6, 6), "poisonous food");
+			take_hit(NdS(6, 6), "poisonous food");
 			(void)do_dec_stat(A_STR);
 			*ident = TRUE;
 			break;
@@ -146,7 +156,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 		case SV_FOOD_SICKNESS:
 		{
-			take_hit(damroll(6, 6), "poisonous food");
+			take_hit(NdS(6, 6), "poisonous food");
 			(void)do_dec_stat(A_CON);
 			*ident = TRUE;
 			break;
@@ -154,7 +164,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 		case SV_FOOD_STUPIDITY:
 		{
-			take_hit(damroll(8, 8), "poisonous food");
+			take_hit(NdS(8, 8), "poisonous food");
 			(void)do_dec_stat(A_INT);
 			*ident = TRUE;
 			break;
@@ -162,7 +172,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 		case SV_FOOD_NAIVETY:
 		{
-			take_hit(damroll(8, 8), "poisonous food");
+			take_hit(NdS(8, 8), "poisonous food");
 			(void)do_dec_stat(A_WIS);
 			*ident = TRUE;
 			break;
@@ -170,7 +180,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 		case SV_FOOD_UNHEALTH:
 		{
-			take_hit(damroll(10, 10), "poisonous food");
+			take_hit(NdS(10, 10), "poisonous food");
 			(void)do_dec_stat(A_CON);
 			*ident = TRUE;
 			break;
@@ -178,7 +188,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 		case SV_FOOD_DISEASE:
 		{
-			take_hit(damroll(10, 10), "poisonous food");
+			take_hit(NdS(10, 10), "poisonous food");
 			(void)do_dec_stat(A_STR);
 			*ident = TRUE;
 			break;
@@ -210,7 +220,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 		case SV_FOOD_CURE_SERIOUS:
 		{
-			if (hp_player(damroll(4, 8))) *ident = TRUE;
+			if (hp_player(NdS(4, 8))) *ident = TRUE;
 			break;
 		}
 
@@ -252,7 +262,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 		{
 			msg_print("That tastes good.");
 			(void)p_ptr->clear_timed<TMD_POISONED>();
-			(void)hp_player(damroll(4, 8));
+			(void)hp_player(NdS(4, 8));
 			*ident = TRUE;
 			break;
 		}
@@ -365,7 +375,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		case SV_POTION_RUINATION:
 		{
 			msg_print("Your nerves and muscles feel weak and lifeless!");
-			take_hit(damroll(10, 10), "a potion of Ruination");
+			take_hit(NdS(10, 10), "a potion of Ruination");
 			(void)dec_stat(A_DEX, 25, TRUE);
 			(void)dec_stat(A_WIS, 25, TRUE);
 			(void)dec_stat(A_CON, 25, TRUE);
@@ -415,7 +425,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		case SV_POTION_DETONATIONS:
 		{
 			msg_print("Massive explosions rupture your body!");
-			take_hit(damroll(50, 20), "a potion of Detonation");
+			take_hit(NdS(50, 20), "a potion of Detonation");
 			(void)p_ptr->inc_timed<TMD_STUN>(75);
 			(void)p_ptr->inc_timed<TMD_CUT>(5000);
 			*ident = TRUE;
@@ -515,7 +525,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_CURE_LIGHT:
 		{
-			if (hp_player(damroll(2, 8))) *ident = TRUE;
+			if (hp_player(NdS(2, 8))) *ident = TRUE;
 			if (p_ptr->clear_timed<TMD_BLIND>()) *ident = TRUE;
 			if (p_ptr->dec_timed<TMD_CUT>(10)) *ident = TRUE;
 			break;
@@ -523,7 +533,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_CURE_SERIOUS:
 		{
-			if (hp_player(damroll(4, 8))) *ident = TRUE;
+			if (hp_player(NdS(4, 8))) *ident = TRUE;
 			if (p_ptr->clear_timed<TMD_BLIND>()) *ident = TRUE;
 			if (p_ptr->clear_timed<TMD_CONFUSED>()) *ident = TRUE;
 			if (p_ptr->set_timed<TMD_CUT>((p_ptr->timed[TMD_CUT] / 2) - 50)) *ident = TRUE;
@@ -532,7 +542,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_CURE_CRITICAL:
 		{
-			if (hp_player(damroll(6, 8))) *ident = TRUE;
+			if (hp_player(NdS(6, 8))) *ident = TRUE;
 			if (p_ptr->clear_timed<TMD_BLIND>()) *ident = TRUE;
 			if (p_ptr->clear_timed<TMD_CONFUSED>()) *ident = TRUE;
 			if (p_ptr->clear_timed<TMD_POISONED>()) *ident = TRUE;
@@ -597,7 +607,6 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 				p_ptr->csp_frac = 0;
 				msg_print("Your feel your head clear.");
 				p_ptr->redraw |= (PR_MANA);
-				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 				*ident = TRUE;
 			}
 			break;
@@ -788,8 +797,9 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 
 		case SV_SCROLL_SUMMON_MONSTER:
 		{
+			const int rand_strict_UB = randint(3);
 			sound(MSG_SUM_MONSTER);
-			for (k = 0; k < randint(3); k++)
+			for (k = 0; k < rand_strict_UB; k++)
 			{
 				if (summon_specific(p_ptr->loc, p_ptr->depth, 0))
 				{
@@ -801,8 +811,9 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 
 		case SV_SCROLL_SUMMON_UNDEAD:
 		{
+			const int rand_strict_UB = randint(3);
 			sound(MSG_SUM_UNDEAD);
-			for (k = 0; k < randint(3); k++)
+			for (k = 0; k < rand_strict_UB; k++)
 			{
 				if (summon_specific(p_ptr->loc, p_ptr->depth, SUMMON_UNDEAD))
 				{
@@ -921,7 +932,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 
 		case SV_SCROLL_LIGHT:
 		{
-			if (lite_area(damroll(2, 8), 2)) *ident = TRUE;
+			if (lite_area(NdS(2, 8), 2)) *ident = TRUE;
 			break;
 		}
 
@@ -1149,7 +1160,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 		case SV_STAFF_LITE:
 		{
-			if (lite_area(damroll(2, 8), 2)) *ident = TRUE;
+			if (lite_area(NdS(2, 8), 2)) *ident = TRUE;
 			break;
 		}
 
@@ -1232,7 +1243,6 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 				*ident = TRUE;
 				msg_print("Your feel your head clear.");
 				p_ptr->redraw |= (PR_MANA);
-				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 			}
 			break;
 		}
@@ -1425,35 +1435,35 @@ static bool aim_wand(object_type *o_ptr, bool *ident, int dir)
 
 		case SV_WAND_MAGIC_MISSILE:
 		{
-			fire_bolt_or_beam(20, GF_MISSILE, dir, damroll(3, 4));
+			fire_bolt_or_beam(20, GF_MISSILE, dir, NdS(3, 4));
 			*ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ACID_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_ACID, dir, damroll(10, 8));
+			fire_bolt_or_beam(20, GF_ACID, dir, NdS(10, 8));
 			*ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ELEC_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_ELEC, dir, damroll(6, 6));
+			fire_bolt_or_beam(20, GF_ELEC, dir, NdS(6, 6));
 			*ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_FIRE_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_FIRE, dir, damroll(12, 8));
+			fire_bolt_or_beam(20, GF_FIRE, dir, NdS(12, 8));
 			*ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_COLD_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_COLD, dir, damroll(6, 8));
+			fire_bolt_or_beam(20, GF_COLD, dir, NdS(6, 8));
 			*ident = TRUE;
 			break;
 		}
@@ -1566,7 +1576,7 @@ static bool zap_rod(object_type *o_ptr, bool *ident, int dir)
 
 		case SV_ROD_ILLUMINATION:
 		{
-			if (lite_area(damroll(2, 8), 2)) *ident = TRUE;
+			if (lite_area(NdS(2, 8), 2)) *ident = TRUE;
 			break;
 		}
 
@@ -1680,28 +1690,28 @@ static bool zap_rod(object_type *o_ptr, bool *ident, int dir)
 
 		case SV_ROD_ACID_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_ACID, dir, damroll(12, 8));
+			fire_bolt_or_beam(10, GF_ACID, dir, NdS(12, 8));
 			*ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_ELEC_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_ELEC, dir, damroll(6, 6));
+			fire_bolt_or_beam(10, GF_ELEC, dir, NdS(6, 6));
 			*ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_FIRE_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_FIRE, dir, damroll(16, 8));
+			fire_bolt_or_beam(10, GF_FIRE, dir, NdS(16, 8));
 			*ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_COLD_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_COLD, dir, damroll(10, 8));
+			fire_bolt_or_beam(10, GF_COLD, dir, NdS(10, 8));
 			*ident = TRUE;
 			break;
 		}
@@ -1737,8 +1747,8 @@ static bool zap_rod(object_type *o_ptr, bool *ident, int dir)
 
 	/* XXX initialize key info at this time XXX */
 	/* should be done in init1.c */
-	k_ptr->time_base = k_ptr->pval;
-	k_ptr->time.clear();
+	k_ptr->time.base = k_ptr->pval;
+	k_ptr->time.range.clear();
 
 	return TRUE;
 }
@@ -1765,14 +1775,14 @@ static bool activate_object(object_type *o_ptr, int dir)
 		char o_name[80];
 
 		/* Get the basic name of the object */
-		object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
+		object_desc(o_name, sizeof(o_name), o_ptr, FALSE, ODESC_BASE);
 
 		switch (a_ptr->activation)
 		{
 			case ACT_ILLUMINATION:
 			{
 				msg_format("The %s wells with clear light...", o_name);
-				lite_area(damroll(2, 15), 3);
+				lite_area(NdS(2, 15), 3);
 				break;
 			}
 
@@ -1962,35 +1972,35 @@ static bool activate_object(object_type *o_ptr, int dir)
 			case ACT_MISSILE:
 			{
 				msg_format("Your %s glows extremely brightly...", o_name);
-				fire_bolt(GF_MISSILE, dir, damroll(2, 6));
+				fire_bolt(GF_MISSILE, dir, NdS(2, 6));
 				break;
 			}
 
 			case ACT_FIRE1:
 			{
 				msg_format("Your %s is covered in fire...", o_name);
-				fire_bolt(GF_FIRE, dir, damroll(9, 8));
+				fire_bolt(GF_FIRE, dir, NdS(9, 8));
 				break;
 			}
 
 			case ACT_FROST1:
 			{
 				msg_format("Your %s is covered in frost...", o_name);
-				fire_bolt(GF_COLD, dir, damroll(6, 8));
+				fire_bolt(GF_COLD, dir, NdS(6, 8));
 				break;
 			}
 
 			case ACT_LIGHTNING_BOLT:
 			{
 				msg_format("Your %s is covered in sparks...", o_name);
-				fire_bolt(GF_ELEC, dir, damroll(4, 8));
+				fire_bolt(GF_ELEC, dir, NdS(4, 8));
 				break;
 			}
 
 			case ACT_ACID1:
 			{
 				msg_format("Your %s is covered in acid...", o_name);
-				fire_bolt(GF_ACID, dir, damroll(5, 8));
+				fire_bolt(GF_ACID, dir, NdS(5, 8));
 				break;
 			}
 
@@ -2040,7 +2050,7 @@ static bool activate_object(object_type *o_ptr, int dir)
 			case ACT_FROST4:
 			{
 				msg_format("Your %s glows a pale blue...", o_name);
-				fire_bolt(GF_COLD, dir, damroll(12, 8));
+				fire_bolt(GF_COLD, dir, NdS(12, 8));
 				break;
 			}
 
@@ -2082,7 +2092,7 @@ static bool activate_object(object_type *o_ptr, int dir)
 			case ACT_CURE_WOUNDS:
 			{
 				msg_format("Your %s radiates deep purple...", o_name);
-				hp_player(damroll(4, 8));
+				hp_player(NdS(4, 8));
 				(void)p_ptr->set_timed<TMD_CUT>((p_ptr->timed[TMD_CUT] / 2) - 50);
 				break;
 			}
@@ -2146,7 +2156,7 @@ static bool activate_object(object_type *o_ptr, int dir)
 			case ACT_MANA_BOLT:
 			{
 				msg_format("Your %s glows white...", o_name);
-				fire_bolt(GF_MANA, dir, damroll(12, 8));
+				fire_bolt(GF_MANA, dir, NdS(12, 8));
 				break;
 			}
 
@@ -2159,7 +2169,7 @@ static bool activate_object(object_type *o_ptr, int dir)
 		}
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+		p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
 
 		/* Done */
 		return TRUE;
@@ -2180,9 +2190,7 @@ static bool activate_object(object_type *o_ptr, int dir)
 				msg_print("You breathe lightning.");
 				fire_ball(GF_ELEC, dir, 100, 2);
 				/* XXX set timeout info here XXX */
-				k_ptr->time_base = 450;
-				k_ptr->time.dice = 1;
-				k_ptr->time.sides = 450;
+				k_ptr->time.set(450,1,450);
 				break;
 			}
 
@@ -2192,9 +2200,7 @@ static bool activate_object(object_type *o_ptr, int dir)
 				msg_print("You breathe frost.");
 				fire_ball(GF_COLD, dir, 110, 2);
 				/* XXX set timeout info here XXX */
-				k_ptr->time_base = 450;
-				k_ptr->time.dice = 1;
-				k_ptr->time.sides = 450;
+				k_ptr->time.set(450,1,450);
 				break;
 			}
 
@@ -2204,9 +2210,7 @@ static bool activate_object(object_type *o_ptr, int dir)
 				msg_print("You breathe acid.");
 				fire_ball(GF_ACID, dir, 130, 2);
 				/* XXX set timeout info here XXX */
-				k_ptr->time_base = 450;
-				k_ptr->time.dice = 1;
-				k_ptr->time.sides = 450;
+				k_ptr->time.set(450,1,450);
 				break;
 			}
 
@@ -2216,9 +2220,7 @@ static bool activate_object(object_type *o_ptr, int dir)
 				msg_print("You breathe poison gas.");
 				fire_ball(GF_POIS, dir, 150, 2);
 				/* XXX set timeout info here XXX */
-				k_ptr->time_base = 450;
-				k_ptr->time.dice = 1;
-				k_ptr->time.sides = 450;
+				k_ptr->time.set(450,1,450);
 				break;
 			}
 
@@ -2228,9 +2230,7 @@ static bool activate_object(object_type *o_ptr, int dir)
 				msg_print("You breathe fire.");
 				fire_ball(GF_FIRE, dir, 200, 2);
 				/* XXX set timeout info here XXX */
-				k_ptr->time_base = 450;
-				k_ptr->time.dice = 1;
-				k_ptr->time.sides = 450;
+				k_ptr->time.set(450,1,450);
 				break;
 			}
 
@@ -2252,9 +2252,7 @@ static bool activate_object(object_type *o_ptr, int dir)
 				             ((chance == 4) ? GF_POIS : GF_FIRE)))),
 				          dir, 250, 2);
 				/* XXX set timeout info here XXX */
-				k_ptr->time_base = 225;
-				k_ptr->time.dice = 1;
-				k_ptr->time.sides = 225;
+				k_ptr->time.set(225,1,225);
 				break;
 			}
 
@@ -2264,9 +2262,7 @@ static bool activate_object(object_type *o_ptr, int dir)
 				msg_print("You breathe confusion.");
 				fire_ball(GF_CONFUSION, dir, 120, 2);
 				/* XXX set timeout info here XXX */
-				k_ptr->time_base = 450;
-				k_ptr->time.dice = 1;
-				k_ptr->time.sides = 450;
+				k_ptr->time.set(450,1,450);
 				break;
 			}
 
@@ -2276,9 +2272,7 @@ static bool activate_object(object_type *o_ptr, int dir)
 				msg_print("You breathe sound.");
 				fire_ball(GF_SOUND, dir, 130, 2);
 				/* XXX set timeout info here XXX */
-				k_ptr->time_base = 450;
-				k_ptr->time.dice = 1;
-				k_ptr->time.sides = 450;
+				k_ptr->time.set(450,1,450);
 				break;
 			}
 
@@ -2291,9 +2285,7 @@ static bool activate_object(object_type *o_ptr, int dir)
 				fire_ball((chance == 1 ? GF_CHAOS : GF_DISENCHANT),
 				          dir, 220, 2);
 				/* XXX set timeout info here XXX */
-				k_ptr->time_base = 300;
-				k_ptr->time.dice = 1;
-				k_ptr->time.sides = 300;
+				k_ptr->time.set(300,1,300);
 				break;
 			}
 
@@ -2306,9 +2298,7 @@ static bool activate_object(object_type *o_ptr, int dir)
 				fire_ball((chance == 1 ? GF_SOUND : GF_SHARD),
 				          dir, 230, 2);
 				/* XXX set timeout info here XXX */
-				k_ptr->time_base = 300;
-				k_ptr->time.dice = 1;
-				k_ptr->time.sides = 300;
+				k_ptr->time.set(300,1,300);
 				break;
 			}
 
@@ -2324,9 +2314,7 @@ static bool activate_object(object_type *o_ptr, int dir)
 				            ((chance == 3) ? GF_SOUND : GF_SHARD))),
 				          dir, 250, 2);
 				/* XXX set timeout info here XXX */
-				k_ptr->time_base = 300;
-				k_ptr->time.dice = 1;
-				k_ptr->time.sides = 300;
+				k_ptr->time.set(300,1,300);
 				break;
 			}
 
@@ -2338,9 +2326,7 @@ static bool activate_object(object_type *o_ptr, int dir)
 				           ((chance == 0 ? "light" : "darkness")));
 				fire_ball((chance == 0 ? GF_LITE : GF_DARK), dir, 200, 2);
 				/* XXX set timeout info here XXX */
-				k_ptr->time_base = 300;
-				k_ptr->time.dice = 1;
-				k_ptr->time.sides = 300;
+				k_ptr->time.set(300,1,300);
 				break;
 			}
 
@@ -2350,15 +2336,13 @@ static bool activate_object(object_type *o_ptr, int dir)
 				msg_print("You breathe the elements.");
 				fire_ball(GF_MISSILE, dir, 300, 2);
 				/* XXX set timeout info here XXX */
-				k_ptr->time_base = 300;
-				k_ptr->time.dice = 1;
-				k_ptr->time.sides = 300;
+				k_ptr->time.set(300,1,300);
 				break;
 			}
 		}
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+		p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
 
 		/* Success */
 		return TRUE;
@@ -2377,9 +2361,7 @@ static bool activate_object(object_type *o_ptr, int dir)
 				fire_ball(GF_ACID, dir, 70, 2);
 				p_ptr->inc_timed<TMD_OPP_ACID>(randint(20) + 20);
 				/* XXX set timeout info here XXX */
-				k_ptr->time_base = 50;
-				k_ptr->time.dice = 1;
-				k_ptr->time.sides = 50;
+				k_ptr->time.set(50,1,50);
 				break;
 			}
 
@@ -2388,9 +2370,7 @@ static bool activate_object(object_type *o_ptr, int dir)
 				fire_ball(GF_FIRE, dir, 80, 2);
 				p_ptr->inc_timed<TMD_OPP_FIRE>(randint(20) + 20);
 				/* XXX set timeout info here XXX */
-				k_ptr->time_base = 50;
-				k_ptr->time.dice = 1;
-				k_ptr->time.sides = 50;
+				k_ptr->time.set(50,1,50);
 				break;
 			}
 
@@ -2399,9 +2379,7 @@ static bool activate_object(object_type *o_ptr, int dir)
 				fire_ball(GF_COLD, dir, 75, 2);
 				p_ptr->inc_timed<TMD_OPP_COLD>(randint(20) + 20);
 				/* XXX set timeout info here XXX */
-				k_ptr->time_base = 50;
-				k_ptr->time.dice = 1;
-				k_ptr->time.sides = 50;
+				k_ptr->time.set(50,1,50);
 				break;
 			}
 
@@ -2410,15 +2388,13 @@ static bool activate_object(object_type *o_ptr, int dir)
 				fire_ball(GF_ELEC, dir, 85, 2);
 				p_ptr->inc_timed<TMD_OPP_ELEC>(randint(20) + 20);
 				/* XXX set timeout info here XXX */
-				k_ptr->time_base = 50;
-				k_ptr->time.dice = 1;
-				k_ptr->time.sides = 50;
+				k_ptr->time.set(50,1,50);
 				break;
 			}
 		}
 
 		/* Window stuff */
-		p_ptr->window |= (PW_EQUIP);
+		p_ptr->redraw |= (PR_EQUIP);
 
 		/* Success */
 		return TRUE;
@@ -2607,8 +2583,7 @@ void do_cmd_use(object_type *o_ptr, int item, int snd, use_type _use)
 
 	/* Mark as tried and redisplay */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-//	p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
 
 	/*
 	 * If the player becomes aware of the item's function, then mark it as
@@ -2648,12 +2623,12 @@ void do_cmd_use(object_type *o_ptr, int item, int snd, use_type _use)
 		if (o_ptr->name1)
 		{
 			const artifact_type *a_ptr = &object_type::a_info[o_ptr->name1];
-			o_ptr->timeout = a_ptr->time_base + a_ptr->time.damroll();
+			o_ptr->timeout = a_ptr->time.damroll();
 		}
 		else
 		{
 			const object_kind *k_ptr = &object_type::k_info[o_ptr->k_idx];
-			o_ptr->timeout += k_ptr->time_base + k_ptr->time.damroll();
+			o_ptr->timeout += k_ptr->time.damroll();
 		}
 	}
 	else if (_use == USE_SINGLE)
@@ -2676,7 +2651,7 @@ void do_cmd_use(object_type *o_ptr, int item, int snd, use_type _use)
 	}
 }
 
-static cptr act_description[ACT_MAX] =
+static const char* const act_description[ACT_MAX] =
 {
 	"illumination",
 	"magic mapping",
@@ -2737,13 +2712,13 @@ static cptr act_description[ACT_MAX] =
  */
 void describe_item_activation(const object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b f[OBJECT_FLAG_STRICT_UB];
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, f);
 
 	/* Require activation ability */
-	if (!(f3 & TR3_ACTIVATE)) return;
+	if (!(f[2] & TR3_ACTIVATE)) return;
 
 	/* Artifact activations */
 	if (o_ptr->name1)
@@ -2757,33 +2732,33 @@ void describe_item_activation(const object_type *o_ptr)
 		text_out(act_description[a_ptr->activation]);
 
 		/* Output the number of turns */
-		if (a_ptr->time_base)
+		if (a_ptr->time.base)
 		{
-			if (0<a_ptr->time.maxroll())
+			if (0<a_ptr->time.range.maxroll())
 			{
-				if (1==a_ptr->time.dice)
+				if (1==a_ptr->time.range.dice)
 				{
-					text_out(format(" every %d+d%d turns", (int)(a_ptr->time_base), (int)(a_ptr->time.sides)));
+					text_out(format(" every %d+d%d turns", (int)(a_ptr->time.base), (int)(a_ptr->time.range.sides)));
 				}
 				else
 				{
-					text_out(format(" every %d+%dd%d turns", (int)(a_ptr->time_base), (int)(a_ptr->time.dice), (int)(a_ptr->time.sides)));
+					text_out(format(" every %d+%dd%d turns", (int)(a_ptr->time.base), (int)(a_ptr->time.range.dice), (int)(a_ptr->time.range.sides)));
 				}
 			}
 			else
 			{
-				text_out(format(" every %d turns", (int)(a_ptr->time_base)));
+				text_out(format(" every %d turns", (int)(a_ptr->time.base)));
 			}
 		}
-		else if (0<a_ptr->time.maxroll())
+		else if (0<a_ptr->time.range.maxroll())
 		{
-			if (1==a_ptr->time.dice)
+			if (1==a_ptr->time.range.dice)
 			{
-				text_out(format(" every d%d turns", (int)(a_ptr->time.sides)));
+				text_out(format(" every d%d turns", (int)(a_ptr->time.range.sides)));
 			}
 			else
 			{
-				text_out(format(" every %dd%d turns", (int)(a_ptr->time.dice), (int)(a_ptr->time.sides)));
+				text_out(format(" every %dd%d turns", (int)(a_ptr->time.range.dice), (int)(a_ptr->time.range.sides)));
 			}
 		}
 

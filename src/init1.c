@@ -3,13 +3,20 @@
 /*
  * Copyright (c) 1997 Ben Harrison
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
-
+#include "tvalsval.h"
 
 /*
  * This file is used to initialize various variables and arrays for the
@@ -55,7 +62,7 @@
 /*
  * Monster Blow Methods
  */
-static cptr r_info_blow_method[] =
+static const char* const r_info_blow_method[] =
 {
 	"",
 	"HIT",
@@ -122,7 +129,7 @@ static cptr r_info_blow_method[] =
 /*
  * Monster Blow Effects
  */
-static cptr r_info_blow_effect[] =
+static const char* const r_info_blow_effect[] =
 {
 	"",
 	"HURT",
@@ -161,7 +168,7 @@ static cptr r_info_blow_effect[] =
 /*
  * Monster race flags
  */
-static cptr r_info_flags1[] =
+static const char* const r_info_flags1[] =
 {
 	"UNIQUE",
 	"QUESTOR",
@@ -200,7 +207,7 @@ static cptr r_info_flags1[] =
 /*
  * Monster race flags
  */
-static cptr r_info_flags2[] =
+static const char* const r_info_flags2[] =
 {
 	"STUPID",
 	"SMART",
@@ -239,7 +246,7 @@ static cptr r_info_flags2[] =
 /*
  * Monster race flags
  */
-static cptr r_info_flags3[] =
+static const char* const r_info_flags3[] =
 {
 	"ORC",
 	"TROLL",
@@ -278,7 +285,7 @@ static cptr r_info_flags3[] =
 /*
  * Monster race flags
  */
-static cptr r_info_flags4[] =
+static const char* const r_info_flags4[] =
 {
 	"SHRIEK",
 	"XXX2X4",
@@ -317,7 +324,7 @@ static cptr r_info_flags4[] =
 /*
  * Monster race flags
  */
-static cptr r_info_flags5[] =
+static const char* const r_info_flags5[] =
 {
 	"BA_ACID",
 	"BA_ELEC",
@@ -356,7 +363,7 @@ static cptr r_info_flags5[] =
 /*
  * Monster race flags
  */
-static cptr r_info_flags6[] =
+static const char* const r_info_flags6[] =
 {
 	"HASTE",
 	"XXX1X6",
@@ -396,7 +403,7 @@ static cptr r_info_flags6[] =
 /*
  * Object flags
  */
-static cptr k_info_flags1[] =
+static const char* const k_info_flags1[] =
 {
 	"STR",
 	"INT",
@@ -435,7 +442,7 @@ static cptr k_info_flags1[] =
 /*
  * Object flags
  */
-static cptr k_info_flags2[] =
+static const char* const k_info_flags2[] =
 {
 	"SUST_STR",
 	"SUST_INT",
@@ -474,7 +481,7 @@ static cptr k_info_flags2[] =
 /*
  * Object flags
  */
-static cptr k_info_flags3[] =
+static const char* const k_info_flags3[] =
 {
 	"SLOW_DIGEST",
 	"FEATHER",
@@ -514,7 +521,7 @@ static cptr k_info_flags3[] =
 /*
  * Activation type
  */
-static cptr a_info_act[ACT_MAX] =
+static const char* const a_info_act[ACT_MAX] =
 {
 	"ILLUMINATION",
 	"MAGIC_MAP",
@@ -572,7 +579,7 @@ static cptr a_info_act[ACT_MAX] =
 /*
  * Class flags
  */
-static cptr c_info_flags[] =
+static const char* const c_info_flags[] =
 {
 	"EXTRA_SHOT",
 	"BRAVERY_30",
@@ -803,7 +810,7 @@ errr init_info_txt(FILE *fp, char *buf, header *head,
  * Returns FALSE when there isn't enough space available to store
  * the text.
  */
-static bool add_text(u32b *offset, header *head, cptr buf)
+static bool add_text(u32b *offset, header *head, const char* const buf)
 {
 	/* Hack -- Verify space */
 	if (head->text_size + strlen(buf) + 8 > z_info->fake_text_size)
@@ -833,7 +840,7 @@ static bool add_text(u32b *offset, header *head, cptr buf)
  * Returns 0 when there isn't enough space available to store
  * the name.
  */
-static u32b add_name(header *head, cptr buf)
+static u32b add_name(header *head, const char* const buf)
 {
 	u32b index;
 
@@ -1118,6 +1125,7 @@ errr parse_f_info(char *buf, header *head)
 		if (!f_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		if (!parse_integer_like(buf+2,f_ptr->mimic)) return (PARSE_ERROR_GENERIC);
+		if (f_ptr->mimic >= z_info->f_max) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Process 'G' for "Graphics" (one line only) */
@@ -1173,7 +1181,7 @@ errr parse_f_info(char *buf, header *head)
 /*
  * Grab one flag from a textual string
  */
-static errr grab_one_flag(u32b *flags, cptr names[], cptr what)
+static errr grab_one_flag(u32b *flags, const char* const names[], const char* const what)
 {
 	int i;
 
@@ -1190,26 +1198,30 @@ static errr grab_one_flag(u32b *flags, cptr names[], cptr what)
 	return (-1);
 }
 
+static errr grab_object_flag(u32b* flags,const char* const what,const char* const err_str)
+{
+	if (grab_one_flag(&flags[0], k_info_flags1, what) == 0)
+		return (0);
+
+	if (grab_one_flag(&flags[1], k_info_flags2, what) == 0)
+		return (0);
+
+	if (grab_one_flag(&flags[2], k_info_flags3, what) == 0)
+		return (0);
+
+	/* Oops */
+	msg_format(err_str, what);
+
+	/* Error */
+	return (PARSE_ERROR_GENERIC);
+}
 
 /*
  * Grab one flag in an object_kind from a textual string
  */
-static errr grab_one_kind_flag(object_kind *k_ptr, cptr what)
+static errr grab_one_kind_flag(object_kind *k_ptr, const char* const what)
 {
-	if (grab_one_flag(&k_ptr->flags1, k_info_flags1, what) == 0)
-		return (0);
-
-	if (grab_one_flag(&k_ptr->flags2, k_info_flags2, what) == 0)
-		return (0);
-
-	if (grab_one_flag(&k_ptr->flags3, k_info_flags3, what) == 0)
-		return (0);
-
-	/* Oops */
-	msg_format("Unknown object flag '%s'.", what);
-
-	/* Error */
-	return (PARSE_ERROR_GENERIC);
+	return grab_object_flag(k_ptr->flags,what,"Unknown object flag '%s'.");
 }
 
 
@@ -1310,6 +1322,9 @@ errr parse_k_info(char *buf, header *head)
 
 		/* Scan for the values */
 		if (!parse_integer_like(buf+2,k_ptr->tval,k_ptr->sval,k_ptr->pval)) return (PARSE_ERROR_GENERIC);
+
+		/* rod charging algorithm takes division-by-zero on pval, would be weird with negative pval */
+		if (TV_ROD == k_ptr->tval && 0 >= k_ptr->pval) {plog("Rods must have positive pval"); return (PARSE_ERROR_GENERIC);};
 	}
 
 	/* Process 'W' for "More Info" (one line only) */
@@ -1432,29 +1447,16 @@ errr parse_k_info(char *buf, header *head)
 /*
  * Grab one flag in an artifact_type from a textual string
  */
-static errr grab_one_artifact_flag(artifact_type *a_ptr, cptr what)
+static errr grab_one_artifact_flag(artifact_type *a_ptr, const char* const what)
 {
-	if (grab_one_flag(&a_ptr->flags1, k_info_flags1, what) == 0)
-		return (0);
-
-	if (grab_one_flag(&a_ptr->flags2, k_info_flags2, what) == 0)
-		return (0);
-
-	if (grab_one_flag(&a_ptr->flags3, k_info_flags3, what) == 0)
-		return (0);
-
-	/* Oops */
-	msg_format("Unknown artifact flag '%s'.", what);
-
-	/* Error */
-	return (PARSE_ERROR_GENERIC);
+	return grab_object_flag(a_ptr->flags,what,"Unknown artifact flag '%s'.");
 }
 
 
 /*
  * Grab one activation from a textual string
  */
-static errr grab_one_activation(artifact_type *a_ptr, cptr what)
+static errr grab_one_activation(artifact_type *a_ptr, const char* const what)
 {
 	int i;
 
@@ -1525,7 +1527,7 @@ errr parse_a_info(char *buf, header *head)
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 
 		/* Ignore everything */
-		a_ptr->flags3 |= (TR3_IGNORE_MASK);
+		a_ptr->flags[2] |= (TR3_IGNORE_MASK);
 	}
 
 	/* Process 'I' for "Info" (one line only) */
@@ -1623,9 +1625,9 @@ errr parse_a_info(char *buf, header *head)
 			            &time, &rand)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
-		a_ptr->time_base = time;
-		a_ptr->time.dice = 1;
-		a_ptr->time.sides = rand;
+		a_ptr->time.base = time;
+		a_ptr->time.range.dice = 1;
+		a_ptr->time.range.sides = rand;
 	}
 
 	/* Process 'D' for "Description" */
@@ -1656,22 +1658,9 @@ errr parse_a_info(char *buf, header *head)
 /*
  * Grab one flag in a ego-item_type from a textual string
  */
-static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what)
+static bool grab_one_ego_item_flag(ego_item_type *e_ptr, const char* const what)
 {
-	if (grab_one_flag(&e_ptr->flags1, k_info_flags1, what) == 0)
-		return (0);
-
-	if (grab_one_flag(&e_ptr->flags2, k_info_flags2, what) == 0)
-		return (0);
-
-	if (grab_one_flag(&e_ptr->flags3, k_info_flags3, what) == 0)
-		return (0);
-
-	/* Oops */
-	msg_format("Unknown ego-item flag '%s'.", what);
-
-	/* Error */
-	return (PARSE_ERROR_GENERIC);
+	return grab_object_flag(e_ptr->flags,what,"Unknown ego-item flag '%s'.");
 }
 
 
@@ -1833,15 +1822,15 @@ errr parse_e_info(char *buf, header *head)
 /*
  * Grab one (basic) flag in a monster_race from a textual string
  */
-static errr grab_one_basic_flag(monster_race *r_ptr, cptr what)
+static errr grab_one_basic_flag(monster_race *r_ptr, const char* const what)
 {
-	if (grab_one_flag(&r_ptr->flags1, r_info_flags1, what) == 0)
+	if (grab_one_flag(&r_ptr->flags[0], r_info_flags1, what) == 0)
 		return (0);
 
-	if (grab_one_flag(&r_ptr->flags2, r_info_flags2, what) == 0)
+	if (grab_one_flag(&r_ptr->flags[1], r_info_flags2, what) == 0)
 		return (0);
 
-	if (grab_one_flag(&r_ptr->flags3, r_info_flags3, what) == 0)
+	if (grab_one_flag(&r_ptr->flags[2], r_info_flags3, what) == 0)
 		return (0);
 
 	/* Oops */
@@ -1855,15 +1844,15 @@ static errr grab_one_basic_flag(monster_race *r_ptr, cptr what)
 /*
  * Grab one (spell) flag in a monster_race from a textual string
  */
-static errr grab_one_spell_flag(monster_race *r_ptr, cptr what)
+static errr grab_one_spell_flag(monster_race *r_ptr, const char* const what)
 {
-	if (grab_one_flag(&r_ptr->flags4, r_info_flags4, what) == 0)
+	if (grab_one_flag(&r_ptr->flags[3], r_info_flags4, what) == 0)
 		return (0);
 
-	if (grab_one_flag(&r_ptr->flags5, r_info_flags5, what) == 0)
+	if (grab_one_flag(&r_ptr->flags[4], r_info_flags5, what) == 0)
 		return (0);
 
-	if (grab_one_flag(&r_ptr->flags6, r_info_flags6, what) == 0)
+	if (grab_one_flag(&r_ptr->flags[5], r_info_flags6, what) == 0)
 		return (0);
 
 	/* Oops */
@@ -2190,22 +2179,9 @@ errr parse_r_info(char *buf, header *head)
 /*
  * Grab one flag in a player_race from a textual string
  */
-static errr grab_one_racial_flag(player_race *pr_ptr, cptr what)
+static errr grab_one_racial_flag(player_race *pr_ptr, const char* const what)
 {
-	if (grab_one_flag(&pr_ptr->flags1, k_info_flags1, what) == 0)
-		return (0);
-
-	if (grab_one_flag(&pr_ptr->flags2, k_info_flags2, what) == 0)
-		return (0);
-
-	if (grab_one_flag(&pr_ptr->flags3, k_info_flags3, what) == 0)
-		return (0);
-
-	/* Oops */
-	msg_format("Unknown player flag '%s'.", what);
-
-	/* Error */
-	return (PARSE_ERROR_GENERIC);
+	return grab_object_flag(pr_ptr->flags,what,"Unknown player flag '%s'.");
 }
 
 /*
@@ -2432,7 +2408,7 @@ errr parse_p_info(char *buf, header *head)
 /*
  * Grab one flag in a player class from a textual string
  */
-static errr grab_one_class_flag(player_class *pc_ptr, cptr what)
+static errr grab_one_class_flag(player_class *pc_ptr, const char* const what)
 {
 	if (grab_one_flag(&pc_ptr->flags, c_info_flags, what) == 0)
 		return (0);

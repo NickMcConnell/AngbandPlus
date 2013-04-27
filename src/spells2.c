@@ -3,15 +3,31 @@
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
+#include "project.h"
+#include "raceflag.h"
+#include "tvalsval.h"
+
 #include "keypad.h"
 
-
+/*
+ * Bit flags for the "enchant()" function
+ */
+#define ENCH_TOHIT   0x01
+#define ENCH_TODAM   0x02
+#define ENCH_TOAC    0x04
 
 
 /*
@@ -34,9 +50,6 @@ bool hp_player(int num)
 
 		/* Redraw */
 		p_ptr->redraw |= (PR_HP);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 
 		/* Heal 0-4 */
 		if (num < 5)
@@ -97,7 +110,7 @@ void warding_glyph(void)
 /*
  * Array of stat "descriptions"
  */
-static cptr desc_stat_pos[] =
+static const char* const desc_stat_pos[] =
 {
 	"strong",
 	"smart",
@@ -111,7 +124,7 @@ static cptr desc_stat_pos[] =
 /*
  * Array of stat "descriptions"
  */
-static cptr desc_stat_neg[] =
+static const char* const desc_stat_neg[] =
 {
 	"weak",
 	"stupid",
@@ -214,13 +227,13 @@ void identify_pack(void)
 {
 	int i;
 
-	/* Simply identify and know every item */
-	for (i = 0; i < INVEN_TOTAL; i++)
-	{
-		object_type *o_ptr = &p_ptr->inventory[i];
+	assert(0 <= p_ptr->inven_cnt && INVEN_PACK >= p_ptr->inven_cnt && "precondition");
+	assert(p_ptr->inven_cnt_is_strict_UB_of_nonzero_k_idx() && "precondition");
 
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
+	/* Simply identify and know every item */
+	for (i = 0; i < p_ptr->inven_cnt; ++i)
+	{
+		object_type* const o_ptr = &p_ptr->inventory[i];
 
 		/* Aware and Known */
 		object_aware(o_ptr);
@@ -234,7 +247,7 @@ void identify_pack(void)
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
 }
 
 
@@ -283,9 +296,9 @@ static int remove_curse_aux(bool all)
 	/* Attempt to uncurse items being worn */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
-		u32b f1, f2, f3;
+		u32b f[OBJECT_FLAG_STRICT_UB];
 
-		object_type *o_ptr = &p_ptr->inventory[i];
+		object_type* const o_ptr = &p_ptr->inventory[i];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
@@ -294,13 +307,13 @@ static int remove_curse_aux(bool all)
 		if (!o_ptr->is_cursed()) continue;
 
 		/* Extract the flags */
-		object_flags(o_ptr, &f1, &f2, &f3);
+		object_flags(o_ptr, f);
 
 		/* Heavily Cursed Items need a special spell */
-		if (!all && (f3 & (TR3_HEAVY_CURSE))) continue;
+		if (!all && (f[2] & (TR3_HEAVY_CURSE))) continue;
 
 		/* Perma-Cursed Items can NEVER be uncursed */
-		if (f3 & (TR3_PERMA_CURSE)) continue;
+		if (f[2] & (TR3_PERMA_CURSE)) continue;
 
 		/* Uncurse the object */
 		uncurse_object(o_ptr);
@@ -309,7 +322,7 @@ static int remove_curse_aux(bool all)
 		p_ptr->update |= (PU_BONUS);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_EQUIP);
+		p_ptr->redraw |= (PR_EQUIP);
 
 		/* Count the uncursings */
 		cnt++;
@@ -380,18 +393,19 @@ bool restore_level(void)
 void self_knowledge(void)
 {
 	int i = 0, j, k;
+	int max_x = Term->hgt - 2;
 
-	u32b f1 = 0L, f2 = 0L, f3 = 0L;
+	u32b f[OBJECT_FLAG_STRICT_UB];
 
-	object_type *o_ptr;
+	const object_type* o_ptr;
 
-	cptr info[128];
+	const char* info[128];
 
 
 	/* Get item flags from equipment */
 	for (k = INVEN_WIELD; k < INVEN_TOTAL; k++)
 	{
-		u32b t1, t2, t3;
+		u32b t[OBJECT_FLAG_STRICT_UB];
 
 		o_ptr = &p_ptr->inventory[k];
 
@@ -399,12 +413,11 @@ void self_knowledge(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Extract the flags */
-		object_flags(o_ptr, &t1, &t2, &t3);
+		object_flags(o_ptr, t);
 
 		/* Extract flags */
-		f1 |= t1;
-		f2 |= t2;
-		f3 |= t3;
+		for (i = 0; i < OBJECT_FLAG_STRICT_UB; ++i)
+			f[i] |= t[i];
 	}
 
 
@@ -656,60 +669,60 @@ void self_knowledge(void)
 		info[i++] = "Your charisma is sustained.";
 	}
 
-	if (f1 & (TR1_STR))
+	if (f[0] & (TR1_STR))
 	{
 		info[i++] = "Your strength is affected by your equipment.";
 	}
-	if (f1 & (TR1_INT))
+	if (f[0] & (TR1_INT))
 	{
 		info[i++] = "Your intelligence is affected by your equipment.";
 	}
-	if (f1 & (TR1_WIS))
+	if (f[0] & (TR1_WIS))
 	{
 		info[i++] = "Your wisdom is affected by your equipment.";
 	}
-	if (f1 & (TR1_DEX))
+	if (f[0] & (TR1_DEX))
 	{
 		info[i++] = "Your dexterity is affected by your equipment.";
 	}
-	if (f1 & (TR1_CON))
+	if (f[0] & (TR1_CON))
 	{
 		info[i++] = "Your constitution is affected by your equipment.";
 	}
-	if (f1 & (TR1_CHR))
+	if (f[0] & (TR1_CHR))
 	{
 		info[i++] = "Your charisma is affected by your equipment.";
 	}
 
-	if (f1 & (TR1_STEALTH))
+	if (f[0] & (TR1_STEALTH))
 	{
 		info[i++] = "Your stealth is affected by your equipment.";
 	}
-	if (f1 & (TR1_SEARCH))
+	if (f[0] & (TR1_SEARCH))
 	{
 		info[i++] = "Your searching ability is affected by your equipment.";
 	}
-	if (f1 & (TR1_INFRA))
+	if (f[0] & (TR1_INFRA))
 	{
 		info[i++] = "Your infravision is affected by your equipment.";
 	}
-	if (f1 & (TR1_TUNNEL))
+	if (f[0] & (TR1_TUNNEL))
 	{
 		info[i++] = "Your digging ability is affected by your equipment.";
 	}
-	if (f1 & (TR1_SPEED))
+	if (f[0] & (TR1_SPEED))
 	{
 		info[i++] = "Your speed is affected by your equipment.";
 	}
-	if (f1 & (TR1_BLOWS))
+	if (f[0] & (TR1_BLOWS))
 	{
 		info[i++] = "Your attack speed is affected by your equipment.";
 	}
-	if (f1 & (TR1_SHOTS))
+	if (f[0] & (TR1_SHOTS))
 	{
 		info[i++] = "Your shooting speed is affected by your equipment.";
 	}
-	if (f1 & (TR1_MIGHT))
+	if (f[0] & (TR1_MIGHT))
 	{
 		info[i++] = "Your shooting might is affected by your equipment.";
 	}
@@ -722,84 +735,84 @@ void self_knowledge(void)
 	if (o_ptr->k_idx)
 	{
 		/* Special "Attack Bonuses" */
-		if (f1 & (TR1_BRAND_ACID))
+		if (f[0] & (TR1_BRAND_ACID))
 		{
 			info[i++] = "Your weapon melts your foes.";
 		}
-		if (f1 & (TR1_BRAND_ELEC))
+		if (f[0] & (TR1_BRAND_ELEC))
 		{
 			info[i++] = "Your weapon shocks your foes.";
 		}
-		if (f1 & (TR1_BRAND_FIRE))
+		if (f[0] & (TR1_BRAND_FIRE))
 		{
 			info[i++] = "Your weapon burns your foes.";
 		}
-		if (f1 & (TR1_BRAND_COLD))
+		if (f[0] & (TR1_BRAND_COLD))
 		{
 			info[i++] = "Your weapon freezes your foes.";
 		}
-		if (f1 & (TR1_BRAND_POIS))
+		if (f[0] & (TR1_BRAND_POIS))
 		{
 			info[i++] = "Your weapon poisons your foes.";
 		}
 
 		/* Special "slay" flags */
-		if (f1 & (TR1_SLAY_ANIMAL))
+		if (f[0] & (TR1_SLAY_ANIMAL))
 		{
 			info[i++] = "Your weapon strikes at animals with extra force.";
 		}
-		if (f1 & (TR1_SLAY_EVIL))
+		if (f[0] & (TR1_SLAY_EVIL))
 		{
 			info[i++] = "Your weapon strikes at evil with extra force.";
 		}
-		if (f1 & (TR1_SLAY_UNDEAD))
+		if (f[0] & (TR1_SLAY_UNDEAD))
 		{
 			info[i++] = "Your weapon strikes at undead with holy wrath.";
 		}
-		if (f1 & (TR1_SLAY_DEMON))
+		if (f[0] & (TR1_SLAY_DEMON))
 		{
 			info[i++] = "Your weapon strikes at demons with holy wrath.";
 		}
-		if (f1 & (TR1_SLAY_ORC))
+		if (f[0] & (TR1_SLAY_ORC))
 		{
 			info[i++] = "Your weapon is especially deadly against orcs.";
 		}
-		if (f1 & (TR1_SLAY_TROLL))
+		if (f[0] & (TR1_SLAY_TROLL))
 		{
 			info[i++] = "Your weapon is especially deadly against trolls.";
 		}
-		if (f1 & (TR1_SLAY_GIANT))
+		if (f[0] & (TR1_SLAY_GIANT))
 		{
 			info[i++] = "Your weapon is especially deadly against giants.";
 		}
-		if (f1 & (TR1_SLAY_DRAGON))
+		if (f[0] & (TR1_SLAY_DRAGON))
 		{
 			info[i++] = "Your weapon is especially deadly against dragons.";
 		}
 
 		/* Special "kill" flags */
-		if (f1 & (TR1_KILL_DRAGON))
+		if (f[0] & (TR1_KILL_DRAGON))
 		{
 			info[i++] = "Your weapon is a great bane of dragons.";
 		}
-		if (f1 & (TR1_KILL_DEMON))
+		if (f[0] & (TR1_KILL_DEMON))
 		{
 			info[i++] = "Your weapon is a great bane of demons.";
 		}
-		if (f1 & (TR1_KILL_UNDEAD))
+		if (f[0] & (TR1_KILL_UNDEAD))
 		{
 			info[i++] = "Your weapon is a great bane of undead.";
 		}
 
 
 		/* Indicate Blessing */
-		if (f3 & (TR3_BLESSED))
+		if (f[2] & (TR3_BLESSED))
 		{
 			info[i++] = "Your weapon has been blessed by the gods.";
 		}
 
 		/* Hack */
-		if (f3 & (TR3_IMPACT))
+		if (f[2] & (TR3_IMPACT))
 		{
 			info[i++] = "Your weapon can induce earthquakes.";
 		}
@@ -823,7 +836,7 @@ void self_knowledge(void)
 		prt(info[j], k++, 0);
 
 		/* Page wrap */
-		if ((k == 22) && (j+1 < i))
+		if ((k >= max_x) && (j+1 < i))
 		{
 			prt("-- more --", k, 0);
 			inkey();
@@ -863,7 +876,7 @@ bool lose_all_info(void)
 	/* Forget info about objects */
 	for (i = 0; i < INVEN_TOTAL; i++)
 	{
-		object_type *o_ptr = &p_ptr->inventory[i];
+		object_type* const o_ptr = &p_ptr->inventory[i];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
@@ -885,7 +898,7 @@ bool lose_all_info(void)
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
 
 	/* Mega-Hack -- Forget the map */
 	wiz_dark();
@@ -939,7 +952,7 @@ void set_recall(void)
  * true is returned iff any map cell on which test was applied, had a return value of true
  * if true is to be returned, and detect_text is not-NULL, then the message in detect_text is displayed.
  */
-bool detect_on_panel(coord_action* test,cptr detect_text)
+bool detect_on_panel(coord_action* test,const char* detect_text)
 {
 	coord t;
 	bool detect = false;
@@ -1105,7 +1118,7 @@ bool detect_treasure(void)
  * true is returned iff any object on which test was applied, had a return value of true
  * if true is to be returned, and detect_text is not-NULL, then the message in detect_text is displayed.
  */
-bool object_scan(object_action* test,cptr detect_text)
+bool object_scan(object_action* test,const char* detect_text)
 {
 	int i;
 	bool detect = false;
@@ -1242,7 +1255,7 @@ bool detect_objects_magic(void)
  * true is returned iff any monster on which test was applied, had a return value of true
  * if true is to be returned, and detect_text is not-NULL, then the message in detect_text is displayed.
  */
-bool monster_scan(monster_action* test,cptr detect_text)
+bool monster_scan(monster_action* test,const char* detect_text)
 {
 	int i;
 	bool detect = false;
@@ -1252,7 +1265,7 @@ bool monster_scan(monster_action* test,cptr detect_text)
 
 	for (i = 1; i < mon_max; i++)
 	{
-		/* Skip dead objects */
+		/* Skip dead monsters */
 		if (!mon_list[i].r_idx) continue;
 		if (test(mon_list[i])) detect = true;
 	}
@@ -1275,7 +1288,7 @@ static bool detect_normal_monster(monster_type& m)
 	if (!panel_contains(m.loc)) return false;
 
 	/* Detect all non-invisible monsters */
-	if (!(r_ptr->flags2 & (RF2_INVISIBLE)))
+	if (!(r_ptr->flags[1] & RF1_INVISIBLE))
 	{
 		/* Optimize -- Repair flags */
 		repair_mflag_mark = repair_mflag_show = TRUE;
@@ -1309,17 +1322,13 @@ static bool detect_invisible_monster(monster_type& m)
 	if (!panel_contains(m.loc)) return false;
 
 	/* Detect invisible monsters */
-	if (r_ptr->flags2 & (RF2_INVISIBLE))
+	if (r_ptr->flags[2] & RF1_INVISIBLE)
 	{
 		/* Take note that they are invisible */
-		l_ptr->flags2 |= (RF2_INVISIBLE);
+		l_ptr->flags[2] |= RF1_INVISIBLE;
 
 		/* Update monster recall window */
-		if (p_ptr->monster_race_idx == m.r_idx)
-		{
-			/* Window stuff */
-			p_ptr->window |= (PW_MONSTER);
-		}
+		if (p_ptr->monster_race_idx == m.r_idx) p_ptr->redraw |= (PR_MONSTER);
 
 		/* Optimize -- Repair flags */
 		repair_mflag_mark = repair_mflag_show = TRUE;
@@ -1328,7 +1337,7 @@ static bool detect_invisible_monster(monster_type& m)
 		m.mflag |= (MFLAG_MARK | MFLAG_SHOW);
 
 		/* Update the monster */
-		update_mon(&m-mon_list, FALSE);	/* XXX probably not DOS-friendly XXX */
+		update_mon(&m-mon_list, FALSE);
 
 		/* Detect */
 		return true;
@@ -1353,17 +1362,13 @@ static bool detect_evil_monster(monster_type& m)
 	if (!panel_contains(m.loc)) return false;
 
 	/* Detect evil monsters */
-	if (r_ptr->flags3 & (RF3_EVIL))
+	if (r_ptr->flags[2] & RF2_EVIL)
 	{
 		/* Take note that they are evil */
-		l_ptr->flags3 |= (RF3_EVIL);
+		l_ptr->flags[2] |= RF2_EVIL;
 
 		/* Update monster recall window */
-		if (p_ptr->monster_race_idx == m.r_idx)
-		{
-			/* Window stuff */
-			p_ptr->window |= (PW_MONSTER);
-		}
+		if (p_ptr->monster_race_idx == m.r_idx) p_ptr->redraw |= (PR_MONSTER);
 
 		/* Optimize -- Repair flags */
 		repair_mflag_mark = repair_mflag_show = TRUE;
@@ -1532,7 +1537,7 @@ static bool item_tester_unknown_star(const object_type *o_ptr)
  * Note that this function can now be used on "piles" of items, and
  * the larger the pile, the lower the chance of success.
  */
-bool enchant(object_type *o_ptr, int n, int eflag)
+static bool enchant(object_type *o_ptr, int n, int eflag)
 {
 	int i, chance, prob;
 
@@ -1540,10 +1545,10 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 
 	bool a = o_ptr->is_artifact();
 
-	u32b f1, f2, f3;
+	u32b f[OBJECT_FLAG_STRICT_UB];
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, f);
 
 
 	/* Large piles resist enchantment */
@@ -1580,7 +1585,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 
 				/* Break curse */
 				if (o_ptr->is_cursed() &&
-				    (!(f3 & (TR3_PERMA_CURSE))) &&
+				    (!(f[2] & (TR3_PERMA_CURSE))) &&
 				    (o_ptr->to_h >= 0) && one_in_(4))
 				{
 					msg_print("The curse is broken!");
@@ -1608,7 +1613,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 
 				/* Break curse */
 				if (o_ptr->is_cursed() &&
-				    (!(f3 & (TR3_PERMA_CURSE))) &&
+				    (!(f[2] & (TR3_PERMA_CURSE))) &&
 				    (o_ptr->to_d >= 0) && one_in_(4))
 				{
 					msg_print("The curse is broken!");
@@ -1636,7 +1641,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 
 				/* Break curse */
 				if (o_ptr->is_cursed() &&
-				    (!(f3 & (TR3_PERMA_CURSE))) &&
+				    (!(f[2] & (TR3_PERMA_CURSE))) &&
 				    (o_ptr->to_a >= 0) && one_in_(4))
 				{
 					msg_print("The curse is broken!");
@@ -1658,7 +1663,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
 
 	/* Success */
 	return (TRUE);
@@ -1680,8 +1685,8 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 
 	char o_name[80];
 
-	cptr q = "Enchant which item? ";
-	cptr s = "You have nothing to enchant.";
+	const char* q = "Enchant which item? ";
+	const char* s = "You have nothing to enchant.";
 
 
 	/* Assume enchant weapon */
@@ -1697,7 +1702,7 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 	o_ptr = get_o_ptr_from_inventory_or_floor(item);
 
 	/* Description */
-	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
+	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, ODESC_BASE);
 
 	/* Describe */
 	msg_format("%s %s glow%s brightly!",
@@ -1737,8 +1742,8 @@ bool ident_spell(void)
 
 	char o_name[80];
 
-	cptr q = "Identify which item? ";
-	cptr s = "You have nothing to identify.";
+	const char* q = "Identify which item? ";
+	const char* s = "You have nothing to identify.";
 
 	/* Only un-id'ed items */
 	item_tester_hook = item_tester_unknown;
@@ -1760,10 +1765,10 @@ bool ident_spell(void)
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
 
 	/* Description */
-	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, ODESC_FULL);
 
 	/* Possibly play a sound depending on object quality. */
 	if (o_ptr->pval < 0) 
@@ -1818,8 +1823,8 @@ bool identify_fully(void)
 
 	char o_name[80];
 
-	cptr q = "Identify which item? ";
-	cptr s = "You have nothing to identify.";
+	const char* q = "Identify which item? ";
+	const char* s = "You have nothing to identify.";
 
 	/* Only un-*id*'ed items */
 	item_tester_hook = item_tester_unknown_star;
@@ -1844,13 +1849,13 @@ bool identify_fully(void)
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
 
 	/* Handle stuff */
 	handle_stuff();
 
 	/* Description */
-	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, ODESC_FULL);
 
 	/* Possibly play a sound depending on object quality. */
 	if (o_ptr->pval < 0) 
@@ -1932,8 +1937,8 @@ bool recharge(int num)
 
 	object_type *o_ptr;
 
-	cptr q = "Recharge which item? ";
-	cptr s = "You have nothing to recharge.";
+	const char* q = "Recharge which item? ";
+	const char* s = "You have nothing to recharge.";
 
 
 	/* Only accept legal items */
@@ -2007,7 +2012,7 @@ bool recharge(int num)
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN);
+	p_ptr->redraw |= (PR_INVEN);
 
 	/* Something was done */
 	return (TRUE);
@@ -2163,10 +2168,10 @@ void aggravate_monsters(int who)
 		if (player_has_los_bold(m_ptr->loc.y, m_ptr->loc.x))
 		{
 			/* Speed up (instantly) to racial base + 10 */
-			if (m_ptr->mspeed < r_ptr->speed + 10)
+			if (m_ptr->speed < r_ptr->speed + 10)
 			{
 				/* Speed up */
-				m_ptr->mspeed = r_ptr->speed + 10;
+				m_ptr->speed = r_ptr->speed + 10;
 				speed = TRUE;
 			}
 		}
@@ -2185,7 +2190,6 @@ void aggravate_monsters(int who)
 bool banishment(void)
 {
 	int i;
-
 	char typ;
 
 
@@ -2199,50 +2203,39 @@ bool banishment(void)
 		monster_type *m_ptr = &mon_list[i];
 		monster_race *r_ptr = m_ptr->race();
 
-		/* Paranoia -- Skip dead monsters */
-		if (!m_ptr->r_idx) continue;
+		if (!m_ptr->r_idx) continue;	/* Paranoia -- Skip dead monsters */
 
 		/* Hack -- Skip Unique Monsters */
-		if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
+		if (r_ptr->flags[0] & RF0_UNIQUE) continue;
 
-		/* Skip "wrong" monsters */
-		if (r_ptr->d_char != typ) continue;
-
-		/* Delete the monster */
-		delete_monster_idx(i);
+		if (r_ptr->d_char != typ) continue;	/* Skip "wrong" monsters */
+		delete_monster_idx(i);				/* Delete the monster */
 
 		/* Take some damage */
 		take_hit(randint(4), "the strain of casting Banishment");
 	}
 
-	/* Update monster list window */
-	p_ptr->window |= PW_MONLIST;
-
-	/* Success */
-	return TRUE;
+	p_ptr->redraw |= PR_MONLIST;	/* Update monster list window */
+	return TRUE;					/* Success */
 }
 
 static bool mass_banish_monster(monster_type& m)
 {
-	monster_race *r_ptr = m.race();
+	const monster_race* const r_ptr = m.race();
 
-	/* Paranoia -- Skip dead monsters */
-	if (!m.r_idx) return false;
+	
+	if (!m.r_idx) return false;	/* Paranoia -- Skip dead monsters */
 
 	/* Hack -- Skip unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return false;
+	if (r_ptr->flags[0] & RF0_UNIQUE) return false;
 
-	/* Skip distant monsters */
-	if (m.cdis > MAX_SIGHT) return false;
-
-	/* Delete the monster */
-	delete_monster_idx(&m-mon_list);
+	if (m.cdis > MAX_SIGHT) return false;	/* Skip distant monsters */
+	delete_monster_idx(&m-mon_list);		/* Delete the monster */
 
 	/* Take some damage */
 	take_hit(randint(3), "the strain of casting Mass Banishment");
 
-	/* Note effect */
-	return true;
+	return true;	/* Note effect */
 }
 
 /*
@@ -2253,7 +2246,7 @@ bool mass_banishment(void)
 	bool result = monster_scan(mass_banish_monster);
 
 	/* Update monster list window */
-	if (result) p_ptr->window |= PW_MONLIST;
+	if (result) p_ptr->redraw |= PR_MONLIST;
 
 	return (result);
 }
@@ -2272,10 +2265,10 @@ static bool probe_monster(monster_type& m)
 		char m_name[80];
 
 		/* Get "the monster" or "something" */
-		monster_desc(m_name, sizeof(m_name), &m, 0x04);
+		monster_desc(m_name, sizeof(m_name), &m, MDESC_IND1);
 
 		/* Describe the monster */
-		msg_format("%^s has %d hit points.", m_name, m.hp);
+		msg_format("%^s has %d hit points.", m_name, m.chp);
 
 		/* Learn all of the non-spell, non-treasure flags */
 		lore_do_probe(&m-mon_list);	/* XXX not DOS friendly XXX */
@@ -2354,7 +2347,7 @@ void destroy_area(coord g, int r, bool full)
 			if (tt==g) continue;
 
 			/* Delete the monster (if any) */
-			delete_monster(tt.y, tt.x);
+			delete_monster(tt);
 
 			/* Destroy "valid" grids */
 			if (cave_valid_bold(tt.y, tt.x))
@@ -2410,14 +2403,11 @@ void destroy_area(coord g, int r, bool full)
 	}
 
 
-	/* Fully update the visuals; fully update the flow */
+	/* Fully update the visuals and flow */
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS | PU_FORGET_FLOW | PU_UPDATE_FLOW);
 
-	/* Redraw map */
-	p_ptr->redraw |= (PR_MAP);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD | PW_MAP | PW_MONLIST);
+	/* Redraw map, monster list */
+	p_ptr->redraw |= (PR_MAP | PR_MONLIST);
 }
 
 
@@ -2569,14 +2559,14 @@ void earthquake(coord g, int r)
 				case 2:
 				{
 					msg_print("You are bashed by rubble!");
-					damage = damroll(10, 4);
+					damage = NdS(10, 4);
 					(void)p_ptr->inc_timed<TMD_STUN>(randint(50));
 					break;
 				}
 				case 3:
 				{
 					msg_print("You are crushed between the floor and ceiling!");
-					damage = damroll(10, 4);
+					damage = NdS(10, 4);
 					(void)p_ptr->inc_timed<TMD_STUN>(randint(50));
 					break;
 				}
@@ -2609,8 +2599,7 @@ void earthquake(coord g, int r)
 				monster_race *r_ptr = m_ptr->race();
 
 				/* Most monsters cannot co-exist with rock */
-				if (!(r_ptr->flags2 & (RF2_KILL_WALL)) &&
-				    !(r_ptr->flags2 & (RF2_PASS_WALL)))
+				if (!(r_ptr->flags[1] & (RF1_KILL_WALL | RF1_PASS_WALL)))
 				{
 					char m_name[80];
 
@@ -2618,7 +2607,7 @@ void earthquake(coord g, int r)
 					sn = 0;
 
 					/* Monster can move to escape the wall */
-					if (!(r_ptr->flags1 & (RF1_NEVER_MOVE)))
+					if (!(r_ptr->flags[0] & RF0_NEVER_MOVE))
 					{
 						/* Look for safety */
 						for (i = 0; i < KEYPAD_DIR_MAX; i++)
@@ -2649,22 +2638,22 @@ void earthquake(coord g, int r)
 					msg_format("%^s wails out in pain!", m_name);
 
 					/* Take damage from the quake */
-					damage = (sn ? damroll(4, 8) : (m_ptr->hp + 1));
+					damage = (sn ? NdS(4, 8) : (m_ptr->chp + 1));
 
 					/* Monster is certainly awake */
 					m_ptr->csleep = 0;
 
 					/* Apply damage directly */
-					m_ptr->hp -= damage;
+					m_ptr->chp -= damage;
 
 					/* Delete (not kill) "dead" monsters */
-					if (m_ptr->hp < 0)
+					if (m_ptr->chp < 0)
 					{
 						/* Message */
 						msg_format("%^s is embedded in the rock!", m_name);
 
 						/* Delete the monster */
-						delete_monster(tt.y, tt.x);
+						delete_monster(tt);
 
 						/* No longer safe */
 						sn = 0;
@@ -2743,20 +2732,11 @@ void earthquake(coord g, int r)
 	}
 
 
-	/* Fully update the visuals */
-	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+	/* Fully update the visuals and flow */
+	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS | PU_FORGET_FLOW | PU_UPDATE_FLOW);
 
-	/* Fully update the flow */
-	p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
-
-	/* Redraw map */
-	p_ptr->redraw |= (PR_MAP);
-
-	/* Update the health bar */
-	p_ptr->redraw |= (PR_HEALTH);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD | PW_MAP | PW_MONLIST);
+	/* Redraw map, monster list, health bar */
+	p_ptr->redraw |= (PR_MAP | PR_MONLIST | PR_HEALTH);
 }
 
 
@@ -2815,13 +2795,13 @@ static void cave_temp_room_lite(void)
 			monster_race *r_ptr = m_ptr->race();
 
 			/* Stupid monsters rarely wake up */
-			if (r_ptr->flags2 & (RF2_STUPID)) chance = 10;
+			if (r_ptr->flags[1] & RF1_STUPID) chance = 10;
 
 			/* Smart monsters always wake up */
-			if (r_ptr->flags2 & (RF2_SMART)) chance = 100;
+			if (r_ptr->flags[1] & RF1_SMART) chance = 100;
 
 			/* Sometimes monsters wake up */
-			if (m_ptr->csleep && (rand_int(100) < chance))
+			if (m_ptr->csleep && ((100<=chance) || (rand_int(100) < chance)))
 			{
 				/* Wake up! */
 				m_ptr->csleep = 0;
@@ -3148,12 +3128,12 @@ bool fire_bolt_or_beam(int prob, int typ, int dir, int dam)
 
 bool lite_line(int dir)
 {
-	return (project_hook(GF_LITE_WEAK, dir, damroll(6, 8), PROJECT_BEAM | PROJECT_GRID | PROJECT_KILL));
+	return (project_hook(GF_LITE_WEAK, dir, NdS(6, 8), PROJECT_BEAM | PROJECT_GRID | PROJECT_KILL));
 }
 
 bool strong_lite_line(int dir)
 {
-	return (project_hook(GF_LITE, dir, damroll(10, 8), PROJECT_BEAM | PROJECT_GRID | PROJECT_KILL));
+	return (project_hook(GF_LITE, dir, NdS(10, 8), PROJECT_BEAM | PROJECT_GRID | PROJECT_KILL));
 }
 
 bool drain_life(int dir, int dam)
@@ -3178,7 +3158,7 @@ bool disarm_trap(int dir)
 
 bool heal_monster(int dir)
 {
-	return (project_hook(GF_OLD_HEAL, dir, damroll(4, 6), PROJECT_STOP | PROJECT_KILL));
+	return (project_hook(GF_OLD_HEAL, dir, NdS(4, 6), PROJECT_STOP | PROJECT_KILL));
 }
 
 bool speed_monster(int dir)
@@ -3253,7 +3233,7 @@ bool sleep_monsters_touch(void)
  */
 bool curse_armor(void)
 {
-	object_type *o_ptr = &p_ptr->inventory[INVEN_BODY];	/* Curse the body armor */
+	object_type* const o_ptr = &p_ptr->inventory[INVEN_BODY];	/* Curse the body armor */
 
 	char o_name[80];
 
@@ -3262,7 +3242,7 @@ bool curse_armor(void)
 
 
 	/* Describe */
-	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 3);
+	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, ODESC_FULL);
 
 	/* Attempt a saving throw for artifacts */
 	if (o_ptr->is_artifact() && one_in_(2))
@@ -3300,7 +3280,7 @@ bool curse_armor(void)
 		p_ptr->update |= (PU_MANA);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+		p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
 	}
 
 	return (TRUE);
@@ -3321,7 +3301,7 @@ bool curse_weapon(void)
 
 
 	/* Describe */
-	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 3);
+	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, ODESC_FULL);
 
 	/* Attempt a saving throw */
 	if (o_ptr->is_artifact() && one_in_(2))
@@ -3359,7 +3339,7 @@ bool curse_weapon(void)
 		p_ptr->update |= (PU_MANA);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+		p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
 	}
 
 	/* Notice */
@@ -3380,10 +3360,10 @@ void brand_object(object_type *o_ptr, byte brand_type)
 	    !o_ptr->is_artifact() && !o_ptr->is_ego_item() &&
 	    !o_ptr->is_broken_or_cursed())
 	{
-		cptr act = "magical";
+		const char* act = "magical";
 		char o_name[80];
 
-		object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
+		object_desc(o_name, sizeof(o_name), o_ptr, FALSE, ODESC_BASE);
 
 		switch (brand_type)
 		{
@@ -3411,7 +3391,7 @@ void brand_object(object_type *o_ptr, byte brand_type)
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+		p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
 	
 		/* Enchant */
 		enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
@@ -3429,7 +3409,7 @@ void brand_object(object_type *o_ptr, byte brand_type)
  */
 void brand_weapon(void)
 {
-	object_type *o_ptr = &p_ptr->inventory[INVEN_WIELD];
+	object_type* const o_ptr = &p_ptr->inventory[INVEN_WIELD];
 	byte brand_type = one_in_(4) ? EGO_BRAND_FIRE : EGO_BRAND_COLD;	/* Select a brand */
 
 	/* Brand the weapon */
@@ -3463,8 +3443,8 @@ bool brand_ammo(void)
 {
 	int item;
 	object_type *o_ptr;
-	cptr q = "Brand which kind of ammunition? ";
-	cptr s = "You have nothing to brand.";
+	const char* q = "Brand which kind of ammunition? ";
+	const char* s = "You have nothing to brand.";
 	int r;
 	byte brand_type;
 
@@ -3502,8 +3482,8 @@ bool brand_bolts(void)
 {
 	int item;
 	object_type *o_ptr;
-	cptr q = "Brand which bolts? ";
-	cptr s = "You have no bolts to brand.";
+	const char* q = "Brand which bolts? ";
+	const char* s = "You have no bolts to brand.";
 
 	/* Restrict choices to bolts */
 	item_tester_tval = TV_BOLT;

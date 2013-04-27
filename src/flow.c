@@ -18,19 +18,15 @@
 #define distance V_distance
 #endif
 
-/*
- * raw indexes a "distance square" with sides 2*range+1.  Logical 0 is the midpoint.
- * range is the range to be flowed.  Should be between 1 and 127.
- * start is the starting coordinate in the actual map.
- * test is a terrain-approval function.
- * 
- * This is essentially a Djikstra implementation, with some enhancements.
- *
- * 0 is unreachable.  Other values are effectively steps+1 to reach.
- */
+#include "rational.hpp"
+using zaiband::rational;
 
 #define WRAPQUEUE_LEN 4*254+1
 
+/*
+ * This is essentially a Djikstra implementation, with some enhancements.
+ * goal_cond and goal_target both dominate test
+ */
 void flow_from(unsigned char* raw,unsigned char range,coord g,coord_action* test,coord_action* goal_cond,const coord* goal_target)
 {
 	coord_delta wrap_queue[WRAPQUEUE_LEN];
@@ -213,6 +209,15 @@ size_t squares_in_view_octagon(int range)
 	return count;
 }
 
+/** initialize a coordinate list for a view octagon
+ *
+ * \param coord_list initialize coordinate list here.  Memory allocation is the caller's problem.
+ * \param src
+ * \param range maximum distance of a square to consider
+ * \param[out] StrictUB how many squares we actually initialized
+ * \param height map height
+ * \param width map width
+ */
 void check_these_for_view(coord* coord_list,coord src, int range, size_t& StrictUB, int height, int width)
 {
 	assert(NULL!=coord_list);
@@ -280,37 +285,106 @@ void check_these_for_view(coord* coord_list,coord src, int range, size_t& Strict
 	}
 }
 
-static int project_path_aux(coord* gp, const coord g1, int ax, int ay, int sx, int sy, int range, const coord g2, bool stop_dest, coord_action* stop_terrain)
+static void project_path_aux_pathgen(coord* gp, const coord g1, int range, coord_scan a, coord_delta s, bool x_init, bool y_init)
+{
+	if (!x_init)
+	{
+		int frac = 0;
+		int i = 0;
+		gp[0].x = g1.x;
+		frac += a.x;
+		if (2*frac>a.y)
+		{
+			gp[i].x += s.x;
+			frac -= a.y;
+		}
+		while(++i<range)
+		{
+			gp[i].x = gp[i-1].x;
+			frac += a.x;
+			if (2*frac>a.y)
+			{
+				gp[i].x += s.x;
+				frac -= a.y;
+			}
+		}
+	}
+	if (!y_init)
+	{
+		int frac = 0;
+		int i = 0;
+		gp[0].y = g1.y;
+		frac += a.y;
+		if (2*frac>a.x)
+		{
+			gp[i].y += s.y;
+			frac -= a.x;
+		}
+		while(++i<range)
+		{
+			gp[i].y = gp[i-1].y;
+			frac += a.y;
+			if (2*frac>a.x)
+			{
+				gp[i].y += s.y;
+				frac -= a.x;
+			}
+		}
+	}
+}
+
+static int project_path_aux_pathtest(const coord* gp, const coord g1, const coord g2, int range, bool stop_dest, coord_action* stop_terrain)
+{
+	int n = 0;
+	/* XXX suboptimal, could lift stop_dest test out and fork loops XXX */
+	do	{
+		/* Sometimes stop at destination grid */
+		if (g2==gp[n])
+		{
+			if (stop_dest) {++n; break;}
+		}
+
+		/* stop on blocking terrain */
+		if (stop_terrain(gp[n])) {++n; break;};
+		}
+	while(++n<range && (int)distance(gp[n],g1)<range);
+	return n;
+}
+
+static int project_path_aux(coord* gp, const coord g1, coord_delta s, int range, const coord g2, bool stop_dest, coord_action* stop_terrain)
 {
 	int i;
 	int n = 0;
+	const coord_scan ref_a(abs((int)(g2.x)-(int)(g1.x)),abs((int)(g2.y)-(int)(g1.y)));
+	coord_scan a(ref_a);
+	const int g2_offset = ((a.x > a.y) ? a.x : a.y)-1;	/* XXX would like std::max or related XXX */
 
 	bool x_init = false;
 	bool y_init = false;
-	bool hit_target = false;
+	const bool x_large = (a.x > a.y);
 
 	/* defaults */
-	if (ax >= ay)
+	if (a.x >= a.y)
 	{
 		i = 0;
-		gp[0].x = g1.x+sx;
+		gp[0].x = g1.x+s.x;
 		while(++i<range)
 		{
-			gp[i].x = gp[i-1].x + sx;
+			gp[i].x = gp[i-1].x + s.x;
 		}
 		x_init = true;
 	}
-	if (ay >= ax)
+	if (a.y >= a.x)
 	{
 		i = 0;
-		gp[0].y = g1.y+sy;
+		gp[0].y = g1.y+s.y;
 		while(++i<range)
 		{
-			gp[i].y = gp[i-1].y + sy;
+			gp[i].y = gp[i-1].y + s.y;
 		}		
 		y_init = true;
 	}
-	if (0 == ax)
+	if (0 == a.x)
 	{
 		i = 0;
 		do	{
@@ -319,7 +393,7 @@ static int project_path_aux(coord* gp, const coord g1, int ax, int ay, int sx, i
 		while(++i<range);
 		x_init = true;
 	}
-	if (0 == ay)
+	if (0 == a.y)
 	{
 		i = 0;
 		do	{
@@ -328,106 +402,221 @@ static int project_path_aux(coord* gp, const coord g1, int ax, int ay, int sx, i
 		while(++i<range);
 		y_init = true;
 	}
-Retry_path:
-	if (!x_init)
-	{
-		int frac = 0;
-		i = 0;
-		gp[0].x = g1.x;
-		frac += ax;
-		if (2*frac>ay)
-		{
-			gp[i].x += sx;
-			frac -= ay;
-		}
-		while(++i<range)
-		{
-			gp[i].x = gp[i-1].x;
-			frac += ax;
-			if (2*frac>ay)
-			{
-				gp[i].x += sx;
-				frac -= ay;
-			}
-		}
-	}
-	if (!y_init)
-	{
-		int frac = 0;
-		i = 0;
-		gp[0].y = g1.y;
-		frac += ay;
-		if (2*frac>ax)
-		{
-			gp[i].y += sy;
-			frac -= ax;
-		}
-		while(++i<range)
-		{
-			gp[i].y = gp[i-1].y;
-			frac += ay;
-			if (2*frac>ax)
-			{
-				gp[i].y += sy;
-				frac -= ax;
-			}
-		}
-	}
+	project_path_aux_pathgen(gp, g1, range, a, s, x_init, y_init);
+
+	/* g2 should be at the obvious location of the path */
+	assert(g2==gp[g2_offset]);
+	if (g2!=gp[g2_offset]) return 1;
 
 	/* now have default path, determine whether it works */
-	n = 0;
-	do	{
-		/* Sometimes stop at destination grid */
-		if (g2==gp[n])
+	n = project_path_aux_pathtest(gp, g1, g2, range, stop_dest, stop_terrain);
+
+	/* do not try to fix uncorrectable compass-direction paths */
+	/* if we hit the target, return now */
+	if (0==a.x || 0==a.y || a.x==a.y || g2_offset<n) return n;
+
+	/* try to fix this */
+	if (1 == a.y && 3 <= a.x)
+	{	/* horizontal trick shot, fixable */
+		while(g1.y!=gp[n-1].y)
 		{
-			hit_target = true;
-			if (stop_dest) {++n; break;}
-		}
+			a.x = 2*n+1;
+			project_path_aux_pathgen(gp, g1, range, a, s, x_init, y_init);
 
-		/* stop on blocking terrain */
-		if (stop_terrain(gp[n])) {++n; break;};
-		}
-	while(++n<range && distance(gp[n],g1)<range);
+			/* g2 should be at the obvious location of the path */
+			assert(g2==gp[g2_offset]);
+			if (g2!=gp[g2_offset]) return 1;
 
-	if (!hit_target && 0 != ax && 0 != ay)
-	{	/* try to fix this */
-		--n;
-		if (1 == ay && 3 <= ax && g1.y!=gp[n].y)
-		{	/* horizontal trick shot, fixable */
-			ax = 2*n+3;
-			goto Retry_path;	
+			n = project_path_aux_pathtest(gp, g1, g2, range, stop_dest, stop_terrain);
+			if (g2_offset<n) return n;
 		}
-		if (1 == ax && 3 <= ay && g1.x!=gp[n].x)
-		{	/* vertical trick shot, fixable */
-			ay = 2*n+3;
-			goto Retry_path;	
-		}
-		if (ax < ay && 1 == ay-ax && abs((int)gp[n].x-g1.x) != abs((int)gp[n].y-g1.y))
-		{	/* diagonal trick shot, includes reversing knight-move */
-			ay = 2*n+3;
-			ax = ay-1;
-			goto Retry_path;
-		}
-		if (ay < ax && 1 == ax-ay && abs((int)gp[n].x-g1.x) != abs((int)gp[n].y-g1.y))
-		{	/* diagonal trick shot #2,  includes reversing knight-move*/
-			ax = 2*n+3;
-			ay = ax-1;
-			goto Retry_path;
-		}
-		++n;
 	}
+	if (1 == a.x && 3 <= a.y)
+	{	/* vertical trick shot, fixable */
+		while(g1.x!=gp[n-1].x)
+		{
+			a.y = 2*n+1;
+			project_path_aux_pathgen(gp, g1, range, a, s, x_init, y_init);
+
+			/* g2 should be at the obvious location of the path */
+			assert(g2==gp[g2_offset]);
+			if (g2!=gp[g2_offset]) return 1;
+
+			n = project_path_aux_pathtest(gp, g1, g2, range, stop_dest, stop_terrain);
+			if (g2_offset<n) return n;
+		}
+	}
+	if (a.x < a.y && 1 == a.y-a.x)
+	{	/* diagonal trick shot, includes reversing knight-move */
+		while(abs((int)gp[n-1].x-g1.x) != abs((int)gp[n-1].y-g1.y))
+		{
+			a.y = 2*n+1;
+			a.x = a.y-1;
+			project_path_aux_pathgen(gp, g1, range, a, s, x_init, y_init);
+
+			/* g2 should be at the obvious location of the path */
+			assert(g2==gp[g2_offset]);
+			if (g2!=gp[g2_offset]) return 1;
+
+			n = project_path_aux_pathtest(gp, g1, g2, range, stop_dest, stop_terrain);
+			if (g2_offset<n) return n;
+		}
+	}
+	if (a.y < a.x && 1 == a.x-a.y)
+	{	/* diagonal trick shot #2,  includes reversing knight-move*/
+		while(abs((int)gp[n-1].x-g1.x) != abs((int)gp[n-1].y-g1.y))
+		{
+			a.x = 2*n+1;
+			a.y = a.x-1;
+			project_path_aux_pathgen(gp, g1, range, a, s, x_init, y_init);
+
+			/* g2 should be at the obvious location of the path */
+			assert(g2==gp[g2_offset]);
+			if (g2!=gp[g2_offset]) return 1;
+
+			n = project_path_aux_pathtest(gp, g1, g2, range, stop_dest, stop_terrain);
+			if (g2_offset<n) return n;
+		}
+	}
+
+	assert(1<=g2_offset);
+
+	{
+	/* 
+     * Adapt some ideas from Tyrecius' permissive field of view.
+     */
+
+	/*
+     * We want ax, ay such that the number of side-steps taken at g2 is target.
+     * tripwire expression is 2*(g2_offset+1)*(small)/(large)
+     * C99 guarantees int supports at least 16 bits
+     */
+
+	/* Set up the incoming points */
+	const coord_scan sorted_ref_a((x_large) ? ref_a.x : ref_a.y ,(x_large) ? ref_a.y : ref_a.x);
+	coord_scan sorted_ref_a1(sorted_ref_a);
+	coord_scan sorted_ref_a2(sorted_ref_a);
+	coord g2_alt_1(g2);	/* favor basis */
+	coord g2_alt_2(g2);	/* favor diagonal */
+	rational<int> g2_tan_LB(2*sorted_ref_a.y-1,2*sorted_ref_a.x);	/* normally strict */
+	rational<int> g2_tan_UB(2*sorted_ref_a.y+1,2*sorted_ref_a.x);	/* normally non-strict */
+	const int max_safe_denominator = (32767/2)/sorted_ref_a.x;
+
+	if (max_safe_denominator <= sorted_ref_a.x) return n;	/* failed */
+
+	do	{
+		/* step the bounds back */
+		--sorted_ref_a1.x;
+		--sorted_ref_a2.x;
+		--sorted_ref_a2.y;
+
+		g2_alt_2 -= s;
+		if (x_large)
+		{
+			g2_alt_1.x -= s.x;		
+		}
+		else
+		{
+			g2_alt_1.y -= s.y;		
+		};
+	
+		/* reality checks */
+		/* tangents and terrain for g2_alt_1 */
+		{
+		rational<int> new_tan_LB(2*sorted_ref_a1.y-1,2*sorted_ref_a1.x);
+		rational<int> new_tan_UB(2*sorted_ref_a1.y+1,2*sorted_ref_a1.x);
+
+		while(new_tan_LB > g2_tan_UB || stop_terrain(g2_alt_1))
+		{
+			if (g2_alt_1==g2_alt_2) return n;	/* failed */
+
+			/* converge */
+			--sorted_ref_a1.y;
+			if (x_large)	
+			{
+				g2_alt_1.y -= s.y;		
+			}
+			else
+			{
+				g2_alt_1.x -= s.x;		
+			};		
+
+			new_tan_LB.assign(2*sorted_ref_a1.y-1,2*sorted_ref_a1.x);
+			new_tan_UB.assign(2*sorted_ref_a1.y+1,2*sorted_ref_a1.x);
+		}
+
+		if (new_tan_UB <= g2_tan_LB) return n;	/* failed */
+		if (g2_tan_UB > new_tan_UB) g2_tan_UB = new_tan_UB;
+		}
+
+		/* tangents and terrain for g2_alt_2 */
+		{
+		rational<int> new_tan_LB(2*sorted_ref_a2.y-1,2*sorted_ref_a2.x);
+		rational<int> new_tan_UB(2*sorted_ref_a2.y+1,2*sorted_ref_a2.x);
+
+		while(new_tan_UB <= g2_tan_LB || stop_terrain(g2_alt_2))
+		{
+			if (g2_alt_1==g2_alt_2) return n;	/* failed */
+
+			/* converge */
+			++sorted_ref_a2.y;
+			if (x_large)	
+			{
+				g2_alt_2.y += s.y;		
+			}
+			else
+			{
+				g2_alt_2.x += s.x;		
+			};		
+
+			new_tan_LB.assign(2*sorted_ref_a2.y-1,2*sorted_ref_a2.x);
+			new_tan_UB.assign(2*sorted_ref_a2.y+1,2*sorted_ref_a2.x);
+		}
+
+		if (new_tan_LB >= g2_tan_UB) return n;	/* failed */
+		if (g2_tan_LB < new_tan_LB) g2_tan_LB = new_tan_LB;
+		}
+		}
+	while(1<sorted_ref_a2.x);
+
+	/* now, find a suitable rational number with a safe denominator */
+	if (max_safe_denominator >= g2_tan_UB.denominator())
+	{	/* upper bound should work */
+		if (x_large)
+		{
+			a.x = g2_tan_UB.denominator();
+			a.y = g2_tan_UB.numerator();
+		}
+		else
+		{
+			a.x = g2_tan_UB.numerator();
+			a.y = g2_tan_UB.denominator();
+		}
+		project_path_aux_pathgen(gp, g1, range, a, s, x_init, y_init);
+
+		/* g2 should be at the obvious location of the path */
+		assert(g2==gp[g2_offset]);
+		if (g2!=gp[g2_offset]) return 1;
+
+		n = project_path_aux_pathtest(gp, g1, g2, range, stop_dest, stop_terrain);
+//		if (g2_offset<n) return n;
+	}
+	}
+
 	return n;
 }
 
-/*
- * Find the path taken by a projection, starting from g1 and intending to
- * pass through g2.  Enter one grid per unit of distance on major axis.  Stop 
- * on destination grid if stop_dest is true; stop on whatever terrain is indicated as impassable
- * by stop_terrain.  Path grids are saved into the grid array gp; memory allocation is the caller's problem.
+/**
+ * Find the path taken by a projection.
  *
- * stop_dest indicates whether the projection should stop on reaching its destination.
- * stop_terrain is a non-NULL function pointer evaluating whether the terrain in the grid stops the projection.
- * The return value is the number of grids in the path.  The path has zero length if and only if g1==g2.
+ * \param[out] gp save path grids here.  Memory allocation is the caller's problem. 
+ * \param range maximum range of path.  The distance function is a compile-time option.
+ * \param g1 starting coordinate
+ * \param g2 intend to pass through this coordinate
+ * \param stop_dest indicates whether the projection should stop on reaching its destination.
+ * \param stop_terrain is a non-NULL function pointer evaluating whether the terrain in the grid stops the projection.
+ *
+ * \return the number of grids in the path.  The path has zero length if and only if g1==g2.
  *
  * This function was designed to prevent the classic hockey puck corridor exploit.
  */
@@ -440,40 +629,31 @@ int project_path(coord *gp, int range, coord g1, coord g2, bool stop_dest, coord
 	if (g1==g2) return (0);
 
 	{ /* C-ish blocking brace */
-	/* Absolute */
-	int ay = 0;
-	int ax = 0;
-
 	/* Offsets */
-	int sy = 0;
-	int sx = 0;
+	coord_delta s(0,0);
 
 	/* Analyze "dy" */
 	if (g2.y < g1.y)
 	{
-		ay = (g1.y - g2.y);
-		sy = -1;
+		s.y = -1;
 	}
 	else if (g2.y > g1.y)
 	{
-		ay = (g2.y - g1.y);
-		sy = 1;
+		s.y = 1;
 	}
 
 	/* Analyze "dx" */
 	if (g2.x < g1.x)
 	{
-		ax = (g1.x - g2.x);
-		sx = -1;
+		s.x = -1;
 	}
 	else if (g2.x > g1.x)
 	{
-		ax = (g2.x - g1.x);
-		sx = 1;
+		s.x = 1;
 	}
 
 	/* Length */
-	return project_path_aux(gp,g1,ax,ay,sx,sy,range,g2,stop_dest,stop_terrain);
+	return project_path_aux(gp,g1,s,range,g2,stop_dest,stop_terrain);
 	} /* end blocking brace */
 }
 

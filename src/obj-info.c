@@ -1,21 +1,29 @@
 /* File: obj-info.c */
 
 /*
- * Copyright (c) 2002 Andrew Sidwell, Robert Ruehlmann
+ * Copyright (c) 2002-2007 Andrew Sidwell, Robert Ruehlmann
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
+#include "tvalsval.h"
 
 
 /* TRUE if a paragraph break should be output before next p_text_out() */
 static bool new_paragraph = FALSE;
 
 
-static void p_text_out(cptr str)
+static void p_text_out(const char* const str)
 {
 	if (new_paragraph)
 	{
@@ -27,11 +35,11 @@ static void p_text_out(cptr str)
 }
 
 
-static void output_list(cptr list[], int n)
+static void output_list(const char* const list[], int n)
 {
 	int i;
 
-	cptr conjunction = "and ";
+	const char* conjunction = "and ";
 
 	if (n < 0)
 	{
@@ -53,7 +61,7 @@ static void output_list(cptr list[], int n)
 }
 
 
-static void output_desc_list(cptr intro, cptr list[], int n)
+static void output_desc_list(const char* const intro, const char* const list[], int n)
 {
 	if (n != 0)
 	{
@@ -74,7 +82,7 @@ static void output_desc_list(cptr intro, cptr list[], int n)
  */
 static bool describe_stats(const object_type *o_ptr, u32b f1)
 {
-	cptr descs[A_MAX];
+	const char* descs[A_MAX];
 	int cnt = 0;
 	int pval = (o_ptr->pval > 0 ? o_ptr->pval : -o_ptr->pval);
 
@@ -118,7 +126,7 @@ static bool describe_stats(const object_type *o_ptr, u32b f1)
  */
 static bool describe_secondary(const object_type *o_ptr, u32b f1)
 {
-	cptr descs[8];
+	const char* descs[8];
 	int cnt = 0;
 	int pval = (o_ptr->pval > 0 ? o_ptr->pval : -o_ptr->pval);
 
@@ -154,7 +162,8 @@ static bool describe_secondary(const object_type *o_ptr, u32b f1)
  */
 static bool describe_slay(const object_type *o_ptr, u32b f1)
 {
-	cptr slays[8], execs[3];
+	const char* slays[8];
+	const char* execs[3];
 	int slcnt = 0, excnt = 0;
 
 	/* Unused parameter */
@@ -222,7 +231,7 @@ static bool describe_slay(const object_type *o_ptr, u32b f1)
  */
 static bool describe_brand(const object_type *o_ptr, u32b f1)
 {
-	cptr descs[5];
+	const char* descs[5];
 	int cnt = 0;
 
 	/* Unused parameter */
@@ -250,7 +259,7 @@ static bool describe_brand(const object_type *o_ptr, u32b f1)
  */
 static bool describe_immune(const object_type *o_ptr, u32b f2)
 {
-	cptr descs[4];
+	const char* descs[4];
 	int cnt = 0;
 
 	/* Unused parameter */
@@ -275,7 +284,7 @@ static bool describe_immune(const object_type *o_ptr, u32b f2)
  */
 static bool describe_resist(const object_type *o_ptr, u32b f2, u32b f3)
 {
-	cptr vp[17];
+	const char* vp[17];
 	int vn = 0;
 
 	/* Unused parameter */
@@ -318,7 +327,7 @@ static bool describe_resist(const object_type *o_ptr, u32b f2, u32b f3)
  */
 static bool describe_ignores(const object_type *o_ptr, u32b f3)
 {
-	cptr list[4];
+	const char* list[4];
 	int n = 0;
 
 	/* Unused parameter */
@@ -345,7 +354,7 @@ static bool describe_ignores(const object_type *o_ptr, u32b f3)
  */
 static bool describe_sustains(const object_type *o_ptr, u32b f2)
 {
-	cptr list[A_MAX];
+	const char* list[A_MAX];
 	int n = 0;
 
 	/* Unused parameter */
@@ -376,7 +385,8 @@ static bool describe_sustains(const object_type *o_ptr, u32b f2)
  */
 static bool describe_misc_magic(const object_type *o_ptr, u32b f3)
 {
-	cptr good[6], bad[4];
+	const char* good[6];
+	const char* bad[4];
 	int gc = 0, bc = 0;
 	bool something = FALSE;
 
@@ -473,23 +483,23 @@ static bool describe_activation(const object_type *o_ptr, u32b f3)
  */
 bool object_info_out(const object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b f[OBJECT_FLAG_STRICT_UB];
 	bool something = FALSE;
 
 	/* Grab the object flags */
-	object_info_out_flags(o_ptr, &f1, &f2, &f3);
+	object_info_out_flags(o_ptr, f);
 
 	/* Describe the object */
-	if (describe_stats(o_ptr, f1)) something = TRUE;
-	if (describe_secondary(o_ptr, f1)) something = TRUE;
-	if (describe_slay(o_ptr, f1)) something = TRUE;
-	if (describe_brand(o_ptr, f1)) something = TRUE;
-	if (describe_immune(o_ptr, f2)) something = TRUE;
-	if (describe_resist(o_ptr, f2, f3)) something = TRUE;
-	if (describe_sustains(o_ptr, f2)) something = TRUE;
-	if (describe_misc_magic(o_ptr, f3)) something = TRUE;
-	if (describe_activation(o_ptr, f3)) something = TRUE;
-	if (describe_ignores(o_ptr, f3)) something = TRUE;
+	if (describe_stats(o_ptr, f[0])) something = TRUE;
+	if (describe_secondary(o_ptr, f[0])) something = TRUE;
+	if (describe_slay(o_ptr, f[0])) something = TRUE;
+	if (describe_brand(o_ptr, f[0])) something = TRUE;
+	if (describe_immune(o_ptr, f[1])) something = TRUE;
+	if (describe_resist(o_ptr, f[1], f[2])) something = TRUE;
+	if (describe_sustains(o_ptr, f[1])) something = TRUE;
+	if (describe_misc_magic(o_ptr, f[2])) something = TRUE;
+	if (describe_activation(o_ptr, f[2])) something = TRUE;
+	if (describe_ignores(o_ptr, f[2])) something = TRUE;
 
 	/* Unknown extra powers (ego-item with random extras or artifact) */
 	if (o_ptr->known() && (!(o_ptr->ident & IDENT_MENTAL)) &&
@@ -523,7 +533,7 @@ static bool screen_out_head(const object_type *o_ptr)
 	o_name = C_RNEW(name_size, char);
 
 	/* Description */
-	object_desc(o_name, name_size, o_ptr, TRUE, 3);
+	object_desc(o_name, name_size, o_ptr, TRUE, ODESC_FULL);
 
 	/* Print, in colour */
 	text_out_c(TERM_YELLOW, format("%^s", o_name));

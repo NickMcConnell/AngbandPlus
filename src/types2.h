@@ -3,11 +3,15 @@
  *
  * Some auxilliary types
  *
- * This file is under the Boost License V1.0.
+ * Copyright (c) 2007 Kenneth Boyd.  This file is under the Boost License V1.0.
  */
 
 #ifndef TYPES2_H
 #define TYPES2_H 1
+
+typedef bool int_test(int i);
+
+#include "z-probability.h"
 
 /*
  * dungeon grid, and similar
@@ -60,6 +64,96 @@ typedef _grid<signed char> coord_delta;
 typedef _grid<signed int> coord_scan;
 
 typedef bool coord_action(coord g);
+
+/*
+ * typical formalisms for psuedo-random numbers
+ */
+struct dice_sides
+{
+	unsigned char dice;		/* dice */
+	unsigned char sides;	/* sides */
+
+	bool operator==(dice_sides RHS) const {return dice==RHS.dice && sides==RHS.sides;};
+	bool operator!=(dice_sides RHS) const {return !(*this==RHS);};
+
+	int maxroll() const {return (int)dice*(int)sides;};
+	/* these two are technically wrong when d!=0, s=0, but that's a degenerate case */
+	int minroll() const {return dice;};
+	int medianroll() const {return (int)dice*((int)sides+1)/2;};
+	int damroll() const {return NdS(dice,sides);};
+
+	void set(unsigned char _sides, unsigned char _dice)
+		{
+		dice = _dice;
+		sides = _sides;
+		};
+
+	/* STL interfaces */
+	void clear() {dice = 0; sides = 0;};
+};
+
+struct dice_large_sides
+{
+	unsigned short sides;	/* sides */
+	unsigned char dice;		/* dice */
+	unsigned char _unused;
+
+	bool operator==(dice_sides RHS) const {return dice==RHS.dice && sides==RHS.sides;};
+	bool operator!=(dice_sides RHS) const {return !(*this==RHS);};
+
+	int maxroll() const {return (int)dice*(int)sides;};
+	/* these two are technically wrong when d!=0, s=0, but that's a degenerate case */
+	int minroll() const {return dice;};
+	int medianroll() const {return (int)dice*((int)sides+1)/2;};
+	int damroll() const {return NdS(dice,sides);};
+
+	void set(unsigned short _sides, unsigned char _dice)
+		{
+		dice = _dice;
+		sides = _sides;
+		};
+
+	/* STL interfaces */
+	void clear() {dice = 0; sides = 0;};
+};
+
+struct range_spec
+{
+	unsigned short base;
+	dice_sides range;
+
+	int maxroll() const {return (int)base + range.maxroll();};
+	int minroll() const {return (int)base + range.minroll();};
+	int medianroll() const {return (int)base + range.medianroll();};
+
+	void set(unsigned short _base, unsigned char _dice, unsigned char _sides)
+		{
+		base = _base;
+		range.dice = _dice;
+		range.sides = _sides;
+		};
+
+	int damroll() const {return (int)base + range.damroll();};
+};
+
+struct range_large_spec
+{
+	dice_large_sides range;
+	unsigned short base;
+
+	int maxroll() const {return (int)base + range.maxroll();};
+	int minroll() const {return (int)base + range.minroll();};
+	int medianroll() const {return (int)base + range.medianroll();};
+
+	void set(unsigned short _base, unsigned char _dice, unsigned short _sides)
+		{
+		base = _base;
+		range.dice = _dice;
+		range.sides = _sides;
+		};
+
+	int damroll() const {return (int)base + range.damroll();};
+};
 
 /*
  * Some distance functions based on approximating distance as delta-y + delta-x/2.

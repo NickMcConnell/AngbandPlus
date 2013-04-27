@@ -26,7 +26,7 @@ static mem_free_hook rnfree_aux;
 static mem_realloc_hook realloc_aux;
 
 
-/*
+/**
  * Set the hooks for the memory system.
  */
 bool mem_set_hooks(mem_alloc_hook alloc, mem_free_hook free, mem_realloc_hook realloc)
@@ -43,14 +43,14 @@ bool mem_set_hooks(mem_alloc_hook alloc, mem_free_hook free, mem_realloc_hook re
 }
 
 
-/*
+/**
  * Allocate `len` bytes of memory.
  *
- * Returns:
+ * \return 
  *  - NULL if `len` == 0; or
  *  - a pointer to a block of memory of at least `len` bytes
  *
- * Doesn't return on out of memory.
+ * \return Doesn't return on out of memory.
  */
 void *mem_alloc(size_t len)
 {
@@ -70,10 +70,12 @@ void *mem_alloc(size_t len)
 }
 
 
-/*
+/**
  * Free the memory pointed to by `p`.
  *
- * Returns NULL.
+ * \return NULL.
+ *
+ * \todo eliminate the return value, it's redundant
  */
 void *mem_free(void *p)
 {
@@ -89,14 +91,14 @@ void *mem_free(void *p)
 }
 
 
-/*
+/**
  * Allocate `len` bytes of memory, copying whatever is in `p` with it.
  *
- * Returns:
+ * \return
  *  - NULL if `len` == 0 or `p` is NULL; or
  *  - a pointer to a block of memory of at least `len` bytes
  *
- * Doesn't return on out of memory.
+ * \return Doesn't return on out of memory.
  */
 void *mem_realloc(void *p, size_t len)
 {
@@ -116,7 +118,7 @@ void *mem_realloc(void *p, size_t len)
 
 
 
-/*
+/**
  * Duplicates an existing string `str`, allocating as much memory as necessary.
  */
 char *string_make(const char *str)

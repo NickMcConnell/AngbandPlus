@@ -2,18 +2,29 @@
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 2007 Andrew Sidwell
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
 #include "cmds.h"
+#include "game-event.h"
+#include "raceflag.h"
+#include "tvalsval.h"
 #include "z-quark.h"
 
 
-/*
+/**
  * Display inventory
  */
 void do_cmd_inven(void)
@@ -59,7 +70,7 @@ void do_cmd_inven(void)
 }
 
 
-/*
+/**
  * Display equipment
  */
 void do_cmd_equip(void)
@@ -105,7 +116,7 @@ void do_cmd_equip(void)
 }
 
 
-/*
+/**
  * Wield or wear a single item from the pack or floor
  */
 void wield_item(object_type *o_ptr, int item)
@@ -113,16 +124,17 @@ void wield_item(object_type *o_ptr, int item)
 	object_type object_type_body;
 	object_type *i_ptr = &object_type_body;
 
-	cptr act;
+	const char* act;
 	char o_name[80];
 
 	int slot = wield_slot(o_ptr);
+	assert((INVEN_PACK < slot) && (slot < INVEN_TOTAL) && "retval precondition");
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
 	/* Obtain local object */
-	COPY(i_ptr, o_ptr);
+	*i_ptr = *o_ptr;
 
 	/* Modify quantity */
 	i_ptr->number = 1;
@@ -152,7 +164,7 @@ void wield_item(object_type *o_ptr, int item)
 	}
 
 	/* Wear the new stuff */
-	COPY(o_ptr, i_ptr);
+	*o_ptr = *i_ptr;
 
 	/* Increase the weight */
 	p_ptr->total_weight += i_ptr->weight;
@@ -171,7 +183,7 @@ void wield_item(object_type *o_ptr, int item)
 		act = "You are wearing";
 
 	/* Describe the result */
-	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, ODESC_FULL);
 
 	/* Message */
 	sound(MSG_WIELD);
@@ -191,20 +203,14 @@ void wield_item(object_type *o_ptr, int item)
 #endif
 	}
 
-	/* Recalculate bonuses, torch, mana */
-//	p_ptr->update |= (PU_BONUS | PU_TORCH | PU_MANA);
-//	p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
-
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS | PU_TORCH | PU_MANA);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
-
-	p_ptr->redraw |= (PR_EQUIPPY);
+	p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
 }
 
-/*
+/**
  * Destroy an item
  */
 void do_cmd_destroy(void)
@@ -220,8 +226,8 @@ void do_cmd_destroy(void)
 
 	char out_val[160];
 
-	cptr q = "Destroy which item? ";
-	cptr s = "You have nothing to destroy.";
+	const char* q = "Destroy which item? ";
+	const char* s = "You have nothing to destroy.";
 
 
 	/* Get an item */
@@ -237,7 +243,7 @@ void do_cmd_destroy(void)
 	if (amt <= 0) return;
 
 	/* Obtain a local object */
-	COPY(i_ptr,o_ptr);
+	*i_ptr = *o_ptr;
 
 	if ((o_ptr->tval == TV_WAND) ||
 	    (o_ptr->tval == TV_STAFF) ||
@@ -251,7 +257,7 @@ void do_cmd_destroy(void)
 	i_ptr->number = amt;
 
 	/* Describe the destroyed object */
-	object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), i_ptr, TRUE, ODESC_FULL);
 
 	/* Verify destruction */
 	if (verify_destroy)
@@ -291,9 +297,7 @@ void do_cmd_destroy(void)
 		p_ptr->notice |= (PN_COMBINE);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
-		p_ptr->redraw |= (PR_EQUIPPY);
+		p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
 
 		/* Done */
 		return;
@@ -351,28 +355,24 @@ void refill_lamp(object_type *j_ptr, object_type *o_ptr, int item)
 		/* Unstack if necessary */
 		if (o_ptr->number > 1)
 		{
-			object_type object_type_body;
-			object_type *i_ptr = &object_type_body;	/* Get local object */
-
-			/* Obtain a local object */
-			COPY(i_ptr, o_ptr);
+			object_type tmp = *o_ptr;
 
 			/* Modify quantity */
-			i_ptr->number = 1;
+			tmp.number = 1;
 
 			/* Remove fuel */
-/*			i_ptr->timeout = 0; */
-			i_ptr->pval = 0;
+/*			tmp.timeout = 0; */
+			tmp.pval = 0;
 
 			/* Unstack the used item */
 			o_ptr->number--;
-			p_ptr->total_weight -= i_ptr->weight;
+			p_ptr->total_weight -= tmp.weight;
 
 			/* Carry or drop */
 			if (item >= 0)
-				item = inven_carry(i_ptr);
+				item = inven_carry(&tmp);
 			else
-				drop_near(i_ptr, 0, p_ptr->loc);
+				drop_near(&tmp, 0, p_ptr->loc);
 		}
 
 		/* Empty a single lantern */
@@ -387,8 +387,7 @@ void refill_lamp(object_type *j_ptr, object_type *o_ptr, int item)
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 		/* Redraw stuff */
-//		p_ptr->redraw |= (PR_INVEN);
-		p_ptr->window |= (PW_INVEN);
+		p_ptr->redraw |= (PR_INVEN);
 	}
 
 	/* Refilled from a flask */
@@ -415,8 +414,7 @@ void refill_lamp(object_type *j_ptr, object_type *o_ptr, int item)
 	p_ptr->update |= (PU_TORCH);
 
 	/* Redraw stuff */
-//	p_ptr->redraw |= (PR_EQUIP);
-	p_ptr->window |= (PW_EQUIP);
+	p_ptr->redraw |= (PR_EQUIP);
 }
 
 
@@ -467,14 +465,10 @@ void refuel_torch(object_type *j_ptr, object_type *o_ptr, int item)
 	p_ptr->update |= (PU_TORCH);
 
 	/* Redraw stuff */
-//	p_ptr->redraw |= (PR_EQUIP);
-	p_ptr->window |= (PW_EQUIP);
+	p_ptr->redraw |= (PR_EQUIP);
 }
 
 
-/*
- * Target command
- */
 void do_cmd_target(void)
 {
 	/* Target set */
@@ -492,9 +486,6 @@ void do_cmd_target(void)
 
 
 
-/*
- * Look command
- */
 void do_cmd_look(void)
 {
 	/* Look around */
@@ -506,7 +497,7 @@ void do_cmd_look(void)
 
 
 
-/*
+/**
  * Allow the player to examine other sectors on the map
  */
 void do_cmd_locate(void)
@@ -584,7 +575,7 @@ void do_cmd_locate(void)
 	}
 
 	/* Verify panel */
-	verify_panel();
+	event_signal(EVENT_PLAYERMOVED);
 }
 
 
@@ -596,7 +587,7 @@ void do_cmd_locate(void)
  * The table of "symbol info" -- each entry is a string of the form
  * "X:desc" where "X" is the trigger, and "desc" is the "info".
  */
-static cptr ident_info[] =
+static const char* const ident_info[] =
 {
 	" :A dark grid",
 	"!:A potion (or oil)",
@@ -698,7 +689,7 @@ static cptr ident_info[] =
 
 
 
-/*
+/**
  * Sorting hook -- Comp function -- see below
  *
  * We use "u" to point to array of monster indexes,
@@ -773,7 +764,7 @@ bool ang_sort_comp_hook(const void *u, const void *v, int a, int b)
 }
 
 
-/*
+/**
  * Sorting hook -- Swap function -- see below
  *
  * We use "u" to point to array of monster indexes,
@@ -795,7 +786,7 @@ void ang_sort_swap_hook(void *u, void *v, int a, int b)
 }
 
 
-/*
+/**
  * Identify a character, allow recall of monsters
  *
  * Several "special" responses recall "multiple" monsters:
@@ -874,10 +865,10 @@ void do_cmd_query_symbol(void)
 		if (!cheat_know && !l_ptr->sights) continue;
 
 		/* Require non-unique monsters if needed */
-		if (norm && (r_ptr->flags1 & (RF1_UNIQUE))) continue;
+		if (norm && (r_ptr->flags[0] & RF0_UNIQUE)) continue;
 
 		/* Require unique monsters if needed */
-		if (uniq && !(r_ptr->flags1 & (RF1_UNIQUE))) continue;
+		if (uniq && !(r_ptr->flags[0] & RF0_UNIQUE)) continue;
 
 		/* Collect "appropriate" monsters */
 		if (all || (r_ptr->d_char == sym)) who[n++] = i;

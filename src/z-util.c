@@ -1,26 +1,32 @@
 /* File: z-util.c */
+/* Purpose: Low level utilities -BEN- */
 
 /*
- * Copyright (c) 1997 Ben Harrison
+ * Copyright (c) 1997-2005 Ben Harrison, Robert Ruehlmann.
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
-
-/* Purpose: Low level utilities -BEN- */
 
 #include "z-util.h"
 
 
 
-/*
+/**
  * Convenient storage of the program name
  */
-cptr argv0 = NULL;
+const char* argv0 = NULL;
 
 
-/*
+/**
  * Case insensitive comparison between two strings
  */
 int my_stricmp(const char *s1, const char *s2)
@@ -55,12 +61,13 @@ int my_stricmp(const char *s1, const char *s2)
 }
 
 
-/*
+/**
  * Case insensitive comparison between the first n characters of two strings
  */
-int my_strnicmp(cptr a, cptr b, int n)
+int my_strnicmp(const char* a, const char* b, int n)
 {
-	cptr s1, s2;
+	const char* s1;
+	const char* s2;
 	char z1, z2;
 
 	/* Scan the strings */
@@ -77,15 +84,15 @@ int my_strnicmp(cptr a, cptr b, int n)
 }
 
 
-/*
+/**
  * The my_strcpy() function copies up to 'bufsize'-1 characters from 'src'
  * to 'buf' and NUL-terminates the result.  The 'buf' and 'src' strings may
  * not overlap.
  *
- * my_strcpy() returns strlen(src).  This makes checking for truncation
+ * \return my_strcpy() returns strlen(src).  This makes checking for truncation
  * easy.  Example: if (my_strcpy(buf, src, sizeof(buf)) >= sizeof(buf)) ...;
  *
- * This function should be equivalent to the strlcpy() function in BSD.
+ * \note This function should be equivalent to the strlcpy() function in BSD.
  */
 size_t my_strcpy(char *buf, const char *src, size_t bufsize)
 {
@@ -107,16 +114,16 @@ size_t my_strcpy(char *buf, const char *src, size_t bufsize)
 }
 
 
-/*
+/**
  * The my_strcat() tries to append a string to an existing NUL-terminated string.
  * It never writes more characters into the buffer than indicated by 'bufsize' and
  * NUL-terminates the buffer.  The 'buf' and 'src' strings may not overlap.
  *
- * my_strcat() returns strlen(buf) + strlen(src).  This makes checking for
+ * \return my_strcat() returns strlen(buf) + strlen(src).  This makes checking for
  * truncation easy.  Example:
  * if (my_strcat(buf, src, sizeof(buf)) >= sizeof(buf)) ...;
  *
- * This function should be equivalent to the strlcat() function in BSD.
+ * \note This function should be equivalent to the strlcat() function in BSD.
  */
 size_t my_strcat(char *buf, const char *src, size_t bufsize)
 {
@@ -136,10 +143,10 @@ size_t my_strcat(char *buf, const char *src, size_t bufsize)
 }
 
 
-/*
+/**
  * Determine if string "t" is a suffix of string "s"
  */
-bool suffix(cptr s, cptr t)
+bool suffix(const char* s, const char* t)
 {
 	size_t tlen = strlen(t);
 	size_t slen = strlen(s);
@@ -152,10 +159,10 @@ bool suffix(cptr s, cptr t)
 }
 
 
-/*
+/**
  * Determine if string "t" is a prefix of string "s"
  */
-bool prefix(cptr s, cptr t)
+bool prefix(const char* s, const char* t)
 {
 	/* Scan "t" */
 	while (*t)
@@ -170,16 +177,16 @@ bool prefix(cptr s, cptr t)
 
 
 
-/*
+/**
  * Redefinable "plog" action
  */
-void (*plog_aux)(cptr) = NULL;
+void (*plog_aux)(const char*) = NULL;
 
-/*
+/**
  * Print (or log) a "warning" message (ala "perror()")
  * Note the use of the (optional) "plog_aux" hook.
  */
-void plog(cptr str)
+void plog(const char* str)
 {
 	/* Use the "alternative" function if possible */
 	if (plog_aux) (*plog_aux)(str);
@@ -190,17 +197,17 @@ void plog(cptr str)
 
 
 
-/*
+/**
  * Redefinable "quit" action
  */
-void (*quit_aux)(cptr) = NULL;
+void (*quit_aux)(const char*) = NULL;
 
-/*
+/**
  * Exit (ala "exit()").  If 'str' is NULL, do "exit(EXIT_SUCCESS)".
  * Otherwise, plog() 'str' and exit with an error code of -1.
  * But always use 'quit_aux', if set, before anything else.
  */
-void quit(cptr str)
+void quit(const char* str)
 {
 	/* Attempt to use the aux function */
 	if (quit_aux) (*quit_aux)(str);
@@ -217,16 +224,16 @@ void quit(cptr str)
 
 
 
-/*
+/**
  * Redefinable "core" action
  */
-void (*core_aux)(cptr) = NULL;
+void (*core_aux)(const char*) = NULL;
 
-/*
+/**
  * Dump a core file, after printing a warning message
  * As with "quit()", try to use the "core_aux()" hook first.
  */
-void core(cptr str)
+void core(const char* str)
 {
 	char *crash = NULL;
 

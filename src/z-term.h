@@ -3,9 +3,16 @@
 /*
  * Copyright (c) 1997 Ben Harrison
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #ifndef INCLUDED_Z_TERM_H
@@ -14,12 +21,12 @@
 #include "h-basic.h"
 #include "ui-event.h"
 
+#ifndef __cplusplus
+typedef struct term_win term_win;
+#endif
 
-/*
+/**
  * A term_win is a "window" for a Term
- *
- *	- Cursor Useless/Visible codes
- *	- Cursor Location (see "Useless")
  *
  *	- Array[h] -- Access to the attribute array
  *	- Array[h] -- Access to the character array
@@ -27,207 +34,104 @@
  *	- Array[h*w] -- Attribute array
  *	- Array[h*w] -- Character array
  *
- *	- next screen saved
- *	- hook to be called on screen size change
- *
  * Note that the attr/char pair at (x,y) is a[y][x]/c[y][x]
  * and that the row of attr/chars at (0,y) is a[y]/c[y]
  */
 
-typedef struct term_win term_win;
-
 struct term_win
 {
-	bool cu, cv;
-	byte cx, cy;
+	bool cu;	/**< cursor useless */
+	bool cv;	/**< cursor visible */
+	byte cx, cy;	/* cursor location */
 
-	byte **a;
-	char **c;
+	byte **a;	/**< window access -- attribute */
+	char **c;	/**< window access -- character */
 
-	byte *va;
-	char *vc;
+	byte *va;	/**< window content -- attribute */
+	char *vc;	/**< window content -- character */
 
-	byte **ta;
-	char **tc;
+	byte **ta;	/**< terrain access -- attribute */
+	char **tc;	/**< terrain access -- character */
 
-	byte *vta;
-	char *vtc;
+	byte *vta;	/**< terrain content -- attribute */
+	char *vtc;	/**< terrain content -- character */
 
-	term_win *next;
-	void (*resize_hook)(void);
+	term_win *next;				/**< next screen saved */
+	void (*resize_hook)(void);	/**< hook to be called on screen size change */
 };
 
+#ifndef __cplusplus
+typedef struct term term;
+#endif
 
 /*
  * An actual "term" structure
- *
- *	- Extra "user" info (used by application)
- *
- *	- Extra "data" info (used by implementation)
- *
- *
- *	- Flag "user_flag"
- *	  An extra "user" flag (used by application)
- *
- *
- *	- Flag "data_flag"
- *	  An extra "data" flag (used by implementation)
- *
- *
- *	- Flag "active_flag"
- *	  This "term" is "active"
- *
- *	- Flag "mapped_flag"
- *	  This "term" is "mapped"
- *
- *	- Flag "total_erase"
- *	  This "term" should be fully erased
- *
- *	- Flag "fixed_shape"
- *	  This "term" is not allowed to resize
- *
- *	- Flag "icky_corner"
- *	  This "term" has an "icky" corner grid
- *
- *	- Flag "soft_cursor"
- *	  This "term" uses a "software" cursor
- *
- *	- Flag "always_pict"
- *	  Use the "Term_pict()" routine for all text
- *
- *	- Flag "higher_pict"
- *	  Use the "Term_pict()" routine for special text
- *
- *	- Flag "always_text"
- *	  Use the "Term_text()" routine for invisible text
- *
- *	- Flag "unused_flag"
- *	  Reserved for future use
- *
- *	- Flag "never_bored"
- *	  Never call the "TERM_XTRA_BORED" action
- *
- *	- Flag "never_frosh"
- *	  Never call the "TERM_XTRA_FROSH" action
- *
- *
- *	- Value "attr_blank"
- *	  Use this "attr" value for "blank" grids
- *
- *	- Value "char_blank"
- *	  Use this "char" value for "blank" grids
- *
- *
  *	- Ignore this pointer
  *
  *	- Keypress Queue -- various data
  *
  *	- Keypress Queue -- pending keys
- *
- *
- *	- Window Width (max 255)
- *	- Window Height (max 255)
- *
- *	- Minimum modified row
- *	- Maximum modified row
- *
- *	- Minimum modified column (per row)
- *	- Maximum modified column (per row)
- *
- *
- *	- Displayed screen image
- *	- Requested screen image
- *
- *	- Temporary screen image
- *	- Memorized screen image
- *
- *
- *	- Hook for init-ing the term
- *	- Hook for nuke-ing the term
- *
- *	- Hook for user actions
- *
- *	- Hook for extra actions
- *
- *	- Hook for placing the cursor
- *
- *	- Hook for drawing some blank spaces
- *
- *	- Hook for drawing a string of chars using an attr
- *
- *	- Hook for drawing a sequence of special attr/char pairs
  */
-
-typedef struct term term;
-
 struct term
 {
-	void *user;
+	void *user;			/**< Extra "user" info (used by application) */
+	void *data;			/**< Extra "data" info (used by implementation) */
 
-	void *data;
+	bool user_flag;		/**< An extra "user" flag (used by application) */
+	bool data_flag;		/**< An extra "data" flag (used by implementation) */
 
-	bool user_flag;
+	bool active_flag;	/**< This "term" is "active" */
+	bool mapped_flag;	/**< This "term" is "mapped" */
+	bool total_erase;	/**< This "term" should be fully erased */
+	bool fixed_shape;	/**< This "term" is not allowed to resize */
+	bool icky_corner;	/**< This "term" has an "icky" corner grid */
+	bool soft_cursor;	/**< This "term" uses a "software" cursor */
+	bool always_pict;	/**< Use the "Term_pict()" routine for all text */
+	bool higher_pict;	/**< Use the "Term_pict()" routine for special text */
+	bool always_text;	/**< Use the "Term_text()" routine for invisible text */
+	bool unused_flag;	/**< Reserved for future use */
+	bool never_bored;	/**< Never call the "TERM_XTRA_BORED" action */
+	bool never_frosh;	/**< Never call the "TERM_XTRA_FROSH" action */
 
-	bool data_flag;
+	byte attr_blank;	/**< Use this "attr" value for "blank" grids */
+	char char_blank;	/**< Use this "char" value for "blank" grids */
 
-	bool active_flag;
-	bool mapped_flag;
-	bool total_erase;
-	bool fixed_shape;
-	bool icky_corner;
-	bool soft_cursor;
-	bool always_pict;
-	bool higher_pict;
-	bool always_text;
-	bool unused_flag;
-	bool never_bored;
-	bool never_frosh;
+	ui_event_data *key_queue;	/**< data of key queue */
 
-	byte attr_blank;
-	char char_blank;
-
-	ui_event_data *key_queue;
-
-	u16b key_head;
-	u16b key_tail;
+	u16b key_head;		/**< head of key queue */
+	u16b key_tail;		/**< tail of key queue */
 	u16b key_xtra;
-	u16b key_size;
+	u16b key_size;		/**< maximum size of key queue */
 
-	byte wid;
-	byte hgt;
+	byte wid;			/**< Window Width (max 255) */
+	byte hgt;			/**< Window Height (max 255) */
 
-	byte y1;
-	byte y2;
+	byte y1;			/**< Minimum modified row */
+	byte y2;			/**< Maximum modified row */
 
-	byte *x1;
-	byte *x2;
+	byte *x1;			/**< Minimum modified column (per row) */
+	byte *x2;			/**< Maximum modified column (per row) */
 
 	/* Offsets used by the map subwindows */
 	byte offset_x;
 	byte offset_y;
 
-	term_win *old;
-	term_win *scr;
+	term_win *old;												/**< Displayed screen image */
+	term_win *scr;												/**< Requested screen image */
 
-	term_win *tmp;
-	term_win *mem;
+	term_win *tmp;												/**< Temporary screen image */
+	term_win *mem;												/**< Memorized screen image */
 
-	void (*init_hook)(term *t);
-	void (*nuke_hook)(term *t);
+	void (*init_hook)(term *t);									/**< Hook for init-ing the term */
+	void (*nuke_hook)(term *t);									/**< Hook for nuke-ing the term */
 
-	errr (*user_hook)(int n);
-
-	errr (*xtra_hook)(int n, int v);
-
-	errr (*curs_hook)(int x, int y);
-
-	errr (*bigcurs_hook)(int x, int y);
-
-	errr (*wipe_hook)(int x, int y, int n);
-
-	errr (*text_hook)(int x, int y, int n, byte a, cptr s);
-
-	errr (*pict_hook)(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp);
+	errr (*user_hook)(int n);									/**< Hook for user actions */
+	errr (*xtra_hook)(int n, int v);							/**< Hook for extra actions */
+	errr (*curs_hook)(int x, int y);							/**< Hook for placing the cursor */
+	errr (*bigcurs_hook)(int x, int y);							/**< Hook for placing the bigtile cursor */
+	errr (*wipe_hook)(int x, int y, int n);						/**< Hook for drawing some blank spaces */
+	errr (*text_hook)(int x, int y, int n, byte a, const char* s);		/**< Hook for drawing a string of chars using an attr */
+	errr (*pict_hook)(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp); /**< Hook for drawing a sequence of special attr/char pairs */
 };
 
 
@@ -311,16 +215,16 @@ extern errr Term_user(int n);
 extern errr Term_xtra(int n, int v);
 
 extern void Term_queue_char(term *t, int x, int y, byte a, char c, byte ta, char tc);
-extern void Term_queue_chars(int x, int y, int n, byte a, cptr s);
+extern void Term_queue_chars(int x, int y, int n, byte a, const char* s);
 
 extern errr Term_fresh(void);
 extern errr Term_set_cursor(bool v);
 extern errr Term_gotoxy(int x, int y);
 extern errr Term_draw(int x, int y, byte a, char c);
 extern errr Term_addch(byte a, char c);
-extern errr Term_addstr(int n, byte a, cptr s);
+extern errr Term_addstr(int n, byte a, const char* s);
 extern errr Term_putch(int x, int y, byte a, char c);
-extern errr Term_putstr(int x, int y, int n, byte a, cptr s);
+extern errr Term_putstr(int x, int y, int n, byte a, const char* s);
 extern errr Term_erase(int x, int y, int n);
 extern errr Term_clear(void);
 extern errr Term_redraw(void);
@@ -348,6 +252,31 @@ extern errr Term_activate(term *t);
 
 extern errr term_nuke(term *t);
 extern errr term_init(term *t, int w, int h, int k);
+
+/*
+ * KBB: some relatively easy to inline adapters functions
+ */
+/**
+ * Display a string on the screen using an attribute.
+ *
+ * At the given location, using the given attribute, if allowed,
+ * add the given string.  Do not clear the line.
+ */
+inline void c_put_str(byte attr, const char* str, int row, int col)
+{
+	/* Position cursor, Dump the attr/text */
+	Term_putstr(col, row, -1, attr, str);
+}
+
+
+/**
+ * As c_put_str, but in "white"
+ */
+inline void put_str(const char* str, int row, int col)
+{
+	/* Spawn */
+	Term_putstr(col, row, -1, TERM_WHITE, str);
+}
 
 
 #endif

@@ -22,6 +22,8 @@
 #include "z-virt.h"
 #include "game-event.h"
 
+#define  N_GAME_EVENTS EVENT_END+1
+
 struct event_handler_entry;
 struct event_handler_entry
 {
@@ -30,7 +32,12 @@ struct event_handler_entry
 	void *user;
 };
 
-struct event_handler_entry *event_handlers[N_GAME_EVENTS];
+struct event_handler_entry* event_handlers[N_GAME_EVENTS];
+
+void game_event_init(void)
+{
+	C_WIPE(event_handlers+0,N_GAME_EVENTS);
+}
 
 static void game_event_dispatch(game_event_type type, game_event_data *data)
 {
@@ -51,10 +58,11 @@ void event_register(game_event_type type, game_event_handler *fn, void *user)
 {
 	event_handler_entry* new_event;
 
-	assert(fn != NULL);
+	assert(0 <= type && type < N_GAME_EVENTS && "precondition");
+	assert(NULL != fn && "precondition");
 
 	/* Make a new entry */
-	new_event = reinterpret_cast<event_handler_entry*>(mem_alloc(sizeof(event_handler_entry*)));
+	new_event = reinterpret_cast<event_handler_entry*>(mem_alloc(sizeof(event_handler_entry)));
 	new_event->fn = fn;
 	new_event->user = user;
 
@@ -94,7 +102,7 @@ void event_deregister(game_event_type type, game_event_handler *fn, void *user)
 
 void event_register_set(game_event_type *type, size_t n_types, game_event_handler *fn, void *user)
 {
-	int i;
+	size_t i;
 
 	for (i = 0; i < n_types; i++)
 	{
@@ -104,7 +112,7 @@ void event_register_set(game_event_type *type, size_t n_types, game_event_handle
 
 void event_deregister_set(game_event_type *type, size_t n_types, game_event_handler *fn, void *user)
 {
-	int i;
+	size_t i;
 
 	for (i = 0; i < n_types; i++)
 	{

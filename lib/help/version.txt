@@ -1,22 +1,27 @@
 === Version Information ===
 
-This file was last updated for Angband 3.0.1.
+This file was last updated for Zaiband 3.0.8 Alpha.
 
-Make sure to read the newsgroup ("rec.games.roguelike.angband"), and to visit
-the Official Angband Home Page ("http://www.thangorodrim.net") for the most
-up to date information about Angband.
+I (the Zaiband maintainer) normally monitor
+* The newsgroup rec.games.roguelike.angband (RGRA)
+* The official Angband home page: http://www.rephial.org/
+* the Oook forum: http://angband.oook.cz/forum/
 
-Angband 3.0.1 has an incredibly complex history, and is the result of a
-lot of work by a lot of people, all of whom have contributed their time
-and energy for free, being rewarded only by the pleasure of keeping alive
-one of the best freeware games available anywhere.
+You should be able to reach me at either the newsgroup RGRA or the Oook forum.
+
+Thangorodrim (http://www.thangorodrim.net/) is inactive as of the time of 
+this update.
+
+Zaiband 3.0.8 Alpha (and its immediate ancestor, Angband 3.0.6) has an
+complex history, and is the result of a lot of work by many people,
+all of whom have contributed their time and energy for free, being rewarded
+only by the pleasure of keeping alive one of the best freeware games available
+anywhere.
 
 The version control files, if they existed, would span more than ten years
 time, and more than six different primary developers.  Without such files,
 we must rely on simpler methods, such as change logs, source file diffs, and
 word of mouth.  Some of this information is summarized in this file.
-
-Please be sure to read the copyright information at the end of this file.
 
 === Brief Version History ===
 
@@ -154,11 +159,14 @@ adjusted properly to Ben Harrison's fractional speed system (Angband 2.7.0)
 or the addition of the other attack forms such as shards, sound, chaos, 
 nexus and so on (even before Ben.) 
 
+Angband 3.0.0 had a substantial revision of both items and the spell system 
+(the Jonathan Ellis patch).
 
-The Official Angband Home Page ("http://www.thangorodrim.net/") serves
-not only as the most up to date description of Angband, but also lists
-changes made between versions, and changes planned for upcoming versions,
-and lists various email addresses and web sites related to Angband.
+Angband 3.0.6, the version Zaiband is forked from, was the last version released
+by Robert Ruehlmann.
+
+Andrew Sidwell took over maintenance of Angband with Angband 3.0.7s, and was
+generally recognized as maintainer starting with Angband 3.0.8.
 
 === Some of the changes between Angband 2.6.1 and now ===
 

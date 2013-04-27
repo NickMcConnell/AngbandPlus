@@ -9,19 +9,45 @@
  */
 
 #include "angband.h"
+#include "raceflag.h"
+#include "score.h"
+#include "wind_flg.h"
+
 #include "keypad.h"
 
 
-/*
+/**
  *  Header and footer marker string for pref file dumps
  */
-static cptr dump_seperator = "#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#";
+static const char* const dump_seperator = "#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#";
 
+/**
+ * the "basic" color names (see "TERM_xxx")
+ */
+const char* const color_names[BASIC_COLORS] =
+{
+	"Dark",
+	"White",
+	"Slate",
+	"Orange",
+	"Red",
+	"Green",
+	"Blue",
+	"Umber",
+	"Light Dark",
+	"Light Slate",
+	"Violet",
+	"Yellow",
+	"Light Red",
+	"Light Green",
+	"Light Blue",
+	"Light Umber",
+};
 
-/*
+/**
  * Remove old lines from pref files
  */
-static void remove_old_dump(cptr orig_file, cptr mark)
+static void remove_old_dump(const char* const orig_file, const char* const mark)
 {
 	FILE *tmp_fff, *orig_fff;
 
@@ -136,10 +162,10 @@ static void remove_old_dump(cptr orig_file, cptr mark)
 }
 
 
-/*
+/**
  * Output the header of a pref-file dump
  */
-static void pref_header(FILE *fff, cptr mark)
+static void pref_header(FILE *fff, const char* const mark)
 {
 	/* Start of dump */
 	fprintf(fff, "%s begin %s\n", dump_seperator, mark);
@@ -149,10 +175,10 @@ static void pref_header(FILE *fff, cptr mark)
 }
 
 
-/*
+/**
  * Output the footer of a pref-file dump
  */
-static void pref_footer(FILE *fff, cptr mark)
+static void pref_footer(FILE *fff, const char* const mark)
 {
 	fprintf(fff, "# *Warning!*  The lines above are an automatic dump.\n");
 	fprintf(fff, "# Don't edit them; changes will be deleted and replaced automatically.\n");
@@ -162,7 +188,7 @@ static void pref_footer(FILE *fff, cptr mark)
 }
 
 
-/*
+/**
  * Hack -- redraw the screen
  *
  * This command performs various low level updates, clears all the "extra"
@@ -205,12 +231,7 @@ void do_cmd_redraw(void)
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
 
 	/* Redraw everything */
-	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1 |
-	                  PW_MESSAGE | PW_OVERHEAD | PW_MONSTER | PW_OBJECT |
-	                  PW_MAP | PW_MONLIST);
+	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP | PR_INVEN | PR_EQUIP | PR_MESSAGE | PR_MONLIST | PR_MONSTER | PR_OBJECT);
 
 	/* Clear screen */
 	Term_clear();
@@ -240,7 +261,7 @@ void do_cmd_redraw(void)
 }
 
 
-/*
+/**
  * Hack -- change name
  */
 void do_cmd_change_name(void)
@@ -249,10 +270,8 @@ void do_cmd_change_name(void)
 
 	int mode = 0;
 
-	cptr p;
-
 	/* Prompt */
-	p = "['c' to change name, 'f' to file, 'h' to change mode, or ESC]";
+	const char* p = "['c' to change name, 'f' to file, 'h' to change mode, or ESC]";
 
 	/* Save screen */
 	screen_save();
@@ -322,7 +341,7 @@ void do_cmd_change_name(void)
 }
 
 
-/*
+/**
  * Recall the most recent message
  */
 void do_cmd_message_one(void)
@@ -332,7 +351,7 @@ void do_cmd_message_one(void)
 }
 
 
-/*
+/**
  * Show previous messages to the user
  *
  * The screen format uses line 0 and 23 for headers and prompts,
@@ -341,7 +360,7 @@ void do_cmd_message_one(void)
  * This command shows you which commands you are viewing, and allows
  * you to "search" for strings in the recall.
  *
- * Note that messages may be longer than 80 characters, but they are
+ * \note messages may be longer than 80 characters, but they are
  * displayed using "infinite" length, with a special sub-command to
  * "slide" the virtual display to the left or right.
  *
@@ -382,7 +401,7 @@ void do_cmd_messages(void)
 		/* Dump messages */
 		for (j = 0; (j < hgt - 4) && (i + j < n); j++)
 		{
-			cptr msg = message_str((s16b)(i+j));
+			const char* msg = message_str((s16b)(i+j));
 			byte attr = message_color((s16b)(i+j));
 
 			/* Apply horizontal scroll */
@@ -394,7 +413,7 @@ void do_cmd_messages(void)
 			/* Hilite "shower" */
 			if (shower[0])
 			{
-				cptr str = msg;
+				const char* str = msg;
 
 				/* Display matches */
 				while ((str = strstr(str, shower)) != NULL)
@@ -476,7 +495,7 @@ void do_cmd_messages(void)
 			/* Scan messages */
 			for (z = i + 1; z < n; z++)
 			{
-				cptr msg = message_str(z);
+				const char* msg = message_str(z);
 
 				/* Search for it */
 				if (strstr(msg, finder))
@@ -542,7 +561,7 @@ void do_cmd_messages(void)
 
 
 
-/*
+/**
  * Ask for a "user pref line" and process it
  */
 void do_cmd_pref(void)
@@ -550,7 +569,7 @@ void do_cmd_pref(void)
 	char tmp[80];
 
 	/* Default */
-	strcpy(tmp, "");
+	tmp[0] = '\x00';
 
 	/* Ask for a "user pref command" */
 	if (!get_string("Pref: ", tmp, sizeof(tmp))) return;
@@ -560,10 +579,10 @@ void do_cmd_pref(void)
 }
 
 
-/*
+/**
  * Ask for a "user pref file" and process it.
  *
- * This function should only be used by standard interaction commands,
+ * \pre This function should only be used by standard interaction commands,
  * in which a standard "Command:" prompt is present on the given row.
  *
  * Allow absolute file names?  XXX XXX XXX
@@ -599,10 +618,10 @@ static void do_cmd_pref_file_hack(int row)
 
 
 
-/*
+/**
  * Interact with some options
  */
-static void do_cmd_options_aux(int page, cptr info)
+static void do_cmd_options_aux(int page, const char* const info)
 {
 	char ch;
 
@@ -741,7 +760,7 @@ static void do_cmd_options_aux(int page, cptr info)
 }
 
 
-/*
+/**
  * Modify the "window" options
  */
 static void do_cmd_options_win(void)
@@ -777,7 +796,7 @@ static void do_cmd_options_win(void)
 		{
 			byte a = TERM_WHITE;
 
-			cptr s = angband_term_name[j];
+			const char* s = angband_term_name[j];
 
 			/* Use color */
 			if (j == x) a = TERM_L_BLUE;
@@ -791,7 +810,7 @@ static void do_cmd_options_win(void)
 		{
 			byte a = TERM_WHITE;
 
-			cptr str = window_flag_desc[i];
+			const char* str = window_flag_desc[i];
 
 			/* Use color */
 			if (i == y) a = TERM_L_BLUE;
@@ -876,13 +895,13 @@ static void do_cmd_options_win(void)
 }
 
 
-/*
+/**
  * Write all current options to the given preference file in the
  * lib/user directory. Modified from KAmband 1.8.
  */
-static errr option_dump(cptr fname)
+static errr option_dump(const char* fname)
 {
-	static cptr mark = "Options Dump";
+	static const char* mark = "Options Dump";
 
 	int i, j;
 
@@ -980,10 +999,10 @@ static errr option_dump(cptr fname)
 }
 
 
-/*
+/**
  * Set or unset various options.
  *
- * After using this command, a complete redraw should be performed,
+ * \post After using this command, a complete redraw should be performed,
  * in case any visual options have been changed.
  */
 void do_cmd_options(void)
@@ -1181,12 +1200,12 @@ void do_cmd_options(void)
 
 #ifdef ALLOW_MACROS
 
-/*
+/**
  * Hack -- append all current macros to the given file
  */
-static errr macro_dump(cptr fname)
+static errr macro_dump(const char* const fname)
 {
-	static cptr mark = "Macro Dump";
+	static const char* const mark = "Macro Dump";
 
 	int i;
 
@@ -1255,7 +1274,7 @@ static errr macro_dump(cptr fname)
 }
 
 
-/*
+/**
  * Hack -- ask for a "trigger" (see below)
  *
  * Note the complex use of the "inkey()" function from "util.c".
@@ -1312,7 +1331,7 @@ static void do_cmd_macro_aux(char *buf)
 }
 
 
-/*
+/**
  * Hack -- ask for a keymap "trigger" (see below)
  *
  * Note that both "flush()" calls are extremely important.  This may
@@ -1344,14 +1363,14 @@ static void do_cmd_macro_aux_keymap(char *buf)
 }
 
 
-/*
+/**
  * Hack -- Append all keymaps to the given file.
  *
  * Hack -- We only append the keymaps for the "active" mode.
  */
-static errr keymap_dump(cptr fname)
+static errr keymap_dump(const char* fname)
 {
-	static cptr mark = "Keymap Dump";
+	static const char* const mark = "Keymap Dump";
 
 	int i;
 
@@ -1404,10 +1423,8 @@ static errr keymap_dump(cptr fname)
 	{
 		char key[2] = "?";
 
-		cptr act;
-
 		/* Loop up the keymap */
-		act = keymap_act[mode][i];
+		const char* act = keymap_act[mode][i];
 
 		/* Skip empty keymaps */
 		if (!act) continue;
@@ -1448,7 +1465,7 @@ static errr keymap_dump(cptr fname)
 #endif
 
 
-/*
+/**
  * Interact with "macros"
  *
  * Could use some helpful instructions on this page.  XXX XXX XXX
@@ -1683,7 +1700,7 @@ void do_cmd_macros(void)
 		/* Query a keymap */
 		else if (ch == '7')
 		{
-			cptr act;
+			const char* act;
 
 			/* Prompt */
 			prt("Command: Query a keymap", 16, 0);
@@ -1821,7 +1838,7 @@ void do_cmd_macros(void)
 
 
 
-/*
+/**
  * Interact with "visuals"
  */
 void do_cmd_visuals(void)
@@ -1888,7 +1905,7 @@ void do_cmd_visuals(void)
 		/* Dump monster attr/chars */
 		else if (ch == '2')
 		{
-			static cptr mark = "Monster attr/chars";
+			static const char* const mark = "Monster attr/chars";
 			char ftmp[80];
 
 			/* Prompt */
@@ -1956,7 +1973,7 @@ void do_cmd_visuals(void)
 		/* Dump object attr/chars */
 		else if (ch == '3')
 		{
-			static cptr mark = "Object attr/chars";
+			static const char* const mark = "Object attr/chars";
 			char ftmp[80];
 
 			/* Prompt */
@@ -2024,7 +2041,7 @@ void do_cmd_visuals(void)
 		/* Dump feature attr/chars */
 		else if (ch == '4')
 		{
-			static cptr mark = "Feature attr/chars";
+			static const char* const mark = "Feature attr/chars";
 			char ftmp[80];
 
 			/* Prompt */
@@ -2092,7 +2109,7 @@ void do_cmd_visuals(void)
 		/* Dump flavor attr/chars */
 		else if (ch == '5')
 		{
-			static cptr mark = "Flavor attr/chars";
+			static const char* const mark = "Flavor attr/chars";
 			char ftmp[80];
 
 			/* Prompt */
@@ -2466,7 +2483,7 @@ void do_cmd_visuals(void)
 }
 
 
-/*
+/**
  * Interact with "colors"
  */
 void do_cmd_colors(void)
@@ -2534,7 +2551,7 @@ void do_cmd_colors(void)
 		/* Dump colors */
 		else if (ch == '2')
 		{
-			static cptr mark = "Colors";
+			static const char* const mark = "Colors";
 			char ftmp[80];
 
 			/* Prompt */
@@ -2578,7 +2595,7 @@ void do_cmd_colors(void)
 				int gv = angband_color_table[i][2];
 				int bv = angband_color_table[i][3];
 
-				cptr name = "unknown";
+				const char* name = "unknown";
 
 				/* Skip non-entries */
 				if (!kv && !rv && !gv && !bv) continue;
@@ -2618,7 +2635,7 @@ void do_cmd_colors(void)
 			/* Hack -- query until done */
 			while (1)
 			{
-				cptr name;
+				const char* name;
 
 				/* Clear */
 				clear_from(10);
@@ -2696,7 +2713,7 @@ void do_cmd_colors(void)
 }
 
 
-/*
+/**
  * Note something in the message recall
  */
 void do_cmd_note(void)
@@ -2704,7 +2721,7 @@ void do_cmd_note(void)
 	char tmp[80];
 
 	/* Default */
-	strcpy(tmp, "");
+	tmp[0] = '\x00';
 
 	/* Input */
 	if (!get_string("Note: ", tmp, sizeof(tmp))) return;
@@ -2717,7 +2734,7 @@ void do_cmd_note(void)
 }
 
 
-/*
+/**
  * Mention the current version
  */
 void do_cmd_version(void)
@@ -2729,10 +2746,10 @@ void do_cmd_version(void)
 
 
 
-/*
+/**
  * Array of feeling strings
  */
-static cptr feeling_text[] =
+static const char* const feeling_text[] =
 {
 	"Looks like any other level.",
 	"You feel there is something special about this level.",
@@ -2748,7 +2765,7 @@ static cptr feeling_text[] =
 };
 
 
-/*
+/**
  * Note that "feeling" is set to zero unless some time has passed.
  * Note that this is done when the level is GENERATED, not entered.
  */
@@ -2772,13 +2789,13 @@ void do_cmd_feeling(void)
 
 
 
-/*
+/**
  * Encode the screen colors
  */
 static const char hack[BASIC_COLORS+1] = "dwsorgbuDWvyRGBU";
 
 
-/*
+/**
  * Hack -- load a screen dump from a file
  *
  * ToDo: Add support for loading/saving screen-dumps with graphics
@@ -2875,7 +2892,7 @@ void do_cmd_load_screen(void)
 }
 
 
-/*
+/**
  * Hack -- save a screen dump to a file
  */
 void do_cmd_save_screen(void)
@@ -2893,7 +2910,7 @@ void do_cmd_save_screen(void)
 
 
 
-/*
+/**
  * Display known artifacts
  */
 static void do_cmd_knowledge_artifacts(void)
@@ -2963,7 +2980,7 @@ static void do_cmd_knowledge_artifacts(void)
 	/* Check the inventory and equipment */
 	for (i = 0; i < INVEN_TOTAL; i++)
 	{
-		object_type *o_ptr = &p_ptr->inventory[i];
+		const object_type* const o_ptr = &p_ptr->inventory[i];
 
 		/* Ignore non-objects */
 		if (!o_ptr->k_idx) continue;
@@ -3005,7 +3022,7 @@ static void do_cmd_knowledge_artifacts(void)
 			i_ptr->name1 = k;
 
 			/* Describe the artifact */
-			object_desc_spoil(o_name, sizeof(o_name), i_ptr, FALSE, 0);
+			object_desc_spoil(o_name, sizeof(o_name), i_ptr, FALSE, ODESC_BASE);
 		}
 
 		/* Hack -- Build the artifact name */
@@ -3026,7 +3043,7 @@ static void do_cmd_knowledge_artifacts(void)
 }
 
 
-/*
+/**
  * Display known uniques
  *
  * Note that the player ghosts are ignored.  XXX XXX XXX
@@ -3061,7 +3078,7 @@ static void do_cmd_knowledge_uniques(void)
 		if (!cheat_know && !l_ptr->sights) continue;
 
 		/* Require unique monsters */
-		if (!(r_ptr->flags1 & (RF1_UNIQUE))) continue;
+		if (!(r_ptr->flags[0] & RF0_UNIQUE)) continue;
 
 		/* Collect "appropriate" monsters */
 		who[n++] = i;
@@ -3106,7 +3123,7 @@ static void do_cmd_knowledge_uniques(void)
 }
 
 
-/*
+/**
  * Display known objects
  */
 static void do_cmd_knowledge_objects(void)
@@ -3132,7 +3149,7 @@ static void do_cmd_knowledge_objects(void)
 		object_kind *k_ptr = &object_type::k_info[k];
 
 		/* Hack -- skip artifacts */
-		if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
+		if (k_ptr->flags[2] & (TR3_INSTA_ART)) continue;
 
 		/* List known flavored objects */
 		if (k_ptr->flavor && k_ptr->aware)
@@ -3144,7 +3161,7 @@ static void do_cmd_knowledge_objects(void)
 			object_prep(i_ptr, k);
 
 			/* Describe the object */
-			object_desc_spoil(o_name, sizeof(o_name), i_ptr, FALSE, 0);
+			object_desc_spoil(o_name, sizeof(o_name), i_ptr, FALSE, ODESC_BASE);
 
 			/* Print a message */
 			fprintf(fff, "     %s\n", o_name);
@@ -3163,7 +3180,7 @@ static void do_cmd_knowledge_objects(void)
 
 
 
-/*
+/**
  * Display kill counts
  */
 static void do_cmd_knowledge_kills(void)
@@ -3195,7 +3212,7 @@ static void do_cmd_knowledge_kills(void)
 		monster_lore *l_ptr = &monster_type::l_list[i];
 
 		/* Require non-unique monsters */
-		if (r_ptr->flags1 & RF1_UNIQUE) continue;
+		if (r_ptr->flags[0] & RF0_UNIQUE) continue;
 
 		/* Collect "appropriate" monsters */
 		if (l_ptr->pkills > 0) who[n++] = i;
@@ -3233,7 +3250,7 @@ static void do_cmd_knowledge_kills(void)
 }
 
 
-/*
+/**
  * Interact with "knowledge"
  */
 void do_cmd_knowledge(void)

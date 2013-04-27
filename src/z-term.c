@@ -3,9 +3,16 @@
 /*
  * Copyright (c) 1997 Ben Harrison
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 /* Purpose: a generic, efficient, terminal window package -BEN- */
@@ -272,7 +279,7 @@
 
 
 
-/*
+/**
  * The current "term"
  */
 term *Term = NULL;
@@ -283,7 +290,7 @@ term *Term = NULL;
 /*** Local routines ***/
 
 
-/*
+/**
  * Nuke a term_win (see below)
  */
 static errr term_win_nuke(term_win *s)
@@ -309,7 +316,7 @@ static errr term_win_nuke(term_win *s)
 }
 
 
-/*
+/**
  * Initialize a "term_win" (using the given window size)
  */
 static errr term_win_init(term_win *s, int w, int h)
@@ -347,7 +354,7 @@ static errr term_win_init(term_win *s, int w, int h)
 }
 
 
-/*
+/**
  * Copy a "term_win" from another
  */
 static errr term_win_copy(term_win *s, term_win *f, int w, int h)
@@ -397,7 +404,7 @@ static errr term_win_copy(term_win *s, term_win *f, int w, int h)
 /*** External hooks ***/
 
 
-/*
+/**
  * Execute the "Term->user_hook" hook, if available (see above).
  */
 errr Term_user(int n)
@@ -409,7 +416,7 @@ errr Term_user(int n)
 	return ((*Term->user_hook)(n));
 }
 
-/*
+/**
  * Execute the "Term->xtra_hook" hook, if available (see above).
  */
 errr Term_xtra(int n, int v)
@@ -426,7 +433,7 @@ errr Term_xtra(int n, int v)
 /*** Fake hooks ***/
 
 
-/*
+/**
  * Hack -- fake hook for "Term_curs()" (see above)
  */
 static errr Term_curs_hack(int x, int y)
@@ -438,7 +445,7 @@ static errr Term_curs_hack(int x, int y)
 	return (-1);
 }
 
-/*
+/**
  * Hack -- fake hook for "Term_wipe()" (see above)
  */
 static errr Term_wipe_hack(int x, int y, int n)
@@ -450,7 +457,7 @@ static errr Term_wipe_hack(int x, int y, int n)
 	return (-1);
 }
 
-/*
+/**
  * Hack -- fake hook for "Term_text()" (see above)
  */
 static errr Term_text_hack(int x, int y, int n, byte a, const char *cp)
@@ -463,7 +470,7 @@ static errr Term_text_hack(int x, int y, int n, byte a, const char *cp)
 }
 
 
-/*
+/**
  * Hack -- fake hook for "Term_pict()" (see above)
  */
 static errr Term_pict_hack(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
@@ -479,10 +486,10 @@ static errr Term_pict_hack(int x, int y, int n, const byte *ap, const char *cp, 
 /*** Efficient routines ***/
 
 
-/*
+/**
  * Mentally draw an attr/char at a given location
  *
- * Assumes given location and values are valid.
+ * \pre given location and values are valid.
  */
 void Term_queue_char(term *t, int x, int y, byte a, char c, byte ta, char tc)
 {
@@ -522,15 +529,15 @@ void Term_queue_char(term *t, int x, int y, byte a, char c, byte ta, char tc)
 }
 
 
-/*
+/**
  * Mentally draw some attr/chars at a given location
  *
- * Assumes that (x,y) is a valid location, that the first "n" characters
+ * \pre (x,y) is a valid location, that the first "n" characters
  * of the string "s" are all valid (non-zero), and that (x+n-1,y) is also
  * a valid location, so the first "n" characters of "s" can all be added
  * starting at (x,y) without causing any illegal operations.
  */
-void Term_queue_chars(int x, int y, int n, byte a, cptr s)
+void Term_queue_chars(int x, int y, int n, byte a, const char* s)
 {
 	int x1 = -1, x2 = -1;
 
@@ -582,7 +589,7 @@ void Term_queue_chars(int x, int y, int n, byte a, cptr s)
 /*** Refresh routines ***/
 
 
-/*
+/**
  * Flush a row of the current window (see "Term_fresh")
  *
  * Display text using "Term_pict()"
@@ -678,7 +685,7 @@ static void Term_fresh_row_pict(int y, int x1, int x2)
 
 
 
-/*
+/**
  * Flush a row of the current window (see "Term_fresh")
  *
  * Display text using "Term_text()" and "Term_wipe()",
@@ -850,7 +857,7 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 }
 
 
-/*
+/**
  * Flush a row of the current window (see "Term_fresh")
  *
  * Display text using "Term_text()" and "Term_wipe()"
@@ -976,10 +983,10 @@ static void Term_fresh_row_text(int y, int x1, int x2)
 
 
 
-/*
+/**
  * Actually perform all requested changes to the window
  *
- * If absolutely nothing has changed, not even temporarily, or if the
+ * \return If absolutely nothing has changed, not even temporarily, or if the
  * current "Term" is not mapped, then this function will return 1 and
  * do absolutely nothing.
  *
@@ -1373,7 +1380,7 @@ errr Term_fresh(void)
 /*** Output routines ***/
 
 
-/*
+/**
  * Set the cursor visibility
  */
 errr Term_set_cursor(bool v)
@@ -1389,10 +1396,10 @@ errr Term_set_cursor(bool v)
 }
 
 
-/*
+/**
  * Place the cursor at a given location
  *
- * Note -- "illegal" requests do not move the cursor.
+ * \note "illegal" requests do not move the cursor.
  */
 errr Term_gotoxy(int x, int y)
 {
@@ -1415,7 +1422,7 @@ errr Term_gotoxy(int x, int y)
 }
 
 
-/*
+/**
  * At a given location, place an attr/char
  * Do not change the cursor position
  * No visual changes until "Term_fresh()".
@@ -1440,20 +1447,20 @@ errr Term_draw(int x, int y, byte a, char c)
 }
 
 
-/*
+/**
  * Using the given attr, add the given char at the cursor.
  *
- * We return "-2" if the character is "illegal". XXX XXX
+ * \return "-2" if the character is "illegal". XXX XXX
  *
- * We return "-1" if the cursor is currently unusable.
+ * \return "-1" if the cursor is currently unusable.
  *
- * We queue the given attr/char for display at the current
+ * \return We queue the given attr/char for display at the current
  * cursor location, and advance the cursor to the right,
  * marking it as unuable and returning "1" if it leaves
  * the screen, and otherwise returning "0".
  *
- * So when this function, or the following one, return a
- * positive value, future calls to either function will
+ * \post When this function returns a
+ * positive value, future calls to either this or ::Term_addstr will
  * return negative ones.
  */
 errr Term_addch(byte a, char c)
@@ -1483,7 +1490,7 @@ errr Term_addch(byte a, char c)
 }
 
 
-/*
+/**
  * At the current location, using an attr, add a string
  *
  * We also take a length "n", using negative values to imply
@@ -1493,16 +1500,17 @@ errr Term_addch(byte a, char c)
  * displaying more characters than will actually fit, since
  * we do NOT attempt to "wrap" the cursor at the screen edge.
  *
- * We return "-1" if the cursor is currently unusable.
- * We return "N" if we were "only" able to write "N" chars,
+ * \return "-1" if the cursor is currently unusable.
+ *
+ * \return "N" if we were "only" able to write "N" chars,
  * even if all of the given characters fit on the screen,
  * and mark the cursor as unusable for future attempts.
  *
- * So when this function, or the preceding one, return a
- * positive value, future calls to either function will
+ * \post When this function returns a
+ * positive value, future calls to either this or ::Term_addch will
  * return negative ones.
  */
-errr Term_addstr(int n, byte a, cptr s)
+errr Term_addstr(int n, byte a, const char* s)
 {
 	int k;
 
@@ -1536,7 +1544,7 @@ errr Term_addstr(int n, byte a, cptr s)
 }
 
 
-/*
+/**
  * Move to a location and, using an attr, add a char
  */
 errr Term_putch(int x, int y, byte a, char c)
@@ -1554,10 +1562,10 @@ errr Term_putch(int x, int y, byte a, char c)
 }
 
 
-/*
+/**
  * Move to a location and, using an attr, add a string
  */
-errr Term_putstr(int x, int y, int n, byte a, cptr s)
+errr Term_putstr(int x, int y, int n, byte a, const char* s)
 {
 	errr res;
 
@@ -1573,7 +1581,7 @@ errr Term_putstr(int x, int y, int n, byte a, cptr s)
 
 
 
-/*
+/**
  * Place cursor at (x,y), and clear the next "n" chars
  */
 errr Term_erase(int x, int y, int n)
@@ -1654,7 +1662,7 @@ errr Term_erase(int x, int y, int n)
 }
 
 
-/*
+/**
  * Clear the entire window, and move to the top left corner
  *
  * Note the use of the special "total_erase" code
@@ -1713,7 +1721,7 @@ errr Term_clear(void)
 
 
 
-/*
+/**
  * Redraw (and refresh) the whole window.
  */
 errr Term_redraw(void)
@@ -1729,8 +1737,8 @@ errr Term_redraw(void)
 }
 
 
-/*
- * Redraw part of a widow.
+/**
+ * Redraw part of a window.
  */
 errr Term_redraw_section(int x1, int y1, int x2, int y2)
 {
@@ -1782,7 +1790,7 @@ errr Term_redraw_section(int x1, int y1, int x2, int y2)
 /*** Access routines ***/
 
 
-/*
+/**
  * Extract the cursor visibility
  */
 errr Term_get_cursor(bool *v)
@@ -1795,7 +1803,7 @@ errr Term_get_cursor(bool *v)
 }
 
 
-/*
+/**
  * Extract the current window size
  */
 errr Term_get_size(int *w, int *h)
@@ -1809,7 +1817,7 @@ errr Term_get_size(int *w, int *h)
 }
 
 
-/*
+/**
  * Extract the current cursor location
  */
 errr Term_locate(int *x, int *y)
@@ -1826,7 +1834,7 @@ errr Term_locate(int *x, int *y)
 }
 
 
-/*
+/**
  * At a given location, determine the "current" attr and char
  * Note that this refers to what will be on the window after the
  * next call to "Term_fresh()".  It may or may not already be there.
@@ -1853,7 +1861,7 @@ errr Term_what(int x, int y, byte *a, char *c)
 /*** Input routines ***/
 
 
-/*
+/**
  * Flush and forget the input
  */
 errr Term_flush(void)
@@ -1869,7 +1877,7 @@ errr Term_flush(void)
 }
 
 
-/*
+/**
  * Add a keypress to the "queue"
  */
 errr Term_keypress(int k)
@@ -1893,7 +1901,7 @@ errr Term_keypress(int k)
   return (1);
 }
 
-/*
+/**
  * Add a mouse event to the "queue"
  */
 errr Term_mousepress(int x, int y, char button)
@@ -1922,7 +1930,7 @@ errr Term_mousepress(int x, int y, char button)
 }
 
 
-/*
+/**
  * Add a keypress to the FRONT of the "queue"
  */
 errr Term_key_push(int k)
@@ -1938,6 +1946,9 @@ errr Term_key_push(int k)
 	return Term_event_push(&ke);
 }
 
+/**
+ * Add an event to the FRONT of the "queue"
+ */
 errr Term_event_push(const ui_event_data *ke)
 {
 	/* Hack -- Refuse to enqueue non-keys */
@@ -1966,15 +1977,15 @@ errr Term_event_push(const ui_event_data *ke)
 
 
 
-/*
+/**
  * Check for a pending keypress on the key queue.
  *
- * Store the keypress, if any, in "ch", and return "0".
- * Otherwise store "zero" in "ch", and return "1".
+ * \return 0 if there is a keypress
+ * \return 1 if there is no keypress
  *
- * Wait for a keypress if "wait" is true.
- *
- * Remove the keypress if "take" is true.
+ * \param[out] ch store the keypress here, if any
+ * \param wait Wait for a keypress when true
+ * \param take Remove the keypress when true.
  */
 errr Term_inkey(ui_event_data *ch, bool wait, bool take)
 {
@@ -2028,7 +2039,7 @@ errr Term_inkey(ui_event_data *ch, bool wait, bool take)
 
 /*** Extra routines ***/
 
-/*
+/**
  * Set the resize hook for the current term.
  */
 errr Term_set_resize_hook(void (*hook)(void))
@@ -2043,10 +2054,10 @@ errr Term_set_resize_hook(void (*hook)(void))
 	return (0);
 }
 
-/*
+/**
  * Save the "requested" screen into the "memorized" screen
  *
- * Every "Term_save()" should match exactly one "Term_load()"
+ * \pre Every Term_save() should match exactly one ::Term_load()
  */
 errr Term_save(void)
 {
@@ -2076,10 +2087,10 @@ errr Term_save(void)
 }
 
 
-/*
+/**
  * Restore the "requested" contents (see above).
  *
- * Every "Term_save()" should match exactly one "Term_load()"
+ * \post Every ::Term_save() should match exactly one Term_load()
  */
 errr Term_load(void)
 {
@@ -2128,7 +2139,7 @@ errr Term_load(void)
 
 
 
-/*
+/**
  * React to a new physical window size.
  */
 errr Term_resize(int w, int h)
@@ -2315,7 +2326,7 @@ errr Term_resize(int w, int h)
 
 
 
-/*
+/**
  * Activate a new Term (and deactivate the current Term)
  *
  * This function is extremely important, and also somewhat bizarre.
@@ -2357,7 +2368,7 @@ errr Term_activate(term *t)
 
 
 
-/*
+/**
  * Nuke a term
  */
 errr term_nuke(term *t)
@@ -2420,7 +2431,7 @@ errr term_nuke(term *t)
 }
 
 
-/*
+/**
  * Initialize a term, using a window of the given size.
  * Also prepare the "input queue" for "k" keypresses
  * By default, the cursor starts out "invisible"

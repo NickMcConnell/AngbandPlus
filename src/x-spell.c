@@ -3,13 +3,22 @@
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 
 #include "angband.h"
+#include "project.h"
+#include "tvalsval.h"
 
 /*
  * Maximum number of spells per realm
@@ -409,7 +418,7 @@ static const s16b spell_list[2][BOOKS_PER_REALM][SPELLS_PER_BOOK] =
 /*
  * Names of the spells (mage spells then priest spells)
  */
-static cptr spell_names[2][PY_MAX_SPELLS] =
+static const char* const spell_names[2][PY_MAX_SPELLS] =
 {
 	/*** Mage Spells ***/
 
@@ -585,7 +594,7 @@ int get_spell_index(const object_type *o_ptr, int index)
 }
 
 
-cptr get_spell_name(int tval, int spell)
+const char* get_spell_name(int tval, int spell)
 {
 	if (tval == TV_MAGIC_BOOK)
 		return spell_names[0][spell];
@@ -594,12 +603,12 @@ cptr get_spell_name(int tval, int spell)
 }
 
 
-cptr get_spell_info(int tval, int spell)
+const char* get_spell_info(int tval, int spell)
 {
 	static char p[80];
 
 	/* Default */
-	strcpy(p, "");
+	p[0] = '\x00';
 
 	/* Mage spells */
 	if (tval == TV_MAGIC_BOOK)
@@ -818,21 +827,21 @@ static void spell_wonder(int dir)
 	else if (die < 31) poly_monster(dir);
 	else if (die < 36)
 		fire_bolt_or_beam(beam - 10, GF_MISSILE, dir,
-		                  damroll(3 + ((plev - 1) / 5), 4));
+		                  NdS(3 + ((plev - 1) / 5), 4));
 	else if (die < 41) confuse_monster(dir, plev);
 	else if (die < 46) fire_ball(GF_POIS, dir, 20 + (plev / 2), 3);
 	else if (die < 51) lite_line(dir);
 	else if (die < 56)
-		fire_beam(GF_ELEC, dir, damroll(3+((plev-5)/6), 6));
+		fire_beam(GF_ELEC, dir, NdS(3+((plev-5)/6), 6));
 	else if (die < 61)
 		fire_bolt_or_beam(beam-10, GF_COLD, dir,
-		                  damroll(5+((plev-5)/4), 8));
+		                  NdS(5+((plev-5)/4), 8));
 	else if (die < 66)
 		fire_bolt_or_beam(beam, GF_ACID, dir,
-		                  damroll(6+((plev-5)/4), 8));
+		                  NdS(6+((plev-5)/4), 8));
 	else if (die < 71)
 		fire_bolt_or_beam(beam, GF_FIRE, dir,
-		                  damroll(8+((plev-5)/4), 8));
+		                  NdS(8+((plev-5)/4), 8));
 	else if (die < 76) drain_life(dir, 75);
 	else if (die < 81) fire_ball(GF_ELEC, dir, 30 + plev / 2, 2);
 	else if (die < 86) fire_ball(GF_ACID, dir, 40 + plev, 2);
@@ -870,7 +879,7 @@ static bool cast_mage_spell(int spell)
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_bolt_or_beam(beam-10, GF_MISSILE, dir,
-			                  damroll(3 + ((plev - 1) / 5), 4));
+			                  NdS(3 + ((plev - 1) / 5), 4));
 			break;
 		}
 
@@ -888,7 +897,7 @@ static bool cast_mage_spell(int spell)
 
 		case SPELL_LIGHT_AREA:
 		{
-			(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
+			(void)lite_area(NdS(2, (plev / 2)), (plev / 10) + 1);
 			break;
 		}
 
@@ -902,7 +911,7 @@ static bool cast_mage_spell(int spell)
 		case SPELL_CURE_LIGHT_WOUNDS:
 		{
 
-			(void)hp_player(damroll(2, 8));
+			(void)hp_player(NdS(2, 8));
 			(void)p_ptr->dec_timed<TMD_CUT>(15);
 			break;
 		}
@@ -939,7 +948,7 @@ static bool cast_mage_spell(int spell)
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_beam(GF_ELEC, dir,
-			          damroll(3+((plev-5)/6), 6));
+			          NdS(3+((plev-5)/6), 6));
 			break;
 		}
 
@@ -980,7 +989,7 @@ static bool cast_mage_spell(int spell)
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_bolt_or_beam(beam-10, GF_COLD, dir,
-			                  damroll(5+((plev-5)/4), 8));
+			                  NdS(5+((plev-5)/4), 8));
 			break;
 		}
 
@@ -1031,7 +1040,7 @@ static bool cast_mage_spell(int spell)
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_bolt_or_beam(beam, GF_FIRE, dir,
-			                  damroll(6+((plev-5)/4), 8));
+			                  NdS(6+((plev-5)/4), 8));
 			break;
 		}
 
@@ -1120,7 +1129,7 @@ static bool cast_mage_spell(int spell)
 		case SPELL_ACID_BOLT:
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_bolt_or_beam(beam, GF_ACID, dir, damroll(8+((plev-5)/4), 8));
+			fire_bolt_or_beam(beam, GF_ACID, dir, NdS(8+((plev-5)/4), 8));
 			break;
 		}
 
@@ -1262,21 +1271,21 @@ static bool cast_mage_spell(int spell)
 		case SPELL_RIFT:
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_beam(GF_GRAVITY, dir,	40 + damroll(plev, 7));
+			fire_beam(GF_GRAVITY, dir,	40 + NdS(plev, 7));
 			break;
 		}
 
 		case SPELL_REND_SOUL: /* rend soul */
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_bolt_or_beam(beam / 4, GF_NETHER, dir, damroll(11, plev));
+			fire_bolt_or_beam(beam / 4, GF_NETHER, dir, NdS(11, plev));
 			break;
 		}
 
 		case SPELL_CHAOS_STRIKE: /* chaos strike */
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_bolt_or_beam(beam, GF_CHAOS, dir, damroll(13, plev));
+			fire_bolt_or_beam(beam, GF_CHAOS, dir, NdS(13, plev));
 			break;
 		}
 
@@ -1319,7 +1328,7 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_CURE_LIGHT_WOUNDS:
 		{
-			(void)hp_player(damroll(2, 10));
+			(void)hp_player(NdS(2, 10));
 			(void)p_ptr->dec_timed<TMD_CUT>(10);
 			break;
 		}
@@ -1338,7 +1347,7 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_CALL_LIGHT:
 		{
-			(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
+			(void)lite_area(NdS(2, (plev / 2)), (plev / 10) + 1);
 			break;
 		}
 
@@ -1376,7 +1385,7 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_CURE_SERIOUS_WOUNDS:
 		{
-			(void)hp_player(damroll(4, 10));
+			(void)hp_player(NdS(4, 10));
 			(void)p_ptr->set_timed<TMD_CUT>((p_ptr->timed[TMD_CUT] / 2) - 20);
 			break;
 		}
@@ -1422,7 +1431,7 @@ static bool cast_priest_spell(int spell)
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_ball(GF_HOLY_ORB, dir,
-			          (damroll(3, 6) + plev +
+			          (NdS(3, 6) + plev +
 			           (plev / ((p_ptr->cp_ptr->flags & CF_BLESS_WEAPON) ? 2 : 4))),
 			          ((plev < 30) ? 2 : 3));
 			break;
@@ -1430,7 +1439,7 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_CURE_CRITICAL_WOUNDS:
 		{
-			(void)hp_player(damroll(6, 10));
+			(void)hp_player(NdS(6, 10));
 			(void)p_ptr->clear_timed<TMD_CUT>();
 			break;
 		}
@@ -1461,7 +1470,7 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_CURE_MORTAL_WOUNDS:
 		{
-			(void)hp_player(damroll(8, 10));
+			(void)hp_player(NdS(8, 10));
 			(void)p_ptr->clear_timed<TMD_STUN>();
 			(void)p_ptr->clear_timed<TMD_CUT>();
 			break;
@@ -1547,14 +1556,14 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_CURE_SERIOUS_WOUNDS2:
 		{
-			(void)hp_player(damroll(4, 10));
+			(void)hp_player(NdS(4, 10));
 			(void)p_ptr->clear_timed<TMD_CUT>();
 			break;
 		}
 
 		case PRAYER_CURE_MORTAL_WOUNDS2:
 		{
-			(void)hp_player(damroll(8, 10));
+			(void)hp_player(NdS(8, 10));
 			(void)p_ptr->clear_timed<TMD_STUN>();
 			(void)p_ptr->clear_timed<TMD_CUT>();
 			break;

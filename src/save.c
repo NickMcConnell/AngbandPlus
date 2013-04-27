@@ -1,15 +1,23 @@
 /* File: save.c */
 
 /*
- * Copyright (c) 1997 Ben Harrison, and others
+ * Copyright (c) 1997 Ben Harrison
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
 #include "z-quark.h"
+#include "store.h"
 
 /*
  * Some "local" parameters, used to help write savefiles
@@ -68,7 +76,7 @@ static void wr_s32b(s32b v)
 	wr_u32b((u32b)v);
 }
 
-static void wr_string(cptr str)
+static void wr_string(const char* str)
 {
 	while (*str)
 	{
@@ -152,10 +160,10 @@ static void wr_monster(const monster_type *m_ptr)
 	wr_s16b(m_ptr->r_idx);
 	wr_byte(m_ptr->loc.y);
 	wr_byte(m_ptr->loc.x);
-	wr_s16b(m_ptr->hp);
-	wr_s16b(m_ptr->maxhp);
+	wr_s16b(m_ptr->chp);
+	wr_s16b(m_ptr->mhp);
 	wr_s16b(m_ptr->csleep);
-	wr_byte(m_ptr->mspeed);
+	wr_byte(m_ptr->speed);
 	wr_byte(m_ptr->energy);
 	wr_byte(m_ptr->stunned);
 	wr_byte(m_ptr->confused);
@@ -201,12 +209,8 @@ static void wr_lore(int r_idx)
 		wr_byte(l_ptr->blows[i]);
 
 	/* Memorize flags */
-	wr_u32b(l_ptr->flags1);
-	wr_u32b(l_ptr->flags2);
-	wr_u32b(l_ptr->flags3);
-	wr_u32b(l_ptr->flags4);
-	wr_u32b(l_ptr->flags5);
-	wr_u32b(l_ptr->flags6);
+	for (i = 0; i < RACE_FLAG_STRICT_UB; i++)
+		wr_u32b(l_ptr->flags[i]);
 
 
 	/* Monster limit per level */
@@ -525,6 +529,7 @@ static void wr_extra(void)
 static void wr_randarts(void)
 {
 	int i;
+	size_t j;
 
 	wr_u16b(z_info->a_max);
 
@@ -548,18 +553,17 @@ static void wr_randarts(void)
 
 		wr_s32b(a_ptr->cost);
 
-		wr_u32b(a_ptr->flags1);
-		wr_u32b(a_ptr->flags2);
-		wr_u32b(a_ptr->flags3);
+		for(j = 0; j < OBJECT_FLAG_STRICT_UB; ++j)
+			wr_u32b(a_ptr->flags[j]);
 
 		wr_byte(a_ptr->level);
 		wr_byte(a_ptr->rarity);
 
 		wr_byte(a_ptr->activation);
-		wr_u16b(a_ptr->time_base);
-		/* discard constant 1 a_ptr->time.dice */
+		wr_u16b(a_ptr->time.base);
+		/* discard constant 1 a_ptr->time.range.dice */
 		/* fix this when bumping internal version */
-		wr_u16b(a_ptr->time.sides);
+		wr_u16b(a_ptr->time.range.sides);
 	}
 }
 
@@ -720,9 +724,7 @@ static void wr_dungeon(void)
 static bool wr_savefile_new(void)
 {
 	int i;
-
 	u32b now;
-
 	u16b tmp16u;
 
 
@@ -869,10 +871,12 @@ static bool wr_savefile_new(void)
 	}
 
 
-	/* Write the inventory */
+	/* 
+     * Write the inventory.
+     */ 
 	for (i = 0; i < INVEN_TOTAL; i++)
 	{
-		object_type *o_ptr = &p_ptr->inventory[i];
+		const object_type* const o_ptr = &p_ptr->inventory[i];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
@@ -927,7 +931,7 @@ static bool wr_savefile_new(void)
  *
  * XXX XXX XXX Angband 2.8.0 will use "fd" instead of "fff" if possible
  */
-static bool save_player_aux(cptr name)
+static bool save_player_aux(const char* const name)
 {
 	bool ok = FALSE;
 

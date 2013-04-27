@@ -10,9 +10,32 @@
 
 #include "angband.h"
 #include "cmds.h"
+#include "game-event.h"
 #include "z-quark.h"
+#include "raceflag.h"
+#include "store.h"
+#include "tvalsval.h"
+
+/**
+ * There is a 1/MAX_M_ALLOC_CHANCE chance per round of creating a new monster
+ */
+#define MAX_M_ALLOC_CHANCE	160
 
 /*
+ * Player regeneration constants
+ */
+#define PY_REGEN_NORMAL		197		/**< Regen factor*2^16 when full */
+#define PY_REGEN_WEAK		98		/**< Regen factor*2^16 when weak */
+#define PY_REGEN_FAINT		33		/**< Regen factor*2^16 when fainting */
+#define PY_REGEN_HPBASE		1442	/**< Min amount hp regen*2^16 */
+#define PY_REGEN_MNBASE		524		/**< Min amount mana regen*2^16 */
+
+/*
+ * Store constants.
+ */
+#define STORE_TURNS		1000	/**< Number of turns between turnovers */
+
+/**
  * Return a "feeling" (or NULL) about an item.  Method 1 (Heavy).
  */
 static int value_check_aux1(const object_type *o_ptr)
@@ -54,7 +77,7 @@ static int value_check_aux1(const object_type *o_ptr)
 }
 
 
-/*
+/**
  * Return a "feeling" (or NULL) about an item.  Method 2 (Light).
  */
 static int value_check_aux2(const object_type *o_ptr)
@@ -81,21 +104,106 @@ static int value_check_aux2(const object_type *o_ptr)
 	return (0);
 }
 
+static bool sensable(object_type* o_ptr)
+{
+	/* Skip empty slots */
+	if (!o_ptr->k_idx) return FALSE;
 
+	/* Valid "tval" codes */
+	switch (o_ptr->tval)
+	{
+		case TV_SHOT:		/* intentional fallthrough */
+		case TV_ARROW:
+		case TV_BOLT:
+		case TV_BOW:
+		case TV_DIGGING:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_SWORD:
+		case TV_BOOTS:
+		case TV_GLOVES:
+		case TV_HELM:
+		case TV_CROWN:
+		case TV_SHIELD:
+		case TV_CLOAK:
+		case TV_SOFT_ARMOR:
+		case TV_HARD_ARMOR:
+		case TV_DRAG_ARMOR:	break;
+		default:			return FALSE;
+	}
 
-/*
+	/* It already has psuedoid */
+	if ((o_ptr->pseudo > 0) &&
+	    (o_ptr->pseudo != INSCRIP_INDESTRUCTIBLE)) return FALSE;
+
+	/* It has already been sensed, do not sense it again */
+	if (o_ptr->ident & (IDENT_SENSE)) return FALSE;
+
+	/* It is known, no information needed */
+	if (o_ptr->known()) return FALSE;
+
+	return TRUE;
+}
+
+/** returns whether feel was INSCRIP_AVERAGE */
+static bool full_sense(object_type* o_ptr,int feel)
+{
+	bool identified_average = FALSE;
+	size_t i = o_ptr-p_ptr->inventory;
+	char o_name[80];
+
+	/* Stop everything */
+	disturb(0, 0);
+
+	/* Get an object description */
+	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, ODESC_FULL);
+
+	/* Message (equipment) */
+	sound(MSG_PSEUDOID);
+
+	if (i >= INVEN_WIELD)
+	{
+		msg_format("You feel the %s (%c) you are %s %s %s...",
+		           o_name, index_to_label(i), describe_use(i),
+		           ((o_ptr->number == 1) ? "is" : "are"),
+		           inscrip_text[feel - INSCRIP_NULL]);
+	}
+
+	/* Message (inventory) */
+	else
+	{
+		msg_format("You feel the %s (%c) in your pack %s %s...",
+		           o_name, index_to_label(i),
+		           ((o_ptr->number == 1) ? "is" : "are"),
+		           inscrip_text[feel - INSCRIP_NULL]);
+	}
+
+		
+	if (feel==INSCRIP_AVERAGE)
+	{	/* average is pretty much fully known anyway.  Give a free identify. */
+		identified_average = TRUE;
+
+		object_aware(o_ptr);
+		object_known(o_ptr);
+	}
+	else
+	{	/* Sense the object */
+		o_ptr->sense(feel);		
+	}
+
+	return identified_average;
+}
+
+/**
  * Sense the inventory
  */
 static void sense_inventory(void)
 {
 	int i;
-
 	int plev = p_ptr->lev;
-
 	int feel;
-
-	char o_name[80];
-
+	bool noticed_anything = FALSE;
+	bool identified_average = FALSE;
 
 	/*** Check for "sensing" ***/
 
@@ -120,50 +228,9 @@ static void sense_inventory(void)
 	for (i = 0; i < INVEN_TOTAL; i++)
 	{
 		bool heavy = (p_ptr->cp_ptr->flags & CF_PSEUDO_ID_HEAVY);
-		bool okay = FALSE;
 		object_type* o_ptr = &p_ptr->inventory[i];
 
-		/* Skip empty slots */
-		if (!o_ptr->k_idx) continue;
-
-		/* Valid "tval" codes */
-		switch (o_ptr->tval)
-		{
-			case TV_SHOT:
-			case TV_ARROW:
-			case TV_BOLT:
-			case TV_BOW:
-			case TV_DIGGING:
-			case TV_HAFTED:
-			case TV_POLEARM:
-			case TV_SWORD:
-			case TV_BOOTS:
-			case TV_GLOVES:
-			case TV_HELM:
-			case TV_CROWN:
-			case TV_SHIELD:
-			case TV_CLOAK:
-			case TV_SOFT_ARMOR:
-			case TV_HARD_ARMOR:
-			case TV_DRAG_ARMOR:
-			{
-				okay = TRUE;
-				break;
-			}
-		}
-
-		/* Skip non-sense machines */
-		if (!okay) continue;
-
-		/* It already has psuedoid */
-		if ((o_ptr->pseudo > 0) &&
-		    (o_ptr->pseudo != INSCRIP_INDESTRUCTIBLE)) continue;
-
-		/* It has already been sensed, do not sense it again */
-		if (o_ptr->ident & (IDENT_SENSE)) continue;
-
-		/* It is known, no information needed */
-		if (o_ptr->known()) continue;
+		if (!sensable(o_ptr)) continue;
 
 		/* Occasional failure on inventory items */
 		if ((i < INVEN_WIELD) && !one_in_(5)) continue;
@@ -178,45 +245,55 @@ static void sense_inventory(void)
 		/* Skip non-feelings */
 		if (!feel) continue;
 
-		/* Stop everything */
-		if (disturb_minor) disturb(0, 0);
+		noticed_anything = TRUE;		
+		identified_average = full_sense(o_ptr,feel);
+	}
 
-		/* Get an object description */
-		object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
-
-		/* Message (equipment) */
-		sound(MSG_PSEUDOID);
-
-		if (i >= INVEN_WIELD)
-		{
-			msg_format("You feel the %s (%c) you are %s %s %s...",
-			           o_name, index_to_label(i), describe_use(i),
-			           ((o_ptr->number == 1) ? "is" : "are"),
-			           inscrip_text[feel - INSCRIP_NULL]);
-		}
-
-		/* Message (inventory) */
-		else
-		{
-			msg_format("You feel the %s (%c) in your pack %s %s...",
-			           o_name, index_to_label(i),
-			           ((o_ptr->number == 1) ? "is" : "are"),
-			           inscrip_text[feel - INSCRIP_NULL]);
-		}
-
-		o_ptr->sense(feel);		/* Sense the object */
-
+	if (noticed_anything)
+	{
 		/* Combine / Reorder the pack (later) */
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+		p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
+
+		/* if player has weak psuedo-id, do a second pass to catch wielded average items */
+		/* start at INVEN_WIELD nonstrict lower bound because of the 1-in-5 failure on inventory items */
+		if (!p_ptr->cp_ptr->flags & CF_PSEUDO_ID_IMPROV)
+		{
+			for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+			{
+				object_type* o_ptr = &p_ptr->inventory[i];
+
+				if (!sensable(o_ptr)) continue;
+
+				/* Check for a feeling */
+				feel = value_check_aux1(o_ptr);
+
+				/* Skip non-feelings */
+				if (!feel) continue;
+
+				identified_average = full_sense(o_ptr,feel);
+			}
+		}
+
+		if (identified_average)
+		{
+			/* Recalculate bonuses */
+			p_ptr->update |= (PU_BONUS);
+
+			/* Combine / Reorder the pack (later) */
+/*			p_ptr->notice |= (PN_COMBINE | PN_REORDER);	*/
+
+			/* Window stuff */
+			p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
+		}
 	}
 }
 
 
 
-/*
+/**
  * Regenerate hit points
  */
 static void regenhp(int percent)
@@ -256,14 +333,11 @@ static void regenhp(int percent)
 	{
 		/* Redraw */
 		p_ptr->redraw |= (PR_HP);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 	}
 }
 
 
-/*
+/**
  * Regenerate mana points
  */
 static void regenmana(int percent)
@@ -302,9 +376,6 @@ static void regenmana(int percent)
 	{
 		/* Redraw */
 		p_ptr->redraw |= (PR_MANA);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 	}
 }
 
@@ -313,24 +384,24 @@ static void regenmana(int percent)
 static bool regenerate_monster(monster_type& m)
 {
 	/* Allow regeneration (if needed) */
-	if (m.hp < m.maxhp)
+	if (m.chp < m.mhp)
 	{
 		monster_race *r_ptr = m.race();
 
 		/* Hack -- Base regeneration */
-		int frac = m.maxhp / 100;
+		int frac = m.mhp / 100;
 
 		/* Hack -- Minimal regeneration rate */
 		if (!frac) frac = 1;
 
 		/* Hack -- Some monsters regenerate quickly */
-		if (r_ptr->flags2 & (RF2_REGENERATE)) frac *= 2;
+		if (r_ptr->flags[1] & RF1_REGENERATE) frac *= 2;
 
 		/* Hack -- Regenerate */
-		if (m.maxhp-m.hp>=frac) 
-			m.hp += frac;
+		if (m.mhp-m.chp>=frac) 
+			m.chp += frac;
 		else
-			m.hp = m.maxhp;
+			m.chp = m.mhp;
 
 		/* Redraw (later) if needed */
 		if (p_ptr->health_who == (&m-mon_list)) p_ptr->redraw |= (PR_HEALTH);
@@ -462,7 +533,7 @@ static bool monster_condition_timeout(monster_type& m)
 	return false;
 }
 
-/*
+/**
  * Regenerate the monsters (once per 100 game turns)
  *
  * XXX XXX XXX Should probably be done during monster turns.
@@ -473,7 +544,7 @@ static void regen_monsters(void)
 }
 
 
-/*
+/**
  * If player has inscribed the object with "!!", let him know when it's
  * recharged. -LM-
  * Also inform player when first item of a stack has recharged. -HK-
@@ -485,10 +556,10 @@ static void recharged_notice(const object_type *o_ptr, bool all)
 	if (check_for_inscrip(o_ptr,"!!"))
 		{
 		/* Describe (briefly) */
-		object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
+		object_desc(o_name, sizeof(o_name), o_ptr, FALSE, ODESC_BASE);
 
 		/* Disturb the player */
-		if (disturb_minor) disturb(0, 0);
+		disturb(0, 0);
 
 		/* Notify the player */
 		if (o_ptr->number > 1)
@@ -523,7 +594,7 @@ static bool recharge_rod_on_ground(object_type& o)
 	return false;
 }
 
-/*
+/**
  * Recharge activatable objects in the player's equipment
  * and rods in the inventory and on the ground.
  */
@@ -533,15 +604,14 @@ static void recharge_objects(void)
 
 	int charged = 0;
 
-	object_type *o_ptr;
-	object_kind *k_ptr;
-
+	assert(0 <= p_ptr->inven_cnt && INVEN_PACK >= p_ptr->inven_cnt && "precondition");
+	assert(p_ptr->inven_cnt_is_strict_UB_of_nonzero_k_idx() && "precondition");
 
 	/* Process equipment */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
 		/* Get the object */
-		o_ptr = &p_ptr->inventory[i];
+		object_type* const o_ptr = &p_ptr->inventory[i];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
@@ -553,30 +623,26 @@ static void recharge_objects(void)
 			o_ptr->timeout--;
 
 			/* Notice changes */
-			if (!(o_ptr->timeout)) charged++;
+			if (!(o_ptr->timeout))
+			{
+				++charged;
 
-			/* Message if item is recharged, if inscribed with "!!" */
-			if (!(o_ptr->timeout)) recharged_notice(o_ptr, TRUE);
+				/* Message if item is recharged, if inscribed with "!!" */
+				recharged_notice(o_ptr, TRUE);
+			}
 		}
 	}
 
 	/* Notice changes */
-	if (charged)
-	{
-		/* Window stuff */
-		p_ptr->window |= (PW_EQUIP);
-	}
+	if (charged) p_ptr->redraw |= (PR_EQUIP);
 
 	charged = 0;
 
 	/* Recharge rods */
-	for (i = 0; i < INVEN_PACK; i++)
+	for (i = 0; i < p_ptr->inven_cnt; i++)
 	{
-		o_ptr = &p_ptr->inventory[i];
-		k_ptr = &object_type::k_info[o_ptr->k_idx];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
+		object_type* const o_ptr = &p_ptr->inventory[i];
+		const object_kind* const k_ptr = &object_type::k_info[o_ptr->k_idx];
 
 		/* Examine all charging rods */
 		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
@@ -596,7 +662,7 @@ static void recharge_objects(void)
 			if (temp > (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval)
 			{
 				/* Update window */
-				charged++;
+				++charged;
 
 				/* Message if whole stack is recharged, if inscribed with "!!" */
 				if (!(o_ptr->timeout)) recharged_notice(o_ptr, TRUE);
@@ -613,7 +679,7 @@ static void recharge_objects(void)
 		p_ptr->notice |= (PN_COMBINE);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN);
+		p_ptr->redraw |= (PR_INVEN);
 	}
 
 
@@ -673,7 +739,7 @@ static void play_ambient_sound(void)
 }
 
 
-/*
+/**
  * Handle certain things once every 10 game turns
  */
 static void process_world(void)
@@ -682,7 +748,7 @@ static void process_world(void)
 
 	int regen_amount;
 
-	object_type *o_ptr;
+	object_type* o_ptr;
 
 	/* Every 10 game turns */
 	if (turn % 10) return;
@@ -763,13 +829,13 @@ static void process_world(void)
 			if (cheat_xtra) msg_print("Updating Shops...");
 
 			/* Maintain each shop (except home) */
-			for (n = 0; n < MAX_STORES; n++)
+			ZAIBAND_STATIC_ASSERT(STORE_HOME+1==MAX_STORES);
+			for (n = 0; n < MAX_STORES-1; n++)
 			{
-				/* Skip the home */
-				if (n == STORE_HOME) continue;
+/*				if (STORE_HOME == n) continue; */
 
 				/* Maintain */
-				store_maint(n);
+				store_maint((store_indexes)(n));
 			}
 
 			/* Sometimes, shuffle the shop-keepers */
@@ -778,12 +844,14 @@ static void process_world(void)
 				/* Message */
 				if (cheat_xtra) msg_print("Shuffling a Shopkeeper...");
 
-				/* Pick a random shop (except home) */
-				n = rand_int(MAX_STORES-1);
-				if (STORE_HOME <= n) --n;
-
-				/* Shuffle it */
-				store_shuffle(n);
+				/* Pick a random shop (except home), then shuffle it */
+/*				ZAIBAND_STATIC_ASSERT(STORE_HOME+1==MAX_STORES);	*/
+				store_shuffle((store_indexes)(rand_int(MAX_STORES-1)));
+/*
+				int n = rand_int(MAX_STORES-1);
+				if (STORE_HOME <= n) ++n;
+				store_shuffle((store_indexes)(n));
+ */
 			}
 
 			/* Message */
@@ -840,7 +908,7 @@ static void process_world(void)
 		if (!(turn % 100))
 		{
 			/* Basic digestion rate based on speed */
-			i = extract_energy[p_ptr->pspeed] * 2;
+			i = extract_energy[p_ptr->speed] * 2;
 
 			/* Regeneration takes more food */
 			if (p_ptr->regenerate) i += 30;
@@ -962,6 +1030,10 @@ static void process_world(void)
 		};
 	}
 
+	/* Paralyzed or Knocked Out: reset energy to 0 */
+	if ((p_ptr->timed[TMD_PARALYZED]) || (p_ptr->timed[TMD_STUN] >= 100))
+		p_ptr->energy = 0;
+
 	monster_scan(monster_condition_timeout);
 
 	/*** Process Light ***/
@@ -969,8 +1041,8 @@ static void process_world(void)
 	/* Check for light being wielded */
 	o_ptr = &p_ptr->inventory[INVEN_LITE];
 
-	/* Burn some fuel in the current lite */
-	if (o_ptr->tval == TV_LITE)
+	/* Burn some fuel in the current lite (unless it is daytime in the town) */
+	if ((TV_LITE == o_ptr->tval) && ((p_ptr->depth) || ((5L * TOWN_DAWN) <= turn % (10L * TOWN_DAWN))))
 	{
 		/* Hack -- Use some fuel (except on artifacts) */
 		if (!o_ptr->is_artifact() && (o_ptr->pval > 0))
@@ -982,7 +1054,7 @@ static void process_world(void)
 			if ((o_ptr->pval < 100) || (!(o_ptr->pval % 100)))
 			{
 				/* Window stuff */
-				p_ptr->window |= (PW_EQUIP);
+				p_ptr->redraw |= (PR_EQUIP);
 			}
 
 			/* Hack -- Special treatment when blind */
@@ -1002,7 +1074,7 @@ static void process_world(void)
 			/* The light is getting dim */
 			else if ((o_ptr->pval < 100) && (!(o_ptr->pval % 10)))
 			{
-				if (disturb_minor) disturb(0, 0);
+				disturb(0, 0);
 				msg_print("Your light is growing faint.");
 			}
 		}
@@ -1084,7 +1156,7 @@ static void process_world(void)
 
 
 
-/*
+/**
  * Verify use of "wizard" mode
  */
 static bool enter_wizard_mode(void)
@@ -1112,7 +1184,7 @@ static bool enter_wizard_mode(void)
 
 #ifdef ALLOW_DEBUG
 
-/*
+/**
  * Verify use of "debug" mode
  */
 static bool verify_debug_mode(void)
@@ -1142,7 +1214,7 @@ static bool verify_debug_mode(void)
 
 #ifdef ALLOW_BORG
 
-/*
+/**
  * Verify use of "borg" mode
  */
 static bool verify_borg_mode(void)
@@ -1168,9 +1240,145 @@ static bool verify_borg_mode(void)
 
 #endif /* ALLOW_BORG */
 
+#if 0
+		/*** Standard "Movement" Commands ***/
+
+		/* Walk */
+		case ';':
+		{
+			do_cmd_walk();
+			break;
+		}
+
+		/* Jump */
+		case '-':
+		{
+			do_cmd_jump();
+			break;
+		}
 
 
-/*
+		/*** Running, Resting, Searching, Staying */
+
+		/* Hold still */
+		case ',':
+		{
+			do_cmd_hold();
+			break;
+		}
+
+		/* Stay still */
+		case 'g':
+		{
+			do_cmd_stay();
+			break;
+		}
+
+		/*** Looking at Things (nearby or on map) ***/
+
+		/* Look around */
+		case 'l':
+		{
+			do_cmd_look();
+			break;
+		}
+
+		/* Target monster or location */
+		case '*':
+		{
+			do_cmd_target();
+			break;
+		}
+
+#endif
+
+/** \page commands Command Reference for Zaiband
+ * A terse summary of original-set keyboard commands for Zaiband
+ *
+ * Inventory commands:
+ * - \subpage wear_wield Wear/Wield equipment (w)
+ * - \subpage take_off Take off equipment (t)
+ * - \subpage drop_item Drop an item (d)
+ * - \subpage destroy_item Destroy an item (k)
+ * - \subpage equipment_list Equipment list (e)
+ * - \subpage inventory_list Inventory list (i)
+ * - \subpage toggle_inven__equip Toggle inventory and equipment windows (CTRL-E)
+ *
+ * Movement commands:
+ * - \subpage walking Walking and direction keys (12346789)
+ * - \subpage stay_still Holding still (5)
+ * - \subpage running Running (.)
+ * - \subpage resting Rest (R)
+ * - \subpage enter_store Stores and shopping
+ *
+ * Magic/Prayer:
+ * - \subpage gain_spell Gain a spell (G)
+ * - \subpage browse_book Browse a book (b)
+ * - \subpage cast_pray Cast a spell/invoke a prayer (m,p)
+ *
+ * Terrain commands:
+ * - \subpage open_door_chest Open a door or chest (o) 
+ * - \subpage close_door Close a door (c) 
+ * - \subpage jam_door Jam a door with spikes (j) 
+ * - \subpage bash_door Bash a door (B) 
+ * - \subpage disarm_trap_chest Disarm a trap or chest (o) 
+ * - \subpage dig_tunnel Dig a tunnel (T)
+ * - \subpage alter_grid Alter a grid (+)
+ * - \subpage search_trap_door Search for traps and doors (s)
+ * - \subpage toggle_search Toggle search mode (S)
+ * - \subpage go_up Go up a level (<)
+ * - \subpage go_down Go down a level (>)
+ *
+ * Object manipulation commands:
+ * - \subpage eat__food Eat some food (E)
+ * - \subpage fuel_light Fuel a lantern or torch (F)
+ * - \subpage fire_item Fire an item (f)
+ * - \subpage throw_item Throw an item (v)
+ * - \subpage quaff__potion Quaff a potion (q)
+ * - \subpage read__scroll Read a scroll (r)
+ * - \subpage aim__wand Aim a wand (a)
+ * - \subpage use__staff Use a staff (u)
+ * - \subpage zap__rod Zap a rod (z)
+ * - \subpage activate_artifact Activate an artifact (A)
+ * - \subpage inscribe_uninscribe Inscribing ({) and uninscribing (}) an object
+ *
+ * Information commands:
+ * - \subpage help_cmd Inline help (?)
+ * - \subpage look_around Look around (l)
+ * - \subpage target_location Targeting a monster or location (*)
+ * - \subpage character_desc Character description (C)
+ * - \subpage observe_object Observe an object (I)
+ * - \subpage identify_symbol Identify a symbol (/)
+ * - \subpage whole_map Full dungeon map (M)
+ * - \subpage locate_player Locate player on map (L)
+ * - \subpage check_knowledge Check knowledge (~) or (|)
+ * - \subpage take_note Take notes (:)
+ * - \subpage check_previous_message Check previous message (CTRL-O)
+ * - \subpage check_messages Check messages (CTRL-P)
+ * - \subpage check_feeling Check level feeling (CTRL-F)
+ * - \subpage redraw_screen Redraw the screen (CTRL-R)
+ *
+ * Meta commands
+ * - \subpage save Save game (CTRL-S)
+ * - \subpage save_quit Save game and quit (CTRL-X)
+ * - \subpage suicide Commit suicide (Q)
+ * - \subpage interact_options Interact with options (=)
+ * - \subpage interact_colors Interact with colors (&)
+ * - \subpage interact_visuals Interact with visuals (%)
+ * - \subpage interact_macros Interact with macros (@)
+ * - \subpage one_line_pref Single line from a pref file (")
+ * - \subpage user_interface User interface (!)
+ * - \subpage load_screen Load screen dump (()
+ * - \subpage save_screen Save screen dump ())
+ * - \subpage version Show verson info (V)
+ *
+ * Cheating commands:
+ * - \subpage wizard_mode Wizard Mode (CTRL-W)
+ * - \subpage debug_command Debug Commands (CTRL-A)
+ * - \subpage borg_command Borg Commands (CTRL-Z)
+ */
+
+/**
  * Parse and execute the current command
  * Give "Warning" on illegal commands.
  */
@@ -1777,25 +1985,16 @@ static void process_command(void)
 
 
 
-/*
+/**
  * Hack -- helper function for "process_player()"
  *
  * Check for changes in the "monster memory"
  */
 static void process_player_aux(void)
 {
-	int i;
-	bool changed = FALSE;
-
 	static int old_monster_race_idx = 0;
 
-	static u32b	old_flags1 = 0L;
-	static u32b	old_flags2 = 0L;
-	static u32b	old_flags3 = 0L;
-	static u32b	old_flags4 = 0L;
-	static u32b	old_flags5 = 0L;
-	static u32b	old_flags6 = 0L;
-
+	static u32b	old_flags[RACE_FLAG_STRICT_UB] = {0, 0, 0, 0, 0, 0};
 	static byte old_blows[MONSTER_BLOW_MAX];
 
 	static byte	old_cast_innate = 0;
@@ -1807,25 +2006,11 @@ static void process_player_aux(void)
 	{
 		/* Get the monster lore */
 		monster_lore *l_ptr = &monster_type::l_list[p_ptr->monster_race_idx];
-
-		for (i = 0; i < MONSTER_BLOW_MAX; i++)
-		{
-			if (old_blows[i] != l_ptr->blows[i])
-			{
-				changed = TRUE;
-				break;
-			}
-		}
 		
 		/* Check for change of any kind */
-		if (changed ||
+		if (0!=memcmp(old_blows,l_ptr->blows,MONSTER_BLOW_MAX) ||
 		    (old_monster_race_idx != p_ptr->monster_race_idx) ||
-		    (old_flags1 != l_ptr->flags1) ||
-		    (old_flags2 != l_ptr->flags2) ||
-		    (old_flags3 != l_ptr->flags3) ||
-		    (old_flags4 != l_ptr->flags4) ||
-		    (old_flags5 != l_ptr->flags5) ||
-		    (old_flags6 != l_ptr->flags6) ||
+		    (0!=memcmp(old_flags, l_ptr->flags, sizeof(u32b)*RACE_FLAG_STRICT_UB)) ||
 		    (old_cast_innate != l_ptr->cast_innate) ||
 		    (old_cast_spell != l_ptr->cast_spell))
 		{
@@ -1833,31 +2018,23 @@ static void process_player_aux(void)
 			old_monster_race_idx = p_ptr->monster_race_idx;
 
 			/* Memorize flags */
-			old_flags1 = l_ptr->flags1;
-			old_flags2 = l_ptr->flags2;
-			old_flags3 = l_ptr->flags3;
-			old_flags4 = l_ptr->flags4;
-			old_flags5 = l_ptr->flags5;
-			old_flags6 = l_ptr->flags6;
+			C_COPY(old_flags, l_ptr->flags, RACE_FLAG_STRICT_UB);
 
 			/* Memorize blows */
-			for (i = 0; i < MONSTER_BLOW_MAX; i++)
-				old_blows[i] = l_ptr->blows[i];
+			C_COPY(old_blows, l_ptr->blows, MONSTER_BLOW_MAX);
 
 			/* Memorize castings */
 			old_cast_innate = l_ptr->cast_innate;
 			old_cast_spell = l_ptr->cast_spell;
 
-			/* Window stuff */
-			p_ptr->window |= (PW_MONSTER);
-
-			/* Window stuff */
-			window_stuff();
+			/* Update the display */
+			p_ptr->redraw |= (PR_MONSTER);
+			redraw_stuff();
 		}
 	}
 }
 
-/*
+/**
  * Zaiband changes when noise is applied to when it's generated.
  */
 void apply_noise(coord src,int intensity)
@@ -1902,7 +2079,7 @@ void apply_noise(coord src,int intensity)
 }
 
 
-/*
+/**
  * Process the player
  *
  * Notice the annoying code to handle "pack overflow", which
@@ -1923,6 +2100,9 @@ void apply_noise(coord src,int intensity)
 static void process_player(void)
 {
 	int i;
+
+	/* should actually be able to move */
+	assert(!p_ptr->timed[TMD_PARALYZED] && (100 > p_ptr->timed[TMD_STUN]) && (150 <= p_ptr->energy));
 
 	/*** Check for interrupts ***/
 
@@ -1985,6 +2165,7 @@ static void process_player(void)
 
 
 	/*** Handle actual user input ***/
+	p_ptr->redraw |= (PR_MONSTER);	/* Update the monster tracking */
 
 	/* Repeat until energy is reduced */
 	do
@@ -1992,15 +2173,8 @@ static void process_player(void)
 		/* Notice stuff (if needed) */
 		if (p_ptr->notice) notice_stuff();
 
-		/* Update stuff (if needed) */
-		if (p_ptr->update) update_stuff();
-
-		/* Redraw stuff (if needed) */
-		if (p_ptr->redraw) redraw_stuff();
-
-		/* Redraw stuff (if needed) */
-		if (p_ptr->window) window_stuff();
-
+		/* Handle stuff */
+		handle_stuff();
 
 		/* Place the cursor on the player */
 		move_cursor_relative(p_ptr->loc);
@@ -2012,14 +2186,10 @@ static void process_player(void)
 		/* Hack -- Pack Overflow */
 		if (p_ptr->inventory[INVEN_PACK].k_idx)
 		{
-			int item = INVEN_PACK;
-
 			char o_name[80];
 
-			object_type *o_ptr;
-
 			/* Get the slot to be dropped */
-			o_ptr = &p_ptr->inventory[item];
+			object_type* const o_ptr = &p_ptr->inventory[INVEN_PACK];
 
 			/* Disturbing */
 			disturb(0, 0);
@@ -2028,50 +2198,36 @@ static void process_player(void)
 			msg_print("Your pack overflows!");
 
 			/* Describe */
-			object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+			object_desc(o_name, sizeof(o_name), o_ptr, TRUE, ODESC_FULL);
 
 			/* Message */
-			msg_format("You drop %s (%c).", o_name, index_to_label(item));
+			msg_format("You drop %s (%c).", o_name, index_to_label(INVEN_PACK));
 
 			/* Drop it (carefully) near the player */
 			drop_near(o_ptr, 0, p_ptr->loc);
 
 			/* Modify, Describe, Optimize */
-			inven_item_increase(item, -255);
-			inven_item_describe(item);
-			inven_item_optimize(item);
+			inven_item_increase(INVEN_PACK, -255);
+			inven_item_describe(INVEN_PACK);
+			inven_item_optimize(INVEN_PACK);
 
 			/* Notice stuff (if needed) */
 			if (p_ptr->notice) notice_stuff();
 
-			/* Update stuff (if needed) */
-			if (p_ptr->update) update_stuff();
-
-			/* Redraw stuff (if needed) */
-			if (p_ptr->redraw) redraw_stuff();
-
-			/* Window stuff (if needed) */
-			if (p_ptr->window) window_stuff();
+			/* Handle stuff */
+			handle_stuff();
 		}
 
 
 		/* Hack -- cancel "lurking browse mode" */
 		if (!p_ptr->command_new) p_ptr->command_see = FALSE;
 
-
 		/* Assume free turn */
 		p_ptr->energy_use = 0;
 
 
-		/* Paralyzed or Knocked Out */
-		if ((p_ptr->timed[TMD_PARALYZED]) || (p_ptr->timed[TMD_STUN] >= 100))
-		{
-			/* Take a turn */
-			p_ptr->energy_use = 100;
-		}
-
 		/* Resting */
-		else if (p_ptr->resting)
+		if (p_ptr->resting)
 		{
 			/* Timed rest */
 			if (p_ptr->resting > 0)
@@ -2144,11 +2300,7 @@ static void process_player(void)
 
 
 			/* Hack -- constant hallucination */
-			if (p_ptr->timed[TMD_IMAGE])
-			{
-				p_ptr->redraw |= (PR_MAP);
-				p_ptr->window |= (PW_MAP);
-			}
+			if (p_ptr->timed[TMD_IMAGE]) p_ptr->redraw |= (PR_MAP);
 
 			/* Shimmer monsters if needed */
 			if (!avoid_other && shimmer_monsters)
@@ -2159,17 +2311,13 @@ static void process_player(void)
 				/* Shimmer multi-hued monsters */
 				for (i = 1; i < mon_max; i++)
 				{
-					monster_type *m_ptr = &mon_list[i];	/* Get the monster */
-					monster_race *r_ptr;
+					const monster_type* const m_ptr = &mon_list[i];	/* Get the monster */
 
 					/* Skip dead monsters */
 					if (!m_ptr->r_idx) continue;
 
-					/* Get the monster race */
-					r_ptr = m_ptr->race();
-
 					/* Skip non-multi-hued monsters */
-					if (!(r_ptr->flags1 & (RF1_ATTR_MULTI))) continue;
+					if (!(m_ptr->race()->flags[0] & RF0_ATTR_MULTI)) continue;
 
 					/* Reset the flag */
 					shimmer_monsters = TRUE;
@@ -2232,15 +2380,11 @@ static void process_player(void)
 			}
 
 			/* Zaiband: player makes noise here */
-#if 1
 			{	/* C-ish blocking brace */
 			u32b notice = rand_int(1024);
 			if ((notice * notice * notice) <= p_ptr->noise)
-			{	/* player made noise */
-				apply_noise(p_ptr->loc,1);
-			}
+				apply_noise(p_ptr->loc,1);	/* player made noise */
 			}	/* end C-ish blocking brace */
-#endif
 		}
 
 		/* Repair "show" flags */
@@ -2261,7 +2405,7 @@ static void process_player(void)
 
 
 
-/*
+/**
  * Interact with the current dungeon level.
  *
  * This function will not exit until the level is completed,
@@ -2369,7 +2513,7 @@ static void dungeon(void)
 
 
 	/* Choose panel */
-	verify_panel();
+	event_signal(EVENT_PLAYERMOVED);
 
 
 	/* Flush messages */
@@ -2401,26 +2545,13 @@ static void dungeon(void)
 	p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
 
 	/* Redraw dungeon */
-	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_MONSTER | PW_MONLIST);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD | PW_MAP);
+	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP | PR_INVEN | PR_EQUIP | PR_MONSTER | PR_MONLIST);
 
 	/* Update stuff */
 	update_stuff();
 
 	/* Redraw stuff */
 	redraw_stuff();
-
-	/* Redraw stuff */
-	window_stuff();
-
 
 	/* Hack -- Decrease "xtra" depth */
 	character_xtra--;
@@ -2435,14 +2566,8 @@ static void dungeon(void)
 	/* Notice stuff */
 	notice_stuff();
 
-	/* Update stuff */
-	update_stuff();
-
-	/* Redraw stuff */
-	redraw_stuff();
-
-	/* Window stuff */
-	window_stuff();
+	/* Handle stuff */
+	handle_stuff();
 
 	/* Refresh */
 	Term_fresh();
@@ -2482,7 +2607,8 @@ static void dungeon(void)
 
 
 		/* Can the player move? */
-		while ((p_ptr->energy >= 100) && !p_ptr->leaving)
+		/* Zaiband: origin adjusted to 150 to handle monster energy being a byte, and diagonal move cost 150 */
+		while ((p_ptr->energy >= 150) && !p_ptr->leaving)
 		{
 			/* process monster with even more energy first */
 			process_monsters((byte)(p_ptr->energy + 1));
@@ -2498,14 +2624,8 @@ static void dungeon(void)
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff();
 
-		/* Update stuff */
-		if (p_ptr->update) update_stuff();
-
-		/* Redraw stuff */
-		if (p_ptr->redraw) redraw_stuff();
-
-		/* Redraw stuff */
-		if (p_ptr->window) window_stuff();
+		/* Handle stuff */
+		handle_stuff();
 
 		/* Hack -- Hilite the player */
 		move_cursor_relative(p_ptr->loc);
@@ -2515,19 +2635,13 @@ static void dungeon(void)
 
 
 		/* Process all of the monsters */
-		process_monsters(100);
+		process_monsters(150);
 
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff();
 
-		/* Update stuff */
-		if (p_ptr->update) update_stuff();
-
-		/* Redraw stuff */
-		if (p_ptr->redraw) redraw_stuff();
-
-		/* Redraw stuff */
-		if (p_ptr->window) window_stuff();
+		/* Handle stuff */
+		handle_stuff();
 
 		/* Hack -- Hilite the player */
 		move_cursor_relative(p_ptr->loc);
@@ -2542,14 +2656,8 @@ static void dungeon(void)
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff();
 
-		/* Update stuff */
-		if (p_ptr->update) update_stuff();
-
-		/* Redraw stuff */
-		if (p_ptr->redraw) redraw_stuff();
-
-		/* Window stuff */
-		if (p_ptr->window) window_stuff();
+		/* Handle stuff */
+		handle_stuff();
 
 		/* Hack -- Hilite the player */
 		move_cursor_relative(p_ptr->loc);
@@ -2561,7 +2669,7 @@ static void dungeon(void)
 		/*** Apply energy ***/
 
 		/* Give the player some energy */
-		p_ptr->energy += extract_energy[p_ptr->pspeed];
+		p_ptr->energy += extract_energy[p_ptr->speed];
 
 		/* Give energy to all monsters */
 		for (i = mon_max - 1; i >= 1; i--)
@@ -2573,7 +2681,7 @@ static void dungeon(void)
 			if (!m_ptr->r_idx) continue;
 
 			/* Give this monster some energy */
-			m_ptr->energy += extract_energy[m_ptr->mspeed];
+			m_ptr->energy += extract_energy[m_ptr->speed];
 		}
 
 		/* Count game turns */
@@ -2583,7 +2691,7 @@ static void dungeon(void)
 
 
 
-/*
+/**
  * Process some user pref files
  */
 static void process_some_user_pref_files(void)
@@ -2602,7 +2710,7 @@ static void process_some_user_pref_files(void)
 }
 
 
-/*
+/**
  * Actually play a game.
  *
  * This function is called from a variety of entry points, since both
@@ -2772,13 +2880,10 @@ void play_game(bool new_game)
 
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	p_ptr->redraw |= (PR_INVEN | PR_EQUIP | PR_MESSAGE | PR_MONSTER);
 
-	/* Window stuff */
-	p_ptr->window |= (PW_MONSTER | PW_MESSAGE);
-
-	/* Window stuff */
-	window_stuff();
+	/* Redraw stuff */
+	redraw_stuff();
 
 
 	/* Process some user pref files */
@@ -2820,15 +2925,8 @@ void play_game(bool new_game)
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff();
 
-		/* Update stuff */
-		if (p_ptr->update) update_stuff();
-
-		/* Redraw stuff */
-		if (p_ptr->redraw) redraw_stuff();
-
-		/* Window stuff */
-		if (p_ptr->window) window_stuff();
-
+		/* Handle stuff */
+		handle_stuff();
 
 		/* Cancel the target */
 		target_set_monster(0);

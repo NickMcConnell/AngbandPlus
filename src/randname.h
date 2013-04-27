@@ -15,11 +15,10 @@
 enum randname_type
 {
   RANDNAME_TOLKIEN = 1,
-  RANDNAME_SCROLL,
-
-  /* End of type marker - not a valid name type */
-  RANDNAME_NUM_TYPES
+  RANDNAME_SCROLL
 };
+
+#define RANDNAME_NUM_TYPES RANDNAME_SCROLL+1
 
 extern size_t randname_make(randname_type name_type, size_t min, size_t max, char *word_buf, size_t buflen);
 

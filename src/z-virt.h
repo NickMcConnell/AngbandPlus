@@ -1,11 +1,18 @@
 /* File: z-virt.h */
 
 /*
- * Copyright (c) 1997 Ben Harrison
+ * Copyright (c) 1997 Ben Harrison.
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #ifndef INCLUDED_Z_VIRT_H
@@ -45,79 +52,60 @@
 
 /**** Available macros ****/
 
-
-/* Compare two arrays of type T[N], at locations P1 and P2 */
-#define C_DIFF(P1,P2,N,T) \
-	(memcmp((P1),(P2),N*sizeof(T)))
-
-/* Compare two things of type T, at locations P1 and P2 */
-#define DIFF(P1,P2,T) \
-	(memcmp((P1),(P2),sizeof(T)))
-
-
-/* Set every byte in an array of type T[N], at location P, to V, and return P */
-#define C_BSET(P,V,N,T) \
-	(memset((P),(V),N*sizeof(T)))
-
-/* Set every byte in a thing of type T, at location P, to V, and return P */
-#define BSET(P,V,T) \
-	(memset((P),(V),sizeof(T)))
-
-
-/* Wipe an array of type T[N], at location P, and return P */
+/** Wipe an array of type T[N], at location P, and return P */
 template<class T>
 inline T* C_WIPE(T* P,size_t N)
 {return (T*)memset(P,0,N*sizeof(T));}
 
-/* Wipe a thing of type T, at location P, and return P */
+/** Wipe a thing of type T, at location P, and return P */
 template<class T>
 inline T* WIPE(T* P)
 {return (T*)memset(P,0,sizeof(T));}
 
 
-/* Load an array of type T[N], at location P1, from another, at location P2 */
+/** Load an array of type T[N], at location P1, from another, at location P2 */
 template<class T>
 inline T* C_COPY(T* P1,const T* P2,size_t N)
-{return (T*)memcpy(P1,P2,N*sizeof(T));}
+{return (T*)memmove(P1,P2,N*sizeof(T));}
 
-/* Load a thing of type T, at location P1, from another, at location P2 */
+/** Load a thing of type T, at location P1, from another, at location P2 */
 template<class T>
 inline T* COPY(T* P1,const T* P2)
-{return (T*)memcpy(P1,P2,sizeof(T));}
+{return (T*)memmove(P1,P2,sizeof(T));}
 
 
-/* Allocate, and return, an array of type T[N] */
+/** Allocate, and return, an array of type T[N] */
 #define C_RNEW(N,T) \
 	((T*)(mem_alloc(N*sizeof(T))))
 
-/* Allocate, and return, a thing of type T */
+/** Allocate, and return, a thing of type T */
 #define RNEW(T) \
 	((T*)(mem_alloc(sizeof(T))))
 
 
-/* Allocate, wipe, and return an array of type T[N] */
+/** Allocate, wipe, and return an array of type T[N] */
 #define C_ZNEW(N,T) \
 	(C_WIPE(C_RNEW(N,T),N))
 
-/* Allocate, wipe, and return a thing of type T */
+/** Allocate, wipe, and return a thing of type T */
 #define ZNEW(T) \
 	(WIPE(RNEW(T)))
 
 
-/* Allocate a wiped array of type T[N], assign to pointer P */
+/** Allocate a wiped array of type T[N], assign to pointer P */
 #define C_MAKE(P,N,T) \
 	((P)=C_ZNEW(N,T))
 
-/* Allocate a wiped thing of type T, assign to pointer P */
+/** Allocate a wiped thing of type T, assign to pointer P */
 #define MAKE(P,T) \
 	((P)=ZNEW(T))
 
 
-/* Free one thing at P, return NULL */
+/** Free one thing at P, return NULL */
 #define FREE(P) \
 	(mem_free(P))
 
-/* Free a thing at location P and set P to NULL */
+/** Free a thing at location P and set P to NULL */
 template<class T>
 inline void KILL(T* P)
 { 	P=(T*)(FREE(P)); }
@@ -148,7 +136,7 @@ void *mem_realloc(void *p, size_t len);
 /* Create a "dynamic string" */
 char *string_make(const char *str);
 
-/* Free a string allocated with "string_make()" */
+/** Free a string allocated with "string_make()" */
 inline char *string_free(const char *str) {return (char*)mem_free((void*)str);}
 
 #endif /* INCLUDED_Z_VIRT_H */

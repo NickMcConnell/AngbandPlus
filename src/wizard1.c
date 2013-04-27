@@ -3,13 +3,21 @@
 /*
  * Copyright (c) 1997 Ben Harrison, and others
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
-
+#include "raceflag.h"
+#include "tvalsval.h"
 
 #ifdef ALLOW_SPOILERS
 
@@ -39,7 +47,7 @@ static void spoiler_blanklines(int n)
 /*
  * Write a line to the spoiler file and then "underline" it with hypens
  */
-static void spoiler_underline(cptr str, char c)
+static void spoiler_underline(const char* const str, char c)
 {
 	text_out(str);
 	text_out("\n");
@@ -148,11 +156,11 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 
 
 	/* Description (too brief) */
-	object_desc_spoil(buf, 80, i_ptr, FALSE, 0);
+	object_desc_spoil(buf, 80, i_ptr, FALSE, ODESC_BASE);
 
 
 	/* Misc info */
-	strcpy(dam, "");
+	dam[0] = '\x00';
 
 	/* Damage */
 	switch (i_ptr->tval)
@@ -207,7 +215,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 /*
  * Create a spoiler file for items
  */
-static void spoil_obj_desc(cptr fname)
+static void spoil_obj_desc(const char* const fname)
 {
 	int i, k, s, t, n = 0;
 
@@ -218,7 +226,7 @@ static void spoil_obj_desc(cptr fname)
 	char wgt[80];
 	char dam[80];
 
-	cptr format = "%-51s  %7s%6s%4s%9s\n";
+	const char* const format = "%-51s  %7s%6s%4s%9s\n";
 
 	/* Build the filename */
 	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
@@ -310,7 +318,7 @@ static void spoil_obj_desc(cptr fname)
 			if (k_ptr->tval != group_item[i].tval) continue;
 
 			/* Hack -- Skip instant-artifacts */
-			if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
+			if (k_ptr->flags[2] & (TR3_INSTA_ART)) continue;
 
 			/* Save the index */
 			who[n++] = k;
@@ -403,7 +411,7 @@ bool make_fake_artifact(object_type *o_ptr, byte name1)
 	o_ptr->weight = a_ptr->weight;
 
 	/* Hack -- extract the "cursed" flag */
-	if (a_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
+	if (a_ptr->flags[2] & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
 
 	/* Success */
 	return (TRUE);
@@ -413,7 +421,7 @@ bool make_fake_artifact(object_type *o_ptr, byte name1)
 /*
  * Create a spoiler file for artifacts
  */
-static void spoil_artifact(cptr fname)
+static void spoil_artifact(const char* const fname)
 {
 	int i, j;
 
@@ -477,7 +485,7 @@ static void spoil_artifact(cptr fname)
 			if (!make_fake_artifact(i_ptr, (byte)j)) continue;
 
 			/* Grab artifact name */
-			object_desc_spoil(buf, sizeof(buf), i_ptr, TRUE, 1);
+			object_desc_spoil(buf, sizeof(buf), i_ptr, TRUE, ODESC_COMBAT);
 
 			/* Print name and underline */
 			spoiler_underline(buf, '-');
@@ -516,7 +524,7 @@ static void spoil_artifact(cptr fname)
 /*
  * Create a spoiler file for monsters
  */
-static void spoil_mon_desc(cptr fname)
+static void spoil_mon_desc(const char* const fname)
 {
 	int i, n = 0;
 
@@ -582,15 +590,14 @@ static void spoil_mon_desc(cptr fname)
 	for (i = 0; i < n; i++)
 	{
 		monster_race *r_ptr = &monster_type::r_info[who[i]];
-
-		cptr name = r_ptr->name();
+		const char* const name = r_ptr->name();
 
 		/* Get the "name" */
-		if (r_ptr->flags1 & (RF1_QUESTOR))
+		if (r_ptr->flags[0] & RF0_QUESTOR)
 		{
 			strnfmt(nam, sizeof(nam), "[Q] %s", name);
 		}
-		else if (r_ptr->flags1 & (RF1_UNIQUE))
+		else if (r_ptr->flags[0] & RF0_UNIQUE)
 		{
 			strnfmt(nam, sizeof(nam), "[U] %s", name);
 		}
@@ -620,7 +627,7 @@ static void spoil_mon_desc(cptr fname)
 		sprintf(ac, "%d", r_ptr->ac);
 
 		/* Hitpoints */
-		if ((r_ptr->flags1 & (RF1_FORCE_MAXHP)) || (r_ptr->h.sides == 1))
+		if ((r_ptr->flags[0] & RF0_FORCE_MAXHP) || (r_ptr->h.sides == 1))
 		{
 			sprintf(hp, "%d", r_ptr->h.maxroll());
 		}
@@ -670,7 +677,7 @@ static void spoil_mon_desc(cptr fname)
 /*
  * Create a spoiler file for monsters (-SHAWN-)
  */
-static void spoil_mon_info(cptr fname)
+static void spoil_mon_info(const char* const fname)
 {
 	char buf[1024];
 	int i, n;
@@ -733,11 +740,11 @@ static void spoil_mon_info(cptr fname)
 		monster_race *r_ptr = &monster_type::r_info[r_idx];
 
 		/* Prefix */
-		if (r_ptr->flags1 & RF1_QUESTOR)
+		if (r_ptr->flags[0] & RF0_QUESTOR)
 		{
 			text_out("[Q] ");
 		}
-		else if (r_ptr->flags1 & RF1_UNIQUE)
+		else if (r_ptr->flags[0] & RF0_UNIQUE)
 		{
 			text_out("[U] ");
 		}
@@ -786,7 +793,7 @@ static void spoil_mon_info(cptr fname)
 		text_out(buf);
 
 		/* Hitpoints */
-		if ((r_ptr->flags1 & RF1_FORCE_MAXHP) || (r_ptr->h.sides == 1))
+		if ((r_ptr->flags[0] & RF0_FORCE_MAXHP) || (r_ptr->h.sides == 1))
 		{
 			sprintf(buf, "Hp:%d  ", r_ptr->h.maxroll());
 		}

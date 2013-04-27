@@ -384,7 +384,6 @@
 /*** Define the basic game types ***/
 
 /*
- * cptr is a shortcut type for "const char *".  XXX
  * errr is an error code
  *
  * A "byte" is an unsigned byte of memory.
@@ -393,7 +392,6 @@
  * C++ comes with its own bool type...assume C99 stdbool header otherwise.
  */
 
-typedef const char *cptr;
 typedef int errr;
 typedef unsigned char byte;
 
@@ -522,7 +520,7 @@ typedef unsigned char byte;
 #  define isarrow(c)     ((c >= ARROW_DOWN) && (c <= ARROW_UP))
 #endif
 
-/* KB: redefine some macros from the Zaimoni.STL for Angband */
+/* KB: redefine some macros from the Zaimoni.STL for Zaiband */
 #ifndef NDEBUG
 # ifdef __GNUC__
 #  define DEBUG_FAIL_OR_LEAVE(A,B) if (A) {plog(__PRETTY_FUNCTION__); quit(#A);}
@@ -531,10 +529,16 @@ typedef unsigned char byte;
 #  define DEBUG_FAIL_OR_LEAVE(A,B) if (A) quit(#A)
 #  define DEBUG_DIE_OR_LEAVE(A,B) { quit(A); B; }
 # endif
+# define AUDIT_STATEMENT(A) { plog(#A); A; }
 #else
 # define DEBUG_FAIL_OR_LEAVE(A,B) if (A) B
 # define DEBUG_DIE_OR_LEAVE(A,B) B
+# define AUDIT_STATEMENT(A) A
 #endif
+
+/* delayed concatenation */
+#define ANG_CONCAT(A,B) A##B
+#define ANG_EVAL(A) A
 
 /* KB: very temporary hack to toggle on/off whether the new command-loop interface is configured */
 /* currently ok for Windows */

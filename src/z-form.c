@@ -3,9 +3,16 @@
 /*
  * Copyright (c) 1997 Ben Harrison
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 /* Purpose: Low level text formatting -BEN- */
@@ -187,27 +194,15 @@
  * the given buffer to a length of zero, and return a "length" of zero.
  * The contents of "buf", except for "buf[0]", may then be undefined.
  */
-size_t vstrnfmt(char *buf, size_t max, cptr fmt, va_list vp)
+size_t vstrnfmt(char *buf, size_t max, const char* fmt, va_list vp)
 {
-	cptr s;
-
-	/* The argument is "long" */
-	bool do_long;
-
-	/* The argument needs "processing" */
-	bool do_xtra;
-
-	/* Bytes used in buffer */
-	size_t n;
-
-	/* Bytes used in format sequence */
-	size_t q;
-
-	/* Format sequence */
-	char aux[128];
-
-	/* Resulting string */
-	char tmp[1024];
+	const char* s;
+	bool do_long;	/* The argument is "long" */
+	bool do_xtra;	/* The argument needs "processing" */
+	size_t n = 0;	/* Bytes used in buffer */
+	size_t q;		/* Bytes used in format sequence */
+	char aux[128];	/* Format sequence */
+	char tmp[1024];	/* Resulting string */
 
 
 	/* Fatal error - no buffer length */
@@ -217,12 +212,7 @@ size_t vstrnfmt(char *buf, size_t max, cptr fmt, va_list vp)
 	/* Mega-Hack -- treat "no format" as "empty string" */
 	if (!fmt) fmt = "";
 
-
-	/* Begin the buffer */
-	n = 0;
-
-	/* Begin the format string */
-	s = fmt;
+	s = fmt;	/* Begin the format string */
 
 	/* Scan the format string */
 	while (TRUE)
@@ -516,7 +506,7 @@ size_t vstrnfmt(char *buf, size_t max, cptr fmt, va_list vp)
 			/* String */
 			case 's':
 			{	/* Get the next argument */
-				cptr arg = tval.t == T_END ? va_arg(vp, cptr) : tval.u.s;
+				const char* arg = tval.t == T_END ? va_arg(vp, const char*) : tval.u.s;
 				char arg2[1024];
 
 				/* Hack -- convert NULL to EMPTY */
@@ -585,7 +575,7 @@ size_t vstrnfmt(char *buf, size_t max, cptr fmt, va_list vp)
 /*
  * Add a formatted string to the end of a string
  */
-void strnfcat(char *str, size_t max, size_t *end, cptr fmt, ...)
+void strnfcat(char *str, size_t max, size_t* end, const char* fmt, ...)
 {
 	size_t len;
 
@@ -616,7 +606,7 @@ static size_t format_len = 0;
  * Do a vstrnfmt (see above) into a (growable) static buffer.
  * This buffer is usable for very short term formatting of results.
  */
-char *vformat(cptr fmt, va_list vp)
+char *vformat(const char* fmt, va_list vp)
 {
 	/* Initial allocation */
 	if (!format_buf)
@@ -658,10 +648,9 @@ void vformat_kill(void)
 /*
  * Do a vstrnfmt (see above) into a buffer of a given size.
  */
-size_t strnfmt(char *buf, size_t max, cptr fmt, ...)
+size_t strnfmt(char *buf, size_t max, const char* fmt, ...)
 {
 	size_t len;
-
 	va_list vp;
 
 	/* Begin the Varargs Stuff */
@@ -684,7 +673,7 @@ size_t strnfmt(char *buf, size_t max, cptr fmt, ...)
  * Note that the buffer is (technically) writable, but only up to
  * the length of the string contained inside it.
  */
-char *format(cptr fmt, ...)
+char *format(const char* fmt, ...)
 {
 	char *res;
 	va_list vp;
@@ -708,7 +697,7 @@ char *format(cptr fmt, ...)
 /*
  * Vararg interface to plog()
  */
-void plog_fmt(cptr fmt, ...)
+void plog_fmt(const char* fmt, ...)
 {
 	char *res;
 	va_list vp;
@@ -731,7 +720,7 @@ void plog_fmt(cptr fmt, ...)
 /*
  * Vararg interface to quit()
  */
-void quit_fmt(cptr fmt, ...)
+void quit_fmt(const char* fmt, ...)
 {
 	char *res;
 	va_list vp;
@@ -754,7 +743,7 @@ void quit_fmt(cptr fmt, ...)
 /*
  * Vararg interface to core()
  */
-void core_fmt(cptr fmt, ...)
+void core_fmt(const char* fmt, ...)
 {
 	char *res;
 	va_list vp;

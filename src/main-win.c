@@ -357,7 +357,7 @@ struct _term_data
 {
 	term t;
 
-	cptr s;
+	const char* s;
 
 	HWND w;
 
@@ -387,9 +387,8 @@ struct _term_data
 
 	bool bizarre;
 
-	cptr font_want;
-
-	cptr font_file;
+	const char* font_want;
+	const char* font_file;
 
 	HFONT font_id;
 
@@ -518,7 +517,7 @@ static bool can_use_sound = FALSE;
 /*
  * An array of sound file names
  */
-static cptr sound_file[MSG_MAX][SAMPLE_MAX];
+static const char* sound_file[MSG_MAX][SAMPLE_MAX];
 
 #endif /* USE_SOUND */
 
@@ -526,25 +525,25 @@ static cptr sound_file[MSG_MAX][SAMPLE_MAX];
 /*
  * Full path to ANGBAND.INI
  */
-static cptr ini_file = NULL;
+static const char* ini_file = NULL;
 
 /*
  * Name of application
  */
-static cptr AppName = VERSION_NAME;
+static const char* AppName = VERSION_NAME;
 
 /*
  * Name of sub-window type
  */
-static cptr AngList = "AngList";
+static const char* AngList = "AngList";
 
 /*
  * Directory names
  */
-static cptr ANGBAND_DIR_XTRA_FONT;
-static cptr ANGBAND_DIR_XTRA_GRAF;
-static cptr ANGBAND_DIR_XTRA_SOUND;
-static cptr ANGBAND_DIR_XTRA_HELP;
+static const char* ANGBAND_DIR_XTRA_FONT;
+static const char* ANGBAND_DIR_XTRA_GRAF;
+static const char* ANGBAND_DIR_XTRA_SOUND;
+static const char* ANGBAND_DIR_XTRA_HELP;
 
 /*
  * The "complex" color values
@@ -673,15 +672,17 @@ static const byte special_key_list[] =
 
 #include "game-cmd.h"
 
+#ifdef ZAIBAND_NEW_COMMAND_LOOP
 static game_command cmd = { CMD_NULL, 0, NULL, NULL, { NULL }, 0 };
+#endif
 
 #if 0
 /*
  * Hack -- given a pathname, point at the filename
  */
-static cptr extract_file_name(cptr s)
+static const char* extract_file_name(const char* s)
 {
-	cptr p;
+	const char* p;
 
 	/* Start at the end */
 	p = s + strlen(s) - 1;
@@ -759,7 +760,7 @@ static char *analyze_font(char *path, int *wp, int *hp)
 /*
  * Check for existance of a file
  */
-static bool check_file(cptr s)
+static bool check_file(const char* s)
 {
 	char path[1024];
 
@@ -808,7 +809,7 @@ static bool check_file(cptr s)
 /*
  * Check for existance of a directory
  */
-static bool check_dir(cptr s)
+static bool check_dir(const char* s)
 {
 	int i;
 
@@ -865,26 +866,22 @@ static bool check_dir(cptr s)
 /*
  * Validate a file
  */
-static void validate_file(cptr s)
+static void validate_file(const char* const s)
 {
 	/* Verify or fail */
 	if (!check_file(s))
-	{
 		quit_fmt("Cannot find required file:\n%s", s);
-	}
 }
 
 
 /*
  * Validate a directory
  */
-static void validate_dir(cptr s)
+static void validate_dir(const char* const s)
 {
 	/* Verify or fail */
 	if (!check_dir(s))
-	{
 		quit_fmt("Cannot find required directory:\n%s", s);
-	}
 }
 
 
@@ -933,7 +930,7 @@ static void term_getsize(term_data *td)
 /*
  * Write the "prefs" for a single term
  */
-static void save_prefs_aux(term_data *td, cptr sec_name)
+static void save_prefs_aux(term_data *td, const char* const sec_name)
 {
 	char buf[1024];
 
@@ -949,7 +946,7 @@ static void save_prefs_aux(term_data *td, cptr sec_name)
 	WritePrivateProfileString(sec_name, "Visible", buf, ini_file);
 
 	/* Font */
-	strcpy(buf, td->font_file ? td->font_file : DEFAULT_FONT);
+	my_strcpy(buf, td->font_file ? td->font_file : DEFAULT_FONT, sizeof(buf));
 	WritePrivateProfileString(sec_name, "Font", buf, ini_file);
 
 	/* Bizarre */
@@ -1033,7 +1030,7 @@ static void save_prefs(void)
 /*
  * Load the "prefs" for a single term
  */
-static void load_prefs_aux(term_data *td, cptr sec_name)
+static void load_prefs_aux(term_data *td, const char* const sec_name)
 {
 	char tmp[1024];
 
@@ -1306,14 +1303,14 @@ static int new_palette(void)
 	}
 
 	/* Free something */
-	if (lppe) free(lppe);
+	if (lppe) mem_free(lppe);
 
 	/* Create a new palette, or fail */
 	hNewPal = CreatePalette(pLogPal);
 	if (!hNewPal) quit("Cannot create palette!");
 
 	/* Free the palette */
-	free(pLogPal);
+	mem_free(pLogPal);
 
 	/* Main window */
 	td = &data[0];
@@ -1357,8 +1354,8 @@ static bool init_graphics(void)
 	{
 		char buf[1024];
 		int wid, hgt;
-		cptr name;
-		cptr mask = NULL;
+		const char* name;
+		const char* mask = NULL;
 
 		if (arg_graphics == GRAPHICS_DAVID_GERVAIS)
 		{
@@ -1506,14 +1503,11 @@ static void term_remove_font(const char *name)
  *
  * Note that the "font name" must be capitalized!!!
  */
-static errr term_force_font(term_data *td, cptr path)
+static errr term_force_font(term_data *td, const char* const path)
 {
 	int i;
-
 	int wid, hgt;
-
 	char *base;
-
 	char buf[1024];
 
 	/* Check we have a path */
@@ -1617,10 +1611,10 @@ static void term_change_font(term_data *td)
 {
 	OPENFILENAME ofn;
 
-	char tmp[1024] = "";
+	char tmp[1024];
 
 	/* Extract a default if possible */
-	if (td->font_file) strcpy(tmp, td->font_file);
+	if (td->font_file) my_strcpy(tmp, td->font_file, sizeof(tmp));
 
 	/* Ask for a choice */
 	memset(&ofn, 0, sizeof(ofn));
@@ -1859,11 +1853,7 @@ static errr Term_xtra_win_react(void)
 		use_graphics = arg_graphics;
 
 		/* Reset visuals */
-#ifdef ANGBAND_2_8_1
-		reset_visuals();
-#else /* ANGBAND_2_8_1 */
 		reset_visuals(TRUE);
-#endif /* ANGBAND_2_8_1 */
 	}
 
 #endif /* USE_GRAPHICS */
@@ -2265,7 +2255,7 @@ static errr Term_wipe_win(int x, int y, int n)
  * what color it should be using to draw with, but perhaps simply changing
  * it every time is not too inefficient.  XXX XXX XXX
  */
-static errr Term_text_win(int x, int y, int n, byte a, cptr s)
+static errr Term_text_win(int x, int y, int n, byte a, const char* const s)
 {
 	term_data *td = (term_data*)(Term->data);
 	RECT rc;
@@ -2526,7 +2516,6 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 
 static void windows_map_aux(void)
 {
-	grid_data gd;
 	term_data *td = &data[0];
 	byte a;
 	char c;
@@ -2534,29 +2523,6 @@ static void windows_map_aux(void)
 	int y, min_y, max_y;
 	byte ta;
 	char tc;
-
-#ifdef ZANGBAND
-
-	td->map_tile_wid = (td->tile_wid * td->cols) / MAX_WID;
-	td->map_tile_hgt = (td->tile_hgt * td->rows) / MAX_HGT;
-
-#ifdef ZANGBAND_WILDERNESS
-
-	min_x = min_wid;
-	min_y = min_hgt;
-	max_x = max_wid;
-	max_y = max_hgt;
-
-#else /* ZANGBAND_WILDERNESS */
-
-	min_x = 0;
-	min_y = 0;
-	max_x = cur_wid;
-	max_y = cur_hgt;
-
-#endif /* ZANGBAND_WILDERNESS */
-
-#else /* ZANGBAND */
 
 	td->map_tile_wid = (td->tile_wid * td->cols) / DUNGEON_WID;
 	td->map_tile_hgt = (td->tile_hgt * td->rows) / DUNGEON_HGT;
@@ -2566,15 +2532,12 @@ static void windows_map_aux(void)
 	max_x = DUNGEON_WID;
 	max_y = DUNGEON_HGT;
 
-#endif /* ZANGBAND */
-
 	/* Draw the map */
 	for (x = min_x; x < max_x; x++)
 	{
 		for (y = min_y; y < max_y; y++)
 		{
-			map_info(y, x, gd);
-			grid_data_as_text(gd, a, c, ta, tc);
+			grid_data(y, x).as_text(a, c, ta, tc);
 
 			/* Ignore non-graphics */
 			if ((a & 0x80) && (c & 0x80))
@@ -2827,23 +2790,6 @@ static void init_windows(void)
 
 	term_data_link(td);
 	term_screen = &td->t;
-
-#ifdef ZANGBAND_BIGSCREEN
-
-	/*
-	 * Reset map size if required
-	 */
-
-	/* Mega-Hack -- no panel yet */
-	panel_row_min = 0;
-	panel_row_max = 0;
-	panel_col_min = 0;
-	panel_col_max = 0;
-
-	/* Reset the panels */
-	map_panel_size();
-
-#endif /* ZANGBAND_BIGSCREEN */
 
 	/* Activate the main window */
 	SetActiveWindow(td->w);
@@ -3254,14 +3200,12 @@ static void start_screensaver(void)
 	 *
      * Try just marking the savefile correctly.
 	 */
-
 	p_ptr->noscore |= (NOSCORE_BORG);
 
 	/*
 	 * Make sure the "cheat_live" option is set, so that the Borg can
 	 * automatically restart.
 	 */
-
 	screensaver_inkey_hack_buffer[j++] = '5'; /* Cheat options */
 
 	/* Cursor down to "cheat live" */
@@ -3290,7 +3234,7 @@ static void start_screensaver(void)
 /*
  * Display a help file
  */
-static void display_help(cptr filename)
+static void display_help(const char* const filename)
 {
 	char tmp[1024];
 
@@ -3428,11 +3372,7 @@ static void process_menus(WORD wCmd)
 				msg_flag = FALSE;
 
 				/* Save the game */
-#ifdef ZANGBAND
-				do_cmd_save_game(FALSE);
-#else /* ZANGBAND */
 				do_cmd_save_game();
-#endif /* ZANGBAND */
 			}
 			quit(NULL);
 			break;
@@ -4073,11 +4013,7 @@ static LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, unsigned int uMsg,
 				msg_flag = FALSE;
 
 				/* Save the game */
-#ifdef ZANGBAND
-				do_cmd_save_game(FALSE);
-#else /* ZANGBAND */
 				do_cmd_save_game();
-#endif /* ZANGBAND */
 			}
 			quit(NULL);
 			return 0;
@@ -4333,10 +4269,6 @@ static LRESULT FAR PASCAL AngbandListProc(HWND hWnd, unsigned int uMsg,
 
 				/* Redraw later */
 				InvalidateRect(td->w, NULL, TRUE);
-
-				/* HACK - Redraw all windows */
-				p_ptr->window = 0xFFFFFFFF;
-				window_stuff();
 			}
 
 			td->size_hack = FALSE;
@@ -4418,7 +4350,6 @@ static LRESULT FAR PASCAL AngbandListProc(HWND hWnd, unsigned int uMsg,
 				stop_screensaver();
 				return 0;
 			}
-
 			break;
 		}
 
@@ -4589,7 +4520,7 @@ LRESULT FAR PASCAL AngbandSaverProc(HWND hWnd, unsigned int uMsg,
 /*
  * Display warning message (see "z-util.c")
  */
-static void hack_plog(cptr str)
+static void hack_plog(const char* const str)
 {
 	/* Give a warning */
 	if (str)
@@ -4603,7 +4534,7 @@ static void hack_plog(cptr str)
 /*
  * Display error message and quit (see "z-util.c")
  */
-static void hack_quit(cptr str)
+static void hack_quit(const char* const str)
 {
 	/* Give a warning */
 	if (str)
@@ -4615,8 +4546,8 @@ static void hack_quit(cptr str)
 	/* Unregister the classes */
 	UnregisterClass(AppName, hInstance);
 
-	/* Destroy the icon */
-	if (hIcon) DestroyIcon(hIcon);
+	/* MSDN/2005: bug in documentation; icons not created with CreateIcon (such as this one) should not be destroyed */
+/*	if (hIcon) DestroyIcon(hIcon); */
 
 #ifdef USE_SAVER
 	if (screensaverSemaphore) CloseHandle(screensaverSemaphore);
@@ -4634,7 +4565,7 @@ static void hack_quit(cptr str)
 /*
  * Display warning message (see "z-util.c")
  */
-static void hook_plog(cptr str)
+static void hook_plog(const char* str)
 {
 #ifdef USE_SAVER
 	if (screensaver_active) return;
@@ -4652,7 +4583,7 @@ static void hook_plog(cptr str)
 /*
  * Display error message and quit (see "z-util.c")
  */
-static void hook_quit(cptr str)
+static void hook_quit(const char* str)
 {
 	int i;
 
@@ -4719,7 +4650,8 @@ static void hook_quit(cptr str)
 
 	UnregisterClass(AppName, hInstance);
 
-	if (hIcon) DestroyIcon(hIcon);
+	/* MSDN/2005: bug in documentation; icons not created with CreateIcon (such as this one) should not be destroyed */
+/*	if (hIcon) DestroyIcon(hIcon); */
 
 	/* Free strings */
 	string_free(ini_file);
@@ -4736,7 +4668,7 @@ static void hook_quit(cptr str)
 	exit(0);
 }
 
-
+#ifdef ZAIBAND_NEW_COMMAND_LOOP 
 static game_command get_init_cmd()
 {
 	MSG msg;
@@ -4757,6 +4689,7 @@ static game_command get_init_cmd()
 
 	return cmd;
 }
+#endif
 
 /*** Initialize ***/
 
@@ -4818,7 +4751,7 @@ static void init_stuff(void)
 	}
 
 	/* Add "lib" to the path */
-	strcpy(path + i + 1, "lib\\");
+	my_strcpy(path + i + 1, "lib\\", sizeof(path) - i - 1);
 
 	/* Validate the path */
 	validate_dir(path);

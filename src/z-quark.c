@@ -29,12 +29,15 @@
  *
  * Two objects with the same inscription will have the same "quark" index.
  *
- * Some code uses "zero" to indicate the non-existance of a quark.
- *
- * Note that "quark zero" is NULL and should never be "dereferenced".
- *
  * ToDo: Add reference counting for quarks, so that unused quarks can
  * be overwritten.
+ */
+
+/**
+ * \typedef size_t quark_t
+ * Some code uses "zero" to indicate the non-existance of a quark.
+ *
+ * \warning "quark zero" is NULL and should never be "dereferenced".
  */
 
 #include "z-virt.h"

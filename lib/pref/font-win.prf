@@ -23,31 +23,32 @@
 
 # F:2:1/31
 
-
+# 127 is ESC, won't render on Vista
+# fall back to #/35
 # Magma (slate / solid block)
 
-F:50:2/127
-F:52:2/127
+F:50:2/35
+F:52:2/35
 
 
 # Quartz (light slate / solid block)
 
-F:51:9/127
-F:53:9/127
+F:51:9/35
+F:53:9/35
 
 
 # Secret door (white / solid block)
 
-F:48:1/127
+F:48:1/35
 
 # Granite walls & permanent rock (white / solid block)
 
-F:56:1/127
-F:57:1/127
-F:58:1/127
-F:59:1/127
-F:60:1/127
-F:61:1/127
-F:62:1/127
-F:63:1/127
+F:56:1/35
+F:57:1/35
+F:58:1/35
+F:59:1/35
+F:60:1/35
+F:61:1/35
+F:62:1/35
+F:63:1/35
 

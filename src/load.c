@@ -3,14 +3,23 @@
 /*
  * Copyright (c) 1997 Ben Harrison, and others
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
 #include "z-msg.h"
 #include "z-quark.h"
+#include "tvalsval.h"
+#include "store.h"
 
 /*
  * This file loads savefiles from Angband 2.9.X.
@@ -67,7 +76,7 @@ static u32b	x_check = 0L;
  *
  * Avoid the top two lines, to avoid interference with "msg_print()".
  */
-static void note(cptr msg)
+static void note(const char* const msg)
 {
 	static int y = 2;
 
@@ -244,7 +253,7 @@ static errr rd_item(object_type *o_ptr)
 {
 	dice_sides old_d;
 
-	u32b f1, f2, f3;
+	u32b f[OBJECT_FLAG_STRICT_UB];
 
 	object_kind *k_ptr;
 
@@ -377,7 +386,7 @@ static errr rd_item(object_type *o_ptr)
 
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, f);
 
 
 	/* Paranoia */
@@ -441,7 +450,7 @@ static errr rd_item(object_type *o_ptr)
 		if (!e_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
 
 		/* Hack -- enforce legal pval */
-		if (e_ptr->flags1 & (TR1_PVAL_MASK))
+		if (e_ptr->flags[0] & (TR1_PVAL_MASK))
 		{
 			/* Force a meaningful pval */
 			if (!o_ptr->pval) o_ptr->pval = 1;
@@ -477,10 +486,10 @@ static void rd_monster(monster_type *m_ptr)
 	/* Read the other information */
 	rd_byte((byte*)&m_ptr->loc.y);
 	rd_byte((byte*)&m_ptr->loc.x);
-	rd_s16b(&m_ptr->hp);
-	rd_s16b(&m_ptr->maxhp);
+	rd_s16b(&m_ptr->chp);
+	rd_s16b(&m_ptr->mhp);
 	rd_s16b(&m_ptr->csleep);
-	rd_byte(&m_ptr->mspeed);
+	rd_byte(&m_ptr->speed);
 	rd_byte(&m_ptr->energy);
 	rd_byte(&m_ptr->stunned);
 	rd_byte(&m_ptr->confused);
@@ -531,13 +540,8 @@ static void rd_lore(int r_idx)
 		rd_byte(&l_ptr->blows[i]);
 
 	/* Memorize flags */
-	rd_u32b(&l_ptr->flags1);
-	rd_u32b(&l_ptr->flags2);
-	rd_u32b(&l_ptr->flags3);
-	rd_u32b(&l_ptr->flags4);
-	rd_u32b(&l_ptr->flags5);
-	rd_u32b(&l_ptr->flags6);
-
+	for (i = 0; i < RACE_FLAG_STRICT_UB; i++)
+		rd_u32b(&l_ptr->flags[i]);
 
 	/* Read the "Racial" monster limit per level */
 	rd_byte(&r_ptr->max_num);
@@ -549,12 +553,8 @@ static void rd_lore(int r_idx)
 
 
 	/* Repair the lore flags */
-	l_ptr->flags1 &= r_ptr->flags1;
-	l_ptr->flags2 &= r_ptr->flags2;
-	l_ptr->flags3 &= r_ptr->flags3;
-	l_ptr->flags4 &= r_ptr->flags4;
-	l_ptr->flags5 &= r_ptr->flags5;
-	l_ptr->flags6 &= r_ptr->flags6;
+	for (i = 0; i < RACE_FLAG_STRICT_UB; i++)
+		l_ptr->flags[i] &= r_ptr->flags[i];
 }
 
 
@@ -613,13 +613,7 @@ static errr rd_store(int n)
 		}
 
 		/* Accept any valid items */
-		if (st_ptr->stock_num < STORE_INVEN_MAX)
-		{
-			int k = st_ptr->stock_num++;
-
-			/* Accept the item */
-			COPY(&st_ptr->stock[k], i_ptr);
-		}
+		if (st_ptr->stock_num < STORE_INVEN_MAX) st_ptr->stock[st_ptr->stock_num++] = *i_ptr;
 	}
 
 	/* Success */
@@ -900,7 +894,7 @@ static errr rd_extra(void)
 
 	byte tmp8u;
 	u16b tmp16u;
-
+	s16b tmp16s;
 
 	rd_string(op_ptr->full_name, sizeof(op_ptr->full_name));
 
@@ -1020,7 +1014,8 @@ static errr rd_extra(void)
 		rd_s16b(&p_ptr->timed[TMD_CONFUSED]);
 		rd_s16b(&p_ptr->food);
 		strip_bytes(4);	/* Old "food_digested" / "protection" */
-		rd_s16b(&p_ptr->energy);
+		rd_s16b(&tmp16s);
+		p_ptr->energy = tmp16s;
 		rd_s16b(&p_ptr->timed[TMD_FAST]);
 		rd_s16b(&p_ptr->timed[TMD_SLOW]);
 		rd_s16b(&p_ptr->timed[TMD_AFRAID]);
@@ -1059,7 +1054,8 @@ static errr rd_extra(void)
 		int i;
 
 		rd_s16b(&p_ptr->food);
-		rd_s16b(&p_ptr->energy);
+		rd_s16b(&tmp16s);
+		p_ptr->energy = tmp16s;
 		rd_s16b(&p_ptr->word_recall);
 		rd_s16b(&p_ptr->see_infra);
 		rd_byte(&p_ptr->confusing);
@@ -1153,6 +1149,7 @@ static errr rd_randarts(void)
 {
 
 	int i;
+	size_t j;
 	byte tmp8u;
 	s16b tmp16s;
 	u16b tmp16u;
@@ -1228,18 +1225,16 @@ static errr rd_randarts(void)
 
 				rd_s32b(&a_ptr->cost);
 
-				rd_u32b(&a_ptr->flags1);
-				rd_u32b(&a_ptr->flags2);
-				rd_u32b(&a_ptr->flags3);
+				for(j = 0; j < OBJECT_FLAG_STRICT_UB; ++j)
+					rd_u32b(&a_ptr->flags[j]);
 
 				rd_byte(&a_ptr->level);
 				rd_byte(&a_ptr->rarity);
 
 				rd_byte(&a_ptr->activation);
-				rd_u16b(&a_ptr->time_base);
-				rd_u16b(&tmp16u);			/* fix this when bumping internal version */
-				a_ptr->time.dice = 1;		/* constant 1 */
-				a_ptr->time.sides = tmp16u;
+				rd_u16b(&a_ptr->time.base);
+				rd_u16b(&a_ptr->time.range.sides);
+				a_ptr->time.range.dice = 1;			/* constant 1; fix this when bumping internal version */
 			}
 		}
 		else
@@ -1293,10 +1288,11 @@ static errr rd_randarts(void)
  */
 static errr rd_inventory(void)
 {
-	int slot = 0;
-
 	object_type object_type_body;
 	object_type *i_ptr = &object_type_body;	/* Get local object */
+	p_ptr->inven_cnt = 0;
+
+	assert(p_ptr->inven_cnt_is_strict_UB_of_nonzero_k_idx() && "precondition");
 
 	/* Read until done */
 	while (1)
@@ -1329,7 +1325,7 @@ static errr rd_inventory(void)
 		if (n >= INVEN_WIELD)
 		{
 			/* Copy object */
-			COPY(&p_ptr->inventory[n], i_ptr);
+			p_ptr->inventory[n] = *i_ptr;
 
 			/* Add the weight */
 			p_ptr->total_weight += (i_ptr->number * i_ptr->weight);
@@ -1351,17 +1347,13 @@ static errr rd_inventory(void)
 		/* Carry inventory */
 		else
 		{
-			/* Get a slot */
-			n = slot++;
-
-			/* Copy object */
-			COPY(&p_ptr->inventory[n], i_ptr);
+			/* Copy object, one more item */
+			p_ptr->inventory[p_ptr->inven_cnt++] = *i_ptr;
 
 			/* Add the weight */
 			p_ptr->total_weight += (i_ptr->number * i_ptr->weight);
 
-			/* One more item */
-			p_ptr->inven_cnt++;
+			assert(p_ptr->inven_cnt_is_strict_UB_of_nonzero_k_idx() && "postcondition");
 		}
 	}
 
@@ -1414,7 +1406,7 @@ static void rd_messages(void)
  * size will be silently discarded by this routine.
  *
  * Note that dungeon objects, including objects held by monsters, are
- * placed directly into the dungeon, using "COPY()", which will
+ * placed directly into the dungeon with the = operator, which will
  * copy "iy", "ix", and "held_m_idx", leaving "next_o_idx" blank for
  * objects held by monsters, since it is not saved in the savefile.
  *
@@ -1588,7 +1580,7 @@ static errr rd_dungeon(void)
 		o_ptr = &o_list[o_idx];
 
 		/* Structure Copy */
-		COPY(o_ptr, i_ptr);
+		*o_ptr = *i_ptr;
 
 		/* Dungeon floor */
 		if (!i_ptr->held_m_idx)
@@ -1653,7 +1645,7 @@ static errr rd_dungeon(void)
 		if (!o_ptr->held_m_idx) continue;
 
 		/* Verify monster index */
-		if (o_ptr->held_m_idx > z_info->m_max)
+		if (o_ptr->held_m_idx >= z_info->m_max)
 		{
 			note("Invalid monster index");
 			return (-1);
@@ -1979,7 +1971,7 @@ bool load_player(void)
 	struct stat	statbuf;
 #endif /* VERIFY_TIMESTAMP */
 
-	cptr what = "generic";
+	const char* what = "generic";
 
 
 	/* Paranoia */

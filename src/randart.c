@@ -2,17 +2,25 @@
 
 
 /*
- * Copyright (c) 1997 Ben Harrison
+ * Copyright (c) 1998 Greg Wooledge, Ben Harrison, Robert Ruhlmann
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
 
 #include "init.h"
 #include "randname.h"
+#include "tvalsval.h"
 
 /*
  * Random artifact generator (randart) by Greg Wooledge.
@@ -49,11 +57,11 @@ static errr init_names(void)
 	int i;
 
 	/* Temporary space for names, while reading and randomizing them. */
-	cptr *names;
+	const char** names;
 
 	/* Allocate the "names" array */
 	/* ToDo: Make sure the memory is freed correctly in case of errors */
-	C_MAKE(names, z_info->a_max, cptr);
+	C_MAKE(names, z_info->a_max, const char*);
 
 	for (i = 0; i < z_info->a_max; i++)
 	{
@@ -184,7 +192,7 @@ static s32b artifact_power(int a_idx)
 
 			p += (a_ptr->to_d + sign(a_ptr->to_d)) / 2;
 			mult = bow_multiplier(a_ptr->sval);
-			if (a_ptr->flags1 & TR1_MIGHT)
+			if (a_ptr->flags[0] & TR1_MIGHT)
 			{
 				if (a_ptr->pval > 3)
 				{
@@ -195,7 +203,7 @@ static s32b artifact_power(int a_idx)
 					mult += a_ptr->pval;
 			}
 			p *= mult;
-			if (a_ptr->flags1 & TR1_SHOTS)
+			if (a_ptr->flags[0] & TR1_SHOTS)
 			{
 				if (a_ptr->pval > 3)
 					p += 20000;	/* inhibit */
@@ -212,27 +220,27 @@ static s32b artifact_power(int a_idx)
 		case TV_SWORD:
 		{
 			p += (a_ptr->d.maxroll() + 1) / 2;
-			if (a_ptr->flags1 & TR1_SLAY_EVIL) p = (p * 3) / 2;
-			if (a_ptr->flags1 & TR1_KILL_DRAGON) p = (p * 3) / 2;
-			if (a_ptr->flags1 & TR1_KILL_DEMON) p = (p * 3) / 2;
-			if (a_ptr->flags1 & TR1_KILL_UNDEAD) p = (p * 3) / 2;
-			if (a_ptr->flags1 & TR1_SLAY_ANIMAL) p = (p * 4) / 3;
-			if (a_ptr->flags1 & TR1_SLAY_UNDEAD) p = (p * 4) / 3;
-			if (a_ptr->flags1 & TR1_SLAY_DRAGON) p = (p * 4) / 3;
-			if (a_ptr->flags1 & TR1_SLAY_DEMON) p = (p * 5) / 4;
-			if (a_ptr->flags1 & TR1_SLAY_TROLL) p = (p * 5) / 4;
-			if (a_ptr->flags1 & TR1_SLAY_ORC) p = (p * 5) / 4;
-			if (a_ptr->flags1 & TR1_SLAY_GIANT) p = (p * 6) / 5;
+			if (a_ptr->flags[0] & TR1_SLAY_EVIL) p = (p * 3) / 2;
+			if (a_ptr->flags[0] & TR1_KILL_DRAGON) p = (p * 3) / 2;
+			if (a_ptr->flags[0] & TR1_KILL_DEMON) p = (p * 3) / 2;
+			if (a_ptr->flags[0] & TR1_KILL_UNDEAD) p = (p * 3) / 2;
+			if (a_ptr->flags[0] & TR1_SLAY_ANIMAL) p = (p * 4) / 3;
+			if (a_ptr->flags[0] & TR1_SLAY_UNDEAD) p = (p * 4) / 3;
+			if (a_ptr->flags[0] & TR1_SLAY_DRAGON) p = (p * 4) / 3;
+			if (a_ptr->flags[0] & TR1_SLAY_DEMON) p = (p * 5) / 4;
+			if (a_ptr->flags[0] & TR1_SLAY_TROLL) p = (p * 5) / 4;
+			if (a_ptr->flags[0] & TR1_SLAY_ORC) p = (p * 5) / 4;
+			if (a_ptr->flags[0] & TR1_SLAY_GIANT) p = (p * 6) / 5;
 
-			if (a_ptr->flags1 & TR1_BRAND_ACID) p = p * 2;
-			if (a_ptr->flags1 & TR1_BRAND_ELEC) p = (p * 3) / 2;
-			if (a_ptr->flags1 & TR1_BRAND_FIRE) p = (p * 4) / 3;
-			if (a_ptr->flags1 & TR1_BRAND_COLD) p = (p * 4) / 3;
+			if (a_ptr->flags[0] & TR1_BRAND_ACID) p = p * 2;
+			if (a_ptr->flags[0] & TR1_BRAND_ELEC) p = (p * 3) / 2;
+			if (a_ptr->flags[0] & TR1_BRAND_FIRE) p = (p * 4) / 3;
+			if (a_ptr->flags[0] & TR1_BRAND_COLD) p = (p * 4) / 3;
 
 			p += (a_ptr->to_d + 2 * sign(a_ptr->to_d)) / 3;
 			if (a_ptr->to_d > 15) p += (a_ptr->to_d - 14) / 2;
 
-			if (a_ptr->flags1 & TR1_BLOWS)
+			if (a_ptr->flags[0] & TR1_BLOWS)
 			{
 				if (a_ptr->pval > 3)
 					p += 20000;	/* inhibit */
@@ -240,7 +248,7 @@ static s32b artifact_power(int a_idx)
 					p = (p * 6) / (4 - a_ptr->pval);
 			}
 
-			if ((a_ptr->flags1 & TR1_TUNNEL) &&
+			if ((a_ptr->flags[0] & TR1_TUNNEL) &&
 			    (a_ptr->tval != TV_DIGGING))
 				p += a_ptr->pval * 3;
 
@@ -289,48 +297,48 @@ static s32b artifact_power(int a_idx)
 
 	if (a_ptr->pval > 0)
 	{
-		if (a_ptr->flags1 & TR1_STR) p += a_ptr->pval * a_ptr->pval;
-		if (a_ptr->flags1 & TR1_INT) p += a_ptr->pval * a_ptr->pval;
-		if (a_ptr->flags1 & TR1_WIS) p += a_ptr->pval * a_ptr->pval;
-		if (a_ptr->flags1 & TR1_DEX) p += a_ptr->pval * a_ptr->pval;
-		if (a_ptr->flags1 & TR1_CON) p += a_ptr->pval * a_ptr->pval;
-		if (a_ptr->flags1 & TR1_STEALTH) p += a_ptr->pval * a_ptr->pval;
+		if (a_ptr->flags[0] & TR1_STR) p += a_ptr->pval * a_ptr->pval;
+		if (a_ptr->flags[0] & TR1_INT) p += a_ptr->pval * a_ptr->pval;
+		if (a_ptr->flags[0] & TR1_WIS) p += a_ptr->pval * a_ptr->pval;
+		if (a_ptr->flags[0] & TR1_DEX) p += a_ptr->pval * a_ptr->pval;
+		if (a_ptr->flags[0] & TR1_CON) p += a_ptr->pval * a_ptr->pval;
+		if (a_ptr->flags[0] & TR1_STEALTH) p += a_ptr->pval * a_ptr->pval;
 	}
 	else if (a_ptr->pval < 0)	/* hack: don't give large negatives */
 	{
-		if (a_ptr->flags1 & TR1_STR) p += a_ptr->pval;
-		if (a_ptr->flags1 & TR1_INT) p += a_ptr->pval;
-		if (a_ptr->flags1 & TR1_WIS) p += a_ptr->pval;
-		if (a_ptr->flags1 & TR1_DEX) p += a_ptr->pval;
-		if (a_ptr->flags1 & TR1_CON) p += a_ptr->pval;
-		if (a_ptr->flags1 & TR1_STEALTH) p += a_ptr->pval;
+		if (a_ptr->flags[0] & TR1_STR) p += a_ptr->pval;
+		if (a_ptr->flags[0] & TR1_INT) p += a_ptr->pval;
+		if (a_ptr->flags[0] & TR1_WIS) p += a_ptr->pval;
+		if (a_ptr->flags[0] & TR1_DEX) p += a_ptr->pval;
+		if (a_ptr->flags[0] & TR1_CON) p += a_ptr->pval;
+		if (a_ptr->flags[0] & TR1_STEALTH) p += a_ptr->pval;
 	}
-	if (a_ptr->flags1 & TR1_CHR) p += a_ptr->pval;
-	if (a_ptr->flags1 & TR1_INFRA) p += (a_ptr->pval + sign(a_ptr->pval)) / 2;
-	if (a_ptr->flags1 & TR1_SPEED) p += (a_ptr->pval * 3) / 2;
+	if (a_ptr->flags[0] & TR1_CHR) p += a_ptr->pval;
+	if (a_ptr->flags[0] & TR1_INFRA) p += (a_ptr->pval + sign(a_ptr->pval)) / 2;
+	if (a_ptr->flags[0] & TR1_SPEED) p += (a_ptr->pval * 3) / 2;
 
-	if (a_ptr->flags2 & TR2_SUST_STR) p += 6;
-	if (a_ptr->flags2 & TR2_SUST_INT) p += 4;
-	if (a_ptr->flags2 & TR2_SUST_WIS) p += 4;
-	if (a_ptr->flags2 & TR2_SUST_DEX) p += 4;
-	if (a_ptr->flags2 & TR2_SUST_CON) p += 4;
-	if (a_ptr->flags2 & TR2_SUST_CHR) p += 1;
-	if (a_ptr->flags2 & TR2_IM_ACID)
+	if (a_ptr->flags[1] & TR2_SUST_STR) p += 6;
+	if (a_ptr->flags[1] & TR2_SUST_INT) p += 4;
+	if (a_ptr->flags[1] & TR2_SUST_WIS) p += 4;
+	if (a_ptr->flags[1] & TR2_SUST_DEX) p += 4;
+	if (a_ptr->flags[1] & TR2_SUST_CON) p += 4;
+	if (a_ptr->flags[1] & TR2_SUST_CHR) p += 1;
+	if (a_ptr->flags[1] & TR2_IM_ACID)
 	{
 		p += 20;
 		immunities++;
 	}
-	if (a_ptr->flags2 & TR2_IM_ELEC)
+	if (a_ptr->flags[1] & TR2_IM_ELEC)
 	{
 		p += 24;
 		immunities++;
 	}
-	if (a_ptr->flags2 & TR2_IM_FIRE)
+	if (a_ptr->flags[1] & TR2_IM_FIRE)
 	{
 		p += 36;
 		immunities++;
 	}
-	if (a_ptr->flags2 & TR2_IM_COLD)
+	if (a_ptr->flags[1] & TR2_IM_COLD)
 	{
 		p += 24;
 		immunities++;
@@ -338,37 +346,37 @@ static s32b artifact_power(int a_idx)
 	if (immunities > 1) p += 16;
 	if (immunities > 2) p += 16;
 	if (immunities > 3) p += 20000;		/* inhibit */
-	if (a_ptr->flags3 & TR3_FREE_ACT) p += 8;
-	if (a_ptr->flags3 & TR3_HOLD_LIFE) p += 10;
-	if (a_ptr->flags2 & TR2_RES_ACID) p += 6;
-	if (a_ptr->flags2 & TR2_RES_ELEC) p += 6;
-	if (a_ptr->flags2 & TR2_RES_FIRE) p += 6;
-	if (a_ptr->flags2 & TR2_RES_COLD) p += 6;
-	if (a_ptr->flags2 & TR2_RES_POIS) p += 12;
-	if (a_ptr->flags2 & TR2_RES_LITE) p += 8;
-	if (a_ptr->flags2 & TR2_RES_DARK) p += 10;
-	if (a_ptr->flags2 & TR2_RES_BLIND) p += 10;
-	if (a_ptr->flags2 & TR2_RES_CONFU) p += 8;
-	if (a_ptr->flags2 & TR2_RES_SOUND) p += 10;
-	if (a_ptr->flags2 & TR2_RES_SHARD) p += 8;
-	if (a_ptr->flags2 & TR2_RES_NETHR) p += 12;
-	if (a_ptr->flags2 & TR2_RES_NEXUS) p += 10;
-	if (a_ptr->flags2 & TR2_RES_CHAOS) p += 12;
-	if (a_ptr->flags2 & TR2_RES_DISEN) p += 12;
+	if (a_ptr->flags[2] & TR3_FREE_ACT) p += 8;
+	if (a_ptr->flags[2] & TR3_HOLD_LIFE) p += 10;
+	if (a_ptr->flags[1] & TR2_RES_ACID) p += 6;
+	if (a_ptr->flags[1] & TR2_RES_ELEC) p += 6;
+	if (a_ptr->flags[1] & TR2_RES_FIRE) p += 6;
+	if (a_ptr->flags[1] & TR2_RES_COLD) p += 6;
+	if (a_ptr->flags[1] & TR2_RES_POIS) p += 12;
+	if (a_ptr->flags[1] & TR2_RES_LITE) p += 8;
+	if (a_ptr->flags[1] & TR2_RES_DARK) p += 10;
+	if (a_ptr->flags[1] & TR2_RES_BLIND) p += 10;
+	if (a_ptr->flags[1] & TR2_RES_CONFU) p += 8;
+	if (a_ptr->flags[1] & TR2_RES_SOUND) p += 10;
+	if (a_ptr->flags[1] & TR2_RES_SHARD) p += 8;
+	if (a_ptr->flags[1] & TR2_RES_NETHR) p += 12;
+	if (a_ptr->flags[1] & TR2_RES_NEXUS) p += 10;
+	if (a_ptr->flags[1] & TR2_RES_CHAOS) p += 12;
+	if (a_ptr->flags[1] & TR2_RES_DISEN) p += 12;
 
-	if (a_ptr->flags3 & TR3_FEATHER) p += 2;
-	if (a_ptr->flags3 & TR3_LITE) p += 2;
-	if (a_ptr->flags3 & TR3_SEE_INVIS) p += 8;
-	if (a_ptr->flags3 & TR3_TELEPATHY) p += 20;
-	if (a_ptr->flags3 & TR3_SLOW_DIGEST) p += 4;
-	if (a_ptr->flags3 & TR3_REGEN) p += 8;
-	if (a_ptr->flags3 & TR3_TELEPORT) p -= 20;
-	if (a_ptr->flags3 & TR3_DRAIN_EXP) p -= 16;
-	if (a_ptr->flags3 & TR3_AGGRAVATE) p -= 8;
-	if (a_ptr->flags3 & TR3_BLESSED) p += 4;
-	if (a_ptr->flags3 & TR3_LIGHT_CURSE) p -= 4;
-	if (a_ptr->flags3 & TR3_HEAVY_CURSE) p -= 20;
-/*	if (a_ptr->flags3 & TR3_PERMA_CURSE) p -= 40; */
+	if (a_ptr->flags[2] & TR3_FEATHER) p += 2;
+	if (a_ptr->flags[2] & TR3_LITE) p += 2;
+	if (a_ptr->flags[2] & TR3_SEE_INVIS) p += 8;
+	if (a_ptr->flags[2] & TR3_TELEPATHY) p += 20;
+	if (a_ptr->flags[2] & TR3_SLOW_DIGEST) p += 4;
+	if (a_ptr->flags[2] & TR3_REGEN) p += 8;
+	if (a_ptr->flags[2] & TR3_TELEPORT) p -= 20;
+	if (a_ptr->flags[2] & TR3_DRAIN_EXP) p -= 16;
+	if (a_ptr->flags[2] & TR3_AGGRAVATE) p -= 8;
+	if (a_ptr->flags[2] & TR3_BLESSED) p += 4;
+	if (a_ptr->flags[2] & TR3_LIGHT_CURSE) p -= 4;
+	if (a_ptr->flags[2] & TR3_HEAVY_CURSE) p -= 20;
+/*	if (a_ptr->flags[2] & TR3_PERMA_CURSE) p -= 40; */
 
 	return (p);
 }
@@ -602,12 +610,10 @@ static void choose_item(int a_idx)
 	a_ptr->ac = k_ptr->ac;
 	a_ptr->d = k_ptr->d;
 	a_ptr->weight = k_ptr->weight;
-	a_ptr->flags1 = k_ptr->flags1;
-	a_ptr->flags2 = k_ptr->flags2;
-	a_ptr->flags3 = k_ptr->flags3;
+	C_COPY(a_ptr->flags,k_ptr->flags,OBJECT_FLAG_STRICT_UB);
 
 	/* Artifacts ignore everything */
-	a_ptr->flags3 |= TR3_IGNORE_MASK;
+	a_ptr->flags[2] |= TR3_IGNORE_MASK;
 
 	/* Assign basic stats to the artifact based on its artifact level. */
 	switch (a_ptr->tval)
@@ -645,10 +651,10 @@ static void choose_item(int a_idx)
 			{
 			case TV_SOFT_ARMOR:
 			case TV_HARD_ARMOR:
-				if (one_in_(2)) a_ptr->flags2 |= TR2_RES_ACID;
-				if (one_in_(2)) a_ptr->flags2 |= TR2_RES_ELEC;
-				if (one_in_(2)) a_ptr->flags2 |= TR2_RES_COLD;
-				if (one_in_(2)) a_ptr->flags2 |= TR2_RES_FIRE;
+				if (one_in_(2)) a_ptr->flags[1] |= TR2_RES_ACID;
+				if (one_in_(2)) a_ptr->flags[1] |= TR2_RES_ELEC;
+				if (one_in_(2)) a_ptr->flags[1] |= TR2_RES_COLD;
+				if (one_in_(2)) a_ptr->flags[1] |= TR2_RES_FIRE;
 				break;
 			}
 			break;
@@ -673,28 +679,28 @@ static void do_pval(artifact_type *a_ptr)
 
 static void remove_contradictory(artifact_type *a_ptr)
 {
-	if (a_ptr->flags3 & TR3_AGGRAVATE) a_ptr->flags1 &= ~(TR1_STEALTH);
-	if (a_ptr->flags2 & TR2_IM_ACID) a_ptr->flags2 &= ~(TR2_RES_ACID);
-	if (a_ptr->flags2 & TR2_IM_ELEC) a_ptr->flags2 &= ~(TR2_RES_ELEC);
-	if (a_ptr->flags2 & TR2_IM_FIRE) a_ptr->flags2 &= ~(TR2_RES_FIRE);
-	if (a_ptr->flags2 & TR2_IM_COLD) a_ptr->flags2 &= ~(TR2_RES_COLD);
+	if (a_ptr->flags[2] & TR3_AGGRAVATE) a_ptr->flags[0] &= ~(TR1_STEALTH);
+	if (a_ptr->flags[1] & TR2_IM_ACID) a_ptr->flags[1] &= ~(TR2_RES_ACID);
+	if (a_ptr->flags[1] & TR2_IM_ELEC) a_ptr->flags[1] &= ~(TR2_RES_ELEC);
+	if (a_ptr->flags[1] & TR2_IM_FIRE) a_ptr->flags[1] &= ~(TR2_RES_FIRE);
+	if (a_ptr->flags[1] & TR2_IM_COLD) a_ptr->flags[1] &= ~(TR2_RES_COLD);
 
 	if (a_ptr->pval < 0)
 	{
-		if (a_ptr->flags1 & TR1_STR) a_ptr->flags2 &= ~(TR2_SUST_STR);
-		if (a_ptr->flags1 & TR1_INT) a_ptr->flags2 &= ~(TR2_SUST_INT);
-		if (a_ptr->flags1 & TR1_WIS) a_ptr->flags2 &= ~(TR2_SUST_WIS);
-		if (a_ptr->flags1 & TR1_DEX) a_ptr->flags2 &= ~(TR2_SUST_DEX);
-		if (a_ptr->flags1 & TR1_CON) a_ptr->flags2 &= ~(TR2_SUST_CON);
-		if (a_ptr->flags1 & TR1_CHR) a_ptr->flags2 &= ~(TR2_SUST_CHR);
-		a_ptr->flags1 &= ~(TR1_BLOWS);
+		if (a_ptr->flags[0] & TR1_STR) a_ptr->flags[1] &= ~(TR2_SUST_STR);
+		if (a_ptr->flags[0] & TR1_INT) a_ptr->flags[1] &= ~(TR2_SUST_INT);
+		if (a_ptr->flags[0] & TR1_WIS) a_ptr->flags[1] &= ~(TR2_SUST_WIS);
+		if (a_ptr->flags[0] & TR1_DEX) a_ptr->flags[1] &= ~(TR2_SUST_DEX);
+		if (a_ptr->flags[0] & TR1_CON) a_ptr->flags[1] &= ~(TR2_SUST_CON);
+		if (a_ptr->flags[0] & TR1_CHR) a_ptr->flags[1] &= ~(TR2_SUST_CHR);
+		a_ptr->flags[0] &= ~(TR1_BLOWS);
 	}
 
-	if (a_ptr->flags3 & TR3_LIGHT_CURSE) a_ptr->flags3 &= ~(TR3_BLESSED);
-	if (a_ptr->flags1 & TR1_KILL_DRAGON) a_ptr->flags1 &= ~(TR1_SLAY_DRAGON);
-	if (a_ptr->flags1 & TR1_KILL_DEMON) a_ptr->flags1 &= ~(TR1_SLAY_DEMON);
-	if (a_ptr->flags1 & TR1_KILL_UNDEAD) a_ptr->flags1 &= ~(TR1_SLAY_UNDEAD);
-	if (a_ptr->flags3 & TR3_DRAIN_EXP) a_ptr->flags3 &= ~(TR3_HOLD_LIFE);
+	if (a_ptr->flags[2] & TR3_LIGHT_CURSE) a_ptr->flags[2] &= ~(TR3_BLESSED);
+	if (a_ptr->flags[0] & TR1_KILL_DRAGON) a_ptr->flags[0] &= ~(TR1_SLAY_DRAGON);
+	if (a_ptr->flags[0] & TR1_KILL_DEMON) a_ptr->flags[0] &= ~(TR1_SLAY_DEMON);
+	if (a_ptr->flags[0] & TR1_KILL_UNDEAD) a_ptr->flags[0] &= ~(TR1_SLAY_UNDEAD);
+	if (a_ptr->flags[2] & TR3_DRAIN_EXP) a_ptr->flags[2] &= ~(TR3_HOLD_LIFE);
 }
 
 
@@ -718,12 +724,12 @@ static void add_ability(artifact_type *a_ptr)
 			{
 				if (r < 15)
 				{
-					a_ptr->flags1 |= TR1_SHOTS;
+					a_ptr->flags[0] |= TR1_SHOTS;
 					do_pval(a_ptr);
 				}
 				else if (r < 35)
 				{
-					a_ptr->flags1 |= TR1_MIGHT;
+					a_ptr->flags[0] |= TR1_MIGHT;
 					do_pval(a_ptr);
 				}
 				else if (r < 65) a_ptr->to_h += (s16b)(2 + rand_int(2));
@@ -738,76 +744,76 @@ static void add_ability(artifact_type *a_ptr)
 			{
 				if (r < 4)
 				{
-					a_ptr->flags1 |= TR1_WIS;
+					a_ptr->flags[0] |= TR1_WIS;
 					do_pval(a_ptr);
-					if (one_in_(2)) a_ptr->flags2 |= TR2_SUST_WIS;
+					if (one_in_(2)) a_ptr->flags[1] |= TR2_SUST_WIS;
 					if ((a_ptr->tval == TV_SWORD) ||
 					    (a_ptr->tval == TV_POLEARM))
-						a_ptr->flags3 |= TR3_BLESSED;
+						a_ptr->flags[2] |= TR3_BLESSED;
 				}
 				else if (r < 7)
 				{
-					a_ptr->flags1 |= TR1_BRAND_ACID;
-					if (!one_in_(4)) a_ptr->flags2 |= TR2_RES_ACID;
+					a_ptr->flags[0] |= TR1_BRAND_ACID;
+					if (!one_in_(4)) a_ptr->flags[2] |= TR2_RES_ACID;
 				}
 				else if (r < 10)
 				{
-					a_ptr->flags1 |= TR1_BRAND_ELEC;
-					if (!one_in_(4)) a_ptr->flags2 |= TR2_RES_ELEC;
+					a_ptr->flags[0] |= TR1_BRAND_ELEC;
+					if (!one_in_(4)) a_ptr->flags[2] |= TR2_RES_ELEC;
 				}
 				else if (r < 15)
 				{
-					a_ptr->flags1 |= TR1_BRAND_FIRE;
-					if (!one_in_(4)) a_ptr->flags2 |= TR2_RES_FIRE;
+					a_ptr->flags[0] |= TR1_BRAND_FIRE;
+					if (!one_in_(4)) a_ptr->flags[2] |= TR2_RES_FIRE;
 				}
 				else if (r < 20)
 				{
-					a_ptr->flags1 |= TR1_BRAND_COLD;
-					if (!one_in_(4)) a_ptr->flags2 |= TR2_RES_COLD;
+					a_ptr->flags[0] |= TR1_BRAND_COLD;
+					if (!one_in_(4)) a_ptr->flags[2] |= TR2_RES_COLD;
 				}
 				else if (r < 28)
 				{
 					a_ptr->d.dice += (byte)(1 + rand_int(2) + rand_int(2));
 					if (a_ptr->d.dice > 9) a_ptr->d.dice = 9;
 				}
-				else if (r < 31) a_ptr->flags1 |= TR1_KILL_DRAGON;
-				else if (r < 35) a_ptr->flags1 |= TR1_SLAY_DRAGON;
-				else if (r < 40) a_ptr->flags1 |= TR1_SLAY_EVIL;
+				else if (r < 31) a_ptr->flags[0] |= TR1_KILL_DRAGON;
+				else if (r < 35) a_ptr->flags[0] |= TR1_SLAY_DRAGON;
+				else if (r < 40) a_ptr->flags[0] |= TR1_SLAY_EVIL;
 
-				else if (r < 45) a_ptr->flags1 |= TR1_SLAY_ANIMAL;
+				else if (r < 45) a_ptr->flags[0] |= TR1_SLAY_ANIMAL;
 				else if (r < 50)
 				{
-					a_ptr->flags1 |= TR1_SLAY_UNDEAD;
-					if (one_in_(2)) a_ptr->flags1 |= TR1_SLAY_DEMON;
+					a_ptr->flags[0] |= TR1_SLAY_UNDEAD;
+					if (one_in_(2)) a_ptr->flags[0] |= TR1_SLAY_DEMON;
 				}
 				else if (r < 54)
 				{
-					a_ptr->flags1 |= TR1_SLAY_DEMON;
-					if (one_in_(2)) a_ptr->flags1 |= TR1_SLAY_UNDEAD;
+					a_ptr->flags[0] |= TR1_SLAY_DEMON;
+					if (one_in_(2)) a_ptr->flags[0] |= TR1_SLAY_UNDEAD;
 				}
 				else if (r < 59)
 				{
-					a_ptr->flags1 |= TR1_SLAY_ORC;
-					if (one_in_(2)) a_ptr->flags1 |= TR1_SLAY_TROLL;
-					if (one_in_(2)) a_ptr->flags1 |= TR1_SLAY_GIANT;
+					a_ptr->flags[0] |= TR1_SLAY_ORC;
+					if (one_in_(2)) a_ptr->flags[0] |= TR1_SLAY_TROLL;
+					if (one_in_(2)) a_ptr->flags[0] |= TR1_SLAY_GIANT;
 				}
 				else if (r < 63)
 				{
-					a_ptr->flags1 |= TR1_SLAY_TROLL;
-					if (one_in_(2)) a_ptr->flags1 |= TR1_SLAY_ORC;
-					if (one_in_(2)) a_ptr->flags1 |= TR1_SLAY_GIANT;
+					a_ptr->flags[0] |= TR1_SLAY_TROLL;
+					if (one_in_(2)) a_ptr->flags[0] |= TR1_SLAY_ORC;
+					if (one_in_(2)) a_ptr->flags[0] |= TR1_SLAY_GIANT;
 				}
 				else if (r < 67)
 				{
-					a_ptr->flags1 |= TR1_SLAY_GIANT;
-					if (one_in_(2)) a_ptr->flags1 |= TR1_SLAY_ORC;
-					if (one_in_(2)) a_ptr->flags1 |= TR1_SLAY_TROLL;
+					a_ptr->flags[0] |= TR1_SLAY_GIANT;
+					if (one_in_(2)) a_ptr->flags[0] |= TR1_SLAY_ORC;
+					if (one_in_(2)) a_ptr->flags[0] |= TR1_SLAY_TROLL;
 				}
-				else if (r < 72) a_ptr->flags3 |= TR3_SEE_INVIS;
+				else if (r < 72) a_ptr->flags[2] |= TR3_SEE_INVIS;
 				else if (r < 76)
 				{
 					if (a_ptr->pval < 0) break;
-					a_ptr->flags1 |= TR1_BLOWS;
+					a_ptr->flags[0] |= TR1_BLOWS;
 					do_pval(a_ptr);
 				}
 				else if (r < 89)
@@ -821,7 +827,7 @@ static void add_ability(artifact_type *a_ptr)
 				else
 					if (a_ptr->tval != TV_DIGGING)
 					{
-						a_ptr->flags1 |= TR1_TUNNEL;
+						a_ptr->flags[0] |= TR1_TUNNEL;
 						do_pval(a_ptr);
 					}
 
@@ -831,7 +837,7 @@ static void add_ability(artifact_type *a_ptr)
 			{
 				if (r < 10)
 				{
-					a_ptr->flags3 |= TR3_FEATHER;
+					a_ptr->flags[2] |= TR3_FEATHER;
 				}
 				else if (r < 50)
 				{
@@ -839,12 +845,12 @@ static void add_ability(artifact_type *a_ptr)
 				}
 				else if (r < 80)
 				{
-					a_ptr->flags1 |= TR1_STEALTH;
+					a_ptr->flags[0] |= TR1_STEALTH;
 					do_pval(a_ptr);
 				}
 				else if (r < 90)
 				{
-					a_ptr->flags1 |= TR1_SPEED;
+					a_ptr->flags[0] |= TR1_SPEED;
 
 					if (a_ptr->pval < 0) break;
 
@@ -861,10 +867,10 @@ static void add_ability(artifact_type *a_ptr)
 			}
 			case TV_GLOVES:
 			{
-				if (r < 25) a_ptr->flags3 |= TR3_FREE_ACT;
+				if (r < 25) a_ptr->flags[2] |= TR3_FREE_ACT;
 				else if (r < 50)
 				{
-					a_ptr->flags1 |= TR1_DEX;
+					a_ptr->flags[0] |= TR1_DEX;
 					do_pval(a_ptr);
 				}
 				else if (r < 75) a_ptr->to_a += (s16b)(3 + rand_int(3));
@@ -872,24 +878,24 @@ static void add_ability(artifact_type *a_ptr)
 				{
 					a_ptr->to_h += (s16b)(2 + rand_int(3));
 					a_ptr->to_d += (s16b)(2 + rand_int(3));
-					a_ptr->flags3 |= TR3_SHOW_MODS;
+					a_ptr->flags[2] |= TR3_SHOW_MODS;
 				}
 				break;
 			}
 			case TV_HELM:
 			case TV_CROWN:
 			{
-				if (r < 20) a_ptr->flags2 |= TR2_RES_BLIND;
-				else if (r < 45) a_ptr->flags3 |= TR3_TELEPATHY;
-				else if (r < 65) a_ptr->flags3 |= TR3_SEE_INVIS;
+				if (r < 20) a_ptr->flags[1] |= TR2_RES_BLIND;
+				else if (r < 45) a_ptr->flags[2] |= TR3_TELEPATHY;
+				else if (r < 65) a_ptr->flags[2] |= TR3_SEE_INVIS;
 				else if (r < 75)
 				{
-					a_ptr->flags1 |= TR1_WIS;
+					a_ptr->flags[0] |= TR1_WIS;
 					do_pval(a_ptr);
 				}
 				else if (r < 85)
 				{
-					a_ptr->flags1 |= TR1_INT;
+					a_ptr->flags[0] |= TR1_INT;
 					do_pval(a_ptr);
 				}
 				else a_ptr->to_a += (s16b)(3 + rand_int(3));
@@ -897,10 +903,10 @@ static void add_ability(artifact_type *a_ptr)
 			}
 			case TV_SHIELD:
 			{
-				if (r < 20) a_ptr->flags2 |= TR2_RES_ACID;
-				else if (r < 40) a_ptr->flags2 |= TR2_RES_ELEC;
-				else if (r < 60) a_ptr->flags2 |= TR2_RES_FIRE;
-				else if (r < 80) a_ptr->flags2 |= TR2_RES_COLD;
+				if (r < 20) a_ptr->flags[1] |= TR2_RES_ACID;
+				else if (r < 40) a_ptr->flags[1] |= TR2_RES_ELEC;
+				else if (r < 60) a_ptr->flags[1] |= TR2_RES_FIRE;
+				else if (r < 80) a_ptr->flags[1] |= TR2_RES_COLD;
 				else a_ptr->to_a += (s16b)(3 + rand_int(3));
 				break;
 			}
@@ -908,7 +914,7 @@ static void add_ability(artifact_type *a_ptr)
 			{
 				if (r < 50)
 				{
-					a_ptr->flags1 |= TR1_STEALTH;
+					a_ptr->flags[0] |= TR1_STEALTH;
 					do_pval(a_ptr);
 				}
 				else a_ptr->to_a += (s16b)(3 + rand_int(3));
@@ -919,21 +925,21 @@ static void add_ability(artifact_type *a_ptr)
 			{
 				if (r < 8)
 				{
-					a_ptr->flags1 |= TR1_STEALTH;
+					a_ptr->flags[0] |= TR1_STEALTH;
 					do_pval(a_ptr);
 				}
-				else if (r < 16) a_ptr->flags3 |= TR3_HOLD_LIFE;
+				else if (r < 16) a_ptr->flags[2] |= TR3_HOLD_LIFE;
 				else if (r < 22)
 				{
-					a_ptr->flags1 |= TR1_CON;
+					a_ptr->flags[0] |= TR1_CON;
 					do_pval(a_ptr);
 					if (one_in_(2))
-						a_ptr->flags2 |= TR2_SUST_CON;
+						a_ptr->flags[1] |= TR2_SUST_CON;
 				}
-				else if (r < 34) a_ptr->flags2 |= TR2_RES_ACID;
-				else if (r < 46) a_ptr->flags2 |= TR2_RES_ELEC;
-				else if (r < 58) a_ptr->flags2 |= TR2_RES_FIRE;
-				else if (r < 70) a_ptr->flags2 |= TR2_RES_COLD;
+				else if (r < 34) a_ptr->flags[1] |= TR2_RES_ACID;
+				else if (r < 46) a_ptr->flags[1] |= TR2_RES_ELEC;
+				else if (r < 58) a_ptr->flags[1] |= TR2_RES_FIRE;
+				else if (r < 70) a_ptr->flags[1] |= TR2_RES_COLD;
 				else if (r < 80)
 					a_ptr->weight = (a_ptr->weight * 9) / 10;
 				else a_ptr->to_a += (s16b)(3 + rand_int(3));
@@ -947,160 +953,160 @@ static void add_ability(artifact_type *a_ptr)
 		switch (r)
 		{
 			case 0:
-				a_ptr->flags1 |= TR1_STR;
+				a_ptr->flags[0] |= TR1_STR;
 				do_pval(a_ptr);
-				if (one_in_(2)) a_ptr->flags2 |= TR2_SUST_STR;
+				if (one_in_(2)) a_ptr->flags[1] |= TR2_SUST_STR;
 				break;
 			case 1:
-				a_ptr->flags1 |= TR1_INT;
+				a_ptr->flags[0] |= TR1_INT;
 				do_pval(a_ptr);
-				if (one_in_(2)) a_ptr->flags2 |= TR2_SUST_INT;
+				if (one_in_(2)) a_ptr->flags[1] |= TR2_SUST_INT;
 				break;
 			case 2:
-				a_ptr->flags1 |= TR1_WIS;
+				a_ptr->flags[0] |= TR1_WIS;
 				do_pval(a_ptr);
-				if (one_in_(2)) a_ptr->flags2 |= TR2_SUST_WIS;
+				if (one_in_(2)) a_ptr->flags[1] |= TR2_SUST_WIS;
 				if (a_ptr->tval == TV_SWORD || a_ptr->tval == TV_POLEARM)
-					a_ptr->flags3 |= TR3_BLESSED;
+					a_ptr->flags[2] |= TR3_BLESSED;
 				break;
 			case 3:
-				a_ptr->flags1 |= TR1_DEX;
+				a_ptr->flags[0] |= TR1_DEX;
 				do_pval(a_ptr);
-				if (one_in_(2)) a_ptr->flags2 |= TR2_SUST_DEX;
+				if (one_in_(2)) a_ptr->flags[1] |= TR2_SUST_DEX;
 				break;
 			case 4:
-				a_ptr->flags1 |= TR1_CON;
+				a_ptr->flags[0] |= TR1_CON;
 				do_pval(a_ptr);
-				if (one_in_(2)) a_ptr->flags2 |= TR2_SUST_CON;
+				if (one_in_(2)) a_ptr->flags[1] |= TR2_SUST_CON;
 				break;
 			case 5:
-				a_ptr->flags1 |= TR1_CHR;
+				a_ptr->flags[0] |= TR1_CHR;
 				do_pval(a_ptr);
-				if (one_in_(2)) a_ptr->flags2 |= TR2_SUST_CHR;
+				if (one_in_(2)) a_ptr->flags[1] |= TR2_SUST_CHR;
 				break;
 
 			case 6:
-				a_ptr->flags1 |= TR1_STEALTH;
+				a_ptr->flags[0] |= TR1_STEALTH;
 				do_pval(a_ptr);
 				break;
 			case 7:
-				a_ptr->flags1 |= TR1_SEARCH;
+				a_ptr->flags[0] |= TR1_SEARCH;
 				do_pval(a_ptr);
 				break;
 			case 8:
-				a_ptr->flags1 |= TR1_INFRA;
+				a_ptr->flags[0] |= TR1_INFRA;
 				do_pval(a_ptr);
 				break;
 			case 9:
-				a_ptr->flags1 |= TR1_SPEED;
+				a_ptr->flags[0] |= TR1_SPEED;
 				if (a_ptr->pval == 0) a_ptr->pval = (s16b)(3 + rand_int(3));
 				else do_pval(a_ptr);
 				break;
 
 			case 10:
-				a_ptr->flags2 |= TR2_SUST_STR;
+				a_ptr->flags[1] |= TR2_SUST_STR;
 				if (one_in_(2))
 				{
-					a_ptr->flags1 |= TR1_STR;
+					a_ptr->flags[0] |= TR1_STR;
 					do_pval(a_ptr);
 				}
 				break;
 			case 11:
-				a_ptr->flags2 |= TR2_SUST_INT;
+				a_ptr->flags[1] |= TR2_SUST_INT;
 				if (one_in_(2))
 				{
-					a_ptr->flags1 |= TR1_INT;
+					a_ptr->flags[0] |= TR1_INT;
 					do_pval(a_ptr);
 				}
 				break;
 			case 12:
-				a_ptr->flags2 |= TR2_SUST_WIS;
+				a_ptr->flags[1] |= TR2_SUST_WIS;
 				if (one_in_(2))
 				{
-					a_ptr->flags1 |= TR1_WIS;
+					a_ptr->flags[0] |= TR1_WIS;
 					do_pval(a_ptr);
 					if (a_ptr->tval == TV_SWORD || a_ptr->tval == TV_POLEARM)
-						a_ptr->flags3 |= TR3_BLESSED;
+						a_ptr->flags[2] |= TR3_BLESSED;
 				}
 				break;
 			case 13:
-				a_ptr->flags2 |= TR2_SUST_DEX;
+				a_ptr->flags[1] |= TR2_SUST_DEX;
 				if (one_in_(2))
 				{
-					a_ptr->flags1 |= TR1_DEX;
+					a_ptr->flags[0] |= TR1_DEX;
 					do_pval(a_ptr);
 				}
 				break;
 			case 14:
-				a_ptr->flags2 |= TR2_SUST_CON;
+				a_ptr->flags[1] |= TR2_SUST_CON;
 				if (one_in_(2))
 				{
-					a_ptr->flags1 |= TR1_CON;
+					a_ptr->flags[0] |= TR1_CON;
 					do_pval(a_ptr);
 				}
 				break;
 			case 15:
-				a_ptr->flags2 |= TR2_SUST_CHR;
+				a_ptr->flags[1] |= TR2_SUST_CHR;
 				if (one_in_(2))
 				{
-					a_ptr->flags1 |= TR1_CHR;
+					a_ptr->flags[0] |= TR1_CHR;
 					do_pval(a_ptr);
 				}
 				break;
 
 			case 16:
 			{
-				if (one_in_(3)) a_ptr->flags2 |= TR2_IM_ACID;
+				if (one_in_(3)) a_ptr->flags[1] |= TR2_IM_ACID;
 				break;
 			}
 			case 17:
 			{
-				if (one_in_(3)) a_ptr->flags2 |= TR2_IM_ELEC;
+				if (one_in_(3)) a_ptr->flags[1] |= TR2_IM_ELEC;
 				break;
 			}
 			case 18:
 			{
-				if (one_in_(4)) a_ptr->flags2 |= TR2_IM_FIRE;
+				if (one_in_(4)) a_ptr->flags[1] |= TR2_IM_FIRE;
 				break;
 			}
 			case 19:
 			{
-				if (one_in_(3)) a_ptr->flags2 |= TR2_IM_COLD;
+				if (one_in_(3)) a_ptr->flags[1] |= TR2_IM_COLD;
 				break;
 			}
-			case 20: a_ptr->flags3 |= TR3_FREE_ACT; break;
-			case 21: a_ptr->flags3 |= TR3_HOLD_LIFE; break;
-			case 22: a_ptr->flags2 |= TR2_RES_ACID; break;
-			case 23: a_ptr->flags2 |= TR2_RES_ELEC; break;
-			case 24: a_ptr->flags2 |= TR2_RES_FIRE; break;
-			case 25: a_ptr->flags2 |= TR2_RES_COLD; break;
+			case 20: a_ptr->flags[2] |= TR3_FREE_ACT; break;
+			case 21: a_ptr->flags[2] |= TR3_HOLD_LIFE; break;
+			case 22: a_ptr->flags[1] |= TR2_RES_ACID; break;
+			case 23: a_ptr->flags[1] |= TR2_RES_ELEC; break;
+			case 24: a_ptr->flags[1] |= TR2_RES_FIRE; break;
+			case 25: a_ptr->flags[1] |= TR2_RES_COLD; break;
 
-			case 26: a_ptr->flags2 |= TR2_RES_POIS; break;
-			case 27: a_ptr->flags2 |= TR2_RES_LITE; break;
-			case 28: a_ptr->flags2 |= TR2_RES_DARK; break;
-			case 29: a_ptr->flags2 |= TR2_RES_BLIND; break;
-			case 30: a_ptr->flags2 |= TR2_RES_CONFU; break;
-			case 31: a_ptr->flags2 |= TR2_RES_SOUND; break;
-			case 32: a_ptr->flags2 |= TR2_RES_SHARD; break;
+			case 26: a_ptr->flags[1] |= TR2_RES_POIS; break;
+			case 27: a_ptr->flags[1] |= TR2_RES_LITE; break;
+			case 28: a_ptr->flags[1] |= TR2_RES_DARK; break;
+			case 29: a_ptr->flags[1] |= TR2_RES_BLIND; break;
+			case 30: a_ptr->flags[1] |= TR2_RES_CONFU; break;
+			case 31: a_ptr->flags[1] |= TR2_RES_SOUND; break;
+			case 32: a_ptr->flags[1] |= TR2_RES_SHARD; break;
 			case 33:
 				if (one_in_(2))
-					a_ptr->flags2 |= TR2_RES_NETHR;
+					a_ptr->flags[1] |= TR2_RES_NETHR;
 				break;
-			case 34: a_ptr->flags2 |= TR2_RES_NEXUS; break;
-			case 35: a_ptr->flags2 |= TR2_RES_CHAOS; break;
+			case 34: a_ptr->flags[1] |= TR2_RES_NEXUS; break;
+			case 35: a_ptr->flags[1] |= TR2_RES_CHAOS; break;
 			case 36:
 				if (one_in_(2))
-					a_ptr->flags2 |= TR2_RES_DISEN;
+					a_ptr->flags[1] |= TR2_RES_DISEN;
 				break;
-			case 37: a_ptr->flags3 |= TR3_FEATHER; break;
-			case 38: a_ptr->flags3 |= TR3_LITE; break;
-			case 39: a_ptr->flags3 |= TR3_SEE_INVIS; break;
+			case 37: a_ptr->flags[2] |= TR3_FEATHER; break;
+			case 38: a_ptr->flags[2] |= TR3_LITE; break;
+			case 39: a_ptr->flags[2] |= TR3_SEE_INVIS; break;
 			case 40:
 				if (one_in_(3))
-					a_ptr->flags3 |= TR3_TELEPATHY;
+					a_ptr->flags[2] |= TR3_TELEPATHY;
 				break;
-			case 41: a_ptr->flags3 |= TR3_SLOW_DIGEST; break;
-			case 42: a_ptr->flags3 |= TR3_REGEN; break;
+			case 41: a_ptr->flags[2] |= TR3_SLOW_DIGEST; break;
+			case 42: a_ptr->flags[2] |= TR3_REGEN; break;
 		}
 	}
 
@@ -1115,11 +1121,11 @@ static void add_ability(artifact_type *a_ptr)
 static void do_curse(artifact_type *a_ptr)
 {
 	if (one_in_(3))
-		a_ptr->flags3 |= TR3_AGGRAVATE;
+		a_ptr->flags[2] |= TR3_AGGRAVATE;
 	if (one_in_(5))
-		a_ptr->flags3 |= TR3_DRAIN_EXP;
+		a_ptr->flags[2] |= TR3_DRAIN_EXP;
 	if (one_in_(7))
-		a_ptr->flags3 |= TR3_TELEPORT;
+		a_ptr->flags[2] |= TR3_TELEPORT;
 
 	if ((a_ptr->pval > 0) && one_in_(2))
 		a_ptr->pval = -a_ptr->pval;
@@ -1130,26 +1136,26 @@ static void do_curse(artifact_type *a_ptr)
 	if ((a_ptr->to_d > 0) && one_in_(4))
 		a_ptr->to_d = -a_ptr->to_d;
 
-	if (a_ptr->flags3 & TR3_LIGHT_CURSE)
+	if (a_ptr->flags[2] & TR3_LIGHT_CURSE)
 	{
-		if (one_in_(2)) a_ptr->flags3 |= TR3_HEAVY_CURSE;
+		if (one_in_(2)) a_ptr->flags[2] |= TR3_HEAVY_CURSE;
 		return;
 	}
 
-	a_ptr->flags3 |= TR3_LIGHT_CURSE;
+	a_ptr->flags[2] |= TR3_LIGHT_CURSE;
 
 	if (one_in_(4))
-		a_ptr->flags3 |= TR3_HEAVY_CURSE;
+		a_ptr->flags[2] |= TR3_HEAVY_CURSE;
 }
 
 
 static void scramble_artifact(int a_idx)
 {
 	artifact_type *a_ptr = &object_type::a_info[a_idx];
-	u32b activates = a_ptr->flags3 & TR3_ACTIVATE;
 	s32b power;
 	int tries;
 	s32b ap;
+	bool activates = a_ptr->flags[2] & TR3_ACTIVATE;
 	bool curse_me = FALSE;
 	bool aggravate_me = FALSE;
 
@@ -1203,10 +1209,10 @@ static void scramble_artifact(int a_idx)
 		 */
 		a_ptr->pval = 0;
 		a_ptr->to_h = a_ptr->to_d = a_ptr->to_a = 0;
-		a_ptr->flags1 = a_ptr->flags2 = 0;
+		a_ptr->flags[0] = a_ptr->flags[1] = 0;
 
 		/* Artifacts ignore everything */
-		a_ptr->flags3 = (TR3_IGNORE_MASK);
+		a_ptr->flags[2] = (TR3_IGNORE_MASK);
 	}
 
 	/* First draft: add two abilities, then curse it three times. */
@@ -1256,7 +1262,7 @@ static void scramble_artifact(int a_idx)
 
 		if (aggravate_me)
 		{
-			a_ptr->flags3 |= TR3_AGGRAVATE;
+			a_ptr->flags[2] |= TR3_AGGRAVATE;
 			remove_contradictory(a_ptr);
 			ap = artifact_power(a_idx);
 		}
@@ -1276,15 +1282,15 @@ static void scramble_artifact(int a_idx)
 #endif /* 0 */
 
 	/* Restore some flags */
-	if (activates) a_ptr->flags3 |= TR3_ACTIVATE;
-	if (a_idx < ART_MIN_NORMAL) a_ptr->flags3 |= TR3_INSTA_ART;
+	if (activates) a_ptr->flags[2] |= TR3_ACTIVATE;
+	if (a_idx < ART_MIN_NORMAL) a_ptr->flags[2] |= TR3_INSTA_ART;
 
 	/*
 	 * Add TR3_HIDE_TYPE to all artifacts with nonzero pval because we're
 	 * too lazy to find out which ones need it and which ones don't.
 	 */
 	if (a_ptr->pval)
-		a_ptr->flags3 |= TR3_HIDE_TYPE;
+		a_ptr->flags[2] |= TR3_HIDE_TYPE;
 }
 
 

@@ -2,18 +2,28 @@
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 2007 Andrew Sidwell
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
-#include "keypad.h"
 #include "z-quark.h"
+#include "tvalsval.h"
+
+#include "keypad.h"
 
 
-/*
+/**
  * Search for hidden things
  */
 void search(void)
@@ -93,7 +103,7 @@ void search(void)
 }
 
 
-/*
+/**
  * Determine if the object can be picked up, and has "=g" in its inscription.
  */
 static bool auto_pickup_okay(const object_type *o_ptr)
@@ -105,7 +115,7 @@ static bool auto_pickup_okay(const object_type *o_ptr)
 }
 
 
-/*
+/**
  * Helper routine for py_pickup() and py_pickup_floor().
  *
  * Add the given dungeon object to the character's inventory.
@@ -115,14 +125,14 @@ static bool auto_pickup_okay(const object_type *o_ptr)
 static void py_pickup_aux(int o_idx)
 {
 	char o_name[80];
-	object_type *o_ptr = &o_list[o_idx];
+	object_type* o_ptr = &o_list[o_idx];
 	int slot = inven_carry(o_ptr);	/* Carry the object */
 
 	/* Get the object again */
 	o_ptr = &p_ptr->inventory[slot];
 
 	/* Describe the object */
-	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, ODESC_FULL);
 
 	/* Message */
 	msg_format("You have %s (%c).", o_name, index_to_label(slot));
@@ -132,10 +142,10 @@ static void py_pickup_aux(int o_idx)
 }
 
 
-/*
+/**
  * Make the player carry everything in a grid.
  *
- * If "pickup" is FALSE then only gold will be picked up.
+ * \param pickup If FALSE, then only gold will be picked up.
  */
 void py_pickup(int pickup)
 {
@@ -162,7 +172,7 @@ void py_pickup(int pickup)
 		o_ptr = &o_list[this_o_idx];
 
 		/* Describe the object */
-		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, ODESC_FULL);
 
 		/* Get the next object */
 		next_o_idx = o_ptr->next_o_idx;
@@ -187,9 +197,6 @@ void py_pickup(int pickup)
 
 			/* Redraw gold */
 			p_ptr->redraw |= (PR_GOLD);
-
-			/* Window stuff */
-			p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 
 			/* Delete the gold */
 			delete_object_idx(this_o_idx);
@@ -286,7 +293,7 @@ void py_pickup(int pickup)
 			if (not_pickup == 1)
 			{
 				/* Describe the object */
-				object_desc(o_name, sizeof(o_name), &o_list[last_o_idx], TRUE, 3);
+				object_desc(o_name, sizeof(o_name), &o_list[last_o_idx], TRUE, ODESC_FULL);
 
 				/* Message */
 				msg_format("You see %s.", o_name);
@@ -310,7 +317,7 @@ void py_pickup(int pickup)
 			if (not_pickup == 1)
 			{
 				/* Describe the object */
-				object_desc(o_name, sizeof(o_name), &o_list[last_o_idx], TRUE, 3);
+				object_desc(o_name, sizeof(o_name), &o_list[last_o_idx], TRUE, ODESC_FULL);
 
 				/* Message */
 				msg_format("You have no room for %s.", o_name);
@@ -330,7 +337,7 @@ void py_pickup(int pickup)
 		/* Pick up objects */
 		while (1)
 		{
-			cptr q = "Get which item? ";
+			const char* q = "Get which item? ";
 
 			int item;
 
@@ -350,12 +357,12 @@ void py_pickup(int pickup)
 
 
 
-/*
+/**
  * Move player in the given direction, with the given "pickup" flag.
  *
- * This routine should only be called when energy has been expended.
+ * \pre This routine should only be called when energy has been expended.
  *
- * Note that this routine handles monsters in the destination grid,
+ * \note This routine handles monsters in the destination grid,
  * and also handles attempting to move into walls/doors/rubble/etc.
  */
 void move_player(int dir, int jumping)
@@ -463,6 +470,9 @@ void move_player(int dir, int jumping)
 		/* New location */
 		dest_g = p_ptr->loc;
 
+		/* Zaiband: if a diagonal move, use 150 energy rather than 100 energy */
+		if (0!=dd_coord[dir].x && 0!=dd_coord[dir].y) p_ptr->energy_use += 50;
+
 		/* Spontaneous Searching */
 		if ((p_ptr->skills[SKILL_SEARCH_FREQUENCY]) ||
 		    one_in_(50 - p_ptr->skills[SKILL_SEARCH_FREQUENCY]))
@@ -523,7 +533,7 @@ void move_player(int dir, int jumping)
 }
 
 
-/*
+/**
  * Hack -- Check for a "known wall" (see below)
  */
 static bool see_wall(int dir, coord g)
@@ -542,7 +552,7 @@ static bool see_wall(int dir, coord g)
 }
 
 
-/*
+/**
  * Hack -- Check for an "unknown corner" (see below)
  */
 static bool see_nothing(int dir, coord g)
@@ -710,7 +720,7 @@ static bool see_nothing(int dir, coord g)
 
 
 
-/*
+/**
  * Initialize the running algorithm for a new direction.
  *
  * Diagonal Corridor -- allow diaginal entry into corridors.
@@ -818,10 +828,10 @@ static void run_init(int dir)
 }
 
 
-/*
+/**
  * Update the current "run" path
  *
- * Return TRUE if the running should be stopped
+ * \return TRUE if the running should be stopped
  */
 static bool run_test(void)
 {
@@ -1157,11 +1167,10 @@ static bool run_test(void)
 
 
 
-/*
+/**
  * Take one step along the current "run" path
  *
- * Called with a real direction to begin a new run, and with zero
- * to continue a run in progress.
+ * \param dir a real direction to begin a new run; zero to continue a run in progress.
  */
 void run_step(int dir)
 {

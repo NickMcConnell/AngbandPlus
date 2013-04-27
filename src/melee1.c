@@ -3,19 +3,30 @@
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
+#include "learn.h"
 #include "melee.h"
-
+#include "tvalsval.h"
+#include "raceflag.h"
 
 /*
  * Critical blow.  All hits that do 95% of total possible damage,
  * and which also do at least 20 damage, or, sometimes, N damage.
  * This is used only to determine "cuts" and "stuns".
+ *
+ * This must agree with know_damage()/monster1.c .
  */
 static int monster_critical(dice_sides d, int dam)
 {
@@ -65,13 +76,10 @@ static bool check_hit(int power, int level)
 }
 
 
-#define MAX_DESC_INSULT 8
-
-
 /*
  * Hack -- possible "insult" messages
  */
-static cptr desc_insult[MAX_DESC_INSULT] =
+static const char* const desc_insult[] =
 {
 	"insults you!",
 	"insults your mother!",
@@ -83,11 +91,10 @@ static cptr desc_insult[MAX_DESC_INSULT] =
 	"moons you!!!"
 };
 
-
 /*
  * Hack -- possible "insult" messages
  */
-static cptr desc_moan[] =
+static const char* const desc_moan[] =
 {
 	"wants his mushrooms back.", 
 	"tells you to get off his land.", 
@@ -99,8 +106,6 @@ static cptr desc_moan[] =
 	"tells you to get off his land.", 
 	"mumbles something about mushrooms." 
 };
-
-#define MAX_DESC_MOAN sizeof(desc_moan)/sizeof(cptr)
 
 static int attack_power(byte effect)
 {
@@ -278,14 +283,14 @@ static void describe_attack_method(byte method,const char*& act,int& sound_msg,i
 
 		case RBM_INSULT:
 		{
-			act = desc_insult[rand_int(MAX_DESC_INSULT)];
+			act = desc_insult[rand_int(N_ELEMENTS(desc_insult))];
 			sound_msg = MSG_MON_INSULT; 
 			break;
 		}
 
 		case RBM_MOAN:
 		{
-			act = desc_moan[rand_int(MAX_DESC_MOAN)];
+			act = desc_moan[rand_int(N_ELEMENTS(desc_moan))];
 			sound_msg = MSG_MON_MOAN; 
 			break;
 		}
@@ -298,13 +303,13 @@ static void describe_attack_method(byte method,const char*& act,int& sound_msg,i
 	}
 }
 
-/* 
+/** 
  * this is for RBE_HURT
  * player armor reduces total damage
  */
-static int armor_damage_reduction(int damage,int ac)
+int armor_damage_reduction(int damage,int ac)
 {
-	return damage-(damage * ((ac < 150) ? ac : 150) / 250);
+	return damage-(damage * MIN(ac,150) / 250);
 }
 
 static void apply_exact_damage(byte effect,int damage,byte rlev,u16b m_idx,const char* ddesc,bool& obvious,bool& blinked,bool& do_break)
@@ -370,17 +375,20 @@ static void apply_exact_damage(byte effect,int damage,byte rlev,u16b m_idx,const
 			int drained = 0;
 			int k;
 
+			assert(0 <= p_ptr->inven_cnt && INVEN_PACK >= p_ptr->inven_cnt && "precondition");
+			assert(p_ptr->inven_cnt_is_strict_UB_of_nonzero_k_idx() && "precondition");
+
 			/* Take damage */
 			take_hit(damage, ddesc);
 
+			/* need items in inventory to continue */
+			if (0 == p_ptr->inven_cnt) break;
+
 			/* Find an item */
-			for (k = 0; k < 10; k++)
+			for (k = 0; k < 10; ++k)
 			{
 				/* Pick and obtain the item */
-				object_type* o_ptr = &p_ptr->inventory[rand_int(INVEN_PACK)];
-
-				/* Skip non-objects */
-				if (!o_ptr->k_idx) continue;
+				object_type* const o_ptr = &p_ptr->inventory[rand_int(p_ptr->inven_cnt)];
 
 				/* Drain charged wands/staves */
 				if ((o_ptr->tval == TV_STAFF) ||
@@ -405,10 +413,10 @@ static void apply_exact_damage(byte effect,int damage,byte rlev,u16b m_idx,const
 					obvious = TRUE;
 
 					/* Don't heal more than max hp */
-					heal = MIN(heal, m_ptr->maxhp - m_ptr->hp);
+					heal = MIN(heal, m_ptr->mhp - m_ptr->chp);
 
 					/* Heal */
-					m_ptr->hp += heal;
+					m_ptr->chp += heal;
 
 					/* Redraw (later) if needed */
 					if (p_ptr->health_who == m_idx)
@@ -418,7 +426,7 @@ static void apply_exact_damage(byte effect,int damage,byte rlev,u16b m_idx,const
 					p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 					/* Window stuff */
-					p_ptr->window |= (PW_INVEN);
+					p_ptr->redraw |= (PR_INVEN);
 
 					/* Affect only a single inventory slot */
 					break;
@@ -474,9 +482,6 @@ static void apply_exact_damage(byte effect,int damage,byte rlev,u16b m_idx,const
 				/* Redraw gold */
 				p_ptr->redraw |= (PR_GOLD);
 
-				/* Window stuff */
-				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
-
 				/* Blink away */
 				blinked = TRUE;
 			}
@@ -507,6 +512,12 @@ static void apply_exact_damage(byte effect,int damage,byte rlev,u16b m_idx,const
 				break;
 			}
 
+			assert(0 <= p_ptr->inven_cnt && INVEN_PACK >= p_ptr->inven_cnt && "precondition");
+			assert(p_ptr->inven_cnt_is_strict_UB_of_nonzero_k_idx() && "precondition");
+
+			/* need items in inventory to continue */
+			if (0 == p_ptr->inven_cnt) break;
+
 			/* Find an item */
 			for (k = 0; k < 10; k++)
 			{
@@ -514,19 +525,16 @@ static void apply_exact_damage(byte effect,int damage,byte rlev,u16b m_idx,const
 				object_type *i_ptr = &object_type_body;	/* Get local object */
 
 				/* Pick the item */
-				int i = rand_int(INVEN_PACK);
+				int i = rand_int(p_ptr->inven_cnt);
 
 				/* Obtain the item */
-				object_type* o_ptr = &p_ptr->inventory[i];
-
-				/* Skip non-objects */
-				if (!o_ptr->k_idx) continue;
+				object_type* const o_ptr = &p_ptr->inventory[i];
 
 				/* Skip artifacts */
 				if (o_ptr->is_artifact()) continue;
 
 				/* Get a description */
-				object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 3);
+				object_desc(o_name, sizeof(o_name), o_ptr, FALSE, ODESC_FULL);
 
 				/* Message */
 				msg_format("%sour %s (%c) was stolen!",
@@ -534,7 +542,7 @@ static void apply_exact_damage(byte effect,int damage,byte rlev,u16b m_idx,const
 				           o_name, index_to_label(i));
 
 				/* Obtain local object */
-				COPY(i_ptr, o_ptr);
+				*i_ptr = *o_ptr;
 
 				/* Modify number */
 				i_ptr->number = 1;
@@ -570,23 +578,26 @@ static void apply_exact_damage(byte effect,int damage,byte rlev,u16b m_idx,const
 			/* Take damage */
 			take_hit(damage, ddesc);
 
+			assert(0 <= p_ptr->inven_cnt && INVEN_PACK >= p_ptr->inven_cnt && "precondition");
+			assert(p_ptr->inven_cnt_is_strict_UB_of_nonzero_k_idx() && "precondition");
+
+			/* need items in inventory to continue */
+			if (0 == p_ptr->inven_cnt) break;
+
 			/* Steal some food */
 			for (k = 0; k < 10; k++)
 			{
 				/* Pick the item */
-				int i = rand_int(INVEN_PACK);
+				int i = rand_int(p_ptr->inven_cnt);
 
 				/* Obtain the item */
-				object_type* o_ptr = &p_ptr->inventory[i];
-
-				/* Skip non-objects */
-				if (!o_ptr->k_idx) continue;
+				object_type* const o_ptr = &p_ptr->inventory[i];
 
 				/* Skip non-food objects */
 				if (o_ptr->tval != TV_FOOD) continue;
 
 				/* Get a description */
-				object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
+				object_desc(o_name, sizeof(o_name), o_ptr, FALSE, ODESC_BASE);
 
 				/* Message */
 				msg_format("%sour %s (%c) was eaten!",
@@ -613,7 +624,7 @@ static void apply_exact_damage(byte effect,int damage,byte rlev,u16b m_idx,const
 			take_hit(damage, ddesc);
 
 			/* Get the lite */
-			object_type* o_ptr = &p_ptr->inventory[INVEN_LITE];
+			object_type* const o_ptr = &p_ptr->inventory[INVEN_LITE];
 
 			/* Drain fuel */
 			if ((o_ptr->pval > 0) && (!o_ptr->is_artifact()))
@@ -630,7 +641,7 @@ static void apply_exact_damage(byte effect,int damage,byte rlev,u16b m_idx,const
 				}
 
 				/* Window stuff */
-				p_ptr->window |= (PW_EQUIP);
+				p_ptr->redraw |= (PR_EQUIP);
 			}
 
 			break;
@@ -926,7 +937,7 @@ static void apply_exact_damage(byte effect,int damage,byte rlev,u16b m_idx,const
 			}
 			else
 			{
-				s32b d = damroll(10, 6) + (p_ptr->exp/100) * MON_DRAIN_LIFE;
+				s32b d = NdS(10, 6) + (p_ptr->exp/100) * MON_DRAIN_LIFE;
 				if (p_ptr->hold_life)
 				{
 					msg_print("You feel your life slipping away!");
@@ -955,7 +966,7 @@ static void apply_exact_damage(byte effect,int damage,byte rlev,u16b m_idx,const
 			}
 			else
 			{
-				s32b d = damroll(20, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
+				s32b d = NdS(20, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
 
 				if (p_ptr->hold_life)
 				{
@@ -985,7 +996,7 @@ static void apply_exact_damage(byte effect,int damage,byte rlev,u16b m_idx,const
 			}
 			else
 			{
-				s32b d = damroll(40, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
+				s32b d = NdS(40, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
 
 				if (p_ptr->hold_life)
 				{
@@ -1015,7 +1026,7 @@ static void apply_exact_damage(byte effect,int damage,byte rlev,u16b m_idx,const
 			}
 			else
 			{
-				s32b d = damroll(80, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
+				s32b d = NdS(80, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
 
 				if (p_ptr->hold_life)
 				{
@@ -1074,7 +1085,7 @@ bool make_attack_normal(int m_idx)
 	monster_lore *l_ptr = m_ptr->lore();
 
 	/* Not allowed to attack */
-	if (r_ptr->flags1 & (RF1_NEVER_BLOW)) return (FALSE);
+	if (r_ptr->flags[0] & RF0_NEVER_BLOW) return (FALSE);
 
 	{	/* blocking brace for C-ish code */
 	int ap_cnt;
@@ -1091,7 +1102,7 @@ bool make_attack_normal(int m_idx)
 	monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
 	/* Get the "died from" information (i.e. "a kobold") */
-	monster_desc(ddesc, sizeof(ddesc), m_ptr, 0x88);
+	monster_desc(ddesc, sizeof(ddesc), m_ptr, MDESC_SHOW | MDESC_IND2);
 
 	/* Scan through all blows */
 	for (ap_cnt = 0; ap_cnt < MONSTER_BLOW_MAX; ap_cnt++)
@@ -1101,7 +1112,7 @@ bool make_attack_normal(int m_idx)
 		bool do_break = FALSE;
 
 		int damage = 0;
-		cptr act = NULL;
+		const char* act = NULL;
 
 		/* Extract the attack infomation */
 		int effect = r_ptr->blow[ap_cnt].effect;
@@ -1131,14 +1142,14 @@ bool make_attack_normal(int m_idx)
 
 			/* Hack -- Apply "protection from evil" */
 			if ((p_ptr->timed[TMD_PROTEVIL] > 0) &&
-			    (r_ptr->flags3 & (RF3_EVIL)) &&
+			    (r_ptr->flags[2] & RF2_EVIL) &&
 			    (p_ptr->lev >= rlev) &&
 			    ((rand_int(100) + p_ptr->lev) > 50))
 			{
 				/* Remember the Evil-ness */
 				if (m_ptr->ml)
 				{
-					l_ptr->flags3 |= (RF3_EVIL);
+					l_ptr->flags[2] |= RF2_EVIL;
 				}
 
 				/* Message */
@@ -1307,7 +1318,7 @@ monster_type::melee_analyze(int& min_dam, int& median_dam, int& max_dam,coord g)
 	min_dam = median_dam = max_dam = 0;
 	
 	/* Not allowed to attack */
-	if (r_ptr->flags1 & (RF1_NEVER_BLOW)) return;
+	if (r_ptr->flags[0] & RF0_NEVER_BLOW) return;
 
 	/* too far away for even a clairvoyant gaze */
 	if (MAX_RANGE<dis) return;
@@ -1317,6 +1328,12 @@ monster_type::melee_analyze(int& min_dam, int& median_dam, int& max_dam,coord g)
 
 	{	/* blocking brace for C-ish code */
 	int ap_cnt;
+	int threat_moves;
+	int my_moves;
+	move_ratio(threat_moves,my_moves,*p_ptr,0,0);
+
+	/* player moves first */
+	if (ticks_to_move(1,0) > p_ptr->ticks_to_move(1,0)) return;
 
 	/* Scan through all blows */
 	for (ap_cnt = 0; ap_cnt < MONSTER_BLOW_MAX; ap_cnt++)
@@ -1372,6 +1389,11 @@ monster_type::melee_analyze(int& min_dam, int& median_dam, int& max_dam,coord g)
 			}
 		}
 	}
+
+	/* handle multiple-move on our part */
+	min_dam *= my_moves;
+	median_dam *= my_moves;
+	max_dam *= my_moves;
 	}	/* end blocking brace */
 }
 
@@ -1386,7 +1408,7 @@ bool make_attack_ranged_physical(int m_idx)
 	int attack_count = 0;
 
 	/* Not allowed to attack */
-	if (r_ptr->flags1 & (RF1_NEVER_BLOW)) return (FALSE);
+	if (r_ptr->flags[0] & RF0_NEVER_BLOW) return (FALSE);
 
 	{	/* blocking brace for C-ish code */
 	int dis = distance(m_ptr->loc.y,m_ptr->loc.x,p_ptr->loc.y,p_ptr->loc.x);
@@ -1407,7 +1429,7 @@ bool make_attack_ranged_physical(int m_idx)
 	monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
 	/* Get the "died from" information (i.e. "a kobold") */
-	monster_desc(ddesc, sizeof(ddesc), m_ptr, 0x88);
+	monster_desc(ddesc, sizeof(ddesc), m_ptr, MDESC_SHOW | MDESC_IND2);
 
 
 	/* Assume no blink */
@@ -1421,7 +1443,7 @@ bool make_attack_ranged_physical(int m_idx)
 		bool do_break = FALSE;
 
 		int damage = 0;
-		cptr act = NULL;
+		const char* act = NULL;
 
 		/* Extract the attack infomation */
 		int effect = r_ptr->blow[ap_cnt].effect;
@@ -1473,14 +1495,14 @@ bool make_attack_ranged_physical(int m_idx)
 
 			/* Hack -- Apply "protection from evil" */
 			if ((p_ptr->timed[TMD_PROTEVIL] > 0) &&
-			    (r_ptr->flags3 & (RF3_EVIL)) &&
+			    (r_ptr->flags[2] & RF2_EVIL) &&
 			    (p_ptr->lev >= rlev) &&
 			    ((rand_int(100) + p_ptr->lev) > 50))
 			{
 				/* Remember the Evil-ness */
 				if (m_ptr->ml)
 				{
-					l_ptr->flags3 |= (RF3_EVIL);
+					l_ptr->flags[2] |= RF2_EVIL;
 				}
 
 				/* Message */

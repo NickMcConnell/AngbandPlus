@@ -3,13 +3,20 @@
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
-
+#include "tvalsval.h"
 
 #ifdef ALLOW_DEBUG
 
@@ -283,19 +290,19 @@ static void wiz_display_item(const object_type *o_ptr)
 {
 	int j = 0;
 
-	u32b f1, f2, f3;
+	u32b f[OBJECT_FLAG_STRICT_UB];
 
 	char buf[256];
 
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, f);
 
 	/* Clear screen */
 	Term_clear();
 
 	/* Describe fully */
-	object_desc_spoil(buf, sizeof(buf), o_ptr, TRUE, 3);
+	object_desc_spoil(buf, sizeof(buf), o_ptr, TRUE, ODESC_FULL);
 
 	prt(buf, 2, j);
 
@@ -322,7 +329,7 @@ static void wiz_display_item(const object_type *o_ptr)
 	prt("siwdcc  ssidsasmnvudotgddduoclio", 13, j);
 	prt("tnieoh  trnipthgiinmrrnrrmniierl", 14, j);
 	prt("rtsxna..lcfgdkttmldncltggndsdced", 15, j);
-	prt_binary(f1, 16, j);
+	prt_binary(f[0], 16, j);
 
 	prt("+------------FLAGS2------------+", 17, j);
 	prt("SUST........IMM.RESIST.........", 18, j);
@@ -330,7 +337,7 @@ static void wiz_display_item(const object_type *o_ptr)
 	prt("siwdcc      cilocliooeialoshnecd", 20, j);
 	prt("tnieoh      irelierliatrnnnrethi", 21, j);
 	prt("rtsxna......decddcedsrekdfddxhss", 22, j);
-	prt_binary(f2, 23, j);
+	prt_binary(f[1], 23, j);
 
 	prt("+------------FLAGS3------------+", 10, j+32);
 	prt("s   ts h     tadiiii   aiehs  hp", 11, j+32);
@@ -341,7 +348,7 @@ static void wiz_display_item(const object_type *o_ptr)
 	prt("ghigavai    aoveclio  saanyo rrr", 16, j+32);
 	prt("seteticf    craxierl  etropd sss", 17, j+32);
 	prt("trenhste    tttpdced  detwes eee", 18, j+32);
-	prt_binary(f3, 19, j+32);
+	prt_binary(f[2], 19, j+32);
 }
 
 
@@ -351,7 +358,7 @@ static void wiz_display_item(const object_type *o_ptr)
 typedef struct tval_desc
 {
 	int tval;
-	cptr desc;
+	const char* const desc;
 } tval_desc;
 
 /*
@@ -400,17 +407,17 @@ static const tval_desc tvals[] =
 /*
  * Strip an "object name" into a buffer
  */
-void strip_name(char *buf, int k_idx)
+static void strip_name(char *buf, int k_idx)
 {
 	char *t;
 
 	object_kind *k_ptr = &object_type::k_info[k_idx];
 
-	cptr str = k_ptr->name();
+	const char* str = k_ptr->name();
 
 	/* If not aware, use flavor */ 
 	if (!cheat_know && !k_ptr->aware && k_ptr->flavor) 
-		str = object_kind::flavor_info[k_ptr->flavor].text(); 
+		str = k_ptr->flavor_text(); 
 
 	/* Skip past leading characters */
 	while ((*str == ' ') || (*str == '&')) str++;
@@ -449,7 +456,7 @@ static int wiz_create_itemtype(void)
 	int col, row;
 	int tval;
 
-	cptr tval_desc;
+	const char* tval_desc;
 	char ch;
 
 	int choice[60];
@@ -506,7 +513,7 @@ static int wiz_create_itemtype(void)
 		if (k_ptr->tval == tval)
 		{
 			/* Hack -- Skip instant artifacts */
-			if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
+			if (k_ptr->flags[2] & (TR3_INSTA_ART)) continue;
 
 			/* Prepare it */
 			row = 2 + (num % 20);
@@ -548,7 +555,7 @@ static int wiz_create_itemtype(void)
  */
 static void wiz_tweak_item(object_type *o_ptr)
 {
-	cptr p;
+	const char* p;
 	char tmp_val[80];
 
 
@@ -597,8 +604,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 	/* Hack -- leave artifacts alone */
 	if (o_ptr->is_artifact()) return;
 
-	/* Copy the object */
-	COPY(i_ptr, o_ptr);
+	*i_ptr = *o_ptr;
 
 	/* Main loop. Ask for magification and artifactification */
 	while (TRUE)
@@ -649,7 +655,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 		i_ptr->marked = o_ptr->marked;
 
 		/* Apply changes */
-		COPY(o_ptr, i_ptr);
+		*o_ptr = *i_ptr;
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -658,7 +664,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+		p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
 	}
 }
 
@@ -684,14 +690,14 @@ static void wiz_statistics(object_type *o_ptr)
 	long i, matches, better, worse, other;
 
 	char ch;
-	cptr quality;
+	const char* quality;
 
 	bool good, great;
 
 	object_type object_type_body;
 	object_type *i_ptr = &object_type_body;	/* Get local object */
 
-	cptr q = "Rolls: %ld, Matches: %ld, Better: %ld, Worse: %ld, Other: %ld";
+	const char* const q = "Rolls: %ld, Matches: %ld, Better: %ld, Worse: %ld, Other: %ld";
 
 
 	/* Mega-Hack -- allow multiple artifacts XXX XXX XXX */
@@ -701,7 +707,7 @@ static void wiz_statistics(object_type *o_ptr)
 	/* Interact */
 	while (TRUE)
 	{
-		cptr pmt = "Roll for [n]ormal, [g]ood, or [e]xcellent treasure? ";
+		const char* const pmt = "Roll for [n]ormal, [g]ood, or [e]xcellent treasure? ";
 
 		/* Display item */
 		wiz_display_item(o_ptr);
@@ -896,8 +902,8 @@ static void do_cmd_wiz_play(void)
 
 	char ch;
 
-	cptr q = "Play with which object? ";
-	cptr s = "You have nothing to play with.";
+	const char* const q = "Play with which object? ";
+	const char* const s = "You have nothing to play with.";
 
 	bool changed = FALSE;
 
@@ -908,11 +914,9 @@ static void do_cmd_wiz_play(void)
 	/* Get the object */
 	o_ptr = get_o_ptr_from_inventory_or_floor(item);
 
-	/* Save screen */
 	screen_save();
 
-	/* Copy object */
-	COPY(i_ptr, o_ptr);
+	*i_ptr = *o_ptr;
 
 	/* The main loop */
 	while (TRUE)
@@ -952,19 +956,15 @@ static void do_cmd_wiz_play(void)
 		}
 	}
 
-
-	/* Load screen */
 	screen_load();
-
 
 	/* Accept change */
 	if (changed)
 	{
-		/* Message */
 		msg_print("Changes accepted.");
 
 		/* Change */
-		COPY(o_ptr, i_ptr);
+		*o_ptr = *i_ptr;
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -973,7 +973,7 @@ static void do_cmd_wiz_play(void)
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+		p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
 	}
 
 	/* Ignore change */
@@ -1226,9 +1226,6 @@ static void do_cmd_rerate(void)
 	p_ptr->update |= (PU_HP);
 	p_ptr->redraw |= (PR_HP);
 
-	/* Window stuff */
-	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
-
 	/* Handle stuff */
 	handle_stuff();
 
@@ -1307,7 +1304,7 @@ static void do_cmd_wiz_zap(int d)
 	}
 
 	/* Update monster list window */
-	p_ptr->window |= PW_MONLIST;
+	p_ptr->redraw |= PR_MONLIST;
 }
 
 

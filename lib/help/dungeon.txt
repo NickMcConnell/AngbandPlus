@@ -101,6 +101,87 @@ eight buildings (each with an entrance), some townspeople, and a wall which
 surrounds the town.  The first time you are in town it will be daytime, but
 note that the sun rises and falls (rather instantly) as time passes.
 
+Human        ##################################################################
+Rookie       #................................................................#
+Warrior      #................................................................#
+LEVEL      1 #................................................#8######........#
+NXT       10 #....................................#####.......########........#
+AU       367 #.......##########....#####2.........#####.......########........#
+             #.......##########....######.........#####.......########........#
+STR:      16 #.......##########....######.........#3###.......########........#
+INT:      10 #.......1#########....######.....................########........#
+WIS:      12 #................................................................#
+DEX:      18 #................................................................#
+CON:      14 #................................................>...............#
+CHR:       8 #................................................................#
+Cur AC     2 #......................#########..................########7......#
+HP   19/  19 #........#####.........#########......#6######....#########......#
+             #........#####.........#########......########....#########......#
+[**********] #........5####.........########4......########....#########......#
+M. MHP     2 #.....................................########...................#
+             #.....................................########...................#
+Nxt Turn 1/1 #.......................................t.......@................#
+Energy    10 #................................................................#
+             ##################################################################
+Town
+
+
+=== The Sidebar ===
+To the left of the main dungeon/town display, is a status panel containing
+usually-present information of some importance.
+
+The first three lines are: race, class title, class.
+LEVEL is the character level.  It may range from 1 to 50 before defeating 
+Morgoth.
+NXT is how much more combat experience you need to attain the next character
+level.  Should you attain level 50 in your class, this will be replaced by
+EXP, which lists your total combat experience.
+
+STR, INT, WIS, DEX, CON, and CHR are the typical abbreviations for Strength,
+Intelligence, Wisdom, Dexterity, Constitution, and Charisma.
+
+Cur AC is your current (known) armor class.  Higher is better.  Note that
+a high AC will reduce merely physical damage, up to a maximum of 60% reduction
+for an AC of 150.  This is in addition to the reduced chance of having a hit
+get though in the first place.
+
+HP lists both current and maximum hit points, as a ratio.
+
+Spellcasters (which a warrior is not) have an SP listing for current and 
+maximum mana energy stored.  It goes immediately after the HP line.
+
+The next line is the monster health bar, which provides a colored bar graph
+of the relative health of the monster.  In Zaiband, the monsters are shown 
+your health bar.
+
+M. MHP is the maximum monster hit points.  Monsters do know your maximum 
+hitpoints just like you know theirs.
+
+Nxt Turn is a move ratio of the monster's moves to your moves.
+* 1/1 means that the monster should get one move to your move.
+* 1/2 means that the monster should get a double-move after you move.
+* 2/1 means that you have a double-move on the monster; it should not move
+after your next move, and the move ratio should read 1/1 after you move.
+
+The above comments assume all turns taken are not diagonal moves, and that 
+the player has only one shot per round when firing a missile weapon.
+
+Starting with Zaiband 3.0.8 alpha, Zaiband is unusual among variants in
+that diagonal moves take 50% longer than non-diagonal moves.  Extra shots
+being implemented by taking less time is typical (V does this).
+
+Discerning whether monsters know how to use the move ratio information
+is difficult at this time.
+
+The Energy line lists your "energy" recovery, which controls how fast your
+character takes turns.  It is currently an internal statistic that monsters
+do not directly see.  Slow monsters have substantially less energy recovery
+than 10; fast monsters have substantially more energy recovery.
+
+If your energy recovery is less than 10, the speed that is causing this will
+show under the Energy line as Slow (-__).  Likewise, if your energy recovery
+is more than 10, the speed that is causing this will show under the Energy
+line as Fast (+__).
 
 === Townspeople ===
 

@@ -54,5 +54,13 @@ extern const unsigned char cycle[2*KEYPAD_DIR_MAX+1];
  */
 extern const unsigned char chome[10];
 
+/**
+ *	Sorts directions array according to move_legal function, which is more of a preference function
+ *  \param bad_LB is passed in as a strict upper bound on the array
+ */
+extern int bad_squares_last(int* const dir_array, coord_action* move_legal, int bad_LB, coord origin);
+
+
+
 #endif
 

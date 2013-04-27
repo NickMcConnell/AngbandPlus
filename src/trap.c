@@ -73,7 +73,7 @@ static bool check_hit(int power)
 void pick_trap(coord g)
 {
 	int feat;
-	u32b f1,f2,f3;
+	u32b f[OBJECT_FLAG_STRICT_UB];
 
 	/* Paranoia */
 #ifdef NDEBUG
@@ -83,7 +83,7 @@ void pick_trap(coord g)
 #endif
 
 	/* get player flags */
-	p_ptr->flags(f1,f2,f3);
+	p_ptr->flags(f);
 
 	/* Pick a trap */
 	while (1)
@@ -101,19 +101,19 @@ void pick_trap(coord g)
 		if (one_in_(2)) break;
 
 		/* useless darts get replaced */
-		if (DART_STR == feat && (f2 & (TR2_SUST_STR))) continue;
-		if (DART_DEX == feat && (f2 & (TR2_SUST_DEX))) continue;
-		if (DART_CON == feat && (f2 & (TR2_SUST_CON))) continue;
+		if (DART_STR == feat && (f[1] & (TR2_SUST_STR))) continue;
+		if (DART_DEX == feat && (f[1] & (TR2_SUST_DEX))) continue;
+		if (DART_CON == feat && (f[1] & (TR2_SUST_CON))) continue;
 
 		/* useless traps get replaced */
-		if (TRAP_FIRE == feat && (f2 & (TR2_IM_FIRE))) continue;
-		if (TRAP_ACID == feat && (f2 & (TR2_IM_ACID))) continue;
+		if (TRAP_FIRE == feat && (f[1] & (TR2_IM_FIRE))) continue;
+		if (TRAP_ACID == feat && (f[1] & (TR2_IM_ACID))) continue;
 
 		/* useless gases get replaced */
-		if (GAS_BLIND == feat && (f2 & (TR2_RES_BLIND))) continue;
-		if (GAS_CONFUSE == feat && (f2 & (TR2_RES_CONFU))) continue;
-		if (GAS_POISON == feat && (f2 & (TR2_RES_POIS))) continue;
-		if (GAS_PARALYZE == feat && (f3 & (TR3_FREE_ACT))) continue;
+		if (GAS_BLIND == feat && (f[1] & (TR2_RES_BLIND))) continue;
+		if (GAS_CONFUSE == feat && (f[1] & (TR2_RES_CONFU))) continue;
+		if (GAS_POISON == feat && (f[1] & (TR2_RES_POIS))) continue;
+		if (GAS_PARALYZE == feat && (f[2] & (TR3_FREE_ACT))) continue;
 
 		/* Done */
 		break;
@@ -153,7 +153,7 @@ void hit_trap(coord g)
 {
 	int i, num, dam;
 
-	cptr name = "a trap";
+	const char* const name = "a trap";
 
 	/* Paranoia */
 	assert(is_trap(cave_feat[g.y][g.x]));
@@ -173,7 +173,7 @@ void hit_trap(coord g)
 			}
 			else
 			{
-				dam = damroll(2, 8);
+				dam = NdS(2, 8);
 				take_hit(dam, name);
 			}
 
@@ -195,7 +195,7 @@ void hit_trap(coord g)
 			}
 			else
 			{
-				dam = damroll(2, 6);
+				dam = NdS(2, 6);
 				take_hit(dam, name);
 			}
 			break;
@@ -214,7 +214,7 @@ void hit_trap(coord g)
 			else
 			{
 				/* Base damage */
-				dam = damroll(2, 6);
+				dam = NdS(2, 6);
 
 				/* Extra spike damage */
 				if (one_in_(2))
@@ -244,7 +244,7 @@ void hit_trap(coord g)
 			else
 			{
 				/* Base damage */
-				dam = damroll(2, 6);
+				dam = NdS(2, 6);
 
 				/* Extra spike damage */
 				if (one_in_(2))
@@ -296,7 +296,7 @@ void hit_trap(coord g)
 		case TRAP_FIRE:
 		{
 			msg_print("You are enveloped in flames!");
-			dam = damroll(4, 6);
+			dam = NdS(4, 6);
 			fire_dam(dam, "a fire trap");
 			break;
 		}
@@ -304,7 +304,7 @@ void hit_trap(coord g)
 		case TRAP_ACID:
 		{
 			msg_print("You are splashed with acid!");
-			dam = damroll(4, 6);
+			dam = NdS(4, 6);
 			acid_dam(dam, "an acid trap");
 			break;
 		}
@@ -314,7 +314,7 @@ void hit_trap(coord g)
 			if (check_hit(125))
 			{
 				msg_print("A small dart hits you!");
-				dam = damroll(1, 4);
+				dam = NdS(1, 4);
 				take_hit(dam, name);
 				(void)p_ptr->inc_timed<TMD_SLOW>(rand_int(20) + 20);
 			}
@@ -330,7 +330,7 @@ void hit_trap(coord g)
 			if (check_hit(125))
 			{
 				msg_print("A small dart hits you!");
-				dam = damroll(1, 4);
+				dam = NdS(1, 4);
 				take_hit(dam, name);
 				(void)do_dec_stat(A_STR);
 			}
@@ -346,7 +346,7 @@ void hit_trap(coord g)
 			if (check_hit(125))
 			{
 				msg_print("A small dart hits you!");
-				dam = damroll(1, 4);
+				dam = NdS(1, 4);
 				take_hit(dam, name);
 				(void)do_dec_stat(A_DEX);
 			}
@@ -362,7 +362,7 @@ void hit_trap(coord g)
 			if (check_hit(125))
 			{
 				msg_print("A small dart hits you!");
-				dam = damroll(1, 4);
+				dam = NdS(1, 4);
 				take_hit(dam, name);
 				(void)do_dec_stat(A_CON);
 			}

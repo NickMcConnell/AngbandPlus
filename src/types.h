@@ -36,8 +36,6 @@
  * other places, to prevent the creation of inconsistant data.
  */
 
-
-
 /**** Available Types ****/
 
 
@@ -65,6 +63,7 @@ typedef s16b s16b_wid[DUNGEON_WID];
 #ifndef __cplusplus
 typedef struct _grid _grid;
 typedef struct dice_sides dice_sides;
+typedef struct range_spec range_spec;
 
 typedef struct maxima maxima;
 typedef struct feature_type feature_type;
@@ -100,29 +99,11 @@ typedef struct flavor_type flavor_type;
 #include "types2.h"
 
 /*
- * hook types for AI
+ * KRB: redefine of constant from tvalsval.h .
+ *
+ * As long as this agrees with tvalsval.h, there won't be any errors or warnings.
  */
-/* figure out how to disconnect this type from using Koeneke license code (problem is z-rand.h, damroll()) */
-struct dice_sides
-{
-	byte dice;	/* dice */
-	byte sides;	/* size */
-
-	bool operator==(dice_sides RHS) const {return dice==RHS.dice && sides==RHS.sides;};
-	bool operator!=(dice_sides RHS) const {return !(*this==RHS);};
-
-	int maxroll() const {return (int)dice*(int)sides;};
-	/* these two are technically wrong when d!=0, s=0, but that's a degenerate case */
-	int minroll() const {return dice;};
-	int medianroll() const {return (int)dice*((int)sides+1)/2;};
-
-	/* STL interfaces */
-	void clear() {dice = 0; sides = 0;};
-
-	/* util.c */
-	int damroll() const;
-};
-
+#define TV_SCROLL       70
 
 /*
  * Information about maximal indices of certain arrays
@@ -136,7 +117,7 @@ struct maxima
 	u32b fake_text_size;
 	u32b fake_name_size;
 
-	u16b f_max;		/* Max size for "f_info[]" */
+	u16b f_max;		/* Max size for "f_info[]" */ /* verified */
 	u16b k_max;		/* Max size for "k_info[]" */
 	u16b a_max;		/* Max size for "a_info[]" */
 	u16b e_max;		/* Max size for "e_info[]" */
@@ -152,6 +133,8 @@ struct maxima
 	u16b m_max;		/* Max size for "mon_list[]" */
 };
 
+/* KRB: moved declaration here because we need it here */
+extern maxima *z_info;
 
 /*
  * Information about terrain "features"
@@ -237,9 +220,7 @@ struct object_kind
 
 	s32b cost;			/* Object "base cost" */
 
-	u32b flags1;		/* Flags, set 1 */
-	u32b flags2;		/* Flags, set 2 */
-	u32b flags3;		/* Flags, set 3 */
+	u32b flags[OBJECT_FLAG_STRICT_UB];	/* Flags */
 
 	byte locale[4];		/* Allocation level(s) */
 	byte chance[4];		/* Allocation chance(s) */
@@ -255,8 +236,7 @@ struct object_kind
 	byte x_attr;		/* Desired object attribute */
 	char x_char;		/* Desired object character */
 
-	u16b time_base;		/* Recharge time (if appropriate) */
-	dice_sides time;	/* dice defaults to 1 right now, redo later */
+	range_large_spec time;	/* recharge time; dice defaults to 1 right now, redo later */
 
 	u16b flavor;		/* Special object flavor (or zero) */
 
@@ -266,6 +246,7 @@ struct object_kind
 
 	const char* name() const {return k_name+_name;};
 	const char* text() const {return k_text+_text;};
+	const char* flavor_text() const {return object_kind::flavor_info[flavor].text();};
 
 	/* display interpretation */
 	byte attr_user() const {return use_flavor_glyph() ? flavor_info[flavor].x_attr : x_attr;};
@@ -275,7 +256,7 @@ struct object_kind
 
 	/* more complicated functions */
 /*
- * Determine if the attr and char should consider the item's flavor
+ * Determine if the attr and char should consider the item's flavor.
  *
  * Identified scrolls should use their own tile.
  */
@@ -316,9 +297,7 @@ struct artifact_type
 
 	s32b cost;			/* Artifact "cost" */
 
-	u32b flags1;		/* Artifact Flags, set 1 */
-	u32b flags2;		/* Artifact Flags, set 2 */
-	u32b flags3;		/* Artifact Flags, set 3 */
+	u32b flags[OBJECT_FLAG_STRICT_UB];	/* Artifact Flags */
 
 	byte level;			/* Artifact level */
 	byte rarity;		/* Artifact rarity */
@@ -327,8 +306,7 @@ struct artifact_type
 	byte max_num;		/* Unused (should be "1") */
 
 	byte activation;	/* Activation to use */
-	u16b time_base;		/* Recharge time (if appropriate) */
-	dice_sides time;	/* dice defaults to 1 right now, redo later */
+	range_large_spec time;	/* Recharge time (if appropriate); dice defaults to 1 right now, redo later */
 
 	const char* name() const {return a_name+_name;};
 	const char* text() const {return a_text+_text;};
@@ -348,9 +326,7 @@ struct ego_item_type
 
 	s32b cost;			/* Ego-item "cost" */
 
-	u32b flags1;		/* Ego-Item Flags, set 1 */
-	u32b flags2;		/* Ego-Item Flags, set 2 */
-	u32b flags3;		/* Ego-Item Flags, set 3 */
+	u32b flags[OBJECT_FLAG_STRICT_UB];	/* Ego-Item Flags */
 
 	byte level;			/* Minimum level */
 	byte rarity;		/* Object rarity */
@@ -432,12 +408,15 @@ struct monster_race
 	byte freq_innate;		/* Innate spell frequency */
 	byte freq_spell;		/* Other spell frequency */
 
-	u32b flags1;			/* Flags 1 (general) */
-	u32b flags2;			/* Flags 2 (abilities) */
-	u32b flags3;			/* Flags 3 (race/resist) */
-	u32b flags4;			/* Flags 4 (inate/breath) */
-	u32b flags5;			/* Flags 5 (normal spells) */
-	u32b flags6;			/* Flags 6 (special spells) */
+	u32b flags[RACE_FLAG_STRICT_UB];	/* Flags */
+	/* 
+     * 0: general
+     * 1: abilities
+     * 2: race/resist
+     * 3: innate/breath
+     * 4: normal spells
+     * 5: special spells
+     */
 
 	monster_blow blow[MONSTER_BLOW_MAX]; /* Up to four blows per round */
 
@@ -455,6 +434,9 @@ struct monster_race
 
 	const char* name() const {return r_name+_name;};
 	const char* text() const {return r_text+_text;};
+
+	/* xtra2.c */
+	bool is_nonliving() const;
 };
 
 
@@ -487,12 +469,15 @@ struct monster_lore
 
 	byte blows[MONSTER_BLOW_MAX]; /* Number of times each blow type was seen */
 
-	u32b flags1;			/* Observed racial flags */
-	u32b flags2;			/* Observed racial flags */
-	u32b flags3;			/* Observed racial flags */
-	u32b flags4;			/* Observed racial flags */
-	u32b flags5;			/* Observed racial flags */
-	u32b flags6;			/* Observed racial flags */
+	u32b flags[RACE_FLAG_STRICT_UB];	/* Observed racial flags */
+	/* 
+     * 0: general
+     * 1: abilities
+     * 2: race/resist
+     * 3: innate/breath
+     * 4: normal spells
+     * 5: special spells
+     */
 };
 
 
@@ -620,11 +605,32 @@ struct object_type
  * Test One -- Check for special "known" tag
  * Test Two -- Check for "Easy Know" + "Aware"
  */
-	bool known() const {return (ident & IDENT_KNOWN) || ((k_info[k_idx].flags3 & TR3_EASY_KNOW) && aware());};
+	bool known() const {return (ident & IDENT_KNOWN) || ((k_info[k_idx].flags[2] & TR3_EASY_KNOW) && aware());};
 };
 
 typedef bool object_action(object_type& o);
+typedef bool object_test(const object_type& o);
+typedef bool o_ptr_action(object_type* o);
+typedef bool o_ptr_test(const object_type* o);
 
+struct agent_type
+{
+	coord loc;			/**< location on map */
+	s16b chp;			/**< Current Hit points */
+	s16b mhp;			/**< Max Hit points */
+	byte speed;			/**< "speed" */
+	byte energy;		/**< "energy" */
+
+	/* xtra3.c */
+	void stars_color(int& stars, byte& attr) const;
+
+	/* xtra4.c */
+	int ticks_to_move(int move, int diag) const;
+	int moves_in_ticks(int ticks, int diag) const;
+	int energy_in_ticks(int ticks) const;
+	void move_ratio(int& threat_moves, int& my_moves, const agent_type& threat, int threat_diag, int my_diag) const;
+	int apparent_health() const;
+};
 
 /*
  * Monster information, for a specific monster.
@@ -632,7 +638,7 @@ typedef bool object_action(object_type& o);
  * The "hold_o_idx" field points to the first object of a stack
  * of objects (if any) being carried by the monster (see above).
  */
-struct monster_type
+struct monster_type : public agent_type
 {
 	static monster_race *r_info;
 	static monster_lore *l_list;
@@ -640,15 +646,7 @@ struct monster_type
 
 	s16b r_idx;			/* Monster race index */
 
-	coord loc;	/* location on map */
-
-	s16b hp;			/* Current Hit points */
-	s16b maxhp;			/* Max Hit points */
-
 	s16b csleep;		/* Inactive counter */
-
-	byte mspeed;		/* Monster "speed" */
-	byte energy;		/* Monster "energy" */
 
 	byte stunned;		/* Monster is stunned */
 	byte confused;		/* Monster is confused */
@@ -660,7 +658,7 @@ struct monster_type
 
 	bool ml;			/* Monster is "visible" */
 
-	s16b hold_o_idx;	/* Object being held (if any) */
+	s16b hold_o_idx;	/* First object being held (if any) */
 
 	u32b smart;			/* Field for "smart_learn" */
 
@@ -677,6 +675,9 @@ struct monster_type
 };
 
 typedef bool monster_action(monster_type& m);
+typedef bool monster_test(const monster_type& m);
+typedef bool m_ptr_action(monster_type* m);
+typedef bool m_ptr_test(const monster_type* m);
 
 
 /*
@@ -784,8 +785,8 @@ struct player_magic
  */
 struct player_sex
 {
-	cptr title;			/* Type of sex */
-	cptr winner;		/* Name of winner */
+	const char* title;	/* Type of sex */
+	const char* winner;	/* Name of winner */
 	char terse;			/* abbreviation */
 };
 
@@ -824,9 +825,7 @@ struct player_race
 
 	s16b hist;			/* Starting history index */
 
-	u32b flags1;		/* Racial Flags, set 1 */
-	u32b flags2;		/* Racial Flags, set 2 */
-	u32b flags3;		/* Racial Flags, set 3 */
+	u32b flags[OBJECT_FLAG_STRICT_UB];	/* Racial Flags */
 };
 
 
@@ -894,23 +893,25 @@ struct hist_type
 
 
 
-/*
+/**
  * Some more player information
  *
  * This information is retained across player lives
  */
 struct player_other
 {
-	char full_name[32];		/* Full name */
-	char base_name[32];		/* Base name */
+	char full_name[32];		/**< Full name */
+	char base_name[32];		/**< Base name */
 
-	bool opt[OPT_MAX];		/* Options */
+	bool opt[OPT_MAX];		/**< Options */
 
-	u32b window_flag[ANGBAND_TERM_MAX];	/* Window flags */
+	u32b window_flag[ANGBAND_TERM_MAX];	/**< Window flags */
 
-	byte hitpoint_warn;		/* Hitpoint warning (0 to 9) */
+	byte hitpoint_warn;		/**< Hitpoint warning (0 to 9) */
 
-	byte delay_factor;		/* Delay factor (0 to 9) */
+	byte delay_factor;		/**< Delay factor (0 to 9) */
+
+	size_t count_flagged_windows(u32b flag_test) const;
 };
 
 
@@ -925,7 +926,7 @@ struct player_other
  * which must be saved in the savefile precedes all the information
  * which can be recomputed as needed.
  */
-struct player_type
+struct player_type : public agent_type
 {
 	static player_race *p_info;
 	static char *p_name;
@@ -939,8 +940,6 @@ struct player_type
 
 	static const char* race_name(size_t i) { return p_name + p_info[i].name; };
 	static const char* class_name(size_t i) { return c_name + c_info[i].name; };
-
-	coord loc;	/* Player location */
 
 	byte psex;			/* Sex index */
 	byte prace;			/* Race index */
@@ -967,8 +966,6 @@ struct player_type
 	s32b exp;			/* Cur experience */
 	u16b exp_frac;		/* Cur exp frac (times 2^16) */
 
-	s16b mhp;			/* Max hit pts */
-	s16b chp;			/* Cur hit pts */
 	u16b chp_frac;		/* Cur hit frac (times 2^16) */
 
 	s16b msp;			/* Max mana pts */
@@ -981,8 +978,6 @@ struct player_type
 	s16b timed[TMD_MAX];	/* Timed effects */
 
 	s16b word_recall;	/* Word of recall counter */
-
-	s16b energy;		/* Current energy */
 
 	s16b food;			/* Current nutrition */
 
@@ -1068,7 +1063,6 @@ struct player_type
 	u32b notice;		/* Special Updates (bit flags) */
 	u32b update;		/* Pending Updates (bit flags) */
 	u32b redraw;		/* Normal Redraws (bit flags) */
-	u32b window;		/* Window Redraws (bit flags) */
 
 	s16b stat_use[A_MAX];	/* Current modified stats */
 	s16b stat_top[A_MAX];	/* Maximal modified stats */
@@ -1144,8 +1138,6 @@ struct player_type
 
 	byte ammo_tval;		/* Ammo variety */
 
-	s16b pspeed;		/* Current speed */
-
 	/* pointers to player information */
 	const player_race *rp_ptr;
 	const player_class *cp_ptr;
@@ -1194,7 +1186,15 @@ struct player_type
 
 	/* files.c */
 	const char* title() const;
-	void flags(u32b& f1, u32b& f2, u32b& f3) const;
+	void flags(u32b* f) const;
+
+	/* melee2.c */
+	static bool harmless_projection(int dam, int typ, u32b smart);
+
+	/* object2.c */
+#ifndef NDEBUG
+	bool inven_cnt_is_strict_UB_of_nonzero_k_idx() const;
+#endif
 
 	/* xtra2.c */
 private:
@@ -1228,53 +1228,16 @@ private:
 };
 
 
-/*
- * Semi-Portable High Score List Entry (128 bytes)
- *
- * All fields listed below are null terminated ascii strings.
- *
- * In addition, the "number" fields are right justified, and
- * space padded, to the full available length (minus the "null").
- *
- * Note that "string comparisons" are thus valid on "pts".
- */
-
-typedef struct high_score high_score;
-
-struct high_score
-{
-	char what[8];		/* Version info (string) */
-
-	char pts[10];		/* Total Score (number) */
-
-	char gold[10];		/* Total Gold (number) */
-
-	char turns[10];		/* Turns Taken (number) */
-
-	char day[10];		/* Time stamp (string) */
-
-	char who[16];		/* Player Name (string) */
-
-	char uid[8];		/* Player UID (number) */
-
-	char sex[2];		/* Player Sex (string) */
-	char p_r[3];		/* Player Race (number) */
-	char p_c[3];		/* Player Class (number) */
-
-	char cur_lev[4];		/* Current Player Level (number) */
-	char cur_dun[4];		/* Current Dungeon Level (number) */
-	char max_lev[4];		/* Max Player Level (number) */
-	char max_dun[4];		/* Max Dungeon Level (number) */
-
-	char how[32];		/* Method of death (string) */
-};
-
 /* ============= Defines a visual grouping ============ */
-typedef struct
+#ifndef __cplusplus
+typedef struct grouper grouper;
+#endif
+
+struct grouper
 {
 	byte tval;
-	cptr name;
-} grouper;
+	const char* name;
+};
 
 
 enum grid_light_level
@@ -1284,16 +1247,23 @@ enum grid_light_level
 	LIGHT_DARK
 };
 
-typedef struct
+/* KRB: converted to C++ class */
+class grid_data
 {
-	u32b m_idx;		/* Monster index */
-	u32b f_idx;		/* Feature index */
-	u32b first_k_idx;	/* The "Kind" of the first item on the grid */
-	bool multiple_objects;	/* Is there more than one item there? */
+private:
+	u32b m_idx;						/**< Monster index */
+	u32b f_idx;						/**< Feature index */
+	u32b first_k_idx;				/**< The "Kind" of the first item on the grid */
+	bool multiple_objects;			/**< Is there more than one item there? */
 
-	enum grid_light_level lighting; /* Light level */
-	bool in_view; /* TRUE when the player can currently see the grid. */
+	enum grid_light_level lighting;	/**< Light level */
+	bool in_view; 					/**< TRUE when the player can currently see the grid. */
 	bool is_player;
 	bool hallucinate;
-} grid_data;
+
+public:
+	grid_data(unsigned int y, unsigned int x);								/* V: map_info() */
+	void as_text(byte& ap, char& cp, byte& tap, char& tcp) const;	/* V: grid_data_as_text() */
+};
+	
 

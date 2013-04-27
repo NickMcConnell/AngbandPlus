@@ -1,13 +1,108 @@
+META: edit format break
+* object.txt: A line conversion of some kind
+* artifact.txt: kill ACTIVATE flag
+
+META: other changes
+* terrain.txt: summon runes should look different than teleport runes, etc.
+
+Changes Zaiband 3.0.8 alpha
+- monster recovery from stunning, confusion, and fear has been made 
+  more consistent with player recovery.
+- Line of sight/fire should be fully working now.  I adapted Tyrecius' 
+  Permissive Field of View to V projection (relies on rational tangents as
+  proxy for angles)
+- a very simplistic damage estimator is in place.
+- As a matter of consistent English, jellies no longer look alive when you look at them.  (Other descriptions already assumed they weren't.)
+- from V: don't burn fuel during day in town
+- from V: sound level normalization
+- from V: disturb_minor option removed, forced always-on
+- from V SVN: spellcasters always get at least one mana
+- inspired by V SVN: launchers are also checked for multipliers.  Unlike V, launcher multipliers are cumulative with those from ammunition.
+** Bard gets KILL_DRAGON for mythos reasons
+- from V SVN: bigscreen support for self-knowledge display
+- from V SVN: player melee criticals also multiply the damage bonus from the weapon
+- inspired by Un, SSCrawl: player birth catches basic equipment holes.
+** Any weapons or armor that can be equipped are equipped automatically 
+   before starting play.
+** Armor equipment slots are checked; if they aren't configured, a decidedly
+   cheap option is automatically granted.  If you don't start with gloves, 
+   it's because they hurt your spellcasting.
+- The sidebar needed some documentation; it's in the dungeon section 
+  of the help files.
+- smart_cheat documentation slightly updated.
+- Display changes:
+** Display converged to V backend (finally).
+** Energy recovery per time tick is now its own line.
+** Monster health display also includes maximum hit points.
+- Monster recall changes:
+** Breath weapons are now obvious.
+** Known melee attacks that can kill the player in one blow are now
+   frightening, if one cares to check the monster recall.  At the moment,
+   this has no in-game effect.
+** Melee attacks that automatically get supercriticals are obvious.
+   They are also frightening (with no in-game effect)
+- monster attacks targeting inventory now automatically ignore 
+  empty inventory slots.
+- monster flowing adjusted: non-door openers will now not try to open doors 
+  when a more feasible path exists and is fully visualizable by the monster.
+- Pack AI adjusted: slot-filling behavior now occurs only when practical
+- a monster failing to break a glyph of warding uses up its turn now.
+- Noise changes:
+** Bashing open doors is noisy enough to wake up monsters.  Even failing 
+   to break open the door is noisier than simply walking.
+** Monsters that cry out in pain (in various ways) are making noise.
+** Objects destroyed on the floor are noisy.
+   For now, player inventory destruction isn't noisy.
+- Energy changes:
+** Diagonal energy move cost is 150.  Non-move commands do not use more energy
+   (in particular, attacking).  This was implemented by changing 
+   the energy threshold to 150.
+** A monster that wakes up has its energy set to zero.
+** Player incapacitation locks down energy to zero.  (This may be 
+   from paralysis, or being knocked out.)
+*** An incapacitated player makes no noise.
+- ideas from Eddie Grove, Timo Pietilla
+** average pseudo-id remapped to automatic free identify.
+** Weak psuedo-id characters get automatic free identify 
+   on average wielded items.
+** merely viewing an object in the store makes you aware of it.  Entering 
+   the store is not enough, you must actually have it in view.
+- bugfix: window options now take
+- bugfix: dice sides larger than 255 no longer subject to modulo 256 truncation (affects some dragon scale mails, etc.)
+
+Technical changes Zaiband 3.0.8 alpha
+- design by contract imposed for player_type::inven_cnt, player_type::inventory
+- obfuscatory typedef cptr finally gone
+- starting time tick at beginning of game is now 1 (minimal).
+- licensing update: reviewed V SVN against Zaiband to determine where 
+  disjunctive Koeneke/GPL license was applicable
+** ui-menu.h prevented disjunctive Koeneke/GPL license from transferring
+** z-file.h/c was automatically disqualified. (Zaiband uses the ISO C 
+   z-file.h/c rather than V's)
+** As of the time of the licensing update, many *.h files either had 
+   no license notice or were under pure Koeneke, in spite of declared 
+   intentions for V3.1.0.  *.h files with corresponding *.c files generally 
+   were elevated to whatever license the *.c file had.  Remaining files with 
+   limited inclusion were elevated based on whether all inclusions were 
+   disjunctive-licensed.  (Note that copyright attribution is probably off 
+   on some of these.)
+
 Changes Zaiband 3.07
 - trap generation is somewhat more intelligent.
-- autoinscriptions that block actions only work once, no matter how many of them there are.  !* is still cumulative with action-specific blocks.
-- projection paths (arrows, bolt spells, etc.) have been adjusted.  Knight-move ambush still works, but the hockey puck corridor won't.  The easier
-trick shots are automatically handled.  There probably are a few bugs where invisible squares can be hit by careful choice of position targeting, but
-I haven't checked for them carefully.
-- the reasonable bolt and summons checks in monster AI have been disconnected from the smart_monsters option.  [They, at least, are working.]
+- autoinscriptions that block actions only work once, no matter how many
+  of them there are.  !* is still cumulative with action-specific blocks.
+- projection paths (arrows, bolt spells, etc.) have been adjusted.
+  Knight-move ambush still works, but the hockey puck corridor won't.
+  The easier trick shots are automatically handled.  There probably are
+  a few bugs where invisible squares can be hit by careful choice of position
+  targeting, but I haven't checked for them carefully.
+- the reasonable bolt and summons checks in monster AI have been disconnected
+  from the smart_monsters option.  [They, at least, are working.]
 - discounts have been eliminated.
-- player noise is now generated when the player does something.  A single central check is made, and if the player made noise it is applied to
-all monsters that should be affected.  Aggravation, being more mystical, happens when the monster is processed.
+- player noise is now generated when the player does something.  A single
+  central check is made, and if the player made noise it is applied
+  to all monsters that should be affected.  Aggravation, being more mystical,
+  happens when the monster is processed.
 - options eliminated
 ** forced true: fresh_before, allow_quantity, expand_list
 ** forced false: fresh_after, stack_force_costs
@@ -16,25 +111,31 @@ Technical changes Zaiband
 - Makefile system resynced
 -- Makefile.mpw moved to freezer
 -- new Makefile.ros
--- retaining Makefile.cyg and Makefile.con in parallel with new Makefile.win for now
+-- retaining Makefile.cyg and Makefile.con in parallel with new Makefile.win
+   for now
 - fonts resynced
-- view_g and view_n were eliminated as part of the line of sight changes.  They may come back in player_type if needed.
-- generalized Djikstra-based flow_from function in new file flow.c .  Used to quash some bugs with fleeing monsters and doors.
+- view_g and view_n were eliminated as part of the line of sight changes.
+  They may come back in player_type if needed.
+- generalized Djikstra-based flow_from function in new file flow.c .
+  Used to quash some bugs with fleeing monsters and doors.
 
 Changes Zaiband 3.0.6s1:
-- arrow key support merged from Angband 3.07s3; disabled for VM, until correct arrow key values are determined somehow.
+- arrow key support merged from Angband 3.07s3; disabled for VMS, until 
+  correct arrow key values are determined somehow.
 - partial merge of advanced pluralizer support from Angband 3.07s3
 - monster immunities are more informatively described now.
 - merge of "Inscribing an item with '!t' will now confirm if you try to take it
   off."
-- merge of advanced recharge notice [If a stack of rods is recharging, you'll get a message when the first 
-  rod is recharged and another message when they are all recharged.
-  There is no message when the second, third, etc., rod is recharged.
-  (Hugo Kornelis)]
-- moronicity check: truly pointless actions are now rejected by the character, based on INT and WIS.
+- merge of advanced recharge notice [If a stack of rods is recharging, you'll
+  get a message when the first rod is recharged and another message when they
+  are all recharged. There is no message when the second, third, etc., rod
+  is recharged. (Hugo Kornelis)]
+- moronicity check: truly pointless actions are now rejected by the character,
+  based on INT and WIS.
 
 Technical changes Zaiband 3.0.6s1:
-- main.c changes ported from Angband 3.07s3 : Add console mode patch for Windows (Frank Palazzolo)
+- main.c changes ported from Angband 3.07s3 : Add console mode patch for
+  Windows (Frank Palazzolo)
 - main-ami.c copied from Angband 3.07s3
 - numerous other partial merges
 - mirrored script.h, squelch.c . so we can try to recycle makefiles from V
@@ -59,20 +160,25 @@ Technical changes Zaiband 3.0.6s1:
 Changes Zaiband 3.0.6:
 - LUA support is gone.  Partial conversion to C++.
 - hit dice are now sorted in decreasing order.
-- ranged penalties have been changed to be more geometric.  Also, ranged accuracy suffers when monsters are in melee range.
+- ranged penalties have been changed to be more geometric.  Also,
+  ranged accuracy suffers when monsters are in melee range.
 - new gazes: presbyopic, hyperopic, ranged, and clairvoyant.
 	myopic: range 1, as before.
     presbyopic: range 2-4
     hyperopic: range 4+
     ranged: LoS range
     clairvoyant: in range, ignore physical obstacles
-	The Zaiband equivalent to a V Floating eye, is a Myopic floating eye.  A Zaiband floating eye has a ranged gaze.
-- Immobile, stupid monsters now take out appropriate items, that end up under them.
+	The Zaiband equivalent to a V Floating eye, is a Myopic floating eye.
+    A Zaiband floating eye has a ranged gaze.
+- Immobile, stupid monsters now take out appropriate items, that end up
+  under them.
     Eats food?  It now spoils food under it.  [Rot jellies.]
     Eats light?  It now unfuels light sources under it.  [Silver jellies.]
-    Acid attack?  Items vulnerable to acid, are destroyed under it.  Similarly for electricity, fire, and cold.
-- (Mobile) monsters that can attack to eat food, eat food from the floor.  [E.g., green glutton ghosts.]
-======
+    Acid attack?  Items vulnerable to acid, are destroyed under it.
+     Similarly for electricity, fire, and cold.
+- (Mobile) monsters that can attack to eat food, eat food from the floor.
+  [E.g., green glutton ghosts.]
+=====
 rec.games.roguelike.angband looking glass
 
 From: Eddie Grove <eddiegrove@hotmail.com>
@@ -860,5 +966,97 @@ Aug 18, 2007: -107 days
 608: interface tweak
 609: vacuous cmds.h adjust
 610: object-make.c/object.h code adjust
+611/619: monster coloring change
+612: snap back to V3.0.9 dungeon generator, leave out autoscum option
+613: object description cleanup
+614: warning blame shell script
+615: copyright adjust
+616: store twang (but think twice about min_level, might want to patch this one)
+617: licence twang
+618: redo stat-swapper potions
+620: LUA stat analyzer
+621: tool script readme
+622: remove zero-effect code
+623: anti-segfault hack
+625: clean up object flags as part of *ID* annihilation
+626: chardump fix to z-file.c
+628: chardump fix
+630: death display uses scrollable menu
+631/632: relocate death code to death.c, cleanup; crown.txt
+636: history notes patch
+637: macro rename, effects.h/c
+638/639: alternate detection approach
+640: overwrite savefile prompt fix
+643/644: version adjust (ignore, but note out-of-memory issue with 643)
+645/646: GTK work
+652/653/654: object_desc cleanup
+* this one's messy, and I'm not sure I agree with AS's file reorganization
+** done:
 
+/** modes for object_desc() */
+enum object_desc_mode	{	ODESC_BASE = 0, 
+							ODESC_COMBAT, 
+							ODESC_STORE,
+							ODESC_FULL
+						};
 
+** next: reorganize along lines of V obj-desc
+
+662: Angband man page
+664: remove main-xaw.c [Zaiband stuffs into freezer]
+665: obj-ui.c reorganization
+666-668: more object-handling file reorganization 
+670: ang_sort and ang_cmp moved to z-util.c; target.c created
+671/672: Stop access to p_ptr->target_* from anywhere except target.c.
+673: move target_ variables from player_type to target.c (do *not* do this, breaks multi-PC)
+676: psuedo-id changes en-masse; INSCRIP enum interesting
+677: rename good to magical; new psuedo-id strange for mixed-bonuses; adjust weak psuedo-id to know difference between good and excellent; do not autocurse bad weapons
+678/679: remove redundant IDENT_BROKEN (probably should make this useful instead)
+680: stop making rings of stupidity, weakness, and woe; allow any/all rings to be cursed if game wants to make a bad item
+681: torch/lantern fuel adjust (do not match; consider making stores sell full torches/lanterns)
+680,682: object generation code clean
+688: rename Cesti to Mithril Gauntlets (but do it better)
+689: remove support for pre-3.0.1 savefiles
+690: (squelch fixup)
+691: make pt-based mostly equivalent to autoroller
+692: OSX fixup (main)
+693: OSX fixup (z-files.c)
+694: put OSX on new-style command-loop
+695/696: Make get_mon_num_prep() void. 
+697: OSX typo fix
+698: Mouse button patch
+699: OSX fixup
+700: min gold always 200
+701-704: GTK work
+705: rename no-preserve option: "Lose artifacts when leaving level"
+706,708: GTK work
+711: torches made lighter (do not copy to Zaiband)
+715: command_see eliminated; not as simple as it looks
+726: kill -s option in main.c (show scores)
+727: CCW rarity adjustment (study new V rarity config)
+728: check_for_inscript is an object function, not a util function: relocated
+729: multiple-inscriptions work (probably won't move to Zaiband)
+730/731: Z randint0/randint1 introduction
+733: resist poison potion
+742: store/AI fixes
+750: swap priority of can_pickup and blind checks when picking up items
+751: reverse order of monster list.  Really should be in toughness order (think about this more carefully)
+752: V-specific
+753: blow count correction (V-specific)
+754: try to robustify store item quantity prompt by duplicating object_similar code (think about this more carefully)
+755: feature: detection via aware means can give definitive negative results
+756: MN_NULL constant
+758: repair connected stairs option
+766: SDL fix
+767: PNG transparency fix
+768: z-virt.h adjust, study
+778: Mac fixup
+779: guarantee CHR is applied before store price cap
+782: debian prototype distro system
+787: object knowledge sorts by cost
+788: Bard gets SLAY_DRAGON (mythos; perhaps should be KILL_DRAGON.  In any case, update attack.c to use brands from the launcher as well first.)
+796: ?Rune of Protection fixup
+808/812: DTRAP borders
+810: pickup function interface cleanup
+816: lazy movement patch (allows combining arrow keys into diagonals, useful for laptops)
+819: fix mouse pointing

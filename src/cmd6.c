@@ -2,10 +2,18 @@
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 2007 Andrew Sidwell
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -51,7 +59,7 @@
  * but instead use the "sval" (which is also used to sort the objects).
  */
 
-/* standard chance of using an item or device */
+/** standard chance of using an item or device */
 int
 player_type::item_chance(int lev) const
 {
@@ -65,7 +73,7 @@ player_type::item_chance(int lev) const
 	chance -= MIN(50,lev);
 
 	/* Give everyone a (slight) chance */
-	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
+	if ((chance < USE_DEVICE) && one_in_(USE_DEVICE - chance + 1))
 	{
 		chance = USE_DEVICE;
 	}

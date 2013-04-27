@@ -14,7 +14,7 @@
  * Arrays of purely alphabetical, lower-case strings to teach 
  * the name generator with. 
  */
-static cptr tolkien_names[] =
+static const char* const tolkien_names[] =
 {
 	"adanedhel", "adurant", "aeglos", "aegnor", "aelin", "aeluin",
 	"aerandir", "aerin", "agarwaen", "aglareb", "aglarond", "aglon",
@@ -119,7 +119,7 @@ static cptr tolkien_names[] =
 };
 
 /* These are (mostly) picked at random from a Latin word list. */
-static cptr scroll_names[] =
+static const char* const scroll_names[] =
 {
 	"abracadabra", "piffpaffpouf", "izzy", "wizzy", "letsgetsbusy",
 	"justlikethat", "hocus", "pocus", "shazam", "please", "abduco",
@@ -232,10 +232,10 @@ typedef unsigned short name_probs[S_WORD+1][S_WORD+1][TOTAL+1];
  * The array of names should have a NULL entry at the end of the list.
  * It relies on the ASCII character set (through use of A2I).
  */
-static void build_prob(name_probs probs, cptr *learn)
+static void build_prob(name_probs probs, const char* const * learn)
 {
 	int c_prev, c_cur, c_next;
-	cptr ch;
+	const char* ch;
 	int i;
 
 	/* Build raw frequencies */
@@ -272,11 +272,11 @@ static void build_prob(name_probs probs, cptr *learn)
  */
 size_t randname_make(randname_type name_type, size_t min, size_t max, char *word_buf, size_t buflen)
 {
-	int lnum;
+	size_t lnum;
 	bool found_word = FALSE;
 
 	static name_probs lprobs;
-	static randname_type cached_type = RANDNAME_NUM_TYPES;
+	static int cached_type = RANDNAME_NUM_TYPES;
 
 	assert(name_type > 0 && name_type < RANDNAME_NUM_TYPES);
 
@@ -288,7 +288,7 @@ size_t randname_make(randname_type name_type, size_t min, size_t max, char *word
 	   Frankly, we could probably regenerate every time. */
 	if (cached_type != name_type)
 	{
-		cptr *wordlist = NULL;
+		const char* const * wordlist = NULL;
 
 		switch (name_type)
 		{

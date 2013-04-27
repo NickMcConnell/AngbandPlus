@@ -16,8 +16,16 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
 #include "angband.h"
+#include "raceflag.h"
+#include "tvalsval.h"
+
 #include "flow.h"
 #include "keypad.h"
+
+/*
+ * Misc constants
+ */
+#define BTH_PLUS_ADJ    3       /* Adjust BTH per plus-to-hit */
 
 /*
  * Determines the odds of an object breaking when thrown at a monster
@@ -194,10 +202,10 @@ static int slay_multiplier(const object_type *o_ptr, const monster_type *m_ptr)
 
 	monster_race *r_ptr = m_ptr->race();
 
-	u32b f1, f2, f3;
+	u32b f[OBJECT_FLAG_STRICT_UB];
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, f);
 
 	/* Some "weapons" and "ammo" do extra damage */
 	switch (o_ptr->tval)
@@ -211,114 +219,84 @@ static int slay_multiplier(const object_type *o_ptr, const monster_type *m_ptr)
 		case TV_DIGGING:
 		{
 			/* Slay Animal */
-			if ((f1 & (TR1_SLAY_ANIMAL)) && (r_ptr->flags3 & (RF3_ANIMAL)))
+			if (r_ptr->flags[2] & RF2_ANIMAL)
 			{
-				if (mult < 2) mult = 2;
+				if ((f[0] & (TR1_SLAY_ANIMAL)) && (mult < 2)) mult = 2; 
 			}
 
 			/* Slay Evil */
-			if ((f1 & (TR1_SLAY_EVIL)) && (r_ptr->flags3 & (RF3_EVIL)))
+			if (r_ptr->flags[2] & RF2_EVIL)
 			{
-				if (mult < 2) mult = 2;
+				if ((f[0] & (TR1_SLAY_EVIL)) && (mult < 2)) mult = 2; 
 			}
 
 			/* Slay Undead */
-			if ((f1 & (TR1_SLAY_UNDEAD)) && (r_ptr->flags3 & (RF3_UNDEAD)))
+			if (r_ptr->flags[2] & RF2_UNDEAD)
 			{
-				if (mult < 3) mult = 3;
+				if ((f[0] & (TR1_SLAY_UNDEAD)) && (mult < 3)) mult = 3; 
+				if ((f[0] & (TR1_KILL_UNDEAD)) && (mult < 5)) mult = 5; /* Execute Undead */
 			}
 
 			/* Slay Demon */
-			if ((f1 & (TR1_SLAY_DEMON)) && (r_ptr->flags3 & (RF3_DEMON)))
+			if (r_ptr->flags[2] & RF2_DEMON)
 			{
-				if (mult < 3) mult = 3;
+				if ((f[0] & (TR1_SLAY_DEMON)) && (mult < 3)) mult = 3; 
+				if ((f[0] & (TR1_KILL_DEMON)) && (mult < 5)) mult = 5; /* Execute Demon */
 			}
 
 			/* Slay Orc */
-			if ((f1 & (TR1_SLAY_ORC)) && (r_ptr->flags3 & (RF3_ORC)))
+			if (r_ptr->flags[2] & RF2_ORC)
 			{
-				if (mult < 3) mult = 3;
+				if ((f[0] & (TR1_SLAY_ORC)) && (mult < 3)) mult = 3; 
 			}
 
 			/* Slay Troll */
-			if ((f1 & (TR1_SLAY_TROLL)) && (r_ptr->flags3 & (RF3_TROLL)))
+			if (r_ptr->flags[2] & RF2_TROLL)
 			{
-				if (mult < 3) mult = 3;
+				if ((f[0] & (TR1_SLAY_TROLL)) && (mult < 3)) mult = 3; 
 			}
 
 			/* Slay Giant */
-			if ((f1 & (TR1_SLAY_GIANT)) && (r_ptr->flags3 & (RF3_GIANT)))
+			if (r_ptr->flags[2] & RF2_GIANT)
 			{
-				if (mult < 3) mult = 3;
+				if ((f[0] & (TR1_SLAY_GIANT)) && (mult < 3)) mult = 3; 
 			}
 
 			/* Slay Dragon */
-			if ((f1 & (TR1_SLAY_DRAGON)) && (r_ptr->flags3 & (RF3_DRAGON)))
+			if (r_ptr->flags[2] & RF2_DRAGON)
 			{
-				if (mult < 3) mult = 3;
-			}
-
-			/* Execute Dragon */
-			if ((f1 & (TR1_KILL_DRAGON)) && (r_ptr->flags3 & (RF3_DRAGON)))
-			{
-				if (mult < 5) mult = 5;
-			}
-
-			/* Execute demon */
-			if ((f1 & (TR1_KILL_DEMON)) && (r_ptr->flags3 & (RF3_DEMON)))
-			{
-				if (mult < 5) mult = 5;
-			}
-
-			/* Execute undead */
-			if ((f1 & (TR1_KILL_UNDEAD)) && (r_ptr->flags3 & (RF3_UNDEAD)))
-			{
-				if (mult < 5) mult = 5;
+				if ((f[0] & (TR1_SLAY_DRAGON)) && (mult < 3)) mult = 3; 
+				if ((f[0] & (TR1_KILL_DRAGON)) && (mult < 5)) mult = 5; /* Execute Dragon */
 			}
 
 			/* Brand (Acid) */
-			if (f1 & (TR1_BRAND_ACID))
+			if (r_ptr->flags[2] & RF2_IM_ACID)
 			{
-				if (!(r_ptr->flags3 & (RF3_IM_ACID)))
-				{
-					if (mult < 3) mult = 3;
-				}
+				if ((f[0] & (TR1_BRAND_ACID)) && (mult < 3)) mult = 3; 
 			}
 
 			/* Brand (Elec) */
-			if (f1 & (TR1_BRAND_ELEC))
+			if (r_ptr->flags[2] & RF2_IM_ELEC)
 			{
-				if (!(r_ptr->flags3 & (RF3_IM_ELEC)))
-				{
-					if (mult < 3) mult = 3;
-				}
+				if ((f[0] & (TR1_BRAND_ELEC)) && (mult < 3)) mult = 3; 
 			}
 
 			/* Brand (Fire) */
-			if (f1 & (TR1_BRAND_FIRE))
+			if (r_ptr->flags[2] & RF2_IM_FIRE)
 			{
-				if (!(r_ptr->flags3 & (RF3_IM_FIRE)))
-				{
-					if (mult < 3) mult = 3;
-				}
+				if ((f[0] & (TR1_BRAND_FIRE)) && (mult < 3)) mult = 3; 
 			}
 
 			/* Brand (Cold) */
-			if (f1 & (TR1_BRAND_COLD))
+			if (r_ptr->flags[2] & RF2_IM_COLD)
 			{
-				if (!(r_ptr->flags3 & (RF3_IM_COLD)))
-				{
-					if (mult < 3) mult = 3;
-				}
+				if ((f[0] & (TR1_BRAND_COLD)) && (mult < 3)) mult = 3; 
 			}
 
 			/* Brand (Poison) */
-			if (f1 & (TR1_BRAND_POIS))
+			if (r_ptr->flags[2] & RF2_IM_POIS)
 			{
-				if (!(r_ptr->flags3 & (RF3_IM_POIS)))
-				{
-					if (mult < 3) mult = 3;
-				}
+				if ((f[0] & (TR1_BRAND_POIS)) && (mult < 3)) mult = 3; 
 			}
 
 			break;
@@ -336,10 +314,10 @@ static void learn_multiplier(const object_type *o_ptr, const monster_type *m_ptr
 	monster_race *r_ptr = m_ptr->race();
 	monster_lore *l_ptr = m_ptr->lore();
 
-	u32b f1, f2, f3;
+	u32b f[OBJECT_FLAG_STRICT_UB];
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, f);
 
 	/* Some "weapons" and "ammo" do extra damage */
 	switch (o_ptr->tval)
@@ -353,104 +331,86 @@ static void learn_multiplier(const object_type *o_ptr, const monster_type *m_ptr
 		case TV_DIGGING:
 		{
 			/* Slay Animal */
-			if ((f1 & (TR1_SLAY_ANIMAL)) && (r_ptr->flags3 & (RF3_ANIMAL)))
+			if (r_ptr->flags[2] & RF2_ANIMAL)
 			{
-				l_ptr->flags3 |= (RF3_ANIMAL);
+				if (f[0] & (TR1_SLAY_ANIMAL)) l_ptr->flags[2] |= RF2_ANIMAL;
 			}
 
 			/* Slay Evil */
-			if ((f1 & (TR1_SLAY_EVIL)) && (r_ptr->flags3 & (RF3_EVIL)))
+			if (r_ptr->flags[2] & RF2_EVIL)
 			{
-				l_ptr->flags3 |= (RF3_EVIL);
+				if (f[0] & (TR1_SLAY_EVIL)) l_ptr->flags[2] |= RF2_EVIL;
 			}
 
-			/* Slay Undead */
-			if ((f1 & (TR1_SLAY_UNDEAD)) && (r_ptr->flags3 & (RF3_UNDEAD)))
+			/* Slay/Execute Undead */
+			if (r_ptr->flags[2] & RF2_UNDEAD)
 			{
-				l_ptr->flags3 |= (RF3_UNDEAD);
+				if (f[0] & (TR1_SLAY_UNDEAD | TR1_KILL_UNDEAD)) l_ptr->flags[2] |= RF2_UNDEAD;
 			}
 
-			/* Slay Demon */
-			if ((f1 & (TR1_SLAY_DEMON)) && (r_ptr->flags3 & (RF3_DEMON)))
+			/* Slay/Execute Demon */
+			if (r_ptr->flags[2] & RF2_DEMON)
 			{
-				l_ptr->flags3 |= (RF3_DEMON);
+				if (f[0] & (TR1_SLAY_DEMON | TR1_KILL_DEMON)) l_ptr->flags[2] |= RF2_DEMON;
 			}
 
 			/* Slay Orc */
-			if ((f1 & (TR1_SLAY_ORC)) && (r_ptr->flags3 & (RF3_ORC)))
+			if (r_ptr->flags[2] & RF2_ORC)
 			{
-				l_ptr->flags3 |= (RF3_ORC);
+				if (f[0] & (TR1_SLAY_ORC)) l_ptr->flags[2] |= RF2_ORC;
 			}
 
 			/* Slay Troll */
-			if ((f1 & (TR1_SLAY_TROLL)) && (r_ptr->flags3 & (RF3_TROLL)))
+			if (r_ptr->flags[2] & RF2_TROLL)
 			{
-				l_ptr->flags3 |= (RF3_TROLL);
+				if (f[0] & (TR1_SLAY_TROLL)) l_ptr->flags[2] |= RF2_TROLL;
 			}
 
 			/* Slay Giant */
-			if ((f1 & (TR1_SLAY_GIANT)) && (r_ptr->flags3 & (RF3_GIANT)))
+			if (r_ptr->flags[2] & RF2_GIANT)
 			{
-				l_ptr->flags3 |= (RF3_GIANT);
+				if (f[0] & (TR1_SLAY_GIANT)) l_ptr->flags[2] |= RF2_GIANT;
 			}
 
-			/* Slay Dragon */
-			if ((f1 & (TR1_SLAY_DRAGON)) && (r_ptr->flags3 & (RF3_DRAGON)))
+			/* Slay/Execute Dragon */
+			if (r_ptr->flags[2] & RF2_DRAGON)
 			{
-				l_ptr->flags3 |= (RF3_DRAGON);
-			}
-
-			/* Execute Dragon */
-			if ((f1 & (TR1_KILL_DRAGON)) && (r_ptr->flags3 & (RF3_DRAGON)))
-			{
-				l_ptr->flags3 |= (RF3_DRAGON);
-			}
-
-			/* Execute demon */
-			if ((f1 & (TR1_KILL_DEMON)) && (r_ptr->flags3 & (RF3_DEMON)))
-			{
-				l_ptr->flags3 |= (RF3_DEMON);
-			}
-
-			/* Execute undead */
-			if ((f1 & (TR1_KILL_UNDEAD)) && (r_ptr->flags3 & (RF3_UNDEAD)))
-			{
-				l_ptr->flags3 |= (RF3_UNDEAD);
+				if (f[0] & (TR1_SLAY_DRAGON | TR1_KILL_DRAGON)) l_ptr->flags[2] |= RF2_DRAGON;
 			}
 
 			/* Brand (Acid) */
-			if (f1 & (TR1_BRAND_ACID))
+			if (f[0] & (TR1_BRAND_ACID))
 			{
 				/* Notice immunity */
-				if (r_ptr->flags3 & (RF3_IM_ACID)) l_ptr->flags3 |= (RF3_IM_ACID);
+				if (r_ptr->flags[2] & RF2_IM_ACID) l_ptr->flags[2] |= RF2_IM_ACID;
 			}
 
 			/* Brand (Elec) */
-			if (f1 & (TR1_BRAND_ELEC))
+			if (f[0] & (TR1_BRAND_ELEC))
 			{
 				/* Notice immunity */
-				if (r_ptr->flags3 & (RF3_IM_ELEC)) l_ptr->flags3 |= (RF3_IM_ELEC);
+				if (r_ptr->flags[2] & RF2_IM_ELEC) l_ptr->flags[2] |= RF2_IM_ELEC;
 			}
 
 			/* Brand (Fire) */
-			if (f1 & (TR1_BRAND_FIRE))
+			if (f[0] & (TR1_BRAND_FIRE))
 			{
 				/* Notice immunity */
-				if (r_ptr->flags3 & (RF3_IM_FIRE)) l_ptr->flags3 |= (RF3_IM_FIRE);
+				if (r_ptr->flags[2] & RF2_IM_FIRE) l_ptr->flags[2] |= RF2_IM_FIRE;
 			}
 
 			/* Brand (Cold) */
-			if (f1 & (TR1_BRAND_COLD))
+			if (f[0] & (TR1_BRAND_COLD))
 			{
 				/* Notice immunity */
-				if (r_ptr->flags3 & (RF3_IM_COLD)) l_ptr->flags3 |= (RF3_IM_COLD);
+				if (r_ptr->flags[2] & RF2_IM_COLD) l_ptr->flags[2] |= RF2_IM_COLD;
 			}
 
 			/* Brand (Poison) */
-			if (f1 & (TR1_BRAND_POIS))
+			if (f[0] & (TR1_BRAND_POIS))
 			{
 				/* Notice immunity */
-				if (r_ptr->flags3 & (RF3_IM_POIS)) l_ptr->flags3 |= (RF3_IM_POIS);
+				if (r_ptr->flags[2] & RF2_IM_POIS) l_ptr->flags[2] |= RF2_IM_POIS;
 			}
 
 			break;
@@ -483,7 +443,7 @@ void py_attack(coord g)
 {
 	int num = 0, k, bonus, chance;
 
-	object_type *o_ptr;
+	const object_type* const o_ptr = &p_ptr->inventory[INVEN_WIELD]; /* Get the weapon */
 
 	char m_name[80];
 
@@ -527,9 +487,6 @@ void py_attack(coord g)
 	}
 
 
-	/* Get the weapon */
-	o_ptr = &p_ptr->inventory[INVEN_WIELD];
-
 	/* Calculate the "attack quality" */
 	bonus = p_ptr->to_h + o_ptr->to_h;
 	chance = (p_ptr->skills[SKILL_TO_HIT_MELEE] + (bonus * BTH_PLUS_ADJ));
@@ -553,8 +510,8 @@ void py_attack(coord g)
 				k = o_ptr->d.damroll();
 				k = tot_dam_aux(o_ptr, k, m_ptr);
 				if (p_ptr->impact && (k > 50)) do_quake = TRUE;
-				k = critical_norm(o_ptr->weight, o_ptr->to_h, k);
 				k += o_ptr->to_d;
+				k = critical_norm(o_ptr->weight, o_ptr->to_h, k);
 			}
 
 			/* Apply the player damage bonuses */
@@ -566,7 +523,7 @@ void py_attack(coord g)
 			/* Complex message */
 			if (p_ptr->wizard)
 			{
-				msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
+				msg_format("You do %d (out of %d) damage.", k, m_ptr->chp);
 			}
 
 			/* Damage, check for fear and death */
@@ -582,12 +539,9 @@ void py_attack(coord g)
 				msg_print("Your hands stop glowing.");
 
 				/* Confuse the monster */
-				if (r_ptr->flags3 & (RF3_NO_CONF))
+				if (r_ptr->flags[2] & RF2_NO_CONF)
 				{
-					if (m_ptr->ml)
-					{
-						l_ptr->flags3 |= (RF3_NO_CONF);
-					}
+					if (m_ptr->ml) l_ptr->flags[2] |= RF2_NO_CONF;
 
 					msg_format("%^s is unaffected.", m_name);
 				}
@@ -634,7 +588,7 @@ player_type::melee_analyze(monster_type* m_ptr, int& min_dam, int& median_dam, i
 	}
 
 	/* Get the weapon */
-	object_type* o_ptr = &p_ptr->inventory[INVEN_WIELD];
+	const object_type* const o_ptr = &p_ptr->inventory[INVEN_WIELD];
 
 	/* Hack -- bare hands do one damage */
 	min_dam = median_dam = max_dam = 1;
@@ -788,7 +742,7 @@ void do_cmd_fire(void)
 	object_type object_type_body;
 
 	object_type *o_ptr;
-	object_type *j_ptr = &p_ptr->inventory[INVEN_BOW];	/* Get the "bow" (if any) */
+	const object_type* const j_ptr = &p_ptr->inventory[INVEN_BOW];	/* Get the "bow" (if any) */
 	object_type *i_ptr = &object_type_body;
 
 	bool hit_body = FALSE;
@@ -801,8 +755,8 @@ void do_cmd_fire(void)
 	int path_n;
 	coord path_g[MAX(DUNGEON_HGT,DUNGEON_WID)];
 
-	cptr q = "Fire which item? ";
-	cptr s = "You have nothing to fire.";
+	const char* q = "Fire which item? ";
+	const char* s = "You have nothing to fire.";
 
 	int msec = op_ptr->delay_factor * op_ptr->delay_factor;
 
@@ -827,7 +781,7 @@ void do_cmd_fire(void)
 	if (!get_aim_dir(&dir)) return;
 
 	/* Obtain a local object */
-	COPY(i_ptr,o_ptr);
+	*i_ptr = *o_ptr;
 
 	/* Single object */
 	i_ptr->number = 1;
@@ -853,7 +807,7 @@ void do_cmd_fire(void)
 
 
 	/* Describe the object */
-	object_desc(o_name, sizeof(o_name), i_ptr, FALSE, 3);
+	object_desc(o_name, sizeof(o_name), i_ptr, FALSE, ODESC_FULL);
 
 	/* Find the color and symbol for the object for throwing */
 	missile_attr = i_ptr->attr_user();
@@ -911,13 +865,11 @@ void do_cmd_fire(void)
 			move_cursor_relative(t);
 
 			Term_fresh();
-			if (p_ptr->window) window_stuff();
 
 			Term_xtra(TERM_XTRA_DELAY, msec);
 			lite_spot(t);
 
 			Term_fresh();
-			if (p_ptr->window) window_stuff();
 		}
 
 		/* Delay anyway for consistency */
@@ -942,19 +894,8 @@ void do_cmd_fire(void)
 			{
 				bool fear = FALSE;
 
-				/* Assume a default death */
-				cptr note_dies = " dies.";
-
-				/* Some monsters get "destroyed" */
-				if ((r_ptr->flags3 & (RF3_DEMON)) ||
-				    (r_ptr->flags3 & (RF3_UNDEAD)) ||
-				    (r_ptr->flags2 & (RF2_STUPID)) ||
-				    (strchr("Evg", r_ptr->d_char)))
-				{
-					/* Special note at death */
-					note_dies = " is destroyed.";
-				}
-
+				/* grammatically living monsters die; others are destroyed */
+				const char* const note_dies = (r_ptr->is_nonliving()) ? " dies." : " is destroyed.";
 
 				/* Handle unseen monster */
 				if (!visible)
@@ -982,6 +923,7 @@ void do_cmd_fire(void)
 				}
 
 				/* Apply special damage XXX XXX XXX */
+				tdam = tot_dam_aux(j_ptr, tdam, m_ptr);
 				tdam = tot_dam_aux(i_ptr, tdam, m_ptr);
 				tdam = critical_shot(i_ptr->weight, i_ptr->to_h, tdam);
 
@@ -992,7 +934,7 @@ void do_cmd_fire(void)
 				if (p_ptr->wizard)
 				{
 					msg_format("You do %d (out of %d) damage.",
-					           tdam, m_ptr->hp);
+					           tdam, m_ptr->chp);
 				}
 
 				/* Hit the monster, check for death */
@@ -1037,7 +979,7 @@ void do_cmd_fire(void)
 void
 player_type::missile_analyze(monster_type* m_ptr, int& min_dam, int& median_dam, int& max_dam)
 {
-	object_type *j_ptr = &p_ptr->inventory[INVEN_BOW];	/* Get the "bow" (if any) */
+	const object_type* const j_ptr = &p_ptr->inventory[INVEN_BOW];	/* Get the "bow" (if any) */
 
 	/* Require a usable launcher */
 	if (!j_ptr->tval || !p_ptr->ammo_tval)
@@ -1046,19 +988,20 @@ player_type::missile_analyze(monster_type* m_ptr, int& min_dam, int& median_dam,
 		return;
 	}
 
+	assert(0 <= inven_cnt && INVEN_PACK >= inven_cnt && "precondition");
+	assert(inven_cnt_is_strict_UB_of_nonzero_k_idx() && "precondition");
+
 	/* Assume a base multiplier */
 	int tmul = p_ptr->ammo_mult;
-
 	int item = -1;
 	int i;
-	for (i=0; i<INVEN_PACK; ++i)
+	for (i=0; i<inven_cnt; ++i)
 	{
-		object_type* o_ptr = &p_ptr->inventory[i];
-		if (!o_ptr->k_idx) continue;
+		const object_type* const o_ptr = &p_ptr->inventory[i];
 		if (p_ptr->ammo_tval!=o_ptr->tval) continue;
 		if (-1==item)
 		{
-			int slayfactor = slay_multiplier(o_ptr,m_ptr);
+			int slayfactor = slay_multiplier(o_ptr,m_ptr)*slay_multiplier(j_ptr,m_ptr);
 			item = i;
 			min_dam = o_ptr->d.minroll() + o_ptr->to_d + j_ptr->to_d;
 			median_dam = o_ptr->d.medianroll() + o_ptr->to_d + j_ptr->to_d;
@@ -1078,7 +1021,7 @@ player_type::missile_analyze(monster_type* m_ptr, int& min_dam, int& median_dam,
 		}
 		else
 		{
-			int slayfactor = slay_multiplier(o_ptr,m_ptr);
+			int slayfactor = slay_multiplier(o_ptr,m_ptr)*slay_multiplier(j_ptr,m_ptr);
 			int test = o_ptr->d.medianroll() + o_ptr->to_d + j_ptr->to_d;
 			if (0 > test) test = 0;
 			test *= tmul;
@@ -1145,8 +1088,8 @@ void do_cmd_throw(void)
 	int path_n;
 	coord path_g[MAX(DUNGEON_HGT,DUNGEON_WID)];
 
-	cptr q = "Throw which item? ";
-	cptr s = "You have nothing to throw.";
+	const char* q = "Throw which item? ";
+	const char* s = "You have nothing to throw.";
 
 	int msec = op_ptr->delay_factor * op_ptr->delay_factor;
 
@@ -1161,7 +1104,7 @@ void do_cmd_throw(void)
 	if (!get_aim_dir(&dir)) return;
 
 	/* Obtain a local object */
-	COPY(i_ptr,o_ptr);
+	*i_ptr = *o_ptr;
 
 	/* Distribute the charges of rods/wands/staves between the stacks */
 	distribute_charges(o_ptr, i_ptr, 1);
@@ -1186,7 +1129,7 @@ void do_cmd_throw(void)
 
 
 	/* Description */
-	object_desc(o_name, sizeof(o_name), i_ptr, FALSE, 3);
+	object_desc(o_name, sizeof(o_name), i_ptr, FALSE, ODESC_FULL);
 
 	/* Find the color and symbol for the object for throwing */
 	missile_attr = i_ptr->attr_user();
@@ -1247,13 +1190,11 @@ void do_cmd_throw(void)
 			move_cursor_relative(t);
 
 			Term_fresh();
-			if (p_ptr->window) window_stuff();
 
 			Term_xtra(TERM_XTRA_DELAY, msec);
 			lite_spot(t);
 
 			Term_fresh();
-			if (p_ptr->window) window_stuff();
 		}
 
 		/* Delay anyway for consistency */
@@ -1278,19 +1219,8 @@ void do_cmd_throw(void)
 			{
 				bool fear = FALSE;
 
-				/* Assume a default death */
-				cptr note_dies = " dies.";
-
-				/* Some monsters get "destroyed" */
-				if ((r_ptr->flags3 & (RF3_DEMON)) ||
-				    (r_ptr->flags3 & (RF3_UNDEAD)) ||
-				    (r_ptr->flags2 & (RF2_STUPID)) ||
-				    (strchr("Evg", r_ptr->d_char)))
-				{
-					/* Special note at death */
-					note_dies = " is destroyed.";
-				}
-
+				/* grammatically living monsters die; others are destroyed */
+				const char* const note_dies = (r_ptr->is_nonliving()) ? " dies." : " is destroyed.";
 
 				/* Handle unseen monster */
 				if (!visible)
@@ -1328,7 +1258,7 @@ void do_cmd_throw(void)
 				if (p_ptr->wizard)
 				{
 					msg_format("You do %d (out of %d) damage.",
-					           tdam, m_ptr->hp);
+					           tdam, m_ptr->chp);
 				}
 
 				/* Hit the monster, check for death */

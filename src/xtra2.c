@@ -3,13 +3,31 @@
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
+#include "game-event.h"
+#include "raceflag.h"
+#include "tvalsval.h"
+
 #include "keypad.h"
+
+/*
+ * Pronoun sentence starter.  This relies on English's very simple verb agreement rules.
+ */
+static const char* const wd_He_is[3] =
+{ "It is ", "He is ", "She is " };
+
 
 /*** Timed effects ***/
 
@@ -32,32 +50,32 @@ static bool set_cut(int v,player_type& p);
 typedef struct
 {
   const char *on_begin, *on_end;
-  u32b flag_redraw, flag_window, flag_update;
+  u32b flag_redraw, flag_update;
   int msg;
 } timed_effect;
 
 static timed_effect effects[] =
 {
-	{ "You feel yourself moving faster!", "You feel yourself slow down.", 0, 0, PU_BONUS, MSG_SPEED },
-	{ "You feel yourself moving slower!", "You feel yourself speed up.", 0, 0, PU_BONUS, MSG_SLOW },
+	{ "You feel yourself moving faster!", "You feel yourself slow down.", 0, PU_BONUS, MSG_SPEED },
+	{ "You feel yourself moving slower!", "You feel yourself speed up.", 0, PU_BONUS, MSG_SLOW },
 	{ "You are blind.", "You can see again.", (PR_MAP | PR_BLIND),
-	  (PW_OVERHEAD | PW_MAP), (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS), MSG_BLIND },
-	{ "You are paralyzed!", "You can move again.", PR_STATE, 0, 0, MSG_PARALYZED },
-	{ "You are confused!", "You feel less confused now.", PR_CONFUSED, 0, 0, MSG_CONFUSED },
-	{ "You are terrified!", "You feel bolder now.", PR_AFRAID, 0, 0, MSG_AFRAID },
-	{ "You feel drugged!", "You can see clearly again.", PR_MAP, (PW_OVERHEAD | PW_MAP), 0, MSG_DRUGGED },
-	{ "You are poisoned!", "You are no longer poisoned.", PR_POISONED, 0, 0, MSG_POISONED },
-	{ "", "", 0, 0, 0, 0 },  /* TMD_CUT -- handled seperately */
-	{ "", "", 0, 0, 0, 0 },  /* TMD_STUN -- handled seperately */
-	{ "You feel safe from evil!", "You no longer feel safe from evil.", 0, 0, 0, MSG_PROT_EVIL },
-	{ "You feel invulnerable!", "You feel vulnerable once more.", 0, 0, PU_BONUS, MSG_INVULN },
-	{ "You feel like a hero!", "The heroism wears off.", 0, 0, PU_BONUS, MSG_HERO },
-	{ "You feel like a killing machine!", "You feel less Berserk.", 0, 0, PU_BONUS, MSG_BERSERK },
-	{ "A mystic shield forms around your body!", "Your mystic shield crumbles away.", 0, 0, PU_BONUS, MSG_SHIELD },
-	{ "You feel righteous!", "The prayer has expired.", 0, 0, PU_BONUS, MSG_BLESSED },
-	{ "Your eyes feel very sensitive!", "Your eyes feel less sensitive.", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_SEE_INVIS },
-	{ "Your eyes begin to tingle!", "Your eyes stop tingling.", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_INFRARED },
-	{ "You feel resistant to poison!", "You feel less resistant to poison", PR_OPPOSE_ELEMENTS, 0, 0, MSG_RES_POIS },
+	  (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS), MSG_BLIND },
+	{ "You are paralyzed!", "You can move again.", PR_STATE, 0, MSG_PARALYZED },
+	{ "You are confused!", "You feel less confused now.", PR_CONFUSED, 0, MSG_CONFUSED },
+	{ "You are terrified!", "You feel bolder now.", PR_AFRAID, 0, MSG_AFRAID },
+	{ "You feel drugged!", "You can see clearly again.", PR_MAP, 0, MSG_DRUGGED },
+	{ "You are poisoned!", "You are no longer poisoned.", PR_POISONED, 0, MSG_POISONED },
+	{ "", "", 0, 0, 0 },  /* TMD_CUT -- handled seperately */
+	{ "", "", 0, 0, 0 },  /* TMD_STUN -- handled seperately */
+	{ "You feel safe from evil!", "You no longer feel safe from evil.", 0, 0, MSG_PROT_EVIL },
+	{ "You feel invulnerable!", "You feel vulnerable once more.", 0, PU_BONUS, MSG_INVULN },
+	{ "You feel like a hero!", "The heroism wears off.", 0, PU_BONUS, MSG_HERO },
+	{ "You feel like a killing machine!", "You feel less Berserk.", 0, PU_BONUS, MSG_BERSERK },
+	{ "A mystic shield forms around your body!", "Your mystic shield crumbles away.", 0, PU_BONUS, MSG_SHIELD },
+	{ "You feel righteous!", "The prayer has expired.", 0, PU_BONUS, MSG_BLESSED },
+	{ "Your eyes feel very sensitive!", "Your eyes feel less sensitive.", 0, (PU_BONUS | PU_MONSTERS), MSG_SEE_INVIS },
+	{ "Your eyes begin to tingle!", "Your eyes stop tingling.", 0, (PU_BONUS | PU_MONSTERS), MSG_INFRARED },
+	{ "You feel resistant to poison!", "You feel less resistant to poison", PR_OPPOSE_ELEMENTS, 0, MSG_RES_POIS },
 };
 
 /*
@@ -66,7 +84,7 @@ static timed_effect effects[] =
 bool player_type::set_timed_clean(int idx, int v)
 {
 	bool notice = FALSE;
-	timed_effect *effect;
+	const timed_effect* effect;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -114,7 +132,6 @@ bool player_type::set_timed_clean(int idx, int v)
 	/* Update the visuals, as appropriate. */
 	p_ptr->update |= effect->flag_update;
 	p_ptr->redraw |= effect->flag_redraw;
-	p_ptr->window |= effect->flag_window;
 
 	/* Handle stuff */
 	handle_stuff();
@@ -149,7 +166,7 @@ bool player_type::inc_timed(int idx, int v)
 #endif
 
 /* common aux function */
-static bool set_timed_condition_w_immunity(int v, s16b& stat,bool immune,int msg_on,cptr cond_on,int msg_off,cptr cond_off)
+static bool set_timed_condition_w_immunity(int v, s16b& stat,bool immune, int msg_on,const char* const cond_on,int msg_off, const char* const cond_off)
 {
 	bool notice = false;
 
@@ -580,9 +597,6 @@ void check_experience(void)
 		/* Redraw some stuff */
 		p_ptr->redraw |= (PR_LEV | PR_TITLE | PR_EXP);
 
-		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
-
 		/* Handle stuff */
 		handle_stuff();
 	}
@@ -608,9 +622,6 @@ void check_experience(void)
 		/* Redraw some stuff */
 		p_ptr->redraw |= (PR_LEV | PR_TITLE | PR_EXP);
 
-		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
-
 		/* Handle stuff */
 		handle_stuff();
 	}
@@ -628,9 +639,6 @@ void check_experience(void)
 
 		/* Redraw some stuff */
 		p_ptr->redraw |= (PR_LEV | PR_TITLE | PR_EXP);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 
 		/* Handle stuff */
 		handle_stuff();
@@ -684,7 +692,7 @@ void lose_exp(s32b amount)
  */
 static int get_coin_type(const monster_race *r_ptr)
 {
-	cptr name = r_ptr->name();
+	const char* const name = r_ptr->name();
 
 	/* Analyze "coin" monsters */
 	if (r_ptr->d_char == '$')
@@ -773,13 +781,13 @@ void monster_death(int m_idx)
 	monster_race *r_ptr = m_ptr->race();
 	coord g = m_ptr->loc;	/* Get the location */
 
-	bool visible = (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)));
+	bool visible = (m_ptr->ml || (r_ptr->flags[0] & RF0_UNIQUE));
 
-	bool good = (r_ptr->flags1 & (RF1_DROP_GOOD)) ? TRUE : FALSE;
-	bool great = (r_ptr->flags1 & (RF1_DROP_GREAT)) ? TRUE : FALSE;
+	bool good = (r_ptr->flags[0] & RF0_DROP_GOOD);
+	bool great = (r_ptr->flags[0] & RF0_DROP_GREAT);
 
-	bool do_gold = (!(r_ptr->flags1 & (RF1_ONLY_ITEM)));
-	bool do_item = (!(r_ptr->flags1 & (RF1_ONLY_GOLD)));
+	bool do_gold = (!(r_ptr->flags[0] & RF0_ONLY_ITEM));
+	bool do_item = (!(r_ptr->flags[0] & RF0_ONLY_GOLD));
 
 	int force_coin = get_coin_type(r_ptr);
 
@@ -791,20 +799,11 @@ void monster_death(int m_idx)
 	{
 		object_type *o_ptr = &o_list[this_o_idx];	/* Get the object */
 
-		/* Get the next object */
-		next_o_idx = o_ptr->next_o_idx;
-
-		/* Paranoia */
-		o_ptr->held_m_idx = 0;
-
-		/* Copy the object */
-		COPY(i_ptr, o_ptr);
-
-		/* Delete the object */
+		next_o_idx = o_ptr->next_o_idx;	/* Get the next object */
+		o_ptr->held_m_idx = 0;			/* Paranoia */
+		*i_ptr = *o_ptr;
 		delete_object_idx(this_o_idx);
-
-		/* Drop it */
-		drop_near(i_ptr, -1, g);
+		drop_near(i_ptr, -1, g);		/* Drop it */
 	}
 
 	/* Forget objects */
@@ -812,7 +811,7 @@ void monster_death(int m_idx)
 
 
 	/* Mega-Hack -- drop "winner" treasures */
-	if (r_ptr->flags1 & (RF1_DROP_CHOSEN))
+	if (r_ptr->flags[0] & RF0_DROP_CHOSEN)
 	{
 		/* Mega-Hack -- Prepare to make "Grond" */
 		object_prep(i_ptr, lookup_kind(TV_HAFTED, SV_GROND));
@@ -842,12 +841,12 @@ void monster_death(int m_idx)
 
 
 	/* Determine how much we can drop */
-	if ((r_ptr->flags1 & (RF1_DROP_60)) && (rand_int(100) < 60)) number++;
-	if ((r_ptr->flags1 & (RF1_DROP_90)) && (rand_int(100) < 90)) number++;
-	if (r_ptr->flags1 & (RF1_DROP_1D2)) number += damroll(1, 2);
-	if (r_ptr->flags1 & (RF1_DROP_2D2)) number += damroll(2, 2);
-	if (r_ptr->flags1 & (RF1_DROP_3D2)) number += damroll(3, 2);
-	if (r_ptr->flags1 & (RF1_DROP_4D2)) number += damroll(4, 2);
+	if ((r_ptr->flags[0] & RF0_DROP_60) && (rand_int(100) < 60)) ++number;
+	if ((r_ptr->flags[0] & RF0_DROP_90) && (rand_int(100) < 90)) ++number;
+	if (r_ptr->flags[0] & RF0_DROP_1D2) number += NdS(1, 2);
+	if (r_ptr->flags[0] & RF0_DROP_2D2) number += NdS(2, 2);
+	if (r_ptr->flags[0] & RF0_DROP_3D2) number += NdS(3, 2);
+	if (r_ptr->flags[0] & RF0_DROP_4D2) number += NdS(4, 2);
 
 	/* Hack -- handle creeping coins */
 	coin_type = force_coin;
@@ -901,10 +900,10 @@ void monster_death(int m_idx)
 
 
 	/* Update monster list window */
-	p_ptr->window |= PW_MONLIST;
+	p_ptr->redraw |= PR_MONLIST;
 
 	/* Only process "Quest Monsters" */
-	if (!(r_ptr->flags1 & (RF1_QUESTOR))) return;
+	if (!(r_ptr->flags[0] & RF0_QUESTOR)) return;
 
 
 	/* Hack -- Mark quests as complete */
@@ -936,7 +935,19 @@ void monster_death(int m_idx)
 	}
 }
 
-
+/*
+ * KBB: Refactored non-living creature test, for grammatical purposes.
+ *
+ * This does misclassify jellies from a scientific perspective.  So don't use this to test whether drain life works.
+ */
+bool
+monster_race::is_nonliving() const
+{
+	if (flags[2] & (RF2_DEMON | RF2_UNDEAD)) return true;
+	if (flags[1] & RF1_STUPID) return true;
+	if (strchr("Evg", d_char)) return true;
+	return false;
+}
 
 
 /*
@@ -962,7 +973,7 @@ void monster_death(int m_idx)
  * worth more than subsequent monsters.  This would also need to
  * induce changes in the monster recall code.  XXX XXX XXX
  */
-bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
+bool mon_take_hit(int m_idx, int dam, bool *fear, const char* note)
 {
 	monster_type *m_ptr = &mon_list[m_idx];
 	monster_race *r_ptr = m_ptr->race();
@@ -974,15 +985,11 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	/* Redraw (later) if needed */
 	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
-
-	/* Wake it up */
-	m_ptr->csleep = 0;
-
-	/* Hurt it */
-	m_ptr->hp -= dam;
+	m_ptr->csleep = 0;	/* Wake it up */
+	m_ptr->chp -= dam;	/* Hurt it */
 
 	/* It is dead now */
-	if (m_ptr->hp < 0)
+	if (m_ptr->chp < 0)
 	{
 		char m_name[80];
 		coord dead_mon_loc = m_ptr->loc;
@@ -991,10 +998,10 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		int soundfx = MSG_KILL;
 
 		/* Play a special sound if the monster was unique */
-		if (r_ptr->flags1 & RF1_UNIQUE) 
+		if (r_ptr->flags[0] & RF0_UNIQUE) 
 		{
 			/* Mega-Hack -- Morgoth -- see monster_death() */
-			if (r_ptr->flags1 & RF1_DROP_CHOSEN)
+			if (r_ptr->flags[0] & RF0_DROP_CHOSEN)
 				soundfx = MSG_KILL_KING;
 			else
 				soundfx = MSG_KILL_UNIQUE;
@@ -1016,10 +1023,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		}
 
 		/* Death by Physical attack -- non-living monster */
-		else if ((r_ptr->flags3 & (RF3_DEMON)) ||
-		         (r_ptr->flags3 & (RF3_UNDEAD)) ||
-		         (r_ptr->flags2 & (RF2_STUPID)) ||
-		         (strchr("Evg", r_ptr->d_char)))
+		else if (r_ptr->is_nonliving())
 		{
 			message_format(soundfx, m_ptr->r_idx, "You have destroyed %s.", m_name);
 		}
@@ -1058,10 +1062,10 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		monster_death(m_idx);
 
 		/* When the player kills a Unique, it stays dead */
-		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 0;
+		if (r_ptr->flags[0] & RF0_UNIQUE) r_ptr->max_num = 0;
 
 		/* Recall even invisible uniques or winners */
-		if (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)))
+		if (m_ptr->ml || (r_ptr->flags[0] & RF0_UNIQUE))
 		{
 			/* Count kills this life */
 			if (l_ptr->pkills < MAX_SHORT) l_ptr->pkills++;
@@ -1073,17 +1077,10 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			monster_race_track(m_ptr->r_idx);
 		}
 
-		/* Delete the monster */
-		delete_monster_idx(m_idx);
-
-		/* Not afraid */
-		(*fear) = FALSE;
-
-		/* XXX screen update XXX */
-		lite_spot(dead_mon_loc);
-
-		/* Monster is dead */
-		return (TRUE);
+		delete_monster_idx(m_idx);	/* Delete the monster */
+		(*fear) = FALSE;			/* Not afraid */
+		lite_spot(dead_mon_loc);	/* XXX screen update XXX */
+		return (TRUE);				/* Monster is dead */
 	}
 
 
@@ -1095,42 +1092,34 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Cure a little fear */
 		if (tmp < m_ptr->monfear)
 		{
-			/* Reduce fear */
-			m_ptr->monfear -= tmp;
+			m_ptr->monfear -= tmp;	/* Reduce fear */
 		}
 
 		/* Cure all the fear */
 		else
 		{
-			/* Cure fear */
-			m_ptr->monfear = 0;
-
-			/* No more fear */
-			(*fear) = FALSE;
+			m_ptr->monfear = 0;		/* Cure fear */
+			(*fear) = FALSE;		/* No more fear */
 		}
 	}
 
 	/* Sometimes a monster gets scared by damage */
-	if (!m_ptr->monfear && !(r_ptr->flags3 & (RF3_NO_FEAR)) && (dam > 0))
-	{
-		int percentage;
-
-		/* Percentage of fully healthy */
-		percentage = (100L * m_ptr->hp) / m_ptr->maxhp;
+	if (!m_ptr->monfear && !(r_ptr->flags[2] & RF2_NO_FEAR) && (dam > 0))
+	{	/* Percentage of fully healthy */
+		const int percentage = (100L * m_ptr->chp) / m_ptr->mhp;
 
 		/*
 		 * Run (sometimes) if at 10% or less of max hit points,
 		 * or (usually) when hit for half its current hit points
 		 */
 		if ((randint(10) >= percentage) ||
-		    ((dam >= m_ptr->hp) && (rand_int(100) < 80)))
+		    ((dam >= m_ptr->chp) && (rand_int(100) < 80)))
 		{
-			/* Hack -- note fear */
-			(*fear) = TRUE;
+			(*fear) = TRUE;	/* Hack -- note fear */
 
 			/* Hack -- Add some timed fear */
 			m_ptr->monfear = (randint(10) +
-			                  (((dam >= m_ptr->hp) && (percentage > 7)) ?
+			                  (((dam >= m_ptr->chp) && (percentage > 7)) ?
 			                   20 : ((11 - percentage) * 5)));
 		}
 	}
@@ -1180,7 +1169,6 @@ bool modify_panel(term *t, int wy, int wx)
 
 		/* Redraw map */
 		p_ptr->redraw |= (PR_MAP);
-		p_ptr->window |= (PW_OVERHEAD | PW_MAP);
 
 		/* Changed */
 		return (TRUE);
@@ -1192,178 +1180,6 @@ bool modify_panel(term *t, int wy, int wx)
 
 
 /*
- * Perform the minimum "whole panel" adjustment to ensure that the given
- * location is contained inside the current panel, and return TRUE if any
- * such adjustment was performed.
- */
-bool adjust_panel(int y, int x)
-{
-	bool changed = FALSE;
-
-	int j;
-
-	/* Scan windows */
-	for (j = 0; j < ANGBAND_TERM_MAX; j++)
-	{
-		int wx, wy;
-		int screen_hgt, screen_wid;
-
-		term *t = angband_term[j];
-
-		/* No window */
-		if (!t) continue;
-
-		/* No relevant flags */
-		if ((j > 0) && !(op_ptr->window_flag[j] & PW_MAP)) continue;
-
-		wy = t->offset_y;
-		wx = t->offset_x;
-
-		screen_hgt = (j == 0) ? (Term->hgt - ROW_MAP - 1) : t->hgt;
-		screen_wid = (j == 0) ? (Term->wid - COL_MAP - 1) : t->wid;
-
-		/* Bigtile panels only have half the width */
-		if (use_bigtile) screen_wid = screen_wid / 2;
-
-		/* Adjust as needed */
-		while (y >= wy + screen_hgt) wy += screen_hgt / 2;
-		while (y < wy) wy -= screen_hgt / 2;
-
-		/* Adjust as needed */
-		while (x >= wx + screen_wid) wx += screen_wid / 2;
-		while (x < wx) wx -= screen_wid / 2;
-
-		/* Use "modify_panel" */
-		if (modify_panel(t, wy, wx)) changed = TRUE;
-	}
-
-	return (changed);
-}
-
-
-/*
- * Change the current panel to the panel lying in the given direction.
- *
- * Return TRUE if the panel was changed.
- */
-bool change_panel(int dir)
-{
-	bool changed = FALSE;
-	int j;
-
-	/* Scan windows */
-	for (j = 0; j < ANGBAND_TERM_MAX; j++)
-	{
-		int screen_hgt, screen_wid;
-		int wx, wy;
-
-		term *t = angband_term[j];
-
-		/* No window */
-		if (!t) continue;
-
-		/* No relevant flags */
-		if ((j > 0) && !(op_ptr->window_flag[j] & PW_MAP)) continue;
-
-		screen_hgt = (j == 0) ? (Term->hgt - ROW_MAP - 1) : t->hgt;
-		screen_wid = (j == 0) ? (Term->wid - COL_MAP - 1) : t->wid;
-
-		/* Bigtile panels only have half the width */
-		if (use_bigtile) screen_wid = screen_wid / 2;
-
-		/* Shift by half a panel */
-		wy = t->offset_y + ddy[dir] * screen_hgt / 2;
-		wx = t->offset_x + ddx[dir] * screen_wid / 2;
-
-		/* Use "modify_panel" */
-		if (modify_panel(t, wy, wx)) changed = TRUE;
-	}
-
-	return (changed);
-}
-
-
-/*
- * Verify the current panel (relative to the player location).
- *
- * By default, when the player gets "too close" to the edge of the current
- * panel, the map scrolls one panel in that direction so that the player
- * is no longer so close to the edge.
- *
- * The "center_player" option allows the current panel to always be centered
- * around the player, which is very expensive, and also has some interesting
- * gameplay ramifications.
- */
-void verify_panel(void)
-{
-	int wy, wx;
-	int screen_hgt, screen_wid;
-
-	int panel_wid, panel_hgt;
-
-	int py = p_ptr->loc.y;
-	int px = p_ptr->loc.x;
-
-	int j;
-
-	/* Scan windows */
-	for (j = 0; j < ANGBAND_TERM_MAX; j++)
-	{
-		term *t = angband_term[j];
-
-		/* No window */
-		if (!t) continue;
-
-		/* No relevant flags */
-		if ((j > 0) && !(op_ptr->window_flag[j] & (PW_MAP))) continue;
-
-		wy = t->offset_y;
-		wx = t->offset_x;
-
-		screen_hgt = (j == 0) ? (Term->hgt - ROW_MAP - 1) : t->hgt;
-		screen_wid = (j == 0) ? (Term->wid - COL_MAP - 1) : t->wid;
-
-		/* Bigtile panels only have half the width */
-		if (use_bigtile) screen_wid = screen_wid / 2;
-
-		panel_wid = screen_wid / 2;
-		panel_hgt = screen_hgt / 2;
-
-		/* Scroll screen vertically when off-center */
-		if (center_player && (!p_ptr->running || !run_avoid_center) &&
-		    (py != wy + panel_hgt))
-		{
-			wy = py - panel_hgt;
-		}
-
-		/* Scroll screen vertically when 3 grids from top/bottom edge */
-		else if ((py < wy + 3) || (py >= wy + screen_hgt - 3))
-		{
-			wy = py - panel_hgt;
-		}
-
-
-		/* Scroll screen horizontally when off-center */
-		if (center_player && (!p_ptr->running || !run_avoid_center) &&
-		    (px != wx + panel_wid))
-		{
-			wx = px - panel_wid;
-		}
-
-		/* Scroll screen horizontally when 3 grids from left/right edge */ 
-		else if ((px < wx + 3) || (px >= wx + screen_wid - 3))
-		{
-			wx = px - panel_wid;
-		}
-
-		/* Scroll if needed */
-		modify_panel(t, wy, wx);
-	}
-}
-
-
-
-/*
  * Monster health description
  */
 static void look_mon_desc(char *buf, size_t max, int m_idx)
@@ -1371,17 +1187,10 @@ static void look_mon_desc(char *buf, size_t max, int m_idx)
 	monster_type *m_ptr = &mon_list[m_idx];
 	monster_race *r_ptr = m_ptr->race();
 
-	bool living = TRUE;
-
-
-	/* Determine if the monster is "living" (vs "undead") */
-	if (r_ptr->flags3 & (RF3_UNDEAD)) living = FALSE;
-	if (r_ptr->flags3 & (RF3_DEMON)) living = FALSE;
-	if (strchr("Egv", r_ptr->d_char)) living = FALSE;
-
+	bool living = r_ptr->is_nonliving();
 
 	/* Healthy monsters */
-	if (m_ptr->hp >= m_ptr->maxhp)
+	if (m_ptr->chp >= m_ptr->mhp)
 	{
 		/* No damage */
 		my_strcpy(buf, (living ? "unhurt" : "undamaged"), max);
@@ -1389,7 +1198,7 @@ static void look_mon_desc(char *buf, size_t max, int m_idx)
 	else
 	{
 		/* Calculate a health "percentage" */
-		int perc = 100L * m_ptr->hp / m_ptr->maxhp;
+		int perc = 100L * m_ptr->chp / m_ptr->mhp;
 
 		if (perc >= 60)
 			my_strcpy(buf, (living ? "somewhat wounded" : "somewhat damaged"), max);
@@ -1515,12 +1324,9 @@ int motion_dir(int y1, int x1, int y2, int x2)
 int target_dir(char ch)
 {
 	int d = 0;
-
 	int mode;
-
-	cptr act;
-
-	cptr s;
+	const char* act;
+	const char* s;
 
 
 	/* Already a direction? */
@@ -1971,18 +1777,18 @@ static void target_set_interactive_prepare(int mode)
  *
  * This function must handle blindness/hallucination.
  */
-static int target_set_interactive_aux(coord g, int mode, cptr info)
+static int target_set_interactive_aux(coord g, int mode, const char* const info)
 {
 	s16b this_o_idx = 0, next_o_idx = 0;
 
-	cptr s1, s2, s3;
+	const char* s1;
+	const char* s2;
+	const char* s3;
 
 	bool boring;
-
 	bool floored;
 
 	int feat;
-
 	int query;
 
 	char out_val[256];
@@ -2017,7 +1823,7 @@ static int target_set_interactive_aux(coord g, int mode, cptr info)
 		/* Hack -- hallucination */
 		if (p_ptr->timed[TMD_IMAGE])
 		{
-			cptr name = "something strange";
+			const char* name = "something strange";
 
 			/* Display a message */
 			if (p_ptr->wizard)
@@ -2060,7 +1866,7 @@ static int target_set_interactive_aux(coord g, int mode, cptr info)
 				boring = FALSE;
 
 				/* Get the monster name ("a kobold") */
-				monster_desc(m_name, sizeof(m_name), m_ptr, 0x08);
+				monster_desc(m_name, sizeof(m_name), m_ptr, MDESC_IND2);
 
 				/* Hack -- track this monster race */
 				monster_race_track(m_ptr->r_idx);
@@ -2138,11 +1944,7 @@ static int target_set_interactive_aux(coord g, int mode, cptr info)
 				if ((query == ' ') && !(mode & (TARGET_LOOK))) break;
 
 				/* Change the intro */
-				s1 = "It is ";
-
-				/* Hack -- take account of gender */
-				if (r_ptr->flags1 & (RF1_FEMALE)) s1 = "She is ";
-				else if (r_ptr->flags1 & (RF1_MALE)) s1 = "He is ";
+				s1 = wd_He_is[race_gender_index(*r_ptr)];
 
 				/* Use a preposition */
 				s2 = "carrying ";
@@ -2158,7 +1960,7 @@ static int target_set_interactive_aux(coord g, int mode, cptr info)
 					next_o_idx = o_ptr->next_o_idx;
 
 					/* Obtain an object description */
-					object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+					object_desc(o_name, sizeof(o_name), o_ptr, TRUE, ODESC_FULL);
 
 					/* Describe the object */
 					if (p_ptr->wizard)
@@ -2203,7 +2005,7 @@ static int target_set_interactive_aux(coord g, int mode, cptr info)
 		if (easy_floor)
 		{
 			int floor_list[MAX_FLOOR_STACK];
-			int floor_num = scan_floor(floor_list, MAX_FLOOR_STACK, g.y, g.x, 0x02);	/* Scan for floor objects */
+			int floor_num = scan_floor(floor_list, MAX_FLOOR_STACK, g, 0x02);	/* Scan for floor objects */
 
 			/* Actual pile */
 			if (floor_num > 1)
@@ -2293,7 +2095,7 @@ static int target_set_interactive_aux(coord g, int mode, cptr info)
 				boring = FALSE;
 
 				/* Obtain an object description */
-				object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+				object_desc(o_name, sizeof(o_name), o_ptr, TRUE, ODESC_FULL);
 
 				/* Describe the object */
 				if (p_ptr->wizard)
@@ -2346,7 +2148,7 @@ static int target_set_interactive_aux(coord g, int mode, cptr info)
 		/* Terrain feature if needed */
 		if (boring || (feat > FEAT_INVIS))
 		{
-			cptr name = feature_type::f_info[feat].name();
+			const char* name = feature_type::f_info[feat].name();
 
 			/* Hack -- handle unknown grids */
 			if (feat == FEAT_NONE) name = "unknown grid";
@@ -2485,7 +2287,7 @@ bool target_set_interactive(int mode)
 			}
 
 			/* Adjust panel if needed */
-			if (adjust_panel(tt.y, tt.x))
+			if (adjust_panel(tt))
 			{
 				/* Handle stuff */
 				handle_stuff();
@@ -2527,7 +2329,7 @@ bool target_set_interactive(int mode)
 				case 'p':
 				{
 					/* Recenter around player */
-					verify_panel();
+					event_signal(EVENT_PLAYERMOVED);
 
 					/* Handle stuff */
 					handle_stuff();
@@ -2655,7 +2457,7 @@ bool target_set_interactive(int mode)
 				case 'p':
 				{
 					/* Recenter around player */
-					verify_panel();
+					event_signal(EVENT_PLAYERMOVED);
 
 					/* Handle stuff */
 					handle_stuff();
@@ -2734,7 +2536,7 @@ bool target_set_interactive(int mode)
 				else if (tt.y <= 0) tt.y++;
 
 				/* Adjust panel if needed */
-				if (adjust_panel(tt.y, tt.x))
+				if (adjust_panel(tt))
 				{
 					/* Handle stuff */
 					handle_stuff();
@@ -2753,7 +2555,7 @@ bool target_set_interactive(int mode)
 	prt("", 0, 0);
 
 	/* Recenter around player */
-	verify_panel();
+	event_signal(EVENT_PLAYERMOVED);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -2785,10 +2587,8 @@ bool target_set_interactive(int mode)
 bool get_aim_dir(int *dp)
 {
 	int dir;
-
 	char ch;
-
-	cptr p;
+	const char* p;
 
 	if (repeat_pull(dp))
 	{
@@ -2910,15 +2710,10 @@ bool get_aim_dir(int *dp)
 bool get_rep_dir(int *dp)
 {
 	int dir;
-
 	char ch;
+	const char* p;
 
-	cptr p;
-
-	if (repeat_pull(dp))
-	{
-		return (TRUE);
-	}
+	if (repeat_pull(dp)) return TRUE;
 
 	/* Initialize */
 	(*dp) = 0;

@@ -32,6 +32,7 @@ enum game_event_type
 	EVENT_EQUIPMENT,
 	EVENT_MONSTERLIST,
 	EVENT_MONSTERTARGET,
+	EVENT_OBJECTTARGET,
 	EVENT_MESSAGES,
 
 	EVENT_INITSTATUS,		/* New status message for initialisation */
@@ -45,8 +46,6 @@ enum game_event_type
 
 	EVENT_END	/* can be sent at end of a series of events */
 };
-
-#define  N_GAME_EVENTS EVENT_END
 
 typedef union
 {
@@ -70,5 +69,7 @@ void event_deregister_set(game_event_type *type, size_t n_types, game_event_hand
 void event_signal_point(game_event_type, int x, int y);
 void event_signal_string(game_event_type, const char *s);
 void event_signal(game_event_type);
+
+void game_event_init(void);
 
 #endif /* INCLUDED_UI_EVENT_H */

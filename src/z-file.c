@@ -293,7 +293,7 @@ errr my_fgets(FILE *fff, char *buf, size_t n)
  *
  * Perhaps this function should handle internal weirdness.
  */
-errr my_fputs(FILE *fff, cptr buf, size_t n)
+errr my_fputs(FILE *fff, const char* buf, size_t n)
 {
 	/* Unused paramter */
 	(void)n;
@@ -413,7 +413,7 @@ errr path_parse(char *buf, size_t max, cptr file)
  * This requires no special processing on simple machines,
  * except for verifying the size of the filename.
  */
-errr path_parse(char *buf, size_t max, cptr file)
+errr path_parse(char *buf, size_t max, const char* file)
 {
 	/* Accept the filename */
 	my_strcpy(buf, file, max);
@@ -448,7 +448,7 @@ errr path_parse(char *buf, size_t max, cptr file)
  * Note that this function yields a path which must be "parsed"
  * using the "parse" function above.
  */
-errr path_build(char *buf, size_t max, cptr path, cptr file)
+errr path_build(char *buf, size_t max, const char* path, const char* file)
 {
 	/* Special file */
 	if (file[0] == '~')
@@ -486,7 +486,7 @@ errr path_build(char *buf, size_t max, cptr path, cptr file)
 /*
  * Hack -- replacement for "fopen()"
  */
-FILE *my_fopen(cptr file, cptr mode)
+FILE *my_fopen(const char* file, const char* mode)
 {
 	char buf[1024];
 	FILE *fff;
@@ -528,7 +528,7 @@ errr my_fclose(FILE *fff)
 /*
  * Hack -- attempt to delete a file
  */
-errr fd_kill(cptr file)
+errr fd_kill(const char* file)
 {
 	char buf[1024];
 
@@ -543,7 +543,7 @@ errr fd_kill(cptr file)
 /*
  * Hack -- attempt to move a file
  */
-errr fd_move(cptr file, cptr what)
+errr fd_move(const char* file, const char* what)
 {
 	char buf[1024];
 	char aux[1024];
@@ -566,7 +566,7 @@ errr fd_move(cptr file, cptr what)
  *
  * Note that we assume that the file should be "binary"
  */
-int fd_make(cptr file, int mode)
+int fd_make(const char* file, int mode)
 {
 	char buf[1024];
 	int fd;
@@ -603,7 +603,7 @@ int fd_make(cptr file, int mode)
  *
  * Note that we assume that the file should be "binary"
  */
-int fd_open(cptr file, int flags)
+int fd_open(const char* file, int flags)
 {
 	char buf[1024];
 
@@ -730,7 +730,7 @@ errr fd_read(int fd, char *buf, size_t n)
 /*
  * Hack -- Attempt to write data to a file descriptor
  */
-errr fd_write(int fd, cptr buf, size_t n)
+errr fd_write(int fd, const char* buf, size_t n)
 {
 	/* Verify the fd */
 	if (fd < 0) return (-1);
@@ -775,7 +775,7 @@ errr fd_close(int fd)
 
 #ifdef CHECK_MODIFICATION_TIME
 
-errr check_modification_date(int fd, cptr template_file)
+errr check_modification_date(int fd, const char* const template_file)
 {
 	char buf[1024];
 

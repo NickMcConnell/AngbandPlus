@@ -1,11 +1,19 @@
-/* File: util.c */
-
 /*
+ * File: util.c
+ * Purpose: Macro code, gamma correction, some high-level UI functions, inkey()
+ *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -76,14 +84,14 @@ static int dehex(char c)
  * Transform macro trigger name ('\[alt-D]' etc..)
  * into macro trigger key code ('^_O_64\r' or etc..)
  */
-static size_t trigger_text_to_ascii(char *buf, size_t max, cptr *strptr)
+static size_t trigger_text_to_ascii(char *buf, size_t max, const char** strptr)
 {
-	cptr str = *strptr;
+	const char* str = *strptr;
 	bool mod_status[MAX_MACRO_MOD];
 
 	int i, len = 0;
 	int shiftstatus = 0;
-	cptr key_code;
+	const char* key_code;
 	
 	size_t current_len = strlen(buf);
 
@@ -204,7 +212,7 @@ static size_t trigger_text_to_ascii(char *buf, size_t max, cptr *strptr)
  *
  * To be safe, "buf" should be at least as large as "str".
  */
-void text_to_ascii(char *buf, size_t len, cptr str)
+void text_to_ascii(char *buf, size_t len, const char* str)
 {
 	char *s = buf;
 
@@ -340,12 +348,12 @@ void text_to_ascii(char *buf, size_t len, cptr str)
  * Transform macro trigger key code ('^_O_64\r' or etc..) 
  * into macro trigger name ('\[alt-D]' etc..)
  */
-static size_t trigger_ascii_to_text(char *buf, size_t max, cptr *strptr)
+static size_t trigger_ascii_to_text(char *buf, size_t max, const char** strptr)
 {
-	cptr str = *strptr;
+	const char* str = *strptr;
 	char key_code[100];
 	int i;
-	cptr tmp;
+	const char* tmp;
 	size_t current_len = strlen(buf);
 	
 
@@ -413,7 +421,7 @@ static size_t trigger_ascii_to_text(char *buf, size_t max, cptr *strptr)
  *
  * This function will not work on non-ascii systems.
  */
-void ascii_to_text(char *buf, size_t len, cptr str)
+void ascii_to_text(char *buf, size_t len, const char* str)
 {
 	char *s = buf;
 
@@ -533,71 +541,54 @@ static bool macro__use[256];
 /*
  * Find the macro (if any) which exactly matches the given pattern
  */
-int macro_find_exact(cptr pat)
+int macro_find_exact(const char* pat)
 {
 	int i;
 
 	/* Nothing possible */
-	if (!macro__use[(byte)(pat[0])])
-	{
-		return (-1);
-	}
+	if (!macro__use[(byte)(pat[0])]) return -1;
 
 	/* Scan the macros */
 	for (i = 0; i < macro__num; ++i)
 	{
-		/* Skip macros which do not match the pattern */
-		if (!streq(macro__pat[i], pat)) continue;
-
-		/* Found one */
-		return (i);
+		if (streq(macro__pat[i], pat)) return i;
 	}
 
 	/* No matches */
-	return (-1);
+	return -1;
 }
 
 
 /*
  * Find the first macro (if any) which contains the given pattern
  */
-static int macro_find_check(cptr pat)
+static int macro_find_check(const char* pat)
 {
 	int i;
 
 	/* Nothing possible */
-	if (!macro__use[(byte)(pat[0])])
-	{
-		return (-1);
-	}
+	if (!macro__use[(byte)(pat[0])]) return -1;
 
 	/* Scan the macros */
 	for (i = 0; i < macro__num; ++i)
 	{
-		/* Skip macros which do not contain the pattern */
-		if (!prefix(macro__pat[i], pat)) continue;
-
-		/* Found one */
-		return (i);
+		if (prefix(macro__pat[i], pat)) return i;
 	}
 
 	/* Nothing */
-	return (-1);
+	return -1;
 }
 
 
 /*
  * Find the first macro (if any) which contains the given pattern and more
  */
-static int macro_find_maybe(cptr pat)
+static int macro_find_maybe(const char* pat)
 {
 	int i;
 
 	/* Nothing possible */
-	if (!macro__use[(byte)(pat[0])])
-	{
-		return (-1);
-	}
+	if (!macro__use[(byte)(pat[0])]) return -1;
 
 	/* Scan the macros */
 	for (i = 0; i < macro__num; ++i)
@@ -609,26 +600,23 @@ static int macro_find_maybe(cptr pat)
 		if (streq(macro__pat[i], pat)) continue;
 
 		/* Found one */
-		return (i);
+		return i;
 	}
 
 	/* Nothing */
-	return (-1);
+	return -1;
 }
 
 
 /*
  * Find the longest macro (if any) which starts with the given pattern
  */
-static int macro_find_ready(cptr pat)
+static int macro_find_ready(const char* pat)
 {
 	int i, t, n = -1, s = -1;
 
 	/* Nothing possible */
-	if (!macro__use[(byte)(pat[0])])
-	{
-		return (-1);
-	}
+	if (!macro__use[(byte)(pat[0])]) return -1;
 
 	/* Scan the macros */
 	for (i = 0; i < macro__num; ++i)
@@ -648,7 +636,7 @@ static int macro_find_ready(cptr pat)
 	}
 
 	/* Result */
-	return (n);
+	return n;
 }
 
 
@@ -666,7 +654,7 @@ static int macro_find_ready(cptr pat)
  * with some kind of "powerful keymap" ability, but this might make it hard
  * to change the "roguelike" option from inside the game.  XXX XXX XXX
  */
-errr macro_add(cptr pat, cptr act)
+errr macro_add(const char* pat, const char* act)
 {
 	int n;
 
@@ -716,10 +704,10 @@ errr macro_add(cptr pat, cptr act)
 errr macro_init(void)
 {
 	/* Macro patterns */
-	C_MAKE(macro__pat, MACRO_MAX, cptr);
+	C_MAKE(macro__pat, MACRO_MAX, const char*);
 
 	/* Macro actions */
-	C_MAKE(macro__act, MACRO_MAX, cptr);
+	C_MAKE(macro__act, MACRO_MAX, const char*);
 
 	/* Success */
 	return (0);
@@ -868,7 +856,8 @@ static ui_event_data inkey_aux(void)
 	ui_event_data ke, ke0;
 	char ch;
 	
-	cptr pat, act;
+	const char* pat;
+	const char* act;
 	
 	char buf[1024];
 	
@@ -1020,7 +1009,7 @@ static ui_event_data inkey_aux(void)
  * trigger any macros, and cannot be bypassed by the Borg.  It is used
  * in Angband to handle "keymaps".
  */
-static cptr inkey_next = NULL;
+static const char* inkey_next = NULL;
 
 
 #ifdef ALLOW_BORG
@@ -1368,7 +1357,7 @@ char inkey(void)
 /*
  * Flush the screen, make a noise
  */
-void bell(cptr reason)
+void bell(const char* reason)
 {
 	/* Mega-Hack -- Flush the output */
 	Term_fresh();
@@ -1379,10 +1368,10 @@ void bell(cptr reason)
 		message_add(reason, MSG_BELL);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_MESSAGE);
+		p_ptr->redraw |= (PR_MESSAGE);
 
 		/* Force window redraw */
-		window_stuff();
+		redraw_stuff();
 	}
 
 	/* Make a bell noise (if allowed) */
@@ -1531,7 +1520,7 @@ static int message_column = 0;
  * Hack -- Note that "msg_print(NULL)" will clear the top line even if no
  * messages are pending.
  */
-static void msg_print_aux(u16b type, cptr msg)
+static void msg_print_aux(u16b type, const char* const msg)
 {
 	int n;
 	char *t;
@@ -1575,7 +1564,7 @@ static void msg_print_aux(u16b type, cptr msg)
 		message_add(msg, type);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_MESSAGE);
+	p_ptr->redraw |= (PR_MESSAGE);
 
 	/* Copy it */
 	my_strcpy(buf, msg, sizeof(buf));
@@ -1639,7 +1628,7 @@ static void msg_print_aux(u16b type, cptr msg)
 /*
  * Print a message in the default color (white)
  */
-void msg_print(cptr msg)
+void msg_print(const char* msg)
 {
 	msg_print_aux(MSG_GENERIC, msg);
 }
@@ -1648,7 +1637,7 @@ void msg_print(cptr msg)
 /*
  * Display a formatted message, using "vstrnfmt()" and "msg_print()".
  */
-void msg_format(cptr fmt, ...)
+void msg_format(const char* fmt, ...)
 {
 	va_list vp;
 
@@ -1673,7 +1662,7 @@ void msg_format(cptr fmt, ...)
  *
  * The "extra" parameter is currently unused.
  */
-void message(u16b message_type, s16b extra, cptr message)
+void message(u16b message_type, s16b extra, const char* message)
 {
 	/* Unused parameter */
 	(void)extra;
@@ -1690,7 +1679,7 @@ void message(u16b message_type, s16b extra, cptr message)
  *
  * The "extra" parameter is currently unused.
  */
-void message_format(u16b message_type, s16b extra, cptr fmt, ...)
+void message_format(u16b message_type, s16b extra, const char* fmt, ...)
 {
 	va_list vp;
 
@@ -1776,35 +1765,12 @@ void screen_load(void)
 }
 
 
-/*
- * Display a string on the screen using an attribute.
- *
- * At the given location, using the given attribute, if allowed,
- * add the given string.  Do not clear the line.
- */
-void c_put_str(byte attr, cptr str, int row, int col)
-{
-	/* Position cursor, Dump the attr/text */
-	Term_putstr(col, row, -1, attr, str);
-}
-
-
-/*
- * As above, but in "white"
- */
-void put_str(cptr str, int row, int col)
-{
-	/* Spawn */
-	Term_putstr(col, row, -1, TERM_WHITE, str);
-}
-
-
 
 /*
  * Display a string on the screen using an attribute, and clear
  * to the end of the line.
  */
-void c_prt(byte attr, cptr str, int row, int col)
+void c_prt(byte attr, const char* str, int row, int col)
 {
 	/* Clear line, position cursor */
 	Term_erase(col, row, 255);
@@ -1817,7 +1783,7 @@ void c_prt(byte attr, cptr str, int row, int col)
 /*
  * As above, but in "white"
  */
-void prt(cptr str, int row, int col)
+void prt(const char* str, int row, int col)
 {
 	/* Spawn */
 	c_prt(TERM_WHITE, str, row, col);
@@ -1838,7 +1804,7 @@ void prt(cptr str, int row, int col)
  * This function will correctly handle any width up to the maximum legal
  * value of 256, though it works best for a standard 80 character width.
  */
-void text_out_to_screen(byte a, cptr str)
+void text_out_to_screen(byte a, const char* str)
 {
 	int x, y;
 
@@ -1846,7 +1812,7 @@ void text_out_to_screen(byte a, cptr str)
 
 	int wrap;
 
-	cptr s;
+	const char* s;
 
 
 	/* Obtain the size */
@@ -1953,7 +1919,7 @@ void text_out_to_screen(byte a, cptr str)
  * You must be careful to end all file output with a newline character
  * to "flush" the stored line position.
  */
-void text_out_to_file(byte a, cptr str)
+void text_out_to_file(byte a, const char* str)
 {
 	/* Current position on the line */
 	static int pos = 0;
@@ -1962,7 +1928,7 @@ void text_out_to_file(byte a, cptr str)
 	int wrap = (text_out_wrap ? text_out_wrap : 75);
 
 	/* Current location within "str" */
-	cptr s = str;
+	const char* s = str;
 
 	/* Unused parameter */
 	(void)a;
@@ -2072,9 +2038,22 @@ void text_out_to_file(byte a, cptr str)
  * Output text to the screen or to a file depending on the selected
  * text_out hook.
  */
-void text_out(cptr str)
+void text_out(const char *fmt, ...)
 {
-	text_out_c(TERM_WHITE, str);
+	char buf[1024];
+	va_list vp;
+
+	/* Begin the Varargs Stuff */
+	va_start(vp, fmt);
+
+	/* Do the va_arg fmt to the buffer */
+	(void)vstrnfmt(buf, sizeof(buf), fmt, vp);
+
+	/* End the Varargs Stuff */
+	va_end(vp);
+
+	/* Output now */
+	text_out_hook(TERM_WHITE, buf);
 }
 
 
@@ -2082,9 +2061,169 @@ void text_out(cptr str)
  * Output text to the screen (in color) or to a file depending on the
  * selected hook.
  */
-void text_out_c(byte a, cptr str)
+void text_out_c(byte a, const char *fmt, ...)
 {
-	text_out_hook(a, str);
+	char buf[1024];
+	va_list vp;
+
+	/* Begin the Varargs Stuff */
+	va_start(vp, fmt);
+
+	/* Do the va_arg fmt to the buffer */
+	(void)vstrnfmt(buf, sizeof(buf), fmt, vp);
+
+	/* End the Varargs Stuff */
+	va_end(vp);
+
+	/* Output now */
+	text_out_hook(a, buf);
+}
+
+
+/*
+ * Given a "formatted" chunk of text (i.e. one including tags like {red}{/})
+ * in 'source', with starting point 'init', this finds the next section of
+ * text and any tag that goes with it, return TRUE if it finds something to 
+ * print.
+ * 
+ * If it returns TRUE, then it also fills 'text' with a pointer to the start
+ * of the next printable section of text, and 'len' with the length of that 
+ * text, and 'end' with a pointer to the start of the next section.  This
+ * may differ from "text + len" because of the presence of tags.  If a tag
+ * applies to the section of text, it returns a pointer to the start of that
+ * tag in 'tag' and the length in 'taglen'.  Otherwise, 'tag' is filled with
+ * NULL.
+ *
+ * See text_out_e for an example of its use.
+ */
+static bool next_section(const char *source, size_t init, const char*& text, size_t& len, const char*& tag, size_t& taglen, const char*& end)
+{
+	const char *next;	
+
+	tag = NULL;
+	text = source + init;
+	if (text[0] == '\0') return FALSE;
+
+	next = strchr(text, '{');
+	while (next)
+	{
+		const char *s = next + 1;
+
+		while (*s && isalpha((unsigned char) *s)) s++;
+
+		/* Woo!  valid opening tag thing */
+		if (*s == '}')
+		{
+			char *close = strstr(s, "{/}");
+
+			/* There's a closing thing, so it's valid. */
+			if (close)
+			{
+				/* If this tag is at the start of the fragment */
+				if (next == text)
+				{
+					tag = text + 1;
+					taglen = s - text - 1;
+					text = s + 1;
+					len = close - text;
+					end = close + 3;
+					return TRUE;
+				}
+				/* Otherwise return the chunk up to this */
+				else
+				{
+					len = next - text;
+					end = text + len;
+					return TRUE;
+				}
+			}
+			/* No closing thing, therefore all one lump of text. */
+			else
+			{
+				len = strlen(text);
+				end = text + len;
+				return TRUE;
+			}
+		}
+		/* End of the string, that's fine. */
+		else if (*s == '\0')
+		{
+				len = strlen(text);
+				end = text + len;
+				return TRUE;
+		}
+		/* An invalid tag, skip it. */
+		else
+		{
+			next = next + 1;
+		}
+
+		next = strchr(next, '{');
+	}
+
+	/* Default to the rest of the string */
+	len = strlen(text);
+	end = text + len;
+
+	return TRUE;
+}
+
+/*
+ * Output text to the screen or to a file depending on the
+ * selected hook.  Takes strings with "embedded formatting",
+ * such that something within {red}{/} will be printed in red.
+ *
+ * Note that such formatting will be treated as a "breakpoint"
+ * for the printing, so if used within words may lead to part of the
+ * word being moved to the next line.
+ */
+void text_out_e(const char *fmt, ...)
+{
+	char buf[1024];
+	char smallbuf[1024];
+	va_list vp;
+
+	const char *start, *next, *text, *tag;
+	size_t textlen, taglen;
+
+	/* Begin the Varargs Stuff */
+	va_start(vp, fmt);
+
+	/* Do the va_arg fmt to the buffer */
+	(void)vstrnfmt(buf, sizeof(buf), fmt, vp);
+
+	/* End the Varargs Stuff */
+	va_end(vp);
+
+	start = buf;
+	while (next_section(start, 0, text, textlen, tag, taglen, next))
+	{
+		int a = -1;
+
+		memcpy(smallbuf, text, textlen);
+		smallbuf[textlen] = 0;
+
+		if (tag)
+		{
+			char tagbuffer[11];
+
+			/* Colour names are less than 11 characters long. */
+			assert(taglen < 11);
+
+			memcpy(tagbuffer, tag, taglen);
+			tagbuffer[taglen] = '\0';
+
+			a = color_text_to_attr(tagbuffer);
+		}
+		
+		if (a == -1) 
+			a = TERM_WHITE;
+
+		/* Output now */
+		text_out_hook(a, smallbuf);
+
+		start = next;
+	}
 }
 
 
@@ -2222,7 +2361,7 @@ bool askfor_aux(char *buf, size_t len)
  * See "askfor_aux" for some notes about "buf" and "len", and about
  * the return value of this function.
  */
-bool get_string(cptr prompt, char *buf, size_t len)
+bool get_string(const char* prompt, char *buf, size_t len)
 {
 	bool res;
 
@@ -2249,7 +2388,7 @@ bool get_string(cptr prompt, char *buf, size_t len)
  *
  * Allow "p_ptr->command_arg" to specify a quantity
  */
-s16b get_quantity(cptr prompt, int max)
+s16b get_quantity(const char* prompt, int max)
 {
 	int amt = 1;
 
@@ -2302,7 +2441,6 @@ s16b get_quantity(cptr prompt, int max)
 
 	/* Enforce the maximum */
 	if (amt > max) amt = max;
-
 	/* Enforce the minimum */
 	if (amt < 0) amt = 0;
 
@@ -2320,7 +2458,7 @@ s16b get_quantity(cptr prompt, int max)
  *
  * Note that "[y/n]" is appended to the prompt.
  */
-bool get_check(cptr prompt)
+bool get_check(const char* prompt)
 {
 	char ch;
 
@@ -2363,7 +2501,7 @@ bool get_check(cptr prompt)
  *
  * Returns TRUE unless the character is "Escape"
  */
-bool get_com(cptr prompt, char *command)
+bool get_com(const char* prompt, char *command)
 {
 	char ch;
 
@@ -2430,36 +2568,14 @@ static char request_command_buffer[256];
  */
 void request_command(bool shopping)
 {
+	const char* act;
 	int i;
-
+	int mode = (rogue_like_commands) ? KEYMAP_MODE_ROGUE : KEYMAP_MODE_ORIG;
 	char ch;
 
-	int mode;
-
-	cptr act;
-
-
-	/* Roguelike */
-	if (rogue_like_commands)
-	{
-		mode = KEYMAP_MODE_ROGUE;
-	}
-
-	/* Original */
-	else
-	{
-		mode = KEYMAP_MODE_ORIG;
-	}
-
-
-	/* No command yet */
-	p_ptr->command_cmd = 0;
-
-	/* No "argument" yet */
-	p_ptr->command_arg = 0;
-
-	/* No "direction" yet */
-	p_ptr->command_dir = 0;
+	p_ptr->command_cmd = 0;	/* No command yet */
+	p_ptr->command_arg = 0;	/* No "argument" yet */
+	p_ptr->command_dir = 0;	/* No "direction" yet */
 
 
 	/* Get command */
@@ -2682,7 +2798,7 @@ void request_command(bool shopping)
 	/* Hack -- Scan equipment */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
-		object_type *o_ptr = &p_ptr->inventory[i];
+		const object_type* const o_ptr = &p_ptr->inventory[i];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
@@ -2704,85 +2820,6 @@ void request_command(bool shopping)
 }
 
 
-
-
-/*
- * Generates damage for "2d6" style dice rolls
- */
-int damroll(int num, int sides)
-{
-	int i;
-	int sum = 0;
-
-
-	/* HACK - prevent undefined behaviour */
-	if (sides <= 0) return (0);
-
-	for (i = 0; i < num; i++)
-	{
-		sum += rand_die(sides);
-	}
-
-	return (sum);
-}
-
-/*
- * Generates damage for "2d6" style dice rolls
- * mirror of above 
- */
-int
-dice_sides::damroll(void) const
-{
-	int i = 0;
-	int sum = 0;
-
-	/* deal with corner cases */
-	if (sides <= 0) return 0;	/* undefined behavior later on, avoid */
-	if (dice <= 0) return 0;
-
-	/* base case, maybe do something more intelligent later */
-	for (i = 0; i < dice; i++)
-	{
-		sum += rand_die(sides);
-	}
-
-	return (sum);
-}
-
-
-/*
- * Same as above, but always maximal
- */
-int maxroll(int num, int sides)
-{
-	return (num * sides);
-}
-
-
-
-
-/*
- * Check a char for "vowel-hood"
- */
-bool is_a_vowel(int ch)
-{
-	switch (ch)
-	{
-		case 'a':
-		case 'e':
-		case 'i':
-		case 'o':
-		case 'u':
-		case 'A':
-		case 'E':
-		case 'I':
-		case 'O':
-		case 'U':
-		return (TRUE);
-	}
-
-	return (FALSE);
-}
 
 
 /*
@@ -2819,7 +2856,7 @@ int color_char_to_attr(char c)
 /*
  * Converts a string to a terminal color byte.
  */
-int color_text_to_attr(cptr name)
+int color_text_to_attr(const char* name)
 {
 	if (my_stricmp(name, "dark")       == 0) return (TERM_DARK);
 	if (my_stricmp(name, "white")      == 0) return (TERM_WHITE);
@@ -2846,7 +2883,7 @@ int color_text_to_attr(cptr name)
 /*
  * Extract a textual representation of an attribute
  */
-cptr attr_to_text(byte a)
+const char* attr_to_text(byte a)
 {
 	switch (a)
 	{

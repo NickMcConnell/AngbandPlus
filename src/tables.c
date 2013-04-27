@@ -3,9 +3,16 @@
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -1268,33 +1275,9 @@ const byte chest_traps[64] =
 
 
 /*
- * Hack -- the "basic" color names (see "TERM_xxx")
- */
-cptr color_names[BASIC_COLORS] =
-{
-	"Dark",
-	"White",
-	"Slate",
-	"Orange",
-	"Red",
-	"Green",
-	"Blue",
-	"Umber",
-	"Light Dark",
-	"Light Slate",
-	"Violet",
-	"Yellow",
-	"Light Red",
-	"Light Green",
-	"Light Blue",
-	"Light Umber",
-};
-
-
-/*
  * Abbreviations of healthy stats
  */
-cptr stat_names[A_MAX] =
+const char* const stat_names[A_MAX] =
 {
 	"STR: ", "INT: ", "WIS: ", "DEX: ", "CON: ", "CHR: "
 };
@@ -1302,15 +1285,15 @@ cptr stat_names[A_MAX] =
 /*
  * Abbreviations of damaged stats
  */
-cptr stat_names_reduced[A_MAX] =
+const char* const stat_names_reduced[A_MAX] =
 {
 	"Str: ", "Int: ", "Wis: ", "Dex: ", "Con: ", "Chr: "
 };
 
 /*
- * Full stat names
+ * Full stat names -- XXX obj-info only, here for ease of synchronization XXX
  */
-cptr stat_names_full[A_MAX] =
+const char* const stat_names_full[A_MAX] =
 {
 	"strength",
 	"intelligence",
@@ -1329,7 +1312,7 @@ cptr stat_names_full[A_MAX] =
  * main window, including File dump (help), File dump (artifacts, uniques),
  * Character screen, Small scale map, Previous Messages, Store screen, etc.
  */
-cptr window_flag_desc[32] =
+const char* const window_flag_desc[32] =
 {
 	"Display inven/equip",
 	"Display equip/inven",
@@ -1342,11 +1325,16 @@ cptr window_flag_desc[32] =
 	"Display monster recall",
 	"Display object recall",
 	"Display monster list",
-	"Display status",
-	"Display script variables",
-	"Display script source",
+	NULL,
+	NULL,
+	NULL,
+#ifdef ALLOW_BORG
 	"Display borg messages",
 	"Display borg status",
+#else
+	NULL,
+	NULL,
+#endif
 	NULL,
 	NULL,
 	NULL,
@@ -1369,7 +1357,7 @@ cptr window_flag_desc[32] =
 /*
  * Options -- textual names (where defined)
  */
-cptr option_text[OPT_MAX] =
+const char* const option_text[OPT_MAX] =
 {
 	"rogue_like_commands",		/* OPT_rogue_like_commands */
 	"quick_messages",			/* OPT_quick_messages */
@@ -1395,7 +1383,7 @@ cptr option_text[OPT_MAX] =
 	"disturb_near",				/* OPT_disturb_near */
 	"disturb_panel",			/* OPT_disturb_panel */
 	"disturb_state",			/* OPT_disturb_state */
-	"disturb_minor",			/* OPT_disturb_minor */
+	NULL,						/* xxx disturb_minor */
 	NULL,						/* xxx disturb_other */
 	NULL,						/* xxx alert_hitpoint */
 	NULL,						/* xxx alert_failure */
@@ -1633,7 +1621,7 @@ cptr option_text[OPT_MAX] =
 /*
  * Options -- descriptions (where defined)
  */
-cptr option_desc[OPT_MAX] =
+const char* const option_desc[OPT_MAX] =
 {
 	"Rogue-like commands",						/* OPT_rogue_like_commands */
 	"Activate quick messages",					/* OPT_quick_messages */
@@ -1659,7 +1647,7 @@ cptr option_desc[OPT_MAX] =
 	"Disturb whenever viewable monster moves",	/* OPT_disturb_near */
 	"Disturb whenever map panel changes",		/* OPT_disturb_panel */
 	"Disturb whenever player state changes",	/* OPT_disturb_state */
-	"Disturb whenever boring things happen",	/* OPT_disturb_minor */
+	NULL,										/* xxx disturb_minor */
 	NULL,										/* xxx disturb_other */
 	NULL,										/* xxx alert_hitpoint */
 	NULL,										/* xxx alert_failure */
@@ -1923,7 +1911,7 @@ const bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_disturb_near */
 	TRUE,		/* OPT_disturb_panel */
 	TRUE,		/* OPT_disturb_state */
-	TRUE,		/* OPT_disturb_minor */
+	TRUE,		/* xxx disturb_minor */
 	FALSE,		/* xxx disturb_other */
 	FALSE,		/* xxx alert_hitpoint */
 	FALSE,		/* xxx alert_failure */
@@ -2199,9 +2187,9 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_disturb_near,
 		OPT_disturb_panel,
 		OPT_disturb_state,
-		OPT_disturb_minor,
 		OPT_verify_destroy,
 		OPT_auto_more,
+		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
@@ -2340,7 +2328,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 };
 
 
-cptr inscrip_text[MAX_INSCRIP] =
+const char* const inscrip_text[MAX_INSCRIP] =
 {
 	NULL,
 	"terrible",

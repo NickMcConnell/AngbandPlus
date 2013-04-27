@@ -2,16 +2,26 @@
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 2007 Andrew Sidwell
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
+#include "tvalsval.h"
+
 #include "keypad.h"
 
-/*
+/**
  * chance to disarm, after difficulty
  */
 int
@@ -40,7 +50,7 @@ player_type::disarm_trap(int power) const
 }
 
 
-/*
+/**
  * Go up one level
  */
 void do_cmd_go_up(void)
@@ -76,7 +86,7 @@ void do_cmd_go_up(void)
 }
 
 
-/*
+/**
  * Go down one level
  */
 void do_cmd_go_down(void)
@@ -106,7 +116,7 @@ void do_cmd_go_down(void)
 
 
 
-/*
+/**
  * Simple command to "search" for one turn
  */
 void do_cmd_search(void)
@@ -132,7 +142,7 @@ void do_cmd_search(void)
 }
 
 
-/*
+/**
  * Hack -- toggle search mode
  */
 void do_cmd_toggle_search(void)
@@ -166,7 +176,7 @@ void do_cmd_toggle_search(void)
 
 
 
-/*
+/**
  * Determine if a grid contains a chest
  */
 static s16b chest_check(coord g)
@@ -194,7 +204,7 @@ static s16b chest_check(coord g)
 }
 
 
-/*
+/**
  * Allocate objects upon opening a chest
  *
  * Disperse treasures from the given chest, centered at (x,y).
@@ -260,7 +270,7 @@ static void chest_death(coord t, s16b o_idx)
 }
 
 
-/*
+/**
  * Chests have traps too.
  *
  * Exploding chest destroys contents (and traps).
@@ -283,7 +293,7 @@ static void chest_trap(coord g, s16b o_idx)
 	if (trap & (CHEST_LOSE_STR))
 	{
 		msg_print("A small needle has pricked you!");
-		take_hit(damroll(1, 4), "a poison needle");
+		take_hit(NdS(1, 4), "a poison needle");
 		(void)do_dec_stat(A_STR);
 	}
 
@@ -291,7 +301,7 @@ static void chest_trap(coord g, s16b o_idx)
 	if (trap & (CHEST_LOSE_CON))
 	{
 		msg_print("A small needle has pricked you!");
-		take_hit(damroll(1, 4), "a poison needle");
+		take_hit(NdS(1, 4), "a poison needle");
 		(void)do_dec_stat(A_CON);
 	}
 
@@ -333,17 +343,17 @@ static void chest_trap(coord g, s16b o_idx)
 		msg_print("There is a sudden explosion!");
 		msg_print("Everything inside the chest is destroyed!");
 		o_ptr->pval = 0;
-		take_hit(damroll(5, 8), "an exploding chest");
+		take_hit(NdS(5, 8), "an exploding chest");
 	}
 }
 
 
-/*
+/**
  * Attempt to open the given chest at the given location
  *
- * Assume there is no monster blocking the destination
+ * \pre There is no monster blocking the destination
  *
- * Returns TRUE if repeated commands may continue
+ * \return TRUE if repeated commands may continue
  */
 static bool do_cmd_open_chest(coord g, s16b o_idx)
 {
@@ -391,12 +401,12 @@ static bool do_cmd_open_chest(coord g, s16b o_idx)
 }
 
 
-/*
+/**
  * Attempt to disarm the chest at the given location
  *
- * Assume there is no monster blocking the destination
+ * \pre There is no monster blocking the destination
  *
- * Returns TRUE if repeated commands may continue
+ * \return TRUE if repeated commands may continue
  */
 static bool do_cmd_disarm_chest(coord g, s16b o_idx)
 {
@@ -457,8 +467,8 @@ static bool do_cmd_disarm_chest(coord g, s16b o_idx)
 }
 
 
-/*
- * Return TRUE if the given feature is an open door
+/**
+ * \return TRUE if the given feature is an open door
  */
 static bool is_open(byte feat)
 {
@@ -466,8 +476,8 @@ static bool is_open(byte feat)
 }
 
 
-/*
- * Return TRUE if the given feature is a closed door
+/**
+ * \return TRUE if the given feature is a closed door
  */
 static bool is_closed(byte feat)
 {
@@ -476,8 +486,8 @@ static bool is_closed(byte feat)
 }
 
 
-/*
- * Return the number of doors/traps around (or under) the character.
+/**
+ * \return the number of doors/traps around (or under) the character.
  */
 static int count_feats(coord& g, bool (*test)(byte feat), bool under)
 {
@@ -535,7 +545,8 @@ static int count_feats(coord& g, bool (*test)(byte feat), bool under)
 
 
 /*
- * Return the number of chests around (or under) the character.
+ * \return the number of chests around (or under) the character.
+ *
  * If requested, count only trapped chests.
  */
 static int count_chests(coord& g, bool trapped)
@@ -580,7 +591,7 @@ static int count_chests(coord& g, bool trapped)
 }
 
 
-/*
+/**
  * Extract a "direction" which will move one step from the player location
  * towards the given "target" location (or "5" if no motion necessary).
  */
@@ -590,7 +601,7 @@ static int coords_to_dir(coord g)
 }
 
 
-/*
+/**
  * Determine if a given grid may be "opened"
  */
 static bool do_cmd_open_test(coord g)
@@ -621,12 +632,12 @@ static bool do_cmd_open_test(coord g)
 }
 
 
-/*
+/**
  * Perform the basic "open" command on doors
  *
- * Assume there is no monster blocking the destination
+ * \pre There is no monster blocking the destination
  *
- * Returns TRUE if repeated commands may continue
+ * \return TRUE if repeated commands may continue
  */
 static bool do_cmd_open_aux(coord g)
 {
@@ -696,7 +707,7 @@ static bool do_cmd_open_aux(coord g)
 
 
 
-/*
+/**
  * Open a closed/locked/jammed door or a closed/locked chest.
  *
  * Unlocking a locked door/chest is worth one experience point.
@@ -806,7 +817,7 @@ void do_cmd_open(void)
 }
 
 
-/*
+/**
  * Determine if a given grid may be "closed"
  */
 static bool do_cmd_close_test(coord g)
@@ -837,12 +848,12 @@ static bool do_cmd_close_test(coord g)
 }
 
 
-/*
+/**
  * Perform the basic "close" command
  *
- * Assume there is no monster blocking the destination
+ * \pre There is no monster blocking the destination
  *
- * Returns TRUE if repeated commands may continue
+ * \return TRUE if repeated commands may continue
  */
 static bool do_cmd_close_aux(coord g)
 {
@@ -878,7 +889,7 @@ static bool do_cmd_close_aux(coord g)
 }
 
 
-/*
+/**
  * Close an open door.
  */
 void do_cmd_close(void)
@@ -956,7 +967,7 @@ void do_cmd_close(void)
 
 
 
-/*
+/**
  * Determine if a given grid may be "tunneled"
  */
 static bool do_cmd_tunnel_test(coord g)
@@ -986,13 +997,15 @@ static bool do_cmd_tunnel_test(coord g)
 }
 
 
-/*
- * Tunnel through wall.  Assumes valid location.
+/**
+ * Tunnel through wall.
  *
- * Note that it is impossible to "extend" rooms past their
+ * \param g valid location
+ *
+ * \note It is impossible to "extend" rooms past their
  * outer walls (which are actually part of the room).
  *
- * Attempting to do so will produce floor grids which are not part
+ * \note Attempting to do so will produce floor grids which are not part
  * of the room, and whose "illumination" status do not change with
  * the rest of the room.
  */
@@ -1018,14 +1031,14 @@ static bool twall(coord g)
 }
 
 
-/*
+/**
  * Perform the basic "tunnel" command
  *
- * Assumes that no monster is blocking the destination
+ * \pre No monster is blocking the destination
  *
  * Uses "twall" (above) to do all "terrain feature changing".
  *
- * Returns TRUE if repeated commands may continue
+ * \return TRUE if repeated commands may continue
  */
 static bool do_cmd_tunnel_aux(coord g)
 {
@@ -1223,7 +1236,7 @@ static bool do_cmd_tunnel_aux(coord g)
 }
 
 
-/*
+/**
  * Tunnel through "walls" (including rubble and secret doors)
  *
  * Digging is very difficult without a "digger" weapon, but can be
@@ -1293,7 +1306,7 @@ void do_cmd_tunnel(void)
 }
 
 
-/*
+/**
  * Determine if a given grid may be "disarmed"
  */
 static bool do_cmd_disarm_test(coord g)
@@ -1324,12 +1337,12 @@ static bool do_cmd_disarm_test(coord g)
 }
 
 
-/*
+/**
  * Perform the basic "disarm" command
  *
- * Assume there is no monster blocking the destination
+ * \pre There is no monster blocking the destination
  *
- * Returns TRUE if repeated commands may continue
+ * \return TRUE if repeated commands may continue
  */
 static bool do_cmd_disarm_aux(coord g)
 {
@@ -1337,7 +1350,7 @@ static bool do_cmd_disarm_aux(coord g)
 	/* Verify legality */
 	if (!do_cmd_disarm_test(g)) return (FALSE);
 	{	/* start scope block */
-	cptr name = feature_type::f_info[cave_feat[g.y][g.x]].name();	/* Get the trap name */
+	const char* const name = feature_type::f_info[cave_feat[g.y][g.x]].name();	/* Get the trap name */
 	int i = p_ptr->disarm_skill(); 	/* Get the "disarm" factor */
 	int power = 5;					/* XXX XXX XXX Variable power? */
 
@@ -1385,7 +1398,7 @@ static bool do_cmd_disarm_aux(coord g)
 }
 
 
-/*
+/**
  * Disarms a trap, or a chest
  */
 void do_cmd_disarm(void)
@@ -1482,7 +1495,7 @@ void do_cmd_disarm(void)
 }
 
 
-/*
+/**
  * Determine if a given grid may be "bashed"
  */
 static bool do_cmd_bash_test(coord g)
@@ -1513,12 +1526,12 @@ static bool do_cmd_bash_test(coord g)
 }
 
 
-/*
+/**
  * Perform the basic "bash" command
  *
- * Assume there is no monster blocking the destination
+ * \pre There is no monster blocking the destination
  *
- * Returns TRUE if repeated commands may continue
+ * \return TRUE if repeated commands may continue
  */
 static bool do_cmd_bash_aux(coord g)
 {
@@ -1556,6 +1569,8 @@ static bool do_cmd_bash_aux(coord g)
 		/* Message */
 		message(MSG_OPENDOOR, 0, "The door crashes open!");
 
+		apply_noise(g, 10);		/* Bashing open doors is noisy */
+
 		/* Update the visuals */
 		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 	}
@@ -1567,6 +1582,8 @@ static bool do_cmd_bash_aux(coord g)
 		/* Message */
 		msg_print("The door holds firm.");
 
+		apply_noise(g, 2);		/* Failing to bash open doors is noisy */
+
 		/* Allow repeated bashing */
 		more = TRUE;
 	}
@@ -1577,8 +1594,10 @@ static bool do_cmd_bash_aux(coord g)
 		/* Message */
 		msg_print("You are off-balance.");
 
+		apply_noise(g, 2);		/* Failing to bash open doors is noisy */
+
 		/* Hack -- Lose balance ala paralysis */
-		(void)p_ptr->inc_timed<TMD_PARALYZED>(2 + rand_int(2));
+		p_ptr->inc_timed<TMD_PARALYZED>(2 + rand_int(2));
 	}
 
 	/* Result */
@@ -1586,7 +1605,7 @@ static bool do_cmd_bash_aux(coord g)
 }
 
 
-/*
+/**
  * Bash open a door, success based on character strength
  *
  * For a closed door, pval is positive if locked; negative if stuck.
@@ -1665,7 +1684,7 @@ void do_cmd_bash(void)
 
 
 
-/*
+/**
  * Manipulate an adjacent grid in some way
  *
  * Attack monsters, tunnel through walls, disarm traps, open doors.
@@ -1784,40 +1803,40 @@ void do_cmd_alter(void)
 }
 
 
-/*
+/**
  * Find the index of some "spikes", if possible.
  *
  * XXX XXX XXX Let user choose a pile of spikes, perhaps?
  */
-static bool get_spike(int *ip)
+static bool get_spike(int& ip)
 {
 	int i;
 
-	/* Check every item in the pack */
-	for (i = 0; i < INVEN_PACK; i++)
-	{
-		object_type *o_ptr = &p_ptr->inventory[i];
+	assert(0 <= p_ptr->inven_cnt && INVEN_PACK >= p_ptr->inven_cnt && "precondition");
+	assert(p_ptr->inven_cnt_is_strict_UB_of_nonzero_k_idx() && "precondition");
 
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
+	/* Check every item in the pack */
+	for (i = 0; i < p_ptr->inven_cnt; ++i)
+	{
+		const object_type* const o_ptr = &p_ptr->inventory[i];
 
 		/* Check the "tval" code */
 		if (o_ptr->tval == TV_SPIKE)
 		{
 			/* Save the spike index */
-			(*ip) = i;
+			ip = i;
 
 			/* Success */
-			return (TRUE);
+			return TRUE;
 		}
 	}
 
 	/* Oops */
-	return (FALSE);
+	return FALSE;
 }
 
 
-/*
+/**
  * Determine if a given grid may be "spiked"
  */
 static bool do_cmd_spike_test(coord g)
@@ -1848,7 +1867,7 @@ static bool do_cmd_spike_test(coord g)
 }
 
 
-/*
+/**
  * Jam a closed door with a spike
  *
  * This command may NOT be repeated
@@ -1860,7 +1879,7 @@ void do_cmd_spike(void)
 
 
 	/* Get a spike */
-	if (!get_spike(&item))
+	if (!get_spike(item))
 	{
 		/* Message */
 		msg_print("You have no spikes!");
@@ -1932,7 +1951,7 @@ void do_cmd_spike(void)
 
 
 
-/*
+/**
  * Determine if a given grid may be "walked"
  */
 static bool do_cmd_walk_test(int y, int x)
@@ -1982,7 +2001,7 @@ static bool do_cmd_walk_test(int y, int x)
 }
 
 
-/*
+/**
  * Helper function for the "walk" and "jump" commands.
  */
 static void do_cmd_walk_or_jump(int jumping)
@@ -2036,7 +2055,7 @@ static void do_cmd_walk_or_jump(int jumping)
 }
 
 
-/*
+/**
  * Walk into a grid.
  */
 void do_cmd_walk(void)
@@ -2046,7 +2065,7 @@ void do_cmd_walk(void)
 }
 
 
-/*
+/**
  * Jump into a grid.
  */
 void do_cmd_jump(void)
@@ -2056,10 +2075,10 @@ void do_cmd_jump(void)
 }
 
 
-/*
+/**
  * Start running.
  *
- * Note that running while confused is not allowed.
+ * \note Running while confused is not allowed.
  */
 void do_cmd_run(void)
 {
@@ -2092,7 +2111,7 @@ void do_cmd_run(void)
 
 
 
-/*
+/**
  * Stay still.  Search.  Enter stores.
  * Pick up treasure if "pickup" is true.
  */
@@ -2146,7 +2165,7 @@ static void do_cmd_hold_or_stay(int pickup)
 }
 
 
-/*
+/**
  * Hold still (usually pickup)
  */
 void do_cmd_hold(void)
@@ -2156,7 +2175,7 @@ void do_cmd_hold(void)
 }
 
 
-/*
+/**
  * Stay still (usually do not pickup)
  */
 void do_cmd_stay(void)
@@ -2166,7 +2185,7 @@ void do_cmd_stay(void)
 }
 
 
-/*
+/**
  * Rest (restores hit points and mana and such)
  */
 void do_cmd_rest(void)
@@ -2174,7 +2193,7 @@ void do_cmd_rest(void)
 	/* Prompt for time if needed */
 	if (p_ptr->command_arg <= 0)
 	{
-		cptr p = "Rest (0-9999, '*' for HP/SP, '&' as needed): ";
+		const char* const p = "Rest (0-9999, '*' for HP/SP, '&' as needed): ";
 
 		char out_val[5];
 

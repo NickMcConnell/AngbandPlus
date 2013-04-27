@@ -9,11 +9,16 @@
  */
 
 #include "angband.h"
+#include "raceflag.h"
+#include "store.h"
+#include "tvalsval.h"
 
+#ifndef __cplusplus
 /*
  * Forward declare
  */
 typedef struct birther birther;
+#endif
 
 /*
  * A structure to hold "rolled" information
@@ -474,11 +479,9 @@ static void player_wipe(void)
 		q_list[i].level = 0;
 	}
 
-	/* Add a special quest */
-	q_list[0].level = 99;
-
-	/* Add a second quest */
-	q_list[1].level = 100;
+	ZAIBAND_STATIC_ASSERT(2<=MAX_Q_IDX);
+	q_list[0].level = 99;	/* Add a special quest */
+	q_list[1].level = 100;	/* Add a second quest */
 
 
 	/* Reset the "objects" */
@@ -486,11 +489,8 @@ static void player_wipe(void)
 	{
 		object_kind *k_ptr = &object_type::k_info[i];
 
-		/* Reset "tried" */
-		k_ptr->tried = FALSE;
-
-		/* Reset "aware" */
-		k_ptr->aware = FALSE;
+		k_ptr->tried = FALSE;	/* Reset "tried" */
+		k_ptr->aware = FALSE;	/* Reset "aware" */
 	}
 
 
@@ -500,17 +500,13 @@ static void player_wipe(void)
 		monster_race *r_ptr = &monster_type::r_info[i];
 		monster_lore *l_ptr = &monster_type::l_list[i];
 
-		/* Hack -- Reset the counter */
-		r_ptr->cur_num = 0;
+		r_ptr->cur_num = 0;		/* Hack -- Reset the counter */
+		r_ptr->max_num = 100;	/* Hack -- Reset the max counter */
 
 		/* Hack -- Reset the max counter */
-		r_ptr->max_num = 100;
+		if (r_ptr->flags[0] & RF0_UNIQUE) r_ptr->max_num = 1;
 
-		/* Hack -- Reset the max counter */
-		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 1;
-
-		/* Clear player kills */
-		l_ptr->pkills = 0;
+		l_ptr->pkills = 0;	/* Clear player kills */
 	}
 
 
@@ -518,12 +514,13 @@ static void player_wipe(void)
 	monster_type::r_info[z_info->r_max-1].max_num = 0;
 
 
-	/* Hack -- Well fed player */
-	p_ptr->food = PY_FOOD_FULL - 1;
+	p_ptr->food = PY_FOOD_FULL - 1;	/* Hack -- Well fed player */
 
 
 	/* None of the spells have been learned yet */
 	for (i = 0; i < PY_MAX_SPELLS; i++) p_ptr->spell_order[i] = 99;
+
+ 	turn = old_turn = 1;	/* First turn. */ 
 }
 
 
@@ -536,6 +533,7 @@ static void player_wipe(void)
 static void player_outfit(void)
 {
 	int i;
+	int slot;
 	object_type object_type_body;
 	const start_item *e_ptr;
 	object_type *i_ptr = &object_type_body; /* Get local object */
@@ -562,7 +560,17 @@ static void player_outfit(void)
 
 			object_aware(i_ptr);
 			object_known(i_ptr);
-			(void)inven_carry(i_ptr);
+
+			/* Zaiband: swipe auto-equipping from Unangband etc. */
+			slot = wield_slot(i_ptr);
+			if (-1!=slot && !(p_ptr->inventory[slot].k_idx))
+			{	/* equipable, nothing in slot yet: equip it */
+				p_ptr->inventory[slot] = *i_ptr;
+			}
+			else
+			{	/* send to inventory */
+				inven_carry(i_ptr);
+			}
 		}
 	}
 }
@@ -586,9 +594,9 @@ static void player_outfit(void)
 #define CLASS_COL       29
 #define CLASS_AUX_COL   50
 
-
+#ifndef __cplusplus
 typedef struct birth_menu birth_menu;
-
+#endif
 
 /*
  * A structure to hold the menus
@@ -596,7 +604,7 @@ typedef struct birth_menu birth_menu;
 struct birth_menu
 {
 	bool grayed;
-	cptr name;
+	const char* name;
 };
 
 
@@ -620,7 +628,7 @@ static void clear_question(void)
  */
 static int get_player_choice(birth_menu *choices, int num, int def,
                              int col, int wid, byte *select,
-                             cptr helpfile, void (*hook)(birth_menu))
+                             const char* helpfile, void (*hook)(birth_menu))
 {
 	int top = 0, cur = def;
 	int i, dir;
@@ -1368,7 +1376,7 @@ static bool player_birth_aux_3(void)
 				put_str("", 16 + i, 30);
 
 				/* Default */
-				strcpy(inp, "");
+				inp[0] = '\x00';
 
 				/* Get a response (or escape) */
 				if (!askfor_aux(inp, 9)) inp[0] = '\0';
@@ -1627,7 +1635,7 @@ static bool player_birth_aux_3(void)
 static bool player_birth_aux(void)
 {
 	char ch;
-	cptr prompt = "['Q' to suicide, 'S' to start over, or any other key to continue]";
+	const char* prompt = "['Q' to suicide, 'S' to start over, or any other key to continue]";
 
 	/* Ask questions */
 	if (!player_birth_aux_1()) return (FALSE);
@@ -1673,21 +1681,58 @@ static void player_birth_done_hook(void)
 	object_type object_type_body;
 	object_type *i_ptr = &object_type_body;	/* Get local object */
 
-	/* Hack -- Give the player some food */
+	/* Give the player some food */
 	object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
 	i_ptr->number = (byte)rand_range(3, 7);
 	object_aware(i_ptr);
 	object_known(i_ptr);
-	(void)inven_carry(i_ptr);
+	inven_carry(i_ptr);
 
 
-	/* Hack -- Give the player some torches */
+	/* Give the player some torches */
 	object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
 	i_ptr->number = (byte)rand_range(3, 7);
 	i_ptr->pval = rand_range(3, 7) * 500;
 	object_aware(i_ptr);
 	object_known(i_ptr);
-	(void)inven_carry(i_ptr);
+	inven_carry(i_ptr);
+
+	/* Reality check: deal with holes in default equipment */
+	/* Bow, Ring, Amulet slots thoroughly optional */
+	assert(p_ptr->inventory[INVEN_WIELD].k_idx);	/* assign primary weapon explicitly in config */
+	if (!(p_ptr->inventory[INVEN_OUTER].k_idx))
+	{	/* Basic Cloak */
+		object_prep(p_ptr->inventory+INVEN_OUTER, lookup_kind(TV_CLOAK, SV_CLOAK));
+	}
+
+	/* these are more questionable */
+	if (!(p_ptr->inventory[INVEN_BODY].k_idx))
+	{	/* start with a robe */
+		object_prep(p_ptr->inventory+INVEN_BODY, lookup_kind(TV_SOFT_ARMOR, SV_ROBE));
+	}
+
+	if (!(p_ptr->inventory[INVEN_ARM].k_idx))
+	{	/* start with a shield */
+		object_prep(p_ptr->inventory+INVEN_ARM, lookup_kind(TV_SHIELD, SV_SMALL_LEATHER_SHIELD));
+	}
+
+	if (!(p_ptr->inventory[INVEN_HEAD].k_idx))
+	{	/* start with a helmet */
+		object_prep(p_ptr->inventory+INVEN_HEAD, lookup_kind(TV_HELM, SV_HARD_LEATHER_CAP));
+	}
+
+	if (!(p_ptr->inventory[INVEN_HANDS].k_idx) && !(p_ptr->cp_ptr->flags & CF_CUMBER_GLOVE))
+	{	/* start with leather gloves */
+		object_prep(p_ptr->inventory+INVEN_HANDS, lookup_kind(TV_GLOVES, SV_SET_OF_LEATHER_GLOVES));
+	}
+
+	if (!(p_ptr->inventory[INVEN_FEET].k_idx))
+	{
+		object_prep(p_ptr->inventory+INVEN_FEET, lookup_kind(TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS));
+	}
+
+	/* Give the player a full energy count */
+	p_ptr->energy = 150;
 }
 
 
@@ -1731,12 +1776,12 @@ void player_birth(void)
 	for (n = 0; n < MAX_STORES; n++)
 	{
 		/* Initialize */
-		store_init(n);
+		store_init((store_indexes)(n));
 
 		/* Ignore home */
 		if (n == STORE_HOME) continue;
 
 		/* Maintain the shop (ten times) */
-		for (i = 0; i < 10; i++) store_maint(n);
+		for (i = 0; i < 10; i++) store_maint((store_indexes)(n));
 	}
 }

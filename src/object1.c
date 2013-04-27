@@ -3,14 +3,23 @@
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
 #include "z-quark.h"
 #include "randname.h"
+#include "tvalsval.h"
+#include "wind_flg.h"
 
 /*
  * Max sizes of the following arrays.
@@ -206,7 +215,7 @@ void flavor_init(void)
 	/* Analyze every object */
 	for (i = 1; i < z_info->k_max; i++)
 	{
-		object_kind *k_ptr = &object_type::k_info[i];
+		object_kind* const k_ptr = &object_type::k_info[i];
 
 		/* Skip "empty" objects */
 		if (!k_ptr->_name) continue;
@@ -248,7 +257,7 @@ void reset_visuals(bool unused)
 	/* Extract default attr/char code for features */
 	for (i = 0; i < z_info->f_max; i++)
 	{
-		feature_type *f_ptr = &feature_type::f_info[i];
+		feature_type* const f_ptr = &feature_type::f_info[i];
 
 		/* Assume we will use the underlying values */
 		f_ptr->x_attr = f_ptr->d_attr;
@@ -325,17 +334,14 @@ void reset_visuals(bool unused)
 /*
  * Obtain the "flags" for an item
  */
-static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+static void object_flags_aux(int mode, const object_type *o_ptr, u32b* f)
 {
 	object_kind *k_ptr;
 
 	if (mode != OBJECT_FLAGS_FULL)
 	{
-		/* Clear */
-		(*f1) = (*f2) = (*f3) = 0L;
-
-		/* Must be identified */
-		if (!o_ptr->known()) return;
+		C_WIPE(f,OBJECT_FLAG_STRICT_UB);	/* Clear */
+		if (!o_ptr->known()) return;		/* Must be identified */
 	}
 
 	if (mode != OBJECT_FLAGS_RANDOM)
@@ -343,9 +349,7 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 		k_ptr = &object_type::k_info[o_ptr->k_idx];
 
 		/* Base object */
-		(*f1) = k_ptr->flags1;
-		(*f2) = k_ptr->flags2;
-		(*f3) = k_ptr->flags3;
+		C_COPY(f,k_ptr->flags,OBJECT_FLAG_STRICT_UB);
 
 		if (mode == OBJECT_FLAGS_FULL)
 		{
@@ -354,9 +358,7 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 			{
 				artifact_type *a_ptr = &object_type::a_info[o_ptr->name1];
 
-				(*f1) = a_ptr->flags1;
-				(*f2) = a_ptr->flags2;
-				(*f3) = a_ptr->flags3;
+				C_COPY(f,a_ptr->flags,OBJECT_FLAG_STRICT_UB);
 			}
 		}
 
@@ -364,10 +366,11 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 		if (o_ptr->name2)
 		{
 			ego_item_type *e_ptr = &object_type::e_info[o_ptr->name2];
-
-			(*f1) |= e_ptr->flags1;
-			(*f2) |= e_ptr->flags2;
-			(*f3) |= e_ptr->flags3;
+			size_t i;
+			for(i = 0; i < OBJECT_FLAG_STRICT_UB; ++i)
+			{
+				 f[i] |= e_ptr->flags[i];
+			};
 		}
 
 		if (mode == OBJECT_FLAGS_KNOWN)
@@ -378,9 +381,8 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 				artifact_type *a_ptr = &object_type::a_info[o_ptr->name1];
 
 				/* Obvious flags (pval) */
-				(*f1) = (a_ptr->flags1 & (TR1_PVAL_MASK));
-
-				(*f3) = (a_ptr->flags3 & (TR3_IGNORE_MASK));
+				f[0] = (a_ptr->flags[0] & (TR1_PVAL_MASK));
+				f[2] = (a_ptr->flags[2] & (TR3_IGNORE_MASK));
 			}
 		}
 	}
@@ -407,14 +409,12 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 		{
 			artifact_type *a_ptr = &object_type::a_info[o_ptr->name1];
 
-			(*f1) = a_ptr->flags1;
-			(*f2) = a_ptr->flags2;
-			(*f3) = a_ptr->flags3;
+			C_COPY(f,a_ptr->flags,OBJECT_FLAG_STRICT_UB);
 
 			if (mode == OBJECT_FLAGS_RANDOM)
 			{
 				/* Hack - remove 'ignore' flags */
-				(*f3) &= ~(TR3_IGNORE_MASK);
+				f[2] &= ~(TR3_IGNORE_MASK);
 			}
 		}
 
@@ -428,21 +428,21 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 		case OBJECT_XTRA_TYPE_SUSTAIN:
 		{
 			/* OBJECT_XTRA_WHAT_SUSTAIN == 2 */
-			(*f2) |= (OBJECT_XTRA_BASE_SUSTAIN << o_ptr->xtra2);
+			f[1] |= (OBJECT_XTRA_BASE_SUSTAIN << o_ptr->xtra2);
 			break;
 		}
 
 		case OBJECT_XTRA_TYPE_RESIST:
 		{
 			/* OBJECT_XTRA_WHAT_RESIST == 2 */
-			(*f2) |= (OBJECT_XTRA_BASE_RESIST << o_ptr->xtra2);
+			f[1] |= (OBJECT_XTRA_BASE_RESIST << o_ptr->xtra2);
 			break;
 		}
 
 		case OBJECT_XTRA_TYPE_POWER:
 		{
 			/* OBJECT_XTRA_WHAT_POWER == 3 */
-			(*f3) |= (OBJECT_XTRA_BASE_POWER << o_ptr->xtra2);
+			f[2] |= (OBJECT_XTRA_BASE_POWER << o_ptr->xtra2);
 			break;
 		}
 	}
@@ -454,9 +454,9 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 /*
  * Obtain the "flags" for an item
  */
-void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+void object_flags(const object_type *o_ptr, u32b* f)
 {
-	object_flags_aux(OBJECT_FLAGS_FULL, o_ptr, f1, f2, f3);
+	object_flags_aux(OBJECT_FLAGS_FULL, o_ptr, f);
 }
 
 
@@ -464,93 +464,179 @@ void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 /*
  * Obtain the "flags" for an item which are known to the player
  */
-void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+void object_flags_known(const object_type *o_ptr, u32b* f)
 {
-	object_flags_aux(OBJECT_FLAGS_KNOWN, o_ptr, f1, f2, f3);
+	object_flags_aux(OBJECT_FLAGS_KNOWN, o_ptr, f);
 }
 
+/*
+ * should we display weapon statistics?
+ */
+static bool obj_desc_show_weapon(const object_type *o_ptr)
+{
+	u32b f[OBJECT_FLAG_STRICT_UB];
+
+	/* Analyze the object */
+	switch (o_ptr->tval)
+	{
+		/* Missiles/Bows/Weapons */
+		case TV_SHOT:
+		case TV_BOLT:
+		case TV_ARROW:
+		case TV_BOW:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_SWORD:
+		case TV_DIGGING:	return TRUE;
+	};
+
+	/* Display the item like a weapon */
+	if (o_ptr->to_h && o_ptr->to_d) return TRUE;
+
+	/* Extract some flags */
+	object_flags(o_ptr, f);
+
+	/* Display the item like a weapon */
+	return (f[2] & (TR3_SHOW_MODS));
+}
 
 /*
- * Efficient version of '(T) += sprintf((T), "%c", (C))'
+ * should we display armor statistics?
  */
-#define object_desc_chr_macro(T,C) do { \
+static bool obj_desc_show_armor(const object_type *o_ptr)
+{
+	/* Analyze the object */
+	switch (o_ptr->tval)
+	{
+		/* Armour */
+		case TV_BOOTS:
+		case TV_GLOVES:
+		case TV_CLOAK:
+		case TV_CROWN:
+		case TV_HELM:
+		case TV_SHIELD:
+		case TV_SOFT_ARMOR:
+		case TV_HARD_ARMOR:
+		case TV_DRAG_ARMOR:	return TRUE;
+	}
+
+	/* Display the item like armour */
+	return o_ptr->ac;
+}
+
+/*
+ * Should we append the name of the object?
+ */
+static bool object_desc_append_name(const object_type *o_ptr)
+{
+	/* if unaware, never append the name of the object */
+	if (!o_ptr->aware() && !(o_ptr->ident & IDENT_STORE)) return FALSE;
+
+	/* Analyze the object */
+	switch (o_ptr->tval)
+	{
+	case TV_FOOD:	/* Food */
+		/* Ordinary food is "boring" */
+		if (o_ptr->sval >= SV_FOOD_MIN_FOOD) break;
+
+	case TV_AMULET:	/* Amulets (including a few "Specials") */
+	case TV_RING:	/* Rings (including a few "Specials") */
+	case TV_STAFF:	/* Staffs */
+	case TV_WAND:	/* Wands */
+	case TV_ROD:	/* Rods */
+	case TV_SCROLL:	/* Scrolls */
+	case TV_POTION:	/* Potions */
+		return TRUE;
+	}
+	return FALSE;
+}
+
+/*
+ * KRB: Since we actually need range-checks, hard-code the variables actually used
+ */
+
+/*
+ * Efficient version of 't += sprintf(t, "%c", (C))'
+ */
+#define object_desc_chr_macro(C) do { \
  \
-	/* Copy the char */ \
-	*(T)++ = (C); \
+	assert((sizeof(tmp_buf) > t - b + 1U) && "already overflowed");	\
+	*t++ = (C);	/* Copy the char */ \
+	if (sizeof(tmp_buf) <= t - b + 1U) goto object_desc_done;	\
  \
 } while (0)
 
 
-
 /*
- * Efficient version of '(T) += sprintf((T), "%s", (S))'
+ * Efficient version of 't += sprintf(t, "%s", (S))'
  */
-#define object_desc_str_macro(T,S) do { \
+#define object_desc_str_macro(S) do { \
  \
-	cptr s = (S); \
+	const char* s = (S); \
+	assert((sizeof(tmp_buf) > t - b + 1U) && "already overflowed");	\
  \
 	/* Copy the string */ \
-	while (*s) *(T)++ = *s++; \
+	while (*s)	\
+	{	\
+		*t++ = *s++; \
+		if (sizeof(tmp_buf) <= t - b + 1U) goto object_desc_done;	\
+	}	\
  \
 } while (0)
 
-
-
 /*
- * Efficient version of '(T) += sprintf((T), "%u", (N))'
+ * Efficient version of 't += sprintf(t, "%u", (N))'
  */
-#define object_desc_num_macro(T,N) do { \
+#define object_desc_num_macro(N) do { \
  \
 	int n = (N); \
+	int p = 1;	\
+	assert((sizeof(tmp_buf) > t - b + 1U) && "already overflowed");	\
  \
-	int p; \
+	while(10 <= n / p) p *= 10;	\
  \
-	/* Find "size" of "n" */ \
-	for (p = 1; n >= p * 10; p = p * 10) /* loop */; \
- \
-	/* Dump each digit */ \
-	while (p >= 1) \
-	{ \
+	do	{	\
 		/* Dump the digit */ \
-		*(T)++ = I2D(n / p); \
- \
-		/* Remove the digit */ \
-		n = n % p; \
- \
-		/* Process next digit */ \
-		p = p / 10; \
-	} \
+		*t++ = I2D(n / p); \
+		if (sizeof(tmp_buf) <= t - b + 1U) goto object_desc_done;	\
+		n %= p;	/* Remove the digit */	\
+	    p /= 10;	/* Process next digit */ \
+		}	\
+	while(0 < p);	\
  \
 } while (0)
 
 
 
 /*
- * Efficient version of '(T) += sprintf((T), "%+d", (I))'
+ * Efficient version of 't += sprintf(t, "%+d", (I))'
  */
-#define object_desc_int_macro(T,I) do { \
+#define object_desc_int_macro(I) do { \
  \
 	int i = (I); \
+	assert((sizeof(tmp_buf) > t - b + 1U) && "already overflowed");	\
  \
 	/* Negative */ \
-	if (i < 0) \
+	if (0 > i) \
 	{ \
 		/* Take the absolute value */ \
-		i = 0 - i; \
+		i = -i; \
  \
 		/* Use a "minus" sign */ \
-		*(T)++ = '-'; \
+		*t++ = '-'; \
+		if (sizeof(tmp_buf) <= t - b + 1U) goto object_desc_done;	\
 	} \
  \
 	/* Positive (or zero) */ \
 	else \
 	{ \
 		/* Use a "plus" sign */ \
-		*(T)++ = '+'; \
+		*t++ = '+'; \
+		if (sizeof(tmp_buf) <= t - b + 1U) goto object_desc_done;	\
 	} \
  \
 	/* Dump the number itself */ \
-	object_desc_num_macro(T, i); \
+	object_desc_num_macro(i); \
  \
 } while (0)
 
@@ -608,55 +694,49 @@ void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
  *
  * If "pref" is true then a "numeric" prefix will be pre-pended, else is is
  * assumed that a string such as "The" or "Your" will be pre-pended later.
+
+enum object_desc_mode	{	ODESC_BASE = 0, 
+							ODESC_COMBAT, 
+							ODESC_STORE,
+							ODESC_FULL
+						};
+
  *
  * Modes ("pref" is TRUE):
- *   0 -- Chain Mail of Death
- *   1 -- A Cloak of Death [1,+3]
- *   2 -- An Amulet of Death [1,+3] (+2 to Stealth)
- *   3 -- 5 Rings of Death [1,+3] (+2 to Stealth) {nifty}
+ *   ODESC_BASE -- Chain Mail of Death
+ *   ODESC_COMBAT -- A Cloak of Death [1,+3]
+ *   ODESC_STORE -- An Amulet of Death [1,+3] (+2 to Stealth)
+ *   ODESC_FULL -- 5 Rings of Death [1,+3] (+2 to Stealth) {nifty}
  *
  * Modes ("pref" is FALSE):
- *   0 -- Chain Mail of Death
- *   1 -- Cloak of Death [1,+3]
- *   2 -- Amulet of Death [1,+3] (+2 to Stealth)
- *   3 -- Rings of Death [1,+3] (+2 to Stealth) {nifty}
+ *   ODESC_BASE -- Chain Mail of Death
+ *   ODESC_COMBAT -- Cloak of Death [1,+3]
+ *   ODESC_STORE -- Amulet of Death [1,+3] (+2 to Stealth)
+ *   ODESC_FULL -- Rings of Death [1,+3] (+2 to Stealth) {nifty}
  */
-void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int mode)
+void object_desc(char *buf, size_t max, const object_type *o_ptr, bool pref, object_desc_mode mode)
 {
 	object_kind *k_ptr = &object_type::k_info[o_ptr->k_idx];
-	cptr basenm = k_ptr->name();	/* Extract default "base" string */
-	cptr modstr = "";									/* Assume no "modifier" string */
-
-	int power;
+	const char* basenm = k_ptr->name();	/* Extract default "base" string */
+	const char* modstr = "";				/* Assume no "modifier" string */
 
 	bool aware = o_ptr->aware();	/* See if the object is "aware" */
 	bool known = o_ptr->known();	/* See if the object is "known" */
 	bool flavor = k_ptr->flavor;	/* See if the object is "flavored" */
 
-	bool append_name = FALSE;		/* Assume no name appending */
-	bool show_weapon = FALSE;		/* Assume no need to show "weapon" bonuses */
-	bool show_armour = FALSE;		/* Assume no need to show "armour" bonuses */
+	const char* s;
 
-	char *b;
-
-	char *t;
-
-	cptr s;
-
-	cptr u;
-	cptr v;
-
-	char p1 = '(', p2 = ')';
-	char b1 = '[', b2 = ']';
-	char c1 = '{', c2 = '}';
+	const char* u = NULL;
+	const char* v = NULL;
 
 	char tmp_buf[128];
+	const char* const b = tmp_buf;	/* Start dumping the result */
+	char* t = tmp_buf;
 
-	u32b f1, f2, f3;
-
+	u32b f[OBJECT_FLAG_STRICT_UB];
 
 	/* Extract some flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, f);
 
 	/* Object is in the inventory of a store */
 	if (o_ptr->ident & IDENT_STORE)
@@ -670,198 +750,255 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	if (aware && !show_flavors) flavor = FALSE;
 
 	/* Analyze the object */
-	switch (o_ptr->tval)
+	/* aware artifacts do not need much analysis */
+	if (o_ptr->is_artifact() && aware)
 	{
-		/* Some objects are easy to describe */
-		case TV_SKELETON:
-		case TV_BOTTLE:
-		case TV_JUNK:
-		case TV_SPIKE:
-		case TV_FLASK:
-		case TV_CHEST:
-		{
-			break;
+		switch (o_ptr->tval)
+		{		
+			/* Some objects are easy to describe */
+			case TV_SKELETON:
+			case TV_BOTTLE:
+			case TV_JUNK:
+			case TV_SPIKE:
+			case TV_FLASK:
+			case TV_CHEST:
+
+			/* Missiles/Bows/Weapons */
+			case TV_SHOT:
+			case TV_BOLT:
+			case TV_ARROW:
+			case TV_BOW:
+			case TV_HAFTED:
+			case TV_POLEARM:
+			case TV_SWORD:
+			case TV_DIGGING:
+
+			/* Armour */
+			case TV_BOOTS:
+			case TV_GLOVES:
+			case TV_CLOAK:
+			case TV_CROWN:
+			case TV_HELM:
+			case TV_SHIELD:
+			case TV_SOFT_ARMOR:
+			case TV_HARD_ARMOR:
+			case TV_DRAG_ARMOR:
+
+			/* Lites (including a few "Specials") */
+			case TV_LITE:
+
+			/* Amulets (including a few "Specials") */
+			case TV_AMULET:
+
+			/* Rings (including a few "Specials") */
+			case TV_RING:
+
+			/* Staffs */
+			case TV_STAFF:
+
+			/* Wands */
+			case TV_WAND:
+
+			/* Rods */
+			case TV_ROD:
+
+			/* Scrolls */
+			case TV_SCROLL:
+
+			/* Potions */
+			case TV_POTION:
+
+			/* Food */
+			case TV_FOOD:
+
+			/* Magic Books */
+			case TV_MAGIC_BOOK:
+
+			/* Prayer Books */
+			case TV_PRAYER_BOOK:
+				break;
+
+			/* Gold/Gems */
+			case TV_GOLD:
+			{
+				my_strcpy(buf, basenm, max);
+				return;
+			}
+
+			/* Hack -- Default -- Used in the "inventory" routine */
+			default:
+			{
+				my_strcpy(buf, "(nothing)", max);
+				return;
+			}
 		}
-
-		/* Missiles/Bows/Weapons */
-		case TV_SHOT:
-		case TV_BOLT:
-		case TV_ARROW:
-		case TV_BOW:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_SWORD:
-		case TV_DIGGING:
+	}
+	else
+	{
+		switch (o_ptr->tval)
 		{
-			show_weapon = TRUE;
-			break;
-		}
+			/* Some objects are easy to describe */
+			case TV_SKELETON:
+			case TV_BOTTLE:
+			case TV_JUNK:
+			case TV_SPIKE:
+			case TV_FLASK:
+			case TV_CHEST:
 
-		/* Armour */
-		case TV_BOOTS:
-		case TV_GLOVES:
-		case TV_CLOAK:
-		case TV_CROWN:
-		case TV_HELM:
-		case TV_SHIELD:
-		case TV_SOFT_ARMOR:
-		case TV_HARD_ARMOR:
-		case TV_DRAG_ARMOR:
-		{
-			show_armour = TRUE;
-			break;
-		}
+			/* Missiles/Bows/Weapons */
+			case TV_SHOT:
+			case TV_BOLT:
+			case TV_ARROW:
+			case TV_BOW:
+			case TV_HAFTED:
+			case TV_POLEARM:
+			case TV_SWORD:
+			case TV_DIGGING:
 
-		/* Lites (including a few "Specials") */
-		case TV_LITE:
-		{
-			break;
-		}
+			/* Armour */
+			case TV_BOOTS:
+			case TV_GLOVES:
+			case TV_CLOAK:
+			case TV_CROWN:
+			case TV_HELM:
+			case TV_SHIELD:
+			case TV_SOFT_ARMOR:
+			case TV_HARD_ARMOR:
+			case TV_DRAG_ARMOR:
 
-		/* Amulets (including a few "Specials") */
-		case TV_AMULET:
-		{
-			/* Hack -- Known artifacts */
-			if (o_ptr->is_artifact() && aware) break;
+			/* Lites (including a few "Specials") */
+			case TV_LITE:
+				break;
 
-			/* Color the object */
-			modstr = object_kind::flavor_info[k_ptr->flavor].text();
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Amulet~" : "& Amulet~");
+			/* Amulets (including a few "Specials") */
+			case TV_AMULET:
+			{
+				/* Color the object */
+				modstr = k_ptr->flavor_text();
+				basenm = (flavor ? "& # Amulet~" : "& Amulet~");
 
-			break;
-		}
+				break;
+			}
 
-		/* Rings (including a few "Specials") */
-		case TV_RING:
-		{
-			/* Hack -- Known artifacts */
-			if (o_ptr->is_artifact() && aware) break;
+			/* Rings (including a few "Specials") */
+			case TV_RING:
+			{
+				/* Color the object */
+				modstr = k_ptr->flavor_text();
+				basenm = (flavor ? "& # Ring~" : "& Ring~");
 
-			/* Color the object */
-			modstr = object_kind::flavor_info[k_ptr->flavor].text();
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Ring~" : "& Ring~");
+				break;
+			}
 
-			break;
-		}
+			/* Staffs */
+			case TV_STAFF:
+			{
+				/* Color the object */
+				modstr = k_ptr->flavor_text();
+				basenm = (flavor ? "& # Staff~" : "& Staff~");
 
-		/* Staffs */
-		case TV_STAFF:
-		{
-			/* Color the object */
-			modstr = object_kind::flavor_info[k_ptr->flavor].text();
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Staff~" : "& Staff~");
+				break;
+			}
 
-			break;
-		}
+			/* Wands */
+			case TV_WAND:
+			{
+				/* Color the object */
+				modstr = k_ptr->flavor_text();
+				basenm = (flavor ? "& # Wand~" : "& Wand~");
 
-		/* Wands */
-		case TV_WAND:
-		{
-			/* Color the object */
-			modstr = object_kind::flavor_info[k_ptr->flavor].text();
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Wand~" : "& Wand~");
+				break;
+			}
 
-			break;
-		}
+			/* Rods */
+			case TV_ROD:
+			{
+				/* Color the object */
+				modstr = k_ptr->flavor_text();
+				basenm = (flavor ? "& # Rod~" : "& Rod~");
 
-		/* Rods */
-		case TV_ROD:
-		{
-			/* Color the object */
-			modstr = object_kind::flavor_info[k_ptr->flavor].text();
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Rod~" : "& Rod~");
+				break;
+			}
 
-			break;
-		}
+			/* Scrolls */
+			case TV_SCROLL:
+			{
+				/* Color the object */
+				modstr = scroll_adj[o_ptr->sval];
+				basenm = (flavor ? "& Scroll~ titled \"#\"" : "& Scroll~");
 
-		/* Scrolls */
-		case TV_SCROLL:
-		{
-			/* Color the object */
-			modstr = scroll_adj[o_ptr->sval];
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& Scroll~ titled \"#\"" : "& Scroll~");
+				break;
+			}
 
-			break;
-		}
+			/* Potions */
+			case TV_POTION:
+			{
+				/* Color the object */
+				modstr = k_ptr->flavor_text();
+				basenm = (flavor ? "& # Potion~" : "& Potion~");
 
-		/* Potions */
-		case TV_POTION:
-		{
-			/* Color the object */
-			modstr = object_kind::flavor_info[k_ptr->flavor].text();
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Potion~" : "& Potion~");
+				break;
+			}
 
-			break;
-		}
+			/* Food */
+			case TV_FOOD:
+			{
+				/* Ordinary food is "boring" */
+				if (o_ptr->sval >= SV_FOOD_MIN_FOOD) break;
 
-		/* Food */
-		case TV_FOOD:
-		{
-			/* Ordinary food is "boring" */
-			if (o_ptr->sval >= SV_FOOD_MIN_FOOD) break;
+				/* Color the object */
+				modstr = k_ptr->flavor_text();
+				basenm = (flavor ? "& # Mushroom~" : "& Mushroom~");
 
-			/* Color the object */
-			modstr = object_kind::flavor_info[k_ptr->flavor].text();
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Mushroom~" : "& Mushroom~");
+				break;
+			}
 
-			break;
-		}
+			/* Magic Books */
+			case TV_MAGIC_BOOK:
+			{
+				modstr = basenm;
+				basenm = "& Book~ of Magic Spells #";
+				break;
+			}
 
-		/* Magic Books */
-		case TV_MAGIC_BOOK:
-		{
-			modstr = basenm;
-			basenm = "& Book~ of Magic Spells #";
-			break;
-		}
+			/* Prayer Books */
+			case TV_PRAYER_BOOK:
+			{
+				modstr = basenm;
+				basenm = "& Holy Book~ of Prayers #";
+				break;
+			}
 
-		/* Prayer Books */
-		case TV_PRAYER_BOOK:
-		{
-			modstr = basenm;
-			basenm = "& Holy Book~ of Prayers #";
-			break;
-		}
+			/* Gold/Gems */
+			case TV_GOLD:
+			{
+				my_strcpy(buf, basenm, max);
+				return;
+			}
 
-		/* Hack -- Gold/Gems */
-		case TV_GOLD:
-		{
-			my_strcpy(buf, basenm, max);
-			return;
-		}
-
-		/* Hack -- Default -- Used in the "inventory" routine */
-		default:
-		{
-			my_strcpy(buf, "(nothing)", max);
-			return;
+			/* Hack -- Default -- Used in the "inventory" routine */
+			default:
+			{
+				my_strcpy(buf, "(nothing)", max);
+				return;
+			}
 		}
 	}
 
 
-	/* Start dumping the result */
-	t = b = tmp_buf;
-
 	/* Begin */
 	s = basenm;
 
+	/* 0 == t - b */
 	/* Handle objects which sometimes use "a" or "an" */
 	if (*s == '&')
 	{
-		/* Paranoia XXX XXX XXX */
-		/* ASSERT(s[1] == ' '); */
+		assert(' ' == s[1] && "data format");
 
 		/* Skip the ampersand and the following space */
 		s += 2;
 
+		/* 2 == t - b */
 		/* No prefix */
 		if (!pref)
 		{
@@ -871,73 +1008,70 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		/* Hack -- None left */
 		else if (o_ptr->number <= 0)
 		{
-			object_desc_str_macro(t, "no more ");
+			strcpy(t, "no more ");
+			t += sizeof("no more ") - 1;
 		}
 
 		/* Extract the number */
 		else if (o_ptr->number > 1)
 		{
-			object_desc_num_macro(t, o_ptr->number);
-			object_desc_chr_macro(t, ' ');
+			object_desc_num_macro(o_ptr->number);
+			object_desc_chr_macro(' ');
 		}
 
 		/* Hack -- The only one of its kind */
 		else if (known && o_ptr->is_artifact())
 		{
-			object_desc_str_macro(t, "The ");
+			strcpy(t, "The ");
+			t += sizeof("The ") - 1;
 		}
 
 		/* Hack -- A single one, and next character will be a vowel */
-		else if ((*s == '#') ? is_a_vowel(modstr[0]) : is_a_vowel(*s))
+		else if (is_a_vowel((*s == '#') ? modstr[0] : *s))
 		{
-			object_desc_str_macro(t, "an ");
+			strcpy(t, "an ");
+			t += sizeof("an ") - 1;
 		}
 
 		/* A single one, and next character will be a non-vowel */
 		else
 		{
-			object_desc_str_macro(t, "a ");
+			strcpy(t, "a ");
+			t += sizeof("a ") - 1;
 		}
+		/* 0 <= t - b <= 8 */
 	}
 
 	/* Handle objects which never use "a" or "an" */
-	else
+	/* require a prefixed numeric indicator */
+	else if (pref)
 	{
-		/* No pref */
-		if (!pref)
-		{
-			/* Nothing */
-		}
-
 		/* Hack -- all gone */
-		else if (o_ptr->number <= 0)
+		if (0 >= o_ptr->number)
 		{
-			object_desc_str_macro(t, "no more ");
+			strcpy(t, "no more ");
+			t += sizeof("no more ") - 1;
 		}
 
 		/* Prefix a number if required */
-		else if (o_ptr->number > 1)
+		else if (1 < o_ptr->number)
 		{
-			object_desc_num_macro(t, o_ptr->number);
-			object_desc_chr_macro(t, ' ');
+			object_desc_num_macro(o_ptr->number);
+			object_desc_chr_macro(' ');
 		}
 
-		/* Hack -- The only one of its kind */
+		/* The only one of its kind */
 		else if (known && o_ptr->is_artifact())
 		{
-			object_desc_str_macro(t, "The ");
-		}
+			strcpy(t, "The ");
+			t += sizeof("The ") - 1;
+		};
 
-		/* Hack -- A single item, so no prefix needed */
-		else
-		{
-			/* Nothing */
-		}
+		/* A single item, so no prefix needed */
+
+		/* 0 <= t - b <= 8 */
 	}
-
-
-	/* Paranoia XXX XXX XXX */
-	/* ASSERT(*s != '~'); */
+	/* 0 <= t - b <= 8 */
 
 	/* Copy the string */
 	for (; *s; s++)
@@ -951,10 +1085,10 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 				char k = t[-1];
 
 				/* Hack -- "Cutlass-es" and "Torch-es" */
-				if ((k == 's') || (k == 'h')) *t++ = 'e';
+				if ((k == 's') || (k == 'h')) object_desc_chr_macro('e');
 
 				/* Add an 's' */
-				*t++ = 's';
+				object_desc_chr_macro('s');
 			}
 		}
 
@@ -962,23 +1096,23 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		else if (*s == '#')
 		{
 			/* Append the modifier */
-			object_desc_str_macro(t, modstr);
+			object_desc_str_macro(modstr);
 		}
 
 		/* Normal */
 		else
 		{
 			/* Copy */
-			*t++ = *s;
+			object_desc_chr_macro(*s);
 		}
 	}
 
 
 	/* Append the "kind name" to the "base name" */
-	if (append_name)
+	if (object_desc_append_name(o_ptr))
 	{
-		object_desc_str_macro(t, " of ");
-		object_desc_str_macro(t, k_ptr->name());
+		object_desc_str_macro(" of ");
+		object_desc_str_macro(k_ptr->name());
 	}
 
 
@@ -990,8 +1124,8 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		{
 			artifact_type *a_ptr = &object_type::a_info[o_ptr->name1];
 
-			object_desc_chr_macro(t, ' ');
-			object_desc_str_macro(t, a_ptr->name());
+			object_desc_chr_macro(' ');
+			object_desc_str_macro(a_ptr->name());
 		}
 
 		/* Grab any ego-item name */
@@ -999,29 +1133,23 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		{
 			ego_item_type *e_ptr = &object_type::e_info[o_ptr->name2];
 
-			object_desc_chr_macro(t, ' ');
-			object_desc_str_macro(t, e_ptr->name());
+			object_desc_chr_macro(' ');
+			object_desc_str_macro(e_ptr->name());
 		}
 	}
 
 
 	/* No more details wanted */
-	if (mode < 1) goto object_desc_done;
+	if (ODESC_BASE == mode) goto object_desc_done;
 
 
-	/* Hack -- Chests must be described in detail */
-	if (o_ptr->tval == TV_CHEST)
+	/* Hack -- Chests must be described in detail, if known (already been searched) */
+	if (o_ptr->tval == TV_CHEST && known)
 	{
-		cptr tail = "";
-
-		/* Not searched yet */
-		if (!known)
-		{
-			/* Nothing */
-		}
+		const char* tail = NULL;
 
 		/* May be "empty" */
-		else if (!o_ptr->pval)
+		if (!o_ptr->pval)
 		{
 			tail = " (empty)";
 		}
@@ -1029,14 +1157,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		/* May be "disarmed" */
 		else if (o_ptr->pval < 0)
 		{
-			if (chest_traps[0 - o_ptr->pval])
-			{
-				tail = " (disarmed)";
-			}
-			else
-			{
-				tail = " (unlocked)";
-			}
+			tail = (chest_traps[0 - o_ptr->pval]) ? " (disarmed)" : " (unlocked)";
 		}
 
 		/* Describe the traps, if any */
@@ -1089,18 +1210,9 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		}
 
 		/* Append the tail */
-		object_desc_str_macro(t, tail);
+		assert(NULL != tail);
+		object_desc_str_macro(tail);
 	}
-
-
-	/* Display the item like a weapon */
-	if (f3 & (TR3_SHOW_MODS)) show_weapon = TRUE;
-
-	/* Display the item like a weapon */
-	if (o_ptr->to_h && o_ptr->to_d) show_weapon = TRUE;
-
-	/* Display the item like armour */
-	if (o_ptr->ac) show_armour = TRUE;
 
 
 	/* Dump base weapon info */
@@ -1109,10 +1221,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		/* Missiles */
 		case TV_SHOT:
 		case TV_BOLT:
-		case TV_ARROW:
-		{
-			/* Fall through */
-		}
+		case TV_ARROW:	/* Fall through */
 
 		/* Weapons */
 		case TV_HAFTED:
@@ -1121,12 +1230,11 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		case TV_DIGGING:
 		{
 			/* Append a "damage" string */
-			object_desc_chr_macro(t, ' ');
-			object_desc_chr_macro(t, p1);
-			object_desc_num_macro(t, o_ptr->d.dice);
-			object_desc_chr_macro(t, 'd');
-			object_desc_num_macro(t, o_ptr->d.sides);
-			object_desc_chr_macro(t, p2);
+			object_desc_str_macro(" (");
+			object_desc_num_macro(o_ptr->d.dice);
+			object_desc_chr_macro('d');
+			object_desc_num_macro(o_ptr->d.sides);
+			object_desc_chr_macro(')');
 
 			/* All done */
 			break;
@@ -1136,14 +1244,13 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		case TV_BOW:
 		{
 			/* Hack -- Extract the "base power" */
-			power = (o_ptr->sval % 10);
+			int power = (o_ptr->sval % 10);
 
 			/* Append a "power" string */
-			object_desc_chr_macro(t, ' ');
-			object_desc_chr_macro(t, p1);
-			object_desc_chr_macro(t, 'x');
-			object_desc_num_macro(t, power);
-			object_desc_chr_macro(t, p2);
+			object_desc_str_macro(" (");
+			object_desc_chr_macro('x');
+			object_desc_num_macro(power);
+			object_desc_chr_macro(')');
 
 			/* All done */
 			break;
@@ -1155,118 +1262,106 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	if (known)
 	{
 		/* Show the tohit/todam on request */
-		if (show_weapon)
+		if (obj_desc_show_weapon(o_ptr))
 		{
-			object_desc_chr_macro(t, ' ');
-			object_desc_chr_macro(t, p1);
-			object_desc_int_macro(t, o_ptr->to_h);
-			object_desc_chr_macro(t, ',');
-			object_desc_int_macro(t, o_ptr->to_d);
-			object_desc_chr_macro(t, p2);
+			object_desc_str_macro(" (");
+			object_desc_int_macro(o_ptr->to_h);
+			object_desc_chr_macro(',');
+			object_desc_int_macro(o_ptr->to_d);
+			object_desc_chr_macro(')');
 		}
 
 		/* Show the tohit if needed */
 		else if (o_ptr->to_h)
 		{
-			object_desc_chr_macro(t, ' ');
-			object_desc_chr_macro(t, p1);
-			object_desc_int_macro(t, o_ptr->to_h);
-			object_desc_chr_macro(t, p2);
+			object_desc_str_macro(" (");
+			object_desc_int_macro(o_ptr->to_h);
+			object_desc_chr_macro(')');
 		}
 
 		/* Show the todam if needed */
 		else if (o_ptr->to_d)
 		{
-			object_desc_chr_macro(t, ' ');
-			object_desc_chr_macro(t, p1);
-			object_desc_int_macro(t, o_ptr->to_d);
-			object_desc_chr_macro(t, p2);
+			object_desc_str_macro(" (");
+			object_desc_int_macro(o_ptr->to_d);
+			object_desc_chr_macro(')');
 		}
 	}
 
 
 	/* Add the armor bonuses */
-	if (known)
+	if (obj_desc_show_armor(o_ptr))
 	{
-		/* Show the armor class info */
-		if (show_armour)
-		{
-			object_desc_chr_macro(t, ' ');
-			object_desc_chr_macro(t, b1);
-			object_desc_num_macro(t, o_ptr->ac);
-			object_desc_chr_macro(t, ',');
-			object_desc_int_macro(t, o_ptr->to_a);
-			object_desc_chr_macro(t, b2);
+		if (known)
+		{	/* Show the armor class info */
+			object_desc_str_macro(" [");
+			object_desc_num_macro(o_ptr->ac);
+			object_desc_chr_macro(',');
+			object_desc_int_macro(o_ptr->to_a);
+			object_desc_chr_macro(']');
 		}
-
-		/* No base armor, but does increase armor */
-		else if (o_ptr->to_a)
-		{
-			object_desc_chr_macro(t, ' ');
-			object_desc_chr_macro(t, b1);
-			object_desc_int_macro(t, o_ptr->to_a);
-			object_desc_chr_macro(t, b2);
+		else
+		{	/* always show base armor */
+			object_desc_str_macro(" [");
+			object_desc_num_macro(o_ptr->ac);
+			object_desc_chr_macro(']');
 		}
 	}
-
-	/* Hack -- always show base armor */
-	else if (show_armour)
-	{
-		object_desc_chr_macro(t, ' ');
-		object_desc_chr_macro(t, b1);
-		object_desc_num_macro(t, o_ptr->ac);
-		object_desc_chr_macro(t, b2);
+	else if (known && o_ptr->to_a)
+	{	/* No base armor, but does increase armor */
+		object_desc_str_macro(" [");
+		object_desc_int_macro(o_ptr->to_a);
+		object_desc_chr_macro(']');
 	}
 
 
 	/* No more details wanted */
-	if (mode < 2) goto object_desc_done;
+	if (ODESC_COMBAT == mode) goto object_desc_done;
 
 	/* Hack -- Process Lanterns/Torches */
 	if ((o_ptr->tval == TV_LITE) && (!o_ptr->is_artifact()))
 	{
 		/* Hack -- Turns of light for normal lites */
-		object_desc_str_macro(t, " (with ");
-		object_desc_num_macro(t, o_ptr->pval);
-		object_desc_str_macro(t, " turns of light)");
+		object_desc_str_macro(" (with ");
+		object_desc_num_macro(o_ptr->pval);
+		object_desc_str_macro(" turns of light)");
 	}
 
 
 	/* Dump "pval" flags for wearable items */
-	if (known && (f1 & (TR1_PVAL_MASK)))
+	if (known && (f[0] & (TR1_PVAL_MASK)))
 	{
-		cptr tail = "";
-		cptr tail2 = "";
+		const char* tail = "";
+		const char* tail2 = "";
 
 		/* Start the display */
-		object_desc_chr_macro(t, ' ');
-		object_desc_chr_macro(t, p1);
+		object_desc_str_macro(" (");
 
 		/* Dump the "pval" itself */
-		object_desc_int_macro(t, o_ptr->pval);
+		object_desc_int_macro(o_ptr->pval);
 
 		/* Do not display the "pval" flags */
-		if (f3 & (TR3_HIDE_TYPE))
+		if (f[2] & (TR3_HIDE_TYPE))
 		{
 			/* Nothing */
 		}
 
 		/* Stealth */
-		else if (f1 & (TR1_STEALTH))
+		else if (f[0] & (TR1_STEALTH))
 		{
 			/* Dump " to stealth" */
 			tail = " to stealth";
 		}
 
 		/* Searching */
-		else if (f1 & (TR1_SEARCH))
+		else if (f[0] & (TR1_SEARCH))
 		{
 			/* Dump " to searching" */
 			tail = " to searching";
 		}
 
 		/* Infravision */
-		else if (f1 & (TR1_INFRA))
+		else if (f[0] & (TR1_INFRA))
 		{
 			/* Dump " to infravision" */
 			tail = " to infravision";
@@ -1275,7 +1370,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 #if 0
 
 		/* Tunneling */
-		else if (f1 & (TR1_TUNNEL))
+		else if (f[0] & (TR1_TUNNEL))
 		{
 			/* Dump " to digging" */
 			tail = " to digging";
@@ -1284,14 +1379,14 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 #endif
 
 		/* Speed */
-		else if (f1 & (TR1_SPEED))
+		else if (f[0] & (TR1_SPEED))
 		{
 			/* Dump " to speed" */
 			tail = " to speed";
 		}
 
 		/* Blows */
-		else if (f1 & (TR1_BLOWS))
+		else if (f[0] & (TR1_BLOWS))
 		{
 			/* Add " attack" */
 			tail = " attack";
@@ -1303,13 +1398,13 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 #if 0
 
 		/* Shots */
-		else if (f1 & (TR1_SHOTS))
+		else if (f[0] & (TR1_SHOTS))
 		{
 			/* Nothing */
 		}
 
 		/* Might */
-		else if (f1 & (TR1_MIGHT))
+		else if (f[0] & (TR1_MIGHT))
 		{
 			/* Nothing */
 		}
@@ -1317,11 +1412,11 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 #endif
 
 		/* Add the descriptor */
-		object_desc_str_macro(t, tail);
-		object_desc_str_macro(t, tail2);
+		object_desc_str_macro(tail);
+		object_desc_str_macro(tail2);
 
 		/* Finish the display */
-		object_desc_chr_macro(t, p2);
+		object_desc_chr_macro(')');
 	}
 
 	/* Hack -- Wands and Staffs have charges */
@@ -1330,15 +1425,14 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	     (o_ptr->tval == TV_WAND)))
 	{
 		/* Dump " (N charges)" */
-		object_desc_chr_macro(t, ' ');
-		object_desc_chr_macro(t, p1);
-		object_desc_num_macro(t, o_ptr->pval);
-		object_desc_str_macro(t, " charge");
+		object_desc_str_macro(" (");
+		object_desc_num_macro(o_ptr->pval);
+		object_desc_str_macro(" charge");
 		if (o_ptr->pval != 1)
 		{
-			object_desc_chr_macro(t, 's');
+			object_desc_chr_macro('s');
 		}
-		object_desc_chr_macro(t, p2);
+		object_desc_chr_macro(')');
 	}
 
 	/* Hack -- Rods have a "charging" indicator */
@@ -1350,27 +1444,26 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			/* Stacks of rods display an exact count of charging rods. */
 			if (o_ptr->number > 1)
 			{
-				/* Paranoia */
-				if (k_ptr->pval == 0) k_ptr->pval = 1;
+				assert(0 < k_ptr->pval && "rods must have positive pval");
 
 				/* Find out how many rods are charging, by dividing
 				 * current timeout by each rod's maximum timeout.
 				 * Ensure that any remainder is rounded up.  Display
 				 * very discharged stacks as merely fully discharged.
 				 */
-				power = (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval;
+				int power = (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval;
 
 				if (power > o_ptr->number) power = o_ptr->number;
 
 				/* Display prettily */
-				object_desc_str_macro(t, " (");
-				object_desc_num_macro(t, power);
-				object_desc_str_macro(t, " charging)");
+				object_desc_str_macro(" (");
+				object_desc_num_macro(power);
+				object_desc_str_macro(" charging)");
 			}
 			else
 			{
 				/* Single rod */
-				object_desc_str_macro(t, " (charging)");
+				object_desc_str_macro(" (charging)");
 			}
 		}
 	}
@@ -1379,26 +1472,16 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	else if (known && o_ptr->timeout)
 	{
 		/* Hack -- Dump " (charging)" if relevant */
-		object_desc_str_macro(t, " (charging)");
+		object_desc_str_macro(" (charging)");
 	}
 
 
 	/* No more details wanted */
-	if (mode < 3) goto object_desc_done;
+	if (ODESC_STORE == mode) goto object_desc_done;
 
 
-	/* Use standard inscription */
-	if (o_ptr->note)
-	{
-		u = quark_str(o_ptr->note);
-	}
-
-	/* Use nothing */
-	else
-	{
-		u = NULL;
-	}
-
+	/* Use standard inscription, if present */
+	if (o_ptr->note) u = quark_str(o_ptr->note);
 
 	/* Use special inscription, if any */
 	if (o_ptr->pseudo >= INSCRIP_NULL)
@@ -1422,46 +1505,28 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	else if (!aware && o_ptr->tried())
 	{
 		v = "tried";
-	}
+	};
 
 	/* Nothing */
-	else
-	{
-		v = NULL;
-	}
 
 
 	/* Inscription */
 	if (u || v)
 	{
 		/* Begin the inscription */
-		*t++ = ' ';
-		*t++ = c1;
+		object_desc_str_macro(" {");
 
 		/* Standard inscription */
-		if (u)
-		{
-			/* Append the inscription */
-			while ((t < b + 75) && *u) *t++ = *u++;
-		}
+		if (u) object_desc_str_macro(u);
 
-		/* Special inscription too */
-		if (u && v && (t < b + 75))
-		{
-			/* Separator */
-			*t++ = ',';
-			*t++ = ' ';
-		}
+		/* put in a separator if both inscriptions exist */
+		if (u && v) object_desc_str_macro(", ");
 
 		/* Special inscription */
-		if (v)
-		{
-			/* Append the inscription */
-			while ((t < b + 75) && *v) *t++ = *v++;
-		}
+		if (v) object_desc_str_macro(v);
 
 		/* Terminate the inscription */
-		*t++ = c2;
+		object_desc_chr_macro('}');
 	}
 
 
@@ -1474,23 +1539,25 @@ object_desc_done:
 	my_strcpy(buf, tmp_buf, max);
 }
 
+/* clear macros */
+#undef object_desc_avoid_overflow
+#undef object_desc_chr_macro
+#undef object_desc_str_macro
+#undef object_desc_num_macro
+#undef object_desc_int_macro
 
 /*
  * Describe an item and pretend the item is fully known and has no flavor.
  */
-void object_desc_spoil(char *buf, size_t max, const object_type *o_ptr, int pref, int mode)
+void object_desc_spoil(char *buf, size_t max, const object_type *o_ptr, bool pref, object_desc_mode mode)
 {
-	object_type object_type_body;
-	object_type *i_ptr = &object_type_body;
-
-	/* Make a backup */
-	COPY(i_ptr, o_ptr);
+	object_type tmp = *o_ptr;
 
 	/* HACK - Pretend the object is in a store inventory */
-	i_ptr->ident |= IDENT_STORE;
+	tmp.ident |= IDENT_STORE;
 
 	/* Describe */
-	object_desc(buf, max, i_ptr, pref, mode);
+	object_desc(buf, max, &tmp, pref, mode);
 }
 
 
@@ -1537,11 +1604,8 @@ char index_to_label(int i)
  * Return "-1" if the label does not indicate a real item.
  */
 s16b label_to_inven(int c)
-{
-	int i;
-
-	/* Convert */
-	i = (islower((unsigned char)c) ? A2I(c) : -1);
+{	/* Convert */
+	const int i = (islower((unsigned char)c) ? A2I(c) : -1);
 
 	/* Verify the index */
 	if ((i < 0) || (i > INVEN_PACK)) return (-1);
@@ -1560,11 +1624,8 @@ s16b label_to_inven(int c)
  * Return "-1" if the label does not indicate a real item.
  */
 s16b label_to_equip(int c)
-{
-	int i;
-
-	/* Convert */
-	i = (islower((unsigned char)c) ? A2I(c) : -1) + INVEN_WIELD;
+{	/* Convert */
+	const int i = (islower((unsigned char)c) ? A2I(c) : -1) + INVEN_WIELD;
 
 	/* Verify the index */
 	if ((i < INVEN_WIELD) || (i >= INVEN_TOTAL)) return (-1);
@@ -1589,67 +1650,37 @@ s16b wield_slot(const object_type *o_ptr)
 		case TV_DIGGING:
 		case TV_HAFTED:
 		case TV_POLEARM:
-		case TV_SWORD:
-		{
-			return (INVEN_WIELD);
-		}
+		case TV_SWORD:		return INVEN_WIELD;
 
-		case TV_BOW:
-		{
-			return (INVEN_BOW);
-		}
+		case TV_BOW:		return INVEN_BOW;
 
 		case TV_RING:
 		{
 			/* Use the right hand first */
-			if (!p_ptr->inventory[INVEN_RIGHT].k_idx) return (INVEN_RIGHT);
+			if (!p_ptr->inventory[INVEN_RIGHT].k_idx) return INVEN_RIGHT;
 
 			/* Use the left hand for swapping (by default) */
-			return (INVEN_LEFT);
+			return INVEN_LEFT;
 		}
 
-		case TV_AMULET:
-		{
-			return (INVEN_NECK);
-		}
+		case TV_AMULET:		return INVEN_NECK;
 
-		case TV_LITE:
-		{
-			return (INVEN_LITE);
-		}
+		case TV_LITE:		return INVEN_LITE;
 
 		case TV_DRAG_ARMOR:
 		case TV_HARD_ARMOR:
-		case TV_SOFT_ARMOR:
-		{
-			return (INVEN_BODY);
-		}
+		case TV_SOFT_ARMOR:	return INVEN_BODY;
 
-		case TV_CLOAK:
-		{
-			return (INVEN_OUTER);
-		}
+		case TV_CLOAK:		return INVEN_OUTER;
 
-		case TV_SHIELD:
-		{
-			return (INVEN_ARM);
-		}
+		case TV_SHIELD:		return INVEN_ARM;
 
 		case TV_CROWN:
-		case TV_HELM:
-		{
-			return (INVEN_HEAD);
-		}
+		case TV_HELM:		return INVEN_HEAD;
 
-		case TV_GLOVES:
-		{
-			return (INVEN_HANDS);
-		}
+		case TV_GLOVES:		return INVEN_HANDS;
 
-		case TV_BOOTS:
-		{
-			return (INVEN_FEET);
-		}
+		case TV_BOOTS:		return INVEN_FEET;
 	}
 
 	/* No slot available */
@@ -1660,9 +1691,11 @@ s16b wield_slot(const object_type *o_ptr)
 /*
  * Return a string mentioning how a given item is carried
  */
-cptr mention_use(int i)
+const char* mention_use(int i)
 {
-	cptr p;
+	const char* p;
+
+	assert((0 <= i) && (i < INVEN_TOTAL) && "precondition");
 
 	/* Examine the location */
 	switch (i)
@@ -1685,8 +1718,7 @@ cptr mention_use(int i)
 	/* Hack -- Heavy weapon */
 	if (i == INVEN_WIELD)
 	{
-		object_type *o_ptr = &p_ptr->inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
+		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < p_ptr->inventory[i].weight / 10)
 		{
 			p = "Just lifting";
 		}
@@ -1695,8 +1727,7 @@ cptr mention_use(int i)
 	/* Hack -- Heavy bow */
 	if (i == INVEN_BOW)
 	{
-		object_type *o_ptr = &p_ptr->inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
+		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < p_ptr->inventory[i].weight / 10)
 		{
 			p = "Just holding";
 		}
@@ -1711,9 +1742,11 @@ cptr mention_use(int i)
  * Return a string describing how a given item is being worn.
  * Currently, only used for items in the equipment, not inventory.
  */
-cptr describe_use(int i)
+const char* describe_use(int i)
 {
-	cptr p;
+	const char* p;
+
+	assert((0 <= i) && (i < INVEN_TOTAL) && "precondition");
 
 	switch (i)
 	{
@@ -1735,8 +1768,7 @@ cptr describe_use(int i)
 	/* Hack -- Heavy weapon */
 	if (i == INVEN_WIELD)
 	{
-		object_type *o_ptr = &p_ptr->inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
+		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < p_ptr->inventory[i].weight / 10)
 		{
 			p = "just lifting";
 		}
@@ -1745,8 +1777,7 @@ cptr describe_use(int i)
 	/* Hack -- Heavy bow */
 	if (i == INVEN_BOW)
 	{
-		object_type *o_ptr = &p_ptr->inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
+		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < p_ptr->inventory[i].weight / 10)
 		{
 			p = "just holding";
 		}
@@ -1805,19 +1836,18 @@ bool item_tester_okay(const object_type *o_ptr)
  *   0x01 -- Verify item tester
  *   0x02 -- Marked items only
  */
-int scan_floor(int *items, int size, int y, int x, int mode)
+int scan_floor(int *items, int size, coord g, int mode)
 {
 	int this_o_idx, next_o_idx;
-
 	int num = 0;
 
 	/* Sanity */
-	if (!in_bounds(y, x)) return (0);
+	if (!in_bounds(g.y, g.x)) return (0);
 
 	/* Scan all objects in the grid */
-	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
+	for (this_o_idx = cave_o_idx[g.y][g.x]; this_o_idx; this_o_idx = next_o_idx)
 	{
-		object_type *o_ptr = &o_list[this_o_idx];	/* Get the object */
+		const object_type* const o_ptr = &o_list[this_o_idx];	/* Get the object */
 
 		/* Get the next object */
 		next_o_idx = o_ptr->next_o_idx;
@@ -1828,11 +1858,8 @@ int scan_floor(int *items, int size, int y, int x, int mode)
 		/* Marked items only */
 		if ((mode & 0x02) && !o_ptr->marked) continue;
 
-		/* Accept this item */
-		items[num++] = this_o_idx;
-
-		/* Enforce size limit */
-		if (num >= size) break;
+		items[num++] = this_o_idx;	/* Accept this item */
+		if (num >= size) break;		/* Enforce size limit */
 	}
 
 	/* Result */
@@ -1846,34 +1873,19 @@ int scan_floor(int *items, int size, int y, int x, int mode)
  */
 void display_inven(void)
 {
-	register int i, n, z = 0;
-
-	object_type *o_ptr;
-
+	register int i, n;
 	byte attr;
-
 	char tmp_val[80];
-
 	char o_name[80];
 
-
-	/* Find the "final" slot */
-	for (i = 0; i < INVEN_PACK; i++)
-	{
-		o_ptr = &p_ptr->inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Track */
-		z = i + 1;
-	}
+	assert(0 <= p_ptr->inven_cnt && INVEN_PACK >= p_ptr->inven_cnt && "precondition");
+	assert(p_ptr->inven_cnt_is_strict_UB_of_nonzero_k_idx() && "precondition");
 
 	/* Display the pack */
-	for (i = 0; i < z; i++)
+	for (i = 0; i < p_ptr->inven_cnt; ++i)
 	{
 		/* Examine the item */
-		o_ptr = &p_ptr->inventory[i];
+		const object_type* const o_ptr = &p_ptr->inventory[i];
 
 		/* Start with an empty "index" */
 		tmp_val[0] = tmp_val[1] = tmp_val[2] = ' ';
@@ -1892,7 +1904,7 @@ void display_inven(void)
 		Term_putstr(0, i, 3, TERM_WHITE, tmp_val);
 
 		/* Obtain an item description */
-		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, ODESC_FULL);
 
 		/* Obtain the length of the description */
 		n = strlen(o_name);
@@ -1916,7 +1928,7 @@ void display_inven(void)
 	}
 
 	/* Erase the rest of the window */
-	for (i = z; i < Term->hgt; i++)
+	for (i = p_ptr->inven_cnt; i < Term->hgt; i++)
 	{
 		/* Erase the line */
 		Term_erase(0, i, 255);
@@ -1931,7 +1943,6 @@ void display_inven(void)
 void display_equip(void)
 {
 	register int i, n;
-	object_type *o_ptr;
 	byte attr;
 
 	char tmp_val[80];
@@ -1943,7 +1954,7 @@ void display_equip(void)
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
 		/* Examine the item */
-		o_ptr = &p_ptr->inventory[i];
+		const object_type* const o_ptr = &p_ptr->inventory[i];
 
 		/* Start with an empty "index" */
 		tmp_val[0] = tmp_val[1] = tmp_val[2] = ' ';
@@ -1962,7 +1973,7 @@ void display_equip(void)
 		Term_putstr(0, i - INVEN_WIELD, 3, TERM_WHITE, tmp_val);
 
 		/* Obtain an item description */
-		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, ODESC_FULL);
 
 		/* Obtain the length of the description */
 		n = strlen(o_name);
@@ -2010,10 +2021,10 @@ void display_equip(void)
  */
 void show_inven(void)
 {
-	int i, j, k, l, z = 0;
-	int col, len, lim;
-
-	object_type *o_ptr;
+	int i, j, k, l;
+	int col;
+	int len = 79 - 50;	/* Default length */
+	int lim = 79 - 3;	/* Maximum space allowed for descriptions */
 
 	char o_name[80];
 
@@ -2023,39 +2034,23 @@ void show_inven(void)
 	byte out_color[24];
 	char out_desc[24][80];
 
-
-	/* Default length */
-	len = 79 - 50;
-
-	/* Maximum space allowed for descriptions */
-	lim = 79 - 3;
+	assert(0 <= p_ptr->inven_cnt && INVEN_PACK >= p_ptr->inven_cnt && "precondition");
+	assert(p_ptr->inven_cnt_is_strict_UB_of_nonzero_k_idx() && "precondition");
 
 	/* Require space for weight (if needed) */
 	if (show_weights) lim -= 9;
 
 
-	/* Find the "final" slot */
-	for (i = 0; i < INVEN_PACK; i++)
-	{
-		o_ptr = &p_ptr->inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Track */
-		z = i + 1;
-	}
-
 	/* Display the inventory */
-	for (k = 0, i = 0; i < z; i++)
+	for (k = 0, i = 0; i < p_ptr->inven_cnt; i++)
 	{
-		o_ptr = &p_ptr->inventory[i];
+		const object_type* const o_ptr = &p_ptr->inventory[i];
 
 		/* Is this item acceptable? */
 		if (!item_tester_okay(o_ptr)) continue;
 
 		/* Describe the object */
-		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, ODESC_FULL);
 
 		/* Hack -- enforce max length */
 		o_name[lim] = '\0';
@@ -2088,17 +2083,14 @@ void show_inven(void)
 	/* Output each entry */
 	for (j = 0; j < k; j++)
 	{
-		/* Get the index */
-		i = out_index[j];
-
 		/* Get the item */
-		o_ptr = &p_ptr->inventory[i];
+		const object_type* const o_ptr = &p_ptr->inventory[out_index[j]];
 
 		/* Clear the line */
 		prt("", j + 1, col ? col - 2 : col);
 
 		/* Prepare an index --(-- */
-		sprintf(tmp_val, "%c)", index_to_label(i));
+		sprintf(tmp_val, "%c)", index_to_label(out_index[j]));
 
 		/* Clear the line with the (possibly indented) index */
 		put_str(tmp_val, j + 1, col);
@@ -2128,8 +2120,6 @@ void show_equip(void)
 	int i, j, k, l;
 	int col, len, lim;
 
-	object_type *o_ptr;
-
 	char tmp_val[80];
 
 	char o_name[80];
@@ -2154,13 +2144,13 @@ void show_equip(void)
 	/* Scan the equipment list */
 	for (k = 0, i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
-		o_ptr = &p_ptr->inventory[i];
+		const object_type* const o_ptr = &p_ptr->inventory[i];
 
 		/* Is this item acceptable? */
 		if (!item_tester_okay(o_ptr)) continue;
 
 		/* Description */
-		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, ODESC_FULL);
 
 		/* Truncate the description */
 		o_name[lim] = 0;
@@ -2196,17 +2186,14 @@ void show_equip(void)
 	/* Output each entry */
 	for (j = 0; j < k; j++)
 	{
-		/* Get the index */
-		i = out_index[j];
-
 		/* Get the item */
-		o_ptr = &p_ptr->inventory[i];
+		const object_type* const o_ptr = &p_ptr->inventory[out_index[j]];
 
 		/* Clear the line */
 		prt("", j + 1, col ? col - 2 : col);
 
 		/* Prepare an index --(-- */
-		sprintf(tmp_val, "%c)", index_to_label(i));
+		sprintf(tmp_val, "%c)", index_to_label(out_index[j]));
 
 		/* Clear the line with the (possibly indented) index */
 		put_str(tmp_val, j+1, col);
@@ -2215,7 +2202,7 @@ void show_equip(void)
 		if (show_labels)
 		{
 			/* Mention the use */
-			strnfmt(tmp_val, sizeof(tmp_val), "%-14s: ", mention_use(i));
+			strnfmt(tmp_val, sizeof(tmp_val), "%-14s: ", mention_use(out_index[j]));
 			put_str(tmp_val, j+1, col + 3);
 
 			/* Display the entry itself */
@@ -2280,7 +2267,7 @@ void show_floor(const int *floor_list, int floor_num)
 		if (!item_tester_okay(o_ptr)) continue;
 
 		/* Describe the object */
-		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, ODESC_FULL);
 
 		/* Hack -- enforce max length */
 		o_name[lim] = '\0';
@@ -2350,16 +2337,14 @@ void show_floor(const int *floor_list, int floor_num)
  *
  * The item can be negative to mean "item on floor".
  */
-static bool verify_item(cptr prompt, int item)
+static bool verify_item(const char* const prompt, int item)
 {
 	char o_name[80];
-
 	char out_val[160];
-
 	object_type *o_ptr = get_o_ptr_from_inventory_or_floor(item);	/* Get the object */
 
 	/* Describe */
-	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, ODESC_FULL);
 
 	/* Prompt */
 	strnfmt(out_val, sizeof(out_val), "%s %s? ", prompt, o_name);
@@ -2431,7 +2416,7 @@ static int get_tag(int *cp, char tag)
 	/* Check every object */
 	for (i = 0; i < INVEN_TOTAL; ++i)
 	{
-		object_type *o_ptr = &p_ptr->inventory[i];
+		const object_type* const o_ptr = &p_ptr->inventory[i];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
@@ -2523,40 +2508,8 @@ static int get_tag(int *cp, char tag)
  * Note that only "acceptable" floor objects get indexes, so between two
  * commands, the indexes of floor objects may change.  XXX XXX XXX
  */
-bool get_item(int *cp, cptr pmt, cptr str, int mode)
+bool get_item(int *cp, const char* pmt, const char* str, int mode)
 {
-	int py = p_ptr->loc.y;
-	int px = p_ptr->loc.x;
-
-	char which;
-
-	int i, j, k;
-
-	int i1, i2;
-	int e1, e2;
-	int f1, f2;
-
-	bool done, item;
-
-	bool oops = FALSE;
-
-	bool use_inven = (mode & (USE_INVEN));
-	bool use_equip = (mode & (USE_EQUIP));
-	bool use_floor = (mode & (USE_FLOOR));
-
-	bool allow_inven = FALSE;
-	bool allow_equip = FALSE;
-	bool allow_floor = FALSE;
-
-	bool toggle = FALSE;
-
-	char tmp_val[160];
-	char out_val[160];
-
-	int floor_list[MAX_FLOOR_STACK];
-	int floor_num;
-
-
 	/* Get the item index */
 	if (repeat_pull(cp))
 	{
@@ -2569,8 +2522,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			/* Forget the item_tester_hook restriction */
 			item_tester_hook = NULL;
 
-			/* Success */
-			return (TRUE);
+			return TRUE;	/* Success */
 		}
 		else
 		{
@@ -2579,76 +2531,66 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		}
 	}
 
+	{	/* C-ish blocking brace */
+	char tmp_val[160];
+	char out_val[160];
+
+	int floor_list[MAX_FLOOR_STACK];
+
+	/* scan all objects in the grid */
+	int floor_num = scan_floor(floor_list, MAX_FLOOR_STACK, p_ptr->loc, 0x00);
+
+	int i, k;
+
+	char which;
+
+	bool done = FALSE;	/* done? */
+	bool item = FALSE;	/* item selected? */
+	bool oops = FALSE;	/* nothing to select? */
+
+	const bool use_inven = (mode & (USE_INVEN));
+	const bool use_equip = (mode & (USE_EQUIP));
+	const bool use_floor = (mode & (USE_FLOOR));
+
+	bool toggle = FALSE;
+
+	/* default to full inventory if allowed, disabled otherwise */
+	int i1 = 0;
+	int i2 = (use_inven) ? INVEN_PACK - 1 : -1;
+
+	/* default to full equipment if allowed, disabled otherwise */
+	int e1 = INVEN_WIELD;
+	int e2 = (use_equip) ? INVEN_TOTAL - 1 : -1;
+
+	/* default to full floor if allowed, disabled otherwise */
+	int f1 = 0;
+	int f2 = (use_floor) ? floor_num - 1 : -1;
 
 	/* Paranoia XXX XXX XXX */
 	message_flush();
 
-
-	/* Not done */
-	done = FALSE;
-
-	/* No item selected */
-	item = FALSE;
-
-
-	/* Full inventory */
-	i1 = 0;
-	i2 = INVEN_PACK - 1;
-
-	/* Forbid inventory */
-	if (!use_inven) i2 = -1;
-
 	/* Restrict inventory indexes */
-	while ((i1 <= i2) && (!get_item_okay(i1))) i1++;
-	while ((i1 <= i2) && (!get_item_okay(i2))) i2--;
-
-	/* Accept inventory */
-	if (i1 <= i2) allow_inven = TRUE;
-
-
-	/* Full equipment */
-	e1 = INVEN_WIELD;
-	e2 = INVEN_TOTAL - 1;
-
-	/* Forbid equipment */
-	if (!use_equip) e2 = -1;
+	while ((i1 <= i2) && (!get_item_okay(i1))) ++i1;
+	while ((i1 <= i2) && (!get_item_okay(i2))) --i2;
 
 	/* Restrict equipment indexes */
-	while ((e1 <= e2) && (!get_item_okay(e1))) e1++;
-	while ((e1 <= e2) && (!get_item_okay(e2))) e2--;
-
-	/* Accept equipment */
-	if (e1 <= e2) allow_equip = TRUE;
-
-
-	/* Scan all objects in the grid */
-	floor_num = scan_floor(floor_list, MAX_FLOOR_STACK, py, px, 0x00);
-
-	/* Full floor */
-	f1 = 0;
-	f2 = floor_num - 1;
-
-	/* Forbid floor */
-	if (!use_floor) f2 = -1;
+	while ((e1 <= e2) && (!get_item_okay(e1))) ++e1;
+	while ((e1 <= e2) && (!get_item_okay(e2))) --e2;
 
 	/* Restrict floor indexes */
-	while ((f1 <= f2) && (!get_item_okay(0 - floor_list[f1]))) f1++;
-	while ((f1 <= f2) && (!get_item_okay(0 - floor_list[f2]))) f2--;
+	while ((f1 <= f2) && (!get_item_okay(0 - floor_list[f1]))) ++f1;
+	while ((f1 <= f2) && (!get_item_okay(0 - floor_list[f2]))) --f2;
 
-	/* Accept floor */
-	if (f1 <= f2) allow_floor = TRUE;
-
+	{	/* C-ish blocking brace : allow_ */
+	const bool allow_inven = (i1 <= i2);	/* accept inventory if any items */
+	const bool allow_equip = (e1 <= e2);	/* accept equipment if any items */
+	const bool allow_floor = (f1 <= f2);	/* accept floor if any items */
 
 	/* Require at least one legal choice */
 	if (!allow_inven && !allow_equip && !allow_floor)
 	{
-		/* Cancel p_ptr->command_see */
-		p_ptr->command_see = FALSE;
-
-		/* Oops */
+		p_ptr->command_see = FALSE;	/* Cancel p_ptr->command_see */
 		oops = TRUE;
-
-		/* Done */
 		done = TRUE;
 	}
 
@@ -2703,21 +2645,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		/* Show choices */
 		if (show_choices)
 		{
-			int ni = 0;
-			int ne = 0;
-
-			/* Scan windows */
-			for (j = 0; j < ANGBAND_TERM_MAX; j++)
-			{
-				/* Unused */
-				if (!angband_term[j]) continue;
-
-				/* Count windows displaying inven */
-				if (op_ptr->window_flag[j] & (PW_INVEN)) ni++;
-
-				/* Count windows displaying equip */
-				if (op_ptr->window_flag[j] & (PW_EQUIP)) ne++;
-			}
+			int ni = op_ptr->count_flagged_windows(PW_INVEN);
+			int ne = op_ptr->count_flagged_windows(PW_EQUIP);
 
 			/* Toggle if needed */
 			if (((p_ptr->command_wrk == (USE_EQUIP)) && ni && !ne) ||
@@ -2731,10 +2660,10 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			}
 
 			/* Update */
-			p_ptr->window |= (PW_INVEN | PW_EQUIP);
+			p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
 
 			/* Redraw windows */
-			window_stuff();
+			redraw_stuff();
 		}
 
 		/* Viewing inventory */
@@ -3088,11 +3017,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			}
 
 			default:
-			{
-				bool verify;
-
-				/* Note verify */
-				verify = (isupper((unsigned char)which) ? TRUE : FALSE);
+			{	/* Note verify */
+				bool verify = isupper((unsigned char)which);
 
 				/* Lowercase */
 				which = tolower((unsigned char)which);
@@ -3166,48 +3092,30 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		}
 	}
 
+	}	/* end C-ish blocking brace : allow_ */
 
 	/* Fix the screen if necessary */
 	if (p_ptr->command_see)
 	{
-		/* Load screen */
-		screen_load();
-
-		/* Hack -- Cancel "display" */
-		p_ptr->command_see = FALSE;
+		screen_load();				/* Load screen */
+		p_ptr->command_see = FALSE;	/* Hack -- Cancel "display" */
 	}
 
-
-	/* Forget the item_tester_tval restriction */
-	item_tester_tval = 0;
-
-	/* Forget the item_tester_hook restriction */
-	item_tester_hook = NULL;
+	item_tester_tval = 0;		/* Forget the item_tester_tval restriction */
+	item_tester_hook = NULL;	/* Forget the item_tester_hook restriction */
 
 
 	/* Clean up */
 	if (show_choices)
 	{
-		/* Toggle again if needed */
-		if (toggle) toggle_inven_equip();
-
-		/* Update */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
-		/* Window stuff */
-		window_stuff();
+		if (toggle) toggle_inven_equip();		/* Toggle again if needed */
+		p_ptr->redraw |= (PR_INVEN | PR_EQUIP);	/* Update */
+		redraw_stuff();							/* Window stuff */
 	}
 
-
-	/* Clear the prompt line */
-	prt("", 0, 0);
-
-	/* Warning if needed */
-	if (oops && str) msg_print(str);
-
-	/* Save item if available */
-	if (item) repeat_push(*cp);
-
-	/* Result */
-	return (item);
+	prt("", 0, 0);						/* Clear the prompt line */
+	if (oops && str) msg_print(str);	/* Warning if needed */
+	if (item) repeat_push(*cp);			/* Save item if available */
+	return item;						/* Result */
+	}	/* end C-ish blocking brace */
 }

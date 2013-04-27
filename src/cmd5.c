@@ -2,17 +2,27 @@
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 2007 Andrew Sidwell
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
 
+#include "tvalsval.h"
+#include "wind_flg.h"
 
-/*
- * Returns chance of failure for a spell
+/**
+ * \return chance of failure for a spell
  */
 s16b spell_chance(int spell)
 {
@@ -76,7 +86,7 @@ s16b spell_chance(int spell)
 
 
 
-/*
+/**
  * Determine if a spell is "okay" for the player to cast or study
  * The spell must be legible, not forgotten, and also, to cast,
  * it must be known, and to study, it must not be known.
@@ -107,7 +117,7 @@ bool spell_okay(int spell, bool known)
 }
 
 
-/*
+/**
  * Print a list of spells (for browsing or casting or viewing).
  */
 void print_spells(const byte *spells, int num, int y, int x)
@@ -116,7 +126,7 @@ void print_spells(const byte *spells, int num, int y, int x)
 
 	const magic_type *s_ptr;
 
-	cptr comment;
+	const char* comment;
 
 	char out_val[160];
 
@@ -188,10 +198,10 @@ void print_spells(const byte *spells, int num, int y, int x)
 
 
 
-/*
+/**
  * Hack -- display an object kind in the current window
  *
- * Include list of usable spells for readible books
+ * Include list of usable spells for readable books
  */
 void display_koff(int k_idx)
 {
@@ -221,7 +231,7 @@ void display_koff(int k_idx)
 
 
 	/* Describe */
-	object_desc_spoil(o_name, sizeof(o_name), i_ptr, FALSE, 0);
+	object_desc_spoil(o_name, sizeof(o_name), i_ptr, FALSE, ODESC_BASE);
 
 	/* Mention the object name */
 	Term_putstr(0, 0, -1, TERM_WHITE, o_name);
@@ -256,17 +266,18 @@ void display_koff(int k_idx)
 
 
 
-/*
+/**
  * Allow user to choose a spell/prayer from the given book.
  *
- * Returns -1 if the user hits escape.
- * Returns -2 if there are no legal choices.
- * Returns a valid spell otherwise.
+ * \return -1 if the user hits escape.
+ * \return -2 if there are no legal choices.
+ * \return a valid spell otherwise.
  *
- * The "prompt" should be "cast", "recite", or "study"
- * The "known" should be TRUE for cast/pray, FALSE for study
+ * \param o_ptr is the book
+ * \param prompt should be "cast", "recite", or "study"
+ * \param known should be TRUE for cast/pray, FALSE for study
  */
-int get_spell(const object_type *o_ptr, cptr prompt, bool known)
+int get_spell(const object_type *o_ptr, const char* const prompt, bool known)
 {
 	int i;
 
@@ -284,7 +295,7 @@ int get_spell(const object_type *o_ptr, cptr prompt, bool known)
 
 	char out_val[160];
 
-	cptr p = ((p_ptr->spell_book() == TV_MAGIC_BOOK) ? "spell" : "prayer");
+	const char* const p = ((p_ptr->spell_book() == TV_MAGIC_BOOK) ? "spell" : "prayer");
 
 	int result;
 
@@ -488,7 +499,7 @@ void do_cmd_browse_aux(const object_type *o_ptr)
 }
 
 
-/*
+/**
  * Choose a new spell from the book.
  */
 int spell_choose_new(const object_type *o_ptr)
@@ -496,7 +507,7 @@ int spell_choose_new(const object_type *o_ptr)
 	int i, k = 0;
 	int gift = -1;
 	
-	cptr p = ((p_ptr->spell_book() == TV_MAGIC_BOOK) ? "spell" : "prayer");
+	const char* const p = ((p_ptr->spell_book() == TV_MAGIC_BOOK) ? "spell" : "prayer");
 
 	/* Mage -- Learn a selected spell */
 	if (p_ptr->cp_ptr->flags & CF_CHOOSE_SPELLS)
@@ -527,13 +538,13 @@ int spell_choose_new(const object_type *o_ptr)
 	return gift;
 }
 
-/*
+/**
  * Learn the specified spell.
  */
 void spell_learn(int spell)
 {
 	int i;
-	cptr p = ((p_ptr->spell_book() == TV_MAGIC_BOOK) ? "spell" : "prayer");
+	const char* const p = ((p_ptr->spell_book() == TV_MAGIC_BOOK) ? "spell" : "prayer");
 
 	/* Learn the spell */
 	p_ptr->spell_flags[spell] |= PY_SPELL_LEARNED;
@@ -563,29 +574,22 @@ void spell_learn(int spell)
 		           p_ptr->new_spells, p, PLURAL(p_ptr->new_spells));
 	}
 
-	/* Redraw Study Status */
-//	p_ptr->redraw |= (PR_STUDY | PR_OBJECT);
-	/* Redraw Study Status */
-	p_ptr->redraw |= (PR_STUDY);
-
-	/* Redraw object recall */
-	p_ptr->window |= (PW_OBJECT);
+	/* Redraw Study Status, object recall */
+	p_ptr->redraw |= (PR_STUDY | PR_OBJECT);
 }
 
 
-/* Cas the specified spell */
+/** Cast the specified spell */
 bool spell_cast(int spell)
 {
 	int chance;
-	const magic_type *s_ptr;
-
-    cptr p = ((p_ptr->spell_book() == TV_MAGIC_BOOK) ?
-	          "cast this spell" :
-	          "recite this prayer");
+    const char* const p = ((p_ptr->spell_book() == TV_MAGIC_BOOK) ?
+			          "cast this spell" :
+	    		      "recite this prayer");
 
 
 	/* Get the spell */
-	s_ptr = p_ptr->spell_info(spell);
+	const magic_type* s_ptr = p_ptr->spell_info(spell);
 
 
 	/* Verify "dangerous" spells */
@@ -631,8 +635,7 @@ bool spell_cast(int spell)
 			gain_exp(e * s_ptr->slevel);
 
 			/* Redraw object recall */
-//			p_ptr->redraw |= (PR_OBJECT);
-			p_ptr->window |= (PW_OBJECT);
+			p_ptr->redraw |= (PR_OBJECT);
 		}
 	}
 
@@ -673,9 +676,6 @@ bool spell_cast(int spell)
 
 	/* Redraw mana */
 	p_ptr->redraw |= (PR_MANA);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 
 	return TRUE;
 }

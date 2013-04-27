@@ -242,7 +242,10 @@ Monsters learn from their mistakes    [smart_learn]
 ***** <smart_cheat>
 Monsters exploit players weaknesses    [smart_cheat]
     Allow monsters to know what spell attacks you are resistant to,
-    and to use this information to choose the best attacks.
+    and to use this information to choose the best attacks.  This also
+    disables the "player health bar", giving the monster exact current 
+    hitpoints of the player rather than what can be seen from the 
+    "player health bar".
 
 
 === Efficiency options ===

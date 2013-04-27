@@ -2,6 +2,14 @@
 
 #include "keypad.h"
 
+#ifdef __cplusplus
+#include <cstddef>
+#include <cassert>
+#else
+#include <stddef.h>
+#include <assert.h>
+#endif
+
 /*
  * Copyright (c) 2007 Kenneth Boyd.   This file is under the Boost License V1.0.
  */
@@ -67,3 +75,54 @@ const unsigned char cycle[2*KEYPAD_DIR_MAX+1] =
 const unsigned char chome[10] =
 { 0, 8, 9, 10, 7, 0, 11, 6, 5, 4 };
 
+/**
+ * moves squares flagged by move_legal as bad to the end of the array; returns number of good squares.
+ *
+ * \ret number of squares that move_legal returns true for
+ *
+ * \pre dir_array contains at least two valid, distinct directions.
+ */
+int bad_squares_last(int* const dir_array, coord_action* move_legal, int bad_LB, coord origin)
+{
+	int goodUB = 0;
+	coord temp_g_LB(origin);
+	coord temp_g_UB(origin);
+
+	assert(NULL != move_legal);
+	assert(2 <= bad_LB);
+	assert(10 >= bad_LB);
+
+#ifndef NDEBUG
+	{
+	int i;
+	for(i = 0; i < bad_LB; ++i) assert((0 <= dir_array[i]) && (9 >= dir_array[i]));
+	}
+#endif
+
+	temp_g_LB += dd_coord[dir_array[goodUB]];
+	temp_g_UB += dd_coord[dir_array[--bad_LB]];
+
+	while(goodUB<bad_LB)
+	{
+		if (move_legal(temp_g_LB))
+		{
+			temp_g_LB = origin + dd_coord[dir_array[++goodUB]];
+		}
+		else if (!move_legal(temp_g_UB))
+		{
+			temp_g_UB = origin + dd_coord[dir_array[--bad_LB]];
+		}
+		else
+		{
+			const int tmp = dir_array[goodUB];
+			const coord tmp2 = temp_g_LB;
+			dir_array[goodUB] = dir_array[bad_LB];
+			dir_array[bad_LB] = tmp;
+			temp_g_LB = temp_g_UB;
+			temp_g_UB = tmp2;
+		}
+	}
+	if (move_legal(temp_g_LB)) ++goodUB;
+
+	return goodUB;
+}

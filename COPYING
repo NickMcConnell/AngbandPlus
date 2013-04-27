@@ -11,13 +11,23 @@ the source are still only available under the old Moria/Angband license.
 Until all parts of Angband are distributed under the GPL the only valid
 license remains the original Moria/Angband license.
 
-More informations about Angband and the GPL can be found at:
+More information about Angband and the GPL can be found at:
 http://www.thangorodrim.net/development/opensource.html
 
 ====
 
-Material changes by Kenneth 'Bessarion' Boyd are under the Boost License 1.0, which is compatible with (version 2 of) the GPL.
+David Gervais' (32x32) graphics may be redistributed, modified, and used 
+only under the terms of the Creative Commons Attribution 3.0 licence: 
+http://creativecommons.org/licenses/by/3.0/
 
-The David Gervais 32x32 graphical tileset has a decidedly non-free license: explicit permission is required to redistribute the images, at least
-until some other fully-authenticated archive is located.  Known-good download sources include http://www.thangorodrim.net/ .
+The sounds are freeware, whatever that means.
 
+The font files are under the licences noted in lib/xtra/font/copying.txt, 
+all of which are OSI-compliant.
+
+====
+
+Note that V SVN is mostly under GPL now.  Where this license transfers to Zaiband, it has been transferred.
+
+Material changes by Kenneth 'Bessarion' Boyd are usually in their own files under the Boost License 1.0, which is compatible with (version 2 of) the GPL.
+Those that aren't in their own files will be relicensed when they are license-firewalled properly.

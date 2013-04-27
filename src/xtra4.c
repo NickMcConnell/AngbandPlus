@@ -1,4 +1,4 @@
-/* File: xtra3.c */
+/* File: xtra4.c */
 
 /*
  * Copyright (c) 2007 Kenneth Boyd.  This file is subject to the Boost license.
@@ -31,9 +31,73 @@
 
 #include "angband.h"
 
-/*
+int
+agent_type::ticks_to_move(int move, int diag) const
+{
+	return (50*(diag + 1) + 100*move - (int)energy)/(int)(extract_energy[speed]);
+}
+
+int
+agent_type::moves_in_ticks(int ticks, int diag) const
+{
+	return ((int)energy + ticks*(int)(extract_energy[speed]) - 50*(diag + 1))/100;
+}
+
+int
+agent_type::energy_in_ticks(int ticks) const
+{
+	return (int)energy + ticks*(int)(extract_energy[speed]);
+}
+
+void
+agent_type::move_ratio(int& threat_moves, int& my_moves, const agent_type& threat, int threat_diag, int my_diag) const
+{
+	int ticks_to_my_move = ticks_to_move(2,my_diag);
+	int ticks_to_threat_move = threat.ticks_to_move(1,threat_diag);
+
+	my_moves = 1;
+	threat_moves = 1;
+
+	if		(ticks_to_my_move>ticks_to_threat_move)
+	{	/* threat is faster, check for double-move */
+		threat_moves = threat.moves_in_ticks(ticks_to_my_move,threat_diag);
+		/* but I win energy ties (actually true only for player) */
+		if (	(1 < threat_moves)
+			&&	(threat.ticks_to_move(threat_moves,threat_diag) == ticks_to_my_move)
+			&&	(energy_in_ticks(ticks_to_my_move)>=threat.energy_in_ticks(ticks_to_my_move)))
+			--threat_moves;
+	}
+	else if	(ticks_to_my_move<ticks_to_threat_move)
+	{	/* I am faster, check for double-move */
+		my_moves = moves_in_ticks(ticks_to_threat_move,my_diag);
+	}
+	else if (energy_in_ticks(ticks_to_my_move)>=threat.energy_in_ticks(ticks_to_threat_move))
+	{	/* I win energy ties (actually only true for player) */
+		my_moves = 2;
+	}
+}
+
+/**
+ * \return nonstrict upper bound on health that player could calculate from monster health bar.
+ */
+int
+agent_type::apparent_health() const
+{
+	if (chp>=mhp || smart_cheat) return chp;
+
+	{
+	int stars_sub_1 = (10L * (long) chp / (long)mhp);
+
+	if (9 <= stars_sub_1) return mhp-1;
+
+	return ((stars_sub_1+1)*(long)mhp)/10L;
+	}	
+}
+
+
+/**
  * Test to see if the character acts on a moronic command.
- * return true if the character does act on a moronic command.
+ * \return true if the character does act on a moronic command.
  */
 bool player_type::allow_moron() const	/* Strictly Boost-licensed */
 {

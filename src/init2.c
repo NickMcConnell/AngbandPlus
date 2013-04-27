@@ -4,15 +4,24 @@
 /*
  * Copyright (c) 1997 Ben Harrison
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
 #include "z-quark.h"
 #include "game-event.h"
 #include "game-cmd.h"
+#include "store.h"
+#include "tvalsval.h"
 
 #include "init.h"
 
@@ -333,7 +342,7 @@ int error_line;
 /*
  * Standard error message text
  */
-static cptr err_str[PARSE_ERROR_MAX] =
+static const char* const err_str[PARSE_ERROR_MAX] =
 {
 	NULL,
 	"parse error",
@@ -404,8 +413,7 @@ static errr init_info_raw(int fd, header *head)
 
 
 	/* Accept the header */
-	COPY(head, &test);
-
+	*head = test;
 
 	/* Allocate the "*_info" array */
 	C_MAKE(head->info_ptr, head->info_size, char);
@@ -462,12 +470,9 @@ static void init_header(header *head, int num, int len)
 /*
  * Display a parser error message.
  */
-static void display_parse_error(cptr filename, errr err, cptr buf)
-{
-	cptr oops;
-
-	/* Error string */
-	oops = (((err > 0) && (err < PARSE_ERROR_MAX)) ? err_str[err] : "unknown");
+static void display_parse_error(const char* const filename, errr err, const char* const buf)
+{	/* Error string */
+	const char* const oops = (((err > 0) && (err < PARSE_ERROR_MAX)) ? err_str[err] : "unknown");
 
 	/* Oops */
 	msg_format("Error at line %d of '%s.txt'.", error_line, filename);
@@ -488,7 +493,7 @@ static void display_parse_error(cptr filename, errr err, cptr buf)
  * Note that we let each entry have a unique "name" and "text" string,
  * even if the string happens to be empty (everyone has a unique '\0').
  */
-static errr init_info(cptr filename, header *head)
+static errr init_info(const char* const filename, header *head)
 {
 	int fd;
 
@@ -627,7 +632,7 @@ static errr init_info(cptr filename, header *head)
 		if (fd >= 0)
 		{
 			/* Dump it */
-			fd_write(fd, (cptr)head, head->head_size);
+			fd_write(fd, (const char*)head, head->head_size);
 
 			/* Dump the "*_info" array */
 			if (head->info_size > 0)
