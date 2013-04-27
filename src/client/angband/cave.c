@@ -1,5 +1,5 @@
 
-/* $Id: cave.c,v 1.7 2003/04/01 07:15:42 cipher Exp $ */
+/* $Id: cave.c,v 1.8 2003/04/21 02:31:44 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -603,22 +603,29 @@ void
 map_info(int y,
          int x,
 #ifdef EXT_MAP_INFO
-
-         byte * cap,
-         char *ccp,
-         byte * oap,
-         char *ocp,
+	    byte *cap,
+	    char *ccp,
+	    byte *oap,
+	    char *ocp,
+	    byte *tap,
+#ifdef EXT_LITE_INFO
+         char *tcp,
+         byte *lite)
 #else
-
-         byte * ap,
-         char *cp,
-#endif
-
-         byte * tap,
          char *tcp)
+#endif
+#else
+         byte *ap,
+         char *cp,
+	    byte *tap,
+         char *tcp)
+#endif
 {
      byte            a;
      char            c;
+#ifdef EXT_LITE_INFO
+     byte            l;
+#endif
      byte            feat;
      byte            info;
      feature_type   *f_ptr;
@@ -627,15 +634,15 @@ map_info(int y,
      s16b            image = p_ptr->image;
      int             floor_num = 0;
 
-     /* Mega-hack - force new lighting effects. */
-     bool            graf_new = TRUE;
-
-#if 0
+	/* Mega-hack - force new lighting effects. */
+#if 1
+	bool graf_new = TRUE;
+#else
      /* Hack -- the old tiles don't support the new lighting effects */
-     bool            graf_new = (use_graphics &&
+	bool            graf_new = (use_graphics &&
                                  !streq(ANGBAND_GRAF, "old"));
 #endif
-
+	
      /* Monster/Player */
      m_idx = cave_m_idx[y][x];
 
@@ -678,6 +685,9 @@ map_info(int y,
                          /* Only lit by "torch" lite */
                          if(view_yellow_lite && !(info & (CAVE_GLOW)))
                          {
+#ifdef EXT_LITE_INFO
+                              l = LIGHT_MEDIUM;
+#else
                               if(graf_new)
                               {
                                    /* Use a brightly lit tile */
@@ -692,12 +702,16 @@ map_info(int y,
                                    /* Use "yellow" */
                                    a = COLOR_YELLOW;
                               }
+#endif
                          }
                     }
 
                     /* Handle "blind" */
                     else if(p_ptr->blind)
                     {
+#ifdef EXT_LITE_INFO
+                         l = LIGHT_DARK;
+#else
                          if(graf_new)
                          {
                               /* Use a dark tile */
@@ -708,11 +722,15 @@ map_info(int y,
                               /* Use "dark gray" */
                               a = COLOR_L_DARK;
                          }
+#endif
                     }
 
                     /* Handle "dark" grids */
                     else if(!(info & (CAVE_GLOW)))
                     {
+#ifdef EXT_LITE_INFO
+                         l = LIGHT_DARK;
+#else
                          if(graf_new)
                          {
                               /* Use a dark tile */
@@ -723,11 +741,15 @@ map_info(int y,
                               /* Use "dark gray" */
                               a = COLOR_L_DARK;
                          }
+#endif
                     }
 
                     /* Handle "view_bright_lite" */
                     else if(view_bright_lite)
                     {
+#ifdef EXT_LITE_INFO
+                         l = LIGHT_DARK;
+#else
                          if(graf_new)
                          {
                               /* Use a dark tile */
@@ -738,6 +760,7 @@ map_info(int y,
                               /* Use "gray" */
                               a = COLOR_SLATE;
                          }
+#endif
                     }
                }
           }
@@ -753,6 +776,10 @@ map_info(int y,
 
                /* Normal char */
                c = f_ptr->x_char;
+               
+#ifdef EXT_LITE_INFO
+               l = LIGHT_DARK;
+#endif
           }
      }
 
@@ -773,6 +800,10 @@ map_info(int y,
 
                /* Normal char */
                c = f_ptr->x_char;
+               
+#ifdef EXT_LITE_INFO
+               l = LIGHT_MEDIUM;
+#endif
 
                /* Special lighting effects (walls only) */
                if(view_granite_lite &&
@@ -785,6 +816,9 @@ map_info(int y,
                     /* Handle "seen" grids */
                     if(info & (CAVE_SEEN))
                     {
+#ifdef EXT_LITE_INFO
+                         l = LIGHT_MEDIUM;
+#else
                          if(graf_new)
                          {
                               /* Use a lit tile */
@@ -793,11 +827,15 @@ map_info(int y,
                          {
                               /* Use "white" */
                          }
+#endif
                     }
 
                     /* Handle "blind" */
                     else if(p_ptr->blind)
                     {
+#ifdef EXT_LITE_INFO
+                         l = LIGHT_DIM;
+#else
                          if(graf_new)
                          {
                               /* Use a dark tile */
@@ -808,11 +846,15 @@ map_info(int y,
                               /* Use "dark gray" */
                               a = COLOR_L_DARK;
                          }
+#endif
                     }
 
                     /* Handle "view_bright_lite" */
                     else if(view_bright_lite)
                     {
+#ifdef EXT_LITE_INFO
+                         l = LIGHT_MEDIUM;
+#else
                          if(graf_new)
                          {
                               /* Use a lit tile */
@@ -823,9 +865,13 @@ map_info(int y,
                               /* Use "gray" */
                               a = COLOR_SLATE;
                          }
+#endif
                     }
                     else
                     {
+#ifdef EXT_LITE_INFO
+                         l = LIGHT_BRIGHT;
+#else
                          if(graf_new)
                          {
                               /* Use a brightly lit tile */
@@ -838,6 +884,7 @@ map_info(int y,
                          {
                               /* Use "white" */
                          }
+#endif
                     }
                }
           }
@@ -853,14 +900,22 @@ map_info(int y,
 
                /* Normal char */
                c = f_ptr->x_char;
+
+#ifdef EXT_LITE_INFO
+               l = LIGHT_DARK;
+#endif
           }
      }
 
      /* Save the terrain info for the transparency effects */
-     if(tap)
-          (*tap) = a;
-     if(tcp)
-          (*tcp) = c;
+	 if(tap)
+	     (*tap) = a;
+	 if(tcp)
+	     (*tcp) = c;
+#ifdef EXT_LITE_INFO
+	 if(lite)
+	     (*lite) = l;
+#endif
 
      /* Objects */
      for(o_ptr = get_first_object(y, x); o_ptr;
@@ -909,10 +964,10 @@ map_info(int y,
           }
      }
 #ifdef EXT_MAP_INFO
-     if(oap)
-          (*oap) = a;
-     if(ocp)
-          (*ocp) = c;
+	 if(oap)
+	     (*oap) = a;
+	 if(ocp)
+	     (*ocp) = c;
 #endif
 
      /* Monsters */
@@ -1040,15 +1095,15 @@ map_info(int y,
 
      /* Result */
 #ifdef EXT_MAP_INFO
-     if(cap)
-          (*cap) = a;
-     if(ccp)
-          (*ccp) = c;
+	 if(cap)
+	     (*cap) = a;
+	 if(ccp)
+	     (*ccp) = c;
 #else
-     if(ap)
-          (*ap) = a;
-     if(cp)
-          (*cp) = c;
+	 if(ap)
+	     (*ap) = a;
+	 if(cp)
+	     (*cp) = c;
 #endif
 }
 
@@ -1525,9 +1580,9 @@ display_map(int *cy,
      {
           for(x = 0; x < dungeon_wid; x++)
           {
-               byte            a;
-               char            c;
-
+               byte a;
+               char c;
+               
                row = (y * map_hgt / dungeon_hgt);
                col = (x * map_wid / dungeon_wid);
 

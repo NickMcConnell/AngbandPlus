@@ -1,5 +1,5 @@
 
-/* $Id: ipc.c,v 1.6 2003/04/01 22:25:59 cipher Exp $ */
+/* $Id: ipc.c,v 1.7 2003/04/15 05:02:18 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -19,21 +19,21 @@ IH_GetIPCValue(long *value)
 {
      bool            valid = FALSE;
 
-     if(!SDL_SemWait(ih.sem.talk))
+     if(!SDL_SemWait(ih.ipc.sem.talk))
      {
-          valid = ih.ipc.valid;
+          valid = ih.ipc.is_valid;
 
           if(ih.ipc.type != IH_IPC_TYPE_VALUE)
                valid = FALSE;
 
           if(valid && value)
           {
-               ih.ipc.valid = FALSE;
+               ih.ipc.is_valid = FALSE;
                *value = ih.ipc.data.value;
                ih.ipc.data.value = 0;
           }
 
-          SDL_SemPost(ih.sem.talk);
+          SDL_SemPost(ih.ipc.sem.talk);
      }
 
      return valid;
@@ -44,21 +44,21 @@ IH_GetIPCPtr(void *ptr)
 {
      bool            valid = FALSE;
 
-     if(!SDL_SemWait(ih.sem.talk))
+     if(!SDL_SemWait(ih.ipc.sem.talk))
      {
-          valid = ih.ipc.valid;
+          valid = ih.ipc.is_valid;
 
           if(ih.ipc.type != IH_IPC_TYPE_PTR)
                valid = FALSE;
 
           if(valid && ptr)
           {
-               ih.ipc.valid = FALSE;
+               ih.ipc.is_valid = FALSE;
                ptr = ih.ipc.data.ptr;
                ih.ipc.data.ptr = NULL;
           }
 
-          SDL_SemPost(ih.sem.talk);
+          SDL_SemPost(ih.ipc.sem.talk);
      }
 
      return valid;
@@ -69,21 +69,21 @@ IH_GetIPCEvent(SDL_Event * event)
 {
      bool            valid = FALSE;
 
-     if(!SDL_SemWait(ih.sem.talk))
+     if(!SDL_SemWait(ih.ipc.sem.talk))
      {
-          valid = ih.ipc.valid;
+          valid = ih.ipc.is_valid;
 
           if(ih.ipc.type != IH_IPC_TYPE_EVENT)
                valid = FALSE;
 
           if(valid && event)
           {
-               ih.ipc.valid = FALSE;
+               ih.ipc.is_valid = FALSE;
                memcpy(event, &ih.ipc.data.event, sizeof(SDL_Event));
                memset(&ih.ipc.data.event, 0, sizeof(SDL_Event));
           }
 
-          SDL_SemPost(ih.sem.talk);
+          SDL_SemPost(ih.ipc.sem.talk);
      }
 
      return valid;
@@ -92,33 +92,33 @@ IH_GetIPCEvent(SDL_Event * event)
 void
 IH_SetIPCValue(long value)
 {
-     if(!SDL_SemWait(ih.sem.talk))
+     if(!SDL_SemWait(ih.ipc.sem.talk))
      {
           ih.ipc.data.value = value;
           ih.ipc.type = IH_IPC_TYPE_VALUE;
-          ih.ipc.valid = TRUE;
+          ih.ipc.is_valid = TRUE;
 
-          SDL_SemPost(ih.sem.talk);
+          SDL_SemPost(ih.ipc.sem.talk);
      }
 }
 
 void
 IH_SetIPCPtr(void *ptr)
 {
-     if(!SDL_SemWait(ih.sem.talk))
+     if(!SDL_SemWait(ih.ipc.sem.talk))
      {
           ih.ipc.data.ptr = ptr;
           ih.ipc.type = IH_IPC_TYPE_PTR;
-          ih.ipc.valid = TRUE;
+          ih.ipc.is_valid = TRUE;
 
-          SDL_SemPost(ih.sem.talk);
+          SDL_SemPost(ih.ipc.sem.talk);
      }
 }
 
 void
 IH_SetIPCEvent(SDL_Event * event)
 {
-     if(!SDL_SemWait(ih.sem.talk))
+     if(!SDL_SemWait(ih.ipc.sem.talk))
      {
           if(event)
                memcpy(&ih.ipc.data.event, event, sizeof(SDL_Event));
@@ -126,9 +126,9 @@ IH_SetIPCEvent(SDL_Event * event)
                memset(&ih.ipc.data.event, 0, sizeof(SDL_Event));
 
           ih.ipc.type = IH_IPC_TYPE_EVENT;
-          ih.ipc.valid = TRUE;
+          ih.ipc.is_valid = TRUE;
 
-          SDL_SemPost(ih.sem.talk);
+          SDL_SemPost(ih.ipc.sem.talk);
      }
 }
 

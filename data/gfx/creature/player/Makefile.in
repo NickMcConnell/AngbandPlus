@@ -159,7 +159,7 @@ SUBDIRS = \
 
 subdir = data/gfx/creature/player
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
-CONFIG_HEADER = $(top_builddir)/src/client/angband/autoconf.h
+CONFIG_HEADER = $(top_builddir)/src/client/autoconf.h
 CONFIG_CLEAN_FILES =
 DIST_SOURCES =
 

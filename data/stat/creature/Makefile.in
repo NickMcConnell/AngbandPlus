@@ -159,7 +159,7 @@ ironhells_DATA = \
 
 subdir = data/stat/creature
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
-CONFIG_HEADER = $(top_builddir)/src/client/angband/autoconf.h
+CONFIG_HEADER = $(top_builddir)/src/client/autoconf.h
 CONFIG_CLEAN_FILES =
 DIST_SOURCES =
 DATA = $(ironhells_DATA)

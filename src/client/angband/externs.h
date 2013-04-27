@@ -1,5 +1,5 @@
 
-/* $Id: externs.h,v 1.8 2003/04/07 00:27:13 cipher Exp $ */
+/* $Id: externs.h,v 1.9 2003/04/21 02:31:44 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison
@@ -283,19 +283,24 @@ extern void
 map_info(int y,
          int x,
 #ifdef EXT_MAP_INFO
-
          byte * cap,
          char *ccp,
          byte * oap,
          char *ocp,
+         byte * tap,
+#ifdef EXT_LITE_INFO
+         char *tcp,
+         byte *lite);
+#else
+         char *tcp);
+#endif
 #else
 
          byte * ap,
          char *cp,
-#endif
-
          byte * tap,
          char *tcp);
+#endif
 extern void
 move_cursor_relative(int y,
                      int x);
@@ -1202,7 +1207,7 @@ extern void
 store_maint(int which);
 extern void
 store_init(int which);
-store_item     *
+store_item *
 get_store_item(int item);
 
 /* util.c */

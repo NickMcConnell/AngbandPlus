@@ -21,7 +21,7 @@ l-misc.c: ../lua/tolua l-misc.pkg
 l-spell.c: ../lua/tolua l-spell.pkg
 	../lua/tolua -n spell -o l-spell.c l-spell.pkg
 
-INCLUDES = -I. -I.. -I$(srcdir) -I../lua
+INCLUDES = -I. -I.. -I../.. -I$(srcdir)
 
 #install-exec-hook:
 #if SET_GID

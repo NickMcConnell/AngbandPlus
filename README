@@ -1,0 +1,7 @@
+The code is currently undergoing some changes to allow for multiple
+display engines to be used.
+
+That said, trying to compile from CVS latest main branch probably won't work.
+
+If you want something that should compile and run, check out from CVS
+with the tag "RELEASE-1_0A4".

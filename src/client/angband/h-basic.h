@@ -1,5 +1,5 @@
 
-/* $Id: h-basic.h,v 1.3 2003/03/17 22:45:24 cipher Exp $ */
+/* $Id: h-basic.h,v 1.4 2003/04/18 21:45:09 cipher Exp $ */
 
 #ifndef INCLUDED_H_BASIC_H
 #define INCLUDED_H_BASIC_H
@@ -11,7 +11,10 @@
  */
 
 #ifdef HAVE_CONFIG_H
-#include "autoconf.h"
+# ifndef INCLUDED_CONFIG_H
+#  include "autoconf.h"
+#  define INCLUDED_CONFIG_H
+# endif
 #endif /* HAVE_CONFIG_H */
 
 /* System Configuration */

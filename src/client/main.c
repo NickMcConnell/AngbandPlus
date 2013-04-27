@@ -1,5 +1,5 @@
 
-/* $Id: main.c,v 1.22 2003/04/06 15:21:34 cipher Exp $ */
+/* $Id: main.c,v 1.28 2003/04/20 05:20:57 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -18,7 +18,6 @@
 /* SDL headers */
 #include "SDL.h"
 #include "SDL_thread.h"
-#include "SDL_draw.h"
 
 #define IH_MAIN
 
@@ -26,108 +25,15 @@
 #include "ironhells.h"
 #include "angband/z-disp.h"
 #include "ipc.h"
-#include "list.h"
 #include "prefs.h"
 #include "thread.h"
+#include "engines.h"
+#include "overlay.h"
 #include "platform/platform.h"
-#include "displays/iso/display.h"
-#include "displays/iso/icon.h"
-#include "displays/iso/render.h"
-#include "displays/iso/misc.h"
-#include "displays/iso/overlay.h"
+#include "render/icon.h"
+#include "render/pointer.h"
 
 struct IronHells ih;
-
-static void
-IH_Cleanup(void)
-{
-     if(ih.game_thread)
-          SDL_KillThread(ih.game_thread);
-
-     IH_DestroySemaphores();
-
-     IH_FreeFonts();
-
-#if 0
-     IH_FreeImages();
-#endif
-
-     SDL_ShowCursor(TRUE);
-}
-
-static void
-IH_InitSetuid(void)
-{
-#ifdef SET_UID
-     /* Default permissions on files */
-     (void) umask(022);
-
-# ifdef SECURE
-     /* Authenticate */
-     Authenticate();
-# endif /* SECURE */
-
-     /* Get the user id (?) */
-     player_uid = getuid();
-
-#ifdef VMS
-     /* Mega-Hack -- Factor group id */
-     player_uid += (getgid() * 1000);
-#endif /* VMS */
-
-# ifdef SAFE_SETUID
-
-#  if defined(HAVE_SETEGID) || defined(SAFE_SETUID_POSIX)
-     /* Save some info for later */
-     player_euid = geteuid();
-     player_egid = getegid();
-
-#  endif /* defined(HAVE_SETEGID) || defined(SAFE_SETUID_POSIX) */
-
-#  if 0                         /* XXX XXX XXX */
-     /* Redundant setting necessary in case root is running the game */
-     /* If not root or game not setuid the following two calls do nothing */
-     if(setgid(getegid()) != 0)
-     {
-          quit("setgid(): cannot set permissions correctly!");
-     }
-
-     if(setuid(geteuid()) != 0)
-     {
-          quit("setuid(): cannot set permissions correctly!");
-     }
-#  endif /* 0 */
-
-# endif /* SAFE_SETUID */
-
-#endif /* SET_UID */
-
-     /* Drop permissions */
-     safe_setuid_drop();
-
-#ifdef SET_UID
-     /* Initialize the "time" checker */
-     if(check_time_init() || check_time())
-     {
-          quit("The gates to Angband are closed (bad time).");
-     }
-
-     /* Initialize the "load" checker */
-     if(check_load_init() || check_load())
-     {
-          quit("The gates to Angband are closed (bad load).");
-     }
-
-     /* Get the "user name" as a default player name */
-     user_name(op_ptr->full_name, sizeof(op_ptr->full_name), player_uid);
-
-#ifdef PRIVATE_USER_PATH
-     /* Create a directory for the users files. */
-     IH_CreateConfigDir();
-#endif /* PRIVATE_USER_PATH */
-
-#endif /* SET_UID */
-}
 
 /* Main game code.
  */
@@ -144,9 +50,9 @@ main(int argc,
      /* Set some defaults.
       */
 //     ih.is_fullscreen = TRUE;
-     ih.desired_display_width = 1024;
-     ih.desired_display_height = 768;
-     ih.display_depth = 24;
+     ih.display.desired_width = 1024;
+     ih.display.desired_height = 768;
+     ih.display.depth = 24;
      ih.icon_size = IH_ICON_SIZE_SMALL;
      ih.pointer = IH_POINTER_STANDARD;
      ih.messages_shown = 10;
@@ -173,13 +79,13 @@ main(int argc,
 
      /* Set default video modes.
       */
-     ih.display_flags = SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_ASYNCBLIT;
-     if(ih.is_fullscreen)
-          ih.display_flags |= SDL_FULLSCREEN;
+     ih.display.flags = SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_ASYNCBLIT;
+     if(ih.display.is_fullscreen)
+          ih.display.flags |= SDL_FULLSCREEN;
      /* if(ih.hw_accel)
-      * ih.display_flags |= SDL_OPENGL; */
+      * ih.display.flags |= SDL_OPENGL; */
 #ifdef DEBUG
-     fprintf(stderr, "requested display flags = 0x%x\n", ih.display_flags);
+     fprintf(stderr, "requested display flags = 0x%x\n", ih.display.flags);
 #endif
 
      /* Catch nasty signals.
@@ -193,60 +99,71 @@ main(int argc,
           exit(1);
      }
      atexit(SDL_Quit);
-     atexit(TTF_Quit);
 
      /* Turn on Unicode translation.
       */
      SDL_EnableUNICODE(1);
 
+     /* Initialize the angband "displays."
+      */
      IH_InitDisplays();
 
-     ih.scene = SCENE_SPLASH;
+     /* Initialize the angband "game."
+      */
+     IH_InitAngband();
+
+     /* Initialize the display engine.
+      */
+     rc = IH_Engines_Init();
+     if(rc)
+     {
+          fprintf(stderr,
+                  "Couldn't initialize display engine: error code %d\n",
+                  rc);
+          SDL_Quit();
+          exit(2);
+     }
+
+     ih.scene.scene = SCENE_SPLASH;
+
+     /* Tell the display engine to get itself ready.
+      */
+     rc = (*ih.display.setup_display_func) ();
+     if(rc)
+     {
+          fprintf(stderr, "Couldn't setup display (error code %d)\n", rc);
+          SDL_Quit();
+          exit(2);
+     }
 
      /* Set video mode */
-     ih.screen = SDL_SetVideoMode(800, 600,
-                                  ih.display_depth, ih.display_flags);
-     if(ih.screen == NULL)
+     ih.display.screen = SDL_SetVideoMode(800, 600,
+                                          ih.display.depth,
+                                          ih.display.flags);
+     if(ih.display.screen == NULL)
      {
           fprintf(stderr,
                   "Couldn't set %dx%dx%d video mode: %s\n",
-                  ih.display_width, ih.display_height, ih.display_depth,
+                  ih.display.width, ih.display.height, ih.display.depth,
                   SDL_GetError());
           SDL_Quit();
           exit(2);
      }
 #ifdef DEBUG
-     fprintf(stderr, "actual display flags = 0x%x\n", ih.screen->flags);
+     fprintf(stderr, "actual display flags = 0x%x\n",
+             ih.display.screen->flags);
 #endif
-     ih.display_width = 800;
-     ih.display_height = 600;
+     ih.display.width = 800;
+     ih.display.height = 600;
 
-     ih.load_message = NULL;
+     ih.load_message[0] = 0;
 
      ih.err_shown = FALSE;
-     ih.err_message = NULL;
+     ih.err_message[0] = 0;
 
-     /* Initialize SDL_draw.
+     /* Initialize semaphores.
       */
-     Draw_Init();
-
-#ifdef DEBUG
-     fprintf(stderr, "Initializing font.\n");
-#endif
-     if(rc = IH_InitFonts())
-     {
-          fprintf(stderr, "Unable to initialize fonts!\n");
-          SDL_Quit();
-          exit(rc);
-     }
-
-     ih.scene = SCENE_INTRO;
-
-#ifdef DEBUG
-     fprintf(stderr, "Initializing images.\n");
-#endif
-     IH_LoadImages();
-
+     fprintf(stderr, "main(): init semaphores\n");
      if(!IH_InitSemaphores())
      {
           fprintf(stderr,
@@ -255,49 +172,67 @@ main(int argc,
           exit(2);
      }
 
+     /* Setup the display engine.
+      */
+     fprintf(stderr, "main(): call display setup\n");
+     (*ih.display.setup_func) ();
+     fprintf(stderr, "main(): done display setup\n");
+
+     /* Initialize overlays.
+      */
+     fprintf(stderr, "main(): init overlays\n");
      IH_InitOverlays();
 
-     ih.thread_done = FALSE;
-     ih.game_thread = SDL_CreateThread(IH_GameThread, NULL);
-     if(!ih.game_thread)
+     /* Start the game thread.
+      */
+     fprintf(stderr, "main(): initialize game thread\n");
+     ih.ipc.game_thread = SDL_CreateThread(IH_GameThread, NULL);
+     if(!ih.ipc.game_thread)
      {
-          IH_Cleanup();
-
           fprintf(stderr,
                   "Unable to create thread: %s!\n", SDL_GetError());
-          SDL_Quit();
-          exit(2);
+
+          goto shutdown;
      }
 
-#ifdef DEBUG
-     fprintf(stderr, "main: Entering main loop.\n");
-#endif
+     /* Signal the start the intro video, if there is one.
+      */
+     fprintf(stderr, "main(): set scene (intro)\n");
+     ih.scene.scene = SCENE_INTRO;
+
+     /* FIXME -- do an intro movie or something...
+      */
+
+     /* Set the title scene.
+      */
+     fprintf(stderr, "main(): set scene (title)\n");
+     ih.scene.scene = SCENE_TITLE;
+
+     /* Enter the main game loop.
+      */
+     fprintf(stderr, "main(): game loop\n");
      ih.done = 0;
      while(!ih.done)
      {
           SDL_Event       event;
 
-#ifdef DEBUG
-          fprintf(stderr, "main: IH_InitScene\n");
-#endif
+          /* Initialize the current scene.
+           */
           IH_Scene_Init();
+          
+          /* Delay, to be nice to the system.
+           */
+          SDL_Delay(10);
 
-#ifdef DEBUG
-          fprintf(stderr, "main: IH_RenderScene\n");
-#endif
+          /* Draw the scene.
+           */
           IH_Scene_Render();
 
           /* Check for events */
-#ifdef DEBUG
-          fprintf(stderr, "main: Check for events.\n");
-#endif
           while(SDL_PollEvent(&event))
           {
                /* Do some global event processing.
                 */
-#ifdef DEBUG
-               fprintf(stderr, "main: Process an event.\n");
-#endif
                switch (event.type)
                {
                     case SDL_MOUSEMOTION:
@@ -305,8 +240,8 @@ main(int argc,
                          fprintf(stderr, "x = %d, y = %d\n",
                                  event.motion.x, event.motion.y);
 #endif
-                         ih.mouse_x = event.motion.x;
-                         ih.mouse_y = event.motion.y;
+                         ih.display.mouse_x = event.motion.x;
+                         ih.display.mouse_y = event.motion.y;
                          break;
 
                     case SDL_KEYDOWN:
@@ -314,58 +249,29 @@ main(int argc,
                               break;
                     case SDL_QUIT:
                          ih.done = 1;
+
+                         SDL_KillThread(ih.ipc.game_thread);
                          break;
                }
 
-#ifdef DEBUG
-               fprintf(stderr, "main: Check for quit.\n");
-#endif
                if(ih.done)
                     break;
 
                /* Do scene-specific event processing.
                 */
-#ifdef DEBUG
-               fprintf(stderr, "main: IH_ProcessScene\n");
-#endif
                IH_Scene_Process(&event);
           }
      }
 
-     /* Wait for the thread to finish.
-      */
-#ifdef DEBUG
-     fprintf(stderr, "main: wait for thread to finish\n");
-#endif
-     for(;;)
-     {
-          bool            thread_done = FALSE;
+   shutdown:
+     IH_Engines_Cleanup();
 
-          if(!SDL_SemWait(ih.sem.talk))
-          {
-               thread_done = ih.thread_done;
+     IH_DestroySemaphores();
 
-               SDL_SemPost(ih.sem.talk);
-          }
-
-          if(thread_done)
-               break;
-     }
-
-#ifdef DEBUG
-     fprintf(stderr, "main: IH_Cleanup\n");
-#endif
-     IH_Cleanup();
+     SDL_ShowCursor(TRUE);
 
      /* Clean up the SDL library */
-#ifdef DEBUG
-     fprintf(stderr, "main: SDL_Quit\n");
-#endif
-     TTF_Quit();
      SDL_Quit();
 
-#ifdef DEBUG
-     fprintf(stderr, "main: exit\n");
-#endif
      return (0);
 }

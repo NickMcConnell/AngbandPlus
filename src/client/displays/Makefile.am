@@ -1,1 +1,0 @@
-SUBDIRS = gl iso

@@ -1,5 +1,5 @@
 
-/* $Id: defines.h,v 1.8 2003/04/07 20:53:52 cipher Exp $ */
+/* $Id: defines.h,v 1.9 2003/04/08 16:37:23 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke

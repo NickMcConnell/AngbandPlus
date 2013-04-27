@@ -2,12 +2,12 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl Initialize autoconf - look for the existance of a file to make sure
 dnl the source distribution is installed correctly.
-AC_INIT(ironhells, 1.0a4)
+AC_INIT(ironhells, 1.0a6)
 AC_CONFIG_SRCDIR([src/client/main.c])
 AM_INIT_AUTOMAKE
 
 dnl write the resulting #defines into a header file
-AC_CONFIG_HEADER(src/client/angband/autoconf.h)
+AC_CONFIG_HEADER(src/client/autoconf.h)
 
 dnl AC_CANONICAL_HOST
 
@@ -29,7 +29,7 @@ AC_SUBST(GAMEGROUP)
 AM_CONDITIONAL(SET_GID, test "$GAMEGROUP" != "")
 
 AC_ARG_WITH(debug,
-[  --enable-debug=yes/no		enable debugging output],
+[  --with-debug=yes/no		enable debugging output],
 [case "${withval}" in
   no) DEBUG=0;;
   yes) DEBUG=1;;
@@ -132,7 +132,7 @@ AC_CHECK_CC_OPT(-Wpointer-arith)
 AC_CHECK_CC_OPT(-Wbad-function-cast)
 AC_CHECK_CC_OPT(-Waggregate-return)
 AC_CHECK_CC_OPT(-Wstrict-prototypes)
-dnl AC_CHECK_CC_OPT(-Wredundant-decls)
+AC_CHECK_CC_OPT(-Wredundant-decls)
 dnl AC_CHECK_CC_OPT(-Wunreachable-code)
 dnl AC_CHECK_CC_OPT(-Wchar-subscripts)
 AC_CHECK_CC_OPT(-Wimplicit)
@@ -148,12 +148,16 @@ dnl AC_CHECK_CC_OPT(-Wnested-externs)
 AM_PATH_SDL
 
 AC_CHECK_LIB(SDL_ttf, TTF_Init, [
-	AC_DEFINE_UNQUOTED(USE_SDLTTF, 1, [Use SDL_ttf for font rendering])
 	SDLTTF_CFLAGS=`sdl-config --cflags`
 	SDLTTF_LIBS="`sdl-config --libs` -lSDL_ttf -lttf"
 	AC_SUBST(SDLTTF_CFLAGS)
 	AC_SUBST(SDLTTF_LIBS)
-	], [])
+	], [
+	echo "ERROR! SDL_ttf is required to build this project!"
+	exit -1
+	], [
+	"`sdl-config --libs`"
+	])
 
 AC_CHECK_LIB(SDL_image, IMG_Load_RW, [
 	SDLIMAGE_CFLAGS=`sdl-config --cflags`
@@ -176,7 +180,17 @@ AC_CHECK_LIB(SDL_draw, Draw_Init, [
 	])
 
 AC_CONFIG_FILES([Makefile])
-AC_OUTPUT([data/font/Makefile
+AC_OUTPUT([
+data/font/Makefile
+data/gfx/icon/large/Makefile
+data/gfx/icon/medium/Makefile
+data/gfx/icon/small/Makefile
+data/gfx/icon/Makefile
+data/gfx/misc/large/Makefile
+data/gfx/misc/medium/Makefile
+data/gfx/misc/small/Makefile
+data/gfx/misc/Makefile
+data/gfx/tile/Makefile
 data/gfx/creature/player/dunadan/Makefile
 data/gfx/creature/player/dwarf/Makefile
 data/gfx/creature/player/elf/Makefile
@@ -190,41 +204,31 @@ data/gfx/creature/player/human/Makefile
 data/gfx/creature/player/kobold/Makefile
 data/gfx/creature/player/Makefile
 data/gfx/creature/Makefile
-data/gfx/icon/large/Makefile
-data/gfx/icon/medium/Makefile
-data/gfx/icon/small/Makefile
-data/gfx/icon/Makefile
-data/gfx/misc/large/Makefile
-data/gfx/misc/medium/Makefile
-data/gfx/misc/small/Makefile
-data/gfx/misc/Makefile
-data/gfx/Makefile
 data/gfx/object/Makefile
-data/gfx/tile/Makefile
 data/gfx/screen/Makefile
-data/map/Makefile
+data/gfx/Makefile
 data/map/dungeon/Makefile
 data/map/town/shop/Makefile
 data/map/town/Makefile
-data/stat/Makefile
+data/map/Makefile
 data/stat/item/artifact/Makefile
 data/stat/item/ego/Makefile
-data/stat/item/Makefile
 data/stat/item/flavor/Makefile
 data/stat/item/object/Makefile
-data/stat/player/Makefile
+data/stat/item/Makefile
 data/stat/player/class/Makefile
 data/stat/player/race/Makefile
 data/stat/player/history/Makefile
+data/stat/player/Makefile
 data/stat/creature/Makefile
 data/stat/dungeon/vault/Makefile
-data/stat/dungeon/Makefile
 data/stat/dungeon/normal/Makefile
+data/stat/dungeon/Makefile
 data/stat/town/shop/Makefile
-data/stat/town/Makefile
 data/stat/town/wild/Makefile
+data/stat/town/Makefile
 data/stat/terrain/Makefile
-data/Makefile
+data/stat/Makefile
 data/apex/Makefile
 data/save/Makefile
 data/media/video/Makefile
@@ -232,9 +236,9 @@ data/media/sound/Makefile
 data/media/music/Makefile
 data/media/Makefile
 data/script/Makefile
+data/Makefile
 lib/apex/Makefile
 lib/bone/Makefile
-lib/Makefile
 lib/data/Makefile
 lib/edit/Makefile
 lib/file/Makefile
@@ -247,17 +251,21 @@ lib/user/Makefile
 lib/xtra/font/Makefile
 lib/xtra/graf/Makefile
 lib/xtra/Makefile
+lib/Makefile
 src/client/angband/Makefile
-src/client/displays/gl/Makefile
-src/client/displays/iso/overlay/Makefile
-src/client/displays/iso/scene/Makefile
-src/client/displays/iso/Makefile
-src/client/displays/Makefile
-src/client/lua/Makefile
 src/client/platform/mac/osx/Makefile
 src/client/platform/mac/Makefile
 src/client/platform/linux/Makefile
 src/client/platform/win/Makefile
 src/client/platform/Makefile
+src/client/engines/3d/Makefile
+src/client/engines/iso/Makefile
+src/client/engines/Makefile
+src/client/overlay/Makefile
+src/client/render/Makefile
+src/client/scene/Makefile
 src/client/Makefile
-src/Makefile])
+src/lua/Makefile
+src/server/Makefile
+src/Makefile
+])

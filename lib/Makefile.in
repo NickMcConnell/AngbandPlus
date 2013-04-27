@@ -147,7 +147,7 @@ target_vendor = @target_vendor@
 SUBDIRS = apex bone data edit file help info pref save script user xtra
 subdir = lib
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
-CONFIG_HEADER = $(top_builddir)/src/client/angband/autoconf.h
+CONFIG_HEADER = $(top_builddir)/src/client/autoconf.h
 CONFIG_CLEAN_FILES =
 DIST_SOURCES =
 

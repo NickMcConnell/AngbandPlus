@@ -1,1 +1,1 @@
-SUBDIRS = client
+SUBDIRS = lua client server

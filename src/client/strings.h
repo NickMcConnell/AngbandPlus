@@ -1,5 +1,5 @@
 
-/* $Id: strings.h,v 1.5 2003/04/06 15:21:34 cipher Exp $ */
+/* $Id: strings.h,v 1.8 2003/04/17 06:43:51 cipher Exp $ */
 
 #ifndef IH_SDL_STRINGS_H
 #define IH_SDL_STRINGS_H
@@ -128,5 +128,41 @@
 #define IH_TEXT_OVERLAY_BOOK_COMMENT_UNKNOWN "unknown"
 #define IH_TEXT_OVERLAY_BOOK_COMMENT_DIFFICULT "difficult"
 #define IH_TEXT_OVERLAY_BOOK_COMMENT_UNTRIED "untried"
+
+#define IH_TEXT_OVERLAY_CHARACTER_NO_NAME "(No name)"
+#define IH_TEXT_OVERLAY_CHARACTER_WIZARD "[=-WIZARD-=]"
+#define IH_TEXT_OVERLAY_CHARACTER_WINNER "***WINNER***"
+#define IH_TEXT_OVERLAY_CHARACTER_AGE_FMT "%d years"
+#define IH_TEXT_OVERLAY_CHARACTER_TURNS_FMT "%d/turn"
+#define IH_TEXT_OVERLAY_CHARACTER_INFRA_FMT "%d ft"
+#define IH_TEXT_OVERLAY_CHARACTER_BURDEN_FMT "%ld.%ld lbs"
+#define IH_TEXT_OVERLAY_CHARACTER_SAVING_THROW "Saving Throw"
+#define IH_TEXT_OVERLAY_CHARACTER_STEALTH "Stealth"
+#define IH_TEXT_OVERLAY_CHARACTER_FIGHTING "Fighting"
+#define IH_TEXT_OVERLAY_CHARACTER_SHOOTING "Shooting"
+#define IH_TEXT_OVERLAY_CHARACTER_DISARMING "Disarming"
+#define IH_TEXT_OVERLAY_CHARACTER_MAGIC_DEVICE "Magic Device"
+#define IH_TEXT_OVERLAY_CHARACTER_PERCEPTION "Perception"
+#define IH_TEXT_OVERLAY_CHARACTER_SEARCHING "Searching"
+
+#define IH_TEXT_OVERLAY_SHOP_DESCRIPTION "Description"
+#define IH_TEXT_OVERLAY_SHOP_WEIGHT "Weight"
+#define IH_TEXT_OVERLAY_SHOP_PRICE "Price"
+#define IH_TEXT_OVERLAY_SHOP_WEIGHT_FMT "%3d.%d lb"
+#define IH_TEXT_OVERLAY_SHOP_MORE "-more-"
+#define IH_TEXT_OVERLAY_SHOP_PAGE_FMT "(Page %d)"
+#define IH_TEXT_OVERLAY_SHOP_CMD_EXIT "ESC) Exit from Building."
+#define IH_TEXT_OVERLAY_SHOP_CMD_BUY "g) Get/Purchase an item."
+#define IH_TEXT_OVERLAY_SHOP_CMD_SELL "d) Drop/Sell an item."
+#define IH_TEXT_OVERLAY_SHOP_CMD_NEXT_PAGE "SPACE) Next page of stock."
+#define IH_TEXT_OVERLAY_SHOP_CMD_EXAMINE "x) eXamine an item."
+#define IH_TEXT_OVERLAY_SHOP_CMD_LOOK "l) Look at an item."
+
+#define IH_TEXT_LOAD_FONTS "Loading fonts..."
+#define IH_TEXT_LOAD_MAP "Loading map images..."
+#define IH_TEXT_LOAD_POINTERS "Loading pointer data..."
+#define IH_TEXT_LOAD_ICONS "Loading icon data..."
+#define IH_TEXT_LOAD_MISC "Loading miscellaneous images..."
+#define IH_TEXT_LOAD_COMPLETE "Load complete."
 
 #endif /* IH_SDL_STRINGS_H */

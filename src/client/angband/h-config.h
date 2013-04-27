@@ -1,11 +1,12 @@
 
-/* $Id: h-config.h,v 1.4 2003/03/17 22:45:24 cipher Exp $ */
+/* $Id: h-config.h,v 1.5 2003/04/08 18:23:23 cipher Exp $ */
 
 #ifndef INCLUDED_H_CONFIG_H
 #define INCLUDED_H_CONFIG_H
 
 /*
- * Choose the hardware, operating system, and compiler.
+ * Choose the display engine(s), hardware, operating system, 
+ * and compiler.
  * Also, choose various "system level" compilation options.
  * A lot of these definitions take effect in "h-system.h"
  *
@@ -13,6 +14,17 @@
  * the "Makefile", the "project file", or something similar, and
  * should not be defined by the user.
  */
+
+/*
+ * OPTION: Compile the isometric display engine.
+ */
+#define BUILD_ISO_ENGINE
+
+/*
+ * OPTION: Compile the 3D (OpenGL) display engine.
+ */
+
+/* #define BUILD_3D_ENGINE */
 
 /*
  * OPTION: Compile on a Macintosh or OS X machine

@@ -1,5 +1,5 @@
 
-/* $Id: file-win.c,v 1.4 2003/03/17 22:45:32 cipher Exp $ */
+/* $Id: file-win.c,v 1.5 2003/04/08 16:37:32 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer

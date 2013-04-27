@@ -1,5 +1,5 @@
 
-/* $Id: z-disp.h,v 1.5 2003/04/06 15:22:10 cipher Exp $ */
+/* $Id: z-disp.h,v 1.6 2003/04/08 16:37:27 cipher Exp $ */
 
 #ifndef INCLUDED_Z_DISP_H
 #define INCLUDED_Z_DISP_H

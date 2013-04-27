@@ -10,6 +10,7 @@ ironhells_files = \
 	lmx-deco.png \
 	mana-bar.png \
 	splash.png \
+	title.png \
 	xp-bar.png
     
 EXTRA_DIST = \
