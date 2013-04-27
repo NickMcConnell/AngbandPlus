@@ -10,6 +10,9 @@
  */
 
 #include "angband.h"
+#include "z-quark.h"
+#include "game-event.h"
+#include "game-cmd.h"
 
 #include "init.h"
 
@@ -752,9 +755,9 @@ static errr init_f_info(void)
 	err = init_info("terrain", &f_head);
 
 	/* Set the global variables */
-	f_info = (feature_type*)f_head.info_ptr;
-	f_name = f_head.name_ptr;
-	f_text = f_head.text_ptr;
+	feature_type::f_info = (feature_type*)f_head.info_ptr;
+	feature_type::f_name = f_head.name_ptr;
+	feature_type::f_text = f_head.text_ptr;
 
 	return (err);
 }
@@ -782,8 +785,8 @@ static errr init_k_info(void)
 
 	/* Set the global variables */
 	object_type::k_info = (object_kind*)k_head.info_ptr;
-	object_type::k_name = k_head.name_ptr;
-	object_type::k_text = k_head.text_ptr;
+	object_kind::k_name = k_head.name_ptr;
+	object_kind::k_text = k_head.text_ptr;
 
 	return (err);
 }
@@ -810,9 +813,9 @@ static errr init_a_info(void)
 	err = init_info("artifact", &a_head);
 
 	/* Set the global variables */
-	a_info = (artifact_type*)a_head.info_ptr;
-	a_name = a_head.name_ptr;
-	a_text = a_head.text_ptr;
+	object_type::a_info = (artifact_type*)a_head.info_ptr;
+	artifact_type::a_name = a_head.name_ptr;
+	artifact_type::a_text = a_head.text_ptr;
 
 	return (err);
 }
@@ -839,9 +842,9 @@ static errr init_e_info(void)
 	err = init_info("ego_item", &e_head);
 
 	/* Set the global variables */
-	e_info = (ego_item_type*)e_head.info_ptr;
-	e_name = e_head.name_ptr;
-	e_text = e_head.text_ptr;
+	object_type::e_info = (ego_item_type*)e_head.info_ptr;
+	ego_item_type::e_name = e_head.name_ptr;
+	ego_item_type::e_text = e_head.text_ptr;
 
 	return (err);
 }
@@ -868,9 +871,9 @@ static errr init_r_info(void)
 	err = init_info("monster", &r_head);
 
 	/* Set the global variables */
-	r_info = (monster_race*)r_head.info_ptr;
-	r_name = r_head.name_ptr;
-	r_text = r_head.text_ptr;
+	monster_type::r_info = (monster_race*)r_head.info_ptr;
+	monster_race::r_name = r_head.name_ptr;
+	monster_race::r_text = r_head.text_ptr;
 
 	return (err);
 }
@@ -897,9 +900,9 @@ static errr init_v_info(void)
 	err = init_info("vault", &v_head);
 
 	/* Set the global variables */
-	v_info = (vault_type*)v_head.info_ptr;
-	v_name = v_head.name_ptr;
-	v_text = v_head.text_ptr;
+	vault_type::v_info = (vault_type*)v_head.info_ptr;
+	vault_type::v_name = v_head.name_ptr;
+	vault_type::v_text = v_head.text_ptr;
 
 	return (err);
 }
@@ -925,9 +928,9 @@ static errr init_p_info(void)
 	err = init_info("p_race", &p_head);
 
 	/* Set the global variables */
-	p_info = (player_race*)p_head.info_ptr;
-	p_name = p_head.name_ptr;
-	p_text = p_head.text_ptr;
+	player_type::p_info = (player_race*)p_head.info_ptr;
+	player_type::p_name = p_head.name_ptr;
+	player_type::p_text = p_head.text_ptr;
 
 	return (err);
 }
@@ -953,9 +956,9 @@ static errr init_c_info(void)
 	err = init_info("p_class", &c_head);
 
 	/* Set the global variables */
-	c_info = (player_class*)c_head.info_ptr;
-	c_name = c_head.name_ptr;
-	c_text = c_head.text_ptr;
+	player_type::c_info = (player_class*)c_head.info_ptr;
+	player_type::c_name = c_head.name_ptr;
+	player_type::c_text = c_head.text_ptr;
 
 	return (err);
 }
@@ -982,8 +985,8 @@ static errr init_h_info(void)
 	err = init_info("p_hist", &h_head);
 
 	/* Set the global variables */
-	h_info = (hist_type*)h_head.info_ptr;
-	h_text = h_head.text_ptr;
+	player_type::h_info = (hist_type*)h_head.info_ptr;
+	player_type::h_text = h_head.text_ptr;
 
 	return (err);
 }
@@ -1067,9 +1070,9 @@ static errr init_flavor_info(void)
 	err = init_info("flavor", &flavor_head);
 
 	/* Set the global variables */
-	object_type::flavor_info = (flavor_type*)flavor_head.info_ptr;
-	object_type::flavor_name = flavor_head.name_ptr;
-	object_type::flavor_text = flavor_head.text_ptr;
+	object_kind::flavor_info = (flavor_type*)flavor_head.info_ptr;
+	flavor_type::flavor_name = flavor_head.name_ptr;
+	flavor_type::flavor_text = flavor_head.text_ptr;
 
 	return (err);
 }
@@ -1348,9 +1351,6 @@ static errr init_other(void)
 	/*** Prepare grid arrays ***/
 
 	/* Array of grids */
-	C_MAKE(view_g, VIEW_MAX, coord);
-
-	/* Array of grids */
 	C_MAKE(temp_g, TEMP_MAX, coord);
 
 	/* Hack -- use some memory twice */
@@ -1370,13 +1370,9 @@ static errr init_other(void)
 	C_MAKE(cave_o_idx, DUNGEON_HGT, s16b_wid);
 	C_MAKE(cave_m_idx, DUNGEON_HGT, s16b_wid);
 
-#ifdef MONSTER_FLOW
-
 	/* Flow arrays */
 	C_MAKE(cave_cost, DUNGEON_HGT, byte_wid);
 	C_MAKE(cave_when, DUNGEON_HGT, byte_wid);
-
-#endif /* MONSTER_FLOW */
 
 	/*** Prepare "vinfo" array ***/
 
@@ -1396,7 +1392,7 @@ static errr init_other(void)
 	/*** Prepare lore array ***/
 
 	/* Lore */
-	C_MAKE(l_list, z_info->r_max, monster_lore);
+	C_MAKE(monster_type::l_list, z_info->r_max, monster_lore);
 
 
 	/*** Prepare quest array ***/
@@ -1621,7 +1617,7 @@ static errr init_alloc(void)
 	for (i = 1; i < z_info->r_max - 1; i++)
 	{
 		/* Get the i'th race */
-		r_ptr = &r_info[i];
+		r_ptr = &monster_type::r_info[i];
 
 		/* Legal monsters */
 		if (r_ptr->rarity)
@@ -1657,7 +1653,7 @@ static errr init_alloc(void)
 	for (i = 1; i < z_info->r_max - 1; i++)
 	{
 		/* Get the i'th race */
-		r_ptr = &r_info[i];
+		r_ptr = &monster_type::r_info[i];
 
 		/* Count valid pairs */
 		if (r_ptr->rarity)
@@ -1703,7 +1699,7 @@ static errr init_alloc(void)
 	for (i = 1; i < z_info->e_max; i++)
 	{
 		/* Get the i'th ego item */
-		e_ptr = &e_info[i];
+		e_ptr = &object_type::e_info[i];
 
 		/* Legal items */
 		if (e_ptr->rarity)
@@ -1735,7 +1731,7 @@ static errr init_alloc(void)
 	for (i = 1; i < z_info->e_max; i++)
 	{
 		/* Get the i'th ego item */
-		e_ptr = &e_info[i];
+		e_ptr = &object_type::e_info[i];
 
 		/* Count valid pairs */
 		if (e_ptr->rarity)
@@ -1769,30 +1765,6 @@ static errr init_alloc(void)
 
 	/* Success */
 	return (0);
-}
-
-
-/*
- * Hack -- take notes on line 23
- */
-static void note(cptr str)
-{
-	Term_erase(0, 23, 255);
-	Term_putstr(20, 23, -1, TERM_WHITE, str);
-	Term_fresh();
-}
-
-
-
-/*
- * Hack -- Explain a broken "lib" folder and quit (see below).
- */
-static void init_angband_aux(cptr why)
-{
-	quit_fmt("%s\n\n%s", why,
-	         "The 'lib' directory is probably missing or broken.\n"
-	         "Perhaps the archive was not extracted correctly.\n"
-	         "See the 'readme.txt' file for more information.");
 }
 
 
@@ -1843,184 +1815,108 @@ static void init_angband_aux(cptr why)
  * Note that the "graf-xxx.prf" file must be loaded separately,
  * if needed, in the first (?) pass through "TERM_XTRA_REACT".
  */
+#ifdef ZAIBAND_NEW_COMMAND_LOOP
+bool init_angband(void)
+#else
 void init_angband(void)
+#endif
 {
-	int fd;
+	/* Set up the display handlers and things. */
+	init_display();
 
-	int mode = 0644;
-
-	FILE *fp;
-
-	char buf[1024];
-
-
-	/*** Verify the "news" file ***/
-
-	/* Build the filename */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "news.txt");
-
-	/* Attempt to open the file */
-	fd = fd_open(buf, O_RDONLY);
-
-	/* Failure */
-	if (fd < 0)
-	{
-		char why[1024];
-
-		/* Message */
-		strnfmt(why, sizeof(why), "Cannot access the '%s' file!", buf);
-
-		/* Crash and burn */
-		init_angband_aux(why);
-	}
-
-	/* Close it */
-	fd_close(fd);
-
-
-	/*** Display the "news" file ***/
-
-	/* Clear screen */
-	Term_clear();
-
-	/* Build the filename */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "news.txt");
-
-	/* Open the News file */
-	fp = my_fopen(buf, "r");
-
-	/* Dump */
-	if (fp)
-	{
-		int i = 0;
-
-		/* Dump the file to the screen */
-		while (0 == my_fgets(fp, buf, sizeof(buf)))
-		{
-			/* Display and advance */
-			Term_putstr(0, i++, -1, TERM_WHITE, buf);
-		}
-
-		/* Close */
-		my_fclose(fp);
-	}
-
-	/* Flush it */
-	Term_fresh();
-
-
-	/*** Verify (or create) the "high score" file ***/
-
-	/* Build the filename */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_APEX, "scores.raw");
-
-	/* Attempt to open the high score file */
-	fd = fd_open(buf, O_RDONLY);
-
-	/* Failure */
-	if (fd < 0)
-	{
-		/* File type is "DATA" */
-		FILE_TYPE(FILE_TYPE_DATA);
-
-		/* Grab permissions */
-		safe_setuid_grab();
-
-		/* Create a new high score file */
-		fd = fd_make(buf, mode);
-
-		/* Drop permissions */
-		safe_setuid_drop();
-
-		/* Failure */
-		if (fd < 0)
-		{
-			char why[1024];
-
-			/* Message */
-			strnfmt(why, sizeof(why), "Cannot create the '%s' file!", buf);
-
-			/* Crash and burn */
-			init_angband_aux(why);
-		}
-	}
-
-	/* Close it */
-	fd_close(fd);
-
+	event_signal(EVENT_ENTER_INIT);
 
 	/*** Initialize some arrays ***/
 
 	/* Initialize size info */
-	note("[Initializing array sizes...]");
+	event_signal_string(EVENT_INITSTATUS, "[Initializing array sizes...]");
 	if (init_z_info()) quit("Cannot initialize sizes");
 
 	/* Initialize feature info */
-	note("[Initializing arrays... (features)]");
+	event_signal_string(EVENT_INITSTATUS, "[Initializing arrays... (features)]");
 	if (init_f_info()) quit("Cannot initialize features");
 
 	/* Initialize object info */
-	note("[Initializing arrays... (objects)]");
+	event_signal_string(EVENT_INITSTATUS, "[Initializing arrays... (objects)]");
 	if (init_k_info()) quit("Cannot initialize objects");
 
 	/* Initialize artifact info */
-	note("[Initializing arrays... (artifacts)]");
+	event_signal_string(EVENT_INITSTATUS, "[Initializing arrays... (artifacts)]");
 	if (init_a_info()) quit("Cannot initialize artifacts");
 
 	/* Initialize ego-item info */
-	note("[Initializing arrays... (ego-items)]");
+	event_signal_string(EVENT_INITSTATUS, "[Initializing arrays... (ego-items)]");
 	if (init_e_info()) quit("Cannot initialize ego-items");
 
 	/* Initialize monster info */
-	note("[Initializing arrays... (monsters)]");
+	event_signal_string(EVENT_INITSTATUS, "[Initializing arrays... (monsters)]");
 	if (init_r_info()) quit("Cannot initialize monsters");
 
 	/* Initialize feature info */
-	note("[Initializing arrays... (vaults)]");
+	event_signal_string(EVENT_INITSTATUS, "[Initializing arrays... (vaults)]");
 	if (init_v_info()) quit("Cannot initialize vaults");
 
 	/* Initialize history info */
-	note("[Initializing arrays... (histories)]");
+	event_signal_string(EVENT_INITSTATUS, "[Initializing arrays... (histories)]");
 	if (init_h_info()) quit("Cannot initialize histories");
 
 	/* Initialize race info */
-	note("[Initializing arrays... (races)]");
+	event_signal_string(EVENT_INITSTATUS, "[Initializing arrays... (races)]");
 	if (init_p_info()) quit("Cannot initialize races");
 
 	/* Initialize class info */
-	note("[Initializing arrays... (classes)]");
+	event_signal_string(EVENT_INITSTATUS, "[Initializing arrays... (classes)]");
 	if (init_c_info()) quit("Cannot initialize classes");
 
 	/* Initialize owner info */
-	note("[Initializing arrays... (owners)]");
+	event_signal_string(EVENT_INITSTATUS, "[Initializing arrays... (owners)]");
 	if (init_b_info()) quit("Cannot initialize owners");
 
 	/* Initialize price info */
-	note("[Initializing arrays... (prices)]");
+	event_signal_string(EVENT_INITSTATUS, "[Initializing arrays... (prices)]");
 	if (init_g_info()) quit("Cannot initialize prices");
 
 	/* Initialize flavor info */
-	note("[Initializing arrays... (flavors)]");
+	event_signal_string(EVENT_INITSTATUS, "[Initializing arrays... (flavors)]");
 	if (init_flavor_info()) quit("Cannot initialize flavors");
 	
 	/* Initialize some other arrays */
-	note("[Initializing arrays... (other)]");
+	event_signal_string(EVENT_INITSTATUS, "[Initializing arrays... (other)]");
 	if (init_other()) quit("Cannot initialize other stuff");
 
 	/* Initialize some other arrays */
-	note("[Initializing arrays... (alloc)]");
+	event_signal_string(EVENT_INITSTATUS, "[Initializing arrays... (alloc)]");
 	if (init_alloc()) quit("Cannot initialize alloc stuff");
 
 	/*** Load default user pref files ***/
 
 	/* Initialize feature info */
-	note("[Loading basic user pref file...]");
+	event_signal_string(EVENT_INITSTATUS, "[Loading basic user pref file...]");
 
 	/* Process that file */
 	(void)process_pref_file("pref.prf");
 
 	/* Done */
-	note("[Initialization complete]");
+	event_signal_string(EVENT_INITSTATUS, "[Initialization complete]");
+
+#ifdef ZAIBAND_NEW_COMMAND_LOOP
+	/* Ask for a "command" until we get one we like. */ 
+	while (1) 
+	{ 
+		game_command command_req = get_game_command(); 
+
+		if (command_req.command == CMD_QUIT) 
+			quit(NULL); 
+
+		else if (command_req.command == CMD_NEWGAME) 
+			return TRUE; 
+
+		else if (command_req.command == CMD_LOADFILE) 
+			/* In future we might want to pass back or set the savefile 
+				path here. */ 
+			return FALSE; 
+	} 
+#endif
 }
 
 
@@ -2063,29 +1959,19 @@ void cleanup_angband(void)
 	FREE(q_list);
 
 	/* Free the lore, monster, and object lists */
-	FREE(l_list);
+	FREE(monster_type::l_list);
 	FREE(mon_list);
 	FREE(o_list);
-
-#ifdef MONSTER_FLOW
 
 	/* Flow arrays */
 	FREE(cave_when);
 	FREE(cave_cost);
-
-#endif /* MONSTER_FLOW */
 
 	/* Free the cave */
 	FREE(cave_o_idx);
 	FREE(cave_m_idx);
 	FREE(cave_feat);
 	FREE(cave_info);
-
-	/* Free the "update_view()" array */
-	FREE(view_g);
-
-	/* Free the temp array */
-	FREE(temp_g);
 
 	/* Free the messages */
 	messages_free();

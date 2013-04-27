@@ -1,12 +1,21 @@
-/* File: main-xxx.c */
-
 /*
+ * File: main-xxx.c
+ * Purpose: Outline how to make a new "main-xxx" file.
+ *
  * Copyright (c) 1997 Ben Harrison
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
+#include "angband.h"
 
 
 /*
@@ -66,9 +75,6 @@
  */
 
 
-#include "angband.h"
-
-
 #ifdef USE_XXX
 
 #include "main.h"
@@ -123,7 +129,7 @@ static term_data data[MAX_XXX_TERM];
  * Often, the "Term_xtra(TERM_XTRA_REACT, 0)" hook is used to initialize
  * "color_data" from "angband_color_table".  XXX XXX XXX
  */
-static local_color_data_type color_data[256];
+static local_color_data_type color_data[MAX_COLORS];
 
 #endif
 
@@ -326,21 +332,6 @@ static errr Term_xtra_xxx(int n, int v)
 			return (0);
 		}
 
-		case TERM_XTRA_SOUND:
-		{
-			/*
-			 * Make a sound XXX XXX XXX
-			 *
-			 * This action should produce sound number "v", where the
-			 * "name" of that sound is "sound_names[v]".  This method
-			 * is still under construction.
-			 *
-			 * This action is optional, and not very important.
-			 */
-
-			return (0);
-		}
-
 		case TERM_XTRA_BORED:
 		{
 			/*
@@ -358,7 +349,7 @@ static errr Term_xtra_xxx(int n, int v)
 			 * React to global changes XXX XXX XXX
 			 *
 			 * For example, this action can be used to react to
-			 * changes in the global "angband_color_table[256][4]" array.
+			 * changes in the global "angband_color_table[MAX_COLORS][4]" array.
 			 *
 			 * This action is optional, but can be very useful for
 			 * handling "color changes" and the "arg_sound" and/or
@@ -490,7 +481,7 @@ static errr Term_wipe_xxx(int x, int y, int n)
  * you must first call "Term_wipe_xxx()" to clear the area.
  *
  * In color environments, you should activate the color contained
- * in "color_data[a & 0x0F]", if needed, before drawing anything.
+ * in "color_data[a & BASIC_COLORS]", if needed, before drawing anything.
  *
  * You may ignore the "attribute" if you are only supporting a
  * monochrome environment, since this routine is normally never
@@ -708,6 +699,21 @@ static bool CheckEvents(bool wait)
 }
 
 
+
+/*
+ * Make a sound.
+ *
+ * This action should produce sound number "v", where the
+ * "name" of that sound is "sound_names[v]".
+ *
+ * This action is optional, and not very important.
+ */
+static void xxx_sound(int v)
+{
+	return;
+}
+
+
 /*
  * Init some stuff
  *
@@ -721,10 +727,18 @@ static void init_stuff(void)
 	/* This must in some way prepare the "path" variable */
 	/* so that it points at the "lib" directory.  Every */
 	/* machine handles this in a different way... */
-	strcpy(path, "XXX XXX XXX");
+	my_strcpy(path, "XXX XXX XXX", sizeof(path));
 
 	/* Prepare the filepaths */
 	init_file_paths(path);
+
+
+#ifdef USE_SOUND
+
+	/* Set up sound hook */
+	sound_hook = xxx_sound;
+
+#endif /* USE_SOUND */
 }
 
 

@@ -11,57 +11,6 @@
 #include "angband.h"
 
 
-
-
-/*
- * Global array for looping through the "keypad directions".
- */
-const s16b ddd[9] =
-{ 2, 8, 6, 4, 3, 1, 9, 7, 5 };
-
-/*
- * Global arrays for converting "keypad direction" into "offsets".
- */
-const s16b ddx[10] =
-{ 0, -1, 0, 1, -1, 0, 1, -1, 0, 1 };
-
-const s16b ddy[10] =
-{ 0, 1, 1, 1, 0, 0, 0, -1, -1, -1 };
-
-const coord_delta dd_coord[10]	=	{
-									coord_delta(0,0),
-									coord_delta(-1,1),
-									coord_delta(0,1),
-									coord_delta(1,1),
-									coord_delta(-1,0),
-									coord_delta(0,0),
-									coord_delta(1,0),
-									coord_delta(-1,-1),
-									coord_delta(0,-1),
-									coord_delta(1,-1)
-									};
-
-/*
- * Global arrays for optimizing "ddx[ddd[i]]" and "ddy[ddd[i]]".
- */
-const s16b ddx_ddd[9] =
-{ 0, 0, 1, -1, 1, -1, 1, -1, 0 };
-
-const s16b ddy_ddd[9] =
-{ 1, -1, 0, 0, 1, 1, -1, -1, 0 };
-
-const coord_delta dd_coord_ddd[9]	=	{
-										coord_delta(0,1),
-										coord_delta(0,-1),
-										coord_delta(1,0),
-										coord_delta(-1,0),
-										coord_delta(1,1),
-										coord_delta(-1,1),
-										coord_delta(1,-1),
-										coord_delta(-1,-1),
-										coord_delta(0,0)
-										};
-
 /*
  * Global array for converting numbers to uppercase hecidecimal digit
  * This array can also be used to convert a number to an octal digit
@@ -1226,16 +1175,18 @@ const s32b player_exp[PY_MAX_LEVEL] =
  *	Title,
  *	Winner
  */
-const player_sex sex_info[MAX_SEXES] =
+const player_sex player_type::sex_info[MAX_SEXES] =
 {
 	{
 		"Female",
-		"Queen"
+		"Queen",
+		'f'
 	},
 
 	{
 		"Male",
-		"King"
+		"King",
+		'm'
 	}
 };
 
@@ -1319,7 +1270,7 @@ const byte chest_traps[64] =
 /*
  * Hack -- the "basic" color names (see "TERM_xxx")
  */
-cptr color_names[16] =
+cptr color_names[BASIC_COLORS] =
 {
 	"Dark",
 	"White",
@@ -1429,7 +1380,7 @@ cptr option_text[OPT_MAX] =
 	"always_repeat",			/* OPT_always_repeat */
 	"depth_in_feet",			/* OPT_depth_in_feet */
 	"stack_force_notes",		/* OPT_stack_force_notes */
-	"stack_force_costs",		/* OPT_stack_force_costs */
+	NULL,						/* xxx stack_force_costs */
 	"show_labels",				/* OPT_show_labels */
 	"show_weights",				/* OPT_show_weights */
 	"show_choices",				/* OPT_show_choices */
@@ -1449,15 +1400,15 @@ cptr option_text[OPT_MAX] =
 	NULL,						/* xxx alert_hitpoint */
 	NULL,						/* xxx alert_failure */
 	"verify_destroy",			/* OPT_verify_destroy */
-	"verify_special",			/* OPT_verify_special */
-	"allow_quantity",			/* OPT_allow_quantity */
+	NULL,						/* xxx verify_special */
+	NULL,						/* xxx allow_quantity */
 	NULL,						/* xxx */
 	NULL,						/* xxx auto_haggle */
 	"auto_scum",				/* OPT_auto_scum */
 	NULL,						/* xxx testing_stack */
 	NULL,						/* xxx testing_carry */
 	"expand_look",				/* OPT_expand_look */
-	"expand_list",				/* OPT_expand_list */
+	NULL,						/* xxx expand_list */
 	"view_perma_grids",			/* OPT_view_perma_grids */
 	"view_torch_grids",			/* OPT_view_torch_grids */
 	"dungeon_align",			/* OPT_dungeon_align */
@@ -1475,8 +1426,8 @@ cptr option_text[OPT_MAX] =
 	"flush_failure",			/* OPT_flush_failure */
 	"flush_disturb",			/* OPT_flush_disturb */
 	NULL,						/* xxx flush_command */
-	"fresh_before",				/* OPT_fresh_before */
-	"fresh_after",				/* OPT_fresh_after */
+	NULL,						/* xxx fresh_before */
+	NULL,						/* xxx fresh_after */
 	NULL,						/* xxx fresh_message */
 	"compress_savefile",		/* OPT_compress_savefile */
 	"hilite_player",			/* OPT_hilite_player */
@@ -1693,7 +1644,7 @@ cptr option_desc[OPT_MAX] =
 	"Repeat obvious commands",					/* OPT_always_repeat */
 	"Show dungeon level in feet",				/* OPT_depth_in_feet */
 	"Merge inscriptions when stacking",			/* OPT_stack_force_notes */
-	"Merge discounts when stacking",			/* OPT_stack_force_costs */
+	NULL,										/* XXX OPT_stack_force_costs XXX */
 	"Show labels in equipment listings",		/* OPT_show_labels */
 	"Show weights in all object listings",		/* OPT_show_weights */
 	"Show choices in inven/equip windows",		/* OPT_show_choices */
@@ -1713,15 +1664,15 @@ cptr option_desc[OPT_MAX] =
 	NULL,										/* xxx alert_hitpoint */
 	NULL,										/* xxx alert_failure */
 	"Verify destruction of objects",			/* OPT_verify_destroy */
-	"Verify use of special commands",			/* OPT_verify_special */
-	"Allow quantity specification",				/* OPT_allow_quantity */
+	NULL,										/* xxx verify_special */
+	NULL,										/* xxx allow_quantity */
 	NULL,										/* xxx */
 	NULL,										/* xxx auto_haggle */
 	"Auto-scum for good levels",				/* OPT_auto_scum */
 	NULL,										/* xxx testing_stack */
 	NULL,										/* xxx testing_carry */
 	"Expand the power of the look command",		/* OPT_expand_look */
-	"Expand the power of the list commands",	/* OPT_expand_list */
+	NULL,										/* xxx expand_list */
 	"Map remembers all perma-lit grids",		/* OPT_view_perma_grids */
 	"Map remembers all torch-lit grids",		/* OPT_view_torch_grids */
 	"Generate dungeons with aligned rooms",		/* OPT_dungeon_align */
@@ -1739,8 +1690,8 @@ cptr option_desc[OPT_MAX] =
 	"Flush input on various failures",			/* OPT_flush_failure */
 	"Flush input whenever disturbed",			/* OPT_flush_disturb */
 	NULL,										/* xxx */
-	"Flush output before every command",		/* OPT_fresh_before */
-	"Flush output after various things",		/* OPT_fresh_after */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
 	NULL,										/* xxx */
 	"Compress messages in savefiles",			/* OPT_compress_savefile */
 	"Hilite the player with the cursor",		/* OPT_hilite_player */
@@ -1977,15 +1928,15 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* xxx alert_hitpoint */
 	FALSE,		/* xxx alert_failure */
 	TRUE,		/* OPT_verify_destroy */
-	TRUE,		/* OPT_verify_special */
-	TRUE,		/* OPT_allow_quantity */
+	FALSE,		/* OPT_verify_special */
+	FALSE,		/* xxx allow_quantity, default true if re-enabled */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx auto_haggle */
 	FALSE,		/* OPT_auto_scum */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	TRUE,		/* OPT_expand_look */
-	TRUE,		/* OPT_expand_list */
+	FALSE,		/* xxx expand_list; true if reinstating */
 	TRUE,		/* OPT_view_perma_grids */
 	FALSE,		/* OPT_view_torch_grids */
 	TRUE,		/* OPT_dungeon_align */
@@ -2003,8 +1954,8 @@ const bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_flush_failure */
 	FALSE,		/* OPT_flush_disturb */
 	FALSE,		/* xxx */
-	TRUE,		/* OPT_fresh_before */
-	FALSE,		/* OPT_fresh_after */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	TRUE,		/* OPT_compress_savefile */
 	FALSE,		/* OPT_hilite_player */
@@ -2223,11 +2174,11 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_always_pickup,
 		OPT_always_repeat,
 		OPT_stack_force_notes,
-		OPT_stack_force_costs,
 		OPT_ring_bell,
 		OPT_easy_open,
 		OPT_easy_alter,
 		OPT_easy_floor,
+		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
@@ -2250,9 +2201,9 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_disturb_state,
 		OPT_disturb_minor,
 		OPT_verify_destroy,
-		OPT_verify_special,
-		OPT_allow_quantity,
 		OPT_auto_more,
+		OPT_NONE,
+		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
@@ -2267,7 +2218,6 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 	{
 		OPT_auto_scum,
 		OPT_expand_look,
-		OPT_expand_list,
 		OPT_view_perma_grids,
 		OPT_view_torch_grids,
 		OPT_dungeon_align,
@@ -2278,6 +2228,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_smart_packs,
 		OPT_smart_learn,
 		OPT_smart_cheat,
+		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
@@ -2296,9 +2247,9 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_avoid_other,
 		OPT_flush_failure,
 		OPT_flush_disturb,
-		OPT_fresh_before,
-		OPT_fresh_after,
 		OPT_compress_savefile,
+		OPT_NONE,
+		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,

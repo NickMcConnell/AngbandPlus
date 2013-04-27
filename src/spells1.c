@@ -9,7 +9,7 @@
  */
 
 #include "angband.h"
-
+#include "flow.h"
 
 /*
  * Helper function -- return a "nearby" race for polymorphing
@@ -18,7 +18,7 @@
  */
 s16b poly_r_idx(int r_idx)
 {
-	monster_race *r_ptr = &r_info[r_idx];
+	monster_race *r_ptr = &monster_type::r_info[r_idx];
 
 	int i, r, lev1, lev2;
 
@@ -39,7 +39,7 @@ s16b poly_r_idx(int r_idx)
 		if (!r) break;
 
 		/* Obtain race */
-		r_ptr = &r_info[r];
+		r_ptr = &monster_type::r_info[r];
 
 		/* Ignore unique monsters */
 		if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
@@ -233,7 +233,7 @@ void teleport_player_level(void)
 		p_ptr->leaving = TRUE;
 	}
 
-	else if (rand_int(100) < 50)
+	else if (one_in_(2))
 	{
 		message(MSG_TPLEVEL, 0, "You rise up through the ceiling.");
 
@@ -409,7 +409,7 @@ void take_hit(int dam, cptr kb_str)
 	disturb(1, 0);
 
 	/* Mega-Hack -- Apply "invulnerability" */
-	if (p_ptr->invuln && (dam < 9000)) return;
+	if (p_ptr->timed[TMD_INVULN] && (dam < 9000)) return;
 
 	/* Hurt the player */
 	p_ptr->chp -= dam;
@@ -834,7 +834,7 @@ void acid_dam(int dam, cptr kb_str)
 
 	/* Resist the damage */
 	if (p_ptr->resist_acid) dam = (dam + 2) / 3;
-	if (p_ptr->oppose_acid) dam = (dam + 2) / 3;
+	if (p_ptr->timed[TMD_OPP_ACID]) dam = (dam + 2) / 3;
 
 	/* If any armor gets hit, defend the player */
 	if (minus_ac()) dam = (dam + 1) / 2;
@@ -858,7 +858,7 @@ void elec_dam(int dam, cptr kb_str)
 	if (p_ptr->immune_elec || (dam <= 0)) return;
 
 	/* Resist the damage */
-	if (p_ptr->oppose_elec) dam = (dam + 2) / 3;
+	if (p_ptr->timed[TMD_OPP_ELEC]) dam = (dam + 2) / 3;
 	if (p_ptr->resist_elec) dam = (dam + 2) / 3;
 
 	/* Take damage */
@@ -883,7 +883,7 @@ void fire_dam(int dam, cptr kb_str)
 
 	/* Resist the damage */
 	if (p_ptr->resist_fire) dam = (dam + 2) / 3;
-	if (p_ptr->oppose_fire) dam = (dam + 2) / 3;
+	if (p_ptr->timed[TMD_OPP_FIRE]) dam = (dam + 2) / 3;
 
 	/* Take damage */
 	take_hit(dam, kb_str);
@@ -905,7 +905,7 @@ void cold_dam(int dam, cptr kb_str)
 
 	/* Resist the damage */
 	if (p_ptr->resist_cold) dam = (dam + 2) / 3;
-	if (p_ptr->oppose_cold) dam = (dam + 2) / 3;
+	if (p_ptr->timed[TMD_OPP_COLD]) dam = (dam + 2) / 3;
 
 	/* Take damage */
 	take_hit(dam, kb_str);
@@ -938,7 +938,7 @@ bool inc_stat(stat_index stat)
 		/* Gain one (sometimes two) points */
 		if (value < 18)
 		{
-			gain = ((rand_int(100) < 75) ? 1 : 2);
+			gain = (one_in_(4) ? 2 : 1);
 			value += gain;
 		}
 
@@ -1196,15 +1196,15 @@ bool apply_disenchant(int mode)
 
 	/* Disenchant tohit */
 	if (o_ptr->to_h > 0) o_ptr->to_h--;
-	if ((o_ptr->to_h > 5) && (rand_int(100) < 20)) o_ptr->to_h--;
+	if ((o_ptr->to_h > 5) && one_in_(5)) o_ptr->to_h--;
 
 	/* Disenchant todam */
 	if (o_ptr->to_d > 0) o_ptr->to_d--;
-	if ((o_ptr->to_d > 5) && (rand_int(100) < 20)) o_ptr->to_d--;
+	if ((o_ptr->to_d > 5) && one_in_(5)) o_ptr->to_d--;
 
 	/* Disenchant toac */
 	if (o_ptr->to_a > 0) o_ptr->to_a--;
-	if ((o_ptr->to_a > 5) && (rand_int(100) < 20)) o_ptr->to_a--;
+	if ((o_ptr->to_a > 5) && one_in_(5)) o_ptr->to_a--;
 
 	/* Message */
 	msg_format("Your %s (%c) %s disenchanted!",
@@ -1245,7 +1245,7 @@ static void apply_nexus(const monster_type *m_ptr)
 
 		case 6:
 		{
-			if (rand_int(100) < p_ptr->skill_sav)
+			if (p_ptr->std_save())
 			{
 				msg_print("You resist the effects!");
 				break;
@@ -1258,7 +1258,7 @@ static void apply_nexus(const monster_type *m_ptr)
 
 		case 7:
 		{
-			if (rand_int(100) < p_ptr->skill_sav)
+			if (p_ptr->std_save())
 			{
 				msg_print("You resist the effects!");
 				break;
@@ -1520,7 +1520,7 @@ static bool project_f(int who, int r, coord g, int dam, int typ)
 				cave_set_feat(g.y, g.x, FEAT_FLOOR);
 
 				/* Hack -- place an object */
-				if (rand_int(100) < 10)
+				if (one_in_(10))
 				{
 					/* Found something */
 					if (player_can_see_bold(g.y, g.x))
@@ -1600,7 +1600,7 @@ static bool project_f(int who, int r, coord g, int dam, int typ)
 			/* Grid is in line of sight */
 			if (player_has_los_bold(g.y, g.x))
 			{
-				if (!p_ptr->blind)
+				if (!p_ptr->timed[TMD_BLIND])
 				{
 					/* Observe */
 					obvious = TRUE;
@@ -2016,9 +2016,9 @@ static bool project_m(int who, int r, coord g, int dam, int typ)
 
 	/* Obtain monster info */
 	m_ptr = &mon_list[cave_m_idx[g.y][g.x]];
-	r_ptr = &r_info[m_ptr->r_idx];
-	l_ptr = &l_list[m_ptr->r_idx];
-	name = (r_name + r_ptr->name);
+	r_ptr = m_ptr->race();
+	l_ptr = m_ptr->lore();
+	name = r_ptr->name();
 	if (m_ptr->ml) seen = TRUE;
 
 
@@ -2963,7 +2963,7 @@ static bool project_m(int who, int r, coord g, int dam, int typ)
 			m_ptr = &mon_list[cave_m_idx[g.y][g.x]];
 
 			/* Hack -- Get new race */
-			r_ptr = &r_info[m_ptr->r_idx];
+			r_ptr = m_ptr->race();
 		}
 	}
 
@@ -3175,7 +3175,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 	bool obvious = TRUE;
 
 	/* Player blind-ness */
-	bool blind = (p_ptr->blind ? TRUE : FALSE);
+	bool blind = (p_ptr->timed[TMD_BLIND] ? TRUE : FALSE);
 
 	/* Source monster */
 	monster_type *m_ptr;
@@ -3249,11 +3249,11 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (blind) msg_print("You are hit by poison!");
 			if (p_ptr->resist_pois) dam = (dam + 2) / 3;
-			if (p_ptr->oppose_pois) dam = (dam + 2) / 3;
+			if (p_ptr->timed[TMD_OPP_POIS]) dam = (dam + 2) / 3;
 			take_hit(dam, killer);
-			if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+			if (!(p_ptr->resist_pois || p_ptr->timed[TMD_OPP_POIS]))
 			{
-				(void)set_poisoned(p_ptr->poisoned + rand_int(dam) + 10);
+				(void)p_ptr->inc_timed<TMD_POISONED>(rand_int(dam) + 10);
 			}
 			break;
 		}
@@ -3291,7 +3291,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			if (!p_ptr->resist_sound)
 			{
 				int k = (randint((dam > 40) ? 35 : (dam * 3 / 4 + 5)));
-				(void)set_stun(p_ptr->stun + k);
+				(void)p_ptr->inc_timed<TMD_STUN>(k);
 			}
 			break;
 		}
@@ -3306,7 +3306,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			}
 			else
 			{
-				if (p_ptr->hold_life && (rand_int(100) < 75))
+				if (p_ptr->hold_life && !one_in_(4))
 				{
 					msg_print("You keep hold of your life force!");
 				}
@@ -3336,11 +3336,11 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			if (blind) msg_print("You are hit by something!");
 			if (!p_ptr->resist_sound)
 			{
-				(void)set_stun(p_ptr->stun + randint(40));
+				(void)p_ptr->inc_timed<TMD_STUN>(randint(40));
 			}
 			if (!p_ptr->resist_confu)
 			{
-				(void)set_confused(p_ptr->confused + randint(5) + 5);
+				(void)p_ptr->inc_timed<TMD_CONFUSED>(randint(5) + 5);
 			}
 			take_hit(dam, killer);
 			break;
@@ -3356,11 +3356,11 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			}
 			if (!p_ptr->resist_confu && !p_ptr->resist_chaos)
 			{
-				(void)set_confused(p_ptr->confused + rand_int(20) + 10);
+				(void)p_ptr->inc_timed<TMD_CONFUSED>(rand_int(20) + 10);
 			}
 			if (!p_ptr->resist_chaos)
 			{
-				(void)set_image(p_ptr->image + randint(10));
+				(void)p_ptr->inc_timed<TMD_IMAGE>(randint(10));
 			}
 			if (!p_ptr->resist_nethr && !p_ptr->resist_chaos)
 			{
@@ -3398,7 +3398,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			}
 			else
 			{
-				(void)set_cut(p_ptr->cut + dam);
+				(void)p_ptr->inc_timed<TMD_CUT>(dam);
 			}
 			take_hit(dam, killer);
 			break;
@@ -3415,7 +3415,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			else
 			{
 				int k = (randint((dam > 90) ? 35 : (dam / 3 + 5)));
-				(void)set_stun(p_ptr->stun + k);
+				(void)p_ptr->inc_timed<TMD_STUN>(k);
 			}
 			take_hit(dam, killer);
 			break;
@@ -3431,7 +3431,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			}
 			if (!p_ptr->resist_confu)
 			{
-				(void)set_confused(p_ptr->confused + randint(20) + 10);
+				(void)p_ptr->inc_timed<TMD_CONFUSED>(randint(20) + 10);
 			}
 			take_hit(dam, killer);
 			break;
@@ -3475,7 +3475,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			if (blind) msg_print("You are hit by something!");
 			if (!p_ptr->resist_sound)
 			{
-				(void)set_stun(p_ptr->stun + randint(20));
+				(void)p_ptr->inc_timed<TMD_STUN>(randint(20));
 			}
 			take_hit(dam, killer);
 			break;
@@ -3485,7 +3485,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		case GF_INERTIA:
 		{
 			if (blind) msg_print("You are hit by something strange!");
-			(void)set_slow(p_ptr->slow + rand_int(4) + 4);
+			(void)p_ptr->inc_timed<TMD_SLOW>(rand_int(4) + 4);
 			take_hit(dam, killer);
 			break;
 		}
@@ -3500,7 +3500,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			}
 			else if (!blind && !p_ptr->resist_blind)
 			{
-				(void)set_blind(p_ptr->blind + randint(5) + 2);
+				(void)p_ptr->inc_timed<TMD_BLIND>(randint(5) + 2);
 			}
 			take_hit(dam, killer);
 			break;
@@ -3516,7 +3516,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			}
 			else if (!blind && !p_ptr->resist_blind)
 			{
-				(void)set_blind(p_ptr->blind + randint(5) + 2);
+				(void)p_ptr->inc_timed<TMD_BLIND>(randint(5) + 2);
 			}
 			take_hit(dam, killer);
 			break;
@@ -3577,11 +3577,11 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			if (randint(127) > p_ptr->lev)
 				teleport_player(5);
 
-			(void)set_slow(p_ptr->slow + rand_int(4) + 4);
+			(void)p_ptr->inc_timed<TMD_SLOW>(rand_int(4) + 4);
 			if (!p_ptr->resist_sound)
 			{
 				int k = (randint((dam > 90) ? 35 : (dam / 3 + 5)));
-				(void)set_stun(p_ptr->stun + k);
+				(void)p_ptr->inc_timed<TMD_STUN>(k);
 			}
 			take_hit(dam, killer);
 			break;
@@ -3610,11 +3610,11 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			cold_dam(dam, killer);
 			if (!p_ptr->resist_shard)
 			{
-				(void)set_cut(p_ptr->cut + damroll(5, 8));
+				(void)p_ptr->inc_timed<TMD_CUT>(damroll(5, 8));
 			}
 			if (!p_ptr->resist_sound)
 			{
-				(void)set_stun(p_ptr->stun + randint(15));
+				(void)p_ptr->inc_timed<TMD_STUN>(randint(15));
 			}
 			break;
 		}
@@ -3797,7 +3797,7 @@ bool project(int who, int rad, coord g, int dam, int typ, int flg)
 	bool notice = FALSE;	/* Assume the player sees nothing */
 	bool visual = FALSE;	/* Assume the player has seen nothing */
 	bool drawn = FALSE;		/* Assume the player has seen no blast grids */
-	bool blind = p_ptr->blind;	/* Is the player blind? */
+	bool blind = p_ptr->timed[TMD_BLIND];	/* Is the player blind? */
 	int path_n = 0;			/* Number of grids in the "path" */
 	coord path_g[512];	/* Actual grids in the "path" */
 	int grids = 0;	/* Number of grids in the "blast area" (including the "beam" path) */
@@ -3843,7 +3843,7 @@ bool project(int who, int rad, coord g, int dam, int typ, int flg)
 
 
 	/* Calculate the projection path */
-	path_n = project_path(path_g, MAX_RANGE, g1.y, g1.x, g2.y, g2.x, flg);
+	path_n = project_path(path_g, MAX_RANGE, g1, g2, !(flg & (PROJECT_THRU)),((flg & (PROJECT_STOP)) ? &wall_mon_stop : &wall_stop));
 
 
 	/* Hack -- Handle stuff */
@@ -3886,21 +3886,16 @@ bool project(int who, int rad, coord g, int dam, int typ, int flg)
 				/* Visual effects */
 				print_rel(c, a, g);
 				move_cursor_relative(g);
-				if (fresh_before)
-				{
-					Term_fresh();
-					if (p_ptr->window) window_stuff();
-				}
+
+				Term_fresh();
+				if (p_ptr->window) window_stuff();
 
 				Term_xtra(TERM_XTRA_DELAY, msec);
 
 				lite_spot(g);
 
-				if (fresh_before)
-				{
-					Term_fresh();
-					if (p_ptr->window) window_stuff();
-				}
+				Term_fresh();
+				if (p_ptr->window) window_stuff();
 
 				/* Display "beam" grids */
 				if (flg & (PROJECT_BEAM))
@@ -3959,7 +3954,7 @@ bool project(int who, int rad, coord g, int dam, int typ, int flg)
 				if (distance(g2.y, g2.x, g.y, g.x) != dist) continue;
 
 				/* Ball explosions are stopped by walls */
-				if (!los(g2.y, g2.x, g.y, g.x)) continue;
+				if (!los(g2, g)) continue;
 
 				/* Save this grid */
 				zap_g[grids++] = g;
@@ -4012,10 +4007,8 @@ bool project(int who, int rad, coord g, int dam, int typ, int flg)
 			/* Hack -- center the cursor */
 			move_cursor_relative(g2);
 
-			/* Flush each "radius" separately */
-			if (fresh_before) Term_fresh();
-
 			/* Flush */
+			Term_fresh();
 			if (p_ptr->window) window_stuff();
 
 			/* Delay (efficiently) */
@@ -4044,10 +4037,8 @@ bool project(int who, int rad, coord g, int dam, int typ, int flg)
 			/* Hack -- center the cursor */
 			move_cursor_relative(g2);
 
-			/* Flush the explosion */
-			if (fresh_before) Term_fresh();
-
 			/* Flush */
+			Term_fresh();
 			if (p_ptr->window) window_stuff();
 		}
 	}

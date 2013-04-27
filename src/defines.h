@@ -47,7 +47,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"3.0.5"
+#define VERSION_STRING	"3.0.7"
 
 
 /*
@@ -55,7 +55,7 @@
  */
 #define VERSION_MAJOR	3
 #define VERSION_MINOR	0
-#define VERSION_PATCH	5
+#define VERSION_PATCH	7
 #define VERSION_EXTRA	0
 
 
@@ -158,9 +158,17 @@
 #define STORE_HOME		7
 
 /*
+ * Player sex constants (hard-coded by save-files, arrays, etc)
+ */
+enum player_gender	{
+					SEX_FEMALE = 0,
+					SEX_MALE
+					};
+
+/*
  * Maximum number of player "sex" types (see "table.c", etc)
  */
-#define MAX_SEXES            2
+#define MAX_SEXES            SEX_MALE+1
 
 
 /*
@@ -215,9 +223,9 @@
 
 /*
  * OPTION: Maximum number of macros (see "util.c")
- * Default: assume at most 256 macros are used
+ * Default: assume at most 512 macros are used
  */
-#define MACRO_MAX	256
+#define MACRO_MAX	512
 
 /*
  * OPTION: Maximum number of "quarks" (see "util.c")
@@ -237,17 +245,6 @@
  * average of three times, and has an average length of 48
  */
 #define MESSAGE_BUF	32768
-
-
-/*
- * Maximum value storable in a "byte" (hard-coded)
- */
-#define MAX_UCHAR       255
-
-/*
- * Maximum value storable in a "s16b" (hard-coded)
- */
-#define MAX_SHORT       32767
 
 
 /*
@@ -351,6 +348,7 @@
 /*
  * Player "food" crucial values
  */
+#define PY_FOOD_UPPER   20000	/* Upper limit on food counter */
 #define PY_FOOD_MAX		15000	/* Food value (Bloated) */
 #define PY_FOOD_FULL	10000	/* Food value (Normal) */
 #define PY_FOOD_ALERT	2000	/* Food value (Hungry) */
@@ -433,6 +431,41 @@
  */
 #define MAX_FLOOR_STACK			23
 
+/* 
+ * Timed effects 
+ */ 
+enum timed_effects
+{ 
+	TMD_FAST = 0, TMD_SLOW, TMD_BLIND, TMD_PARALYZED, TMD_CONFUSED, 
+	TMD_AFRAID, TMD_IMAGE, TMD_POISONED, TMD_CUT, TMD_STUN, TMD_PROTEVIL, 
+	TMD_INVULN, TMD_HERO, TMD_SHERO, TMD_SHIELD, TMD_BLESSED, TMD_SINVIS, 
+	TMD_SINFRA, TMD_OPP_ACID, TMD_OPP_ELEC, TMD_OPP_FIRE, TMD_OPP_COLD, 
+	TMD_OPP_POIS, 
+
+	TMD_MAX 
+}; 
+
+/*
+ * Skill indexes
+ */
+enum skills
+{
+	SKILL_DISARM,			/* Skill: Disarming */
+	SKILL_DEVICE,			/* Skill: Magic Devices */
+	SKILL_SAVE,				/* Skill: Saving throw */
+	SKILL_STEALTH,			/* Skill: Stealth factor */
+	SKILL_SEARCH,			/* Skill: Searching ability */
+	SKILL_SEARCH_FREQUENCY,	/* Skill: Searching frequency */
+	SKILL_TO_HIT_MELEE,		/* Skill: To hit (normal) */
+	SKILL_TO_HIT_BOW,		/* Skill: To hit (shooting) */
+	SKILL_TO_HIT_THROW,		/* Skill: To hit (throwing) */
+	SKILL_DIGGING,			/* Skill: Digging */
+
+	SKILL_MAX,
+	SKILL_MAX_NO_RACE_CLASS = SKILL_MAX - 2	/* skills that have racial/class
+											 * modifiers, scheduled 
+											 * for obviation later */
+};
 
 /*
  * Indexes of the various "stats" (hard-coded by savefiles, etc).
@@ -450,12 +483,6 @@ enum stat_index {
  * total number of stats
  */
 #define A_MAX (A_CHR+1)
-
-/*
- * Player sex constants (hard-coded by save-files, arrays, etc)
- */
-#define SEX_FEMALE		0
-#define SEX_MALE		1
 
 
 /*** Screen Locations ***/
@@ -659,19 +686,15 @@ enum stat_index {
 
 
 /*
- * Number of keymap modes
+ * keymap modes
  */
-#define KEYMAP_MODES	2
+enum keymap_modes
+{	
+	KEYMAP_MODE_ORIG = 0,
+	KEYMAP_MODE_ROGUE,
 
-/*
- * Mode for original keyset commands
- */
-#define KEYMAP_MODE_ORIG	0
-
-/*
- * Mode for roguelike keyset commands
- */
-#define KEYMAP_MODE_ROGUE	1
+	KEYMAP_MODES	/* Total */
+};
 
 
 /*** Feature Indexes (see "lib/edit/feature.txt") ***/
@@ -695,6 +718,9 @@ enum stat_index {
 /* Traps */
 #define FEAT_TRAP_HEAD	0x10
 #define FEAT_TRAP_TAIL	0x1F
+
+#define IS_TRAP(A) (byte)(A)-FEAT_TRAP_HEAD<=FEAT_TRAP_TAIL-FEAT_TRAP_HEAD
+inline bool is_trap(byte x) {	return IS_TRAP(x);	}
 
 /* Doors */
 #define FEAT_DOOR_HEAD	0x20
@@ -1436,80 +1462,6 @@ enum stat_index {
 
 #define MONSTER_BLOW_MAX 4
 
-/*
- * New monster blow methods
- */
-#define RBM_HIT		1
-#define RBM_TOUCH	2
-#define RBM_PUNCH	3
-#define RBM_KICK	4
-#define RBM_CLAW	5
-#define RBM_BITE	6
-#define RBM_STING	7
-#define RBM_XXX1	8
-#define RBM_BUTT	9
-#define RBM_CRUSH	10
-#define RBM_ENGULF	11
-#define RBM_XXX2	12
-#define RBM_CRAWL	13
-#define RBM_DROOL	14
-#define RBM_SPIT	15
-#define RBM_XXX3	16
-#define RBM_GAZE	17
-#define RBM_WAIL	18
-#define RBM_SPORE	19
-#define RBM_XXX4	20
-#define RBM_BEG		21
-#define RBM_INSULT	22
-#define RBM_MOAN	23
-#define RBM_XXX5	24
-
-/*
- * ZaiBand specific monster blow types
- * We assume that V will add types in increasing order.  To minimize chance of 
- * collision with V, we add types in decreasing order.
- */
-
-/* The augmented gazes */
-#define RBM_PRESBYOPIC_GAZE	255		/* range: 2-4, LOS */
-#define RBM_HYPEROPIC_GAZE	254 	/* range: 4-MAX_RANGE, LOS */
-#define RBM_RANGED_GAZE 253			/* range: 1-MAX_RANGE, LOS */
-#define RBM_CLAIRVOYANT_GAZE 252	/* range: 1-MAX_RANGE, ignore LOS */
-
-/*
- * New monster blow effects
- */
-#define RBE_HURT		1
-#define RBE_POISON		2
-#define RBE_UN_BONUS	3
-#define RBE_UN_POWER	4
-#define RBE_EAT_GOLD	5
-#define RBE_EAT_ITEM	6
-#define RBE_EAT_FOOD	7
-#define RBE_EAT_LITE	8
-#define RBE_ACID		9
-#define RBE_ELEC		10
-#define RBE_FIRE		11
-#define RBE_COLD		12
-#define RBE_BLIND		13
-#define RBE_CONFUSE		14
-#define RBE_TERRIFY		15
-#define RBE_PARALYZE	16
-#define RBE_LOSE_STR	17
-#define RBE_LOSE_INT	18
-#define RBE_LOSE_WIS	19
-#define RBE_LOSE_DEX	20
-#define RBE_LOSE_CON	21
-#define RBE_LOSE_CHR	22
-#define RBE_LOSE_ALL	23
-#define RBE_SHATTER		24
-#define RBE_EXP_10		25
-#define RBE_EXP_20		26
-#define RBE_EXP_40		27
-#define RBE_EXP_80		28
-#define RBE_HALLU		29
-
-
 /*** Function flags ***/
 
 
@@ -1646,7 +1598,7 @@ enum stat_index {
 #define PR_BASIC \
 	(PR_MISC | PR_TITLE | PR_STATS | PR_LEV |\
 	 PR_EXP | PR_GOLD | PR_ARMOR | PR_HP |\
-	 PR_MANA | PR_DEPTH | PR_HEALTH)
+	 PR_MANA | PR_DEPTH | PR_HEALTH | PR_EQUIPPY)
 
 /* Display Extra Info */
 #define PR_EXTRA \
@@ -2417,7 +2369,7 @@ enum stat_index {
 #define OPT_always_repeat			6
 #define OPT_depth_in_feet			7
 #define OPT_stack_force_notes		8
-#define OPT_stack_force_costs		9
+/* xxx OPT_stack_force_costs */
 #define OPT_show_labels				10
 #define OPT_show_weights			11
 #define OPT_show_choices			12
@@ -2437,15 +2389,15 @@ enum stat_index {
 /* xxx OPT_alert_hitpoint */
 /* xxx OPT_alert_failure */
 #define OPT_verify_destroy			28
-#define OPT_verify_special			29
-#define OPT_allow_quantity			30
+/* xxx OPT_verify_special */
+/* xxx OPT_allow_quantity */
 /* xxx */
 /* xxx OPT_auto_haggle */
 #define OPT_auto_scum				33
 /* xxx testing_stack */
 /* xxx testing_carry */
 #define OPT_expand_look				36
-#define OPT_expand_list				37
+/* xxx OPT_expand_list */
 #define OPT_view_perma_grids		38
 #define OPT_view_torch_grids		39
 #define OPT_dungeon_align			40
@@ -2462,9 +2414,6 @@ enum stat_index {
 #define OPT_avoid_other				51
 #define OPT_flush_failure			52
 #define OPT_flush_disturb			53
-/* xxx */
-#define OPT_fresh_before			55
-#define OPT_fresh_after				56
 /* xxx */
 #define OPT_compress_savefile		58
 #define OPT_hilite_player			59
@@ -2537,7 +2486,6 @@ enum stat_index {
 #define always_repeat			op_ptr->opt[OPT_always_repeat]
 #define depth_in_feet			op_ptr->opt[OPT_depth_in_feet]
 #define stack_force_notes		op_ptr->opt[OPT_stack_force_notes]
-#define stack_force_costs		op_ptr->opt[OPT_stack_force_costs]
 #define show_labels				op_ptr->opt[OPT_show_labels]
 #define show_weights			op_ptr->opt[OPT_show_weights]
 #define show_choices			op_ptr->opt[OPT_show_choices]
@@ -2557,15 +2505,15 @@ enum stat_index {
 /* xxx */
 /* xxx alert_failure */
 #define verify_destroy			op_ptr->opt[OPT_verify_destroy]
-#define verify_special			op_ptr->opt[OPT_verify_special]
-#define allow_quantity			op_ptr->opt[OPT_allow_quantity]
+/* #define verify_special			op_ptr->opt[OPT_verify_special] */
+/* #define allow_quantity			op_ptr->opt[OPT_allow_quantity] */
 /* xxx */
 /* auto_haggle */
 #define auto_scum				op_ptr->opt[OPT_auto_scum]
 /* xxx testing_stack */
 /* xxx testing_carry */
 #define expand_look				op_ptr->opt[OPT_expand_look]
-#define expand_list				op_ptr->opt[OPT_expand_list]
+/* xxx expand_list */
 #define view_perma_grids		op_ptr->opt[OPT_view_perma_grids]
 #define view_torch_grids		op_ptr->opt[OPT_view_torch_grids]
 #define dungeon_align			op_ptr->opt[OPT_dungeon_align]
@@ -2582,9 +2530,6 @@ enum stat_index {
 #define avoid_other				op_ptr->opt[OPT_avoid_other]
 #define flush_failure			op_ptr->opt[OPT_flush_failure]
 #define flush_disturb			op_ptr->opt[OPT_flush_disturb]
-/* xxx */
-#define fresh_before			op_ptr->opt[OPT_fresh_before]
-#define fresh_after				op_ptr->opt[OPT_fresh_after]
 /* xxx */
 #define compress_savefile		op_ptr->opt[OPT_compress_savefile]
 #define hilite_player			op_ptr->opt[OPT_hilite_player]
@@ -2761,194 +2706,6 @@ enum stat_index {
 	 ((cave_feat[Y][X] >= FEAT_SHOP_HEAD) && \
 	  (cave_feat[Y][X] <= FEAT_SHOP_TAIL)))
 
-/*** Color constants ***/
-
-
-/*
- * Angband "attributes" (with symbols, and base (R,G,B) codes)
- *
- * The "(R,G,B)" codes are given in "fourths" of the "maximal" value,
- * and should "gamma corrected" on most (non-Macintosh) machines.
- */
-#define TERM_DARK		0	/* 'd' */	/* 0,0,0 */
-#define TERM_WHITE		1	/* 'w' */	/* 4,4,4 */
-#define TERM_SLATE		2	/* 's' */	/* 2,2,2 */
-#define TERM_ORANGE		3	/* 'o' */	/* 4,2,0 */
-#define TERM_RED		4	/* 'r' */	/* 3,0,0 */
-#define TERM_GREEN		5	/* 'g' */	/* 0,2,1 */
-#define TERM_BLUE		6	/* 'b' */	/* 0,0,4 */
-#define TERM_UMBER		7	/* 'u' */	/* 2,1,0 */
-#define TERM_L_DARK		8	/* 'D' */	/* 1,1,1 */
-#define TERM_L_WHITE	9	/* 'W' */	/* 3,3,3 */
-#define TERM_VIOLET		10	/* 'v' */	/* 4,0,4 */
-#define TERM_YELLOW		11	/* 'y' */	/* 4,4,0 */
-#define TERM_L_RED		12	/* 'R' */	/* 4,0,0 */
-#define TERM_L_GREEN	13	/* 'G' */	/* 0,4,0 */
-#define TERM_L_BLUE		14	/* 'B' */	/* 0,4,4 */
-#define TERM_L_UMBER	15	/* 'U' */	/* 3,2,1 */
-
-
-#define MSG_GENERIC          0
-#define MSG_HIT              1
-#define MSG_MISS             2
-#define MSG_FLEE             3
-#define MSG_DROP             4
-#define MSG_KILL             5
-#define MSG_LEVEL            6
-#define MSG_DEATH            7
-#define MSG_STUDY            8
-#define MSG_TELEPORT         9
-#define MSG_SHOOT           10
-#define MSG_QUAFF           11
-#define MSG_ZAP_ROD         12
-#define MSG_WALK            13
-#define MSG_TPOTHER         14
-#define MSG_HITWALL         15
-#define MSG_EAT             16
-#define MSG_STORE1          17
-#define MSG_STORE2          18
-#define MSG_STORE3          19
-#define MSG_STORE4          20
-#define MSG_DIG             21
-#define MSG_OPENDOOR        22
-#define MSG_SHUTDOOR        23
-#define MSG_TPLEVEL         24
-#define MSG_BELL            25
-#define MSG_NOTHING_TO_OPEN 26
-#define MSG_LOCKPICK_FAIL   27
-#define MSG_STAIRS_DOWN     28 
-#define MSG_HITPOINT_WARN   29
-#define MSG_ACT_ARTIFACT    30 
-#define MSG_USE_STAFF       31 
-#define MSG_DESTROY         32 
-#define MSG_MON_HIT         33 
-#define MSG_MON_TOUCH       34 
-#define MSG_MON_PUNCH       35 
-#define MSG_MON_KICK        36 
-#define MSG_MON_CLAW        37 
-#define MSG_MON_BITE        38 
-#define MSG_MON_STING       39 
-#define MSG_MON_BUTT        40 
-#define MSG_MON_CRUSH       41 
-#define MSG_MON_ENGULF      42 
-#define MSG_MON_CRAWL       43 
-#define MSG_MON_DROOL       44 
-#define MSG_MON_SPIT        45 
-#define MSG_MON_GAZE        46 
-#define MSG_MON_WAIL        47 
-#define MSG_MON_SPORE       48 
-#define MSG_MON_BEG         49 
-#define MSG_MON_INSULT      50 
-#define MSG_MON_MOAN        51 
-#define MSG_RECOVER         52 
-#define MSG_BLIND           53 
-#define MSG_CONFUSED        54 
-#define MSG_POISONED        55 
-#define MSG_AFRAID          56 
-#define MSG_PARALYZED       57 
-#define MSG_DRUGGED         58 
-#define MSG_SPEED           59 
-#define MSG_SLOW            60 
-#define MSG_SHIELD          61 
-#define MSG_BLESSED         62 
-#define MSG_HERO            63 
-#define MSG_BERSERK         64 
-#define MSG_PROT_EVIL       65 
-#define MSG_INVULN          66 
-#define MSG_SEE_INVIS       67 
-#define MSG_INFRARED        68 
-#define MSG_RES_ACID        69 
-#define MSG_RES_ELEC        70 
-#define MSG_RES_FIRE        71 
-#define MSG_RES_COLD        72 
-#define MSG_RES_POIS        73 
-#define MSG_STUN            74 
-#define MSG_CUT             75 
-#define MSG_STAIRS_UP       76 
-#define MSG_STORE_ENTER     77 
-#define MSG_STORE_LEAVE     78 
-#define MSG_STORE_HOME      79 
-#define MSG_MONEY1          80 
-#define MSG_MONEY2          81 
-#define MSG_MONEY3          82 
-#define MSG_SHOOT_HIT       83 
-#define MSG_STORE5          84 
-#define MSG_LOCKPICK        85 
-#define MSG_DISARM          86 
-#define MSG_IDENT_BAD       87 
-#define MSG_IDENT_EGO       88 
-#define MSG_IDENT_ART       89 
-#define MSG_BR_ELEMENTS     90
-#define MSG_BR_FROST        91
-#define MSG_BR_ELEC         92
-#define MSG_BR_ACID         93
-#define MSG_BR_GAS          94
-#define MSG_BR_FIRE         95
-#define MSG_BR_CONF         96
-#define MSG_BR_DISENCHANT   97
-#define MSG_BR_CHAOS        98
-#define MSG_BR_SHARDS       99
-#define MSG_BR_SOUND        100
-#define MSG_BR_LIGHT        101
-#define MSG_BR_DARK         102
-#define MSG_BR_NETHER       103
-#define MSG_BR_NEXUS        104
-#define MSG_BR_TIME         105
-#define MSG_BR_INERTIA      106
-#define MSG_BR_GRAVITY      107
-#define MSG_BR_PLASMA       108
-#define MSG_BR_FORCE        109
-#define MSG_SUM_MONSTER     110
-#define MSG_SUM_ANGEL       111
-#define MSG_SUM_UNDEAD      112
-#define MSG_SUM_ANIMAL      113
-#define MSG_SUM_SPIDER      114
-#define MSG_SUM_HOUND       115
-#define MSG_SUM_HYDRA       116
-#define MSG_SUM_DEMON       117
-#define MSG_SUM_DRAGON      118
-#define MSG_SUM_HI_UNDEAD   119
-#define MSG_SUM_HI_DRAGON   120
-#define MSG_SUM_HI_DEMON    121
-#define MSG_SUM_WRAITH      122
-#define MSG_SUM_UNIQUE      123
-#define MSG_WIELD           124
-#define MSG_CURSED          125
-#define MSG_PSEUDOID        126
-#define MSG_HUNGRY          127
-#define MSG_NOTICE          128
-#define MSG_AMBIENT_DAY     129
-#define MSG_AMBIENT_NITE    130
-#define MSG_AMBIENT_DNG1    131
-#define MSG_AMBIENT_DNG2    132
-#define MSG_AMBIENT_DNG3    133
-#define MSG_AMBIENT_DNG4    134
-#define MSG_AMBIENT_DNG5    135
-#define MSG_CREATE_TRAP     136
-#define MSG_SHRIEK          137
-#define MSG_CAST_FEAR       138
-#define MSG_HIT_GOOD        139
-#define MSG_HIT_GREAT       140
-#define MSG_HIT_SUPERB      141
-#define MSG_HIT_HI_GREAT    142
-#define MSG_HIT_HI_SUPERB   143
-#define MSG_SPELL           144
-#define MSG_PRAYER          145
-#define MSG_KILL_UNIQUE     146
-#define MSG_KILL_KING       147
-#define MSG_DRAIN_STAT      148
-#define MSG_MULTIPLY        149
-
-#define MSG_MAX             150
-
-/*
- * Hack -- maximum known sounds
- *
- * Should be the same as MSG_MAX for compatibility reasons.
- */
-#define SOUND_MAX MSG_MAX
-
-
 /*
  * Maximum number of macro trigger names
  */
@@ -3048,13 +2805,7 @@ enum stat_index {
 
 #define ACT_MAX                 50
 
-/*
- * HACK - define if the source contains the cleanup_angband() function.
- */
-#define HAS_CLEANUP
-
-
-/*
- * Given an array, determine how many elements are in the array.
- */
-#define N_ELEMENTS(a) (sizeof(a) / sizeof((a)[0]))
+/* player_type.noscore flags */ 
+#define NOSCORE_WIZARD          0x0002 
+#define NOSCORE_DEBUG           0x0008 
+#define NOSCORE_BORG            0x0010 

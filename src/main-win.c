@@ -188,7 +188,6 @@
 #define IDM_OPTIONS_GRAPHICS_ADAM   402
 #define IDM_OPTIONS_GRAPHICS_DAVID  403
 #define IDM_OPTIONS_BIGTILE         409
-#define IDM_OPTIONS_SOUND           410
 #define IDM_OPTIONS_LOW_PRIORITY    420
 #define IDM_OPTIONS_SAVER           430
 #define IDM_OPTIONS_MAP             440
@@ -272,7 +271,7 @@
  * Include the support for loading bitmaps
  */
 #ifdef USE_GRAPHICS
-# include "readdib.h"
+# include "win/readdib.h"
 #endif /* USE_GRAPHICS */
 
 /*
@@ -334,7 +333,11 @@ unsigned _cdecl _dos_getfileattr(const char *, unsigned *);
  */
 #define VUD_BRIGHT	0x80
 
-
+/*
+ * Font settings
+ */
+#define DEFAULT_FONT	"8X13.FON"
+ 
 /*
  * Forward declare
  */
@@ -546,8 +549,7 @@ static cptr ANGBAND_DIR_XTRA_HELP;
 /*
  * The "complex" color values
  */
-static COLORREF win_clr[256];
-
+static COLORREF win_clr[MAX_COLORS];
 
 /*
  * The "simple" color values
@@ -558,7 +560,7 @@ static COLORREF win_clr[256];
  *
  * Note that many of the choices below suck, but so do crappy monitors.
  */
-static byte win_pal[256] =
+static byte win_pal[MAX_COLORS] =
 {
 	VID_BLACK,					/* Dark */
 	VID_WHITE,					/* White */
@@ -668,6 +670,10 @@ static const byte special_key_list[] =
 
 	0
 };
+
+#include "game-cmd.h"
+
+static game_command cmd = { CMD_NULL, 0, NULL, NULL, { NULL }, 0 };
 
 #if 0
 /*
@@ -899,17 +905,13 @@ static void term_getsize(term_data *td)
 	wid = td->cols * td->tile_wid + td->size_ow1 + td->size_ow2;
 	hgt = td->rows * td->tile_hgt + td->size_oh1 + td->size_oh2;
 
-	/* Fake window size */
+	/* Client window size */
 	rc.left = 0;
 	rc.right = rc.left + wid;
 	rc.top = 0;
 	rc.bottom = rc.top + hgt;
 
-	/* XXX XXX XXX */
-	/* rc.right += 1; */
-	/* rc.bottom += 1; */
-
-	/* Adjust */
+	/* Get total window size (without menu for sub-windows) */
 	AdjustWindowRectEx(&rc, td->dwStyle, TRUE, td->dwExStyle);
 
 	/* Total size */
@@ -947,7 +949,7 @@ static void save_prefs_aux(term_data *td, cptr sec_name)
 	WritePrivateProfileString(sec_name, "Visible", buf, ini_file);
 
 	/* Font */
-	strcpy(buf, td->font_file ? td->font_file : "8X13.FON");
+	strcpy(buf, td->font_file ? td->font_file : DEFAULT_FONT);
 	WritePrivateProfileString(sec_name, "Font", buf, ini_file);
 
 	/* Bizarre */
@@ -1016,10 +1018,6 @@ static void save_prefs(void)
 	strcpy(buf, use_bigtile ? "1" : "0");
 	WritePrivateProfileString("Angband", "Bigtile", buf, ini_file);
 
-	/* Save the "arg_sound" flag */
-	strcpy(buf, arg_sound ? "1" : "0");
-	WritePrivateProfileString("Angband", "Sound", buf, ini_file);
-
 	/* Save window prefs */
 	for (i = 0; i < MAX_TERM_DATA; i++)
 	{
@@ -1048,7 +1046,7 @@ static void load_prefs_aux(term_data *td, cptr sec_name)
 	td->maximized = (GetPrivateProfileInt(sec_name, "Maximized", td->maximized, ini_file) != 0);
 
 	/* Desired font, with default */
-	GetPrivateProfileString(sec_name, "Font", "8X13.FON", tmp, 127, ini_file);
+	GetPrivateProfileString(sec_name, "Font", DEFAULT_FONT, tmp, 127, ini_file);
 
 	/* Bizarre */
 	td->bizarre = (GetPrivateProfileInt(sec_name, "Bizarre", TRUE, ini_file) != 0);
@@ -1085,20 +1083,11 @@ static void load_prefs(void)
 	/* Extract the "use_bigtile" flag */
 	use_bigtile = GetPrivateProfileInt("Angband", "Bigtile", FALSE, ini_file);
 
-	/* Extract the "arg_sound" flag */
-	arg_sound = (GetPrivateProfileInt("Angband", "Sound", 0, ini_file) != 0);
-
 	/* Extract the "arg_fiddle" flag */
 	arg_fiddle = (GetPrivateProfileInt("Angband", "Fiddle", 0, ini_file) != 0);
 
 	/* Extract the "arg_wizard" flag */
 	arg_wizard = (GetPrivateProfileInt("Angband", "Wizard", 0, ini_file) != 0);
-
-	/* Extract the "arg_roguelike" flag */
-	arg_force_roguelike = (GetPrivateProfileInt("Angband", "force_roguelike", 0, ini_file) != 0);
-
-	/* Extract the "arg_original" flag */
-	arg_force_original = (GetPrivateProfileInt("Angband", "force_original", 0, ini_file) != 0);
 
 #ifdef SUPPORT_GAMMA
 
@@ -1253,7 +1242,7 @@ static int new_palette(void)
 	/* Use the bitmap */
 	if (hBmPal)
 	{
-		lppe = (LPPALETTEENTRY)ralloc(256 * sizeof(PALETTEENTRY));
+		lppe = C_RNEW(256,PALETTEENTRY);
 		nEntries = GetPaletteEntries(hBmPal, 0, 255, lppe);
 		if ((nEntries == 0) || (nEntries > 220))
 		{
@@ -1274,7 +1263,7 @@ static int new_palette(void)
 	pLogPalSize = sizeof(LOGPALETTE) + (nEntries + 16) * sizeof(PALETTEENTRY);
 
 	/* Allocate palette */
-	pLogPal = (LPLOGPALETTE)ralloc(pLogPalSize);
+	pLogPal = (LPLOGPALETTE)mem_alloc(pLogPalSize);
 
 	/* Version */
 	pLogPal->palVersion = 0x300;
@@ -1289,7 +1278,7 @@ static int new_palette(void)
 	}
 
 	/* Save the normal data */
-	for (i = 0; i < 16; i++)
+	for (i = 0; i < BASIC_COLORS; i++)
 	{
 		LPPALETTEENTRY p;
 
@@ -1490,6 +1479,23 @@ static void term_window_resize(const term_data *td)
 	InvalidateRect(td->w, NULL, TRUE);
 }
 
+/*
+ * Remove a font, given its filename.
+ */
+static void term_remove_font(const char *name)
+{
+	char buf[1024];
+
+	/* Build path to the file */
+	my_strcpy(buf, ANGBAND_DIR_XTRA_FONT, sizeof(buf));
+	my_strcat(buf, "\\", sizeof(buf));
+	my_strcat(buf, name, sizeof(buf));
+
+	/* Remove it */
+	RemoveFontResource(buf);
+
+	return;
+}
 
 /*
  * Force the use of a new "font file" for a term_data
@@ -1510,6 +1516,9 @@ static errr term_force_font(term_data *td, cptr path)
 
 	char buf[1024];
 
+	/* Check we have a path */
+	if (!path) return (1);
+
 
 	/* Forget the old font (if needed) */
 	if (td->font_id) DeleteObject(td->font_id);
@@ -1522,9 +1531,6 @@ static errr term_force_font(term_data *td, cptr path)
 		/* Scan windows */
 		for (i = 0; i < MAX_TERM_DATA; i++)
 		{
-			/* Don't check when closing the application */
-			if (!path) break;
-
 			/* Check "screen" */
 			if ((td != &data[i]) &&
 			    (data[i].font_file) &&
@@ -1535,7 +1541,7 @@ static errr term_force_font(term_data *td, cptr path)
 		}
 
 		/* Remove unused font resources */
-		if (!used) RemoveFontResource(td->font_file);
+		if (!used) term_remove_font(td->font_file);
 
 		/* Free the old name */
 		string_free(td->font_file);
@@ -1543,10 +1549,6 @@ static errr term_force_font(term_data *td, cptr path)
 		/* Forget it */
 		td->font_file = NULL;
 	}
-
-
-	/* No path given */
-	if (!path) return (1);
 
 
 	/* Local copy */
@@ -1563,6 +1565,9 @@ static errr term_force_font(term_data *td, cptr path)
 
 	/* Load the new font */
 	if (!AddFontResource(buf)) return (1);
+
+	/* Notify other applications that a new font is available  XXX */
+	SendMessage(HWND_BROADCAST, WM_FONTCHANGE, 0, 0);
 
 	/* Save new font name */
 	td->font_file = string_make(base);
@@ -1636,7 +1641,7 @@ static void term_change_font(term_data *td)
 		if (term_force_font(td, tmp))
 		{
 			/* Access the standard font file */
-			path_build(tmp, sizeof(tmp), ANGBAND_DIR_XTRA_FONT, "8X13.FON");
+			path_build(tmp, sizeof(tmp), ANGBAND_DIR_XTRA_FONT, DEFAULT_FONT);
 
 			/* Force the use of that font */
 			(void)term_force_font(td, tmp);
@@ -1752,7 +1757,7 @@ static errr Term_xtra_win_react(void)
 	if (colors16)
 	{
 		/* Save the default colors */
-		for (i = 0; i < 256; i++)
+		for (i = 0; i < MAX_COLORS; i++)
 		{
 			/* Simply accept the desired colors */
 			win_pal[i] = angband_color_table[i][0];
@@ -1769,7 +1774,7 @@ static errr Term_xtra_win_react(void)
 		bool change = FALSE;
 
 		/* Save the default colors */
-		for (i = 0; i < 256; i++)
+		for (i = 0; i < MAX_COLORS; i++)
 		{
 			/* Extract desired values */
 			rv = angband_color_table[i][1];
@@ -1812,17 +1817,17 @@ static errr Term_xtra_win_react(void)
 	if (use_sound != arg_sound)
 	{
 		/* Initialize (if needed) */
-		if (arg_sound && !init_sound())
+		if (use_sound && !init_sound())
 		{
 			/* Warning */
 			plog("Cannot initialize sound!");
 
 			/* Cannot enable */
-			arg_sound = FALSE;
+			use_sound = FALSE;
 		}
 
 		/* Change setting */
-		use_sound = arg_sound;
+		arg_sound = use_sound;
 	}
 
 #endif /* USE_SOUND */
@@ -1990,18 +1995,15 @@ static errr Term_xtra_win_noise(void)
 /*
  * Hack -- make a sound
  */
-static errr Term_xtra_win_sound(int v)
+static void Term_xtra_win_sound(int v)
 {
 #ifdef USE_SOUND
 	int i;
 	char buf[1024];
 #endif /* USE_SOUND */
 
-	/* Sound disabled */
-	if (!use_sound) return (1);
-
 	/* Illegal sound */
-	if ((v < 0) || (v >= MSG_MAX)) return (1);
+	if ((v < 0) || (v >= MSG_MAX)) return;
 
 #ifdef USE_SOUND
 
@@ -2013,7 +2015,7 @@ static errr Term_xtra_win_sound(int v)
 	}
 
 	/* No sample */
-	if (i == 0) return (1);
+	if (i == 0) return;
 
 	/* Build the path */
 	path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_SOUND, sound_file[v][Rand_simple(i)]);
@@ -2021,19 +2023,20 @@ static errr Term_xtra_win_sound(int v)
 #ifdef WIN32
 
 	/* Play the sound, catch errors */
-	return (PlaySound(buf, 0, SND_FILENAME | SND_ASYNC));
+	PlaySound(buf, 0, SND_FILENAME | SND_ASYNC);
+	
 
 #else /* WIN32 */
 
 	/* Play the sound, catch errors */
-	return (sndPlaySound(buf, SND_ASYNC));
+	sndPlaySound(buf, SND_ASYNC);
 
 #endif /* WIN32 */
 
 #else /* USE_SOUND */
 
 	/* Oops */
-	return (1);
+	return;
 
 #endif /* USE_SOUND */
 }
@@ -2092,7 +2095,8 @@ static errr Term_xtra_win(int n, int v)
 		/* Make a special sound */
 		case TERM_XTRA_SOUND:
 		{
-			return (Term_xtra_win_sound(v));
+			Term_xtra_win_sound(v);
+			return TRUE;
 		}
 
 		/* Process random events */
@@ -2287,7 +2291,7 @@ static errr Term_text_win(int x, int y, int n, byte a, cptr s)
 	}
 	else if (paletted)
 	{
-		SetTextColor(hdc, win_clr[a&0x0F]);
+		SetTextColor(hdc, win_clr[a & (BASIC_COLORS-1)]);
 	}
 	else
 	{
@@ -2522,6 +2526,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 
 static void windows_map_aux(void)
 {
+	grid_data gd;
 	term_data *td = &data[0];
 	byte a;
 	char c;
@@ -2568,7 +2573,8 @@ static void windows_map_aux(void)
 	{
 		for (y = min_y; y < max_y; y++)
 		{
-			map_info(y, x, &a, &c, &ta, &tc);
+			map_info(y, x, gd);
+			grid_data_as_text(gd, a, c, ta, tc);
 
 			/* Ignore non-graphics */
 			if ((a & 0x80) && (c & 0x80))
@@ -2589,7 +2595,7 @@ static void windows_map_aux(void)
 static void windows_map(void)
 {
 	term_data *td = &data[0];
-	char ch;
+	ui_event_data ch;
 
 	/* Only in graphics mode since the fonts can't be scaled */
 	if (!use_graphics) return;
@@ -2750,7 +2756,7 @@ static void init_windows(void)
 		if (term_force_font(td, buf))
 		{
 			/* Access the standard font file */
-			path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_FONT, "8X13.FON");
+			path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_FONT, DEFAULT_FONT);
 
 			/* Force the use of that font */
 			(void)term_force_font(td, buf);
@@ -3034,8 +3040,6 @@ static void setup_menus(void)
 	               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
 	EnableMenuItem(hm, IDM_OPTIONS_BIGTILE,
 	               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
-	EnableMenuItem(hm, IDM_OPTIONS_SOUND,
-	               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
 	EnableMenuItem(hm, IDM_OPTIONS_SAVER,
 	               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
 	EnableMenuItem(hm, IDM_OPTIONS_LOW_PRIORITY,
@@ -3060,8 +3064,6 @@ static void setup_menus(void)
 
 	CheckMenuItem(hm, IDM_OPTIONS_BIGTILE,
 	              (use_bigtile ? MF_CHECKED : MF_UNCHECKED));
-	CheckMenuItem(hm, IDM_OPTIONS_SOUND,
-	              (arg_sound ? MF_CHECKED : MF_UNCHECKED));
 #ifdef USE_SAVER
 	CheckMenuItem(hm, IDM_OPTIONS_SAVER,
 	              (hwndSaver ? MF_CHECKED : MF_UNCHECKED));
@@ -3081,14 +3083,6 @@ static void setup_menus(void)
 		EnableMenuItem(hm, IDM_OPTIONS_BIGTILE, MF_ENABLED);
 	}
 #endif /* USE_GRAPHICS */
-
-#ifdef USE_SOUND
-	if (inkey_flag && initialized)
-	{
-		/* Menu "Options", Item "Sound" */
-		EnableMenuItem(hm, IDM_OPTIONS_SOUND, MF_ENABLED);
-	}
-#endif /* USE_SOUND */
 
 #ifdef USE_SAVER
 	/* Menu "Options", Item "ScreenSaver" */
@@ -3131,6 +3125,7 @@ static void check_for_save_file(LPSTR cmd_line)
 	/* Validate the file */
 	validate_file(savefile);
 
+#ifndef ZAIBAND_NEW_COMMAND_LOOP
 	/* Game in progress */
 	game_in_progress = TRUE;
 
@@ -3141,6 +3136,10 @@ static void check_for_save_file(LPSTR cmd_line)
 
 	/* Quit */
 	quit(NULL);
+#else
+	/* Set the command now so that we skip the "Open File" prompt. */ 
+ 	cmd.command = CMD_LOADFILE;
+#endif
 }
 
 
@@ -3252,24 +3251,18 @@ static void start_screensaver(void)
 	/*
 	 * Make sure the "verify_special" options is off, so that we can
 	 * get into Borg mode without confirmation.
+	 *
+     * Try just marking the savefile correctly.
 	 */
 
-	screensaver_inkey_hack_buffer[j++] = '='; /* Enter options screen */
-	screensaver_inkey_hack_buffer[j++] = '2'; /* Disturbance options */
-
-	/* Cursor down to "verify_special" */
-	for (i = 0; i < 10; i++)
-		screensaver_inkey_hack_buffer[j++] = '2';
-
-	screensaver_inkey_hack_buffer[j++] = 'n'; /* Switch off "verify_special" */
-	screensaver_inkey_hack_buffer[j++] = ESCAPE; /* Leave disturbance options */
+	p_ptr->noscore |= (NOSCORE_BORG);
 
 	/*
 	 * Make sure the "cheat_live" option is set, so that the Borg can
 	 * automatically restart.
 	 */
 
-	screensaver_inkey_hack_buffer[j++] = '7'; /* Cheat options */
+	screensaver_inkey_hack_buffer[j++] = '5'; /* Cheat options */
 
 	/* Cursor down to "cheat live" */
 	for (i = 0; i < OPT_cheat_live - OPT_CHEAT; i++)
@@ -3342,10 +3335,15 @@ static void process_menus(WORD wCmd)
 			}
 			else
 			{
+#ifndef ZAIBAND_NEW_COMMAND_LOOP
 				game_in_progress = TRUE;
 				Term_flush();
 				play_game(TRUE);
 				quit(NULL);
+#else
+				/* Set the command now so that we skip the "Open File" prompt. */ 
+			 	cmd.command = CMD_NEWGAME;
+#endif
 			}
 			break;
 		}
@@ -3377,10 +3375,15 @@ static void process_menus(WORD wCmd)
 				{
 					/* Load 'savefile' */
 					validate_file(savefile);
+#ifndef ZAIBAND_NEW_COMMAND_LOOP
 					game_in_progress = TRUE;
 					Term_flush();
 					play_game(FALSE);
 					quit(NULL);
+#else
+					/* Set the command now so that we skip the "Open File" prompt. */ 
+				 	cmd.command = CMD_LOADFILE;
+#endif
 				}
 			}
 			break;
@@ -3727,27 +3730,6 @@ static void process_menus(WORD wCmd)
 			use_bigtile = !use_bigtile;
 
 			/* Mega-Hack : Redraw screen */
-			Term_key_push(KTRL('R'));
-
-			break;
-		}
-
-		case IDM_OPTIONS_SOUND:
-		{
-			/* Paranoia */
-			if (!inkey_flag || !initialized)
-			{
-				plog("You may not do that right now.");
-				break;
-			}
-
-			/* Toggle "arg_sound" */
-			arg_sound = !arg_sound;
-
-			/* React to changes */
-			Term_xtra_win_react();
-
-			/* Hack -- Force redraw */
 			Term_key_push(KTRL('R'));
 
 			break;
@@ -4210,7 +4192,7 @@ static LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, unsigned int uMsg,
 			if (wParam && !HIWORD(lParam))
 			{
 				/* Do something to sub-windows */
-				for (i = 1; i < MAX_TERM_DATA; i++)
+				for (i = MAX_TERM_DATA - 1; i >= 0; i--)
 				{
 					SetWindowPos(data[i].w, hWnd, 0, 0, 0, 0,
 					             SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
@@ -4699,12 +4681,15 @@ static void hook_quit(cptr str)
 	/* Destroy all windows */
 	for (i = MAX_TERM_DATA - 1; i >= 0; --i)
 	{
-		term_force_font(&data[i], NULL);
+		/* Remove all fonts from the system, free resources */
+		if (data[i].font_file) term_remove_font(data[i].font_file);
+		if (data[i].font_id) DeleteObject(data[i].font_id);
 		if (data[i].font_want) string_free(data[i].font_want);
-		if (data[i].w) DestroyWindow(data[i].w);
-		data[i].w = 0;
 
-		term_nuke(&data[i].t);
+		/* Kill the window */
+ 		if (data[i].w) DestroyWindow(data[i].w);
+ 		data[i].w = 0;
+ 		term_nuke(&data[i].t);
 	}
 
 #ifdef USE_GRAPHICS
@@ -4752,6 +4737,26 @@ static void hook_quit(cptr str)
 }
 
 
+static game_command get_init_cmd()
+{
+	MSG msg;
+
+	/* Prompt the user */
+	prt("[Choose 'New' or 'Open' from the 'File' menu]", 23, 17);
+	Term_fresh();
+
+	/* Process messages forever */
+	while (cmd.command == CMD_NULL && GetMessage(&msg, NULL, 0, 0))
+	{
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+
+	/* Bit of a hack, we'll do this when we leave the INIT context in future. */
+	game_in_progress = TRUE;
+
+	return cmd;
+}
 
 /*** Initialize ***/
 
@@ -4851,7 +4856,7 @@ static void init_stuff(void)
 	validate_dir(ANGBAND_DIR_XTRA_FONT);
 
 	/* Build the filename */
-	path_build(path, sizeof(path), ANGBAND_DIR_XTRA_FONT, "8X13.FON");
+	path_build(path, sizeof(path), ANGBAND_DIR_XTRA_FONT, DEFAULT_FONT);
 
 	/* Hack -- Validate the basic font */
 	validate_file(path);
@@ -4904,7 +4909,9 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 
 	WNDCLASS wc;
 	HDC hdc;
+#ifndef ZAIBAND_NEW_COMMAND_LOOP
 	MSG msg;
+#endif
 
 	/* Unused parameter */
 	(void)nCmdShow;
@@ -5013,7 +5020,7 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	ReleaseDC(NULL, hdc);
 
 	/* Initialize the colors */
-	for (i = 0; i < 256; i++)
+	for (i = 0; i < MAX_COLORS; i++)
 	{
 		byte rv, gv, bv;
 
@@ -5040,11 +5047,13 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	/* Set the system suffix */
 	ANGBAND_SYS = "win";
 
+#ifndef ZAIBAND_NEW_COMMAND_LOOP
 	/* Initialize */
 	init_angband();
 
 	/* We are now initialized */
 	initialized = TRUE;
+#endif
 
 #ifdef USE_SAVER
 	if (screensaver)
@@ -5060,6 +5069,7 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	/* Did the user double click on a save file? */
 	check_for_save_file(lpCmdLine);
 
+#ifndef ZAIBAND_NEW_COMMAND_LOOP
 	/* Prompt the user */
 	prt("[Choose 'New' or 'Open' from the 'File' menu]", 23, 17);
 	Term_fresh();
@@ -5070,6 +5080,15 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
+#else
+	/* Set command hook */ 
+	get_game_command = get_init_cmd;
+
+	init_display(); 
+	initialized = TRUE; 
+
+	play_game();
+#endif
 
 	/* Paranoia */
 	quit(NULL);

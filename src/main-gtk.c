@@ -1,107 +1,334 @@
-/* File: main-gtk.c */
-
 /*
- * Copyright (c) 2000 Robert Ruehlmann
+ * File: main-gtk.c
+ * Purpose: GTK port for Angband
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.
+ * Copyright (c) 2000-2007 Robert Ruehlmann, Shanoah Alkire
+ *
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
+ 
 
 #include "angband.h"
 
-
 #ifdef USE_GTK
-
-#include "main.h"
-
-#include <gtk/gtk.h>
-#include <gdk/gdkkeysyms.h>
-
-/*
- * Include some helpful X11 code.
+#include "main-gtk.h"
+/* 
+ *Add a bunch of debugger message, to trace where problems are. 
  */
-#include "maid-x11.h"
+/*#define GTK_DEBUG*/
 
+/* 
+ *Write all debugger messages to the command line, as well as the debugger window. 
+*/
+/*#define VERBOSE_DEBUG*/
 
-#define NO_PADDING 0
-
-#define MAX_TERM_DATA 8
-
-/*
- * Extra data to associate with each "window"
- *
- * Each "window" is represented by a "term_data" structure, which
- * contains a "term" structure, which contains a pointer (t->data)
- * back to the term_data structure.
- */
-
-typedef struct term_data term_data;
-
-struct term_data
+static int max_win_width(term_data *td)
 {
-	term t;
+	return (255 * td->font.w);
+}
 
-	GtkWidget *window;
-	GtkWidget *drawing_area;
-	GdkFont *font;
-	GdkPixmap *pixmap;
-	GdkGC *gc;
+static int max_win_height(term_data *td)
+{
+	return(255 * td->font.h);
+}
 
-	int font_wid;
-	int font_hgt;
+static int row_in_pixels(term_data *td, int x)
+{
+	return(x * td->font.w);
+}
 
-	int rows;
-	int cols;
-
-	cptr name;
-};
-
-
-/*
- * An array of "term_data" structures, one for each "sub-window"
- */
-static term_data data[MAX_TERM_DATA];
-
+static int col_in_pixels(term_data *td, int y)
+{
+	return(y * td->font.h);
+}
 
 /*
- * game in progress
+ * Find the square a particular pixel is part of.
  */
-static bool game_in_progress = FALSE;
+static void pixel_to_square(int * const x, int * const y, const int ox, const int oy)
+{
+	term_data *td = (term_data*)(Term->data);
 
-/*
- * Number of active terms
+	(*x) = (ox / td->font.w);
+	(*y) = (oy / td->font.h);
+}
+
+void set_term_matrix(term_data *td)
+{
+	
+	/* Get a matrix set up to scale the graphics. */
+	if (td->cr != NULL)
+		matrix = cairo_font_scaling(td->cr, td->tile.w, td->tile.h, td->actual.w, td->actual.h);
+}
+
+gboolean on_big_tiles(GtkWidget *widget, GdkEventButton *event, gpointer user_data)
+{
+	term_data *td = &data[0];
+	
+	if (!gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)))
+		use_bigtile = FALSE;
+	else
+		use_bigtile = TRUE;
+	
+	load_font_by_name(td, td->font.name);
+	term_data_resize(td);
+	return(TRUE);
+}
+
+static GdkRectangle cairo_rect_to_gdk(cairo_rectangle_t *r)
+{
+	GdkRectangle s;
+	
+	s.x = r->x;
+	s.y = r->y;
+	s.width = r->width;
+	s.height = r->height;
+	
+	return(s);
+}
+
+static cairo_rectangle_t gdk_rect_to_cairo(GdkRectangle *r)
+{
+	cairo_rectangle_t s;
+	
+	s.x = r->x;
+	s.y = r->y;
+	s.width = r->width;
+	s.height = r->height;
+	
+	return(s);
+}
+static void invalidate_drawing_area(GtkWidget *widget, cairo_rectangle_t r)
+{
+	GdkRectangle s;
+	
+	s = cairo_rect_to_gdk(&r);
+	if (widget->window != NULL)
+	{
+		gdk_window_invalidate_rect(widget->window, &s, TRUE);
+	}
+}
+
+static void term_data_resize(term_data *td)
+{
+	term *old = Term;
+	
+	/* Activate the term */
+	Term_activate(&td->t);
+
+	Term_resize(td->cols, td->rows);
+	
+	/* Redraw the contents */
+	Term_redraw();
+
+	/* Flush the output */
+	Term_fresh();
+	Term_key_push(KTRL('R'));
+	Term_activate(old);
+}
+
+void set_row_and_cols(term_data *td)
+{
+	int cols = td->cols;
+	int rows = td->rows;
+	
+	td->cols = td->size.w / td->font.w;
+	td->rows= td->size.h / td->font.h;
+	
+	if (MAIN_WINDOW(td))
+	{
+		if (td->cols < 80) td->cols = cols;
+		if (td->rows < 24) td->rows = rows;
+	}
+	
+	if ((cols != td->cols) || (rows != td->rows))
+		term_data_resize(td);
+}
+
+/* 
+ * Get the position of the window and save it.
  */
-static int num_term = 1;
+gboolean configure_event_handler(GtkWidget *widget, GdkEventConfigure *event, gpointer user_data)
+{
+	
+	term_data *td = user_data;
+	
+	#ifdef GTK_DEBUG
+	gtk_log_fmt(TERM_WHITE, "Calling Get_size_pos");
+	#endif
+	
+	int x = 0, y = 0, w = 0, h = 0;
+	
+	w = event->width;
+	h = event->height;
+		
+	x = event->x;
+	y = event->y;
+	
+		#ifdef GTK_DEBUG
+		gtk_log_fmt(TERM_WHITE, "Window %s: Location(%d/%d), Size(%d/%d)", td->name, x, y, w, h);
+		#endif
+	if (GTK_WIDGET_VISIBLE(td->window) && GTK_WIDGET_VISIBLE(td->drawing_area))
+	{
+		gtk_widget_translate_coordinates(widget, td->drawing_area, w, h, &w, &h);
+		
+		/* Don't randomly reposition at the top of the screen */
+		if (x != 0) td->location.x = x;
+		if (y != 0) td->location.y = y;
+			
+		/* Hurrah for preventing weird glitches with workarounds.
+		 * I honestly have no idea why the windows occassionally
+		 * ignore my size requests, and show up as 100x100 or 200x190. 
+		 * It may not even do that any more...
+		 */
+		if (((w != 200) && (h != 190)) || ((w <= 100) && (h <= 100)))
+		{
+			if (w != 0) td->size.w = w;
+			if (h != 0)  td->size.h = h;
+			set_row_and_cols(td);
+		}
+		
+		#ifdef GTK_DEBUG
+		gtk_log_fmt(TERM_WHITE, "Window %s: Location(%d/%d), Size(%d/%d)", td->name, td->location.x, td->location.y, td->size.w, td->size.h);
+		#endif
+	}
+	return(FALSE);
+}
 
+gboolean configure_xtra_event_handler(GtkWidget *widget, GdkEventConfigure *event, gpointer user_data)
+{
+	xtra_win_data *xd = user_data;
+	
+	#ifdef GTK_DEBUG
+	gtk_log_fmt(TERM_WHITE, "Calling Get_xtra_pos");
+	#endif
+	
+	int x = 0, y = 0, w = 0, h = 0;
+	GdkRectangle r;
+	
+	if (GTK_WIDGET_VISIBLE(xd->win))
+	{
+		gdk_window_get_frame_extents(xd->win->window, &r);
+		x = r.x;
+		y = r.y;
+			
+		gtk_window_get_size(GTK_WINDOW(xd->win), &w, &h);
+		
+		if (x != 0)  xd->location.x = x;
+		if (y != 0)  xd->location.y = y;
+		if (w != 0) xd->size.w = w;
+		if (h != 0)  xd->size.h = h;
+		
+		#ifdef GTK_DEBUG
+		gtk_log_fmt(TERM_WHITE, "XTRA-Window %s: Location(%d/%d), Size(%d/%d)", xd->name, xd->location.x, xd->location.y, xd->size.w, xd->size.h);
+		#endif
+		
+		xd->visible = TRUE;
+	}
+	else
+		xd->visible = FALSE;
+	
+	return(FALSE);
+}
+	
+
+
+static void set_window_defaults(term_data *td)
+{
+	GdkGeometry geo;
+	
+	geo.width_inc = td->font.w;
+	geo.height_inc = td->font.h;
+	
+	if (MAIN_WINDOW(td))
+	{
+		geo.min_width = (td->font.w * 80);
+		geo.min_height = (td->font.h * 24);
+	}
+	else
+	{
+		geo.min_width = td->font.w;
+		geo.min_height = td->font.h;
+	}
+	
+	#ifdef GTK_DEBUG
+	gtk_log_fmt(TERM_WHITE, "Calling Set window defaults.");
+	gtk_log_fmt(TERM_WHITE, "Min Size for %s is (%d/%d)", td->name, geo.min_width, geo.min_height);
+	#endif
+	gtk_window_set_geometry_hints(GTK_WINDOW(td->window), td->drawing_area, &geo, 
+	GDK_HINT_RESIZE_INC | GDK_HINT_MIN_SIZE); /* GDK_HINT_POS |GDK_HINT_MAX_SIZE | */
+}
+
+static void set_window_size(term_data *td)
+{
+	int x, y, w, h;
+	#ifdef GTK_DEBUG
+	gtk_log_fmt(TERM_WHITE, "Calling Set window size.");
+	gtk_log_fmt(TERM_WHITE, "Size for %s is going to be resized to (%d/%d)", td->name, td->size.w, td->size.h);
+	#endif
+	
+	set_window_defaults(td);
+	
+	x = td->location.x;
+	y = td->location.y;
+	
+	w = td->size.w;
+	h = td->size.h;
+	
+	gtk_window_set_position(GTK_WINDOW(td->window),GTK_WIN_POS_NONE);
+	
+	
+	if MAIN_WINDOW(td)
+		gtk_widget_set_size_request(GTK_WIDGET(td->drawing_area), w, h);
+	
+	gtk_window_resize(GTK_WINDOW(td->window), w, h);
+	
+	gtk_window_move(GTK_WINDOW(td->window), x, y);
+	
+	gtk_window_get_size(GTK_WINDOW(td->window), &w, &h);
+	#ifdef GTK_DEBUG
+	gtk_log_fmt(TERM_WHITE, "Size for %s is (%d/%d)", td->name, w,h);
+	#endif
+}
+
+static void set_xtra_window_size(xtra_win_data *xd)
+{
+	gtk_window_set_position(GTK_WINDOW(xd->win),GTK_WIN_POS_NONE);
+	if ((xd->size.w > 0) && (xd->size.h > 0))
+		gtk_window_resize(GTK_WINDOW(xd->win), xd->size.w, xd->size.h);
+	gtk_window_move(GTK_WINDOW(xd->win), xd->location.x, xd->location.y);
+}
+
+gboolean show_event_handler(GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
+{
+	/* Not presently used */
+	return(FALSE);
+}
 
 /*
  * Erase the whole term.
  */
 static errr Term_clear_gtk(void)
 {
-	int width, height;
-
 	term_data *td = (term_data*)(Term->data);
-
-	g_assert(td->pixmap != NULL);
-	g_assert(td->drawing_area->window != 0);
-
-	/* Find proper dimensions for rectangle */
-	gdk_window_get_size(td->drawing_area->window, &width, &height);
-
-	/* Clear the area */
-	gdk_draw_rectangle(td->pixmap, td->drawing_area->style->black_gc,
-	                   1, 0, 0, width, height);
-
-	/* Copy it to the window */
-	gdk_draw_pixmap(td->drawing_area->window, td->gc, td->pixmap,
-	                0, 0, 0, 0, width, height);
+	cairo_rectangle_t r;
+	
+	init_cairo_rect(&r, 0, 0, max_win_width(td), max_win_height(td));
+	cairo_clear(td->cr, r, TERM_DARK);
+	invalidate_drawing_area(td->drawing_area, r);
 
 	/* Success */
 	return (0);
 }
-
 
 /*
  * Erase some characters.
@@ -109,104 +336,72 @@ static errr Term_clear_gtk(void)
 static errr Term_wipe_gtk(int x, int y, int n)
 {
 	term_data *td = (term_data*)(Term->data);
-
-	g_assert(td->pixmap != NULL);
-	g_assert(td->drawing_area->window != 0);
-
-	gdk_draw_rectangle(td->pixmap, td->drawing_area->style->black_gc,
-	                   TRUE, x * td->font_wid, y * td->font_hgt,
-	                   n * td->font_wid, td->font_hgt);
-
-	/* Copy it to the window */
-	gdk_draw_pixmap(td->drawing_area->window, td->gc, td->pixmap,
-	                x * td->font_wid, y * td->font_hgt,
-	                x * td->font_wid, y * td->font_hgt,
-	                n * td->font_wid, td->font_hgt);
+	cairo_rectangle_t r;
+	
+	/* Set dimensions */
+	init_cairo_rect(&r, (td->actual.w * x), (td->actual.h * y), (td->actual.w * n), (td->actual.h));
+	cairo_clear(td->cr, r, TERM_DARK);
+	invalidate_drawing_area(td->drawing_area, r);
 
 	/* Success */
 	return (0);
 }
-
-
-/*
- * Set foreground color
- */
-static void set_foreground_color(term_data *td, byte a)
-{
-	static unsigned int failed = 0;
-
-	GdkColor color;
-
-	color.red   = angband_color_table[a][1] * 256;
-	color.green = angband_color_table[a][2] * 256;
-	color.blue  = angband_color_table[a][3] * 256;
-
-	g_assert(td->pixmap != NULL);
-	g_assert(td->drawing_area->window != 0);
-
-	if (gdk_colormap_alloc_color(gdk_colormap_get_system(), &color, FALSE, TRUE))
-		gdk_gc_set_foreground(td->gc, &color);
-	else if (!failed++)
-		g_print("Couldn't allocate color.\n");
-}
-
 
 /*
  * Draw some textual characters.
  */
 static errr Term_text_gtk(int x, int y, int n, byte a, cptr s)
 {
-	int i;
 	term_data *td = (term_data*)(Term->data);
+	cairo_rectangle_t r;
 	
-	set_foreground_color(td, a);
-
-	/* Clear the line */
-	Term_wipe_gtk(x, y, n);
-
-	/* Draw the text to the pixmap */
-	for (i = 0; i < n; i++)
-	{
-		gdk_draw_text(td->pixmap, td->font, td->gc,
-		              (x + i) * td->font_wid,
-			      td->font->ascent + y * td->font_hgt,
-			      s + i, 1);
-	}
-
-	/* Copy it to the window */
-	gdk_draw_pixmap(td->drawing_area->window, td->gc, td->pixmap,
-	                x * td->font_wid, y * td->font_hgt,
-	                x * td->font_wid, y * td->font_hgt,
-	                n * td->font_wid, td->font_hgt);
-
+	/* Set dimensions */
+	init_cairo_rect(&r, (td->font.w * x), (td->font.h * y),  (td->font.w * n), td->font.h);
+	
+	/* Draw the text */
+	draw_text(td->cr, &td->font, &td->actual, x, y, n, a, s);
+	
+	invalidate_drawing_area(td->drawing_area, r);
+			
 	/* Success */
 	return (0);
 }
 
-
-static errr CheckEvent(bool wait)
+static errr Term_pict_gtk(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
 {
-	if (wait)
-	{
-		gtk_main_iteration();
-	}
-	else
-	{
-		while (gtk_events_pending())
-			gtk_main_iteration();
-	}
+	term_data *td = (term_data*)(Term->data);
+	cairo_rectangle_t r;
+	
+	/* Set dimensions */
+	init_cairo_rect(&r, (td->actual.w * x), (td->actual.h * y),  (td->actual.w * n), (td->actual.h));
 
+	/* I can't count on at all the td fields names being the same for everything that uses cairo-utils,
+	    hence a lot of variables being passed. */
+	draw_tiles(td->cr, x, y, n, ap, cp, tap, tcp, &td->font, &td->actual, &td->tile);
+
+	invalidate_drawing_area(td->drawing_area, r);
+			
+	/* Success */
 	return (0);
 }
-
 
 static errr Term_flush_gtk(void)
 {
+	gdk_flush();
 	/* XXX */
 	return (0);
 }
-
-
+static errr Term_fresh_gtk(void)
+{
+	term_data *td = (term_data*)(Term->data);
+	cairo_rectangle_t r;
+	
+	init_cairo_rect(&r, 0, 0, max_win_width(td), max_win_height(td));
+	invalidate_drawing_area(td->drawing_area, r);
+	gdk_window_process_updates(td->window->window, 1);
+	/* XXX */
+	return (0);
+}
 /*
  * Handle a "special request"
  */
@@ -216,25 +411,32 @@ static errr Term_xtra_gtk(int n, int v)
 	switch (n)
 	{
 		/* Make a noise */
-		case TERM_XTRA_NOISE: return (0);
+		case TERM_XTRA_NOISE: 
+			return (0);
 
 		/* Flush the output */
-		case TERM_XTRA_FRESH: return (0);
+		case TERM_XTRA_FRESH: 
+			return (Term_fresh_gtk());
 
 		/* Process random events */
-		case TERM_XTRA_BORED: return (CheckEvent(0));
+		case TERM_XTRA_BORED: 
+			return (CheckEvent(0));
 
 		/* Process Events */
-		case TERM_XTRA_EVENT: return (CheckEvent(v));
+		case TERM_XTRA_EVENT: 
+			return (CheckEvent(v));
 
 		/* Flush the events */
-		case TERM_XTRA_FLUSH: return (Term_flush_gtk());
+		case TERM_XTRA_FLUSH: 
+			return (Term_flush_gtk());
 
 		/* Handle change in the "level" */
-		case TERM_XTRA_LEVEL: return (0);
+		case TERM_XTRA_LEVEL: 
+			return (0);
 
 		/* Clear the screen */
-		case TERM_XTRA_CLEAR: return (Term_clear_gtk());
+		case TERM_XTRA_CLEAR: 
+			return (Term_clear_gtk());
 
 		/* Delay for some milliseconds */
 		case TERM_XTRA_DELAY:
@@ -242,218 +444,398 @@ static errr Term_xtra_gtk(int n, int v)
 			return (0);
 
 		/* React to changes */
-		case TERM_XTRA_REACT: return (0);
+		case TERM_XTRA_REACT: 
+			return (0);
 	}
 
 	/* Unknown */
 	return (1);
 }
 
-
 static errr Term_curs_gtk(int x, int y)
 {
 	term_data *td = (term_data*)(Term->data);
+	cairo_rectangle_t r;
 
-	set_foreground_color(td, TERM_YELLOW);
+	/* Set dimensions */
+	init_cairo_rect(&r, row_in_pixels(td, x)+1, col_in_pixels(td, y) + 1,  (td->actual.w) - 2, (td->actual.h) - 2);
+	cairo_cursor(td->cr, r, TERM_SLATE);
+	invalidate_drawing_area(td->drawing_area, r);
 	
-	gdk_draw_rectangle(td->pixmap, td->gc, FALSE,
-	                   x * td->font_wid, y * td->font_hgt, td->font_wid - 1, td->font_hgt - 1);
-
-	/* Copy it to the window */
-	gdk_draw_pixmap(td->drawing_area->window, td->gc, td->pixmap,
-	                x * td->font_wid, y * td->font_hgt,
-	                x * td->font_wid, y * td->font_hgt,
-	                td->font_wid, td->font_hgt);
-
 	/* Success */
 	return (0);
 }
 
+/*
+ * Hack -- redraw a term_data
+ *
+ * Note that "Term_redraw()" calls "TERM_XTRA_CLEAR"
+ */
+static void term_data_redraw(term_data *td)
+{
+	term *old = Term;
+	
+	/* Activate the term passed to it, not term 0! */
+	Term_activate(&td->t);
 
-static void save_game_gtk(void)
+	/* Redraw the contents */
+	Term_redraw();
+
+	/* Flush the output */
+	Term_fresh();
+	Term_activate(old);
+}
+
+static errr CheckEvent(bool wait)
+{
+	if (wait)
+		gtk_main_iteration();
+	else
+		while (gtk_events_pending())
+			gtk_main_iteration();
+
+	return (0);
+}
+
+static bool save_game_gtk(void)
 {
 	if (game_in_progress && character_generated)
 	{
 		if (!inkey_flag)
 		{
-			plog("You may not do that right now.");
-			return;
+			gtk_log_fmt(TERM_WHITE, "You may not do that right now.");
+			return(FALSE);
 		}
 
 		/* Hack -- Forget messages */
 		msg_flag = FALSE;
-
+		
 		/* Save the game */
-#ifdef ZANGBAND
+		#ifdef ZANGBAND
 		do_cmd_save_game(FALSE);
-#else /* ZANGBAND */
+		#else
 		do_cmd_save_game();
-#endif /* ZANGBAND */
+		#endif 
 	}
+	
+	return(TRUE);
 }
-
 
 static void hook_quit(cptr str)
 {
+	#ifdef GTK_DEBUG
+	gtk_log_fmt(TERM_WHITE, "Calling hook_quit");
+	#endif
+	gtk_log_fmt(TERM_RED,"%s", str);
+	save_prefs();
+	release_memory();
 	gtk_exit(0);
 }
 
-
-static void quit_event_handler(GtkButton *was_clicked, gpointer user_data)
+gboolean quit_event_handler(GtkWidget *widget, GdkEventButton *event, gpointer user_data)
 {
-	save_game_gtk();
-
-	quit(NULL);
-}
-
-
-static void destroy_event_handler(GtkButton *was_clicked, gpointer user_data)
-{
-	quit(NULL);
-}
-
-
-static void hide_event_handler(GtkWidget *window, gpointer user_data)
-{
-	gtk_widget_hide(window);
-}
-
-
-static void new_event_handler(GtkButton *was_clicked, gpointer user_data)
-{
-	if (game_in_progress)
+	#ifdef GTK_DEBUG
+	gtk_log_fmt(TERM_WHITE, "Calling quit_event_handler");
+	#endif
+	if (save_game_gtk())
 	{
-		plog("You can't start a new game while you're still playing!");
-	}
-	else
-	{
-		game_in_progress = TRUE;
-		Term_flush();
-		play_game(TRUE);
-#ifdef HAS_CLEANUP
-		cleanup_angband();
-#endif /* HAS_CLEANUP */
+		save_prefs();
 		quit(NULL);
+		gtk_exit(0);
+		return(FALSE);
 	}
+	else
+		return(TRUE);
 }
 
-
-static void load_font(term_data *td, cptr fontname)
+gboolean destroy_event_handler(GtkWidget *widget, GdkEventButton *event, gpointer user_data)
 {
-	td->font = gdk_font_load(fontname);
-
-	/* Calculate the size of the font XXX */
-	td->font_wid = gdk_char_width(td->font, '@');
-	td->font_hgt = td->font->ascent + td->font->descent;
-}
-
-
-static void font_ok_callback(GtkWidget *widget, GtkWidget *font_selector)
-{
-	gchar *fontname;
-	term_data *td = gtk_object_get_data(GTK_OBJECT(font_selector), "term_data");
-
-	g_assert(td != NULL);
-
-	fontname = gtk_font_selection_dialog_get_font_name(GTK_FONT_SELECTION_DIALOG(font_selector));
-
-	g_assert(fontname != NULL);
-
-	load_font(td, fontname);
-}
-
-
-static void change_font_event_handler(GtkWidget *widget, gpointer user_data)
-{
-	GtkWidget *font_selector;
-
-	gchar *spacings[] = { "c", "m", NULL };
-
-	font_selector = gtk_font_selection_dialog_new("Select font");
-
-	gtk_object_set_data(GTK_OBJECT(font_selector), "term_data", user_data);
-
-	/* Filter to show only fixed-width fonts */
-	gtk_font_selection_dialog_set_filter(GTK_FONT_SELECTION_DIALOG(font_selector),
-	                                     GTK_FONT_FILTER_BASE, GTK_FONT_ALL,
-	                                     NULL, NULL, NULL, NULL, spacings, NULL);
-
-	gtk_signal_connect(GTK_OBJECT(GTK_FONT_SELECTION_DIALOG(font_selector)->ok_button),
-	                   "clicked", font_ok_callback, (gpointer)font_selector);
-
-	/* Ensure that the dialog box is destroyed when the user clicks a button. */
-	gtk_signal_connect_object(GTK_OBJECT(GTK_FONT_SELECTION_DIALOG(font_selector)->ok_button),
-	                          "clicked", GTK_SIGNAL_FUNC(gtk_widget_destroy),
-	                          (gpointer)font_selector);
-
-	gtk_signal_connect_object(GTK_OBJECT(GTK_FONT_SELECTION_DIALOG(font_selector)->cancel_button),
-	                          "clicked", GTK_SIGNAL_FUNC(gtk_widget_destroy),
-	                         (gpointer)font_selector);
-
-	gtk_widget_show(GTK_WIDGET(font_selector));
-}
-
-
-static void file_ok_callback(GtkWidget *widget, GtkWidget *file_selector)
-{
-	char *f = gtk_file_selection_get_filename(GTK_FILE_SELECTION(file_selector));
-
-	my_strcpy(savefile, f, sizeof(savefile));
-
-	gtk_widget_destroy(file_selector);
-
-	game_in_progress = TRUE;
-	Term_flush();
-	play_game(FALSE);
-	cleanup_angband();
 	quit(NULL);
+	gtk_exit(0);
+	return(FALSE);
 }
 
-
-static void open_event_handler(GtkButton *was_clicked, gpointer user_data)
+gboolean hide_event_handler(GtkWidget *widget, GdkEventButton *event, gpointer user_data)
 {
-	GtkWidget *file_selector;
-	char buf[1024];
+	term_data *td = user_data;
+	GtkWidget *menu_item;
+	char item_name[20];
+	
+	if ((td != NULL) && (td->window == widget))
+	{
+	strnfmt(item_name, sizeof(item_name),  "term_menu_item_%i", td->number);
+	menu_item = glade_xml_get_widget(gtk_xml, item_name);
+	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item), FALSE);
+	}
+	
+	return(TRUE);
+}
 
+gboolean xtra_hide_event_handler(GtkWidget *widget, GdkEventButton *event, gpointer user_data)
+{
+	xtra_win_data *xd = user_data;
+	
+	xd->visible = FALSE;
+	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(xd->menu), FALSE);
+	
+	return(TRUE);
+}
+
+gboolean new_event_handler(GtkWidget *widget, GdkEventButton *event, gpointer user_data)
+{
 	if (game_in_progress)
 	{
-		plog("You can't open a new game while you're still playing!");
+		gtk_log_fmt(TERM_WHITE, "You can't start a new game while you're still playing!");
+		return(TRUE);
 	}
 	else
 	{
-		/* Prepare the savefile path */
-		path_build(buf, sizeof(buf), ANGBAND_DIR_SAVE, "*");
-
-		file_selector = gtk_file_selection_new("Select a savefile");
-		gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_selector), buf);
-		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(file_selector)->ok_button),
-		                   "clicked", file_ok_callback, (gpointer)file_selector);
-
-		/* Ensure that the dialog box is destroyed when the user clicks a button. */
-		gtk_signal_connect_object(GTK_OBJECT(GTK_FILE_SELECTION(file_selector)->ok_button),
-		                          "clicked", GTK_SIGNAL_FUNC(gtk_widget_destroy),
-		                          (gpointer)file_selector);
-
-		gtk_signal_connect_object(GTK_OBJECT(GTK_FILE_SELECTION(file_selector)->cancel_button),
-		                          "clicked", GTK_SIGNAL_FUNC(gtk_widget_destroy),
-		                          (gpointer)file_selector);
-
-		gtk_window_set_modal(GTK_WINDOW(file_selector), TRUE);
-		gtk_widget_show(GTK_WIDGET(file_selector));
+		/* We'll return NEWGAME to the game. */ 
+		cmd.command = CMD_NEWGAME;
+		return(FALSE);
 	}
 }
 
+static void load_font_by_name(term_data *td, cptr font_name)
+{	
+	int old_font_height = td->font.h;
+	int old_font_width = td->font.w;
+	PangoFontDescription *temp_font;
+	char buf[80];
+	int i, j = 0;
 
-static gboolean delete_event_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data)
+	my_strcpy(td->font.name, font_name, sizeof(td->font.name));
+
+
+	for (i = 0; i < strlen(font_name); i++)
+	{
+		if (font_name[i] == ' ') j = i;
+	}
+	
+	for (i = j ; i < strlen(font_name); i++)
+		buf[i - j] = font_name[i];
+
+	
+	temp_font = pango_font_description_from_string(font_name);
+	my_strcpy(td->font.family, pango_font_description_get_family(temp_font), sizeof(td->font.family));
+	td->font.size = atof(buf);
+	if (td->font.size == 0) td->font.size = 12;
+	get_font_size(&td->font);
+	
+	if (use_bigtile)
+	{
+		td->actual.w = td->font.w * 2;
+		td->actual.h = td->font.h;
+	}
+	else
+	{
+		td->actual.w = td->font.w;
+		td->actual.h = td->font.h;
+	}
+	
+	if ((old_font_height == 0) || (old_font_width == 0))
+	{
+		td->size.w = td->cols * td->font.w;
+		td->size.h = td->rows * td->font.h;
+	}
+	else
+	{
+		td->size.w = (double)td->size.w * (double)((double)td->font.w / (double)old_font_width);
+		td->size.h = (double)td->size.h * (double)((double)td->font.h / (double)old_font_height);
+	}
+	
+	/* Get a matrix set up to scale the graphics. */
+	set_term_matrix(td);
+	if (td->window != NULL) 
+	{
+
+
+	gtk_widget_hide(td->window);
+		
+	/* Set defaults, and resize the window accordingly */
+	set_window_size(td);
+		
+	if (td->visible) gtk_widget_show(td->window);
+		
+	create_term_cairo(td);
+	}
+}
+
+void set_term_font(GtkFontButton *widget, gpointer user_data)   
+{
+	term_data *td;
+
+	const char *font_name;
+	const char *s;
+	int t;
+	
+	s = gtk_widget_get_name(GTK_WIDGET(widget));
+	sscanf(s, "term_font_%d", &t);
+
+	td = &data[t];
+
+	font_name = gtk_font_button_get_font_name(widget);
+	load_font_by_name(td, font_name);
+}
+
+void set_xtra_font(GtkFontButton *widget, gpointer user_data)   
+{
+	const char *temp, *s;
+	int t;
+	
+	s = (char*)gtk_widget_get_name(GTK_WIDGET(widget));
+	sscanf(s, "xtra_font_%d", &t);
+	
+	xtra_win_data *xd=&xdata[t];
+	
+	temp = gtk_font_button_get_font_name(widget);
+	my_strcpy(xd->font.name, temp, sizeof(xd->font.name));
+	get_font_size(&xd->font);
+	if (xd->text_view != NULL)
+		gtk_widget_modify_font(GTK_WIDGET(xd->text_view), pango_font_description_from_string(xd->font.name));
+	
+	if ((xd->cr != NULL) && (xd->event != 0))
+	{
+		event_signal(xd->event);
+	}
+}
+
+/*** Callbacks: savefile opening ***/
+
+/* Filter function for the savefile list */
+static gboolean file_open_filter(const GtkFileFilterInfo *filter_info, gpointer data)
+{
+	const char *name = filter_info->display_name;
+
+	(void)data;
+
+	/* Count out known non-savefiles */
+	if (!strcmp(name, "Makefile") ||
+	    !strcmp(name, "delete.me"))
+	{
+		return FALSE;
+	}
+
+	/* Let it pass */
+	return TRUE;
+}
+
+/*
+ * Open/Save Dialog box
+ */
+static bool save_dialog_box(bool save)
+{
+	GtkWidget *selector_wid;
+	GtkFileChooser *selector;
+	bool accepted;
+	
+	char buf[1024];
+	const char *filename;
+
+	/* Forget it if the game is in progress */
+	/* XXX Should disable the menu entry XXX */
+	if (game_in_progress && !save)
+	{
+		gtk_log_fmt(TERM_WHITE, "You can't open a new game while you're still playing!");
+		return(FALSE);
+	}
+			
+	if ((!game_in_progress || !character_generated) && save)
+	{
+		gtk_log_fmt(TERM_WHITE, "You can't save a new game unless you're still playing!");
+		return(FALSE);
+	}
+
+	if (!inkey_flag && save)
+	{
+		gtk_log_fmt(TERM_WHITE, "You may not do that right now.");
+		return(FALSE);
+	}
+	
+	/* Create a new file selector dialogue box, with no parent */
+	if (!save)
+	{
+	selector_wid = gtk_file_chooser_dialog_new("Select a savefile", NULL,
+	                                       GTK_FILE_CHOOSER_ACTION_OPEN,
+	                                       GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+	                                       GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+	                                       NULL);
+	}
+	else
+	{
+	selector_wid = gtk_file_chooser_dialog_new("Save your game", NULL,
+	                                       GTK_FILE_CHOOSER_ACTION_SAVE,
+	                                       GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+	                                       GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+	                                       NULL);
+	gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (selector_wid), op_ptr->full_name);
+	}
+	/* For convenience */
+	selector = GTK_FILE_CHOOSER(selector_wid);
+	gtk_file_chooser_set_do_overwrite_confirmation (selector, TRUE);;
+	
+	/* Get the current directory (so we can find lib/save/) */
+	filename = gtk_file_chooser_get_current_folder(selector);
+	path_build(buf, sizeof buf, filename, ANGBAND_DIR_SAVE);
+	gtk_file_chooser_set_current_folder(selector, buf);
+
+	/* Restrict the showing of pointless files */
+	GtkFileFilter *filter;
+	filter = gtk_file_filter_new();
+	gtk_file_filter_add_custom(filter, GTK_FILE_FILTER_DISPLAY_NAME, file_open_filter, NULL, NULL);
+	gtk_file_chooser_set_filter(selector, filter);
+	
+	accepted = (gtk_dialog_run(GTK_DIALOG(selector_wid)) == GTK_RESPONSE_ACCEPT);
+	
+	/* Run the dialogue */
+	if (accepted)
+	{
+		/* Get the filename, copy it into the savefile name */
+		filename = gtk_file_chooser_get_filename(selector);
+		my_strcpy(savefile, filename, sizeof(savefile));
+	}
+		
+	/* Destroy it now that we're done with it */
+	gtk_widget_destroy(selector_wid);
+	
+	/* Done */
+	return accepted;
+}
+
+void open_event_handler(GtkButton *was_clicked, gpointer user_data)
+{
+	bool accepted;
+	
+	accepted = save_dialog_box(FALSE);
+	
+	/* Set the command now so that we skip the "Open File" prompt. */ 
+	if (accepted) cmd.command = CMD_LOADFILE; 
+	
+	/* Done */
+	return;
+}
+gboolean save_event_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data)
+{
+	bool accepted;
+	
+	accepted = save_dialog_box(TRUE);
+	
+	if (accepted)
+	{
+		Term_flush();
+		save_game_gtk();
+	}
+	
+	/* Done */
+	return(FALSE);
+}
+gboolean delete_event_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
 	save_game_gtk();
-
-	/* Don't prevent closure */
 	return (FALSE);
 }
 
-
-static gboolean keypress_event_handler(GtkWidget *widget, GdkEventKey *event, gpointer user_data)
+gboolean keypress_event_handler(GtkWidget *widget, GdkEventKey *event, gpointer user_data)
 {
 	int i, mc, ms, mo, mx;
 
@@ -473,7 +855,7 @@ static gboolean keypress_event_handler(GtkWidget *widget, GdkEventKey *event, gp
 	    (event->keyval >= GDK_KP_0) && (event->keyval <= GDK_KP_9))
 	{
 		/* Build the macro trigger string */
-		sprintf(msg, "%cS_%X%c", 31, event->keyval, 13);
+		strnfmt(msg, sizeof(msg), "%cS_%X%c", 31, event->keyval, 13);
 
 		/* Enqueue the "macro trigger" string */
 		for (i = 0; msg[i]; i++) Term_keypress(msg[i]);
@@ -488,14 +870,16 @@ static gboolean keypress_event_handler(GtkWidget *widget, GdkEventKey *event, gp
 		return (TRUE);
 	}
 
-	/* Normal keys with no modifiers */
+	/* Normal keys with no modifiers (except control) */
 	if (event->length && !mo && !mx)
 	{
 		/* Enqueue the normal key(s) */
 		for (i = 0; i < event->length; i++) Term_keypress(event->string[i]);
 
-		/* All done */
-		return (TRUE);
+		if (!mc)
+			return (TRUE); /* Not a control key, so the keypress is handled */
+		else
+			return(FALSE); /* Pass the keypress along, so the menus get it */
 	}
 
 
@@ -566,29 +950,821 @@ static gboolean keypress_event_handler(GtkWidget *widget, GdkEventKey *event, gp
 	return (TRUE);
 }
 
+/* Prefs - copied straight from main-x11.c and hacked. */
 
-static gboolean expose_event_handler(GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
+static void save_prefs(void)
 {
-	term_data *td = user_data;
+	ang_file *fff;
+	int i;
 
-	GdkPixmap *pixmap = gtk_object_get_data(GTK_OBJECT(widget), "pixmap");
+	#ifdef GTK_DEBUG
+	gtk_log_fmt(TERM_WHITE, "Saving Prefs.");
+	#endif
+	
+	/* Open the settings file */
+	fff = file_open(settings, MODE_WRITE, FTYPE_TEXT);
+	if (!fff) return;
 
-	if (pixmap)
+	/* Header */
+	file_putf(fff, "# %s GTK preferences\n\n", VERSION_NAME);
+	
+	file_putf(fff, "[General Settings]\n");
+	/* Graphics setting */
+	file_putf(fff,"Tile set=%d\n", arg_graphics);
+	file_putf(fff,"Big Tiles=%d\n", use_bigtile);
+
+	/* New section */
+	file_putf(fff, "\n");
+	
+	/* Save window prefs */
+	for (i = 0; i < num_term; i++)
 	{
-		/* Restrict the area - Don't forget to reset it! XXX */
-		/* gdk_gc_set_clip_rectangle(td->gc, &(event->area)); */
+		term_data *td = &data[i];
 
+		if (!td->t.mapped_flag) continue;
+
+		/* Header */
+		file_putf(fff, "[Term window %d]\n", i);
+		
+		/* Term window specific preferences */
+		file_putf(fff, "font=%s\n", td->font.name);
+		file_putf(fff, "visible=%d\n", GTK_WIDGET_VISIBLE(td->window));
+		file_putf(fff, "x=%d\n",  td->location.x);
+		file_putf(fff, "y=%d\n", td->location.y);
+		file_putf(fff, "width=%d\n", td->size.w);
+		file_putf(fff, "height=%d\n", td->size.h);
+		file_putf(fff, "cols=%d\n", td->cols);
+		file_putf(fff, "rows=%d\n", td->rows);
+		file_putf(fff, "tile width=%d\n", td->tile.w);
+		file_putf(fff, "tile height=%d\n", td->tile.h);
+		
+		/* Footer */
+		file_putf(fff, "\n");
+	}
+	
+	for (i = 0; i < MAX_XTRA_WIN_DATA; i++)
+	{
+		xtra_win_data *xd = &xdata[i];
+	
+		/* Header */
+		file_putf(fff, "[Extra window %d]", i);
+		file_putf(fff, "# %s\n",xd->name);
+		file_putf(fff, "font=%s\n", xd->font.name);
+		file_putf(fff, "visible=%d\n", GTK_WIDGET_VISIBLE(xd->win));
+		file_putf(fff, "x=%d\n", xd->location.x);
+		file_putf(fff, "y=%d\n", xd->location.y);
+		file_putf(fff, "width=%d\n", xd->size.w);
+		file_putf(fff, "height=%d\n\n", xd->size.h);
+	}
+
+	/* Close */
+	file_close(fff);
+}
+
+static int check_env_i(char* name, int i, int dfault)
+{
+	cptr str;
+	int val;
+	char buf[1024];
+	
+	strnfmt(buf, -1, name, i);
+	str = getenv(buf);
+	val = (str != NULL) ? atoi(str) : -1;
+	
+	if (val <= 0) val = dfault;
+		
+	return val;
+}
+
+static int get_value(cptr buf)
+{
+	cptr str;
+	int i;
+	
+	str = strstr(buf, "=");
+	i = (str != NULL) ? atoi(str + 1) : -1;
+	
+	return i;
+}
+
+static void load_term_prefs()
+{
+	int t = 0, x = 0, line = 0, val = 0, section = 0;
+	cptr str;
+	char buf[1024];
+	ang_file *fff;
+	term_data *td = &data[0];
+	xtra_win_data *xd = &xdata[0];
+	
+	/* Build the filename and open the file */
+	path_build(settings, sizeof(settings), ANGBAND_DIR_USER, "gtk-settings.prf");
+	fff = file_open(settings, MODE_READ, -1);
+	
+	/* File exists */
+	if ((fff) && (!ignore_prefs))
+	{
+		/* Process the file */
+		while (file_getl(fff, buf, sizeof(buf)))
+		{
+			/* Count lines */
+			line++;
+
+			/* Skip "empty" lines, "blank" lines, and comments */
+			if (!buf[0]) continue;
+			if (isspace((unsigned char)buf[0])) continue;
+			if (buf[0] == '#') continue;
+			
+			if (buf[0] == '[') 
+			{
+				if (prefix(buf, "[General Settings]"))
+				{
+					section = GENERAL_PREFS;
+				}
+				else if (prefix(buf,"[Term window"))
+				{
+					section = TERM_PREFS;
+					sscanf(buf, "[Term window %d]", &t);
+					td = &data[t];
+				}
+				else if (prefix(buf,"[Extra window"))
+				{
+					section = XTRA_WIN_PREFS;
+					sscanf(buf, "[Extra window %d]", &x);
+					xd = &xdata[x];
+				}
+				continue;
+			}
+			
+			if (section == GENERAL_PREFS)
+			{
+				if (prefix(buf, "Tile set="))
+				{
+					val = get_value(buf);
+					sscanf(buf, "Tile set=%d", &val);
+					arg_graphics = val;
+					continue;
+				}
+				if (prefix(buf, "Big Tiles="))
+				{
+					val = get_value(buf);
+					sscanf(buf, "Big Tiles=%d", &val);
+					use_bigtile = val;
+					continue;
+				}
+			}
+			
+			if (section == TERM_PREFS)	
+			{
+				if (prefix(buf, "visible="))
+				{
+					sscanf(buf, "visible=%d", &val);
+					td->visible = val;
+				}
+				else if (prefix(buf, "font="))
+				{
+					str = my_stristr(buf, "=");
+					if (str != NULL)
+					{
+						if (str[0] == '=')
+							str++;
+						my_strcpy(td->font.name, str, strlen(str) + 1);
+					}
+				}
+				else if (prefix(buf, "x="))                 sscanf(buf, "x=%d", &td->location.x);
+				else if (prefix(buf, "y="))                 sscanf(buf, "y=%d",&td->location.y);
+				else if (prefix(buf, "width="))         sscanf(buf, "width=%d", &td->size.w);
+				else if (prefix(buf, "height="))        sscanf(buf, "height=%d", &td->size.h);
+				else if (prefix(buf, "cols="))             sscanf(buf, "cols=%d", &td->cols);
+				else if (prefix(buf, "rows="))           sscanf(buf, "rows=%d", &td->rows);
+				else if (prefix(buf, "tile_width="))  sscanf(buf, "tile_width=%d", &td->tile.w);
+				else if (prefix(buf, "tile_height=")) sscanf(buf, "tile_height=%d", &td->tile.h);
+				continue;
+			}
+			
+			if (section == XTRA_WIN_PREFS)
+			{
+				if (prefix(buf, "visible="))
+				{
+					sscanf(buf, "visible=%d", &val);
+					xd->visible = val;
+				}
+				else if (prefix(buf, "font="))
+				{
+					str = my_stristr(buf, "=");
+					if (str != NULL)
+					{
+						if (str[0] == '=')
+							str++;
+						my_strcpy(xd->font.name, str, strlen(str) + 1);
+					}
+				}
+				else if (prefix(buf, "x="))                 sscanf(buf, "x=%d", &xd->location.x);
+				else if (prefix(buf, "y="))                 sscanf(buf, "y=%d",&xd->location.y);
+				else if (prefix(buf, "width="))         sscanf(buf, "width=%d", &xd->size.w);
+				else if (prefix(buf, "height="))        sscanf(buf, "height=%d", &xd->size.h);
+			}
+		}
+	}
+	
+	/* Close the file */
+	file_close(fff);
+}
+
+static void load_prefs()
+{
+	int i;
+	ang_file *fff;
+	
+	#ifdef GTK_DEBUG
+	gtk_log_fmt(TERM_WHITE, "Loading Prefs.");
+	#endif
+	load_term_prefs(fff);
+	
+	for (i = 0; i < num_term; i++)
+	{
+		term_data *td = &data[i];
+		
+		/* deal with env vars */
+		td->location.x = check_env_i("ANGBAND_X11_AT_X_%d", i, td->location.x);
+		td->location.y = check_env_i("ANGBAND_X11_AT_Y_%d", i,td->location.y);
+		td->cols = check_env_i("ANGBAND_X11_COLS_%d", i,  td->cols);
+		td->rows = check_env_i("ANGBAND_X11_ROWS_%d", i, td->rows);
+			
+		if ((td->location.x <= 0) && (td->location.y <= 0)) td->location.x = td->location.y = 100;
+		if ((td->font.name == "") || (strlen(td->font.name)<2)) 
+			my_strcpy(td->font.name, "Monospace 12", sizeof(td->font.name));
+		
+		load_font_by_name(td, td->font.name);
+	
+		/* Set defaults if not initialized, or if funny values are there */
+		if (td->size.w <= 0) td->size.w = (td->rows * td->actual.h);
+		if (td->size.h <= 0) td->size.h = (td->cols * td->actual.w);
+		if (td->tile.w <= 0) td->tile.w = td->font.w;
+		if (td->tile.h <= 0) td->tile.h = td->font.h;
+
+		/* The main window should always be visible */
+		if (i == 0) td->visible = 1;
+
+		/* Discard the old cols & rows values, and recalculate. */
+		set_row_and_cols(td);
+		
+	}
+
+	for (i = 0; i < MAX_XTRA_WIN_DATA; i++)
+	{
+		xtra_win_data *xd = &xdata[i];
+		
+		if ((xd->font.name == "") || (strlen(xd->font.name)<2)) 
+			my_strcpy(xd->font.name, "Monospace 10", sizeof(xd->font.name));
+
+		get_font_size(&xd->font);
+		
+		if ((xd->size.w <=0 ) || (xd->size.h <= 0))
+		{
+			if (i == 5)
+			{
+				xd->size.h = 430;
+				xd->size.w = 130;
+			}
+			else
+			{
+				xd->size.h = 130;
+				xd->size.w = 430;
+			}
+		}
+	}
+}
+
+gboolean on_mouse_click(GtkWidget *widget, GdkEventButton *event, gpointer user_data)
+{
+	int z = 0;
+	term_data *td = Term->data;
+
+	/* Where is the mouse */
+	int x = event->x;
+	int y = event->y;
+	z = event->button;
+	
+	/* 
+	 * Translate to the drawing area. I'm assuming for the moment that mouse clicks only
+	 * are used in the main window. I may have to change that at some point.
+	 */
+	gtk_widget_translate_coordinates(widget, td->drawing_area, x, y, &x, &y);
+	
+	/* The co-ordinates are only used in Angband format. */
+	pixel_to_square(&x, &y, x, y);
+	Term_mousepress(x, y, z);
+
+	return FALSE;
+}
+
+gboolean expose_event_handler(GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
+{
+	cairo_t *cr;
+	cairo_rectangle_t s;
+	
+	term_data *td = user_data;
+	
+	g_assert(td->drawing_area->window != 0);
+
+	if (td->window)
+	{
 		g_assert(widget->window != 0);
-
-		gdk_draw_pixmap(widget->window, td->gc, pixmap,
-		                event->area.x, event->area.y,
-		                event->area.x, event->area.y,
-		                event->area.width, event->area.height);
+		
+		cr = gdk_cairo_create(td->drawing_area->window);
+		s = gdk_rect_to_cairo(&event->area);
+		cairo_draw_from_surface(cr, td->surface,  s);
+		cairo_destroy(cr);
 	}
 
 	return (TRUE);
 }
 
+gboolean expose_xtra_handler(GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
+{
+	cairo_t *cr;
+	cairo_rectangle_t s;
+	
+	xtra_win_data *xd = user_data;
+	
+	g_assert(xd->drawing_area->window != 0);
+	
+	
+	if (xd->win)
+	{
+		g_assert(widget->window != 0);
+		
+		cr = gdk_cairo_create(xd->drawing_area->window);
+		s = gdk_rect_to_cairo(&event->area);
+		cairo_draw_from_surface(cr, xd->surface,  s);
+		cairo_destroy(cr);
+	}
+
+	return (TRUE);
+}
+
+gboolean hide_options(GtkWidget *widget, GdkEvent *event, gpointer user_data)
+{
+	gtk_widget_hide(widget);
+	return TRUE;
+}
+
+static void create_term_cairo(term_data *td)
+{	
+	measurements size;
+	
+	size.w = max_win_width(td);
+	size.h = max_win_height(td);
+		
+	td->surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, size.w, size.h);
+	td->cr = cairo_create(td->surface);
+	
+	set_term_matrix(td);
+	term_data_redraw(td);
+}
+
+static void destroy_term_cairo(term_data *td)
+{
+	if (td->surface != NULL)
+	{	
+		cairo_surface_destroy(td->surface);
+		cairo_destroy(td->cr);
+	}
+}
+
+gboolean toggle_term_window(GtkWidget *widget, GdkEvent *event, gpointer user_data)
+{
+	term_data *td;
+
+	int t;
+	bool window_is_visible;
+	const char *s;
+
+	s = gtk_widget_get_name(widget);
+	sscanf(s, "term_menu_item_%d", &t);
+	td = &data[t];
+
+	window_is_visible = (GTK_WIDGET_VISIBLE(GTK_WIDGET(td->window)));
+
+	/* I'm assuming this is only called by a menu item. I may want to put a check in for that. */
+	td->visible = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
+
+	if (td->visible)
+	{
+		create_term_cairo(td);
+		gtk_widget_show(td->window);
+	}
+	else
+	{
+		gtk_widget_hide(td->window);
+		destroy_term_cairo(td);
+	}
+
+	return td->visible;
+}
+
+gboolean toggle_xtra_window(GtkWidget *widget, GdkEvent *event, gpointer user_data)
+{	
+	int i;
+	
+	const char *item_name = gtk_widget_get_name(widget);
+	
+	for (i = 0; i < MAX_XTRA_WIN_DATA; i++)
+	{
+		if (streq(item_name, xtra_menu_names[i]))
+		{
+			xtra_win_data *xd = &xdata[i];
+			
+			xd->visible = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
+			
+			if (xd->visible)
+				gtk_widget_show(xd->win);
+			else
+				gtk_widget_hide(xd->win);
+		}
+	}
+	
+	return(TRUE);
+}
+
+static void init_graf(int g)
+{
+	char buf[1024];
+	term_data *td= &data[0];
+	int i = 0;
+	
+	arg_graphics = g;
+	
+	switch(arg_graphics)
+	{
+		case GRAPHICS_NONE:
+		{
+			ANGBAND_GRAF = "none";
+			
+			use_transparency = FALSE;
+			td->tile.w = td->font.w;
+			td->tile.h = td-> font.h;
+			
+			#ifdef GTK_DEBUG
+			gtk_log_fmt(TERM_WHITE, "No Graphics.");
+			#endif
+			break;
+		}
+
+		case GRAPHICS_ORIGINAL:
+		{
+			ANGBAND_GRAF = "old";
+			path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA, "graf/8x8.png");
+			use_transparency = FALSE;
+			td->tile.w = td->tile.h = 8;
+			#ifdef GTK_DEBUG
+			gtk_log_fmt(TERM_WHITE, "Old Graphics.");
+			#endif
+			break;
+		}
+
+		case GRAPHICS_ADAM_BOLT:
+		{
+			ANGBAND_GRAF = "new";
+			path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA, "graf/16x16.png");
+			use_transparency = TRUE;
+			td->tile.w = td->tile.h =16;
+			#ifdef GTK_DEBUG
+			gtk_log_fmt(TERM_WHITE, "Adam Bolt Graphics.");
+			#endif
+			break;
+		}
+
+		case GRAPHICS_DAVID_GERVAIS:
+		{
+			ANGBAND_GRAF = "david";
+			path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA, "graf/32x32.png");
+			use_transparency = FALSE;
+			td->tile.w = td->tile.h =32;
+			#ifdef GTK_DEBUG
+			gtk_log_fmt(TERM_WHITE, "David Gervais Graphics.");
+			#endif
+			break;
+		}
+	}
+
+	graphical_tiles = cairo_image_surface_create_from_png(buf);
+	tile_pattern = cairo_pattern_create_for_surface(graphical_tiles);
+	
+	g_assert(graphical_tiles != NULL);
+	g_assert(tile_pattern != NULL);
+	
+	/* Hack - all windows have the same tileset */
+	for (i = 0; i < num_term; i++)
+	{
+		term_data *t = &data[i];
+		
+		t->tile.w = td->tile.w;
+		t->tile.h = td->tile.h;
+	}
+	
+	set_term_matrix(td);
+	
+	/* Hack -- Force redraw */
+	if (game_in_progress)
+	{
+		reset_visuals(TRUE);
+		Term_key_push(KTRL('R'));
+	}
+} 
+
+static void setup_graphics_menu(void)
+{
+	GtkWidget *menu;
+		
+	char s[12];
+	int i;
+	
+	for (i = 0; i < 4; i++)
+	{
+		bool checked = (i == arg_graphics);
+
+		strnfmt(s, sizeof(s), "graphics_%d", i);
+		menu = glade_xml_get_widget(gtk_xml, s);
+
+		if (checked && !gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menu)))
+			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE); 
+	}
+}
+
+/* Hooks for graphics menu items */
+gboolean on_graphics_activate(GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
+{
+	int g;
+	const char *s;
+	
+	s = gtk_widget_get_name(widget);
+	sscanf(s, "graphics_%d", &g);
+
+	/* Free up old graphics */
+	if (graphical_tiles != NULL)
+		cairo_surface_destroy(graphical_tiles);
+	if (tile_pattern != NULL)
+		cairo_pattern_destroy(tile_pattern);
+
+	init_graf(g);
+	return FALSE;
+}
+
+/*
+ * Make text views "Angbandy" 
+ */
+static void white_on_black_textview(xtra_win_data *xd)
+{
+	GdkColor black = { 0, 0x0000, 0x0000, 0x0000 };
+	GdkColor white = { 0, 0xffff, 0xffff, 0xffff };
+	
+	gtk_widget_modify_base(xd->text_view, GTK_STATE_NORMAL, &black);
+	gtk_widget_modify_text(xd->text_view, GTK_STATE_NORMAL, &white);
+}
+
+static void xtra_data_init(xtra_win_data *xd, int i)
+{
+	xd->x = i;
+	xd->name = xtra_names[i];
+	xd->win_name = xtra_win_names[i];
+	xd->text_view_name = xtra_text_names[i];
+	xd->item_name = xtra_menu_names[i];
+	xd->drawing_area_name = xtra_drawing_names[i];
+	xd->event = xtra_events[i];
+}
+
+static void init_xtra_windows(void)
+{
+	int i = 0;
+	term_data *main_term = &data[0];
+	char temp[20];
+	GtkWidget *temp_widget;
+	
+	for (i = 0; i < MAX_XTRA_WIN_DATA; i++)
+	{
+		xtra_win_data *xd = &xdata[i];
+		
+		strnfmt(temp, sizeof(temp), "xtra_font_%d", i);
+		temp_widget = glade_xml_get_widget(gtk_xml, temp);
+		gtk_font_button_set_font_name(GTK_FONT_BUTTON (temp_widget), xd->font.name);
+
+		xd->win = glade_xml_get_widget(gtk_xml, xd->win_name);
+		g_signal_connect(xd->win, "delete_event", GTK_SIGNAL_FUNC(xtra_hide_event_handler), xd);
+		g_signal_connect(xd->win, "configure_event", G_CALLBACK(configure_xtra_event_handler), xd);
+		gtk_window_set_title(GTK_WINDOW(xd->win), xd->name);
+		
+		xd->menu = glade_xml_get_widget(gtk_xml, xd->item_name);
+		g_signal_connect(xd->menu, "activate", G_CALLBACK(toggle_xtra_window), (gpointer) xd->name);
+		
+		xd->text_view = glade_xml_get_widget(gtk_xml, xd->text_view_name);
+		xd->drawing_area = glade_xml_get_widget(gtk_xml, xd->drawing_area_name);
+		if (xd->text_view != NULL)
+		{
+			white_on_black_textview(xd);
+			gtk_widget_modify_font(GTK_WIDGET(xd->text_view), pango_font_description_from_string(xd->font.name));
+		}
+		if (xd->drawing_area != NULL)
+		{
+			cairo_rectangle_t r;
+			
+			g_signal_connect(xd->drawing_area, "expose_event", G_CALLBACK(expose_xtra_handler), xd);
+		
+			xd->surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 255 * main_term->font.w, 255 * main_term->font.h);
+			xd->cr = cairo_create(xd->surface);
+			init_cairo_rect(&r, 0, 0, 255 * main_term->font.w, 255 * main_term->font.h);
+			cairo_clear(xd->cr, r, TERM_DARK);
+		}
+		
+	}
+}
+
+static void init_gtk_windows(void)
+{
+	GtkWidget *options, *temp_widget;
+	GdkColor black = { 0, 0x0000, 0x0000, 0x0000 };
+
+	char buf[1024], logo[1024], temp[20];
+	int i = 0;
+	bool err;
+	
+	/* Build the paths */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA, "angband.glade");
+	gtk_xml = glade_xml_new(buf, NULL, NULL);
+	
+	if (gtk_xml == NULL)
+	{
+		gtk_log_fmt(TERM_RED, "%s is Missing. Unrecoverable error. Aborting!", buf);
+		quit(NULL);
+		gtk_exit(0);
+	}
+			
+	path_build(logo, sizeof(logo), ANGBAND_DIR_XTRA, "graf/mr_att.png");
+	err = gtk_window_set_default_icon_from_file(logo, NULL);
+	
+	for (i = 0; i < num_term; i++)
+	{
+		term_data *td = &data[i];
+		
+		if (!MAIN_WINDOW(td))
+		{
+			GladeXML *xml;
+			
+			/* Set up the Glade file */
+			xml = glade_xml_new(buf, "term-window", NULL);
+		
+			td->window = glade_xml_get_widget(xml, "term-window");
+			td->drawing_area = glade_xml_get_widget(xml, "drawingarea2");
+			
+			g_object_unref (xml);
+		}
+		else
+		{
+			td->window = glade_xml_get_widget(gtk_xml, "main-window");
+			td->drawing_area = glade_xml_get_widget(gtk_xml, "drawingarea1");
+			options = glade_xml_get_widget(gtk_xml, "options_window");
+			
+			g_signal_connect(options, "delete_event", GTK_SIGNAL_FUNC(hide_options), NULL);
+		}
+		
+		g_signal_connect(td->drawing_area, "expose_event", G_CALLBACK(expose_event_handler), td);
+		g_signal_connect(td->window, "configure_event", G_CALLBACK(configure_event_handler), td);
+		g_signal_connect(td->window, "hide", G_CALLBACK(hide_event_handler), td);
+		g_signal_connect(td->window, "show", G_CALLBACK(show_event_handler), td);
+		g_signal_connect(td->window, "delete_event", GTK_SIGNAL_FUNC(hide_event_handler), td);
+		
+		/* Set title and name */
+		strnfmt(temp, sizeof(temp), "term_window_%d", i);
+		gtk_widget_set_name(td->window, temp);
+		gtk_window_set_title(GTK_WINDOW(td->window), td->name);
+		
+		#ifdef GTK_DEBUG
+		gtk_log_fmt(TERM_WHITE, "Loaded term window %s", td->name);
+		#endif
+	}
+
+	/* connect signal handlers that aren't passed data */
+	glade_xml_signal_autoconnect(gtk_xml);
+	
+	setup_graphics_menu();
+	
+	/* Initialize the windows */
+	for (i = 0; i < num_term; i++)
+	{
+		term_data *td = &data[i];
+
+		gtk_widget_realize(td->window);
+		gtk_widget_realize(td->drawing_area); 
+		
+		gtk_widget_modify_bg(td->window, GTK_STATE_NORMAL, &black);
+		gtk_widget_modify_bg(td->drawing_area, GTK_STATE_NORMAL, &black);
+
+		strnfmt(temp, sizeof(temp), "term_font_%d", i);
+		temp_widget = glade_xml_get_widget(gtk_xml, temp);
+		gtk_widget_realize(temp_widget);
+		
+		err = gtk_font_button_set_font_name(GTK_FONT_BUTTON(temp_widget), td->font.name);
+	}
+}
+
+static void show_windows(void)
+{
+	int i;
+
+	GtkWidget *menu_item;
+	char item_name[20];
+	
+	/* Initialize the windows */
+	for (i = 0; i < num_term; i++)
+	{
+		term_data *td = &data[i];
+		
+		/* Activate the window screen */
+		Term_activate(&data[i].t);
+		
+		set_window_size(td);
+		
+		strnfmt(item_name, sizeof(item_name),  "term_menu_item_%i", i);
+		menu_item = glade_xml_get_widget(gtk_xml, item_name);
+		
+		if (td->visible)
+			create_term_cairo(td);
+			
+		if (i == 0)
+			gtk_widget_show(td->window);
+		else if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menu_item)) != td->visible)
+			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item), td->visible);
+		
+		Term_clear_gtk(); 
+	}
+	
+	for (i = 0; i < MAX_XTRA_WIN_DATA; i++)
+	{
+		xtra_win_data *xd = &xdata[i];
+		
+		set_xtra_window_size(xd);
+
+		if (xd->visible) 
+			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(xd->menu), TRUE);
+	}
+	
+	menu_item = glade_xml_get_widget(gtk_xml, "big_tile_item");
+	if (use_bigtile) 
+				gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item), TRUE);
+}
+
+
+static void xtra_data_destroy(xtra_win_data *xd)
+{
+	if (GTK_IS_WIDGET(xd->win))
+		gtk_widget_destroy(xd->win);
+	if (GTK_IS_WIDGET(xd->text_view))
+		gtk_widget_destroy(xd->text_view);
+	if (GTK_IS_WIDGET(xd->menu))
+		gtk_widget_destroy(xd->menu);
+	if (GTK_IS_WIDGET(xd->drawing_area))
+		gtk_widget_destroy(xd->drawing_area);
+	
+	cairo_surface_destroy(xd->surface);
+	cairo_destroy(xd->cr);
+}
+
+static void term_data_destroy(term_data *td)
+{	
+	if (GTK_IS_WIDGET(td->window))
+		gtk_widget_destroy(td->window);
+	if (GTK_IS_WIDGET(td->drawing_area))
+		gtk_widget_destroy(td->drawing_area);
+	
+	cairo_surface_destroy(td->surface);
+	cairo_destroy(td->cr);
+}
+
+static void release_memory()
+{
+	int i;
+	
+	cairo_pattern_destroy(tile_pattern);
+	cairo_surface_destroy(graphical_tiles);
+	
+	/* Load Extra Windows */
+	for (i = 0; i < MAX_XTRA_WIN_DATA; i++)
+	{
+		xtra_win_data *xd = &xdata[i];
+
+		xtra_data_destroy(xd);
+	}
+	
+	/* Initialize the windows */
+	for (i = 0; i < num_term; i++)
+	{
+		term_data *td = &data[i];
+
+		term_data_destroy(td);
+	}
+	
+	g_object_unref(gtk_xml);
+}
 
 static errr term_data_init(term_data *td, int i)
 {
@@ -602,141 +1778,725 @@ static errr term_data_init(term_data *td, int i)
 
 	/* Store the name of the term */
 	td->name = angband_term_name[i];
-
+	td->number = i;
+	strnfmt(td->font.name, sizeof(td->font.name), "Monospace 12");
+	
 	/* Use a "soft" cursor */
 	t->soft_cursor = TRUE;
 
-	/* Erase with "white space" */
-	t->attr_blank = TERM_WHITE;
+	/* Erase with "dark space" */
+	t->attr_blank = TERM_DARK;
 	t->char_blank = ' ';
-
+	t->higher_pict = TRUE;
+	
 	t->xtra_hook = Term_xtra_gtk;
 	t->text_hook = Term_text_gtk;
 	t->wipe_hook = Term_wipe_gtk;
 	t->curs_hook = Term_curs_gtk;
-
+	t->pict_hook = Term_pict_gtk;
+	
 	/* Save the data */
 	t->data = td;
 
 	/* Activate (important) */
 	Term_activate(t);
-
+	
 	/* Success */
 	return (0);
 }
 
-
-static void init_gtk_window(term_data *td, int i)
+static game_command get_init_cmd()
 {
-	cptr font;
+	Term_fresh();
 
-	bool main_window = (i == 0) ? TRUE : FALSE;
-
-	GtkWidget *menu_bar, *file_item, *file_menu, *box;
-	GtkWidget *seperator_item, *file_exit_item, *file_new_item, *file_open_item;
-	GtkWidget *options_item, *options_menu, *options_font_item;
-
-	/* Get default font for this term */
-	font = get_default_font(i);
-
-	load_font(td, font);
-
-	/* Create widgets */
-	td->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	box = gtk_vbox_new(FALSE, 0);
-	td->drawing_area = gtk_drawing_area_new();
-
-	/* Set attributes */
-	gtk_window_set_title(GTK_WINDOW(td->window), td->name);
-	gtk_drawing_area_size(GTK_DRAWING_AREA(td->drawing_area), td->cols * td->font_wid, td->rows * td->font_hgt);
-
-	gtk_signal_connect(GTK_OBJECT(td->window), "delete_event", GTK_SIGNAL_FUNC(delete_event_handler), NULL);
-	gtk_signal_connect(GTK_OBJECT(td->window), "key_press_event", GTK_SIGNAL_FUNC(keypress_event_handler), NULL);
-	gtk_signal_connect(GTK_OBJECT(td->drawing_area), "expose_event", GTK_SIGNAL_FUNC(expose_event_handler), td);
-
-	if (main_window)
-		gtk_signal_connect(GTK_OBJECT(td->window), "destroy_event", GTK_SIGNAL_FUNC(destroy_event_handler), NULL);
-	else
-		gtk_signal_connect(GTK_OBJECT(td->window), "destroy_event", GTK_SIGNAL_FUNC(hide_event_handler), td);
-
-	gtk_container_add(GTK_CONTAINER(td->window), box);
-
-	/* Create main-menu */
-	if (main_window)
-	{
-		/* Create the menu-bar and menu-items */
-		menu_bar = gtk_menu_bar_new();
-		file_item = gtk_menu_item_new_with_label("File");
-		file_menu = gtk_menu_new();
-		file_new_item = gtk_menu_item_new_with_label("New");
-		file_open_item = gtk_menu_item_new_with_label("Open");
-		seperator_item = gtk_menu_item_new();
-		file_exit_item = gtk_menu_item_new_with_label("Exit");
-		options_item = gtk_menu_item_new_with_label("Options");
-		options_menu = gtk_menu_new();
-		options_font_item = gtk_menu_item_new_with_label("Font");
-
-		/* Register callbacks */
-		gtk_signal_connect(GTK_OBJECT(file_exit_item), "activate", quit_event_handler, NULL);
-		gtk_signal_connect(GTK_OBJECT(file_new_item), "activate", new_event_handler, NULL);
-		gtk_signal_connect(GTK_OBJECT(file_open_item), "activate", open_event_handler, NULL);
-		gtk_signal_connect(GTK_OBJECT(options_font_item), "activate", change_font_event_handler, td);
-
-		/* Build the menu bar */
-		gtk_menu_bar_append(GTK_MENU_BAR(menu_bar), file_item);
-		gtk_menu_bar_append(GTK_MENU_BAR(menu_bar), options_item);
-		gtk_menu_item_set_submenu(GTK_MENU_ITEM(file_item), file_menu);
-		gtk_menu_item_set_submenu(GTK_MENU_ITEM(options_item), options_menu);
-		gtk_menu_append(GTK_MENU(file_menu), file_new_item);
-		gtk_menu_append(GTK_MENU(file_menu), file_open_item);
-		gtk_menu_append(GTK_MENU(file_menu), seperator_item);
-		gtk_menu_append(GTK_MENU(file_menu), file_exit_item);
-		gtk_menu_append(GTK_MENU(options_menu), options_font_item);
-
-		/* Pack the menu bar */
-		gtk_box_pack_start(GTK_BOX(box), menu_bar, FALSE, FALSE, NO_PADDING);
-	}
-
-	/* Pack the display area */
-	gtk_box_pack_start_defaults(GTK_BOX(box), td->drawing_area);
-
-	/* Show the widgets */
-	gtk_widget_show_all(td->window);
-
-	/* Create a pixmap as buffer for screenupdates */
-	td->pixmap = gdk_pixmap_new(td->drawing_area->window, td->cols * td->font_wid, td->rows * td->font_hgt, -1);
-	gtk_object_set_data(GTK_OBJECT(td->drawing_area), "pixmap", td->pixmap);
-	td->gc = gdk_gc_new(td->drawing_area->window);
-
-	/* Clear the pixmap */
-	gdk_draw_rectangle(td->pixmap, td->drawing_area->style->black_gc, TRUE,
-	                   0, 0,
-	                   td->cols * td->font_wid, td->rows * td->font_hgt);
-
-	/* Copy it to the window */
-	gdk_draw_pixmap(td->drawing_area->window, td->gc, td->pixmap,
-	                0, 0, 0, 0,
-	                td->cols * td->font_wid, td->rows * td->font_hgt);
+	/* Prompt the user */
+	prt("[Choose 'New' or 'Open' from the 'File' menu]", 23, 17);
+	CheckEvent(FALSE);
+	
+	if ((cmd.command == CMD_NEWGAME) || (cmd.command == CMD_LOADFILE))
+		game_in_progress = TRUE;
+	
+	return cmd;
 }
 
+/*
+ * Set up color tags for all the angband colors.
+ */
+static void init_color_tags(xtra_win_data *xd)
+{
+	int i;
+	char colorname[10] = "color-00";
+	char str[10] = "#FFFFFF";
 
-const char help_gtk[] =
-	"GTK for X11, subopts -n<windows> and standard GTK options";
+	GtkTextTagTable *tags;
 
+	tags = gtk_text_buffer_get_tag_table(xd->buf);
+	
+	for (i = 0; i <= 15; i++)
+	{
+		strnfmt(colorname, sizeof(colorname),  "color-%d", i);
+		strnfmt(str, sizeof(str), "#%02x%02x%02x", angband_color_table[i][1], angband_color_table[i][2], angband_color_table[i][3]);
+
+		if (gtk_text_tag_table_lookup(tags, colorname) != NULL)
+			gtk_text_tag_table_remove(tags, gtk_text_tag_table_lookup(tags, colorname));
+		
+		if (gtk_text_tag_table_lookup(tags, colorname) == NULL)
+			gtk_text_buffer_create_tag(xd->buf, colorname, "foreground", str, NULL);
+	}
+}
+
+static void text_view_put(xtra_win_data *xd, const char *str, byte color)
+{
+	char colorname[10] = "color-00";
+	GtkTextIter start, end;
+	
+	/* Get the color tag ready, and tack a line feed on the line we're printing */
+	strnfmt(colorname, sizeof(colorname),  "color-%d", color);
+	
+	/* Print it at the end of the window */
+	gtk_text_buffer_get_bounds(xd->buf, &start, &end);
+	gtk_text_buffer_insert_with_tags_by_name(xd->buf, &end, str, strlen(str), colorname,  NULL);
+}
+
+static void text_view_print(xtra_win_data *xd, const char *str, byte color)
+{
+	text_view_put(xd, str, color);
+	text_view_put(xd, "\n", color);
+}
+
+void gtk_log_fmt(byte c, cptr fmt, ...)
+{
+	xtra_win_data *xd = &xdata[4];
+	
+	char str[80];
+	va_list vp;
+	
+	if (GTK_IS_TEXT_VIEW(xd->text_view))
+	{
+		xd->buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(xd->text_view));
+		if (!GTK_IS_TEXT_BUFFER(xd->buf))
+		{
+			xd->buf = gtk_text_buffer_new(NULL);
+			gtk_text_view_set_buffer(GTK_TEXT_VIEW (xd->text_view), xd->buf);
+		}
+		init_color_tags(xd);
+	}
+	
+	va_start(vp, fmt);
+	(void)vstrnfmt(str, sizeof(str), fmt, vp);
+	va_end(vp);
+
+	#ifdef VERBOSE_DEBUG
+	if (GTK_IS_TEXT_VIEW(xd->text_view))
+		plog(str);
+	#endif
+	
+	if (GTK_IS_TEXT_VIEW(xd->text_view))
+		text_view_print(xd, str, c);
+	else
+		plog(str);
+}
 
 /*
- * Initialization function
+ * Update our own personal message window.
  */
+static void handle_message(game_event_type type, game_event_data *data, void *user)
+{
+	xtra_win_data *xd = &xdata[0];
+
+	u16b num;
+	int i;
+
+	if (!xd) return;
+
+	xd->buf = gtk_text_buffer_new(NULL);
+	gtk_text_view_set_buffer(GTK_TEXT_VIEW (xd->text_view), xd->buf);
+	
+	init_color_tags(xd);
+	
+	num = messages_num();
+	
+	for (i = 0; i < num; i++)
+		text_view_print(xd, message_str(i), message_color(i));
+}
+
+/* 
+ * Return the last inventory slot.
+ */
+static int last_inv_slot(void)
+{
+	register int i, z = 0;
+	object_type *o_ptr;
+	
+	/* Find the "final" slot */
+	for (i = 0; i < INVEN_PACK; i++)
+	{
+		o_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Track */
+		z = i + 1;
+	}
+	
+	return z;
+}
+
+static void inv_slot(char *str, size_t len, int i, bool equip)
+{
+	object_type *o_ptr;
+	register int n;
+	char o_name[80], label[5];
+	int name_size = 80;
+	
+	/* Examine the item */
+	o_ptr = &inventory[i];
+
+	/* Is this item "acceptable"? */
+	if (item_tester_okay(o_ptr) || equip)
+	{
+		/* Obtain an item description */
+		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+			
+		/* Obtain the length of the description */
+		n = strlen(o_name);
+
+		strnfmt(label, sizeof(label), "%c) ", index_to_label(i));
+		
+		if (equip && show_labels)
+			name_size = name_size - 19;
+		
+		/* Display the weight if needed */
+		if (o_ptr->weight) 
+		{
+			int wgt = o_ptr->weight * o_ptr->number;			
+			name_size = name_size - 4 - 9 - 9 - 5;
+			
+			if (equip && show_labels)
+				strnfmt(str, len, "%s%-*s %3d.%1d lb <-- %s", label, name_size, o_name, wgt / 10, wgt % 10, mention_use(i));
+			else
+				strnfmt(str, len, "%s%-*s %3d.%1d lb", label, name_size, o_name, wgt / 10, wgt % 10);
+		}
+		else
+		{
+			name_size = name_size - 4 - 9 - 5;
+
+			if (equip && show_labels)
+				strnfmt(str, len, "%s%-*s <-- %s", label, name_size, o_name, mention_use(i));
+			else
+				strnfmt(str, len, "%s%-*s", label, name_size, o_name);
+		}
+	}
+}
+
+static void handle_inv(game_event_type type, game_event_data *data, void *user)
+{
+	xtra_win_data *xd = &xdata[1];
+
+	char str[80];
+		
+	register int i, z;
+	byte attr;
+
+
+	if (!xd) return;
+
+	xd->buf = gtk_text_buffer_new(NULL);
+	gtk_text_view_set_buffer(GTK_TEXT_VIEW(xd->text_view), xd->buf);
+	
+	init_color_tags(xd);
+	
+	z = last_inv_slot();
+	
+	/* Display the pack */
+	for (i = 0; i < z; i++)
+	{
+		/* Examine the item */
+		object_type *o_ptr = &inventory[i];
+
+		/* Is this item "acceptable"? */
+		if (item_tester_okay(o_ptr))
+		{
+			/* Get inventory color */
+			attr = tval_to_attr[o_ptr->tval % N_ELEMENTS(tval_to_attr)];
+			
+			inv_slot(str, sizeof(str), i, FALSE);
+			text_view_print(xd, str, attr);
+		}
+	}
+}
+
+static void handle_equip(game_event_type type, game_event_data *data, void *user)
+{
+	xtra_win_data *xd = &xdata[2];
+	
+	register int i;
+	byte attr;
+		char str[80];
+	
+	if (!xd) return;
+
+	xd->buf = gtk_text_buffer_new(NULL);
+	gtk_text_view_set_buffer(GTK_TEXT_VIEW(xd->text_view), xd->buf);
+	
+	init_color_tags(xd);
+	
+	/* Display the pack */
+	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	{
+		object_type *o_ptr = &inventory[i];
+	
+		attr = tval_to_attr[o_ptr->tval % N_ELEMENTS(tval_to_attr)];
+
+		inv_slot(str, sizeof(str), i, TRUE);
+
+		text_view_print(xd, str, attr);
+	}
+}
+
+static void handle_mons_list(game_event_type type, game_event_data *data, void *user)
+{
+	xtra_win_data *xd = &xdata[3];
+	int i;
+	int line = 1, x = 0;
+	int cur_x;
+	unsigned total_count = 0, disp_count = 0;
+
+	byte attr;
+
+	char *m_name;
+	char buf[80];
+	char str[80];
+
+	monster_type *m_ptr;
+	monster_race *r_ptr;
+
+	u16b *race_count;
+	
+
+	if (!xd) return;
+
+
+	xd->buf = gtk_text_buffer_new(NULL);
+	gtk_text_view_set_buffer(GTK_TEXT_VIEW (xd->text_view), xd->buf);
+	
+	init_color_tags(xd);
+
+	/* Allocate the array */
+	race_count = C_ZNEW(z_info->r_max, u16b);
+
+	/* Scan the monster list */
+	for (i = 1; i < mon_max; i++)
+	{
+		m_ptr = &mon_list[i];
+
+		/* Only visible monsters */
+		if (!m_ptr->ml) continue;
+
+		/* Bump the count for this race, and the total count */
+		race_count[m_ptr->r_idx]++;
+		total_count++;
+	}
+
+	/* Note no visible monsters */
+	if (!total_count)
+	{
+		strnfmt(str, sizeof(str), "You see no monsters.");
+		text_view_print(xd, str, TERM_SLATE);
+
+		/* Free up memory */
+		FREE(race_count);
+
+		/* Done */
+		return;
+	}
+	
+	strnfmt(str, sizeof(str), "You can see %d monster%s:", total_count, PLURAL(total_count));
+	text_view_print(xd, str, 1);
+	
+	/* Go over */
+	for (i = 1; i < z_info->r_max; i++)
+	{
+		/* No monsters of this race are visible */
+		if (!race_count[i]) continue;
+
+		/* Reset position */
+		cur_x = x;
+
+		/* Note that these have been displayed */
+		disp_count += race_count[i];
+
+		/* Get monster race and name */
+		r_ptr = &r_info[i];
+		m_name = r_name + r_ptr->name;
+
+		/* Display uniques in a special colour */
+		if (r_ptr->flags1 & RF1_UNIQUE)
+			attr = TERM_VIOLET;
+		else
+			attr = TERM_WHITE;
+
+		/* Build the monster name */
+		if (race_count[i] == 1)
+			my_strcpy(buf, m_name, sizeof(buf));
+		else
+			strnfmt(buf, sizeof(buf), "%s (x%d) ", m_name, race_count[i]);
+
+		text_view_print(xd, buf, attr);
+		line++;
+	}
+
+	/* Free the race counters */
+	FREE(race_count);
+}
+
+static byte monst_color(const monster_type *m_ptr)
+{
+	byte attr = TERM_WHITE;
+	int pct = 0;
+
+	if (m_ptr->maxhp)
+		pct = (m_ptr->hp * 100) / m_ptr->maxhp;
+
+
+	/* Badly wounded */
+	if (pct >= 10) attr = TERM_L_RED;
+
+	/* Wounded */
+	if (pct >= 25) attr = TERM_ORANGE;
+
+	/* Somewhat Wounded */
+	if (pct >= 60) attr = TERM_YELLOW;
+
+	/* Healthy */
+	if (pct >= 100) attr = TERM_L_GREEN;
+
+
+	/* Afraid */
+	if (m_ptr->monfear) attr = TERM_VIOLET;
+
+	/* Confused */
+	if (m_ptr->confused) attr = TERM_UMBER;
+
+	/* Stunned */
+	if (m_ptr->stunned) attr = TERM_L_BLUE;
+
+	/* Asleep */
+	if (m_ptr->csleep) attr = TERM_BLUE;
+		
+	return attr;
+}
+
+static void draw_xtra_cr_text(xtra_win_data *xd, int x, int y, byte color, cptr str)
+{
+	measurements size;
+	cairo_rectangle_t r;
+	int n = strlen(str);
+	
+	/* Set dimensions */
+	
+	size.w = xd->font.w;
+	size.h = xd->font.h;
+	draw_text(xd->cr, &xd->font, &size, x, y, n, color, str);
+	
+	invalidate_drawing_area(xd->drawing_area, r);
+}
+
+static void cr_aligned_text_print(xtra_win_data *xd, int x, int y, const char *str, byte color, const char *str2, byte color2, int length)
+{
+	int x2;
+	
+	x2 = x + length - strlen(str2) + 1;
+	
+	if (x2 > 0)
+	{
+		draw_xtra_cr_text(xd, x, y, color, str);
+		draw_xtra_cr_text(xd, x2, y, color2, str2);
+	}
+	else
+	{
+		draw_xtra_cr_text(xd, x, y, color, str);
+		draw_xtra_cr_text(xd, x + strlen(str) + 1, y, color2, str2);
+	}
+}
+
+/*
+ * Equippy chars
+ */
+static void cr_print_equippy(xtra_win_data *xd, int y)
+{
+	int i, j = 0;
+
+	byte a;
+	char c[6];
+
+	object_type *o_ptr;
+
+	/* No equippy chars if  we're in bigtile mode */
+	if ((use_bigtile) || (arg_graphics != 0))
+	{
+		return;
+	}
+
+	/* Dump equippy chars */
+	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	{
+		/* Object */
+		o_ptr = &inventory[i];
+
+		a = object_attr(o_ptr);
+		strnfmt(c, sizeof(c), "%c",object_char(o_ptr)); 
+
+		/* Clear the part of the screen */
+		if (!o_ptr->k_idx)
+		{
+			c [0]= ' ';
+			a = TERM_WHITE;
+		}
+
+		/* Dump */
+		draw_xtra_cr_text(xd, j, y, a, c);
+		j++;
+	}
+	strnfmt(c, sizeof(c), " "); 
+	draw_xtra_cr_text(xd, j + 1, y, a, c);
+}
+
+static void xtra_drawn_progress_bar(xtra_win_data *xd, int x, int y, float curr, float max, byte color, int size)
+{
+	cairo_rectangle_t r;
+	/*GdkRectangle s;*/
+	
+	init_cairo_rect(&r, (xd->font.w * x)+ 1, (xd->font.h) * y + 1,  (xd->font.w * size) - 1, xd->font.h - 2);
+	
+	drawn_progress_bar(xd->cr, &xd->font, x, y, curr, max, color, size);
+	
+	invalidate_drawing_area(xd->drawing_area, r);
+}
+
+static void handle_sidebar(game_event_type type, game_event_data *data, void *user)
+{
+	char str[80], str2[80];
+	byte color;
+	cairo_rectangle_t r;
+	
+	xtra_win_data *xd = &xdata[5];
+	long xp = (long)p_ptr->exp;
+	monster_type *m_ptr = &mon_list[p_ptr->health_who];
+	int sidebar_length = 12;
+
+	/* Calculate XP for next level */
+	if (p_ptr->lev != 50)
+		xp = (long)(player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L) - p_ptr->exp;
+	
+	if (xd->cr != NULL)
+	{
+		/* Clear the window */
+		init_cairo_rect(&r, 0, 0,  xd->font.w * 255, xd->font.h * 255);
+		cairo_clear(xd->cr, r, TERM_DARK);
+		
+		/* Char Name */
+		strnfmt(str, sizeof(str), "%s", op_ptr->full_name); 
+		draw_xtra_cr_text(xd, 0, 0, TERM_L_BLUE, str);
+		
+		/* Char Race */
+		strnfmt(str, sizeof(str), "%s", p_name + rp_ptr->name);
+		draw_xtra_cr_text(xd, 0, 1, TERM_L_BLUE, str);
+		
+		/* Char Title*/
+		strnfmt(str, sizeof(str), "%s", c_text + cp_ptr->title[(p_ptr->lev - 1) / 5], TERM_L_BLUE); 
+		draw_xtra_cr_text(xd, 0, 2, TERM_L_BLUE, str);
+		
+		/* Char Class */
+		strnfmt(str, sizeof(str), "%s", c_name + cp_ptr->name); 
+		draw_xtra_cr_text(xd, 0, 3, TERM_L_BLUE, str);
+
+		/* Char Level */
+		strnfmt(str, sizeof(str), "Level:"); 
+		strnfmt(str2, sizeof(str2), "%i", p_ptr->lev);
+		cr_aligned_text_print(xd, 0, 4, str, TERM_WHITE, str2, TERM_L_GREEN, sidebar_length);
+		
+		/* Char xp */
+		if (p_ptr->lev != 50) 
+			strnfmt(str, sizeof(str), "Next: ");
+		else 			 
+			strnfmt(str, sizeof(str), "XP: "); 
+		strnfmt(str2, sizeof(str2), "%ld", xp); 
+		cr_aligned_text_print(xd, 0, 5, str, TERM_WHITE, str2, TERM_L_GREEN, sidebar_length);
+	
+		/* Char Gold */
+		strnfmt(str, sizeof(str), "Gold:"); 
+		strnfmt(str2, sizeof(str2), "%ld", p_ptr->au); 
+		cr_aligned_text_print(xd, 0, 6, str, TERM_WHITE, str2, TERM_L_GREEN, sidebar_length);
+		
+		/* Equippy chars is 0,7 */
+		cr_print_equippy(xd, 7);
+		
+		/* Char Stats */
+		strnfmt(str, sizeof(str), "STR:"); 
+		cnv_stat(p_ptr->stat_use[A_STR], str2, sizeof(str2));
+		cr_aligned_text_print(xd, 0, 8, str, TERM_WHITE, str2, TERM_L_GREEN, sidebar_length);
+	
+		strnfmt(str, sizeof(str), "INT:"); 
+		cnv_stat(p_ptr->stat_use[A_INT], str2, sizeof(str2));
+		cr_aligned_text_print(xd, 0, 9, str, TERM_WHITE, str2, TERM_L_GREEN, sidebar_length);
+	
+		strnfmt(str, sizeof(str), "WIS:"); 
+		cnv_stat(p_ptr->stat_use[A_WIS], str2, sizeof(str2));
+		cr_aligned_text_print(xd, 0, 10, str, TERM_WHITE, str2, TERM_L_GREEN, sidebar_length);
+	
+		strnfmt(str, sizeof(str), "DEX:"); 
+		cnv_stat(p_ptr->stat_use[A_DEX], str2, sizeof(str2));
+		cr_aligned_text_print(xd, 0, 11, str, TERM_WHITE, str2, TERM_L_GREEN, sidebar_length);
+	
+		strnfmt(str, sizeof(str), "CON:"); 
+		cnv_stat(p_ptr->stat_use[A_CON], str2, sizeof(str2));
+		cr_aligned_text_print(xd, 0, 12, str, TERM_WHITE, str2, TERM_L_GREEN, sidebar_length);
+	
+		strnfmt(str, sizeof(str), "CHR:"); 
+		cnv_stat(p_ptr->stat_use[A_CHR], str2, sizeof(str2));
+		cr_aligned_text_print(xd, 0, 13, str, TERM_WHITE, str2, TERM_L_GREEN, sidebar_length);
+		
+		/* 14 is a blank row */
+		
+		/* Char AC */
+		strnfmt(str, sizeof(str), "AC:"); 
+		strnfmt(str2, sizeof(str2), "%i", p_ptr->dis_ac + p_ptr->dis_to_a); 
+		cr_aligned_text_print(xd, 0, 15, str, TERM_WHITE, str2, TERM_L_GREEN, sidebar_length);
+	
+		/* Char HP */
+		strnfmt(str, sizeof(str), "HP:"); 
+		strnfmt(str2, sizeof(str2), "%4d/%4d", p_ptr->chp, p_ptr->mhp); 
+		if (p_ptr->chp >= p_ptr->mhp)
+			color = TERM_L_GREEN;
+		else if (p_ptr->chp > (p_ptr->mhp * op_ptr->hitpoint_warn) / 10)
+			color = TERM_YELLOW;
+		else
+			color = TERM_RED;
+
+		cr_aligned_text_print(xd, 0, 16, str, TERM_WHITE, str2, color, sidebar_length);
+		xtra_drawn_progress_bar(xd, 0, 17, p_ptr->chp, p_ptr->mhp, color, 13);
+	
+		/* Char MP */
+		strnfmt(str, sizeof(str), "SP:"); 
+		strnfmt(str2, sizeof(str2), "%4d/%4d", p_ptr->csp, p_ptr->msp); 
+		if (p_ptr->csp >= p_ptr->msp)
+			color = TERM_L_GREEN;
+		else if (p_ptr->csp > (p_ptr->msp * op_ptr->hitpoint_warn) / 10)
+			color = TERM_YELLOW;
+		else
+			color = TERM_RED;
+		cr_aligned_text_print(xd, 0, 18, str, TERM_WHITE, str2, color, sidebar_length);
+		
+		xtra_drawn_progress_bar(xd, 0, 19, p_ptr->csp, p_ptr->msp, color, 13);
+	
+		/* 20 is blank */
+	
+		xtra_drawn_progress_bar(xd, 0, 21, m_ptr->hp, m_ptr->maxhp, monst_color(m_ptr), 13);
+
+		/* Print the level */
+		strnfmt(str, sizeof(str), "%d' (L%d)", p_ptr->depth * 50, p_ptr->depth); 
+		strnfmt(str2, sizeof(str2), "%-*s", sidebar_length, str);
+		draw_xtra_cr_text(xd, 0, 22, TERM_WHITE, str2);
+		
+		invalidate_drawing_area(xd->drawing_area, r);
+	}
+}
+
+static void handle_map(game_event_type type, game_event_data *data, void *user)
+{
+	/*gtk_log_fmt(TERM_WHITE, "The map changed.");*/
+	if (use_graphics != arg_graphics)
+	{
+		use_graphics = arg_graphics;
+		init_graf(arg_graphics);
+	}
+}
+
+static void handle_moved(game_event_type type, game_event_data *data, void *user)
+{
+	/*gtk_log_fmt(TERM_WHITE, "The player moved.");*/
+}
+static void handle_mons_target(game_event_type type, game_event_data *data, void *user)
+{
+	/*gtk_log_fmt(TERM_WHITE, "Monster targetting.");*/
+}
+static void handle_init_status(game_event_type type, game_event_data *data, void *user)
+{
+	/*gtk_log_fmt(TERM_WHITE, "Init status.");*/
+}
+static void handle_birth(game_event_type type, game_event_data *data, void *user)
+{
+	gtk_log_fmt(TERM_WHITE, "Birth!");
+}
+static void handle_game(game_event_type type, game_event_data *data, void *user)
+{
+	gtk_log_fmt(TERM_WHITE, "Into the game.");
+	init_graf(arg_graphics);
+}
+static void handle_store(game_event_type type, game_event_data *data, void *user)
+{
+	gtk_log_fmt(TERM_WHITE, "Going shopping.");
+}
+static void handle_death(game_event_type type, game_event_data *data, void *user)
+{
+	gtk_log_fmt(TERM_WHITE, "Death - the great equalizer.");
+}
+static void handle_end(game_event_type type, game_event_data *data, void *user)
+{
+	/*gtk_log_fmt(TERM_WHITE, "Enough of these events.");*/
+}
+static void handle_splash(game_event_type type, game_event_data *data, void *user)
+{
+	gtk_log_fmt(TERM_WHITE, "Showing the splashscreen!!!");
+}
+static void handle_statusline(game_event_type type, game_event_data *data, void *user)
+{
+	gtk_log_fmt(TERM_WHITE, "Showing the statusline.");
+}
+
+void init_handlers()
+{
+	
+	/* Activate hooks */
+	quit_aux = hook_quit;
+
+	/* Set command hook */
+	get_game_command = get_init_cmd;
+
+	/* I plan to put everything on the sidebar together, so... */
+	event_add_handler_set(my_player_events, N_ELEMENTS(my_player_events), handle_sidebar, NULL);
+
+	/* Same goes for the sidebar */
+	event_add_handler_set(my_statusline_events, N_ELEMENTS(my_statusline_events), handle_statusline, NULL);
+	
+	event_add_handler(EVENT_MAP, handle_map, NULL);
+	event_add_handler(EVENT_PLAYERMOVED, handle_moved, NULL);
+	event_add_handler(EVENT_INVENTORY, handle_inv, NULL);
+	event_add_handler(EVENT_EQUIPMENT, handle_equip, NULL);
+	event_add_handler(EVENT_MONSTERLIST, handle_mons_list, NULL);
+	event_add_handler(EVENT_MONSTERTARGET, handle_mons_target, NULL);
+	event_add_handler(EVENT_MESSAGE, handle_message, NULL);
+	event_add_handler(EVENT_INITSTATUS, handle_init_status, NULL);
+	event_add_handler(EVENT_ENTER_INIT, handle_splash, NULL);
+	event_add_handler(EVENT_ENTER_BIRTH, handle_birth, NULL);
+	event_add_handler(EVENT_ENTER_GAME, handle_game, NULL);
+	event_add_handler(EVENT_ENTER_STORE, handle_store, NULL);
+	event_add_handler(EVENT_ENTER_DEATH, handle_death, NULL);
+	event_add_handler(EVENT_END, handle_end, NULL);
+}
+
 errr init_gtk(int argc, char **argv)
 {
 	int i;
 
 	/* Initialize the environment */
 	gtk_init(&argc, &argv);
-
+	
 	/* Parse args */
 	for (i = 1; i < argc; i++)
-	{
+	{	
 		if (prefix(argv[i], "-n"))
 		{
 			num_term = atoi(&argv[i][2]);
@@ -744,10 +2504,25 @@ errr init_gtk(int argc, char **argv)
 			else if (num_term < 1) num_term = 1;
 			continue;
 		}
-
-		plog_fmt("Ignoring option: %s", argv[i]);
+		
+		if (prefix(argv[i], "-i"))
+		{
+			gtk_log_fmt(TERM_VIOLET, "Ignoring preferences.");
+			ignore_prefs = TRUE;
+			continue;
+		}
+		
+		gtk_log_fmt(TERM_VIOLET, "Ignoring option: %s", argv[i]);
 	}
-
+	
+	/* Load Extra Windows */
+	for (i = 0; i < MAX_XTRA_WIN_DATA; i++)
+	{
+		xtra_win_data *xd = &xdata[i];
+		
+		xtra_data_init(xd, i);
+	}
+	
 	/* Initialize the windows */
 	for (i = 0; i < num_term; i++)
 	{
@@ -758,33 +2533,57 @@ errr init_gtk(int argc, char **argv)
 
 		/* Save global entry */
 		angband_term[i] = Term;
-
-		/* Init the window */
-		init_gtk_window(td, i);
 	}
-
-	/* Activate the "Angband" window screen */
+	
+	
+	/* Load Preferences */
+	load_prefs();
+	
+	/* Init the windows */
+	init_gtk_windows(); 
+	
+	/* Init "Extra" windows */
+	init_xtra_windows();
+	
+	/* Show them all */
+	show_windows();
+	
+	/* Initialise hooks and handlers */
+	init_handlers();
+	
 	Term_activate(&data[0].t);
-
-	/* Activate hooks */
-	quit_aux = hook_quit;
-	core_aux = hook_quit;
-
+	
 	/* Set the system suffix */
 	ANGBAND_SYS = "gtk";
 
-	/* Catch nasty signals */
+	#ifdef GTK_DEBUG
+	gtk_log_fmt(TERM_WHITE, "Catching signals.");
+	#endif
+	
+	/* Catch nasty signals, unless we want to see them */
+	#ifndef GTK_DEBUG
 	signals_init();
-
-	/* Initialize */
-	init_angband();
+	#endif
 
 	/* Prompt the user */
 	prt("[Choose 'New' or 'Open' from the 'File' menu]", 23, 17);
+	
 	Term_fresh();
+	#ifdef GTK_DEBUG
+	gtk_log_fmt(TERM_WHITE, "Updating Windows.");
+	#endif
+	
+	game_in_progress = FALSE;
 
-	/* Processing loop */
-	gtk_main();
+	#ifdef GTK_DEBUG
+	gtk_log_fmt(TERM_WHITE, "Initializing Angband.");
+	#endif
+	
+	/* Set up the display handlers and things. */
+	init_display();
+	
+	/* Let's play */
+	play_game();
 
 	/* Stop now */
 	exit(0);

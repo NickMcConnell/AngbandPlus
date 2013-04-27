@@ -1,0 +1,58 @@
+# File: Makefile.con
+
+# Purpose: Makefile for Windows Console Mode, 
+#          Built with mingw/MSYS,
+#          Using pdcurses
+
+#
+# Set these two to point to your pdcurses directories
+#
+PDCURSES_INCLUDE_DIR = c:/MingWin.aux/Headers.lib
+
+CC = g++
+LIBS = -s -xc++ -mno-cygwin -mconsole -lpdcurses
+CFLAGS = -Wall -W -pedantic -mno-cygwin -O2 -fno-strength-reduce -D"USE_GCU" -DWIN32_CONSOLE_MODE -DHAVE_BOOST -I$(PDCURSES_INCLUDE_DIR)
+
+EXOBJS = $(BASEOBJS) main-gcu.o main.o
+
+all: angband
+
+OBJEXT=.o
+include Makefile.inc
+
+# 
+# Build the "Angband" program 
+# 
+angband: $(EXOBJS)
+	$(CC) -o angband $(EXOBJS) $(INCDIRS) $(LIBDIRS) $(LIBS)
+
+
+#
+# install Angband
+#
+install: angband
+	cp angband ..
+
+#
+# Clean up old junk
+#
+clean:
+	-rm -f *.o angband
+
+
+#
+# Generate dependencies automatically
+#
+depend:
+	makedepend -D__MAKEDEPEND__ $(SRCS)
+
+#
+# Compiling objects
+#
+
+%.o: %.c $(INCS)
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+
+main-gcu.o: main-gcu.c $(INCS) main.h
+main.o: main.c $(INCS) main.h

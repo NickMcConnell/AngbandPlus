@@ -9,7 +9,7 @@
  */
 
 #include "angband.h"
-
+#include "cmds.h"
 
 #define MAX_COMMENT_ACCEPT	6
 
@@ -133,7 +133,7 @@ static int get_store_choice(int store_num)
  *
  * Note that a shop-keeper must refuse to buy "worthless" objects
  */
-bool store_will_buy(int store_num, const object_type *o_ptr)
+static bool store_will_buy(int store_num, const object_type *o_ptr)
 {
 	/* Hack -- The Home is simple */
 	if (store_num == STORE_HOME) return (TRUE);
@@ -417,34 +417,12 @@ static s32b price_item(const object_type *o_ptr, int greed, bool flip)
 
 
 /*
- * Special "mass production" computation.
- */
-static int mass_roll(int num, int max)
-{
-	int i, t = 0;
-	for (i = 0; i < num; i++)
-	{
-		t += ((max > 1) ? rand_int(max) : 1);
-	}
-	return (t);
-}
-
-
-/*
  * Certain "cheap" objects should be created in "piles".
- *
- * Some objects can be sold at a "discount" (in smaller piles).
- *
- * Standard percentage discounts include 10, 25, 50, 75, and 90.
  */
 static void mass_produce(object_type *o_ptr)
 {
 	int size = 1;
-
-	int discount = 0;
-
 	s32b cost = object_value(o_ptr);
-
 
 	/* Analyze the type */
 	switch (o_ptr->tval)
@@ -454,24 +432,28 @@ static void mass_produce(object_type *o_ptr)
 		case TV_FLASK:
 		case TV_LITE:
 		{
-			if (cost <= 5L) size += mass_roll(3, 5);
-			if (cost <= 20L) size += mass_roll(3, 5);
+			const dice_sides aux = {3, 5};
+
+			if (cost <= 5L) size += aux.damroll();
+			if (cost <= 20L) size += aux.damroll();
 			break;
 		}
 
 		case TV_POTION:
 		case TV_SCROLL:
 		{
-			if (cost <= 60L) size += mass_roll(3, 5);
-			if (cost <= 240L) size += mass_roll(1, 5);
+			const dice_sides aux = {3, 5};
+			if (cost <= 60L) size += aux.damroll();
+			if (cost <= 240L) size += rand_int(5);
 			break;
 		}
 
 		case TV_MAGIC_BOOK:
 		case TV_PRAYER_BOOK:
 		{
-			if (cost <= 50L) size += mass_roll(2, 3);
-			if (cost <= 500L) size += mass_roll(1, 3);
+			const dice_sides aux = {2, 3};
+			if (cost <= 50L) size += aux.damroll();
+			if (cost <= 500L) size += rand_int(3);
 			break;
 		}
 
@@ -489,9 +471,10 @@ static void mass_produce(object_type *o_ptr)
 		case TV_DIGGING:
 		case TV_BOW:
 		{
+			const dice_sides aux = {3, 5};
 			if (o_ptr->name2) break;
-			if (cost <= 10L) size += mass_roll(3, 5);
-			if (cost <= 100L) size += mass_roll(3, 5);
+			if (cost <= 10L) size += aux.damroll();
+			if (cost <= 100L) size += aux.damroll();
 			break;
 		}
 
@@ -500,46 +483,16 @@ static void mass_produce(object_type *o_ptr)
 		case TV_ARROW:
 		case TV_BOLT:
 		{
-			if (cost <= 5L) size += mass_roll(5, 5);
-			if (cost <= 50L) size += mass_roll(5, 5);
-			if (cost <= 500L) size += mass_roll(5, 5);
+			const dice_sides aux = {5, 5};
+			if (cost <= 5L) size += aux.damroll();
+			if (cost <= 50L) size += aux.damroll();
+			if (cost <= 500L) size += aux.damroll();
 			break;
 		}
 	}
 
-
-	/* Pick a discount */
-	if (cost < 5)
-	{
-		discount = 0;
-	}
-	else if (rand_int(25) == 0)
-	{
-		discount = 10;
-	}
-	else if (rand_int(50) == 0)
-	{
-		discount = 25;
-	}
-	else if (rand_int(150) == 0)
-	{
-		discount = 50;
-	}
-	else if (rand_int(300) == 0)
-	{
-		discount = 75;
-	}
-	else if (rand_int(500) == 0)
-	{
-		discount = 90;
-	}
-
-
-	/* Save the discount */
-	o_ptr->discount = discount;
-
-	/* Save the total pile size */
-	o_ptr->number = size - (size * discount / 100);
+	o_ptr->pseudo = 0;	/* wipe special inscription */
+	o_ptr->number = size;	/* Save the total pile size */
 
 	/* Hack -- rods need to increase PVAL if stacked */
 	if (o_ptr->tval == TV_ROD)
@@ -625,14 +578,13 @@ static bool store_object_similar(const object_type *o_ptr, const object_type *j_
 
 	/* Require many identical values */
 	if (o_ptr->ac != j_ptr->ac) return (0);
-	if (o_ptr->dd != j_ptr->dd) return (0);
-	if (o_ptr->ds != j_ptr->ds) return (0);
+	if (o_ptr->d != j_ptr->d) return (0);
 
 	/* Hack -- Never stack chests */
 	if (o_ptr->tval == TV_CHEST) return (0);
 
-	/* Require matching "discount" fields */
-	if (o_ptr->discount != j_ptr->discount) return (0);
+	/* Require matching pseudo fields */
+	if (o_ptr->pseudo != j_ptr->pseudo) return (0);
 
 	/* They match, so they must be similar */
 	return (TRUE);
@@ -772,10 +724,13 @@ static int home_carry(object_type *o_ptr)
 		j_ptr = &st_ptr->stock[slot];
 
 		/* Hack -- readable books always come first */
-		if ((o_ptr->tval == cp_ptr->spell_book) &&
-		    (j_ptr->tval != cp_ptr->spell_book)) break;
-		if ((j_ptr->tval == cp_ptr->spell_book) &&
-		    (o_ptr->tval != cp_ptr->spell_book)) continue;
+		if (o_ptr->tval == p_ptr->spell_book())
+			{
+			if (j_ptr->tval != p_ptr->spell_book()) break;
+			}
+		else{
+			if (j_ptr->tval == p_ptr->spell_book()) continue;
+			}
 
 		/* Objects sort by decreasing type */
 		if (o_ptr->tval > j_ptr->tval) break;
@@ -846,7 +801,7 @@ static int store_carry(object_type *o_ptr)
 	o_ptr->note = 0;
 
 	/* Remove special inscription, if any */
-	if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
+	o_ptr->pseudo = 0;
 
 
 	/* Check each existing object (try to combine) */
@@ -1018,10 +973,10 @@ static void store_delete(void)
 	num = o_ptr->number;
 
 	/* Hack -- sometimes, only destroy half the objects */
-	if (rand_int(100) < 50) num = (num + 1) / 2;
+	if (one_in_(2)) num = (num + 1) / 2;
 
 	/* Hack -- sometimes, only destroy a single object */
-	if (rand_int(100) < 50) num = 1;
+	if (one_in_(2)) num = 1;
 
 	/* Hack -- decrement the maximum timeouts and total charges of rods and wands. */
 	if ((o_ptr->tval == TV_ROD) ||
@@ -1125,7 +1080,7 @@ static void store_create(void)
 		}
 
 
-		/* Mass produce and/or Apply discount */
+		/* Mass produce */
 		mass_produce(i_ptr);
 
 		/* Attempt to carry the (known) object */
@@ -1321,9 +1276,9 @@ static void display_store(void)
 	/* Normal stores */
 	else
 	{
-		cptr store_name = (f_name + f_info[FEAT_SHOP_HEAD + store_num].name);
+		cptr store_name = feature_type::f_info[FEAT_SHOP_HEAD + store_num].name();
 		cptr owner_name = &(b_name[ot_ptr->owner_name]);
-		cptr race_name = p_name + p_info[ot_ptr->owner_race].name;
+		cptr race_name = player_type::race_name(ot_ptr->owner_race);
 
 		/* Put the owner name and race */
 		strnfmt(buf, sizeof(buf), "%s (%s)", owner_name, race_name);
@@ -1374,8 +1329,6 @@ static bool get_stock(int *com_val, cptr pmt)
 
 	object_type *o_ptr;
 
-#ifdef ALLOW_REPEAT
-
 	/* Get the item index */
 	if (repeat_pull(com_val))
 	{
@@ -1391,8 +1344,6 @@ static bool get_stock(int *com_val, cptr pmt)
 			repeat_clear();
 		}
 	}
-
-#endif /* ALLOW_REPEAT */
 
 	/* Assume failure */
 	*com_val = (-1);
@@ -1450,11 +1401,7 @@ static bool get_stock(int *com_val, cptr pmt)
 	/* Save item */
 	(*com_val) = item;
 
-#ifdef ALLOW_REPEAT
-
 	repeat_push(*com_val);
-
-#endif /* ALLOW_REPEAT */
 
 	/* Success */
 	return (TRUE);
@@ -1870,7 +1817,7 @@ static void store_purchase(void)
 				i_ptr->note = 0;
 
 				/* Remove special inscription, if any */
-				if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
+				o_ptr->pseudo = 0;
 
 				/* Give it to the player */
 				item_new = inven_carry(i_ptr);
@@ -1906,7 +1853,7 @@ static void store_purchase(void)
 					int i;
 
 					/* Shuffle */
-					if (rand_int(STORE_SHUFFLE) == 0)
+					if (one_in_(STORE_SHUFFLE))
 					{
 						/* Message */
 						msg_print("The shopkeeper retires.");
@@ -2133,7 +2080,7 @@ static void store_sell(void)
 			i_ptr->note = 0;
 
 			/* Remove special inscription, if any */
-			if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
+			o_ptr->pseudo = 0;
 
 			/* Identify original object */
 			object_aware(o_ptr);
@@ -2289,12 +2236,8 @@ static bool leave_store = FALSE;
 static void store_process_command(void)
 {
 
-#ifdef ALLOW_REPEAT
-
 	/* Handle repeating the last command */
 	repeat_check();
-
-#endif /* ALLOW_REPEAT */
 
 	/* Parse the command */
 	switch (p_ptr->command_cmd)
@@ -2851,7 +2794,7 @@ void do_cmd_store(void)
  */
 void store_shuffle(int which)
 {
-	int i, j;
+	int j;
 
 
 	/* Ignore home */
@@ -2872,16 +2815,6 @@ void store_shuffle(int which)
 
 	/* Activate the new owner */
 	ot_ptr = &b_info[(store_num * z_info->b_max) + st_ptr->owner];
-
-
-	/* Discount all the items */
-	for (i = 0; i < st_ptr->stock_num; i++)
-	{
-		object_type *o_ptr = &st_ptr->stock[i];	/* Get the object */
-
-		/* Discount non-discounted items by 40 percent */
-		if (o_ptr->discount == 0) o_ptr->discount = 40;
-	}
 }
 
 

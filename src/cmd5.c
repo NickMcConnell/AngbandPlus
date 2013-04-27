@@ -22,10 +22,10 @@ s16b spell_chance(int spell)
 
 
 	/* Paranoia -- must be literate */
-	if (!cp_ptr->spell_book) return (100);
+	if (!p_ptr->spell_book()) return (100);
 
 	/* Get the spell */
-	s_ptr = &mp_ptr->info[spell];
+	s_ptr = p_ptr->spell_info(spell);
 
 	/* Extract the base spell failure rate */
 	chance = s_ptr->sfail;
@@ -34,7 +34,7 @@ s16b spell_chance(int spell)
 	chance -= 3 * (p_ptr->lev - s_ptr->slevel);
 
 	/* Reduce failure rate by INT/WIS adjustment */
-	chance -= adj_mag_stat[p_ptr->stat_ind[cp_ptr->spell_stat]];
+	chance -= adj_mag_stat[p_ptr->stat_ind[p_ptr->cp_ptr->spell_stat]];
 
 	/* Not enough mana to cast */
 	if (s_ptr->smana > p_ptr->csp)
@@ -43,10 +43,10 @@ s16b spell_chance(int spell)
 	}
 
 	/* Extract the minimum failure rate */
-	minfail = adj_mag_fail[p_ptr->stat_ind[cp_ptr->spell_stat]];
+	minfail = adj_mag_fail[p_ptr->stat_ind[p_ptr->cp_ptr->spell_stat]];
 
 	/* Non mage/priest characters never get better than 5 percent */
-	if (!(cp_ptr->flags & CF_ZERO_FAIL))
+	if (!(p_ptr->cp_ptr->flags & CF_ZERO_FAIL))
 	{
 		if (minfail < 5) minfail = 5;
 	}
@@ -61,7 +61,7 @@ s16b spell_chance(int spell)
 	if (chance < minfail) chance = minfail;
 
 	/* Stunning makes spells harder (after minfail) */
-	unsigned int stunned = stun_level(p_ptr->stun);
+	unsigned int stunned = stun_level(p_ptr->timed[TMD_STUN]);
 	if (stunned)
 		{
 		chance += (2<=stunned) ? 25 : 15;
@@ -83,10 +83,7 @@ s16b spell_chance(int spell)
  */
 bool spell_okay(int spell, bool known)
 {
-	const magic_type *s_ptr;
-
-	/* Get the spell */
-	s_ptr = &mp_ptr->info[spell];
+	const magic_type* s_ptr = p_ptr->spell_info(spell);	/* Get the spell */
 
 	/* Spell is illegal */
 	if (s_ptr->slevel > p_ptr->lev) return (FALSE);
@@ -137,7 +134,7 @@ void print_spells(const byte *spells, int num, int y, int x)
 		spell = spells[i];
 
 		/* Get the spell info */
-		s_ptr = &mp_ptr->info[spell];
+		s_ptr = p_ptr->spell_info(spell);
 
 		/* Skip illegible spells */
 		if (s_ptr->slevel >= 99)
@@ -148,7 +145,7 @@ void print_spells(const byte *spells, int num, int y, int x)
 		}
 
 		/* Get extra info */
-		comment = get_spell_info(cp_ptr->spell_book, spell);
+		comment = get_spell_info(p_ptr->spell_book(), spell);
 
 		/* Assume spell is known and tried */
 		line_attr = TERM_WHITE;
@@ -180,7 +177,7 @@ void print_spells(const byte *spells, int num, int y, int x)
 
 		/* Dump the spell --(-- */
 		strnfmt(out_val, sizeof(out_val), "  %c) %-30s%2d %4d %3d%%%s",
-		        I2A(i), get_spell_name(cp_ptr->spell_book, spell),
+		        I2A(i), get_spell_name(p_ptr->spell_book(), spell),
 		        s_ptr->slevel, s_ptr->smana, spell_chance(spell), comment);
 		c_prt(line_attr, out_val, y + i + 1, x);
 	}
@@ -231,10 +228,10 @@ void display_koff(int k_idx)
 
 
 	/* Warriors are illiterate */
-	if (!cp_ptr->spell_book) return;
+	if (!p_ptr->spell_book()) return;
 
 	/* Display spells in readible books */
-	if (i_ptr->tval == cp_ptr->spell_book)
+	if (i_ptr->tval == p_ptr->spell_book())
 	{
 		int i;
 		int spell;
@@ -269,7 +266,7 @@ void display_koff(int k_idx)
  * The "prompt" should be "cast", "recite", or "study"
  * The "known" should be TRUE for cast/pray, FALSE for study
  */
-static int get_spell(const object_type *o_ptr, cptr prompt, bool known)
+int get_spell(const object_type *o_ptr, cptr prompt, bool known)
 {
 	int i;
 
@@ -287,9 +284,7 @@ static int get_spell(const object_type *o_ptr, cptr prompt, bool known)
 
 	char out_val[160];
 
-	cptr p = ((cp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
-
-#ifdef ALLOW_REPEAT
+	cptr p = ((p_ptr->spell_book() == TV_MAGIC_BOOK) ? "spell" : "prayer");
 
 	int result;
 
@@ -308,8 +303,6 @@ static int get_spell(const object_type *o_ptr, cptr prompt, bool known)
 			repeat_clear();
 		}
 	}
-
-#endif /* ALLOW_REPEAT */
 
 	/* Extract spells */
 	for (i = 0; i < SPELLS_PER_BOOK; i++)
@@ -411,11 +404,11 @@ static int get_spell(const object_type *o_ptr, cptr prompt, bool known)
 			char tmp_val[160];
 
 			/* Get the spell */
-			s_ptr = &mp_ptr->info[spell];
+			s_ptr = p_ptr->spell_info(spell);
 
 			/* Prompt */
 			strnfmt(tmp_val, 78, "%^s %s (%d mana, %d%% fail)? ",
-			        prompt, get_spell_name(cp_ptr->spell_book, spell),
+			        prompt, get_spell_name(p_ptr->spell_book(), spell),
 			        s_ptr->smana, spell_chance(spell));
 
 			/* Belay that order */
@@ -438,11 +431,7 @@ static int get_spell(const object_type *o_ptr, cptr prompt, bool known)
 	/* Abort if needed */
 	if (!flag) return (-1);
 
-#ifdef ALLOW_REPEAT
-
 	repeat_push(spell);
-
-#endif /* ALLOW_REPEAT */
 
 	/* Success */
 	return (spell);
@@ -500,174 +489,51 @@ void do_cmd_browse_aux(const object_type *o_ptr)
 
 
 /*
- * Peruse the spells/prayers in a Book
- *
- * Note that *all* spells in the book are listed
- *
- * Note that browsing is allowed while confused or blind,
- * and in the dark, primarily to allow browsing in stores.
+ * Choose a new spell from the book.
  */
-void do_cmd_browse(void)
+int spell_choose_new(const object_type *o_ptr)
 {
-	int item;
-
-	object_type *o_ptr;
-
-	cptr q, s;
-
-
-	/* Warriors are illiterate */
-	if (!cp_ptr->spell_book)
-	{
-		msg_print("You cannot read books!");
-		return;
-	}
-
-#if 0
-
-	/* No lite */
-	if (p_ptr->blind || no_lite())
-	{
-		msg_print("You cannot see!");
-		return;
-	}
-
-	/* Confused */
-	if (p_ptr->confused)
-	{
-		msg_print("You are too confused!");
-		return;
-	}
-
-#endif
-
-	/* Restrict choices to "useful" books */
-	item_tester_tval = cp_ptr->spell_book;
-
-	/* Get an item */
-	q = "Browse which book? ";
-	s = "You have no books that you can read.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the object */
-	o_ptr = get_o_ptr_from_inventory_or_floor(item);
-
-	/* Browse the book */
-	do_cmd_browse_aux(o_ptr);
-}
-
-
-
-
-/*
- * Study a book to gain a new spell/prayer
- */
-void do_cmd_study(void)
-{
-	int i, item;
-
-	int spell;
-
-	cptr p = ((cp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
-
-	cptr q, s;
-
-	object_type *o_ptr;
-
-
-	if (!cp_ptr->spell_book)
-	{
-		msg_print("You cannot read books!");
-		return;
-	}
-
-	if (p_ptr->blind || no_lite())
-	{
-		msg_print("You cannot see!");
-		return;
-	}
-
-	if (p_ptr->confused)
-	{
-		msg_print("You are too confused!");
-		return;
-	}
-
-	if (!(p_ptr->new_spells))
-	{
-		msg_format("You cannot learn any new %ss!", p);
-		return;
-	}
-
-
-	/* Restrict choices to "useful" books */
-	item_tester_tval = cp_ptr->spell_book;
-
-	/* Get an item */
-	q = "Study which book? ";
-	s = "You have no books that you can read.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the object */
-	o_ptr = get_o_ptr_from_inventory_or_floor(item);
-
-	/* Track the object kind */
-	object_kind_track(o_ptr->k_idx);
-
-	/* Hack -- Handle stuff */
-	handle_stuff();
-
+	int i, k = 0;
+	int gift = -1;
+	
+	cptr p = ((p_ptr->spell_book() == TV_MAGIC_BOOK) ? "spell" : "prayer");
 
 	/* Mage -- Learn a selected spell */
-	if (cp_ptr->flags & CF_CHOOSE_SPELLS)
+	if (p_ptr->cp_ptr->flags & CF_CHOOSE_SPELLS)
 	{
-		/* Ask for a spell */
-		spell = get_spell(o_ptr, "study", FALSE);
-
-		/* Allow cancel */
-		if (spell == -1) return;
+		return get_spell(o_ptr, "study", FALSE);
 	}
-	else
+
+	/* Extract spells */
+	for (i = 0; i < SPELLS_PER_BOOK; i++)
 	{
-		int k = 0;
+		int spell = get_spell_index(o_ptr, i);
 
-		int gift = -1;
+		/* Skip non-OK spells */
+		if (spell == -1) continue;
+		if (!spell_okay(spell, FALSE)) continue;
 
-		/* Extract spells */
-		for (i = 0; i < SPELLS_PER_BOOK; i++)
-		{
-			spell = get_spell_index(o_ptr, i);
+		/* Apply the randomizer */
+		if ((++k > 1) && !one_in_(k)) continue;
 
-			/* Skip empty spells */
-			if (spell == -1) continue;
-
-			/* Skip non "okay" prayers */
-			if (!spell_okay(spell, FALSE)) continue;
-
-			/* Apply the randomizer */
-			if ((++k > 1) && (rand_int(k) != 0)) continue;
-
-			/* Track it */
-			gift = spell;
-		}
-
-		/* Accept gift */
-		spell = gift;
+		/* Track it */
+		gift = spell;
 	}
 
 	/* Nothing to study */
-	if (spell < 0)
-	{
-		/* Message */
+	if (gift < 0)
 		msg_format("You cannot learn any %ss in that book.", p);
 
-		/* Abort */
-		return;
-	}
+	return gift;
+}
 
-
-	/* Take a turn */
-	p_ptr->energy_use = 100;
+/*
+ * Learn the specified spell.
+ */
+void spell_learn(int spell)
+{
+	int i;
+	cptr p = ((p_ptr->spell_book() == TV_MAGIC_BOOK) ? "spell" : "prayer");
 
 	/* Learn the spell */
 	p_ptr->spell_flags[spell] |= PY_SPELL_LEARNED;
@@ -684,7 +550,7 @@ void do_cmd_study(void)
 
 	/* Mention the result */
 	message_format(MSG_STUDY, 0, "You have learned the %s of %s.",
-	           p, get_spell_name(cp_ptr->spell_book, spell));
+	           p, get_spell_name(p_ptr->spell_book(), spell));
 
 	/* One less spell available */
 	p_ptr->new_spells--;
@@ -694,10 +560,11 @@ void do_cmd_study(void)
 	{
 		/* Message */
 		msg_format("You can learn %d more %s%s.",
-		           p_ptr->new_spells, p,
-		           (p_ptr->new_spells != 1) ? "s" : "");
+		           p_ptr->new_spells, p, PLURAL(p_ptr->new_spells));
 	}
 
+	/* Redraw Study Status */
+//	p_ptr->redraw |= (PR_STUDY | PR_OBJECT);
 	/* Redraw Study Status */
 	p_ptr->redraw |= (PR_STUDY);
 
@@ -706,87 +573,32 @@ void do_cmd_study(void)
 }
 
 
-
-/*
- * Cast a spell
- */
-void do_cmd_cast(void)
+/* Cas the specified spell */
+bool spell_cast(int spell)
 {
-	int item, spell;
 	int chance;
-
-	object_type *o_ptr;
-
 	const magic_type *s_ptr;
 
-	cptr q, s;
-
-
-	/* Require spell ability */
-	if (cp_ptr->spell_book != TV_MAGIC_BOOK)
-	{
-		msg_print("You cannot cast spells!");
-		return;
-	}
-
-	/* Require lite */
-	if (p_ptr->blind || no_lite())
-	{
-		msg_print("You cannot see!");
-		return;
-	}
-
-	/* Not when confused */
-	if (p_ptr->confused)
-	{
-		msg_print("You are too confused!");
-		return;
-	}
-
-
-	/* Restrict choices to spell books */
-	item_tester_tval = cp_ptr->spell_book;
-
-	/* Get an item */
-	q = "Use which book? ";
-	s = "You have no spell books!";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the object */
-	o_ptr = get_o_ptr_from_inventory_or_floor(item);
-
-	/* Track the object kind */
-	object_kind_track(o_ptr->k_idx);
-
-	/* Hack -- Handle stuff */
-	handle_stuff();
-
-
-	/* Ask for a spell */
-	spell = get_spell(o_ptr, "cast", TRUE);
-
-	if (spell < 0)
-	{
-		if (spell == -2) msg_print("You don't know any spells in that book.");
-		return;
-	}
+    cptr p = ((p_ptr->spell_book() == TV_MAGIC_BOOK) ?
+	          "cast this spell" :
+	          "recite this prayer");
 
 
 	/* Get the spell */
-	s_ptr = &mp_ptr->info[spell];
+	s_ptr = p_ptr->spell_info(spell);
 
 
 	/* Verify "dangerous" spells */
 	if (s_ptr->smana > p_ptr->csp)
 	{
 		/* Warning */
-		msg_print("You do not have enough mana to cast this spell.");
+		msg_format("You do not have enough mana to %s.", p);
 
 		/* Flush input */
 		flush();
 
 		/* Verify */
-		if (!get_check("Attempt it anyway? ")) return;
+		if (!get_check("Attempt it anyway? ")) return FALSE;
 	}
 
 
@@ -797,17 +609,17 @@ void do_cmd_cast(void)
 	if (rand_int(100) < chance)
 	{
 		if (flush_failure) flush();
-		msg_print("You failed to get the spell off!");
+		msg_print("You failed to concentrate hard enough!");
 	}
 
 	/* Process spell */
 	else
 	{
 		/* Cast the spell */
-		if (!cast_spell(cp_ptr->spell_book, spell)) return;
+		if (!cast_spell(p_ptr->spell_book(), spell)) return FALSE;
 
 		/* A spell was cast */
-		sound(MSG_SPELL);
+		sound((p_ptr->spell_book() == TV_MAGIC_BOOK) ? MSG_SPELL : MSG_PRAYER);
 		if (!(p_ptr->spell_flags[spell] & PY_SPELL_WORKED))
 		{
 			int e = s_ptr->sexp;
@@ -819,12 +631,10 @@ void do_cmd_cast(void)
 			gain_exp(e * s_ptr->slevel);
 
 			/* Redraw object recall */
+//			p_ptr->redraw |= (PR_OBJECT);
 			p_ptr->window |= (PW_OBJECT);
 		}
 	}
-
-	/* Take a turn */
-	p_ptr->energy_use = 100;
 
 	/* Sufficient mana */
 	if (s_ptr->smana <= p_ptr->csp)
@@ -846,12 +656,12 @@ void do_cmd_cast(void)
 		msg_print("You faint from the effort!");
 
 		/* Hack -- Bypass free action */
-		(void)set_paralyzed(p_ptr->paralyzed + randint(5 * oops + 1));
+		(void)p_ptr->inc_timed<TMD_PARALYZED>(randint(5 * oops + 1));
 
 		/* Damage CON (possibly permanently) */
-		if (rand_int(100) < 50)
+		if (one_in_(2))
 		{
-			bool perm = (rand_int(100) < 25);
+			bool perm = one_in_(4);
 
 			/* Message */
 			msg_print("You have damaged your health!");
@@ -866,165 +676,6 @@ void do_cmd_cast(void)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
-}
 
-
-/*
- * Pray a prayer
- */
-void do_cmd_pray(void)
-{
-	int item, spell, chance;
-
-	object_type *o_ptr;
-
-	const magic_type *s_ptr;
-
-	cptr q, s;
-
-
-	/* Must use prayer books */
-	if (cp_ptr->spell_book != TV_PRAYER_BOOK)
-	{
-		msg_print("Pray hard enough and your prayers may be answered.");
-		return;
-	}
-
-	/* Must have lite */
-	if (p_ptr->blind || no_lite())
-	{
-		msg_print("You cannot see!");
-		return;
-	}
-
-	/* Must not be confused */
-	if (p_ptr->confused)
-	{
-		msg_print("You are too confused!");
-		return;
-	}
-
-
-	/* Restrict choices */
-	item_tester_tval = cp_ptr->spell_book;
-
-	/* Get an item */
-	q = "Use which book? ";
-	s = "You have no prayer books!";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the object */
-	o_ptr = get_o_ptr_from_inventory_or_floor(item);
-
-	/* Track the object kind */
-	object_kind_track(o_ptr->k_idx);
-
-	/* Hack -- Handle stuff */
-	handle_stuff();
-
-
-	/* Choose a spell */
-	spell = get_spell(o_ptr, "recite", TRUE);
-
-	if (spell < 0)
-	{
-		if (spell == -2) msg_print("You don't know any prayers in that book.");
-		return;
-	}
-
-
-	/* Get the spell */
-	s_ptr = &mp_ptr->info[spell];
-
-
-	/* Verify "dangerous" prayers */
-	if (s_ptr->smana > p_ptr->csp)
-	{
-		/* Warning */
-		msg_print("You do not have enough mana to recite this prayer.");
-
-		/* Flush input */
-		flush();
-
-		/* Verify */
-		if (!get_check("Attempt it anyway? ")) return;
-	}
-
-
-	/* Spell failure chance */
-	chance = spell_chance(spell);
-
-	/* Check for failure */
-	if (rand_int(100) < chance)
-	{
-		if (flush_failure) flush();
-		msg_print("You failed to concentrate hard enough!");
-	}
-
-	/* Success */
-	else
-	{
-		/* Cast the spell */
-		if (!cast_spell(cp_ptr->spell_book, spell)) return;
-
-		/* A prayer was prayed */
-		sound(MSG_PRAYER);
-		if (!(p_ptr->spell_flags[spell] & PY_SPELL_WORKED))
-		{
-			int e = s_ptr->sexp;
-
-			/* The spell worked */
-			p_ptr->spell_flags[spell] |= PY_SPELL_WORKED;
-
-			/* Gain experience */
-			gain_exp(e * s_ptr->slevel);
-
-			/* Redraw object recall */
-			p_ptr->window |= (PW_OBJECT);
-		}
-	}
-
-	/* Take a turn */
-	p_ptr->energy_use = 100;
-
-	/* Sufficient mana */
-	if (s_ptr->smana <= p_ptr->csp)
-	{
-		/* Use some mana */
-		p_ptr->csp -= s_ptr->smana;
-	}
-
-	/* Over-exert the player */
-	else
-	{
-		int oops = s_ptr->smana - p_ptr->csp;
-
-		/* No mana left */
-		p_ptr->csp = 0;
-		p_ptr->csp_frac = 0;
-
-		/* Message */
-		msg_print("You faint from the effort!");
-
-		/* Hack -- Bypass free action */
-		(void)set_paralyzed(p_ptr->paralyzed + randint(5 * oops + 1));
-
-		/* Damage CON (possibly permanently) */
-		if (rand_int(100) < 50)
-		{
-			bool perm = (rand_int(100) < 25);
-
-			/* Message */
-			msg_print("You have damaged your health!");
-
-			/* Reduce constitution */
-			(void)dec_stat(A_CON, 15 + randint(10), perm);
-		}
-	}
-
-	/* Redraw mana */
-	p_ptr->redraw |= (PR_MANA);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+	return TRUE;
 }

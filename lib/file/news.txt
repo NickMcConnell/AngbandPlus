@@ -1,0 +1,23 @@
+
+              **************************************************
+              **    Zaiband 3.0.7    **    Zaimoni Angband    **
+              **************************************************
+
+           Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
+               and Umoria:   Copyright (c) 1989 James E. Wilson
+
+                       Angband 2.0 - 2.4 - 2.6.2 by:
+                   Alex Cutler, Andy Astrand, Sean Marsh,
+                 Geoff Hill, Charles Teague, Charles Swiger
+
+                   Angband 2.7.0 - 2.8.5 by Ben Harrison
+
+                 Angband 2.9.0 - 3.0.x by Robert Ruehlmann
+
+             Zaiband 3.0.6 - 3.0.7 by Kenneth 'Bessarion' Boyd
+
+      Send comments, bug reports, and patches, to "zaimoni@zaimoni.com"
+         Visit the Angband Home Page at "http://www.thangorodrim.net/"
+      Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
+    Read the online help files, especially "general.txt" and "version.txt"
+

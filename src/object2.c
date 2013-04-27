@@ -10,7 +10,6 @@
 
 #include "angband.h"
 
-
 /*
  * Excise a dungeon object from any stacks
  */
@@ -313,7 +312,7 @@ void compact_objects(int size)
 				obj_loc = m_ptr->loc;
 
 				/* Monsters protect their objects */
-				if (rand_int(100) < 90) continue;
+				if (!one_in_(10)) continue;
 			}
 
 			/* Dungeon */
@@ -369,7 +368,7 @@ static bool kill_object_invisibly(object_type& o)
 		if (o.is_artifact() && !o.known())
 		{
 			/* Mega-Hack -- Preserve the artifact */
-			a_info[o.name1].cur_num = 0;
+			object_type::a_info[o.name1].cur_num = 0;
 		}
 	}
 
@@ -562,7 +561,7 @@ s16b get_obj_num(int level)
 	if (level > 0)
 	{
 		/* Occasional "boost" */
-		if (rand_int(GREAT_OBJ) == 0)
+		if (one_in_(GREAT_OBJ))
 		{
 			/* What a bizarre calculation */
 			level = 1 + (level * MAX_DEPTH / randint(MAX_DEPTH));
@@ -696,7 +695,7 @@ s16b get_obj_num(int level)
 void object_known(object_type *o_ptr)
 {
 	/* Remove special inscription, if any */
-	if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
+	o_ptr->pseudo = 0;
 
 	/* The object is not "sensed" */
 	o_ptr->ident &= ~(IDENT_SENSE);
@@ -804,7 +803,7 @@ static s32b object_value_base(const object_type *o_ptr)
 
 
 /*
- * Return the "real" price of a "known" item, not including discounts.
+ * Return the "real" price of a "known" item.
  *
  * Wand and staffs get cost for each charge.
  *
@@ -846,7 +845,7 @@ static s32b object_value_real(const object_type *o_ptr)
 	/* Artifact */
 	if (o_ptr->name1)
 	{
-		artifact_type *a_ptr = &a_info[o_ptr->name1];
+		artifact_type *a_ptr = &object_type::a_info[o_ptr->name1];
 
 		/* Hack -- "worthless" artifacts */
 		if (!a_ptr->cost) return (0L);
@@ -858,7 +857,7 @@ static s32b object_value_real(const object_type *o_ptr)
 	/* Ego-Item */
 	else if (o_ptr->name2)
 	{
-		ego_item_type *e_ptr = &e_info[o_ptr->name2];
+		ego_item_type *e_ptr = &object_type::e_info[o_ptr->name2];
 
 		/* Hack -- "worthless" ego-items */
 		if (!e_ptr->cost) return (0L);
@@ -993,9 +992,9 @@ static s32b object_value_real(const object_type *o_ptr)
 			value += ((o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) * 100L);
 
 			/* Hack -- Factor in extra damage dice */
-			if ((o_ptr->dd > k_ptr->dd) && (o_ptr->ds == k_ptr->ds))
+			if ((o_ptr->d.dice > k_ptr->d.dice) && (o_ptr->d.sides == k_ptr->d.sides))
 			{
-				value += (o_ptr->dd - k_ptr->dd) * o_ptr->ds * 100L;
+				value += (o_ptr->d.dice - k_ptr->d.dice) * o_ptr->d.sides * 100L;
 			}
 
 			/* Done */
@@ -1014,9 +1013,9 @@ static s32b object_value_real(const object_type *o_ptr)
 			value += ((o_ptr->to_h + o_ptr->to_d) * 5L);
 
 			/* Hack -- Factor in extra damage dice */
-			if ((o_ptr->dd > k_ptr->dd) && (o_ptr->ds == k_ptr->ds))
+			if ((o_ptr->d.dice > k_ptr->d.dice) && (o_ptr->d.sides == k_ptr->d.sides))
 			{
-				value += (o_ptr->dd - k_ptr->dd) * o_ptr->ds * 5L;
+				value += (o_ptr->d.dice - k_ptr->d.dice) * o_ptr->d.sides * 5L;
 			}
 
 			/* Done */
@@ -1039,8 +1038,6 @@ static s32b object_value_real(const object_type *o_ptr)
  *
  * Never notice "unknown" bonuses or properties, including "curses",
  * since that would give the player information he did not have.
- *
- * Note that discounted items stay discounted forever.
  */
 s32b object_value(const object_type *o_ptr)
 {
@@ -1068,14 +1065,6 @@ s32b object_value(const object_type *o_ptr)
 		/* Base value (see above) */
 		value = object_value_base(o_ptr);
 	}
-
-
-	/* Apply discount (if any) */
-	if (o_ptr->discount > 0 && o_ptr->discount < INSCRIP_NULL)
-	{
-		value -= (value * o_ptr->discount / 100L);
-	}
-
 
 	/* Return the final value */
 	return (value);
@@ -1209,8 +1198,7 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 
 			/* Require identical "values" */
 			if (o_ptr->ac != j_ptr->ac) return (FALSE);
-			if (o_ptr->dd != j_ptr->dd) return (FALSE);
-			if (o_ptr->ds != j_ptr->ds) return (FALSE);
+			if (o_ptr->d != j_ptr->d) return (FALSE);
 
 			/* Probably okay */
 			break;
@@ -1246,34 +1234,33 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		if (o_ptr->note && j_ptr->note) return (0);
 	}
 
-
-	/* Hack -- Require compatible "discount" fields */
-	if (o_ptr->discount != j_ptr->discount)
+	/* Hack -- Require compatible special inscriptions */
+	if (o_ptr->pseudo != j_ptr->pseudo)
 	{
 		/* Both are (different) special inscriptions */
-		if ((o_ptr->discount >= INSCRIP_NULL) &&
-		    (j_ptr->discount >= INSCRIP_NULL))
+		if ((o_ptr->pseudo >= INSCRIP_NULL) &&
+		    (j_ptr->pseudo >= INSCRIP_NULL))
 		{
 			/* Normally require matching inscriptions */
 			return (0);
 		}
 
-		/* One is a special inscription, one is a discount or nothing */
-		else if ((o_ptr->discount >= INSCRIP_NULL) ||
-		         (j_ptr->discount >= INSCRIP_NULL))
+		/* One is a special inscription, one is nothing */
+		else if ((o_ptr->pseudo >= INSCRIP_NULL) ||
+		         (j_ptr->pseudo >= INSCRIP_NULL))
 		{
 			/* Normally require matching inscriptions */
 			if (!stack_force_notes) return (0);
 
-			/* Hack -- Never merge a special inscription with a discount */
-			if ((o_ptr->discount > 0) && (j_ptr->discount > 0)) return (0);
+			/* this shouldn't be happening (load.c zeros legacy discounts), but not worth choking over */
+			/* Hack -- Never merge a special inscription with a legacy discount */
+			if ((o_ptr->pseudo > 0) && (j_ptr->pseudo > 0)) return (0);
 		}
 
-		/* One is a discount, one is a (different) discount or nothing */
+		/* this shouldn't be happening (load.c zeros legacy discounts), but not worth choking over */
 		else
 		{
-			/* Normally require matching discounts */
-			if (!stack_force_costs) return (0);
+			return (0);
 		}
 	}
 
@@ -1295,11 +1282,9 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
  * In both these cases, we can simply use the existing note, unless the
  * blending object has a note, in which case we use that note.
  *
- * The blending of the "discount" field assumes that either (1) one is a
- * special inscription and one is nothing, or (2) one is a discount and
- * one is a smaller discount, or (3) one is a discount and one is nothing,
- * or (4) both are nothing.  In all of these cases, we can simply use the
- * "maximum" of the two "discount" fields.
+ * The blending of the pseudo field assumes that either (1) one is a
+ * special inscription and one is nothing, or (2) both are nothing.
+ * In all of these cases, we can simply use the "maximum" of the two pseudo fields.
  *
  * These assumptions are enforced by the "object_similar()" code.
  */
@@ -1324,8 +1309,8 @@ void object_absorb(object_type *o_ptr, const object_type *j_ptr)
 	/* Hack -- Blend "notes" */
 	if (j_ptr->note != 0) o_ptr->note = j_ptr->note;
 
-	/* Mega-Hack -- Blend "discounts" */
-	if (o_ptr->discount < j_ptr->discount) o_ptr->discount = j_ptr->discount;
+	/* Mega-Hack -- Blend special inscriptions */
+	if (o_ptr->pseudo < j_ptr->pseudo) o_ptr->pseudo = j_ptr->pseudo;
 
 	/*
 	 * Hack -- if rods are stacking, re-calculate the
@@ -1403,8 +1388,7 @@ void object_prep(object_type *o_ptr, int k_idx)
 
 	/* Default power */
 	o_ptr->ac = k_ptr->ac;
-	o_ptr->dd = k_ptr->dd;
-	o_ptr->ds = k_ptr->ds;
+	o_ptr->d = k_ptr->d;
 
 	/* Hack -- worthless items are always "broken" */
 	if (k_ptr->cost <= 0) o_ptr->ident |= (IDENT_BROKEN);
@@ -1562,7 +1546,7 @@ static int make_ego_item(object_type *o_ptr, bool only_good)
 	if (level > 0)
 	{
 		/* Occasional "boost" */
-		if (rand_int(GREAT_EGO) == 0)
+		if (one_in_(GREAT_EGO))
 		{
 			/* The bizarre calculation again */
 			level = 1 + (level * MAX_DEPTH / randint(MAX_DEPTH));
@@ -1582,7 +1566,7 @@ static int make_ego_item(object_type *o_ptr, bool only_good)
 		if (table[i].level > level) continue;
 
 		/* Get the actual kind */
-		e_ptr = &e_info[table[i].index];
+		e_ptr = &object_type::e_info[table[i].index];
 
 		/* If we force good/great, don't create cursed */
 		if (only_good && (e_ptr->flags3 & TR3_LIGHT_CURSE)) continue;
@@ -1631,7 +1615,7 @@ static int make_ego_item(object_type *o_ptr, bool only_good)
 	e_idx = (byte)table[i].index;
 	o_ptr->name2 = e_idx;
 
-	return ((e_info[e_idx].flags3 & TR3_LIGHT_CURSE) ? -2 : 2);
+	return ((object_type::e_info[e_idx].flags3 & TR3_LIGHT_CURSE) ? -2 : 2);
 }
 
 
@@ -1664,10 +1648,10 @@ static bool make_artifact_special(object_type *o_ptr)
 	/* Check the special artifacts */
 	for (i = 0; i < ART_MIN_NORMAL; ++i)
 	{
-		artifact_type *a_ptr = &a_info[i];
+		artifact_type *a_ptr = &object_type::a_info[i];
 
 		/* Skip "empty" artifacts */
-		if (!a_ptr->name) continue;
+		if (!a_ptr->_name) continue;
 
 		/* Cannot make an artifact twice */
 		if (a_ptr->cur_num) continue;
@@ -1679,11 +1663,11 @@ static bool make_artifact_special(object_type *o_ptr)
 			int d = (a_ptr->level - p_ptr->depth) * 2;
 
 			/* Roll for out-of-depth creation */
-			if (rand_int(d) != 0) continue;
+			if (!one_in_(d)) continue;
 		}
 
 		/* Artifact "rarity roll" */
-		if (rand_int(a_ptr->rarity) != 0) continue;
+		if (!one_in_(a_ptr->rarity)) continue;
 
 		/* Find the base object */
 		k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
@@ -1695,7 +1679,7 @@ static bool make_artifact_special(object_type *o_ptr)
 			int d = (object_type::k_info[k_idx].level - object_level) * 5;
 
 			/* Roll for out-of-depth creation */
-			if (rand_int(d) != 0) continue;
+			if (!one_in_(d)) continue;
 		}
 
 		/* Assign the template */
@@ -1737,10 +1721,10 @@ static bool make_artifact(object_type *o_ptr)
 	/* Check the artifact list (skip the "specials") */
 	for (i = ART_MIN_NORMAL; i < z_info->a_max; i++)
 	{
-		artifact_type *a_ptr = &a_info[i];
+		artifact_type *a_ptr = &object_type::a_info[i];
 
 		/* Skip "empty" items */
-		if (!a_ptr->name) continue;
+		if (!a_ptr->_name) continue;
 
 		/* Cannot make an artifact twice */
 		if (a_ptr->cur_num) continue;
@@ -1756,11 +1740,11 @@ static bool make_artifact(object_type *o_ptr)
 			int d = (a_ptr->level - p_ptr->depth) * 2;
 
 			/* Roll for out-of-depth creation */
-			if (rand_int(d) != 0) continue;
+			if (!one_in_(d)) continue;
 		}
 
 		/* We must make the "rarity roll" */
-		if (rand_int(a_ptr->rarity) != 0) continue;
+		if (!one_in_(a_ptr->rarity)) continue;
 
 		/* Mark the item as an artifact */
 		o_ptr->name1 = i;
@@ -1939,15 +1923,12 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 			/* Very Good */
 			if (power > 1)
 			{
-				/* Hack -- Super-charge the damage dice */
-				while ((o_ptr->dd * o_ptr->ds > 0) &&
-				       (rand_int(10L * o_ptr->dd * o_ptr->ds) == 0))
+				/* Hack -- Super-charge the damage dice, but no more than nine */
+				while ((0 < o_ptr->d.maxroll()) && (9 > o_ptr->d.dice) &&
+				       (one_in_(10L * o_ptr->d.maxroll())))
 				{
-					o_ptr->dd++;
+					o_ptr->d.dice++;
 				}
-
-				/* Hack -- Lower the damage dice */
-				if (o_ptr->dd > 9) o_ptr->dd = 9;
 			}
 
 			break;
@@ -1961,15 +1942,12 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 			/* Very good */
 			if (power > 1)
 			{
-				/* Hack -- super-charge the damage dice */
-				while ((o_ptr->dd * o_ptr->ds > 0) &&
-				       (rand_int(10L * o_ptr->dd * o_ptr->ds) == 0))
+				/* Hack -- super-charge the damage dice, but no more than nine */
+				while ((0 < o_ptr->d.maxroll()) && (9 > o_ptr->d.dice)  && 
+				       one_in_(10L * o_ptr->d.maxroll()))
 				{
-					o_ptr->dd++;
+					o_ptr->d.dice++;
 				}
-
-				/* Hack -- restrict the damage dice */
-				if (o_ptr->dd > 9) o_ptr->dd = 9;
 			}
 
 			break;
@@ -2590,7 +2568,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	/* Hack -- analyze artifacts */
 	if (o_ptr->name1)
 	{
-		artifact_type *a_ptr = &a_info[o_ptr->name1];
+		artifact_type *a_ptr = &object_type::a_info[o_ptr->name1];
 
 		/* Hack -- Mark the artifact as "created" */
 		a_ptr->cur_num = 1;
@@ -2598,8 +2576,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		/* Extract the other fields */
 		o_ptr->pval = a_ptr->pval;
 		o_ptr->ac = a_ptr->ac;
-		o_ptr->dd = a_ptr->dd;
-		o_ptr->ds = a_ptr->ds;
+		o_ptr->d = a_ptr->d;
 		o_ptr->to_a = a_ptr->to_a;
 		o_ptr->to_h = a_ptr->to_h;
 		o_ptr->to_d = a_ptr->to_d;
@@ -2709,7 +2686,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	/* Hack -- analyze ego-items */
 	if (o_ptr->name2)
 	{
-		ego_item_type *e_ptr = &e_info[o_ptr->name2];
+		ego_item_type *e_ptr = &object_type::e_info[o_ptr->name2];
 
 		/* Extra powers */
 		if (e_ptr->xtra)
@@ -2896,7 +2873,7 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 
 
 	/* Generate a special artifact, or a normal object */
-	if ((rand_int(prob) != 0) || !make_artifact_special(j_ptr))
+	if (!one_in_(prob) || !make_artifact_special(j_ptr))
 	{
 		int k_idx;
 
@@ -2983,7 +2960,7 @@ bool make_gold(object_type *j_ptr)
 	sval = ((randint(object_level + 2) + 2) / 2);
 
 	/* Apply "extra" magic */
-	if (rand_int(GREAT_OBJ) == 0)
+	if (one_in_(GREAT_OBJ))
 	{
 		sval += randint(object_level + 1);
 	}
@@ -3104,11 +3081,11 @@ s16b floor_carry(int y, int x, object_type *j_ptr)
  */
 void drop_near(object_type *j_ptr, int chance, coord t)
 {
-	int i, k, d, s;
+	int i, k, s;
 
 	int bs, bn;
 	coord b,tt;
-	int dy, dx;
+	coord_scan d;
 
 	object_type *o_ptr;
 
@@ -3130,8 +3107,7 @@ void drop_near(object_type *j_ptr, int chance, coord t)
 	if (!j_ptr->is_artifact() && (rand_int(100) < chance))
 	{
 		/* Message */
-		msg_format("The %s disappear%s.",
-		           o_name, (plural ? "" : "s"));
+		msg_format("The %s break%s.", o_name, PLURAL(plural));
 
 		/* Debug */
 		if (p_ptr->wizard) msg_print("Breakage (breakage).");
@@ -3151,29 +3127,28 @@ void drop_near(object_type *j_ptr, int chance, coord t)
 	b = t;
 
 	/* Scan local grids */
-	for (dy = -3; dy <= 3; dy++)
+	for (d.y = -3; d.y <= 3; d.y++)
 	{
 		/* Scan local grids */
-		for (dx = -3; dx <= 3; dx++)
+		for (d.x = -3; d.x <= 3; d.x++)
 		{
 			bool comb = FALSE;
 
 			/* Calculate actual distance */
-			d = (dy * dy) + (dx * dx);
+			int dist = (d.y * d.y) + (d.x * d.x);
 
 			/* Ignore distant grids */
-			if (d > 10) continue;
+			if (dist > 10) continue;
 
 			/* Location */
 			tt = t;
-			tt.y += dy;
-			tt.x += dx;
+			tt += d;
 
 			/* Skip illegal grids */
 			if (!in_bounds_fully(tt.y, tt.x)) continue;
 
 			/* Require line of sight */
-			if (!los(t.y, t.x, tt.y, tt.x)) continue;
+			if (!los(t, tt)) continue;
 
 			/* Require floor space */
 			if (cave_feat[tt.y][tt.x] != FEAT_FLOOR) continue;
@@ -3201,7 +3176,7 @@ void drop_near(object_type *j_ptr, int chance, coord t)
 			if (k > MAX_FLOOR_STACK) continue;
 
 			/* Calculate score */
-			s = 1000 - (d + k * 5);
+			s = 1000 - (dist + k * 5);
 
 			/* Skip bad values */
 			if (s < bs) continue;
@@ -3210,7 +3185,7 @@ void drop_near(object_type *j_ptr, int chance, coord t)
 			if (s > bs) bn = 0;
 
 			/* Apply the randomizer to equivalent values */
-			if ((++bn >= 2) && (rand_int(bn) != 0)) continue;
+			if ((++bn >= 2) && !one_in_(bn)) continue;
 
 			/* Keep score */
 			bs = s;
@@ -3228,8 +3203,7 @@ void drop_near(object_type *j_ptr, int chance, coord t)
 	if (!flag && !j_ptr->is_artifact())
 	{
 		/* Message */
-		msg_format("The %s disappear%s.",
-		           o_name, (plural ? "" : "s"));
+		msg_format("The %s disappear%s.", o_name, PLURAL(plural));
 
 		/* Debug */
 		if (p_ptr->wizard) msg_print("Breakage (no floor space).");
@@ -3274,14 +3248,13 @@ void drop_near(object_type *j_ptr, int chance, coord t)
 	if (!floor_carry(b.y, b.x, j_ptr))
 	{
 		/* Message */
-		msg_format("The %s disappear%s.",
-		           o_name, (plural ? "" : "s"));
+		msg_format("The %s disappear%s.", o_name, PLURAL(plural));
 
 		/* Debug */
 		if (p_ptr->wizard) msg_print("Breakage (too many objects).");
 
 		/* Hack -- Preserve artifacts */
-		a_info[j_ptr->name1].cur_num = 0;
+		object_type::a_info[j_ptr->name1].cur_num = 0;
 
 		/* Failure */
 		return;
@@ -3347,7 +3320,7 @@ void place_object(int y, int x, bool good, bool great)
 		if (!floor_carry(y, x, i_ptr))
 		{
 			/* Hack -- Preserve artifacts */
-			a_info[i_ptr->name1].cur_num = 0;
+			object_type::a_info[i_ptr->name1].cur_num = 0;
 		}
 	}
 }
@@ -3381,65 +3354,6 @@ void place_gold(int y, int x)
 
 
 /*
- * Hack -- instantiate a trap
- *
- * XXX XXX XXX This routine should be redone to reflect trap "level".
- * That is, it does not make sense to have spiked pits at 50 feet.
- * Actually, it is not this routine, but the "trap instantiation"
- * code, which should also check for "trap doors" on quest levels.
- */
-void pick_trap(int y, int x)
-{
-	int feat;
-
-	/* Paranoia */
-	if (cave_feat[y][x] != FEAT_INVIS) return;
-
-	/* Pick a trap */
-	while (1)
-	{
-		/* Hack -- pick a trap */
-		feat = FEAT_TRAP_HEAD + rand_int(16);
-
-		/* Hack -- no trap doors on quest levels */
-		if ((feat == FEAT_TRAP_HEAD + 0x00) && is_quest(p_ptr->depth)) continue;
-
-		/* Hack -- no trap doors on the deepest level */
-		if ((feat == FEAT_TRAP_HEAD + 0x00) && (p_ptr->depth >= MAX_DEPTH-1)) continue;
-
-		/* Done */
-		break;
-	}
-
-	/* Activate the trap */
-	cave_set_feat(y, x, feat);
-}
-
-
-
-/*
- * Places a random trap at the given location.
- *
- * The location must be a legal, naked, floor grid.
- *
- * Note that all traps start out as "invisible" and "untyped", and then
- * when they are "discovered" (by detecting them or setting them off),
- * the trap is "instantiated" as a visible, "typed", trap.
- */
-void place_trap(int y, int x)
-{
-	/* Paranoia */
-	if (!in_bounds(y, x)) return;
-
-	/* Require empty, clean, floor grid */
-	if (!cave_naked_bold(y, x)) return;
-
-	/* Place an invisible trap */
-	cave_set_feat(y, x, FEAT_INVIS);
-}
-
-
-/*
  * Place a secret door at the given location
  */
 void place_secret_door(int y, int x)
@@ -3454,10 +3368,7 @@ void place_secret_door(int y, int x)
  */
 void place_closed_door(int y, int x)
 {
-	int tmp;
-
-	/* Choose an object */
-	tmp = rand_int(400);
+	int tmp = rand_int(400);	/* Choose an object */
 
 	/* Closed doors (300/400) */
 	if (tmp < 300)
@@ -3487,10 +3398,7 @@ void place_closed_door(int y, int x)
  */
 void place_random_door(int y, int x)
 {
-	int tmp;
-
-	/* Choose an object */
-	tmp = rand_int(1000);
+	int tmp = rand_int(1000);	/* Choose an object */
 
 	/* Open doors (300/1000) */
 	if (tmp < 300)
@@ -3866,10 +3774,13 @@ s16b inven_carry(object_type *o_ptr)
 			if (!j_ptr->k_idx) break;
 
 			/* Hack -- readable books always come first */
-			if ((o_ptr->tval == cp_ptr->spell_book) &&
-			    (j_ptr->tval != cp_ptr->spell_book)) break;
-			if ((j_ptr->tval == cp_ptr->spell_book) &&
-			    (o_ptr->tval != cp_ptr->spell_book)) continue;
+			if (o_ptr->tval == p_ptr->spell_book())
+				{
+				if (j_ptr->tval != p_ptr->spell_book()) break;
+				}
+			else{
+				if (j_ptr->tval == p_ptr->spell_book()) continue;
+				}
 
 			/* Objects sort by decreasing type */
 			if (o_ptr->tval > j_ptr->tval) break;
@@ -4203,10 +4114,13 @@ void reorder_pack(void)
 			if (!j_ptr->k_idx) break;
 
 			/* Hack -- readable books always come first */
-			if ((o_ptr->tval == cp_ptr->spell_book) &&
-			    (j_ptr->tval != cp_ptr->spell_book)) break;
-			if ((j_ptr->tval == cp_ptr->spell_book) &&
-			    (o_ptr->tval != cp_ptr->spell_book)) continue;
+			if (o_ptr->tval == p_ptr->spell_book())
+				{
+				if (j_ptr->tval != p_ptr->spell_book()) break;
+				}
+			else{
+				if (j_ptr->tval == p_ptr->spell_book()) continue;
+				}
 
 			/* Objects sort by decreasing type */
 			if (o_ptr->tval > j_ptr->tval) break;
@@ -4325,3 +4239,133 @@ void reduce_charges(object_type *o_ptr, int amt)
 		o_ptr->pval -= o_ptr->pval * amt / o_ptr->number;
 	}
 }
+
+static bool is_moronic_to_eat(const object_type& o)
+{
+	switch(o.sval)
+	{
+	case SV_FOOD_DISEASE:	/* fallthrough intentional */
+	case SV_FOOD_UNHEALTH:
+	case SV_FOOD_NAIVETY:
+	case SV_FOOD_STUPIDITY:
+	case SV_FOOD_SICKNESS:
+	case SV_FOOD_WEAKNESS: return false;
+	case SV_FOOD_BISCUIT:	/* fallthrough intentional */
+	case SV_FOOD_JERKY:
+	case SV_FOOD_SLIME_MOLD:
+	case SV_FOOD_PINT_OF_ALE:
+	case SV_FOOD_PINT_OF_WINE: return (PY_FOOD_MAX<=p_ptr->food);
+	case SV_FOOD_RATION: return (PY_FOOD_FULL<=p_ptr->food);
+	case SV_FOOD_WAYBREAD: return (PY_FOOD_FULL<=p_ptr->food && p_ptr->chp==p_ptr->mhp && 0==p_ptr->timed[TMD_POISONED]);
+	case SV_FOOD_RESTORING: return (PY_FOOD_WEAK<=p_ptr->food && p_ptr->stat_cur[A_STR]==p_ptr->stat_max[A_STR] && p_ptr->stat_cur[A_INT]==p_ptr->stat_max[A_INT] && p_ptr->stat_cur[A_WIS]==p_ptr->stat_max[A_WIS] && p_ptr->stat_cur[A_DEX]==p_ptr->stat_max[A_DEX] && p_ptr->stat_cur[A_CON]==p_ptr->stat_max[A_CON] && p_ptr->stat_cur[A_CHR]==p_ptr->stat_max[A_CHR] && !(p_ptr->sustain[A_STR] && p_ptr->sustain[A_INT] && p_ptr->sustain[A_WIS] && p_ptr->sustain[A_DEX] && p_ptr->sustain[A_CON] && p_ptr->sustain[A_CHR]));
+	case SV_FOOD_RESTORE_CON: return (PY_FOOD_WEAK<=p_ptr->food && p_ptr->stat_cur[A_CON]==p_ptr->stat_max[A_CON] && !p_ptr->sustain[A_CON]);
+	case SV_FOOD_RESTORE_STR: return (PY_FOOD_WEAK<=p_ptr->food && p_ptr->stat_cur[A_STR]==p_ptr->stat_max[A_STR] && !p_ptr->sustain[A_STR]);
+	case SV_FOOD_CURE_SERIOUS: return (PY_FOOD_WEAK<=p_ptr->food && p_ptr->chp==p_ptr->mhp);
+	case SV_FOOD_CURE_CONFUSION: return (PY_FOOD_WEAK<=p_ptr->food && 0==p_ptr->timed[TMD_CONFUSED] && !p_ptr->resist_confu);
+	case SV_FOOD_PARALYSIS: return !p_ptr->free_act;
+	case SV_FOOD_HALLUCINATION: return !p_ptr->resist_chaos;
+	case SV_FOOD_CONFUSION: return !p_ptr->resist_confu;
+	case SV_FOOD_PARANOIA: return !p_ptr->resist_fear;
+	case SV_FOOD_POISON: return (!p_ptr->resist_pois || 0==p_ptr->timed[TMD_OPP_POIS]);
+	case SV_FOOD_BLINDNESS: return (!p_ptr->resist_blind);
+	default: return false;
+	};
+}
+/*
+	rest of old LUA implementation; these are more questionable
+
+	elseif object.sval == SV_FOOD_CURE_PARANOIA then
+		if player.food >= PY_FOOD_WEAK and 0==player.afraid and not player.resist_fear then is_moronic = true end
+	elseif object.sval == SV_FOOD_CURE_BLINDNESS then
+		if player.food >= PY_FOOD_WEAK and 0==player.blind and not player.resist_blind then is_moronic = true end
+	elseif object.sval == SV_FOOD_CURE_POISON then
+		if player.food >= PY_FOOD_WEAK and 0==player.poisoned and not (player.resist_pois or (player.oppose_pois > 0)) then is_moronic = true end
+*/
+
+static bool is_moronic_to_quaff(const object_type& o)
+{
+	switch(o.sval)
+	{
+	case SV_POTION_SLOWNESS:	/* fallthrough intentional */
+	case SV_POTION_DETONATIONS:
+	case SV_POTION_RUINATION:
+	case SV_POTION_DEATH:	return true;
+	case SV_POTION_SALT_WATER:	/* fallthrough intentional */
+	case SV_POTION_SLOW_POISON:
+	case SV_POTION_CURE_POISON:	return 0==p_ptr->timed[TMD_POISONED];
+	case SV_POTION_POISON: return !(p_ptr->resist_pois || 0<p_ptr->timed[TMD_OPP_POIS]);
+	case SV_POTION_BLINDNESS: return !p_ptr->resist_blind;
+	case SV_POTION_CONFUSION: return !p_ptr->resist_confu;
+	case SV_POTION_SLEEP: return !p_ptr->free_act;
+	case SV_POTION_LOSE_MEMORIES: return (!p_ptr->hold_life && 0<p_ptr->exp);
+	case SV_POTION_DEC_STR: return !p_ptr->sustain[A_STR];
+	case SV_POTION_DEC_INT: return !p_ptr->sustain[A_INT];
+	case SV_POTION_DEC_WIS: return !p_ptr->sustain[A_WIS];
+	case SV_POTION_DEC_DEX: return !p_ptr->sustain[A_DEX];
+	case SV_POTION_DEC_CON: return !p_ptr->sustain[A_CON];
+	case SV_POTION_DEC_CHR: return !p_ptr->sustain[A_CHR];
+	case SV_POTION_BOLDNESS: return 0==p_ptr->timed[TMD_AFRAID];
+	case SV_POTION_CURE_LIGHT: return (p_ptr->chp>=p_ptr->mhp && 0==p_ptr->timed[TMD_BLIND] && 0==p_ptr->timed[TMD_CUT]);
+	case SV_POTION_CURE_SERIOUS: return (p_ptr->chp>=p_ptr->mhp && 0==p_ptr->timed[TMD_BLIND] && 0==p_ptr->timed[TMD_CONFUSED] && 0==p_ptr->timed[TMD_CUT]);
+	case SV_POTION_CURE_CRITICAL:	/* fallthrough intentional */
+	case SV_POTION_HEALING:
+	case SV_POTION_STAR_HEALING: return (p_ptr->chp>=p_ptr->mhp && 0==p_ptr->timed[TMD_BLIND] && 0==p_ptr->timed[TMD_CONFUSED] && 0==p_ptr->timed[TMD_POISONED] && 0==p_ptr->timed[TMD_STUN] && 0==p_ptr->timed[TMD_CUT]);
+	case SV_POTION_RESTORE_MANA: return (p_ptr->csp>=p_ptr->msp);
+	case SV_POTION_RESTORE_EXP: return (p_ptr->exp>=p_ptr->max_exp);
+	case SV_POTION_RES_STR: return (p_ptr->stat_cur[A_STR]==p_ptr->stat_max[A_STR]);
+	case SV_POTION_RES_INT: return (p_ptr->stat_cur[A_INT]==p_ptr->stat_max[A_INT]);
+	case SV_POTION_RES_WIS: return (p_ptr->stat_cur[A_WIS]==p_ptr->stat_max[A_WIS]);
+	case SV_POTION_RES_DEX: return (p_ptr->stat_cur[A_DEX]==p_ptr->stat_max[A_DEX]);
+	case SV_POTION_RES_CON: return (p_ptr->stat_cur[A_CON]==p_ptr->stat_max[A_CON]);
+	case SV_POTION_RES_CHR: return (p_ptr->stat_cur[A_CHR]==p_ptr->stat_max[A_CHR]);
+	case SV_POTION_INC_STR: return (18+100==p_ptr->stat_cur[A_STR]);
+	case SV_POTION_INC_INT: return (18+100==p_ptr->stat_cur[A_INT]);
+	case SV_POTION_INC_WIS: return (18+100==p_ptr->stat_cur[A_WIS]);
+	case SV_POTION_INC_DEX: return (18+100==p_ptr->stat_cur[A_DEX]);
+	case SV_POTION_INC_CON: return (18+100==p_ptr->stat_cur[A_CON]);
+	case SV_POTION_INC_CHR: return (18+100==p_ptr->stat_cur[A_CHR]);
+	case SV_POTION_AUGMENTATION: return (18+100==p_ptr->stat_cur[A_STR] && 18+100==p_ptr->stat_cur[A_INT] && 18+100==p_ptr->stat_cur[A_WIS] && 18+100==p_ptr->stat_cur[A_DEX] && 18+100==p_ptr->stat_cur[A_CON] && 18+100==p_ptr->stat_cur[A_CHR]);
+	case SV_POTION_EXPERIENCE: return (PY_MAX_EXP<=p_ptr->exp);
+	default: return false;
+	};
+}
+
+static bool is_moronic_to_read(const object_type& o)
+{
+	switch(o.sval)
+	{
+	case SV_SCROLL_DARKNESS:	/* fallthrough intentional */
+	case SV_SCROLL_CURSE_ARMOR:
+	case SV_SCROLL_CURSE_WEAPON:	return true;
+	default: return false;
+	}
+}
+
+static bool is_moronic_to_invoke(const object_type& o)
+{
+	switch(o.sval)
+	{
+	case SV_STAFF_DARKNESS:	/* fallthrough intentional */
+	case SV_STAFF_SLOWNESS:	return true;
+	default: return false;
+	};
+}
+
+/* this function must be applied only to identified items */
+bool is_moronic_to_use(const object_type& o)
+{
+	/* wands are always useful in *some* circumstance; cf Moria suggestions for 
+	   heal/haste monster
+
+       no bad rods (yet; Heng has Rod of Aggravate Monster; however, there are circumstances 
+	   where waking up all of the monsters is better than taking one head-on...) */
+	switch(o.tval)
+	{
+	case TV_FOOD: return is_moronic_to_eat(o);
+	case TV_POTION: return is_moronic_to_quaff(o);
+	case TV_SCROLL: return is_moronic_to_read(o);
+	case TV_STAFF: return is_moronic_to_invoke(o);
+	default: return false;
+	};
+}
+

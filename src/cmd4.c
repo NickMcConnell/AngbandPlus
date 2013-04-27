@@ -9,6 +9,7 @@
  */
 
 #include "angband.h"
+#include "keypad.h"
 
 
 /*
@@ -353,19 +354,12 @@ void do_cmd_messages(void)
 	int i, j, n, q;
 	int wid, hgt;
 
-	char shower[80];
-	char finder[80];
-
-
-	/* Wipe finder */
-	strcpy(finder, "");
-
-	/* Wipe shower */
-	strcpy(shower, "");
+	char shower[80] = "";
+	char finder[80] = "";
 
 
 	/* Total messages */
-	n = message_num();
+	n = messages_num();
 
 	/* Start on first message */
 	i = 0;
@@ -819,7 +813,7 @@ static void do_cmd_options_win(void)
 				if ((i == y) && (j == x)) a = TERM_L_BLUE;
 
 				/* Active flag */
-				if (op_ptr->window_flag[j] & (1L << i)) c = 'X';
+				if (old_flag[j] & (1L << i)) c = 'X';
 
 				/* Flag value */
 				Term_putch(35 + j * 5, i + 5, a, c);
@@ -845,15 +839,15 @@ static void do_cmd_options_win(void)
 			}
 
 			/* Toggle flag (off) */
-			else if (op_ptr->window_flag[x] & (1L << y))
+			else if (old_flag[x] & (1L << y))
 			{
-				op_ptr->window_flag[x] &= ~(1L << y);
+				old_flag[x] &= ~(1L << y);
 			}
 
 			/* Toggle flag (on) */
 			else
 			{
-				op_ptr->window_flag[x] |= (1L << y);
+				old_flag[x] |= (1L << y);
 			}
 
 			/* Continue */
@@ -878,28 +872,7 @@ static void do_cmd_options_win(void)
 	}
 
 	/* Notice changes */
-	for (j = 0; j < ANGBAND_TERM_MAX; j++)
-	{
-		term *old = Term;
-
-		/* Dead window */
-		if (!angband_term[j]) continue;
-
-		/* Ignore non-changes */
-		if (op_ptr->window_flag[j] == old_flag[j]) continue;
-
-		/* Activate */
-		Term_activate(angband_term[j]);
-
-		/* Erase */
-		Term_clear();
-
-		/* Refresh */
-		Term_fresh();
-
-		/* Restore */
-		Term_activate(old);
-	}
+	subwindows_set_flags(old_flag, ANGBAND_TERM_MAX);
 }
 
 
@@ -972,7 +945,7 @@ static errr option_dump(cptr fname)
 		if (!angband_term[i]) continue;
 
 		/* Check each flag */
-		for (j = 0; j < 32; j++)
+		for (j = 0; j < (int)N_ELEMENTS(window_flag_desc); j++)
 		{
 			/* Require a real flag */
 			if (!window_flag_desc[j]) continue;
@@ -1954,13 +1927,13 @@ void do_cmd_visuals(void)
 			/* Dump monsters */
 			for (i = 0; i < z_info->r_max; i++)
 			{
-				monster_race *r_ptr = &r_info[i];
+				monster_race *r_ptr = &monster_type::r_info[i];
 
 				/* Skip non-entries */
-				if (!r_ptr->name) continue;
+				if (!r_ptr->_name) continue;
 
 				/* Dump a comment */
-				fprintf(fff, "# %s\n", (r_name + r_ptr->name));
+				fprintf(fff, "# %s\n", r_ptr->name());
 
 				/* Dump the monster attr/char info */
 				fprintf(fff, "R:%d:0x%02X:0x%02X\n\n", i,
@@ -2025,10 +1998,10 @@ void do_cmd_visuals(void)
 				object_kind *k_ptr = &object_type::k_info[i];
 
 				/* Skip non-entries */
-				if (!k_ptr->name) continue;
+				if (!k_ptr->_name) continue;
 
 				/* Dump a comment */
-				fprintf(fff, "# %s\n", (object_type::k_name + k_ptr->name));
+				fprintf(fff, "# %s\n", k_ptr->name());
 
 				/* Dump the object attr/char info */
 				fprintf(fff, "K:%d:0x%02X:0x%02X\n\n", i,
@@ -2090,13 +2063,13 @@ void do_cmd_visuals(void)
 			/* Dump features */
 			for (i = 0; i < z_info->f_max; i++)
 			{
-				feature_type *f_ptr = &f_info[i];
+				feature_type *f_ptr = &feature_type::f_info[i];
 
 				/* Skip non-entries */
-				if (!f_ptr->name) continue;
+				if (!f_ptr->_name) continue;
 
 				/* Dump a comment */
-				fprintf(fff, "# %s\n", (f_name + f_ptr->name));
+				fprintf(fff, "# %s\n", f_ptr->name());
 
 				/* Dump the feature attr/char info */
 				fprintf(fff, "F:%d:0x%02X:0x%02X\n\n", i,
@@ -2158,10 +2131,10 @@ void do_cmd_visuals(void)
 			/* Dump flavors */
 			for (i = 0; i < z_info->flavor_max; i++)
 			{
-				flavor_type *flavor_ptr = &object_type::flavor_info[i];
+				flavor_type *flavor_ptr = &object_kind::flavor_info[i];
 
 				/* Dump a comment */
-				fprintf(fff, "# %s\n", (object_type::flavor_text + flavor_ptr->text));
+				fprintf(fff, "# %s\n", (flavor_ptr->text()));
 
 				/* Dump the flavor attr/char info */
 				fprintf(fff, "L:%d:0x%02X:0x%02X\n\n", i,
@@ -2192,7 +2165,7 @@ void do_cmd_visuals(void)
 			/* Hack -- query until done */
 			while (1)
 			{
-				monster_race *r_ptr = &r_info[r];
+				monster_race *r_ptr = &monster_type::r_info[r];
 
 				byte da = (byte)(r_ptr->d_attr);
 				byte dc = (byte)(r_ptr->d_char);
@@ -2202,7 +2175,7 @@ void do_cmd_visuals(void)
 				/* Label the object */
 				Term_putstr(5, 17, -1, TERM_WHITE,
 				            format("Monster = %d, Name = %-40.40s",
-				                   r, (r_name + r_ptr->name)));
+				                   r, r_ptr->name()));
 
 				/* Label the Default values */
 				Term_putstr(10, 19, -1, TERM_WHITE,
@@ -2273,7 +2246,7 @@ void do_cmd_visuals(void)
 				/* Label the object */
 				Term_putstr(5, 17, -1, TERM_WHITE,
 				            format("Object = %d, Name = %-40.40s",
-				                   k, (object_type::k_name + k_ptr->name)));
+				                   k, k_ptr->name()));
 
 				/* Label the Default values */
 				Term_putstr(10, 19, -1, TERM_WHITE,
@@ -2334,7 +2307,7 @@ void do_cmd_visuals(void)
 			/* Hack -- query until done */
 			while (1)
 			{
-				feature_type *f_ptr = &f_info[f];
+				feature_type *f_ptr = &feature_type::f_info[f];
 
 				byte da = (byte)(f_ptr->d_attr);
 				byte dc = (byte)(f_ptr->d_char);
@@ -2344,7 +2317,7 @@ void do_cmd_visuals(void)
 				/* Label the object */
 				Term_putstr(5, 17, -1, TERM_WHITE,
 				            format("Terrain = %d, Name = %-40.40s",
-				                   f, (f_name + f_ptr->name)));
+				                   f, f_ptr->name()));
 
 				/* Label the Default values */
 				Term_putstr(10, 19, -1, TERM_WHITE,
@@ -2387,10 +2360,10 @@ void do_cmd_visuals(void)
 				/* Analyze */
 				if (cx == 'n') f = (f + z_info->f_max + 1) % z_info->f_max;
 				if (cx == 'N') f = (f + z_info->f_max - 1) % z_info->f_max;
-				if (cx == 'a') f_info[f].x_attr = (byte)(ca + 1);
-				if (cx == 'A') f_info[f].x_attr = (byte)(ca - 1);
-				if (cx == 'c') f_info[f].x_char = (byte)(cc + 1);
-				if (cx == 'C') f_info[f].x_char = (byte)(cc - 1);
+				if (cx == 'a') feature_type::f_info[f].x_attr = (byte)(ca + 1);
+				if (cx == 'A') feature_type::f_info[f].x_attr = (byte)(ca - 1);
+				if (cx == 'c') feature_type::f_info[f].x_char = (byte)(cc + 1);
+				if (cx == 'C') feature_type::f_info[f].x_char = (byte)(cc - 1);
 			}
 		}
 
@@ -2405,7 +2378,7 @@ void do_cmd_visuals(void)
 			/* Hack -- query until done */
 			while (1)
 			{
-				flavor_type *flavor_ptr = &object_type::flavor_info[f];
+				flavor_type *flavor_ptr = &object_kind::flavor_info[f];
 
 				byte da = (byte)(flavor_ptr->d_attr);
 				byte dc = (byte)(flavor_ptr->d_char);
@@ -2415,7 +2388,7 @@ void do_cmd_visuals(void)
 				/* Label the object */
 				Term_putstr(5, 17, -1, TERM_WHITE,
 				            format("Flavor = %d, Text = %-40.40s",
-				                   f, (object_type::flavor_text + flavor_ptr->text)));
+				                   f, (flavor_ptr->text())));
 
 				/* Label the Default values */
 				Term_putstr(10, 19, -1, TERM_WHITE,
@@ -2458,10 +2431,10 @@ void do_cmd_visuals(void)
 				/* Analyze */
 				if (cx == 'n') f = (f + z_info->flavor_max + 1) % z_info->flavor_max;
 				if (cx == 'N') f = (f + z_info->flavor_max - 1) % z_info->flavor_max;
-				if (cx == 'a') object_type::flavor_info[f].x_attr = (byte)(ca + 1);
-				if (cx == 'A') object_type::flavor_info[f].x_attr = (byte)(ca - 1);
-				if (cx == 'c') object_type::flavor_info[f].x_char = (byte)(cc + 1);
-				if (cx == 'C') object_type::flavor_info[f].x_char = (byte)(cc - 1);
+				if (cx == 'a') object_kind::flavor_info[f].x_attr = (byte)(ca + 1);
+				if (cx == 'A') object_kind::flavor_info[f].x_attr = (byte)(ca - 1);
+				if (cx == 'c') object_kind::flavor_info[f].x_char = (byte)(cc + 1);
+				if (cx == 'C') object_kind::flavor_info[f].x_char = (byte)(cc - 1);
 			}
 		}
 
@@ -2598,7 +2571,7 @@ void do_cmd_colors(void)
 			fprintf(fff, "# Color redefinitions\n\n");
 
 			/* Dump colors */
-			for (i = 0; i < 256; i++)
+			for (i = 0; i < MAX_COLORS; i++)
 			{
 				int kv = angband_color_table[i][0];
 				int rv = angband_color_table[i][1];
@@ -2611,7 +2584,7 @@ void do_cmd_colors(void)
 				if (!kv && !rv && !gv && !bv) continue;
 
 				/* Extract the color name */
-				if (i < 16) name = color_names[i];
+				if (i < BASIC_COLORS) name = color_names[i];
 
 				/* Dump a comment */
 				fprintf(fff, "# Color '%s'\n", name);
@@ -2651,7 +2624,7 @@ void do_cmd_colors(void)
 				clear_from(10);
 
 				/* Exhibit the normal colors */
-				for (i = 0; i < 16; i++)
+				for (i = 0; i < BASIC_COLORS; i++)
 				{
 					/* Exhibit this color */
 					Term_putstr(i*4, 20, -1, a, "###");
@@ -2661,7 +2634,7 @@ void do_cmd_colors(void)
 				}
 
 				/* Describe the color */
-				name = ((a < 16) ? color_names[a] : "undefined");
+				name = ((a < BASIC_COLORS) ? color_names[a] : "undefined");
 
 				/* Describe the color */
 				Term_putstr(5, 10, -1, TERM_WHITE,
@@ -2759,7 +2732,7 @@ void do_cmd_version(void)
 /*
  * Array of feeling strings
  */
-static cptr do_cmd_feeling_text[11] =
+static cptr feeling_text[] =
 {
 	"Looks like any other level.",
 	"You feel there is something special about this level.",
@@ -2792,7 +2765,7 @@ void do_cmd_feeling(void)
 	}
 
 	/* Display the feeling */
-	msg_print(do_cmd_feeling_text[feeling]);
+	msg_print(feeling_text[feeling]);
 }
 
 
@@ -2802,7 +2775,7 @@ void do_cmd_feeling(void)
 /*
  * Encode the screen colors
  */
-static const char hack[17] = "dwsorgbuDWvyRGBU";
+static const char hack[BASIC_COLORS+1] = "dwsorgbuDWvyRGBU";
 
 
 /*
@@ -2876,7 +2849,7 @@ void do_cmd_load_screen(void)
 			(void)(Term_what(x, y, &a, &c));
 
 			/* Look up the attr */
-			for (i = 0; i < 16; i++)
+			for (i = 0; i < BASIC_COLORS; i++)
 			{
 				/* Use attr matches */
 				if (hack[i] == buf[x]) a = i;
@@ -2950,13 +2923,13 @@ static void do_cmd_knowledge_artifacts(void)
 	/* Scan the artifacts */
 	for (k = 0; k < z_info->a_max; k++)
 	{
-		artifact_type *a_ptr = &a_info[k];
+		artifact_type *a_ptr = &object_type::a_info[k];
 
 		/* Default */
 		okay[k] = FALSE;
 
 		/* Skip "empty" artifacts */
-		if (!a_ptr->name) continue;
+		if (!a_ptr->_name) continue;
 
 		/* Skip "uncreated" artifacts */
 		if (!a_ptr->cur_num) continue;
@@ -3008,7 +2981,7 @@ static void do_cmd_knowledge_artifacts(void)
 	/* Scan the artifacts */
 	for (k = 0; k < z_info->a_max; k++)
 	{
-		artifact_type *a_ptr = &a_info[k];
+		artifact_type *a_ptr = &object_type::a_info[k];
 
 		/* List "dead" ones */
 		if (!okay[k]) continue;
@@ -3081,8 +3054,8 @@ static void do_cmd_knowledge_uniques(void)
 	/* Collect matching monsters */
 	for (i = 1, n = 0; i < z_info->r_max; i++)
 	{
-		monster_race *r_ptr = &r_info[i];
-		monster_lore *l_ptr = &l_list[i];
+		monster_race *r_ptr = &monster_type::r_info[i];
+		monster_lore *l_ptr = &monster_type::l_list[i];
 
 		/* Require known monsters */
 		if (!cheat_know && !l_ptr->sights) continue;
@@ -3105,14 +3078,14 @@ static void do_cmd_knowledge_uniques(void)
 	/* Print the monsters */
 	for (i = 0; i < n; i++)
 	{
-		monster_race *r_ptr = &r_info[who[i]];
+		monster_race *r_ptr = &monster_type::r_info[who[i]];
 		bool dead = (r_ptr->max_num == 0);
 
 		if (dead) killed++;
 
 		/* Print a message */
 		fprintf(fff, "     %-30s is %s\n",
-			    (r_name + r_ptr->name),
+			    r_ptr->name(),
 			    (dead ? "dead" : "alive"));
 	}
 
@@ -3218,8 +3191,8 @@ static void do_cmd_knowledge_kills(void)
 	/* Collect matching monsters */
 	for (n = 0, i = 1; i < z_info->r_max - 1; i++)
 	{
-		monster_race *r_ptr = &r_info[i];
-		monster_lore *l_ptr = &l_list[i];
+		monster_race *r_ptr = &monster_type::r_info[i];
+		monster_lore *l_ptr = &monster_type::l_list[i];
 
 		/* Require non-unique monsters */
 		if (r_ptr->flags1 & RF1_UNIQUE) continue;
@@ -3238,12 +3211,12 @@ static void do_cmd_knowledge_kills(void)
 	/* Print the monsters (highest kill counts first) */
 	for (i = n - 1; i >= 0; i--)
 	{
-		monster_race *r_ptr = &r_info[who[i]];
-		monster_lore *l_ptr = &l_list[who[i]];
+		monster_race *r_ptr = &monster_type::r_info[who[i]];
+		monster_lore *l_ptr = &monster_type::l_list[who[i]];
 
 		/* Print a message */
 		fprintf(fff, "     %-40s  %5d\n",
-		        (r_name + r_ptr->name), l_ptr->pkills);
+		        r_ptr->name(), l_ptr->pkills);
 	}
 
 	/* Free the "who" array */

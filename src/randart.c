@@ -12,632 +12,20 @@
 #include "angband.h"
 
 #include "init.h"
+#include "randname.h"
 
 /*
  * Random artifact generator (randart) by Greg Wooledge.
- *
- * The external "names.txt" file was sucked into this file for simplicity.
  */
 
-#ifdef GJW_RANDART
-
-static cptr names_list =
-"adanedhel\n"
-"adurant\n"
-"aeglos\n"
-"aegnor\n"
-"aelin\n"
-"aeluin\n"
-"aerandir\n"
-"aerin\n"
-"agarwaen\n"
-"aglareb\n"
-"aglarond\n"
-"aglon\n"
-"ainulindale\n"
-"ainur\n"
-"alcarinque\n"
-"aldaron\n"
-"aldudenie\n"
-"almaren\n"
-"alqualonde\n"
-"aman\n"
-"amandil\n"
-"amarie\n"
-"amarth\n"
-"amlach\n"
-"amon\n"
-"amras\n"
-"amrod\n"
-"anach\n"
-"anar\n"
-"anarion\n"
-"ancalagon\n"
-"ancalimon\n"
-"anarrima\n"
-"andor\n"
-"andram\n"
-"androth\n"
-"anduin\n"
-"andunie\n"
-"anfauglir\n"
-"anfauglith\n"
-"angainor\n"
-"angband\n"
-"anghabar\n"
-"anglachel\n"
-"angrenost\n"
-"angrim\n"
-"angrist\n"
-"angrod\n"
-"anguirel\n"
-"annael\n"
-"annatar\n"
-"annon\n"
-"annuminas\n"
-"apanonar\n"
-"aradan\n"
-"aragorn\n"
-"araman\n"
-"aranel\n"
-"aranruth\n"
-"aranwe\n"
-"aras\n"
-"aratan\n"
-"aratar\n"
-"arathorn\n"
-"arda\n"
-"ard-galen\n"
-"aredhel\n"
-"ar-feiniel\n"
-"argonath\n"
-"arien\n"
-"armenelos\n"
-"arminas\n"
-"arnor\n"
-"aros\n"
-"arossiach\n"
-"arthad\n"
-"arvernien\n"
-"arwen\n"
-"ascar\n"
-"astaldo\n"
-"atalante\n"
-"atanamir\n"
-"atanatari\n"
-"atani\n"
-"aule\n"
-"avallone\n"
-"avari\n"
-"avathar\n"
-"balan\n"
-"balar\n"
-"balrog\n"
-"barad\n"
-"baragund\n"
-"barahir\n"
-"baran\n"
-"baranduin\n"
-"bar\n"
-"bauglir\n"
-"beleg\n"
-"belegaer\n"
-"belegost\n"
-"belegund\n"
-"beleriand\n"
-"belfalas\n"
-"belthil\n"
-"belthronding\n"
-"beor\n"
-"beraid\n"
-"bereg\n"
-"beren\n"
-"boromir\n"
-"boron\n"
-"bragollach\n"
-"brandir\n"
-"bregolas\n"
-"bregor\n"
-"brethil\n"
-"brilthor\n"
-"brithiach\n"
-"brithombar\n"
-"brithon\n"
-"cabed\n"
-"calacirya\n"
-"calaquendi\n"
-"calenardhon\n"
-"calion\n"
-"camlost\n"
-"caragdur\n"
-"caranthir\n"
-"carcharoth\n"
-"cardolan\n"
-"carnil\n"
-"celeborn\n"
-"celebrant\n"
-"celebrimbor\n"
-"celebrindal\n"
-"celebros\n"
-"celegorm\n"
-"celon\n"
-"cirdan\n"
-"cirith\n"
-"cirth\n"
-"ciryatan\n"
-"ciryon\n"
-"coimas\n"
-"corollaire\n"
-"crissaegrim\n"
-"cuarthal\n"
-"cuivienen\n"
-"culurien\n"
-"curufin\n"
-"curufinwe\n"
-"curunir\n"
-"cuthalion\n"
-"daedeloth\n"
-"daeron\n"
-"dagnir\n"
-"dagor\n"
-"dagorlad\n"
-"dairuin\n"
-"danwedh\n"
-"delduwath\n"
-"denethor\n"
-"dimbar\n"
-"dimrost\n"
-"dinen\n"
-"dior\n"
-"dirnen\n"
-"dolmed\n"
-"doriath\n"
-"dorlas\n"
-"dorthonion\n"
-"draugluin\n"
-"drengist\n"
-"duath\n"
-"duinath\n"
-"duilwen\n"
-"dunedain\n"
-"dungortheb\n"
-"earendil\n"
-"earendur\n"
-"earnil\n"
-"earnur\n"
-"earrame\n"
-"earwen\n"
-"echor\n"
-"echoriath\n"
-"ecthelion\n"
-"edain\n"
-"edrahil\n"
-"eglador\n"
-"eglarest\n"
-"eglath\n"
-"eilinel\n"
-"eithel\n"
-"ekkaia\n"
-"elbereth\n"
-"eldalie\n"
-"eldalieva\n"
-"eldamar\n"
-"eldar\n"
-"eledhwen\n"
-"elemmire\n"
-"elende\n"
-"elendil\n"
-"elendur\n"
-"elenna\n"
-"elentari\n"
-"elenwe\n"
-"elerrina\n"
-"elleth\n"
-"elmoth\n"
-"elostirion\n"
-"elrond\n"
-"elros\n"
-"elu\n"
-"eluchil\n"
-"elured\n"
-"elurin\n"
-"elwe\n"
-"elwing\n"
-"emeldir\n"
-"endor\n"
-"engrin\n"
-"engwar\n"
-"eol\n"
-"eonwe\n"
-"ephel\n"
-"erchamion\n"
-"ereb\n"
-"ered\n"
-"erech\n"
-"eregion\n"
-"ereinion\n"
-"erellont\n"
-"eressea\n"
-"eriador\n"
-"eru\n"
-"esgalduin\n"
-"este\n"
-"estel\n"
-"estolad\n"
-"ethir\n"
-"ezellohar\n"
-"faelivrin\n"
-"falas\n"
-"falathar\n"
-"falathrim\n"
-"falmari\n"
-"faroth\n"
-"fauglith\n"
-"feanor\n"
-"feanturi\n"
-"felagund\n"
-"finarfin\n"
-"finduilas\n"
-"fingolfin\n"
-"fingon\n"
-"finwe\n"
-"firimar\n"
-"formenos\n"
-"fornost\n"
-"frodo\n"
-"fuin\n"
-"fuinur\n"
-"gabilgathol\n"
-"galad\n"
-"galadriel\n"
-"galathilion\n"
-"galdor\n"
-"galen\n"
-"galvorn\n"
-"gandalf\n"
-"gaurhoth\n"
-"gelion\n"
-"gelmir\n"
-"gelydh\n"
-"gil\n"
-"gildor\n"
-"giliath\n"
-"ginglith\n"
-"girith\n"
-"glaurung\n"
-"glingal\n"
-"glirhuin\n"
-"gloredhel\n"
-"glorfindel\n"
-"golodhrim\n"
-"gondolin\n"
-"gondor\n"
-"gonnhirrim\n"
-"gorgoroth\n"
-"gorlim\n"
-"gorthaur\n"
-"gorthol\n"
-"gothmog\n"
-"guilin\n"
-"guinar\n"
-"guldur\n"
-"gundor\n"
-"gurthang\n"
-"gwaith\n"
-"gwareth\n"
-"gwindor\n"
-"hadhodrond\n"
-"hador\n"
-"haladin\n"
-"haldad\n"
-"haldan\n"
-"haldar\n"
-"haldir\n"
-"haleth\n"
-"halmir\n"
-"handir\n"
-"harad\n"
-"hareth\n"
-"hathaldir\n"
-"hathol\n"
-"haudh\n"
-"helcar\n"
-"helcaraxe\n"
-"helevorn\n"
-"helluin\n"
-"herumor\n"
-"herunumen\n"
-"hildorien\n"
-"himlad\n"
-"himring\n"
-"hirilorn\n"
-"hisilome\n"
-"hithaeglir\n"
-"hithlum\n"
-"hollin\n"
-"huan\n"
-"hunthor\n"
-"huor\n"
-"hurin\n"
-"hyarmendacil\n"
-"hyarmentir\n"
-"iant\n"
-"iaur\n"
-"ibun\n"
-"idril\n"
-"illuin\n"
-"ilmare\n"
-"ilmen\n"
-"iluvatar\n"
-"imlach\n"
-"imladris\n"
-"indis\n"
-"ingwe\n"
-"irmo\n"
-"isil\n"
-"isildur\n"
-"istari\n"
-"ithil\n"
-"ivrin\n"
-"kelvar\n"
-"kementari\n"
-"ladros\n"
-"laiquendi\n"
-"lalaith\n"
-"lamath\n"
-"lammoth\n"
-"lanthir\n"
-"laurelin\n"
-"leithian\n"
-"legolin\n"
-"lembas\n"
-"lenwe\n"
-"linaewen\n"
-"lindon\n"
-"lindorie\n"
-"loeg\n"
-"lomelindi\n"
-"lomin\n"
-"lomion\n"
-"lorellin\n"
-"lorien\n"
-"lorindol\n"
-"losgar\n"
-"lothlann\n"
-"lothlorien\n"
-"luin\n"
-"luinil\n"
-"lumbar\n"
-"luthien\n"
-"mablung\n"
-"maedhros\n"
-"maeglin\n"
-"maglor\n"
-"magor\n"
-"mahanaxar\n"
-"mahtan\n"
-"maiar\n"
-"malduin\n"
-"malinalda\n"
-"mandos\n"
-"manwe\n"
-"mardil\n"
-"melian\n"
-"melkor\n"
-"menegroth\n"
-"meneldil\n"
-"menelmacar\n"
-"meneltarma\n"
-"minas\n"
-"minastir\n"
-"mindeb\n"
-"mindolluin\n"
-"mindon\n"
-"minyatur\n"
-"mirdain\n"
-"miriel\n"
-"mithlond\n"
-"mithrandir\n"
-"mithrim\n"
-"mordor\n"
-"morgoth\n"
-"morgul\n"
-"moria\n"
-"moriquendi\n"
-"mormegil\n"
-"morwen\n"
-"nahar\n"
-"naeramarth\n"
-"namo\n"
-"nandor\n"
-"nargothrond\n"
-"narog\n"
-"narsil\n"
-"narsilion\n"
-"narya\n"
-"nauglamir\n"
-"naugrim\n"
-"ndengin\n"
-"neithan\n"
-"neldoreth\n"
-"nenar\n"
-"nenning\n"
-"nenuial\n"
-"nenya\n"
-"nerdanel\n"
-"nessa\n"
-"nevrast\n"
-"nibin\n"
-"nienna\n"
-"nienor\n"
-"nimbrethil\n"
-"nimloth\n"
-"nimphelos\n"
-"nimrais\n"
-"nimras\n"
-"ningloron\n"
-"niniel\n"
-"ninniach\n"
-"ninquelote\n"
-"niphredil\n"
-"nirnaeth\n"
-"nivrim\n"
-"noegyth\n"
-"nogrod\n"
-"noldolante\n"
-"noldor\n"
-"numenor\n"
-"nurtale\n"
-"obel\n"
-"ohtar\n"
-"oiolosse\n"
-"oiomure\n"
-"olorin\n"
-"olvar\n"
-"olwe\n"
-"ondolinde\n"
-"orfalch\n"
-"ormal\n"
-"orocarni\n"
-"orodreth\n"
-"orodruin\n"
-"orome\n"
-"oromet\n"
-"orthanc\n"
-"osgiliath\n"
-"osse\n"
-"ossiriand\n"
-"palantir\n"
-"pelargir\n"
-"pelori\n"
-"periannath\n"
-"quendi\n"
-"quenta\n"
-"quenya\n"
-"radagast\n"
-"radhruin\n"
-"ragnor\n"
-"ramdal\n"
-"rana\n"
-"rathloriel\n"
-"rauros\n"
-"region\n"
-"rerir\n"
-"rhovanion\n"
-"rhudaur\n"
-"rhun\n"
-"rhunen\n"
-"rian\n"
-"ringil\n"
-"ringwil\n"
-"romenna\n"
-"rudh\n"
-"rumil\n"
-"saeros\n"
-"salmar\n"
-"saruman\n"
-"sauron\n"
-"serech\n"
-"seregon\n"
-"serinde\n"
-"shelob\n"
-"silmarien\n"
-"silmaril\n"
-"silpion\n"
-"sindar\n"
-"singollo\n"
-"sirion\n"
-"soronume\n"
-"sul\n"
-"sulimo\n"
-"talath\n"
-"taniquetil\n"
-"tar\n"
-"taras\n"
-"tarn\n"
-"tathren\n"
-"taur\n"
-"tauron\n"
-"teiglin\n"
-"telchar\n"
-"telemnar\n"
-"teleri\n"
-"telperion\n"
-"telumendil\n"
-"thalion\n"
-"thalos\n"
-"thangorodrim\n"
-"thargelion\n"
-"thingol\n"
-"thoronath\n"
-"thorondor\n"
-"thranduil\n"
-"thuringwethil\n"
-"tilion\n"
-"tintalle\n"
-"tinuviel\n"
-"tirion\n"
-"tirith\n"
-"tol\n"
-"tulkas\n"
-"tumhalad\n"
-"tumladen\n"
-"tuna\n"
-"tuor\n"
-"turambar\n"
-"turgon\n"
-"turin\n"
-"uial\n"
-"uilos\n"
-"uinen\n"
-"ulairi\n"
-"ulmo\n"
-"ulumuri\n"
-"umanyar\n"
-"umarth\n"
-"umbar\n"
-"ungoliant\n"
-"urthel\n"
-"uruloki\n"
-"utumno\n"
-"vaire\n"
-"valacirca\n"
-"valandil\n"
-"valaquenta\n"
-"valar\n"
-"valaraukar\n"
-"valaroma\n"
-"valier\n"
-"valimar\n"
-"valinor\n"
-"valinoreva\n"
-"valmar\n"
-"vana\n"
-"vanyar\n"
-"varda\n"
-"vasa\n"
-"vilya\n"
-"vingilot\n"
-"vinyamar\n"
-"voronwe\n"
-"wethrin\n"
-"wilwarin\n"
-"yavanna\n"
-;
-
 #define MAX_TRIES 200
-#define BUFLEN 1024
 
+/* Random name parameters */
+#define BUFLEN 1024
 #define MIN_NAME_LEN 5
 #define MAX_NAME_LEN 9
-#define S_WORD 26
-#define E_WORD S_WORD
 
 #define sign(x)	((x) > 0 ? 1 : ((x) < 0 ? -1 : 0))
-
-
-static unsigned short lprobs[S_WORD+1][S_WORD+1][S_WORD+1];
-static unsigned short ltotal[S_WORD+1][S_WORD+1];
 
 /*
  * Cache the results of lookup_kind(), which is expensive and would
@@ -650,109 +38,7 @@ static int randart_verbose = 0;
 
 
 /*
- * Use W. Sheldon Simms' random name generator.  This function builds
- * probability tables which are used later on for letter selection.  It
- * relies on the ASCII character set.
- */
-static void build_prob(cptr learn)
-{
-	int c_prev, c_cur, c_next;
-
-	/* Build raw frequencies */
-	do
-	{
-		c_prev = c_cur = S_WORD;
-
-		do
-		{
-			c_next = *learn++;
-		} while (!isalpha((unsigned char)c_next) && (c_next != '\0'));
-
-		if (c_next == '\0') break;
-
-		do
-		{
-			c_next = A2I(tolower((unsigned char)c_next));
-			lprobs[c_prev][c_cur][c_next]++;
-			ltotal[c_prev][c_cur]++;
-			c_prev = c_cur;
-			c_cur = c_next;
-			c_next = *learn++;
-		} while (isalpha((unsigned char)c_next));
-
-		lprobs[c_prev][c_cur][E_WORD]++;
-		ltotal[c_prev][c_cur]++;
-	}
-	while (c_next != '\0');
-}
-
-
-/*
- * Use W. Sheldon Simms' random name generator.  Generate a random word using
- * the probability tables we built earlier.  Relies on the ASCII character
- * set.  Relies on European vowels (a, e, i, o, u).  The generated name should
- * be copied/used before calling this function again.
- */
-static char *make_word(void)
-{
-	static char word_buf[90];
-	int r, totalfreq;
-	int tries, lnum, vow;
-	int c_prev, c_cur, c_next;
-	char *cp;
-
-startover:
-	vow = 0;
-	lnum = 0;
-	tries = 0;
-	cp = word_buf;
-	c_prev = c_cur = S_WORD;
-
-	while (1)
-	{
-	    getletter:
-		c_next = 0;
-		r = rand_int(ltotal[c_prev][c_cur]);
-		totalfreq = lprobs[c_prev][c_cur][c_next];
-
-		while (totalfreq <= r)
-		{
-			c_next++;
-			totalfreq += lprobs[c_prev][c_cur][c_next];
-		}
-
-		if (c_next == E_WORD)
-		{
-			if ((lnum < MIN_NAME_LEN) || vow == 0)
-			{
-				tries++;
-				if (tries < 10) goto getletter;
-				goto startover;
-			}
-			*cp = '\0';
-			break;
-		}
-
-		if (lnum >= MAX_NAME_LEN) goto startover;
-
-		*cp = I2A(c_next);
-
-		if (is_a_vowel(*cp)) vow++;
-
-		cp++;
-		lnum++;
-		c_prev = c_cur;
-		c_cur = c_next;
-	}
-
-	word_buf[0] = toupper((unsigned char)word_buf[0]);
-
-	return (word_buf);
-}
-
-
-/*
- * Use W. Sheldon Simms' random name generator.
+ * Use W. Sheldon Simms' random name generator from randname.c 
  */
 static errr init_names(void)
 {
@@ -765,21 +51,17 @@ static errr init_names(void)
 	/* Temporary space for names, while reading and randomizing them. */
 	cptr *names;
 
-
-	build_prob(names_list);
-
 	/* Allocate the "names" array */
 	/* ToDo: Make sure the memory is freed correctly in case of errors */
 	C_MAKE(names, z_info->a_max, cptr);
 
 	for (i = 0; i < z_info->a_max; i++)
 	{
-		char *word = make_word();
+		char word[MAX_NAME_LEN + 1];
+		randname_make(RANDNAME_TOLKIEN, MIN_NAME_LEN, MAX_NAME_LEN, word, sizeof word);
+		word[0] = toupper((unsigned char) word[0]);
 
-		if (rand_int(3) == 0)
-			strnfmt(buf, sizeof(buf), "'%s'", word);
-		else
-			strnfmt(buf, sizeof(buf), "of %s", word);
+		strnfmt(buf, sizeof(buf),(one_in_(3) ? "'%s'" : "of %s"), word);
 
 		names[i] = string_make(buf);
 	}
@@ -807,13 +89,13 @@ static errr init_names(void)
 	for (i = 1; i < z_info->a_max; i++)
 	{
 		strcpy(a_next, names[i-1]);
-		if (a_info[i].tval > 0)		/* skip unused! */
-			a_info[i].name = a_next - a_base;
+		if (object_type::a_info[i].tval > 0)		/* skip unused! */
+			object_type::a_info[i]._name = a_next - a_base;
 		a_next += strlen(names[i-1]) + 1;
 	}
 
 	/* Free the old names */
-	FREE(a_name);
+	FREE(artifact_type::a_name);
 
 	for (i = 0; i < z_info->a_max; i++)
 	{
@@ -824,7 +106,7 @@ static errr init_names(void)
 	FREE((void*)names);
 
 	/* Store the names */
-	a_name = a_base;
+	artifact_type::a_name = a_base;
 	a_head.name_ptr = a_base;
 	a_head.name_size = name_size;
 
@@ -861,7 +143,7 @@ static int bow_multiplier(int sval)
  */
 static s32b artifact_power(int a_idx)
 {
-	const artifact_type *a_ptr = &a_info[a_idx];
+	const artifact_type *a_ptr = &object_type::a_info[a_idx];
 	s32b p = 0;
 	s16b k_idx;
 	object_kind *k_ptr;
@@ -929,7 +211,7 @@ static s32b artifact_power(int a_idx)
 		case TV_POLEARM:
 		case TV_SWORD:
 		{
-			p += (a_ptr->dd * a_ptr->ds + 1) / 2;
+			p += (a_ptr->d.maxroll() + 1) / 2;
 			if (a_ptr->flags1 & TR1_SLAY_EVIL) p = (p * 3) / 2;
 			if (a_ptr->flags1 & TR1_KILL_DRAGON) p = (p * 3) / 2;
 			if (a_ptr->flags1 & TR1_KILL_DEMON) p = (p * 3) / 2;
@@ -1098,7 +380,7 @@ static s32b artifact_power(int a_idx)
  */
 static void choose_item(int a_idx)
 {
-	artifact_type *a_ptr = &a_info[a_idx];
+	artifact_type *a_ptr = &object_type::a_info[a_idx];
 	int tval, sval;
 	object_kind *k_ptr;
 	int r;
@@ -1318,8 +600,7 @@ static void choose_item(int a_idx)
 	a_ptr->to_d = k_ptr->to_d;
 	a_ptr->to_a = k_ptr->to_a;
 	a_ptr->ac = k_ptr->ac;
-	a_ptr->dd = k_ptr->dd;
-	a_ptr->ds = k_ptr->ds;
+	a_ptr->d = k_ptr->d;
 	a_ptr->weight = k_ptr->weight;
 	a_ptr->flags1 = k_ptr->flags1;
 	a_ptr->flags2 = k_ptr->flags2;
@@ -1339,7 +620,7 @@ static void choose_item(int a_idx)
 			a_ptr->to_h += (s16b)(a_ptr->level / 10 + rand_int(4) +
 			                      rand_int(4));
 			a_ptr->to_d += (s16b)(a_ptr->level / 10 + rand_int(4));
-			a_ptr->to_d += (s16b)(rand_int((a_ptr->dd * a_ptr->ds) / 2 + 1));
+			a_ptr->to_d += (s16b)(rand_int(a_ptr->d.maxroll() / 2 + 1));
 			break;
 		case TV_BOOTS:
 		case TV_GLOVES:
@@ -1364,10 +645,10 @@ static void choose_item(int a_idx)
 			{
 			case TV_SOFT_ARMOR:
 			case TV_HARD_ARMOR:
-				if (rand_int(2) == 0) a_ptr->flags2 |= TR2_RES_ACID;
-				if (rand_int(2) == 0) a_ptr->flags2 |= TR2_RES_ELEC;
-				if (rand_int(2) == 0) a_ptr->flags2 |= TR2_RES_COLD;
-				if (rand_int(2) == 0) a_ptr->flags2 |= TR2_RES_FIRE;
+				if (one_in_(2)) a_ptr->flags2 |= TR2_RES_ACID;
+				if (one_in_(2)) a_ptr->flags2 |= TR2_RES_ELEC;
+				if (one_in_(2)) a_ptr->flags2 |= TR2_RES_COLD;
+				if (one_in_(2)) a_ptr->flags2 |= TR2_RES_FIRE;
 				break;
 			}
 			break;
@@ -1384,9 +665,9 @@ static void do_pval(artifact_type *a_ptr)
 	if (a_ptr->pval == 0) a_ptr->pval = (s16b)(1 + rand_int(3));
 	else if (a_ptr->pval < 0)
 	{
-		if (rand_int(2) == 0) a_ptr->pval--;
+		if (one_in_(2)) a_ptr->pval--;
 	}
-	else if (rand_int(3) > 0) a_ptr->pval++;
+	else if (!one_in_(3)) a_ptr->pval++;
 }
 
 
@@ -1459,7 +740,7 @@ static void add_ability(artifact_type *a_ptr)
 				{
 					a_ptr->flags1 |= TR1_WIS;
 					do_pval(a_ptr);
-					if (rand_int(2) == 0) a_ptr->flags2 |= TR2_SUST_WIS;
+					if (one_in_(2)) a_ptr->flags2 |= TR2_SUST_WIS;
 					if ((a_ptr->tval == TV_SWORD) ||
 					    (a_ptr->tval == TV_POLEARM))
 						a_ptr->flags3 |= TR3_BLESSED;
@@ -1467,27 +748,27 @@ static void add_ability(artifact_type *a_ptr)
 				else if (r < 7)
 				{
 					a_ptr->flags1 |= TR1_BRAND_ACID;
-					if (rand_int(4) > 0) a_ptr->flags2 |= TR2_RES_ACID;
+					if (!one_in_(4)) a_ptr->flags2 |= TR2_RES_ACID;
 				}
 				else if (r < 10)
 				{
 					a_ptr->flags1 |= TR1_BRAND_ELEC;
-					if (rand_int(4) > 0) a_ptr->flags2 |= TR2_RES_ELEC;
+					if (!one_in_(4)) a_ptr->flags2 |= TR2_RES_ELEC;
 				}
 				else if (r < 15)
 				{
 					a_ptr->flags1 |= TR1_BRAND_FIRE;
-					if (rand_int(4) > 0) a_ptr->flags2 |= TR2_RES_FIRE;
+					if (!one_in_(4)) a_ptr->flags2 |= TR2_RES_FIRE;
 				}
 				else if (r < 20)
 				{
 					a_ptr->flags1 |= TR1_BRAND_COLD;
-					if (rand_int(4) > 0) a_ptr->flags2 |= TR2_RES_COLD;
+					if (!one_in_(4)) a_ptr->flags2 |= TR2_RES_COLD;
 				}
 				else if (r < 28)
 				{
-					a_ptr->dd += (byte)(1 + rand_int(2) + rand_int(2));
-					if (a_ptr->dd > 9) a_ptr->dd = 9;
+					a_ptr->d.dice += (byte)(1 + rand_int(2) + rand_int(2));
+					if (a_ptr->d.dice > 9) a_ptr->d.dice = 9;
 				}
 				else if (r < 31) a_ptr->flags1 |= TR1_KILL_DRAGON;
 				else if (r < 35) a_ptr->flags1 |= TR1_SLAY_DRAGON;
@@ -1497,30 +778,30 @@ static void add_ability(artifact_type *a_ptr)
 				else if (r < 50)
 				{
 					a_ptr->flags1 |= TR1_SLAY_UNDEAD;
-					if (rand_int(2) == 0) a_ptr->flags1 |= TR1_SLAY_DEMON;
+					if (one_in_(2)) a_ptr->flags1 |= TR1_SLAY_DEMON;
 				}
 				else if (r < 54)
 				{
 					a_ptr->flags1 |= TR1_SLAY_DEMON;
-					if (rand_int(2) == 0) a_ptr->flags1 |= TR1_SLAY_UNDEAD;
+					if (one_in_(2)) a_ptr->flags1 |= TR1_SLAY_UNDEAD;
 				}
 				else if (r < 59)
 				{
 					a_ptr->flags1 |= TR1_SLAY_ORC;
-					if (rand_int(2) == 0) a_ptr->flags1 |= TR1_SLAY_TROLL;
-					if (rand_int(2) == 0) a_ptr->flags1 |= TR1_SLAY_GIANT;
+					if (one_in_(2)) a_ptr->flags1 |= TR1_SLAY_TROLL;
+					if (one_in_(2)) a_ptr->flags1 |= TR1_SLAY_GIANT;
 				}
 				else if (r < 63)
 				{
 					a_ptr->flags1 |= TR1_SLAY_TROLL;
-					if (rand_int(2) == 0) a_ptr->flags1 |= TR1_SLAY_ORC;
-					if (rand_int(2) == 0) a_ptr->flags1 |= TR1_SLAY_GIANT;
+					if (one_in_(2)) a_ptr->flags1 |= TR1_SLAY_ORC;
+					if (one_in_(2)) a_ptr->flags1 |= TR1_SLAY_GIANT;
 				}
 				else if (r < 67)
 				{
 					a_ptr->flags1 |= TR1_SLAY_GIANT;
-					if (rand_int(2) == 0) a_ptr->flags1 |= TR1_SLAY_ORC;
-					if (rand_int(2) == 0) a_ptr->flags1 |= TR1_SLAY_TROLL;
+					if (one_in_(2)) a_ptr->flags1 |= TR1_SLAY_ORC;
+					if (one_in_(2)) a_ptr->flags1 |= TR1_SLAY_TROLL;
 				}
 				else if (r < 72) a_ptr->flags3 |= TR3_SEE_INVIS;
 				else if (r < 76)
@@ -1569,7 +850,7 @@ static void add_ability(artifact_type *a_ptr)
 
 					if (a_ptr->pval == 0)
 						a_ptr->pval = (s16b)(3 + rand_int(8));
-					else if (rand_int(2) == 0)
+					else if (one_in_(2))
 						a_ptr->pval++;
 				}
 				else
@@ -1646,7 +927,7 @@ static void add_ability(artifact_type *a_ptr)
 				{
 					a_ptr->flags1 |= TR1_CON;
 					do_pval(a_ptr);
-					if (rand_int(2) == 0)
+					if (one_in_(2))
 						a_ptr->flags2 |= TR2_SUST_CON;
 				}
 				else if (r < 34) a_ptr->flags2 |= TR2_RES_ACID;
@@ -1668,34 +949,34 @@ static void add_ability(artifact_type *a_ptr)
 			case 0:
 				a_ptr->flags1 |= TR1_STR;
 				do_pval(a_ptr);
-				if (rand_int(2) == 0) a_ptr->flags2 |= TR2_SUST_STR;
+				if (one_in_(2)) a_ptr->flags2 |= TR2_SUST_STR;
 				break;
 			case 1:
 				a_ptr->flags1 |= TR1_INT;
 				do_pval(a_ptr);
-				if (rand_int(2) == 0) a_ptr->flags2 |= TR2_SUST_INT;
+				if (one_in_(2)) a_ptr->flags2 |= TR2_SUST_INT;
 				break;
 			case 2:
 				a_ptr->flags1 |= TR1_WIS;
 				do_pval(a_ptr);
-				if (rand_int(2) == 0) a_ptr->flags2 |= TR2_SUST_WIS;
+				if (one_in_(2)) a_ptr->flags2 |= TR2_SUST_WIS;
 				if (a_ptr->tval == TV_SWORD || a_ptr->tval == TV_POLEARM)
 					a_ptr->flags3 |= TR3_BLESSED;
 				break;
 			case 3:
 				a_ptr->flags1 |= TR1_DEX;
 				do_pval(a_ptr);
-				if (rand_int(2) == 0) a_ptr->flags2 |= TR2_SUST_DEX;
+				if (one_in_(2)) a_ptr->flags2 |= TR2_SUST_DEX;
 				break;
 			case 4:
 				a_ptr->flags1 |= TR1_CON;
 				do_pval(a_ptr);
-				if (rand_int(2) == 0) a_ptr->flags2 |= TR2_SUST_CON;
+				if (one_in_(2)) a_ptr->flags2 |= TR2_SUST_CON;
 				break;
 			case 5:
 				a_ptr->flags1 |= TR1_CHR;
 				do_pval(a_ptr);
-				if (rand_int(2) == 0) a_ptr->flags2 |= TR2_SUST_CHR;
+				if (one_in_(2)) a_ptr->flags2 |= TR2_SUST_CHR;
 				break;
 
 			case 6:
@@ -1718,7 +999,7 @@ static void add_ability(artifact_type *a_ptr)
 
 			case 10:
 				a_ptr->flags2 |= TR2_SUST_STR;
-				if (rand_int(2) == 0)
+				if (one_in_(2))
 				{
 					a_ptr->flags1 |= TR1_STR;
 					do_pval(a_ptr);
@@ -1726,7 +1007,7 @@ static void add_ability(artifact_type *a_ptr)
 				break;
 			case 11:
 				a_ptr->flags2 |= TR2_SUST_INT;
-				if (rand_int(2) == 0)
+				if (one_in_(2))
 				{
 					a_ptr->flags1 |= TR1_INT;
 					do_pval(a_ptr);
@@ -1734,7 +1015,7 @@ static void add_ability(artifact_type *a_ptr)
 				break;
 			case 12:
 				a_ptr->flags2 |= TR2_SUST_WIS;
-				if (rand_int(2) == 0)
+				if (one_in_(2))
 				{
 					a_ptr->flags1 |= TR1_WIS;
 					do_pval(a_ptr);
@@ -1744,7 +1025,7 @@ static void add_ability(artifact_type *a_ptr)
 				break;
 			case 13:
 				a_ptr->flags2 |= TR2_SUST_DEX;
-				if (rand_int(2) == 0)
+				if (one_in_(2))
 				{
 					a_ptr->flags1 |= TR1_DEX;
 					do_pval(a_ptr);
@@ -1752,7 +1033,7 @@ static void add_ability(artifact_type *a_ptr)
 				break;
 			case 14:
 				a_ptr->flags2 |= TR2_SUST_CON;
-				if (rand_int(2) == 0)
+				if (one_in_(2))
 				{
 					a_ptr->flags1 |= TR1_CON;
 					do_pval(a_ptr);
@@ -1760,7 +1041,7 @@ static void add_ability(artifact_type *a_ptr)
 				break;
 			case 15:
 				a_ptr->flags2 |= TR2_SUST_CHR;
-				if (rand_int(2) == 0)
+				if (one_in_(2))
 				{
 					a_ptr->flags1 |= TR1_CHR;
 					do_pval(a_ptr);
@@ -1769,22 +1050,22 @@ static void add_ability(artifact_type *a_ptr)
 
 			case 16:
 			{
-				if (rand_int(3) == 0) a_ptr->flags2 |= TR2_IM_ACID;
+				if (one_in_(3)) a_ptr->flags2 |= TR2_IM_ACID;
 				break;
 			}
 			case 17:
 			{
-				if (rand_int(3) == 0) a_ptr->flags2 |= TR2_IM_ELEC;
+				if (one_in_(3)) a_ptr->flags2 |= TR2_IM_ELEC;
 				break;
 			}
 			case 18:
 			{
-				if (rand_int(4) == 0) a_ptr->flags2 |= TR2_IM_FIRE;
+				if (one_in_(4)) a_ptr->flags2 |= TR2_IM_FIRE;
 				break;
 			}
 			case 19:
 			{
-				if (rand_int(3) == 0) a_ptr->flags2 |= TR2_IM_COLD;
+				if (one_in_(3)) a_ptr->flags2 |= TR2_IM_COLD;
 				break;
 			}
 			case 20: a_ptr->flags3 |= TR3_FREE_ACT; break;
@@ -1802,20 +1083,20 @@ static void add_ability(artifact_type *a_ptr)
 			case 31: a_ptr->flags2 |= TR2_RES_SOUND; break;
 			case 32: a_ptr->flags2 |= TR2_RES_SHARD; break;
 			case 33:
-				if (rand_int(2) == 0)
+				if (one_in_(2))
 					a_ptr->flags2 |= TR2_RES_NETHR;
 				break;
 			case 34: a_ptr->flags2 |= TR2_RES_NEXUS; break;
 			case 35: a_ptr->flags2 |= TR2_RES_CHAOS; break;
 			case 36:
-				if (rand_int(2) == 0)
+				if (one_in_(2))
 					a_ptr->flags2 |= TR2_RES_DISEN;
 				break;
 			case 37: a_ptr->flags3 |= TR3_FEATHER; break;
 			case 38: a_ptr->flags3 |= TR3_LITE; break;
 			case 39: a_ptr->flags3 |= TR3_SEE_INVIS; break;
 			case 40:
-				if (rand_int(3) == 0)
+				if (one_in_(3))
 					a_ptr->flags3 |= TR3_TELEPATHY;
 				break;
 			case 41: a_ptr->flags3 |= TR3_SLOW_DIGEST; break;
@@ -1833,38 +1114,38 @@ static void add_ability(artifact_type *a_ptr)
  */
 static void do_curse(artifact_type *a_ptr)
 {
-	if (rand_int(3) == 0)
+	if (one_in_(3))
 		a_ptr->flags3 |= TR3_AGGRAVATE;
-	if (rand_int(5) == 0)
+	if (one_in_(5))
 		a_ptr->flags3 |= TR3_DRAIN_EXP;
-	if (rand_int(7) == 0)
+	if (one_in_(7))
 		a_ptr->flags3 |= TR3_TELEPORT;
 
-	if ((a_ptr->pval > 0) && (rand_int(2) == 0))
+	if ((a_ptr->pval > 0) && one_in_(2))
 		a_ptr->pval = -a_ptr->pval;
-	if ((a_ptr->to_a > 0) && (rand_int(2) == 0))
+	if ((a_ptr->to_a > 0) && one_in_(2))
 		a_ptr->to_a = -a_ptr->to_a;
-	if ((a_ptr->to_h > 0) && (rand_int(2) == 0))
+	if ((a_ptr->to_h > 0) && one_in_(2))
 		a_ptr->to_h = -a_ptr->to_h;
-	if ((a_ptr->to_d > 0) && (rand_int(4) == 0))
+	if ((a_ptr->to_d > 0) && one_in_(4))
 		a_ptr->to_d = -a_ptr->to_d;
 
 	if (a_ptr->flags3 & TR3_LIGHT_CURSE)
 	{
-		if (rand_int(2) == 0) a_ptr->flags3 |= TR3_HEAVY_CURSE;
+		if (one_in_(2)) a_ptr->flags3 |= TR3_HEAVY_CURSE;
 		return;
 	}
 
 	a_ptr->flags3 |= TR3_LIGHT_CURSE;
 
-	if (rand_int(4) == 0)
+	if (one_in_(4))
 		a_ptr->flags3 |= TR3_HEAVY_CURSE;
 }
 
 
 static void scramble_artifact(int a_idx)
 {
-	artifact_type *a_ptr = &a_info[a_idx];
+	artifact_type *a_ptr = &object_type::a_info[a_idx];
 	u32b activates = a_ptr->flags3 & TR3_ACTIVATE;
 	s32b power;
 	int tries;
@@ -2019,7 +1300,7 @@ static bool artifacts_acceptable(void)
 
 	for (i = ART_MIN_NORMAL; i < z_info->a_max; i++)
 	{
-		switch (a_info[i].tval)
+		switch (object_type::a_info[i].tval)
 		{
 			case TV_SWORD:
 				swords--; break;
@@ -2146,10 +1427,3 @@ errr do_randart(u32b randart_seed, bool full)
 	return (err);
 }
 
-#else /* GJW_RANDART */
-
-#ifdef MACINTOSH
-static int i = 0;
-#endif /* MACINTOSH */
-
-#endif /* GJW_RANDART */

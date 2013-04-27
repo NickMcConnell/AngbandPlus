@@ -10,7 +10,6 @@
 
 #include "angband.h"
 
-
 /*
  * Forward declare
  */
@@ -242,7 +241,7 @@ static void get_stats(void)
 		p_ptr->stat_max[i] = j;
 
 		/* Obtain a "bonus" for "race" and "class" */
-		bonus = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
+		bonus = p_ptr->rp_ptr->r_adj[i] + p_ptr->cp_ptr->c_adj[i];
 
 		/* Variable stat maxes */
 		if (adult_maximize)
@@ -279,10 +278,10 @@ static void get_extra(void)
 	p_ptr->max_lev = p_ptr->lev = 1;
 
 	/* Experience factor */
-	p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp;
+	p_ptr->expfact = p_ptr->rp_ptr->r_exp + p_ptr->cp_ptr->c_exp;
 
 	/* Hitdice */
-	p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp;
+	p_ptr->hitdie = p_ptr->rp_ptr->r_mhp + p_ptr->cp_ptr->c_mhp;
 
 	/* Initial hitpoints */
 	p_ptr->mhp = p_ptr->hitdie;
@@ -351,7 +350,7 @@ static void get_history(void)
 	social_class = randint(4);
 
 	/* Starting place */
-	chart = rp_ptr->hist;
+	chart = p_ptr->rp_ptr->hist;
 
 
 	/* Process the history */
@@ -364,16 +363,16 @@ static void get_history(void)
 		roll = randint(100);
 
 		/* Get the proper entry in the table */
-		while ((chart != h_info[i].chart) || (roll > h_info[i].roll)) i++;
+		while ((chart != player_type::h_info[i].chart) || (roll > player_type::h_info[i].roll)) i++;
 
 		/* Get the textual history */
-		my_strcat(p_ptr->history, (h_text + h_info[i].text), sizeof(p_ptr->history));
+		my_strcat(p_ptr->history, (player_type::h_text + player_type::h_info[i].text), sizeof(p_ptr->history));
 
 		/* Add in the social class */
-		social_class += (int)(h_info[i].bonus) - 50;
+		social_class += (int)(player_type::h_info[i].bonus) - 50;
 
 		/* Enter the next chart */
-		chart = h_info[i].next;
+		chart = player_type::h_info[i].next;
 	}
 
 
@@ -393,21 +392,11 @@ static void get_history(void)
 static void get_ahw(void)
 {
 	/* Calculate the age */
-	p_ptr->age = rp_ptr->b_age + randint(rp_ptr->m_age);
+	p_ptr->age = p_ptr->rp_ptr->age.linear_rand();
 
-	/* Calculate the height/weight for males */
-	if (p_ptr->psex == SEX_MALE)
-	{
-		p_ptr->ht = Rand_normal(rp_ptr->m_b_ht, rp_ptr->m_m_ht);
-		p_ptr->wt = Rand_normal(rp_ptr->m_b_wt, rp_ptr->m_m_wt);
-	}
-
-	/* Calculate the height/weight for females */
-	else if (p_ptr->psex == SEX_FEMALE)
-	{
-		p_ptr->ht = Rand_normal(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
-		p_ptr->wt = Rand_normal(rp_ptr->f_b_wt, rp_ptr->f_m_wt);
-	}
+	/* Calculate the height/weight */
+	p_ptr->ht = p_ptr->rp_ptr->height[p_ptr->psex].normal_rand();
+	p_ptr->wt = p_ptr->rp_ptr->weight[p_ptr->psex].normal_rand();
 }
 
 
@@ -474,7 +463,7 @@ static void player_wipe(void)
 	/* Start with no artifacts made yet */
 	for (i = 0; i < z_info->a_max; i++)
 	{
-		artifact_type *a_ptr = &a_info[i];
+		artifact_type* a_ptr = &object_type::a_info[i];
 		a_ptr->cur_num = 0;
 	}
 
@@ -508,8 +497,8 @@ static void player_wipe(void)
 	/* Reset the "monsters" */
 	for (i = 1; i < z_info->r_max; i++)
 	{
-		monster_race *r_ptr = &r_info[i];
-		monster_lore *l_ptr = &l_list[i];
+		monster_race *r_ptr = &monster_type::r_info[i];
+		monster_lore *l_ptr = &monster_type::l_list[i];
 
 		/* Hack -- Reset the counter */
 		r_ptr->cur_num = 0;
@@ -526,7 +515,7 @@ static void player_wipe(void)
 
 
 	/* Hack -- no ghosts */
-	r_info[z_info->r_max-1].max_num = 0;
+	monster_type::r_info[z_info->r_max-1].max_num = 0;
 
 
 	/* Hack -- Well fed player */
@@ -556,7 +545,7 @@ static void player_outfit(void)
 	for (i = 0; i < MAX_START_ITEMS; i++)
 	{
 		/* Access the item */
-		e_ptr = &(cp_ptr->start_items[i]);
+		e_ptr = &(p_ptr->cp_ptr->start_items[i]);
 
 		/* Hack	-- Give the player an object */
 		if (e_ptr->tval > 0)
@@ -753,7 +742,7 @@ static int get_player_choice(birth_menu *choices, int num, int def,
 		}
 
 		/* Move */
-		else if (isdigit((unsigned char)c))
+		else if (isdigit((unsigned char)c) || isarrow(c))
 		{
 			/* Get a direction from the key */
 			dir = target_dir(c);
@@ -838,7 +827,7 @@ static void race_aux_hook(birth_menu r_str)
 	/* Extract the proper race index from the string. */
 	for (race = 0; race < z_info->p_max; race++)
 	{
-		if (!strcmp(r_str.name, p_name + p_info[race].name)) break;
+		if (!strcmp(r_str.name, player_type::race_name(race))) break;
 	}
 
 	if (race == z_info->p_max) return;
@@ -847,15 +836,15 @@ static void race_aux_hook(birth_menu r_str)
 	for (i = 0; i < A_MAX; i++)
 	{
 		strnfmt(s, sizeof(s), "%s%+d", stat_names_reduced[i],
-		        p_info[race].r_adj[i]);
+		        player_type::p_info[race].r_adj[i]);
 		Term_putstr(RACE_AUX_COL, TABLE_ROW + i, -1, TERM_WHITE, s);
 	}
 
-	strnfmt(s, sizeof(s), "Hit die: %d ", p_info[race].r_mhp);
+	strnfmt(s, sizeof(s), "Hit die: %d ", player_type::p_info[race].r_mhp);
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX, -1, TERM_WHITE, s);
-	strnfmt(s, sizeof(s), "Experience: %d%% ", p_info[race].r_exp);
+	strnfmt(s, sizeof(s), "Experience: %d%% ", player_type::p_info[race].r_exp);
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 1, -1, TERM_WHITE, s);
-	strnfmt(s, sizeof(s), "Infravision: %d ft ", p_info[race].infra * 10);
+	strnfmt(s, sizeof(s), "Infravision: %d ft ", player_type::p_info[race].infra * 10);
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 2, -1, TERM_WHITE, s);
 }
 
@@ -867,6 +856,7 @@ static bool get_player_race(void)
 {
 	int i, res;
 	birth_menu *races;
+	byte tmp8u = p_ptr->prace;
 
 	C_MAKE(races, z_info->p_max, birth_menu);
 
@@ -877,12 +867,12 @@ static bool get_player_race(void)
 	/* Tabulate races */
 	for (i = 0; i < z_info->p_max; i++)
 	{
-		races[i].name = p_name + p_info[i].name;
+		races[i].name = player_type::race_name(i);
 		races[i].grayed = FALSE;
 	}
 
-	res = get_player_choice(races, z_info->p_max, p_ptr->prace,
-	                                 RACE_COL, 15, &p_ptr->prace,
+	res = get_player_choice(races, z_info->p_max, tmp8u,
+	                                 RACE_COL, 15, &tmp8u,
 	                                 "birth.txt", race_aux_hook);
 
 	/* Free memory */
@@ -892,7 +882,7 @@ static bool get_player_race(void)
 	if (res < 0) return (res);
 
 	/* Save the race pointer */
-	rp_ptr = &p_info[p_ptr->prace];
+	p_ptr->set_race(tmp8u);
 
 	/* Success */
 	return (TRUE);
@@ -910,7 +900,7 @@ static void class_aux_hook(birth_menu c_str)
 	/* Extract the proper class index from the string. */
 	for (class_idx = 0; class_idx < z_info->c_max; class_idx++)
 	{
-		if (!strcmp(c_str.name, c_name + c_info[class_idx].name)) break;
+		if (!strcmp(c_str.name, player_type::class_name(class_idx))) break;
 	}
 
 	if (class_idx == z_info->c_max) return;
@@ -919,13 +909,13 @@ static void class_aux_hook(birth_menu c_str)
 	for (i = 0; i < A_MAX; i++)
 	{
 		strnfmt(s, sizeof(s), "%s%+d", stat_names_reduced[i],
-		        c_info[class_idx].c_adj[i]);
+		        player_type::c_info[class_idx].c_adj[i]);
 		Term_putstr(CLASS_AUX_COL, TABLE_ROW + i, -1, TERM_WHITE, s);
 	}
 
-	strnfmt(s, sizeof(s), "Hit die: %d ", c_info[class_idx].c_mhp);
+	strnfmt(s, sizeof(s), "Hit die: %d ", player_type::c_info[class_idx].c_mhp);
 	Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX, -1, TERM_WHITE, s);
-	strnfmt(s, sizeof(s), "Experience: %d%% ", c_info[class_idx].c_exp);
+	strnfmt(s, sizeof(s), "Experience: %d%% ", player_type::c_info[class_idx].c_exp);
 	Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX + 1, -1, TERM_WHITE, s);
 }
 
@@ -937,6 +927,7 @@ static bool get_player_class(void)
 {
 	int i, res;
 	birth_menu *classes;
+	byte tmp8u = p_ptr->pclass;
 
 	C_MAKE(classes, z_info->c_max, birth_menu);
 
@@ -950,15 +941,15 @@ static bool get_player_class(void)
 	for (i = 0; i < z_info->c_max; i++)
 	{
 		/* Analyze */
-		if (!(rp_ptr->choice & (1L << i))) classes[i].grayed = TRUE;
+		if (!(p_ptr->rp_ptr->choice & (1L << i))) classes[i].grayed = TRUE;
 		else classes[i].grayed = FALSE;
 
 		/* Save the string */
-		classes[i].name = c_name + c_info[i].name;
+		classes[i].name = player_type::class_name(i);
 	}
 
-	res = get_player_choice(classes, z_info->c_max, p_ptr->pclass,
-	                                  CLASS_COL, 20, &p_ptr->pclass,
+	res = get_player_choice(classes, z_info->c_max, tmp8u,
+	                                  CLASS_COL, 20, &tmp8u,
 	                                  "birth.txt", class_aux_hook);
 
 	/* Free memory */
@@ -968,8 +959,7 @@ static bool get_player_class(void)
 	if (res < 0) return (res);
 
 	/* Set class */
-	cp_ptr = &c_info[p_ptr->pclass];
-	mp_ptr = &cp_ptr->spells;
+	p_ptr->set_class(tmp8u);
 
 	return (TRUE);
 }
@@ -982,6 +972,7 @@ static bool get_player_sex(void)
 {
 	int i, res;
 	birth_menu genders[MAX_SEXES];
+	byte tmp8u = p_ptr->psex;
 
 	/* Extra info */
 	Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
@@ -990,19 +981,19 @@ static bool get_player_sex(void)
 	/* Tabulate genders */
 	for (i = 0; i < MAX_SEXES; i++)
 	{
-		genders[i].name = sex_info[i].title;
+		genders[i].name = player_type::sex_info[i].title;
 		genders[i].grayed = FALSE;
 	}
 
-	res = get_player_choice(genders, MAX_SEXES, p_ptr->psex,
-	                                SEX_COL, 15, &p_ptr->psex,
+	res = get_player_choice(genders, MAX_SEXES, tmp8u,
+	                                SEX_COL, 15, &tmp8u,
 	                                "birth.txt", NULL);
 
 	/* No selection? */
 	if (res < 0) return (res);
 
 	/* Save the sex pointer */
-	sp_ptr = &sex_info[p_ptr->psex];
+	p_ptr->set_sex(tmp8u);
 
 	return (TRUE);
 }
@@ -1172,7 +1163,7 @@ static bool player_birth_aux_2(void)
 			else
 			{
 				/* Obtain a "bonus" for "race" and "class" */
-				int bonus = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
+				int bonus = p_ptr->rp_ptr->r_adj[i] + p_ptr->cp_ptr->c_adj[i];
 
 				/* Apply the racial/class bonuses */
 				p_ptr->stat_cur[i] = p_ptr->stat_max[i] =
@@ -1296,8 +1287,6 @@ static bool player_birth_aux_3(void)
 	char buf[80];
 
 
-#ifdef ALLOW_AUTOROLLER
-
 	s16b stat_limit[A_MAX];
 
 	s32b stat_match[A_MAX];
@@ -1337,7 +1326,7 @@ static bool player_birth_aux_3(void)
 			stat_match[i] = 0;
 
 			/* Race/Class bonus */
-			j = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
+			j = p_ptr->rp_ptr->r_adj[i] + p_ptr->cp_ptr->c_adj[i];
 
 			/* Obtain the "maximal" stat */
 			m = adjust_stat(17, j, TRUE);
@@ -1385,7 +1374,7 @@ static bool player_birth_aux_3(void)
 				if (!askfor_aux(inp, 9)) inp[0] = '\0';
 
 				/* Hack -- add a fake slash */
-				strcat(inp, "/");
+				my_strcat(inp, "/", sizeof(inp));
 
 				/* Hack -- look for the "slash" */
 				s = strchr(inp, '/');
@@ -1405,8 +1394,6 @@ static bool player_birth_aux_3(void)
 		}
 	}
 
-#endif /* ALLOW_AUTOROLLER */
-
 	/* Clean up */
 	clear_from(10);
 
@@ -1417,8 +1404,6 @@ static bool player_birth_aux_3(void)
 	while (TRUE)
 	{
 		int col = 42;
-
-#ifdef ALLOW_AUTOROLLER
 
 		/* Feedback */
 		if (adult_auto_roller)
@@ -1441,7 +1426,7 @@ static bool player_birth_aux_3(void)
 				put_str(stat_names[i], 3+i, col);
 
 				/* Put the stat */
-				cnv_stat(stat_limit[i], buf);
+				cnv_stat(stat_limit[i], buf, sizeof(buf));
 				c_put_str(TERM_L_BLUE, buf, 3+i, col+5);
 			}
 
@@ -1497,7 +1482,7 @@ static bool player_birth_aux_3(void)
 					for (i = 0; i < A_MAX; i++)
 					{
 						/* Put the stat */
-						cnv_stat(stat_use[i], buf);
+						cnv_stat(stat_use[i], buf, sizeof(buf));
 						c_put_str(TERM_L_GREEN, buf, 3+i, col+24);
 
 						/* Put the percent */
@@ -1533,8 +1518,6 @@ static bool player_birth_aux_3(void)
 
 		/* Otherwise just get a character */
 		else
-
-#endif /* ALLOW_AUTOROLLER */
 
 		{
 			/* Get a new character */

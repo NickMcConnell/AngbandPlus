@@ -9,42 +9,13 @@
  */
 
 #include "angband.h"
-
+#include "z-quark.h"
+#include "randname.h"
 
 /*
  * Max sizes of the following arrays.
  */
 #define MAX_TITLES     50       /* Used with scrolls (min 48) */
-#define MAX_SYLLABLES 158       /* Used with scrolls (see below) */
-
-
-/*
- * Syllables for scrolls (must be 1-4 letters each).
- */
-
-static cptr syllables[MAX_SYLLABLES] =
-{
-	"a", "ab", "ag", "aks", "ala", "an", "ankh", "app",
-	"arg", "arze", "ash", "aus", "ban", "bar", "bat", "bek",
-	"bie", "bin", "bit", "bjor", "blu", "bot", "bu",
-	"byt", "comp", "con", "cos", "cre", "dalf", "dan",
-	"den", "der", "doe", "dok", "eep", "el", "eng", "er", "ere", "erk",
-	"esh", "evs", "fa", "fid", "flit", "for", "fri", "fu", "gan",
-	"gar", "glen", "gop", "gre", "ha", "he", "hyd", "i",
-	"ing", "ion", "ip", "ish", "it", "ite", "iv", "jo",
-	"kho", "kli", "klis", "la", "lech", "man", "mar",
-	"me", "mi", "mic", "mik", "mon", "mung", "mur", "nag", "nej",
-	"nelg", "nep", "ner", "nes", "nis", "nih", "nin", "o",
-	"od", "ood", "org", "orn", "ox", "oxy", "pay", "pet",
-	"ple", "plu", "po", "pot", "prok", "re", "rea", "rhov",
-	"ri", "ro", "rog", "rok", "rol", "sa", "san", "sat",
-	"see", "sef", "seh", "shu", "ski", "sna", "sne", "snik",
-	"sno", "so", "sol", "sri", "sta", "sun", "ta", "tab",
-	"tem", "ther", "ti", "tox", "trol", "tue", "turs", "u",
-	"ulk", "um", "un", "uni", "ur", "val", "viv", "vly",
-	"vom", "wah", "wed", "werg", "wex", "whon", "wun", "x",
-	"yerg", "yp", "zun", "tri", "blaa"
-};
 
 
 /*
@@ -62,7 +33,7 @@ static void flavor_assign_fixed(void)
 
 	for (i = 0; i < z_info->flavor_max; i++)
 	{
-		flavor_type *flavor_ptr = &object_type::flavor_info[i];
+		flavor_type *flavor_ptr = &object_kind::flavor_info[i];
 
 		/* Skip random flavors */
 		if (flavor_ptr->sval == SV_UNKNOWN) continue;
@@ -90,8 +61,8 @@ static void flavor_assign_random(byte tval)
 	/* Count the random flavors for the given tval */
 	for (i = 0; i < z_info->flavor_max; i++)
 	{
-		if ((object_type::flavor_info[i].tval == tval) &&
-		    (object_type::flavor_info[i].sval == SV_UNKNOWN))
+		if ((object_kind::flavor_info[i].tval == tval) &&
+		    (object_kind::flavor_info[i].sval == SV_UNKNOWN))
 		{
 			flavor_count++;
 		}
@@ -118,10 +89,10 @@ static void flavor_assign_random(byte tval)
 		for (j = 0; j < z_info->flavor_max; j++)
 		{
 			/* Skip other tvals */
-			if (object_type::flavor_info[j].tval != tval) continue;
+			if (object_kind::flavor_info[j].tval != tval) continue;
 
 			/* Skip assigned svals */
-			if (object_type::flavor_info[j].sval != SV_UNKNOWN) continue;
+			if (object_kind::flavor_info[j].sval != SV_UNKNOWN) continue;
 
 			if (choice == 0)
 			{
@@ -129,7 +100,7 @@ static void flavor_assign_random(byte tval)
 				object_type::k_info[i].flavor = j;
 
 				/* Mark the flavor as used */
-				object_type::flavor_info[j].sval = object_type::k_info[i].sval;
+				object_kind::flavor_info[j].sval = object_type::k_info[i].sval;
 
 				/* One less flavor to choose from */
 				flavor_count--;
@@ -157,15 +128,10 @@ static void flavor_assign_random(byte tval)
  *
  * Scroll titles are always between 6 and 14 letters long.  This is
  * ensured because every title is composed of whole words, where every
- * word is from 1 to 8 letters long (one or two syllables of 1 to 4
- * letters each), and that no scroll is finished until it attempts to
- * grow beyond 15 letters.  The first time this can happen is when the
- * current title has 6 letters and the new word has 8 letters, which
- * would result in a 6 letter scroll title.
- *
- * Duplicate titles are avoided by requiring that no two scrolls share
- * the same first four letters (not the most efficient method, and not
- * the least efficient method, but it will always work).
+ * word is from 2 to 8 letters long, and that no scroll is finished 
+ * until it attempts to grow beyond 15 letters.  The first time this 
+ * can happen is when the current title has 6 letters and the new word 
+ * has 8 letters, which would result in a 6 letter scroll title. 
  *
  * Hack -- make sure everything stays the same for each saved game
  * This is accomplished by the use of a saved "random seed", as in
@@ -176,13 +142,11 @@ void flavor_init(void)
 {
 	int i, j;
 
-
 	/* Hack -- Use the "simple" RNG */
 	Rand_quick = TRUE;
 
-	/* Hack -- Induce consistant flavors */
+	/* Hack -- Induce consistent flavors */
 	Rand_value = seed_flavor;
-
 
 	flavor_assign_fixed();
 
@@ -198,73 +162,40 @@ void flavor_init(void)
 	/* Scrolls (random titles, always white) */
 	for (i = 0; i < MAX_TITLES; i++)
 	{
-		/* Get a new title */
-		while (TRUE)
+		char buf[24];
+		char *end = buf;
+		int titlelen = 0;
+		int wordlen;
+		bool okay = TRUE;
+
+		wordlen = randname_make(RANDNAME_SCROLL, 2, 8, end, 24);
+		while (titlelen + wordlen < (int)(sizeof(scroll_adj[0]) - 1))
 		{
-			char buf[80];
-
-			bool okay;
-
-			/* Start a new title */
-			buf[0] = '\0';
-
-			/* Collect words until done */
-			while (1)
+			end[wordlen] = ' ';
+			titlelen += wordlen + 1;
+			end += wordlen + 1;
+			wordlen = randname_make(RANDNAME_SCROLL, 2, 8, end, 24 - titlelen);
+		}
+		buf[titlelen - 1] = '\0';
+          
+		/* Check the scroll name hasn't already been generated */
+		for (j = 0; j < i; j++)
+		{
+			if (streq(buf, scroll_adj[j]))
 			{
-				int q, s;
-
-				char tmp[80];
-
-				/* Start a new word */
-				tmp[0] = '\0';
-
-				/* Choose one or two syllables */
-				s = ((rand_int(100) < 30) ? 1 : 2);
-
-				/* Add a one or two syllable word */
-				for (q = 0; q < s; q++)
-				{
-					/* Add the syllable */
-					my_strcat(tmp, syllables[rand_int(MAX_SYLLABLES)], sizeof(tmp));
-				}
-
-				/* Stop before getting too long */
-				if (strlen(buf) + 1 + strlen(tmp) > 15) break;
-
-				/* Add a space */
-				strcat(buf, " ");
-
-				/* Add the word */
-				my_strcat(buf, tmp, sizeof(buf));
-			}
-
-			/* Save the title */
-			my_strcpy(scroll_adj[i], buf+1, sizeof(scroll_adj[0]));
-
-			/* Assume okay */
-			okay = TRUE;
-
-			/* Check for "duplicate" scroll titles */
-			for (j = 0; j < i; j++)
-			{
-				cptr hack1 = scroll_adj[j];
-				cptr hack2 = scroll_adj[i];
-
-				/* Compare first four characters */
-				if (*hack1++ != *hack2++) continue;
-				if (*hack1++ != *hack2++) continue;
-				if (*hack1++ != *hack2++) continue;
-				if (*hack1++ != *hack2++) continue;
-
-				/* Not okay */
 				okay = FALSE;
-
-				/* Stop looking */
 				break;
 			}
-
-			/* Break when done */
-			if (okay) break;
+		}
+          
+		if (okay)
+		{
+			my_strcpy(scroll_adj[i], buf, sizeof(scroll_adj[0]));
+		}
+		else
+		{
+			/* Have another go at making a name */
+			i--;
 		}
 	}
 
@@ -278,7 +209,7 @@ void flavor_init(void)
 		object_kind *k_ptr = &object_type::k_info[i];
 
 		/* Skip "empty" objects */
-		if (!k_ptr->name) continue;
+		if (!k_ptr->_name) continue;
 
 		/* No flavor yields aware */
 		if (!k_ptr->flavor) k_ptr->aware = TRUE;
@@ -317,7 +248,7 @@ void reset_visuals(bool unused)
 	/* Extract default attr/char code for features */
 	for (i = 0; i < z_info->f_max; i++)
 	{
-		feature_type *f_ptr = &f_info[i];
+		feature_type *f_ptr = &feature_type::f_info[i];
 
 		/* Assume we will use the underlying values */
 		f_ptr->x_attr = f_ptr->d_attr;
@@ -337,7 +268,7 @@ void reset_visuals(bool unused)
 	/* Extract default attr/char code for monsters */
 	for (i = 0; i < z_info->r_max; i++)
 	{
-		monster_race *r_ptr = &r_info[i];
+		monster_race *r_ptr = &monster_type::r_info[i];
 
 		/* Default attr/char */
 		r_ptr->x_attr = r_ptr->d_attr;
@@ -347,7 +278,7 @@ void reset_visuals(bool unused)
 	/* Extract default attr/char code for flavors */
 	for (i = 0; i < z_info->flavor_max; i++)
 	{
-		flavor_type *flavor_ptr = &object_type::flavor_info[i];
+		flavor_type *flavor_ptr = &object_kind::flavor_info[i];
 
 		/* Default attr/char */
 		flavor_ptr->x_attr = flavor_ptr->d_attr;
@@ -355,7 +286,7 @@ void reset_visuals(bool unused)
 	}
 
 	/* Extract attr/chars for inventory objects (by tval) */
-	for (i = 0; i < 128; i++)
+	for (i = 0; i < (int)N_ELEMENTS(tval_to_attr); i++)
 	{
 		/* Default to white */
 		tval_to_attr[i] = TERM_WHITE;
@@ -421,7 +352,7 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 			/* Artifact */
 			if (o_ptr->name1)
 			{
-				artifact_type *a_ptr = &a_info[o_ptr->name1];
+				artifact_type *a_ptr = &object_type::a_info[o_ptr->name1];
 
 				(*f1) = a_ptr->flags1;
 				(*f2) = a_ptr->flags2;
@@ -432,7 +363,7 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 		/* Ego-item */
 		if (o_ptr->name2)
 		{
-			ego_item_type *e_ptr = &e_info[o_ptr->name2];
+			ego_item_type *e_ptr = &object_type::e_info[o_ptr->name2];
 
 			(*f1) |= e_ptr->flags1;
 			(*f2) |= e_ptr->flags2;
@@ -444,7 +375,7 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 			/* Obvious artifact flags */
 			if (o_ptr->name1)
 			{
-				artifact_type *a_ptr = &a_info[o_ptr->name1];
+				artifact_type *a_ptr = &object_type::a_info[o_ptr->name1];
 
 				/* Obvious flags (pval) */
 				(*f1) = (a_ptr->flags1 & (TR1_PVAL_MASK));
@@ -474,7 +405,7 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 		/* Artifact */
 		if (o_ptr->name1)
 		{
-			artifact_type *a_ptr = &a_info[o_ptr->name1];
+			artifact_type *a_ptr = &object_type::a_info[o_ptr->name1];
 
 			(*f1) = a_ptr->flags1;
 			(*f2) = a_ptr->flags2;
@@ -693,7 +624,7 @@ void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int mode)
 {
 	object_kind *k_ptr = &object_type::k_info[o_ptr->k_idx];
-	cptr basenm = (object_type::k_name + k_ptr->name);	/* Extract default "base" string */
+	cptr basenm = k_ptr->name();	/* Extract default "base" string */
 	cptr modstr = "";									/* Assume no "modifier" string */
 
 	int power;
@@ -718,8 +649,6 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	char p1 = '(', p2 = ')';
 	char b1 = '[', b2 = ']';
 	char c1 = '{', c2 = '}';
-
-	char discount_buf[80];
 
 	char tmp_buf[128];
 
@@ -796,7 +725,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			if (o_ptr->is_artifact() && aware) break;
 
 			/* Color the object */
-			modstr = object_type::flavor_text + object_type::flavor_info[k_ptr->flavor].text;
+			modstr = object_kind::flavor_info[k_ptr->flavor].text();
 			if (aware) append_name = TRUE;
 			basenm = (flavor ? "& # Amulet~" : "& Amulet~");
 
@@ -810,7 +739,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			if (o_ptr->is_artifact() && aware) break;
 
 			/* Color the object */
-			modstr = object_type::flavor_text + object_type::flavor_info[k_ptr->flavor].text;
+			modstr = object_kind::flavor_info[k_ptr->flavor].text();
 			if (aware) append_name = TRUE;
 			basenm = (flavor ? "& # Ring~" : "& Ring~");
 
@@ -821,7 +750,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		case TV_STAFF:
 		{
 			/* Color the object */
-			modstr = object_type::flavor_text + object_type::flavor_info[k_ptr->flavor].text;
+			modstr = object_kind::flavor_info[k_ptr->flavor].text();
 			if (aware) append_name = TRUE;
 			basenm = (flavor ? "& # Staff~" : "& Staff~");
 
@@ -832,7 +761,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		case TV_WAND:
 		{
 			/* Color the object */
-			modstr = object_type::flavor_text + object_type::flavor_info[k_ptr->flavor].text;
+			modstr = object_kind::flavor_info[k_ptr->flavor].text();
 			if (aware) append_name = TRUE;
 			basenm = (flavor ? "& # Wand~" : "& Wand~");
 
@@ -843,7 +772,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		case TV_ROD:
 		{
 			/* Color the object */
-			modstr = object_type::flavor_text + object_type::flavor_info[k_ptr->flavor].text;
+			modstr = object_kind::flavor_info[k_ptr->flavor].text();
 			if (aware) append_name = TRUE;
 			basenm = (flavor ? "& # Rod~" : "& Rod~");
 
@@ -865,7 +794,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		case TV_POTION:
 		{
 			/* Color the object */
-			modstr = object_type::flavor_text + object_type::flavor_info[k_ptr->flavor].text;
+			modstr = object_kind::flavor_info[k_ptr->flavor].text();
 			if (aware) append_name = TRUE;
 			basenm = (flavor ? "& # Potion~" : "& Potion~");
 
@@ -879,7 +808,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			if (o_ptr->sval >= SV_FOOD_MIN_FOOD) break;
 
 			/* Color the object */
-			modstr = object_type::flavor_text + object_type::flavor_info[k_ptr->flavor].text;
+			modstr = object_kind::flavor_info[k_ptr->flavor].text();
 			if (aware) append_name = TRUE;
 			basenm = (flavor ? "& # Mushroom~" : "& Mushroom~");
 
@@ -1049,7 +978,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	if (append_name)
 	{
 		object_desc_str_macro(t, " of ");
-		object_desc_str_macro(t, (object_type::k_name + k_ptr->name));
+		object_desc_str_macro(t, k_ptr->name());
 	}
 
 
@@ -1059,19 +988,19 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		/* Grab any artifact name */
 		if (o_ptr->name1)
 		{
-			artifact_type *a_ptr = &a_info[o_ptr->name1];
+			artifact_type *a_ptr = &object_type::a_info[o_ptr->name1];
 
 			object_desc_chr_macro(t, ' ');
-			object_desc_str_macro(t, (a_name + a_ptr->name));
+			object_desc_str_macro(t, a_ptr->name());
 		}
 
 		/* Grab any ego-item name */
 		else if (o_ptr->name2)
 		{
-			ego_item_type *e_ptr = &e_info[o_ptr->name2];
+			ego_item_type *e_ptr = &object_type::e_info[o_ptr->name2];
 
 			object_desc_chr_macro(t, ' ');
-			object_desc_str_macro(t, (e_name + e_ptr->name));
+			object_desc_str_macro(t, e_ptr->name());
 		}
 	}
 
@@ -1194,9 +1123,9 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			/* Append a "damage" string */
 			object_desc_chr_macro(t, ' ');
 			object_desc_chr_macro(t, p1);
-			object_desc_num_macro(t, o_ptr->dd);
+			object_desc_num_macro(t, o_ptr->d.dice);
 			object_desc_chr_macro(t, 'd');
-			object_desc_num_macro(t, o_ptr->ds);
+			object_desc_num_macro(t, o_ptr->d.sides);
 			object_desc_chr_macro(t, p2);
 
 			/* All done */
@@ -1472,9 +1401,9 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 
 
 	/* Use special inscription, if any */
-	if (o_ptr->discount >= INSCRIP_NULL)
+	if (o_ptr->pseudo >= INSCRIP_NULL)
 	{
-		v = inscrip_text[o_ptr->discount - INSCRIP_NULL];
+		v = inscrip_text[o_ptr->pseudo - INSCRIP_NULL];
 	}
 
 	/* Use "cursed" if the item is known to be cursed */
@@ -1493,16 +1422,6 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	else if (!aware && o_ptr->tried())
 	{
 		v = "tried";
-	}
-
-	/* Use the discount, if any */
-	else if (o_ptr->discount > 0)
-	{
-		char *q = discount_buf;
-		object_desc_num_macro(q, o_ptr->discount);
-		object_desc_str_macro(q, "% off");
-		*q = '\0';
-		v = discount_buf;
 	}
 
 	/* Nothing */
@@ -2427,46 +2346,6 @@ void show_floor(const int *floor_list, int floor_num)
 
 
 /*
- * Flip "inven" and "equip" in any sub-windows
- */
-void toggle_inven_equip(void)
-{
-	int j;
-
-	/* Scan windows */
-	for (j = 0; j < ANGBAND_TERM_MAX; j++)
-	{
-		/* Unused */
-		if (!angband_term[j]) continue;
-
-		/* Flip inven to equip */
-		if (op_ptr->window_flag[j] & (PW_INVEN))
-		{
-			/* Flip flags */
-			op_ptr->window_flag[j] &= ~(PW_INVEN);
-			op_ptr->window_flag[j] |= (PW_EQUIP);
-
-			/* Window stuff */
-			p_ptr->window |= (PW_EQUIP);
-		}
-
-		/* Flip inven to equip */
-		else if (op_ptr->window_flag[j] & (PW_EQUIP))
-		{
-			/* Flip flags */
-			op_ptr->window_flag[j] &= ~(PW_EQUIP);
-			op_ptr->window_flag[j] |= (PW_INVEN);
-
-			/* Window stuff */
-			p_ptr->window |= (PW_INVEN);
-		}
-	}
-}
-
-
-
-
-/*
  * Verify the choice of an item.
  *
  * The item can be negative to mean "item on floor".
@@ -2497,29 +2376,23 @@ static bool verify_item(cptr prompt, int item)
  */
 static bool get_item_allow(int item)
 {
-	cptr s;
+	char test_inscrip[3] = {'!','*','\x00'};
 
 	object_type *o_ptr = get_o_ptr_from_inventory_or_floor(item);	/* Get the object */
 
-	/* No inscription */
-	if (!o_ptr->note) return (TRUE);
-
-	/* Find a '!' */
-	s = strchr(quark_str(o_ptr->note), '!');
-
-	/* Process preventions */
-	while (s)
+	/* general check */
+	if (check_for_inscrip(o_ptr,test_inscrip))
 	{
-		/* Check the "restriction" */
-		if ((s[1] == p_ptr->command_cmd) || (s[1] == '*'))
-		{
-			/* Verify the choice */
-			if (!verify_item("Really try", item)) return (FALSE);
-		}
-
-		/* Find another '!' */
-		s = strchr(s + 1, '!');
-	}
+		/* Verify the choice */
+		if (!verify_item("Really try", item)) return (FALSE);
+	};
+	/* command-specific check */
+	test_inscrip[1] = p_ptr->command_cmd;
+	if (check_for_inscrip(o_ptr,test_inscrip))
+	{
+		/* Verify the choice */
+		if (!verify_item("Really try", item)) return (FALSE);
+	};
 
 	/* Allow it */
 	return (TRUE);
@@ -2553,8 +2426,7 @@ static bool get_item_okay(int item)
 static int get_tag(int *cp, char tag)
 {
 	int i;
-	cptr s;
-
+	char test_inscrip[4] = {'@',tag,'\x00','\x00'};
 
 	/* Check every object */
 	for (i = 0; i < INVEN_TOTAL; ++i)
@@ -2564,38 +2436,28 @@ static int get_tag(int *cp, char tag)
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
 
-		/* Skip empty inscriptions */
-		if (!o_ptr->note) continue;
-
-		/* Find a '@' */
-		s = strchr(quark_str(o_ptr->note), '@');
-
-		/* Process all tags */
-		while (s)
+		/* check for @tag */
+		if (check_for_inscrip(o_ptr,test_inscrip))
 		{
-			/* Check the normal tags */
-			if (s[1] == tag)
-			{
-				/* Save the actual inventory ID */
-				*cp = i;
+			/* Save the actual inventory ID */
+			*cp = i;
 
-				/* Success */
-				return (TRUE);
-			}
+			/* Success */
+			return (TRUE);
+		};
 
-			/* Check the special tags */
-			if ((s[1] == p_ptr->command_cmd) && (s[2] == tag))
-			{
-				/* Save the actual inventory ID */
-				*cp = i;
+		test_inscrip[1] = p_ptr->command_cmd;
+		test_inscrip[2] = tag;
 
-				/* Success */
-				return (TRUE);
-			}
+		/* check for @[command]tag */
+		if (check_for_inscrip(o_ptr,test_inscrip))
+		{
+			/* Save the actual inventory ID */
+			*cp = i;
 
-			/* Find another '@' */
-			s = strchr(s + 1, '@');
-		}
+			/* Success */
+			return (TRUE);
+		};
 	}
 
 	/* No such tag */
@@ -2695,8 +2557,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	int floor_num;
 
 
-#ifdef ALLOW_REPEAT
-
 	/* Get the item index */
 	if (repeat_pull(cp))
 	{
@@ -2718,8 +2578,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			repeat_clear();
 		}
 	}
-
-#endif /* ALLOW_REPEAT */
 
 
 	/* Paranoia XXX XXX XXX */
@@ -2900,13 +2758,13 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			}
 
 			/* Indicate ability to "view" */
-			if (!p_ptr->command_see) strcat(out_val, " * to see,");
+			if (!p_ptr->command_see) my_strcat(out_val, " * to see,", sizeof(out_val));
 
 			/* Indicate legality of "toggle" */
-			if (use_equip) strcat(out_val, " / for Equip,");
+			if (use_equip) my_strcat(out_val, " / for Equip,", sizeof(out_val));
 
 			/* Indicate legality of the "floor" */
-			if (allow_floor) strcat(out_val, " - for floor,");
+			if (allow_floor) my_strcat(out_val, " - for floor,", sizeof(out_val));
 		}
 
 		/* Viewing equipment */
@@ -2930,13 +2788,13 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			}
 
 			/* Indicate ability to "view" */
-			if (!p_ptr->command_see) strcat(out_val, " * to see,");
+			if (!p_ptr->command_see) my_strcat(out_val, " * to see,", sizeof(out_val));
 
 			/* Indicate legality of "toggle" */
-			if (use_inven) strcat(out_val, " / for Inven,");
+			if (use_inven) my_strcat(out_val, " / for Inven,", sizeof(out_val));
 
 			/* Indicate legality of the "floor" */
-			if (allow_floor) strcat(out_val, " - for floor,");
+			if (allow_floor) my_strcat(out_val, " - for floor,", sizeof(out_val));
 		}
 
 		/* Viewing floor */
@@ -2959,17 +2817,17 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			}
 
 			/* Indicate ability to "view" */
-			if (!p_ptr->command_see) strcat(out_val, " * to see,");
+			if (!p_ptr->command_see) my_strcat(out_val, " * to see,", sizeof(out_val));
 
 			/* Append */
-			if (use_inven) strcat(out_val, " / for Inven,");
+			if (use_inven) my_strcat(out_val, " / for Inven,", sizeof(out_val));
 
 			/* Append */
-			else if (use_equip) strcat(out_val, " / for Equip,");
+			else if (use_equip) my_strcat(out_val, " / for Equip,", sizeof(out_val));
 		}
 
 		/* Finish the prompt */
-		strcat(out_val, " ESC");
+		my_strcat(out_val, " ESC", sizeof(out_val));
 
 		/* Build the prompt */
 		strnfmt(tmp_val, sizeof(tmp_val), "(%s) %s", out_val, pmt);
@@ -3347,12 +3205,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Warning if needed */
 	if (oops && str) msg_print(str);
 
-#ifdef ALLOW_REPEAT
-
 	/* Save item if available */
 	if (item) repeat_push(*cp);
-
-#endif /* ALLOW_REPEAT */
 
 	/* Result */
 	return (item);

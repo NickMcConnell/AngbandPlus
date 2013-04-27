@@ -1,7 +1,7 @@
 
 
               **************************************************
-              **   Angband 3.0.6   **   The Pits of Angband   **
+              **   Zaiband 3.0.7   **   The Pits of Angband   **
               **************************************************
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
@@ -13,10 +13,11 @@
 
                    Angband 2.7.0 - 2.8.5 by Ben Harrison
 
-                 Angband 2.9.0 - 3.0.x by Robert Ruehlmann
+                 Angband 2.9.0 - 3.0.6 by Robert Ruehlmann
 
-      Send comments, bug reports, and patches, to "rr9@thangorodrim.net"
-         Visit the Angband Home Page at "http://www.thangorodrim.net/"
+                 Zaiband 3.0.5 - 3.0.x by Kenneth 'Bessarion' Boyd
+
+      Send comments, bug reports, and patches, to "zaimoni@zaimoni.com"
       Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
     Read the online help files, especially "general.txt" and "version.txt"
    Angband is available for Unix, X11, DOS, Windows, Macintosh, Amiga, etc.
@@ -24,29 +25,26 @@
 
 === General Info ===
 
-This is the README file for Angband 3.0.6.
+This is the README file for Zaiband 3.0.7, an Angband variant.
 
-Angband is a "graphical" dungeon adventure game using textual characters
+Zaiband is a "graphical" dungeon adventure game using textual characters
 to represent the walls and floors of a dungeon and the inhabitants therein,
 in the vein of "rogue", "hack", "nethack", and "moria".
 
 There are some ascii "on line help" files in the "lib/help" directory.
 
-See the Official Angband Home Page "http://www.thangorodrim.net/" for
-a list (mostly complete) of what has changed in each recent version.
+Cf. http://www.zaimoni.com/Zaiband/ for a list (mostly complete) of 
+what has changed in each recent version.
 
-See the Angband ftp site ftp.thangorodrim.net for the latest files, patches,
-and executables.
+Contact Kenneth 'Bessarion' Boyd < zaimoni@zaimoni.com > to report bugs.  
+General questions should be directed to either rec.games.roguelike.angband or the 
+forums at http://angband.oook.cz/forum/ .
 
-Contact Robert Ruehlmann < rr9@thangorodrim.net > to report bugs. Use the
-newsgroup "rec.games.roguelike.angband" to ask general questions about the
-game, including compilation questions.
+This version is known to compile on Windows/MingW32, both with GUI and PDCurses.
+Other platforms will need minor adjusting to deal with Zaiband being C++ rather than C.
+[Specifically, Makefile.cyg and Makefile.con are known-working.]
 
-This version of Angband will run on Macintosh, Windows, Unix (X11/Curses), 
-Linux (X11/Curses), Acorn, Amiga, various DOS machines, and many others...
-
-See compile.txt, the Makefiles, h-config.h, and config.h for details on
-compiling.
+See the Makefiles, h-config.h, and config.h for details on compiling.
 See "Makefile.xxx" and "main-xxx.c" for various supported systems.
 
 
@@ -262,9 +260,6 @@ See "src/files.c" for information on the proper "format" of these files.
 
 The "lib/xtra" directory contains special system files, if any.
 
-
-
-
 === NO WARRANTY ===
 
     BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
@@ -288,4 +283,4 @@ PROGRAMS), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGES.
 
 
---- Ben Harrison and Robert Ruehlmann ---
+--- Ben Harrison, Robert Ruehlmann, and Kenneth 'Bessarion' Boyd ---

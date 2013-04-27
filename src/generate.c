@@ -9,7 +9,7 @@
  */
 
 #include "angband.h"
-
+#include "keypad.h"
 
 /*
  * Note that Level generation is *not* an important bottleneck,
@@ -284,7 +284,7 @@ static void correct_dir(int *rdir, int *cdir, int y1, int x1, int y2, int x2)
 static void rand_dir(int *rdir, int *cdir)
 {
 	/* Pick a random direction */
-	int i = rand_int(4);
+	int i = rand_int(KEYPAD_CARDINAL_DIR_MAX);
 
 	/* Extract the dy/dx components */
 	*rdir = ddy_ddd[i];
@@ -551,7 +551,7 @@ static void build_streamer(int feat, int chance)
 	x = rand_spread(DUNGEON_WID / 2, 15);
 
 	/* Choose a random compass direction */
-	dir = ddd[rand_int(8)];
+	dir = ddd[rand_int(KEYPAD_DIR_MAX)];
 
 	/* Place streamer into dungeon */
 	while (TRUE)
@@ -1470,7 +1470,7 @@ static void build_type4(coord g)
  */
 static bool vault_aux_jelly(int r_idx)
 {
-	monster_race *r_ptr = &r_info[r_idx];
+	monster_race *r_ptr = &monster_type::r_info[r_idx];
 
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
@@ -1488,7 +1488,7 @@ static bool vault_aux_jelly(int r_idx)
  */
 static bool vault_aux_animal(int r_idx)
 {
-	monster_race *r_ptr = &r_info[r_idx];
+	monster_race *r_ptr = &monster_type::r_info[r_idx];
 
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
@@ -1506,7 +1506,7 @@ static bool vault_aux_animal(int r_idx)
  */
 static bool vault_aux_undead(int r_idx)
 {
-	monster_race *r_ptr = &r_info[r_idx];
+	monster_race *r_ptr = &monster_type::r_info[r_idx];
 
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
@@ -1524,7 +1524,7 @@ static bool vault_aux_undead(int r_idx)
  */
 static bool vault_aux_orc(int r_idx)
 {
-	monster_race *r_ptr = &r_info[r_idx];
+	monster_race *r_ptr = &monster_type::r_info[r_idx];
 
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
@@ -1542,7 +1542,7 @@ static bool vault_aux_orc(int r_idx)
  */
 static bool vault_aux_troll(int r_idx)
 {
-	monster_race *r_ptr = &r_info[r_idx];
+	monster_race *r_ptr = &monster_type::r_info[r_idx];
 
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
@@ -1560,7 +1560,7 @@ static bool vault_aux_troll(int r_idx)
  */
 static bool vault_aux_giant(int r_idx)
 {
-	monster_race *r_ptr = &r_info[r_idx];
+	monster_race *r_ptr = &monster_type::r_info[r_idx];
 
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
@@ -1584,7 +1584,7 @@ static u32b vault_aux_dragon_mask4;
  */
 static bool vault_aux_dragon(int r_idx)
 {
-	monster_race *r_ptr = &r_info[r_idx];
+	monster_race *r_ptr = &monster_type::r_info[r_idx];
 
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
@@ -1605,7 +1605,7 @@ static bool vault_aux_dragon(int r_idx)
  */
 static bool vault_aux_demon(int r_idx)
 {
-	monster_race *r_ptr = &r_info[r_idx];
+	monster_race *r_ptr = &monster_type::r_info[r_idx];
 
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
@@ -2039,8 +2039,8 @@ static void build_type6(int y0, int x0)
 			int i1 = j;
 			int i2 = j + 1;
 
-			int p1 = r_info[what[i1]].level;
-			int p2 = r_info[what[i2]].level;
+			int p1 = monster_type::r_info[what[i1]].level;
+			int p2 = monster_type::r_info[what[i2]].level;
 
 			/* Bubble */
 			if (p1 > p2)
@@ -2332,14 +2332,14 @@ static void build_type7(coord g)
 	while (TRUE)
 	{
 		/* Get a random vault record */
-		v_ptr = &v_info[rand_int(z_info->v_max)];
+		v_ptr = &vault_type::v_info[rand_int(z_info->v_max)];
 
 		/* Accept the first lesser vault */
 		if (v_ptr->typ == 7) break;
 	}
 
 	/* Message */
-	if (cheat_room) msg_format("Lesser vault (%s)", v_name + v_ptr->name);
+	if (cheat_room) msg_format("Lesser vault (%s)", v_ptr->name());
 
 	/* Boost the rating */
 	rating += v_ptr->rat;
@@ -2352,7 +2352,7 @@ static void build_type7(coord g)
 	}
 
 	/* Hack -- Build the vault */
-	build_vault(g.y, g.x, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text);
+	build_vault(g.y, g.x, v_ptr->hgt, v_ptr->wid, v_ptr->text());
 }
 
 
@@ -2368,14 +2368,14 @@ static void build_type8(coord g)
 	while (TRUE)
 	{
 		/* Get a random vault record */
-		v_ptr = &v_info[rand_int(z_info->v_max)];
+		v_ptr = &vault_type::v_info[rand_int(z_info->v_max)];
 
 		/* Accept the first greater vault */
 		if (v_ptr->typ == 8) break;
 	}
 
 	/* Message */
-	if (cheat_room) msg_format("Greater vault (%s)", v_name + v_ptr->name);
+	if (cheat_room) msg_format("Greater vault (%s)", v_ptr->name());
 
 	/* Boost the rating */
 	rating += v_ptr->rat;
@@ -2388,7 +2388,7 @@ static void build_type8(coord g)
 	}
 
 	/* Hack -- Build the vault */
-	build_vault(g.y, g.x, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text);
+	build_vault(g.y, g.x, v_ptr->hgt, v_ptr->wid, v_ptr->text());
 }
 
 
@@ -2659,7 +2659,7 @@ static int next_to_corr(int y1, int x1)
 
 
 	/* Scan adjacent grids */
-	for (i = 0; i < 4; i++)
+	for (i = 0; i < KEYPAD_CARDINAL_DIR_MAX; i++)
 	{
 		/* Extract the location */
 		y = y1 + ddy_ddd[i];
@@ -3085,7 +3085,7 @@ static void cave_gen(void)
 		/* Ensure quest monsters */
 		for (i = 1; i < z_info->r_max; i++)
 		{
-			monster_race *r_ptr = &r_info[i];
+			monster_race *r_ptr = &monster_type::r_info[i];
 
 			/* Ensure quest monsters */
 			if ((r_ptr->flags1 & (RF1_QUESTOR)) &&
@@ -3408,11 +3408,9 @@ void generate_cave(void)
 				/* No monsters */
 				cave_m_idx[y][x] = 0;
 
-#ifdef MONSTER_FLOW
 				/* No flow */
 				cave_cost[y][x] = 0;
 				cave_when[y][x] = 0;
-#endif /* MONSTER_FLOW */
 
 			}
 		}

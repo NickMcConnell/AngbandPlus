@@ -9,7 +9,7 @@
  */
 
 #include "angband.h"
-
+#include "keypad.h"
 
 
 
@@ -262,14 +262,7 @@ static void uncurse_object(object_type *o_ptr)
 	/* Uncurse it */
 	o_ptr->ident &= ~(IDENT_CURSED);
 
-	/* Remove special inscription, if any */
-	if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
-
-	/* Take note if allowed */
-	if (o_ptr->discount == 0) o_ptr->discount = INSCRIP_UNCURSED;
-
-	/* The object has been "sensed" */
-	o_ptr->ident |= (IDENT_SENSE);
+	o_ptr->sense(INSCRIP_UNCURSED);		/* note the uncursing */
 }
 
 
@@ -415,31 +408,31 @@ void self_knowledge(void)
 	}
 
 
-	if (p_ptr->blind)
+	if (p_ptr->timed[TMD_BLIND])
 	{
 		info[i++] = "You cannot see.";
 	}
-	if (p_ptr->confused)
+	if (p_ptr->timed[TMD_CONFUSED])
 	{
 		info[i++] = "You are confused.";
 	}
-	if (p_ptr->afraid)
+	if (p_ptr->timed[TMD_AFRAID])
 	{
 		info[i++] = "You are terrified.";
 	}
-	if (p_ptr->cut)
+	if (p_ptr->timed[TMD_CUT])
 	{
 		info[i++] = "You are bleeding.";
 	}
-	if (p_ptr->stun)
+	if (p_ptr->timed[TMD_STUN])
 	{
 		info[i++] = "You are stunned.";
 	}
-	if (p_ptr->poisoned)
+	if (p_ptr->timed[TMD_POISONED])
 	{
 		info[i++] = "You are poisoned.";
 	}
-	if (p_ptr->image)
+	if (p_ptr->timed[TMD_IMAGE])
 	{
 		info[i++] = "You are hallucinating.";
 	}
@@ -453,27 +446,27 @@ void self_knowledge(void)
 		info[i++] = "Your position is very uncertain.";
 	}
 
-	if (p_ptr->blessed)
+	if (p_ptr->timed[TMD_BLESSED])
 	{
 		info[i++] = "You feel righteous.";
 	}
-	if (p_ptr->hero)
+	if (p_ptr->timed[TMD_HERO])
 	{
 		info[i++] = "You feel heroic.";
 	}
-	if (p_ptr->shero)
+	if (p_ptr->timed[TMD_SHERO])
 	{
 		info[i++] = "You are in a battle rage.";
 	}
-	if (p_ptr->protevil)
+	if (p_ptr->timed[TMD_PROTEVIL])
 	{
 		info[i++] = "You are protected from evil.";
 	}
-	if (p_ptr->shield)
+	if (p_ptr->timed[TMD_SHIELD])
 	{
 		info[i++] = "You are protected by a mystic shield.";
 	}
-	if (p_ptr->invuln)
+	if (p_ptr->timed[TMD_INVULN])
 	{
 		info[i++] = "You are temporarily invulnerable.";
 	}
@@ -535,11 +528,11 @@ void self_knowledge(void)
 	{
 		info[i++] = "You are completely immune to acid.";
 	}
-	else if ((p_ptr->resist_acid) && (p_ptr->oppose_acid))
+	else if ((p_ptr->resist_acid) && (p_ptr->timed[TMD_OPP_ACID]))
 	{
 		info[i++] = "You resist acid exceptionally well.";
 	}
-	else if ((p_ptr->resist_acid) || (p_ptr->oppose_acid))
+	else if ((p_ptr->resist_acid) || (p_ptr->timed[TMD_OPP_ACID]))
 	{
 		info[i++] = "You are resistant to acid.";
 	}
@@ -548,11 +541,11 @@ void self_knowledge(void)
 	{
 		info[i++] = "You are completely immune to lightning.";
 	}
-	else if ((p_ptr->resist_elec) && (p_ptr->oppose_elec))
+	else if ((p_ptr->resist_elec) && (p_ptr->timed[TMD_OPP_ELEC]))
 	{
 		info[i++] = "You resist lightning exceptionally well.";
 	}
-	else if ((p_ptr->resist_elec) || (p_ptr->oppose_elec))
+	else if ((p_ptr->resist_elec) || (p_ptr->timed[TMD_OPP_ELEC]))
 	{
 		info[i++] = "You are resistant to lightning.";
 	}
@@ -561,11 +554,11 @@ void self_knowledge(void)
 	{
 		info[i++] = "You are completely immune to fire.";
 	}
-	else if ((p_ptr->resist_fire) && (p_ptr->oppose_fire))
+	else if ((p_ptr->resist_fire) && (p_ptr->timed[TMD_OPP_FIRE]))
 	{
 		info[i++] = "You resist fire exceptionally well.";
 	}
-	else if ((p_ptr->resist_fire) || (p_ptr->oppose_fire))
+	else if ((p_ptr->resist_fire) || (p_ptr->timed[TMD_OPP_FIRE]))
 	{
 		info[i++] = "You are resistant to fire.";
 	}
@@ -574,20 +567,20 @@ void self_knowledge(void)
 	{
 		info[i++] = "You are completely immune to cold.";
 	}
-	else if ((p_ptr->resist_cold) && (p_ptr->oppose_cold))
+	else if ((p_ptr->resist_cold) && (p_ptr->timed[TMD_OPP_COLD]))
 	{
 		info[i++] = "You resist cold exceptionally well.";
 	}
-	else if ((p_ptr->resist_cold) || (p_ptr->oppose_cold))
+	else if ((p_ptr->resist_cold) || (p_ptr->timed[TMD_OPP_COLD]))
 	{
 		info[i++] = "You are resistant to cold.";
 	}
 
-	if ((p_ptr->resist_pois) && (p_ptr->oppose_pois))
+	if ((p_ptr->resist_pois) && (p_ptr->timed[TMD_OPP_POIS]))
 	{
 		info[i++] = "You resist poison exceptionally well.";
 	}
-	else if ((p_ptr->resist_pois) || (p_ptr->oppose_pois))
+	else if ((p_ptr->resist_pois) || (p_ptr->timed[TMD_OPP_POIS]))
 	{
 		info[i++] = "You are resistant to poison.";
 	}
@@ -879,7 +872,7 @@ bool lose_all_info(void)
 		if (o_ptr->ident & (IDENT_MENTAL)) continue;
 
 		/* Remove special inscription, if any */
-		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
+		o_ptr->pseudo = 0;
 
 		/* Hack -- Clear the "felt", "known", and "empty" flags */
 		o_ptr->ident &= ~(IDENT_SENSE | IDENT_KNOWN | IDENT_EMPTY);
@@ -981,7 +974,7 @@ bool detect_trap(coord g)
 	if (cave_feat[g.y][g.x] == FEAT_INVIS)
 	{
 		/* Pick a trap */
-		pick_trap(g.y, g.x);
+		pick_trap(g);
 	}
 
 	/* Detect traps */
@@ -1276,7 +1269,7 @@ bool monster_scan(monster_action* test,cptr detect_text)
 
 static bool detect_normal_monster(monster_type& m)
 {
-	monster_race *r_ptr = &r_info[m.r_idx];
+	monster_race *r_ptr = m.race();
 
 	/* Only detect nearby monsters */
 	if (!panel_contains(m.loc)) return false;
@@ -1309,8 +1302,8 @@ bool detect_monsters_normal(void)
 
 static bool detect_invisible_monster(monster_type& m)
 {
-	monster_race *r_ptr = &r_info[m.r_idx];
-	monster_lore *l_ptr = &l_list[m.r_idx];
+	monster_race *r_ptr = m.race();
+	monster_lore *l_ptr = m.lore();
 
 	/* Only detect nearby monsters */
 	if (!panel_contains(m.loc)) return false;
@@ -1353,8 +1346,8 @@ bool detect_monsters_invis(void)
 
 static bool detect_evil_monster(monster_type& m)
 {
-	monster_race *r_ptr = &r_info[m.r_idx];
-	monster_lore *l_ptr = &l_list[m.r_idx];
+	monster_race *r_ptr = m.race();
+	monster_lore *l_ptr = m.lore();
 
 	/* Only detect nearby monsters */
 	if (!panel_contains(m.loc)) return false;
@@ -1447,7 +1440,7 @@ void stair_creation(void)
 	{
 		cave_set_feat(py, px, FEAT_LESS);
 	}
-	else if (rand_int(100) < 50)
+	else if (one_in_(2))
 	{
 		cave_set_feat(py, px, FEAT_MORE);
 	}
@@ -1578,7 +1571,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 			else chance = enchant_table[o_ptr->to_h];
 
 			/* Attempt to enchant */
-			if ((randint(1000) > chance) && (!a || (rand_int(100) < 50)))
+			if ((randint(1000) > chance) && (!a || one_in_(2)))
 			{
 				res = TRUE;
 
@@ -1588,7 +1581,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 				/* Break curse */
 				if (o_ptr->is_cursed() &&
 				    (!(f3 & (TR3_PERMA_CURSE))) &&
-				    (o_ptr->to_h >= 0) && (rand_int(100) < 25))
+				    (o_ptr->to_h >= 0) && one_in_(4))
 				{
 					msg_print("The curse is broken!");
 
@@ -1606,7 +1599,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 			else chance = enchant_table[o_ptr->to_d];
 
 			/* Attempt to enchant */
-			if ((randint(1000) > chance) && (!a || (rand_int(100) < 50)))
+			if ((randint(1000) > chance) && (!a || one_in_(2)))
 			{
 				res = TRUE;
 
@@ -1616,7 +1609,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 				/* Break curse */
 				if (o_ptr->is_cursed() &&
 				    (!(f3 & (TR3_PERMA_CURSE))) &&
-				    (o_ptr->to_d >= 0) && (rand_int(100) < 25))
+				    (o_ptr->to_d >= 0) && one_in_(4))
 				{
 					msg_print("The curse is broken!");
 
@@ -1634,7 +1627,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 			else chance = enchant_table[o_ptr->to_a];
 
 			/* Attempt to enchant */
-			if ((randint(1000) > chance) && (!a || (rand_int(100) < 50)))
+			if ((randint(1000) > chance) && (!a || one_in_(2)))
 			{
 				res = TRUE;
 
@@ -1644,7 +1637,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 				/* Break curse */
 				if (o_ptr->is_cursed() &&
 				    (!(f3 & (TR3_PERMA_CURSE))) &&
-				    (o_ptr->to_a >= 0) && (rand_int(100) < 25))
+				    (o_ptr->to_a >= 0) && one_in_(4))
 				{
 					msg_print("The curse is broken!");
 
@@ -1959,7 +1952,7 @@ bool recharge(int num)
 	i = (num + 100 - lev - (10 * (o_ptr->pval / o_ptr->number))) / 15;
 
 	/* Back-fire */
-	if ((i <= 1) || (rand_int(i) == 0))
+	if ((i <= 1) || one_in_(i))
 	{
 		msg_print("The recharge backfires!");
 		msg_print("There is a bright flash of light.");
@@ -2146,7 +2139,7 @@ void aggravate_monsters(int who)
 	for (i = 1; i < mon_max; i++)
 	{
 		monster_type *m_ptr = &mon_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		monster_race *r_ptr = m_ptr->race();
 
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -2204,7 +2197,7 @@ bool banishment(void)
 	for (i = 1; i < mon_max; i++)
 	{
 		monster_type *m_ptr = &mon_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		monster_race *r_ptr = m_ptr->race();
 
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -2231,7 +2224,7 @@ bool banishment(void)
 
 static bool mass_banish_monster(monster_type& m)
 {
-	monster_race *r_ptr = &r_info[m.r_idx];
+	monster_race *r_ptr = m.race();
 
 	/* Paranoia -- Skip dead monsters */
 	if (!m.r_idx) return false;
@@ -2412,7 +2405,7 @@ void destroy_area(coord g, int r, bool full)
 		if (!p_ptr->resist_blind && !p_ptr->resist_lite)
 		{
 			/* Become blind */
-			(void)set_blind(p_ptr->blind + 10 + randint(10));
+			(void)p_ptr->inc_timed<TMD_BLIND>(10 + randint(10));
 		}
 	}
 
@@ -2515,7 +2508,7 @@ void earthquake(coord g, int r)
 	if (hurt)
 	{
 		/* Check around the player */
-		for (i = 0; i < 8; i++)
+		for (i = 0; i < KEYPAD_DIR_MAX; i++)
 		{
 			coord t = p_ptr->loc + dd_coord_ddd[i];	/* Get the location */
 
@@ -2526,7 +2519,7 @@ void earthquake(coord g, int r)
 			if (map[16+t.y-g.y][16+t.x-g.x]) continue;
 
 			/* Count "safe" grids, apply the randomizer */
-			if ((++sn > 1) && (rand_int(sn) != 0)) continue;
+			if ((++sn > 1) && !one_in_(sn)) continue;
 
 			/* Save the safe location */
 			s = t;
@@ -2577,14 +2570,14 @@ void earthquake(coord g, int r)
 				{
 					msg_print("You are bashed by rubble!");
 					damage = damroll(10, 4);
-					(void)set_stun(p_ptr->stun + randint(50));
+					(void)p_ptr->inc_timed<TMD_STUN>(randint(50));
 					break;
 				}
 				case 3:
 				{
 					msg_print("You are crushed between the floor and ceiling!");
 					damage = damroll(10, 4);
-					(void)set_stun(p_ptr->stun + randint(50));
+					(void)p_ptr->inc_timed<TMD_STUN>(randint(50));
 					break;
 				}
 			}
@@ -2613,7 +2606,7 @@ void earthquake(coord g, int r)
 			if (cave_m_idx[tt.y][tt.x] > 0)
 			{
 				monster_type *m_ptr = &mon_list[cave_m_idx[tt.y][tt.x]];
-				monster_race *r_ptr = &r_info[m_ptr->r_idx];
+				monster_race *r_ptr = m_ptr->race();
 
 				/* Most monsters cannot co-exist with rock */
 				if (!(r_ptr->flags2 & (RF2_KILL_WALL)) &&
@@ -2628,7 +2621,7 @@ void earthquake(coord g, int r)
 					if (!(r_ptr->flags1 & (RF1_NEVER_MOVE)))
 					{
 						/* Look for safety */
-						for (i = 0; i < 8; i++)
+						for (i = 0; i < KEYPAD_DIR_MAX; i++)
 						{
 							coord t = tt + dd_coord_ddd[i];	/* Get the grid */
 
@@ -2642,7 +2635,7 @@ void earthquake(coord g, int r)
 							if (map[16+t.y-g.y][16+t.x-g.x]) continue;
 
 							/* Count "safe" grids, apply the randomizer */
-							if ((++sn > 1) && (rand_int(sn) != 0)) continue;
+							if ((++sn > 1) && !one_in_(sn)) continue;
 
 							/* Save the safe grid */
 							s = t;
@@ -2819,7 +2812,7 @@ static void cave_temp_room_lite(void)
 			int chance = 25;
 
 			monster_type *m_ptr = &mon_list[cave_m_idx[t.y][t.x]];
-			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+			monster_race *r_ptr = m_ptr->race();
 
 			/* Stupid monsters rarely wake up */
 			if (r_ptr->flags2 & (RF2_STUPID)) chance = 10;
@@ -2992,7 +2985,7 @@ void unlite_room(coord g)
 bool lite_area(int dam, int rad)
 {
 	/* Hack -- Message */
-	if (!p_ptr->blind)
+	if (!p_ptr->timed[TMD_BLIND])
 	{
 		msg_print("You are surrounded by a white light.");
 	}
@@ -3015,7 +3008,7 @@ bool lite_area(int dam, int rad)
 bool unlite_area(int dam, int rad)
 {
 	/* Hack -- Message */
-	if (!p_ptr->blind)
+	if (!p_ptr->timed[TMD_BLIND])
 	{
 		msg_print("Darkness surrounds you.");
 	}
@@ -3272,7 +3265,7 @@ bool curse_armor(void)
 	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 3);
 
 	/* Attempt a saving throw for artifacts */
-	if (o_ptr->is_artifact() && (rand_int(100) < 50))
+	if (o_ptr->is_artifact() && one_in_(2))
 	{
 		/* Cool */
 		msg_format("A %s tries to %s, but your %s resists the effects!",
@@ -3292,8 +3285,7 @@ bool curse_armor(void)
 		o_ptr->to_h = 0;
 		o_ptr->to_d = 0;
 		o_ptr->ac = 0;
-		o_ptr->dd = 0;
-		o_ptr->ds = 0;
+		o_ptr->d.clear();
 
 		/* Curse it */
 		o_ptr->ident |= (IDENT_CURSED);
@@ -3332,7 +3324,7 @@ bool curse_weapon(void)
 	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 3);
 
 	/* Attempt a saving throw */
-	if (o_ptr->is_artifact() && (rand_int(100) < 50))
+	if (o_ptr->is_artifact() && one_in_(2))
 	{
 		/* Cool */
 		msg_format("A %s tries to %s, but your %s resists the effects!",
@@ -3352,8 +3344,7 @@ bool curse_weapon(void)
 		o_ptr->to_d = 0 - randint(5) - randint(5);
 		o_ptr->to_a = 0;
 		o_ptr->ac = 0;
-		o_ptr->dd = 0;
-		o_ptr->ds = 0;
+		o_ptr->d.clear();
 
 		/* Curse it */
 		o_ptr->ident |= (IDENT_CURSED);
@@ -3439,7 +3430,7 @@ void brand_object(object_type *o_ptr, byte brand_type)
 void brand_weapon(void)
 {
 	object_type *o_ptr = &p_ptr->inventory[INVEN_WIELD];
-	byte brand_type = (rand_int(100) < 25) ? EGO_BRAND_FIRE : EGO_BRAND_COLD;	/* Select a brand */
+	byte brand_type = one_in_(4) ? EGO_BRAND_FIRE : EGO_BRAND_COLD;	/* Select a brand */
 
 	/* Brand the weapon */
 	brand_object(o_ptr, brand_type);

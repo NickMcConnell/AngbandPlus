@@ -533,28 +533,28 @@ static bool screen_out_head(const object_type *o_ptr)
 
 	/* Display the known artifact description */
 	if (!adult_rand_artifacts && o_ptr->name1 &&
-	    o_ptr->known() && a_info[o_ptr->name1].text)
+	    o_ptr->known() && object_type::a_info[o_ptr->name1]._text)
 	{
 		p_text_out("\n\n   ");
-		p_text_out(a_text + a_info[o_ptr->name1].text);
+		p_text_out(object_type::a_info[o_ptr->name1].text());
 		has_description = TRUE;
 	}
 
 	/* Display the known object description */
 	else if (o_ptr->aware() || o_ptr->known())
 	{
-		if (object_type::k_info[o_ptr->k_idx].text)
+		if (object_type::k_info[o_ptr->k_idx]._text)
 		{
 			p_text_out("\n\n   ");
-			p_text_out(object_type::k_text + object_type::k_info[o_ptr->k_idx].text);
+			p_text_out(object_type::k_info[o_ptr->k_idx].text());
 			has_description = TRUE;
 		}
 
 		/* Display an additional ego-item description */
-		if (o_ptr->name2 && o_ptr->known() && e_info[o_ptr->name2].text)
+		if (o_ptr->name2 && o_ptr->known() && object_type::e_info[o_ptr->name2]._text)
 		{
 			p_text_out("\n\n   ");
-			p_text_out(e_text + e_info[o_ptr->name2].text);
+			p_text_out(object_type::e_info[o_ptr->name2].text());
 			has_description = TRUE;
 		}
 	}
@@ -599,7 +599,7 @@ void object_info_screen(const object_type *o_ptr)
 	screen_load();
 
 	/* Hack -- Browse book, then prompt for a command */
-	if (o_ptr->tval == cp_ptr->spell_book)
+	if (o_ptr->tval == p_ptr->spell_book())
 	{
 		/* Call the aux function */
 		do_cmd_browse_aux(o_ptr);

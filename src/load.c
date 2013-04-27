@@ -9,7 +9,8 @@
  */
 
 #include "angband.h"
-
+#include "z-msg.h"
+#include "z-quark.h"
 
 /*
  * This file loads savefiles from Angband 2.9.X.
@@ -241,8 +242,7 @@ static void strip_bytes(int n)
  */
 static errr rd_item(object_type *o_ptr)
 {
-	byte old_dd;
-	byte old_ds;
+	dice_sides old_d;
 
 	u32b f1, f2, f3;
 
@@ -270,7 +270,12 @@ static errr rd_item(object_type *o_ptr)
 	rd_s16b(&o_ptr->pval);
 
 
-	rd_byte(&o_ptr->discount);
+	rd_byte(&o_ptr->pseudo);
+
+	if (o_ptr->pseudo && INSCRIP_NULL > o_ptr->pseudo)
+	{	/* XXX true discount, don't support this anymore: wipe XXX */
+		o_ptr->pseudo = 0;
+	}
 
 	rd_byte(&o_ptr->number);
 	rd_s16b(&o_ptr->weight);
@@ -286,8 +291,8 @@ static errr rd_item(object_type *o_ptr)
 
 	rd_s16b(&o_ptr->ac);
 
-	rd_byte(&old_dd);
-	rd_byte(&old_ds);
+	rd_byte(&old_d.dice);
+	rd_byte(&old_d.sides);
 
 	rd_byte(&o_ptr->ident);
 
@@ -358,8 +363,7 @@ static errr rd_item(object_type *o_ptr)
 
 		/* Get the correct fields */
 		o_ptr->ac = k_ptr->ac;
-		o_ptr->dd = k_ptr->dd;
-		o_ptr->ds = k_ptr->ds;
+		o_ptr->d = k_ptr->d;
 
 		/* Get the correct weight */
 		o_ptr->weight = k_ptr->weight;
@@ -380,21 +384,20 @@ static errr rd_item(object_type *o_ptr)
 	if (o_ptr->name1)
 	{
 		if (o_ptr->name1 >= z_info->a_max) return (-1);		/* Paranoia */
-		if (!a_info[o_ptr->name1].name) o_ptr->name1 = 0;	/* Verify that artifact */
+		if (!object_type::a_info[o_ptr->name1]._name) o_ptr->name1 = 0;	/* Verify that artifact */
 	}
 
 	/* Paranoia */
 	if (o_ptr->name2)
 	{
 		if (o_ptr->name2 >= z_info->e_max) return (-1);		/* Paranoia */
-		if (!e_info[o_ptr->name2].name) o_ptr->name2 = 0;	/* Verify that ego-item */
+		if (!object_type::e_info[o_ptr->name2]._name) o_ptr->name2 = 0;	/* Verify that ego-item */
 	}
 
 
 	/* Get the standard fields */
 	o_ptr->ac = k_ptr->ac;
-	o_ptr->dd = k_ptr->dd;
-	o_ptr->ds = k_ptr->ds;
+	o_ptr->d = k_ptr->d;
 
 	/* Get the standard weight */
 	o_ptr->weight = k_ptr->weight;
@@ -405,19 +408,15 @@ static errr rd_item(object_type *o_ptr)
 
 	/* Artifacts */
 	if (o_ptr->name1)
-	{
-		artifact_type *a_ptr;
-
-		/* Obtain the artifact info */
-		a_ptr = &a_info[o_ptr->name1];
+	{	/* Obtain the artifact info */
+		artifact_type *a_ptr = &object_type::a_info[o_ptr->name1];
 
 		/* Get the new artifact "pval" */
 		o_ptr->pval = a_ptr->pval;
 
 		/* Get the new artifact fields */
 		o_ptr->ac = a_ptr->ac;
-		o_ptr->dd = a_ptr->dd;
-		o_ptr->ds = a_ptr->ds;
+		o_ptr->d = a_ptr->d;
 
 		/* Get the new artifact weight */
 		o_ptr->weight = a_ptr->weight;
@@ -429,13 +428,13 @@ static errr rd_item(object_type *o_ptr)
 	/* Ego items */
 	if (o_ptr->name2)
 	{
-		ego_item_type *e_ptr = &e_info[o_ptr->name2];	/* Obtain the ego-item info */
+		ego_item_type *e_ptr = &object_type::e_info[o_ptr->name2];	/* Obtain the ego-item info */
 
 		/* Hack -- keep some old fields */
-		if ((o_ptr->dd < old_dd) && (o_ptr->ds == old_ds))
+		if ((o_ptr->d.dice < old_d.dice) && (o_ptr->d.sides == old_d.sides))
 		{
 			/* Keep old boosted damage dice */
-			o_ptr->dd = old_dd;
+			o_ptr->d.dice = old_d.dice;
 		}
 
 		/* Hack -- extract the "broken" flag */
@@ -454,8 +453,7 @@ static errr rd_item(object_type *o_ptr)
 		{
 			/* These were set to k_info values by preceding code */
 			o_ptr->ac = 0;
-			o_ptr->dd = 0;
-			o_ptr->ds = 0;
+			o_ptr->d.clear();
 		}
 	}
 
@@ -502,8 +500,8 @@ static void rd_lore(int r_idx)
 	int i;
 	byte tmp8u;
 	
-	monster_race *r_ptr = &r_info[r_idx];
-	monster_lore *l_ptr = &l_list[r_idx];
+	monster_race *r_ptr = &monster_type::r_info[r_idx];
+	monster_lore *l_ptr = &monster_type::l_list[r_idx];
 
 
 	/* Count sights/deaths/kills */
@@ -765,19 +763,17 @@ static void rd_options(void)
 			/* Process valid flags */
 			if (window_flag_desc[i])
 			{
-				/* Process valid flags */
-				if (window_mask[n] & (1L << i))
+				/* Blank invalid flags */
+				if (!(window_mask[n] & (1L << i)))
 				{
-					/* Set */
-					if (window_flag[n] & (1L << i))
-					{
-						/* Set */
-						op_ptr->window_flag[n] |= (1L << i);
-					}
+					window_flag[n] &= ~(1L << i);
 				}
 			}
 		}
 	}
+
+	/* Set up the subwindows */
+	subwindows_set_flags(window_flag, ANGBAND_TERM_MAX);
 }
 
 
@@ -813,7 +809,7 @@ static errr rd_player_spells(void)
 	{
 		/* The magic spells were changed drastically in Angband 2.9.7 */
 		if (older_than(2, 9, 7) &&
-		    (c_info[p_ptr->pclass].spell_book == TV_MAGIC_BOOK))
+		    (player_type::c_info[p_ptr->pclass].spell_book == TV_MAGIC_BOOK))
 		{
 			/* Discard old spell info */
 			strip_bytes(24);
@@ -936,27 +932,30 @@ static errr rd_extra(void)
 	}
 
 	/* Player race */
-	rd_byte(&p_ptr->prace);
+	rd_byte(&tmp8u);
 
 	/* Verify player race */
-	if (p_ptr->prace >= z_info->p_max)
+	if (tmp8u >= z_info->p_max)
 	{
-		note(format("Invalid player race (%d).", p_ptr->prace));
+		note(format("Invalid player race (%d).", tmp8u));
 		return (-1);
 	}
+	p_ptr->set_race(tmp8u);
 
 	/* Player class */
-	rd_byte(&p_ptr->pclass);
+	rd_byte(&tmp8u);
 
 	/* Verify player class */
-	if (p_ptr->pclass >= z_info->c_max)
+	if (tmp8u >= z_info->c_max)
 	{
-		note(format("Invalid player class (%d).", p_ptr->pclass));
+		note(format("Invalid player class (%d).", tmp8u));
 		return (-1);
 	}
+	p_ptr->set_class(tmp8u);
 
 	/* Player gender */
-	rd_byte(&p_ptr->psex);
+	rd_byte(&tmp8u);
+	p_ptr->set_sex(tmp8u);
 
 	strip_bytes(1);
 
@@ -1013,44 +1012,77 @@ static errr rd_extra(void)
 	strip_bytes(2);
 
 	/* Read the flags */
-	strip_bytes(2);	/* Old "rest" */
-	rd_s16b(&p_ptr->blind);
-	rd_s16b(&p_ptr->paralyzed);
-	rd_s16b(&p_ptr->confused);
-	rd_s16b(&p_ptr->food);
-	strip_bytes(4);	/* Old "food_digested" / "protection" */
-	rd_s16b(&p_ptr->energy);
-	rd_s16b(&p_ptr->fast);
-	rd_s16b(&p_ptr->slow);
-	rd_s16b(&p_ptr->afraid);
-	rd_s16b(&p_ptr->cut);
-	rd_s16b(&p_ptr->stun);
-	rd_s16b(&p_ptr->poisoned);
-	rd_s16b(&p_ptr->image);
-	rd_s16b(&p_ptr->protevil);
-	rd_s16b(&p_ptr->invuln);
-	rd_s16b(&p_ptr->hero);
-	rd_s16b(&p_ptr->shero);
-	rd_s16b(&p_ptr->shield);
-	rd_s16b(&p_ptr->blessed);
-	rd_s16b(&p_ptr->tim_invis);
-	rd_s16b(&p_ptr->word_recall);
-	rd_s16b(&p_ptr->see_infra);
-	rd_s16b(&p_ptr->tim_infra);
-	rd_s16b(&p_ptr->oppose_fire);
-	rd_s16b(&p_ptr->oppose_cold);
-	rd_s16b(&p_ptr->oppose_acid);
-	rd_s16b(&p_ptr->oppose_elec);
-	rd_s16b(&p_ptr->oppose_pois);
+	if (older_than(3, 0, 7))
+	{
+		strip_bytes(2);	/* Old "rest" */
+		rd_s16b(&p_ptr->timed[TMD_BLIND]);
+		rd_s16b(&p_ptr->timed[TMD_PARALYZED]);
+		rd_s16b(&p_ptr->timed[TMD_CONFUSED]);
+		rd_s16b(&p_ptr->food);
+		strip_bytes(4);	/* Old "food_digested" / "protection" */
+		rd_s16b(&p_ptr->energy);
+		rd_s16b(&p_ptr->timed[TMD_FAST]);
+		rd_s16b(&p_ptr->timed[TMD_SLOW]);
+		rd_s16b(&p_ptr->timed[TMD_AFRAID]);
+		rd_s16b(&p_ptr->timed[TMD_CUT]);
+		rd_s16b(&p_ptr->timed[TMD_STUN]);
+		rd_s16b(&p_ptr->timed[TMD_POISONED]);
+		rd_s16b(&p_ptr->timed[TMD_IMAGE]);
+		rd_s16b(&p_ptr->timed[TMD_PROTEVIL]);
+		rd_s16b(&p_ptr->timed[TMD_INVULN]);
+		rd_s16b(&p_ptr->timed[TMD_HERO]);
+		rd_s16b(&p_ptr->timed[TMD_SHERO]);
+		rd_s16b(&p_ptr->timed[TMD_SHIELD]);
+		rd_s16b(&p_ptr->timed[TMD_BLESSED]);
+		rd_s16b(&p_ptr->timed[TMD_SINVIS]);
+		rd_s16b(&p_ptr->word_recall);
+		rd_s16b(&p_ptr->see_infra);
+		rd_s16b(&p_ptr->timed[TMD_SINFRA]);
+		rd_s16b(&p_ptr->timed[TMD_OPP_FIRE]);
+		rd_s16b(&p_ptr->timed[TMD_OPP_COLD]);
+		rd_s16b(&p_ptr->timed[TMD_OPP_ACID]);
+		rd_s16b(&p_ptr->timed[TMD_OPP_ELEC]);
+		rd_s16b(&p_ptr->timed[TMD_OPP_POIS]);
 
-	rd_byte(&p_ptr->confusing);
-	rd_byte(&tmp8u);	/* oops */
-	rd_byte(&tmp8u);	/* oops */
-	rd_byte(&tmp8u);	/* oops */
-	rd_byte(&p_ptr->searching);
-	rd_byte(&tmp8u);	/* oops */
-	rd_byte(&tmp8u);	/* oops */
-	rd_byte(&tmp8u);	/* oops */
+		rd_byte(&p_ptr->confusing);
+		rd_byte(&tmp8u);	/* oops */
+		rd_byte(&tmp8u);	/* oops */
+		rd_byte(&tmp8u);	/* oops */
+		rd_byte(&p_ptr->searching);
+		rd_byte(&tmp8u);	/* oops */
+		rd_byte(&tmp8u);	/* oops */
+		rd_byte(&tmp8u);	/* oops */
+	}
+	else
+	{
+		byte num;
+		int i;
+
+		rd_s16b(&p_ptr->food);
+		rd_s16b(&p_ptr->energy);
+		rd_s16b(&p_ptr->word_recall);
+		rd_s16b(&p_ptr->see_infra);
+		rd_byte(&p_ptr->confusing);
+		rd_byte(&p_ptr->searching);
+
+		/* Find the number of timed effects */
+		rd_byte(&num);
+
+		if (num<=TMD_MAX)
+			{	/* Read all the effects, in a loop */
+			for (i = 0; i < num; i++)
+				rd_s16b(&p_ptr->timed[i]);
+			/* zero-initialize any entries not read */
+			if (num<TMD_MAX) C_WIPE(p_ptr->timed+num,TMD_MAX-num);
+			}
+		else{	/* probably in trouble anyway */
+			for (i = 0; i < TMD_MAX; i++)
+				rd_s16b(&p_ptr->timed[i]);
+			/* discard unused entries */
+			strip_bytes(2*(num-TMD_MAX));
+			note("Discarded unsupported timed effects");
+			}
+	}
 
 	/* Future use */
 	strip_bytes(40);
@@ -1120,8 +1152,6 @@ static errr rd_extra(void)
 static errr rd_randarts(void)
 {
 
-#ifdef GJW_RANDART
-
 	int i;
 	byte tmp8u;
 	s16b tmp16s;
@@ -1171,8 +1201,8 @@ static errr rd_randarts(void)
 			/* Mark the old artifacts as "empty" */
 			for (i = 0; i < z_info->a_max; i++)
 			{
-				artifact_type *a_ptr = &a_info[i];
-				a_ptr->name = 0;
+				artifact_type *a_ptr = &object_type::a_info[i];
+				a_ptr->_name = 0;
 				a_ptr->tval = 0;
 				a_ptr->sval = 0;
 			}
@@ -1180,7 +1210,7 @@ static errr rd_randarts(void)
 			/* Read the artifacts */
 			for (i = 0; i < artifact_count; i++)
 			{
-				artifact_type *a_ptr = &a_info[i];
+				artifact_type *a_ptr = &object_type::a_info[i];
 
 				rd_byte(&a_ptr->tval);
 				rd_byte(&a_ptr->sval);
@@ -1191,8 +1221,8 @@ static errr rd_randarts(void)
 				rd_s16b(&a_ptr->to_a);
 				rd_s16b(&a_ptr->ac);
 
-				rd_byte(&a_ptr->dd);
-				rd_byte(&a_ptr->ds);
+				rd_byte(&a_ptr->d.dice);
+				rd_byte(&a_ptr->d.sides);
 
 				rd_s16b(&a_ptr->weight);
 
@@ -1206,8 +1236,10 @@ static errr rd_randarts(void)
 				rd_byte(&a_ptr->rarity);
 
 				rd_byte(&a_ptr->activation);
-				rd_u16b(&a_ptr->time);
-				rd_u16b(&a_ptr->randtime);
+				rd_u16b(&a_ptr->time_base);
+				rd_u16b(&tmp16u);			/* fix this when bumping internal version */
+				a_ptr->time.dice = 1;		/* constant 1 */
+				a_ptr->time.sides = tmp16u;
 			}
 		}
 		else
@@ -1249,14 +1281,6 @@ static errr rd_randarts(void)
 	}
 
 	return (0);
-
-#else /* GJW_RANDART */
-
-	note("Random artifacts are disabled in this binary.");
-	return (-1);
-
-#endif /* GJW_RANDART */
-
 }
 
 
@@ -1807,7 +1831,7 @@ static errr rd_savefile_new_aux(void)
 	for (i = 0; i < tmp16u; i++)
 	{
 		rd_byte(&tmp8u);
-		a_info[i].cur_num = tmp8u;
+		object_type::a_info[i].cur_num = tmp8u;
 		rd_byte(&tmp8u);
 		rd_byte(&tmp8u);
 		rd_byte(&tmp8u);
@@ -1826,17 +1850,6 @@ static errr rd_savefile_new_aux(void)
 		if (rd_randarts()) return (-1);
 		if (arg_fiddle) note("Loaded Random Artifacts");
 	}
-
-
-	/* Important -- Initialize the sex */
-	sp_ptr = &sex_info[p_ptr->psex];
-
-	/* Important -- Initialize the race/class */
-	rp_ptr = &p_info[p_ptr->prace];
-	cp_ptr = &c_info[p_ptr->pclass];
-
-	/* Important -- Initialize the magic */
-	mp_ptr = &cp_ptr->spells;
 
 
 	/* Read the inventory */
@@ -1899,7 +1912,7 @@ static errr rd_savefile_new_aux(void)
 
 
 	/* Hack -- no ghosts */
-	r_info[z_info->r_max-1].max_num = 0;
+	monster_type::r_info[z_info->r_max-1].max_num = 0;
 
 
 	/* Success */
@@ -2014,7 +2027,7 @@ bool load_player(void)
 
 		/* Extract name of lock file */
 		my_strcpy(temp, savefile, sizeof(temp));
-		strcat(temp, ".lok");
+		my_strcat(temp, ".lok", sizeof(temp));
 
 		/* Grab permissions */
 		safe_setuid_grab();
@@ -2228,7 +2241,7 @@ bool load_player(void)
 
 		/* Extract name of lock file */
 		my_strcpy(temp, savefile, sizeof(temp));
-		strcat(temp, ".lok");
+		my_strcat(temp, ".lok", sizeof(temp));
 
 		/* Grab permissions */
 		safe_setuid_grab();

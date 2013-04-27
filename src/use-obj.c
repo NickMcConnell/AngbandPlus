@@ -9,7 +9,55 @@
  */
 
 #include "angband.h"
+#include "cmds.h"
+#include "keypad.h"
 
+/*
+ * Check to see if the player can use a rod/wand/staff/activatable object.
+ */
+static bool check_devices(object_type *o_ptr)
+{
+	int lev = (o_ptr->is_artifact()) ? object_type::a_info[o_ptr->name1].level : object_type::k_info[o_ptr->k_idx].level; /* Extract the item level */
+	const char *msg;
+	const char *what = NULL;
+
+	/* Get the right string */
+	switch (o_ptr->tval)
+	{
+		case TV_ROD:   msg = "zap the rod";   break;
+		case TV_WAND:  msg = "use the wand";  what = "wand";  break;
+		case TV_STAFF: msg = "use the staff"; what = "staff"; break;
+		default:       msg = "activate it";  break;
+	}
+
+	/* Base chance of success */
+	/* staves always work */
+	if (TV_STAFF != o_ptr->tval)
+	{
+		int chance = p_ptr->item_chance(lev);
+
+		/* Roll for usage */
+		if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
+		{
+			if (flush_failure) flush();
+			msg_format("You failed to %s properly.", msg);
+			return FALSE;
+		}
+	}
+
+	/* Notice empty staffs */
+	if (what && o_ptr->pval <= 0)
+	{
+		if (flush_failure) flush();
+		msg_format("The %s has no charges left.", what);
+		o_ptr->ident |= (IDENT_EMPTY);
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+		p_ptr->window |= (PW_INVEN);
+		return (FALSE);
+	}
+
+	return TRUE;
+}
 
 static bool eat_food(object_type *o_ptr, bool *ident)
 {
@@ -18,9 +66,9 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 	{
 		case SV_FOOD_POISON:
 		{
-			if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+			if (!(p_ptr->resist_pois || p_ptr->timed[TMD_OPP_POIS]))
 			{
-				if (set_poisoned(p_ptr->poisoned + rand_int(10) + 10))
+				if (p_ptr->inc_timed<TMD_POISONED>(rand_int(10) + 10))
 				{
 					*ident = TRUE;
 				}
@@ -32,7 +80,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 		{
 			if (!p_ptr->resist_blind)
 			{
-				if (set_blind(p_ptr->blind + rand_int(200) + 200))
+				if (p_ptr->inc_timed<TMD_BLIND>(rand_int(200) + 200))
 				{
 					*ident = TRUE;
 				}
@@ -44,7 +92,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 		{
 			if (!p_ptr->resist_fear)
 			{
-				if (set_afraid(p_ptr->afraid + rand_int(10) + 10))
+				if (p_ptr->inc_timed<TMD_AFRAID>(rand_int(10) + 10))
 				{
 					*ident = TRUE;
 				}
@@ -56,7 +104,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 		{
 			if (!p_ptr->resist_confu)
 			{
-				if (set_confused(p_ptr->confused + rand_int(10) + 10))
+				if (p_ptr->inc_timed<TMD_CONFUSED>(rand_int(10) + 10))
 				{
 					*ident = TRUE;
 				}
@@ -68,7 +116,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 		{
 			if (!p_ptr->resist_chaos)
 			{
-				if (set_image(p_ptr->image + rand_int(250) + 250))
+				if (p_ptr->inc_timed<TMD_IMAGE>(rand_int(250) + 250))
 				{
 					*ident = TRUE;
 				}
@@ -80,7 +128,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 		{
 			if (!p_ptr->free_act)
 			{
-				if (set_paralyzed(p_ptr->paralyzed + rand_int(10) + 10))
+				if (p_ptr->inc_timed<TMD_PARALYZED>(rand_int(10) + 10))
 				{
 					*ident = TRUE;
 				}
@@ -138,25 +186,25 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 		case SV_FOOD_CURE_POISON:
 		{
-			if (set_poisoned(0)) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_POISONED>()) *ident = TRUE;
 			break;
 		}
 
 		case SV_FOOD_CURE_BLINDNESS:
 		{
-			if (set_blind(0)) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_BLIND>()) *ident = TRUE;
 			break;
 		}
 
 		case SV_FOOD_CURE_PARANOIA:
 		{
-			if (set_afraid(0)) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_AFRAID>()) *ident = TRUE;
 			break;
 		}
 
 		case SV_FOOD_CURE_CONFUSION:
 		{
-			if (set_confused(0)) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_CONFUSED>()) *ident = TRUE;
 			break;
 		}
 
@@ -203,7 +251,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 		case SV_FOOD_WAYBREAD:
 		{
 			msg_print("That tastes good.");
-			(void)set_poisoned(0);
+			(void)p_ptr->clear_timed<TMD_POISONED>();
 			(void)hp_player(damroll(4, 8));
 			*ident = TRUE;
 			break;
@@ -241,7 +289,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_SLOWNESS:
 		{
-			if (set_slow(p_ptr->slow + randint(25) + 15)) *ident = TRUE;
+			if (p_ptr->inc_timed<TMD_SLOW>(randint(25) + 15)) *ident = TRUE;
 			break;
 		}
 
@@ -249,17 +297,17 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		{
 			msg_print("The potion makes you vomit!");
 			(void)set_food(PY_FOOD_STARVE - 1);
-			(void)set_poisoned(0);
-			(void)set_paralyzed(p_ptr->paralyzed + 4);
+			(void)p_ptr->clear_timed<TMD_POISONED>();
+			(void)p_ptr->inc_timed<TMD_PARALYZED>(4);
 			*ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_POISON:
 		{
-			if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+			if (!(p_ptr->resist_pois || p_ptr->timed[TMD_OPP_POIS]))
 			{
-				if (set_poisoned(p_ptr->poisoned + rand_int(15) + 10))
+				if (p_ptr->inc_timed<TMD_POISONED>(rand_int(15) + 10))
 				{
 					*ident = TRUE;
 				}
@@ -271,7 +319,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		{
 			if (!p_ptr->resist_blind)
 			{
-				if (set_blind(p_ptr->blind + rand_int(100) + 100))
+				if (p_ptr->inc_timed<TMD_BLIND>(rand_int(100) + 100))
 				{
 					*ident = TRUE;
 				}
@@ -283,7 +331,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		{
 			if (!p_ptr->resist_confu)
 			{
-				if (set_confused(p_ptr->confused + rand_int(20) + 15))
+				if (p_ptr->inc_timed<TMD_CONFUSED>(rand_int(20) + 15))
 				{
 					*ident = TRUE;
 				}
@@ -295,7 +343,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		{
 			if (!p_ptr->free_act)
 			{
-				if (set_paralyzed(p_ptr->paralyzed + rand_int(4) + 4))
+				if (p_ptr->inc_timed<TMD_PARALYZED>(rand_int(4) + 4))
 				{
 					*ident = TRUE;
 				}
@@ -368,8 +416,8 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		{
 			msg_print("Massive explosions rupture your body!");
 			take_hit(damroll(50, 20), "a potion of Detonation");
-			(void)set_stun(p_ptr->stun + 75);
-			(void)set_cut(p_ptr->cut + 5000);
+			(void)p_ptr->inc_timed<TMD_STUN>(75);
+			(void)p_ptr->inc_timed<TMD_CUT>(5000);
 			*ident = TRUE;
 			break;
 		}
@@ -384,7 +432,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_INFRAVISION:
 		{
-			if (set_tim_infra(p_ptr->tim_infra + 100 + randint(100)))
+			if (p_ptr->inc_timed<TMD_SINFRA>(100 + randint(100)))
 			{
 				*ident = TRUE;
 			}
@@ -393,7 +441,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_DETECT_INVIS:
 		{
-			if (set_tim_invis(p_ptr->tim_invis + 12 + randint(12)))
+			if (p_ptr->inc_timed<TMD_SINVIS>(12 + randint(12)))
 			{
 				*ident = TRUE;
 			}
@@ -402,38 +450,38 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_SLOW_POISON:
 		{
-			if (set_poisoned(p_ptr->poisoned / 2)) *ident = TRUE;
+			if (p_ptr->set_timed<TMD_POISONED>(p_ptr->timed[TMD_POISONED] / 2)) *ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_CURE_POISON:
 		{
-			if (set_poisoned(0)) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_POISONED>()) *ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_BOLDNESS:
 		{
-			if (set_afraid(0)) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_AFRAID>()) *ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_SPEED:
 		{
-			if (!p_ptr->fast)
+			if (!p_ptr->timed[TMD_FAST])
 			{
-				if (set_fast(randint(25) + 15)) *ident = TRUE;
+				if (p_ptr->inc_timed<TMD_FAST>(randint(25) + 15)) *ident = TRUE;
 			}
 			else
 			{
-				(void)set_fast(p_ptr->fast + 5);
+				(void)p_ptr->inc_timed<TMD_FAST>(5);
 			}
 			break;
 		}
 
 		case SV_POTION_RESIST_HEAT:
 		{
-			if (set_oppose_fire(p_ptr->oppose_fire + randint(10) + 10))
+			if (p_ptr->inc_timed<TMD_OPP_FIRE>(randint(10) + 10))
 			{
 				*ident = TRUE;
 			}
@@ -442,7 +490,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_RESIST_COLD:
 		{
-			if (set_oppose_cold(p_ptr->oppose_cold + randint(10) + 10))
+			if (p_ptr->inc_timed<TMD_OPP_COLD>(randint(10) + 10))
 			{
 				*ident = TRUE;
 			}
@@ -452,66 +500,66 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		case SV_POTION_HEROISM:
 		{
 			if (hp_player(10)) *ident = TRUE;
-			if (set_afraid(0)) *ident = TRUE;
-			if (set_hero(p_ptr->hero + randint(25) + 25)) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_AFRAID>()) *ident = TRUE;
+			if (p_ptr->inc_timed<TMD_HERO>(randint(25) + 25)) *ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_BERSERK_STRENGTH:
 		{
 			if (hp_player(30)) *ident = TRUE;
-			if (set_afraid(0)) *ident = TRUE;
-			if (set_shero(p_ptr->shero + randint(25) + 25)) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_AFRAID>()) *ident = TRUE;
+			if (p_ptr->inc_timed<TMD_SHERO>(randint(25) + 25)) *ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_CURE_LIGHT:
 		{
 			if (hp_player(damroll(2, 8))) *ident = TRUE;
-			if (set_blind(0)) *ident = TRUE;
-			if (set_cut(p_ptr->cut - 10)) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_BLIND>()) *ident = TRUE;
+			if (p_ptr->dec_timed<TMD_CUT>(10)) *ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_CURE_SERIOUS:
 		{
 			if (hp_player(damroll(4, 8))) *ident = TRUE;
-			if (set_blind(0)) *ident = TRUE;
-			if (set_confused(0)) *ident = TRUE;
-			if (set_cut((p_ptr->cut / 2) - 50)) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_BLIND>()) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_CONFUSED>()) *ident = TRUE;
+			if (p_ptr->set_timed<TMD_CUT>((p_ptr->timed[TMD_CUT] / 2) - 50)) *ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_CURE_CRITICAL:
 		{
 			if (hp_player(damroll(6, 8))) *ident = TRUE;
-			if (set_blind(0)) *ident = TRUE;
-			if (set_confused(0)) *ident = TRUE;
-			if (set_poisoned(0)) *ident = TRUE;
-			if (set_stun(0)) *ident = TRUE;
-			if (set_cut(0)) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_BLIND>()) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_CONFUSED>()) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_POISONED>()) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_STUN>()) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_CUT>()) *ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_HEALING:
 		{
 			if (hp_player(300)) *ident = TRUE;
-			if (set_blind(0)) *ident = TRUE;
-			if (set_confused(0)) *ident = TRUE;
-			if (set_poisoned(0)) *ident = TRUE;
-			if (set_stun(0)) *ident = TRUE;
-			if (set_cut(0)) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_BLIND>()) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_CONFUSED>()) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_POISONED>()) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_STUN>()) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_CUT>()) *ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_STAR_HEALING:
 		{
 			if (hp_player(1200)) *ident = TRUE;
-			if (set_blind(0)) *ident = TRUE;
-			if (set_confused(0)) *ident = TRUE;
-			if (set_poisoned(0)) *ident = TRUE;
-			if (set_stun(0)) *ident = TRUE;
-			if (set_cut(0)) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_BLIND>()) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_CONFUSED>()) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_POISONED>()) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_STUN>()) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_CUT>()) *ident = TRUE;
 			break;
 		}
 
@@ -519,12 +567,12 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		{
 			msg_print("You feel life flow through your body!");
 			restore_level();
-			(void)set_poisoned(0);
-			(void)set_blind(0);
-			(void)set_confused(0);
-			(void)set_image(0);
-			(void)set_stun(0);
-			(void)set_cut(0);
+			(void)p_ptr->clear_timed<TMD_POISONED>();
+			(void)p_ptr->clear_timed<TMD_BLIND>();
+			(void)p_ptr->clear_timed<TMD_CONFUSED>();
+			(void)p_ptr->clear_timed<TMD_IMAGE>();
+			(void)p_ptr->clear_timed<TMD_STUN>();
+			(void)p_ptr->clear_timed<TMD_CUT>();
 			(void)do_res_stat(A_STR);
 			(void)do_res_stat(A_CON);
 			(void)do_res_stat(A_DEX);
@@ -712,7 +760,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 		{
 			if (!p_ptr->resist_blind)
 			{
-				(void)set_blind(p_ptr->blind + 3 + randint(5));
+				(void)p_ptr->inc_timed<TMD_BLIND>(3 + randint(5));
 			}
 			if (unlite_area(10, 3)) *ident = TRUE;
 			break;
@@ -924,19 +972,19 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 
 		case SV_SCROLL_BLESSING:
 		{
-			if (set_blessed(p_ptr->blessed + randint(12) + 6)) *ident = TRUE;
+			if (p_ptr->inc_timed<TMD_BLESSED>(randint(12) + 6)) *ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_HOLY_CHANT:
 		{
-			if (set_blessed(p_ptr->blessed + randint(24) + 12)) *ident = TRUE;
+			if (p_ptr->inc_timed<TMD_BLESSED>(randint(24) + 12)) *ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_HOLY_PRAYER:
 		{
-			if (set_blessed(p_ptr->blessed + randint(48) + 24)) *ident = TRUE;
+			if (p_ptr->inc_timed<TMD_BLESSED>(randint(48) + 24)) *ident = TRUE;
 			break;
 		}
 
@@ -954,7 +1002,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 		case SV_SCROLL_PROTECTION_FROM_EVIL:
 		{
 			k = 3 * p_ptr->lev;
-			if (set_protevil(p_ptr->protevil + randint(25) + k)) *ident = TRUE;
+			if (p_ptr->inc_timed<TMD_PROTEVIL>(randint(25) + k)) *ident = TRUE;
 			break;
 		}
 
@@ -1030,7 +1078,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 		{
 			if (!p_ptr->resist_blind)
 			{
-				if (set_blind(p_ptr->blind + 3 + randint(5))) *ident = TRUE;
+				if (p_ptr->inc_timed<TMD_BLIND>(3 + randint(5))) *ident = TRUE;
 			}
 			if (unlite_area(10, 3)) *ident = TRUE;
 			break;
@@ -1038,7 +1086,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 		case SV_STAFF_SLOWNESS:
 		{
-			if (set_slow(p_ptr->slow + randint(30) + 15)) *ident = TRUE;
+			if (p_ptr->inc_timed<TMD_SLOW>(randint(30) + 15)) *ident = TRUE;
 			break;
 		}
 
@@ -1079,7 +1127,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 		{
 			if (remove_curse())
 			{
-				if (!p_ptr->blind)
+				if (!p_ptr->timed[TMD_BLIND])
 				{
 					msg_print("The staff glows blue for a moment...");
 				}
@@ -1090,11 +1138,11 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 		case SV_STAFF_STARLITE:
 		{
-			if (!p_ptr->blind)
+			if (!p_ptr->timed[TMD_BLIND])
 			{
 				msg_print("The end of the staff glows brightly...");
 			}
-			for (k = 0; k < 8; k++) lite_line(ddd[k]);
+			for (k = 0; k < KEYPAD_DIR_MAX; k++) lite_line(ddd[k]);
 			*ident = TRUE;
 			break;
 		}
@@ -1158,19 +1206,19 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 		case SV_STAFF_CURING:
 		{
-			if (set_blind(0)) *ident = TRUE;
-			if (set_poisoned(0)) *ident = TRUE;
-			if (set_confused(0)) *ident = TRUE;
-			if (set_stun(0)) *ident = TRUE;
-			if (set_cut(0)) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_BLIND>()) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_POISONED>()) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_CONFUSED>()) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_STUN>()) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_CUT>()) *ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_HEALING:
 		{
 			if (hp_player(300)) *ident = TRUE;
-			if (set_stun(0)) *ident = TRUE;
-			if (set_cut(0)) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_STUN>()) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_CUT>()) *ident = TRUE;
 			break;
 		}
 
@@ -1203,13 +1251,13 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 		case SV_STAFF_SPEED:
 		{
-			if (!p_ptr->fast)
+			if (!p_ptr->timed[TMD_FAST])
 			{
-				if (set_fast(randint(30) + 15)) *ident = TRUE;
+				if (p_ptr->inc_timed<TMD_FAST>(randint(30) + 15)) *ident = TRUE;
 			}
 			else
 			{
-				(void)set_fast(p_ptr->fast + 5);
+				(void)p_ptr->inc_timed<TMD_FAST>(5);
 			}
 			break;
 		}
@@ -1237,12 +1285,12 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 		{
 			if (dispel_evil(120)) *ident = TRUE;
 			k = 3 * p_ptr->lev;
-			if (set_protevil(p_ptr->protevil + randint(25) + k)) *ident = TRUE;
-			if (set_poisoned(0)) *ident = TRUE;
-			if (set_afraid(0)) *ident = TRUE;
+			if (p_ptr->inc_timed<TMD_PROTEVIL>(randint(25) + k)) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_POISONED>()) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_AFRAID>()) *ident = TRUE;
 			if (hp_player(50)) *ident = TRUE;
-			if (set_stun(0)) *ident = TRUE;
-			if (set_cut(0)) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_STUN>()) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_CUT>()) *ident = TRUE;
 			break;
 		}
 
@@ -1272,65 +1320,9 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 }
 
 
-static bool aim_wand(object_type *o_ptr, bool *ident)
+static bool aim_wand(object_type *o_ptr, bool *ident, int dir)
 {
-	int lev, chance, dir, sval;
-
-
-	/* Allow direction to be cancelled for free */
-	if (!get_aim_dir(&dir)) return (FALSE);
-
-	/* Take a turn */
-	p_ptr->energy_use = 100;
-
-	/* Not identified yet */
-	*ident = FALSE;
-
-	/* Get the level */
-	lev = o_ptr->level();
-
-	/* Base chance of success */
-	chance = p_ptr->skill_dev;
-
-	/* Confusion hurts skill */
-	if (p_ptr->confused) chance = chance / 2;
-
-	/* High level objects are harder */
-	chance = chance - ((lev > 50) ? 50 : lev);
-
-	/* Give everyone a (slight) chance */
-	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
-	{
-		chance = USE_DEVICE;
-	}
-
-	/* Roll for usage */
-	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
-	{
-		if (flush_failure) flush();
-		msg_print("You failed to use the wand properly.");
-		return (FALSE);
-	}
-
-	/* The wand is already empty! */
-	if (o_ptr->pval <= 0)
-	{
-		if (flush_failure) flush();
-		msg_print("The wand has no charges left.");
-		o_ptr->ident |= (IDENT_EMPTY);
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-		p_ptr->window |= (PW_INVEN);
-		return (FALSE);
-	}
-
-
-	/* Sound */
-	/* TODO: Create wand sound?  Do the individual effects have sounds? */
-	/* sound(MSG_ZAP_ROD); */
-
-
-	/* XXX Hack -- Extract the "sval" effect */
-	sval = o_ptr->sval;
+	int sval = o_ptr->sval;
 
 	/* XXX Hack -- Wand of wonder can do anything before it */
 	if (sval == SV_WAND_WONDER) sval = rand_int(SV_WAND_WONDER);
@@ -1537,68 +1529,10 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 }
 
 
-static bool zap_rod(object_type *o_ptr, bool *ident)
+static bool zap_rod(object_type *o_ptr, bool *ident, int dir)
 {
-	int chance, dir, lev;
 	bool used_charge = TRUE;
 	object_kind *k_ptr = &object_type::k_info[o_ptr->k_idx];
-
-
-	/* Get a direction (unless KNOWN not to need it) */
-	if ((o_ptr->sval >= SV_ROD_MIN_DIRECTION) || !o_ptr->aware())
-	{
-		/* Get a direction, allow cancel */
-		if (!get_aim_dir(&dir)) return FALSE;
-	}
-
-
-	/* Take a turn */
-	p_ptr->energy_use = 100;
-
-	/* Not identified yet */
-	*ident = FALSE;
-
-	/* Extract the item level */
-	lev = o_ptr->level();
-
-	/* Base chance of success */
-	chance = p_ptr->skill_dev;
-
-	/* Confusion hurts skill */
-	if (p_ptr->confused) chance = chance / 2;
-
-	/* High level objects are harder */
-	chance = chance - ((lev > 50) ? 50 : lev);
-
-	/* Give everyone a (slight) chance */
-	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
-	{
-		chance = USE_DEVICE;
-	}
-
-	/* Roll for usage */
-	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
-	{
-		if (flush_failure) flush();
-		msg_print("You failed to use the rod properly.");
-		return FALSE;
-	}
-
-	/* Still charging? */
-	if (o_ptr->timeout > (o_ptr->pval - k_ptr->pval))
-	{
-		if (flush_failure) flush();
-
-		if (o_ptr->number == 1)
-			msg_print("The rod is still charging");
-		else
-			msg_print("The rods are all still charging");
-
-		return FALSE;
-	}
-
-	/* Sound */
-	sound(MSG_ZAP_ROD);
 
 	/* Analyze the rod */
 	switch (o_ptr->sval)
@@ -1659,19 +1593,19 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 
 		case SV_ROD_CURING:
 		{
-			if (set_blind(0)) *ident = TRUE;
-			if (set_poisoned(0)) *ident = TRUE;
-			if (set_confused(0)) *ident = TRUE;
-			if (set_stun(0)) *ident = TRUE;
-			if (set_cut(0)) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_BLIND>()) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_POISONED>()) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_CONFUSED>()) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_STUN>()) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_CUT>()) *ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_HEALING:
 		{
 			if (hp_player(500)) *ident = TRUE;
-			if (set_stun(0)) *ident = TRUE;
-			if (set_cut(0)) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_STUN>()) *ident = TRUE;
+			if (p_ptr->clear_timed<TMD_CUT>()) *ident = TRUE;
 			break;
 		}
 
@@ -1689,13 +1623,13 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 
 		case SV_ROD_SPEED:
 		{
-			if (!p_ptr->fast)
+			if (!p_ptr->timed[TMD_FAST])
 			{
-				if (set_fast(randint(30) + 15)) *ident = TRUE;
+				if (p_ptr->inc_timed<TMD_FAST>(randint(30) + 15)) *ident = TRUE;
 			}
 			else
 			{
-				(void)set_fast(p_ptr->fast + 5);
+				(void)p_ptr->inc_timed<TMD_FAST>(5);
 			}
 			break;
 		}
@@ -1801,8 +1735,10 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 		}
 	}
 
-	/* Drain the charge */
-	if (used_charge) o_ptr->timeout += k_ptr->pval;
+	/* XXX initialize key info at this time XXX */
+	/* should be done in init1.c */
+	k_ptr->time_base = k_ptr->pval;
+	k_ptr->time.clear();
 
 	return TRUE;
 }
@@ -1818,25 +1754,14 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
  * Note that it always takes a turn to activate an artifact, even if
  * the user hits "escape" at the "direction" prompt.
  */
-static bool activate_object(object_type *o_ptr, bool *ident)
+static bool activate_object(object_type *o_ptr, int dir)
 {
-	int k, dir, i, chance;
-
-
-	/* Check the recharge */
-	if (o_ptr->timeout)
-	{
-		msg_print("It whines, glows and fades...");
-		return FALSE;
-	}
-
-	/* Activate the artifact */
-	message(MSG_ACT_ARTIFACT, 0, "You activate it...");
+	int k, i, chance;
 
 	/* Artifacts */
 	if (o_ptr->name1)
 	{
-		artifact_type *a_ptr = &a_info[o_ptr->name1];
+		artifact_type *a_ptr = &object_type::a_info[o_ptr->name1];
 		char o_name[80];
 
 		/* Get the basic name of the object */
@@ -1872,7 +1797,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			{
 				msg_format("The %s lets out a shrill wail...", o_name);
 				k = 3 * p_ptr->lev;
-				(void)set_protevil(p_ptr->protevil + randint(25) + k);
+				(void)p_ptr->inc_timed<TMD_PROTEVIL>(randint(25) + k);
 				break;
 			}
 
@@ -1886,13 +1811,13 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_HASTE2:
 			{
 				msg_format("The %s glows brightly...", o_name);
-				if (!p_ptr->fast)
+				if (!p_ptr->timed[TMD_FAST])
 				{
-					(void)set_fast(randint(75) + 75);
+					(void)p_ptr->inc_timed<TMD_FAST>(randint(75) + 75);
 				}
 				else
 				{
-					(void)set_fast(p_ptr->fast + 5);
+					(void)p_ptr->inc_timed<TMD_FAST>(5);
 				}
 				break;
 			}
@@ -1900,7 +1825,6 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_FIRE3:
 			{
 				msg_format("The %s glows deep red...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
 				fire_ball(GF_FIRE, dir, 120, 3);
 				break;
 			}
@@ -1908,7 +1832,6 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_FROST5:
 			{
 				msg_format("The %s glows bright white...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
 				fire_ball(GF_COLD, dir, 200, 3);
 				break;
 			}
@@ -1916,7 +1839,6 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_ELEC2:
 			{
 				msg_format("The %s glows deep blue...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
 				fire_ball(GF_ELEC, dir, 250, 3);
 				break;
 			}
@@ -1924,7 +1846,6 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_BIZZARE:
 			{
 				msg_format("The %s glows intensely black...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
 				ring_of_power(dir);
 				break;
 			}
@@ -1933,7 +1854,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_STAR_BALL:
 			{
 				msg_format("Your %s is surrounded by lightning...", o_name);
-				for (i = 0; i < 8; i++) fire_ball(GF_ELEC, ddd[i], 150, 3);
+				for (i = 0; i < KEYPAD_DIR_MAX; i++) fire_ball(GF_ELEC, ddd[i], 150, 3);
 				break;
 			}
 
@@ -1941,14 +1862,14 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			{
 				msg_format("Your %s glows many colours...", o_name);
 				(void)hp_player(30);
-				(void)set_afraid(0);
-				(void)set_shero(p_ptr->shero + randint(50) + 50);
-				(void)set_blessed(p_ptr->blessed + randint(50) + 50);
-				(void)set_oppose_acid(p_ptr->oppose_acid + randint(50) + 50);
-				(void)set_oppose_elec(p_ptr->oppose_elec + randint(50) + 50);
-				(void)set_oppose_fire(p_ptr->oppose_fire + randint(50) + 50);
-				(void)set_oppose_cold(p_ptr->oppose_cold + randint(50) + 50);
-				(void)set_oppose_pois(p_ptr->oppose_pois + randint(50) + 50);
+				(void)p_ptr->clear_timed<TMD_AFRAID>();
+				(void)p_ptr->inc_timed<TMD_SHERO>(randint(50) + 50);
+				(void)p_ptr->inc_timed<TMD_BLESSED>(randint(50) + 50);
+				(void)p_ptr->inc_timed<TMD_OPP_ACID>(randint(50) + 50);
+				(void)p_ptr->inc_timed<TMD_OPP_ELEC>(randint(50) + 50);
+				(void)p_ptr->inc_timed<TMD_OPP_FIRE>(randint(50) + 50);
+				(void)p_ptr->inc_timed<TMD_OPP_COLD>(randint(50) + 50);
+				(void)p_ptr->inc_timed<TMD_OPP_POIS>(randint(50) + 50);
 				break;
 			}
 
@@ -1957,7 +1878,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				msg_format("Your %s glows a bright white...", o_name);
 				msg_print("You feel much better...");
 				(void)hp_player(1000);
-				(void)set_cut(0);
+				(void)p_ptr->clear_timed<TMD_CUT>();
 				break;
 			}
 
@@ -1995,18 +1916,18 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				msg_format("Your %s glows deep blue...", o_name);
 				msg_print("You feel a warm tingling inside...");
 				(void)hp_player(500);
-				(void)set_cut(0);
+				(void)p_ptr->clear_timed<TMD_CUT>();
 				break;
 			}
 
 			case ACT_RESIST:
 			{
 				msg_format("Your %s glows many colours...", o_name);
-				(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
-				(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
-				(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
-				(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
-				(void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
+				(void)p_ptr->inc_timed<TMD_OPP_ACID>(randint(20) + 20);
+				(void)p_ptr->inc_timed<TMD_OPP_ELEC>(randint(20) + 20);
+				(void)p_ptr->inc_timed<TMD_OPP_FIRE>(randint(20) + 20);
+				(void)p_ptr->inc_timed<TMD_OPP_COLD>(randint(20) + 20);
+				(void)p_ptr->inc_timed<TMD_OPP_POIS>(randint(20) + 20);
 				break;
 			}
 
@@ -2041,7 +1962,6 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_MISSILE:
 			{
 				msg_format("Your %s glows extremely brightly...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
 				fire_bolt(GF_MISSILE, dir, damroll(2, 6));
 				break;
 			}
@@ -2049,7 +1969,6 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_FIRE1:
 			{
 				msg_format("Your %s is covered in fire...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
 				fire_bolt(GF_FIRE, dir, damroll(9, 8));
 				break;
 			}
@@ -2057,7 +1976,6 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_FROST1:
 			{
 				msg_format("Your %s is covered in frost...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
 				fire_bolt(GF_COLD, dir, damroll(6, 8));
 				break;
 			}
@@ -2065,7 +1983,6 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_LIGHTNING_BOLT:
 			{
 				msg_format("Your %s is covered in sparks...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
 				fire_bolt(GF_ELEC, dir, damroll(4, 8));
 				break;
 			}
@@ -2073,7 +1990,6 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_ACID1:
 			{
 				msg_format("Your %s is covered in acid...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
 				fire_bolt(GF_ACID, dir, damroll(5, 8));
 				break;
 			}
@@ -2081,7 +1997,6 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_ARROW:
 			{
 				msg_format("Your %s grows magical spikes...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
 				fire_bolt(GF_ARROW, dir, 150);
 				break;
 			}
@@ -2089,13 +2004,13 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_HASTE1:
 			{
 				msg_format("Your %s glows bright green...", o_name);
-				if (!p_ptr->fast)
+				if (!p_ptr->timed[TMD_FAST])
 				{
-					(void)set_fast(randint(20) + 20);
+					(void)p_ptr->inc_timed<TMD_FAST>(randint(20) + 20);
 				}
 				else
 				{
-					(void)set_fast(p_ptr->fast + 5);
+					(void)p_ptr->inc_timed<TMD_FAST>(5);
 				}
 				break;
 			}
@@ -2103,15 +2018,14 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_REM_FEAR_POIS:
 			{
 				msg_format("Your %s glows deep blue...", o_name);
-				(void)set_afraid(0);
-				(void)set_poisoned(0);
+				(void)p_ptr->clear_timed<TMD_AFRAID>();
+				(void)p_ptr->clear_timed<TMD_POISONED>();
 				break;
 			}
 
 			case ACT_STINKING_CLOUD:
 			{
 				msg_format("Your %s throbs deep green...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
 				fire_ball(GF_POIS, dir, 12, 3);
 				break;
 			}
@@ -2119,7 +2033,6 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_FROST2:
 			{
 				msg_format("Your %s is covered in frost...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
 				fire_ball(GF_COLD, dir, 48, 2);
 				break;
 			}
@@ -2127,7 +2040,6 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_FROST4:
 			{
 				msg_format("Your %s glows a pale blue...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
 				fire_bolt(GF_COLD, dir, damroll(12, 8));
 				break;
 			}
@@ -2135,7 +2047,6 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_FROST3:
 			{
 				msg_format("Your %s glows a intense blue...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
 				fire_ball(GF_COLD, dir, 100, 2);
 				break;
 			}
@@ -2143,7 +2054,6 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_FIRE2:
 			{
 				msg_format("Your %s rages in fire...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
 				fire_ball(GF_FIRE, dir, 72, 2);
 				break;
 			}
@@ -2151,7 +2061,6 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_DRAIN_LIFE2:
 			{
 				msg_format("Your %s glows black...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
 				drain_life(dir, 120);
 				break;
 			}
@@ -2159,7 +2068,6 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_STONE_TO_MUD:
 			{
 				msg_format("Your %s pulsates...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
 				wall_to_mud(dir);
 				break;
 			}
@@ -2175,14 +2083,13 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			{
 				msg_format("Your %s radiates deep purple...", o_name);
 				hp_player(damroll(4, 8));
-				(void)set_cut((p_ptr->cut / 2) - 50);
+				(void)p_ptr->set_timed<TMD_CUT>((p_ptr->timed[TMD_CUT] / 2) - 50);
 				break;
 			}
 
 			case ACT_TELE_AWAY:
 			{
 				msg_format("Your %s glows deep red...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
 				teleport_monster(dir);
 				break;
 			}
@@ -2197,7 +2104,6 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_CONFUSE:
 			{
 				msg_format("Your %s glows in scintillating colours...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
 				confuse_monster(dir, 20);
 				break;
 			}
@@ -2219,7 +2125,6 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_DRAIN_LIFE1:
 			{
 				msg_format("Your %s glows white...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
 				drain_life(dir, 90);
 				break;
 			}
@@ -2234,14 +2139,13 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_STARLIGHT:
 			{
 				msg_format("Your %s glows with the light of a thousand stars...", o_name);
-				for (k = 0; k < 8; k++) strong_lite_line(ddd[k]);
+				for (k = 0; k < KEYPAD_DIR_MAX; k++) strong_lite_line(ddd[k]);
 				break;
 			}
 
 			case ACT_MANA_BOLT:
 			{
 				msg_format("Your %s glows white...", o_name);
-				if (!get_aim_dir(&dir)) return FALSE;
 				fire_bolt(GF_MANA, dir, damroll(12, 8));
 				break;
 			}
@@ -2249,30 +2153,23 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case ACT_BERSERKER:
 			{
 				msg_format("Your %s glows in anger...", o_name);
-				set_shero(p_ptr->shero + randint(50) + 50);
+				p_ptr->inc_timed<TMD_SHERO>(randint(50) + 50);
 				break;
 			}
 		}
-
-		/* Set the recharge time */
-		if (a_ptr->randtime)
-			o_ptr->timeout = a_ptr->time + (byte)randint(a_ptr->randtime);
-		else
-			o_ptr->timeout = a_ptr->time;
 
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
 		/* Done */
-		return FALSE;
+		return TRUE;
 	}
 
 
 	/* Hack -- Dragon Scale Mail can be activated as well */
 	if (o_ptr->tval == TV_DRAG_ARMOR)
 	{
-		/* Get a direction for breathing (or abort) */
-		if (!get_aim_dir(&dir)) return FALSE;
+		object_kind* k_ptr = &object_type::k_info[o_ptr->k_idx];	/* XXX prepare to set timeout info XXX */
 
 		/* Branch on the sub-type */
 		switch (o_ptr->sval)
@@ -2282,7 +2179,10 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				sound(MSG_BR_ELEC);
 				msg_print("You breathe lightning.");
 				fire_ball(GF_ELEC, dir, 100, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+				/* XXX set timeout info here XXX */
+				k_ptr->time_base = 450;
+				k_ptr->time.dice = 1;
+				k_ptr->time.sides = 450;
 				break;
 			}
 
@@ -2291,7 +2191,10 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				sound(MSG_BR_FROST);
 				msg_print("You breathe frost.");
 				fire_ball(GF_COLD, dir, 110, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+				/* XXX set timeout info here XXX */
+				k_ptr->time_base = 450;
+				k_ptr->time.dice = 1;
+				k_ptr->time.sides = 450;
 				break;
 			}
 
@@ -2300,7 +2203,10 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				sound(MSG_BR_ACID);
 				msg_print("You breathe acid.");
 				fire_ball(GF_ACID, dir, 130, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+				/* XXX set timeout info here XXX */
+				k_ptr->time_base = 450;
+				k_ptr->time.dice = 1;
+				k_ptr->time.sides = 450;
 				break;
 			}
 
@@ -2309,7 +2215,10 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				sound(MSG_BR_GAS);
 				msg_print("You breathe poison gas.");
 				fire_ball(GF_POIS, dir, 150, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+				/* XXX set timeout info here XXX */
+				k_ptr->time_base = 450;
+				k_ptr->time.dice = 1;
+				k_ptr->time.sides = 450;
 				break;
 			}
 
@@ -2318,7 +2227,10 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				sound(MSG_BR_FIRE);
 				msg_print("You breathe fire.");
 				fire_ball(GF_FIRE, dir, 200, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+				/* XXX set timeout info here XXX */
+				k_ptr->time_base = 450;
+				k_ptr->time.dice = 1;
+				k_ptr->time.sides = 450;
 				break;
 			}
 
@@ -2339,7 +2251,10 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				            ((chance == 3) ? GF_ACID :
 				             ((chance == 4) ? GF_POIS : GF_FIRE)))),
 				          dir, 250, 2);
-				o_ptr->timeout = rand_int(225) + 225;
+				/* XXX set timeout info here XXX */
+				k_ptr->time_base = 225;
+				k_ptr->time.dice = 1;
+				k_ptr->time.sides = 225;
 				break;
 			}
 
@@ -2348,7 +2263,10 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				sound(MSG_BR_CONF);
 				msg_print("You breathe confusion.");
 				fire_ball(GF_CONFUSION, dir, 120, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+				/* XXX set timeout info here XXX */
+				k_ptr->time_base = 450;
+				k_ptr->time.dice = 1;
+				k_ptr->time.sides = 450;
 				break;
 			}
 
@@ -2357,7 +2275,10 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				sound(MSG_BR_SOUND);
 				msg_print("You breathe sound.");
 				fire_ball(GF_SOUND, dir, 130, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+				/* XXX set timeout info here XXX */
+				k_ptr->time_base = 450;
+				k_ptr->time.dice = 1;
+				k_ptr->time.sides = 450;
 				break;
 			}
 
@@ -2369,7 +2290,10 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				           ((chance == 1 ? "chaos" : "disenchantment")));
 				fire_ball((chance == 1 ? GF_CHAOS : GF_DISENCHANT),
 				          dir, 220, 2);
-				o_ptr->timeout = rand_int(300) + 300;
+				/* XXX set timeout info here XXX */
+				k_ptr->time_base = 300;
+				k_ptr->time.dice = 1;
+				k_ptr->time.sides = 300;
 				break;
 			}
 
@@ -2381,7 +2305,10 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				           ((chance == 1 ? "sound" : "shards")));
 				fire_ball((chance == 1 ? GF_SOUND : GF_SHARD),
 				          dir, 230, 2);
-				o_ptr->timeout = rand_int(300) + 300;
+				/* XXX set timeout info here XXX */
+				k_ptr->time_base = 300;
+				k_ptr->time.dice = 1;
+				k_ptr->time.sides = 300;
 				break;
 			}
 
@@ -2396,7 +2323,10 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				           ((chance == 2) ? GF_DISENCHANT :
 				            ((chance == 3) ? GF_SOUND : GF_SHARD))),
 				          dir, 250, 2);
-				o_ptr->timeout = rand_int(300) + 300;
+				/* XXX set timeout info here XXX */
+				k_ptr->time_base = 300;
+				k_ptr->time.dice = 1;
+				k_ptr->time.sides = 300;
 				break;
 			}
 
@@ -2407,7 +2337,10 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				msg_format("You breathe %s.",
 				           ((chance == 0 ? "light" : "darkness")));
 				fire_ball((chance == 0 ? GF_LITE : GF_DARK), dir, 200, 2);
-				o_ptr->timeout = rand_int(300) + 300;
+				/* XXX set timeout info here XXX */
+				k_ptr->time_base = 300;
+				k_ptr->time.dice = 1;
+				k_ptr->time.sides = 300;
 				break;
 			}
 
@@ -2416,7 +2349,10 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 				sound(MSG_BR_ELEMENTS);
 				msg_print("You breathe the elements.");
 				fire_ball(GF_MISSILE, dir, 300, 2);
-				o_ptr->timeout = rand_int(300) + 300;
+				/* XXX set timeout info here XXX */
+				k_ptr->time_base = 300;
+				k_ptr->time.dice = 1;
+				k_ptr->time.sides = 300;
 				break;
 			}
 		}
@@ -2425,14 +2361,13 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
 		/* Success */
-		return FALSE;
+		return TRUE;
 	}
 
 	/* Hack -- some Rings can be activated for double resist and element ball */
 	if (o_ptr->tval == TV_RING)
 	{
-		/* Get a direction for firing (or abort) */
-		if (!get_aim_dir(&dir)) return FALSE;
+		object_kind* k_ptr = &object_type::k_info[o_ptr->k_idx];	/* XXX prepare to set timeout info XXX */
 
 		/* Branch on the sub-type */
 		switch (o_ptr->sval)
@@ -2440,32 +2375,44 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 			case SV_RING_ACID:
 			{
 				fire_ball(GF_ACID, dir, 70, 2);
-				set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
-				o_ptr->timeout = rand_int(50) + 50;
+				p_ptr->inc_timed<TMD_OPP_ACID>(randint(20) + 20);
+				/* XXX set timeout info here XXX */
+				k_ptr->time_base = 50;
+				k_ptr->time.dice = 1;
+				k_ptr->time.sides = 50;
 				break;
 			}
 
 			case SV_RING_FLAMES:
 			{
 				fire_ball(GF_FIRE, dir, 80, 2);
-				set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
-				o_ptr->timeout = rand_int(50) + 50;
+				p_ptr->inc_timed<TMD_OPP_FIRE>(randint(20) + 20);
+				/* XXX set timeout info here XXX */
+				k_ptr->time_base = 50;
+				k_ptr->time.dice = 1;
+				k_ptr->time.sides = 50;
 				break;
 			}
 
 			case SV_RING_ICE:
 			{
 				fire_ball(GF_COLD, dir, 75, 2);
-				set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
-				o_ptr->timeout = rand_int(50) + 50;
+				p_ptr->inc_timed<TMD_OPP_COLD>(randint(20) + 20);
+				/* XXX set timeout info here XXX */
+				k_ptr->time_base = 50;
+				k_ptr->time.dice = 1;
+				k_ptr->time.sides = 50;
 				break;
 			}
 
 			case SV_RING_LIGHTNING:
 			{
 				fire_ball(GF_ELEC, dir, 85, 2);
-				set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
-				o_ptr->timeout = rand_int(50) + 50;
+				p_ptr->inc_timed<TMD_OPP_ELEC>(randint(20) + 20);
+				/* XXX set timeout info here XXX */
+				k_ptr->time_base = 50;
+				k_ptr->time.dice = 1;
+				k_ptr->time.sides = 50;
 				break;
 			}
 		}
@@ -2474,7 +2421,7 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 		p_ptr->window |= (PW_EQUIP);
 
 		/* Success */
-		return FALSE;
+		return TRUE;
 	}
 
 	/* Mistake */
@@ -2485,59 +2432,249 @@ static bool activate_object(object_type *o_ptr, bool *ident)
 }
 
 
-bool use_object(object_type *o_ptr, bool *ident)
+static bool want_aim(object_type *o_ptr)
 {
+	if (o_ptr->tval == TV_WAND) return TRUE;
+	if (o_ptr->tval == TV_ROD && ((o_ptr->sval >= SV_ROD_MIN_DIRECTION) || !o_ptr->aware())) return TRUE;
+	if (o_ptr->name1)
+	{
+		switch (object_type::a_info[o_ptr->name1].activation)
+		{
+			case ACT_FIRE3:
+			case ACT_FROST5:
+			case ACT_ELEC2:
+			case ACT_BIZZARE:
+			case ACT_MISSILE:
+			case ACT_FIRE1:
+			case ACT_FROST1:
+			case ACT_LIGHTNING_BOLT:
+			case ACT_ACID1:
+			case ACT_ARROW:
+			case ACT_STINKING_CLOUD:
+			case ACT_FROST2:
+			case ACT_FROST4:
+			case ACT_FROST3:
+			case ACT_FIRE2:
+			case ACT_DRAIN_LIFE2:
+			case ACT_STONE_TO_MUD:
+			case ACT_TELE_AWAY:
+			case ACT_CONFUSE:
+			case ACT_DRAIN_LIFE1:
+			case ACT_MANA_BOLT:	return TRUE;
+			default: return FALSE;
+		}
+	}
+	
+	if (o_ptr->tval == TV_DRAG_ARMOR) return TRUE;
+	if (o_ptr->tval == TV_RING) return TRUE;
+
+	return FALSE;
+}
+
+/*
+ * Use an object the right way.
+ *
+ * There may be a BIG problem with any "effect" that can cause "changes"
+ * to the inventory.  For example, a "scroll of recharging" can cause
+ * a wand/staff to "disappear", moving the inventory up.  Luckily, the
+ * scrolls all appear BEFORE the staffs/wands, so this is not a problem.
+ * But, for example, a "staff of recharging" could cause MAJOR problems.
+ * In such a case, it will be best to either (1) "postpone" the effect
+ * until the end of the function, or (2) "change" the effect, say, into
+ * giving a staff "negative" charges, or "turning a staff into a stick".
+ * It seems as though a "rod of recharging" might in fact cause problems.
+ * The basic problem is that the act of recharging (and destroying) an
+ * item causes the inducer of that action to "move", causing "o_ptr" to
+ * no longer point at the correct item, with horrifying results.
+ */
+void do_cmd_use(object_type *o_ptr, int item, int snd, use_type _use)
+{	/* mock up old environment for this */
+	int dir = 5;
 	bool used;
+	bool ident = FALSE;
+
+	if (want_aim(o_ptr))
+	{
+		/* Get a direction, allow cancel */
+		if (!get_aim_dir(&dir))
+			return;
+	}
+
+	/* Use energy regardless of failure */	
+	p_ptr->energy_use = 100;
+
+	/* Check for use */
+	if (_use == USE_CHARGE || _use == USE_TIMEOUT)
+	{
+		if (!check_devices(o_ptr))
+			return;
+	}
+
+	/* Check for timeout */
+	if (_use == USE_TIMEOUT)
+	{
+		if (TV_ROD == o_ptr->tval)
+		{
+			if (o_ptr->timeout > (o_ptr->pval - object_type::k_info[o_ptr->k_idx].pval))
+			{
+				if (flush_failure) flush();
+
+				if (o_ptr->number == 1)
+					msg_print("The rod is still charging");
+				else
+					msg_print("The rods are all still charging");
+
+				return;
+			}
+		}
+		else
+		{
+			if (o_ptr->timeout)
+			{
+				msg_print("It whines, glows and fades...");
+				return;
+			}
+		}
+	}
+
+	/* Special message for artifacts */
+	if (o_ptr->is_artifact())
+	{
+		message(snd, 0, "You activate it.");
+	}
+	else
+	{
+		/* Make a noise! */
+		sound(snd);
+	}
 
 	/* Analyze the object */
 	switch (o_ptr->tval)
 	{
 		case TV_FOOD:
 		{
-			used = eat_food(o_ptr, ident);
+			used = eat_food(o_ptr, &ident);
 			break;
 		}
 
 		case TV_POTION:
 		{
-			used = quaff_potion(o_ptr, ident);
+			used = quaff_potion(o_ptr, &ident);
 			break;
 		}
 
 		case TV_SCROLL:
 		{
-			used = read_scroll(o_ptr, ident);
+			used = read_scroll(o_ptr, &ident);
 			break;
 		}
 
 		case TV_STAFF:
 		{
-			used = use_staff(o_ptr, ident);
+			used = use_staff(o_ptr, &ident);
 			break;
 		}
 
 		case TV_WAND:
 		{
-			used = aim_wand(o_ptr, ident);
+			used = aim_wand(o_ptr, &ident, dir);
 			break;
 		}
 
 		case TV_ROD:
 		{
-			used = zap_rod(o_ptr, ident);
+			used = zap_rod(o_ptr, &ident, dir);
 			break;
 		}
 
 		default:
 		{
-			used = activate_object(o_ptr, ident);
+			used = activate_object(o_ptr, dir);
 			break;
 		}
 	}
 
-	return (used);
-}
+#if 0
+	/* Do effect */
+	used = do_effect(effect, &ident, dir, beam_chance(o_ptr->tval));
 
+	/* Food feeds the player */
+	if (o_ptr->tval == TV_FOOD || o_ptr->tval == TV_POTION)
+		(void)set_food(p_ptr->food + o_ptr->pval);
+#endif
+
+	if (!used && !ident) return;
+
+	/* Mark as tried and redisplay */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+//	p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+
+	/*
+	 * If the player becomes aware of the item's function, then mark it as
+	 * aware and reward the player with some experience.  Otherwise, mark
+	 * it as "tried".
+	 */
+	if (ident && !o_ptr->aware())
+	{
+		object_type::k_info[o_ptr->k_idx].aware = TRUE;
+		gain_exp((object_type::k_info[o_ptr->k_idx].level + (p_ptr->lev / 2)) / p_ptr->lev);
+//		p_ptr->notice |= PN_SQUELCH;
+	}
+	else
+	{
+		object_tried(o_ptr);
+	}
+
+	
+	/* Some uses are "free" */
+	if (!used) return;
+
+	/* Chargeables act differently to single-used items when not used up */
+	if (_use == USE_CHARGE)
+	{
+		/* Use a single charge */
+		o_ptr->pval--;
+
+		/* Describe charges */
+		if (item >= 0)
+			inven_item_charges(item);
+		else
+			floor_item_charges(0 - item);
+	}
+	else if (_use == USE_TIMEOUT)
+	{
+		/* Artifacts use their own special field */
+		if (o_ptr->name1)
+		{
+			const artifact_type *a_ptr = &object_type::a_info[o_ptr->name1];
+			o_ptr->timeout = a_ptr->time_base + a_ptr->time.damroll();
+		}
+		else
+		{
+			const object_kind *k_ptr = &object_type::k_info[o_ptr->k_idx];
+			o_ptr->timeout += k_ptr->time_base + k_ptr->time.damroll();
+		}
+	}
+	else if (_use == USE_SINGLE)
+	{
+		/* Destroy a potion in the pack */
+		if (item >= 0)
+		{
+			inven_item_increase(item, -1);
+			inven_item_describe(item);
+			inven_item_optimize(item);
+		}
+
+		/* Destroy a potion on the floor */
+		else
+		{
+			floor_item_increase(0 - item, -1);
+			floor_item_describe(0 - item);
+			floor_item_optimize(0 - item);
+		}
+	}
+}
 
 static cptr act_description[ACT_MAX] =
 {
@@ -2611,7 +2748,7 @@ void describe_item_activation(const object_type *o_ptr)
 	/* Artifact activations */
 	if (o_ptr->name1)
 	{
-		artifact_type *a_ptr = &a_info[o_ptr->name1];
+		artifact_type *a_ptr = &object_type::a_info[o_ptr->name1];
 
 		/* Paranoia */
 		if (a_ptr->activation >= ACT_MAX) return;
@@ -2620,12 +2757,35 @@ void describe_item_activation(const object_type *o_ptr)
 		text_out(act_description[a_ptr->activation]);
 
 		/* Output the number of turns */
-		if (a_ptr->time && a_ptr->randtime)
-			text_out(format(" every %d+d%d turns", a_ptr->time, a_ptr->randtime));
-		else if (a_ptr->time)
-			text_out(format(" every %d turns", a_ptr->time));
-		else if (a_ptr->randtime)
-			text_out(format(" every d%d turns", a_ptr->randtime));
+		if (a_ptr->time_base)
+		{
+			if (0<a_ptr->time.maxroll())
+			{
+				if (1==a_ptr->time.dice)
+				{
+					text_out(format(" every %d+d%d turns", (int)(a_ptr->time_base), (int)(a_ptr->time.sides)));
+				}
+				else
+				{
+					text_out(format(" every %d+%dd%d turns", (int)(a_ptr->time_base), (int)(a_ptr->time.dice), (int)(a_ptr->time.sides)));
+				}
+			}
+			else
+			{
+				text_out(format(" every %d turns", (int)(a_ptr->time_base)));
+			}
+		}
+		else if (0<a_ptr->time.maxroll())
+		{
+			if (1==a_ptr->time.dice)
+			{
+				text_out(format(" every d%d turns", (int)(a_ptr->time.sides)));
+			}
+			else
+			{
+				text_out(format(" every %dd%d turns", (int)(a_ptr->time.dice), (int)(a_ptr->time.sides)));
+			}
+		}
 
 		return;
 	}

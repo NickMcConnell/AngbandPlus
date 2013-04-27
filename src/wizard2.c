@@ -18,8 +18,6 @@
  */
 static void do_cmd_wiz_hack_ben(void)
 {
-
-#ifdef MONSTER_FLOW
 	unsigned int relay_flow_depth;
 
 	for (relay_flow_depth = 0; relay_flow_depth < MONSTER_FLOW_DEPTH; ++relay_flow_depth)
@@ -76,14 +74,6 @@ static void do_cmd_wiz_hack_ben(void)
 
 	/* Redraw map */
 	prt_map();
-
-#else /* MONSTER_FLOW */
-
-	/* Oops */
-	msg_print("Oops");
-
-#endif /* MONSTER_FLOW */
-
 }
 
 
@@ -315,7 +305,7 @@ static void wiz_display_item(const object_type *o_ptr)
 
 	prt(format("number = %-3d  wgt = %-6d  ac = %-5d    damage = %dd%d",
 	           o_ptr->number, o_ptr->weight,
-	           o_ptr->ac, o_ptr->dd, o_ptr->ds), 5, j);
+	           o_ptr->ac, (int)(o_ptr->d.dice), int(o_ptr->d.sides)), 5, j);
 
 	prt(format("pval = %-5d  toac = %-5d  tohit = %-4d  todam = %-4d",
 	           o_ptr->pval, o_ptr->to_a, o_ptr->to_h, o_ptr->to_d), 6, j);
@@ -387,7 +377,7 @@ static const tval_desc tvals[] =
 	{ TV_SOFT_ARMOR,        "Soft Armor"           },
 	{ TV_RING,              "Ring"                 },
 	{ TV_AMULET,            "Amulet"               },
-	{ TV_LITE,              "Lite"                 },
+	{ TV_LITE,              "Light"                },
 	{ TV_POTION,            "Potion"               },
 	{ TV_SCROLL,            "Scroll"               },
 	{ TV_WAND,              "Wand"                 },
@@ -410,14 +400,17 @@ static const tval_desc tvals[] =
 /*
  * Strip an "object name" into a buffer
  */
-static void strip_name(char *buf, int k_idx)
+void strip_name(char *buf, int k_idx)
 {
 	char *t;
 
 	object_kind *k_ptr = &object_type::k_info[k_idx];
 
-	cptr str = (object_type::k_name + k_ptr->name);
+	cptr str = k_ptr->name();
 
+	/* If not aware, use flavor */ 
+	if (!cheat_know && !k_ptr->aware && k_ptr->flavor) 
+		str = object_kind::flavor_info[k_ptr->flavor].text(); 
 
 	/* Skip past leading characters */
 	while ((*str == ' ') || (*str == '&')) str++;
@@ -425,7 +418,19 @@ static void strip_name(char *buf, int k_idx)
 	/* Copy useful chars */
 	for (t = buf; *str; str++)
 	{
-		if (*str != '~') *t++ = *str;
+		/* Pluralizer for irregular plurals */
+		/* Useful for languages where adjective changes for plural */
+		if (*str == '|')
+		{
+			/* Process singular part */
+			for (str++; *str != '|'; str++) *t++ = *str;
+
+			/* Process plural part */
+			for (str++; *str != '|'; str++) ;
+		}
+
+		/* English plural indicator can simply be skipped */
+		else if (*str != '~') *t++ = *str;
 	}
 
 	/* Terminate the new name */
@@ -690,7 +695,7 @@ static void wiz_statistics(object_type *o_ptr)
 
 
 	/* Mega-Hack -- allow multiple artifacts XXX XXX XXX */
-	if (o_ptr->is_artifact()) a_info[o_ptr->name1].cur_num = 0;
+	if (o_ptr->is_artifact()) object_type::a_info[o_ptr->name1].cur_num = 0;
 
 
 	/* Interact */
@@ -772,7 +777,7 @@ static void wiz_statistics(object_type *o_ptr)
 
 
 			/* Mega-Hack -- allow multiple artifacts XXX XXX XXX */
-			if (i_ptr->is_artifact()) a_info[i_ptr->name1].cur_num = 0;
+			if (i_ptr->is_artifact()) object_type::a_info[i_ptr->name1].cur_num = 0;
 
 
 			/* Test for the same tval and sval. */
@@ -820,7 +825,7 @@ static void wiz_statistics(object_type *o_ptr)
 
 
 	/* Hack -- Normally only make a single artifact */
-	if (o_ptr->is_artifact()) a_info[o_ptr->name1].cur_num = 1;
+	if (o_ptr->is_artifact()) object_type::a_info[o_ptr->name1].cur_num = 1;
 }
 
 
@@ -1031,10 +1036,10 @@ static void wiz_create_artifact(int a_idx)
 	object_type *i_ptr = &object_type_body;	/* Get local object */
 	int k_idx;
 
-	artifact_type *a_ptr = &a_info[a_idx];
+	artifact_type *a_ptr = &object_type::a_info[a_idx];
 
 	/* Ignore "empty" artifacts */
-	if (!a_ptr->name) return;
+	if (!a_ptr->_name) return;
 
 	/* Wipe the object */
 	WIPE(i_ptr);
@@ -1054,8 +1059,7 @@ static void wiz_create_artifact(int a_idx)
 	/* Extract the fields */
 	i_ptr->pval = a_ptr->pval;
 	i_ptr->ac = a_ptr->ac;
-	i_ptr->dd = a_ptr->dd;
-	i_ptr->ds = a_ptr->ds;
+	i_ptr->d = a_ptr->d;
 	i_ptr->to_a = a_ptr->to_a;
 	i_ptr->to_h = a_ptr->to_h;
 	i_ptr->to_d = a_ptr->to_d;
@@ -1097,15 +1101,15 @@ static void do_cmd_wiz_cure_all(void)
 	p_ptr->csp_frac = 0;
 
 	/* Cure stuff */
-	(void)set_blind(0);
-	(void)set_confused(0);
-	(void)set_poisoned(0);
-	(void)set_afraid(0);
-	(void)set_paralyzed(0);
-	(void)set_image(0);
-	(void)set_stun(0);
-	(void)set_cut(0);
-	(void)set_slow(0);
+	(void)p_ptr->clear_timed<TMD_BLIND>();
+	(void)p_ptr->clear_timed<TMD_CONFUSED>();
+	(void)p_ptr->clear_timed<TMD_POISONED>();
+	(void)p_ptr->clear_timed<TMD_AFRAID>();
+	(void)p_ptr->clear_timed<TMD_PARALYZED>();
+	(void)p_ptr->clear_timed<TMD_IMAGE>();
+	(void)p_ptr->clear_timed<TMD_STUN>();
+	(void)p_ptr->clear_timed<TMD_CUT>();
+	(void)p_ptr->clear_timed<TMD_SLOW>();
 
 	/* No longer hungry */
 	(void)set_food(PY_FOOD_MAX - 1);

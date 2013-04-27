@@ -52,9 +52,7 @@ u16b sf_saves;			/* Number of "saves" during this life */
 bool arg_fiddle;			/* Command arg -- Request fiddle mode */
 bool arg_wizard;			/* Command arg -- Request wizard mode */
 bool arg_sound;				/* Command arg -- Request special sounds */
-bool arg_graphics;			/* Command arg -- Request graphics mode */
-bool arg_force_original;	/* Command arg -- Request original keyset */
-bool arg_force_roguelike;	/* Command arg -- Request roguelike keyset */
+int arg_graphics;			/* Command arg -- Request graphics mode */
 
 /*
  * Various things
@@ -197,7 +195,7 @@ cptr macro_trigger_keycode[2][MAX_MACRO_TRIGGER];
 /*
  * Global table of color definitions (mostly zeros)
  */
-byte angband_color_table[256][4] =
+byte angband_color_table[MAX_COLORS][4] =
 {
 	{0x00, 0x00, 0x00, 0x00},	/* TERM_DARK */
 	{0x00, 0xFF, 0xFF, 0xFF},	/* TERM_WHITE */
@@ -217,170 +215,6 @@ byte angband_color_table[256][4] =
 	{0x00, 0xC0, 0x80, 0x40}	/* TERM_L_UMBER */
 };
 
-
-/*
- * Standard sound (and message) names
- */
-const cptr angband_sound_name[MSG_MAX] =
-{
-	"",
-	"hit",
-	"miss",
-	"flee",
-	"drop",
-	"kill",
-	"level",
-	"death",
-	"study",
-	"teleport",
-	"shoot",
-	"quaff",
-	"zap_rod",
-	"walk",
-	"tpother",
-	"hitwall",
-	"eat",
-	"store1",
-	"store2",
-	"store3",
-	"store4",
-	"dig",
-	"opendoor",
-	"shutdoor",
-	"tplevel",
-	"bell",
-	"nothing_to_open",
-	"lockpick_fail",
-	"stairs_down", 
-	"hitpoint_warn",
-	"act_artifact", 
-	"use_staff", 
-	"destroy", 
-	"mon_hit", 
-	"mon_touch", 
-	"mon_punch", 
-	"mon_kick", 
-	"mon_claw", 
-	"mon_bite", 
-	"mon_sting", 
-	"mon_butt", 
-	"mon_crush", 
-	"mon_engulf", 
-	"mon_crawl", 
-	"mon_drool", 
-	"mon_spit", 
-	"mon_gaze", 
-	"mon_wail", 
-	"mon_spore", 
-	"mon_beg", 
-	"mon_insult", 
-	"mon_moan", 
-	"recover", 
-	"blind", 
-	"confused", 
-	"poisoned", 
-	"afraid", 
-	"paralyzed", 
-	"drugged", 
-	"speed", 
-	"slow", 
-	"shield", 
-	"blessed", 
-	"hero", 
-	"berserk", 
-	"prot_evil", 
-	"invuln", 
-	"see_invis", 
-	"infrared", 
-	"res_acid", 
-	"res_elec", 
-	"res_fire", 
-	"res_cold", 
-	"res_pois", 
-	"stun", 
-	"cut", 
-	"stairs_up", 
-	"store_enter", 
-	"store_leave", 
-	"store_home", 
-	"money1", 
-	"money2", 
-	"money3", 
-	"shoot_hit", 
-	"store5", 
-	"lockpick", 
-	"disarm", 
-	"identify_bad", 
-	"identify_ego", 
-	"identify_art", 
-	"breathe_elements", 
-	"breathe_frost", 
-	"breathe_elec", 
-	"breathe_acid", 
-	"breathe_gas", 
-	"breathe_fire", 
-	"breathe_confusion", 
-	"breathe_disenchant", 
-	"breathe_chaos", 
-	"breathe_shards", 
-	"breathe_sound", 
-	"breathe_light", 
-	"breathe_dark", 
-	"breathe_nether", 
-	"breathe_nexus", 
-	"breathe_time", 
-	"breathe_inertia", 
-	"breathe_gravity", 
-	"breathe_plasma", 
-	"breathe_force", 
-	"summon_monster", 
-	"summon_angel", 
-	"summon_undead", 
-	"summon_animal", 
-	"summon_spider", 
-	"summon_hound", 
-	"summon_hydra", 
-	"summon_demon", 
-	"summon_dragon", 
-	"summon_gr_undead", 
-	"summon_gr_dragon", 
-	"summon_gr_demon", 
-	"summon_ringwraith", 
-	"summon_unique", 
-	"wield", 
-	"cursed", 
-	"pseudo_id", 
-	"hungry", 
-	"notice", 
-	"ambient_day", 
-	"ambient_nite", 
-	"ambient_dng1", 
-	"ambient_dng2", 
-	"ambient_dng3", 
-	"ambient_dng4", 
-	"ambient_dng5", 
-	"mon_create_trap", 
-	"mon_shriek", 
-	"mon_cast_fear", 
-	"hit_good", 
-	"hit_great", 
-	"hit_superb", 
-	"hit_hi_great", 
-	"hit_hi_superb", 
-	"cast_spell", 
-	"pray_prayer",
-	"kill_unique",
-	"kill_king",
-	"drain_stat",
-	"multiply",
-};
-
-
-/*
- * Array[VIEW_MAX] used by "update_view()"
- */
-int view_n = 0;
-coord *view_g;
 
 /*
  * Arrays[TEMP_MAX] used for various things
@@ -433,8 +267,6 @@ s16b (*cave_o_idx)[DUNGEON_WID];
 s16b (*cave_m_idx)[DUNGEON_WID];
 
 
-#ifdef MONSTER_FLOW
-
 /*
  * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid flow "cost" values
  */
@@ -444,8 +276,6 @@ byte (*cave_cost)[DUNGEON_WID];
  * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid flow "when" stamps
  */
 byte (*cave_when)[DUNGEON_WID];
-
-#endif	/* MONSTER_FLOW */
 
 
 /*
@@ -462,7 +292,7 @@ monster_type *mon_list;
 /*
  * Array[z_info->r_max] of monster lore
  */
-monster_lore *l_list;
+monster_lore* monster_type::l_list;
 
 
 /*
@@ -541,14 +371,6 @@ cptr keymap_act[KEYMAP_MODES][256];
 /*** Player information ***/
 
 /*
- * Pointer to the player tables (sex, race, class, magic)
- */
-const player_sex *sp_ptr;
-const player_race *rp_ptr;
-const player_class *cp_ptr;
-const player_magic *mp_ptr;
-
-/*
  * The player other record (static)
  */
 static player_other player_other_body;
@@ -577,66 +399,66 @@ maxima *z_info;
 /*
  * The vault generation arrays
  */
-vault_type *v_info;
-char *v_name;
-char *v_text;
+vault_type* vault_type::v_info;
+char* vault_type::v_name;
+char* vault_type::v_text;
 
 /*
  * The terrain feature arrays
  */
-feature_type *f_info;
-char *f_name;
-char *f_text;
+feature_type* feature_type::f_info;
+char* feature_type::f_name;
+char* feature_type::f_text;
 
 /*
  * The object kind arrays
  */
 object_kind* object_type::k_info;
-char* object_type::k_name;
-char* object_type::k_text;
+char* object_kind::k_name;
+char* object_kind::k_text;
 
 /*
  * The artifact arrays
  */
-artifact_type *a_info;
-char *a_name;
-char *a_text;
+artifact_type* object_type::a_info;
+char* artifact_type::a_name;
+char* artifact_type::a_text;
 
 /*
  * The ego-item arrays
  */
-ego_item_type *e_info;
-char *e_name;
-char *e_text;
+ego_item_type* object_type::e_info;
+char* ego_item_type::e_name;
+char* ego_item_type::e_text;
 
 
 /*
  * The monster race arrays
  */
-monster_race *r_info;
-char *r_name;
-char *r_text;
+monster_race* monster_type::r_info;
+char* monster_race::r_name;
+char* monster_race::r_text;
 
 
 /*
  * The player race arrays
  */
-player_race *p_info;
-char *p_name;
-char *p_text;
+player_race* player_type::p_info;
+char* player_type::p_name;
+char* player_type::p_text;
 
 /*
  * The player class arrays
  */
-player_class *c_info;
-char *c_name;
-char *c_text;
+player_class* player_type::c_info;
+char* player_type::c_name;
+char* player_type::c_text;
 
 /*
  * The player history arrays
  */
-hist_type *h_info;
-char *h_text;
+hist_type* player_type::h_info;
+char* player_type::h_text;
 
 /*
  * The shop owner arrays
@@ -656,9 +478,9 @@ char *g_text;
 /*
  * The object flavor arrays
  */
-flavor_type* object_type::flavor_info;
-char* object_type::flavor_name;
-char* object_type::flavor_text;
+flavor_type* object_kind::flavor_info;
+char* flavor_type::flavor_name;
+char* flavor_type::flavor_text;
 
 
 /*

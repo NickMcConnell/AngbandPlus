@@ -1,0 +1,3333 @@
+defines.h: * Bit flags for the "p_ptr->notice" variable
+defines.h: * Bit flags for the "p_ptr->update" variable
+defines.h: * Bit flags for the "p_ptr->redraw" variable
+defines.h: * Bit flags for the "p_ptr->window" variable (etc)
+defines.h:#define rogue_like_commands		op_ptr->opt[OPT_rogue_like_commands]
+defines.h:#define quick_messages			op_ptr->opt[OPT_quick_messages]
+defines.h:#define floor_query_flag		op_ptr->opt[OPT_floor_query_flag]
+defines.h:#define carry_query_flag		op_ptr->opt[OPT_carry_query_flag]
+defines.h:#define use_old_target			op_ptr->opt[OPT_use_old_target]
+defines.h:#define always_pickup			op_ptr->opt[OPT_always_pickup]
+defines.h:#define always_repeat			op_ptr->opt[OPT_always_repeat]
+defines.h:#define depth_in_feet			op_ptr->opt[OPT_depth_in_feet]
+defines.h:#define stack_force_notes		op_ptr->opt[OPT_stack_force_notes]
+defines.h:#define stack_force_costs		op_ptr->opt[OPT_stack_force_costs]
+defines.h:#define show_labels				op_ptr->opt[OPT_show_labels]
+defines.h:#define show_weights			op_ptr->opt[OPT_show_weights]
+defines.h:#define show_choices			op_ptr->opt[OPT_show_choices]
+defines.h:#define show_details			op_ptr->opt[OPT_show_details]
+defines.h:#define ring_bell				op_ptr->opt[OPT_ring_bell]
+defines.h:#define show_flavors			op_ptr->opt[OPT_show_flavors]
+defines.h:#define run_ignore_stairs		op_ptr->opt[OPT_run_ignore_stairs]
+defines.h:#define run_ignore_doors		op_ptr->opt[OPT_run_ignore_doors]
+defines.h:#define run_cut_corners			op_ptr->opt[OPT_run_cut_corners]
+defines.h:#define run_use_corners			op_ptr->opt[OPT_run_use_corners]
+defines.h:#define disturb_move			op_ptr->opt[OPT_disturb_move]
+defines.h:#define disturb_near			op_ptr->opt[OPT_disturb_near]
+defines.h:#define disturb_panel			op_ptr->opt[OPT_disturb_panel]
+defines.h:#define disturb_state			op_ptr->opt[OPT_disturb_state]
+defines.h:#define disturb_minor			op_ptr->opt[OPT_disturb_minor]
+defines.h:#define verify_destroy			op_ptr->opt[OPT_verify_destroy]
+defines.h:/* #define verify_special			op_ptr->opt[OPT_verify_special] */
+defines.h:#define allow_quantity			op_ptr->opt[OPT_allow_quantity]
+defines.h:#define auto_scum				op_ptr->opt[OPT_auto_scum]
+defines.h:#define expand_look				op_ptr->opt[OPT_expand_look]
+defines.h:#define expand_list				op_ptr->opt[OPT_expand_list]
+defines.h:#define view_perma_grids		op_ptr->opt[OPT_view_perma_grids]
+defines.h:#define view_torch_grids		op_ptr->opt[OPT_view_torch_grids]
+defines.h:#define dungeon_align			op_ptr->opt[OPT_dungeon_align]
+defines.h:#define dungeon_stair			op_ptr->opt[OPT_dungeon_stair]
+defines.h:#define flow_by_sound			op_ptr->opt[OPT_flow_by_sound]
+defines.h:#define flow_by_smell			op_ptr->opt[OPT_flow_by_smell]
+defines.h:#define smart_learn				op_ptr->opt[OPT_smart_learn]
+defines.h:#define smart_cheat				op_ptr->opt[OPT_smart_cheat]
+defines.h:#define view_reduce_lite		op_ptr->opt[OPT_view_reduce_lite]
+defines.h:#define hidden_player			op_ptr->opt[OPT_hidden_player]
+defines.h:#define avoid_abort				op_ptr->opt[OPT_avoid_abort]
+defines.h:#define avoid_other				op_ptr->opt[OPT_avoid_other]
+defines.h:#define flush_failure			op_ptr->opt[OPT_flush_failure]
+defines.h:#define flush_disturb			op_ptr->opt[OPT_flush_disturb]
+defines.h:#define fresh_before			op_ptr->opt[OPT_fresh_before]
+defines.h:#define fresh_after				op_ptr->opt[OPT_fresh_after]
+defines.h:#define compress_savefile		op_ptr->opt[OPT_compress_savefile]
+defines.h:#define hilite_player			op_ptr->opt[OPT_hilite_player]
+defines.h:#define view_yellow_lite		op_ptr->opt[OPT_view_yellow_lite]
+defines.h:#define view_bright_lite		op_ptr->opt[OPT_view_bright_lite]
+defines.h:#define view_granite_lite		op_ptr->opt[OPT_view_granite_lite]
+defines.h:#define view_special_lite		op_ptr->opt[OPT_view_special_lite]
+defines.h:#define easy_open				op_ptr->opt[OPT_easy_open]
+defines.h:#define easy_alter				op_ptr->opt[OPT_easy_alter]
+defines.h:#define easy_floor				op_ptr->opt[OPT_easy_floor]
+defines.h:#define show_piles				op_ptr->opt[OPT_show_piles]
+defines.h:#define center_player			op_ptr->opt[OPT_center_player]
+defines.h:#define run_avoid_center		op_ptr->opt[OPT_run_avoid_center]
+defines.h:#define auto_more				op_ptr->opt[OPT_auto_more]
+defines.h:#define smart_monsters			op_ptr->opt[OPT_smart_monsters]
+defines.h:#define smart_packs				op_ptr->opt[OPT_smart_packs]
+defines.h:#define birth_point_based		op_ptr->opt[OPT_birth_point_based]
+defines.h:#define birth_auto_roller		op_ptr->opt[OPT_birth_auto_roller]
+defines.h:#define birth_maximize			op_ptr->opt[OPT_birth_maximize]
+defines.h:#define birth_preserve			op_ptr->opt[OPT_birth_preserve]
+defines.h:#define birth_ironman			op_ptr->opt[OPT_birth_ironman]
+defines.h:#define birth_no_stores			op_ptr->opt[OPT_birth_no_stores]
+defines.h:#define birth_no_artifacts		op_ptr->opt[OPT_birth_no_artifacts]
+defines.h:#define birth_rand_artifacts	op_ptr->opt[OPT_birth_rand_artifacts]
+defines.h:#define birth_no_stacking       op_ptr->opt[OPT_birth_no_stacking]
+defines.h:#define cheat_peek				op_ptr->opt[OPT_cheat_peek]
+defines.h:#define cheat_hear				op_ptr->opt[OPT_cheat_hear]
+defines.h:#define cheat_room				op_ptr->opt[OPT_cheat_room]
+defines.h:#define cheat_xtra				op_ptr->opt[OPT_cheat_xtra]
+defines.h:#define cheat_know				op_ptr->opt[OPT_cheat_know]
+defines.h:#define cheat_live				op_ptr->opt[OPT_cheat_live]
+defines.h:#define adult_point_based		op_ptr->opt[OPT_adult_point_based]
+defines.h:#define adult_auto_roller		op_ptr->opt[OPT_adult_auto_roller]
+defines.h:#define adult_maximize			op_ptr->opt[OPT_adult_maximize]
+defines.h:#define adult_preserve			op_ptr->opt[OPT_adult_preserve]
+defines.h:#define adult_ironman			op_ptr->opt[OPT_adult_ironman]
+defines.h:#define adult_no_stores			op_ptr->opt[OPT_adult_no_stores]
+defines.h:#define adult_no_artifacts		op_ptr->opt[OPT_adult_no_artifacts]
+defines.h:#define adult_rand_artifacts	op_ptr->opt[OPT_adult_rand_artifacts]
+defines.h:#define adult_no_stacking		op_ptr->opt[OPT_adult_no_stacking]
+defines.h:#define score_peek				op_ptr->opt[OPT_score_peek]
+defines.h:#define score_hear				op_ptr->opt[OPT_score_hear]
+defines.h:#define score_room				op_ptr->opt[OPT_score_room]
+defines.h:#define score_xtra				op_ptr->opt[OPT_score_xtra]
+defines.h:#define score_know				op_ptr->opt[OPT_score_know]
+defines.h:#define score_live				op_ptr->opt[OPT_score_live]
+defines.h:	((item >= 0) ? &p_ptr->inventory[item] : &o_list[0 - item])
+types.h:	const magic_type* spell_info(size_t spell) const { assert(PY_MAX_SPELLS>spell); return &mp_ptr->info[spell]; };
+types.h:	byte spell_book() const {return cp_ptr->spell_book; };
+types.h:	const char* gender() const { return sp_ptr->title; };
+types.h:	char terse_gender() const { return sp_ptr->terse; };
+types.h:	const char* win_rank() const { return sp_ptr->winner; };
+types.h:	const char* racename() const { return p_name + rp_ptr->name; };
+types.h:	const char* classname() const { return c_name + cp_ptr->name; };
+types.h:		mp_ptr = &cp_ptr->spells;		// initialize magic
+birth.c:	prev.age = p_ptr->age;
+birth.c:	prev.wt = p_ptr->wt;
+birth.c:	prev.ht = p_ptr->ht;
+birth.c:	prev.sc = p_ptr->sc;
+birth.c:	prev.au = p_ptr->au;
+birth.c:		prev.stat[i] = p_ptr->stat_max[i];
+birth.c:	my_strcpy(prev.history, p_ptr->history, sizeof(prev.history));
+birth.c:	temp.age = p_ptr->age;
+birth.c:	temp.wt = p_ptr->wt;
+birth.c:	temp.ht = p_ptr->ht;
+birth.c:	temp.sc = p_ptr->sc;
+birth.c:	temp.au = p_ptr->au;
+birth.c:		temp.stat[i] = p_ptr->stat_max[i];
+birth.c:	my_strcpy(temp.history, p_ptr->history, sizeof(temp.history));
+birth.c:	p_ptr->age = prev.age;
+birth.c:	p_ptr->wt = prev.wt;
+birth.c:	p_ptr->ht = prev.ht;
+birth.c:	p_ptr->sc = prev.sc;
+birth.c:	p_ptr->au = prev.au;
+birth.c:		p_ptr->stat_max[i] = prev.stat[i];
+birth.c:		p_ptr->stat_cur[i] = prev.stat[i];
+birth.c:	my_strcpy(p_ptr->history, prev.history, sizeof(p_ptr->history));
+birth.c:		p_ptr->stat_max[i] = j;
+birth.c:		bonus = p_ptr->rp_ptr->r_adj[i] + p_ptr->cp_ptr->c_adj[i];
+birth.c:			p_ptr->stat_cur[i] = p_ptr->stat_max[i];
+birth.c:			stat_use[i] = modify_stat_value(p_ptr->stat_max[i], bonus);
+birth.c:			stat_use[i] = adjust_stat(p_ptr->stat_max[i], bonus, FALSE);
+birth.c:			p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stat_use[i];
+birth.c:	p_ptr->max_lev = p_ptr->lev = 1;
+birth.c:	p_ptr->expfact = p_ptr->rp_ptr->r_exp + p_ptr->cp_ptr->c_exp;
+birth.c:	p_ptr->hitdie = p_ptr->rp_ptr->r_mhp + p_ptr->cp_ptr->c_mhp;
+birth.c:	p_ptr->mhp = p_ptr->hitdie;
+birth.c:	min_value = (PY_MAX_LEVEL * (p_ptr->hitdie - 1) * 3) / 8;
+birth.c:	max_value = (PY_MAX_LEVEL * (p_ptr->hitdie - 1) * 5) / 8;
+birth.c:	p_ptr->player_hp[0] = p_ptr->hitdie;
+birth.c:			p_ptr->player_hp[i] = randint(p_ptr->hitdie);
+birth.c:			if (p_ptr->player_hp[i]>p_ptr->player_hp[i-1])
+birth.c:				s16b k = p_ptr->player_hp[i];
+birth.c:				while(0<j && p_ptr->player_hp[i]>p_ptr->player_hp[j-1]) --j;
+birth.c:				memmove(p_ptr->player_hp+j+1,p_ptr->player_hp+j,sizeof(s16b)*(i-j));
+birth.c:				p_ptr->player_hp[j] = k;
+birth.c:			p_ptr->player_hp[i] += p_ptr->player_hp[i-1];
+birth.c:		if (p_ptr->player_hp[PY_MAX_LEVEL-1] < min_value) continue;
+birth.c:		if (p_ptr->player_hp[PY_MAX_LEVEL-1] > max_value) continue;
+birth.c:	p_ptr->history[0] = '\0';
+birth.c:	chart = p_ptr->rp_ptr->hist;
+birth.c:		my_strcat(p_ptr->history, (player_type::h_text + player_type::h_info[i].text), sizeof(p_ptr->history));
+birth.c:	p_ptr->sc = social_class;
+birth.c:	p_ptr->age = p_ptr->rp_ptr->age.linear_rand();
+birth.c:	p_ptr->ht = p_ptr->rp_ptr->height[p_ptr->psex].normal_rand();
+birth.c:	p_ptr->wt = p_ptr->rp_ptr->weight[p_ptr->psex].normal_rand();
+birth.c:	gold = (p_ptr->sc * 6) + randint(100) + 300;
+birth.c:	p_ptr->au = gold;
+birth.c:	byte psex = p_ptr->psex;
+birth.c:	byte prace = p_ptr->prace;
+birth.c:	byte pclass = p_ptr->pclass;
+birth.c:	object_type *InventoryBackup = p_ptr->inventory;
+birth.c:	p_ptr->inventory = NULL;
+birth.c:	p_ptr->inventory = InventoryBackup;	/* restore inventory space from backup */
+birth.c:	p_ptr->psex = psex;
+birth.c:	p_ptr->prace = prace;
+birth.c:	p_ptr->pclass = pclass;
+birth.c:	C_WIPE(p_ptr->inventory,INVEN_TOTAL);
+birth.c:	p_ptr->food = PY_FOOD_FULL - 1;
+birth.c:	for (i = 0; i < PY_MAX_SPELLS; i++) p_ptr->spell_order[i] = 99;
+birth.c:		e_ptr = &(p_ptr->cp_ptr->start_items[i]);
+birth.c:	byte tmp8u = p_ptr->prace;
+birth.c:	p_ptr->set_race(tmp8u);
+birth.c:	byte tmp8u = p_ptr->pclass;
+birth.c:		if (!(p_ptr->rp_ptr->choice & (1L << i))) classes[i].grayed = TRUE;
+birth.c:	p_ptr->set_class(tmp8u);
+birth.c:	byte tmp8u = p_ptr->psex;
+birth.c:	p_ptr->set_sex(tmp8u);
+birth.c:		op_ptr->opt[OPT_ADULT + (i - OPT_BIRTH)] = op_ptr->opt[i];
+birth.c:		op_ptr->opt[OPT_SCORE + (i - OPT_CHEAT)] = op_ptr->opt[i];
+birth.c:				p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stats[i];
+birth.c:				int bonus = p_ptr->rp_ptr->r_adj[i] + p_ptr->cp_ptr->c_adj[i];
+birth.c:				p_ptr->stat_cur[i] = p_ptr->stat_max[i] =
+birth.c:		p_ptr->au = (100 * (48 - cost)) + 100;
+birth.c:		p_ptr->update |= (PU_BONUS | PU_HP);
+birth.c:		p_ptr->chp = p_ptr->mhp;
+birth.c:		p_ptr->csp = p_ptr->msp;
+birth.c:			j = p_ptr->rp_ptr->r_adj[i] + p_ptr->cp_ptr->c_adj[i];
+birth.c:			p_ptr->update |= (PU_BONUS | PU_HP);
+birth.c:			p_ptr->chp = p_ptr->mhp;
+birth.c:			p_ptr->csp = p_ptr->msp;
+cave.c:	return (!player_can_see_bold(p_ptr->loc.y, p_ptr->loc.x));
+cave.c:	else if ((p_ptr->timed[TMD_BLIND]) || (!(info & CAVE_GLOW)))
+cave.c:	else if (p_ptr->timed[TMD_BLIND])
+cave.c:	s16b image = p_ptr->timed[TMD_IMAGE];
+cave.c:	else if ((m_idx < 0) && !(p_ptr->running && hidden_player))
+cave.c:	else if ((m_idx < 0) && !(p_ptr->running && hidden_player))
+cave.c:		if (!(op_ptr->window_flag[j] & (PW_MAP))) continue;
+cave.c:		if (!(op_ptr->window_flag[j] & (PW_MAP))) continue;
+cave.c:		p_ptr->window |= (PW_MAP);
+cave.c:		if (!(op_ptr->window_flag[j] & (PW_MAP))) continue;
+cave.c:		p_ptr->window |= (PW_MAP);
+cave.c:		if (!(op_ptr->window_flag[j] & (PW_MAP))) continue;
+cave.c:		p_ptr->window |= (PW_MAP);
+cave.c:	int py = p_ptr->loc.y;
+cave.c:	int px = p_ptr->loc.x;
+cave.c:	int dungeon_hgt = (p_ptr->depth == 0) ? TOWN_HGT : DUNGEON_HGT;
+cave.c:	int dungeon_wid = (p_ptr->depth == 0) ? TOWN_WID : DUNGEON_WID;
+cave.c:	int py = p_ptr->loc.y;
+cave.c:	int px = p_ptr->loc.x;
+cave.c:	coord pg = p_ptr->loc;
+cave.c:	radius = p_ptr->cur_lite;
+cave.c:	if (p_ptr->timed[TMD_BLIND])
+cave.c:	int py = p_ptr->loc.y;
+cave.c:	int px = p_ptr->loc.x;
+cave.c:	p_ptr->redraw |= (PR_MAP);
+cave.c:	p_ptr->window |= (PW_OVERHEAD | PW_MAP);
+cave.c:	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+cave.c:	p_ptr->redraw |= (PR_MAP);
+cave.c:	p_ptr->window |= (PW_OVERHEAD | PW_MONLIST | PW_MAP);
+cave.c:	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+cave.c:	p_ptr->redraw |= (PR_MAP);
+cave.c:	p_ptr->window |= (PW_OVERHEAD | PW_MONLIST | PW_MAP);
+cave.c:	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+cave.c:	p_ptr->redraw |= (PR_MAP);
+cave.c:	p_ptr->window |= (PW_OVERHEAD | PW_MONLIST | PW_MAP);
+cave.c:	p_ptr->health_who = m_idx;
+cave.c:	p_ptr->redraw |= (PR_HEALTH);
+cave.c:	p_ptr->monster_race_idx = r_idx;
+cave.c:	p_ptr->window |= (PW_MONSTER);
+cave.c:	p_ptr->object_kind_idx = k_idx;
+cave.c:	p_ptr->window |= (PW_OBJECT);
+cave.c:	/* p_ptr->command_new = 0; */
+cave.c:	if (p_ptr->command_rep)
+cave.c:		p_ptr->command_rep = 0;
+cave.c:		p_ptr->redraw |= (PR_STATE);
+cave.c:	if (p_ptr->resting)
+cave.c:		p_ptr->resting = 0;
+cave.c:		p_ptr->redraw |= (PR_STATE);
+cave.c:	if (p_ptr->running)
+cave.c:		p_ptr->running = 0;
+cave.c:		p_ptr->update |= (PU_TORCH);
+cave.c:			lite_spot(p_ptr->loc);
+cave.c:	if (stop_search && p_ptr->searching)
+cave.c:		p_ptr->searching = FALSE;
+cave.c:		p_ptr->update |= (PU_BONUS);
+cave.c:		p_ptr->redraw |= (PR_STATE);
+cmd1.c:	i = (weight + ((p_ptr->to_h + plus) * 4) + (p_ptr->lev * 2));
+cmd1.c:	i = (weight + ((p_ptr->to_h + plus) * 5) + (p_ptr->lev * 3));
+cmd1.c:	int chance = p_ptr->skills[SKILL_SEARCH];	/* Start with base search ability */
+cmd1.c:	if (p_ptr->timed[TMD_BLIND] || no_lite()) chance /= 10;
+cmd1.c:	if (p_ptr->timed[TMD_CONFUSED] || p_ptr->timed[TMD_IMAGE]) chance /= 10;
+cmd1.c:	for (t.y = (p_ptr->loc.y - 1); t.y <= (p_ptr->loc.y + 1); t.y++)
+cmd1.c:		for (t.x = (p_ptr->loc.x - 1); t.x <= (p_ptr->loc.x + 1); t.x++)
+cmd1.c:	o_ptr = &p_ptr->inventory[slot];
+cmd1.c:	int py = p_ptr->loc.y;
+cmd1.c:	int px = p_ptr->loc.x;
+cmd1.c:			p_ptr->au += o_ptr->pval;
+cmd1.c:			p_ptr->redraw |= (PR_GOLD);
+cmd1.c:			p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+cmd1.c:	if (p_ptr->timed[TMD_AFRAID])
+cmd1.c:	o_ptr = &p_ptr->inventory[INVEN_WIELD];
+cmd1.c:	bonus = p_ptr->to_h + o_ptr->to_h;
+cmd1.c:	chance = (p_ptr->skills[SKILL_TO_HIT_MELEE] + (bonus * BTH_PLUS_ADJ));
+cmd1.c:	while (num++ < p_ptr->num_blow)
+cmd1.c:				if (p_ptr->impact && (k > 50)) do_quake = TRUE;
+cmd1.c:			k += p_ptr->to_d;
+cmd1.c:			if (p_ptr->wizard)
+cmd1.c:			if (p_ptr->confusing)
+cmd1.c:				p_ptr->confusing = FALSE;
+cmd1.c:					m_ptr->confused += 10 + rand_int(p_ptr->lev) / 5;
+cmd1.c:	if (do_quake) earthquake(p_ptr->loc, 10);
+cmd1.c:	coord dest_g(p_ptr->loc + dd_coord[dir]);
+cmd1.c:		if (!p_ptr->command_rep)
+cmd1.c:			if (always_repeat && (p_ptr->command_arg <= 0))
+cmd1.c:				p_ptr->command_rep = 99;
+cmd1.c:				p_ptr->command_arg = 0;
+cmd1.c:		monster_swap(p_ptr->loc, dest_g);
+cmd1.c:		dest_g = p_ptr->loc;
+cmd1.c:		if ((p_ptr->skills[SKILL_SEARCH_FREQUENCY]) ||
+cmd1.c:		    (0 == rand_int(50 - p_ptr->skills[SKILL_SEARCH_FREQUENCY])))
+cmd1.c:		if (p_ptr->searching)
+cmd1.c:			p_ptr->command_new = '_';
+cmd1.c:			p_ptr->energy_use = 0;
+cmd1.c: *   p_ptr->run_open_area (in the open on at least one side)
+cmd1.c: *   p_ptr->run_break_left (wall on the left, stop if it opens)
+cmd1.c: *   p_ptr->run_break_right (wall on the right, stop if it opens)
+cmd1.c:	p_ptr->run_cur_dir = dir;
+cmd1.c:	p_ptr->run_old_dir = dir;
+cmd1.c:	p_ptr->run_open_area = TRUE;
+cmd1.c:	p_ptr->run_break_right = FALSE;
+cmd1.c:	p_ptr->run_break_left = FALSE;
+cmd1.c:	t = p_ptr->loc + dd_coord[dir];
+cmd1.c:	if (see_wall(cycle[i+1], p_ptr->loc))
+cmd1.c:		p_ptr->run_break_left = TRUE;
+cmd1.c:		p_ptr->run_break_left = TRUE;
+cmd1.c:	if (see_wall(cycle[i-1], p_ptr->loc))
+cmd1.c:		p_ptr->run_break_right = TRUE;
+cmd1.c:		p_ptr->run_break_right = TRUE;
+cmd1.c:	if (p_ptr->run_break_left && p_ptr->run_break_right)
+cmd1.c:		p_ptr->run_open_area = FALSE;
+cmd1.c:				p_ptr->run_old_dir = cycle[i - 1];
+cmd1.c:				p_ptr->run_old_dir = cycle[i + 1];
+cmd1.c:				p_ptr->run_old_dir = cycle[i - 2];
+cmd1.c:				p_ptr->run_old_dir = cycle[i + 2];
+cmd1.c:	int prev_dir = p_ptr->run_old_dir;	/* Where we came from */
+cmd1.c:		t = p_ptr->loc + dd_coord[new_dir];
+cmd1.c:			if (p_ptr->run_open_area)
+cmd1.c:			if (p_ptr->run_open_area)
+cmd1.c:					p_ptr->run_break_right = TRUE;
+cmd1.c:					p_ptr->run_break_left = TRUE;
+cmd1.c:	if (p_ptr->run_open_area)
+cmd1.c:			t = p_ptr->loc + dd_coord[new_dir];
+cmd1.c:				if (p_ptr->run_break_right)
+cmd1.c:				if (p_ptr->run_break_left)
+cmd1.c:			t = p_ptr->loc + dd_coord[new_dir];
+cmd1.c:				if (p_ptr->run_break_left)
+cmd1.c:				if (p_ptr->run_break_right)
+cmd1.c:			p_ptr->run_cur_dir = option;
+cmd1.c:			p_ptr->run_old_dir = option;
+cmd1.c:			p_ptr->run_cur_dir = option;
+cmd1.c:			p_ptr->run_old_dir = option2;
+cmd1.c:			t = p_ptr->loc + dd_coord[option];
+cmd1.c:					p_ptr->run_cur_dir = option;
+cmd1.c:					p_ptr->run_old_dir = option2;
+cmd1.c:				p_ptr->run_cur_dir = option2;
+cmd1.c:				p_ptr->run_old_dir = option2;
+cmd1.c:				p_ptr->run_cur_dir = option;
+cmd1.c:				p_ptr->run_old_dir = option2;
+cmd1.c:	if (see_wall(p_ptr->run_cur_dir, p_ptr->loc))
+cmd1.c:		p_ptr->running = (p_ptr->command_arg ? p_ptr->command_arg : 1000);
+cmd1.c:		p_ptr->update |= (PU_TORCH);
+cmd1.c:	p_ptr->running--;
+cmd1.c:	p_ptr->energy_use = 100;
+cmd1.c:	move_player(p_ptr->run_cur_dir, FALSE);
+cmd2.c:	int i = p_ptr->skills[SKILL_DISARM];
+cmd2.c:	if (p_ptr->timed[TMD_BLIND]  || no_lite()) i /= 10;
+cmd2.c:	if (p_ptr->timed[TMD_CONFUSED] || p_ptr->timed[TMD_IMAGE]) i /= 10;
+cmd2.c:	if (cave_feat[p_ptr->loc.y][p_ptr->loc.x] != FEAT_LESS)
+cmd2.c:	p_ptr->energy_use = 100;
+cmd2.c:	p_ptr->create_down_stair = TRUE;
+cmd2.c:	p_ptr->depth--;
+cmd2.c:	p_ptr->leaving = TRUE;
+cmd2.c:	if (cave_feat[p_ptr->loc.y][p_ptr->loc.x] != FEAT_MORE)
+cmd2.c:	p_ptr->energy_use = 100;
+cmd2.c:	p_ptr->create_up_stair = TRUE;
+cmd2.c:	p_ptr->depth++;
+cmd2.c:	p_ptr->leaving = TRUE;
+cmd2.c:	if (p_ptr->command_arg)
+cmd2.c:		p_ptr->command_rep = p_ptr->command_arg - 1;
+cmd2.c:		p_ptr->redraw |= (PR_STATE);
+cmd2.c:		p_ptr->command_arg = 0;
+cmd2.c:	p_ptr->energy_use = 100;
+cmd2.c:	if (p_ptr->searching)
+cmd2.c:		p_ptr->searching = FALSE;
+cmd2.c:		p_ptr->update |= (PU_BONUS);
+cmd2.c:		p_ptr->redraw |= (PR_STATE);
+cmd2.c:		p_ptr->searching = TRUE;
+cmd2.c:		p_ptr->update |= (PU_BONUS);
+cmd2.c:		p_ptr->redraw |= (PR_STATE | PR_SPEED);
+cmd2.c:	object_level = p_ptr->depth;
+cmd2.c:		if (!(p_ptr->resist_pois || p_ptr->timed[TMD_OPP_POIS]))
+cmd2.c:			(void)p_ptr->inc_timed<TMD_POISONED>(10 + randint(20));
+cmd2.c:		if (!p_ptr->free_act)
+cmd2.c:			(void)p_ptr->inc_timed<TMD_PARALYZED>(10 + randint(20));
+cmd2.c:			(void)summon_specific(g, p_ptr->depth, 0);
+cmd2.c:		if (p_ptr->disarm_trap(o_ptr->pval))
+cmd2.c:	i = p_ptr->disarm_skill();
+cmd2.c:	else if (p_ptr->disarm_trap(o_ptr->pval))
+cmd2.c:		yy = p_ptr->loc.y + ddy_ddd[d];
+cmd2.c:		xx = p_ptr->loc.x + ddx_ddd[d];
+cmd2.c:		coord t = p_ptr->loc + dd_coord[d];
+cmd2.c:	return (motion_dir(p_ptr->loc.y, p_ptr->loc.x, g.y, g.x));
+cmd2.c:		if (p_ptr->disarm_trap(4*(cave_feat[g.y][g.x] - FEAT_DOOR_HEAD)))
+cmd2.c:			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+cmd2.c:		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+cmd2.c:			p_ptr->command_dir = coords_to_dir(g);
+cmd2.c:	g = p_ptr->loc + dd_coord[dir];
+cmd2.c:		 && !p_ptr->allow_moron())
+cmd2.c:	p_ptr->energy_use = 100;
+cmd2.c:		g = p_ptr->loc + dd_coord[dir];
+cmd2.c:	if (p_ptr->command_arg)
+cmd2.c:		p_ptr->command_rep = p_ptr->command_arg - 1;
+cmd2.c:		p_ptr->redraw |= (PR_STATE);
+cmd2.c:		p_ptr->command_arg = 0;
+cmd2.c:		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+cmd2.c:			p_ptr->command_dir = coords_to_dir(g);
+cmd2.c:	g = p_ptr->loc + dd_coord[dir];
+cmd2.c:	p_ptr->energy_use = 100;
+cmd2.c:		g = p_ptr->loc + dd_coord[dir];
+cmd2.c:	if (p_ptr->command_arg)
+cmd2.c:		p_ptr->command_rep = p_ptr->command_arg - 1;
+cmd2.c:		p_ptr->redraw |= (PR_STATE);
+cmd2.c:		p_ptr->command_arg = 0;
+cmd2.c:	p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS | PU_FORGET_FLOW | PU_UPDATE_FLOW);
+cmd2.c:		if (p_ptr->skills[SKILL_DIGGING]<41 && !p_ptr->allow_moron())
+cmd2.c:		else if ((p_ptr->skills[SKILL_DIGGING] > 40 + rand_int(1600)) && twall(g))
+cmd2.c:			if (p_ptr->skills[SKILL_DIGGING]<21 && !p_ptr->allow_moron())
+cmd2.c:				okay = (p_ptr->skills[SKILL_DIGGING] > 20 + rand_int(800));
+cmd2.c:			if (p_ptr->skills[SKILL_DIGGING]<11 && !p_ptr->allow_moron())
+cmd2.c:				okay = (p_ptr->skills[SKILL_DIGGING] > 10 + rand_int(400));
+cmd2.c:		if ((p_ptr->skills[SKILL_DIGGING] > rand_int(200)) && twall(g))
+cmd2.c:		if (p_ptr->skills[SKILL_DIGGING]<41 && !p_ptr->allow_moron())
+cmd2.c:		else if ((p_ptr->skills[SKILL_DIGGING] > 30 + rand_int(1200)) && twall(g))
+cmd2.c:		if (p_ptr->skills[SKILL_DIGGING]<31 && !p_ptr->allow_moron())
+cmd2.c:		else if ((p_ptr->skills[SKILL_DIGGING] > 30 + rand_int(1200)) && twall(g))
+cmd2.c:	t = p_ptr->loc + dd_coord[dir];
+cmd2.c:	p_ptr->energy_use = 100;
+cmd2.c:		t = p_ptr->loc + dd_coord[dir];
+cmd2.c:	if (p_ptr->command_arg)
+cmd2.c:		p_ptr->command_rep = p_ptr->command_arg - 1;
+cmd2.c:		p_ptr->redraw |= (PR_STATE);
+cmd2.c:		p_ptr->command_arg = 0;
+cmd2.c:	int i = p_ptr->disarm_skill(); 	/* Get the "disarm" factor */
+cmd2.c:	if (p_ptr->disarm_trap(power))
+cmd2.c:				p_ptr->command_dir = coords_to_dir(g);
+cmd2.c:	g = p_ptr->loc + dd_coord[dir];
+cmd2.c:	p_ptr->energy_use = 100;
+cmd2.c:		g = p_ptr->loc + dd_coord[dir];
+cmd2.c:	if (p_ptr->command_arg)
+cmd2.c:		p_ptr->command_rep = p_ptr->command_arg - 1;
+cmd2.c:		p_ptr->redraw |= (PR_STATE);
+cmd2.c:		p_ptr->command_arg = 0;
+cmd2.c:	bash = adj_str_blow[p_ptr->stat_ind[A_STR]];
+cmd2.c:		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+cmd2.c:	else if (rand_int(100) < adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
+cmd2.c:	         p_ptr->lev)
+cmd2.c:		(void)p_ptr->inc_timed<TMD_PARALYZED>(2 + rand_int(2));
+cmd2.c:	t = p_ptr->loc + dd_coord[dir];
+cmd2.c:	p_ptr->energy_use = 100;
+cmd2.c:		t = p_ptr->loc + dd_coord[dir];
+cmd2.c:	if (p_ptr->command_arg)
+cmd2.c:		p_ptr->command_rep = p_ptr->command_arg - 1;
+cmd2.c:		p_ptr->redraw |= (PR_STATE);
+cmd2.c:		p_ptr->command_arg = 0;
+cmd2.c:	g.y = p_ptr->loc.y + ddy[dir];
+cmd2.c:	g.x = p_ptr->loc.x + ddx[dir];
+cmd2.c:	p_ptr->energy_use = 100;
+cmd2.c:		g.y = p_ptr->loc.y + ddy[dir];
+cmd2.c:		g.x = p_ptr->loc.x + ddx[dir];
+cmd2.c:	if (p_ptr->command_arg)
+cmd2.c:		p_ptr->command_rep = p_ptr->command_arg - 1;
+cmd2.c:		p_ptr->redraw |= (PR_STATE);
+cmd2.c:		p_ptr->command_arg = 0;
+cmd2.c:		object_type *o_ptr = &p_ptr->inventory[i];
+cmd2.c:	g = p_ptr->loc + dd_coord[dir];
+cmd2.c:	p_ptr->energy_use = 100;
+cmd2.c:		g = p_ptr->loc + dd_coord[dir];
+cmd2.c:	y = p_ptr->loc.y + ddy[dir];
+cmd2.c:	x = p_ptr->loc.x + ddx[dir];
+cmd2.c:	p_ptr->energy_use = 100;
+cmd2.c:		y = p_ptr->loc.y + ddy[dir];
+cmd2.c:		x = p_ptr->loc.x + ddx[dir];
+cmd2.c:	if (p_ptr->command_arg)
+cmd2.c:		p_ptr->command_rep = p_ptr->command_arg - 1;
+cmd2.c:		p_ptr->redraw |= (PR_STATE);
+cmd2.c:		p_ptr->command_arg = 0;
+cmd2.c:	if (p_ptr->timed[TMD_CONFUSED])
+cmd2.c:	y = p_ptr->loc.y + ddy[dir];
+cmd2.c:	x = p_ptr->loc.x + ddx[dir];
+cmd2.c:	if (p_ptr->command_arg)
+cmd2.c:		p_ptr->command_rep = p_ptr->command_arg - 1;
+cmd2.c:		p_ptr->redraw |= (PR_STATE);
+cmd2.c:		p_ptr->command_arg = 0;
+cmd2.c:	p_ptr->energy_use = 100;
+cmd2.c:	if (	(p_ptr->skills[SKILL_SEARCH_FREQUENCY] >= 50)
+cmd2.c:		|| 	(0 == rand_int(50 - p_ptr->skills[SKILL_SEARCH_FREQUENCY])))
+cmd2.c:	if (p_ptr->searching)
+cmd2.c:	if ((cave_feat[p_ptr->loc.y][p_ptr->loc.x] >= FEAT_SHOP_HEAD) &&
+cmd2.c:	    (cave_feat[p_ptr->loc.y][p_ptr->loc.x] <= FEAT_SHOP_TAIL))
+cmd2.c:		p_ptr->command_new = '_';
+cmd2.c:		p_ptr->energy_use = 0;
+cmd2.c:	if (p_ptr->command_arg <= 0)
+cmd2.c:			p_ptr->command_arg = (-2);
+cmd2.c:			p_ptr->command_arg = (-1);
+cmd2.c:			p_ptr->command_arg = atoi(out_val);
+cmd2.c:			if (p_ptr->command_arg <= 0) return;
+cmd2.c:	if (p_ptr->command_arg > 9999) p_ptr->command_arg = 9999;
+cmd2.c:	p_ptr->energy_use = 100;
+cmd2.c:	p_ptr->resting = p_ptr->command_arg;
+cmd2.c:	p_ptr->command_arg = 0;
+cmd2.c:	p_ptr->searching = FALSE;
+cmd2.c:	p_ptr->update |= (PU_BONUS);
+cmd2.c:	p_ptr->redraw |= (PR_STATE);
+cmd2.c:		if (0<cave_m_idx[p_ptr->loc.y+ddy_ddd[i]][p_ptr->loc.x+ddx_ddd[i]])
+cmd2.c:	object_type *j_ptr = &p_ptr->inventory[INVEN_BOW];	/* Get the "bow" (if any) */
+cmd2.c:	int msec = op_ptr->delay_factor * op_ptr->delay_factor;
+cmd2.c:	if (!j_ptr->tval || !p_ptr->ammo_tval)
+cmd2.c:	item_tester_tval = p_ptr->ammo_tval;
+cmd2.c:	thits = p_ptr->num_fire;
+cmd2.c:	bonus = (p_ptr->to_h + i_ptr->to_h + j_ptr->to_h);
+cmd2.c:	chance = (p_ptr->skills[SKILL_TO_HIT_BOW] + (bonus * BTH_PLUS_ADJ));
+cmd2.c:	tmul = p_ptr->ammo_mult;
+cmd2.c:	p_ptr->energy_use = (100 / thits);
+cmd2.c:	path_n = project_path(path_g, tdis, p_ptr->loc.y, p_ptr->loc.x, tt.y, tt.x, 0);
+cmd2.c:				if (p_ptr->window) window_stuff();
+cmd2.c:				if (p_ptr->window) window_stuff();
+cmd2.c:			if (missile_test_hit(chance, r_ptr->ac, m_ptr->ml, distance(p_ptr->loc.y, p_ptr->loc.x, t.y, t.x)))
+cmd2.c:				if (p_ptr->wizard)
+cmd2.c:	int msec = op_ptr->delay_factor * op_ptr->delay_factor;
+cmd2.c:	tdis = (adj_str_blow[p_ptr->stat_ind[A_STR]] + 20) * mul / div;
+cmd2.c:	chance = (p_ptr->skills[SKILL_TO_HIT_THROW] + (p_ptr->to_h * BTH_PLUS_ADJ));
+cmd2.c:	p_ptr->energy_use = 100;
+cmd2.c:	t = p_ptr->loc;
+cmd2.c:	path_n = project_path(path_g, tdis, p_ptr->loc.y, p_ptr->loc.x, tt.y, tt.x, 0);
+cmd2.c:				if (p_ptr->window) window_stuff();
+cmd2.c:				if (p_ptr->window) window_stuff();
+cmd2.c:			if (missile_test_hit(chance, r_ptr->ac, m_ptr->ml, distance(p_ptr->loc.y, p_ptr->loc.x, t.y, t.x)))
+cmd2.c:				if (p_ptr->wizard)
+cmd3.c:	p_ptr->command_wrk = (USE_INVEN);
+cmd3.c:	p_ptr->command_new = inkey();
+cmd3.c:	if (p_ptr->command_new == ESCAPE)
+cmd3.c:		p_ptr->command_new = 0;
+cmd3.c:		p_ptr->command_see = TRUE;
+cmd3.c:	p_ptr->command_wrk = (USE_EQUIP);
+cmd3.c:	p_ptr->command_new = inkey();
+cmd3.c:	if (p_ptr->command_new == ESCAPE)
+cmd3.c:		p_ptr->command_new = 0;
+cmd3.c:		p_ptr->command_see = TRUE;
+cmd3.c:	if (p_ptr->inventory[slot].is_cursed())
+cmd3.c:		object_desc(o_name, sizeof(o_name), &p_ptr->inventory[slot], FALSE, 0);
+cmd3.c:	if (p_ptr->inventory[slot].note)
+cmd3.c:		s = strchr(quark_str(p_ptr->inventory[slot].note), '!');
+cmd3.c:				object_desc(o_name, sizeof(o_name), &p_ptr->inventory[slot], TRUE, 3);
+cmd3.c:	p_ptr->energy_use = 100;
+cmd3.c:	o_ptr = &p_ptr->inventory[slot];
+cmd3.c:	p_ptr->total_weight += i_ptr->weight;
+cmd3.c:	p_ptr->equip_cnt++;
+cmd3.c:	p_ptr->update |= (PU_BONUS);
+cmd3.c:	p_ptr->update |= (PU_TORCH);
+cmd3.c:	p_ptr->update |= (PU_MANA);
+cmd3.c:	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+cmd3.c:	p_ptr->redraw |= (PR_EQUIPPY);
+cmd3.c:	p_ptr->energy_use = 50;
+cmd3.c:	p_ptr->energy_use = 50;
+cmd3.c:	p_ptr->energy_use = 100;
+cmd3.c:		p_ptr->notice |= (PN_COMBINE);
+cmd3.c:		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+cmd3.c:		p_ptr->redraw |= (PR_EQUIPPY);
+cmd3.c:	p_ptr->notice |= (PN_COMBINE);
+cmd3.c:	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+cmd3.c:		p_ptr->notice |= (PN_COMBINE);
+cmd3.c:		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+cmd3.c:	object_type *j_ptr = &p_ptr->inventory[INVEN_LITE];	/* Get the lantern */
+cmd3.c:	p_ptr->energy_use = 50;
+cmd3.c:			p_ptr->total_weight -= i_ptr->weight;
+cmd3.c:				drop_near(i_ptr, 0, p_ptr->loc);
+cmd3.c:		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+cmd3.c:		p_ptr->window |= (PW_INVEN);
+cmd3.c:	p_ptr->update |= (PU_TORCH);
+cmd3.c:	p_ptr->window |= (PW_EQUIP);
+cmd3.c:	object_type *j_ptr = &p_ptr->inventory[INVEN_LITE];	/* Get the primary torch */
+cmd3.c:	p_ptr->energy_use = 50;
+cmd3.c:	p_ptr->update |= (PU_TORCH);
+cmd3.c:	p_ptr->window |= (PW_EQUIP);
+cmd3.c:	object_type *o_ptr = &p_ptr->inventory[INVEN_LITE];	/* Get the light */
+cmd4.c:	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+cmd4.c:	p_ptr->update |= (PU_TORCH);
+cmd4.c:	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+cmd4.c:	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+cmd4.c:	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
+cmd4.c:	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1 |
+cmd4.c:			strnfmt(ftmp, sizeof(ftmp), "%s.txt", op_ptr->base_name);
+cmd4.c:	strnfmt(ftmp, sizeof(ftmp), "%s.prf", op_ptr->base_name);
+cmd4.c:			        op_ptr->opt[opt[i]] ? "yes" : "no ",
+cmd4.c:					if (op_ptr->opt[i])
+cmd4.c:						op_ptr->opt[OPT_SCORE + (i - OPT_CHEAT)] = TRUE;
+cmd4.c:				op_ptr->opt[opt[k]] = !op_ptr->opt[opt[k]];
+cmd4.c:				op_ptr->opt[opt[k]] = TRUE;
+cmd4.c:				op_ptr->opt[opt[k]] = FALSE;
+cmd4.c:		old_flag[j] = op_ptr->window_flag[j];
+cmd4.c:				if (op_ptr->window_flag[j] & (1L << i)) c = 'X';
+cmd4.c:			else if (op_ptr->window_flag[x] & (1L << y))
+cmd4.c:				op_ptr->window_flag[x] &= ~(1L << y);
+cmd4.c:				op_ptr->window_flag[x] |= (1L << y);
+cmd4.c:		if (op_ptr->window_flag[j] == old_flag[j]) continue;
+cmd4.c:		if (op_ptr->opt[i])
+cmd4.c:			if (op_ptr->window_flag[i] & (1L << j))
+cmd4.c:			strnfmt(ftmp, sizeof(ftmp), "%s.prf", op_ptr->base_name);
+cmd4.c:				int msec = op_ptr->delay_factor * op_ptr->delay_factor;
+cmd4.c:				           op_ptr->delay_factor, msec), 22, 0);
+cmd4.c:				if (isdigit((unsigned char)cx)) op_ptr->delay_factor = D2I(cx);
+cmd4.c:				           op_ptr->hitpoint_warn * 10), 22, 0);
+cmd4.c:				if (isdigit((unsigned char)cx)) op_ptr->hitpoint_warn = D2I(cx);
+cmd4.c:			strnfmt(ftmp, sizeof(ftmp), "%s.prf", op_ptr->base_name);
+cmd4.c:			strnfmt(ftmp, sizeof(ftmp), "%s.prf", op_ptr->base_name);
+cmd4.c:			strnfmt(ftmp, sizeof(ftmp), "%s.prf", op_ptr->base_name);
+cmd4.c:			strnfmt(ftmp, sizeof(ftmp), "%s.prf", op_ptr->base_name);
+cmd4.c:			strnfmt(ftmp, sizeof(ftmp), "%s.prf", op_ptr->base_name);
+cmd4.c:			strnfmt(ftmp, sizeof(ftmp), "%s.prf", op_ptr->base_name);
+cmd4.c:			strnfmt(ftmp, sizeof(ftmp), "%s.prf", op_ptr->base_name);
+cmd4.c:	if (!p_ptr->depth)
+cmd4.c:		object_type *o_ptr = &p_ptr->inventory[i];
+cmd5.c:	if (!p_ptr->spell_book()) return (100);
+cmd5.c:	s_ptr = p_ptr->spell_info(spell);
+cmd5.c:	chance -= 3 * (p_ptr->lev - s_ptr->slevel);
+cmd5.c:	chance -= adj_mag_stat[p_ptr->stat_ind[p_ptr->cp_ptr->spell_stat]];
+cmd5.c:	if (s_ptr->smana > p_ptr->csp)
+cmd5.c:		chance += 5 * (s_ptr->smana - p_ptr->csp);
+cmd5.c:	minfail = adj_mag_fail[p_ptr->stat_ind[p_ptr->cp_ptr->spell_stat]];
+cmd5.c:	if (!(p_ptr->cp_ptr->flags & CF_ZERO_FAIL))
+cmd5.c:	if (p_ptr->icky_wield)
+cmd5.c:	unsigned int stunned = stun_level(p_ptr->timed[TMD_STUN]);
+cmd5.c:	const magic_type* s_ptr = p_ptr->spell_info(spell);	/* Get the spell */
+cmd5.c:	if (s_ptr->slevel > p_ptr->lev) return (FALSE);
+cmd5.c:	if (p_ptr->spell_flags[spell] & PY_SPELL_FORGOTTEN)
+cmd5.c:	if (p_ptr->spell_flags[spell] & PY_SPELL_LEARNED)
+cmd5.c:		s_ptr = p_ptr->spell_info(spell);
+cmd5.c:		comment = get_spell_info(p_ptr->spell_book(), spell);
+cmd5.c:		if (p_ptr->spell_flags[spell] & PY_SPELL_FORGOTTEN)
+cmd5.c:		else if (!(p_ptr->spell_flags[spell] & PY_SPELL_LEARNED))
+cmd5.c:			if (s_ptr->slevel <= p_ptr->lev)
+cmd5.c:		else if (!(p_ptr->spell_flags[spell] & PY_SPELL_WORKED))
+cmd5.c:		        I2A(i), get_spell_name(p_ptr->spell_book(), spell),
+cmd5.c:	if (!p_ptr->spell_book()) return;
+cmd5.c:	if (i_ptr->tval == p_ptr->spell_book())
+cmd5.c:	cptr p = ((p_ptr->spell_book() == TV_MAGIC_BOOK) ? "spell" : "prayer");
+cmd5.c:			s_ptr = p_ptr->spell_info(spell);
+cmd5.c:			        prompt, get_spell_name(p_ptr->spell_book(), spell),
+cmd5.c:	p_ptr->command_new = inkey();
+cmd5.c:	if (p_ptr->command_new == ESCAPE)
+cmd5.c:		p_ptr->command_new = 0;
+cmd5.c:	if (!p_ptr->spell_book())
+cmd5.c:	if (p_ptr->blind || no_lite())
+cmd5.c:	if (p_ptr->confused)
+cmd5.c:	item_tester_tval = p_ptr->spell_book();
+cmd5.c:	cptr p = ((p_ptr->spell_book() == TV_MAGIC_BOOK) ? "spell" : "prayer");
+cmd5.c:	if (!p_ptr->spell_book())
+cmd5.c:	if (p_ptr->timed[TMD_BLIND]  || no_lite())
+cmd5.c:	if (p_ptr->timed[TMD_CONFUSED])
+cmd5.c:	if (!(p_ptr->new_spells))
+cmd5.c:	item_tester_tval = p_ptr->spell_book();
+cmd5.c:	if (p_ptr->cp_ptr->flags & CF_CHOOSE_SPELLS)
+cmd5.c:	p_ptr->energy_use = 100;
+cmd5.c:	p_ptr->spell_flags[spell] |= PY_SPELL_LEARNED;
+cmd5.c:		if (p_ptr->spell_order[i] == 99) break;
+cmd5.c:	p_ptr->spell_order[i] = spell;
+cmd5.c:	           p, get_spell_name(p_ptr->spell_book(), spell));
+cmd5.c:	p_ptr->new_spells--;
+cmd5.c:	if (p_ptr->new_spells)
+cmd5.c:		           p_ptr->new_spells, p,
+cmd5.c:		           (p_ptr->new_spells != 1) ? "s" : "");
+cmd5.c:	p_ptr->redraw |= (PR_STUDY);
+cmd5.c:	p_ptr->window |= (PW_OBJECT);
+cmd5.c:	if (p_ptr->spell_book() != TV_MAGIC_BOOK)
+cmd5.c:	if (p_ptr->timed[TMD_BLIND]  || no_lite())
+cmd5.c:	if (p_ptr->timed[TMD_CONFUSED])
+cmd5.c:	item_tester_tval = p_ptr->spell_book();
+cmd5.c:	s_ptr = p_ptr->spell_info(spell);
+cmd5.c:	if (s_ptr->smana > p_ptr->csp)
+cmd5.c:		if (!cast_spell(p_ptr->spell_book(), spell)) return;
+cmd5.c:		if (!(p_ptr->spell_flags[spell] & PY_SPELL_WORKED))
+cmd5.c:			p_ptr->spell_flags[spell] |= PY_SPELL_WORKED;
+cmd5.c:			p_ptr->window |= (PW_OBJECT);
+cmd5.c:	p_ptr->energy_use = 100;
+cmd5.c:	if (s_ptr->smana <= p_ptr->csp)
+cmd5.c:		p_ptr->csp -= s_ptr->smana;
+cmd5.c:		int oops = s_ptr->smana - p_ptr->csp;
+cmd5.c:		p_ptr->csp = 0;
+cmd5.c:		p_ptr->csp_frac = 0;
+cmd5.c:		(void)p_ptr->inc_timed<TMD_PARALYZED>(randint(5 * oops + 1));
+cmd5.c:	p_ptr->redraw |= (PR_MANA);
+cmd5.c:	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+cmd5.c:	if (p_ptr->spell_book() != TV_PRAYER_BOOK)
+cmd5.c:	if (p_ptr->timed[TMD_BLIND]  || no_lite())
+cmd5.c:	if (p_ptr->timed[TMD_CONFUSED])
+cmd5.c:	item_tester_tval = p_ptr->spell_book();
+cmd5.c:	s_ptr = p_ptr->spell_info(spell);
+cmd5.c:	if (s_ptr->smana > p_ptr->csp)
+cmd5.c:		if (!cast_spell(p_ptr->spell_book(), spell)) return;
+cmd5.c:		if (!(p_ptr->spell_flags[spell] & PY_SPELL_WORKED))
+cmd5.c:			p_ptr->spell_flags[spell] |= PY_SPELL_WORKED;
+cmd5.c:			p_ptr->window |= (PW_OBJECT);
+cmd5.c:	p_ptr->energy_use = 100;
+cmd5.c:	if (s_ptr->smana <= p_ptr->csp)
+cmd5.c:		p_ptr->csp -= s_ptr->smana;
+cmd5.c:		int oops = s_ptr->smana - p_ptr->csp;
+cmd5.c:		p_ptr->csp = 0;
+cmd5.c:		p_ptr->csp_frac = 0;
+cmd5.c:		(void)p_ptr->inc_timed<TMD_PARALYZED>(randint(5 * oops + 1));
+cmd5.c:	p_ptr->redraw |= (PR_MANA);
+cmd5.c:	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+cmd6.c:	int chance = p_ptr->skills[SKILL_DEVICE];
+cmd6.c:	if (p_ptr->timed[TMD_CONFUSED]) chance /= 2;
+cmd6.c:	if (is_moronic_to_use(*o_ptr) && !p_ptr->allow_moron())
+cmd6.c:	p_ptr->energy_use = 100;
+cmd6.c:	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+cmd6.c:		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
+cmd6.c:	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+cmd6.c:	if (is_moronic_to_use(*o_ptr) && !p_ptr->allow_moron())
+cmd6.c:	p_ptr->energy_use = 100;
+cmd6.c:	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+cmd6.c:		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
+cmd6.c:	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+cmd6.c:	if (p_ptr->timed[TMD_BLIND])
+cmd6.c:	if (p_ptr->timed[TMD_CONFUSED])
+cmd6.c:	if (is_moronic_to_use(*o_ptr) && !p_ptr->allow_moron())
+cmd6.c:	p_ptr->energy_use = 100;
+cmd6.c:	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+cmd6.c:		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
+cmd6.c:	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+cmd6.c:	if (is_moronic_to_use(*o_ptr) && !p_ptr->allow_moron())
+cmd6.c:	p_ptr->energy_use = 100;
+cmd6.c:	chance = p_ptr->item_chance(lev);
+cmd6.c:		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+cmd6.c:		p_ptr->window |= (PW_INVEN);
+cmd6.c:	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+cmd6.c:		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
+cmd6.c:	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+cmd6.c:	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+cmd6.c:		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
+cmd6.c:	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+cmd6.c:	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+cmd6.c:		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
+cmd6.c:	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+cmd6.c:	p_ptr->energy_use = 100;
+cmd6.c:	chance = p_ptr->item_chance(lev);
+dungeon.c:	int plev = p_ptr->lev;
+dungeon.c:	bool heavy = (p_ptr->cp_ptr->flags & CF_PSEUDO_ID_HEAVY);
+dungeon.c:	if (p_ptr->timed[TMD_CONFUSED]) return;
+dungeon.c:	if (p_ptr->cp_ptr->flags & CF_PSEUDO_ID_IMPROV)
+dungeon.c:		if (0 != rand_int(p_ptr->cp_ptr->sense_base / (plev * plev + p_ptr->cp_ptr->sense_div)))
+dungeon.c:		if (0 != rand_int(p_ptr->cp_ptr->sense_base / (plev + p_ptr->cp_ptr->sense_div)))
+dungeon.c:		o_ptr = &p_ptr->inventory[i];
+dungeon.c:		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+dungeon.c:		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+dungeon.c:	old_chp = p_ptr->chp;
+dungeon.c:	new_chp = ((long)p_ptr->mhp) * percent + PY_REGEN_HPBASE;
+dungeon.c:	p_ptr->chp += (s16b)(new_chp >> 16);   /* div 65536 */
+dungeon.c:	if ((p_ptr->chp < 0) && (old_chp > 0)) p_ptr->chp = MAX_SHORT;
+dungeon.c:	new_chp_frac = (new_chp & 0xFFFF) + p_ptr->chp_frac;	/* mod 65536 */
+dungeon.c:		p_ptr->chp_frac = (u16b)(new_chp_frac - 0x10000L);
+dungeon.c:		p_ptr->chp++;
+dungeon.c:		p_ptr->chp_frac = (u16b)new_chp_frac;
+dungeon.c:	if (p_ptr->chp >= p_ptr->mhp)
+dungeon.c:		p_ptr->chp = p_ptr->mhp;
+dungeon.c:		p_ptr->chp_frac = 0;
+dungeon.c:	if (old_chp != p_ptr->chp)
+dungeon.c:		p_ptr->redraw |= (PR_HP);
+dungeon.c:		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+dungeon.c:	old_csp = p_ptr->csp;
+dungeon.c:	new_mana = ((long)p_ptr->msp) * percent + PY_REGEN_MNBASE;
+dungeon.c:	p_ptr->csp += (s16b)(new_mana >> 16);	/* div 65536 */
+dungeon.c:	if ((p_ptr->csp < 0) && (old_csp > 0))
+dungeon.c:		p_ptr->csp = MAX_SHORT;
+dungeon.c:	new_mana_frac = (new_mana & 0xFFFF) + p_ptr->csp_frac;	/* mod 65536 */
+dungeon.c:		p_ptr->csp_frac = (u16b)(new_mana_frac - 0x10000L);
+dungeon.c:		p_ptr->csp++;
+dungeon.c:		p_ptr->csp_frac = (u16b)new_mana_frac;
+dungeon.c:	if (p_ptr->csp >= p_ptr->msp)
+dungeon.c:		p_ptr->csp = p_ptr->msp;
+dungeon.c:		p_ptr->csp_frac = 0;
+dungeon.c:	if (old_csp != p_ptr->csp)
+dungeon.c:		p_ptr->redraw |= (PR_MANA);
+dungeon.c:		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+dungeon.c:		if (p_ptr->health_who == (&m-mon_list)) p_ptr->redraw |= (PR_HEALTH);
+dungeon.c:		o_ptr = &p_ptr->inventory[i];
+dungeon.c:		p_ptr->window |= (PW_EQUIP);
+dungeon.c:		o_ptr = &p_ptr->inventory[i];
+dungeon.c:		p_ptr->notice |= (PN_COMBINE);
+dungeon.c:		p_ptr->window |= (PW_INVEN);
+dungeon.c:	if (p_ptr->depth == 0) 
+dungeon.c:	else if (p_ptr->depth <= 20) 
+dungeon.c:	else if (p_ptr->depth <= 40) 
+dungeon.c:	else if (p_ptr->depth <= 60) 
+dungeon.c:	else if (p_ptr->depth <= 80) 
+dungeon.c:				p_ptr->playing = FALSE;
+dungeon.c:				p_ptr->leaving = TRUE;
+dungeon.c:	if (!p_ptr->depth)
+dungeon.c:	if (p_ptr->timed[TMD_POISONED])
+dungeon.c:	if (p_ptr->timed[TMD_CUT])
+dungeon.c:		unsigned int bleeding = cut_level(p_ptr->timed[TMD_CUT]);
+dungeon.c:	if (p_ptr->food < PY_FOOD_MAX)
+dungeon.c:			i = extract_energy[p_ptr->pspeed] * 2;
+dungeon.c:			if (p_ptr->regenerate) i += 30;
+dungeon.c:			if (p_ptr->slow_digest) i -= 10;
+dungeon.c:			(void)set_food(p_ptr->food - i);
+dungeon.c:		(void)set_food(p_ptr->food - 100);
+dungeon.c:	if (p_ptr->food < PY_FOOD_STARVE)
+dungeon.c:		i = (PY_FOOD_STARVE - p_ptr->food) / 10;
+dungeon.c:	if (p_ptr->food < PY_FOOD_WEAK)
+dungeon.c:		if (p_ptr->food < PY_FOOD_STARVE)
+dungeon.c:		else if (p_ptr->food < PY_FOOD_FAINT)
+dungeon.c:		if (p_ptr->food < PY_FOOD_FAINT)
+dungeon.c:			if (!p_ptr->timed[TMD_PARALYZED] && (rand_int(100) < 10))
+dungeon.c:				(void)p_ptr->inc_timed<TMD_PARALYZED>(1 + rand_int(5));
+dungeon.c:	if (p_ptr->regenerate)
+dungeon.c:	if (p_ptr->searching || p_ptr->resting)
+dungeon.c:	if (p_ptr->csp < p_ptr->msp)
+dungeon.c:	if (p_ptr->timed[TMD_PARALYZED]) regen_amount = 0;
+dungeon.c:	if (p_ptr->timed[TMD_POISONED]) regen_amount = 0;
+dungeon.c:	if (p_ptr->timed[TMD_STUN]) regen_amount = 0;
+dungeon.c:	if (p_ptr->timed[TMD_CUT]) regen_amount = 0;
+dungeon.c:	if (p_ptr->chp < p_ptr->mhp)
+dungeon.c:	const int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
+dungeon.c:							unsigned int bleeding = cut_level(p_ptr->timed[TMD_CUT]);
+dungeon.c:							if (7 > bleeding) (void)p_ptr->dec_timed(i, adjust);
+dungeon.c:							(void)p_ptr->dec_timed(i, adjust);
+dungeon.c:		default :	(void)p_ptr->dec_timed(i, 1);
+dungeon.c:	o_ptr = &p_ptr->inventory[INVEN_LITE];
+dungeon.c:				p_ptr->window |= (PW_EQUIP);
+dungeon.c:			if (p_ptr->timed[TMD_BLIND] )
+dungeon.c:	p_ptr->update |= (PU_TORCH);
+dungeon.c:	if (p_ptr->exp_drain)
+dungeon.c:		if ((rand_int(100) < 10) && (p_ptr->exp > 0))
+dungeon.c:			p_ptr->exp--;
+dungeon.c:			p_ptr->max_exp--;
+dungeon.c:	if ((p_ptr->teleport) && (rand_int(100) < 1))
+dungeon.c:	if (p_ptr->word_recall)
+dungeon.c:		p_ptr->word_recall--;
+dungeon.c:		if (!p_ptr->word_recall)
+dungeon.c:			if (p_ptr->depth)
+dungeon.c:				p_ptr->depth = 0;
+dungeon.c:				p_ptr->leaving = TRUE;
+dungeon.c:				p_ptr->depth = p_ptr->max_depth;
+dungeon.c:				if (p_ptr->depth < 1) p_ptr->depth = 1;
+dungeon.c:				p_ptr->leaving = TRUE;
+dungeon.c:	if (!(p_ptr->noscore & NOSCORE_WIZARD) && !(p_ptr->is_dead))
+dungeon.c:	p_ptr->noscore |= NOSCORE_WIZARD;
+dungeon.c:	if (!(p_ptr->noscore & NOSCORE_DEBUG))
+dungeon.c:	p_ptr->noscore |= NOSCORE_DEBUG;
+dungeon.c:	if (!(p_ptr->noscore & NOSCORE_BORG))
+dungeon.c:	p_ptr->noscore |= NOSCORE_BORG;
+dungeon.c:	switch (p_ptr->command_cmd)
+dungeon.c:			if (p_ptr->wizard)
+dungeon.c:				p_ptr->wizard = FALSE;
+dungeon.c:				p_ptr->wizard = TRUE;
+dungeon.c:			p_ptr->update |= (PU_MONSTERS);
+dungeon.c:			p_ptr->redraw |= (PR_TITLE);
+dungeon.c:			if (p_ptr->spell_book() == TV_PRAYER_BOOK)
+dungeon.c:			if (p_ptr->spell_book() == TV_MAGIC_BOOK)
+dungeon.c:			p_ptr->playing = FALSE;
+dungeon.c:			p_ptr->leaving = TRUE;
+dungeon.c:	if (p_ptr->monster_race_idx)
+dungeon.c:		monster_lore *l_ptr = &l_list[p_ptr->monster_race_idx];
+dungeon.c:		    (old_monster_race_idx != p_ptr->monster_race_idx) ||
+dungeon.c:			old_monster_race_idx = p_ptr->monster_race_idx;
+dungeon.c:			p_ptr->window |= (PW_MONSTER);
+dungeon.c:	if (p_ptr->resting < 0)
+dungeon.c:		if (p_ptr->resting == -1)
+dungeon.c:			if ((p_ptr->chp == p_ptr->mhp) &&
+dungeon.c:			    (p_ptr->csp == p_ptr->msp))
+dungeon.c:		else if (p_ptr->resting == -2)
+dungeon.c:			if ((p_ptr->chp == p_ptr->mhp) &&
+dungeon.c:			    (p_ptr->csp == p_ptr->msp) &&
+dungeon.c:			    !p_ptr->timed[TMD_BLIND]  && !p_ptr->timed[TMD_CONFUSED] &&
+dungeon.c:			    !p_ptr->timed[TMD_POISONED] && !p_ptr->timed[TMD_AFRAID] &&
+dungeon.c:			    !p_ptr->timed[TMD_STUN] && !p_ptr->timed[TMD_CUT] &&
+dungeon.c:			    !p_ptr->timed[TMD_SLOW] && !p_ptr->timed[TMD_PARALYZED] &&
+dungeon.c:			    !p_ptr->timed[TMD_IMAGE] && !p_ptr->word_recall)
+dungeon.c:		if (p_ptr->running ||
+dungeon.c:		    p_ptr->command_rep ||
+dungeon.c:		    (p_ptr->resting && !(turn & 0x7F)))
+dungeon.c:		if (p_ptr->notice) notice_stuff();
+dungeon.c:		if (p_ptr->update) update_stuff();
+dungeon.c:		if (p_ptr->redraw) redraw_stuff();
+dungeon.c:		if (p_ptr->window) window_stuff();
+dungeon.c:		move_cursor_relative(p_ptr->loc);
+dungeon.c:		if (p_ptr->inventory[INVEN_PACK].k_idx)
+dungeon.c:			o_ptr = &p_ptr->inventory[item];
+dungeon.c:			drop_near(o_ptr, 0, p_ptr->loc);
+dungeon.c:			if (p_ptr->notice) notice_stuff();
+dungeon.c:			if (p_ptr->update) update_stuff();
+dungeon.c:			if (p_ptr->redraw) redraw_stuff();
+dungeon.c:			if (p_ptr->window) window_stuff();
+dungeon.c:		if (!p_ptr->command_new) p_ptr->command_see = FALSE;
+dungeon.c:		p_ptr->energy_use = 0;
+dungeon.c:		if ((p_ptr->timed[TMD_PARALYZED]) || (p_ptr->timed[TMD_STUN] >= 100))
+dungeon.c:			p_ptr->energy_use = 100;
+dungeon.c:		else if (p_ptr->resting)
+dungeon.c:			if (p_ptr->resting > 0)
+dungeon.c:				p_ptr->resting--;
+dungeon.c:				p_ptr->redraw |= (PR_STATE);
+dungeon.c:			p_ptr->energy_use = 100;
+dungeon.c:		else if (p_ptr->running)
+dungeon.c:		else if (p_ptr->command_rep)
+dungeon.c:			if (p_ptr->command_rep)
+dungeon.c:				p_ptr->command_rep--;
+dungeon.c:				p_ptr->redraw |= (PR_STATE);
+dungeon.c:			move_cursor_relative(p_ptr->loc);
+dungeon.c:		if (p_ptr->energy_use)
+dungeon.c:			p_ptr->energy -= p_ptr->energy_use;
+dungeon.c:			if (p_ptr->timed[TMD_IMAGE])
+dungeon.c:				p_ptr->redraw |= (PR_MAP);
+dungeon.c:				p_ptr->window |= (PW_MAP);
+dungeon.c:	while (!p_ptr->energy_use && !p_ptr->leaving);
+dungeon.c:	int py = p_ptr->loc.y;
+dungeon.c:	int px = p_ptr->loc.x;
+dungeon.c:	p_ptr->leaving = FALSE;
+dungeon.c:	p_ptr->command_cmd = 0;
+dungeon.c:	p_ptr->command_new = 0;
+dungeon.c:	p_ptr->command_rep = 0;
+dungeon.c:	p_ptr->command_arg = 0;
+dungeon.c:	p_ptr->command_dir = 0;
+dungeon.c:	if (p_ptr->max_lev < p_ptr->lev)
+dungeon.c:		p_ptr->max_lev = p_ptr->lev;
+dungeon.c:	if (p_ptr->max_depth < p_ptr->depth)
+dungeon.c:		p_ptr->max_depth = p_ptr->depth;
+dungeon.c:	if (is_quest(p_ptr->depth))
+dungeon.c:		p_ptr->create_down_stair = FALSE;
+dungeon.c:	if (!p_ptr->depth || !dungeon_stair)
+dungeon.c:		p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
+dungeon.c:	if (p_ptr->create_down_stair || p_ptr->create_up_stair)
+dungeon.c:			if (p_ptr->create_down_stair)
+dungeon.c:		p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
+dungeon.c:	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+dungeon.c:	p_ptr->update |= (PU_TORCH);
+dungeon.c:	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_DISTANCE);
+dungeon.c:	p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
+dungeon.c:	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
+dungeon.c:	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+dungeon.c:	p_ptr->window |= (PW_MONSTER | PW_MONLIST);
+dungeon.c:	p_ptr->window |= (PW_OVERHEAD | PW_MAP);
+dungeon.c:	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+dungeon.c:	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+dungeon.c:	if (p_ptr->is_dead) return;
+dungeon.c:	if (p_ptr->depth) do_cmd_feeling();
+dungeon.c:	monster_level = p_ptr->depth;
+dungeon.c:	object_level = p_ptr->depth;
+dungeon.c:		while ((p_ptr->energy >= 100) && !p_ptr->leaving)
+dungeon.c:			process_monsters((byte)(p_ptr->energy + 1));
+dungeon.c:			if (!p_ptr->leaving)
+dungeon.c:		if (p_ptr->notice) notice_stuff();
+dungeon.c:		if (p_ptr->update) update_stuff();
+dungeon.c:		if (p_ptr->redraw) redraw_stuff();
+dungeon.c:		if (p_ptr->window) window_stuff();
+dungeon.c:		move_cursor_relative(p_ptr->loc);
+dungeon.c:		if (p_ptr->leaving) break;
+dungeon.c:		if (p_ptr->notice) notice_stuff();
+dungeon.c:		if (p_ptr->update) update_stuff();
+dungeon.c:		if (p_ptr->redraw) redraw_stuff();
+dungeon.c:		if (p_ptr->window) window_stuff();
+dungeon.c:		move_cursor_relative(p_ptr->loc);
+dungeon.c:		if (p_ptr->leaving) break;
+dungeon.c:		if (p_ptr->notice) notice_stuff();
+dungeon.c:		if (p_ptr->update) update_stuff();
+dungeon.c:		if (p_ptr->redraw) redraw_stuff();
+dungeon.c:		if (p_ptr->window) window_stuff();
+dungeon.c:		move_cursor_relative(p_ptr->loc);
+dungeon.c:		if (p_ptr->leaving) break;
+dungeon.c:		p_ptr->energy += extract_energy[p_ptr->pspeed];
+dungeon.c:	(void)strnfmt(buf, sizeof(buf), "%s.prf", op_ptr->base_name);
+dungeon.c: * with "savefile" and "op_ptr->base_name" both empty, and initialize
+dungeon.c: * initialize "op_ptr->base_name" to "PLAYER" if it is empty.
+dungeon.c:	if (!op_ptr->base_name[0])
+dungeon.c:		strcpy(op_ptr->base_name, "PLAYER");
+dungeon.c:		p_ptr->depth = 0;
+dungeon.c:	if (arg_wizard && enter_wizard_mode()) p_ptr->wizard = TRUE;
+dungeon.c:	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+dungeon.c:	p_ptr->window |= (PW_MONSTER | PW_MESSAGE);
+dungeon.c:	p_ptr->playing = TRUE;
+dungeon.c:	if (p_ptr->chp < 0) p_ptr->is_dead = TRUE;
+dungeon.c:		if (p_ptr->notice) notice_stuff();
+dungeon.c:		if (p_ptr->update) update_stuff();
+dungeon.c:		if (p_ptr->redraw) redraw_stuff();
+dungeon.c:		if (p_ptr->window) window_stuff();
+dungeon.c:		if (!p_ptr->playing && !p_ptr->is_dead) break;
+dungeon.c:		if (p_ptr->playing && p_ptr->is_dead)
+dungeon.c:			if ((p_ptr->wizard || cheat_live) && !get_check("Die? "))
+dungeon.c:				if (p_ptr->sc) p_ptr->sc = p_ptr->age = 0;
+dungeon.c:				p_ptr->age++;
+dungeon.c:				p_ptr->noscore |= NOSCORE_WIZARD;
+dungeon.c:				p_ptr->is_dead = FALSE;
+dungeon.c:				p_ptr->chp = p_ptr->mhp;
+dungeon.c:				p_ptr->chp_frac = 0;
+dungeon.c:				p_ptr->csp = p_ptr->msp;
+dungeon.c:				p_ptr->csp_frac = 0;
+dungeon.c:				(void)p_ptr->clear_timed<TMD_BLIND>(); 
+dungeon.c:				(void)p_ptr->clear_timed<TMD_CONFUSED>(); 
+dungeon.c:				(void)p_ptr->clear_timed<TMD_POISONED>(); 
+dungeon.c:				(void)p_ptr->clear_timed<TMD_AFRAID>(); 
+dungeon.c:				(void)p_ptr->clear_timed<TMD_PARALYZED>(); 
+dungeon.c:				(void)p_ptr->clear_timed<TMD_IMAGE>(); 
+dungeon.c:				(void)p_ptr->clear_timed<TMD_STUN>(); 
+dungeon.c:				(void)p_ptr->clear_timed<TMD_CUT>(); 
+dungeon.c:				if (p_ptr->word_recall)
+dungeon.c:					p_ptr->word_recall = 0;
+dungeon.c:				strcpy(p_ptr->died_from, "Cheating death");
+dungeon.c:				p_ptr->depth = 0;
+dungeon.c:				p_ptr->leaving = TRUE;
+dungeon.c:		if (p_ptr->is_dead) break;
+files.c:				op_ptr->opt[i] = FALSE;
+files.c:				op_ptr->opt[i] = TRUE;
+files.c:					op_ptr->window_flag[win] |= (1L << flag);
+files.c:					op_ptr->window_flag[win] &= ~(1L << flag);
+files.c:				v = p_ptr->racename();
+files.c:				v = p_ptr->classname();
+files.c:				v = op_ptr->base_name;
+files.c:	f1 = rp_ptr->flags1;
+files.c:	f2 = rp_ptr->flags2;
+files.c:	f3 = rp_ptr->flags3;
+files.c:	if ((cp_ptr->flags & CF_BRAVERY_30) && (30 <= lev)) f2 |= (TR2_RES_FEAR);
+files.c:		o_ptr = &p_ptr->inventory[i];
+files.c:			object_type *o_ptr = &p_ptr->inventory[j];
+files.c:				p_ptr->flags(f[1], f[2], f[3]);
+files.c:		if (p_ptr->stat_use[i] < p_ptr->stat_top[i])
+files.c:		if (p_ptr->stat_max[i] == 18+100)
+files.c:		cnv_stat(p_ptr->stat_max[i], buf);
+files.c:		strnfmt(buf, sizeof(buf), "%+3d", p_ptr->rp_ptr->r_adj[i]);
+files.c:		strnfmt(buf, sizeof(buf), "%+3d", p_ptr->cp_ptr->c_adj[i]);
+files.c:		strnfmt(buf, sizeof(buf), "%+3d", p_ptr->stat_add[i]);
+files.c:		cnv_stat(p_ptr->stat_top[i], buf);
+files.c:		if (p_ptr->stat_use[i] < p_ptr->stat_top[i])
+files.c:			cnv_stat(p_ptr->stat_use[i], buf);
+files.c:		o_ptr = &p_ptr->inventory[i];
+files.c:	p_ptr->flags(f1, f2, f3);
+files.c:	if (p_ptr->wizard)
+files.c:	else if (p_ptr->total_winner || p_ptr->lev > PY_MAX_LEVEL)
+files.c:		return player_type::c_text + p_ptr->cp_ptr->title[(p_ptr->lev - 1) / 5];
+files.c:	if (p_ptr->lev < PY_MAX_LEVEL)
+files.c:		s32b advance = (player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L);
+files.c:	if (p_ptr->depth == 0) return "Town";
+files.c:		strnfmt(buffer, sizeof(buffer), "%d ft", p_ptr->depth * 50);
+files.c:		strnfmt(buffer, sizeof(buffer), "Lev %d", p_ptr->depth);
+files.c:	if (p_ptr->max_depth == 0) return "Town";
+files.c:		strnfmt(buffer, sizeof(buffer), "%d ft", p_ptr->max_depth * 50);
+files.c:		strnfmt(buffer, sizeof(buffer), "Lev %d", p_ptr->max_depth);
+files.c:	int tmp = p_ptr->pspeed;
+files.c:	if (p_ptr->timed[TMD_FAST]) tmp -= 10;
+files.c:	if (p_ptr->timed[TMD_SLOW]) tmp += 10;
+files.c:	if (p_ptr->searching) tmp += 10;
+files.c:	int hit = p_ptr->dis_to_h;
+files.c:	int dam = p_ptr->dis_to_d;
+files.c:		{ TERM_L_BLUE, "Name",	"%y",	 { s2u(op_ptr->full_name) , END  }},
+files.c:		{ TERM_L_BLUE, "Sex",	"%y",	 { s2u(p_ptr->gender()) , END  }},
+files.c:		{ TERM_L_BLUE, "Race",	"%y",	 { s2u(p_ptr->racename()), END  }},
+files.c:		{ TERM_L_BLUE, "Class",	"%y",	 { s2u(p_ptr->classname()), END  }},
+files.c:		{ TERM_L_BLUE, "Title",	"%y",	 { s2u(p_ptr->title()), END  }},
+files.c:		{ TERM_L_BLUE, "HP",	"%y/%y", { i2u(p_ptr->mhp), i2u(p_ptr->chp)  }},
+files.c:		{ TERM_L_BLUE, "SP",	"%y/%y", { i2u(p_ptr->msp), i2u(p_ptr->csp)  }},
+files.c:		{ TERM_L_BLUE, "Level",	"%y",	 { i2u(p_ptr->lev), END  }}
+files.c:		{ max_color(p_ptr->lev, p_ptr->max_lev), "Level", "%y",   { i2u(p_ptr->lev), END  }},
+files.c:		{ max_color(p_ptr->exp, p_ptr->max_exp), "Cur Exp", "%y", { i2u(p_ptr->exp), END  }},
+files.c:		{ TERM_L_GREEN, "Max Exp",	"%y",		{ i2u(p_ptr->max_exp), END  }},
+files.c:		{ TERM_L_GREEN, "Gold",		"%y",		{ i2u(p_ptr->au), END  }},
+files.c:		{ TERM_L_GREEN, "Burden",	"%.1y lbs",	{ f2u(p_ptr->total_weight/10.0), END  }},
+files.c:		{ TERM_L_BLUE, "Armor", "[%y,%+y]",		{ i2u(p_ptr->dis_ac), i2u(p_ptr->dis_to_a)  }},
+files.c:		{ TERM_L_BLUE, "Fight", "(%+y,%+y)",	{ i2u(p_ptr->dis_to_h), i2u(p_ptr->dis_to_d)  }},
+files.c:		{ TERM_L_BLUE, "Melee", "%y",			{ s2u(show_weapon(&p_ptr->inventory[INVEN_WIELD])), END  }},
+files.c:		{ TERM_L_BLUE, "Shoot", "%y",			{ s2u(show_weapon(&p_ptr->inventory[INVEN_BOW])), END  }},
+files.c:		{ TERM_L_BLUE, "Blows", "%y/turn",		{ i2u(p_ptr->num_blow), END  }},
+files.c:		{ TERM_L_BLUE, "Shots", "%y/turn",		{ i2u(p_ptr->num_fire), END  }},
+files.c:		{ TERM_L_BLUE, "Infra", "%y ft",		{ i2u(p_ptr->see_infra * 10), END  }}
+files.c:		{ "Saving Throw", p_ptr->skills[SKILL_SAVE], 6 },
+files.c:		{ "Stealth", p_ptr->skills[SKILL_STEALTH], 1 },
+files.c:		{ "Fighting", p_ptr->skills[SKILL_TO_HIT_MELEE], 12 },
+files.c:		{ "Shooting", p_ptr->skills[SKILL_TO_HIT_BOW], 12 },
+files.c:		{ "Disarming", p_ptr->skills[SKILL_DISARM], 8 },
+files.c:		{ "Magic Device", p_ptr->skills[SKILL_DEVICE], 6 },
+files.c:		{ "Perception", p_ptr->skills[SKILL_SEARCH_FREQUENCY], 6 },
+files.c:		{ "Searching", p_ptr->skills[SKILL_SEARCH], 6 }
+files.c:		{TERM_L_BLUE, "Age",		"%y",	{ i2u(p_ptr->age), END  }},
+files.c:		{TERM_L_BLUE, "Height",		"%y",	{ i2u(p_ptr->ht), END  }},
+files.c:		{TERM_L_BLUE, "Weight",		"%y",	{ i2u(p_ptr->wt), END  }},
+files.c:		{TERM_L_BLUE, "Status",		"%y",	{ i2u(p_ptr->sc), END  }},
+files.c:	text_out_to_screen(TERM_WHITE, p_ptr->history);
+files.c:	if (p_ptr->is_dead)
+files.c:	if (p_ptr->equip_cnt)
+files.c:			object_desc(o_name, sizeof(o_name), &p_ptr->inventory[i], TRUE, 3);
+files.c:			identify_random_gen(&p_ptr->inventory[i]);
+files.c:		if (!p_ptr->inventory[i].k_idx) break;
+files.c:		object_desc(o_name, sizeof(o_name), &p_ptr->inventory[i], TRUE, 3);
+files.c:		identify_random_gen(&p_ptr->inventory[i]);
+files.c:			        op_ptr->opt[i] ? "yes" : "no ",
+files.c:	for (i = 0; op_ptr->full_name[i]; i++)
+files.c:		char c = op_ptr->full_name[i];
+files.c:		op_ptr->base_name[i] = c;
+files.c:	op_ptr->base_name[i] = '\0';
+files.c:	if (!op_ptr->base_name[0])
+files.c:		strcpy(op_ptr->base_name, "PLAYER");
+files.c:		strnfmt(temp, sizeof(temp), "%d.%s", player_uid, op_ptr->base_name);
+files.c:		strnfmt(temp, sizeof(temp), "%s", op_ptr->base_name);
+files.c:		strnfmt(temp, sizeof(temp), "%s.sv", op_ptr->base_name);
+files.c:	my_strcpy(tmp, op_ptr->full_name, sizeof(tmp));
+files.c:		my_strcpy(op_ptr->full_name, tmp, sizeof(op_ptr->full_name));
+files.c:	if (p_ptr->total_winner)
+files.c:	p_ptr->is_dead = TRUE;
+files.c:	p_ptr->playing = FALSE;
+files.c:	p_ptr->leaving = TRUE;
+files.c:	strcpy(p_ptr->died_from, "Quitting");
+files.c:	strcpy(p_ptr->died_from, "(saved)");
+files.c:	strcpy(p_ptr->died_from, "(alive and well)");
+files.c:	return (p_ptr->max_exp + (100 * p_ptr->max_depth));
+files.c:	if (!(p_ptr->noscore & (NOSCORE_WIZARD | NOSCORE_BORG))
+files.c:		if (p_ptr->depth)
+files.c:			sprintf(tmp, "bone.%03d", p_ptr->depth);
+files.c:			fprintf(fp, "%s\n", op_ptr->full_name);
+files.c:			fprintf(fp, "%d\n", p_ptr->mhp);
+files.c:			fprintf(fp, "%d\n", p_ptr->prace);
+files.c:			fprintf(fp, "%d\n", p_ptr->pclass);
+files.c:	if (p_ptr->total_winner || (p_ptr->lev > PY_MAX_LEVEL))
+files.c:		p = player_type::c_text + p_ptr->cp_ptr->title[(p_ptr->lev - 1) / 5];
+files.c:	center_string(buf, sizeof(buf), op_ptr->full_name);
+files.c:	center_string(buf, sizeof(buf), p_ptr->classname());
+files.c:	strnfmt(tmp, sizeof(tmp), "Level: %d", (int)p_ptr->lev);
+files.c:	strnfmt(tmp, sizeof(tmp), "Exp: %ld", (long)p_ptr->exp);
+files.c:	strnfmt(tmp, sizeof(tmp), "AU: %ld", (long)p_ptr->au);
+files.c:	strnfmt(tmp, sizeof(tmp), "Killed on Level %d", p_ptr->depth);
+files.c:	strnfmt(tmp, sizeof(tmp), "by %s.", p_ptr->died_from);
+files.c:		o_ptr = &p_ptr->inventory[i];
+files.c:	p_ptr->update |= (PU_BONUS);
+files.c:	if (p_ptr->equip_cnt)
+files.c:	if (p_ptr->inven_cnt)
+files.c:	p_ptr->command_see = TRUE;
+files.c:		o_ptr = &p_ptr->inventory[item];
+files.c:	if (p_ptr->noscore & NOSCORE_WIZARD)
+files.c:	if (p_ptr->noscore & NOSCORE_BORG)
+files.c:		if (!op_ptr->opt[j]) continue;
+files.c:	if (!p_ptr->total_winner && streq(p_ptr->died_from, "Interrupting"))
+files.c:	if (!p_ptr->total_winner && streq(p_ptr->died_from, "Quitting"))
+files.c:	strnfmt(the_score.gold, sizeof(the_score.gold), "%9lu", (long)p_ptr->au);
+files.c:	strnfmt(the_score.who, sizeof(the_score.who), "%-.15s", op_ptr->full_name);
+files.c:	strnfmt(the_score.sex, sizeof(the_score.sex), "%c", p_ptr->terse_gender());
+files.c:	strnfmt(the_score.p_r, sizeof(the_score.p_r), "%2d", p_ptr->prace);
+files.c:	strnfmt(the_score.p_c, sizeof(the_score.p_c), "%2d", p_ptr->pclass);
+files.c:	strnfmt(the_score.cur_lev, sizeof(the_score.cur_lev), "%3d", p_ptr->lev);
+files.c:	strnfmt(the_score.cur_dun, sizeof(the_score.cur_dun), "%3d", p_ptr->depth);
+files.c:	strnfmt(the_score.max_lev, sizeof(the_score.max_lev), "%3d", p_ptr->max_lev);
+files.c:	strnfmt(the_score.max_dun, sizeof(the_score.max_dun), "%3d", p_ptr->max_depth);
+files.c:	strnfmt(the_score.how, sizeof(the_score.how), "%-.31s", p_ptr->died_from);
+files.c:	sprintf(the_score.gold, "%9lu", (long)p_ptr->au);
+files.c:	sprintf(the_score.who, "%-.15s", op_ptr->full_name);
+files.c:	sprintf(the_score.sex, "%c", p_ptr->terse_gender());
+files.c:	sprintf(the_score.p_r, "%2d", p_ptr->prace);
+files.c:	sprintf(the_score.p_c, "%2d", p_ptr->pclass);
+files.c:	sprintf(the_score.cur_lev, "%3d", p_ptr->lev);
+files.c:	sprintf(the_score.cur_dun, "%3d", p_ptr->depth);
+files.c:	sprintf(the_score.max_lev, "%3d", p_ptr->max_lev);
+files.c:	sprintf(the_score.max_dun, "%3d", p_ptr->max_depth);
+files.c:	p_ptr->depth = 0;
+files.c:	strcpy(p_ptr->died_from, "Ripe Old Age");
+files.c:	p_ptr->exp = p_ptr->max_exp;
+files.c:	p_ptr->lev = p_ptr->max_lev;
+files.c:	p_ptr->au += 10000000L;
+files.c:	put_str(format("All Hail the Mighty %s!", p_ptr->win_rank()), 17, 22);
+files.c:	if (p_ptr->total_winner) kingly();
+files.c:				strnfmt(ftmp, sizeof(ftmp), "%s.txt", op_ptr->base_name);
+files.c:	if (p_ptr->is_dead)
+files.c:	if (p_ptr->chp < 0) p_ptr->is_dead = FALSE;
+files.c:	p_ptr->panic_save = 1;
+files.c:	strcpy(p_ptr->died_from, "(panic save)");
+generate.c:	if (!p_ptr->depth)
+generate.c:	else if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
+generate.c:				if (!p_ptr->depth)
+generate.c:				else if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
+generate.c:	if (p_ptr->depth <= randint(25)) light = TRUE;
+generate.c:	if (p_ptr->depth <= randint(25)) light = TRUE;
+generate.c:	if (p_ptr->depth <= randint(25)) light = TRUE;
+generate.c:	if (p_ptr->depth <= randint(25)) light = TRUE;
+generate.c:	tmp = randint(p_ptr->depth);
+generate.c:		what[i] = get_mon_num(p_ptr->depth + 10);
+generate.c:	if ((p_ptr->depth <= 40) &&
+generate.c:	    (randint(p_ptr->depth * p_ptr->depth + 1) < 300))
+generate.c:	tmp = randint(p_ptr->depth);
+generate.c:		what[i] = get_mon_num(p_ptr->depth + 10);
+generate.c:	if ((p_ptr->depth <= 40) &&
+generate.c:	    (randint(p_ptr->depth * p_ptr->depth + 1) < 300))
+generate.c:					monster_level = p_ptr->depth + 5;
+generate.c:					monster_level = p_ptr->depth;
+generate.c:					monster_level = p_ptr->depth + 11;
+generate.c:					monster_level = p_ptr->depth;
+generate.c:					monster_level = p_ptr->depth + 9;
+generate.c:					monster_level = p_ptr->depth;
+generate.c:					object_level = p_ptr->depth + 7;
+generate.c:					object_level = p_ptr->depth;
+generate.c:					monster_level = p_ptr->depth + 40;
+generate.c:					monster_level = p_ptr->depth;
+generate.c:					object_level = p_ptr->depth + 20;
+generate.c:					object_level = p_ptr->depth;
+generate.c:						monster_level = p_ptr->depth + 3;
+generate.c:						monster_level = p_ptr->depth;
+generate.c:						object_level = p_ptr->depth + 7;
+generate.c:						object_level = p_ptr->depth;
+generate.c:	if ((p_ptr->depth <= 50) ||
+generate.c:	    (randint((p_ptr->depth-40) * (p_ptr->depth-40) + 1) < 400))
+generate.c:	if ((p_ptr->depth <= 50) ||
+generate.c:	    (randint((p_ptr->depth-40) * (p_ptr->depth-40) + 1) < 400))
+generate.c:	if (p_ptr->depth < room[typ].level) return (FALSE);
+generate.c:	if ((p_ptr->depth > 10) && (rand_int(DUN_DEST) == 0)) destroyed = TRUE;
+generate.c:	if (is_quest(p_ptr->depth)) destroyed = FALSE;
+generate.c:		if (rand_int(DUN_UNUSUAL) < p_ptr->depth)
+generate.c:			if (rand_int(DUN_UNUSUAL) < p_ptr->depth)
+generate.c:	k = (p_ptr->depth / 3);
+generate.c:	if (is_quest(p_ptr->depth))
+generate.c:			    (r_ptr->level == p_ptr->depth) &&
+generate.c:		p_ptr->loc.clear();
+generate.c:		monster_level = p_ptr->depth;
+generate.c:		object_level = p_ptr->depth;
+generate.c:		if (!p_ptr->depth)
+generate.c:		if (!p_ptr->depth) feeling = 0;
+generate.c:			    ((p_ptr->depth >= 5) && (feeling > 8)) ||
+generate.c:			    ((p_ptr->depth >= 10) && (feeling > 7)) ||
+generate.c:			    ((p_ptr->depth >= 20) && (feeling > 6)) ||
+generate.c:			    ((p_ptr->depth >= 40) && (feeling > 5)))
+init1.c:		spell_ptr = &mp_ptr->info[spell];
+init2.c:	C_MAKE(p_ptr->inventory, INVEN_TOTAL, object_type);
+init2.c:		op_ptr->opt[i] = option_norm[i];
+init2.c:		op_ptr->window_flag[i] = 0L;
+init2.c:	FREE(p_ptr->inventory);
+load.c:	op_ptr->delay_factor = b;
+load.c:	op_ptr->hitpoint_warn = b;
+load.c:					op_ptr->opt[i] = TRUE;
+load.c:					op_ptr->opt[i] = FALSE;
+load.c:						op_ptr->window_flag[n] |= (1L << i);
+load.c:		    (player_type::c_info[p_ptr->pclass].spell_book == TV_MAGIC_BOOK))
+load.c:				p_ptr->spell_order[i] = 99;
+load.c:						p_ptr->spell_flags[i] |= PY_SPELL_LEARNED;
+load.c:						p_ptr->spell_flags[i] |= PY_SPELL_WORKED;
+load.c:						p_ptr->spell_flags[i] |= PY_SPELL_FORGOTTEN;
+load.c:						p_ptr->spell_flags[i] |= PY_SPELL_LEARNED;
+load.c:						p_ptr->spell_flags[i] |= PY_SPELL_WORKED;
+load.c:						p_ptr->spell_flags[i] |= PY_SPELL_FORGOTTEN;
+load.c:				rd_byte(&p_ptr->spell_order[i]);
+load.c:			rd_byte(&p_ptr->spell_flags[i]);
+load.c:			rd_byte(&p_ptr->spell_order[i]);
+load.c:	rd_string(op_ptr->full_name, sizeof(op_ptr->full_name));
+load.c:	rd_string(p_ptr->died_from, 80);
+load.c:		char *hist = p_ptr->history;
+load.c:		rd_string(p_ptr->history, 250);
+load.c:	p_ptr->set_race(tmp8u);
+load.c:	p_ptr->set_class(tmp8u);
+load.c:	p_ptr->set_sex(tmp8u);
+load.c:	rd_byte(&p_ptr->hitdie);
+load.c:	rd_byte(&p_ptr->expfact);
+load.c:	rd_s16b(&p_ptr->age);
+load.c:	rd_s16b(&p_ptr->ht);
+load.c:	rd_s16b(&p_ptr->wt);
+load.c:	for (i = 0; i < A_MAX; i++) rd_s16b(&p_ptr->stat_max[i]);
+load.c:	for (i = 0; i < A_MAX; i++) rd_s16b(&p_ptr->stat_cur[i]);
+load.c:	rd_s32b(&p_ptr->au);
+load.c:	rd_s32b(&p_ptr->max_exp);
+load.c:	rd_s32b(&p_ptr->exp);
+load.c:	rd_u16b(&p_ptr->exp_frac);
+load.c:	rd_s16b(&p_ptr->lev);
+load.c:	if ((p_ptr->lev < 1) || (p_ptr->lev > PY_MAX_LEVEL))
+load.c:		note(format("Invalid player level (%d).", p_ptr->lev));
+load.c:	rd_s16b(&p_ptr->mhp);
+load.c:	rd_s16b(&p_ptr->chp);
+load.c:	rd_u16b(&p_ptr->chp_frac);
+load.c:	rd_s16b(&p_ptr->msp);
+load.c:	rd_s16b(&p_ptr->csp);
+load.c:	rd_u16b(&p_ptr->csp_frac);
+load.c:	rd_s16b(&p_ptr->max_lev);
+load.c:	rd_s16b(&p_ptr->max_depth);
+load.c:	if (p_ptr->max_lev < p_ptr->lev) p_ptr->max_lev = p_ptr->lev;
+load.c:	if (p_ptr->max_depth < 0) p_ptr->max_depth = 1;
+load.c:	rd_s16b(&p_ptr->sc);
+load.c:		rd_s16b(&p_ptr->timed[TMD_BLIND]);
+load.c:		rd_s16b(&p_ptr->timed[TMD_PARALYZED]);
+load.c:		rd_s16b(&p_ptr->timed[TMD_CONFUSED]);
+load.c:		rd_s16b(&p_ptr->food);
+load.c:		rd_s16b(&p_ptr->energy);
+load.c:		rd_s16b(&p_ptr->timed[TMD_FAST]);
+load.c:		rd_s16b(&p_ptr->timed[TMD_SLOW]);
+load.c:		rd_s16b(&p_ptr->timed[TMD_AFRAID]);
+load.c:		rd_s16b(&p_ptr->timed[TMD_CUT]);
+load.c:		rd_s16b(&p_ptr->timed[TMD_STUN]);
+load.c:		rd_s16b(&p_ptr->timed[TMD_POISONED]);
+load.c:		rd_s16b(&p_ptr->timed[TMD_IMAGE]);
+load.c:		rd_s16b(&p_ptr->timed[TMD_PROTEVIL]);
+load.c:		rd_s16b(&p_ptr->timed[TMD_INVULN]);
+load.c:		rd_s16b(&p_ptr->timed[TMD_HERO]);
+load.c:		rd_s16b(&p_ptr->timed[TMD_SHERO]);
+load.c:		rd_s16b(&p_ptr->timed[TMD_SHIELD]);
+load.c:		rd_s16b(&p_ptr->timed[TMD_BLESSED]);
+load.c:		rd_s16b(&p_ptr->timed[TMD_SINVIS]);
+load.c:		rd_s16b(&p_ptr->word_recall);
+load.c:		rd_s16b(&p_ptr->see_infra);
+load.c:		rd_s16b(&p_ptr->timed[TMD_SINFRA]);
+load.c:		rd_s16b(&p_ptr->timed[TMD_OPP_FIRE]);
+load.c:		rd_s16b(&p_ptr->timed[TMD_OPP_COLD]);
+load.c:		rd_s16b(&p_ptr->timed[TMD_OPP_ACID]);
+load.c:		rd_s16b(&p_ptr->timed[TMD_OPP_ELEC]);
+load.c:		rd_s16b(&p_ptr->timed[TMD_OPP_POIS]);
+load.c:		rd_byte(&p_ptr->confusing);
+load.c:		rd_byte(&p_ptr->searching);
+load.c:		rd_s16b(&p_ptr->food);
+load.c:		rd_s16b(&p_ptr->energy);
+load.c:		rd_s16b(&p_ptr->word_recall);
+load.c:		rd_s16b(&p_ptr->see_infra);
+load.c:		rd_byte(&p_ptr->confusing);
+load.c:		rd_byte(&p_ptr->searching);
+load.c:				rd_s16b(&p_ptr->timed[i]);
+load.c:			if (num<TMD_MAX) C_WIPE(p_ptr->timed+num,TMD_MAX-num);
+load.c:				rd_s16b(&p_ptr->timed[i]);
+load.c:	rd_u16b(&p_ptr->panic_save);
+load.c:	rd_u16b(&p_ptr->total_winner);
+load.c:	rd_u16b(&p_ptr->noscore);
+load.c:	p_ptr->is_dead = tmp8u;
+load.c:		rd_s16b(&p_ptr->player_hp[i]);
+load.c:		if (!p_ptr->is_dead || arg_wizard)
+load.c:			COPY(&p_ptr->inventory[n], i_ptr);
+load.c:			p_ptr->total_weight += (i_ptr->number * i_ptr->weight);
+load.c:			p_ptr->equip_cnt++;
+load.c:		else if (p_ptr->inven_cnt == INVEN_PACK)
+load.c:			COPY(&p_ptr->inventory[n], i_ptr);
+load.c:			p_ptr->total_weight += (i_ptr->number * i_ptr->weight);
+load.c:			p_ptr->inven_cnt++;
+load.c:	p_ptr->depth = depth;
+load.c:	if (older_than(2, 9, 4) && (p_ptr->depth == 0))
+load.c:	if (!p_ptr->is_dead)
+load.c:	p_ptr->is_dead = FALSE;
+load.c:		if (p_ptr->is_dead)
+load.c:			p_ptr->is_dead = FALSE;
+load.c:		if (p_ptr->chp >= 0)
+load.c:			strcpy(p_ptr->died_from, "(alive and well)");
+main-dos.c:			if (op_ptr->window_flag[i] & (1L << j))
+main-dos.c:	if (op_ptr->window_flag[td->number] & (PW_MESSAGE)) a = 0;
+main-ros.c: *   Vanilla (and most variants):  #define PDEADCHK	(p_ptr->is_dead)
+main-ros.c: *   Zangband:                     #define PDEADCHK	(p_ptr->state.is_dead)
+main-ros.c:#define PDEADCHK	(p_ptr->is_dead)
+main-win.c:	Term_curs_win(p_ptr->loc.x - min_x, p_ptr->loc.y - min_y);
+main-win.c:	my_strcpy(op_ptr->full_name, saverfilename, sizeof(op_ptr->full_name));
+main-win.c:	p_ptr->noscore |= (NOSCORE_BORG);
+main-win.c:				p_ptr->window = 0xFFFFFFFF;
+main.c:	user_name(op_ptr->full_name, sizeof(op_ptr->full_name), player_uid);
+main.c:				my_strcpy(op_ptr->full_name, arg, sizeof(op_ptr->full_name));
+melee1.c:	ac = p_ptr->ac + p_ptr->to_a;
+melee1.c:	ac = p_ptr->ac + p_ptr->to_a;
+melee1.c:		if (p_ptr->leaving) break;
+melee1.c:			if ((p_ptr->timed[TMD_PROTEVIL] > 0) &&
+melee1.c:			    (p_ptr->lev >= rlev) &&
+melee1.c:			    ((rand_int(100) + p_ptr->lev) > 50))
+melee1.c:					if (!(p_ptr->resist_pois || p_ptr->timed[TMD_OPP_POIS]))
+melee1.c:						if (p_ptr->inc_timed<TMD_POISONED>(randint(rlev) + 5))
+melee1.c:					if (!p_ptr->resist_disen)
+melee1.c:						o_ptr = &p_ptr->inventory[rand_int(INVEN_PACK)];
+melee1.c:							if (p_ptr->health_who == m_idx)
+melee1.c:								p_ptr->redraw |= (PR_HEALTH);
+melee1.c:							p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+melee1.c:							p_ptr->window |= (PW_INVEN);
+melee1.c:					if (!p_ptr->timed[TMD_PARALYZED] &&
+melee1.c:					    (rand_int(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
+melee1.c:					                      p_ptr->lev)))
+melee1.c:						gold = (p_ptr->au / 10) + randint(25);
+melee1.c:						if (gold > 5000) gold = (p_ptr->au / 20) + randint(3000);
+melee1.c:						if (gold > p_ptr->au) gold = p_ptr->au;
+melee1.c:						p_ptr->au -= gold;
+melee1.c:						else if (p_ptr->au)
+melee1.c:						p_ptr->redraw |= (PR_GOLD);
+melee1.c:						p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+melee1.c:					if (!p_ptr->timed[TMD_PARALYZED] &&
+melee1.c:					    (rand_int(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
+melee1.c:					                      p_ptr->lev)))
+melee1.c:						o_ptr = &p_ptr->inventory[i];
+melee1.c:						o_ptr = &p_ptr->inventory[i];
+melee1.c:					o_ptr = &p_ptr->inventory[INVEN_LITE];
+melee1.c:						if (!p_ptr->timed[TMD_BLIND] )
+melee1.c:						p_ptr->window |= (PW_EQUIP);
+melee1.c:					if (!p_ptr->resist_blind)
+melee1.c:						if (p_ptr->inc_timed<TMD_BLIND>(10 + randint(rlev)))
+melee1.c:					if (!p_ptr->resist_confu)
+melee1.c:						if (p_ptr->inc_timed<TMD_CONFUSED>(3 + randint(rlev)))
+melee1.c:					if (p_ptr->resist_fear)
+melee1.c:					else if (p_ptr->std_save())
+melee1.c:						if (p_ptr->inc_timed<TMD_AFRAID>(3 + randint(rlev)))
+melee1.c:					if (p_ptr->timed[TMD_PARALYZED] && (damage < 1)) damage = 1;
+melee1.c:					if (p_ptr->free_act)
+melee1.c:					else if (p_ptr->std_save())
+melee1.c:						if (p_ptr->inc_timed<TMD_PARALYZED>(3 + randint(rlev)))
+melee1.c:						const coord p_old_loc(p_ptr->loc);
+melee1.c:						do_break = (p_old_loc!=p_ptr->loc);
+melee1.c:					if (p_ptr->hold_life && (rand_int(100) < 95))
+melee1.c:						s32b d = damroll(10, 6) + (p_ptr->exp/100) * MON_DRAIN_LIFE;
+melee1.c:						if (p_ptr->hold_life)
+melee1.c:					if (p_ptr->hold_life && (rand_int(100) < 90))
+melee1.c:						s32b d = damroll(20, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
+melee1.c:						if (p_ptr->hold_life)
+melee1.c:					if (p_ptr->hold_life && (rand_int(100) < 75))
+melee1.c:						s32b d = damroll(40, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
+melee1.c:						if (p_ptr->hold_life)
+melee1.c:					if (p_ptr->hold_life && (rand_int(100) < 50))
+melee1.c:						s32b d = damroll(80, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
+melee1.c:						if (p_ptr->hold_life)
+melee1.c:					if (!p_ptr->resist_chaos)
+melee1.c:						if (p_ptr->inc_timed<TMD_IMAGE>(3 + randint(rlev / 2)))
+melee1.c:				if (k) (void)p_ptr->inc_timed<TMD_CUT>(k);
+melee1.c:				if (k) (void)p_ptr->inc_timed<TMD_STUN>(k);
+melee1.c:	if (p_ptr->is_dead && (l_ptr->deaths < MAX_SHORT))
+melee1.c:	int dis = distance(m_ptr->loc.y,m_ptr->loc.x,p_ptr->loc.y,p_ptr->loc.x);
+melee1.c:	ac = p_ptr->ac + p_ptr->to_a;
+melee1.c:		if (p_ptr->leaving) break;
+melee1.c:		else if (los(m_ptr->loc.y,m_ptr->loc.x,p_ptr->loc.y,p_ptr->loc.x))
+melee1.c:			if ((p_ptr->timed[TMD_PROTEVIL] > 0) &&
+melee1.c:			    (p_ptr->lev >= rlev) &&
+melee1.c:			    ((rand_int(100) + p_ptr->lev) > 50))
+melee1.c:					if (!(p_ptr->resist_pois || p_ptr->timed[TMD_OPP_POIS]))
+melee1.c:						if (p_ptr->inc_timed<TMD_POISONED>(randint(rlev) + 5))
+melee1.c:					if (!p_ptr->resist_disen)
+melee1.c:						o_ptr = &p_ptr->inventory[i];
+melee1.c:							if (p_ptr->health_who == m_idx)
+melee1.c:								p_ptr->redraw |= (PR_HEALTH);
+melee1.c:							p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+melee1.c:							p_ptr->window |= (PW_INVEN);
+melee1.c:					if (!p_ptr->timed[TMD_PARALYZED] &&
+melee1.c:					    (rand_int(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
+melee1.c:					                      p_ptr->lev)))
+melee1.c:						gold = (p_ptr->au / 10) + randint(25);
+melee1.c:						if (gold > 5000) gold = (p_ptr->au / 20) + randint(3000);
+melee1.c:						if (gold > p_ptr->au) gold = p_ptr->au;
+melee1.c:						p_ptr->au -= gold;
+melee1.c:						else if (p_ptr->au)
+melee1.c:						p_ptr->redraw |= (PR_GOLD);
+melee1.c:						p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+melee1.c:					if (!p_ptr->timed[TMD_PARALYZED] &&
+melee1.c:					    (rand_int(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
+melee1.c:					                      p_ptr->lev)))
+melee1.c:						o_ptr = &p_ptr->inventory[i];
+melee1.c:						o_ptr = &p_ptr->inventory[i];
+melee1.c:					o_ptr = &p_ptr->inventory[INVEN_LITE];
+melee1.c:						if (!p_ptr->timed[TMD_BLIND] )
+melee1.c:						p_ptr->window |= (PW_EQUIP);
+melee1.c:					if (!p_ptr->resist_blind)
+melee1.c:						if (p_ptr->inc_timed<TMD_BLIND>(10 + randint(rlev)))
+melee1.c:					if (!p_ptr->resist_confu)
+melee1.c:						if (p_ptr->inc_timed<TMD_CONFUSED>(3 + randint(rlev)))
+melee1.c:					if (p_ptr->resist_fear)
+melee1.c:					else if (p_ptr->std_save())
+melee1.c:						if (p_ptr->inc_timed<TMD_AFRAID>(3 + randint(rlev)))
+melee1.c:					if (p_ptr->timed[TMD_PARALYZED] && (damage < 1)) damage = 1;
+melee1.c:					if (p_ptr->free_act)
+melee1.c:					else if (p_ptr->std_save())
+melee1.c:						if (p_ptr->inc_timed<TMD_PARALYZED>(3 + randint(rlev)))
+melee1.c:					if (p_ptr->hold_life && (rand_int(100) < 95))
+melee1.c:						s32b d = damroll(10, 6) + (p_ptr->exp/100) * MON_DRAIN_LIFE;
+melee1.c:						if (p_ptr->hold_life)
+melee1.c:					if (p_ptr->hold_life && (rand_int(100) < 90))
+melee1.c:						s32b d = damroll(20, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
+melee1.c:						if (p_ptr->hold_life)
+melee1.c:					if (p_ptr->hold_life && (rand_int(100) < 75))
+melee1.c:						s32b d = damroll(40, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
+melee1.c:						if (p_ptr->hold_life)
+melee1.c:					if (p_ptr->hold_life && (rand_int(100) < 50))
+melee1.c:						s32b d = damroll(80, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
+melee1.c:						if (p_ptr->hold_life)
+melee1.c:					if (!p_ptr->resist_chaos)
+melee1.c:						if (p_ptr->inc_timed<TMD_IMAGE>(3 + randint(rlev / 2)))
+melee1.c:	if (p_ptr->is_dead && (l_ptr->deaths < MAX_SHORT))
+melee2.c:		if (p_ptr->free_act) smart |= (SM_IMM_FREE);
+melee2.c:		if (!p_ptr->msp) smart |= (SM_IMM_MANA);
+melee2.c:		if (p_ptr->immune_acid) smart |= (SM_IMM_ACID);
+melee2.c:		if (p_ptr->immune_elec) smart |= (SM_IMM_ELEC);
+melee2.c:		if (p_ptr->immune_fire) smart |= (SM_IMM_FIRE);
+melee2.c:		if (p_ptr->immune_cold) smart |= (SM_IMM_COLD);
+melee2.c:		if (p_ptr->timed[TMD_OPP_ACID]) smart |= (SM_OPP_ACID);
+melee2.c:		if (p_ptr->timed[TMD_OPP_ELEC]) smart |= (SM_OPP_ELEC);
+melee2.c:		if (p_ptr->timed[TMD_OPP_FIRE]) smart |= (SM_OPP_FIRE);
+melee2.c:		if (p_ptr->timed[TMD_OPP_COLD]) smart |= (SM_OPP_COLD);
+melee2.c:		if (p_ptr->timed[TMD_OPP_POIS]) smart |= (SM_OPP_POIS);
+melee2.c:		if (p_ptr->resist_acid) smart |= (SM_RES_ACID);
+melee2.c:		if (p_ptr->resist_elec) smart |= (SM_RES_ELEC);
+melee2.c:		if (p_ptr->resist_fire) smart |= (SM_RES_FIRE);
+melee2.c:		if (p_ptr->resist_cold) smart |= (SM_RES_COLD);
+melee2.c:		if (p_ptr->resist_pois) smart |= (SM_RES_POIS);
+melee2.c:		if (p_ptr->resist_fear) smart |= (SM_RES_FEAR);
+melee2.c:		if (p_ptr->resist_lite) smart |= (SM_RES_LITE);
+melee2.c:		if (p_ptr->resist_dark) smart |= (SM_RES_DARK);
+melee2.c:		if (p_ptr->resist_blind) smart |= (SM_RES_BLIND);
+melee2.c:		if (p_ptr->resist_confu) smart |= (SM_RES_CONFU);
+melee2.c:		if (p_ptr->resist_sound) smart |= (SM_RES_SOUND);
+melee2.c:		if (p_ptr->resist_shard) smart |= (SM_RES_SHARD);
+melee2.c:		if (p_ptr->resist_nexus) smart |= (SM_RES_NEXUS);
+melee2.c:		if (p_ptr->resist_nethr) smart |= (SM_RES_NETHR);
+melee2.c:		if (p_ptr->resist_chaos) smart |= (SM_RES_CHAOS);
+melee2.c:		if (p_ptr->resist_disen) smart |= (SM_RES_DISEN);
+melee2.c:	(void)project(m_idx, 0, p_ptr->loc, dam_hp, typ, PROJECT_STOP | PROJECT_KILL);
+melee2.c:	(void)project(m_idx, rad, p_ptr->loc, dam_hp, typ, PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL);
+melee2.c:	int py = p_ptr->loc.y;
+melee2.c:	int px = p_ptr->loc.x;
+melee2.c:	bool blind = p_ptr->timed[TMD_BLIND] ;	/* Extract the blind-ness */
+melee2.c:		if (!projectable(m_ptr->loc, p_ptr->loc)) return (FALSE);
+melee2.c:			!clean_shot(m_ptr->loc, p_ptr->loc))
+melee2.c:	if (p_ptr->leaving) return (FALSE);
+melee2.c:			if (p_ptr->csp)
+melee2.c:				if (r1 >= p_ptr->csp)
+melee2.c:					r1 = p_ptr->csp;
+melee2.c:					p_ptr->csp = 0;
+melee2.c:					p_ptr->csp_frac = 0;
+melee2.c:					p_ptr->csp -= r1;
+melee2.c:				p_ptr->redraw |= (PR_MANA);
+melee2.c:				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+melee2.c:					if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+melee2.c:			if (p_ptr->std_save())
+melee2.c:				if (!p_ptr->resist_confu)
+melee2.c:					(void)p_ptr->inc_timed<TMD_CONFUSED>(rand_int(4) + 4);
+melee2.c:			if (p_ptr->std_save())
+melee2.c:				if (!p_ptr->resist_blind)
+melee2.c:					(void)p_ptr->inc_timed<TMD_BLIND>(8 + rand_int(8));
+melee2.c:				if (!p_ptr->resist_confu)
+melee2.c:					(void)p_ptr->inc_timed<TMD_CONFUSED>(rand_int(4) + 4);
+melee2.c:				if (!p_ptr->free_act)
+melee2.c:					(void)p_ptr->inc_timed<TMD_PARALYZED>(rand_int(4) + 4);
+melee2.c:				(void)p_ptr->inc_timed<TMD_SLOW>(rand_int(4) + 4);
+melee2.c:			if (p_ptr->std_save())
+melee2.c:			if (p_ptr->std_save())
+melee2.c:			if (p_ptr->std_save())
+melee2.c:			if (p_ptr->std_save())
+melee2.c:				(void)p_ptr->inc_timed<TMD_CUT>(damroll(10, 10));
+melee2.c:			if (p_ptr->resist_fear)
+melee2.c:			else if (p_ptr->std_save())
+melee2.c:				(void)p_ptr->inc_timed<TMD_AFRAID>(rand_int(4) + 4);
+melee2.c:			if (p_ptr->resist_blind)
+melee2.c:			else if (p_ptr->std_save())
+melee2.c:				(void)p_ptr->set_timed<TMD_BLIND>(12 + rand_int(4));
+melee2.c:			if (p_ptr->resist_confu)
+melee2.c:			else if (p_ptr->std_save())
+melee2.c:				(void)p_ptr->inc_timed<TMD_CONFUSED>(rand_int(4) + 4);
+melee2.c:			if (p_ptr->free_act)
+melee2.c:			else if (p_ptr->std_save())
+melee2.c:				(void)p_ptr->inc_timed<TMD_SLOW>(rand_int(4) + 4);
+melee2.c:			if (p_ptr->free_act)
+melee2.c:			else if (p_ptr->std_save())
+melee2.c:				(void)p_ptr->inc_timed<TMD_PARALYZED>(rand_int(4) + 4);
+melee2.c:			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+melee2.c:			if (p_ptr->resist_nexus)
+melee2.c:			else if (p_ptr->std_save())
+melee2.c:			if (p_ptr->std_save())
+melee2.c:	if (p_ptr->is_dead && (l_ptr->deaths < MAX_SHORT))
+melee2.c:	p_lev = p_ptr->lev;
+melee2.c:	p_chp = p_ptr->chp;
+melee2.c:	p_mhp = p_ptr->mhp;
+melee2.c:	int py = p_ptr->loc.y;
+melee2.c:	int px = p_ptr->loc.x;
+melee2.c:	py = p_ptr->loc.y;
+melee2.c:	px = p_ptr->loc.x;
+melee2.c:	int py = p_ptr->loc.y;
+melee2.c:	int px = p_ptr->loc.x;
+melee2.c:	int py = p_ptr->loc.y;
+melee2.c:	int px = p_ptr->loc.x;
+melee2.c:	int py = p_ptr->loc.y;
+melee2.c:	int px = p_ptr->loc.x;
+melee2.c:		if ((room < 8) && (p_ptr->chp > p_ptr->mhp / 2))
+melee2.c:		if (p_ptr->aggravate)
+melee2.c:				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+melee2.c:		if ((notice * notice * notice) <= p_ptr->noise)
+melee2.c:					if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+melee2.c:				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+melee2.c:				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+melee2.c:				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+melee2.c:		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+melee2.c:		p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
+melee2.c:		if ((cave_when[fy][fx] == cave_when[p_ptr->loc.y][p_ptr->loc.x]) &&
+melee2.c:		if (p_ptr->leaving) break;
+melee2.c:			(!m_ptr->csleep && (monster_has_attack(r_ptr,RBM_CLAIRVOYANT_GAZE) || monster_has_attack(r_ptr,RBM_RANGED_GAZE)) && MAX_RANGE<distance(m_ptr->loc.y,m_ptr->loc.x,p_ptr->loc.y,p_ptr->loc.x)) ||
+melee2.c:			(!m_ptr->csleep && (monster_has_attack(r_ptr,RBM_CLAIRVOYANT_GAZE) || monster_has_attack(r_ptr,RBM_RANGED_GAZE)) && MAX_RANGE<distance(m_ptr->loc.y,m_ptr->loc.x,p_ptr->loc.y,p_ptr->loc.x)) ||
+monster1.c:		i = (long)r_ptr->mexp * r_ptr->level / p_ptr->lev;
+monster1.c:		j = ((((long)r_ptr->mexp * r_ptr->level % p_ptr->lev) *
+monster1.c:			  (long)1000 / p_ptr->lev + 5) / 10);
+monster1.c:		i = p_ptr->lev % 10;
+monster1.c:		if ((p_ptr->lev / 10) == 1) /* nothing */;
+monster1.c:		i = p_ptr->lev;
+monster2.c:	if (p_ptr->target_who == i) target_set_monster(0);
+monster2.c:	if (p_ptr->health_who == i) health_track(0);
+monster2.c:	if (p_ptr->target_who == i1) p_ptr->target_who = i2;
+monster2.c:	if (p_ptr->health_who == i1) p_ptr->health_who = i2;
+monster2.c:		if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (r_ptr->level > p_ptr->depth))
+monster2.c:	if (p_ptr->monster_race_idx == m_ptr->r_idx)
+monster2.c:		p_ptr->window |= (PW_MONSTER);
+monster2.c:	if (p_ptr->monster_race_idx == m_ptr->r_idx)
+monster2.c:		p_ptr->window |= (PW_MONSTER);
+monster2.c:		int py = p_ptr->loc.y;
+monster2.c:		int px = p_ptr->loc.x;
+monster2.c:		if (p_ptr->telepathy)
+monster2.c:		if (player_has_los_bold(fy, fx) && !p_ptr->timed[TMD_BLIND])
+monster2.c:			if (d <= p_ptr->see_infra)
+monster2.c:					if (p_ptr->see_inv)
+monster2.c:			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+monster2.c:			p_ptr->window |= PW_MONLIST;
+monster2.c:			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+monster2.c:			p_ptr->window |= PW_MONLIST;
+monster2.c:		p_ptr->loc = g2;
+monster2.c:		p_ptr->update |= (PU_PANEL);
+monster2.c:		p_ptr->update |= (PU_UPDATE_VIEW | PU_DISTANCE);
+monster2.c:		p_ptr->update |= (PU_UPDATE_FLOW);
+monster2.c:		p_ptr->window |= (PW_OVERHEAD | PW_MAP);
+monster2.c:		p_ptr->loc = g1;
+monster2.c:		p_ptr->update |= (PU_PANEL);
+monster2.c:		p_ptr->update |= (PU_UPDATE_VIEW | PU_DISTANCE);
+monster2.c:		p_ptr->update |= (PU_UPDATE_FLOW);
+monster2.c:		p_ptr->window |= (PW_OVERHEAD | PW_MAP);
+monster2.c:	p_ptr->loc.y = y;
+monster2.c:	p_ptr->loc.x = x;
+monster2.c:	if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (p_ptr->depth < r_ptr->level))
+monster2.c:	if (r_ptr->level > p_ptr->depth)
+monster2.c:			rating += (r_ptr->level - p_ptr->depth) * 2;
+monster2.c:			rating += (r_ptr->level - p_ptr->depth);
+monster2.c:	if (r_ptr->level > p_ptr->depth)
+monster2.c:		extra = r_ptr->level - p_ptr->depth;
+monster2.c:	else if (r_ptr->level < p_ptr->depth)
+monster2.c:		extra = p_ptr->depth - r_ptr->level;
+monster2.c:	int py = p_ptr->loc.y;
+monster2.c:	int px = p_ptr->loc.x;
+monster2.c:	r_idx = get_mon_num((p_ptr->depth + lev) / 2 + 5);
+monster2.c:			if (p_ptr->free_act) m_ptr->smart |= (SM_IMM_FREE);
+monster2.c:			if (!p_ptr->msp) m_ptr->smart |= (SM_IMM_MANA);
+monster2.c:			if (p_ptr->resist_acid) m_ptr->smart |= (SM_RES_ACID);
+monster2.c:			if (p_ptr->timed[TMD_OPP_ACID]) m_ptr->smart |= (SM_OPP_ACID);
+monster2.c:			if (p_ptr->immune_acid) m_ptr->smart |= (SM_IMM_ACID);
+monster2.c:			if (p_ptr->resist_elec) m_ptr->smart |= (SM_RES_ELEC);
+monster2.c:			if (p_ptr->timed[TMD_OPP_ELEC]) m_ptr->smart |= (SM_OPP_ELEC);
+monster2.c:			if (p_ptr->immune_elec) m_ptr->smart |= (SM_IMM_ELEC);
+monster2.c:			if (p_ptr->resist_fire) m_ptr->smart |= (SM_RES_FIRE);
+monster2.c:			if (p_ptr->timed[TMD_OPP_FIRE]) m_ptr->smart |= (SM_OPP_FIRE);
+monster2.c:			if (p_ptr->immune_fire) m_ptr->smart |= (SM_IMM_FIRE);
+monster2.c:			if (p_ptr->resist_cold) m_ptr->smart |= (SM_RES_COLD);
+monster2.c:			if (p_ptr->timed[TMD_OPP_COLD]) m_ptr->smart |= (SM_OPP_COLD);
+monster2.c:			if (p_ptr->immune_cold) m_ptr->smart |= (SM_IMM_COLD);
+monster2.c:			if (p_ptr->resist_pois) m_ptr->smart |= (SM_RES_POIS);
+monster2.c:			if (p_ptr->timed[TMD_OPP_POIS]) m_ptr->smart |= (SM_OPP_POIS);
+monster2.c:			if (p_ptr->resist_fear) m_ptr->smart |= (SM_RES_FEAR);
+monster2.c:			if (p_ptr->resist_lite) m_ptr->smart |= (SM_RES_LITE);
+monster2.c:			if (p_ptr->resist_dark) m_ptr->smart |= (SM_RES_DARK);
+monster2.c:			if (p_ptr->resist_blind) m_ptr->smart |= (SM_RES_BLIND);
+monster2.c:			if (p_ptr->resist_confu) m_ptr->smart |= (SM_RES_CONFU);
+monster2.c:			if (p_ptr->resist_sound) m_ptr->smart |= (SM_RES_SOUND);
+monster2.c:			if (p_ptr->resist_shard) m_ptr->smart |= (SM_RES_SHARD);
+monster2.c:			if (p_ptr->resist_nexus) m_ptr->smart |= (SM_RES_NEXUS);
+monster2.c:			if (p_ptr->resist_nethr) m_ptr->smart |= (SM_RES_NETHR);
+monster2.c:			if (p_ptr->resist_chaos) m_ptr->smart |= (SM_RES_CHAOS);
+monster2.c:			if (p_ptr->resist_disen) m_ptr->smart |= (SM_RES_DISEN);
+obj-info.c:	if (o_ptr->tval == p_ptr->spell_book())
+object1.c:	if (!p_ptr->inventory[i].k_idx) return (-1);
+object1.c:	if (!p_ptr->inventory[i].k_idx) return (-1);
+object1.c:			if (!p_ptr->inventory[INVEN_RIGHT].k_idx) return (INVEN_RIGHT);
+object1.c:		object_type *o_ptr = &p_ptr->inventory[i];
+object1.c:		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
+object1.c:		object_type *o_ptr = &p_ptr->inventory[i];
+object1.c:		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
+object1.c:		object_type *o_ptr = &p_ptr->inventory[i];
+object1.c:		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
+object1.c:		object_type *o_ptr = &p_ptr->inventory[i];
+object1.c:		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
+object1.c:		o_ptr = &p_ptr->inventory[i];
+object1.c:		o_ptr = &p_ptr->inventory[i];
+object1.c:		o_ptr = &p_ptr->inventory[i];
+object1.c:		o_ptr = &p_ptr->inventory[i];
+object1.c:		o_ptr = &p_ptr->inventory[i];
+object1.c:		o_ptr = &p_ptr->inventory[i];
+object1.c:		o_ptr = &p_ptr->inventory[i];
+object1.c:		o_ptr = &p_ptr->inventory[i];
+object1.c:		if (op_ptr->window_flag[j] & (PW_INVEN))
+object1.c:			op_ptr->window_flag[j] &= ~(PW_INVEN);
+object1.c:			op_ptr->window_flag[j] |= (PW_EQUIP);
+object1.c:			p_ptr->window |= (PW_EQUIP);
+object1.c:		else if (op_ptr->window_flag[j] & (PW_EQUIP))
+object1.c:			op_ptr->window_flag[j] &= ~(PW_EQUIP);
+object1.c:			op_ptr->window_flag[j] |= (PW_INVEN);
+object1.c:			p_ptr->window |= (PW_INVEN);
+object1.c:		if ((s[1] == p_ptr->command_cmd) || (s[1] == '*'))
+object1.c: * and "x" is the "current" p_ptr->command_cmd code.
+object1.c:		object_type *o_ptr = &p_ptr->inventory[i];
+object1.c:			if ((s[1] == p_ptr->command_cmd) && (s[2] == tag))
+object1.c: * Global "p_ptr->command_new" is used when viewing the inventory or equipment
+object1.c: * Global "p_ptr->command_see" may be set before calling this function to start
+object1.c: * Global "p_ptr->command_wrk" is used to choose between equip/inven/floor
+object1.c:	int py = p_ptr->loc.y;
+object1.c:	int px = p_ptr->loc.x;
+object1.c:		/* Cancel p_ptr->command_see */
+object1.c:		p_ptr->command_see = FALSE;
+object1.c:		if (p_ptr->command_see &&
+object1.c:		    (p_ptr->command_wrk == (USE_EQUIP)) &&
+object1.c:			p_ptr->command_wrk = (USE_EQUIP);
+object1.c:			p_ptr->command_wrk = (USE_INVEN);
+object1.c:			p_ptr->command_wrk = (USE_EQUIP);
+object1.c:			p_ptr->command_wrk = (USE_FLOOR);
+object1.c:			p_ptr->command_wrk = (USE_INVEN);
+object1.c:	if (p_ptr->command_see)
+object1.c:				if (op_ptr->window_flag[j] & (PW_INVEN)) ni++;
+object1.c:				if (op_ptr->window_flag[j] & (PW_EQUIP)) ne++;
+object1.c:			if (((p_ptr->command_wrk == (USE_EQUIP)) && ni && !ne) ||
+object1.c:			    ((p_ptr->command_wrk == (USE_INVEN)) && !ni && ne))
+object1.c:			p_ptr->window |= (PW_INVEN | PW_EQUIP);
+object1.c:		if (p_ptr->command_wrk == (USE_INVEN))
+object1.c:			if (p_ptr->command_see) show_inven();
+object1.c:			if (!p_ptr->command_see) my_strcat(out_val, " * to see,", sizeof(out_val));
+object1.c:		else if (p_ptr->command_wrk == (USE_EQUIP))
+object1.c:			if (p_ptr->command_see) show_equip();
+object1.c:			if (!p_ptr->command_see) my_strcat(out_val, " * to see,", sizeof(out_val));
+object1.c:			if (p_ptr->command_see) show_floor(floor_list, floor_num);
+object1.c:			if (!p_ptr->command_see) my_strcat(out_val, " * to see,", sizeof(out_val));
+object1.c:				if (p_ptr->command_see)
+object1.c:					p_ptr->command_see = FALSE;
+object1.c:					p_ptr->command_see = TRUE;
+object1.c:				if (use_inven && (p_ptr->command_wrk != (USE_INVEN)))
+object1.c:					p_ptr->command_wrk = (USE_INVEN);
+object1.c:				else if (use_equip && (p_ptr->command_wrk != (USE_EQUIP)))
+object1.c:					p_ptr->command_wrk = (USE_EQUIP);
+object1.c:				if (p_ptr->command_see)
+object1.c:						if ((p_ptr->command_wrk == (USE_FLOOR)) ||
+object1.c:					if (p_ptr->command_see)
+object1.c:					p_ptr->command_wrk = (USE_FLOOR);
+object1.c:				if (p_ptr->command_wrk == (USE_INVEN))
+object1.c:				else if (p_ptr->command_wrk == (USE_EQUIP))
+object1.c:				if (p_ptr->command_wrk == (USE_INVEN))
+object1.c:				else if (p_ptr->command_wrk == (USE_EQUIP))
+object1.c:	if (p_ptr->command_see)
+object1.c:		p_ptr->command_see = FALSE;
+object1.c:		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+object2.c:	int py = p_ptr->loc.y;
+object2.c:	int px = p_ptr->loc.x;
+object2.c:		p_ptr->redraw |= (PR_MAP);
+object2.c:		p_ptr->window |= (PW_OVERHEAD | PW_MAP);
+object2.c:		p_ptr->redraw |= (PR_MAP);
+object2.c:		p_ptr->window |= (PW_OVERHEAD | PW_MAP);
+object2.c:	if (!p_ptr->depth) return (FALSE);
+object2.c:		if (a_ptr->level > p_ptr->depth)
+object2.c:			int d = (a_ptr->level - p_ptr->depth) * 2;
+object2.c:	if (!p_ptr->depth) return (FALSE);
+object2.c:		if (a_ptr->level > p_ptr->depth)
+object2.c:			int d = (a_ptr->level - p_ptr->depth) * 2;
+object2.c:	    (j_ptr->level() > p_ptr->depth))
+object2.c:		rating += (j_ptr->level() - p_ptr->depth);
+object2.c:		if (p_ptr->wizard) msg_print("Breakage (breakage).");
+object2.c:		if (p_ptr->wizard) msg_print("Breakage (no floor space).");
+object2.c:		if (p_ptr->wizard) msg_print("Breakage (too many objects).");
+object2.c:	object_type *o_ptr = &p_ptr->inventory[item];
+object2.c:	object_type *o_ptr = &p_ptr->inventory[item];
+object2.c:	object_type *o_ptr = &p_ptr->inventory[item];
+object2.c:		p_ptr->total_weight += (num * o_ptr->weight);
+object2.c:		p_ptr->update |= (PU_BONUS);
+object2.c:		p_ptr->update |= (PU_MANA);
+object2.c:		p_ptr->notice |= (PN_COMBINE);
+object2.c:		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+object2.c:	object_type *o_ptr = &p_ptr->inventory[item];
+object2.c:		p_ptr->inven_cnt--;
+object2.c:			COPY(&p_ptr->inventory[i], &p_ptr->inventory[i+1]);
+object2.c:		WIPE(&p_ptr->inventory[i]);
+object2.c:		p_ptr->window |= (PW_INVEN);
+object2.c:		p_ptr->equip_cnt--;
+object2.c:		WIPE(&p_ptr->inventory[item]);
+object2.c:		p_ptr->update |= (PU_BONUS);
+object2.c:		p_ptr->update |= (PU_TORCH);
+object2.c:		p_ptr->update |= (PU_MANA);
+object2.c:		p_ptr->window |= (PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+object2.c:		p_ptr->redraw |= (PR_EQUIPPY);
+object2.c:	if (p_ptr->inven_cnt < INVEN_PACK) return (TRUE);
+object2.c:		object_type *j_ptr = &p_ptr->inventory[j];
+object2.c:		j_ptr = &p_ptr->inventory[j];
+object2.c:			p_ptr->total_weight += (o_ptr->number * o_ptr->weight);
+object2.c:			p_ptr->update |= (PU_BONUS);
+object2.c:			p_ptr->window |= (PW_INVEN);
+object2.c:	if (p_ptr->inven_cnt > INVEN_PACK) return (-1);
+object2.c:		j_ptr = &p_ptr->inventory[j];
+object2.c:			j_ptr = &p_ptr->inventory[j];
+object2.c:			if (o_ptr->tval == p_ptr->spell_book())
+object2.c:				if (j_ptr->tval != p_ptr->spell_book()) break;
+object2.c:				if (j_ptr->tval == p_ptr->spell_book()) continue;
+object2.c:			COPY(&p_ptr->inventory[k+1], &p_ptr->inventory[k]);
+object2.c:		WIPE(&p_ptr->inventory[i]);
+object2.c:	COPY(&p_ptr->inventory[i], o_ptr);
+object2.c:	j_ptr = &p_ptr->inventory[i];
+object2.c:	p_ptr->total_weight += (j_ptr->number * j_ptr->weight);
+object2.c:	p_ptr->inven_cnt++;
+object2.c:	p_ptr->update |= (PU_BONUS);
+object2.c:	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+object2.c:	p_ptr->window |= (PW_INVEN);
+object2.c:	object_type *o_ptr = &p_ptr->inventory[item];	/* Get the item to take off */
+object2.c:	object_type *o_ptr = &p_ptr->inventory[item];	/* Get the original object */
+object2.c:		o_ptr = &p_ptr->inventory[item];
+object2.c:	drop_near(i_ptr, 0, p_ptr->loc);
+object2.c:		o_ptr = &p_ptr->inventory[i];
+object2.c:			j_ptr = &p_ptr->inventory[j];
+object2.c:				p_ptr->inven_cnt--;
+object2.c:					COPY(&p_ptr->inventory[k], &p_ptr->inventory[k+1]);
+object2.c:				WIPE(&p_ptr->inventory[k]);
+object2.c:				p_ptr->window |= (PW_INVEN);
+object2.c:		if ((i == INVEN_PACK) && (p_ptr->inven_cnt == INVEN_PACK)) break;
+object2.c:		o_ptr = &p_ptr->inventory[i];
+object2.c:			j_ptr = &p_ptr->inventory[j];
+object2.c:			if (o_ptr->tval == p_ptr->spell_book())
+object2.c:				if (j_ptr->tval != p_ptr->spell_book()) break;
+object2.c:				if (j_ptr->tval == p_ptr->spell_book()) continue;
+object2.c:		COPY(i_ptr, &p_ptr->inventory[i]);
+object2.c:			COPY(&p_ptr->inventory[k], &p_ptr->inventory[k-1]);
+object2.c:		COPY(&p_ptr->inventory[j], i_ptr);
+object2.c:		p_ptr->window |= (PW_INVEN);
+object2.c:	case SV_FOOD_PINT_OF_WINE: return (PY_FOOD_MAX<=p_ptr->food);
+object2.c:	case SV_FOOD_RATION: return (PY_FOOD_FULL<=p_ptr->food);
+object2.c:	case SV_FOOD_WAYBREAD: return (PY_FOOD_FULL<=p_ptr->food && p_ptr->chp==p_ptr->mhp && 0==p_ptr->timed[TMD_POISONED]);
+object2.c:	case SV_FOOD_RESTORING: return (PY_FOOD_WEAK<=p_ptr->food && p_ptr->stat_cur[A_STR]==p_ptr->stat_max[A_STR] && p_ptr->stat_cur[A_INT]==p_ptr->stat_max[A_INT] && p_ptr->stat_cur[A_WIS]==p_ptr->stat_max[A_WIS] && p_ptr->stat_cur[A_DEX]==p_ptr->stat_max[A_DEX] && p_ptr->stat_cur[A_CON]==p_ptr->stat_max[A_CON] && p_ptr->stat_cur[A_CHR]==p_ptr->stat_max[A_CHR] && !(p_ptr->sustain[A_STR] && p_ptr->sustain[A_INT] && p_ptr->sustain[A_WIS] && p_ptr->sustain[A_DEX] && p_ptr->sustain[A_CON] && p_ptr->sustain[A_CHR]));
+object2.c:	case SV_FOOD_RESTORE_CON: return (PY_FOOD_WEAK<=p_ptr->food && p_ptr->stat_cur[A_CON]==p_ptr->stat_max[A_CON] && !p_ptr->sustain[A_CON]);
+object2.c:	case SV_FOOD_RESTORE_STR: return (PY_FOOD_WEAK<=p_ptr->food && p_ptr->stat_cur[A_STR]==p_ptr->stat_max[A_STR] && !p_ptr->sustain[A_STR]);
+object2.c:	case SV_FOOD_CURE_SERIOUS: return (PY_FOOD_WEAK<=p_ptr->food && p_ptr->chp==p_ptr->mhp);
+object2.c:	case SV_FOOD_CURE_CONFUSION: return (PY_FOOD_WEAK<=p_ptr->food && 0==p_ptr->timed[TMD_CONFUSED] && !p_ptr->resist_confu);
+object2.c:	case SV_FOOD_PARALYSIS: return !p_ptr->free_act;
+object2.c:	case SV_FOOD_HALLUCINATION: return !p_ptr->resist_chaos;
+object2.c:	case SV_FOOD_CONFUSION: return !p_ptr->resist_confu;
+object2.c:	case SV_FOOD_PARANOIA: return !p_ptr->resist_fear;
+object2.c:	case SV_FOOD_POISON: return (!p_ptr->resist_pois || 0==p_ptr->timed[TMD_OPP_POIS]);
+object2.c:	case SV_FOOD_BLINDNESS: return (!p_ptr->resist_blind);
+object2.c:	case SV_POTION_CURE_POISON:	return 0==p_ptr->timed[TMD_POISONED];
+object2.c:	case SV_POTION_POISON: return !(p_ptr->resist_pois || 0<p_ptr->timed[TMD_OPP_POIS]);
+object2.c:	case SV_POTION_BLINDNESS: return !p_ptr->resist_blind;
+object2.c:	case SV_POTION_CONFUSION: return !p_ptr->resist_confu;
+object2.c:	case SV_POTION_SLEEP: return !p_ptr->free_act;
+object2.c:	case SV_POTION_LOSE_MEMORIES: return (!p_ptr->hold_life && 0<p_ptr->exp);
+object2.c:	case SV_POTION_DEC_STR: return !p_ptr->sustain[A_STR];
+object2.c:	case SV_POTION_DEC_INT: return !p_ptr->sustain[A_INT];
+object2.c:	case SV_POTION_DEC_WIS: return !p_ptr->sustain[A_WIS];
+object2.c:	case SV_POTION_DEC_DEX: return !p_ptr->sustain[A_DEX];
+object2.c:	case SV_POTION_DEC_CON: return !p_ptr->sustain[A_CON];
+object2.c:	case SV_POTION_DEC_CHR: return !p_ptr->sustain[A_CHR];
+object2.c:	case SV_POTION_BOLDNESS: return 0==p_ptr->timed[TMD_AFRAID];
+object2.c:	case SV_POTION_CURE_LIGHT: return (p_ptr->chp>=p_ptr->mhp && 0==p_ptr->timed[TMD_BLIND] && 0==p_ptr->timed[TMD_CUT]);
+object2.c:	case SV_POTION_CURE_SERIOUS: return (p_ptr->chp>=p_ptr->mhp && 0==p_ptr->timed[TMD_BLIND] && 0==p_ptr->timed[TMD_CONFUSED] && 0==p_ptr->timed[TMD_CUT]);
+object2.c:	case SV_POTION_STAR_HEALING: return (p_ptr->chp>=p_ptr->mhp && 0==p_ptr->timed[TMD_BLIND] && 0==p_ptr->timed[TMD_CONFUSED] && 0==p_ptr->timed[TMD_POISONED] && 0==p_ptr->timed[TMD_STUN] && 0==p_ptr->timed[TMD_CUT]);
+object2.c:	case SV_POTION_RESTORE_MANA: return (p_ptr->csp>=p_ptr->msp);
+object2.c:	case SV_POTION_RESTORE_EXP: return (p_ptr->exp>=p_ptr->max_exp);
+object2.c:	case SV_POTION_RES_STR: return (p_ptr->stat_cur[A_STR]==p_ptr->stat_max[A_STR]);
+object2.c:	case SV_POTION_RES_INT: return (p_ptr->stat_cur[A_INT]==p_ptr->stat_max[A_INT]);
+object2.c:	case SV_POTION_RES_WIS: return (p_ptr->stat_cur[A_WIS]==p_ptr->stat_max[A_WIS]);
+object2.c:	case SV_POTION_RES_DEX: return (p_ptr->stat_cur[A_DEX]==p_ptr->stat_max[A_DEX]);
+object2.c:	case SV_POTION_RES_CON: return (p_ptr->stat_cur[A_CON]==p_ptr->stat_max[A_CON]);
+object2.c:	case SV_POTION_RES_CHR: return (p_ptr->stat_cur[A_CHR]==p_ptr->stat_max[A_CHR]);
+object2.c:	case SV_POTION_INC_STR: return (18+100==p_ptr->stat_cur[A_STR]);
+object2.c:	case SV_POTION_INC_INT: return (18+100==p_ptr->stat_cur[A_INT]);
+object2.c:	case SV_POTION_INC_WIS: return (18+100==p_ptr->stat_cur[A_WIS]);
+object2.c:	case SV_POTION_INC_DEX: return (18+100==p_ptr->stat_cur[A_DEX]);
+object2.c:	case SV_POTION_INC_CON: return (18+100==p_ptr->stat_cur[A_CON]);
+object2.c:	case SV_POTION_INC_CHR: return (18+100==p_ptr->stat_cur[A_CHR]);
+object2.c:	case SV_POTION_AUGMENTATION: return (18+100==p_ptr->stat_cur[A_STR] && 18+100==p_ptr->stat_cur[A_INT] && 18+100==p_ptr->stat_cur[A_WIS] && 18+100==p_ptr->stat_cur[A_DEX] && 18+100==p_ptr->stat_cur[A_CON] && 18+100==p_ptr->stat_cur[A_CHR]);
+object2.c:	case SV_POTION_EXPERIENCE: return (PY_MAX_EXP<=p_ptr->exp);
+save.c:	wr_byte(op_ptr->delay_factor);
+save.c:	wr_byte(op_ptr->hitpoint_warn);
+save.c:			if (op_ptr->opt[i])
+save.c:		window_flag[i] = op_ptr->window_flag[i];
+save.c:	wr_string(op_ptr->full_name);
+save.c:	wr_string(p_ptr->died_from);
+save.c:	wr_string(p_ptr->history);
+save.c:	wr_byte(p_ptr->prace);
+save.c:	wr_byte(p_ptr->pclass);
+save.c:	wr_byte(p_ptr->psex);
+save.c:	wr_byte(p_ptr->hitdie);
+save.c:	wr_byte(p_ptr->expfact);
+save.c:	wr_s16b(p_ptr->age);
+save.c:	wr_s16b(p_ptr->ht);
+save.c:	wr_s16b(p_ptr->wt);
+save.c:	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_max[i]);
+save.c:	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_cur[i]);
+save.c:	wr_u32b(p_ptr->au);
+save.c:	wr_u32b(p_ptr->max_exp);
+save.c:	wr_u32b(p_ptr->exp);
+save.c:	wr_u16b(p_ptr->exp_frac);
+save.c:	wr_s16b(p_ptr->lev);
+save.c:	wr_s16b(p_ptr->mhp);
+save.c:	wr_s16b(p_ptr->chp);
+save.c:	wr_u16b(p_ptr->chp_frac);
+save.c:	wr_s16b(p_ptr->msp);
+save.c:	wr_s16b(p_ptr->csp);
+save.c:	wr_u16b(p_ptr->csp_frac);
+save.c:	wr_s16b(p_ptr->max_lev);
+save.c:	wr_s16b(p_ptr->max_depth);
+save.c:	wr_s16b(p_ptr->sc);
+save.c:	wr_s16b(p_ptr->food);
+save.c:	wr_s16b(p_ptr->energy);
+save.c:	wr_s16b(p_ptr->word_recall);
+save.c:	wr_s16b(p_ptr->see_infra);
+save.c:	wr_byte(p_ptr->confusing);
+save.c:	wr_byte(p_ptr->searching);
+save.c:		wr_s16b(p_ptr->timed[i]);
+save.c:	wr_u16b(p_ptr->panic_save);
+save.c:	wr_u16b(p_ptr->total_winner);
+save.c:	wr_u16b(p_ptr->noscore);
+save.c:	wr_byte(p_ptr->is_dead);
+save.c:	wr_u16b(p_ptr->depth);
+save.c:	wr_u16b(p_ptr->loc.y);
+save.c:	wr_u16b(p_ptr->loc.x);
+save.c:		wr_s16b(p_ptr->player_hp[i]);
+save.c:		wr_byte(p_ptr->spell_flags[i]);
+save.c:		wr_byte(p_ptr->spell_order[i]);
+save.c:		object_type *o_ptr = &p_ptr->inventory[i];
+save.c:	if (!p_ptr->is_dead)
+signals.c:	if (p_ptr->is_dead)
+signals.c:		my_strcpy(p_ptr->died_from, "Abortion", sizeof(p_ptr->died_from));
+signals.c:		my_strcpy(p_ptr->died_from, "Interrupting", sizeof(p_ptr->died_from));
+signals.c:		p_ptr->is_dead = TRUE;
+signals.c:		p_ptr->playing = FALSE;
+signals.c:		p_ptr->leaving = TRUE;
+signals.c:	p_ptr->panic_save = 1;
+signals.c:	my_strcpy(p_ptr->died_from, "(panic save)", sizeof(p_ptr->died_from));
+spells1.c:		r = get_mon_num((p_ptr->depth + r_ptr->level) / 2 + 5);
+spells1.c:	_teleport_away(p_ptr->loc,dis,(CAVE_ICKY),MSG_TELEPORT);
+spells1.c:	coord t = p_ptr->loc;
+spells1.c:	monster_swap(p_ptr->loc, t);
+spells1.c:	if (!p_ptr->depth)
+spells1.c:		p_ptr->depth++;
+spells1.c:		p_ptr->leaving = TRUE;
+spells1.c:	else if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
+spells1.c:		p_ptr->depth--;
+spells1.c:		p_ptr->leaving = TRUE;
+spells1.c:		p_ptr->depth--;
+spells1.c:		p_ptr->leaving = TRUE;
+spells1.c:		p_ptr->depth++;
+spells1.c:		p_ptr->leaving = TRUE;
+spells1.c:	int old_chp = p_ptr->chp;
+spells1.c:	int warning = (p_ptr->mhp * op_ptr->hitpoint_warn / 10);
+spells1.c:	if (p_ptr->is_dead) return;
+spells1.c:	if (p_ptr->timed[TMD_INVULN] && (dam < 9000)) return;
+spells1.c:	p_ptr->chp -= dam;
+spells1.c:	p_ptr->redraw |= (PR_HP);
+spells1.c:	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+spells1.c:	if (p_ptr->chp < 0)
+spells1.c:		my_strcpy(p_ptr->died_from, kb_str, sizeof(p_ptr->died_from));
+spells1.c:		p_ptr->total_winner = FALSE;
+spells1.c:		p_ptr->is_dead = TRUE;
+spells1.c:		p_ptr->leaving = TRUE;
+spells1.c:	if (p_ptr->chp < warning)
+spells1.c:		o_ptr = &p_ptr->inventory[i];
+spells1.c:		case 1: o_ptr = &p_ptr->inventory[INVEN_BODY]; break;
+spells1.c:		case 2: o_ptr = &p_ptr->inventory[INVEN_ARM]; break;
+spells1.c:		case 3: o_ptr = &p_ptr->inventory[INVEN_OUTER]; break;
+spells1.c:		case 4: o_ptr = &p_ptr->inventory[INVEN_HANDS]; break;
+spells1.c:		case 5: o_ptr = &p_ptr->inventory[INVEN_HEAD]; break;
+spells1.c:		case 6: o_ptr = &p_ptr->inventory[INVEN_FEET]; break;
+spells1.c:	p_ptr->update |= (PU_BONUS);
+spells1.c:	p_ptr->window |= (PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+spells1.c:	if (p_ptr->immune_acid || (dam <= 0)) return;
+spells1.c:	if (p_ptr->resist_acid) dam = (dam + 2) / 3;
+spells1.c:	if (p_ptr->timed[TMD_OPP_ACID]) dam = (dam + 2) / 3;
+spells1.c:	if (p_ptr->immune_elec || (dam <= 0)) return;
+spells1.c:	if (p_ptr->timed[TMD_OPP_ELEC]) dam = (dam + 2) / 3;
+spells1.c:	if (p_ptr->resist_elec) dam = (dam + 2) / 3;
+spells1.c:	if (p_ptr->immune_fire || (dam <= 0)) return;
+spells1.c:	if (p_ptr->resist_fire) dam = (dam + 2) / 3;
+spells1.c:	if (p_ptr->timed[TMD_OPP_FIRE]) dam = (dam + 2) / 3;
+spells1.c:	if (p_ptr->immune_cold || (dam <= 0)) return;
+spells1.c:	if (p_ptr->resist_cold) dam = (dam + 2) / 3;
+spells1.c:	if (p_ptr->timed[TMD_OPP_COLD]) dam = (dam + 2) / 3;
+spells1.c:	value = p_ptr->stat_cur[stat];
+spells1.c:		p_ptr->stat_cur[stat] = value;
+spells1.c:		if (value > p_ptr->stat_max[stat])
+spells1.c:			p_ptr->stat_max[stat] = value;
+spells1.c:		p_ptr->update |= (PU_BONUS);
+spells1.c:	cur = p_ptr->stat_cur[stat];
+spells1.c:	max = p_ptr->stat_max[stat];
+spells1.c:		if (cur != p_ptr->stat_cur[stat]) res = TRUE;
+spells1.c:		if (max != p_ptr->stat_max[stat]) res = TRUE;
+spells1.c:		p_ptr->stat_cur[stat] = cur;
+spells1.c:		p_ptr->stat_max[stat] = max;
+spells1.c:		p_ptr->update |= (PU_BONUS);
+spells1.c:	if (p_ptr->stat_cur[stat] != p_ptr->stat_max[stat])
+spells1.c:		p_ptr->stat_cur[stat] = p_ptr->stat_max[stat];
+spells1.c:		p_ptr->update |= (PU_BONUS);
+spells1.c:	o_ptr = &p_ptr->inventory[t];
+spells1.c:	p_ptr->update |= (PU_BONUS);
+spells1.c:	p_ptr->window |= (PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+spells1.c:			if (p_ptr->std_save())
+spells1.c:			if (p_ptr->std_save())
+spells1.c:			max1 = p_ptr->stat_max[ii];
+spells1.c:			cur1 = p_ptr->stat_cur[ii];
+spells1.c:			max2 = p_ptr->stat_max[jj];
+spells1.c:			cur2 = p_ptr->stat_cur[jj];
+spells1.c:			p_ptr->stat_max[ii] = max2;
+spells1.c:			p_ptr->stat_cur[ii] = cur2;
+spells1.c:			p_ptr->stat_max[jj] = max1;
+spells1.c:			p_ptr->stat_cur[jj] = cur1;
+spells1.c:			p_ptr->update |= (PU_BONUS);
+spells1.c:						p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+spells1.c:			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+spells1.c:			p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
+spells1.c:			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+spells1.c:				if (!p_ptr->timed[TMD_BLIND])
+spells1.c:				p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+spells1.c:				p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+spells1.c:			if (p_ptr->health_who == cave_m_idx[g.y][g.x]) p_ptr->redraw |= (PR_HEALTH);
+spells1.c:		if (p_ptr->health_who == cave_m_idx[g.y][g.x]) p_ptr->redraw |= (PR_HEALTH);
+spells1.c:	if (p_ptr->monster_race_idx == m_ptr->r_idx)
+spells1.c:		p_ptr->window |= (PW_MONSTER);
+spells1.c:	bool blind = (p_ptr->timed[TMD_BLIND] ? TRUE : FALSE);
+spells1.c:			if (p_ptr->resist_pois) dam = (dam + 2) / 3;
+spells1.c:			if (p_ptr->timed[TMD_OPP_POIS]) dam = (dam + 2) / 3;
+spells1.c:			if (!(p_ptr->resist_pois || p_ptr->timed[TMD_OPP_POIS]))
+spells1.c:				(void)p_ptr->inc_timed<TMD_POISONED>(rand_int(dam) + 10);
+spells1.c:			if (!p_ptr->resist_sound)
+spells1.c:				(void)p_ptr->inc_timed<TMD_STUN>(k);
+spells1.c:			if (p_ptr->resist_nethr)
+spells1.c:				if (p_ptr->hold_life && (rand_int(100) < 75))
+spells1.c:					s32b d = 200 + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
+spells1.c:					if (p_ptr->hold_life)
+spells1.c:			if (!p_ptr->resist_sound)
+spells1.c:				(void)p_ptr->inc_timed<TMD_STUN>(randint(40));
+spells1.c:			if (!p_ptr->resist_confu)
+spells1.c:				(void)p_ptr->inc_timed<TMD_CONFUSED>(randint(5) + 5);
+spells1.c:			if (p_ptr->resist_chaos)
+spells1.c:			if (!p_ptr->resist_confu && !p_ptr->resist_chaos)
+spells1.c:				(void)p_ptr->inc_timed<TMD_CONFUSED>(rand_int(20) + 10);
+spells1.c:			if (!p_ptr->resist_chaos)
+spells1.c:				(void)p_ptr->inc_timed<TMD_IMAGE>(randint(10));
+spells1.c:			if (!p_ptr->resist_nethr && !p_ptr->resist_chaos)
+spells1.c:				if (p_ptr->hold_life && (rand_int(100) < 75))
+spells1.c:					s32b d = 5000 + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
+spells1.c:					if (p_ptr->hold_life)
+spells1.c:			if (p_ptr->resist_shard)
+spells1.c:				(void)p_ptr->inc_timed<TMD_CUT>(dam);
+spells1.c:			if (p_ptr->resist_sound)
+spells1.c:				(void)p_ptr->inc_timed<TMD_STUN>(k);
+spells1.c:			if (p_ptr->resist_confu)
+spells1.c:			if (!p_ptr->resist_confu)
+spells1.c:				(void)p_ptr->inc_timed<TMD_CONFUSED>(randint(20) + 10);
+spells1.c:			if (p_ptr->resist_disen)
+spells1.c:			if (p_ptr->resist_nexus)
+spells1.c:			if (!p_ptr->resist_sound)
+spells1.c:				(void)p_ptr->inc_timed<TMD_STUN>(randint(20));
+spells1.c:			(void)p_ptr->inc_timed<TMD_SLOW>(rand_int(4) + 4);
+spells1.c:			if (p_ptr->resist_lite)
+spells1.c:			else if (!blind && !p_ptr->resist_blind)
+spells1.c:				(void)p_ptr->inc_timed<TMD_BLIND>(randint(5) + 2);
+spells1.c:			if (p_ptr->resist_dark)
+spells1.c:			else if (!blind && !p_ptr->resist_blind)
+spells1.c:				(void)p_ptr->inc_timed<TMD_BLIND>(randint(5) + 2);
+spells1.c:					lose_exp(100 + (p_ptr->exp / 100) * MON_DRAIN_LIFE);
+spells1.c:					p_ptr->stat_cur[k] = (p_ptr->stat_cur[k] * 3) / 4;
+spells1.c:					if (p_ptr->stat_cur[k] < 3) p_ptr->stat_cur[k] = 3;
+spells1.c:					p_ptr->update |= (PU_BONUS);
+spells1.c:						p_ptr->stat_cur[k] = (p_ptr->stat_cur[k] * 3) / 4;
+spells1.c:						if (p_ptr->stat_cur[k] < 3) p_ptr->stat_cur[k] = 3;
+spells1.c:					p_ptr->update |= (PU_BONUS);
+spells1.c:			if (randint(127) > p_ptr->lev)
+spells1.c:			(void)p_ptr->inc_timed<TMD_SLOW>(rand_int(4) + 4);
+spells1.c:			if (!p_ptr->resist_sound)
+spells1.c:				(void)p_ptr->inc_timed<TMD_STUN>(k);
+spells1.c:			if (!p_ptr->resist_shard)
+spells1.c:				(void)p_ptr->inc_timed<TMD_CUT>(damroll(5, 8));
+spells1.c:			if (!p_ptr->resist_sound)
+spells1.c:				(void)p_ptr->inc_timed<TMD_STUN>(randint(15));
+spells1.c:	coord p_g = p_ptr->loc;
+spells1.c:	int msec = op_ptr->delay_factor * op_ptr->delay_factor;
+spells1.c:	bool blind = p_ptr->timed[TMD_BLIND];	/* Is the player blind? */
+spells1.c:					if (p_ptr->window) window_stuff();
+spells1.c:					if (p_ptr->window) window_stuff();
+spells1.c:			if (p_ptr->window) window_stuff();
+spells1.c:			if (p_ptr->window) window_stuff();
+spells1.c:	if (p_ptr->update) update_stuff();
+spells2.c:	if (p_ptr->chp < p_ptr->mhp)
+spells2.c:		p_ptr->chp += num;
+spells2.c:		if (p_ptr->chp >= p_ptr->mhp)
+spells2.c:			p_ptr->chp = p_ptr->mhp;
+spells2.c:			p_ptr->chp_frac = 0;
+spells2.c:		p_ptr->redraw |= (PR_HP);
+spells2.c:		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+spells2.c:	int py = p_ptr->loc.y;
+spells2.c:	int px = p_ptr->loc.x;
+spells2.c:	if (p_ptr->sustain[stat])
+spells2.c:		object_type *o_ptr = &p_ptr->inventory[i];
+spells2.c:	p_ptr->update |= (PU_BONUS);
+spells2.c:	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+spells2.c:	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+spells2.c:		object_type *o_ptr = &p_ptr->inventory[i];
+spells2.c:		p_ptr->update |= (PU_BONUS);
+spells2.c:		p_ptr->window |= (PW_EQUIP);
+spells2.c:	if (p_ptr->exp < p_ptr->max_exp)
+spells2.c:		p_ptr->exp = p_ptr->max_exp;
+spells2.c:		o_ptr = &p_ptr->inventory[k];
+spells2.c:	if (p_ptr->timed[TMD_BLIND])
+spells2.c:	if (p_ptr->timed[TMD_CONFUSED])
+spells2.c:	if (p_ptr->timed[TMD_AFRAID])
+spells2.c:	if (p_ptr->timed[TMD_CUT])
+spells2.c:	if (p_ptr->timed[TMD_STUN])
+spells2.c:	if (p_ptr->timed[TMD_POISONED])
+spells2.c:	if (p_ptr->timed[TMD_IMAGE])
+spells2.c:	if (p_ptr->aggravate)
+spells2.c:	if (p_ptr->teleport)
+spells2.c:	if (p_ptr->timed[TMD_BLESSED])
+spells2.c:	if (p_ptr->timed[TMD_HERO])
+spells2.c:	if (p_ptr->timed[TMD_SHERO])
+spells2.c:	if (p_ptr->timed[TMD_PROTEVIL])
+spells2.c:	if (p_ptr->timed[TMD_SHIELD])
+spells2.c:	if (p_ptr->timed[TMD_INVULN])
+spells2.c:	if (p_ptr->confusing)
+spells2.c:	if (p_ptr->searching)
+spells2.c:	if (p_ptr->new_spells)
+spells2.c:	if (p_ptr->word_recall)
+spells2.c:	if (p_ptr->see_infra)
+spells2.c:	if (p_ptr->slow_digest)
+spells2.c:	if (p_ptr->ffall)
+spells2.c:	if (p_ptr->lite)
+spells2.c:	if (p_ptr->regenerate)
+spells2.c:	if (p_ptr->telepathy)
+spells2.c:	if (p_ptr->see_inv)
+spells2.c:	if (p_ptr->free_act)
+spells2.c:	if (p_ptr->hold_life)
+spells2.c:	if (p_ptr->immune_acid)
+spells2.c:	else if ((p_ptr->resist_acid) && (p_ptr->timed[TMD_OPP_ACID]))
+spells2.c:	else if ((p_ptr->resist_acid) || (p_ptr->timed[TMD_OPP_ACID]))
+spells2.c:	if (p_ptr->immune_elec)
+spells2.c:	else if ((p_ptr->resist_elec) && (p_ptr->timed[TMD_OPP_ELEC]))
+spells2.c:	else if ((p_ptr->resist_elec) || (p_ptr->timed[TMD_OPP_ELEC]))
+spells2.c:	if (p_ptr->immune_fire)
+spells2.c:	else if ((p_ptr->resist_fire) && (p_ptr->timed[TMD_OPP_FIRE]))
+spells2.c:	else if ((p_ptr->resist_fire) || (p_ptr->timed[TMD_OPP_FIRE]))
+spells2.c:	if (p_ptr->immune_cold)
+spells2.c:	else if ((p_ptr->resist_cold) && (p_ptr->timed[TMD_OPP_COLD]))
+spells2.c:	else if ((p_ptr->resist_cold) || (p_ptr->timed[TMD_OPP_COLD]))
+spells2.c:	if ((p_ptr->resist_pois) && (p_ptr->timed[TMD_OPP_POIS]))
+spells2.c:	else if ((p_ptr->resist_pois) || (p_ptr->timed[TMD_OPP_POIS]))
+spells2.c:	if (p_ptr->resist_fear)
+spells2.c:	if (p_ptr->resist_lite)
+spells2.c:	if (p_ptr->resist_dark)
+spells2.c:	if (p_ptr->resist_blind)
+spells2.c:	if (p_ptr->resist_confu)
+spells2.c:	if (p_ptr->resist_sound)
+spells2.c:	if (p_ptr->resist_shard)
+spells2.c:	if (p_ptr->resist_nexus)
+spells2.c:	if (p_ptr->resist_nethr)
+spells2.c:	if (p_ptr->resist_chaos)
+spells2.c:	if (p_ptr->resist_disen)
+spells2.c:	if (p_ptr->sustain[A_STR])
+spells2.c:	if (p_ptr->sustain[A_INT])
+spells2.c:	if (p_ptr->sustain[A_WIS])
+spells2.c:	if (p_ptr->sustain[A_CON])
+spells2.c:	if (p_ptr->sustain[A_DEX])
+spells2.c:	if (p_ptr->sustain[A_CHR])
+spells2.c:	o_ptr = &p_ptr->inventory[INVEN_WIELD];
+spells2.c:		object_type *o_ptr = &p_ptr->inventory[i];
+spells2.c:	p_ptr->update |= (PU_BONUS);
+spells2.c:	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+spells2.c:	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+spells2.c:	if (adult_ironman && !p_ptr->total_winner)
+spells2.c:	if (!p_ptr->word_recall)
+spells2.c:		if ((p_ptr->depth > 0) && (p_ptr->depth != p_ptr->max_depth))
+spells2.c:				p_ptr->max_depth = p_ptr->depth;
+spells2.c:		p_ptr->word_recall = rand_int(20) + 15;
+spells2.c:		p_ptr->word_recall = 0;
+spells2.c:		if (p_ptr->monster_race_idx == m.r_idx)
+spells2.c:			p_ptr->window |= (PW_MONSTER);
+spells2.c:		if (p_ptr->monster_race_idx == m.r_idx)
+spells2.c:			p_ptr->window |= (PW_MONSTER);
+spells2.c:	int py = p_ptr->loc.y;
+spells2.c:	int px = p_ptr->loc.x;
+spells2.c:	if (!p_ptr->depth)
+spells2.c:	else if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
+spells2.c:	p_ptr->update |= (PU_BONUS);
+spells2.c:	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+spells2.c:	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+spells2.c:	p_ptr->update |= (PU_BONUS);
+spells2.c:	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+spells2.c:	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+spells2.c:	p_ptr->update |= (PU_BONUS);
+spells2.c:	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+spells2.c:	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+spells2.c:	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+spells2.c:	p_ptr->window |= (PW_INVEN);
+spells2.c:	return (project_los(GF_OLD_SPEED, p_ptr->lev));
+spells2.c:	return (project_los(GF_OLD_SLOW, p_ptr->lev));
+spells2.c:	return (project_los(GF_OLD_SLEEP, p_ptr->lev));
+spells2.c:	return (project_los(GF_TURN_UNDEAD, p_ptr->lev));
+spells2.c:	p_ptr->window |= PW_MONLIST;
+spells2.c:	if (result) p_ptr->window |= PW_MONLIST;
+spells2.c:	if (!p_ptr->depth)
+spells2.c:		if (!p_ptr->resist_blind && !p_ptr->resist_lite)
+spells2.c:			(void)p_ptr->inc_timed<TMD_BLIND>(10 + randint(10));
+spells2.c:	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS | PU_FORGET_FLOW | PU_UPDATE_FLOW);
+spells2.c:	p_ptr->redraw |= (PR_MAP);
+spells2.c:	p_ptr->window |= (PW_OVERHEAD | PW_MAP | PW_MONLIST);
+spells2.c:	if (!p_ptr->depth)
+spells2.c:			if (tt == p_ptr->loc) hurt = TRUE;
+spells2.c:			coord t = p_ptr->loc + dd_coord_ddd[i];	/* Get the location */
+spells2.c:					(void)p_ptr->inc_timed<TMD_STUN>(randint(50));
+spells2.c:					(void)p_ptr->inc_timed<TMD_STUN>(randint(50));
+spells2.c:			monster_swap(p_ptr->loc, s);
+spells2.c:	map[16+p_ptr->loc.y-g.y][16+p_ptr->loc.x-g.x] = FALSE;
+spells2.c:			if (tt == p_ptr->loc) continue;
+spells2.c:	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+spells2.c:	p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
+spells2.c:	p_ptr->redraw |= (PR_MAP);
+spells2.c:	p_ptr->redraw |= (PR_HEALTH);
+spells2.c:	p_ptr->window |= (PW_OVERHEAD | PW_MAP | PW_MONLIST);
+spells2.c:	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+spells2.c:	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+spells2.c:	if (!p_ptr->timed[TMD_BLIND])
+spells2.c:	(void)project(-1, rad, p_ptr->loc, dam, GF_LITE_WEAK, PROJECT_GRID | PROJECT_KILL);
+spells2.c:	lite_room(p_ptr->loc);
+spells2.c:	if (!p_ptr->timed[TMD_BLIND])
+spells2.c:	(void)project(-1, rad, p_ptr->loc, dam, GF_DARK_WEAK, PROJECT_GRID | PROJECT_KILL);
+spells2.c:	unlite_room(p_ptr->loc);
+spells2.c:	g = p_ptr->loc;
+spells2.c:		g = p_ptr->target;
+spells2.c:	coord t(p_ptr->loc + dd_coord[dir]);
+spells2.c:		t = p_ptr->target;
+spells2.c:	return (project_hook(GF_OLD_SPEED, dir, p_ptr->lev, PROJECT_STOP | PROJECT_KILL));
+spells2.c:	return (project_hook(GF_OLD_SLOW, dir, p_ptr->lev, PROJECT_STOP | PROJECT_KILL));
+spells2.c:	return (project_hook(GF_OLD_SLEEP, dir, p_ptr->lev, PROJECT_STOP | PROJECT_KILL));
+spells2.c:	return (project_hook(GF_OLD_POLY, dir, p_ptr->lev, PROJECT_STOP | PROJECT_KILL));
+spells2.c:	return (project(-1, 1, p_ptr->loc, 0, GF_MAKE_DOOR, PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE));
+spells2.c:	return (project(-1, 1, p_ptr->loc, 0, GF_MAKE_TRAP, PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE));
+spells2.c:	return (project(-1, 1, p_ptr->loc, 0, GF_KILL_DOOR, PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE));
+spells2.c:	return (project(-1, 1, p_ptr->loc, p_ptr->lev, GF_OLD_SLEEP, PROJECT_KILL | PROJECT_HIDE));
+spells2.c:	object_type *o_ptr = &p_ptr->inventory[INVEN_BODY];	/* Curse the body armor */
+spells2.c:		p_ptr->update |= (PU_BONUS);
+spells2.c:		p_ptr->update |= (PU_MANA);
+spells2.c:		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+spells2.c:	object_type *o_ptr = &p_ptr->inventory[INVEN_WIELD];	/* Curse the weapon */
+spells2.c:		p_ptr->update |= (PU_BONUS);
+spells2.c:		p_ptr->update |= (PU_MANA);
+spells2.c:		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+spells2.c:		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+spells2.c:		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+spells2.c:	object_type *o_ptr = &p_ptr->inventory[INVEN_WIELD];
+spells2.c:			p_ptr->exp -= (p_ptr->exp / 4);
+spells2.c:			p_ptr->max_exp -= (p_ptr->max_exp / 4);
+store.c:	factor = g_info[(ot_ptr->owner_race * z_info->p_max) + p_ptr->prace];
+store.c:	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
+store.c:		if (o_ptr->tval == p_ptr->spell_book())
+store.c:			if (j_ptr->tval != p_ptr->spell_book()) break;
+store.c:			if (j_ptr->tval == p_ptr->spell_book()) continue;
+store.c:	sprintf(out_val, "%9ld", (long)p_ptr->au);
+store.c:			if (p_ptr->au >= price)
+store.c:				p_ptr->au -= price;
+store.c:				p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+store.c:				object_desc(o_name, sizeof(o_name), &p_ptr->inventory[item_new], TRUE, 3);
+store.c:		object_desc(o_name, sizeof(o_name), &p_ptr->inventory[item_new], TRUE, 3);
+store.c:			p_ptr->au += price;
+store.c:			p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+store.c:			p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+store.c:			p_ptr->redraw |= (PR_EQUIPPY);
+store.c:	switch (p_ptr->command_cmd)
+store.c: * to get a command, allowing us to use "p_ptr->command_arg" and all
+store.c:	int py = p_ptr->loc.y;
+store.c:	int px = p_ptr->loc.x;
+store.c:	p_ptr->command_arg = 0;
+store.c:	p_ptr->command_rep = 0;
+store.c:	p_ptr->command_new = 0;
+store.c:		tmp_chr = p_ptr->stat_use[A_CHR];
+store.c:		if (p_ptr->inventory[INVEN_PACK].k_idx)
+store.c:			object_type *o_ptr = &p_ptr->inventory[item];
+store.c:		if (tmp_chr != p_ptr->stat_use[A_CHR])
+store.c:	p_ptr->energy_use = 100;
+store.c:	p_ptr->command_new = 0;
+store.c:	p_ptr->command_see = FALSE;
+store.c:	p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+store.c:	p_ptr->redraw |= (PR_BASIC | PR_EXTRA);
+store.c:	p_ptr->redraw |= (PR_MAP);
+store.c:	p_ptr->window |= (PW_OVERHEAD | PW_MAP);
+trap.c:	return test_hit(power, p_ptr->ac + p_ptr->to_a, TRUE);
+trap.c:		if ((feat == TRAP_DOOR) && is_quest(p_ptr->depth)) continue;
+trap.c:		if ((feat == TRAP_DOOR) && (p_ptr->depth >= MAX_DEPTH-1)) continue;
+trap.c:			if (p_ptr->ffall)
+trap.c:			p_ptr->depth++;
+trap.c:			p_ptr->leaving = TRUE;
+trap.c:			if (p_ptr->ffall)
+trap.c:			if (p_ptr->ffall)
+trap.c:					(void)p_ptr->inc_timed<TMD_CUT>(randint(dam));
+trap.c:			if (p_ptr->ffall)
+trap.c:					(void)p_ptr->inc_timed<TMD_CUT>(randint(dam));
+trap.c:					if (p_ptr->resist_pois || p_ptr->timed[TMD_OPP_POIS])
+trap.c:						(void)p_ptr->inc_timed<TMD_POISONED>(randint(dam));
+trap.c:				(void)summon_specific(g, p_ptr->depth, 0);
+trap.c:				(void)p_ptr->inc_timed<TMD_SLOW>(rand_int(20) + 20);
+trap.c:			if (!p_ptr->resist_blind)
+trap.c:				(void)p_ptr->inc_timed<TMD_BLIND>(rand_int(50) + 25);
+trap.c:			if (!p_ptr->resist_confu)
+trap.c:				(void)p_ptr->inc_timed<TMD_CONFUSED>(rand_int(20) + 10);
+trap.c:			if (!p_ptr->resist_pois && !p_ptr->timed[TMD_OPP_POIS])
+trap.c:				(void)p_ptr->inc_timed<TMD_POISONED>(rand_int(20) + 10);
+trap.c:			if (!p_ptr->free_act)
+trap.c:				(void)p_ptr->inc_timed<TMD_PARALYZED>(rand_int(10) + 5);
+use-obj.c:			if (!(p_ptr->resist_pois || p_ptr->timed[TMD_OPP_POIS]))
+use-obj.c:				if (p_ptr->inc_timed<TMD_POISONED>(rand_int(10) + 10))
+use-obj.c:			if (!p_ptr->resist_blind)
+use-obj.c:				if (p_ptr->inc_timed<TMD_BLIND>(rand_int(200) + 200))
+use-obj.c:			if (!p_ptr->resist_fear)
+use-obj.c:				if (p_ptr->inc_timed<TMD_AFRAID>(rand_int(10) + 10))
+use-obj.c:			if (!p_ptr->resist_confu)
+use-obj.c:				if (p_ptr->inc_timed<TMD_CONFUSED>(rand_int(10) + 10))
+use-obj.c:			if (!p_ptr->resist_chaos)
+use-obj.c:				if (p_ptr->inc_timed<TMD_IMAGE>(rand_int(250) + 250))
+use-obj.c:			if (!p_ptr->free_act)
+use-obj.c:				if (p_ptr->inc_timed<TMD_PARALYZED>(rand_int(10) + 10))
+use-obj.c:			if (p_ptr->clear_timed<TMD_POISONED>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_BLIND>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_AFRAID>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_CONFUSED>()) *ident = TRUE;
+use-obj.c:			(void)p_ptr->clear_timed<TMD_POISONED>();
+use-obj.c:	(void)set_food(p_ptr->food + o_ptr->pval);
+use-obj.c:			if (p_ptr->inc_timed<TMD_SLOW>(randint(25) + 15)) *ident = TRUE;
+use-obj.c:			(void)p_ptr->clear_timed<TMD_POISONED>();
+use-obj.c:			(void)p_ptr->inc_timed<TMD_PARALYZED>(4);
+use-obj.c:			if (!(p_ptr->resist_pois || p_ptr->timed[TMD_OPP_POIS]))
+use-obj.c:				if (p_ptr->inc_timed<TMD_POISONED>(rand_int(15) + 10))
+use-obj.c:			if (!p_ptr->resist_blind)
+use-obj.c:				if (p_ptr->inc_timed<TMD_BLIND>(rand_int(100) + 100))
+use-obj.c:			if (!p_ptr->resist_confu)
+use-obj.c:				if (p_ptr->inc_timed<TMD_CONFUSED>(rand_int(20) + 15))
+use-obj.c:			if (!p_ptr->free_act)
+use-obj.c:				if (p_ptr->inc_timed<TMD_PARALYZED>(rand_int(4) + 4))
+use-obj.c:			if (!p_ptr->hold_life && (p_ptr->exp > 0))
+use-obj.c:				lose_exp(p_ptr->exp / 4);
+use-obj.c:			(void)p_ptr->inc_timed<TMD_STUN>(75);
+use-obj.c:			(void)p_ptr->inc_timed<TMD_CUT>(5000);
+use-obj.c:			if (p_ptr->inc_timed<TMD_SINFRA>(100 + randint(100)))
+use-obj.c:			if (p_ptr->inc_timed<TMD_SINVIS>(12 + randint(12)))
+use-obj.c:			if (p_ptr->set_timed<TMD_POISONED>(p_ptr->timed[TMD_POISONED] / 2)) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_POISONED>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_AFRAID>()) *ident = TRUE;
+use-obj.c:			if (!p_ptr->timed[TMD_FAST])
+use-obj.c:				if (p_ptr->inc_timed<TMD_FAST>(randint(25) + 15)) *ident = TRUE;
+use-obj.c:				(void)p_ptr->inc_timed<TMD_FAST>(5);
+use-obj.c:			if (p_ptr->inc_timed<TMD_OPP_FIRE>(randint(10) + 10))
+use-obj.c:			if (p_ptr->inc_timed<TMD_OPP_COLD>(randint(10) + 10))
+use-obj.c:			if (p_ptr->clear_timed<TMD_AFRAID>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->inc_timed<TMD_HERO>(randint(25) + 25)) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_AFRAID>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->inc_timed<TMD_SHERO>(randint(25) + 25)) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_BLIND>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->dec_timed<TMD_CUT>(10)) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_BLIND>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_CONFUSED>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->set_timed<TMD_CUT>((p_ptr->timed[TMD_CUT] / 2) - 50)) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_BLIND>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_CONFUSED>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_POISONED>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_STUN>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_CUT>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_BLIND>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_CONFUSED>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_POISONED>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_STUN>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_CUT>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_BLIND>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_CONFUSED>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_POISONED>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_STUN>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_CUT>()) *ident = TRUE;
+use-obj.c:			(void)p_ptr->clear_timed<TMD_POISONED>();
+use-obj.c:			(void)p_ptr->clear_timed<TMD_BLIND>();
+use-obj.c:			(void)p_ptr->clear_timed<TMD_CONFUSED>();
+use-obj.c:			(void)p_ptr->clear_timed<TMD_IMAGE>();
+use-obj.c:			(void)p_ptr->clear_timed<TMD_STUN>();
+use-obj.c:			(void)p_ptr->clear_timed<TMD_CUT>();
+use-obj.c:			if (p_ptr->csp < p_ptr->msp)
+use-obj.c:				p_ptr->csp = p_ptr->msp;
+use-obj.c:				p_ptr->csp_frac = 0;
+use-obj.c:				p_ptr->redraw |= (PR_MANA);
+use-obj.c:				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+use-obj.c:			if (p_ptr->exp < PY_MAX_EXP)
+use-obj.c:				s32b ee = (p_ptr->exp / 2) + 10;
+use-obj.c:			if (!p_ptr->resist_blind)
+use-obj.c:				(void)p_ptr->inc_timed<TMD_BLIND>(3 + randint(5));
+use-obj.c:				if (summon_specific(p_ptr->loc, p_ptr->depth, 0))
+use-obj.c:				if (summon_specific(p_ptr->loc, p_ptr->depth, SUMMON_UNDEAD))
+use-obj.c:			if (p_ptr->inc_timed<TMD_BLESSED>(randint(12) + 6)) *ident = TRUE;
+use-obj.c:			if (p_ptr->inc_timed<TMD_BLESSED>(randint(24) + 12)) *ident = TRUE;
+use-obj.c:			if (p_ptr->inc_timed<TMD_BLESSED>(randint(48) + 24)) *ident = TRUE;
+use-obj.c:			if (p_ptr->confusing == 0)
+use-obj.c:				p_ptr->confusing = TRUE;
+use-obj.c:			k = 3 * p_ptr->lev;
+use-obj.c:			if (p_ptr->inc_timed<TMD_PROTEVIL>(randint(25) + k)) *ident = TRUE;
+use-obj.c:			destroy_area(p_ptr->loc, 15, TRUE);
+use-obj.c:			acquirement(p_ptr->loc, 1, TRUE);
+use-obj.c:			acquirement(p_ptr->loc, randint(2) + 1, TRUE);
+use-obj.c:			if (!p_ptr->resist_blind)
+use-obj.c:				if (p_ptr->inc_timed<TMD_BLIND>(3 + randint(5))) *ident = TRUE;
+use-obj.c:			if (p_ptr->inc_timed<TMD_SLOW>(randint(30) + 15)) *ident = TRUE;
+use-obj.c:				if (summon_specific(p_ptr->loc, p_ptr->depth, 0))
+use-obj.c:				if (!p_ptr->timed[TMD_BLIND])
+use-obj.c:			if (!p_ptr->timed[TMD_BLIND])
+use-obj.c:			if (p_ptr->clear_timed<TMD_BLIND>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_POISONED>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_CONFUSED>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_STUN>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_CUT>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_STUN>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_CUT>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->csp < p_ptr->msp)
+use-obj.c:				p_ptr->csp = p_ptr->msp;
+use-obj.c:				p_ptr->csp_frac = 0;
+use-obj.c:				p_ptr->redraw |= (PR_MANA);
+use-obj.c:				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+use-obj.c:			if (!p_ptr->timed[TMD_FAST])
+use-obj.c:				if (p_ptr->inc_timed<TMD_FAST>(randint(30) + 15)) *ident = TRUE;
+use-obj.c:				(void)p_ptr->inc_timed<TMD_FAST>(5);
+use-obj.c:			k = 3 * p_ptr->lev;
+use-obj.c:			if (p_ptr->inc_timed<TMD_PROTEVIL>(randint(25) + k)) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_POISONED>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_AFRAID>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_STUN>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_CUT>()) *ident = TRUE;
+use-obj.c:			earthquake(p_ptr->loc, 10);
+use-obj.c:			destroy_area(p_ptr->loc, 15, TRUE);
+use-obj.c:	p_ptr->energy_use = 100;
+use-obj.c:	chance = p_ptr->item_chance(o_ptr->level());
+use-obj.c:		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+use-obj.c:		p_ptr->window |= (PW_INVEN);
+use-obj.c:	p_ptr->energy_use = 100;
+use-obj.c:	chance = p_ptr->item_chance(o_ptr->level());
+use-obj.c:			if (p_ptr->clear_timed<TMD_BLIND>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_POISONED>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_CONFUSED>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_STUN>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_CUT>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_STUN>()) *ident = TRUE;
+use-obj.c:			if (p_ptr->clear_timed<TMD_CUT>()) *ident = TRUE;
+use-obj.c:			if (!p_ptr->timed[TMD_FAST])
+use-obj.c:				if (p_ptr->inc_timed<TMD_FAST>(randint(30) + 15)) *ident = TRUE;
+use-obj.c:				(void)p_ptr->inc_timed<TMD_FAST>(5);
+use-obj.c:				k = 3 * p_ptr->lev;
+use-obj.c:				(void)p_ptr->inc_timed<TMD_PROTEVIL>(randint(25) + k);
+use-obj.c:				dispel_evil(p_ptr->lev * 5);
+use-obj.c:				if (!p_ptr->timed[TMD_FAST])
+use-obj.c:					(void)p_ptr->inc_timed<TMD_FAST>(randint(75) + 75);
+use-obj.c:					(void)p_ptr->inc_timed<TMD_FAST>(5);
+use-obj.c:				(void)p_ptr->clear_timed<TMD_AFRAID>();
+use-obj.c:				(void)p_ptr->inc_timed<TMD_SHERO>(randint(50) + 50);
+use-obj.c:				(void)p_ptr->inc_timed<TMD_BLESSED>(randint(50) + 50);
+use-obj.c:				(void)p_ptr->inc_timed<TMD_OPP_ACID>(randint(50) + 50);
+use-obj.c:				(void)p_ptr->inc_timed<TMD_OPP_ELEC>(randint(50) + 50);
+use-obj.c:				(void)p_ptr->inc_timed<TMD_OPP_FIRE>(randint(50) + 50);
+use-obj.c:				(void)p_ptr->inc_timed<TMD_OPP_COLD>(randint(50) + 50);
+use-obj.c:				(void)p_ptr->inc_timed<TMD_OPP_POIS>(randint(50) + 50);
+use-obj.c:				(void)p_ptr->clear_timed<TMD_CUT>();
+use-obj.c:				(void)p_ptr->clear_timed<TMD_CUT>();
+use-obj.c:				(void)p_ptr->inc_timed<TMD_OPP_ACID>(randint(20) + 20);
+use-obj.c:				(void)p_ptr->inc_timed<TMD_OPP_ELEC>(randint(20) + 20);
+use-obj.c:				(void)p_ptr->inc_timed<TMD_OPP_FIRE>(randint(20) + 20);
+use-obj.c:				(void)p_ptr->inc_timed<TMD_OPP_COLD>(randint(20) + 20);
+use-obj.c:				(void)p_ptr->inc_timed<TMD_OPP_POIS>(randint(20) + 20);
+use-obj.c:				if (!p_ptr->timed[TMD_FAST])
+use-obj.c:					(void)p_ptr->inc_timed<TMD_FAST>(randint(20) + 20);
+use-obj.c:					(void)p_ptr->inc_timed<TMD_FAST>(5);
+use-obj.c:				(void)p_ptr->clear_timed<TMD_AFRAID>();
+use-obj.c:				(void)p_ptr->clear_timed<TMD_POISONED>();
+use-obj.c:				(void)p_ptr->set_timed<TMD_CUT>((p_ptr->timed[TMD_CUT] / 2) - 50);
+use-obj.c:				p_ptr->inc_timed<TMD_SHERO>(randint(50) + 50);
+use-obj.c:		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+use-obj.c:		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+use-obj.c:				p_ptr->inc_timed<TMD_OPP_ACID>(randint(20) + 20);
+use-obj.c:				p_ptr->inc_timed<TMD_OPP_FIRE>(randint(20) + 20);
+use-obj.c:				p_ptr->inc_timed<TMD_OPP_COLD>(randint(20) + 20);
+use-obj.c:				p_ptr->inc_timed<TMD_OPP_ELEC>(randint(20) + 20);
+use-obj.c:		p_ptr->window |= (PW_EQUIP);
+util.c:		p_ptr->window |= (PW_MESSAGE);
+util.c:	if (character_generated && !(p_ptr->is_dead))
+util.c:	p_ptr->window |= (PW_MESSAGE);
+util.c: * Allow "p_ptr->command_arg" to specify a quantity
+util.c:	if (p_ptr->command_arg)
+util.c:		amt = p_ptr->command_arg;
+util.c:		p_ptr->command_arg = 0;
+util.c: * Sets p_ptr->command_cmd, p_ptr->command_dir, p_ptr->command_rep,
+util.c: * p_ptr->command_arg.  May modify p_ptr->command_new.
+util.c: * Note that "p_ptr->command_new" may not work any more.  XXX XXX XXX
+util.c:	p_ptr->command_cmd = 0;
+util.c:	p_ptr->command_arg = 0;
+util.c:	p_ptr->command_dir = 0;
+util.c:		if (p_ptr->command_new)
+util.c:			ch = (char)p_ptr->command_new;
+util.c:			p_ptr->command_new = 0;
+util.c:			int old_arg = p_ptr->command_arg;
+util.c:			p_ptr->command_arg = 0;
+util.c:					p_ptr->command_arg = p_ptr->command_arg / 10;
+util.c:					prt(format("Count: %d", p_ptr->command_arg), 0, 0);
+util.c:					if (p_ptr->command_arg >= 1000)
+util.c:						p_ptr->command_arg = 9999;
+util.c:						p_ptr->command_arg = p_ptr->command_arg * 10 + D2I(ch);
+util.c:					prt(format("Count: %d", p_ptr->command_arg), 0, 0);
+util.c:			if (p_ptr->command_arg == 0)
+util.c:				p_ptr->command_arg = 99;
+util.c:				prt(format("Count: %d", p_ptr->command_arg), 0, 0);
+util.c:				p_ptr->command_arg = old_arg;
+util.c:				prt(format("Count: %d", p_ptr->command_arg), 0, 0);
+util.c:					p_ptr->command_arg = 0;
+util.c:		p_ptr->command_cmd = ch;
+util.c:	if (always_repeat && (p_ptr->command_arg <= 0))
+util.c:		if (strchr(AUTO_REPEAT_COMMANDS, p_ptr->command_cmd))
+util.c:			p_ptr->command_arg = 99;
+util.c:		switch (p_ptr->command_cmd)
+util.c:			case 'p': p_ptr->command_cmd = 'g'; break;
+util.c:			case 'm': p_ptr->command_cmd = 'g'; break;
+util.c:			case 's': p_ptr->command_cmd = 'd'; break;
+util.c:		object_type *o_ptr = &p_ptr->inventory[i];
+util.c:			if ((s[1] == p_ptr->command_cmd) || (s[1] == '*'))
+util.c:					p_ptr->command_cmd = '\n';
+util.c:	if (p_ptr->command_cmd == ESCAPE) return;
+util.c:	if (p_ptr->command_cmd == ' ') return;
+util.c:	if (p_ptr->command_cmd == '\n') return;
+util.c:	if (p_ptr->command_cmd == '\r') return;
+util.c:	if (p_ptr->command_cmd == KTRL('V'))
+util.c:			p_ptr->command_cmd = what;
+util.c:		what = p_ptr->command_cmd;
+wizard2.c:				if (cave_when[t.y][t.x] == cave_when[p_ptr->loc.y][p_ptr->loc.x])
+wizard2.c:				if (t==p_ptr->loc)
+wizard2.c:		teleport_player_to(p_ptr->target);
+wizard2.c:		sprintf(tmp_val, "%d", p_ptr->stat_max[i]);
+wizard2.c:		p_ptr->stat_cur[i] = p_ptr->stat_max[i] = tmp_int;
+wizard2.c:	sprintf(tmp_val, "%ld", (long)(p_ptr->au));
+wizard2.c:	p_ptr->au = tmp_long;
+wizard2.c:	sprintf(tmp_val, "%ld", (long)(p_ptr->exp));
+wizard2.c:	p_ptr->exp = tmp_long;
+wizard2.c:	sprintf(tmp_val, "%ld", (long)(p_ptr->max_exp));
+wizard2.c:	p_ptr->max_exp = tmp_long;
+wizard2.c:			apply_magic(i_ptr, p_ptr->depth, FALSE, FALSE, FALSE);
+wizard2.c:			apply_magic(i_ptr, p_ptr->depth, FALSE, TRUE, FALSE);
+wizard2.c:			apply_magic(i_ptr, p_ptr->depth, FALSE, TRUE, TRUE);
+wizard2.c:		p_ptr->update |= (PU_BONUS);
+wizard2.c:		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+wizard2.c:		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+wizard2.c:		           quality, p_ptr->depth);
+wizard2.c:			p_ptr->total_weight -= (o_ptr->number * o_ptr->weight);
+wizard2.c:			p_ptr->total_weight += (tmp_int * o_ptr->weight);
+wizard2.c:		p_ptr->update |= (PU_BONUS);
+wizard2.c:		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+wizard2.c:		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+wizard2.c:	apply_magic(i_ptr, p_ptr->depth, FALSE, FALSE, FALSE);
+wizard2.c:	drop_near(i_ptr, -1, p_ptr->loc);
+wizard2.c:	drop_near(i_ptr, -1, p_ptr->loc);
+wizard2.c:	p_ptr->chp = p_ptr->mhp;
+wizard2.c:	p_ptr->chp_frac = 0;
+wizard2.c:	p_ptr->csp = p_ptr->msp;
+wizard2.c:	p_ptr->csp_frac = 0;
+wizard2.c:	(void)p_ptr->clear_timed<TMD_BLIND>();
+wizard2.c:	(void)p_ptr->clear_timed<TMD_CONFUSED>();
+wizard2.c:	(void)p_ptr->clear_timed<TMD_POISONED>();
+wizard2.c:	(void)p_ptr->clear_timed<TMD_AFRAID>();
+wizard2.c:	(void)p_ptr->clear_timed<TMD_PARALYZED>();
+wizard2.c:	(void)p_ptr->clear_timed<TMD_IMAGE>();
+wizard2.c:	(void)p_ptr->clear_timed<TMD_STUN>();
+wizard2.c:	(void)p_ptr->clear_timed<TMD_CUT>();
+wizard2.c:	(void)p_ptr->clear_timed<TMD_SLOW>();
+wizard2.c:	if (p_ptr->command_arg <= 0)
+wizard2.c:		sprintf(tmp_val, "%d", p_ptr->depth);
+wizard2.c:		p_ptr->command_arg = atoi(tmp_val);
+wizard2.c:	if (p_ptr->command_arg < 0) p_ptr->command_arg = 0;
+wizard2.c:	if (p_ptr->command_arg > MAX_DEPTH - 1) p_ptr->command_arg = MAX_DEPTH - 1;
+wizard2.c:	msg_format("You jump to dungeon level %d.", p_ptr->command_arg);
+wizard2.c:	p_ptr->depth = p_ptr->command_arg;
+wizard2.c:	p_ptr->leaving = TRUE;
+wizard2.c:		if (k_ptr->level <= p_ptr->command_arg)
+wizard2.c:	min_value = (PY_MAX_LEVEL * 3 * (p_ptr->hitdie - 1)) / 8;
+wizard2.c:	max_value = (PY_MAX_LEVEL * 5 * (p_ptr->hitdie - 1)) / 8;
+wizard2.c:	p_ptr->player_hp[0] = p_ptr->hitdie;
+wizard2.c:			p_ptr->player_hp[i] = randint(p_ptr->hitdie);
+wizard2.c:			p_ptr->player_hp[i] += p_ptr->player_hp[i - 1];
+wizard2.c:		if ((p_ptr->player_hp[PY_MAX_LEVEL - 1] >= min_value) &&
+wizard2.c:		    (p_ptr->player_hp[PY_MAX_LEVEL - 1] <= max_value)) break;
+wizard2.c:	percent = (int)(((long)p_ptr->player_hp[PY_MAX_LEVEL - 1] * 200L) /
+wizard2.c:	                (p_ptr->hitdie + ((PY_MAX_LEVEL - 1) * p_ptr->hitdie)));
+wizard2.c:	p_ptr->update |= (PU_HP);
+wizard2.c:	p_ptr->redraw |= (PR_HP);
+wizard2.c:	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+wizard2.c:		(void)summon_specific(p_ptr->loc, p_ptr->depth, 0);
+wizard2.c:		scatter(g, p_ptr->loc, d, 0);
+wizard2.c:	p_ptr->window |= PW_MONLIST;
+wizard2.c:			if (t==p_ptr->loc)
+wizard2.c: * The "p_ptr->command_arg" may have been set.
+wizard2.c:			wiz_create_artifact(p_ptr->command_arg);
+wizard2.c:			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 1;
+wizard2.c:			acquirement(p_ptr->loc, p_ptr->command_arg, FALSE);
+wizard2.c:			do_cmd_wiz_named(p_ptr->command_arg, TRUE);
+wizard2.c:			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 1;
+wizard2.c:			do_cmd_wiz_summon(p_ptr->command_arg);
+wizard2.c:			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 255;
+wizard2.c:			do_cmd_wiz_unhide(p_ptr->command_arg);
+wizard2.c:			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 1;
+wizard2.c:			acquirement(p_ptr->loc, p_ptr->command_arg, TRUE);
+wizard2.c:			if (p_ptr->command_arg)
+wizard2.c:				gain_exp(p_ptr->command_arg);
+wizard2.c:				gain_exp(p_ptr->exp + 1);
+wizard2.c:			if (p_ptr->command_arg <= 0) p_ptr->command_arg = MAX_SIGHT;
+wizard2.c:			do_cmd_wiz_zap(p_ptr->command_arg);
+x-spell.c:	const int realm = (p_ptr->cp_ptr->spell_book == TV_MAGIC_BOOK) ? 0 : 1;
+x-spell.c:		int plev = p_ptr->lev;
+x-spell.c:		int plev = p_ptr->lev;
+x-spell.c:				        (plev / ((p_ptr->cp_ptr->flags & CF_BLESS_WEAPON) ? 2 : 4)));
+x-spell.c:	int plev = p_ptr->lev;
+x-spell.c:	return ((p_ptr->cp_ptr->flags & CF_BEAM) ? plev : (plev / 2));
+x-spell.c:	int plev = p_ptr->lev;
+x-spell.c:	else if (die < 104) earthquake(p_ptr->loc, 12);
+x-spell.c:	else if (die < 106) destroy_area(p_ptr->loc, 15, TRUE);
+x-spell.c:	int plev = p_ptr->lev;
+x-spell.c:			(void)p_ptr->dec_timed<TMD_CUT>(15);
+x-spell.c:			(void)p_ptr->clear_timed<TMD_POISONED>();
+x-spell.c:			destroy_area(p_ptr->loc, 15, TRUE);
+x-spell.c:			earthquake(p_ptr->loc, 10);
+x-spell.c:			(void)p_ptr->inc_timed<TMD_OPP_FIRE>(randint(20) + 20);
+x-spell.c:			(void)p_ptr->inc_timed<TMD_OPP_COLD>(randint(20) + 20);
+x-spell.c:			(void)p_ptr->inc_timed<TMD_OPP_POIS>(randint(20) + 20);
+x-spell.c:			(void)p_ptr->inc_timed<TMD_OPP_ACID>(time);
+x-spell.c:			(void)p_ptr->inc_timed<TMD_OPP_ELEC>(time);
+x-spell.c:			(void)p_ptr->inc_timed<TMD_OPP_FIRE>(time);
+x-spell.c:			(void)p_ptr->inc_timed<TMD_OPP_COLD>(time);
+x-spell.c:			(void)p_ptr->inc_timed<TMD_OPP_POIS>(time);
+x-spell.c:			(void)p_ptr->inc_timed<TMD_HERO>(randint(25) + 25);
+x-spell.c:			(void)p_ptr->clear_timed<TMD_AFRAID>();
+x-spell.c:			(void)p_ptr->inc_timed<TMD_SHIELD>(randint(20) + 30);
+x-spell.c:			(void)p_ptr->inc_timed<TMD_SHERO>(randint(25) + 25);
+x-spell.c:			(void)p_ptr->clear_timed<TMD_AFRAID>();
+x-spell.c:			if (!p_ptr->timed[TMD_FAST])
+x-spell.c:				(void)p_ptr->set_timed<TMD_FAST>(randint(20) + plev);
+x-spell.c:				(void)p_ptr->inc_timed<TMD_FAST>(randint(5));
+x-spell.c:	int plev = p_ptr->lev;
+x-spell.c:			(void)p_ptr->dec_timed<TMD_CUT>(10);
+x-spell.c:			(void)p_ptr->inc_timed<TMD_BLESSED>(randint(12) + 12);
+x-spell.c:			(void)p_ptr->clear_timed<TMD_AFRAID>();
+x-spell.c:			(void)p_ptr->set_timed<TMD_POISONED>(p_ptr->timed[TMD_POISONED] / 2);
+x-spell.c:			(void)p_ptr->set_timed<TMD_CUT>((p_ptr->timed[TMD_CUT] / 2) - 20);
+x-spell.c:			(void)p_ptr->inc_timed<TMD_BLESSED>(randint(24) + 24);
+x-spell.c:			(void)p_ptr->inc_timed<TMD_OPP_FIRE>(randint(10) + 10);
+x-spell.c:			(void)p_ptr->inc_timed<TMD_OPP_COLD>(randint(10) + 10);
+x-spell.c:			(void)p_ptr->clear_timed<TMD_POISONED>();
+x-spell.c:			           (plev / ((p_ptr->cp_ptr->flags & CF_BLESS_WEAPON) ? 2 : 4))),
+x-spell.c:			(void)p_ptr->clear_timed<TMD_CUT>();
+x-spell.c:			(void)p_ptr->inc_timed<TMD_SINVIS>(randint(24) + 24);
+x-spell.c:			(void)p_ptr->inc_timed<TMD_PROTEVIL>(randint(25) + 3 * p_ptr->lev);
+x-spell.c:			earthquake(p_ptr->loc, 10);
+x-spell.c:			(void)p_ptr->clear_timed<TMD_STUN>();
+x-spell.c:			(void)p_ptr->clear_timed<TMD_CUT>();
+x-spell.c:			(void)p_ptr->inc_timed<TMD_BLESSED>(randint(48) + 48);
+x-spell.c:			(void)p_ptr->clear_timed<TMD_STUN>();
+x-spell.c:			(void)p_ptr->clear_timed<TMD_CUT>();
+x-spell.c:			(void)p_ptr->clear_timed<TMD_AFRAID>();
+x-spell.c:			(void)p_ptr->clear_timed<TMD_POISONED>();
+x-spell.c:			(void)p_ptr->clear_timed<TMD_STUN>();
+x-spell.c:			(void)p_ptr->clear_timed<TMD_CUT>();
+x-spell.c:			(void)p_ptr->clear_timed<TMD_CUT>();
+x-spell.c:			(void)p_ptr->clear_timed<TMD_STUN>();
+x-spell.c:			(void)p_ptr->clear_timed<TMD_CUT>();
+x-spell.c:			(void)p_ptr->clear_timed<TMD_STUN>();
+x-spell.c:			(void)p_ptr->clear_timed<TMD_CUT>();
+x-spell.c:			destroy_area(p_ptr->loc, 15, TRUE);
+x-spell.c:			p_ptr->leaving = TRUE;
+xtra1.c:	if (p_ptr->stat_cur[stat] < p_ptr->stat_max[stat])
+xtra1.c:		cnv_stat(p_ptr->stat_use[stat], tmp);
+xtra1.c:		cnv_stat(p_ptr->stat_use[stat], tmp);
+xtra1.c:	if (p_ptr->stat_max[stat] == 18+100)
+xtra1.c:	prt_field(p_ptr->title(), row, col);
+xtra1.c:	sprintf(tmp, "%6d", p_ptr->lev);
+xtra1.c:	if (p_ptr->lev >= p_ptr->max_lev)
+xtra1.c:	sprintf(out_val, "%8ld", (long)p_ptr->exp);
+xtra1.c:	if (p_ptr->exp >= p_ptr->max_exp)
+xtra1.c:	sprintf(tmp, "%9ld", (long)p_ptr->au);
+xtra1.c:		o_ptr = &p_ptr->inventory[i];
+xtra1.c:	sprintf(tmp, "%5d", p_ptr->dis_ac + p_ptr->dis_to_a);
+xtra1.c:	sprintf(tmp, "%5d", p_ptr->chp);
+xtra1.c:	if (p_ptr->chp >= p_ptr->mhp)
+xtra1.c:	else if (p_ptr->chp > (p_ptr->mhp * op_ptr->hitpoint_warn) / 10)
+xtra1.c:	sprintf(tmp, "%5d", p_ptr->mhp);
+xtra1.c:	if (!p_ptr->spell_book()) return;
+xtra1.c:	sprintf(tmp, "%5d", p_ptr->csp);
+xtra1.c:	if (p_ptr->csp >= p_ptr->msp)
+xtra1.c:	else if (p_ptr->csp > (p_ptr->msp * op_ptr->hitpoint_warn) / 10)
+xtra1.c:	if (!p_ptr->spell_book()) return;
+xtra1.c:	sprintf(tmp, "%5d", p_ptr->msp);
+xtra1.c:	if (!p_ptr->depth)
+xtra1.c:		sprintf(depths, "%d ft", p_ptr->depth * 50);
+xtra1.c:		sprintf(depths, "Lev %d", p_ptr->depth);
+xtra1.c:	const unsigned int hunger_level = food_level(p_ptr->food);
+xtra1.c:	if (p_ptr->timed[TMD_BLIND])
+xtra1.c:	if (p_ptr->timed[TMD_CONFUSED])
+xtra1.c:	if (p_ptr->timed[TMD_AFRAID])
+xtra1.c:	if (p_ptr->timed[TMD_POISONED])
+xtra1.c:	if (p_ptr->timed[TMD_PARALYZED])
+xtra1.c:	else if (p_ptr->resting)
+xtra1.c:		int n = p_ptr->resting;
+xtra1.c:	else if (p_ptr->command_rep)
+xtra1.c:		if (p_ptr->command_rep > 999)
+xtra1.c:			sprintf(text, "Rep. %3d00", p_ptr->command_rep / 100);
+xtra1.c:			sprintf(text, "Repeat %3d", p_ptr->command_rep);
+xtra1.c:	else if (p_ptr->searching)
+xtra1.c:	int i = p_ptr->pspeed;
+xtra1.c:	if (p_ptr->searching) i += 10;
+xtra1.c:	if (p_ptr->new_spells)
+xtra1.c:	unsigned int bleeding = cut_level(p_ptr->timed[TMD_CUT]);
+xtra1.c:	unsigned int stunned = stun_level(p_ptr->timed[TMD_STUN]);
+xtra1.c:	Term_putstr(col, row, n, TERM_SLATE,((p_ptr->timed[TMD_OPP_ACID]) ? "Acid " : "     "));
+xtra1.c:	Term_putstr(col, row, n, TERM_BLUE,((p_ptr->timed[TMD_OPP_ELEC]) ? "Elec " : "     "));
+xtra1.c:	Term_putstr(col, row, n, TERM_RED,((p_ptr->timed[TMD_OPP_FIRE]) ? "Fire " : "     "));
+xtra1.c:	Term_putstr(col, row, n, TERM_WHITE,((p_ptr->timed[TMD_OPP_COLD]) ? "Cold " : "     "));
+xtra1.c:	Term_putstr(col, row, n, TERM_GREEN,((p_ptr->timed[TMD_OPP_POIS]) ? "Pois " : "     "));
+xtra1.c:	if (!p_ptr->health_who)
+xtra1.c:	else if (!mon_list[p_ptr->health_who].ml)
+xtra1.c:	else if (p_ptr->timed[TMD_IMAGE])
+xtra1.c:	else if (!mon_list[p_ptr->health_who].hp < 0)
+xtra1.c:		monster_type *m_ptr = &mon_list[p_ptr->health_who];
+xtra1.c:		if (!(op_ptr->window_flag[j] & (PW_INVEN))) continue;
+xtra1.c:		if (!(op_ptr->window_flag[j] & (PW_MONLIST))) continue;
+xtra1.c:		if (!(op_ptr->window_flag[j] & (PW_EQUIP))) continue;
+xtra1.c:		if (!(op_ptr->window_flag[j] & (PW_PLAYER_0))) continue;
+xtra1.c:		if (!(op_ptr->window_flag[j] & (PW_PLAYER_1))) continue;
+xtra1.c:	prt_field(p_ptr->racename(), row++, col);
+xtra1.c:	prt_field(p_ptr->classname(), row++, col);
+xtra1.c:		if (!(op_ptr->window_flag[j] & (PW_PLAYER_2))) continue;
+xtra1.c:		if (!(op_ptr->window_flag[j] & (PW_STATUS))) continue;
+xtra1.c:		if (!(op_ptr->window_flag[j] & (PW_MAP))) continue;
+xtra1.c:		if (!(op_ptr->window_flag[j] & (PW_MESSAGE))) continue;
+xtra1.c:		if (!(op_ptr->window_flag[j] & (PW_OVERHEAD))) continue;
+xtra1.c:		if (!(op_ptr->window_flag[j] & (PW_MONSTER))) continue;
+xtra1.c:		if (p_ptr->monster_race_idx) display_roff(p_ptr->monster_race_idx);
+xtra1.c:		if (!(op_ptr->window_flag[j] & (PW_OBJECT))) continue;
+xtra1.c:		if (p_ptr->object_kind_idx) display_koff(p_ptr->object_kind_idx);
+xtra1.c:	cptr p = ((p_ptr->cp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
+xtra1.c:	if (!p_ptr->spell_book()) return;
+xtra1.c:	old_spells = p_ptr->new_spells;
+xtra1.c:	levels = p_ptr->lev - p_ptr->cp_ptr->spell_first + 1;
+xtra1.c:	percent_spells = adj_mag_study[p_ptr->stat_ind[p_ptr->cp_ptr->spell_stat]];
+xtra1.c:		if (p_ptr->spell_flags[j] & PY_SPELL_LEARNED)
+xtra1.c:	p_ptr->new_spells = num_allowed - num_known;
+xtra1.c:		j = p_ptr->spell_order[i];
+xtra1.c:		s_ptr = p_ptr->spell_info(j);
+xtra1.c:		if (s_ptr->slevel <= p_ptr->lev) continue;
+xtra1.c:		if (p_ptr->spell_flags[j] & PY_SPELL_LEARNED)
+xtra1.c:			p_ptr->spell_flags[j] |= PY_SPELL_FORGOTTEN;
+xtra1.c:			p_ptr->spell_flags[j] &= ~PY_SPELL_LEARNED;
+xtra1.c:			           get_spell_name(p_ptr->cp_ptr->spell_book, j));
+xtra1.c:			p_ptr->new_spells++;
+xtra1.c:		if (p_ptr->new_spells >= 0) break;
+xtra1.c:		j = p_ptr->spell_order[i];
+xtra1.c:		if (p_ptr->spell_flags[j] & PY_SPELL_LEARNED)
+xtra1.c:			p_ptr->spell_flags[j] |= PY_SPELL_FORGOTTEN;
+xtra1.c:			p_ptr->spell_flags[j] &= ~PY_SPELL_LEARNED;
+xtra1.c:			           get_spell_name(p_ptr->cp_ptr->spell_book, j));
+xtra1.c:			p_ptr->new_spells++;
+xtra1.c:		if (p_ptr->new_spells <= 0) break;
+xtra1.c:		j = p_ptr->spell_order[i];
+xtra1.c:		s_ptr = p_ptr->spell_info(j);
+xtra1.c:		if (s_ptr->slevel > p_ptr->lev) continue;
+xtra1.c:		if (p_ptr->spell_flags[j] & PY_SPELL_FORGOTTEN)
+xtra1.c:			p_ptr->spell_flags[j] &= ~PY_SPELL_FORGOTTEN;
+xtra1.c:			p_ptr->spell_flags[j] |= PY_SPELL_LEARNED;
+xtra1.c:			           p, get_spell_name(p_ptr->cp_ptr->spell_book, j));
+xtra1.c:			p_ptr->new_spells--;
+xtra1.c:		s_ptr = p_ptr->spell_info(j);
+xtra1.c:		if (s_ptr->slevel > p_ptr->lev) continue;
+xtra1.c:		if (p_ptr->spell_flags[j] & PY_SPELL_LEARNED)
+xtra1.c:	if (p_ptr->new_spells > k) p_ptr->new_spells = k;
+xtra1.c:	if (old_spells != p_ptr->new_spells)
+xtra1.c:		if (p_ptr->new_spells)
+xtra1.c:			           p_ptr->new_spells, p,
+xtra1.c:			           (p_ptr->new_spells != 1) ? "s" : "");
+xtra1.c:		p_ptr->redraw |= (PR_STUDY);
+xtra1.c:		p_ptr->window |= (PW_OBJECT);
+xtra1.c:	bool old_cumber_glove = p_ptr->cumber_glove;
+xtra1.c:	bool old_cumber_armor = p_ptr->cumber_armor;
+xtra1.c:	if (!p_ptr->cp_ptr->spell_book) return;
+xtra1.c:	levels = (p_ptr->lev - p_ptr->cp_ptr->spell_first) + 1;
+xtra1.c:	msp = (long)adj_mag_mana[p_ptr->stat_ind[p_ptr->cp_ptr->spell_stat]] * levels / 100;
+xtra1.c:	if (p_ptr->cp_ptr->flags & CF_CUMBER_GLOVE)
+xtra1.c:		p_ptr->cumber_glove = FALSE;
+xtra1.c:		o_ptr = &p_ptr->inventory[INVEN_HANDS];
+xtra1.c:			p_ptr->cumber_glove = TRUE;
+xtra1.c:	p_ptr->cumber_armor = FALSE;
+xtra1.c:	cur_wgt += p_ptr->inventory[INVEN_BODY].weight;
+xtra1.c:	cur_wgt += p_ptr->inventory[INVEN_HEAD].weight;
+xtra1.c:	cur_wgt += p_ptr->inventory[INVEN_ARM].weight;
+xtra1.c:	cur_wgt += p_ptr->inventory[INVEN_OUTER].weight;
+xtra1.c:	cur_wgt += p_ptr->inventory[INVEN_HANDS].weight;
+xtra1.c:	cur_wgt += p_ptr->inventory[INVEN_FEET].weight;
+xtra1.c:	max_wgt = p_ptr->cp_ptr->spell_weight;
+xtra1.c:		p_ptr->cumber_armor = TRUE;
+xtra1.c:	if (p_ptr->msp != msp)
+xtra1.c:		p_ptr->msp = msp;
+xtra1.c:		if (p_ptr->csp >= msp)
+xtra1.c:			p_ptr->csp = msp;
+xtra1.c:			p_ptr->csp_frac = 0;
+xtra1.c:		p_ptr->redraw |= (PR_MANA);
+xtra1.c:		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+xtra1.c:	if (old_cumber_glove != p_ptr->cumber_glove)
+xtra1.c:		if (p_ptr->cumber_glove)
+xtra1.c:	if (old_cumber_armor != p_ptr->cumber_armor)
+xtra1.c:		if (p_ptr->cumber_armor)
+xtra1.c:	bonus = adj_con_mhp[p_ptr->stat_ind[A_CON]];
+xtra1.c:	mhp = p_ptr->player_hp[p_ptr->lev-1] + (bonus * p_ptr->lev / 100);
+xtra1.c:	if (mhp < p_ptr->lev + 1) mhp = p_ptr->lev + 1;
+xtra1.c:	if (p_ptr->mhp != mhp)
+xtra1.c:		p_ptr->mhp = mhp;
+xtra1.c:		if (p_ptr->chp >= mhp)
+xtra1.c:			p_ptr->chp = mhp;
+xtra1.c:			p_ptr->chp_frac = 0;
+xtra1.c:		p_ptr->redraw |= (PR_HP);
+xtra1.c:		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+xtra1.c:	s16b old_lite = p_ptr->cur_lite;
+xtra1.c:	p_ptr->cur_lite = 0;
+xtra1.c:		o_ptr = &p_ptr->inventory[i];
+xtra1.c:				p_ptr->cur_lite += 3;
+xtra1.c:				p_ptr->cur_lite += 2;
+xtra1.c:				p_ptr->cur_lite += 1;
+xtra1.c:			if (f3 & TR3_LITE) p_ptr->cur_lite++;
+xtra1.c:	if (p_ptr->lite) p_ptr->cur_lite++;
+xtra1.c:	if (p_ptr->running && view_reduce_lite)
+xtra1.c:		if (p_ptr->cur_lite > 1) p_ptr->cur_lite = 1;
+xtra1.c:	if (old_lite != p_ptr->cur_lite)
+xtra1.c:		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+xtra1.c:	i = adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100;
+xtra1.c:	old_speed = p_ptr->pspeed;
+xtra1.c:	old_telepathy = p_ptr->telepathy;
+xtra1.c:	old_see_inv = p_ptr->see_inv;
+xtra1.c:	old_dis_ac = p_ptr->dis_ac;
+xtra1.c:	old_dis_to_a = p_ptr->dis_to_a;
+xtra1.c:		old_stat_top[i] = p_ptr->stat_top[i];
+xtra1.c:		old_stat_use[i] = p_ptr->stat_use[i];
+xtra1.c:		old_stat_ind[i] = p_ptr->stat_ind[i];
+xtra1.c:	old_heavy_shoot = p_ptr->heavy_shoot;
+xtra1.c:	old_heavy_wield = p_ptr->heavy_wield;
+xtra1.c:	old_icky_wield = p_ptr->icky_wield;
+xtra1.c:	p_ptr->pspeed = 110;
+xtra1.c:	p_ptr->num_blow = 1;
+xtra1.c:	p_ptr->num_fire = 0;
+xtra1.c:	p_ptr->ammo_mult = 0;
+xtra1.c:	p_ptr->ammo_tval = 0;
+xtra1.c:	for (i = 0; i < A_MAX; i++) p_ptr->stat_add[i] = 0;
+xtra1.c:	p_ptr->dis_ac = p_ptr->ac = 0;
+xtra1.c:	p_ptr->dis_to_h = p_ptr->to_h = 0;
+xtra1.c:	p_ptr->dis_to_d = p_ptr->to_d = 0;
+xtra1.c:	p_ptr->dis_to_a = p_ptr->to_a = 0;
+xtra1.c:	p_ptr->aggravate = FALSE;
+xtra1.c:	p_ptr->teleport = FALSE;
+xtra1.c:	p_ptr->exp_drain = FALSE;
+xtra1.c:	p_ptr->bless_blade = FALSE;
+xtra1.c:	p_ptr->impact = FALSE;
+xtra1.c:	p_ptr->see_inv = FALSE;
+xtra1.c:	p_ptr->free_act = FALSE;
+xtra1.c:	p_ptr->slow_digest = FALSE;
+xtra1.c:	p_ptr->regenerate = FALSE;
+xtra1.c:	p_ptr->ffall = FALSE;
+xtra1.c:	p_ptr->hold_life = FALSE;
+xtra1.c:	p_ptr->telepathy = FALSE;
+xtra1.c:	p_ptr->lite = FALSE;
+xtra1.c:	p_ptr->sustain[A_STR] = FALSE;
+xtra1.c:	p_ptr->sustain[A_INT] = FALSE;
+xtra1.c:	p_ptr->sustain[A_WIS] = FALSE;
+xtra1.c:	p_ptr->sustain[A_DEX] = FALSE;
+xtra1.c:	p_ptr->sustain[A_CON] = FALSE;
+xtra1.c:	p_ptr->sustain[A_CHR] = FALSE;
+xtra1.c:	p_ptr->resist_acid = FALSE;
+xtra1.c:	p_ptr->resist_elec = FALSE;
+xtra1.c:	p_ptr->resist_fire = FALSE;
+xtra1.c:	p_ptr->resist_cold = FALSE;
+xtra1.c:	p_ptr->resist_pois = FALSE;
+xtra1.c:	p_ptr->resist_fear = FALSE;
+xtra1.c:	p_ptr->resist_lite = FALSE;
+xtra1.c:	p_ptr->resist_dark = FALSE;
+xtra1.c:	p_ptr->resist_blind = FALSE;
+xtra1.c:	p_ptr->resist_confu = FALSE;
+xtra1.c:	p_ptr->resist_sound = FALSE;
+xtra1.c:	p_ptr->resist_chaos = FALSE;
+xtra1.c:	p_ptr->resist_disen = FALSE;
+xtra1.c:	p_ptr->resist_shard = FALSE;
+xtra1.c:	p_ptr->resist_nexus = FALSE;
+xtra1.c:	p_ptr->resist_nethr = FALSE;
+xtra1.c:	p_ptr->immune_acid = FALSE;
+xtra1.c:	p_ptr->immune_elec = FALSE;
+xtra1.c:	p_ptr->immune_fire = FALSE;
+xtra1.c:	p_ptr->immune_cold = FALSE;
+xtra1.c:	p_ptr->see_infra = p_ptr->rp_ptr->infra;
+xtra1.c:		p_ptr->skills[i] = p_ptr->rp_ptr->r_skills[i] + p_ptr->cp_ptr->c_skills[i];
+xtra1.c:	p_ptr->skills[SKILL_TO_HIT_THROW] = p_ptr->skills[SKILL_TO_HIT_BOW];
+xtra1.c:	p_ptr->skills[SKILL_DIGGING] = 0;
+xtra1.c:	p_ptr->flags(f1, f2, f3);
+xtra1.c:	if (f3 & (TR3_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;
+xtra1.c:	if (f3 & (TR3_FEATHER)) p_ptr->ffall = TRUE;
+xtra1.c:	if (f3 & (TR3_LITE)) p_ptr->lite = TRUE;
+xtra1.c:	if (f3 & (TR3_REGEN)) p_ptr->regenerate = TRUE;
+xtra1.c:	if (f3 & (TR3_TELEPATHY)) p_ptr->telepathy = TRUE;
+xtra1.c:	if (f3 & (TR3_SEE_INVIS)) p_ptr->see_inv = TRUE;
+xtra1.c:	if (f3 & (TR3_FREE_ACT)) p_ptr->free_act = TRUE;
+xtra1.c:	if (f3 & (TR3_HOLD_LIFE)) p_ptr->hold_life = TRUE;
+xtra1.c:	if (f3 & (TR3_BLESSED)) p_ptr->bless_blade = TRUE;
+xtra1.c:	if (f3 & (TR3_IMPACT)) p_ptr->impact = TRUE;
+xtra1.c:	if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
+xtra1.c:	if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
+xtra1.c:	if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
+xtra1.c:	if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
+xtra1.c:	if (f2 & (TR2_IM_ACID)) p_ptr->immune_acid = TRUE;
+xtra1.c:	if (f2 & (TR2_IM_COLD)) p_ptr->immune_cold = TRUE;
+xtra1.c:	if (f2 & (TR2_IM_ELEC)) p_ptr->immune_elec = TRUE;
+xtra1.c:	if (f2 & (TR2_RES_ACID)) p_ptr->resist_acid = TRUE;
+xtra1.c:	if (f2 & (TR2_RES_ELEC)) p_ptr->resist_elec = TRUE;
+xtra1.c:	if (f2 & (TR2_RES_FIRE)) p_ptr->resist_fire = TRUE;
+xtra1.c:	if (f2 & (TR2_RES_COLD)) p_ptr->resist_cold = TRUE;
+xtra1.c:	if (f2 & (TR2_RES_POIS)) p_ptr->resist_pois = TRUE;
+xtra1.c:	if (f2 & (TR2_RES_FEAR)) p_ptr->resist_fear = TRUE;
+xtra1.c:	if (f2 & (TR2_RES_LITE)) p_ptr->resist_lite = TRUE;
+xtra1.c:	if (f2 & (TR2_RES_DARK)) p_ptr->resist_dark = TRUE;
+xtra1.c:	if (f2 & (TR2_RES_BLIND)) p_ptr->resist_blind = TRUE;
+xtra1.c:	if (f2 & (TR2_RES_CONFU)) p_ptr->resist_confu = TRUE;
+xtra1.c:	if (f2 & (TR2_RES_SOUND)) p_ptr->resist_sound = TRUE;
+xtra1.c:	if (f2 & (TR2_RES_SHARD)) p_ptr->resist_shard = TRUE;
+xtra1.c:	if (f2 & (TR2_RES_NEXUS)) p_ptr->resist_nexus = TRUE;
+xtra1.c:	if (f2 & (TR2_RES_NETHR)) p_ptr->resist_nethr = TRUE;
+xtra1.c:	if (f2 & (TR2_RES_CHAOS)) p_ptr->resist_chaos = TRUE;
+xtra1.c:	if (f2 & (TR2_RES_DISEN)) p_ptr->resist_disen = TRUE;
+xtra1.c:	if (f2 & (TR2_SUST_STR)) p_ptr->sustain[A_STR] = TRUE;
+xtra1.c:	if (f2 & (TR2_SUST_INT)) p_ptr->sustain[A_INT] = TRUE;
+xtra1.c:	if (f2 & (TR2_SUST_WIS)) p_ptr->sustain[A_WIS] = TRUE;
+xtra1.c:	if (f2 & (TR2_SUST_DEX)) p_ptr->sustain[A_DEX] = TRUE;
+xtra1.c:	if (f2 & (TR2_SUST_CON)) p_ptr->sustain[A_CON] = TRUE;
+xtra1.c:	if (f2 & (TR2_SUST_CHR)) p_ptr->sustain[A_CHR] = TRUE;
+xtra1.c:		o_ptr = &p_ptr->inventory[i];
+xtra1.c:		if (f1 & (TR1_STR)) p_ptr->stat_add[A_STR] += o_ptr->pval;
+xtra1.c:		if (f1 & (TR1_INT)) p_ptr->stat_add[A_INT] += o_ptr->pval;
+xtra1.c:		if (f1 & (TR1_WIS)) p_ptr->stat_add[A_WIS] += o_ptr->pval;
+xtra1.c:		if (f1 & (TR1_DEX)) p_ptr->stat_add[A_DEX] += o_ptr->pval;
+xtra1.c:		if (f1 & (TR1_CON)) p_ptr->stat_add[A_CON] += o_ptr->pval;
+xtra1.c:		if (f1 & (TR1_CHR)) p_ptr->stat_add[A_CHR] += o_ptr->pval;
+xtra1.c:		if (f1 & (TR1_STEALTH)) p_ptr->skills[SKILL_STEALTH] += o_ptr->pval;
+xtra1.c:		if (f1 & (TR1_SEARCH)) p_ptr->skills[SKILL_SEARCH] += (o_ptr->pval * 5);
+xtra1.c:		if (f1 & (TR1_SEARCH)) p_ptr->skills[SKILL_SEARCH_FREQUENCY] += (o_ptr->pval * 5);
+xtra1.c:		if (f1 & (TR1_INFRA)) p_ptr->see_infra += o_ptr->pval;
+xtra1.c:		if (f1 & (TR1_TUNNEL)) p_ptr->skills[SKILL_DIGGING] += (o_ptr->pval * 20);
+xtra1.c:		if (f1 & (TR1_SPEED)) p_ptr->pspeed += o_ptr->pval;
+xtra1.c:		if (f3 & (TR3_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;
+xtra1.c:		if (f3 & (TR3_FEATHER)) p_ptr->ffall = TRUE;
+xtra1.c:		if (f3 & (TR3_REGEN)) p_ptr->regenerate = TRUE;
+xtra1.c:		if (f3 & (TR3_TELEPATHY)) p_ptr->telepathy = TRUE;
+xtra1.c:		if (f3 & (TR3_SEE_INVIS)) p_ptr->see_inv = TRUE;
+xtra1.c:		if (f3 & (TR3_FREE_ACT)) p_ptr->free_act = TRUE;
+xtra1.c:		if (f3 & (TR3_HOLD_LIFE)) p_ptr->hold_life = TRUE;
+xtra1.c:		if (f3 & (TR3_BLESSED)) p_ptr->bless_blade = TRUE;
+xtra1.c:		if (f3 & (TR3_IMPACT)) p_ptr->impact = TRUE;
+xtra1.c:		if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
+xtra1.c:		if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
+xtra1.c:		if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
+xtra1.c:		if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
+xtra1.c:		if (f2 & (TR2_IM_ACID)) p_ptr->immune_acid = TRUE;
+xtra1.c:		if (f2 & (TR2_IM_COLD)) p_ptr->immune_cold = TRUE;
+xtra1.c:		if (f2 & (TR2_IM_ELEC)) p_ptr->immune_elec = TRUE;
+xtra1.c:		if (f2 & (TR2_RES_ACID)) p_ptr->resist_acid = TRUE;
+xtra1.c:		if (f2 & (TR2_RES_ELEC)) p_ptr->resist_elec = TRUE;
+xtra1.c:		if (f2 & (TR2_RES_FIRE)) p_ptr->resist_fire = TRUE;
+xtra1.c:		if (f2 & (TR2_RES_COLD)) p_ptr->resist_cold = TRUE;
+xtra1.c:		if (f2 & (TR2_RES_POIS)) p_ptr->resist_pois = TRUE;
+xtra1.c:		if (f2 & (TR2_RES_FEAR)) p_ptr->resist_fear = TRUE;
+xtra1.c:		if (f2 & (TR2_RES_LITE)) p_ptr->resist_lite = TRUE;
+xtra1.c:		if (f2 & (TR2_RES_DARK)) p_ptr->resist_dark = TRUE;
+xtra1.c:		if (f2 & (TR2_RES_BLIND)) p_ptr->resist_blind = TRUE;
+xtra1.c:		if (f2 & (TR2_RES_CONFU)) p_ptr->resist_confu = TRUE;
+xtra1.c:		if (f2 & (TR2_RES_SOUND)) p_ptr->resist_sound = TRUE;
+xtra1.c:		if (f2 & (TR2_RES_SHARD)) p_ptr->resist_shard = TRUE;
+xtra1.c:		if (f2 & (TR2_RES_NEXUS)) p_ptr->resist_nexus = TRUE;
+xtra1.c:		if (f2 & (TR2_RES_NETHR)) p_ptr->resist_nethr = TRUE;
+xtra1.c:		if (f2 & (TR2_RES_CHAOS)) p_ptr->resist_chaos = TRUE;
+xtra1.c:		if (f2 & (TR2_RES_DISEN)) p_ptr->resist_disen = TRUE;
+xtra1.c:		if (f2 & (TR2_SUST_STR)) p_ptr->sustain[A_STR] = TRUE;
+xtra1.c:		if (f2 & (TR2_SUST_INT)) p_ptr->sustain[A_INT] = TRUE;
+xtra1.c:		if (f2 & (TR2_SUST_WIS)) p_ptr->sustain[A_WIS] = TRUE;
+xtra1.c:		if (f2 & (TR2_SUST_DEX)) p_ptr->sustain[A_DEX] = TRUE;
+xtra1.c:		if (f2 & (TR2_SUST_CON)) p_ptr->sustain[A_CON] = TRUE;
+xtra1.c:		if (f2 & (TR2_SUST_CHR)) p_ptr->sustain[A_CHR] = TRUE;
+xtra1.c:		p_ptr->ac += o_ptr->ac;
+xtra1.c:		p_ptr->dis_ac += o_ptr->ac;
+xtra1.c:		p_ptr->to_a += o_ptr->to_a;
+xtra1.c:		if (o_ptr->known()) p_ptr->dis_to_a += o_ptr->to_a;
+xtra1.c:		p_ptr->to_h += o_ptr->to_h;
+xtra1.c:		p_ptr->to_d += o_ptr->to_d;
+xtra1.c:			p_ptr->dis_to_h += o_ptr->to_h;
+xtra1.c:			p_ptr->dis_to_d += o_ptr->to_d;
+xtra1.c:		add = p_ptr->stat_add[i];
+xtra1.c:			add += (p_ptr->rp_ptr->r_adj[i] + p_ptr->cp_ptr->c_adj[i]);
+xtra1.c:		top = modify_stat_value(p_ptr->stat_max[i], add);
+xtra1.c:		p_ptr->stat_top[i] = top;
+xtra1.c:		use = modify_stat_value(p_ptr->stat_cur[i], add);
+xtra1.c:		p_ptr->stat_use[i] = use;
+xtra1.c:		p_ptr->stat_ind[i] = ind;
+xtra1.c:	if (p_ptr->timed[TMD_STUN] > 50)
+xtra1.c:		p_ptr->to_h -= 20;
+xtra1.c:		p_ptr->dis_to_h -= 20;
+xtra1.c:		p_ptr->to_d -= 20;
+xtra1.c:		p_ptr->dis_to_d -= 20;
+xtra1.c:	else if (p_ptr->timed[TMD_STUN])
+xtra1.c:		p_ptr->to_h -= 5;
+xtra1.c:		p_ptr->dis_to_h -= 5;
+xtra1.c:		p_ptr->to_d -= 5;
+xtra1.c:		p_ptr->dis_to_d -= 5;
+xtra1.c:	if (p_ptr->timed[TMD_INVULN])
+xtra1.c:		p_ptr->to_a += 100;
+xtra1.c:		p_ptr->dis_to_a += 100;
+xtra1.c:	if (p_ptr->timed[TMD_BLESSED])
+xtra1.c:		p_ptr->to_a += 5;
+xtra1.c:		p_ptr->dis_to_a += 5;
+xtra1.c:		p_ptr->to_h += 10;
+xtra1.c:		p_ptr->dis_to_h += 10;
+xtra1.c:	if (p_ptr->timed[TMD_SHIELD])
+xtra1.c:		p_ptr->to_a += 50;
+xtra1.c:		p_ptr->dis_to_a += 50;
+xtra1.c:	if (p_ptr->timed[TMD_HERO])
+xtra1.c:		p_ptr->to_h += 12;
+xtra1.c:		p_ptr->dis_to_h += 12;
+xtra1.c:	if (p_ptr->timed[TMD_SHERO])
+xtra1.c:		p_ptr->to_h += 24;
+xtra1.c:		p_ptr->dis_to_h += 24;
+xtra1.c:		p_ptr->to_a -= 10;
+xtra1.c:		p_ptr->dis_to_a -= 10;
+xtra1.c:	if (p_ptr->timed[TMD_FAST])
+xtra1.c:		p_ptr->pspeed += 10;
+xtra1.c:	if (p_ptr->timed[TMD_SLOW])
+xtra1.c:		p_ptr->pspeed -= 10;
+xtra1.c:	if (p_ptr->timed[TMD_SINVIS])
+xtra1.c:		p_ptr->see_inv = TRUE;
+xtra1.c:	if (p_ptr->timed[TMD_SINFRA])
+xtra1.c:		p_ptr->see_infra += 5;
+xtra1.c:	if (p_ptr->timed[TMD_HERO] || p_ptr->timed[TMD_SHERO])
+xtra1.c:		p_ptr->resist_fear = TRUE;
+xtra1.c:	j = p_ptr->total_weight;
+xtra1.c:	if (j > i / 2) p_ptr->pspeed -= ((j - (i / 2)) / (i / 10));
+xtra1.c:	if (p_ptr->food >= PY_FOOD_MAX) p_ptr->pspeed -= 10;
+xtra1.c:	if (p_ptr->searching) p_ptr->pspeed -= 10;
+xtra1.c:	if (p_ptr->pspeed < 0) p_ptr->pspeed = 0;
+xtra1.c:	if (p_ptr->pspeed > 199) p_ptr->pspeed = 199;
+xtra1.c:	p_ptr->to_a += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
+xtra1.c:	p_ptr->to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+xtra1.c:	p_ptr->to_h += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
+xtra1.c:	p_ptr->to_h += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
+xtra1.c:	p_ptr->dis_to_a += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
+xtra1.c:	p_ptr->dis_to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+xtra1.c:	p_ptr->dis_to_h += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
+xtra1.c:	p_ptr->dis_to_h += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
+xtra1.c:	p_ptr->skills[SKILL_STEALTH] += 1;
+xtra1.c:	p_ptr->skills[SKILL_DISARM] += adj_dex_dis[p_ptr->stat_ind[A_DEX]];
+xtra1.c:	p_ptr->skills[SKILL_DISARM] += adj_int_dis[p_ptr->stat_ind[A_INT]];
+xtra1.c:	p_ptr->skills[SKILL_DEVICE] += adj_int_dev[p_ptr->stat_ind[A_INT]];
+xtra1.c:	p_ptr->skills[SKILL_SAVE] += adj_wis_sav[p_ptr->stat_ind[A_WIS]];
+xtra1.c:	p_ptr->skills[SKILL_DIGGING] += adj_str_dig[p_ptr->stat_ind[A_STR]];
+xtra1.c:		p_ptr->skills[i] += (p_ptr->cp_ptr->x_skills[i] * p_ptr->lev / 10);
+xtra1.c:	p_ptr->skills[SKILL_TO_HIT_THROW] += (p_ptr->cp_ptr->x_skills[SKILL_TO_HIT_BOW] * p_ptr->lev / 10);
+xtra1.c:	if (p_ptr->skills[SKILL_DIGGING] < 1) p_ptr->skills[SKILL_DIGGING] = 1;
+xtra1.c:	if (p_ptr->skills[SKILL_STEALTH] > 30) p_ptr->skills[SKILL_STEALTH] = 30;
+xtra1.c:	if (p_ptr->skills[SKILL_STEALTH] < 0) p_ptr->skills[SKILL_STEALTH] = 0;
+xtra1.c:	p_ptr->noise = (1L << (30 - p_ptr->skills[SKILL_STEALTH]));
+xtra1.c:	hold = adj_str_hold[p_ptr->stat_ind[A_STR]];
+xtra1.c:	o_ptr = &p_ptr->inventory[INVEN_BOW];
+xtra1.c:	p_ptr->heavy_shoot = FALSE;
+xtra1.c:		p_ptr->to_h += 2 * (hold - o_ptr->weight / 10);
+xtra1.c:		p_ptr->dis_to_h += 2 * (hold - o_ptr->weight / 10);
+xtra1.c:		p_ptr->heavy_shoot = TRUE;
+xtra1.c:		p_ptr->num_fire = 1;
+xtra1.c:				p_ptr->ammo_tval = TV_SHOT;
+xtra1.c:				p_ptr->ammo_mult = 2;
+xtra1.c:				p_ptr->ammo_tval = TV_ARROW;
+xtra1.c:				p_ptr->ammo_mult = 2;
+xtra1.c:				p_ptr->ammo_tval = TV_ARROW;
+xtra1.c:				p_ptr->ammo_mult = 3;
+xtra1.c:				p_ptr->ammo_tval = TV_BOLT;
+xtra1.c:				p_ptr->ammo_mult = 3;
+xtra1.c:				p_ptr->ammo_tval = TV_BOLT;
+xtra1.c:				p_ptr->ammo_mult = 4;
+xtra1.c:		if (o_ptr->k_idx && !p_ptr->heavy_shoot)
+xtra1.c:			p_ptr->num_fire += extra_shots;
+xtra1.c:			p_ptr->ammo_mult += extra_might;
+xtra1.c:			if ((p_ptr->cp_ptr->flags & CF_EXTRA_SHOT) &&
+xtra1.c:			    (p_ptr->ammo_tval == TV_ARROW))
+xtra1.c:				if (p_ptr->lev >= 20) p_ptr->num_fire++;
+xtra1.c:				if (p_ptr->lev >= 40) p_ptr->num_fire++;
+xtra1.c:		if (p_ptr->num_fire < 1) p_ptr->num_fire = 1;
+xtra1.c:	o_ptr = &p_ptr->inventory[INVEN_WIELD];
+xtra1.c:	p_ptr->heavy_wield = FALSE;
+xtra1.c:		p_ptr->to_h += 2 * (hold - o_ptr->weight / 10);
+xtra1.c:		p_ptr->dis_to_h += 2 * (hold - o_ptr->weight / 10);
+xtra1.c:		p_ptr->heavy_wield = TRUE;
+xtra1.c:	if (o_ptr->k_idx && !p_ptr->heavy_wield)
+xtra1.c:		div = ((o_ptr->weight < p_ptr->cp_ptr->min_weight) ? p_ptr->cp_ptr->min_weight : o_ptr->weight);
+xtra1.c:		str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * p_ptr->cp_ptr->att_multiply / div);
+xtra1.c:		dex_index = (adj_dex_blow[p_ptr->stat_ind[A_DEX]]);
+xtra1.c:		p_ptr->num_blow = blows_table[str_index][dex_index];
+xtra1.c:		if (p_ptr->num_blow > p_ptr->cp_ptr->max_attacks) p_ptr->num_blow = p_ptr->cp_ptr->max_attacks;
+xtra1.c:		p_ptr->num_blow += extra_blows;
+xtra1.c:		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
+xtra1.c:		p_ptr->skills[SKILL_DIGGING] += (o_ptr->weight / 10);
+xtra1.c:	p_ptr->icky_wield = FALSE;
+xtra1.c:	if ((p_ptr->cp_ptr->flags & CF_BLESS_WEAPON) && (!p_ptr->bless_blade) &&
+xtra1.c:		p_ptr->to_h -= 2;
+xtra1.c:		p_ptr->to_d -= 2;
+xtra1.c:		p_ptr->dis_to_h -= 2;
+xtra1.c:		p_ptr->dis_to_d -= 2;
+xtra1.c:		p_ptr->icky_wield = TRUE;
+xtra1.c:		if (p_ptr->stat_top[i] != old_stat_top[i])
+xtra1.c:			p_ptr->redraw |= (PR_STATS);
+xtra1.c:			p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+xtra1.c:		if (p_ptr->stat_use[i] != old_stat_use[i])
+xtra1.c:			p_ptr->redraw |= (PR_STATS);
+xtra1.c:			p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+xtra1.c:		if (p_ptr->stat_ind[i] != old_stat_ind[i])
+xtra1.c:				p_ptr->update |= (PU_HP);
+xtra1.c:				if (p_ptr->cp_ptr->spell_stat == A_INT)
+xtra1.c:					p_ptr->update |= (PU_MANA | PU_SPELLS);
+xtra1.c:				if (p_ptr->cp_ptr->spell_stat == A_WIS)
+xtra1.c:					p_ptr->update |= (PU_MANA | PU_SPELLS);
+xtra1.c:	if (p_ptr->telepathy != old_telepathy)
+xtra1.c:		p_ptr->update |= (PU_MONSTERS);
+xtra1.c:	if (p_ptr->see_inv != old_see_inv)
+xtra1.c:		p_ptr->update |= (PU_MONSTERS);
+xtra1.c:	if (p_ptr->pspeed != old_speed)
+xtra1.c:		p_ptr->redraw |= (PR_SPEED);
+xtra1.c:	if ((p_ptr->dis_ac != old_dis_ac) || (p_ptr->dis_to_a != old_dis_to_a))
+xtra1.c:		p_ptr->redraw |= (PR_ARMOR);
+xtra1.c:		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+xtra1.c:	if (old_heavy_shoot != p_ptr->heavy_shoot)
+xtra1.c:		if (p_ptr->heavy_shoot)
+xtra1.c:		else if (p_ptr->inventory[INVEN_BOW].k_idx)
+xtra1.c:	if (old_heavy_wield != p_ptr->heavy_wield)
+xtra1.c:		if (p_ptr->heavy_wield)
+xtra1.c:		else if (p_ptr->inventory[INVEN_WIELD].k_idx)
+xtra1.c:	if (old_icky_wield != p_ptr->icky_wield)
+xtra1.c:		if (p_ptr->icky_wield)
+xtra1.c:		else if (p_ptr->inventory[INVEN_WIELD].k_idx)
+xtra1.c: * Handle "p_ptr->notice"
+xtra1.c:	if (!p_ptr->notice) return;
+xtra1.c:	if (p_ptr->notice & (PN_COMBINE))
+xtra1.c:		p_ptr->notice &= ~(PN_COMBINE);
+xtra1.c:	if (p_ptr->notice & (PN_REORDER))
+xtra1.c:		p_ptr->notice &= ~(PN_REORDER);
+xtra1.c: * Handle "p_ptr->update"
+xtra1.c:	if (!p_ptr->update) return;
+xtra1.c:	if (p_ptr->update & (PU_BONUS))
+xtra1.c:		p_ptr->update &= ~(PU_BONUS);
+xtra1.c:	if (p_ptr->update & (PU_TORCH))
+xtra1.c:		p_ptr->update &= ~(PU_TORCH);
+xtra1.c:	if (p_ptr->update & (PU_HP))
+xtra1.c:		p_ptr->update &= ~(PU_HP);
+xtra1.c:	if (p_ptr->update & (PU_MANA))
+xtra1.c:		p_ptr->update &= ~(PU_MANA);
+xtra1.c:	if (p_ptr->update & (PU_SPELLS))
+xtra1.c:		p_ptr->update &= ~(PU_SPELLS);
+xtra1.c:	if (p_ptr->update & (PU_FORGET_VIEW))
+xtra1.c:		p_ptr->update &= ~(PU_FORGET_VIEW);
+xtra1.c:	if (p_ptr->update & (PU_UPDATE_VIEW))
+xtra1.c:		p_ptr->update &= ~(PU_UPDATE_VIEW);
+xtra1.c:	if (p_ptr->update & (PU_FORGET_FLOW))
+xtra1.c:		p_ptr->update &= ~(PU_FORGET_FLOW);
+xtra1.c:	if (p_ptr->update & (PU_UPDATE_FLOW))
+xtra1.c:		p_ptr->update &= ~(PU_UPDATE_FLOW);
+xtra1.c:	if (p_ptr->update & (PU_DISTANCE))
+xtra1.c:		p_ptr->update &= ~(PU_DISTANCE);
+xtra1.c:		p_ptr->update &= ~(PU_MONSTERS);
+xtra1.c:	if (p_ptr->update & (PU_MONSTERS))
+xtra1.c:		p_ptr->update &= ~(PU_MONSTERS);
+xtra1.c:	if (p_ptr->update & (PU_PANEL))
+xtra1.c:		p_ptr->update &= ~(PU_PANEL);
+xtra1.c: * Handle "p_ptr->redraw"
+xtra1.c:	if (!p_ptr->redraw) return;
+xtra1.c:	if (p_ptr->redraw & (PR_MISC | PR_TITLE | PR_LEV | PR_EXP |
+xtra1.c:		p_ptr->window |= PW_PLAYER_2;
+xtra1.c:	if (p_ptr->redraw & (PR_HUNGER | PR_BLIND | PR_CONFUSED | PR_AFRAID |
+xtra1.c:		p_ptr->window |= PW_STATUS;
+xtra1.c:	if (p_ptr->redraw & (PR_MAP))
+xtra1.c:		p_ptr->redraw &= ~(PR_MAP);
+xtra1.c:	if (p_ptr->redraw & (PR_MISC))
+xtra1.c:		p_ptr->redraw &= ~(PR_MISC);
+xtra1.c:		prt_field(p_ptr->racename(), ROW_RACE, COL_RACE);
+xtra1.c:		prt_field(p_ptr->classname(), ROW_CLASS, COL_CLASS);
+xtra1.c:	if (p_ptr->redraw & (PR_TITLE))
+xtra1.c:		p_ptr->redraw &= ~(PR_TITLE);
+xtra1.c:	if (p_ptr->redraw & (PR_LEV))
+xtra1.c:		p_ptr->redraw &= ~(PR_LEV);
+xtra1.c:	if (p_ptr->redraw & (PR_EXP))
+xtra1.c:		p_ptr->redraw &= ~(PR_EXP);
+xtra1.c:	if (p_ptr->redraw & (PR_STATS))
+xtra1.c:		p_ptr->redraw &= ~(PR_STATS);
+xtra1.c:	if (p_ptr->redraw & (PR_ARMOR))
+xtra1.c:		p_ptr->redraw &= ~(PR_ARMOR);
+xtra1.c:	if (p_ptr->redraw & (PR_HP))
+xtra1.c:		p_ptr->redraw &= ~(PR_HP);
+xtra1.c:	if (p_ptr->redraw & (PR_MANA))
+xtra1.c:		p_ptr->redraw &= ~(PR_MANA);
+xtra1.c:	if (p_ptr->redraw & (PR_GOLD))
+xtra1.c:		p_ptr->redraw &= ~(PR_GOLD);
+xtra1.c:	if (p_ptr->redraw & (PR_EQUIPPY))
+xtra1.c:		p_ptr->redraw &= ~(PR_EQUIPPY);
+xtra1.c:	if (p_ptr->redraw & (PR_DEPTH))
+xtra1.c:		p_ptr->redraw &= ~(PR_DEPTH);
+xtra1.c:	if (p_ptr->redraw & PR_OPPOSE_ELEMENTS)
+xtra1.c:		p_ptr->redraw &= ~PR_OPPOSE_ELEMENTS;
+xtra1.c:		p_ptr->window |= PW_STATUS;
+xtra1.c:	if (p_ptr->redraw & (PR_HEALTH))
+xtra1.c:		p_ptr->redraw &= ~(PR_HEALTH);
+xtra1.c:	if (p_ptr->redraw & (PR_CUT))
+xtra1.c:		p_ptr->redraw &= ~(PR_CUT);
+xtra1.c:	if (p_ptr->redraw & (PR_STUN))
+xtra1.c:		p_ptr->redraw &= ~(PR_STUN);
+xtra1.c:	if (p_ptr->redraw & (PR_HUNGER))
+xtra1.c:		p_ptr->redraw &= ~(PR_HUNGER);
+xtra1.c:	if (p_ptr->redraw & (PR_BLIND))
+xtra1.c:		p_ptr->redraw &= ~(PR_BLIND);
+xtra1.c:	if (p_ptr->redraw & (PR_CONFUSED))
+xtra1.c:		p_ptr->redraw &= ~(PR_CONFUSED);
+xtra1.c:	if (p_ptr->redraw & (PR_AFRAID))
+xtra1.c:		p_ptr->redraw &= ~(PR_AFRAID);
+xtra1.c:	if (p_ptr->redraw & (PR_POISONED))
+xtra1.c:		p_ptr->redraw &= ~(PR_POISONED);
+xtra1.c:	if (p_ptr->redraw & (PR_STATE))
+xtra1.c:		p_ptr->redraw &= ~(PR_STATE);
+xtra1.c:	if (p_ptr->redraw & (PR_SPEED))
+xtra1.c:		p_ptr->redraw &= ~(PR_SPEED);
+xtra1.c:	if (p_ptr->redraw & (PR_STUDY))
+xtra1.c:		p_ptr->redraw &= ~(PR_STUDY);
+xtra1.c: * Handle "p_ptr->window"
+xtra1.c:	if (!p_ptr->window) return;
+xtra1.c:			mask |= op_ptr->window_flag[j];
+xtra1.c:	p_ptr->window &= (mask);
+xtra1.c:	if (!p_ptr->window) return;
+xtra1.c:	if (p_ptr->window & (PW_INVEN))
+xtra1.c:		p_ptr->window &= ~(PW_INVEN);
+xtra1.c:	if (p_ptr->window & (PW_MONLIST))
+xtra1.c:		p_ptr->window &= ~(PW_MONLIST);
+xtra1.c:	if (p_ptr->window & (PW_STATUS))
+xtra1.c:		p_ptr->window &= ~(PW_STATUS);
+xtra1.c:	if (p_ptr->window & (PW_EQUIP))
+xtra1.c:		p_ptr->window &= ~(PW_EQUIP);
+xtra1.c:	if (p_ptr->window & (PW_PLAYER_0))
+xtra1.c:		p_ptr->window &= ~(PW_PLAYER_0);
+xtra1.c:	if (p_ptr->window & (PW_PLAYER_1))
+xtra1.c:		p_ptr->window &= ~(PW_PLAYER_1);
+xtra1.c:	if (p_ptr->window & (PW_PLAYER_2))
+xtra1.c:		p_ptr->window &= ~(PW_PLAYER_2);
+xtra1.c:	if (p_ptr->window & (PW_MAP))
+xtra1.c:		p_ptr->window &= ~(PW_MAP);
+xtra1.c:	if (p_ptr->window & (PW_MESSAGE))
+xtra1.c:		p_ptr->window &= ~(PW_MESSAGE);
+xtra1.c:	if (p_ptr->window & (PW_OVERHEAD))
+xtra1.c:		p_ptr->window &= ~(PW_OVERHEAD);
+xtra1.c:	if (p_ptr->window & (PW_MONSTER))
+xtra1.c:		p_ptr->window &= ~(PW_MONSTER);
+xtra1.c:	if (p_ptr->window & (PW_OBJECT))
+xtra1.c:		p_ptr->window &= ~(PW_OBJECT);
+xtra1.c: * Handle "p_ptr->update" and "p_ptr->redraw" and "p_ptr->window"
+xtra1.c:	if (p_ptr->update) update_stuff();
+xtra1.c:	if (p_ptr->redraw) redraw_stuff();
+xtra1.c:	if (p_ptr->window) window_stuff();
+xtra2.c:		if (!p_ptr->timed[idx])
+xtra2.c:		if (p_ptr->timed[idx])
+xtra2.c:	p_ptr->timed[idx] = v;
+xtra2.c:	p_ptr->update |= effect->flag_update;
+xtra2.c:	p_ptr->redraw |= effect->flag_redraw;
+xtra2.c:	p_ptr->window |= effect->flag_window;
+xtra2.c: * Set "p_ptr->oppose_acid", notice observable changes
+xtra2.c: * Set "p_ptr->oppose_elec", notice observable changes
+xtra2.c: * Set "p_ptr->oppose_fire", notice observable changes
+xtra2.c:	p_ptr->redraw |= PR_OPPOSE_ELEMENTS;
+xtra2.c: * Set "p_ptr->oppose_cold", notice observable changes
+xtra2.c: * Set "p_ptr->stun", notice observable changes
+xtra2.c: * Set "p_ptr->cut", notice observable changes
+xtra2.c: * Set "p_ptr->food", notice observable changes
+xtra2.c: * The "p_ptr->food" variable can get as large as 20000, allowing the
+xtra2.c:	old_aux = food_level(p_ptr->food);
+xtra2.c:	p_ptr->food = v;
+xtra2.c:	p_ptr->update |= (PU_BONUS);
+xtra2.c:	p_ptr->redraw |= (PR_HUNGER);
+xtra2.c:	if (p_ptr->exp < 0) p_ptr->exp = 0;
+xtra2.c:	if (p_ptr->max_exp < 0) p_ptr->max_exp = 0;
+xtra2.c:	if (p_ptr->exp > PY_MAX_EXP) p_ptr->exp = PY_MAX_EXP;
+xtra2.c:	if (p_ptr->max_exp > PY_MAX_EXP) p_ptr->max_exp = PY_MAX_EXP;
+xtra2.c:	if (p_ptr->exp > p_ptr->max_exp) p_ptr->max_exp = p_ptr->exp;
+xtra2.c:	p_ptr->redraw |= (PR_EXP);
+xtra2.c:	while ((p_ptr->lev > 1) &&
+xtra2.c:	       (p_ptr->exp < (player_exp[p_ptr->lev-2] *
+xtra2.c:	                      p_ptr->expfact / 100L)))
+xtra2.c:		p_ptr->lev--;
+xtra2.c:		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+xtra2.c:		p_ptr->redraw |= (PR_LEV | PR_TITLE | PR_EXP);
+xtra2.c:		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+xtra2.c:	while ((p_ptr->lev < PY_MAX_LEVEL) &&
+xtra2.c:	       (p_ptr->exp >= (player_exp[p_ptr->lev-1] *
+xtra2.c:	                       p_ptr->expfact / 100L)))
+xtra2.c:		p_ptr->lev++;
+xtra2.c:		if (p_ptr->lev > p_ptr->max_lev) p_ptr->max_lev = p_ptr->lev;
+xtra2.c:		message_format(MSG_LEVEL, p_ptr->lev, "Welcome to level %d.", p_ptr->lev);
+xtra2.c:		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+xtra2.c:		p_ptr->redraw |= (PR_LEV | PR_TITLE | PR_EXP);
+xtra2.c:		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+xtra2.c:	while ((p_ptr->max_lev < PY_MAX_LEVEL) &&
+xtra2.c:	       (p_ptr->max_exp >= (player_exp[p_ptr->max_lev-1] *
+xtra2.c:	                           p_ptr->expfact / 100L)))
+xtra2.c:		p_ptr->max_lev++;
+xtra2.c:		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+xtra2.c:		p_ptr->redraw |= (PR_LEV | PR_TITLE | PR_EXP);
+xtra2.c:		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+xtra2.c:	p_ptr->exp += amount;
+xtra2.c:	if (p_ptr->exp < p_ptr->max_exp)
+xtra2.c:		p_ptr->max_exp += amount / 10;
+xtra2.c:	if (amount > p_ptr->exp) amount = p_ptr->exp;
+xtra2.c:	p_ptr->exp -= amount;
+xtra2.c:	p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+xtra2.c:	p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
+xtra2.c:	object_level = (p_ptr->depth + r_ptr->level) / 2;
+xtra2.c:	object_level = p_ptr->depth;
+xtra2.c:	p_ptr->window |= PW_MONLIST;
+xtra2.c:		p_ptr->total_winner = TRUE;
+xtra2.c:		p_ptr->redraw |= (PR_TITLE);
+xtra2.c:	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+xtra2.c:		div = p_ptr->lev;
+xtra2.c:		                * 0x10000L / div) + p_ptr->exp_frac;
+xtra2.c:			p_ptr->exp_frac = (u16b)(new_exp_frac - 0x10000L);
+xtra2.c:			p_ptr->exp_frac = (u16b)new_exp_frac;
+xtra2.c:	int dungeon_hgt = (p_ptr->depth == 0) ? TOWN_HGT : DUNGEON_HGT;
+xtra2.c:	int dungeon_wid = (p_ptr->depth == 0) ? TOWN_WID : DUNGEON_WID;
+xtra2.c:		p_ptr->redraw |= (PR_MAP);
+xtra2.c:		p_ptr->window |= (PW_OVERHEAD | PW_MAP);
+xtra2.c:		if ((j > 0) && !(op_ptr->window_flag[j] & PW_MAP)) continue;
+xtra2.c:		if ((j > 0) && !(op_ptr->window_flag[j] & PW_MAP)) continue;
+xtra2.c:	int py = p_ptr->loc.y;
+xtra2.c:	int px = p_ptr->loc.x;
+xtra2.c:		if ((j > 0) && !(op_ptr->window_flag[j] & (PW_MAP))) continue;
+xtra2.c:		if (center_player && (!p_ptr->running || !run_avoid_center) &&
+xtra2.c:		if (center_player && (!p_ptr->running || !run_avoid_center) &&
+xtra2.c:	if (!projectable(p_ptr->loc, m_ptr->loc)) return (FALSE);
+xtra2.c:	if (p_ptr->timed[TMD_IMAGE]) return (FALSE);
+xtra2.c:	if (!p_ptr->target_set) return (FALSE);
+xtra2.c:	if (p_ptr->target_who == 0) return (TRUE);
+xtra2.c:	if (p_ptr->target_who > 0)
+xtra2.c:		int m_idx = p_ptr->target_who;
+xtra2.c:			p_ptr->target = mon_list[m_idx].loc;
+xtra2.c:		p_ptr->target_set = TRUE;
+xtra2.c:		p_ptr->target_who = m_idx;
+xtra2.c:		p_ptr->target = m_ptr->loc;
+xtra2.c:		p_ptr->target_set = FALSE;
+xtra2.c:		p_ptr->target_who = 0;
+xtra2.c:		p_ptr->target.clear();
+xtra2.c:		p_ptr->target_set = TRUE;
+xtra2.c:		p_ptr->target_who = 0;
+xtra2.c:		p_ptr->target = coord(x,y);
+xtra2.c:		p_ptr->target_set = FALSE;
+xtra2.c:		p_ptr->target_who = 0;
+xtra2.c:		p_ptr->target.clear();
+xtra2.c:	int py = p_ptr->loc.y;
+xtra2.c:	int px = p_ptr->loc.x;
+xtra2.c:	if (p_ptr->timed[TMD_IMAGE]) return (FALSE);
+xtra2.c:		if (p_ptr->timed[TMD_IMAGE])
+xtra2.c:			if (p_ptr->wizard)
+xtra2.c:						if (p_ptr->wizard)
+xtra2.c:					if (p_ptr->wizard)
+xtra2.c:					if (p_ptr->wizard)
+xtra2.c:				if (p_ptr->wizard)
+xtra2.c:			if (p_ptr->wizard)
+xtra2.c:	coord tt = p_ptr->loc;
+xtra2.c:					tt = p_ptr->loc;
+xtra2.c:					tt = p_ptr->loc;
+xtra2.c:				int dungeon_hgt = (p_ptr->depth == 0) ? TOWN_HGT : DUNGEON_HGT;
+xtra2.c:				int dungeon_wid = (p_ptr->depth == 0) ? TOWN_WID : DUNGEON_WID;
+xtra2.c:	if (!p_ptr->target_set) return (FALSE);
+xtra2.c:	dir = p_ptr->command_dir;
+xtra2.c:	p_ptr->command_dir = dir;
+xtra2.c:	if (p_ptr->timed[TMD_CONFUSED])
+xtra2.c:	if (p_ptr->command_dir != dir)
+xtra2.c:	dir = p_ptr->command_dir;
+xtra2.c:	p_ptr->command_dir = dir;
+xtra2.c:	if (p_ptr->timed[TMD_CONFUSED])

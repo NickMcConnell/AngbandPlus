@@ -49,17 +49,6 @@ static void spoiler_underline(cptr str, char c)
 
 
 /*
- * A tval grouper
- */
-typedef struct
-{
-	byte tval;
-	cptr name;
-} grouper;
-
-
-
-/*
  * Item Spoilers by Ben Harrison (benh@phial.com)
  */
 
@@ -179,7 +168,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 		case TV_BOLT:
 		case TV_ARROW:
 		{
-			sprintf(dam, "%dd%d", i_ptr->dd, i_ptr->ds);
+			sprintf(dam, "%dd%d", (int)(i_ptr->d.dice), (int)(i_ptr->d.sides));
 			break;
 		}
 
@@ -189,7 +178,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 		case TV_SWORD:
 		case TV_DIGGING:
 		{
-			sprintf(dam, "%dd%d", i_ptr->dd, i_ptr->ds);
+			sprintf(dam, "%dd%d", (int)(i_ptr->d.dice), (int)(i_ptr->d.sides));
 			break;
 		}
 
@@ -382,15 +371,15 @@ static const grouper group_artifact[] =
 /*
  * Hack -- Create a "forged" artifact
  */
-static bool make_fake_artifact(object_type *o_ptr, byte name1)
+bool make_fake_artifact(object_type *o_ptr, byte name1)
 {
 	int i;
 
-	artifact_type *a_ptr = &a_info[name1];
+	artifact_type *a_ptr = &object_type::a_info[name1];
 
 
 	/* Ignore "empty" artifacts */
-	if (!a_ptr->name) return FALSE;
+	if (!a_ptr->_name) return FALSE;
 
 	/* Get the "kind" index */
 	i = lookup_kind(a_ptr->tval, a_ptr->sval);
@@ -407,8 +396,7 @@ static bool make_fake_artifact(object_type *o_ptr, byte name1)
 	/* Extract the fields */
 	o_ptr->pval = a_ptr->pval;
 	o_ptr->ac = a_ptr->ac;
-	o_ptr->dd = a_ptr->dd;
-	o_ptr->ds = a_ptr->ds;
+	o_ptr->d = a_ptr->d;
 	o_ptr->to_a = a_ptr->to_a;
 	o_ptr->to_h = a_ptr->to_h;
 	o_ptr->to_d = a_ptr->to_d;
@@ -476,7 +464,7 @@ static void spoil_artifact(cptr fname)
 		/* Now search through all of the artifacts */
 		for (j = 1; j < z_info->a_max; ++j)
 		{
-			artifact_type *a_ptr = &a_info[j];
+			artifact_type *a_ptr = &object_type::a_info[j];
 			char buf[80];
 
 			/* We only want objects in the current group */
@@ -579,10 +567,8 @@ static void spoil_mon_desc(cptr fname)
 	/* Scan the monsters (except the ghost) */
 	for (i = 1; i < z_info->r_max - 1; i++)
 	{
-		monster_race *r_ptr = &r_info[i];
-
 		/* Use that monster */
-		if (r_ptr->name) who[n++] = (u16b)i;
+		if (monster_type::r_info[i]._name) who[n++] = (u16b)i;
 	}
 
 	/* Select the sort method */
@@ -595,9 +581,9 @@ static void spoil_mon_desc(cptr fname)
 	/* Scan again */
 	for (i = 0; i < n; i++)
 	{
-		monster_race *r_ptr = &r_info[who[i]];
+		monster_race *r_ptr = &monster_type::r_info[who[i]];
 
-		cptr name = (r_name + r_ptr->name);
+		cptr name = r_ptr->name();
 
 		/* Get the "name" */
 		if (r_ptr->flags1 & (RF1_QUESTOR))
@@ -634,13 +620,13 @@ static void spoil_mon_desc(cptr fname)
 		sprintf(ac, "%d", r_ptr->ac);
 
 		/* Hitpoints */
-		if ((r_ptr->flags1 & (RF1_FORCE_MAXHP)) || (r_ptr->hside == 1))
+		if ((r_ptr->flags1 & (RF1_FORCE_MAXHP)) || (r_ptr->h.sides == 1))
 		{
-			sprintf(hp, "%d", r_ptr->hdice * r_ptr->hside);
+			sprintf(hp, "%d", r_ptr->h.maxroll());
 		}
 		else
 		{
-			sprintf(hp, "%dd%d", r_ptr->hdice, r_ptr->hside);
+			sprintf(hp, "%dd%d", (int)(r_ptr->h.dice), int(r_ptr->h.sides));
 		}
 
 
@@ -725,10 +711,10 @@ static void spoil_mon_info(cptr fname)
 	/* Scan the monsters */
 	for (i = 1; i < z_info->r_max; i++)
 	{
-		monster_race *r_ptr = &r_info[i];
+		monster_race *r_ptr = &monster_type::r_info[i];
 
 		/* Use that monster */
-		if (r_ptr->name) who[count++] = (u16b)i;
+		if (r_ptr->_name) who[count++] = (u16b)i;
 	}
 
 	/* Select the sort method */
@@ -744,7 +730,7 @@ static void spoil_mon_info(cptr fname)
 	for (n = 0; n < count; n++)
 	{
 		int r_idx = who[n];
-		monster_race *r_ptr = &r_info[r_idx];
+		monster_race *r_ptr = &monster_type::r_info[r_idx];
 
 		/* Prefix */
 		if (r_ptr->flags1 & RF1_QUESTOR)
@@ -761,7 +747,7 @@ static void spoil_mon_info(cptr fname)
 		}
 
 		/* Name */
-		strnfmt(buf, sizeof(buf), "%s  (", (r_name + r_ptr->name));	/* ---)--- */
+		strnfmt(buf, sizeof(buf), "%s  (", r_ptr->name());	/* ---)--- */
 		text_out(buf);
 
 		/* Color */
@@ -800,13 +786,13 @@ static void spoil_mon_info(cptr fname)
 		text_out(buf);
 
 		/* Hitpoints */
-		if ((r_ptr->flags1 & RF1_FORCE_MAXHP) || (r_ptr->hside == 1))
+		if ((r_ptr->flags1 & RF1_FORCE_MAXHP) || (r_ptr->h.sides == 1))
 		{
-			sprintf(buf, "Hp:%d  ", r_ptr->hdice * r_ptr->hside);
+			sprintf(buf, "Hp:%d  ", r_ptr->h.maxroll());
 		}
 		else
 		{
-			sprintf(buf, "Hp:%dd%d  ", r_ptr->hdice, r_ptr->hside);
+			sprintf(buf, "Hp:%dd%d  ", (int)(r_ptr->h.dice), (int)(r_ptr->h.sides));
 		}
 		text_out(buf);
 

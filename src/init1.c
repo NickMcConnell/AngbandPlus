@@ -611,6 +611,112 @@ static cptr c_info_flags[] =
 
 /*** Initialize from ascii template files ***/
 
+/*
+ * X+NdY parser helper
+ */
+/* should be instantiated with an integral type */
+/* actually using this is going to bump the version */
+template<class T>
+bool parse_X_NdY(const char* s, T& X, dice_sides& NdY)
+{
+	int base, ds, dd;
+	
+	/* Scan for the values */
+	if (1 == sscanf(s, "%d", &base))
+	{
+		X = base;
+		NdY.clear();
+	}
+	else if (1 == sscanf(s, "d%d", &ds))
+	{
+		X = 0;
+		NdY.dice = 1;
+		NdY.sides = ds;
+	}
+	else if (2 == sscanf(s, "%d+d%d", &base, &ds))
+	{
+		X = base;
+		NdY.dice = 1;
+		NdY.sides = ds;
+	}
+	else if (2 == sscanf(s, "%dd%d", &dd, &ds))
+	{
+		X = 0;
+		NdY.dice = dd;
+		NdY.sides = ds;
+	}
+	else if (3 == sscanf(s, "%d+%dd%d", &base, &dd, &ds))
+	{
+		X = base;
+		NdY.dice = dd;
+		NdY.sides = ds;
+	}
+	else
+	{
+		return FALSE;
+	}
+	return TRUE;
+}
+
+/* instantiate with integer-like types */
+/* may not play well with unsigned long */
+template<class T>
+bool parse_integer_like(const char* s, T& X)
+{
+	long temp;
+
+	/* Scan for the value */
+	if (1 != sscanf(s, "%ld", &temp)) return FALSE;
+
+	/* Save the value */
+	X = temp;
+	return TRUE;
+}
+
+template<class T,class T2>
+bool parse_integer_like(const char* s, T& X, T2& X2)
+{
+	long temp,temp2;
+
+	/* Scan for the value */
+	if (2 != sscanf(s, "%ld:%ld", &temp, &temp2)) return FALSE;
+
+	/* Save the value */
+	X = temp;
+	X2 = temp2;
+	return TRUE;
+}
+
+template<class T,class T2,class T3>
+bool parse_integer_like(const char* s, T& X, T2& X2, T3& X3)
+{
+	long temp,temp2,temp3;
+
+	/* Scan for the value */
+	if (3 != sscanf(s, "%ld:%ld:%ld", &temp, &temp2, &temp3)) return FALSE;
+
+	/* Save the value */
+	X = temp;
+	X2 = temp2;
+	X3 = temp3;
+	return TRUE;
+}
+
+template<class T,class T2,class T3,class T4>
+bool parse_integer_like(const char* s, T& X, T2& X2, T3& X3, T4& X4)
+{
+	long temp,temp2,temp3,temp4;
+
+	/* Scan for the value */
+	if (4 != sscanf(s, "%ld:%ld:%ld:%ld", &temp, &temp2, &temp3, &temp4)) return FALSE;
+
+	/* Save the value */
+	X = temp;
+	X2 = temp2;
+	X3 = temp3;
+	X4 = temp4;
+	return TRUE;
+}
 
 /*
  * Initialize an "*_info" array, by parsing an ascii "template" file
@@ -765,183 +871,93 @@ errr parse_z_info(char *buf, header *head)
 	/* Process 'F' for "Maximum f_info[] index" */
 	if (buf[2] == 'F')
 	{
-		int max;
-
-		/* Scan for the value */
-		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the value */
-		z_info->f_max = max;
+		if (!parse_integer_like(buf+4,z_info->f_max)) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Process 'K' for "Maximum k_info[] index" */
 	else if (buf[2] == 'K')
 	{
-		int max;
-
-		/* Scan for the value */
-		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the value */
-		z_info->k_max = max;
+		if (!parse_integer_like(buf+4,z_info->k_max)) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Process 'A' for "Maximum a_info[] index" */
 	else if (buf[2] == 'A')
 	{
-		int max;
-
-		/* Scan for the value */
-		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the value */
-		z_info->a_max = max;
+		if (!parse_integer_like(buf+4,z_info->a_max)) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Process 'E' for "Maximum e_info[] index" */
 	else if (buf[2] == 'E')
 	{
-		int max;
-
-		/* Scan for the value */
-		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the value */
-		z_info->e_max = max;
+		if (!parse_integer_like(buf+4,z_info->e_max)) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Process 'R' for "Maximum r_info[] index" */
 	else if (buf[2] == 'R')
 	{
-		int max;
-
-		/* Scan for the value */
-		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the value */
-		z_info->r_max = max;
+		if (!parse_integer_like(buf+4,z_info->r_max)) return (PARSE_ERROR_GENERIC);
 	}
 
 
 	/* Process 'V' for "Maximum v_info[] index" */
 	else if (buf[2] == 'V')
 	{
-		int max;
-
-		/* Scan for the value */
-		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the value */
-		z_info->v_max = max;
+		if (!parse_integer_like(buf+4,z_info->v_max)) return (PARSE_ERROR_GENERIC);
 	}
 
 
 	/* Process 'P' for "Maximum p_info[] index" */
 	else if (buf[2] == 'P')
 	{
-		int max;
-
-		/* Scan for the value */
-		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the value */
-		z_info->p_max = max;
+		if (!parse_integer_like(buf+4,z_info->p_max)) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Process 'C' for "Maximum c_info[] index" */
 	else if (buf[2] == 'C')
 	{
-		int max;
-
-		/* Scan for the value */
-		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the value */
-		z_info->c_max = max;
+		if (!parse_integer_like(buf+4,z_info->c_max)) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Process 'H' for "Maximum h_info[] index" */
 	else if (buf[2] == 'H')
 	{
-		int max;
-
-		/* Scan for the value */
-		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the value */
-		z_info->h_max = max;
+		if (!parse_integer_like(buf+4,z_info->h_max)) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Process 'B' for "Maximum b_info[] subindex" */
 	else if (buf[2] == 'B')
 	{
-		int max;
-
-		/* Scan for the value */
-		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the value */
-		z_info->b_max = max;
+		if (!parse_integer_like(buf+4,z_info->b_max)) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Process 'L' for "Maximum flavor_info[] subindex" */
 	else if (buf[2] == 'L')
 	{
-		int max;
-
-		/* Scan for the value */
-		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the value */
-		z_info->flavor_max = max;
+		if (!parse_integer_like(buf+4,z_info->flavor_max)) return (PARSE_ERROR_GENERIC);
 	}
 	
 	/* Process 'O' for "Maximum o_list[] index" */
 	else if (buf[2] == 'O')
 	{
-		int max;
-
-		/* Scan for the value */
-		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the value */
-		z_info->o_max = max;
+		if (!parse_integer_like(buf+4,z_info->o_max)) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Process 'M' for "Maximum mon_list[] index" */
 	else if (buf[2] == 'M')
 	{
-		int max;
-
-		/* Scan for the value */
-		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the value */
-		z_info->m_max = max;
+		if (!parse_integer_like(buf+4,z_info->m_max)) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Process 'N' for "Fake name size" */
 	else if (buf[2] == 'N')
 	{
-		long max;
-
-		/* Scan for the value */
-		if (1 != sscanf(buf+4, "%ld", &max)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the value */
-		z_info->fake_name_size = max;
+		if (!parse_integer_like(buf+4,z_info->fake_name_size)) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Process 'T' for "Fake text size" */
 	else if (buf[2] == 'T')
 	{
-		long max;
-
-		/* Scan for the value */
-		if (1 != sscanf(buf+4, "%ld", &max)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the value */
-		z_info->fake_text_size = max;
+		if (!parse_integer_like(buf+4,z_info->fake_text_size)) return (PARSE_ERROR_GENERIC);
 	}
 	else
 	{
@@ -998,7 +1014,7 @@ errr parse_v_info(char *buf, header *head)
 		v_ptr = (vault_type*)head->info_ptr + i;
 
 		/* Store the name */
-		if (!(v_ptr->name = add_name(head, s)))
+		if (!(v_ptr->_name = add_name(head, s)))
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 	}
 
@@ -1012,27 +1028,18 @@ errr parse_v_info(char *buf, header *head)
 		s = buf+2;
 
 		/* Store the text */
-		if (!add_text(&v_ptr->text, head, s))
+		if (!add_text(&v_ptr->_text, head, s))
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 	}
 
 	/* Process 'X' for "Extra info" (one line only) */
 	else if (buf[0] == 'X')
 	{
-		int typ, rat, hgt, wid;
-
 		/* There better be a current v_ptr */
 		if (!v_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
-			            &typ, &rat, &hgt, &wid)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		v_ptr->typ = typ;
-		v_ptr->rat = rat;
-		v_ptr->hgt = hgt;
-		v_ptr->wid = wid;
+		if (!parse_integer_like(buf+2,v_ptr->typ,v_ptr->rat,v_ptr->hgt,v_ptr->wid)) return (PARSE_ERROR_GENERIC);
 
 		/* Check for maximum vault sizes */
 		if ((v_ptr->typ == 7) && ((v_ptr->wid > 33) || (v_ptr->hgt > 22)))
@@ -1097,7 +1104,7 @@ errr parse_f_info(char *buf, header *head)
 		f_ptr = (feature_type*)head->info_ptr + i;
 
 		/* Store the name */
-		if (!(f_ptr->name = add_name(head, s)))
+		if (!(f_ptr->_name = add_name(head, s)))
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 
 		/* Default "mimic" */
@@ -1107,17 +1114,10 @@ errr parse_f_info(char *buf, header *head)
 	/* Process 'M' for "Mimic" (one line only) */
 	else if (buf[0] == 'M')
 	{
-		int mimic;
-
 		/* There better be a current f_ptr */
 		if (!f_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
-		/* Scan for the values */
-		if (1 != sscanf(buf+2, "%d",
-			            &mimic)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		f_ptr->mimic = mimic;
+		if (!parse_integer_like(buf+2,f_ptr->mimic)) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Process 'G' for "Graphics" (one line only) */
@@ -1258,7 +1258,7 @@ errr parse_k_info(char *buf, header *head)
 		k_ptr = (object_kind*)head->info_ptr + i;
 
 		/* Store the name */
-		if (!(k_ptr->name = add_name(head, s)))
+		if (!(k_ptr->_name = add_name(head, s)))
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 	}
 
@@ -1305,39 +1305,21 @@ errr parse_k_info(char *buf, header *head)
 	/* Process 'I' for "Info" (one line only) */
 	else if (buf[0] == 'I')
 	{
-		int tval, sval, pval;
-
 		/* There better be a current k_ptr */
 		if (!k_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (3 != sscanf(buf+2, "%d:%d:%d",
-			            &tval, &sval, &pval)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		k_ptr->tval = tval;
-		k_ptr->sval = sval;
-		k_ptr->pval = pval;
+		if (!parse_integer_like(buf+2,k_ptr->tval,k_ptr->sval,k_ptr->pval)) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Process 'W' for "More Info" (one line only) */
 	else if (buf[0] == 'W')
 	{
-		int level, extra, wgt;
-		long cost;
-
 		/* There better be a current k_ptr */
 		if (!k_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
-			            &level, &extra, &wgt, &cost)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		k_ptr->level = level;
-		k_ptr->extra = extra;
-		k_ptr->weight = wgt;
-		k_ptr->cost = cost;
+		if (!parse_integer_like(buf+2,k_ptr->level,k_ptr->extra,k_ptr->weight,k_ptr->cost)) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Process 'A' for "Allocation" (one line only) */
@@ -1388,11 +1370,11 @@ errr parse_k_info(char *buf, header *head)
 			            &ac, &hd1, &hd2, &th, &td, &ta)) return (PARSE_ERROR_GENERIC);
 
 		k_ptr->ac = ac;
-		k_ptr->dd = hd1;
-		k_ptr->ds = hd2;
+		k_ptr->d.dice = hd1;
+		k_ptr->d.sides = hd2;
 		k_ptr->to_h = th;
 		k_ptr->to_d = td;
-		k_ptr->to_a =  ta;
+		k_ptr->to_a = ta;
 	}
 
 	/* Hack -- Process 'F' for flags */
@@ -1432,7 +1414,7 @@ errr parse_k_info(char *buf, header *head)
 		s = buf+2;
 
 		/* Store the text */
-		if (!add_text(&(k_ptr->text), head, s))
+		if (!add_text(&(k_ptr->_text), head, s))
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 	}
 
@@ -1539,7 +1521,7 @@ errr parse_a_info(char *buf, header *head)
 		a_ptr = (artifact_type*)head->info_ptr + i;
 
 		/* Store the name */
-		if (!(a_ptr->name = add_name(head, s)))
+		if (!(a_ptr->_name = add_name(head, s)))
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 
 		/* Ignore everything */
@@ -1549,39 +1531,21 @@ errr parse_a_info(char *buf, header *head)
 	/* Process 'I' for "Info" (one line only) */
 	else if (buf[0] == 'I')
 	{
-		int tval, sval, pval;
-
 		/* There better be a current a_ptr */
 		if (!a_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (3 != sscanf(buf+2, "%d:%d:%d",
-			            &tval, &sval, &pval)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		a_ptr->tval = tval;
-		a_ptr->sval = sval;
-		a_ptr->pval = pval;
+		if (!parse_integer_like(buf+2,a_ptr->tval,a_ptr->sval,a_ptr->pval)) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Process 'W' for "More Info" (one line only) */
 	else if (buf[0] == 'W')
 	{
-		int level, rarity, wgt;
-		long cost;
-
 		/* There better be a current a_ptr */
 		if (!a_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
-			            &level, &rarity, &wgt, &cost)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		a_ptr->level = level;
-		a_ptr->rarity = rarity;
-		a_ptr->weight = wgt;
-		a_ptr->cost = cost;
+		if (!parse_integer_like(buf+2,a_ptr->level,a_ptr->rarity,a_ptr->weight,a_ptr->cost)) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Process 'P' for "power" and such */
@@ -1597,8 +1561,8 @@ errr parse_a_info(char *buf, header *head)
 			            &ac, &hd1, &hd2, &th, &td, &ta)) return (PARSE_ERROR_GENERIC);
 
 		a_ptr->ac = ac;
-		a_ptr->dd = hd1;
-		a_ptr->ds = hd2;
+		a_ptr->d.dice = hd1;
+		a_ptr->d.sides = hd2;
 		a_ptr->to_h = th;
 		a_ptr->to_d = td;
 		a_ptr->to_a = ta;
@@ -1659,8 +1623,9 @@ errr parse_a_info(char *buf, header *head)
 			            &time, &rand)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
-		a_ptr->time = time;
-		a_ptr->randtime = rand;
+		a_ptr->time_base = time;
+		a_ptr->time.dice = 1;
+		a_ptr->time.sides = rand;
 	}
 
 	/* Process 'D' for "Description" */
@@ -1673,7 +1638,7 @@ errr parse_a_info(char *buf, header *head)
 		s = buf+2;
 
 		/* Store the text */
-		if (!add_text(&a_ptr->text, head, s))
+		if (!add_text(&a_ptr->_text, head, s))
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 	}
 
@@ -1758,7 +1723,7 @@ errr parse_e_info(char *buf, header *head)
 		e_ptr = (ego_item_type*)head->info_ptr + i;
 
 		/* Store the name */
-		if (!(e_ptr->name = add_name(head, s)))
+		if (!(e_ptr->_name = add_name(head, s)))
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 
 		/* Start with the first of the tval indices */
@@ -1768,56 +1733,33 @@ errr parse_e_info(char *buf, header *head)
 	/* Process 'W' for "More Info" (one line only) */
 	else if (buf[0] == 'W')
 	{
-		int level, rarity, pad2;
-		long cost;
+		int pad2;
 
 		/* There better be a current e_ptr */
 		if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
-			            &level, &rarity, &pad2, &cost)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		e_ptr->level = level;
-		e_ptr->rarity = rarity;
-		/* e_ptr->weight = wgt; */
-		e_ptr->cost = cost;
+		if (!parse_integer_like(buf+2,e_ptr->level,e_ptr->rarity,pad2,e_ptr->cost)) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Process 'X' for "Xtra" (one line only) */
 	else if (buf[0] == 'X')
 	{
-		int rating, xtra;
-
 		/* There better be a current e_ptr */
 		if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (2 != sscanf(buf+2, "%d:%d", &rating, &xtra))
-			return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		e_ptr->rating = rating;
-		e_ptr->xtra = xtra;
+		if (!parse_integer_like(buf+2,e_ptr->rating,e_ptr->xtra)) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Process 'T' for "Types allowed" (up to three lines) */
 	else if (buf[0] == 'T')
 	{
-		int tval, sval1, sval2;
-
 		/* There better be a current e_ptr */
 		if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (3 != sscanf(buf+2, "%d:%d:%d",
-			            &tval, &sval1, &sval2)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		e_ptr->tval[cur_t] = (byte)tval;
-		e_ptr->min_sval[cur_t] = (byte)sval1;
-		e_ptr->max_sval[cur_t] = (byte)sval2;
+		if (!parse_integer_like(buf+2,e_ptr->tval[cur_t],e_ptr->min_sval[cur_t],e_ptr->max_sval[cur_t])) return (PARSE_ERROR_GENERIC);
 
 		/* Increase counter for 'possible tval' index */
 		cur_t++;
@@ -1829,19 +1771,11 @@ errr parse_e_info(char *buf, header *head)
 	/* Hack -- Process 'C' for "creation" */
 	else if (buf[0] == 'C')
 	{
-		int th, td, ta, pv;
-
 		/* There better be a current e_ptr */
 		if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
-			            &th, &td, &ta, &pv)) return (PARSE_ERROR_GENERIC);
-
-		e_ptr->max_to_h = th;
-		e_ptr->max_to_d = td;
-		e_ptr->max_to_a = ta;
-		e_ptr->max_pval = pv;
+		if (!parse_integer_like(buf+2,e_ptr->max_to_h,e_ptr->max_to_d,e_ptr->max_to_a,e_ptr->max_pval)) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Hack -- Process 'F' for flags */
@@ -1881,7 +1815,7 @@ errr parse_e_info(char *buf, header *head)
 		s = buf+2;
 
 		/* Store the text */
-		if (!add_text(&e_ptr->text, head, s))
+		if (!add_text(&e_ptr->_text, head, s))
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 	}
 
@@ -1986,7 +1920,7 @@ errr parse_r_info(char *buf, header *head)
 		r_ptr = (monster_race*)head->info_ptr + i;
 
 		/* Store the name */
-		if (!(r_ptr->name = add_name(head, s)))
+		if (!(r_ptr->_name = add_name(head, s)))
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 	}
 
@@ -2000,7 +1934,7 @@ errr parse_r_info(char *buf, header *head)
 		s = buf+2;
 
 		/* Store the text */
-		if (!add_text(&(r_ptr->text), head, s))
+		if (!add_text(&(r_ptr->_text), head, s))
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 	}
 
@@ -2058,8 +1992,8 @@ errr parse_r_info(char *buf, header *head)
 
 		/* Save the values */
 		r_ptr->speed = spd;
-		r_ptr->hdice = hp1;
-		r_ptr->hside = hp2;
+		r_ptr->h.dice = hp1;
+		r_ptr->h.sides = hp2;
 		r_ptr->aaf = aaf;
 		r_ptr->ac = ac;
 		r_ptr->sleep = slp;
@@ -2068,21 +2002,11 @@ errr parse_r_info(char *buf, header *head)
 	/* Process 'W' for "More Info" (one line only) */
 	else if (buf[0] == 'W')
 	{
-		int lev, rar, pad;
-		long exp;
-
 		/* There better be a current r_ptr */
 		if (!r_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
-			            &lev, &rar, &pad, &exp)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		r_ptr->level = lev;
-		r_ptr->rarity = rar;
-		r_ptr->extra = pad;
-		r_ptr->mexp = exp;
+		if (!parse_integer_like(buf+2,r_ptr->level,r_ptr->rarity,r_ptr->extra,r_ptr->mexp)) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Process 'B' for "Blows" */
@@ -2142,8 +2066,8 @@ errr parse_r_info(char *buf, header *head)
 		r_ptr->blow[i].effect = n2;
 
 		/* Extract the damage dice and sides */
-		r_ptr->blow[i].d_dice = atoi(s);
-		r_ptr->blow[i].d_side = atoi(t);
+		r_ptr->blow[i].d.dice = atoi(s);
+		r_ptr->blow[i].d.sides = atoi(t);
 	}
 
 	/* Process 'F' for "Basic Flags" (multiple lines) */
@@ -2284,7 +2208,30 @@ static errr grab_one_racial_flag(player_race *pr_ptr, cptr what)
 	return (PARSE_ERROR_GENERIC);
 }
 
+/*
+ * helper function for reading skills from config files
+ */
+static bool parse_skills(s16b* skills_array,char* buf)
+{
+	int dis, dev, sav, stl, srh, fos, thn, thb;
 
+	/* Scan for the values */
+	if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
+			            &dis, &dev, &sav, &stl,
+			            &srh, &fos, &thn, &thb)) return FALSE;
+
+	/* Save the values */
+	skills_array[SKILL_DISARM] = dis;
+	skills_array[SKILL_DEVICE] = dev;
+	skills_array[SKILL_SAVE] = sav;
+	skills_array[SKILL_STEALTH] = stl;
+	skills_array[SKILL_SEARCH] = srh;
+	skills_array[SKILL_SEARCH_FREQUENCY] = fos;
+	skills_array[SKILL_TO_HIT_MELEE] = thn;
+	skills_array[SKILL_TO_HIT_BOW] = thb;
+
+	return TRUE;
+}
 
 /*
  * Initialize the "p_info" array, by parsing an ascii "template" file
@@ -2371,96 +2318,51 @@ errr parse_p_info(char *buf, header *head)
 	/* Process 'R' for "Racial Skills" (one line only) */
 	else if (buf[0] == 'R')
 	{
-		int dis, dev, sav, stl, srh, fos, thn, thb;
-
 		/* There better be a current pr_ptr */
 		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
-		/* Scan for the values */
-		if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
-			            &dis, &dev, &sav, &stl,
-			            &srh, &fos, &thn, &thb)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		pr_ptr->r_dis = dis;
-		pr_ptr->r_dev = dev;
-		pr_ptr->r_sav = sav;
-		pr_ptr->r_stl = stl;
-		pr_ptr->r_srh = srh;
-		pr_ptr->r_fos = fos;
-		pr_ptr->r_thn = thn;
-		pr_ptr->r_thb = thb;
+		/* Scan and save the values */
+		if (!parse_skills(pr_ptr->r_skills,buf)) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Process 'X' for "Extra Info" (one line only) */
 	else if (buf[0] == 'X')
 	{
-		int mhp, exp, infra;
-
 		/* There better be a current pr_ptr */
 		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (3 != sscanf(buf+2, "%d:%d:%d",
-			            &mhp, &exp, &infra)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		pr_ptr->r_mhp = mhp;
-		pr_ptr->r_exp = exp;
-		pr_ptr->infra = infra;
+		if (!parse_integer_like(buf+2,pr_ptr->r_mhp,pr_ptr->r_exp,pr_ptr->infra)) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Hack -- Process 'I' for "info" and such */
 	else if (buf[0] == 'I')
 	{
-		int hist, b_age, m_age;
-
 		/* There better be a current pr_ptr */
 		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (3 != sscanf(buf+2, "%d:%d:%d",
-			            &hist, &b_age, &m_age)) return (PARSE_ERROR_GENERIC);
-
-		pr_ptr->hist = hist;
-		pr_ptr->b_age = b_age;
-		pr_ptr->m_age = m_age;
+		if (!parse_integer_like(buf+2,pr_ptr->hist,pr_ptr->age.b,pr_ptr->age.m)) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Hack -- Process 'H' for "Height" */
 	else if (buf[0] == 'H')
 	{
-		int m_b_ht, m_m_ht, f_b_ht, f_m_ht;
-
 		/* There better be a current pr_ptr */
 		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
-			            &m_b_ht, &m_m_ht, &f_b_ht, &f_m_ht)) return (PARSE_ERROR_GENERIC);
-
-		pr_ptr->m_b_ht = m_b_ht;
-		pr_ptr->m_m_ht = m_m_ht;
-		pr_ptr->f_b_ht = f_b_ht;
-		pr_ptr->f_m_ht = f_m_ht;
+		if (!parse_integer_like(buf+2,pr_ptr->height[SEX_MALE].b,pr_ptr->height[SEX_MALE].m,pr_ptr->height[SEX_FEMALE].b,pr_ptr->height[SEX_FEMALE].m)) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Hack -- Process 'W' for "Weight" */
 	else if (buf[0] == 'W')
 	{
-		int m_b_wt, m_m_wt, f_b_wt, f_m_wt;
-
 		/* There better be a current pr_ptr */
 		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
-			            &m_b_wt, &m_m_wt, &f_b_wt, &f_m_wt)) return (PARSE_ERROR_GENERIC);
-
-		pr_ptr->m_b_wt = m_b_wt;
-		pr_ptr->m_m_wt = m_m_wt;
-		pr_ptr->f_b_wt = f_b_wt;
-		pr_ptr->f_m_wt = f_m_wt;
+		if (!parse_integer_like(buf+2,pr_ptr->weight[SEX_MALE].b,pr_ptr->weight[SEX_MALE].m,pr_ptr->weight[SEX_FEMALE].b,pr_ptr->weight[SEX_FEMALE].m)) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Hack -- Process 'F' for flags */
@@ -2635,110 +2537,51 @@ errr parse_c_info(char *buf, header *head)
 	/* Process 'C' for "Class Skills" (one line only) */
 	else if (buf[0] == 'C')
 	{
-		int dis, dev, sav, stl, srh, fos, thn, thb;
-
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
-		/* Scan for the values */
-		if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
-			            &dis, &dev, &sav, &stl,
-			            &srh, &fos, &thn, &thb)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		pc_ptr->c_dis = dis;
-		pc_ptr->c_dev = dev;
-		pc_ptr->c_sav = sav;
-		pc_ptr->c_stl = stl;
-		pc_ptr->c_srh = srh;
-		pc_ptr->c_fos = fos;
-		pc_ptr->c_thn = thn;
-		pc_ptr->c_thb = thb;
+		/* Scan and save the values */
+		if (!parse_skills(pc_ptr->c_skills,buf)) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Process 'X' for "Extra Skills" (one line only) */
 	else if (buf[0] == 'X')
 	{
-		int dis, dev, sav, stl, srh, fos, thn, thb;
-
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
-		/* Scan for the values */
-		if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
-			            &dis, &dev, &sav, &stl,
-			            &srh, &fos, &thn, &thb)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		pc_ptr->x_dis = dis;
-		pc_ptr->x_dev = dev;
-		pc_ptr->x_sav = sav;
-		pc_ptr->x_stl = stl;
-		pc_ptr->x_srh = srh;
-		pc_ptr->x_fos = fos;
-		pc_ptr->x_thn = thn;
-		pc_ptr->x_thb = thb;
+		/* Scan and save the values */
+		if (!parse_skills(pc_ptr->x_skills,buf)) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Process 'I' for "Info" (one line only) */
 	else if (buf[0] == 'I')
 	{
-		int mhp, exp, sense_div;
-		long sense_base;
-
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (4 != sscanf(buf+2, "%d:%d:%ld:%d",
-			            &mhp, &exp, &sense_base, &sense_div))
-			return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		pc_ptr->c_mhp = mhp;
-		pc_ptr->c_exp = exp;
-		pc_ptr->sense_base = sense_base;
-		pc_ptr->sense_div = sense_div;
+		if (!parse_integer_like(buf+2,pc_ptr->c_mhp,pc_ptr->c_exp,pc_ptr->sense_base,pc_ptr->sense_div)) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Process 'A' for "Attack Info" (one line only) */
 	else if (buf[0] == 'A')
 	{
-		int max_attacks, min_weight, att_multiply;
-
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (3 != sscanf(buf+2, "%d:%d:%d",
-			            &max_attacks, &min_weight, &att_multiply))
-			return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		pc_ptr->max_attacks = max_attacks;
-		pc_ptr->min_weight = min_weight;
-		pc_ptr->att_multiply = att_multiply;
+		if (!parse_integer_like(buf+2,pc_ptr->max_attacks,pc_ptr->min_weight,pc_ptr->att_multiply)) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Process 'M' for "Magic Info" (one line only) */
 	else if (buf[0] == 'M')
 	{
-		int spell_book, spell_stat, spell_first, spell_weight;
-
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
-		                &spell_book, &spell_stat,
-		                &spell_first, &spell_weight))
-			return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		pc_ptr->spell_book = spell_book;
-		pc_ptr->spell_stat = spell_stat;
-		pc_ptr->spell_first = spell_first;
-		pc_ptr->spell_weight = spell_weight;
+		if (!parse_integer_like(buf+2,pc_ptr->spell_book,pc_ptr->spell_stat,pc_ptr->spell_first,pc_ptr->spell_weight)) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Process 'B' for "Spell/Prayer book info" */
@@ -2794,8 +2637,6 @@ errr parse_c_info(char *buf, header *head)
 	/* Process 'E' for "Starting Equipment" */
 	else if (buf[0] == 'E')
 	{
-		int tval, sval, min, max;
-
 		start_item *e_ptr;
 
 		/* There better be a current pc_ptr */
@@ -2805,17 +2646,10 @@ errr parse_c_info(char *buf, header *head)
 		e_ptr = &pc_ptr->start_items[cur_equip];
 
 		/* Scan for the values */
-		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
-			            &tval, &sval, &min, &max)) return (PARSE_ERROR_GENERIC);
+		if (!parse_integer_like(buf+2,e_ptr->tval,e_ptr->sval,e_ptr->min,e_ptr->max)) return (PARSE_ERROR_GENERIC);
 
-		if ((min < 0) || (max < 0) || (min > 99) || (max > 99))
+		if ((e_ptr->min > 99) || (e_ptr->max > 99))
 			return (PARSE_ERROR_INVALID_ITEM_NUMBER);
-
-		/* Save the values */
-		e_ptr->tval = tval;
-		e_ptr->sval = sval;
-		e_ptr->min = min;
-		e_ptr->max = max;
 
 		/* Next item */
 		cur_equip++;
@@ -2880,8 +2714,6 @@ errr parse_h_info(char *buf, header *head)
 	/* Process 'N' for "New/Number" */
 	if (buf[0] == 'N')
 	{
-		int prv, nxt, prc, soc;
-
 		/* Hack - get the index */
 		i = error_idx + 1;
 
@@ -2898,14 +2730,7 @@ errr parse_h_info(char *buf, header *head)
 		h_ptr = (hist_type*)head->info_ptr + i;
 
 		/* Scan for the values */
-		if (4 != sscanf(buf, "N:%d:%d:%d:%d",
-			            &prv, &nxt, &prc, &soc)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		h_ptr->chart = prv;
-		h_ptr->next = nxt;
-		h_ptr->roll = prc;
-		h_ptr->bonus = soc;
+		if (!parse_integer_like(buf+2,h_ptr->chart,h_ptr->next,h_ptr->roll,h_ptr->bonus)) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Process 'D' for "Description" */
@@ -3003,19 +2828,11 @@ errr parse_b_info(char *buf, header *head)
 	/* Process 'I' for "Info" (one line only) */
 	else if (buf[0] == 'I')
 	{
-		int idx, gld, inflate;
-
 		/* There better be a current ot_ptr */
 		if (!ot_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (3 != sscanf(buf+2, "%d:%d:%d",
-			            &idx, &gld, &inflate)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		ot_ptr->owner_race = idx;
-		ot_ptr->max_cost = gld;
-		ot_ptr->inflate = inflate;
+		if (!parse_integer_like(buf+2,ot_ptr->owner_race,ot_ptr->max_cost,ot_ptr->inflate)) return (PARSE_ERROR_GENERIC);
 	}
 	else
 	{
@@ -3198,7 +3015,7 @@ errr parse_flavor_info(char *buf, header *head)
 		if (!buf[2]) return (PARSE_ERROR_GENERIC);
 
 		/* Store the text */
-		if (!add_text(&flavor_ptr->text, head, buf + 2))
+		if (!add_text(&flavor_ptr->_text, head, buf + 2))
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 	}
 

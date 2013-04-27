@@ -15,7 +15,7 @@
  * whether you wish to keep, comment, or uncomment them.  You should not
  * have to modify any lines not indicated by "OPTION".
  *
- * Note: Also examine the "system" configuration file "h-config.h".
+ * Note: Also examine the "system" configuration file "h-basic.h".
  *
  * And finally, remember that the "Makefile" will specify some rather
  * important compile time options, like what visual module to use.
@@ -36,10 +36,10 @@
  * such as "MACINTOSH", "WINDOWS", "USE_IBM", "USE_EMX".
  *
  * You may also need to specify the "system", using defines such as
- * "SOLARIS" (for Solaris), etc, see "h-config.h" for more info.
+ * "SOLARIS" (for Solaris), etc, see "h-basic.h" for more info.
  */
 
-
+/* options for main-cap.c and main-gcu.c */
 /*
  * OPTION: Use the POSIX "termios" methods in "main-gcu.c"
  */
@@ -55,33 +55,7 @@
  */
 /* #define USE_TCHARS */
 
-
-/*
- * OPTION: Use "blocking getch() calls" in "main-gcu.c".
- * Hack -- Note that this option will NOT work on many BSD machines
- * Currently used whenever available, if you get a warning about
- * "nodelay()" undefined, then make sure to undefine this.
- */
-#if defined(SYS_V) || defined(AMIGA)
-# define USE_GETCH
-#endif
-
-
-/*
- * OPTION: Use the "curs_set()" call in "main-gcu.c".
- * Hack -- This option will not work on most BSD machines
- * But it *will* work on Linux, which is not System V.
- */
-#if defined(SYS_V) || defined(linux)
-# define USE_CURS_SET
-#endif
-
-
-/*
- * OPTION: Include "ncurses.h" instead of "curses.h" in "main-gcu.c"
- */
-/* #define USE_NCURSES */
-
+/* see main-gcu.c for options specific to there */
 
 /*
  * OPTION: for multi-user machines running the game setuid to some other
@@ -171,34 +145,11 @@
 
 
 /*
- * OPTION: Allow characteres to be "auto-rolled"
- */
-#define ALLOW_AUTOROLLER
-
-
-/*
- * OPTION: Allow monsters to "flee" when hit hard
- */
-#define ALLOW_FEAR
-
-/*
- * OPTION: Allow monsters to "flee" from strong players
- */
-#define ALLOW_TERROR
-
-
-/*
  * OPTION: Allow parsing of the ascii template files in "init.c".
  * This must be defined if you do not have valid binary image files.
  * It should be usually be defined anyway to allow easy "updating".
  */
 #define ALLOW_TEMPLATES
-
-
-/*
- * OPTION: Allow repeating of last command.
- */
-#define ALLOW_REPEAT
 
 
 /*
@@ -208,43 +159,16 @@
 
 
 /*
- * OPTION: Allow "Wizards" to yield "high scores"
- */
-/* #define SCORE_WIZARDS */
-
-/*
  * OPTION: Allow "Borgs" to yield "high scores"
  */
 /* #define SCORE_BORGS */
 
-/*
- * OPTION: Allow "Cheaters" to yield "high scores"
- */
-/* #define SCORE_CHEATERS */
-
 
 
 /*
- * OPTION: Allow use of the "flow_by_smell" and "flow_by_sound"
- * software options, which enable "monster flowing".
- */
-#define MONSTER_FLOW
-
-
-/*
- * OPTION: Maximum flow depth when using "MONSTER_FLOW"
+ * OPTION: Maximum flow depth when using "MONSTER_FLOW" (always on now)
  */
 #define MONSTER_FLOW_DEPTH 32
-
-
-/*
- * OPTION: Allow use of the "smart_monsters" and "smart_packs"
- * software options, which attempt to make monsters smarter.
- *
- * AI code by Keldon Jones (keldon@umr.edu), modified by Julian
- * Lighton (jl8e@fragment.com).
- */
-#define MONSTER_AI
 
 
 /*
@@ -272,27 +196,6 @@
 
 
 /*
- * OPTION: Enable the "smart_learn" and "smart_cheat" options.
- * They let monsters make more "intelligent" choices about attacks
- * (including spell attacks) based on their observations of the
- * player's reactions to previous attacks.  The "smart_cheat" option
- * lets the monster know how the player would react to an attack
- * without actually needing to make the attack.  The "smart_learn"
- * option requires that a monster make a "failed" attack before
- * learning that the player is not harmed by that attack.
- *
- * This adds about 3K to the memory and about 5K to the executable.
- */
-#define DRS_SMART_OPTIONS
-
-
-/*
- * OPTION: Allow the use of random artifacts (see "randart.c").
- */
-#define GJW_RANDART
-
-
-/*
  * OPTION: Allow the use of "sound" in various places.
  */
 #define USE_SOUND
@@ -306,29 +209,7 @@
 /*
  * Hack -- Macintosh stuff
  */
-#ifdef MACINTOSH
-
-/* Do not handle signals */
-# undef HANDLE_SIGNALS
-
-#endif
-
-
-/*
- * Hack -- Windows stuff
- */
-#ifdef WINDOWS
-
-/* Do not handle signals */
-# undef HANDLE_SIGNALS
-
-#endif
-
-
-/*
- * Hack -- EMX stuff
- */
-#ifdef USE_EMX
+#if defined(MACINTOSH) || defined(WINDOWS) || defined(USE_EMX)
 
 /* Do not handle signals */
 # undef HANDLE_SIGNALS
@@ -409,14 +290,6 @@
 
 
 /*
- * OPTION: Capitalize the "user_name" (for "default" player name)
- * This option is only relevant on SET_UID machines.
- */
-#define CAPITALIZE_USER_NAME
-
-
-
-/*
  * OPTION: Person to bother if something goes wrong.
  */
 #define MAINTAINER	"zaimoni@zaimoni.com"
@@ -463,9 +336,7 @@
 /*
  * OPTION: Attempt to minimize the size of the game
  */
-#ifndef ANGBAND_LITE
 /* #define ANGBAND_LITE */
-#endif
 
 /*
  * Hack -- React to the "ANGBAND_LITE" flag
@@ -474,15 +345,10 @@
 # undef ALLOW_COLORS
 # undef ALLOW_VISUALS
 # undef ALLOW_MACROS
-# undef MONSTER_FLOW
-# undef ALLOW_TERROR
-# undef DRS_SMART_OPTIONS
-# undef GJW_RANDART
 # undef ALLOW_BORG
 # undef ALLOW_DEBUG
 # undef ALLOW_SPOILERS
 # undef ALLOW_TEMPLATES
-# undef MONSTER_AI
 #endif
 
 
@@ -501,6 +367,11 @@
 # define VERIFY_CHECKSUMS
 # define VERIFY_TIMESTAMP
 #endif
+
+/*
+ * HACK - define if the source contains the cleanup_angband() function.
+ */
+#define HAS_CLEANUP
 
 
 /*

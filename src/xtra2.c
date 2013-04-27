@@ -9,51 +9,149 @@
  */
 
 #include "angband.h"
+#include "keypad.h"
 
-/* common aux function */
-static bool set_timed_condition(int v, s16b& stat,int msg_on,cptr cond_on,int msg_off,cptr cond_off)
+/*** Timed effects ***/
+
+/*
+ * This code replace a lot of virtually identical functions and (ostensibly)
+ * is a lot cleaner.  Note that the various "oppose" functions and the "stun"
+ * and "cut" statuses need to be handled by special functions of their own,
+ * as they are more complex than the ones handled by the generic code.  -AS-
+ */
+/*
+ * KB: technically these could be private member functions, but I want to keep the headers clean
+ */
+static bool set_oppose_acid(int v,player_type& p);
+static bool set_oppose_elec(int v,player_type& p);
+static bool set_oppose_fire(int v,player_type& p);
+static bool set_oppose_cold(int v,player_type& p);
+static bool set_stun(int v,player_type& p);
+static bool set_cut(int v,player_type& p);
+
+typedef struct
 {
-	bool notice = false;
+  const char *on_begin, *on_end;
+  u32b flag_redraw, flag_window, flag_update;
+  int msg;
+} timed_effect;
+
+static timed_effect effects[] =
+{
+	{ "You feel yourself moving faster!", "You feel yourself slow down.", 0, 0, PU_BONUS, MSG_SPEED },
+	{ "You feel yourself moving slower!", "You feel yourself speed up.", 0, 0, PU_BONUS, MSG_SLOW },
+	{ "You are blind.", "You can see again.", (PR_MAP | PR_BLIND),
+	  (PW_OVERHEAD | PW_MAP), (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS), MSG_BLIND },
+	{ "You are paralyzed!", "You can move again.", PR_STATE, 0, 0, MSG_PARALYZED },
+	{ "You are confused!", "You feel less confused now.", PR_CONFUSED, 0, 0, MSG_CONFUSED },
+	{ "You are terrified!", "You feel bolder now.", PR_AFRAID, 0, 0, MSG_AFRAID },
+	{ "You feel drugged!", "You can see clearly again.", PR_MAP, (PW_OVERHEAD | PW_MAP), 0, MSG_DRUGGED },
+	{ "You are poisoned!", "You are no longer poisoned.", PR_POISONED, 0, 0, MSG_POISONED },
+	{ "", "", 0, 0, 0, 0 },  /* TMD_CUT -- handled seperately */
+	{ "", "", 0, 0, 0, 0 },  /* TMD_STUN -- handled seperately */
+	{ "You feel safe from evil!", "You no longer feel safe from evil.", 0, 0, 0, MSG_PROT_EVIL },
+	{ "You feel invulnerable!", "You feel vulnerable once more.", 0, 0, PU_BONUS, MSG_INVULN },
+	{ "You feel like a hero!", "The heroism wears off.", 0, 0, PU_BONUS, MSG_HERO },
+	{ "You feel like a killing machine!", "You feel less Berserk.", 0, 0, PU_BONUS, MSG_BERSERK },
+	{ "A mystic shield forms around your body!", "Your mystic shield crumbles away.", 0, 0, PU_BONUS, MSG_SHIELD },
+	{ "You feel righteous!", "The prayer has expired.", 0, 0, PU_BONUS, MSG_BLESSED },
+	{ "Your eyes feel very sensitive!", "Your eyes feel less sensitive.", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_SEE_INVIS },
+	{ "Your eyes begin to tingle!", "Your eyes stop tingling.", 0, 0, (PU_BONUS | PU_MONSTERS), MSG_INFRARED },
+	{ "You feel resistant to poison!", "You feel less resistant to poison", PR_OPPOSE_ELEMENTS, 0, 0, MSG_RES_POIS },
+};
+
+/*
+ * Set a timed event (except timed resists, cutting and stunning).
+ */
+bool player_type::set_timed_clean(int idx, int v)
+{
+	bool notice = FALSE;
+	timed_effect *effect;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
+	/* Hack -- call other functions */
+	if (idx == TMD_STUN) return set_stun(v,*p_ptr);
+	else if (idx == TMD_CUT) return set_cut(v,*p_ptr);
+	else if (idx == TMD_OPP_ACID) return set_oppose_acid(v,*p_ptr);
+	else if (idx == TMD_OPP_ELEC) return set_oppose_elec(v,*p_ptr);
+	else if (idx == TMD_OPP_FIRE) return set_oppose_fire(v,*p_ptr);
+	else if (idx == TMD_OPP_COLD) return set_oppose_cold(v,*p_ptr);
+
+	/* Find the effect */
+	effect = &effects[idx];
+
 	/* Open */
 	if (v)
 	{
-		if (!stat)
+		if (!p_ptr->timed[idx])
 		{
-			message(msg_on, 0, cond_on);
-			notice = true;
+			message(effect->msg, 0, effect->on_begin);
+			notice = TRUE;
 		}
 	}
 
 	/* Shut */
 	else
 	{
-		if (stat)
+		if (p_ptr->timed[idx])
 		{
-			message(msg_off, 0, cond_off);
-			notice = true;
+			message(MSG_RECOVER, 0, effect->on_end);
+			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
-	stat = v;
+	p_ptr->timed[idx] = v;
+
+	/* Nothing to notice */
+	if (!notice) return FALSE;
 
 	/* Disturb */
-	if (notice && disturb_state) disturb(0, 0);
+	if (disturb_state) disturb(0, 0);
 
-	return notice;
+	/* Update the visuals, as appropriate. */
+	p_ptr->update |= effect->flag_update;
+	p_ptr->redraw |= effect->flag_redraw;
+	p_ptr->window |= effect->flag_window;
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return TRUE;
 }
+
+bool player_type::dec_timed(int idx, int v)
+{
+	/* Check we have a valid effect */
+	DEBUG_FAIL_OR_LEAVE((0 > idx) || (TMD_MAX<=idx),return FALSE);
+
+	return set_timed_clean(idx, timed[idx] - v);
+}
+
+#ifndef ZAIBAND_STATIC_ASSERT
+bool player_type::set_timed(int idx, int v)
+{
+	DEBUG_FAIL_OR_LEAVE((0 > idx) || (TMD_MAX<=idx),return FALSE);
+
+	return set_timed_clean(idx,v);
+}
+
+bool player_type::inc_timed(int idx, int v)
+{
+	/* Check we have a valid effect */
+	DEBUG_FAIL_OR_LEAVE((0 > idx) || (TMD_MAX<=idx),return FALSE);
+
+	return set_timed_clean(idx, v + timed[idx]);
+}
+#endif
 
 /* common aux function */
 static bool set_timed_condition_w_immunity(int v, s16b& stat,bool immune,int msg_on,cptr cond_on,int msg_off,cptr cond_off)
 {
 	bool notice = false;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
 	/* Open */
 	if (!immune)
@@ -108,383 +206,17 @@ unsigned int cut_level(int v)
 }
 
 /*
- * Set "p_ptr->blind", notice observable changes
- *
- * Note the use of "PU_FORGET_VIEW" and "PU_UPDATE_VIEW", which are needed
- * because "p_ptr->blind" affects the "CAVE_SEEN" flag, and "PU_MONSTERS",
- * because "p_ptr->blind" affects monster visibility, and "PU_MAP", because
- * "p_ptr->blind" affects the way in which many cave grids are displayed.
- */
-bool set_blind(int v)
-{
-	bool notice = set_timed_condition(v,p_ptr->blind,MSG_BLIND,"You are blind!",MSG_RECOVER,"You can see again.");
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Fully update the visuals */
-	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
-
-	/* Redraw map */
-	p_ptr->redraw |= (PR_MAP);
-
-	/* Redraw the "blind" */
-	p_ptr->redraw |= (PR_BLIND);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD | PW_MAP);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->confused", notice observable changes
- */
-bool set_confused(int v)
-{
-	bool notice = set_timed_condition(v,p_ptr->confused,MSG_CONFUSED,"You are confused!",MSG_RECOVER,"You feel less confused now.");
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Redraw the "confused" */
-	p_ptr->redraw |= (PR_CONFUSED);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->poisoned", notice observable changes
- */
-bool set_poisoned(int v)
-{
-	bool notice = set_timed_condition(v,p_ptr->poisoned,MSG_POISONED,"You are poisoned!",MSG_RECOVER,"You are no longer poisoned.");
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Redraw the "poisoned" */
-	p_ptr->redraw |= (PR_POISONED);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->afraid", notice observable changes
- */
-bool set_afraid(int v)
-{
-	bool notice = set_timed_condition(v,p_ptr->afraid,MSG_AFRAID,"You are terrified!",MSG_RECOVER,"You feel bolder now.");
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Redraw the "afraid" */
-	p_ptr->redraw |= (PR_AFRAID);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->paralyzed", notice observable changes
- */
-bool set_paralyzed(int v)
-{
-	bool notice = set_timed_condition(v,p_ptr->paralyzed,MSG_PARALYZED,"You are paralyzed!",MSG_RECOVER,"You can move again.");
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Redraw the state */
-	p_ptr->redraw |= (PR_STATE);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->image", notice observable changes
- *
- * Note the use of "PR_MAP", which is needed because "p_ptr->image" affects
- * the way in which monsters, objects, and some normal grids, are displayed.
- */
-bool set_image(int v)
-{
-	bool notice = set_timed_condition(v,p_ptr->image,MSG_DRUGGED,"You feel drugged!",MSG_RECOVER,"You can see clearly again.");
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Redraw map */
-	p_ptr->redraw |= (PR_MAP);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD | PW_MAP);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->fast", notice observable changes
- */
-bool set_fast(int v)
-{
-	bool notice = set_timed_condition(v,p_ptr->fast,MSG_SPEED,"You feel yourself moving faster!",MSG_RECOVER,"You feel yourself slow down.");
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->slow", notice observable changes
- */
-bool set_slow(int v)
-{
-	bool notice = set_timed_condition(v,p_ptr->slow,MSG_SLOW,"You feel yourself moving slower!",MSG_RECOVER,"You feel yourself speed up.");
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->shield", notice observable changes
- */
-bool set_shield(int v)
-{
-	bool notice = set_timed_condition(v,p_ptr->shield,MSG_SHIELD,"A mystic shield forms around your body!",MSG_RECOVER,"Your mystic shield crumbles away.");
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-
-/*
- * Set "p_ptr->blessed", notice observable changes
- */
-bool set_blessed(int v)
-{
-	bool notice = set_timed_condition(v,p_ptr->blessed,MSG_BLESSED,"You feel righteous!",MSG_RECOVER,"The prayer has expired.");
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->hero", notice observable changes
- */
-bool set_hero(int v)
-{
-	bool notice = set_timed_condition(v,p_ptr->hero,MSG_HERO,"You feel like a hero!",MSG_RECOVER,"The heroism wears off.");
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->shero", notice observable changes
- */
-bool set_shero(int v)
-{
-	bool notice = set_timed_condition(v,p_ptr->shero,MSG_BERSERK,"You feel like a killing machine!",MSG_RECOVER,"You feel less Berserk.");
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->protevil", notice observable changes
- */
-bool set_protevil(int v)
-{
-	bool notice = set_timed_condition(v,p_ptr->protevil,MSG_PROT_EVIL,"You feel safe from evil!",MSG_RECOVER,"You no longer feel safe from evil.");
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->invuln", notice observable changes
- */
-bool set_invuln(int v)
-{
-	bool notice = set_timed_condition(v,p_ptr->invuln,MSG_INVULN,"You feel invulnerable!",MSG_RECOVER,"You feel vulnerable once more.");
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->tim_invis", notice observable changes
- *
- * Note the use of "PU_MONSTERS", which is needed because
- * "p_ptr->tim_image" affects monster visibility.
- */
-bool set_tim_invis(int v)
-{
-	bool notice = set_timed_condition(v,p_ptr->tim_invis,MSG_SEE_INVIS,"Your eyes feel very sensitive!",MSG_RECOVER,"Your eyes feel less sensitive.");
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Update the monsters XXX */
-	p_ptr->update |= (PU_MONSTERS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->tim_infra", notice observable changes
- *
- * Note the use of "PU_MONSTERS", which is needed because because
- * "p_ptr->tim_infra" affects monster visibility.
- */
-bool set_tim_infra(int v)
-{
-	bool notice = set_timed_condition(v,p_ptr->tim_infra,MSG_INFRARED,"Your eyes begin to tingle!",MSG_RECOVER,"Your eyes stop tingling.");
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Update the monsters XXX */
-	p_ptr->update |= (PU_MONSTERS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
  * Set "p_ptr->oppose_acid", notice observable changes
  */
-bool set_oppose_acid(int v)
+bool set_oppose_acid(int v,player_type& p)
 {
-	bool notice = set_timed_condition_w_immunity(v,p_ptr->oppose_acid,p_ptr->immune_acid,MSG_RES_ACID,"You feel resistant to acid!",MSG_RECOVER,"You feel less resistant to acid.");
+	bool notice = set_timed_condition_w_immunity(v,p.timed[TMD_OPP_ACID],p.immune_acid,MSG_RES_ACID,"You feel resistant to acid!",MSG_RECOVER,"You feel less resistant to acid.");
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
 	/* Redraw */
-	p_ptr->redraw |= PR_OPPOSE_ELEMENTS;
+	p.redraw |= PR_OPPOSE_ELEMENTS;
 
 	/* Handle stuff */
 	handle_stuff();
@@ -497,15 +229,15 @@ bool set_oppose_acid(int v)
 /*
  * Set "p_ptr->oppose_elec", notice observable changes
  */
-bool set_oppose_elec(int v)
+bool set_oppose_elec(int v,player_type& p)
 {
-	bool notice = set_timed_condition_w_immunity(v,p_ptr->oppose_elec,p_ptr->immune_elec,MSG_RES_ELEC,"You feel resistant to electricity!",MSG_RECOVER,"You feel less resistant to electricity.");
+	bool notice = set_timed_condition_w_immunity(v,p.timed[TMD_OPP_ELEC],p.immune_elec,MSG_RES_ELEC,"You feel resistant to electricity!",MSG_RECOVER,"You feel less resistant to electricity.");
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
 	/* Redraw */
-	p_ptr->redraw |= PR_OPPOSE_ELEMENTS;
+	p.redraw |= PR_OPPOSE_ELEMENTS;
 
 	/* Handle stuff */
 	handle_stuff();
@@ -518,9 +250,9 @@ bool set_oppose_elec(int v)
 /*
  * Set "p_ptr->oppose_fire", notice observable changes
  */
-bool set_oppose_fire(int v)
+bool set_oppose_fire(int v,player_type& p)
 {
-	bool notice = set_timed_condition_w_immunity(v,p_ptr->oppose_fire,p_ptr->immune_fire,MSG_RES_FIRE,"You feel resistant to fire!",MSG_RECOVER,"You feel less resistant to fire.");
+	bool notice = set_timed_condition_w_immunity(v,p.timed[TMD_OPP_FIRE],p.immune_fire,MSG_RES_FIRE,"You feel resistant to fire!",MSG_RECOVER,"You feel less resistant to fire.");
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -539,15 +271,15 @@ bool set_oppose_fire(int v)
 /*
  * Set "p_ptr->oppose_cold", notice observable changes
  */
-bool set_oppose_cold(int v)
+bool set_oppose_cold(int v,player_type& p)
 {
-	bool notice = set_timed_condition_w_immunity(v,p_ptr->oppose_cold,p_ptr->immune_cold,MSG_RES_COLD,"You feel resistant to cold!",MSG_RECOVER,"You feel less resistant to cold.");
+	bool notice = set_timed_condition_w_immunity(v,p.timed[TMD_OPP_COLD],p.immune_cold,MSG_RES_COLD,"You feel resistant to cold!",MSG_RECOVER,"You feel less resistant to cold.");
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
 	/* Redraw */
-	p_ptr->redraw |= PR_OPPOSE_ELEMENTS;
+	p.redraw |= PR_OPPOSE_ELEMENTS;
 
 	/* Handle stuff */
 	handle_stuff();
@@ -556,26 +288,6 @@ bool set_oppose_cold(int v)
 	return (TRUE);
 }
 
-
-/*
- * Set "p_ptr->oppose_pois", notice observable changes
- */
-bool set_oppose_pois(int v)
-{
-	bool notice = set_timed_condition(v,p_ptr->oppose_pois,MSG_RES_POIS,"You feel resistant to poison!",MSG_RECOVER,"You feel less resistant to poison.");
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Redraw */
-	p_ptr->redraw |= PR_OPPOSE_ELEMENTS;
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
 
 static const char* new_stun_level[3] =	{	"You have been stunned.",
 											"You have been heavily stunned.",
@@ -587,7 +299,7 @@ static const char* new_stun_level[3] =	{	"You have been stunned.",
  *
  * Note the special code to only notice "range" changes.
  */
-bool set_stun(int v)
+bool set_stun(int v,player_type& p)
 {
 	unsigned int old_aux, new_aux;
 
@@ -596,7 +308,7 @@ bool set_stun(int v)
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
-	old_aux = stun_level(p_ptr->stun);
+	old_aux = stun_level(p.timed[TMD_STUN]);
 	new_aux = stun_level(v);
 
 	/* Increase cut */
@@ -623,7 +335,7 @@ bool set_stun(int v)
 	}
 
 	/* Use the value */
-	p_ptr->stun = v;
+	p.timed[TMD_STUN] = v;
 
 	/* No change */
 	if (!notice) return (FALSE);
@@ -632,10 +344,10 @@ bool set_stun(int v)
 	if (disturb_state) disturb(0, 0);
 
 	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
+	p.update |= (PU_BONUS);
 
 	/* Redraw the "stun" */
-	p_ptr->redraw |= (PR_STUN);
+	p.redraw |= (PR_STUN);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -658,7 +370,7 @@ static const char* new_cut_level[7] =	{	"You have been given a graze.",
  *
  * Note the special code to only notice "range" changes.
  */
-bool set_cut(int v)
+bool set_cut(int v,player_type& p)
 {
 	unsigned int old_aux, new_aux;
 
@@ -667,7 +379,7 @@ bool set_cut(int v)
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
-	old_aux = cut_level(p_ptr->cut);
+	old_aux = cut_level(p.timed[TMD_CUT]);
 	new_aux = cut_level(v);
 
 	/* Increase cut */
@@ -694,7 +406,7 @@ bool set_cut(int v)
 	}
 
 	/* Use the value */
-	p_ptr->cut = v;
+	p.timed[TMD_CUT] = v;
 
 	/* No change */
 	if (!notice) return (FALSE);
@@ -703,10 +415,10 @@ bool set_cut(int v)
 	if (disturb_state) disturb(0, 0);
 
 	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
+	p.update |= (PU_BONUS);
 
 	/* Redraw the "cut" */
-	p_ptr->redraw |= (PR_CUT);
+	p.redraw |= (PR_CUT);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -715,6 +427,36 @@ bool set_cut(int v)
 	return (TRUE);
 }
 
+unsigned int food_level(int v)
+{
+	if (v < PY_FOOD_FAINT) return 0;	/* Fainting / Starving */
+	if (v < PY_FOOD_WEAK) return 1;		/* Weak */
+	if (v < PY_FOOD_ALERT) return 2;	/* Hungry */
+	if (v < PY_FOOD_FULL) return 3;		/* Normal */
+	if (v < PY_FOOD_MAX) return 4;		/* Full */
+	return 5;							/* Gorged */
+}
+
+static const char* less_hungry[5] =		{	"You are still weak.",
+											"You are still hungry.",
+											"You are no longer hungry.",
+											"You are full!",
+											"You have gorged yourself!"
+										};
+
+static const int more_hungry_sound[5] =	{	MSG_NOTICE,
+											MSG_NOTICE,
+											MSG_HUNGRY,
+											MSG_NOTICE,
+											MSG_NOTICE
+										};
+
+static const char* more_hungry[5] =		{	"You are getting faint from hunger!",
+											"You are getting weak from hunger!",
+											"You are getting hungry.",
+											"You are no longer full.",
+											"You are no longer gorged."
+										};
 
 /*
  * Set "p_ptr->food", notice observable changes
@@ -740,7 +482,7 @@ bool set_cut(int v)
  */
 bool set_food(int v)
 {
-	int old_aux, new_aux;
+	unsigned int old_aux, new_aux;
 
 	bool notice = FALSE;
 
@@ -748,118 +490,13 @@ bool set_food(int v)
 	v = (v > 20000) ? 20000 : (v < 0) ? 0 : v;
 
 	/* Fainting / Starving */
-	if (p_ptr->food < PY_FOOD_FAINT)
-	{
-		old_aux = 0;
-	}
-
-	/* Weak */
-	else if (p_ptr->food < PY_FOOD_WEAK)
-	{
-		old_aux = 1;
-	}
-
-	/* Hungry */
-	else if (p_ptr->food < PY_FOOD_ALERT)
-	{
-		old_aux = 2;
-	}
-
-	/* Normal */
-	else if (p_ptr->food < PY_FOOD_FULL)
-	{
-		old_aux = 3;
-	}
-
-	/* Full */
-	else if (p_ptr->food < PY_FOOD_MAX)
-	{
-		old_aux = 4;
-	}
-
-	/* Gorged */
-	else
-	{
-		old_aux = 5;
-	}
-
-	/* Fainting / Starving */
-	if (v < PY_FOOD_FAINT)
-	{
-		new_aux = 0;
-	}
-
-	/* Weak */
-	else if (v < PY_FOOD_WEAK)
-	{
-		new_aux = 1;
-	}
-
-	/* Hungry */
-	else if (v < PY_FOOD_ALERT)
-	{
-		new_aux = 2;
-	}
-
-	/* Normal */
-	else if (v < PY_FOOD_FULL)
-	{
-		new_aux = 3;
-	}
-
-	/* Full */
-	else if (v < PY_FOOD_MAX)
-	{
-		new_aux = 4;
-	}
-
-	/* Gorged */
-	else
-	{
-		new_aux = 5;
-	}
+	old_aux = food_level(p_ptr->food);
+	new_aux = food_level(v);
 
 	/* Food increase */
 	if (new_aux > old_aux)
 	{
-		/* Describe the state */
-		switch (new_aux)
-		{
-			/* Weak */
-			case 1:
-			{
-				msg_print("You are still weak.");
-				break;
-			}
-
-			/* Hungry */
-			case 2:
-			{
-				msg_print("You are still hungry.");
-				break;
-			}
-
-			/* Normal */
-			case 3:
-			{
-				msg_print("You are no longer hungry.");
-				break;
-			}
-
-			/* Full */
-			case 4:
-			{
-				msg_print("You are full!");
-				break;
-			}
-
-			/* Bloated */
-			case 5:
-			{
-				msg_print("You have gorged yourself!");
-				break;
-			}
-		}
+		msg_print(less_hungry[new_aux-1]);
 
 		/* Change */
 		notice = TRUE;
@@ -868,49 +505,8 @@ bool set_food(int v)
 	/* Food decrease */
 	else if (new_aux < old_aux)
 	{
-		/* Describe the state */
-		switch (new_aux)
-		{
-			/* Fainting / Starving */
-			case 0:
-			{
-				sound(MSG_NOTICE);
-				msg_print("You are getting faint from hunger!");
-				break;
-			}
-
-			/* Weak */
-			case 1:
-			{
-				sound(MSG_NOTICE);
-				msg_print("You are getting weak from hunger!");
-				break;
-			}
-
-			/* Hungry */
-			case 2:
-			{
-				sound(MSG_HUNGRY);
-				msg_print("You are getting hungry.");
-				break;
-			}
-
-			/* Normal */
-			case 3:
-			{
-				sound(MSG_NOTICE);
-				msg_print("You are no longer full.");
-				break;
-			}
-
-			/* Full */
-			case 4:
-			{
-				sound(MSG_NOTICE);
-				msg_print("You are no longer gorged.");
-				break;
-			}
-		}
+		sound(more_hungry_sound[new_aux]);
+		msg_print(more_hungry[new_aux]);
 
 		/* Change */
 		notice = TRUE;
@@ -982,7 +578,7 @@ void check_experience(void)
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
 
 		/* Redraw some stuff */
-		p_ptr->redraw |= (PR_LEV | PR_TITLE);
+		p_ptr->redraw |= (PR_LEV | PR_TITLE | PR_EXP);
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
@@ -1010,7 +606,7 @@ void check_experience(void)
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
 
 		/* Redraw some stuff */
-		p_ptr->redraw |= (PR_LEV | PR_TITLE);
+		p_ptr->redraw |= (PR_LEV | PR_TITLE | PR_EXP);
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
@@ -1031,7 +627,7 @@ void check_experience(void)
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
 
 		/* Redraw some stuff */
-		p_ptr->redraw |= (PR_LEV | PR_TITLE);
+		p_ptr->redraw |= (PR_LEV | PR_TITLE | PR_EXP);
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
@@ -1088,7 +684,7 @@ void lose_exp(s32b amount)
  */
 static int get_coin_type(const monster_race *r_ptr)
 {
-	cptr name = (r_name + r_ptr->name);
+	cptr name = r_ptr->name();
 
 	/* Analyze "coin" monsters */
 	if (r_ptr->d_char == '$')
@@ -1174,7 +770,7 @@ void monster_death(int m_idx)
 	s16b this_o_idx, next_o_idx = 0;
 
 	monster_type *m_ptr = &mon_list[m_idx];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_race *r_ptr = m_ptr->race();
 	coord g = m_ptr->loc;	/* Get the location */
 
 	bool visible = (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)));
@@ -1266,7 +862,7 @@ void monster_death(int m_idx)
 		WIPE(i_ptr);
 
 		/* Make Gold */
-		if (do_gold && (!do_item || (rand_int(100) < 50)))
+		if (do_gold && (!do_item || one_in_(2)))
 		{
 			/* Make some gold */
 			if (!make_gold(i_ptr)) continue;
@@ -1369,10 +965,8 @@ void monster_death(int m_idx)
 bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 {
 	monster_type *m_ptr = &mon_list[m_idx];
-
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+	monster_race *r_ptr = m_ptr->race();
+	monster_lore *l_ptr = m_ptr->lore();
 
 	s32b div, new_exp, new_exp_frac;
 
@@ -1493,8 +1087,6 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	}
 
 
-#ifdef ALLOW_FEAR
-
 	/* Mega-Hack -- Pain cancels fear */
 	if (m_ptr->monfear && (dam > 0))
 	{
@@ -1542,8 +1134,6 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			                   20 : ((11 - percentage) * 5)));
 		}
 	}
-
-#endif /* ALLOW_FEAR */
 
 
 	/* Not dead yet */
@@ -1746,8 +1336,8 @@ void verify_panel(void)
 			wy = py - panel_hgt;
 		}
 
-		/* Scroll screen vertically when 1/4 screen_hgt grids from top/bottom edge */
-		else if ((py < wy + screen_hgt / 4) || (py >= wy + (3 * screen_hgt) / 4))
+		/* Scroll screen vertically when 3 grids from top/bottom edge */
+		else if ((py < wy + 3) || (py >= wy + screen_hgt - 3))
 		{
 			wy = py - panel_hgt;
 		}
@@ -1760,8 +1350,8 @@ void verify_panel(void)
 			wx = px - panel_wid;
 		}
 
-		/* Scroll screen horizontally when 1/4 screen_wid grids from left/right edge */
-		else if ((px < wx + screen_wid / 4) || (px >= wx + (3 * screen_wid) / 4))
+		/* Scroll screen horizontally when 3 grids from left/right edge */ 
+		else if ((px < wx + 3) || (px >= wx + screen_wid - 3))
 		{
 			wx = px - panel_wid;
 		}
@@ -1779,7 +1369,7 @@ void verify_panel(void)
 static void look_mon_desc(char *buf, size_t max, int m_idx)
 {
 	monster_type *m_ptr = &mon_list[m_idx];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_race *r_ptr = m_ptr->race();
 
 	bool living = TRUE;
 
@@ -1938,6 +1528,16 @@ int target_dir(char ch)
 	{
 		d = D2I(ch);
 	}
+	else if (isarrow(ch))
+	{
+		switch (ch)
+		{
+			case ARROW_DOWN:	d = 2; break;
+			case ARROW_LEFT:	d = 4; break;
+			case ARROW_RIGHT:	d = 6; break;
+			case ARROW_UP:		d = 8; break;
+		}
+	}
 	else
 	{
 		/* Roguelike */
@@ -2009,7 +1609,7 @@ bool target_able(int m_idx)
 	if (!projectable(p_ptr->loc, m_ptr->loc)) return (FALSE);
 
 	/* Hack -- no targeting hallucinations */
-	if (p_ptr->image) return (FALSE);
+	if (p_ptr->timed[TMD_IMAGE]) return (FALSE);
 
 	/* Hack -- Never target trappers XXX XXX XXX */
 	/* if (CLEAR_ATTR && (CLEAR_CHAR)) return (FALSE); */
@@ -2233,7 +1833,7 @@ static bool target_set_interactive_accept(coord g)
 
 
 	/* Handle hallucination */
-	if (p_ptr->image) return (FALSE);
+	if (p_ptr->timed[TMD_IMAGE]) return (FALSE);
 
 
 	/* Visible monsters */
@@ -2373,7 +1973,7 @@ static void target_set_interactive_prepare(int mode)
  */
 static int target_set_interactive_aux(coord g, int mode, cptr info)
 {
-	s16b this_o_idx, next_o_idx = 0;
+	s16b this_o_idx = 0, next_o_idx = 0;
 
 	cptr s1, s2, s3;
 
@@ -2415,7 +2015,7 @@ static int target_set_interactive_aux(coord g, int mode, cptr info)
 
 
 		/* Hack -- hallucination */
-		if (p_ptr->image)
+		if (p_ptr->timed[TMD_IMAGE])
 		{
 			cptr name = "something strange";
 
@@ -2447,7 +2047,7 @@ static int target_set_interactive_aux(coord g, int mode, cptr info)
 		if (cave_m_idx[g.y][g.x] > 0)
 		{
 			monster_type *m_ptr = &mon_list[cave_m_idx[g.y][g.x]];
-			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+			monster_race *r_ptr = m_ptr->race();
 
 			/* Visible */
 			if (m_ptr->ml)
@@ -2734,7 +2334,7 @@ static int target_set_interactive_aux(coord g, int mode, cptr info)
 
 
 		/* Feature (apply "mimic") */
-		feat = f_info[cave_feat[g.y][g.x]].mimic;
+		feat = feature_type::f_info[cave_feat[g.y][g.x]].mimic;
 
 		/* Require knowledge about grid, or ability to see grid */
 		if (!(cave_info[g.y][g.x] & (CAVE_MARK)) && !player_can_see_bold(g.y,g.x))
@@ -2746,7 +2346,7 @@ static int target_set_interactive_aux(coord g, int mode, cptr info)
 		/* Terrain feature if needed */
 		if (boring || (feat > FEAT_INVIS))
 		{
-			cptr name = f_name + f_info[feat].name;
+			cptr name = feature_type::f_info[feat].name();
 
 			/* Hack -- handle unknown grids */
 			if (feat == FEAT_NONE) name = "unknown grid";
@@ -2914,21 +2514,13 @@ bool target_set_interactive(int mode)
 				case '*':
 				case '+':
 				{
-					if (++m == temp_n)
-					{
-						m = 0;
-						if (!expand_list) done = TRUE;
-					}
+					m = (m+1)%temp_n;
 					break;
 				}
 
 				case '-':
 				{
-					if (m-- == 0)
-					{
-						m = temp_n - 1;
-						if (!expand_list) done = TRUE;
-					}
+					m = (m+temp_n-1)%temp_n;
 					break;
 				}
 
@@ -3198,8 +2790,6 @@ bool get_aim_dir(int *dp)
 
 	cptr p;
 
-#ifdef ALLOW_REPEAT
-
 	if (repeat_pull(dp))
 	{
 		/* Verify */
@@ -3213,8 +2803,6 @@ bool get_aim_dir(int *dp)
 			repeat_clear();
 		}
 	}
-
-#endif /* ALLOW_REPEAT */
 
 	/* Initialize */
 	(*dp) = 0;
@@ -3280,10 +2868,10 @@ bool get_aim_dir(int *dp)
 	p_ptr->command_dir = dir;
 
 	/* Check for confusion */
-	if (p_ptr->confused)
+	if (p_ptr->timed[TMD_CONFUSED])
 	{
 		/* Random direction */
-		dir = ddd[rand_int(8)];
+		dir = ddd[rand_int(KEYPAD_DIR_MAX)];
 	}
 
 	/* Notice confusion */
@@ -3296,11 +2884,7 @@ bool get_aim_dir(int *dp)
 	/* Save direction */
 	(*dp) = dir;
 
-#ifdef ALLOW_REPEAT
-
 	repeat_push(dir);
-
-#endif /* ALLOW_REPEAT */
 
 	/* A "valid" direction was entered */
 	return (TRUE);
@@ -3331,14 +2915,10 @@ bool get_rep_dir(int *dp)
 
 	cptr p;
 
-#ifdef ALLOW_REPEAT
-
 	if (repeat_pull(dp))
 	{
 		return (TRUE);
 	}
-
-#endif /* ALLOW_REPEAT */
 
 	/* Initialize */
 	(*dp) = 0;
@@ -3371,11 +2951,7 @@ bool get_rep_dir(int *dp)
 	/* Save direction */
 	(*dp) = dir;
 
-#ifdef ALLOW_REPEAT
-
 	repeat_push(dir);
-
-#endif /* ALLOW_REPEAT */
 
 	/* Success */
 	return (TRUE);
@@ -3395,13 +2971,13 @@ bool confuse_dir(int *dp)
 	dir = (*dp);
 
 	/* Apply "confusion" */
-	if (p_ptr->confused)
+	if (p_ptr->timed[TMD_CONFUSED])
 	{
 		/* Apply confusion XXX XXX XXX */
-		if ((dir == 5) || (rand_int(100) < 75))
+		if ((dir == 5) || !one_in_(4))
 		{
 			/* Random direction */
-			dir = ddd[rand_int(8)];
+			dir = ddd[rand_int(KEYPAD_DIR_MAX)];
 		}
 	}
 
@@ -3421,3 +2997,4 @@ bool confuse_dir(int *dp)
 	/* Not confused */
 	return (FALSE);
 }
+

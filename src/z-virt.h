@@ -88,11 +88,11 @@ inline T* COPY(T* P1,const T* P2)
 
 /* Allocate, and return, an array of type T[N] */
 #define C_RNEW(N,T) \
-	((T*)(ralloc(N*sizeof(T))))
+	((T*)(mem_alloc(N*sizeof(T))))
 
 /* Allocate, and return, a thing of type T */
 #define RNEW(T) \
-	((T*)(ralloc(sizeof(T))))
+	((T*)(mem_alloc(sizeof(T))))
 
 
 /* Allocate, wipe, and return an array of type T[N] */
@@ -115,42 +115,40 @@ inline T* COPY(T* P1,const T* P2)
 
 /* Free one thing at P, return NULL */
 #define FREE(P) \
-	(rnfree(P))
+	(mem_free(P))
 
 /* Free a thing at location P and set P to NULL */
 template<class T>
 inline void KILL(T* P)
 { 	P=(T*)(FREE(P)); }
 
+/*** Initialisation bits ***/
+
+/* Hook types for memory allocation */
+typedef void *(*mem_alloc_hook)(size_t);
+typedef void *(*mem_free_hook)(void *);
+typedef void *(*mem_realloc_hook)(void *, size_t);
+
+/* Set up memory allocation hooks */
+bool mem_set_hooks(mem_alloc_hook alloc, mem_free_hook free, mem_realloc_hook realloc);
 
 
-/**** Available variables ****/
+/**** Normal bits ***/
 
-/* Replacement hook for "rnfree()" */
-extern void* (*rnfree_aux)(void*);
-
-/* Replacement hook for "rpanic()" */
-extern void* (*rpanic_aux)(size_t);
-
-/* Replacement hook for "ralloc()" */
-extern void* (*ralloc_aux)(size_t);
-
-
-/**** Available functions ****/
+/* Allocate (and return) 'len', or quit */
+void *mem_alloc(size_t len);
 
 /* De-allocate memory */
-extern void* rnfree(void *p);
+void *mem_free(void *p);
 
-/* Panic, attempt to allocate 'len' bytes */
-extern void* rpanic(size_t len);
+/* Reallocate memory */
+void *mem_realloc(void *p, size_t len);
 
-/* Allocate (and return) 'len', or dump core */
-extern void* ralloc(size_t len);
 
 /* Create a "dynamic string" */
-extern cptr string_make(cptr str);
+char *string_make(const char *str);
 
 /* Free a string allocated with "string_make()" */
-extern errr string_free(cptr str);
+inline char *string_free(const char *str) {return (char*)mem_free((void*)str);}
 
 #endif /* INCLUDED_Z_VIRT_H */

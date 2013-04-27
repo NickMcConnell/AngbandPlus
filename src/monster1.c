@@ -9,6 +9,7 @@
  */
 
 #include "angband.h"
+#include "melee.h"
 
 
 /*
@@ -37,7 +38,7 @@ static cptr wd_his[3] =
  */
 static bool know_armour(int r_idx, const monster_lore *l_ptr)
 {
-	const monster_race *r_ptr = &r_info[r_idx];
+	const monster_race *r_ptr = &monster_type::r_info[r_idx];
 
 	s32b level = r_ptr->level;
 
@@ -64,16 +65,10 @@ static bool know_armour(int r_idx, const monster_lore *l_ptr)
  */
 static bool know_damage(int r_idx, const monster_lore *l_ptr, int i)
 {
-	const monster_race *r_ptr = &r_info[r_idx];
-
+	const monster_race *r_ptr = &monster_type::r_info[r_idx];
 	s32b level = r_ptr->level;
-
 	s32b a = l_ptr->blows[i];
-
-	s32b d1 = r_ptr->blow[i].d_dice;
-	s32b d2 = r_ptr->blow[i].d_side;
-
-	s32b d = d1 * d2;
+	s32b d = r_ptr->blow[i].d.maxroll();
 
 	/* Normal monsters */
 	if ((4 + level) * a > 80 * d) return (TRUE);
@@ -91,11 +86,11 @@ static bool know_damage(int r_idx, const monster_lore *l_ptr, int i)
 
 static void describe_monster_desc(int r_idx)
 {
-	const monster_race *r_ptr = &r_info[r_idx];
+	const monster_race *r_ptr = &monster_type::r_info[r_idx];
 	char buf[2048];
 
 	/* Simple method */
-	my_strcpy(buf, r_text + r_ptr->text, sizeof(buf));
+	my_strcpy(buf, r_ptr->text(), sizeof(buf));
 
 	/* Dump it */
 	text_out(buf);
@@ -105,7 +100,7 @@ static void describe_monster_desc(int r_idx)
 
 static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 {
-	const monster_race *r_ptr = &r_info[r_idx];
+	const monster_race *r_ptr = &monster_type::r_info[r_idx];
 	int m, n;
 	int msex = 0;
 	bool breath = FALSE;
@@ -335,7 +330,7 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 
 static void describe_monster_drop(int r_idx, const monster_lore *l_ptr)
 {
-	const monster_race *r_ptr = &r_info[r_idx];
+	const monster_race *r_ptr = &monster_type::r_info[r_idx];
 
 	bool sin = FALSE;
 
@@ -438,9 +433,8 @@ static void describe_monster_drop(int r_idx, const monster_lore *l_ptr)
 
 static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 {
-	const monster_race *r_ptr = &r_info[r_idx];
+	const monster_race *r_ptr = &monster_type::r_info[r_idx];
 	int m, n, r;
-	cptr p, q;
 
 	int msex = 0;
 
@@ -462,27 +456,15 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 	/* Examine (and count) the actual attacks */
 	for (r = 0, m = 0; m < MONSTER_BLOW_MAX; m++)
 	{
-		int method, effect, d1, d2;
+		if (!r_ptr->blow[m].method) continue;	/* Skip non-attacks */
+		if (!l_ptr->blows[m]) continue;			/* Skip unknown attacks */
 
-		/* Skip non-attacks */
-		if (!r_ptr->blow[m].method) continue;
-
-		/* Skip unknown attacks */
-		if (!l_ptr->blows[m]) continue;
-
-
-		/* Extract the attack info */
-		method = r_ptr->blow[m].method;
-		effect = r_ptr->blow[m].effect;
-		d1 = r_ptr->blow[m].d_dice;
-		d2 = r_ptr->blow[m].d_side;
-
-
-		/* No method yet */
-		p = NULL;
+		dice_sides d = r_ptr->blow[m].d;		/* Extract the attack info */
+		cptr p = "do something weird"; 			/* Hack -- force a method in case something of invalid */
+		cptr q = NULL;							/* Default effect */
 
 		/* Get the method */
-		switch (method)
+		switch (r_ptr->blow[m].method)
 		{
 			case RBM_HIT:	p = "hit"; break;
 			case RBM_TOUCH:	p = "touch"; break;
@@ -491,23 +473,18 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 			case RBM_CLAW:	p = "claw"; break;
 			case RBM_BITE:	p = "bite"; break;
 			case RBM_STING:	p = "sting"; break;
-			case RBM_XXX1:	break;
 			case RBM_BUTT:	p = "butt"; break;
 			case RBM_CRUSH:	p = "crush"; break;
 			case RBM_ENGULF:	p = "engulf"; break;
-			case RBM_XXX2:	break;
 			case RBM_CRAWL:	p = "crawl on you"; break;
 			case RBM_DROOL:	p = "drool on you"; break;
 			case RBM_SPIT:	p = "spit"; break;
-			case RBM_XXX3:	break;
 			case RBM_GAZE:	p = "gaze"; break;
 			case RBM_WAIL:	p = "wail"; break;
 			case RBM_SPORE:	p = "release spores"; break;
-			case RBM_XXX4:	break;
 			case RBM_BEG:	p = "beg"; break;
 			case RBM_INSULT:	p = "insult"; break;
 			case RBM_MOAN:	p = "moan"; break;
-			case RBM_XXX5:	break;
 			/* ZaiBand extended monster attacks */
 			case RBM_PRESBYOPIC_GAZE: p = "gaze at moderate ranges"; break;
 			case RBM_HYPEROPIC_GAZE: p = "gaze when far away"; break;
@@ -516,11 +493,8 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 		}
 
 
-		/* Default effect */
-		q = NULL;
-
 		/* Get the effect */
-		switch (effect)
+		switch (r_ptr->blow[m].effect)
 		{
 			case RBE_HURT:      q = "attack"; break;
 			case RBE_POISON:    q = "poison"; break;
@@ -569,7 +543,7 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 		}
 
 
-		/* Hack -- force a method */
+		
 		if (!p) p = "do something weird";
 
 		/* Describe the method */
@@ -584,11 +558,11 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 			text_out_c(TERM_L_RED, q);
 
 			/* Describe damage (if known) */
-			if (d1 && d2 && know_damage(r_idx, l_ptr, m))
+			if (d.dice && d.sides && know_damage(r_idx, l_ptr, m))
 			{
 				/* Display the damage */
 				text_out(" with damage");
-				text_out(format(" %dd%d", d1, d2));
+				text_out(format(" %dd%d", (int)d.dice, (int)d.sides));
 			}
 		}
 
@@ -619,7 +593,7 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 
 static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 {
-	const monster_race *r_ptr = &r_info[r_idx];
+	const monster_race *r_ptr = &monster_type::r_info[r_idx];
 
 	int n;
 
@@ -743,7 +717,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) text_out(" resists ");
+			if (n == 0) text_out(" is immune to ");
 			else if (n < vn-1) text_out(", ");
 			else text_out(" and ");
 
@@ -818,7 +792,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 
 	/* Do we know how aware it is? */
 	if ((((int)l_ptr->wake * (int)l_ptr->wake) > r_ptr->sleep) ||
-	    (l_ptr->ignore == MAX_UCHAR) ||
+	    (l_ptr->ignore == UCHAR_MAX) ||
 	    ((r_ptr->sleep == 0) && (l_ptr->tkills >= 10)))
 	{
 		cptr act;
@@ -890,7 +864,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 
 static void describe_monster_kills(int r_idx, const monster_lore *l_ptr)
 {
-	const monster_race *r_ptr = &r_info[r_idx];
+	const monster_race *r_ptr = &monster_type::r_info[r_idx];
 
 	int msex = 0;
 
@@ -1001,7 +975,7 @@ static void describe_monster_kills(int r_idx, const monster_lore *l_ptr)
 
 static void describe_monster_toughness(int r_idx, const monster_lore *l_ptr)
 {
-	const monster_race *r_ptr = &r_info[r_idx];
+	const monster_race *r_ptr = &monster_type::r_info[r_idx];
 
 	int msex = 0;
 
@@ -1021,14 +995,14 @@ static void describe_monster_toughness(int r_idx, const monster_lore *l_ptr)
 		if (l_ptr->flags1 & RF1_FORCE_MAXHP)
 		{
 			text_out(format(" and a life rating of %d.  ",
-			            r_ptr->hdice * r_ptr->hside));
+			            r_ptr->h.maxroll()));
 		}
 
 		/* Variable hitpoints */
 		else
 		{
 			text_out(format(" and a life rating of %dd%d.  ",
-			            r_ptr->hdice, r_ptr->hside));
+			            (int)(r_ptr->h.dice), int(r_ptr->h.sides)));
 		}
 	}
 }
@@ -1036,7 +1010,7 @@ static void describe_monster_toughness(int r_idx, const monster_lore *l_ptr)
 
 static void describe_monster_exp(int r_idx, const monster_lore *l_ptr)
 {
-	const monster_race *r_ptr = &r_info[r_idx];
+	const monster_race *r_ptr = &monster_type::r_info[r_idx];
 
 	cptr p, q;
 
@@ -1089,7 +1063,7 @@ static void describe_monster_exp(int r_idx, const monster_lore *l_ptr)
 
 static void describe_monster_movement(int r_idx, const monster_lore *l_ptr)
 {
-	const monster_race *r_ptr = &r_info[r_idx];
+	const monster_race *r_ptr = &monster_type::r_info[r_idx];
 
 	bool old = FALSE;
 
@@ -1196,7 +1170,7 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr)
  */
 static void cheat_monster_lore(int r_idx, monster_lore *l_ptr)
 {
-	const monster_race *r_ptr = &r_info[r_idx];
+	const monster_race *r_ptr = &monster_type::r_info[r_idx];
 
 	int i;
 
@@ -1205,7 +1179,7 @@ static void cheat_monster_lore(int r_idx, monster_lore *l_ptr)
 	l_ptr->tkills = MAX_SHORT;
 
 	/* Hack -- Maximal info */
-	l_ptr->wake = l_ptr->ignore = MAX_UCHAR;
+	l_ptr->wake = l_ptr->ignore = UCHAR_MAX;
 
 	/* Observe "maximal" attacks */
 	for (i = 0; i < MONSTER_BLOW_MAX; i++)
@@ -1214,7 +1188,7 @@ static void cheat_monster_lore(int r_idx, monster_lore *l_ptr)
 		if (r_ptr->blow[i].effect || r_ptr->blow[i].method)
 		{
 			/* Hack -- maximal observations */
-			l_ptr->blows[i] = MAX_UCHAR;
+			l_ptr->blows[i] = UCHAR_MAX;
 		}
 	}
 
@@ -1232,8 +1206,8 @@ static void cheat_monster_lore(int r_idx, monster_lore *l_ptr)
 	if (r_ptr->flags1 & RF1_ONLY_ITEM) l_ptr->drop_gold = 0;
 
 	/* Hack -- observe many spells */
-	l_ptr->cast_innate = MAX_UCHAR;
-	l_ptr->cast_spell = MAX_UCHAR;
+	l_ptr->cast_innate = UCHAR_MAX;
+	l_ptr->cast_spell = UCHAR_MAX;
 
 	/* Hack -- know all the flags */
 	l_ptr->flags1 = r_ptr->flags1;
@@ -1262,8 +1236,8 @@ void describe_monster(int r_idx, bool spoilers)
 	monster_lore lore;
 
 	/* Get the race and lore */
-	const monster_race *r_ptr = &r_info[r_idx];
-	monster_lore *l_ptr = &l_list[r_idx];
+	const monster_race *r_ptr = &monster_type::r_info[r_idx];
+	monster_lore *l_ptr = &monster_type::l_list[r_idx];
 
 
 	/* Hack -- create a copy of the monster-memory */
@@ -1334,7 +1308,7 @@ void describe_monster(int r_idx, bool spoilers)
  */
 void roff_top(int r_idx)
 {
-	monster_race *r_ptr = &r_info[r_idx];
+	monster_race *r_ptr = &monster_type::r_info[r_idx];
 
 	byte a1, a2;
 	char c1, c2;
@@ -1362,7 +1336,7 @@ void roff_top(int r_idx)
 	}
 
 	/* Dump the name */
-	Term_addstr(-1, TERM_WHITE, (r_name + r_ptr->name));
+	Term_addstr(-1, TERM_WHITE, r_ptr->name());
 
 	/* Append the "standard" attr/char info */
 	Term_addstr(-1, TERM_WHITE, " ('");

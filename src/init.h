@@ -56,8 +56,8 @@ typedef errr (*parse_info_txt_func)(char *buf, header *head);
  *
  * Note that, on some machines, for example, the Macintosh, the standard
  * "malloc()" function cannot handle more than 32767 bytes at one time,
- * but we may assume that the "ralloc()" function can handle up to 65535
- * butes at one time.  We should not, however, assume that the "ralloc()"
+ * but we may assume that the "mem_realloc()" function can handle up to 65535
+ * butes at one time.  We should not, however, assume that the "mem_realloc()"
  * function can handle more than 65536 bytes at a time, since this might
  * result in segmentation problems on certain older machines, and in fact,
  * we should not assume that it can handle exactly 65536 bytes at a time,

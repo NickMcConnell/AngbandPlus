@@ -18,4 +18,6 @@ http://www.thangorodrim.net/development/opensource.html
 
 Material changes by Kenneth 'Bessarion' Boyd are under the Boost License 1.0, which is compatible with (version 2 of) the GPL.
 
-The David Gervais graphical tileset is under (Version 2 of) the GPL.  Cf. GPL_2.0.txt in that directory for the exact details.
+The David Gervais 32x32 graphical tileset has a decidedly non-free license: explicit permission is required to redistribute the images, at least
+until some other fully-authenticated archive is located.  Known-good download sources include http://www.thangorodrim.net/ .
+
