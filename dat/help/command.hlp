@@ -93,6 +93,10 @@ These are the keyboard commands:
 Escape -- Pause Game (console command "pause") %br %indent+
     This command pauses the game until you hit Escape again.
 %indent- %br %br
+Enter -- Pause Game (console command "turn_mode") %br %indent+
+    Pauses the game, while allowing for input. Automatically activated upon
+    a low hitpoint warning. Press enter again to unpause.
+%indent- %br %br
 'a' -- Activate Artifact (console command "activate") %br %indent+
     This command selects an artifact to activate later with the right mouse
     button.  You select an object from your equipment.  Nothing happens

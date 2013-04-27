@@ -23,8 +23,7 @@ static char *wd_his[3] = { "its", "his", "her" };
 /*
  * Pluralizer.  Args(count, singular, plural)
  */
-#define plural(c,s,p) \
-    (((c) == 1) ? (s) : (p))
+#define plural(c,s,p)   (((c) == 1) ? (s) : (p))
 
 
 

@@ -11,5 +11,5 @@ stack_allow_items 1
 stack_allow_wands 1
 stack_force_notes 0
 stack_force_costs 0
-game_speed 12
+game_speed 1
 hitpoint_warn 0

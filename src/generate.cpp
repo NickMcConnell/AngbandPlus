@@ -108,6 +108,14 @@ const int DUN_TUN_CON    = 15;  // Chance of extra tunneling
 const int DUN_TUN_PEN    = 25;  // Chance of doors at room entrances
 const int DUN_TUN_JCT    = 90;  // Chance of doors at tunnel junctions
 
+// SAW  Dungeon streamer generation values
+const int DUN_STR_DEN  =  5;      /* Density of streamers */
+const int DUN_STR_RNG  =  2;      /* Width of streamers */
+const int DUN_STR_MAG  =  3;      /* Number of magma streamers */
+const int DUN_STR_MC   =  90;     /* 1/chance of treasure per magma */
+const int DUN_STR_QUA  =  2;      /* Number of quartz streamers */
+const int DUN_STR_QC   =  40;     /* 1/chance of treasure per quartz */
+
 // Dungeon treasure allocation values
 const int DUN_AMT_ROOM   = 9;   // Amount of objects for rooms
 const int DUN_AMT_ITEM   = 3;   // Amount of objects for rooms/corridors
@@ -565,6 +573,76 @@ static void alloc_object(int set, int typ, int num)
     }
 }
 
+/*
+ * Places "streamers" of rock through dungeon
+ *
+ * Note that their are actually six different terrain features used
+ * to represent streamers.  Three each of magma and quartz, one for
+ * basic vein, one with hidden gold, and one with known gold.  The
+ * hidden gold types are currently unused.
+ */
+static void build_streamer(int feat, int chance)
+{
+        int i, tx, ty;
+        int y, x;
+	int xdir,ydir;
+        CGrid *g_ptr;
+
+
+        /* Hack -- Choose starting point */
+        y = rand_spread(cur_hgt / 2, 10);
+        x = rand_spread(cur_wid / 2, 15);
+
+        /* Choose a random direction */
+        rand_dir(&xdir, &ydir);
+	
+        /* Place streamer into dungeon */
+        while (TRUE)
+        {
+                /* One grid per density */
+                for (i = 0; i < DUN_STR_DEN; i++)
+                {
+                        int d = DUN_STR_RNG;
+
+                        /* Pick a nearby grid */
+                        while (1)
+                        {
+                                ty = rand_spread(y, d);
+                                tx = rand_spread(x, d);
+                                if (!in_bounds(ty, tx)) continue;
+                                break;
+                        }
+			g_ptr = &cave[ty][tx];
+                        /* Only convert "granite" walls */
+                        if (g_ptr->get_feat() < CF_GRANITE_BASIC) continue;  // SAW was FEAT_WALL_EXTRA (Angb.)
+                        if (g_ptr->get_feat() > CF_GRANITE_SOLID) continue;  // SAW was FEAT_WALL_SOLID (Angb.)
+
+                        /* Clear previous contents, add proper vein type */
+                        g_ptr->set_feat(feat);
+
+                        /* Add some (known) treasure */
+                        if (rand_int(chance) == 0) 
+			{
+				switch(feat)
+				{
+					case CF_MAGMA :
+						g_ptr->set_feat(CF_MAGMA_K);
+						break;
+					case CF_QUARTZ:
+						 g_ptr->set_feat(CF_QUARTZ_K);
+                                                break;
+				}
+			}
+                }
+
+                /* Advance the streamer */
+                y += ydir;
+                x += xdir;
+
+                /* Stop at dungeon edge */
+                if (!in_bounds(y, x)) break;
+        }
+}
 
 
 /*
@@ -2894,8 +2972,17 @@ static void cave_gen(void)
         try_door(y - 1, x);
         try_door(y + 1, x);
     }
-
-
+    /* SAW */
+    for (i = 0; i < DUN_STR_MAG; i++)
+    {
+         build_streamer(CF_MAGMA, DUN_STR_MC);
+    }
+    for (i = 0; i < DUN_STR_QUA; i++)
+    {
+         build_streamer(CF_QUARTZ, DUN_STR_MC);
+    }
+    /*     */
+    
     /* Release the "dungeon" data */
     delete dun;
 

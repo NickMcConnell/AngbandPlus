@@ -127,7 +127,8 @@ static void calc_spells(void)
 
     magic_type *s_ptr;
 
-    char *p = (mp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer";
+    char p[20];
+    strcpy(p, (mp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
 
 
     /* Hack -- must be literate */

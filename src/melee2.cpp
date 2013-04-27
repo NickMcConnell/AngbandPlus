@@ -2125,3 +2125,4 @@ void process_monsters(void)
         }
     }
 }
+

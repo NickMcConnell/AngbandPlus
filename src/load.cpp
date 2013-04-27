@@ -103,8 +103,8 @@ static byte sf_get(void)
 
     // Get a character
     v = getc(fff) & 0xFF;
-
     // Return the value
+ 
     return v;
 }
 

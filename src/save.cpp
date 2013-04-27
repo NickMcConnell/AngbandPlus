@@ -10,8 +10,6 @@
  */
 
 #include "utumno.h"
-
-
 // Current savefile
 static FILE *fff;
 char savefile[1024];

@@ -83,7 +83,7 @@
 
 # Version stamp
 
-V:v1.0a5
+V:v1.0a6
 
 
 # 0x00 --> nothing

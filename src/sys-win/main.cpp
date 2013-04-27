@@ -1010,8 +1010,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
     wcex.lpszClassName = "Utumno";
     RegisterClassEx(&wcex);
 
-    // Create window
-    hWnd = CreateWindow("Utumno", "Utumno", WS_POPUP | WS_VISIBLE, 0, 0,
+    // Create window WS_POPUP | WS_VISIBLE
+    hWnd = CreateWindow("Utumno","Utumno",  WS_OVERLAPPEDWINDOW, 0, 0,
         GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), NULL, NULL,
         hInstance, NULL);
     if (!hWnd) quit("Could not create window");

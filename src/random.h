@@ -39,8 +39,7 @@ const int RAND_DEG = 63;
  * The integer X falls along a uniform distribution.
  * Note: rand_spread(A,D) == rand_range(A-D,A+D)
  */
-#define rand_spread(A,D) \
-	((A) + (rand_int(1+(D)+(D))) - (D))
+#define rand_spread(A,D) ((A) + (rand_int(1+(D)+(D))) - (D))
 
 
 /*

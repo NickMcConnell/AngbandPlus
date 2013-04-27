@@ -624,7 +624,8 @@ errr init_v_info_txt(FILE *fp, char *buf)
             v_ptr = &v_info[i];
 
             /* Hack -- Verify space */
-            if (v_head->name_size + strlen(s) > fake_name_size - 8) return (7);
+	// MV -- Inserted a casting to u16b in order to avoid a compile warning
+            if (v_head->name_size + (u16b) strlen(s) > fake_name_size - 8) return (7);
 
             /* Advance and Save the name index */
             if (!v_ptr->name) v_ptr->name = ++v_head->name_size;
@@ -650,7 +651,8 @@ errr init_v_info_txt(FILE *fp, char *buf)
             s = buf+2;
 
             /* Hack -- Verify space */
-            if (v_head->text_size + strlen(s) > fake_text_size - 8) return (7);
+	// MV -- Inserted a casting to u16b in order to avoid a compile warning
+            if (v_head->text_size + (u16b) strlen(s) > fake_text_size -  8) return (7);
 
             /* Advance and Save the text index */
             if (!v_ptr->text) v_ptr->text = ++v_head->text_size;
@@ -795,7 +797,8 @@ errr init_f_info_txt(FILE *fp, char *buf)
             f_ptr = &f_info[i];
 
             /* Hack -- Verify space */
-            if (f_head->name_size + strlen(s) > fake_name_size - 8) return (7);
+	// MV -- Inserted a casting to u16b in order to avoid a compile warning
+            if (f_head->name_size + (u16b) strlen(s) > fake_name_size - 8) return (7);
 
             /* Advance and Save the name index */
             if (!f_ptr->name) f_ptr->name = ++f_head->name_size;
@@ -1233,7 +1236,8 @@ errr init_a_info_txt(FILE *fp, char *buf)
             a_ptr = &a_info[i];
 
             /* Hack -- Verify space */
-            if (a_head->name_size + strlen(s) > fake_name_size - 8) return (7);
+	// MV -- Inserted a casting to u16b in order to avoid a compile warning
+            if (a_head->name_size + (u16b) strlen(s) > fake_name_size - 8) return (7);
 
             /* Advance and Save the name index */
             if (!a_ptr->name) a_ptr->name = ++a_head->name_size;
@@ -1501,7 +1505,8 @@ errr init_e_info_txt(FILE *fp, char *buf)
             e_ptr = &e_info[i];
 
             /* Hack -- Verify space */
-            if (e_head->name_size + strlen(s) > fake_name_size - 8) return (7);
+	// MV -- Inserted a casting to u16b in order to avoid a compile warning
+            if (e_head->name_size + (u16b) strlen(s) > fake_name_size - 8) return (7);
 
             /* Advance and Save the name index */
             if (!e_ptr->name) e_ptr->name = ++e_head->name_size;
@@ -1822,7 +1827,8 @@ errr init_r_info_txt(FILE *fp, char *buf)
             r_ptr = &r_info[i];
 
             /* Hack -- Verify space */
-            if (r_head->name_size + strlen(s) > fake_name_size - 8) return (7);
+	// MV -- Inserted a casting to u16b in order to avoid a compile warning
+            if (r_head->name_size + (u16b) strlen(s) > fake_name_size - 8) return (7);
 
             /* Advance and Save the name index */
             if (!r_ptr->name) r_ptr->name = ++r_head->name_size;
@@ -1855,7 +1861,8 @@ errr init_r_info_txt(FILE *fp, char *buf)
             s = buf+2;
 
             /* Hack -- Verify space */
-            if (r_head->text_size + strlen(s) > fake_text_size - 8) return (7);
+	// MV -- Inserted a casting to u16b in order to avoid a compile warning
+            if (r_head->text_size + (u16b) strlen(s) > fake_text_size - 8) return (7);
 
             /* Advance and Save the text index */
             if (!r_ptr->text) r_ptr->text = ++r_head->text_size;

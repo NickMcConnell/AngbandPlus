@@ -361,10 +361,10 @@ bool player_birth(void)
     CButton *ok = new CButton(240, 283, 60, 20, "OK");
     CButton *cancel = new CButton(340, 283, 60, 20, "Cancel");
     window->Attach(ok); window->Attach(cancel);
-
     screen = save_screen();
-
+    screen_refresh(); 
     for (;;) {
+
         // Enable/disable each radio button
         rp_ptr = &race_info[prace];
         for (i = 0; i < MAX_CLASS; i++) {
@@ -378,9 +378,9 @@ bool player_birth(void)
             }
         }
         if (!radios[pclass]->isEnabled()) pclass = 0;
-
-        gui_draw(window);
-        c = scan_inkey_scan();
+	gui_draw(window);
+        
+	c = scan_inkey_scan(); 
         if (c) {
             if (c == KEY_ENTER) break;
             if (c == KEY_ESCAPE) {
@@ -401,10 +401,8 @@ bool player_birth(void)
         }
     }
     delete window;
-
     restore_screen(screen);
     delete[] screen;
-
     // Keep some results
     p_ptr->SetMale(gender == 0);
     p_ptr->SetRace(prace);
@@ -412,13 +410,10 @@ bool player_birth(void)
     p_ptr->SetClass(pclass);
     cp_ptr = &class_info[p_ptr->GetClass()];
     mp_ptr = &magic_info[p_ptr->GetClass()];
-
     // Clear the screen
     blank_screen(COLOR_BLACK);
-
     // Title everything
     show_create_header();
-
 
     // Set up base stats
     for (i = 0; i < 6; i++) base_stats[i] = 12;
@@ -451,7 +446,6 @@ bool player_birth(void)
         // Calculate points used
         points_used = 0;
         for (i = 0; i < 6; i++) points_used += stat_points[base_stats[i]];
-
         // Prepare a prompt (must squeeze everything in)
         put_string(2*8, 21*16,
             "'S'/'s' to modify STR; 'I'/'i' to modify INT; 'W'/'w' to modify WIS",
@@ -548,3 +542,4 @@ bool player_birth(void)
     // Succeeded
     return TRUE;
 }
+

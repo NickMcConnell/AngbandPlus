@@ -243,6 +243,7 @@ void CRadioButton::DrawMe(int mx, int my, bool left)
 {
     bool selected, depressed;
     int px, py;
+
     selected = isSelected();
     depressed = isDepressed(mx, my, left);
     start_pixel_draw();
@@ -289,7 +290,6 @@ CComponent(xx, yy, wid, 18)
 void CTextField::DrawMe(int mx, int my, bool left)
 {
     int xx;
-
     box(x+2, y+2, x+width-2, y+height-2, COLOR_WHITE);
     horiz_line(x, x+width, y, 7);
     vert_line(x, y, y+height, 7);

@@ -50,4 +50,3 @@
 #define IRQ_OLDVEC            8
 
 #endif   /* ifndef ASMDEFS_H */
-

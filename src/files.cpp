@@ -10,9 +10,6 @@
  */
 
 #include "utumno.h"
-#include <signal.h>
-
-
 /*
  * Print number with header at given row, column
  */
@@ -261,7 +258,8 @@ void display_player(void)
     put_text(8, 5*16, "Class", COLOR_WHITE, FONT_BOLD);
 
     put_text(15*8, 2*16, player_name, COLOR_LT_BLUE, FONT_BOLD);
-    put_text(15*8, 3*16, p_ptr->GetMale() ? "Male" : "Female", COLOR_LT_BLUE, FONT_BOLD);
+    strcpy(buf,(p_ptr->GetMale()) ? "Male" : "Female");
+    put_text(15*8, 3*16, buf, COLOR_LT_BLUE, FONT_BOLD);
     put_text(15*8, 4*16, p_ptr->GetRaceTitle(), COLOR_LT_BLUE, FONT_BOLD);
     put_text(15*8, 5*16, p_ptr->GetClassTitle(), COLOR_LT_BLUE, FONT_BOLD);
     
@@ -1467,7 +1465,7 @@ static errr top_twenty(void)
     the_score.turns = game_turn;
 
     /* Save the date in standard form (8 chars) */
-    strftime(the_score.day, 9, "%m/%d/%y", localtime(&ct));
+    strftime(the_score.day, 9, "%m/%d/%Y", localtime(&ct));
 
     /* Save the player name (15 chars) */
     sprintf(the_score.who, "%-.15s", player_name);
@@ -1793,8 +1791,7 @@ static void handle_signal_abort(int sig)
 {
     /* Disable handler */
     signal(sig, SIG_IGN);
-
-
+    printf("%d\n",sig);
     // Nothing to save, just quit with an error
     if (!character_generated || character_saved) quit("software bug");
 
@@ -1808,7 +1805,6 @@ static void handle_signal_abort(int sig)
 
     // Attempt to save
     save_player();
-
     // Quit
     quit("software bug");
 }
@@ -1851,7 +1847,7 @@ void signals_init()
 
 
 #ifdef SIGINT
-    signal(SIGINT, SIG_IGN);
+    signal(SIGINT, handle_signal_abort);
 #endif
 
 #ifdef SIGQUIT

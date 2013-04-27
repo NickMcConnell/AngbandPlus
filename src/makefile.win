@@ -1,0 +1,52 @@
+# makefile.win
+
+OBJS = \
+  sys-win/main.o sys-win/dxwrap.o \
+  birth.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o console.o debug.o \
+  dungeon.o entity.o files.o generate.o gui.o init1.o init2.o living.o \
+  load.o map.o melee1.o melee2.o monster.o mon-desc.o object.o obj-desc.o \
+  player.o random.o save.o spells1.o spells2.o store.o tables.o util.o \
+  variable.o xtra1.o xtra2.o z-form.o
+
+# Name of Program
+
+PROGRAM = xutumno.exe
+
+# Compiler
+
+CC = mingw32-g++.exe 
+
+# defines
+
+DEFINES =
+
+# Compiler flags
+
+CFLAGS = -O
+SFLAGS = -Wall -O2 
+
+# Libraries
+
+LIBS = -lddraw 
+GLIBS= -lgrx20
+
+
+
+.SUFFIXES: .c .h .o .cpp .s
+
+
+all: $(PROGRAM)
+
+
+xutumno.exe: $(OBJS)
+	$(CC) $(CFLAGS) $(DEFINES) -o xutumno.exe $(OBJS) $(LIBS)
+
+# Compile source files
+
+.cpp.o:
+	$(CC) $(CFLAGS) $(DEFINES) -o $*.o -c $*.cpp
+
+
+.s.o:
+	$(CC) $(SFLAGS)  $(DEFINES) -o $*.o -c $*.s
+

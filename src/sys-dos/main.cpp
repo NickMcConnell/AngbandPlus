@@ -11,13 +11,13 @@
  */
 
 /*
- * Original code by Billy Tanksley (wtanksle@ucsd.edu)
+ * Original code by Billy Tanksley (wtanksle@@ucsd.edu)
  *
- * Support for DJGPP v2 by Scott Egashira (egashira@u.washington.edu)
+ * Support for DJGPP v2 by Scott Egashira (egashira@@u.washington.edu)
  *
- * Extensive modifications by Ben Harrison (benh@voicenet.com).
+ * Extensive modifications by Ben Harrison (benh@@voicenet.com).
  *
- * True color palette support by Mike Marcelais (mrmarcel@eos.ncsu.edu),
+ * True color palette support by Mike Marcelais (mrmarcel@@eos.ncsu.edu),
  * with interface to the "color_table" array by Ben Harrison.  Matt
  * Craighead also helped with developing and testing the palette code.
  *
@@ -25,8 +25,8 @@
  */
 
 
-#include <sys/farptr.h>
-#include <osfcn.h>
+//#include <sys/farptr.h>
+//#include <osfcn.h>
 #include "../utumno.h"
 #include "sys-dos.h"
 
@@ -38,7 +38,23 @@
 #include "bold.h"
 #include "regular.h"
 
+#include <X11/Xlib.h>
+#define XK_MISCELLANY
+#define XK_LATIN1
+#define XK_PUBLISHING
+#include <X11/keysymdef.h>
+#define NIL (0)
+/*  Xlib global variables */
 
+Display *dpy ;
+int blackColor;
+int whiteColor;
+Window w ; 
+GC gc ;
+XEvent report;
+int x_palette[500];
+Pixmap buffer_pixmap, pixmap;
+/*                        */
 struct CFrame {
     byte height;
     u16b ndata;
@@ -72,64 +88,6 @@ const int SCREEN_HEIGHT = 480;
 const int FULL_BANKS = 4;          // 4 blocks of 65536 bytes
 const int SIZE_LAST_BANK = 45056;  // 1 block of 45056 bytes
 
-
-// The VESA structures
-#define PACKED __attribute__ ((packed))
-#pragma pack(1)
-
-// SuperVGA information block
-typedef struct {
-  char    VESASignature[4] PACKED;      // 'VESA' 4 byte signature
-  short   VESAVersion PACKED;           // VBE version number
-  char    *OEMStringPtr PACKED;         // Pointer to OEM string
-  long    Capabilities PACKED;          // Capabilities of video card
-  short   *VideoModePtr PACKED;         // Pointer to supported modes
-  short   TotalMemory PACKED;           // Number of 64kb memory blocks
-  char    reserved[236] PACKED;         // Pad to 256 byte block size
-} vgainfo_type;
-
-// SuperVGA mode information block
-typedef struct {
-  short   ModeAttributes PACKED;         /* Mode attributes */
-  char    WinAAttributes PACKED;         /* Window A attributes */
-  char    WinBAttributes PACKED;         /* Window B attributes */
-  short   WinGranularity PACKED;         /* Window granularity in k */
-  short   WinSize PACKED;                /* Window size in k */
-  short   WinASegment PACKED;            /* Window A segment */
-  short   WinBSegment PACKED;            /* Window B segment */
-  void    *WinFuncPtr PACKED;            /* Pointer to window function */
-  short   BytesPerScanLine PACKED;       /* Bytes per scanline */
-  short   XResolution PACKED;            /* Horizontal resolution */
-  short   YResolution PACKED;            /* Vertical resolution */
-  char    XCharSize PACKED;              /* Character cell width */
-  char    YCharSize PACKED;              /* Character cell height */
-  char    NumberOfPlanes PACKED;         /* Number of memory planes */
-  char    BitsPerPixel PACKED;           /* Bits per pixel */
-  char    NumberOfBanks PACKED;          /* Number of CGA style banks */
-  char    MemoryModel PACKED;            /* Memory model type */
-  char    BankSize PACKED;               /* Size of CGA style banks */
-  char    NumberOfImagePages PACKED;     /* Number of images pages */
-  char    res1 PACKED;                   /* Reserved */
-  char    RedMaskSize PACKED;            /* Size of direct color red mask */
-  char    RedFieldPosition PACKED;       /* Bit posn of lsb of red mask */
-  char    GreenMaskSize PACKED;          /* Size of direct color green mask */
-  char    GreenFieldPosition PACKED;     /* Bit posn of lsb of green mask */
-  char    BlueMaskSize PACKED;           /* Size of direct color blue mask */
-  char    BlueFieldPosition PACKED;      /* Bit posn of lsb of blue mask */
-  char    RsvdMaskSize PACKED;           /* Size of direct color res mask */
-  char    RsvdFieldPosition PACKED;      /* Bit posn of lsb of res mask */
-  char    DirectColorModeInfo PACKED;    /* Direct color mode attributes */
-
-  /* VESA 2.0 variables */
-  long    PhysBasePtr;                   /* physical address for flat frame buffer */
-  long    OffScreenMemOffset;            /* pointer to start of off screen memory */
-  short   OffScreenMemSize;      /* amount of off screen memory in 1k units */
-  char    res2[206] PACKED;              /* Pad to 256 byte block size       */
-} modeinfo_type;
-
-#pragma pack()
-
-
 // Darkening info
 static byte darken_tab[256];
 
@@ -143,30 +101,27 @@ static CTile *tiles[MAX_TILES];
 // The current clipping rectangle
 static int cx1 = 0, cy1 = 0, cx2 = 639, cy2 = 479;
 
-static vgainfo_type vgainfo;
-static modeinfo_type modeinfo;
-
 // Verify against the clipping rectangle
 #define test_clip(x, y) (((x) < cx1) || ((x) > cx2) || ((y) < cy1) || ((y) > cy2))
 
 // Put a pixel on the virtual screen
 // Ignores clipping
+/*SAW  
 #define put_pixel(x, y, color) virtual_screen[SCREEN_WIDTH*(y)+(x)] = color;
+*/
+#define put_pixel(x,y,color) { XSetForeground(dpy, gc, x_palette[color]); XDrawPoint(dpy, buffer_pixmap, gc, x, y);}
 
-#define set_bank(bank) \
-{ \
-    regs.x.ax = 0x4F05; regs.x.bx = 0; regs.x.dx = (bank); \
-    __dpmi_int(0x10, &regs); \
-    regs.x.ax = 0x4F05; regs.x.bx = 1; regs.x.dx = (bank); \
-    __dpmi_int(0x10, &regs); \
-}
-
+/* SAW
+#define set_bank(bank){    regs.x.ax = 0x4F05; regs.x.bx = 0; regs.x.dx = (bank);     __dpmi_int(0x10, &regs);     regs.x.ax = 0x4F05; regs.x.bx = 1; regs.x.dx = (bank);     __dpmi_int(0x10, &regs); }
+*/
 
 /*
  * Flush changes to the screen
  */
+/*SAW*/
 void screen_refresh(void)
 {
+    /*
     int bank;
     __dpmi_regs regs;
 
@@ -178,9 +133,15 @@ void screen_refresh(void)
     set_bank(4 << modeinfo.WinGranularity);
     dosmemput(&virtual_screen[0] + 65536L * ((long) 4),
         45056L, 0xA0000);
+	*/
+	XCopyArea(dpy, buffer_pixmap, w,gc, 0, 0, 640,  480,  0, 0);
+	XFlush(dpy);  //SAW GUESS
 }
-
-
+void partial_screen_refresh(int x,int y, int width, int height)
+{
+  XCopyArea(dpy, buffer_pixmap, w,gc, x, y, width,  height,  x, y);	
+  XFlush(dpy);
+}
 /*
  * Set a clipping rectangle
  */
@@ -209,15 +170,18 @@ const int K_INSERT       = 7;   // Insert on
 /*
  * Is shift depressed?
  */
+
+/*SAW REWRITE */
 bool get_shift(void)
 {
+	/*
     // Acquire mods via BIOS
     int mods = bioskey(2);
 
     // If it checks out, shift is depressed
     if (mods & (1 << K_LSHIFT)) return TRUE;
     if (mods & (1 << K_RSHIFT)) return TRUE;
-
+*/
     // No shift
     return FALSE;
 }
@@ -226,14 +190,16 @@ bool get_shift(void)
 /*
  * Is caps lock on?
  */
+
+/*SAW REWRITE */
 bool get_capslock(void)
 {
     // Acquire mods via BIOS
-    int mods = bioskey(2);
+/*    int mods = bioskey(2);
 
     // If it checks out, it's on
     if (mods & (1 << K_CAPS)) return TRUE;
-
+*/
     // Not on
     return FALSE;
 }
@@ -244,29 +210,131 @@ bool get_capslock(void)
  */
 int scan_inkey_scan(void)
 {
-    if (!bioskey(0x11)) return 0;
-    return (bioskey(0x10) >> 8) & 0xFF;
+/*    if (!bioskey(0x11)) return 0;
+    return (bioskey(0x10) >> 8) & 0xFF;*/
+/*SAW MEGLIO NONBLOCKING ? */
+    int key;
+    XNextEvent(dpy, &report);
+    if (report.type==KeyPress)
+    {
+     key = XLookupKeysym(&report.xkey, 0);
+     /* Wrapper from X keysyms  */
+     switch(key)
+     {	    
+      case XK_Escape: return KEY_ESCAPE ;
+      case XK_1: return KEY_1 ;
+      case XK_2: return KEY_2 ;
+      case XK_3: return KEY_3 ;
+      case XK_4: return KEY_4 ;
+      case XK_5: return KEY_5 ;
+      case XK_6: return KEY_6 ;
+      case XK_7: return KEY_7 ;
+      case XK_8: return KEY_8 ;
+      case XK_9: return KEY_9 ;
+      case XK_0: return KEY_0 ;
+      case XK_minus: return KEY_MINUS ;
+      case XK_equal: return KEY_EQUAL ;
+      case XK_BackSpace: return KEY_BACKSPACE ;
+      case XK_Tab: return KEY_TAB ;
+      case XK_q: return KEY_Q ;
+      case XK_w: return KEY_W ;
+      case XK_e: return KEY_E ;
+      case XK_r: return KEY_R ;
+      case XK_t: return KEY_T ;
+      case XK_y: return KEY_Y ;
+      case XK_u: return KEY_U ;
+      case XK_i: return KEY_I ;
+      case XK_o: return KEY_O ;
+      case XK_p: return KEY_P ;
+      case XK_bracketleft: return KEY_LBRACKET ;
+      case XK_bracketright: return KEY_RBRACKET ;
+      case XK_Return: return KEY_ENTER ;
+      case XK_a: return KEY_A ;
+      case XK_s: return KEY_S ;
+      case XK_d: return KEY_D ;
+      case XK_f: return KEY_F ;
+      case XK_g: return KEY_G ;
+      case XK_h: return KEY_H ;
+      case XK_j: return KEY_J ;
+      case XK_k: return KEY_K ;
+      case XK_l: return KEY_L ;
+      case XK_semicolon: return KEY_SEMICOLON ;
+      case XK_rightsinglequotemark: return KEY_QUOTE ;
+      case XK_leftsinglequotemark: return KEY_BACKQUOTE ;
+      case XK_backslash: return KEY_BACKSLASH ;
+      case XK_z: return KEY_Z ;
+      case XK_x: return KEY_X ;
+      case XK_c: return KEY_C ;
+      case XK_v: return KEY_V ;
+      case XK_b: return KEY_B ;
+      case XK_n: return KEY_N ;
+      case XK_m: return KEY_M ;
+      case XK_comma: return KEY_COMMA ;
+      case XK_period: return KEY_PERIOD ;
+      case XK_slash: return KEY_SLASH ;
+      case XK_asterisk: return KEYPAD_STAR ;
+      case XK_space: return KEY_SPACE ;
+      case XK_F1: return KEY_F1 ;
+      case XK_F2: return KEY_F2 ;
+      case XK_F3: return KEY_F3 ;
+      case XK_F4: return KEY_F4 ;
+      case XK_F5: return KEY_F5 ;
+      case XK_F6: return KEY_F6 ;
+      case XK_F7: return KEY_F7 ;
+      case XK_F8: return KEY_F8 ;
+      case XK_F9: return KEY_F9 ;
+      case XK_F10: return KEY_F10 ;
+      case XK_KP_7: return KEYPAD_7 ;
+      case XK_KP_8: return KEYPAD_8 ;
+      case XK_KP_9: return KEYPAD_9 ;
+      case XK_KP_Subtract: return KEYPAD_MINUS ;
+      case XK_KP_4: return KEYPAD_4 ;
+      case XK_KP_5: return KEYPAD_5 ;
+      case XK_KP_6: return KEYPAD_6 ;
+      case XK_KP_Add: return KEYPAD_PLUS ;
+      case XK_KP_1: return KEYPAD_1 ;
+      case XK_KP_2: return KEYPAD_2 ;
+      case XK_KP_3: return KEYPAD_3 ;
+      case XK_KP_0: return KEYPAD_0 ;
+      case XK_KP_Decimal: return KEYPAD_PERIOD ;
+      case XK_Up: return KEY_UP ;
+      case XK_Left: return KEY_LEFT ;
+      case XK_Right: return KEY_RIGHT ;
+      case XK_Down: return KEY_DOWN ;
+      case XK_Home: return KEY_HOME ;
+      case XK_End: return KEY_END ;
+      case XK_Page_Up: return KEY_PGUP ;
+      case XK_Page_Down: return KEY_PGDN ;
+     } 
+    }
+	return 0;    
 }
 
 
 // Save/restore the virtual screen
-byte *save_screen(void)
-{
-    byte *rval = new byte[SCREEN_HEIGHT*SCREEN_WIDTH];
+
+/*SAW DA RIFARE ...*/
+void save_screen(void)
+{ 
+     XCopyArea(dpy, w, pixmap, gc, 0, 0, 640, 480,  0, 0);
+
+    /*byte *rval = new byte[SCREEN_HEIGHT*SCREEN_WIDTH];
     memcpy(rval, virtual_screen, SCREEN_HEIGHT*SCREEN_WIDTH*sizeof(byte));
-    return rval;
+    return rval;*/
 }
 
-void restore_screen(byte *from)
+void restore_screen(void)
 {
-    memcpy(virtual_screen, from, SCREEN_HEIGHT*SCREEN_WIDTH*sizeof(byte));
+//    memcpy(virtual_screen, from, SCREEN_HEIGHT*SCREEN_WIDTH*sizeof(byte));
+      XCopyArea(dpy, pixmap, w,gc, 0, 0, 640, 480,  0, 0);
 }
 
 /*
  * Detect the presence of a VESA SVGA card
  */
-int vesa_detect(vgainfo_type *info)
+int vesa_detect(void/*vgainfo_type *info*/)
 {
+    /* SAW
     __dpmi_regs regs;
 
     regs.x.ax = 0x4F00;
@@ -279,13 +347,16 @@ int vesa_detect(vgainfo_type *info)
         return 0;
     }
     return info->VESAVersion;
+    */
+return 0;    
 }
 
 /*
  * Get mode info
  */
-static void get_mode_info(int mode, modeinfo_type *info)
+static void get_mode_info(/*int mode, modeinfo_type *info*/void)
 {
+	/*SAW
     __dpmi_regs regs;
 
     regs.x.ax = 0x4F01;
@@ -294,6 +365,7 @@ static void get_mode_info(int mode, modeinfo_type *info)
     regs.x.es = (__tb >> 4) & 0xFFFF;
     __dpmi_int(0x10, &regs);
     dosmemget(__tb, sizeof(*info), info);
+    */
 }
 
 /*
@@ -301,11 +373,13 @@ static void get_mode_info(int mode, modeinfo_type *info)
  */
 static void set_vesa_mode(int mode)
 {
+	/*SAW
     __dpmi_regs regs;
 
     regs.x.ax = 0x4F02;
     regs.x.bx = mode;
     __dpmi_int(0x10, &regs);
+    */
 }
 
 /*
@@ -313,11 +387,13 @@ static void set_vesa_mode(int mode)
  */
 static void set_bios_mode(int mode)
 {
+	/*
     __dpmi_regs regs;
 
     regs.h.ah = 0x00;
     regs.h.al = mode;
     __dpmi_int(0x10, &regs);
+    */
 }
 
 
@@ -328,8 +404,9 @@ static void set_bios_mode(int mode)
  * y = y coordinate
  * left = left button
  */
+/*SAW REWRITE */
 void get_mouse_status(int *x, int *y, bool *left)
-{
+{/*
     __dpmi_regs regs;
 
     regs.x.ax = 3;
@@ -337,14 +414,17 @@ void get_mouse_status(int *x, int *y, bool *left)
     *x = regs.x.cx;
     *y = regs.x.dx;
     *left = (regs.x.bx & 1) ? TRUE : FALSE;
+    */
 }
 
 
 /*
  * Get last release of left mouse button
  */
+/*SAW REWRITE */
 bool get_last_left_button_release(int *rx, int *ry)
 {
+	/*
     __dpmi_regs regs;
 
     regs.x.ax = 6;
@@ -352,16 +432,18 @@ bool get_last_left_button_release(int *rx, int *ry)
     __dpmi_int(0x33, &regs);
     *rx = regs.x.cx;
     *ry = regs.x.dx;
-    return (regs.x.bx ? TRUE : FALSE);
+    return (regs.x.bx ? TRUE : FALSE);*/
 }
 
 
 /*
  * Get last release of right mouse button
  */
+/*SAW REWRITE */
+
 bool get_last_right_button_release(int *rx, int *ry)
 {
-    __dpmi_regs regs;
+/*    __dpmi_regs regs;
 
     regs.x.ax = 6;
     regs.x.bx = 1;
@@ -369,6 +451,8 @@ bool get_last_right_button_release(int *rx, int *ry)
     *rx = regs.x.cx;
     *ry = regs.x.dx;
     return (regs.x.bx ? TRUE : FALSE);
+*/
+	return FALSE;
 }
 
 
@@ -418,16 +502,19 @@ void virt_kill_mouse(int x, int y)
  *
  * WARNING: do not use except at times when it is safe!
  */
+/*SAW REWRITE */
+
 void set_palette_entry(int c, int r, int g, int b)
 {
-    r /= 4; g /= 4; b /= 4;
-
-    // Set the color reg using ports
-    outportb(0x3C6, 0xFF);
-    outportb(0x3C8, c);
-    outportb(0x3C9, r);
-    outportb(0x3C9, g);
-    outportb(0x3C9, b);
+/*    r /= 4; g /= 4; b /= 4;    // Set the color reg using ports    outportb(0x3C6, 0xFF);    outportb(0x3C8, c);    outportb(0x3C9, r);    outportb(0x3C9, g);   outportb(0x3C9, b); */
+	XColor xcolor;
+	Colormap colormap;
+	colormap = DefaultColormap(dpy, DefaultScreen(dpy));
+	xcolor.red=(unsigned short)((r*65535)/256);
+        xcolor.green=(unsigned short)((g*65535)/256);
+        xcolor.blue=(unsigned short)((b*65535)/256);
+	XAllocColor(dpy, colormap, &xcolor);
+	x_palette[c]=xcolor.pixel;
 }
 
 /*
@@ -444,11 +531,21 @@ void set_default_palette(void)
 /*
  * Return to text mode
  */
+/*SAW REWRITE */
+
 static void kill_system_specific(void)
 {
+	/*
     if (virtual_screen) delete[] virtual_screen;
     set_bios_mode(3);
     remove_timer();
+    */
+// *** MV
+	XFreeGC(dpy,gc);
+    XFreePixmap(dpy,pixmap);
+    XFreePixmap(dpy,buffer_pixmap);
+    XCloseDisplay(dpy);
+
 }
 
 
@@ -471,29 +568,38 @@ void draw_pixel(int x, int y, byte c)
 // Draw a box
 void box(int x1, int y1, int x2, int y2, byte color)
 {
-    int y;
+//SAW    int y;
 
     if ((x1 > cx2) || (x2 < cx1)) return;
     if (x2 < x1) return;
     if (x1 < cx1) x1 = cx1;
     if (x2 > cx2) x2 = cx2;
-
+/*SAW
     for (y = y1; y <= y2; y++) {
         if ((y < cy1) || (y > cy2)) continue;
         memset(virtual_screen+y*SCREEN_WIDTH+x1, color, x2-x1+1);
     }
+*/
+	XSetForeground(dpy, gc, x_palette[color]);
+	XFillRectangle(dpy, buffer_pixmap, gc, x1, y1, x2-x1, y2-y1);
 }
 
 // Set the whole screen to one color
 // Bypasses any clipping rectangle
+/*SAW*/
 void blank_screen(byte color)
 {
-    memset(virtual_screen, color, SCREEN_HEIGHT*SCREEN_WIDTH);
+   // memset(virtual_screen, color, SCREEN_HEIGHT*SCREEN_WIDTH);
+//SAW METTI A POSTO I COLORI   
+   XSetForeground(dpy, gc, x_palette[color]);	
+   XFillRectangle(dpy, buffer_pixmap, gc, 0, 0, 640, 480);
 }
 
 // Draw a horizontal or vertical line
+/* SAW REWRITE */
 void horiz_line(int x1, int x2, int y, byte color)
 {
+	// use XDrawLine
     if ((y < cy1) || (y > cy2)) return;
 
     if ((x1 > cx2) || (x2 < cx1)) return;
@@ -615,12 +721,22 @@ static void put_character_font(int x, int y, int c, byte color, int font)
 // Draw a string in a font
 void put_text(int x, int y, char *c, byte color, int font)
 {
+    XTextItem items[1];
     int i, len = strlen(c);
+
+    items[0].chars = c;
+    items[0].nchars = len;
+    items[0].delta = 0;
+    items[0].font = XLoadFont(dpy, "*");
 
     for (i = 0; i < len; i++) {
         put_character_font(x, y, c[i], color, font);
         x += get_char_width(c[i], font);
     }
+/*
+    XSetForeground(dpy,gc,x_palette[color]);
+    XDrawText(dpy, w, gc, x, y, items, 1);
+    screen_refresh();*/
 }
 
 
@@ -791,6 +907,7 @@ static void draw_iso_tile(int off_x, int off_y, CFrame *frame, bool darken)
                             while (n >= 4) {
                                 int py = SCREEN_WIDTH*y;
                                 *((u32b *) (virtual_screen+py+x)) = *((u32b *) d);
+//								put_pixel quattro volte MV
                                 n -= 4; d += 4; x += 4;
                             }
                             for (; n > 0; n--) {
@@ -911,7 +1028,9 @@ void draw_tile(int off_x, int off_y, char *tile_name, bool darken, char *scene_n
 /*
  * Miscellaneous system routines
  */
-void bell(void) { write(1, "\007", 1); }
+void bell(void) { //write(1, "\007", 1); 
+;
+}
 
 
 /*
@@ -947,76 +1066,34 @@ void dump_screen(void)
  */
 int main(void)
 {
-    __dpmi_regs regs;
-    int vd;
-
-    // Hack -- fix file modes
-    _fmode = O_BINARY;
-
-    // Verify SVGA presence
-    if (!(vd = vesa_detect(&vgainfo))) quit("No VESA SVGA capability detected");
-
-    // Get mode info
-    get_mode_info(VESA_MODE, &modeinfo);
-
-    // Set video mode
-    set_vesa_mode(VESA_MODE);
-
-
-    // Set up mouse driver
-    regs.x.ax = 0;
-    __dpmi_int(0x33, &regs);
-
-    // Set horizontal limits
-    regs.x.ax = 7;
-    regs.x.cx = 0;
-    regs.x.dx = 639;
-    __dpmi_int(0x33, &regs);
-
-    // Set vertical limits
-    regs.x.ax = 8;
-    regs.x.cx = 0;
-    regs.x.dx = 479;
-    __dpmi_int(0x33, &regs);
-
-    // Set mouse position to middle of screen
-    regs.x.ax = 4;
-    regs.x.cx = SCREEN_WIDTH/2;
-    regs.x.dx = SCREEN_HEIGHT/2;
-    __dpmi_int(0x33, &regs);
-
-    // Set sensitivity
-    regs.x.ax = 15;
-    regs.x.cx = 6;
-    regs.x.dx = 6;
-    __dpmi_int(0x33, &regs);
-
-
-    // Install the timer
-    install_timer();
-
+    dpy = XOpenDisplay(NIL);
+    blackColor = BlackPixel(dpy, DefaultScreen(dpy));
+    whiteColor = WhitePixel(dpy, DefaultScreen(dpy));
+    int depth = DefaultDepth(dpy, DefaultScreen(dpy));
+     
+    w = XCreateSimpleWindow(dpy, DefaultRootWindow(dpy), 0, 0,
+		         640, 480, 0, blackColor, blackColor);
+    buffer_pixmap = XCreatePixmap(dpy, w, 640, 480, depth);
+    pixmap	  = XCreatePixmap(dpy, w, 640, 480, depth);
+    XSelectInput (dpy, w, StructureNotifyMask | ExposureMask | 
+		           KeyPressMask | ButtonPressMask); 
+    XMapWindow(dpy, w);
+    gc = XCreateGC(dpy, w, 0, NIL);
     // Set the color regs
     set_default_palette();
-
-
     for (int c = 0; c < 256; c++) {
-        int r, g;
-        r = c/12;
-        g = c%12;
-        if ((r != 0) || (g != 0)) {
-            g += 2;
-            if (g >= 12) g = 11;
-        }
+         int r, g;
+         r = c/12;
+         g = c%12;
+         if ((r != 0) || (g != 0)) {
+              g += 2;
+              if (g >= 12) g = 11;
+         }
         darken_tab[c] = r*12+g;
     }
-
-    // Allocate and clear a virtual screen
-    virtual_screen = new byte[SCREEN_HEIGHT*SCREEN_WIDTH];
-    memset(virtual_screen, 0, SCREEN_HEIGHT*SCREEN_WIDTH);
-
+    //                                                                                     
     // Catch nasty signals
     signals_init();
-
     // Play the game
     play_game();
 
@@ -1047,7 +1124,7 @@ void quit(char *str)
     if ((str[0] == '-') || (str[0] == '+')) (void)(exit(atoi(str)));
 
     // Print the message on stderr
-    if (str) fprintf(stderr, "utumno: %s\n", str);
+    if (str) fprintf(stderr, "xutumno: %s\n", str);
 
     /* Failure */
     exit(-1);
@@ -1069,7 +1146,7 @@ int convert(int scan, bool shift, bool caps)
             if (shift) return '!';
             return '1';
         case KEY_2:
-            if (shift) return '@';
+            if (shift) return '@@';
             return '2';
         case KEY_3:
             if (shift) return '#';
@@ -1223,3 +1300,4 @@ int convert(int scan, bool shift, bool caps)
     }
     return 0;
 }
+

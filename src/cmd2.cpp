@@ -444,6 +444,7 @@ static void do_disarm(int dir)
 void do_alter(int dir)
 {
     int x, y, i, j;
+    bool gold=FALSE;
     CGrid *g_ptr;
 
     // Acquire location
@@ -472,7 +473,7 @@ void do_alter(int dir)
 
 
     // Switch on the feature in the grid
-    switch (g_ptr->get_feat()) {
+    switch (g_ptr->get_feat()) {   
         case CF_NOTHING:
         case CF_FLOOR:
         case CF_TRAP_INVIS:
@@ -695,7 +696,59 @@ void do_alter(int dir)
             msg_print("This seems to be permanent rock.");
             p_ptr->DrainEnergy(100);
             return;
+
+        case CF_MAGMA_H: 
+        case CF_MAGMA_K:
+	    p_ptr->DrainEnergy(100);
+	    p_ptr->set_update(p_ptr->get_update() | PU_VIEW | PU_LITE | 
+			    PU_FLOW | PU_MONSTERS); 
+	    if ((p_ptr->GetSkill(SKILL_DIG) > 10 + rand_int(400)) && twall(y, x)) 
+            {
+		     place_gold(x, y, dun_level + 5);
+		     msg_print("You have found something!");
+	    }
+            else
+		    msg_print("You tunnel into the vein.");
+	    return ;
+        case CF_QUARTZ_H: gold = TRUE;	    
+	case CF_QUARTZ_K: gold = TRUE;
+	    
+	    p_ptr->DrainEnergy(100);
+	    p_ptr->set_update(p_ptr->get_update() | PU_VIEW | PU_LITE | 
+			    PU_FLOW | PU_MONSTERS); 
+            if ((p_ptr->GetSkill(SKILL_DIG) > 20 + rand_int(800)) && twall(y, x)) 
+            {
+		     place_gold(x, y, dun_level + 10);
+		     msg_print("You have found something!");
+	    }
+            else
+		    msg_print("You tunnel into the vein.");
+	    return ; 
+        case CF_MAGMA:
+
+	    p_ptr->DrainEnergy(100);
+	    p_ptr->set_update(p_ptr->get_update() | PU_VIEW | PU_LITE | 
+			    PU_FLOW | PU_MONSTERS); 
+            if ((p_ptr->GetSkill(SKILL_DIG) > 10 + rand_int(400)) && twall(y, x)) 
+			     msg_print("You have finished the tunnel.");
+
+	    else
+		    msg_print("You tunnel into the vein.");
+	    return;
+	    
+        case CF_QUARTZ:
+            	   
+	    p_ptr->DrainEnergy(100);
+	    p_ptr->set_update(p_ptr->get_update() | PU_VIEW | PU_LITE | 
+			    PU_FLOW | PU_MONSTERS); 
+            if ((p_ptr->GetSkill(SKILL_DIG) > 20 + rand_int(800)) && twall(y, x)) 
+			     msg_print("You have finished the tunnel.");
+
+	    else
+		    msg_print("You tunnel into the vein.");
+	    return;
     }
+    
 
     // Chests
     if (g_ptr->i_ptr) {

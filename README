@@ -1,0 +1,90 @@
+README
+
+
+Utumno v 1.0a6 SOURCE
+
+EXTRACTING, COMPILING & RUNNING
+-------------------------------
+  tar -xvzf xutumno_src.tgz
+  cd xutumno_src/src
+  make 
+  cd ..
+  xutumno.bin &
+
+INFOS
+-----
+
+Utumno was written by Matt Craighead using code of Angband 
+
+	http://thangorodrim.angband.org
+
+The previous "official" home page of Utumno was 
+
+	http://web.mit.edu/craighea/www/utumno/
+  
+The new official home page of Utumno is now 
+
+	http://utumno.medicinestorm.com/archive/
+
+but the site is no longer being maintained by the author, Matt Craighead.
+You can contact Matt Craighead at this address:
+	
+	craighea@yahoo.com
+	
+The current maintainer is Medicine Storm. 
+You can contact Medicine Storm at this address:
+
+	utumno@medicinestorm.com
+
+The version provided with this README is a port of the source
+found on Matt Craighead's home page to the GNU/Linux operating system
+using X11, and was written by Marcello Sega and Marco Vecchiocattivi.
+
+Contact Marcello and Marco at the following addresses
+
+	sega@physics.it
+	vecchio@*****
+
+New utilities for managing tiles were also added in
+	
+	src/utility
+
+COPYING
+
+* The code written up to now by Matt Craighead may be copyed and
+  distributed for educational, research, and not for profit purposes.
+  You can find the license terms in each of Matt Craighead'source code
+  files.
+
+* The code from Angband follows the same license terms as above, and 
+  again you can find them in the source code files.
+
+* All the new code written by Marcello Sega and Marco Vecchiocattivi, 
+  when it is more than a mere port or simple modification of 
+  Matt Craighead's code, is released under the terms of the GPL 
+  license. You can find a copy of it in the directories containing new 
+  source code, in the file named  COPYING
+
+
+ADDING A TILE:
+
+* Draw the tile with your favorite editor ad save it as an xpm.
+  The witdh has to be of 64 pixel.
+
+* Open the xpm file with a text editor and make sure ALL the color
+  definitions uses the hex notation (e.g. #ab1c3f) except for the
+  transparent color (none)
+
+* Run program xpm2til with proper arguments (e.g xpm2til L2 mytile.xpm )
+  and give the scene a name (e.g. base)
+
+* Rename the output (e.g.  mv mytile_base_0_0.til mytile.til ) 
+  and copy it to dir dat/tile/<dir>/  where <dir> represent a directory 
+  like features, items or monsters.
+
+* Modify file dat/tiles.txt adding the name of your tile 
+
+* Modify info file (e.g. dat/r_info.txt for monsters) and change the line 
+  (e.g. G:dmonster ) in G:<dir>/mytile
+
+

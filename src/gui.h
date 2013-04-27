@@ -118,3 +118,4 @@ public:
     CTextField(int xx, int yy, int wid, char *dptr, int l);
     void ProcessChar(char c);
 };
+

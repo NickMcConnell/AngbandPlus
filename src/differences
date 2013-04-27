@@ -1,0 +1,12 @@
+utumno.h
+consts.h
+random.h
+h-system.h
+cmd5.cpp
+files.cpp
+init2.cpp
+map.cpp
+mon-desc.cpp
+obj-desc.cpp
+spells1.cpp
+xtra1.cpp

@@ -203,7 +203,18 @@ errr path_parse(char *buf, int max, char *file)
 errr path_temp(char *buf, int max)
 {
     /* Extract a path */
-    return (path_parse(buf, max, tmpnam(NULL)));
+
+// -- MV
+// We prefer the use of mkstemp instead of tmpnam
+
+	static char template_buffer[20];
+	strcpy(template_buffer,"utumno.tmp.XXXXXX");
+#ifdef LINUX
+	mkstemp(template_buffer);
+#else
+	tmpnam(template_buffer);
+#endif
+        return (path_parse(buf, max, template_buffer));
 }
 
 
@@ -253,7 +264,8 @@ errr my_fgets(FILE *fff, char *buf, huge n)
             /* Handle tabs */
             else if (*s == '\t') {
                 /* Hack -- require room */
-                if (i + 8 >= n) break;
+	// -- MV : Inserting a cast to (huge) in order to avoid compile warning
+				if ( (huge) i + 8 >= n) break;
 
                 /* Append a space */
                 buf[i++] = ' ';
@@ -268,7 +280,8 @@ errr my_fgets(FILE *fff, char *buf, huge n)
                 buf[i++] = *s;
 
                 /* Check length */
-                if (i >= n) break;
+	// -- MV : Inserting a cast to (huge) in order to avoid compile warning
+                if ( (huge) i >= n) break;
             }
         }
     }
@@ -411,7 +424,8 @@ errr fd_seek(int fd, huge n)
     if (p < 0) return (1);
 
     /* Failure */
-    if (p != n) return (1);
+// -- MV : Inserting a cast to (huge) in order to avoid compile warning
+    if ( (huge) p != n) return (1);
 
     /* Success */
     return (0);
@@ -439,7 +453,8 @@ errr fd_read(int fd, char *buf, huge n)
     }
 
     // Read the final piece
-    if (read(fd, buf, n) != n) return (1);
+// -- MV : Inserting a cast to (huge) in order to avoid compile warning
+    if ( (huge) read(fd, buf, n) != n) return (1);
 
     // Success
     return (0);
@@ -467,7 +482,8 @@ errr fd_write(int fd, char *buf, huge n)
     }
 
     /* Write the final piece */
-    if (write(fd, buf, n) != n) return (1);
+// -- MV : Inserting a cast to (huge) in order to avoid compile warning
+    if ( (huge) write(fd, buf, n) != n) return (1);
 
     /* Success */
     return (0);

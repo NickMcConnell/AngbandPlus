@@ -37,7 +37,6 @@ static void show_splash_aux(void)
 
     // Clear the screen
     blank_screen(COLOR_BLACK);
-
     // Access the "news" file
     strcpy(buf, "dat/news.txt");
     fp = my_fopen(buf, "r");
@@ -63,22 +62,25 @@ static void show_splash_aux(void)
     end_pixel_draw();
     fclose(logo);
 
-    put_text_format(320, 140, format("Utumno %s", VERSION_STRING), COLOR_WHITE, FONT_BOLD,
+    put_text_format(320, 140, format("Xutumno %s", VERSION_STRING), COLOR_WHITE, FONT_BOLD,
         JUST_CENTER);
-    put_text_format(320, 180, "Programming: Matt Craighead (craighea@citilink.com)",
+    put_text_format(320, 180, "Unofficial port of Utumno",
         COLOR_WHITE, FONT_BOLD, JUST_CENTER);
-    put_text_format(320, 196, "Art Director: Jason Scanlin (jls@astro.caltech.edu)",
+
+    put_text_format(320,210,"Utumno Programming: Matt Craighead (craighea@citilink.com)", COLOR_WHITE, FONT_BOLD, JUST_CENTER);
+    put_text_format(320, 226, "Utumno Artists: Jason Scanlin, Tom Ebling, Joe Lee",
         COLOR_WHITE, FONT_BOLD, JUST_CENTER);
-    put_text_format(320, 212, "Artists: Jason Scanlin, Tom Ebling, Joe Lee",
+    put_text_format(320, 265, "X port: Marcello Sega & Marco Vecchiocattivi",
         COLOR_WHITE, FONT_BOLD, JUST_CENTER);
-    put_text_format(320, 270, "Visit the Utumno Home Page", COLOR_WHITE, FONT_BOLD,
+    put_text_format(320, 281, "sega@physics.it", COLOR_WHITE, FONT_BOLD, JUST_CENTER);
+    
+    put_text_format(320, 305, "Visit the Xutumno Home Page", COLOR_WHITE, FONT_BOLD,
         JUST_CENTER);
-    put_text_format(320, 290, "http://www.citilink.com/~craighea/utumno/", COLOR_WHITE,
+    put_text_format(320, 321, "http://www.physics.it/xutumno/", COLOR_WHITE,
         FONT_BOLD, JUST_CENTER);
-    put_text_format(320, 310, "Utumno needs more artists!", COLOR_WHITE, FONT_BOLD,
+    
+    put_text_format(320, 340, "Xutumno needs more artists!", COLOR_WHITE, FONT_BOLD,
         JUST_CENTER);
-    put_text_format(320, 326, "E-mail Jason for details on how to become one.",
-        COLOR_WHITE, FONT_BOLD, JUST_CENTER);
 
     // Flush it
     screen_refresh();
@@ -129,11 +131,11 @@ void show_splash(void)
     // Close it
     fd_close(fd);
 
-
+   
     // Display the news
+    
     show_splash_aux();
-
-
+    
     /*** Verify (or create) the "high score" file ***/
 
     // Attempt to open the high score file
@@ -247,10 +249,10 @@ static errr init_f_info(void)
 
     /* Errors */
     if (err) {
-        char *oops, buf2[500];
+        char oops[500], buf2[500];
 
         // Error string
-        oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+        strcpy(oops, (((err > 0) && (err < 8)) ? err_str[err] : "unknown"));
 
         // Oops
         sprintf(buf2, "Error %d at line %d of 'f_info.txt'.\n"
@@ -304,10 +306,10 @@ static errr init_k_info(void)
 
     /* Errors */
     if (err) {
-        char *oops, buf2[500];
+        char oops[500], buf2[500];
 
         /* Error string */
-        oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+        strcpy(oops ,(((err > 0) && (err < 8)) ? err_str[err] : "unknown"));
 
         /* Oops */
         sprintf(buf2, "Error %d at line %d of 'k_info.txt'.\n"
@@ -376,10 +378,10 @@ static errr init_a_info(void)
 
     /* Errors */
     if (err) {
-        char *oops, buf2[500];
+        char oops[500], buf2[500];
 
         /* Error string */
-        oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+        strcpy(oops ,(((err > 0) && (err < 8)) ? err_str[err] : "unknown"));
 
         /* Oops */
         sprintf(buf2, "Error %d at line %d of 'a_info.txt'.\n"
@@ -452,10 +454,10 @@ static errr init_e_info(void)
 
     /* Errors */
     if (err) {
-        char *oops, buf2[500];
+        char oops[500], buf2[500];
 
         // Error string
-        oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+        strcpy(oops ,(((err > 0) && (err < 8)) ? err_str[err] : "unknown"));
 
         // Oops
         sprintf(buf2, "Error %d at line %d of 'e_info.txt'.\n"
@@ -531,10 +533,10 @@ static errr init_r_info(void)
 
     /* Errors */
     if (err) {
-        char *oops, buf2[500];
+        char oops[500], buf2[500];
 
         // Error string
-        oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+        strcpy(oops , (((err > 0) && (err < 8)) ? err_str[err] : "unknown"));
 
         // Oops
         sprintf(buf2, "Error %d at line %d of 'r_info.txt'.\n"
@@ -610,10 +612,10 @@ static errr init_v_info(void)
 
     /* Errors */
     if (err) {
-        char *oops, buf2[500];
+        char oops[500], buf2[500];
 
         // Error string
-        oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+        strcpy(oops , (((err > 0) && (err < 8)) ? err_str[err] : "unknown"));
 
         // Oops
         sprintf(buf2, "Error %d at line %d of 'v_info.txt'.\n"
@@ -1097,150 +1099,16 @@ static errr init_other(void)
 void init_some_arrays(void)
 {
     // Load tiles
-    load_tile("player");
-    load_tile("trap");
-    load_tile("hilite");
-    load_tile("dobject");
-    load_tile("dmonster");
-    load_tile("features/floor00");
-    load_tile("features/floor01");
-    load_tile("features/floor02");
-    load_tile("features/floor03");
-    load_tile("features/walne00");
-    load_tile("features/walnw00");
-    load_tile("features/walse00");
-    load_tile("features/walse00t");
-    load_tile("features/walse01");
-    load_tile("features/walse01t");
-    load_tile("features/walse00s");
-    load_tile("features/walsw00");
-    load_tile("features/walsw00t");
-    load_tile("features/walsw01");
-    load_tile("features/walsw01t");
-    load_tile("features/walsw00s");
-    load_tile("features/drne00c");
-    load_tile("features/drne00o");
-    load_tile("features/drne00ot");
-    load_tile("features/drnw00c");
-    load_tile("features/drnw00o");
-    load_tile("features/drnw00ot");
-    load_tile("features/stdne00");
-    load_tile("features/stdnw00");
-    load_tile("features/stdse00");
-    load_tile("features/stdsw00");
-    load_tile("features/stune00");
-    load_tile("features/stune00t");
-    load_tile("features/stunw00");
-    load_tile("features/stunw00t");
-    load_tile("features/stuse00");
-    load_tile("features/stuse00t");
-    load_tile("features/stusw00");
-    load_tile("features/stusw00t");
-    load_tile("features/stwse00");
-    load_tile("features/stwse00t");
-    load_tile("features/stwsw00");
-    load_tile("features/stwsw00t");
-    load_tile("features/rubble");
-    load_tile("items/magic/wand");
-    load_tile("items/magic/scroll");
-    load_tile("items/magic/staff");
-    load_tile("items/magic/ring");
-    load_tile("items/magic/ring2");
-    load_tile("items/magic/prybook");
-    load_tile("items/magic/magbook");
-    load_tile("items/magic/uprybook");
-    load_tile("items/magic/umagbook");
-    load_tile("items/magic/amulet1");
-    load_tile("items/magic/amulet2");
-    load_tile("items/lite/torch");
-    load_tile("items/lite/lantern");
-    load_tile("items/treasure/adamant");
-    load_tile("items/treasure/copper");
-    load_tile("items/treasure/diamond");
-    load_tile("items/treasure/emerald");
-    load_tile("items/treasure/garnet");
-    load_tile("items/treasure/gold");
-    load_tile("items/treasure/ruby");
-    load_tile("items/treasure/sapphire");
-    load_tile("items/treasure/silver");
-    load_tile("items/swords/rapier");
-    load_tile("items/swords/shrtswd");
-    load_tile("items/swords/katana");
-    load_tile("items/swords/brkdager");
-    load_tile("items/swords/brksword");
-    load_tile("items/swords/broadswd");
-    load_tile("items/swords/dagger");
-    load_tile("items/shields/slshield");
-    load_tile("items/shields/smshield");
-    load_tile("items/shields/lglshld");
-    load_tile("items/shields/lgmshld");
-    load_tile("items/shields/defshld");
-    load_tile("items/potions/empty");
-    load_tile("items/potions/rdpotion");
-    // load items/potions/*
-    load_tile("items/ammo/shot");
-    load_tile("items/ammo/bolt");
-    load_tile("items/ammo/arrow");
-    load_tile("items/ammo/pebbles");
-    load_tile("items/helm/gldcrown");
-    load_tile("items/helm/hlethcap");
-    load_tile("items/helm/irncrown");
-    load_tile("items/helm/jwlcrown");
-    load_tile("items/helm/metlcap");
-    load_tile("items/helm/stlhelm");
-    load_tile("items/helm/ironhelm");
-    load_tile("items/helm/draghelm");
-    load_tile("items/hafted/qrtstaff");
-    load_tile("items/hafted/flail");
-    load_tile("items/hafted/leadmace");
-    load_tile("items/food/biscuit");
-    load_tile("items/food/jerky");
-    load_tile("items/food/ration");
-    load_tile("items/food/slimold");
-    load_tile("items/food/waybread");
-    load_tile("items/food/wine");
-    load_tile("items/chests/lmchest");
-    load_tile("items/chests/lwchest");
-    load_tile("items/chests/smchest");
-    load_tile("items/chests/swchest");
-    load_tile("items/chests/olmchest");
-    load_tile("items/chests/olwchest");
-    load_tile("items/chests/osmchest");
-    load_tile("items/chests/oswchest");
-    load_tile("items/bows/bow");
-    load_tile("items/bows/crossbow");
-    load_tile("items/boots/hlboots");
-    load_tile("items/boots/slboots");
-    load_tile("items/boots/metboots");
-    load_tile("items/polearms/spear");
-    load_tile("items/polearms/lochaber");
-    load_tile("items/polearms/battlaxe");
-    load_tile("items/polearms/broadaxe");
-    load_tile("items/misc/brkbone");
-    load_tile("items/gloves/lethglov");
-    load_tile("items/gloves/gauntlet");
-    load_tile("items/gloves/cesti");
-    load_tile("monsters/orc");
-    load_tile("monsters/kobold");
-    load_tile("monsters/mushgrey");
-    load_tile("monsters/mushyelo");
-    load_tile("monsters/mushpurp");
-    load_tile("monsters/mushspot");
-    load_tile("monsters/mushmagc");
-    load_tile("monsters/centiped");
-    load_tile("monsters/wolfwht");
-    load_tile("monsters/batbrn");
-    load_tile("monsters/wolf");
-    load_tile("monsters/drbatblu");
-    load_tile("monsters/drbatred");
-    load_tile("monsters/eyefloat");
-    load_tile("monsters/beholder");
-    load_tile("monsters/mousewht");
-    load_tile("monsters/jackal");
-    load_tile("monsters/eyeradn");
-    load_tile("monsters/eyedisen");
-    load_tile("monsters/gelcube");
-    load_tile("monsters/humskel");
+    FILE *fp;
+    char tile[50];
+    
+    // load tiles in list
+    fp = fopen ("dat/tiles.txt","r");
+    while(fgets(tile,50,fp))
+    {
+	*(strpbrk(tile,"\n"))='\0'; // remove '\n' at the end
+        load_tile(tile);
+    }
     sort_tiles();
 
     // Initialize the arrays

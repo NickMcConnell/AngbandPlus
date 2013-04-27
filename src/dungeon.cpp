@@ -10,7 +10,6 @@
  */
 
 #include "utumno.h"
-
 static int MAP_START_X, MAP_START_Y, MAP_END_X, MAP_END_Y;
 int MAP_CENTER_X, MAP_CENTER_Y;
 
@@ -76,6 +75,7 @@ static void calc_mouse_map_xy(int mx, int my, bool *mom, int *mmx, int *mmy)
     else {
         if (sy % 2) {
             // sx even, sy odd
+
             if (mx <= my) *mmy += 1;
         }
         else {
@@ -337,7 +337,6 @@ static void prt_map(int mx, int my)
 
     // Get mouse location
     calc_mouse_map_xy(mx, my, &mouse_on_map, &mouse_map_x, &mouse_map_y);
-
     // Get player location
     p_ptr->GetLocation(&center_x, &center_y);
 
@@ -364,10 +363,9 @@ static void prt_map(int mx, int my)
             draw_layer_1(x, y, px, py, hilited);
         }
     }
-
+/*SAW    screen_refresh();  CONTROLLARE !!! se c'e' nel sorgente originale !!!*/
     // Start layer 2
     start_layer_2();
-
     // Add tile-based parts of layer 2
     for (i = -6; i < 8; i++) {
         for (j = -6; j < 8; j++) {
@@ -385,10 +383,8 @@ static void prt_map(int mx, int my)
             draw_layer_2(x, y, px, py, player_x, player_y);
         }
     }
-
     // Add player
     p_ptr->Draw(MAP_CENTER_X, MAP_CENTER_Y);
-
 
     // Projectiles
     for (i = 0; i < MAX_PROJECTILES; i++) {
@@ -420,7 +416,6 @@ static void prt_map(int mx, int my)
 
     // Draw layer 2
     end_layer_2();
-
     // Display depth
     if (!dun_level) {
         strcpy(depths, "Town");
@@ -450,8 +445,10 @@ static void prt_minimap(void)
             if (p_ptr->is_at(x, y)) {
                 draw_pixel(px, py, COLOR_WHITE);
             }
-            if (!cave[y][x].is_wall() && (cave[y][x].flags & MAP_KNOW)) {
-                if (cave[y][x-1].is_wall() && (cave[y][x-1].flags & MAP_KNOW)) {
+            if (!cave[y][x].is_minimappable() && (cave[y][x].flags & MAP_KNOW)) {
+		    
+                if ( cave[y][x-1].is_minimappable() &&
+			(cave[y][x-1].flags & MAP_KNOW)) {
                     draw_pixel(px-4, py, COLOR_ORANGE);
                     draw_pixel(px-3, py, COLOR_ORANGE);
                     draw_pixel(px-2, py-1, COLOR_ORANGE);
@@ -459,7 +456,8 @@ static void prt_minimap(void)
                     draw_pixel(px, py-2, COLOR_ORANGE);
                     draw_pixel(px+1, py-2, COLOR_ORANGE);
                 }
-                if (cave[y][x+1].is_wall() && (cave[y][x+1].flags & MAP_KNOW)) {
+                if (cave[y][x+1].is_minimappable() && 
+				(cave[y][x+1].flags & MAP_KNOW)) {
                     draw_pixel(px, py+2, COLOR_ORANGE);
                     draw_pixel(px+1, py+2, COLOR_ORANGE);
                     draw_pixel(px+2, py+1, COLOR_ORANGE);
@@ -467,7 +465,8 @@ static void prt_minimap(void)
                     draw_pixel(px+4, py, COLOR_ORANGE);
                     draw_pixel(px+5, py, COLOR_ORANGE);
                 }
-                if (cave[y-1][x].is_wall() && (cave[y-1][x].flags & MAP_KNOW)) {
+                if (cave[y-1][x].is_minimappable() && 
+				(cave[y-1][x].flags & MAP_KNOW)) {
                     draw_pixel(px, py-2, COLOR_ORANGE);
                     draw_pixel(px+1, py-2, COLOR_ORANGE);
                     draw_pixel(px+2, py-1, COLOR_ORANGE);
@@ -475,7 +474,8 @@ static void prt_minimap(void)
                     draw_pixel(px+4, py, COLOR_ORANGE);
                     draw_pixel(px+5, py, COLOR_ORANGE);
                 }
-                if (cave[y+1][x].is_wall() && (cave[y+1][x].flags & MAP_KNOW)) {
+                if (cave[y+1][x].is_minimappable() && 
+				(cave[y+1][x].flags & MAP_KNOW)) {
                     draw_pixel(px-4, py, COLOR_ORANGE);
                     draw_pixel(px-3, py, COLOR_ORANGE);
                     draw_pixel(px-2, py+1, COLOR_ORANGE);
@@ -607,9 +607,9 @@ static void prt_mouse_info(int mx, int my)
 
     // Interesting cave features (if known)
     if (g_ptr->flags & MAP_KNOW) {
-        // Nothing for floors, invisible traps, secret doors, and walls
+        // Nothing for floors, invisible traps, secret doors, and granite walls
         if ((g_ptr->get_feat() != CF_FLOOR) && (g_ptr->get_feat() != CF_TRAP_INVIS) &&
-            !g_ptr->is_wall() && (g_ptr->get_feat() != CF_DOOR_SECRET)) {
+            !g_ptr->is_granite() && (g_ptr->get_feat() != CF_DOOR_SECRET)) {
             char *name = f_name + f_info[g_ptr->get_feat()].name;
 
             // Add "a" or "an" to the beginning
@@ -892,22 +892,17 @@ static void redraw_stuff(int mx, int my)
     // Draw the frame
     draw_window_border(0, MAP_END_Y+1, 639, 479, FALSE);
     box(2, MAP_END_Y+3, 637, 477, COLOR_GREY);
-
     /* Level/Experience/Gold/HP/SP/AC */
     prt_bottom();
-
     // Map/Minimap
     set_clip_rect(MAP_START_X, MAP_START_Y, MAP_END_X, MAP_END_Y);
     prt_map(mx, my);
     if (show_minimap) prt_minimap();
     clear_clip_rect();
-
     // Various statuses
     prt_status();
-
     // Mouse info
     prt_mouse_info(mx, my);
-
     // Extra things being shown
     switch (show_stuff) {
         case SHOW_JUST_MAP: prt_messages(); break;
@@ -916,7 +911,6 @@ static void redraw_stuff(int mx, int my)
         case SHOW_INVEN: prt_messages(); draw_inven_stuff(); break;
         case SHOW_EQUIP: prt_messages(); draw_equip_stuff(); break;
     }
-
     // Refresh it, handling the mouse
     virt_draw_mouse(mx, my);
     screen_refresh();
@@ -1192,7 +1186,6 @@ static void process_input(void)
     // Check for left button release
     if (get_last_left_button_release(&rx, &ry)) {
         CGrid *g_ptr;
-
         // Get the location on map
         calc_mouse_map_xy(rx, ry, &rom, &rmx, &rmy);
 
@@ -1238,7 +1231,7 @@ static void process_input(void)
                 g_ptr = &cave[rmy][rmx];
 
                 // If there is a monster, set the monster destination
-                if (g_ptr->m_ptr) {
+                if ((g_ptr->m_ptr) && (g_ptr->m_ptr->is_visible())){
                     p_ptr->kill_destination();
                     p_ptr->set_dest_mon(g_ptr->m_ptr->GetGUID());
                 }
@@ -1252,7 +1245,6 @@ static void process_input(void)
             }
         }
     }
-
     // Try keyboard commands
     for (;;) {
         // Get a key
@@ -1260,7 +1252,6 @@ static void process_input(void)
 
         // Break out if no keys left to get
         if (!c) break;
-
         // Console?
         if (show_stuff == SHOW_CONSOLE) {
             if (c == KEY_ESCAPE) {
@@ -1291,17 +1282,17 @@ static void process_input(void)
         // No console
         else {
             char buf[80];
-
-            // Kill all pending destination-moves
-            p_ptr->kill_destination();
+	    
+	         // Kill all pending destination-moves unless:
+            // automap was called or turn-based was toggled
+	         if(c != KEY_TAB && c != KEY_ENTER) p_ptr->kill_destination();
+            // Get the console string for the character
+            get_command(c, buf);
 
             // Get rid of inventory/equipment
             if ((show_stuff == SHOW_INVEN) || (show_stuff == SHOW_EQUIP)) {
                 show_stuff = SHOW_JUST_MAP;
             }
-
-            // Get the console string for the character
-            get_command(c, buf);
 
             // Interpret the string
             buffer_console(buf);
@@ -1501,7 +1492,6 @@ static void dungeon(void)
 
     // Leave "xtra" mode
     character_xtra = FALSE;
-
     // Update stuff
     p_ptr->set_update(p_ptr->get_update() | PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
     update_stuff();
@@ -1533,31 +1523,27 @@ static void dungeon(void)
     while (TRUE) {
         // Update everything
         notice_stuff();
-        update_stuff();
-
+	     update_stuff();
         // Calculate the map boundaries
         calc_map_bounds();
-
         // Access the mouse
         get_mouse_status(&mx, &my, &left);
-
         // Redraw everything
         blank_screen(COLOR_BLACK);
         redraw_stuff(mx, my);
-
         // FPS stuff
         frames++;
         fps_ticker += get_timer_value();
-
         // Add in extra time
         excess_time += get_timer_value();
-
         // Reset ticker to 0
         reset_timer();
-
+        
+        //Comment next line to disallow turn based mode
+        if(turn_based) excess_time = 0;
+        
         // Make sure game speed is sane
         if (game_speed < 1) game_speed = 5;
-
         // Run game turns
         while (excess_time >= game_speed) {
             // Remove some time
@@ -1575,12 +1561,11 @@ static void dungeon(void)
             for (int counter = 0; counter < 10; counter++) process_projectiles();
 
             // Increment turn
-            game_turn++;
-
+            if(!force_enter_store) game_turn++;
+            
             // If dead, break out
             if (!alive || death || new_level_flag) break;
         }
-
         // Process input and flush commands
         process_input();
         flush_console_buffer();
@@ -1588,8 +1573,12 @@ static void dungeon(void)
         // Enter stores?
         if (force_enter_store) {
             force_enter_store = FALSE;
+            excess_time += game_speed*5; //these place the player in the store square.
+            p_ptr->SetBusy(0);
             //: Evil to to use do_cmd_ outside of console
             do_cmd_store();
+            reset_timer(); //this stops time in stores.
+            excess_time += game_speed;
         }
 
         // If dead, break out
@@ -1625,19 +1614,18 @@ void play_game(void)
     player_summary ps[10];
     int slot_sum;
     char last_error[80];
-
+// -- MV: Commenting out unused variable
+//    bool flag=TRUE;
     // Display the splash screen
     show_splash();
+    put_text_format(320, 23*16, "Press any key to continue", 
+		    COLOR_WHITE, FONT_BOLD, JUST_CENTER);
 
     // Initialize the arrays
     init_some_arrays();
-
-    // Wait for response
-    put_text_format(320, 23*16, "Press any key to continue", COLOR_WHITE, FONT_BOLD,
-        JUST_CENTER);
-    screen_refresh();
+      
     wait_for_key();
-
+    
     // Reset the palette (safely!)
     blank_screen(COLOR_BLACK);
     screen_refresh();
@@ -1656,8 +1644,6 @@ void play_game(void)
         // Seed the complex RNG
         Rand_state_init(seed);
     }
-
-    
     // Hack -- Character is "icky"
     character_icky = TRUE;
 
@@ -1682,13 +1668,14 @@ game_start_over:
     put_string(8*8, 96, "(Esc) Quit", COLOR_WHITE);
     put_string(8*8, 128, last_error, COLOR_WHITE);
     screen_refresh();
+
     for (;;) {
         c = scan_inkey();
         if (c == KEY_N) break;
         if (c == KEY_L) break;
         if (c == KEY_ESCAPE) return;
     }
-
+    screen_refresh();
     // Deal with input
     if (c == KEY_N) {
         // Set savefile name
@@ -1710,10 +1697,8 @@ game_start_over:
 
         // Start in town
         dun_level = 0;
-
         // Hack -- seed for flavors
         seed_flavor = rand_int(0x10000000);
-
         // Hack -- seed for town layout
         seed_town = rand_int(0x10000000);
 
@@ -1729,16 +1714,14 @@ game_start_over:
             strcpy(last_error, "You have no saved characters.");
             goto game_start_over;
         }
-
         // Get a character summary
         get_player_summary(ps);
-
+	 
         // Get the first one so only valid chars can be loaded
         for (i = 0; i < 10; i++) {
             if (slot_taken[i]) break;
         }
         char_idx = i;
-
         // Load existing character
         CWindow *window = new CWindow(170, 100, 300, 230, "Load Character");
         CButton *ok = new CButton(240, 303, 60, 20, "OK");
@@ -1762,10 +1745,8 @@ game_start_over:
             if (!slot_taken[i]) x->Disable();
             window->Attach(x);
         }
-
         for (;;) {
             int mx, my;
-
             gui_draw(window);
             c = scan_inkey_scan();
             if (c == KEY_ESCAPE) {
@@ -1815,7 +1796,6 @@ game_start_over:
     // Make a level if necessary
     if (!character_dungeon) generate_cave();
 
-
     // Character is now "complete"
     character_generated = TRUE;
 
@@ -1832,9 +1812,9 @@ game_start_over:
 
     /* Loop till dead */
     while (TRUE) {
+
         /* Process the level */
         dungeon();
-
         /* Handle "quit and save" */
         if (!alive && !death) break;
 

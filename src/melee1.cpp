@@ -1013,3 +1013,4 @@ bool CMonster::make_attack_normal(void)
     /* Assume we attacked */
     return TRUE;
 }
+

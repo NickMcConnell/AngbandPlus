@@ -1,58 +1,61 @@
-# File: Makefile.ibm
-
-# Purpose: Makefile support for "main-ibm.c" and Gnu C
-
-# Note: Rename to "Makefile" before using
-
+# makefile.linux
 OBJS = \
-  sys-dos/main.o sys-dos/irqwrap.o sys-dos/timer.o sys-dos/irq.o \
+  sys-lin/main.o  sys-lin/timer.o\
   birth.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o console.o debug.o \
   dungeon.o entity.o files.o generate.o gui.o init1.o init2.o living.o \
   load.o map.o melee1.o melee2.o monster.o mon-desc.o object.o obj-desc.o \
   player.o random.o save.o spells1.o spells2.o store.o tables.o util.o \
   variable.o xtra1.o xtra2.o z-form.o
 
+# sys-dos/irqwrap.o
+# sys-dos/timer.o
+# sys-dos/irq.o
+
+# Name of Program
+
+PROGRAM = xutumno.bin
 
 # Compiler
 
 CC = gcc
 
+# defines
+
+DEFINES = -D LINUX -D USE_PTHREAD -D USE_MIT_SHM
+
 # Compiler flags
 
-CFLAGS = -Wall -O2
-SFLAGS = -Wall -O2
+CFLAGS = -Werror -Wall -O2 -ggdb 
+SFLAGS = -Wall -O2 -D LINUX
 
 # Libraries
 
-LIBS = -lpc
+LIBS = -L/usr/X11R6/lib/ -lX11 -lpthread -lXext 
 GLIBS= -lgrx20
 
-# Name of Program
-
-PROGRAM = utumno.exe
 
 
 .SUFFIXES: .c .h .o .cpp .s
 
 all: $(PROGRAM)
 
-# Generate binary file
+# Generate binary file .
 
-utumno.exe: $(OBJS)
-	$(CC) $(CFLAGS) -o utumno.bin $(OBJS) $(LIBS)
-	copy utumno.exe ..
+xutumno.bin: $(OBJS)
+	$(CC) $(CFLAGS) $(DEFINES) -o xutumno.bin $(OBJS) $(LIBS)
+	mv -f xutumno.bin ../
 
 # Compile source files
 
 .cpp.o:
-	$(CC) $(CFLAGS) -o $*.o -c $*.cpp
+	$(CC) $(CFLAGS) $(DEFINES) -o $*.o -c $*.cpp
 
 
 .s.o:
-	$(CC) $(SFLAGS) -o $*.o -c $*.S
+	$(CC) $(SFLAGS)  $(DEFINES) -o $*.o -c $*.s
 
 # Clean up
 
 clean:
-	del *.o $(PROGRAM) *.bin
+	rm -rf *.o $(PROGRAM); rm -rf */*.o 
 

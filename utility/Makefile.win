@@ -1,0 +1,14 @@
+#
+# Generic Makefile 
+# compiles every *.c source in the directory
+# 
+# Marco Vecchiocattivi - 2002
+#
+
+CC = gcc -DWINDOWS
+
+PROGS = $(patsubst %.c,%,$(wildcard *.c))
+OBJS = $(patsubst %.c,%.o,$(wildcard *.c)) 
+
+all: ${PROGS}
+

@@ -2315,5 +2315,7 @@ option_type options[] = {
     { &hitpoint_warn,           FALSE,
       "hitpoint_warn",          "Hitpoint warning" },
 
-    { NULL, NULL, NULL }
+// -- MV: there was an uncorrect definition of this null element. Corrected.
+//    { NULL, NULL, NULL}
+    { NULL, FALSE, NULL, NULL}
 };

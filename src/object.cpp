@@ -31,7 +31,7 @@ void CItem::wipe()
     timeout = 0;
     ident = 0;
     marked = 0;
-    note = NULL;
+    note =(char*)NULL;
     next_i_ptr = NULL;
 }
 
@@ -47,7 +47,7 @@ CItem::~CItem()
 {
     if (note) {
         delete[] note;
-        note = NULL;
+        note = (char*)NULL;
     }
 }
 
@@ -56,7 +56,7 @@ void CItem::SetNote(char *n)
 {
     if (note) {
         delete[] note;
-        note = NULL;
+        note = (char*)NULL;
     }
     if (!n) return;
     note = new char[strlen(n)+1];

@@ -4,12 +4,12 @@
  * This file contains some system-specific stuff for DOS systems.
  */
 
-#include <go32.h>
-#include <dpmi.h>
-#include <bios.h>
-#include <dos.h>
-#include <pc.h>
-#include <sys/farptr.h>
+//#include <go32.h>
+//#include <dpmi.h>
+//#include <bios.h>
+//#include <dos.h>
+//#include <pc.h>
+//#include <sys/farptr.h>
 
 #define END_OF_FUNCTION(x)    void x##_end() { }
 
@@ -24,3 +24,4 @@ extern int install_timer(void);
 extern void remove_timer(void);
 extern int install_sound(int digi, int midi, char *cfg_path);
 extern void remove_sound(void);
+

@@ -12,9 +12,14 @@
  * not for profit purposes provided that this copyright and statement are
  * included in all such copies.
  */
+#ifdef LINUX
+#include <X11/Xlib.h>
+#include <sys/types.h>
 
+#endif
 
-
+#include <signal.h>
+#include <unistd.h>
 /*
  * First, include the low-level includes.
  */

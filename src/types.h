@@ -423,7 +423,7 @@ private:
     byte ident;                 // Special flags
     byte marked;                // Item is marked
 
-    char *note;                 // Inscription index
+    char *note;     // Inscription index
 
 public:
     CItem *next_i_ptr;          // Next object in pile
@@ -1309,6 +1309,10 @@ public:
 
     bool is_permawall(void);
     bool is_wall(void);
+    bool is_granite(void);
+    bool is_vein(void);
+    bool is_secret_door(void);
+    bool is_minimappable(void);
     bool is_locked_door(void);
     bool is_door(void);
     bool is_store_door(void);

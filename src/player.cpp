@@ -166,10 +166,9 @@ void CPlayer::SenseInventory(void)
 {
     int i, plev = GetLev();
     bool heavy = FALSE;
-    char *feel;
     CItem *i_ptr;
     char i_name[80];
-
+    char feel[80];
 
     /*** Check for "sensing" ***/
 
@@ -260,7 +259,7 @@ void CPlayer::SenseInventory(void)
         if ((i < INVEN_WIELD) && percent(80)) continue;
 
         // Check for a feeling
-        feel = (heavy ? value_check_aux1(i_ptr) : value_check_aux2(i_ptr));
+        strcpy(feel ,(heavy ? value_check_aux1(i_ptr) : value_check_aux2(i_ptr)));
 
         // Skip non-feelings
         if (!feel) continue;

@@ -72,7 +72,7 @@
 
 # Version stamp (required)
 
-V:v1.0a5
+V:v1.0a6
 
 
 ##### The Player #####
@@ -96,7 +96,7 @@ F:TAKE_ITEM | OPEN_DOOR
 D:He looks squalid and thoroughly revolting.
 
 N:2:scrawny cat
-G:dmonster
+G:monsters/scrawny
 I:110:1d2:30:1:10
 W:0:3:0:0
 T:TOWN
@@ -106,7 +106,7 @@ F:ANIMAL
 D:A skinny little furball with sharp claws and a menacing look.
 
 N:3:scruffy little dog
-G:dmonster
+G:monsters/scruffy
 I:110:1d3:20:1:5
 W:0:3:0:0
 T:TOWN

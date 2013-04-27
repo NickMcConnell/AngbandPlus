@@ -62,11 +62,52 @@ bool CGrid::is_wall(void)
     if (get_feat() == CF_GRANITE_INNER) return TRUE;
     if (get_feat() == CF_GRANITE_OUTER) return TRUE;
     if (get_feat() == CF_GRANITE_SOLID) return TRUE;
+    
+    // Veins are walls too !
+    if (get_feat() == CF_MAGMA_H) return TRUE;
+    if (get_feat() == CF_MAGMA_K) return TRUE;
+    if (get_feat() == CF_MAGMA) return TRUE;
+    if (get_feat() == CF_QUARTZ_H) return TRUE;
+    if (get_feat() == CF_QUARTZ_K) return TRUE;
+    if (get_feat() == CF_QUARTZ) return TRUE;
+    
     if (is_permawall()) return TRUE;
     return FALSE;
 }
 
+// Is a location a granite wall?
 
+bool CGrid::is_granite(void)
+{   
+    if (get_feat() == CF_GRANITE_BASIC) return TRUE;
+    if (get_feat() == CF_GRANITE_INNER) return TRUE;
+    if (get_feat() == CF_GRANITE_OUTER) return TRUE;
+    if (get_feat() == CF_GRANITE_SOLID) return TRUE;
+    return FALSE;
+}	
+
+
+bool CGrid::is_vein(void)
+{
+    if (get_feat() == CF_MAGMA_H) return TRUE;
+    if (get_feat() == CF_MAGMA_K) return TRUE;
+    if (get_feat() == CF_MAGMA) return TRUE;
+    if (get_feat() == CF_QUARTZ_H) return TRUE;
+    if (get_feat() == CF_QUARTZ_K) return TRUE;
+    if (get_feat() == CF_QUARTZ) return TRUE;
+    return FALSE;
+}
+bool CGrid::is_secret_door(void)
+{
+    if (get_feat() == CF_DOOR_SECRET) return TRUE;
+    return FALSE;
+}
+
+bool CGrid::is_minimappable(void)
+{
+    if(is_secret_door() || is_wall()) return TRUE;
+    return FALSE;    
+}
 // Is a location a locked door?
 bool CGrid::is_locked_door(void)
 {
@@ -595,7 +636,10 @@ static bool appear_wall(int x, int y)
     if (g_ptr->get_feat() == CF_PERMANENT_OUTER) return TRUE;
     if (g_ptr->get_feat() == CF_PERMANENT_SOLID) return TRUE;
     if (g_ptr->get_feat() == CF_DOOR_SECRET) return TRUE;
-
+    if (g_ptr->get_feat() == CF_QUARTZ) return TRUE;
+    if (g_ptr->get_feat() == CF_MAGMA) return TRUE;
+    if (g_ptr->get_feat() == CF_QUARTZ_K) return TRUE;
+    if (g_ptr->get_feat() == CF_MAGMA_K) return TRUE;
     return FALSE;
 }
 
@@ -718,7 +762,6 @@ void draw_layer_1(int x, int y, int ix, int iy, bool hilited)
                 break;
         }
     }
-
     // Draw hilite
     if (hilited) draw_tile(ix, iy, "hilite", FALSE, "base", 0, 0);
     
@@ -776,7 +819,8 @@ void add_sprite(s32b depth, int px, int py, char *name, bool glowing, char *scen
 {
     int idx = locate_tile(name);
     if (idx == -1) {
-        quit("error in add_sprite");
+	    printf("\n%s",name);
+        quit("error in add_sprite ");
     }
     add_sprite(depth, px, py, idx, glowing, scene, view, frame);
 }
@@ -824,6 +868,9 @@ void draw_layer_2(int x, int y, int ix, int iy, int player_x, int player_y)
     CGrid *g_ptr;
     CMonster *m_ptr;
     bool glowing, known;
+    /* SAW flags for veins */ 
+    bool magma=FALSE;//, quartz=FALSE;
+    char buf[50];
     s32b base_depth;
 
     if (x < 0) return;
@@ -861,6 +908,14 @@ void draw_layer_2(int x, int y, int ix, int iy, int player_x, int player_y)
                 add_sprite(base_depth, ix, iy, "features/stuse00", !glowing, "base", 0, 0);
             }
             break;
+	    /*SAW flag handling is crap...*/
+	case CF_MAGMA_K:
+	case CF_QUARTZ_K:
+	case CF_MAGMA:
+	    magma=TRUE;
+	case CF_QUARTZ:
+//	    if(!magma) quartz = TRUE;
+	    magma = TRUE;
         case CF_GRANITE_BASIC:
         case CF_GRANITE_INNER:
         case CF_GRANITE_OUTER:
@@ -875,16 +930,23 @@ void draw_layer_2(int x, int y, int ix, int iy, int player_x, int player_y)
                     byte f = get_feat_safe(y, x-1);
                     if ((f != CF_STAIR_UP_NE) && (f != CF_STAIR_UP_NW) &&
                         (f != CF_STAIR_UP_SW) && (f != CF_STAIR_UP_SE)) {
-                        add_sprite(base_depth-500, ix, iy, "features/walnw00", FALSE, "base",
-                            0, 0);
+			    if(magma)
+				strcpy(buf,"features/walnw00m");	    
+	    		    else
+			    	strcpy(buf,"features/walnw00");	    
+			    
+			    add_sprite(base_depth-500, ix, iy, buf, FALSE, "base", 0, 0);
                     }
                 }
                 if (!appear_wall(x, y-1)) {
                     byte f = get_feat_safe(y-1, x);
                     if ((f != CF_STAIR_UP_NE) && (f != CF_STAIR_UP_NW) &&
                         (f != CF_STAIR_UP_SW) && (f != CF_STAIR_UP_SE)) {
-                        add_sprite(base_depth-500, ix, iy, "features/walne00", FALSE, "base",
-                            0, 0);
+			    if(magma)
+                                strcpy(buf,"features/walne00m");
+                            else
+                                strcpy(buf,"features/walne00");
+                            add_sprite(base_depth-500, ix, iy, buf, FALSE, "base", 0, 0);
                     }
                 }
             }
@@ -900,25 +962,48 @@ void draw_layer_2(int x, int y, int ix, int iy, int player_x, int player_y)
                     }
                     else if (appear_wall(x, y-1)) {
                         if (g_ptr->variant & 1) {
-                            add_sprite(base_depth+500, ix, iy, "features/walse00", !se_glow,
+  			    if(magma)
+                                strcpy(buf,"features/walse00m");
+			    else
+				strcpy(buf,"features/walse00");
+
+                            add_sprite(base_depth+500, ix, iy, buf, !se_glow,
                                 "base", 0, 0);
                         }
                         else {
-                            add_sprite(base_depth+500, ix, iy, "features/walse01", !se_glow,
+				if(magma)
+                                   strcpy(buf,"features/walse01m");
+				else
+				   strcpy(buf,"features/walse01");
+                            add_sprite(base_depth+500, ix, iy, buf, !se_glow,
                                 "base", 0, 0);
                         }
                     }
                     else {
                         if (get_feat_safe(y-1, x) == CF_STAIR_DOWN_SE) {
-                            add_sprite(base_depth+500, ix, iy, "features/walse00s", !se_glow,
+				if(magma)
+					strcpy(buf,"features/walse00sm");
+				else
+					strcpy(buf,"features/walse00s");
+                            add_sprite(base_depth+500, ix, iy, buf, !se_glow,
                                 "base", 0, 0);
                         }
                         else if (g_ptr->variant & 1) {
-                            add_sprite(base_depth+500, ix, iy, "features/walse00t", !se_glow,
+                                if(magma)
+	                                        strcpy(buf,"features/walse00tm");
+                                else
+	                                        strcpy(buf,"features/walse00t");
+				
+                            add_sprite(base_depth+500, ix, iy, buf, !se_glow,
                                 "base", 0, 0);
                         }
                         else {
-                            add_sprite(base_depth+500, ix, iy, "features/walse01t", !se_glow,
+                                if(magma)
+	                                        strcpy(buf,"features/walse01tm");
+                                else
+	                                        strcpy(buf,"features/walse01t");
+				
+                            add_sprite(base_depth+500, ix, iy, buf, !se_glow,
                                 "base", 0, 0);
                         }
                     }
@@ -934,25 +1019,50 @@ void draw_layer_2(int x, int y, int ix, int iy, int player_x, int player_y)
                     }
                     else if (appear_wall(x-1, y)) {
                         if (g_ptr->variant & 1) {
-                            add_sprite(base_depth+500, ix, iy, "features/walsw00", !sw_glow,
+                                if(magma)
+	                                        strcpy(buf,"features/walsw00m");
+                                else
+	                                        strcpy(buf,"features/walsw00");
+				
+                            add_sprite(base_depth+500, ix, iy, buf, !sw_glow,
                                 "base", 0, 0);
                         }
                         else {
-                            add_sprite(base_depth+500, ix, iy, "features/walsw01", !sw_glow,
+                                if(magma)
+	                                        strcpy(buf,"features/walsw01m");
+                                else
+	                                        strcpy(buf,"features/walsw01");
+				
+                            add_sprite(base_depth+500, ix, iy, buf, !sw_glow,
                                 "base", 0, 0);
                         }
                     }
                     else {
                         if (get_feat_safe(y, x-1) == CF_STAIR_DOWN_SW) {
-                            add_sprite(base_depth+500, ix, iy, "features/walsw00s", !sw_glow,
+                                if(magma)
+	                                        strcpy(buf,"features/walsw00sm");
+                                else
+	                                        strcpy(buf,"features/walsw00s");
+				
+                            add_sprite(base_depth+500, ix, iy, buf, !sw_glow,
                                 "base", 0, 0);
                         }
                         else if (g_ptr->variant & 1) {
-                            add_sprite(base_depth+500, ix, iy, "features/walsw00t", !sw_glow,
+                                if(magma)
+	                                        strcpy(buf,"features/walsw00tm");
+                                else
+	                                        strcpy(buf,"features/walsw00t");
+				
+                            add_sprite(base_depth+500, ix, iy, buf, !sw_glow,
                                 "base", 0, 0);
                         }
                         else {
-                            add_sprite(base_depth+500, ix, iy, "features/walsw01t", !sw_glow,
+                                if(magma)
+	                                        strcpy(buf,"features/walsw01tm");
+                                else
+	                                        strcpy(buf,"features/walsw01t");
+				
+                            add_sprite(base_depth+500, ix, iy, buf, !sw_glow,
                                 "base", 0, 0);
                         }
                     }
@@ -1006,7 +1116,6 @@ void draw_layer_2(int x, int y, int ix, int iy, int player_x, int player_y)
             //: lots still here
             break;
     }
-
     // Must have a visible monster
     if (m_ptr && m_ptr->is_visible()) {
         // Get race
@@ -1533,8 +1642,7 @@ void forget_view(void)
 /*
  * Hack -- Local version of "floor_grid_bold(Y,X)"
  */
-#define floor_grid_hack(C) \
-    (!((C)->get_feat() & 0x20))
+#define floor_grid_hack(C)   (!((C)->get_feat() & 0x20))
 
 /*
  * This function allows us to efficiently add a grid to the "view" array.

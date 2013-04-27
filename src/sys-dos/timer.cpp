@@ -29,8 +29,9 @@
 
 #include "../utumno.h"
 #include "sys-dos.h"
-#include "internal.h"
-
+/* SAW 
+ #include "internal.h"
+*/
 const int DIVISOR = 8; // Multiply by 18.2 for ticks per second
 
 const int TIMER_INT = 8;
@@ -56,9 +57,11 @@ void reset_timer(void) { ticker = 0; }
  */
 static inline void set_timer(long time)
 {
+/*SAW
     outportb(0x43, 0x34);
     outportb(0x40, time & 0xff);
     outportb(0x40, time >> 8);
+    */
 }
 
 
@@ -70,22 +73,23 @@ static inline void set_timer(long time)
  */
 static int my_timerint()
 {
+	
     bool bios = FALSE;
-
+/*SAW
     // Always increment the ticker
     ticker++;
 
-    /* update bios time */
+    // update bios time 
     if (!bios_wait) bios_wait = DIVISOR;
     bios_wait--;
     if (!bios_wait) bios = TRUE;
 
     if (!bios) {
         ENABLE();
-        outportb(0x20, 0x20);      /* ack. the interrupt */
+        outportb(0x20, 0x20);      // ack. the interrupt 
         DISABLE();
     }
-
+*/
     return bios;
 }
 
@@ -99,8 +103,8 @@ static END_OF_FUNCTION(my_timerint);
  */
 int install_timer(void)
 {
+/*SAW
     int x;
-
     LOCK_VARIABLE(ticker);
     LOCK_VARIABLE(bios_wait);
     LOCK_FUNCTION(my_timerint);
@@ -109,11 +113,11 @@ int install_timer(void)
 
     DISABLE();
 
-    /* windoze doesn't seem to notice if we only do this once... */
+    // windoze doesn't seem to notice if we only do this once... 
     for (x=0; x<16; x++) set_timer(0x10000L / DIVISOR);
 
     ENABLE();
-
+*/
     return 0;
 }
 
@@ -126,6 +130,7 @@ int install_timer(void)
 void remove_timer(void)
 {
     // Shut off interrupts while in this critical section
+/*SAW
     DISABLE();
 
     // Reset it to 18.2 ticks/sec
@@ -143,4 +148,6 @@ void remove_timer(void)
 
     // Turn interrupts back on
     ENABLE();
+    */
 }
+

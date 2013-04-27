@@ -870,7 +870,9 @@ void CItem::object_desc(char *buf, int pref, int mode)
     bool aware = FALSE, known = FALSE;
     bool append_name = FALSE;
     bool show_weapon = FALSE, show_armor = FALSE;
-    char *s, *u, *t, tmp_val[160], *basenm, *modstr;
+//  -- MV: Correcting the misuse of modstr in some assigment
+//	char *s, *u, *t, tmp_val[160], basenm[500], *modstr;
+	char *s, *u, *t, tmp_val[160], basenm[500], modstr[100];
     u32b f1, f2, f3;
     CObjectKind *k_ptr = get_k_ptr();
 
@@ -889,11 +891,10 @@ void CItem::object_desc(char *buf, int pref, int mode)
     indexx = GetSval();
 
     /* Extract default "base" string */
-    basenm = k_ptr->name;
-
+    strcpy(basenm , k_ptr->name);
     /* Assume no "modifier" string */
-    modstr = "";
-
+// -- MV
+    strcpy(modstr, "");
 
     /* Analyze the object */
     switch (GetTval()) {
@@ -945,9 +946,10 @@ void CItem::object_desc(char *buf, int pref, int mode)
             if (isArtifact() && aware) break;
 
             // Color the object
-            modstr = amulet_adj[indexx];
+     // -- MV 
+            strcpy(modstr, amulet_adj[indexx]);
             if (aware) append_name = TRUE;
-            basenm = aware ? "& amulet~" : "& # amulet~";
+            strcpy(basenm ,aware ? "& amulet~" : "& # amulet~");
             break;
 
 
@@ -958,13 +960,14 @@ void CItem::object_desc(char *buf, int pref, int mode)
             if (isArtifact() && aware) break;
 
             /* Color the object */
-            modstr = ring_adj[indexx];
+     // -- MV 
+	    strcpy(modstr, ring_adj[indexx]);
             if (aware) append_name = TRUE;
-            basenm = aware ? "& ring~" : "& # ring~";
-
+	    strcpy(basenm , aware ? "& ring~" : "& # ring~");
             /* Hack -- The One Ring */
             if (!aware && (GetSval() == SV_RING_POWER)) {
-                modstr = "plain gold";
+     // -- MV           
+	       strcpy(modstr, "plain gold");
             }
 
             break;
@@ -973,41 +976,46 @@ void CItem::object_desc(char *buf, int pref, int mode)
         case TV_STAFF:
 
             // Color the object
-            modstr = staff_adj[indexx];
+     // -- MV           
+            strcpy(modstr, staff_adj[indexx]);
             if (aware) append_name = TRUE;
-            basenm = aware ? "& staff~" : "& # staff~";
+            strcpy(basenm , aware ? "& staff~" : "& # staff~");
             break;
 
         case TV_WAND:
 
             /* Color the object */
-            modstr = wand_adj[indexx];
+     // -- MV           
+            strcpy(modstr, wand_adj[indexx]);
             if (aware) append_name = TRUE;
-            basenm = aware ? "& wand~" : "& # wand~";
+            strcpy(basenm , aware ? "& wand~" : "& # wand~");
             break;
 
         case TV_ROD:
 
             // Color the object
-            modstr = rod_adj[indexx];
+     // -- MV           
+            strcpy(modstr, rod_adj[indexx]);
             if (aware) append_name = TRUE;
-            basenm = aware ? "& rod~" : "& # rod~";
+            strcpy(basenm , aware ? "& rod~" : "& # rod~");
             break;
 
         case TV_SCROLL:
 
             // Color the object
-            modstr = scroll_adj[indexx];
+     // -- MV           
+            strcpy(modstr, scroll_adj[indexx]);
             if (aware) append_name = TRUE;
-            basenm = aware ? "& scroll~" : "& scroll~ titled \"#\"";
+	    strcpy(basenm , aware ? "& scroll~" : "& scroll~ titled \"#\"");
             break;
 
         case TV_POTION:
 
             /* Color the object */
-            modstr = potion_adj[indexx];
+     // -- MV           
+            strcpy(modstr, potion_adj[indexx]);
             if (aware) append_name = TRUE;
-            basenm = aware ? "& potion~" : "& # potion~";
+	    strcpy(basenm , aware ? "& potion~" : "& # potion~");
             break;
 
         case TV_FOOD:
@@ -1016,22 +1024,23 @@ void CItem::object_desc(char *buf, int pref, int mode)
             if (GetSval() >= SV_FOOD_MIN_FOOD) break;
 
             /* Color the object */
-            modstr = food_adj[indexx];
+     // -- MV           
+            strcpy(modstr, food_adj[indexx]);
             if (aware) append_name = TRUE;
-            basenm = aware ? "& mushroom~" : "& # mushroom~";
+	    strcpy(basenm , aware ? "& mushroom~" : "& # mushroom~");
             break;
 
 
         /* Magic Books */
         case TV_MAGIC_BOOK:
-            modstr = basenm;
-            basenm = "& book~ of magic spells #";
+            strcpy(modstr , basenm);
+            strcpy(basenm , "& book~ of magic spells #");
             break;
 
         /* Prayer Books */
         case TV_PRAYER_BOOK:
-            modstr = basenm;
-            basenm = "& holy book~ of prayers #";
+            strcpy(modstr , basenm);
+	    strcpy(basenm , "& holy book~ of prayers #");
             break;
 
         /* Hack -- Gold/Gems */
@@ -1044,7 +1053,6 @@ void CItem::object_desc(char *buf, int pref, int mode)
             strcpy(buf, "(nothing)");
             return;
     }
-
 
     /* Start dumping the result */
     t = buf;
@@ -1490,12 +1498,11 @@ void CItem::object_desc(char *buf, int pref, int mode)
     }
 
     /* Append the inscription, if any */
-    if (tmp_val[0]) {
+    if (tmp_val[0]!='\0') {
         int n;
 
         /* Hack -- How much so far */
         n = (t - buf);
-
         /* Paranoia -- do not be stupid */
         if (n > 75) n = 75;
 
@@ -1532,10 +1539,8 @@ void CItem::object_desc_store(char *buf, int pref, int mode)
     /* Force "aware" for description */
     k_ptr->aware = TRUE;
 
-
     /* Describe the object */
     object_desc(buf, pref, mode);
-
 
     /* Restore "aware" flag */
     k_ptr->aware = hack_aware;

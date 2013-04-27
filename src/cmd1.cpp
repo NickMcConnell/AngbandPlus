@@ -386,7 +386,8 @@ void carry(void)
         // Describe the object
         i_ptr->object_desc(i_name, TRUE, 3);
 
-        // Pick up gold
+        printf("1: %s\n",i_name);
+	// Pick up gold
         if (i_ptr->GetTval() == TV_GOLD) {
             // Message
             msg_format("You have found %ld gold pieces worth of %s.",
@@ -861,3 +862,4 @@ bool do_cmd_walk(int dir)
     // Did something
     return TRUE;
 }
+

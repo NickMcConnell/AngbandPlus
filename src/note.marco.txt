@@ -1,0 +1,47 @@
+Appunti per cambiare tutta la gestione dei tasti...
+
+In questi file si trova la funzione scan_inkey_scan...
+
+birth.cpp:383:	c = scan_inkey_scan(); 
+cmd4.cpp:27:        c = scan_inkey_scan();
+cmd4.cpp:82:        c = scan_inkey_scan();
+dungeon.cpp:1245:        char c = scan_inkey_scan();
+dungeon.cpp:1741:            c = scan_inkey_scan();
+externs.h:596:extern int scan_inkey_scan(void);
+gui.cpp:365:        c = scan_inkey_scan();
+store.cpp:1497:    char command_cmd = scan_inkey_scan();
+util.cpp:705:        c = scan_inkey_scan();
+util.cpp:918:        c = scan_inkey_scan();
+
+In questi file sono si trovano le chiamate alle funzioni convert() e get_shift();
+
+> grep -n 'get_shift(' *.cpp
+
+birth.cpp:478:        switch (convert(c, get_shift(), get_capslock())) {
+cmd3.cpp:778:    query = convert(query, get_shift(), get_capslock());
+dungeon.cpp:1178:    bool shift = get_shift();
+dungeon.cpp:1266:                char ascii = convert(c, get_shift(), get_capslock());
+files.cpp:511:        k = convert(k, get_shift(), get_capslock());
+gui.cpp:315:    char ascii = convert(c, get_shift(), get_capslock());
+obj-desc.cpp:2767:        which = convert(which, get_shift(), get_capslock());
+util.cpp:611:        c = convert(i, get_shift(), get_capslock());
+util.cpp:765:    *command = convert(*command, get_shift(), get_capslock());
+
+> grep -n 'convert(' *.cpp
+
+birth.cpp:478:        switch (convert(c, get_shift(), get_capslock())) {
+cmd3.cpp:778:    query = convert(query, get_shift(), get_capslock());
+dungeon.cpp:1266:                char ascii = convert(c, get_shift(), get_capslock());
+files.cpp:511:        k = convert(k, get_shift(), get_capslock());
+gui.cpp:315:    char ascii = convert(c, get_shift(), get_capslock());
+obj-desc.cpp:2767:        which = convert(which, get_shift(), get_capslock());
+util.cpp:611:        c = convert(i, get_shift(), get_capslock());
+util.cpp:765:    *command = convert(*command, get_shift(), get_capslock());
+
+sono chiamate sempre insieme tranne in dungeon.cpp:1178:, dove c'e' un'esplicita chiamata a get_shift() da solo senza convert...
+mi chiedo se si possa sfruttare questa cosa...
+tipo con una macro che converta tutti i convert() nella vera funzione che ci piace di piu'...
+
+o semplicemente gettiamo via il codice vecchio e lo riscriviamo...
+
+

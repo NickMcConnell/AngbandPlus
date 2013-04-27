@@ -14,11 +14,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
-#include <io.h>
+//#include <io.h>
+#include <stdio.h>
 #include <memory.h>
 #include <stdarg.h>
 #include <fcntl.h>
 #include <math.h>
-//#include <unistd.h>
 
 #endif

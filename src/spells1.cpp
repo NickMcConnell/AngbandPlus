@@ -14,6 +14,7 @@
 
 
 
+
 /*
  * Helper function -- return a "nearby" race for polymorphing
  *
@@ -359,6 +360,7 @@ void CPlayer::take_hit_internal(int damage, char *hit_from)
 
         /* Message */
         msg_print("*** LOW HITPOINT WARNING! ***");
+        turn_based = TRUE;
     }
 }
 
@@ -1418,7 +1420,7 @@ static bool project_i(CLiving *who, int r, int y, int x, int dam, int typ)
     bool plural = FALSE;
     bool do_kill = FALSE;
 
-    char *note_kill = NULL;
+    char note_kill [500];
 
     u32b f1, f2, f3;
 
@@ -1426,7 +1428,7 @@ static bool project_i(CLiving *who, int r, int y, int x, int dam, int typ)
 
     int div;
 
-
+    strcpy(note_kill,"");
     /* Nothing here */
     if (!g_ptr->i_ptr) return FALSE;
 
@@ -1453,7 +1455,7 @@ static bool project_i(CLiving *who, int r, int y, int x, int dam, int typ)
         case GF_ACID:
             if (i_ptr->hatesAcid()) {
                 do_kill = TRUE;
-                note_kill = (plural ? " melt!" : " melts!");
+                strcpy(note_kill , (plural ? " melt!" : " melts!"));
                 if (f3 & TR3_IGNORE_ACID) ignore = TRUE;
             }
             break;
@@ -1462,7 +1464,7 @@ static bool project_i(CLiving *who, int r, int y, int x, int dam, int typ)
         case GF_ELEC:
             if (i_ptr->hatesElec()) {
                 do_kill = TRUE;
-                note_kill = (plural ? " is destroyed!" : " is destroyed!");
+                strcpy(note_kill , (plural ? " is destroyed!" : " is destroyed!"));
                 if (f3 & TR3_IGNORE_ELEC) ignore = TRUE;
             }
             break;
@@ -1471,7 +1473,7 @@ static bool project_i(CLiving *who, int r, int y, int x, int dam, int typ)
         case GF_FIRE:
             if (i_ptr->hatesFire()) {
                 do_kill = TRUE;
-                note_kill = (plural ? " burn up!" : " burns up!");
+                strcpy(note_kill , (plural ? " burn up!" : " burns up!"));
                 if (f3 & TR3_IGNORE_FIRE) ignore = TRUE;
             }
             break;
@@ -1479,7 +1481,7 @@ static bool project_i(CLiving *who, int r, int y, int x, int dam, int typ)
         /* Cold -- potions and flasks */
         case GF_COLD:
             if (i_ptr->hatesCold()) {
-                note_kill = (plural ? " shatter!" : " shatters!");
+                strcpy(note_kill , (plural ? " shatter!" : " shatters!"));
                 do_kill = TRUE;
                 if (f3 & TR3_IGNORE_COLD) ignore = TRUE;
             }
@@ -1489,13 +1491,13 @@ static bool project_i(CLiving *who, int r, int y, int x, int dam, int typ)
         case GF_PLASMA:
             if (i_ptr->hatesFire()) {
                 do_kill = TRUE;
-                note_kill = (plural ? " burn up!" : " burns up!");
+                strcpy(note_kill , (plural ? " burn up!" : " burns up!"));
                 if (f3 & TR3_IGNORE_FIRE) ignore = TRUE;
             }
             if (i_ptr->hatesElec()) {
                 ignore = FALSE;
                 do_kill = TRUE;
-                note_kill= (plural ? " is destroyed!" : " is destroyed!");
+                strcpy(note_kill, (plural ? " is destroyed!" : " is destroyed!"));
                 if (f3 & TR3_IGNORE_ELEC) ignore = TRUE;
             }
             break;
@@ -1504,13 +1506,13 @@ static bool project_i(CLiving *who, int r, int y, int x, int dam, int typ)
         case GF_METEOR:
             if (i_ptr->hatesFire()) {
                 do_kill = TRUE;
-                note_kill = (plural ? " burn up!" : " burns up!");
+                strcpy(note_kill , (plural ? " burn up!" : " burns up!"));
                 if (f3 & TR3_IGNORE_FIRE) ignore = TRUE;
             }
             if (i_ptr->hatesCold()) {
                 ignore = FALSE;
                 do_kill = TRUE;
-                note_kill= (plural ? " shatter!" : " shatters!");
+                strcpy(note_kill, (plural ? " shatter!" : " shatters!"));
                 if (f3 & TR3_IGNORE_COLD) ignore = TRUE;
             }
             break;
@@ -1521,7 +1523,7 @@ static bool project_i(CLiving *who, int r, int y, int x, int dam, int typ)
         case GF_FORCE:
         case GF_SOUND:
             if (i_ptr->hatesCold()) {
-                note_kill = (plural ? " shatter!" : " shatters!");
+                strcpy(note_kill , (plural ? " shatter!" : " shatters!"));
                 do_kill = TRUE;
             }
             break;
@@ -1529,13 +1531,13 @@ static bool project_i(CLiving *who, int r, int y, int x, int dam, int typ)
         /* Mana -- destroys everything */
         case GF_MANA:
             do_kill = TRUE;
-            note_kill = (plural ? " is destroyed!" : " is destroyed!");
+            strcpy(note_kill , (plural ? " is destroyed!" : " is destroyed!"));
 
         /* Holy Orb -- destroys cursed non-artifacts */
         case GF_HOLY_ORB:
             if (i_ptr->isCursed()) {
                 do_kill = TRUE;
-                note_kill= (plural ? " is destroyed!" : " is destroyed!");
+                strcpy(note_kill, (plural ? " is destroyed!" : " is destroyed!"));
             }
             break;
 

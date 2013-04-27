@@ -17,7 +17,7 @@
 
 # Version stamp
 
-V:v1.0a5
+V:v1.0a6
 
 
 ##### Something special #####
@@ -29,13 +29,13 @@ G:dobject
 ##### Mushrooms #####
 
 N:1:blindness
-G:dobject
+G:items/food/mblindness
 I:80:1:500
 W:5:0:1:0
 A:5/1
 
 N:2:paranoia
-G:dobject
+G:items/food/mparanoia
 I:80:2:500
 W:5:0:1:0
 A:5/1
@@ -2773,42 +2773,42 @@ A:0/1
 P:0:1d1:0:0:0
 
 N:393:& canine skeleton~
-G:dobject
+G:items/misc/skeleton
 I:1:4:0
 W:1:0:10:0
 A:1/1
 P:0:1d1:0:0:0
 
 N:394:& rodent skeleton~
-G:dobject
+G:items/misc/skeleton
 I:1:3:0
 W:1:0:10:0
 A:1/1
 P:0:1d1:0:0:0
 
 N:395:& human skeleton~
-G:dobject
+G:items/misc/skeleton
 I:1:8:0
 W:5:0:60:0
 A:5/1
 P:0:1d2:0:0:0
 
 N:396:& dwarf skeleton~
-G:dobject
+G:items/misc/skeleton
 I:1:7:0
 W:5:0:50:0
 A:5/1
 P:0:1d2:0:0:0
 
 N:397:& elf skeleton~
-G:dobject
+G:items/misc/skeleton
 I:1:6:0
 W:5:0:40:0
 A:5/1
 P:0:1d2:0:0:0
 
 N:398:& gnome skeleton~
-G:dobject
+G:items/misc/skeleton
 I:1:5:0
 W:5:0:30:0
 A:5/1
