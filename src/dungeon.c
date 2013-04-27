@@ -1512,17 +1512,19 @@ static void process_command(void)
 			break;
 		}
 
-		/* Aim a wand */
+		/* Dag - Consolidate the magic items */
+		case 'z':
 		case 'a':
+		case 'u':
 		{
-			do_cmd_aim_wand();
+			do_cmd_use_magic_item();
 			break;
 		}
 
-		/* Zap a rod */
-		case 'z':
+		/* Dag - Charge a battery */
+		case 'O':
 		{
-			do_cmd_zap_rod();
+			do_cmd_charge_battery();
 			break;
 		}
 
@@ -1537,13 +1539,6 @@ static void process_command(void)
 		case 'r':
 		{
 			do_cmd_read_scroll();
-			break;
-		}
-
-		/* Use a staff */
-		case 'u':
-		{
-			do_cmd_use_staff();
 			break;
 		}
 
@@ -2332,7 +2327,6 @@ static void dungeon(void)
 	/* Clear */
 	Term_clear();
 
-
 	/* Update stuff */
 	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
 
@@ -2341,7 +2335,6 @@ static void dungeon(void)
 
 	/* Update stuff */
 	update_stuff();
-
 
 	/* Fully update the visuals (and monster distances) */
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_DISTANCE);
@@ -2361,14 +2354,12 @@ static void dungeon(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD);
 
+
 	/* Update stuff */
 	update_stuff();
 
 	/* Redraw stuff */
 	redraw_stuff();
-
-	/* Redraw stuff */
-	window_stuff();
 
 
 	/* Hack -- Decrease "xtra" depth */
@@ -2648,6 +2639,7 @@ void play_game(bool new_game)
 	{
 		process_player_name(TRUE);
 	}
+
 
 	/* Flash a message */
 	prt("Please wait...", 0, 0);

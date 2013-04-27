@@ -72,6 +72,7 @@ s16b character_xtra;		/* Depth of the game in startup mode */
 
 u32b seed_flavor;		/* Hack -- consistent object colors */
 u32b seed_town;			/* Hack -- consistent town layout */
+u32b seed_mutant;		/* Dag  -- consistent mutant flags */
 
 s16b num_repro;			/* Current reproducer count */
 s16b object_level;		/* Current object creation level */

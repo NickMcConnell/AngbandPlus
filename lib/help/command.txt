@@ -26,7 +26,7 @@ Inventory list (i)
         to set options to allow wands, staves, and other such objects to
         stack.  Each object has a weight, and if you carry more objects
         than your strength permits, you will begin to slow down.
- 
+
 Equipment list (e)
         Use this command to display a list of the objects currently being
         used by your character.  Your character has 12 slots for equipment,
@@ -201,7 +201,7 @@ Close a door (c)
         Non-intelligent and some other creatures cannot open doors, so
         shutting doors can be quite valuable.  Broken doors cannot be closed.
         Bashing a door open may break it.  This command may take a count,
-        is affected by the "always_repeat" option, requires a direction, and 
+        is affected by the "always_repeat" option, requires a direction, and
         takes some energy.
 
 Jam a door (j) or Spike a door (S)
@@ -306,7 +306,7 @@ Fuel your lantern/torch (F)
 
 Quaff a potion (q)
         Use this command to drink a potion.  Potions affect the player in
-        various ways, but the effects are not always immediately obvious. 
+        various ways, but the effects are not always immediately obvious.
         This command takes some energy.
 
 Read a scroll (r)
@@ -316,8 +316,8 @@ Read a scroll (r)
         takes effect.  Most scrolls which prompt for more information can be
         aborted (by pressing escape), which will stop reading the scroll
         before it disintegrates.  This command takes some energy.
- 
-Inscribe an object ({) 
+
+Inscribe an object ({)
         This command inscribes a string on an object.  The inscription is
         displayed inside curly braces after the object description.  The
         inscription is limited to the particular object (or pile) and is
@@ -351,7 +351,18 @@ Activate an artifact (A)
         ability.  Special abilities can only be used if you are wearing or
         wielding the item.  This command takes some energy.
 
-Aim a wand (a) or Zap a wand (z)
+Charge a battery (O)
+        Batteries found in the dungeon will not have a charge, and so you
+		will have to charge them.  To put mana in a battery you will have
+		to give it a repeat count using the '0' command, and then put in
+		the amount you want to charge it.  Be forewarned, however, that
+		over-charged batteries have been known to explode under the
+		stress.
+
+(a)im, (u)se or (z)ap a magical item (z, Z, a)
+        In Yin-YAngband, these all do the same thing, activate any magic
+		item, be it wand, staff, rod, or mana battery.
+
         Wands must be aimed in a direction to be used.  Wands are magical
         devices, and therefore there is a chance you will not be able to
         figure out how to use them if you aren't good with magical
@@ -360,17 +371,11 @@ Aim a wand (a) or Zap a wand (z)
         given direction, depending on the wand.  An obstruction such as a
         door or wall will generally stop the effects from traveling any
         farther.  This command requires a direction and can use a target.
-        This command takes some energy.
-
-Use a staff (u) or Zap a staff (Z)
-        This command will use a staff.  A staff is normally very similar
-        to a scroll, in that they normally either have an area effect or
-        affect a specific object.  Staves are magical devices, and there
-        is a chance you will not be able to figure out how to use them.
-        This command takes some energy.
- 
-Zap a rod (z) or Activate a rod (a)
-        Rods are extremely powerful magical items, which cannot be burnt
+		A staff is normally very similar to a scroll, in that they
+		normally either have an area effect or affect a specific object.
+		Staves are magical devices, and there is a chance you will not be
+		able to figure out how to use them.
+		Rods are extremely powerful magical items, which cannot be burnt
         or shattered, and which can have either staff-like or wand-like
         effects, but unlike staves and wands, they don't have charges.
         Instead, they draw on the ambient magical energy to recharge
@@ -378,7 +383,8 @@ Zap a rod (z) or Activate a rod (a)
         turns.  The recharging time varies depending on the type of rod.
         This command may require a direction (depending on the type of
         rod, and whether you are aware of its type) and can use a target.
-        This command takes some energy.
+		Batteries, once charged can be activated to get the mana back out
+		of it.  This command takes some energy.
 
 --- Throwing and Missile Weapons ---
 
@@ -447,7 +453,7 @@ Targeting Mode (*)
         or breath weapon at a location in the middle of a group of monsters
         can often improve the effects of that attack, since ball attacks are
         not stopped by interposed monsters if the ball is launched at a target.
-        
+
 --- Looking Commands ---
 
 Full screen map (M)
@@ -526,7 +532,7 @@ Check knowledge (~)
 Interact with the system (!)
         Allow the user to interact with the underlying visual system.
         This command is currently unused.
- 
+
 --- Saving and Exiting Commands ---
 
 Save and Quit (Ctrl-X)
@@ -572,7 +578,7 @@ Interact with visuals (%)
 Interact with colors (&)
         Allow the user to interact with colors.  This command only
         works on some systems.
- 
+
 --- Help ---
 
 Help (?)
@@ -581,7 +587,7 @@ Help (?)
         help files may be available on the Net.  In particular, there are
         a variety of spoiler files which do not come with the standard
         distribution.  Check the place you got Angband from or ask on the
-        newsgroup rec.games.roguelike.angband about them. 
+        newsgroup rec.games.roguelike.angband about them.
 
 Identify Symbol (/)
         Use this command to find out what a character stands for.  For
@@ -613,7 +619,7 @@ Game Version (V)
 
 --- Extra Commands ---
 
-Toggle Choice Window (^E) 
+Toggle Choice Window (^E)
         Toggles the display in any sub-windows (if available) which are
         displaying your inventory or equipment.
 

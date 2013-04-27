@@ -1,0 +1,57 @@
+Yin-YAngband 1.0 (1998-2-18)
+
+       Initial changes is Yin-YAngband:
+
+   Added new race, Mutant:
+
+from -4 to +4 in every stat (random)
+get random abilities (searching etc.)
+may get some random resists/sustains/other flags.
+
+
+    Added Mana Batteries:
+
+You can store mana in a battery. It takes 1/5 of your original mana and may
+cause some bad effects if you overcharge it. The key command is 'O'.
+
+You can take mana out of a battery.  For this use the use magical item command.
+
+
+    Consolidated magical item commands:
+
+Now, 'a', 'u' and 'z' (or 'a', 'z' and 'Z' for the roguelike keyset) will work
+for any magical item be it rod, wand, staff or mana battery.
+
+
+Added circular rooms. (They look sort of oval, but they aren't, really)
+
+    Changed various constants to make the game more interesting:
+
+It's more common for monster/item levels to be inflated.
+Abnormal rooms are twice as common and vaults/pits are 4 times as common.
+More monsters generally start out on a level, and it's more likely that they
+appear while you are on a level.
+
+Added monster AI, compliments of Keldon Jones.
+
+
+        Changes I intend to make:
+
+   Revamp the magic system.
+I'll either steal the one from ZAngband or make one myself.
+
+   Change monster names and item names.
+Since this is called Yin-YAngband, maybe I should change the monster/item
+names to be Chinese.  I'd appreciate any help on this.
+
+   Balance.
+I need to adjust values to make the game balanced.  I'd appreciate help here
+too.
+
+Allow the charge battery command to use "Quantity?" prompts.
+
+More strange shaped rooms and more (different) vaults.
+
+Any ideas are more than welcome!
+Send me e-mail at <langrish@clarityconnect.com>. Please put "Angband" in the
+subject line.

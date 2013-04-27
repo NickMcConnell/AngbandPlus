@@ -96,6 +96,7 @@ extern s16b character_icky;
 extern s16b character_xtra;
 extern u32b seed_flavor;
 extern u32b seed_town;
+extern u32b seed_mutant;
 extern s16b num_repro;
 extern s16b object_level;
 extern s16b monster_level;
@@ -338,9 +339,8 @@ extern void do_cmd_pray(void);
 extern void do_cmd_eat_food(void);
 extern void do_cmd_quaff_potion(void);
 extern void do_cmd_read_scroll(void);
-extern void do_cmd_use_staff(void);
-extern void do_cmd_aim_wand(void);
-extern void do_cmd_zap_rod(void);
+extern void do_cmd_use_magic_item(void);
+extern void do_cmd_charge_battery(void);
 extern void do_cmd_activate(void);
 
 /* dungeon.c */

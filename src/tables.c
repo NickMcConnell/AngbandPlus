@@ -1261,7 +1261,7 @@ byte extract_energy[200] =
  */
 s32b player_exp[PY_MAX_LEVEL] =
 {
-	10,
+	10,  /*2*/
 	25,
 	45,
 	70,
@@ -1269,7 +1269,7 @@ s32b player_exp[PY_MAX_LEVEL] =
 	140,
 	200,
 	280,
-	380,
+	380,  /*10*/
 	500,
 	650,
 	850,
@@ -1279,7 +1279,7 @@ s32b player_exp[PY_MAX_LEVEL] =
 	2300,
 	2900,
 	3600,
-	4400,
+	4400,  /*20*/
 	5400,
 	6800,
 	8400,
@@ -1289,7 +1289,7 @@ s32b player_exp[PY_MAX_LEVEL] =
 	25000,
 	35000L,
 	50000L,
-	75000L,
+	75000L,   /*30*/
 	100000L,
 	150000L,
 	200000L,
@@ -1299,7 +1299,7 @@ s32b player_exp[PY_MAX_LEVEL] =
 	550000L,
 	700000L,
 	850000L,
-	1000000L,
+	1000000L,   /*40*/
 	1250000L,
 	1500000L,
 	1800000L,
@@ -1309,8 +1309,57 @@ s32b player_exp[PY_MAX_LEVEL] =
 	3000000L,
 	3500000L,
 	4000000L,
-	4500000L,
-	5000000L
+	4500000L,   /*50*/
+	5000000L,
+	6000000L,
+	7000000L,
+	8000000L,
+	9000000L,
+	10000000L,
+	11500000L,
+	13000000L,
+	14500000L,
+	16000000L,   /*60*/
+	17500000L,
+	18500000L,
+	20500000L,
+	22000000L,
+	23500000L,
+	25000000L,
+	27500000L,
+	30000000L,
+	32500000L,
+	35000000L,   /*70*/
+	37500000L,
+	40000000L,
+	45000000L,
+	50000000L,
+	55000000L,
+	60000000L,
+	65000000L,
+	70000000L,
+	75000000L,
+	80000000L,   /*80*/
+	85000000L,
+	90000000L,
+	95000000L,
+	100000000L,
+	105000000L,
+	110000000L,
+	115000000L,
+	120000000L,
+	125000000L,
+	130000000L,   /*90*/
+	135000000L,
+	140000000L,
+	145000000L,
+	150000000L,
+	160000000L,
+	170000000L,
+	180000000L,
+	190000000L,
+	200000000L,   /*100*/
+	210000000L
 };
 
 
@@ -1467,7 +1516,26 @@ player_race race_info[MAX_RACES] =
 		82, 10, 180, 15,
 		4,
 		0x1F
-	}
+	},
+
+	/* Dag - Most of this stuff has actually no effect; it's all
+	 * generated randomly at player birth.
+	 * The high values there are for the auto-roller.
+	 * Occasionally there may be a negative height or weight, but I
+	 * don't think anyone is really going to care.
+	 */
+	{
+		"Mutant",
+		{  4,  4,  4,  4,  4,  4 },
+		0,  0,  0,  0,  0,  10,  0,  0,
+		10,  100,
+		14,  6,
+		72, 25, 180, 75,
+		66, 20, 140, 60,
+		0,
+		0x3F
+		},
+
 };
 
 
@@ -1528,7 +1596,22 @@ player_class class_info[MAX_CLASS] =
 		20, 24, 25, 1,  12, 2, 68, 40,
 		7,  10, 11, 0,  0,  0,  35, 30,
 		6, 35
+	},
+
+#if 0
+	/* Maybe later. I'd have to code a new magic system (or steal the
+	 * one from Zangband), but I'm too lazy. Here the idea was to
+	 * make a class capable of casting both types of spells.
+	 */
+	/* Dag - Generally in between mages and priests */
+	{
+		"Mystic",
+		{ -6, 2, 2, 1, -2, 1},
+		27, 38, 31, 2, 16, 14, 30, 20,
+		7,  14, 11, 0,  0,  0, 12, 12,
+		0,  40
 	}
+#endif
 };
 
 
@@ -2652,10 +2735,10 @@ cptr option_desc[OPT_MAX] =
 	"Show dungeon level in feet",				/* OPT_depth_in_feet */
 	"Merge inscriptions when stacking",			/* OPT_stack_force_notes */
 	"Merge discounts when stacking",			/* OPT_stack_force_costs */
-	"Show labels in equipment listings",		/* OPT_show_labels */
-	"Show weights in all object listings",		/* OPT_show_weights */
-	"Show choices in inven/equip windows",		/* OPT_show_choices */
-	"Show details in monster descriptions",		/* OPT_show_details */
+	"Show labels in object listings",			/* OPT_show_labels */
+	"Show weights in object listings",			/* OPT_show_weights */
+	"Show choices in certain sub-windows",		/* OPT_show_choices */
+	"Show details in certain sub-windows",		/* OPT_show_details */
 	"Audible bell (on errors, etc)",			/* OPT_ring_bell */
 	"Show flavors in object descriptions",		/* OPT_show_flacors */
 	"When running, ignore stairs",				/* OPT_run_ignore_stairs */
@@ -2720,15 +2803,15 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_carry_query_flag */
 	FALSE,		/* OPT_use_old_target */
 	TRUE,		/* OPT_always_pickup */
-	FALSE,		/* OPT_always_repeat */
-	FALSE,		/* OPT_depth_in_feet */
+	TRUE,		/* OPT_always_repeat */
+	TRUE,		/* OPT_depth_in_feet */
 	FALSE,		/* OPT_stack_force_notes */
 	FALSE,		/* OPT_stack_force_costs */
 	TRUE,		/* OPT_show_labels */
 	TRUE,		/* OPT_show_weights */
 	TRUE,		/* OPT_show_choices */
 	TRUE,		/* OPT_show_details */
-	TRUE,		/* OPT_ring_bell */
+	FALSE,		/* OPT_ring_bell */
 	TRUE,		/* OPT_show_flavors */
 	TRUE,		/* OPT_run_ignore_stairs */
 	TRUE,		/* OPT_run_ignore_doors */
@@ -2754,7 +2837,7 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_expand_list */
 	TRUE,		/* OPT_view_perma_grids */
 	FALSE,		/* OPT_view_torch_grids */
-	TRUE,		/* OPT_dungeon_align */
+	FALSE,		/* OPT_dungeon_align */
 	TRUE,		/* OPT_dungeon_stair */
 	FALSE,		/* OPT_flow_by_sound */
 	FALSE,		/* OPT_flow_by_smell */

@@ -1217,8 +1217,8 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		p_ptr->py = y2;
 		p_ptr->px = x2;
 
-		/* Update the panel */
-		p_ptr->update |= (PU_PANEL);
+		/* Check for new panel (redraw map) */
+		verify_panel();
 
 		/* Update the visuals (and monster distances) */
 		p_ptr->update |= (PU_UPDATE_VIEW | PU_DISTANCE);
@@ -1250,8 +1250,8 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		p_ptr->py = y1;
 		p_ptr->px = x1;
 
-		/* Update the panel */
-		p_ptr->update |= (PU_PANEL);
+		/* Check for new panel (redraw map) */
+		verify_panel();
 
 		/* Update the visuals (and monster distances) */
 		p_ptr->update |= (PU_UPDATE_VIEW | PU_DISTANCE);

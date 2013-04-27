@@ -127,8 +127,11 @@
 
 /*
  * Maximum number of player "race" types (see "table.c", etc)
+ * Dag
+ * These 'Dag' comments allow me to find my modifications easily
+ * for upgrades etc. (just in case you were wondering)
  */
-#define MAX_RACES           10
+#define MAX_RACES           11
 
 /*
  * Maximum number of player "class" types (see "table.c", etc)
@@ -252,20 +255,31 @@
 #define MON_SUMMON_ADJ	2		/* Adjust level of summoned creatures */
 #define MON_DRAIN_LIFE	2		/* Percent of player exp drained per hit */
 #define USE_DEVICE      3		/* x> Harder devices x< Easier devices     */
+#define BATTERY_DEV		5		/* Dag - 1/x mana stored in battery per 1 mana */
+
 
 /*
- * There is a 1/20 (5%) chance of inflating the requested object_level
+ * There is a 1/x chance that a mutant will get any special
+ * resistance, sustain, or other attrib (this is per attrib)
+ * I'm not quite sure at what level this will achieve balance.
+ */
+#define MUTANT_ATTRIB	20
+
+/*
+ * There is a 1/10 (10%) chance of inflating the requested object_level
  * during the creation of an object (see "get_obj_num()" in "object.c").
  * Lower values yield better objects more often.
+ * Dag - just to make things more interesting (was 20)
  */
-#define GREAT_OBJ	20
+#define GREAT_OBJ	10
 
 /*
- * There is a 1/50 (2%) chance of inflating the requested monster_level
+ * There is a 1/20 (5%) chance of inflating the requested monster_level
  * during the creation of a monsters (see "get_mon_num()" in "monster.c").
  * Lower values yield harder monsters more often.
+ * YAM - Same reason (was 50)
  */
-#define NASTY_MON	50		/* 1/chance of inflated monster level */
+#define NASTY_MON	20		/* 1/chance of inflated monster level */
 
 
 
@@ -285,14 +299,17 @@
 
 
 /*
- * There is a 1/160 chance per round of creating a new monster
+ * There is a 1/100 chance per round of creating a new monster
+ * Dag - Again, just to make things more interesting
+ * was 160
  */
-#define MAX_M_ALLOC_CHANCE	160
+#define MAX_M_ALLOC_CHANCE	100
 
 /*
- * Normal levels get at least 14 monsters
+ * Normal levels get at least 20 monsters
+ * was 14
  */
-#define MIN_M_ALLOC_LEVEL	14
+#define MIN_M_ALLOC_LEVEL	20
 
 /*
  * The town starts out with 4 residents during the day
@@ -317,9 +334,9 @@
 /*
  * Player constants
  */
-#define PY_MAX_EXP	99999999L	/* Maximum exp */
+#define PY_MAX_EXP	999999999L	/* Maximum exp */
 #define PY_MAX_GOLD	999999999L	/* Maximum gold */
-#define PY_MAX_LEVEL	50		/* Maximum level */
+#define PY_MAX_LEVEL	100		/* Maximum level */
 
 /*
  * Player "food" crucial values
@@ -399,6 +416,7 @@
 
 /*
  * Player race constants (hard-coded by save-files, arrays, etc)
+ * Dag - Mutants
  */
 #define RACE_HUMAN		0
 #define RACE_HALF_ELF	1
@@ -410,9 +428,13 @@
 #define RACE_HALF_TROLL	7
 #define RACE_DUNADAN	8
 #define RACE_HIGH_ELF	9
+#define RACE_MUTANT		10
 
 /*
  * Player class constants (hard-coded by save-files, arrays, etc)
+ * Dag - Mystics
+ * Not yet implemented.  I have to code a new magic system or steal
+ * the one from Zangband.
  */
 #define CLASS_WARRIOR	0
 #define CLASS_MAGE		1
@@ -420,6 +442,7 @@
 #define CLASS_ROGUE		3
 #define CLASS_RANGER	4
 #define CLASS_PALADIN	5
+/*#define CLASS_MYSTIC	6*/
 
 
 
@@ -1032,6 +1055,7 @@
 #define TV_LITE         39	/* Lites (including Specials) */
 #define TV_AMULET       40	/* Amulets (including Specials) */
 #define TV_RING         45	/* Rings (including Specials) */
+#define TV_BATTERY		47	/* Dag - Batteries */
 #define TV_STAFF        55
 #define TV_WAND         65
 #define TV_ROD          66
@@ -1248,6 +1272,9 @@
 #define SV_RING_VILYA			36
 #define SV_RING_POWER			37
 
+/* svals for TV_BATTERY */
+#define SV_BATTERY_SP			0
+/*#define SV_BATTERY_HP			1*/
 
 /* The "sval" codes for TV_STAFF */
 #define SV_STAFF_DARKNESS		0
@@ -1675,7 +1702,7 @@
 #define PU_MONSTERS	0x10000000L	/* Update monsters */
 #define PU_DISTANCE	0x20000000L	/* Update distances */
 /* xxx */
-#define PU_PANEL	0x80000000L	/* Update panel */
+#define PU_PANEL      0x80000000L     /* Update panel */
 
 
 /*
@@ -1707,17 +1734,19 @@
 /* xxx */
 #define PR_EXTRA	0x01000000L	/* Display Extra Info */
 #define PR_BASIC	0x02000000L	/* Display Basic Info */
-/* xxx */
 #define PR_MAP		0x08000000L	/* Display Map */
-/* xxx (many) */
+/* xxx */
+/* xxx */
+/* xxx */
+/* xxx */
 
 /*
  * Bit flags for the "p_ptr->window" variable (etc)
  */
 #define PW_INVEN	0x00000001L	/* Display inven/equip */
 #define PW_EQUIP	0x00000002L	/* Display equip/inven */
-#define PW_PLAYER_0	0x00000004L	/* Display player (basic) */
-#define PW_PLAYER_1	0x00000008L	/* Display player (extra) */
+#define PW_PLAYER_0	0x00000004L	/* Display spell list */
+#define PW_PLAYER_1	0x00000008L	/* Display character */
 /* xxx */
 /* xxx */
 #define PW_MESSAGE	0x00000040L	/* Display messages */
@@ -2225,7 +2254,16 @@
     RF6_S_ANGEL | RF6_S_DRAGON | RF6_S_UNDEAD | RF6_S_DEMON | \
     RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | RF6_S_WRAITH | RF6_S_UNIQUE)
 
+#define RF4_BOLT_MASK \
+   (RF4_ARROW_1 | RF4_ARROW_2 | RF4_ARROW_3 | RF4_ARROW_4)
 
+#define RF5_BOLT_MASK \
+   (RF5_BO_ACID | RF5_BO_ELEC | RF5_BO_FIRE | RF5_BO_COLD | \
+    RF5_BO_POIS | RF5_BO_NETH | RF5_BO_WATE | RF5_BO_MANA | \
+    RF5_BO_PLAS | RF5_BO_ICEE | RF5_MISSILE)
+
+#define RF6_BOLT_MASK \
+   0L
 
 /*** Cheating option Definitions ***/
 
@@ -2245,11 +2283,11 @@
  * Hack -- Option symbols
  */
 #define cheat_peek				p_ptr->cheat[CHEAT_cheat_peek]
-#define cheat_hear				p_ptr->cheat[CHEAT_cheat_hear]		
-#define cheat_room				p_ptr->cheat[CHEAT_cheat_room]	
-#define cheat_xtra				p_ptr->cheat[CHEAT_cheat_xtra]	
-#define cheat_know				p_ptr->cheat[CHEAT_cheat_know]	
-#define cheat_live				p_ptr->cheat[CHEAT_cheat_live]	
+#define cheat_hear				p_ptr->cheat[CHEAT_cheat_hear]
+#define cheat_room				p_ptr->cheat[CHEAT_cheat_room]
+#define cheat_xtra				p_ptr->cheat[CHEAT_cheat_xtra]
+#define cheat_know				p_ptr->cheat[CHEAT_cheat_know]
+#define cheat_live				p_ptr->cheat[CHEAT_cheat_live]
 
 
 

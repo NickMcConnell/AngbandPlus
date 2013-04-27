@@ -369,6 +369,7 @@ static tval_desc tvals[] =
 	{ TV_HARD_ARMOR,        "Hard Armor"           },
 	{ TV_SOFT_ARMOR,        "Soft Armor"           },
 	{ TV_RING,              "Ring"                 },
+	{ TV_BATTERY,           "Battery"              },
 	{ TV_AMULET,            "Amulet"               },
 	{ TV_LITE,              "Lite"                 },
 	{ TV_POTION,            "Potion"               },

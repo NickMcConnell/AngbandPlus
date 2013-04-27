@@ -1848,6 +1848,46 @@ static void calc_bonuses(void)
 	if (p_ptr->prace == RACE_HIGH_ELF) p_ptr->resist_lite = TRUE;
 	if (p_ptr->prace == RACE_HIGH_ELF) p_ptr->see_inv = TRUE;
 
+	/* Hack, Dag - Mutants' random attribs */
+	if (p_ptr->prace == RACE_MUTANT) {
+		Rand_quick = TRUE;
+		Rand_value = seed_mutant;
+		if(!rand_int(MUTANT_ATTRIB)) p_ptr->see_inv = TRUE;
+		if(!rand_int(MUTANT_ATTRIB)) p_ptr->free_act = TRUE;
+		if(!rand_int(MUTANT_ATTRIB)) p_ptr->slow_digest = TRUE;
+		if(!rand_int(MUTANT_ATTRIB)) p_ptr->regenerate = TRUE;
+		if(!rand_int(MUTANT_ATTRIB)) p_ptr->hold_life = TRUE;
+		if(!rand_int(MUTANT_ATTRIB)) p_ptr->telepathy = TRUE;
+		if(!rand_int(MUTANT_ATTRIB)) p_ptr->lite = TRUE;
+		if(!rand_int(MUTANT_ATTRIB)) p_ptr->sustain_str = TRUE;
+		if(!rand_int(MUTANT_ATTRIB)) p_ptr->sustain_int = TRUE;
+		if(!rand_int(MUTANT_ATTRIB)) p_ptr->sustain_wis = TRUE;
+		if(!rand_int(MUTANT_ATTRIB)) p_ptr->sustain_con = TRUE;
+		if(!rand_int(MUTANT_ATTRIB)) p_ptr->sustain_dex = TRUE;
+		if(!rand_int(MUTANT_ATTRIB)) p_ptr->sustain_chr = TRUE;
+		if(!rand_int(MUTANT_ATTRIB)) p_ptr->resist_acid = TRUE;
+		if(!rand_int(MUTANT_ATTRIB)) p_ptr->resist_elec = TRUE;
+		if(!rand_int(MUTANT_ATTRIB)) p_ptr->resist_fire = TRUE;
+		if(!rand_int(MUTANT_ATTRIB)) p_ptr->resist_cold = TRUE;
+		if(!rand_int(MUTANT_ATTRIB)) p_ptr->resist_pois = TRUE;
+		if(!rand_int(MUTANT_ATTRIB)) p_ptr->resist_fear = TRUE;
+		if(!rand_int(MUTANT_ATTRIB)) p_ptr->resist_lite = TRUE;
+		if(!rand_int(MUTANT_ATTRIB)) p_ptr->resist_dark = TRUE;
+		if(!rand_int(MUTANT_ATTRIB)) p_ptr->resist_blind = TRUE;
+		if(!rand_int(MUTANT_ATTRIB)) p_ptr->resist_confu = TRUE;
+		if(!rand_int(MUTANT_ATTRIB)) p_ptr->resist_sound = TRUE;
+		if(!rand_int(MUTANT_ATTRIB)) p_ptr->resist_chaos = TRUE;
+		if(!rand_int(MUTANT_ATTRIB)) p_ptr->resist_disen = TRUE;
+		if(!rand_int(MUTANT_ATTRIB)) p_ptr->resist_shard = TRUE;
+		if(!rand_int(MUTANT_ATTRIB)) p_ptr->resist_nexus = TRUE;
+		if(!rand_int(MUTANT_ATTRIB)) p_ptr->resist_nethr = TRUE;
+		if(!rand_int(MUTANT_ATTRIB)) p_ptr->immune_acid = TRUE;
+		if(!rand_int(MUTANT_ATTRIB)) p_ptr->immune_elec = TRUE;
+		if(!rand_int(MUTANT_ATTRIB)) p_ptr->immune_fire = TRUE;
+		if(!rand_int(MUTANT_ATTRIB)) p_ptr->immune_cold = TRUE;
+		Rand_quick = FALSE;
+	}
+
 	/* Warrior */
 	if (p_ptr->pclass == CLASS_WARRIOR)
 	{
