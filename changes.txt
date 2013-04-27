@@ -1,3 +1,24 @@
+T.o.M.E 2.3.6
+
+- Don't generate impassable glass walls.
+- Mark *all* quest monsters properly.
+- Avoid generating up staircases in selected dungeons.
+- Mimicry cloaks of Abomination now aggravate properly.
+- Properly handle item set effects with certain traps.
+- Fix crash bug during character dumps.
+- Misc. Mimicry fixes.
+- Prevent immunities from Balrog Form persisting too long.
+- Fix for loading/saving on Linux distribution using Fortify.
+- Fix for module directory paths.
+- Fix miscellaneous problems on 64-bit platforms.
+- Princess room should now always be generated.
+- Extra Blows applies to barehand combat too.
+
+
+
+
+
+
 T.o.M.E 2.3.5 aka "Into the unknown" changes
 
 Interface changes:
