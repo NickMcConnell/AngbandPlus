@@ -255,16 +255,16 @@ static s32b _activation_p(object_type *o_ptr)
 		case ART_STONE_OF_WAR: return 7000;
 		case ART_LERNEAN: return 25000;
 		/* Hack: These activate, but also have *very* valuable hidden powers */
-		case ART_STONE_OF_NATURE: return 100000;
-		case ART_STONE_OF_LIFE: return 100000;
-		case ART_STONE_OF_SORCERY: return 100000;
-		case ART_STONE_OF_CHAOS: return 100000;
-		case ART_STONE_OF_DEATH: return 100000;
-		case ART_STONE_OF_TRUMP: return 100000;
-		case ART_STONE_OF_DAEMON: return 100000;
-		case ART_STONE_OF_CRUSADE: return 100000;
-		case ART_STONE_OF_CRAFT: return 125000;
-		case ART_STONE_OF_ARMAGEDDON: return 125000;
+		case ART_STONE_OF_NATURE: return 30000;
+		case ART_STONE_OF_LIFE: return 30000;
+		case ART_STONE_OF_SORCERY: return 30000;
+		case ART_STONE_OF_CHAOS: return 30000;
+		case ART_STONE_OF_DEATH: return 30000;
+		case ART_STONE_OF_TRUMP: return 30000;
+		case ART_STONE_OF_DAEMON: return 30000;
+		case ART_STONE_OF_CRUSADE: return 30000;
+		case ART_STONE_OF_CRAFT: return 45000;
+		case ART_STONE_OF_ARMAGEDDON: return 45000;
 		}
 	}
 	

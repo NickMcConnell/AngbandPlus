@@ -2077,7 +2077,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 	{
 		if (!one_in_(WEIRD_LUCK))
 		{
-			if (powers > 3) powers = (powers+1)/2;
+			if (powers > 3) powers = powers*3/4;
 			if (powers > 5) powers = 5;
 
 			/* Artifacting high rings of damage is now possible ... */
@@ -2085,15 +2085,6 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 				o_ptr->to_d = randint1((o_ptr->to_d + 1)/2) + randint1(o_ptr->to_d/2);
 			if (o_ptr->to_a)
 				o_ptr->to_a = randint1((o_ptr->to_a + 1)/2) + randint1(o_ptr->to_a/2);
-		}
-	}
-
-	if (mode & CREATE_ART_SCROLL)
-	{
-		if (o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET)
-		{
-			if (powers > 3) powers = (powers+1)/2;
-			if (powers > 5) powers = 5;
 		}
 	}
 

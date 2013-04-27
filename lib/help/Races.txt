@@ -430,7 +430,7 @@ Demigod         +1   +1   +1   +1   +1   +1  100%  180%
 Hobbit          -2   +1   +0   +2   +1   -1   92%  120%
 Gnome           -1   +2   -1   +1   +0   -1   95%  115%
 Dwarf           +1   -2   +2   -2   +2   +1  103%  135%
-Snotling        -2   -2   -2   -2   -2  -10   85%   35%
+Snotling        -2   -2   -2   -2   -2   -5   85%   45%
 Half-Troll      +3   -3   -1   -3   +2   -2  107%  150%
 Amberite        +1   +1   +1   +1   +2   +0  100%  190%
 High-Elf        +1   +2   -1   +2   +0   +1   97%  190%
@@ -510,4 +510,4 @@ Doppelganger    -20   -20   -20    +5   -10   +10    -20   -20     0'
 ***** [a] Demigods.txt
 
 
-Automatically generated for PosChengband 1.0.8.
+Automatically generated for PosChengband 1.0.9.

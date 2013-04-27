@@ -860,20 +860,51 @@ void fearless_mut(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Fearless", ""));
+		var_set_string(res, "Fearless");
 		break;
 	case SPELL_GAIN_MUT:
-		msg_print(T("You become completely fearless.", "完全に怖れ知らずになった。"));
+		msg_print("You become completely fearless.");
 		mut_lose(MUT_COWARDICE);
 		break;
 	case SPELL_LOSE_MUT:
-		msg_print(T("You begin to feel fear again.", "再び恐怖を感じるようになった。"));
+		msg_print("You begin to feel fear again.");
 		break;
 	case SPELL_MUT_DESC:
-		var_set_string(res, T("You are completely fearless.", "あなたは全く恐怖を感じない。"));
+		var_set_string(res, "You are completely fearless.");
 		break;
 	case SPELL_CALC_BONUS:
 		res_add(RES_FEAR);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void fell_sorcery_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Fell Sorcery");
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, "Your spells are more powerful.");
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print("You feel your magic grow more powerful.");
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print("You feel your magic return to normal.");
+		break;
+	case SPELL_HELP_DESC:
+		var_set_string(res, "Your spells will grow more powerful.");
+		break;
+	case SPELL_CALC_BONUS:
+		p_ptr->spell_power++;
+		p_ptr->stat_add[A_STR]--;
+		p_ptr->stat_add[A_DEX]--;
+		p_ptr->stat_add[A_CON]--;
 		break;
 	default:
 		default_spell(cmd, res);
@@ -1492,10 +1523,10 @@ void peerless_sniper_mut(int cmd, variant *res)
 		msg_print(T("You feel distant monsters return to their normal grouchy selves.", ""));
 		break;
 	case SPELL_MUT_DESC:
-		var_set_string(res, T("Your missiles are less likely to anger monsters.", ""));
+		var_set_string(res, T("Your missiles no longer anger monsters.", ""));
 		break;
 	case SPELL_HELP_DESC:
-		var_set_string(res, "Damaging a monster with a missile weapon is less likely to provoke a retaliation.");
+		var_set_string(res, "Damaging a monster with a missile weapon no longer provokes a retaliation.");
 		break;
 	default:
 		default_spell(cmd, res);
@@ -1574,16 +1605,16 @@ void potion_chugger_mut(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Potion Chugger", ""));
+		var_set_string(res, "Potion Chugger");
 		break;
 	case SPELL_GAIN_MUT:
-		msg_print(T("You feel like chugging a six pack of healing potions.", ""));
+		msg_print("You feel like chugging a six pack of healing potions.");
 		break;
 	case SPELL_LOSE_MUT:
-		msg_print(T("You no longer feel like chugging your potions.", ""));
+		msg_print("You no longer feel like chugging your potions.");
 		break;
 	case SPELL_MUT_DESC:
-		var_set_string(res, T("You chug potions faster than normal.", ""));
+		var_set_string(res, "You chug potions faster than normal.");
 		break;
 	case SPELL_HELP_DESC:
 		var_set_string(res, "You will be able to chug potions much faster than normal.");
@@ -2054,6 +2085,31 @@ void speed_flux_mut(int cmd, variant *res)
 	}
 }
 
+void speed_reader_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Speed Reader");
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print("You feel like reading a long novel.");
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print("You no longer read so fast.");
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, "You read scrolls faster than normal.");
+		break;
+	case SPELL_HELP_DESC:
+		var_set_string(res, "You will be able to read scrolls much faster than normal.");
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void steel_skin_mut(int cmd, variant *res)
 {
 	switch (cmd)
@@ -2098,10 +2154,10 @@ void subtle_casting_mut(int cmd, variant *res)
 		msg_print(T("You feel distant monsters return to their normal grouchy selves.", ""));
 		break;
 	case SPELL_MUT_DESC:
-		var_set_string(res, T("Your spells are less likely to anger monsters.", ""));
+		var_set_string(res, T("Your distance attack spells no longer anger monsters.", ""));
 		break;
 	case SPELL_HELP_DESC:
-		var_set_string(res, "Damaging a monster with distance magic is less likely to provoke a retaliation.");
+		var_set_string(res, "Damaging a monster with distance magic no longer provokes a retaliation.");
 		break;
 	default:
 		default_spell(cmd, res);

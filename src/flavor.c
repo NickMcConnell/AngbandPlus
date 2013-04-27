@@ -1462,6 +1462,8 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 				{
 					basenm = "& Ring~";
 					kindname = "";
+					if (o_ptr->to_h || o_ptr->to_d)
+						show_weapon = TRUE;
 					break;
 				}
 			}
@@ -1474,7 +1476,6 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 			else            basenm = "& # Ring~";
 			if (!k_ptr->to_h && !k_ptr->to_d && (o_ptr->to_h || o_ptr->to_d)) 
 				show_weapon = TRUE;
-
 			break;
 		}
 
@@ -1671,7 +1672,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 
 		case TV_BURGLARY_BOOK:
 		{
-			basenm = "& Thieve's Guide~ %";
+			basenm = "& Thieves' Guide~ %";
 			break;
 		}
 

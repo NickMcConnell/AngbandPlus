@@ -4297,8 +4297,8 @@ N:426:ÂÑ¸÷ÂÑ°Å:¥×¥é¥Á¥Ê¤Î
 E:Light and Darkness Resistance:Platinum
 G:=:w
 I:45:39:0
-W:30:0:70:2:3000
-A:30/2
+W:20:0:70:2:3000
+A:20/2
 F:RES_LITE | RES_DARK
 
 #JZ#

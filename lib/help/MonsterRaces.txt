@@ -292,4 +292,4 @@ Leprechaun      +45   +40   +10   +12   +24   +16    -20   +20    50'
 
 
 
-Automatically generated for PosChengband 1.0.8.
+Automatically generated for PosChengband 1.0.9.

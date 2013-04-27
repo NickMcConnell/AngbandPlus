@@ -623,15 +623,11 @@ static void do_cmd_quaff_potion_aux(int item)
 	object_type	*o_ptr;
 	object_type forge;
 	object_type *q_ptr;
-	bool chugger = FALSE;
 
 
 	/* Take a turn */
 	if (mut_present(MUT_POTION_CHUGGER) || p_ptr->tim_shrike)
-	{
 		energy_use = 40 + randint1(20);
-		chugger = TRUE;
-	}
 	else
 		energy_use = 100;
 
@@ -858,7 +854,6 @@ static void do_cmd_quaff_potion_aux(int item)
 		case SV_POTION_INFRAVISION:
 		{
 			int dur = 100 + randint1(100);
-			if (chugger) dur *= 2;
 			if (set_tim_infra(p_ptr->tim_infra + dur, FALSE))
 			{
 				ident = TRUE;
@@ -868,7 +863,6 @@ static void do_cmd_quaff_potion_aux(int item)
 		case SV_POTION_DETECT_INVIS:
 		{
 			int dur = 12 + randint1(12);
-			if (chugger) dur *= 2;
 			if (set_tim_invis(p_ptr->tim_invis + dur, FALSE))
 			{
 				ident = TRUE;
@@ -895,7 +889,6 @@ static void do_cmd_quaff_potion_aux(int item)
 			if (!p_ptr->fast)
 			{
 				int dur = randint1(25) + 15;
-				if (chugger) dur *= 2;
 				if (set_fast(dur, FALSE)) ident = TRUE;
 			}
 			else if (p_ptr->pclass == CLASS_MAULER)
@@ -907,7 +900,6 @@ static void do_cmd_quaff_potion_aux(int item)
 		case SV_POTION_RESIST_HEAT:
 		{
 			int dur = 10 + randint1(10);
-			if (chugger) dur *= 2;
 			if (set_oppose_fire(p_ptr->oppose_fire + dur, FALSE))
 			{
 				ident = TRUE;
@@ -917,7 +909,6 @@ static void do_cmd_quaff_potion_aux(int item)
 		case SV_POTION_RESIST_COLD:
 		{
 			int dur = 10 + randint1(10);
-			if (chugger) dur *= 2;
 			if (set_oppose_cold(p_ptr->oppose_cold + dur, FALSE))
 			{
 				ident = TRUE;
@@ -927,7 +918,6 @@ static void do_cmd_quaff_potion_aux(int item)
 		case SV_POTION_HEROISM:
 		{
 			int dur = 25 + randint1(25);
-			if (chugger) dur *= 2;
 			if (set_hero(p_ptr->hero + dur, FALSE)) ident = TRUE;
 			if (hp_player(10)) ident = TRUE;
 			break;
@@ -935,7 +925,6 @@ static void do_cmd_quaff_potion_aux(int item)
 		case SV_POTION_BERSERK_STRENGTH:
 		{
 			int dur = 25 + randint1(25);
-			if (chugger) dur *= 2;
 			if (set_shero(p_ptr->shero + dur, FALSE)) ident = TRUE;
 			if (hp_player(30)) ident = TRUE;
 			break;
@@ -1169,7 +1158,6 @@ static void do_cmd_quaff_potion_aux(int item)
 		case SV_POTION_RESISTANCE:
 		{
 			int dur = 20 + randint1(20);
-			if (chugger) dur *= 2;
 			(void)set_oppose_acid(p_ptr->oppose_acid + dur, FALSE);
 			(void)set_oppose_elec(p_ptr->oppose_elec + dur, FALSE);
 			(void)set_oppose_fire(p_ptr->oppose_fire + dur, FALSE);
@@ -1186,12 +1174,12 @@ static void do_cmd_quaff_potion_aux(int item)
 			if (set_stun(0, TRUE)) ident = TRUE;
 			if (set_cut(0, TRUE)) ident = TRUE;
 			if (set_image(0, TRUE)) ident = TRUE;
+			if (set_shero(0,TRUE)) ident = TRUE;
 			break;
 
 		case SV_POTION_INVULNERABILITY:
 		{
 			int dur = 4 + randint1(4);
-			if (chugger) dur *= 2;
 			(void)set_invuln(p_ptr->invuln + dur, FALSE);
 			ident = TRUE;
 			break;
@@ -1440,10 +1428,8 @@ static void do_cmd_read_scroll_aux(int item, bool known)
 	}
 
 	/* Take a turn */
-	if (/*mut_present(MUT_SPEED_READER) ||*/ p_ptr->tim_shrike)
-	{
-		energy_use = 30;
-	}
+	if (mut_present(MUT_SPEED_READER) || p_ptr->tim_shrike)
+		energy_use = 40 + randint1(20);
 	else
 		energy_use = 100;
 

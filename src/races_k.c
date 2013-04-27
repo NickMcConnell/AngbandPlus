@@ -531,7 +531,7 @@ race_t *snotling_get_race_t(void)
 		me.stats[A_WIS] = -2;
 		me.stats[A_DEX] = -2;
 		me.stats[A_CON] = -2;
-		me.stats[A_CHR] = -10;
+		me.stats[A_CHR] = -5;
 		
 		me.skills.dis = -3;
 		me.skills.dev = -3;
@@ -543,7 +543,7 @@ race_t *snotling_get_race_t(void)
 		me.skills.thb = -5;
 
 		me.life = 85;
-		me.exp = 35;
+		me.exp = 45;
 		me.infra = 2;
 
 		me.calc_bonuses = _snotling_calc_bonuses;
@@ -715,7 +715,7 @@ static void _tonberry_calc_bonuses(void)
 	p_ptr->sustain_str = TRUE;
 	p_ptr->sustain_con = TRUE;
 	res_add(RES_FEAR);
-	p_ptr->pspeed -= 5*p_ptr->lev/50;
+	p_ptr->pspeed -= p_ptr->lev/13;
 	p_ptr->to_d_m  += dam;
 
 	for (hand = 0; hand < MAX_HANDS; hand++)
@@ -810,7 +810,6 @@ static void _vampire_get_flags(u32b flgs[TR_FLAG_SIZE])
 }
 static void _vampire_get_immunities(u32b flgs[TR_FLAG_SIZE])
 {
-	add_flag(flgs, TR_RES_DARK);
 }
 static void _vampire_get_vulnerabilities(u32b flgs[TR_FLAG_SIZE])
 {

@@ -150,6 +150,10 @@ bool object_is_favorite(object_type *o_ptr)
 	case CLASS_WEAPONMASTER:
 		return weaponmaster_is_favorite(o_ptr);
 
+
+	case CLASS_MAULER:
+		return o_ptr->weight >= 280;
+
 	default:
 		/* All weapons are okay for non-special classes */
 		return TRUE;

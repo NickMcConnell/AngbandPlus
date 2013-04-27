@@ -1912,6 +1912,8 @@ static void init_dungeon_quests(void)
 	int i;
 
 	num_random_quests = 10; /*get_quantity("How many quests (0 to 49)? ", 49);*/
+	if (vanilla_town)
+		num_random_quests = 0;
 
 	/* Init the random quests */
 	init_flags = INIT_ASSIGN;

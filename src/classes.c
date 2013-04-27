@@ -212,7 +212,7 @@ int get_powers_aux(spell_info* spells, int max, power_info* table)
 		if (ct >= max) break;
 		if (!base->spell.fn) break;
 
-		if (base->spell.level <= p_ptr->lev)
+	/*	if (base->spell.level <= p_ptr->lev) */
 		{
 			spell_info* current = &spells[ct];
 			current->fn = base->spell.fn;
@@ -332,13 +332,13 @@ static void _dump_book(FILE *fff, int realm, int book)
 	else if (realm == p_ptr->realm2) increment = 32;
 
 	if (realm == REALM_HISSATSU)
-		fprintf(fff, "     %-25.25s Lv   SP Effect\n", k_name + k_info[k_idx].name);
+		fprintf(fff, "     %-25.25s Lvl  SP Desc\n", k_name + k_info[k_idx].name);
 	else
 	{
 		if (caster_ptr && (caster_ptr->options & CASTER_USE_HP))
-			fprintf(fff, "     %-23.23s Profic Lv   HP Fail Effect\n", k_name + k_info[k_idx].name);
+			fprintf(fff, "     %-23.23s Profic Lvl  HP Fail Desc\n", k_name + k_info[k_idx].name);
 		else
-			fprintf(fff, "     %-23.23s Profic Lv   SP Fail Effect\n", k_name + k_info[k_idx].name);
+			fprintf(fff, "     %-23.23s Profic Lvl  SP Fail Desc\n", k_name + k_info[k_idx].name);
 	}
 
 	for (i = 0; i < 8; i++)
@@ -410,13 +410,13 @@ static void _dump_book(FILE *fff, int realm, int book)
 		sprintf(line, "  %c) ", I2A(i));
 		if (realm == REALM_HISSATSU)
 		{
-			strcat(line, format("%-25s %2d %4d %s",
+			strcat(line, format("%-25s %3d %3d %s",
 			    do_spell(realm, s_idx, SPELL_NAME),
 			    s_ptr->slevel, cost, comment));
 		}
 		else
 		{
-			strcat(line, format("%-25s%c%-4s %2d %4d %3d%% %s",
+			strcat(line, format("%-25s%c%-4s %3d %3d %3d%% %s",
 			    do_spell(realm, s_idx, SPELL_NAME),
 			    (max ? '!' : ' '), proficiency,
 			    s_ptr->slevel, cost, spell_chance(s_idx, realm), comment));

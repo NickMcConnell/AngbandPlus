@@ -129,6 +129,8 @@ static mutation_info _mutations[MAX_MUTATIONS] =
 	{MUT_RATING_GOOD,       MUT_TYPE_BONUS,			 0, 0, {0,  0,   0, weird_mind_mut}},
 	{MUT_RATING_GREAT,	    MUT_TYPE_ACTIVATION, A_STR, 0, {40, 50, 80, fantastic_frenzy_mut}},
 	{MUT_RATING_GOOD,				     0,			 0, 0, {0,  0,   0, black_marketeer_mut}},
+	{MUT_RATING_GOOD,				     0,			 0, 0, {0,  0,   0, speed_reader_mut}},
+	{MUT_RATING_GOOD,       MUT_TYPE_BONUS,			 0, 0, {0,  0,   0, fell_sorcery_mut}},
 };
 
 int _mut_prob_gain(int i)
@@ -511,6 +513,7 @@ bool mut_demigod_pred(int mut_idx)
 	case MUT_ARCANE_MASTERY:
 	case MUT_EVASION:
 	case MUT_POTION_CHUGGER:
+	case MUT_SPEED_READER:
 	case MUT_ONE_WITH_MAGIC:
 	case MUT_PEERLESS_TRACKER:
 	case MUT_INFERNAL_DEAL:
@@ -521,6 +524,7 @@ bool mut_demigod_pred(int mut_idx)
 	case MUT_DEMONIC_GRASP:
 	case MUT_WEIRD_MIND:
 	case MUT_BLACK_MARKETEER:
+	case MUT_FELL_SORCERY:
 		return TRUE;
 		break;
 

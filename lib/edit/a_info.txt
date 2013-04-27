@@ -381,7 +381,7 @@ E:'Crimson'
 I:19:50:4
 W:60:250:100:100000
 P:0:0d0:20:20:0
-F:SPEED | STEALTH | RES_NETHER |
+F:SPEED | STEALTH | RES_SHARDS |
 F:ACTIVATE | INSTA_ART | XTRA_POWER | XTRA_H_RES
 D:「―そこは街全体が魔物の住処と化していた。そのとき思わず
 D:使った銃−クリムゾンが越前を助け、そして、たたかうごとに、
@@ -4231,7 +4231,7 @@ E:'Eternal Blade'
 I:23:31:2
 W:90:50:130:120000
 P:0:7d7:32:32:0
-F:STR | CON | HIDE_TYPE | REGEN | SPEED | RES_TIME
+F:STR | CON | HIDE_TYPE | REGEN | SPEED | RES_TIME | VORPAL
 
 N:295:TRANSLATE
 E:of Khazad-dum

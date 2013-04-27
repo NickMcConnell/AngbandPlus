@@ -179,7 +179,7 @@ static cptr _do_scroll(int sval, int mode)
 		{
 			teleport_player(10, 0L);
 			if (mut_present(MUT_ASTRAL_GUIDE))
-				energy_use = 30;
+				energy_use = energy_use / 3;
 			device_noticed = TRUE;
 		}
 		break;
@@ -187,10 +187,10 @@ static cptr _do_scroll(int sval, int mode)
 		if (desc) return "It teleports you a long distance when you read it.";
 		if (cast)
 		{
-			energy_use = 150;
 			teleport_player(100, 0L);
+			energy_use = energy_use * 3 / 2;
 			if (mut_present(MUT_ASTRAL_GUIDE))
-				energy_use = 75;
+				energy_use = energy_use / 3;
 			device_noticed = TRUE;
 		}
 		break;
@@ -724,7 +724,7 @@ static cptr _do_staff(int sval, int mode)
 		if (cast)
 		{
 			if (mut_present(MUT_ASTRAL_GUIDE))
-				energy_use = 30;
+				energy_use = energy_use / 3;
 			teleport_player(100, 0L);
 			device_noticed = TRUE;
 		}

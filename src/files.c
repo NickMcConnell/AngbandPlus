@@ -2352,8 +2352,16 @@ static void display_player_flag_info(void)
 
 	display_flag_aux(row+16, col, "Fear       :", TR_RES_FEAR, &f, 0);
 	display_flag_aux(row+17, col, "Aura Fire  :", TR_SH_FIRE, &f, 0);
+	if (p_ptr->sh_fire)
+		put_str(format(" %dd%d+2", 1 + (p_ptr->lev / 10), 2 + (p_ptr->lev / 10)), row +17, col + 13 + equip_count() + 1);
+
 	display_flag_aux(row+18, col, "Aura Elec  :", TR_SH_ELEC, &f, 0);
+	if (p_ptr->sh_elec)
+		put_str(format(" %dd%d+2", 1 + (p_ptr->lev / 10), 2 + (p_ptr->lev / 10)), row +18, col + 13 + equip_count() + 1);
+
 	display_flag_aux(row+19, col, "Aura Cold  :", TR_SH_COLD, &f, 0);
+	if (p_ptr->sh_cold)
+		put_str(format(" %dd%d+2", 1 + (p_ptr->lev / 10), 2 + (p_ptr->lev / 10)), row +19, col + 13 + equip_count() + 1);
 
 	/*** Col2 ***/
 	row = 2;
@@ -2733,6 +2741,7 @@ static void display_player_stat_info(void)
 				if (mut_present(MUT_HYPER_STR)) dummy += 4;
 				if (mut_present(MUT_PUNY)) dummy -= 4;
 				if (p_ptr->tsuyoshi) dummy += 4;
+				if (mut_present(MUT_FELL_SORCERY)) dummy--;
 			}
 			else if (stat == A_WIS || stat == A_INT)
 			{
@@ -2744,6 +2753,7 @@ static void display_player_stat_info(void)
 				if (mut_present(MUT_STEEL_SKIN)) dummy -= 1;
 				if (mut_present(MUT_LIMBER)) dummy += 3;
 				if (mut_present(MUT_ARTHRITIS)) dummy -= 3;
+				if (mut_present(MUT_FELL_SORCERY)) dummy--;
 			}
 			else if (stat == A_CON)
 			{
@@ -2752,6 +2762,7 @@ static void display_player_stat_info(void)
 				if (mut_present(MUT_ALBINO)) dummy -= 4;
 				if (mut_present(MUT_FLESH_ROT)) dummy -= 2;
 				if (p_ptr->tsuyoshi) dummy += 4;
+				if (mut_present(MUT_FELL_SORCERY)) dummy--;
 			}
 			else if (stat == A_CHR)
 			{
@@ -3466,6 +3477,8 @@ static void dump_aux_display_player(FILE *fff)
 		if (class_ptr->get_powers)
 			ct += (class_ptr->get_powers)(spells + ct, MAX_SPELLS - ct);
 
+		ct += mut_get_powers(spells + ct, MAX_SPELLS - ct);
+
 		dump_powers_aux(fff, spells, ct);
 		fprintf(fff, "\n");
 	}
@@ -3746,7 +3759,7 @@ static void dump_aux_quest(FILE *fff)
 
 static void dump_aux_last_message(FILE *fff)
 {
-	if (p_ptr->is_dead)
+	/*if (p_ptr->is_dead) */
 	{
 		if (!p_ptr->total_winner)
 		{

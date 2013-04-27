@@ -170,8 +170,8 @@ Aphrodite        +2    +3    +1    +0    +0    +7    +10    +5     0'
 
 Fast Learner        You will gain a bonus to experience for each monster slain.
 Weapon Versatility  You will be able to master any weapon.
-Subtle Casting      Damaging a monster with distance magic is less likely to provoke a retaliation.
-Peerless Sniper     Damaging a monster with a missile weapon is less likely to provoke a retaliation.
+Subtle Casting      Damaging a monster with distance magic no longer provokes a retaliation.
+Peerless Sniper     Damaging a monster with a missile weapon no longer provokes a retaliation.
 Unyielding          You will gain a bonus to hitpoints.
 Ambidexterity       You will be able to dual wield more effectively.
 Untouchable         You will gain a bonus to armor class.
@@ -191,8 +191,10 @@ Demonic Grasp       You resist charge draining.
 Weird Mind          You resist the Eldritch Horror.
 Fantastic Frenzy    You kill weak monsters more efficiently.
 Black Marketeer     You will gain favorable pricing in the black market.
+Speed Reader        You will be able to read scrolls much faster than normal.
+Fell Sorcery        Your spells will grow more powerful.
 
 
 
 
-Automatically generated for PosChengband 1.0.8.
+Automatically generated for PosChengband 1.0.9.

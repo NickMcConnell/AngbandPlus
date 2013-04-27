@@ -4117,7 +4117,7 @@ void do_cmd_fire_aux2(int item, object_type *bow, int sx, int sy, int tx, int ty
 						{
 							if (!(m_ptr->smart & SM_TICKED_OFF))
 							{
-								if (mut_present(MUT_PEERLESS_SNIPER) && !one_in_(5))
+								if (mut_present(MUT_PEERLESS_SNIPER))
 								{
 								}
 								else if (p_ptr->tim_stealthy_snipe)

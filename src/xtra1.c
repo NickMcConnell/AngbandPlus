@@ -3067,7 +3067,7 @@ static void calc_hitpoints(void)
 	if (hex_spelling(HEX_XTRA_MIGHT)) mhp += 15;
 	if (hex_spelling(HEX_BUILDING)) mhp += 60;
 	if (p_ptr->tim_building_up) mhp += 10 + p_ptr->lev/2;
-	if (mut_present(MUT_UNYIELDING)) mhp += 3*p_ptr->lev/4;
+	if (mut_present(MUT_UNYIELDING)) mhp += p_ptr->lev;
 
 	if (p_ptr->mhp != mhp)
 	{

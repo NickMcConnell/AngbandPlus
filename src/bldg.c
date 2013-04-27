@@ -3412,11 +3412,11 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac, bool is_gu
 
 		object_copy(&copy, o_ptr);
 		copy.curse_flags = 0;
-		remove_flag(o_ptr->art_flags, TR_AGGRAVATE);
-		remove_flag(o_ptr->art_flags, TR_NO_TELE);
-		remove_flag(o_ptr->art_flags, TR_NO_MAGIC);
-		remove_flag(o_ptr->art_flags, TR_DRAIN_EXP);
-		remove_flag(o_ptr->art_flags, TR_TY_CURSE);
+		remove_flag(copy.art_flags, TR_AGGRAVATE);
+		remove_flag(copy.art_flags, TR_NO_TELE);
+		remove_flag(copy.art_flags, TR_NO_MAGIC);
+		remove_flag(copy.art_flags, TR_DRAIN_EXP);
+		remove_flag(copy.art_flags, TR_TY_CURSE);
 		old_cost = new_object_cost(&copy);
 				
 		for (i = 0; i < 25; i++) /* TODO: Option for max. But +25 a pop is enough perhaps? */

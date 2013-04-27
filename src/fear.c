@@ -158,10 +158,10 @@ static int _r_level(monster_race *r_ptr)
 int ml = r_ptr->level;
 	
 	if (r_ptr->flags2 & RF2_POWERFUL)
-		ml += 10;
+		ml += 7;
 
 	if (r_ptr->flags1 & RF1_UNIQUE)
-		ml += 5;
+		ml += 3;
 
 	return ml;
 }
@@ -228,9 +228,9 @@ bool fear_allow_shoot(void)
 static int _plev(void)
 {
 	if (p_ptr->lev <= 40)
-		return p_ptr->lev;
+		return 5 + p_ptr->lev;
 
-	return 40 + (p_ptr->lev - 40)*2;
+	return 45 + (p_ptr->lev - 40)*2;
 }
 
 /* Fear Saving Throws */
@@ -265,6 +265,26 @@ bool fear_save_p(int ml)
 				break;
 			}
 		}	
+	}
+
+#ifndef _DEBUG
+	if (p_ptr->wizard)
+#endif
+	{
+		double s = _save_odds(ml, pl);
+		if (p_ptr->resist[RES_FEAR])
+		{
+			double f = 1.0 - s;
+			double f2 = f;
+			double s2;
+			int j;
+			for (j = 0; j < p_ptr->resist[RES_FEAR]; j++)
+				f2 *= f;
+			s2 = 1.0 - f2;
+			msg_format("Fear: 1d%d <= 1d%d => %.2lf%%, %.2lf%% %s (%d)", ml, pl, s*100.0, s2*100.0, result?"Y":"N", p_ptr->resist[RES_FEAR]);
+		}
+		else
+			msg_format("Fear: 1d%d <= 1d%d => %.2lf%% %s", ml, pl, s*100.0, result?"Y":"N");
 	}
 
 
@@ -508,26 +528,26 @@ static int _get_hurt_level(int chp)
 {
 	int pct = (p_ptr->mhp - MAX(chp, 0)) * 100 / p_ptr->mhp;
 
-	if (p_ptr->mhp < 50)
+	if (p_ptr->mhp < 100)
 	{
-		if (pct >= HURT_50)
-			return HURT_50;
+		if (pct >= HURT_65)
+			return HURT_65;
 	}
-	else if (p_ptr->mhp < 150)
+	else if (p_ptr->mhp < 250)
 	{
 		if (pct >= HURT_80)
 			return HURT_80;
 		if (pct >= HURT_50)
 			return HURT_50;
 	}
-	else if (p_ptr->mhp < 300)
+	else if (p_ptr->mhp < 500)
 	{
 		if (pct >= HURT_90)
 			return HURT_90;
 		if (pct >= HURT_65)
 			return HURT_65;
-		if (pct >= HURT_25)
-			return HURT_25;
+		if (pct >= HURT_50)
+			return HURT_50;
 	}
 	else
 	{

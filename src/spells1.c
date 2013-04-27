@@ -1581,10 +1581,8 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 
 		cptr note_kill = NULL;
 
-#ifndef JP
 		/* Get the "plural"-ness */
 		bool plural = (o_ptr->number > 1);
-#endif
 
 		/* Acquire next object */
 		next_o_idx = o_ptr->next_o_idx;
@@ -1598,298 +1596,163 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 		/* Analyze the type */
 		switch (typ)
 		{
-			/* Acid -- Lots of things */
-			case GF_ACID:
-			{
-				if (hates_acid(o_ptr))
-				{
-					do_kill = TRUE;
-#ifdef JP
-note_kill = "融けてしまった！";
-#else
-					note_kill = (plural ? " melt!" : " melts!");
-#endif
-
-					if (have_flag(flgs, TR_IGNORE_ACID)) ignore = TRUE;
-				}
-				break;
-			}
-
-			/* Elec -- Rings and Wands */
-			case GF_ELEC:
-			{
-				if (hates_elec(o_ptr))
-				{
-					do_kill = TRUE;
-#ifdef JP
-note_kill = "壊れてしまった！";
-#else
-					note_kill = (plural ? " are destroyed!" : " is destroyed!");
-#endif
-
-					if (have_flag(flgs, TR_IGNORE_ELEC)) ignore = TRUE;
-				}
-				break;
-			}
-
-			/* Fire -- Flammable objects */
-			case GF_FIRE:
-			{
-				if (hates_fire(o_ptr))
-				{
-					do_kill = TRUE;
-#ifdef JP
-note_kill = "燃えてしまった！";
-#else
-					note_kill = (plural ? " burn up!" : " burns up!");
-#endif
-
-					if (have_flag(flgs, TR_IGNORE_FIRE)) ignore = TRUE;
-				}
-				break;
-			}
-
-			/* Cold -- potions and flasks */
-			case GF_COLD:
-			{
-				if (hates_cold(o_ptr))
-				{
-#ifdef JP
-note_kill = "砕け散ってしまった！";
-#else
-					note_kill = (plural ? " shatter!" : " shatters!");
-#endif
-
-					do_kill = TRUE;
-					if (have_flag(flgs, TR_IGNORE_COLD)) ignore = TRUE;
-				}
-				break;
-			}
-
-			/* Fire + Elec */
-			case GF_PLASMA:
-			{
-				if (hates_fire(o_ptr))
-				{
-					do_kill = TRUE;
-#ifdef JP
-note_kill = "燃えてしまった！";
-#else
-					note_kill = (plural ? " burn up!" : " burns up!");
-#endif
-
-					if (have_flag(flgs, TR_IGNORE_FIRE)) ignore = TRUE;
-				}
-				if (hates_elec(o_ptr))
-				{
-					ignore = FALSE;
-					do_kill = TRUE;
-#ifdef JP
-note_kill = "壊れてしまった！";
-#else
-					note_kill = (plural ? " are destroyed!" : " is destroyed!");
-#endif
-
-					if (have_flag(flgs, TR_IGNORE_ELEC)) ignore = TRUE;
-				}
-				break;
-			}
-
-			/* Fire + Cold */
-			case GF_METEOR:
-			{
-				if (hates_fire(o_ptr))
-				{
-					do_kill = TRUE;
-#ifdef JP
-note_kill = "燃えてしまった！";
-#else
-					note_kill = (plural ? " burn up!" : " burns up!");
-#endif
-
-					if (have_flag(flgs, TR_IGNORE_FIRE)) ignore = TRUE;
-				}
-				if (hates_cold(o_ptr))
-				{
-					ignore = FALSE;
-					do_kill = TRUE;
-#ifdef JP
-note_kill = "砕け散ってしまった！";
-#else
-					note_kill = (plural ? " shatter!" : " shatters!");
-#endif
-
-					if (have_flag(flgs, TR_IGNORE_COLD)) ignore = TRUE;
-				}
-				break;
-			}
-
-			/* Hack -- break potions and such */
-			case GF_ICE:
-			case GF_SHARDS:
-			case GF_ROCK:
-			case GF_FORCE:
-			case GF_SOUND:
-			{
-				if (hates_cold(o_ptr))
-				{
-#ifdef JP
-note_kill = "砕け散ってしまった！";
-#else
-					note_kill = (plural ? " shatter!" : " shatters!");
-#endif
-
-					do_kill = TRUE;
-				}
-				break;
-			}
-
-			/* Mana and Chaos -- destroy everything */
-			case GF_MANA:
-			case GF_SEEKER:
-			case GF_SUPER_RAY:
+		case GF_ACID:
+			if (hates_acid(o_ptr))
 			{
 				do_kill = TRUE;
-#ifdef JP
-note_kill = "壊れてしまった！";
-#else
+				note_kill = (plural ? " melt!" : " melts!");
+				if (have_flag(flgs, TR_IGNORE_ACID)) ignore = TRUE;
+			}
+			break;
+		case GF_ELEC:
+			if (hates_elec(o_ptr))
+			{
+				do_kill = TRUE;
 				note_kill = (plural ? " are destroyed!" : " is destroyed!");
-#endif
-
-				break;
+				if (have_flag(flgs, TR_IGNORE_ELEC)) ignore = TRUE;
 			}
-
-			case GF_DISINTEGRATE:
+			break;
+		case GF_FIRE:
+			if (hates_fire(o_ptr))
 			{
 				do_kill = TRUE;
-#ifdef JP
-note_kill = "蒸発してしまった！";
-#else
-				note_kill = (plural ? " evaporate!" : " evaporates!");
-#endif
-
-				break;
+				note_kill = (plural ? " burn up!" : " burns up!");
+				if (have_flag(flgs, TR_IGNORE_FIRE)) ignore = TRUE;
 			}
-
-			case GF_CHAOS:
+			break;
+		case GF_COLD:
+			if (hates_cold(o_ptr))
+			{
+				note_kill = (plural ? " shatter!" : " shatters!");
+				do_kill = TRUE;
+				if (have_flag(flgs, TR_IGNORE_COLD)) ignore = TRUE;
+			}
+			break;
+		case GF_PLASMA:
+			if (hates_fire(o_ptr))
 			{
 				do_kill = TRUE;
-#ifdef JP
-note_kill = "壊れてしまった！";
-#else
+				note_kill = (plural ? " burn up!" : " burns up!");
+				if (have_flag(flgs, TR_IGNORE_FIRE)) ignore = TRUE;
+			}
+			if (hates_elec(o_ptr))
+			{
+				ignore = FALSE;
+				do_kill = TRUE;
 				note_kill = (plural ? " are destroyed!" : " is destroyed!");
-#endif
-
-				if (have_flag(flgs, TR_RES_CHAOS)) ignore = TRUE;
-				break;
+				if (have_flag(flgs, TR_IGNORE_ELEC)) ignore = TRUE;
 			}
-
-			/* Holy Fire and Hell Fire -- destroys cursed non-artifacts */
-			case GF_HOLY_FIRE:
-			case GF_HELL_FIRE:
+			break;
+		case GF_METEOR:
+			if (hates_fire(o_ptr))
 			{
-				if (object_is_cursed(o_ptr))
+				do_kill = TRUE;
+				note_kill = (plural ? " burn up!" : " burns up!");
+				if (have_flag(flgs, TR_IGNORE_FIRE)) ignore = TRUE;
+			}
+			if (hates_cold(o_ptr))
+			{
+				ignore = FALSE;
+				do_kill = TRUE;
+				note_kill = (plural ? " shatter!" : " shatters!");
+				if (have_flag(flgs, TR_IGNORE_COLD)) ignore = TRUE;
+			}
+			break;
+		case GF_ICE:
+		case GF_SHARDS:
+		case GF_ROCK:
+		case GF_FORCE:
+		case GF_SOUND:
+			if (hates_cold(o_ptr))
+			{
+				note_kill = (plural ? " shatter!" : " shatters!");
+				do_kill = TRUE;
+			}
+			break;
+		case GF_MANA:
+		case GF_SEEKER:
+		case GF_SUPER_RAY:
+			do_kill = TRUE;
+			note_kill = (plural ? " are destroyed!" : " is destroyed!");
+			break;
+		case GF_DISINTEGRATE:
+			do_kill = TRUE;
+			note_kill = (plural ? " evaporate!" : " evaporates!");
+			break;
+		case GF_CHAOS:
+			do_kill = TRUE;
+			note_kill = (plural ? " are destroyed!" : " is destroyed!");
+			if (have_flag(flgs, TR_RES_CHAOS)) ignore = TRUE;
+			break;
+		case GF_HOLY_FIRE:
+		case GF_HELL_FIRE:
+			if (object_is_cursed(o_ptr))
+			{
+				do_kill = TRUE;
+				note_kill = (plural ? " are destroyed!" : " is destroyed!");
+			}
+			break;
+		case GF_IDENTIFY:
+			identify_item(o_ptr);
+
+			/* Auto-inscription */
+			autopick_alter_item((-this_o_idx), FALSE);
+			break;
+	case GF_KILL_TRAP:
+	case GF_KILL_DOOR:
+	case GF_REMOVE_OBSTACLE:
+			/* Chests are noticed only if trapped or locked */
+			if (o_ptr->tval == TV_CHEST)
+			{
+				/* Disarm/Unlock traps */
+				if (o_ptr->pval > 0)
 				{
-					do_kill = TRUE;
-#ifdef JP
-note_kill = "壊れてしまった！";
-#else
-					note_kill = (plural ? " are destroyed!" : " is destroyed!");
-#endif
+					/* Disarm or Unlock */
+					o_ptr->pval = (0 - o_ptr->pval);
 
-				}
-				break;
-			}
+					/* Identify */
+					object_known(o_ptr);
 
-			case GF_IDENTIFY:
-			{
-				identify_item(o_ptr);
-
-				/* Auto-inscription */
-				autopick_alter_item((-this_o_idx), FALSE);
-				break;
-			}
-
-			/* Unlock chests */
-			case GF_KILL_TRAP:
-			case GF_KILL_DOOR:
-			case GF_REMOVE_OBSTACLE:
-			{
-				/* Chests are noticed only if trapped or locked */
-				if (o_ptr->tval == TV_CHEST)
-				{
-					/* Disarm/Unlock traps */
-					if (o_ptr->pval > 0)
+					/* Notice */
+					if (known && (o_ptr->marked & OM_FOUND))
 					{
-						/* Disarm or Unlock */
-						o_ptr->pval = (0 - o_ptr->pval);
-
-						/* Identify */
-						object_known(o_ptr);
-
-						/* Notice */
-						if (known && (o_ptr->marked & OM_FOUND))
-						{
-#ifdef JP
-msg_print("カチッと音がした！");
-#else
-							msg_print("Click!");
-#endif
-
-							obvious = TRUE;
-						}
+						msg_print("Click!");
+						obvious = TRUE;
 					}
 				}
-
-				break;
 			}
-			case GF_ANIM_DEAD:
+			break;
+		case GF_ANIM_DEAD:
+			if (o_ptr->tval == TV_CORPSE)
 			{
-				if (o_ptr->tval == TV_CORPSE)
+				int i;
+				u32b mode = 0L;
+
+				if (!who || is_pet(&m_list[who]))
+					mode |= PM_FORCE_PET;
+
+				for (i = 0; i < o_ptr->number ; i++)
 				{
-					int i;
-					u32b mode = 0L;
-
-					if (!who || is_pet(&m_list[who]))
-						mode |= PM_FORCE_PET;
-
-					for (i = 0; i < o_ptr->number ; i++)
+					if (((o_ptr->sval == SV_CORPSE) && (randint1(100) > 80)) ||
+						((o_ptr->sval == SV_SKELETON) && (randint1(100) > 60)))
 					{
-						if (((o_ptr->sval == SV_CORPSE) && (randint1(100) > 80)) ||
-						    ((o_ptr->sval == SV_SKELETON) && (randint1(100) > 60)))
-						{
-							if (!note_kill)
-							{
-#ifdef JP
-note_kill = "灰になった。";
-#else
-					note_kill = (plural ? " become dust." : " becomes dust.");
-#endif
-							}
-							continue;
-						}
-						else if (summon_named_creature(who, y, x, o_ptr->pval, mode))
-						{
-#ifdef JP
-note_kill = "生き返った。";
-#else
-					note_kill = " revived.";
-#endif
-						}
-						else if (!note_kill)
-						{
-#ifdef JP
-note_kill = "灰になった。";
-#else
+						if (!note_kill)
 							note_kill = (plural ? " become dust." : " becomes dust.");
-#endif
-						}
+						continue;
 					}
-					do_kill = TRUE;
-					obvious = TRUE;
+					else if (summon_named_creature(who, y, x, o_ptr->pval, mode))
+					{
+						note_kill = " revived.";
+					}
+					else if (!note_kill)
+					{
+						note_kill = (plural ? " become dust." : " becomes dust.");
+					}
 				}
-				break;
+				do_kill = TRUE;
+				obvious = TRUE;
 			}
+			break;
 		}
 
 
@@ -1909,14 +1772,8 @@ note_kill = "灰になった。";
 				/* Observe the resist */
 				if (known && (o_ptr->marked & OM_FOUND))
 				{
-#ifdef JP
-msg_format("%sは影響を受けない！",
-   o_name);
-#else
 					msg_format("The %s %s unaffected!",
 							o_name, (plural ? "are" : "is"));
-#endif
-
 				}
 			}
 
@@ -1926,12 +1783,7 @@ msg_format("%sは影響を受けない！",
 				/* Describe if needed */
 				if (known && (o_ptr->marked & OM_FOUND) && note_kill)
 				{
-#ifdef JP
-msg_format("%sは%s", o_name, note_kill);
-#else
 					msg_format("The %s%s", o_name, note_kill);
-#endif
-
 				}
 
 				k_idx = o_ptr->k_idx;
@@ -6952,7 +6804,7 @@ note = "には効果がなかった。";
 			{
 				if (!(m_ptr->smart & SM_TICKED_OFF))
 				{
-					if (mut_present(MUT_SUBTLE_CASTING) && one_in_(2))
+					if (mut_present(MUT_SUBTLE_CASTING))
 					{
 					}
 					else

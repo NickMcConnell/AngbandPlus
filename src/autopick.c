@@ -468,6 +468,17 @@ static void autopick_entry_from_object(autopick_type *entry, object_type *o_ptr)
 		ADD_FLG(FLG_UNAWARE);
 		bol_mark = TRUE;
 	}
+	/* Hack: Artifact Rings are visually identifiable, but can't currently
+	         be noticed by the autopicker. Pretend they are unaware items
+			 as a workaround. */
+	else if ( !(o_ptr->ident & IDENT_SENSE)
+	       && !(o_ptr->ident & IDENT_KNOWN)
+		   && (o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET)
+		   && o_ptr->art_name )
+	{
+		ADD_FLG(FLG_UNAWARE);
+		bol_mark = TRUE;
+	}
 
 	/* Not really identified */
 	else if (!object_is_known(o_ptr))
@@ -1033,13 +1044,27 @@ static bool _collecting(object_type *o1, object_type *o2)
  * A function for Auto-picker/destroyer
  * Examine whether the object matches to the entry
  */
+static bool _is_aware(object_type *o_ptr)
+{
+	/* Hack: Artifact Rings are visually identifiable, but can't currently
+	         be noticed by the autopicker. Pretend they are unaware items
+			 as a workaround. */
+	if ( !(o_ptr->ident & IDENT_SENSE)
+	  && !(o_ptr->ident & IDENT_KNOWN)
+	  && (o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET)
+	  && o_ptr->art_name )
+	{
+		return FALSE;
+	}
+	return object_is_aware(o_ptr);
+}
 static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_name)
 {
 	int j;
 	cptr ptr = entry->name;
 
 	/*** Unaware items ***/
-	if (IS_FLG(FLG_UNAWARE) && object_is_aware(o_ptr))
+	if (IS_FLG(FLG_UNAWARE) && _is_aware(o_ptr))
 		return FALSE;
 
 	/*** Unidentified ***/

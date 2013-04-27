@@ -724,6 +724,27 @@ static void do_cmd_wiz_hack_chris7(void)
 	msg_print(NULL);
 }
 
+static void do_cmd_wiz_hack_chris8(void)
+{
+	int k_idx = get_quantity("Enter k_idx: ", 1000);
+	int ct = get_quantity("How Many?", 10000);
+	int i;
+
+	for (i = 0; i < ct; i++)
+	{
+		object_type forge = {0};
+		char buf[MAX_NLEN];
+
+		object_prep(&forge, k_idx);
+		create_artifact(&forge, CREATE_ART_GOOD);
+		identify_item(&forge);
+
+		forge.ident |= (IDENT_MENTAL); 
+		object_desc(buf, &forge, 0);
+		msg_format(" %d) %s", i+1, buf);
+	}
+}
+
 #ifdef MONSTER_HORDES
 
 /* Summon a horde of monsters */
@@ -2742,6 +2763,10 @@ void do_cmd_debug(void)
 
 	case '7':
 		do_cmd_wiz_hack_chris7();
+		break;
+
+	case '8':
+		do_cmd_wiz_hack_chris8();
 		break;
 
 	case 'S':

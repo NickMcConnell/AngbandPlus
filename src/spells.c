@@ -195,15 +195,15 @@ static void _list_spells(spell_info* spells, int ct, int max_cost)
 	if (col_height == ct)
 	{
 		Term_erase(x, y, 255);
-		put_str("Lv Cost Fail Info", y, x + 29);
+		put_str("Lvl Cost Fail Desc", y, x + 29);
 	}
 	else
 	{
 		col_width = 42;
 		x = 1;
 		Term_erase(x, y, 255);
-		put_str("Lv Cost Fail", y, x + 29);
-		put_str("Lv Cost Fail", y, x + col_width + 29);
+		put_str("Lvl Cost Fail", y, x + 29);
+		put_str("Lvl Cost Fail", y, x + col_width + 29);
 	}
 
 	for (i = 0; i < ct; i++)
@@ -229,7 +229,7 @@ static void _list_spells(spell_info* spells, int ct, int max_cost)
 
 		sprintf(temp, "  %c) ", letter);
 
-		strcat(temp, format("%-23.23s %2d %4d %3d%%", 
+		strcat(temp, format("%-23.23s %3d %4d %3d%%", 
 							var_get_string(&name),
 							spell->level,
 							spell->cost,
@@ -567,6 +567,12 @@ void do_cmd_spell(void)
 	{
 		spell_info *spell = &spells[choice];
 
+		if (spell->level > p_ptr->lev)
+		{
+			msg_print("You can't use that spell yet!");
+			return;
+		}
+
 		/* Verify Cost ... Note, I'm removing options for over exertion 
 		   Also note we now pay casting costs up front for mana casters.  
 		   If the user cancels, then we return the cost below.
@@ -684,7 +690,7 @@ void do_cmd_power(void)
 		
 		if (spell->level > p_ptr->lev)
 		{
-			msg_print("You can't cast that spell yet!");
+			msg_print("You can't use that power yet!");
 			return;
 		}
 

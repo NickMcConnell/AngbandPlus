@@ -3740,13 +3740,13 @@ void print_spells(int target_spell, byte *spells, int num, int y, int x, int use
 	/* Title the list */
 	prt("", y, x);
 	if (use_realm == REALM_HISSATSU)
-		strcpy(buf,"  Lv   SP");
+		strcpy(buf,"  Lvl  SP");
 	else
 	{
 		if (caster_ptr && (caster_ptr->options & CASTER_USE_HP))
-			strcpy(buf,"Profic Lv   HP Fail Effect");
+			strcpy(buf,"Profic Lvl  HP Fail Desc");
 		else
-			strcpy(buf,"Profic Lv   SP Fail Effect");
+			strcpy(buf,"Profic Lvl  SP Fail Desc");
 	}
 
 	put_str("Name", y, x + 5);
@@ -3905,13 +3905,13 @@ comment = "Ì¤·Ð¸³";
 		/* Dump the spell --(-- */
 		if (use_realm == REALM_HISSATSU)
 		{
-			strcat(out_val, format("%-25s %2d %4d",
+			strcat(out_val, format("%-25s %3d %3d",
 			    do_spell(use_realm, spell, SPELL_NAME), /* realm, spell */
 			    s_ptr->slevel, need_mana));
 		}
 		else
 		{
-			strcat(out_val, format("%-25s%c%-4s %2d %4d %3d%% %s",
+			strcat(out_val, format("%-25s%c%-4s %3d %3d %3d%% %s",
 			    do_spell(use_realm, spell, SPELL_NAME), /* realm, spell */
 			    (max ? '!' : ' '), ryakuji,
 			    s_ptr->slevel, need_mana, spell_chance(spell, use_realm), comment));

@@ -640,6 +640,17 @@ static caster_info * _caster_info(void)
 	return &me;
 }
 
+static void _character_dump(FILE* file)
+{
+	if (_weapon_check() && p_ptr->lev >= 5)
+	{
+		spell_info spells[MAX_SPELLS];
+		int        ct = _get_spells(spells, MAX_SPELLS);
+
+		dump_spells_aux(file, spells, ct);
+	}
+}
+
 class_t *mauler_get_class_t(void)
 {
 	static class_t me = {0};
@@ -676,6 +687,7 @@ class_t *mauler_get_class_t(void)
 		me.calc_weapon_bonuses = _calc_weapon_bonuses;
 		me.caster_info = _caster_info;
 		me.get_spells = _get_spells;
+		me.character_dump = _character_dump;
 		init = TRUE;
 	}
 

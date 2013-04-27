@@ -70,6 +70,14 @@ unaware items
 
 # If you just want ego armors:
 #~unidentified ego armors
+#~unidentified ego armors:crown
+#~unidentified ego armors:cap
+#~unidentified ego armors:helm
+#~unidentified ego armors:gloves
+#~unidentified ego armors:cesti
+#~unidentified ego armors:guantlet
+#~unidentified ego armors:boot
+#~unidentified ego armors:shield
 
 # If you just want ego bolts:
 #~unidentified ego bolt
@@ -85,6 +93,10 @@ unaware items
 #
 #!unidentified weapons
 #!unidentified armors
+#!statue
+#!figurine
+#ring of sustain
+
 
 # To summarize with an example:
 # [1] '!unidentified weapons' matches as I step onto a grid with an

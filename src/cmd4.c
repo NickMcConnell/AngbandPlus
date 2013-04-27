@@ -5928,6 +5928,7 @@ static void do_cmd_knowledge_weapon(void)
 	int i, r;
 	int used_hands[MAX_HANDS];
 	int ct = 0;
+	bool displayed = FALSE;
 
 	screen_save();
 
@@ -5942,7 +5943,10 @@ static void do_cmd_knowledge_weapon(void)
 		int hand = used_hands[i++];
 		Term_clear();
 		if (p_ptr->weapon_info[hand].bare_hands)
+		{
 			monk_display_attack_info(hand, 0, 1);
+			displayed = TRUE;
+		}
 		else
 		{
 			r = display_weapon_info(hand, 0, 1);
@@ -5951,6 +5955,7 @@ static void do_cmd_knowledge_weapon(void)
 				hand = used_hands[i++];
 				display_weapon_info(hand, r+2, 1);
 			}
+			displayed = TRUE;
 		}
 
 		flush();
@@ -5963,11 +5968,15 @@ static void do_cmd_knowledge_weapon(void)
 		r = display_innate_attack_info(i++, 0, 1);
 		if (i < p_ptr->innate_attack_ct && r < 20)
 			display_innate_attack_info(i++, r+2, 1);
+		displayed = TRUE;
 		flush();
 		(void)inkey();
 	}
 
 	screen_load();
+
+	if (!displayed)
+		msg_print("You are not wielding any weapons.");
 }
 
 static void do_cmd_knowledge_extra(void)

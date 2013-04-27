@@ -608,110 +608,110 @@ F:@:FLOOR:3:0:0:0:80
 ##########################################################################
 # Weaponmaster
 
-# Balli Stonehand
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Axes] [EQU [MOD $RANDOM27 5] 0] ]
-F:a:BUILDING_0:3
-F:@:FLOOR:3:0:0:0:103
-
 # Hurin
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Axes] [GEQ [MOD $RANDOM27 5] 1] ]
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Axes] [EQU [MOD $RANDOM27 5] 0] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:133
 
-# Yoichi
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Bows] [EQU [MOD $RANDOM27 5] 0] ]
+# Balli Stonehand
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Axes] [GEQ [MOD $RANDOM27 5] 1] ]
 F:a:BUILDING_0:3
-F:@:FLOOR:3:0:0:0:148
+F:@:FLOOR:3:0:0:0:103
 
 # Bard
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Bows] [GEQ [MOD $RANDOM27 5] 1] ] 
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Bows] [EQU [MOD $RANDOM27 5] 0] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:125
 
-# Aegis Fang
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Clubs] [EQU [MOD $RANDOM27 5] 0] ]
+# Yoichi
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Bows] [GEQ [MOD $RANDOM27 5] 1] ] 
 F:a:BUILDING_0:3
-F:@:FLOOR:3:0:0:0:208
+F:@:FLOOR:3:0:0:0:148
 
 # Aegir
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Clubs] [GEQ [MOD $RANDOM27 5] 1] ] 
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Clubs] [EQU [MOD $RANDOM27 5] 0] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:251
 
-# Wilhelm Tell
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Crossbows] [EQU [MOD $RANDOM27 5] 0] ]
+# Aegis Fang
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Clubs] [GEQ [MOD $RANDOM27 5] 1] ] 
 F:a:BUILDING_0:3
-F:@:FLOOR:3:0:0:0:223
+F:@:FLOOR:3:0:0:0:208
 
 # Brand
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Crossbows] [GEQ [MOD $RANDOM27 5] 1] ] 
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Crossbows] [EQU [MOD $RANDOM27 5] 0] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:126
 
-# Fiona
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Daggers] [EQU [MOD $RANDOM27 5] 0] ]
+# Wilhelm Tell
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Crossbows] [GEQ [MOD $RANDOM27 5] 1] ] 
 F:a:BUILDING_0:3
-F:@:FLOOR:3:0:0:0:70
+F:@:FLOOR:3:0:0:0:223
 
 # Silver Chariot
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Daggers] [GEQ [MOD $RANDOM27 5] 1] ] 
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Daggers] [EQU [MOD $RANDOM27 5] 0] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:140
 
-# Undertaker
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Diggers] [EQU [MOD $RANDOM27 5] 0] ]
+# Fiona
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Daggers] [GEQ [MOD $RANDOM27 5] 1] ] 
 F:a:BUILDING_0:3
-F:@:FLOOR:3:0:0:0:296
+F:@:FLOOR:3:0:0:0:70
 
 # Nain
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Diggers] [GEQ [MOD $RANDOM27 5] 1] ]
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Diggers] [EQU [MOD $RANDOM27 5] 0] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:211
 
-# Avavir
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Polearms] [EQU [MOD $RANDOM27 5] 0] ]
+# Undertaker
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Diggers] [GEQ [MOD $RANDOM27 5] 1] ]
 F:a:BUILDING_0:3
-F:@:FLOOR:3:0:0:0:109
+F:@:FLOOR:3:0:0:0:296
 
 # Glaive of Pain
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Polearms] [GEQ [MOD $RANDOM27 5] 1] ] 
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Polearms] [EQU [MOD $RANDOM27 5] 0] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:94
 
-# Gil-Galad
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Shields] [EQU [MOD $RANDOM27 5] 0] ]
+# Avavir
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Polearms] [GEQ [MOD $RANDOM27 5] 1] ] 
 F:a:BUILDING_0:3
-F:@:FLOOR:3:0:0:0:138
+F:@:FLOOR:3:0:0:0:109
 
 # Thorin
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Shields] [GEQ [MOD $RANDOM27 5] 1] ] 
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Shields] [EQU [MOD $RANDOM27 5] 0] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:30
+
+# Gil-Galad
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Shields] [GEQ [MOD $RANDOM27 5] 1] ] 
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:138
 
 # Buckland
 ?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Slings] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:134
 
-# Nar-i-vagil
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Staves] [EQU [MOD $RANDOM27 5] 0] ]
-F:a:BUILDING_0:3
-F:@:FLOOR:3:0:0:0:118
-
 # Monkey King's Cudgel
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Staves] [GEQ [MOD $RANDOM27 5] 1] ] 
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Staves] [EQU [MOD $RANDOM27 5] 0] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:255
 
-# Anduril
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Swords] [EQU [MOD $RANDOM27 5] 0] ]
+# Nar-i-vagil
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Staves] [GEQ [MOD $RANDOM27 5] 1] ] 
 F:a:BUILDING_0:3
-F:@:FLOOR:3:0:0:0:83
+F:@:FLOOR:3:0:0:0:118
 
 # Werewindle
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Swords] [GEQ [MOD $RANDOM27 5] 1] ] 
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Swords] [EQU [MOD $RANDOM27 5] 0] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:84
+
+# Anduril
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Swords] [GEQ [MOD $RANDOM27 5] 1] ] 
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:83
 
 ##########################################################################
 # Warlock

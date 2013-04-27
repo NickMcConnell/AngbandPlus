@@ -123,8 +123,10 @@
 #define MUT_WEIRD_MIND 116
 #define MUT_FANTASTIC_FRENZY 117
 #define MUT_BLACK_MARKETEER 118
+#define MUT_SPEED_READER 119
+#define MUT_FELL_SORCERY 120
 
-#define MAX_MUTATIONS      119   /* see also MUT_FLAG_SIZE in defines.h */
+#define MAX_MUTATIONS      121   /* see also MUT_FLAG_SIZE in defines.h */
 
 typedef enum {
 	MUT_RATING_AWFUL = -2,
@@ -200,6 +202,7 @@ extern void fantastic_frenzy_mut(int cmd, variant *res);
 extern void fast_learner_mut(int cmd, variant *res);
 extern void fat_mut(int cmd, variant *res);
 extern void fearless_mut(int cmd, variant *res);
+extern void fell_sorcery_mut(int cmd, variant *res);
 extern void fire_aura_mut(int cmd, variant *res);
 extern void flatulence_mut(int cmd, variant *res);
 extern void fleet_of_foot_mut(int cmd, variant *res);
@@ -241,6 +244,7 @@ extern void shadow_walk_mut(int cmd, variant *res);
 extern void short_legs_mut(int cmd, variant *res);
 extern void silly_voice_mut(int cmd, variant *res);
 extern void speed_flux_mut(int cmd, variant *res);
+extern void speed_reader_mut(int cmd, variant *res);
 extern void steel_skin_mut(int cmd, variant *res);
 extern void subtle_casting_mut(int cmd, variant *res);
 extern void telepathy_mut(int cmd, variant *res);
