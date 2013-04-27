@@ -149,7 +149,11 @@ L:INTER:trap_disarm(6)
 L:TARGET:trap_gf()
 L:PENTER:hit_trap(field)
 L:PENTER:if (bAnd(player.flags[2], TR2_FEATHER) ~= 0) then
-L:PENTER:	msgf("You fly over a trap door.")
+L:PENTER:   if (in_quest() == 0) then 
+L:PENTER:	   msgf("You fly over a trap door.")
+L:PENTER:      if (get_check("Descend?")) then
+L:PENTER:         move_dun_level(1) end
+L:PENTER:   else msgf("You fly over a pit trap.") end
 L:PENTER:elseif (in_quest() == 0) then
 L:PENTER:	msgf("You have fallen through a trap door!")
 L:PENTER:	sound(SOUND_FALL)

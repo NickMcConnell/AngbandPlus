@@ -3792,6 +3792,7 @@ void do_cmd_knowledge_spells_aux(FILE *fff, int realm, bool color)
 {
 	int sval, lev;
 	bool found;
+	int pow;
 	cptr a = CLR_DEFAULT;
 
 	spell_external sp;
@@ -3850,6 +3851,9 @@ void do_cmd_knowledge_spells_aux(FILE *fff, int realm, bool color)
 
 		for (sp.s = 0; sp.s < NUM_SPELLS; sp.s++)
 		{
+			char buf[10];
+			cptr a2;
+
 			if (s_info[sp.r][sp.s].sval != sval)
 				continue;
 
@@ -3858,9 +3862,18 @@ void do_cmd_knowledge_spells_aux(FILE *fff, int realm, bool color)
 			if (!lev)
 				continue;
 
+			pow = spell_power(sp);
+
+			strnfmt(buf, 10, "%s%d",
+				(pow <= 0 ? " " : "+"), pow);
+
+			if (pow < 0) a2 = CLR_RED;
+			else if (pow == 0) a2 = CLR_DEFAULT;
+			else a2 = CLR_L_GREEN;
+
 			if (color) froff (fff, "%s", a);
-			froff(fff, "%-28s   %4d    %4d%%    %4d%%  %s%s\n", spell_name(sp),
-					spell_mana(sp), spell_chance(sp), spell_power(sp),
+			froff(fff, "%-28s   %4d    %4d%%    %s%4s%%  %s%s\n", spell_name(sp),
+					spell_mana(sp), spell_chance(sp), (color ? a2 : ""), buf,
 					((lev > 1 && color) ? focus_learned_color[lev] : ""),
 					(lev > 1 ? focus_learned[lev] : ""));
 		}

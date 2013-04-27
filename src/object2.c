@@ -5353,11 +5353,14 @@ static bool reorder_pack_comp(const object_type *o1_ptr,
 	if ((o2_ptr->tval == REALM2_BOOK) &&
 		(o1_ptr->tval != REALM2_BOOK)) return (FALSE);
 
-	/* Nasty hack: Containers appear between lites and amulets */
+	/* Nasty hack: Containers appear between wands and staves.
+       This way, removing some equipment or unstacking a staff 
+           can never cause an overflow
+	   that makes you drop a quiver. */
 	if (o1_ptr->tval == TV_CONTAINER && o2_ptr->tval != TV_CONTAINER)
-		return (o2_ptr->tval <= TV_LITE);
+		return (o2_ptr->tval <= TV_STAFF);
 	if (o2_ptr->tval == TV_CONTAINER && o1_ptr->tval != TV_CONTAINER)
-		return (o1_ptr->tval >= TV_AMULET);
+		return (o1_ptr->tval >= TV_WAND);
 
 	/* Objects sort by decreasing type */
 	if (o1_ptr->tval > o2_ptr->tval) return (TRUE);
@@ -5819,9 +5822,9 @@ void inven_drop(object_type *o_ptr, int amt)
 
 		OBJ_ITT_START (p_ptr->inventory, j_ptr)
 		{
-			slot++;
 			if (j_ptr->tval == TV_CONTAINER && list == (&j_ptr->contents_o_idx))
 				break;
+			slot++;
 		}
 		OBJ_ITT_END;
 

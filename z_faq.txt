@@ -301,6 +301,9 @@ after that, and so on.  Your Tier 1 slots are only good for Tier 1
 spells, but Tier 2 slots can be used for Tier 1 or Tier 2 spells, et
 cetera.  So your Tier 5 slots can be used for any spell in the game.  
 
+You can only use Tier n slots when your character's level has advanced
+beyond the top level of spells a Tier n-1 slot could be used for.
+
 The game warns you when you are running low on a particular tier
 slots, and also warns you before allowing you to "downgrade" a slot by
 using it for a lower Tier of spell.  In many cases, especially when

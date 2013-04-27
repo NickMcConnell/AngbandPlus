@@ -2284,6 +2284,9 @@ bool alloc_horde(int x, int y)
 
 	int level;
 
+	/* Do not allow in quests, b/c of theming */
+	if (current_quest) return (FALSE);
+
 	/* Prepare allocation table */
 	get_mon_num_prep(NULL);
 	level = filter_mon_loc(x, y);

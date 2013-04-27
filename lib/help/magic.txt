@@ -287,6 +287,9 @@ Warrior gets 7 tier-1 slots, 6 tier-2, tier-3, and tier-4 slots, and
 2, can learn at most 5 spells of levels 42-50, at most 5+6 spells of
 levels 32-50, and so on.
 
+Slots of a given tier are not accessible to you until your level
+advances beyond the top level of the previous tier.
+
 When studying a spell, you will automatically use the lowest possible
 tier slot to study it.  When you are close to running out of slots on
 a tier, or when you are about to "downgrade" a slot, the game will 

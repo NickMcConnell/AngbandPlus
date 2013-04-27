@@ -1277,7 +1277,7 @@ static bool set_stun(int v)
 
 bool inc_stun(int v)
 {
-	return(set_stun(query_timed(TIMED_STUN) + v));
+	return(set_stun(MAX(query_timed(TIMED_STUN) + v, 0)));
 }
 
 bool clear_stun(void)
@@ -1519,7 +1519,7 @@ static bool set_cut(int v)
 
 bool inc_cut(int v)
 {
-	return(set_cut(query_timed(TIMED_CUT) + v));
+	return(set_cut(MAX(query_timed(TIMED_CUT) + v,0)));
 }
 
 bool clear_cut(void)

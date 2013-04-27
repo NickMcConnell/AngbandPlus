@@ -2476,12 +2476,131 @@ static void rd_quests(int max_quests)
 
 static void convert_spells(void)
 {
+	int i, j, r, lev, slot;
+	bool found;
+	int num_lost = 0;
+	spell_external sp;
+
 	/* For earlier versions, no converting. */
 	if (sf_version < 57)
 	{
 		msgf ("Warning: You have forgotten all of your %s.",
 			mp_ptr->spell_book == TV_LIFE_BOOK ? "prayers" : "spells");
+		pause_line(1);
 		return;
+	}
+
+	/* Go through the player's spells looking for dead spells. */
+	for (i = p_ptr->spell.spell_max - 1; i >= 0; i--)
+	{
+		found = FALSE;
+		for (r = 0; r < 2; r++)
+		{
+			for (j = 0; j < NUM_SPELLS; j++)
+			{
+				if (p_ptr->spell.data[i].s_idx != s_info[p_ptr->spell.realm[r]-1][j].s_idx) continue;
+				if (p_ptr->spell.data[i].realm != s_info[p_ptr->spell.realm[r]-1][j].realm) continue;
+
+				/* Skip "fake" spells */
+				if (s_info[p_ptr->spell.realm[r]-1][j].sval > 3) continue;
+
+				/* Found it */
+				found = TRUE;
+				break;
+			}
+		}
+
+		/* Spells never found must be removed */
+		if (!found)
+		{
+			for (j = i; j < p_ptr->spell.spell_max - 1; j++)
+			{
+				/* Shift next spell one slot back */
+				p_ptr->spell.data[j].s_idx = p_ptr->spell.data[j+1].s_idx;
+				p_ptr->spell.data[j].realm = p_ptr->spell.data[j+1].realm;
+				p_ptr->spell.data[j].flags = p_ptr->spell.data[j+1].flags;
+				p_ptr->spell.data[j].focus = p_ptr->spell.data[j+1].focus;
+				p_ptr->spell.data[j].spell[0] = p_ptr->spell.data[j+1].spell[0];
+				p_ptr->spell.data[j].spell[1] = p_ptr->spell.data[j+1].spell[1];
+			}
+
+			/* Blank out the entry at the end */
+			WIPE(&p_ptr->spell.data[p_ptr->spell.spell_max-1], player_spell_learned);
+
+			/* Lost one */
+			num_lost++;
+
+			p_ptr->spell.spell_max--;
+
+			/* Don't do spell slots now; instead, if we lose any, reoptimize completely later. */
+		}
+	}
+
+	if (num_lost)
+	{
+		msgf ("Warning: You have forgotten %d %s%s.", num_lost,
+				mp_ptr->spell_book == TV_LIFE_BOOK ? "prayer" : "spell", num_lost > 1 ? "s" : "");
+		pause_line(1);
+
+		/* Reset spell slots to initial values */
+		for (i = 0; i < SPELL_LAYERS; i++)
+		{
+			p_ptr->spell_slots[i] =
+				magic_info[p_ptr->rp.pclass].max_spells[i];
+		}
+
+		/* Optimize slot use */
+		for (i = 0; i < p_ptr->spell.spell_max; i++)
+		{
+			/* Find the (external) spell. */
+			if (p_ptr->spell.data[i].flags & SP_PRESENT_1 &&
+			    p_ptr->spell.data[i].flags & SP_PRESENT_2)
+			{
+				/* For spells in both realms, use lower level one */
+				if (s_info[p_ptr->spell.realm[0]-1][p_ptr->spell.data[i].spell[0]].info[p_ptr->rp.pclass].slevel <
+				    s_info[p_ptr->spell.realm[1]-1][p_ptr->spell.data[i].spell[1]].info[p_ptr->rp.pclass].slevel)
+				{
+					sp.r = p_ptr->spell.realm[0]-1;
+					sp.s = p_ptr->spell.data[i].spell[0];
+				}
+				else
+				{
+					sp.r = p_ptr->spell.realm[1]-1;
+					sp.s = p_ptr->spell.data[i].spell[1];
+				}
+			}
+			else if (p_ptr->spell.data[i].flags & SP_PRESENT_1)
+			{
+				sp.r = p_ptr->spell.realm[0]-1;
+				sp.s = p_ptr->spell.data[i].spell[0];
+			}
+			else
+			{
+				sp.r = p_ptr->spell.realm[1]-1;
+				sp.s = p_ptr->spell.data[i].spell[1];
+			}
+
+			/* Level needed for this spell at this focus level */
+			lev = s_info[sp.r][sp.s].info[p_ptr->rp.pclass].slevel +
+					((p_ptr->spell.data[i].focus-1)*mp_ptr->focus_offset);
+
+			/* Slot to use */
+			slot = (lev - mp_ptr->spell_first)*SPELL_LAYERS/PY_MAX_LEVEL;
+
+			/* Downgrade if needed */
+			while (!p_ptr->spell_slots[slot])
+			{
+				slot++;
+				if (slot >= SPELL_LAYERS)
+				{
+					msgf (CLR_RED "Warning: spell knowledge corrupted!");
+					break;
+				}
+			}
+
+			/* Use the slot */
+			p_ptr->spell_slots[slot]--;
+		}
 	}
 }
 

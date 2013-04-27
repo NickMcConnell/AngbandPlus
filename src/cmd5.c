@@ -191,13 +191,12 @@ static void roff_spell_life(int spell)
 	switch(spell)
 	{
 		case 0:
-			roff ("Lets you sense the location and type of any nearby living creatures.");
-		    roff (CLR_VIOLET " Range: %i", MAX_DETECT);
-			roff (CLR_L_DARK "  It will not detect non-living creatures such as undead or golems.");
+			roff ("Lets you sense the location and type of any nearby evil creatures.");
+		    roff (CLR_VIOLET " Range: %i.  ", MAX_DETECT);
 			return;
 		case 1:
 			roff ("Cures you of ");
-			roff (CLR_L_GREEN "8+1d10");
+			roff (CLR_L_GREEN "6+1d8");
 			roff (" damage and cures wounds somewhat.");
 			return;
 		case 2:
@@ -222,7 +221,7 @@ static void roff_spell_life(int spell)
 			return;
 		case 5:
 			roff ("Cures you of ");
-			roff (CLR_L_GREEN "16+2d10");
+			roff (CLR_L_GREEN "12+2d8");
 			roff (" damage and cures most wounds, and reduces the duration of poison.");
 			return;
 		case 6:
@@ -244,7 +243,7 @@ static void roff_spell_life(int spell)
 			return;
 		case 9:
 			roff ("Cures you of ");
-			roff (CLR_L_GREEN "32+4d10");
+			roff (CLR_L_GREEN "24+4d8");
 			roff (" damage and cures wounds, stunning, and poison completely.");
 			return;
 		case 10:
@@ -272,7 +271,7 @@ static void roff_spell_life(int spell)
 			return;
 		case 13:
 			roff ("Cures you of ");
-			roff (CLR_L_GREEN "250+10d10");
+			roff (CLR_L_GREEN "190+10d8");
 			roff (" damage and cures wounds, stunning, fear, and poison completely.");
 			return;
 		case 14:
@@ -292,8 +291,8 @@ static void roff_spell_life(int spell)
 			return;
 		case 17:
 			roff ("Cures you of ");
-			roff (CLR_L_GREEN "64+8d10");
-			roff (" damage and cures wounds, stunning, and poison completely.  Has an especially low mana cost.");
+			roff (CLR_L_GREEN "48+8d8");
+			roff (" damage and cures wounds, stunning, and poison completely.");
 			return;
 		case 18:
 			roff ("Deals ");
@@ -384,7 +383,7 @@ static void roff_spell_life(int spell)
 			roff ("may also be damaged directly.");
 			return;
 		case 34:
-			roff ("Increases your strength by +%i (max: +5) for ", MAX(2, plev/10));
+			roff ("Restores your strength, and increases your strength by +%i (max: +5) for ", MAX(2, plev/10));
 			roff (CLR_YELLOW "20-40 turns. ");
 			return;
 		case 35:
@@ -2001,6 +2000,9 @@ static void do_cmd_browse_aux3(spell_external sp_e)
 		case REALM_CONJ:
 			roff (CLR_L_DARK " Conjuration gets inherent power bonuses to certain teleportation spells.");
 			break;
+		case REALM_LIFE:
+			roff (CLR_L_DARK " Life gets inherent power bonuses to basic healing spells.");
+			break;
 	}
 
 	/* See if the spell is in both realms.  Note that we can't use the
@@ -2292,7 +2294,11 @@ void do_cmd_study(bool force, object_type * o_ptr)
 	if (mp_ptr->spell_book != TV_LIFE_BOOK)
 	{
 		/* Ask for a spell, allow cancel */
-		if (!get_spell(&spell, "study", 0, o_ptr)) return;
+		if (!get_spell(&spell, "study", 0, o_ptr))
+		{
+			if (spell == -2) msgf ("You can't learn any spells in that book.");
+			return;
+		}
 
 		sp_e.s = spell;
 
@@ -2394,17 +2400,17 @@ void do_cmd_study(bool force, object_type * o_ptr)
 		}
 
 		/* Accept gift */
-		if (gift1 == gift2 && gift1 > 0)
+		if (gift1 == gift2 && gift1 >= 0)
 		{
 			spell = gift1;
 			sp_e.s = gift1;
 			slot = slot1;
 		}
-		else if (gift1 > 0)
+		else if (gift1 >= 0)
 		{
 			sp_e.s = gift1;
 			slot = slot1;
-			if (!get_check ("Learn %s?", spell_name(sp_e)))
+			if (!get_check ("Learn %s? ", spell_name(sp_e)))
 			{
 				slot = slot2;
 				sp_e.s = gift2;
@@ -2418,7 +2424,7 @@ void do_cmd_study(bool force, object_type * o_ptr)
 	{
 		if (skipped)
 		{
-			if (!study_warn || get_check("Force a slot downgrade?"))
+			if (!study_warn || get_check("Force a slot downgrade? "))
 				do_cmd_study(TRUE, o_ptr);
 
 			return;
@@ -2706,7 +2712,7 @@ static bool cast_life_spell(int spell, int power)
 			(void)detect_monsters_evil();
 			break;
 		case 1:				/* Cure Light Wounds */
-			(void)hp_player(POWER(8+damroll(1, 10),power));
+			(void)hp_player(POWER(6+damroll(1, 8),power));
 			(void)inc_cut(POWER(-10,power));
 			break;
 		case 2:				/* Bless */
@@ -2721,8 +2727,8 @@ static bool cast_life_spell(int spell, int power)
 			(void)detect_stairs();
 			break;
 		case 5:				/* Cure Medium Wounds */
-			(void)hp_player(POWER(16+damroll(2, 10),power));
-			(void)inc_cut(POWER(-40,power));
+			(void)hp_player(POWER(12+damroll(2, 8),power));
+			(void)inc_cut(POWER(-30,power));
 			(void)inc_poisoned(POWER(-query_timed(TIMED_POISONED)/2,power));
 			break;
 		case 6:				/* Heroism */
@@ -2737,7 +2743,7 @@ static bool cast_life_spell(int spell, int power)
 			(void)inc_blessed(POWER(rand_range(50, 100),power));
 			break;
 		case 9:				/* Cure Critical Wounds */
-			(void)hp_player(POWER(32+damroll(4, 10),power));
+			(void)hp_player(POWER(24+damroll(4, 8),power));
 			(void)clear_stun();
 			(void)clear_cut();
 			(void)clear_poisoned();
@@ -2757,7 +2763,7 @@ static bool cast_life_spell(int spell, int power)
 			(void)inc_protevil(POWER(randint1(25) + 3 * plev,power));
 			break;
 		case 13:				/* Healing */
-			(void)hp_player(POWER(250 + damroll(10,10),power));
+			(void)hp_player(POWER(190 + damroll(10,8),power));
 			(void)clear_stun();
 			(void)clear_cut();
 			(void)clear_poisoned();
@@ -2773,7 +2779,7 @@ static bool cast_life_spell(int spell, int power)
 			(void)set_food(PY_FOOD_MAX - 1);
 			break;
 		case 17:				/* Cure Mortal Wounds */
-			(void)hp_player(POWER(64 + damroll(8,10),power));
+			(void)hp_player(POWER(48 + damroll(8,8),power));
 			(void)clear_stun();
 			(void)clear_cut();
 			(void)clear_poisoned();
@@ -2864,6 +2870,7 @@ static bool cast_life_spell(int spell, int power)
 			(void)turn_undead(POWER(plev,power));
 			break;
 		case 34:				/* Strength */
+			(void)do_res_stat(A_STR);
 			(void)inc_tim_str(POWER(rand_range(20,40),power));
 			break;
 		case 35:				/* Preservation */

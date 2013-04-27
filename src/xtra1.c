@@ -1583,12 +1583,14 @@ static void fix_object(void)
  */
 static void calc_spells(void)
 {
-	int i, n, levels, r;
+	int i, j, n, levels, r;
 	int num_allowed, num_known, lev;
 	bool new[PY_MAX_SPELLS][2];
 	byte forgot_flg[2];
 	byte present_flg[2];
 	spell_external sp[2];
+	spell_external sp_e;
+	bool done2[NUM_SPELLS];
 
 	int realm;
 
@@ -1630,7 +1632,78 @@ static void calc_spells(void)
 	n = 0;
 	for (i = 0; i < SPELL_LAYERS; i++)
 	{
-		n += mp_ptr->max_spells[i];
+		/* Can only use slots in a tier if we are high enough level. */
+		if (p_ptr->lev >= i*(PY_MAX_LEVEL/SPELL_LAYERS) + mp_ptr->spell_first)
+			n += mp_ptr->max_spells[i];
+		else break;
+	}
+
+	/* Use maximum */
+	num_allowed = MIN(num_allowed, n);
+
+	/* Extract maximum learnable slots */
+	n = 0;
+
+	/* Two realms */
+	C_WIPE(done2, NUM_SPELLS, bool);
+
+	for (r = 0; r < 2; r++)
+	{
+		/* Only check realms we have */
+		if (!p_ptr->spell.realm[r]) break;
+
+		/* Scan the spells */
+		for (i = 0; i < NUM_SPELLS; i++)
+		{
+			/* Set the realm  and spell */
+			sp_e.r = p_ptr->spell.realm[r]-1;
+			sp_e.s = i;
+
+			/* Skip non-spells */
+			if (s_info[sp_e.r][sp_e.s].sval == 99) continue;
+
+			/* In realm 2, skip spells already done. */
+			if (r == 1 && done2[i]) continue;
+
+			/* In realm 1, search for the spell being in both realms. */
+			if (r == 0 && p_ptr->spell.realm[1])
+			{
+				for (j = 0; j < NUM_SPELLS; j++)
+				{
+					if (s_info[p_ptr->spell.realm[1]-1][j].s_idx !=
+						s_info[sp_e.r][i].s_idx) continue;
+					if (s_info[p_ptr->spell.realm[1]-1][j].realm !=
+						s_info[sp_e.r][i].s_idx) continue;
+
+					/* Found it */
+					done2[j] = TRUE;
+
+					/* Use the lower level one */
+					if (s_info[p_ptr->spell.realm[1]-1][j].info[p_ptr->rp.pclass].slevel <
+						s_info[sp_e.r][sp_e.s].info[p_ptr->rp.pclass].slevel)
+					{
+						sp_e.r = p_ptr->spell.realm[1]-1;
+						sp_e.s = j;
+					}
+
+					break;
+				}
+			}
+
+			/* Don't count spells that are too high level to learn */
+			if (p_ptr->lev < s_info[sp_e.r][sp_e.s].info[p_ptr->rp.pclass].slevel) continue;
+
+			/* Priestly classes can't focus, just add 1 */
+			if (mp_ptr->spell_book == TV_LIFE_BOOK)
+			{
+				n++;
+			}
+			/* Non-priestly classes: take into account how much focussing we can do */
+			else
+			{
+				n += 1 + ((p_ptr->lev - s_info[sp_e.r][sp_e.s].info[p_ptr->rp.pclass].slevel)/mp_ptr->focus_offset);
+			}
+		}
 	}
 
 	/* Use maximum */
@@ -1638,6 +1711,29 @@ static void calc_spells(void)
 
 	/* Number known  */
 	num_known = p_ptr->spell.spell_max;
+
+	/* Subtract off spells we've forgotten */
+	for (i = 0; i < p_ptr->spell.spell_max; i++)
+	{
+		if (p_ptr->spell.data[i].flags & SP_PRESENT_1 &&
+			p_ptr->spell.data[i].flags & SP_PRESENT_2)
+		{
+			if (p_ptr->spell.data[i].flags & SP_FORGOTTEN_1 &&
+				p_ptr->spell.data[i].flags & SP_FORGOTTEN_2)
+				num_known--;
+		}
+		else if (p_ptr->spell.data[i].flags & SP_PRESENT_1)
+		{
+			if (p_ptr->spell.data[i].flags & SP_FORGOTTEN_1)
+				num_known--;
+		}
+		/* Must be present in 2nd realm */
+		else
+		{
+			if (p_ptr->spell.data[i].flags & SP_FORGOTTEN_2)
+				num_known--;
+		}
+	}
 
 	/* See how many spells we must forget or may learn */
 	p_ptr->new_spells = num_allowed - num_known;

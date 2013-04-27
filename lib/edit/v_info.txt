@@ -51,7 +51,7 @@
 
 # Version stamp (required)
 
-V:0.3.0
+V:0.3.1
 
 
 ### Lesser vaults (type 7) -- maximum size 33x22 ###

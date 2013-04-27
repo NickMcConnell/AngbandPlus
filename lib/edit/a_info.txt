@@ -53,7 +53,7 @@
 
 # Version stamp (required)
 
-V:0.3.0
+V:0.3.1
 
 
 # The Phial of Galadriel
@@ -423,7 +423,7 @@ N:24:of Command
 I:37:4:2
 W:35:3:220:9000
 P:14:1d4:-2:0:15
-F:STR | CHR | HIDE_TYPE | INSTA_ART
+F:STR | CHR | HIDE_TYPE | INSTA_ART | ACTIVATE
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
 L:USE:	msgf("Your armor shines with a brilliant white light.")
 L:USE:	charm_monsters(player.lev * 2)
@@ -640,7 +640,7 @@ P:5:1d3:25:25:10
 F:INT | WIS | SENSE | HIDE_TYPE | SHOW_MODS |
 F:SEE_INVIS | NO_MAGIC | IM_COLD | ACTIVATE | SH_FEAR
 F:RES_DISEN | RES_FEAR | FREE_ACT | RES_ACID | RES_COLD | RES_POIS |
-F:TELEPORT | INSTA_ART | EASY_ENCHANT
+F:TELEPORT | INSTA_ART | EASY_ENCHANT | CURSED | HEAVY_CURSE
 L:USE:	turn_monsters(40 + player.lev)
 L:USE:	object.timeout = 3 * (player.lev + 10)
 L:DESC:	return "turn monsters every 33-180 turns"
@@ -648,8 +648,6 @@ L:MAKE:	if player.rp.pclass == CLASS_WARRIOR then
 L:MAKE:		add_ego_power(EGO_XTRA_ABILITY, object)
 L:MAKE:		add_ego_power(EGO_XTRA_HI_RESIST, object)
 L:MAKE:	else
-L:MAKE:		set_obj_flag(object, 2, TR2_CURSED)
-L:MAKE:		set_obj_flag(object, 2, TR2_HEAVY_CURSE)
 L:MAKE:		set_obj_flag(object, 2, TR2_AGGRAVATE)
 L:MAKE:		set_obj_flag(object, 2, TR2_TY_CURSE)
 L:MAKE:	end

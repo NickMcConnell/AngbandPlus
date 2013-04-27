@@ -69,7 +69,7 @@
 
 # Version stamp (required)
 
-V:0.3.0
+V:0.3.1
 
 
 ##### LIFE #####
@@ -85,12 +85,12 @@ C:N:1:1
 
 N:L:1:Cure Light Wounds
 I:1:0
-C:M:2:2
-C:H:2:2
-C:P:2:2:20
-C:K:2:2:10
-C:W:3:2
-C:N:3:2
+C:M:2:2:29
+C:H:2:2:29
+C:P:2:2:55
+C:K:2:2:42
+C:W:3:2:29
+C:N:3:2:29
 
 N:L:2:Bless
 I:2:0
@@ -130,12 +130,12 @@ C:N:7:5
 
 N:L:6:Cure Medium Wounds
 I:5:0
-C:M:7:5
-C:H:6:5
-C:P:6:4:20
-C:K:8:6:10
-C:W:9:6
-C:N:8:6
+C:M:7:5:29
+C:H:6:5:29
+C:P:6:4:55
+C:K:8:6:42
+C:W:9:6:29
+C:N:8:6:29
 
 N:L:7:Heroism
 I:6:0
@@ -191,14 +191,17 @@ C:K:15:9:20
 C:W:16:9
 C:N:16:9
 
+# Big power bonuses, similar to
+# other healing spells although
+# no other realm has this one.
 N:L:13:Cure Serious Wounds
 I:9:1
-C:M:15:10
-C:H:14:9
-C:P:13:9:20
-C:K:17:11:10
-C:W:18:11
-C:N:17:12
+C:M:15:10:29
+C:H:14:9:29
+C:P:13:9:55
+C:K:17:11:42
+C:W:18:11:29
+C:N:17:12:29
 
 N:L:14:Sense Unseen
 I:10:1
@@ -220,12 +223,12 @@ C:N:18:14
 
 N:L:16:Cure Mortal Wounds
 I:17:2
-C:M:17:8
-C:H:16:7
-C:P:14:7:10
-C:K:19:9
-C:W:20:9
-C:N:20:9
+C:M:17:8:29
+C:H:16:7:29
+C:P:14:7:55
+C:K:19:9:42
+C:W:20:9:29
+C:N:20:9:29
 
 N:L:17:Preservation
 I:35:1
@@ -283,12 +286,12 @@ C:N:29:25
 
 N:L:23:Healing
 I:13:1
-C:M:28:30
-C:H:25:27
-C:P:24:26:10
-C:K:31:33
-C:W:32:33
-C:N:32:35
+C:M:28:30:30
+C:H:25:27:30
+C:P:24:26:43
+C:K:31:33:30
+C:W:32:33:30
+C:N:32:35:30
 
 N:L:24:Dispel Evil
 I:20:2
@@ -792,8 +795,9 @@ C:R:3:1
 C:W:2:1
 C:N:1:1
 
+# Use the Life spell
 N:N:1:First Aid
-I:1:0
+I:1:0:L
 C:M:3:3
 C:H:3:2
 C:P:4:3
@@ -848,6 +852,8 @@ C:W:6:5
 C:R:7:6
 C:N:5:6
 
+# Do not use the Life spell; this one
+# cures poison, that one slows it.
 N:N:7:Cure Wounds and Poison
 I:7:0
 C:M:5:5
@@ -1976,9 +1982,9 @@ C:T:8:6
 C:R:6:5
 C:W:5:3
 
-# Use the Arcane spell (Cure Medium Wounds)
+# Use the Life spell (Cure Medium Wounds)
 N:J:5:Heal Wounds
-I:8:0:A
+I:5:0:L
 C:M:5:5
 C:H:5:4
 C:P:7:5
@@ -2240,9 +2246,9 @@ C:W:45:55
 C:R:46:61
 C:T:46:62
 
-# Not the same as the Life spell
+# Use the Life spell
 N:J:33:Heal
-I:22:2
+I:13:2:L
 C:M:42:50
 C:H:38:45
 C:P:43:55
@@ -2369,9 +2375,9 @@ C:W:7:6
 C:R:9:7
 C:T:9:7
 
-# Weaker than the Life spell.
+# Use the Life spell
 N:A:8:Cure Medium Wounds
-I:8:0
+I:5:0:L
 C:M:7:6
 C:H:7:5
 C:P:8:7
@@ -2572,9 +2578,9 @@ C:T:30:24
 C:R:29:24
 C:W:27:21
 
-# Not equivalent to any previous spells
+# Use the Life spell
 N:A:29:Cure Mortal Wounds
-I:24:2
+I:17:2:L
 C:M:27:25
 C:H:24:23
 C:P:30:30

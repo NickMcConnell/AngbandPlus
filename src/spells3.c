@@ -1900,10 +1900,7 @@ bool enchant(object_type *o_ptr, int n, int eflag, char power)
 	bool res = FALSE;
 	bool a = ((FLAG(o_ptr, TR_INSTA_ART)) ? TRUE : FALSE);
 	bool force = (eflag & ENCH_FORCE);
-	int to_h = POWER(o_ptr->to_h, -power);
-	int to_d = POWER(o_ptr->to_d, -power);
-	int to_a = POWER(o_ptr->to_a, -power);
-
+	int to_h, to_d, to_a;
 
 	/* Large piles resist enchantment */
 	prob = o_ptr->number * 100;
@@ -1928,6 +1925,10 @@ bool enchant(object_type *o_ptr, int n, int eflag, char power)
 	/* Try "n" times */
 	for (i = 0; i < n; i++)
 	{
+		to_h = POWER(o_ptr->to_h, -power);
+		to_d = POWER(o_ptr->to_d, -power);
+		to_a = POWER(o_ptr->to_a, -power);
+
 		/* Hack -- Roll for pile resistance */
 		if (!force && randint0(prob) >= 100) continue;
 
@@ -3585,9 +3586,14 @@ bool spell_okay(const spell_external sp, int known)
 		/* Not if the player learns spells at random */
 		if (mp_ptr->spell_book == TV_LIFE_BOOK) return (FALSE);
 
-		/* Calculate the spell slot this would go in */
+		/* Turn lev into the minimum level for this spell. */
 		lev *= mp_ptr->focus_offset;
 		lev += s_ptr->slevel;
+
+		/* Not high enough level */
+		if (lev > p_ptr->lev) return (FALSE);
+
+		/* Calculate the spell slot this would go in */
 		slot = (lev - mp_ptr->spell_first - 1)*SPELL_LAYERS/50;
 
 		while (!p_ptr->spell_slots[slot] && slot < SPELL_LAYERS)
@@ -3613,7 +3619,7 @@ static void spell_info_life(char *p, int spell)
 	switch (spell)
 	{
 		case 1:
-			strcpy(p, " heal 8+d10");
+			strcpy(p, " heal 6+d8");
 			break;
 		case 2:
 			/* Actually rand_range(12,24) */
@@ -3623,7 +3629,7 @@ static void spell_info_life(char *p, int spell)
 			strnfmt(p, 80, " dam 2d%d", (plev / 2));
 			break;
 		case 5:
-			strcpy(p, " heal 16+2d10");
+			strcpy(p, " heal 12+2d8");
 			break;
 		case 6:
 			/* Actually 25-50 */
@@ -3634,7 +3640,7 @@ static void spell_info_life(char *p, int spell)
 			strcpy(p, " dur 50+d50");
 			break;
 		case 9:
-			strcpy(p, " heal 32+4d10");
+			strcpy(p, " heal 24+4d8");
 			break;
 		case 10:
 			/* Actually rand_range(24,48) */
@@ -3647,10 +3653,10 @@ static void spell_info_life(char *p, int spell)
 			strnfmt(p, 80, " dur %d+d25", 3 * plev);
 			break;
 		case 13:
-			strcpy(p, " heal 250+10d10");
+			strcpy(p, " heal 190+10d8");
 			break;
 		case 17:
-			strcpy(p, " heal 64+8d10");
+			strcpy(p, " heal 48+8d8");
 			break;
 		case 18:
 			strnfmt(p, 80, " dam %d", (5*plev)/2);

@@ -2078,7 +2078,7 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 			cptr name = "something strange";
 
 			/* Display a message */
-			prtf(0, 0, "%s%s%ssomething strange [%s]", s1, s2, s3, name, info);
+			prtf(0, 0, "%s%s%ssomething strange [%s] (%d)", s1, s2, s3, name, info, randint1(distance(x,y,p_ptr->px, p_ptr->py)));
 			move_cursor_relative(x, y);
 			query = inkey();
 
@@ -2111,7 +2111,7 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 				{
 					/* Describe the object */
 					s3 = "a ";
-					prtf(0, 0, "%s%s%s%s [%s]", s1, s2, s3, m_name, info);
+					prtf(0, 0, "%s%s%s%s [%s] (%d)", s1, s2, s3, m_name, info, distance(x,y,p_ptr->px, p_ptr->py));
 					move_cursor_relative(x, y);
 					query = inkey();
 
@@ -2154,7 +2154,7 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 							screen_roff_mon(m_ptr->r_idx, 0);
 
 							/* Hack -- Complete the prompt (again) */
-							roff("  [r,%s]", info);
+							roff("  [r,%s] (%d)", info, distance(x,y,p_ptr->px, p_ptr->py));
 
 							/* Command */
 							query = inkey();
@@ -2176,10 +2176,10 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 								attitude = " ";
 
 							/* Describe, and prompt for recall */
-							prtf(0, 0, "%s%s%s%v (%s)%s[r,%s]",
+							prtf(0, 0, "%s%s%s%v (%s)%s[r,%s] (%d)",
 									s1, s2, s3, MONSTER_FMT(m_ptr, 0x08),
 									look_mon_desc(c_ptr->m_idx), attitude,
-									info);
+									info, distance(x,y,p_ptr->px, p_ptr->py));
 
 							/* Place cursor */
 							move_cursor_relative(x, y);
@@ -2216,8 +2216,8 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 					OBJ_ITT_START (m_ptr->hold_o_idx, o_ptr)
 					{
 						/* Describe the object */
-						prtf(0, 0, "%s%s%s%v [%s]", s1, s2, s3,
-							 OBJECT_FMT(o_ptr, TRUE, 3), info);
+						prtf(0, 0, "%s%s%s%v [%s] (%d)", s1, s2, s3,
+							 OBJECT_FMT(o_ptr, TRUE, 3), info, distance(x,y,p_ptr->px, p_ptr->py));
 						move_cursor_relative(x, y);
 						query = inkey();
 
@@ -2263,15 +2263,15 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 					if (floor_num == 1)
 					{
 						/* Describe the object */
-						prtf(0, 0, "%s%s%s%v [%s]",
-								s1, s2, s3, OBJECT_FMT(o_ptr, TRUE, 3), info);
+						prtf(0, 0, "%s%s%s%v [%s] (%d)",
+								s1, s2, s3, OBJECT_FMT(o_ptr, TRUE, 3), info, distance(x,y,p_ptr->px, p_ptr->py));
 					}
 					else
 					{
 						/* Message */
-						prtf(0, 0, "%s%s%sa pile of %d items [%c,%s]",
+						prtf(0, 0, "%s%s%sa pile of %d items [%c,%s] (%d)",
 								s1, s2, s3, floor_num,
-								rogue_like_commands ? 'x' : 'l', info);
+								rogue_like_commands ? 'x' : 'l', info, distance(x,y,p_ptr->px, p_ptr->py));
 					}
 
 					move_cursor_relative(x, y);
@@ -2320,8 +2320,8 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 				boring = FALSE;
 
 				/* Describe the object */
-				prtf(0, 0, "%s%s%s%v [%s]", s1, s2, s3,
-					 OBJECT_FMT(o_ptr, TRUE, 3), info);
+				prtf(0, 0, "%s%s%s%v [%s] (%d)", s1, s2, s3,
+					 OBJECT_FMT(o_ptr, TRUE, 3), info, distance(x,y,p_ptr->px, p_ptr->py));
 				move_cursor_relative(x, y);
 				query = inkey();
 
@@ -2394,7 +2394,7 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 				s3 = is_a_vowel(fld_name[0]) ? "an " : "a ";
 
 				/* Describe the field */
-				prtf(0, 0, "%s%s%s%s [%s]", s1, s2, s3, fld_name, info);
+				prtf(0, 0, "%s%s%s%s [%s] (%d)", s1, s2, s3, fld_name, info, distance(x,y,p_ptr->px, p_ptr->py));
 				move_cursor_relative(x, y);
 				query = inkey();
 
@@ -2479,10 +2479,10 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 
 			/* Display a message */
 			if (p_ptr->state.wizard)
-				prtf(0, 0, "%s%s%s%s [%s] (%d:%d)", s1, s2, s3, name,
-						info, y, x);
+				prtf(0, 0, "%s%s%s%s [%s] (%d:%d) (%d)", s1, s2, s3, name,
+						info, y, x, distance(x,y,p_ptr->px, p_ptr->py));
 			else
-				prtf(0, 0, "%s%s%s%s [%s]", s1, s2, s3, name, info);
+				prtf(0, 0, "%s%s%s%s [%s] (%d)", s1, s2, s3, name, info, distance(x,y,p_ptr->px, p_ptr->py));
 			move_cursor_relative(x, y);
 			query = inkey();
 

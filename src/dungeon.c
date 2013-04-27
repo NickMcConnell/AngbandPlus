@@ -99,7 +99,9 @@ static byte value_check_aux2(const object_type *o_ptr)
 	if (o_ptr->to_h + o_ptr->to_d > 0) return FEEL_WEAK_GOOD;
 
 	/* Bad bonuses */
-	if (o_ptr->to_a + o_ptr->to_h + o_ptr->to_d < 0) return FEEL_WEAK_BAD;
+	if (item_tester_hook_armour(o_ptr) && o_ptr->to_a < 0) return FEEL_WEAK_BAD;
+	if (item_tester_hook_weapon(o_ptr) &&
+			  o_ptr->to_a + o_ptr->to_h + o_ptr->to_d < 0) return FEEL_WEAK_BAD;
 
 	/* Ego-Items -- except cursed/broken ones */
 	if (ego_item_p(o_ptr)) return FEEL_WEAK_GOOD;

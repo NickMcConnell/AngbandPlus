@@ -2,6 +2,32 @@ This is a document file listing the changes in Z+Angband (compared to
 ZAngband 2.7.5pre1).  No long explanations, just a list. See
 code for details. In reversed chronological order (more or less):
 
+Changes from Z+Angband 0.3.0 beta to Z+Angband 0.3.1 beta:
+
+1.  Fixed bug that make Priests/Paladins/Monks unable to learn a prayer 
+      from a book when one was available.
+2.  Fixed bug that could cause very long-term stunning or cuts.
+3.  Weapon/armor enchantment changed to enchant multiple times sequentially
+      rather than simultaneously.
+4.  Fixed bug: when using a staff of perception, sometimes charges are
+      deducted from the wrong staff.
+5.  Spell knowledge menu now says "+50%" instead of "50%" for power bonuses.
+6.  Fixed bug that displayed the wrong slot of a quiver when an object 
+      is dropped from it.
+7.  Changed inventory sort order of quivers, so you can't be forced to drop
+      them due to pack overflow.
+8.  Armors with to-hit penalties (e.g. (-1) [13,+0]) no longer pseudo-id 
+      as {bad}.
+9.  Added ACTIVATE to Chain Mail of Command, made Terror Mask less juicy for
+      warriors.
+10.  Flying characters now have the option to descend a trap door.
+11.  Number of available spells now capped by number of possible learnable 
+      spells.
+12.  Fixed bug that caused mass forgetting of spells.
+13.  "Strength" (Life spell) now restores strength.
+14.  Healing spells consolidated across classes; Life given power bonuses.
+15.  Distance now shown during targeting.
+
 Changes from Z+Angband 0.2.3 beta to Z+Angband 0.3.0 beta:
 
 Main feature: Spell system upgrade.  See FAQ for details.

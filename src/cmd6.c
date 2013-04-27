@@ -411,7 +411,8 @@ static void do_cmd_use_staff_aux(object_type *o_ptr)
 {
 	int chance, lev;
 	bool ident, use_charge;
-	int o_idx = -1;
+	int sval, num, pval;
+	bool floor = floor_item(o_ptr);
 
 	/* Mega-Hack -- refuse to use a pile from the ground */
 	if (floor_item(o_ptr) && (o_ptr->number > 1))
@@ -472,8 +473,28 @@ static void do_cmd_use_staff_aux(object_type *o_ptr)
 	/* Sound */
 	sound(SOUND_ZAP);
 
+	/* Save values to find the object later */
+	sval = o_ptr->sval;
+	num = o_ptr->number;
+	pval = o_ptr->pval;
+
 	/* Use the staff */
 	use_charge = use_object(o_ptr, &ident, FALSE);
+
+	/* Locate object anew if it could have moved */
+	if (use_charge && !floor && sval == SV_STAFF_IDENTIFY)
+	{
+		OBJ_ITT_START(p_ptr->inventory, o_ptr)
+		{
+			if (o_ptr->sval != sval) continue;
+			if (o_ptr->number != num) continue;
+			if (o_ptr->pval != pval) continue;
+			
+			/* Assume the first stack is the one used */
+			break;
+		}
+		OBJ_ITT_END;
+	}
 
 	/* Hack - the staff may destroy itself when activated on the ground */
 	if (o_ptr->k_idx)
