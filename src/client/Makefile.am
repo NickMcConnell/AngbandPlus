@@ -1,3 +1,5 @@
+AUTOMAKE_OPTIONS = subdir-objects
+
 #-----------------------------------------------------------------------------
 ## Rules similar to `automake 1.2f' for building ObjC files, with dependencies
 OBJC = gcc
@@ -25,7 +27,7 @@ gen_deps_lo = @MAINT@-Wp,-MD,.deps/$(*F).p
 
 #-----------------------------------------------------------------------------
 
-SUBDIRS = angband lua platform sdl
+SUBDIRS = angband displays lua platform
 
 bin_PROGRAMS = ironhells
 
@@ -36,9 +38,15 @@ angband/angband.res: angband/angband.rc
 
 ironhells_LDADD = lua/liblua.a $(SDLTTF_LIBS) $(SDLDRAW_LIBS) $(SDLIMAGE_LIBS) $(SDL_LIBS)
 ironhells_DEPENDENCIES = lua/liblua.a
-ironhells_CFLAGS = $(SDL_CFLAGS) $(SDLTTF_CFLAGS) $(SDLDRAW_CFLAGS) $(SDLIMAGE_CFLAGS) -DTILE_HACK -DEXT_MAP_INFO
+ironhells_CFLAGS = $(SDL_CFLAGS) $(SDLTTF_CFLAGS) $(SDLDRAW_CFLAGS) $(SDLIMAGE_CFLAGS) -DTILE_HACK -DEXT_MAP_INFO -Werror-implicit-function-declaration
 
 ironhells_SOURCES = \
+	main.c ironhells.h strings.h \
+	ipc.c ipc.h \
+	list.c list.h \
+	path.c path.h \
+	prefs.c prefs.h \
+	thread.c thread.h \
 	angband/angband.h angband/birth.c angband/cave.c angband/cmd1.c \
 	angband/cmd2.c angband/cmd3.c angband/cmd4.c angband/cmd5.c \
 	angband/cmd6.c angband/config.h angband/defines.h angband/dungeon.c \
@@ -56,38 +64,48 @@ ironhells_SOURCES = \
 	angband/types.h angband/use-obj.c angband/util.c angband/variable.c \
 	angband/wizard1.c angband/wizard2.c angband/x-spell.c angband/xtra1.c \
 	angband/xtra2.c angband/z-form.c angband/z-form.h angband/z-rand.c \
-	angband/z-rand.h angband/z-term.c angband/z-term.h angband/z-util.c \
+	angband/z-rand.h angband/z-disp.c angband/z-disp.h angband/z-util.c \
 	angband/z-util.h angband/z-virt.c angband/z-virt.h \
-	file.h init.c init.h ipc.c ipc.h ironhells.h list.c list.h main.c \
-	path.c path.h prefs.c prefs.h term.c term.h thread.c thread.h \
-	platform/linux/file-linux.c platform/mac/osx/SDLMain.h \
-	platform/mac/osx/SDLMain.m platform/mac/osx/file-osx.m \
-	platform/win/file-win.c \
-	sdl/render/icon.c sdl/render/icon.h sdl/render/misc.c sdl/render/misc.h \
-	sdl/render/overlay.c sdl/render/overlay.h \
-	sdl/render/overlay/character.c sdl/render/overlay/inventory.c \
-	sdl/render/overlay/equipment.c sdl/render/overlay/book.c \
-	sdl/render/overlay/messages.c sdl/render/overlay/error.c \
-	sdl/render/overlay/dialog.c sdl/render/overlay/options.c \
-	sdl/render/overlay/shop.c \
-	sdl/render/pointer.c sdl/render/pointer.h \
-	sdl/render/text.c sdl/render/text.h \
-	sdl/render/tile.c sdl/render/tile.h \
-	sdl/bfont.c sdl/bfont.h sdl/helper.c sdl/helper.h sdl/render.c \
-	sdl/render.h sdl/scene.c sdl/scene.h sdl/setup.c sdl/setup.h \
-	sdl/strings.h \
-	sdl/scene/grave.c sdl/scene/grave.h sdl/scene/intro.c sdl/scene/intro.h \
-	sdl/scene/mhost.c sdl/scene/mhost.h sdl/scene/mjoin.c sdl/scene/mjoin.h \
-	sdl/scene/newchar.c sdl/scene/newchar.h sdl/scene/play.c sdl/scene/play.h \
-	sdl/scene/selchar.c sdl/scene/selchar.h sdl/scene/splash.c \
-	sdl/scene/splash.h sdl/scene/title.c sdl/scene/title.h
+	displays/iso/bfont.c displays/iso/bfont.h \
+	displays/iso/display.c displays/iso/display.h \
+	displays/iso/helper.c displays/iso/helper.h \
+	displays/iso/icon.c displays/iso/icon.h \
+	displays/iso/misc.c displays/iso/misc.h \
+	displays/iso/overlay/book.c displays/iso/overlay/browser.c \
+	displays/iso/overlay/character.c displays/iso/overlay/dialog.c \
+	displays/iso/overlay/equipment.c displays/iso/overlay/error.c \
+	displays/iso/overlay/showfile.c displays/iso/overlay/inventory.c \
+	displays/iso/overlay/map.c displays/iso/overlay/memory.c \
+	displays/iso/overlay/messages.c displays/iso/overlay/opponent.c \
+	displays/iso/overlay/options.c displays/iso/overlay/shop.c \
+	displays/iso/overlay.c displays/iso/overlay.h \
+	displays/iso/pointer.c displays/iso/pointer.h \
+	displays/iso/render.c displays/iso/render.h \
+	displays/iso/scene.c displays/iso/scene.h \
+	displays/iso/text.c displays/iso/text.h \
+	displays/iso/tile.c displays/iso/tile.h \
+	displays/iso/scene/grave.c displays/iso/scene/grave.h \
+	displays/iso/scene/intro.c displays/iso/scene/intro.h \
+	displays/iso/scene/mhost.c displays/iso/scene/mhost.h \
+	displays/iso/scene/mjoin.c displays/iso/scene/mjoin.h \
+	displays/iso/scene/newchar.c displays/iso/scene/newchar.h \
+	displays/iso/scene/play.c displays/iso/scene/play.h \
+	displays/iso/scene/video.c displays/iso/scene/video.h \
+	displays/iso/scene/selchar.c displays/iso/scene/selchar.h \
+	displays/iso/scene/splash.c displays/iso/scene/splash.h \
+	displays/iso/scene/title.c displays/iso/scene/title.h \
+	platform/platform.h \
+	platform/linux/file-linux.c \
+	platform/mac/osx/SDLMain.m platform/mac/osx/SDLMain.h \
+	platform/mac/osx/file-osx.m \
+	platform/win/file-win.c
 
 EXTRA_ironhells_SOURCES = \
 	angband/l-monst.pkg angband/l-object.pkg angband/l-player.pkg \
 	angband/l-random.pkg angband/l-ui.pkg angband/l-misc.pkg \
 	angband/l-spell.pkg
 
-INCLUDES = -I. -I.. -I../.. -I$(srcdir) -I$(srcdir)/angband $(SDL_CFLAGS) $(SDLTTF_CFLAGS) $(SDLIMAGE_CFLAGS) $(SDLDRAW_CFLAGS)
+INCLUDES = -I$(srcdir) $(SDL_CFLAGS) $(SDLTTF_CFLAGS) $(SDLIMAGE_CFLAGS) $(SDLDRAW_CFLAGS)
 
 install-exec-hook:
 if SET_GID

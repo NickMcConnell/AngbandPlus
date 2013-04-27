@@ -1,5 +1,5 @@
 
-/* $Id: types.h,v 1.4 2003/03/17 22:45:29 cipher Exp $ */
+/* $Id: types.h,v 1.5 2003/03/26 03:41:10 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -79,6 +79,7 @@ typedef struct hist_type hist_type;
 typedef struct player_other player_other;
 typedef struct player_type player_type;
 typedef struct start_item start_item;
+typedef struct store_item store_item;
 
 /**** Available structs ****/
 
@@ -1061,4 +1062,14 @@ struct flavor_type
 
      byte            x_attr;    /* Desired flavor attribute */
      char            x_char;    /* Desired flavor character */
+};
+
+struct store_item
+{
+     char            label;
+     char            o_name[80];
+     byte            attr;
+     int             wgt;
+     s32b            price;
+     bool            price_fixed;
 };

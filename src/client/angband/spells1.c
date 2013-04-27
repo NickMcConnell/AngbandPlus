@@ -1,5 +1,5 @@
 
-/* $Id: spells1.c,v 1.3 2003/03/17 22:45:28 cipher Exp $ */
+/* $Id: spells1.c,v 1.5 2003/04/03 06:10:56 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -348,65 +348,65 @@ spell_color(int type)
      switch (type)
      {
           case GF_MISSILE:
-               return (TERM_VIOLET);
+               return (COLOR_VIOLET);
           case GF_ACID:
-               return (TERM_SLATE);
+               return (COLOR_SLATE);
           case GF_ELEC:
-               return (TERM_BLUE);
+               return (COLOR_BLUE);
           case GF_FIRE:
-               return (TERM_RED);
+               return (COLOR_RED);
           case GF_COLD:
-               return (TERM_WHITE);
+               return (COLOR_WHITE);
           case GF_POIS:
-               return (TERM_GREEN);
+               return (COLOR_GREEN);
           case GF_HOLY_ORB:
-               return (TERM_L_DARK);
+               return (COLOR_L_DARK);
           case GF_MANA:
-               return (TERM_L_DARK);
+               return (COLOR_L_DARK);
           case GF_ARROW:
-               return (TERM_WHITE);
+               return (COLOR_WHITE);
           case GF_WATER:
-               return (TERM_SLATE);
+               return (COLOR_SLATE);
           case GF_NETHER:
-               return (TERM_L_GREEN);
+               return (COLOR_L_GREEN);
           case GF_CHAOS:
-               return (TERM_VIOLET);
+               return (COLOR_VIOLET);
           case GF_DISENCHANT:
-               return (TERM_VIOLET);
+               return (COLOR_VIOLET);
           case GF_NEXUS:
-               return (TERM_L_RED);
+               return (COLOR_L_RED);
           case GF_CONFUSION:
-               return (TERM_L_UMBER);
+               return (COLOR_L_UMBER);
           case GF_SOUND:
-               return (TERM_YELLOW);
+               return (COLOR_YELLOW);
           case GF_SHARD:
-               return (TERM_UMBER);
+               return (COLOR_UMBER);
           case GF_FORCE:
-               return (TERM_UMBER);
+               return (COLOR_UMBER);
           case GF_INERTIA:
-               return (TERM_L_WHITE);
+               return (COLOR_L_WHITE);
           case GF_GRAVITY:
-               return (TERM_L_WHITE);
+               return (COLOR_L_WHITE);
           case GF_TIME:
-               return (TERM_L_BLUE);
+               return (COLOR_L_BLUE);
           case GF_LITE_WEAK:
-               return (TERM_ORANGE);
+               return (COLOR_ORANGE);
           case GF_LITE:
-               return (TERM_ORANGE);
+               return (COLOR_ORANGE);
           case GF_DARK_WEAK:
-               return (TERM_L_DARK);
+               return (COLOR_L_DARK);
           case GF_DARK:
-               return (TERM_L_DARK);
+               return (COLOR_L_DARK);
           case GF_PLASMA:
-               return (TERM_RED);
+               return (COLOR_RED);
           case GF_METEOR:
-               return (TERM_RED);
+               return (COLOR_RED);
           case GF_ICE:
-               return (TERM_WHITE);
+               return (COLOR_WHITE);
      }
 
      /* Standard "color" */
-     return (TERM_WHITE);
+     return (COLOR_WHITE);
 }
 
 /*
@@ -537,7 +537,6 @@ take_hit(int dam,
          cptr kb_str)
 {
      int             old_chp = p_ptr->chp;
-
      int             warning = (p_ptr->mhp * op_ptr->hitpoint_warn / 10);
 
      /* Paranoia */
@@ -578,6 +577,9 @@ take_hit(int dam,
 
           /* Leaving */
           p_ptr->leaving = TRUE;
+
+          /* Go to the grave. */
+          Disp_xtra(DISP_XTRA_SCENE, SCENE_GRAVE);
 
           /* Dead */
           return;
@@ -4335,11 +4337,11 @@ project(int who,
                     print_rel(c, a, y, x);
                     move_cursor_relative(y, x);
                     if(fresh_before)
-                         Term_fresh();
-                    Term_xtra(TERM_XTRA_DELAY, msec);
+                         Disp_fresh();
+                    Disp_xtra(DISP_XTRA_DELAY, msec);
                     lite_spot(y, x);
                     if(fresh_before)
-                         Term_fresh();
+                         Disp_fresh();
 
                     /* Display "beam" grids */
                     if(flg & (PROJECT_BEAM))
@@ -4363,7 +4365,7 @@ project(int who,
                else if(visual)
                {
                     /* Delay for consistency */
-                    Term_xtra(TERM_XTRA_DELAY, msec);
+                    Disp_xtra(DISP_XTRA_DELAY, msec);
                }
           }
      }
@@ -4460,12 +4462,12 @@ project(int who,
 
                /* Flush each "radius" separately */
                if(fresh_before)
-                    Term_fresh();
+                    Disp_fresh();
 
                /* Delay (efficiently) */
                if(visual || drawn)
                {
-                    Term_xtra(TERM_XTRA_DELAY, msec);
+                    Disp_xtra(DISP_XTRA_DELAY, msec);
                }
           }
 
@@ -4491,7 +4493,7 @@ project(int who,
 
                /* Flush the explosion */
                if(fresh_before)
-                    Term_fresh();
+                    Disp_fresh();
           }
      }
 

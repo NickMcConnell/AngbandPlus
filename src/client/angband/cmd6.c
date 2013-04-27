@@ -1,5 +1,5 @@
 
-/* $Id: cmd6.c,v 1.3 2003/03/17 22:45:24 cipher Exp $ */
+/* $Id: cmd6.c,v 1.4 2003/03/30 19:17:16 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -61,9 +61,7 @@ do_cmd_eat_food(void)
 {
      int             item, lev;
      bool            ident;
-
      object_type    *o_ptr;
-
      cptr            q, s;
 
      /* Restrict choices to food */

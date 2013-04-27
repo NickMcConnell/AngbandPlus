@@ -1,5 +1,5 @@
 
-/* $Id: xtra1.c,v 1.5 2003/03/17 22:45:29 cipher Exp $ */
+/* $Id: xtra1.c,v 1.8 2003/04/07 20:53:53 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -105,10 +105,10 @@ prt_field(cptr info,
           int col)
 {
      /* Dump 13 spaces to clear */
-     c_put_str(TERM_WHITE, "             ", row, col);
+     c_put_str(COLOR_WHITE, "             ", row, col);
 
      /* Dump the info itself */
-     c_put_str(TERM_L_BLUE, info, row, col);
+     c_put_str(COLOR_L_BLUE, info, row, col);
 }
 
 /*
@@ -124,7 +124,7 @@ prt_stat(int stat)
      {
           put_str(stat_names_reduced[stat], ROW_STAT + stat, 0);
           cnv_stat(p_ptr->stat_use[stat], tmp);
-          c_put_str(TERM_YELLOW, tmp, ROW_STAT + stat, COL_STAT + 6);
+          c_put_str(COLOR_YELLOW, tmp, ROW_STAT + stat, COL_STAT + 6);
      }
 
      /* Display "healthy" stat */
@@ -132,7 +132,7 @@ prt_stat(int stat)
      {
           put_str(stat_names[stat], ROW_STAT + stat, 0);
           cnv_stat(p_ptr->stat_use[stat], tmp);
-          c_put_str(TERM_L_GREEN, tmp, ROW_STAT + stat, COL_STAT + 6);
+          c_put_str(COLOR_L_GREEN, tmp, ROW_STAT + stat, COL_STAT + 6);
      }
 
      /* Indicate natural maximum */
@@ -184,12 +184,12 @@ prt_level(void)
      if(p_ptr->lev >= p_ptr->max_lev)
      {
           put_str("LEVEL ", ROW_LEVEL, 0);
-          c_put_str(TERM_L_GREEN, tmp, ROW_LEVEL, COL_LEVEL + 6);
+          c_put_str(COLOR_L_GREEN, tmp, ROW_LEVEL, COL_LEVEL + 6);
      }
      else
      {
           put_str("Level ", ROW_LEVEL, 0);
-          c_put_str(TERM_YELLOW, tmp, ROW_LEVEL, COL_LEVEL + 6);
+          c_put_str(COLOR_YELLOW, tmp, ROW_LEVEL, COL_LEVEL + 6);
      }
 }
 
@@ -206,12 +206,12 @@ prt_exp(void)
      if(p_ptr->exp >= p_ptr->max_exp)
      {
           put_str("EXP ", ROW_EXP, 0);
-          c_put_str(TERM_L_GREEN, out_val, ROW_EXP, COL_EXP + 4);
+          c_put_str(COLOR_L_GREEN, out_val, ROW_EXP, COL_EXP + 4);
      }
      else
      {
           put_str("Exp ", ROW_EXP, 0);
-          c_put_str(TERM_YELLOW, out_val, ROW_EXP, COL_EXP + 4);
+          c_put_str(COLOR_YELLOW, out_val, ROW_EXP, COL_EXP + 4);
      }
 }
 
@@ -225,7 +225,7 @@ prt_gold(void)
 
      put_str("AU ", ROW_GOLD, COL_GOLD);
      sprintf(tmp, "%9ld", (long) p_ptr->au);
-     c_put_str(TERM_L_GREEN, tmp, ROW_GOLD, COL_GOLD + 3);
+     c_put_str(COLOR_L_GREEN, tmp, ROW_GOLD, COL_GOLD + 3);
 }
 
 /*
@@ -256,11 +256,11 @@ prt_equippy(void)
           if(!o_ptr->k_idx)
           {
                c = ' ';
-               a = TERM_DARK;
+               a = COLOR_DARK;
           }
 
           /* Dump */
-          Term_putch(COL_EQUIPPY + i - INVEN_WIELD, ROW_EQUIPPY, a, c);
+          Disp_putch(COL_EQUIPPY + i - INVEN_WIELD, ROW_EQUIPPY, a, c);
      }
 }
 
@@ -274,7 +274,7 @@ prt_ac(void)
 
      put_str("Cur AC ", ROW_AC, COL_AC);
      sprintf(tmp, "%5d", p_ptr->dis_ac + p_ptr->dis_to_a);
-     c_put_str(TERM_L_GREEN, tmp, ROW_AC, COL_AC + 7);
+     c_put_str(COLOR_L_GREEN, tmp, ROW_AC, COL_AC + 7);
 }
 
 /*
@@ -289,7 +289,7 @@ prt_hp(void)
      put_str("Max HP ", ROW_MAXHP, COL_MAXHP);
 
      sprintf(tmp, "%5d", p_ptr->mhp);
-     color = TERM_L_GREEN;
+     color = COLOR_L_GREEN;
 
      c_put_str(color, tmp, ROW_MAXHP, COL_MAXHP + 7);
 
@@ -299,15 +299,15 @@ prt_hp(void)
 
      if(p_ptr->chp >= p_ptr->mhp)
      {
-          color = TERM_L_GREEN;
+          color = COLOR_L_GREEN;
      }
      else if(p_ptr->chp > (p_ptr->mhp * op_ptr->hitpoint_warn) / 10)
      {
-          color = TERM_YELLOW;
+          color = COLOR_YELLOW;
      }
      else
      {
-          color = TERM_RED;
+          color = COLOR_RED;
      }
 
      c_put_str(color, tmp, ROW_CURHP, COL_CURHP + 7);
@@ -329,7 +329,7 @@ prt_sp(void)
      put_str("Max SP ", ROW_MAXSP, COL_MAXSP);
 
      sprintf(tmp, "%5d", p_ptr->msp);
-     color = TERM_L_GREEN;
+     color = COLOR_L_GREEN;
 
      c_put_str(color, tmp, ROW_MAXSP, COL_MAXSP + 7);
 
@@ -339,15 +339,15 @@ prt_sp(void)
 
      if(p_ptr->csp >= p_ptr->msp)
      {
-          color = TERM_L_GREEN;
+          color = COLOR_L_GREEN;
      }
      else if(p_ptr->csp > (p_ptr->msp * op_ptr->hitpoint_warn) / 10)
      {
-          color = TERM_YELLOW;
+          color = COLOR_YELLOW;
      }
      else
      {
-          color = TERM_RED;
+          color = COLOR_RED;
      }
 
      /* Show mana */
@@ -388,37 +388,37 @@ prt_hunger(void)
      /* Fainting / Starving */
      if(p_ptr->food < PY_FOOD_FAINT)
      {
-          c_put_str(TERM_RED, "Weak  ", ROW_HUNGRY, COL_HUNGRY);
+          c_put_str(COLOR_RED, "Weak  ", ROW_HUNGRY, COL_HUNGRY);
      }
 
      /* Weak */
      else if(p_ptr->food < PY_FOOD_WEAK)
      {
-          c_put_str(TERM_ORANGE, "Weak  ", ROW_HUNGRY, COL_HUNGRY);
+          c_put_str(COLOR_ORANGE, "Weak  ", ROW_HUNGRY, COL_HUNGRY);
      }
 
      /* Hungry */
      else if(p_ptr->food < PY_FOOD_ALERT)
      {
-          c_put_str(TERM_YELLOW, "Hungry", ROW_HUNGRY, COL_HUNGRY);
+          c_put_str(COLOR_YELLOW, "Hungry", ROW_HUNGRY, COL_HUNGRY);
      }
 
      /* Normal */
      else if(p_ptr->food < PY_FOOD_FULL)
      {
-          c_put_str(TERM_L_GREEN, "      ", ROW_HUNGRY, COL_HUNGRY);
+          c_put_str(COLOR_L_GREEN, "      ", ROW_HUNGRY, COL_HUNGRY);
      }
 
      /* Full */
      else if(p_ptr->food < PY_FOOD_MAX)
      {
-          c_put_str(TERM_L_GREEN, "Full  ", ROW_HUNGRY, COL_HUNGRY);
+          c_put_str(COLOR_L_GREEN, "Full  ", ROW_HUNGRY, COL_HUNGRY);
      }
 
      /* Gorged */
      else
      {
-          c_put_str(TERM_GREEN, "Gorged", ROW_HUNGRY, COL_HUNGRY);
+          c_put_str(COLOR_GREEN, "Gorged", ROW_HUNGRY, COL_HUNGRY);
      }
 }
 
@@ -430,7 +430,7 @@ prt_blind(void)
 {
      if(p_ptr->blind)
      {
-          c_put_str(TERM_ORANGE, "Blind", ROW_BLIND, COL_BLIND);
+          c_put_str(COLOR_ORANGE, "Blind", ROW_BLIND, COL_BLIND);
      }
      else
      {
@@ -446,7 +446,7 @@ prt_confused(void)
 {
      if(p_ptr->confused)
      {
-          c_put_str(TERM_ORANGE, "Confused", ROW_CONFUSED, COL_CONFUSED);
+          c_put_str(COLOR_ORANGE, "Confused", ROW_CONFUSED, COL_CONFUSED);
      }
      else
      {
@@ -462,7 +462,7 @@ prt_afraid(void)
 {
      if(p_ptr->afraid)
      {
-          c_put_str(TERM_ORANGE, "Afraid", ROW_AFRAID, COL_AFRAID);
+          c_put_str(COLOR_ORANGE, "Afraid", ROW_AFRAID, COL_AFRAID);
      }
      else
      {
@@ -478,7 +478,7 @@ prt_poisoned(void)
 {
      if(p_ptr->poisoned)
      {
-          c_put_str(TERM_ORANGE, "Poisoned", ROW_POISONED, COL_POISONED);
+          c_put_str(COLOR_ORANGE, "Poisoned", ROW_POISONED, COL_POISONED);
      }
      else
      {
@@ -496,13 +496,13 @@ prt_poisoned(void)
 static void
 prt_state(void)
 {
-     byte            attr = TERM_WHITE;
+     byte            attr = COLOR_WHITE;
      char            text[16];
 
      /* Paralysis */
      if(p_ptr->paralyzed)
      {
-          attr = TERM_RED;
+          attr = COLOR_RED;
 
           strcpy(text, "Paralyzed!");
      }
@@ -609,7 +609,7 @@ prt_speed(void)
 {
      int             i = p_ptr->pspeed;
 
-     byte            attr = TERM_WHITE;
+     byte            attr = COLOR_WHITE;
      char            buf[32] = "";
 
      /* Hack -- Visually "undo" the Search Mode Slowdown */
@@ -619,14 +619,14 @@ prt_speed(void)
      /* Fast */
      if(i > 110)
      {
-          attr = TERM_L_GREEN;
+          attr = COLOR_L_GREEN;
           sprintf(buf, "Fast (+%d)", (i - 110));
      }
 
      /* Slow */
      else if(i < 110)
      {
-          attr = TERM_L_UMBER;
+          attr = COLOR_L_UMBER;
           sprintf(buf, "Slow (-%d)", (110 - i));
      }
 
@@ -654,31 +654,31 @@ prt_cut(void)
 
      if(c > 1000)
      {
-          c_put_str(TERM_L_RED, "Mortal wound", ROW_CUT, COL_CUT);
+          c_put_str(COLOR_L_RED, "Mortal wound", ROW_CUT, COL_CUT);
      }
      else if(c > 200)
      {
-          c_put_str(TERM_RED, "Deep gash   ", ROW_CUT, COL_CUT);
+          c_put_str(COLOR_RED, "Deep gash   ", ROW_CUT, COL_CUT);
      }
      else if(c > 100)
      {
-          c_put_str(TERM_RED, "Severe cut  ", ROW_CUT, COL_CUT);
+          c_put_str(COLOR_RED, "Severe cut  ", ROW_CUT, COL_CUT);
      }
      else if(c > 50)
      {
-          c_put_str(TERM_ORANGE, "Nasty cut   ", ROW_CUT, COL_CUT);
+          c_put_str(COLOR_ORANGE, "Nasty cut   ", ROW_CUT, COL_CUT);
      }
      else if(c > 25)
      {
-          c_put_str(TERM_ORANGE, "Bad cut     ", ROW_CUT, COL_CUT);
+          c_put_str(COLOR_ORANGE, "Bad cut     ", ROW_CUT, COL_CUT);
      }
      else if(c > 10)
      {
-          c_put_str(TERM_YELLOW, "Light cut   ", ROW_CUT, COL_CUT);
+          c_put_str(COLOR_YELLOW, "Light cut   ", ROW_CUT, COL_CUT);
      }
      else if(c)
      {
-          c_put_str(TERM_YELLOW, "Graze       ", ROW_CUT, COL_CUT);
+          c_put_str(COLOR_YELLOW, "Graze       ", ROW_CUT, COL_CUT);
      }
      else
      {
@@ -693,15 +693,15 @@ prt_stun(void)
 
      if(s > 100)
      {
-          c_put_str(TERM_RED, "Knocked out ", ROW_STUN, COL_STUN);
+          c_put_str(COLOR_RED, "Knocked out ", ROW_STUN, COL_STUN);
      }
      else if(s > 50)
      {
-          c_put_str(TERM_ORANGE, "Heavy stun  ", ROW_STUN, COL_STUN);
+          c_put_str(COLOR_ORANGE, "Heavy stun  ", ROW_STUN, COL_STUN);
      }
      else if(s)
      {
-          c_put_str(TERM_ORANGE, "Stun        ", ROW_STUN, COL_STUN);
+          c_put_str(COLOR_ORANGE, "Stun        ", ROW_STUN, COL_STUN);
      }
      else
      {
@@ -726,83 +726,109 @@ health_redraw(void)
      if(!p_ptr->health_who)
      {
           /* Erase the health bar */
-          Term_erase(COL_INFO, ROW_INFO, 12);
+          Disp_erase(COL_INFO, ROW_INFO, 12);
+
+          Disp_xtra(DISP_XTRA_HIDE, DISPLAY_OPPONENT);
      }
 
-     /* Tracking an unseen monster */
-     else if(!mon_list[p_ptr->health_who].ml)
+     /* Tracking ... */
+     else if(!mon_list[p_ptr->health_who].ml || /* ... an unseen monster */
+             p_ptr->image ||    /* ... a hallucinatory monster */
+             !mon_list[p_ptr->health_who].hp < 0) /* ... a dead monster (?) */
      {
-          /* Indicate that the monster health is "unknown" */
-          Term_putstr(COL_INFO, ROW_INFO, 12, TERM_WHITE, "[----------]");
-     }
+          u32b            flags;
 
-     /* Tracking a hallucinatory monster */
-     else if(p_ptr->image)
-     {
           /* Indicate that the monster health is "unknown" */
-          Term_putstr(COL_INFO, ROW_INFO, 12, TERM_WHITE, "[----------]");
-     }
+          Disp_putstr(COL_INFO, ROW_INFO, 12, COLOR_WHITE, "[----------]");
 
-     /* Tracking a dead monster (?) */
-     else if(!mon_list[p_ptr->health_who].hp < 0)
-     {
-          /* Indicate that the monster health is "unknown" */
-          Term_putstr(COL_INFO, ROW_INFO, 12, TERM_WHITE, "[----------]");
+          Disp_xtra(DISP_XTRA_PREP, DISPLAY_OPPONENT);
+
+          flags = OPP_UNKNOWN;
+          Disp_param(DISPLAY_OPPONENT, DISP_PARAM_FLAGS, (void *) &flags);
+          Disp_param(DISPLAY_OPPONENT, DISP_PARAM_VAR1, (void *) 0);
+          Disp_param(DISPLAY_OPPONENT, DISP_PARAM_VAR2, (void *) 200);
+          Disp_param(DISPLAY_OPPONENT, DISP_PARAM_VAR3,
+                     (void *) COLOR_WHITE);
+
+          Disp_xtra(DISP_XTRA_SHOW, DISPLAY_OPPONENT);
      }
 
      /* Tracking a visible monster */
      else
      {
           int             pct, len;
-
           monster_type   *m_ptr = &mon_list[p_ptr->health_who];
+          byte            attr = COLOR_RED; /* Default to almost dead */
+          u32b            flags = 0;
 
-          /* Default to almost dead */
-          byte            attr = TERM_RED;
+          Disp_xtra(DISP_XTRA_PREP, DISPLAY_OPPONENT);
+
+          Disp_param(DISPLAY_OPPONENT, DISP_PARAM_VAR1,
+                     (void *) ((int) m_ptr->hp));
+          Disp_param(DISPLAY_OPPONENT, DISP_PARAM_VAR2,
+                     (void *) ((int) m_ptr->maxhp));
 
           /* Extract the "percent" of health */
           pct = 100L * m_ptr->hp / m_ptr->maxhp;
 
           /* Badly wounded */
           if(pct >= 10)
-               attr = TERM_L_RED;
+               attr = COLOR_L_RED;
 
           /* Wounded */
           if(pct >= 25)
-               attr = TERM_ORANGE;
+               attr = COLOR_ORANGE;
 
           /* Somewhat Wounded */
           if(pct >= 60)
-               attr = TERM_YELLOW;
+               attr = COLOR_YELLOW;
 
           /* Healthy */
           if(pct >= 100)
-               attr = TERM_L_GREEN;
+               attr = COLOR_L_GREEN;
 
           /* Afraid */
           if(m_ptr->monfear)
-               attr = TERM_VIOLET;
+          {
+               flags |= OPP_FEAR;
+               attr = COLOR_VIOLET;
+          }
 
           /* Confused */
           if(m_ptr->confused)
-               attr = TERM_UMBER;
+          {
+               flags |= OPP_CONFUSED;
+               attr = COLOR_UMBER;
+          }
 
           /* Stunned */
           if(m_ptr->stunned)
-               attr = TERM_L_BLUE;
+          {
+               flags |= OPP_STUNNED;
+               attr = COLOR_L_BLUE;
+          }
 
           /* Asleep */
           if(m_ptr->csleep)
-               attr = TERM_BLUE;
+          {
+               flags |= OPP_SLEEP;
+               attr = COLOR_BLUE;
+          }
+
+          Disp_param(DISPLAY_OPPONENT, DISP_PARAM_FLAGS, (void *) &flags);
+          Disp_param(DISPLAY_OPPONENT, DISP_PARAM_VAR3,
+                     (void *) ((int) attr));
 
           /* Convert percent into "health" */
           len = (pct < 10) ? 1 : (pct < 90) ? (pct / 10 + 1) : 10;
 
           /* Default to "unknown" */
-          Term_putstr(COL_INFO, ROW_INFO, 12, TERM_WHITE, "[----------]");
+          Disp_putstr(COL_INFO, ROW_INFO, 12, COLOR_WHITE, "[----------]");
 
           /* Dump the current "health" (use '*' symbols) */
-          Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, "**********");
+          Disp_putstr(COL_INFO + 1, ROW_INFO, len, attr, "**********");
+
+          Disp_xtra(DISP_XTRA_SHOW, DISPLAY_OPPONENT);
      }
 }
 
@@ -891,10 +917,10 @@ fix_inven(void)
      /* Scan windows */
      for(j = 0; j < ANGBAND_TERM_MAX; j++)
      {
-          term           *old = Term;
+          disp           *old = Disp;
 
           /* No window */
-          if(!angband_term[j])
+          if(!angband_disp[j])
                continue;
 
           /* No relevant flags */
@@ -902,16 +928,16 @@ fix_inven(void)
                continue;
 
           /* Activate */
-          Term_activate(angband_term[j]);
+          Disp_activate(angband_disp[j]);
 
           /* Display inventory */
           display_inven();
 
           /* Fresh */
-          Term_fresh();
+          Disp_fresh();
 
           /* Restore */
-          Term_activate(old);
+          Disp_activate(old);
      }
 }
 
@@ -926,10 +952,10 @@ fix_equip(void)
      /* Scan windows */
      for(j = 0; j < ANGBAND_TERM_MAX; j++)
      {
-          term           *old = Term;
+          disp           *old = Disp;
 
           /* No window */
-          if(!angband_term[j])
+          if(!angband_disp[j])
                continue;
 
           /* No relevant flags */
@@ -937,16 +963,16 @@ fix_equip(void)
                continue;
 
           /* Activate */
-          Term_activate(angband_term[j]);
+          Disp_activate(angband_disp[j]);
 
           /* Display equipment */
           display_equip();
 
           /* Fresh */
-          Term_fresh();
+          Disp_fresh();
 
           /* Restore */
-          Term_activate(old);
+          Disp_activate(old);
      }
 }
 
@@ -961,10 +987,10 @@ fix_player_0(void)
      /* Scan windows */
      for(j = 0; j < ANGBAND_TERM_MAX; j++)
      {
-          term           *old = Term;
+          disp           *old = Disp;
 
           /* No window */
-          if(!angband_term[j])
+          if(!angband_disp[j])
                continue;
 
           /* No relevant flags */
@@ -972,16 +998,16 @@ fix_player_0(void)
                continue;
 
           /* Activate */
-          Term_activate(angband_term[j]);
+          Disp_activate(angband_disp[j]);
 
           /* Display player */
           display_player(0);
 
           /* Fresh */
-          Term_fresh();
+          Disp_fresh();
 
           /* Restore */
-          Term_activate(old);
+          Disp_activate(old);
      }
 }
 
@@ -996,10 +1022,10 @@ fix_player_1(void)
      /* Scan windows */
      for(j = 0; j < ANGBAND_TERM_MAX; j++)
      {
-          term           *old = Term;
+          disp           *old = Disp;
 
           /* No window */
-          if(!angband_term[j])
+          if(!angband_disp[j])
                continue;
 
           /* No relevant flags */
@@ -1007,16 +1033,16 @@ fix_player_1(void)
                continue;
 
           /* Activate */
-          Term_activate(angband_term[j]);
+          Disp_activate(angband_disp[j]);
 
           /* Display flags */
           display_player(1);
 
           /* Fresh */
-          Term_fresh();
+          Disp_fresh();
 
           /* Restore */
-          Term_activate(old);
+          Disp_activate(old);
      }
 }
 
@@ -1035,10 +1061,10 @@ fix_message(void)
      /* Scan windows */
      for(j = 0; j < ANGBAND_TERM_MAX; j++)
      {
-          term           *old = Term;
+          disp           *old = Disp;
 
           /* No window */
-          if(!angband_term[j])
+          if(!angband_disp[j])
                continue;
 
           /* No relevant flags */
@@ -1046,10 +1072,10 @@ fix_message(void)
                continue;
 
           /* Activate */
-          Term_activate(angband_term[j]);
+          Disp_activate(angband_disp[j]);
 
           /* Get size */
-          Term_get_size(&w, &h);
+          Disp_get_size(&w, &h);
 
           /* Dump messages */
           for(i = 0; i < h; i++)
@@ -1057,21 +1083,21 @@ fix_message(void)
                byte            color = message_color((s16b) i);
 
                /* Dump the message on the appropriate line */
-               Term_putstr(0, (h - 1) - i, -1, color,
+               Disp_putstr(0, (h - 1) - i, -1, color,
                            message_str((s16b) i));
 
                /* Cursor */
-               Term_locate(&x, &y);
+               Disp_locate(&x, &y);
 
                /* Clear to end of line */
-               Term_erase(x, y, 255);
+               Disp_erase(x, y, 255);
           }
 
           /* Fresh */
-          Term_fresh();
+          Disp_fresh();
 
           /* Restore */
-          Term_activate(old);
+          Disp_activate(old);
      }
 }
 
@@ -1093,10 +1119,10 @@ fix_overhead(void)
      /* Scan windows */
      for(j = 0; j < ANGBAND_TERM_MAX; j++)
      {
-          term           *old = Term;
+          disp           *old = Disp;
 
           /* No window */
-          if(!angband_term[j])
+          if(!angband_disp[j])
                continue;
 
           /* No relevant flags */
@@ -1104,16 +1130,16 @@ fix_overhead(void)
                continue;
 
           /* Activate */
-          Term_activate(angband_term[j]);
+          Disp_activate(angband_disp[j]);
 
           /* Redraw map */
           display_map(NULL, NULL);
 
           /* Fresh */
-          Term_fresh();
+          Disp_fresh();
 
           /* Restore */
-          Term_activate(old);
+          Disp_activate(old);
      }
 }
 
@@ -1128,10 +1154,10 @@ fix_monster(void)
      /* Scan windows */
      for(j = 0; j < ANGBAND_TERM_MAX; j++)
      {
-          term           *old = Term;
+          disp           *old = Disp;
 
           /* No window */
-          if(!angband_term[j])
+          if(!angband_disp[j])
                continue;
 
           /* No relevant flags */
@@ -1139,17 +1165,17 @@ fix_monster(void)
                continue;
 
           /* Activate */
-          Term_activate(angband_term[j]);
+          Disp_activate(angband_disp[j]);
 
           /* Display monster race info */
           if(p_ptr->monster_race_idx)
                display_roff(p_ptr->monster_race_idx);
 
           /* Fresh */
-          Term_fresh();
+          Disp_fresh();
 
           /* Restore */
-          Term_activate(old);
+          Disp_activate(old);
      }
 }
 
@@ -1164,10 +1190,10 @@ fix_object(void)
      /* Scan windows */
      for(j = 0; j < ANGBAND_TERM_MAX; j++)
      {
-          term           *old = Term;
+          disp           *old = Disp;
 
           /* No window */
-          if(!angband_term[j])
+          if(!angband_disp[j])
                continue;
 
           /* No relevant flags */
@@ -1175,17 +1201,17 @@ fix_object(void)
                continue;
 
           /* Activate */
-          Term_activate(angband_term[j]);
+          Disp_activate(angband_disp[j]);
 
           /* Display monster race info */
           if(p_ptr->object_kind_idx)
                display_koff(p_ptr->object_kind_idx);
 
           /* Fresh */
-          Term_fresh();
+          Disp_fresh();
 
           /* Restore */
-          Term_activate(old);
+          Disp_activate(old);
      }
 }
 
@@ -3010,7 +3036,7 @@ window_stuff(void)
      for(j = 0; j < ANGBAND_TERM_MAX; j++)
      {
           /* Save usable flags */
-          if(angband_term[j])
+          if(angband_disp[j])
           {
                /* Build the mask */
                mask |= op_ptr->window_flag[j];

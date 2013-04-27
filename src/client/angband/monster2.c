@@ -1,5 +1,5 @@
 
-/* $Id: monster2.c,v 1.4 2003/03/23 06:10:27 cipher Exp $ */
+/* $Id: monster2.c,v 1.7 2003/04/08 04:28:23 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -1252,9 +1252,17 @@ monster_swap(int y1,
      {
           m_ptr = &mon_list[m1];
 
+          /* Prevent the display engine from drawing.
+           */
+          Disp_lock();
+
           /* Move monster */
           m_ptr->fy = y2;
           m_ptr->fx = x2;
+
+          /* Let the display engine draw again.
+           */
+          Disp_unlock();
 
           /* Update monster */
           update_mon(m1, TRUE);
@@ -1263,6 +1271,10 @@ monster_swap(int y1,
      /* Player 1 */
      else if(m1 < 0)
      {
+          /* Prevent the display engine from drawing.
+           */
+          Disp_lock();
+
           /* Move player */
           p_ptr->py = y2;
           p_ptr->px = x2;
@@ -1278,6 +1290,10 @@ monster_swap(int y1,
 
           /* Window stuff */
           p_ptr->window |= (PW_OVERHEAD);
+
+          /* Let the display engine draw again.
+           */
+          Disp_unlock();
      }
 
      /* Monster 2 */
@@ -1285,9 +1301,17 @@ monster_swap(int y1,
      {
           m_ptr = &mon_list[m2];
 
+          /* Prevent the display engine from drawing.
+           */
+          Disp_lock();
+
           /* Move monster */
           m_ptr->fy = y1;
           m_ptr->fx = x1;
+
+          /* Let the display engine draw again.
+           */
+          Disp_unlock();
 
           /* Update monster */
           update_mon(m2, TRUE);
@@ -1296,6 +1320,10 @@ monster_swap(int y1,
      /* Player 2 */
      else if(m2 < 0)
      {
+          /* Prevent the display engine from drawing.
+           */
+          Disp_lock();
+
           /* Move player */
           p_ptr->py = y1;
           p_ptr->px = x1;
@@ -1311,6 +1339,10 @@ monster_swap(int y1,
 
           /* Window stuff */
           p_ptr->window |= (PW_OVERHEAD);
+
+          /* Let the display engine draw again.
+           */
+          Disp_unlock();
      }
 
      /* Redraw */
@@ -1330,8 +1362,13 @@ player_place(int y,
           return (0);
 
      /* Save player location */
-     p_ptr->py = y;
-     p_ptr->px = x;
+     if(!Disp_lock())
+     {
+          p_ptr->py = y;
+          p_ptr->px = x;
+
+          Disp_unlock();
+     }
 
      /* Mark cave grid */
      cave_m_idx[y][x] = -1;

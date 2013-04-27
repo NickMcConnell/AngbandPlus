@@ -1,5 +1,5 @@
 
-/* $Id: ipc.h,v 1.4 2003/03/17 22:45:22 cipher Exp $ */
+/* $Id: ipc.h,v 1.5 2003/04/01 22:25:59 cipher Exp $ */
 
 #ifndef IH_IPC_H
 #define IH_IPC_H
@@ -11,6 +11,8 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  */
+
+#include "SDL.h"
 
 /* Function prototypes.
  */

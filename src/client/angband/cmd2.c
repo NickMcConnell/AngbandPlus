@@ -1,5 +1,5 @@
 
-/* $Id: cmd2.c,v 1.3 2003/03/17 22:45:23 cipher Exp $ */
+/* $Id: cmd2.c,v 1.5 2003/04/06 15:22:07 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -2280,7 +2280,6 @@ do_cmd_rest(void)
      {
           cptr            p =
               "Rest (0-9999, '*' for HP/SP, '&' as needed): ";
-
           char            out_val[5];
 
           /* Default */
@@ -2338,7 +2337,7 @@ do_cmd_rest(void)
 
      /* Refresh XXX XXX XXX */
      if(fresh_before)
-          Term_fresh();
+          Disp_fresh();
 }
 
 /*
@@ -2577,18 +2576,18 @@ do_cmd_fire(void)
                print_rel(missile_char, missile_attr, y, x);
                move_cursor_relative(y, x);
                if(fresh_before)
-                    Term_fresh();
-               Term_xtra(TERM_XTRA_DELAY, msec);
+                    Disp_fresh();
+               Disp_xtra(DISP_XTRA_DELAY, msec);
                lite_spot(y, x);
                if(fresh_before)
-                    Term_fresh();
+                    Disp_fresh();
           }
 
           /* Delay anyway for consistency */
           else
           {
                /* Pause anyway, for consistancy */
-               Term_xtra(TERM_XTRA_DELAY, msec);
+               Disp_xtra(DISP_XTRA_DELAY, msec);
           }
 
           /* Handle monster */
@@ -2858,18 +2857,18 @@ do_cmd_throw(void)
                print_rel(missile_char, missile_attr, y, x);
                move_cursor_relative(y, x);
                if(fresh_before)
-                    Term_fresh();
-               Term_xtra(TERM_XTRA_DELAY, msec);
+                    Disp_fresh();
+               Disp_xtra(DISP_XTRA_DELAY, msec);
                lite_spot(y, x);
                if(fresh_before)
-                    Term_fresh();
+                    Disp_fresh();
           }
 
           /* Delay anyway for consistency */
           else
           {
                /* Pause anyway, for consistancy */
-               Term_xtra(TERM_XTRA_DELAY, msec);
+               Disp_xtra(DISP_XTRA_DELAY, msec);
           }
 
           /* Handle monster */

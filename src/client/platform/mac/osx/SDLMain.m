@@ -5,7 +5,7 @@
     Feel free to customize this file to suit your needs
 */
 
-#include "h-config.h"
+#include "angband/h-config.h"
 
 #if defined(MACINTOSH) || defined(MACOSX)
 

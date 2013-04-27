@@ -1,5 +1,5 @@
 
-/* $Id: util.c,v 1.7 2003/03/24 06:04:52 cipher Exp $ */
+/* $Id: util.c,v 1.13 2003/04/07 20:53:52 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -10,8 +10,6 @@
  */
 
 #include "angband.h"
-
-#include "sdl/render/overlay.h"
 
 #ifdef SET_UID
 
@@ -1349,7 +1347,7 @@ static bool     parse_under = FALSE;
  *
  * This function does almost all of the "macro" processing.
  *
- * We use the "Term_key_push()" function to handle "failed" macros, as well
+ * We use the "Disp_key_push()" function to handle "failed" macros, as well
  * as "extra" keys read in while choosing the proper macro, and also to hold
  * the action for the macro, plus a special "ascii 30" character indicating
  * that any macro action in progress is complete.  Embedded macros are thus
@@ -1371,7 +1369,7 @@ inkey_aux(void)
      char            buf[1024];
 
      /* Wait for a keypress */
-     (void) (Term_inkey(&ch, TRUE, TRUE));
+     (void) (Disp_inkey(&ch, TRUE, TRUE));
 
      /* End "macro action" */
      if(ch == 30)
@@ -1411,7 +1409,7 @@ inkey_aux(void)
                break;
 
           /* Check for (and remove) a pending key */
-          if(0 == Term_inkey(&ch, FALSE, TRUE))
+          if(0 == Disp_inkey(&ch, FALSE, TRUE))
           {
                /* Append the key */
                buf[p++] = ch;
@@ -1432,7 +1430,7 @@ inkey_aux(void)
                     break;
 
                /* Delay */
-               Term_xtra(TERM_XTRA_DELAY, w);
+               Disp_xtra(DISP_XTRA_DELAY, w);
           }
      }
 
@@ -1446,12 +1444,12 @@ inkey_aux(void)
           while(p > 0)
           {
                /* Push the key, notice over-flow */
-               if(Term_key_push(buf[--p]))
+               if(Disp_key_push(buf[--p]))
                     return (0);
           }
 
           /* Wait for (and remove) a pending key */
-          (void) Term_inkey(&ch, TRUE, TRUE);
+          (void) Disp_inkey(&ch, TRUE, TRUE);
 
           /* Return the key */
           return (ch);
@@ -1467,7 +1465,7 @@ inkey_aux(void)
      while(p > n)
      {
           /* Push the key, notice over-flow */
-          if(Term_key_push(buf[--p]))
+          if(Disp_key_push(buf[--p]))
                return (0);
      }
 
@@ -1475,7 +1473,7 @@ inkey_aux(void)
      parse_macro = TRUE;
 
      /* Push the "end of macro action" key */
-     if(Term_key_push(30))
+     if(Disp_key_push(30))
           return (0);
 
      /* Get the macro action */
@@ -1488,7 +1486,7 @@ inkey_aux(void)
      while(n > 0)
      {
           /* Push the key, notice over-flow */
-          if(Term_key_push(act[--n]))
+          if(Disp_key_push(act[--n]))
                return (0);
      }
 
@@ -1570,7 +1568,7 @@ char            (*inkey_hack) (int flush_first) = NULL;
  *
  * If "term_screen" is not active, we will make it active during this
  * function, so that the various "main-xxx.c" files can assume that input
- * is only requested (via "Term_inkey()") when "term_screen" is active.
+ * is only requested (via "Disp_inkey()") when "term_screen" is active.
  *
  * Mega-Hack -- This function is used as the entry point for clearing the
  * "signal_count" variable, and of the "character_saved" variable.
@@ -1587,7 +1585,7 @@ inkey(void)
      char            kk;
      char            ch = 0;
      bool            done = FALSE;
-     term           *old = Term;
+     disp           *old = Disp;
 
      /* Hack -- Use the "inkey_next" pointer */
      if(inkey_next && *inkey_next && !inkey_xtra)
@@ -1629,43 +1627,43 @@ inkey(void)
           parse_under = FALSE;
 
           /* Forget old keypresses */
-          Term_flush();
+          Disp_flush();
      }
 
      /* Get the cursor state */
-     (void) Term_get_cursor(&cursor_state);
+     (void) Disp_get_cursor(&cursor_state);
 
      /* Show the cursor if waiting, except sometimes in "command" mode */
      if(!inkey_scan && (!inkey_flag || hilite_player || character_icky))
      {
           /* Show the cursor */
-          (void) Term_set_cursor(TRUE);
+          (void) Disp_set_cursor(TRUE);
      }
 
      /* Hack -- Activate main screen */
-     Term_activate(term_screen);
+     Disp_activate(term_screen);
 
      /* Get a key */
      while(!ch)
      {
           /* Hack -- Handle "inkey_scan" */
           if(!inkey_base && inkey_scan &&
-             (0 != Term_inkey(&kk, FALSE, FALSE)))
+             (0 != Disp_inkey(&kk, FALSE, FALSE)))
           {
                break;
           }
 
           /* Hack -- Flush output once when no key ready */
-          if(!done && (0 != Term_inkey(&kk, FALSE, FALSE)))
+          if(!done && (0 != Disp_inkey(&kk, FALSE, FALSE)))
           {
-               /* Hack -- activate proper term */
-               Term_activate(old);
+               /* Hack -- activate proper disp */
+               Disp_activate(old);
 
                /* Flush output */
-               Term_fresh();
+               Disp_fresh();
 
                /* Hack -- activate main screen */
-               Term_activate(term_screen);
+               Disp_activate(term_screen);
 
                /* Mega-Hack -- reset saved flag */
                character_saved = FALSE;
@@ -1686,7 +1684,7 @@ inkey(void)
                if(!inkey_scan)
                {
                     /* Wait for (and remove) a pending key */
-                    if(0 == Term_inkey(&ch, TRUE, TRUE))
+                    if(0 == Disp_inkey(&ch, TRUE, TRUE))
                     {
                          /* Done */
                          break;
@@ -1700,7 +1698,7 @@ inkey(void)
                while(TRUE)
                {
                     /* Check for (and remove) a pending key */
-                    if(0 == Term_inkey(&ch, FALSE, TRUE))
+                    if(0 == Disp_inkey(&ch, FALSE, TRUE))
                     {
                          /* Done */
                          break;
@@ -1717,7 +1715,7 @@ inkey(void)
                               break;
 
                          /* Delay */
-                         Term_xtra(TERM_XTRA_DELAY, w);
+                         Disp_xtra(DISP_XTRA_DELAY, w);
                     }
                }
 
@@ -1778,11 +1776,11 @@ inkey(void)
      }
 
 #if 0
-     /* Hack -- restore the term */
-     Term_activate(old);
+     /* Hack -- restore the disp */
+     Disp_activate(old);
 
      /* Restore the cursor */
-     Term_set_cursor(cursor_state);
+     Disp_set_cursor(cursor_state);
 #endif
 
      /* Cancel the various "global parameters" */
@@ -1799,7 +1797,7 @@ void
 bell(cptr reason)
 {
      /* Mega-Hack -- Flush the output */
-     Term_fresh();
+     Disp_fresh();
 
      /* Hack -- memorize the reason if possible */
      if(character_generated && reason)
@@ -1807,7 +1805,7 @@ bell(cptr reason)
 
      /* Make a bell noise (if allowed) */
      if(ring_bell)
-          Term_xtra(TERM_XTRA_NOISE, 0);
+          Disp_xtra(DISP_XTRA_NOISE, 0);
 
      /* Flush the input (later!) */
      flush();
@@ -1824,7 +1822,7 @@ sound(int val)
           return;
 
      /* Make a sound (if allowed) */
-     Term_xtra(TERM_XTRA_SOUND, val);
+     Disp_xtra(DISP_XTRA_SOUND, val);
 }
 
 /*
@@ -2111,8 +2109,8 @@ message_type_color(u16b type)
 {
      byte            color = message__color[type];
 
-     if(color == TERM_DARK)
-          color = TERM_WHITE;
+     if(color == COLOR_DARK)
+          color = COLOR_WHITE;
 
      return (color);
 }
@@ -2385,7 +2383,7 @@ messages_init(void)
      C_MAKE(message__count, MESSAGE_MAX, u16b);
 
      /* Init the message colors to white */
-     (void) C_BSET(message__color, TERM_WHITE, MSG_MAX, byte);
+     (void) C_BSET(message__color, COLOR_WHITE, MSG_MAX, byte);
 
      /* Hack -- No messages yet */
      message__tail = MESSAGE_BUF;
@@ -2410,9 +2408,9 @@ messages_free(void)
 /*
  * XXX XXX XXX Important note about "colors" XXX XXX XXX
  *
- * The "TERM_*" color definitions list the "composition" of each
+ * The "COLOR_*" color definitions list the "composition" of each
  * "Angband color" in terms of "quarters" of each of the three color
- * components (Red, Green, Blue), for example, TERM_UMBER is defined
+ * components (Red, Green, Blue), for example, COLOR_UMBER is defined
  * as 2/4 Red, 1/4 Green, 0/4 Blue.
  *
  * The following info is from "Torbjorn Lindgren" (see "main-xaw.c").
@@ -2459,7 +2457,7 @@ void
 move_cursor(int row,
             int col)
 {
-     Term_gotoxy(col, row);
+     Disp_gotoxy(col, row);
 }
 
 /*
@@ -2468,10 +2466,10 @@ move_cursor(int row,
 static void
 msg_flush(int x)
 {
-     byte            a = TERM_L_BLUE;
+     byte            a = COLOR_L_BLUE;
 
      /* Pause for response */
-     Term_putstr(x, 0, -1, a, "-more-");
+     Disp_putstr(x, 0, -1, a, "-more-");
 
      /* Get an acceptable keypress */
      while(1)
@@ -2489,7 +2487,7 @@ msg_flush(int x)
      }
 
      /* Clear the line */
-     Term_erase(0, 0, 255);
+     Disp_erase(0, 0, 255);
 }
 
 static int      message_column = 0;
@@ -2505,7 +2503,7 @@ static int      message_column = 0;
  *
  * These messages are memorized for later reference (see above).
  *
- * We could do a "Term_fresh()" to provide "flicker" if needed.
+ * We could do a "Disp_fresh()" to provide "flicker" if needed.
  *
  * The global "msg_flag" variable can be cleared to tell us to "erase" any
  * "pending" messages still on the screen, instead of using "msg_flush()".
@@ -2530,7 +2528,7 @@ msg_print_aux(u16b type,
      int             w, h;
 
      /* Obtain the size */
-     (void) Term_get_size(&w, &h);
+     (void) Disp_get_size(&w, &h);
 
      /* Hack -- Reset */
      if(!msg_flag)
@@ -2614,7 +2612,7 @@ msg_print_aux(u16b type,
           t[split] = '\0';
 
           /* Display part of the message */
-          Term_putstr(0, 0, split, color, t);
+          Disp_putstr(0, 0, split, color, t);
 
           /* Flush it */
           msg_flush(split + 1);
@@ -2631,7 +2629,7 @@ msg_print_aux(u16b type,
      }
 
      /* Display the tail of the message */
-     Term_putstr(message_column, 0, n, color, t);
+     Disp_putstr(message_column, 0, n, color, t);
 
      /* Remember the message */
      msg_flag = TRUE;
@@ -2641,7 +2639,7 @@ msg_print_aux(u16b type,
 
      /* Optional refresh */
      if(fresh_after)
-          Term_fresh();
+          Disp_fresh();
 }
 
 /*
@@ -2764,7 +2762,7 @@ screen_save(void)
 
      /* Save the screen (if legal) */
      if(screen_depth++ == 0)
-          Term_save();
+          Disp_save();
 
      /* Increase "icky" depth */
      character_icky++;
@@ -2783,7 +2781,7 @@ screen_load(void)
 
      /* Load the screen (if legal) */
      if(--screen_depth == 0)
-          Term_load();
+          Disp_load();
 
      /* Decrease "icky" depth */
      character_icky--;
@@ -2802,7 +2800,7 @@ c_put_str(byte attr,
           int col)
 {
      /* Position cursor, Dump the attr/text */
-     Term_putstr(col, row, -1, attr, str);
+     Disp_putstr(col, row, -1, attr, str);
 }
 
 /*
@@ -2814,7 +2812,7 @@ put_str(cptr str,
         int col)
 {
      /* Spawn */
-     Term_putstr(col, row, -1, TERM_WHITE, str);
+     Disp_putstr(col, row, -1, COLOR_WHITE, str);
 }
 
 /*
@@ -2828,10 +2826,10 @@ c_prt(byte attr,
       int col)
 {
      /* Clear line, position cursor */
-     Term_erase(col, row, 255);
+     Disp_erase(col, row, 255);
 
      /* Dump the attr/text */
-     Term_addstr(-1, attr, str);
+     Disp_addstr(-1, attr, str);
 }
 
 /*
@@ -2843,7 +2841,7 @@ prt(cptr str,
     int col)
 {
      /* Spawn */
-     c_prt(TERM_WHITE, str, row, col);
+     c_prt(COLOR_WHITE, str, row, col);
 }
 
 /*
@@ -2870,10 +2868,10 @@ text_out_to_screen(byte a,
      cptr            s;
 
      /* Obtain the size */
-     (void) Term_get_size(&wid, &h);
+     (void) Disp_get_size(&wid, &h);
 
      /* Obtain the cursor */
-     (void) Term_locate(&x, &y);
+     (void) Disp_locate(&x, &y);
 
      /* Use special wrapping boundary? */
      if((text_out_wrap > 0) && (text_out_wrap < wid))
@@ -2894,7 +2892,7 @@ text_out_to_screen(byte a,
                y++;
 
                /* Clear line, move cursor */
-               Term_erase(x, y, 255);
+               Disp_erase(x, y, 255);
 
                continue;
           }
@@ -2917,7 +2915,7 @@ text_out_to_screen(byte a,
                     for(i = wrap - 2; i >= 0; i--)
                     {
                          /* Grab existing attr/char */
-                         Term_what(i, y, &av[i], &cv[i]);
+                         Disp_what(i, y, &av[i], &cv[i]);
 
                          /* Break on space */
                          if(cv[i] == ' ')
@@ -2933,20 +2931,20 @@ text_out_to_screen(byte a,
                     n = wrap;
 
                /* Clear line */
-               Term_erase(n, y, 255);
+               Disp_erase(n, y, 255);
 
                /* Wrap */
                x = text_out_indent;
                y++;
 
                /* Clear line, move cursor */
-               Term_erase(x, y, 255);
+               Disp_erase(x, y, 255);
 
                /* Wrap the word (if any) */
                for(i = n; i < wrap - 1; i++)
                {
                     /* Dump */
-                    Term_addch(av[i], cv[i]);
+                    Disp_addch(av[i], cv[i]);
 
                     /* Advance (no wrap) */
                     if(++x > wrap)
@@ -2955,7 +2953,7 @@ text_out_to_screen(byte a,
           }
 
           /* Dump */
-          Term_addch(a, ch);
+          Disp_addch(a, ch);
 
           /* Advance */
           if(++x > wrap)
@@ -3099,7 +3097,7 @@ text_out_to_file(byte a,
 void
 text_out(cptr str)
 {
-     text_out_c(TERM_WHITE, str);
+     text_out_c(COLOR_WHITE, str);
 }
 
 /*
@@ -3122,10 +3120,10 @@ clear_from(int row)
      int             y;
 
      /* Erase requested rows */
-     for(y = row; y < Term->hgt; y++)
+     for(y = row; y < Disp->hgt; y++)
      {
           /* Erase part of the screen */
-          Term_erase(0, y, 255);
+          Disp_erase(0, y, 255);
      }
 }
 
@@ -3156,7 +3154,7 @@ askfor_aux(char *buf,
      bool            done = FALSE;
 
      /* Locate the cursor */
-     Term_locate(&x, &y);
+     Disp_locate(&x, &y);
 
      /* Paranoia */
      if((x < 0) || (x >= 80))
@@ -3170,14 +3168,14 @@ askfor_aux(char *buf,
      buf[len - 1] = '\0';
 
      /* Display the default answer */
-     Term_erase(x, y, (int) len);
-     Term_putstr(x, y, -1, TERM_YELLOW, buf);
+     Disp_erase(x, y, (int) len);
+     Disp_putstr(x, y, -1, COLOR_YELLOW, buf);
 
      /* Process input */
      while(!done)
      {
           /* Place cursor */
-          Term_gotoxy(x + k, y);
+          Disp_gotoxy(x + k, y);
 
           /* Get a key */
           ch = inkey();
@@ -3226,8 +3224,8 @@ askfor_aux(char *buf,
           buf[k] = '\0';
 
           /* Update the entry */
-          Term_erase(x, y, (int) len);
-          Term_putstr(x, y, -1, TERM_WHITE, buf);
+          Disp_erase(x, y, (int) len);
+          Disp_putstr(x, y, -1, COLOR_WHITE, buf);
      }
 
      /* Done */
@@ -3256,10 +3254,14 @@ get_string(cptr prompt,
      prt(prompt, 0, 0);
 
      /* Setup input buffer */
-     Term_setup_input(prompt, buf, len);
+     Disp_xtra(DISP_XTRA_PREP, DISPLAY_DIALOG);
+
+     Disp_param(DISPLAY_DIALOG, DISP_PARAM_BUFFER1, (void *) prompt);
+     Disp_param(DISPLAY_DIALOG, DISP_PARAM_BUFFER2, (void *) buf);
+     Disp_param(DISPLAY_DIALOG, DISP_PARAM_BUFLEN2, (void *) len);
 
      /* Activate the overlay */
-     Term_xtra(TERM_XTRA_OVER1, IH_OVERLAY_DIALOG);
+     Disp_xtra(DISP_XTRA_SHOW, DISPLAY_DIALOG);
 
      /* Ask the user for a string */
      res = askfor_aux(buf, len);
@@ -3268,10 +3270,11 @@ get_string(cptr prompt,
      prt("", 0, 0);
 
      /* Get rid of the overlay */
-     Term_xtra(TERM_XTRA_OVER0, IH_OVERLAY_DIALOG);
+     Disp_xtra(DISP_XTRA_HIDE, DISPLAY_DIALOG);
 
      /* "Un-setup" the input buffer */
-     Term_setup_input(NULL, NULL, 0);
+//     Disp_param(DISPLAY_DIALOG, DISP_PARAM_BUFFER1, NULL);
+//     Disp_param(DISPLAY_DIALOG, DISP_PARAM_BUFFER2, NULL);
 
      /* Result */
      return (res);
@@ -3379,6 +3382,9 @@ get_check(cptr prompt)
      strnfmt(buf, 78, "%.70s[y/n] ", prompt);
 
      /* Prompt for it */
+     Disp_xtra(DISP_XTRA_PREP, DISPLAY_DIALOG);
+     Disp_param(DISPLAY_DIALOG, DISP_PARAM_BUFFER1, buf);
+     Disp_xtra(DISP_XTRA_SHOW, DISPLAY_DIALOG);
      prt(buf, 0, 0);
 
      /* Get an acceptable answer */
@@ -3395,6 +3401,8 @@ get_check(cptr prompt)
      }
 
      /* Erase the prompt */
+     Disp_xtra(DISP_XTRA_HIDE, DISPLAY_DIALOG);
+//     Disp_param(DISPLAY_DIALOG, DISP_PARAM_BUFFER1, NULL);
      prt("", 0, 0);
 
      /* Normal negation */
@@ -3422,12 +3430,17 @@ get_com(cptr prompt,
      message_flush();
 
      /* Display a prompt */
+     Disp_xtra(DISP_XTRA_PREP, DISPLAY_DIALOG);
+     Disp_param(DISPLAY_DIALOG, DISP_PARAM_BUFFER1, (void *) prompt);
+     Disp_xtra(DISP_XTRA_SHOW, DISPLAY_DIALOG);
      prt(prompt, 0, 0);
 
      /* Get a key */
      ch = inkey();
 
      /* Clear the prompt */
+     Disp_xtra(DISP_XTRA_HIDE, DISPLAY_DIALOG);
+//     Disp_param(DISPLAY_DIALOG, DISP_PARAM_BUFFER1, NULL);
      prt("", 0, 0);
 
      /* Save the command */
@@ -3819,38 +3832,38 @@ color_char_to_attr(char c)
      switch (c)
      {
           case 'd':
-               return (TERM_DARK);
+               return (COLOR_DARK);
           case 'w':
-               return (TERM_WHITE);
+               return (COLOR_WHITE);
           case 's':
-               return (TERM_SLATE);
+               return (COLOR_SLATE);
           case 'o':
-               return (TERM_ORANGE);
+               return (COLOR_ORANGE);
           case 'r':
-               return (TERM_RED);
+               return (COLOR_RED);
           case 'g':
-               return (TERM_GREEN);
+               return (COLOR_GREEN);
           case 'b':
-               return (TERM_BLUE);
+               return (COLOR_BLUE);
           case 'u':
-               return (TERM_UMBER);
+               return (COLOR_UMBER);
 
           case 'D':
-               return (TERM_L_DARK);
+               return (COLOR_L_DARK);
           case 'W':
-               return (TERM_L_WHITE);
+               return (COLOR_L_WHITE);
           case 'v':
-               return (TERM_VIOLET);
+               return (COLOR_VIOLET);
           case 'y':
-               return (TERM_YELLOW);
+               return (COLOR_YELLOW);
           case 'R':
-               return (TERM_L_RED);
+               return (COLOR_L_RED);
           case 'G':
-               return (TERM_L_GREEN);
+               return (COLOR_L_GREEN);
           case 'B':
-               return (TERM_L_BLUE);
+               return (COLOR_L_BLUE);
           case 'U':
-               return (TERM_L_UMBER);
+               return (COLOR_L_UMBER);
      }
 
      return (-1);
@@ -3863,37 +3876,37 @@ int
 color_text_to_attr(cptr name)
 {
      if(my_stricmp(name, "dark") == 0)
-          return (TERM_DARK);
+          return (COLOR_DARK);
      if(my_stricmp(name, "white") == 0)
-          return (TERM_WHITE);
+          return (COLOR_WHITE);
      if(my_stricmp(name, "slate") == 0)
-          return (TERM_SLATE);
+          return (COLOR_SLATE);
      if(my_stricmp(name, "orange") == 0)
-          return (TERM_ORANGE);
+          return (COLOR_ORANGE);
      if(my_stricmp(name, "red") == 0)
-          return (TERM_RED);
+          return (COLOR_RED);
      if(my_stricmp(name, "green") == 0)
-          return (TERM_GREEN);
+          return (COLOR_GREEN);
      if(my_stricmp(name, "blue") == 0)
-          return (TERM_BLUE);
+          return (COLOR_BLUE);
      if(my_stricmp(name, "umber") == 0)
-          return (TERM_UMBER);
+          return (COLOR_UMBER);
      if(my_stricmp(name, "violet") == 0)
-          return (TERM_VIOLET);
+          return (COLOR_VIOLET);
      if(my_stricmp(name, "yellow") == 0)
-          return (TERM_YELLOW);
+          return (COLOR_YELLOW);
      if(my_stricmp(name, "lightdark") == 0)
-          return (TERM_L_DARK);
+          return (COLOR_L_DARK);
      if(my_stricmp(name, "lightwhite") == 0)
-          return (TERM_L_WHITE);
+          return (COLOR_L_WHITE);
      if(my_stricmp(name, "lightred") == 0)
-          return (TERM_L_RED);
+          return (COLOR_L_RED);
      if(my_stricmp(name, "lightgreen") == 0)
-          return (TERM_L_GREEN);
+          return (COLOR_L_GREEN);
      if(my_stricmp(name, "lightblue") == 0)
-          return (TERM_L_BLUE);
+          return (COLOR_L_BLUE);
      if(my_stricmp(name, "lightumber") == 0)
-          return (TERM_L_UMBER);
+          return (COLOR_L_UMBER);
 
      /* Oops */
      return (-1);
@@ -3907,37 +3920,37 @@ attr_to_text(byte a)
 {
      switch (a)
      {
-          case TERM_DARK:
+          case COLOR_DARK:
                return ("Dark");
-          case TERM_WHITE:
+          case COLOR_WHITE:
                return ("White");
-          case TERM_SLATE:
+          case COLOR_SLATE:
                return ("Slate");
-          case TERM_ORANGE:
+          case COLOR_ORANGE:
                return ("Orange");
-          case TERM_RED:
+          case COLOR_RED:
                return ("Red");
-          case TERM_GREEN:
+          case COLOR_GREEN:
                return ("Green");
-          case TERM_BLUE:
+          case COLOR_BLUE:
                return ("Blue");
-          case TERM_UMBER:
+          case COLOR_UMBER:
                return ("Umber");
-          case TERM_L_DARK:
+          case COLOR_L_DARK:
                return ("L.Dark");
-          case TERM_L_WHITE:
+          case COLOR_L_WHITE:
                return ("L.Slate");
-          case TERM_VIOLET:
+          case COLOR_VIOLET:
                return ("Violet");
-          case TERM_YELLOW:
+          case COLOR_YELLOW:
                return ("Yellow");
-          case TERM_L_RED:
+          case COLOR_L_RED:
                return ("L.Red");
-          case TERM_L_GREEN:
+          case COLOR_L_GREEN:
                return ("L.Green");
-          case TERM_L_BLUE:
+          case COLOR_L_BLUE:
                return ("L.Blue");
-          case TERM_L_UMBER:
+          case COLOR_L_UMBER:
                return ("L.Umber");
      }
 
@@ -4162,7 +4175,7 @@ build_gamma_table(int gamma)
 
      /*
       * value is the current sum.
-      * diff is the new term to add to the series.
+      * diff is the new disp to add to the series.
       */
      long            value, diff;
 
@@ -4190,7 +4203,7 @@ build_gamma_table(int gamma)
                 * Use the following identiy to calculate the gamma table.
                 * exp(x) = 1 + x + x^2/2 + x^3/(2*3) + x^4/(2*3*4) +...
                 *
-                * n is the current term number.
+                * n is the current disp number.
                 *
                 * The gamma_helper array contains a table of
                 * ln(x/256) * 256
@@ -4220,3 +4233,16 @@ build_gamma_table(int gamma)
 }
 
 #endif /* SUPPORT_GAMMA */
+
+/*
+ * Make a string lower case.
+ */
+void
+string_lower(char *buf)
+{
+     char           *s;
+
+     /* Lowercase the string */
+     for(s = buf; *s != 0; s++)
+          *s = tolower((unsigned char) *s);
+}

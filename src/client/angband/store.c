@@ -1,5 +1,5 @@
 
-/* $Id: store.c,v 1.5 2003/03/23 06:10:27 cipher Exp $ */
+/* $Id: store.c,v 1.8 2003/04/06 15:22:10 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -11,8 +11,6 @@
 
 #include "angband.h"
 #include "script.h"
-
-#include "sdl/render/overlay.h"
 
 #define MAX_COMMENT_1	6
 
@@ -286,22 +284,22 @@ purchase_analyze(s32b price,
 /*
  * We store the current "store number" here so everyone can access it
  */
-static int      store_num = 7;
+extern int      store_num;
 
 /*
  * We store the current "store page" here so everyone can access it
  */
-static int      store_top = 0;
+extern int      store_top;
 
 /*
  * We store the current "store pointer" here so everyone can access it
  */
-static store_type *st_ptr = NULL;
+extern store_type *st_ptr;
 
 /*
  * We store the current "owner type" here so everyone can access it
  */
-static owner_type *ot_ptr = NULL;
+extern owner_type *ot_ptr;
 
 /*
  * Determine the price of an object (qty one) in a store.
@@ -1213,7 +1211,6 @@ display_entry(int item)
      int             y;
      object_type    *o_ptr;
      s32b            x;
-
      char            o_name[80];
      char            out_val[160];
      int             maxwid;
@@ -1397,7 +1394,7 @@ display_store(void)
      char            buf[80];
 
      /* Clear screen */
-     Term_clear();
+     Disp_clear();
 
      /* The "Home" is special */
      if(store_num == STORE_HOME)
@@ -2957,7 +2954,7 @@ store_process_command(void)
                /* Hack -- User interface */
           case '!':
                {
-                    (void) Term_user(0);
+                    (void) Disp_user(0);
                     break;
                }
 
@@ -3128,7 +3125,9 @@ do_cmd_store(void)
      store_top = 0;
 
      /* Display the store */
-     Term_xtra(TERM_XTRA_OVER1, IH_OVERLAY_STORE);
+     Disp_xtra(DISP_XTRA_PREP, DISPLAY_STORE);
+     Disp_param(DISPLAY_STORE, DISP_PARAM_VAR1, (void *) store_num);
+     Disp_xtra(DISP_XTRA_SHOW, DISPLAY_STORE);
      display_store();
 
      /* Do not leave */
@@ -3283,8 +3282,8 @@ do_cmd_store(void)
      character_icky--;
 
      /* Clear the screen */
-     Term_xtra(TERM_XTRA_OVER0, IH_OVERLAY_STORE);
-     Term_clear();
+     Disp_xtra(DISP_XTRA_HIDE, DISPLAY_STORE);
+     Disp_clear();
 
      /* Update the visuals */
      p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
@@ -3474,4 +3473,109 @@ store_init(int which)
      {
           object_wipe(&st_ptr->stock[k]);
      }
+}
+
+store_item     *
+get_store_item(int item)
+{
+     store_item     *s_item = NULL;
+     object_type    *o_ptr;
+     s32b            x;
+     int             maxwid;
+
+     s_item = ralloc(sizeof(store_item));
+     if(!s_item)
+          return NULL;
+
+     /* Initialize */
+     memset(s_item, 0, sizeof(store_item));
+
+     /* Get the object */
+     o_ptr = &st_ptr->stock[item];
+
+     /* Label it */
+     s_item->label = store_to_label(item);
+
+     /* Describe an object in the home */
+     if(store_num == STORE_HOME)
+     {
+          maxwid = 75;
+
+          /* Leave room for weights, if necessary -DRS- */
+          if(show_weights)
+               maxwid -= 10;
+
+          /* Describe the object */
+          object_desc(s_item->o_name, sizeof(s_item->o_name), o_ptr, TRUE,
+                      3);
+          s_item->o_name[maxwid] = '\0';
+
+          /* Get inventory color */
+          s_item->attr = tval_to_attr[o_ptr->tval & 0x7F];
+
+          /* Show weights */
+          if(show_weights)
+          {
+               /* Only show the weight of a single object */
+               s_item->wgt = o_ptr->weight;
+          }
+     }
+
+     /* Describe an object (fully) in a store */
+     else
+     {
+          /* Must leave room for the "price" */
+          maxwid = 65;
+
+          /* Leave room for weights, if necessary -DRS- */
+          if(show_weights)
+               maxwid -= 7;
+
+          /* Describe the object (fully) */
+          object_desc(s_item->o_name, sizeof(s_item->o_name), o_ptr, TRUE,
+                      3);
+          s_item->o_name[maxwid] = '\0';
+
+          /* Get inventory color */
+          s_item->attr = tval_to_attr[o_ptr->tval & 0x7F];
+
+          /* Show weights */
+          if(show_weights)
+          {
+               /* Only show the weight of a single object */
+               s_item->wgt = o_ptr->weight;
+          }
+
+          /* Display a "fixed" cost */
+          if(o_ptr->ident & (IDENT_FIXED))
+          {
+               /* Extract the "minimum" price */
+               s_item->price =
+                   price_item(o_ptr, ot_ptr->min_inflate, FALSE);
+               s_item->price_fixed = TRUE;
+          }
+
+          /* Display a "taxed" cost */
+          else if(auto_haggle)
+          {
+               /* Extract the "minimum" price */
+               x = price_item(o_ptr, ot_ptr->min_inflate, FALSE);
+
+               /* Hack -- Apply Sales Tax if needed */
+               if(!noneedtobargain(x))
+                    x += x / 10;
+
+               s_item->price = x;
+          }
+
+          /* Display a "haggle" cost */
+          else
+          {
+               /* Extrect the "maximum" price */
+               s_item->price =
+                   price_item(o_ptr, ot_ptr->max_inflate, FALSE);
+          }
+     }
+
+     return s_item;
 }

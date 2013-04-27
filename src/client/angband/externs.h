@@ -1,5 +1,5 @@
 
-/* $Id: externs.h,v 1.5 2003/03/21 22:28:07 cipher Exp $ */
+/* $Id: externs.h,v 1.8 2003/04/07 00:27:13 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison
@@ -11,7 +11,7 @@
 
 /*
  * Note that some files have their own header files
- * (z-virt.h, z-util.h, z-form.h, term.h, random.h)
+ * (z-virt.h, z-util.h, z-form.h, disp.h, random.h)
  */
 
 /*
@@ -128,8 +128,8 @@ extern char     savefile[1024];
 extern s16b     macro__num;
 extern cptr    *macro__pat;
 extern cptr    *macro__act;
-extern term    *angband_term[ANGBAND_TERM_MAX];
-extern char     angband_term_name[ANGBAND_TERM_MAX][16];
+extern disp    *angband_disp[ANGBAND_TERM_MAX];
+extern char     angband_disp_name[ANGBAND_TERM_MAX][16];
 extern byte     angband_color_table[256][4];
 extern const cptr angband_sound_name[MSG_MAX];
 extern int      view_n;
@@ -1202,6 +1202,8 @@ extern void
 store_maint(int which);
 extern void
 store_init(int which);
+store_item     *
+get_store_item(int item);
 
 /* util.c */
 extern          errr
@@ -1406,6 +1408,8 @@ extern void
 build_gamma_table(int gamma);
 extern byte     gamma_table[256];
 #endif /* SUPPORT_GAMMA */
+void
+string_lower(char *buf);
 
 /* xtra1.c */
 extern void

@@ -1,5 +1,5 @@
 
-/* $Id: main.c,v 1.14 2003/03/24 06:04:50 cipher Exp $ */
+/* $Id: main.c,v 1.22 2003/04/06 15:21:34 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -9,30 +9,32 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
+/* Standard headers */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
+/* SDL headers */
 #include "SDL.h"
 #include "SDL_thread.h"
 #include "SDL_draw.h"
 
 #define IH_MAIN
 
+/* Internal headers */
 #include "ironhells.h"
+#include "angband/z-disp.h"
 #include "ipc.h"
-#include "init.h"
 #include "list.h"
-#include "file.h"
 #include "prefs.h"
 #include "thread.h"
-#include "term.h"
-#include "sdl/scene.h"
-#include "sdl/render.h"
-#include "sdl/setup.h"
-#include "sdl/render/icon.h"
-#include "sdl/render/misc.h"
+#include "platform/platform.h"
+#include "displays/iso/display.h"
+#include "displays/iso/icon.h"
+#include "displays/iso/render.h"
+#include "displays/iso/misc.h"
+#include "displays/iso/overlay.h"
 
 struct IronHells ih;
 
@@ -133,7 +135,6 @@ int
 main(int argc,
      char *argv[])
 {
-     cptr            path_lib;
      int             rc;
      Uint32          initflags =
          SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_NOPARACHUTE;
@@ -149,14 +150,6 @@ main(int argc,
      ih.icon_size = IH_ICON_SIZE_SMALL;
      ih.pointer = IH_POINTER_STANDARD;
      ih.messages_shown = 10;
-
-     /* Hack - force some features to be on.
-      */
-     use_graphics = TRUE;
-     arg_graphics = GRAPHICS_DAVID_GERVAIS;
-#if 0
-     use_sound = TRUE;
-#endif
 
      /* Do some basic initialization.
       */
@@ -174,18 +167,20 @@ main(int argc,
 
      IH_InitSetuid();
 
+     /* Get user preferences, such as display mode, etc.
+      */
+     IH_GetPrefs();
+
      /* Set default video modes.
       */
      ih.display_flags = SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_ASYNCBLIT;
      if(ih.is_fullscreen)
           ih.display_flags |= SDL_FULLSCREEN;
+     /* if(ih.hw_accel)
+      * ih.display_flags |= SDL_OPENGL; */
 #ifdef DEBUG
      fprintf(stderr, "requested display flags = 0x%x\n", ih.display_flags);
 #endif
-
-     /* Get user preferences, such as display mode, etc.
-      */
-     IH_GetPrefs();
 
      /* Catch nasty signals.
       */
@@ -200,9 +195,13 @@ main(int argc,
      atexit(SDL_Quit);
      atexit(TTF_Quit);
 
-     IH_InitTerm();
+     /* Turn on Unicode translation.
+      */
+     SDL_EnableUNICODE(1);
 
-     ih.scene = IH_SCENE_SPLASH;
+     IH_InitDisplays();
+
+     ih.scene = SCENE_SPLASH;
 
      /* Set video mode */
      ih.screen = SDL_SetVideoMode(800, 600,
@@ -219,13 +218,6 @@ main(int argc,
 #ifdef DEBUG
      fprintf(stderr, "actual display flags = 0x%x\n", ih.screen->flags);
 #endif
-#if 0
-     /* HACK - Set the source alpha on the main screen for hardware
-      * accelerated displays.
-      */
-     if(ih.screen->flags & SDL_HWSURFACE)
-          SDL_SetAlpha(ih.screen, SDL_SRCALPHA, 128);
-#endif
      ih.display_width = 800;
      ih.display_height = 600;
 
@@ -239,14 +231,6 @@ main(int argc,
      Draw_Init();
 
 #ifdef DEBUG
-     fprintf(stderr, "Initializing lists.\n");
-#endif
-     IH_ListInit(&ih.icons);
-     IH_ListInit(&ih.misc);
-     IH_ListInit(&ih.tiles);
-     IH_ListInit(&ih.objects);
-
-#ifdef DEBUG
      fprintf(stderr, "Initializing font.\n");
 #endif
      if(rc = IH_InitFonts())
@@ -256,14 +240,7 @@ main(int argc,
           exit(rc);
      }
 
-     if(rc = IH_CreateShader(ih.display_width, ih.display_height))
-     {
-          fprintf(stderr, "Unable to create shading surface!\n");
-          SDL_Quit();
-          exit(rc);
-     }
-
-     ih.scene = IH_SCENE_INTRO;
+     ih.scene = SCENE_INTRO;
 
 #ifdef DEBUG
      fprintf(stderr, "Initializing images.\n");
@@ -278,6 +255,9 @@ main(int argc,
           exit(2);
      }
 
+     IH_InitOverlays();
+
+     ih.thread_done = FALSE;
      ih.game_thread = SDL_CreateThread(IH_GameThread, NULL);
      if(!ih.game_thread)
      {
@@ -300,12 +280,12 @@ main(int argc,
 #ifdef DEBUG
           fprintf(stderr, "main: IH_InitScene\n");
 #endif
-          IH_InitScene();
+          IH_Scene_Init();
 
 #ifdef DEBUG
           fprintf(stderr, "main: IH_RenderScene\n");
 #endif
-          IH_RenderScene();
+          IH_Scene_Render();
 
           /* Check for events */
 #ifdef DEBUG
@@ -348,8 +328,28 @@ main(int argc,
 #ifdef DEBUG
                fprintf(stderr, "main: IH_ProcessScene\n");
 #endif
-               IH_ProcessScene(&event);
+               IH_Scene_Process(&event);
           }
+     }
+
+     /* Wait for the thread to finish.
+      */
+#ifdef DEBUG
+     fprintf(stderr, "main: wait for thread to finish\n");
+#endif
+     for(;;)
+     {
+          bool            thread_done = FALSE;
+
+          if(!SDL_SemWait(ih.sem.talk))
+          {
+               thread_done = ih.thread_done;
+
+               SDL_SemPost(ih.sem.talk);
+          }
+
+          if(thread_done)
+               break;
      }
 
 #ifdef DEBUG

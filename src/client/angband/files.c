@@ -1,5 +1,5 @@
 
-/* $Id: files.c,v 1.9 2003/03/24 06:04:51 cipher Exp $ */
+/* $Id: files.c,v 1.13 2003/04/07 00:27:13 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -10,8 +10,6 @@
  */
 
 #include "angband.h"
-
-#include "sdl/render/overlay.h"
 
 /*
  * Hack -- drop permissions
@@ -466,7 +464,6 @@ process_pref_file_command(char *buf)
      else if(buf[0] == 'C')
      {
           long            mode;
-
           char            tmp[1024];
 
           if(tokenize(buf + 2, 2, zz) != 2)
@@ -1203,7 +1200,7 @@ likert(int x,
      /* Negative value */
      if(x < 0)
      {
-          *attr = TERM_RED;
+          *attr = COLOR_RED;
           return ("Very Bad");
      }
 
@@ -1213,34 +1210,34 @@ likert(int x,
           case 0:
           case 1:
                {
-                    *attr = TERM_RED;
+                    *attr = COLOR_RED;
                     return ("Bad");
                }
           case 2:
                {
-                    *attr = TERM_RED;
+                    *attr = COLOR_RED;
                     return ("Poor");
                }
           case 3:
           case 4:
                {
-                    *attr = TERM_YELLOW;
+                    *attr = COLOR_YELLOW;
                     return ("Fair");
                }
           case 5:
                {
-                    *attr = TERM_YELLOW;
+                    *attr = COLOR_YELLOW;
                     return ("Good");
                }
           case 6:
                {
-                    *attr = TERM_YELLOW;
+                    *attr = COLOR_YELLOW;
                     return ("Very Good");
                }
           case 7:
           case 8:
                {
-                    *attr = TERM_L_GREEN;
+                    *attr = COLOR_L_GREEN;
                     return ("Excellent");
                }
           case 9:
@@ -1249,7 +1246,7 @@ likert(int x,
           case 12:
           case 13:
                {
-                    *attr = TERM_L_GREEN;
+                    *attr = COLOR_L_GREEN;
                     return ("Superb");
                }
           case 14:
@@ -1257,12 +1254,12 @@ likert(int x,
           case 16:
           case 17:
                {
-                    *attr = TERM_L_GREEN;
+                    *attr = COLOR_L_GREEN;
                     return ("Heroic");
                }
           default:
                {
-                    *attr = TERM_L_GREEN;
+                    *attr = COLOR_L_GREEN;
                     return ("Legendary");
                }
      }
@@ -1293,92 +1290,94 @@ display_player_xtra_info(void)
      col = 26;
 
      /* Age */
-     Term_putstr(col, 3, -1, TERM_WHITE, "Age");
-     Term_putstr(col + 9, 3, -1, TERM_L_BLUE,
+     Disp_putstr(col, 3, -1, COLOR_WHITE, "Age");
+     Disp_putstr(col + 9, 3, -1, COLOR_L_BLUE,
                  format("%4d", (int) p_ptr->age));
 
      /* Height */
-     Term_putstr(col, 4, -1, TERM_WHITE, "Height");
-     Term_putstr(col + 9, 4, -1, TERM_L_BLUE,
+     Disp_putstr(col, 4, -1, COLOR_WHITE, "Height");
+     Disp_putstr(col + 9, 4, -1, COLOR_L_BLUE,
                  format("%4d", (int) p_ptr->ht));
 
      /* Weight */
-     Term_putstr(col, 5, -1, TERM_WHITE, "Weight");
-     Term_putstr(col + 9, 5, -1, TERM_L_BLUE,
+     Disp_putstr(col, 5, -1, COLOR_WHITE, "Weight");
+     Disp_putstr(col + 9, 5, -1, COLOR_L_BLUE,
                  format("%4d", (int) p_ptr->wt));
 
      /* Status */
-     Term_putstr(col, 6, -1, TERM_WHITE, "Status");
-     Term_putstr(col + 9, 6, -1, TERM_L_BLUE,
+     Disp_putstr(col, 6, -1, COLOR_WHITE, "Status");
+     Disp_putstr(col + 9, 6, -1, COLOR_L_BLUE,
                  format("%4d", (int) p_ptr->sc));
 
      /* Maximize */
-     Term_putstr(col, 7, -1, TERM_WHITE, "Maximize");
-     Term_putstr(col + 12, 7, -1, TERM_L_BLUE, adult_maximize ? "Y" : "N");
+     Disp_putstr(col, 7, -1, COLOR_WHITE, "Maximize");
+     Disp_putstr(col + 12, 7, -1, COLOR_L_BLUE,
+                 adult_maximize ? "Y" : "N");
 
      /* Preserve */
-     Term_putstr(col, 8, -1, TERM_WHITE, "Preserve");
-     Term_putstr(col + 12, 8, -1, TERM_L_BLUE, adult_preserve ? "Y" : "N");
+     Disp_putstr(col, 8, -1, COLOR_WHITE, "Preserve");
+     Disp_putstr(col + 12, 8, -1, COLOR_L_BLUE,
+                 adult_preserve ? "Y" : "N");
 
      /* Left */
      col = 1;
 
      /* Level */
-     Term_putstr(col, 10, -1, TERM_WHITE, "Level");
+     Disp_putstr(col, 10, -1, COLOR_WHITE, "Level");
      if(p_ptr->lev >= p_ptr->max_lev)
      {
-          Term_putstr(col + 8, 10, -1, TERM_L_GREEN,
+          Disp_putstr(col + 8, 10, -1, COLOR_L_GREEN,
                       format("%10d", p_ptr->lev));
      }
      else
      {
-          Term_putstr(col + 8, 10, -1, TERM_YELLOW,
+          Disp_putstr(col + 8, 10, -1, COLOR_YELLOW,
                       format("%10d", p_ptr->lev));
      }
 
      /* Current Experience */
-     Term_putstr(col, 11, -1, TERM_WHITE, "Cur Exp");
+     Disp_putstr(col, 11, -1, COLOR_WHITE, "Cur Exp");
      if(p_ptr->exp >= p_ptr->max_exp)
      {
-          Term_putstr(col + 8, 11, -1, TERM_L_GREEN,
+          Disp_putstr(col + 8, 11, -1, COLOR_L_GREEN,
                       format("%10ld", p_ptr->exp));
      }
      else
      {
-          Term_putstr(col + 8, 11, -1, TERM_YELLOW,
+          Disp_putstr(col + 8, 11, -1, COLOR_YELLOW,
                       format("%10ld", p_ptr->exp));
      }
 
      /* Maximum Experience */
-     Term_putstr(col, 12, -1, TERM_WHITE, "Max Exp");
-     Term_putstr(col + 8, 12, -1, TERM_L_GREEN,
+     Disp_putstr(col, 12, -1, COLOR_WHITE, "Max Exp");
+     Disp_putstr(col + 8, 12, -1, COLOR_L_GREEN,
                  format("%10ld", p_ptr->max_exp));
 
      /* Advance Experience */
-     Term_putstr(col, 13, -1, TERM_WHITE, "Adv Exp");
+     Disp_putstr(col, 13, -1, COLOR_WHITE, "Adv Exp");
      if(p_ptr->lev < PY_MAX_LEVEL)
      {
           s32b            advance = (player_exp[p_ptr->lev - 1] *
                                      p_ptr->expfact / 100L);
-          Term_putstr(col + 8, 13, -1, TERM_L_GREEN,
+          Disp_putstr(col + 8, 13, -1, COLOR_L_GREEN,
                       format("%10ld", advance));
      }
      else
      {
-          Term_putstr(col + 8, 13, -1, TERM_L_GREEN,
+          Disp_putstr(col + 8, 13, -1, COLOR_L_GREEN,
                       format("%10s", "********"));
      }
 
      /* Gold */
-     Term_putstr(col, 15, -1, TERM_WHITE, "Gold");
-     Term_putstr(col + 8, 15, -1, TERM_L_GREEN,
+     Disp_putstr(col, 15, -1, COLOR_WHITE, "Gold");
+     Disp_putstr(col + 8, 15, -1, COLOR_L_GREEN,
                  format("%10ld", p_ptr->au));
 
      /* Burden */
      sprintf(buf, "%ld.%ld lbs",
              p_ptr->total_weight / 10L, p_ptr->total_weight % 10L);
-     Term_putstr(col, 17, -1, TERM_WHITE, "Burden");
-     Term_putstr(col + 8, 17, -1, TERM_L_GREEN, format("%10s", buf));
+     Disp_putstr(col, 17, -1, COLOR_WHITE, "Burden");
+     Disp_putstr(col + 8, 17, -1, COLOR_L_GREEN, format("%10s", buf));
 
      /* Middle */
      col = 26;
@@ -1389,8 +1388,8 @@ display_player_xtra_info(void)
 
      /* Total Armor */
      sprintf(buf, "[%d,%+d]", base, plus);
-     Term_putstr(col, 10, -1, TERM_WHITE, "Armor");
-     Term_putstr(col + 5, 10, -1, TERM_L_BLUE, format("%13s", buf));
+     Disp_putstr(col, 10, -1, COLOR_WHITE, "Armor");
+     Disp_putstr(col + 5, 10, -1, COLOR_L_BLUE, format("%13s", buf));
 
      /* Base skill */
      hit = p_ptr->dis_to_h;
@@ -1398,8 +1397,8 @@ display_player_xtra_info(void)
 
      /* Basic fighting */
      sprintf(buf, "(%+d,%+d)", hit, dam);
-     Term_putstr(col, 11, -1, TERM_WHITE, "Fight");
-     Term_putstr(col + 5, 11, -1, TERM_L_BLUE, format("%13s", buf));
+     Disp_putstr(col, 11, -1, COLOR_WHITE, "Fight");
+     Disp_putstr(col + 5, 11, -1, COLOR_L_BLUE, format("%13s", buf));
 
      /* Melee weapon */
      o_ptr = &inventory[INVEN_WIELD];
@@ -1416,8 +1415,8 @@ display_player_xtra_info(void)
 
      /* Melee attacks */
      sprintf(buf, "(%+d,%+d)", hit, dam);
-     Term_putstr(col, 12, -1, TERM_WHITE, "Melee");
-     Term_putstr(col + 5, 12, -1, TERM_L_BLUE, format("%13s", buf));
+     Disp_putstr(col, 12, -1, COLOR_WHITE, "Melee");
+     Disp_putstr(col + 5, 12, -1, COLOR_L_BLUE, format("%13s", buf));
 
      /* Range weapon */
      o_ptr = &inventory[INVEN_BOW];
@@ -1434,23 +1433,23 @@ display_player_xtra_info(void)
 
      /* Range attacks */
      sprintf(buf, "(%+d,%+d)", hit, dam);
-     Term_putstr(col, 13, -1, TERM_WHITE, "Shoot");
-     Term_putstr(col + 5, 13, -1, TERM_L_BLUE, format("%13s", buf));
+     Disp_putstr(col, 13, -1, COLOR_WHITE, "Shoot");
+     Disp_putstr(col + 5, 13, -1, COLOR_L_BLUE, format("%13s", buf));
 
      /* Blows */
      sprintf(buf, "%d/turn", p_ptr->num_blow);
-     Term_putstr(col, 14, -1, TERM_WHITE, "Blows");
-     Term_putstr(col + 5, 14, -1, TERM_L_BLUE, format("%13s", buf));
+     Disp_putstr(col, 14, -1, COLOR_WHITE, "Blows");
+     Disp_putstr(col + 5, 14, -1, COLOR_L_BLUE, format("%13s", buf));
 
      /* Shots */
      sprintf(buf, "%d/turn", p_ptr->num_fire);
-     Term_putstr(col, 15, -1, TERM_WHITE, "Shots");
-     Term_putstr(col + 5, 15, -1, TERM_L_BLUE, format("%13s", buf));
+     Disp_putstr(col, 15, -1, COLOR_WHITE, "Shots");
+     Disp_putstr(col + 5, 15, -1, COLOR_L_BLUE, format("%13s", buf));
 
      /* Infra */
      sprintf(buf, "%d ft", p_ptr->see_infra * 10);
-     Term_putstr(col, 17, -1, TERM_WHITE, "Infra");
-     Term_putstr(col + 5, 17, -1, TERM_L_BLUE, format("%13s", buf));
+     Disp_putstr(col, 17, -1, COLOR_WHITE, "Infra");
+     Disp_putstr(col + 5, 17, -1, COLOR_L_BLUE, format("%13s", buf));
 
      /* Right */
      col = 49;
@@ -1510,8 +1509,8 @@ display_player_xtra_info(void)
      text_out_indent = 1;
 
      /* History */
-     Term_gotoxy(text_out_indent, 19);
-     text_out_to_screen(TERM_WHITE, p_ptr->history);
+     Disp_gotoxy(text_out_indent, 19);
+     text_out_to_screen(COLOR_WHITE, p_ptr->history);
 
      /* Reset text_out() vars */
      text_out_wrap = 0;
@@ -1568,7 +1567,7 @@ display_player_equippy(int y,
           c = object_char(o_ptr);
 
           /* Dump */
-          Term_putch(x + i - INVEN_WIELD, y, a, c);
+          Disp_putch(x + i - INVEN_WIELD, y, a, c);
      }
 }
 
@@ -1669,7 +1668,7 @@ display_player_flag_info(void)
           head = display_player_flag_head[x];
 
           /* Header */
-          c_put_str(TERM_WHITE, "abcdefghijkl@", row++, col + 6);
+          c_put_str(COLOR_WHITE, "abcdefghijkl@", row++, col + 6);
 
           /* Eight rows */
           for(y = 0; y < 8; y++)
@@ -1681,12 +1680,12 @@ display_player_flag_info(void)
                name = display_player_flag_names[x][y];
 
                /* Header */
-               c_put_str(TERM_WHITE, name, row, col);
+               c_put_str(COLOR_WHITE, name, row, col);
 
                /* Check equipment */
                for(n = 6, i = INVEN_WIELD; i < INVEN_TOTAL; ++i, ++n)
                {
-                    byte            attr = TERM_SLATE;
+                    byte            attr = COLOR_SLATE;
 
                     object_type    *o_ptr;
 
@@ -1698,23 +1697,23 @@ display_player_flag_info(void)
 
                     /* Color columns by parity */
                     if(i % 2)
-                         attr = TERM_L_WHITE;
+                         attr = COLOR_L_WHITE;
 
                     /* Non-existant objects */
                     if(!o_ptr->k_idx)
-                         attr = TERM_L_DARK;
+                         attr = COLOR_L_DARK;
 
                     /* Hack -- Check immunities */
                     if((x == 0) && (y < 4) &&
                        (f[set] & ((TR2_IM_ACID) << y)))
                     {
-                         c_put_str(TERM_WHITE, "*", row, col + n);
+                         c_put_str(COLOR_WHITE, "*", row, col + n);
                     }
 
                     /* Check flags */
                     else if(f[set] & flag)
                     {
-                         c_put_str(TERM_WHITE, "+", row, col + n);
+                         c_put_str(COLOR_WHITE, "+", row, col + n);
                     }
 
                     /* Default */
@@ -1728,24 +1727,24 @@ display_player_flag_info(void)
                player_flags(&f[1], &f[2], &f[3]);
 
                /* Default */
-               c_put_str(TERM_SLATE, ".", row, col + n);
+               c_put_str(COLOR_SLATE, ".", row, col + n);
 
                /* Hack -- Check immunities */
                if((x == 0) && (y < 4) && (f[set] & ((TR2_IM_ACID) << y)))
                {
-                    c_put_str(TERM_WHITE, "*", row, col + n);
+                    c_put_str(COLOR_WHITE, "*", row, col + n);
                }
 
                /* Check flags */
                else if(f[set] & flag)
-                    c_put_str(TERM_WHITE, "+", row, col + n);
+                    c_put_str(COLOR_WHITE, "+", row, col + n);
 
                /* Advance */
                row++;
           }
 
           /* Footer */
-          c_put_str(TERM_WHITE, "abcdefghijkl@", row++, col + 6);
+          c_put_str(COLOR_WHITE, "abcdefghijkl@", row++, col + 6);
 
           /* Equippy */
           display_player_equippy(row++, col + 6);
@@ -1763,19 +1762,19 @@ display_player_misc_info(void)
 
      /* Name */
      put_str("Name", 2, 1);
-     c_put_str(TERM_L_BLUE, op_ptr->full_name, 2, 8);
+     c_put_str(COLOR_L_BLUE, op_ptr->full_name, 2, 8);
 
      /* Sex */
      put_str("Sex", 3, 1);
-     c_put_str(TERM_L_BLUE, sp_ptr->title, 3, 8);
+     c_put_str(COLOR_L_BLUE, sp_ptr->title, 3, 8);
 
      /* Race */
      put_str("Race", 4, 1);
-     c_put_str(TERM_L_BLUE, p_name + rp_ptr->name, 4, 8);
+     c_put_str(COLOR_L_BLUE, p_name + rp_ptr->name, 4, 8);
 
      /* Class */
      put_str("Class", 5, 1);
-     c_put_str(TERM_L_BLUE, c_name + cp_ptr->name, 5, 8);
+     c_put_str(COLOR_L_BLUE, c_name + cp_ptr->name, 5, 8);
 
      /* Title */
      put_str("Title", 6, 1);
@@ -1799,17 +1798,17 @@ display_player_misc_info(void)
      }
 
      /* Dump it */
-     c_put_str(TERM_L_BLUE, p, 6, 8);
+     c_put_str(COLOR_L_BLUE, p, 6, 8);
 
      /* Hit Points */
      put_str("HP", 7, 1);
      sprintf(buf, "%d/%d", p_ptr->chp, p_ptr->mhp);
-     c_put_str(TERM_L_BLUE, buf, 7, 8);
+     c_put_str(COLOR_L_BLUE, buf, 7, 8);
 
      /* Spell Points */
      put_str("SP", 8, 1);
      sprintf(buf, "%d/%d", p_ptr->csp, p_ptr->msp);
-     c_put_str(TERM_L_BLUE, buf, 8, 8);
+     c_put_str(COLOR_L_BLUE, buf, 8, 8);
 }
 
 /*
@@ -1828,11 +1827,11 @@ display_player_stat_info(void)
      col = 42;
 
      /* Print out the labels for the columns */
-     c_put_str(TERM_WHITE, "  Self", row - 1, col + 5);
-     c_put_str(TERM_WHITE, " RB", row - 1, col + 12);
-     c_put_str(TERM_WHITE, " CB", row - 1, col + 16);
-     c_put_str(TERM_WHITE, " EB", row - 1, col + 20);
-     c_put_str(TERM_WHITE, "  Best", row - 1, col + 24);
+     c_put_str(COLOR_WHITE, "  Self", row - 1, col + 5);
+     c_put_str(COLOR_WHITE, " RB", row - 1, col + 12);
+     c_put_str(COLOR_WHITE, " CB", row - 1, col + 16);
+     c_put_str(COLOR_WHITE, " EB", row - 1, col + 20);
+     c_put_str(COLOR_WHITE, "  Best", row - 1, col + 24);
 
      /* Display the stats */
      for(i = 0; i < A_MAX; i++)
@@ -1859,29 +1858,29 @@ display_player_stat_info(void)
 
           /* Internal "natural" maximum value */
           cnv_stat(p_ptr->stat_max[i], buf);
-          c_put_str(TERM_L_GREEN, buf, row + i, col + 5);
+          c_put_str(COLOR_L_GREEN, buf, row + i, col + 5);
 
           /* Race Bonus */
           sprintf(buf, "%+3d", rp_ptr->r_adj[i]);
-          c_put_str(TERM_L_BLUE, buf, row + i, col + 12);
+          c_put_str(COLOR_L_BLUE, buf, row + i, col + 12);
 
           /* Class Bonus */
           sprintf(buf, "%+3d", cp_ptr->c_adj[i]);
-          c_put_str(TERM_L_BLUE, buf, row + i, col + 16);
+          c_put_str(COLOR_L_BLUE, buf, row + i, col + 16);
 
           /* Equipment Bonus */
           sprintf(buf, "%+3d", p_ptr->stat_add[i]);
-          c_put_str(TERM_L_BLUE, buf, row + i, col + 20);
+          c_put_str(COLOR_L_BLUE, buf, row + i, col + 20);
 
           /* Resulting "modified" maximum value */
           cnv_stat(p_ptr->stat_top[i], buf);
-          c_put_str(TERM_L_GREEN, buf, row + i, col + 24);
+          c_put_str(COLOR_L_GREEN, buf, row + i, col + 24);
 
           /* Only display stat_use if not maximal */
           if(p_ptr->stat_use[i] < p_ptr->stat_top[i])
           {
                cnv_stat(p_ptr->stat_use[i], buf);
-               c_put_str(TERM_YELLOW, buf, row + i, col + 31);
+               c_put_str(COLOR_YELLOW, buf, row + i, col + 31);
           }
      }
 }
@@ -1914,7 +1913,7 @@ display_player_sust_info(void)
      col = 26;
 
      /* Header */
-     c_put_str(TERM_WHITE, "abcdefghijkl@", row - 1, col);
+     c_put_str(COLOR_WHITE, "abcdefghijkl@", row - 1, col);
 
      /* Process equipment */
      for(i = INVEN_WIELD; i < INVEN_TOTAL; ++i)
@@ -1932,7 +1931,7 @@ display_player_sust_info(void)
           for(stat = 0; stat < A_MAX; stat++)
           {
                /* Default */
-               a = TERM_SLATE;
+               a = COLOR_SLATE;
                c = '.';
 
                /* Boost */
@@ -1945,7 +1944,7 @@ display_player_sust_info(void)
                     if(o_ptr->pval > 0)
                     {
                          /* Good */
-                         a = TERM_L_GREEN;
+                         a = COLOR_L_GREEN;
 
                          /* Label boost */
                          if(o_ptr->pval < 10)
@@ -1956,7 +1955,7 @@ display_player_sust_info(void)
                     if(o_ptr->pval < 0)
                     {
                          /* Bad */
-                         a = TERM_RED;
+                         a = COLOR_RED;
 
                          /* Label boost */
                          if(o_ptr->pval > -10)
@@ -1968,7 +1967,7 @@ display_player_sust_info(void)
                if(f2 & (1 << stat))
                {
                     /* Dark green */
-                    a = TERM_GREEN;
+                    a = COLOR_GREEN;
 
                     /* Convert '.' to 's' */
                     if(c == '.')
@@ -1976,7 +1975,7 @@ display_player_sust_info(void)
                }
 
                /* Dump proper character */
-               Term_putch(col, row + stat, a, c);
+               Disp_putch(col, row + stat, a, c);
           }
 
           /* Advance */
@@ -1990,26 +1989,26 @@ display_player_sust_info(void)
      for(stat = 0; stat < A_MAX; ++stat)
      {
           /* Default */
-          a = TERM_SLATE;
+          a = COLOR_SLATE;
           c = '.';
 
           /* Sustain */
           if(f2 & (1 << stat))
           {
                /* Dark green "s" */
-               a = TERM_GREEN;
+               a = COLOR_GREEN;
                c = 's';
           }
 
           /* Dump */
-          Term_putch(col, row + stat, a, c);
+          Disp_putch(col, row + stat, a, c);
      }
 
      /* Column */
      col = 26;
 
      /* Footer */
-     c_put_str(TERM_WHITE, "abcdefghijkl@", row + 6, col);
+     c_put_str(COLOR_WHITE, "abcdefghijkl@", row + 6, col);
 
      /* Equippy */
      display_player_equippy(row + 7, col);
@@ -2027,7 +2026,8 @@ void
 display_player(int mode)
 {
      /* Display the graphical overlay */
-     Term_xtra(TERM_XTRA_OVER1, IH_OVERLAY_CHARACTER);
+     Disp_xtra(DISP_XTRA_PREP, DISPLAY_CHARACTER);
+     Disp_xtra(DISP_XTRA_SHOW, DISPLAY_CHARACTER);
 
      /* Erase screen */
      clear_from(0);
@@ -2043,7 +2043,7 @@ display_player(int mode)
      {
           /* Hack -- Level */
           put_str("Level", 9, 1);
-          c_put_str(TERM_L_BLUE, format("%d", p_ptr->lev), 9, 8);
+          c_put_str(COLOR_L_BLUE, format("%d", p_ptr->lev), 9, 8);
 
           /* Stat/Sustain flags */
           display_player_sust_info();
@@ -2133,7 +2133,7 @@ file_character(cptr name,
           for(x = 0; x < 79; x++)
           {
                /* Get the attr/char */
-               (void) (Term_what(x, y, &a, &c));
+               (void) (Disp_what(x, y, &a, &c));
 
                /* Dump it */
                buf[x] = c;
@@ -2243,19 +2243,6 @@ file_character(cptr name,
 }
 
 /*
- * Make a string lower case.
- */
-static void
-string_lower(char *buf)
-{
-     char           *s;
-
-     /* Lowercase the string */
-     for(s = buf; *s != 0; s++)
-          *s = tolower((unsigned char) *s);
-}
-
-/*
  * Recursive file perusal.
  *
  * Return FALSE on "ESCAPE", otherwise TRUE.
@@ -2313,7 +2300,7 @@ show_file(cptr name,
           hook[i][0] = '\0';
 
      /* Get size */
-     Term_get_size(&wid, &hgt);
+     Disp_get_size(&wid, &hgt);
 
      /* Copy the filename */
      my_strcpy(filename, name, sizeof(filename));
@@ -2441,7 +2428,7 @@ show_file(cptr name,
      while(TRUE)
      {
           /* Clear screen */
-          Term_clear();
+          Disp_clear();
 
           /* Restart when necessary */
           if(line >= size)
@@ -2512,7 +2499,7 @@ show_file(cptr name,
                find = NULL;
 
                /* Dump the line */
-               Term_putstr(0, i + 2, -1, TERM_WHITE, buf);
+               Disp_putstr(0, i + 2, -1, COLOR_WHITE, buf);
 
                /* Hilite "shower" */
                if(shower[0])
@@ -2525,8 +2512,8 @@ show_file(cptr name,
                          int             len = strlen(shower);
 
                          /* Display the match */
-                         Term_putstr(str - lc_buf, i + 2, len, TERM_YELLOW,
-                                     &buf[str - lc_buf]);
+                         Disp_putstr(str - lc_buf, i + 2, len,
+                                     COLOR_YELLOW, &buf[str - lc_buf]);
 
                          /* Advance */
                          str += len;
@@ -2894,7 +2881,7 @@ do_cmd_save_game(void)
      prt("Saving game...", 0, 0);
 
      /* Refresh */
-     Term_fresh();
+     Disp_fresh();
 
      /* The player is not dead */
      strcpy(p_ptr->died_from, "(saved)");
@@ -2918,7 +2905,7 @@ do_cmd_save_game(void)
      signals_handle_tstp();
 
      /* Refresh */
-     Term_fresh();
+     Disp_fresh();
 
      /* Note that the player is not dead */
      strcpy(p_ptr->died_from, "(alive and well)");
@@ -3041,7 +3028,7 @@ print_tomb(void)
      FILE           *fp;
 
      /* Clear screen */
-     Term_clear();
+     Disp_clear();
 
      /* Build the filename */
      path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "dead.txt");
@@ -3190,7 +3177,7 @@ show_info(void)
      /* Equipment -- if any */
      if(p_ptr->equip_cnt)
      {
-          Term_clear();
+          Disp_clear();
           item_tester_full = TRUE;
           show_equip();
           prt("You are using: -more-", 0, 0);
@@ -3201,7 +3188,7 @@ show_info(void)
      /* Inventory -- if any */
      if(p_ptr->inven_cnt)
      {
-          Term_clear();
+          Disp_clear();
           item_tester_full = TRUE;
           show_inven();
           prt("You are carrying: -more-", 0, 0);
@@ -3216,7 +3203,7 @@ show_info(void)
           for(k = 0, i = 0; i < st_ptr->stock_num; k++)
           {
                /* Clear screen */
-               Term_clear();
+               Disp_clear();
 
                /* Show 12 items */
                for(j = 0; (j < 12) && (i < st_ptr->stock_num); j++, i++)
@@ -3454,7 +3441,7 @@ display_scores_aux(int from,
      for(k = from, j = from, place = k + 1; k < count; k += 5)
      {
           /* Clear screen */
-          Term_clear();
+          Disp_clear();
 
           /* Title */
           put_str(format("                %s Hall of Fame", VERSION_NAME),
@@ -3474,13 +3461,13 @@ display_scores_aux(int from,
                cptr            user, gold, when, aged;
 
                /* Hack -- indicate death in yellow */
-               attr = (j == note) ? TERM_YELLOW : TERM_WHITE;
+               attr = (j == note) ? COLOR_YELLOW : COLOR_WHITE;
 
                /* Mega-Hack -- insert a "fake" record */
                if((note == j) && score)
                {
                     the_score = (*score);
-                    attr = TERM_L_GREEN;
+                    attr = COLOR_L_GREEN;
                     score = NULL;
                     note = -1;
                     j--;
@@ -3597,7 +3584,7 @@ display_scores(int from,
      highscore_fd = fd_open(buf, O_RDONLY);
 
      /* Clear screen */
-     Term_clear();
+     Disp_clear();
 
      /* Title */
      put_str(format("                %s Hall of Fame", VERSION_NAME), 0,
@@ -3780,7 +3767,7 @@ static void
 top_twenty(void)
 {
      /* Clear screen */
-     Term_clear();
+     Disp_clear();
 
      /* No score file */
      if(highscore_fd < 0)
@@ -3907,7 +3894,7 @@ kingly(void)
      p_ptr->au += 10000000L;
 
      /* Clear screen */
-     Term_clear();
+     Disp_clear();
 
      /* Display a crown */
      put_str("#", 1, 34);
@@ -3932,7 +3919,7 @@ kingly(void)
      flush();
 
      /* Wait for response */
-     pause_line(Term->hgt - 1);
+     pause_line(Disp->hgt - 1);
 }
 
 /*
@@ -3979,7 +3966,7 @@ close_game_aux(void)
      while(!wants_to_quit)
      {
           /* Describe options */
-          Term_putstr(1, 23, -1, TERM_WHITE, p);
+          Disp_putstr(1, 23, -1, COLOR_WHITE, p);
 
           /* Query */
           ch = inkey();
@@ -4095,7 +4082,7 @@ close_game_aux(void)
                          screen_save();
 
                          /* Clear the screen */
-                         Term_clear();
+                         Disp_clear();
 
                          /* Examine items */
                          death_examine();
@@ -4271,22 +4258,22 @@ handle_signal_suspend(int sig)
 #ifdef SIGSTOP
 
      /* Flush output */
-     Term_fresh();
+     Disp_fresh();
 
-     /* Suspend the "Term" */
-     Term_xtra(TERM_XTRA_ALIVE, 0);
+     /* Suspend the "Disp" */
+     Disp_xtra(DISP_XTRA_ALIVE, 0);
 
      /* Suspend ourself */
      (void) kill(0, SIGSTOP);
 
-     /* Resume the "Term" */
-     Term_xtra(TERM_XTRA_ALIVE, 1);
+     /* Resume the "Disp" */
+     Disp_xtra(DISP_XTRA_ALIVE, 1);
 
-     /* Redraw the term */
-     Term_redraw();
+     /* Redraw the disp */
+     Disp_redraw();
 
-     /* Flush the term */
-     Term_fresh();
+     /* Flush the disp */
+     Disp_fresh();
 
 #endif
 
@@ -4370,23 +4357,23 @@ handle_signal_simple(int sig)
      else if(signal_count >= 4)
      {
           /* Make a noise */
-          Term_xtra(TERM_XTRA_NOISE, 0);
+          Disp_xtra(DISP_XTRA_NOISE, 0);
 
           /* Clear the top line */
-          Term_erase(0, 0, 255);
+          Disp_erase(0, 0, 255);
 
           /* Display the cause */
-          Term_putstr(0, 0, -1, TERM_WHITE, "Contemplating suicide!");
+          Disp_putstr(0, 0, -1, COLOR_WHITE, "Contemplating suicide!");
 
           /* Flush */
-          Term_fresh();
+          Disp_fresh();
      }
 
      /* Give warning (after 2) */
      else if(signal_count >= 2)
      {
           /* Make a noise */
-          Term_xtra(TERM_XTRA_NOISE, 0);
+          Disp_xtra(DISP_XTRA_NOISE, 0);
      }
 
      /* Restore handler */
@@ -4410,17 +4397,17 @@ handle_signal_abort(int sig)
           quit("abort signal");
 
      /* Clear the bottom line */
-     Term_erase(0, 23, 255);
+     Disp_erase(0, 23, 255);
 
      /* Give a warning */
-     Term_putstr(0, 23, -1, TERM_RED,
+     Disp_putstr(0, 23, -1, COLOR_RED,
                  "A gruesome software bug LEAPS out at you!");
 
      /* Message */
-     Term_putstr(45, 23, -1, TERM_RED, "Panic save...");
+     Disp_putstr(45, 23, -1, COLOR_RED, "Panic save...");
 
      /* Flush output */
-     Term_fresh();
+     Disp_fresh();
 
      /* Panic Save */
      p_ptr->panic_save = 1;
@@ -4434,17 +4421,17 @@ handle_signal_abort(int sig)
      /* Attempt to save */
      if(save_player())
      {
-          Term_putstr(45, 23, -1, TERM_RED, "Panic save succeeded!");
+          Disp_putstr(45, 23, -1, COLOR_RED, "Panic save succeeded!");
      }
 
      /* Save failed */
      else
      {
-          Term_putstr(45, 23, -1, TERM_RED, "Panic save failed!");
+          Disp_putstr(45, 23, -1, COLOR_RED, "Panic save failed!");
      }
 
      /* Flush output */
-     Term_fresh();
+     Disp_fresh();
 
      /* Quit */
      quit("software bug");

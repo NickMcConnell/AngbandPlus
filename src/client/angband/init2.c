@@ -1,5 +1,5 @@
 
-/* $Id: init2.c,v 1.7 2003/03/24 06:04:51 cipher Exp $ */
+/* $Id: init2.c,v 1.9 2003/04/01 22:26:07 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison
@@ -13,8 +13,6 @@
 
 #include "init.h"
 #include "script.h"
-
-#include "sdl/scene.h"
 
 /*
  * This file is used to initialize various variables and arrays for the
@@ -1371,11 +1369,11 @@ init_alloc(void)
 static void
 note(cptr str)
 {
-     IH_SetLoadMessage(str);
+     Disp_xtra(DISP_XTRA_MSG, (int) str);
 
-     Term_erase(0, 23, 255);
-     Term_putstr(20, 23, -1, TERM_WHITE, str);
-     Term_fresh();
+     Disp_erase(0, 23, 255);
+     Disp_putstr(20, 23, -1, COLOR_WHITE, str);
+     Disp_fresh();
 }
 
 /*
@@ -1399,10 +1397,10 @@ init_angband_aux(cptr why)
  *
  * Be very careful to keep track of the order in which things
  * are initialized, in particular, the only thing *known* to
- * be available when this function is called is the "z-term.c"
+ * be available when this function is called is the "z-disp.c"
  * package, and that may not be fully initialized until the
  * end of this function, when the default "user pref files"
- * are loaded and "Term_xtra(TERM_XTRA_REACT,0)" is called.
+ * are loaded and "Disp_xtra(DISP_XTRA_REACT,0)" is called.
  *
  * Note that this function attempts to verify the "news" file,
  * and the game aborts (cleanly) on failure, since without the
@@ -1435,7 +1433,7 @@ init_angband_aux(cptr why)
  * changes are needed before character creation.
  *
  * Note that the "graf-xxx.prf" file must be loaded separately,
- * if needed, in the first (?) pass through "TERM_XTRA_REACT".
+ * if needed, in the first (?) pass through "DISP_XTRA_REACT".
  */
 void
 init_angband(void)
@@ -1471,7 +1469,7 @@ init_angband(void)
  /*** Display the "news" file ***/
 
      /* Clear screen */
-     Term_clear();
+     Disp_clear();
 
      /* Build the filename */
      path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "news.txt");
@@ -1488,7 +1486,7 @@ init_angband(void)
           while(0 == my_fgets(fp, buf, sizeof(buf)))
           {
                /* Display and advance */
-               Term_putstr(0, i++, -1, TERM_WHITE, buf);
+               Disp_putstr(0, i++, -1, COLOR_WHITE, buf);
           }
 
           /* Close */
@@ -1496,7 +1494,7 @@ init_angband(void)
      }
 
      /* Flush it */
-     Term_fresh();
+     Disp_fresh();
 
  /*** Verify (or create) the "high score" file ***/
 

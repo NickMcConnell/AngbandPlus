@@ -1,5 +1,5 @@
 
-/* $Id: xtra2.c,v 1.3 2003/03/17 22:45:29 cipher Exp $ */
+/* $Id: xtra2.c,v 1.5 2003/04/08 04:28:23 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -3280,7 +3280,7 @@ target_set_interactive_aux(int y,
                               screen_roff(m_ptr->r_idx);
 
                               /* Hack -- Complete the prompt (again) */
-                              Term_addstr(-1, TERM_WHITE,
+                              Disp_addstr(-1, COLOR_WHITE,
                                           format("  [r,%s]", info));
 
                               /* Command */
@@ -4213,9 +4213,7 @@ bool
 get_rep_dir(int *dp)
 {
      int             dir;
-
      char            ch;
-
      cptr            p;
 
 #ifdef ALLOW_REPEAT

@@ -490,23 +490,23 @@ toluaI_ui_text_out00(lua_State * tolua_S)
      return 0;
 }
 
-/* function: Term_clear */
+/* function: Disp_clear */
 static int
-toluaI_ui_Term_clear00(lua_State * tolua_S)
+toluaI_ui_Disp_clear00(lua_State * tolua_S)
 {
      if(!tolua_isnoobj(tolua_S, 1))
           goto tolua_lerror;
      else
      {
           {
-               errr            toluaI_ret = (errr) Term_clear();
+               errr            toluaI_ret = (errr) Disp_clear();
 
                tolua_pushnumber(tolua_S, (long) toluaI_ret);
           }
      }
      return 1;
    tolua_lerror:
-     tolua_error(tolua_S, "#ferror in function 'Term_clear'.");
+     tolua_error(tolua_S, "#ferror in function 'Disp_clear'.");
      return 0;
 }
 
@@ -552,22 +552,22 @@ tolua_ui_open(lua_State * tolua_S)
 {
      tolua_open(tolua_S);
      toluaI_reg_types(tolua_S);
-     tolua_constant(tolua_S, NULL, "TERM_DARK", TERM_DARK);
-     tolua_constant(tolua_S, NULL, "TERM_WHITE", TERM_WHITE);
-     tolua_constant(tolua_S, NULL, "TERM_SLATE", TERM_SLATE);
-     tolua_constant(tolua_S, NULL, "TERM_ORANGE", TERM_ORANGE);
-     tolua_constant(tolua_S, NULL, "TERM_RED", TERM_RED);
-     tolua_constant(tolua_S, NULL, "TERM_GREEN", TERM_GREEN);
-     tolua_constant(tolua_S, NULL, "TERM_BLUE", TERM_BLUE);
-     tolua_constant(tolua_S, NULL, "TERM_UMBER", TERM_UMBER);
-     tolua_constant(tolua_S, NULL, "TERM_L_DARK", TERM_L_DARK);
-     tolua_constant(tolua_S, NULL, "TERM_L_WHITE", TERM_L_WHITE);
-     tolua_constant(tolua_S, NULL, "TERM_VIOLET", TERM_VIOLET);
-     tolua_constant(tolua_S, NULL, "TERM_YELLOW", TERM_YELLOW);
-     tolua_constant(tolua_S, NULL, "TERM_L_RED", TERM_L_RED);
-     tolua_constant(tolua_S, NULL, "TERM_L_GREEN", TERM_L_GREEN);
-     tolua_constant(tolua_S, NULL, "TERM_L_BLUE", TERM_L_BLUE);
-     tolua_constant(tolua_S, NULL, "TERM_L_UMBER", TERM_L_UMBER);
+     tolua_constant(tolua_S, NULL, "COLOR_DARK", COLOR_DARK);
+     tolua_constant(tolua_S, NULL, "COLOR_WHITE", COLOR_WHITE);
+     tolua_constant(tolua_S, NULL, "COLOR_SLATE", COLOR_SLATE);
+     tolua_constant(tolua_S, NULL, "COLOR_ORANGE", COLOR_ORANGE);
+     tolua_constant(tolua_S, NULL, "COLOR_RED", COLOR_RED);
+     tolua_constant(tolua_S, NULL, "COLOR_GREEN", COLOR_GREEN);
+     tolua_constant(tolua_S, NULL, "COLOR_BLUE", COLOR_BLUE);
+     tolua_constant(tolua_S, NULL, "COLOR_UMBER", COLOR_UMBER);
+     tolua_constant(tolua_S, NULL, "COLOR_L_DARK", COLOR_L_DARK);
+     tolua_constant(tolua_S, NULL, "COLOR_L_WHITE", COLOR_L_WHITE);
+     tolua_constant(tolua_S, NULL, "COLOR_VIOLET", COLOR_VIOLET);
+     tolua_constant(tolua_S, NULL, "COLOR_YELLOW", COLOR_YELLOW);
+     tolua_constant(tolua_S, NULL, "COLOR_L_RED", COLOR_L_RED);
+     tolua_constant(tolua_S, NULL, "COLOR_L_GREEN", COLOR_L_GREEN);
+     tolua_constant(tolua_S, NULL, "COLOR_L_BLUE", COLOR_L_BLUE);
+     tolua_constant(tolua_S, NULL, "COLOR_L_UMBER", COLOR_L_UMBER);
      tolua_constant(tolua_S, NULL, "MSG_GENERIC", MSG_GENERIC);
      tolua_constant(tolua_S, NULL, "MSG_HIT", MSG_HIT);
      tolua_constant(tolua_S, NULL, "MSG_MISS", MSG_MISS);
@@ -681,7 +681,7 @@ tolua_ui_open(lua_State * tolua_S)
                     toluaI_ui_request_command00);
      tolua_function(tolua_S, NULL, "get_aim_dir", toluaI_ui_get_aim_dir00);
      tolua_function(tolua_S, NULL, "text_out", toluaI_ui_text_out00);
-     tolua_function(tolua_S, NULL, "Term_clear", toluaI_ui_Term_clear00);
+     tolua_function(tolua_S, NULL, "Disp_clear", toluaI_ui_Disp_clear00);
      tolua_function(tolua_S, NULL, "flush", toluaI_ui_flush00);
      tolua_function(tolua_S, NULL, "flush_fail", toluaI_ui_flush_fail00);
      return 1;
@@ -692,37 +692,37 @@ void
 tolua_ui_close(lua_State * tolua_S)
 {
      lua_pushnil(tolua_S);
-     lua_setglobal(tolua_S, "TERM_DARK");
+     lua_setglobal(tolua_S, "COLOR_DARK");
      lua_pushnil(tolua_S);
-     lua_setglobal(tolua_S, "TERM_WHITE");
+     lua_setglobal(tolua_S, "COLOR_WHITE");
      lua_pushnil(tolua_S);
-     lua_setglobal(tolua_S, "TERM_SLATE");
+     lua_setglobal(tolua_S, "COLOR_SLATE");
      lua_pushnil(tolua_S);
-     lua_setglobal(tolua_S, "TERM_ORANGE");
+     lua_setglobal(tolua_S, "COLOR_ORANGE");
      lua_pushnil(tolua_S);
-     lua_setglobal(tolua_S, "TERM_RED");
+     lua_setglobal(tolua_S, "COLOR_RED");
      lua_pushnil(tolua_S);
-     lua_setglobal(tolua_S, "TERM_GREEN");
+     lua_setglobal(tolua_S, "COLOR_GREEN");
      lua_pushnil(tolua_S);
-     lua_setglobal(tolua_S, "TERM_BLUE");
+     lua_setglobal(tolua_S, "COLOR_BLUE");
      lua_pushnil(tolua_S);
-     lua_setglobal(tolua_S, "TERM_UMBER");
+     lua_setglobal(tolua_S, "COLOR_UMBER");
      lua_pushnil(tolua_S);
-     lua_setglobal(tolua_S, "TERM_L_DARK");
+     lua_setglobal(tolua_S, "COLOR_L_DARK");
      lua_pushnil(tolua_S);
-     lua_setglobal(tolua_S, "TERM_L_WHITE");
+     lua_setglobal(tolua_S, "COLOR_L_WHITE");
      lua_pushnil(tolua_S);
-     lua_setglobal(tolua_S, "TERM_VIOLET");
+     lua_setglobal(tolua_S, "COLOR_VIOLET");
      lua_pushnil(tolua_S);
-     lua_setglobal(tolua_S, "TERM_YELLOW");
+     lua_setglobal(tolua_S, "COLOR_YELLOW");
      lua_pushnil(tolua_S);
-     lua_setglobal(tolua_S, "TERM_L_RED");
+     lua_setglobal(tolua_S, "COLOR_L_RED");
      lua_pushnil(tolua_S);
-     lua_setglobal(tolua_S, "TERM_L_GREEN");
+     lua_setglobal(tolua_S, "COLOR_L_GREEN");
      lua_pushnil(tolua_S);
-     lua_setglobal(tolua_S, "TERM_L_BLUE");
+     lua_setglobal(tolua_S, "COLOR_L_BLUE");
      lua_pushnil(tolua_S);
-     lua_setglobal(tolua_S, "TERM_L_UMBER");
+     lua_setglobal(tolua_S, "COLOR_L_UMBER");
      lua_pushnil(tolua_S);
      lua_setglobal(tolua_S, "MSG_GENERIC");
      lua_pushnil(tolua_S);
@@ -934,7 +934,7 @@ tolua_ui_close(lua_State * tolua_S)
      lua_pushnil(tolua_S);
      lua_setglobal(tolua_S, "text_out");
      lua_pushnil(tolua_S);
-     lua_setglobal(tolua_S, "Term_clear");
+     lua_setglobal(tolua_S, "Disp_clear");
      lua_pushnil(tolua_S);
      lua_setglobal(tolua_S, "flush");
      lua_pushnil(tolua_S);

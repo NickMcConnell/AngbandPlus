@@ -1,5 +1,5 @@
 
-/* $Id: variable.c,v 1.6 2003/03/17 22:45:29 cipher Exp $ */
+/* $Id: variable.c,v 1.8 2003/04/01 07:16:07 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -158,44 +158,44 @@ cptr           *macro__act;
 /*
  * The array[ANGBAND_TERM_MAX] of window pointers
  */
-term           *angband_term[ANGBAND_TERM_MAX];
+disp           *angband_disp[ANGBAND_TERM_MAX];
 
 /*
  * The array[ANGBAND_TERM_MAX] of window names (modifiable?)
  *
  * ToDo: Make the names independent of ANGBAND_TERM_MAX.
  */
-char            angband_term_name[ANGBAND_TERM_MAX][16] = {
+char            angband_disp_name[ANGBAND_TERM_MAX][16] = {
      VERSION_NAME,
-     "Term-1",
-     "Term-2",
-     "Term-3",
-     "Term-4",
-     "Term-5",
-     "Term-6",
-     "Term-7"
+     "Disp-1",
+     "Disp-2",
+     "Disp-3",
+     "Disp-4",
+     "Disp-5",
+     "Disp-6",
+     "Disp-7"
 };
 
 /*
  * Global table of color definitions (mostly zeros)
  */
 byte            angband_color_table[256][4] = {
-     {0x00, 0x00, 0x00, 0x00},  /* TERM_DARK */
-     {0x00, 0xFF, 0xFF, 0xFF},  /* TERM_WHITE */
-     {0x00, 0x80, 0x80, 0x80},  /* TERM_SLATE */
-     {0x00, 0xFF, 0x80, 0x00},  /* TERM_ORANGE */
-     {0x00, 0xC0, 0x00, 0x00},  /* TERM_RED */
-     {0x00, 0x00, 0x80, 0x40},  /* TERM_GREEN */
-     {0x00, 0x00, 0x40, 0xFF},  /* TERM_BLUE */
-     {0x00, 0x80, 0x40, 0x00},  /* TERM_UMBER */
-     {0x00, 0x60, 0x60, 0x60},  /* TERM_L_DARK */
-     {0x00, 0xC0, 0xC0, 0xC0},  /* TERM_L_WHITE */
-     {0x00, 0xFF, 0x00, 0xFF},  /* TERM_VIOLET */
-     {0x00, 0xFF, 0xFF, 0x00},  /* TERM_YELLOW */
-     {0x00, 0xFF, 0x40, 0x40},  /* TERM_L_RED */
-     {0x00, 0x00, 0xFF, 0x00},  /* TERM_L_GREEN */
-     {0x00, 0x00, 0xFF, 0xFF},  /* TERM_L_BLUE */
-     {0x00, 0xC0, 0x80, 0x40}   /* TERM_L_UMBER */
+     {0x00, 0x00, 0x00, 0x00},  /* COLOR_DARK */
+     {0x00, 0xFF, 0xFF, 0xFF},  /* COLOR_WHITE */
+     {0x00, 0x80, 0x80, 0x80},  /* COLOR_SLATE */
+     {0x00, 0xFF, 0x80, 0x00},  /* COLOR_ORANGE */
+     {0x00, 0xC0, 0x00, 0x00},  /* COLOR_RED */
+     {0x00, 0x00, 0x80, 0x40},  /* COLOR_GREEN */
+     {0x00, 0x00, 0x40, 0xFF},  /* COLOR_BLUE */
+     {0x00, 0x80, 0x40, 0x00},  /* COLOR_UMBER */
+     {0x00, 0x60, 0x60, 0x60},  /* COLOR_L_DARK */
+     {0x00, 0xC0, 0xC0, 0xC0},  /* COLOR_L_WHITE */
+     {0x00, 0xFF, 0x00, 0xFF},  /* COLOR_VIOLET */
+     {0x00, 0xFF, 0xFF, 0x00},  /* COLOR_YELLOW */
+     {0x00, 0xFF, 0x40, 0x40},  /* COLOR_L_RED */
+     {0x00, 0x00, 0xFF, 0x00},  /* COLOR_L_GREEN */
+     {0x00, 0x00, 0xFF, 0xFF},  /* COLOR_L_BLUE */
+     {0x00, 0xC0, 0x80, 0x40}   /* COLOR_L_UMBER */
 };
 
 /*
@@ -671,3 +671,25 @@ int             highscore_fd = -1;
  * Use transparent tiles
  */
 bool            use_transparency = FALSE;
+
+/*** Store information ***/
+
+/*
+ * We store the current "store number" here so everyone can access it
+ */
+int             store_num = 7;
+
+/*
+ * We store the current "store page" here so everyone can access it
+ */
+int             store_top = 0;
+
+/*
+ * We store the current "store pointer" here so everyone can access it
+ */
+store_type     *st_ptr = NULL;
+
+/*
+ * We store the current "owner type" here so everyone can access it
+ */
+owner_type     *ot_ptr = NULL;

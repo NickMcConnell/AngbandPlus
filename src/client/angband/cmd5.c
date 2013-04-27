@@ -1,5 +1,5 @@
 
-/* $Id: cmd5.c,v 1.3 2003/03/17 22:45:23 cipher Exp $ */
+/* $Id: cmd5.c,v 1.5 2003/04/06 15:22:09 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -147,7 +147,7 @@ print_spells(const byte * spells,
           {
                strnfmt(out_val, sizeof(out_val), "  %c) %-30s", I2A(i),
                        "(illegible)");
-               c_prt(TERM_L_DARK, out_val, y + i + 1, x);
+               c_prt(COLOR_L_DARK, out_val, y + i + 1, x);
                continue;
           }
 
@@ -155,31 +155,31 @@ print_spells(const byte * spells,
           comment = get_spell_info(cp_ptr->spell_book, spell);
 
           /* Assume spell is known and tried */
-          line_attr = TERM_WHITE;
+          line_attr = COLOR_WHITE;
 
           /* Analyze the spell */
           if(p_ptr->spell_flags[spell] & PY_SPELL_FORGOTTEN)
           {
                comment = " forgotten";
-               line_attr = TERM_YELLOW;
+               line_attr = COLOR_YELLOW;
           }
           else if(!(p_ptr->spell_flags[spell] & PY_SPELL_LEARNED))
           {
                if(s_ptr->slevel <= p_ptr->lev)
                {
                     comment = " unknown";
-                    line_attr = TERM_L_BLUE;
+                    line_attr = COLOR_L_BLUE;
                }
                else
                {
                     comment = " difficult";
-                    line_attr = TERM_RED;
+                    line_attr = COLOR_RED;
                }
           }
           else if(!(p_ptr->spell_flags[spell] & PY_SPELL_WORKED))
           {
                comment = " untried";
-               line_attr = TERM_L_GREEN;
+               line_attr = COLOR_L_GREEN;
           }
 
           /* Dump the spell --(-- */
@@ -208,10 +208,10 @@ display_koff(int k_idx)
      char            o_name[80];
 
      /* Erase the window */
-     for(y = 0; y < Term->hgt; y++)
+     for(y = 0; y < Disp->hgt; y++)
      {
           /* Erase the line */
-          Term_erase(0, y, 255);
+          Disp_erase(0, y, 255);
      }
 
      /* No info */
@@ -231,7 +231,7 @@ display_koff(int k_idx)
      object_desc_spoil(o_name, sizeof(o_name), i_ptr, FALSE, 0);
 
      /* Mention the object name */
-     Term_putstr(0, 0, -1, TERM_WHITE, o_name);
+     Disp_putstr(0, 0, -1, COLOR_WHITE, o_name);
 
      /* Warriors are illiterate */
      if(!cp_ptr->spell_book)
@@ -277,21 +277,14 @@ get_spell(const object_type * o_ptr,
           bool known)
 {
      int             i;
-
      int             spell;
      int             num = 0;
-
      byte            spells[PY_MAX_SPELLS];
-
      bool            verify;
-
      bool            flag, redraw, okay;
      char            choice;
-
      const magic_type *s_ptr;
-
      char            out_val[160];
-
      cptr            p =
          ((cp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
 
@@ -378,6 +371,13 @@ get_spell(const object_type * o_ptr,
                     screen_save();
 
                     /* Display a list of spells */
+                    Disp_xtra(DISP_XTRA_PREP, DISPLAY_BOOK);
+                    Disp_param(DISPLAY_BOOK, DISP_PARAM_BUFFER1, spells);
+                    Disp_param(DISPLAY_BOOK, DISP_PARAM_VAR1, 0);
+                    Disp_param(DISPLAY_BOOK, DISP_PARAM_VAR2,
+                               (void *) num);
+                    Disp_xtra(DISP_XTRA_SHOW, DISPLAY_BOOK);
+
                     print_spells(spells, num, 1, 20);
                }
 
@@ -437,6 +437,8 @@ get_spell(const object_type * o_ptr,
      /* Restore the screen */
      if(redraw)
      {
+          Disp_xtra(DISP_XTRA_HIDE, DISPLAY_BOOK);
+
           /* Load screen */
           screen_load();
      }
@@ -461,7 +463,6 @@ do_cmd_browse_aux(const object_type * o_ptr)
      int             i;
      int             spell;
      int             num = 0;
-
      byte            spells[PY_MAX_SPELLS];
 
      /* Track the object kind */
@@ -484,6 +485,10 @@ do_cmd_browse_aux(const object_type * o_ptr)
      screen_save();
 
      /* Display the spells */
+     Disp_param(DISPLAY_BOOK, DISP_PARAM_BUFFER1, spells);
+     Disp_param(DISPLAY_BOOK, DISP_PARAM_VAR2, (void *) num);
+     Disp_xtra(DISP_XTRA_SHOW, DISPLAY_BOOK);
+
      print_spells(spells, num, 1, 20);
 
      /* Prompt for a command */
@@ -493,6 +498,7 @@ do_cmd_browse_aux(const object_type * o_ptr)
      p_ptr->command_new = inkey();
 
      /* Load screen */
+     Disp_xtra(DISP_XTRA_HIDE, DISPLAY_BOOK);
      screen_load();
 
      /* Hack -- Process "Escape" */
@@ -515,9 +521,7 @@ void
 do_cmd_browse(void)
 {
      int             item;
-
      object_type    *o_ptr;
-
      cptr            q, s;
 
      /* Warriors are illiterate */
@@ -554,15 +558,21 @@ do_cmd_browse(void)
      if(!get_item(&item, q, s, (USE_INVEN | USE_FLOOR)))
           return;
 
+     /* Prepare the display.
+      */
+     Disp_xtra(DISP_XTRA_PREP, DISPLAY_BOOK);
+
      /* Get the item (in the pack) */
      if(item >= 0)
      {
+          Disp_param(DISPLAY_BOOK, DISP_PARAM_VAR1, (void *) (item + 1));
           o_ptr = &inventory[item];
      }
 
      /* Get the item (on the floor) */
      else
      {
+          Disp_param(DISPLAY_BOOK, DISP_PARAM_VAR1, 0);
           o_ptr = &o_list[0 - item];
      }
 
@@ -577,14 +587,10 @@ void
 do_cmd_study(void)
 {
      int             i, item;
-
      int             spell;
-
      cptr            p =
          ((cp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
-
      cptr            q, s;
-
      object_type    *o_ptr;
 
      if(!cp_ptr->spell_book)
@@ -651,7 +657,6 @@ do_cmd_study(void)
      else
      {
           int             k = 0;
-
           int             gift = -1;
 
           /* Extract spells */
@@ -737,11 +742,8 @@ do_cmd_cast(void)
 {
      int             item, spell;
      int             chance;
-
      object_type    *o_ptr;
-
      const magic_type *s_ptr;
-
      cptr            q, s;
 
      /* Require spell ability */
@@ -905,11 +907,8 @@ void
 do_cmd_pray(void)
 {
      int             item, spell, chance;
-
      object_type    *o_ptr;
-
      const magic_type *s_ptr;
-
      cptr            q, s;
 
      /* Must use prayer books */

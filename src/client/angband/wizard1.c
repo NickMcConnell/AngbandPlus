@@ -1,5 +1,5 @@
 
-/* $Id: wizard1.c,v 1.3 2003/03/17 22:45:29 cipher Exp $ */
+/* $Id: wizard1.c,v 1.4 2003/04/01 07:16:07 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, and others
@@ -849,7 +849,7 @@ do_cmd_spoilers(void)
      while(1)
      {
           /* Clear screen */
-          Term_clear();
+          Disp_clear();
 
           /* Info */
           prt("Create a spoiler file.", 2, 0);

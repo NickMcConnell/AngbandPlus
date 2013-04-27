@@ -1,5 +1,5 @@
 
-/* $Id: path.c,v 1.8 2003/03/23 06:10:27 cipher Exp $ */
+/* $Id: path.c,v 1.9 2003/04/01 22:26:00 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -9,11 +9,13 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
+/* Standard headers */
 #include <stdarg.h>
 
-#include "angband.h"
+/* Internal headers */
+#include "angband/angband.h"
 #include "path.h"
-#include "z-util.h"
+#include "angband/z-util.h"
 
 char           *
 IH_PathBuild(cptr dir,
@@ -21,7 +23,8 @@ IH_PathBuild(cptr dir,
 {
      va_list         ap;
      char           *path = NULL;
-     char           *item, *first;
+     char           *item;
+     cptr            first;
      int             len;
 
      first = dir;

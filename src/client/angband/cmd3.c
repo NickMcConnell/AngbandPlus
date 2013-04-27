@@ -1,5 +1,5 @@
 
-/* $Id: cmd3.c,v 1.3 2003/03/17 22:45:23 cipher Exp $ */
+/* $Id: cmd3.c,v 1.6 2003/04/06 15:22:07 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -27,6 +27,8 @@ do_cmd_inven(void)
      item_tester_full = TRUE;
 
      /* Display the inventory */
+     Disp_xtra(DISP_XTRA_PREP, DISPLAY_INVENTORY);
+     Disp_xtra(DISP_XTRA_SHOW, DISPLAY_INVENTORY);
      show_inven();
 
      /* Hack -- hide empty slots */
@@ -39,6 +41,7 @@ do_cmd_inven(void)
      p_ptr->command_new = inkey();
 
      /* Load screen */
+     Disp_xtra(DISP_XTRA_HIDE, DISPLAY_INVENTORY);
      screen_load();
 
      /* Hack -- Process "Escape" */
@@ -72,6 +75,8 @@ do_cmd_equip(void)
      item_tester_full = TRUE;
 
      /* Display the equipment */
+     Disp_xtra(DISP_XTRA_PREP, DISPLAY_EQUIPMENT);
+     Disp_xtra(DISP_XTRA_SHOW, DISPLAY_EQUIPMENT);
      show_equip();
 
      /* Hack -- undo the hack above */
@@ -84,6 +89,7 @@ do_cmd_equip(void)
      p_ptr->command_new = inkey();
 
      /* Load screen */
+     Disp_xtra(DISP_XTRA_HIDE, DISPLAY_EQUIPMENT);
      screen_load();
 
      /* Hack -- Process "Escape" */
@@ -1338,7 +1344,7 @@ do_cmd_query_symbol(void)
           roff_top(r_idx);
 
           /* Hack -- Complete the prompt */
-          Term_addstr(-1, TERM_WHITE, " [(r)ecall, ESC]");
+          Disp_addstr(-1, COLOR_WHITE, " [(r)ecall, ESC]");
 
           /* Interact */
           while(1)
@@ -1353,7 +1359,7 @@ do_cmd_query_symbol(void)
                     screen_roff(who[i]);
 
                     /* Hack -- Complete the prompt (again) */
-                    Term_addstr(-1, TERM_WHITE, " [(r)ecall, ESC]");
+                    Disp_addstr(-1, COLOR_WHITE, " [(r)ecall, ESC]");
                }
 
                /* Command */

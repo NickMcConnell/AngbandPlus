@@ -1,5 +1,5 @@
 
-/* $Id: wizard2.c,v 1.3 2003/03/17 22:45:29 cipher Exp $ */
+/* $Id: wizard2.c,v 1.4 2003/04/01 07:16:07 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -36,7 +36,7 @@ do_cmd_wiz_hack_ben(void)
           {
                for(x = p_ptr->wx; x < p_ptr->wx + SCREEN_WID; x++)
                {
-                    byte            a = TERM_RED;
+                    byte            a = COLOR_RED;
 
                     if(!in_bounds_fully(y, x))
                          continue;
@@ -48,7 +48,7 @@ do_cmd_wiz_hack_ben(void)
                     /* Reliability in yellow */
                     if(cave_when[y][x] == cave_when[py][px])
                     {
-                         a = TERM_YELLOW;
+                         a = COLOR_YELLOW;
                     }
 
                     /* Display player/floors/walls */
@@ -110,13 +110,13 @@ prt_binary(u32b flags,
           /* Dump set bits */
           if(flags & bitmask)
           {
-               Term_putch(col++, row, TERM_BLUE, '*');
+               Disp_putch(col++, row, COLOR_BLUE, '*');
           }
 
           /* Dump unset bits */
           else
           {
-               Term_putch(col++, row, TERM_WHITE, '-');
+               Disp_putch(col++, row, COLOR_WHITE, '-');
           }
      }
 }
@@ -313,7 +313,7 @@ wiz_display_item(const object_type * o_ptr)
      object_flags(o_ptr, &f1, &f2, &f3);
 
      /* Clear screen */
-     Term_clear();
+     Disp_clear();
 
      /* Describe fully */
      object_desc_spoil(buf, sizeof(buf), o_ptr, TRUE, 3);
@@ -468,7 +468,7 @@ wiz_create_itemtype(void)
      char            buf[160];
 
      /* Clear screen */
-     Term_clear();
+     Disp_clear();
 
      /* Print all tval's and their descriptions */
      for(num = 0; (num < 60) && tvals[num].tval; num++)
@@ -502,7 +502,7 @@ wiz_create_itemtype(void)
  /*** And now we go for k_idx ***/
 
      /* Clear screen */
-     Term_clear();
+     Disp_clear();
 
      /* We have to search the whole itemlist. */
      for(num = 0, i = 1; (num < 60) && (i < z_info->k_max); i++)
@@ -783,7 +783,7 @@ wiz_statistics(object_type * o_ptr)
 
                     /* Dump the stats */
                     prt(format(q, i, matches, better, worse, other), 0, 0);
-                    Term_fresh();
+                    Disp_fresh();
                }
 
                /* Get local object */
@@ -1477,7 +1477,7 @@ do_cmd_wiz_query(void)
      {
           for(x = p_ptr->wx; x < p_ptr->wx + SCREEN_WID; x++)
           {
-               byte            a = TERM_RED;
+               byte            a = COLOR_RED;
 
                if(!in_bounds_fully(y, x))
                     continue;
@@ -1492,7 +1492,7 @@ do_cmd_wiz_query(void)
 
                /* Color */
                if(cave_floor_bold(y, x))
-                    a = TERM_YELLOW;
+                    a = COLOR_YELLOW;
 
                /* Display player/floors/walls */
                if((y == py) && (x == px))

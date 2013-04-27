@@ -1,5 +1,5 @@
 
-/* $Id: cmd4.c,v 1.4 2003/03/23 06:10:27 cipher Exp $ */
+/* $Id: cmd4.c,v 1.9 2003/04/06 15:22:08 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -20,23 +20,22 @@
  *
  * This command is also used to "instantiate" the results of the user
  * selecting various things, such as graphics mode, so it must call
- * the "TERM_XTRA_REACT" hook before redrawing the windows.
+ * the "DISP_XTRA_REACT" hook before redrawing the windows.
  */
 void
 do_cmd_redraw(void)
 {
      int             j;
-
-     term           *old = Term;
+     disp           *old = Disp;
 
      /* Low level flush */
-     Term_flush();
+     Disp_flush();
 
      /* Reset "inkey()" */
      flush();
 
      /* Hack -- React to changes */
-     Term_xtra(TERM_XTRA_REACT, 0);
+     Disp_xtra(DISP_XTRA_REACT, 0);
 
      /* Combine and Reorder the pack (later) */
      p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -60,7 +59,7 @@ do_cmd_redraw(void)
      p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_MONSTER | PW_OBJECT);
 
      /* Clear screen */
-     Term_clear();
+     Disp_clear();
 
      /* Hack -- update */
      handle_stuff();
@@ -69,20 +68,20 @@ do_cmd_redraw(void)
      for(j = 0; j < ANGBAND_TERM_MAX; j++)
      {
           /* Dead window */
-          if(!angband_term[j])
+          if(!angband_disp[j])
                continue;
 
           /* Activate */
-          Term_activate(angband_term[j]);
+          Disp_activate(angband_disp[j]);
 
           /* Redraw */
-          Term_redraw();
+          Disp_redraw();
 
           /* Refresh */
-          Term_fresh();
+          Disp_fresh();
 
           /* Restore */
-          Term_activate(old);
+          Disp_activate(old);
      }
 }
 
@@ -93,9 +92,7 @@ void
 do_cmd_change_name(void)
 {
      char            ch;
-
      int             mode = 0;
-
      cptr            p;
 
      /* Prompt */
@@ -104,6 +101,9 @@ do_cmd_change_name(void)
      /* Save screen */
      screen_save();
 
+     Disp_xtra(DISP_XTRA_PREP, DISPLAY_CHARACTER);
+     Disp_xtra(DISP_XTRA_SHOW, DISPLAY_CHARACTER);
+
      /* Forever */
      while(1)
      {
@@ -111,7 +111,7 @@ do_cmd_change_name(void)
           display_player(mode);
 
           /* Prompt */
-          Term_putstr(2, 23, -1, TERM_WHITE, p);
+          Disp_putstr(2, 23, -1, COLOR_WHITE, p);
 
           /* Query */
           ch = inkey();
@@ -164,6 +164,8 @@ do_cmd_change_name(void)
           /* Flush messages */
           message_flush();
      }
+
+     Disp_xtra(DISP_XTRA_HIDE, DISPLAY_CHARACTER);
 
      /* Load screen */
      screen_load();
@@ -219,7 +221,7 @@ do_cmd_messages(void)
      q = 0;
 
      /* Get size */
-     Term_get_size(&wid, &hgt);
+     Disp_get_size(&wid, &hgt);
 
      /* Save screen */
      screen_save();
@@ -228,7 +230,7 @@ do_cmd_messages(void)
      while(1)
      {
           /* Clear screen */
-          Term_clear();
+          Disp_clear();
 
           /* Dump messages */
           for(j = 0; (j < hgt - 4) && (i + j < n); j++)
@@ -240,7 +242,7 @@ do_cmd_messages(void)
                msg = ((int) strlen(msg) >= q) ? (msg + q) : "";
 
                /* Dump the messages, bottom to top */
-               Term_putstr(0, hgt - 3 - j, -1, attr, msg);
+               Disp_putstr(0, hgt - 3 - j, -1, attr, msg);
 
                /* Hilite "shower" */
                if(shower[0])
@@ -253,8 +255,8 @@ do_cmd_messages(void)
                          int             len = strlen(shower);
 
                          /* Display the match */
-                         Term_putstr(str - msg, hgt - 3 - j, len,
-                                     TERM_YELLOW, shower);
+                         Disp_putstr(str - msg, hgt - 3 - j, len,
+                                     COLOR_YELLOW, shower);
 
                          /* Advance */
                          str += len;
@@ -466,14 +468,12 @@ do_cmd_options_aux(int page,
                    cptr info)
 {
      char            ch;
-
      int             i, k = 0, n = 0;
-
      int             opt[OPT_PAGE_PER];
-
      char            buf[80];
-
      int             dir;
+
+     Disp_param(DISPLAY_OPTIONS, DISP_PARAM_VAR1, (void *) page);
 
      /* Scan the options */
      for(i = 0; i < OPT_PAGE_PER; i++)
@@ -486,7 +486,7 @@ do_cmd_options_aux(int page,
      }
 
      /* Clear screen */
-     Term_clear();
+     Disp_clear();
 
      /* Interact with the player */
      while(TRUE)
@@ -499,11 +499,11 @@ do_cmd_options_aux(int page,
           /* Display the options */
           for(i = 0; i < n; i++)
           {
-               byte            a = TERM_WHITE;
+               byte            a = COLOR_WHITE;
 
                /* Color current option */
                if(i == k)
-                    a = TERM_L_BLUE;
+                    a = COLOR_L_BLUE;
 
                /* Display the option text */
                strnfmt(buf, sizeof(buf), "%-48s: %s  (%s)",
@@ -515,6 +515,7 @@ do_cmd_options_aux(int page,
 
           /* Hilite current option */
           move_cursor(k + 2, 50);
+          Disp_param(DISPLAY_OPTIONS, DISP_PARAM_VAR2, (void *) k);
 
           /* Get a key */
           ch = inkey();
@@ -590,7 +591,7 @@ do_cmd_options_aux(int page,
                          strnfmt(buf, sizeof(buf), "option.txt#%s",
                                  option_text[opt[k]]);
                          show_file(buf, NULL, 0, 0);
-                         Term_clear();
+                         Disp_clear();
                          break;
                     }
 
@@ -610,12 +611,9 @@ static void
 do_cmd_options_win(void)
 {
      int             i, j, d;
-
      int             y = 0;
      int             x = 0;
-
      char            ch;
-
      u32b            old_flag[ANGBAND_TERM_MAX];
 
      /* Memorize old flags */
@@ -625,7 +623,7 @@ do_cmd_options_win(void)
      }
 
      /* Clear screen */
-     Term_clear();
+     Disp_clear();
 
      /* Interact */
      while(1)
@@ -636,59 +634,57 @@ do_cmd_options_win(void)
           /* Display the windows */
           for(j = 0; j < ANGBAND_TERM_MAX; j++)
           {
-               byte            a = TERM_WHITE;
-
-               cptr            s = angband_term_name[j];
+               byte            a = COLOR_WHITE;
+               cptr            s = angband_disp_name[j];
 
                /* Use color */
                if(j == x)
-                    a = TERM_L_BLUE;
+                    a = COLOR_L_BLUE;
 
                /* Window name, staggered, centered */
-               Term_putstr(35 + j * 5 - strlen(s) / 2, 2 + j % 2, -1, a,
+               Disp_putstr(35 + j * 5 - strlen(s) / 2, 2 + j % 2, -1, a,
                            s);
           }
 
           /* Display the options */
           for(i = 0; i < 16; i++)
           {
-               byte            a = TERM_WHITE;
-
+               byte            a = COLOR_WHITE;
                cptr            str = window_flag_desc[i];
 
                /* Use color */
                if(i == y)
-                    a = TERM_L_BLUE;
+                    a = COLOR_L_BLUE;
 
                /* Unused option */
                if(!str)
                     str = "(Unused option)";
 
                /* Flag name */
-               Term_putstr(0, i + 5, -1, a, str);
+               Disp_putstr(0, i + 5, -1, a, str);
 
                /* Display the windows */
                for(j = 0; j < ANGBAND_TERM_MAX; j++)
                {
-                    byte            a = TERM_WHITE;
+                    byte            a = COLOR_WHITE;
 
                     char            c = '.';
 
                     /* Use color */
                     if((i == y) && (j == x))
-                         a = TERM_L_BLUE;
+                         a = COLOR_L_BLUE;
 
                     /* Active flag */
                     if(op_ptr->window_flag[j] & (1L << i))
                          c = 'X';
 
                     /* Flag value */
-                    Term_putch(35 + j * 5, i + 5, a, c);
+                    Disp_putch(35 + j * 5, i + 5, a, c);
                }
           }
 
           /* Place Cursor */
-          Term_gotoxy(35 + x * 5, y + 5);
+          Disp_gotoxy(35 + x * 5, y + 5);
 
           /* Get key */
           ch = inkey();
@@ -742,10 +738,10 @@ do_cmd_options_win(void)
      /* Notice changes */
      for(j = 0; j < ANGBAND_TERM_MAX; j++)
      {
-          term           *old = Term;
+          disp           *old = Disp;
 
           /* Dead window */
-          if(!angband_term[j])
+          if(!angband_disp[j])
                continue;
 
           /* Ignore non-changes */
@@ -753,16 +749,16 @@ do_cmd_options_win(void)
                continue;
 
           /* Activate */
-          Term_activate(angband_term[j]);
+          Disp_activate(angband_disp[j]);
 
           /* Erase */
-          Term_clear();
+          Disp_clear();
 
           /* Refresh */
-          Term_fresh();
+          Disp_fresh();
 
           /* Restore */
-          Term_activate(old);
+          Disp_activate(old);
      }
 }
 
@@ -774,9 +770,7 @@ static          errr
 option_dump(cptr fname)
 {
      int             i, j;
-
      FILE           *fff;
-
      char            buf[1024];
 
      /* Build the filename */
@@ -826,7 +820,7 @@ option_dump(cptr fname)
      for(i = 1; i < ANGBAND_TERM_MAX; i++)
      {
           /* Require a real window */
-          if(!angband_term[i])
+          if(!angband_disp[i])
                continue;
 
           /* Check each flag */
@@ -838,7 +832,7 @@ option_dump(cptr fname)
 
                /* Comment */
                fprintf(fff, "# Window '%s', Flag '%s'\n",
-                       angband_term_name[i], window_flag_desc[j]);
+                       angband_disp_name[i], window_flag_desc[j]);
 
                /* Dump the flag */
                if(op_ptr->window_flag[i] & (1L << j))
@@ -876,11 +870,14 @@ do_cmd_options(void)
      /* Save screen */
      screen_save();
 
+     Disp_xtra(DISP_XTRA_PREP, DISPLAY_OPTIONS);
+     Disp_xtra(DISP_XTRA_SHOW, DISPLAY_OPTIONS);
+
      /* Interact */
      while(1)
      {
           /* Clear screen */
-          Term_clear();
+          Disp_clear();
 
           /* Why are we here */
           prt(format("%s options", VERSION_NAME), 2, 0);
@@ -907,6 +904,8 @@ do_cmd_options(void)
 
           /* Prompt */
           prt("Command: ", 20, 0);
+
+          Disp_param(DISPLAY_OPTIONS, DISP_PARAM_VAR1, (void *) -1);
 
           /* Get command */
           ch = inkey();
@@ -1066,6 +1065,8 @@ do_cmd_options(void)
           message_flush();
      }
 
+     Disp_xtra(DISP_XTRA_HIDE, DISPLAY_OPTIONS);
+
      /* Load screen */
      screen_load();
 }
@@ -1187,7 +1188,7 @@ do_cmd_macro_aux(char *buf)
      ascii_to_text(tmp, sizeof(tmp), buf);
 
      /* Hack -- display the trigger */
-     Term_addstr(-1, TERM_WHITE, tmp);
+     Disp_addstr(-1, COLOR_WHITE, tmp);
 }
 
 /*
@@ -1212,7 +1213,7 @@ do_cmd_macro_aux_keymap(char *buf)
      ascii_to_text(tmp, sizeof(tmp), buf);
 
      /* Hack -- display the trigger */
-     Term_addstr(-1, TERM_WHITE, tmp);
+     Disp_addstr(-1, COLOR_WHITE, tmp);
 
      /* Flush */
      flush();
@@ -1348,7 +1349,7 @@ do_cmd_macros(void)
      while(1)
      {
           /* Clear screen */
-          Term_clear();
+          Disp_clear();
 
           /* Describe */
           prt("Interact with Macros", 2, 0);
@@ -1650,7 +1651,7 @@ do_cmd_macros(void)
                prt("Command: Enter a new action", 16, 0);
 
                /* Go to the correct location */
-               Term_gotoxy(0, 22);
+               Disp_gotoxy(0, 22);
 
                /* Analyze the current action */
                ascii_to_text(tmp, sizeof(tmp), macro_buffer);
@@ -1705,7 +1706,7 @@ do_cmd_visuals(void)
      while(1)
      {
           /* Clear screen */
-          Term_clear();
+          Disp_clear();
 
           /* Ask for a choice */
           prt("Interact with Visuals", 2, 0);
@@ -2007,42 +2008,42 @@ do_cmd_visuals(void)
                     byte            cc = (byte) (r_ptr->x_char);
 
                     /* Label the object */
-                    Term_putstr(5, 17, -1, TERM_WHITE,
+                    Disp_putstr(5, 17, -1, COLOR_WHITE,
                                 format("Monster = %d, Name = %-40.40s",
                                        r, (r_name + r_ptr->name)));
 
                     /* Label the Default values */
-                    Term_putstr(10, 19, -1, TERM_WHITE,
+                    Disp_putstr(10, 19, -1, COLOR_WHITE,
                                 format("Default attr/char = %3u / %3u", da,
                                        dc));
-                    Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
-                    Term_putch(43, 19, da, dc);
+                    Disp_putstr(40, 19, -1, COLOR_WHITE, "<< ? >>");
+                    Disp_putch(43, 19, da, dc);
 
                     if(use_bigtile)
                     {
                          if(da & 0x80)
-                              Term_putch(44, 19, 255, -1);
+                              Disp_putch(44, 19, 255, -1);
                          else
-                              Term_putch(44, 19, 0, ' ');
+                              Disp_putch(44, 19, 0, ' ');
                     }
 
                     /* Label the Current values */
-                    Term_putstr(10, 20, -1, TERM_WHITE,
+                    Disp_putstr(10, 20, -1, COLOR_WHITE,
                                 format("Current attr/char = %3u / %3u", ca,
                                        cc));
-                    Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
-                    Term_putch(43, 20, ca, cc);
+                    Disp_putstr(40, 20, -1, COLOR_WHITE, "<< ? >>");
+                    Disp_putch(43, 20, ca, cc);
 
                     if(use_bigtile)
                     {
                          if(ca & 0x80)
-                              Term_putch(44, 20, 255, -1);
+                              Disp_putch(44, 20, 255, -1);
                          else
-                              Term_putch(44, 20, 0, ' ');
+                              Disp_putch(44, 20, 0, ' ');
                     }
 
                     /* Prompt */
-                    Term_putstr(0, 22, -1, TERM_WHITE,
+                    Disp_putstr(0, 22, -1, COLOR_WHITE,
                                 "Command (n/N/a/A/c/C): ");
 
                     /* Get a command */
@@ -2087,42 +2088,42 @@ do_cmd_visuals(void)
                     byte            cc = (byte) (k_ptr->x_char);
 
                     /* Label the object */
-                    Term_putstr(5, 17, -1, TERM_WHITE,
+                    Disp_putstr(5, 17, -1, COLOR_WHITE,
                                 format("Object = %d, Name = %-40.40s",
                                        k, (k_name + k_ptr->name)));
 
                     /* Label the Default values */
-                    Term_putstr(10, 19, -1, TERM_WHITE,
+                    Disp_putstr(10, 19, -1, COLOR_WHITE,
                                 format("Default attr/char = %3d / %3d", da,
                                        dc));
-                    Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
-                    Term_putch(43, 19, da, dc);
+                    Disp_putstr(40, 19, -1, COLOR_WHITE, "<< ? >>");
+                    Disp_putch(43, 19, da, dc);
 
                     if(use_bigtile)
                     {
                          if(da & 0x80)
-                              Term_putch(44, 19, 255, -1);
+                              Disp_putch(44, 19, 255, -1);
                          else
-                              Term_putch(44, 19, 0, ' ');
+                              Disp_putch(44, 19, 0, ' ');
                     }
 
                     /* Label the Current values */
-                    Term_putstr(10, 20, -1, TERM_WHITE,
+                    Disp_putstr(10, 20, -1, COLOR_WHITE,
                                 format("Current attr/char = %3d / %3d", ca,
                                        cc));
-                    Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
-                    Term_putch(43, 20, ca, cc);
+                    Disp_putstr(40, 20, -1, COLOR_WHITE, "<< ? >>");
+                    Disp_putch(43, 20, ca, cc);
 
                     if(use_bigtile)
                     {
                          if(ca & 0x80)
-                              Term_putch(44, 20, 255, -1);
+                              Disp_putch(44, 20, 255, -1);
                          else
-                              Term_putch(44, 20, 0, ' ');
+                              Disp_putch(44, 20, 0, ' ');
                     }
 
                     /* Prompt */
-                    Term_putstr(0, 22, -1, TERM_WHITE,
+                    Disp_putstr(0, 22, -1, COLOR_WHITE,
                                 "Command (n/N/a/A/c/C): ");
 
                     /* Get a command */
@@ -2167,42 +2168,42 @@ do_cmd_visuals(void)
                     byte            cc = (byte) (f_ptr->x_char);
 
                     /* Label the object */
-                    Term_putstr(5, 17, -1, TERM_WHITE,
+                    Disp_putstr(5, 17, -1, COLOR_WHITE,
                                 format("Terrain = %d, Name = %-40.40s",
                                        f, (f_name + f_ptr->name)));
 
                     /* Label the Default values */
-                    Term_putstr(10, 19, -1, TERM_WHITE,
+                    Disp_putstr(10, 19, -1, COLOR_WHITE,
                                 format("Default attr/char = %3d / %3d", da,
                                        dc));
-                    Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
-                    Term_putch(43, 19, da, dc);
+                    Disp_putstr(40, 19, -1, COLOR_WHITE, "<< ? >>");
+                    Disp_putch(43, 19, da, dc);
 
                     if(use_bigtile)
                     {
                          if(da & 0x80)
-                              Term_putch(44, 19, 255, -1);
+                              Disp_putch(44, 19, 255, -1);
                          else
-                              Term_putch(44, 19, 0, ' ');
+                              Disp_putch(44, 19, 0, ' ');
                     }
 
                     /* Label the Current values */
-                    Term_putstr(10, 20, -1, TERM_WHITE,
+                    Disp_putstr(10, 20, -1, COLOR_WHITE,
                                 format("Current attr/char = %3d / %3d", ca,
                                        cc));
-                    Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
-                    Term_putch(43, 20, ca, cc);
+                    Disp_putstr(40, 20, -1, COLOR_WHITE, "<< ? >>");
+                    Disp_putch(43, 20, ca, cc);
 
                     if(use_bigtile)
                     {
                          if(ca & 0x80)
-                              Term_putch(44, 20, 255, -1);
+                              Disp_putch(44, 20, 255, -1);
                          else
-                              Term_putch(44, 20, 0, ' ');
+                              Disp_putch(44, 20, 0, ' ');
                     }
 
                     /* Prompt */
-                    Term_putstr(0, 22, -1, TERM_WHITE,
+                    Disp_putstr(0, 22, -1, COLOR_WHITE,
                                 "Command (n/N/a/A/c/C): ");
 
                     /* Get a command */
@@ -2247,44 +2248,44 @@ do_cmd_visuals(void)
                     byte            cc = (byte) (flavor_ptr->x_char);
 
                     /* Label the object */
-                    Term_putstr(5, 17, -1, TERM_WHITE,
+                    Disp_putstr(5, 17, -1, COLOR_WHITE,
                                 format("Flavor = %d, Text = %-40.40s",
                                        f,
                                        (flavor_text + flavor_ptr->text)));
 
                     /* Label the Default values */
-                    Term_putstr(10, 19, -1, TERM_WHITE,
+                    Disp_putstr(10, 19, -1, COLOR_WHITE,
                                 format("Default attr/char = %3d / %3d", da,
                                        dc));
-                    Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
-                    Term_putch(43, 19, da, dc);
-                    Term_putch(43, 19, da, dc);
+                    Disp_putstr(40, 19, -1, COLOR_WHITE, "<< ? >>");
+                    Disp_putch(43, 19, da, dc);
+                    Disp_putch(43, 19, da, dc);
 
                     if(use_bigtile)
                     {
                          if(da & 0x80)
-                              Term_putch(44, 19, 255, -1);
+                              Disp_putch(44, 19, 255, -1);
                          else
-                              Term_putch(44, 19, 0, ' ');
+                              Disp_putch(44, 19, 0, ' ');
                     }
 
                     /* Label the Current values */
-                    Term_putstr(10, 20, -1, TERM_WHITE,
+                    Disp_putstr(10, 20, -1, COLOR_WHITE,
                                 format("Current attr/char = %3d / %3d", ca,
                                        cc));
-                    Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
-                    Term_putch(43, 20, ca, cc);
+                    Disp_putstr(40, 20, -1, COLOR_WHITE, "<< ? >>");
+                    Disp_putch(43, 20, ca, cc);
 
                     if(use_bigtile)
                     {
                          if(ca & 0x80)
-                              Term_putch(44, 20, 255, -1);
+                              Disp_putch(44, 20, 255, -1);
                          else
-                              Term_putch(44, 20, 0, ' ');
+                              Disp_putch(44, 20, 0, ' ');
                     }
 
                     /* Prompt */
-                    Term_putstr(0, 22, -1, TERM_WHITE,
+                    Disp_putstr(0, 22, -1, COLOR_WHITE,
                                 "Command (n/N/a/A/c/C): ");
 
                     /* Get a command */
@@ -2363,7 +2364,7 @@ do_cmd_colors(void)
      while(1)
      {
           /* Clear screen */
-          Term_clear();
+          Disp_clear();
 
           /* Ask for a choice */
           prt("Interact with Colors", 2, 0);
@@ -2394,10 +2395,10 @@ do_cmd_colors(void)
                /* Could skip the following if loading cancelled XXX XXX XXX */
 
                /* Mega-Hack -- React to color changes */
-               Term_xtra(TERM_XTRA_REACT, 0);
+               Disp_xtra(DISP_XTRA_REACT, 0);
 
                /* Mega-Hack -- Redraw physical windows */
-               Term_redraw();
+               Disp_redraw();
           }
 
 #ifdef ALLOW_COLORS
@@ -2492,10 +2493,10 @@ do_cmd_colors(void)
                     for(i = 0; i < 16; i++)
                     {
                          /* Exhibit this color */
-                         Term_putstr(i * 4, 20, -1, a, "###");
+                         Disp_putstr(i * 4, 20, -1, a, "###");
 
                          /* Exhibit all colors */
-                         Term_putstr(i * 4, 22, -1, (byte) i,
+                         Disp_putstr(i * 4, 22, -1, (byte) i,
                                      format("%3d", i));
                     }
 
@@ -2503,11 +2504,11 @@ do_cmd_colors(void)
                     name = ((a < 16) ? color_names[a] : "undefined");
 
                     /* Describe the color */
-                    Term_putstr(5, 10, -1, TERM_WHITE,
+                    Disp_putstr(5, 10, -1, COLOR_WHITE,
                                 format("Color = %d, Name = %s", a, name));
 
                     /* Label the Current values */
-                    Term_putstr(5, 12, -1, TERM_WHITE,
+                    Disp_putstr(5, 12, -1, COLOR_WHITE,
                                 format
                                 ("K = 0x%02x / R,G,B = 0x%02x,0x%02x,0x%02x",
                                  angband_color_table[a][0],
@@ -2516,7 +2517,7 @@ do_cmd_colors(void)
                                  angband_color_table[a][3]));
 
                     /* Prompt */
-                    Term_putstr(0, 14, -1, TERM_WHITE,
+                    Disp_putstr(0, 14, -1, COLOR_WHITE,
                                 "Command (n/N/k/K/r/R/g/G/b/B): ");
 
                     /* Get a command */
@@ -2557,10 +2558,10 @@ do_cmd_colors(void)
                              (byte) (angband_color_table[a][3] - 1);
 
                     /* Hack -- react to changes */
-                    Term_xtra(TERM_XTRA_REACT, 0);
+                    Disp_xtra(DISP_XTRA_REACT, 0);
 
                     /* Hack -- redraw */
-                    Term_redraw();
+                    Disp_redraw();
                }
           }
 
@@ -2669,14 +2670,10 @@ void
 do_cmd_load_screen(void)
 {
      int             i, y, x;
-
      byte            a = 0;
      char            c = ' ';
-
      bool            okay = TRUE;
-
      FILE           *fp;
-
      char            buf[1024];
 
      /* Build the filename */
@@ -2693,7 +2690,7 @@ do_cmd_load_screen(void)
      screen_save();
 
      /* Clear the screen */
-     Term_clear();
+     Disp_clear();
 
      /* Load the screen */
      for(y = 0; okay && (y < 24); y++)
@@ -2706,7 +2703,7 @@ do_cmd_load_screen(void)
           for(x = 0; x < 79; x++)
           {
                /* Put the attr/char */
-               Term_draw(x, y, TERM_WHITE, buf[x]);
+               Disp_draw(x, y, COLOR_WHITE, buf[x]);
           }
      }
 
@@ -2725,7 +2722,7 @@ do_cmd_load_screen(void)
           for(x = 0; x < 79; x++)
           {
                /* Get the attr/char */
-               (void) (Term_what(x, y, &a, &c));
+               (void) (Disp_what(x, y, &a, &c));
 
                /* Look up the attr */
                for(i = 0; i < 16; i++)
@@ -2736,7 +2733,7 @@ do_cmd_load_screen(void)
                }
 
                /* Put the attr/char */
-               Term_draw(x, y, a, c);
+               Disp_draw(x, y, a, c);
           }
      }
 
@@ -2758,12 +2755,9 @@ void
 do_cmd_save_screen(void)
 {
      int             y, x;
-
      byte            a = 0;
      char            c = ' ';
-
      FILE           *fff;
-
      char            buf[1024];
 
      /* Build the filename */
@@ -2789,7 +2783,7 @@ do_cmd_save_screen(void)
           for(x = 0; x < 79; x++)
           {
                /* Get the attr/char */
-               (void) (Term_what(x, y, &a, &c));
+               (void) (Disp_what(x, y, &a, &c));
 
                /* Dump it */
                buf[x] = c;
@@ -2812,7 +2806,7 @@ do_cmd_save_screen(void)
           for(x = 0; x < 79; x++)
           {
                /* Get the attr/char */
-               (void) (Term_what(x, y, &a, &c));
+               (void) (Disp_what(x, y, &a, &c));
 
                /* Dump it */
                buf[x] = hack[a & 0x0F];
@@ -2846,13 +2840,9 @@ static void
 do_cmd_knowledge_artifacts(void)
 {
      int             i, k, z, x, y;
-
      FILE           *fff;
-
      char            file_name[1024];
-
      char            o_name[80];
-
      bool           *okay;
 
      /* Temporary file */
@@ -3141,7 +3131,7 @@ do_cmd_knowledge(void)
      while(1)
      {
           /* Clear screen */
-          Term_clear();
+          Disp_clear();
 
           /* Ask for a choice */
           prt("Display current knowledge", 2, 0);

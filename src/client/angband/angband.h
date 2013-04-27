@@ -1,5 +1,5 @@
 
-/* $Id: angband.h,v 1.3 2003/03/17 22:45:23 cipher Exp $ */
+/* $Id: angband.h,v 1.4 2003/04/01 07:15:42 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -24,7 +24,8 @@
 #include "z-virt.h"
 #include "z-form.h"
 #include "z-rand.h"
-#include "z-term.h"
+#include "z-disp.h"
+// #include "z-disp.h"
 
 /*
  * Include the high-level includes.

@@ -1,5 +1,5 @@
 
-/* $Id: spells2.c,v 1.3 2003/03/17 22:45:28 cipher Exp $ */
+/* $Id: spells2.c,v 1.4 2003/04/01 07:16:06 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -848,7 +848,7 @@ self_knowledge(void)
      screen_save();
 
      /* Clear the screen */
-     Term_clear();
+     Disp_clear();
 
      /* Label the information */
      prt("     Your Attributes:", 1, 0);
@@ -866,7 +866,7 @@ self_knowledge(void)
                inkey();
 
                /* Clear the screen */
-               Term_clear();
+               Disp_clear();
 
                /* Label the information */
                prt("     Your Attributes:", 1, 0);

@@ -1,5 +1,5 @@
 
-/* $Id: birth.c,v 1.11 2003/03/24 06:04:51 cipher Exp $ */
+/* $Id: birth.c,v 1.15 2003/04/07 00:27:13 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -11,9 +11,6 @@
 
 #include "angband.h"
 #include "script.h"
-
-#include "sdl/scene.h"
-#include "sdl/render/overlay.h"
 
 /*
  * Forward declare
@@ -563,24 +560,24 @@ player_birth_aux_1(void)
  /*** Instructions ***/
 
      /* Clear screen */
-     Term_clear();
+     Disp_clear();
 
      /* Display some helpful information */
-     Term_putstr(5, 10, -1, TERM_WHITE,
+     Disp_putstr(5, 10, -1, COLOR_WHITE,
                  "Please answer the following questions.  Most of the questions");
-     Term_putstr(5, 11, -1, TERM_WHITE,
+     Disp_putstr(5, 11, -1, COLOR_WHITE,
                  "display a set of standard answers, and many will also accept");
-     Term_putstr(5, 12, -1, TERM_WHITE,
+     Disp_putstr(5, 12, -1, COLOR_WHITE,
                  "some special responses, including 'Q' to quit, 'S' to restart,");
-     Term_putstr(5, 13, -1, TERM_WHITE,
+     Disp_putstr(5, 13, -1, COLOR_WHITE,
                  "and '?' for help.  Note that 'Q' and 'S' must be capitalized.");
 
  /*** Player sex ***/
 
-     Term_xtra(TERM_XTRA_STAGE, IH_SCENE_NEW_CHARACTER_STAGE_GENDER);
+     Disp_xtra(DISP_XTRA_STAGE, SCENE_NEW_CHARACTER_STAGE_GENDER);
 
      /* Extra info */
-     Term_putstr(5, 15, -1, TERM_WHITE,
+     Disp_putstr(5, 15, -1, COLOR_WHITE,
                  "Your 'sex' does not have any significant gameplay effects.");
 
      /* Prompt for "Sex" */
@@ -627,17 +624,17 @@ player_birth_aux_1(void)
 
      /* Sex */
      put_str("Sex", 3, 1);
-     c_put_str(TERM_L_BLUE, sp_ptr->title, 3, 8);
+     c_put_str(COLOR_L_BLUE, sp_ptr->title, 3, 8);
 
      /* Clean up */
      clear_from(15);
 
  /*** Player race ***/
 
-     Term_xtra(TERM_XTRA_STAGE, IH_SCENE_NEW_CHARACTER_STAGE_RACE);
+     Disp_xtra(DISP_XTRA_STAGE, SCENE_NEW_CHARACTER_STAGE_RACE);
 
      /* Extra info */
-     Term_putstr(5, 15, -1, TERM_WHITE,
+     Disp_putstr(5, 15, -1, COLOR_WHITE,
                  "Your 'race' determines various intrinsic factors and bonuses.");
 
      /* Dump races */
@@ -645,7 +642,7 @@ player_birth_aux_1(void)
      {
           /* Analyze */
           p_ptr->prace = n;
-          rp_ptr = &p_info[p_ptr->prace];
+          rp_ptr = &p_info[n];
           str = p_name + rp_ptr->name;
 
           /* Display */
@@ -684,19 +681,19 @@ player_birth_aux_1(void)
 
      /* Race */
      put_str("Race", 4, 1);
-     c_put_str(TERM_L_BLUE, p_name + rp_ptr->name, 4, 8);
+     c_put_str(COLOR_L_BLUE, p_name + rp_ptr->name, 4, 8);
 
      /* Clean up */
      clear_from(15);
 
  /*** Player class ***/
 
-     Term_xtra(TERM_XTRA_STAGE, IH_SCENE_NEW_CHARACTER_STAGE_CLASS);
+     Disp_xtra(DISP_XTRA_STAGE, SCENE_NEW_CHARACTER_STAGE_CLASS);
 
      /* Extra info */
-     Term_putstr(5, 15, -1, TERM_WHITE,
+     Disp_putstr(5, 15, -1, COLOR_WHITE,
                  "Your 'class' determines various intrinsic abilities and bonuses.");
-     Term_putstr(5, 16, -1, TERM_WHITE,
+     Disp_putstr(5, 16, -1, COLOR_WHITE,
                  "Any entries with a (*) should only be used by advanced players.");
 
      /* Dump classes */
@@ -762,19 +759,19 @@ player_birth_aux_1(void)
 
      /* Class */
      put_str("Class", 5, 1);
-     c_put_str(TERM_L_BLUE, c_name + cp_ptr->name, 5, 8);
+     c_put_str(COLOR_L_BLUE, c_name + cp_ptr->name, 5, 8);
 
      /* Clean up */
      clear_from(15);
 
-#if 0
-
  /*** Birth options ***/
 
+     Disp_xtra(DISP_XTRA_STAGE, SCENE_NEW_CHARACTER_STAGE_OPTIONS_QUERY);
+
      /* Extra info */
-     Term_putstr(5, 15, -1, TERM_WHITE,
+     Disp_putstr(5, 15, -1, COLOR_WHITE,
                  "You can change your options at any time, but the 'Birth' options");
-     Term_putstr(5, 16, -1, TERM_WHITE,
+     Disp_putstr(5, 16, -1, COLOR_WHITE,
                  "must be changed now to affect the birth of this character.");
 
      /* Verify birth options */
@@ -800,10 +797,13 @@ player_birth_aux_1(void)
      /* Verify */
      if(ch == 'y')
      {
+          Disp_xtra(DISP_XTRA_PREP, DISPLAY_OPTIONS);
+          Disp_xtra(DISP_XTRA_SHOW, DISPLAY_OPTIONS);
+          Disp_xtra(DISP_XTRA_STAGE, SCENE_NEW_CHARACTER_STAGE_OPTIONS);
+
           /* Interact with options */
           do_cmd_options();
      }
-#endif
 
      /* Set adult options from birth options */
      for(i = OPT_BIRTH; i < OPT_CHEAT; i++)
@@ -854,8 +854,8 @@ player_birth_aux_2(void)
      char            buf[80];
 
      /* Set the display */
-     Term_xtra(TERM_XTRA_STAGE,
-               IH_SCENE_NEW_CHARACTER_STAGE_STATS_POINTBASED);
+     Disp_xtra(DISP_XTRA_STAGE,
+               SCENE_NEW_CHARACTER_STAGE_STATS_POINTBASED);
 
      /* Initialize stats */
      for(i = 0; i < A_MAX; i++)
@@ -954,7 +954,7 @@ player_birth_aux_2(void)
           prt(buf, 0, 0);
 
           /* Place cursor just after cost of current stat */
-          Term_gotoxy(col + 36, row + stat);
+          Disp_gotoxy(col + 36, row + stat);
 
           /* Get key */
           ch = inkey();
@@ -1034,17 +1034,17 @@ player_birth_aux_3(void)
           int             mval[A_MAX];
           char            inp[80];
 
-          Term_xtra(TERM_XTRA_STAGE,
-                    IH_SCENE_NEW_CHARACTER_STAGE_STATS_AUTOROLLER);
+          Disp_xtra(DISP_XTRA_STAGE,
+                    SCENE_NEW_CHARACTER_STAGE_STATS_AUTOROLLER);
 
           /* Extra info */
-          Term_putstr(5, 10, -1, TERM_WHITE,
+          Disp_putstr(5, 10, -1, COLOR_WHITE,
                       "The auto-roller will automatically ignore characters which do");
-          Term_putstr(5, 11, -1, TERM_WHITE,
+          Disp_putstr(5, 11, -1, COLOR_WHITE,
                       "not meet the minimum values for any stats specified below.");
-          Term_putstr(5, 12, -1, TERM_WHITE,
+          Disp_putstr(5, 12, -1, COLOR_WHITE,
                       "Note that stats are not independent, so it is not possible to");
-          Term_putstr(5, 13, -1, TERM_WHITE,
+          Disp_putstr(5, 13, -1, COLOR_WHITE,
                       "get perfect (or even high) values for all your stats.");
 
           /* Prompt for the minimum stats */
@@ -1142,7 +1142,7 @@ player_birth_aux_3(void)
           /* Feedback */
           if(adult_auto_roller)
           {
-               Term_clear();
+               Disp_clear();
 
                /* Labels */
                put_str(" Limit", 2, col + 5);
@@ -1157,7 +1157,7 @@ player_birth_aux_3(void)
 
                     /* Put the stat */
                     cnv_stat(stat_limit[i], buf);
-                    c_put_str(TERM_L_BLUE, buf, 3 + i, col + 5);
+                    c_put_str(COLOR_L_BLUE, buf, 3 + i, col + 5);
                }
 
                /* Note when we started */
@@ -1215,7 +1215,7 @@ player_birth_aux_3(void)
                          {
                               /* Put the stat */
                               cnv_stat(stat_use[i], buf);
-                              c_put_str(TERM_L_GREEN, buf,
+                              c_put_str(COLOR_L_GREEN, buf,
                                         3 + i, col + 24);
 
                               /* Put the percent */
@@ -1225,16 +1225,17 @@ player_birth_aux_3(void)
                                        stat_match[i] / auto_round;
                                    byte            attr =
                                        (p <
-                                        100) ? TERM_YELLOW : TERM_L_GREEN;
-                                   sprintf(buf,
-                                           "%3d.%d%%", p / 10, p % 10);
+                                        100) ? COLOR_YELLOW :
+                                       COLOR_L_GREEN;
+                                   sprintf(buf, "%3d.%d%%", p / 10,
+                                           p % 10);
                                    c_put_str(attr, buf, 3 + i, col + 13);
                               }
 
                               /* Never happened */
                               else
                               {
-                                   c_put_str(TERM_RED,
+                                   c_put_str(COLOR_RED,
                                              "(NONE)", 3 + i, col + 13);
                               }
                          }
@@ -1244,11 +1245,11 @@ player_birth_aux_3(void)
                                  10, col + 20);
 
                          /* Make sure they see everything */
-                         Term_fresh();
+                         Disp_fresh();
 
                          /* Delay 1/10 second */
                          if(flag)
-                              Term_xtra(TERM_XTRA_DELAY, 100);
+                              Disp_xtra(DISP_XTRA_DELAY, 100);
 
                          /* Do not wait for a key */
                          inkey_scan = TRUE;
@@ -1273,11 +1274,12 @@ player_birth_aux_3(void)
   /*** Display ***/
 
           /* Force the overlay on */
-          Term_xtra(TERM_XTRA_OVER1, IH_OVERLAY_CHARACTER);
+          Disp_xtra(DISP_XTRA_PREP, DISPLAY_CHARACTER);
+          Disp_xtra(DISP_XTRA_SHOW, DISPLAY_CHARACTER);
 
           /* Set the display */
-          Term_xtra(TERM_XTRA_STAGE,
-                    IH_SCENE_NEW_CHARACTER_STAGE_STATS_APPROVE);
+          Disp_xtra(DISP_XTRA_STAGE,
+                    SCENE_NEW_CHARACTER_STAGE_STATS_APPROVE);
 
           /* Roll for base hitpoints */
           get_extra();
@@ -1310,13 +1312,13 @@ player_birth_aux_3(void)
                display_player(0);
 
                /* Prepare a prompt (must squeeze everything in) */
-               Term_gotoxy(2, 23);
-               Term_addch(TERM_WHITE, b1);
-               Term_addstr(-1, TERM_WHITE, "'r' to reroll");
+               Disp_gotoxy(2, 23);
+               Disp_addch(COLOR_WHITE, b1);
+               Disp_addstr(-1, COLOR_WHITE, "'r' to reroll");
                if(prev)
-                    Term_addstr(-1, TERM_WHITE, ", 'p' for prev");
-               Term_addstr(-1, TERM_WHITE, ", or 'Enter' to accept");
-               Term_addch(TERM_WHITE, b2);
+                    Disp_addstr(-1, COLOR_WHITE, ", 'p' for prev");
+               Disp_addstr(-1, COLOR_WHITE, ", or 'Enter' to accept");
+               Disp_addch(COLOR_WHITE, b2);
 
                /* Prompt and get a command */
                ch = inkey();
@@ -1406,7 +1408,7 @@ player_birth_aux(void)
      }
 
      /* Set the display */
-     Term_xtra(TERM_XTRA_STAGE, IH_SCENE_NEW_CHARACTER_STAGE_NAME);
+     Disp_xtra(DISP_XTRA_STAGE, SCENE_NEW_CHARACTER_STAGE_NAME);
 
      /* Get a name, prepare savefile */
      get_name();
@@ -1415,10 +1417,10 @@ player_birth_aux(void)
      display_player(0);
 
      /* Set the display */
-     Term_xtra(TERM_XTRA_STAGE, IH_SCENE_NEW_CHARACTER_STAGE_FINALIZE);
+     Disp_xtra(DISP_XTRA_STAGE, SCENE_NEW_CHARACTER_STAGE_FINALIZE);
 
      /* Prompt for it */
-     prt(prompt, Term->hgt - 1, Term->wid / 2 - strlen(prompt) / 2);
+     prt(prompt, Disp->hgt - 1, Disp->wid / 2 - strlen(prompt) / 2);
 
      /* Get a key */
      ch = inkey();
@@ -1449,8 +1451,8 @@ player_birth(void)
      /* Create a new character */
      while(1)
      {
-          Term_xtra(TERM_XTRA_SCENE, IH_SCENE_NEW_CHARACTER);
-          Term_xtra(TERM_XTRA_STAGE, IH_SCENE_NEW_CHARACTER_STAGE_GENDER);
+          Disp_xtra(DISP_XTRA_SCENE, SCENE_NEW_CHARACTER);
+          Disp_xtra(DISP_XTRA_STAGE, SCENE_NEW_CHARACTER_STAGE_GENDER);
 
           /* Wipe the player */
           player_wipe();

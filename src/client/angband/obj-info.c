@@ -1,5 +1,5 @@
 
-/* $Id: obj-info.c,v 1.3 2003/03/17 22:45:28 cipher Exp $ */
+/* $Id: obj-info.c,v 1.4 2003/04/01 07:16:05 cipher Exp $ */
 
 /*
  * Copyright (c) 2002 Andrew Sidwell, Robert Ruehlmann
@@ -599,7 +599,7 @@ static void
 screen_out_head(const object_type * o_ptr)
 {
      char           *o_name;
-     int             name_size = Term->wid;
+     int             name_size = Disp->wid;
 
      /* Allocate memory to the size of the screen */
      o_name = C_RNEW(name_size, char);
@@ -608,7 +608,7 @@ screen_out_head(const object_type * o_ptr)
      object_desc(o_name, name_size, o_ptr, TRUE, 3);
 
      /* Print, in colour */
-     text_out_c(TERM_YELLOW, format("%^s\n\n   ", o_name));
+     text_out_c(COLOR_YELLOW, format("%^s\n\n   ", o_name));
 
      /* Free up the memory */
      KILL(o_name);
@@ -650,7 +650,7 @@ object_info_screen(const object_type * o_ptr)
                text_out
                    ("This item does not seem to possess any special abilities.  ");
 
-          text_out_c(TERM_L_BLUE, "\n\n[Press any key to continue]\n");
+          text_out_c(COLOR_L_BLUE, "\n\n[Press any key to continue]\n");
 
           /* Wait for input */
           (void) inkey();

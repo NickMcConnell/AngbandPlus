@@ -1,5 +1,5 @@
 
-/* $Id: ang-main.c,v 1.1 2003/03/19 21:53:03 cipher Exp $ */
+/* $Id: ang-main.c,v 1.3 2003/04/01 22:26:03 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, and others
@@ -98,11 +98,11 @@ quit_hook(cptr s)
      for(j = ANGBAND_TERM_MAX - 1; j >= 0; j--)
      {
           /* Unused */
-          if(!angband_term[j])
+          if(!angband_disp[j])
                continue;
 
           /* Nuke it */
-          term_nuke(angband_term[j]);
+          disp_nuke(angband_disp[j]);
      }
 }
 
@@ -627,7 +627,7 @@ main(int argc,
           display_scores(0, show_score);
 
      /* Wait for response */
-     pause_line(Term->hgt - 1);
+     pause_line(Disp->hgt - 1);
 
      /* Play the game */
      play_game(new_game);

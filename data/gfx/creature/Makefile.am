@@ -1,9 +1,16 @@
 ## Makefile.am -- Process this file with automake to process Makefile.in
 ## gfx/creature
+
+SUBDIRS = player
  
 ironhells_files = \
 	MANIFEST \
-	scruffy-looking-hobbit.png
+	boil-covered-wretch.png \
+	farmer-maggot.png \
+	mangy-looking-leper.png \
+	player.png \
+	scruffy-looking-hobbit.png \
+	singing-happy-drunk.png
     
 EXTRA_DIST = \
 	$(ironhells_files)

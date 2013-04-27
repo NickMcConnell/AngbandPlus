@@ -1,5 +1,5 @@
 
-/* $Id: cmd1.c,v 1.3 2003/03/17 22:45:23 cipher Exp $ */
+/* $Id: cmd1.c,v 1.4 2003/04/08 04:28:23 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -1384,7 +1384,7 @@ move_player(int dir,
      else
      {
           /* Sound XXX XXX XXX */
-          /* sound(MSG_WALK); */
+          sound(MSG_WALK);
 
           /* Move player */
           monster_swap(py, px, y, x);

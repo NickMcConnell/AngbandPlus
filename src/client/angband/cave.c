@@ -1,5 +1,5 @@
 
-/* $Id: cave.c,v 1.6 2003/03/23 06:10:27 cipher Exp $ */
+/* $Id: cave.c,v 1.7 2003/04/01 07:15:42 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -670,7 +670,7 @@ map_info(int y,
                c = f_ptr->x_char;
 
                /* Special lighting effects */
-               if(view_special_lite && ((a == TERM_WHITE) || graf_new))
+               if(view_special_lite && ((a == COLOR_WHITE) || graf_new))
                {
                     /* Handle "seen" grids */
                     if(info & (CAVE_SEEN))
@@ -690,7 +690,7 @@ map_info(int y,
                               else
                               {
                                    /* Use "yellow" */
-                                   a = TERM_YELLOW;
+                                   a = COLOR_YELLOW;
                               }
                          }
                     }
@@ -706,7 +706,7 @@ map_info(int y,
                          else
                          {
                               /* Use "dark gray" */
-                              a = TERM_L_DARK;
+                              a = COLOR_L_DARK;
                          }
                     }
 
@@ -721,7 +721,7 @@ map_info(int y,
                          else
                          {
                               /* Use "dark gray" */
-                              a = TERM_L_DARK;
+                              a = COLOR_L_DARK;
                          }
                     }
 
@@ -736,7 +736,7 @@ map_info(int y,
                          else
                          {
                               /* Use "gray" */
-                              a = TERM_SLATE;
+                              a = COLOR_SLATE;
                          }
                     }
                }
@@ -776,7 +776,7 @@ map_info(int y,
 
                /* Special lighting effects (walls only) */
                if(view_granite_lite &&
-                  (((a == TERM_WHITE) && !use_transparency
+                  (((a == COLOR_WHITE) && !use_transparency
                     && (feat >= FEAT_SECRET)) || (use_transparency
                                                   &&
                                                   feat_supports_lighting
@@ -806,7 +806,7 @@ map_info(int y,
                          else
                          {
                               /* Use "dark gray" */
-                              a = TERM_L_DARK;
+                              a = COLOR_L_DARK;
                          }
                     }
 
@@ -821,7 +821,7 @@ map_info(int y,
                          else
                          {
                               /* Use "gray" */
-                              a = TERM_SLATE;
+                              a = COLOR_SLATE;
                          }
                     }
                     else
@@ -1088,7 +1088,7 @@ move_cursor_relative(int y,
           vx += kx;
 
      /* Go there */
-     (void) Term_gotoxy(vx, vy);
+     (void) Disp_gotoxy(vx, vy);
 }
 
 /*
@@ -1096,7 +1096,7 @@ move_cursor_relative(int y,
  *
  * Note the inline use of "panel_contains()" for efficiency.
  *
- * Note the use of "Term_queue_char()" for efficiency.
+ * Note the use of "Disp_queue_char()" for efficiency.
  *
  * The main screen will always be at least 24x80 in size.
  */
@@ -1133,15 +1133,15 @@ print_rel(char c,
           vx += kx;
 
      /* Hack -- Queue it */
-     Term_queue_char(vx, vy, a, c, 0, 0);
+     Disp_queue_char(vx, vy, a, c, 0, 0);
 
      if(use_bigtile)
      {
           /* Mega-Hack : Queue dummy char */
           if(a & 0x80)
-               Term_queue_char(vx + 1, vy, 255, -1, 0, 0);
+               Disp_queue_char(vx + 1, vy, 255, -1, 0, 0);
           else
-               Term_queue_char(vx + 1, vy, TERM_WHITE, ' ', 0, 0);
+               Disp_queue_char(vx + 1, vy, COLOR_WHITE, ' ', 0, 0);
      }
 }
 
@@ -1271,7 +1271,7 @@ lite_spot(int y,
 #endif
 
      /* Hack -- Queue it */
-     Term_queue_char(vx, vy, a, c, ta, tc);
+     Disp_queue_char(vx, vy, a, c, ta, tc);
 
      if(use_bigtile)
      {
@@ -1279,9 +1279,9 @@ lite_spot(int y,
 
           /* Mega-Hack : Queue dummy char */
           if(a & 0x80)
-               Term_queue_char(vx, vy, 255, -1, 0, 0);
+               Disp_queue_char(vx, vy, 255, -1, 0, 0);
           else
-               Term_queue_char(vx, vy, TERM_WHITE, ' ', TERM_WHITE, ' ');
+               Disp_queue_char(vx, vy, COLOR_WHITE, ' ', COLOR_WHITE, ' ');
      }
 }
 
@@ -1324,7 +1324,7 @@ prt_map(void)
 #endif
 
                /* Hack -- Queue it */
-               Term_queue_char(vx, vy, a, c, ta, tc);
+               Disp_queue_char(vx, vy, a, c, ta, tc);
 
                if(use_bigtile)
                {
@@ -1332,10 +1332,10 @@ prt_map(void)
 
                     /* Mega-Hack : Queue dummy char */
                     if(a & 0x80)
-                         Term_queue_char(vx, vy, 255, -1, 0, 0);
+                         Disp_queue_char(vx, vy, 255, -1, 0, 0);
                     else
-                         Term_queue_char(vx, vy, TERM_WHITE,
-                                         ' ', TERM_WHITE, ' ');
+                         Disp_queue_char(vx, vy, COLOR_WHITE,
+                                         ' ', COLOR_WHITE, ' ');
                }
           }
      }
@@ -1420,7 +1420,7 @@ priority(byte a,
 }
 
 /*
- * Display a "small-scale" map of the dungeon in the active Term.
+ * Display a "small-scale" map of the dungeon in the active Disp.
  *
  * Note that this function must "disable" the special lighting effects so
  * that the "priority" function will work.
@@ -1455,8 +1455,8 @@ display_map(int *cy,
      monster_race   *r_ptr = &r_info[0];
 
      /* Desired map height */
-     map_hgt = Term->hgt - 2;
-     map_wid = Term->wid - 2;
+     map_hgt = Disp->hgt - 2;
+     map_wid = Disp->wid - 2;
 
      dungeon_hgt = (p_ptr->depth == 0) ? TOWN_HGT : DUNGEON_HGT;
      dungeon_wid = (p_ptr->depth == 0) ? TOWN_WID : DUNGEON_WID;
@@ -1480,7 +1480,7 @@ display_map(int *cy,
      view_granite_lite = FALSE;
 
      /* Nothing here */
-     ta = TERM_WHITE;
+     ta = COLOR_WHITE;
      tc = ' ';
 
      /* Clear the priorities */
@@ -1501,23 +1501,23 @@ display_map(int *cy,
      y = map_hgt + 1;
 
      /* Draw the corners */
-     Term_putch(0, 0, ta, '+');
-     Term_putch(x, 0, ta, '+');
-     Term_putch(0, y, ta, '+');
-     Term_putch(x, y, ta, '+');
+     Disp_putch(0, 0, ta, '+');
+     Disp_putch(x, 0, ta, '+');
+     Disp_putch(0, y, ta, '+');
+     Disp_putch(x, y, ta, '+');
 
      /* Draw the horizontal edges */
      for(x = 1; x <= map_wid; x++)
      {
-          Term_putch(x, 0, ta, '-');
-          Term_putch(x, y, ta, '-');
+          Disp_putch(x, 0, ta, '-');
+          Disp_putch(x, y, ta, '-');
      }
 
      /* Draw the vertical edges */
      for(y = 1; y <= map_hgt; y++)
      {
-          Term_putch(0, y, ta, '|');
-          Term_putch(x, y, ta, '|');
+          Disp_putch(0, y, ta, '|');
+          Disp_putch(x, y, ta, '|');
      }
 
      /* Analyze the actual map */
@@ -1548,15 +1548,15 @@ display_map(int *cy,
                if(mp[row][col] < tp)
                {
                     /* Add the character */
-                    Term_putch(col + 1, row + 1, ta, tc);
+                    Disp_putch(col + 1, row + 1, ta, tc);
 
                     if(use_bigtile)
                     {
                          if(ta & 0x80)
-                              Term_putch(col + 2, row + 1, 255, -1);
+                              Disp_putch(col + 2, row + 1, 255, -1);
                          else
-                              Term_putch(col + 2, row + 1,
-                                         TERM_WHITE, ' ');
+                              Disp_putch(col + 2, row + 1,
+                                         COLOR_WHITE, ' ');
                     }
 
                     /* Save priority */
@@ -1581,7 +1581,7 @@ display_map(int *cy,
      tc = r_ptr->x_char;
 
      /* Draw the player */
-     Term_putch(col + 1, row + 1, ta, tc);
+     Disp_putch(col + 1, row + 1, ta, tc);
 
      /* Return player location */
      if(cy != NULL)
@@ -1612,19 +1612,19 @@ do_cmd_view_map(void)
      prt("Please wait...", 0, 0);
 
      /* Flush */
-     Term_fresh();
+     Disp_fresh();
 
      /* Clear the screen */
-     Term_clear();
+     Disp_clear();
 
      /* Display the map */
      display_map(&cy, &cx);
 
      /* Show the prompt */
-     put_str(prompt, Term->hgt - 1, Term->wid / 2 - strlen(prompt) / 2);
+     put_str(prompt, Disp->hgt - 1, Disp->wid / 2 - strlen(prompt) / 2);
 
      /* Hilite the player */
-     Term_gotoxy(cx, cy);
+     Disp_gotoxy(cx, cy);
 
      /* Get any key */
      (void) inkey();

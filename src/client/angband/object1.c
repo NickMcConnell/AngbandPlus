@@ -1,5 +1,5 @@
 
-/* $Id: object1.c,v 1.3 2003/03/17 22:45:28 cipher Exp $ */
+/* $Id: object1.c,v 1.7 2003/04/07 00:27:13 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -364,7 +364,7 @@ reset_visuals(bool unused)
      for(i = 0; i < 128; i++)
      {
           /* Default to white */
-          tval_to_attr[i] = TERM_WHITE;
+          tval_to_attr[i] = COLOR_WHITE;
      }
 
      /* Graphic symbols */
@@ -2030,13 +2030,9 @@ void
 display_inven(void)
 {
      register int    i, n, z = 0;
-
      object_type    *o_ptr;
-
      byte            attr;
-
      char            tmp_val[80];
-
      char            o_name[80];
 
      /* Find the "final" slot */
@@ -2072,7 +2068,7 @@ display_inven(void)
           }
 
           /* Display the index (or blank space) */
-          Term_putstr(0, i, 3, TERM_WHITE, tmp_val);
+          Disp_putstr(0, i, 3, COLOR_WHITE, tmp_val);
 
           /* Obtain an item description */
           object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
@@ -2084,10 +2080,10 @@ display_inven(void)
           attr = tval_to_attr[o_ptr->tval % N_ELEMENTS(tval_to_attr)];
 
           /* Display the entry itself */
-          Term_putstr(3, i, n, attr, o_name);
+          Disp_putstr(3, i, n, attr, o_name);
 
           /* Erase the rest of the line */
-          Term_erase(3 + n, i, 255);
+          Disp_erase(3 + n, i, 255);
 
           /* Display the weight if needed */
           if(show_weights && o_ptr->weight)
@@ -2095,15 +2091,15 @@ display_inven(void)
                int             wgt = o_ptr->weight * o_ptr->number;
 
                sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
-               Term_putstr(71, i, -1, TERM_WHITE, tmp_val);
+               Disp_putstr(71, i, -1, COLOR_WHITE, tmp_val);
           }
      }
 
      /* Erase the rest of the window */
-     for(i = z; i < Term->hgt; i++)
+     for(i = z; i < Disp->hgt; i++)
      {
           /* Erase the line */
-          Term_erase(0, i, 255);
+          Disp_erase(0, i, 255);
      }
 }
 
@@ -2116,9 +2112,7 @@ display_equip(void)
      register int    i, n;
      object_type    *o_ptr;
      byte            attr;
-
      char            tmp_val[80];
-
      char            o_name[80];
 
      /* Display the equipment */
@@ -2141,7 +2135,7 @@ display_equip(void)
           }
 
           /* Display the index (or blank space) */
-          Term_putstr(0, i - INVEN_WIELD, 3, TERM_WHITE, tmp_val);
+          Disp_putstr(0, i - INVEN_WIELD, 3, COLOR_WHITE, tmp_val);
 
           /* Obtain an item description */
           object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
@@ -2153,16 +2147,16 @@ display_equip(void)
           attr = tval_to_attr[o_ptr->tval % N_ELEMENTS(tval_to_attr)];
 
           /* Display the entry itself */
-          Term_putstr(3, i - INVEN_WIELD, n, attr, o_name);
+          Disp_putstr(3, i - INVEN_WIELD, n, attr, o_name);
 
           /* Erase the rest of the line */
-          Term_erase(3 + n, i - INVEN_WIELD, 255);
+          Disp_erase(3 + n, i - INVEN_WIELD, 255);
 
           /* Display the slot description (if needed) */
           if(show_labels)
           {
-               Term_putstr(61, i - INVEN_WIELD, -1, TERM_WHITE, "<--");
-               Term_putstr(65, i - INVEN_WIELD, -1, TERM_WHITE,
+               Disp_putstr(61, i - INVEN_WIELD, -1, COLOR_WHITE, "<--");
+               Disp_putstr(65, i - INVEN_WIELD, -1, COLOR_WHITE,
                            mention_use(i));
           }
 
@@ -2173,15 +2167,15 @@ display_equip(void)
                int             col = (show_labels ? 52 : 71);
 
                sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
-               Term_putstr(col, i - INVEN_WIELD, -1, TERM_WHITE, tmp_val);
+               Disp_putstr(col, i - INVEN_WIELD, -1, COLOR_WHITE, tmp_val);
           }
      }
 
      /* Erase the rest of the window */
-     for(i = INVEN_TOTAL - INVEN_WIELD; i < Term->hgt; i++)
+     for(i = INVEN_TOTAL - INVEN_WIELD; i < Disp->hgt; i++)
      {
           /* Clear that line */
-          Term_erase(0, i, 255);
+          Disp_erase(0, i, 255);
      }
 }
 
@@ -2195,16 +2189,16 @@ show_inven(void)
 {
      int             i, j, k, l, z = 0;
      int             col, len, lim;
-
      object_type    *o_ptr;
-
      char            o_name[80];
-
      char            tmp_val[80];
-
      int             out_index[24];
      byte            out_color[24];
      char            out_desc[24][80];
+
+     /* Turn on the inventory overlay */
+     Disp_xtra(DISP_XTRA_PREP, DISPLAY_INVENTORY);
+     Disp_xtra(DISP_XTRA_SHOW, DISPLAY_INVENTORY);
 
      /* Default length */
      len = 79 - 50;
@@ -2316,16 +2310,16 @@ show_equip(void)
 {
      int             i, j, k, l;
      int             col, len, lim;
-
      object_type    *o_ptr;
-
      char            tmp_val[80];
-
      char            o_name[80];
-
      int             out_index[24];
      byte            out_color[24];
      char            out_desc[24][80];
+
+     /* Turn on the equipment overlay */
+     Disp_xtra(DISP_XTRA_PREP, DISPLAY_EQUIPMENT);
+     Disp_xtra(DISP_XTRA_SHOW, DISPLAY_EQUIPMENT);
 
      /* Default length */
      len = 79 - 50;
@@ -2562,11 +2556,15 @@ toggle_inven_equip(void)
 {
      int             j;
 
+     Disp_xtra(DISP_XTRA_HIDE, DISPLAY_INVENTORY);
+     Disp_xtra(DISP_XTRA_PREP, DISPLAY_EQUIPMENT);
+     Disp_xtra(DISP_XTRA_SHOW, DISPLAY_EQUIPMENT);
+
      /* Scan windows */
      for(j = 0; j < ANGBAND_TERM_MAX; j++)
      {
           /* Unused */
-          if(!angband_term[j])
+          if(!angband_disp[j])
                continue;
 
           /* Flip inven to equip */
@@ -2835,32 +2833,22 @@ get_item(int *cp,
 {
      int             py = p_ptr->py;
      int             px = p_ptr->px;
-
      char            which;
-
      int             i, j, k;
-
      int             i1, i2;
      int             e1, e2;
      int             f1, f2;
-
      bool            done, item;
-
      bool            oops = FALSE;
-
      bool            use_inven = ((mode & (USE_INVEN)) ? TRUE : FALSE);
      bool            use_equip = ((mode & (USE_EQUIP)) ? TRUE : FALSE);
      bool            use_floor = ((mode & (USE_FLOOR)) ? TRUE : FALSE);
-
      bool            allow_inven = FALSE;
      bool            allow_equip = FALSE;
      bool            allow_floor = FALSE;
-
      bool            toggle = FALSE;
-
      char            tmp_val[160];
      char            out_val[160];
-
      int             floor_list[MAX_FLOOR_STACK];
      int             floor_num;
 
@@ -3028,7 +3016,7 @@ get_item(int *cp,
                for(j = 0; j < ANGBAND_TERM_MAX; j++)
                {
                     /* Unused */
-                    if(!angband_term[j])
+                    if(!angband_disp[j])
                          continue;
 
                     /* Count windows displaying inven */
@@ -3170,6 +3158,10 @@ get_item(int *cp,
           strnfmt(tmp_val, sizeof(tmp_val), "(%s) %s", out_val, pmt);
 
           /* Show the prompt */
+          Disp_xtra(DISP_XTRA_PREP, DISPLAY_DIALOG);
+          Disp_param(DISPLAY_DIALOG, DISP_PARAM_BUFFER1, tmp_val);
+          Disp_xtra(DISP_XTRA_SHOW, DISPLAY_DIALOG);
+
           prt(tmp_val, 0, 0);
 
           /* Get a key */
@@ -3560,7 +3552,14 @@ get_item(int *cp,
           window_stuff();
      }
 
+     /* Clear the inventory and equipment overlays */
+     Disp_xtra(DISP_XTRA_HIDE, DISPLAY_INVENTORY);
+     Disp_xtra(DISP_XTRA_HIDE, DISPLAY_EQUIPMENT);
+
      /* Clear the prompt line */
+     Disp_xtra(DISP_XTRA_HIDE, DISPLAY_DIALOG);
+//     Disp_param(DISPLAY_DIALOG, DISP_PARAM_BUFFER1, NULL);
+//     Disp_param(DISPLAY_DIALOG, DISP_PARAM_BUFFER2, NULL);
      prt("", 0, 0);
 
      /* Warning if needed */

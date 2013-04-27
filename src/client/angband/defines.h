@@ -1,5 +1,5 @@
 
-/* $Id: defines.h,v 1.4 2003/03/14 22:28:23 cipher Exp $ */
+/* $Id: defines.h,v 1.8 2003/04/07 20:53:52 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -100,13 +100,13 @@
  * Number of grids in each screen (vertically)
  * Must be a multiple of PANEL_HGT (at least 2x)
  */
-#define SCREEN_HGT	(Term->hgt - ROW_MAP - 1)
+#define SCREEN_HGT	(Disp->hgt - ROW_MAP - 1)
 
 /*
  * Number of grids in each screen (horizontally)
  * Must be a multiple of PANEL_WID (at least 2x)
  */
-#define SCREEN_WID	((Term->wid - COL_MAP - 1) / (use_bigtile ? 2 : 1))
+#define SCREEN_WID	((Disp->wid - COL_MAP - 1) / (use_bigtile ? 2 : 1))
 
 /*
  * Number of grids in each dungeon (horizontally)
@@ -477,31 +477,31 @@
 #define ROW_STUN		22
 #define COL_STUN		0             /* <stun> */
 
-#define ROW_HUNGRY		(Term->hgt - 1)
+#define ROW_HUNGRY		(Disp->hgt - 1)
 #define COL_HUNGRY		0           /* "Weak" / "Hungry" / "Full" / "Gorged" */
 
-#define ROW_BLIND		(Term->hgt - 1)
+#define ROW_BLIND		(Disp->hgt - 1)
 #define COL_BLIND		7            /* "Blind" */
 
-#define ROW_CONFUSED	(Term->hgt - 1)
+#define ROW_CONFUSED	(Disp->hgt - 1)
 #define COL_CONFUSED	13         /* "Confused" */
 
-#define ROW_AFRAID		(Term->hgt - 1)
+#define ROW_AFRAID		(Disp->hgt - 1)
 #define COL_AFRAID		22          /* "Afraid" */
 
-#define ROW_POISONED	(Term->hgt - 1)
+#define ROW_POISONED	(Disp->hgt - 1)
 #define COL_POISONED	29         /* "Poisoned" */
 
-#define ROW_STATE		(Term->hgt - 1)
+#define ROW_STATE		(Disp->hgt - 1)
 #define COL_STATE		38           /* <state> */
 
-#define ROW_SPEED		(Term->hgt - 1)
+#define ROW_SPEED		(Disp->hgt - 1)
 #define COL_SPEED		49           /* "Slow (-NN)" or "Fast (+NN)" */
 
-#define ROW_STUDY		(Term->hgt - 1)
+#define ROW_STUDY		(Disp->hgt - 1)
 #define COL_STUDY		64           /* "Study" */
 
-#define ROW_DEPTH		(Term->hgt - 1)
+#define ROW_DEPTH		(Disp->hgt - 1)
 #define COL_DEPTH		70           /* "Lev NNN" / "NNNN ft" */
 
 /*** General index values ***/
@@ -1624,6 +1624,15 @@
 #define PW_BORG_1           0x00004000L /* Display borg messages */
 #define PW_BORG_2           0x00008000L /* Display borg status */
 
+/*
+ * Bit flags for monster health tracking
+ */
+#define OPP_UNKNOWN      0x00000001L
+#define OPP_FEAR         0x00000002L
+#define OPP_CONFUSED     0x00000004L
+#define OPP_STUNNED      0x00000008L
+#define OPP_SLEEP        0x00000010L
+
 /*** Cave flags ***/
 
 /*
@@ -2618,7 +2627,7 @@
 /*
  * Hack -- The main "screen"
  */
-#define term_screen	(angband_term[0])
+#define term_screen	(angband_disp[0])
 
 /*
  * Determine if a given inventory item is "aware"
@@ -2837,22 +2846,23 @@ extern int      PlayerUID;
  * The "(R,G,B)" codes are given in "fourths" of the "maximal" value,
  * and should "gamma corrected" on most (non-Macintosh) machines.
  */
-#define TERM_DARK		0	/* 'd' */  /* 0,0,0 */
-#define TERM_WHITE		1	/* 'w' */ /* 4,4,4 */
-#define TERM_SLATE		2	/* 's' */ /* 2,2,2 */
-#define TERM_ORANGE		3	/* 'o' */ /* 4,2,0 */
-#define TERM_RED		4	/* 'r' */   /* 3,0,0 */
-#define TERM_GREEN		5	/* 'g' */ /* 0,2,1 */
-#define TERM_BLUE		6	/* 'b' */  /* 0,0,4 */
-#define TERM_UMBER		7	/* 'u' */ /* 2,1,0 */
-#define TERM_L_DARK		8	/* 'D' */ /* 1,1,1 */
-#define TERM_L_WHITE	9	/* 'W' */ /* 3,3,3 */
-#define TERM_VIOLET		10	/* 'v' */ /* 4,0,4 */
-#define TERM_YELLOW		11	/* 'y' */ /* 4,4,0 */
-#define TERM_L_RED		12	/* 'R' */ /* 4,0,0 */
-#define TERM_L_GREEN	13	/* 'G' */ /* 0,4,0 */
-#define TERM_L_BLUE		14	/* 'B' */ /* 0,4,4 */
-#define TERM_L_UMBER	15	/* 'U' */ /* 3,2,1 */
+#define COLOR_DARK		0	/* 'd' */ /* 0,0,0 */
+#define COLOR_WHITE		1	/* 'w' */ /* 4,4,4 */
+#define COLOR_SLATE		2	/* 's' */ /* 2,2,2 */
+#define COLOR_ORANGE		3	/* 'o' */ /* 4,2,0 */
+#define COLOR_RED		4	/* 'r' */  /* 3,0,0 */
+#define COLOR_GREEN		5	/* 'g' */ /* 0,2,1 */
+#define COLOR_BLUE		6	/* 'b' */ /* 0,0,4 */
+#define COLOR_UMBER		7	/* 'u' */ /* 2,1,0 */
+#define COLOR_L_DARK		8	/* 'D' */ /* 1,1,1 */
+#define COLOR_L_WHITE	9	/* 'W' */ /* 3,3,3 */
+#define COLOR_VIOLET		10	/* 'v' */ /* 4,0,4 */
+#define COLOR_YELLOW		11	/* 'y' */ /* 4,4,0 */
+#define COLOR_L_RED		12	/* 'R' */ /* 4,0,0 */
+#define COLOR_L_GREEN	13	/* 'G' */ /* 0,4,0 */
+#define COLOR_L_BLUE		14	/* 'B' */ /* 0,4,4 */
+#define COLOR_L_UMBER	15	/* 'U' */ /* 3,2,1 */
+#define COLOR_END  16
 
 #define MSG_GENERIC          0
 #define MSG_HIT              1
@@ -2892,7 +2902,7 @@ extern int      PlayerUID;
 /*
  * Mega-Hack -- some primitive sound support (see "main-win.c")
  *
- * Some "sound" constants for "Term_xtra(TERM_XTRA_SOUND, val)"
+ * Some "sound" constants for "Disp_xtra(DISP_XTRA_SOUND, val)"
  */
 #define SOUND_HIT	    1
 #define SOUND_MISS	    2
@@ -3022,3 +3032,8 @@ extern int      PlayerUID;
  * Given an array, determine how many elements are in the array.
  */
 #define N_ELEMENTS(a) (sizeof(a) / sizeof((a)[0]))
+
+/*
+ *
+ */
+#define CLAMP(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))

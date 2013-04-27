@@ -1,5 +1,5 @@
 
-/* $Id: load.c,v 1.3 2003/03/17 22:45:24 cipher Exp $ */
+/* $Id: load.c,v 1.4 2003/04/01 07:15:53 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, and others
@@ -76,7 +76,7 @@ note(cptr msg)
           y = 2;
 
      /* Flush it */
-     Term_fresh();
+     Disp_fresh();
 #endif
 }
 
@@ -2116,7 +2116,7 @@ load_player(void)
           sf_extra = vvv[3];
 
           /* Clear screen */
-          Term_clear();
+          Disp_clear();
 
           if(older_than
              (OLD_VERSION_MAJOR, OLD_VERSION_MINOR, OLD_VERSION_PATCH))

@@ -1,5 +1,5 @@
 
-/* $Id: list.c,v 1.4 2003/03/17 22:45:22 cipher Exp $ */
+/* $Id: list.c,v 1.7 2003/04/07 20:53:51 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -9,13 +9,35 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "z-virt.h"
+/* Internal headers */
+#include "angband/z-virt.h"
 #include "list.h"
 
-static ihNode  *_IH_NodeAlloc(void);
-static void     _IH_NodeFree(ihNode * node);
+static ihNode  *
+node_alloc(void)
+{
+     ihNode         *node = NULL;
 
-#undef DEBUG
+     node = ralloc(sizeof(ihNode));
+     if(node)
+     {
+          memset(node, 0, sizeof(ihNode));
+
+          node->prev = NULL;
+          node->next = NULL;
+     }
+
+     return node;
+}
+
+static void
+node_free(ihNode * node)
+{
+     if(!node)
+          return;
+
+//     rnfree(node);
+}
 
 void
 IH_ListInit(ihList * list)
@@ -158,7 +180,7 @@ IH_ListRemoveNode(ihList * list,
      if(next)
           next->prev = prev;
 
-     _IH_NodeFree(node);
+     node_free(node);
 
      return data;
 }
@@ -214,14 +236,16 @@ IH_ListPrepend(ihList * list,
      if(!data)
           return NULL;
 
-     node = _IH_NodeAlloc();
+     node = node_alloc();
      if(node)
      {
-          ihNode         *head;
+          ihNode         *head, *tail;
 
           node->data = data;
 
           head = list->head;
+          tail = list->tail;
+
           if(head)
           {
                head->prev = node;
@@ -229,6 +253,15 @@ IH_ListPrepend(ihList * list,
           }
 
           list->head = node;
+
+          if(!tail)
+          {
+               list->tail = node;
+          }
+          if(tail && tail == head)
+          {
+               tail->prev = node;
+          }
      }
 
      return node;
@@ -261,84 +294,35 @@ IH_ListInsert(ihList * list,
      if(!data)
           return NULL;
 
-#ifdef DEBUG
-     fprintf(stderr, "IH_ListInsert()\n");
-#endif
+     if(!prev)
+          return IH_ListPrepend(list, data);
 
-     node = _IH_NodeAlloc();
+     node = node_alloc();
      if(node)
      {
-#ifdef DEBUG
-          fprintf(stderr, "node = %p\n", node);
-#endif
+          ihNode         *next;
 
           node->data = data;
 
-          if(prev)
+          if(prev == list->tail)
           {
-               ihNode         *next;
+               list->tail = node;
+          }
 
-#ifdef DEBUG
-               fprintf(stderr, "Appending node after prev node.\n");
-#endif
-               if(prev == list->tail)
-               {
-#ifdef DEBUG
-                    fprintf(stderr, "Appending to end of list.\n");
-#endif
-                    list->tail = node;
-               }
-
-               next = prev->next;
-               if(next)
-               {
-                    node->next = next;
-                    next->prev = node;
-               }
-               else
-               {
-                    node->next = NULL;
-               }
-
-               prev->next = node;
-               node->prev = prev;
+          next = prev->next;
+          if(next)
+          {
+               node->next = next;
+               next->prev = node;
           }
           else
           {
-#ifdef DEBUG
-               fprintf(stderr, "Placing node in empty list.\n");
-#endif
-               list->head = node;
-               list->tail = node;
-
-               node->prev = NULL;
                node->next = NULL;
           }
+
+          prev->next = node;
+          node->prev = prev;
      }
 
      return node;
-}
-
-static ihNode  *
-_IH_NodeAlloc(void)
-{
-     ihNode         *node = NULL;
-
-     node = ralloc(sizeof(ihNode));
-     if(node)
-     {
-          node->prev = NULL;
-          node->next = NULL;
-     }
-
-     return node;
-}
-
-static void
-_IH_NodeFree(ihNode * node)
-{
-     if(!node)
-          return;
-
-     rnfree(node);
 }

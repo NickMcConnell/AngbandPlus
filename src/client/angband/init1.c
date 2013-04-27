@@ -1,5 +1,5 @@
 
-/* $Id: init1.c,v 1.3 2003/03/17 22:45:24 cipher Exp $ */
+/* $Id: init1.c,v 1.4 2003/04/01 07:15:52 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison
@@ -2277,7 +2277,7 @@ parse_r_info(char *buf,
      strcpy(r_text + r_ptr->text, "It seems strangely familiar...");
 
      /* Hack -- set the attr/char info */
-     r_ptr->d_attr = r_ptr->x_attr = TERM_WHITE;
+     r_ptr->d_attr = r_ptr->x_attr = COLOR_WHITE;
      r_ptr->d_char = r_ptr->x_char = 'G';
 
      /* Hack -- Try to prevent a few "potential" bugs */

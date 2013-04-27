@@ -1,5 +1,5 @@
 
-/* $Id: monster1.c,v 1.4 2003/03/17 22:45:27 cipher Exp $ */
+/* $Id: monster1.c,v 1.5 2003/04/01 07:16:05 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -161,7 +161,7 @@ describe_monster_spells(int r_idx,
                     text_out(" or ");
 
                /* Dump */
-               text_out_c(TERM_L_RED, vp[n]);
+               text_out_c(COLOR_L_RED, vp[n]);
           }
 
           /* End */
@@ -238,7 +238,7 @@ describe_monster_spells(int r_idx,
                     text_out(" or ");
 
                /* Dump */
-               text_out_c(TERM_L_RED, vp[n]);
+               text_out_c(COLOR_L_RED, vp[n]);
           }
      }
 
@@ -394,7 +394,7 @@ describe_monster_spells(int r_idx,
 
           /* Adverb */
           if(l_ptr->flags2 & RF2_SMART)
-               text_out_c(TERM_ORANGE, " intelligently");
+               text_out_c(COLOR_ORANGE, " intelligently");
 
           /* Scan */
           for(n = 0; n < vn; n++)
@@ -408,7 +408,7 @@ describe_monster_spells(int r_idx,
                     text_out(" or ");
 
                /* Dump */
-               text_out_c(TERM_L_RED, vp[n]);
+               text_out_c(COLOR_L_RED, vp[n]);
           }
      }
 
@@ -792,7 +792,7 @@ describe_monster_attack(int r_idx,
           {
                /* Describe the attack type */
                text_out(" to ");
-               text_out_c(TERM_L_RED, q);
+               text_out_c(COLOR_L_RED, q);
 
                /* Describe damage (if known) */
                if(d1 && d2 && know_damage(r_idx, l_ptr, m))
@@ -945,7 +945,7 @@ describe_monster_abilities(int r_idx,
                     text_out(" and ");
 
                /* Dump */
-               text_out_c(TERM_YELLOW, vp[n]);
+               text_out_c(COLOR_YELLOW, vp[n]);
           }
 
           /* End */
@@ -983,7 +983,7 @@ describe_monster_abilities(int r_idx,
                     text_out(" and ");
 
                /* Dump */
-               text_out_c(TERM_ORANGE, vp[n]);
+               text_out_c(COLOR_ORANGE, vp[n]);
           }
 
           /* End */
@@ -1021,7 +1021,7 @@ describe_monster_abilities(int r_idx,
                     text_out(" and ");
 
                /* Dump */
-               text_out_c(TERM_ORANGE, vp[n]);
+               text_out_c(COLOR_ORANGE, vp[n]);
           }
 
           /* End */
@@ -1057,7 +1057,7 @@ describe_monster_abilities(int r_idx,
                     text_out(" or ");
 
                /* Dump */
-               text_out_c(TERM_YELLOW, vp[n]);
+               text_out_c(COLOR_YELLOW, vp[n]);
           }
 
           /* End */
@@ -1217,7 +1217,7 @@ describe_monster_kills(int r_idx,
           /* No kills */
           else
           {
-               text_out_c(TERM_RED,
+               text_out_c(COLOR_RED,
                           format
                           ("and %s is not ever known to have been defeated.  ",
                            wd_he[msex]));
@@ -1356,47 +1356,47 @@ describe_monster_movement(int r_idx,
      text_out("This");
 
      if(l_ptr->flags3 & RF3_ANIMAL)
-          text_out_c(TERM_L_BLUE, " natural");
+          text_out_c(COLOR_L_BLUE, " natural");
      if(l_ptr->flags3 & RF3_EVIL)
-          text_out_c(TERM_L_BLUE, " evil");
+          text_out_c(COLOR_L_BLUE, " evil");
      if(l_ptr->flags3 & RF3_UNDEAD)
-          text_out_c(TERM_L_BLUE, " undead");
+          text_out_c(COLOR_L_BLUE, " undead");
 
      if(l_ptr->flags3 & RF3_DRAGON)
-          text_out_c(TERM_L_BLUE, " dragon");
+          text_out_c(COLOR_L_BLUE, " dragon");
      else if(l_ptr->flags3 & RF3_DEMON)
-          text_out_c(TERM_L_BLUE, " demon");
+          text_out_c(COLOR_L_BLUE, " demon");
      else if(l_ptr->flags3 & RF3_GIANT)
-          text_out_c(TERM_L_BLUE, " giant");
+          text_out_c(COLOR_L_BLUE, " giant");
      else if(l_ptr->flags3 & RF3_TROLL)
-          text_out_c(TERM_L_BLUE, " troll");
+          text_out_c(COLOR_L_BLUE, " troll");
      else if(l_ptr->flags3 & RF3_ORC)
-          text_out_c(TERM_L_BLUE, " orc");
+          text_out_c(COLOR_L_BLUE, " orc");
      else
           text_out(" creature");
 
      /* Describe location */
      if(r_ptr->level == 0)
      {
-          text_out_c(TERM_SLATE, " lives in the town");
+          text_out_c(COLOR_SLATE, " lives in the town");
           old = TRUE;
      }
      else if(l_ptr->tkills)
      {
           if(l_ptr->flags1 & RF1_FORCE_DEPTH)
-               text_out_c(TERM_SLATE, " is found ");
+               text_out_c(COLOR_SLATE, " is found ");
           else
-               text_out_c(TERM_SLATE, " is normally found ");
+               text_out_c(COLOR_SLATE, " is normally found ");
 
           if(depth_in_feet)
           {
-               text_out_c(TERM_SLATE, format("at depths of %d feet",
-                                             r_ptr->level * 50));
+               text_out_c(COLOR_SLATE, format("at depths of %d feet",
+                                              r_ptr->level * 50));
           }
           else
           {
-               text_out_c(TERM_SLATE, format("on dungeon level %d",
-                                             r_ptr->level));
+               text_out_c(COLOR_SLATE, format("on dungeon level %d",
+                                              r_ptr->level));
           }
           old = TRUE;
      }
@@ -1436,22 +1436,22 @@ describe_monster_movement(int r_idx,
      if(r_ptr->speed > 110)
      {
           if(r_ptr->speed > 130)
-               text_out_c(TERM_GREEN, " incredibly");
+               text_out_c(COLOR_GREEN, " incredibly");
           else if(r_ptr->speed > 120)
-               text_out_c(TERM_GREEN, " very");
-          text_out_c(TERM_GREEN, " quickly");
+               text_out_c(COLOR_GREEN, " very");
+          text_out_c(COLOR_GREEN, " quickly");
      }
      else if(r_ptr->speed < 110)
      {
           if(r_ptr->speed < 90)
-               text_out_c(TERM_GREEN, " incredibly");
+               text_out_c(COLOR_GREEN, " incredibly");
           else if(r_ptr->speed < 100)
-               text_out_c(TERM_GREEN, " very");
-          text_out_c(TERM_GREEN, " slowly");
+               text_out_c(COLOR_GREEN, " very");
+          text_out_c(COLOR_GREEN, " slowly");
      }
      else
      {
-          text_out_c(TERM_GREEN, " at normal speed");
+          text_out_c(COLOR_GREEN, " at normal speed");
      }
 
      /* The code above includes "attack speed" */
@@ -1622,31 +1622,31 @@ roff_top(int r_idx)
      a2 = r_ptr->x_attr;
 
      /* Clear the top line */
-     Term_erase(0, 0, 255);
+     Disp_erase(0, 0, 255);
 
      /* Reset the cursor */
-     Term_gotoxy(0, 0);
+     Disp_gotoxy(0, 0);
 
      /* A title (use "The" for non-uniques) */
      if(!(r_ptr->flags1 & RF1_UNIQUE))
      {
-          Term_addstr(-1, TERM_WHITE, "The ");
+          Disp_addstr(-1, COLOR_WHITE, "The ");
      }
 
      /* Dump the name */
-     Term_addstr(-1, TERM_WHITE, (r_name + r_ptr->name));
+     Disp_addstr(-1, COLOR_WHITE, (r_name + r_ptr->name));
 
      /* Append the "standard" attr/char info */
-     Term_addstr(-1, TERM_WHITE, " ('");
-     Term_addch(a1, c1);
-     Term_addstr(-1, TERM_WHITE, "')");
+     Disp_addstr(-1, COLOR_WHITE, " ('");
+     Disp_addch(a1, c1);
+     Disp_addstr(-1, COLOR_WHITE, "')");
 
      /* Append the "optional" attr/char info */
-     Term_addstr(-1, TERM_WHITE, "/('");
-     Term_addch(a2, c2);
+     Disp_addstr(-1, COLOR_WHITE, "/('");
+     Disp_addch(a2, c2);
      if(use_bigtile && (a2 & 0x80))
-          Term_addch(255, -1);
-     Term_addstr(-1, TERM_WHITE, "'):");
+          Disp_addch(255, -1);
+     Disp_addstr(-1, COLOR_WHITE, "'):");
 }
 
 /*
@@ -1659,7 +1659,7 @@ screen_roff(int r_idx)
      message_flush();
 
      /* Begin recall */
-     Term_erase(0, 1, 255);
+     Disp_erase(0, 1, 255);
 
      /* Output to the screen */
      text_out_hook = text_out_to_screen;
@@ -1672,7 +1672,7 @@ screen_roff(int r_idx)
 }
 
 /*
- * Hack -- describe the given monster race in the current "term" window
+ * Hack -- describe the given monster race in the current "disp" window
  */
 void
 display_roff(int r_idx)
@@ -1680,14 +1680,14 @@ display_roff(int r_idx)
      int             y;
 
      /* Erase the window */
-     for(y = 0; y < Term->hgt; y++)
+     for(y = 0; y < Disp->hgt; y++)
      {
           /* Erase the line */
-          Term_erase(0, y, 255);
+          Disp_erase(0, y, 255);
      }
 
      /* Begin recall */
-     Term_gotoxy(0, 1);
+     Disp_gotoxy(0, 1);
 
      /* Output to the screen */
      text_out_hook = text_out_to_screen;

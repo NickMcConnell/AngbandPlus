@@ -1,5 +1,5 @@
 
-/* $Id: dungeon.c,v 1.6 2003/03/23 06:10:27 cipher Exp $ */
+/* $Id: dungeon.c,v 1.10 2003/04/07 00:27:13 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -11,9 +11,6 @@
 
 #include "angband.h"
 #include "script.h"
-
-#include "sdl/scene.h"
-#include "sdl/render/overlay.h"
 
 /*
  * Return a "feeling" (or NULL) about an item.  Method 1 (Heavy).
@@ -1580,7 +1577,7 @@ process_command(void)
                /* Hack -- User interface */
           case '!':
                {
-                    (void) Term_user(0);
+                    (void) Disp_user(0);
                     break;
                }
 
@@ -1907,7 +1904,7 @@ process_player(void)
 
           /* Refresh (optional) */
           if(fresh_before)
-               Term_fresh();
+               Disp_fresh();
 
           /* Hack -- Pack Overflow */
           if(inventory[INVEN_PACK].k_idx)
@@ -2277,7 +2274,7 @@ dungeon(void)
      character_xtra++;
 
      /* Clear */
-     Term_clear();
+     Disp_clear();
 
      /* Update stuff */
      p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
@@ -2337,7 +2334,7 @@ dungeon(void)
      window_stuff();
 
      /* Refresh */
-     Term_fresh();
+     Disp_fresh();
 
      /* Handle delayed death */
      if(p_ptr->is_dead)
@@ -2428,7 +2425,7 @@ dungeon(void)
 
           /* Optional fresh */
           if(fresh_after)
-               Term_fresh();
+               Disp_fresh();
 
           /* Handle "leaving" */
           if(p_ptr->leaving)
@@ -2458,7 +2455,7 @@ dungeon(void)
 
           /* Optional fresh */
           if(fresh_after)
-               Term_fresh();
+               Disp_fresh();
 
           /* Handle "leaving" */
           if(p_ptr->leaving)
@@ -2488,7 +2485,7 @@ dungeon(void)
 
           /* Optional fresh */
           if(fresh_after)
-               Term_fresh();
+               Disp_fresh();
 
           /* Handle "leaving" */
           if(p_ptr->leaving)
@@ -2550,23 +2547,23 @@ play_game(bool new_game)
      /* Hack -- Increase "icky" depth */
      character_icky++;
 
-     /* Verify main term */
+     /* Verify main disp */
      if(!term_screen)
      {
           quit("main window does not exist");
      }
 
-     /* Make sure main term is active */
-     Term_activate(term_screen);
+     /* Make sure main disp is active */
+     Disp_activate(term_screen);
 
      /* Verify minimum size */
-     if((Term->hgt < 24) || (Term->wid < 80))
+     if((Disp->hgt < 24) || (Disp->wid < 80))
      {
           quit("main window is too small");
      }
 
      /* Hack -- Turn off the cursor */
-     (void) Term_set_cursor(FALSE);
+     (void) Disp_set_cursor(FALSE);
 
      /* Attempt to load */
      if(!load_player())
@@ -2671,7 +2668,7 @@ play_game(bool new_game)
      prt("Please wait...", 0, 0);
 
      /* Flush the message */
-     Term_fresh();
+     Disp_fresh();
 
      /* Hack -- Enter wizard mode */
      if(arg_wizard && enter_wizard_mode())
@@ -2695,6 +2692,9 @@ play_game(bool new_game)
      /* Process some user pref files */
      process_some_user_pref_files();
 
+     /* Hack -- Force auto_more on */
+     op_ptr->opt[OPT_auto_more] = 1;
+
      /* Set or clear "rogue_like_commands" if requested */
      if(arg_force_original)
           rogue_like_commands = FALSE;
@@ -2702,7 +2702,7 @@ play_game(bool new_game)
           rogue_like_commands = TRUE;
 
      /* React to changes */
-     Term_xtra(TERM_XTRA_REACT, 0);
+     Disp_xtra(DISP_XTRA_REACT, 0);
 
      /* Generate a dungeon level if needed */
      if(!character_dungeon)
@@ -2718,13 +2718,18 @@ play_game(bool new_game)
      p_ptr->playing = TRUE;
 
      /* Set the scene */
-     Term_xtra(TERM_XTRA_SCENE, IH_SCENE_PLAY);
+     Disp_xtra(DISP_XTRA_SCENE, SCENE_PLAY);
 
      /* Hack -- Turn off the character overlay, by default */
-     Term_xtra(TERM_XTRA_OVER0, IH_OVERLAY_CHARACTER);
+     Disp_xtra(DISP_XTRA_HIDE, DISPLAY_CHARACTER);
 
-     /* Another hack -- Turn on the messages overlay, by default */
-     Term_xtra(TERM_XTRA_OVER1, IH_OVERLAY_MESSAGES);
+     /* Hack -- Turn on the messages overlay, by default */
+     Disp_xtra(DISP_XTRA_PREP, DISPLAY_MESSAGES);
+     Disp_xtra(DISP_XTRA_SHOW, DISPLAY_MESSAGES);
+
+     /* Hack -- Turn on the opponent overlay, by default */
+     Disp_xtra(DISP_XTRA_PREP, DISPLAY_OPPONENT);
+     Disp_xtra(DISP_XTRA_SHOW, DISPLAY_OPPONENT);
 
      /* Hack -- Enforce "delayed death" */
      if(p_ptr->chp < 0)

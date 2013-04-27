@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl Initialize autoconf - look for the existance of a file to make sure
 dnl the source distribution is installed correctly.
-AC_INIT(ironhells, 1.0a3)
+AC_INIT(ironhells, 1.0a4)
 AC_CONFIG_SRCDIR([src/client/main.c])
 AM_INIT_AUTOMAKE
 
@@ -34,7 +34,7 @@ AC_ARG_WITH(debug,
   no) DEBUG=0;;
   yes) DEBUG=1;;
 esac])
-AC_DEFINE_UNQUOTED(DEBUG, "$DEBUG", [Enable debugging output.])
+AC_DEFINE_UNQUOTED(DEBUG, $DEBUG, [Enable debugging output.])
 
 AC_ISC_POSIX
 AC_LANG_C
@@ -177,6 +177,18 @@ AC_CHECK_LIB(SDL_draw, Draw_Init, [
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT([data/font/Makefile
+data/gfx/creature/player/dunadan/Makefile
+data/gfx/creature/player/dwarf/Makefile
+data/gfx/creature/player/elf/Makefile
+data/gfx/creature/player/gnome/Makefile
+data/gfx/creature/player/half-elf/Makefile
+data/gfx/creature/player/half-orc/Makefile
+data/gfx/creature/player/half-troll/Makefile
+data/gfx/creature/player/high-elf/Makefile
+data/gfx/creature/player/hobbit/Makefile
+data/gfx/creature/player/human/Makefile
+data/gfx/creature/player/kobold/Makefile
+data/gfx/creature/player/Makefile
 data/gfx/creature/Makefile
 data/gfx/icon/large/Makefile
 data/gfx/icon/medium/Makefile
@@ -236,15 +248,16 @@ lib/xtra/font/Makefile
 lib/xtra/graf/Makefile
 lib/xtra/Makefile
 src/client/angband/Makefile
+src/client/displays/gl/Makefile
+src/client/displays/iso/overlay/Makefile
+src/client/displays/iso/scene/Makefile
+src/client/displays/iso/Makefile
+src/client/displays/Makefile
 src/client/lua/Makefile
 src/client/platform/mac/osx/Makefile
 src/client/platform/mac/Makefile
 src/client/platform/linux/Makefile
 src/client/platform/win/Makefile
 src/client/platform/Makefile
-src/client/sdl/render/Makefile
-src/client/sdl/render/overlay/Makefile
-src/client/sdl/scene/Makefile
-src/client/sdl/Makefile
 src/client/Makefile
 src/Makefile])

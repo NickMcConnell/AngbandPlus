@@ -1,5 +1,5 @@
 
-/* $Id: ironhells.h,v 1.15 2003/03/24 06:04:50 cipher Exp $ */
+/* $Id: ironhells.h,v 1.19 2003/04/06 15:21:34 cipher Exp $ */
 
 #ifndef IH_IRONHELLS_H
 #define IH_IRONHELLS_H
@@ -21,20 +21,20 @@
 #ifdef USE_SDLTTF
 #include "SDL_ttf.h"
 #else
-#include "sdl/bfont.h"
+#include "displays/iso/bfont.h"
 #endif
 
 #include "list.h"
-#include "sdl/render/pointer.h"
-#include "sdl/render/tile.h"
+#include "displays/iso/pointer.h"
+#include "displays/iso/tile.h"
 
 struct IronHells
 {
      /* General display variables.
       */
      SDL_Surface    *screen;
-     SDL_Surface    *shader;
      int             is_fullscreen;
+     // int          hw_accel;
      int             desired_display_width, desired_display_height; // screen resolution
      int             display_width, display_height; // screen resolution
      int             display_depth;
@@ -51,10 +51,6 @@ struct IronHells
 
      int             icon_size;
 
-     SDL_Surface    *tile_array[IH_MAX_TILES];
-     SDL_Surface    *object_array[IH_MAX_OBJECTS];
-     SDL_Surface    *creature_array[IH_MAX_CREATURES];
-
 #ifdef USE_SDLTTF
      TTF_Font       *normal_font;
      TTF_Font       *large_font;
@@ -62,25 +58,17 @@ struct IronHells
      BFont_Info     *normal_font;
      BFont_Info     *large_font;
 #endif
-
-     /* Rendering object containers.
-      */
-     ihList          icons;
-     ihList          tiles;
-     ihList          objects;
-     ihList          creatures;
-     ihList          misc;
      int             pointer;
      SDL_Surface    *splash;
      SDL_Surface    *background;
      char           *load_message;
-
      int             err_shown;
      char           *err_message;
 
      /* Thread communication variables.
       */
      SDL_Thread     *game_thread;
+     bool            thread_done;
      struct
      {
           SDL_sem        *msg;  // for display messages
@@ -112,12 +100,6 @@ struct IronHells
      int             new_game;
 
      int             messages_shown;
-
-     /* Variables for dialog overlays.
-      */
-     const byte     *dialog_prompt;
-     byte           *input_buffer;
-     int             input_len;
 };
 
 enum
@@ -142,7 +124,7 @@ enum
 #define IH_ICON_SIZE_MEDIUM_VALUE 40
 #define IH_ICON_SIZE_LARGE_VALUE  64
 
-#define IH_ALPHA_VALUE 64
+#define IH_ALPHA_VALUE 96
 
 #define IH_COLOR_BORDER_RED   80
 #define IH_COLOR_BORDER_GREEN 80

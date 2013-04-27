@@ -1,5 +1,5 @@
 
-/* $Id: ipc.c,v 1.5 2003/03/23 06:10:27 cipher Exp $ */
+/* $Id: ipc.c,v 1.6 2003/04/01 22:25:59 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -9,7 +9,8 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+/* Internal headers */
+#include "angband/angband.h"
 #include "ironhells.h"
 #include "ipc.h"
 

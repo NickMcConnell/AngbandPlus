@@ -1,5 +1,5 @@
 
-/* $Id: script.c,v 1.10 2003/03/24 06:04:51 cipher Exp $ */
+/* $Id: script.c,v 1.11 2003/04/01 07:16:05 cipher Exp $ */
 
 #include "angband.h"
 #include "script.h"
@@ -521,17 +521,17 @@ line_hook(lua_State * L,
      /* Scan windows */
      for(j = 0; j < ANGBAND_TERM_MAX; j++)
      {
-          term           *old = Term;
+          disp           *old = Disp;
 
           /* No window */
-          if(!angband_term[j])
+          if(!angband_disp[j])
                continue;
 
           /* No relevant flags */
           if(op_ptr->window_flag[j] & PW_SCRIPT_SOURCE)
           {
                /* Activate */
-               Term_activate(angband_term[j]);
+               Disp_activate(angband_disp[j]);
 
                lua_getstack(L, 0, ar);
                lua_getinfo(L, "S", ar);
@@ -539,17 +539,17 @@ line_hook(lua_State * L,
                          ar->currentline - 1, 1);
 
                /* Fresh */
-               Term_fresh();
+               Disp_fresh();
 
                /* Restore */
-               Term_activate(old);
+               Disp_activate(old);
           }
           else if(op_ptr->window_flag[j] & PW_SCRIPT_VARS)
           {
                char            buf[1024];
 
                /* Activate */
-               Term_activate(angband_term[j]);
+               Disp_activate(angband_disp[j]);
 
                path_build(buf, sizeof(buf), ANGBAND_DIR_SCRIPT,
                           "trace.lua");
@@ -558,10 +558,10 @@ line_hook(lua_State * L,
                script_do_file(buf);
 
                /* Fresh */
-               Term_fresh();
+               Disp_fresh();
 
                /* Restore */
-               Term_activate(old);
+               Disp_activate(old);
           }
      }
 }
@@ -594,7 +594,7 @@ do_cmd_script(void)
      screen_save();
 
      /* Clear screen */
-     Term_clear();
+     Disp_clear();
 
      /* Ask for a choice */
      prt("Debug scripts", 2, 0);

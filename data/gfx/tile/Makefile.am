@@ -3,25 +3,15 @@
 
 ironhells_files = \
 	MANIFEST \
-	grass.png \
-	acid.png \
-	cracked-sand.png \
-	cracked-stone.png \
-	dark-sand.png \
-	dark-stone.png \
-	grass.png \
-	heavy-acid-stone.png \
-	heavy-lava-stone.png \
-	lava.png \
-	light-acid-stone.png \
-	light-lava-stone.png \
-	light-sand.png \
-	light-stone.png \
-	medium-acid-stone.png \
-	medium-lava-stone.png \
-	swamp.png \
-	water.png \
-	wliderness.png
+	wall-light.png \
+	wall-medium.png \
+	wall-dark.png \
+	ground-grey-light.png \
+	ground-grey-medium.png \
+	ground-grey-dark.png \
+	stairs-up.png \
+	stairs-down.png
+
 
 EXTRA_DIST = \
 	$(ironhells_files)

@@ -1,5 +1,5 @@
 
-/* $Id: file-linux.c,v 1.16 2003/03/24 06:04:52 cipher Exp $ */
+/* $Id: file-linux.c,v 1.19 2003/04/07 20:53:59 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -9,7 +9,7 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "h-config.h"
+#include "angband/h-config.h"
 
 #ifdef __linux__
 
@@ -19,10 +19,10 @@
 #include <sys/types.h>
 #include <dirent.h>
 
-#include "angband.h"
+#include "angband/angband.h"
 #include "list.h"
 #include "path.h"
-#include "file.h"
+#include "platform/platform.h"
 
 char           *
 IH_GetDataDir(cptr dir)
@@ -118,44 +118,53 @@ IH_GetConfigDir(void)
      return path_config;
 }
 
-ihList         *
-IH_GetSaveFiles(void)
+int
+IH_GetSaveFiles(char **list,
+                int size)
 {
-     ihList         *list = NULL;
      char           *path_save;
+     int             count = 0;
 
-     list = ralloc(sizeof(ihList));
-     if(!list)
-          return NULL;
-
-     IH_ListInit(list);
-
+     /* Get the save directory.
+      */
      path_save = IH_GetDataDir("save");
-
      if(path_save)
      {
           DIR            *dir;
 
+          /* Open it.
+           */
           dir = opendir(path_save);
           if(dir)
           {
                struct dirent  *de;
 
+               /* Go over the contents of the directory.
+                */
                while(de = readdir(dir))
                {
                     char           *file;
                     int             len;
 
+                    /* Skip entries that aren't regular files.
+                     */
                     if(de->d_type != DT_REG)
                          continue;
 
+                    /* Don't put too many items in the list.
+                     */
+                    if(count >= size)
+                         break;
+
                     len = strlen(de->d_name) + 1;
+
+                    /* Save the name.
+                     */
                     file = ralloc(len);
                     if(file)
                     {
                          my_strcpy(file, de->d_name, len);
-
-                         IH_ListAppend(list, file);
+                         list[count++] = file;
                     }
                }
 
@@ -165,7 +174,7 @@ IH_GetSaveFiles(void)
 
      rnfree(path_save);
 
-     return list;
+     return count;
 }
 
 #endif /* __linux__ */

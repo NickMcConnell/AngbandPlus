@@ -1,5 +1,5 @@
 
-/* $Id: tables.c,v 1.3 2003/03/17 22:45:28 cipher Exp $ */
+/* $Id: tables.c,v 1.6 2003/04/07 00:27:13 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -1224,7 +1224,7 @@ const byte      chest_traps[64] = {
 };
 
 /*
- * Hack -- the "basic" color names (see "TERM_xxx")
+ * Hack -- the "basic" color names (see "COLOR_xxx")
  */
 cptr            color_names[16] = {
      "Dark",
@@ -1389,7 +1389,7 @@ cptr            option_text[OPT_MAX] = {
      "center_player",           /* OPT_center_player */
      "run_avoid_center",        /* OPT_run_avoid_center */
      "scroll_target",           /* OPT_scroll_target */
-     "auto_more",               /* OPT_auto_more */
+     NULL,                      /* xxx auto_more */
      "smart_monsters",          /* OPT_smart_monsters */
      "smart_packs",             /* OPT_smart_packs */
      NULL,                      /* xxx */
@@ -1651,7 +1651,7 @@ cptr            option_desc[OPT_MAX] = {
      "Center map continuously (very slow)", /* OPT_center_player */
      "Avoid centering while running", /* OPT_run_avoid_center */
      "Scroll map while targetting", /* OPT_scroll_target */
-     "Automatically clear '-more-' prompts", /* OPT_auto_more */
+     NULL,                      /* "Automatically clear '-more-' prompts", *//* OPT_auto_more */
      "Monsters behave more intelligently", /* OPT_smart_monsters */
      "Monsters act smarter in groups (v.slow)", /* OPT_smart_packs */
      NULL,                      /* xxx */
@@ -1902,10 +1902,10 @@ const bool      option_norm[OPT_MAX] = {
      FALSE,                     /* xxx */
      TRUE,                      /* OPT_compress_savefile */
      FALSE,                     /* OPT_hilite_player */
-     FALSE,                     /* OPT_view_yellow_lite */
-     FALSE,                     /* OPT_view_bright_lite */
-     FALSE,                     /* OPT_view_granite_lite */
-     FALSE,                     /* OPT_view_special_lite */
+     TRUE,                      /* OPT_view_yellow_lite */
+     TRUE,                      /* OPT_view_bright_lite */
+     TRUE,                      /* OPT_view_granite_lite */
+     TRUE,                      /* OPT_view_special_lite */
      FALSE,                     /* OPT_easy_open */
      FALSE,                     /* OPT_easy_alter */
      FALSE,                     /* OPT_easy_floor */
@@ -1913,7 +1913,7 @@ const bool      option_norm[OPT_MAX] = {
      FALSE,                     /* OPT_center_player */
      FALSE,                     /* OPT_run_avoid_center */
      FALSE,                     /* OPT_scroll_target */
-     FALSE,                     /* OPT_auto_more */
+     TRUE,                      /* OPT_auto_more */
      FALSE,                     /* OPT_smart_monsters */
      FALSE,                     /* OPT_smart_packs */
      FALSE,                     /* xxx */
@@ -2144,7 +2144,7 @@ const byte      option_page[OPT_PAGE_MAX][OPT_PAGE_PER] = {
       OPT_verify_destroy,
       OPT_verify_special,
       OPT_allow_quantity,
-      OPT_auto_more,
+      OPT_NONE,                 /* OPT_auto_more, */
       OPT_NONE,
       OPT_NONE,
       OPT_NONE,
