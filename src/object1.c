@@ -12,6 +12,57 @@
 
 #include "angband.h"
 
+/*
+ * Hack -- determine if an item is a "weapon" (or a missile)
+ */
+static bool is_weapon(const object_type *o_ptr)
+{
+	/* Valid "tval" codes */
+	switch (o_ptr->tval)
+	{
+		case TV_SHOT:
+		case TV_BOLT:
+		case TV_ARROW:
+		case TV_BOW:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_SWORD:
+		case TV_DIGGING:
+		{
+			return (TRUE);
+		}
+	}
+
+	/* Nope */
+	return (FALSE);
+}
+
+/*
+ * Hack -- determine if an item is "wearable" (or a missile)
+ */
+static bool is_armor(const object_type *o_ptr)
+{
+	/* Valid "tval" codes */
+	switch (o_ptr->tval)
+	{
+		case TV_BOOTS:
+		case TV_GLOVES:
+		case TV_HELM:
+		case TV_CROWN:
+		case TV_SHIELD:
+		case TV_CLOAK:
+		case TV_SOFT_ARMOR:
+		case TV_HARD_ARMOR:
+		case TV_DRAG_ARMOR:
+		{
+			return (TRUE);
+		}
+	}
+
+	/* Nope */
+	return (FALSE);
+}
+
 
 /*
  * Reset the "visual" lists
@@ -819,6 +870,57 @@ bool identify_fully_aux(const object_type *o_ptr)
 		info[i++] = "It can be set into a ring or amulet";
 	}
 
+	// don't list accuracy and damage bonuses for weapons, only list them on items
+	// that don't normally have them
+	
+	if (!is_weapon(o_ptr))
+	{
+		if (o_ptr->to_h > 0)
+		{
+			temp = string_make(format("It increases your accuracy by %i.", o_ptr->to_h));
+			info[i++] = temp;
+			reclaim[num_reclaim++] = temp;
+		}
+		else if (o_ptr->to_h < 0)
+		{
+			temp = string_make(format("It decreases your accuracy by %i.", o_ptr->to_h));
+			info[i++] = temp;
+			reclaim[num_reclaim++] = temp;
+		}
+
+		if (o_ptr->to_d > 0)
+		{
+			temp = string_make(format("It increases your melee damage by %i percent.", 3*o_ptr->to_d));
+			info[i++] = temp;
+			reclaim[num_reclaim++] = temp;
+		}
+		else if (o_ptr->to_d < 0)
+		{
+			temp = string_make(format("It decreases your melee damage by %i percent.", 3*o_ptr->to_d));
+			info[i++] = temp;
+			reclaim[num_reclaim++] = temp;
+		}
+	}
+
+	// don't list armor class bonuses for armor, only list them on items
+	// that don't normally have them
+	if (!is_armor(o_ptr))
+	{
+		if (o_ptr->to_a > 0)
+		{
+			temp = string_make(format("It increases your armor class by %i.", o_ptr->to_a));
+			info[i++] = temp;
+			reclaim[num_reclaim++] = temp;
+		}
+		else if (o_ptr->to_a > 0)
+		{
+			temp = string_make(format("It decreases your armor class by %i.", o_ptr->to_a));
+			info[i++] = temp;
+			reclaim[num_reclaim++] = temp;
+		}
+	}
+
+
 	/* Hack -- describe lite's */
 	if (o_ptr->tval == TV_LITE)
 	{
@@ -1246,10 +1348,6 @@ bool identify_fully_aux(const object_type *o_ptr)
 		info[i++] = "It provides resistance to disenchantment.";
 	}
 
-	if (f3 & (TR3_XXX7))
-	{
-		info[i++] = "It renders you XXX7'ed.";
-	}
 	if (f3 & (TR3_FEATHER))
 	{
 		info[i++] = "It allows you to levitate.";
@@ -1280,11 +1378,19 @@ bool identify_fully_aux(const object_type *o_ptr)
 	}
 	if (f3 & (TR3_SH_FIRE))
 	{
-		info[i++] = "It produces a fiery sheath.";
+		info[i++] = "It produces a fiery aura.";
 	}
 	if (f3 & (TR3_SH_ELEC))
 	{
-		info[i++] = "It produces an electric sheath.";
+		info[i++] = "It produces an electric aura.";
+	}
+	if (f3 & (TR3_SH_COLD))
+	{
+		info[i++] = "It produces a freezing aura.";
+	}
+	if (f3 & (TR3_SH_ACID))
+	{
+		info[i++] = "It produces an acidic cloud.";
 	}
 	if (f3 & (TR3_NO_MAGIC))
 	{

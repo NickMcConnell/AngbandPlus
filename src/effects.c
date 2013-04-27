@@ -2771,15 +2771,18 @@ void gain_soul_exp_aux( object_type* o_ptr, s32b amount )
 	char o_name[256];
 
 	soul_type* s_ptr;
+	soul_type* s_ptr2;
+
+	int lev = o_ptr->level;
 
 	//only count if we pass a minimum xp threshold
-	if (amount < (o_ptr->level * o_ptr->level) ) return;
+	if (amount < (lev * lev * lev) ) return;
 
-	if (o_ptr->level > 0)
+	if (lev > 0)
 	{
 		o_ptr->exp++;
 
-		if ( (o_ptr->exp >= 100 * o_ptr->level) && (o_ptr->level < 6) )
+		if ( (o_ptr->exp >= 200 * lev) && (lev < 6) )
 		{
 			o_ptr->level++;
 
@@ -2795,7 +2798,8 @@ void gain_soul_exp_aux( object_type* o_ptr, s32b amount )
 			/* Increase the pval */
 			o_ptr->pval++;
 
-			s_ptr = &s_info[o_ptr->soul_type1];
+			s_ptr  = &s_info[o_ptr->soul_type1];
+			s_ptr2 = &s_info[o_ptr->soul_type2];
 
 			o_ptr->to_h = (o_ptr->level * s_ptr->max_to_h) / 6;
 			o_ptr->to_d = (o_ptr->level * s_ptr->max_to_d) / 6;
@@ -2805,6 +2809,10 @@ void gain_soul_exp_aux( object_type* o_ptr, s32b amount )
 			o_ptr->flags1 |= s_ptr->flags1[o_ptr->level - 1];
 			o_ptr->flags2 |= s_ptr->flags2[o_ptr->level - 1];
 			o_ptr->flags3 |= s_ptr->flags3[o_ptr->level - 1];
+
+			o_ptr->flags1 |= s_ptr2->flags1[o_ptr->level - 1];
+			o_ptr->flags2 |= s_ptr2->flags2[o_ptr->level - 1];
+			o_ptr->flags3 |= s_ptr2->flags3[o_ptr->level - 1];
 
 			/* Identify it fully */
 			object_aware (o_ptr);

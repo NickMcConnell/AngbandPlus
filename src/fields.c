@@ -3959,8 +3959,8 @@ bool field_action_souldealer2(field_type *f_ptr, va_list vp)
 
 		if (test_gold(&cost))
 		{
-			p_ptr->au -= cost;
-			building_examinesoul();
+			if (building_evaluatesoul())
+				p_ptr->au -= cost;
 		}
 
 		*factor = TRUE;

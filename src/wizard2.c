@@ -623,14 +623,14 @@ static void wiz_display_item(const object_type *o_ptr)
                 "%v", binary_fmt, f2);
 
 	prtf(j + 32, 10,"+------------FLAGS3------------+\n"
-					"fe      ehsi  st    iiiiadta  hp\n"
-				    "il   n taihnf ee    ggggcregb vr\n"
-				    "re  no ysdose eld   nnnntalrl ym\n"
-				    "ec  om cyewta ieirmsrrrriieaeccc\n"
-				    "aa  ta uktmatlnpgeihaefcvnpvsuuu\n"
-				    "uu  eg rnyoahivaeggoclioaeoasrrr\n"
-				    "rr  li sopdretitsehtierltxrtesss\n"
-				    "aa  ec ewestreshtntsdcedeptedeee\n"
+				    "fe c  a ehsi  st    iiiiadta  hp\n"
+				    "ilqo nctaihnf ee    ggggcregb vr\n"
+				    "reslnoiysdose eld   nnnntalrl ym\n"
+				    "ectdomdcyewta ieirmsrrrriieaeccc\n"
+				    "aaiataauktmatlnpgeihaefcvnpvsuuu\n"
+				    "uutuegurnyoahivaeggoclioaeoasrrr\n"
+				    "rrerlirsopdretitsehtierltxrtesss\n"
+				    "aamaecaewestreshtntsdcedeptedeee\n"
                     "%v", binary_fmt, f3);
 }
 

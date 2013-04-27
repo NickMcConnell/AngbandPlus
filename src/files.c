@@ -1484,7 +1484,7 @@ static void display_player_abilities(void)
 
 
 	/* Basic abilities */
-	put_fstr(COL_SKILLS1, 16, CLR_WHITE "Fighting    : %v\n"
+	put_fstr(COL_SKILLS1, 17, CLR_WHITE "Fighting    : %v\n"
 							  CLR_WHITE "Bows/Throw  : %v\n"
 							  CLR_WHITE "Saving Throw: %v\n"
 							  CLR_WHITE "Stealth     : %v",
@@ -1494,7 +1494,7 @@ static void display_player_abilities(void)
 		 					likert, p_ptr->skill_stl, 1);
 
 
-	put_fstr(COL_SKILLS2, 16, CLR_WHITE "Perception  : %v\n"
+	put_fstr(COL_SKILLS2, 17, CLR_WHITE "Perception  : %v\n"
 							  CLR_WHITE "Sensing     : %v\n"
 							  CLR_WHITE "Disarming   : %v\n"
 							  CLR_WHITE "Magic Device: %v",
@@ -1504,13 +1504,13 @@ static void display_player_abilities(void)
 							likert, p_ptr->skill_dev, 6);
 
 	if (!muta_att)
-		put_fstr(COL_SKILLS3, 16, "Blows/Round : %d", p_ptr->num_blow);
+		put_fstr(COL_SKILLS3, 17, "Blows/Round : %d", p_ptr->num_blow);
 	else
-		put_fstr(COL_SKILLS3, 16, "Blows/Round : %d+%d",
+		put_fstr(COL_SKILLS3, 17, "Blows/Round : %d+%d",
 					p_ptr->num_blow, muta_att);
 
 	
-	put_fstr(COL_SKILLS3, 17, "Shots/Round : %d.%d", shots, shot_frac);
+	put_fstr(COL_SKILLS3, 18, "Shots/Round : %d.%d", shots, shot_frac);
 
 	/* Effect of damage dice x2 */
 	avgdam = avg_dam(dambonus, damdice, damsides);
@@ -1547,17 +1547,17 @@ static void display_player_abilities(void)
 	if (avgdam == 0)
 	{
 		if ((p_ptr->pclass == CLASS_MONK) && (!o_ptr->k_idx))
-			put_fstr(COL_SKILLS3, 18, "Avg.Dam./Rnd: %d",
+			put_fstr(COL_SKILLS3, 19, "Avg.Dam./Rnd: %d",
 					 monk_avg_damage[p_ptr->lev] * blows / 100);
 		else
-			put_fstr(COL_SKILLS3, 18, "Avg.Dam./Rnd: nil!");
+			put_fstr(COL_SKILLS3, 19, "Avg.Dam./Rnd: nil!");
 	}
 	else
 	{
-		put_fstr(COL_SKILLS3, 18, "Avg.Dam./Rnd: %d", (int)avgdam);
+		put_fstr(COL_SKILLS3, 19, "Avg.Dam./Rnd: %d", (int)avgdam);
 	}
 
-	put_fstr(COL_SKILLS3, 19, "Infra-Vision: %d'", p_ptr->see_infra * 10);
+	put_fstr(COL_SKILLS3, 20, "Infra-Vision: %d'", p_ptr->see_infra * 10);
 }
 
 
@@ -1977,7 +1977,7 @@ static void display_player_flag_info(void)
 	/*** Set 2 ***/
 
 	row = 11;
-	col = 25;
+	col = 24;
 
 	display_player_equippy(col + 10, row++);
 
@@ -1987,6 +1987,8 @@ static void display_player_flag_info(void)
 	display_player_flag_aux(col, row++, "Reflect :", 2, TR2_REFLECT, 0);
 	display_player_flag_aux(col, row++, "AuraFire:", 3, TR3_SH_FIRE, 0);
 	display_player_flag_aux(col, row++, "AuraElec:", 3, TR3_SH_ELEC, 0);
+	display_player_flag_aux(col, row++, "AuraCold:", 3, TR3_SH_COLD, 0);
+	display_player_flag_aux(col, row++, "AuraAcid:", 3, TR3_SH_ACID, 0);
 	display_player_flag_aux(col, row++, "NoTelprt:", 3, TR3_NO_TELE, 0);
 	display_player_flag_aux(col, row++, "No Magic:", 3, TR3_NO_MAGIC, 0);
 	display_player_flag_aux(col, row++, "Cursed  :", 3, TR3_CURSED,
@@ -2281,29 +2283,49 @@ static void display_player_stat_info(void)
 static void display_player_top(void)
 {
 	int i;
+	cptr p;
+
+	/* Wizard */
+	if (p_ptr->wizard)
+	{
+		p = "[=-WIZARD-=]";
+	}
+
+	/* Winner */
+	else if (p_ptr->total_winner || (p_ptr->lev > PY_MAX_LEVEL))
+	{
+		p = "***WINNER***";
+	}
+
+	/* Normal */
+	else
+	{
+		p = player_title[p_ptr->pclass][(p_ptr->lev - 1) / 5];
+	}
 	
 	/* Name, Sex, Race, Class */
 	put_fstr(COL_NAME, 2,
-    			"Name     : " CLR_L_BLUE "%s\n" CLR_WHITE
+   			"Name     : " CLR_L_BLUE "%s\n" CLR_WHITE
 				"Sex      : " CLR_L_BLUE "%s\n" CLR_WHITE
 				"Race     : " CLR_L_BLUE "%s\n" CLR_WHITE
-				"Class    : " CLR_L_BLUE "%s",
-                player_name, sp_ptr->title, rp_ptr->title, cp_ptr->title);
+				"Class    : " CLR_L_BLUE "%s\n" CLR_WHITE
+				"Title    : " CLR_L_BLUE "%s",
+                player_name, sp_ptr->title, rp_ptr->title, cp_ptr->title, p);
 
 	if (p_ptr->realm1 || p_ptr->realm2)
 	{
-		put_fstr(COL_NAME, 6, "Magic    : " CLR_L_BLUE "%s", realm_names[p_ptr->realm1]);
+		put_fstr(COL_NAME, 7, "Magic    : " CLR_L_BLUE "%s", realm_names[p_ptr->realm1]);
 	}
 
 	if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
 	{
-		put_fstr(COL_NAME, 7, "Patron   : ", CLR_L_BLUE "%s",
+		put_fstr(COL_NAME, 8, "Patron   : ", CLR_L_BLUE "%s",
 					 chaos_patrons[p_ptr->chaos_patron]);
 	}
 
 	if (p_ptr->realm2)
 	{
-		put_fstr(COL_NAME + WID_NAME, 7, CLR_L_BLUE "%s",
+		put_fstr(COL_NAME + WID_NAME, 8, CLR_L_BLUE "%s",
 				 realm_names[p_ptr->realm2]);
 	}
 
@@ -2458,7 +2480,7 @@ static void display_player_standard(void)
 	/* Extra info */
 	display_player_middle();
 
-	put_fstr(25, 15, "(Miscellaneous Abilities)");
+	put_fstr(0, 15, "  [Miscellaneous Abilities]");
 
 	/* Display the abilities */
 	display_player_abilities();
@@ -2478,12 +2500,12 @@ static void display_player_history(void)
 	/* Extra info */
 	display_player_middle();
 
-	put_fstr(25, 15, "(Character Background)");
+	put_fstr(0, 15, "  [Character Background]");
 
 	/* Dump the history */
 	for (i = 0; i < 4; i++)
 	{
-		put_fstr(10, i + 16, p_ptr->history[i]);
+		put_fstr(10, i + 17, p_ptr->history[i]);
 	}
 }
 
@@ -2726,7 +2748,28 @@ errr file_character(cptr name, bool full)
 		fprintf(fff, "%s\n", buf);
 	}
 
-	fprintf(fff, "\n\n  [Miscellaneous information]\n");
+	fprintf(fff, "\n  [Resists, Stats and Powers]\n");
+
+	/* Show (known) flags grid */
+	if (full)
+	{
+		fprintf(fff, "\n");
+		display_player(DISPLAY_PLAYER_SUMMARY);
+
+		for (y = 2; y < 23; y++)
+		{
+			for (x = 0; x < 80; x++)
+			{
+				(void)(Term_what(x, y, &a, &c));
+				buf[x] = c;
+			}
+
+			buf[x] = '\0';
+			fprintf(fff, "%s\n", buf);
+		}
+	}
+
+	fprintf(fff, "\n  [Miscellaneous Information]\n");
 
 	if (ironman_autoscum)
 		fprintf(fff, "\n Autoscum:           ON");
@@ -2765,57 +2808,6 @@ errr file_character(cptr name, bool full)
 	if (p_ptr->noscore)
 		fprintf(fff, "\n You have done something illegal.");
 
-	/* Show (known) flags grid */
-	if (full)
-	{
-		fprintf(fff, "\n\n");
-		display_player(DISPLAY_PLAYER_SUMMARY);
-
-		/* Dump first column */
-		for (y = 6; y < 23; y++)
-		{
-			for (x = 0; x < 21; x++)
-			{
-				(void)(Term_what(x, y, &a, &c));
-				buf[x] = c;
-			}
-
-			buf[x] = '\0';
-			fprintf(fff, "%s\n", buf);
-		}
-
-		/* New line */
-		fprintf(fff, "\n");
-
-		/* Dump second column */
-		for (y = 12; y < 22; y++)
-		{
-			for (x = 0; x < 23; x++)
-			{
-				(void)(Term_what(x + 25, y, &a, &c));
-				buf[x] = c;
-			}
-
-			buf[x] = '\0';
-			fprintf(fff, "%s\n", buf);
-		}
-
-		/* New line */
-		fprintf(fff, "\n");
-
-		/* Dump third column */
-		for (y = 12; y < 23; y++)
-		{
-			for (x = 0; x < 24; x++)
-			{
-				(void)(Term_what(x + 52, y, &a, &c));
-				buf[x] = c;
-			}
-
-			buf[x] = '\0';
-			fprintf(fff, "%s\n", buf);
-		}
-	}
 
 	/* Monsters slain */
 	{
@@ -2866,7 +2858,7 @@ errr file_character(cptr name, bool full)
 
         if (n)
         {
-            fprintf(fff, "\n\n  [Top %i deepest kills]\n\n", n >= 10 ? 10 : n);
+            fprintf(fff, "\n  [Top %i Deepest Kills]\n\n", n >= 10 ? 10 : n);
 
             why = 2;
         
@@ -2892,27 +2884,21 @@ errr file_character(cptr name, bool full)
 
 	if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
 	{
-		fprintf(fff, "\n\n  [Mutations]\n\n");
+		fprintf(fff, "\n  [Mutations]\n\n");
 		dump_mutations(fff);
 	}
 
 
-	/* Skip some lines */
-	fprintf(fff, "\n\n");
-
-
 	/* Dump the equipment */
-	fprintf(fff, "  [Character Equipment]\n\n");
+	fprintf(fff, "\n  [Character Equipment]\n\n");
 	for (i = 0; i < EQUIP_MAX; i++)
 	{
 		object_desc(o_name, &p_ptr->equipment[i], TRUE, 3, 256);
 		fprintf(fff, "%c%s %s\n", I2A(i), paren, o_name);
 	}
-	fprintf(fff, "\n\n");
-
 
 	/* Dump the inventory */
-	fprintf(fff, "  [Character Inventory]\n\n");
+	fprintf(fff, "\n  [Character Inventory]\n\n");
 
 	i = 0;
 
@@ -2928,9 +2914,6 @@ errr file_character(cptr name, bool full)
 	}
 	OBJ_ITT_END;
 
-	/* Add an empty line */
-	fprintf(fff, "\n\n");
-
 	/* Print all homes in the different towns */
 	for (i = 1; i < z_info->wp_max; i++)
 	{
@@ -2944,7 +2927,7 @@ errr file_character(cptr name, bool full)
 				if (st_ptr->stock)
 				{
 					/* Header with name of the town */
-					fprintf(fff, "  [Home Inventory - %s]\n\n", place[i].name);
+					fprintf(fff, "\n  [Home Inventory - %s]\n\n", place[i].name);
 
 					/* Initialise counter */
 					k = 0;
@@ -2959,9 +2942,6 @@ errr file_character(cptr name, bool full)
 						k++;
 					}
 					OBJ_ITT_END;
-
-					/* Add an empty line */
-					fprintf(fff, "\n\n");
 				}
 			}
 		}
@@ -2970,14 +2950,12 @@ errr file_character(cptr name, bool full)
 	if (limit_messages && msg_max > 50)
 		msg_max = 50;
 
-	fprintf(fff, "  [Message Log (last %d messages)]\n\n", msg_max);
+	fprintf(fff, "\n  [Message Log (last %d messages)]\n\n", msg_max);
 
 	for (i = msg_max - 1; i >= 0; i--)
 	{
 		fprintf(fff, "%s\n", message_str((s16b)i));
 	}
-	fprintf(fff, "\n\n");
-
 
 	/* Close it */
 	my_fclose(fff);
@@ -4252,7 +4230,7 @@ static void close_game_handle_death(void)
 				if (!tmp[0]) break;
 
 				/* Dump a character file */
-				(void)file_character(tmp, FALSE);
+				(void)file_character(tmp, TRUE);
 
 				break;
 			}

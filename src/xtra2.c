@@ -14,6 +14,218 @@
 
 #define REWARD_CHANCE 10
 
+#define ST_FIRE 53
+#define ST_COLD 54
+#define ST_ACID 55
+#define ST_ELEC 56
+#define ST_POIS 57
+#define ST_LITE 58
+#define ST_DARK 59
+#define ST_MULT 60
+#define ST_CONF 61
+#define ST_SOUN 62
+#define ST_NEXU 63
+#define ST_SHAR 64
+#define ST_DISE 65
+#define ST_NETH 66
+#define ST_CHAO 67
+#define ST_TIME 68
+#define ST_INER 69
+#define ST_GRAV 70
+#define ST_PLAS 71
+#define ST_FRCE 72
+#define ST_MANA 73
+#define ST_NUKE 74
+#define ST_DISI 75
+#define ST_BLND 76
+#define ST_FEAR 77
+#define ST_DSTR 78
+#define ST_DCON 79
+#define ST_DDEX 80
+#define ST_DWIS 81
+#define ST_DINT 82
+#define ST_DCHR 83
+#define ST_DALL 84
+#define ST_FOOD 85
+#define ST_DEXP 86
+#define ST_IMPC 87
+#define ST_PARA 88
+#define ST_EX_UNDEAD 89
+#define ST_EX_DEMON  90
+#define ST_EX_GIANT  91
+#define ST_EX_ORC    92
+#define ST_EX_TROLL  93
+#define ST_EX_DRAGON 94
+#define ST_SHIN      95
+#define ST_LAW       96
+#define ST_BAL       97
+#define ST_XXXX      100
+
+int determine_main_soul_type( monster_race *r_ptr )
+{
+	u16b toReturn;
+	char c;
+
+	c = r_ptr->d_char;
+
+	if ((c>='a')&&(c<='z')) toReturn = c-'a';
+	else if ((c>='A')&&(c<='Z')) toReturn = c-'A'+26;
+	else toReturn = 52;
+
+	return toReturn;
+}
+
+int determine_aux_soul_type( monster_race *r_ptr )
+{
+	// Hack, if we find more than 20 flags, this crashes.
+	u16b lo[20];
+	u16b md[20];
+	u16b hi[20];
+	int j;
+	int foundLo = 0;
+	int foundMd = 0;
+	int foundHi = 0;
+
+	// double - race monsters
+	if ( (r_ptr->flags3 & RF3_ORC  ) && (r_ptr->d_char != 'o') ) lo[foundLo++] = ST_EX_ORC;
+	if ( (r_ptr->flags3 & RF3_TROLL) && (r_ptr->d_char != 'T') ) lo[foundLo++] = ST_EX_TROLL;
+	if ( (r_ptr->flags3 & RF3_GIANT) && (r_ptr->d_char != 'P') ) lo[foundLo++] = ST_EX_GIANT;
+
+	if ( (r_ptr->flags3 & RF3_DRAGON) && (r_ptr->d_char != 'd') && (r_ptr->d_char != 'D') ) lo[foundLo++] = ST_EX_DRAGON;
+	if ( (r_ptr->flags3 & RF3_DEMON ) && (r_ptr->d_char != 'u') && (r_ptr->d_char != 'U') ) lo[foundLo++] = ST_EX_DEMON;
+
+	if ( (r_ptr->flags3 & RF3_UNDEAD) && (r_ptr->d_char != 's') && (r_ptr->d_char != 'z') &&
+             (r_ptr->d_char != 'V') && (r_ptr->d_char != 'W') && (r_ptr->d_char != 'L') ) lo[foundLo++] = ST_EX_UNDEAD;
+
+	/* Examine the physical attacks */
+	for (j = 0; j < 4; j++)
+	{
+		if (!r_ptr->blow[j].method) continue;
+
+		if (r_ptr->blow[j].effect == RBE_POISON   ) hi[foundHi++] = ST_POIS;
+		if (r_ptr->blow[j].effect == RBE_UN_BONUS ) md[foundMd++] = ST_DISE;
+		if (r_ptr->blow[j].effect == RBE_UN_POWER ); //?
+		if (r_ptr->blow[j].effect == RBE_EAT_GOLD ); //?
+		if (r_ptr->blow[j].effect == RBE_EAT_ITEM ); //?
+		if (r_ptr->blow[j].effect == RBE_EAT_FOOD ) lo[foundLo++] = ST_FOOD;
+		if (r_ptr->blow[j].effect == RBE_EAT_LITE ) lo[foundLo++] = ST_LITE;
+		if (r_ptr->blow[j].effect == RBE_ACID     ) hi[foundHi++] = ST_ACID;
+		if (r_ptr->blow[j].effect == RBE_ELEC     ) hi[foundHi++] = ST_ELEC;
+		if (r_ptr->blow[j].effect == RBE_FIRE     ) hi[foundHi++] = ST_FIRE;
+		if (r_ptr->blow[j].effect == RBE_COLD     ) hi[foundHi++] = ST_COLD;
+		if (r_ptr->blow[j].effect == RBE_BLIND    ) md[foundMd++] = ST_BLND;
+		if (r_ptr->blow[j].effect == RBE_CONFUSE  ) md[foundMd++] = ST_CONF;
+		if (r_ptr->blow[j].effect == RBE_TERRIFY  ) md[foundMd++] = ST_FEAR;
+		if (r_ptr->blow[j].effect == RBE_PARALYZE ) md[foundMd++] = ST_PARA;
+		if (r_ptr->blow[j].effect == RBE_LOSE_STR ) lo[foundLo++] = ST_DSTR;
+		if (r_ptr->blow[j].effect == RBE_LOSE_INT ) lo[foundLo++] = ST_DINT;
+		if (r_ptr->blow[j].effect == RBE_LOSE_WIS ) lo[foundLo++] = ST_DWIS;
+		if (r_ptr->blow[j].effect == RBE_LOSE_DEX ) lo[foundLo++] = ST_DDEX;
+		if (r_ptr->blow[j].effect == RBE_LOSE_CON ) lo[foundLo++] = ST_DCON;
+		if (r_ptr->blow[j].effect == RBE_LOSE_CHR ) lo[foundLo++] = ST_DCHR;
+		if (r_ptr->blow[j].effect == RBE_LOSE_ALL ) hi[foundHi++] = ST_DALL;
+		if (r_ptr->blow[j].effect == RBE_SHATTER  ) lo[foundLo++] = ST_IMPC;
+		if (r_ptr->blow[j].effect == RBE_EXP_10   ) md[foundMd++] = ST_DEXP;
+		if (r_ptr->blow[j].effect == RBE_EXP_20   ) md[foundMd++] = ST_DEXP;
+		if (r_ptr->blow[j].effect == RBE_EXP_40   ) md[foundMd++] = ST_DEXP;
+		if (r_ptr->blow[j].effect == RBE_EXP_80   ) md[foundMd++] = ST_DEXP;
+		if (r_ptr->blow[j].effect == RBE_DISEASE  ) hi[foundHi++] = ST_POIS;
+		if (r_ptr->blow[j].effect == RBE_TIME     ) hi[foundHi++] = ST_TIME;
+		if (r_ptr->blow[j].effect == RBE_EXP_VAMP ) md[foundMd++] = ST_DEXP;
+	}
+
+	// handle multi-hued monsters
+	if ((r_ptr->flags4 & RF4_BR_FIRE) &&
+			(r_ptr->flags4 & RF4_BR_COLD) &&
+			(r_ptr->flags4 & RF4_BR_ELEC) &&
+			(r_ptr->flags4 & RF4_BR_ACID) &&
+			(r_ptr->flags4 & RF4_BR_POIS))
+	{
+		hi[foundHi++] = ST_MULT;
+	}
+	else
+	{
+		if (r_ptr->flags4 & RF4_BR_FIRE) hi[foundHi++] = ST_FIRE;
+		if (r_ptr->flags4 & RF4_BR_COLD) hi[foundHi++] = ST_COLD;
+		if (r_ptr->flags4 & RF4_BR_ACID) hi[foundHi++] = ST_ACID;
+		if (r_ptr->flags4 & RF4_BR_ELEC) hi[foundHi++] = ST_ELEC;
+		if (r_ptr->flags4 & RF4_BR_POIS) hi[foundHi++] = ST_POIS;
+	}
+
+	// handle 'shining' monsters
+	if ((r_ptr->flags4 & RF4_BR_LITE) && (r_ptr->flags4 & RF4_BR_DARK))
+	{
+		hi[foundHi++] = ST_SHIN;
+	}
+	else
+	{
+		if (r_ptr->flags4 & RF4_BR_LITE) md[foundMd++] = ST_LITE;
+		if (r_ptr->flags4 & RF4_BR_DARK) md[foundMd++] = ST_DARK;
+	}
+
+	// handle balance monsters
+	if ((r_ptr->flags4 & RF4_BR_CHAO) &&
+			(r_ptr->flags4 & RF4_BR_SHAR) &&
+			(r_ptr->flags4 & RF4_BR_SOUN) &&
+			(r_ptr->flags4 & RF4_BR_DISE) )
+	{
+		hi[foundHi++] = ST_BAL;
+	}
+	else
+	{
+		//handle law monsters
+		if ((r_ptr->flags4 & RF4_BR_SHAR) &&
+				(r_ptr->flags4 & RF4_BR_SOUN))
+		{
+			hi[foundHi++] = ST_LAW;
+		}
+		else
+		{
+			if (r_ptr->flags4 & RF4_BR_SHAR) md[foundMd++] = ST_SHAR;
+			if (r_ptr->flags4 & RF4_BR_SOUN) md[foundMd++] = ST_SOUN;
+		}
+
+		//handle chaos monsters
+		if (r_ptr->flags4 & RF4_BR_CHAO)
+		{
+			if (r_ptr->flags4 & RF4_BR_CHAO) hi[foundHi++] = ST_CHAO;
+		}
+		else
+		{
+			//chaos gets disenchant and confusion for free
+			if (r_ptr->flags4 & RF4_BR_DISE) md[foundMd++] = ST_DISE;
+			if (r_ptr->flags4 & RF4_BR_CONF) md[foundMd++] = ST_CONF;
+		}
+	}
+
+	if (r_ptr->flags4 & RF4_BR_NEXU) md[foundMd++] = ST_NEXU;
+	if (r_ptr->flags4 & RF4_BR_NETH) hi[foundHi++] = ST_NETH;
+	if (r_ptr->flags4 & RF4_BR_TIME) hi[foundHi++] = ST_TIME;
+	if (r_ptr->flags4 & RF4_BR_INER) hi[foundHi++] = ST_INER;
+	if (r_ptr->flags4 & RF4_BR_GRAV) hi[foundHi++] = ST_GRAV;
+	if (r_ptr->flags4 & RF4_BR_PLAS) hi[foundHi++] = ST_PLAS;
+	if (r_ptr->flags4 & RF4_BR_WALL) md[foundMd++] = ST_FRCE;
+	if (r_ptr->flags4 & RF4_BR_MANA) hi[foundHi++] = ST_MANA;
+	if (r_ptr->flags4 & RF4_BR_NUKE) hi[foundHi++] = ST_NUKE;
+	if (r_ptr->flags4 & RF4_BR_DISI) hi[foundHi++] = ST_DISI;
+
+	if (foundHi > 0)
+	{
+		return hi[rand_int(foundHi)];
+	}
+	else if (foundMd > 0)
+	{
+		return md[rand_int(foundMd)];
+	}
+	else if (foundLo > 0)
+	{
+		return lo[rand_int(foundLo)];
+	}
+	else
+	{
+		return ST_XXXX;
+	}
+}
 
 /*
  * Advance experience levels and print experience
@@ -204,7 +416,6 @@ bool monster_death(int m_idx, bool explode)
 	int i, j, y, x;
 	int dump_item = 0;
 	int dump_gold = 0;
-	char c;
 
 	int number = 0;
 
@@ -606,25 +817,6 @@ bool monster_death(int m_idx, bool explode)
 		drop_near(q_ptr, -1, x, y);
 	}
 
-	/* Mega^2-hack -- Get a t-shirt from our first Greater Hell-beast kill */
-	else if (!r_ptr->r_pkills
-			 && strstr((r_name + r_ptr->name), "Greater hell-beast"))
-	{
-		/* Prepare to make the T-shirt */
-		q_ptr = object_prep(lookup_kind(TV_SOFT_ARMOR, SV_T_SHIRT));
-
-		/* Mega-Hack -- Name the shirt */
-		q_ptr->xtra_name =
-			quark_add
-			("'I killed the GHB and all I got was this lousy t-shirt!'");
-
-		q_ptr->flags3 |= (TR3_IGNORE_ACID | TR3_IGNORE_ELEC |
-						  TR3_IGNORE_FIRE | TR3_IGNORE_COLD);
-
-		/* Drop it in the dungeon */
-		drop_near(q_ptr, -1, x, y);
-	}
-
 	/* Mega-Hack -- drop "winner" treasures */
 	else if (r_ptr->flags1 & RF1_DROP_CHOSEN)
 	{
@@ -736,20 +928,15 @@ bool monster_death(int m_idx, bool explode)
 	}
 
 	/* (Non-unique) Monsters (sometimes) drop soul gems */
-	if (!(r_ptr->flags1 & RF1_UNIQUE) && one_in_(100))
+	if (!(r_ptr->flags1 & RF1_UNIQUE) && one_in_(200))
 	{
 		q_ptr = object_prep(lookup_kind(TV_SOUL_GEM, 0));
 
 		q_ptr->soul_source = m_ptr->r_idx;
 
 		//figure out what soul type this gem sould have
-		c = r_ptr->d_char;
-
-		if ((c>='a')&&(c<='z')) q_ptr->soul_type1 = c-'a';
-		else if ((c>='A')&&(c<='Z')) q_ptr->soul_type1 = c-'A'+26;
-		else q_ptr->soul_type1 = 52;
-
-		q_ptr->soul_type2 = 0;
+		q_ptr->soul_type1 =	determine_main_soul_type( r_ptr );
+		q_ptr->soul_type2 =	determine_aux_soul_type ( r_ptr );
 
 		/* Drop it in the dungeon */
 		drop_near(q_ptr, -1, x, y);

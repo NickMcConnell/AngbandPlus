@@ -1,6 +1,66 @@
+**** 09/26/03
+
+Tweaked rewards for depositing soul gems at the soul dealer
+Added two more elemental soul types; law and balance. 
+XBAND 0.2.0 released
+
+**** 09/25/03
+
+Removed extra attacks from Holy Avengers
+If a monster had multiple elemental attacks, it's secondary soul types will now be randomized.
+Added a new secondary soul type - shining
+Now only non-weapons show bonuses to accuracy and damage when inspected.
+Now only non-armor shows bonuses to armor when inspected.
+Randomization of secondary soul types gives preference to better types
+Powered-down soul types big time
+Made souls about half as common, and made them level about half as fast
+Set leveling threshold for souls higher
+
+**** 09/24/03
+
+Added four new elemental brands on weapons - they are powered-up versions of the basic
+elemental brands; they provide extra damage from their element, immunity to their 
+element, and an elemental sheath.
+Added title to character dump
+Made cloaks of elemental sheath less deep
+Made character dumps show more information
+Made character dumps made upon death identical to normal character dumps
+Made the rewards from the soul dealer much better
+Removed the Greater Hell Beast!
+Added a few more secondary soul types, for double-race monsters like skeleton trolls. 
+Added two new artifact weapons
+Removed the random error messages
+
+**** 09/23/03
+
+Implemented secondary soul types; any creature that breathes an element has a soul that provides
+additional bonuses related to that element.
+Any creature that has an elemental touch attack now provides additional bonuses related to that element.
+
+**** 09/22/03
+
+Removed two more of the single low-level people.
+
+**** 09/19/03
+
+Moved some of the single low-level people (novice warriors, etc) to yeeks and kobolds. Kept the FRIENDS versions.
+Fixed a bug that caused the soul dealer to always charge for soul evaluation, even if canceled.
+
+**** 09/18/03
+
+Fixed a bug that prevented evaluating souls
+Added two new item flags; SH_COLD and SH_ACID, they function like SH_FIRE and SH_ELEC
+Updated the character info screen to show above flags
+
 **** 09/17/03
 
 Edited the makefiles to match changes I have made. Probably broke all kinds of stuff.
+XBAND 0.1.0 released
+
+Fixed a bug that misdisplayed soul potentials
+Potential of wielded imbued items can now be displayed
+When inspected, items now display their added damage / accuracy / armor
+Soul potentials now display added damage / accuracy / armor
 
 **** 09/11/03
 
@@ -117,6 +177,6 @@ Fix version numbering
 Change 'ZAngband' -> 'XBand'
 Fix save file brokenness due to Z 2.7.2 bug
 Item descriptions in character dump
-Last 50 messages in character dump
 Update official FAQ
 Update help files
+I don't think the HURT_FIRE and HURT_COLD flags work

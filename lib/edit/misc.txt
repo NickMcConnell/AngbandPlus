@@ -53,7 +53,7 @@ M:W:P:40
 M:G:10
 
 # Maximum number of soul types
-M:S:53
+M:S:101
 
 # This needs to be larger than STORE_CACHE_AMNT * 24
 # Maximum number of objects

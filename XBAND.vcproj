@@ -439,9 +439,6 @@
 				RelativePath="debug\lib\file\elvish.txt">
 			</File>
 			<File
-				RelativePath="debug\lib\file\error.txt">
-			</File>
-			<File
 				RelativePath="debug\lib\file\mondeath.txt">
 			</File>
 			<File

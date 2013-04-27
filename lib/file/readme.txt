@@ -18,7 +18,6 @@ crime.txt    Possible crimes that speaking uniques may have committed
 dead.txt     The tombstone picture (the death screen)
 death.txt    Possible 'last words' when the player dies
 elvish.txt   Syllables for the names of random artifacts
-error.txt    Possible random error messages (instead of "Type ? for help")
 mondeath.txt Possible 'last words' for speaking uniques
 monfear.txt  Possible lines for scared speaking uniques
 monfrien.txt Possible lines for friendly speaking uniques

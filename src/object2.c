@@ -1020,8 +1020,9 @@ s32b flag_cost(const object_type *o_ptr, int plusses)
 	if (f2 & TR2_RES_DISEN) total += 5000;
 	if (f3 & TR3_SH_FIRE) total += 1000;
 	if (f3 & TR3_SH_ELEC) total += 1000;
+	if (f3 & TR3_SH_ACID) total += 1000;
+	if (f3 & TR3_SH_COLD) total += 1000;
 	if (f3 & TR3_QUESTITEM) total += 0;
-	if (f3 & TR3_XXX4) total += 0;
 	if (f3 & TR3_NO_TELE) total += 1500;
 	if (f3 & TR3_NO_MAGIC) total += 1500;
 	if (f3 & TR3_TY_CURSE) total -= 15000;
@@ -2423,18 +2424,6 @@ static void a_m_aux_1(object_type *o_ptr, int level, int lev_dif, byte flags)
 					case EGO_HA:
 					{
 						add_ego_power(EGO_XTRA_SUSTAIN, o_ptr);
-
-						if (one_in_(4))
-						{
-							o_ptr->flags1 |= TR1_BLOWS;
-
-							o_ptr->pval = randint1(4);
-
-							/* tone down number of attacks */
-							o_ptr->pval -= o_ptr->dd / 2;
-
-							if (o_ptr->pval < 1) o_ptr->pval = 1;
-						}
 						break;
 					}
 

@@ -575,6 +575,8 @@ static const flag_desc misc_flags3_desc[] =
 	{TR3_DRAIN_EXP, "Drains Experience"},
 	{TR3_AGGRAVATE, "Aggravates"},
 	{TR3_BLESSED, "Blessed Blade"},
+	{TR3_SH_COLD, "Freezing Aura"},
+	{TR3_SH_ACID, "Acidic Aura"},
 };
 
 

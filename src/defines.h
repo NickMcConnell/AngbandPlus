@@ -35,7 +35,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.1.0"
+#define VERSION_STRING	"0.2.0"
 
 
 /*
@@ -1566,38 +1566,42 @@
 #define EGO_ATTACKS             69
 #define EGO_SLAYING_WEAPON      70
 /* xxx */
-#define EGO_BRAND_ACID          72
-#define EGO_BRAND_ELEC          73
-#define EGO_BRAND_FIRE          74
-#define EGO_BRAND_COLD          75
-#define EGO_BRAND_POIS          76
-#define EGO_CHAOTIC             77
-#define EGO_SHARPNESS           78
-#define EGO_EARTHQUAKES         79
-#define EGO_SLAY_ANIMAL         80
-#define EGO_SLAY_EVIL           81
-#define EGO_SLAY_UNDEAD         82
-#define EGO_SLAY_DEMON          83
-#define EGO_SLAY_ORC            84
-#define EGO_SLAY_TROLL          85
-#define EGO_SLAY_GIANT          86
-#define EGO_SLAY_DRAGON         87
-#define EGO_KILL_ANIMAL         88
-#define EGO_KILL_EVIL           89
-#define EGO_KILL_UNDEAD         90
-#define EGO_KILL_DEMON          91
-#define EGO_KILL_ORC            92
-#define EGO_KILL_TROLL          93
-#define EGO_KILL_GIANT          94
-#define EGO_KILL_DRAGON         95
-#define EGO_VAMPIRIC            96
+#define EGO_BRAND_ACID          71
+#define EGO_BRAND_ELEC          72
+#define EGO_BRAND_FIRE          73
+#define EGO_BRAND_COLD          74
+#define EGO_BRAND_POIS          75
+#define EGO_BRAND_ACID_HIGH     76
+#define EGO_BRAND_ELEC_HIGH     77
+#define EGO_BRAND_FIRE_HIGH     78
+#define EGO_BRAND_COLD_HIGH     79
+#define EGO_CHAOTIC             80
+#define EGO_SHARPNESS           81
+#define EGO_EARTHQUAKES         82
+#define EGO_SLAY_ANIMAL         83
+#define EGO_SLAY_EVIL           84
+#define EGO_SLAY_UNDEAD         85
+#define EGO_SLAY_DEMON          86
+#define EGO_SLAY_ORC            87
+#define EGO_SLAY_TROLL          88
+#define EGO_SLAY_GIANT          89
+#define EGO_SLAY_DRAGON         90
+#define EGO_KILL_ANIMAL         91
+#define EGO_KILL_EVIL           92
+#define EGO_KILL_UNDEAD         93
+#define EGO_KILL_DEMON          94
+#define EGO_KILL_ORC            95
+#define EGO_KILL_TROLL          96
+#define EGO_KILL_GIANT          97
+#define EGO_KILL_DRAGON         98
+#define EGO_VAMPIRIC            99
 /* xxx */
 /* xxx */
-#define EGO_TRUMP               98
-#define EGO_PATTERN             99
-#define EGO_DIGGING             100
+#define EGO_TRUMP               100
+#define EGO_PATTERN             101
+#define EGO_DIGGING             102
 /* xxx */
-#define EGO_MORGUL              102
+#define EGO_MORGUL              103
 /* xxx */
 
 /* Bows */
@@ -1613,20 +1617,25 @@
 /* Ammo */
 #define EGO_HURT_ANIMAL         112
 #define EGO_HURT_EVIL           113
+#define EGO_HURT_DRAGON         114
+#define EGO_SLAYING_BOLT        115
+#define EGO_LIGHTNING_BOLT      116
+#define EGO_FLAME               117
+#define EGO_FROST               118
+#define EGO_WOUNDING            119
+#define EGO_BACKBITING          120
+
+/* Extra cloaks */
+#define EGO_AURA_COLD           121
+#define EGO_AURA_ACID           122
+
 /* xxx */
 /* xxx */
 /* xxx */
-/* xxx */
-/* xxx */
-#define EGO_HURT_DRAGON         119
-#define EGO_SLAYING_BOLT        120
-#define EGO_LIGHTNING_BOLT      121
-#define EGO_FLAME               122
-#define EGO_FROST               123
-#define EGO_WOUNDING            124
-#define EGO_BACKBITING          125
+
 #define EGO_SHATTERED           126
 #define EGO_BLASTED             127
+
 
 
 /* Activation effects for random artifacts */
@@ -2820,10 +2829,10 @@
 #define TR3_SH_FIRE             0x00000001L	/* Immolation (Fire) */
 #define TR3_SH_ELEC             0x00000002L	/* Electric Sheath */
 #define TR3_QUESTITEM           0x00000004L	/* quest level item -KMW- */
-#define TR3_XXX4                0x00000008L	/* Later */
+#define TR3_SH_COLD             0x00000008L	/* Freezing Sheath */
 #define TR3_NO_TELE             0x00000010L	/* Anti-teleportation */
 #define TR3_NO_MAGIC            0x00000020L	/* Anti-magic */
-#define TR3_XXX7                0x00000040L	/* Later */
+#define TR3_SH_ACID             0x00000040L	/* Acidic Sheath */
 #define TR3_TY_CURSE            0x00000080L	/* The Ancient Curse */
 #define TR3_EASY_KNOW           0x00000100L	/* Aware -> Known */
 #define TR3_HIDE_TYPE           0x00000200L	/* Hide "pval" description */

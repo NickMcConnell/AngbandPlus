@@ -1101,7 +1101,7 @@ P:8:1d5:0:0:0
 ##### Rings #####
 
 N:132:& Copper Ring (#)
-G:=:o
+G:=:u
 I:45:24:5
 W:1:0:2:50
 A:5/1
@@ -1140,7 +1140,7 @@ F:EASY_KNOW | IGNORE_ACID | IGNORE_FIRE | IGNORE_COLD | IGNORE_ELEC
 ##### Amulets #####
 
 N:163:& Copper Amulet (#)
-G:":o
+G:":u
 I:40:6:4
 W:1:0:3:50
 A:10/1

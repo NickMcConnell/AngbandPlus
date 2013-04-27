@@ -1528,6 +1528,58 @@ bool make_attack_normal(int m_idx)
 							r_ptr->r_flags3 |= RF3_IM_ELEC;
 					}
 				}
+
+				if (p_ptr->sh_cold && alive)
+				{
+					if (!(r_ptr->flags3 & RF3_IM_COLD))
+					{
+						int dam = damroll(2, 6);
+
+						/* Modify the damage */
+						dam = mon_damage_mod(m_ptr, dam, 0);
+
+						msgf("%^s is suddenly very cold!", m_name);
+
+						if (mon_take_hit(m_idx, dam, &fear,
+										 " shatters into frozen chunks."))
+						{
+							blinked = FALSE;
+							alive = FALSE;
+						}
+					}
+					else
+					{
+						if (visible)
+							r_ptr->r_flags3 |= RF3_IM_COLD;
+					}
+				}
+
+
+				if (p_ptr->sh_acid && alive)
+				{
+					if (!(r_ptr->flags3 & RF3_IM_ACID))
+					{
+						int dam = damroll(2, 6);
+
+						/* Modify the damage */
+						dam = mon_damage_mod(m_ptr, dam, 0);
+
+						msgf("%^s is spattered with acid!", m_name);
+
+						if (mon_take_hit(m_idx, dam, &fear,
+										 " melts."))
+						{
+							blinked = FALSE;
+							alive = FALSE;
+						}
+					}
+					else
+					{
+						if (visible)
+							r_ptr->r_flags3 |= RF3_IM_ACID;
+					}
+				}
+
 				touched = FALSE;
 			}
 		}

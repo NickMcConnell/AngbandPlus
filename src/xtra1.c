@@ -2427,6 +2427,8 @@ static void calc_bonuses(void)
 	p_ptr->reflect = FALSE;
 	p_ptr->sh_fire = FALSE;
 	p_ptr->sh_elec = FALSE;
+	p_ptr->sh_cold = FALSE;
+	p_ptr->sh_acid = FALSE;
 	p_ptr->anti_magic = FALSE;
 	p_ptr->anti_tele = FALSE;
 
@@ -2836,6 +2838,8 @@ static void calc_bonuses(void)
 		if (f2 & (TR2_REFLECT)) p_ptr->reflect = TRUE;
 		if (f3 & (TR3_SH_FIRE)) p_ptr->sh_fire = TRUE;
 		if (f3 & (TR3_SH_ELEC)) p_ptr->sh_elec = TRUE;
+		if (f3 & (TR3_SH_COLD)) p_ptr->sh_cold = TRUE;
+		if (f3 & (TR3_SH_ACID)) p_ptr->sh_acid = TRUE;
 		if (f3 & (TR3_NO_MAGIC)) p_ptr->anti_magic = TRUE;
 		if (f3 & (TR3_NO_TELE)) p_ptr->anti_tele = TRUE;
 

@@ -1475,6 +1475,8 @@ struct player_type
 	bool reflect;	/* Reflect 'bolt' attacks */
 	bool sh_fire;	/* Fiery 'immolation' effect */
 	bool sh_elec;	/* Electric 'immolation' effect */
+	bool sh_cold;	/* Freezing 'immolation' effect */
+	bool sh_acid;	/* Acidic 'immolation' effect */
 
 	bool anti_magic;	/* Anti-magic */
 	bool anti_tele;	/* Prevent teleportation */

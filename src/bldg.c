@@ -1236,6 +1236,7 @@ void building_sellsoul(void)
 	int delta_level, i;
 	obj_theme theme;
 	object_type* q_ptr;
+	int num_mon_types;
 
 	/* Only accept legal items */
 	item_tester_hook = item_tester_hook_soulgem;
@@ -1253,20 +1254,6 @@ void building_sellsoul(void)
 
 	r_ptr = &r_info[o_ptr->soul_source];
 
-	// we already have a soul of this type
-	if (r_ptr->r_xtra1 > 0)
-	{
-		msgf("I have no need of this soul.");
-		return;
-	}
-	else 
-	{
-		msgf("A trinket awaits for you outside.");
-	}
-
-	/* Mark the monster race as added to the library */
-	r_ptr->r_xtra1 = 1;
-
 	/* Take the soul gem from the player, describe the result */
 	item_increase(o_ptr, -1);
 
@@ -1276,42 +1263,59 @@ void building_sellsoul(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN);
 
+	// we already have a soul of this type
+	if (r_ptr->r_xtra1 > 0)
+	{
+		msgf("Some money awaits you outside.");
+
+		/* Make some gold */
+		q_ptr = make_gold(0);
+
+		/* Paranoia */
+		if (q_ptr)
+		{
+			/* Drop it outside */
+			drop_near(q_ptr, -1, p_ptr->px, p_ptr->py);
+		}
+
+		return;
+	}
+
+	//else
+
+	msgf("A trinket awaits you outside.");
+
+	/* Mark the monster race as added to the library */
+	r_ptr->r_xtra1 = 1;
 
 	/* Make an object as reward*/
-	theme.combat   = 40;
-	theme.magic    = 20;
-	theme.tools    = 20;
-	theme.treasure = 20;
+	theme.combat   = 100;
+	theme.magic    = 0;
+	theme.tools    = 0;
+	theme.treasure = 0;
 
 	// the 'level' of the object is based on the number of soul types we have turned in
 
 	/* set the base level */
 	object_level = 0;
 
-	delta_level = 0;
+	//start with a minimum goodness level
+	delta_level = 15;
+
+	//count all the souls we have deposited
 	for (i=0; i<z_info->r_max; i++)
 	{
 		if (r_info[i].r_xtra1 > 0) delta_level++;
 	}
 
-	// scale the object level
-	delta_level = (delta_level * 300) / z_info->r_max;
-
-	// if the object level is too high
-	if (delta_level > 120) delta_level = 120;
+	if (p_ptr->wizard) msgf("Generating item with delta_level %i", delta_level);
 
   for (i = 0; i < 1000; i++)
   {
       /* Make an object */
-      q_ptr = make_object(delta_level, theme);
+			q_ptr = make_object(delta_level, theme);
 
       if (!q_ptr) continue;
-
-      /* should not be worthless */
-      if (cursed_p(q_ptr)) continue;
-      if (object_value_real(q_ptr) <= 0) continue;
-
-      break;
   }
 
 	/* Paranoia */
@@ -1396,15 +1400,19 @@ void building_viewsouls(int delta)
 /*
  * Examine a soul
  */
-void building_examinesoul()
+bool building_evaluatesoul()
 {
 	object_type* o_ptr;
 	soul_type*   s_ptr;
+	soul_type*   s_ptr2;
 	u32b save_flags1;
 	u32b save_flags2;
 	u32b save_flags3;
 	s16b save_pval;
 	s16b save_level;
+	s16b save_to_h;
+	s16b save_to_d;
+	s16b save_to_a;
 	int i;
 	cptr q, s;
 
@@ -1415,10 +1423,10 @@ void building_examinesoul()
 	q = "Examine which soul?";
 	s = "You have no soul to examine.";
 
-	o_ptr = get_item(q, s, (USE_INVEN | USE_FLOOR));
+	o_ptr = get_item(q, s, (USE_INVEN | USE_EQUIP | USE_FLOOR));
 
 	/* No valid item */
-	if (!o_ptr) return;
+	if (!o_ptr) return FALSE;
 
 	/* Big hack, save the old flags */
 	save_flags1 = o_ptr->kn_flags1;
@@ -1426,20 +1434,32 @@ void building_examinesoul()
 	save_flags3 = o_ptr->kn_flags3;
 	save_pval   = o_ptr->pval;
 	save_level  = o_ptr->level;
+	save_to_h   = o_ptr->to_h;
+	save_to_d   = o_ptr->to_d;
+	save_to_a   = o_ptr->to_a;
 
 	o_ptr->kn_flags1 = 0;
 	o_ptr->kn_flags2 = 0;
 	o_ptr->kn_flags3 = 0;
-	o_ptr->pval      = 5;
-	o_ptr->level     = 20;
+	o_ptr->pval      = 6;
+	o_ptr->level     = 6;
 
-	s_ptr = &s_info[o_ptr->soul_type1];
+	s_ptr  = &s_info[o_ptr->soul_type1];
+	s_ptr2 = &s_info[o_ptr->soul_type2];
+
+	o_ptr->to_h      = s_ptr->max_to_h;
+	o_ptr->to_d      = s_ptr->max_to_d;
+	o_ptr->to_a      = s_ptr->max_to_a;
 
 	for (i=0; i<6; i++)
 	{
 		o_ptr->kn_flags1 |= s_ptr->flags1[i];
 		o_ptr->kn_flags2 |= s_ptr->flags2[i];
 		o_ptr->kn_flags3 |= s_ptr->flags3[i];
+
+		o_ptr->kn_flags1 |= s_ptr2->flags1[i];
+		o_ptr->kn_flags2 |= s_ptr2->flags2[i];
+		o_ptr->kn_flags3 |= s_ptr2->flags3[i];
 	}
 
 	msgf("When fully powered, the %v will look like:", OBJECT_FMT(o_ptr, TRUE, 3));
@@ -1452,9 +1472,12 @@ void building_examinesoul()
 	o_ptr->kn_flags3 = save_flags3;
 	o_ptr->pval      = save_pval;
 	o_ptr->level     = save_level;
+	o_ptr->to_h      = save_to_h;
+	o_ptr->to_d      = save_to_d;
+	o_ptr->to_a      = save_to_a;
 
 	/* Finished */
-	return;
+	return TRUE;
 }
 
 
@@ -1504,9 +1527,9 @@ void building_imbuesoul(void)
 	o_ptr->flags2 |= s_info[o_ptr->soul_type1].flags2[0];
 	o_ptr->flags3 |= s_info[o_ptr->soul_type1].flags3[0];
 
-	o_ptr->flags1 |= s_ptr->flags1;
-	o_ptr->flags2 |= s_ptr->flags2;
-	o_ptr->flags3 |= s_ptr->flags3;
+	o_ptr->flags1 |= s_info[o_ptr->soul_type2].flags1[0];
+	o_ptr->flags2 |= s_info[o_ptr->soul_type2].flags2[0];
+	o_ptr->flags3 |= s_info[o_ptr->soul_type2].flags3[0];
 
 	o_ptr->pval = 1;
 

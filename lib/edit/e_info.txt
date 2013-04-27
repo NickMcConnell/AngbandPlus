@@ -294,9 +294,9 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 # Aura, Fire
 N:43:of Immolation
 X:31:16
-W:50:8:0:1000
+W:40:8:0:1000
 C:0:0:4:0
-F:IGNORE_ACID | IGNORE_FIRE | SH_FIRE | RES_FIRE
+F:IGNORE_ACID | IGNORE_FIRE | SH_FIRE | RES_FIRE | LITE
 
 N:44:of Enveloping
 X:31:0
@@ -319,11 +319,9 @@ F:AGGRAVATE | SHOW_MODS
 # Aura, Electricity
 N:47:of Electricity
 X:31:16
-W:50:8:0:1000
+W:40:8:0:1000
 C:0:0:4:0
-F:IGNORE_ACID | IGNORE_ELEC | SH_ELEC | RES_ELEC
-
-
+F:IGNORE_ACID | IGNORE_ELEC | SH_ELEC | RES_ELEC | LITE
 
 ### Gloves ###
 
@@ -462,158 +460,175 @@ N:70:of Slaying
 X:24:15
 W:75:3:0:2000
 
+# The "Elemental" brands
 
-# 71 (unused)
-
-# The "Elemental" brands (4) (6)
-
-N:72:of Melting
+N:71:of Melting
 X:24:15
 W:10:6:0:1000
 F:BRAND_ACID | RES_ACID | IGNORE_ACID
 
-N:73:of Shocking
+N:72:of Shocking
 X:24:20
 W:0:6:0:750
 F:BRAND_ELEC | RES_ELEC | IGNORE_ELEC
 
-N:74:of Burning
+N:73:of Burning
 X:24:20
 W:0:6:0:750
 F:BRAND_FIRE | RES_FIRE | IGNORE_FIRE | LITE
 
-N:75:of Freezing
+N:74:of Freezing
 X:24:15
 W:10:6:0:750
 F:BRAND_COLD | RES_COLD | IGNORE_COLD
 
-N:76:of Venom
+N:75:of Venom
 X:24:20
 W:10:6:0:1500
-F:BRAND_POIS | RES_POIS
+F:BRAND_POIS
 
-N:77:(Chaotic)
+# The *high* elemental brands
+
+N:76:of *Melting*
+X:24:15
+W:90:6:0:10000
+F:BRAND_ACID | IM_ACID | IGNORE_ACID | SH_ACID
+
+N:77:of *Shocking*
+X:24:15
+W:90:6:0:10000
+F:BRAND_ELEC | IM_ELEC | IGNORE_ELEC | SH_ELEC | LITE
+
+N:78:of *Burning*
+X:24:15
+W:90:6:0:10000
+F:BRAND_FIRE | IM_FIRE | IGNORE_FIRE | SH_FIRE | LITE
+
+N:79:of *Freezing*
+X:24:15
+W:90:6:0:10000
+F:BRAND_COLD | IM_COLD | IGNORE_COLD | SH_COLD
+
+N:80:(Chaotic)
 X:24:28
 W:0:6:0:1500
 F:CHAOTIC | RES_CHAOS | IGNORE_ELEC | IGNORE_ACID | IGNORE_FIRE
 
-N:78:of Sharpness
+N:81:of Sharpness
 X:24:20
 W:50:2:0:1500
 F:VORPAL | TUNNEL
 
-N:79:of Earthquakes
+N:82:of Earthquakes
 X:24:20
 W:50:2:0:2000
 F:TUNNEL | IMPACT
 
 # The "Slay" brands (8)
 
-N:80:of Slay Animal
+N:83:of Slay Animal
 X:24:18
 W:30:3:0:750
 F:SLAY_ANIMAL
 
-N:81:of Slay Evil
+N:84:of Slay Evil
 X:24:18
 W:20:3:0:750
 F:SLAY_EVIL
 
-N:82:of Slay Undead
+N:85:of Slay Undead
 X:24:18
 W:20:3:0:750
 F:SLAY_UNDEAD | HOLD_LIFE
 
-N:83:of Slay Demon
+N:86:of Slay Demon
 X:24:14
 W:30:2:0:750
 F:SLAY_DEMON
 
-N:84:of Slay Orc
+N:87:of Slay Orc
 X:24:10
 W:0:2:0:300
 F:SLAY_ORC
 
-N:85:of Slay Troll
+N:88:of Slay Troll
 X:24:10
 W:40:2:0:750
 F:SLAY_TROLL
 
-N:86:of Slay Giant
+N:89:of Slay Giant
 X:24:14
 W:60:2:0:750
 F:SLAY_GIANT
 
-N:87:of Slay Dragon
+N:90:of Slay Dragon
 X:24:18
 W:40:3:0:750
 F:SLAY_DRAGON
 
 # The "Kill" brands (8)
 
-N:88:of *Slay* Animal
+N:91:of *Slay* Animal
 X:24:20
 W:40:15:0:1500
 C:0:0:0:2
 F:INT | SLAY_ANIMAL | REGEN
 
-N:89:of *Slay* Evil
+N:92:of *Slay* Evil
 X:24:20
 W:80:15:0:2000
 C:0:0:0:2
 F:WIS | SLAY_EVIL | BLESSED | RES_FEAR
 
-N:90:of *Slay* Undead
+N:93:of *Slay* Undead
 X:24:24
 W:50:15:0:1500
 C:0:0:0:2
 F:WIS | SLAY_UNDEAD | SEE_INVIS | RES_NETHER
 
-N:91:of *Slay* Demon
+N:94:of *Slay* Demon
 X:24:16
 W:40:10:0:1500
 C:0:0:0:2
 F:INT | SLAY_DEMON
 
-N:92:of *Slay* Orc
+N:95:of *Slay* Orc
 X:24:14
 W:20:10:0:750
 C:0:0:0:2
 F:DEX | SLAY_ORC
 
-N:93:of *Slay* Troll
+N:96:of *Slay* Troll
 X:24:14
 W:50:10:0:1500
 C:0:0:0:2
 F:STR | SLAY_TROLL
 
-N:94:of *Slay* Giant
+N:97:of *Slay* Giant
 X:24:16
 W:50:10:0:1500
 C:0:0:0:2
 F:STR | SLAY_GIANT
 
-N:95:of *Slay* Dragon
+N:98:of *Slay* Dragon
 X:24:24
 W:70:15:0:1500
 C:0:0:0:1
 F:CON | SLAY_DRAGON | KILL_DRAGON
 
-N:96:(Vampiric)
+N:99:(Vampiric)
 X:24:25
 W:70:3:0:2000
 F:VAMPIRIC | HOLD_LIFE
 
-# 97 (unused)
-
-N:98:(Trump Weapon)
+N:100:(Trump Weapon)
 X:24:22
 W:30:3:0:1500
 C:4:4:0:2
 F:SLAY_EVIL | TELEPORT | FREE_ACT | SENSE |
 F:REGEN | SLOW_DIGEST | RES_NEXUS | ACTIVATE
 
-N:99:(Pattern Weapon)
+N:101:(Pattern Weapon)
 X:24:26
 W:50:6:0:2500
 C:6:6:0:2
@@ -621,7 +636,7 @@ F:STR | CON |
 F:SLAY_EVIL | SLAY_DEMON | SLAY_UNDEAD |
 F:FREE_ACT | SEE_INVIS |
 
-N:100:of Digging
+N:102:of Digging
 # Hack - digging items have a "slot" of 22
 X:22:4
 W:0:1:0:500
@@ -629,15 +644,11 @@ C:0:0:0:5
 F:TUNNEL | BRAND_ACID | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-# 101 (unused)
-
-N:102:of Morgul
+N:103:of Morgul
 X:24:0
 W:5:1:0:0
 C:20:20:10:0
 F:SEE_INVIS | AGGRAVATE | HEAVY_CURSE | CURSED
-
-# 103 (unused)
 
 
 ### Missile Launchers ###
@@ -685,51 +696,62 @@ X:23:10
 W:0:1:0:15
 F:SLAY_EVIL
 
-# 114 (unused)
-
-# 115 (unused)
-
-# 116 (unused)
-
-# 117 (unused)
-
-# 118 (unused)
-
-N:119:of Hurt Dragon
+N:114:of Hurt Dragon
 X:23:10
 F:SLAY_DRAGON
 W:0:1:0:10
 
-N:120:of Slaying
+N:115:of Slaying
 X:23:15
 W:0:1:0:20
 C:12:12:0:0
 
-N:121:of Shocking
+N:116:of Shocking
 X:23:10
 F:BRAND_ELEC | IGNORE_ELEC
 W:0:1:0:15
 
-N:122:of Flame
+N:117:of Flame
 X:23:10
 F:BRAND_FIRE | IGNORE_FIRE
 W:0:1:0:15
 
-N:123:of Frost
+N:118:of Frost
 X:23:10
 F:BRAND_COLD | IGNORE_COLD
 W:0:1:0:15
 
-N:124:of Wounding
+N:119:of Wounding
 X:23:5
 W:0:1:0:20
 C:6:6:0:0
 
-N:125:of Backbiting
+N:120:of Backbiting
 X:23:0
 W:0:1:0:0
 C:50:50:0:0
 
+### Extra Cloaks ###
+
+# Aura, Freezing
+N:121:of Freezing
+X:31:16
+W:40:8:0:1000
+C:0:0:4:0
+F:IGNORE_ACID | IGNORE_COLD | SH_COLD | RES_COLD
+
+# Aura, Acid
+N:122:of Acid
+X:31:16
+W:40:8:0:1000
+C:0:0:4:0
+F:IGNORE_ACID | SH_ACID | RES_ACID
+
+# 123 (unused)
+
+# 124 (unused)
+
+# 125 (unused)
 
 ### Special Broken Items ###
 

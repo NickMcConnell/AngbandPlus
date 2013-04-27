@@ -225,6 +225,14 @@ void self_knowledge(void)
 	{
 		info[i++] = "You are surrounded with electricity.";
 	}
+	if (p_ptr->sh_cold)
+	{
+		info[i++] = "You are surrounded by freezing cold.";
+	}
+	if (p_ptr->sh_acid)
+	{
+		info[i++] = "You are surrounded by acidic clouds.";
+	}
 	if (p_ptr->anti_magic)
 	{
 		info[i++] = "You are surrounded by an anti-magic shell.";

@@ -86,7 +86,19 @@ W:35:10:5:20000
 P:0:1d1:0:0:0
 F:INSTA_ART | INFRA | SH_FIRE | SH_ELEC | LITE
 
-# Artifacts 8-15 unused
+# Artifacts 8-14 unused
+
+# The Master Sword
+
+N:15:'Master Sword'
+I:23:10:5
+W:35:20:80:35000
+P:0:1d14:20:20:0
+F:FREE_ACT | SEE_INVIS | RES_FEAR
+F:LITE | RES_DARK | RES_DISEN
+F:BLESSED | REFLECT | SPEED
+F:SLAY_EVIL | SLAY_UNDEAD | SLAY_DEMON
+F:INSTA_ART | SHOW_MODS
 
 
 # The Multi-Hued Dragon Scale Mail 'Razorback'
@@ -435,7 +447,14 @@ P:6:0d0:0:0:12
 F:STEALTH | FREE_ACT | IM_ACID | SEE_INVIS | INSTA_ART
 
 
-# Artifact 51 is unused
+# The Rapier 'Venomtongue'
+
+N:51:'Venomtongue'
+I:23:7:4
+W:26:8:40:15000
+P:0:1d12:10:10:0
+F:BRAND_POIS | RES_POIS | CHR | SUST_CHR | SHOW_MODS
+F:INSTA_ART
 
 
 # The Set of Leather Gloves 'Cambeleg'

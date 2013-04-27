@@ -874,7 +874,7 @@ extern bool building_healer(void);
 extern bool building_magetower(int factor, bool display);
 extern void building_sellsoul(void);
 extern void building_viewsouls(int delta);
-extern void building_examinesoul();
+extern bool building_evaluatesoul();
 extern void building_imbuesoul();
 extern void gamble_help(void);
 extern void gamble_in_between(void);

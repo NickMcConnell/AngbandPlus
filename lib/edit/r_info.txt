@@ -614,22 +614,6 @@ F:WILD_FOREST1 | WILD_FOREST2 | WILD_SWAMP1 | WILD_SWAMP2
 D:A lone insect may be harmless, but there's a whole swarm of 
 D:them here!
 
-N:39:Greater hell-beast
-G:U:s
-I:115:15d75:10:75:99
-W:3:6:0:84
-O:0:0:0
-B:GAZE
-B:GAZE
-B:CRUSH
-F:WILD_DUNGEON_01
-F:EVIL | IM_FIRE | SILLY |
-F:RES_NETH | RES_WATE | RES_PLAS | RES_DISE | RES_NEXU |
-F:KILL_WALL | FORCE_MAXHP | CAN_SWIM | DROP_CORPSE
-S:1_IN_9 |
-S:TPORT | BLINK | TELE_AWAY
-D:This unholy abomination will crush you. Flee while you can! 
-
 N:40:Shrieker mushroom patch
 G:,:R
 I:110:1d1:4:3:0
@@ -669,58 +653,62 @@ F:WEIRD_MIND | BASH_DOOR |
 F:ANIMAL
 D:It is about four feet long and carnivorous.
 
-N:43:Novice warrior
-G:p:U
-I:110:7d4:20:13:5
-W:7:1:0:27
+N:43:Green yeek
+G:y:G
+I:110:4d7:20:17:10
+W:7:1:0:40
 O:25:50:0
-B:HIT:HURT:1d7
 B:HIT:HURT:1d6
-F:MALE | 
-F:DROP_60 | WILD_DUNGEON_01 | WILD_GRASS | DROP_SKELETON | DROP_CORPSE
-F:OPEN_DOOR | BASH_DOOR | LITE_1
-D:He looks inexperienced but tough.
+F:WILD_DUNGEON_01 | WILD_WASTE1
+F:DROP_60
+F:OPEN_DOOR | BASH_DOOR | DROP_SKELETON | DROP_CORPSE
+F:ANIMAL | IM_ACID | LITE_1
+D:A small, slimy humanoid.
 
-N:44:Novice rogue
-G:p:D
-I:110:6d4:20:11:5
+N:44:Kobold thief
+G:k:D
+I:110:4d5:20:10:10
 W:5:1:0:22
 O:50:25:0
 B:HIT:HURT:1d6
 B:TOUCH:EAT_GOLD
-F:MALE | 
-F:DROP_60 | DROP_SKELETON | DROP_CORPSE
-F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | WILD_DUNGEON_01 | WILD_GRASS
-F:EVIL
-D:A rather shifty individual.
+F:WILD_DUNGEON_01 | WILD_WASTE1
+F:DROP_60
+F:TAKE_ITEM | WILD_DUNGEON_01 | WILD_GRASS
+F:OPEN_DOOR | BASH_DOOR | DROP_SKELETON | DROP_CORPSE
+F:EVIL | IM_POIS
+D:This dog-headed creature is lurking in the shadows.
+D:He is eying your money pouch.
 
-N:45:Novice priest
-G:p:B
-I:110:6d4:20:9:10
-W:9:1:0:91
+N:45:Kobold shaman
+G:k:R
+I:110:4d6:20:9:10
+W:9:1:0:60
 O:25:0:50
 B:HIT:HURT:1d5
-F:MALE | 
-F:FORCE_SLEEP | GOOD | WILD_DUNGEON_01 | DROP_SKELETON | DROP_CORPSE
+F:FORCE_SLEEP
+F:WILD_DUNGEON_01 | WILD_WASTE1
 F:DROP_60 | WILD_GRASS | LITE_1
-F:OPEN_DOOR | BASH_DOOR
+F:OPEN_DOOR | BASH_DOOR | DROP_SKELETON | DROP_CORPSE
+F:EVIL | IM_POIS
 S:1_IN_12 | 
 S:HEAL | SCARE | CAUSE_1
-D:He is tripping over his priestly robes.
+D:This kobold is wearing a necklace made of bones.
 
-N:46:Novice mage
-G:p:R
-I:110:5d4:20:7:5
-W:3:1:0:17
+N:46:Yeek shaman
+G:y:R
+I:110:4d5:20:7:10
+W:5:1:0:30
 O:25:0:75
 B:HIT:HURT:1d4
-F:MALE | 
-F:FORCE_SLEEP | WILD_DUNGEON_01 | DROP_SKELETON | DROP_CORPSE
-F:DROP_60 | WILD_GRASS
-F:OPEN_DOOR | BASH_DOOR | LITE_1
+F:FORCE_SLEEP
+F:WILD_DUNGEON_01 | WILD_WASTE1
+F:DROP_60
+F:OPEN_DOOR | BASH_DOOR | DROP_SKELETON | DROP_CORPSE
+F:ANIMAL | IM_ACID | LITE_1
 S:1_IN_3 | 
 S:BLINK | BLIND | CONF | MISSILE
-D:He is leaving behind a trail of dropped spell components.
+D:A small humanoid with oily red skin. It is gesticulating wildly.
 
 N:47:Yellow mushroom patch
 G:,:y
@@ -1160,20 +1148,7 @@ B:BITE:HURT:1d5
 F:ANIMAL | CAN_SWIM | DROP_CORPSE | WILD_DUNGEON_01
 D:It is an armoured lizard with a powerful bite.
 
-N:83:Novice ranger
-G:p:g
-I:110:4d9:20:10:5
-W:7:1:0:93
-O:25:50:25
-B:HIT:HURT:1d5
-B:HIT:HURT:1d5
-F:MALE | 
-F:FORCE_SLEEP | DROP_SKELETON | DROP_CORPSE
-F:DROP_60 | LITE_1
-F:OPEN_DOOR | BASH_DOOR | WILD_DUNGEON_01 | WILD_FOREST1 | WILD_FOREST2 |
-S:1_IN_9 | 
-S:ARROW_2 | MISSILE
-D:An agile hunter, ready and relaxed.
+# 83 Unused
 
 N:84:Blue jelly
 G:j:b
@@ -1331,21 +1306,7 @@ B:BITE:HURT:1d10
 F:AQUATIC | ANIMAL | WILD_SHORE | WILD_DUNGEON_01
 D:A predatory fish with razor-sharp teeth.
 
-N:97:Novice paladin
-G:p:w
-I:110:4d9:20:15:5
-W:7:1:0:140
-O:0:75:25
-B:HIT:HURT:1d7
-B:HIT:HURT:1d7
-F:MALE | 
-F:FORCE_SLEEP | WILD_DUNGEON_01
-F:DROP_60 | WILD_GRASS | DROP_SKELETON | DROP_CORPSE |
-F:OPEN_DOOR | BASH_DOOR | LITE_1
-S:1_IN_9 | 
-S:SCARE | CAUSE_1
-D:An adventurer both devoutly religious and skillful in combat. 
-D:He seems to consider you an agent of the devil.
+# 97 Unused
 
 N:98:Zog
 G:h:b
@@ -1570,20 +1531,21 @@ D:small skull with its savage yellow fangs is of the utmost
 D:anomalousness, appearing from certain angles like a miniature, 
 D:monstrously degrade parody of a human skull."
 
-N:116:Novice archer
-G:p:G
-I:120:4d9:20:10:5
-W:8:2:0:102
+N:116:Kobold archer
+G:k:W
+I:120:4d9:20:10:10
+W:8:1:0:102
 O:20:50:0
 B:HIT:HURT:1d4
 B:HIT:HURT:1d4
-F:MALE | WILD_DUNGEON_01
-F:FORCE_SLEEP | WILD_GRASS | DROP_SKELETON | DROP_CORPSE
-F:ONLY_GOLD | DROP_1D2 | LITE_1
-F:OPEN_DOOR | BASH_DOOR
+F:WILD_DUNGEON_01 | WILD_WASTE1
+F:FORCE_SLEEP
+F:DROP_60
+F:OPEN_DOOR | BASH_DOOR | DROP_SKELETON | DROP_CORPSE
+F:EVIL | IM_POIS
 S:1_IN_3 | 
 S:ARROW_1
-D:A nasty little fellow with a bow and arrow.
+D:A nasty little creature with a bow and arrow.
 
 N:117:Creeping silver coins
 G:$:s

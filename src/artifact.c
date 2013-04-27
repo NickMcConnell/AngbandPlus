@@ -282,6 +282,13 @@ int random_resistance(object_type *o_ptr, int specific, int artifact_bias)
 				o_ptr->flags2 |= TR2_RES_ACID;
 				if (one_in_(2)) return (artifact_bias);
 			}
+			if ((o_ptr->tval >= TV_CLOAK) &&
+				(o_ptr->tval <= TV_HARD_ARMOR) &&
+				!(o_ptr->flags3 & TR3_SH_ACID))
+			{
+				o_ptr->flags3 |= TR3_SH_ACID;
+				if (one_in_(2)) return (artifact_bias);
+			}
 			if (one_in_(BIAS_LUCK) && !(o_ptr->flags2 & TR2_IM_ACID))
 			{
 				o_ptr->flags2 |= TR2_IM_ACID;
@@ -332,6 +339,13 @@ int random_resistance(object_type *o_ptr, int specific, int artifact_bias)
 			if (!(o_ptr->flags2 & TR2_RES_COLD))
 			{
 				o_ptr->flags2 |= TR2_RES_COLD;
+				if (one_in_(2)) return (artifact_bias);
+			}
+			if ((o_ptr->tval >= TV_CLOAK) &&
+				(o_ptr->tval <= TV_HARD_ARMOR) &&
+				!(o_ptr->flags3 & TR3_SH_COLD))
+			{
+				o_ptr->flags3 |= TR3_SH_COLD;
 				if (one_in_(2)) return (artifact_bias);
 			}
 			if (one_in_(BIAS_LUCK) && !(o_ptr->flags2 & TR2_IM_COLD))
@@ -399,7 +413,7 @@ int random_resistance(object_type *o_ptr, int specific, int artifact_bias)
 			break;
 	}
 
-	switch (specific ? specific : randint1(41))
+	switch (specific ? specific : randint1(43))
 	{
 		case 1:
 			if (!one_in_(WEIRD_LUCK))
@@ -572,6 +586,23 @@ int random_resistance(object_type *o_ptr, int specific, int artifact_bias)
 			else
 				o_ptr->flags2 |= TR2_RES_FEAR;
 			break;
+		case 42:
+			if (o_ptr->tval >= TV_CLOAK && o_ptr->tval <= TV_HARD_ARMOR)
+				o_ptr->flags3 |= TR3_SH_COLD;
+			else
+				o_ptr->flags2 |= TR2_RES_COLD;
+			if (!artifact_bias)
+				artifact_bias = BIAS_COLD;
+			break;
+		case 43:
+			if (o_ptr->tval >= TV_CLOAK && o_ptr->tval <= TV_HARD_ARMOR)
+				o_ptr->flags3 |= TR3_SH_ACID;
+			else
+				o_ptr->flags2 |= TR2_RES_ACID;
+			if (!artifact_bias)
+				artifact_bias = BIAS_ACID;
+			break;
+
 	}
 
 	return (artifact_bias);

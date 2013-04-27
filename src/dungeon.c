@@ -2496,16 +2496,7 @@ static void process_command(void)
 
 		default:
 		{
-			/* Hack -- Unknown command */
-			if (one_in_(2))
-			{
-				char error_m[1024];
-				sound(SOUND_ILLEGAL);
-				if (!get_rnd_line("error.txt", 0, error_m))
-					msgf(error_m);
-			}
-			else
-				prtf(0, 0, "Type '?' for help.");
+			prtf(0, 0, "Type '?' for help.");
 			break;
 		}
 	}
