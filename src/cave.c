@@ -731,7 +731,7 @@ static sint project_path_aux(coord *gp, int x1, int y1, int x2, int y2, u16b flg
 	int sq, sl;
 
 	int range = (flg & PROJECT_SHORT ? MAX_SHORT_RANGE : MAX_RANGE);
-	int max_length = (3*range)/2;
+/*	int max_length = (3*range)/2; */
 	/* Absolute */
 	int ay, ax;
 	u16b tweak = (hack ? ~PROJECT_STOP : ~0);
@@ -853,10 +853,13 @@ static sint project_path_aux(coord *gp, int x1, int y1, int x2, int y2, u16b flg
 			sl = (p_slope_min[ay][ax] + p_slope_max[ay][ax]) / 2;
 		}
 	}
-
+	
+	x = x1;
+	y = y1;
+	sq = 0;
+	
 	/* Scan over squares along path */
-	for (sq = 0; (sq < max_length) && (sq < slope_count[sl]); sq++)
-	{
+	while (TRUE) {
 		if (ay < ax)
 		{
 			/* Work out square to use */
@@ -877,16 +880,11 @@ static sint project_path_aux(coord *gp, int x1, int y1, int x2, int y2, u16b flg
 			break;
 		}
 
-		/* Stop if out of range */
-		if (distance(x1, y1, x, y) > range)
-		{
-			sq--;
-			break;
-		}
-
 		/* Save the square */
 		gp[sq].x = x;
 		gp[sq].y = y;
+		
+		
 
 		if (x == x2 && y == y2)
 		{
@@ -921,14 +919,23 @@ static sint project_path_aux(coord *gp, int x1, int y1, int x2, int y2, u16b flg
 			/* Otherwise, accept it. */
 			break;
 		}
+		
+		/* Check sq >= (range/2) so as to eliminate many calls to
+		 * distance().
+		 */
+		if (sq >= (range>>1) && distance(x1,y1,x,y) >= range)
+			break;
+		
+		sq++;
 	}
+
 
 	/* Include the last square */
 	sq++;
 
 	/* Paranoia */
-	if (sq > max_length) sq = max_length;
-	if (sq >= slope_count[sl]) sq = slope_count[sl] - 1;
+/*	if (sq > max_length) sq = max_length; */
+/*	if (sq >= slope_count[sl]) sq = slope_count[sl] - 1; */
 
 	/* Length */
 	return (sq);

@@ -1071,25 +1071,71 @@ void phlogiston(void)
 }
 
 
-/*
- * Brand the current weapon
- */
-bool brand_weapon(int brand_type)
+static bool brand_arrows(object_type *o_ptr, int brand_type)
 {
-	object_type *o_ptr = &p_ptr->equipment[EQUIP_WIELD];
-
-	byte ego = 0;
-
-	if (!o_ptr->k_idx)
+	byte ego = 0; 
+	cptr act, actp;
+	
+	if (brand_type != 0 || o_ptr->xtra_name) 
 	{
-		msgf ("You must first weild the weapon you wish to enchant.");
+		if (flush_failure) flush();
+
+		msgf("The Branding failed.");
+
+		chg_virtue(V_ENCHANT, -2);
 		return FALSE;
 	}
+	
+	
+	if (one_in_(2))
+	{
+		ego = EGO_FLAME;
+		act = "is covered in flames!";
+		actp = "are covered in flames!";
+	}
+	else
+	{
+		ego = EGO_FROST;
+		act = "glows deep, icy blue!";
+		actp = "glow deep, icy blue!";
+	}
+
+	msgf("Your %v %s", OBJECT_FMT(o_ptr, FALSE, 0), (o_ptr->number == 1 ? act : actp));
+
+	(void)enchant(o_ptr, rand_range(4, 6), ENCH_TOHIT | ENCH_TODAM, 0);
+	
+	/* Hack - save the price */
+	s32b cost = o_ptr->cost;
+
+	add_ego_flags(o_ptr, ego);
+
+	o_ptr->cost = cost;
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Recalculate mana */
+	p_ptr->update |= (PU_MANA);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER);
+
+	/* Notice changes */
+	notice_item();
+
+	return TRUE;
+}
+
+static void brand_weapon_aux(object_type *o_ptr, int brand_type)
+{
+	
+	byte ego = 0;
 
 	/* you can never modify artifacts / ego-items */
 	/* you can never modify cursed items */
 	/* TY: You _can_ modify broken items (if you're silly enough) */
-	if (o_ptr->k_idx && !o_ptr->xtra_name && !cursed_p(o_ptr))
+	/* Can't brand multiples */
+	if (!o_ptr->xtra_name && !cursed_p(o_ptr) && (o_ptr->number == 1))
 	{
 		cptr act;
 
@@ -1123,15 +1169,25 @@ bool brand_weapon(int brand_type)
 
 			default:
 			{
-				if (randint0(100) < 25)
+				switch(randint0(4))
 				{
-					act = "is covered in a fiery shield!";
-					ego = EGO_BRAND_FIRE;
-				}
-				else
-				{
-					act = "glows deep, icy blue!";
-					ego = EGO_BRAND_COLD;
+					case 1:
+						act = "glows deep, icy blue!";
+						ego = EGO_BRAND_COLD;
+						break;
+					case 2:
+						act = "is covered in sparks!";
+						ego = EGO_BRAND_ELEC;
+						break;
+					case 3:
+						act = "smells acrid!";
+						ego = EGO_BRAND_ACID;
+						break;
+					case 0:
+					default:
+						act = "is covered in a fiery shield!";
+						ego = EGO_BRAND_FIRE;
+						break;
 				}
 			}
 		}
@@ -1170,10 +1226,39 @@ bool brand_weapon(int brand_type)
 		/* Notice changes */
 		notice_item();
 	}
-
-	return TRUE;
 }
 
+/*
+ * Brand a weapon of the player's choice.
+ */
+bool brand_weapon(int brand_type)
+{
+	object_type *o_ptr;
+	
+	/* Looking for a weapon */
+	item_tester_hook = item_tester_hook_brandable;
+
+	/* Get an item */
+	cptr q = "Brand which item? ";
+	cptr s = "You have nothing to brand.";
+
+	o_ptr = get_item(q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR));
+
+	/* Not a valid item */
+	if (!o_ptr) return (FALSE);
+	
+	/* Do a different procedure on arrows. */
+	if (o_ptr->tval == TV_ARROW || o_ptr->tval == TV_SHOT || o_ptr->tval == TV_BOLT)
+	{
+		return (brand_arrows(o_ptr, brand_type));
+	}
+	else 
+	{
+		brand_weapon_aux(o_ptr, brand_type);
+		return (TRUE);
+	}
+	
+}
 
 void call_the_(void)
 {
@@ -5056,10 +5141,7 @@ void map_wilderness(int radius, s32b x, s32b y)
 				if ((randint0(dist) < radius / 2) && (dist < radius))
 				{
 					/* Memorise the location */
-					wild[j][i].done.info |= WILD_INFO_SEEN;
-
-					/* Alert player to a new wilderness quest */
-					discover_wild_quest(place[wild[j][i].done.place].quest_num);
+					wild_discover(i,j);
 				}
 			}
 		}

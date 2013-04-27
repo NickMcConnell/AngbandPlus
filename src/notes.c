@@ -125,7 +125,7 @@ void add_note(char code, cptr note, ...)
 	(void)strftime(long_day, 10, "%H:%M:%S", localtime(&ct));
 
 	/* Output to the notes file */
-	output_note("%s %9ld %s %c: %s\n", long_day, turn,
+	output_note("%s %9ld %s %c: %s\n", long_day, turn-turn_offset,
 				  depths, code, buf);
 }
 
@@ -146,6 +146,7 @@ void add_note_type(int note_number)
 	switch (note_number)
 	{
 		case NOTE_BIRTH:
+		case NOTE_REBIRTH:
 		{
 			/* Player has just been born */
 			char player[100];
@@ -170,9 +171,9 @@ void add_note_type(int note_number)
 			/* Add in "character start" information */
 			output_note("\n================================================\n"
 						"%s the %s\n"
-						"Born on %s\n"
+						"%s on %s\n"
 						"================================================\n\n",
-						player_name, player,
+						player_name, player, (note_number == NOTE_BIRTH ? "Born" : "Reborn"),
 						long_day);
 			break;
 		}

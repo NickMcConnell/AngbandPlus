@@ -817,12 +817,30 @@ static void wr_options(void)
 	u16b c;
 	u32b flag = 0;
 
-	/*** Oops ***/
-
-	/* Oops */
 	for (i = 0; i < 4; i++) wr_u32b(0L);
 
+	/* Hack: If the player is dead, in competition mode,
+	 * reset the "birth" options to the current actual birth 
+	 * options - the player is not allowed to change these.
+	 */
+	if (p_ptr->state.is_dead && competition_mode)
+	{
+		for (i = 0; i < OPT_MAX; i++)
+		{
+			int birth_counter = 0;
 
+			/* A birth option? */
+			if (i == birth_options[birth_counter])
+			{
+				/* Restore the option to its original value */
+				option_info[i].o_val = p_ptr->birth[birth_counter];
+
+				/* Increment birth option counter */
+				birth_counter++;
+			}
+		}
+	}
+	
 	/*** Special Options ***/
 
 	/* Write "delay_factor" */
@@ -911,6 +929,34 @@ static void wr_ghost(void)
 	for (i = 0; i < 60; i++) wr_byte(0);
 }
 
+
+static void wr_rebirth(void)
+{
+	int i; 
+	
+	wr_s16b(rebirth_ptr->rp.age);
+	wr_s16b(rebirth_ptr->rp.ht);
+	wr_s16b(rebirth_ptr->rp.wt);
+	wr_s16b(rebirth_ptr->rp.sc);
+	wr_byte(rebirth_ptr->rp.psex);
+	wr_byte(rebirth_ptr->rp.prace);
+	wr_byte(rebirth_ptr->rp.pclass);
+	wr_byte(rebirth_ptr->realm[0]);
+	wr_byte(rebirth_ptr->realm[1]);
+	for (i = 0; i < A_MAX; i++)
+	{
+		wr_s16b(rebirth_ptr->stat[i]);
+	}
+	for (i = 0; i < PY_MAX_LEVEL; i++)
+	{
+		wr_s16b(rebirth_ptr->player_hp[i]);
+	}
+	wr_s16b(rebirth_ptr->chaos_patron);
+	wr_s32b(rebirth_ptr->au);
+	wr_u32b(rebirth_ptr->world_seed);
+	wr_byte(rebirth_ptr->can_rebirth);
+	wr_checksum();
+}
 
 /*
  * Write some "extra" info
@@ -1076,6 +1122,9 @@ static void wr_extra(void)
 	/* Current turn */
 	wr_s32b(turn);
 
+	/* Turn offset */
+	wr_s32b(turn_offset);
+	
 	/* Trap detection status */
 	wr_byte(p_ptr->state.detected);
 
@@ -1724,6 +1773,9 @@ static bool wr_savefile_new(void)
 	/* Checksum */
 	wr_checksum();
 
+	/* Write the rebirth info */
+	wr_rebirth();
+	
 	/* Write the equipment */
 	for (i = 0; i < EQUIP_MAX; i++)
 	{
@@ -1788,6 +1840,9 @@ static bool wr_savefile_new(void)
 
 		/* Name */
 		wr_string(pl_ptr->name);
+		
+		/* Seen */
+		wr_byte(pl_ptr->seen);
 
 		if (pl_ptr->dungeon)
 		{

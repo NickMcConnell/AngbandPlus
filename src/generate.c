@@ -130,6 +130,39 @@ static bool is_dead(void)
 }
 
 
+static void clean_duplicates(void)
+{
+	int x,y;
+	cave_type *c_ptr;
+
+	/* No monster under the player */
+	delete_monster(p_ptr->px, p_ptr->py);
+	delete_field(p_ptr->px, p_ptr->py);
+	delete_object(p_ptr->px, p_ptr->py);
+	
+	for (y = p_ptr->min_hgt; y < p_ptr->max_hgt; y++)
+	{
+		for (x = p_ptr->min_wid; x < p_ptr->max_wid; x++)
+		{
+			c_ptr = cave_p(x,y);
+			
+			if (c_ptr->feat == FEAT_MORE || c_ptr->feat == FEAT_LESS ||
+				c_ptr->feat == FEAT_OPEN || c_ptr->feat == FEAT_BROKEN ||
+				c_ptr->feat == FEAT_CLOSED || c_ptr->feat == FEAT_SECRET)
+			{
+				delete_object(x,y);
+				delete_field(x,y);
+			}
+
+			if (c_ptr->feat == FEAT_CLOSED || c_ptr->feat == FEAT_SECRET)
+			{
+				delete_monster(x,y);
+			}
+		
+		}
+	}
+}
+
 /*
  * Try really really hard to not fail
  * in picking a player spot.
@@ -371,7 +404,7 @@ static byte extract_feeling(void)
 	if (dun_rating > 10) return 8;
 	if (dun_rating > 0) return 9;
 
-	if ((turn - old_turn) > 50000L)
+	if ((turn - old_turn) > TOWN_HALF_DAY)
 		chg_virtue(V_PATIENCE, 1);
 
 	return 10;
@@ -1725,6 +1758,9 @@ static bool cave_gen(dun_type *d_ptr)
 		place_boss();
 	}
 
+	/* Apparently not just paranoia: clean up duplicates */
+	clean_duplicates();
+	
 	/* Check if this is a "dead level" and do whatever is appropriate */
 	if (current_quest)
 	{

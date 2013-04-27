@@ -89,6 +89,7 @@ void Rand_state_init(u32b seed)
 
 	/* Seed the table */
 	Rand_state[0] = seed;
+	Rand_place = 0;
 
 	/* Propagate the seed */
 	for (i = 1; i < RAND_DEG; i++) Rand_state[i] = LCRNG(Rand_state[i - 1]);

@@ -2729,11 +2729,11 @@ static void create_quest_list(int place_num, int store_num)
 void init_build_quests(void)
 {
 	int i, j;
-
+	
 	clear_row(0);
 	prtf (0, 0, "Please wait: initializing quests");
 	Term_fresh();
-
+	
 	/* Go through all guilds and castles, creating a list of quests for each. */
 	for (i = 0; i < place_count; i++)
 	{
@@ -2747,7 +2747,6 @@ void init_build_quests(void)
 
 			/* not a quest building */
 			if (st_ptr->type < BUILD_CASTLE0) continue;
-
 			create_quest_list(i, j);
 		}
 
@@ -2755,12 +2754,15 @@ void init_build_quests(void)
 
 		prtf (32+i, 0, ".");
 		Term_fresh();
+		
 	}
 }
 
 /*
  * Initial quest setup
  *
+ * IMPORTANT: There should be no random choices made in this function, for
+ * the sake of having competition_mode work properly. 
  */
 void init_player_quests(void)
 {
@@ -2853,3 +2855,33 @@ errr init_quests(void)
 	return (0);
 }
 
+/*
+ * Wipe QUESTOR flag off everything that shouldn't inherently have it.
+ * Wipe QUESTITEM flag too.
+ */
+void wipe_all_quest_flags(void)
+{
+	int i;
+	for (i = 0; i < z_info->a_max; i++)
+	{
+		/* Reserve the Iron Crown of Chaos, Grond, and the Stormbringer */
+		if (i == ART_GROND || i == ART_MORGOTH || i == ART_STORMBRINGER)
+			continue;
+		
+		/* Remove QUESTITEM flag */
+		a_info[i].flags[2] &= ~TR2_QUESTITEM;
+	}
+	
+	for (i = 0; i < z_info->r_max; i++)
+	{
+		/* Reserve Oberon and the Serpent */
+		if (i == QW_OBERON || i == QW_SERPENT)
+			continue;
+		
+		/* Remove QUESTOR flag */
+		r_info[i].flags[0] &= ~RF0_QUESTOR;
+	}
+}
+	
+	
+	

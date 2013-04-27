@@ -528,9 +528,19 @@ Character Description (C)
     including your background, your inventory, and the contents of
     your house.
 
-Check Artifacts, Uniques and Objects (~ or |)
+Check knowledge (~ or |)
     The command opens a menu from which you can select information
-    about seen Artifacts, Unique monsters, and identified objects.
+    about things you know, including uniques (seen and killed), 
+    objects identified, kill count, mutations, your pets, your quests,
+    notes, towns, dungeons, and spell information.
+
+List information ($)
+    This command opens a menu from which you can select information
+    about the map in list form.  You can select lists of objects or
+    monsters, as well as several other choices, including wilderness
+    places.  The information is sorted by distance from you.  This
+    is useful when the display is too packed (e.g. in vaults), and
+    it is also used for accessibility for blind players.
 
 Display known artifacts
     This selection lists all of the artifacts that you've encountered.

@@ -2488,7 +2488,7 @@ void do_cmd_fire_aux(int mult, object_type *o_ptr, const object_type *j_ptr)
 	{
 		total_deadliness = p_ptr->to_d + i_ptr->to_d + j_ptr->to_d;
 
-		bonus = (p_ptr->to_h + i_ptr->to_h + j_ptr->to_h);
+		bonus = (p_ptr->to_h + i_ptr->to_h + j_ptr->to_h - p_ptr->equipment[EQUIP_WIELD].to_h);
 		chance = (p_ptr->skills[SKILL_THB] + (bonus * BTH_PLUS_ADJ));
 	}
 	else
@@ -2496,7 +2496,7 @@ void do_cmd_fire_aux(int mult, object_type *o_ptr, const object_type *j_ptr)
 		total_deadliness = p_ptr->to_d + i_ptr->to_d;
 
 		if (FLAG(i_ptr, TR_THROW))
-			bonus = p_ptr->to_h + i_ptr->to_h;
+			bonus = p_ptr->to_h + i_ptr->to_h - p_ptr->equipment[EQUIP_WIELD].to_h;
 		else
 			bonus = i_ptr->to_h;
 

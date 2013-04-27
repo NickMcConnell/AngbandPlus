@@ -1687,7 +1687,9 @@ static void hero_make_name(monster_race * r_ptr, s16b r_idx, int package_type, i
 	/* Get the base monster name */
 	hero_base_name(basename, 100, mon_race_name(&r_info[r_idx]), title);
 
-	strnfmt(fullname, 200, "%s, the%s%s", name, (isspace(basename[0]) ? "" : " "), basename);
+	strnfmt(fullname, 200, "%s, the%s%s%s", name, (isspace(basename[0]) ? "" : " "), basename,
+		FLAG(r_ptr, RF_AMBERITE) ? "Amberite" : "");
+
 
 	r_ptr->name = quark_add(fullname);
 
@@ -1898,4 +1900,33 @@ void hero_death(s16b hero_idx)
 
 	h_ptr->flags |= HF_DEAD;
 }
+
+/*
+ * De-allocate all heroes.  
+ * 
+ * It is really really not safe to use this function during the game,
+ * but it is okay during birth.
+ */
+void wipe_all_heroes(void)
+{
+	int i;
+	
+	/* Free up names */
+	for (i = HERO_MIN; i < HERO_MIN + z_info->h_max; i++)
+	{
+		monster_race *r_ptr = &r_info[i];
+		while (r_ptr->name){
+			quark_remove ((s16b *)&r_ptr->name); 
+		} 
+	}
+	/* Wipe entries in r_info */
+	C_WIPE(&r_info[HERO_MIN], z_info->h_max, monster_race);
+
+	/* Wipe the h_list */
+	C_WIPE(h_list, z_info->h_max, hero_type);
+	
+	/* Set of heroes has changed, update allocation table */
+	reinit_alloc();
+}
+
 

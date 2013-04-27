@@ -150,6 +150,23 @@ static void do_cmd_wiz_hack_mango(int arg)
 
 
 /*
+ * Learn the whole wilderness map
+ */
+static void learn_map(void)
+{
+	int i, j;
+
+	for (i = 0; i < max_wild; i++)
+	{
+		for (j = 0; j < max_wild; j++)
+		{
+			wild_discover(i,j);
+		}
+	}
+}
+
+
+/*
  * Hack -- quick debugging hook
  */
 static void do_cmd_wiz_hack_ben(int arg)
@@ -160,12 +177,7 @@ static void do_cmd_wiz_hack_ben(int arg)
 
 	/* Make entire wilderness known */
 	{
-		int i, j;
-		for (i = 0; i < WILD_SIZE; i++) {
-			for (j=0; j < WILD_SIZE; j++) {
-				wild[i][j].done.info |= WILD_INFO_SEEN;
-			}
-		}
+		learn_map();
 	}
 
 	/* Make all quests known */
@@ -582,23 +594,6 @@ static void do_cmd_wiz_feature(int feat)
 
 	/* Change knowledge of grid */
 	parea(x, y)->feat = feat;
-}
-
-
-/*
- * Learn the whole wilderness map
- */
-static void learn_map(void)
-{
-	int i, j;
-
-	for (i = 0; i < max_wild; i++)
-	{
-		for (j = 0; j < max_wild; j++)
-		{
-			wild[j][i].done.info |= WILD_INFO_SEEN;
-		}
-	}
 }
 
 
@@ -1676,12 +1671,7 @@ static void do_cmd_wiz_towns(void)
 
 	/* Make entire wilderness known */
 	{
-		int i, j;
-		for (i = 0; i < WILD_SIZE; i++) {
-			for (j=0; j < WILD_SIZE; j++) {
-				wild[i][j].done.info |= WILD_INFO_SEEN;
-			}
-		}
+		learn_map();
 	}
 
 	if (get_check("Give complete store count? "))

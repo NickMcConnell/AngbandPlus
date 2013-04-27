@@ -2,6 +2,47 @@ This is a document file listing the changes in Z+Angband (compared to
 ZAngband 2.7.5pre1).  No long explanations, just a list. See
 code for details. In reversed chronological order (more or less):
 
+Changes from Z+Angband 0.3.2 beta to Z+Angband 0.3.3 beta:
+
+1.  +to_h of primary weapon no longer affects one's ability to hit with 
+    missile weapons.
+2.  Fixed a rare crash bug when a monster was created on top of the
+    player in dungeon level creation.
+3.  Added "rebirth" option when loading a dead character.
+4.  Added "competition_mode" which forces rebirth and re-generates the
+    world when loading dead character.
+5.  Fixed crash from hallucination "Fatal Error!!"
+6.  Stone tell Nature spell now does what the description said it does.
+7.  Character dumps include contents of containers.
+8.  Added '}' inscription to hide inscription text.
+9.  Made '!!' inscription disturb the player on a recharge.
+10.  Added gradual dawn/dusk transition between light and dark.
+11.  Fixed a bug that frequently caused a crash while loading a character.
+12.  Adjusted many monsters imported from V to have AC settings more in-tune
+     with Z+ difficulty scale.
+13.  Some potions and scrolls were not EASY_KNOW and now are.
+14.  Rods of perception no longer discharge when cancelled.
+15.  Included turn count in character sheet.
+16.  Weapon branding may now select any non-launcher weapon.
+17.  Fixed bug that made things supposedly "in range" unreachable by bolt
+     or ball spells but reachable by beam spells.
+18.  'Old tile' graphic of a small quiver no longer looks like the Star of Elendil.
+19.  Added "accessible_mode" for blind players, which makes hallucination into 
+     confusion and tells you where you went when you move at random.
+20.  Added "show_coords" option to display exact relative vector in targeting mode.
+21.  Added "list" menu under the '$' command, to display lists of info about what
+     is known.
+22.  'L'ooking at a formerly torch-lit square now remembers the terrain: unexplored
+     cells are now distinguishable from dark ones.
+23.  Some documentation changes.
+24.  Power DSM is no longer quite so absurdly rare.
+25.  Made 3rd book of Nature, Chaos, and Death a little less hard to find.
+26.  Fixed some script bugs in items people never use anyway (e.g. =Blood).
+27.  Ensured that objects that seem like they don't need to be identified are never
+     random artifacts.  
+28.  The One Ring is now "The One Ring", not "The Ring of Power (The One Ring)"
+29.  New icon.
+
 Changes from Z+Angband 0.3.1 beta to Z+Angband 0.3.2 beta:
 
 1.  Implemented monster "heroes" (random uniques).

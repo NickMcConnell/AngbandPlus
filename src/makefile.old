@@ -1,0 +1,398 @@
+# File: Makefile
+
+#
+# Note that you may have to make modifications below according
+# to your machine, available libraries, compilation options,
+# and your "visual module" of choice.  This Makefile was originally
+# intended for use with Unix machines running X11, Curses, Ncurses,
+# or Vt100, or possibly for "Atari" or "Amiga" computers with
+# "Curses" ports, see below for more information.  It was extended
+# work on most ports by Steven Fuerst.  This makefile probably
+# requires a recent version of gnu make in order to work.
+#
+#
+# USAGE:  Simply type in "make portname" where portname is the name
+#         of your port.  ie. "make openbsd".  The default port can
+#         be changed by editing the DEFAULT variable.
+#
+#
+# Note that "main-mac.c", the visual module for the Macintosh,
+# must be compiled in a special way, see elsewhere.
+#
+# Note that "main-win.c", the visual module for Windows,
+# might have to be compiled with another makefile (depending
+# upon which compiler you use.)
+#
+# Note that "main-lsl.c", the visual module for linux svga,
+# is depreciated.  Do not use this unless you feel like making
+# a heap of new tiles.  It also is a security problem, since
+# svgalib only works if you run as root.
+#
+# If you are able to construct "main-xxx.c" and/or "Makefile.xxx"
+# files for a currently unsupported system, please send them to me
+# (rr9@angband.objrg) for inclusion in future versions.
+#
+
+DEFAULT := install_game
+
+
+##
+## This is my compiler of choice, it seems to work most everywhere
+##
+#CC := gcc
+
+
+## Generic compile flags used by most ports.
+CFLAGS := -O -g $(LIBS)
+
+## Variation
+# CFLAGS := -O1 -g
+
+##
+## Default Lua location
+##
+
+#LUA := lua\
+
+##
+## ##### Zangband Files to compile #####
+##
+
+
+##
+## The wrapper auto-generated files
+##
+
+
+LUAWOBJS := \
+        l-monst.obj l-object.obj l-player.obj l-random.obj l-ui.obj \
+        l-misc.obj l-spell.obj l-field.obj
+
+##
+## The Zangband source files
+##
+
+ANGOBJS := $(LUAWOBJS) \
+        variable.obj tables.obj util.obj cave.obj \
+        object1.obj object2.obj monster1.obj monster2.obj \
+        xtra1.obj xtra2.obj spells1.obj spells2.obj \
+        melee1.obj melee2.obj save.obj files.obj fields.obj\
+        cmd1.obj cmd2.obj cmd3.obj cmd4.obj cmd5.obj cmd6.obj \
+        store.obj birth.obj load.obj ui.obj hero.obj\
+        wizard1.obj wizard2.obj grid.obj streams.obj rooms.obj \
+        generate.obj dungeon.obj init1.obj init2.obj \
+        effects.obj quest1.obj quest2.obj racial.obj run.obj script.obj \
+        artifact.obj mutation.obj flavor.obj spells3.obj \
+        mspells1.obj mspells2.obj scores.obj mind.obj maid-x11.obj\
+        bldg.obj obj_kind.obj wild1.obj wild2.obj wild3.obj avatar.obj notes.obj\
+        main-cap.obj main-gcu.obj main-x11.obj main-xaw.obj main-xpj.obj\
+        main-lsl.obj main-vcs.obj main-gtk.obj main-win.obj main.obj \
+        maid-grf.obj main-dos.obj main-ibm.obj main-emx.obj \
+        main-ami.obj main-tnb.obj
+
+##
+## The "Utility" files
+##
+
+ZUTILOBJS := z-util.obj z-virt.obj z-form.obj z-rand.obj z-term.obj
+
+##
+## The Tk port files
+##
+TKOBJS := \
+        tk\cmdinfo.obj tk\icon.obj \
+        tk\describe.obj tk\interp.obj tk\plat.obj \
+        tk\widget.obj tk\tk-util.obj tk\tcltk.obj
+
+##
+## The "source" and "object" files.
+##
+
+##
+## Lua Object Files
+##
+
+LUAOBJS := \
+  lua\lapi.obj lua\ldebug.obj lua\lmem.obj lua\lstrlib.obj lua\lvm.obj \
+  lua\tolua_lb.obj lua\lauxlib.obj lua\ldo.obj lua\lobject.obj lua\ltable.obj \
+  lua\lzio.obj lua\tolua_rg.obj lua\lbaselib.obj lua\lfunc.obj lua\lparser.obj \
+  lua\ltests.obj lua\tolua_bd.obj lua\tolua_tm.obj lua\lcode.obj lua\lgc.obj \
+  lua\lstate.obj lua\ltm.obj lua\tolua_eh.obj lua\tolua_tt.obj lua\ldblib.obj \
+  lua\llex.obj lua\lstring.obj lua\lundump.obj lua\tolua_gp.obj
+
+
+TOLUAOBJS := \
+  lua\tolua.obj lua\tolualua.obj lua\liolib.obj $(LUAOBJS)
+
+##
+## Get the list of .c files from the .obj files
+##
+
+ANGSRCS := $(ANGOBJS:.obj=.c)
+ZUTILSRCS := $(ZUTILOBJS:.obj=.c)
+LUAWSRCS := $(LUAWOBJS:.obj=.c)
+
+##
+## Main list of objects and source files.
+##
+
+SRCS := $(ANGSRCS) $(ZUTILSRCS)
+
+OBJS = $(ANGOBJS) $(ZUTILOBJS) $(LUAOBJS) readdib.obj angband.res
+
+%.obj : %.c
+	$(CC) $(CFLAGS) $(.TARGET) -o $(.SOURCE)
+
+##
+## Select the default port to use.
+##
+default_port: $(DEFAULT)
+
+##
+## (Installing directly is much nicer if you don't use the
+## autoconf generated makefile system.)
+##
+## Do not call this directly - you need to specify a port.
+## (This is why this isn't called "install".)
+##
+install_game: zangband.exe
+	$(INSTALL)
+
+
+##
+## Build the "ZAngband" program
+##
+
+MAKE-ZANGBAND = $(LINK) $(LFLAGS) -o $@ $^ $(LDFLAGS) $(OBJS)
+
+zangband.exe: $(OBJS)
+	$(MAKE-ZANGBAND)
+
+
+##
+## Following are some "system" definitions
+##
+## No changes are needed to compile a version that will run on both
+## X11 and Curses, in debugging mode, with maximal warnings, on many
+## normal Unix machines of the Sun OS variety (non-solaris).
+##
+##
+## See also "z-config.h" and "h-config.h" for important information.
+##
+
+##
+## You may have to add various X11 include/library directories to the
+## "CFLAGS", if your machine places files in a weird location.
+##
+## You may be able to remove "-ltermcap" on some machines (ex: Solaris).
+##
+## You may have to replace "-lcurses" with "-lncurses" to use the
+## "new curses" library instead of the "old curses" library, and
+## you may have to add "-l/usr/include/ncurses" to the "CFLAGS".
+##
+## See "main-gcu.c" and "z-config.h" for some optional "curses" defines,
+## including "USE_GETCH" and "USE_CURS_SET".  Note that "z-config.h" will
+## attempt to "guess" at many of these flags based on your system.
+##
+
+
+##
+## All 'Ports' depend on install_game so they get compiled.
+## All 'Other-ports' must install themselves manually.
+##
+
+##
+## Hack - default install action.
+## (This can be overridden below.)
+##
+INSTALL = copy zangband.exe ..\"z+angband.exe"
+
+##
+## Variation -- All the ports that work in Linux at once.
+## (Use the -m option to start the one you want.)
+##
+##
+## Graphics under X11 in linux.  (Run with the -g option)
+## Note: Get the 16x16.bmp file, and put in [Z]directory/lib/xtra/graf
+##       to get 256 colours.
+##
+
+##
+## Variation -- Compile using the lcc32 compiler
+## (This is untested and probably broken)
+##
+
+LCC_PATH := C:\lcc
+LINK := C:\lcc\bin\lcclnk.exe
+CC	:= $(LCC_PATH)\bin\lcc.exe
+#LIBS := -lib$(LCC_PATH)\lib\winmm.lib -I$(LCC_PATH)\include
+LIBS := -I$(LCC_PATH)\include
+LDFLAGS :=
+LFLAGS := -s -subsystem Windows
+RES := $(LCC_PATH)\bin\lrc.exe
+RESCMD := -I$(LCC_PATH)\include angband.rc
+EXEC := .exe
+RM := del
+lcc-objs: $(OBJS) angband.res readdib.obj
+	$(MAKE-ZANGBAND)
+lcc: lcc-objs
+	copy $^ ..\zangband.exe
+
+##
+## Hack - GCC requires other flags
+##
+#ifeq (gcc, $(findstring gcc, $(CC)))
+#    CFLAGS += -fno-strength-reduce
+#endif
+#
+##
+## Clean up old junk
+##
+
+#clean:
+#        -$(RM) *.bak *.obj
+#        -$(RM) .\lua\*.bak .\lua\*.obj
+#        -$(RM) .\l-*.c
+#        -$(RM) .\lua\tolua
+#        -$(RM) .\tk\*.bak .\tk\*.obj
+#        -$(RM) *-objs zangband
+
+##
+## Generate dependencies automatically
+##
+
+depend:
+	makedepend -D__MAKEDEPEND__ $(SRCS)
+
+
+##
+## Lua stuff
+##
+
+lua\tolua: $(TOLUAOBJS)
+        $(CC) $(CFLAGS) -o lua\tolua$(EXEC) $(TOLUAOBJS) $(LDFLAGS) $(LIBS)
+
+##
+## Low-level Headers
+##
+
+HDRS := \
+	h-basic.h \
+	h-define.h h-type.h h-system.h h-config.h
+
+##
+## Angband includes
+##
+
+INCS := \
+	angband.h \
+        z-config.h defines.h types.h externs.h version.h \
+	z-term.h z-rand.h z-util.h z-virt.h z-form.h $(HDRS)
+
+##
+## Generic dependancy information
+##
+
+$(ANGOBJS): $(INCS)
+$(ZUTILOBJS): $(HDRS)
+
+##
+## Extra dependancies
+##
+
+cmd6.obj: script.h
+init1.c: init.h
+init2.c: init.h script.h
+generate.obj: grid.h generate.h rooms.h streams.h
+grid.obj: grid.h generate.h
+rooms.obj: grid.h generate.h rooms.h
+streams.obj: grid.h generate.h
+fields.obj: grid.h script.h
+main-ami.obj: maid-grf.h
+maid-grf.obj: maid-grf.h
+maid-x11.obj: maid-grf.h
+main-gtk.obj: maid-grf.h
+main-tnb.obj: maid-grf.h
+main-win.obj: maid-grf.h
+main-x11.obj: maid-grf.h maid-x11.h
+main-xaw.obj: maid-grf.h maid-x11.h
+main-xpj.obj: maid-grf.h maid-x11.h
+script.obj: script.h
+quest1.obj: wild.h grid.h
+quest2.obj: wild.h grid.h
+readdib.obj: readdib.h
+wild1.obj: wild.h grid.h
+wild2.obj: wild.h grid.h
+wild3.obj: wild.h grid.h
+wizard2.obj: script.h
+z-form.obj: z-form.h z-util.h z-virt.h
+z-rand.obj: z-rand.h
+z-term.obj: z-term.h z-virt.h
+z-util.obj: z-util.h
+z-virt.obj: z-virt.h z-util.h
+
+##
+## Compiling angband.rc
+##
+## Note: this format seems to work but the alternative actually used
+## is the one recommended by Cygnus
+##
+## angband.res : angband.rc
+##       $(WRES) angband.rc angband.res
+##
+
+angband.res : angband.rc
+	$(RES) $(RESCMD)
+
+##
+## Build wrappers
+##
+## $(subst l-,,$*) removes the leading "l-", and
+## trailing ".c" from the filename.
+##
+
+#$(LUAWSRCS) : %.c %.pkg lua\tolua.exe
+#        lua\tolua -n $(subst l-,,$*) -o $@ $<
+
+##
+## Extra dependancies for the tk port
+##
+$(TKOBJS): $(INCS) tk\tnb.h
+main-tnb.obj: tk\tnb.h
+
+TKICONOBJS := \
+        tk\icon.obj tk\interp.obj
+
+$(TKICONOBJS): tk\icon.h
+
+##
+## Compile the tk stuff
+##
+tk-objs: $(TKOBJS) $(OBJS)
+	$(MAKE-ZANGBAND)
+
+##
+## Hack... .obj files can be created from .objbj files
+##
+#%.obj:%.objbj
+#        move $@ $<
+
+#LUALIST := basic.lua feature.lua verbatim.lua code.lua typedef.lua \
+#	container.lua package.lua module.lua define.lua enumerate.lua \
+#	declaration.lua variable.lua array.lua function.lua operator.lua \
+#	class.lua clean.lua doit.lua
+
+#LUALIST := $(addprefix $(LUA), $(LUALIST))
+
+##
+## We sometimes want to redo the lua stuff
+##
+## This doesn't work though...
+##
+#$(LUA)tolualua.c: $(LUALIST)
+#	.\tolua -n tolualua -o tolualua.c tolualua.pkg
+
+##
+## Phony targets
+##
+.PHONY: install_game clean depend $(PORTS) $(OTHER-PORTS)

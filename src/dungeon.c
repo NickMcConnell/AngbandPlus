@@ -440,7 +440,7 @@ static void sense_inventory(void)
 	}
 
 	/* Scan inventory */
-	OBJ_ITT_START (p_ptr->inventory, o_ptr)
+	OBJ_ITT_DFS_START (p_ptr->inventory, o_ptr)
 	{
 		sense_item(o_ptr, heavy, FALSE, TRUE);
 	}
@@ -925,6 +925,9 @@ static void recharged_notice(const object_type *o_ptr)
 				}
 			}
 
+			/* Disturb the player */
+			disturb(FALSE);
+
 			/* Done. */
 			return;
 		}
@@ -1009,13 +1012,15 @@ static void process_world(void)
 	/* While in town/wilderness */
 	if (!p_ptr->depth)
 	{
-		/* Hack -- Daybreak/Nighfall in town */
-		if (!(turn % ((10L * TOWN_DAWN) / 2)))
+		/* Hack -- Daybreak/Nighfall/change of ambient light in wilderness */
+		if (!(turn % TOWN_HALF_HOUR))
 		{
-			bool dawn;
+			bool dawn = FALSE;
+			bool dusk = FALSE;
 
 			/* Check for dawn */
-			dawn = (!(turn % (10L * TOWN_DAWN)));
+			dawn = (!(turn % TOWN_DAY));
+			dusk = (!dawn && !(turn % TOWN_HALF_DAY));
 
 			/* Day breaks */
 			if (dawn)
@@ -1023,29 +1028,40 @@ static void process_world(void)
 				/* Message */
 				msgf("The sun has risen.");
 			}
-			else
+			else if (dusk)
 			{
 				/* Message */
 				msgf("The sun has fallen.");
 			}
+			if (dawn || dusk)
+				disturb(FALSE);
+
+			p_ptr->update |= PU_TORCH;
+			update_stuff();
 
 			/* Light up or darken the area */
 			for (y = p_ptr->min_hgt; y < p_ptr->max_hgt; y++)
 			{
 				for (x = p_ptr->min_wid; x < p_ptr->max_wid; x++)
 				{
-					light_dark_square(x, y, dawn);
+					if (dawn || dusk) light_dark_square(x, y, dawn);
+					/* Hack! */
+					else lite_spot(x,y);
 				}
 			}
 
-			/* Update the monsters */
-			p_ptr->update |= (PU_MONSTERS | PU_VIEW);
+			if (dawn || dusk)
+			{
 
-			/* Redraw map */
-			p_ptr->redraw |= (PR_MAP);
+				/* Update the monsters */
+				p_ptr->update |= (PU_MONSTERS | PU_VIEW);
 
-			/* Window stuff */
-			p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+				/* Redraw map */
+				p_ptr->redraw |= (PR_MAP);
+
+				/* Window stuff */
+				p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+			}
 		}
 	}
 
@@ -1077,7 +1093,7 @@ static void process_world(void)
 		if (!p_ptr->depth && !(FLAG(p_ptr, TR_RES_LITE)) &&
 			!(FLAG(p_ptr, TR_IM_LITE)) &&
 			!query_timed(TIMED_INVULN) &&
-			(!((turn / ((10L * TOWN_DAWN) / 2)) % 2)))
+			(!((turn / TOWN_HALF_DAY) % 2)))
 		{
 			if (c_ptr->info & CAVE_GLOW)
 			{
@@ -1291,7 +1307,7 @@ static void process_world(void)
 	/* Nightmare mode activates the TY_CURSE at midnight */
 	if (ironman_nightmare)
 	{
-		s32b len = 10L * TOWN_DAWN;
+		s32b len = TOWN_DAY;
 		s32b tick = turn % len + len / 4;
 
 		int hour = (24 * tick / len) % 24;
@@ -2562,6 +2578,13 @@ static void process_command(void)
 			break;
 		}
 
+		case '$':
+		{
+			/* Access lists */
+			do_cmd_list();
+			break;
+		}
+		
 		case '%':
 		{
 			/* Interact with visuals */
@@ -3353,6 +3376,9 @@ void play_game(bool new_game)
 		/* Wipe everything */
 		wipe_all_list();
 
+		/* Hack -- seed for flavors */
+		seed_flavor = randint0(0x10000000);
+
 		/* Roll up a new character */
 		player_birth();
 
@@ -3364,7 +3390,8 @@ void play_game(bool new_game)
 			(p_ptr->rp.prace == RACE_GHOUL))
 		{
 			/* Undead start just after midnight */
-			turn = (30L * TOWN_DAWN) / 4 + 1;
+			turn =  TOWN_HALF_DAY + (6*TOWN_HOUR) + 1;
+			turn_offset = turn-1;
 		}
 		else
 		{
@@ -3376,9 +3403,6 @@ void play_game(bool new_game)
 
 		/* The dungeon is ready */
 		character_dungeon = TRUE;
-
-		/* Hack -- seed for flavors */
-		seed_flavor = randint0(0x10000000);
 	}
 
 	/* Reset the visual mappings */

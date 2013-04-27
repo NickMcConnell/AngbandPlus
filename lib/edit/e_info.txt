@@ -62,7 +62,7 @@
 
 # Version stamp (required)
 
-V:0.3.2
+V:0.3.3
 
 
 ### Body Armor ###
@@ -981,11 +981,11 @@ C:0:0:0:3
 F:SENSE | STEALTH | SPEED | HIDDEN_POWERS
 L:MAKE:   add_ego_power(EGO_XTRA_LO_RESIST, object)
 L:MAKE:   add_ego_power(EGO_XTRA_HI_RESIST, object)
-L:TIMED:  if (one_in_(40)) then
+L:TIMED:  if (one_in_(40) ~= 0) then
 L:TIMED:     if (player.au > 100) then player.au = player.au - 100
 L:TIMED:     else player.au = 0 end
 L:TIMED:     msgf ("Your purse feels lighter!");
-L:TIMED:  elseif (one_in_(4)) then
+L:TIMED:  elseif (one_in_(4) ~= 0) then
 L:TIMED:     if (player.au > 10) then player.au = player.au - 10
 L:TIMED:     else player.au = 0 end
 L:TIMED:  end

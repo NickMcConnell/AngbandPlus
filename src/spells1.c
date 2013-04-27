@@ -4651,7 +4651,7 @@ bool project(int who, int rad, int x, int y, int dam, int typ, u16b flg)
 	int path_n = 0;
 
 	/* Actual grids in the "path" */
-	coord path_g[512];
+	coord path_g[2*MAX_RANGE+1];
 
 	/* Number of grids in the "blast area" (including the "beam" path) */
 	int grids = 0;
@@ -4759,7 +4759,7 @@ bool project(int who, int rad, int x, int y, int dam, int typ, u16b flg)
 
 	/* Calculate the projection path */
 	path_n = project_path(path_g, x1, y1, x2, y2, flg);
-
+	
 	/* Do we need to invert the path? */
 	if ((path_n > 0) && !jump && (who > 0))
 	{
@@ -4900,10 +4900,10 @@ bool project(int who, int rad, int x, int y, int dam, int typ, u16b flg)
 	gm[1] = grids;
 
 	dist_hack = dist;
-	dist = path_n;
+	dist = distance(x1,y1,x2,y2);
 
 	/* If we found a "target", explode there */
-	if (dist <= MAX_RANGE)
+	if (dist < MAX_RANGE)
 	{
 		/* Mega-Hack -- remove the final "beam" grid */
 		if ((flg & (PROJECT_BEAM)) && (grids > 0)) grids--;

@@ -75,7 +75,7 @@
 
 # Version stamp (required)
 
-V:0.3.2
+V:0.3.3
 
 
 ##### Something special #####
@@ -1421,7 +1421,7 @@ G:=:d
 I:45:7:0
 W:50:0:2:5000
 A:50/8
-F:AUTO_CURSE | HIDE_TYPE | ACTIVATE
+F:AUTO_CURSE | HIDE_TYPE | ACTIVATE | EASY_KNOW
 L:USE: if (object.pval ~= 1) then alchemy()
 L:USE: if(one_in_(3) ~= 0) then take_hit(damroll(20, 2), "a Ring of Midas");
 L:USE:   end
@@ -1580,9 +1580,8 @@ G:=:d
 I:45:12:0
 W:32:0:2:800
 A:32/8:64/8
-F:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR
+F:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR | EASY_KNOW
 F:HOLD_LIFE
-L:MAKE: if (one_in_(40) ~= 0) then create_artifact(object, level/3, FALSE) end
 
 N:159:Sustain Youth
 G:=:d
@@ -2216,7 +2215,7 @@ A:1/2
 F:EASY_KNOW
 L:USE:  ident = inc_blessed(rand_range(12, 24))
 D:This scroll gives you a temporary blessing (12-24 turns), improving
-D: your armor class and weapon skill.
+D: your accuracy, your damage, and your armor class.
 
 N:218:Holy Chant
 G:?:d
@@ -2226,7 +2225,7 @@ A:15/2
 F:EASY_KNOW
 L:USE:  ident = inc_blessed(rand_range(24, 48))
 D:This scroll gives you a temporary blessing (24-48 turns), improving
-D: your armor class and weapon skill.
+D: your accuracy, your damage, and your armor class.
 
 N:219:Holy Prayer
 G:?:d
@@ -2236,7 +2235,7 @@ A:30/2
 F:EASY_KNOW
 L:USE:  ident = inc_blessed(rand_range(36, 72))
 D:This scroll gives you a temporary blessing (36-72 turns), improving
-D: your armor class and weapon skill.
+D: your accuracy, your damage, and your armor class.
 
 N:220:Word of Recall
 G:?:d
@@ -2704,7 +2703,7 @@ L:USE:  ident = clear_afraid()
 L:USE:  if inc_hero(rand_range(25, 50)) then ident = TRUE end
 L:USE:  if hp_player(10) then ident = TRUE end
 D:This potion makes you more heroic for 25-50 turns, increasing your
-D: weapon skill.  It also cures you of fear, and heals you slightly.
+D: accuracy and damage.  It also cures you of fear, and heals you slightly.
 
 N:258:Berserk Strength
 G:!:d
@@ -2717,7 +2716,7 @@ L:USE:  ident = clear_afraid()
 L:USE:  if inc_shero(rand_range(25, 50)) then ident = TRUE end
 L:USE:  if hp_player(30) then ident = TRUE end
 D:This potion makes you go berserk for 25-50 turns, increasing your
-D: weapon skill but making you easier to hit.  It also restores
+D: accuracy and damage but making you easier to hit.  It also restores
 D: 30 hit points and cures you of fear.
 
 N:259:Boldness
@@ -3476,7 +3475,7 @@ L:MAKE:    set_obj_flag(object, 2, TR2_IGNORE_FIRE) end
 N:331:[High Mass]
 G:?:W
 I:90:1:0
-W:20:0:30:1000
+W:35:0:30:1000
 A:35/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
@@ -3520,7 +3519,7 @@ L:MAKE:    set_obj_flag(object, 2, TR2_IGNORE_FIRE) end
 N:335:[Master Sorcerer's Handbook]
 G:?:B
 I:91:1:0
-W:20:0:30:1000
+W:35:0:30:1000
 A:35/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
@@ -3896,7 +3895,8 @@ W:75:0:15:13000
 A:43/16:75/8
 P:0:1d1:0:0:0
 F:EASY_KNOW
-L:USE:  if not ident_spell() then use_charge = FALSE end; ident = TRUE
+L:USE:  result = ident_spell()
+L:USE:  ident = TRUE
 D:This rod identifies one object.
 
 N:373:Curing
@@ -3980,7 +3980,7 @@ L:MAKE:    set_obj_flag(object, 2, TR2_IGNORE_FIRE) end
 N:380:[Nature Mastery]
 G:?:G
 I:92:1:0
-W:20:0:30:1000
+W:35:0:30:1000
 A:35/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
@@ -3992,8 +3992,8 @@ L:MAKE:    set_obj_flag(object, 2, TR2_IGNORE_FIRE) end
 N:381:[Nature's Gifts]
 G:?:g
 I:92:2:0
-W:75:0:30:25000
-A:75/1
+W:70:0:30:25000
+A:70/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
@@ -4025,7 +4025,7 @@ L:MAKE:    set_obj_flag(object, 2, TR2_IGNORE_FIRE) end
 N:384:[Chaos Mastery]
 G:?:R
 I:93:1:0
-W:20:0:30:1000
+W:35:0:30:1000
 A:35/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
@@ -4036,8 +4036,8 @@ L:MAKE:    set_obj_flag(object, 2, TR2_IGNORE_FIRE) end
 N:385:[Chaos Channels]
 G:?:r
 I:93:2:0
-W:75:0:30:25000
-A:75/1
+W:70:0:30:25000
+A:70/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
@@ -4069,7 +4069,7 @@ L:MAKE:    set_obj_flag(object, 2, TR2_IGNORE_FIRE) end
 N:388:[Black Mass]
 G:?:D
 I:94:1:0
-W:20:0:30:1000
+W:35:0:30:1000
 A:35/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
@@ -4422,7 +4422,7 @@ N:412:& Power Dragon Scale Mail~
 G:[:v
 I:38:30:0
 W:110:0:250:175000
-A:110/64
+A:110/25
 P:40:2d4:-3:0:15
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
 F:RES_NETHER | RES_NEXUS | RES_CHAOS | RES_LITE | RES_DARK |
@@ -4595,8 +4595,8 @@ D: are permanently increased.
 N:423:[Black Channels]
 G:?:v
 I:94:2:0
-W:75:0:30:25000
-A:75/1
+W:70:0:30:25000
+A:70/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
@@ -4993,7 +4993,7 @@ F:INSTA_ART
 
 # The Ring of Power (The One Ring) -- see artifact list
 
-N:511:& Ring~
+N:511:& One Ring~
 G:=:y
 I:45:37:0
 W:110:0:2:5000000
@@ -5017,7 +5017,7 @@ L:MAKE:    set_obj_flag(object, 2, TR2_IGNORE_FIRE) end
 N:513:[Master Conjurer's Handbook]
 G:?:U
 I:95:1:0
-W:20:0:30:1000
+W:35:0:30:1000
 A:35/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
@@ -5062,8 +5062,8 @@ L:MAKE:    set_obj_flag(object, 2, TR2_IGNORE_FIRE) end
 N:517:[Minor Arcana]
 G:?:s
 I:96:1:0
-W:15:0:30:250
-A:15/1
+W:17:0:30:250
+A:20/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
 D:A gray spellbook with spells of detection and protection.
@@ -5073,8 +5073,8 @@ L:MAKE:    set_obj_flag(object, 2, TR2_IGNORE_FIRE) end
 N:518:[Major Arcana]
 G:?:s
 I:96:2:0
-W:20:0:30:1000
-A:20/1
+W:30:0:30:1000
+A:30/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
 D:A gray spellbook with a mixture of common medium-level spells.
@@ -5084,8 +5084,8 @@ L:MAKE:    set_obj_flag(object, 2, TR2_IGNORE_FIRE) end
 N:519:[Manual of Mastery]
 G:?:s
 I:96:3:0
-W:30:0:30:2500
-A:35/1
+W:40:0:30:2500
+A:40/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
 D:A gray spellbook containing high-level utility spells.
@@ -5525,7 +5525,7 @@ N:568:& Wooden Statue~ of #
 G:`:u
 I:9:0:0
 W:5:0:200:75
-A:9/3
+A:9/4
 P:0:1d2:0:0:0
 F:EASY_KNOW
 D:An unpolished statue made of wood.
@@ -5534,7 +5534,7 @@ N:569:& Clay Statue~ of #
 G:`:U
 I:9:1:0
 W:5:0:500:50
-A:17/3
+A:17/4
 P:0:1d3:0:0:0
 F:EASY_KNOW
 D:A hardbaked status made of clay.
@@ -5543,7 +5543,7 @@ N:570:& Stone Statue~ of #
 G:`:s
 I:9:2:0
 W:5:0:500:100
-A:26/3
+A:26/4
 P:0:2d3:0:0:0
 F:EASY_KNOW
 D:This status has been cut out of a rock.
@@ -5552,7 +5552,7 @@ N:571:& Iron Statue~ of #
 G:`:D
 I:9:3:0
 W:5:0:500:200
-A:35/3
+A:35/4
 P:0:2d4:0:0:0
 F:EASY_KNOW
 D:This statue was poured from molten iron.
@@ -5561,7 +5561,7 @@ N:572:& Copper Statue~ of #
 G:`:o
 I:9:4:0
 W:20:0:500:500
-A:43/3
+A:43/4
 P:0:2d4:0:0:0
 F:EASY_KNOW
 D:This copper statue needs polishing.
@@ -5570,7 +5570,7 @@ N:573:& Silver Statue~ of #
 G:`:W
 I:9:5:0
 W:32:0:500:1000
-A:52/3
+A:52/4
 P:0:2d4:0:0:0
 F:EASY_KNOW
 D:This silver statue needs varnishing.
@@ -5579,7 +5579,7 @@ N:574:& Golden Statue~ of #
 G:`:y
 I:9:6:0
 W:50:0:500:2500
-A:63/3
+A:63/4
 P:0:2d4:0:0:0
 F:EASY_KNOW
 D:This golden statue needs polishing.
@@ -5588,7 +5588,7 @@ N:575:& Ivory Statue~ of #
 G:`:w
 I:9:7:0
 W:40:0:500:2000
-A:70/3
+A:70/5
 P:0:1d4:0:0:0
 F:EASY_KNOW
 D:This ivory statue needs cleaning.
@@ -5597,7 +5597,7 @@ N:576:& Mithril Statue~ of #
 G:`:B
 I:9:8:0
 W:70:0:500:10000
-A:95/3
+A:95/5
 P:0:2d5:0:0:0
 F:EASY_KNOW
 D:This mithril statue needs polishing.
@@ -5606,7 +5606,7 @@ N:577:& Ornate Statue~ of #
 G:`:v
 I:9:9:0
 W:60:0:500:5000
-A:80/3
+A:80/5
 P:0:2d4:0:0:0
 F:EASY_KNOW
 D:This ornate statue needs dusting.
@@ -5772,9 +5772,9 @@ G:":d
 I:40:19:0
 W:30:0:3:1000
 A:30/5
+F:EASY_KNOW
 D:With this amulet you will never be hungry again.
 L:TIMED: if player.food < PY_FOOD_FULL + 500 then set_food(player.food + 10) end
-L:MAKE: if (one_in_(50) ~= 0) then create_artifact(object, level/4, FALSE) end
 
 #######
 # Z+ additions
@@ -5922,14 +5922,15 @@ D:A thick, powerful whip designed to do actual damage.
 #F:SHOW_MODS
 #D:A two-handed axe of exceptional craftsmanship.
 
-N:610:Augmentation
+N:610:Power
 G:=:d
 I:45:57:0
 W:85:0:2:3000
 A:85/2
 F:HIDE_TYPE | STR | INT | CHR | WIS | DEX | CON
-L:MAKE: if (one_in_(8)) then object.pval = 2 else object.pval=1 end
 L:MAKE: allow_curse = TRUE
+L:MAKE: if (one_in_(8) ~= 0) then object.pval = 2 else object.pval=1 end
+L:MAKE: if (one_in_(50) ~= 0) then create_artifact(object, level, FALSE) end
 
 N:611:Elemental Protection
 G:=:d
@@ -6150,7 +6151,8 @@ I:70:19:0
 W:40:0:5:1000
 A:40/4
 F:EASY_KNOW
-D:This scroll infuses your weilded weapon with elemental power.
+D:This scroll infuses a melee weapon or stack of ammunition with elemental power, 
+D:and enchants it.  This cannot be used on "ego" items or artifacts.
 L:USE: ident=TRUE
 L:USE: if not brand_weapon(0) then result=FALSE end
 
@@ -6589,6 +6591,7 @@ G:-:d
 I:66:29:20
 W:50:0:10:500
 A:45/20:70/5
+F:EASY_KNOW
 L:USE:  if not alchemy() then result = FALSE end
 L:USE:  ident = TRUE
 D:This rod can turn an object into gold.
@@ -6598,6 +6601,7 @@ G:-:d
 I:66:50:50
 W:40:0:10:500
 A:40/8:65/4
+F:EASY_KNOW
 L:USE:  ident = fire_ball(GF_MANA, dir, 5, 7)
 D:This rod fires an ENORMOUS mana ball (5).  It is useful for destroying
 D: objects en masse.
@@ -6607,6 +6611,7 @@ G:-:d
 I:66:30:800
 W:90:0:10:30000
 A:90/16
+F:EASY_KNOW
 L:USE:  if not enchant_spell(0,0,1,0) then result=FALSE end
 L:USE:  ident = TRUE
 D:This powerful rod enhances a piece of armor.
@@ -6616,6 +6621,7 @@ G:-:d
 I:66:31:800
 W:90:0:10:30000
 A:90/16
+F:EASY_KNOW
 L:USE:  if not enchant_spell(1,1,0,0) then result=FALSE end
 L:USE:  ident = TRUE
 D:This powerful rod enhances a weapon.
@@ -6634,6 +6640,7 @@ G:?:d
 I:70:55:0
 W:35:0:5:220
 A:35/2:65/1
+F:EASY_KNOW
 L:USE:  ident = TRUE
 L:USE:  if not dimension_door() then result=FALSE end
 D:This scroll allows you to teleport with pinpoint accuracy.
@@ -6643,6 +6650,7 @@ G:-:d
 I:66:12:400
 W:80:0:10:20000
 A:80/20
+F:EASY_KNOW
 L:USE:  ident = TRUE
 L:USE:  if not recharge(130) then result=FALSE end
 D:This powerful rod can recharge rods, staves, and wands, about every 400
@@ -6654,6 +6662,7 @@ G:?:d
 I:70:56:0
 W:65:0:5:400
 A:65/1
+F:EASY_KNOW
 L:USE:  ident = inc_shield(rand_range(30,50))
 D:This scroll toughens your skin into protective stone for a while.
 
@@ -6662,6 +6671,7 @@ G:!:d
 I:75:62:0
 W:33:0:1:250
 A:15/3:33/2
+F:EASY_KNOW
 L:USE:  ident=TRUE
 L:USE:  msgf ("You feel your mind expand!");
 L:USE:  inc_tim_esp(rand_range(25,55))
@@ -6674,6 +6684,7 @@ G:":d
 I:40:29:0
 W:5:0:3:50
 A:5/10:20/10:80/10
+F:EASY_KNOW
 L:TIMED: if (one_in_(400) ~= 0) then msgf("You feel youthful!"); end
 D:While wearing this amulet, you will never die of old age.
 
@@ -6705,10 +6716,11 @@ I:45:66:0
 W:65:0:2:0
 A:65/2
 F:CURSED | SLOW_HEAL | EASY_KNOW
-L:TIMED:  if (one_in_(4)) then take_hit(dam_roll(2,4), "a ring of blood") end
+L:TIMED:  if (one_in_(4) ~= 0) then take_hit(dam_roll(2,4), "a ring of blood") end
 D:This ring bites deep into your finger and drains your blood.
 
-# Quivers below are in ALPHA testing.
+# Quivers 
+
 # Most commands will let you navigate into containers to select objects;
 # many will not let you use a container if it's not empty.  To reoganize, use
 # the 'O' (organize) command (^O in the roguelike keyset).  
@@ -6763,7 +6775,7 @@ L:MAKE:    set_obj_flag(object, 2, TR2_IGNORE_FIRE) end
 N:677:[Smoke and Mirrors]
 G:?:v
 I:97:1:0
-W:20:0:30:1000
+W:35:0:30:1000
 A:35/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
@@ -6796,7 +6808,7 @@ G:=:d
 I:45:67:0
 W:60:0:2:2000
 A:60/3
-F:SH_FEAR
+F:SH_FEAR | EASY_KNOW
 
 N:681:Elemental Immunity
 G:!:d

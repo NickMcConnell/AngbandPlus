@@ -156,7 +156,7 @@
 
 # Version stamp (required)
 
-V:0.3.2
+V:0.3.3
 
 ##### The Player #####
 
@@ -2862,7 +2862,7 @@ D:ominously as it jumps at your throat!
 N:206:Old Man Willow
 G:%:s
 I:110:3d107:20:10:20
-W:6:5:0:220
+W:6:5:0:950
 O:0:50:50
 B:TOUCH:PARALYZE
 B:TOUCH:PARALYZE
@@ -3397,7 +3397,7 @@ D:It resembles a normal cloak until some poor fool ventures too close!
 
 N:244:Black orc
 G:o:D
-I:110:10d8:20:36:20
+I:110:10d8:20:22:20
 W:19:2:0:540
 O:10:50:20
 B:HIT:HURT:3d4
@@ -4467,7 +4467,7 @@ D:everybody in water is in danger!
 
 N:318:Chaos beastman
 G:H:u
-I:110:15d8:20:50:30
+I:110:15d8:20:35:30
 W:30:2:0:2600
 O:30:50:20
 B:HIT:CONFUSE:3d5
@@ -4512,7 +4512,7 @@ D:This vast gleaming bronze fly has wings which beat mesmerically fast.
 
 N:321:Stone giant
 G:P:s
-I:110:14d12:20:35:50
+I:110:14d12:20:45:50
 W:28:1:0:2350
 O:10:90:0
 B:HIT:HURT:3d8
@@ -4537,7 +4537,7 @@ D:The size of a large bird, this fly drips caustic acid.
 
 N:323:Stone golem
 G:g:s
-I:100:16d10:12:35:10
+I:100:16d10:12:40:10
 W:31:2:0:1700
 O:0:0:0
 B:HIT:HURT:1d10
@@ -4622,8 +4622,8 @@ D:A devil ray of the depths, with priestly magic.
 
 N:329:Huorn
 G:%:g
-I:110:6d59:40:22:20
-W:11:1:0:350
+I:110:7d48:40:22:20
+W:14:1:0:1000
 O:30:30:30
 B:CRUSH:HURT:3d6
 B:CRUSH:HURT:3d6
@@ -4716,7 +4716,7 @@ D:A fast-moving and deadly dragonian animal. Beware its poisonous sting!
 
 N:335:Great eagle
 G:B:u
-I:120:12d32:20:65:20
+I:120:12d32:20:35:20
 W:28:2:0:7500
 O:0:0:0
 B:CLAW:HURT:6d3
@@ -4742,7 +4742,7 @@ D:A sentient section of wall.
 
 N:337:Earth hound
 G:Z:u
-I:110:15d6:30:15:0
+I:110:15d6:30:17:0
 W:30:1:0:2050
 O:0:0:0
 B:BITE:HURT:1d8
@@ -4918,7 +4918,7 @@ D:A dark elven figure in armour and radiating evil power.
 
 N:349:Cloud giant
 G:P:B
-I:110:15d17:20:30:50
+I:110:15d17:20:40:50
 W:30:1:0:1850
 O:10:90:0
 B:HIT:ELEC:3d8
@@ -4931,7 +4931,7 @@ D:It is a twenty foot tall giant wreathed in clouds.
 
 N:350:Ugluk, the Uruk
 G:o:u
-I:110:16d29:20:42:20
+I:110:16d29:20:38:20
 W:32:4:0:4400
 O:10:90:0
 B:HIT:HURT:3d5
@@ -5027,7 +5027,7 @@ D:A caustic spinning whirlpool of water.
 
 N:356:Lugdush, the Uruk
 G:o:b
-I:110:16d32:20:45:20
+I:110:16d32:20:40:20
 W:32:3:0:12300
 O:10:90:0
 B:HIT:HURT:3d8
@@ -5184,7 +5184,7 @@ D:It is a giant beetle with vicious claws.
 
 N:367:Iron golem
 G:g:W
-I:110:18d38:12:40:10
+I:110:18d38:12:50:10
 W:35:2:0:3600
 O:0:0:0
 B:HIT:HURT:1d12
@@ -5223,7 +5223,7 @@ D:It is a giant scorpion with a sharp stinger.
 
 N:370:Jade monk
 G:p:G
-I:120:21d24:30:24:10
+I:120:21d24:30:30:10
 W:41:2:0:8700
 O:30:0:60
 B:KICK:HURT:5d2
@@ -5315,7 +5315,7 @@ D:A dark elven mage with spells of frightening destructive power.
 
 N:376:Master rogue
 G:p:D
-I:120:27d4:20:18:40
+I:120:27d4:20:30:40
 W:53:2:0:13500
 O:80:10:10
 B:HIT:HURT:2d8
@@ -5355,7 +5355,7 @@ D:It is looking for prey.
 
 N:379:Ice skeleton
 G:s:w
-I:110:17d8:20:17:60
+I:110:17d8:20:25:60
 W:33:1:0:2100
 O:20:0:80
 B:CLAW:COLD:2d3
@@ -5507,7 +5507,7 @@ B:CRUSH:HURT:44d1
 F:DUN_MINE | DUN_LAIR | DUN_HELL | DUN_HORROR
 F:EVIL | IM_FIRE | IM_POIS
 F:RES_NETH | RES_WATE | RES_PLAS | RES_DISE | RES_NEXU |
-F:KILL_WALL | FORCE_MAXHP | CAN_SWIM | DROP_CORPSE
+F:KILL_WALL | FORCE_MAXHP | CAN_SWIM | DROP_CORPSE | SILLY
 S:1_IN_9 |
 S:TPORT | BLINK | TELE_AWAY
 D:This creature just might crush you.
@@ -5707,7 +5707,7 @@ D:A powerful dark elf, with mighty nature-controlling enchantments.
 
 N:401:Stone troll
 G:T:D
-I:110:20d9:20:20:50
+I:110:20d9:20:30:50
 W:40:1:0:1280
 O:0:100:0
 B:HIT:HURT:1d6
@@ -5751,7 +5751,7 @@ D:A troll who is so bright he knows how to read.
 
 N:404:Wereworm
 G:w:u
-I:110:19d41:15:35:20
+I:110:19d41:15:30:20
 W:37:3:0:4100
 O:0:0:0
 B:GAZE:EXP_20
@@ -5818,7 +5818,7 @@ D:It is an ant encased in shaggy grey fur.
 
 N:409:Kharis the Powerslave
 G:z:u
-I:110:20d36:20:20:40
+I:110:20d36:20:30:40
 W:40:4:0:14500
 O:0:80:20
 B:GAZE:TERRIFY
@@ -5837,7 +5837,7 @@ D:He is out to have a revenge on you who have desecrated his tomb.
 
 N:410:Gwaihir the Windlord
 G:B:u
-I:130:13d50:20:65:20
+I:130:13d50:20:50:20
 W:26:5:0:2150
 O:0:0:0
 B:CLAW:HURT:15d2
@@ -5875,7 +5875,7 @@ D:It is a huge black panther, clubbed tentacles sprouting from its shoulders.
 
 N:413:Ulwarth, Son of Ulfang
 G:p:U
-I:110:18d34:20:20:40
+I:110:18d34:20:30:40
 W:35:4:0:6900
 O:40:60:0
 B:HIT:HURT:4d6
@@ -7146,7 +7146,7 @@ D:A huge, ugly, half-human in search of plunder.
 
 N:492:Ivory monk
 G:p:w
-I:120:23d13:25:25:7
+I:120:23d13:25:40:7
 W:45:1:0:9400
 O:40:0:50
 B:KICK:HURT:8d1
@@ -7229,7 +7229,7 @@ D:He is a vicious monster, feared for his ferocity.
 
 N:497:Anti-paladin
 G:p:D
-I:120:27d16:30:25:30
+I:120:27d16:30:35:30
 W:54:2:0:10600
 O:0:50:50
 B:HIT:HURT:2d6
@@ -7244,7 +7244,7 @@ D:An embodiment of all the cardinal vices, he beholds you scornfully.
 
 N:498:Logrus master
 G:p:v
-I:120:26d9:30:25:5
+I:120:26d9:30:35:5
 W:52:3:0:35000
 O:0:0:100
 B:KICK:HURT:10d2
@@ -8227,7 +8227,7 @@ D:and magical colours cover it.
 
 N:557:Raal's Tome of Destruction
 G:?:r
-I:120:29d20:20:75:15
+I:120:29d20:20:45:15
 W:57:4:0:70000
 O:0:0:0
 F:NEVER_MOVE | NEVER_BLOW | NONLIVING | DUN_TOWER
@@ -8461,8 +8461,8 @@ D:It is a towering glacier of ice.
 
 N:571:Ipsissimus
 G:p:D
-I:110:29d6:20:25:10
-W:57:2:0:15000
+I:110:29d12:20:25:10
+W:57:2:0:25000
 O:10:0:90
 B:HIT:HURT:2d6
 B:HIT:HURT:2d6
@@ -8984,7 +8984,7 @@ D:waking monsters from their slumber.
 
 N:601:Ancient blue dragon
 G:D:b
-I:120:28d23:20:40:80
+I:120:28d23:20:50:80
 W:55:1:0:78000
 O:50:50:0
 B:CLAW:HURT:4d8
@@ -9001,7 +9001,7 @@ D:A huge draconic form.  Lightning crackles along its length.
 
 N:602:Ancient bronze dragon
 G:D:U
-I:120:29d23:20:45:200
+I:120:29d23:20:50:200
 W:57:2:0:102000
 O:50:50:0
 B:CLAW:HURT:4d8
@@ -9074,7 +9074,7 @@ D:and try to resist all desires to obey it.
 
 N:606:Loge, Spirit of Fire
 G:E:R
-I:120:27d39:12:25:50
+I:120:27d39:12:35:50
 W:54:3:0:49000
 O:0:0:0
 B:HIT:FIRE:6d6
@@ -9206,7 +9206,7 @@ D:you, a coldness saps your soul.
 
 N:613:Fire vampire
 G:V:r
-I:120:30d16:30:66:0
+I:120:30d16:30:55:0
 W:60:4:0:79000
 O:0:0:0
 B:TOUCH:FIRE:1d10
@@ -9295,7 +9295,7 @@ D:look for prey, but each with its own deadly breath weapon.
 
 N:617:Ancient white dragon
 G:D:w
-I:120:28d23:20:40:80
+I:120:28d23:20:50:80
 W:55:1:0:160000
 O:50:50:0
 B:CLAW:HURT:4d9
@@ -9313,7 +9313,7 @@ D:A huge draconic form.  Frost covers it from head to tail.
 
 N:618:Ancient green dragon
 G:D:g
-I:120:28d23:20:40:80
+I:120:28d23:20:50:80
 W:55:1:0:135000
 O:50:50:0
 B:CLAW:HURT:4d8
@@ -9416,7 +9416,7 @@ D:A foul wind chills your bones as this ghastly figure approaches.
 
 N:624:Ancient black dragon
 G:D:D
-I:120:29d23:20:40:70
+I:120:29d23:20:50:70
 W:57:1:0:115000
 O:50:50:0
 B:CLAW:HURT:4d9
@@ -9571,7 +9571,7 @@ D:It is a pulsing flesh mound that reeks of death and putrefaction.
 N:634:Lesser titan
 G:P:y
 I:120:29d21:30:35:15
-W:57:3:0:81000
+W:57:3:0:91000
 O:0:100:0
 B:HIT:CONFUSE:6d6
 B:HIT:CONFUSE:6d6
@@ -9646,8 +9646,8 @@ D:pitiful frame.
 
 N:638:Sorceror
 G:p:o
-I:130:32d10:20:25:10
-W:64:2:0:180000
+I:130:32d20:20:25:10
+W:64:2:0:275000
 O:0:0:100
 B:HIT:HURT:2d8
 B:HIT:HURT:2d8
@@ -9748,7 +9748,7 @@ D:true form but you sense its evil.
 
 N:644:Ancient red dragon
 G:D:r
-I:120:30d24:20:45:70
+I:120:30d24:20:50:70
 W:59:1:0:140000
 O:50:50:0
 B:CLAW:HURT:4d10
@@ -9766,7 +9766,7 @@ D:extreme heat surrounding it makes you gasp for breath.
 
 N:645:Ancient gold dragon
 G:D:y
-I:120:30d23:20:45:200
+I:120:30d23:20:50:200
 W:59:2:0:125000
 O:50:50:0
 B:CLAW:HURT:4d10
@@ -9783,7 +9783,7 @@ D:A huge draconic form wreathed in a nimbus of light.
 
 N:646:Great crystal drake
 G:D:B
-I:120:30d28:25:45:30
+I:120:30d28:25:50:30
 W:59:2:0:95000
 O:50:50:0
 B:CLAW:HURT:4d9
@@ -10257,7 +10257,7 @@ D:of innumerable sailors!
 
 N:670:Jack of Shadows
 G:p:s
-I:150:29d73:70:75:4
+I:150:29d73:70:70:4
 W:58:4:0:260000
 O:20:80:0
 B:HIT:HURT:5d10
@@ -10346,7 +10346,7 @@ D:A Dark Judge, reputedly so frightening that his gaze can kill.
 
 N:675:Ancient multi-hued dragon
 G:D:v
-I:120:32d47:20:45:70
+I:120:32d47:20:55:70
 W:64:1:0:235000
 O:50:50:0
 B:CLAW:HURT:4d12
@@ -10366,7 +10366,7 @@ D:live to see another.
 
 N:676:Ethereal dragon
 G:D:o
-I:120:30d47:25:45:15
+I:120:30d47:25:55:15
 W:60:2:0:215000
 O:50:50:0
 B:CLAW:HURT:4d12
@@ -10593,7 +10593,7 @@ D:The most powerful Dark Judge, whose touch means death.
 
 N:687:Ariel, Queen of Air
 G:E:B
-I:130:30d63:12:25:50
+I:130:30d63:12:45:50
 W:60:4:0:160000
 O:0:0:0
 B:HIT:HURT:4d6
@@ -10831,7 +10831,7 @@ D:your soul.
 N:699:Knight templar
 G:p:w
 I:120:35d16:20:72:20
-W:69:2:0:80000
+W:69:2:0:140000
 O:0:100:0
 B:HIT:HURT:3d12
 B:HIT:HURT:3d12
@@ -10860,7 +10860,7 @@ D:carrying explosives and making terrorist strikes...
 
 N:701:Dracolich
 G:D:B
-I:120:33d55:25:48:30
+I:120:33d55:25:58:30
 W:65:2:0:330000
 O:10:50:40
 B:CLAW:HURT:4d12
@@ -11204,7 +11204,7 @@ D:A sentient, moving section of wall.
 
 N:719:Nycadaemon
 G:U:o
-I:120:34d64:20:40:80
+I:120:34d64:20:50:80
 W:67:3:0:195000
 O:50:0:50
 B:TOUCH:TERRIFY
@@ -11224,7 +11224,7 @@ D:a stone wall down.
 
 N:720:Balrog
 G:U:R
-I:120:32d100:20:40:80
+I:120:32d100:20:50:80
 W:73:3:0:580000
 O:0:50:50
 B:HIT:FIRE:6d12
@@ -11517,7 +11517,7 @@ D:at him."
 
 N:735:The King in Yellow
 G:L:y
-I:120:35d64:90:50:10
+I:120:35d64:90:60:10
 W:69:30:0:1650000
 O:50:0:40
 B:CRUSH:HURT:12d12
@@ -13274,8 +13274,8 @@ D:spreading uncontrollably and destroying everything in its path.
 
 N:816:Cyberdemon
 G:U:u
-I:120:45d109:90:45:90
-W:89:4:0:2150000
+I:120:45d109:90:75:90
+W:89:4:0:3000000
 O:0:100:0
 B:HIT:HURT:1d50
 B:HIT:HURT:1d50
@@ -13629,7 +13629,7 @@ D:A duke of hell, in the flesh.
 
 N:832:Godzilla
 G:R:g
-I:130:48d124:50:140:20
+I:130:48d124:50:90:20
 W:96:2:0:8400000
 O:100:0:0
 B:CLAW:POISON:5d10
@@ -13718,8 +13718,8 @@ D:giants and fight against the other gods of Asgard.
 
 N:836:Star-spawn of Cthulhu
 G:U:G
-I:130:48d110:90:45:90
-W:95:20:0:10100000
+I:130:48d110:90:75:90
+W:95:20:0:13100000
 O:0:0:100
 B:CLAW:POISON:1d30
 B:CLAW:ACID:1d30
@@ -13877,7 +13877,7 @@ D:lay, but only the clamminess of death and corruption."
 
 N:843:Oremorj the Cyberdemon Lord
 G:U:u
-I:130:49d129:90:45:90
+I:130:49d129:90:80:90
 W:97:4:0:9100000
 O:0:100:0
 B:HIT:HURT:2d40
@@ -13960,8 +13960,8 @@ D:hunger and leave the Norse gods for the dessert.
 
 N:847:Great Wyrm of Power
 G:D:y
-I:130:46d201:20:55:70
-W:92:4:0:9000000
+I:130:46d201:20:90:70
+W:92:4:0:12000000
 O:50:50:0
 B:CRUSH:POISON:8d12
 B:CRUSH:FIRE:8d12
@@ -14350,7 +14350,7 @@ D:pulp!
 
 N:862:The Serpent of Chaos
 G:J:D
-I:155:50d504:111:87:0
+I:155:50d504:111:100:0
 W:100:1:0:13500000
 O:0:50:50
 B:CRUSH:SHATTER:22d10
@@ -14640,7 +14640,7 @@ D:seeks livelier prey.
 
 N:879:Spectral wyrm
 G:D:w
-I:130:45d94:40:100:255
+I:130:45d94:40:80:255
 W:90:4:0:1900000
 O:50:50:0
 B:CLAW:HURT:10d12
@@ -14813,7 +14813,7 @@ D:Awww, look at the sheep isn't it cute...
 
 N:890:Warp drake
 G:d:o
-I:110:28d15:25:55:15
+I:110:28d15:25:75:15
 W:55:5:0:34500
 O:40:50:10
 B:CLAW:HURT:2d5
@@ -14834,7 +14834,7 @@ D:like a heat haze as you study it carefully.
 
 N:891:Great dimensional wyrm
 G:D:G
-I:120:35d58:25:55:15
+I:120:35d58:25:80:15
 W:70:6:0:218000
 O:50:50:0
 B:CLAW:HURT:6d15
@@ -14926,8 +14926,8 @@ D: pay of Morgoth.
 
 N:897:Necromancer
 G:p:D
-I:110:28d10:20:20:10
-W:56:2:0:14000
+I:110:28d22:20:20:10
+W:56:2:0:20000
 O:50:0:50
 B:HIT:HURT:2d6
 B:HIT:HURT:2d6
@@ -14941,8 +14941,8 @@ D:A gaunt figure, clothed in black robes.
 
 N:898:Demonologist
 G:p:R
-I:110:28d10:20:20:10
-W:56:2:0:6600
+I:110:28d22:20:20:10
+W:56:2:0:10000
 O:50:0:50
 B:HIT:HURT:2d6
 B:HIT:HURT:2d6
@@ -15188,7 +15188,7 @@ D:It is a demon of lizard form with cruel-looking jaws.
 
 N:912:Gorlim, Betrayer of Barahir
 G:p:s
-I:120:28d58:20:120:40
+I:120:28d58:20:70:40
 W:56:3:0:470000
 O:30:30:40
 B:HIT:HURT:8d6
@@ -15223,7 +15223,7 @@ D:It is demon with arms and pincers, its form a true mockery of life.
 
 N:914:Marilith
 G:U:y
-I:120:32d44:20:75:80
+I:120:32d44:20:60:80
 W:64:2:0:150000
 O:30:30:40
 B:HIT:HURT:4d6
@@ -15240,7 +15240,7 @@ D:She is a demon of female form with many arms, each bearing deadly weapons.
 
 N:915:Lesser balrog
 G:U:v
-I:120:35d58:20:50:80
+I:120:35d58:20:45:80
 W:69:2:0:320000
 O:30:30:40
 B:HIT:FIRE:4d12
@@ -15389,7 +15389,7 @@ D:hells, capable of a terrifying berserk fury.
 
 N:923:Bile Demon
 G:U:R
-I:120:35d80:40:90:80
+I:120:35d80:40:70:80
 W:71:2:0:1650000
 O:30:30:40
 B:HIT:HURT:8d8
@@ -15428,7 +15428,7 @@ D:of decay and rot.  They are despised even in the hells.
 
 N:925:Gelugon
 G:U:w
-I:130:40d88:20:100:80
+I:130:40d88:20:75:80
 W:79:3:0:2650000
 O:30:30:40
 B:CLAW:COLD:6d8
@@ -15450,7 +15450,7 @@ D:spikes.
 
 N:926:Horned Reaper
 G:U:B
-I:130:41d93:40:120:80
+I:130:41d93:40:75:80
 W:82:3:0:3400000
 O:30:30:40
 B:HIT:HURT:11d11
@@ -15471,7 +15471,7 @@ D:the minions it has just summoned.
 
 N:927:Pit Fiend
 G:U:o
-I:130:43d93:30:120:75
+I:130:43d93:30:75:75
 W:87:3:0:4000000
 O:30:30:40
 B:CLAW:FIRE:6d10
@@ -15493,7 +15493,7 @@ D:of vast demon armies.
 
 N:928:Greater balrog
 G:U:v
-I:130:39d128:40:140:80
+I:130:39d128:40:85:80
 W:79:3:0:5250000
 O:30:30:40
 B:HIT:FIRE:8d12
@@ -15542,7 +15542,7 @@ D:its scales a pale gold.
 
 N:931:Great swamp wyrm
 G:D:g
-I:120:38d92:30:150:80
+I:120:38d92:30:85:80
 W:77:2:0:1500000
 O:30:30:40
 B:CLAW:HURT:4d12
@@ -15561,7 +15561,7 @@ D:as you fight it, it sees no reason to do likewise.
 
 N:932:Great wyrm of perplexity
 G:D:U
-I:120:38d92:30:150:80
+I:120:38d92:30:85:80
 W:76:2:0:1050000
 O:30:30:40
 B:CLAW:HURT:4d12
@@ -15580,7 +15580,7 @@ D:mind on the job of fighting for your life.
 
 N:933:Great bile wyrm
 G:D:s
-I:120:37d95:30:150:80
+I:120:37d95:30:85:80
 W:74:2:0:1750000
 O:30:30:40
 B:CLAW:HURT:4d12
@@ -15599,7 +15599,7 @@ D:the very stones of the dungeon - what could it do to you?
 
 N:934:Great wyrm of thunder
 G:D:y
-I:120:37d95:30:150:80
+I:120:37d95:30:85:80
 W:75:2:0:970000
 O:30:30:40
 B:CLAW:HURT:4d12
@@ -15667,7 +15667,7 @@ D:you will need magically enhanced seeing to spot him.
 
 N:938:Polyphemus, the Blind Cyclops
 G:P:g
-I:130:39d136:40:140:40
+I:130:39d136:40:70:40
 W:79:3:0:3300000
 O:30:30:40
 B:HIT:HURT:11d10
@@ -15687,7 +15687,7 @@ D:himself to hear so well that it nearly makes up for his disability.
 
 N:939:Atlas, the Titan
 G:P:s
-I:120:42d142:30:160:15
+I:120:42d142:30:70:15
 W:85:3:0:4250000
 O:30:30:40
 B:HIT:SHATTER:13d13
@@ -15706,7 +15706,7 @@ D:after him.
 
 N:940:Kronos, Lord of the Titans
 G:P:v
-I:120:43d162:30:150:15
+I:120:43d162:30:80:15
 W:97:3:0:9550000
 O:30:30:40
 B:HIT:CONFUSE:12d12
@@ -15786,7 +15786,7 @@ D:barely see through them.
 
 N:945:Eol, the Dark Elf
 G:h:D
-I:130:34d71:20:100:60
+I:130:34d71:20:60:60
 W:69:2:0:960000
 O:30:30:40
 B:HIT:HURT:3d8
@@ -15809,7 +15809,7 @@ D:Gondolin.
 
 N:946:Maeglin, the Traitor of Gondolin
 G:h:D
-I:130:43d140:70:120:20
+I:130:43d140:70:70:20
 W:86:2:0:3500000
 O:30:30:40
 B:HIT:HURT:8d8
@@ -15870,7 +15870,7 @@ D:whose howls strike fear into even the boldest heart.
 
 N:951:Bone golem
 G:g:D
-I:120:41d85:20:170:50
+I:120:41d85:20:75:50
 W:83:3:0:2150000
 O:30:30:40
 B:HIT:UN_BONUS:8d8
@@ -15888,7 +15888,7 @@ D:previous victims.
 
 N:952:Bronze golem
 G:g:o
-I:120:44d91:20:170:50
+I:120:44d91:20:75:50
 W:89:3:0:3000000
 O:30:30:40
 B:HIT:HURT:10d10
@@ -15921,7 +15921,7 @@ D:you, wielding a huge club and pushing his own followers rudely aside.
 
 N:954:Ar-Pharazon the Golden
 G:p:y
-I:130:34d118:30:45:255
+I:130:34d118:30:55:255
 W:68:1:0:1150000
 O:30:30:40
 B:HIT:HURT:8d8

@@ -60,7 +60,7 @@
 #endif /* !DEBUG */
 
 /* Savefile version */
-#define SAVEFILE_VERSION 59
+#define SAVEFILE_VERSION 61
 
 
 /*
@@ -748,7 +748,11 @@
 /*
  * Misc constants
  */
-#define TOWN_DAWN               10000	/* Number of turns from dawn to dawn XXX */
+#define OLD_TOWN_DAWN			100000L
+#define TOWN_DAY				115200L		/* Number of turns from one dawn to another */
+#define TOWN_HALF_DAY			57600L		/* Number of turns from dawn to dusk: TOWN_DAY/2. */
+#define TOWN_HOUR				4800L		/* Number of turns in an hour: TOWN_DAY/24. */
+#define	TOWN_HALF_HOUR			2400L		/* Number of turns in a half hour: TOWN_DAY/48. */
 #define BREAK_GLYPH             550	/* Rune of protection resistance */
 #define BREAK_MINOR_GLYPH       99	/* For explosive runes */
 #define BTH_PLUS_ADJ    		1	/* Adjust BTH per plus-to-hit */
@@ -1379,7 +1383,11 @@
 #define MAX_ROOM_TYPES  13
 
 
+
 /*** Field Thaumatergical types - (see "fields.c" and t_info.txt) ***/
+#define FT_TRAP_MIN				0x0006
+#define FT_TRAP_MAX				0x001F
+
 #define FT_NONE					0x0000
 #define FT_WALL_INVIS			0x0001
 #define FT_GLYPH_WARDING		0x0002
@@ -2543,7 +2551,7 @@
 #define GRID_SEEN		0x04	/* In LOS + Lit in some way */
 #define GRID_DTCT		0x08	/* Detected for traps */
 #define GRID_LITE		0x10	/* Lit by torchlight */
-#define GRID_DUM3		0x20
+#define GRID_KNOWN		0x20	/* Has ever been seen */
 #define GRID_DUM4		0x40
 #define GRID_DUM5		0x80
 
@@ -3081,7 +3089,7 @@
 #define OB_NO_EXP    0x40		/* Item gives no score */
 #define OB_DUMMY4    0x80
 
-/* 
+/*
  * Object kind flags */
 #define OK_AWARE		0x01	/* Aware of the object kind */
 #define OK_TRIED		0x02	/* Have tried the object without success */
@@ -4542,7 +4550,7 @@ static __inline void COPY_FLAG_AUX(const u32b *flags1, u32b *flags2, int num, u3
 /* {TRUE,  0, NULL,					"Number 169" }, p_ptr->options[153] */
 #define center_player			p_ptr->options[154]
 #define avoid_center			p_ptr->options[155]
-/* {TRUE,  0, NULL,					"Number 172" }, p_ptr->options[156] */
+#define show_coords				p_ptr->options[156]
 #define limit_messages			compress_savefile
 /* {TRUE,  0, NULL,					"Number 173" }, p_ptr->options[157] */
 #define check_transaction		p_ptr->options[158]
@@ -4588,7 +4596,8 @@ static __inline void COPY_FLAG_AUX(const u32b *flags1, u32b *flags2, int num, u3
 #define use_upkeep				FALSE  /* not allowing this option */
 #define randart_rare			p_ptr->birth[19]
 #define randart_weak			!randart_rare  /* one or the other. */
-/* {TRUE,  0, NULL,					"Number 214" }, p_ptr->birth[22] */
+#define competition_mode		p_ptr->birth[20]
+#define accessible_mode			p_ptr->birth[21]
 /* {TRUE,  0, NULL,					"Number 215" }, p_ptr->birth[23] */
 /* {TRUE,  0, NULL,					"Number 216" }, p_ptr->birth[24] */
 /* {TRUE,  0, NULL,					"Number 217" }, p_ptr->birth[25] */
@@ -4657,14 +4666,14 @@ static __inline void COPY_FLAG_AUX(const u32b *flags1, u32b *flags2, int num, u3
 #define object_tried_p(T) \
     (k_info[(T)->k_idx].info & OK_TRIED)
 
-/* 
+/*
  * Determine if an item is "worthless"
  */
 #define object_worthless_p(T) \
 	(k_info[(T)->k_idx].info & OK_WORTHLESS)
-	
-/* 
- * Determine if an item can be cursed 
+
+/*
+ * Determine if an item can be cursed
  */
 #define object_maybecursed_p(T) \
 	(k_info[(T)->k_idx].info & OK_CURSED)
@@ -4947,8 +4956,8 @@ static __inline void COPY_FLAG_AUX(const u32b *flags1, u32b *flags2, int num, u3
  */
 #define remember_grid(C1, C2) \
 	(((C2)->feat = (C1)->feat), \
-	(void) ((C1)->info), \
-	(void) ((C2)->player))
+		((C2)->player |= GRID_KNOWN), \
+	(void) ((C1)->info))
 
 
 /*
@@ -5287,10 +5296,11 @@ extern int PlayerUID;
 /*
  * Automatic note taking types
  */
-#define NOTE_BIRTH		1
-#define NOTE_WINNER		2
+#define NOTE_BIRTH			1
+#define NOTE_WINNER			2
 #define NOTE_SAVE_GAME		3
 #define NOTE_ENTER_DUNGEON	4
+#define NOTE_REBIRTH        5
 
 /*
  * Field information flags

@@ -2373,6 +2373,27 @@ static void calc_torch(void)
 			p_ptr->cur_lite += 4;
 	}
 
+
+	/* Adjust radius for pre-dawn / dusk */
+	if (!p_ptr->depth)
+	{
+		s32b plrtime = turn % TOWN_DAY;
+		/* Calculate the half hour, from 0 to 48.  The beginning
+		   of 0 is dawn, the beginning of 24 is dusk. */
+		int hour = (int) (plrtime / TOWN_HALF_HOUR);
+
+		/* Radius starts at minimum 8 within 30 minutes of dawn / dusk,
+		   half that for every 30 minutes further away. */
+		if (hour == 24 || hour == 47)
+			p_ptr->cur_lite = MAX(p_ptr->cur_lite, 8);
+		else if (hour == 25 || hour == 46)
+			p_ptr->cur_lite = MAX(p_ptr->cur_lite, 4);
+		else if (hour == 26 || hour == 45)
+			p_ptr->cur_lite = MAX(p_ptr->cur_lite, 2);
+		else if (hour == 27 || hour == 44)
+			p_ptr->cur_lite = MAX(p_ptr->cur_lite, 1);
+	}
+
 	/*
 	 * Hack - blindness gives a torch radius of zero.
 	 * This speeds up the map_info() function.

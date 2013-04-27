@@ -947,10 +947,21 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 			/* Color the object */
 			modstr = staff_adj[o_ptr->sval];
 			if (aware) append_name = TRUE;
+			/* Hack: unusual plurals */
 			if (((plain_descriptions) && (aware)) || (o_ptr->info & OB_STOREB))
-				basenm = "& Staff~";
+			{
+				if (o_ptr->number == 1)
+					basenm = "& Staff~";
+				else
+					basenm = "& Stave~";
+			}
 			else
-				basenm = "& # Staff~";
+			{
+				if (o_ptr->number == 1)
+					basenm = "& # Staff~";
+				else
+					basenm = "& # Stave~";
+			}
 			break;
 		}
 
@@ -1253,7 +1264,8 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 
 
 	/* Hack -- Append "Artifact" or "Special" names */
-	if (known)
+	/* Mega-Hack!  The One Ring's xtra name is suppressed, and it cannot be renamed! */
+	if (known && (o_ptr->tval != TV_RING || o_ptr->sval != SV_RING_POWER))
 	{
 		if (o_ptr->inscription && strchr(quark_str(o_ptr->inscription), '#'))
 		{
@@ -1465,7 +1477,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 			strnfcat(buf, max, &len, " (%+d%%)", o_ptr->to_d * 5);
 		}
 	}
-		
+
 
 	bow_ptr = &p_ptr->equipment[EQUIP_BOW];
 
@@ -1685,19 +1697,28 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 	{
 		cptr tmp = quark_str(o_ptr->inscription);
 
-		/* Append the inscription */
-		strnfcat(buf, max, &len, " {");
-
-		/* Scan for the '#' character which marks a fake name. */
-		while(*tmp && (*tmp != '#'))
+		/* A '#' indicates a fake name, and a '}' suppresses the remainder
+		   of the inscription.  Give no inscription at all if one of these
+		   comes first.  */
+		if ((*tmp != '#') && (*tmp != '}'))
 		{
-			strnfcat(buf, max, &len, "%c", *tmp);
 
-			tmp++;
+			/* Append the inscription */
+			strnfcat(buf, max, &len, " {");
+
+			/* Scan for the '#' character which marks a fake name. */
+			/* Also scan for the '}' character which suppresses the rest
+			   of the inscription during display. */
+			while(*tmp && (*tmp != '#') && (*tmp != '}'))
+			{
+				strnfcat(buf, max, &len, "%c", *tmp);
+
+				tmp++;
+			}
+
+			/* Finish the inscription */
+			strnfcat(buf, max, &len, CLR_DEFAULT "}");
 		}
-
-		/* Finish the inscription */
-		strnfcat(buf, max, &len, CLR_DEFAULT "}");
 	}
 
 	/* Use the game-generated "feeling" otherwise, if available */

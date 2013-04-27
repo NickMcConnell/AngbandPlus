@@ -723,7 +723,10 @@ static bool create_city(int x, int y, int town_num)
 	count = fill_town_driver();
 
 	/* Too few squares??? */
-	if (count < START_STORE_NUM) return (FALSE);
+	if (count < START_STORE_NUM) {
+		Rand_quick = FALSE; 
+		return (FALSE);
+	}
 
 	/* Make sure the city is self-connected properly */
 	remove_islands();
@@ -936,6 +939,9 @@ static bool create_city(int x, int y, int town_num)
 		}
 	}
 
+	/* Back to complex RNG */
+	Rand_quick = FALSE;
+	
 	/* Success */
 	return (TRUE);
 }
@@ -3299,15 +3305,15 @@ bool init_places(int xx, int yy)
 
 	/* Create farms */
 	create_farms(xx, yy);
-
+	
 	/* Create quests */
 	create_quests(xx, yy);
-
+	
 	/* Connect the places with roads */
 	create_roads();
 
 	cur = place_count;
-
+	
 	/* Initialize building quests */
 	init_build_quests();
 

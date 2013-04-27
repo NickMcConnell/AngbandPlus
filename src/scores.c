@@ -632,7 +632,7 @@ void enter_score(void)
 	the_score.gold[9] = '\0';
 
 	/* Save the current turn */
-	strnfmt(the_score.turns, 10, "%9lu", (unsigned long)turn);
+	strnfmt(the_score.turns, 10, "%9lu", (unsigned long)(turn-turn_offset));
 	the_score.turns[9] = '\0';
 
 #ifdef HIGHSCORE_DATE_HACK
@@ -770,7 +770,7 @@ void predict_score(void)
 	strnfmt(the_score.gold, 10, "%9lu", (unsigned long)p_ptr->au);
 
 	/* Save the current turn */
-	strnfmt(the_score.turns, 10, "%9lu", (unsigned long)turn);
+	strnfmt(the_score.turns, 10, "%9lu", (unsigned long)(turn-turn_offset));
 
 	/* Hack -- no time needed */
 	strcpy(the_score.day, "TODAY");

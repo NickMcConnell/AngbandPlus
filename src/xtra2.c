@@ -1610,7 +1610,7 @@ bool target_able(int m_idx)
 /*
  * Hack - function to get object name of mimic
  */
-static bool mimic_desc(char *m_name, const monster_race *r_ptr)
+bool mimic_desc(char *m_name, const monster_race *r_ptr)
 {
 	/* Hack - look at default character */
 	switch (r_ptr->d_char)
@@ -1739,7 +1739,7 @@ bool target_okay(void)
  * We use "u" and "v" to point to arrays of "x" and "y" positions,
  * and sort the arrays by double-distance to the player.
  */
-static bool ang_sort_comp_distance(vptr u, vptr v, int a, int b)
+bool ang_sort_comp_distance(vptr u, vptr v, int a, int b)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -1782,7 +1782,7 @@ static bool ang_sort_comp_distance(vptr u, vptr v, int a, int b)
  * We use "u" and "v" to point to arrays of "x" and "y" positions,
  * and sort the arrays by distance to the player.
  */
-static void ang_sort_swap_distance(vptr u, vptr v, int a, int b)
+void ang_sort_swap_distance(vptr u, vptr v, int a, int b)
 {
 	s16b *x = (s16b *)(u);
 	s16b *y = (s16b *)(v);
@@ -2023,7 +2023,8 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 	pcave_type *pc_ptr = parea(x, y);
 
 	cptr s1, s2, s3;
-
+	char s4[30];
+	
 	bool boring;
 	bool seen = FALSE;
 
@@ -2047,6 +2048,39 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 		s1 = "You see ";
 		s2 = "";
 		s3 = "";
+		
+		/* Create "s4" string, containing the vector, if in show_coords, 
+		 * otherwise just show distance */
+		if (show_coords)
+		{
+			if (p_ptr->px == x && p_ptr->py == y)
+			{
+				sprintf(s4, "0");
+			}
+			else if (p_ptr->px == x)
+			{
+				sprintf(s4, "%d%c",
+						ABS(p_ptr->py - y), 
+						(p_ptr->py > y ? 'N' : 'S')	);
+			}
+			else if (p_ptr->py == y)
+			{
+				sprintf(s4, "%d%c",
+						ABS(p_ptr->px - x), 
+						(p_ptr->px > x ? 'W' : 'E')	);
+			}
+			else
+			{
+				sprintf(s4, "%d:%d%c %d%c",
+						distance(x,y,p_ptr->px, p_ptr->py),
+						ABS(p_ptr->py - y), 
+						(p_ptr->py > y ? 'N' : 'S'),
+						ABS(p_ptr->px - x), 
+						(p_ptr->px > x ? 'W' : 'E')	);
+			}
+			
+		} else
+			sprintf(s4, "%d", distance(x,y,p_ptr->px, p_ptr->py));
 
 		/* Hack -- under the player */
 		if ((y == py) && (x == px))
@@ -2065,7 +2099,7 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 			cptr name = "something strange";
 
 			/* Display a message */
-			prtf(0, 0, "%s%s%ssomething strange [%s] (%d)", s1, s2, s3, name, info, randint1(distance(x,y,p_ptr->px, p_ptr->py)));
+			prtf(0, 0, "%s%s%ssomething strange [%s] (%s)", s1, s2, s3, name, info, s4);
 			move_cursor_relative(x, y);
 			query = inkey();
 
@@ -2098,7 +2132,7 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 				{
 					/* Describe the object */
 					s3 = "a ";
-					prtf(0, 0, "%s%s%s%s [%s] (%d)", s1, s2, s3, m_name, info, distance(x,y,p_ptr->px, p_ptr->py));
+					prtf(0, 0, "%s%s%s%s [%s] (%s)", s1, s2, s3, m_name, info, s4);
 					move_cursor_relative(x, y);
 					query = inkey();
 
@@ -2141,7 +2175,7 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 							screen_roff_mon(m_ptr->r_idx, 0);
 
 							/* Hack -- Complete the prompt (again) */
-							roff("  [r,%s] (%d)", info, distance(x,y,p_ptr->px, p_ptr->py));
+							roff("  [r,%s] (%s)", info, s4);
 
 							/* Command */
 							query = inkey();
@@ -2163,10 +2197,10 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 								attitude = " ";
 
 							/* Describe, and prompt for recall */
-							prtf(0, 0, "%s%s%s%v (%s)%s[r,%s] (%d)",
+							prtf(0, 0, "%s%s%s%v (%s)%s[r,%s] (%s)",
 									s1, s2, s3, MONSTER_FMT(m_ptr, 0x08),
 									look_mon_desc(c_ptr->m_idx), attitude,
-									info, distance(x,y,p_ptr->px, p_ptr->py));
+									info, s4);
 
 							/* Place cursor */
 							move_cursor_relative(x, y);
@@ -2203,8 +2237,8 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 					OBJ_ITT_START (m_ptr->hold_o_idx, o_ptr)
 					{
 						/* Describe the object */
-						prtf(0, 0, "%s%s%s%v [%s] (%d)", s1, s2, s3,
-							 OBJECT_FMT(o_ptr, TRUE, 3), info, distance(x,y,p_ptr->px, p_ptr->py));
+						prtf(0, 0, "%s%s%s%v [%s] (%s)", s1, s2, s3,
+							 OBJECT_FMT(o_ptr, TRUE, 3), info, s4);
 						move_cursor_relative(x, y);
 						query = inkey();
 
@@ -2250,15 +2284,15 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 					if (floor_num == 1)
 					{
 						/* Describe the object */
-						prtf(0, 0, "%s%s%s%v [%s] (%d)",
-								s1, s2, s3, OBJECT_FMT(o_ptr, TRUE, 3), info, distance(x,y,p_ptr->px, p_ptr->py));
+						prtf(0, 0, "%s%s%s%v [%s] (%s)",
+								s1, s2, s3, OBJECT_FMT(o_ptr, TRUE, 3), info, s4);
 					}
 					else
 					{
 						/* Message */
-						prtf(0, 0, "%s%s%sa pile of %d items [%c,%s] (%d)",
+						prtf(0, 0, "%s%s%sa pile of %d items [%c,%s] (%s)",
 								s1, s2, s3, floor_num,
-								rogue_like_commands ? 'x' : 'l', info, distance(x,y,p_ptr->px, p_ptr->py));
+								rogue_like_commands ? 'x' : 'l', info, s4);
 					}
 
 					move_cursor_relative(x, y);
@@ -2307,8 +2341,8 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 				boring = FALSE;
 
 				/* Describe the object */
-				prtf(0, 0, "%s%s%s%v [%s] (%d)", s1, s2, s3,
-					 OBJECT_FMT(o_ptr, TRUE, 3), info, distance(x,y,p_ptr->px, p_ptr->py));
+				prtf(0, 0, "%s%s%s%v [%s] (%s)", s1, s2, s3,
+					 OBJECT_FMT(o_ptr, TRUE, 3), info, s4);
 				move_cursor_relative(x, y);
 				query = inkey();
 
@@ -2381,7 +2415,7 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 				s3 = is_a_vowel(fld_name[0]) ? "an " : "a ";
 
 				/* Describe the field */
-				prtf(0, 0, "%s%s%s%s [%s] (%d)", s1, s2, s3, fld_name, info, distance(x,y,p_ptr->px, p_ptr->py));
+				prtf(0, 0, "%s%s%s%s [%s] (%s)", s1, s2, s3, fld_name, info, s4);
 				move_cursor_relative(x, y);
 				query = inkey();
 
@@ -2439,17 +2473,31 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 		/* Terrain feature if needed */
 		if (boring || (feat >= FEAT_OPEN))
 		{
+			bool perma = cave_perma_grid(pc_ptr);
+			bool wall = cave_wall_grid(pc_ptr);
 			cptr name = f_name + f_info[feat].name;
 
 			/* Hack -- handle unknown grids */
-			if (feat == FEAT_NONE) name = "unknown grid";
+			if (feat == FEAT_NONE && !(pc_ptr->player & GRID_KNOWN)) 
+				name = "unknown grid";
+			else if (feat == FEAT_NONE)
+			{
+				/* feat = FEAT_NONE only because we can't see into
+				 * this grid right now, but we know what it is.
+				 */
+				feat = c_ptr->feat;
+				perma = cave_perma_grid(c_ptr);
+				wall = cave_wall_grid(c_ptr);
+				name = f_name + f_info[feat].name;
+			}
+
 
 			/* Pick a prefix for the pattern and stairs */
-			if (*s2 && cave_perma_grid(pc_ptr))
+			if (*s2 && perma)
 			{
 				s2 = "on ";
 			}
-			else if (*s2 && cave_wall_grid(pc_ptr))
+			else if (*s2 && wall)
 			{
 				s2 = "in ";
 			}
@@ -2466,10 +2514,10 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 
 			/* Display a message */
 			if (p_ptr->state.wizard)
-				prtf(0, 0, "%s%s%s%s [%s] (%d:%d) (%d)", s1, s2, s3, name,
-						info, y, x, distance(x,y,p_ptr->px, p_ptr->py));
+				prtf(0, 0, "%s%s%s%s [%s] (%d:%d) (%s)", s1, s2, s3, name,
+						info, y, x, s4);
 			else
-				prtf(0, 0, "%s%s%s%s [%s] (%d)", s1, s2, s3, name, info, distance(x,y,p_ptr->px, p_ptr->py));
+				prtf(0, 0, "%s%s%s%s [%s] (%s)", s1, s2, s3, name, info, s4);
 			move_cursor_relative(x, y);
 			query = inkey();
 
@@ -2564,7 +2612,6 @@ bool target_set(int mode)
 			/* Access */
 			c_ptr = area(x, y);
 
-			/* Allow target */
 			if (target_able(c_ptr->m_idx))
 			{
 				strcpy(info, "q,t,p,o,+,-,<dir>");
@@ -2906,6 +2953,20 @@ static bool target_closest(void)
 	return (TRUE);
 }
 
+static cptr dir_desc[10] =
+{
+		"(none)",
+		"southwest",
+		"south",
+		"southeast",
+		"west",
+		"(none)",
+		"east",
+		"northwest",
+		"north",
+		"northeast"
+};
+
 /*
  * Get an "aiming direction" from the user.
  *
@@ -3028,7 +3089,12 @@ bool get_aim_dir(int *dp)
 	if (p_ptr->cmd.dir != dir)
 	{
 		/* Warn the user */
-		msgf("You are confused.");
+		if (accessible_mode)
+		{
+			msgf ("You are confused.  You point %s.", dir_desc[dir]);
+		}
+		else
+			msgf("You are confused.");
 	}
 
 	/* Save direction */
@@ -3080,7 +3146,12 @@ bool get_rep_dir(int *dp)
 		if (p_ptr->cmd.dir != dir)
 		{
 			/* Warn the user */
-			msgf("You are confused.");
+			if (accessible_mode)
+			{
+				msgf ("You are confused.  You stumble %s.", dir_desc[dir]);
+			}
+			else
+				msgf("You are confused.");
 		}
 
 		/* Save direction */
@@ -3131,7 +3202,12 @@ bool get_rep_dir(int *dp)
 	if (p_ptr->cmd.dir != dir)
 	{
 		/* Warn the user */
-		msgf("You are confused.");
+		if (accessible_mode)
+		{
+			msgf ("You are confused.  You stumble %s.", dir_desc[dir]);
+		}
+		else
+			msgf("You are confused.");
 	}
 
 	/* Save direction */
@@ -3789,7 +3865,12 @@ bool get_hack_dir(int *dp)
 	if (p_ptr->cmd.dir != dir)
 	{
 		/* Warn the user */
-		msgf("You are confused.");
+		if (accessible_mode)
+		{
+			msgf ("You are confused.  You point %s.", dir_desc[dir]);
+		}
+		else
+			msgf("You are confused.");
 	}
 
 	/* Save direction */

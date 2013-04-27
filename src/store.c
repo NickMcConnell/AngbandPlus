@@ -2539,7 +2539,7 @@ void do_cmd_store(const field_type *f1_ptr)
 	}
 
 	/* Calculate the number of store maintainances since the last visit */
-	maintain_num = (turn - st_ptr->last_visit) / (10L * STORE_TURNS);
+	maintain_num = ((turn-turn_offset) - st_ptr->last_visit) / (10L * STORE_TURNS);
 
 	/* Recalculate maximum number of items in store */
 	if (info_flags & ST_HALF_INVEN)
@@ -2575,7 +2575,7 @@ void do_cmd_store(const field_type *f1_ptr)
 		}
 
 		/* Save the visit */
-		st_ptr->last_visit = turn;
+		st_ptr->last_visit = turn-turn_offset;
 	}
 
 	/* Forget the view */

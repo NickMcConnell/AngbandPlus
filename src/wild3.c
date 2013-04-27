@@ -1440,7 +1440,7 @@ static void add_monsters_block(int x, int y)
 	long prob;
 
 	/* Day time */
-	if ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2))
+	if ((turn % TOWN_DAY) < TOWN_HALF_DAY)
 	{
 		/* Monsters are rarer in the day */
 		prob = 32786;
@@ -1482,6 +1482,27 @@ static void add_monsters_block(int x, int y)
 	}
 }
 
+/*
+ * Record that a wilderness location has been seen, and
+ * so have any places that are there.
+ */
+void wild_discover(int wx, int wy)
+{
+	/* Mark as seen */
+	wild[wy][wx].done.info |= WILD_INFO_SEEN;
+	
+	/* Only continue if there's a place here. */
+	if (!wild[wy][wx].done.place) return;
+	
+	/* Get place */
+	place_type *pl_ptr = &place[wild[wy][wx].done.place];
+	
+	pl_ptr->seen = TRUE;
+	
+	/* Alert player to a new wilderness quest */
+	discover_wild_quest(pl_ptr->quest_num);
+}
+
 void light_dark_square(int x, int y, bool daytime)
 {
 	cave_type *c_ptr = area(x, y);
@@ -1496,7 +1517,8 @@ void light_dark_square(int x, int y, bool daytime)
 		remember_grid(c_ptr, pc_ptr);
 
 		/* If is daytime - have seen this square */
-		wild[y / 16][x / 16].done.info |= WILD_INFO_SEEN;
+		wild_discover(x/16,y/16);
+		
 	}
 	else
 	{
@@ -1533,13 +1555,13 @@ static void light_dark_block(int x, int y)
 	bool daytime;
 
 	/* Day time */
-	if ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2))
+	if ((turn % TOWN_DAY) < TOWN_HALF_DAY)
 		daytime = TRUE;
 	else
 		daytime = FALSE;
 
 	/* If is daytime - have seen this square */
-	if (daytime) wild[y][x].done.info |= WILD_INFO_SEEN;
+	if (daytime) wild_discover(x,y);
 
 	/* Light up or darken the area */
 	for (j = 0; j < WILD_BLOCK_SIZE; j++)
@@ -1946,7 +1968,6 @@ void move_wild(void)
 
 	quest_type *q_ptr;
 	place_type *pl_ptr;
-	wild_done_type *w_ptr;
 
 	/* Get upper left hand block in grid. */
 
@@ -1954,13 +1975,11 @@ void move_wild(void)
 	x = ((u16b)p_ptr->wilderness_x / WILD_BLOCK_SIZE);
 	y = ((u16b)p_ptr->wilderness_y / WILD_BLOCK_SIZE);
 
-	w_ptr = &wild[y][x].done;
-
 	/* The player sees the wilderness block he is on. */
-	w_ptr->info |= WILD_INFO_SEEN;
+	wild_discover(x,y);
 
 	/* Hack - set place */
-	p_ptr->place_num = w_ptr->place;
+	p_ptr->place_num = wild[y][x].done.place;
 
 	/* Move boundary */
 	shift_in_bounds(&x, &y);
@@ -1972,7 +1991,7 @@ void move_wild(void)
 	activate_quests(0);
 
 	pl_ptr = &place[p_ptr->place_num];
-
+	
 	/* Check for wilderness quests */
 	if (pl_ptr->quest_num)
 	{

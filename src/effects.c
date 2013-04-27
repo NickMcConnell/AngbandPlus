@@ -453,7 +453,15 @@ bool clear_paralyzed(void)
 
 static bool set_image(int v)
 {
-	return (set_timed(TIMED_IMAGE, v, "Oh, wow! Everything looks so cosmic now!", "You can see clearly again."));
+	if (!accessible_mode)
+		return (set_timed(TIMED_IMAGE, v, "Oh, wow! Everything looks so cosmic now!", "You can see clearly again."));
+	else 
+		/* 
+		 * Blind players just cannot deal with hallucination.  Give them confusion instead.
+		 * However, cap the increase at 30, since that is as high as the game gets for increases to 
+		 * the confusion counter, but the hallucination counter can increase by as much as 400.
+		 */
+		return (set_timed(TIMED_CONFUSED, MIN(v, 30), "Everything looks so cosmic now!  You are confused!", "You feel less confused now."));
 }
 
 bool inc_image(int v)

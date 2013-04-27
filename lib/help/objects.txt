@@ -284,7 +284,6 @@ Table 2 - Strong Pseudo-Id
     good           an enchanted item
     average        an average item
 
-
 Table 3 - Weak Pseudo-Id
 
     Inscription    Meaning
@@ -529,7 +528,7 @@ Also note that you can place multiple such inscriptions on a single
 object. So that a spell book might be inscribed {@m1@b1@G1} since the
 cast spell, browse book, and gain spell commands each require a spell
 book reference as an argument. You can also inscribe the same command
-more than one so that food item might be inscribed {@E@1E2}
+more than one so that food item might be inscribed {@E1@E2}
 
 Example 1:
     You have a primary weapon and a shovel. You normally use the
@@ -590,6 +589,13 @@ Also note that "selling" and "dropping" both use the "d" command so
 that inscribing an item with {!d} will also prevent you from selling it
 by accident.
 
+The {!!} Inscription
+--------------------
+The {!!} inscription, when placed on a rod or an activatable object,
+will force the game to notify you when there is a change in its charge
+status.  This will "disturb" you in the middle of tasks like running
+or resting.
+
 The {^x} Inscription
 --------------------
 The {^x} inscription (where 'x' is the key to activate a specific
@@ -611,9 +617,8 @@ your arrows, so that you don't need to confirm when picking them up,
 or to put {=g} on objects you always want to collect, such as potions
 of healing.
 
-
-The {&e} and {&i} Inscriptions
-------------------------------
+The {&x} Inscriptions
+---------------------
 These inscriptions are used to remind yourself about an object.  If
 you put {&e} on an object, you will get frequent reminders about that
 object if you are equipping it (this can be useful, for instance, on a
@@ -623,7 +628,33 @@ object is in your inventory.  This can be useful on your main weapon,
 to remind you that you are not equipping it.  It can also be useful on
 a long-charging rod, so that you can eventually learn that it is done
 recharging.  This may also be useful if you have an inventory item you
-intend to use but keep forgetting about.
+intend to use but keep forgetting about.  If you put '&' on an object,
+with or without an 'e' or 'i' after it, it also forces the game to be
+verbose about that object in character dumps.  You can use this, for
+instance, if you want your dump to note where you found an object like
+a deep wand or rod or an ordinary spellbook that doesn't require much
+description.
+
+The {.} Inscription
+-------------------
+This inscription may be used to suppress queries from the given
+object.  Some objects, for instance, sometimes give you the option
+of teleporting at random.  If they have the '.' inscription, the
+query is skipped.  
+
+The {}} Inscription
+-------------------
+This inscription has the effect of suppressing the remainder of the
+inscription from display.  Thus, an object inscribed with "foo}bar"
+will show up as {foo}, with the "bar" suppressed.  This is used when
+you want to actually write something in the inscription and not be
+bothered with special inscriptions like those in this section.  
+
+The {#} Inscription
+-------------------
+This character in an inscription uses the rest of the inscription
+as the object's "name", as if it were an artifact.  Using this 
+inscription allows you to, among other things, rename artifacts.  
 
 
 ***** <ObjectTypes>

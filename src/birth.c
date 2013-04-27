@@ -64,6 +64,12 @@ static birther prev;
  */
 static s16b stat_use[A_MAX];
 
+/*
+ * Are we re-birthing?
+ */
+static bool rebirth = FALSE;
+
+
 
 /*
  * Save the current data for later
@@ -297,6 +303,12 @@ static void get_extra(void)
 		break;
 	}
 
+	/* Save the values we're using now */
+	for (i = 0; i < PY_MAX_LEVEL; i++)
+	{
+		rebirth_ptr->player_hp[i] = p_ptr->player_hp[i];
+	}
+
 #ifdef SHOW_LIFE_RATE
 
 	percent = (int)(((long)p_ptr->player_hp[PY_MAX_LEVEL - 1] * 200L) /
@@ -338,6 +350,12 @@ static void get_ahw(void)
 		p_ptr->rp.wt = Rand_normal((int)(rp_ptr->f_b_wt) * h_percent / 100,
 								(int)(rp_ptr->f_m_wt) * h_percent / 300);
 	}
+
+	/* Save for future rebirth */
+	rebirth_ptr->rp.age = p_ptr->rp.age;
+	rebirth_ptr->rp.wt = p_ptr->rp.wt;
+	rebirth_ptr->rp.ht = p_ptr->rp.ht;
+
 }
 
 
@@ -371,6 +389,7 @@ static void get_money(void)
 
 	/* Save the gold */
 	p_ptr->au = gold;
+	rebirth_ptr->au = gold;
 }
 
 
@@ -385,6 +404,8 @@ static void player_wipe(void)
 	bool birth[OPT_BIRTH];
 	pcave_type *pcave[MAX_HGT];
 	pblk_ptr **pwild;
+	bool is_wizard = p_ptr->state.wizard;
+	u16b noscore = p_ptr->state.noscore;
 
 	/* Hack -- save these allocated arrays */
 	C_COPY(options, p_ptr->options, OPT_PLAYER, bool);
@@ -410,6 +431,13 @@ static void player_wipe(void)
 	C_COPY(p_ptr->options, options, OPT_PLAYER, bool);
 	C_COPY(p_ptr->birth, birth, OPT_BIRTH, bool);
 
+	/* Restore cheat-related options if appropriate. */
+	if (competition_mode && rebirth_ptr->can_rebirth)
+	{
+		p_ptr->state.wizard = is_wizard;
+		p_ptr->state.noscore = noscore;
+	}
+	
 	/* Start with no artifacts made yet */
 	for (i = 0; i < z_info->a_max; i++)
 	{
@@ -471,12 +499,15 @@ static void player_wipe(void)
 	}
 
 	/* Clear "cheat" options */
-	cheat_peek = FALSE;
-	cheat_hear = FALSE;
-	cheat_room = FALSE;
-	cheat_xtra = FALSE;
-	cheat_know = FALSE;
-	cheat_live = FALSE;
+	if (!(competition_mode && rebirth_ptr->can_rebirth))
+	{
+		cheat_peek = FALSE;
+		cheat_hear = FALSE;
+		cheat_room = FALSE;
+		cheat_xtra = FALSE;
+		cheat_know = FALSE;
+		cheat_live = FALSE;
+	}
 
 	/* Default pet command settings */
 	p_ptr->pet_follow_distance = PET_FOLLOW_DIST;
@@ -620,6 +651,7 @@ static void player_outfit(void)
 		}
 	}
 
+	/* Give player some light */
 	if (p_ptr->rp.prace == RACE_VAMPIRE)
 	{
 		/* Hack -- Give the player scrolls of DARKNESS! */
@@ -648,6 +680,7 @@ static void player_outfit(void)
 		(void)inven_carry(q_ptr);
 	}
 
+	/* Rangers get a bow and arrows; High Mages get wand of mag. missile */
 	if (p_ptr->rp.pclass == CLASS_RANGER)
 	{
 		/* Hack -- Give the player some arrows */
@@ -762,6 +795,9 @@ static bool get_player_sex(void)
 	/* Save the sex pointer */
 	sp_ptr = &sex_info[p_ptr->rp.psex];
 
+	/* Rebirth */
+	rebirth_ptr->rp.psex = p_ptr->rp.psex;
+
 	return (TRUE);
 }
 
@@ -839,6 +875,9 @@ static bool get_player_race(void)
 		p_ptr->change |= (PC_MUTATE);
 	}
 
+	/* Rebirth */
+	rebirth_ptr->rp.prace = p_ptr->rp.prace;
+
 	/* Save the race pointer */
 	rp_ptr = &race_info[p_ptr->rp.prace];
 
@@ -896,7 +935,6 @@ static bool get_player_class(void)
 	int i;
 	cptr classes[MAX_CLASS];
 
-
 	/* Extra info */
 	put_fstr(QUESTION_COL, QUESTION_ROW,
 				"Your 'class' determines various intrinsic abilities and bonuses.\n"
@@ -919,6 +957,9 @@ static bool get_player_class(void)
 
 		return (FALSE);
 	}
+
+	/* Save for rebirth */
+	rebirth_ptr->rp.pclass = p_ptr->rp.pclass;
 
 	/* Set class */
 	cp_ptr = &class_info[p_ptr->rp.pclass];
@@ -979,6 +1020,7 @@ static bool get_player_realms(void)
 
 	/* Save the choice */
 	p_ptr->spell.realm[0] = select[choose];
+	rebirth_ptr->realm[0] = select[choose];
 
 	/* Paranoia - No realms at all? */
 	select[0] = REALM_NONE;
@@ -1013,11 +1055,11 @@ static bool get_player_realms(void)
 
 	/* Save the choice */
 	p_ptr->spell.realm[1] = select[choose];
+	rebirth_ptr->realm[1] = select[choose];
 
 	/* Done */
 	return (TRUE);
 }
-
 
 /*
  * Helper function for 'player_birth()'.
@@ -1619,12 +1661,137 @@ static bool player_birth_aux_3(void)
 }
 
 
+/*
+ * Helper function for 'player_birth()'.
+ *
+ * This function returns FALSE if rebirth is impossible or if the player
+ * doesn't want rebirth.
+ * 
+ * Otherwise, we create the character from our rebirth information and set
+ * rebirth = TRUE.
+ */
+static bool player_rebirth(void)
+{
+	int i;
+	int mode = DISPLAY_PLAYER_STANDARD;
+
+	/* Can't rebirth if there's no info to rebirth from. */
+	if (!rebirth_ptr->can_rebirth)
+		return FALSE;
+	
+	/* Only query if we're not in competition mode */
+	if (!competition_mode)
+	{
+		/* if short-circuits so we don't need the nesting here, but
+		 * it makes things clearer. */
+		if (!get_check("Rebirth?"))
+			return FALSE;
+	}
+	
+	/* We are doing a rebirth! */
+	rebirth = TRUE;
+	
+	/* Sex */
+	p_ptr->rp.psex = rebirth_ptr->rp.psex;
+	sp_ptr = &sex_info[p_ptr->rp.psex];
+
+	/* Race */
+	p_ptr->rp.prace = rebirth_ptr->rp.prace;
+	rp_ptr = &race_info[p_ptr->rp.prace];
+
+	/* Give beastman a mutation at character birth */
+	if (p_ptr->rp.prace == RACE_BEASTMAN)
+	{
+		p_ptr->change |= (PC_MUTATE);
+	}
+
+	/* Class */
+	p_ptr->rp.pclass = rebirth_ptr->rp.pclass;
+	cp_ptr = &class_info[p_ptr->rp.pclass];
+	mp_ptr = &magic_info[p_ptr->rp.pclass];
+
+	/* Starting spell slots */
+	for (i = 0; i < SPELL_LAYERS; i++)
+	{
+		p_ptr->spell_slots[i] = magic_info[p_ptr->rp.pclass].max_spells[i];
+	}
+
+	/* Realms */
+	p_ptr->spell.realm[0] = rebirth_ptr->realm[0];
+	p_ptr->spell.realm[1] = rebirth_ptr->realm[1];
+
+	/* Initialize player quests */
+	init_player_quests();
+
+	/* Level one */
+	p_ptr->max_lev = p_ptr->lev = 1;
+
+	/* Experience factor */
+	p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp;
+
+	/* Hitdice */
+	p_ptr->rp.hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp;
+
+	/* Initial hitpoints */
+	p_ptr->mhp = p_ptr->rp.hitdie;
+
+	/* player_hp[] */
+	for (i = 0; i < PY_MAX_LEVEL; i++)
+	{
+		p_ptr->player_hp[i] = rebirth_ptr->player_hp[i];
+	}
+
+	/* Age, weight, height */
+	p_ptr->rp.age = rebirth_ptr->rp.age;
+	p_ptr->rp.wt = rebirth_ptr->rp.wt;
+	p_ptr->rp.ht = rebirth_ptr->rp.ht;
+
+	/* Social class */
+	p_ptr->rp.sc = rebirth_ptr->rp.sc;
+
+	/* Hack -- get a chaos patron even if you are not a chaos warrior */
+	p_ptr->chaos_patron = rebirth_ptr->chaos_patron;
+
+	/* Need to set these */
+	p_ptr->muta1 = 0;
+	p_ptr->muta2 = 0;
+	p_ptr->muta3 = 0;
+
+	/* Gold */
+	p_ptr->au = rebirth_ptr->au;
+	
+	/* Stats */
+	for (i = 0; i < A_MAX; i++)
+	{
+		p_ptr->stat[i].cur = rebirth_ptr->stat[i];
+		p_ptr->stat[i].max = rebirth_ptr->stat[i];
+	}
+
+	/* Calculate bonuses and hitpoints */
+	p_ptr->update |= (PU_BONUS | PU_HP);
+
+	/* Update stuff */
+	update_stuff();
+
+	/* Fully healed */
+	p_ptr->chp = p_ptr->mhp;
+
+	/* Fully rested */
+	p_ptr->csp = p_ptr->msp;
+
+	/* Done */
+	return (TRUE);
+}
+
 static bool player_birth_aux(void)
 {
     char ch;
     int i;
 
-	/* Ask questions */
+    /* Try to rebirth.  If that fails, proceed to normal methods. */
+    if (player_rebirth()) return TRUE;
+    
+    /* Ask questions */
 	if (!player_birth_aux_1()) return FALSE;
 
 	/* Point based */
@@ -1637,7 +1804,16 @@ static bool player_birth_aux(void)
 	else
 	{
 		if (!player_birth_aux_3()) return FALSE;
-    }
+	}
+
+	/* Save stuff for rebirth */
+	rebirth_ptr->rp.sc = p_ptr->rp.sc;
+	rebirth_ptr->chaos_patron = p_ptr->chaos_patron;
+	for (i = 0; i < A_MAX; i++)
+	{
+		rebirth_ptr->stat[i] = p_ptr->stat[i].cur;
+	}
+	rebirth_ptr->au = p_ptr->au;
 
     /* Apply some randomness */
     for (i = 0; i < A_MAX; i++)
@@ -1653,6 +1829,7 @@ static bool player_birth_aux(void)
     update_stuff();
 
 	/* Get a name, prepare savefile */
+	/* TODO: During rebirth, would be nice to make the "successor" of the current name. */
 	get_character_name();
 
 	/* Initialize the virtues */
@@ -1711,6 +1888,36 @@ void player_birth(void)
 	message_add("====================", MSG_GENERIC);
 	message_add("  ", MSG_GENERIC);
 	message_add(" ", MSG_GENERIC);
+
+	/* If we just did a rebirth and we're in competition mode,
+	 * we don't pick a fresh seed for world generation.  Otherwise,
+	 * pick one.
+	 */
+	if (!rebirth || !competition_mode)
+	{
+		msgf("Re-seeding the world...");
+		rebirth_ptr->world_seed = randint0(0x10000000);
+	}
+	/* Reinitialize the RNG with the new seed. */
+	Rand_state_init(rebirth_ptr->world_seed);
+
+	/* Hack: in order to ensure consistent world generation,
+	 * we have to remove all hero races and start fresh, the
+	 * first time and every time.  (Note we are not checking
+	 * to ensure this happens only during rebirth!)
+	 * 
+	 * Also need to remove "TR_QUESTITEM" from all artifacts
+	 * that shouldn't have it and "RF_QUESTOR" from all monsters
+	 * that shouldn't have it.  
+	 */
+	if (competition_mode)
+	{
+		wipe_all_heroes();
+		wipe_all_quest_flags();
+	}
+	
+	/* At this point, the player can be reborn. */
+	rebirth_ptr->can_rebirth = TRUE;
 
 	/* Hack -- outfit the player */
 	player_outfit();

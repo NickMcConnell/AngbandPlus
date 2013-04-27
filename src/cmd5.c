@@ -202,8 +202,8 @@ static void roff_spell_life(int spell)
 		case 2:
 			roff ("Bestows a blessing on you for ");
 			roff (CLR_YELLOW "12-24 turns");
-			roff (".  While you are blessed, you have substantial bonuses to hit and to your armor class,");
-			roff (" and a slight bonus to damage.");
+			roff (".  " CLR_L_DARK " While you are blessed, you have substantial bonuses to your accuracy and your armor class,");
+			roff (CLR_L_DARK " and a slight bonus to damage.");
 			return;
 		case 3:
 			roff ("Creates a ball of magical ");
@@ -227,7 +227,7 @@ static void roff_spell_life(int spell)
 		case 6:
 			roff ("Cures you of fear and bestows heroism on you for ");
 			roff (CLR_YELLOW "25-50 turns");
-			roff ("." CLR_L_DARK " While you have heroism, you have a substantial bonus to hit, a bonus to damage,");
+			roff ("." CLR_L_DARK " While you have heroism, you have a substantial bonus to accuracy, a bonus to damage,");
 			roff (CLR_L_DARK " and you temporarily gain 10 hit points.");
 			return;
 		case 7:
@@ -238,7 +238,7 @@ static void roff_spell_life(int spell)
 		case 8:
 			roff ("Bestows a blessing on you for ");
 			roff (CLR_YELLOW "50-100 turns");
-			roff ("." CLR_L_DARK " While you are blessed, you have substantial bonuses to hit and to your armor class,");
+			roff ("." CLR_L_DARK " While you are blessed, you have substantial bonuses to your accuracy and your armor class,");
 			roff (CLR_L_DARK " and a slight bonus to damage.");
 			return;
 		case 9:
@@ -537,7 +537,7 @@ static void roff_spell_sorcery(int spell)
 			return;
 		case 24:
 			roff ("Attempts to cause a creature of your choice to fall into a deep coma. ");
-			roff (CLR_L_DARK "Comatose monsters take no actions until woken up.");
+			roff (CLR_L_DARK "Comatose monsters take no actions until woken up.  ");
 			roff (CLR_L_DARK "No monsters are immune to stasis effects.");
 			return;
 		case 25:
@@ -605,8 +605,8 @@ static void roff_spell_sorcery(int spell)
 			roff (CLR_L_DARK " space you occupy, will not be affected.");
 			return;
 		case 37:
-			roff ("Attempts to cause all nearby monsters to fall into a deep coma. ");
-			roff (CLR_L_DARK "Comatose monsters take no actions until woken up.");
+			roff ("Attempts to cause all nearby monsters to fall into a deep coma.  ");
+			roff (CLR_L_DARK "Comatose monsters take no actions until woken up.  ");
 			roff (CLR_L_DARK "No monsters are immune to stasis effects.");
 			return;
 		default:
@@ -778,7 +778,7 @@ static void roff_spell_nature(int spell)
 			roff (CLR_L_DARK " Electricity-based damage destroys wands, rods, rings, and amulets on the dungeon floor.");
 			return;
 		case 28:
-			roff ("Summons a magical whirlpool, doing up to" CLR_RED "%i (max 170)" CLR_BLUE "water", 120+plev);
+			roff ("Summons a magical whirlpool, doing up to " CLR_RED "%i (max 170)" CLR_BLUE "water", 120+plev);
 			roff ("-based damage to all monsters within " CLR_VIOLET "radius %i (up to 5)", (plev/12)+1);
 			roff (" of the target.");
 			roff (CLR_L_DARK " Few monsters resist water-based damage.");
@@ -1163,7 +1163,7 @@ static void roff_spell_death(int spell)
 			roff (CLR_L_DARK " Otherwise, they will be your pets and under some limited control.");
 			return;
 		case 11:
-			roff ("Hits a target of your choice with " CLR_L_DARK "vampiric draining ");
+			roff ("Hits a target of your choice with " CLR_L_DARK "vampiric draining");
 			roff (", causing ");
 			roff (CLR_RED "%id%i (up to 5d50) damage", MAX(1, plev/10), plev);
 			roff (" to the target, healing you up to 100 hit points, and satisfying some hunger.");
@@ -1190,7 +1190,7 @@ static void roff_spell_death(int spell)
 		case 16:
 			roff ("Cures you of fear and bestows a berserk state on you for ");
 			roff (CLR_YELLOW "25-50 turns");
-			roff ("." CLR_L_DARK " While you are berserk, you have a large bonus to hit and to damage,");
+			roff ("." CLR_L_DARK " While you are berserk, you have a large bonus to your accuracy and to damage,");
 			roff (CLR_L_DARK " and you temporarily gain 30 hit points.");
 			return;
 		case 17:
@@ -1212,7 +1212,7 @@ static void roff_spell_death(int spell)
 			roff ("Cures you of fear and bestows a berserk state on you for ");
 			roff (CLR_YELLOW "25-50 turns");
 			roff (" and grants you haste for " CLR_YELLOW "%d-%d (max 25-70) turns", plev/2, plev+20);
-			roff ("." CLR_L_DARK " While you are berserk, you have a large bonus to hit and to damage,");
+			roff ("." CLR_L_DARK " While you are berserk, you have a large bonus to your accuracy and to damage,");
 			roff (CLR_L_DARK " and you temporarily gain 30");
 			roff (CLR_L_DARK " hit points, but you have a penalty to armor class.  While you are hasted,");
 			roff (CLR_L_DARK " you get a +10 bonus to speed.");
@@ -1306,13 +1306,13 @@ static void roff_spell_death(int spell)
 			roff ("." CLR_L_DARK " While you are invisible, you have a +4 bonus to your stealth.");
 			return;
 		case 35:				/* Freezing Aura */
-			roff ("Surrounds you with an aura of "CLR_BLUE" cold");
+			roff ("Surrounds you with an aura of "CLR_BLUE"cold");
 			roff (" for " CLR_YELLOW "20-40 turns");
 			roff (", causing " CLR_RED "2d6 damage ");
 			roff ("to any monster that hits you.");
 			return;
 		case 36:				/* Cloak of Fear */
-			roff ("Surrounds you with an aura of "CLR_L_DARK" fear");
+			roff ("Surrounds you with an aura of "CLR_L_DARK"fear");
 			roff (" for " CLR_YELLOW "20-40 turns");
 			roff (", which frightens any monster that tries to physically attack you. ");
 			roff ("If it succeeds, the attack is negated. ");
@@ -1327,7 +1327,7 @@ static void roff_spell_death(int spell)
 			roff ("Performs a dark ritual to make you a Lich, permanently. ");
 			roff ("As a Lich, you will have no hit points; instead, you will have a substantially increased amount of ");
 			roff ("mana, which serves as your life force.  Damage done to you reduces your mana, and you die if it goes ");
-			roff ("below 0.  Furthermore, as an inherently magical creature, you receive a permanent 10% bonus to the ");
+			roff ("below 0.  Furthermore, as an inherently magical creature, you receive a permanent 10\% bonus to the ");
 			roff ("casting cost and power level of all spells.");
 			roff ("Liches have intrinsic abilities, including resistance to cold, poison, and nether, free action, and ");
 			roff ("have their life and all stats sustained.   However, they are vulnerable to fire, cannot eat ");
@@ -1845,7 +1845,7 @@ static void roff_spell_illusion(int spell)
 			roff (CLR_VIOLET "radius 2");
 			roff (" that will cause ");
 			roff (CLR_RED "%i (up to 100) damage", 50+plev);
-			roff (" (at its center) to monsters in its area.");
+			roff (" (at its center) to monsters in its area.  ");
 			roff (CLR_L_DARK "Fire destroys certain types of objects on the floor.");
 			roff (CLR_L_DARK " Illusionary attacks may be disbelieved by monsters, in which case they have no effect.");
 			return;
@@ -3221,7 +3221,7 @@ static bool cast_nature_spell(int spell, int power)
 		case 21:				/* Wall of Water */
 			(void)water_creation();
 			break;
-		case 22:				/* Stone Tell */
+		case 22:				/* Greater Lore */
 			if(!identify_fully())
 				return(FALSE);
 			break;

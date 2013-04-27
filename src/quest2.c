@@ -45,7 +45,7 @@ void discover_wild_quest(int q_num)
 		/* Now we take it */
 		quest[q_num].status = QUEST_STATUS_TAKEN;
 
-		/* Hack -- make him active to make the discovery */
+		/* Hack -- make it active to make the discovery */
 		quest[q_num].flags |= QUEST_FLAG_ACTIVE;
 
 		/* Announce */
@@ -1862,7 +1862,7 @@ static quest_type *insert_defender_quest(u16b r_idx, u16b num)
 	q_ptr->status = QUEST_STATUS_TAKEN;
 
 	/* 1 hour */
-	q_ptr->timeout = turn+(10L*TOWN_DAWN)/24;
+	q_ptr->timeout = turn+TOWN_HOUR;
 
 	desc_time(q_ptr->timeout, buf2);
 

@@ -649,7 +649,10 @@ void gamble_in_between(void)
 	bool win;
 
 	/* Exit if the player is out of gold */
-	if (!wager) return;
+	if (!wager) {
+		Rand_quick = FALSE;
+		return;
+	}
 
 	while (TRUE)
 	{
@@ -683,7 +686,10 @@ void gamble_craps(void)
 	bool win;
 
 	/* Exit if the player is out of gold */
-	if (!wager) return;
+	if (!wager) {
+		Rand_quick = FALSE;
+		return;
+	}
 
 	while (TRUE)
 	{
@@ -742,7 +748,10 @@ void gamble_spin_wheel(void)
 	bool win;
 
 	/* Exit if the player is out of gold */
-	if (!wager) return;
+	if (!wager) {
+		Rand_quick = FALSE;
+		return;
+	}
 
 	while (TRUE)
 	{
@@ -783,7 +792,10 @@ void gamble_dice_slots(void)
 	bool win;
 
 	/* Exit if the player is out of gold */
-	if (!wager) return;
+	if (!wager) {
+		Rand_quick = FALSE;
+		return;
+	}
 
 	while (TRUE)
 	{
@@ -844,8 +856,9 @@ void gamble_dice_slots(void)
  */
 bool inn_rest(void)
 {
+	s32b new_turn;
 	/* Only at night time */
-	if ((turn % (10L * TOWN_DAWN)) < 50000)
+	if ((turn % TOWN_DAY) < TOWN_HALF_DAY)
 	{
 		msgf("The rooms are available only at night.");
 		message_flush();
@@ -865,7 +878,11 @@ bool inn_rest(void)
 	}
 
 	/* Rest all night */
-	turn = ((turn / 50000) + 1) * 50000;
+	new_turn = ((turn / TOWN_HALF_DAY) + 1) * TOWN_HALF_DAY;
+
+	/* Save the number of turns skipped; they don't "count" */
+	turn_offset += (new_turn - turn);
+	turn = new_turn;
 	p_ptr->chp = p_ptr->mhp;
 
 	/*

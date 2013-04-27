@@ -4511,7 +4511,7 @@ void do_cmd_checkquest(void)
  */
 void desc_time(s32b t, char * desc)
 {
-	s32b len = 10L * TOWN_DAWN;
+	s32b len = TOWN_DAY;
 	s32b tick = t % len + len / 4;
 
 	int day = t / len + 1;
@@ -4529,7 +4529,7 @@ void desc_time(s32b t, char * desc)
  */
 void do_cmd_time(void)
 {
-	s32b len = 10L * TOWN_DAWN;
+	s32b len = TOWN_DAY;
 	/* + len / 4 since days "start" at 6am */
 	s32b tick = turn % len + len / 4;
 

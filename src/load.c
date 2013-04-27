@@ -1099,6 +1099,39 @@ static void rd_ghost(void)
 
 static bool player_detected = FALSE;
 
+static void rd_rebirth(void)
+{
+	int i;
+	
+	if (sf_version >= 60)
+	{
+		rd_s16b(&rebirth_ptr->rp.age);
+		rd_s16b(&rebirth_ptr->rp.ht);
+		rd_s16b(&rebirth_ptr->rp.wt);
+		rd_s16b(&rebirth_ptr->rp.sc);
+		rd_byte(&rebirth_ptr->rp.psex);
+		rd_byte(&rebirth_ptr->rp.prace);
+		rd_byte(&rebirth_ptr->rp.pclass);
+		rd_byte(&rebirth_ptr->realm[0]);
+		rd_byte(&rebirth_ptr->realm[1]);
+		for (i = 0; i < A_MAX; i++)
+		{
+			rd_s16b(&rebirth_ptr->stat[i]);
+		}
+		for (i = 0; i < PY_MAX_LEVEL; i++)
+		{
+			rd_s16b(&rebirth_ptr->player_hp[i]);
+		}
+		rd_s16b(&rebirth_ptr->chaos_patron);
+		rd_s32b(&rebirth_ptr->au);
+		rd_u32b(&rebirth_ptr->world_seed);
+		rd_byte(&rebirth_ptr->can_rebirth);
+		rd_checksum("Rebirth info");
+	}
+	else
+		rebirth_ptr->can_rebirth = FALSE;
+}
+
 
 /*
  * Read the "extra" information
@@ -1394,6 +1427,26 @@ static void rd_extra(void)
 	/* Current turn */
 	rd_s32b(&turn);
 
+	if (sf_version > 60)
+		rd_s32b(&turn_offset);
+	else
+	{
+		/* Adjust turn to reflect new day length */
+		s32b new_turn;
+		int days = turn / OLD_TOWN_DAWN;
+		int curtime = turn % OLD_TOWN_DAWN;
+		/* Calculate number of turns into the current day we are */
+		/* Hack: take advantage of the fact that both day spans are multiples of 100, so
+		 * we don't have magic constants.
+		 */
+		new_turn = curtime + (curtime * ((TOWN_DAY-OLD_TOWN_DAWN)/100))/(OLD_TOWN_DAWN/100);
+		/* Add in turns for all past days */
+		new_turn += days * TOWN_DAY;
+		/* These extra turns don't "count" */
+		turn_offset = new_turn - turn;
+		turn = new_turn;
+	}
+	
 	if (sf_version > 17)
 	{
 		/* Get trap detection status */
@@ -1650,8 +1703,8 @@ static void load_map(int xmin, int ymin, int xmax, int ymax)
 				/* Access the cave */
 				pc_ptr = parea(x, y);
 
-				/* Extract "player info" (only use detect grid data) */
-				pc_ptr->player = tmp8u & (GRID_DTCT);
+				/* Extract "player info" (only use detect grid and known grid data) */
+				pc_ptr->player = tmp8u & (GRID_DTCT | GRID_KNOWN);
 
 				/* Advance/Wrap */
 				if (++x >= xmax)
@@ -2419,7 +2472,8 @@ static void rd_quests(int max_quests)
 			else
 				r_idx = -1;
 
-			r_ptr = &r_info[r_idx];
+			if (r_idx != -1)
+				r_ptr = &r_info[r_idx];
 
 			/* Quests with an inappropriate target, mark as finished. */
 			if (r_idx == 0)
@@ -2668,6 +2722,9 @@ static errr rd_savefile_new_aux(void)
 	/* Mention the savefile version */
 	note("Loading a %d.%d.%d savefile...", z_major, z_minor, z_patch);
 
+	/* Debug */
+	/* arg_fiddle = TRUE; */
+
 	/* Strip the version bytes */
 	strip_bytes(4);
 
@@ -2707,7 +2764,6 @@ static errr rd_savefile_new_aux(void)
 	rd_randomizer();
 	if (arg_fiddle) note("Loaded Randomizer Info");
 
-
 	/* Then the options */
 	rd_options();
 	if (arg_fiddle) note("Loaded Option Flags");
@@ -2728,7 +2784,6 @@ static errr rd_savefile_new_aux(void)
 	rd_messages();
 
 	if (arg_fiddle) note("Loaded Messages");
-
 
 	/* Monster Memory */
 	rd_u16b(&tmp16u2);
@@ -2913,9 +2968,9 @@ static errr rd_savefile_new_aux(void)
 	rd_u16b(&tmp16u);
 
 	/* Incompatible save files */
-	if (tmp16u > PY_MAX_LEVEL)
+	if (tmp16u != PY_MAX_LEVEL)
 	{
-		note("Too many (%u) hitpoint entries!", tmp16u);
+		note("Too %s (%u) hitpoint entries!", tmp16u > PY_MAX_LEVEL ? "many" : "few", tmp16u);
 		return (25);
 	}
 
@@ -2977,6 +3032,9 @@ static errr rd_savefile_new_aux(void)
 	/* Checksum */
 	rd_checksum ("Hit point and spell info");
 
+	/* Read rebirth info, if available */
+	rd_rebirth();
+	
 	/* Read the inventory */
 	if (rd_inventory())
 	{
@@ -3097,6 +3155,11 @@ static errr rd_savefile_new_aux(void)
 			else
 			{
 				rd_string(pl_ptr->name, T_NAME_LEN);
+			}
+			
+			if (sf_version >= 60)
+			{
+				rd_byte(&pl_ptr->seen);
 			}
 
 			if (sf_version < 42)

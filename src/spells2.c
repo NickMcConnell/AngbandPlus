@@ -1292,9 +1292,10 @@ bool stone_tell(void)
 
 	if (detect_sq_aux2(door_tester, "You sense the presence of doors!", FALSE) ||
 		detect_sq_aux2(stair_tester, "You sense the presence of stairs!", FALSE) ||
-		detect_sq_aux2(treasure_tester, "You sense the presence of buried treasure!", FALSE))
+		detect_sq_aux2(treasure_tester, "You sense the presence of buried treasure!", FALSE) ||
+		detect_objects_normal() || detect_monsters_normal())
 		rv = TRUE;
-
+	
 	return (rv);
 }
 

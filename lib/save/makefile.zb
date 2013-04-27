@@ -1,18 +1,14 @@
-subdir = ./lib/data/
-
-srcfiles += lib/data/makefile.zb
+subdir = ./lib/apex/
 
 ## makefile.zb
 
+files += lib/apex/readme.txt lib/apex/z_scores.raw
+srcfiles += lib/apex/makefile.zb
+
 INSTALL += \
-		touch "$(DESTDIR)/lib/data/a_info.raw";\
-		touch "$(DESTDIR)/lib/data/e_info.raw";\
-		touch "$(DESTDIR)/lib/data/f_info.raw";\
-		touch "$(DESTDIR)/lib/data/k_info.raw";\
-		touch "$(DESTDIR)/lib/data/r_info.raw";\
-		touch "$(DESTDIR)/lib/data/v_info.raw";\
-		touch "$(DESTDIR)/lib/data/misc.raw";\
-		if [ -n "$(GAMEGROUP)" ]; then \
-			chown -R root:$(GAMEGROUP) "$(DESTDIR)/lib/data";\
-			chmod -R g+w "$(DESTDIR)/lib/data";\
-		fi;
+	touch "$(DESTDIR)/lib/apex/scores.raw"; \
+	if [ -n "$(GAMEGROUP)" ]; then \
+		chown -R $(GAMEGROUP) "$(DESTDIR)/lib/apex"; \
+		chmod -R g+w "$(DESTDIR)/lib/apex"; \
+	fi;
+

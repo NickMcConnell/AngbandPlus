@@ -81,6 +81,7 @@ bool msg_flag;	/* Used in msg_print() for "buffering" */
 
 s16b num_repro;	/* Current reproducer count */
 
+s32b turn_offset; /* Number of turns to subtract when displaying the turn */
 s32b turn;	/* Current game turn */
 s32b old_turn;	/* Turn when level began (feelings) */
 
@@ -538,6 +539,12 @@ player_type p_body;
  * Pointer to the player info
  */
 player_type *p_ptr = &p_body;
+
+/*
+ * Player rebirth info
+ */
+player_rebirth_type rebirth_info;
+player_rebirth_type *rebirth_ptr = &rebirth_info;
 
 /*
  * Pointer to the player tables

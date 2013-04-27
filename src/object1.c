@@ -1516,6 +1516,29 @@ bool item_tester_hook_tval(const object_type *o_ptr, byte tval)
 }
 
 
+bool item_tester_hook_brandable(const object_type *o_ptr)
+{
+	switch (o_ptr->tval)
+	{
+		case TV_SWORD:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_DIGGING:
+		{
+			if ((!o_ptr->xtra_name || !object_known_p(o_ptr)) && o_ptr->number == 1)
+				return (TRUE);
+			break;
+		}
+		case TV_BOLT:
+		case TV_ARROW:
+		case TV_SHOT:
+		{
+			if (!o_ptr->xtra_name || !object_known_p(o_ptr))
+				return (TRUE);
+		}
+	}
+	return (FALSE);
+}
 /*
  * Hook to specify "weapon"
  */
@@ -3727,6 +3750,7 @@ static void dump_full_item_aux(FILE *fff, object_type *o_ptr, int indent)
 	object_kind *k_ptr;
 	bonuses_type b;
 	char desc[16384];
+	bool bail_out = FALSE;
 
 	int i, n;
 
@@ -3753,7 +3777,7 @@ static void dump_full_item_aux(FILE *fff, object_type *o_ptr, int indent)
 	if (!object_known_p(o_ptr) && !object_aware_p(o_ptr))
 	{
 		/* no description */
-		return;
+		bail_out = TRUE;
 	}
 
 	/* Boring objects get no description */
@@ -3771,14 +3795,14 @@ static void dump_full_item_aux(FILE *fff, object_type *o_ptr, int indent)
 		o_ptr->tval == TV_BOTTLE ||
 		o_ptr->tval == TV_SPIKE)
 	{
-		return;
+		bail_out = TRUE;
 	}
 
 	/* Spellbooks get no description unless they are fireproof */
 	else if (o_ptr->tval >= TV_BOOKS_MIN && o_ptr->tval <= TV_BOOKS_MAX)
 	{
 		if (!FLAG(of_ptr, TR_IGNORE_FIRE))
-			return;
+			bail_out = TRUE;
 	}
 
 	/* Don't describe if there are no interesting flags. */
@@ -3787,6 +3811,12 @@ static void dump_full_item_aux(FILE *fff, object_type *o_ptr, int indent)
 				(o_ptr->flags[2] & ~(TR2_QUESTITEM | TR2_XXX4 | TR2_HIDDEN_POWERS | TR2_EASY_KNOW |
 									 TR2_HIDE_TYPE | TR2_SHOW_MODS | TR2_CURSED)) |
 				(o_ptr->flags[3] & ~(TR3_SQUELCH | TR3_XXX7 | TR3_XXX8 | TR3_XXX27 | TR3_XXX28))))
+		bail_out = TRUE;
+
+	/* A '&' in the object inscription forces verbose mode, so cancel bailing out. */
+    if (o_ptr->inscription && strchr(quark_str(o_ptr->inscription), '&'))
+		bail_out = FALSE;
+	if (bail_out)
 		return;
 
 	if (FLAG(o_ptr, TR_HIDDEN_POWERS) && object_known_full(o_ptr))
@@ -4348,8 +4378,8 @@ static void dump_full_item_aux(FILE *fff, object_type *o_ptr, int indent)
 	}
 
 
-	/* Don't print out ONLY object-finding memory. */
-	if (desc[1])
+	/* Don't print out ONLY object-finding memory, unless it's being forced with {&} */
+	if (desc[1] || (o_ptr->inscription && strchr(quark_str(o_ptr->inscription), '&')))
 	{
 		/* Print out object-finding memory */
 		switch (o_ptr->mem.type)

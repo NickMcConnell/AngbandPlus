@@ -39,7 +39,7 @@
  * The set of generation types is stored in a "decision tree"
  * - so the required time to get the wilderness type from the
  * three parameters (hgt,pop,law) is proportional to log(n).
- * This speeds up wilderness generation alot.  (Note the
+ * This speeds up wilderness generation a lot.  (Note the
  * "obvious" method of using a linear search to find matching
  * wilderness creation functions is too slow.)
  *

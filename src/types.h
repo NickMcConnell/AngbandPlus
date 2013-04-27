@@ -188,7 +188,7 @@ struct object_kind
 
 
 	byte flavor;	/* Special object flavor (or zero) */
-	
+
 	byte info;      /* Info known about this object kind */
 };
 
@@ -1709,6 +1709,19 @@ struct player_type
 	u32b squelch[(SQUELCHMAX/32)];
 };
 
+typedef struct player_rebirth_type player_rebirth_type;
+
+struct player_rebirth_type
+{
+	player_data rp;   /* Roleplay info: sex, height, weight, etc. */
+	byte realm[2];    /* Realm choices */
+	s16b stat[A_MAX];  /* Stat values */
+	s16b player_hp[PY_MAX_LEVEL];  /* HP at each level */
+	s16b chaos_patron;
+	s32b au;
+	u32b world_seed;   /* Seed for re-generating the world */
+	byte can_rebirth;  /* Set to 0 unless rebirth info is present. */
+};
 
 /*
  * For multiplayer use.
@@ -1948,6 +1961,8 @@ struct place_type
 
 	byte gates_x[MAX_GATES];	/* Position of the town gates */
 	byte gates_y[MAX_GATES];
+	
+	byte seen;  /* Has the player ever been here? */
 
 	char name[T_NAME_LEN];	/* Town name */
 };

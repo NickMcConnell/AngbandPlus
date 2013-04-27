@@ -2386,6 +2386,7 @@ static void display_player_top(void)
 	prt_num(COL_AGE, 3, "Height      " CLR_L_BLUE, (int)p_ptr->rp.ht, 3);
 	prt_num(COL_AGE, 4, "Weight      " CLR_L_BLUE, (int)p_ptr->rp.wt, 3);
 	prt_num(COL_AGE, 5, "Social Class" CLR_L_BLUE, (int)p_ptr->rp.sc, 3);
+	prt_num(COL_AGE, 6, "Turn ", turn - turn_offset, 10);
 
 	/* Display the stats */
 	for (i = 0; i < A_MAX; i++)
@@ -2444,30 +2445,29 @@ static void display_player_middle(void)
 
 	/*** Bonuses ***/
 
-	prt_num(COL_BONUS, 9, "+ Skill     " CLR_L_BLUE, show_tohit, 3);
-	prt_num(COL_BONUS, 10, "% Deadliness" CLR_L_BLUE, percentdam, 3);
+	prt_num(COL_BONUS, 9,  "+ Accuracy  " CLR_L_BLUE, show_tohit, 3);
+	prt_num(COL_BONUS, 10, "+%Deadliness" CLR_L_BLUE, percentdam, 3);
 	prt_num(COL_BONUS, 11, "+ To AC     " CLR_L_BLUE, p_ptr->dis_to_a, 3);
 	prt_num(COL_BONUS, 12, "  Base AC   " CLR_L_BLUE, p_ptr->dis_ac, 3);
 
 
 	/*** Level, experience, gold ***/
 
-	prt_num(COL_VALUE, 9, "Level      " CLR_L_GREEN, (int)p_ptr->lev, 9);
+	if (p_ptr->lev >= p_ptr->max_lev)
+		prt_num(COL_VALUE, 9, "Level      " CLR_L_GREEN, (int)p_ptr->lev, 9);
+	else
+		prt_num(COL_VALUE, 9, "Level      " CLR_YELLOW, (int)p_ptr->lev, 9);
 
 	if (p_ptr->exp >= p_ptr->max_exp)
-	{
 		prt_num(COL_VALUE, 10, "Experience " CLR_L_GREEN, p_ptr->exp, 9);
-	}
 	else
-	{
 		prt_num(COL_VALUE, 10, "Experience " CLR_YELLOW, p_ptr->exp, 9);
-	}
 
 	prt_num(COL_VALUE, 11, "Max Exp    " CLR_L_GREEN, p_ptr->max_exp, 9);
 
 	if (p_ptr->lev >= PY_MAX_LEVEL)
 	{
-		put_fstr(COL_VALUE, 12, "Exp to Adv." CLR_L_GREEN "       *****");
+		put_fstr(COL_VALUE, 12, "Exp to Adv." CLR_L_GREEN "       *N/A*");
 	}
 	else if (toggle_xp)
 	{
@@ -2484,7 +2484,7 @@ static void display_player_middle(void)
 	}
 
 
-	prt_num(COL_VALUE, 13, "Gold       " CLR_L_GREEN, p_ptr->au, 9);
+	prt_num(COL_VALUE, 13, "Gold     " CLR_L_GREEN, p_ptr->au, 11);
 
 
 	/*** Hitpoints/spellpoints ***/

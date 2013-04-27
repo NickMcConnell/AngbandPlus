@@ -43,8 +43,13 @@ cptr mon_race_name(const monster_race *r_ptr)
 	{
 		char * s = quark_str(r_ptr->name);
 
-		if (!s) get_check ("Fatal error!!");
-		return (s);
+		/* We should really handle this more gracefully.
+		   Sometimes this can happen, when we're hallucinating and a random
+		   non-existent unique monster is chosen.  */
+		if (!s)
+			return ("Fatal error!!");
+		
+		return s;
 	}
 
 	return (r_name + r_ptr->name);

@@ -115,6 +115,7 @@ extern u32b seed_flavor;
 extern bool msg_flag;
 extern s16b num_repro;
 extern s32b turn;
+extern s32b turn_offset;
 extern s32b old_turn;
 extern bool use_sound;
 extern byte use_graphics;
@@ -223,6 +224,7 @@ extern player_sex *sp_ptr;
 extern player_race *rp_ptr;
 extern player_class *cp_ptr;
 extern player_magic *mp_ptr;
+extern player_rebirth_type *rebirth_ptr;
 extern server_type *svr_ptr;
 extern vault_type *v_info;
 extern char *v_name;
@@ -424,6 +426,9 @@ extern void do_cmd_activate(void);
 extern void do_cmd_rerate(void);
 extern void ring_of_power(int dir);
 
+/* cmd7.c */
+extern void do_cmd_list(void);
+
 /* dungeon.c */
 extern void sense_item(object_type *o_ptr, bool heavy, bool wield, bool msg);
 extern void notice_lite_change(object_type *o_ptr);
@@ -470,6 +475,7 @@ extern void restore_hero (s16b hero_idx);
 extern s16b create_hero (s16b r_idx, int offset, bool quest);
 extern void hero_death(s16b hero_idx);
 extern bool hero_okay(s16b r_idx);
+extern void wipe_all_heroes(void);
 
 /* init1.c */
 extern errr init_w_info_txt(FILE *fp, char *buf);
@@ -600,6 +606,7 @@ extern bool item_tester_hook_is_great(const object_type *o_ptr);
 extern bool item_tester_hook_is_book(const object_type *o_ptr);
 extern bool item_tester_hook_is_flavored(const object_type *o_ptr);
 extern bool item_tester_hook_is_unknown_flavor(const object_type *o_ptr);
+extern bool item_tester_hook_brandable(const object_type *o_ptr);
 extern bool item_tester_okay(const object_type *o_ptr);
 extern void display_inven(void);
 extern void display_equip(void);
@@ -1141,7 +1148,9 @@ extern int adjust_stat(int stat, int value, int amount);
 extern void health_track(int m_idx);
 extern void monster_race_track(int r_idx);
 extern void object_kind_track(int k_idx);
-
+extern void ang_sort_swap_distance(vptr u, vptr v, int a, int b);
+extern bool ang_sort_comp_distance(vptr u, vptr v, int a, int b);
+extern bool mimic_desc(char *m_name, const monster_race *r_ptr);
 
 /* mspells1.c */
 extern bool clean_shot(int x1, int y1, int x2, int y2, bool friendly);
@@ -1310,6 +1319,7 @@ extern bool quest_stairs_active(int p_num);
 extern bool quest_theme_hook(int r_idx);
 extern bool monster_group_test(int r_idx, monster_group_type * mg_ptr);
 extern int in_quest(void);
+extern void wipe_all_quest_flags(void);
 
 /* maid-grf.c */
 extern void init_term_callbacks(void);

@@ -361,7 +361,7 @@ static bool summon_possible(int x1, int y1)
 bool clean_shot(int x1, int y1, int x2, int y2, bool friendly)
 {
 	int grid_n;
-	coord grid_g[512];
+	coord grid_g[2*MAX_RANGE];
 
 	u16b flg;
 
