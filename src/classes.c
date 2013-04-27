@@ -276,10 +276,11 @@ void dump_spells_aux(FILE *fff, spell_info *table, int ct)
 
 		spell->fn(SPELL_NAME, &vn);
 		spell->fn(SPELL_INFO, &vd);
+		spell->fn(SPELL_COST_EXTRA, &vc);
 
 		fprintf(fff, "%-20.20s %3d %4d %3d%% %s\n", 
 			var_get_string(&vn), 
-			spell->level, spell->cost + var_get_int(&vc), spell->fail, 
+			spell->level, calculate_cost(spell->cost + var_get_int(&vc)), spell->fail, 
 			var_get_string(&vd)
 		);
 	}
@@ -311,7 +312,7 @@ void dump_powers_aux(FILE *fff, spell_info *table, int ct)
 
 		fprintf(fff, "%-20.20s %3d %4d %3d%% %s\n", 
 			var_get_string(&vn), 
-			spell->level, spell->cost + var_get_int(&vc), spell->fail, 
+			spell->level, calculate_cost(spell->cost + var_get_int(&vc)), spell->fail, 
 			var_get_string(&vd)
 		);
 	}

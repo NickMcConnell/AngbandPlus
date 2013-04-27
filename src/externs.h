@@ -1385,6 +1385,7 @@ extern int hit_chance(int hand, int to_h, int ac);
 extern int display_weapon_info(int hand, int row, int col);
 extern int display_innate_attack_info(int which, int row, int col);
 extern int display_shooter_info(int row, int col);
+extern int calculate_base_blows(int hand, int str_idx, int dex_idx);
 
 /* util.c */
 extern errr path_parse(char *buf, int max, cptr file);

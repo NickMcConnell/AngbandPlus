@@ -4287,7 +4287,7 @@ F:STR | INT | WIS | DEX | CON | CHR | SPEED |
 F:RES_COLD | RES_FIRE | RES_ACID | RES_ELEC | RES_POIS
 F:HOLD_LIFE | REGEN | XTRA_H_RES
 
-N:301:of Vecna
+N:301:of the Emperor Lich
 E:of the Emperor Lich
 I:33:11:3
 W:40:40:30:125000

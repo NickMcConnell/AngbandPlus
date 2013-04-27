@@ -984,6 +984,7 @@ typedef struct {
 	int to_h;
 	int to_d;
 	int blows;
+	int max_blows;
 	int weight;
 	int effect[MAX_INNATE_EFFECTS];
 	int effect_chance[MAX_INNATE_EFFECTS];

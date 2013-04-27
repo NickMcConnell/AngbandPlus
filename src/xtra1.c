@@ -3188,24 +3188,6 @@ u32b weight_limit(void)
 }
 
 
-void calc_innate_blows(innate_attack_ptr a, int max)
-{
-	int str_index, dex_index;
-	int mul = 5, div = a->weight;
-
-	str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * mul / div);
-	if (str_index > 11) str_index = 11;
-
-	dex_index = (adj_dex_blow[p_ptr->stat_ind[A_DEX]]);
-	if (dex_index > 11) dex_index = 11;
-
-	a->blows = blows_table[str_index][dex_index];
-	if (a->blows < 1)
-		a->blows = 1;
-	if (a->blows > max)
-		a->blows = max;
-}
-
 /*
  * Calculate the players current "state", taking into account
  * not only race/class intrinsics, but also objects being worn
@@ -4397,257 +4379,34 @@ void calc_bonuses(void)
 		/* Normal weapons */
 		if (!info_ptr->heavy_wield)
 		{
-			int str_index, dex_index;
-			int num = 0, wgt = 0, mul = 0, div = 0;
+			info_ptr->base_blow = calculate_base_blows(i, p_ptr->stat_ind[A_STR], p_ptr->stat_ind[A_DEX]);
 
-			switch (p_ptr->pclass)
-			{
-				case CLASS_WARRIOR:
-					num = 6; wgt = 70; mul = 5; 
-					if (p_ptr->lev >= 40) 
-					{
-						mul = 6;
-						num++;
-					}
-					break;
-
-				/* Maulers have a special calculation below. B = (B+1)/2 from the blows table. */
-				case CLASS_MAULER:
-					num = 3; wgt = 280; mul = 5; break;
-
-				case CLASS_BERSERKER:
-					num = 6; wgt = 70; mul = 7; break;
-
-				case CLASS_RAGE_MAGE:
-					num = 3; wgt = 70; mul = 3; break;
-					
-				case CLASS_MAGE:
-				case CLASS_NECROMANCER:
-				case CLASS_BLOOD_MAGE:
-				case CLASS_HIGH_MAGE:
-				case CLASS_BLUE_MAGE:
-					num = 3; wgt = 100; mul = 2; break;
-
-				case CLASS_WARLOCK:
-					num = 3; wgt = 70; mul = 2; 
-					if (p_ptr->psubclass == PACT_DRAGON) 
-					{
-						mul = 4;
-						if (p_ptr->lev >= 35) num = 5;
-						else num = 4;
-					}
-					break;
-
-				case CLASS_PSION:
-					num = 3; wgt = 100; mul = 3; break;
-
-				case CLASS_PRIEST:
-				case CLASS_MAGIC_EATER:
-				case CLASS_MINDCRAFTER:
-					num = 5; wgt = 100; mul = 3; break;
-
-				case CLASS_ROGUE:
-					num = 5; wgt = 40; mul = 3;
-					if (o_ptr->weight < 50) num++;
-					break;
-
-				case CLASS_SCOUT:
-					num = 4; wgt = 70; mul = 2; break;
-
-				case CLASS_RANGER:
-					num = 5; wgt = 70; mul = 4; break;
-
-				case CLASS_PALADIN:
-				case CLASS_SAMURAI:
-					num = 5; wgt = 70; mul = 4; break;
-
-				case CLASS_MYSTIC:
-					num = 1; wgt = 100; mul = 1; break;
-
-				case CLASS_WEAPONSMITH:
-				case CLASS_RUNE_KNIGHT:
-					num = 5; wgt = 150; mul = 5; break;
-
-				case CLASS_WEAPONMASTER:
-					num = weaponmaster_get_max_blows(o_ptr, i); 
-					wgt = 70; mul = 5; break;
-
-				case CLASS_WARRIOR_MAGE:
-				case CLASS_RED_MAGE:
-					num = 5; wgt = 70; mul = 3; break;
-
-				case CLASS_CHAOS_WARRIOR:
-					num = 5; wgt = 70; mul = 4; break;
-
-				case CLASS_MONK:
-					num = 5; wgt = 60; mul = 3; break;
-
-				case CLASS_TOURIST:
-				case CLASS_TIME_LORD:
-					num = 4; wgt = 100; mul = 3; break;
-
-				case CLASS_ARCHAEOLOGIST:
-				{
-					num = 5; wgt = 70; mul = 3; 
-					if (p_ptr->lev >= 40 && archaeologist_is_favored_weapon(o_ptr))
-					{
-						num++;
-						mul = 4;
-					}
-					break;
-				}
-				case CLASS_BLOOD_KNIGHT:
-					num = 3; wgt = 150; mul = 3; break;
-
-				case CLASS_DUELIST:
-					num = 1; wgt = 70; mul = 4; break;
-					
-				case CLASS_IMITATOR:
-					num = 5; wgt = 70; mul = 4; break;
-
-				case CLASS_WILD_TALENT:
-					num = 4; wgt = 70; mul = 4; break;
-
-				case CLASS_BEASTMASTER:
-					num = 5; wgt = 70; mul = 3; break;
-
-				case CLASS_CAVALRY:
-					if ((p_ptr->riding) && (have_flag(flgs, TR_RIDING))) {num = 5; wgt = 70; mul = 4;}
-					else {num = 5; wgt = 100; mul = 3;}
-					break;
-
-				case CLASS_SORCERER:
-					num = 1; wgt = 1; mul = 1; break;
-
-				case CLASS_ARCHER:
-				case CLASS_BARD:
-					num = 4; wgt = 70; mul = 2; break;
-
-				case CLASS_FORCETRAINER:
-					num = 4; wgt = 60; mul = 2; break;
-
-				case CLASS_MIRROR_MASTER:
-				case CLASS_SNIPER:
-					num = 3; wgt = 100; mul = 3; break;
-
-				case CLASS_NINJA:
-					num = 4; wgt = 20; mul = 1; break;
-				case CLASS_MONSTER:
-				{
-					num = 5; wgt = 70; mul = 5;
-					if (prace_is_(RACE_MON_LICH)) 
-					{
-						num = 4;
-						mul = 3;
-					}
-					else if (prace_is_(RACE_MON_JELLY))
-					{ 
-						num = 7;
-						mul = 5 + p_ptr->lev/24;
-					}
-					else if (prace_is_(RACE_MON_GIANT)) 
-					{
-						num = 6;
-						mul = 5 + p_ptr->lev/40;
-					}
-					else if (prace_is_(RACE_MON_LEPRECHAUN)) 
-					{
-						num = 3;
-						mul = 2;
-					}
-					break;
-				}
-			}
-
-			/* Hex - extra mights gives +1 bonus to max blows */
-			if (hex_spelling(HEX_XTRA_MIGHT) || hex_spelling(HEX_BUILDING)) { num++; wgt /= 2; mul += 2; }
-			if (p_ptr->tim_building_up && p_ptr->pclass != CLASS_MAULER) 
-			{ 
-				if (num < 4 && p_ptr->lev >= 40) 
-					num++; 
-				wgt /= 2; 
-				mul += 2; 
-			}
-			/* Battle Magi (Craft) can get 4 blows on assuming the correct form */
-			else if (prace_is_(MIMIC_COLOSSUS))
-			{
-				if (num < 4) 
-					num++; 
-				wgt /= 2; 
-				mul = MAX(mul, 5);
-			}
-			else if (prace_is_(MIMIC_MITHRIL_GOLEM))
-			{
-				if (num < 4) 
-					num++; 
-				mul = MAX(mul, 4);
-			}
-			else if (prace_is_(MIMIC_CLAY_GOLEM) || prace_is_(MIMIC_IRON_GOLEM))
-			{
-				mul = MAX(mul, 3);
-			}
-
-			/* Enforce a minimum "weight" (tenth pounds) */
-			div = ((o_ptr->weight < wgt) ? wgt : o_ptr->weight);
-
-			/* Access the strength vs weight */
-			str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * mul / div);
-
-			if (info_ptr->wield_how == WIELD_TWO_HANDS && !info_ptr->omoi) str_index++;
-			if (p_ptr->pclass == CLASS_NINJA) str_index = MAX(0, str_index-1);
-
-			/* Maximal value */
-			if (str_index > 11) str_index = 11;
-
-			/* Index by dexterity */
-			dex_index = (adj_dex_blow[p_ptr->stat_ind[A_DEX]]);
-
-			/* Maximal value */
-			if (dex_index > 11) dex_index = 11;
-
-			/* Use the blows table */
-			p_ptr->weapon_info[i].base_blow = blows_table[str_index][dex_index];
-
-			/* This makes the Mauler *not* require a terrible dex bonus to limit blows */
-			if (p_ptr->pclass == CLASS_MAULER)
-				p_ptr->weapon_info[i].base_blow = (p_ptr->weapon_info[i].base_blow + 1)/2;
-
-			/* Maximal value */
-			if (p_ptr->weapon_info[i].base_blow > num) p_ptr->weapon_info[i].base_blow = num;
-
-			/* Mariliths have 3 sets of arms ... */
-			p_ptr->weapon_info[i].base_blow -= arm;
-			if (p_ptr->weapon_info[i].base_blow <= 0)
-				p_ptr->weapon_info[i].base_blow = 1;
-
-			/* Various spells and effects for extra blows */
 			if (p_ptr->tim_speed_essentia)
-				p_ptr->weapon_info[i].xtra_blow += 2;
+				info_ptr->xtra_blow += 2;
 
-			if (p_ptr->special_defense & KATA_FUUJIN) p_ptr->weapon_info[i].xtra_blow -= 1;
+			if (p_ptr->special_defense & KATA_FUUJIN) info_ptr->xtra_blow -= 1;
 
 			if (class_ptr->calc_weapon_bonuses)
 				class_ptr->calc_weapon_bonuses(o_ptr, info_ptr);
 			if (race_ptr->calc_weapon_bonuses)
 				race_ptr->calc_weapon_bonuses(o_ptr, info_ptr);
 
-
 			if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_POISON_NEEDLE) 
 			{
-				p_ptr->weapon_info[i].base_blow = 1;
-				p_ptr->weapon_info[i].xtra_blow = 0;
+				info_ptr->base_blow = 1;
+				info_ptr->xtra_blow = 0;
 			}
 
 			if (o_ptr->name1 == ART_EVISCERATOR) 
 			{
-				p_ptr->weapon_info[i].base_blow = 1;
-				p_ptr->weapon_info[i].xtra_blow = 0;
+				info_ptr->base_blow = 1;
+				info_ptr->xtra_blow = 0;
 			}
 
 			if (NUM_BLOWS(i) < 0)
 			{
-				p_ptr->weapon_info[i].base_blow = 0;
-				p_ptr->weapon_info[i].xtra_blow = 0;
+				info_ptr->base_blow = 0;
+				info_ptr->xtra_blow = 0;
 			}
 
 			p_ptr->skill_dig += (o_ptr->weight / 10);
