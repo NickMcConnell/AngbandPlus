@@ -181,13 +181,14 @@ race_t *mon_xorn_get_race_t(void)
 	me.skills.thn = 25 + 10*rank;
 	me.life = 105 + 5*rank;
 
-	switch (rank)
+	switch (p_ptr->current_r_idx)
 	{
-	case 0:
-		me.equip_template = &_umber_hulk_template;
+	case MON_XAREN:
+	case MON_XORN:
+		me.equip_template = &_xorn_template;
 		break;
 	default:
-		me.equip_template = &_xorn_template;
+		me.equip_template = &_umber_hulk_template;
 	}
 
 	return &me;

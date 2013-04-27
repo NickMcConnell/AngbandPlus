@@ -121,11 +121,11 @@ static int _bite_effect(void)
 {
 	switch (p_ptr->current_r_idx)
 	{
-	case MON_FIRE_HOUND: return GF_FIRE;
+/*	case MON_FIRE_HOUND: return GF_FIRE;
 	case MON_COLD_HOUND: return GF_COLD;
 	case MON_ENERGY_HOUND: return GF_ELEC;
 	case MON_AIR_HOUND: return GF_POIS;
-	case MON_WATER_HOUND: return GF_ACID;
+	case MON_WATER_HOUND: return GF_ACID; */
 	case MON_HOUND_OF_TINDALOS: return GF_TIME;
 	}
 	return GF_MISSILE;

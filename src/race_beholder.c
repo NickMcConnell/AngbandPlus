@@ -381,14 +381,20 @@ race_t *mon_beholder_get_race_t(void)
 	me.skills.stl =  5 + rank;
 	me.life = 100;
 
-	if (p_ptr->lev >= 45)
+	switch (p_ptr->current_r_idx)
+	{
+	case MON_ULTIMATE_BEHOLDER:
 		me.equip_template = &_ultimate_template;
-	else if (p_ptr->lev >= 25)
+		break;
+	case MON_UNDEAD_BEHOLDER:
+	case MON_BEHOLDER:
 		me.equip_template = &_beholder_template;
-	else if (p_ptr->lev >= 10)
+		break;
+	case MON_SPECTATOR:
 		me.equip_template = &_spectator_template;
-	else
+		break;
+	default:
 		me.equip_template = &_gazer_template;
-
+	}
 	return &me;
 }

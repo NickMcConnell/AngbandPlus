@@ -399,7 +399,7 @@ static void preserve_pet(void)
 	 * except a monster whom player riding
 	 * Hack: In the wilderness, hostile monsters now follow!
 	 */
-	if (!p_ptr->wild_mode && !inside_arena && !p_ptr->inside_battle)
+	if (!p_ptr->wild_mode && !inside_arena && !p_ptr->inside_battle && !p_ptr->inside_arena)
 	{
 		for (i = m_max - 1, num = 1; (i >= 1 && num < MAX_PARTY_MON); i--)
 		{
@@ -531,7 +531,7 @@ static void place_pet(void)
 
 	for (i = 0; i < max_num; i++)
 	{
-		int cy, cx, m_idx;
+		int cy, cx, m_idx = 0;
 
 		if (!(party_mon[i].r_idx)) continue;
 
@@ -545,7 +545,7 @@ static void place_pet(void)
 				cx = px;
 			}
 		}
-		else
+		else if (!p_ptr->inside_arena)
 		{
 			int j, d;
 

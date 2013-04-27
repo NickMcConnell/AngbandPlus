@@ -5,6 +5,8 @@ int hit_chance_innate(int to_h, int ac)
 {
 	int chance = p_ptr->skills.thn + to_h * BTH_PLUS_ADJ;
 	int odds;
+
+	if (chance <= 0) return 0;
 	
 	odds = 95*(chance - ac*3/4)*1000/(chance*100);
 	if (p_ptr->personality == PERS_LAZY) odds = (19*odds+10)/20;
@@ -16,6 +18,8 @@ int hit_chance(int hand, int to_h, int ac)
 {
 	int chance = p_ptr->skills.thn + (p_ptr->weapon_info[hand].to_h + to_h) * BTH_PLUS_ADJ;
 	int odds;
+
+	if (chance <= 0) return 0;
 	
 	chance = chance * p_ptr->weapon_info[hand].dual_wield_pct / 1000;
 	odds = 95*(chance - ac*3/4)*1000/(chance*100);
@@ -33,6 +37,8 @@ int bow_hit_chance(int sval, int to_h, int ac)
 		chance = (p_ptr->skills.thb + (p_ptr->weapon_exp[0][sval] / 400 + to_h) * BTH_PLUS_ADJ);
 	else
 		chance = (p_ptr->skills.thb + ((p_ptr->weapon_exp[0][sval] - (WEAPON_EXP_MASTER / 2)) / 200 + to_h) * BTH_PLUS_ADJ);
+
+	if (chance <= 0) return 0;
 
 	odds = 95*(chance - ac*3/4)*1000/(chance*100);
 	if (p_ptr->personality == PERS_LAZY) odds = (19*odds+10)/20;
@@ -616,7 +622,7 @@ static int _shooter_info_aux(object_type *bow, object_type *arrow, int row, int 
 	sprintf(buf, " %-8.8s: %d + %d = %d", "To Hit", to_h, to_h_bow + to_h_xtra, to_h + to_h_bow + to_h_xtra);
 	put_str(buf, r++, c);
 
-	sprintf(buf, " %-8.8s: %d + %d = %d (%s)", "To Dam", to_d, to_d_bow + to_d_xtra, to_d + to_d_bow + to_d_xtra, "Multiplier Applies");
+	sprintf(buf, " %-8.8s: %d + %d = %d (%s)", "To Dam", to_d, to_d_bow, to_d + to_d_bow, "Multiplier Applies");
 	put_str(buf, r++, c);
 
 	sprintf(buf, " %-8.8s", "Damage");

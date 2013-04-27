@@ -30,6 +30,13 @@ static void _calc_bonuses(void)
 	p_ptr->device_power += 2; 
 }
 
+static void _get_flags(u32b flgs[TR_FLAG_SIZE])
+{
+	add_flag(flgs, TR_SPELL_CAP);
+	add_flag(flgs, TR_SPELL_POWER);
+	add_flag(flgs, TR_MAGIC_MASTERY);
+}
+
 static caster_info * _caster_info(void)
 {
 	static caster_info me = {0};
@@ -80,6 +87,7 @@ class_t *high_mage_get_class_t(void)
 		me.pets = 25;
 		
 		me.calc_bonuses = _calc_bonuses;
+		me.get_flags = _get_flags;
 		me.caster_info = _caster_info;
 		/* TODO: This class uses spell books, so we are SOL
 		me.get_spells = _get_spells;*/

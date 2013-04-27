@@ -3473,9 +3473,10 @@ static void dump_aux_display_player(FILE *fff)
 		if (ct)
 		{		
 			int i;
-			variant vn, vd;
+			variant vn, vd, vc;
 			var_init(&vn);
 			var_init(&vd);
+			var_init(&vc);
 
 			fprintf(fff, "=================================== Powers ====================================\n\n");
 			fprintf(fff, "%-20.20s Lvl Cost Fail Desc\n", "");
@@ -3485,16 +3486,18 @@ static void dump_aux_display_player(FILE *fff)
 
 				spell->fn(SPELL_NAME, &vn);
 				spell->fn(SPELL_INFO, &vd);
+				spell->fn(SPELL_COST_EXTRA, &vc);
 
 				fprintf(fff, "%-20.20s %3d %4d %3d%% %s\n", 
 					var_get_string(&vn), 
-					spell->level, spell->cost, spell->fail, 
+					spell->level, spell->cost + var_get_int(&vc), spell->fail, 
 					var_get_string(&vd)
 				);
 			}
 
 			var_clear(&vn);
 			var_clear(&vd);
+			var_clear(&vc);
 		}
 	}
 
@@ -3838,6 +3841,66 @@ static void dump_aux_recall(FILE *fff)
 		else if (max_dlv[y] == d_info[y].maxdepth) seiha = TRUE;
 
 		fprintf(fff, "%c%-16s: level %3d\n", seiha ? '!' : ' ', d_name+d_info[y].name, max_dlv[y]);
+	}
+
+	{
+		char statmsg[255];
+		int i;
+		*statmsg = '\0';
+		if (p_ptr->is_dead)
+		{
+			if (p_ptr->total_winner)
+			{
+				sprintf(statmsg, "You %s after the winning.", streq(p_ptr->died_from, "Seppuku") ? "did Seppuku" : "retired from the adventure");
+			}
+			else if (!dun_level)
+			{
+				sprintf(statmsg, "You were killed by %s in %s.", p_ptr->died_from, map_name());
+			}
+			else if (p_ptr->inside_quest && is_fixed_quest_idx(p_ptr->inside_quest))
+			{
+				/* Get the quest text */
+				/* Bewere that INIT_ASSIGN resets the cur_num. */
+				init_flags = INIT_ASSIGN;
+
+				process_dungeon_file("q_info.txt", 0, 0, 0, 0);
+				sprintf(statmsg, "You were killed by %s in the quest '%s'.", p_ptr->died_from, quest[p_ptr->inside_quest].name);
+			}
+			else
+			{
+				sprintf(statmsg, "You were killed by %s on level %d of %s.", p_ptr->died_from, dun_level, map_name());
+			}
+		}
+		else if (character_dungeon)
+		{
+			if (!dun_level)
+			{
+				sprintf(statmsg, "Now, you are in %s.", map_name());
+			}
+			else if (p_ptr->inside_quest && is_fixed_quest_idx(p_ptr->inside_quest))
+			{
+				/* Clear the text */
+				/* Must be done before doing INIT_SHOW_TEXT */
+				for (i = 0; i < 10; i++)
+				{
+					quest_text[i][0] = '\0';
+				}
+				quest_text_line = 0;
+
+				/* Get the quest text */
+				init_flags = INIT_SHOW_TEXT;
+
+				process_dungeon_file("q_info.txt", 0, 0, 0, 0);
+				sprintf(statmsg, "Now, you are in the quest '%s'.", quest[p_ptr->inside_quest].name);
+			}
+			else
+			{
+				sprintf(statmsg, "Now, you are exploring level %d of %s.", dun_level, map_name());
+			}
+		}
+
+		if (*statmsg)
+			fprintf(fff, "\n %s\n", statmsg);
 	}
 }
 
@@ -4281,10 +4344,17 @@ static void dump_aux_home_museum(FILE *fff)
  */
 errr make_character_dump(FILE *fff)
 {
-	fprintf(fff, "  [PosChengband %d.%d.%d Character Dump]\n\n",
+	fprintf(fff, "  [PosChengband %d.%d.%d Character Dump]\n",
 		VER_MAJOR, VER_MINOR, VER_PATCH);
 
 	update_playtime();
+
+	if (p_ptr->total_winner)
+		fprintf(fff, "              ***WINNER***\n");
+	else if (p_ptr->is_dead)
+		fprintf(fff, "              ***LOSER***\n");
+	else
+		fprintf(fff, "\n");
 
 	dump_aux_display_player(fff);
 	dump_aux_last_message(fff);

@@ -21,7 +21,7 @@ static equip_template_ptr _template = NULL;
 
 bool _object_is_amulet(object_type *o_ptr) 
 {
-	if (o_ptr->tval == TV_AMULET) return TRUE;
+	if (o_ptr->tval == TV_AMULET || o_ptr->tval == TV_WHISTLE) return TRUE;
 	return FALSE;
 }
 
