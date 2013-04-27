@@ -4352,6 +4352,33 @@ P:0:1d1:0:0:0
 F:QUESTITEM | ACTIVATE | INSTA_ART
 F:SPEED | SUST_CON | SUST_STR | REGEN | RES_POIS
 
+N:308:of Fang
+E:of Fang
+I:40:40:1
+W:5:70:30:5000
+P:0:0d0:2:3:0
+F:HIDE_TYPE 
+F:RES_FEAR | STR
+F:INSTA_ART
+
+N:309:of Wolf
+E:of Wolf
+I:40:41:1
+W:5:70:30:5000
+P:0:0d0:0:0:7
+F:HIDE_TYPE 
+F:FREE_ACT | CON
+F:INSTA_ART
+
+N:310:of Grip
+E:of Grip
+I:40:42:1
+W:5:70:30:5000
+P:0:0d0:0:0:0
+F:HIDE_TYPE 
+F:SPEED | DEX
+F:INSTA_ART
+
 # N: serial number : item name
 # I: tval : sval : pval
 # W: depth : rarity : weight : cost

@@ -88,7 +88,7 @@ static cptr _mon_name(int r_idx)
 /**********************************************************************
  * Hound Equipment
  **********************************************************************/
-static equip_template_t _equip_template = {9, { 
+static equip_template_t _equip_template = {10, { 
 	{EQUIP_SLOT_RING, "Ring", 0},
 	{EQUIP_SLOT_RING, "Ring", 0},
 	{EQUIP_SLOT_RING, "Ring", 0},
@@ -97,6 +97,7 @@ static equip_template_t _equip_template = {9, {
 	{EQUIP_SLOT_LITE, "Light", 0},
 	{EQUIP_SLOT_BODY_ARMOR, "Body", 0},
 	{EQUIP_SLOT_CLOAK, "Cloak", 0},
+	{EQUIP_SLOT_HELMET, "Helm", 0},
 	{EQUIP_SLOT_BOOTS, "Boots", 0}, /* Back paws only ... */
 }};
 
@@ -400,6 +401,7 @@ static void _calc_bonuses(void) {
 
 	switch (p_ptr->current_r_idx)
 	{
+	/* Tier 1 */
 	case MON_LIGHT_HOUND:
 		res_add(RES_LITE);
 		break;
@@ -407,6 +409,7 @@ static void _calc_bonuses(void) {
 		res_add(RES_DARK);
 		res_add_vuln(RES_LITE);
 		break;
+	/* Tier 2 */
 	case MON_FIRE_HOUND:
 		res_add(RES_FIRE);
 		res_add(RES_FIRE);
@@ -429,6 +432,7 @@ static void _calc_bonuses(void) {
 		res_add(RES_ACID);
 		res_add(RES_ACID);
 		break;
+	/* Tier 3 */
 	case MON_EARTH_HOUND:
 		res_add(RES_SHARDS);
 		break;
@@ -443,7 +447,7 @@ static void _calc_bonuses(void) {
 		p_ptr->free_act = TRUE;
 		break;
 	case MON_MULTI_HUED_HOUND:
-		p_ptr->pspeed += 5;
+		p_ptr->pspeed += 3;
 		res_add(RES_FIRE);
 		res_add(RES_COLD);
 		res_add(RES_ACID);
@@ -452,6 +456,7 @@ static void _calc_bonuses(void) {
 		res_add(RES_CONF);
 		p_ptr->free_act = TRUE;
 		break;
+	/* Tier 4 */
 	case MON_INERTIA_HOUND:
 		res_add(RES_CONF);
 		p_ptr->free_act = TRUE;
@@ -461,36 +466,38 @@ static void _calc_bonuses(void) {
 		p_ptr->free_act = TRUE;
 		break;
 	case MON_NETHER_HOUND:
-		p_ptr->pspeed += 10;
+		p_ptr->pspeed += 5;
 		res_add(RES_NETHER);
 		res_add(RES_CONF);
 		p_ptr->free_act = TRUE;
 		break;
+	/* Tier 5 */
 	case MON_GRAVITY_HOUND:
 		res_add(RES_CONF);
 		p_ptr->free_act = TRUE;
 		break;
 	case MON_TIME_HOUND:
-		p_ptr->pspeed += 15;
+		p_ptr->pspeed += 7;
 		res_add(RES_TIME);
 		res_add(RES_CONF);
 		p_ptr->free_act = TRUE;
 		break;
 	case MON_PLASMA_HOUND:
-		p_ptr->pspeed += 10;
+		p_ptr->pspeed += 5;
 		res_add(RES_ELEC);
 		res_add(RES_FIRE);
 		res_add(RES_CONF);
 		p_ptr->free_act = TRUE;
 		break;
 	case MON_CHAOS_HOUND:
-		p_ptr->pspeed += 10;
+		p_ptr->pspeed += 5;
 		res_add(RES_CHAOS);
 		res_add(RES_CONF);
 		p_ptr->free_act = TRUE;
 		break;
+	/* Tier 6 */
 	case MON_HOUND_OF_TINDALOS:
-		p_ptr->pspeed += 10;
+		p_ptr->pspeed += 7;
 		res_add(RES_NETHER);
 		res_add(RES_TIME);
 		res_add(RES_CONF);
@@ -500,12 +507,12 @@ static void _calc_bonuses(void) {
 		p_ptr->no_passwall_dam = TRUE;
 		break;
 	case MON_MANA_HOUND:
-		p_ptr->pspeed += 15;
+		p_ptr->pspeed += 10;
 		res_add(RES_CONF);
 		p_ptr->free_act = TRUE;
 		break;
 	case MON_AETHER_HOUND:
-		p_ptr->pspeed += 10;
+		p_ptr->pspeed += 5;
 		res_add(RES_FIRE);
 		res_add(RES_COLD);
 		res_add(RES_ACID);

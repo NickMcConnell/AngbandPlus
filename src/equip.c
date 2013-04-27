@@ -21,6 +21,14 @@ static equip_template_ptr _template = NULL;
 
 bool _object_is_amulet(object_type *o_ptr) 
 {
+	if ( o_ptr->name1 == ART_WOLF 
+	  || o_ptr->name1 == ART_FANG 
+	  || o_ptr->name1 == ART_GRIP 
+	  || o_ptr->name1 == ART_CARCHAROTH )
+	{
+		return prace_is_(RACE_MON_HOUND);
+	}
+
 	if (o_ptr->tval == TV_AMULET || o_ptr->tval == TV_WHISTLE) return TRUE;
 	return FALSE;
 }

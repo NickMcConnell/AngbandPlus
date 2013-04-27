@@ -1592,6 +1592,21 @@ msg_print("地面に落とされた。");
 			chance = 10;
 			break;
 
+		case MON_FANG:
+			a_idx = ART_FANG;
+			chance = 15;
+			break;
+
+		case MON_WOLF:
+			a_idx = ART_WOLF;
+			chance = 15;
+			break;
+
+		case MON_GRIP:
+			a_idx = ART_GRIP;
+			chance = 15;
+			break;
+
 		/* Monster boss rewards */
 		case MON_VECNA:
 			if (p_ptr->pclass == CLASS_NECROMANCER)

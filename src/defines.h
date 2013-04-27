@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 1
 #define VER_MINOR 0
-#define VER_PATCH 10
+#define VER_PATCH 11
 #define VER_EXTRA 0
 
 
@@ -1532,6 +1532,9 @@
 #define ART_KRONOS      305
 #define ART_OMARAX      306
 #define ART_LERNEAN     307
+#define ART_FANG        308
+#define ART_WOLF        309
+#define ART_GRIP        310
 
 /*** Ego-Item indexes (see "lib/edit/e_info.txt") ***/
 
@@ -2253,6 +2256,9 @@
 #define SV_AMULET_RESIST_FIRE           37
 #define SV_AMULET_RESIST_COLD           38
 #define SV_AMULET_RESIST_ELEC           39
+#define SV_AMULET_FANG                  40
+#define SV_AMULET_WOLF                  41
+#define SV_AMULET_GRIP                  42
 
 /* The sval codes for TV_RING */
 #define SV_RING_WOE                      0

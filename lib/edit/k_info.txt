@@ -6646,6 +6646,27 @@ W:20:0:50:3:300
 A:20/1
 F:RES_ELEC | IGNORE_ELEC
 
+N:734:& Dog Collar~
+E:& Dog Collar~:Leather
+G:":u
+I:40:40:0
+W:5:0:0:30:5000
+F:INSTA_ART | FIXED_FLAVOR
+
+N:735:& Dog Collar~
+E:& Dog Collar~:Studded
+G:":U
+I:40:41:0
+W:5:0:0:30:5000
+F:INSTA_ART | FIXED_FLAVOR
+
+N:736:& Dog Collar~
+E:& Dog Collar~:Black
+G:":u
+I:40:42:0
+W:5:0:0:30:5000
+F:INSTA_ART | FIXED_FLAVOR
+
 
 # N: serial number : & object name~
 # G: symbol : color
