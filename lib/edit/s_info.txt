@@ -69,7 +69,7 @@
 
 # Version stamp (required)
 
-V:0.3.1
+V:0.3.2
 
 
 ##### LIFE #####
@@ -2732,8 +2732,8 @@ C:T:11:6
 C:W:8:3
 C:R:9:5
 
-N:I:5:Dancing Lights
-I:6:0
+N:I:5:Luminosity
+I:38:0
 C:M:7:5
 C:H:6:4
 C:T:12:7
@@ -2845,7 +2845,7 @@ C:W:22:18
 C:R:25:20
 
 N:I:18:True Seeing
-I:17:2
+I:17:1
 C:M:20:17
 C:H:18:15
 C:T:27:22
@@ -2853,7 +2853,7 @@ C:W:23:19
 C:R:26:21
 
 N:I:19:Scream
-I:3:1
+I:3:2
 C:M:21:16
 C:H:19:14
 C:T:28:21
@@ -2861,7 +2861,7 @@ C:W:21:17
 C:R:27:20
 
 N:I:20:Improved Invisibility
-I:18:2
+I:18:1
 C:M:22:18
 C:H:20:16
 C:T:29:15
@@ -2877,7 +2877,7 @@ C:W:26:18
 C:R:30:20
 
 N:I:22:Phantom Fire
-I:20:1
+I:20:2
 C:M:25:20
 C:H:23:18
 C:T:33:26:-10

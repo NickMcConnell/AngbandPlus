@@ -650,7 +650,7 @@ void teleport_player_level(void)
 	}
 
 	/* Go down */
-	move_dun_level(del_level);
+	move_dun_level(del_level, TRUE);
 
 
 	/* Sound */
@@ -703,7 +703,7 @@ void teleport_player_down(void)
 	}
 
 	/* Go down */
-	move_dun_level(del_level);
+	move_dun_level(del_level, TRUE);
 
 	/* Sound */
 	sound(SOUND_TPLEVEL);
@@ -1074,11 +1074,17 @@ void phlogiston(void)
 /*
  * Brand the current weapon
  */
-void brand_weapon(int brand_type)
+bool brand_weapon(int brand_type)
 {
 	object_type *o_ptr = &p_ptr->equipment[EQUIP_WIELD];
 
 	byte ego = 0;
+
+	if (!o_ptr->k_idx)
+	{
+		msgf ("You must first weild the weapon you wish to enchant.");
+		return FALSE;
+	}
 
 	/* you can never modify artifacts / ego-items */
 	/* you can never modify cursed items */
@@ -1164,6 +1170,8 @@ void brand_weapon(int brand_type)
 		/* Notice changes */
 		notice_item();
 	}
+
+	return TRUE;
 }
 
 
@@ -1623,6 +1631,9 @@ bool alchemy(void)
 	{
 		/* Message */
 		msgf("You turn %s to fool's gold.", o_name);
+
+		/* We know it's worthless now */
+		object_worthless(o_ptr);
 	}
 	else
 	{
@@ -1636,7 +1647,8 @@ bool alchemy(void)
 		if (price > 5000) price = 5000+(price-5000)/2;
 
 		if (price > 30000) price = 30000;
-		msgf("You turn %s to %ld coins worth of gold.", o_name, price);
+		if (price) msgf("You turn %s to %ld coins worth of gold.", o_name, price);
+		else msgf ("You turn %s into fine gold dust.", o_name);
 		p_ptr->au += price;
 
 		/* Redraw gold */
@@ -2307,7 +2319,7 @@ static bool item_tester_unknown(const object_type *o_ptr)
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 	/* Check to see if we don't know the flavor */
-	if (k_ptr->flavor && !k_ptr->aware) return (TRUE);
+	if (k_ptr->flavor && !object_aware_p(o_ptr)) return (TRUE);
 
 	/* Check to see if we have identified the item */
 	if (object_known_p(o_ptr)) return (FALSE);
@@ -2321,7 +2333,7 @@ static bool item_tester_unknown_star(const object_type *o_ptr)
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 	/* Check to see if we don't know the flavor */
-	if (k_ptr->flavor && !k_ptr->aware) return (TRUE);
+	if (k_ptr->flavor && !object_aware_p(o_ptr)) return (TRUE);
 
 	/* Check to see if we have identified the item */
 	if (object_known_full(o_ptr)) return (FALSE);
@@ -3031,7 +3043,7 @@ bool add_perm_lite(void)
 	cptr q, s;
 
 	/* Any weapon or armor */
-	item_tester_hook = item_tester_hook_weapon_armour;
+	item_tester_hook = item_tester_hook_wear;
 
 	/* Get an item */
 	q = "Enchant which weapon? ";
@@ -3067,7 +3079,7 @@ bool add_perm_lite(void)
 		return FALSE;
 	}
 
-	if (!(o_ptr->xtra_name) || one_in_(5))
+	if (!(FLAG(o_ptr, TR_INSTA_ART)) || one_in_(5))
 	{
 		/* Describe */
 		msgf("The %s shine%s radiantly!", o_name, ((o_ptr->number > 1) ? "" : "s"));
@@ -3080,7 +3092,7 @@ bool add_perm_lite(void)
 	}
 
 	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
+	p_ptr->update |= (PU_BONUS | PU_TORCH);
 
 	/* Notice changes */
 	notice_item();
@@ -3123,9 +3135,9 @@ bool potion_smash_effect(int who, int x, int y, object_type *o_ptr)
 	angry = result;
 
 	/* An identification was made */
-	if (ident && !(k_ptr->aware))
+	if (ident && !(k_ptr->info & OK_AWARE))
 	{
-		k_ptr->aware = TRUE;
+		k_ptr->info |= OK_AWARE;
 		gain_exp((k_ptr->level + p_ptr->lev / 2) / p_ptr->lev);
 	}
 
@@ -3143,7 +3155,7 @@ bool potion_smash_effect(int who, int x, int y, object_type *o_ptr)
  */
 void display_spell_list(void)
 {
-	int i, j;
+	int i, j, sval;
 	int y = 0, x = 0;
 	int use_realm[2];
 	const magic_type *s_ptr;
@@ -3231,90 +3243,123 @@ void display_spell_list(void)
 	for (j = 0; j < ((use_realm[1] > -1) ? 2 : 1); j++)
 	{
 		int n = 0;
+		int inv_idx;
 
 		sp.r = use_realm[j];
 		sp.s = 0;
 
-		/* Scan spells */
-		for (i = 0; i < NUM_SPELLS; i++)
+		for (sval = 0; sval < 3; sval++)
 		{
-			cptr a = CLR_WHITE;
-			byte lev;
+			/* Look for this book in inventory */
+			object_type * o_ptr;
 
-			/* Access the spell */
-			s_ptr = &s_info[sp.r][sp.s].info[p_ptr->rp.pclass];
+			/* Haven't found it yet */
+			inv_idx = -1;
+			n = 0;
 
-			lev = spell_level(sp);
+			OBJ_ITT_START(p_ptr->inventory, o_ptr)
+			{
+				if (o_ptr->tval == (sp.r + TV_BOOKS_MIN) && o_ptr->sval == sval)
+				{
+					inv_idx = n;
+					break;
+				}
 
-			strcpy(name,
+				n++;
+			}
+			OBJ_ITT_END;
+
+			/* We don't have this book */
+			if (inv_idx == -1) continue;
+
+			/* Track spell number in book */
+			n = 0;
+
+			for (i = 0; i < NUM_SPELLS; i++)
+			{
+				cptr a = CLR_WHITE;
+				byte lev;
+
+				sp.s = i;
+
+				/* Only spells in this book */
+				if (s_info[sp.r][sp.s].sval != sval) continue;
+
+				/* Access the spell */
+				s_ptr = &s_info[sp.r][sp.s].info[p_ptr->rp.pclass];
+
+				lev = spell_level(sp);
+
+				strcpy(name,
 				   spell_name(sp));
 
-			/* Illegible */
-			if (s_ptr->slevel > PY_MAX_LEVEL)
-			{
 				/* Illegible */
-				strcpy(name, "(illegible)");
-
-				/* Unusable */
-				a = CLR_L_DARK;
-			}
-
-			/* Forgotten */
-			else if (spell_forgotten(sp))
-			{
-				/* Forgotten */
-				a = CLR_ORANGE;
-			}
-
-			/* Unknown */
-			else if (!lev)
-			{
-				/* Unknown */
-				a = CLR_RED;
-			}
-
-			else if (spell_tried(sp))
-			{
-				/* Untried */
-				a = CLR_YELLOW;
-			}
-
-			else if (lev > 1)
-			{
-				switch (lev)
+				if (s_ptr->slevel > PY_MAX_LEVEL)
 				{
-					case 2:
-						a = CLR_L_GREEN;
-						break;
-					case 3:
-						a = CLR_L_BLUE;
-						break;
-					case 4:
-						a = CLR_VIOLET;
-						break;
+					/* Illegible */
+					strcpy(name, "(illegible)");
+
+					/* Unusable */
+					a = CLR_L_DARK;
 				}
+
+				/* Forgotten */
+				else if (spell_forgotten(sp))
+				{
+					/* Forgotten */
+					a = CLR_ORANGE;
+				}
+
+				/* Unknown */
+				else if (!lev)
+				{
+					/* Unknown */
+					a = CLR_RED;
+				}
+
+				else if (!spell_tried(sp))
+				{
+					/* Untried */
+					a = CLR_YELLOW;
+				}
+
+				else if (lev > 1)
+				{
+					switch (lev)
+					{
+						case 2:
+							a = CLR_L_GREEN;
+							break;
+						case 3:
+							a = CLR_L_BLUE;
+							break;
+						case 4:
+							a = CLR_VIOLET;
+							break;
+					}
+				}
+
+				/* Dump the spell --(-- */
+				strnfmt(out_val, 160, "%c/%c) %s", I2A(inv_idx), I2A(n), name);
+
+				max_wid = MAX(max_wid, strlen(out_val) + 1);
+
+				/* Dump onto the window */
+				put_fstr(col, row, "%s%s", a, out_val);
+
+				/* Next row */
+				row++;
+
+				if (row >= Term->hgt)
+				{
+					row = 0;
+					col += max_wid;
+					max_wid = 0;
+				}
+
+				/* Next spell slot */
+				n++;
 			}
-
-			/* Dump the spell --(-- */
-			strnfmt(out_val, 160, "%c/%c) %s", I2A(n / 8), I2A(n % 8), name);
-
-			max_wid = MAX(max_wid, strlen(out_val) + 1);
-
-			/* Dump onto the window */
-			put_fstr(col, row, "%s%s", a, out_val);
-
-			/* Next row */
-			row++;
-
-			if (row >= Term->hgt)
-			{
-				row = 0;
-				col += max_wid;
-				max_wid = 0;
-			}
-
-			/* Next */
-			n++;
 		}
 	}
 }
@@ -3378,12 +3423,16 @@ char spell_power(const spell_external sp)
 	}
 
 	/* 10% power bonus for spells in both of one's realms */
-	if (i > 0 &&
+	if (lev > 0 &&
 		p_ptr->spell.data[i].flags & SP_PRESENT_1 &&
 		p_ptr->spell.data[i].flags & SP_PRESENT_2)
 	{
 		power = POWER(100+power,10)-100;
 	}
+
+	/* Force good values */
+	if (power > 127) power = 127;
+	if (power < -127) power = -127;
 
 	return ((char) power);
 }
@@ -3455,7 +3504,7 @@ s16b spell_chance(const spell_external sp)
 	}
 
 	/* Reduce failure rate for spell focus, separately from the minimum fail rate bonus */
-	chance -= (lev-1)*5;
+	chance -= (lev > 0 ? (lev-1)*5 : 0);
 
 	/* Extract the minimum failure rate */
 	minfail = adj_mag_fail[p_ptr->stat[mp_ptr->spell_stat].ind];
@@ -3647,7 +3696,7 @@ static void spell_info_life(char *p, int spell)
 			strcpy(p, " dur 24+d24");
 			break;
 		case 11:
-			strnfmt(p, 80, " dam 3d6+%d", (5*plev)/4);
+			strnfmt(p, 80, " dam 3d6+%d", plev);
 			break;
 		case 12:
 			strnfmt(p, 80, " dur %d+d25", 3 * plev);
@@ -3810,7 +3859,7 @@ static void spell_info_chaos(char *p, int spell)
 			strnfmt(p, 80, " dam 2d%d", (plev / 2));
 			break;
 		case 4:
-			strnfmt(p, 80, " dam %d+3d5", plev + (plev / 4));
+			strnfmt(p, 80, " dam %d+3d5", plev);
 			break;
 		case 6:
 			strnfmt(p, 80, " dam %dd6", (8 + ((plev - 5) / 4)));
@@ -3903,8 +3952,7 @@ static void spell_info_death(char *p, int spell)
 			strnfmt(p, 80, " dur 20+d20");
 			break;
 		case 8:
-			strnfmt(p, 80, " dam %d+3d6", plev +
-					(plev / 4));
+			strnfmt(p, 80, " dam %d+3d6", plev);
 			break;
 		case 9:
 			strnfmt(p, 80, " range %d", 50+(plev/2));
@@ -4109,7 +4157,7 @@ static void spell_info_illusion(char *p, int spell)
 		case 1:
 			strnfmt(p, 80, " dam %dd3", 3 + ((plev-1)/5));
 			break;
-		case 2: case 7: case 17:
+		case 2: case 7: case 17: case 38:
 			strcpy(p, " dur 20+d20");
 			break;
 		case 3:
@@ -4638,7 +4686,7 @@ bool rustproof(void)
 bool curse_armor(void)
 {
 	object_type *o_ptr;
-
+	int i;
 
 	/* Curse the body armor */
 	o_ptr = &p_ptr->equipment[EQUIP_BODY];
@@ -4675,6 +4723,21 @@ bool curse_armor(void)
 		o_ptr->flags[2] = 0;
 		o_ptr->flags[3] = 0;
 
+		/* Remove object knowledge */
+		o_ptr->kn_flags[0] = 0;
+		o_ptr->kn_flags[0] = 1;
+		o_ptr->kn_flags[0] = 2;
+		o_ptr->kn_flags[0] = 3;
+
+		o_ptr->a_idx = 0;
+
+		/* Remove "quark" lines */
+		quark_remove(&o_ptr->xtra_name);
+		for (i = 0; i < MAX_TRIGGER; i++)
+		{
+			quark_remove(&o_ptr->trigger[i]);
+		}
+
 		/* Lose your feeling */
 		o_ptr->feeling = FEEL_NONE;
 
@@ -4703,6 +4766,7 @@ bool curse_armor(void)
 bool curse_weapon(void)
 {
 	object_type *o_ptr;
+	int i;
 
 	/* Curse the weapon */
 	o_ptr = &p_ptr->equipment[EQUIP_WIELD];
@@ -4711,7 +4775,7 @@ bool curse_weapon(void)
 	if (!o_ptr->k_idx) return (FALSE);
 
 	/* Attempt a saving throw */
-	if ((FLAG(o_ptr, TR_INSTA_ART)) && !one_in_(3))
+	if ((FLAG(o_ptr, TR_INSTA_ART)) && !one_in_(6))
 	{
 		/* Cool */
 		msgf("A terrible black aura tries to surround your weapon, but your %v resists the effects!",
@@ -4737,9 +4801,25 @@ bool curse_weapon(void)
 		o_ptr->flags[1] = 0;
 		o_ptr->flags[2] = 0;
 		o_ptr->flags[3] = 0;
+		o_ptr->discount = 0;
 
 		/* Lose your feeling */
 		o_ptr->feeling = FEEL_NONE;
+
+		/* Remove object knowledge */
+		o_ptr->kn_flags[0] = 0;
+		o_ptr->kn_flags[0] = 1;
+		o_ptr->kn_flags[0] = 2;
+		o_ptr->kn_flags[0] = 3;
+
+		o_ptr->a_idx = 0;
+
+		/* Remove "quark" lines */
+		quark_remove(&o_ptr->xtra_name);
+		for (i = 0; i < MAX_TRIGGER; i++)
+		{
+			quark_remove(&o_ptr->trigger[i]);
+		}
 
 		add_ego_flags(o_ptr, EGO_SHATTERED);
 
@@ -4820,7 +4900,8 @@ static s16b poly_r_idx(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	int i, r, lev1, lev2;
+	int i, lev1, lev2;
+	u16b r;
 
 	/* Hack -- Uniques/Questors never polymorph */
 	if (FLAG(r_ptr, RF_UNIQUE) || FLAG(r_ptr, RF_QUESTOR))
@@ -4836,7 +4917,6 @@ static s16b poly_r_idx(int r_idx)
 	/* Pick a (possibly new) non-unique race */
 	for (i = 0; i < 1000; i++)
 	{
-
 		/* Pick a new race, using a level calculation */
 		r = get_mon_num((p_ptr->depth + r_ptr->level) / 2 + 5);
 
@@ -4844,7 +4924,7 @@ static s16b poly_r_idx(int r_idx)
 		if (!r) break;
 
 		/* Obtain race */
-		r_ptr = &r_info[r];
+		r_ptr = monst_race(r);
 
 		/* Ignore unique monsters */
 		if (FLAG(r_ptr, RF_UNIQUE)) continue;
@@ -4911,7 +4991,7 @@ bool polymorph_monster(int x, int y)
 /*
  * Dimension Door
  */
-bool dimension_door(void)
+static bool dimension_door_aux(int range)
 {
 	int px = p_ptr->px;
 	int py = p_ptr->py;
@@ -4922,6 +5002,9 @@ bool dimension_door(void)
 
 	if (!tgt_pt(&x, &y)) return FALSE;
 
+	/* Selecting the player's own grid is equivalent to cancelling. */
+	if (x == px && y == py) return FALSE;
+
 	p_ptr->energy -= 60 - plev;
 
 	/* paranoia */
@@ -4930,7 +5013,7 @@ bool dimension_door(void)
 	c_ptr = area(x, y);
 
 	if (!cave_empty_grid(c_ptr) || (c_ptr->info & CAVE_ICKY) ||
-		(distance(x, y, px, py) > 25) || one_in_(plev * plev / 2))
+		(distance(x, y, px, py) > range) || one_in_(plev * plev / 2))
 	{
 		msgf("You fail to exit the astral plane correctly!");
 		p_ptr->energy -= 100;
@@ -4942,35 +5025,14 @@ bool dimension_door(void)
 	return (TRUE);
 }
 
+bool dimension_door(void)
+{
+	return dimension_door_aux(25);
+}
+
 bool dimension_door2(void)
 {
-	int px = p_ptr->px;
-	int py = p_ptr->py;
-
-	int plev = p_ptr->lev;
-	int x = 0, y = 0;
-	cave_type *c_ptr;
-
-	if (!tgt_pt(&x, &y)) return FALSE;
-
-	p_ptr->energy -= 60 - plev;
-
-	/* paranoia */
-	if (!in_bounds2(x, y)) return FALSE;
-
-	c_ptr = area(x, y);
-
-	if (!cave_empty_grid(c_ptr) || (c_ptr->info & CAVE_ICKY) ||
-		(distance(x, y, px, py) > plev+30) || one_in_(plev * plev / 2))
-	{
-		msgf("You fail to exit the astral plane correctly!");
-		p_ptr->energy -= 100;
-		teleport_player(10);
-	}
-	else
-		teleport_player_to(x, y);
-
-	return (TRUE);
+	return dimension_door_aux(p_ptr->lev - 30);
 }
 
 /*

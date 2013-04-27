@@ -91,10 +91,10 @@ ANGOBJS := $(LUAWOBJS) \
 	xtra1.o xtra2.o spells1.o spells2.o \
 	melee1.o melee2.o save.o files.o fields.o\
 	cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
-	store.o birth.o load.o ui.o\
+	store.o birth.o load.o ui.o quest2.o hero.o \
 	wizard1.o wizard2.o grid.o streams.o rooms.o \
 	generate.o dungeon.o init1.o init2.o \
-	effects.o quest.o racial.o run.o script.o \
+	effects.o quest1.o racial.o run.o script.o \
 	artifact.o mutation.o flavor.o spells3.o \
 	mspells1.o mspells2.o scores.o mind.o maid-x11.o\
 	bldg.o obj_kind.o wild1.o wild2.o wild3.o avatar.o notes.o\

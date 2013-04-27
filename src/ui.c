@@ -1753,7 +1753,7 @@ bool get_com(cptr prompt, char *command)
  */
 s32b get_quantity_big(cptr prompt, s32b max)
 {
-	s32b amt;
+	long amt;
 
 	char tmp[80];
 
@@ -1824,7 +1824,7 @@ s32b get_quantity_big(cptr prompt, s32b max)
 	if (amt) repeat_push(amt);
 
 	/* Return the result */
-	return (amt);
+	return ((s32b)amt);
 }
 
 s16b get_quantity(cptr prompt, s16b max)

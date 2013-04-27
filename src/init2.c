@@ -817,6 +817,9 @@ static errr init_r_info(void)
 
 #endif /* ALLOW_TEMPLATES */
 
+	/* Create the array for hero race mapping */
+	C_MAKE(h_list, z_info->h_max, hero_type);
+
 	return init_info("r_info", &r_head,
 					 (void *)&r_info, (void *)&r_name, (void *)&r_text);
 }
@@ -893,7 +896,7 @@ static errr init_s_info(void)
 			}
 		}
 	}
-	
+
 	/* Success */
 	return (0);
 }
@@ -1275,6 +1278,98 @@ static errr init_other(void)
 	return (0);
 }
 
+/*
+ * Reinitialize allocation table
+ */
+void reinit_alloc(void)
+{
+	int i;
+	monster_race *r_ptr;
+
+	alloc_entry *table;
+	s16b num[MAX_DEPTH];
+	s16b aux[MAX_DEPTH];
+
+	KILL(alloc_race_table);
+
+	/*** Analyze monster allocation info ***/
+
+	/* Clear the "aux" array */
+	(void)C_WIPE(&aux, MAX_DEPTH, s16b);
+
+	/* Clear the "num" array */
+	(void)C_WIPE(&num, MAX_DEPTH, s16b);
+
+	/* Size of "alloc_race_table" */
+	alloc_race_size = 0;
+
+	/* Scan the monsters (not the ghost) */
+	for (i = 1; i < RACE_MAX; i++)
+	{
+		/* Get the ith race */
+		r_ptr = &r_info[i];
+
+		/* Legal monsters */
+		if (r_ptr->rarity)
+		{
+			/* Count the entries */
+			alloc_race_size++;
+
+			/* Group by level */
+			num[r_ptr->level]++;
+		}
+	}
+
+	/* Collect the level indexes */
+	for (i = 1; i < MAX_DEPTH; i++)
+	{
+		/* Group by level */
+		num[i] += num[i - 1];
+	}
+
+	/*** Initialize monster allocation info ***/
+
+	/* Allocate the alloc_race_table */
+	C_MAKE(alloc_race_table, alloc_race_size, alloc_entry);
+
+	/* Get the table entry */
+	table = alloc_race_table;
+
+	/* Scan the monsters */
+	for (i = 1; i < RACE_MAX; i++)
+	{
+		/* Get the i'th race */
+		r_ptr = &r_info[i];
+
+		/* Count valid pairs */
+		if (r_ptr->rarity)
+		{
+			int p, x, y, z;
+
+			/* Extract the base level */
+			x = r_ptr->level;
+
+			/* Extract the base probability */
+			p = (100 / r_ptr->rarity);
+
+			/* Skip entries preceding our locale */
+			y = (x > 0) ? num[x - 1] : 0;
+
+			/* Skip previous entries at this locale */
+			z = y + aux[x];
+
+			/* Load the entry */
+			table[z].index = i;
+			table[z].level = x;
+			table[z].prob1 = p;
+			table[z].prob2 = p;
+			table[z].prob3 = p;
+
+			/* Another entry complete for this locale */
+			aux[x]++;
+		}
+	}
+}
 
 
 /*
@@ -1327,7 +1422,6 @@ static errr init_alloc(void)
 	/* Paranoia */
 	if (!num[0]) quit("No town monsters!");
 
-
 	/*** Initialize monster allocation info ***/
 
 	/* Allocate the alloc_race_table */
@@ -1337,7 +1431,7 @@ static errr init_alloc(void)
 	table = alloc_race_table;
 
 	/* Scan the monsters */
-	for (i = 1; i < z_info->r_max; i++)
+	for (i = 1; i < HERO_MIN; i++)
 	{
 		/* Get the i'th race */
 		r_ptr = &r_info[i];

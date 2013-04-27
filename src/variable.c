@@ -801,4 +801,6 @@ int current_terrain;
  */
 int pet_dur = 0;
 
+/* List of heroes */
+hero_type *h_list;
 

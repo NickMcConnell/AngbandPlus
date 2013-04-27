@@ -875,13 +875,62 @@ void object_known(object_type *o_ptr)
 
 /*
  * The player is now aware of the effects of the given object.
+ *
+ * Hack: also mark as Worthless if appropriate, for auto_destroy option. 
  */
 void object_aware(object_type *o_ptr)
 {
 	/* Fully aware of the effects */
-	k_info[o_ptr->k_idx].aware = TRUE;
+	k_info[o_ptr->k_idx].info |= OK_AWARE;
+	
+	if (!o_ptr->cost) object_worthless(o_ptr);
 }
 
+/*
+ * We've observed this object to be totally worthless.  Remember it,
+ * if this observation applies to the whole type
+ */
+void object_worthless(object_type *o_ptr)
+{
+	object_kind * k_ptr = &k_info[o_ptr->k_idx];
+
+	switch (o_ptr->tval)
+	{
+		case TV_POTION:
+		case TV_SCROLL:
+		case TV_FOOD:
+		case TV_WAND:
+		case TV_ROD:
+		case TV_STAFF:
+			k_ptr->info |= OK_WORTHLESS;
+			break;
+		case TV_RING:
+		case TV_AMULET:
+			/* If we know the type, observe if it is worthless */
+			if (object_aware_p(o_ptr) && !k_ptr->cost)
+				k_ptr->info |= OK_WORTHLESS;
+			/* If not, assume it was cursed this time. */
+			else if (!object_aware_p(o_ptr))
+				k_ptr->info |= OK_CURSED;
+			break;
+	}
+}
+
+/* 
+ * We've observed this object to be cursed.  Remember it,
+ * but only for rings or amulets.
+ */
+void object_maybecursed(object_type *o_ptr)
+{
+	switch (o_ptr->tval)
+	{
+		case TV_RING:
+		case TV_AMULET:
+			if (!FLAG(o_ptr, TR_INSTA_ART))
+				k_info[o_ptr->k_idx].info |= OK_CURSED;
+			break;
+	}
+}
 
 /*
  * Something has been "sampled"
@@ -889,7 +938,7 @@ void object_aware(object_type *o_ptr)
 void object_tried(object_type *o_ptr)
 {
 	/* Mark it as tried (even if "aware") */
-	k_info[o_ptr->k_idx].tried = TRUE;
+	k_info[o_ptr->k_idx].info |= OK_TRIED;
 }
 
 /*
@@ -1447,6 +1496,9 @@ s32b object_value(const object_type *o_ptr)
 	/* Unknown items -- acquire a base value */
 	else
 	{
+		/* Known worthless items */
+		if (object_worthless_p(o_ptr)) return (0L);
+
 		/* Hack -- Felt broken items */
 		if ((o_ptr->info & (OB_SENSE)) && !o_ptr->cost) return (0L);
 
@@ -5574,7 +5626,7 @@ object_type *inven_carry(object_type *o_ptr)
 	}
 	OBJ_ITT_END;
 
-	if (get_list_length(p_ptr->inventory >= INVEN_PACK))
+	if (get_list_length(p_ptr->inventory) >= INVEN_PACK)
 	{
 		/* Prefer a penalized container to a backpack overflow */
 		OBJ_ITT_START(p_ptr->inventory, j_ptr)

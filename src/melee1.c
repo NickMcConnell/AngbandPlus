@@ -1724,6 +1724,7 @@ bool make_attack_normal(int m_idx)
 		r_ptr->r_deaths++;
 	}
 
+
 	if (alive && visible && fear)
 	{
 		flee_message(m_name, m_ptr->r_idx);

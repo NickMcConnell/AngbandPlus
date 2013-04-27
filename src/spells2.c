@@ -914,6 +914,11 @@ void report_magics(void)
 		info2[i] = report_magics_aux(query_timed(TIMED_ETHEREALNESS));
 		info[i++] = "You are incorporeal";
 	}
+	if (query_timed(TIMED_LUMINOSITY))
+	{
+		info2[i] = report_magics_aux(query_timed(TIMED_LUMINOSITY));
+		info[i++] = "Your light blazes with unusual intensity";
+	}
 	if (p_ptr->state.confusing)
 	{
 		info2[i] = 7;
@@ -2582,6 +2587,11 @@ bool earthquake(int cx, int cy, int r)
 
 		/* Important -- no wall on player */
 		map[16 + py - cy][16 + px - cx] = FALSE;
+
+		/* Reduce damage if the character can pass through walls */
+		if (query_timed(TIMED_ETHEREALNESS) || FLAG(p_ptr, TR_PASS_WALL) ||
+			query_timed(TIMED_WRAITH_FORM))
+			damage = damage / 2;
 
 		/* Take some damage */
 		if (damage) take_hit(damage, "an earthquake");

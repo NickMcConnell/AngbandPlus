@@ -5,7 +5,7 @@ attack it. If you are wielding a weapon (including digging implements
 which are considered to be weapons) when you do so, the damage for the
 weapon is used when you hit a creature. Otherwise, you will attack with
 your bare hands which does minimal damage (unless you are playing a
-monk).
+Monk).
 
 Melee can do more damage per turn than any other form of attack, and
 the basic equipment (a weapon) is easy to find. On the other hand,
@@ -57,19 +57,15 @@ you do not have the ability to see invisible creatures, you must tunnel
 into the wall space containing the creature.
 
 ***** <Bashing>
---- Body and Shield Bashes ---
+--- Shield Bashes ---
 
-If a creature is positioned next to you, you may bash it. Weight is the
-primary factor in being able to bash something, but strength plays a
-role too. If a shield is currently being worn, the bash is a shield
-bash and will do more damage. A successful bashing will damage your
-opponent and may throw an opponent off balance for a number of rounds,
-allowing a player to get in a free hit or more. Unfortunately, the
-converse is also true. Having a high dexterity reduces the chance of
-you being thrown off balance. This is a risky attack.
-
-Note: You will automatically do shield bashes during melee combat.
-These bashes have a chance to stun or confuse your opponent. 
+If a creature is positioned next to you, you may bash it if you are
+using a shield. Weight is the primary factor in being able to bash
+something, but strength plays a role too.  A successful bashing will
+damage your opponent and may throw an opponent off balance for a
+number of rounds, allowing a player to get in a free hit or more.  You
+will automatically do shield bashes during melee combat.  These bashes
+have a chance to stun or confuse your opponent.
 
 
 ***** <MeleeWeapons>
@@ -91,14 +87,14 @@ weapon is also a consideration.
 
 In addition to their base damage, each weapon has two main magical
 characteristics, their bonus to your skill and their bonus to your
-deadliness, expressed as "(+#,+#)". A normal weapon would be "(+0,+0)"
-but many weapons in Zangband have bonuses to your skill and/or
-deadliness. These bonuses may be increased, subject to certain upper
-limits, by magical means through a process referred to as 'enchanting'.
-Some weapons are cursed, and will have penalties that hurt the player.
-Cursed weapons cannot be unwielded until the curse is lifted. Note that
-identifying a weapon will inform you of the magical bonuses and
-penalties and whether or not it is cursed.
+deadliness, expressed as "(+#,+#%)". A normal weapon would be
+"(+0,+0%)" but many weapons in Zangband have bonuses to your skill
+and/or deadliness. These bonuses may be increased, subject to certain
+upper limits, by magical means through a process referred to as
+'enchanting'.  Some weapons are cursed, and will have penalties that
+hurt the player.  Cursed weapons cannot be unwielded until the curse
+is lifted. Note that identifying a weapon will inform you of the
+magical bonuses and penalties and whether or not it is cursed.
 
 Although you receive any magical bonuses an unidentified weapon may
 possess when you wield it, those bonuses will not be added in to the
@@ -118,7 +114,7 @@ shots, bows will fire arrows and crossbows will fire bolts. Missiles of
 varying type and quality can be bought in the town and may be found
 throughout the dungeon.
 
-Missile launchers, have their characteristics added to those of the
+Missile launchers have their characteristics added to those of the
 missile used, if the proper weapon/missile combination is used, and the
 launcher multiplier is applied to the total damage, making missile
 weapons very powerful given the proper missiles. This is especially
@@ -131,7 +127,7 @@ class makes it harder to do damage, and so leads to more misses; it
 will also reduce the damage from a strike that actually occurs.
 
 You can find out roughly how much damage your missile weapons will do
-by looking at the (+#/+#) value on the ammunition in your inventory.
+by looking at the (+#/+#%) value on the ammunition in your inventory.
 The two numbers indicate the average damage done per shot, and average
 damage done per round.  These numbers take into account whether or not
 you have identified your ammunition and launcher.  The two numbers can
@@ -278,87 +274,53 @@ Weapon of Keenness
     from the hapless victim, transferring the life energy to its
     master and healing them in the process.
 
-Weapon of Acid
-    A magical weapon of acid that will inflict two times the normal
-    damage when used against a creature that is not resistant to acid.
-    It also provides resistance against acid attacks.
+Weapon of Flame, Acid, Ice, Lightning, Poison 
+    A magical weapon that will inflict three times the normal damage
+    when used against a creature that is not resistant to its element
+    (fire, acid, cold, electricity, or poison).  It also provides
+    resistance against attacks that match its element.  Weapons of
+    Flame grant permanent light.
 
-Weapon of Lightning
-    A magical weapon of lightning that will inflict two times the
-    normal damage when used against a creature that is not resistant to
-    electricity. It also provides resistance against lightning attacks.
-
-Weapon of Ice
-    A magical weapon of ice that will inflict two times the normal
-    damage when used against a creature that is not resistant to cold.
-    It also provides resistance against cold attacks.
-
-Weapon of Flame
-    A magical weapon of fire that will inflict two times the normal
-    damage when used against a creature that is not resistant to fire.
-    It also provides resistance against fire attacks, and grants
-    permanent light.
-
-Weapon of Poison
-    A magical weapon, coated with poison, that will inflict two times
-    the normal damage to creatures not resistant to poison. It also
-    provides resistance against toxic and poisonous attacks.
-
-Weapon of *Fire*
-    These powerful magic weapons inflict extra damage from fire, 
-    grant you resistance to fire, sheath you in a fiery aura, and 
-    can periodically shoot bolts of fire at your enemies, and grant
-    permanent light.
-
-Weapon of *Acid*
-    These powerful magic weapons inflict extra damage from acid, 
-    grant you resistance to acid, sheath you in an acidic aura, and 
-    can periodically shoot bolts of acid at your enemies.
-
-Weapon of *Ice*
-    These powerful magic weapons inflict extra damage from cold, 
-    grant you resistance to cold, sheath you in a freezing aura, and 
-    can periodically shoot bolts of frost at your enemies.
-
-Weapon of *Lightning*
-    These powerful magic weapons inflict extra damage from electricity, 
-    grant you resistance to electricity, sheath you in an electric 
-    aura, and can periodically shoot lightning bolts at your enemies.
+Weapon of *Fire*, *Acid*, *Ice*, *Lightning*
+    These powerful magic weapons act as the lesser branded weapons,
+    but also give you a magical aura of their element that damages
+    any enemy that attacks you, and can periodically shoot bolts of
+    their element at enemies. 
 
 --- Weapons of Slay {Monster-Type} ---
 
 Weapon of Slay Animal
     This weapon is especially effective against natural creatures and
-    will do 1.7 times the normal damage against such creatures.
+    will do double the normal damage against such creatures.
 
 Weapon of Slay Evil
     This weapon is especially effective against evil creatures and will
-    do 1.7 times the normal damage against such creatures.
+    do double the normal damage against such creatures.
 
 Weapon of Slay Undead
     This weapon is especially effective against undead creatures and
-    will do two times the normal damage against such creatures. It 
+    will do triple the normal damage against such creatures. It 
     will also provide resistance to life draining attacks.
 
 Weapon of Slay Demon
     This weapon is especially effective against demonic creatures and
-    will do two times the normal damage against such creatures.
+    will do triple the normal damage against such creatures.
 
 Weapon of Slay Orc
     This weapon is especially effective against orcs and will do
-    two times the normal damage against such creatures.
+    triple the normal damage against such creatures.
 
 Weapon of Slay Troll
     This weapon is especially effective against trolls and will do
-    three two the normal damage against such creatures.
+    triple the normal damage against such creatures.
 
 Weapon of Slay Giant
     This weapon is especially effective against giant humanoids and
-    will do two times the normal damage against such creatures.
+    will do triple the normal damage against such creatures.
 
 Weapon of Slay Dragon
     This weapon is especially effective against dragons and will do
-    three two the normal damage against such creatures.
+    triple the normal damage against such creatures.
 
 Weapon of Deadliness
     This weapon is especially effective against more than one of the
@@ -368,52 +330,52 @@ Weapon of Deadliness
 
 Weapon of *Slay* Animal
     This weapon is especially effective against natural creatures and
-    will do 1.7 times the normal damage against such creatures. It
+    will do double the normal damage against such creatures. It
     will also increase your dexterity and stealth, and allow you to 
     regenerate hit-points and mana faster.  Furthermore, it allows you
     to walk through forests more easily than normal.
 
 Weapon of *Slay* Evil
     This weapon is especially effective against evil creatures and will
-    do 1.7 times the normal damage against such creatures. It will
+    do double the normal damage against such creatures. It will
     increase your wisdom and will also be a blessed blade, and will 
     make you fearless and sustain your wisdom.
 
 Weapon of *Slay* Undead
     This weapon is especially effective against undead creatures and
-    will do two times the normal damage against such creatures. It 
+    will do triple the normal damage against such creatures. It 
     will increase your wisdom and will also provide resistance to both
     nether and life-draining attacks. It will allow you to see invisible 
     creatures and will sustain your wisdom.
 
 Weapon of *Slay* Demon
     This weapon is especially effective against demonic creatures and
-    will do two times the normal damage against such creatures. It
+    will do triple the normal damage against such creatures. It
     will also increase your intelligence, sustains your intelligence, 
     grants resistance to chaos, and is a blessed blade.
 
 Weapon of *Slay* Orc
-    This weapon is especially effective against orcs and will do two
-    times the normal damage against such creatures. It will also
+    This weapon is especially effective against orcs and will do
+    triple the normal damage against such creatures. It will also
     increase your dexterity, sustain your dexterity, do extra damage
     from fire, and grant permanent light.
 
 Weapon of *Slay* Troll
     This weapon is especially effective against trolls and will do
-    two times the normal damage against such creatures. It will also
+    triple the normal damage against such creatures. It will also
     increase your strength, sustain your strength, grant permanent
     light, and does extra damage from fire.
 
 Weapon of *Slay* Giant
     This weapon is especially effective against giant humanoids and
-    will do two times the normal damage against such creatures. It
+    will do triple the normal damage against such creatures. It
     will also increase your strength, grant you resistance against
     fire and electricity, and allow you to regenerate hit points and
     mana more quickly.
 
 Weapon of *Slay* Dragon
     This weapon is especially effective against dragons and will do
-    three times the normal damage against such creatures. It will also
+    five times the normal damage against such creatures. It will also
     increase your constitution, and will grant resistance against some
     basic elemental attacks.
 
@@ -448,15 +410,15 @@ Launcher of Lothlorien
 
 Ammunition of Hurt Animal
     This ammunition is especially effective against natural creatures
-    and will do 1.7 times the normal damage against such creatures.
+    and will do two times the normal damage against such creatures.
 
 Ammunition of Hurt Evil
     This ammunition is especially effective against evil creatures and
-    will do 1.7 times the normal damage against such creatures.
+    will do two times the normal damage against such creatures.
 
 Ammunition of Hurt Dragon
     This ammunition is especially effective against dragons and will do
-    two times the normal damage against such creatures.
+    three times the normal damage against such creatures.
 
 Ammunition of Shocking
     This ammunition will inflict two times the normal damage when
@@ -525,7 +487,6 @@ Deadliness: (formerly called the plus to damage)
      therefore triple the number of dice they roll on every blow with
      the Deadliness multiplier alone.
 
-
 ***** <MeleeCalc>
 --- Melee ---
 
@@ -543,15 +504,15 @@ damage dice are XdY is as follows:
     You hit a Troll with a dagger (1d4)
 
     there is one damage die                      :  1x damage
-    it's a weapon of Slay Troll                  :  2x damage
+    it's a weapon of Slay Troll                  :  3x damage
     you get a critical hit for 2x damage         :  2x damage
     you have a total bonus to Deadliness of 200% :  2x damage
 
     Thus,
 
-    Z = 1 * 2 * 2 * 2 = 8
+    Z = 1 * 3 * 2 * 2 = 12
 
-    Rolling a four-sided dice 8 times yields an average damage of 20
+    Rolling a four-sided dice 12 times yields an average damage of 30
     per blow.
 
 

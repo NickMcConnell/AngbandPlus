@@ -1,3 +1,33 @@
+=== Compiling ZPlusAngband under Windows ===
+
+By Mangojuice, 12.11.08.
+
+Here's how to do it in 5 simple steps.
+
+1. Install lcc from: http://www.q-software-solutions.de/downloaders 
+2. Get Z+Angband source files from  http://tinyurl.com/5pq2bd and extract 
+them to a folder.  You will need gzip for windows  
+(http://gnuwin32.sourceforge.net/packages/gzip.htm) and tar for windows 
+(http://gnuwin32.sourceforge.net/packages/gtar.htm).  Make sure the 
+directories these programs (gzip, tar, and lcc) are in are in your path; 
+you can set your path by opening "System" in the control panel, clicking 
+on the "Advanced" tab, and then clicking on "Environment variables."  
+Select "Path" from the list of system variables and edit it.  From a 
+command prompt, navigate to the directory you placed the .tar.gz file in 
+and run:
+   gzip -d file.tar.gz
+   tar -xf file.tar
+Note that this will leave the unzipped file.tar; you may want to delete 
+it, or zip it up again by running "gzip file.tar".  
+
+3.  Navigate into the folder, and then into the src directory.  Run 
+"tolua_make", then "l-make".
+4.  Now you should be able to simply run "make" in the \src directory, and 
+it will compile the game.
+
+
+== Old readme file ==
+
 This is the README file for Angband 2.8.1 (03/04/97)
 [Meaning it might not apply for Zangband in all respects, of course... (TY)]
 

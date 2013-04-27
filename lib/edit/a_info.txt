@@ -53,7 +53,7 @@
 
 # Version stamp (required)
 
-V:0.3.1
+V:0.3.2
 
 
 # The Phial of Galadriel
@@ -66,7 +66,8 @@ F:ACTIVATE | SENSE | INSTA_ART | LITE
 L:USE:	msgf("The phial wells with clear light...")
 L:USE:	lite_area(damroll(10, 15), 3)
 L:USE:	object.timeout = rand_range(10, 20)
-L:DESC:	return "illumination every 10-20 turns (dam 10d15)"
+L:USE:      inc_luminosity(5)
+L:DESC:	return "powerful illumination every 10-20 turns (dam 10d15)"
 
 
 # The Star of Elendil
@@ -80,6 +81,7 @@ L:USE:	msgf("The star shines brightly...")
 L:USE:	map_area()
 L:USE:	lite_area(damroll(2, 15), 3)
 L:USE:	object.timeout = rand_range(50, 100)
+L:USE:      inc_luminosity(25)
 L:DESC:	return "magic mapping and illumination every 50-100 turns"
 
 

@@ -255,12 +255,21 @@ void do_cmd_wield(void)
 		return;
 	}
 
-	if (cursed_p(q_ptr) && confirm_wear &&
-		(object_known_p(q_ptr) || (q_ptr->info & OB_SENSE)))
+	/* Check if we need to confirm the choice */
+	if (confirm_wear)
 	{
-		if (!get_check("Really use the %v {cursed}? ",
-			 OBJECT_FMT(q_ptr, FALSE, 0)))
-			return;
+		if (cursed_p(q_ptr) && (object_known_p(q_ptr) || (q_ptr->info & OB_SENSE)))
+		{
+			if (!get_check("Really use the %v {cursed}? ",
+				OBJECT_FMT(q_ptr, FALSE, 0)))
+				return;
+		}
+		if (!object_aware_p(q_ptr) && object_maybecursed_p(q_ptr))
+		{
+			if (!get_check("Really use the %v {cursed?}? ",
+				OBJECT_FMT(q_ptr, FALSE, 0)))
+				return;
+		}
 	}
 
 	/* Take a turn */
@@ -319,6 +328,9 @@ void do_cmd_wield(void)
 		msgf("Oops! It feels deathly cold!");
 
 		chg_virtue(V_HARMONY, -1);
+
+		/* This might be something worth remembering */
+		object_maybecursed(o_ptr);
 
 		/* Note the curse */
 		o_ptr->info |= (OB_SENSE);
@@ -1181,15 +1193,17 @@ bool ang_sort_comp_hook(const vptr u, const vptr v, int a, int b)
 	int w1 = who[a];
 	int w2 = who[b];
 
-	int z1, z2;
+	monster_race *r1_ptr = &r_info[w1];
+	monster_race *r2_ptr = &r_info[w2];
 
+	int z1, z2;
 
 	/* Sort by player kills */
 	if (*why >= 4)
 	{
 		/* Extract player kills */
-		z1 = r_info[w1].r_pkills;
-		z2 = r_info[w2].r_pkills;
+		z1 = r1_ptr->r_pkills;
+		z2 = r2_ptr->r_pkills;
 
 		/* Compare player kills */
 		if (z1 < z2) return (TRUE);
@@ -1201,8 +1215,8 @@ bool ang_sort_comp_hook(const vptr u, const vptr v, int a, int b)
 	if (*why >= 3)
 	{
 		/* Extract total kills */
-		z1 = r_info[w1].r_tkills;
-		z2 = r_info[w2].r_tkills;
+		z1 = r1_ptr->r_tkills;
+		z2 = r1_ptr->r_tkills;
 
 		/* Compare total kills */
 		if (z1 < z2) return (TRUE);
@@ -1214,8 +1228,8 @@ bool ang_sort_comp_hook(const vptr u, const vptr v, int a, int b)
 	if (*why >= 2)
 	{
 		/* Extract levels */
-		z1 = r_info[w1].level;
-		z2 = r_info[w2].level;
+		z1 = r1_ptr->level;
+		z2 = r2_ptr->level;
 
 		/* Compare levels */
 		if (z1 < z2) return (TRUE);
@@ -1227,8 +1241,8 @@ bool ang_sort_comp_hook(const vptr u, const vptr v, int a, int b)
 	if (*why >= 1)
 	{
 		/* Extract experience */
-		z1 = r_info[w1].mexp;
-		z2 = r_info[w2].mexp;
+		z1 = r1_ptr->mexp;
+		z2 = r2_ptr->mexp;
 
 		/* Compare experience */
 		if (z1 < z2) return (TRUE);
@@ -1289,6 +1303,7 @@ void do_cmd_query_symbol(void)
 {
 	int i, n, r_idx;
 	char sym, query;
+
 
 	bool all = FALSE;
 	bool uniq = FALSE;
@@ -1369,12 +1384,15 @@ void do_cmd_query_symbol(void)
 	}
 
 	/* Allocate the "who" array */
-	C_MAKE(who, z_info->r_max, u16b);
+	C_MAKE(who, RACE_MAX, u16b);
 
 	/* Collect matching monsters */
-	for (n = 0, i = 1; i < z_info->r_max; i++)
+	for (n = 0, i = 1; i < RACE_MAX; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
+
+		/* Skip non-existant monsters */
+		if (!r_ptr->rarity) continue;
 
 		/* Nothing to recall */
 		if (!cheat_know && !r_ptr->r_sights) continue;
@@ -1473,6 +1491,8 @@ void do_cmd_query_symbol(void)
 	/* Scan the monster memory */
 	while (1)
 	{
+		int hero_idx;
+
 		/* Extract a race */
 		r_idx = who[i];
 
@@ -1498,7 +1518,7 @@ void do_cmd_query_symbol(void)
 				screen_save();
 
 				/* Recall on screen */
-				screen_roff_mon(who[i], 0);
+				screen_roff_mon(r_idx, 0);
 
 				/* Hack -- Complete the prompt (again) */
 				roff(" [(r)ecall, ESC]");
@@ -1630,7 +1650,8 @@ bool research_mon(void)
 
 
 	/* Collect matching monsters */
-	for (n = 0, i = 1; i < z_info->r_max; i++)
+	/* Collect matching monsters */
+	for (n = 0, i = 1; i < RACE_MAX; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
 
@@ -2037,7 +2058,7 @@ void do_cmd_squelch(void)
 	k_idx = o_ptr->k_idx;
 
 	/* Can't squelch objects that have "flavors" if un-id'ed. */
-	if (k_info[k_idx].flavor && !k_info[k_idx].aware) {
+	if (k_info[k_idx].flavor && !(k_info[k_idx].info & OK_AWARE)) {
 		msgf ("You can't squelch %v without identifying it.", OBJECT_FMT(o_ptr, TRUE, 3));
 		return;
 	}
@@ -2198,6 +2219,8 @@ static void do_cmd_organize_aux(void)
 		return;
 	}
 
+	o_ptr = NULL;
+
 	/* Start organizing */
 	while (TRUE)
 	{
@@ -2207,10 +2230,13 @@ static void do_cmd_organize_aux(void)
 		q = "Move which item? ";
 		s = "You have nothing to organize.";
 
-		o_ptr = get_item(q, s, (USE_INVEN));
+		if (!o_ptr)
+		{
+			o_ptr = get_item(q, s, (USE_INVEN));
 
-		/* Not a valid item */
-		if (!o_ptr) return;
+			/* Not a valid item */
+			if (!o_ptr) return;
+		}
 
 		/* See how many items */
 		if (o_ptr->number > 1)
@@ -2235,7 +2261,12 @@ static void do_cmd_organize_aux(void)
 		prtf(0, 0, "Which container?%s", inven_carry_okay_no_containers(o_ptr) ? " (* for Inven)" : "");
 
 		/* Get a response */
-		which = inkey();
+		while (TRUE)
+		{
+			which = inkey();
+			if (which == ESCAPE || which == '*' || (A2I(which) >= 0 && A2I(which) < INVEN_PACK))
+				break;
+		}
 
 		switch(which)
 		{
@@ -2279,6 +2310,8 @@ static void do_cmd_organize_aux(void)
 
 				q_ptr = label_to_list(which, p_ptr->inventory);
 
+				if (!q_ptr) break;
+
 				/* Temporarily change number */
 				o_ptr->number = amt;
 
@@ -2309,7 +2342,10 @@ static void do_cmd_organize_aux(void)
 
 		/* Take a partial turn */
 		if (act)
+		{
 			p_ptr->state.energy_use = 50;
+			o_ptr = NULL;
+		}
 
 
 		if (done) break;

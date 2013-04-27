@@ -277,7 +277,7 @@ extern monster_group_type *current_monster_group;
 extern object_memory_type current_object_source;
 extern int current_terrain;
 extern int pet_dur;
-
+extern hero_type *h_list;
 
 /* birth.c */
 extern void player_birth(void);
@@ -465,6 +465,12 @@ extern void create_region_aux(s16b *region, int x, int y, byte flags);
 extern void generate_cave(void);
 extern void pick_dungeon(dun_type *d_ptr, u32b dun_types);
 
+/* hero.c */
+extern void restore_hero (s16b hero_idx);
+extern s16b create_hero (s16b r_idx, int offset, bool quest);
+extern void hero_death(s16b hero_idx);
+extern bool hero_okay(s16b r_idx);
+
 /* init1.c */
 extern errr init_w_info_txt(FILE *fp, char *buf);
 extern errr init_t_info_txt(FILE *fp, char *buf);
@@ -478,6 +484,7 @@ extern void init_file_paths(char *path);
 extern void init_angband(void);
 extern void cleanup_angband(void);
 extern errr check_modification_date(int fd, cptr template_file);
+extern void reinit_alloc(void);
 
 /* load.c */
 extern errr rd_savefile_new(void);
@@ -526,7 +533,7 @@ extern void update_monsters(bool full);
 extern bool test_monster_square(cave_type *c_ptr, monster_race *r_ptr);
 extern monster_type *place_monster_aux(int x, int y, int r_idx, bool slp, bool grp,
 							  bool friendly, bool pet, bool summon);
-extern bool place_monster(int x, int y, bool slp, bool grp, int deltalevel);
+extern bool place_monster(int x, int y, bool slp, bool grp, int delta_level);
 extern bool alloc_horde(int x, int y);
 extern bool alloc_monster(int dis, bool slp, int delta_level);
 extern bool summon_specific(int who, int x1, int y1, int lev, int type,
@@ -617,6 +624,8 @@ extern s16b get_obj_num(int level, int min_level);
 extern void object_known(object_type *o_ptr);
 extern void object_aware(object_type *o_ptr);
 extern void object_tried(object_type *o_ptr);
+extern void object_worthless(object_type *o_ptr);
+extern void object_maybecursed(object_type *o_ptr);
 extern void object_mental(object_type *o_ptr);
 extern bool object_can_contain(const object_type *j_ptr, const object_type *o_ptr, int priority);
 extern object_type *object_insert(object_type *j_ptr, object_type *o_ptr);
@@ -829,7 +838,7 @@ extern bool apply_disenchant(void);
 extern void mutate_player(void);
 extern void apply_nexus(const monster_type *m_ptr);
 extern void phlogiston(void);
-extern void brand_weapon(int brand_type);
+extern bool brand_weapon(int brand_type);
 extern void call_the_(void);
 extern void fetch(int dir, int wgt, bool require_los);
 extern void alter_reality(void);
@@ -1083,6 +1092,7 @@ extern void notice_inven(void);
 extern void notice_equip(void);
 extern void notice_item(void);
 extern bool inc_etherealness(int v);
+extern bool inc_luminosity(int v);
 extern bool inc_oppose_conf(int v);
 extern bool inc_oppose_blind(int v);
 extern bool inc_tim_str(int v);
@@ -1201,7 +1211,7 @@ extern void change_level(int);
 extern int base_level(void);
 extern void wipe_all_list(void);
 extern dun_type *dungeon(void);
-extern void move_dun_level(int direction);
+extern void move_dun_level(int direction, bool magic);
 extern int max_dun_level_reached(void);
 extern cptr building_name(byte build_type);
 extern void building_char(byte build_type, byte *a, char *c);

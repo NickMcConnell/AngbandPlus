@@ -23,10 +23,70 @@ bool new_player_spot(void)
 	int x = 0;
 	int y = 0;
 	int max_attempts = 5000;
+	int seen = 0;
 
 	cave_type *c_ptr;
 
-	/* Place the player */
+	/* No stairs down from final quests */
+	if (is_special_level(p_ptr->depth))
+	{
+		p_ptr->state.create_down_stair = FALSE;
+	}
+
+	/* Paranoia -- no stairs from town or wilderness */
+	if (!p_ptr->depth) p_ptr->state.create_down_stair = p_ptr->state.create_up_stair = FALSE;
+
+	/* Option -- no connected stairs */
+	if (!dungeon_stair) p_ptr->state.create_down_stair = p_ptr->state.create_up_stair = FALSE;
+
+	/* Nightmare mode is no fun... */
+	if (ironman_nightmare) p_ptr->state.create_down_stair = p_ptr->state.create_up_stair = FALSE;
+
+	/* Option -- no up stairs */
+	if (ironman_downward) p_ptr->state.create_down_stair = p_ptr->state.create_up_stair = FALSE;
+
+	if (p_ptr->state.create_up_stair || p_ptr->state.create_down_stair)
+	{
+		byte feat = p_ptr->state.create_up_stair ? FEAT_LESS : FEAT_MORE;
+		
+		for (y = p_ptr->min_hgt; y < p_ptr->max_hgt; y++)
+		{
+			for (x = p_ptr->min_wid; x < p_ptr->max_wid; x++)
+			{
+				c_ptr = cave_p(x,y);
+
+				/* Look for the requested feature */
+				if (c_ptr->feat != feat) continue;
+				
+				/* Found one */
+				seen++;
+
+				/* Hack to choose one at random */
+				if (one_in_(seen)) 
+				{
+					p_ptr->px = x;
+					p_ptr->py = y;
+				}
+			}
+		}
+		
+		/* Cancel the stair request */
+		p_ptr->state.create_down_stair = p_ptr->state.create_up_stair = FALSE;
+
+		/* If we found one, we succeeded */
+		if (seen)
+		{
+			Term_move_player();
+			return TRUE;
+		}
+		else
+		{
+			/* Warn */
+			msgf ("Couldn't find stairs to move player to!");
+		}
+	}
+
+	/* Place the player randomly, if  */
 	while (--max_attempts)
 	{
 		/* Pick a legal spot */

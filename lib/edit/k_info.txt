@@ -75,7 +75,7 @@
 
 # Version stamp (required)
 
-V:0.3.1
+V:0.3.2
 
 
 ##### Something special #####
@@ -3667,7 +3667,7 @@ W:95:0:15:30000
 A:75/8:100/16
 P:0:1d1:0:0:0
 F:EASY_KNOW
-L:USE:  call_chaos(); ident = TRUE
+L:USE:  call_chaos(0); ident = TRUE
 D:This rod calls forth a random attack.
 
 N:351:Door/Stair Location
@@ -4295,8 +4295,8 @@ L:DESC: return "breathe multi-hued (840) every 25-50 turns"
 D:Mail made from the many-colored scales of a dragon.  The scales almost
 D: pulsate, as if they are still alive.
 
-N:406:& Pseudo Dragon Scale Mail~
-G:[:v
+N:406:& Ethereal Dragon Scale Mail~
+G:[:o
 I:38:10:0
 W:65:0:200:30000
 A:65/16
@@ -6263,7 +6263,7 @@ D: in its path.
 
 N:641:Sound Resistance
 G:=:d
-I:45:44:0
+I:45:68:0
 W:43:0:2:750
 A:43/2
 F:RES_SOUND | EASY_KNOW
@@ -6794,8 +6794,8 @@ D:This tome seems to be made of nothing but air.
 N:680:Fear
 G:=:d
 I:45:67:0
-W:30:0:2:1000
-A:30/3
+W:60:0:2:2000
+A:60/3
 F:SH_FEAR
 
 N:681:Elemental Immunity
@@ -6827,10 +6827,41 @@ D: your stealth is substantially improved.
 
 N:683:Preservation
 G:!:d
-I:75:65:0
+I:75:66:0
 W:15:0:4:200
 A:15/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
 L:USE:  ident = inc_tim_sust_all(rand_range(20, 40))
 D:This potion makes you resistant to stat draining for 20-40 turns.
+
+#N:684:& Dart~
+#G:{:w
+#I:15:0:0
+#W:5:0:1:1
+#A:5/2:10/2
+#P:0:1d4:0:0:0
+#F:SHOW_MODS | THROW
+#D:A basic dart, well-balanced and sharp.
+
+#N:685:& Throwing Dagger~
+#G:{:W
+#I:15:1:0
+#W:15:0:3:8
+#A:15/2:25/2
+#P:0:1d8:0:0:0
+#F:SHOW_MODS | THROW
+#D:These daggers do not have suitable handles to use as melee weapons.
+
+#N:686:& Shuriken~
+#G:{:s
+#I:15:2:0
+#W:30:0:3:50
+#A:30/1
+#P:0:1d12:0:0:0
+#F:SHOW_MODS | THROW
+#D:A light-weight flat disc of metal with cutting points.
+
+
+
+

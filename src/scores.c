@@ -969,7 +969,11 @@ static void kingly(void)
 	p_ptr->depth = 0;
 
 	/* Fake death */
+	/* Give a different death cause if the player is wearing an amulet of immortality.
+	   See!  It actually does make you immortal!! */
+	if (!p_ptr->equipment[EQUIP_NECK].k_idx || p_ptr->equipment[EQUIP_NECK].sval != 29)
 	(void)strcpy(p_ptr->state.died_from, "Ripe Old Age");
+	else (void)strcpy(p_ptr->state.died_from, "Immortality");
 
 	/* Restore the experience */
 	p_ptr->exp = p_ptr->max_exp;

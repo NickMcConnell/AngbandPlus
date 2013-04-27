@@ -3372,7 +3372,7 @@ static bool do_cmd_knowledge_uniques(int dummy)
 	C_MAKE(who, z_info->r_max, u16b);
 
 	/* Collect matching monsters */
-	for (n = 0, i = 1; i < z_info->r_max; i++)
+	for (n = 0, i = 1; i < RACE_MAX; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
 
@@ -3381,6 +3381,9 @@ static bool do_cmd_knowledge_uniques(int dummy)
 
 		/* Require unique monsters if needed */
 		if (!FLAG(r_ptr, RF_UNIQUE)) continue;
+
+		/* Skip the clone */
+		if (i == QW_CLONE) continue;
 
 		/* Collect "appropriate" monsters */
 		who[n++] = i;
@@ -3420,7 +3423,8 @@ static bool do_cmd_knowledge_uniques(int dummy)
 	/* Scan the monster races */
 	for (i = 0; i < n; i++)
 	{
-		monster_race *r_ptr = &r_info[who[i]];
+		int r_idx = who[i];
+		monster_race *r_ptr = &r_info[r_idx];
 
 		if (r_ptr->max_num == 0)
 		{
@@ -3639,7 +3643,7 @@ static bool do_cmd_knowledge_kill_count(int dummy)
 	C_MAKE(who, z_info->r_max, u16b);
 
 	/* Collect matching monsters */
-	for (n = 0, i = 1; i < z_info->r_max; i++)
+	for (n = 0, i = 1; i < RACE_MAX; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
 
@@ -3682,8 +3686,8 @@ static bool do_cmd_knowledge_kill_count(int dummy)
 	}
 
 
-	/* Monsters slain */
-	for (kk = 1; kk < z_info->r_max; kk++)
+	/* Collect matching monsters */
+	for (kk = 1; kk < RACE_MAX; kk++)
 	{
 		monster_race *r_ptr = &r_info[kk];
 
@@ -3723,7 +3727,8 @@ static bool do_cmd_knowledge_kill_count(int dummy)
 	/* Scan the monster races */
 	for (i = 0; i < n; i++)
 	{
-		monster_race *r_ptr = &r_info[who[i]];
+		int r_idx = who[i];
+		monster_race * r_ptr = &r_info[who[i]];
 
 		if (FLAG(r_ptr, RF_UNIQUE))
 		{
@@ -4013,7 +4018,7 @@ static bool do_cmd_knowledge_objects(int dummy)
 				if (FLAG(k_ptr, TR_INSTA_ART)) continue;
 
 				/* List known flavored objects */
-				if (k_ptr->flavor && k_ptr->aware)
+				if (k_ptr->flavor && (k_ptr->info & OK_AWARE))
 				{
 					object_type *o_ptr;
 

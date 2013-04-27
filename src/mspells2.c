@@ -2553,7 +2553,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 160 + 16:
 			{
-				/* RF5_SUMMON_KIN */
+				/* RF5_S_KIN */
 				if (m_ptr->silenced) break;
 
 				if (known)
@@ -2622,10 +2622,10 @@ bool monst_spell_monst(int m_idx)
 
 			case 160 + 18:
 			{
+				int type = (friendly ? SUMMON_NO_UNIQUES : 0);
+
 				/* RF5_S_MONSTER */
 				if (m_ptr->silenced) break;
-
-				int type = (friendly ? SUMMON_NO_UNIQUES : 0);
 
 				if (known)
 				{
@@ -2655,10 +2655,10 @@ bool monst_spell_monst(int m_idx)
 
 			case 160 + 19:
 			{
+				int type = (friendly ? SUMMON_NO_UNIQUES : 0);
+
 				/* RF5_S_MONSTERS */
 				if (m_ptr->silenced) break;
-
-				int type = (friendly ? SUMMON_NO_UNIQUES : 0);
 
 				if (known)
 				{

@@ -38,7 +38,7 @@ void do_cmd_go_up(void)
 		p_ptr->state.create_down_stair = TRUE;
 
 		/* Go up */
-		move_dun_level(-1);
+		move_dun_level(-1, FALSE);
 
 		/*
 		 * Hack XXX XXX Take some time
@@ -116,7 +116,7 @@ void do_cmd_go_down(void)
 		p_ptr->state.create_up_stair = TRUE;
 
 		/* Go down */
-		move_dun_level(1);
+		move_dun_level(1, FALSE);
 
 		/*
 		 * Hack XXX XXX Take some time
@@ -1764,8 +1764,11 @@ void do_cmd_alter(void)
 
 				case ACT_DISARM:
 				{
-					/* Disarm */
-					more = do_cmd_disarm_aux(c_ptr, dir);
+					/* Disarm, if a trap is known. */
+					if (field_first_known(c_ptr, FTYPE_TRAP))
+						more = do_cmd_disarm_aux(c_ptr, dir);
+					else
+						msgf("You attack the empty air.");
 					break;
 				}
 
@@ -2788,8 +2791,7 @@ void do_cmd_fire_aux(int mult, object_type *o_ptr, const object_type *j_ptr)
 				/* Complex message in Wiz mode, or for Humans */
 				if (p_ptr->state.wizard || p_ptr->rp.prace == RACE_HUMAN)
 				{
-					msgf("You do %d (out of %d) damage.",
-							   tdam, m_ptr->hp);
+					msgf("You do %d damage (%d remaining).", tdam, m_ptr->hp-tdam);
 				}
 
 				/* Hit the monster, check for death */

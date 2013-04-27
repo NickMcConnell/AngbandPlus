@@ -2179,10 +2179,15 @@ static void del_wild_cache(void)
  *
  * direction is -1 for going down, and +1 for up.
  */
-void move_dun_level(int direction)
+void move_dun_level(int direction, bool magic)
 {
 	place_type *pl_ptr = &place[p_ptr->place_num];
 	dun_type *d_ptr = pl_ptr->dungeon;
+
+	if (!p_ptr->depth && direction > 0)
+		/* Just left the wilderness: Cancel WoR */
+		set_timed(TIMED_WORD_RECALL, 0, "The air about you becomes charged...",
+			"A tension leaves the air around you...");
 
 	/* Change depth */
 	p_ptr->depth += direction;
@@ -2197,11 +2202,55 @@ void move_dun_level(int direction)
 		if (direction == 1)
 		{
 			p_ptr->depth = d_ptr->min_level;
+
+			/* Just left the wilderness: Cancel WoR */
+			set_timed(TIMED_WORD_RECALL, 0, "The air about you becomes charged...",
+				"A tension leaves the air around you...");
 		}
 		else
 		{
 			/* Go to surface. */
 			p_ptr->depth = 0;
+
+			/* Just left the dungeon: Cancel WoR */
+			set_timed(TIMED_WORD_RECALL, 0, "The air about you becomes charged...",
+				"A tension leaves the air around you...");
+
+			if (!magic)
+			{
+				/* Find the actual entrance to the dungeon, and put the
+					player there. */
+				switch (pl_ptr->type)
+				{
+					case PL_TOWN_FRACT:
+					{
+						int i;
+						store_type *st_ptr;
+
+						for (i = 0; i < pl_ptr->numstores; i++)
+						{
+							st_ptr = &pl_ptr->store[i];
+
+							if (st_ptr->type != BUILD_STAIRS) continue;
+
+							p_ptr->wilderness_x = pl_ptr->x * 16 + st_ptr->x;
+							p_ptr->wilderness_y = pl_ptr->y * 16 + st_ptr->y;
+							break;
+						}
+						break;
+					}
+					case PL_QUEST_STAIR:
+
+						p_ptr->wilderness_x = pl_ptr->x * 16 + 8;
+						p_ptr->wilderness_y = pl_ptr->y * 16 + 7;
+						break;
+
+					case PL_DUNGEON:
+
+						/* Todo: Write this */
+						break;
+				}
+			}
 		}
 	}
 

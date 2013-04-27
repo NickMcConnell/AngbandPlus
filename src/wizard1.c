@@ -1373,8 +1373,8 @@ static void spoil_mon_desc(cptr fname)
 	/* Allocate the "who" array */
 	C_MAKE(who, z_info->r_max, s16b);
 
-	/* Scan the monsters */
-	for (i = 1; i < z_info->r_max; i++)
+	/* Collect matching monsters */
+	for (n = 0, i = 1; i < RACE_MAX; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
 
@@ -1393,8 +1393,8 @@ static void spoil_mon_desc(cptr fname)
 	/* Scan again */
 	for (i = 0; i < n; i++)
 	{
-		monster_race *r_ptr = &r_info[who[i]];
-
+		int r_idx = who[i];
+		monster_race * r_ptr = &r_info[who[i]];
 		cptr name = mon_race_name(r_ptr);
 
 		/* Get the "name" */
@@ -1619,11 +1619,11 @@ static void spoil_mon_info(cptr fname)
 	/* Allocate the "who" array */
 	C_MAKE(who, z_info->r_max, s16b);
 
-	/* Scan the monsters */
-	for (i = 1; i < z_info->r_max; i++)
+	/* Collect matching monsters */
+	for (n = 0, i = 1; i < RACE_MAX; i++)
 	{
-		monster_race *r_ptr = &r_info[i];
-
+		monster_race * r_ptr = &r_info[i];
+		
 		/* Use that monster */
 		if (r_ptr->name) who[count++] = i;
 	}
@@ -1639,7 +1639,8 @@ static void spoil_mon_info(cptr fname)
 	/* Scan again */
 	for (n = 0; n < count; n++)
 	{
-		monster_race *r_ptr = &r_info[who[n]];
+		int r_idx = who[i];
+		monster_race * r_ptr = &r_info[who[i]];
 
 		/* Extract the flags */
 		flags1 = r_ptr->flags[0];

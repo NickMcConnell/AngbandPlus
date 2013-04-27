@@ -1109,10 +1109,6 @@ static void draw_general(int x0, int y0, store_type *st_ptr, int x, int y)
 {
 	int i, j;
 
-	/* Ignore currently unused parameters */
-	(void)x;
-	(void)y;
-
 	switch (st_ptr->type)
 	{
 		case BUILD_STAIRS:
@@ -1129,6 +1125,9 @@ static void draw_general(int x0, int y0, store_type *st_ptr, int x, int y)
 
 			/* Clear previous contents, add down stairs */
 			set_feat_bold(x0, y0, FEAT_MORE);
+
+			st_ptr->x = x * 8 + x0 % 8;
+			st_ptr->y = y * 8 + y0 % 8;
 
 			break;
 		}
@@ -1669,6 +1668,7 @@ static void entrance_monsters(int x_max, int y_max)
 {
 	int x, y;
 	int i;
+	u16b r_idx;
 
 	long size = x_max * y_max;
 
@@ -1693,7 +1693,8 @@ static void entrance_monsters(int x_max, int y_max)
 		if (!cave_nice_grid(c_ptr)) continue;
 
 		/* Hack  Pick a race, and store it into monster slot of cave_type */
-		c_ptr->m_idx = get_mon_num(dun_level);
+		r_idx = get_mon_num(dun_level);
+		c_ptr->m_idx = r_idx;
 	}
 
 	/* Remove the monster restriction */
@@ -2705,8 +2706,8 @@ static void init_dungeon(place_type *pl_ptr, const dun_gen_type *d_ptr)
 	dt_ptr->habitat = d_ptr->habitat;
 
 	/* Save level bounds */
-	dt_ptr->min_level = (d_ptr->min_level * rand_range(80, 120) + 50) / 100;
-	dt_ptr->max_level = (d_ptr->max_level * rand_range(80, 120) + 50) / 100;
+	dt_ptr->min_level = POWER(d_ptr->min_level, rand_range(-20,20));
+	dt_ptr->max_level = POWER(d_ptr->max_level, rand_range(-20,20));
 
 	/* Cap min/max level */
 	if (dt_ptr->min_level < 1)

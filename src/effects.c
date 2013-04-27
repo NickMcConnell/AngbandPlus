@@ -110,6 +110,8 @@ s16b * get_timed_ptr(int typ)
 			return &p_ptr->tim.invis;
 		case TIMED_XTRA_INVIS:
 			return &p_ptr->tim.xtra_invis;
+		case TIMED_LUMINOSITY:
+			return &p_ptr->tim.luminosity;
 		default:
 			msgf ("Bad type given to get_timed_ptr().  Crash is likely.");
 			while (!get_check("Ready to crash?")) ;
@@ -258,6 +260,9 @@ static void update_timed(int typ)
 			break;
 		case TIMED_ETHEREALNESS:
 			p_ptr->update |= (PU_BONUS);
+			break;
+		case TIMED_LUMINOSITY:
+			p_ptr->update |= (PU_TORCH);
 			break;
 
 		case TIMED_RESIST_MAGIC:
@@ -541,6 +546,12 @@ bool inc_etherealness(int v)
 		"You feel incorporeal!", "You feel solid again."));
 }
 
+bool inc_luminosity(int v)
+{
+	return (set_timed(TIMED_LUMINOSITY, query_timed(TIMED_LUMINOSITY)+v,
+		"Your light flares!", "Your light returns to normal."));
+}
+
 bool inc_wraith_form(int v)
 {
 	return (set_timed(TIMED_WRAITH_FORM, query_timed(TIMED_WRAITH_FORM)+v,
@@ -734,7 +745,7 @@ bool inc_sh_fire(int v)
 bool inc_sh_fear(int v)
 {
 	return (set_timed(TIMED_SH_FEAR, query_timed(TIMED_SH_FEAR)+v,
-		"Your appearnace twists with eldritch terror!", "Your appearance returns to normal."));
+		"Your appearance twists with eldritch terror!", "Your appearance returns to normal."));
 }
 
 bool inc_tim_invisible(int v)
@@ -2361,8 +2372,8 @@ bool lose_all_info(void)
 		if (k_ptr->flavor && !player_save(k_ptr->level - 50))
 		{
 			/* Forget knowledge */
-			k_ptr->aware = FALSE;
-			k_ptr->tried = FALSE;
+			k_ptr->info &= ~(OK_AWARE | OK_TRIED | OK_WORTHLESS | OK_CURSED);
+			
 			/* Unsquelch.  Players should not be able to suppress
 			   objects they don't know! */
 			if (SQUELCH(k)) {

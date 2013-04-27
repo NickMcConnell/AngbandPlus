@@ -60,7 +60,7 @@
 #endif /* !DEBUG */
 
 /* Savefile version */
-#define SAVEFILE_VERSION 57
+#define SAVEFILE_VERSION 59
 
 
 /*
@@ -232,6 +232,7 @@
  * r_idx for "Clone Self."
  */
 #define QW_CLONE				969
+#define QW_DELETED_HERO			970
 
 /* Quest status */
 #define QUEST_STATUS_UNTAKEN		0
@@ -1887,6 +1888,7 @@
 #define TV_FIGURINE      8		/* Magical figurines */
 #define TV_STATUE        9		/* Statue */
 /*#define TV_CORPSE       10  */ /* Corpses are now fields */
+#define TV_THROWN		15		/* "Ammo" with no launcher */
 #define TV_SHOT         16		/* Ammo for slings */
 #define TV_ARROW        17		/* Ammo for bows */
 #define TV_BOLT         18		/* Ammo for x-bows */
@@ -2881,8 +2883,9 @@
 #define TIMED_SH_FEAR				42
 #define TIMED_INVIS					43
 #define TIMED_XTRA_INVIS			44
+#define TIMED_LUMINOSITY			45
 
-#define MAX_TIMED 45
+#define MAX_TIMED 46
 
 #define MAX_TIMED_RESERVED  64
 
@@ -3078,6 +3081,16 @@
 #define OB_NO_EXP    0x40		/* Item gives no score */
 #define OB_DUMMY4    0x80
 
+/* 
+ * Object kind flags */
+#define OK_AWARE		0x01	/* Aware of the object kind */
+#define OK_TRIED		0x02	/* Have tried the object without success */
+#define OK_WORTHLESS	0x04	/* Unaware, but know the kind is worthless */
+#define OK_CURSED		0x08	/* Unaware, but know the kind can be cursed */
+#define OK_EASY_KNOW	0x10	/* Object is always known if aware */
+#define OK_DUMMY2		0x20
+#define OK_DUMMY3		0x40
+#define OK_DUMMY4		0x80
 
 
 /*
@@ -4246,6 +4259,7 @@
 
 
 #define RF_WILD                7,  RF7_WILD
+#define RF_DUN                 7,  RF7_DUN
 
 #define RF_DROP_CORPSE         8,  RF8_DROP_CORPSE
 #define RF_DROP_SKELETON       8,  RF8_DROP_SKELETON
@@ -4370,17 +4384,16 @@ static __inline void COPY_FLAG_AUX(const u32b *flags1, u32b *flags2, int num, u3
 #define speak_unique			TRUE
 /* {TRUE,  0, NULL,					"Number 29" }, p_ptr->options[29] */
 #define small_levels			svr_ptr->options[0]
-#define dungeon_abyss			p_ptr->options[30]
+#define dungeon_abyss			svr_ptr->options[1]
 
 /* Option set 1 */
 
-/* {TRUE,  0, NULL,					"Number 32" }, svr_ptr->options[1] */
+/* {TRUE,  0, NULL,					"Number 32" }, p_ptr->options[30] */
 /* {TRUE,  0, NULL,					"Number 33" }, svr_ptr->options[2] */
 /* {TRUE,  0, NULL,					"Number 34" }, svr_ptr->options[3] */
 /* {TRUE,  0, NULL,					"Number 35" }, svr_ptr->options[4] */
 /* {TRUE,  0, NULL, 				"Number 36" }, svr_ptr->options[5] */
 #define expand_list				TRUE
-/* {TRUE,  0, NULL, 				"Number 36" }, svr_ptr->options[6] */
 #define destroy_batch			p_ptr->options[31]
 #define view_torch_grids		p_ptr->options[32]
 /* {TRUE,  0, NULL,					"Number 40" }, svr_ptr->options[7] */
@@ -4636,14 +4649,25 @@ static __inline void COPY_FLAG_AUX(const u32b *flags1, u32b *flags2, int num, u3
  * Determine if a given inventory item is "aware"
  */
 #define object_aware_p(T) \
-    (k_info[(T)->k_idx].aware)
+    (k_info[(T)->k_idx].info & OK_AWARE)
 
 /*
  * Determine if a given inventory item is "tried"
  */
 #define object_tried_p(T) \
-    (k_info[(T)->k_idx].tried)
+    (k_info[(T)->k_idx].info & OK_TRIED)
 
+/* 
+ * Determine if an item is "worthless"
+ */
+#define object_worthless_p(T) \
+	(k_info[(T)->k_idx].info & OK_WORTHLESS)
+	
+/* 
+ * Determine if an item can be cursed 
+ */
+#define object_maybecursed_p(T) \
+	(k_info[(T)->k_idx].info & OK_CURSED)
 
 /*
  * Determine if a given inventory item is "known"
@@ -4652,7 +4676,7 @@ static __inline void COPY_FLAG_AUX(const u32b *flags1, u32b *flags2, int num, u3
  */
 #define object_known_p(T) \
     (((T)->info & (OB_KNOWN)) || \
-     (k_info[(T)->k_idx].easy_know && k_info[(T)->k_idx].aware))
+     ((k_info[(T)->k_idx].info & OK_EASY_KNOW) && (k_info[(T)->k_idx].info & OK_AWARE)))
 
 /*
  * Is the object fully known?
@@ -5464,9 +5488,13 @@ extern int PlayerUID;
 #define OM_POLYMORPH	10		/* Polymorph Item spell */
 #define OM_RUBBLE		11		/* Found it in rubble */
 #define OM_MADE			12		/* You made it yourself (Hobbit food, maybe others) */
+#define OM_HERO			13		/* Dropped by a hero */
 
+#define HERO_MIN (z_info->r_max - z_info->h_max)
+#define RACE_MAX (z_info->r_max)
 
-
-
-
-
+#define HF_QUEST		0x01	/* Quest monster */
+#define HF_DEAD			0x02	/* Killed in this life */
+#define HF_KNOWN		0x04	/* Killed in a previous life */
+#define HF_AVENGE		0x08	/* Killed by this in a previous life */
+#define HF_AWARE		0x10	/* Has been seen */

@@ -176,7 +176,7 @@ static void new_player_spot_panic(void)
 	j = rand_range(p_ptr->min_wid, p_ptr->max_wid - 1);
 
 	delete_field_location(cave_p(j,i));
-	set_feat_grid(cave_p(i,j), dun->feat_floor);
+	set_feat_grid(cave_p(j,i), dun->feat_floor);
 
 	p_ptr->py = i;
 	p_ptr->px = j;
@@ -195,6 +195,7 @@ static void place_boss(void)
 	int best_dist = 0;
 	int best_depth = 0;
 	int r_idx;
+	int boss_r_idx;
 	monster_race * r_ptr;
 	cave_type * c_ptr;
 	int x, y, i;
@@ -1061,20 +1062,20 @@ static void add_monsters(int count)
 			 */
 			r_idx = get_mon_num(level);
 
-			r_ptr = &r_info[r_idx];
+			r_ptr = monst_race(r_idx);
 
 			/* Save the index if the monster is deeper than current monster */
-			if (!best_r_idx || (r_info[r_idx].level > best_level))
+			if (!best_r_idx || (r_ptr->level > best_level))
 			{
 				best_r_idx = r_idx;
-				best_level = r_info[r_idx].level;
+				best_level = r_ptr->level;
 			}
 
 			/* Accept monsters that are a few levels out of depth */
 			if (best_level > min_depth) break;
 		}
 
-		r_ptr = &r_info[best_r_idx];
+		r_ptr = monst_race(best_r_idx);
 
 		/* Get the number of monsters */
 		if (FLAG(r_ptr, RF_UNIQUE))
@@ -1139,7 +1140,7 @@ static void add_monsters(int count)
  */
 static bool cave_gen(dun_type *d_ptr)
 {
-	int i, j, k, y, x, y1, x1, p;
+	int i, j, k, y, x, y1, x1, p, n;
 	int min_wid, max_wid, min_hgt, max_hgt;
 
 	bool castle = d_ptr->flags & (DF_CASTLE | DF_PURE_CASTLE);
@@ -1547,11 +1548,17 @@ static bool cave_gen(dun_type *d_ptr)
 		}
 	}
 
-	/* Place 3 or 4 down stairs near some walls */
-	if (!alloc_stairs(FEAT_MORE, MIN((rand_range(3, 4) * d_ptr->freq_stairs / 100), 1), 3)) return FALSE;
+	/* Place 2-4 down stairs near some walls */
+	n = (rand_range(1,1000) * d_ptr->freq_stairs) / 100;
+	n = (n / (1000/3))+2;
 
-	/* Place 1 or 2 up stairs near some walls */
-	if (!alloc_stairs(FEAT_LESS, MIN((rand_range(1, 2) * d_ptr->freq_stairs / 100), 1), 3)) return FALSE;
+	(void)alloc_stairs(FEAT_MORE, MAX(n, 1), 3);
+
+	/* Place 1-2 up stairs near some walls */
+	n = (rand_range(1,1000) * d_ptr->freq_stairs) / 100;
+	n = (n / (1000/2))+1;
+
+	(void)alloc_stairs(FEAT_LESS, MAX(n, 1), 3);
 
 	/* Place quest monsters in the dungeon */
 	trigger_quest_create(QC_DUN_MONST, NULL);
@@ -1735,7 +1742,7 @@ static bool castle_gen(dun_type *d_ptr)
 {
 	int x, y, xmid, ymid, gate;
 	int min_hgt, max_hgt, min_wid, max_wid;
-	int i, k, p;
+	int i, k, p, n;
 	bool horiz = one_in_(2);
 
 	dun_data dun_body;
@@ -1769,37 +1776,6 @@ static bool castle_gen(dun_type *d_ptr)
 	/* Stone wall */
 	generate_fill(p_ptr->min_wid + 2, p_ptr->min_hgt + 2, p_ptr->max_wid - 3, p_ptr->max_hgt - 3,
 		FEAT_WALL_OUTER);
-
-	/* Pick a location in the outside area */
-	x = rand_range(p_ptr->min_wid + 1, p_ptr->max_wid - 2);
-	y = rand_range(p_ptr->min_hgt + 1, p_ptr->max_hgt - 2);
-
-	switch (randint0(4))
-	{
-		case 0:
-			x = p_ptr->min_wid + 1;
-			break;
-		case 1:
-			y = p_ptr->min_hgt + 1;
-			break;
-		case 2:
-			x = p_ptr->max_wid - 2;
-			break;
-		case 3:
-			y = p_ptr->max_hgt - 2;
-			break;
-	}
-
-	/* Use as player starting location if we fail, otherwise make up stairs */
-	if (!new_player_spot())
-	{
-		p_ptr->px = x;
-		p_ptr->py = y;
-	}
-	else
-	{
-		set_feat_bold(x,y, FEAT_LESS);
-	}
 
 	/* Fill inside of castle with floor */
 	generate_fill(p_ptr->min_wid+3, p_ptr->min_hgt+3, p_ptr->max_wid - 4, p_ptr->max_hgt - 4,
@@ -1905,11 +1881,24 @@ static bool castle_gen(dun_type *d_ptr)
 		}
 	}
 
-	/* Place 3 or 4 down stairs near some walls */
-	(void)alloc_stairs(FEAT_MORE, MIN((rand_range(3, 4) * d_ptr->freq_stairs / 100), 1), 3);
+	/* Place 2-4 down stairs near some walls */
+	n = (rand_range(1,1000) * d_ptr->freq_stairs) / 100;
+	n = (n / (1000/3))+2;
 
-	/* Place 1 or 2 up stairs near some walls */
-	(void)alloc_stairs(FEAT_LESS, MIN((rand_range(1, 2) * d_ptr->freq_stairs / 100), 1), 3);
+	(void)alloc_stairs(FEAT_MORE, MAX(n, 1), 3);
+
+	/* Place 1-2 up stairs near some walls */
+	n = (rand_range(1,1000) * d_ptr->freq_stairs) / 100;
+	n = (n / (1000/2))+1;
+
+	(void)alloc_stairs(FEAT_LESS, MAX(n, 1), 3);
+
+	/* Use as player starting location if we fail */
+	if (!new_player_spot())
+	{
+		/* In a quest level, avoid at all costs */
+		new_player_spot_panic();
+	}
 
 	/* Place quest monsters in the dungeon */
 	trigger_quest_create(QC_DUN_MONST, NULL);

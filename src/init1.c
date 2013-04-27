@@ -1167,6 +1167,17 @@ errr parse_z_info(char *buf, header *head)
 		z_info->rg_max = max;
 	}
 
+	/* Process 'H' for "Maximum number of heroes" */
+	else if (buf[2] == 'H')
+	{
+		int max;
+
+		if (1 != sscanf(buf + 4, "%d", &max)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the value */
+		z_info->h_max = max;
+	}
+
 	/* Process 'g' for "Maximum number of monster groups" */
 	else if (buf[2] == 'g')
 	{
@@ -2315,7 +2326,7 @@ errr parse_r_info(char *buf, header *head)
 		if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
 
 		/* Verify information */
-		if (i >= head->info_num) return (PARSE_ERROR_TOO_MANY_ENTRIES);
+		if (i >= head->info_num - z_info->h_max) return (PARSE_ERROR_TOO_MANY_ENTRIES);
 
 		/* Save the index */
 		error_idx = i;

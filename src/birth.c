@@ -439,6 +439,19 @@ static void player_wipe(void)
 		r_ptr->r_pkills = 0;
 	}
 
+	/* Reset the "heroes" */
+	for (i = 1; i < z_info->h_max; i++)
+	{
+		hero_type * h_ptr = &h_list[i];
+
+		h_ptr->flags &= ~HF_QUEST;
+
+		if (h_ptr->flags & HF_DEAD)
+		{
+			h_ptr->flags |= HF_KNOWN;
+			h_ptr->flags &= ~HF_DEAD;
+		}
+	}
 
 	/* Hack -- Well fed player */
 	p_ptr->food = PY_FOOD_FULL - 1;

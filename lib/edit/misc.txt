@@ -11,38 +11,42 @@
 
 # Version stamp (required)
 
-V:0.3.1
+V:0.3.2
 
 # Maximum number of "monster groups"
-M:g:100
+M:g:98
 
 # Maximum number of feature types
-M:F:160
+M:F:145
 
 # Maximum number of object kinds
-M:K:800
+M:K:684
 
 # Maximum number of artifacts
 M:A:134
 
 # Maximum number of ego-item types
-M:E:150
+M:E:140
 
-# Maximum number of monster races
-M:R:999
+# Maximum number of monster races, including those reserved as "heroes"
+M:R:1071
+
+# Number of monster races reserved as "heroes"
+M:H:100
 
 # Maximum number of vaults
 M:V:126
 
 # Maximum number of quests
 # 2 winner quests
-# 8 quests per town building x 20 towns = 160
-# 6 quests per guild building x 30 guilds = 180
-# 40 extra for couriers and farms = 382
+# <= 6 quests per town building x 20 towns = 120
+# <= 4 quests per guild building x 30 guilds = 120
+# 40 extra for couriers and farms = 282
+# +100 for older games that might have more.
 M:Q:382
 
 # Maximum number of field types
-M:U:160
+M:U:159
 
 # Maximum size for "fld_list[]"
 M:D:512

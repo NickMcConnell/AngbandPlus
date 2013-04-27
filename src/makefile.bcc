@@ -73,6 +73,7 @@ OBJ = \
 	wild2.obj \
 	wild3.obj \
 	variable.obj \
+	hero.obj \
 	util.obj \
 	tables.obj \
 	streams.obj \
@@ -85,7 +86,8 @@ OBJ = \
 	rooms.obj \
 	readdib.obj \
 	racial.obj \
-	quest.obj \
+	quest1.obj \
+	quest2.obj \
 	object2.obj \
 	object1.obj \
 	obj_kind.obj \

@@ -752,8 +752,8 @@ void carry(int pickup)
 
 		/* Apply auto_destroy options here. */
 		if ((auto_destroy_chests && o_ptr->tval == TV_CHEST && !o_ptr->pval)
-			|| (auto_destroy_bad && object_value(o_ptr) < 1 && o_ptr->feeling != FEEL_DUBIOUS &&
-			            o_ptr->feeling != FEEL_TAINTED)
+			|| (auto_destroy_bad && object_value(o_ptr) < 1 &&
+						o_ptr->feeling != FEEL_DUBIOUS && o_ptr->feeling != FEEL_TAINTED)
 			|| (auto_destroy_weap && (o_ptr->tval >= TV_BOW && o_ptr->tval <= TV_SWORD))
 			|| (auto_destroy_arm && (o_ptr->tval >= TV_SOFT_ARMOR && o_ptr->tval <= TV_DRAG_ARMOR))
 			|| (auto_destroy_cloak && o_ptr->tval == TV_CLOAK)
@@ -1181,7 +1181,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 		/* Complex message in Wiz mode, or for Humans */
 		if (p_ptr->state.wizard || p_ptr->rp.prace == RACE_HUMAN)
 		{
-			msgf("You do %d (out of %d) damage.", k, m_ptr->hp);
+			msgf("You do %d damage (%d remaining).", k, m_ptr->hp-k);
 		}
 
 		/* Anger the monster */
@@ -1316,7 +1316,7 @@ static bool monster_bash(int *blows, int sleeping_bonus, const cave_type *c_ptr,
 		/* Complex message in Wiz mode, or for Humans */
 		if (p_ptr->state.wizard || p_ptr->rp.prace == RACE_HUMAN)
 		{
-			msgf("You do %d (out of %d) damage.", bash_dam, m_ptr->hp);
+			msgf("You do %d damage (%d remaining).", bash_dam, m_ptr->hp-bash_dam);
 		}
 
 		/* Damage, check for fear and death. */
@@ -1903,7 +1903,7 @@ void py_attack(int x, int y)
 			/* Complex message in Wiz mode, or for Humans */
 			if (p_ptr->state.wizard || p_ptr->rp.prace == RACE_HUMAN)
 			{
-				msgf("You do %d (out of %d) damage.", k, m_ptr->hp);
+				msgf("You do %d damage (%d remaining).", k, m_ptr->hp-k);
 			}
 
 			/* Damage, check for fear and death */

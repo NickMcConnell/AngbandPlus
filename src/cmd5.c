@@ -257,8 +257,7 @@ static void roff_spell_life(int spell)
 			roff (" at a target of your choice, of ");
 			roff (CLR_VIOLET "radius %i", plev < 30 ? 2 : 3);
 			roff (" that will cause ");
-			roff (CLR_RED "3d6+%i (up to 3d6+%i) damage", plev + plev / 4,
-						(50 + (50/4)) );
+			roff (CLR_RED "3d6+%i (up to 3d6+50) damage", plev);
 			roff (" (at its center) to monsters in the blast.  ");
 			roff (CLR_L_DARK "Evil monsters take double damage from holy fire, and it will destroy cursed objects.");
 			roff (CLR_L_DARK "  Good monsters are immune, and non-evil monsters resist holy fire.");
@@ -869,8 +868,7 @@ static void roff_spell_chaos(int spell)
 			roff (" at a target of your choice, of ");
 			roff (CLR_VIOLET "radius %s", plev < 30 ? "3" : "2 (up to 3)");
 			roff (" that will cause ");
-			roff (CLR_RED "3d5+%i (up to 3d5+%i) damage", plev + plev / (high ? 2 : 4),
-						(high ? 75 : (50 + (50/4)) ));
+			roff (CLR_RED "3d5+%i (up to 3d5+50) damage", plev);
 			roff (" (at its center) to monsters in the blast.  ");
 			roff ("This will not affect objects on the floor.");
 			roff (CLR_L_DARK " Mana-based damage cannot be resisted.");
@@ -1148,7 +1146,7 @@ static void roff_spell_death(int spell)
 			roff ("at a targt of your choice, of ");
 			roff (CLR_VIOLET "radius %i", (plev < 30) ? 2 : 3);
 			roff (" that will cause ");
-			roff (CLR_RED "3d6+%i (up to 3d6+%i) damage", plev + plev / (high ? 2:4), (high ? 75 : (50+(50/4))));
+			roff (CLR_RED "3d6+%i (up to 3d6+50) damage", plev);
 			roff (" (at its center) to monsters in its area.");
 			roff (CLR_L_DARK " Undead and demons are not affected by negative energy.");
 			return;
@@ -1343,7 +1341,7 @@ static void roff_spell_death(int spell)
 			roff (" that will cause ");
 			roff (CLR_RED "%i (up to 110) damage", 60 + plev);
 			roff (" (at its center) to monsters in the blast.  ");
-			roff (CLR_L_DARK "Fire destroys certain types of objects on the floor.");
+			roff (CLR_L_DARK " Undead are immune to nether, and evil monsters resist it.");
 			return;
 		default:
 			roff (CLR_RED "Unknown spell.");
@@ -1625,11 +1623,10 @@ static void roff_spell_arcane(int spell)
 			roff (CLR_L_DARK " items in your backpack are somewhat protected from elemental-based destruction.");
 			return;
 		case 10:
-			roff ("Pseudo-identifies an item, giving you a general sense of whether it is enchanted or cursed.");
+			roff ("Pseudo-identifies an item, giving you a general sense of whether it is enchanted or cursed. ");
 			return;
 		case 11:
-			roff ("Destroys all doors and traps within " CLR_VIOLET "radius 1");
-			roff (" of you.");
+			roff ("Attempts to disarm all traps in a straight line from your position, in a direction of your choice. ");
 			return;
 		case 12:
 			roff ("Grants you the ability to see invisible monsters, for ");
@@ -1930,6 +1927,10 @@ static void roff_spell_illusion(int spell)
 			roff ("of illusionary and psionic damage to all creatures within your visual range. ");
 			roff (CLR_L_DARK " Mindless or stupid monsters take reduced damage from psionic attacks.  ");
 			roff (CLR_L_DARK " Illusionary attacks may be disbelieved by monsters, in which case they have no effect.");
+			return;
+		case 38:				/* Luminosity */
+			roff ("Refuels your light source, and increases your light radius by 4 for " CLR_YELLOW "20-40 turns");
+			roff (".");
 			return;
 		default:
 			roff (CLR_RED "Unknown spell.");
@@ -3344,8 +3345,7 @@ static bool cast_chaos_spell(int spell, int power)
 			if (!get_aim_dir(&dir)) return FALSE;
 
 			(void)fire_ball(GF_MISSILE, dir,
-							(POWER(damroll(3, 5) + plev +
-							 (plev / 4),power)),
+							(POWER(damroll(3, 5) + plev,power)),
 							((plev < 30) ? 2 : 3));
 			/* Shouldn't actually use GF_MANA, as it will destroy all
 			 * items on the floor */
@@ -3561,7 +3561,7 @@ static bool cast_chaos_spell(int spell, int power)
 			{
 				if (o_ptr->pval > 0)
 				{
-					p_ptr->csp += o_ptr->pval * lev;
+					p_ptr->csp += (o_ptr->pval * lev * 3) / (k_info[o_ptr->k_idx].pval + 1);
 					o_ptr->pval = 0;
 				}
 				else
@@ -3775,7 +3775,7 @@ static bool cast_death_spell(int spell, int power)
 			if (!get_aim_dir(&dir)) return FALSE;
 
 			(void)fire_ball(GF_OLD_DRAIN, dir,
-							POWER(damroll(3, 6) + plev + plev/4, power),
+							POWER(damroll(3, 6) + plev, power),
 							((plev < 30) ? 2 : 3));
 			break;
 		case 9:				/* Shadow Gate */
@@ -4379,6 +4379,8 @@ static bool cast_arcane_spell(int spell, int power)
 				object_known(o_ptr);
 
 			item_describe(o_ptr);
+
+			notice_stuff();
 			break;
 		}
 		case 34:				/* Elemental Bolt */
@@ -4476,8 +4478,8 @@ static bool cast_illusion_spell(int spell, int power)
 			(void)charm_monster(dir, POWER(plev,power));
 			break;
 		case 12:			/* Phantasmal Horror */
-			(void)turn_monsters(POWER(20+plev,power));
-			(void)confuse_monsters(POWER(30+plev,power));
+			(void)turn_monsters(POWER(plev,power));
+			(void)confuse_monsters(POWER(plev,power));
 			break;
 		case 13:			/* See Invisible */
 			(void)inc_tim_invis(POWER(rand_range(24, 48),plev));
@@ -4521,7 +4523,13 @@ static bool cast_illusion_spell(int spell, int power)
 				POWER(350,power), 0, 1);
 			break;
 		case 22:			/* Imbue with Radiance */
-			(void)add_perm_lite();
+			if (p_ptr->au < 200) {
+				msgf("You don't have enough gold.");
+				return(FALSE);
+			}
+			if (!add_perm_lite()) return FALSE;
+			p_ptr->au = MAX(p_ptr->au-200, 0);  /* Costs 200 gold */
+			p_ptr->redraw |= (PR_GOLD);
 			break;
 		case 23:			/* Mass Charm */
 			(void)charm_monsters(POWER(30+plev,power));
@@ -4587,6 +4595,11 @@ static bool cast_illusion_spell(int spell, int power)
 		case 37:				/* Hellscape */
 			(void)mindblast_monsters(POWER(plev * 2,power));
 			(void)project_hack(GF_ILLUSION*2 + GF_DISP_ALL, POWER(plev * 3,power));
+			break;
+		case 38:				/* Luminosity */
+			(void)inc_luminosity(POWER(rand_range(20,40),power));
+			if (p_ptr->equipment[EQUIP_LITE].k_idx && !(FLAG(&p_ptr->equipment[EQUIP_LITE], TR_LITE)))
+				phlogiston();
 			break;
 		default:
 			msgf("You cast an unknown Illusion spell: %d.", spell);

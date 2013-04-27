@@ -721,17 +721,20 @@ bool projectable(int x1, int y1, int x2, int y2)
  * though.  It also probably would be slower than the current code.
  *
  * XXX XXX XXX This routine must be fairly fast - we use it in
- * projectable(), which is called alot in the AI code.
+ * projectable(), which is called a lot in the AI code.
  */
-sint project_path(coord *gp, int x1, int y1, int x2, int y2, u16b flg)
+static sint project_path_aux(coord *gp, int x1, int y1, int x2, int y2, u16b flg, bool hack)
 {
 	int y, x, sx, sy, dx, dy;
+	bool succ = FALSE;
 
 	int sq, sl;
 
 	int range = (flg & PROJECT_SHORT ? MAX_SHORT_RANGE : MAX_RANGE);
+	int max_length = (3*range)/2;
 	/* Absolute */
 	int ay, ax;
+	u16b tweak = (hack ? ~PROJECT_STOP : ~0);
 
 	int dist, temp;
 
@@ -791,7 +794,7 @@ sint project_path(coord *gp, int x1, int y1, int x2, int y2, u16b flg)
 
 			c_ptr = area(x, y);
 
-			if (project_stop(c_ptr, flg))
+			if (project_stop(c_ptr, flg & tweak))
 			{
 				/* Advance to the best position we have not looked at yet */
 				temp = project_data[sl][sq].slope;
@@ -830,7 +833,7 @@ sint project_path(coord *gp, int x1, int y1, int x2, int y2, u16b flg)
 
 			c_ptr = area(x, y);
 
-			if (project_stop(c_ptr, flg))
+			if (project_stop(c_ptr, flg & tweak))
 			{
 				/* Advance to the best position we have not looked at yet */
 				temp = project_data[sl][sq].slope;
@@ -852,7 +855,7 @@ sint project_path(coord *gp, int x1, int y1, int x2, int y2, u16b flg)
 	}
 
 	/* Scan over squares along path */
-	for (sq = 0; (sq < range) && (sq < slope_count[sl]); sq++)
+	for (sq = 0; (sq < max_length) && (sq < slope_count[sl]); sq++)
 	{
 		if (ay < ax)
 		{
@@ -874,31 +877,69 @@ sint project_path(coord *gp, int x1, int y1, int x2, int y2, u16b flg)
 			break;
 		}
 
+		/* Stop if out of range */
+		if (distance(x1, y1, x, y) > range)
+		{
+			sq--;
+			break;
+		}
+
 		/* Save the square */
 		gp[sq].x = x;
 		gp[sq].y = y;
 
-		/* Sometimes stop at destination grid */
-		if (!(flg & (PROJECT_THRU)))
+		if (x == x2 && y == y2)
 		{
-			if ((x == x2) && (y == y2)) break;
+			/* Got to endpoint */
+			succ = TRUE;
+
+			/* Sometimes stop at destination grid */
+			if (!(flg & (PROJECT_THRU)))
+				break;
 		}
 
 		c_ptr = area(x, y);
 
 		/* Does the grid stop projection? */
-		if (project_stop(c_ptr, flg)) break;
+		if (project_stop(c_ptr, flg))
+		{
+			/* Nasty hack.  Basically, projection can
+			   "crash" into walls when the function first
+			   finds a monster in the way that can alter the
+			   trajectory, and the projection then hits a
+			   wall in the altered trajectory.  To fix this,
+			   if we don't reach the desired target, we try
+			   again with the PROJECT_STOP flag removed in
+			   the earlier project_stop() call(s).  We do this
+			   a second time, so that we do in fact avoid
+			   intervening obstacles when possible.   */
+			if (!succ && !hack && (flg & PROJECT_STOP))
+			{
+				return project_path_aux(gp, x1, y1, x2, y2, flg, TRUE);
+			}
+
+			/* Otherwise, accept it. */
+			break;
+		}
 	}
 
 	/* Include the last square */
 	sq++;
 
 	/* Paranoia */
-	if (sq > range) sq = range;
+	if (sq > max_length) sq = max_length;
 	if (sq >= slope_count[sl]) sq = slope_count[sl] - 1;
 
 	/* Length */
 	return (sq);
+}
+
+/*
+ * Project a path.
+ */
+sint project_path(coord *gp, int x1, int y1, int x2, int y2, u16b flg)
+{
+	return project_path_aux(gp, x1, y1, x2, y2, flg, FALSE);
 }
 
 
@@ -2980,6 +3021,25 @@ void update_flow(void)
 }
 
 
+static bool liquid_grid(cave_type *c_ptr)
+{
+	switch (c_ptr->feat)
+	{
+		case FEAT_SHAL_WATER:
+		case FEAT_SHAL_ACID:
+		case FEAT_SHAL_LAVA:
+		case FEAT_DEEP_WATER:
+		case FEAT_DEEP_ACID:
+		case FEAT_OCEAN_WATER:
+		case FEAT_DEEP_SWAMP:
+		case FEAT_SHAL_SWAMP:
+			return TRUE;
+		default:
+			return FALSE;
+	}
+}
+
+
 
 /*
  * Hack -- map a region ala "magic mapping"
@@ -2995,8 +3055,6 @@ void map_area(void)
 
 	cave_type *c_ptr, *c2_ptr;
 	pcave_type *pc_ptr, *pc2_ptr;
-
-	dun_type *d_ptr = dungeon();
 
 	/* Pick an area to map */
 	y1 = py - MAX_DETECT - randint1(10);
@@ -3035,13 +3093,19 @@ void map_area(void)
 						c2_ptr = area(xx, yy);
 						pc2_ptr = parea(xx, yy);
 
-						/* Memorize feature transitions, except for non-icky
-					   		open grids */
-						if (c2_ptr->feat != c_ptr->feat &&
-							(!cave_floor_grid(c2_ptr) ||
-						   !(f_info[c2_ptr->feat].flags & FF_ICKY &&
-						   	 c2_ptr->feat >= FEAT_DEEP_WATER &&
-							 c2_ptr->feat < FEAT_QUEST_LESS)))
+						/* Memorize some grids */
+								/* Transitions to solid grids */
+						if ((cave_floor_grid(c_ptr) && !cave_floor_grid(c2_ptr)) ||
+								/* Transitions to liquids */
+							(!liquid_grid(c_ptr) && liquid_grid(c2_ptr)) ||
+								/* Rubble transitions */
+							(c_ptr->feat != FEAT_RUBBLE && c2_ptr->feat == FEAT_RUBBLE)  ||
+								/* Visible doors */
+							c2_ptr->feat == FEAT_BROKEN || c2_ptr->feat == FEAT_OPEN ||
+							c2_ptr->feat == FEAT_CLOSED ||
+								/* Stairs */
+							c2_ptr->feat == FEAT_LESS || c2_ptr->feat == FEAT_MORE ||
+							c2_ptr->feat == FEAT_QUEST_LESS || c2_ptr->feat == FEAT_QUEST_MORE)
 						{
 							/* Memorize the grid */
 							remember_grid(c2_ptr, pc2_ptr);
@@ -3052,33 +3116,11 @@ void map_area(void)
 					}
 				}
 			} else {
-				/* Floor grids are checked. */
-				if (cave_floor_grid(c_ptr))
-				{
-					/* Memorize known walls */
-					for (i = 0; i < 8; i++)
-					{
-						xx = x + ddx_ddd[i];
-						yy = y + ddy_ddd[i];
+				/* Outside, just memorize everything. */
+				remember_grid(c_ptr, pc_ptr);
 
-						if (!in_boundsp(xx, yy)) continue;
-
-						c2_ptr = area(xx, yy);
-						pc2_ptr = parea(xx, yy);
-
-						/* Memorize walls and liquid boundaries */
-						if (cave_wall_grid(c_ptr) || (!(f_info[c_ptr->feat].flags & FF_ICKY) &&
-													   (f_info[c2_ptr->feat].flags & FF_ICKY) &&
-												   		c2_ptr->feat >= FEAT_DEEP_WATER && c2_ptr->feat < FEAT_QUEST_LESS))
-						{
-							/* Memorize the walls */
-							remember_grid(c_ptr, pc_ptr);
-
-							/* Notice the change */
-							lite_spot(xx, yy);
-						}
-					}
-				}
+				/* Notice the change */
+				lite_spot(x,y);
 			}
 		}
 	}

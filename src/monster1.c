@@ -38,6 +38,15 @@ cptr mon_race_name(const monster_race *r_ptr)
 	if (r_ptr == &r_info[QW_CLONE])
 		return (format("%s, the %s", player_name, class_info[p_ptr->rp.pclass].title));
 
+	/* Hack: use "name" field as a quark for heroes */
+	if (r_ptr >= &r_info[HERO_MIN])
+	{
+		char * s = quark_str(r_ptr->name);
+
+		if (!s) get_check ("Fatal error!!");
+		return (s);
+	}
+
 	return (r_name + r_ptr->name);
 }
 
@@ -67,6 +76,8 @@ static bool know_armour(int r_idx)
 	s32b level = r_ptr->level;
 
 	s32b kills = r_ptr->r_tkills;
+
+	if (cheat_know || r_ptr->r_flags[6] & RF6_LIBRARY) return (TRUE);
 
 	/* Normal monsters */
 	if (kills > 304 / (4 + level)) return (TRUE);
@@ -802,7 +813,7 @@ static void roff_mon_aux(int r_idx, int remem)
 	if (FLAG(mf_ptr, RF_RAISE_DEAD)) vp[vn++] = "raise dead";
 	if (FLAG(mf_ptr, RF_S_MONSTER)) vp[vn++] = "summon a monster";
 	if (FLAG(mf_ptr, RF_S_MONSTERS)) vp[vn++] = "summon monsters";
-	if (FLAG(mf_ptr, RF_S_KIN)) vp[vn++] = "summon aid";
+	if (FLAG(mf_ptr, RF_S_KIN)) vp[vn++] = "summon its kin";
 	if (FLAG(mf_ptr, RF_S_ANT)) vp[vn++] = "summon ants";
 	if (FLAG(mf_ptr, RF_S_SPIDER)) vp[vn++] = "summon spiders";
 	if (FLAG(mf_ptr, RF_S_HOUND)) vp[vn++] = "summon hounds";
@@ -1428,7 +1439,7 @@ static void roff_mon_aux(int r_idx, int remem)
 			}
 			case RBE_TIME:
 			{
-				q = "distrupt the time continuum";
+				q = "time";
 				break;
 			}
 			case RBE_EXP_VAMP:

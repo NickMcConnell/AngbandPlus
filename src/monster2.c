@@ -449,12 +449,15 @@ s16b m_pop(void)
 void get_mon_num_prep(monster_hook_type monster_hook)
 {
 	int i;
+	monster_race *r_ptr;
 
 	/* Scan the allocation table */
 	for (i = 0; i < alloc_race_size; i++)
 	{
 		/* Get the entry */
 		alloc_entry *entry = &alloc_race_table[i];
+
+		r_ptr = &r_info[entry->index];
 
 		/* Accept monsters which pass the restriction, if any */
 
@@ -465,13 +468,13 @@ void get_mon_num_prep(monster_hook_type monster_hook)
 		 */
 		if ((!monster_hook || (*monster_hook) (entry->index)))
 		{
-			if ((!silly_monsters && FLAG(&r_info[entry->index], RF_SILLY)) ||
-				(!cthulhu_monsters && FLAG(&r_info[entry->index], RF_CTH)) ||
-				(!amber_monsters && FLAG(&r_info[entry->index], RF_AMBER)))
+			if ((!silly_monsters && FLAG(r_ptr, RF_SILLY)) ||
+				(!cthulhu_monsters && FLAG(r_ptr, RF_CTH)) ||
+				(!amber_monsters && FLAG(r_ptr, RF_AMBER)))
 				/* Reject this monster, disallowed theme */
 				entry->prob2 = 0;
 				/* Don't allow wild-only monsters in the dungeon */
-			else if (p_ptr->depth && !(r_info[entry->index].flags[7] & RF7_DUN))
+			else if (p_ptr->depth && !(FLAG(r_ptr, RF_DUN)))
 				entry->prob2 = 0;
 			else
 				/* Accept this monster */
@@ -825,7 +828,6 @@ s16b get_mon_num(int level)
 		/* Access the "r_idx" of the chosen monster */
 		r_idx = table[i].index;
 
-		/* Access the actual race */
 		r_ptr = &r_info[r_idx];
 
 		/* Hack -- "unique" monsters must be "unique" */
@@ -2188,7 +2190,8 @@ monster_type *place_monster_aux(int x, int y, int r_idx, bool slp, bool grp,
 		/* Try to place several "escorts" */
 		for (i = 0; i < 50; i++)
 		{
-			int nx, ny, z, d = 3;
+			int nx, ny, d = 3;
+			u16b z;
 
 			/* Pick a location */
 			scatter(&nx, &ny, x, y, d);
@@ -2244,7 +2247,7 @@ monster_type *place_monster_aux(int x, int y, int r_idx, bool slp, bool grp,
  */
 bool place_monster(int x, int y, bool slp, bool grp, int delta_level)
 {
-	int r_idx;
+	u16b r_idx;
 	int level;
 
 	/* Prepare allocation table */
@@ -2261,6 +2264,15 @@ bool place_monster(int x, int y, bool slp, bool grp, int delta_level)
 	/* Handle failure */
 	if (!r_idx) return (FALSE);
 
+	/* Rarely create a hero */
+	if (!current_quest && delta_level && one_in_(350 / delta_level))
+	{
+		u16b h_r_idx = create_hero(r_idx,
+			randint1(MAX(1,level + delta_level - r_info[r_idx].level)), FALSE);
+
+		if (h_r_idx) r_idx = h_r_idx;
+	}
+
 	/* Attempt to place the monster */
 	if (place_monster_aux(x, y, r_idx, slp, grp, FALSE, FALSE, FALSE)) return (TRUE);
 
@@ -2275,7 +2287,7 @@ bool alloc_horde(int x, int y)
 {
 	monster_race *r_ptr = NULL;
 
-	int r_idx = 0;
+	u16b r_idx = 0;
 	int m_idx;
 
 	int attempts = 1000;
@@ -2299,7 +2311,8 @@ bool alloc_horde(int x, int y)
 		/* Handle failure */
 		if (!r_idx) return (FALSE);
 
-		r_ptr = &r_info[r_idx];
+		/* Get the pointer */
+		r_ptr = monst_race(r_idx);
 
 		if (!(FLAG(r_ptr, RF_UNIQUE))) break;
 	}
@@ -2700,7 +2713,8 @@ static bool summon_specific_okay(int r_idx)
 bool summon_specific(int who, int x1, int y1, int req_lev, int type, bool group,
                      bool friendly, bool pet)
 {
-	int i, x, y, r_idx;
+	int i, x, y;
+	u16b r_idx;
 	cave_type *c_ptr;
 
 	/* Look for a location */

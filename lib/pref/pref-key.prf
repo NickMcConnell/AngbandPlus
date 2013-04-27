@@ -49,6 +49,10 @@ C:0:^C
 A:w0
 C:0:X
 
+# ^E -- changes choice in a window.
+#A:\t
+#C:0:^E
+
 
 ##### Roguelike Keyset Mappings #####
 
@@ -214,3 +218,7 @@ C:1:[
 
 A:^u
 C:1:]
+
+# Hack -- repeat
+A:n
+C:1:^V

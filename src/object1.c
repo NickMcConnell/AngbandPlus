@@ -480,7 +480,7 @@ static void roff_obj_aux(const object_type *o_ptr)
 		roff("It is very sharp and can cut your foes.  ");
 	}
 
-	if (o_ptr->tval >= TV_DIGGING && o_ptr->tval <= TV_SWORD)
+	if (o_ptr->tval >= TV_SHOT && o_ptr->tval <= TV_SWORD && o_ptr->tval != TV_BOW)
 	{
 		if (FLAG(of_ptr, TR_KILL_DRAGON))
 		{
@@ -764,7 +764,7 @@ static void roff_obj_aux(const object_type *o_ptr)
 	if (FLAG(of_ptr, TR_SLAY_DRAGON)) vp[vn++] = "dragons";
 
 	/* Print protections */
-	if (vn)
+	if (vn && (o_ptr->tval > TV_BOLT))
 	{
 		roff("It provides protection from ");
 
@@ -994,12 +994,15 @@ static void roff_obj_aux(const object_type *o_ptr)
 			roff ("in %s.  ", place[o_ptr->mem.place_num].name);
 			break;
 		}
-
+		case OM_HERO:
 		case OM_MONST:
 		{
 			/* Dropped by a monster somewhere */
-			monster_race *r_ptr = &r_info[o_ptr->mem.data];
+			monster_race * r_ptr = &r_info[o_ptr->mem.data];
 			place_type *pl_ptr = &place[o_ptr->mem.place_num];
+
+			if (o_ptr->mem.type == OM_HERO) r_ptr = &r_info[HERO_MIN+o_ptr->mem.data];
+
 			roff ("%s dropped by %s%s ", o_ptr->number > 1 ? "They were" : "It was", (FLAG(r_ptr, RF_UNIQUE) ? "" : "a ") , mon_race_name(r_ptr));
 
 			if (o_ptr->mem.depth)
@@ -1890,7 +1893,7 @@ bool item_tester_hook_is_unknown_flavor(const object_type *o_ptr)
 {
 	if (!item_tester_hook_is_flavored(o_ptr)) return (FALSE);
 
-	if (k_info[o_ptr->k_idx].aware) return (FALSE);
+	if (object_aware_p(o_ptr)) return (FALSE);
 
 	return (TRUE);
 }
@@ -1902,6 +1905,8 @@ static bool check_book_realm(const byte book_tval)
 	return (REALM1_BOOK == book_tval || REALM2_BOOK == book_tval);
 }
 
+
+static bool item_tester_use_container = FALSE;
 
 /*
  * Check an item against the item tester info
@@ -1919,6 +1924,17 @@ bool item_tester_okay(const object_type *o_ptr)
 
 	/* Hack -- ignore "gold" */
 	if (o_ptr->tval == TV_GOLD) return (FALSE);
+
+	if (item_tester_use_container && o_ptr->tval == TV_CONTAINER && o_ptr->contents_o_idx)
+	{
+		object_type * q_ptr;
+
+		OBJ_ITT_START(o_ptr->contents_o_idx, q_ptr)
+		{
+			if (item_tester_okay(q_ptr)) return (TRUE);
+		}
+		OBJ_ITT_END;
+	}
 
 	/* Check the tval */
 	if (item_tester_tval)
@@ -2594,7 +2610,7 @@ void inventory_remind(void)
  * Also, the tag "@xn" will work as well, where "n" is a tag-char,
  * and "x" is the "current" cmd.cmd code.
  */
-static object_type *get_tag(bool *inven, char tag)
+static object_type *get_tag(bool *inven, bool *container, char tag)
 {
 	int i;
 
@@ -2621,6 +2637,10 @@ static object_type *get_tag(bool *inven, char tag)
 				/* Save the actual inventory ID */
 				*inven = TRUE;
 
+				/* Was it in a container? */
+				if (get_item_position(p_ptr->inventory, o_ptr) == -1)
+					*container = TRUE;
+
 				/* Success */
 				return (o_ptr);
 			}
@@ -2630,6 +2650,10 @@ static object_type *get_tag(bool *inven, char tag)
 			{
 				/* Save the actual inventory ID */
 				*inven = TRUE;
+
+				/* Was it in a container? */
+				if (get_item_position(p_ptr->inventory, o_ptr) == -1)
+					*container = TRUE;
 
 				/* Success */
 				return (o_ptr);
@@ -2770,32 +2794,6 @@ static bool toggle_windows(bool toggle, int command_wrk)
 	return (toggle);
 }
 
-bool (* item_tester_hook2) (const object_type *);
-
-static bool item_tester_hook_okay_or_container(const object_type * o_ptr)
-{
-	object_type * q_ptr;
-
-	/* If no item_tester_hook2, always okay. */
-	if (!item_tester_hook2) return (TRUE);
-
-	/* If the object passes the basic test, okay. */
-	if ((*item_tester_hook2)(o_ptr)) return (TRUE);
-
-	/* If the object is a container, and something inside passes the basic test, okay. */
-	if (o_ptr->tval == TV_CONTAINER && o_ptr->contents_o_idx)
-	{
-		OBJ_ITT_START (o_ptr->contents_o_idx, q_ptr)
-		{
-			if ((*item_tester_hook2)(q_ptr)) return (TRUE);
-		}
-		OBJ_ITT_END;
-	}
-
-	/* Otherwise, not okay. */
-	return (FALSE);
-}
-
 /*
  * Show the prompt for items
  */
@@ -2816,20 +2814,18 @@ static void show_item_prompt(bool inven, bool equip, bool floor, bool store,
 	{
 		case USE_INVEN:
 		{
-			/* Extract the legal requests */
-			get_label_bounds(p_ptr->inventory, &n1, &n2);
-
 			/* We need to mess around with the tester hook to get appropriate
 			   containers to show up in the list */
-			item_tester_hook2 = item_tester_hook;
+			item_tester_use_container = TRUE;
 
-			item_tester_hook = &item_tester_hook_okay_or_container;
+			/* Extract the legal requests */
+			get_label_bounds(p_ptr->inventory, &n1, &n2);
 
 			/* Redraw */
 			show_list(p_ptr->inventory, store);
 
-			/* Restore the hook */
-			item_tester_hook = item_tester_hook2;
+			/* Restore */
+			item_tester_use_container = FALSE;
 
 			/* Begin the prompt */
 			len = strnfmt(out_val, 160, "Inven:");
@@ -2978,6 +2974,42 @@ static void save_object_choice(object_type *o_ptr, int command_wrk)
 			index = get_item_position(c_ptr->o_idx, o_ptr);
 			break;
 		}
+
+		case USE_CONTAINER:
+		{
+			s16b *list = look_up_list(o_ptr);
+			object_type * q_ptr;
+			bool found = FALSE;
+			index = 0;
+
+			OBJ_ITT_START(p_ptr->inventory, q_ptr)
+			{
+				if (q_ptr->contents_o_idx == *list)
+				{
+					/* Found the container */
+					found = TRUE;
+
+					/* Push it now */
+					repeat_push(index);
+
+					/* Find the index of the choice within the container */
+					index = get_item_position(q_ptr->contents_o_idx, o_ptr);
+
+					break;
+				}
+
+				/* Next item */
+				index++;
+			}
+			OBJ_ITT_END;
+
+			if (!found)
+			{
+				repeat_push(-1);
+				index = -1;
+			}
+			break;
+		}
 	}
 
 	/* Save the index */
@@ -3056,6 +3088,26 @@ static object_type *recall_object_choice(int *command_wrk)
 			c_ptr = area(p_ptr->px, p_ptr->py);
 
 			o_ptr = get_list_item(c_ptr->o_idx, index);
+			break;
+		}
+
+		case USE_CONTAINER:
+		{
+			/* Find the container */
+			o_ptr = get_list_item(p_ptr->inventory, index);
+
+			/* Get the index within the container */
+			if (!repeat_pull(&index))
+				return (NULL);
+
+			/* Check for an invalid repeat */
+			if (index == -1)
+			{
+				repeat_clear();
+				return (NULL);
+			}
+
+			o_ptr = get_list_item(o_ptr->contents_o_idx, index);
 			break;
 		}
 
@@ -3451,9 +3503,10 @@ object_type *get_item(cptr pmt, cptr str, int mode)
 			case '7':  case '8':  case '9':
 			{
 				bool was_inven;
+				bool was_container = FALSE;
 
 				/* Look up the tag */
-				o_ptr = get_tag(&was_inven, which);
+				o_ptr = get_tag(&was_inven, &was_container, which);
 
 				if (!o_ptr)
 				{
@@ -3480,6 +3533,11 @@ object_type *get_item(cptr pmt, cptr str, int mode)
 					o_ptr = NULL;
 					break;
 				}
+
+				/* Hack: Needed to properly save the choice
+				   for repeat */
+				if (was_container)
+					command_wrk = USE_CONTAINER;
 
 				/* Allow player to "refuse" certain actions */
 				if (!get_item_allow(o_ptr)) continue;
@@ -3664,7 +3722,7 @@ object_type *get_item(cptr pmt, cptr str, int mode)
 /*
  * Print out full description to the given file.
  */
-void dump_full_item(FILE *fff, object_type *o_ptr)
+static void dump_full_item_aux(FILE *fff, object_type *o_ptr, int indent)
 {
 	object_kind *k_ptr;
 	bonuses_type b;
@@ -3674,6 +3732,8 @@ void dump_full_item(FILE *fff, object_type *o_ptr)
 
 	object_flags oflags;
 	object_flags *of_ptr = &oflags;
+
+	object_type *j_ptr;
 
 	int vn;
 	cptr vp[80];
@@ -3904,7 +3964,7 @@ void dump_full_item(FILE *fff, object_type *o_ptr)
 		strnfmt(desc, 16384, "%sIt is very sharp and can cut your foes.  ", desc);
 	}
 
-	if (o_ptr->tval >= TV_DIGGING && o_ptr->tval <= TV_SWORD)
+	if (o_ptr->tval >= TV_SHOT && o_ptr->tval <= TV_SWORD && o_ptr->tval != TV_BOW)
 	{
 		if (FLAG(of_ptr, TR_KILL_DRAGON))
 		{
@@ -4188,7 +4248,7 @@ void dump_full_item(FILE *fff, object_type *o_ptr)
 	if (FLAG(of_ptr, TR_SLAY_DRAGON)) vp[vn++] = "dragons";
 
 	/* Print protections */
-	if (vn)
+	if (vn && (o_ptr->tval > TV_BOLT))
 	{
 		strnfmt(desc, 16384, "%sIt provides protection from ", desc);
 
@@ -4410,12 +4470,15 @@ void dump_full_item(FILE *fff, object_type *o_ptr)
 				strnfmt(desc, 16384, "%sin %s.  ", desc, place[o_ptr->mem.place_num].name);
 				break;
 			}
-
+			case OM_HERO:
 			case OM_MONST:
 			{
 				/* Dropped by a monster somewhere */
-				monster_race *r_ptr = &r_info[o_ptr->mem.data];
+				monster_race * r_ptr = &r_info[o_ptr->mem.data];
 				place_type *pl_ptr = &place[o_ptr->mem.place_num];
+
+				if (o_ptr->mem.type == OM_HERO) r_ptr = &r_info[HERO_MIN+o_ptr->mem.data];
+
 				strnfmt(desc, 16384, "%s%s dropped by %s%s ", desc, o_ptr->number > 1 ? "They were" : "It was", (FLAG(r_ptr, RF_UNIQUE) ? "" : "a ") , mon_race_name(r_ptr));
 
 				if (o_ptr->mem.depth)
@@ -4512,12 +4575,61 @@ void dump_full_item(FILE *fff, object_type *o_ptr)
 	}
 
 	/* Print it to the file. */
-	wrap_froff(fff, desc, 3, 75);
+	wrap_froff(fff, desc, indent, 75);
 
 	/* Final blank line */
 	if (strlen(desc))
 		froff(fff, "\n");
+
+	if (!o_ptr->contents_o_idx) return;
+
+	/* For objects with contents, dump the contents
+       recursively at a higher indent level. */
+
+	/* Build the correct number of spaces */
+	for (i = 0; i < indent+2; i++)
+	{
+		desc[i] = ' ';
+	}
+
+	desc[i] = '\0';
+
+	froff(fff, "%sContents: \n", desc);
+
+	i = 1;
+
+	OBJ_ITT_START(o_ptr->contents_o_idx, j_ptr)
+	{
+		char o_name[256];
+
+		/* Describe object */
+		object_desc(o_name, j_ptr, TRUE, 3, 256);
+
+		/* Clean formatting escape sequences */
+		fmt_clean(o_name);
+
+		/* Dump the name */
+		froff(fff, "%s%d) %s\n", desc, i, o_name);
+
+		/* Full description */
+		dump_full_item_aux(fff, j_ptr, indent+4);
+
+		/* Count slots */
+		i++;
+	}
+	OBJ_ITT_END;
 }
+
+/*
+ * Display full info about an item,
+ * Dumping container contents if necessary.
+ */
+void dump_full_item(FILE *fff, object_type *o_ptr)
+{
+	dump_full_item_aux(fff, o_ptr, 3);
+}
+
+
 
 /*
  * Calculate the weight of an object, recursively including contents.

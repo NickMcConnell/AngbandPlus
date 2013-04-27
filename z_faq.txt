@@ -4,7 +4,7 @@
 				by Mangojuice
 			mangojuice75@gmail.com
 
-                    September 23rd, 2008
+                    December 10, 2008
 
 ==========================================================================
 Table of contents
@@ -200,7 +200,7 @@ manually reorganize your stuff in containers, the best way is by using
 the "Organize" command ('O' in the original keyset, ^O in roguelike.)
 
 Currently, containers are only for shots, arrows, and bolts, and 
-empty quests do not become containers.
+empty chests do not become containers.
 
 --------------------------------------------------------------------------
 2.9 What does this item do? 
@@ -236,13 +236,19 @@ then use the 'I' command any time to remind yourself of an object's
 powers.
 
 --------------------------------------------------------------------------
-2.11 What does this monster do? 
+2.12 What does this monster do? 
 --------------------------------------------------------------------------
 
 As in other roguelikes, you learn about the abilities of monsters as
 you face them.  You can also go to a Library, if you can find one, and
 research a monster to learn detailed information about its abilities 
 for a price.
+
+As of version 0.3.2pre1, some monsters you encounter may be randomly
+generated unique monsters with somewhat unpredictable abilities.  These
+can also be researched at a library.  Also, if you know a lot about a
+monster (say, a Cave troll) then that knowledge carries over somewhat 
+to knowledge about related uniques (say, Argauth, the Cave Troll).  
 
 --------------------------------------------------------------------------
 2.13 What magic realm(s) should I choose? 
@@ -369,3 +375,19 @@ that are present in both of the player's realms: if you learn such a
 spell or prayer (both as a magic user or as a priestly spellcaster),
 you learn it in both realms simultaneously.  Fourth, these characters
 have had their experience scale adjusted.  
+
+--------------------------------------------------------------------------
+2.17 What does it mean when a potion is {worthless}?  Or when a ring is
+     {cursed?}
+--------------------------------------------------------------------------
+
+You can discover a potion is worthless, without learning exactly what it
+does, if you turn it into gold and get fool's gold.  If this happens, that
+potion is markes as {worthless} to remind you of what you had previously 
+observed.
+
+Similarly, if you discover that an unidentified ring or amulet is cursed, 
+and later find the same kind of item, it will be marked as {cursed?} to 
+remind you that you came across one once that was cursed.  The game will
+normally prompt you before you equip an item marked as {cursed?}, but 
+there is an option to disable this if you prefer.

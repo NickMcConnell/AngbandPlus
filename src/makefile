@@ -78,7 +78,7 @@ ANGOBJS := $(LUAWOBJS) \
         xtra1.obj xtra2.obj spells1.obj spells2.obj \
         melee1.obj melee2.obj save.obj files.obj fields.obj\
         cmd1.obj cmd2.obj cmd3.obj cmd4.obj cmd5.obj cmd6.obj \
-        store.obj birth.obj load.obj ui.obj\
+        store.obj birth.obj load.obj ui.obj hero.obj\
         wizard1.obj wizard2.obj grid.obj streams.obj rooms.obj \
         generate.obj dungeon.obj init1.obj init2.obj \
         effects.obj quest1.obj quest2.obj racial.obj run.obj script.obj \

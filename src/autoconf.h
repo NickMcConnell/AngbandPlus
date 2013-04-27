@@ -247,13 +247,13 @@
 #define PACKAGE_NAME "Zangband"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "Zangband 0.3.1"
+#define PACKAGE_STRING "Zangband 0.3.2pre1"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "zangband"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.3.1"
+#define PACKAGE_VERSION "0.3.2pre1"
 
 /* Use tcl/tk port X11 version */
 #define PLATFORM_X11 1

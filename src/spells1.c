@@ -942,6 +942,13 @@ static bool project_o(int who, int r, int x, int y, int dam, int typ)
 				obvious = TRUE;
 			}
 
+			/* When an object is destroyed because of a curse, observe it. */
+			if (obvious && (typ == GF_HOLY_FIRE || typ == GF_HELL_FIRE || typ == GF_KILL_CURSE) && 
+				!is_art)
+			{
+				object_maybecursed(o_ptr);
+			}
+
 			/* Artifacts, and other objects, get to resist */
 			if (is_art || ignore)
 			{
@@ -1466,6 +1473,13 @@ bool project_m(int who, int r, int x, int y, int dam, int typ)
 				note = " resists.";
 				dam *= 3;
 				dam /= rand_range(7, 12);
+				do_poly = FALSE;
+			}
+			/* Powerful monsters can resist */
+			if ((FLAG(r_ptr, RF_UNIQUE)) ||
+				(FLAG(r_ptr, RF_QUESTOR)) ||
+				(r_ptr->hdice * 2 > randint1(dam * 3)))
+			{
 				do_poly = FALSE;
 			}
 			break;

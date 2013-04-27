@@ -61,6 +61,7 @@ struct maxima
 	u16b a_max;	/* Max size for "a_info[]" */
 	u16b e_max;	/* Max size for "e_info[]" */
 	u16b r_max;	/* Max size for "r_info[]" */
+	u16b h_max; /* Number of entries at end of "r_info[]" reserved for "heroes"  */
 	u16b v_max;	/* Max size for "v_info[]" */
 
 	u16b q_max;	/* Max size for quest array */
@@ -187,13 +188,8 @@ struct object_kind
 
 
 	byte flavor;	/* Special object flavor (or zero) */
-
-	bool easy_know;	/* This object is always known (if aware) */
-
-
-	bool aware;	/* The player is "aware" of the item's effects */
-
-	bool tried;	/* The player has "tried" one of the items */
+	
+	byte info;      /* Info known about this object kind */
 };
 
 
@@ -1427,6 +1423,7 @@ struct player_timed
 	s16b sh_fear;   /* Aura of fear */
 	s16b invis;     /* Invisibility */
 	s16b xtra_invis;	/* Extra invisibility */
+	s16b luminosity;	/* Increased light radius */
 };
 
 /*
@@ -2113,4 +2110,16 @@ struct monster_group_type
 
 	/* Weight: relates to probability of being picked */
 	byte weight;
+};
+
+
+
+typedef struct hero_type hero_type;
+
+struct hero_type
+{
+	s16b r_idx;		/* Monster race "base" */
+	byte offset;    /* Number of levels upgraded */
+	u32b seed; 		/* Seed used to generate the hero from the base type */
+	byte flags;     /* Killed?  Quest target?  */
 };

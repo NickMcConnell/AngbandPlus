@@ -187,7 +187,7 @@ static cptr wand_adj[MAX_METALS] =
 	"Platinum", "Lead", "Lead-Plated", "Ivory", "Adamantite",
 	"Uridium", "Long", "Short", "Hexagonal", "Titanium-Plated",
 	/* 40-49 */
-	"Tungsten-Plated", "Chromuim-Plated", "Palladium", "Palladium-Plated", "Iridium",
+	"Tungsten-Plated", "Chromium-Plated", "Palladium", "Palladium-Plated", "Iridium",
 	"Zirconium-Plated", "Vanadium", "Carbon Steel", "Pewter", "Brass-Plated",
 	/* 50-59 */
 	"Bronze-Plated", "Electrum", "Electrum-Plated", "White Gold", "Thin",
@@ -729,10 +729,10 @@ void flavor_init(void)
 		k_ptr->flavor = object_flavor(i);
 
 		/* No flavor yields aware */
-		if (!k_ptr->flavor) k_ptr->aware = TRUE;
+		if (!k_ptr->flavor) k_ptr->info |= OK_AWARE;
 
 		/* Check for "easily known" */
-		k_ptr->easy_know = object_easy_know(i);
+		if (object_easy_know(i)) k_ptr->info |= OK_EASY_KNOW;
 	}
 }
 
@@ -1720,6 +1720,19 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 		/* Append the inscription */
 		strnfcat(buf, max, &len, " {empty}");
 	}
+	/* Note worthless if we know the object kind is worthless */
+	else if (!aware && object_worthless_p(o_ptr))
+	{
+		/* Append the inscription */
+		strnfcat(buf, max, &len, " {worthless}");
+	}
+
+	/* Note "cursed?" if the object is known to sometimes be cursed */
+	else if (!aware && object_maybecursed_p(o_ptr))
+	{
+		/* Append the inscription */
+		strnfcat(buf, max, &len, " {cursed?}");
+	}
 
 	/* Note "tried" if the object has been tested unsuccessfully */
 	else if (!aware && object_tried_p(o_ptr))
@@ -1773,7 +1786,7 @@ void object_desc_store(char *buf, const object_type *o_ptr, int pref,
                        int mode, int size)
 {
 	byte hack_flavor;
-	bool hack_aware;
+	bool hack_info;
 	byte info;
 
 	/* Hack - we will reset the object to exactly like it was */
@@ -1782,8 +1795,8 @@ void object_desc_store(char *buf, const object_type *o_ptr, int pref,
 	/* Save the "flavor" */
 	hack_flavor = k_info[o_ptr->k_idx].flavor;
 
-	/* Save the "aware" flag */
-	hack_aware = k_info[o_ptr->k_idx].aware;
+	/* Save the object kind info flags */
+	hack_info = k_info[o_ptr->k_idx].info;
 
 	/* Save the "info" */
 	info = o_ptr->info;
@@ -1798,7 +1811,7 @@ void object_desc_store(char *buf, const object_type *o_ptr, int pref,
 		q_ptr->info |= (OB_KNOWN);
 
 		/* Force "aware" for description */
-		k_info[o_ptr->k_idx].aware = TRUE;
+		k_info[o_ptr->k_idx].info |= OK_AWARE;
 	}
 
 	/* Describe the object */
@@ -1807,8 +1820,8 @@ void object_desc_store(char *buf, const object_type *o_ptr, int pref,
 	/* Restore "flavor" value */
 	k_info[o_ptr->k_idx].flavor = hack_flavor;
 
-	/* Restore "aware" flag */
-	k_info[o_ptr->k_idx].aware = hack_aware;
+	/* Restore object kind info */
+	k_info[o_ptr->k_idx].info = hack_info;
 
 	/* Restore the "info" */
 	q_ptr->info = info;

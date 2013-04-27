@@ -98,28 +98,54 @@ static void wiz_create_named_art(int a_idx)
  */
 static void do_cmd_wiz_hack_mango(int arg)
 {
-	int i = arg;
-	int cnt = 0;
-	/* Debug */
-	int r = 0;
-    int s = 0;
+	int i, j;
+	cheat_know = TRUE;
+	int k;
 
-	msgf ("You have learned %d spells.", p_ptr->spell.spell_max);
-	msgf ("Spell slots left: %d/%d/%d/%d/%d", p_ptr->spell_slots[0], p_ptr->spell_slots[1],
-			p_ptr->spell_slots[2], p_ptr->spell_slots[3], p_ptr->spell_slots[4]);
+	i = randint1(75);
+	j = get_mon_num(i);
 
-	for (i = 0; i < p_ptr->spell.spell_max; i++)
+	k = create_hero(j, damroll(4,2)-3, FALSE);
+
+	if (k)
 	{
-		/* Print info about learned spell number i */
-		msgf ("Spell %d: Internal (s_idx = %d, realm = %d), focus = %d, flags = %d", i,
-				p_ptr->spell.data[i].s_idx, p_ptr->spell.data[i].realm, p_ptr->spell.data[i].focus,
-				p_ptr->spell.data[i].flags);
-		if (p_ptr->spell.data[i].flags & SP_PRESENT_1)
-			msgf ("  realm1: %d", p_ptr->spell.data[i].spell[0]);
-		if (p_ptr->spell.data[i].flags & SP_PRESENT_2)
-			msgf ("  realm2: %d", p_ptr->spell.data[i].spell[1]);
+		screen_save();
+		screen_roff_mon(j, 0);
+		pause_line(20);
+		screen_roff_mon(k, 0);
+		pause_line(20);
+		screen_load();
+	}
+	else
+	{
+		msgf ("Couldn't create hero based on %s", mon_race_name(&r_info[j]));
 	}
 
+	/*
+	for (i = 0; i < arg; i++)
+	{
+		u16b r_idx = get_mon_num(p_ptr->depth);
+
+		r = create_hero(r_idx, rand_range(2, 2+r_info[r_idx].level / 8), FALSE);
+
+		if (!r)
+		{
+			i--;
+			continue;
+		}
+
+		screen_save();
+
+		screen_roff_mon(r_idx, 0);
+
+		pause_line(20);
+
+		screen_roff_mon(r, 0);
+
+		pause_line(20);
+
+		screen_load();
+	} */
 }
 
 

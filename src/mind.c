@@ -49,7 +49,7 @@ void mindcraft_info(char *p, int power)
 		}
 		case MINDCRAFT_MINOR_DISPLACEMENT:
 		{
-			strnfmt(p, 80, " range %d", (plev < 40 ? 10 : plev + 2));
+			strnfmt(p, 80, " range %d", (plev < 40 ? 10 : 25));
 			break;
 		}
 		case MINDCRAFT_MAJOR_DISPLACEMENT:

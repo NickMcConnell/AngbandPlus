@@ -9,7 +9,7 @@
 function corpse_type(c)
 	if c == 'a' then return 6 end
 	if c == 'b' then return 6 end
-	if c == 'c'	then return 5 end
+	if c == 'c' then return 5 end
 	if c == 'd' then return 0 end
 	if c == 'e' then return 6 end
 	if c == 'f' then return 4 end

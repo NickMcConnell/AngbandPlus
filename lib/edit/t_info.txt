@@ -152,13 +152,13 @@ L:PENTER:if (bAnd(player.flags[2], TR2_FEATHER) ~= 0) then
 L:PENTER:   if (in_quest() == 0) then 
 L:PENTER:	   msgf("You fly over a trap door.")
 L:PENTER:      if (get_check("Descend?")) then
-L:PENTER:         move_dun_level(1) end
+L:PENTER:         move_dun_level(1, FALSE) end
 L:PENTER:   else msgf("You fly over a pit trap.") end
 L:PENTER:elseif (in_quest() == 0) then
 L:PENTER:	msgf("You have fallen through a trap door!")
 L:PENTER:	sound(SOUND_FALL)
 L:PENTER:	take_hit(damroll(4, 8), "a trap door")
-L:PENTER:	move_dun_level(1)
+L:PENTER:	move_dun_level(1, FALSE)
 L:PENTER:else 
 L:PENTER:	msgf("The door leads into a spiked pit!")
 L:PENTER:	dam = damroll(4, 8)
@@ -2230,7 +2230,7 @@ L:BUILD1:else rstring = "" end
 L:BUILD1:if (is_member() == TRUE) then
 L:BUILD1:	building_options(rstring, 
 L:BUILD1:          "B) Blessing (".. (factor / 3).. "gp)",
-L:BUILD1:          "W) Word of Recall",
+L:BUILD1:          "C) Remove Curse",
 L:BUILD1:          "R) Restoration (".. (factor * 15)/2 .."gp)")
 L:BUILD1:else
 L:BUILD1:	building_options(rstring, 
@@ -2244,7 +2244,8 @@ L:BUILD2:else	cost = factor * 2 end
 L:BUILD2:	if (test_gold(cost) == TRUE) then
 L:BUILD2:		player.au = player.au - cost
 L:BUILD2:		hp_player(player.mhp)
-L:BUILD2:               inc_blessed(1500)
+L:BUILD2:         if (is_member()) then inc_blessed(1500)
+L:BUILD2:         else inc_blessed(500) end
 L:BUILD2:		message_flush()
 L:BUILD2:	end
 L:BUILD2:	done = TRUE
@@ -2253,8 +2254,9 @@ L:BUILD2:if (command == 'Q') then
 L:BUILD2:       if (is_member() == TRUE) then cost = 5 else cost = 0 end
 L:BUILD2:	build_cmd_quest(cost, field)
 L:BUILD2:	done = TRUE end
-L:BUILD2:if (command == 'W' and is_member() == TRUE) then
-L:BUILD2:       build_cmd_recall()
+L:BUILD2:if (command == 'C' and is_member() == TRUE) then
+L:BUILD2:       if remove_curse() then
+L:BUILD2:          msgf("You feel as if someone is watching over you.") end
 L:BUILD2:       message_flush()
 L:BUILD2:       done = TRUE end
 L:BUILD2:if (command == 'R') then

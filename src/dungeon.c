@@ -1263,6 +1263,7 @@ static void process_world(void)
 			 !(FLAG(p_ptr, TR_PASS_WALL))))
 		{
 			cptr dam_desc;
+			int dmg = (depth / 5);
 
 			cave_no_regen = TRUE;
 
@@ -1270,6 +1271,7 @@ static void process_world(void)
 			{
 				msgf("Your molecules feel disrupted!");
 				dam_desc = "density";
+				dmg /= 2;
 			}
 			else
 			{
@@ -1277,7 +1279,7 @@ static void process_world(void)
 				dam_desc = "solid rock";
 			}
 
-			take_hit(1 + (depth / 10), dam_desc);
+			take_hit(dmg+1, dam_desc);
 		}
 	}
 
@@ -1556,6 +1558,7 @@ static void process_world(void)
 	if (query_timed(TIMED_OPPOSE_CONF)) (void)inc_oppose_conf(-1);
 	if (query_timed(TIMED_OPPOSE_BLIND)) (void)inc_oppose_blind(-1);
 	if (query_timed(TIMED_ETHEREALNESS)) (void)inc_etherealness(-1);
+	if (query_timed(TIMED_LUMINOSITY)) (void)inc_luminosity(-1);
 	if (query_timed(TIMED_SEE_INVIS)) (void)inc_tim_invis(-1);
 	if (query_timed(TIMED_STR)) (void)inc_tim_str(-1);
 	if (query_timed(TIMED_CHR)) (void)inc_tim_chr(-1);
@@ -1856,14 +1859,6 @@ static void process_world(void)
 	if (query_timed(TIMED_WORD_RECALL))
 	{
 		place_type *pl_ptr;
-
-		/*
-		 * HACK: Autosave BEFORE resetting the recall counter (rr9)
-		 * The player is yanked up/down as soon as
-		 * he loads the autosaved game.
-		 */
-		if (autosave_l && (query_timed(TIMED_WORD_RECALL) == 1))
-			do_cmd_save_game(TRUE);
 
 		/* Count down towards recall */
 		*(get_timed_ptr(TIMED_WORD_RECALL)) = query_timed(TIMED_WORD_RECALL) - 1;
@@ -2215,6 +2210,7 @@ static void process_command(void)
 		}
 
 		case KTRL('I'):
+		case KTRL('E'):
 		{
 			/* Hack -- toggle windows */
 			toggle_inven_equip();
@@ -2911,9 +2907,6 @@ static void process_player(void)
 		/* Handle "leaving" */
 		if (p_ptr->state.leaving)
 		{
-			/* Hack - save game if asked */
-			if (autosave_l) do_cmd_save_game(TRUE);
-
 			break;
 		}
 		/* Used up energy for this turn */
@@ -2994,9 +2987,16 @@ static void process_energy(void)
 static void evolve_dungeon(void)
 {
 	cave_type *c_ptr;
+	bool check_autosave = FALSE;
 
 	/* Not leaving */
-	p_ptr->state.leaving = FALSE;
+	if (p_ptr->state.leaving)
+	{
+		p_ptr->state.leaving = FALSE;
+
+		/* Hack - save game if asked */
+		if (autosave_l) check_autosave = TRUE;
+	}
 
 	/* Reset the "command" vars */
 	p_ptr->cmd.cmd = 0;
@@ -3024,50 +3024,6 @@ static void evolve_dungeon(void)
 	{
 		p_ptr->max_lev = p_ptr->lev;
 	}
-
-	/* No stairs down from final quests */
-	if (is_special_level(p_ptr->depth))
-	{
-		p_ptr->state.create_down_stair = FALSE;
-	}
-
-	/* Paranoia -- no stairs from town or wilderness */
-	if (!p_ptr->depth) p_ptr->state.create_down_stair = p_ptr->state.create_up_stair = FALSE;
-
-	/* Option -- no connected stairs */
-	if (!dungeon_stair) p_ptr->state.create_down_stair = p_ptr->state.create_up_stair = FALSE;
-
-	/* Nightmare mode is no fun... */
-	if (ironman_nightmare) p_ptr->state.create_down_stair = p_ptr->state.create_up_stair = FALSE;
-
-	/* Option -- no up stairs */
-	if (ironman_downward) p_ptr->state.create_down_stair = p_ptr->state.create_up_stair = FALSE;
-
-	/* Make a stairway. */
-	if (p_ptr->state.create_up_stair || p_ptr->state.create_down_stair)
-	{
-		/* Place a stairway */
-		c_ptr = area(p_ptr->px, p_ptr->py);
-		if (cave_valid_grid(c_ptr))
-		{
-			/* XXX XXX XXX */
-			delete_object(p_ptr->px, p_ptr->py);
-
-			/* Make stairs */
-			if (p_ptr->state.create_down_stair)
-			{
-				cave_set_feat(p_ptr->px, p_ptr->py, FEAT_MORE);
-			}
-			else
-			{
-				cave_set_feat(p_ptr->px, p_ptr->py, FEAT_LESS);
-			}
-		}
-
-		/* Cancel the stair request */
-		p_ptr->state.create_down_stair = p_ptr->state.create_up_stair = FALSE;
-	}
-
 
 	/* Center the panel on the player */
 	panel_center(p_ptr->px, p_ptr->py);
@@ -3134,6 +3090,12 @@ static void evolve_dungeon(void)
 	quest_discovery();
 
 	/*** Process this dungeon level ***/
+
+	/* Hack - save game if asked */
+	if (check_autosave)
+	{
+		do_cmd_save_game(TRUE);
+	}
 
 	/* Main loop */
 	while (TRUE)

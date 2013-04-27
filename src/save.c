@@ -675,6 +675,16 @@ static void wr_lore(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
+	/* Write hero information if applicable */
+	if (r_idx >= HERO_MIN)
+	{
+		/* Write the hero information */
+		wr_s16b(h_list[r_idx-HERO_MIN].r_idx);
+		wr_byte(h_list[r_idx-HERO_MIN].flags);
+		wr_byte(h_list[r_idx-HERO_MIN].offset);
+		wr_u32b(h_list[r_idx-HERO_MIN].seed);
+	}
+
 	/* Count sights/deaths/kills */
 	wr_s16b(r_ptr->r_sights);
 	wr_s16b(r_ptr->r_deaths);
@@ -731,14 +741,7 @@ static void wr_lore(int r_idx)
  */
 static void wr_xtra(int k_idx)
 {
-	byte tmp8u = 0;
-
-	object_kind *k_ptr = &k_info[k_idx];
-
-	if (k_ptr->aware) tmp8u |= 0x01;
-	if (k_ptr->tried) tmp8u |= 0x02;
-
-	wr_byte(tmp8u);
+	wr_byte(k_info[k_idx].info);
 }
 
 
@@ -1409,8 +1412,6 @@ static void wr_dungeon(void)
 	wr_checksum();
 }
 
-
-
 /*
  * Actually write a save-file
  */
@@ -1505,13 +1506,22 @@ static bool wr_savefile_new(void)
 	/* Dump the monster lore */
 	tmp16u = z_info->r_max;
 	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++) wr_lore(i);
+	tmp16u = z_info->h_max;
+	wr_u16b(tmp16u);
+	for (i = 0; i < z_info->r_max; i++) wr_lore(i);
 
 
 	/* Dump the object memory */
-	tmp16u = z_info->k_max;
+
+	/* Gather actual number of object kinds */
+	for (i = 0; i < z_info->k_max; i++)
+	{
+		object_kind *k_ptr = &k_info[i];
+
+		if (k_ptr->name) tmp16u = i;
+	}
 	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++) wr_xtra(i);
+	for (i = 0; i <= tmp16u; i++) wr_xtra(i);
 
 	/* Checksum */
 	wr_checksum();
@@ -1882,7 +1892,6 @@ static bool wr_savefile_new(void)
 		/* Checksum */
 		wr_checksum();
 	}
-
 
 	/* Write the "value check-sum" */
 	wr_u32b(v_stamp);

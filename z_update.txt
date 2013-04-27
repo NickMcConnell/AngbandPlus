@@ -2,6 +2,88 @@ This is a document file listing the changes in Z+Angband (compared to
 ZAngband 2.7.5pre1).  No long explanations, just a list. See
 code for details. In reversed chronological order (more or less):
 
+Changes from Z+Angband 0.3.1 beta to Z+Angband 0.3.2 beta:
+
+1.  Implemented monster "heroes" (random uniques).
+2.  Appropriate quests have monster heroes as their targets.  
+3.  Depth of =Fear increased.
+4.  Modified exact damage information display for Humans.
+5.  Quivers now display as a choice when 'f'iring ammo.
+6.  Firing ammo out of a quiver now works properly with 'n' (repeat).
+7.  Choosing 'c' while selecting a target selects the closest target without
+      further keystrokes.
+8.  Pref file for known "invisible walls" issue re-included.
+9.  Fixed bug that didn't penalize Mages for non-Agility/FA ego gloves.
+10.  "Pseudo Dragon Scale Mail" is now "Ethereal Dragon Scale Mail."  
+11.  Path projection now reaches its proper full range in all directions.
+12.  Fixed bug that made corrupted save files when autosaving at a level 
+       transition.
+13.  Bounds checking implemented to avoid spell power overflows.
+14.  Fixed display of spell list in a window.
+15.  Fixed bug: Alter ('+') worked badly on a grid with an unknown trap.
+16.  Fixed bug that can cause a crash when an artifact gets cursed (a la Scroll
+       of Curse Weapon).
+17.  Magic mapping no longer displays open floor near stairs & doors, and
+       works nicely with miscellaneous terrain.
+18.  Fixed bug: Find artifact quests can no longer send you to an ambiguous
+       dungeon.
+19.  ^V (repeat) added to Roguelike keyset.
+20.  Start-of-game quest generation modified.  Quest levels are now correlated
+       to the danger level of the wilderness they appear in.  Number of quests
+       reduced, as they are now more predictable.
+21.  Fixed bug that could cause a crash when shopping on some machines.
+22.  Fixed bug that could cause a crash when 'O'rganizing container contents.
+23.  Fixed dungeon_abyss option; now works properly.  Dungeons have bottoms again.
+24.  Fixed bug in quest creation: clearout quests are no longer almost always
+       underground cities.
+25.  Boots of stealth get a lower default stealth bonus.
+26.  Cloaks of Aman get a higher stealth bonus.
+27.  Recall state now cancelled when the player manually moves between wilderness
+       and dungeon.
+28.  Fixed bug that could cause the player to not be on the stairs when exiting
+       a dungeon, if they recalled in.
+29.  Random "bounties" on unique monsters removed; quests exist for that.
+30.  Fixed bug: Lites should not be the target of find artifact quests.
+31.  Changes to Illusion magic: True Seeing and Improved Invisibility moved to 
+       book 2, Scream and Phantom Fire moved to book 3; Dancing Lights replaced 
+       with a new spell, "Luminosity"
+32.  Phial of Galadriel and Star of Elendil grant brief light radius bonuses when
+       activated.
+33.  Further refinements to DVG tileset and mappings.
+34.  Manaburst (Chaos), Orb of Entroy (Death), and Holy Orb (Life) no longer
+       naturally improve faster than 1 damage per level.  
+35.  Cathedrals now provide an uncursing service instead of Word of Recall.
+36.  Decreased effectiveness of Phantasmal Horror (Illusion).
+37.  Monsters imported in an earlier version from V have been altered for depth 
+       and HD to fit in more smoothly.
+38.  Fixed bug that can cause projections to crash into a wall when trying to 
+       avoid hitting a monster.
+39.  Fixed bug that showed arrows as providing "protection" against X instead of 
+       slays.
+40.  Connected stairs now move the player to existing stairs, thus not creating
+       any new ones.  This also makes it so that teleporting into a quest and
+       descending into a quest don't put the player in the same place.
+41.  Character dumps now give contents of containers.
+42.  Fixed bug in Imbue with Radiance spell that treated ego items as artifacts.
+43.  Fixed failure with project_path, that can lead to bolts unnecessarily hitting
+       walls.
+44.  Ammo now gets described as "slaying X" rather than granting protection from X.
+45.  Fixed bug with ?WeaponBranding, didn't use itself up properly.
+46.  Chaos spell "Consume Magic" reduced in effectiveness.
+47.  Fixed bug: quests created to find artifacts in dungeons but out of the dungeon's
+       range of levels.
+48.  Passwall / Etherealness reduces damage from earthquakes; not having it increases
+       damage from being in walls.
+49.  Added {worthless} and {cursed?} object kind info, when you learn a flavored item
+       is never worth anything, or can be cursed, but don't know what it is.
+50.  Added range display when using Dimension Door.  
+51.  Fixed bug that causes very rare crashes on quest level generation, when no spot 
+       can be picked for the player to start in.
+52.  Added ^E keystroke (in addition to Tab) for switching between Inven and Equipment 
+       in a window.
+53.  Added quest1.o, quest2.o, and hero.o to specific makefiles that were missing them 
+       (src package only).
+
 Changes from Z+Angband 0.3.0 beta to Z+Angband 0.3.1 beta:
 
 1.  Fixed bug that make Priests/Paladins/Monks unable to learn a prayer 

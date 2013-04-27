@@ -1510,6 +1510,8 @@ static void build_type5(int bx0, int by0)
 
 	int what[64];
 
+	monster_race * r_ptr;
+
 	const vault_aux_type *n_ptr = pick_vault_type(nest_types);
 
 	/* No type available */
@@ -1573,16 +1575,18 @@ static void build_type5(int bx0, int by0)
 	/* Pick some monster types */
 	for (i = 0; i < 64; i++)
 	{
-		int r_idx = 0, attempts = 100;
+		u16b r_idx = 0, attempts = 100;
 
 		while (attempts--)
 		{
 			/* Get a (hard) monster type */
 			r_idx = get_mon_num(p_ptr->depth + 10);
 
+			r_ptr = monst_race(r_idx);
+
 			/* Decline incorrect alignment */
-			if (((align < 0) && FLAG(&r_info[r_idx], RF_GOOD)) ||
-				((align > 0) && FLAG(&r_info[r_idx], RF_EVIL)))
+			if (((align < 0) && FLAG(r_ptr, RF_GOOD)) ||
+				((align > 0) && FLAG(r_ptr, RF_EVIL)))
 			{
 				continue;
 			}
@@ -1595,8 +1599,8 @@ static void build_type5(int bx0, int by0)
 		if (!r_idx || !attempts) return;
 
 		/* Note the alignment */
-		if (FLAG(&r_info[r_idx], RF_GOOD)) align++;
-		else if (FLAG(&r_info[r_idx], RF_EVIL)) align--;
+		if (FLAG(r_ptr, RF_GOOD)) align++;
+		else if (FLAG(r_ptr, RF_EVIL)) align--;
 
 		what[i] = r_idx;
 	}
@@ -1797,16 +1801,19 @@ static void build_type6(int bx0, int by0)
 	/* Pick some monster types */
 	for (i = 0; i < 16; i++)
 	{
-		int r_idx = 0, attempts = 100;
+		u16b r_idx = 0, attempts = 100;
+		monster_race *r_ptr;
 
 		while (attempts--)
 		{
 			/* Get a (hard) monster type */
 			r_idx = get_mon_num(p_ptr->depth + 10);
 
+			r_ptr = monst_race(r_idx);
+
 			/* Decline incorrect alignment */
-			if (((align < 0) && FLAG(&r_info[r_idx], RF_GOOD)) ||
-				((align > 0) && FLAG(&r_info[r_idx], RF_EVIL)))
+			if (((align < 0) && FLAG(r_ptr, RF_GOOD)) ||
+				((align > 0) && FLAG(r_ptr, RF_EVIL)))
 			{
 				continue;
 			}
@@ -1819,8 +1826,8 @@ static void build_type6(int bx0, int by0)
 		if (!r_idx || !attempts) return;
 
 		/* Note the alignment */
-		if (FLAG(&r_info[r_idx], RF_GOOD)) align++;
-		else if (FLAG(&r_info[r_idx], RF_EVIL)) align--;
+		if (FLAG(r_ptr, RF_GOOD)) align++;
+		else if (FLAG(r_ptr, RF_EVIL)) align--;
 
 		what[i] = r_idx;
 	}

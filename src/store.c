@@ -2917,4 +2917,6 @@ bool send_home (void)
 	pause_line(0);
 	
 	screen_load();
+	
+	return TRUE;
 }

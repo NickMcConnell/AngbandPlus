@@ -2930,10 +2930,10 @@ errr file_character(cptr name, bool full)
         /* Allocate the "who" array */
         C_MAKE(who, z_info->r_max, u16b);
 
-        /* Collect matching monsters */
-        for (n = 0, i = 1; i < z_info->r_max; i++)
-        {
-            monster_race *r_ptr = &r_info[i];
+		/* Collect matching monsters */
+		for (n = 0, i = 1; i < RACE_MAX; i++)
+		{
+			monster_race *r_ptr = &r_info[i];
 
             /* Require killed monsters */
             if (!r_ptr->r_pkills) continue;
@@ -2957,7 +2957,8 @@ errr file_character(cptr name, bool full)
 
             for (i = n - 1; i >= 0 && i >= n - 10; i--)
             {
-                monster_race *r_ptr = &r_info[who[i]];
+				int r_idx = who[i];
+				monster_race * r_ptr = &r_info[who[i]];
 
                 froff(fff, "%2i %-36s Level %i (%i')\n", r_ptr->r_pkills,
                         mon_race_name(r_ptr), r_ptr->level, r_ptr->level * 50);

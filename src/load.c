@@ -701,6 +701,18 @@ static void rd_lore(int r_idx)
 
 	/* Current */
 	{
+		if (sf_version >= 58 && r_idx >= HERO_MIN)
+		{
+			rd_s16b(&h_list[r_idx-HERO_MIN].r_idx);
+			rd_byte(&h_list[r_idx-HERO_MIN].flags);
+			rd_byte(&h_list[r_idx-HERO_MIN].offset);
+			rd_u32b(&h_list[r_idx-HERO_MIN].seed);
+
+			/* restore the hero now, so lore overwrites
+			   the stuff placed there automatically */
+			restore_hero(r_idx-HERO_MIN);
+		}
+
 		/* Count sights/deaths/kills */
 		rd_s16b(&r_ptr->r_sights);
 		rd_s16b(&r_ptr->r_deaths);
@@ -1909,6 +1921,7 @@ static errr rd_dungeon(void)
 
 	/* Header info */
 	rd_s16b(&p_ptr->depth);
+
 	rd_s16b(&num_repro);
 	rd_s16b(&py);
 	rd_s16b(&px);
@@ -1931,6 +1944,9 @@ static errr rd_dungeon(void)
 
 	/* Load wilderness data */
 	load_wild_data();
+
+	/* Reinsert to fix broken autosave files */
+	/* p_ptr->depth = 0; */
 
 	change_level(p_ptr->depth);
 
@@ -2379,26 +2395,36 @@ static void rd_quests(int max_quests)
 		rd_checksum("Quest record");
 
 		/* Repair broken quests if necessary */
-		if (sf_version < 56)
 		{
 			monster_race *r_ptr = NULL;
+			int r_idx = 0;
 
 			/* Find the target monster race */
 			if (q_ptr->type == QUEST_TYPE_BOUNTY || q_ptr->type == QUEST_TYPE_DEFEND)
 			{
-				r_ptr = &r_info[q_ptr->data.bnt.r_idx];
+				r_idx = q_ptr->data.bnt.r_idx;
 			}
 			else if (q_ptr->type == QUEST_TYPE_FIXED_KILL)
 			{
-				r_ptr = &r_info[q_ptr->data.fix.data.kill.r_idx];
+				r_idx = q_ptr->data.fix.data.kill.r_idx;
 			}
 			else if (q_ptr->type == QUEST_TYPE_FIXED_BOSS)
 			{
-				r_ptr = &r_info[q_ptr->data.fix.data.boss.r_idx];
+				r_idx = q_ptr->data.fix.data.boss.r_idx;
 			}
 			else if (q_ptr->type == QUEST_TYPE_DUNGEON)
 			{
-				r_ptr = &r_info[q_ptr->data.dun.r_idx];
+				r_idx = q_ptr->data.dun.r_idx;
+			}
+			else
+				r_idx = -1;
+
+			r_ptr = &r_info[r_idx];
+
+			/* Quests with an inappropriate target, mark as finished. */
+			if (r_idx == 0)
+			{
+				q_ptr->status = QUEST_STATUS_FINISHED;
 			}
 
 			/* Check for a quest with a dead, unique boss */
@@ -2457,7 +2483,7 @@ static void rd_quests(int max_quests)
 					q_ptr->data.fix.min_level = 99;
 
 				if (q_ptr->data.fix.min_level + *n > 100)
-					*n = 100 - q_ptr->data.fix.min_level;
+					q_ptr->data.fix.min_level = 99-*n;
 
 				if (q_ptr->data.fix.min_level == 0)
 					q_ptr->data.fix.min_level = 1;
@@ -2468,6 +2494,21 @@ static void rd_quests(int max_quests)
 				{
 					if (q_ptr->status <= QUEST_STATUS_TAKEN)
 						q_ptr->status = QUEST_STATUS_FINISHED;
+				}
+			}
+
+			/* Upgrade kill & boss quests to heroes */
+			if (q_ptr->type == QUEST_TYPE_FIXED_BOSS ||
+				q_ptr->type == QUEST_TYPE_FIXED_KILL)
+			{
+				int h_r_idx = create_hero(r_idx, damroll(4,2)-3, TRUE);
+
+				if (h_r_idx)
+				{
+					if (q_ptr->type == QUEST_TYPE_FIXED_BOSS)
+						q_ptr->data.fix.data.boss.r_idx = h_r_idx;
+					else
+						q_ptr->data.fix.data.kill.r_idx = h_r_idx;
 				}
 			}
 		}
@@ -2615,7 +2656,7 @@ static errr rd_savefile_new_aux(void)
 	int tempx, tempy;
 
 	byte tmp8u;
-	u16b tmp16u;
+	u16b tmp16u, tmp16u2;
 	u32b tmp32u;
 
 	u32b n_x_check, n_v_check;
@@ -2690,20 +2731,50 @@ static errr rd_savefile_new_aux(void)
 
 
 	/* Monster Memory */
-	rd_u16b(&tmp16u);
+	rd_u16b(&tmp16u2);
 
 	/* Incompatible save files */
-	if (tmp16u > z_info->r_max)
+	if (tmp16u2 > z_info->r_max)
 	{
-		note("Too many (%u) monster races!", tmp16u);
+		note("Too many (%u) monster races!", tmp16u2);
 		return (21);
 	}
 
-	/* Read the available records */
-	for (i = 0; i < tmp16u; i++)
+	if (sf_version >= 58)
 	{
+		rd_u16b(&tmp16u);
+
+		if (tmp16u > z_info->h_max || (HERO_MIN < z_info->r_max - tmp16u))
+		{
+			note("Too many (%u) heroes!", tmp16u);
+			return (21);
+		}
+	}
+
+	/* Read the available records */
+	for (i = 0; i < tmp16u2; i++)
+	{
+		/* Adjust for changes in h_max across versions */
+		if (sf_version >= 58 && i == z_info->r_max - tmp16u)
+		{
+			/* Treat first written hero as first hero */
+			i = HERO_MIN;
+		}
+
 		/* Read the lore */
 		rd_lore(i);
+	}
+
+	/* Initialize heroes for old savefiles */
+	if (sf_version < 58)
+	{
+		for (i = 0; i < z_info->h_max; i++)
+		{
+			h_list[i].r_idx = 0;
+			h_list[i].offset = 0;
+			h_list[i].flags = 0;
+			h_list[i].seed = 0;
+		}
 	}
 
 	if (arg_fiddle) note("Loaded Monster Memory");
@@ -2715,19 +2786,23 @@ static errr rd_savefile_new_aux(void)
 	/* Incompatible save files */
 	if (tmp16u > z_info->k_max)
 	{
-		note("Too many (%u) object kinds!", tmp16u);
-		return (22);
+		note("Too many (%u) object kinds!  Ignoring extraneous info.", tmp16u);
 	}
 
 	/* Read the object memory */
-	for (i = 0; i < tmp16u; i++)
+	for (i = 0; i <= tmp16u; i++)
 	{
-		object_kind *k_ptr = &k_info[i];
+		/* Fix a version-specific bug with savefiles */
+		if (sf_version <= 58 && i == tmp16u)
+			break;
 
-		rd_byte(&tmp8u);
+	   	if (i > z_info->k_max)
+		{
+			rd_byte(&tmp8u);
+			continue;
+		}
 
-		k_ptr->aware = (tmp8u & 0x01) ? TRUE : FALSE;
-		k_ptr->tried = (tmp8u & 0x02) ? TRUE : FALSE;
+		rd_byte(&k_info[i].info);
 	}
 	if (arg_fiddle) note("Loaded Object Memory");
 
@@ -3186,6 +3261,25 @@ static errr rd_savefile_new_aux(void)
 		}
 
 		rd_checksum("Life information");
+	}
+
+	/* Repair "find artifact" quests that are out of target
+	   dungeon range.  Must be done not in the normal place
+	   because dungeon data isn't loaded at that point. */
+	for (i = 0; i < q_max; i++)
+	{
+		quest_type * q_ptr = &quest[i];
+
+		/* Find item quests: if out of range of target dungeon, mark
+		   as finished. */
+		if (q_ptr->type == QUEST_TYPE_FIND_ITEM)
+		{
+			if (place[q_ptr->data.fit.place].dungeon->max_level <
+				q_ptr->level)
+			{
+				q_ptr->status = QUEST_STATUS_FINISHED;
+			}
+		}
 	}
 
 

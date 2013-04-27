@@ -12,8 +12,6 @@
 
 #include "angband.h"
 
-#define REWARD_CHANCE 10
-
 
 /*
  * Advance experience levels and print experience
@@ -232,10 +230,22 @@ bool monster_death(int m_idx, bool explode)
 	x = m_ptr->fx;
 
 	/* Prepare for object memory */
-	current_object_source.type = OM_MONST;
-	current_object_source.place_num = p_ptr->place_num;
-	current_object_source.depth = p_ptr->depth;
-	current_object_source.data = (u32b)m_ptr->r_idx;
+	if (m_ptr->r_idx >= HERO_MIN)
+	{
+		current_object_source.type = OM_HERO;
+		current_object_source.place_num = p_ptr->place_num;
+		current_object_source.depth = p_ptr->depth;
+		current_object_source.data = (u32b)m_ptr->r_idx-HERO_MIN;
+	}
+	else
+	{
+		current_object_source.type = OM_MONST;
+		current_object_source.place_num = p_ptr->place_num;
+		current_object_source.depth = p_ptr->depth;
+		current_object_source.data = (u32b)m_ptr->r_idx;
+	}
+
+
 
 	if (m_ptr->smart & SM_CLONED)
 		cloned = TRUE;
@@ -906,29 +916,6 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 				if (!get_rnd_line("mondeath.txt", m_ptr->r_idx, line_got))
 					msgf("%^s says: %s", m_name, line_got);
 			}
-
-			if ((FLAG(r_ptr, RF_UNIQUE)) && one_in_(REWARD_CHANCE) &&
-				!(FLAG(r_ptr, RF_FRIENDLY)))
-			{
-				if (!get_rnd_line("crime.txt", m_ptr->r_idx, line_got))
-				{
-					int reward = 250 * (randint1(10) + r_ptr->level - 5);
-
-					/* Force 'good' values */
-					if (reward > 32000) reward = 32000;
-					else if (reward < 250) reward = 250;
-
-					msgf("There was a price on %s's head.", m_name);
-					msgf("%^s was wanted for %s", m_name, line_got);
-					msgf("You collect a reward of %d gold pieces.",
-							   reward);
-
-					p_ptr->au += reward;
-					p_ptr->redraw |= (PR_GOLD);
-
-					chg_virtue(V_JUSTICE, 5);
-				}
-			}
 		}
 
 		if (r_ptr->level > p_ptr->depth)
@@ -1151,7 +1138,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	/* Mega-Hack -- Pain cancels fear */
 	if (m_ptr->monfear && (dam > 0))
 	{
-		int tmp = randint1(dam);
+		int tmp = randint1(dam/2);
 
 		/* Cure a little fear */
 		if (tmp < m_ptr->monfear)
@@ -2896,6 +2883,28 @@ bool target_set(int mode)
 	return (TRUE);
 }
 
+/*
+ * Sets the player's target to be the closest monster
+ */
+static bool target_closest(void)
+{
+	cave_type *c_ptr;
+
+	target_set_prepare(TARGET_KILL | TARGET_HOST);
+
+	/* Fail if there are no choosable targets */
+	if (temp_n == 0) return (FALSE);
+
+	/* Select target number 1 */
+	c_ptr = area(temp_x[0], temp_y[0]);
+
+	health_track(c_ptr->m_idx);
+	p_ptr->target_who = c_ptr->m_idx;
+	p_ptr->target_row = temp_y[0];
+	p_ptr->target_col = temp_x[0];
+
+	return (TRUE);
+}
 
 /*
  * Get an "aiming direction" from the user.
@@ -2948,11 +2957,11 @@ bool get_aim_dir(int *dp)
 		/* Choose a prompt */
 		if (!target_okay())
 		{
-			p = "Direction ('*' to choose a target, Escape to cancel)? ";
+			p = "Direction ('*' to choose a target, 'c' for closest, Escape to cancel)? ";
 		}
 		else
 		{
-			p = "Direction ('5' for target, '*' to re-target, Escape to cancel)? ";
+			p = "Direction ('5' for target, '*' to re-target, 'c' for closest, Escape to cancel)? ";
 		}
 
 		/* Get a command (or Cancel) */
@@ -2969,6 +2978,13 @@ bool get_aim_dir(int *dp)
 			{
 				/* Use current target */
 				dir = 5;
+				break;
+			}
+
+			case 'c':
+			{
+				if (target_closest()) dir = 5;
+				else if (target_set(TARGET_KILL | TARGET_HOST)) dir = 5;
 				break;
 			}
 
@@ -3646,6 +3662,7 @@ bool tgt_pt(int *x, int *y)
 
 	while ((ch != ESCAPE) && (ch != ' '))
 	{
+		prtf(0, 0, "Select a point and press space. (%d)  ", distance(*x, *y, px, py));
 		move_cursor_relative(*x, *y);
 		ch = inkey();
 		switch (ch)

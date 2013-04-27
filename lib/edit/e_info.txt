@@ -62,7 +62,7 @@
 
 # Version stamp (required)
 
-V:0.3.1
+V:0.3.2
 
 
 ### Body Armor ###
@@ -315,7 +315,7 @@ F:STEALTH
 N:42:of Aman
 X:31:20
 W:50:8:0:0
-C:0:0:20:3
+C:0:0:20:6
 F:STEALTH | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | HIDDEN_POWERS
 L:MAKE:	add_ego_power(EGO_XTRA_HI_RESIST, object)
@@ -416,7 +416,7 @@ F:FEATHER
 N:57:of Stealth
 X:35:16
 W:0:1:0:0
-C:0:0:0:8
+C:0:0:0:4
 F:STEALTH
 
 N:58:of Free Action

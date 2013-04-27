@@ -212,7 +212,7 @@ extern void word_of_recall(void);
 extern bool apply_disenchant(void);
 extern void mutate_player(void);
 extern void phlogiston(void);
-extern void brand_weapon(int brand_type);
+extern bool brand_weapon(int brand_type);
 extern void call_the_(void);
 extern void fetch(int dir, int wgt, bool require_los);
 extern void alter_reality(void);

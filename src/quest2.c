@@ -872,8 +872,8 @@ static void trigger_quest_complete_kill(monster_type * m_ptr)
 	int i;
 	quest_type *q_ptr;
 	int r_idx;
+	int test_r_idx = m_ptr->r_idx;
 	s16b max, *cur, c;
-
 
 	for (i = 0; i < q_max; i++)
 	{
@@ -926,7 +926,7 @@ static void trigger_quest_complete_kill(monster_type * m_ptr)
 			continue;
 		}
 
-		if (r_idx == m_ptr->r_idx)
+		if (r_idx == test_r_idx)
 		{
 			/* Don't count clones */
 			if (m_ptr->smart & SM_CLONED) break;
@@ -2788,7 +2788,7 @@ bool quest_theme_hook(int r_idx)
 		if (FLAG(r_ptr, RF_UNIQUE) || FLAG(r_ptr, RF_UNIQUE_7)) return (FALSE);
 
 		/* Never summon the boss.  We will deliberately place him. */
-		if (r_idx == current_quest->data.fix.data.kill.r_idx)
+		if (r_idx == current_quest->data.fix.data.kill.r_idx && !hero_okay(r_idx))
 			return (FALSE);
 		else if (r_info[r_idx].d_char == r_info[current_quest->data.fix.data.boss.r_idx].d_char &&
 				 r_info[r_idx].level <= r_info[current_quest->data.fix.data.boss.r_idx].level)
