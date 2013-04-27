@@ -2898,7 +2898,7 @@ auto_roller_barf:
 				birth_put_stats();
 
 				/* Dump round */
-				put_str(format("%10ld", auto_round), 10, col+20);
+				put_str(format("%10d", auto_round), 10, col+20);
 
 #ifdef AUTOROLLER_DELAY
 				if (flag) Term_xtra(TERM_XTRA_DELAY, 10);

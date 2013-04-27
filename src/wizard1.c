@@ -443,8 +443,8 @@ static void spoil_obj_desc(cptr fname)
 					kind_info(buf, dam, wgt, &e, &v, who[s]);
 
 					/* Dump it */
-					fprintf(fff, "     %-45s%8s%7s%5d%9ld\n",
-						buf, dam, wgt, e, (long)(v));
+					fprintf(fff, "     %-45s%8s%7s%5d%9d\n",
+						buf, dam, wgt, e, v);
 				}
 
 				/* Start a new set */

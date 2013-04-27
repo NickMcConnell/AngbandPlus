@@ -483,11 +483,11 @@ errr top_twenty(void)
 	the_score.pts[9] = '\0';
 
 	/* Save the current gold */
-	sprintf(the_score.gold, "%9lu", (long)p_ptr->au);
+	sprintf(the_score.gold, "%9d", p_ptr->au);
 	the_score.gold[9] = '\0';
 
 	/* Save the current turn */
-	sprintf(the_score.turns, "%9lu", (long)turn_real(turn));
+	sprintf(the_score.turns, "%9d", turn_real(turn));
 	the_score.turns[9] = '\0';
 
 #ifdef HIGHSCORE_DATE_HACK
@@ -609,10 +609,10 @@ msg_print("スコア・ファイルが使用できません。");
 	sprintf(the_score.pts, "%9ld", (long)total_points());
 
 	/* Save the current gold */
-	sprintf(the_score.gold, "%9lu", (long)p_ptr->au);
+	sprintf(the_score.gold, "%9d", p_ptr->au);
 
 	/* Save the current turn */
-	sprintf(the_score.turns, "%9lu", (long)turn_real(turn));
+	sprintf(the_score.turns, "%9d", turn_real(turn));
 
 	/* Hack -- no time needed */
 #ifdef JP

@@ -3418,7 +3418,7 @@ static void evaluate_monster_exp(char *buf, monster_type *m_ptr)
 	num = MIN(999, exp_adv_frac);
 
 	/* Display the number */
-	sprintf(buf,"%03ld", num);
+	sprintf(buf,"%03u", num);
 }
 
 

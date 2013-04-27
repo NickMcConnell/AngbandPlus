@@ -101,14 +101,8 @@ static void building_prt_gold(void)
 {
 	char tmp_str[80];
 
-#ifdef JP
-prt("手持ちのお金: ", 23,53);
-#else
 	prt("Gold Remaining: ", 23, 53);
-#endif
-
-
-	sprintf(tmp_str, "%9ld", (long)p_ptr->au);
+	sprintf(tmp_str, "%9d", p_ptr->au);
 	prt(tmp_str, 23, 68);
 }
 
@@ -1305,20 +1299,10 @@ msg_print("ＯＫ、１ゴールドからはじめよう。");
 			odds = 0;
 			oldgold = p_ptr->au;
 
-#ifdef JP
-sprintf(tmp_str, "ゲーム前の所持金: %9ld", oldgold);
-#else
-			sprintf(tmp_str, "Gold before game: %9ld", oldgold);
-#endif
-
+			sprintf(tmp_str, "Gold before game: %9d", oldgold);
 			prt(tmp_str, 20, 2);
 
-#ifdef JP
-sprintf(tmp_str, "現在の掛け金:     %9ld", wager);
-#else
-			sprintf(tmp_str, "Current Wager:    %9ld", wager);
-#endif
-
+			sprintf(tmp_str, "Current Wager:    %9d", wager);
 			prt(tmp_str, 21, 2);
 
 			/* Prevent savefile-scumming of the casino */
@@ -1576,26 +1560,13 @@ sprintf(tmp_str, "倍率: %d", odds);
 				}
 				else
 				{
-#ifdef JP
-prt("あなたの負け", 16, 37);
-#else
 					prt("You Lost", 16, 37);
-#endif
-
 					prt("", 17, 37);
 				}
-#ifdef JP
-sprintf(tmp_str, "現在の所持金:     %9ld", p_ptr->au);
-#else
-				sprintf(tmp_str, "Current Gold:     %9ld", p_ptr->au);
-#endif
+				sprintf(tmp_str, "Current Gold:     %9d", p_ptr->au);
 
 				prt(tmp_str, 22, 2);
-#ifdef JP
-prt("もう一度(Y/N)？", 18, 37);
-#else
 				prt("Again(Y/N)?", 18, 37);
-#endif
 
 				move_cursor(18, 52);
 				again = inkey();
@@ -1604,12 +1575,7 @@ prt("もう一度(Y/N)？", 18, 37);
 				prt("", 18, 37);
 				if (wager > p_ptr->au)
 				{
-#ifdef JP
-msg_print("おい！金が足りないじゃないか！ここから出て行け！");
-#else
 					msg_print("Hey! You don't have the gold - get out of here!");
-#endif
-
 					msg_print(NULL);
 
 					/* Get out here */
@@ -1949,11 +1915,7 @@ static bool kakutoujou(void)
 			char buf[80];
 			monster_race *r_ptr = &r_info[battle_mon[i]];
 
-#ifdef JP
-			sprintf(buf,"%d) %-58s  %4ld.%02ld倍", i+1, format("%s%s",r_name + r_ptr->name, (r_ptr->flags1 & RF1_UNIQUE) ? "もどき" : "      "), mon_odds[i]/100, mon_odds[i]%100);
-#else
-			sprintf(buf,"%d) %-58s  %4ld.%02ld", i+1, format("%s%s", (r_ptr->flags1 & RF1_UNIQUE) ? "Fake " : "", r_name + r_ptr->name), mon_odds[i]/100, mon_odds[i]%100);
-#endif
+			sprintf(buf,"%d) %-58s  %4ud.%02ud", i+1, format("%s%s", (r_ptr->flags1 & RF1_UNIQUE) ? "Fake " : "", r_name + r_ptr->name), mon_odds[i]/100, mon_odds[i]%100);
 			prt(buf, 5+i, 1);
 		}
 

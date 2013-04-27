@@ -2450,11 +2450,7 @@ static void display_entry(int pos)
 			x = price_item(o_ptr, ot_ptr->min_inflate, FALSE);
 
 			/* Actually draw the price (not fixed) */
-#ifdef JP
-(void)sprintf(out_val, "%9ld¸Ç", (long)x);
-#else
-			(void)sprintf(out_val, "%9ld F", (long)x);
-#endif
+			(void)sprintf(out_val, "%9d F", x);
 
 			put_str(out_val, i+6, 68);
 		}
@@ -2472,10 +2468,10 @@ static void display_entry(int pos)
 			if (p_ptr->wizard)
 			{
 				 int score = new_object_cost(o_ptr);
-				 (void)sprintf(out_val, "%9ld %9d ", (long)x, score);
+				 (void)sprintf(out_val, "%9d %9d ", x, score);
 			}
 			else
-				(void)sprintf(out_val, "%9ld  ", (long)x);
+				(void)sprintf(out_val, "%9d  ", x);
 			put_str(out_val, i+6, 68);
 		}
 
@@ -2486,7 +2482,7 @@ static void display_entry(int pos)
 			x = price_item(o_ptr, ot_ptr->max_inflate, FALSE);
 
 			/* Actually draw the price (not fixed) */
-			(void)sprintf(out_val, "%9ld  ", (long)x);
+			(void)sprintf(out_val, "%9d  ", x);
 			put_str(out_val, i+6, 68);
 		}
 	}
@@ -2571,7 +2567,7 @@ static void store_prt_gold(void)
 #endif
 
 
-	sprintf(out_val, "%9ld", (long)p_ptr->au);
+	sprintf(out_val, "%9d", p_ptr->au);
 	prt(out_val, 19 + xtra_stock, 68);
 }
 

@@ -121,8 +121,8 @@ typedef unsigned short u16b;
     typedef signed int s32b;
     typedef unsigned int u32b;
 #else
-    typedef signed long s32b;
-    typedef unsigned long u32b;
+    typedef signed int s32b;
+    typedef unsigned int u32b;
 #endif
 
 
