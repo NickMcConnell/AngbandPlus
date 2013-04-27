@@ -544,7 +544,7 @@ static cptr k_info_flags2[] =
 	"SUST_DEX",
 	"SUST_CON",
 	"SUST_CHR",
-	"XXX1",
+	"IM_POIS",
 	"XXX2",
 	"IM_ACID",
 	"IM_ELEC",

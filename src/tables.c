@@ -5289,7 +5289,7 @@ cptr spell_names[7][32] =
 		"Remove Fear",
 		"Call Light",
 		"Detect Traps and Secret Doors",
-		"Cure Medium Wounds",
+		"Cure Serious Wounds",
 		"Satisfy Hunger",
 
 		"Remove Curse",
@@ -5368,13 +5368,13 @@ cptr spell_names[7][32] =
 	{
 		/* Common Nature Spellbooks */
 		"Detect Creatures",
-		"First Aid",
+		"Cure Light Wounds",
 		"Detect Doors and Traps",
 		"Foraging",
 		"Daylight",
 		"Animal Taming",
 		"Resist Environment",
-		"Cure Wounds & Poison",
+		"Cure Poison",
 
 		"Stone to Mud",
 		"Lightning Bolt",
@@ -5412,13 +5412,13 @@ cptr spell_names[7][32] =
 		"Magic Missile",
 		"Trap / Door Destruction",
 		"Flash of Light",
-		"Touch of Confusion",
+		"Ray of Confusion",
 		"Mana Burst",
 		"Fire Bolt",
 		"Fist of Force",
 		"Teleport Self",
 
-		"Wonder",
+		"Sense Power",
 		"Chaos Bolt",
 		"Sonic Boom",
 		"Doom Bolt",
@@ -5429,12 +5429,12 @@ cptr spell_names[7][32] =
 
 		/* Rare Chaos Spellbooks */
 		"Polymorph Other",
-		"Chain Lightning",
+		"Battle Frenzy",
 		"Arcane Binding",
 		"Disintegrate",
 		"Alter Reality",
 		"Polymorph Self",
-		"Chaos Branding",
+		"Mass Confusion",
 		"Summon Demon",
 
 		"Beam of Gravity",
@@ -6174,7 +6174,7 @@ option_type option_info[OPT_MAX] =
 	{TRUE,  0, NULL,					"Number 190" },
 	{TRUE,  0, NULL,					"Number 191" },
 
-	{FALSE, 6, "vanilla_town",			"Use 'vanilla' town without quests and wilderness" },
+	{TRUE,  6, "vanilla_town",			"Use 'vanilla' town without wilderness" },
 	{TRUE,  0, NULL,					"Number 193" },
 	{FALSE, 6, "ironman_shops",			"Stores are permanently closed" },
 	{FALSE, 6, "ironman_small_levels",	"Always create unusually small dungeon levels" },

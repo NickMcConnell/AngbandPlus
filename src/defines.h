@@ -35,7 +35,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.3.1"
+#define VERSION_STRING	"0.4.0"
 
 
 /*
@@ -150,7 +150,7 @@
 /*
  * Total number of stores in vanilla town (see "store.c", etc)
  */
-#define MAX_STORES      9
+#define MAX_STORES      10
 
 
 /*
@@ -311,12 +311,12 @@
 #define STORE_TURNS     1000	/* Number of turns between turnovers */
 
 /* Store extra flags */
-#define ST_REST_BLESSED		0x01	/* Blessed items */
+#define ST_REST_BLESSED	0x01	/* Blessed items */
 #define ST_REST_GOOD		0x02	/* Good items only */
 #define ST_REST_GREAT		0x04	/* Great items only */
 #define ST_HALF_INVEN		0x08	/* One page of inventory */
-#define ST_GREED			0x10	/* Double prices */
-#define ST_ULTRA_GREED		0x20	/* Quadruple prices */
+#define ST_GREED			  0x10	/* Double prices */
+#define ST_ULTRA_GREED	0x20	/* Quadruple prices */
 
 
 
@@ -2797,7 +2797,7 @@
 #define TR2_SUST_DEX            0x00000008L
 #define TR2_SUST_CON            0x00000010L
 #define TR2_SUST_CHR            0x00000020L
-#define TR2_XXX1                0x00000040L	/* Later */
+#define TR2_IM_POIS             0x00000040L
 #define TR2_XXX2                0x00000080L	/* Later */
 #define TR2_IM_ACID             0x00000100L
 #define TR2_IM_ELEC             0x00000200L

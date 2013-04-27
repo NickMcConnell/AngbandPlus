@@ -1201,7 +1201,7 @@ F:ANIMAL
 D:It is a very vicious rodent.
 
 N:87:Snotling
-G:o:G
+G:o:y
 I:110:4d5:20:20:30
 W:4:1:0:25
 O:25:50:0
@@ -1259,8 +1259,8 @@ F:EVIL | UNDEAD | IM_COLD | IM_POIS |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 D:It is a small animated kobold skeleton.
 
-N:92:Forest Gnome
-G:h:G
+N:92:Gnome Archer
+G:h:W
 I:110:2d6:10:15:10
 W:6:2:0:19
 O:50:0:50
@@ -3967,7 +3967,7 @@ F:ANIMAL
 D:A giant buzzing wasp, its stinger drips venom.
 
 N:290:Lizardman
-G:h:R
+G:h:g
 I:110:11d10:20:20:20
 W:23:3:0:610
 O:50:50:0
@@ -4573,7 +4573,7 @@ D:A spider that never seems quite there.  Everywhere you look it is just
 D:half-seen in the corner of one eye.
 
 N:332:Lizard king
-G:h:R
+G:h:g
 I:120:13d12:20:20:20
 W:30:3:0:2600
 O:50:50:0
@@ -5303,7 +5303,7 @@ S:SCARE | DRAIN_MANA
 D:It is a ghostly apparition with a humanoid form.
 
 N:382:Mime, the Nibelung
-G:h:u
+G:h:o
 I:110:82d7:20:40:10
 W:34:2:0:11700
 O:90:10:0
@@ -5864,7 +5864,7 @@ S:SCARE | HOLD
 D:Flesh is falling off in chunks from this decaying abomination.
 
 N:419:Alberich the Nibelung King
-G:h:D
+G:h:o
 I:120:56d11:20:40:20
 W:37:4:0:22500
 O:90:0:10
@@ -7659,7 +7659,7 @@ S:BR_ELEC | BR_FIRE
 D:A weird demon creature with a stone-like skin.
 
 N:529:Malicious leprechaun
-G:h:v
+G:h:y
 I:120:4d4:8:7:8
 W:47:4:0:1550
 O:100:0:0
@@ -10341,7 +10341,7 @@ D:A towering stone elemental stands before you.  The walls and ceiling are
 D:reduced to rubble as Quaker advances.
 
 N:680:Death leprechaun
-G:h:D
+G:h:r
 I:120:5d5:8:7:8
 W:64:6:0:11100
 O:0:0:0
@@ -10738,7 +10738,7 @@ S:HEAL
 D:Fighting for a good cause, and they consider you an agent of the devil.
 
 N:700:Leprechaun fanatic
-G:h:D
+G:h:u
 I:123:5d5:8:7:8
 W:63:6:0:9400
 O:0:0:0

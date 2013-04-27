@@ -2787,14 +2787,14 @@ bool potion_smash_effect(int who, int x, int y, int k_idx)
 		case SV_POTION_CURE_LIGHT:
 		{
 			dt = GF_OLD_HEAL;
-			dam = damroll(2, 3);
+			dam = damroll(3, 15);
 			ident = TRUE;
 			break;
 		}
 		case SV_POTION_CURE_SERIOUS:
 		{
 			dt = GF_OLD_HEAL;
-			dam = damroll(4, 3);
+			dam = damroll(5, 15);
 			ident = TRUE;
 			break;
 		}
@@ -2802,14 +2802,14 @@ bool potion_smash_effect(int who, int x, int y, int k_idx)
 		case SV_POTION_CURING:
 		{
 			dt = GF_OLD_HEAL;
-			dam = damroll(6, 3);
+			dam = damroll(10, 15);
 			ident = TRUE;
 			break;
 		}
 		case SV_POTION_HEALING:
 		{
 			dt = GF_OLD_HEAL;
-			dam = damroll(10, 10);
+			dam = damroll(20, 15);
 			ident = TRUE;
 			break;
 		}
@@ -3444,11 +3444,6 @@ void spell_info(char *p, int spell, int realm)
 					case 7:
 					{
 						strnfmt(p, 80, " range %d", plev * 5);
-						break;
-					}
-					case 8:
-					{
-						strcpy(p, " random");
 						break;
 					}
 					case 9:
@@ -4286,6 +4281,30 @@ void elec_dam(int dam, cptr kb_str)
 		(void)inven_damage(set_elec_destroy, inv);
 }
 
+/*
+ * Hurt the player with Poison
+ */
+void pois_dam(int dam, cptr kb_str)
+{
+	/* Totally immune */
+	if (p_ptr->immune_pois) return;
+
+	/* Vulnerability (Ouch!) */
+	if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
+
+	/* Resist the damage */
+	if (p_ptr->resist_pois) dam = (dam + 2) / 3;
+	if (p_ptr->oppose_pois) dam = (dam + 2) / 3;
+
+	if (!(p_ptr->oppose_pois || p_ptr->resist_pois))
+	{
+		if (one_in_(HURT_CHANCE)) (void)do_dec_stat(A_CON);
+		set_poisoned(p_ptr->poisoned + randint1(dam) + 5);
+	}
+
+	/* Take damage */
+	take_hit(dam, kb_str);
+}
 
 /*
  * Hurt the player with Fire

@@ -98,7 +98,10 @@ static void do_cmd_eat_food_aux(object_type *o_ptr)
 			if (do_res_stat(A_STR)) ident = TRUE;
 			break;
 		case SV_FOOD_CURE_SERIOUS:
-			if (hp_player(damroll(4, 8))) ident = TRUE;
+			if (hp_player(75)) ident = TRUE;
+			if (set_blind(0)) ident = TRUE;
+			if (set_confused(0)) ident = TRUE;
+			if (set_cut((p_ptr->cut / 2) - 50)) ident = TRUE;
 			break;
 		case SV_FOOD_CURE_CONFUSION:
 			if (set_confused(0)) ident = TRUE;
@@ -171,7 +174,7 @@ static void do_cmd_eat_food_aux(object_type *o_ptr)
 			}
 			break;
 		case SV_FOOD_POISON:
-			if (!(p_ptr->resist_pois) && (p_ptr->oppose_pois == 0))
+			if (!(p_ptr->resist_pois || p_ptr->oppose_pois || p_ptr->immune_pois))
 			{
 				if (set_poisoned(p_ptr->poisoned + rand_int(10) + 10))
 					ident = TRUE;
@@ -319,7 +322,7 @@ static void do_cmd_quaff_potion_aux(object_type *o_ptr)
 		ident = TRUE;
 		break;
 	case SV_POTION_POISON:
-		if (!(p_ptr->resist_pois) && (p_ptr->oppose_pois == 0))
+		if (!(p_ptr->resist_pois || p_ptr->oppose_pois || p_ptr->immune_pois))
 			if (set_poisoned(p_ptr->poisoned + rand_range(10, 25)))
 				ident = TRUE;
 		break;
@@ -466,7 +469,7 @@ static void do_cmd_quaff_potion_aux(object_type *o_ptr)
 		if (hp_player(30)) ident = TRUE;
 		break;
 	case SV_POTION_CURE_LIGHT:
-		if (hp_player(38)) ident = TRUE;
+		if (hp_player(40)) ident = TRUE;
 		if (set_blind(0)) ident = TRUE;
 		if (set_cut(p_ptr->cut - 10)) ident = TRUE;
 		break;
@@ -811,7 +814,7 @@ static void do_cmd_read_scroll_aux(object_type *o_ptr)
 	case SV_SCROLL_REMOVE_CURSE:
 		if (remove_curse())
 		{
-			msgf("You feel as if (someone is watching over you.");
+			msgf("You feel as if someone is watching over you.");
 			ident = TRUE;
 		}
 		break;			
@@ -946,13 +949,16 @@ static void do_cmd_read_scroll_aux(object_type *o_ptr)
 		ident = TRUE;
 		break;		
 	case SV_SCROLL_RUMOR:
-		msgf("There is message on the scroll. It says:");
-		message_flush();
-//		msgf(get_rumor());
-		message_flush();
-		msgf("The scroll disappears in a puff of smoke!");
-		ident = TRUE;
-		break;
+		{
+			char rumor[1024];
+			msgf("There is message on the scroll. It says:");
+			message_flush();
+			if (!get_rnd_line("rumors.txt", 0, rumor))	msgf(rumor);
+			message_flush();
+			msgf("The scroll disappears in a puff of smoke!");
+			ident = TRUE;
+			break;
+		}
 	case SV_SCROLL_ARTIFACT:
 		if (!artifact_scroll()) used_up = FALSE;
 		ident = TRUE;
@@ -1179,7 +1185,9 @@ static void do_cmd_use_staff_aux(object_type *o_ptr)
 		if (detect_monsters_evil()) ident = TRUE;
 		break;
 	case SV_STAFF_CURE_LIGHT:
-		if (hp_player(50)) ident = TRUE;
+		if (hp_player(40)) ident = TRUE;
+		if (set_blind(0)) ident = TRUE;
+		if (set_cut(p_ptr->cut - 10)) ident = TRUE;
 		break;
 	case SV_STAFF_CURING:
 		if (hp_player(150)) ident = TRUE;
@@ -1192,6 +1200,9 @@ static void do_cmd_use_staff_aux(object_type *o_ptr)
 		break;
 	case SV_STAFF_HEALING:
 		if (hp_player(300)) ident = TRUE;
+		if (set_blind(0)) ident = TRUE;
+		if (set_confused(0)) ident = TRUE;
+		if (set_poisoned(0)) ident = TRUE;
 		if (set_stun(0)) ident = TRUE;
 		if (set_cut(0)) ident = TRUE;
 		break;
@@ -1785,7 +1796,10 @@ static void do_cmd_zap_rod_aux(object_type *o_ptr)
 
 		case SV_ROD_HEALING:
 		{
-			if (hp_player(500)) ident = TRUE;
+			if (hp_player(300)) ident = TRUE;
+			if (set_blind(0)) ident = TRUE;
+			if (set_confused(0)) ident = TRUE;
+			if (set_poisoned(0)) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
 			break;
@@ -2241,4 +2255,92 @@ void do_cmd_activate(void)
 
 	/* Activate the item */
 	do_cmd_activate_aux(o_ptr);
+}
+
+
+/*
+ * Imbue Item
+ *
+ * Imbues a soul into an amulet or ring
+ */
+void do_cmd_imbuesoul(void)
+{
+	object_type *o_ptr;
+	object_type *s_ptr;
+	cptr q, s;
+
+	/* Only accept legal items */
+	item_tester_hook = item_tester_hook_imbue;
+
+	/* Get an item */
+	q = "Imbue which item? ";
+	s = "You have no imbueable items.";
+
+	o_ptr = get_item(q, s, (USE_INVEN | USE_FLOOR | USE_EQUIP));
+
+	/* No valid item */
+	if (!o_ptr) return;
+
+	/* Only accept legal items */
+	item_tester_hook = item_tester_hook_soulgem;
+
+	/* Get an item */
+	q = "Which soul will be imbued? ";
+	s = "You have no soul gems.";
+
+	s_ptr = get_item(q, s, (USE_INVEN | USE_FLOOR ));
+
+	/* No valid item */
+	if (!s_ptr) return;
+
+	//give it a soul type
+
+	o_ptr->soul_source = s_ptr->soul_source;
+	o_ptr->soul_type1  = s_ptr->soul_type1;
+	o_ptr->soul_type2  = s_ptr->soul_type2;
+
+	/* Set the first flags */
+	o_ptr->flags1 |= s_info[o_ptr->soul_type1].flags1[0];
+	o_ptr->flags2 |= s_info[o_ptr->soul_type1].flags2[0];
+	o_ptr->flags3 |= s_info[o_ptr->soul_type1].flags3[0];
+
+	o_ptr->flags1 |= s_info[o_ptr->soul_type2].flags1[0];
+	o_ptr->flags2 |= s_info[o_ptr->soul_type2].flags2[0];
+	o_ptr->flags3 |= s_info[o_ptr->soul_type2].flags3[0];
+
+	o_ptr->pval = 1;
+
+	//start the levels counting
+	o_ptr->level = 1;
+
+	/* gain any bonuses to AC / Damage / Accuracy */
+
+	o_ptr->to_h = (o_ptr->level * s_info[o_ptr->soul_type1].max_to_h) / 6;
+	o_ptr->to_d = (o_ptr->level * s_info[o_ptr->soul_type1].max_to_d) / 6;
+	o_ptr->to_a = (o_ptr->level * s_info[o_ptr->soul_type1].max_to_a) / 6;
+
+
+	/* Identify the item */
+	identify_item(o_ptr);
+	object_mental(o_ptr);
+
+	/* Save all the known flags */
+	o_ptr->kn_flags1 = o_ptr->flags1;
+	o_ptr->kn_flags2 = o_ptr->flags2;
+	o_ptr->kn_flags3 = o_ptr->flags3;
+
+	/* if we are imbuing a stack of rings, put a stop to that nonsense */
+	if (o_ptr->number > 1)
+	{
+		msgf("You cannot imbue more than one item.");
+		msgf("The excess %d are destroyed.", (o_ptr->number) - 1);
+
+		o_ptr->number = 1;
+
+		/* Notice weight changes */
+		p_ptr->update |= PU_WEIGHT;
+	}
+
+	/* Take the soul away from the player, describe the result */
+	item_increase(s_ptr, -1);
 }

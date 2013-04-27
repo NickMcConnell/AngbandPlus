@@ -210,6 +210,14 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 			break;
 	}
 
+	/* give all artifact lites permanent light, this prevents wierd interactions between
+	   refueling timeouts and activation timeouts */
+	if (o_ptr->tval == TV_LITE)
+	{
+		o_ptr->timeout = 0;
+		o_ptr->flags3 = TR3_LITE;
+	}
+
 	/* give one in three randarts an activation */
 	if (one_in_(3)) give_activation_power(o_ptr);
 

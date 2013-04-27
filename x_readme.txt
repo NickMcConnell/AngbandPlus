@@ -1,4 +1,4 @@
-XBAND 0.3.1
+XBAND 0.4.0
 
 Author: Chris Watkins (xis@prodigy.net)
 
@@ -49,6 +49,64 @@ In addition, many monsters have a secondary soul type. If a monster has an
 elemental attack, its soul will have bonuses related to that element. If
 a monster has multiple elemental attacks, it's soul gem will be created
 with an elemental sub-type chosen randomly from its attacks.
+
+
+Changes from version 0.3.1 include:
+
+Vanilla town has had one more store added (Soul Dealer).
+  As a consequence, Vanilla mode is now much more playable.
+The Vanilla town is now the default town.
+Removed the 'Imbue' option from the soul dealer; imbuing items is now a simple
+  command. Just hit 'B' to (imbue/bind) a soul to an item.
+  As a consequence, Ironman mode should now be much more playable.
+Poison is now one of the basic resists, many items have been updated to reflect this.
+Added poison immunity.
+  Kobolds now gain poison immunity at L30.
+  Poison soul gems now grant poison immunity at L6.
+  Green Dragon Scale Mail now provides poison immunity.
+Weapons and armor are no longer generated in stacks at the stores.
+Rings and amulets no longer stack.
+Made all staves/rods/potions/mushrooms/spells of "Cure X" act the same way.
+Chaos magic has been re-worked a bit; it should have more flexibility now.
+  Removed Wonder, replaced with Sense Power, which pseudo-ID's equipment.
+  Removed Chain Lightning, replaced with Battle Frenzy, which berserks + hastes.
+  Removed Touch of Confusion, replaced with Ray of Confusion, which confuses at range.
+  Removed Chaos Branding, replaced with Mass Confusion, which confuses all monsters in LOS.
+Psychometry (and by extension, the Chaos spell Sense Power) will now filter out already-sensed items.
+Quest monsters now appear in red in visible monsters term.
+The message about the soul dealer in monster recall is now displayed in green.
+Character dumps are now saved in the SAVE directory, while note files are still
+  saved in the USER directory. This prevents a problem where it was easy to over-
+  write note files with character dumps.
+Monsters that have elemental auras will now drop soul gems with elemental sub-types.
+Weakened Ogre souls.
+Changed the color of several monsters:
+  Changed color of Lizardmen / Lizard King to prevent confusion with Gnome Mages
+  Changed color of Alberich, Mime, and Hagen to all match.
+  Changed color of most leprechauns
+  Changed Forest Gnome to Gnome Archer, changed color.
+  Changed color of snotlings to prevent confusion with goblins.
+Dialed back damage bonuses. Each +1 now gives +5% damage.
+Dialed back brand damage. Fire, Cold, Elec, Acid, and Poison brands now do 2X damage.
+Made some changes to artifacts.
+Messed around with hidden attribute detection on items that have not been *ID'ed*.
+Randarts can now have Vampiric or Vorpal as random slays.
+Randart lites now always have permanent light. 
+  (The timeouts on fuel and the timeouts on activated abilities are linked; I had to either cut activated abilities on randart lites,
+  or give all lites permanent lite).
+Fixed ego-type 'of digging'.
+Adjust costs of some ego items.
+Warpstone weapons now cause random teleportation.
+Ported over some bugfixes from Zangband 2.7.4b:
+  Fixed some savefile loading bugs
+  Fixed monster lights
+  Fixed some crashes related to monster movement
+  Fixed some door closing / opening stuff
+  Fixed permenant inscription you used to get if you tried to destroy an artifact.
+Changed algorithm for decreasing stats, algorithm taken from Z 2.7.4b
+Fixed scrolls of rumor.
+Replaced ZAngband with XBAND in a lot of help files.
+Added the Soul Gem helpfile to the helpfile system.
 
 Changes from version 0.3.0 include:
 

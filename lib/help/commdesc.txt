@@ -5,7 +5,7 @@ the "underlying command" key. This is followed by the command name and
 "roguelike" keyset key, if different from the underlying command key.
 Then comes a brief description of the command, including information
 about alternative methods of specifying the command in each keyset,
-when needed. Several commands (tunnel, disarm, bash, open) are repeated
+when needed. Several commands (tunnel, disarm, open) are repeated
 99 times if the "always_repeat" option is set and no repeat count is
 given. Some commands use the "repeat count" to automatically repeat the
 command several times, while others use the "repeat count" as an
@@ -43,7 +43,7 @@ Equipment list (e)
 Drop an item (d)
      This drops an item from your inventory or equipment onto the
      dungeon floor. If the floor spot you are standing on already has
-     an object in it, Zangband will attempt to drop the item onto an
+     an object in it, XBAND will attempt to drop the item onto an
      adjacent space. Be warned that if the floor is full and you
      attempt to drop something, it may disappear and be destroyed.
      Doors and traps are considered objects for the purpose of
@@ -214,16 +214,6 @@ Jam a door (j) or Spike a door (S)
      use this command, you must be carrying iron spikes. Jam or Spike
      requires a direction.
 
-Bash a door (B) or Force a door (f)
-     This command allows you to bash down jammed doors. Your bashing
-     ability increases with strength. Bashing open a door can (briefly)
-     throw you off balance. Doors that are stuck, or which have been
-     jammed closed with spikes can only be opened by bashing, and all
-     closed doors can be bashed open if desired. Bashing a door open
-     may permanently break it so that it can never be closed. Bash or
-     Force can take a count, requires a direction, and is affected by
-     the "always_repeat" option.
-
 Disarm a trap or chest (D)
      You can attempt to disarm traps on the floor or on chests. If you
      fail, there is a chance that you will blunder and set it off. You
@@ -233,7 +223,7 @@ Disarm a trap or chest (D)
 
 Alter (+)
      This special command allows the use of a single keypress to select
-     any of the "obvious" commands above (attack, tunnel, bash, open,
+     any of the "obvious" commands above (attack, tunnel, open,
      disarm, close), and, by using macros or keymaps, to combine this
      keypress with directions. In general, this allows the use of the
      "control" key plus the appropriate "direction" key (including the
@@ -330,7 +320,11 @@ Uninscribe an object (})
      This command removes the inscription on an object. This command
      will have no effect on "fake" inscriptions added by the game
      itself.
-
+     
+Bind (B)
+     This command binds a soul gem into a piece of jewelry. Bound
+     souls give you various powers, and their powers increase as
+     you gain experience.
 
 ***** <MagicalObject>
 ---  Magical Object Commands ---
@@ -541,12 +535,12 @@ Save and Quit (Ctrl-X)
      your savefile to play again with the same options and such.
 
 Save (Ctrl-S)
-     This command saves the game but doesn't exit Zangband. Use this
+     This command saves the game but doesn't exit XBAND. Use this
      frequently if you are paranoid about having the computer crash
      while you are playing.
 
 Quit (commit suicide) (Q)
-     Kills your character and exits Zangband. You will be prompted to
+     Kills your character and exits XBAND. You will be prompted to
      make sure you really want to do this, and then asked to verify
      that choice. Note that dead characters are dead forever.
 
@@ -562,11 +556,11 @@ together with a detailed description of this function.
 --- Help ---
 
 Help (?)
-     Brings up the Zangband on-line help system. Note that the help
+     Brings up the XBAND on-line help system. Note that the help
      files are just text files in a particular format, and that other
      help files may be available on the Net. In particular, there are
      a variety of spoiler files which do not come with the standard
-     distribution. Check the place you got Zangband from or ask on the
+     distribution. Check the place you got XBAND from or ask on the
      newsgroup rec.games.roguelike.angband about them. 
 
 Identify Symbol (/)
@@ -593,7 +587,7 @@ Identify Symbol (/)
      on. Pressing ESCAPE at any point will exit this command.
  
 Game Version (V)
-     This command will tell you what version of Zangband you are using.
+     This command will tell you what version of XBAND you are using.
      For more information, see the "version.txt" help file.
 
 
@@ -603,7 +597,7 @@ Game Version (V)
 Toggle Choice Window (^E) 
      Toggles the display in the choice window (if available) between
      your inventory and your equipment. This command only applies if
-     you are running Zangband under a windowing environment and the
+     you are running XBAND under a windowing environment and the
      choice window is available. This also redraws the choice window.
 
 Redraw Screen (^R)

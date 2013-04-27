@@ -814,7 +814,7 @@ static void roff_aux(int r_idx, int remem)
 		roff(".  ");
 	}
 
-	if (r_ptr->r_xtra1 == 0) roff("The soul dealer needs this creature's soul.  ");
+	if (r_ptr->r_xtra1 == 0) roff(CLR_L_GREEN "The soul dealer needs this creature's soul.  ");
 
 	/* Describe monster "toughness" */
 	if (know_armour(r_idx))
@@ -1612,7 +1612,11 @@ void display_visible(void)
 		}
 
 		/* Dump the name */
-		if (r_ptr->flags1 & RF1_UNIQUE)
+		if (r_ptr->flags1 & RF1_QUESTOR)
+		{
+			roff(CLR_L_RED "%s", (r_name + r_ptr->name));
+		}
+		else if (r_ptr->flags1 & RF1_UNIQUE)
 		{
 			roff(CLR_L_BLUE "%s", (r_name + r_ptr->name));
 		}

@@ -3181,25 +3181,11 @@ static bool project_p(int who, int r, int x, int y, int dam, int typ, int a_rad)
 			break;
 		}
 
-			/* Standard damage -- also poisons player */
+		/* Standard damage -- also poisons player */
 		case GF_POIS:
 		{
 			if (fuzzy) msgf("You are hit by poison!");
-			if (p_ptr->resist_pois) dam = (dam + 2) / 3;
-			if (p_ptr->oppose_pois) dam = (dam + 2) / 3;
-
-			if ((!(p_ptr->oppose_pois || p_ptr->resist_pois)) &&
-				one_in_(HURT_CHANCE))
-			{
-				(void)do_dec_stat(A_CON);
-			}
-
-			take_hit(dam, killer);
-
-			if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
-			{
-				(void)set_poisoned(p_ptr->poisoned + randint0(dam) + 10);
-			}
+			pois_dam(dam, killer);
 			break;
 		}
 
@@ -3207,20 +3193,15 @@ static bool project_p(int who, int r, int x, int y, int dam, int typ, int a_rad)
 		{
 			/* Standard damage -- also poisons / mutates player */
 			if (fuzzy) msgf("You are hit by radiation!");
-			if (p_ptr->resist_pois) dam = (2 * dam + 2) / 5;
-			if (p_ptr->oppose_pois) dam = (2 * dam + 2) / 5;
-			take_hit(dam, killer);
-			if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
-			{
-				(void)set_poisoned(p_ptr->poisoned + randint0(dam) + 10);
+			pois_dam(dam, killer);
 
+			if (!(p_ptr->resist_pois || p_ptr->oppose_pois || p_ptr->immune_pois))
+			{
 				if (one_in_(5))
 				{
 					msgf("You undergo a freakish metamorphosis!");
-					if (one_in_(4))
-						do_poly_self();
-					else
-						mutate_player();
+					if (one_in_(4))	do_poly_self();
+					else mutate_player();
 				}
 
 				if (one_in_(6))

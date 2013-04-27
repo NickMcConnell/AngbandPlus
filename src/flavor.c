@@ -1180,7 +1180,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 		/* Show the tohit/todam on request */
 		if (show_weapon)
 		{
-			strnfcat(buf, max, &len, " (%+d,%+d%%)", o_ptr->to_h, o_ptr->to_d * 10);
+			strnfcat(buf, max, &len, " (%+d,%+d%%)", o_ptr->to_h, o_ptr->to_d * 5);
 		}
 
 		/* Show the tohit if needed */
@@ -1192,7 +1192,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 		/* Show the todam if needed */
 		else if (o_ptr->to_d)
 		{
-			strnfcat(buf, max, &len, " (%+d%%)", o_ptr->to_d * 10);
+			strnfcat(buf, max, &len, " (%+d%%)", o_ptr->to_d * 5);
 		}
 	}
 

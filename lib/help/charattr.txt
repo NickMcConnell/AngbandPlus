@@ -117,7 +117,7 @@ there are no significant gameplay differences between the two sexes.
 ***** <TheRaces>
 === Races ===
 
-There are thirty different races that you can choose from in Zangband.
+There are thirty different races that you can choose from in XBAND.
 Each race has various strengths and weaknesses and its own adjustments
 to a character's stats and abilities. Many races also have intrinsic
 abilities and powers.
@@ -435,7 +435,7 @@ Ghoul
 === Classes ===
  
 There are eleven different classes that you can choose from in
-Zangband. Each class has various strengths and weaknesses and its own
+XBAND. Each class has various strengths and weaknesses and its own
 adjustments to a character's stats and abilities. Many classes also
 have intrinsic abilities and powers. These are often linked to the
 character's experience level and only become available later in the
@@ -500,7 +500,7 @@ Priest
     by the Gods. High level priests who practice Life magic will learn
     to invoke the power of their patron deity to bless such weapons.
 
-    There are two types of priests in Zangband: the ordinary priests
+    There are two types of priests in XBAND: the ordinary priests
     who, select Life magic as their primary realm, and the 'dark'
     priests, who select Death magic instead. Since the natural
     inclination of priests is towards Life Magic, priests who select
@@ -524,7 +524,7 @@ Rogue
     Intelligence and Dexterity but Strength and Constitution are
     important too.
 
-    There are several subtypes of Rogues in Zangband and the exact type
+    There are several subtypes of Rogues in XBAND and the exact type
     is determined by the realm of magic chosen. The common Thief, will
     probably be content with Arcane magic and its wide applicability.
     The Burglar, on the other hand, is more interested in the Sorcery
@@ -856,7 +856,7 @@ Infra-vision
      see walls and objects. Infra-vision will allow a character to see
      any warm-blooded creatures up to a certain distance. This ability
      works equally well with or with out a light source. The majority
-     of Zangband's creatures are cold-blooded, and will not be detected
+     of XBAND's creatures are cold-blooded, and will not be detected
      unless lit up by a light source. Most non human races have innate
      infra-vision ability. Human can gain infra-vision only if it is
      magically enhanced.

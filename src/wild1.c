@@ -3412,6 +3412,17 @@ void create_wilderness(void)
 	/* Invalidate the player while we make everything */
 	character_dungeon = FALSE;
 
+	/*
+	 * XXX XXX Hack  Pretend we have a loaded player.
+	 * (Must make sure the object, monsters and fields created
+	 * now do not break the savefile, if we are half-way through
+	 * loading it.)
+	 *
+	 * We also must make sure we create the objects, monsters and fields
+	 * if we are just starting the game.
+	 */
+	character_loaded = TRUE;
+
 	/* Delete everything */
 	wipe_rg_list();
 

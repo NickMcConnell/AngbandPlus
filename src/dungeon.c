@@ -776,6 +776,9 @@ static bool item_tester_unsensed(const object_type *o_ptr)
 
 	/* Check to see if we have identified the item */
 	if (object_known_p(o_ptr)) return (FALSE);
+
+	/* Don't re-sense an item we have already sensed */
+	if (o_ptr->info && OB_SENSE) return (FALSE);
 	
 	/* Cannot sense flavoured items */
 	if (k_ptr->flavor) return (FALSE);
@@ -1156,7 +1159,7 @@ static void process_world(void)
 	}
 
 	if ((c_ptr->feat == FEAT_SHAL_SWAMP) &&
-		!p_ptr->invuln && !p_ptr->resist_pois && !p_ptr->ffall)
+		!p_ptr->invuln && !p_ptr->resist_pois && !p_ptr->ffall && !p_ptr->immune_pois)
 	{
 		int damage = p_ptr->lev;
 
@@ -1171,7 +1174,7 @@ static void process_world(void)
 		}
 	}
 
-	else if ((c_ptr->feat == FEAT_DEEP_SWAMP) && !p_ptr->invuln)
+	else if ((c_ptr->feat == FEAT_DEEP_SWAMP) && !p_ptr->invuln && !p_ptr->immune_pois)
 	{
 		int damage = p_ptr->lev * 2;
 		cptr message;
@@ -2411,6 +2414,13 @@ static void process_command(void)
 		{
 			/* Version info */
 			do_cmd_version();
+			break;
+		}
+
+		case 'B':
+		{
+			/* Imbue a soul gem into an item */
+			do_cmd_imbuesoul();
 			break;
 		}
 

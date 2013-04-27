@@ -1974,7 +1974,7 @@ bool inc_stat(int stat)
  */
 bool dec_stat(int stat, int amount, int permanent)
 {
-	int cur, max, loss, same, res = FALSE;
+	int cur, max, same, res = FALSE;
 
 
 	/* Acquire current value */
@@ -1987,38 +1987,10 @@ bool dec_stat(int stat, int amount, int permanent)
 	/* Damage "current" value */
 	if (cur > 30)
 	{
-		/* Handle "low" values */
-		if (cur <= 180)
-		{
-			if (amount > 90) cur -= 10;
-			if (amount > 50) cur -= 10;
-			if (amount > 20) cur -= 10;
-			cur -= 10;
-		}
-
-		/* Handle "high" values */
-		else
-		{
-			/* Hack -- Decrement by a random amount between one-quarter */
-			/* and one-half of the stat bonus times the percentage, with a */
-			/* minimum damage of half the percentage. -CWS */
-			loss = (((cur - 180) / 2 + 1) / 2 + 1);
-
-			/* Paranoia */
-			if (loss < 1) loss = 1;
-
-			/* Randomize the loss */
-			loss = (rand_range(loss, loss * 2) * amount) / 100;
-
-			/* Maximal loss */
-			if (loss < amount / 2) loss = amount / 2;
-
-			/* Lose some points */
-			cur = cur - loss;
-
-			/* Hack -- Only reduce stat to 17 sometimes */
-			if (cur < 180) cur = (amount <= 20) ? 180 : 170;
-		}
+		if (cur > 30 && amount > 90) cur -= rand_range(3, cur / 10);
+		if (cur > 30 && amount > 50) cur -= rand_range(3, cur / 10);
+		if (cur > 30 && amount > 20) cur -= rand_range(3, cur / 10);
+		if (cur > 30) cur -= rand_range(3, cur / 10);
 
 		/* Prevent illegal values */
 		if (cur < 30) cur = 30;
@@ -2030,31 +2002,10 @@ bool dec_stat(int stat, int amount, int permanent)
 	/* Damage "max" value */
 	if (permanent && (max > 30))
 	{
-		/* Handle "low" values */
-		if (max <= 180)
-		{
-			if (amount > 90) max -= 10;
-			if (amount > 50) max -= 10;
-			if (amount > 20) max -= 10;
-			max -= 10;
-		}
-
-		/* Handle "high" values */
-		else
-		{
-			/* Hack -- Decrement by a random amount between one-quarter */
-			/* and one-half of the stat bonus times the percentage, with a */
-			/* minimum damage of half the percentage. -CWS */
-			loss = (((max - 180) / 2 + 1) / 2 + 1);
-			loss = (rand_range(loss, loss * 2) * amount) / 100;
-			if (loss < amount / 2) loss = amount / 2;
-
-			/* Lose some points */
-			max = max - loss;
-
-			/* Hack -- Only reduce stat to 17 sometimes */
-			if (max < 180) max = (amount <= 20) ? 180 : 170;
-		}
+		if (max > 30 && amount > 90) max -= rand_range(3, max / 10);
+		if (max > 30 && amount > 50) max -= rand_range(3, max / 10);
+		if (max > 30 && amount > 20) max -= rand_range(3, max / 10);
+		if (max > 30) max -= rand_range(3, max / 10);
 
 		/* Hack -- keep it clean */
 		if (same || (max < cur)) max = cur;

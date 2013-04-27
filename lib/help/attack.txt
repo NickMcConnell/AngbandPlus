@@ -1,6 +1,6 @@
 === Attacking Monsters ===
  
-Attacking is simple in Zangband. If you move into a creature, you
+Attacking is simple in XBAND. If you move into a creature, you
 attack it. If you are wielding a weapon (including digging implements
 which are considered to be weapons) when you do so, the damage for the
 weapon is used when you hit a creature. Otherwise, you will attack with
@@ -80,7 +80,7 @@ weapon before it can be used in a fight. A secondary weapon can be kept
 by keeping it in the backpack, and switching it with the primary weapon
 when needed.
 
-Zangband assumes that your youth in the rough environment near the
+XBAND assumes that your youth in the rough environment near the
 dungeons has taught you the relative merits of different weapons, and
 displays as part of their description the damage dice which define
 their capabilities. The dice used for a given weapon is displayed as
@@ -92,7 +92,7 @@ weapon is also a consideration.
 In addition to their base damage, each weapon has two main magical
 characteristics, their bonus to your skill and their bonus to your
 deadliness, expressed as "(+#,+#)". A normal weapon would be "(+0,+0)"
-but many weapons in Zangband have bonuses to your skill and/or
+but many weapons in XBAND have bonuses to your skill and/or
 deadliness. These bonuses may be increased, subject to certain upper
 limits, by magical means through a process referred to as 'enchanting'.
 Some weapons are cursed, and will have penalties that hurt the player.
@@ -181,7 +181,7 @@ has two attributes that make it deadly to your opponent (for example
 you are fighting a demon and your weapon slays both evil and demons
 (demons are evil)), only the most effective slay will apply.
 
-Zangband has extended the original Angband's concept of adding random
+XBAND has extended the original Angband's concept of adding random
 abilities to the various Ego types considerably. These can be either
 guaranteed or have only a varying chance of being granted. (See
 'Randabil.spo' for details of the random powers of Ego Weapons).
@@ -603,7 +603,7 @@ base damage dice are XdY is as follows:
 === Monk Attacks ===
 
 The Monk character is designed to be a barehanded fighter rather than
-using a weapon like the other Zangband classes. As a Monk's level
+using a weapon like the other XBAND classes. As a Monk's level
 increases the number of attacks they get per round increases and new,
 increasingly powerful attacks become available. Higher level attacks
 have a chance to stun the Monk's opponent.

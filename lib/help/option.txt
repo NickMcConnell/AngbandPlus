@@ -1,4 +1,4 @@
-=== Zangband Options ===
+=== XBAND Options ===
 
 Most of the "options" are accessible through the '=' command, which
 provides an interface to the various "sets" of options available to the
@@ -59,7 +59,7 @@ Pick things up by default    [always_pickup]
 ***** <always_repeat>
 Repeat obvious commands    [always_repeat]
     Tells the game that when you attempt to "open" a door or chest,
-    "bash" a door, "tunnel" through walls, or "disarm" traps or chests,
+    "tunnel" through walls, or "disarm" traps or chests,
     that you wish to "repeat" the command 99 times (see "command.txt").
 
 ***** <stack_force_notes>
@@ -212,7 +212,7 @@ Disturb whenever boring things happen    [disturb_minor]
 
 ***** <disturb_other>
 Disturb whenever random things happen    [disturb_other]
-    In Zangband, uncursed teleporting items may teleport you around
+    In XBAND, uncursed teleporting items may teleport you around
     sometimes, asking for your confirmation (and possibly disturbing
     your rest). If you unset this option, they will stop asking you
     and teleporting you randomly. Cursed items will neither ask for
@@ -429,9 +429,9 @@ Show labels in object lists    [show_labels]
     labels indicate what the player is "using" the object for, such as
     "wielding" or "wearing" (in a given location). After you have
     played for a while, this information is no longer useful, and can
-    be annoying. Note that in Zangband 2.1.0 and later this option no
-    longer controls the "plain flavored object descriptions": a
-    separate option for them has been added under "Zangband Options".
+    be annoying. Note that this option does not control the "plain
+    flavored object descriptions": a separate option for them has been
+    added under "XBAND Options".
 
 ***** <show_weights>
 Show weights in object lists    [show_weights]
@@ -497,7 +497,7 @@ Use special colors for floor grids (slow)    [view_special_lite]
 
 ***** <plain_descriptions>
 Plain object descriptions    [plain_descriptions]
-    In Zangband, this option disables "full" names for identified
+    In XBAND, this option disables "full" names for identified
     'flavored' objects, in other words, if this option is not in use,
     an identified Potion of Speed could be listed (for example) as a
     Blue Potion of Speed. If you prefer simpler, less verbose
@@ -524,7 +524,7 @@ Allow monsters to carry lights   [monster_light]
 === Birth Options ===
 
 While cheating makes the game easier, the following options can make
-Zangband harder. So if you think the game is too easy, or if you want
+XBAND harder. So if you think the game is too easy, or if you want
 to impress your friends, then switch on the following options. The
 startup-options can only be accessed while creating a new character
 (press '=' while creating the character). There is no way to turn them
@@ -533,8 +533,8 @@ off after the creation is finished!
 ***** <vanilla_town>
 Use 'vanilla' town without quests and wilderness   [vanilla_town]
     Uses the basic town known from the standard Angband and older
-    versions of Zangband. This town is only one screen in size and
-    contains only the 8 Zangband stores, your home, and the stairs to
+    versions of XBAND. This town is only one screen in size and
+    contains only the 8 XBAND stores, your home, and the stairs to
     the dungeon. If you use the 'vanilla' town, then there is no
     wilderness, no special buildings and no set quests (but you can
     still use the random quests). This also speeds up the game on
@@ -564,7 +564,7 @@ Permanently enable the autoscummer   [ironman_autoscum]
     This option switches the "autoscummer" permanently on, so that only
     "good" levels are created.  This can mean, that there are good
     items on this level, or that the level is protected by especially
-    powerful monsters. In Zangband it often is the later, so use this
+    powerful monsters. In XBAND it often is the later, so use this
     option with care.
 
 ***** <ironman_hard_quests>
@@ -584,13 +584,6 @@ Create terrain 'streamers' in the dungeon   [terrain_streams]
     Allows the creation of terrain streamers in the dungeon. This
     allows the creation of 'lakes' and 'rivers' of water, lava and
     trees.
-
-***** <ironman_moria>
-The good old days ...   [ironman_moria]
-    This option induces Zangband to mimic certain aspects of the game
-    of Moria.  This includes the lack of colour, inability to gain the
-    high resists, no targetting, and several other changes to game
-    play.
 
 ***** <ironman_rooms>
 Always generate very unusual rooms   [ironman_rooms]

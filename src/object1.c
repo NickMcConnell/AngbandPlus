@@ -822,7 +822,7 @@ bool has_hidden_powers(const object_type *o_ptr)
 	object_flags_known(o_ptr, &k1, &k2, &k3);
 	object_flags      (o_ptr, &f1, &f2, &f3);
 
-	ignoreFlags = TR3_EASY_KNOW;
+	ignoreFlags = TR3_EASY_KNOW | TR3_HIDE_TYPE | TR3_SHOW_MODS;
 
 	k3 =  k3 | ignoreFlags;
 	f3 =  f3 | ignoreFlags;
@@ -920,13 +920,13 @@ bool identify_fully_aux(const object_type *o_ptr)
 
 		if (o_ptr->to_d > 0)
 		{
-			temp = string_make(format("It increases your melee damage by %i percent.", 10*o_ptr->to_d));
+			temp = string_make(format("It increases your melee damage by %i percent.", 5*o_ptr->to_d));
 			info[i++] = temp;
 			reclaim[num_reclaim++] = temp;
 		}
 		else if (o_ptr->to_d < 0)
 		{
-			temp = string_make(format("It decreases your melee damage by %i percent.", 10*o_ptr->to_d));
+			temp = string_make(format("It decreases your melee damage by %i percent.", 5*o_ptr->to_d));
 			info[i++] = temp;
 			reclaim[num_reclaim++] = temp;
 		}
@@ -1295,6 +1295,10 @@ bool identify_fully_aux(const object_type *o_ptr)
 	if (f2 & (TR2_IM_COLD))
 	{
 		info[i++] = "It provides immunity to cold.";
+	}
+	if (f2 & (TR2_IM_POIS))
+	{
+		info[i++] = "It provides immunity to poison.";
 	}
 
 	if (f2 & (TR2_THROW))

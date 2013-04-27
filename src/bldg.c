@@ -1151,7 +1151,7 @@ bool enchant_item(s32b cost, bool to_hit, bool to_dam, bool to_ac)
 	clear_region(0, 5, 18);
     
 	if (to_dam)
-		prtf(0, 5, "  Based on your skill, we can improve up to +%d,+%d%%.", maxenchant, maxenchant * 10);
+		prtf(0, 5, "  Based on your skill, we can improve up to +%d,+%d%%.", maxenchant, maxenchant * 5);
 	else
 		prtf(0, 5, "  Based on your skill, we can improve up to +%d.", maxenchant);
 	prtf(0, 7, "  The price for the service is %d gold per item.", cost);
@@ -1235,7 +1235,6 @@ void building_sellsoul(void)
 	int delta_level, i;
 	obj_theme theme;
 	object_type* q_ptr;
-	int num_mon_types;
 
 	/* Only accept legal items */
 	item_tester_hook = item_tester_hook_soulgem;
@@ -1477,94 +1476,6 @@ bool building_evaluatesoul()
 
 	/* Finished */
 	return TRUE;
-}
-
-
-/*
- * Imbue Item
- *
- * Imbues a soul into an amulet or ring
- */
-void building_imbuesoul(void)
-{
-	object_type *o_ptr;
-	object_type *s_ptr;
-	cptr q, s;
-
-	/* Only accept legal items */
-	item_tester_hook = item_tester_hook_imbue;
-
-	/* Get an item */
-	q = "Imbue which item? ";
-	s = "You have no imbueable items";
-
-	o_ptr = get_item(q, s, (USE_INVEN | USE_FLOOR | USE_EQUIP));
-
-	/* No valid item */
-	if (!o_ptr) return;
-
-	/* Only accept legal items */
-	item_tester_hook = item_tester_hook_soulgem;
-
-	/* Get an item */
-	q = "Which soul will be imbued? ";
-	s = "You have no soul gems";
-
-	s_ptr = get_item(q, s, (USE_INVEN | USE_FLOOR ));
-
-	/* No valid item */
-	if (!s_ptr) return;
-
-	//give it a soul type
-
-	o_ptr->soul_source = s_ptr->soul_source;
-	o_ptr->soul_type1  = s_ptr->soul_type1;
-	o_ptr->soul_type2  = s_ptr->soul_type2;
-
-	/* Set the first flags */
-	o_ptr->flags1 |= s_info[o_ptr->soul_type1].flags1[0];
-	o_ptr->flags2 |= s_info[o_ptr->soul_type1].flags2[0];
-	o_ptr->flags3 |= s_info[o_ptr->soul_type1].flags3[0];
-
-	o_ptr->flags1 |= s_info[o_ptr->soul_type2].flags1[0];
-	o_ptr->flags2 |= s_info[o_ptr->soul_type2].flags2[0];
-	o_ptr->flags3 |= s_info[o_ptr->soul_type2].flags3[0];
-
-	o_ptr->pval = 1;
-
-	//start the levels counting
-	o_ptr->level = 1;
-
-	/* gain any bonuses to AC / Damage / Accuracy */
-
-	o_ptr->to_h = (o_ptr->level * s_info[o_ptr->soul_type1].max_to_h) / 6;
-	o_ptr->to_d = (o_ptr->level * s_info[o_ptr->soul_type1].max_to_d) / 6;
-	o_ptr->to_a = (o_ptr->level * s_info[o_ptr->soul_type1].max_to_a) / 6;
-
-
-	/* Identify the item */
-	identify_item(o_ptr);
-	object_mental(o_ptr);
-
-	/* Save all the known flags */
-	o_ptr->kn_flags1 = o_ptr->flags1;
-	o_ptr->kn_flags2 = o_ptr->flags2;
-	o_ptr->kn_flags3 = o_ptr->flags3;
-
-	/* if we are imbuing a stack of rings, put a stop to that nonsense */
-	if (o_ptr->number > 1)
-	{
-		msgf("You cannot imbue more than one item.");
-		msgf("I have taken the excess %d.", (o_ptr->number) - 1);
-
-		o_ptr->number = 1;
-
-		/* Notice weight changes */
-		p_ptr->update |= PU_WEIGHT;
-	}
-
-	/* Take the soul away from the player, describe the result */
-	item_increase(s_ptr, -1);
 }
 
 /*

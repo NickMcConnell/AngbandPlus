@@ -4287,6 +4287,9 @@ static void mon_lite_hack(int x, int y)
 
 	int dx1, dy1, dx2, dy2;
 
+	int tx, ty;
+	int rx, ry;
+
 	/* Out of bounds */
 	if (!in_boundsp(x, y)) return;
 
@@ -4309,7 +4312,47 @@ static void mon_lite_hack(int x, int y)
 	 * need to worry about floor - we won't illuminate that
 	 * if we cannot see it.)
 	 */
-	if (!cave_los_grid(c_ptr) && ((dx1 * dx2 + dy1 * dy2) < 0)) return;
+	if (!cave_los_grid(c_ptr))
+	{
+		if ((dx1 * dx2 + dy1 * dy2) < 0) return;
+	
+		/*
+		 * Look for the case where the bounce doesn't work
+		 * correctly due to the half-block offset:
+		 *
+		 * ####1
+		 * ...d2
+		 * ....#
+		 * ....#  @
+		 * ....#
+		 *
+		 * A solid '1' should not be illuminated if '2' is solid.
+		 * If '2' is not solid, then '1' should be illuminated.
+		 *
+		 * To find this case, find the reflection normal, and
+		 * from that work out where '2' is.
+		 */
+		rx = dx1 + dx2;
+		ry = dy1 + dy2;
+	
+		/* Get the bounce block */
+		if (ABS(rx) > ABS(ry))
+		{
+			tx = x + SGN(rx);
+			ty = y;
+		}
+		else
+		{
+			tx = x;
+			ty = y + SGN(ry);
+		}
+	
+		/* Hack Bounce block is not in bounds - assume is solid */
+		if (!in_bounds(tx, ty)) return;
+
+		/* Make sure that the light path doesn't pass through a wall. */
+		if (!cave_los_grid(area(tx, ty))) return;
+	}
 
 	/* Save this square */
 	if (temp_n < TEMP_MAX)
@@ -4328,7 +4371,13 @@ static void mon_lite_hack(int x, int y)
 		pc_ptr->player |= GRID_SEEN;
 
 		/* Remember it if view_monster_grids is set. */
-		if (view_monster_grids) remember_grid(c_ptr, pc_ptr);
+		if (view_monster_grids)
+		{
+			remember_grid(c_ptr, pc_ptr);
+			
+			/* Show on the screen */
+			lite_spot(x, y);
+		}
 	}
 }
 
@@ -4385,6 +4434,9 @@ void update_mon_lite(void)
 	/* Clear all monster lit squares */
 	for (i = 0; i < lite_n; i++)
 	{
+		/* Paranoia */
+		if (!in_boundsp(lite_x[i], lite_y[i])) continue;
+
 		/* Point to grid */
 		c_ptr = area(lite_x[i], lite_y[i]);
 		pc_ptr = parea(lite_x[i], lite_y[i]);
@@ -4902,13 +4954,6 @@ void map_area(void)
 			/* All non-walls are "checked" */
 			if (cave_floor_grid(c_ptr))
 			{
-				/* Memorize normal features */
-				if (c_ptr->feat != FEAT_FLOOR)
-				{
-					/* Memorize the grid */
-					remember_grid(c_ptr, pc_ptr);
-				}
-
 				/* Memorize known walls */
 				for (i = 0; i < 8; i++)
 				{
@@ -4925,6 +4970,9 @@ void map_area(void)
 					{
 						/* Memorize the walls */
 						remember_grid(c_ptr, pc_ptr);
+
+						/* Notice the change */
+						lite_spot(xx, yy);
 					}
 				}
 			}

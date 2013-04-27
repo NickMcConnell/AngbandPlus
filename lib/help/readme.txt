@@ -1,15 +1,15 @@
-=== Notes on Zangband Documentation ===
+=== Notes on XBAND Documentation ===
 
-This file sets out basic information regarding the official Zangband
-documentation package produced by the Zangband DevTeam. 
+This file sets out basic information regarding the official XBAND
+documentation package produced by the XBAND DevTeam. 
 
 
 --- Documentation Packages ---
 
 There are currently two documentation packages planned. The basic
 package will include non-spoiler information necessary for a new player
-to learn all he needs to know about playing Zangband and will be
-included in all official Zangband source and binary releases. The
+to learn all he needs to know about playing XBAND and will be
+included in all official XBAND source and binary releases. The
 extended package will included additional spoiler files and will be
 available for download separately. Care will be taken to ensure that
 the two packages merge together properly.
@@ -17,33 +17,30 @@ the two packages merge together properly.
 
 --- Available Formats ---
 
-The Zangband basic documentation package is currently available in
-plain text format and is included in all Zangband downloads. Both the
-basic documentation and the spoilers are available for browsing in
-HTML format on Zangband.org.
-
+The XBAND basic documentation package is currently available in
+plain text format and is included in all XBAND downloads. 
 
 --- Reporting Errors / Suggestions for Improvement ---
 
 While every effort will be taken to ensure that the documentation
 packages are accurate and up to date, it is inevitable that some
 errors will be made. If you find an error or have a suggestion to
-improve documentation, please post your report or idea to the Zangband
-Development list by mailing to jianson@zangband.org. Alternatively, you
-may post your report or idea to rec.games.roguelike.angband.
+improve documentation, please post your report or idea by mailing
+to xis@prodigy.net. Alternatively, you may post your report or
+idea to rec.games.roguelike.angband.
 
 
 --- Rules for Creating Documents ---
 
 Certain general rules have been applied in creating the official
-documentation for Zangband. The DevTeam welcomes contributions by
+documentation for XBAND. The DevTeam welcomes contributions by
 players and if you wish to contribute a spoiler or other helpfile we
 would appreciate your adherence to the following guidelines. We reserve
 the right to modify your file but you will retain credit as the
 original author.
 
 1.  All documents should be named using the standard 8.3 format since
-    Zangband is played on systems which do not support long filenames.
+    XBAND is played on systems which do not support long filenames.
 2.  Menu files should be named *.hlp, non-spoiler help files *.txt and
     spoiler helpfiles *.spo.
 3.  All documents should be in a fixed font, plain text format.
@@ -62,7 +59,7 @@ original author.
 
 === Hyperlinks ===
 
-Zangband supports links between help files as follows. At the point in
+XBAND supports links between help files as follows. At the point in
 the text where you wish to insert a link, place the text '[#]' where '#'
 is any letter or digit ('a' and 'A' are distinct for this purpose).
 This is to tell the reader which key to press to activate the link.
@@ -77,7 +74,7 @@ target file. Opening the new file will flush the previous links so
 '#' may be reused.
 
 Note: because various operating systems use different conventions to
-denote directory structures, Zangband does not support target file
+denote directory structures, XBAND does not support target file
 names like './spoiler/races/races.spo'. This means that all help files
 should be kept in the lib/help or lib/info directory.
 

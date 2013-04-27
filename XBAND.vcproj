@@ -457,9 +457,6 @@
 				RelativePath="debug\lib\file\readme.txt">
 			</File>
 			<File
-				RelativePath="debug\lib\file\rumors.txt">
-			</File>
-			<File
 				RelativePath="debug\lib\file\sample.txt">
 			</File>
 			<File
@@ -488,7 +485,13 @@
 			Name="Help Files"
 			Filter="">
 			<File
+				RelativePath="debug\lib\help\attack.hlp">
+			</File>
+			<File
 				RelativePath="debug\lib\help\attack.txt">
+			</File>
+			<File
+				RelativePath="debug\lib\help\birth.hlp">
 			</File>
 			<File
 				RelativePath="debug\lib\help\birth.txt">
@@ -497,16 +500,31 @@
 				RelativePath="debug\lib\help\bldg.txt">
 			</File>
 			<File
+				RelativePath="debug\lib\help\charattr.hlp">
+			</File>
+			<File
 				RelativePath="debug\lib\help\charattr.txt">
+			</File>
+			<File
+				RelativePath="debug\lib\help\command.hlp">
 			</File>
 			<File
 				RelativePath="debug\lib\help\command.txt">
 			</File>
 			<File
+				RelativePath="debug\lib\help\commdesc.hlp">
+			</File>
+			<File
 				RelativePath="debug\lib\help\commdesc.txt">
 			</File>
 			<File
+				RelativePath="debug\lib\help\defend.hlp">
+			</File>
+			<File
 				RelativePath="debug\lib\help\defend.txt">
+			</File>
+			<File
+				RelativePath="debug\lib\help\dungeon.hlp">
 			</File>
 			<File
 				RelativePath="debug\lib\help\dungeon.txt">
@@ -515,28 +533,55 @@
 				RelativePath="debug\lib\help\gambling.txt">
 			</File>
 			<File
+				RelativePath="debug\lib\help\general.hlp">
+			</File>
+			<File
 				RelativePath="debug\lib\help\general.txt">
+			</File>
+			<File
+				RelativePath="debug\lib\help\help.hlp">
 			</File>
 			<File
 				RelativePath="debug\lib\help\helpinfo.txt">
 			</File>
 			<File
+				RelativePath="debug\lib\help\magic.hlp">
+			</File>
+			<File
 				RelativePath="debug\lib\help\magic.txt">
+			</File>
+			<File
+				RelativePath="debug\lib\help\monster.hlp">
 			</File>
 			<File
 				RelativePath="debug\lib\help\monster.txt">
 			</File>
 			<File
+				RelativePath="debug\lib\help\objects.hlp">
+			</File>
+			<File
 				RelativePath="debug\lib\help\objects.txt">
 			</File>
 			<File
+				RelativePath="debug\lib\help\option.hlp">
+			</File>
+			<File
 				RelativePath="debug\lib\help\option.txt">
+			</File>
+			<File
+				RelativePath="debug\lib\help\pref.hlp">
 			</File>
 			<File
 				RelativePath="debug\lib\help\pref.txt">
 			</File>
 			<File
 				RelativePath="debug\lib\help\readme.txt">
+			</File>
+			<File
+				RelativePath="debug\lib\help\spoiler.hlp">
+			</File>
+			<File
+				RelativePath="debug\lib\help\town.hlp">
 			</File>
 			<File
 				RelativePath="debug\lib\help\town.txt">

@@ -1,0 +1,47 @@
+Sometimes, when you kill a monster, it will drop a soul gem. These soul
+gems can be imbued into rings and amulets, by using the 'B' bind command.
+
+Souls level up as you fight, their maximum level is level 6. Their pval is
+equal to their level. As they level up, they gain more resists and abilities.
+
+To gain level 2, you need to kill  200 monsters worth   1 xp or more
+To gain level 3, you need to kill  400 monsters worth   8 xp or more
+To gain level 4, you need to kill  600 monsters worth  27 xp or more
+To gain level 5, you need to kill  800 monsters worth  64 xp or more
+To gain level 6, you need to kill 1000 monsters worth 125 xp or more
+
+As you can see from the chart, there are thresholds associated with each
+level. Kills that give less XP than the threshold don't count toward
+leveling up the items. When I say kill monsters, I really mean anything that
+gains XP. Disarming traps also works, for example. 
+
+There are five grades of rings and amulets. Copper, Silver, Gold, Platinum,
+and Adamantium. The more valuable the material, the higher level an imbued 
+soul can reach. 
+
+Level 2 - Copper
+Level 3 - Silver
+Level 4 - Gold
+Level 5 - Platinum
+Level 6 - Adamantium
+
+In addition, Adamantium is immmune to being destroyed by
+the elements. 
+
+Currently, each monster letter has a soul type associated with it. This
+means that the soul of a snotling gives the same benefits as that of a black
+orc. Monster types that you encounter in the first few levels of the game
+(icky things, kobolds, etc.) have fairly weak souls. When you dive a little
+deeper, you hit the mid-range of souls (lesser demons, ogres, golems, etc.).
+The mid-range souls are about twice as strong. In the depths of the dungeon,
+you find the most dangerous monster types (greater demons, ancient dragons,
+liches, etc.), who have the most powerful souls.
+
+In addition, many monsters have a secondary soul type. If a monster has an
+elemental attack, its soul will have bonuses related to that element. If
+a monster has multiple elemental attacks, it's soul gem will be created
+with an elemental sub-type chosen randomly from its attacks.
+
+--
+Original   : Chris Watkins
+Updated    : 01/30/04

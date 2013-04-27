@@ -1,4 +1,4 @@
-=== Zangband Magic System ===
+=== XBAND Magic System ===
 
 In the official releases of Angband there are only two types magic
 spells: Magic spells and priestly prayers. If the character is a mage,
@@ -6,11 +6,11 @@ ranger or a rogue (s)he can learn magic spells; if (s)he is a priest or
 a paladin, (s)he can learn prayers. All mages can learn the same spells
 and all priests can learn the same spells.
 
-Zangband uses a more complex "realms of magic" system inspired by the
+XBAND uses a more complex "realms of magic" system inspired by the
 commercial fantasy strategy game Master of Magic (Microprose), which in
 turn has supposedly borrowed it from the card game Magic the Gathering
 (by Wizards of the Coast). The magic system, as implemented in
-Zangband, consists of seven realms: Life, Arcane, Sorcery, Nature,
+XBAND, consists of seven realms: Life, Arcane, Sorcery, Nature,
 Trump, Chaos and Death.
 
 While any given realm of magic typically includes spells of a certain
@@ -28,7 +28,7 @@ capability, Nature specializes in the elements and offers both
 defensive and offensive spells, Trump specializes in teleportation and
 summoning spells and Chaos and Death are offensive.
 
-In Zangband, spellcasting classes can select either one or two realms
+In XBAND, spellcasting classes can select either one or two realms
 from those available. Note that certain realms may be prohibited for
 some classes. Since a character can have (at most) two realms of magic,
 and the old spells have been split between the existing realms, on the
@@ -44,7 +44,7 @@ hurt your enemy, while others offer spells for protection, healing and
 gathering information.
 
 In standard Angband, there were 9 spellbooks for all spellcasters. In
-Zangband, there are 4 spellbooks per realm. Two of them can be bought
+XBAND, there are 4 spellbooks per realm. Two of them can be bought
 in the town stores and the remaining two must be found in the dungeon
 (although they may occasionally appear in the Black Market). The
 exception to this rule is the Arcane realm since all Arcane spellbooks
@@ -77,22 +77,22 @@ Mages
      well.
 
 Priests
-     There are two types of priests in Zangband: the 'ordinary' priests
+     There are two types of priests in XBAND: the 'ordinary' priests
      who, select Life magic as their primary realm, and the 'dark'
      priests, who select Death magic instead of Life magic. No priest
-     can have both realms (unless (s)he was created in Zangband 2.0.0
-     or 2.0.1). Priests can also select a secondary realm from the
-     other five realms, and should be able to learn all spells in it as
-     well, even if not as efficiently as mages. However, when learning
-     spells, priests cannot voluntarily decide which spells to study:
-     they are rewarded with new prayers by their patron deities, with
-     no money-back satisfaction guarantee. It should also be noted that
-     since the natural inclination of a priest is towards Life magic,
-     priests who select Life magic will be able to learn their prayers
-     faster and better than their evil colleagues with Death magic.
+     can have both realms. Priests can also select a secondary realm
+     from the other five realms, and should be able to learn all spells
+     in it as well, even if not as efficiently as mages. However, when
+     learning spells, priests cannot voluntarily decide which spells to
+     study: they are rewarded with new prayers by their patron deities,
+     with no money-back satisfaction guarantee. It should also be noted
+     that since the natural inclination of a priest is towards Life
+     magic, priests who select Life magic will be able to learn their
+     prayers faster and better than their evil colleagues with Death
+     magic.
 
 Rogues
-     There are several subtypes of Rogues in Zangband: the exact 'type'
+     There are several subtypes of Rogues in XBAND: the exact 'type'
      is determined by the realm of magic chosen by the Rogue. The
      common Thief, agent of the underworld, will probably be content
      with Arcane magic and its wide applicability. The Burglar, on the
@@ -245,8 +245,7 @@ Chaos
      on the primal forces of Chaos to induce mutations in his/her
      opponents and even him/herself, but otherwise, Chaos has no
      protective spells. Beware, though, Chaos spells are known to
-     backfire easily and product undesired effects. This is especially
-     true in the version 2.1.0 of Zangband and later, where the forces
+     backfire easily and product undesired effects. The forces
      of Chaos can easily twist the hapless individual foolish enough to
      invoke them, turning them horrendous spawns of Chaos.
 
@@ -531,7 +530,7 @@ NATURE: Standard Spellbooks
 
 Call of the Wild
      1. Detect Creatures
-     2. First Aid
+     2. Cure Light Wounds
      3. Detect Doors and Traps
      4. Foraging
      5. Daylight
@@ -567,14 +566,14 @@ Sign of Chaos
      1. Magic Missile
      2. Trap / Door Destruction
      3. Flash of Light
-     4. Touch of Confusion
+     4. Ray of Confusion
      5. Mana Burst
      6. Fire Bolt
      7. Fist of Force
      8. Teleport Self
 
 Chaos Mastery
-     1. Wonder
+     1. Sense Power
      2. Chaos Bolt
      3. Sonic Boom
      4. Doom Bolt

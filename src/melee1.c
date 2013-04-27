@@ -487,17 +487,12 @@ bool make_attack_normal(int m_idx)
 
 					case RBE_POISON:
 					{
-						/* Take some damage */
-						take_hit(damage, ddesc);
+						/* Special damage */
+						pois_dam(damage, ddesc);
 
-						/* Take "poison" effect */
-						if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+						if (p_ptr->poisoned)
 						{
-							if (set_poisoned
-								(p_ptr->poisoned + randint1(rlev) + 5))
-							{
-								obvious = TRUE;
-							}
+							obvious = TRUE;
 						}
 
 						/* Learn about the player */
@@ -1171,17 +1166,12 @@ bool make_attack_normal(int m_idx)
 
 					case RBE_DISEASE:
 					{
-						/* Take some damage */
-						take_hit(damage, ddesc);
+						/* Special damage */
+						pois_dam(damage, ddesc);
 
-						/* Take "poison" effect */
-						if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+						if (p_ptr->poisoned)
 						{
-							if (set_poisoned
-								(p_ptr->poisoned + randint1(rlev) + 5))
-							{
-								obvious = TRUE;
-							}
+							obvious = TRUE;
 						}
 
 						/* Damage CON (10% chance) */
@@ -1189,8 +1179,7 @@ bool make_attack_normal(int m_idx)
 						{
 							/* 1% chance for perm. damage */
 							bool perm = (one_in_(10));
-							if (dec_stat(A_CON, randint1(10), perm)) obvious =
-									TRUE;
+							if (dec_stat(A_CON, randint1(10), perm)) obvious = TRUE;
 						}
 
 						break;

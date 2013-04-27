@@ -2436,6 +2436,7 @@ static void calc_bonuses(void)
 	p_ptr->immune_elec = FALSE;
 	p_ptr->immune_fire = FALSE;
 	p_ptr->immune_cold = FALSE;
+	p_ptr->immune_pois = FALSE;
 
 
 	/* Base infravision (purely racial) */
@@ -2816,6 +2817,7 @@ static void calc_bonuses(void)
 		if (f2 & (TR2_IM_ACID)) p_ptr->immune_acid = TRUE;
 		if (f2 & (TR2_IM_COLD)) p_ptr->immune_cold = TRUE;
 		if (f2 & (TR2_IM_ELEC)) p_ptr->immune_elec = TRUE;
+		if (f2 & (TR2_IM_POIS)) p_ptr->immune_pois = TRUE;
 
 		/* Resistance flags */
 		if (f2 & (TR2_RES_ACID)) p_ptr->resist_acid = TRUE;
@@ -3670,13 +3672,29 @@ void update_stuff(void)
 
 	/* Character is in "icky" mode, no screen updates */
 	if (character_icky) return;
+	
+	/* Do not update map, it doesn't exist */
+	if (!character_dungeon) return;
+	
+	if ((p_ptr->update & (PU_MON_LITE)) && monster_light)
+	{
+		p_ptr->update &= ~(PU_MON_LITE);
+		update_mon_lite();
+		
+		/*
+		 * Hack - the odds are that since monsters moved, 
+		 * we need to redraw the map.
+		 */
+		p_ptr->redraw |= (PR_MAP);
+		p_ptr->update |= (PU_VIEW);
+	}
 
 	if (p_ptr->update & (PU_VIEW))
 	{
 		p_ptr->update &= ~(PU_VIEW);
 		update_view();
 	}
-
+	
 	if (p_ptr->update & (PU_FLOW))
 	{
 		p_ptr->update &= ~(PU_FLOW);
@@ -3694,12 +3712,6 @@ void update_stuff(void)
 	{
 		p_ptr->update &= ~(PU_MONSTERS);
 		update_monsters(FALSE);
-	}
-
-	if ((p_ptr->update & (PU_MON_LITE)) && monster_light)
-	{
-		p_ptr->update &= ~(PU_MON_LITE);
-		update_mon_lite();
 	}
 }
 
@@ -3722,21 +3734,12 @@ void redraw_stuff(void)
 	/* Character is in "icky" mode, no screen updates */
 	if (character_icky) return;
 
-
-
 	/* Hack -- clear the screen */
 	if (p_ptr->redraw & (PR_WIPE))
 	{
 		p_ptr->redraw &= ~(PR_WIPE);
 		message_flush();
 		Term_clear();
-	}
-
-
-	if (p_ptr->redraw & (PR_MAP))
-	{
-		p_ptr->redraw &= ~(PR_MAP);
-		prt_map();
 	}
 
 
@@ -3901,6 +3904,15 @@ void redraw_stuff(void)
 	{
 		p_ptr->redraw &= ~(PR_STUDY);
 		prt_study();
+	}
+	
+	/* Do not update map it, doesn't exist */
+	if (!character_dungeon) return;
+	
+	if (p_ptr->redraw & (PR_MAP))
+	{
+		p_ptr->redraw &= ~(PR_MAP);
+		prt_map();
 	}
 }
 

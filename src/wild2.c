@@ -1748,7 +1748,7 @@ void init_vanilla_town(void)
 	/* Only one town */
 	strcpy(pl_ptr->name, "Town");
 	pl_ptr->seed = randint0(0x10000000);
-	pl_ptr->numstores = 9;
+	pl_ptr->numstores = MAX_STORES;
 	pl_ptr->type = TOWN_OLD;
 	pl_ptr->x = (max_wild / 2) - TOWN_WID / (WILD_BLOCK_SIZE * 2) - 1;
 	pl_ptr->y = (max_wild / 2) - TOWN_HGT / (WILD_BLOCK_SIZE * 2) - 1;
@@ -1762,7 +1762,11 @@ void init_vanilla_town(void)
 	for (i = 0; i < MAX_STORES; i++)
 	{
 		/* Initialize */
-		store_init(1, i, (byte)i);
+		if (i == (MAX_STORES-1))
+		{
+			store_init(1, i, (byte)BUILD_SOULDEALER);
+		}
+		else store_init(1, i, (byte)i);
 	}
 
 	/* Place town on wilderness */
@@ -3561,11 +3565,29 @@ static void allocate_block(int x, int y)
 		/* Get new block */
 		wild_grid[y][x] = wild_cache[wc_cnt++];
 
-		/* Generate the block */
-		gen_block(x, y);
-
-		if (place_num)
+		/* Are we in the process of loading the game? */
+		if (character_loaded)
 		{
+			/* Generate the block */
+			gen_block(x, y);
+
+			if (place_num)
+			{
+				/* Increase refcount for region */
+				incref_region(place[place_num].region);
+			}
+		}
+		
+		/* We need to make sure the refcounted regions work */
+		else if (place_num)
+		{
+			/* Do we need to make the map? */
+			if (!place[place_num].region)
+			{
+				/* Create the place */
+				place_gen(place_num);
+			}
+			
 			/* Increase refcount for region */
 			incref_region(place[place_num].region);
 		}

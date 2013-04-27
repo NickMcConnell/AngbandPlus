@@ -383,6 +383,23 @@ void wipe_o_list(void)
 
 	cave_type *c_ptr;
 
+	object_type *o_ptr;
+	
+	/* Set all objects to be unallocated */
+	for (i = 1; i < o_max; i++)
+	{
+		o_ptr = &o_list[i];
+		
+		o_ptr->allocated = FALSE;
+	}
+	
+	/* Save players inventory (only objects in a list to save) */
+	OBJ_ITT_START (p_ptr->inventory, o_ptr)
+	{
+		o_ptr->allocated = TRUE;
+	}
+	OBJ_ITT_END;
+
 	/* Delete the existing objects */
 	for (i = 1; i < o_max; i++)
 	{
@@ -391,7 +408,7 @@ void wipe_o_list(void)
 		/* Skip dead objects */
 		if (!o_ptr->k_idx) continue;
 
-		/* Skip non-dungeon objects */
+		/* Skip allocated objects */
 		if (!(o_ptr->ix || o_ptr->iy)) continue;
 
 		/* Preserve artifacts */
@@ -403,6 +420,18 @@ void wipe_o_list(void)
 		/* Access location */
 		y = o_ptr->iy;
 		x = o_ptr->ix;
+
+		/* Store item? */
+		if (!x && !y)
+		{
+			/* Hack - just kill it */
+			object_wipe(o_ptr);
+
+			/* Count objects */
+			o_cnt--;
+			
+			continue;
+		}
 
 		/* Access grid */
 		c_ptr = area(x, y);
@@ -987,12 +1016,12 @@ s32b flag_cost(const object_type *o_ptr, int plusses)
 	if (f2 & TR2_SUST_DEX) total += 200;
 	if (f2 & TR2_SUST_CON) total += 200;
 	if (f2 & TR2_SUST_CHR) total += 100;
-	if (f2 & TR2_XXX1) total += 0;
 	if (f2 & TR2_XXX2) total += 0;
 	if (f2 & TR2_IM_ACID) total += 10000;
 	if (f2 & TR2_IM_ELEC) total += 10000;
 	if (f2 & TR2_IM_FIRE) total += 10000;
 	if (f2 & TR2_IM_COLD) total += 10000;
+	if (f2 & TR2_IM_POIS) total += 10000;
 	if (f2 & TR2_THROW) total += 2000;
 	if (f2 & TR2_REFLECT) total += 5000;
 	if (f2 & TR2_FREE_ACT) total += 3000;
@@ -1001,7 +1030,7 @@ s32b flag_cost(const object_type *o_ptr, int plusses)
 	if (f2 & TR2_RES_ELEC) total += 750;
 	if (f2 & TR2_RES_FIRE) total += 750;
 	if (f2 & TR2_RES_COLD) total += 750;
-	if (f2 & TR2_RES_POIS) total += 1500;
+	if (f2 & TR2_RES_POIS) total += 750;
 	if (f2 & TR2_RES_FEAR) total += 1000;
 	if (f2 & TR2_RES_LITE) total += 750;
 	if (f2 & TR2_RES_DARK) total += 750;
@@ -1600,8 +1629,9 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		case TV_RING:
 		case TV_AMULET:
 		{
-			// if it has a soul, disallow stacking
-			if (o_ptr->level > 0) return (FALSE);
+			/* Rings and amulets never stack */
+			// if (o_ptr->level > 0) return (FALSE);
+			return (FALSE);
 			break;
 		}
 
@@ -2173,6 +2203,12 @@ static void init_ego_item(object_type *o_ptr, byte ego)
 				o_ptr->pval = randint1(e_ptr->max_pval);;
 			}
 		}
+	}
+
+	//give digging items a bonus
+	if (o_ptr->tval == TV_DIGGING)
+	{
+		o_ptr->pval += randint1(3);
 	}
 
 	/* Hack -- apply rating bonus */
@@ -3191,7 +3227,7 @@ void add_ego_power(int power, object_type *o_ptr)
 		case EGO_XTRA_POWER:
 		{
 			/* Choose a power */
-			switch (randint0(11))
+			switch (randint0(10))
 			{
 				case 0:
 				{
@@ -3235,15 +3271,10 @@ void add_ego_power(int power, object_type *o_ptr)
 				}
 				case 8:
 				{
-					(o_ptr->flags2) |= (TR2_RES_POIS);
-					break;
-				}
-				case 9:
-				{
 					(o_ptr->flags2) |= (TR2_RES_DARK);
 					break;
 				}
-				case 10:
+				case 9:
 				{
 					(o_ptr->flags2) |= (TR2_RES_LITE);
 					break;
@@ -3255,7 +3286,7 @@ void add_ego_power(int power, object_type *o_ptr)
 		case EGO_XTRA_SLAY:
 		{
 			/* Choose a power */
-			switch (randint0(13))
+			switch (randint0(15))
 			{
 				case 0:
 				{
@@ -3320,6 +3351,16 @@ void add_ego_power(int power, object_type *o_ptr)
 				case 12:
 				{
 					(o_ptr->flags1) |= (TR1_SLAY_DRAGON);
+					break;
+				}
+				case 13:
+				{
+					(o_ptr->flags1) |= (TR1_VAMPIRIC);
+					break;
+				}
+				case 14:
+				{
+					(o_ptr->flags1) |= (TR1_VORPAL);
 					break;
 				}
 			}
@@ -5083,28 +5124,31 @@ bool can_player_destroy_object(object_type *o_ptr)
 	/* Artifacts cannot be destroyed */
 	if (o_ptr->flags3 & TR3_INSTA_ART)
 	{
-		byte feel = FEEL_SPECIAL;
+		if (!(o_ptr->info & OB_MENTAL))
+		{
+			byte feel = FEEL_SPECIAL;
 
-		/* Hack -- Handle icky artifacts */
-		if (cursed_p(o_ptr) || !o_ptr->cost) feel = FEEL_TERRIBLE;
+			/* Hack -- Handle icky artifacts */
+			if (cursed_p(o_ptr) || !o_ptr->cost) feel = FEEL_TERRIBLE;
 
-		/* Hack -- inscribe the artifact */
-		o_ptr->feeling = feel;
+			/* Hack -- inscribe the artifact */
+			o_ptr->feeling = feel;
 
-		/* We have "felt" it (again) */
-		o_ptr->info |= (OB_SENSE);
+			/* We have "felt" it (again) */
+			o_ptr->info |= (OB_SENSE);
 
-		/* Combine the pack */
-		p_ptr->notice |= (PN_COMBINE);
+			/* Combine the pack */
+			p_ptr->notice |= (PN_COMBINE);
 
-		/* Redraw equippy chars */
-		p_ptr->redraw |= (PR_EQUIPPY);
+			/* Redraw equippy chars */
+			p_ptr->redraw |= (PR_EQUIPPY);
 
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+			/* Window stuff */
+			p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-		/* Done */
-		return FALSE;
+			/* Done */
+			return FALSE;
+		}
 	}
 
 	return TRUE;

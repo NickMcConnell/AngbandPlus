@@ -1,6 +1,6 @@
-=== Zangband Monsters ===
+=== XBAND Monsters ===
 
-There are hundreds of different creatures in Zangband each of which
+There are hundreds of different creatures in XBAND each of which
 poses a unique challenge to the adventurer. As you progress deeper into
 the dungeon, the creatures will become progressively more difficult to
 defeat.
@@ -74,7 +74,7 @@ will probably get cleaned up.
 
 Because there are so many monsters and because often different monsters
 share similar colors and symbols, it is very difficult to keep track of
-the capabilities of various creatures. Luckily, Zangband automatically
+the capabilities of various creatures. Luckily, XBAND automatically
 keeps track of your experiences with a particular creature.
  
 This feature is called the monster memory. Your monster memory recalls
@@ -106,9 +106,9 @@ character.
 ***** <Uniques>
 === Unique Monsters ===
 
-The monsters in Zangband are unique in that each variety of monster
+The monsters in XBAND are unique in that each variety of monster
 has its own set of physical and, where applicable, magical abilities.
-However, some monsters in Zangband are truly unique and this group
+However, some monsters in XBAND are truly unique and this group
 of monsters are often referred to as "Uniques".
 
 The Unique monsters are made unique for several reasons. Primarily,
@@ -153,7 +153,7 @@ check this periodically to gauge your progress.
 Occasionally, you will find that a Unique monster will speak to you
 as it approaches. Typically, a monster will shout obscenities and
 challenges to combat but they may also refer to events relating to
-themselves. Zangband has no mechanism to allow you to respond to the
+themselves. XBAND has no mechanism to allow you to respond to the
 monsters (other than with violence). You may prevent Unique monsters
 from speaking by changing the approopriate option under the options
 menus.
@@ -170,7 +170,7 @@ is normally found.
 ***** <EldritchHorror>
 === Eldritch Horrors ===
 
-Some of the monsters in the dungeons of Zangband are so fearsome to
+Some of the monsters in the dungeons of XBAND are so fearsome to
 look upon that doing so can have serious repurcussions. When you meet
 one of these sanity blasting monsters, one of several nasty things
 may happen to you. These include having your intelligence and/or your

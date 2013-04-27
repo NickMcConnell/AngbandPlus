@@ -134,6 +134,13 @@ int determine_aux_soul_type( monster_race *r_ptr )
 		if (r_ptr->blow[j].effect == RBE_EXP_VAMP ) md[foundMd++] = ST_DEXP;
 	}
 
+	// handle monsters with auras
+	{
+		if (r_ptr->flags2 & (RF2_AURA_FIRE)) hi[foundHi++] = ST_FIRE;
+		if (r_ptr->flags3 & (RF3_AURA_COLD)) hi[foundHi++] = ST_COLD;
+		if (r_ptr->flags2 & (RF2_AURA_ELEC)) hi[foundHi++] = ST_ELEC;
+	}
+   
 	// handle multi-hued monsters
 	if ((r_ptr->flags4 & RF4_BR_FIRE) &&
 			(r_ptr->flags4 & RF4_BR_COLD) &&

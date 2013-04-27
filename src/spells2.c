@@ -298,7 +298,11 @@ void self_knowledge(void)
 		info[i++] = "You are resistant to cold.";
 	}
 
-	if ((p_ptr->resist_pois) && (p_ptr->oppose_pois))
+	if (p_ptr->immune_pois)
+	{
+		info[i++] = "You are completely immune to poison.";
+	}
+	else if ((p_ptr->resist_pois) && (p_ptr->oppose_pois))
 	{
 		info[i++] = "You resist poison exceptionally well.";
 	}

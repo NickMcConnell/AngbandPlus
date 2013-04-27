@@ -611,7 +611,8 @@ static bool cast_life_spell(int spell)
 			(void)detect_monsters_evil();
 			break;
 		case 1:				/* Cure Light Wounds */
-			(void)hp_player(damroll(2, 10));
+			(void)hp_player(40);
+			(void)set_blind(0);
 			(void)set_cut(p_ptr->cut - 10);
 			break;
 		case 2:				/* Bless */
@@ -628,9 +629,11 @@ static bool cast_life_spell(int spell)
 			(void)detect_doors();
 			(void)detect_stairs();
 			break;
-		case 6:				/* Cure Medium Wounds */
-			(void)hp_player(damroll(4, 10));
-			(void)set_cut((p_ptr->cut / 2) - 20);
+		case 6:				/* Cure Serious Wounds */
+			(void) hp_player(75);
+			(void) set_blind(0); // this will probably never matter
+			(void) set_confused(0); // this will probably never matter
+			(void) set_cut((p_ptr->cut / 2) - 50);
 			break;
 		case 7:				/* Satisfy Hunger */
 			(void)set_food(PY_FOOD_MAX - 1);
@@ -642,9 +645,12 @@ static bool cast_life_spell(int spell)
 			(void)set_poisoned(0);
 			break;
 		case 10:				/* Cure Critical Wounds */
-			(void)hp_player(damroll(8, 10));
-			(void)set_stun(0);
-			(void)set_cut(0);
+			(void) hp_player(150);
+			(void) set_blind(0); // this will probably never matter
+			(void) set_confused(0); // this will probably never matter
+			(void) set_poisoned(0);
+			(void) set_stun(0);
+			(void) set_cut(0);
 			break;
 		case 11:				/* Sense Unseen */
 			(void)set_tim_invis(p_ptr->tim_invis + rand_range(24, 48));
@@ -930,9 +936,10 @@ static bool cast_nature_spell(int spell)
 		case 0:				/* Detect Creatures */
 			(void)detect_monsters_normal();
 			break;
-		case 1:				/* First Aid */
-			(void)hp_player(damroll(2, 8));
-			(void)set_cut(p_ptr->cut - 15);
+		case 1:				/* Cure Light Wounds */
+			(void)hp_player(40);
+			(void)set_blind(0);
+			(void)set_cut(p_ptr->cut - 10);
 			break;
 		case 2:				/* Detect Doors + Traps */
 			(void)detect_traps();
@@ -1133,13 +1140,9 @@ static bool cast_chaos_spell(int spell)
 		case 2:				/* Flash of Light == Light Area */
 			(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
 			break;
-		case 3:				/* Touch of Confusion */
-			if (!p_ptr->confusing)
-			{
-				msgf("Your hands start glowing.");
-				p_ptr->confusing = TRUE;
-				p_ptr->redraw |= (PR_STATUS);
-			}
+		case 3:				/* Ray of Confusion */
+			if (!get_aim_dir(&dir)) return FALSE;
+			confuse_monster(dir, 2*plev);
 			break;
 		case 4:				/* Manaburst */
 			if (!get_aim_dir(&dir)) return FALSE;
@@ -1168,72 +1171,9 @@ static bool cast_chaos_spell(int spell)
 		case 7:				/* Teleport Self */
 			teleport_player(plev * 5);
 			break;
-		case 8:				/* Wonder */
-		{
-			/*
-			 * This spell should become more useful (more
-			 * controlled) as the player gains experience levels.
-			 * Thus, add 1/5 of the player's level to the die roll.
-			 * This eliminates the worst effects later on, while
-			 * keeping the results quite random.  It also allows
-			 * some potent effects only at high level.
-			 */
-			int die = randint1(100) + plev / 5;
-
-			if (!get_aim_dir(&dir)) return FALSE;
-			if (die > 100)
-				msgf("You feel a surge of power!");
-			if (die < 8) (void)clone_monster(dir);
-			else if (die < 14) (void)speed_monster(dir);
-			else if (die < 26) (void)heal_monster(dir);
-			else if (die < 31) (void)poly_monster(dir);
-			else if (die < 36)
-				(void)fire_bolt_or_beam(beam - 10, GF_MISSILE, dir,
-										damroll(3 + ((plev - 1) / 5), 4));
-			else if (die < 41) (void)confuse_monster(dir, plev);
-			else if (die < 46) (void)fire_ball(GF_POIS, dir, 20 + (plev / 2),
-											   3);
-			else if (die < 51) (void)lite_line(dir);
-			else if (die < 56)
-				(void)fire_bolt_or_beam(beam - 10, GF_ELEC, dir,
-										damroll(3 + ((plev - 5) / 4), 8));
-			else if (die < 61)
-				(void)fire_bolt_or_beam(beam - 10, GF_COLD, dir,
-										damroll(5 + ((plev - 5) / 4), 8));
-			else if (die < 66)
-				(void)fire_bolt_or_beam(beam, GF_ACID, dir,
-										damroll(6 + ((plev - 5) / 4), 8));
-			else if (die < 71)
-				(void)fire_bolt_or_beam(beam, GF_FIRE, dir,
-										damroll(8 + ((plev - 5) / 4), 8));
-			else if (die < 76) (void)drain_life(dir, 75);
-			else if (die < 81) (void)fire_ball(GF_ELEC, dir, 30 + plev / 2, 2);
-			else if (die < 86) (void)fire_ball(GF_ACID, dir, 40 + plev, 2);
-			else if (die < 91) (void)fire_ball(GF_ICE, dir, 70 + plev, 3);
-			else if (die < 96) (void)fire_ball(GF_FIRE, dir, 80 + plev, 3);
-			else if (die < 101) (void)drain_life(dir, 100 + plev);
-			else if (die < 104)
-			{
-				(void)earthquake(px, py, 12);
-			}
-			else if (die < 106)
-			{
-				(void)destroy_area(px, py, 15);
-			}
-			else if (die < 108)
-			{
-				(void)genocide(TRUE);
-			}
-			else if (die < 110) (void)dispel_monsters(120);
-			else				/* RARE */
-			{
-				(void)dispel_monsters(150);
-				(void)slow_monsters();
-				(void)sleep_monsters();
-				(void)hp_player(300);
-			}
-			break;
-		}
+		case 8:      /* Sense Power */	
+			(void)psychometry();
+		  break;
 		case 9:				/* Chaos Bolt */
 			if (!get_aim_dir(&dir)) return FALSE;
 
@@ -1273,9 +1213,18 @@ static bool cast_chaos_spell(int spell)
 
 			(void)poly_monster(dir);
 			break;
-		case 17:				/* Chain Lightning */
-			for (dir = 0; dir <= 9; dir++)
-				(void)fire_beam(GF_ELEC, dir, damroll(5 + (plev / 10), 8));
+		case 17:				/* Battle Frenzy */
+			(void)set_shero(p_ptr->shero + rand_range(25, 50));
+			(void)hp_player(30);
+			(void)set_afraid(0);
+			if (!p_ptr->fast)
+			{
+				(void)set_fast(rand_range(plev / 2, 20 + plev));
+			}
+			else
+			{
+				(void)set_fast(p_ptr->fast + randint1(5));
+			}
 			break;
 		case 18:				/* Arcane Binding == Charging */
 			return recharge(90);
@@ -1290,8 +1239,8 @@ static bool cast_chaos_spell(int spell)
 		case 21:				/* Polymorph Self */
 			do_poly_self();
 			break;
-		case 22:				/* Chaos Branding */
-			brand_weapon(1);
+		case 22:				/* Mass Confusion */
+			(void)confuse_monsters(plev*4);
 			break;
 		case 23:				/* Summon monster, demon */
 		{
@@ -2518,7 +2467,8 @@ static bool cast_arcane_spell(int spell)
 			(void)destroy_door(dir);
 			break;
 		case 7:				/* Cure Light Wounds */
-			(void)hp_player(damroll(2, 8));
+			(void)hp_player(40);
+			(void)set_blind(0);
 			(void)set_cut(p_ptr->cut - 10);
 			break;
 		case 8:				/* Detect Doors & Traps */
@@ -2554,9 +2504,11 @@ static bool cast_arcane_spell(int spell)
 		case 17:				/* Resist Acid */
 			(void)set_oppose_acid(p_ptr->oppose_acid + rand_range(20, 40));
 			break;
-		case 18:				/* Cure Medium Wounds */
-			(void)hp_player(damroll(4, 8));
-			(void)set_cut((p_ptr->cut / 2) - 50);
+		case 18:				/* Cure Serious Wounds */
+			(void) hp_player(75);
+			(void) set_blind(0);
+			(void) set_confused(0);
+			(void) set_cut((p_ptr->cut / 2) - 50);
 			break;
 		case 19:				/* Teleport */
 			teleport_player(plev * 5);

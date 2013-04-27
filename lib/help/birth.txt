@@ -1,7 +1,7 @@
 === Creating a Character ===
 
-Zangband is a roleplaying game, in which you, the player, control a
-character in the world of Zangband. Perhaps the most important thing
+XBAND is a roleplaying game, in which you, the player, control a
+character in the world of XBAND. Perhaps the most important thing
 you control is the birth of your character, in which you choose or
 allow to be chosen various attributes that will affect the future life
 of your character.
@@ -156,7 +156,7 @@ Beastman      Yes   Yes    Yes
 
 If you have selected a spellcasting class, you will next be prompted
 for your choice of magic realm(s). The magic system, as implemented in
-Zangband, consists of seven realms: Life, Arcane, Sorcery, Nature,
+XBAND, consists of seven realms: Life, Arcane, Sorcery, Nature,
 Trump, Chaos and Death. In general, Life is primarily defensive but
 also offers spells to attack evil creatures, Arcane offers utility
 spells and some limited offensive capability, Sorcery offers utility
@@ -175,7 +175,7 @@ pick the correct spellbook to use in the game.
 ***** <Restrictions>
 --- Class/Realm Restrictions ---
 
-In Zangband, spellcasting classes can select either one or two realms
+In XBAND, spellcasting classes can select either one or two realms
 from those available. Some classes which can learn two realms may learn
 their first realm 'better' than their second.
 

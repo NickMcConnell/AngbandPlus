@@ -1453,6 +1453,7 @@ struct player_type
 	bool immune_elec;	/* Immunity to lightning */
 	bool immune_fire;	/* Immunity to fire */
 	bool immune_cold;	/* Immunity to cold */
+	bool immune_pois; /* Immunity to poison */
 
 	bool resist_acid;	/* Resist acid */
 	bool resist_elec;	/* Resist lightning */

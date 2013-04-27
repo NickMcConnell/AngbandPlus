@@ -1,7 +1,7 @@
 === The Town and Wilderness ===
 
 
-After you have created your character, you will begin your Zangband
+After you have created your character, you will begin your XBAND
 adventure in the town. Symbols appearing on your screen will represent
 the walls, floor, objects, features, and creatures lurking about. In
 order to direct your character through his adventure, you will enter
@@ -48,14 +48,14 @@ passes and if you enter the town at night, the town will be dark.
 Fortunately, the various shops and the other special buildings are open
 on a 24-hour basis.
 
-Later versions of Zangband have introduced a dramatically extended town
+Later versions of XBAND have introduced a dramatically extended town
 level to the game. In addition to the basic town and the standard nine
 shops, new buildings and multiple towns separated by a wilderness were
 added. 
 
 While most people welcome these new additions, they are not for
 everyone and consequently, there are two possible town options in
-Zangband - the 'Standard' town(s) and the 'Vanilla' town. The default
+XBAND - the 'Standard' town(s) and the 'Vanilla' town. The default
 is the standard town. The vanilla town option can be selected during
 character generation. (see option.txt#StartUp [3])
 
@@ -82,7 +82,7 @@ get through the first few levels of the game.  As your character gains
 levels, you will need to journey into the wilderness seeking other
 towns and cities to purchase and sell higher-level objects.
 
-Zangband contains more than 100 different kinds of shops each with
+XBAND contains more than 100 different kinds of shops each with
 different themes. Specialist stores may stock powerful items but
 usually at steep premiums.  Note that some shops offer services, rather
 than products. You should also note that the largere towns, do not
@@ -98,7 +98,7 @@ The vanilla town consists of nine shops (including a home) and an
 impenetrable wall which surrounds the town. There are no other
 embellishments. The nine shops available are similar to those in
 standard Angband (withth addition of a book store) and are designed to
-be sufficient for an entire game of Zangband.
+be sufficient for an entire game of XBAND.
 
 
 ***** <Townspeople>

@@ -25,7 +25,7 @@
 int deadliness_calc(int attack_power)
 {
 	/* Calculate effect of deadliness - linearly */
-	int result = (attack_power * 10) + 100;
+	int result = (attack_power * 5) + 100;
 
 	/* Really powerful minus yields zero damage */
 	if (result < 0) result = 0;
@@ -369,7 +369,7 @@ int tot_dam_aux(const object_type *o_ptr, const monster_type *m_ptr)
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 30) mult = 30;
+					if (mult < 20) mult = 20;
 				}
 			}
 
@@ -388,7 +388,7 @@ int tot_dam_aux(const object_type *o_ptr, const monster_type *m_ptr)
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 30) mult = 30;
+					if (mult < 20) mult = 20;
 				}
 			}
 
@@ -407,7 +407,7 @@ int tot_dam_aux(const object_type *o_ptr, const monster_type *m_ptr)
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 30) mult = 30;
+					if (mult < 20) mult = 20;
 				}
 			}
 
@@ -425,7 +425,7 @@ int tot_dam_aux(const object_type *o_ptr, const monster_type *m_ptr)
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 30) mult = 30;
+					if (mult < 20) mult = 20;
 				}
 			}
 
@@ -444,7 +444,7 @@ int tot_dam_aux(const object_type *o_ptr, const monster_type *m_ptr)
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 30) mult = 30;
+					if (mult < 20) mult = 20;
 				}
 			}
 			break;

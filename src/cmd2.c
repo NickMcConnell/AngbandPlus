@@ -418,7 +418,7 @@ static void chest_trap(int x, int y, object_type *o_ptr)
 	if (trap & (CHEST_POISON))
 	{
 		msgf("A puff of green gas surrounds you!");
-		if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+		if (!(p_ptr->resist_pois || p_ptr->oppose_pois || p_ptr->immune_pois))
 		{
 			(void)set_poisoned(p_ptr->poisoned + rand_range(10, 30));
 		}
@@ -777,6 +777,9 @@ bool do_cmd_open_aux(int x, int y)
 		make_noise(3);
 	}
 
+	/* We know about the change */
+	note_spot(x, y);
+
 	/* Done - no more to try. */
 	return (FALSE);
 }
@@ -934,6 +937,9 @@ static bool do_cmd_close_aux(int x, int y)
 
 		make_noise(3);
 	}
+
+	/* We know about the change */
+	note_spot(x, y);
 
 	/* Result */
 	return (more);

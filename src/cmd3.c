@@ -753,8 +753,16 @@ static void do_cmd_refill_torch(void)
 		msgf("Your torch glows more brightly.");
 	}
 
-	/* Decrease the item */
-	item_increase(o_ptr, -1);
+	if (o_ptr->flags3 & TR3_INSTA_ART)
+	{
+		/* The torch is empty */
+		o_ptr->timeout = 0;
+	}
+	else
+	{
+		/* Decrease the item */
+		item_increase(o_ptr, -1);
+	}
 
 	/* Recalculate torch */
 	p_ptr->update |= (PU_TORCH);
@@ -938,7 +946,7 @@ static cptr ident_info[] =
 	"':An open door",
 	"(:Soft armor",
 	"):A shield",
-	"*:A vein with treasure or a ball monster or a soul gem",
+	"*:A vein with treasure, a ball monster or a soul gem",
 	"+:A closed door",
 	",:Food (or mushroom patch)",
 	"-:A wand (or rod)",

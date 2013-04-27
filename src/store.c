@@ -292,9 +292,6 @@ static void mass_produce(object_type *o_ptr)
 		case TV_DIGGING:
 		case TV_BOW:
 		{
-			if (o_ptr->xtra_name) break;
-			if (cost <= 10L) size += damroll(3, 5);
-			if (cost <= 100L) size += damroll(3, 5);
 			break;
 		}
 
@@ -420,8 +417,10 @@ static bool store_object_similar(const object_type *o_ptr,
 	if (o_ptr->dd != j_ptr->dd) return (FALSE);
 	if (o_ptr->ds != j_ptr->ds) return (FALSE);
 
-	/* Hack -- Never stack chests */
+	/* Hack -- Never stack chests, rings, or amulets */
 	if (o_ptr->tval == TV_CHEST) return (FALSE);
+	if (o_ptr->tval == TV_RING) return (FALSE);
+	if (o_ptr->tval == TV_AMULET) return (FALSE);
 
 	/* Require matching discounts */
 	if (o_ptr->discount != j_ptr->discount) return (FALSE);

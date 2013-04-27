@@ -887,7 +887,7 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 			/* Town */
 			else if (streq(b + 1, "TOWN"))
 			{
-				v = vanilla_town ? "VANILLA" : "WILDERNESS";
+				v = "VANILLA";
 			}
 		}
 
@@ -1685,6 +1685,8 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3)
 			break;
 		case RACE_KOBOLD:
 			(*f2) |= (TR2_RES_POIS);
+			if (p_ptr->lev > 29)
+				(*f2) |= (TR2_IM_POIS);
 			break;
 		case RACE_NIBELUNG:
 			(*f2) |= (TR2_RES_DISEN);
@@ -1952,23 +1954,19 @@ static void display_player_flag_info(void)
 
 	put_fstr(col + 8, row++, "abcdefghijkl@");
 
-	display_player_flag_aux(col, row++, "Acid  :", 2, TR2_RES_ACID,
-							TR2_IM_ACID);
-	display_player_flag_aux(col, row++, "Elec  :", 2, TR2_RES_ELEC,
-							TR2_IM_ELEC);
-	display_player_flag_aux(col, row++, "Fire  :", 2, TR2_RES_FIRE,
-							TR2_IM_FIRE);
-	display_player_flag_aux(col, row++, "Cold  :", 2, TR2_RES_COLD,
-							TR2_IM_COLD);
-	display_player_flag_aux(col, row++, "Poison:", 2, TR2_RES_POIS, 0);
-	display_player_flag_aux(col, row++, "Fear  :", 2, TR2_RES_FEAR, 0);
-	display_player_flag_aux(col, row++, "Light :", 2, TR2_RES_LITE, 0);
-	display_player_flag_aux(col, row++, "Dark  :", 2, TR2_RES_DARK, 0);
-	display_player_flag_aux(col, row++, "Shard :", 2, TR2_RES_SHARDS, 0);
+	display_player_flag_aux(col, row++, "Acid  :", 2, TR2_RES_ACID,  TR2_IM_ACID);
+	display_player_flag_aux(col, row++, "Elec  :", 2, TR2_RES_ELEC,  TR2_IM_ELEC);
+	display_player_flag_aux(col, row++, "Fire  :", 2, TR2_RES_FIRE,	 TR2_IM_FIRE);
+	display_player_flag_aux(col, row++, "Cold  :", 2, TR2_RES_COLD,	 TR2_IM_COLD);
+	display_player_flag_aux(col, row++, "Poison:", 2, TR2_RES_POIS,  TR2_IM_POIS);
+	display_player_flag_aux(col, row++, "Fear  :", 2, TR2_RES_FEAR,  0);
+	display_player_flag_aux(col, row++, "Light :", 2, TR2_RES_LITE,  0);
+	display_player_flag_aux(col, row++, "Dark  :", 2, TR2_RES_DARK,  0);
+	display_player_flag_aux(col, row++, "Shard :", 2, TR2_RES_SHARDS,0);
 	display_player_flag_aux(col, row++, "Blind :", 2, TR2_RES_BLIND, 0);
-	display_player_flag_aux(col, row++, "Conf  :", 2, TR2_RES_CONF, 0);
+	display_player_flag_aux(col, row++, "Conf  :", 2, TR2_RES_CONF,  0);
 	display_player_flag_aux(col, row++, "Sound :", 2, TR2_RES_SOUND, 0);
-	display_player_flag_aux(col, row++, "Nether:", 2, TR2_RES_NETHER, 0);
+	display_player_flag_aux(col, row++, "Nether:", 2, TR2_RES_NETHER,0);
 	display_player_flag_aux(col, row++, "Nexus :", 2, TR2_RES_NEXUS, 0);
 	display_player_flag_aux(col, row++, "Chaos :", 2, TR2_RES_CHAOS, 0);
 	display_player_flag_aux(col, row++, "Disnch:", 2, TR2_RES_DISEN, 0);
@@ -2661,7 +2659,7 @@ errr file_character(cptr name, bool full)
 
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, name);
+	path_build(buf, 1024, ANGBAND_DIR_SAVE, name);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);

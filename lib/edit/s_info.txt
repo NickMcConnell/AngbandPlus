@@ -234,7 +234,7 @@ C:0:0:40
 F:0:SPEED
 
 N:40:Ogres 'O'
-C:0:20:0
+C:0:0:0
 F:0:WIS | STR
 F:1:SUST_STR
 F:2:RES_SHARDS
@@ -335,6 +335,7 @@ F:5:IM_ELEC
 N:57:Poison
 C:0:0:0
 F:0:RES_POIS
+F:5:IM_POIS
 
 N:58:Light
 C:0:0:0

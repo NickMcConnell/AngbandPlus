@@ -1,4 +1,4 @@
-Welcome to the Zangband Online Help System.
+Welcome to the XBAND Online Help System.
 
 Please choose one of the following online help files:
 
@@ -7,15 +7,17 @@ Please choose one of the following online help files:
     (2) Character Attributes           (charattr.hlp)
     (3) The Town and Wilderness        (town.hlp)
     (4) The Dungeon                    (dungeon.hlp)
-    (5) Zangband Objects               (objects.hlp)
-    (6) Zangband Monsters              (monster.hlp)
-    (7) Attacking Monsters             (attack.hlp)
-    (8) Defending Yourself             (defend.hlp)
-    (9) Zangband Magic System          (magic.hlp)
-    (a) Zangband Commands              (command.hlp)
-    (b) Zangband Options               (option.hlp)
-    (c) User Preference Files          (pref.hlp)
-    (d) Zangband Spoilers              (spoiler.hlp)
+    (5) XBAND Objects                  (objects.hlp)
+    (6) Soul Gems                      (soulgems.hlp)
+    (7) XBAND Monsters                 (monster.hlp)
+    (8) Attacking Monsters             (attack.hlp)
+    (9) Defending Yourself             (defend.hlp)
+    (a) XBAND Magic System             (magic.hlp)
+    (b) XBAND Commands                 (command.hlp)
+    (c) XBAND Options                  (option.hlp)
+    (d) User Preference Files          (pref.hlp)
+    (e) XBAND Spoilers                 (spoiler.hlp)
+
 
 
 ***** [0] general.hlp
@@ -24,11 +26,13 @@ Please choose one of the following online help files:
 ***** [3] town.hlp
 ***** [4] dungeon.hlp
 ***** [5] objects.hlp
-***** [6] monster.hlp
-***** [7] attack.hlp
-***** [8] defend.hlp
-***** [9] magic.hlp
-***** [a] command.hlp
-***** [b] option.hlp
-***** [c] pref.hlp
-***** [d] spoiler.hlp
+***** [6] soulgems.hlp
+***** [7] monster.hlp
+***** [8] attack.hlp
+***** [9] defend.hlp
+***** [a] magic.hlp
+***** [b] command.hlp
+***** [c] option.hlp
+***** [d] pref.hlp
+***** [e] spoiler.hlp
+

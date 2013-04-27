@@ -1,4 +1,126 @@
+**** 02/13/04
+
+XBAND 0.4.0 released.
+
+**** 02/10/04
+
+The message about the soul dealer in monster recall is now displayed in green.
+Weapons and armor are no longer generated in stacks at the stores.
+Rings and Amulets don't stack at the stores anymore.
+
+Made all staves/rods/potions/mushrooms/spells of "Cure X" act the same way.
+
+- Still need to address potions of curing, probably by removing them.
+
+Adjust costs of some ego items.
+
+Made some changes to artifacts
+
+**** 02/09/04
+
+Messed around with hidden attribute detection
+
+**** 02/06/04
+
+Weakened Ogre souls
+
+Changed color of Lizardmen / Lizard King to prevent confusion with Gnome Mages
+Changed color of Alberich, Mime, and Hagen to all match.
+Changed color of most leprechauns
+
+Changed Forest Gnome to Gnome Archer, changed color.
+
+Changed color of snotlings to prevent confusion with goblins
+
+Psychometry (and by extension, the Chaos spell Sense Power) will now filter out already-sensed items.
+
+**** 02/05/04
+
+Fixed browse info for sense power.
+
+**** 02/04/04
+
+Dialed back brand damage
+  Fire, Cold, Elec, Acid, and Poison brands now do 2X damage.
+  
+Rings and amulets no longer stack.
+
+Warpstone weapons now cause random teleportation.
+
+Randarts can now have Vampiric or Vorpal as random slays.
+
+Monsters that have elemental auras will now drop soul gems with elemental sub-types.
+  
+Fixed some door closing / opening stuff
+
+Fixed interaction between swamps and poison immunity
+
+Changed algorithm for decreasing stats, algorithm taken from Z 2.7.4b
+
+Added some fixes for possible crashes relating to monster movement in melee2.c from Z 2.7.4b
+
+Quest monsters now appear in red in visible monsters term.
+
+Fixed ego-type 'of digging'.
+
+Randart lites now always have permanent light. 
+  (The timeouts on fuel and the timeouts on activated abilities are linked; I had to either cut activated abilities on randart lites,
+  or give all lites permanent lite).
+  
+Fixed permenant inscription you used to get if you tried to destroy an artifact.
+
+
+**** 02/03/04
+
+Dialed back damage bonuses.
+  Each +1 now gives +5% damage
+
+**** 02/02/04
+
+Ported over some bugfixes from Z:
+  Fixed some savefile loading bugs
+  Fixed monster lights
+  
+Un-did the Vanilla town store shuffling
+  
+**** 01/30/04
+
+Character dumps are now saved in the SAVE directory, while note files are still
+  saved in the USER directory. This prevents a problem where it was easy to over-
+  write note files with character dumps.
+
+Vanilla town has had one more store added (Soul Dealer), and some of the other stores
+  shuffled around a little. As a consequence, Vanilla mode is now much more playable.
+  
+The Vanilla town is now the default town.
+  
+Removed the 'Imbue' option from the soul dealer; imbuing items is now a simple
+  command. Just hit 'B' to (imbue/bind) a soul to an item.
+As a consequence, Ironman mode should now be much more playable.
+
+Chaos magic has been re-worked a bit; it should have more flexibility now.
+  Removed Wonder, replaced with Sense Power, which pseudo-ID's equipment.
+  Removed Chain Lightning, replaced with Battle Frenzy, which berserks + hastes.
+  Removed Touch of Confusion, replaced with Ray of Confusion, which confuses at range.
+  Removed Chaos Branding, replaced with Mass Confusion, which confuses all monsters in LOS.
+
+Fixed scrolls of rumor.
+
+Replaced ZAngband with XBAND in a lot of help files.
+
+Added the Soul Gem helpfile to the helpfile system.
+
+**** 01/20/04
+
+Added poison immunity
+Poison is now one of the basic resists, many items have been updated to reflect this.
+Kobolds now gain poison immunity at L30
+Poison soul gems now grant poison immunity at L6
+Green Dragon Scale Mail now provides poison immunity.
+
 **** 01/16/04
+
+Released XBAND 0.3.1 
 
 Made some of the mid-level soul types weaker
 
@@ -288,14 +410,11 @@ Added new item type, Soul Data.
   
 **** TODO
 
-Diablo - style weapon generation
-Need better way of associating soul types with monsters
 Make imbued items 'A'ctivateble
 Possibly fix soul memory across characters bug
 Cleanup savefile format
 Add more artifacts
-Strip out Amberites
-Remove Pattern stuff
+Remove Amber stuff (including Pattern stuff)
 Fix version numbering
 Change 'ZAngband' -> 'XBand'
 Fix save file brokenness due to Z 2.7.2 bug
@@ -304,3 +423,13 @@ Update official FAQ
 Update help files
 I don't think the HURT_FIRE and HURT_COLD flags work
 Add more ego-types! (Very important with new artifact system)
+Revamp spell lists
+Add procs to weapons and armor
+Add negative item flags - ILL_CON would penalize con by pval
+Re-work character races (Strip out Amberites)
+Better method of soul gem generation / Play up collectible aspect of soul gems
+Re-work Rogues (remove spell books, give innate abilities)
+Much clearer soul gem evaluation
+Port over some of the new throwing code from cmd2.c
+Look into adding the new race flags from 2.7.4
+Look into adding protection from XXX from 2.7.4 (melee1.c)

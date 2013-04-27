@@ -161,9 +161,6 @@ static long total_points(void)
 	long temp;
 	long mult = 85;
 
-	/* Vanilla town is harder than normal */
-	if (vanilla_town) mult += 5;
-
 	/* so are hard quests */
 	if (ironman_hard_quests) mult += number_of_quests() / 2;
 	if (ironman_deep_quests) mult += number_of_quests();

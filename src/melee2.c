@@ -1115,6 +1115,10 @@ static bool get_move_retreat(monster_type *m_ptr, int *tx, int *ty)
 	/* If the monster is well away from danger, let it relax. */
 	if (m_ptr->cdis >= FLEE_RANGE)
 	{
+		/* Don't go anywhere */
+		*tx = m_ptr->fx;
+		*ty = m_ptr->fy;
+
 		return (FALSE);
 	}
 
@@ -1360,6 +1364,8 @@ static bool get_moves(int m_idx, int *mm)
 				xx = m_ptr->fx + ddx_ddd[i];
 				yy = m_ptr->fy + ddy_ddd[i];
 
+				if (!in_bounds2(xx,yy)) continue;
+
 				/* Require next to player */
 				if (ABS(xx - px) > 1) continue;
 				if (ABS(yy - py) > 1) continue;
@@ -1388,6 +1394,8 @@ static bool get_moves(int m_idx, int *mm)
 					xx = m_ptr->fx + ddx_ddd[i];
 					yy = m_ptr->fy + ddy_ddd[i];
 
+					if (!in_bounds2(xx,yy)) continue;
+
 					c_ptr = area(xx, yy);
 
 					/* Must be a monster */
@@ -1405,6 +1413,8 @@ static bool get_moves(int m_idx, int *mm)
 					{
 						xx2 = fm_ptr->fx + ddx_ddd[i2];
 						yy2 = fm_ptr->fy + ddy_ddd[i2];
+
+						if (!in_bounds2(xx2,yy2)) continue;
 
 						/* Require next to player */
 						if (ABS(xx2 - px) > 1) continue;
@@ -2245,7 +2255,14 @@ static void take_move(int m_idx, int *mm)
 		field_hook(&c_ptr->fld_idx, FIELD_ACT_MON_ENTER_TEST, m_ptr, &flags);
 
 		/* Get result */
-		if (flags & (MEG_DO_MOVE)) do_move = TRUE;
+		if (flags & (MEG_DO_MOVE))
+		{
+			do_move = TRUE;
+		}
+		else
+		{
+			do_move = FALSE;
+		}
 		if (flags & (MEG_OPEN)) did_open_door = TRUE;
 		if (flags & (MEG_BASH)) did_bash_door = TRUE;
 		if (flags & (MEG_DO_TURN)) do_turn = TRUE;

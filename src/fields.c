@@ -2519,10 +2519,8 @@ bool field_action_hit_trap_element(field_type *f_ptr, va_list vp)
 		case 2:
 		{
 			msgf("A pungent green gas surrounds you!");
-			if (!p_ptr->resist_pois && !p_ptr->oppose_pois)
-			{
-				(void)set_poisoned(p_ptr->poisoned + rand_range(10, 30));
-			}
+			dam = damroll(4, 6);
+			pois_dam(dam, "a poison trap");
 			break;
 		}
 
@@ -2581,11 +2579,7 @@ bool field_action_hit_trap_ba_element(field_type *f_ptr, va_list vp)
 		{
 			msgf("A pungent grey gas surrounds you!");
 			(void)fire_ball(GF_POIS, 0, 350, 4);
-
-			if (!p_ptr->resist_pois && !p_ptr->oppose_pois)
-			{
-				(void)set_poisoned(p_ptr->poisoned + rand_range(100, 150));
-			}
+			pois_dam(150, "a poison trap");
 			break;
 		}
 
@@ -3895,13 +3889,9 @@ bool field_action_souldealer1(field_type *f_ptr, va_list vp)
 	building_viewsouls( 0 );
 
 	put_fstr(20, 18, CLR_L_GREEN
-				"I) Imbue jewlery (%dgp)\n"
+				"N) Next Page          P) Prev page\n"
 				"D) Deposit soul gem\n"
-				"E) Evaluate soul potential (%dgp)", 2 * factor, 10 * factor);
-
-	put_fstr(50, 18, CLR_L_GREEN
-				"N) Next Page\n"
-				"P) Prev page");
+				"E) Evaluate soul potential (%dgp)", 10 * factor);
 
 	/* Done */
 	return (FALSE);
@@ -3936,19 +3926,6 @@ bool field_action_souldealer2(field_type *f_ptr, va_list vp)
 	else if (p_ptr->command_cmd == 'N')
 	{
 		building_viewsouls(1);
-
-		*factor = TRUE;
-	}
-	/* Imbue jewelry */
-	else if (p_ptr->command_cmd == 'I')
-	{
-		cost = 2 * *factor;
-
-		if (test_gold(&cost))
-		{
-			p_ptr->au -= cost;
-			building_imbuesoul();
-		}
 
 		*factor = TRUE;
 	}
