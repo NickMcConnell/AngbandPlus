@@ -1078,7 +1078,7 @@ static void alloc_stairs(int feat, int num, int walls, int branch)
 			/* Quest -- must go up */
 			else if ((is_quest(dun_level) && (dun_level >= 1)) ||
 			                ((dun_level >= d_info[dungeon_type].maxdepth) &&
-			                 (!dungeon_flags1 & DF1_FORCE_DOWN)))
+			                 (!(dungeon_flags1 & DF1_FORCE_DOWN))))
 			{
 				/* Clear previous contents, add up stairs */
 				if (dungeon_flags1 & DF1_FLAT)
@@ -7618,7 +7618,6 @@ static bool cave_gen(void)
 
 	int max_vault_ok = 2;
 
-	bool destroyed = FALSE;
 	bool empty_level = FALSE;
 	s16b town_level = 0;
 
@@ -8106,30 +8105,6 @@ static bool cave_gen(void)
 	if ((empty_level) && (randint(DARK_EMPTY) != 1 || (randint(100) > dun_level)))
 		wiz_lite();
 
-	/* Ghosts love to inhabit destroyed levels, but will live elsewhere */
-	i = (destroyed) ? 11 : 1;
-#if 0 /* DGDGDG -- implement ghost in a good & ncie way */
-	/* Try to place the ghost */
-	while (i-- > 0)
-	{
-
-		/* Attempt to place a ghost */
-		if (place_ghost())
-		{
-			/* Hack -- increase the rating */
-			rating += 10;
-
-			/* A ghost makes the level special */
-			good_item_flag = TRUE;
-
-			/* Make cheaters and precog aware of the ghost */
-			if (cheat_hear || p_ptr->precognition) msg_print("Player Ghost.");
-
-			/* Stop trying to place the ghost */
-			break;
-		}
-	}
-#endif
 	/* Now double the generated dungeon */
 	if (dungeon_flags1 & DF1_DOUBLE)
 	{
@@ -8488,7 +8463,7 @@ void generate_grid_mana()
 			mana = mult * m_bonus(255, dun_level) / 2;
 			if (xtra_magic) mana += 10 + rand_int(10);
 
-			/* Never more than 255 or less than 0(parano‹a) */
+			/* Never more than 255 or less than 0(paranoia) */
 			if (mana < 0) mana = 0;
 			if (mana > 255) mana = 255;
 
@@ -8595,14 +8570,9 @@ void generate_cave(void)
 				/* No inscription */
 				cave[y][x].inscription = 0;
 
-#ifdef MONSTER_FLOW
-
 				/* No flow */
 				cave[y][x].cost = 0;
 				cave[y][x].when = 0;
-
-#endif /* MONSTER_FLOW */
-
 			}
 		}
 
@@ -8660,13 +8630,9 @@ void generate_cave(void)
 					/* No inscription */
 					cave[y][x].inscription = 0;
 
-#ifdef MONSTER_FLOW
-
 					/* No flow */
 					cave[y][x].cost = 0;
 					cave[y][x].when = 0;
-
-#endif /* MONSTER_FLOW */
 				}
 			}
 

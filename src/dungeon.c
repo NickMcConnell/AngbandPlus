@@ -1489,7 +1489,7 @@ static void process_world(void)
 	{
 		char buf[20];
 
-		sprintf(buf, get_day(bst(YEAR, turn) + START_YEAR));
+		sprintf(buf, "%s", get_day(bst(YEAR, turn) + START_YEAR));
 		cmsg_format(TERM_L_GREEN,
 		            "Today it is %s of the %s year of the third age.",
 		            get_month_name(bst(DAY, turn), wizard, FALSE), buf);
@@ -3458,13 +3458,8 @@ static void process_world(void)
  */
 static bool enter_wizard_mode(void)
 {
-#if 0
-	/* Ask first time */
-	if (!(noscore & 0x0002))
-#else
 	/* Ask first time, but not while loading a dead char with the -w option */
 	if (!noscore && !(p_ptr->chp < 0))
-#endif
 	{
 		/* Mention effects */
 		msg_print("Wizard mode is for debugging and experimenting.");
@@ -3486,19 +3481,13 @@ static bool enter_wizard_mode(void)
 }
 
 
-#ifdef ALLOW_WIZARD
-
 /*
  * Verify use of "debug" commands
  */
 static bool enter_debug_mode(void)
 {
 	/* Ask first time */
-#if 0
-	if (!(noscore & 0x0008))
-#else
-if (!noscore && !wizard)
-#endif
+	if (!noscore && !wizard)
 	{
 		/* Mention effects */
 		msg_print("The debug commands are for debugging and experimenting.");
@@ -3524,47 +3513,6 @@ if (!noscore && !wizard)
  * Hack -- Declare the Debug Routines
  */
 extern void do_cmd_debug(void);
-
-#endif /* ALLOW_WIZARD */
-
-
-#ifdef ALLOW_BORG
-
-/*
- * Verify use of "borg" commands
- */
-static bool enter_borg_mode(void)
-{
-	/* Ask first time */
-	if (!(noscore & 0x0010))
-	{
-		/* Mention effects */
-		msg_print("The borg commands are for debugging and experimenting.");
-		msg_print("The game will not be scored if you use borg commands.");
-		msg_print(NULL);
-
-		/* Verify request */
-		if (!get_check("Are you sure you want to use borg commands? "))
-		{
-			return (FALSE);
-		}
-
-		/* Mark savefile */
-		noscore |= 0x0010;
-	}
-
-	/* Success */
-	return (TRUE);
-}
-
-
-/*
- * Hack -- Declare the Ben Borg
- */
-extern void do_cmd_borg(void);
-
-#endif /* ALLOW_BORG */
-
 
 
 /*
@@ -3614,7 +3562,6 @@ static void process_command(void)
 
 #endif
 
-#ifdef ALLOW_WIZARD
 
 		/*** Wizard Commands ***/
 
@@ -3652,27 +3599,8 @@ static void process_command(void)
 			break;
 		}
 
-#endif /* ALLOW_WIZARD */
-
-
-#ifdef ALLOW_BORG
-
-		/* Special "borg" commands */
-	case KTRL('Z'):
-		{
-			/* Enter borg mode */
-			if (enter_borg_mode())
-			{
-				if (!p_ptr->wild_mode) do_cmd_borg();
-			}
-
-			break;
-		}
-
-#endif /* ALLOW_BORG */
-
-
-		/*** Inventory Commands ***/
+	
+	/*** Inventory Commands ***/
 
 		/* Wear/wield equipment */
 	case 'w':

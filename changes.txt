@@ -1,4 +1,17 @@
-T.o.M.E 2.3.6
+T.o.M.E 2.3.7 (ah)
+
+- Remove item pval from antimagic field strength calculation since it
+  may be both non-zero and invisible (to the player).
+- Miscellaneous 64 bit fixes.
+- Fix Lua errors when hitting <ESC> while choosing spell.
+- Killerbunnies: Automatizer: Add patch which adds new <inventory/>
+  and <equipment/> rules.
+- Killerbunnies: Add "you do not know all your fate" to Fate menu
+  if you haven't been discovered all your fates.
+- Killerbunnies: Display a message if trying to activate Piercing Shots
+  without the necessary skill levels.
+
+T.o.M.E 2.3.6 (ah)
 
 - Don't generate impassable glass walls.
 - Mark *all* quest monsters properly.

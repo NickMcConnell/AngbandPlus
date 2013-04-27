@@ -2620,7 +2620,7 @@ void apply_flags(u32b f1, u32b f2, u32b f3, u32b f4, u32b f5, u32b esp, s16b pva
 
 	if (f4 & (TR4_PRECOGNITION)) p_ptr->precognition = TRUE;
 
-        antimagic_mod = to_h + to_d + pval + to_a;
+        antimagic_mod = to_h + to_d + to_a;
 
 	if (f4 & (TR4_ANTIMAGIC_50))
 	{
@@ -4829,6 +4829,7 @@ void dump_fates(FILE *outfile)
 {
 	int i;
 	char buf[120];
+	bool pending = FALSE;
 
 	if (!outfile) return;
 
@@ -4839,6 +4840,11 @@ void dump_fates(FILE *outfile)
 			fate_desc(buf, i);
 			fprintf(outfile, "%s\n", buf);
 		}
+		if ((fates[i].fate) && !(fates[i].know)) pending = TRUE;
+	}
+	if (pending)
+	{
+		fprintf(outfile, "You do not know all of your fate.\n");
 	}
 }
 

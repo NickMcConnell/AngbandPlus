@@ -469,7 +469,6 @@ extern cptr ANGBAND_KEYBOARD;
 extern cptr ANGBAND_GRAF;
 extern cptr ANGBAND_DIR;
 extern cptr ANGBAND_DIR_APEX;
-extern cptr ANGBAND_DIR_BONE;
 extern cptr ANGBAND_DIR_CORE;
 extern cptr ANGBAND_DIR_DNGN;
 extern cptr ANGBAND_DIR_DATA;
@@ -609,6 +608,7 @@ extern s32b DUNGEON_DEATH;
 extern deity_type *deity_info;
 extern s32b max_gods;
 extern timer_type *gl_timers;
+extern const char *get_version_string();
 
 /* plots.c */
 extern FILE *hook_file;
@@ -821,7 +821,7 @@ extern void do_poly_self(void);
 extern void brand_weapon(int brand_type);
 extern cptr symbiote_name(bool capitalize);
 extern int use_symbiotic_power(int r_idx, bool great, bool only_number, bool no_cost);
-extern u32b get_school_spell(cptr do_what, cptr check_fct, s16b force_book);
+extern s32b get_school_spell(cptr do_what, cptr check_fct, s16b force_book);
 extern void do_cmd_copy_spell(void);
 extern void cast_school_spell(void);
 extern void browse_school_spell(int book, int pval, object_type *o_ptr);
@@ -1686,11 +1686,6 @@ extern int get_fbranch(void);
 extern int get_flevel(void);
 extern bool get_dungeon_save(char *buf);
 
-/* ghost.c */
-extern s16b place_ghost(void);
-extern void make_bones(void);
-
-
 /* wizard2.c */
 extern void do_cmd_wiz_cure_all(void);
 extern void do_cmd_wiz_named_friendly(int r_idx, bool slp);
@@ -1761,10 +1756,10 @@ extern u32b _ftype;
 /* extern int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, ...); */
 #endif
 
-#if !defined(WINDOWS) && !defined(MACINTOSH) && !defined(ACORN)
+#if !defined(WINDOWS) && !defined(MACINTOSH)
 /* files.c */
 extern bool chg_to_txt(cptr base, cptr newname);
-#endif /* !WINDOWS && !MACINTOSH && !ACORN */
+#endif /* !WINDOWS && !MACINTOSH */
 
 #ifdef ALLOW_REPEAT /* TNB */
 

@@ -38,7 +38,7 @@
 
 #ifndef IS_CVS
 #define IS_CVS          " (ah)"
-/*#define IS_CVS          " (ah, git)" */
+/* #define IS_CVS          " (ah, git)" */
 #endif
 
 #define USER_PATH_VERSION "/2.3"
@@ -3986,20 +3986,6 @@ extern int PlayerUID;
 
 /*** Hack ***/
 
-
-/*
- * Hack -- attempt to reduce various values
- */
-#ifdef ANGBAND_LITE
-# undef MACRO_MAX
-# define MACRO_MAX      128
-# undef QUARK_MAX
-# define QUARK_MAX      128
-# undef MESSAGE_MAX
-# define MESSAGE_MAX    128
-# undef MESSAGE_BUF
-# define MESSAGE_BUF    4096
-#endif
 
 /*
  * Road flags

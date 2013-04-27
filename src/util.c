@@ -170,17 +170,6 @@ void user_name(char *buf, int id)
 */
 
 
-#ifdef ACORN
-
-
-/*
-* Most of the "file" routines for "ACORN" should be in "main-acn.c"
-*/
-
-
-#else /* ACORN */
-
-
 #ifdef SET_UID
 
 /*
@@ -416,9 +405,6 @@ errr my_fclose(FILE *fff)
 }
 
 
-#endif /* ACORN */
-
-
 /*
 * Like "fgets()" but for strings
 *
@@ -615,20 +601,6 @@ errr my_fputs(FILE *fff, cptr buf, huge n)
 	/* Success */
 	return (0);
 }
-
-
-#ifdef ACORN
-
-
-/*
-* Most of the "file" routines for "ACORN" should be in "main-acn.c"
-*
-* Many of them can be rewritten now that only "fd_open()" and "fd_make()"
-* and "my_fopen()" should ever create files.
-*/
-
-
-#else /* ACORN */
 
 
 /*
@@ -1009,11 +981,6 @@ errr fd_close(int fd)
 	/* XXX XXX XXX */
 	return (0);
 }
-
-
-#endif /* ACORN */
-
-
 
 
 /*
@@ -1960,20 +1927,6 @@ static char inkey_aux(void)
 static cptr inkey_next = NULL;
 
 
-#ifdef ALLOW_BORG
-
-/*
-* Mega-Hack -- special "inkey_hack" hook.  XXX XXX XXX
-*
-* This special function hook allows the "Borg" (see elsewhere) to take
-* control of the "inkey()" function, and substitute in fake keypresses.
-*/
-char (*inkey_hack)(int flush_first) = NULL;
-
-#endif /* ALLOW_BORG */
-
-
-
 /*
 * Get a keypress from the user.
 *
@@ -2064,22 +2017,6 @@ char inkey(void)
 
 	/* Forget pointer */
 	inkey_next = NULL;
-
-
-#ifdef ALLOW_BORG
-
-	/* Mega-Hack -- Use the special hook */
-	if (inkey_hack && ((ch = (*inkey_hack)(inkey_xtra)) != 0))
-	{
-		/* Cancel the various "global parameters" */
-		inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
-
-		/* Accept result */
-		macro_recorder_add(ch);
-		return (ch);
-	}
-
-#endif /* ALLOW_BORG */
 
 
 	/* Hack -- handle delayed "flush()" */
@@ -3624,7 +3561,7 @@ s32b get_quantity(cptr prompt, s32b max)
 	if (!prompt)
 	{
 		/* Build a prompt */
-		sprintf(tmp, "Quantity (1-%ld): ", max);
+		sprintf(tmp, "Quantity (1-%ld): ", (long int) max);
 
 		/* Use that prompt */
 		prompt = tmp;
@@ -3635,7 +3572,7 @@ s32b get_quantity(cptr prompt, s32b max)
 	amt = 1;
 
 	/* Build the default */
-	sprintf(buf, "%ld", amt);
+	sprintf(buf, "%ld", (long int) amt);
 
 	/* Ask for a quantity */
 	if (!get_string(prompt, buf, 9)) return (0);
@@ -4468,7 +4405,7 @@ cptr get_month_name(int day, bool full, bool compact)
 		{
 			char buf2[20];
 
-			sprintf(buf2, get_day(day + 1));
+			sprintf(buf2, "%s", get_day(day + 1));
 			if (full) sprintf(buf, "%s (%s day)", month_name[i], buf2);
 			else sprintf(buf, "%s", month_name[i]);
 			break;
@@ -4479,8 +4416,8 @@ cptr get_month_name(int day, bool full, bool compact)
 			char buf2[20];
 			char buf3[20];
 
-			sprintf(buf2, get_day(day + 1 - month_day[i]));
-			sprintf(buf3, get_day(day + 1));
+			sprintf(buf2, "%s", get_day(day + 1 - month_day[i]));
+			sprintf(buf3, "%s", get_day(day + 1));
 
 			if (full) sprintf(buf, "%s day of %s (%s day)", buf2, month_name[i], buf3);
 			else if (compact) sprintf(buf, "%s day of %s", buf2, month_name[i]);

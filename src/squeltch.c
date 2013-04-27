@@ -155,6 +155,8 @@ static cptr types_list[] =
 	"level",
 	"skill",
 	"ability",
+	"inventory",
+	"equipment",
 	"comment",
 	NULL,
 };
@@ -348,10 +350,10 @@ void do_cmd_automatizer()
 			}
 			else if (c == 's')
 			{
-				char name[20];
+				char name[30];
 
 				sprintf(name, "automat.atm");
-				if (input_box("Save name?", hgt / 2, wid / 2, name, 30))
+				if (input_box("Save name?", hgt / 2, wid / 2, name, sizeof(name)))
 				{
 					char buf[1025];
 					char ch;
@@ -399,7 +401,7 @@ void do_cmd_automatizer()
 
 				if (!max) continue;
 
-				sprintf(name, string_exec_lua(format("return __rules[%d].table.args.name", sel)));
+				sprintf(name, "%s", string_exec_lua(format("return __rules[%d].table.args.name", sel)));
 				if (input_box("New name?", hgt / 2, wid / 2, name, 15))
 				{
 					exec_lua(format("auto_aux:rename_rule(%d, '%s')", sel, name));

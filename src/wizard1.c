@@ -5,9 +5,6 @@
 #include "angband.h"
 
 
-#ifdef ALLOW_SPOILERS
-
-
 /*
  * The spoiler file being created
  */
@@ -355,7 +352,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 
 
 	/* Weight */
-	sprintf(wgt, "%3ld.%ld", q_ptr->weight / 10, q_ptr->weight % 10);
+	sprintf(wgt, "%3ld.%ld", (long int) (q_ptr->weight / 10), (long int) (q_ptr->weight % 10));
 }
 
 
@@ -392,8 +389,7 @@ static void spoil_obj_desc(cptr fname)
 
 
 	/* Header */
-	sprintf(buf, "Basic Items Spoilers for %s %ld.%ld.%ld%s",
-	        game_module, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, IS_CVS);
+	sprintf(buf, "Basic Items Spoilers for %s", get_version_string());
 	spoiler_underline(buf);
 	spoiler_blanklines(2);
 
@@ -892,7 +888,7 @@ static void analyze_pval (object_type *o_ptr, pval_info_type *p_ptr)
 	affects_list = p_ptr->pval_affects;
 
 	/* Create the "+N" string */
-	sprintf(p_ptr->pval_desc, "%s%ld", POSITIZE(o_ptr->pval), o_ptr->pval);
+	sprintf(p_ptr->pval_desc, "%s%ld", POSITIZE(o_ptr->pval), (long int) o_ptr->pval);
 
 	/* First, check to see if the pval affects all stats */
 	if ((f1 & all_stats) == all_stats)
@@ -1083,7 +1079,7 @@ static void analyze_misc (object_type *o_ptr, char *misc_desc)
 
 	sprintf(misc_desc, "Level %u, Rarity %u, %d.%d lbs, %ld Gold",
 	        a_ptr->level, a_ptr->rarity,
-	        a_ptr->weight / 10, a_ptr->weight % 10, a_ptr->cost);
+	        a_ptr->weight / 10, a_ptr->weight % 10, (long int) a_ptr->cost);
 }
 
 
@@ -1118,8 +1114,7 @@ static void print_header(void)
 {
 	char buf[80];
 
-	sprintf(buf, "Artifact Spoilers for %s %ld.%ld.%ld%s",
-	        game_module, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, IS_CVS);
+	sprintf(buf, "Artifact Spoilers for %s", get_version_string());
 	spoiler_underline(buf);
 }
 
@@ -1167,21 +1162,13 @@ static void print_header(void)
 static void spoiler_print_art(obj_desc_list *art_ptr, int name1, int set, object_type *o_ptr)
 {
 	/* Don't indent the first line */
-#if 0 // DGDGDGDG
-	fprintf(fff, "<P>%s<BR>", art_ptr->description);
-#else
-fprintf(fff, "%s\n    ", art_ptr->description);
-#endif
+	fprintf(fff, "%s\n    ", art_ptr->description);
 	text_out_indent = 4;
 	object_out_desc(o_ptr, fff, FALSE, TRUE);
 	text_out_indent = 0;
 
 	/* End with the miscellaneous facts */
-#if 0 // DGDGDGDG
-	fprintf(fff, "<BR>%s</P>", art_ptr->misc_desc);
-#else
 	fprintf(fff, "%s%s\n\n", INDENT1, art_ptr->misc_desc);
-#endif
 }
 
 
@@ -1211,17 +1198,6 @@ static bool make_fake_artifact(object_type *o_ptr, int name1)
 	/* Save the name */
 	o_ptr->name1 = name1;
 
-	/* Extract the fields */
-#if 0
-	o_ptr->pval = a_ptr->pval;
-	o_ptr->ac = a_ptr->ac;
-	o_ptr->dd = a_ptr->dd;
-	o_ptr->ds = a_ptr->ds;
-	o_ptr->to_a = a_ptr->to_a;
-	o_ptr->to_h = a_ptr->to_h;
-	o_ptr->to_d = a_ptr->to_d;
-	o_ptr->weight = a_ptr->weight;
-#else
 	/* Keep the One Ring untouched by apply_magic */
 	if (name1 != ART_POWER)
 	{
@@ -1233,7 +1209,6 @@ static bool make_fake_artifact(object_type *o_ptr, int name1)
 	{
 		o_ptr->pval = a_ptr->pval;
 	}
-#endif
 
 	/* Success */
 	return (TRUE);
@@ -1271,9 +1246,6 @@ static void spoil_artifact(cptr fname)
 		return;
 	}
 
-#if 0 // DGDGDGDG
-	fprintf(fff, "<HTML><BODY BGCOLOR=#000000 TEXT=#CCCCCC>");
-#endif
 	/* Dump the header */
 	print_header();
 
@@ -1319,9 +1291,6 @@ static void spoil_artifact(cptr fname)
 		}
 	}
 
-#if 0 // DGDGDGDG
-	fprintf(fff, "</BODY></HTML>");
-#endif
 	/* Check for errors */
 	if (ferror(fff) || my_fclose(fff))
 	{
@@ -1376,8 +1345,7 @@ static void spoil_mon_desc(cptr fname)
 	C_MAKE(who, max_r_idx, s16b);
 
 	/* Dump the header */
-	sprintf(buf, "Monster Spoilers for %s %ld.%ld.%ld%s",
-	        game_module, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, IS_CVS);
+	sprintf(buf, "Monster Spoilers for %s", get_version_string());
 	spoiler_underline(buf);
 	spoiler_blanklines(2);
 
@@ -1522,8 +1490,7 @@ static void spoil_mon_info(cptr fname)
 
 
 	/* Dump the header */
-	sprintf(buf, "Monster Spoilers for %s %ld.%ld.%ld%s",
-	        game_module, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, IS_CVS);
+	sprintf(buf, "Monster Spoilers for %s", get_version_string());
 	spoiler_underline(buf);
 	spoiler_blanklines(2);
 
@@ -2357,37 +2324,6 @@ static void spoil_mon_info(cptr fname)
 	msg_print("Successfully created a spoiler file.");
 }
 
-#if 0 /* not used anymore -- masmarangio */
-static char* get_tval_name(int tval)
-{
-	switch (tval)
-	{
-	case TV_SWORD:
-		return "Sword";
-	case TV_POLEARM:
-		return "Polearm";
-	case TV_HAFTED:
-		return "Hafted";
-	case TV_AXE:
-		return "Axe";
-	case TV_CROWN:
-		return "Crown";
-	case TV_HELM:
-		return "Helm";
-	case TV_GLOVES:
-		return "Gloves";
-	case TV_CLOAK:
-		return "Cloak";
-	case TV_BOOTS:
-		return "Boots";
-	case TV_SOFT_ARMOR:
-		return "Soft armor";
-	case TV_HARD_ARMOR:
-		return "Hard armor";
-	}
-	return "";
-}
-#endif
 
 char *long_intro =
 	"Essences are the tools of the trade for Alchemists, "
@@ -2485,9 +2421,9 @@ static void spoil_bateries(cptr fname)
 	        "|||||oy\n"
 	        "~~~~~01|Spoilers|Essences\n"
 	        "~~~~~02|Alchemist|Essence Spoiler\n"
-	        "#####REssence Spoiler for %s %ld.%ld.%ld%s\n"
+	        "#####REssence Spoiler for %s\n"
 	        "#####R-----------------------------------\n\n",
-	        game_module, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, IS_CVS);
+	        get_version_string());
 
 
 	/*New code starts here -*/
@@ -2687,8 +2623,7 @@ static void spoil_spells(cptr fname)
 	}
 
 	/* Dump the header */
-	sprintf(buf, "Spell Spoiler (Skill Level 50) for %s %ld.%ld.%ld%s",
-	        game_module, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, IS_CVS);
+	sprintf(buf, "Spell Spoiler (Skill Level 50) for %s", get_version_string());
 	spoiler_underline(buf);
 
 	/* Dump the bookless magic powers in alphabetical order */
@@ -2819,12 +2754,3 @@ void do_cmd_spoilers(void)
 	/* Leave "icky" mode */
 	character_icky = FALSE;
 }
-
-
-#else
-
-#ifdef MACINTOSH
-static int i = 0;
-#endif /* MACINTOSH */
-
-#endif

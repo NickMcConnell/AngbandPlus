@@ -1036,12 +1036,6 @@ cptr ANGBAND_DIR;
 cptr ANGBAND_DIR_APEX;
 
 /*
- * Bone files for player ghosts (ascii)
- * These files are portable between platforms
- */
-cptr ANGBAND_DIR_BONE;
-
-/*
  * Core lua system
  * These files are portable between platforms
  */
@@ -1626,3 +1620,21 @@ s32b max_gods = MAX_GODS_INIT;
  * Timers
  */
 timer_type *gl_timers = NULL;
+
+/**
+ * Get the version string.
+ */
+const char *get_version_string()
+{
+	static char version_str[80];
+	static bool initialized = 0;
+	if (!initialized) {
+		sprintf(version_str, "%s %ld.%ld.%ld%s",
+		        game_module,
+			(long int) VERSION_MAJOR,
+			(long int) VERSION_MINOR,
+			(long int) VERSION_PATCH, IS_CVS);
+		initialized = TRUE;
+	}
+	return version_str;
+}

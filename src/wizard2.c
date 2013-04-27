@@ -91,24 +91,6 @@ void do_cmd_rerate(void)
 {
 	int min_value, max_value, i, percent;
 
-#ifdef TEST
-	int fubar, mlk = 0;
-
-	for (fubar = 0; fubar < max_k_idx; fubar++)
-	{
-		if ((k_info[fubar].tval == TV_POTION) || (k_info[fubar].tval == TV_POTION2))
-		{
-			k_info[fubar].x_attr = 0xBC;
-			mlk++;
-		}
-	}
-
-	msg_format ("%d changes made.", mlk);
-
-#else /* TEST */
-
-#endif /* TEST */
-
 	min_value = (PY_MAX_LEVEL * 3 * (p_ptr->hitdie - 1)) / 8;
 	min_value += PY_MAX_LEVEL;
 
@@ -150,8 +132,6 @@ void do_cmd_rerate(void)
 }
 
 
-#ifdef ALLOW_WIZARD
-
 /*
  * Create the artifact of the specified number -- DAN
  *
@@ -182,11 +162,6 @@ static void wiz_create_named_art()
 	/* Ignore "empty" artifacts */
 	if (!a_ptr->name) return;
 
-#if 0
-	/* Ignore generated artifacts */
-	if (a_ptr->cur_num) return;
-#endif
-
 	/* Acquire the "kind" index */
 	i = lookup_kind(a_ptr->tval, a_ptr->sval);
 
@@ -199,38 +174,7 @@ static void wiz_create_named_art()
 	/* Save the name */
 	q_ptr->name1 = a_idx;
 
-#if 0 /* Old ugly method */
-	/* Extract the fields */
-	q_ptr->pval = a_ptr->pval;
-	q_ptr->ac = a_ptr->ac;
-	q_ptr->dd = a_ptr->dd;
-	q_ptr->ds = a_ptr->ds;
-	q_ptr->to_a = a_ptr->to_a;
-	q_ptr->to_h = a_ptr->to_h;
-	q_ptr->to_d = a_ptr->to_d;
-	q_ptr->weight = a_ptr->weight;
-
-	/* Hack -- acquire "cursed" flag */
-	if (a_ptr->flags3 & (TR3_CURSED)) q_ptr->ident |= (IDENT_CURSED);
-
-	k_ptr = &k_info[q_ptr->k_idx];
-
-	/* Extract some flags */
-	object_flags(q_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
-
-	/* Hack give a basic exp/exp level to an object that needs it */
-	if (f4 & TR4_LEVELS)
-	{
-		q_ptr->elevel = (k_ptr->level / 10) + 1;
-		q_ptr->exp = player_exp[q_ptr->elevel - 1];
-	}
-
-	random_artifact_resistance(q_ptr);
-
-	a_ptr->cur_num = 1;
-#else
 	apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
-#endif
 
 	/* Identify it fully */
 	object_aware(q_ptr);
@@ -791,7 +735,7 @@ static void wiz_tweak_item(object_type *o_ptr)
 #endif
 
 	p = "Enter new 'pval' setting: ";
-	sprintf(tmp_val, "%ld", o_ptr->pval);
+	sprintf(tmp_val, "%ld", (long int) o_ptr->pval);
 	if (!get_string(p, tmp_val, 5)) return;
 	o_ptr->pval = atoi(tmp_val);
 	wiz_display_item(o_ptr);
@@ -803,7 +747,7 @@ static void wiz_tweak_item(object_type *o_ptr)
 	wiz_display_item(o_ptr);
 
 	p = "Enter new 'pval3' setting: ";
-	sprintf(tmp_val, "%ld", o_ptr->pval3);
+	sprintf(tmp_val, "%ld", (long int) o_ptr->pval3);
 	if (!get_string(p, tmp_val, 5)) return;
 	o_ptr->pval3 = atoi(tmp_val);
 	wiz_display_item(o_ptr);
@@ -845,7 +789,7 @@ static void wiz_tweak_item(object_type *o_ptr)
 	wiz_display_item(o_ptr);
 
 	p = "Enter new 'obj exp' setting: ";
-	sprintf(tmp_val, "%ld", o_ptr->exp);
+	sprintf(tmp_val, "%ld", (long int) o_ptr->exp);
 	if (!get_string(p, tmp_val, 9)) return;
 	wiz_display_item(o_ptr);
 	o_ptr->exp = atoi(tmp_val);
@@ -1172,11 +1116,6 @@ static void wiz_quantity_item(object_type *o_ptr)
 
 	char tmp_val[100];
 
-
-#if 0 /* DG -- A Wizard can do whatever he/she/it wants */
-	/* Never duplicate artifacts */
-	if (artifact_p(o_ptr) || o_ptr->art_name) return;
-#endif
 
 	tmp_qnt = o_ptr->number;
 
@@ -1693,14 +1632,11 @@ extern void do_cmd_wiz_body(s16b bidx)
 	do_cmd_redraw();
 }
 
-#ifdef ALLOW_SPOILERS
 
 /*
  * External function
  */
 extern void do_cmd_spoilers(void);
-
-#endif /* ALLOW_SPOILERS */
 
 
 
@@ -1735,14 +1671,10 @@ void do_cmd_debug(void)
 		break;
 
 
-#ifdef ALLOW_SPOILERS
-
 		/* Hack -- Generate Spoilers */
 	case '"':
 		do_cmd_spoilers();
 		break;
-
-#endif /* ALLOW_SPOILERS */
 
 	case 'A':
 		status_main();
@@ -2053,13 +1985,3 @@ void do_cmd_debug(void)
 		break;
 	}
 }
-
-
-#else
-
-#ifdef MACINTOSH
-static int i = 0;
-#endif
-
-#endif
-
