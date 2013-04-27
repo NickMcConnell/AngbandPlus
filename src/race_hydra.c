@@ -397,17 +397,15 @@ race_t *mon_hydra_get_race_t(void)
 	if (p_ptr->lev >= 45) rank++;
 
 	if (!init)
-	{
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 25,  21,  35,   1,  10,   7,  62,  30};
+	skills_t xs = { 12,  10,  10,   0,   0,   0,  25,   7};
+
+		me.skills = bs;
+		me.extra_skills = xs;
+
 		me.name = "Hydra";
 		me.desc = _desc;
-
-
-		me.skills.dis =  3;
-		me.skills.dev =  5;
-		me.skills.stl =  1;
-		me.skills.srh =  5;
-		me.skills.fos = 10;
-		me.skills.thb =  0;
 
 		me.infra = 5;
 		me.exp = 130;
@@ -432,8 +430,6 @@ race_t *mon_hydra_get_race_t(void)
 	me.stats[A_DEX] = (rank + 1)/2;
 	me.stats[A_CON] = rank;
 	me.stats[A_CHR] =  0;
-	me.skills.sav = 10 + 3*rank;
-	me.skills.thn = 25 + 7*rank;
 	me.life = 100 + 5*rank;
 	me.equip_template = _equip_template();
 

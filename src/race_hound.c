@@ -136,7 +136,7 @@ static void _calc_innate_attacks(void)
 {
 	int l = p_ptr->lev;
 	int to_d = l/10 + l*l/500 + l*l*l/25000;
-	int to_h = l/5 + l*l/250 + l*l*l/12500;
+	int to_h = l/2;
 
 	/* Claws */
 	{
@@ -695,7 +695,13 @@ race_t *mon_hound_get_race_t(void)
 	static bool   init = FALSE;
 
 	if (!init)
-	{
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 25,  20,  31,   4,  20,  15,  56,  30};
+	skills_t xs = {  8,   8,  10,   1,   0,   0,  20,   7};
+
+		me.skills = bs;
+		me.extra_skills = xs;
+
 		me.name = "Hound";
 		me.desc = "While Hounds typically hunt in packs, you have chosen to go it alone. "
 					"You will begin life in the weak form of a Clear Hound. As you mature "
@@ -714,13 +720,6 @@ race_t *mon_hound_get_race_t(void)
 					"hind legs, an amulet around their neck and even a cloak and a suit of "
 					"body armor.";
 
-		me.skills.dis =  3;
-		me.skills.dev =  5;
-		me.skills.stl =  5;
-		me.skills.srh = 15;
-		me.skills.fos = 20;
-		me.skills.thb =  0;
-		me.skills.sav = 10;
 
 		me.infra = 5;
 		me.exp = 150;
@@ -748,8 +747,6 @@ race_t *mon_hound_get_race_t(void)
 	me.stats[A_DEX] =  2 + p_ptr->lev/15;
 	me.stats[A_CON] =  1 + p_ptr->lev/15;
 	me.stats[A_CHR] =  0 + p_ptr->lev/25;
-
-	me.skills.thn = 10 + 5*(p_ptr->lev/10);
 
 	return &me;
 }

@@ -45,18 +45,7 @@ static void _divide_spell(int cmd, variant *res)
 		break;
 	case SPELL_CAST:
 	{
-		int which, num = 1, i;
-		if (p_ptr->lev < 10)
-			which = MON_BLACK_OOZE;
-		else if (p_ptr->lev < 25)
-			which = MON_GELATINOUS_CUBE;
-		else if (p_ptr->lev < 40)
-			which = MON_ACIDIC_CYTOPLASM;
-		else
-			which = MON_SHOGGOTH;
-
-		for (i = 0; i < num; i++)
-			summon_named_creature(-1, py, px, which, PM_FORCE_PET);
+		summon_named_creature(-1, py, px, p_ptr->current_r_idx, PM_FORCE_PET);
 		var_set_bool(res, TRUE);
 		break;
 	}
@@ -123,7 +112,13 @@ race_t *_black_ooze_get_race_t(void)
 	static race_t me = {0};
 	static bool   init = FALSE;
 	if (!init)
-	{
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 25,  18,  37,   8,  14,   7,  70,  30};
+	skills_t xs = { 12,   7,  11,   0,   0,   0,  30,   7};
+
+		me.skills = bs;
+		me.extra_skills = xs;
+
 		me.subname = "Black Ooze";
 
 		me.stats[A_STR] =  1;
@@ -132,15 +127,6 @@ race_t *_black_ooze_get_race_t(void)
 		me.stats[A_DEX] =  1;
 		me.stats[A_CON] =  1;
 		me.stats[A_CHR] = -2;
-		
-		me.skills.dis =  0;
-		me.skills.dev =  0;
-		me.skills.sav = 10;
-		me.skills.stl =  8;
-		me.skills.srh =  5;
-		me.skills.fos = 12;
-		me.skills.thn = 10;
-		me.skills.thb =  0;
 
 		me.life = 100;
 		me.infra = 0;
@@ -186,7 +172,13 @@ race_t *_gelatinous_cube_get_race_t(void)
 	static race_t me = {0};
 	static bool   init = FALSE;
 	if (!init)
-	{
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 25,  18,  37,   8,  14,   7,  70,  30};
+	skills_t xs = { 12,   7,  11,   0,   0,   0,  30,   7};
+
+		me.skills = bs;
+		me.extra_skills = xs;
+
 		me.subname = "Gelatinous Cube";
 
 		me.stats[A_STR] =  2;
@@ -196,15 +188,6 @@ race_t *_gelatinous_cube_get_race_t(void)
 		me.stats[A_CON] =  2;
 		me.stats[A_CHR] = -2;
 		
-		me.skills.dis =  0;
-		me.skills.dev = 10;
-		me.skills.sav = 25;
-		me.skills.stl =  8;
-		me.skills.srh =  5;
-		me.skills.fos = 12;
-		me.skills.thn = 25;
-		me.skills.thb =  0;
-
 		me.life = 115;
 		me.infra = 0;
 
@@ -264,7 +247,13 @@ race_t *_acidic_cytoplasm_get_race_t(void)
 	static race_t me = {0};
 	static bool   init = FALSE;
 	if (!init)
-	{
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 25,  18,  37,   7,  14,   7,  70,  30};
+	skills_t xs = { 12,   7,  11,   0,   0,   0,  30,   7};
+
+		me.skills = bs;
+		me.extra_skills = xs;
+
 		me.subname = "Acidic Cytoplasm";
 
 		me.stats[A_STR] =  3;
@@ -274,15 +263,6 @@ race_t *_acidic_cytoplasm_get_race_t(void)
 		me.stats[A_CON] =  3;
 		me.stats[A_CHR] = -1;
 		
-		me.skills.dis =  0;
-		me.skills.dev = 10;
-		me.skills.sav = 25;
-		me.skills.stl =  7;
-		me.skills.srh =  5;
-		me.skills.fos = 12;
-		me.skills.thn = 30;
-		me.skills.thb =  0;
-
 		me.life = 120;
 		me.infra = 0;
 
@@ -336,7 +316,13 @@ race_t *_shoggoth_get_race_t(void)
 	static race_t me = {0};
 	static bool   init = FALSE;
 	if (!init)
-	{
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 25,  18,  37,   2,  14,   7,  70,  30};
+	skills_t xs = { 12,   7,  11,   0,   0,   0,  30,   7};
+
+		me.skills = bs;
+		me.extra_skills = xs;
+
 		me.subname = "Shoggoth";
 
 		me.stats[A_STR] =  5;
@@ -346,15 +332,6 @@ race_t *_shoggoth_get_race_t(void)
 		me.stats[A_CON] =  4;
 		me.stats[A_CHR] =  0;
 		
-		me.skills.dis =  0;
-		me.skills.dev = 15;
-		me.skills.sav = 35;
-		me.skills.stl =  2;
-		me.skills.srh =  3;
-		me.skills.fos =  5;
-		me.skills.thn = 40;
-		me.skills.thb =  0;
-
 		me.life = 125;
 		me.infra = 0;
 

@@ -139,6 +139,9 @@ B:$4:R:Spectre:None
 B:$4:R:Ent:None
 B:$4:R:Balrog:None
 B:$4:R:Android:None
+B:$4:R:Demon:None
+B:$4:R:Lich:None
+B:$4:R:Jelly:None
 
 B:$8:N:Tower of Sorcery:Tanistil:Elf
 B:8:N:仙術の塔:タニスティル:エルフ

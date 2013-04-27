@@ -136,7 +136,13 @@ race_t *mon_xorn_get_race_t(void)
 	if (p_ptr->lev >= 35) rank++;
 
 	if (!init)
-	{
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 25,  20,  31,   1,  14,   5,  56,  30};
+	skills_t xs = { 12,   8,  10,   0,   0,   0,  20,   7};
+
+		me.skills = bs;
+		me.extra_skills = xs;
+
 		me.name = "Xorn";
 		me.desc = "Xorn are huge creatures of the element earth. They begin life as an Umber Hulk which is a bizarre "
 					"creature with glaring eyes capable of confusing their foes, and large mandibles capable of slicing "
@@ -147,14 +153,6 @@ race_t *mon_xorn_get_race_t(void)
 					"Xorns are monsters so cannot choose a normal class. They have no active powers but instead rely on "
 					"their ability to hide in rocks combined with their ability to attack with up to four weapons. They "
 					"play like warriors and are strong as such.";
-
-
-		me.skills.dis =  3;
-		me.skills.dev =  5;
-		me.skills.stl =  1;
-		me.skills.srh =  5;
-		me.skills.fos = 10;
-		me.skills.thb =  0;
 
 		me.infra = 5;
 		me.exp = 150;
@@ -177,8 +175,6 @@ race_t *mon_xorn_get_race_t(void)
 	me.stats[A_DEX] = -3 + rank;
 	me.stats[A_CON] =  1 + rank;
 	me.stats[A_CHR] = -1;
-	me.skills.sav = 10 + 5*rank;
-	me.skills.thn = 25 + 10*rank;
 	me.life = 105 + 5*rank;
 
 	switch (p_ptr->current_r_idx)

@@ -191,14 +191,12 @@ static race_t *_solar_get_race_t(void)
 	if (p_ptr->lev >= 50) rank++;
 
 	if (!init)
-	{
-		me.skills.dis =  0;
-		me.skills.dev = 20;
-		me.skills.stl =  2;
-		me.skills.srh =  2;
-		me.skills.fos = 11;
-		me.skills.thn = 10;
-		me.skills.thb = 10;
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 25,  35,  40,   3,  18,  12,  48,  35};
+	skills_t xs = {  7,  13,  15,   0,   0,   0,  18,  13};
+
+		me.skills = bs;
+		me.extra_skills = xs;
 
 		me.infra = 3;
 		me.exp = 350;
@@ -217,8 +215,6 @@ static race_t *_solar_get_race_t(void)
 	me.stats[A_DEX] =  1 + rank/2;
 	me.stats[A_CON] =  1 + rank/2;
 	me.stats[A_CHR] =  1 + rank;
-	me.skills.sav = 10 + 5*rank;
-	me.skills.thn = 10 + 5*rank;
 	me.life = 100 + 3*rank;
 
 	return &me;

@@ -361,14 +361,15 @@ race_t *mon_leprechaun_get_race_t(void)
 	if (p_ptr->lev >= 30) rank++;
 
 	if (!init)
-	{
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 30,  45,  38,  12,  24,  16,  48,  60 };
+	skills_t xs = { 12,  18,  11,   2,   0,   0,  13,  28 };
+
+		me.skills = bs;
+		me.extra_skills = xs;
+
 		me.name = "Leprechaun";
 		me.desc = _desc;
-
-		me.skills.srh = 24;
-		me.skills.fos = 16;
-		me.skills.thb = 20;
-		me.skills.thn = -20;
 
 		me.infra = 5;
 		me.exp = 150;
@@ -396,11 +397,6 @@ race_t *mon_leprechaun_get_race_t(void)
 	me.stats[A_DEX] = 3 + 2*rank;
 	me.stats[A_CON] = -2;
 	me.stats[A_CHR] = -2;
-
-	me.skills.dis = 45 + 15*rank;
-	me.skills.dev = 40 + 15*rank;
-	me.skills.stl = 12 + 2*rank;
-	me.skills.sav = 10 + 3*rank;
 
 	return &me;
 }

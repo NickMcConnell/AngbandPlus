@@ -974,6 +974,9 @@ B:$0:R:Spectre:None
 B:$0:R:Ent:None
 B:$0:R:Balrog:None
 B:$0:R:Android:None
+B:$0:R:Demon:None
+B:$0:R:Lich:None
+B:$0:R:Jelly:None
 
 B:$1:N:Mayor:Uldrik:Human
 B:1:N:村長:ウルドリック:人間

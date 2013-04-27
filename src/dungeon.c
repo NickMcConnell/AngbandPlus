@@ -1689,19 +1689,17 @@ static void process_world_aux_hp_and_sp(void)
 	{
 		if (p_ptr->pclass == CLASS_BLOOD_KNIGHT)
 			regen_amount += regen_amount*p_ptr->lev/50;
-		/* Regeneration ability */
-		if (p_ptr->regenerate)
-		{
+
+		if (prace_is_(RACE_MON_TROLL))
+			regen_amount += regen_amount*p_ptr->lev/25;
+		else if (p_ptr->regenerate)
 			regen_amount = regen_amount * 2;
-		}
+
 		if (p_ptr->special_defense & (KAMAE_MASK | KATA_MASK))
-		{
 			regen_amount /= 2;
-		}
+
 		if (p_ptr->cursed & TRC_SLOW_REGEN)
-		{
 			regen_amount /= 5;
-		}
 	}
 
 

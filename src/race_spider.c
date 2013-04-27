@@ -125,7 +125,13 @@ race_t *_cave_spider_get_race_t(void)
 	static race_t me = {0};
 	static bool   init = FALSE;
 	if (!init)
-	{
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 25,  40,  38,   6,  20,  15,  56,  30};
+	skills_t xs = {  8,  15,  10,   0,   0,   0,  18,   7};
+
+		me.skills = bs;
+		me.extra_skills = xs;
+
 		me.subname = "Cave Spider";
 
 		me.stats[A_STR] = -2;
@@ -135,15 +141,6 @@ race_t *_cave_spider_get_race_t(void)
 		me.stats[A_CON] = -2;
 		me.stats[A_CHR] = -3;
 		
-		me.skills.dis =  4;
-		me.skills.dev = 20;
-		me.skills.sav = 10;
-		me.skills.stl =  6;
-		me.skills.srh = 15;
-		me.skills.fos = 12;
-		me.skills.thn =  5;
-		me.skills.thb =  0;
-
 		me.life = 70;
 		me.infra = 5;
 
@@ -189,7 +186,13 @@ race_t *_giant_spider_get_race_t(void)
 	static race_t me = {0};
 	static bool   init = FALSE;
 	if (!init)
-	{
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 25,  40,  38,   7,  20,  15,  56,  30};
+	skills_t xs = {  8,  15,  10,   0,   0,   0,  18,   7};
+
+		me.skills = bs;
+		me.extra_skills = xs;
+
 		me.subname = "Giant Spider";
 
 		me.stats[A_STR] =  0;
@@ -199,15 +202,6 @@ race_t *_giant_spider_get_race_t(void)
 		me.stats[A_CON] =  1;
 		me.stats[A_CHR] = -1;
 		
-		me.skills.dis =  4;
-		me.skills.dev = 20;
-		me.skills.sav = 10;
-		me.skills.stl =  7;
-		me.skills.srh = 15;
-		me.skills.fos = 12;
-		me.skills.thn = 15;
-		me.skills.thb =  0;
-
 		me.life = 100;
 		me.infra = 5;
 
@@ -306,7 +300,13 @@ race_t *_phase_spider_get_race_t(void)
 	static race_t me = {0};
 	static bool   init = FALSE;
 	if (!init)
-	{
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 25,  40,  38,  10,  20,  15,  56,  30};
+	skills_t xs = {  8,  15,  10,   0,   0,   0,  18,   7};
+
+		me.skills = bs;
+		me.extra_skills = xs;
+
 		me.subname = "Phase Spider";
 
 		me.stats[A_STR] =  0;
@@ -316,15 +316,6 @@ race_t *_phase_spider_get_race_t(void)
 		me.stats[A_CON] =  1;
 		me.stats[A_CHR] = -1;
 		
-		me.skills.dis =  4;
-		me.skills.dev = 30;
-		me.skills.sav = 15;
-		me.skills.stl = 10;
-		me.skills.srh = 15;
-		me.skills.fos = 12;
-		me.skills.thn =  5;
-		me.skills.thb =  0;
-
 		me.life =  90;
 		me.infra =  5;
 
@@ -393,7 +384,13 @@ race_t *_aranea_get_race_t(void)
 	static race_t me = {0};
 	static bool   init = FALSE;
 	if (!init)
-	{
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 25,  30,  35,   6,  20,  15,  65,  30};
+	skills_t xs = {  8,  10,  10,   0,   0,   0,  20,   7};
+
+		me.skills = bs;
+		me.extra_skills = xs;
+
 		me.subname = "Aranea";
 
 		me.stats[A_STR] =  1;
@@ -402,15 +399,6 @@ race_t *_aranea_get_race_t(void)
 		me.stats[A_DEX] =  0;
 		me.stats[A_CON] =  2;
 		me.stats[A_CHR] =  0;
-		
-		me.skills.dis =  4;
-		me.skills.dev = 10;
-		me.skills.sav = 25;
-		me.skills.stl =  6;
-		me.skills.srh = 15;
-		me.skills.fos = 12;
-		me.skills.thn = 20;
-		me.skills.thb =  0;
 
 		me.life = 100;
 		me.infra =  5;
@@ -492,7 +480,13 @@ race_t *_elder_aranea_get_race_t(void)
 	static race_t me = {0};
 	static bool   init = FALSE;
 	if (!init)
-	{
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 25,  30,  35,   6,  20,  15,  65,  30};
+	skills_t xs = {  8,  10,  10,   0,   0,   0,  20,   7};
+
+		me.skills = bs;
+		me.extra_skills = xs;
+
 		me.subname = "Elder Aranea";
 
 		me.stats[A_STR] =  2;
@@ -502,15 +496,6 @@ race_t *_elder_aranea_get_race_t(void)
 		me.stats[A_CON] =  3;
 		me.stats[A_CHR] =  1;
 		
-		me.skills.dis =  4;
-		me.skills.dev = 10;
-		me.skills.sav = 25;
-		me.skills.stl =  6;
-		me.skills.srh = 15;
-		me.skills.fos = 12;
-		me.skills.thn = 35;
-		me.skills.thb =  0;
-
 		me.life = 100;
 		me.infra =  5;
 

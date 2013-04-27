@@ -3452,22 +3452,21 @@ void calc_bonuses(void)
 
 	/* calc_skills() */
 	{
-		skills_t c_base = {0};
-		skills_t c_extra = {0};
+		skills_t c_extra = class_ptr->extra_skills;
+		skills_t r_extra = race_ptr->extra_skills;
 		skills_t a_extra = ap_ptr->skills;
 
-		c_base = class_ptr->base_skills;
-		c_extra = class_ptr->extra_skills;
-
 		skills_scale(&c_extra, p_ptr->lev, 10);
+		skills_scale(&r_extra, p_ptr->lev, 10);
 
 		a_extra.stl = 0; /* Hengband never gave extra personality stealth with level ... */
 		skills_scale(&a_extra, p_ptr->lev, 50);
 
 		skills_init(&p_ptr->skills);
-		skills_add(&p_ptr->skills, &c_base);
+		skills_add(&p_ptr->skills, &class_ptr->base_skills);
 		skills_add(&p_ptr->skills, &c_extra);
 		skills_add(&p_ptr->skills, &race_ptr->skills);
+		skills_add(&p_ptr->skills, &r_extra);
 		skills_add(&p_ptr->skills, &ap_ptr->skills);
 		skills_add(&p_ptr->skills, &a_extra);
 	}

@@ -745,4 +745,4 @@ Mystic         45+15  34+11  36+10     5    32    24  64+18  60+18
 
 
 
-Automatically generated for PosChengband 1.0.9.
+Automatically generated for PosChengband 1.0.14.

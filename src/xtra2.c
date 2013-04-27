@@ -4893,6 +4893,13 @@ if (!get_com("方向 (ESCで中断)? ", &ch, TRUE)) break;
 			dir = ddd[randint0(8)];
 		}
 	}
+	else if (demon_is_(DEMON_CYBERDEMON))
+	{
+		if (one_in_(66))
+		{
+			dir = ddd[randint0(8)];
+		}
+	}
 
 	/* Notice confusion */
 	if (command_dir != dir)
@@ -4906,6 +4913,8 @@ msg_print("あなたは混乱している。");
 			msg_print("You are confused.");
 #endif
 		}
+		else if (demon_is_(DEMON_CYBERDEMON))
+			msg_print("You are moving erratically.");
 		else
 		{
 			char m_name[80];

@@ -143,6 +143,7 @@ static void _monster_races_help(FILE* fff)
 	}
 	fprintf(fff, "\n\n");
 
+	/*
 	fprintf(fff, "--- Table 2 - Race Skill Bonus Table ---\n\n");
 	fprintf(fff, "               Dsrm  Dvce  Save  Stlh  Srch  Prcp  Melee  Bows  Infra\n");
 	for (i = 0; i < MAX_RACES; i++)
@@ -156,6 +157,36 @@ static void _monster_races_help(FILE* fff)
 			race_ptr->skills.stl, race_ptr->skills.srh, race_ptr->skills.fos,
 			race_ptr->skills.thn, race_ptr->skills.thb, race_ptr->infra*10
 		);
+	}
+	fprintf(fff, "\n\n");
+	*/
+	fprintf(fff, "--- Table 2 - Monster Skill Bonus Table ---\n\n");
+	fprintf(fff, "%-21s Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows\n", "");
+	for (i = RACE_MON_JELLY; i <= RACE_MON_LEPRECHAUN; i++)
+	{
+		int max = 1, j;
+		switch (i)
+		{
+		case RACE_MON_DEMON: max = DEMON_MAX; break;
+		case RACE_MON_DRAGON: max = DRAGON_MAX; break;
+		case RACE_MON_GIANT: max = GIANT_MAX; break;
+		}
+
+		for (j = 0; j < max; j++)
+		{
+			race_t *race_ptr = get_race_t_aux(i, j);
+			fprintf(fff, "%-21s %2d+%-2d  %2d+%-2d  %2d+%-2d  %2d+%-2d %2d+%-2d %2d+%-2d %2d+%-2d  %2d+%-2d\n", 
+				(max > 1) ? race_ptr->subname : race_ptr->name,
+				race_ptr->skills.dis, race_ptr->extra_skills.dis, 
+				race_ptr->skills.dev, race_ptr->extra_skills.dev, 
+				race_ptr->skills.sav, race_ptr->extra_skills.sav,
+				race_ptr->skills.stl, race_ptr->extra_skills.stl,
+				race_ptr->skills.srh, race_ptr->extra_skills.srh,
+				race_ptr->skills.fos, race_ptr->extra_skills.fos,
+				race_ptr->skills.thn, race_ptr->extra_skills.thn, 
+				race_ptr->skills.thb, race_ptr->extra_skills.thb
+			);
+		}
 	}
 	fprintf(fff, "\n\n");
 }

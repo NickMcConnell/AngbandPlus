@@ -197,4 +197,4 @@ Fell Sorcery        Your spells will grow more powerful.
 
 
 
-Automatically generated for PosChengband 1.0.9.
+Automatically generated for PosChengband 1.0.14.

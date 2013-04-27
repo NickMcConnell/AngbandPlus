@@ -75,7 +75,7 @@ static void _calc_innate_attacks(void)
 		a.dd = 1 + (l + 5)/12;
 		a.ds = 6 + l/15;
 		a.weight = 250;
-		a.to_h = p_ptr->lev/2;
+		a.to_h = p_ptr->lev;
 
 		a.effect[0] = GF_MISSILE;
 
@@ -332,7 +332,10 @@ race_t *mon_beholder_get_race_t(void)
 	if (p_ptr->lev >= 45) rank++;
 
 	if (!init)
-	{
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 30,  50,  47,   7,  20,  20,  34,  20};
+	skills_t xs = { 10,  20,  15,   1,  20,  20,  12,   7};
+
 		me.name = "Beholder";
 		me.desc = "Beholders are floating orbs of flesh with a single central eye surrounded by "
 					"numerous smaller eyestalks. They attack with their gaze which often confuses or "
@@ -347,8 +350,8 @@ race_t *mon_beholder_get_race_t(void)
 					"However, they are not very strong and won't be able to stand long against "
 					"multiple foes.";
 
-		me.skills.dis = 20;
-		me.skills.thb =  0;
+		me.skills = bs;
+		me.extra_skills = xs;
 
 		me.infra = 8;
 		me.exp = 250;
@@ -373,12 +376,6 @@ race_t *mon_beholder_get_race_t(void)
 	me.stats[A_DEX] =  1 + rank/2;
 	me.stats[A_CON] =  0;
 	me.stats[A_CHR] =  0 + rank/2;
-	me.skills.srh = 20 + 20*rank;
-	me.skills.fos = 20 + 20*rank;
-	me.skills.dev = 30 + 20*rank;
-	me.skills.sav = 15 + 10*rank;
-	me.skills.thn = -20;
-	me.skills.stl =  5 + rank;
 	me.life = 100;
 
 	switch (p_ptr->current_r_idx)

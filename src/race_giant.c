@@ -86,13 +86,12 @@ static race_t *_fire_get_race_t(void)
 	if (p_ptr->lev >= 30) rank++;
 
 	if (!init)
-	{
-		me.skills.dis =  4;
-		me.skills.dev = 10;
-		me.skills.stl =  0;
-		me.skills.srh =  5;
-		me.skills.fos = 10;
-		me.skills.thb = 10;
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 25,  18,  30,  -1,  13,   7,  75,  55};
+	skills_t xs = { 10,   7,  10,   0,   0,   0,  34,  31};
+
+		me.skills = bs;
+		me.extra_skills = xs;
 
 		me.infra = 5;
 		me.exp = 250;
@@ -113,8 +112,6 @@ static race_t *_fire_get_race_t(void)
 	me.stats[A_DEX] = -2 + rank;
 	me.stats[A_CON] =  3 + 2*rank;
 	me.stats[A_CHR] =  0 + rank;
-	me.skills.sav = 15;
-	me.skills.thn = 35 + 20*rank;
 	me.life = 115 + 10*rank;
 	me.boss_r_idx = MON_SURTUR;
 
@@ -183,13 +180,12 @@ static race_t *_frost_get_race_t(void)
 	if (p_ptr->lev >= 30) rank++;
 
 	if (!init)
-	{
-		me.skills.dis =  4;
-		me.skills.dev = 10;
-		me.skills.stl =  0;
-		me.skills.srh =  5;
-		me.skills.fos = 10;
-		me.skills.thb = 10;
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 25,  18,  30,  -1,  13,   7,  75,  55};
+	skills_t xs = { 10,   7,  10,   0,   0,   0,  34,  31};
+
+		me.skills = bs;
+		me.extra_skills = xs;
 
 		me.infra = 5;
 		me.exp = 250;
@@ -210,8 +206,6 @@ static race_t *_frost_get_race_t(void)
 	me.stats[A_DEX] = -2 + rank;
 	me.stats[A_CON] =  3 + 2*rank;
 	me.stats[A_CHR] =  0 + rank;
-	me.skills.sav = 15;
-	me.skills.thn = 35 + 20*rank;
 	me.life = 115 + 10*rank;
 	me.boss_r_idx = MON_YMIR;
 
@@ -288,13 +282,12 @@ static race_t *_storm_get_race_t(void)
 	if (p_ptr->lev >= 40) rank++;
 
 	if (!init)
-	{
-		me.skills.dis =  4;
-		me.skills.dev = 10;
-		me.skills.stl =  0;
-		me.skills.srh =  5;
-		me.skills.fos = 10;
-		me.skills.thb = 10;
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 25,  18,  30,  -1,  13,   7,  70,  55};
+	skills_t xs = { 10,   7,  10,   0,   0,   0,  30,  30};
+
+		me.skills = bs;
+		me.extra_skills = xs;
 
 		me.infra = 5;
 		me.exp = 300;
@@ -315,8 +308,6 @@ static race_t *_storm_get_race_t(void)
 	me.stats[A_DEX] = -2 + rank;
 	me.stats[A_CON] =  3 + rank;
 	me.stats[A_CHR] =  0 + rank;
-	me.skills.sav = 15;
-	me.skills.thn = 30 + 10*rank;
 	me.life = 110 + 5*rank;
 	me.boss_r_idx = MON_ATLAS; /* TODO */
 
@@ -385,12 +376,12 @@ static race_t *_titan_get_race_t(void)
 	if (p_ptr->lev >= 40) rank++;
 
 	if (!init)
-	{
-		me.skills.dis =  4;
-		me.skills.stl = -2;
-		me.skills.srh =  5;
-		me.skills.fos = 10;
-		me.skills.thb = 10;
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 25,  20,  32,  -1,  15,  10,  75,  50};
+	skills_t xs = { 11,   8,  10,   0,   0,   0,  35,  30};
+
+		me.skills = bs;
+		me.extra_skills = xs;
 
 		me.infra = 5;
 		me.exp = 350;
@@ -410,9 +401,6 @@ static race_t *_titan_get_race_t(void)
 	me.stats[A_DEX] = -2 + rank;
 	me.stats[A_CON] =  3 + rank;
 	me.stats[A_CHR] =  3 + rank;
-	me.skills.dev = 10 + 10*rank;
-	me.skills.sav = 15 + 5*rank;
-	me.skills.thn = 30 + 15*rank;
 	me.life = 110 + 5*rank;
 	me.boss_r_idx = MON_KRONOS;
 

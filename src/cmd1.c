@@ -4704,8 +4704,11 @@ bool move_player_effect(int ny, int nx, u32b mpe_mode)
 
 		{
 			class_t *class_ptr = get_class_t();
-			if (class_ptr && class_ptr->move_player)
+			race_t  *race_ptr = get_race_t();
+			if (class_ptr->move_player)
 				class_ptr->move_player();
+			if (race_ptr->move_player)
+				race_ptr->move_player();
 		}
 
 		/* Window stuff */

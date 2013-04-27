@@ -1535,11 +1535,9 @@ static byte likert_color = TERM_WHITE;
 /*
  * Returns a "rating" of x depending on y
  */
-static cptr likert(int x, int y)
+static cptr likert_aux(int x, int y)
 {
 	static char dummy[20] = "";
-	
-	if (p_ptr->wizard) return format("%d", x);
 
 	/* Paranoia */
 	if (y <= 0) y = 1;
@@ -1601,6 +1599,12 @@ static cptr likert(int x, int y)
 		sprintf(dummy, "Legendary[%d]", (int)((((x / y) - 17) * 5) / 2));
 		return dummy;
 	}
+}
+
+static cptr likert(int x, int y)
+{
+	if (p_ptr->wizard) return format("%s (%d)", likert_aux(x, y), x);
+	return likert_aux(x, y);
 }
 
 /*

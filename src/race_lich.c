@@ -220,12 +220,12 @@ static race_t *_archlich_get_race_t(void)
 	if (p_ptr->lev >= 50) rank++;
 
 	if (!init)
-	{
-		me.skills.dis =  7;
-		me.skills.stl =  5;
-		me.skills.srh = 10;
-		me.skills.fos = 10;
-		me.skills.thb =  0;
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 30,  45,  38,   5,  20,  30,  34,  20 };
+	skills_t xs = {  7,  15,  12,   0,   0,   0,   6,   7 };
+
+		me.skills = bs;
+		me.extra_skills = xs;
 
 		me.infra = 5;
 		me.exp = 300;
@@ -246,9 +246,6 @@ static race_t *_archlich_get_race_t(void)
 	me.stats[A_DEX] =  1 + rank;
 	me.stats[A_CON] =  0 - (rank+1)/2;
 	me.stats[A_CHR] =  0 + rank;
-	me.skills.dev = 30 + 10*rank;
-	me.skills.sav = 10 + 5*rank;
-	me.skills.thn = -20;
 	me.life = 100 - 2*rank;
 
 	return &me;

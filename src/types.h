@@ -1926,6 +1926,7 @@ typedef struct {
 	cptr					desc;
 	s16b					stats[MAX_STATS];
 	skills_t				skills;
+	skills_t				extra_skills; /* Prorata every 10 levels (Monster Races) */
 	s16b					life;
 	s16b					exp;
 	s16b					infra;
@@ -1947,6 +1948,7 @@ typedef struct {
 	struct equip_template_s *equip_template;
 	int                     boss_r_idx;
 	player_action_fn		player_action;  /* Called once per player action, so long as the action consumes energy */
+	move_player_fn			move_player;
 } race_t;
 
 typedef struct {

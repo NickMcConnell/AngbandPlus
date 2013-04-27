@@ -492,7 +492,7 @@ static void _elemental_gain_level(int new_level) {
 		p_ptr->redraw |= PR_MAP;
 	}
 }
-static race_t *_elemental_get_race_t(void)
+static race_t *_elemental_get_race_t(int subrace)
 {
 	static race_t me = {0};
 	static bool   init = FALSE;
@@ -504,13 +504,12 @@ static race_t *_elemental_get_race_t(void)
 	if (p_ptr->lev >= 40) rank++;
 
 	if (!init)
-	{
-		me.skills.dis =  4;
-		me.skills.dev = 20;
-		me.skills.stl =  1;
-		me.skills.srh =  5;
-		me.skills.fos = 10;
-		me.skills.thb =  0;
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 28,  35,  38,   2,  25,  26,  70,  30};
+	skills_t xs = {  8,   9,  10,   0,   0,   0,  20,   7};
+
+		me.skills = bs;
+		me.extra_skills = xs;
 
 		me.infra = 5;
 		me.exp = 250;
@@ -524,15 +523,13 @@ static race_t *_elemental_get_race_t(void)
 		init = TRUE;
 	}
 
-	me.subname = _elemental_info[p_ptr->psubrace].r_name[rank];
+	me.subname = _elemental_info[subrace].r_name[rank];
 	me.stats[A_STR] =  1 + rank;
 	me.stats[A_INT] = -1 + rank;
 	me.stats[A_WIS] = -6 + rank;
 	me.stats[A_DEX] = -2 + rank;
 	me.stats[A_CON] =  0 + rank;
 	me.stats[A_CHR] = -1 + rank;
-	me.skills.sav = 10 + 5*rank;
-	me.skills.thn = 15 + 15*rank;
 	me.life = 100 + 5*rank;
 
 	return &me;
@@ -653,13 +650,12 @@ static race_t *_nether_get_race_t(void)
 	if (p_ptr->lev >= 45) rank++;
 
 	if (!init)
-	{
-		me.skills.dis =  4;
-		me.skills.dev = 20;
-		me.skills.stl =  3;
-		me.skills.srh =  5;
-		me.skills.fos = 10;
-		me.skills.thb =  0;
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 28,  35,  38,   4,  25,  26,  50,  30};
+	skills_t xs = {  8,  10,  11,   0,   0,   0,  15,   7};
+
+		me.skills = bs;
+		me.extra_skills = xs;
 
 		me.infra = 5;
 		me.exp = 350;
@@ -680,8 +676,6 @@ static race_t *_nether_get_race_t(void)
 	me.stats[A_DEX] = -2 + rank;
 	me.stats[A_CON] = -1 + rank;
 	me.stats[A_CHR] = -1 + 3*rank;
-	me.skills.sav = 10 + 5*rank;
-	me.skills.thn = 15 + 10*rank;
 	me.life = 90 + 5*rank;
 
 	return &me;
@@ -776,13 +770,12 @@ static race_t *_law_get_race_t(void)
 	if (p_ptr->lev >= 40) rank++;
 
 	if (!init)
-	{
-		me.skills.dis =  4;
-		me.skills.dev = 20;
-		me.skills.stl =  2;
-		me.skills.srh =  5;
-		me.skills.fos = 10;
-		me.skills.thb =  0;
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 28,  40,  40,   2,  25,  26,  55,  30};
+	skills_t xs = {  8,  11,  11,   0,   0,   0,  15,   7};
+
+		me.skills = bs;
+		me.extra_skills = xs;
 
 		me.infra = 5;
 		me.exp = 300;
@@ -802,8 +795,6 @@ static race_t *_law_get_race_t(void)
 	me.stats[A_DEX] = -2 + 3*rank;
 	me.stats[A_CON] = -1 + 4*rank;
 	me.stats[A_CHR] = -1 + 5*rank;
-	me.skills.sav = 10 + 10*rank;
-	me.skills.thn = 15 + 35*rank;
 	me.life = 100 + 10*rank;
 
 	return &me;
@@ -898,13 +889,12 @@ static race_t *_chaos_get_race_t(void)
 	if (p_ptr->lev >= 40) rank++;
 
 	if (!init)
-	{
-		me.skills.dis =  4;
-		me.skills.dev = 20;
-		me.skills.stl =  2;
-		me.skills.srh =  5;
-		me.skills.fos = 10;
-		me.skills.thb =  0;
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 28,  40,  40,   2,  25,  26,  55,  30};
+	skills_t xs = {  8,  11,  11,   0,   0,   0,  15,   7};
+
+		me.skills = bs;
+		me.extra_skills = xs;
 
 		me.infra = 5;
 		me.exp = 300;
@@ -924,8 +914,6 @@ static race_t *_chaos_get_race_t(void)
 	me.stats[A_DEX] = -2 + 3*rank;
 	me.stats[A_CON] = -1 + 4*rank;
 	me.stats[A_CHR] = -1 + 5*rank;
-	me.skills.sav = 10 + 10*rank;
-	me.skills.thn = 15 + 35*rank;
 	me.life = 100 + 10*rank;
 
 	return &me;
@@ -1022,13 +1010,12 @@ static race_t *_balance_get_race_t(void)
 	if (p_ptr->lev >= 40) rank++;
 
 	if (!init)
-	{
-		me.skills.dis =  4;
-		me.skills.dev = 15;
-		me.skills.stl =  1;
-		me.skills.srh =  5;
-		me.skills.fos = 10;
-		me.skills.thb =  0;
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 28,  35,  35,   2,  25,  26,  50,  30};
+	skills_t xs = {  8,  10,  10,   0,   0,   0,  15,   7};
+
+		me.skills = bs;
+		me.extra_skills = xs;
 
 		me.infra = 5;
 		me.exp = 350;
@@ -1048,8 +1035,6 @@ static race_t *_balance_get_race_t(void)
 	me.stats[A_DEX] = -2 + 3*rank;
 	me.stats[A_CON] = -1 + 3*rank;
 	me.stats[A_CHR] = -1 + 5*rank;
-	me.skills.sav = 10 + 10*rank;
-	me.skills.thn = 15 + 25*rank;
 	me.life = 95 + 10*rank;
 
 	return &me;
@@ -1152,13 +1137,12 @@ static race_t *_ethereal_get_race_t(void)
 	if (p_ptr->lev >= 40) rank++;
 
 	if (!init)
-	{
-		me.skills.dis =  4;
-		me.skills.dev = 25;
-		me.skills.stl =  3;
-		me.skills.srh =  5;
-		me.skills.fos = 10;
-		me.skills.thb =  0;
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 28,  35,  37,   4,  25,  26,  52,  30};
+	skills_t xs = {  8,  10,  11,   0,   0,   0,  15,   7};
+
+		me.skills = bs;
+		me.extra_skills = xs;
 
 		me.infra = 5;
 		me.exp = 250;
@@ -1178,8 +1162,6 @@ static race_t *_ethereal_get_race_t(void)
 	me.stats[A_DEX] = -2 + 2*rank;
 	me.stats[A_CON] = -1 + 2*rank;
 	me.stats[A_CHR] = -1 + 2*rank;
-	me.skills.sav = 10 + 5*rank;
-	me.skills.thn = 15 + 10*rank;
 	me.life = 95 + 7*rank;
 
 	return &me;
@@ -1281,13 +1263,12 @@ static race_t *_crystal_get_race_t(void)
 	if (p_ptr->lev >= 40) rank++;
 
 	if (!init)
-	{
-		me.skills.dis =  4;
-		me.skills.dev = 20;
-		me.skills.stl =  1;
-		me.skills.srh =  5;
-		me.skills.fos = 10;
-		me.skills.thb =  0;
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 28,  35,  40,   1,  25,  26,  70,  30};
+	skills_t xs = {  8,   7,  12,   0,   0,   0,  22,   7};
+
+		me.skills = bs;
+		me.extra_skills = xs;
 
 		me.infra = 5;
 		me.exp = 275;
@@ -1307,8 +1288,6 @@ static race_t *_crystal_get_race_t(void)
 	me.stats[A_DEX] =  0 + 3*rank;
 	me.stats[A_CON] =  0 + 4*rank;
 	me.stats[A_CHR] =  0 + 3*rank;
-	me.skills.sav = 10 + 25*rank;
-	me.skills.thn = 15 + 35*rank;
 	me.life = 100 + 15*rank;
 
 	return &me;
@@ -1400,13 +1379,12 @@ static race_t *_bronze_get_race_t(void)
 	if (p_ptr->lev >= 30) rank++;
 
 	if (!init)
-	{
-		me.skills.dis =  4;
-		me.skills.dev = 25;
-		me.skills.stl =  2;
-		me.skills.srh =  5;
-		me.skills.fos = 10;
-		me.skills.thb =  0;
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 28,  35,  38,   3,  25,  26,  55,  30};
+	skills_t xs = {  8,  10,  11,   0,   0,   0,  15,   7};
+
+		me.skills = bs;
+		me.extra_skills = xs;
 
 		me.infra = 5;
 		me.exp = 250;
@@ -1426,8 +1404,6 @@ static race_t *_bronze_get_race_t(void)
 	me.stats[A_DEX] = -2 + 2*rank;
 	me.stats[A_CON] = -1 + 2*rank;
 	me.stats[A_CHR] = -1 + 2*rank;
-	me.skills.sav = 10 + 5*rank;
-	me.skills.thn = 15 + 10*rank;
 	me.life = 100 + 5*rank;
 
 	return &me;
@@ -1521,13 +1497,12 @@ static race_t *_gold_get_race_t(void)
 	if (p_ptr->lev >= 30) rank++;
 
 	if (!init)
-	{
-		me.skills.dis =  4;
-		me.skills.dev = 25;
-		me.skills.stl =  2;
-		me.skills.srh =  5;
-		me.skills.fos = 10;
-		me.skills.thb =  0;
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 28,  35,  38,   2,  25,  26,  55,  30};
+	skills_t xs = {  8,   9,  11,   0,   0,   0,  20,   7};
+
+		me.skills = bs;
+		me.extra_skills = xs;
 
 		me.infra = 5;
 		me.exp = 250;
@@ -1547,8 +1522,6 @@ static race_t *_gold_get_race_t(void)
 	me.stats[A_DEX] = -2 + 2*rank;
 	me.stats[A_CON] = -1 + 2*rank;
 	me.stats[A_CHR] = -1 + 2*rank;
-	me.skills.sav = 10 + 5*rank;
-	me.skills.thn = 15 + 10*rank;
 	me.life = 100 + 5*rank;
 
 	return &me;
@@ -1644,13 +1617,12 @@ static race_t *_steel_get_race_t(void)
 	if (p_ptr->lev >= 40) rank++;
 
 	if (!init)
-	{
-		me.skills.dis =  4;
-		me.skills.dev =  5;
-		me.skills.stl =  1;
-		me.skills.srh =  5;
-		me.skills.fos = 10;
-		me.skills.thb =  0;
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 28,  18,  40,   0,  10,   7,  75,  30};
+	skills_t xs = {  8,   7,  15,   0,   0,   0,  30,   7};
+
+		me.skills = bs;
+		me.extra_skills = xs;
 
 		me.infra = 5;
 		me.exp = 250;
@@ -1670,8 +1642,6 @@ static race_t *_steel_get_race_t(void)
 	me.stats[A_DEX] =  0 - (p_ptr->lev / 10);
 	me.stats[A_CON] =  4 + (p_ptr->lev / 10);
 	me.stats[A_CHR] =  0 + (p_ptr->lev / 10);
-	me.skills.sav = 25 + 5*(p_ptr->lev / 10);
-	me.skills.thn = 25 + 15*(p_ptr->lev / 10);
 	me.life = 125 + 5*(p_ptr->lev / 10);
 
 	return &me;
@@ -1691,7 +1661,7 @@ race_t *mon_dragon_get_race_t(int psubrace)
 	case DRAGON_BLUE:
 	case DRAGON_BLACK:
 	case DRAGON_GREEN:
-		result = _elemental_get_race_t();
+		result = _elemental_get_race_t(psubrace);
 		break;
 	case DRAGON_NETHER:
 		result = _nether_get_race_t();

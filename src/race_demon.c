@@ -74,7 +74,7 @@ static caster_info * _caster_info(void)
 	{
 		me.magic_desc = "devilish power";
 		me.which_stat = A_INT;
-		me.weight = 450;
+		me.weight = 750;
 		me.options = CASTER_ALLOW_DEC_MANA;
 		init = TRUE;
 	}
@@ -341,14 +341,16 @@ static race_t *_khorne_get_race_t(void)
 	if (p_ptr->lev >= 40) rank++;
 
 	if (!init)
-	{
-		me.skills.dis = -5;
-		me.skills.dev =  3;
-		me.skills.stl = -1;
-		me.skills.srh =  5;
-		me.skills.fos = 10;
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 20,  20,  40,  -1,  13,   7,  70,  30};
+	skills_t xs = { 12,   8,  10,   0,   0,   0,  32,   7};
+
+
+		me.skills = bs;
+		me.extra_skills = xs;
 
 		me.exp = 275;
+		me.infra = 5;
 
 		me.birth = _khorne_birth;
 		me.calc_innate_attacks = _khorne_calc_innate_attacks;
@@ -365,10 +367,6 @@ static race_t *_khorne_get_race_t(void)
 	me.stats[A_DEX] =  0 + rank/3;
 	me.stats[A_CON] =  2 + rank;
 	me.stats[A_CHR] =  rank/3;
-	me.skills.sav = 10 + 5*rank;
-	me.skills.thn = 25 + 15*rank;
-	me.skills.thb = 0;
-	me.infra = 5;
 	me.life = 100 + 6*rank;
 
 	switch (p_ptr->current_r_idx)
@@ -580,14 +578,16 @@ static race_t *_marilith_get_race_t(void)
 	if (p_ptr->lev >= 40) rank++;
 
 	if (!init)
-	{
-		me.skills.dis = -5;
-		me.skills.dev = 20;
-		me.skills.stl =  0;
-		me.skills.srh =  5;
-		me.skills.fos = 10;
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 20,  35,  36,   1,  16,  10,  56,  35};
+	skills_t xs = { 12,  11,  10,   0,   0,   0,  20,  11};
+
+
+		me.skills = bs;
+		me.extra_skills = xs;
 
 		me.exp = 250;
+		me.infra = 5;
 
 		me.birth = _marilith_birth;
 		me.calc_innate_attacks = _marilith_calc_innate_attacks;
@@ -606,10 +606,6 @@ static race_t *_marilith_get_race_t(void)
 	me.stats[A_DEX] =  rank;
 	me.stats[A_CON] =  rank;
 	me.stats[A_CHR] =  rank/2;
-	me.skills.sav = 10 + 3*rank;
-	me.skills.thn = 5 + 5*rank;
-	me.skills.thb = 0;
-	me.infra = 5;
 	me.life = 95 + 2*rank;
 
 	if (p_ptr->current_r_idx == MON_MARILITH)
@@ -679,7 +675,7 @@ static void _balrog_calc_bonuses(void) {
 	
 	p_ptr->hold_life = TRUE;
 	p_ptr->no_eldritch = TRUE;
-	p_ptr->pspeed += p_ptr->lev/10;
+	p_ptr->pspeed += p_ptr->lev/8; /* Angels get +7 speed. Demons get +6 speed. */
 	p_ptr->sh_fire = TRUE;
 	
 	if (p_ptr->lev >= 10) 
@@ -706,11 +702,10 @@ static void _balrog_get_flags(u32b flgs[TR_FLAG_SIZE]) {
 	add_flag(flgs, TR_HOLD_LIFE);
 	add_flag(flgs, TR_SH_FIRE);
 
-	if (p_ptr->lev >= 10)
-	{
+	if (p_ptr->lev >= 8)
 		add_flag(flgs, TR_SPEED);
+	if (p_ptr->lev >= 10)
 		add_flag(flgs, TR_SEE_INVIS);
-	}
 	if (p_ptr->lev >= 30)
 	{
 		add_flag(flgs, TR_RES_CHAOS);
@@ -738,12 +733,12 @@ static race_t *_balrog_get_race_t(void)
 	if (p_ptr->lev >= 40) rank++;
 
 	if (!init)
-	{
-		me.skills.dis = -5;
-		me.skills.dev = 20;
-		me.skills.stl = -2;
-		me.skills.srh =  3;
-		me.skills.fos = 10;
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 20,  35,  40,  -2,  10,   7,  75,  30};
+	skills_t xs = { 12,  11,  15,   0,   0,   0,  35,   7};
+
+		me.skills = bs;
+		me.extra_skills = xs;
 
 		me.exp = 350;
 
@@ -764,9 +759,6 @@ static race_t *_balrog_get_race_t(void)
 	me.stats[A_DEX] =  2 + 2*rank;
 	me.stats[A_CON] =  4 + 2*rank;
 	me.stats[A_CHR] =  2 + rank;
-	me.skills.sav = 20 + 15*rank;
-	me.skills.thn = 40 + 30*rank;
-	me.skills.thb = 20 + 20*rank;
 	me.infra = 5 + 10*rank;
 	me.life = 110 + 15*rank;
 
@@ -781,7 +773,7 @@ static race_t *_balrog_get_race_t(void)
 static int _rocket_amount(void)
 {
 	int l = p_ptr->lev;
-	int pct = 20 + l/5 + l*l/250 + l*l*l/12500;
+	int pct = 15 + l/5 + l*l/250 + l*l*l/12500;
 	return 25 + p_ptr->chp * pct / 100;
 }
 
@@ -811,7 +803,7 @@ void _cyber_rocket_spell(int cmd, variant *res)
 		break;
 	}
 	case SPELL_COST_EXTRA:
-		var_set_int(res, p_ptr->lev / 2);
+		var_set_int(res, p_ptr->lev*19/50 + p_ptr->lev*p_ptr->lev*19/2500);
 		break;
 	default:
 		default_spell(cmd, res);
@@ -855,7 +847,7 @@ static void _cyber_calc_bonuses(void)
 
 	res_add(RES_FIRE);
 	res_add(RES_POIS);
-	res_add_vuln(RES_CONF);
+/*	res_add_vuln(RES_CONF); */
 	
 	p_ptr->hold_life = TRUE;
 	p_ptr->no_eldritch = TRUE;
@@ -874,7 +866,29 @@ static void _cyber_get_flags(u32b flgs[TR_FLAG_SIZE])
 
 static void _cyber_get_vulnerabilities(u32b flgs[TR_FLAG_SIZE]) 
 {
-	add_flag(flgs, TR_RES_CONF);
+/*	add_flag(flgs, TR_RES_CONF); */
+}
+
+static void _cyber_move_player(void)
+{
+	/* Cyberdemons move erratically (cf get_rep_dir()) and make a lot of noise */
+	if (one_in_(66))
+	{
+		int i;
+	
+		msg_print("The dungeon trembles!");
+		if (disturb_minor)
+			disturb(0, 0);
+
+		for (i = 1; i < m_max; i++)
+		{
+			monster_type *m_ptr = &m_list[i];
+
+			if (!m_ptr->r_idx) continue;
+			if (m_ptr->cdis < MAX_SIGHT * 2 && MON_CSLEEP(m_ptr))
+				(void)set_monster_csleep(i, 0);
+		}
+	}
 }
 
 static race_t *_cyber_get_race_t(void)
@@ -883,16 +897,15 @@ static race_t *_cyber_get_race_t(void)
 	static bool   init = FALSE;
 
 	if (!init)
-	{
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 20,  18,  31,  -1,  13,   7,  75,  30};
+	skills_t xs = { 12,   6,   9,   0,   0,   0,  35,   7};
+
 		me.subname = "Cyberdemon";
 
-		me.skills.dis = -10;
-		me.skills.dev =   0;
-		me.skills.stl =  -2;
-		me.skills.srh =   1;
-		me.skills.fos =   5;
-		
-		me.skills.thb = 0;
+		me.skills = bs;
+		me.extra_skills = xs;
+
 		me.infra = 5;
 		me.life = 135;
 
@@ -903,6 +916,7 @@ static race_t *_cyber_get_race_t(void)
 		me.calc_bonuses = _cyber_calc_bonuses;
 		me.get_flags = _cyber_get_flags;
 		me.get_vulnerabilities = _cyber_get_vulnerabilities;
+		me.move_player = _cyber_move_player;
 		init = TRUE;
 	}
 
@@ -912,8 +926,6 @@ static race_t *_cyber_get_race_t(void)
 	me.stats[A_DEX] = -3;
 	me.stats[A_CON] =  5 + p_ptr->lev/10;
 	me.stats[A_CHR] =  0;
-	me.skills.sav = 20 + p_ptr->lev/5;
-	me.skills.thn = 40 + p_ptr->lev;
 
 	me.boss_r_idx = MON_OREMORJ;
 

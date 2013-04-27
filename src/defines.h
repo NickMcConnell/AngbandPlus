@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 1
 #define VER_MINOR 0
-#define VER_PATCH 13
+#define VER_PATCH 14
 #define VER_EXTRA 0
 
 
@@ -679,11 +679,12 @@
 #define RACE_MON_DEMON          47
 #define RACE_MON_HYDRA          48
 #define RACE_MON_LEPRECHAUN     49
+#define RACE_MON_TROLL          50
 /*
  * Maximum number of player "race" types (see "table.c", etc)
  * Note other races exist, and use constants beginning at MIMIC_MIN
  */
-#define MAX_RACES               50
+#define MAX_RACES               51
 
 #define DEMIGOD_MINOR			0
 #define DEMIGOD_ZEUS			1
@@ -733,6 +734,12 @@
 #define GIANT_STORM     2
 #define GIANT_TITAN     3
 #define GIANT_MAX       4
+
+#define TROLL_ETTIN    0
+#define TROLL_STORM    1
+#define TROLL_SPIRIT   2
+#define TROLL_KING     3
+#define TROLL_MAX      4
 
 /* TODO */
 #define RACE_IS_NONLIVING    0x0001

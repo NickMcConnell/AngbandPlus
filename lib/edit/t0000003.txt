@@ -261,6 +261,9 @@ B:$4:R:Spectre:None
 B:$4:R:Ent:None
 B:$4:R:Balrog:None
 B:$4:R:Android:None
+B:$4:R:Demon:None
+B:$4:R:Lich:None
+B:$4:R:Jelly:None
 
 B:$5:N:Beastmaster:Draxle:Draconian
 B:5:N:モンスター仙人:ドラクスル:ドラコニアン
