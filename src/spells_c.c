@@ -903,6 +903,7 @@ void dispel_evil_spell(int cmd, variant *res)
 		break;
 	case SPELL_CAST:
 		dispel_evil(randint1(sides));
+		var_set_bool(res, TRUE);
 		break;
 	default:
 		default_spell(cmd, res);

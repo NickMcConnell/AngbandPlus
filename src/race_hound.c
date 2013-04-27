@@ -135,7 +135,7 @@ static int _bite_effect(void)
 static void _calc_innate_attacks(void)
 {
 	int l = p_ptr->lev;
-	int to_d = l/10 + l*l/500 + l*l*l/25000;
+	int to_d = l/3 + l*l/500 + l*l*l/25000;
 	int to_h = l/5 + l*l/250 + l*l*l/12500;
 
 	/* Claws */
@@ -270,7 +270,7 @@ static void _breathe_spell(int cmd, variant *res)
 	case SPELL_COST_EXTRA:
 	{
 		int l = p_ptr->lev;
-		int cst = l*l/100;
+		int cst = l*l/125;
 		var_set_int(res, cst);
 		break;
 	}
@@ -394,10 +394,14 @@ static int _get_powers(spell_info* spells, int max) {
 static void _calc_bonuses(void) {
 	int l = p_ptr->lev;
 	int to_a = l/10 + l*l/250 + l*l*l/12500;
+	int tier = _find_tier(p_ptr->current_r_idx);
 
 	p_ptr->skill_dig += 100;
 	p_ptr->to_a += to_a;
 	p_ptr->dis_to_a += to_a;
+
+	if (tier > 1)
+		p_ptr->pspeed += (tier - 1);
 
 	switch (p_ptr->current_r_idx)
 	{
@@ -537,6 +541,10 @@ static void _calc_bonuses(void) {
 }
 
 static void _get_flags(u32b flgs[TR_FLAG_SIZE]) {
+	int tier = _find_tier(p_ptr->current_r_idx);
+	if (tier > 1)
+		add_flag(flgs, TR_SPEED);
+
 	switch (p_ptr->current_r_idx)
 	{
 	case MON_LIGHT_HOUND:
