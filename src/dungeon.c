@@ -3457,7 +3457,7 @@ static void process_world(void)
  */
 static bool enter_wizard_mode(void)
 {
-	/* Ask first time, but not while loading a dead char with the -w option */
+	/* Ask first time unless wizard mode is invoked from the CLI */
 	if (!noscore && !(p_ptr->chp < 0))
 	{
 		/* Mention effects */
@@ -3473,6 +3473,9 @@ static bool enter_wizard_mode(void)
 
 		/* Mark savefile */
 		noscore |= 0x0002;
+
+		/* Save game in case permadeath is disabled */
+		do_cmd_save_game();
 	}
 
 	/* Success */
@@ -3485,7 +3488,7 @@ static bool enter_wizard_mode(void)
  */
 static bool enter_debug_mode(void)
 {
-	/* Ask first time */
+	/* Ask first time unless in wizard mode */
 	if (!noscore && !wizard)
 	{
 		/* Mention effects */
@@ -3501,6 +3504,9 @@ static bool enter_debug_mode(void)
 
 		/* Mark savefile */
 		noscore |= 0x0008;
+
+		/* Save game */
+		do_cmd_save_game();
 	}
 
 	/* Success */
@@ -5557,6 +5563,8 @@ void play_game(bool new_game)
 {
 	int i, tmp_dun;
 
+	bool perma_death = FALSE;
+
 	bool cheat_death = FALSE;
 
 	hack_corruption = FALSE;
@@ -6049,8 +6057,15 @@ void play_game(bool new_game)
 			}
 		}
 
-		/* Handle "death" */
-		if (death)
+		/* Death without permadeath */
+		if (death && !perma_death)
+		{
+			death=FALSE;
+			break;
+		}
+
+		/* And with... */
+		else if (death)
 		{
 			break;
 		}

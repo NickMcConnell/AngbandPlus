@@ -1544,6 +1544,9 @@ option_type option_info[] =
 	{ &empty_levels, TRUE, 3, 18,
 	  "empty_levels", "Allow empty 'arena' levels" },
 
+	{ &perma_death, FALSE, 3, 19,
+	  "perma_death", "Don't allow restoration from save files" },
+
 	/*** Efficiency ***/
 
 	{ &view_reduce_lite, FALSE, 4, 0,

@@ -124,7 +124,7 @@ VAPOR = add_spell
 }
 
 function get_geyser_damage()
-	return get_level(GEYSER, 10), 3 + get_level(GEYSER, 35)
+	return get_level(GEYSER, 20), 3 + get_level(GEYSER, 35)
 end
 
 GEYSER = add_spell

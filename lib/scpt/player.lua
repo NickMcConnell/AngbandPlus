@@ -74,3 +74,17 @@ end
 
 -- Register in the hook list
 add_hook_script(HOOK_BIRTH_OBJECTS, "__birth_hook_objects", "__birth_hook_objects")
+
+-- Boost stats when you gain levels
+player.last_rewarded_level = 1
+add_loadsave("player.last_rewarded_level", 1)
+add_hooks
+{
+	[HOOK_PLAYER_LEVEL] = function()
+		while player.last_rewarded_level < player.lev do
+			stat = randint(6) - 1
+			do_inc_stat(stat)
+			player.last_rewarded_level = player.last_rewarded_level + 1
+		end
+	end,
+}

@@ -3153,7 +3153,10 @@ bool make_attack_spell(int m_idx)
 	}
 
 	/* Can the player disrupt its puny attempts? */
-	if ((p_ptr->antimagic_dis >= m_ptr->cdis) && (magik(p_ptr->antimagic)) && (thrown_spell >= 128))
+	if ((p_ptr->antimagic_dis >= m_ptr->cdis) && 
+    (magik(p_ptr->antimagic)) && 
+    (p_ptr->antimagic > rand_int(3 * m_ptr->level / 2)) &&
+    (thrown_spell >= 104))
 	{
 		char m_poss[80];
 

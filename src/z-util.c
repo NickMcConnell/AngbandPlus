@@ -127,7 +127,9 @@ bool func_false(void)
  */
 bool streq(cptr a, cptr b)
 {
-	return (!strcmp(a, b));
+	/* Make sure we're not comparing NULLs */
+	if (a == NULL || b == NULL) return (FALSE);
+	return !strcmp(a, b);
 }
 
 
@@ -136,6 +138,9 @@ bool streq(cptr a, cptr b)
  */
 bool suffix(cptr s, cptr t)
 {
+	/* Check for null values */
+	if (s == NULL || s == NULL) return (FALSE);
+
 	int tlen = strlen(t);
 	int slen = strlen(s);
 

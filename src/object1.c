@@ -3151,11 +3151,6 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 			text_out("It prevents the space-time continuum from being disrupted.  ");
 		}
 
-		if ((f4 & (TR4_ANTIMAGIC_50)) || (f4 & (TR4_ANTIMAGIC_30)) || (f4 & (TR4_ANTIMAGIC_20)) || (f4 & (TR4_ANTIMAGIC_10)))
-		{
-			text_out("It generates an antimagic field.  ");
-		}
-
 		if (f5 & TR5_SPELL_CONTAIN)
 		{
 			if (o_ptr->pval2 == -1)

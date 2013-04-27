@@ -215,10 +215,10 @@ LIBS = -L/usr/X11R6/lib -lX11
 #SDL_CONFIG ?= sdl-config
 #COPTS = -Wall -O1 -pipe -g
 #INCLUDES = `$(SDL_CONFIG) --cflags`
-#DEFINES = -DUSE_SDL -DUSE_GCU \
+#DEFINES = -DUSE_SDL \
 #	-DUSE_EGO_GRAPHICS -DUSE_TRANSPARENCY \
 #	-DUSE_PRECISE_CMOVIE -DUSE_UNIXSOCK -DSUPPORT_GAMMA
-#LIBS = `$(SDL_CONFIG) --libs` -lSDL_image -lSDL_ttf -lcurses
+#LIBS = `$(SDL_CONFIG) --libs` -lSDL_image -lSDL_ttf -lSDL_mixer -lSDL -lX11
 
 ##
 ## Variation -- Use "main-cap.c" instead of "main-gcu.c"
@@ -357,7 +357,7 @@ BASESRCS = \
   wizard2.c init2.c birth.c wizard1.c init1.c main.c
 
 BASEOBJS = \
-  $(GTK_OBJ_FILE) main-gcu.o main-x11.o main-xaw.o main-sdl.o main-dmy.o \
+  $(GTK_OBJ_FILE) main-gcu.o main-x11.o main-xaw.o main-sdl.o \
   z-rand.o z-util.o z-form.o z-virt.o z-term.o z-sock.o \
   variable.o tables.o plots.o util.o cave.o dungeon.o \
   melee1.o melee2.o modules.o \

@@ -2503,7 +2503,6 @@ static int extra_blows;
 static int extra_shots;
 void apply_flags(u32b f1, u32b f2, u32b f3, u32b f4, u32b f5, u32b esp, s16b pval, s16b tval, s16b to_h, s16b to_d, s16b to_a)
 {
-        s16b antimagic_mod;
 
 	/* Affect stats */
 	if (f1 & (TR1_STR)) p_ptr->stat_add[A_STR] += pval;
@@ -2619,50 +2618,6 @@ void apply_flags(u32b f1, u32b f2, u32b f3, u32b f4, u32b f5, u32b esp, s16b pva
 	if (f2 & (TR2_SUST_CHR)) p_ptr->sustain_chr = TRUE;
 
 	if (f4 & (TR4_PRECOGNITION)) p_ptr->precognition = TRUE;
-
-        antimagic_mod = to_h + to_d + to_a;
-
-	if (f4 & (TR4_ANTIMAGIC_50))
-	{
-		s32b tmp;
-
-                tmp = 10 + get_skill_scale(SKILL_ANTIMAGIC, 40) - antimagic_mod;
-		if (tmp > 0) p_ptr->antimagic += tmp;
-
-                tmp = 1 + get_skill_scale(SKILL_ANTIMAGIC, 4) - antimagic_mod / 15;
-		if (tmp > 0) p_ptr->antimagic_dis += tmp;
-	}
-
-	if (f4 & (TR4_ANTIMAGIC_30))
-	{
-		s32b tmp;
-
-                tmp = 7 + get_skill_scale(SKILL_ANTIMAGIC, 33) - antimagic_mod;
-		if (tmp > 0) p_ptr->antimagic += tmp;
-
-                tmp = 1 + get_skill_scale(SKILL_ANTIMAGIC, 2) - antimagic_mod / 15;
-		if (tmp > 0) p_ptr->antimagic_dis += tmp;
-	}
-
-	if (f4 & (TR4_ANTIMAGIC_20))
-	{
-		s32b tmp;
-
-                tmp = 5 + get_skill_scale(SKILL_ANTIMAGIC, 15) - antimagic_mod;
-		if (tmp > 0) p_ptr->antimagic += tmp;
-
-		p_ptr->antimagic_dis += 2;
-	}
-
-	if (f4 & (TR4_ANTIMAGIC_10))
-	{
-		s32b tmp;
-
-                tmp = 1 + get_skill_scale(SKILL_ANTIMAGIC, 9) - antimagic_mod;
-		if (tmp > 0) p_ptr->antimagic += tmp;
-
-		p_ptr->antimagic_dis += 1;
-	}
 
 	if (f4 & (TR4_AUTO_ID))
 	{
@@ -2937,8 +2892,8 @@ void calc_bonuses(bool silent)
 
 	if (get_skill(SKILL_ANTIMAGIC))
 	{
-		p_ptr->antimagic += get_skill(SKILL_ANTIMAGIC);
-		p_ptr->antimagic_dis += get_skill_scale(SKILL_ANTIMAGIC, 10) + 1;
+		p_ptr->antimagic += get_skill_scale(SKILL_ANTIMAGIC, 100);
+		p_ptr->antimagic_dis += get_skill_scale(SKILL_ANTIMAGIC, 15);
 
 		if (p_ptr->antimagic_extra & CLASS_ANTIMAGIC)
 		{
@@ -3888,22 +3843,22 @@ void calc_bonuses(bool silent)
 	p_ptr->skill_dig += adj_str_dig[p_ptr->stat_ind[A_STR]];
 
 	/* Affect Skill -- disarming (skill) */
-	p_ptr->skill_dis += (get_skill_scale(SKILL_DISARMING, 75));
+	p_ptr->skill_dis += (get_skill_scale(SKILL_DISARMING, 200));
 
 	/* Affect Skill -- magic devices (skill) */
 	p_ptr->skill_dev += (get_skill_scale(SKILL_DEVICE, 150));
 
 	/* Affect Skill -- saving throw (skill and level) */
-	p_ptr->skill_sav += (get_skill_scale(SKILL_SPIRITUALITY, 75));
+	p_ptr->skill_sav += (get_skill_scale(SKILL_SPIRITUALITY, 150));
 
 	/* Affect Skill -- stealth (skill) */
 	p_ptr->skill_stl += (get_skill_scale(SKILL_STEALTH, 25));
 
 	/* Affect Skill -- search ability (Sneakiness skill) */
-	p_ptr->skill_srh += (get_skill_scale(SKILL_SNEAK, 35));
+	p_ptr->skill_srh += (get_skill_scale(SKILL_SNEAK, 300));
 
 	/* Affect Skill -- search frequency (Sneakiness skill) */
-	p_ptr->skill_fos += (get_skill_scale(SKILL_SNEAK, 25));
+	p_ptr->skill_fos += (get_skill_scale(SKILL_SNEAK, 300));
 
 	/* Affect Skill -- combat (Combat skill + mastery) */
 	p_ptr->skill_thn += (50 * (((7 * get_skill(p_ptr->melee_style)) + (3 * get_skill(SKILL_COMBAT))) / 10) / 10);

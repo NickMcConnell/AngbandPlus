@@ -400,6 +400,7 @@ E:Music:Antimagic
 E:Prayer:Antimagic
 E:Druidistic:Antimagic
 E:Thaumaturgy:Antimagic
+E:Alchemy:Antimagic
 
 ################################## SNEAKINESS SKILLS ###############################
 

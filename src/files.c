@@ -6540,7 +6540,7 @@ void close_game(void)
 		is_autosave = FALSE;
 
 		/* Save the game */
-		do_cmd_save_game();
+		if (perma_death) do_cmd_save_game();
 
 		/* If note-taking enabled, write session end to notes file */
 		if (take_notes)

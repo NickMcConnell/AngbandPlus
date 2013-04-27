@@ -788,16 +788,6 @@ void do_cmd_mimic_lore()
 {
 	int fail;
 
-	object_type	*o_ptr;
-
-
-	/* Player has to be able to see */
-	if (p_ptr->blind || no_lite())
-	{
-		msg_print("You cannot see!");
-		return;
-	}
-
 	/* No transformations when confused */
 	if (p_ptr->confused)
 	{
@@ -817,16 +807,25 @@ void do_cmd_mimic_lore()
 	/* Not in mimic forms -- Allow transformations */
 	else
 	{
-		o_ptr = &p_ptr->inventory[INVEN_OUTER];
 
-		if ((o_ptr->tval != TV_CLOAK) || (o_ptr->sval != SV_MIMIC_CLOAK))
-		{
-			msg_print("You are not wearing any cloaks of mimicry.");
-			return;
-		}
+  char ch = ' ';
 
-		/* Calculate failure rate */
-		fail = get_mimic_chance(o_ptr->pval2);
+  get_com("(a)mouse, (b)eagle, (c)wolf, (d)spider, (e)Ent, (f)vapour, (g)serpent, (h)mumak", &ch);
+
+  cptr form = " ";
+
+  if (ch == 'a') form = "Mouse";
+  else if (ch == 'b') form = "Eagle";
+  else if (ch == 'c') form = "Wolf";
+  else if (ch == 'd') form = "Spider";
+  else if (ch == 'e') form = "Elder Ent";
+  else if (ch == 'f') form = "Vapour";
+  else if (ch == 'g') form = "Serpent";
+  else if (ch == 'h') form = "Mumak";
+  else return;
+		
+  /* Calculate failure rate */
+		fail = get_mimic_chance(resolve_mimic_name(form));
 
 		if (fail > 75)
 		{
@@ -852,7 +851,7 @@ void do_cmd_mimic_lore()
 		/* Success */
 		else
 		{
-			set_mimic(k_info[o_ptr->k_idx].pval2 + get_skill_scale(SKILL_MIMICRY, 1000), o_ptr->pval2, get_skill(SKILL_MIMICRY));
+			set_mimic(get_skill_scale(SKILL_MIMICRY, 1000), resolve_mimic_name(form), get_skill(SKILL_MIMICRY));
 		}
 	}
 

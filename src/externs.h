@@ -283,6 +283,7 @@ extern bool always_small_level;
 #if 0 /* It's controlled by insanity -- pelpel */
 extern bool flavored_attacks;
 #endif
+extern bool perma_death;
 extern bool player_symbols;
 extern byte hitpoint_warn;
 extern byte delay_factor;

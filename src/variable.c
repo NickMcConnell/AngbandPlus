@@ -309,6 +309,7 @@ bool track_target; 			/* Monsters target the player */
 bool smart_learn; 			/* Monsters learn from their mistakes */
 bool smart_cheat; 			/* Monsters exploit player weaknesses */
 
+bool perma_death;			/* Don't allow restoration from save files */             
 
 /* Option Set 4 -- Efficiency */
 

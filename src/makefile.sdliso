@@ -177,7 +177,7 @@ DEFINES = -DUSE_SDL -DUSE_GCU \
 	-DUSE_EGO_GRAPHICS -DUSE_TRANSPARENCY \
 	-DUSE_PRECISE_CMOVIE -DUSE_UNIXSOCK -DSUPPORT_GAMMA \
 	-DUSE_ISO
-LIBS = `$(SDL_CONFIG) --libs` -lSDL_image -lSDL_ttf -lcurses
+LIBS = `$(SDL_CONFIG) --libs` -lSDL_image -lSDL_ttf -lcurses -lX11
 
 ##
 ## Variation -- Use "main-cap.c" instead of "main-gcu.c"
@@ -289,7 +289,7 @@ LIBS = `$(SDL_CONFIG) --libs` -lSDL_image -lSDL_ttf -lcurses
 #
 
 BASESRCS = \
-  main-gtk.c main-gcu.c main-x11.c main-xaw.c main-dmy.c \
+  main-gtk.c main-gcu.c main-x11.c main-xaw.c \
   z-rand.c z-util.c z-form.c z-virt.c z-term.c z-sock.c \
   variable.c tables.c plots.c util.c cave.c dungeon.c \
   melee1.c melee2.c modules.c \
@@ -308,7 +308,7 @@ BASESRCS = \
 
 
 BASEOBJS = \
-  main-gtk.o main-gcu.o main-x11.o main-xaw.o main-dmy.o \
+  main-gtk.o main-gcu.o main-x11.o main-xaw.o \
   z-rand.o z-util.o z-form.o z-virt.o z-term.o z-sock.o \
   variable.o tables.o plots.o util.o cave.o dungeon.o \
   melee1.o melee2.o modules.o \

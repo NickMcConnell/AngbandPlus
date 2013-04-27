@@ -1114,15 +1114,15 @@ D:weapon, and you feel a stunning power of slaying and rending as you
 D:slowly approach.
 
 
-# The Dark Sword 'Mormegil'
+# The Two Handed Sword 'Mormegil'
 
 N:78:'Mormegil'
-I:23:33:2
+I:23:25:2
 W:30:15:250:0
 P:0:6d7:0:0:-20
 F:SPEED | IM_FIRE | RES_FIRE | BRAND_FIRE | RES_DISEN | RES_FEAR |
 F:AGGRAVATE | CURSED | HEAVY_CURSE | SHOW_MODS | LEVELS | TY_CURSE | 
-F:BLOWS | SLAY_DRAGON | RES_CHAOS | ANTIMAGIC_50 | 
+F:BLOWS | SLAY_DRAGON | RES_CHAOS |
 F:DRAIN_MANA | DRAIN_HP | DRAIN_EXP
 D:A foul, twisted sword with blackened spines and knobs, whose very name is a 
 D:curse upon the lips of Elves and Men.

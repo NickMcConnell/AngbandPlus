@@ -1,0 +1,4 @@
+I (Therem Harth) would like to express my thanks to DarkGod and the ToME2 development crew
+for creating this awesome game in the first place. Further thanks to AnonymousHero for testing
+and maintaining the 2.3.x unofficial git branch; and thanks again to Neil Stevens for the stat
+gain script.

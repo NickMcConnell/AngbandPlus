@@ -1,0 +1,46 @@
+TFork 0.2
+
+The most important change here... Permadeath is now DISABLED by default. Yes, you read
+that correctly. Death will no longer invalidate your save file, unless you SPECIFICALLY
+enable the perma_death option in Gameplay Options. Using debug commands or Wizard mode
+WILL save your game automatically so your save file is marked.
+
+Why? IMO, permadeath is a huge waste of time outside of competitions, and cheat_live
+removes all need for thought in the game since you'll just be magically resurrected
+if you die. Non-permadeath mode allows you to play in a less paranoid fashion, but
+doesn't prevent you from landing yourself in an irreparable pickle, and allows you to
+replay fights you goofed the first time. It is, in short, a much saner choice for most
+anyone who plays the game for fun.
+
+If you want permadeath, you can reenable it. If I get enough complaints, I may leave
+permadeath enabled by default. But the option to turn it off will stay. Period.
+
+[/end rant]
+
+Now on to other changes...
+
+- This is a rewrite from 2.3.8-ah git branch. Tactics are back.
+- Stats are randomly boosted on level up.
+- Removed CMake stuff.
+- Spread Blows ability now depends on Combat, so monks and other barehand 
+fighters can get it.
+- Thaumaturgy is fixed. Again. :)
+- Monster leveling in dungeons is IMO totally broken and so has been removed.
+- Perception and Searching now scale at 6:1, and Disarming at 4:1, from their 
+respective skills. Sounds ridiculous, yes, but otherwise these skills are impractical.
+- Likewise, Saving Throw scales twice as fast from Spirituality, so your 
+Warrior CAN get a decent score now.
+- Runecraft is broken and has been disabled. It will probably be removed in 
+future versions.
+- Antimagic has been changed. A lot. Dark swords are gone, and the enchantment 
+malus is gone too; and AM can now block breaths... But the spell blocking code
+does a check against monster level. Currently Morgoth has a 1/3 chance of 
+breaking through a L50 Unbeliever's AM field, I'll change this as necessary.
+- Mimicry 
+-no longer requires sight, and Mimics can now do their magic without 
+cloaks. The Mimicry menu is kind of shoddy right now, I'll fix it at some point.
+- Fixed a couple of null pointer exception bugs in z-util.c that I should have 
+noticed a while ago :o
+- Due to the Antimagic changes Dark Swords have been removed; Mormegil is now a 
+two-handed sword.
+- Geyser once again does decent damage, and Mind school spells are once again damaging.

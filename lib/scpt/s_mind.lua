@@ -61,15 +61,15 @@ CONFUSE = add_spell
 	},
 	["spell"] = 	function()
 			if get_level(CONFUSE, 50) >= 35 then
-				return project_los(GF_OLD_CONF, 10 + get_level(CONFUSE, 150))
+				return project_los(GF_CONF_DAM, 10 + get_level(CONFUSE, 150))
 			elseif get_level(CONFUSE, 50) >= 15 then
 				local ret, dir = get_aim_dir()
 				if ret == FALSE then return end
-				return fire_ball(GF_OLD_CONF, dir, 10 + get_level(CONFUSE, 150), 3)
+				return fire_ball(GF_CONF_DAM, dir, 10 + get_level(CONFUSE, 150), 3)
 			else
 				local ret, dir = get_aim_dir()
 				if ret == FALSE then return end
-				return fire_bolt(GF_OLD_CONF, dir, 10 + get_level(CONFUSE, 150))
+				return fire_bolt(GF_CONF_DAM, dir, 10 + get_level(CONFUSE, 150))
 			end
 	end,
 	["info"] = 	function()
@@ -115,11 +115,11 @@ STUN = add_spell
 			if get_level(STUN, 50) >= 20 then
 				local ret, dir = get_aim_dir()
 				if ret == FALSE then return end
-				return fire_ball(GF_STUN, dir, 10 + get_level(STUN, 150), 3)
+				return fire_ball(GF_STUN_DAM, dir, 10 + get_level(STUN, 150), 3)
 			else
 				local ret, dir = get_aim_dir()
 				if ret == FALSE then return end
-				return fire_bolt(GF_STUN, dir, 10 + get_level(STUN, 150))
+				return fire_bolt(GF_STUN_DAM, dir, 10 + get_level(STUN, 150))
 			end
 	end,
 	["info"] = 	function()

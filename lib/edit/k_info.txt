@@ -5687,17 +5687,6 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:It allows you to leave your body to reincarnate into
 D:another one. However, your current body is lost in the process.
 
-N:721:& Dark Sword~
-G:|:D
-I:23:33:0
-W:25:0:70:500
-A:25/1:80/2
-P:0:3d7:0:0:0
-F:SHOW_MODS | ANTIMAGIC_50
-f:ANTIMAGIC_50
-D:A strange, very sharp long sword, which seems to drain light from its surroundings. As you
-D:wield it, you feel much less attuned to magic.
-
 N:722:Numenorean for Beginners (I)
 G:?:s
 I:8:101:0
