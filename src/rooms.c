@@ -1560,7 +1560,14 @@ static void build_type5(int bx0, int by0)
 	generate_door(in_x1, in_y1, in_x2, in_y2, TRUE);
 
 	/* Prepare allocation table */
-	get_mon_num_prep(n_ptr->hook_func);
+	if (current_quest && current_quest->type == QUEST_TYPE_FIXED_DEN)
+	{
+		get_mon_num_prep(quest_theme_hook);
+	}
+	else
+	{
+		get_mon_num_prep(n_ptr->hook_func);
+	}
 
 	/* Pick some monster types */
 	for (i = 0; i < 64; i++)
@@ -1777,7 +1784,14 @@ static void build_type6(int bx0, int by0)
 	generate_door(in_x1, in_y1, in_x2, in_y2, TRUE);
 
 	/* Prepare allocation table */
-	get_mon_num_prep(n_ptr->hook_func);
+	if (current_quest && current_quest->type == QUEST_TYPE_FIXED_DEN)
+	{
+		get_mon_num_prep(quest_theme_hook);
+	}
+	else
+	{
+		get_mon_num_prep(n_ptr->hook_func);
+	}
 
 	/* Pick some monster types */
 	for (i = 0; i < 16; i++)

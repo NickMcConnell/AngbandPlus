@@ -3126,7 +3126,7 @@ bool do_inc_stat(int stat)
 }
 
 /*
- * A controlled gain 
+ * A controlled gain
  */
 bool do_inc_stat_fixed(int stat, int amt)
 {
@@ -3134,17 +3134,17 @@ bool do_inc_stat_fixed(int stat, int amt)
 	int value = p_ptr->stat[stat].cur;
 	bool gained = FALSE;
 	bool restored = FALSE;
-	
+
 	if (value < cap)
 	{
 		restored = TRUE;
 
 		/* New value */
 		value += amt;
-		
+
 		/* Apply cap */
 		value = MIN(cap, value);
-		
+
 		/* Save the new value */
 		p_ptr->stat[stat].cur = value;
 
@@ -3157,12 +3157,12 @@ bool do_inc_stat_fixed(int stat, int amt)
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
 	}
-	
+
 	if (gained)
 	{
 		/* Message */
 		msgf("You feel more %s.", desc_stat_pos[stat]);
-		
+
 		return(TRUE);
 	}
 	else if (restored)
@@ -3172,7 +3172,7 @@ bool do_inc_stat_fixed(int stat, int amt)
 
 		return(TRUE);
 	}
-}	
+}
 
 
 
@@ -3617,7 +3617,7 @@ void take_hit(int damage, cptr hit_from)
 		else
 		{
 			if (!get_rnd_line("death.txt", 0, death_message))
-				msgf(death_message);
+				msgf("%s  You die.", death_message);
 		}
 
 		/* Note cause of death */

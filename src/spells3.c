@@ -1557,7 +1557,8 @@ bool alchemy(void)
 	/* Verify unless quantity given */
 	if (!force)
 	{
-		if (!(auto_destroy && (object_value(o_ptr) < 1)))
+		if ((!(quick_destroy_bad && (object_value(o_ptr) < 1))) && !quick_destroy_all
+			&& !(quick_destroy_avg && object_average(o_ptr)) && !(quick_destroy_good && object_good(o_ptr)))
 		{
 			/* Make a verification */
 			if (!get_check("Really turn %s to gold? ", o_name)) return FALSE;
@@ -1657,7 +1658,8 @@ bool polymorph_item(void)
 	/* Verify unless quantity given */
 	if (!force)
 	{
-		if (!(auto_destroy && (object_value(o_ptr) < 1)))
+		if ((!(quick_destroy_bad && (object_value(o_ptr) < 1))) && !quick_destroy_all
+			&& !(quick_destroy_avg && object_average(o_ptr)) && !(quick_destroy_good && object_good(o_ptr)))
 		{
 			/* Make a verification */
 			if (!get_check("Really polymorph %s? ", o_name)) return FALSE;
@@ -3203,14 +3205,29 @@ s16b spell_chance(int spell, int realm)
 
 	/*
 	 * Non mage/priest characters never get too good
-	 * (added high mage, mindcrafter)
+	 *
+	 * Min 5%: Rogue, Paladin, Chaos Warrior, and Ranger in their off-realm.
+	 * Min 3%: Ranger (Nature), Warrior-Mage in their off-realm.
+	 * Min 1%: Warrior-Mage (Arcane), Monk, Priest in their off-realm.
+	 * Min 0%: Priest (Life/Death), Mage, Mindcrafter, High Mage
 	 */
-	if ((p_ptr->rp.pclass != CLASS_PRIEST) &&
-		(p_ptr->rp.pclass != CLASS_MAGE) &&
-		(p_ptr->rp.pclass != CLASS_MINDCRAFTER) &&
-		(p_ptr->rp.pclass != CLASS_HIGH_MAGE))
+	if (p_ptr->rp.pclass == CLASS_ROGUE ||
+		(p_ptr->rp.pclass == CLASS_RANGER && realm != REALM_NATURE-1) ||
+		p_ptr->rp.pclass == CLASS_PALADIN ||
+		p_ptr->rp.pclass == CLASS_CHAOS_WARRIOR)
 	{
-		if (minfail < 5) minfail = 5;
+		minfail = MAX(5, minfail);
+	}
+	else if (p_ptr->rp.pclass == CLASS_RANGER || 
+			 (p_ptr->rp.pclass == CLASS_WARRIOR_MAGE && realm != REALM_ARCANE-1))
+	{
+		minfail = MAX(3, minfail);
+	}
+	else if (p_ptr->rp.pclass == CLASS_WARRIOR_MAGE ||
+			 p_ptr->rp.pclass == CLASS_MONK ||
+			 (p_ptr->rp.pclass == CLASS_PRIEST && realm != REALM_LIFE-1 && realm != REALM_DEATH-1))
+	{
+		minfail = MAX(1, minfail);
 	}
 
 	/* Hack -- Priest prayer penalty for "edged" weapons  -DGK */
@@ -3828,7 +3845,7 @@ void spell_info(char *p, int spell, int realm)
 						break;
 					}
 					/* several summons: */
-					case 2: case 11: case 14: case 19:
+					case 2: case 9: case 13: case 19:
 					{
 						strcpy(p, " dur 150");
 						break;
@@ -3845,6 +3862,11 @@ void spell_info(char *p, int spell, int realm)
 					}
 					case 5:
 					{
+						strnfmt(p, 80, " range %d", MAX(250, plev*6));
+						break;
+					}
+					case 6:
+					{
 						strcpy(p, " dur 300");
 						break;
 					}
@@ -3859,14 +3881,14 @@ void spell_info(char *p, int spell, int realm)
 						strnfmt(p, 80, " dam %d", 5+(plev/10));
 						break;
 					}
-					case 9:
+					case 10:
+						strcpy(p, " range 25");
+						break;
+					case 12:
 					{
-						strnfmt(p, 80, " range %d", MAX(250, plev*6));
+						strnfmt(p, 80, " dur %d+d%d", plev, plev + 20);
 						break;
 					}
-					case 12:
-						strcpy(p, " range 24");
-						break;
 					case 16:
 						strnfmt(p, 80, " dam %dd6", (6+(plev-1)/5));
 						break;
@@ -3928,7 +3950,7 @@ void spell_info(char *p, int spell, int realm)
 						strcpy(p, " heal 12+2d8");
 						break;
 					}
-					case 10: case 13: case 18: case 19:
+					case 9: case 13: case 18: case 19:
 					{
 						/* Actually rand_range(20,40) */
 						strcpy(p, " dur 20+d20");
@@ -4835,12 +4857,12 @@ void sanity_blast(const monster_type *m_ptr)
 		pet:  0, rolls for success.  1 or 2 forces success or failure, respectively.
  */
 
-bool player_summon (int type, int level, bool group, int dur, int pet)
+bool player_summon (int type, int level, bool group, int dur, int pet, int number)
 {
-	int i, x, y, qual, r_idx = 0;
+	int i, j, x, y, qual, r_idx = 0;
 	cave_type *c_ptr;
 	monster_type *m_ptr;
-	bool p;
+	bool p, succ = FALSE;
 	cptr q, s;
 
 	/* determine success or failure */
@@ -4854,44 +4876,6 @@ bool player_summon (int type, int level, bool group, int dur, int pet)
 	if (type == 0 || type > PSUM_NUM_TYPES) {
 		return summon_specific((p ? -1 : 0), p_ptr->px, p_ptr->py, level, type, group, FALSE, p);
 	}
-
-	/* Look for a location */
-	for (i = 0; i < 20; ++i)
-	{
-		/* Pick a distance */
-		int d = (i / 15) + 1;
-
-		/* Pick a location */
-		scatter(&x, &y, p_ptr->px, p_ptr->py, d);
-
-		/* paranoia */
-		if (!in_bounds2(x, y)) continue;
-
-		/* Not on top of player */
-		if ((y == p_ptr->py) && (x == p_ptr->px)) continue;
-
-		/* Require "empty" floor grid */
-		c_ptr = area(x, y);
-		if (!cave_empty_grid(c_ptr)) continue;
-
-		/* ... nor on the Pattern */
-		if (cave_pattern_grid(c_ptr)) continue;
-
-		/* Check for a field that blocks movement */
-		if (fields_have_flags(c_ptr, FIELD_INFO_NO_ENTER)) continue;
-
-		/*
-		 * Test for fields that will not allow monsters to
-		 * be generated on them.  (i.e. Glyph of warding)
-		 */
-		if (fields_have_flags(c_ptr, FIELD_INFO_NO_MPLACE)) continue;
-
-		/* Okay */
-		break;
-	}
-
-	/* Failure */
-	if (i == 20) return (FALSE);
 
 	/* Determine the "quality rating" of the monster.  This will always be a number between 1 and 100. */
 	qual = level + damroll(8,4)-20;  /* allows some variation, but close to specified level. */
@@ -5125,8 +5109,54 @@ bool player_summon (int type, int level, bool group, int dur, int pet)
 	/* Handle failure */
 	if (!r_idx) return (FALSE);
 
-	/* Attempt to place the monster (awake) */
-	if (!place_monster_aux(x,y, r_idx, FALSE, group, FALSE, p, TRUE)) return (FALSE);
+	/* Attempt to place number monsters (awake) */
+	for (j = 0; j < number; j++) 
+	{
+		/* Look for a location */
+		for (i = 0; i < 20; ++i)
+		{
+			/* Pick a distance */
+			int d = (i / 15) + 1;
+
+			/* Pick a location */
+			scatter(&x, &y, p_ptr->px, p_ptr->py, d);
+
+			/* paranoia */
+			if (!in_bounds2(x, y)) continue;
+
+			/* Not on top of player */
+			if ((y == p_ptr->py) && (x == p_ptr->px)) continue;
+
+			/* Require "empty" floor grid */
+			c_ptr = area(x, y);
+			if (!cave_empty_grid(c_ptr)) continue;
+
+			/* ... nor on the Pattern */
+			if (cave_pattern_grid(c_ptr)) continue;
+
+			/* Check for a field that blocks movement */
+			if (fields_have_flags(c_ptr, FIELD_INFO_NO_ENTER)) continue;
+
+			/*
+			* Test for fields that will not allow monsters to
+			* be generated on them.  (i.e. Glyph of warding)
+			*/
+			if (fields_have_flags(c_ptr, FIELD_INFO_NO_MPLACE)) continue;
+
+			/* Okay */
+			break;
+		}
+
+		/* Place, if no failure */
+		if (i != 20)
+		{
+			if (place_monster_aux(x,y, r_idx, FALSE, group, FALSE, p, TRUE))
+				/* Have summoned at least one thing. */
+				succ = TRUE;
+		}
+	}
+	
+	if (!succ) return (FALSE);
 
 	/* Give a message. */
 	msgf(p ? q : s);

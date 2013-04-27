@@ -1,6 +1,101 @@
-This is a document file listing the changes in Zangband (compared to
-the standard Angband 2.8.1.) No long explanations, just a list. See
+This is a document file listing the changes in Z+Angband (compared to
+ZAngband 2.7.5pre1).  No long explanations, just a list. See
 code for details. In reversed chronological order (more or less):
+
+Changes from Z+Angband 0.2.1 beta to Z+Angband 0.2.2 beta:
+
+1.  Enhanced the squelch system in a rudimentary way via player options.
+2.  Removed level feelings from quest levels.
+3.  Fixed bug that prevented the exploration of corners while running with
+      a radius-1 light source (torch).
+4.  Fixed bug that caused a crash entering "dead" quest levels.
+5.  Disallowed random artifacts from appearing in non-greedy stores.
+6.  Allowed larger towns to have stairs.
+7.  Readjusted quest-eligibility formula, to allow for more aggressive 
+      play at higher levels.
+8.  Fixed bug that caused creation of "a Ring" / "a Necklace", etc., with
+      no powers.
+9.  Monsters with resistance to fire or electricity now resist plasma damage
+      somewhat.  
+10.  Rock streamers no longer always go through the middle of a level.
+11.  Complete rearrangement of the player options, removed some deprecated
+      options, designated others as "minor."
+12.  Unaffordable items in stores are now grayed out.
+13.  Terrain-based damage (e.g. drowning) formula adjusted (less dangerous now)
+14.  Added object-finding memory, accessible from the 'I' command.
+15.  Rods/Staves of probing replaced with "sense monsters" that does more.
+16.  Fixed bug that caused creation of quests off the eastern edge of the map.
+17.  Fixed bug that caused trap doors to function improperly.
+18.  Fixed bug that caused quests to be created with "boss" enemies without 
+      their minions.
+19.  Fixed various typos.
+20.  Squelch now works properly with the easy_floor option.
+21.  "Clearout" quest rewards increased, number of levels decreased.
+22.  "Message" quests will no longer send you to "Farm".
+23.  Disallowed "find artifact" quests from having a Lite as a target.
+24.  Kill / Boss / Den quests rewards reduced.
+25.  Dungeon monster quest rewards increased.
+26.  Quest object rewards now cap at 5 objects.
+27.  Increased price of Alchemy scrolls.
+28.  Character dumps now include full item descriptions and quest info.
+29.  Disallowed pits/nests of out-of-theme monsters in quests.
+30.  Included a patch for 64-bit compilers.
+31.  Quest stairs now disturb running.
+32.  Option included to auto-destroy *empty* chests.
+33.  Significant changes to Conjuration school: added Haste & Teleport Level,
+      moved Teleport earlier, removed Web and Magic Rope.
+34.  Made Identify spell in Sorcery school come later.
+35.  Experience divider mins out at player level.
+36.  Gold-costing spells no longer cost *all* your gold.
+37.  Fixed LUA script for Wand of Cold Beams.
+38.  Fixed LUA script for Spear of Hagen.
+39.  Changed LUA script for 'thanc daggers; substantial power reduction.
+40.  Objects with XTRA_HI_RESIST no longer get an XTRA_SLAY for free.
+41.  Double-creation of artifacts in find artifact quests no longer possible.
+42.  Klackon / Sprite Monks now get double speed bonus, as intended.
+43.  Changed color of Jeweler shops, more distinguishable from Magic shops.
+44.  Removed duplicate Topaz ring flavor.
+45.  Fixed bug that allowed unique dungeon monster quest targets to show up
+      and be killed prematurely.
+46.  Removed 85/1 rarity for potions of resistance.
+47.  Fixed a signed/unsigned type bug; there may still be others.
+48.  Artifact and Ego Item description lines no longer available unless the
+      object is ID'ed. 
+49.  Full description of items will give warnings when hidden powers may be
+      present.
+50.  Albino mutation renamed; now mutually exclusive with +4 CON mutation.
+51.  Cloned monsters no longer grant XP.
+52.  Pets are summoned as if they are clones.  Thus, no XP or treasure for
+      killing your own pets.
+53.  Fixed bug that cause quest entrances to not show up right away when you
+      are close to the entrance when the quest is discovered.
+54.  Game no longer defaults to "panic save."  Panic-save savefiles were often
+      unplayable.  
+55.  Added {=gn} inscription tool; {=g5} will auto-get objects of the same 
+      type but impose a maximum stack size of 5.
+56.  {=g} inscriptions on inventory items will induce auto-pickup of matching
+      items on the floor.
+57.  Adjusted minimum spell failure rates, to more precisely differentiate
+      classes.  Priests now have a 1% minimum fail rate in their 2nd realm.
+      Warrior mages have a 1% (Arcane) / 3% (2nd) minimum rate; Rangers have
+      a 3% (Nature) / 5% (2nd) minimum rate, Monks have a minimum 3% rate,
+      and Rogues, Paladins, and Chaos Warriors have a 5% minimum rate.  No
+      min rate for mages or high mages.  
+58.  Store discounts now (roughly) average when stacking.
+59.  Disabled "bank" and "mine" vaults - these were too commonly making
+      clearout quests too hard.
+60.  Added "auto_dump" option to encourage character dump at player death.
+61.  Entering "*" as character name will select a random name.
+62.  Rings of Invisibility now created with smaller bonuses (+1 to +6,
+      not +3 to +8).
+63.  Increased item depth of Amulets of Sustenance.
+64.  Fixed bug that cause Thieves Guilds to give "Request Membership" as
+      an option when all quests are complete.  
+65.  For purposes of locating other places, towns are now taken as existing
+      at a place closer to their actual center.  This results in quest 
+      location descriptions seeming more correct, and quests are now 
+      created more or less in a circle around the town.  Included "near"
+      description to avoid weird cases.
 
 Changes from Z+Angband 0.2.0 alpha to Z+Angband 0.2.1 beta:
 

@@ -330,7 +330,7 @@ static void select_building_restrictions(byte pop, byte magic, int law, u16b *bu
 	/* Note that cities of size 12 have a small chance to have stairs. */
 
 	/* Effects for cities */
-	if (build_num > 12)
+	if (build_num > 16)
 	{
 		/* Hack - Dungeons are not in large cities */
 		wild_build[BUILD_STAIRS].gen = 0;
@@ -411,7 +411,7 @@ static byte select_building(byte pop, byte magic, int law, u16b *build,
 	s32b total = 0;
 
 	/* Draw stairs first for small towns */
-	if ((build_num < 12) && (!build[BUILD_STAIRS])) return (BUILD_STAIRS);
+	if ((build_num < 16) && (!build[BUILD_STAIRS])) return (BUILD_STAIRS);
 
 
 	for (i = 0; i < MAX_CITY_BUILD; i++)
@@ -3601,6 +3601,40 @@ void init_vanilla_town(void)
 	/* Set dungeon depths */
 	d_ptr->max_level = MAX_DEPTH - 1;
 	d_ptr->min_level = 1;
+	d_ptr->floor = FEAT_DIRT;
+	d_ptr->wall = FEAT_WALL_EXTRA;
+	d_ptr->perm_wall = FEAT_PERM_EXTRA;
+	d_ptr->habitat = RF7_DUN;
+	d_ptr->rooms = RT_SIMPLE | RT_RVAULT | RT_DENSE | RT_COMPLEX;
+
+	d_ptr->freq_monsters = 100;
+	d_ptr->freq_objects = 100;
+	d_ptr->freq_doors = 100;
+	d_ptr->freq_traps = 100;
+	d_ptr->freq_rubble = 100;
+	d_ptr->freq_treasure = 100;
+	d_ptr->freq_stairs = 100;
+	d_ptr->freq_arena = 25;
+	d_ptr->freq_cavern = 250;
+	d_ptr->freq_tunnel = 100;
+
+	d_ptr->vein[0].deep = FEAT_MAGMA;
+	d_ptr->vein[0].number = 3;
+	d_ptr->vein[0].size = 2;
+	d_ptr->vein[1].deep = FEAT_QUARTZ;
+	d_ptr->vein[1].number = 2;
+	d_ptr->vein[1].size = 2;
+
+	d_ptr->river[0].deep = FEAT_DEEP_WATER;
+	d_ptr->river[0].shal = FEAT_SHAL_WATER;
+	d_ptr->river[0].rarity = 8;
+	d_ptr->river[0].size = 2;
+	d_ptr->river[1].rarity = 0;
+
+	d_ptr->lake.deep = FEAT_DEEP_WATER;
+	d_ptr->lake.shal = FEAT_SHAL_WATER;
+	d_ptr->lake.rarity = 15;
+	d_ptr->lake.size = 66;
 
 	/* Make the town - and get the location of the stairs */
 	van_town_gen(&place[1]);

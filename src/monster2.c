@@ -1360,9 +1360,8 @@ void update_mon_vis(u16b r_idx, int increment)
 	/* Update the counter */
 	r_ptr->r_see += increment;
 
-	/* Disturb if necessary */
-	if (disturb_view)
-		disturb(FALSE);
+	/* Disturb */
+	disturb(FALSE);
 
 	/* Update 'most powerful seen monster' */
 	if (r_ptr->r_see)
@@ -1696,10 +1695,12 @@ void update_mon(int m_idx, bool full)
 		if (m_ptr->unsummon == 0) { 			/* vanish, time's up. */
 			char s[80];
 		    strnfmt(s, 80, "%v is unsummoned!", MONSTER_FMT(m_ptr, 0x04));
-				if (islower(s[0])) s[0] = toupper(s[0]);
-				if (m_ptr->mflag & (MFLAG_VIEW)) { /* notice it vanish */
-					msgf(s);
-			string_free(s);
+			if (islower(s[0])) s[0] = toupper(s[0]);
+
+			/* notice it vanish */
+			if (m_ptr->mflag & (MFLAG_VIEW)) 
+			{ 
+				msgf(s);
 			}
 			delete_monster_idx(m_idx);
 			return;  /* no need to update anything else now */
@@ -1886,6 +1887,7 @@ monster_type *place_monster_one(int x, int y, int r_idx, bool slp, bool friendly
 	{
 		set_pet(m_ptr);
 		m_ptr->unsummon = 2000;  /* large default to make sure */
+		m_ptr->smart |= SM_CLONED;  /* No XP or treasure from pets */
 	}
 	/* Friendly? */
 	else if (friendly || (FLAG(r_ptr, RF_FRIENDLY)))
@@ -2760,14 +2762,14 @@ bool summon_specific(int who, int x1, int y1, int req_lev, int type, bool group,
 	return (TRUE);
 }
 
-/* 
+/*
  * Summon num monsters of type specified
  * near the player, and inform about things.
  */
 bool summon_monsters_near_player(int num, int type)
 {
 	int i, summoned = 0;
-	
+
 	for (i = 0; i < num; i++)
 	{
 		/* Try to summon one monster near the player */
@@ -2779,13 +2781,13 @@ bool summon_monsters_near_player(int num, int type)
 
 	/* Don't notice if it failed */
 	if (summoned == 0) return (FALSE);
-	
+
 	/* Say something */
-	if (p_ptr->tim.blind > 0) 
+	if (p_ptr->tim.blind > 0)
 		msgf ("You hear several monsters appear nearby.");
 	else
 		msgf ("There is a bright flash of light!");
-	
+
 	return (TRUE);
 }
 

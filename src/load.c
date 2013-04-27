@@ -1054,6 +1054,22 @@ static void rd_options(void)
 			}
 		}
 	}
+
+	/* Set all auto_destroy options to FALSE for old savefiles. */
+	if (sf_version <= 54)
+	{
+		auto_destroy_bad = FALSE;
+		auto_destroy_weap = FALSE;
+		auto_destroy_arm = FALSE;
+		auto_destroy_cloak = FALSE;
+		auto_destroy_shield = FALSE;
+		auto_destroy_helm = FALSE;
+		auto_destroy_gloves = FALSE;
+		auto_destroy_boots = FALSE;
+		quick_destroy_avg = FALSE;
+		quick_destroy_good = FALSE;
+		quick_destroy_all = FALSE;
+	}
 }
 
 
@@ -1431,10 +1447,10 @@ static void rd_messages(void)
 	char buf[1024];
 	byte tmp8u;
 
-	s16b num;
+	u16b num;
 
 	/* Total */
-	rd_s16b(&num);
+	rd_u16b(&num);
 
 	/* Read the messages */
 	for (i = 0; i < num; i++)
@@ -2467,6 +2483,192 @@ static void rd_quests(int max_quests)
 	}
 }
 
+static void convert_spells(void)
+{
+	int use_realm1 = p_ptr->spell.r[0].realm;
+	int use_realm2 = p_ptr->spell.r[1].realm;
+	int i, j, r;
+		
+	/* For earlier versions, no converting. */
+	if (sf_version < 54)
+	{
+		msgf ("Warning: Spell knowledge may convert improperly.");
+		return;
+	}
+
+	if (sf_version == 54)
+	{
+		/* Conjuration changes */
+		if (use_realm1 == REALM_CONJ || use_realm2 == REALM_CONJ)
+		{
+			int shift = 0;
+			r = (use_realm1 == REALM_CONJ ? 0 : 1);
+			
+			/* Move spells around.  An order that works is:
+				5 (Summon Phantom) replaces 6 (Magic Rope).
+				9 (Teleport Self) replaces 5.
+				11 (Summon Animals) replaces 9.
+				13 (Teleport Away) replaces 11.
+				14 (Summon Elemental) replaces 13.
+				12 (Dimension Door) replaces 10 (Web).
+				12 and 14 are reset completely. */
+			for (i = 0; i < 3; i ++) 
+			{
+				u32b *m;
+					
+				switch(i)
+				{
+					case 0:  m = &p_ptr->spell.r[r].learned; break;
+					case 1:  m = &p_ptr->spell.r[r].worked;  break;
+					case 2:  m = &p_ptr->spell.r[r].forgotten; break;
+				}
+			
+				if (*m & (1L << 5))
+					*m |= (1L << 6);
+				else
+					*m &= ~(1L << 6);
+				
+				if (*m & (1L << 9))
+					*m |= (1L << 5);
+				else
+					*m &= ~(1L << 5);
+
+				if (*m & (1L << 11))
+					*m |= (1L << 9);
+				else
+					*m &= ~(1L << 9);
+
+				if (*m & (1L << 13))
+					*m |= (1L << 11);
+				else
+					*m &= ~(1L << 11);
+
+				if (*m & (1L << 14))
+					*m |= (1L << 13);
+				else
+					*m &= ~(1L << 13);
+
+				if (*m & (1L << 12))
+					*m |= (1L << 10);
+				else
+					*m &= ~(1L << 10);
+
+				*m &= ~((1L << 12) | (1L << 14));
+			}
+	
+			/* Change r into an offset */
+			r = (r ? 32 : 0);
+
+			/* Convert spell order */
+			for (i = 0; i < PY_MAX_SPELLS; i++)
+			{
+				switch (p_ptr->spell.order[i] - r)
+				{
+					case 5:
+						p_ptr->spell.order[i] = 6 + r;
+						break;
+					case 9:
+						p_ptr->spell.order[i] = 5 + r;
+						break;
+					case 11:
+						p_ptr->spell.order[i] = 9 + r;
+						break;
+					case 13:
+						p_ptr->spell.order[i] = 11 + r;
+						break;
+					case 14:
+						p_ptr->spell.order[i] = 13 + r;
+						break;
+					case 12:
+						p_ptr->spell.order[i] = 10 + r;
+						break;
+					case 6: 
+					case 10:
+						p_ptr->spell.order[i] = 99;
+						shift++;
+						break;
+				}
+			}
+			
+			/* Shift away empty slots */
+			/* This is bubblesort, but we know in advance how many passes to make. */
+			for (i = 0; i < shift; i++) 
+			{
+				for (j = 0; j < PY_MAX_SPELLS - 1; j++)
+				{
+					if (p_ptr->spell.order[j] == 99 && p_ptr->spell.order[j+1] != 99)
+					{
+						p_ptr->spell.order[j] = p_ptr->spell.order[j+1];
+						p_ptr->spell.order[j+1] = 99;
+					}
+				}
+			}
+						
+
+		}
+	
+		/* Sorcery changes */
+		if (use_realm1 == REALM_SORCERY || use_realm2 == REALM_SORCERY)
+		{
+			r = (use_realm1 == REALM_SORCERY ? 0 : 1);
+			
+			/* Move spells around.  An order that works is:
+				Save status of spell 9 (Identify)
+				Spell 10 (Charm monster) replaces spell 9.
+				Spell 11 (Mass sleep) replaces spell 10.
+				Spell 9 buffer (Identify) replaces spell 11. */
+			for (i = 0; i < 3; i ++) 
+			{
+				u32b *m;
+				bool cycle;
+					
+				switch(i)
+				{
+					case 0:  m = &p_ptr->spell.r[r].learned; break;
+					case 1:  m = &p_ptr->spell.r[r].worked;  break;
+					case 2:  m = &p_ptr->spell.r[r].forgotten; break;
+				}
+		
+				cycle = (*m & (1L << 9) ? TRUE : FALSE);
+	
+				if (*m & (1L << 10))
+					*m |= (1L << 9);
+				else
+					*m &= ~(1L << 9);
+
+				if (*m & (1L << 11))
+					*m |= (1L << 10);
+				else
+					*m &= ~(1L << 10);
+
+				if (cycle)
+					*m |= (1L << 11);
+				else
+					*m &= ~(1L << 11);
+			}
+			/* Change r into an offset */
+			r = (r ? 32 : 0);
+
+			/* Convert spell order */
+			for (i = 0; i < PY_MAX_SPELLS; i++)
+			{
+				switch (p_ptr->spell.order[i] - r)
+				{
+					case 9:
+						p_ptr->spell.order[i] = 11 + r;
+						break;
+					case 10:
+						p_ptr->spell.order[i] = 9 + r;
+						break;
+					case 11:
+						p_ptr->spell.order[i] = 10 + r;
+						break;
+				}
+			}
+		}
+	}
+}
+
 
 /*
  * Actually read the savefile
@@ -2752,6 +2954,11 @@ static errr rd_savefile_new_aux(void)
 	{
 		rd_byte(&p_ptr->spell.order[i]);
 	}
+
+	/* Convert spells that changed */
+	if (sf_version <= 54)
+		convert_spells();
+			
 
 	/* Checksum */
 	rd_checksum ("Hit point and spell info");

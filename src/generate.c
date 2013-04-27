@@ -285,19 +285,19 @@ static void dead_level(void)
 			delete_monster(x,y);
 			delete_object(x,y);
 			delete_field(x,y);
+			
+			/* Get rid of rubble too */
+			c_ptr = cave_p(x,y);
+			if (c_ptr->feat == FEAT_RUBBLE)
+				c_ptr->feat = floor;
+
+			/* And buried treasure. */
+			if (c_ptr->feat == FEAT_MAGMA_K)
+				c_ptr->feat = FEAT_MAGMA;
+
+			if (c_ptr->feat == FEAT_QUARTZ_K)
+				c_ptr->feat = FEAT_QUARTZ;
 		}
-
-		/* Get rid of rubble too */
-		c_ptr = cave_p(x,y);
-		if (c_ptr->feat == FEAT_RUBBLE)
-			c_ptr->feat = floor;
-
-		/* And buried treasure. */
-		if (c_ptr->feat == FEAT_MAGMA_K)
-			c_ptr->feat = FEAT_MAGMA;
-
-		if (c_ptr->feat == FEAT_QUARTZ_K)
-			c_ptr->feat = FEAT_QUARTZ;
 	}
 }
 
@@ -1031,7 +1031,7 @@ static void add_monsters(int count)
 	{
 		/*
 		 * Calculate the total levels of monster ood'ness to get
-                 * an appropriate level feeling.
+         * an appropriate level feeling.
 		 *
 		 * The more boring the dungeon is right now,
 		 * the more out of depth to pick monsters.
@@ -1255,7 +1255,8 @@ static bool cave_gen(dun_type *d_ptr)
 	}
 
 	/* Make a lake some of the time */
-	else if (d_ptr->lake.rarity && !empty_level && one_in_(d_ptr->lake.rarity))
+	else if (d_ptr->lake.rarity && !empty_level && one_in_(d_ptr->lake.rarity)
+			&& p_ptr->max_wid > 32 && p_ptr->max_hgt > 32)
 	{
 		if (cheat_room) msgf("Lake on the level.");
 		build_lake(d_ptr->lake.deep, d_ptr->lake.shal, d_ptr->wall, d_ptr->lake.size);

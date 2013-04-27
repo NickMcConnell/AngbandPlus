@@ -75,7 +75,7 @@
 
 # Version stamp (required)
 
-V:0.2.1
+V:0.2.2
 
 
 ##### Something special #####
@@ -122,7 +122,7 @@ I:80:4:500
 W:17:0:1:0
 A:17/2
 F:EASY_KNOW
-L:USE:  if not player_res(TR1_RES_CHAOS) msgf ("That tastes strange.") end
+L:USE:  if not player_res(TR1_RES_CHAOS) then msgf ("That tastes strange.") end
 L:USE:  ident = not player_res(TR1_RES_CHAOS) and inc_image(rand_range(250, 500))
 D:This mushroom causes temporary hallucination when eaten.
 D:  Mushrooms provide sustenance for about 250 turns under normal conditions.
@@ -1690,7 +1690,7 @@ I:40:8:5
 W:75:0:3:3750
 A:75/4:100/3
 P:0:0d0:0:0:3
-F:FREE_ACT | SEE_INVIS | SENSE |
+F:FREE_ACT | SEE_INVIS | SENSE | HIDDEN_POWERS
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 L:MAKE: object.pval = randint1(5) + m_bonus(object.pval, level)
 L:MAKE: object.to_a = randint1(5) + m_bonus(5, level)
@@ -2077,9 +2077,9 @@ A:60/20:100/10
 F:EASY_KNOW
 L:USE:  if not artifact_scroll() then result = FALSE end
 L:USE:  ident = TRUE
-D:This powerful scroll will turn a normal item into a unique
-D:artifact.  Be careful, sometimes artifacts have drawbacks as
-D:well as benefits.  It can't affect an item that already
+D:This powerful scroll will turn a normal item into a unique 
+D:artifact.  Be careful, sometimes artifacts have drawbacks as 
+D:well as benefits.  It can't affect an item that already 
 D:has special powers.
 
 N:206:Recharging
@@ -2808,7 +2808,7 @@ N:268:Resistance
 G:!:d
 I:75:60:100
 W:35:0:4:250
-A:30/1:55/1:85/1
+A:30/1:55/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
@@ -3345,13 +3345,14 @@ P:0:1d2:0:0:0
 L:USE:  ident = dispel_evil(60)
 D:This staff deals 60 damage to all evil monsters nearby.
 
-N:321:Probing
+N:321:Sense Monsters
 G:_:d
 I:55:23:15
-W:20:0:50:100
+W:20:0:50:150
 A:10/1
 P:0:1d2:0:0:0
 L:USE:  ident = probing()
+L:USE:  if detect_monsters_normal() then ident = TRUE end
 D:This staff reveals information about nearby monsters.
 
 N:322:Darkness
@@ -3676,14 +3677,15 @@ F:EASY_KNOW
 L:USE:  ident = detect_traps(ident)
 D:This rod magically detects nearby traps.
 
-N:353:Probing
+N:353:Sense Monsters
 G:-:d
 I:66:7:50
-W:15:0:15:200
-A:15/2
+W:18:0:15:350
+A:18/2
 P:0:1d1:0:0:0
 F:EASY_KNOW
 L:USE:  ident = probing()
+L:USE:  if detect_monsters_normal() then ident = TRUE end
 D:This rod reveals information about nearby monsters.
 
 N:354:Recall
@@ -4662,7 +4664,7 @@ G:=:d
 I:45:48:0
 W:100:0:2:6000
 A:100/4
-F:RES_DISEN | RES_POIS | HOLD_LIFE | FREE_ACT
+F:RES_DISEN | RES_POIS | HOLD_LIFE | FREE_ACT | HIDDEN_POWERS
 L:MAKE: add_ego_power(EGO_XTRA_HI_RESIST, object)
 L:MAKE: while (one_in_(4) ~= 0) do add_ego_power(EGO_XTRA_HI_RESIST, object) end
 L:MAKE: object.to_a = rand_range(10, 15) + m_bonus(10, level)
@@ -5086,7 +5088,7 @@ G:":d
 I:40:15:0
 W:75:0:3:2200
 A:75/4
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | HIDDEN_POWERS
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 L:MAKE: if (one_in_(3) ~= 0) then add_ego_power(EGO_XTRA_HI_RESIST, object) end
 L:MAKE: if (one_in_(5) ~= 0) then set_obj_flag(object, 1, TR1_RES_POIS) end
@@ -5582,7 +5584,7 @@ I:45:52:5
 W:13:0:2:80
 A:13/2
 F:STEALTH
-L:MAKE: object.pval = 3 + m_bonus(object.pval, level)
+L:MAKE: object.pval = 1 + m_bonus(object.pval, level)
 L:MAKE: allow_curse = TRUE
 
 # This is cheaper than it should be
@@ -5625,7 +5627,7 @@ G:":d
 I:40:18:0
 W:50:0:3:1500
 A:50/1
-F:LUCK_10
+F:LUCK_10 | HIDDEN_POWERS
 L:MAKE: add_ego_power(EGO_XTRA_POWER, object)
 D:This lucky amulet boosts your confidence.
 
@@ -5685,8 +5687,8 @@ L:MAKE: object.to_a = object.to_a + randint1(10) + m_bonus(10, level)
 N:595:Sustenance
 G:":d
 I:40:19:0
-W:12:0:3:300
-A:12/5
+W:30:0:3:1000
+A:30/5
 D:With this amulet you will never be hungry again.
 L:TIMED: if player.food < PY_FOOD_FULL + 500 then set_food(player.food + 10) end
 L:MAKE: if (one_in_(50) ~= 0) then create_artifact(object, level/4, FALSE) end
@@ -6086,8 +6088,8 @@ D:This scroll dulls the enchantment of your equipment.
 N:634:Alchemy
 G:?:d
 I:70:53:0
-W:5:0:5:12
-A:5/1:30/1:70/1
+W:5:0:5:35
+A:5/1:30/1
 F:EASY_KNOW
 L:USE:  if not alchemy() then result=FALSE end
 L:USE: ident=TRUE
@@ -6167,7 +6169,7 @@ G:-:d
 I:65:31:15
 W:46:0:10:600
 A:46/2:61/1
-L:USE:  ident = fire_bolt_or_beam(100, GF_FROST, dir, damroll(6, 8))
+L:USE:  ident = fire_bolt_or_beam(100, GF_COLD, dir, damroll(6, 8))
 D:This wand fires a beam of ice that does 6d8 damage to everything
 D: in its path.
 
@@ -6430,7 +6432,7 @@ L:USE:    times = times - 1 end
 D:This wand fires a blast of several fire bolts in the same
 D:direction (6d8 each).
 
-N:651:Frost Blast
+N:651:Cold Blasts
 G:-:d
 I:65:42:12
 W:47:0:10:875

@@ -817,8 +817,8 @@ static int toluaI_field_in_quest00(lua_State* tolua_S)
  {
   TOLUA_ERR_FN(in_quest);
  } else {
-  bool toluaI_ret = (bool)  in_quest();
-  tolua_pushbool(tolua_S,(int)toluaI_ret);
+  int toluaI_ret = (int)  in_quest();
+  tolua_pushnumber(tolua_S,(long)toluaI_ret);
  }
  return 1;
 }

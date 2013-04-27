@@ -595,29 +595,88 @@ void search(void)
 
 
 /*
- * Determine if the object can be picked up, and has "=g" in its inscription.
+ * Determine if the object should be automatically picked up.
+ *
+ * If the object has a '=g' then we auto_pickup as long as we can.
+ * This is true even with a stack limit, because we handle the stack limits in
+ * object_absorb / object_similar.
+ *
+ * If the object does not have a '=g', we search the inventory for
+ * a similar object that does have a '=g', and auto_pickup as long as
+ * the sum of the two stacks is small enough.
  */
 bool auto_pickup_okay(const object_type *o_ptr)
 {
 	cptr s;
+	int stack_size = 0;
 
 	/* It can't be carried */
 	if (!inven_carry_okay(o_ptr)) return (FALSE);
 
-	/* No inscription */
-	if (!o_ptr->inscription) return (FALSE);
-
-	/* Find a '=' */
-	s = strchr(quark_str(o_ptr->inscription), '=');
-
-	/* Process inscription */
-	while (s)
+	/* If inscribed  */
+	if (o_ptr->inscription)
 	{
-		/* Auto-pickup on "=g" */
-		if (s[1] == 'g') return (TRUE);
+		/* Find a '=' */
+		s = strchr(quark_str(o_ptr->inscription), '=');
 
-		/* Find another '=' */
-		s = strchr(s + 1, '=');
+		/* Process inscription */
+		while (s)
+		{
+			/* Auto-pickup on "=g" */
+			if (s[1] == 'g') return (TRUE);
+
+			/* Find another '=' */
+			s = strchr(s + 1, '=');
+		}
+
+		/* If there's no =g, it can't be an auto-pickup, because
+		   different inscriptions don't merge. */
+		return (FALSE);
+	}
+	/* No =g on o_ptr; see if we can find an inventory item that forces auto_pickup. */
+	else
+	{
+		object_type *j_ptr;
+
+		/* Similar slot? */
+		OBJ_ITT_START (p_ptr->inventory, j_ptr)
+		{
+			/* Check if the item can be combined with an inscribed object */
+			if (object_similar(j_ptr, o_ptr) && j_ptr->inscription)
+			{
+				/* Assume no custom stack size */
+				stack_size = 0;
+
+				/* If so, look for a =g inscription. */
+				s = strchr(quark_str(j_ptr->inscription), '=');
+
+				/* Process inscription */
+				while (s)
+				{
+					if (s[1] == 'g' && (s[2] >= '0' && s[2] <= '9'))
+					{
+						/* Read the restriction */
+						sscanf(s+2, "%d", &stack_size);
+
+						/* Force boundary */
+						stack_size = MIN(MAX_STACK_SIZE-1, stack_size);
+						break;
+					}
+					else if (s[1] == 'g')
+					{
+						stack_size = MAX_STACK_SIZE-1;
+						break;
+					}
+
+					/* Find the next '=' */
+					s = strchr(s+1, '=');
+				}
+
+				/* If we can combine, auto pickup is okay. */
+				if (j_ptr->number + o_ptr->number <= stack_size) return (TRUE);
+			}
+		}
+		OBJ_ITT_END;
 	}
 
 	/* Don't auto pickup */
@@ -675,6 +734,7 @@ void carry(int pickup)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 	bool squelched = FALSE;
+	bool destroy = FALSE;
 
 	char o_name[256];
 	object_type *o_ptr, *fo_ptr = NULL;
@@ -693,6 +753,20 @@ void carry(int pickup)
 		object_desc(o_name, o_ptr, TRUE, 3, 256);
 
 		squelched = (SQUELCH(o_ptr->k_idx) ? !FLAG(o_ptr, TR_SQUELCH) : FALSE);
+
+		/* Apply auto_destroy options here. */
+		if ((auto_destroy_chests && o_ptr->tval == TV_CHEST && !o_ptr->pval)
+			|| (auto_destroy_bad && object_value(o_ptr) < 1)
+			|| (auto_destroy_weap && (o_ptr->tval >= TV_BOW && o_ptr->tval <= TV_SWORD))
+			|| (auto_destroy_arm && (o_ptr->tval >= TV_SOFT_ARMOR && o_ptr->tval <= TV_DRAG_ARMOR))
+			|| (auto_destroy_cloak && o_ptr->tval == TV_CLOAK)
+			|| (auto_destroy_shield && o_ptr->tval == TV_SHIELD)
+			|| (auto_destroy_helm && (o_ptr->tval == TV_HELM || o_ptr->tval == TV_CROWN))
+			|| (auto_destroy_gloves && o_ptr->tval == TV_GLOVES)
+			|| (auto_destroy_boots && o_ptr->tval == TV_BOOTS))
+				destroy = TRUE;
+		else
+				destroy = FALSE;
 
 		/* Hack -- disturb */
 		if (!squelched) disturb(FALSE);
@@ -722,7 +796,7 @@ void carry(int pickup)
 			continue;
 		}
 
-		/* Test for auto-pickup, which overrides squelching */
+		/* Test for auto-pickup, which overrides squelching & auto-destroy */
 		if (auto_pickup_okay(o_ptr))
 		{
 			/* Hack - Pick up the object */
@@ -732,23 +806,44 @@ void carry(int pickup)
 			continue;
 		}
 
+		/* Destroy any squelched items */
+		if (squelched)
+		{
+			destroy_squelched_item(o_ptr, o_ptr->number);
+
+			/* Check next object */
+			continue;
+		}
+		else if (destroy)
+		/* Destroy auto-destroy items, always noisily. */
+		{
+			/* Don't try to destroy the item if we already know it's undestroyable */
+			if (!(FLAG(o_ptr, TR_INSTA_ART) && object_known_p(o_ptr)) &&
+				o_ptr->feeling != FEEL_SPECIAL && o_ptr->feeling != FEEL_TERRIBLE)
+			{
+				destroy_item_aux(o_ptr, o_ptr->number);
+				item_increase(o_ptr, -o_ptr->number);
+				continue;
+			}
+		}
+
 		/* The old pick-up routine is here */
 		if (!easy_floor)
 		{
 			/* Describe the object */
-			if (!pickup && !squelched)
+			if (!pickup)
 			{
 				msgf("You find %s.", o_name);
 			}
 
 			/* Note that the pack is too full */
-			else if (!inven_carry_okay(o_ptr) && !squelched)
+			else if (!inven_carry_okay(o_ptr))
 			{
 				msgf("You have no room for %s.", o_name);
 			}
 
 			/* Pick up the item (if requested and allowed) */
-			else if (!squelched)
+			else
 			{
 				/* Hack -- query every item */
 				if (carry_query_flag)
@@ -797,16 +892,11 @@ void carry(int pickup)
 					py_pickup_aux(o_ptr);
 				}
 			}
-			/* Item must be squelched, destroy it, possibly quietly */
-			else
-			{
-				destroy_squelched_item(o_ptr, o_ptr->number);
-			}
 
 			/* Get the next object */
+			/* Note: if !easy floor, floor_num never gets above 0. */
 			continue;
 		}
-
 
 		/* Count non-gold objects that can be picked up. */
 		if (inven_carry_okay(o_ptr))

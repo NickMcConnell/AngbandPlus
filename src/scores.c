@@ -1322,6 +1322,7 @@ static void show_info(void)
 static void close_game_handle_death(void)
 {
 	char ch;
+	bool auto_done = FALSE;
 
 	/* Handle retirement */
 	if (p_ptr->state.total_winner)
@@ -1385,7 +1386,12 @@ static void close_game_handle_death(void)
 		/* Flush all input keys */
 		flush();
 
-		ch = inkey();
+		/* Hack: select 'd' the first time if auto_dump is on */
+		if (auto_dump && !auto_done) {
+			ch = 'd';
+			auto_done = TRUE;
+		}
+		else ch = inkey();
 
 		switch (ch)
 		{
@@ -1439,7 +1445,7 @@ static void close_game_handle_death(void)
 				if (!tmp[0]) break;
 
 				/* Dump a character file */
-				(void)file_character(tmp, FALSE);
+				(void)file_character(tmp, TRUE);
 
 				break;
 			}
@@ -1587,8 +1593,12 @@ void exit_game_panic(void)
 	(void)strcpy(p_ptr->state.died_from, "(panic save)");
 
 	/* Panic save, or get worried */
-	if (!save_player()) quit("panic save failed!");
+	if (enable_panic_save) {
+		if (!save_player()) quit("panic save failed!");
 
-	/* Successful panic save */
-	quit("panic save succeeded!");
+		/* Successful panic save */
+		quit("panic save succeeded!");
+	}
+	else
+		quit("panic save aborted due to user option.");
 }

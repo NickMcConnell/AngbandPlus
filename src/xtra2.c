@@ -827,7 +827,7 @@ void exp_for_kill(const monster_race *r_ptr, s32b *new_exp, s32b *new_exp_frac)
 
 	if (r_ptr->mexp)
 	{
-		div = 1+((plev*plev)/13);
+		div = 1+MAX((plev-1), (plev*plev)/13);
 
 		exp = r_ptr->mexp;
 
@@ -1061,6 +1061,13 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 		/* Get how much the kill was worth */
 		exp_for_kill(r_ptr, &new_exp, &new_exp_frac);
+		
+		/* Clones or summoned monsters can't be killed for XP. */
+		if (m_ptr->smart & SM_CLONED)
+		{
+			new_exp = 0;
+			new_exp_frac = 0;
+		}
 
 		/* Save visibility at death */
 		visible = m_ptr->ml;

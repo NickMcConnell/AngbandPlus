@@ -778,13 +778,13 @@ menu_type options_aux_menu[25] =
 static cptr option_window_title[8] =
 {
 	"User Interface Options",
-	"Disturbance Options",
-	"Game-Play Options",
-	"Efficiency Options",
 	"Display Options",
+	"Game-Play Options",
+	"Inventory Options",
+	"Disturbance/Running Options",
 	"Birth Options",
-	"Artificial Intelligence Options",
-	"Testing Options"
+	"Efficiency Options",
+	"Minor Options"
 };
 
 /*
@@ -1166,14 +1166,14 @@ static bool do_cmd_options_dump(int dummy)
 /* The main options menu */
 static menu_type options_menu[OPTION_MENU_MAX] =
 {
-	{"User Interface Options", NULL, do_cmd_options_aux, MN_ACTIVE | MN_SELECT | MN_CLEAR},
-	{"Disturbance Options", NULL, do_cmd_options_aux, MN_ACTIVE | MN_SELECT | MN_CLEAR},
-	{"Game-Play Options", NULL, do_cmd_options_aux, MN_ACTIVE | MN_SELECT | MN_CLEAR},
-	{"Efficiency Options", NULL, do_cmd_options_aux, MN_ACTIVE | MN_SELECT | MN_CLEAR},
+	{"Command Options", NULL, do_cmd_options_aux, MN_ACTIVE | MN_SELECT | MN_CLEAR},
 	{"Display Options", NULL, do_cmd_options_aux, MN_ACTIVE | MN_SELECT | MN_CLEAR},
+	{"Game Options", NULL, do_cmd_options_aux, MN_ACTIVE | MN_SELECT | MN_CLEAR},
+	{"Inventory Options", NULL, do_cmd_options_aux, MN_ACTIVE | MN_SELECT | MN_CLEAR},
+	{"Disturbance/Running Options", NULL, do_cmd_options_aux, MN_ACTIVE | MN_SELECT | MN_CLEAR},
 	{"Birth Options", NULL, do_cmd_options_aux, MN_ACTIVE | MN_SELECT | MN_CLEAR},
-	{"Artificial Intelligence Options", NULL, do_cmd_options_aux, MN_ACTIVE | MN_SELECT | MN_CLEAR},
-	{"Testing Options", NULL, do_cmd_options_aux, MN_ACTIVE | MN_SELECT | MN_CLEAR},
+	{"Efficiency Options", NULL, do_cmd_options_aux, MN_ACTIVE | MN_SELECT | MN_CLEAR},
+	{"Minor Options", NULL, do_cmd_options_aux, MN_ACTIVE | MN_SELECT | MN_CLEAR},
 	MENU_SEPERATOR,
 	{"Cheating Options", NULL, do_cmd_options_cheat, MN_ACTIVE | MN_SELECT | MN_CLEAR},
 	{"Base Delay Factor", NULL, do_cmd_options_delay, MN_ACTIVE | MN_SELECT},
@@ -3097,6 +3097,12 @@ void do_cmd_feeling(void)
 		return;
 	}
 
+	/* In quests, give no information. */
+	if (p_ptr->depth && current_quest)
+	{
+		msgf("Looks like a typical quest.");
+	}
+
 	/* Display the feeling */
 	if (turn - old_turn >= 1000)
 	{
@@ -4082,7 +4088,7 @@ static void dump_dungeon_info(FILE *fff, int town)
 		if (!count) return;
 
 		/* Give the dungeon name and location*/
-		froff(fff, "%s %s of %s",
+		froff(fff, "%s %s %s",
 			dungeon_type_name(d_ptr->habitat), place_dir, place_name);
 
 		/* Did the player go into the dungeon? */

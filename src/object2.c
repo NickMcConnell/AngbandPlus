@@ -1291,6 +1291,51 @@ s32b object_value_real(const object_type *o_ptr)
 	return (value);
 }
 
+/*
+ * Returns TRUE if the object is average or worse.
+ */
+bool object_average(object_type *o_ptr)
+{
+	/* Return TRUE if the object is bad. */
+	if (object_value(o_ptr) < 1) return (TRUE);
+
+	/* If we haven't identified the item enough, assume it could be good. */
+	if (!object_known_p(o_ptr)) return (FALSE);
+
+	/* False for artifacts or ego items */
+	if (FLAG(o_ptr, TR_INSTA_ART) || o_ptr->e_idx)
+		return(FALSE);
+
+	/* True for all other non-combat items */
+	if (o_ptr->tval < TV_SHOT || o_ptr->tval > TV_DRAG_ARMOR)
+		return(TRUE);
+
+	/* False for enchanted items */
+	if (o_ptr->to_h > 0 || o_ptr->to_d > 0 || o_ptr->to_a > 0)
+		return(FALSE);
+
+	return(TRUE);
+}
+
+/*
+ * Returns TRUE if the object is "good" or worse.
+ */
+bool object_good(object_type *o_ptr)
+{
+	/* Return TRUE if the object is bad. */
+	if (object_value(o_ptr) < 1) return (TRUE);
+
+	/* If we haven't identified the item enough, assume it could be great. */
+	if (!object_known_p(o_ptr)) return (FALSE);
+
+	/* False for artifacts or ego items */
+	if (FLAG(o_ptr, TR_INSTA_ART) || o_ptr->e_idx)
+		return(FALSE);
+
+	/* True otherwise */
+	return(TRUE);
+}
+
 
 /*
  * Return the price of an item including plusses (and charges)
@@ -1453,6 +1498,8 @@ void reduce_charges(object_type *o_ptr, int amt)
 bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 {
 	int i;
+
+	int stack_size = MAX_STACK_SIZE-1;
 
 	/* Require identical object types */
 	if (o_ptr->k_idx != j_ptr->k_idx) return (FALSE);
@@ -1618,7 +1665,7 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 	/* Need to be identical ego items or artifacts */
 	if (o_ptr->xtra_name != j_ptr->xtra_name) return (FALSE);
 
-	/* Hack -- require semi-matching "inscriptions" */
+	/* Hack -- require matching "inscriptions" */
 	if (o_ptr->inscription && j_ptr->inscription &&
 		(o_ptr->inscription != j_ptr->inscription))
 		return (FALSE);
@@ -1628,8 +1675,31 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		if (o_ptr->trigger[i] != j_ptr->trigger[i])
 			return (FALSE);
 
+	/* Extract inscription-mandated stack size limit */
+	if (o_ptr->inscription || j_ptr->inscription)
+	{
+		cptr s = (o_ptr->inscription ? strchr(quark_str(o_ptr->inscription), '=') :
+									   strchr(quark_str(j_ptr->inscription), '='));
+
+		while (s)
+		{
+			if (s[1] == 'g' && (s[2] >= '0' && s[2] <= '9'))
+			{
+				/* Read the restriction */
+				sscanf(s+2, "%d", &stack_size);
+
+				/* Force boundary */
+				stack_size = MIN(MAX_STACK_SIZE-1, stack_size);
+				break;
+			}
+
+			/* Find another '=' */
+			s = strchr (s+1, '=');
+		}
+	}
+
 	/* Maximal "stacking" limit */
-	if (o_ptr->number + j_ptr->number >= MAX_STACK_SIZE) return (FALSE);
+	if (o_ptr->number + j_ptr->number > stack_size) return (FALSE);
 
 	/* They match, so they must be similar */
 	return (TRUE);
@@ -1642,9 +1712,33 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 void object_absorb(object_type *o_ptr, const object_type *j_ptr)
 {
 	int total = o_ptr->number + j_ptr->number;
+	int stack_size = MAX_STACK_SIZE-1;
+
+	/* Extract inscription-mandated stack size limit */
+	if (o_ptr->inscription || j_ptr->inscription)
+	{
+		cptr s = (o_ptr->inscription ? strchr(quark_str(o_ptr->inscription), '=') :
+									   strchr(quark_str(j_ptr->inscription), '='));
+
+		while (s)
+		{
+			if (s[1] == 'g' && (s[2] >= '0' && s[2] <= '9'))
+			{
+				/* Read the restriction */
+				sscanf(s+2, "%d", &stack_size);
+
+				/* Force boundary */
+				stack_size = MIN(MAX_STACK_SIZE-1, stack_size);
+				break;
+			}
+
+			/* Find another '=' */
+			s = strchr (s+1, '=');
+		}
+	}
 
 	/* Add together the item counts */
-	o_ptr->number = ((total < MAX_STACK_SIZE) ? total : (MAX_STACK_SIZE - 1));
+	o_ptr->number = ((total <= stack_size) ? total : stack_size);
 
 	/* Hack -- blend "known" status */
 	if (object_known_p(j_ptr)) object_known(o_ptr);
@@ -1673,9 +1767,20 @@ void object_absorb(object_type *o_ptr, const object_type *j_ptr)
 	/* Hack -- blend "feelings" */
 	if (j_ptr->feeling) o_ptr->feeling = j_ptr->feeling;
 
-	/* Hack -- could average discounts XXX XXX XXX */
-	/* Hack -- save largest discount XXX XXX XXX */
-	if (o_ptr->discount < j_ptr->discount) o_ptr->discount = j_ptr->discount;
+	/* Blend discounts */
+	if (o_ptr->discount || j_ptr->discount)
+	{
+		int disc = ((o_ptr->discount * (total - j_ptr->number)) + (j_ptr->discount * j_ptr->number))/total;
+
+		/* Pigeonhole into one of the standard discounts */
+		if (disc > 75) o_ptr->discount = 90;
+		else if (disc > 50) o_ptr->discount = 75;
+		else if (disc > 25) o_ptr->discount = 50;
+		else if (disc > 10) o_ptr->discount = 25;
+		else if (disc > 5) o_ptr->discount = 10;
+		else if (disc >= 1) o_ptr->discount = 5;
+		else o_ptr->discount = 0;
+	}
 
 	/*
 	 * Hack -- if rods are stacking, add the pvals
@@ -2356,7 +2461,7 @@ static object_type *make_artifact(void)
 		/* Save the artifact flags */
 		o_ptr->flags[0] |= a_ptr->flags[0];
 		o_ptr->flags[1] |= a_ptr->flags[1];
-		o_ptr->flags[2] |= a_ptr->flags[2];
+		o_ptr->flags[2] |= a_ptr->flags[2] | TR2_HIDDEN_POWERS;
 		o_ptr->flags[3] |= a_ptr->flags[3];
 
 		/* Set the fields */
@@ -2463,7 +2568,7 @@ static object_type *make_special_randart(void)
 		lev = k_info[k_idx].level;
 
 		/* Create using the object kind's depth */
-		if (one_in_((randart_rare ? 3 : 1))) create_artifact(o_ptr, lev, FALSE);
+		create_artifact(o_ptr, lev, FALSE);
 
 		/* Run special scripts */
 		apply_object_trigger(TRIGGER_MAKE, o_ptr, "i", LUA_VAR(lev));
@@ -3025,40 +3130,6 @@ static void a_m_aux_2(object_type *o_ptr, int level, int lev_dif, byte flags)
 }
 
 /*
- * Change object into one of the "base" miscellaneous types
- */
-static object_type * misc_artifact_prep(object_type *o_ptr)
-{
-	int n;
-	object_type * j_ptr;
-
-	switch (o_ptr->tval)
-	{
-		case TV_LITE:
-			n = randint1(10);
-			if (n < 6) j_ptr = object_prep(500);
-			else if (n < 8) j_ptr = object_prep(501);
-			else j_ptr = object_prep(502);
-			break;
-		case TV_RING:
-			j_ptr = object_prep(667);
-			break;
-		case TV_AMULET:
-			n = randint1(10);
-			if (n < 6) j_ptr = object_prep(668);
-			else if (n < 8) j_ptr = object_prep(669);
-			else j_ptr = object_prep(670);
-			break;
-		default:
-			return o_ptr;
-	}
-
-	if (o_ptr != &temp_object)
-		swap_objects(j_ptr, o_ptr);
-}
-
-
-/*
  * Apply magic to an item known to be a "ring" or "amulet"
  */
 static void a_m_aux_3(object_type *o_ptr, int level, byte flags)
@@ -3071,16 +3142,6 @@ static void a_m_aux_3(object_type *o_ptr, int level, byte flags)
 		/* Sometimes, the stuff can be bad */
 
 		flags |= OC_FORCE_BAD;
-	}
-
-	if (flags & OC_FORCE_GOOD)
-	{
-		if (one_in_((randart_rare ? 90 : 30)) && allow_randart)
-		{
-			o_ptr = misc_artifact_prep(o_ptr);
-
-			(void)create_artifact(o_ptr, level, FALSE);
-		}
 	}
 
 	/* Apply magic according to type */
@@ -3146,14 +3207,8 @@ static void a_m_aux_4(object_type *o_ptr, int level, byte flags)
 
 			if (flags & OC_FORCE_GOOD)
 			{
-				if (one_in_((randart_rare ? 90 : 30)) && allow_randart)
-				{
-					o_ptr = misc_artifact_prep(o_ptr);
-
-					(void)create_artifact(o_ptr, level, FALSE);
-				}
 				/* Roll for a random ego */
-				else if (get_ego_prep(ES_LITE, TRUE))
+				if (get_ego_prep(ES_LITE, TRUE))
 				{
 					ego = get_ego_num(level);
 
@@ -3492,6 +3547,7 @@ void add_ego_power(int power, object_type *o_ptr)
 					break;
 				}
 			}
+			break;
 		case EGO_XTRA_SLAY:
 			switch (randint1(15))
 			{
@@ -3826,8 +3882,11 @@ object_type *make_object(int level, int delta_level, obj_theme *theme)
 		if (o_ptr) return (o_ptr);
 	}
 
- 	if (one_in_(prob * 2))
+ 	if (one_in_(prob * 2) && one_in_(randart_rare ? 3 : 1))
 	{
+		/* Mention this is happening */
+		if (cheat_peek) msgf ("Special randart.");
+
 		/* Try for a special randart */
 		o_ptr = make_special_randart();
 
@@ -4269,9 +4328,6 @@ void drop_near(object_type *j_ptr, int chance, int x, int y)
 
 			/* Add new object */
 			if (!comb) k++;
-
-			/* No stacking (allow combining) [Optional for Topi] */
-			if (!testing_stack && (k > 1)) continue;
 
 			/* Paranoia */
 			if (k > 99) continue;

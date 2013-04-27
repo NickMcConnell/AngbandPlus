@@ -32,12 +32,12 @@
 #define VERSION_NAME "Z+Angband"
 
 /* Savefile version */
-#define SAVEFILE_VERSION 54
+#define SAVEFILE_VERSION 55
 
 /* User-visible version */
 #define VER_MAJOR 0
 #define VER_MINOR 2
-#define VER_PATCH 1
+#define VER_PATCH 2
 #define VER_EXTRA 0
 
 /* Versions after release */
@@ -3102,7 +3102,7 @@
 #define TR2_XXX4                0x00000008L	/* Later */
 #define TR2_NO_TELE             0x00000010L	/* Anti-teleportation */
 #define TR2_NO_MAGIC            0x00000020L	/* Anti-magic */
-#define TR2_XXX7                0x00000040L	/* Later */
+#define TR2_HIDDEN_POWERS       0x00000040L	/* Later */
 #define TR2_TY_CURSE            0x00000080L	/* The Ancient Curse */
 #define TR2_EASY_KNOW           0x00000100L	/* Aware -> Known */
 #define TR2_HIDE_TYPE           0x00000200L	/* Hide "pval" description */
@@ -3265,7 +3265,7 @@
 #define TR_XXX4 		 	2,  TR2_XXX4
 #define TR_NO_TELE  	 	2,  TR2_NO_TELE
 #define TR_NO_MAGIC 	 	2,  TR2_NO_MAGIC
-#define TR_XXX5 		 	2,  TR2_XXX5
+#define TR_HIDDEN_POWERS 	2,  TR2_HIDDEN_POWERS
 #define TR_TY_CURSE 	 	2,  TR2_TY_CURSE
 #define TR_EASY_KNOW	 	2,  TR2_EASY_KNOW
 #define TR_HIDE_TYPE	 	2,  TR2_HIDE_TYPE
@@ -4240,7 +4240,8 @@ static __inline void COPY_FLAG_AUX(const u32b *flags1, u32b *flags2, int num, u3
 /* Option set 0 */
 
 #define rogue_like_commands		p_ptr->options[0]
-#define quick_messages			p_ptr->options[1]
+#define quick_messages			TRUE
+/* {TRUE,  0, NULL,					"Number 1" }, p_ptr->options[1] */
 /* {TRUE,  0, NULL,					"Number 2" }, p_ptr->options[2] */
 #define carry_query_flag		p_ptr->options[3]
 #define use_old_target			p_ptr->options[4]
@@ -4250,25 +4251,31 @@ static __inline void COPY_FLAG_AUX(const u32b *flags1, u32b *flags2, int num, u3
 /* {TRUE,  0, NULL,					"Number 8" }, p_ptr->options[8] */
 /* {FALSE, 0, NULL,					"Number 9" }, p_ptr->options[9] */
 #define show_labels				p_ptr->options[10]
-#define show_weights			p_ptr->options[11]
-#define view_monster_grids		p_ptr->options[12]
+#define show_weights			TRUE
+/* {TRUE,  0, NULL,					"Number 11" }, p_ptr->options[11] */
+/* {TRUE,  0, NULL,					"Number 12" }, p_ptr->options[12] */
 #define toggle_xp				p_ptr->options[13]
 #define ring_bell				p_ptr->options[14]
 #define use_color				p_ptr->options[15]
 #define find_ignore_stairs		p_ptr->options[16]
 #define find_ignore_doors		p_ptr->options[17]
-#define find_cut				p_ptr->options[18]
+/* {TRUE,  0, NULL,					"Number 18" }, p_ptr->options[18] */
 #define find_examine			p_ptr->options[19]
-#define disturb_view			p_ptr->options[20]
+/* {TRUE,  0, NULL,					"Number 20" }, p_ptr->options[20] */
 #define disturb_near			p_ptr->options[21]
-#define disturb_panel			p_ptr->options[22]
-#define disturb_state			p_ptr->options[23]
+#define disturb_panel			TRUE
+/* {TRUE,  0, NULL,					"Number 22" }, p_ptr->options[22] */
+#define disturb_state			TRUE
+/* {TRUE,  0, NULL,					"Number 23" }, p_ptr->options[23] */
 #define disturb_minor			p_ptr->options[24]
-#define disturb_other			p_ptr->options[25]
+#define disturb_other			TRUE
+/* {TRUE,  0, NULL,					"Number 25" }, p_ptr->options[25] */
 #define disturb_traps			p_ptr->options[26]
 #define auto_more				p_ptr->options[27]
-#define last_words				p_ptr->options[28]
-#define speak_unique			p_ptr->options[29]
+#define last_words				TRUE
+/* {TRUE,  0, NULL,					"Number 28" }, p_ptr->options[28] */
+#define speak_unique			TRUE
+/* {TRUE,  0, NULL,					"Number 29" }, p_ptr->options[29] */
 #define small_levels			svr_ptr->options[0]
 #define dungeon_abyss			p_ptr->options[30]
 
@@ -4278,8 +4285,9 @@ static __inline void COPY_FLAG_AUX(const u32b *flags1, u32b *flags2, int num, u3
 /* {TRUE,  0, NULL,					"Number 33" }, svr_ptr->options[2] */
 /* {TRUE,  0, NULL,					"Number 34" }, svr_ptr->options[3] */
 /* {TRUE,  0, NULL,					"Number 35" }, svr_ptr->options[4] */
-/* {TRUE,  0, NULL, 					"Number 36" }, svr_ptr->options[5] */
-#define expand_list				svr_ptr->options[6]
+/* {TRUE,  0, NULL, 				"Number 36" }, svr_ptr->options[5] */
+#define expand_list				TRUE
+/* {TRUE,  0, NULL, 				"Number 36" }, svr_ptr->options[6] */
 #define destroy_batch			p_ptr->options[31]
 #define view_torch_grids		p_ptr->options[32]
 /* {TRUE,  0, NULL,					"Number 40" }, svr_ptr->options[7] */
@@ -4288,7 +4296,8 @@ static __inline void COPY_FLAG_AUX(const u32b *flags1, u32b *flags2, int num, u3
 /* {TRUE,  0, NULL,					"Number 43" }, svr_ptr->options[10] */
 /* {TRUE,  0, NULL,					"Number 44" }, svr_ptr->options[11] */
 /* {TRUE,  0, NULL,					"Number 45" }, svr_ptr->options[12] */
-#define smart_packs				svr_ptr->options[13]
+#define smart_packs				!stupid_monsters
+/* {TRUE,  0, NULL,					"Number 46" }, svr_ptr->options[13] */
 /* {TRUE,  0, NULL,					"Number 47" }, svr_ptr->options[14] */
 #define monster_theme			p_ptr->options[33]
 /* {TRUE,  0, NULL,					"Number 49" }, p_ptr->options[34] */
@@ -4311,7 +4320,7 @@ static __inline void COPY_FLAG_AUX(const u32b *flags1, u32b *flags2, int num, u3
 /* Option Set 2 */
 
 #define	view_player_colour		p_ptr->options[49]
-/* {TRUE,  0, NULL,					"Number 65" }, p_ptr->options[50] */
+#define enable_panic_save		p_ptr->options[50]
 /* {TRUE,  0, NULL,					"Number 66" }, p_ptr->options[51] */
 /* {TRUE,  0, NULL,					"Number 67" }, p_ptr->options[52] */
 /* {TRUE,  0, NULL,					"Number 68" }, p_ptr->options[53] */
@@ -4398,27 +4407,28 @@ static __inline void COPY_FLAG_AUX(const u32b *flags1, u32b *flags2, int num, u3
 /* {TRUE,  0, NULL,					"Number 143" },p_ptr->options[128] */
 /* {TRUE,  0, NULL,					"Number 144" },p_ptr->options[129] */
 /* {TRUE,  0, NULL,					"Number 145" },p_ptr->options[130] */
-/* {TRUE,  0, NULL,					"Number 146" },p_ptr->options[131] */
-/* {TRUE,  0, NULL,					"Number 147" },p_ptr->options[132] */
-/* {TRUE,  0, NULL,					"Number 148" },p_ptr->options[133] */
-/* {TRUE,  0, NULL,					"Number 149" },p_ptr->options[134] */
-/* {TRUE,  0, NULL,					"Number 150" },p_ptr->options[135] */
-/* {TRUE,  0, NULL,					"Number 151" },p_ptr->options[136] */
-/* {TRUE,  0, NULL,					"Number 152" },p_ptr->options[137] */
-/* {TRUE,  0, NULL,					"Number 153" },p_ptr->options[138] */
-/* {TRUE,  0, NULL,					"Number 154" },p_ptr->options[139] */
-/* {TRUE,  0, NULL,					"Number 155" },p_ptr->options[140] */
-/* {TRUE,  0, NULL,					"Number 156" },p_ptr->options[141] */
-/* {TRUE,  0, NULL,					"Number 157" },p_ptr->options[142] */
-/* {TRUE,  0, NULL,					"Number 158" },p_ptr->options[143] */
-/* {TRUE,  0, NULL,					"Number 159" },p_ptr->options[144] */
+#define quick_destroy_bad		p_ptr->options[131]
+#define quick_destroy_avg		p_ptr->options[132]
+#define quick_destroy_good		p_ptr->options[133]
+#define quick_destroy_all		p_ptr->options[134]
+#define auto_destroy_chests		p_ptr->options[135]
+#define auto_destroy_bad		p_ptr->options[136]
+#define auto_destroy_weap		p_ptr->options[137]
+#define auto_destroy_arm		p_ptr->options[138]
+#define auto_destroy_cloak		p_ptr->options[139]
+#define auto_destroy_shield		p_ptr->options[140]
+#define auto_destroy_helm		p_ptr->options[141]
+#define auto_destroy_gloves		p_ptr->options[142]
+#define auto_destroy_boots		p_ptr->options[143]
+#define auto_dump				p_ptr->options[144]
+
 
 /* Option Set 5 */
 
 /* {TRUE,  0, NULL,					"Number 160" }, p_ptr->options[145] */
 #define	plain_descriptions		p_ptr->options[146]
 #define stupid_monsters			p_ptr->birth[0]
-#define auto_destroy			p_ptr->options[147]
+/* {FALSE, 0, NULL,					"Number 165" }, p_ptr->options[147] */
 #define confirm_wear			p_ptr->options[148]
 /* {FALSE, 0, NULL,					"Number 165" }, p_ptr->options[149] */
 #define easy_open				p_ptr->options[150]
@@ -4428,7 +4438,8 @@ static __inline void COPY_FLAG_AUX(const u32b *flags1, u32b *flags2, int num, u3
 #define center_player			p_ptr->options[154]
 #define avoid_center			p_ptr->options[155]
 /* {TRUE,  0, NULL,					"Number 172" }, p_ptr->options[156] */
-#define limit_messages			p_ptr->options[157]
+#define limit_messages			compress_savefile
+/* {TRUE,  0, NULL,					"Number 173" }, p_ptr->options[157] */
 #define check_transaction		p_ptr->options[158]
 /* {TRUE,  0, NULL,					"Number 175" }, p_ptr->options[159] */
 /* {TRUE,  0, NULL,					"Number 176" }, p_ptr->options[160] */
@@ -4513,9 +4524,10 @@ static __inline void COPY_FLAG_AUX(const u32b *flags1, u32b *flags2, int num, u3
 /* {TRUE,  0, NULL,					"Number 249" },p_ptr->options[187] */
 /* {TRUE,  0, NULL,					"Number 250" },p_ptr->options[188] */
 #define auto_notes				p_ptr->options[189]
-#define take_notes				p_ptr->options[190]
+#define take_notes				TRUE
+/* {TRUE,  0, NULL,					"Number 252" }, p_ptr->options[190] */
 /* {TRUE,  0, NULL,					"Number 253" }, p_ptr->options[191] */
-#define testing_stack			svr_ptr->options[30]
+/* {TRUE,  0, NULL,					"Number 254" }, p_ptr->options[192] */
 /* {TRUE,  0, NULL,					"Number 255" }, svr_ptr->options[31] */
 
 

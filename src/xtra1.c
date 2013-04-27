@@ -2574,6 +2574,9 @@ static void calc_bonuses(void)
 	/* Hack - handle speed from monk/sprite/klackon here */
 	if (FLAG(of_ptr, TR_SPEED))
 	{
+		/* Being both should give you both bonuses */
+		if ((p_ptr->rp.prace == RACE_KLACKON || p_ptr->rp.prace == RACE_SPRITE) && p_ptr->rp.pclass == CLASS_MONK)
+			p_ptr->pspeed += p_ptr->lev / 10;
 		p_ptr->pspeed += (p_ptr->lev) / 10;
 		of_ptr->flags[0] &= ~(TR0_SPEED);
 	}

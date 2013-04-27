@@ -1368,6 +1368,75 @@ void froff(FILE *fff, cptr str, ...)
 	fprintf(fff, "%s", buf);
 }
 
+/*
+ * Print a string, wrapped, to a given file.
+ *
+ * margin: amount to indent each line
+ * rowmax: max string characters to put on each line.
+ */
+void wrap_froff(FILE *fff, char *buf, int margin, int rowmax)
+{
+	int len = strlen(buf);
+	int i = 0;
+	int j, brk;
+	char tmp;
+
+	/* Paranoia */
+	if (margin < 0 || rowmax <= 0 || len == 0)
+		return;
+
+	while (i < len)
+	{
+		/* Print a line */
+		brk = 0;
+
+		/* Find where to divide the line. */
+		for (j = i; j < i+rowmax; j++)
+		{
+			/* A \n character forces a line break. */
+			if (buf[j] == '\n')
+			{
+				brk = j;
+				break;
+			}
+			else if (isspace((int)buf[j]))
+				brk = j;
+			else if (buf[j] == 0)
+			{
+				brk = j;
+				break;
+			}
+		}
+
+		/* Print a newline, except the first time. */
+		if (i > 0) froff(fff, "\n");
+
+		/* Print margin */
+		for (j = 0; j < margin; j++)
+		{
+			froff(fff, " ");
+		}
+
+		/* Special case: no line break found. */
+		if (brk == 0)
+		{
+			/* Bad behavior, but better than none */
+			froff(fff, "%s", &buf[i]);
+			return;
+		}
+
+		/* Make a termination point at the break */
+		buf[brk] = 0;
+
+		/* Print the line up to the break */
+		froff(fff, "%s", &buf[i]);
+
+		/* Continue processing the string from the character
+		   after the break */
+		i = brk+1;
+	}
+}
+
 
 /*
  * Clear part of the screen

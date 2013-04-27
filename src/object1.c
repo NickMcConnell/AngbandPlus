@@ -219,10 +219,8 @@ static void roff_obj_aux(const object_type *o_ptr)
 	/* Start the description a bit lower */
 	roff("\n\n");
 
-	/* Debug: Some of these should have o_ptr->mem.type == OM_NONE when we put object memory back in */
-
 	/* If you don't know anything about the item */
-	if (!object_known_p(o_ptr) && !object_aware_p(o_ptr))
+	if (!object_known_p(o_ptr) && !object_aware_p(o_ptr) && o_ptr->mem.type == OM_NONE)
 	{
 		/* say so */
 		roff("You see nothing special.  ");
@@ -251,9 +249,21 @@ static void roff_obj_aux(const object_type *o_ptr)
 	{
 		roff("You have full knowledge of this item.  ");
 	}
+	/* Mention hidden powers if:
+	   1.  This is a flavored item that always may have hidden powers, and the player is aware of the flavor.
+	   2.  This is a known item with the hidden powers flag.
+	   3.  This item is known to be an artifact.
+	 */
+	else if ((FLAG(k_ptr, TR_HIDDEN_POWERS) && object_aware_p(o_ptr)) ||
+			 (object_known_p(o_ptr) && FLAG(o_ptr, TR_HIDDEN_POWERS)) ||
+			 (FLAG(o_ptr, TR_INSTA_ART) && (o_ptr->feeling == FEEL_SPECIAL || o_ptr->feeling == FEEL_TERRIBLE ||
+											object_known_p(o_ptr))))
+	{
+		roff("This item may have hidden powers.  ");
+	}
 
 	/* Add the 'description' if any */
-	if (object_known_p(o_ptr) || object_aware_p(o_ptr))
+	if (object_known_p(o_ptr))
 	{
 		artifact_type *a_ptr = NULL;
 		ego_item_type *e_ptr = NULL;
@@ -272,6 +282,10 @@ static void roff_obj_aux(const object_type *o_ptr)
 		{
 			roff("%s  ", k_text + k_ptr->text);
 		}
+	}
+	else if (object_aware_p(o_ptr) && k_ptr->text)
+	{
+		roff("%s  ", k_text + k_ptr->text);
 	}
 
 	/* Mega-Hack -- describe activation if item is identified */
@@ -387,13 +401,6 @@ static void roff_obj_aux(const object_type *o_ptr)
 			roff(CLR_L_GREEN "infravision");
 			roff(" by %i feet.  ", -b.see_infra * 10);
 		}
-	}
-
-	/* Food that can be thrown is worth noting */
-	if (k_ptr->ds > 1 && k_ptr->dd > 1 && k_ptr->tval == TV_FOOD)
-	{
-		roff("It can be thrown for %id%i damage.  ",
-			k_ptr->dd, k_ptr->ds);
 	}
 
 	if (b.extra_blows)
@@ -869,13 +876,6 @@ static void roff_obj_aux(const object_type *o_ptr)
 
 	/* No memory for stacks of non-combat items */
 	if (o_ptr->number > 1 && (o_ptr->tval < TV_SHOT || o_ptr->tval > TV_DRAG_ARMOR))
-	{
-		roff ("\n");
-		return;
-	}
-
-	/* Debug: Disabling object memory to avoid a crash */
-	if (o_ptr->mem.type != OM_NONE)
 	{
 		roff ("\n");
 		return;
@@ -3474,3 +3474,808 @@ object_type *get_item(cptr pmt, cptr str, int mode)
 	/* Done */
 	return (o_ptr);
 }
+
+/*
+ * Print out full description to the given file.
+ */
+void dump_full_item(FILE *fff, object_type *o_ptr)
+{
+	object_kind *k_ptr;
+	bonuses_type b;
+	bool ammo = FALSE;
+	char desc[16384];
+
+	int i, n;
+
+	object_flags oflags;
+	object_flags *of_ptr = &oflags;
+
+	int vn;
+	cptr vp[80];
+
+	/* Wipe the description */
+	C_WIPE(desc, 16384, char);
+
+	k_ptr = &k_info[o_ptr->k_idx];
+
+	/* Extract the flags */
+	object_flags_known(o_ptr, of_ptr);
+
+	/* Extract the bonuses */
+	object_bonuses_known(o_ptr, &b);
+
+	/* If you don't know anything about the item */
+	if (!object_known_p(o_ptr) && !object_aware_p(o_ptr))
+	{
+		/* no description */
+		return;
+	}
+
+	/* Boring objects get no description */
+	else if (o_ptr->tval == TV_POTION ||
+		o_ptr->tval == TV_SCROLL ||
+		o_ptr->tval == TV_WAND ||
+		o_ptr->tval == TV_ROD ||
+		o_ptr->tval == TV_STAFF ||
+		o_ptr->tval == TV_JUNK ||
+		o_ptr->tval == TV_STATUE ||
+		o_ptr->tval == TV_FIGURINE ||
+		o_ptr->tval == TV_FOOD ||
+		o_ptr->tval == TV_CHEST ||
+		o_ptr->tval == TV_FLASK ||
+		o_ptr->tval == TV_BOTTLE ||
+		o_ptr->tval == TV_SPIKE)
+	{
+		return;
+	}
+
+	/* Spellbooks get no description unless they are fireproof */
+	else if (o_ptr->tval >= TV_BOOKS_MIN && o_ptr->tval <= TV_BOOKS_MAX)
+	{
+		if (!FLAG(of_ptr, TR_IGNORE_FIRE))
+			return;
+	}
+
+	/* No description for objects with no hidden powers. */
+	else if (!FLAG(o_ptr, TR_HIDDEN_POWERS) && !FLAG(o_ptr, TR_INSTA_ART))
+	{
+		return;
+	}
+
+	/* Mega-Hack -- describe activation if item is identified */
+	if ((FLAG(o_ptr, TR_ACTIVATE)) && object_known_p(o_ptr))
+	{
+		strnfmt(desc, 16384, "%sIt can be activated for %s if it is being worn.  ", desc, item_activation(o_ptr));
+	}
+
+	/* Hack -- describe lite's */
+	if (o_ptr->tval == TV_LITE && FLAG(o_ptr, TR_INSTA_ART))
+	{
+		strnfmt(desc, 16384, "%sIt provides light (radius 3).  ", desc);
+	}
+
+
+	/* And then describe it fully */
+
+	for (i = 99; i >= -99; i--)
+	{
+		if (!i) continue;
+
+		/* Collect stat boosts */
+		vn = 0;
+
+		if (b.stat[A_STR] == i) vp[vn++] = "strength";
+		if (b.stat[A_INT] == i) vp[vn++] = "intelligence";
+		if (b.stat[A_WIS] == i) vp[vn++] = "wisdom";
+		if (b.stat[A_DEX] == i) vp[vn++] = "dexterity";
+		if (b.stat[A_CON] == i) vp[vn++] = "constitution";
+		if (b.stat[A_CHR] == i) vp[vn++] = "charisma";
+
+		/* All stats is handled specially */
+		if (vn == 6)
+		{
+			vn = 0;
+			vp[vn++] = "all your stats";
+		}
+
+		if (b.pspeed == i)   vp[vn++] = "speed";
+		if (b.skills[SKILL_STL] == i) vp[vn++] = "stealth";
+		if (b.skills[SKILL_SNS] / 5 == i)  vp[vn++] = "perception";
+		if (b.skills[SKILL_DIG] / 20 == i)  vp[vn++] = "ability to dig";
+		if (b.skills[SKILL_SAV] == i) vp[vn++] = "saving throws";
+
+		/* Describe stat boosts */
+		if (vn > 0)
+		{
+			if (i > 0)
+				strnfmt(desc, 16384, "%sIt increases ", desc);
+			else
+				strnfmt(desc, 16384, "%sIt decreases ", desc);
+
+			/* Omit "your" for "all stats" */
+			if (strncmp(vp[0], "all ", 4) != 0)
+				strnfmt(desc, 16384, "%syour ", desc);
+
+			/* Scan */
+			for (n = 0; n < vn; n++)
+			{
+				if (n > 0 && n == vn - 1) strnfmt(desc, 16384, "%s and ", desc);
+				else if (n > 0)  strnfmt(desc, 16384, "%s, ", desc);
+
+				strnfmt(desc, 16384, "%s%s", desc, vp[n]);
+			}
+
+			strnfmt(desc, 16384, "%s by %+i.  ", desc, i);
+		}
+	}
+
+	if (b.sp_bonus)
+	{
+		if (b.sp_bonus > 0)
+		{
+			strnfmt(desc, 16384, "%sIt increases your ", desc);
+		}
+		else
+		{
+			strnfmt(desc, 16384, "%sIt decreases your ", desc);
+		}
+		strnfmt(desc, 16384, "%smaximum sp by %i per level.  ", desc, b.sp_bonus);
+	}
+
+	if (b.see_infra)
+	{
+		if (b.see_infra > 0)
+		{
+			strnfmt(desc, 16384, "%sIt increases your infravision by %i feet.  ", desc, b.see_infra * 10);
+		}
+		else
+		{
+			strnfmt(desc, 16384, "%sIt decreases your infravision by %i feet.  ", desc, -b.see_infra * 10);
+		}
+	}
+
+	if (b.extra_blows)
+	{
+		if (b.extra_blows > 0)
+		{
+			strnfmt(desc, 16384, "%sIt provides %i extra blows per turn.  ", desc, b.extra_blows);
+		}
+		else
+		{
+			strnfmt(desc, 16384, "%sIt provides %i fewer blows per turn.  ", desc, -b.extra_blows);
+		}
+	}
+
+	if (b.extra_shots)
+	{
+		if (b.extra_shots > 0)
+		{
+			strnfmt(desc, 16384, "%sIt provides %i extra shots per turn.  ", desc, b.extra_shots);
+		}
+		else
+		{
+			strnfmt(desc, 16384, "%sIt provides %i fewer shots per turn.  ", desc, -b.extra_shots);
+		}
+	}
+
+	/* Collect brands */
+	vn = 0;
+	if (FLAG(of_ptr, TR_BRAND_ACID)) vp[vn++] = "acid";
+	if (FLAG(of_ptr, TR_BRAND_ELEC)) vp[vn++] = "electricity";
+	if (FLAG(of_ptr, TR_BRAND_FIRE)) vp[vn++] = "fire";
+	if (FLAG(of_ptr, TR_BRAND_COLD)) vp[vn++] = "frost";
+
+	/* Describe brands */
+	if (vn)
+	{
+		strnfmt(desc, 16384, "%sIt does extra damage from ", desc);
+
+		/* Scan */
+		for (n = 0; n < vn; n++)
+		{
+			if (n > 0 && n == vn - 1) strnfmt(desc, 16384, "%s and ", desc);
+			else if (n > 0)  strnfmt(desc, 16384, "%s, ", desc);
+
+			strnfmt(desc, 16384, "%s%s", desc, vp[n]);
+		}
+
+		strnfmt(desc, 16384, "%s.  ", desc);
+	}
+
+	if (FLAG(of_ptr, TR_BRAND_POIS))
+	{
+		strnfmt(desc, 16384, "%sIt poisons your foes.  ", desc);
+	}
+
+	if (FLAG(of_ptr, TR_CHAOTIC))
+	{
+		strnfmt(desc, 16384, "%sIt produces chaotic effects.  ", desc);
+	}
+
+	if (FLAG(of_ptr, TR_VAMPIRIC))
+	{
+		strnfmt(desc, 16384, "%sIt drains life from your foes.  ", desc);
+	}
+
+	if (FLAG(of_ptr, TR_IMPACT))
+	{
+		strnfmt(desc, 16384, "%sIt can cause earthquakes.  ", desc);
+	}
+
+	if (FLAG(of_ptr, TR_VORPAL))
+	{
+		strnfmt(desc, 16384, "%sIt is very sharp and can cut your foes.  ", desc);
+	}
+
+	if (o_ptr->tval >= TV_DIGGING && o_ptr->tval <= TV_SWORD)
+	{
+		if (FLAG(of_ptr, TR_KILL_DRAGON))
+		{
+			strnfmt(desc, 16384, "%sIt is a great bane of dragons.  ", desc);
+		}
+
+		/* Collect slays */
+		vn = 0;
+		if (FLAG(of_ptr, TR_SLAY_DRAGON) && !FLAG(of_ptr, TR_KILL_DRAGON))
+			vp[vn++] = "dragons";
+		if (FLAG(of_ptr, TR_SLAY_ORC))    vp[vn++] = "orcs";
+		if (FLAG(of_ptr, TR_SLAY_TROLL))  vp[vn++] = "trolls";
+		if (FLAG(of_ptr, TR_SLAY_GIANT))  vp[vn++] = "giants";
+		if (FLAG(of_ptr, TR_SLAY_DEMON))  vp[vn++] = "demons";
+		if (FLAG(of_ptr, TR_SLAY_UNDEAD)) vp[vn++] = "the undead";
+		if (FLAG(of_ptr, TR_SLAY_EVIL))   vp[vn++] = "evil monsters";
+		if (FLAG(of_ptr, TR_SLAY_ANIMAL)) vp[vn++] = "natural creatures";
+
+		/* Print slays */
+		if (vn)
+		{
+			strnfmt(desc, 16384, "%sIt is especially deadly against ", desc);
+
+			/* Scan */
+			for (n = 0; n < vn; n++)
+			{
+				if (n > 0 && n == vn - 1) strnfmt(desc, 16384, "%s and ", desc);
+				else if (n > 0)  strnfmt(desc, 16384, "%s, ", desc);
+
+				strnfmt(desc, 16384, "%s%s", desc, vp[n]);
+			}
+
+			strnfmt(desc, 16384, "%s.  ", desc);
+		}
+	}
+
+	if (FLAG(of_ptr, TR_GHOUL_TOUCH))
+	{
+		strnfmt(desc, 16384, "%sIt gives you a paralyzing touch.  ", desc);
+	}
+	if (FLAG(of_ptr, TR_PSI_CRIT))
+	{
+		strnfmt(desc, 16384, "%sIt uses psychic energy to strike great blows.  ", desc);
+	}
+	if (FLAG(of_ptr, TR_RETURN))
+	{
+		strnfmt(desc, 16384, "%sIt returns when thrown.  ", desc);
+	}
+	if (FLAG(of_ptr, TR_EXPLODE))
+	{
+		strnfmt(desc, 16384, "%sIt explodes when fired.  ", desc);
+	}
+
+	/* Collect sustains */
+	if ((of_ptr->flags[1] & TR1_SUST_MASK) == TR1_SUST_MASK)
+	{
+		/* Handle all stats specially */
+		strnfmt(desc, 16384, "%sIt sustains all your stats.  ", desc);
+	}
+	else
+	{
+		vn = 0;
+		if (FLAG(of_ptr, TR_SUST_STR)) vp[vn++] = "strength";
+		if (FLAG(of_ptr, TR_SUST_INT)) vp[vn++] = "intelligence";
+		if (FLAG(of_ptr, TR_SUST_WIS)) vp[vn++] = "wisdom";
+		if (FLAG(of_ptr, TR_SUST_DEX)) vp[vn++] = "dexterity";
+		if (FLAG(of_ptr, TR_SUST_CON)) vp[vn++] = "constitution";
+		if (FLAG(of_ptr, TR_SUST_CHR)) vp[vn++] = "charisma";
+
+		/* Print sustains */
+		if (vn)
+		{
+			strnfmt(desc, 16384, "%sIt sustains your ", desc);
+
+			/* Scan */
+			for (n = 0; n < vn; n++)
+			{
+				if (n > 0 && n == vn - 1) strnfmt(desc, 16384, "%s and ", desc);
+				else if (n > 0)  strnfmt(desc, 16384, "%s, ", desc);
+
+				strnfmt(desc, 16384, "%s%s", desc, vp[n]);
+			}
+
+			strnfmt(desc, 16384, "%s.  ", desc);
+		}
+	}
+
+	/* Collect immunities */
+	vn = 0;
+	if (FLAG(of_ptr, TR_IM_ACID)) vp[vn++] = "acid";
+	if (FLAG(of_ptr, TR_IM_ELEC)) vp[vn++] = "electricity";
+	if (FLAG(of_ptr, TR_IM_FIRE)) vp[vn++] = "fire";
+	if (FLAG(of_ptr, TR_IM_COLD)) vp[vn++] = "cold";
+	if (FLAG(of_ptr, TR_IM_POIS)) vp[vn++] = "poison";
+	if (FLAG(of_ptr, TR_IM_LITE)) vp[vn++] = "light";
+	if (FLAG(of_ptr, TR_IM_DARK)) vp[vn++] = "darkness";
+	if (FLAG(of_ptr, TR_FREE_ACT)) vp[vn++] = "paralysis";
+
+	/* Print immunities */
+	if (vn)
+	{
+		strnfmt(desc, 16384, "%sIt provides immunity to ", desc);
+
+		/* Scan */
+		for (n = 0; n < vn; n++)
+		{
+			if (n > 0 && n == vn - 1) strnfmt(desc, 16384, "%s and ", desc);
+			else if (n > 0)  strnfmt(desc, 16384, "%s, ", desc);
+
+			strnfmt(desc, 16384, "%s%s", desc, vp[n]);
+		}
+
+		strnfmt(desc, 16384, "%s.  ", desc);
+	}
+
+	/* Collect resistances */
+	vn = 0;
+	if (FLAG(of_ptr, TR_RES_ACID) &&
+		!FLAG(of_ptr, TR_IM_ACID))   vp[vn++] = "acid";
+	if (FLAG(of_ptr, TR_RES_ELEC) &&
+		!FLAG(of_ptr, TR_IM_ELEC))   vp[vn++] = "electricity";
+	if (FLAG(of_ptr, TR_RES_FIRE) &&
+		!FLAG(of_ptr, TR_IM_FIRE))   vp[vn++] = "fire";
+	if (FLAG(of_ptr, TR_RES_COLD) &&
+		!FLAG(of_ptr, TR_IM_COLD))   vp[vn++] = "cold";
+	if (FLAG(of_ptr, TR_RES_POIS) &&
+		!FLAG(of_ptr, TR_IM_POIS))   vp[vn++] = "poison";
+	if (FLAG(of_ptr, TR_RES_LITE) &&
+		!FLAG(of_ptr, TR_IM_LITE))   vp[vn++] = "bright light";
+	if (FLAG(of_ptr, TR_RES_DARK) &&
+		!FLAG(of_ptr, TR_IM_DARK))   vp[vn++] = "magical darkness";
+	if (FLAG(of_ptr, TR_RES_FEAR))   vp[vn++] = "fear";
+	if (FLAG(of_ptr, TR_RES_BLIND))  vp[vn++] = "blindness";
+	if (FLAG(of_ptr, TR_RES_CONF))   vp[vn++] = "confusion";
+	if (FLAG(of_ptr, TR_RES_SOUND))  vp[vn++] = "sound";
+	if (FLAG(of_ptr, TR_RES_SHARDS)) vp[vn++] = "shards";
+	if (FLAG(of_ptr, TR_RES_NETHER)) vp[vn++] = "nether";
+	if (FLAG(of_ptr, TR_RES_NEXUS))  vp[vn++] = "nexus";
+	if (FLAG(of_ptr, TR_RES_CHAOS))  vp[vn++] = "chaos";
+	if (FLAG(of_ptr, TR_RES_DISEN))  vp[vn++] = "disenchantment";
+	if (FLAG(of_ptr, TR_HOLD_LIFE))  vp[vn++] = "life draining";
+
+	/* Print resistances */
+	if (vn)
+	{
+		strnfmt(desc, 16384, "%sIt provides resistance to ", desc);
+
+		/* Scan */
+		for (n = 0; n < vn; n++)
+		{
+			if (n > 0 && n == vn - 1) strnfmt(desc, 16384, "%s and ", desc);
+			else if (n > 0)  strnfmt(desc, 16384, "%s, ", desc);
+
+			strnfmt(desc, 16384, "%s%s", desc, vp[n]);
+		}
+
+		strnfmt(desc, 16384, "%s.  ", desc);
+	}
+
+	if (FLAG(of_ptr, TR_THROW))
+	{
+		strnfmt(desc, 16384, "%sIt is perfectly balanced for throwing.  ", desc);
+	}
+
+	if (FLAG(of_ptr, TR_WILD_SHOT))
+	{
+		strnfmt(desc, 16384, "%sIts shots are not hindered by trees.  ", desc);
+	}
+
+	if (FLAG(of_ptr, TR_EASY_ENCHANT))
+	{
+		strnfmt(desc, 16384, "%sIt is easy to enchant.  ", desc);
+	}
+
+	/* Collect miscellaneous */
+	vn = 0;
+/*	if (FLAG(of_ptr, TR_SQUELCH))        vp[vn++] = "(has been squelched)"; */
+	if (FLAG(of_ptr, TR_FEATHER))     vp[vn++] = "allows you to levitate";
+	if (FLAG(of_ptr, TR_LITE))        vp[vn++] = "provides permanent light";
+	if (FLAG(of_ptr, TR_SEE_INVIS))   vp[vn++] = "allows you to see invisible monsters";
+	if (FLAG(of_ptr, TR_TELEPATHY))   vp[vn++] = "gives telepathic powers";
+	if (FLAG(of_ptr, TR_SLOW_DIGEST)) vp[vn++] = "slows your metabolism";
+	if (FLAG(of_ptr, TR_REGEN))       vp[vn++] = "speeds your regenerative powers";
+	if (FLAG(of_ptr, TR_REFLECT))     vp[vn++] = "reflects bolts and arrows";
+	if (FLAG(of_ptr, TR_WILD_WALK))     vp[vn++] = "allows you to walk the wild unhindered";
+	if (FLAG(of_ptr, TR_MUTATE))        vp[vn++] = "causes mutations";
+	if (FLAG(of_ptr, TR_PATRON))        vp[vn++] = "attracts the attention of chaos gods";
+	if (FLAG(of_ptr, TR_STRANGE_LUCK))  vp[vn++] = "warps fate around you";
+	if (FLAG(of_ptr, TR_PASS_WALL))     vp[vn++] = "allows you to pass through solid rock";
+	if (FLAG(of_ptr, TR_NO_TELE))     vp[vn++] = "prevents teleportation";
+
+	/* Print miscellaneous */
+	if (vn)
+	{
+		strnfmt(desc, 16384, "%sIt ", desc);
+
+		/* Scan */
+		for (n = 0; n < vn; n++)
+		{
+			if (n > 0 && n == vn - 1) strnfmt(desc, 16384, "%s and ", desc);
+			else if (n > 0)  strnfmt(desc, 16384, "%s, ", desc);
+
+			strnfmt(desc, 16384, "%s%s", desc, vp[n]);
+		}
+
+		strnfmt(desc, 16384, "%s.  ", desc);
+	}
+
+	/* Collect "produces" */
+	vn = 0;
+	if (FLAG(of_ptr, TR_SH_FIRE))  vp[vn++] = "a fiery sheath";
+	if (FLAG(of_ptr, TR_SH_ELEC))  vp[vn++] = "an electric sheath";
+	if (FLAG(of_ptr, TR_SH_ACID))  vp[vn++] = "an acidic sheath";
+	if (FLAG(of_ptr, TR_SH_COLD))  vp[vn++] = "a freezing sheath";
+	if (FLAG(of_ptr, TR_NO_MAGIC)) vp[vn++] = "an anti-magic shell";
+
+	/* Print "produces" */
+	if (vn)
+	{
+		strnfmt(desc, 16384, "%sIt produces ", desc);
+
+		/* Scan */
+		for (n = 0; n < vn; n++)
+		{
+			if (n > 0 && n == vn - 1) strnfmt(desc, 16384, "%s and ", desc);
+			else if (n > 0)  strnfmt(desc, 16384, "%s, ", desc);
+
+			strnfmt(desc, 16384, "%s%s", desc, vp[n]);
+		}
+
+		strnfmt(desc, 16384, "%s.  ", desc);
+	}
+
+	if (FLAG(of_ptr, TR_XTRA_MIGHT))
+	{
+		strnfmt(desc, 16384, "%sIt fires missiles with extra might ", desc);
+	}
+
+	/* Collect curses */
+	vn = 0;
+	if (FLAG(of_ptr, TR_DRAIN_EXP))   vp[vn++] = "drains your experience";
+	if (FLAG(of_ptr, TR_DRAIN_STATS)) vp[vn++] = "drains your stats";
+	if (FLAG(of_ptr, TR_TELEPORT))    vp[vn++] = "induces random teleportation";
+	if (FLAG(of_ptr, TR_AGGRAVATE))     vp[vn++] = "aggravates nearby creatures";
+	if (FLAG(of_ptr, TR_AUTO_CURSE))  vp[vn++] = "becomes cursed randomly";
+	if (FLAG(of_ptr, TR_CANT_EAT))    vp[vn++] = "makes you unable to eat normal food";
+	if (FLAG(of_ptr, TR_SLOW_HEAL))   vp[vn++] = "slows your healing";
+
+	/* Print curses */
+	if (vn)
+	{
+		strnfmt(desc, 16384, "%sIt ", desc);
+
+		/* Scan */
+		for (n = 0; n < vn; n++)
+		{
+			if (n > 0 && n == vn - 1) strnfmt(desc, 16384, "%s and ", desc);
+			else if (n > 0)  strnfmt(desc, 16384, "%s, ", desc);
+
+			strnfmt(desc, 16384, "%s%s", desc, vp[n]);
+		}
+
+		strnfmt(desc, 16384, "%s.  ", desc);
+	}
+
+	if (FLAG(of_ptr, TR_BLESSED))
+	{
+		strnfmt(desc, 16384, "%sIt has been blessed by the gods.  ", desc);
+	}
+
+	/* Collect protections */
+	vn = 0;
+	if (FLAG(of_ptr, TR_SLAY_ANIMAL)) vp[vn++] = "natural creatures";
+	if (FLAG(of_ptr, TR_SLAY_EVIL))   vp[vn++] = "evil monsters";
+	if (FLAG(of_ptr, TR_SLAY_UNDEAD)) vp[vn++] = "the undead";
+	if (FLAG(of_ptr, TR_SLAY_DEMON))  vp[vn++] = "demons";
+	if (FLAG(of_ptr, TR_SLAY_ORC))    vp[vn++] = "orcs";
+	if (FLAG(of_ptr, TR_SLAY_TROLL))  vp[vn++] = "trolls";
+	if (FLAG(of_ptr, TR_SLAY_GIANT))  vp[vn++] = "giants";
+	if (FLAG(of_ptr, TR_SLAY_DRAGON)) vp[vn++] = "dragons";
+
+	/* Print protections */
+	if (vn)
+	{
+		strnfmt(desc, 16384, "%sIt provides protection from ", desc);
+
+		/* Scan */
+		for (n = 0; n < vn; n++)
+		{
+			if (n > 0 && n == vn - 1) strnfmt(desc, 16384, "%s and ", desc);
+			else if (n > 0)  strnfmt(desc, 16384, "%s, ", desc);
+
+			strnfmt(desc, 16384, "%s%s", desc, vp[n]);
+		}
+
+		strnfmt(desc, 16384, "%s.  ", desc);
+	}
+
+	/* Collect vulnerabilities */
+	vn = 0;
+	if (FLAG(of_ptr, TR_HURT_ACID) &&
+		!FLAG(of_ptr, TR_IM_ACID)) vp[vn++] = "acid";
+	if (FLAG(of_ptr, TR_HURT_ELEC) &&
+		!FLAG(of_ptr, TR_IM_ELEC)) vp[vn++] = "lightning";
+	if (FLAG(of_ptr, TR_HURT_FIRE) &&
+		!FLAG(of_ptr, TR_IM_FIRE)) vp[vn++] = "fire";
+	if (FLAG(of_ptr, TR_HURT_COLD) &&
+		!FLAG(of_ptr, TR_IM_COLD)) vp[vn++] = "frost";
+	if (FLAG(of_ptr, TR_HURT_LITE) &&
+		!FLAG(of_ptr, TR_IM_LITE)) vp[vn++] = "bright light";
+	if (FLAG(of_ptr, TR_HURT_DARK) &&
+		!FLAG(of_ptr, TR_IM_DARK)) vp[vn++] = "magical darkness";
+
+	/* Print vulnerabilities */
+	if (vn)
+	{
+		strnfmt(desc, 16384, "%sIt renders you vulnerable to ", desc);
+
+		/* Scan */
+		for (n = 0; n < vn; n++)
+		{
+			if (n > 0 && n == vn - 1) strnfmt(desc, 16384, "%s and ", desc);
+			else if (n > 0)  strnfmt(desc, 16384, "%s, ", desc);
+
+			strnfmt(desc, 16384, "%s%s", desc, vp[n]);
+		}
+
+		strnfmt(desc, 16384, "%s.  ", desc);
+	}
+
+	if (cursed_p(o_ptr))
+	{
+		if (FLAG(of_ptr, TR_PERMA_CURSE))
+		{
+			strnfmt(desc, 16384, "%sIt is permanently cursed.  ", desc);
+		}
+		else if (FLAG(of_ptr, TR_HEAVY_CURSE))
+		{
+			strnfmt(desc, 16384, "%sIt is heavily cursed.  ", desc);
+		}
+		else if (FLAG(of_ptr, TR_CURSED))
+		{
+			strnfmt(desc, 16384, "%sIt is cursed.  ", desc);
+		}
+	}
+
+	if (FLAG(of_ptr, TR_TY_CURSE))
+	{
+		strnfmt(desc, 16384, "%sIt carries an ancient and foul curse.  ", desc);
+	}
+
+	if (FLAG(of_ptr, TR_IGNORE_FIRE) && o_ptr->tval >= TV_BOOKS_MIN && o_ptr->tval <= TV_BOOKS_MAX)
+	{
+		strnfmt(desc, 16384, "%sIt cannot be harmed by fire.  ", desc);
+	}
+
+	/* Don't print out ONLY object-finding memory. */
+	if (desc[1])
+	{
+		/* Print out object-finding memory */
+		switch (o_ptr->mem.type)
+		{
+			case OM_NONE:
+				/* Don't remember anything, don't say anything. */
+				break;
+			case OM_FLOOR:
+				/* Found it on the ground */
+				if (o_ptr->mem.depth)
+				{
+					place_type *pl_ptr = &place[o_ptr->mem.place_num];
+
+					if (pl_ptr->type == PL_QUEST_STAIR)
+					{
+						strnfmt(desc, 16384, "%sYou found %s on the floor in a quest.  ", desc, o_ptr->number > 1 ? "them" : "it");
+					}
+					else
+					{
+						if (depth_in_feet)
+							strnfmt(desc, 16384, "%sYou found %s on the floor at %d'.  ", desc, o_ptr->number > 1 ? "them" : "it", o_ptr->mem.depth*50);
+						else
+							strnfmt(desc, 16384, "%sYou found %s on the floor on dungeon level %d.  ", desc, o_ptr->number > 1 ? "them" : "it", o_ptr->mem.depth);
+					}
+				}
+				else if (o_ptr->mem.place_num)
+				{
+					strnfmt(desc, 16384, "%sYou found %s in a wilderness monster pit.  ", desc, o_ptr->number > 1 ? "them" : "it");
+				}
+				else
+					/* Is this even possible?  I don't think so... */
+					strnfmt(desc, 16384, "%sYou found %s on the ground outside.  ", desc, o_ptr->number > 1 ? "them" : "it");
+				break;
+			case OM_VAULT:
+			{
+				place_type *pl_ptr = &place[o_ptr->mem.place_num];
+
+				if (pl_ptr->type == PL_QUEST_STAIR)
+				{
+					strnfmt(desc, 16384, "%sYou found %s in a vault in a quest.  ", desc, o_ptr->number > 1 ? "them" : "it");
+				}
+				else
+				{
+					if (depth_in_feet)
+						strnfmt(desc, 16384, "%sYou found %s in a vault at %d'.  ", desc, o_ptr->number > 1 ? "them" : "it", o_ptr->mem.depth*50);
+					else
+						strnfmt(desc, 16384, "%sYou found %s in a vault on dungeon level %d.  ", desc,  o_ptr->number > 1 ? "them" : "it", o_ptr->mem.depth);
+				}
+				break;
+			}
+			case OM_STORE:
+				/* Bought it */
+			{
+				place_type *pl_ptr = &place[o_ptr->mem.place_num];
+				store_type *st_ptr;
+
+				if (o_ptr->mem.data >= pl_ptr->numstores)
+					st_ptr = NULL;
+				else
+					st_ptr = &pl_ptr->store[o_ptr->mem.data];
+
+				if (pl_ptr->type == PL_FARM)
+				{
+					strnfmt(desc, 16384, "%sYou bought %s at a farm.  ", desc, o_ptr->number > 1 ? "them" : "it");
+				}
+				else
+				{
+					strnfmt(desc, 16384, "%sYou bought %s in a %s in %s.  ", desc, o_ptr->number > 1 ? "them" : "it", building_name(st_ptr->type), pl_ptr->name);
+				}
+				break;
+			}
+			case OM_QUEST:
+			{
+				/* Quest reward */
+				strnfmt(desc, 16384, "%s%s given to you as a reward ", desc, o_ptr->number > 1 ? "They were" : "It was");
+				switch (o_ptr->mem.data)
+				{
+					case QUEST_TYPE_BOUNTY:
+					case QUEST_TYPE_DUNGEON:
+					case QUEST_TYPE_DEFEND:
+						strnfmt(desc, 16384, "%sfor killing some monsters ", desc);
+						break;
+					case QUEST_TYPE_WILD:
+						strnfmt(desc, 16384, "%sfor clearing a pit of monsters ", desc);
+						break;
+					case QUEST_TYPE_MESSAGE:
+						strnfmt(desc, 16384, "%sfor delivering a message ", desc);
+						break;
+					case QUEST_TYPE_FIND_ITEM:
+						strnfmt(desc, 16384, "%sfor finding a relic ", desc);
+						break;
+					case QUEST_TYPE_FIND_PLACE:
+						strnfmt(desc, 16384, "%sfor finding a ruin ", desc);
+						break;
+					case QUEST_TYPE_LOAN:
+						strnfmt(desc, 16384, "%sfor repaying a loan ", desc);
+						break;
+					case QUEST_TYPE_FIXED_KILL:
+					case QUEST_TYPE_FIXED_BOSS:
+						strnfmt(desc, 16384, "%sfor killing a local enemy ", desc);
+						break;
+					case QUEST_TYPE_FIXED_DEN:
+					case QUEST_TYPE_FIXED_CLEAROUT:
+						strnfmt(desc, 16384, "%sfor clearing an area ", desc);
+						break;
+					default:
+						strnfmt(desc, 16384, "%sfor completing a quest ", desc);
+						break;
+				}
+				strnfmt(desc, 16384, "%sin %s.  ", desc, place[o_ptr->mem.place_num].name);
+				break;
+			}
+
+			case OM_MONST:
+			{
+				/* Dropped by a monster somewhere */
+				monster_race *r_ptr = &r_info[o_ptr->mem.data];
+				place_type *pl_ptr = &place[o_ptr->mem.place_num];
+				strnfmt(desc, 16384, "%s%s dropped by %s%s ", desc, o_ptr->number > 1 ? "They were" : "It was", (FLAG(r_ptr, RF_UNIQUE) ? "" : "a ") , mon_race_name(r_ptr));
+
+				if (o_ptr->mem.depth)
+				{
+					if (pl_ptr->type == PL_QUEST_STAIR)
+					{
+						strnfmt(desc, 16384, "%sin a quest.  ", desc);
+					}
+					else if (depth_in_feet)
+						strnfmt(desc, 16384, "%sat %d'.  ", desc, o_ptr->mem.depth*50);
+					else
+						strnfmt(desc, 16384, "%son dungeon level %d.  ", desc, o_ptr->mem.depth);
+				}
+				else if (o_ptr->mem.place_num)
+				{
+					switch (pl_ptr->type)
+					{
+						case PL_FARM:
+							strnfmt(desc, 16384, "%son a farm.  ", desc);
+							break;
+						case PL_TOWN_FRACT:
+						case PL_TOWN_OLD:
+							strnfmt(desc, 16384, "%sin %s.  ", desc, pl_ptr->name);
+							break;
+						case PL_TOWN_MINI:
+							strnfmt(desc, 16384, "%sat %s.  ", desc, pl_ptr->name);
+							break;
+						case PL_QUEST_STAIR:
+						case PL_DUNGEON:
+							strnfmt(desc, 16384, "%sin the wilderness.  ", desc);
+							break;
+						case PL_QUEST_PIT:
+							strnfmt(desc, 16384, "%sin a wilderness monster pit.  ", desc);
+							break;
+					}
+				}
+				else
+				{
+					strnfmt(desc, 16384, "%sin the wilderness.  ", desc);
+				}
+				break;
+			}
+			case OM_CHEST:
+			{
+				/* For now, boring. */
+				strnfmt(desc, 16384, "%s%s in a chest.", desc, o_ptr->number > 1 ? "They were" : "It was");
+				break;
+			}
+			case OM_SCROLL:
+			{
+				strnfmt(desc, 16384, "%s%s created by reading a Scroll of %s.  ", desc, o_ptr->number > 1 ? "They were" : "It was", o_ptr->mem.data == 198 ? "Acquirement" : "*Acquirement*");
+				break;
+			}
+			case OM_PATRON:
+			{
+				/* For now, boring.  */
+				strnfmt(desc, 16384, "%s%s granted to you by your Chaos Patron.  ", desc, o_ptr->number > 1 ? "They were" : "It was");
+				break;
+			}
+			case OM_START:
+			{
+				strnfmt(desc, 16384, "%sYou've had %s from the beginning.  ", desc, o_ptr->number > 1 ? "them" : "it");
+				break;
+			}
+			case OM_POLYMORPH:
+			{
+				strnfmt(desc, 16384, "%s%s created by chaos from another object.  ", desc, o_ptr->number > 1 ? "They were" : "It was");
+				break;
+			}
+			case OM_RUBBLE:
+			{
+				/* For now, boring. */
+				strnfmt(desc, 16384, "%sYou found %s in some rubble.  ", desc, o_ptr->number > 1 ? "them" : "it");
+				break;
+			}
+			case OM_MADE:
+			{
+				/* For now, boring */
+				strnfmt(desc, 16384, "%sYou made %s yourself.  ", desc,  o_ptr->number > 1 ? "them" : "it");
+				break;
+			}
+			default:
+				strnfmt(desc, 16384, "%sYou don't remember where you found %s.  ", desc, o_ptr->number > 1 ? "them" : "it");
+				break;
+		}
+	}
+
+	/* Print it to the file. */
+	wrap_froff(fff, desc, 3, 75);
+
+	/* Final blank line */
+	if (strlen(desc))
+		froff(fff, "\n");
+}
+

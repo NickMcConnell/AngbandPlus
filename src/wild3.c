@@ -2423,3 +2423,26 @@ int max_dun_level_reached(void)
 	/* Done */
 	return (max);
 }
+
+/*
+ * Redraw a quest stair place and make it update
+ * right away.
+ */
+void refresh_quest_stair(place_type *pl_ptr)
+{
+	int x, y;
+	
+	x = pl_ptr->x;
+	y = pl_ptr->y;
+	
+	/* See if the place is in the current view area.  If not, nothing to do.  */
+	if (x < p_ptr->old_wild_x || x >= p_ptr->old_wild_x + WILD_VIEW ||
+		y < p_ptr->old_wild_y || y >= p_ptr->old_wild_y + WILD_VIEW)
+		return;
+		
+	/* Delete the old block */
+	del_block(x, y);
+	
+	/* Allocate a new one; this redraws the area and overlays it. */
+	allocate_block(x, y);
+}

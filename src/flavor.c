@@ -51,7 +51,7 @@ static cptr ring_adj[MAX_ROCKS] =
 	"Plain", "Brass", "Scarab", "Shining", "Rusty",
 	"Transparent", "Cat's-Eye", "Chrysoberyl", "Serpentine", "Spinel",
 	/* 60-69 */
-	"Topaz", "Morganite", "Heliodor", "Tourmaline", "Chalcedony",
+	"Sunstone", "Morganite", "Heliodor", "Tourmaline", "Chalcedony",
 	"Peridot", "Hematite", "Coral", "Citrine", "Copper",
     /* 70-79 */
 	"Crystal", "Fire Opal", "Star Ruby", "Star Sapphire", "Pyrite",
@@ -76,7 +76,7 @@ static byte ring_col[MAX_ROCKS] =
 	TERM_YELLOW, TERM_VIOLET, TERM_UMBER, TERM_L_WHITE, TERM_WHITE,
 	TERM_UMBER, TERM_BLUE, TERM_GREEN, TERM_YELLOW, TERM_ORANGE,
 	/* 50-59 */
-	TERM_YELLOW, TERM_ORANGE, TERM_L_GREEN, TERM_YELLOW, TERM_RED,
+	TERM_ORANGE, TERM_ORANGE, TERM_L_GREEN, TERM_YELLOW, TERM_RED,
 	TERM_WHITE, TERM_YELLOW, TERM_YELLOW, TERM_L_GREEN, TERM_RED,
 	/* 60-69 */
 	TERM_YELLOW, TERM_L_RED, TERM_YELLOW, TERM_GREEN, TERM_L_DARK,

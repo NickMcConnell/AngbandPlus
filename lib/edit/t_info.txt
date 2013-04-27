@@ -1539,7 +1539,7 @@ L:STORE2:result = item_tester_hook_helm(object)
 
 # Jeweler
 N:102:Jeweler
-G:5:r
+G:5:y
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:3:1:30:100:0:0:0:8
@@ -1549,7 +1549,7 @@ L:STORE2:result = item_tester_hook_jewel(object)
 
 # Jeweler
 N:103:Copper Jeweler
-G:5:r
+G:5:y
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:3:20:50:100:0:0:0:8
@@ -1559,7 +1559,7 @@ L:STORE2:result = item_tester_hook_jewel(object)
 
 # Jeweler
 N:104:Silver Jeweler
-G:5:r
+G:5:o
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:3:40:70:100:0:0:0:24
@@ -1569,7 +1569,7 @@ L:STORE2:result = item_tester_hook_jewel(object)
 
 # Jeweler
 N:105:Gold Jeweler
-G:5:R
+G:5:o
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:3:60:90:100:0:0:0:40
@@ -2281,7 +2281,9 @@ L:BUILD1:if (build_has_quest() == TRUE and is_member() == TRUE) then
 L:BUILD1:  rstring = "Q) Request Reward"
 L:BUILD1:elseif (is_member() == TRUE and build_next_quest() == TRUE) then
 L:BUILD1:  rstring = "Q) Request Quest (".. build_get_qlevel()..")" 
-L:BUILD1:else rstring = "Q) Request Membership" end
+L:BUILD1:elseif (build_next_quest() == TRUE) then
+L:BUILD1:  rstring = "Q) Request Membership"
+L:BUILD1:else  rstring = "" end
 L:BUILD1:if (is_full_member() == TRUE) then
 L:BUILD1:	building_options(rstring, 
 L:BUILD1:          "I) Identify item (".. factor / 3 .."gp)",

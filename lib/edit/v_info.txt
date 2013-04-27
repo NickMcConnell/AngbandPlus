@@ -51,7 +51,7 @@
 
 # Version stamp (required)
 
-V:0.2.1
+V:0.2.2
 
 
 ### Lesser vaults (type 7) -- maximum size 33x22 ###
@@ -229,31 +229,31 @@ D:%%%%%%%%%%%%%%%%%%%%%
 
 # Topi Ylinen
 #
-N:9:Lesser vault (bank)
-X:7:7:9:21
-D:%%%%%%%%%%%%%%%%%%%%%
-D:%...................%
-D:%.&XXXXXXXXXXXXXXXXX%
-D:%&&XXXXX+XXX+XX*,XXX%
-D:%&&+###########,*XXX%
-D:%.&XXX+XXX+XXX+XXXXX%
-D:%.&XXXXXXXXXXXXXXXXX%
-D:%...................%
-D:%%%%%%%%%%%%%%%%%%%%%
+#N:9:Lesser vault (bank)
+#X:7:7:9:21
+#D:%%%%%%%%%%%%%%%%%%%%%
+#D:%...................%
+#D:%.&XXXXXXXXXXXXXXXXX%
+#D:%&&XXXXX+XXX+XX*,XXX%
+#D:%&&+###########,*XXX%
+#D:%.&XXX+XXX+XXX+XXXXX%
+#D:%.&XXXXXXXXXXXXXXXXX%
+#D:%...................%
+#D:%%%%%%%%%%%%%%%%%%%%%
 
 # Topi Ylinen
 #
-N:10:Lesser vault (mine)
-X:7:7:9:21
-D:%%%%%%%%%%%%%%%%%%%%%
-D:%...................%
-D:%.XXXXXXXXXXXXXXXXXX%
-D:%.XX##XXXX*,,XX,*,XX%
-D:%.*#XX,*##X*#XX***XX%
-D:%.XXXX*,XXXXX##,*,XX%
-D:%.XXXXXXXXXXXXXXXXXX%
-D:%...................%
-D:%%%%%%%%%%%%%%%%%%%%%
+#N:10:Lesser vault (mine)
+#X:7:7:9:21
+#D:%%%%%%%%%%%%%%%%%%%%%
+#D:%...................%
+#D:%.XXXXXXXXXXXXXXXXXX%
+#D:%.XX##XXXX*,,XX,*,XX%
+#D:%.*#XX,*##X*#XX***XX%
+#D:%.XXXX*,XXXXX##,*,XX%
+#D:%.XXXXXXXXXXXXXXXXXX%
+#D:%...................%
+#D:%%%%%%%%%%%%%%%%%%%%%
 
 # Topi Ylinen
 #

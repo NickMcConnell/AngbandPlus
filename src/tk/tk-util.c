@@ -699,14 +699,15 @@ void any_more(cptr prompt)
 		prompt = "Hit any key to continue";
 
 	/* Set quick_messages so any key is accepted */
-	quick_messages = TRUE;
+	/* Removed: quick_messages hard-coded to be TRUE.
+	quick_messages = TRUE;  */
 
 	/* Display the message, wait for a response */
 	msgf(prompt);
 	message_flush();
 
 	/* Restore quick_messages */
-	quick_messages = old_quick;
+	/* quick_messages = old_quick;  */
 }
 
 int ExtToUtf_SetArrayValueString(cptr varName, cptr field, cptr value)

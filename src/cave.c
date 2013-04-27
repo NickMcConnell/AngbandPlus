@@ -2425,14 +2425,8 @@ static void mon_lite_hack(int x, int y)
 	{
 		pc_ptr->player |= GRID_SEEN;
 
-		/* Remember it if view_monster_grids is set. */
-		if (view_monster_grids)
-		{
-			remember_grid(c_ptr, pc_ptr);
-
-			/* Show on the screen */
-			lite_spot(x, y);
-		}
+		remember_grid(c_ptr, pc_ptr);
+		lite_spot(x, y);
 	}
 }
 

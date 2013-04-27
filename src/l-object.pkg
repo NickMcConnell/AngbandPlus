@@ -208,7 +208,7 @@ typedef int sint;
 #define TR2_XXX4                0x00000008L     /* Later */
 #define TR2_NO_TELE             0x00000010L     /* Anti-teleportation */
 #define TR2_NO_MAGIC            0x00000020L     /* Anti-magic */
-#define TR2_XXX7                0x00000040L     /* Later */
+#define TR2_HIDDEN_POWERS       0x00000040L     /* Later */
 #define TR2_TY_CURSE            0x00000080L     /* The Ancient Curse */
 #define TR2_EASY_KNOW           0x00000100L     /* Aware -> Known */
 #define TR2_HIDE_TYPE           0x00000200L     /* Hide "pval" description */

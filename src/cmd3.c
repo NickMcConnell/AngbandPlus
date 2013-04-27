@@ -593,7 +593,8 @@ void do_cmd_destroy(void)
 	/* Verify unless quantity given */
 	if (!force)
 	{
-		if (!(auto_destroy && (object_value(o_ptr) < 1)))
+		if ((!(quick_destroy_bad && (object_value(o_ptr) < 1))) && !quick_destroy_all
+			&& !(quick_destroy_avg && object_average(o_ptr)) && !(quick_destroy_good && object_good(o_ptr)))
 		{
 			/* Make a verification */
 			if (!get_check("Really destroy %v? ", OBJECT_FMT(o_ptr, TRUE, 3)))

@@ -149,7 +149,7 @@ void add_river(int feat1, int feat2, int size)
 {
 	int y2, x2;
 	int y1 = 0, x1 = 0;
-	
+
 	/* Restrict to sizes 1-10 */
 	size = MAX(1,size);
 	size = MIN(10,size);
@@ -214,16 +214,16 @@ void add_river(int feat1, int feat2, int size)
 void build_streamer(int feat, int chance, int size)
 {
 	int i, tx, ty;
-	int y, x, dir;
+	int y, x, dir, x0, y0;
 	int dummy = 0;
 
 	cave_type *c_ptr;
 
 	/* Hack -- Choose starting point */
-	y = rand_spread(p_ptr->max_hgt / 2, (p_ptr->max_hgt / 2 > 10 ?
-										 10 : p_ptr->max_hgt / 2));
-	x = rand_spread(p_ptr->max_wid / 2, (p_ptr->max_wid / 2 > 15 ?
-										 15 : p_ptr->max_wid / 2));
+	y0 = rand_range(p_ptr->max_hgt / 3, 2*p_ptr->max_hgt / 3);
+	x0 = rand_range(p_ptr->max_wid / 3, 2*p_ptr->max_wid / 3);
+	y = y0;
+	x = x0;
 
 	/* Choose a random compass direction */
 	dir = ddd[randint0(8)];
@@ -282,6 +282,70 @@ void build_streamer(int feat, int chance, int size)
 		/* Advance the streamer */
 		y += ddy[dir];
 		x += ddx[dir];
+
+		/* Quit before leaving the dungeon */
+		if (!in_bounds(x, y)) break;
+	}
+
+	/* Reset, extend in the opposite direction */
+	x = x0;
+	y = y0;
+	dummy = 0;
+
+	/* Place streamer into dungeon */
+	while (dummy < SAFE_MAX_ATTEMPTS)
+	{
+		dummy++;
+
+		/* One grid per density */
+		for (i = 0; i < DUN_STR_DEN; i++)
+		{
+			int d = size;
+
+			/* Pick a nearby grid */
+			while (1)
+			{
+				ty = rand_spread(y, d);
+				tx = rand_spread(x, d);
+				if (!in_bounds2(tx, ty)) continue;
+				break;
+			}
+
+			/* Access the grid */
+			c_ptr = cave_p(tx, ty);
+
+			/* Only convert "granite" walls */
+			if (c_ptr->feat < FEAT_WALL_EXTRA) continue;
+			if (c_ptr->feat > FEAT_WALL_SOLID) continue;
+
+			/* Clear previous contents, add proper vein type */
+			set_feat_grid(c_ptr, feat);
+
+			/* Hack XXX XXX -- Add some (known) treasure */
+			if (chance && one_in_(chance)) c_ptr->feat += 0x04;
+
+			/*
+			 * So this means that all the treasure is known as soon as it is
+			 * seen or detected...  Why do the FEAT_MAGMA_H and FEAT_QUARTZ_H
+			 * terrain types exist?  If they are never made, then the "mimic"
+			 * feature struct field can be removed, and so can some code in
+			 * map_info() - which will speed the game up significantly.
+			 */
+		}
+
+		if (dummy >= SAFE_MAX_ATTEMPTS)
+		{
+			if (cheat_room)
+			{
+				msgf("Warning! Could not place streamer!");
+			}
+			return;
+		}
+
+
+		/* Advance the streamer */
+		y -= ddy[dir];
+		x -= ddx[dir];
 
 		/* Quit before leaving the dungeon */
 		if (!in_bounds(x, y)) break;

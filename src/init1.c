@@ -620,7 +620,7 @@ static cptr k_info_flags3[] =
 	"XXX4",
 	"NO_TELE",
 	"NO_MAGIC",
-	"XXX7",
+	"HIDDEN_POWERS",
 	"TY_CURSE",
 	"EASY_KNOW",
 	"HIDE_TYPE",
@@ -3388,7 +3388,7 @@ errr init_mg_info_txt(FILE *fp, char *buf)
 					hrt_ptr->data[(4*j)+2] = (char) ((flags[j] >> 16) & 0xFF);
 					hrt_ptr->data[(4*j)+3] = (char) ((flags[j] >> 24) & 0xFF);
 				}
-				
+
 				/* Complete paranoia: test the algorithm  */
 				for (j = 0; j < 9; j++)
 				{

@@ -26,9 +26,10 @@ static int curr_place_num;
 
 static int thresh = 30;
 
-bool in_quest(void)
+int in_quest(void)
 {
-	return (current_quest != NULL);
+	if (current_quest == NULL) return (0);
+	else return (1);
 }
 
 static void pick_quest_location(int *best_x, int *best_y, int *p_num)
@@ -41,16 +42,16 @@ static void pick_quest_location(int *best_x, int *best_y, int *p_num)
 
 	for (i = 0; i < thresh; i++)
 	{
-		x = rand_range(place[curr_place_num].x - thresh, place[curr_place_num].x + thresh);
-		y = rand_range(place[curr_place_num].y - thresh, place[curr_place_num].y + thresh);
+		x = 4+rand_range(place[curr_place_num].x - thresh, place[curr_place_num].x + thresh);
+		y = 4+rand_range(place[curr_place_num].y - thresh, place[curr_place_num].y + thresh);
 
 		/* Bounds enforcement */
 		if (x < 0) x = 0;
 		if (y < 0) y = 0;
-		if (x >= max_wild) x = max_wild - 1;
-		if (y >= max_wild) y = max_wild - 1;
+		if (x >= max_wild-1) x = max_wild - 2;
+		if (y >= max_wild-1) y = max_wild - 2;
 
-		score = distance(x, y, place[curr_place_num].x, place[curr_place_num].y);
+		score = distance(x, y, place[curr_place_num].x+4, place[curr_place_num].y+4);
 
 		if (score < 5)
 		{
@@ -334,7 +335,7 @@ u16b insert_dungeon_monster_quest(u16b r_idx, u16b num, u16b level)
 	q_ptr->data.dun.max_num = num;
 	q_ptr->data.dun.num_mon = 0;
 	q_ptr->level = level;
-	q_ptr->reward = r_ptr->level * r_ptr->level * 3;
+	q_ptr->reward = r_ptr->level * r_ptr->level * 5 * num;
 
 	/* Return number of quest */
 	return (q_num);
@@ -449,10 +450,10 @@ u16b insert_boss_quest(u16b r_idx)
 
 	/* Create quest name */
 	if (FLAG(r_ptr, RF_UNIQUE) || FLAG(r_ptr, RF_UNIQUE_7))
-		(void)strnfmt(q_ptr->name, 256, "%s and %s %s have been %s the area %s of %s.  Find %s %s and %s %s.",
+		(void)strnfmt(q_ptr->name, 256, "%s and %s %s have been %s the area %s %s.  Find %s %s and %s %s.",
 				  buf, pron, buf4, buf2, town_dir, town_name, pron, buf3, buf5, pron2);
 	else
-		(void)strnfmt(q_ptr->name, 256, "%s and %s %s have been %s the area %s of %s.  Find their %s and %s them.",
+		(void)strnfmt(q_ptr->name, 256, "%s and %s %s have been %s the area %s %s.  Find their %s and %s them.",
 				  buf, pron, buf4, buf2, town_dir, town_name, buf3, buf5);
 
 	q_ptr->data.fix.d_type = DUN_TYPE_PURE_CASTLE;
@@ -517,9 +518,9 @@ static u16b insert_clearout_quest(u16b d_idx, int level)
 	q_ptr->status = QUEST_STATUS_UNTAKEN;
 	q_ptr->level = level + 2;
 
-	n = 1+rand_range(level/15, level/10);
+	n = 1+rand_range(level/25, level/18);
 
-	q_ptr->reward = level * level * 5 * n;
+	q_ptr->reward = level * level * 7 * n;
 
 	pick_quest_location(&x, &y, &p_num);
 
@@ -530,7 +531,7 @@ static u16b insert_clearout_quest(u16b d_idx, int level)
 	strcpy(buf, dungeon_type_name(dg_ptr->habitat));
 	buf[0] = tolower(buf[0]);
 
-	(void)strnfmt(q_ptr->name, 256, "Clear %i %s of a certain %s %s of %s.",
+	(void)strnfmt(q_ptr->name, 256, "Clear %i %s of a certain %s %s %s.",
 				  n, (n > 1 ? "levels" : "level"), buf, town_dir, town_name);
 
 	q_ptr->data.fix.d_type = (1 << (d_idx - 1));
@@ -602,7 +603,7 @@ static u16b insert_den_quest(u16b mg_idx, int level)
 	/* Paranoia */
 	n = MAX(n, 1);
 
-	q_ptr->reward = level * level * 20 * n;
+	q_ptr->reward = level * level * 9 * n;
 
 	/* Pick a location for the quest dungeon */
 	pick_quest_location(&x, &y, &p_num);
@@ -619,7 +620,7 @@ static u16b insert_den_quest(u16b mg_idx, int level)
 	else buf4[0] = 0;
 
 	/* Create quest name */
-	(void)strnfmt(q_ptr->name, 256, "%s %s have been %s the area %s of %s.  Discover their %s and %s them all.%s",
+	(void)strnfmt(q_ptr->name, 256, "%s %s have been %s the area %s %s.  Discover their %s and %s them all.%s",
 					buf, mg_ptr->name, buf2, town_dir, town_name, buf3, buf5, buf4);
 
 	q_ptr->data.fix.d_type = select_bit(mg_ptr->d_type);
@@ -691,7 +692,7 @@ static u16b insert_kill_quest(u16b r_idx)
 	q_ptr->status = QUEST_STATUS_UNTAKEN;
 	q_ptr->level = r_ptr->level - 5;
 
-	q_ptr->reward = r_ptr->level * r_ptr->level * 10;
+	q_ptr->reward = r_ptr->mexp * 3;
 
 	/* Pick a location for the quest dungeon */
 	pick_quest_location(&x, &y, &p_num);
@@ -733,7 +734,7 @@ static u16b insert_kill_quest(u16b r_idx)
 	get_rnd_line("quest4.txt", 0, buf5);
 
 	/* Create quest name */
-	(void)strnfmt(q_ptr->name, 256, "%s has been %s the area %s of %s.  Track %s to %s %s and %s %s.",
+	(void)strnfmt(q_ptr->name, 256, "%s has been %s the area %s %s.  Track %s to %s %s and %s %s.",
 				  buf, buf2, town_dir, town_name, pron2, pron, buf3, buf5, pron2);
 
 	q_ptr->data.fix.d_type = DUN_TYPE_PURE_CASTLE;
@@ -744,8 +745,8 @@ static u16b insert_kill_quest(u16b r_idx)
 	q_ptr->data.fix.min_level = r_ptr->level - 5;
 	q_ptr->data.fix.data.kill.r_idx = r_idx;
 
-	/* Only one monster, so this should not be a quest you can bail on. */
-	q_ptr->data.fix.attempts = 10000;
+	/* Rather easy to avoid waking the monster up & plundering, so prevent scumming. */
+	q_ptr->data.fix.attempts = 2;
 
 	/* Set the quest number */
 	place[p_num].quest_num = q_num;
@@ -835,6 +836,9 @@ static u16b find_good_town(int *dist)
 		/* Want towns with buildings */
 		if (!pl_ptr->numstores) continue;
 
+		/* No farms */
+		if (pl_ptr->type == PL_FARM) continue;
+
 		/* Get difference of distance in wilderness blocks and difficulty level */
 		score = abs(distance(pl_ptr->x, pl_ptr->y, p_ptr->px / 16, p_ptr->py / 16) - *dist);
 
@@ -904,7 +908,7 @@ cptr describe_quest_location(cptr * dirn, int x, int y, bool known)
 		}
 
 		/* Find closest town */
-		d = distance(x, y, place[i].x, place[i].y);
+		d = distance(x, y, place[i].x+4, place[i].y+4);
 
 		/* Keep track of the best town */
 		if (d < best_dist)
@@ -922,36 +926,40 @@ cptr describe_quest_location(cptr * dirn, int x, int y, bool known)
 	}
 
 	/* Approximates the center of the city */
-	dx = x - (place[best_town].x + place[best_town].xsize/2);
-	dy = y - (place[best_town].y + place[best_town].ysize/2);
+	dx = x - (place[best_town].x + 4);
+	dy = y - (place[best_town].y + 4);
 
-	if (ABS(dy) > ABS(dx) * 3)
+	if (distance(x, y, place[best_town].x + 4, place[best_town].y + 4) < 6)
+	{
+		*dirn = "near";
+	}
+	else if (ABS(dy) > ABS(dx) * 3)
 	{
 		if (dy > 0)
-			*dirn = "south";
+			*dirn = "south of";
 		else
-			*dirn = "north";
+			*dirn = "north of";
 	}
 	else if (ABS(dx) > ABS(dy) * 3)
 	{
 		if (dx > 0)
-			*dirn = "east";
+			*dirn = "east of";
 		else
-			*dirn = "west";
+			*dirn = "west of";
 	}
 	else if (dx > 0)
 	{
 		if (dy > 0)
-			*dirn = "south-east";
+			*dirn = "south-east of";
 		else
-			*dirn = "north-east";
+			*dirn = "north-east of";
 	}
 	else
 	{
 		if (dy > 0)
-			*dirn = "south-west";
+			*dirn = "south-west of";
 		else
-			*dirn = "north-west";
+			*dirn = "north-west of";
 	}
 
 	return (place[best_town].name);
@@ -1221,6 +1229,10 @@ void activate_quests(int level)
 			{
 				/* Correct dungeon level? */
 				if (q_ptr->data.dun.level != level) break;
+
+				/* Set QUESTOR flag if the target is unique. */
+				if (FLAG(&r_info[q_ptr->data.dun.r_idx], RF_UNIQUE))
+					SET_FLAG(&r_info[q_ptr->data.dun.r_idx], RF_QUESTOR);
 
 				/* Current quest? */
 				if (q_ptr->status != QUEST_STATUS_TAKEN ||
@@ -2300,7 +2312,8 @@ static void give_reward(store_type * st_ptr, quest_type * q_ptr)
 
 		/* Usually gives one object, but if r > 4000 it goes up */
 		/* Must include q_ptr->level because we are currently in town. */
-		semi_acquirement(MAX(1, (r/2000)-3),
+		/* Max out at 5 items */
+		semi_acquirement(MIN(MAX(1, (r/2000)-3),5),
 						q_ptr->level + MIN(15, (r/150)),
 						&theme);
 	}
@@ -2582,10 +2595,10 @@ static int insert_artifact_quest(u16b a_idx)
 
 	/* XXX XXX Create quest name */
 	if (is_a_vowel(buf[0])) {
-		(void)strnfmt(q_ptr->name, 256, "Find the relic %s, which is hidden in an %s, %s of %s.",
+		(void)strnfmt(q_ptr->name, 256, "Find the relic %s, which is hidden in an %s, %s %s.",
 				  a_name + a_ptr->name, buf, town_dir, town_name);
 	} else {
-		(void)strnfmt(q_ptr->name, 256, "Find the relic %s, which is hidden in a %s, %s of %s.",
+		(void)strnfmt(q_ptr->name, 256, "Find the relic %s, which is hidden in a %s, %s %s.",
 				  a_name + a_ptr->name, buf, town_dir, town_name);
 	}
 
@@ -2654,6 +2667,9 @@ static u16b find_random_artifact(void)
 
 		/* No quest items */
 		if (FLAG(a_ptr, TR_QUESTITEM)) continue;
+
+		/* Hack: no quests for artifact lights */
+		if (a_ptr->tval == TV_LITE) continue;
 
 		/* keep track of the lowest level * rarity */
 		min = MIN(min, a_ptr->level * a_ptr->rarity);
@@ -2861,7 +2877,7 @@ static bool has_followers(int r_idx)
 	{
 		if (i == r_idx) continue;
 
-		r_ptr = &r_info[r_idx];
+		r_ptr = &r_info[i];
 
 		if (r_ptr->d_char == r2_ptr->d_char &&
 			r_ptr->level < r2_ptr->level)
@@ -3244,7 +3260,7 @@ static quest_type *insert_find_place_quest(void)
 	town_name = describe_quest_location(&town_dir, pl_ptr->x, pl_ptr->y, FALSE);
 
 	/* XXX XXX Create quest name */
-	(void)strnfmt(q_ptr->name, 128, "Find a certain lost ruin, which is hidden %s of %s.",
+	(void)strnfmt(q_ptr->name, 128, "Find a certain lost ruin, which is hidden %s %s.",
 				  town_dir, town_name);
 
 	q_ptr->data.fpl.place = place_num;
@@ -3510,7 +3526,7 @@ void request_quest(const store_type *b_ptr, int scale)
 	else
 	{
 		q_ptr = &quest[q_num];
-		if (p_ptr->max_lev * 2 < q_ptr->level - (q_ptr->type == QUEST_TYPE_FIXED_CLEAROUT ? 5 : 12))
+		if (p_ptr->max_lev * 3 < q_ptr->level - (q_ptr->type == QUEST_TYPE_FIXED_CLEAROUT ? 5 : 12))
 		{
 			msgf ("Come back when you are more powerful.");
 			return;
@@ -3549,22 +3565,7 @@ void request_quest(const store_type *b_ptr, int scale)
 			}
 
 			/* Redraw, there should be stairs now */
-			draw_quest_stair(pl_ptr);
-
-			incref_region(pl_ptr->region);
-
-			/* Link place to wilderness */
-			w_ptr = &wild[pl_ptr->y][pl_ptr->x].done;
-
-			w_ptr->place = i;
-
-			pl_ptr->region = unref_region(pl_ptr->region);
-
-			/* Hack: Set region back to wilderness.  This should always be right. */
-			set_region(0);
-
-			/* Hack: hopefully, this makes the stairs appear right away. */
-			move_wild();
+			refresh_quest_stair(pl_ptr);
 		}
 	}
 }
@@ -3602,7 +3603,7 @@ static cptr quest_status_string(quest_type *q_ptr)
 
 				if (lvls == 1 || cleared == 0) return ("\n\n");
 
-				else return (format("You have cleared %d levels.\n\n", cleared));
+				else return (format("You have cleared %d level%s.\n\n", cleared, (cleared == 1 ? "" : "s")));
 			}
 
 			/* Count the bounty monsters */
@@ -3675,7 +3676,7 @@ static cptr quest_status_string(quest_type *q_ptr)
 /*
  * Print quest status of all active quests
  */
-static bool do_cmd_knowledge_quests_aux(int place_num, FILE *fff)
+bool do_cmd_knowledge_quests_aux(int place_num, FILE *fff)
 {
 	char tmp_str[256];
 
@@ -4623,7 +4624,7 @@ bool create_quest(int x, int y, int place_num)
 	town_name = describe_quest_location(&town_dir, pl_ptr->x, pl_ptr->y, FALSE);
 
 	/* Create quest name */
-	(void)strnfmt(q_ptr->name, 128, "Defeat the %s camp %s of %s.",
+	(void)strnfmt(q_ptr->name, 128, "Defeat the %s camp %s %s.",
 				  camp_types[qtype].name, town_dir, town_name);
 
 	/* Save the quest data */
@@ -4695,6 +4696,12 @@ void draw_quest(place_type *pl_ptr)
 		/* Get spot */
 		x = randint0(pl_ptr->xsize * 2);
 		y = randint0(pl_ptr->ysize * 2);
+
+		current_object_source.type = OM_FLOOR;
+		/* Hack: The description doesn't care which quest pit it was. */
+        current_object_source.place_num = 1;
+		current_object_source.depth = 0;
+		current_object_source.data = 0;
 
 		/* Place ground */
 		for (i = 0; i < 8; i++)

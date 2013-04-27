@@ -687,6 +687,22 @@ bool gain_mutation(int choose_mut)
 					p_ptr->muta3 &= ~(MUT3_LIMBER);
 				}
 			}
+			else if (muta_which == MUT3_ALBINO)
+			{
+				if (p_ptr->muta3 & MUT3_RESILIENT)
+				{
+					msgf("You no longer feel resilient.");
+					p_ptr->muta3 &= ~(MUT3_RESILIENT);
+				}
+			}
+			else if (muta_which == MUT3_RESILIENT)
+			{
+				if (p_ptr->muta3 & MUT3_ALBINO)
+				{
+					msgf("You no longer feel sickly.");
+					p_ptr->muta3 &= ~(MUT3_ALBINO);
+				}
+			}
 		}
 		else if (num >= MUT_PER_SET)
 		{
@@ -1119,7 +1135,7 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 
 		for (i = 0; i < 8; i++)
 		{
-			(void)player_summon(PSUM_MOLD, lvl, TRUE, 150, TRUE);
+			(void)player_summon(PSUM_MOLD, lvl, TRUE, 150, TRUE, 1);
 		}
 	}
 
@@ -1452,7 +1468,7 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 		bool pet = (one_in_(6));
 
 		if (pet) {
-			if (player_summon(PSUM_DEMON, p_ptr->depth, TRUE, 200, 2))
+			if (player_summon(PSUM_DEMON, p_ptr->depth, TRUE, 200, 2, 1))
 			{
 				msgf("You have attracted a demon!");
 				disturb(FALSE);
@@ -1552,7 +1568,7 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 		bool pet = (one_in_(3));
 
 		if (pet) {
-			if (player_summon(PSUM_ANIMAL, p_ptr->depth, TRUE, 200, 2))
+			if (player_summon(PSUM_ANIMAL, p_ptr->depth, TRUE, 200, 2, 1))
 			{
 				msgf("You have attracted an animal!");
 				disturb(FALSE);
@@ -1643,7 +1659,7 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 		bool pet = (one_in_(5));
 
 		if (pet) {
-			if (player_summon(PSUM_DRAGON, p_ptr->depth, TRUE, 200, 2))
+			if (player_summon(PSUM_DRAGON, p_ptr->depth, TRUE, 200, 2, 1))
 			{
 				msgf("You have attracted a dragon!");
 				disturb(FALSE);

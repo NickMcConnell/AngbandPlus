@@ -887,6 +887,9 @@ static void store_create(void)
 		/* Mega-Hack -- no chests in stores */
 		if (q_ptr->tval == TV_CHEST) continue;
 
+		/* Mega-Hack -- no artifacts in stores that don't force good items */
+		if (FLAG(q_ptr, TR_INSTA_ART) && !(restricted & (ST_REST_GREAT | ST_REST_GOOD))) continue;
+
 		/* The item is "known" */
 		object_known(q_ptr);
 
@@ -982,6 +985,9 @@ static void display_entry(int pos)
 	/* Describe an item (fully) in a store */
 	else
 	{
+		/* Extract the "minimum" price */
+		x = price_item(o_ptr, FALSE);
+
 		/* Must leave room for the "price" */
 		maxwid = wid - 14;
 
@@ -989,23 +995,23 @@ static void display_entry(int pos)
 		if (show_weights) maxwid -= 7;
 
 		/* Describe the object (fully) */
-		put_fstr(5, i + 6, "%s" CLR_SET_DEFAULT "%v",
+		if (x <= p_ptr->au)
+			put_fstr(5, i + 6, "%s" CLR_SET_DEFAULT "%v",
 					color_seq[tval_to_attr[o_ptr->tval]],
 					OBJECT_STORE_FMT(o_ptr, TRUE, 3));
+		else
+			put_fstr(5, i + 6, CLR_L_DARK "   %v", OBJECT_STORE_FMT(o_ptr, TRUE, 3));
 
 		/* Show weights */
 		if (show_weights)
 		{
 			/* Only show the weight of an individual item */
 			int wgt = o_ptr->weight;
-			put_fstr(wid - 19, i + 6, "%3d.%d", wgt / 10, wgt % 10);
+			put_fstr(wid - 19, i + 6, "%s%3d.%d", (x <= p_ptr->au ? CLR_WHITE : CLR_L_DARK), wgt / 10, wgt % 10);
 		}
 
-		/* Extract the "minimum" price */
-		x = price_item(o_ptr, FALSE);
-
 		/* Actually draw the price */
-		put_fstr(wid - 12, i + 6, "%9ld  ", (long)x);
+		put_fstr(wid - 12, i + 6, "%s%9ld  ", (x <= p_ptr->au ? CLR_WHITE : CLR_L_DARK), (long)x);
 	}
 }
 
@@ -1812,16 +1818,6 @@ static void store_sell(void)
 	/* Get list to ensure that the object is in the inv */
 	list = look_up_list(o_ptr);
 
-	/* Take off equipment */
-	if (!list)
-	{
-		/* Take off first */
-		o_ptr = inven_takeoff(o_ptr);
-
-		/* Paranoia */
-		if (!o_ptr) return;
-	}
-
 	/* Real store */
 	if (!(st_ptr->type == BUILD_STORE_HOME))
 	{
@@ -1845,6 +1841,16 @@ static void store_sell(void)
 
 			/* Get the "apparent" value */
 			dummy = object_value(q_ptr) * q_ptr->number;
+
+			/* Take off equipment */
+			if (!list)
+			{
+				/* Take off first */
+				o_ptr = inven_takeoff(o_ptr);
+
+				/* Paranoia */
+				if (!o_ptr) return;
+			}
 
 			/* Duplicate the object */
 			q_ptr = object_dup(o_ptr);
@@ -1919,6 +1925,16 @@ static void store_sell(void)
 	/* Player is at home */
 	else
 	{
+		/* Take off equipment */
+		if (!list)
+		{
+			/* Take off first */
+			o_ptr = inven_takeoff(o_ptr);
+
+			/* Paranoia */
+			if (!o_ptr) return;
+		}
+
 		/* Distribute charges of wands/rods */
 		distribute_charges(o_ptr, q_ptr, amt);
 

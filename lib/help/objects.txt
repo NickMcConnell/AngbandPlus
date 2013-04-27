@@ -601,10 +601,16 @@ actually doing so.
 The {=g} Inscription
 --------------------
 The {=g} inscription on an object prompts Zangband to automatically
-pick it up. This instruction overrides any auto-pickup options chosen
-chosen by the player (if necessary). The primary prupose is to allow
-easy retrieval of missiles such as arrows and bolts once they have been
-fired at a target.
+pick it up. This instruction overrides any auto-destroy or squelch 
+options chosen chosen by the player (if necessary).  This inscription
+can be used with a parameter that specifies the maximum number of
+such objects to stack.  So, for instance, a {=g6} inscription on a 
+spellbook would ensure that you automatically pick up any spellbooks
+you find, until you have 6.  Another suggested use is to put {=g} on
+your arrows, so that you don't need to confirm when picking them up,
+or to put {=g} on objects you always want to collect, such as potions
+of healing.
+
 
 The {&e} and {&i} Inscriptions
 ------------------------------

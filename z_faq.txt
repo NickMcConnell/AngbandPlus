@@ -1,11 +1,15 @@
 
-                    ZAngband Official FAQ
+                    Z+Angband Official FAQ
 
                        by Steven Fuerst
                       svf@mssl.ucl.ac.uk
 
                        April 2nd, 2000
 
+			modified by Mangojuice
+			mangojuice75@gmail.com
+
+                    September 12th, 2008
 
 ==========================================================================
 1. About this FAQ
@@ -15,9 +19,9 @@
 1.1 Introduction
 --------------------------------------------------------------------------
 
-ZAngband is a freeware roguelike computer roleplaying game,
-based on Angband. This document lists frequently asked
-questions and answers.
+Z+Angband is a freeware roguelike computer roleplaying game,
+based on ZAngband, based on Angband. This document lists frequently
+asked questions and answers.
 
 --------------------------------------------------------------------------
 1.2 Table of contents
@@ -29,7 +33,7 @@ questions and answers.
   1.3 Where can I get this FAQ?
 
 2. General questions
-  2.1 What is ZAngband?
+  2.1 What is Z+Angband?
   2.2 On what computers can I play it?
   2.3 Where can I download it?
 
@@ -42,8 +46,7 @@ questions and answers.
     3.2.1 How do I run in the Windows version?
     3.2.2 Why do I get an error message when I try to switch on
           graphics?
-    3.2.3 The screen isn't refreshing properly when I move around,
-          how can I fix this?
+    3.2.3 Can I use graphics for some things but not others?
   3.3 Unix
     3.3.1 How do I change the number of terminals used?
     3.3.2 How do I change the tileset used?
@@ -59,6 +62,7 @@ questions and answers.
   4.2 Monsters
     4.2.1 I've found a 'Greater Hell Beast' that never does any damage to
           me, and that seems to be immune to my attacks.  What is it?
+    4.2.2 These 'Greater Hell Beasts' annoy me.
   4.3 Objects
     4.3.1 What does a 'magical figurine' do?
     4.3.2 What does a 'statue' do?
@@ -85,8 +89,10 @@ questions and answers.
 1.3 Where can I get this FAQ?
 --------------------------------------------------------------------------
 
-This FAQ is available from:
-http://thangorodrim.angband.org/zangband-faq.txt
+This FAQ is available in Z+Angband download packages, version 0.2.2 and
+later.  The Z+Angband website is at
+
+http://mangojuice75.googlepages.com/
 
 
 ==========================================================================
@@ -94,7 +100,7 @@ http://thangorodrim.angband.org/zangband-faq.txt
 ==========================================================================
 
 --------------------------------------------------------------------------
-2.1 What is ZAngband?
+2.1 What is Z+Angband?
 --------------------------------------------------------------------------
 
 ZAngband is one of the many variants of the freeware roguelike
@@ -105,21 +111,19 @@ computer roleplaying game Angband.
 --------------------------------------------------------------------------
 
 ZAngband is available for many different systems, including
-MS-DOS, Windows 95/98/NT, Macintosh, Amiga, OS/2, Acorn RISC OS,
-and the many different Unix-derivates including Linux.
+MS-DOS, Windows, Macintosh, Amiga, OS/2, Acorn RISC OS,
+and the many different Unix-derivates including Linux.  Currently,
+however, the only executable download provided is for Windows; other
+versions can be compiled from the source code package.
 
 --------------------------------------------------------------------------
 2.3 Where can I download it?
 --------------------------------------------------------------------------
 
-The newest version of ZAngband is always available from
-"Thangorodrim - The Angband Page" at:
+The newest version of Z+Angband is always available from the Z+Angband
+homepage:
 
-http://thangorodrim.angband.org/
-
-and the Angband FTP-Server at:
-
-ftp://clockwork.dementia.org/angband/
+http://mangojuice75.googlepages.com/
 
 
 ==========================================================================
@@ -143,8 +147,8 @@ be activated with the '-mibm' option. Just run ZAngband with
 3.1.2 Can I use multiple savefiles?
 --------------------------------------------------------------------------
 
-Yes, you can. Run ZAngband with the -u<name> option. For example:
-'ZAngband.exe -uFred' loads the character called Fred. If no
+Yes, you can. Run Z+Angband with the -u<name> option. For example:
+'z+angband.exe -uFred' loads the character called Fred. If no
 savefile called 'Fred' is found then a new one is created. To use
 another character just run ZAngband with a different name.
 
@@ -165,7 +169,7 @@ options menu and press Ctrl-R to redraw the screen.
 
 
 --------------------------------------------------------------------------
-3.2 Windows 95/98/NT/XP
+3.2 Windows
 --------------------------------------------------------------------------
 
 --------------------------------------------------------------------------
@@ -215,6 +219,19 @@ old 8x8 tileset.  '-b16' picks the newer Adam Bolt 16x16 tileset.
 If you use the gtk port, then you can alter the tileset used while the
 game is running via the Options:graphics menu.  You can also toggle
 the use of graphics or transparency through the same menu.
+
+--------------------------------------------------------------------------
+3.2.3 Can I use graphics for some things but not others?
+--------------------------------------------------------------------------
+
+Packages are provided that allow you to use the old 8x8 tileset but only
+for boring features like walls, or walls and floors.  In the lib/pref 
+folder are the files you need.  graf-winhack.prf sets the 8x8 tileset up
+to use graphics only for walls and floor, while graf-winhack2.prf sets the
+8x8 tileset up to use graphics only for walls.  To use them:
+1.  Delete graf-win.prf
+2.  Rename the graf-winhack.prf (or graf-winhack2.prf) file to "graf-win.prf".
+3.  Run the game, and select the 8x8 tileset.
 
 
 ==========================================================================
@@ -285,6 +302,14 @@ invincible and even if you manage to kill it, it's not worth the
 efforts.
 
 --------------------------------------------------------------------------
+4.2.2 These 'Greater Hell Beasts' annoy me.
+--------------------------------------------------------------------------
+
+In your next game, consider setting the "silly_monsters" option to "No", 
+which will disallow silly monsters (like the GHB) from appearing in your
+game.
+
+--------------------------------------------------------------------------
 4.3 Objects
 --------------------------------------------------------------------------
 
@@ -342,10 +367,10 @@ stay on the good side of nature, for example, because of the huge number
 of 'natural' creatures on the first few levels of the dungeon.
 
 --------------------------------------------------------------------------
-4.4.3 Why isn't there a staircase downwards on dungeon level 15?
+4.4.3 Why isn't there a staircase downwards on dungeon level 25?
 --------------------------------------------------------------------------
 
-The town dungeons only go down to level 15 (750').  You need to travel
+The town dungeons only go down to level 25 (1250').  You need to travel
 to a dungeon in the wilderness to go any deeper.  The wilderness dungeons
 have different types of monsters, rooms, and objects in the them.
 
@@ -370,6 +395,10 @@ be like other than the fact that they are merged seamlessly with the
 wilderness.  (Those were just for testing purposes.)  The next stable
 branch will have the replacement quest framework.
 
+  The next stable branch, however, never seemed to arrive, which is why
+Z+Angband got started.  Z+Angband has quests that are in some ways like
+the fixed quests of the earlier versions of ZAngband, but are actually
+random.
 
 ==========================================================================
 5. Other questions
@@ -395,34 +424,3 @@ Efficience Options menu is turned on.
 The first number shows the average damage done per shot, and the
 second shows the average damage done per round.  The two can differ
 because you can fire weapons faster or slower than one per round.
-
---------------------------------------------------------------------------
-5.2.1 A monster "points at me and curses", and the game crashes! What is 
-going on?
---------------------------------------------------------------------------
-
-The version you are playing is 2.1.0. When a monster tries to curse
-an item you are wearing, the curse attempts to change the inscription
-on the item to "cursed". However, if the item has no previous inscription
-at all, the game crashes.
-
-Solution #1: Upgrade to 2.1.0b or later version. They fix this bug.
-The items get cursed as they should. Aren't you happy!
-
-(alternative)
-Solution #2: Give all your equipment some inscription. The items
-get cursed as they should. Aren't you happy! 
-
-N.B. This version of the faq document does not come with the version 
-2.1.0b. Try playing whatever version you got the faq from and you 
-should not encounter the problem!
-
---------------------------------------------------------------------------
-5.2.1.1 Wait, I have version 2.1.0b and the game *still* crashes When a 
-monster "points at me and curses"!
---------------------------------------------------------------------------
-
-You are using the misleadingly named Windows port "Zangband 2.1.0b".
-Windows Zangband "2.1.0b" still has the bug ("real" 2.1.0b ports have 
-the fix). The Windows port that fixes the bug is 2.1.0c. For all other
-platforms (Unix, DOS, Amiga etc.) version 2.1.0b fixes the bug.

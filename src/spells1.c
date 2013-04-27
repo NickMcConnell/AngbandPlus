@@ -1167,17 +1167,17 @@ static bool project_m(int who, int r, int x, int y, int dam, int typ)
 		{
 			/* Holy Fire -- hurts Evil, Good are immune, others _resist_ */
 			if (seen) obvious = TRUE;
-			if (FLAG(r_ptr, RF_GOOD))
-			{
-				dam = 0;
-				note = " is immune.";
-				if (seen) r_ptr->r_flags[2] |= RF2_GOOD;
-			}
-			else if (FLAG(r_ptr, RF_EVIL))
+			if (FLAG(r_ptr, RF_EVIL))
 			{
 				dam *= 2;
 				note = " is hit hard.";
 				if (seen) r_ptr->r_flags[2] |= RF2_EVIL;
+			}
+			else if (FLAG(r_ptr, RF_GOOD))
+			{
+				dam = 0;
+				note = " is immune.";
+				if (seen) r_ptr->r_flags[2] |= RF2_GOOD;
 			}
 			else
 			{
@@ -1197,7 +1197,8 @@ static bool project_m(int who, int r, int x, int y, int dam, int typ)
 
 		case GF_PLASMA:
 		{
-			/* Plasma -- XXX perhaps check ELEC or FIRE */
+			/* Plasma -- Resist with RES_PLAS or with both IM_FIRE & IM_ELEC.
+			   Resist somewhat with one of IM_FIRE or IM_ELEC.  */
 			if (seen) obvious = TRUE;
 			if (FLAG(r_ptr, RF_RES_PLAS))
 			{
@@ -1206,6 +1207,28 @@ static bool project_m(int who, int r, int x, int y, int dam, int typ)
 				dam /= rand_range(7, 12);
 				if (seen)
 					r_ptr->r_flags[2] |= (RF2_RES_PLAS);
+			}
+			else if (FLAG(r_ptr, RF_IM_FIRE) && FLAG(r_ptr, RF_IM_ELEC))
+			{
+				note = " resists.";
+				dam *= 3;
+				dam /= rand_range(7, 12);
+				if (seen)
+					r_ptr->r_flags[2] |= (RF2_IM_FIRE | RF2_IM_ELEC);
+			}
+			else if (FLAG(r_ptr, RF_IM_FIRE))
+			{
+				note = " resists somewhat.";
+				dam = (2 * dam / 3);
+				if (seen)
+					r_ptr->r_flags[2] |= (RF2_IM_FIRE);
+			}
+			else if (FLAG(r_ptr, RF_IM_ELEC))
+			{
+				note = " resists somewhat.";
+				dam = (2 * dam / 3);
+				if (seen)
+					r_ptr->r_flags[2] |= (RF2_IM_ELEC);
 			}
 			break;
 		}

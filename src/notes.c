@@ -26,7 +26,7 @@ cptr notes_file(void)
 	 * Hack -- extract first 8 characters of name and
 	 * Create the file name from the character's name plus .txt
 	 */
-	(void)strnfmt(fname, 15, "%.8s.txt", player_base);
+	(void)strnfmt(fname, 15, "%.8snotes.txt", player_base);
 
 	path_make(buf, ANGBAND_DIR_USER, fname);
 
@@ -42,7 +42,7 @@ cptr notes_file(void)
 void output_note(cptr final_note, ...)
 {
 	FILE *fff;
-	
+
 	va_list vp;
 
 	char buf[1024];
@@ -137,7 +137,7 @@ void add_note_type(int note_number)
 {
 	char long_day[30];
 	time_t ct = time((time_t *) 0);
-	
+
 	int len;
 
 	/* Get the date */
@@ -176,7 +176,7 @@ void add_note_type(int note_number)
 						long_day);
 			break;
 		}
-			
+
 
 		case NOTE_WINNER:
 		{

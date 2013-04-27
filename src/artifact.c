@@ -1985,7 +1985,7 @@ bool create_artifact(object_type *o_ptr, int level, bool a_scroll)
 
 	/* Just to be sure */
 	o_ptr->flags[2] |= (TR2_IGNORE_ACID | TR2_IGNORE_ELEC |
-					  TR2_IGNORE_FIRE | TR2_IGNORE_COLD);
+					  TR2_IGNORE_FIRE | TR2_IGNORE_COLD | TR2_HIDDEN_POWERS);
 
 	/* Determine activation */
 	if (!a_cursed && one_in_((o_ptr->tval >= TV_BOOTS)
@@ -2197,6 +2197,9 @@ void create_named_art(int a_idx, int x, int y)
 	/* Ignore "empty" artifacts */
 	if (!a_ptr->name) return;
 
+	/* Don't create a second one */
+	if (a_ptr->cur_num) return;
+
 	/* Acquire the "kind" index */
 	i = lookup_kind(a_ptr->tval, a_ptr->sval);
 
@@ -2222,7 +2225,7 @@ void create_named_art(int a_idx, int x, int y)
 	/* Save the artifact flags */
 	q_ptr->flags[0] |= a_ptr->flags[0];
 	q_ptr->flags[1] |= a_ptr->flags[1];
-	q_ptr->flags[2] |= a_ptr->flags[2];
+	q_ptr->flags[2] |= a_ptr->flags[2] | TR2_HIDDEN_POWERS;
 	q_ptr->flags[3] |= a_ptr->flags[3];
 
 	/* Extract the fields */

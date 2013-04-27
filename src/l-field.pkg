@@ -117,4 +117,4 @@ extern int get_loan_amount(void);
 extern bool check_mortgage(void);
 extern bool build_next_quest(void);
 extern void build_cmd_food(int price);
-extern bool in_quest(void);
+extern int in_quest(void);

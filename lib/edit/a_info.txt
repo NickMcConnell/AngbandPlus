@@ -53,7 +53,7 @@
 
 # Version stamp (required)
 
-V:0.2.1
+V:0.2.2
 
 
 # The Phial of Galadriel
@@ -1002,8 +1002,8 @@ F:INSTA_ART
 
 # The Dagger 'Narthanc'
 
-# Variable bonus: +1 str per 5 levels (rounded up)
-# Unique power: Damage increases 10% per level (applied after all other mods)
+# Variable bonus: +1 str per 10 levels, min +2
+# Unique power: Damage increases 5% per level (applied after all other mods)
 N:66:'Narthanc'
 I:23:4:0
 W:7:10:12:6000
@@ -1017,15 +1017,16 @@ L:USE:	fire_bolt(GF_FIRE, dir, damroll(11, 8))
 L:USE:	object.timeout = rand_range(8, 16)
 L:DESC:	return "fire bolt(11d8) every 8-16 turns"
 L:MAKE:	add_ego_power(EGO_XTRA_HI_RESIST, object)
-L:BONUS:	b.stat[A_STR] = (player.lev + 4) / 5
-L:HIT:	dam = dam + (dam * player.lev) / 10
+L:BONUS: if (player.lev < 20) then b.stat[A_STR] = 2
+L:BONUS: else b.stat[A_STR] = player.lev / 10 end
+L:HIT:	dam = (dam * (20 + player.lev)) / 20
 L:SPOIL:	return "Random high resist; +1 STR / 5 levels; +10% dam / level"
 
 
 # The Dagger 'Nimthanc'
 
-# Variable bonus: +1 con per 5 levels (rounded up)
-# Unique power: Damage increases 10% per level (applied after all other mods)
+# Variable bonus: +1 con per 10 levels, min +2
+# Unique power: Damage increases 5% per level (applied after all other mods)
 N:67:'Nimthanc'
 I:23:4:0
 W:5:10:12:5000
@@ -1038,16 +1039,17 @@ L:USE:	fire_bolt(GF_COLD, dir, damroll(8, 8))
 L:USE:	object.timeout = rand_range(7, 14)
 L:DESC:	return "frost bolt (8d8) every 7-14 turns"
 L:MAKE:	add_ego_power(EGO_XTRA_HI_RESIST, object)
-L:BONUS:	b.stat[A_CON] = (player.lev + 4) / 5
-L:HIT:	dam = dam + (dam * player.lev) / 10
+L:BONUS: if (player.lev < 20) then b.stat[A_CON] = 2
+L:BONUS: else b.stat[A_CON] = player.lev / 10 end
+L:HIT:	dam = (dam * (20 + player.lev)) / 20
 L:SPOIL:	return "Random high resist; +1 CON / 5 levels; +10% dam / level"
 
 
 
 # The Dagger 'Dethanc'
 
-# Variable bonus: +1 dex per 5 levels (rounded up)
-# Unique power: Damage increases 10% per level (applied after all other mods)
+# Variable bonus: +1 dex per 10 levels, min +2
+# Unique power: Damage increases 5% per level (applied after all other mods)
 N:68:'Dethanc'
 I:23:4:0
 W:9:10:12:5000
@@ -1060,8 +1062,9 @@ L:USE:	fire_bolt(GF_ELEC, dir, damroll(6, 8))
 L:USE:	object.timeout = rand_range(6, 12)
 L:DESC:	return "lightning bolt (6d8) every 6-12 turns"
 L:MAKE:	add_ego_power(EGO_XTRA_HI_RESIST, object)
-L:BONUS:	b.stat[A_DEX] = (player.lev + 4) / 5
-L:HIT:	dam = dam + (dam * player.lev) / 10
+L:BONUS: if (player.lev < 20) then b.stat[A_DEX] = 2
+L:BONUS: else b.stat[A_DEX] = player.lev / 10 end
+L:HIT:	dam = (dam * (20 + player.lev)) / 20
 L:SPOIL:	return "Random high resist; +1 DEX / 5 levels; +10% dam / level"
 
 
@@ -1499,7 +1502,7 @@ P:0:1d10:11:13:0
 F:STEALTH | RES_DARK | INFRA |
 F:BRAND_COLD | SLAY_UNDEAD | RES_COLD | SEE_INVIS | SHOW_MODS | THROW
 F:INSTA_ART
-L:BONUS:	b.pspeed = (player.level + 4) / 5
+L:BONUS:	b.pspeed = (player.lev + 4) / 5
 L:SPOIL:	return "+1 speed / 5 levels"
 
 # The Spear 'Soulsucker'

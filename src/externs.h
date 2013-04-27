@@ -657,6 +657,10 @@ extern bool can_player_destroy_object(object_type *o_ptr);
 extern void display_koff(int k_idx);
 extern object_type *test_floor(int *num, cave_type *c_ptr, int mode);
 extern void show_floor(int x, int y);
+extern bool object_average(object_type *o_ptr);
+extern bool object_good(object_type *o_ptr);
+extern void dump_full_item(FILE *fff, object_type *o_ptr);
+
 
 /* racial.c */
 extern bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty);
@@ -830,7 +834,7 @@ extern bool dimension_door(void);
 extern bool dimension_door2(void);
 extern void map_wilderness(int radius, s32b x, s32b y);
 extern void sanity_blast(const monster_type *m_ptr);
-extern bool player_summon (int type, int level, bool group, int dur, int pet);
+extern bool player_summon (int type, int level, bool group, int dur, int pet, int number);
 
 
 /* store.c */
@@ -1111,7 +1115,7 @@ extern bool object_is_potion(const object_type *o_ptr);
 extern errr init_object_alloc(void);
 extern void k_info_reset(void);
 
-/* wild1.c and wild2.c */
+/* wild1.c wild2.c wild3.c */
 extern u16b place_pop(void);
 extern void select_town_name(char *name, int pop);
 extern const dun_gen_type *pick_dungeon_type(void);
@@ -1135,6 +1139,7 @@ extern void building_char(byte build_type, byte *a, char *c);
 extern cptr dungeon_type_name(u32b dun);
 extern dun_gen_type dungeons[];
 extern void draw_quest_stair(place_type *pl_ptr);
+extern void refresh_quest_stair(place_type *pl_ptr);
 
 
 /* avatar.c */
@@ -1214,6 +1219,7 @@ extern void trigger_quest_fail(u16b num);
 extern quest_type *lookup_quest_building(const store_type *b_ptr);
 extern int lookup_quest_building_next(const store_type *b_ptr);
 extern void reward_quest(quest_type *q_ptr);
+extern bool do_cmd_knowledge_quests_aux(int place_num, FILE *fff);
 extern void request_quest(const store_type *b_ptr, int scale);
 extern bool do_cmd_knowledge_quests(int dummy);
 extern store_type *get_loaner(void);
@@ -1222,6 +1228,7 @@ extern quest_type *insert_loan(int amt);
 extern bool quest_stairs_active(int p_num);
 extern bool quest_theme_hook(int r_idx);
 extern bool monster_group_test(int r_idx, monster_group_type * mg_ptr);
+extern int in_quest(void);
 
 /* maid-grf.c */
 extern void init_term_callbacks(void);
@@ -1258,6 +1265,7 @@ extern int fmt_offset(cptr str1, cptr str2);
 extern void put_fstr(int col, int row, cptr str, ...);
 extern void prtf(int col, int row, cptr str, ...);
 extern void roff(cptr str, ...);
+extern void wrap_froff(FILE *fff, char *buf, int margin, int rowmax);
 extern void froff(FILE *fff, cptr str, ...);
 extern void clear_from(int row);
 extern void clear_msg(void);

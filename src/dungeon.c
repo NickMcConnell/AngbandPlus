@@ -906,6 +906,36 @@ static void recharged_notice(const object_type *o_ptr)
 	}
 }
 
+/*
+ * Damaging liquids have damage adjusted for resistance in
+ * two ways: first, these functions are used to calculate an
+ * additive adjustment, then normal damage resistance.  The
+ * effect is that having some resistance reduces the damage
+ * enough that often these features do no damage.  This is
+ * good; it makes the terrain less difficult to deal with.
+ */
+static int dam_adjust(int resistance)
+{
+	if (!resistance) return 0;  /* Won't matter */
+
+	else return (2*(100/resistance)-2);
+}
+
+static int dam_fire_adjust(void)
+{
+	return dam_adjust(res_fire_lvl());
+}
+
+static int dam_acid_adjust(void)
+{
+	return dam_adjust(res_acid_lvl());
+}
+
+static int dam_pois_adjust(void)
+{
+	return dam_adjust(res_pois_lvl());
+}
+
 
 /*
  * Handle certain things once every 10 game turns
@@ -926,6 +956,7 @@ static void process_world(void)
 	const mutation_type *mut_ptr;
 
 	int depth = base_level();
+	int adj_depth = (p_ptr->depth ? p_ptr->depth : MIN(20, depth));
 
 	/* Announce the level feeling */
 	if ((turn - old_turn == 1000) && (p_ptr->depth)) do_cmd_feeling();
@@ -1051,7 +1082,7 @@ static void process_world(void)
 
 	if ((c_ptr->feat == FEAT_SHAL_LAVA) && !(FLAG(p_ptr, TR_FEATHER)))
 	{
-		int damage = resist(depth / 2 + 1, res_fire_lvl);
+		int damage = resist((adj_depth / 2 + 1)-dam_fire_adjust(), res_fire_lvl);
 
 		if (damage)
 		{
@@ -1064,7 +1095,7 @@ static void process_world(void)
 
 	else if (c_ptr->feat == FEAT_DEEP_LAVA)
 	{
-		int damage = resist(depth, res_fire_lvl);
+		int damage = resist(adj_depth-dam_fire_adjust(), res_fire_lvl);
 		cptr message;
 		cptr hit_from;
 
@@ -1093,7 +1124,7 @@ static void process_world(void)
 
 	if ((c_ptr->feat == FEAT_SHAL_ACID) && !(FLAG(p_ptr, TR_FEATHER)))
 	{
-		int damage = resist(depth / 2 + 1, res_acid_lvl);
+		int damage = resist(adj_depth / 2 + 1-dam_acid_adjust(), res_acid_lvl);
 
 		if (damage)
 		{
@@ -1106,7 +1137,7 @@ static void process_world(void)
 
 	else if (c_ptr->feat == FEAT_DEEP_ACID)
 	{
-		int damage = resist(depth, res_acid_lvl);
+		int damage = resist(adj_depth-dam_acid_adjust(), res_acid_lvl);
 		cptr message;
 		cptr hit_from;
 
@@ -1136,7 +1167,7 @@ static void process_world(void)
 	if ((c_ptr->feat == FEAT_SHAL_SWAMP) &&	!(FLAG(p_ptr, TR_FEATHER)) &&
 		!FLAG(p_ptr, TR_WILD_WALK))
 	{
-		int damage = resist(depth / 4 + 1, res_pois_lvl);
+		int damage = resist(adj_depth / 4 + 1-dam_pois_adjust(), res_pois_lvl);
 
 		/* Hack - some resistance will save you */
 		if (damage && damage >= p_ptr->depth / 4)
@@ -1151,7 +1182,7 @@ static void process_world(void)
 	else if ((c_ptr->feat == FEAT_DEEP_SWAMP) && !p_ptr->tim.invuln &&
 		!FLAG(p_ptr, TR_WILD_WALK))
 	{
-		int damage = resist(depth / 2, res_pois_lvl);
+		int damage = resist(adj_depth / 2 - dam_pois_adjust(), res_pois_lvl);
 		cptr message;
 		cptr hit_from;
 
@@ -1187,7 +1218,7 @@ static void process_world(void)
 		{
 			/* Take damage */
 			msgf("You are drowning!");
-			take_hit(randint1(depth + 1), "drowning");
+			take_hit(randint1(adj_depth + 1), "drowning");
 			cave_no_regen = TRUE;
 		}
 	}
@@ -1799,10 +1830,10 @@ static void process_world(void)
 		p_ptr->redraw |= (PR_STATUS);
 
 		/* Hack - no recalling in the middle of the wilderness */
-		if ((!p_ptr->depth) && (!p_ptr->place_num)) 
+		if ((!p_ptr->depth) && (!p_ptr->place_num))
 		{
 			if (!p_ptr->tim.word_recall)
-				msgf("You feel a momentary yank downwards, but it passes."); 
+				msgf("You feel a momentary yank downwards, but it passes.");
 			return;
 		}
 
@@ -1812,7 +1843,7 @@ static void process_world(void)
 		if (!pl_ptr->dungeon || !(pl_ptr->dungeon->recall_depth))
 		{
 			if (!p_ptr->tim.word_recall)
-				msgf("You feel a momentary yank downwards, but it passes."); 
+				msgf("You feel a momentary yank downwards, but it passes.");
 			return;
 		}
 

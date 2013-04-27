@@ -103,6 +103,12 @@ typedef unsigned long huge;
 typedef signed short s16b;
 typedef unsigned short u16b;
 
+/* detect 64 bit GCC */
+#ifdef _LP64
+#define L64 1
+#define USE_64B 1
+#endif
+
 /* Signed/Unsigned 32 bit value */
 #ifdef L64						/* 64 bit longs */
 typedef signed int s32b;

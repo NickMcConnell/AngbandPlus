@@ -426,18 +426,18 @@ static void roff_spell_sorcery(int spell)
 			roff (CLR_VIOLET " Range: %i", MAX_DETECT);
 			return;
 		case 9:
-			roff ("Identifies an object, revealing its type and magical bonuses. " CLR_L_DARK "Some objects, ");
-			roff (CLR_L_DARK "such as artifacts, may have hidden powers that are not revealed by basic identification.");
-			return;
-		case 10:
 			roff ("Attempts to charm a creature of your choice. ");
 			roff (CLR_L_DARK "Charmed monsters are friendly, and attack other foes. ");
 			roff (CLR_L_DARK "Some monsters may resist being charmed. ");
 			return;
-		case 11:
+		case 10:
 			roff ("Attempts to cause all creatures in the area not obscured by opaque terrain to fall asleep. ");
 			roff (CLR_L_DARK "Sleeping monsters take no actions until woken up. ");
 			roff (CLR_L_DARK "Some monsters may resist sleep.");
+			return;
+		case 11:
+			roff ("Identifies an object, revealing its type and magical bonuses. " CLR_L_DARK "Some objects, ");
+			roff (CLR_L_DARK "such as artifacts, may have hidden powers that are not revealed by basic identification.");
 			return;
 		case 12:
 			roff ("Teleports a monster of your choice elsewhere in the dungeon. ");
@@ -1179,13 +1179,14 @@ static void roff_spell_conj(int spell)
 			roff (" damage.");
 			return;
 		case 5:
+			roff ("Teleports you to a random open space, about ");
+			roff (CLR_VIOLET "%i (up to 250)", MAX(250, plev*6));
+			roff (" spaces away from your current location.");
+			return;
+		case 6:
 			roff ("Summons a phantom to serve you ");
 			roff (CLR_YELLOW "for 300 turns");
 			roff ("." CLR_L_DARK " It will be your pet and under some limited control.");
-			return;
-		case 6:
-			roff ("Conjures a magic rope to ensnare a creature of your choice, slowing it. ");
-			roff (CLR_L_DARK "Some monsters may resist being ensnared.");
 			return;
 		case 7:
 			roff ("Fires a ball of ");
@@ -1209,33 +1210,31 @@ static void roff_spell_conj(int spell)
 			roff (CLR_L_DARK "Some monsters may resist being confused. ");
 			return;
 		case 9:
-			roff ("Teleports you to a random open space, about ");
-			roff (CLR_VIOLET "%i (up to 250)", MAX(250, plev*6));
-			roff (" spaces away from your current location.");
-			return;
-		case 10:
-			roff ("Creates a great web that is likely to ");
-			roff ("cause creatures in the area not obscured by opaque terrain to move more slowly. ");
-			roff (CLR_L_DARK "Some monsters may resist being slowed.");
-			return;
-		case 11:
 			roff ("Summons a group of animals to serve you for ");
 			roff (CLR_YELLOW "150 turns");
 			roff ("." CLR_L_DARK " They will be your pets and under some limited control.");
 			return;
-		case 12:
-			roff ("Teleports you to a space of your choice, " CLR_VIOLET "range 25. ");
-			roff ("."  "If the space you choose is occupied, you will teleport to a random space instead.");
+		case 10:
+			roff ("Teleports you to a space of your choice, " CLR_VIOLET "range 25");
+			roff ("."  CLR_L_DARK "  If the space you choose is occupied, you will teleport to a random space instead.");
 			return;
-		case 13:
+		case 11:
 			roff ("Teleports a monster of your choice elsewhere in the dungeon. ");
 			roff (CLR_L_DARK "Some monsters may resist teleportation.");
 			return;
-		case 14:
+		case 12:
+			roff ("Grants you temporary extra speed (+10) for ");
+			roff (CLR_YELLOW "%i-%i (up to 51-120) turns", plev+1, 2*plev+20);
+			roff (".");
+			return;
+		case 13:
 			roff ("Summons an elemental to serve you for ");
 			roff (CLR_YELLOW "150 turns");
 			roff ("." CLR_L_DARK " There is a chance the summoning will work incompletely, and the creature will attack you.");
 			roff (CLR_L_DARK " Otherwise, it will be your pet and under some limited control.");
+			return;
+		case 14:
+			roff ("Teleports you, at random, either one level up or down in the dungeon.");
 			return;
 		case 15:
 			roff ("Allows you to transport between the wilderness and a level in a dungeon. ");
@@ -1341,7 +1340,7 @@ static void roff_spell_arcane(int spell)
 	{
 		case 0:
 			roff ("Fires a bolt of magical ");
-			roff (CLR_L_BLUE "electricity ");
+			roff (CLR_L_RED "plasma ");
 			roff ("at a target of your choice, doing ");
 			roff (CLR_RED "%id3 (up to 12d3) damage", 3+((plev-1)/5));
 			roff ("." CLR_L_DARK "  Bolt spells may occasionally fire \"beams\" that affect all monsters they pass through.");
@@ -2133,7 +2132,7 @@ static bool cast_life_spell(int spell)
 			(void)dispel_demons(plev * 3);
 			break;
 		case 19:				/* Summon Angel */
-			if(!player_summon(PSUM_ANGEL, 20+plev, FALSE, 150, 0)) msgf("No one answers your call.");
+			if(!player_summon(PSUM_ANGEL, 20+plev, FALSE, 150, 0, 1)) msgf("No one answers your call.");
 			break;
 		case 20:				/* Dispel Evil */
 			(void)dispel_evil(plev * 4);
@@ -2177,7 +2176,8 @@ static bool cast_life_spell(int spell)
 				return(FALSE);
 			}
 		    if (!bless_weapon()) return(FALSE);
-			p_ptr->au = MIN(p_ptr->au-500, 0);  /* Costs 500 gold */
+			p_ptr->au = MAX(p_ptr->au-500, 0);  /* Costs 500 gold */
+			p_ptr->redraw |= (PR_GOLD);
 			break;
 		case 28:				/* Circle of Protection */
 			(void)warding_glyph();
@@ -2194,7 +2194,7 @@ static bool cast_life_spell(int spell)
 			(void)confuse_monsters(plev * 4);
 			(void)turn_monsters(plev * 4);
 			(void)stasis_monsters(plev * 4);
-			(void)player_summon(PSUM_ANGEL, 45+plev, FALSE, 600, PSUM_FORCE_SUCCESS);
+			(void)player_summon(PSUM_ANGEL, 45+plev, FALSE, 600, PSUM_FORCE_SUCCESS, 1);
 			(void)inc_shero(rand_range(25, 50));
 			(void)hp_player(300);
 
@@ -2260,17 +2260,17 @@ static bool cast_sorcery_spell(int spell)
 		case 8:				/* Magic Mapping */
 			map_area();
 			break;
-		case 9:				/* Identify */
-			if(!ident_spell())
-				return (FALSE);
-			break;
-		case 10:				/* Charm Monster */
+		case 9:				/* Charm Monster */
 			if (!get_aim_dir(&dir)) return FALSE;
 
 			(void)charm_monster(dir, plev);
 			break;
-		case 11:				/* Mass Sleep */
+		case 10:				/* Mass Sleep */
 			(void)sleep_monsters();
+			break;
+		case 11:				/* Identify */
+			if(!ident_spell())
+				return (FALSE);
 			break;
 		case 12:				/* Teleport Away */
 			if (!get_aim_dir(&dir)) return FALSE;
@@ -2305,7 +2305,8 @@ static bool cast_sorcery_spell(int spell)
 				return(FALSE);
 			}
 		    if (!enchant_spell(randint1(4), randint1(4), 0)) return(FALSE);
-			p_ptr->au = MIN(p_ptr->au-200, 0);  /* Costs 200 gold */
+			p_ptr->au = MAX(p_ptr->au-200, 0);  /* Costs 200 gold */
+			p_ptr->redraw |= (PR_GOLD);
 			break;
 		case 20:				/* Enchant Armour */
 			if (p_ptr->au < 200) {
@@ -2313,7 +2314,8 @@ static bool cast_sorcery_spell(int spell)
 				return(FALSE);
 			}
 		    if (!enchant_spell(0, 0, rand_range(2,5))) return(FALSE);
-			p_ptr->au = MIN(p_ptr->au-200, 0);  /* Costs 200 gold */
+			p_ptr->au = MAX(p_ptr->au-200, 0);  /* Costs 200 gold */
+			p_ptr->redraw |= (PR_GOLD);
 			break;
 		case 21:				/* Sense Minds */
 			(void)inc_tim_esp(rand_range(25, 55));
@@ -2357,7 +2359,8 @@ static bool cast_sorcery_spell(int spell)
 				return(FALSE);
 			}
 		    brand_weapon(0);
-			p_ptr->au = MIN(p_ptr->au-1000, 0);  /* Costs 1000 gold */
+			p_ptr->au = MAX(p_ptr->au-1000, 0);  /* Costs 1000 gold */
+			p_ptr->redraw |= (PR_GOLD);
 			break;
 		case 31:				/* Globe of Invulnerability */
 			(void)inc_invuln(rand_range(9, 16));
@@ -2454,7 +2457,7 @@ static bool cast_nature_spell(int spell)
 			(void)slow_monsters();
 			break;
 		case 13:				/* Summon Animals */
-	        if(!player_summon(PSUM_ANIMAL, 20+(2*plev), TRUE, 150, 0)) msgf("Nothing answers your call.");
+	        if(!player_summon(PSUM_ANIMAL, 20+(2*plev), TRUE, 150, 0, damroll(3,2))) msgf("Nothing answers your call.");
 			break;
 		case 14:				/* Protection from Corrosion */
 			if (p_ptr->au < 40) {
@@ -2462,7 +2465,8 @@ static bool cast_nature_spell(int spell)
 				return(FALSE);
 			}
 		    if (!rustproof()) return(FALSE);
-			p_ptr->au = MIN(p_ptr->au-40, 0);  /* Costs 40 gold */
+			p_ptr->au = MAX(p_ptr->au-40, 0);  /* Costs 40 gold */
+			p_ptr->redraw |= (PR_GOLD);
 			break;
 		case 15:				/* Herbal Healing */
 			(void)hp_player(1000);
@@ -2539,7 +2543,8 @@ static bool cast_nature_spell(int spell)
 				return(FALSE);
 			}
 			brand_weapon(0);
-			p_ptr->au = MIN(p_ptr->au-1000, 0);  /* Costs 1000 gold */
+			p_ptr->au = MAX(p_ptr->au-1000, 0);  /* Costs 1000 gold */
+			p_ptr->redraw |= (PR_GOLD);
 			break;
 		case 31:				/* Nature's Wrath */
 			(void)dispel_monsters(plev * 4);
@@ -2764,7 +2769,7 @@ static bool cast_chaos_spell(int spell)
 		case 22:				/* Summon monster, demon */
 		{
 			bool group = one_in_(52-plev);
-	        if(!player_summon(PSUM_DEMON, 2*plev, group, 350, 0)) msgf("Nothing answers your call.");
+	        if(!player_summon(PSUM_DEMON, 2*plev, FALSE, 350, 0, group ? rand_range(2,4) : 1)) msgf("Nothing answers your call.");
 			break;
 		}
 		case 23:				/* Breathe Logrus */
@@ -2982,7 +2987,7 @@ static bool cast_death_spell(int spell)
 			teleport_player(plev * 5);
 			break;
 		case 10:			/* Summon lesser undead */
-	        if(!player_summon(PSUM_UNDEAD, 2*plev, TRUE, 100, 0)) msgf("Nothing answers your call.");
+	        if(!player_summon(PSUM_UNDEAD, 2*plev, TRUE, 100, 0, 0)) msgf("Nothing answers your call.");
 			break;
 		case 11:				/* Vampiric Drain */
 			if (!get_aim_dir(&dir)) return FALSE;
@@ -3063,7 +3068,7 @@ static bool cast_death_spell(int spell)
 			(void)fire_ball(GF_DARK, dir, 120, 4);
 			break;
 		case 22:				/* Summon Greater Undead */
-	        if(!player_summon(PSUM_HI_UNDEAD, 50+randint1(plev), FALSE, 350, 0)) msgf("Nothing answers your call.");
+	        if(!player_summon(PSUM_HI_UNDEAD, 50+randint1(plev), FALSE, 350, 0, 1)) msgf("Nothing answers your call.");
 			break;
 
 		case 23:				/* Mass Genocide */
@@ -3197,8 +3202,8 @@ static bool cast_conj_spell(int spell)
 			(void)fire_bolt_or_beam(beam - 10, GF_MISSILE, dir,
 									damroll(3 + ((plev - 1) / 5), 3));
 			break;
-		case 2: 			/* Summon Lesser Animal */
-	        sum_fail = player_summon(PSUM_ANIMAL_LOW, 2*plev, FALSE, 150, PSUM_FORCE_SUCCESS);
+		case 2: 			/* Summon Animal */
+	        sum_fail = player_summon(PSUM_ANIMAL, 2*plev, FALSE, 150, PSUM_FORCE_SUCCESS, 1);
 			break;
 		case 3:				/* Light */
 			(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
@@ -3206,13 +3211,11 @@ static bool cast_conj_spell(int spell)
 		case 4:  			/* Heal Minor Wounds */
 			(void)hp_player(6+damroll(1,8));
 			break;
-		case 5:				/* Summon Phantom */
-	        sum_fail = player_summon(PSUM_PHANTOM, 2*plev, FALSE, 300, PSUM_FORCE_SUCCESS);
+		case 5:				/* Teleport Self */
+			teleport_player(MAX(250, plev*6));
 			break;
-		case 6:				/* Magic Rope */
-			if (!get_aim_dir(&dir)) return FALSE;
-
-			(void)slow_monster(dir);
+		case 6:				/* Summon Phantom */
+	        sum_fail = player_summon(PSUM_PHANTOM, 2*plev, FALSE, 300, PSUM_FORCE_SUCCESS, 1);
 			break;
 		case 7:				/* Stinking Cloud */
 			if (!get_aim_dir(&dir)) return FALSE;
@@ -3224,28 +3227,27 @@ static bool cast_conj_spell(int spell)
 
 			(void)fire_ball(GF_CONFUSION, dir, 5 + (plev / 10), 2);
 			break;
-		case 9:				/* Teleport Self */
-			teleport_player(MAX(250, plev*6));
+		case 9:			/* Summon Animals */
+	        sum_fail = player_summon(PSUM_ANIMAL, 2*plev, TRUE, 150, PSUM_FORCE_SUCCESS, damroll(3,2));
 			break;
-		case 10:			/* Web */
-			msgf ("Sticky strands appear everywhere.");
-			(void)slow_monsters();
-			break;
-		case 11:			/* Summon Animals */
-	        sum_fail = player_summon(PSUM_ANIMAL, 2*plev, TRUE, 150, PSUM_FORCE_SUCCESS);
-			break;
-		case 12:				/* Dimension Door */
+		case 10:				/* Dimension Door */
 			msgf("You open a dimensional gate. Choose a destination.");
 			if (!dimension_door())
 				return (FALSE);
 			break;
-		case 13:				/* Teleport Away */
+		case 11:				/* Teleport Away */
 			if (!get_aim_dir(&dir)) return FALSE;
 
 			(void)fire_beam(GF_AWAY_ALL, dir, plev);
 			break;
-		case 14:				/* Summon Elemental */
-	        sum_fail = player_summon(PSUM_ELEMENTAL, plev+randint1(plev), FALSE, 150, 0);
+		case 12:				/* Haste */
+			(void)inc_fast(randint1(20 + plev) + plev);
+			break;
+		case 13:				/* Summon Elemental */
+	        sum_fail = player_summon(PSUM_ELEMENTAL, plev+randint1(plev), FALSE, 150, 0, 1);
+			break;
+		case 14:				/* Teleport Level */
+			(void)teleport_player_level();
 			break;
 		case 15:				/* Word of Recall */
 			word_of_recall();
@@ -3264,10 +3266,10 @@ static bool cast_conj_spell(int spell)
 			(void)inc_shield(rand_range(30, 50));
 			break;
 		case 19:				/* Summon Hydra */
-	        sum_fail = player_summon(PSUM_HYDRA, 2*plev, FALSE, 150, 0);
+	        sum_fail = player_summon(PSUM_HYDRA, 2*plev, FALSE, 150, 0, 1);
 			break;
 		case 20:				/* Summon Dragon */
-	        sum_fail = player_summon(PSUM_DRAGON, 2*plev, FALSE, 350, 0);
+	        sum_fail = player_summon(PSUM_DRAGON, 2*plev, FALSE, 350, 0, 1);
 			break;
 		case 21:				/* Banishment */
 			(void)banish_monsters(plev * 4);
@@ -3294,29 +3296,32 @@ static bool cast_conj_spell(int spell)
 			(void)inc_etherealness(rand_range(20,40));
 			break;
 		case 28:				/* Summon Demon */
-	        sum_fail = player_summon(PSUM_DEMON, plev+randint1(plev), one_in_(55-plev), 350, 0);
+	        sum_fail = player_summon(PSUM_DEMON, plev+randint1(plev), FALSE, 350, 0, 
+				(one_in_(55-plev) ? rand_range(2,4) : 1));
 			break;
 		case 29:				/* Planar Rift */
 			(void)dispel_monsters(50+plev * 3);
 			break;
 		case 30:				/* Summon Undead */
-	        sum_fail = player_summon(PSUM_HI_UNDEAD, plev+randint1(plev), FALSE, 350, 0);
+	        sum_fail = player_summon(PSUM_HI_UNDEAD, plev+randint1(plev), FALSE, 350, 0, 1);
 			break;
 		case 31:				/* Greater Summoning */
 			switch(randint1(4))
 			{
 				case 1:
-					sum_fail = player_summon(PSUM_HI_UNDEAD, plev+randint1(plev), FALSE, 450, 0) ||
- 							   player_summon(PSUM_HI_UNDEAD, plev+randint1(plev), FALSE, 450, 0);
+					sum_fail = player_summon(PSUM_HI_UNDEAD, plev+randint1(plev), FALSE, 450, 0, 1) ||
+ 							   player_summon(PSUM_HI_UNDEAD, plev+randint1(plev), FALSE, 450, 0, 1);
 					break;
 				case 2:
-					sum_fail = player_summon(PSUM_HI_DRAGON, 45+plev, FALSE, 450, 0);
+					sum_fail = player_summon(PSUM_HI_DRAGON, 45+plev, FALSE, 450, 0, 1);
 					break;
 				case 3:
-			        sum_fail = player_summon(PSUM_DRAGON, 50+plev, TRUE, 600, PSUM_FORCE_SUCCESS);
+			        sum_fail = player_summon(PSUM_DRAGON, 50+plev, FALSE, 600, PSUM_FORCE_SUCCESS, 
+						rand_range(2,4));
 					break;
 				case 4:
-					sum_fail = player_summon(PSUM_ANGEL, 50+plev, TRUE, 600, PSUM_FORCE_SUCCESS);
+					sum_fail = player_summon(PSUM_ANGEL, 50+plev, FALSE, 600, PSUM_FORCE_SUCCESS,
+						rand_range(3,5));
 					break;
 			}
 			break;
@@ -3471,7 +3476,8 @@ static bool cast_arcane_spell(int spell)
 				return(FALSE);
 			}
 		    if (!enchant_spell(0, 0, randint1(3))) return(FALSE);
-			p_ptr->au = MIN(p_ptr->au-300, 0);  /* Costs 300 gold */
+			p_ptr->au = MAX(p_ptr->au-300, 0);  /* Costs 300 gold */
+			p_ptr->redraw |= (PR_GOLD);
 			break;
 		case 28:				/* Recharging */
 			return recharge(plev * 4);

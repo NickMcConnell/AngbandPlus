@@ -874,10 +874,6 @@ void display_banner(wild_done_type *w_ptr)
 			/* It is a wilderness dungeon */
 			if (pl_ptr->type == PL_DUNGEON)
 			{
-				/* Fetch closest known town and direction */
-				banner = describe_quest_location(&place_dir,
-								pl_ptr->x, pl_ptr->y, TRUE);
-
 				/* Did the player go into the dungeon? */
 				if (pl_ptr->dungeon->recall_depth == 0)
 				{
@@ -898,7 +894,13 @@ void display_banner(wild_done_type *w_ptr)
 			}
 			else if (pl_ptr->type == PL_QUEST_STAIR)
 			{
-				banner = "Quest";
+				/* Find the quest.  If active, display banner. */
+				quest_type *q_ptr = &quest[pl_ptr->quest_num];
+				if ((q_ptr->flags & QUEST_FLAG_KNOWN) && (q_ptr->status == QUEST_STATUS_TAKEN ||
+					q_ptr->status == QUEST_STATUS_COMPLETED || q_ptr->status == QUEST_STATUS_FAILED))
+					banner = "Quest";
+				else
+					banner = "";
 			}
 
 
@@ -936,7 +938,7 @@ static bool dump_home_info(FILE *fff, int town)
 		if (st_ptr->type == BUILD_STORE_HOME)
 		{
 			/* Header with name of the town */
-			froff(fff, "  [Home Inventory - %s]\n\n", place[i].name);
+			froff(fff, "  [Home Inventory - %s]\n\n", place[town].name);
 
 			/* Home -- if anything there */
 			if (st_ptr->stock)

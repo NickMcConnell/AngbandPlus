@@ -945,7 +945,7 @@ errr process_pref_file(cptr fmt, ...)
 	char buf[1024], name[1024];
 
 	errr err = 0;
-	
+
 	va_list vp;
 
 	/* Begin the Varargs Stuff */
@@ -996,18 +996,18 @@ static void prt_num(int col, int row, cptr header, long num, int wid)
 void likert(char *buf, uint max, cptr fmt, va_list *vp)
 {
 	cptr desc;
-	
+
     int x, y;
-	
+
 	/* Unused parameter */
 	(void)fmt;
-	
+
 	/* Get the first argument */
 	x = va_arg(*vp, int);
-	
+
 	/* Get the second argument */
 	y = va_arg(*vp, int);
-	
+
 	/* Paranoia */
 	if (y <= 0) y = 1;
 
@@ -1184,7 +1184,7 @@ static void display_player_abilities(void)
 		put_fstr(COL_SKILLS3, 16, "Blows/Round : %d+%d",
 					p_ptr->num_blow, muta_att);
 
-	
+
 	put_fstr(COL_SKILLS3, 17, "Shots/Round : %d.%d", shots, shot_frac);
 
 	/* Effect of damage dice x2 */
@@ -1209,7 +1209,7 @@ static void display_player_abilities(void)
 		bool do_poly = FALSE;
 
 		/* Apply special scripts */
-		apply_object_trigger(TRIGGER_HIT, o_ptr, ":iiibbbbi", 
+		apply_object_trigger(TRIGGER_HIT, o_ptr, ":iiibbbbi",
 			LUA_RETURN(ghoul_paral), LUA_RETURN(drain_power),
 			LUA_RETURN(vorpal_chance), LUA_RETURN(do_quake),
 			LUA_RETURN(do_conf), LUA_RETURN(do_tele),
@@ -1540,7 +1540,7 @@ void player_flags(object_flags *of_ptr)
 			SET_FLAG(of_ptr, TR_CANT_EAT);
 		}
 	}
-	
+
 	if (p_ptr->muta2)
 	{
 		if (p_ptr->muta2 & MUT2_BEAK)
@@ -1626,7 +1626,7 @@ void player_flags(object_flags *of_ptr)
 		{
 			SET_FLAG(of_ptr, TR_FREE_ACT);
 		}
-		
+
 		if (p_ptr->muta3 & MUT3_VULN_ELEM)
 		{
 			SET_FLAG(of_ptr, TR_HURT_ACID);
@@ -1686,7 +1686,7 @@ void print_equippy(void)
  * Helper function, see below
  */
 static void display_player_flag_aux3(int col, int row,
-                                    cptr header, int n1, u32b flag1, 
+                                    cptr header, int n1, u32b flag1,
 				    int n2, u32b flag2, int n3, u32b flag3)
 {
 	int i;
@@ -1751,7 +1751,7 @@ static void display_player_flag_aux3(int col, int row,
 }
 
 static void display_player_flag_aux2(int col, int row,
-                                    cptr header, int n1, u32b flag1, 
+                                    cptr header, int n1, u32b flag1,
 				    int n2, u32b flag2)
 {
 	display_player_flag_aux3(col, row, header, n1, flag1, n2, flag2, 1, 0);
@@ -2286,7 +2286,7 @@ static void display_player_skill_info(void)
 				if (p_ptr->muta3 & MUT3_SHORT_LEG) dummy -= 3;
 			}
 		}
-				
+
 		if (skill == 5 && (FLAG(&oflags, TR_SPEED)))
 		{
 			dummy += p_ptr->lev / 10;
@@ -2341,7 +2341,7 @@ static void display_player_skill_info(void)
 static void display_player_top(void)
 {
 	int i;
-	
+
 	/* Name, Sex, Race, Class */
 	put_fstr(COL_NAME, 2,
     			"Name     : " CLR_L_BLUE "%s\n" CLR_WHITE
@@ -2782,9 +2782,9 @@ errr file_character(cptr name, bool full)
 	{
 		/* New line */
 		froff(fff, "\n\n");
-	
+
 		display_player(DISPLAY_PLAYER_FLAG);
-		
+
 		/* Dump part of the screen */
 		for (y = 2; y < 9; y++)
 		{
@@ -2793,7 +2793,7 @@ errr file_character(cptr name, bool full)
 			{
 				/* Get the attr/char */
 				(void)(Term_what(x + 16, y, &a, &c));
-	
+
 				/* Dump it */
 				buf[x] = c;
 			}
@@ -2807,7 +2807,7 @@ errr file_character(cptr name, bool full)
 			/* End the row */
 			froff(fff, "%s\n", buf);
 		}
-		
+
 		/* New line */
 		froff(fff, "\n");
 
@@ -2823,7 +2823,7 @@ errr file_character(cptr name, bool full)
 			buf[x] = '\0';
 			froff(fff, "%s\n", buf);
 		}
-	
+
 		froff(fff, "\n");
 		display_player(DISPLAY_PLAYER_SUMMARY);
 
@@ -2912,7 +2912,7 @@ errr file_character(cptr name, bool full)
         for (n = 0, i = 1; i < z_info->r_max; i++)
         {
             monster_race *r_ptr = &r_info[i];
-    
+
             /* Require killed monsters */
             if (!r_ptr->r_pkills) continue;
 
@@ -2925,11 +2925,11 @@ errr file_character(cptr name, bool full)
             froff(fff, "\n\n  [Top %i deepest kills]\n\n", n >= 10 ? 10 : n);
 
             why = 2;
-        
+
             /* Select the sort method */
             ang_sort_comp = ang_sort_comp_hook;
             ang_sort_swap = ang_sort_swap_hook;
-        
+
             /* Sort the array */
             ang_sort(who, &why, n);
 
@@ -2970,12 +2970,17 @@ errr file_character(cptr name, bool full)
 
 		/* Describe object */
 		object_desc(o_name, &p_ptr->equipment[i], TRUE, 3, 256);
-						
+
 		/* Clean formatting escape sequences */
 		fmt_clean(o_name);
-		
+
 		/* Dump the equipment slot */
 		froff(fff, "%c%s %s\n", I2A(i), paren, o_name);
+
+		if (full)
+		{
+			dump_full_item(fff, &p_ptr->equipment[i]);
+		}
 	}
 	froff(fff, "\n\n");
 
@@ -2988,15 +2993,20 @@ errr file_character(cptr name, bool full)
 	OBJ_ITT_START (p_ptr->inventory, o_ptr)
 	{
 		char o_name[256];
-		
+
 		/* Describe object */
 		object_desc(o_name, o_ptr, TRUE, 3, 256);
-						
+
 		/* Clean formatting escape sequences */
 		fmt_clean(o_name);
-		
+
 		/* Dump the inventory slots */
 		froff(fff, "%c%s %s\n", I2A(i), paren, o_name);
+
+		if (full)
+		{
+			dump_full_item(fff, o_ptr);
+		}
 
 		/* Count slots */
 		i++;
@@ -3019,7 +3029,7 @@ errr file_character(cptr name, bool full)
 				if (st_ptr->stock)
 				{
 					char o_name[256];
-				
+
 					/* Header with name of the town */
 					froff(fff, "  [Home Inventory - %s]\n\n", place[i].name);
 
@@ -3031,11 +3041,16 @@ errr file_character(cptr name, bool full)
 					{
 						/* Describe object */
 						object_desc(o_name, o_ptr, TRUE, 3, 256);
-						
+
 						/* Clean formatting escape sequences */
 						fmt_clean(o_name);
-					
+
 						froff(fff, "%c%s %s\n", I2A(k), paren, o_name);
+
+						if (full)
+						{
+							dump_full_item(fff, o_ptr);
+						}
 
 						/* Increment counter */
 						k++;
@@ -3052,6 +3067,13 @@ errr file_character(cptr name, bool full)
 	if (limit_messages && msg_max > 50)
 		msg_max = 50;
 
+	/* Dump quest info */
+	froff(fff, "  [Quests]\n\n");
+
+	do_cmd_knowledge_quests_aux(0, fff);
+
+	froff(fff, "\n\n");
+
 	froff(fff, "  [Message Log (last %d messages)]\n\n", msg_max);
 
 	for (i = msg_max - 1; i >= 0; i--)
@@ -3059,7 +3081,6 @@ errr file_character(cptr name, bool full)
 		froff(fff, "%s\n", message_str((s16b)i));
 	}
 	froff(fff, "\n\n");
-
 
 	/* Close it */
 	my_fclose(fff);
@@ -3253,7 +3274,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		/* Oops */
 		return (TRUE);
 	}
-	
+
 	/* Remember what the resize hook was */
 	old_hook = angband_term[0]->resize_hook;
 
@@ -3317,7 +3338,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		/* Count the "real" lines */
 		next++;
 	}
-	
+
 	if (mode != RESIZE_SHOW_FILE) screen_save();
 
 	/* Save the number of "real" lines */
@@ -3348,7 +3369,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 				screen_load();
 				return (FALSE);
 			}
-			
+
 			/* File has been restarted */
 			next = 0;
 		}
@@ -3407,7 +3428,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 				while ((str = strstr(str, shower)) != NULL)
 				{
 					int offset = fmt_offset(lc_buf, str);
-				
+
 					/* Display the match */
 					put_fstr(offset, i + 2, CLR_YELLOW "%s", shower);
 
@@ -3526,7 +3547,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 				strcpy(shower, finder);
 			}
 		}
-		
+
 		/* Hack -- try finding again */
 		if (k == '\\')
 		{
@@ -3662,7 +3683,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		/* Exit on escape */
 		if (k == ESCAPE) break;
 	}
-	
+
 	/* Restore the screen */
 	screen_load();
 
@@ -3829,7 +3850,16 @@ void change_player_name(void)
 		strcpy(tmp, player_name);
 
 		/* Get an input, ignore "Escape" */
-		if (askfor_aux(tmp, 16)) strcpy(player_name, tmp);
+		if (askfor_aux(tmp, 16))
+		{
+			/* If name starts with '*', make a random name. */
+			if (tmp[0] == '*')
+			{
+				get_table_name(tmp, FALSE);
+			}
+
+			strcpy(player_name, tmp);
+		}
 
 		/* Process the player name */
 		process_player_name(FALSE);
@@ -3857,8 +3887,14 @@ void get_character_name(void)
 	strcpy(tmp, player_name);
 
 	/* Prompt for a new name */
-	if (get_string(tmp, sizeof(tmp), "Enter a name for your character: "))
+	if (get_string(tmp, sizeof(tmp), "Enter a name for your character (* for random): "))
 	{
+		/* If name starts with '*', make a random name. */
+		if (tmp[0] == '*')
+		{
+			get_table_name(tmp, FALSE);
+		}
+
 		/* Use the name */
 		strcpy(player_name, tmp);
 

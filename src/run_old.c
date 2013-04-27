@@ -152,8 +152,6 @@ static int see_interesting(int x, int y)
 		/* Stairs */
 		case FEAT_LESS:
 		case FEAT_MORE:
-		case FEAT_QUEST_LESS:
-		case FEAT_QUEST_MORE:
 			if (find_ignore_stairs) break;
 
 			return (TRUE);
@@ -172,66 +170,54 @@ static int see_interesting(int x, int y)
 #define RUN_MODE_FINISH   4  /* End of run */
 
 /*
- * There are exactly 36 interesting
+ * Due to a fortunate coincidence, there are exactly 32 interesting
  * 2-move combinations. We only consider combinations where the
  * second move shares at least one component (N, E, S or W) with
- * the first move, plus orthogonal pairs (e.g. N-E).
+ * the first move.
  *
- * Since there are 36, we can use (64-bit) bit fields to simplify the tables.
+ * Since there are 32, we can use bit fields to simplify the tables.
  */
-
-
-#define RUN_N_NW  0x0000000000000001L
-#define RUN_N_N   0x0000000000000002L
-#define RUN_N_NE  0x0000000000000004L
-#define RUN_NE_NW 0x0000000000000008L
-#define RUN_NE_N  0x0000000000000010L
-#define RUN_NE_NE 0x0000000000000020L
-#define RUN_NE_E  0x0000000000000040L
-#define RUN_NE_SE 0x0000000000000080L
-#define RUN_E_NE  0x0000000000000100L
-#define RUN_E_E   0x0000000000000200L
-#define RUN_E_SE  0x0000000000000400L
-#define RUN_SE_NE 0x0000000000000800L
-#define RUN_SE_E  0x0000000000001000L
-#define RUN_SE_SE 0x0000000000002000L
-#define RUN_SE_S  0x0000000000004000L
-#define RUN_SE_SW 0x0000000000008000L
-#define RUN_S_SE  0x0000000000010000L
-#define RUN_S_S   0x0000000000020000L
-#define RUN_S_SW  0x0000000000040000L
-#define RUN_SW_SE 0x0000000000080000L
-#define RUN_SW_S  0x0000000000100000L
-#define RUN_SW_SW 0x0000000000200000L
-#define RUN_SW_W  0x0000000000400000L
-#define RUN_SW_NW 0x0000000000800000L
-#define RUN_W_SW  0x0000000001000000L
-#define RUN_W_W   0x0000000002000000L
-#define RUN_W_NW  0x0000000004000000L
-#define RUN_NW_SW 0x0000000008000000L
-#define RUN_NW_W  0x0000000010000000L
-#define RUN_NW_NW 0x0000000020000000L
-#define RUN_NW_N  0x0000000040000000L
-#define RUN_NW_NE 0x0000000080000000L
-#define RUN_N_E   0x0000000100000000L
-#define RUN_N_W   0x0000000200000000L
-#define RUN_E_N   0x0000000400000000L
-#define RUN_E_S   0x0000000800000000L
-#define RUN_S_E   0x0000001000000000L
-#define RUN_S_W   0x0000002000000000L
-#define RUN_W_N   0x0000004000000000L
-#define RUN_W_S   0x0000008000000000L
-#define RUN_IMPOSSIBLE   0xFFFFFF0000000000L
-
+#define RUN_N_NW  0x00000001L
+#define RUN_N_N   0x00000002L
+#define RUN_N_NE  0x00000004L
+#define RUN_NE_NW 0x00000008L
+#define RUN_NE_N  0x00000010L
+#define RUN_NE_NE 0x00000020L
+#define RUN_NE_E  0x00000040L
+#define RUN_NE_SE 0x00000080L
+#define RUN_E_NE  0x00000100L
+#define RUN_E_E   0x00000200L
+#define RUN_E_SE  0x00000400L
+#define RUN_SE_NE 0x00000800L
+#define RUN_SE_E  0x00001000L
+#define RUN_SE_SE 0x00002000L
+#define RUN_SE_S  0x00004000L
+#define RUN_SE_SW 0x00008000L
+#define RUN_S_SE  0x00010000L
+#define RUN_S_S   0x00020000L
+#define RUN_S_SW  0x00040000L
+#define RUN_SW_SE 0x00080000L
+#define RUN_SW_S  0x00100000L
+#define RUN_SW_SW 0x00200000L
+#define RUN_SW_W  0x00400000L
+#define RUN_SW_NW 0x00800000L
+#define RUN_W_SW  0x01000000L
+#define RUN_W_W   0x02000000L
+#define RUN_W_NW  0x04000000L
+#define RUN_NW_SW 0x08000000L
+#define RUN_NW_W  0x10000000L
+#define RUN_NW_NW 0x20000000L
+#define RUN_NW_N  0x40000000L
+#define RUN_NW_NE 0x80000000L
 
 /* All the moves that start with each direction */
-#define RUN_N  (RUN_N_NW  | RUN_N_N  | RUN_N_NE  | RUN_N_E  | RUN_N_W)
+#define RUN_N  (RUN_N_NW  | RUN_N_N  | RUN_N_NE)
 #define RUN_NE (RUN_NE_NW | RUN_NE_N | RUN_NE_NE | RUN_NE_E | RUN_NE_SE)
-#define RUN_E  (RUN_E_NE  | RUN_E_E  | RUN_E_SE  | RUN_E_N  | RUN_E_S)
+#define RUN_E  (RUN_E_NE  | RUN_E_E  | RUN_E_SE)
 #define RUN_SE (RUN_SE_NE | RUN_SE_E | RUN_SE_SE | RUN_SE_S | RUN_SE_SW)
-#define RUN_S  (RUN_S_SE  | RUN_S_S  | RUN_S_SW  | RUN_S_E  | RUN_S_W)
+#define RUN_S  (RUN_S_SE  | RUN_S_S  | RUN_S_SW)
 #define RUN_SW (RUN_SW_SE | RUN_SW_S | RUN_SW_SW | RUN_SW_W | RUN_SW_NW)
-#define RUN_W  (RUN_W_SW  | RUN_W_W  | RUN_W_NW  | RUN_W_N  | RUN_W_S)
+#define RUN_W  (RUN_W_SW  | RUN_W_W  | RUN_W_NW)
 #define RUN_NW (RUN_NW_SW | RUN_NW_W | RUN_NW_NW | RUN_NW_N | RUN_NW_NE)
 
 #define TEST_NONE     0
@@ -239,7 +225,6 @@ static int see_interesting(int x, int y)
 #define TEST_UNSEEN   2
 #define TEST_FLOOR    3
 #define TEST_FLOOR_S  4
-#define TEST_WALL_S   5
 
 /*
  * The tests.
@@ -263,22 +248,15 @@ static int see_interesting(int x, int y)
  *   What moves to remove from consideration if both the
  *   checks listed pass.
  */
-typedef long long _u64b;
-
 static const struct
 {
 	int test;
 	int dx, dy;
-	_u64b test_mask;
-	_u64b remove_mask;
+	u32b test_mask;
+	u32b remove_mask;
 } run_checks[] = {
-/*
- * 0: Paranoia: Eliminate all never-used cases.
- */
-{TEST_NONE, 0, 0, 0, RUN_IMPOSSIBLE},
 
 /*
- * 1-4:
  * If the player starts out by moving into a branch corridor:
  *
  * ###    ###
@@ -301,7 +279,7 @@ static const struct
 {TEST_FLOOR_S,  0,  1, RUN_N, RUN_SE | RUN_SW},
 {TEST_FLOOR_S, -1,  0, RUN_E, RUN_NW | RUN_SW},
 
-/* 5-28: Eliminate impossible moves */
+/* Eliminate impossible moves */
 {TEST_WALL, -2, -2, 0,        RUN_NW_NW},
 {TEST_WALL, -1, -2, 0,        RUN_NW_N | RUN_N_NW},
 {TEST_WALL,  0, -2, 0,        RUN_NW_NE | RUN_N_N | RUN_NE_NW},
@@ -318,17 +296,16 @@ static const struct
 {TEST_WALL, -2,  1, 0,        RUN_SW_W | RUN_W_SW},
 {TEST_WALL, -2,  0, 0,        RUN_SW_NW | RUN_W_W | RUN_NW_SW},
 {TEST_WALL, -2, -1, 0,        RUN_NW_W | RUN_W_NW},
-{TEST_WALL, -1, -1, 0,        RUN_NW | RUN_N_W | RUN_W_N},
+{TEST_WALL, -1, -1, 0,        RUN_NW},
 {TEST_WALL,  0, -1, 0,        RUN_N},
-{TEST_WALL,  1, -1, 0,        RUN_NE | RUN_N_E | RUN_E_N},
+{TEST_WALL,  1, -1, 0,        RUN_NE},
 {TEST_WALL,  1,  0, 0,        RUN_E},
-{TEST_WALL,  1,  1, 0,        RUN_SE | RUN_S_E | RUN_E_S},
+{TEST_WALL,  1,  1, 0,        RUN_SE},
 {TEST_WALL,  0,  1, 0,        RUN_S},
-{TEST_WALL, -1,  1, 0,        RUN_SW | RUN_S_W | RUN_W_S},
+{TEST_WALL, -1,  1, 0,        RUN_SW},
 {TEST_WALL, -1,  0, 0,        RUN_W},
 
 /*
- * 29-32:
  * Allow the player to run in a pillared corridor with
  * a radius-2 light source, by removing some diagonal
  * moves into unknown squares. Example:
@@ -349,47 +326,15 @@ static const struct
 {TEST_UNSEEN, -2,  2, RUN_S | RUN_W, RUN_SW_SW},
 
 /*
- * 33-40
- * Force the player to explore potential corners.
- *
- * Note: These tests will only be used if find_examine is
- * set to be true and the player has light radius = 1.
- *
- * Example:
- *
- *  A##
- *   .@
- *   .#
- *
- * In a situation like this, the player may run south-
- * west, but this would leave A unexplored if the
- * player has light radius 1.  (Radius 0, we don't bother
- * with exploring, and Radius 2 or more we won't have a
- * problem.)
- *
- * Thus, if A is unknown, prevent the player from running
- * starting with a move southwest, so long as moving west
- * is available.
- */
-{TEST_UNSEEN, -2, -1, RUN_W, RUN_SW},
-{TEST_UNSEEN, -2, 1, RUN_W, RUN_NW},
-{TEST_UNSEEN, 2, -1, RUN_E, RUN_SE},
-{TEST_UNSEEN, 2, 1, RUN_E, RUN_NE},
-{TEST_UNSEEN, -1, -2, RUN_N, RUN_NE},
-{TEST_UNSEEN, 1, -2, RUN_N, RUN_NW},
-{TEST_UNSEEN, -1, 2, RUN_S, RUN_SE},
-{TEST_UNSEEN, 1, 2, RUN_S, RUN_SW},
-
-/*
  * Ensure that the player will take unknown corners by
  * preventing orthagonal moves to unknown squares when
  * a diagonal move exists.
  *
  * Example:
  *
- *  ?##
- *  ?.@
- *  ?.#
+ *  ##
+ *  .@
+ *  .#
  *
  * In this situation we remove all the 'west' moves, because
  * they are to unknown squares, and it's possible to move
@@ -430,12 +375,6 @@ static const struct
 {TEST_NONE,  0,  0, RUN_S_S,  RUN_SE_SW | RUN_SW_SE},
 {TEST_NONE,  0,  0, RUN_W_W,  RUN_NW_SW | RUN_SW_NW},
 
-/* Prefer diagonals to 2-move orthogonal zig-zags */
-{TEST_NONE,  0,  0, RUN_NE,  RUN_N_E | RUN_E_N},
-{TEST_NONE,  0,  0, RUN_NW,  RUN_N_W | RUN_W_N},
-{TEST_NONE,  0,  0, RUN_SE,  RUN_S_E | RUN_E_S},
-{TEST_NONE,  0,  0, RUN_SW,  RUN_S_W | RUN_W_S},
-
 /* Prefer moving diagonal then orthagonal over the reverse */
 {TEST_NONE,  0,  0, RUN_NW_W, RUN_W_NW},
 {TEST_NONE,  0,  0, RUN_NW_N, RUN_N_NW},
@@ -447,20 +386,20 @@ static const struct
 {TEST_NONE,  0,  0, RUN_SW_W, RUN_W_SW},
 };
 
-static const _u64b valid_dir_mask[10] = {
+static const u32b valid_dir_mask[10] = {
 /* 0 */ 0,
 /* 1 */ RUN_NW | RUN_W | RUN_SW | RUN_S | RUN_SE,
-/* 2 */ RUN_SW | RUN_S | RUN_SE | RUN_E | RUN_W,
+/* 2 */ RUN_SW | RUN_S | RUN_SE,
 /* 3 */ RUN_SW | RUN_S | RUN_SE | RUN_E | RUN_NE,
-/* 4 */ RUN_NW | RUN_W | RUN_SW | RUN_N | RUN_S,
+/* 4 */ RUN_NW | RUN_W | RUN_SW,
 /* 5 */ 0,
-/* 6 */ RUN_SE | RUN_E | RUN_NE | RUN_N | RUN_S,
+/* 6 */ RUN_SE | RUN_E | RUN_NE,
 /* 7 */ RUN_NE | RUN_N | RUN_NW | RUN_W | RUN_SW,
-/* 8 */ RUN_NE | RUN_N | RUN_NW | RUN_E | RUN_W,
+/* 8 */ RUN_NE | RUN_N | RUN_NW,
 /* 9 */ RUN_SE | RUN_E | RUN_NE | RUN_N | RUN_NW
 };
 
-static const _u64b basic_dir_mask[10] = {
+static const u32b basic_dir_mask[10] = {
 /* 0 */ 0,
 /* 1 */ RUN_SW,
 /* 2 */ RUN_S,
@@ -482,7 +421,7 @@ static const _u64b basic_dir_mask[10] = {
  * and the two opposite corners, or all four
  * corners.
  */
-static const _u64b corridor_test_mask[] = {
+static const u32b corridor_test_mask[] = {
 RUN_N | RUN_S,
 RUN_E | RUN_W,
 RUN_N | RUN_SE | RUN_SW,
@@ -502,7 +441,7 @@ RUN_NW | RUN_NE | RUN_SE | RUN_SW
  *
  * ToDo: support diagonal walls
  */
-static const _u64b wall_test_mask[10][6] =
+static const u32b wall_test_mask[10][6] =
 {
 /* 0 */ {0, 0, 0, 0, 0, 0},
 /* 1 */ {0, 0, 0, 0, 0, 0},
@@ -562,7 +501,7 @@ static void run_choose_mode(void)
 	int px = p_ptr->px;
 	int py = p_ptr->py;
 	unsigned int i;
-	_u64b wall_dirs = 0;
+	u32b wall_dirs = 0;
 
 	/* Check valid dirs */
 	for (i = 1; i < 10; i++)
@@ -649,7 +588,7 @@ static void run_corridor(int starting)
 	int px = p_ptr->px;
 	int py = p_ptr->py;
 
-	_u64b valid_dirs = 0;
+	u32b valid_dirs = 0;
 	unsigned int i;
 
 	/* Check if we're next to something interesting. If we are, stop. */
@@ -665,10 +604,6 @@ static void run_corridor(int starting)
 	/* Do magic */
 	for (i = 0; i < NUM_ELEMENTS(run_checks); i++)
 	{
-		bool ok = TRUE;
-		/* Hack: Avoid certain tests if find_examine not set. */
-		if (i > 32 && i <= 40 && !find_examine) continue;
-
 		if (run_checks[i].remove_mask & valid_dirs)
 		{
 			int dx = run_checks[i].dx;
@@ -686,6 +621,7 @@ static void run_corridor(int starting)
 			/* Check square if present */
 			if (dx || dy)
 			{
+				bool ok = TRUE;
 
 				switch (run_checks[i].test)
 				{
@@ -693,8 +629,7 @@ static void run_corridor(int starting)
 					break;
 
 				case TEST_WALL:
-					ok = see_wall(px + dx, py + dy) &&
-					     !see_nothing(px + dx, py + dy);
+					ok = see_wall(px + dx, py + dy);
 					break;
 
 				case TEST_UNSEEN:
@@ -711,12 +646,12 @@ static void run_corridor(int starting)
 					     !see_wall(px + dx, py + dy) &&
 					     !see_nothing(px + dx, py + dy);
 					break;
-
 				}
+
+				if (!ok) continue;
 			}
 
-			if (ok) valid_dirs &= ~run_checks[i].remove_mask;
-
+			valid_dirs &= ~run_checks[i].remove_mask;
 		}
 	}
 

@@ -156,7 +156,7 @@
 
 # Version stamp (required)
 
-V:0.2.1
+V:0.2.2
 
 ##### The Player #####
 
@@ -14604,7 +14604,7 @@ S:HOLD
 D:A swirling, rotating red disk.  A funnel thrusts out, seeking the
 D: one who disturbed the Pattern.
 
-N:877:Storm Troll
+N:877:Storm troll
 G:T:B
 I:120:37d55:20:55:100
 W:73:2:0:150000
@@ -15648,7 +15648,7 @@ D:enemy.
 N:937:Ranger Chieftain
 G:p:W
 I:120:50d20:20:60:10
-W:41:2:0:170000
+W:55:2:0:170000
 O:30:30:40
 B:HIT:HURT:5d5
 B:HIT:HURT:5d5
@@ -16107,7 +16107,7 @@ D: a dangerous enemy.
 
 N:966:Weretiger
 G:f:o
-I:120:25d20:40:35:0
+I:120:25d20:40:35:20
 W:34:2:0:15000
 B:CLAW:HURT:1d10
 B:CLAW:HURT:1d10
@@ -16117,3 +16117,19 @@ F:BASH_DOOR | WILD_FOREST1 | DUN_LAIR | DUN_TEMPLE | WILD_GRASS |
 F:ANIMAL | EVIL | DROP_SKELETON | DROP_CORPSE | DROP_1D2
 D:A fierce and dangerous cat with human features.
 
+N:967:Manbearpig
+G:H:u
+I:120:75d20:50:40:25
+W:55:4:0:37500
+B:CLAW:HURT:5d5
+B:CLAW:HURT:5d5
+B:BITE:HURT:4d4
+B:BUTT:HURT:7d7
+F:BASH_DOOR | OPEN_DOOR | KILL_ITEM | WILD_FOREST1 | WILD_WASTE1 | DUN_TEMPLE
+F:DUN_HORROR | DUN_HELL | DUN_LAIR | ANIMAL | EVIL | DROP_1D2 | DROP_CORPSE
+F:MALE | UNIQUE | IM_COLD | IM_POIS | FORCE_MAXHP | DROP_GOOD | SMART | SILLY
+S:1_IN_9
+S:HASTE | HEAL | SCARE
+D:Some say it is half man, half bear-pig.  Others say it is half man-bear, half
+D: pig.  Actually, it is half man, half bear, and half pig.  You had better
+D: run, I am super DUPER serial.  
