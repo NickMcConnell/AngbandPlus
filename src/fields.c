@@ -3939,7 +3939,7 @@ bool field_action_souldealer2(field_type *f_ptr, va_list vp)
 
 		*factor = TRUE;
 	}
-	/* Imbue jewelery */
+	/* Imbue jewelry */
 	else if (p_ptr->command_cmd == 'I')
 	{
 		cost = 2 * *factor;

@@ -1632,7 +1632,7 @@ void do_cmd_aim_wand(void)
  *
  * Unstack fully charged rods as needed.
  *
- * Hack -- rods of perception/genocide can be "cancelled"
+ * Hack -- rods of Identify/genocide can be "cancelled"
  * All rods can be cancelled at the "Direction?" prompt
  *
  * pvals are defined for each rod in k_info. -LM-
@@ -1641,7 +1641,7 @@ static void do_cmd_zap_rod_aux(object_type *o_ptr)
 {
 	int ident, chance, dir, lev;
 
-	/* Hack -- let perception get aborted */
+	/* Hack -- let Identification get aborted */
 	bool use_charge = TRUE;
 
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];

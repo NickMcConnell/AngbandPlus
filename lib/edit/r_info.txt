@@ -349,7 +349,7 @@ F:RAND_50 |
 F:ONLY_GOLD | DROP_60 | DROP_SKELETON | DROP_CORPSE
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | WILD_TOWN | LITE_1
 D:The typical ponce around town, with purse jingling, and looking for more 
-D:jewelery to buy.
+D:jewelry to buy.
 
 N:17:Mean looking mercenary
 G:t:R

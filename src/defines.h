@@ -35,7 +35,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.3.0"
+#define VERSION_STRING	"0.3.1"
 
 
 /*

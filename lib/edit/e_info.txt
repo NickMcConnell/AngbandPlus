@@ -240,7 +240,7 @@ C:0:0:0:3
 F:STR | DEX | CON | SUST_STR | SUST_DEX | SUST_CON | FREE_ACT
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:29:of Holiness
+N:29:of Kings
 X:21:17
 W:30:2:0:20000
 C:0:0:0:3
@@ -740,7 +740,7 @@ F:XTRA_SHOTS
 
 ### Extra Armor ###
 
-N:110:of Bravery
+N:110:of Boldness
 X:30:16
 W:5:5:0:10000
 F:RES_FEAR

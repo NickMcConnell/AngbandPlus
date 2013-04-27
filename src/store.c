@@ -858,14 +858,14 @@ static void store_create(void)
             delta = 15;
         }
 
-        /* Occasionally generate unusually good items */
-        while (one_in_(30))
-        {
-            delta += rand_range(5, 15);
-        }
+    /* Occasionally generate unusually good items */
+    while (one_in_(30))
+    {
+        delta += rand_range(5, 15);
+    }
 
-        /* Apply some magic */
-        apply_magic(q_ptr, level, delta, flags);
+    /* Apply some magic */
+    apply_magic(q_ptr, level, delta, flags);
 
 		/* Mega-Hack -- no chests in stores */
 		if (q_ptr->tval == TV_CHEST) continue;

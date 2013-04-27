@@ -759,7 +759,6 @@ s16b get_obj_num(int level, int min_level)
 		level = 1 + (level * MAX_DEPTH / randint1(MAX_DEPTH));
 	}
 
-
 	/* Reset total */
 	total = 0L;
 
@@ -779,21 +778,17 @@ s16b get_obj_num(int level, int min_level)
 	/* No legal objects */
 	if (total <= 0) return (0);
 
-
 	/* Pick an object */
 	value1 = randint0(total);
 
-	for (i = 0; i < 3; i++)
-	{
-		/* Try for a "better" object once */
-		value2 = randint0(total);
+	/* Try for a "better" object once */
+	value2 = randint0(total);
 
-		/* Is it better? */
-		if (value2 > value1)
-		{
-			/* This hack works because the object table is sorted by depth */
-			value1 = value2;
-		}
+	/* Is it better? */
+	if (value2 > value1)
+	{
+		/* This hack works because the object table is sorted by depth */
+		value1 = value2;
 	}
 
 	/* Find the object */
@@ -3102,7 +3097,7 @@ void add_ego_power(int power, object_type *o_ptr)
 		case EGO_XTRA_ABILITY:
 		{
 			/* Choose an ability */
-			switch (randint0(8))
+			switch (randint0(9))
 			{
 				case 0:
 				{
@@ -3382,15 +3377,6 @@ void apply_magic(object_type *o_ptr, int lev, int lev_dif, byte flags)
 		else if (randint0(100) < f) flags |= OC_FORCE_BAD;
 	}
 
-	if (!(o_ptr->flags3 & TR3_INSTA_ART))
-	{
-		/* Roll for a random artifact */
-		if (one_in_(20))
-		{
-			if ( (o_ptr->tval >= TV_BOOTS) && (o_ptr->tval <= TV_DRAG_ARMOR) )	(void)create_artifact(o_ptr, FALSE);
-		}
-	}
-
 	/* Apply magic */
 	switch (o_ptr->tval)
 	{
@@ -3660,8 +3646,16 @@ object_type *make_object(u16b delta_level, obj_theme theme)
 	/* Prepare the object */
 	o_ptr = object_prep(k_idx);
 
-	/* Apply magic (allow artifacts) */
-	apply_magic(o_ptr, base, base - k_info[k_idx].level, flags);
+	if ( (flags & OC_FORCE_GOOD) && (one_in_(20)) )
+	{
+		/* Roll for a random artifact */
+		create_artifact(o_ptr, FALSE);
+	}
+	else
+	{
+		/* Apply magic*/
+		apply_magic(o_ptr, base, base - k_info[k_idx].level, flags);
+	}
 
 	/* Hack -- generate multiple spikes/missiles/ mushrooms */
 	switch (o_ptr->tval)

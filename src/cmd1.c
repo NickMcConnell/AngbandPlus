@@ -25,7 +25,7 @@
 int deadliness_calc(int attack_power)
 {
 	/* Calculate effect of deadliness - linearly */
-	int result = (attack_power * 3) + 100;
+	int result = (attack_power * 10) + 100;
 
 	/* Really powerful minus yields zero damage */
 	if (result < 0) result = 0;
@@ -225,8 +225,8 @@ static s16b critical_norm(int weight, int plus, int dam)
  * Note that "flasks of oil" do NOT do fire damage, although they
  * certainly could be made to do so.  XXX XXX
  *
- * Note that most brands and slays are x2, except Slay Animal (x1.7),
- * Slay Evil (x1.5), and Kill dragon (x3). -SF-
+ * Note that most brands and slays are x3, except Slay Animal and
+ * Slay Evil x2, and Kill dragon x5.
  */
 int tot_dam_aux(const object_type *o_ptr, const monster_type *m_ptr)
 {
@@ -263,7 +263,7 @@ int tot_dam_aux(const object_type *o_ptr, const monster_type *m_ptr)
 					r_ptr->r_flags3 |= RF3_ANIMAL;
 				}
 
-				if (mult < 17) mult = 17;
+				if (mult < 20) mult = 20;
 			}
 
 			/* Slay Evil */
@@ -274,7 +274,7 @@ int tot_dam_aux(const object_type *o_ptr, const monster_type *m_ptr)
 					r_ptr->r_flags3 |= RF3_EVIL;
 				}
 
-				if (mult < 15) mult = 15;
+				if (mult < 20) mult = 20;
 			}
 
 			/* Slay Undead */
@@ -285,7 +285,7 @@ int tot_dam_aux(const object_type *o_ptr, const monster_type *m_ptr)
 					r_ptr->r_flags3 |= RF3_UNDEAD;
 				}
 
-				if (mult < 20) mult = 20;
+				if (mult < 30) mult = 30;
 			}
 
 			/* Slay Demon */
@@ -296,7 +296,7 @@ int tot_dam_aux(const object_type *o_ptr, const monster_type *m_ptr)
 					r_ptr->r_flags3 |= RF3_DEMON;
 				}
 
-				if (mult < 20) mult = 20;
+				if (mult < 30) mult = 30;
 			}
 
 			/* Slay Orc */
@@ -307,7 +307,7 @@ int tot_dam_aux(const object_type *o_ptr, const monster_type *m_ptr)
 					r_ptr->r_flags3 |= RF3_ORC;
 				}
 
-				if (mult < 20) mult = 20;
+				if (mult < 30) mult = 30;
 			}
 
 			/* Slay Troll */
@@ -318,7 +318,7 @@ int tot_dam_aux(const object_type *o_ptr, const monster_type *m_ptr)
 					r_ptr->r_flags3 |= RF3_TROLL;
 				}
 
-				if (mult < 20) mult = 20;
+				if (mult < 30) mult = 30;
 			}
 
 			/* Slay Giant */
@@ -329,7 +329,7 @@ int tot_dam_aux(const object_type *o_ptr, const monster_type *m_ptr)
 					r_ptr->r_flags3 |= RF3_GIANT;
 				}
 
-				if (mult < 20) mult = 20;
+				if (mult < 30) mult = 30;
 			}
 
 			/* Slay Dragon */
@@ -340,7 +340,7 @@ int tot_dam_aux(const object_type *o_ptr, const monster_type *m_ptr)
 					r_ptr->r_flags3 |= RF3_DRAGON;
 				}
 
-				if (mult < 20) mult = 20;
+				if (mult < 30) mult = 30;
 			}
 
 			/* Execute Dragon */
@@ -351,7 +351,7 @@ int tot_dam_aux(const object_type *o_ptr, const monster_type *m_ptr)
 					r_ptr->r_flags3 |= RF3_DRAGON;
 				}
 
-				if (mult < 30) mult = 30;
+				if (mult < 50) mult = 50;
 			}
 
 			/* Brand (Acid) */
@@ -369,7 +369,7 @@ int tot_dam_aux(const object_type *o_ptr, const monster_type *m_ptr)
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 20) mult = 20;
+					if (mult < 30) mult = 30;
 				}
 			}
 
@@ -388,7 +388,7 @@ int tot_dam_aux(const object_type *o_ptr, const monster_type *m_ptr)
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 20) mult = 20;
+					if (mult < 30) mult = 30;
 				}
 			}
 
@@ -407,7 +407,7 @@ int tot_dam_aux(const object_type *o_ptr, const monster_type *m_ptr)
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 20) mult = 20;
+					if (mult < 30) mult = 30;
 				}
 			}
 
@@ -425,7 +425,7 @@ int tot_dam_aux(const object_type *o_ptr, const monster_type *m_ptr)
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 20) mult = 20;
+					if (mult < 30) mult = 30;
 				}
 			}
 
@@ -444,7 +444,7 @@ int tot_dam_aux(const object_type *o_ptr, const monster_type *m_ptr)
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 20) mult = 20;
+					if (mult < 30) mult = 30;
 				}
 			}
 			break;

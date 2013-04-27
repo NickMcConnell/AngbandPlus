@@ -1,4 +1,4 @@
-XBAND 0.3.0
+XBAND 0.3.1
 
 Author: Chris Watkins (xis@prodigy.net)
 
@@ -46,9 +46,32 @@ you find the most dangerous monster types (greater demons, ancient dragons,
 liches, etc.), who have the most powerful souls.
 
 In addition, many monsters have a secondary soul type. If a monster has an
-elemental attack, it's soul will have bonuses related to that element. If
+elemental attack, its soul will have bonuses related to that element. If
 a monster has multiple elemental attacks, it's soul gem will be created
-with an elemental sub-type chosen randomly from it's attacks.
+with an elemental sub-type chosen randomly from its attacks.
+
+Changes from version 0.3.0 include:
+
+Randarts were being generated too often. This has been fixed.
+
+Randart code has been further re-written:
+  Randarts are generated with exactly two ego types (if possible), plus one
+  of the following: a random sustain, slay, high resist, or other ability.
+  Randarts sometimes have an activated ability.
+Red/Blue/Black/White Dragon Scale Mail now provides immunity to their respective element
+Made some of the mid-level soul types weaker
++Deadliness% now goes much higher. Maximum cap on a weapon was +75%, now +150%.
+  Each + to damage was 3%, now +10%.
+Increased damage from slays. All do X3 damage, except for Slay Animal (X2), 
+  Slay Evil (X2), and Kill Dragon (X5)
+Re-named some items to make naming more consistent / less confusing
+  Armor of Bravery -> Boldness
+  Rods/Staves of Perception -> Identify
+  Helms of Holiness -> of Kings
+Altered item generation algorithm; deeper items will now appear less often. Conversely,
+  this change will make less deep items show up more often, which means you should see
+  broken swords / potions of apple juice / assorted level-0 items in the dungeon again.
+Fixed a jewelry pluralization bug
 
 Changes from version 0.2.0 include:
 
@@ -73,22 +96,18 @@ Renamed ewoks -> forest gnomes, removed SILLY flag.
 Changed color of kamikaze yeeks and serpent men to remove conflicts.
 Tweaked rewards for depositing soul gems at the soul dealer
 Added two more elemental soul types; law and balance. 
-
 Added a new automatic-ID system for high-level characters.
-High-level characters will automatically pseudo-id weapons/armor when they are prompted to pick them up.
-Mages, Priests, High-Mages, Mindcrafters, and monks gain this ability at level 50, 
-Paladins, Rangers, Warrior-Mages, and Chaos-Warriors gain it at level 40,
-Warriors gain it at level 30,
-and Rogues gain it at level 20.
-
+  High-level characters will automatically pseudo-id weapons/armor when they are prompted to pick them up.
+  Mages, Priests, High-Mages, Mindcrafters, and monks gain this ability at level 50, 
+  Paladins, Rangers, Warrior-Mages, and Chaos-Warriors gain it at level 40,
+  Warriors gain it at level 30,
+  and Rogues gain it at level 20.
 At very high levels, some classes will now automatically identify weapons/armor when they are prompted to pick them up.
-Paladins, Rangers, Warrior-Mages, and Chaos-Warriors gain it at level 50,
-Warriors gain it at level 40,
-and Rogues gain it at level 30.
-
+  Paladins, Rangers, Warrior-Mages, and Chaos-Warriors gain it at level 50,
+  Warriors gain it at level 40,
+  and Rogues gain it at level 30.
 At level 40, Rogues automatically identify all items when they are prompted to pick them up.
 At level 50, Rogues automatically *Identify* all items when they are prompted to pick them up.
-
 Rogues now gain Identify and *Identify* spells earlier.
 
 Changes from version 0.1.0 include:
@@ -96,59 +115,43 @@ Changes from version 0.1.0 include:
 New features:
 
 When evaluated, souls and imbued items now show any bonuses they give to
-accuracy, damage, or armor class.
-
+  accuracy, damage, or armor class.
 Two new item flags have been added, SH_COLD and SH_ACID. They produce a
-freezing aura, and an acidic aura, respectively. Two new ego cloaks have
-been added that use these flags.
-
+  freezing aura, and an acidic aura, respectively. Two new ego cloaks have
+  been added that use these flags.
 Cloaks that produce elemental auras have been made less deep.
-
 The single versions of some of the low-level people (novice mages, rangers,
-etc.) have been removed and replaced with similar kobolds and yeeks. The 
-multiple versions of them remain.
-
+  etc.) have been removed and replaced with similar kobolds and yeeks. The 
+  multiple versions of them remain.
 Souls now have a secondary soul type. A soul's primary type is determined
-by it's race (kobold, mold, dragon, etc.), while it's secondary soul type
-is determined by any elemental attack it may have. Now a fire dragon will
-give different bonuses than an ice dragon. If a monster has multiple
-elemental attacks, a soul gem has a secondary type chosen at random. For
-example, some Storm Trolls will produce gems with an electric sub-type,
-while others produce gems with a cold sub-type.
-
+  by it's race (kobold, mold, dragon, etc.), while it's secondary soul type
+  is determined by any elemental attack it may have. Now a fire dragon will
+  give different bonuses than an ice dragon. If a monster has multiple
+  elemental attacks, a soul gem has a secondary type chosen at random. For
+  example, some Storm Trolls will produce gems with an electric sub-type,
+  while others produce gems with a cold sub-type.
 Because of the above changes, racial soul bonuses have been reduced in
-power.
-
+  power.
 The Soul Dealer will now give out much better rewards when you deposit
-souls. He will now also accept souls of monsters he already has copies of,
-but only pays cash for those.
-
+  souls. He will now also accept souls of monsters he already has copies of,
+  but only pays cash for those.
 The format of the character dump has been changed a good bit, it now
-shows more information. Also, character dumps made by deceased characters
-are the same as those made by living characters. Lastly, your character's
-title will now show in the character dump.
-
+  shows more information. Also, character dumps made by deceased characters
+  are the same as those made by living characters. Lastly, your character's
+  title will now show in the character dump.
 Two new artifact weapons have been added.
-
 Four new deep ego-weapons have been added.
-
 Removed the Greater Hell Beast!!!
-
 Removed the randomized error messages.
-
 Soul gems now drop only half as often, and level only half as fast.
-
 Holy Avengers no longer give extra attacks.
 
 Bugfixes: 
 
 When evaluated, souls and imbue items now show their proper maximum level
-and pval
-
+  and pval
 Imbued items that are currently wielded can now be displayed
-
 The soul dealer will no longer charge you if cancel viewing a soul
-
 
 XBAND 0.1.0
 
@@ -157,7 +160,7 @@ Changes from ZAngband 2.7.2 include:
 New soul system:
 
 When monsters are killed, they sometimes drop soul gems. Soul gems can be
-imbued into jewelery by the soul dealer. Imbued jewelery grants magical
+imbued into jewelry by the soul dealer. Imbued jewelry grants magical
 abilities to the wielder. Imbued items grow in strength as the game
 progresses. The exact abilities granted vary depending on the type of soul
 gem imbued, and the level of the imbued items. The soul dealer can
@@ -189,9 +192,6 @@ system, the borg, and TK support. This might have been a bad idea.
 
 NOTES:
 
-It's very likely that imbued items are completely unbalanced. I have a lot
-more work to do in that area.
-
 I compile under Windows XP, using Visual Studio. I tried to fix the
 makefiles for other platforms, but probably broke them horribly.
 
@@ -202,9 +202,7 @@ I will probably break the savefile format repeatedly over the next few releases.
 
 The vanilla town has no Soul Dealer.
 
-Ironman characters have no method of imbuing souls into jewelery.
-
-If you purchase a stack of rings at the jewelers, you can imbue the entire stack. This is a bug.
+Ironman characters have no method of imbuing souls into jewelry.
 
 
 

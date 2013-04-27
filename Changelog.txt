@@ -1,7 +1,50 @@
+**** 01/16/04
+
+Made some of the mid-level soul types weaker
+
+**** 01/15/04
+
+Red/Blue/Black/White Dragon Scale Mail now provides immunity to their respective element
+
+**** 01/14/04
+
+Another fix to the randart code - new randarts were being created with some flags known
+
+**** 01/13/03
+
+Fixed randart code - now always generates items with exactly two ego types (if possible)
+Items now indicate if they need to be *Idenitified*
+Randarts now may have an activation
+
++Deadliness% now goes much higher. Maximum cap on a weapon was +75%, now +150%.
+Each + to damage was 3%, now +10%.
+
+Increased damage from slays. All do X3 damage, except for Slay Animal (X2), 
+Slay Evil (X2), and Kill Dragon (X5)
+
+**** 12/22/03
+
+Re-named some items to make naming more consistent / less confusing
+  Armor of Bravery -> Boldness
+  Rods/Staves of Perception -> Identify
+  Helms of Holiness -> of Kings
+  
+Altered item generation algorithm; deeper items will now appear less often. Conversely,
+  this change will make less deep items show up more often, which means you should see
+  broken swords / potions of apple juice / assorted level-0 items in the dungeon again.
+  
+Made rounded pebbles more common
+
+**** 12/08/03
+
+Fixed a bug that made artifacts way too common
+Fixed the jewelery pluralization bug
+
 **** 11/11/03
 
 Added armor of Bravery
 Made Orfax deeper, now he only summons kin
+Released XBAND 0.3.0
 
 **** 11/07/03
 

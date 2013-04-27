@@ -909,33 +909,33 @@ static void compare_weapon_aux1(const object_type *o_ptr)
 
 	/* Print the relevant lines */
 	if (f1 & TR1_SLAY_ANIMAL) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												  CLR_YELLOW "Animals:", 17);
+												  CLR_YELLOW "Animals:", 20);
 	if (f1 & TR1_SLAY_EVIL) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												CLR_YELLOW "Evil:", 15);
+												CLR_YELLOW "Evil:", 20);
 	if (f1 & TR1_SLAY_UNDEAD) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												  CLR_YELLOW "Undead:", 20);
+												  CLR_YELLOW "Undead:", 30);
 	if (f1 & TR1_SLAY_DEMON) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												 CLR_YELLOW "Demons:", 20);
+												 CLR_YELLOW "Demons:", 30);
 	if (f1 & TR1_SLAY_ORC) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-											   CLR_YELLOW "Orcs:", 20);
+											   CLR_YELLOW "Orcs:", 30);
 	if (f1 & TR1_SLAY_TROLL) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												 CLR_YELLOW "Trolls:", 20);
+												 CLR_YELLOW "Trolls:", 30);
 	if (f1 & TR1_SLAY_GIANT) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												 CLR_YELLOW "Giants:", 20);
+												 CLR_YELLOW "Giants:", 30);
 	if (f1 & TR1_SLAY_DRAGON) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												  CLR_YELLOW "Dragons:", 20);
-	if (f1 & TR1_KILL_DRAGON) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
 												  CLR_YELLOW "Dragons:", 30);
+	if (f1 & TR1_KILL_DRAGON) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
+												  CLR_YELLOW "Dragons:", 50);
 	if (f1 & TR1_BRAND_ACID) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												 CLR_RED "Acid:", 20);
+												 CLR_RED "Acid:", 30);
 	if (f1 & TR1_BRAND_ELEC) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												 CLR_RED "Elec:", 20);
+												 CLR_RED "Elec:", 30);
 	if (f1 & TR1_BRAND_FIRE) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												 CLR_RED "Fire:", 20);
+												 CLR_RED "Fire:", 30);
 	if (f1 & TR1_BRAND_COLD) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												 CLR_RED "Cold:", 20);
+												 CLR_RED "Cold:", 30);
 	if (f1 & TR1_BRAND_POIS) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
-												 CLR_RED "Poison:", 20);
+												 CLR_RED "Poison:", 30);
 }
 
 
@@ -1147,12 +1147,11 @@ bool enchant_item(s32b cost, bool to_hit, bool to_dam, bool to_ac)
 	object_type *o_ptr;
 	cptr q, s;
 	int maxenchant = (p_ptr->lev / 5);
-	int maxenchant_d = (p_ptr->lev / 3);
 
-    clear_region(0, 5, 18);
+	clear_region(0, 5, 18);
     
 	if (to_dam)
-		prtf(0, 5, "  Based on your skill, we can improve up to +%d,+%d%%.", maxenchant, maxenchant_d * 3);
+		prtf(0, 5, "  Based on your skill, we can improve up to +%d,+%d%%.", maxenchant, maxenchant * 10);
 	else
 		prtf(0, 5, "  Based on your skill, we can improve up to +%d.", maxenchant);
 	prtf(0, 7, "  The price for the service is %d gold per item.", cost);
@@ -1186,7 +1185,7 @@ bool enchant_item(s32b cost, bool to_hit, bool to_dam, bool to_ac)
 	}
 
 	/* Enchant to damage */
-	if ((to_dam) && (enchant(o_ptr, maxenchant_d - o_ptr->to_d,
+	if ((to_dam) && (enchant(o_ptr, maxenchant - o_ptr->to_d,
 							 (ENCH_TODAM | ENCH_FORCE))))
 	{
 		okay = TRUE;

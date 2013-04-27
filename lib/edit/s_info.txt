@@ -39,7 +39,7 @@ F:1:SLOW_DIGEST
 
 N:3:Young dragons 'd'
 C:0:0:0
-F:0:STR | INT
+F:0:STR
 F:1:FEATHER
 
 N:4:Floating eyes 'e'
@@ -93,7 +93,7 @@ F:1:SUST_CON
 
 N:13:Nagas 'n'
 C:0:0:0
-F:0:STEALTH | SENSE | INFRA
+F:0:STEALTH | FREE_ACT
 F:1:SUST_STR
 
 N:14:Orcs 'o'
@@ -108,9 +108,10 @@ F:1:SUST_INT
 
 N:16:Quadrapeds 'q'
 C:0:0:0
-F:0:CON | WIS
+F:0:CON
 F:1:SUST_CON
-F:2:SUST_WIS
+F:2:SUST_STR
+F:3:SUST_DEX
 
 N:17:Rats 'r'
 C:0:0:0
@@ -129,7 +130,7 @@ F:1:SUST_CHR
 
 N:20:Minor Demons 'u'
 C:0:0:0
-F:0:DEX | STEALTH | INFRA
+F:0:DEX | CHR
 F:1:RES_CONF
 F:2:RES_CHAOS
 
@@ -158,7 +159,7 @@ F:4:IM_ACID
 
 N:25:Zombies 'z'
 C:0:0:0
-F:0:CON | INFRA | SENSE
+F:0:CON
 F:1:REGEN
 F:2:SEE_INVIS
 
@@ -170,7 +171,7 @@ F:2:RES_DARK
 
 N:27:Birds 'B'
 C:0:0:0
-F:0:WIS
+F:0:WIS | SENSE
 F:1:FEATHER
 
 N:28:Canines 'C'
@@ -227,20 +228,10 @@ F:1:TELEPATHY
 N:38:Hydras 'M'
 C:0:0:0
 F:0:BLOWS | AGGRAVATE | NO_TELE
-F:1:
-F:2:
-F:3:
-F:4:
-F:5:
 
-N:39:UNUSED 'N'
+N:39:Modrons 'N'
 C:0:0:40
 F:0:SPEED
-F:1:
-F:2:
-F:3:
-F:4:
-F:5:
 
 N:40:Ogres 'O'
 C:0:20:0
@@ -258,6 +249,7 @@ N:42:Qulthyugs 'Q'
 C:0:0:40
 F:0:INT | WIS
 F:1:RES_NEXUS
+F:2:RES_CHAOS
 
 N:43:Reptiles 'R'
 C:0:0:0
@@ -270,7 +262,7 @@ F:1:SUST_DEX
 
 N:45:Trolls 'T'
 C:0:0:0
-F:0:STR | CON
+F:0:CON | TUNNEL
 F:1:REGEN
 F:2:RES_DARK
 

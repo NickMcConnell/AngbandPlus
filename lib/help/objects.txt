@@ -303,7 +303,7 @@ pseudo-id ability to ascertain the quality of some items. For the most
 part you will need to identify them before you can ascertain how much
 use they will be to you. There are several methods of identifying items
 available to you. These include Scrolls of Identify and *Identify*,
-Staves and Rods of Perception, spells and prayers and services from
+Staves and Rods of Identify, spells and prayers and services from
 town buildings among others.
 
 There is an important difference between 'identify'ing an object and

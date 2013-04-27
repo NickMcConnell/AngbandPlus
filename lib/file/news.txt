@@ -1,7 +1,7 @@
 
     /   \
    /     \                  **********************
-  / \   / \                 **    XBAND 0.3.0   **
+  / \   / \                 **    XBAND 0.3.1   **
      \ /                    **********************
       X
      / \        Presented by:    Chris Watkins < xis@prodigy.net >

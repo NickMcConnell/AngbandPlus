@@ -811,6 +811,29 @@ cptr item_activation(const object_type *o_ptr)
 	return "breathe air";
 }
 
+bool has_hidden_powers(const object_type *o_ptr)
+{
+	u32b f1, f2, f3;
+	u32b k1, k2, k3;
+	u32b ignoreFlags;
+
+	if (!object_known_p(o_ptr)) return FALSE;
+
+	object_flags_known(o_ptr, &k1, &k2, &k3);
+	object_flags      (o_ptr, &f1, &f2, &f3);
+
+	ignoreFlags = TR3_EASY_KNOW;
+
+	k3 =  k3 | ignoreFlags;
+	f3 =  f3 | ignoreFlags;
+
+	if (f1 != k1) return TRUE;
+	if (f2 != k2) return TRUE;
+	if (f3 != k3) return TRUE;
+
+	return FALSE;
+}
+
 
 /*
  * Fully describe the known information about an item
@@ -834,6 +857,13 @@ bool identify_fully_aux(const object_type *o_ptr)
 	{
 		info[i++] = "You have full knowledge of this item.";
 	}
+	else if (has_hidden_powers(o_ptr))
+	{
+		info[i++] = "This item may have hidden attributes.";
+	}
+
+	/* Extract the flags */
+	object_flags_known(o_ptr, &f1, &f2, &f3);
 
 	/* Mega-Hack -- describe activation if item is identified */
 	if ((o_ptr->flags3 & (TR3_ACTIVATE)) && object_known_p(o_ptr))
@@ -890,13 +920,13 @@ bool identify_fully_aux(const object_type *o_ptr)
 
 		if (o_ptr->to_d > 0)
 		{
-			temp = string_make(format("It increases your melee damage by %i percent.", 3*o_ptr->to_d));
+			temp = string_make(format("It increases your melee damage by %i percent.", 10*o_ptr->to_d));
 			info[i++] = temp;
 			reclaim[num_reclaim++] = temp;
 		}
 		else if (o_ptr->to_d < 0)
 		{
-			temp = string_make(format("It decreases your melee damage by %i percent.", 3*o_ptr->to_d));
+			temp = string_make(format("It decreases your melee damage by %i percent.", 10*o_ptr->to_d));
 			info[i++] = temp;
 			reclaim[num_reclaim++] = temp;
 		}
