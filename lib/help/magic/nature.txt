@@ -1,0 +1,87 @@
+=== Nature Magic ===
+
+NATURE: Early levels may be  rather difficult  for  a spellcaster
+relying on Nature magic, as the early spells offer  only  limited
+protection,  detection  and  curing  capabilities.   However,  at 
+higher levels there are very useful offensive  spells  available,
+especially should the  spellcaster  be  lucky  enough  to find an
+extremely rare spellbook  called  "Nature`s Wrath".  Nature  also 
+has a spell of Herbal Healing, which is the only powerful healing
+spell outside the realm of Life magic.
+
+The four magic books available to the Nature practioner are: 
+
+  1) Call of the Wild 
+  2) Nature Mastery 
+  3) Nature's Gifts  [RARE]
+  4) Nature's Wrath  [RARE]
+
+========================================================================
+
+1) Call of the Wild 
+
+   1.Detect Creatures: detects all normal monsters on current map panel 
+   2.First Aid: cure 2d8 points of damage, -15 to the cut counter 
+   3.Detect Doors and Traps: detect doors, traps, and stairs 
+   4.Produce Food: sets hunger status to "Full" 
+   5.Daylight: lights area, damages light-sensitive monsters (and you if you
+      are a Vampire without resist light) 
+   6.Animal Taming: attempts to make 1 animal a pet, power (level) 
+   7.Resist Environment: temporary fire, cold, and electricity resistance,
+      duration 20+1d20 
+   8.Cure Wounds+Poison: sets poison and cut counters to zero 
+
+============================================================================
+
+2) Nature Mastery 
+
+   1.Stone to Mud: turns one rock square to mud 
+   2.Lightning Bolt: damage ((3+(level-5)/4)d8 
+   3.Nature Awareness: maps area, detects traps, doors, stairs, and normal
+      monsters 
+   4.Frost Bolt: damage ((5+(level-5)/4)d8 
+   5.Ray of Sunlight: light beam, 6d8 damage to light-sensitive creatures 
+   6.Entangle: attempts to slow all monsters in sight 
+   7.Summon Animals: attempts to summon a pet animal (or groups of
+      animals) of a level up to your own. 
+   8.Herbal Healing: heal 1000, cures stunning, cuts, and poison 
+
+============================================================================
+
+3) Nature's Gifts  [RARE]
+
+   Nature's Gifts for protection against the forces of nature and hostiles.
+
+   1.Door Building: creates doors all around the player 
+   2.Stair Building: creates an up or down staircasE 
+   3.Stone Skin: +50 AC for 30+1d20 turns 
+   4.Resistance True: temporary resistance to all elements+poison,
+      duration 1d20+20 
+   5.Animal Friendship: attempts to make all visible animals pets, power
+      level*2 
+   6.Stone Tell: *Identifies* an item 
+   7.Wall of Stone: creates granite walls in adjacent squares 
+   8.Protection from Corrosion: acid-proofs one armor item 
+
+============================================================================
+
+4) Nature's Wrath  [RARE]
+
+   Nature's destructive force harnessed for your use against your enemies.
+
+   1.Earthquake: causes an earthquake, radius 10 
+   2.Whirlwind Attack: you attack each adjacent square once 
+   3.Blizzard: Cold ball, damage 70+level, radius (level/12)+1 
+   4.Lightning Storm: Electric ball, damage 90+level, radius (level/12)+1 
+   5.Whirlpool: Water ball, damage 100+level, radius (level/12)+1 
+   6.Call Sunlight: Light ball centered on player, damage 150, radius 8.
+      (Vampires take 50 damage if they do not resist light.) Also maps and
+      lights entire dungeon level 
+   7.Elemental Brand: 25% chance of making the current weapon fire
+      branded, else makes it frost branded. Also adds 1d3+4 points to-hit
+      and dam. 
+   8.Nature's Wrath: damage 1 to level*4 to all monsters in sight, causes
+      earthquake of radius 20+level/2, fires disintegration ball of radius
+      1+level/12 centered on you with damage 100+level. 
+
+============================================================================

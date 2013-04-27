@@ -1,0 +1,147 @@
+=== Death  Magic ===
+
+DEATH: There is no fouler nor more evil category of spells
+than  the necromantic spells of Death Magic.  These spells 
+are  relatively hard to learn,  but  at higher levels  the
+spells give the caster power over living and the (un)dead.
+Poison, vampirism, death spells  and  even hellfire can be
+directed by the caster,  but the most powerful spells need
+his / her own blood as the focus, often hurting the caster
+in the process of casting.  Should a Death wizard find the
+legendary tome Necronomicon,  he can  expect to gain  very
+great powers indeed,  but at a cost: few that have studied
+the accursed tome have retained their sanity.
+
+The four magic books available to Death magic practioners are: 
+
+  1) Black Prayers 
+  2) Black Mass 
+  3) Black Channels  [RARE]
+  4) Necronomicon  [RARE]
+
+=========================================================================
+
+BACKFIRING:
+
+Casting Death spells can be hazardous to your health. If you fail to
+get the spell off, and 1d100 is less than the number of the spell,
+you will lose 1, 2, 3, or 4d6 HP and have a 1 in 6 chance of losing
+spell number*250 XP if the spell was from Black Channels or the
+Necronomicon. Hold Life prevents XP loss. If the miscast spell was
+from the Necronomicon, you have a 50% chance of having your sanity
+blasted instead. 
+
+==========================================================================
+
+1) Black Prayers: 
+
+   1.Detect Unlife: detects all nonliving monsters on map panel 
+   2.Malediction: can be aimed at any visible monster. Causes
+      (3+(level-1)/5)d3 points of damage to any monster, no resistance, evil
+      monsters take double damage. There is a 20% chance of getting a
+      special effect. 1d1000 is rolled. If this=666, you will fire a death ray
+      at the monster. If this is less than 500, it will attempt to scare the
+      monster. If this is between 501 and 800, it will attempt to confuse the
+      monster. Otherwise, it will attempt to stun the monster. If you aim
+      this at an item and it is cursed, the item will be destroyed. 
+   3.Detect Evil: detects evil monsters on map panel 
+   4.Stinking Cloud: poison ball, dam 10+level/2, radius 2 
+   5.Black Sleep: attempts to sleep one monster 
+   6.Resist Poison: temporary poison resistance, duration 1d20+20 
+   7.Horrify: attempts to terrify and stun one monster 
+   8.Enslave the Undead: attempts to control one undead creature 
+
+============================================================================
+
+2) Black Mass: 
+
+   1.Orb of Entropy: fires a ball of life-draining energy, damage 3d6+3/2
+      level (mages and high mages) or 3d6+5/4 level (all others.) Radius 2 if
+      level less than 30, 3 otherwise. 
+   2.Nether Bolt: nether bolt, damage (6+(level-5)/4)d8 
+   3.Terror: attempts to scare all visible monsters, power 30+level 
+   4.Vampiric Drain: takes level+1d(level*(level/10)) HP from a monster
+      and gives them to you. You will also gain nutritional sustenance from
+      this. 
+   5.Poison Brand: attempts to make your current weapon a Poison Brand 
+   6.Dispel Good: 1d(level*4) damage to all good creatures in sight 
+   7.Genocide: removes all monsters with a given symbol from the level.
+      Uniques are unaffected. You take 1d4 damage for each monster
+      destroyed. 
+   8.Restore Life: restores drained XP 
+
+============================================================================
+
+3) Black Channels:  [RARE]
+
+   Spells that turn you into a bloodthirsty killing machine, and which
+   enable you to call upon the nether forces of darkness to wreak havoc
+   upon your foes.
+
+   1.Berserk: +25 to-hit, -10 AC, +30 HP, immune to fear for 25+1d25
+      turns. 
+   2.Invoke Spirits: 1d100+level/5 is rolled. If this number is:
+      1-7: summons undead creatures
+      8-13: causes fear, duration 4+1d4 (even if you have resist fear)
+      14-25: causes confusion, duration 1d4+4 (even if you have resist
+      confusion)
+      26-30: polymorphs one monster
+      31-35: magic missile
+      36-40: confuses one monster
+      41-45: poison ball, dam 20+level/2, radius 3
+      46-50: ray of light
+      51-55: lightning bolt, dam 3+((plev-5)/4)d8
+      56-60: frost bolt, dam 5+((plev-5)/4)d8
+      61-65: acid bolt, dam 6+((plev-5)/4),8
+      66-70: fire bolt, dam 8+((plev-5)/4),8
+      71-75: drain life, dam 75
+      76-80: lightning ball, dam 30+level/2, radius 2
+      81-85: acid ball, dam 40+level, radius 2
+      86-90: frost ball, dam 70+level, radius 3
+      91-95: fire ball, dam 80+level, radius 3
+      96-100: drain life, dam 100+level
+      101-103: earthquake, radius 12
+      104-105: destroys area, radius 15
+      106-107: genocide spell
+      108-109: 120 damage to all visible monsters
+      110: 150 damage to visible monsters, slows monsters, sleeps
+      monsters, heal 300 
+   3.Dark Bolt: darkness bolt, damage 4+((plev-5)/4)d8 
+   4.Battle Frenzy: +25 to-hit, -10 AC, +30 HP, immune to fear for
+      25+1d25 turns. Also hastes you for 1d(20+level/2)+level/2 turns 
+   5.Vampirism True: drains 300 HP from target and gives them to you 
+   6.Vampiric Branding: attempts to make your current weapon Vampiric 
+   7.Darkness Storm: darkness ball, damage 120, radius 4 
+   8.Mass Genocide: destroys all non-unique monsters in a radius 20
+      circle. You take 1d3 damage for each monster deleted. 
+
+============================================================================
+
+4) Necronomicon:  [RARE]
+
+   The legendary tome of unholy visions, death and destruction.
+
+   1.Death Ray: damage level*200. If (monster level)+1d20 is greater than
+      1d(player level)+1d10, the monster resists. Unique monsters have
+      only a 1 in 888 chance of being affected. Undead and nonliving
+      creatures always resist. 
+   2.Raise the Dead: 1 in 3, summons an undead (if level less than 48) or
+      greater undead (otherwise) which will try to kill you. 2 in 3,
+      summons a friendly undead or a friendly greater undead. If level
+      greater than 24 and 1d3=1, you can get a group of undead. 
+   3.Esoteria: if 1d50 is greater than level, identifies an item. Otherwise,
+      *Identifies* an item. 
+   4.Word of Death: 1d(level*3) damage to all living creatures in sight 
+   5.Evocation: 1d(level*4) damage to all monsters in sight, attempts to
+      scare all monsters (power level*4) and attempts to banish all
+      monsters (power level*4) 
+   6.Hellfire: ball of hellfire, damage 666, radius 3. Good creatures take
+      double damage, evil creatures resist. Any cursed items in the spell
+      radius are destroyed. You will take 50+1d50 damage from casting
+      this. 
+   7.Ommnicide: deletes all visible non-uniques. You will take 1d4 damage
+      for each monster deleted, but you will gain 1 mana point. 
+   8.Wraithform: for 1d(level/2)+level/2 turns, you can pass through
+      walls. 
+
+============================================================================

@@ -1,0 +1,257 @@
+HINTS, TIPS, AND DIRTY TRICKS
+     
+
+       So, you wanna win the game?
+
+
+Reading further may spoil your enjoyment of the game. Not
+reading further may cause you many hours of pain and torment
+as you try to figure everything out on your own. It's up to you.
+
+
+
+       How do I survive at low levels?
+
+Be very, very careful!
+
+                 Dealing with Monsters
+
+If you're playing a warrior, paladin, or ranger, you should have
+few problems with the early monsters. Otherwise, the monsters
+are almost always stronger than you are, at least until you go up
+a couple of levels. Mages should cast MM (magic missile)
+twice, then RUN! A kobold can easily kill a 1st-level mage.
+
+Flasks of oil are a very good idea for any low-level character.
+They make excellent thrown weapons against weak monsters,
+and I once got lucky and killed one of Farmer Maggot's dogs
+with 3 or 4 flasks of oil.
+
+               Managing your inventory
+
+It's a good idea not to wear or wield unidentified equipment, and
+drinking unidentified potions is a crapshoot at best. The effects
+of certain potions are easy to figure out--Clear, Light Brown,
+and Icky Green potions are always Water, Apple Juice, and
+Slime Mold Juice. (I like to accumulate a few of these and sell
+them, just to watch the storekeeper scream.)
+
+I think it's a good idea to sell your unidentified potions and
+scrolls when your inventory is full up, at least for the first few
+trips into the dungeon. That way, you can find out what they do
+when the storekeepers ID them and get a little extra cash
+besides. One caveat: generally, you will find a bunch of ID
+scrolls the first time you go into the pits. If you have 4 or 5
+un-IDed scrolls, consider reading one of them to see what it
+does.
+
+Warriors, rogues, and paladins have a helpful ability called
+"Pseudo-ID". Basically, this means if you carry an item for a
+while, you'll get some feeling which tells you something about
+the item. Here's the breakdown:
+
+{special}----> good artifact
+{excellent}---->good ego-item (Blessed weapon, Defender, etc.)
+{good}----> item with plusses
+{average}----> ordinary item
+{cursed}----> cursed item
+{worthless}----> cursed ego-item (Weapon of Morgul, etc.)
+{terrible}----> cursed artifact (all bad except for Calris, Grond,
+and the Crown of Morgoth.)
+
+Generally, you should junk all {average} items (unless they're
+your arrows/bolts/sling ammo) and ID everything {good} or
+better. Every class except warrior will eventually get an ID
+spell, so once you have that, ID everything.
+
+If you're playing a priest, you can cast OoD at an object if
+you're suspicious about it. OoD will destroy all {cursed} and
+{worthless} items, but won't affect artifacts.
+
+Don't carry too much for your strength. If you pick something
+up and you suddenly become "Slow(-1)," then consider
+dropping something else. Some things are more valuable or
+useful than others--wands, most rods, and most staves are
+worth bringing out of the dungeon if you know how many
+charges they have. Rods of Trap Location and Staves of Object
+and Treasure Location are not worth the bother, usually.
+
+            What does that Phial I found do?
+
+ID it, wield it, [[A]]ctivate it. It rocks.
+
+             More Advanced Stuff
+
+
+
+                  The Shoot 'n Scoot
+
+Without a doubt, this is the way to take care of pesky tough
+monsters. It works for mages, rangers, rogues, and
+priests/paladins with the right book, although anyone can use it.
+(Just stock up on Phase Door scrolls.) Get into a large room
+with the monster you want to kill. Get a heavily enchanted
+shooting weapon and some good ammo, or use MM or OoD
+(Orb of Draining.) Blast the critter with your weapon, and every
+time the monster gets close, Phase Door. You can beat all the
+orc uniques this way, and severely damage the health of other
+nasties.
+
+Unfortunately, this doesn't work at all if the monster has a
+distance attack or summons other creatures.
+
+                  The Back 'n Smack
+
+Closely related to the "Shoot 'n Scoot," this is actually even
+more powerful. All you have to do is become faster than the
+monster you're fighting by about +10. Potions of Speed/Staves
+of Speed/Haste Self will do this for normal speed monsters.
+Then simply whack the monster with your melee weapon, then
+back up. The monster will follow you, taking its turn to move
+instead of attack. Repeat this until the monster dies. Even if the
+monster has a distance attack, they won't use it very often,
+preferring to get you in the hand-to-hand. This works
+surprisingly well against the pesky sons of Mim.
+
+                   The Wail 'n Bail
+
+This is just basic common sense. Go in where the nasties are,
+wail on them until you're mostly dead, then teleport out. Go
+back to the monsters, wail on them some more, etc.
+
+                   Pound the Hound
+
+How do you deal with pesky, annoying Zephyr Hounds?
+(Besides swearing a lot?) Use one of the Hound Trap methods
+shown here. Dig out sections of the dungeon if the proper wall
+layout doesn't exist. (usually necessary.)
+
+
+
+The one you make use of depends on your preparation time and
+patience. I generally use the one marked 'fair', as it requires no
+digging and can be found almost anywhere. The more advanced
+traps are safer, but certain Hounds deep in the dungeon can
+walk through walls and kick your butt all the same. . .
+
+                     Resistances
+
+These start becoming absolutely essential around 1000' or
+dungeon level 20. Free Action, resistance to paralysis and
+ordinary slowing attacks, is fairly easy to find. Almost all
+artifact weapons provide it, as do Defenders, Holy Avengers,
+and weapons of Westernesse. See Invisible can be found
+through rings, most artifacts, and some ordinary ego-weapons.
+Do not go below 1000' without these two.
+
+Resistance to the elements becomes essential around 1500'. You
+can get these resists from various combinations of weapons and
+armor, and you can get them all at once from certain artifacts,
+Armor of Resistance, Defender weapons, or a Robe of
+Permanence.
+
+Poison resistance, nether resistance, resist disenchantment, and
+hold life are the hardest of the remaining resistances to find.
+Certain artifacts grant poison resistance, and rings of poison
+resistance are rare but there. Nether resistance and hold life are
+even more difficult to find, but it is very difficult to survive past
+2500' without them. Opinions vary on how far you should
+descend without resist poison and resist nether/hold life. I went
+to 2500' with a human Ranger lacking all three and survived.
+Others say 2000' is too far.
+
+Disenchantment resistance is tough to find and not all that
+essential, at least until 2500' or so, as relatively few monsters
+before this depth disenchant your equipment. Certain molds,
+eyes, and worms, the powerful undead creatures Nightwings,
+Nightwalkers, and Black Reavers, and the uniques Mim, Khim,
+Ibun, Gorlim, Saruman, the Mouth of Sauron, and Sauron are
+the only things which hit to disenchant. Chaos Dragons, Balance
+Dragons, and the Tarrasque may breathe disenchantment. You
+can try fighting these up close, as they don't breathe as often
+when they can melee. The artifacts Rilia, Calris, Belthronding,
+Deathwreaker, the armor of Celeborn, and Bladeturner grant
+resistance to disenchantment. Certain cloaks, dragon armors,
+and armors of Elvenkind may also resist disenchantment.
+
+       Dealing with Mid-level Critters
+
+There are many monsters around 2500' or so that are not worth
+fighting. Greater Titans, for instance, are very, very difficult to
+kill and don't give much XP. They have decent treasure drops,
+but you almost have to fight them in a corridor to cut down on
+the monsters they summon. Great Wyrms of any stripe,
+however, are worth tons of XP and have very nice treasure
+drops. If you have resistance to whatever they breathe and a
+way to get to speed +10, you can take them out fairly easily. 
+
+Other monsters which are not really worth the bother are
+Drolems, Death Molds, and most Zephyr Hounds. Dracolisks
+are borderline--if you have res. nether, kill them if you can!
+Resist Chaos also makes it worthwhile to kill Chaos Hounds, as
+they're worth a lot of XP.
+
+         The Really Advanced Stuff
+
+
+
+               Taking on a Greater Vault
+
+Now and then, you may have noticed huge rooms built of
+permanent rock filled with monsters and objects in the dungeon.
+These are the fabled Greater Vaults, bane of many a careless
+adventurer but a blessing for those who know what they're
+doing. This is a picture of a very shallow Vault. Vaults deeper in
+the dungeon may contain extremely powerful uniques and more
+than one artifact.
+
+The entrances are in the corners. Be very careful, and have a
+wand/spell of Teleport Other at the ready, as well as several
+potions of Healing. Go in hasted if at all possible. Have as many
+resistances as you can. Teleport away if your hitpoints even
+begin to run low. Good luck!
+
+     Fighting Monsters who summon Other Monsters
+
+This can be a real nightmare. I fought a Vrock once, which
+summoned a pack of Hezrous, one of which summoned a
+Nalfeshnee, which summoned a Marilith and a Lesser Balrog.
+That was a nasty fight, and one which could've been avoided.
+Fight summoners in a corridor, or do some digging and create
+the nifty little Anti-Summoning Corridor pictured here:
+
+
+
+There are problems with this approach. First, the monster will
+only be able to drop two or three objects when you finally kill it.
+(You can dig out the yellow sections of wall for a chance at
+more treasure.) Second, if the monster summons certain undead
+or Ethereal Hounds or Dreads, they will walk through the walls
+and kill you anyway. Scrolls or a spell of Mass Genocide will
+work wonders here.
+
+            Morgoth, the Lord of Darkness!
+
+Go in with all the Healing and *Healing* potions you can find,
+and several scrolls or a spell of Mass Genocide. Spellcasters
+should have at least 20 or so Restore Mana potions. Speed is
+essential--less than +30 and you're immediate toast. This is the
+toughest monster in the game. A mage will have no problems
+whatsoever defeating Morgoth--merely cast Globe of
+Invulnerability and wail on Morgoth until he's dead. Priests
+should use the strategy of the "sea of runes." That is, create a
+ring of Glyphs of Warding at least two levels deep around your
+character. When Morgoth approaches, hit him with an OoD
+barrage. The glyphs will keep Morgoth from summoning
+monsters. Teleport Morgoth away when he gets too close to
+your runes. 
+
+Rangers should do something similar to the "sea of runes,"
+although they will have to use Rune of Protection scrolls.
+However, if they are firing Seeker Arrows of Hurt Evil from a
+good longbow (like Belthronding), they can pound Morgoth
+pretty hard. Paladins can also use the "sea of runes" trick.
+Warriors should follow the same advice as rangers, using Rune
+of Protection scrolls and arrows/bolts of Hurt Evil fired from a
+heavily enchanted shooter. Using a Rod of Teleport Other is also
+essential for a warrior. Good luck. You'll need it. 

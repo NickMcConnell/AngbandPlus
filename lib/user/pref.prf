@@ -68,11 +68,11 @@ C:0:X
 
 # Run
 A:.
-C:1:,
+C:1:.
 
 # Stay still
 A:,
-C:1:.
+C:1:,
 
 # Stay still
 A:,

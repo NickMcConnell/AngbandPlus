@@ -1,0 +1,252 @@
+PRIEST SPELLS -- Requirements, costs, and failures
+
+For every level beyond the minimum, the failure rate decreases by 3%.
+High INT or WIS will also decrease the failure rate.
+
+Life Priest:              Level  Mana  Fail
+
+Detect Evil               1      1     10
+Cure Light Wounds         1      2     15
+Bless                     1      2     20
+Remove Fear               3      2     25
+Call Light                3      3     27
+Detect Traps/Doors        4      4     28
+Cure Medium Wounds        5      4     32
+Satisfy Hunger            7      5     38
+Remove Curse              7      6     38
+Cure Poison               9      6     38
+Cure Critical Wounds      9      7     40
+Sense Unseen              10     8     38
+Holy Orb                  10     8     40
+Protection from Evil      11     8     42
+Healing                   20     16    60
+Glyph of Warding          33     55    90
+Exorcism                  15     14    50
+Dispel Curse              16     14    80
+Dispel Undead+Demons      17     14    55
+Day of the Dove           24     20    55
+Dispel Evil               25     20    70
+Banishment                25     25    80
+Holy Word                 39     32    95
+Warding True              44     44    80
+Heroism                   5      5     50
+Prayer                    15     14    50
+Bless Weapon              30     50    80
+Restoration               35     70    90
+Healing True              40     50    80
+Holy Vision               40     40    80
+Divine Intervention       42     90    85
+Holy Invulnerability      45     90    85
+
+Sorcery Priest:           Level  Mana  Fail
+
+Detect Monsters           2      1     23
+Phase Door                3      2     24
+Detect Doors+Traps        4      3     25
+Light Area                5      4     30
+Confuse Monster           6      5     30
+Teleport Self             7      6     35
+Sleep Monster             9      7     30
+Recharging                11     10    75
+Magic Mapping             13     11    75
+Identify                  14     12    75
+Slow Monster              15     13    75
+Mass Sleep                16     14    50
+Teleport Away             22     15    60
+Haste Self                27     17    65
+Detection True            30     22    70
+Identify True             36     33    75
+Detect Objects+Treasure   7      7     25
+Detect Enchantment        12     12    70
+Charm Monster             14     14    80
+Dimension Door            15     15    80
+Sense Minds               18     18    60
+Self Knowledge            20     20    85
+Teleport Level            22     22    60
+Word of Recall            27     27    75
+Stasis                    13     13    40
+Telekinesis               24     24    75
+Explosive Rune            27     30    95
+Clairvoyance              33     40    80
+*Enchant Weapon*          42     80    95
+*Enchant Armor*           42     100   95
+Alchemy                   45     50    90
+Globe of Invulnerability  48     70    75
+
+Nature Priest:            Level  Mana  Fail
+
+Detect Creatures          2      1     25
+First Aid                 5      3     25
+Detect Doors+Traps        5      4     25
+Produce Food              6      5     35
+Daylight                  6      5     50
+Animal Taming             6      6     50
+Resist Environment        7      7     50
+Cure Wounds+Poison        7      7     35
+Stone to Mud              7      7     40
+Lightning Bolt            8      7     30
+Nature Awareness          9      10    40
+Frost Bolt                10     10    40
+Ray of Sunlight           11     11    30
+Entangle                  20     20    65
+Summon Animals            30     30    55
+Herbal Healing            42     100   95
+Door Building             9      9     20
+Stair Building            11     12    40
+Stone Skin                12     13    75
+Resistance True           18     20    85
+Animal Friendship         35     35    80
+Stone Tell                39     40    90
+Wall of Stone             40     50    85
+Protection from Corrosion 42     90    90
+Earthquake                22     22    60
+Whirlwind Attack          25     25    60
+Blizzard                  27     27    75
+Lightning Storm           32     30    75
+Whirlpool                 37     32    85
+Call Sunlight             39     37    90
+Elemental Brand           42     90    95
+Nature's Wrath            44     80    65
+
+Chaos Priest:             Level  Mana  Fail
+
+Magic Missile             2      1     22
+Trap/Door Destruction     3      2     24
+Flash of Light            4      3     26
+Touch of Confusion        5      4     30
+Manaburst                 10     6     30
+Fire Bolt                 11     6     50
+Fist of Force             16     11    50
+Teleport Self             17     11    35
+Wonder                    17     10    25
+Chaos Bolt                19     15    50
+Sonic Boom                21     16    50
+Doom Bolt                 23     18    80
+Fire Ball                 25     18    50
+Teleport Other            27     20    65
+Word of Destruction       33     23    80
+Invoke Logrus             37     42    85
+Polymorph Other           14     11    45
+Chain Lightning           17     17    70
+Charging                  20     18    80
+Disintegration            27     27    70
+Alter Reality             35     30    85
+Polymorph Self            45     55    95
+Chaos Branding            47     90    90
+Summon Demon              49     100   90
+Gravity Beam              25     25    66
+Meteor Swarm              37     37    85
+Flame Strike              39     37    75
+Call Chaos                43     45    85
+Magic Rocket              45     47    90
+Mana Storm                47     50    95
+Breathe Logrus            49     95    80
+Call the Void             50     100   95
+
+Death Priest:             Level  Mana  Fail
+
+Detect Unlife             1      1     25
+Malediction               2      2     25
+Detect Evil               3      3     25
+Stinking Cloud            5      4     27
+Black Sleep               7      7     30
+Resist Poison             9      11    75
+Horrify                   11     11    30
+Enslave the Undead        12     12    30
+Orb of Entropy            14     14    40
+Nether Bolt               16     16    30
+Terror                    21     20    50
+Vampiric Drain            25     24    60
+Poison Brand              33     75    90
+Dispel Good               35     35    60
+Genocide                  40     30    95
+Restore Life              50     52    95
+Berserk                   13     20    80
+Invoke Spirits            13     15    80
+Dark Bolt                 14     15    30
+Battle Frenzy             33     33    70
+Vampirism True            35     35    60
+Vampiric Branding         35     95    70
+Darkness Storm            44     44    80
+Mass Genocide             45     75    80
+Death Ray                 25     25    75
+Raise the Dead            30     75    95
+Esoteria                  35     45    95
+Word of Death             40     40    70
+Evocation                 42     40    80
+Hellfire                  48     125   95
+Ommnicide                 49     100   90
+Wraithform                50     111   90
+
+Trump Priest:             Level  Mana  Fail
+
+Phase Door                1      1     50
+Mind Blast                4      4     50
+Shuffle                   6      5     75
+Reset Recall              7      7     80
+Teleport Self             9      9     40
+Dimension Door            11     11    60
+Trump Spying              17     14    60
+Teleport Away             19     17    60
+Trump Object              22     22    80
+Trump Animal              26     24    60
+Phantasmal Servant        30     25    60
+Trump Monster             32     30    70
+Conjure Elemental         35     30    80
+Teleport Level            38     35    70
+Word of Recall            42     40    80
+Banish                    45     45    70
+Joker Card                17     17    80
+Trump Spiders             27     25    70
+Trump Reptiles            29     27    70
+Trump Hounds              33     30    70
+Trump Branding            38     75    80
+Living Trump              41     110   90
+Death Dealing             45     55    50
+Trump Cyberdemon          49     125   90
+Trump Divination          32     30    60
+Trump Lore                38     55    90
+Trump Undead              40     85    80
+Trump Dragon              43     85    80
+Mass Trump                46     110   80
+Trump Demon               48     115   80
+Trump Ancient Dragon      49     120   80
+Trump Greater Undead      50     125   80
+
+Arcane Priest:            Level  Mana  Fail
+
+Zap                       1      1     20
+Wizard Lock               1      1     33
+Detect Invisibility       2      1     33
+Detect Monsters           2      2     33
+Blink                     3      3     33
+Light Area                5      5     40
+Trap+Door Destruction     6      6     33
+Cure Light Wounds         7      6     44
+Detect Doors & Traps      8      7     40
+Phlogiston                9      8     60
+Detect Treasure           10     9     50
+Detect Enchantment        11     10    50
+Detect Objects            12     11    50
+Cure Poison               13     12    50
+Resist Cold               14     13    50
+Resist Fire               15     14    50
+Resist Lightning          16     15    50
+Resist Acid               17     16    50
+Cure Medium Wounds        18     17    33
+Teleport                  19     18    50
+Stone to Mud              22     20    60
+Ray of Light              24     22    60
+Satisfy Hunger            27     24    70
+See Invisible             29     26    60
+Recharging                33     30    80
+Teleport Level            37     36    80
+Identify                  40     37    60
+Teleport Away             42     38    70
+Elemental Ball            44     39    66
+Detection                 46     40    80
+Word of Recall            47     55    70
+Clairvoyance              50     120   80
+
+
+

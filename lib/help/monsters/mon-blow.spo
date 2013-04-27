@@ -1,0 +1,711 @@
+MON-BLOW.SPO, version 1.21, for Angband v2.7.9v6 (all systems)
+Release Date     : July 12, 1996
+Author           : Stephen S. Lee (lee9@fas.harvard.edu)
+with the help of : Leonard Dickens (leonard@alw.nih.gov)
+                   John Lame (jlame@math.ohio-state.edu)
+                   Craig Lewis (clewis@psl.nmsu.edu)
+
+This Angband spoiler describes in detail all three major types of monster
+attacks (melee, breath, and spellcasting).
+
+Please notify the author of any errors (however minor) that you find.
+Also, it is my intention to provide complete information rather than
+easy-to-understand information, so this spoiler is necessarily verbose.
+Suggestions to improve the format of this spoiler are welcome (especially
+if they help make this spoiler easier to read).
+
+NOTICE
+There have been a number of changes between v2.7.9v6 and older versions of
+Angband; some of the following information may be inaccurate for older
+versions.  If you are playing version 2.7.8 or older, use version 1.10 of
+this spoiler (fortunately there have been relatively few changes in monster
+attacks between 1.0 and 2.7.8).
+
+
++-------------------------------------------------------------------------+
+|                           NOTE ON NOTATION                              |
++-------------------------------------------------------------------------+
+
+The notation "XdY" indicates a number obtained by rolling an Y-sided
+die X times.  (Thus 4d6 indicates a number from 4 to 24.)
+
+A capital "M" indicates a number equal to the level of a monster making
+a given attack.  (Thus a monster normally found at depths of 1000 feet
+would have M equal to 20.)
+
+The following abbrevations are used throughout this spoiler to indicate
+the effects of some attacks.  In place of X "X max Y" may be written, in
+which case X simply has a maximum value of Y.
+
+Blind[X] -- Blinds the character for X turns, unless the character has
+  resist blindness.
+Confuse[X] -- Confuses the character for X turns, unless the character has
+  resist confusion or chaos.
+Cut[X] -- Cuts the player (adding X to the cut counter), unless the
+  character has resist shards.
+Cut![X] -- Cuts the player (adding X to the cut counter), even if the
+  character has resist shards.
+Paralyze[X] -- Paralyzes the character for X turns, unless the character
+  has free action.
+Slow[X] -- Slows the character (-10 to speed) for X turns, unless the
+  character has free action.
+Slow![X] -- Slows the character (-10 to speed) for X turns, even if the
+  player has free action.
+Stun[X] -- Stuns the character (adding X to the stun counter), unless the
+  character has resist sound.
+Terrify[X] -- Frightens the character for X turns, unless the character is
+  currently resistant to fear.
+
+If the player already is unfortunate enough to already have such an ailment
+when hit by an attack that causes that ailment, the ailment duration is
+cumulative unless otherwise indicated.
+
++-------------------------------------------------------------------------+
+|                           ELEMENTAL ATTACKS                             |
++-------------------------------------------------------------------------+
+
+The five basic elemental attack forms are fire, cold, acid, electricity,
+and poison.  This section describes the effects of such attacks; the
+following comments apply regardless of the source of these attacks, so this
+is where to look for details if such an attack is mentioned elsewhere.
+
+In all five cases, if the character has immunity to the type of attack that
+hits him or her, no harm whatsoever is done to the character.  Divide the
+damage done by three if the character has permanent resistance to the
+elemental attack; also divide by three if the character has temporary
+resistance to the elemental attack.  "Permanent" resistance is the sort of
+resistance gained from equipping the appropriate item; "temporary"
+resistance arises from a spell, potion, artifact activation, or the like.
+Note that equipping more than one item providing an elemental resistance
+does not provide additional resistance, though such resistance *is*
+cumulative with temporary resistance.
+
+Fire, cold, acid, and electrical attacks can destroy items in a player's
+inventory.  The probability of destruction for each vulnerable item is
+1% if the attack is for 1-29 damage, 2% if the attack is for 30-59 damage,
+or 3% if the attack is for 60 or more damage; damage as considered here is
+that *before* resistance is taken into account.  Only complete immunity to
+the attack form can prevent or reduce the frequency of inventory damage.
+Artifacts cannot be harmed by such attacks; the same applies for any other
+objects specifically resistant to harm from the particular elemental
+attack.
+
+Other effects of elemental attacks are as follows:
+
+FIRE damage: Fire attacks can destroy soft armor, gloves, cloaks, boots,
+  hafted weapons, polearms, bows, arrows, staffs, scrolls, mundane
+  spellbooks, or chests in the player's inventory.
+
+COLD damage: Cold attacks can destroy potions, flasks of oil, and empty
+  bottles in the player's inventory.
+
+ACID damage: The acid randomly attacks a piece of armor the player is
+  wearing, with equal chances of hitting the player's body armor, cloak,
+  shield, helm, boots, or gloves.  If the affected armor is not resistant
+  to acid damage, and still affords some bonus to AC, it will lose one
+  point from its bonus to AC.  If such damage occurs, or the affected armor
+  is resistant to acid damage, the damage done to the player is halved.
+  Acid can also destroy armor, melee weapons, bows, arrows, bolts, staffs,
+  scrolls, chests, and junk in the player's inventory.
+
+ELECTRICAL damage: Electricity can destroy rings and wands in the player's
+  inventory.
+
+POISON damage: If the player does not have any form of immunity or
+  resistance to poison, the player will be poisoned for a duration that is
+  equal to a random number from 1 to the damage done, plus a fixed
+  constant.
+
++-------------------------------------------------------------------------+
+|                            THE SAVING THROW                             |
++-------------------------------------------------------------------------+
+
+The character will sometimes be able to avoid the effects of certain
+attacks.  The character may evade these attacks by making a successful
+saving throw roll.  This chance may be calculated using the following
+tables.  Start with the base saving throw for the player's class, and then
+add in the race adjustment.  To take level into account, add in the product
+of your character's experience level and the class bonus per level
+modifier.  To this add the appropriate wisdom modifier.  This will yield
+the percent chance of the character successfully making a saving throw.
+(Be sure to round down to the nearest integer.)
+
+                                        Bonus to            Bonus to
+CLASS    Base  RACE     Adj.   WISDOM   S. Throw   WISDOM   S. Throw
+-------------  -------------   -----------------   -----------------
+Warrior    18  Human       0   3-7             0   18/130-18/139  10
+Mage       30  Half-Elf    3   8-14            1   18/140-18/149  11
+Priest     32  Elf         6   15-17           2   18/150-18/159  12
+Rogue      28  Hobbit     18   18-18/49        3   18/160-18/169  13
+Ranger     28  Gnome      12   18/50-18/69     4   18/170-18/179  14
+Paladin    25  Dwarf       9   18/70-18/89     5   18/180-18/189  15
+               Half-Orc   -3   18/90-18/99     6   18/190-18/199  16
+    Bonus per  Half-Troll -8   18/100-18/109   7   18/200-18/209  17
+CLASS   level  Dunedan     5   18/110-18/119   8   18/210-18/219  18
+-------------  High-Elf   20   18/120-18/129   9   18/220+        19
+Warrior   1.0
+Mage      0.9
+Priest    1.2
+Rogue     1.0
+Ranger    1.0
+Paladin   1.1
+
+
++-------------------------------------------------------------------------+
+|                              ARMOR CLASS                                |
++-------------------------------------------------------------------------+
+
+Your character's armor class (AC) is important, for it both makes it harder
+for monsters to successfully land a blow in hand-to-hand combat and
+sometimes reduces the damage your character takes when he or she does get
+hit.
+
+Brackets in the description of a fully identified object always enclose
+information on armor class.  To calculate armor class, first add up all the
+bracket-enclosed numbers among your character's equipped items.  Any body
+armor, shield, helm, gloves, boots, or cloak that is equipped will offer
+a contribution to armor class; when fully identified any one of these will
+have a pair of numbers enclosed in brackets.  The first member of this pair
+is the base armor class provided by the armor, and the second describes the
+magical enchantment or curse that further modifies armor class.
+
+Other items that when equipped alter armor class include Rings of
+Protection, Flames, Ice, and Acid; Amulets of the Magi; and Holy Avenger
+weapons, Defender weapons, and some of the artifact weapons.
+
+Next, your character's dexterity may give a bonus or penalty to armor class.
+Use the following table to determine this bonus, and add it to the total
+armor class offered by equipped objects.
+
+Dexterity +AC        Dexterity +AC        Dexterity +AC
+-------------    -----------------    -----------------
+        3  -4      18/50-18/79   3    18/150-18/159  10
+        4  -3      18/80-18/89   4    18/160-18/169  11
+        5  -2      18/90-18/99   5    18/170-18/179  12
+        6  -1    18/100-18/109   6    18/180-18/189  13
+     7-14   0    18/110-18/119   7    18/190-18/199  14
+    15-17   1    18/120-18/129   8          18/200+  15
+ 18-18/49   2    18/130-18/149   9
+
+Finally, some temporary magical effects affect armor class as follows:
+
+  Invulnerability    AC +100  (not that it makes any difference :-)
+  Blessing           AC +5
+  Shield             AC +50
+  Berserk Strength   AC -10
+
++-------------------------------------------------------------------------+
+|                             MELEE ATTACKS                               |
++-------------------------------------------------------------------------+
+
+Every monster can have up to four melee attacks on the character in a
+round; the attacks are processed independently.
+
+If your character is currently under the magical effect of protection from
+evil, and the monster attacking is evil and of equal or lower level than
+than the character, the monster may be completely repelled.  This will
+occur (49+player's exp. level)% of the time.
+
+If the monster's attack is not repelled by protection from evil, one in
+twenty attacks will always miss, and one in twenty attacks will always
+succeed, regardless of the level of the monster or the character's AC.
+
+Otherwise, the probability the monster successfully lands a blow is
+computed as follows.  Find the attack form in the following list, and take
+the number enclosed in parentheses.  To this number add three times the
+monster's level; call the resulting total K.  The monster's attack will
+connect with a probability of (K-(3/4 of the player's AC)) in K.
+
+(If the character's AC is negative, the attack of any monster will only
+fail the minimum 1 time in 20.  If, for a given monster, K<(3/4 of the
+character's AC), the monster will have only the minimum 1 in 20 chance
+to successfully strike the character.)
+
+Descriptions of the melee attack forms:
+
+attack (60)
+  This is the basic attack of pure physical damage.  The damage done is
+  reduced by (player's AC*(2/5))%; AC for the purpose of damage reduction
+  has a maximum value of 150.
+
+poison (5)
+  If the character lacks any sort of resistance to poison, he or she will
+  be poisoned (5+1d(monster's level)) points are added to the poison
+  counter).
+
+disenchant (20)
+  Unless the character has resist disenchantment, a currently equipped
+  weapon or piece of armor will be disenchanted, reducing bonuses to-hit,
+  to-dam, and to AC by 1 or 2 points; bonuses cannot drop below 0.
+  Artifacts have a 3 in 5 chance to resist the disenchantment effect.
+
+drain charges (15)
+  Randomly selects an item from the character's inventory; if the item
+  chosen is a wand or staff, all of its charges will be drained by the
+  attacking monster, which will gain a number of hit points equal to the
+  number of charges drained multiplied by the monster's level.  The
+  process is repeated until either an item is drained or ten items have
+  been picked.  If multiple wands or staffs are in a single slot, all of
+  them will be drained.
+
+steal gold (5)
+  The monster will attempt to steal gold; if not paralyzed, the character
+  can make a Dexterity check to avoid the theft.  To find the percent
+  chance of a successful theft evasion, add the appropriate value from the
+  below table to the player's level.  If the monster's attempt to steal
+  succeeds, or 1 in 3 times otherwise, it will teleport up to 25 squares
+  away.
+
+       Base                Base                  Base
+   Dex.   %           Dex.    %             Dex.    %
+  ---------    ----------------    ------------------
+      3   0          14-15    8      18/80-18/89   40
+      4   1          16-17    9      18/90-18/99   45
+      5   2       18-18/19   10    18/100-18/109   50
+      6   3    18/20-18/39   15    18/110-18/119   60
+      7   4    18/40-18/49   20    18/120-18/129   70
+    8-9   5    18/50-18/59   25    18/130-18/139   80
+  10-11   6    18/60-18/69   30    18/140-18/149   90
+  12-13   7    18/70-18/79   35          18/150+  100
+
+steal items (5)
+  The monster will attempt to steal a single non-artifact object from the
+  player's inventory.  If not paralyzed, the character can make a Dexterity
+  check to avoid the theft; use the same method listed under "steal gold"
+  find the chance of successful evastion.  If the monster's attempt to
+  steal succeeds, or 1 in 3 times otherwise, it will teleport up to 25
+  squares away from the player.
+
+eat your food (5)
+  The monster will attempt to consume one item of food from the character's
+  inventory.  (This does include mushrooms.)
+
+absorb light (5)
+  Absorbs 250+1d250 turns of light from an equipped torch or lantern.  This
+  does not affect artifact lights.
+
+shoot acid (0)
+  Inflicts acid damage.
+
+electrify (10)
+  Inflicts electrical damage.
+
+burn (10)
+  Inflicts fire damage.
+
+freeze (10)
+  Inflicts cold damage.
+
+blind (2)
+  Has the effect of Blind[10+1dM].
+
+confuse (10)
+  Has the effect of Confuse[3+1dM].
+
+terrify (10)
+  Has the effect of Terrify[3+1dM] if the character fails a saving throw.
+
+paralyse (2)
+  Has the effect of Paralyze[3+1dM] if the character fails a saving throw.
+
+reduce strength (0)
+reduce intelligence (0)
+reduce wisdom (0)
+reduce dexterity (0)
+reduce constitution (0)
+reduce charisma (0)
+  These attacks reduce the appropriate statistic, unless the character
+  possesses the relevant sustain against the attack.
+
+reduce all stats (2)
+  Reduces any stats for which the character does not have a sustain.
+
+shatter (60)
+  This attack is like a standard attack to cause damage.  Also, if the
+  monster can cause earthquakes (currently only Quaker and Morgoth can
+  do this), and at least 24 damage was done by the attack, a radius-8
+  earthquake centered on the monster will be triggered.  The earthquake
+  has the same effect as the spell and the staff effect, with the
+  difference that the player can be affected.  If a wall is made on top of
+  the player, the player will take 300 damage from being crushed by debris
+  if he or she cannot escape the debris.  If the player can escape to
+  safety, 1 in 3 times he or she can escape unscathed; otherwise the player
+  will take 10d4 damage and be stunned (1d50 points added to the stun
+  counter).
+
+lower experience (by 10d6+) (5)  (hold life grants 95% resistance)
+lower experience (by 20d6+) (5)  (hold life grants 90% resistance)
+lower experience (by 40d6+) (5)  (hold life grants 75% resistance)
+lower experience (by 80d6+) (5)  (hold life grants 50% resistance)
+  These attacks attempt to reduce the character's experience point total by
+  2% plus the amount indicated.  If the player has hold life, this will
+  only occur some of the time as indicated above -- and even if the drain
+  does succeed in penetrating the hold life barrier, the experience loss is
+  reduced by 90%.
+
+
+MONSTER CRITICAL HITS
+---------------------
+
+If a monster scores a particularly effective blow against the player, it
+may succeed in scoring a critical hit.  A critical hit either stuns or cuts
+the player; a single critical hit cannot do both.
+
+The description of an attack must be of a certain type in order to inflict
+a critical hit.
+
+An ordinary hit (i.e. the monster attack description says "hit") can either
+cut or stun the player.  Punches, kicks, butts, and crushes can stun the
+player.  Claws and bites can cut the player.  No other attack method can
+cause a critical hit.
+
+Here's how to determine if a hit is critical: first of all, the attack must
+do at least 95% of maximum damage.  Also, if less than 20 damage is done by
+the attack, it will only be critical (damage+1) percent of the time.
+
+To calculate the precise effect of the effect, first find the +-------+---+
+corresponding value of C on the chart to the right.  Then,    |Damage   C |
+add one to C if the damage done by the attack attained the    |-------+---+
+absolute maximum possible value.  After that, if at least 20  |  1-11 | 1 |
+damage was done, there is a 2% chance that 1 more point is    | 12-18 | 2 |
+added to C; the 2% roll is repeated until it fails.           | 19-25 | 3 |
+                                                              | 26-33 | 4 |
+Then use C on the following tables to determine the severity  | 34-45 | 5 |
+of the cut or stunning.  The value is added to the cut or     |   45+ | 6 |
+stun counter as appropriate.  (If either cutting or stunning  +-------+---+
+is possible, choose one outcome at random.)
+
+Value of C | Amt. of cutting | Amt. of stunning
+-----------+-----------------+-------------------
+         0 |            none |             none
+         1 |             1d5 |              1d5
+         2 |           5+1d5 |          10+1d10
+         3 |         20+1d20 |          20+1d20
+         4 |         50+1d50 |          30+1d30
+         5 |       100+1d100 |          40+1d40
+         6 |             300 |              100
+ 7 or more |             500 |              200
+-----------+-----------------+-----------------
+
++-------------------------------------------------------------------------+
+|                            BREATH ATTACKS                               |
++-------------------------------------------------------------------------+
+
+Some monsters are able to breathe at the player for damage.  If a monster
+does breathe, it has effects as the following chart indicates.  The monster
+does damage based on its current hit point total (divided as indicated),
+but cannot do more damage than the indicated maximum.  Regular breath
+attacks have a radius of 2; powerful breath attacks have a radius of 3.
+(Other monsters may be caught in the blast; they take less damage if they
+have the appropriate elemental resist or can breathe the substance
+themselves, or if other more esoteric criteria are met.)
+
+The "resistance" column indicates how much damage is taken if the character
+has resistance against the indicated attack (remember that basic elemental
+damage can be reduced further), or "None" if no resistance is possible.
+
+The "destruction" column indicates what sorts of objects on the ground
+are destroyed by the breath; "fire" means that fire-sensitive objects are
+destroyed, etc.  Artifacts can never be destroyed in this way.
+
+Side effects are also listed.  If "other" is listed, read the paragraphs
+below the chart to find out what the other effects are.  A "D" in the
+side effects columns indicates the damage done by that particular attack.
+
+One important side note: uniques cannot be reduced to below one hit point
+by being caught in the area of a breath attack or a ball spell.
+
+              Damage    Max
+Damage Type     Done Damage Resistance Destruction  Side effects
+acid            HP/3   1600        1/3        acid  Standard acid damage
+chaos           HP/6    600  6/(6+1d6)        none  Confuse[9+1d20], other
+confusion *     HP/6    400  5/(6+1d6)        none  Confuse[10+1d20]
+darkness        HP/6    400  4/(6+1d6)        none  Blind[2+1d5] **
+disenchantment  HP/6    500  6/(6+1d6)        none  other
+fire            HP/3   1600        1/3        fire  Standard fire damage
+force           HP/6    200       None        cold  Stun[1d20]
+frost           HP/3   1600        1/3        cold  Standard cold damage
+gravity         HP/3    200       None        none  Stun[1d(5+D/3) max 1d35],
+                                                    Slow![3+1d4], other
+inertia         HP/6    200       None        none  Slow![3+1d4]
+light           HP/6    400  4/(6+1d6)        none  Blind[2+1d5] **
+lightning       HP/3   1600        1/3       elec.  Standard elec. damage
+nether          HP/6    550  6/(6+1d6)        none  other
+nexus           HP/3    250  6/(6+1d6)        none  other
+plasma          HP/6    150       None  fire/elec.  Stun[1d(5+3D/4) max 1d35]
+poison          HP/3    800        1/3        none  Standard poison damage
+shards          HP/6    400  6/(6+1d6)        cold  Cut[D]
+sound           HP/6    400  5/(6+1d6)        cold  Stun[1d(5+3D/4) max 1d35]
+time            HP/3    150       None        none  other
+
+ * Chaos resistance will also reduce damage to the indicated amount.
+** Resistance to the breath attack will prevent the blindness side effect.
+   Blindness can only occur if the character is not currently blind; i.e.
+   the effect is *not* cumulative.  Also, the squares touched by the attack
+   are darkened/lit depending on the breath type.
+
+Other side effects
+------------------
+
+chaos -- Chaos breath will cause the player to hallucinate for 1d10 turns
+  if the player lacks resist chaos.  Chaos breath may also drain experience
+  points if the player does not have resistance to either nether or chaos;
+  the experience point total is reduced by 2% plus 5000 additional points
+  if the player does not have hold life (if the player does have hold life,
+  the loss only occurs 1 in 4 times, and the loss is reduced by 90%).
+
+disenchantment -- If the character does not have resist disenchantment,
+  this will also attempt to disenchant a random equipped weapon or piece of
+  armor, reducing bonuses to-hit, to-dam, and to AC by 1 or 2 points;
+  bonuses cannot drop below zero.  Artifacts have a 3 in 5 chance to resist
+  the disenchantment effect.
+
+gravity -- Gravity breath also teleports the character up to 5 squares;
+  there is no way to resist this effect.
+
+nether -- Unless the character has resist nether, nether breath also
+  reduces his or her experience point total by 2% plus 200 additional
+  points.  If the character has hold life, the experience point loss only
+  occurs 1 in 4 times, and the loss is reduced to 0.2% plus 200 additional
+  points.
+
+nexus -- If the character does not have resist nexus, the breath has an
+  additional effect; roll 1d7 and apply the appropriate result:
+  1, 2, or 3  Teleports the character up to 200 squares (no saving throw)
+      4 or 5  Teleports the character to the monster (no saving throw)
+           6  Teleport level (saving throw allowed)
+           7  Randomly exchange two stats (saving throw allowed)
+
+time -- Time breath has the following side effects:
+  50% of the time the character's experience point total is reduced by 2%,
+    plus 100 experience points.
+  40% of the time one random statistic is reduced.
+  10% of the time all six statistics are reduced.
+  There is no way to resist any of these extra effects.
+
+Other breath effects on monsters
+--------------------------------
+
+chaos -- May polymorph and/or confuse monsters caught in the blast.
+confusion -- May confuse monsters caught in the blast.  Monster that cannot
+  be confused take less damage.
+disenchantment -- Disenchanter eyes and molds resist damage as if they
+  breathed disenchantment.
+force -- May stun monsters caught in the blast.
+gravity -- May teleport monsters caught in the blast up to 10 squares away.
+light -- Monsters that are susceptible to light take double damage.
+nether -- Evil monsters take half damage; undead take no damage at all.
+nexus -- Nexus quylthulgs resist damage as if they breathed nexus.
+sound -- May stun monsters caught in the blast.
+
+
++-------------------------------------------------------------------------+
+|                          MONSTER SPELLCASTING                           |
++-------------------------------------------------------------------------+
+
+The description message (in quotes) is the message you will see when the
+monster casts the spell (assuming you can see the monster).
+
+Saving throws do not apply unless explicitly mentioned.
+
+Bolt Spells
+-----------
+
+Unlike other types of monster spells, bolt spells require a clear line of
+sight from the monster to the player to hit the player; if another monster
+stands in between, it will be hit and affected by the spell instead of the
+player (again, uniques cannot be reduced to below one hit point in this
+way).
+
+The "Damage" column describes the effect of the bolt spells.  In some cases
+a breath type is indicated in parentheses; in these cases the bolt has all
+the personal effects of a breath of that particular type (see above for
+details).  For example, a plasma bolt can stun a character lacking resist
+sound for up to 35 turns.  If no breath type is indicated, there is no way
+to avoid or reduce the resulting hit point loss.
+
+Spell            Damage                     Description
+---------------------------------------------------------------------
+magic missile    2d6+M/3                    "casts a magic missile."
+lightning bolt   4d8+M/3 (lightning)        "casts a lightning bolt."
+frost bolt       6d8+M/3 (frost)            "casts a frost bolt."
+acid bolt        7d8+M/3 (acid)             "casts an acid bolt."
+fire bolt        9d8+M/3 (fire)             "casts a fire bolt."
+plasma bolt      10+8d7+M (plasma)          "casts a plasma bolt."
+ice bolt         6d6+M (frost), Cut[5d8],   "casts an ice bolt."
+                 Stun[1d15]
+water bolt       10d10+M, Stun[1d40],       "casts a water bolt."
+                 Confuse[5+1d5]
+nether bolt      30+5d5+3M/2 (nether)       "casts a nether bolt."
+mana bolt        50+1d(7M/2)                "casts a mana bolt."
+
+
+Ball Spells
+-----------
+
+Ball spells affect a circular area centered on the player; the radius
+of the blast is two squares for most monsters, but ball spells cast by
+powerful monsters have a radius of 3.  In most cases a breath type is
+given in parentheses; in these cases the ball spell has all the effects
+of breath of the same type (including object destruction and effects on
+other monsters).  If no breath type is indicated, there is no way to avoid
+or reduce the resulting hit point loss.
+
+Spell            Damage                     Description
+--------------------------------------------------------------------------
+poison ball      12d2 (poison)              "casts a stinking cloud."
+lightning ball   8+1d(3M/2) (lightning)     "casts a lightning ball."
+frost ball       10+1d(3M/2) (frost)        "casts a frost ball."
+fire ball        10+1d(7M/2) (fire)         "casts a fire ball."
+acid ball        15+1d(3M) (acid)           "casts an acid ball."
+nether ball      50+10d10+M (nether)        "casts a nether ball."
+water ball       50+1d(5M/2), Stun[1d40],   "gestures fluidly.  You are
+                 Confuse[5+1d5]              engulfed in a whirlpool."
+darkness storm   10d10+5M (darkness)        "invokes a darkness storm."
+mana storm       10d10+5M; destroys all     "invokes a mana storm."
+                 non-artifacts on the ground
+
+Curses
+------
+
+All curses will have the indicated effects unless a successful saving
+throw is made, in which case they have NO effect.
+
+                 Damage inflicted
+Spell            and/or other effects   Description
+--------------------------------------------------------------------------
+light wounds     3d8                    "points at you and curses."
+serious wounds   8d8                    "points at you and curses horribly."
+critical wounds  10d15                  "points at you, incanting terribly!"
+mortal wounds    15d15, Cut![10d10]     "points at you, screaming the word
+                                          DIE!"
+terrify          Terrify[3+1d4]         "casts a fearful illusion."
+blind            Blind[12+1d3]          "casts a spell, burning your eyes!"
+confuse          Confuse[3+1d4]         "creates a mesmerising illusion."
+slow             Slow[3+1d4]            "drains power from your muscles!"
+paralyze         Paralyze[3+1d4]        "stares deep into your eyes!"
+mind blasting    8d8, Confuse[3+1d4]    "gazes deep into your eyes."
+brain smashing   12d15, Confuse[3+1d4], "looks deep into your eyes."
+                 Slow![3+1d4], Blind[7+1d8],
+                 Paralyze[3+1d4]
+
+Summoning Spells
+----------------
+
+All summoning spells summon monster(s) next to the player.  Initial
+monsters have to arrive on locations within a range of two squares of
+the player that are not already occupied by a monster or a rune of
+protection.
+
+All summonings generate monsters at a level equal to the average of
+the summoning monster's level (M) and the current dungeon level, plus
+five.  I.e., a 31st level monster appearing on dungeon level 28 would
+summon monsters generated at level 34.  (34 = (31+28)/2 + 5), rounded
+down.)
+
+This table shows the summoning type (the same as that listed in the monster
+recall), the maximum number of monsters summoned ("N"), whether uniques
+can be called up by the spell ("U"), what types of monsters may appear
+(a letter of course indicates a monster symbolized by that letter), and
+the description the game gives you when the monster performs the summons
+(provided that your character is not blind).
+
+Note: If a monster normally appears in groups, or is a unique that has an
+escort, an entire group or unique with escorts can be summoned; the extra
+monsters can appear outside the normal two-square summoning range, and do
+not count towards N.
+
+Summoning Type   N U  Monster(s)         Description
+-----------------------------------------------------------------------
+a monster        1 Y  any monster        "summons help!"
+monsters         8 Y  any monster        "summons monsters!"
+ants             6 N  'a'                "summons ants."
+spiders          6 N  'S'                "summons spiders."
+hounds           6 N  'C' or 'Z'         "summons hounds."
+hydras           6 N  'M'                "summons hydras."
+an angel         1 N  'A'                "summons an angel."
+a demon          1 N  any demon          "summons a hellish adversary!"
+an undead        1 N  any undead         "summons an undead adversary!"
+a dragon         1 N  any dragon         "summons a dragon!"
+Greater Undead   8 Y  'L', 'V', or 'W'   "summons greater undead!"
+Ancient Dragons  8 Y  'D'                "summons ancient dragons!"
+Ring Wraiths     8 Y  'W' and unique *   "summons mighty undead opponents!"
+Unique Monsters  8 Y  any unique *       "summons special opponents."
+
+* If this fails to summon the desired number of monsters, greater undead
+  are summoned instead.
+
+
+Other Spells
+------------
+
+The message the game gives you is given in parentheses, following the name
+of the spell used in the monster recall.
+
+drain mana ("draws psychic energy from you!")
+  Drains 1+((1dM)/2) mana points from the player, giving the monster six hit
+  points per drained mana point, up to the monster's maximum hit points.
+
+haste-self ("concentrates on his/her/its body.")
+  Speeds up the spellcasting monster (+10 to speed for the first time the
+  spell is cast, and +2 for each subsequent casting, up to a maximum of a
+  +20 bonus to the monster's normal speed).
+
+heal-self ("concentrates on his/her/its wounds.")
+  Restores 6M hit points to the spellcasting monster (in this case current
+  hit points may not exceed maximum hit points).  This spell will also
+  remove any fear of your character that the monster may currently have.
+
+blink-self ("blinks away.")
+  Teleports the spellcasting monster up to 10 squares away.
+
+teleport-self ("teleports away.")
+  Teleports the spellcasting monster up to 45 squares away.
+
+teleport to ("commands you to return!")
+  Teleports the player next to the spellcasting monster.
+
+teleport away ("teleports you away.")
+  Teleports the player up to 100 squares away.
+
+teleport level ("gestures at your feet.")
+  Teleports the player one level up or down (random); the player can only
+  be teleported down from the town, or up from level 99 (if Sauron is
+  alive) or level 100 (if Morgoth is alive).  This has no effect if the
+  player has resist nexus or makes a successful saving throw.
+
+create darkness ("gestures in shadow.")
+  Causes all squares within 3 squares of the player to become unlit,
+  including any rooms that touch the radius of effect.
+
+create traps ("casts a spell and cackles evilly.")
+  Creates traps on all squares surrounding the player.  Traps are not
+  created on squares containing objects or stairs.
+
+cause amnesia ("tries to blank your mind.")
+  Attempts to cause amnesia in the player (causing the player to forget
+  the map of the current dungeon level, as well as the precise identity
+  of all objects currently equipped or in the player's inventory).  This
+  has no effect if the player makes a successful saving throw.  In
+  addition, any items that have been *Identified* are not forgotten by
+  your character.
+
+
++-------------------------------------------------------------------------+
+|                         OTHER MONSTER ATTACKS                           |
++-------------------------------------------------------------------------+
+
+There are a number of other monster abilities that are treated similar to
+breath attacks and spells but are neither; these are as follows:
+
+shriek for help ("makes a high pitched shriek.")
+  This aggravates monsters, waking all monsters within 40 squares of the
+    player and speeding up those within line of sight.
+fire an arrow ("fires an arrow.")   [1d6 damage]
+fire arrows ("fires an arrow!")     [3d6 damage]
+fire a missile ("fires a missile.") [5d6 damage]
+fire missiles ("fires a missile!")  [7d6 damage]
+  In these attacks, the monsters fires a projectile at the player that does
+    the indicated damage.  If a monster is in between the monster and the
+    player, the intervening monster is hit instead.  Regardless of what is
+    hit, there is no way to resist the damage.

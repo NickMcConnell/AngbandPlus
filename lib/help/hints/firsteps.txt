@@ -1,0 +1,171 @@
+===============================
+The Poet's Guide to First Steps
+===============================
+
+ Okay, folks. Here we go. Here are a few important things to keep in
+ mind, organized by class, when you are first starting the game.
+
+===========================================================================
+Class advice:
+===========================================================================
+
+ Warriors
+  
+   A warrior lives to fight, right? Well, when you are deciding what
+   stats to accept for a warrior, keep in mind that the things he needs
+   the most are Strength, Dexterity, and Constitution. A high Strength
+   and high Dexterity are very important, because they govern how
+   many swings a round you get with your weapon. More swings=big
+   advantage. If you are using the Autoroller, try to get at least an 18/06
+   score in each, and preferably more. Remember, the percentages in
+   the Autoroller aren't independent, so don't set minimums for things
+   like Intelligence, Wisdom, or even Charisma. You can improve them
+   later.
+
+   A light weapon makes a lousy digging tool, but you can get more hits
+   with it if your stats are high enough. This makes the whip (1d6, 3
+   pounds) one of the best weapons in the starting game. Remember,
+   though, that getting three swings per round with your whip isn't
+   necessarily better than getting two with a katana (3d4, 12 pounds).
+
+   A good race for a warrior is the dwarf. Dwarves have high hit points
+   and can't be blinded. Moreover, they have excellent infravision (50
+   feet). Still, the disadvantages of the warrior class are the same ones
+   as the dwarf race (for stats AND skills) so a gnome is also a good
+   bet- they have free action and pretty good skills.
+
+ Mages
+ 
+   When choosing a mage, remember that the key attribute is
+   Intelligence. It governs your failure rates on spells, and it also
+   determines how much mana you get every level. The watershed
+   score is 18/50, so if it's not too hard, try to get at least 18/56.
+   Strength is probably the next most important consideration for
+   mages, and it is their biggest weakness. If you can, get a Strength of
+   10. For that matter, a Dexterity and Constitution of at least 10 would
+   also be nice. Don't worry about Wisdom or Charisma.
+
+   If you can get multiple hits per round with a whip, get one of those.
+   Otherwise, get a weapon that has a big damage payload with a single
+   hit, like a morning star or katana. Whatever you can afford.
+
+   A good race for mages is the gnome. They have high Intelligence and
+   free action. Unfortunately, they don't have many hit points. If you are
+   playing Angband 2.8.1 or later, you could try playing a Dwarf mage
+   (they cannot be blinded and have great hit points), but be prepared
+   for a stiff challenge, because they can't get an Intelligence higher
+   than 17. Humans and elves are also good choices.
+
+ Rogues and Rangers
+ 
+   Rogues and Rangers are both Mage/Fighter combination classes. The
+   Ranger is, perhaps, a touch more powerful. Both of them need high
+   Strength, Intelligence, Dexterity, and Constitution, which means that
+   your stats won't be all that great overall. Still, these classes have
+   excellent skills, and can eventually learn how to use magic.
+
+   For the Ranger, make sure that you buy lots of arrows. Keep your
+   bows (long or short) for the whole game, discarding them only when
+   you see a better. You get extra shots with normal bows at levels 20
+   and 40.
+
+   Any race is good for these classes, because they are the
+   best-balanced in terms of skills. magic, and combat. If you want to
+   have great skills, play a Hobbit Rogue. Of course, your fighting and
+   hit points will suck...
+
+ Priests
+
+   Like the mage, the priest is primarily a spellcaster. Unlike the mage,
+   the priest also knows which end of a mace to hold. Wisdom is the
+   key attribute to a priest, as it governs the mana and failure rates for
+   spells. Again, for the same reasons, try for an 18/56 if you can. The
+   priest has no particular stat weakness, so just try for whatever you
+   can get away with.
+
+   Unfortunately, priests feel uncomfortable using edged weapons
+   unless they have been blessed by the gods. They have penalties to hit,
+   and a whopping spell failure penalty to contend with when they are
+   wielding an inappropriate weapon. The mace isn't a bad weapon, but
+   if you can get multiple hits with the whip, use it instead. If you can
+   afford a Lucerne Hammer or a Morning Star, they are also better.
+
+   Humans and dwarves make the best priests, in my estimation, but if
+   you're going for 'fight over spell' then use the Half-Troll. You'll get
+   more hit points and you'll be as good as anyone at casting spells by
+   the end of the game.
+
+ Paladins
+ 
+   Much like the Ranger and Rogue, the Paladin is a Priest/Warrior
+   combo class. That means that you want a high Strength, Wisdom,
+   Dexterity, and Constitution. Don't try for a high Charisma, you'll
+   probably get one anyway. Strength and Wisdom should probably be
+   your main priorities.
+
+   When it comes to equipment, the Paladin really got the shaft. You've
+   got a broad sword (which is fine) but you need armour. Go and buy
+   a good set. Paladins don't have any weapons restrictions, so get
+   whatever you want.
+
+   A good warrior race (like Human or Dunadan) is best for a Paladin.
+
+
+===========================================================================
+Initial Equipment
+===========================================================================
+
+ Here's some general tips for buying equipment at the start of the
+ game. First off, you have at least 100 gold. Hopefully more.
+
+ Armour is vital if you're not a warrior. Warriors start off with an AC
+ of at least 14 (chain mail). You need, at the least, an AC of 10 before
+ you head into the dungeon, but if you don't have a Strength of 18 or
+ so, then weight is an important consideration. Choose armours like
+ Hard Leather Boots, which give good protection for a good price,
+ and weigh next to nothing.
+
+ Replace your crufty torches with a lantern and oil, if you can afford
+ to. You get a larger light radius- great defense against paralyzers and
+ sleeping monsters, especially if you don't have infravision or if it's
+ useless 10 foot infravision. And, when all else fails, the flasks of oil
+ are pretty good desperation weapons. Throw them at monsters.
+
+ Scrolls of Phase Door and Potions of Cure Light Wounds can really
+ save your bacon in an emergency. If you can't afford any in the
+ beginning, then don't worry about it, but even in the end game I
+ usually have about 30 scrolls of Phase Door unless I can throw away
+ the mana like candy and cast the spell. Keep upgrading your potions.
+
+ Most of the 'bonus items', like a Warrior's Potion of Berserk
+ Strength, aren't that useful in the beginning. Unless it's a Potion of
+ Healing, consider selling it.
+
+ If you can afford it, a Long Bow and arrows are an excellent
+ investment. They're light and powerful. Missile weapons, especially
+ magical ones, are extremely deadly and great in combination with
+ strategically-cast Phase Door spells.
+
+ Look around for a bit for Farmer Maggot, but not too long. Unless
+ you are a veteran player, then chances are your first level character
+ will not be able to stand toe-to-toe with a Battle-Scarred Veteran and
+ come out on top. If you're a Rogue or Ranger, you can afford to
+ look around a bit longer, because of better Stealth, but remember not
+ to let monsters cut you off from the staircase.
+
+ Farmer Maggot often drops a magical item. If you've got the money,
+ Identify it using the scroll of the same name. If it's a good base
+ weapon type, consider wielding it. In any case, DON'T sell it until it's
+ been Identified. If you're not going to wield it or sell it right away,
+ leave it in your house so that it doesn't get stolen. If Maggot drops
+ missiles, like bolts, and you really need the money, then sell one to
+ find out how much it costs, and then sell the rest of them. It's like an
+ Identify.
+
+ If you need to build up cash before leaving town, then the Singing,
+ Happy Drunk and the Aimless Looking Merchant are your best bet.
+ Remember, your odds of defeating a Squint-Eyed Rogue aren't much
+ better than 70-30, and your odds against a Mean-Looking Merc or a
+ Battle-Scarred Vet are considerably worse. Run. 
+
+==========================================================================

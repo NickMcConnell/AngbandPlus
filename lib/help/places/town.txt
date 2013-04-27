@@ -1,0 +1,273 @@
+TOWN
+
+  1) TOWN OVERVIEW
+  2) HISTORICAL TOWN VIEW
+  3) GAMBLING RULES
+  4) STORE OWNERS
+
+========================================================================
+
+1) TOWN OVERVIEW
+
+=== The Town Level ===
+
+The town level is where you will begin your adventure.  The town consists of
+eight buildings (each with an entrance), some townspeople, and a wall which
+surrounds the town.  The first time you are in town it will be daytime, but
+note that the sun rises and falls (rather instantly) as time passes.
+
+=== Townspeople ===
+
+The town contains many different kinds of people.  There are the street
+urchins, young children who will mob an adventurer for money, and seem to
+come out of the woodwork when excited.  Blubbering idiots are a constant
+annoyance, but not harmful.  Public drunks wander about the town singing,
+and are of no threat to anyone.  Sneaky rogues who work for the black
+market are always greedily  eyeing  your  backpack  for  potential  new
+'purchases'. . .   And finally,  what town would be complete without  a
+swarm of half drunk warriors, who take offense or become annoyed just for
+the fun of it.
+
+Most of the townspeople should be avoided by the largest possible distance
+when you wander from store to store.  Fights will break out, though, so be
+prepared.  Since your character grew up in this world of intrigue, no
+experience is awarded for killing the town inhabitants, though you may
+acquire treasure.
+
+=== Town Buildings ===
+
+Your character will begin his adventure with some basic supplies, and some
+extra gold with which to purchase more supplies at the town stores.
+
+You may enter any open store and barter with the owner for items you can
+afford.  When bartering, you enter prices you will pay (or accept) for some
+object.  You can either enter the absolute amount, or precede a number with
+a plus or minus sign to give a positive or negative increment on your
+previous offer.  But be warned that the owners can easily be insulted, and
+may even throw you out for a while if you insult them too often.  To enter
+a store, simply move onto the entrance, which is represented by a number
+from 1 to 9.
+
+If you consistently bargain well in a store, that is, you reach the final
+offer much more often than not, then the store owner will eventually
+recognize that you are a superb haggler, and will go directly to the final
+offer instead of haggling with you.  Items which cost less than 10 gold
+pieces do not count, as haggling well with these items is usually either
+very easy or almost impossible.  The more expensive the item is, the less
+likely the store owner is to assume that you are a good haggler.  Note that
+you may disable haggling with a software option, though this will inflict a
+10% "sales tax" on all purchases for which the store owner would have
+required you to haggle.
+
+Once inside a store, you will see the name and race of the store owner, the
+name of the store, the maximum amount of cash that the store owner will pay
+for any one item, and the store inventory, listed along with tentative
+prices, which will become "fixed" (at the "final offer") should you ever
+manage to haggle a store owner down to his final offer.
+
+You will also see an (incomplete) list of available commands.  Note that
+many of the commands which work in the dungeon work in the stores as well,
+but some do not, especially those which involve "using" objects.
+
+Stores do not always have everything in stock.  As the game progresses,
+they may get new items so check from time to time.  Also, if you sell them
+an item, it may get sold to a customer while you are adventuring, so don't
+always expect to be able to get back everything you have sold.  Note that
+the inventory of a store will not change while you are in town, even if you
+save the game and return.  You must spend time in the dungeon if you wish
+the store owner to clear out his stock and acquire new items.  If you have
+a lot of spare gold, you can purchase every item in a store, which will
+induce the store owner to bring out new stock, and perhaps even retire.
+
+Store owners will not buy harmful or useless items.  If an object is
+unidentified, they will pay you some base price for it.  Once they have
+bought it they will immediately identify the object.  If it is a good object,
+they will add it to their inventory.  If it was a bad bargain, they simply
+throw the item away.  In any case, you may receive some knowledge of the
+item if another is encountered.
+
+The General Store ("1")
+     The General Store sells foods, drinks, some clothing, torches, lamps,
+     oil, shovels, picks, and spikes.  All of these items and some others
+     can be sold back to the General store for money.
+
+The Armoury ("2")
+     The Armoury is where the town's armour is fashioned.  All sorts of
+     protective gear may be bought and sold here.
+
+The Weaponsmith's Shop ("3")
+     The Weaponsmith's Shop is where the town's weapons are fashioned.  Hand
+     and missile weapons may be purchased and sold here, along with arrows,
+     bolts, and shots.
+
+The Temple ("4")
+     The Temple deals in healing and restoration potions, as well as bless
+     scrolls, word of recall scrolls, some approved priestly weapons, as
+     well as books of Life magic for priests and paladins.
+
+The Alchemy shop ("5")
+     The Alchemy Shop deals in all types of potions and scrolls.
+
+The Magic User's Shop ("6")
+     The Magic User's Shop deals in all sorts of rings, wands, amulets, and
+     staves, as well as some magic user books (Sorcery, and Arcane) can be
+     bought and sold here.
+
+The Black Market ("7")
+     The Black Market will sell and buy anything at extortionate prices.
+     However it occasionally has VERY good items in it. The shopkeepers are
+     not known for their tolerance...
+
+Your Home ("8")
+     This is your house where  you  can  store  objects  that you 
+     cannot carry on your travels, or will need at a  later date.
+
+The Bookstore ("9")
+    The Bookstore deals in all sorts of magical books. You can purchase
+    and sell spellbooks for the spellcasters here.
+
+============================================================================= 
+
+2) Historical Town View
+
+The town is composed of both stores and buildings. Stores:
+
+Magic Shop: get your wands and spellbooks here.
+Alchemist: for all sorts of bubbling potions and scrolls.
+Weaponsmith: they carry anything sharp and to the point.
+Armorer: to protect from the ravages of the dungeon.
+General Store: food, torches, the necessities.
+Temple Shop: prayerbooks and those items holy.
+Black Market: the prices are high, but item unique.
+Home: To store your precious treasures.
+Make sure you go into the correct door on some buildings.
+
+The Fighter's Hall, Order of Paladins, Ranger's Tavern, House of Thieves, and
+Tower of Illusion are restricted to those involved. The Tower of Sorcery is open
+for rogues and rangers to learn spells. The Temple is open for paladins.
+
+Unique buildings that anyone can enter, if they dare:
+Gambling House: Read the rules before paying. And, the games are not rigged,
+just naturally difficult.
+Library: For information of all kinds.
+Inn: Resting will refresh, and those ghosts prowl at night...
+Rumors can be helpful or just plain silly.
+All buildings are made of stone and unlikely to move around.
+
+This file is no longer 100% acurate for ZAngband 2.2.0.
+
+===========================================================================
+
+3) Gambling Rules  (Kangband 2.8.3i)
+
+Between : Three 12-sided dice rolled; 2 black, 1 red. The red
+       die must be between both black to win. If the red die.
+       matches a black die, you lose. Pays 3 to 1
+Craps: Two dice are rolled. On first roll, a 7 or 11 wins. A
+       2,3 or 12 loses. Otherwise roll until the first roll
+       is matched (win) or a 7 is rolled (loss). Pays 2 to 1
+Wheel: Pick a number from 0-9. If the number shows on wheel
+       after it stops spinning, you win. Pays 10 to 1
+
+Slots: Three dice rolled. Matches win gold. Numbers are:
+       1=Lemon, 2=Orange, 3=Sword, 4=Shield, 5=Plum, 6=Cherry
+       Payoffs are as follows:
+       Cherry Cherry Lemon  2-1   Cherry Cherry Orange  3-1
+       Cherry Cherry Sword  4-1   Cherry Cherry Shield  5-1
+       Cherry Cherry Plum   6-1
+       Lemon Lemon Lemon    4-1   Orange Orange Orange 16-1
+       Sword Sword Sword    6-1   Shield Shield Shield 25-1
+       Plum Plum Plum       9-1   Cherry Cherry Cherry 36-1
+
+This file was last updated for Kangband 2.8.3i.
+
+===========================================================================
+
+4) Store owners
+
+Spoiler File -- Store Owners (with 2.7.8 source)
+
+/*
+ * Store owners (several possible owners per store)
+ * { name, purse, max greed, min greed, haggle_per, race, tolerance }
+ */
+owner_type owners[MAX_STORES][MAX_OWNERS] = {
+
+  {
+    /* General store */
+    { "Bilbo the Friendly",     200,    170,  108,    5,  3, 15},
+    { "Rincewind the Chicken",  200,    175,  108,    4,  0, 12},
+    { "Sultan the Midget",      300,    170,  107,    5,  4, 15},
+    { "Lyar-el the Comely",     300,    165,  107,    6,  2, 18},
+  },
+  {
+    /* Armoury */
+    { "Kon-Dar the Ugly",       5000,   210,  115,    5,  6,  7},
+    { "Darg-Low the Grim",      10000,  190,  111,    4,  0,  9},
+    { "Decado the Handsome",    25000,  200,  112,    4,  8, 10},
+    { "Mauglin the Grumpy",     30000,  200,  112,    4,  5,  5},
+  },
+  {
+    /* Weapon Smith */
+    { "Ithyl-Mak the Beastly",  5000,   210,  115,    6,  7,  8},
+    { "Arndal Beast-Slayer",    10000,  185,  110,    5,  1,  8},
+    { "Tarl Beast-Master",      25000,  190,  115,    5,  3,  8},
+    { "Oglign Dragon-Slayer",   30000,  195,  112,    4,  5,  8},
+  },
+  {
+    /* Temple */
+    { "Ludwig the Humble",      5000,   175,  109,    6,  0, 15},
+    { "Gunnar the Paladin",     10000,  185,  110,    5,  0, 23},
+    { "Delilah the Pure",       25000,  180,  107,    6,  2, 20},
+    { "Bosk the Wise",          30000,  185,  109,    5,  5, 15},
+  },
+  {
+    { "Mauser the Chemist",     10000,  190,  111,    5,  1,  8},
+    { "Wizzle the Chaotic",     10000,  190,  110,    6,  3,  8},
+    { "Ga-nat the Greedy",      15000,  200,  116,    6,  4,  9},
+    { "Sasha the Slender",      15000,  220,  111,    4,  2,  9},
+  },
+  {
+    /* Magic Shop */
+    { "Ariel the Sorceress",    20000,  200,  110,    7,  1, 8},
+    { "Buggerby the Great",     20000,  215,  113,    6,  4, 10},
+    { "Inglorian the Mage",     30000,  200,  110,    7,  0, 10},
+    { "Luthien Starshine",      30000,  175,  110,    5,  9, 11},
+  },
+  {
+    /* Black Market */
+    { "Lo-Hak the Awful",       20000,  250,  150,   10,  7,  5},
+    { "Histor the Goblin",      20000,  250,  150,   10,  6,  5},
+    { "Durwin the Shifty",      30000,  250,  150,   10,  0,  5},
+    { "Drago the Fair",         30000,  250,  150,   10,  2,  5},
+  },
+  {
+    /* Home */
+    { "Your home",              0,  100,  100,    0, 99, 99},
+    { "Your home",              0,  100,  100,    0, 99, 99},
+    { "Your home",              0,  100,  100,    0, 99, 99},
+    { "Your home",              0,  100,  100,    0, 99, 99}
+  }
+};
+
+
+/*
+ * Buying and selling adjustments for race combinations.
+ * Entry[owner][player] gives the basic "cost inflation".
+ */
+byte rgold_adj[MAX_RACES][MAX_RACES] = {
+
+                        /*Hum, HfE, Elf,  Hal, Gno, Dwa, HfO, HfT, Dun, HiE*/
+
+/* Human         */     { 100, 105, 105, 110, 113, 115, 120, 125, 100, 105},
+/* Half-Elf      */     { 110, 100, 100, 105, 110, 120, 125, 130, 110, 100},
+/* Elf           */     { 110, 105, 100, 105, 110, 120, 125, 130, 110, 100},
+/* Halfling      */     { 115, 110, 105,  95, 105, 110, 115, 130, 115, 105},
+/* Gnome         */     { 115, 115, 110, 105,  95, 110, 115, 130, 115, 110},
+/* Dwarf         */     { 115, 120, 120, 110, 110,  95, 125, 135, 115, 120},
+/* Half-Orc      */     { 115, 120, 125, 115, 115, 130, 110, 115, 115, 125},
+/* Half-Troll    */     { 110, 115, 115, 110, 110, 130, 110, 110, 110, 115},
+/* Dunedain      */     { 100, 105, 105, 110, 113, 115, 120, 125, 100, 105},
+/* High_Elf      */     { 110, 105, 100, 105, 110, 120, 125, 130, 110, 100}
+
+};

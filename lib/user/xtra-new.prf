@@ -17,7 +17,7 @@ R:0:0x92/0x80
 R:0:0x92/0x81
 ?:[AND [EQU $CLASS Warrior] [EQU $RACE Elf] ]
 R:0:0x92/0x82
-?:[AND [EQU $CLASS Warrior] [EQU $RACE Hobbit] ]
+?:[AND [EQU $CLASS Warrior] [EQU $RACE Hobbits] ]
 R:0:0x92/0x83
 ?:[AND [EQU $CLASS Warrior] [EQU $RACE Gnome] ]
 R:0:0x92/0x84
@@ -80,7 +80,7 @@ R:0:0x93/0x80
 R:0:0x93/0x81
 ?:[AND [EQU $CLASS Mage] [EQU $RACE Elf] ]
 R:0:0x93/0x82
-?:[AND [EQU $CLASS Mage] [EQU $RACE Hobbit] ]
+?:[AND [EQU $CLASS Mage] [EQU $RACE Hobbits] ]
 R:0:0x93/0x83
 ?:[AND [EQU $CLASS Mage] [EQU $RACE Gnome] ]
 R:0:0x93/0x84
@@ -143,7 +143,7 @@ R:0:0x94/0x80
 R:0:0x94/0x81
 ?:[AND [EQU $CLASS Priest] [EQU $RACE Elf] ]
 R:0:0x94/0x82
-?:[AND [EQU $CLASS Priest] [EQU $RACE Hobbit] ]
+?:[AND [EQU $CLASS Priest] [EQU $RACE Hobbits] ]
 R:0:0x94/0x83
 ?:[AND [EQU $CLASS Priest] [EQU $RACE Gnome] ]
 R:0:0x94/0x84
@@ -206,7 +206,7 @@ R:0:0x95/0x80
 R:0:0x95/0x81
 ?:[AND [EQU $CLASS Rogue] [EQU $RACE Elf] ]
 R:0:0x95/0x82
-?:[AND [EQU $CLASS Rogue] [EQU $RACE Hobbit] ]
+?:[AND [EQU $CLASS Rogue] [EQU $RACE Hobbits] ]
 R:0:0x95/0x83
 ?:[AND [EQU $CLASS Rogue] [EQU $RACE Gnome] ]
 R:0:0x95/0x84
@@ -269,7 +269,7 @@ R:0:0x96/0x80
 R:0:0x96/0x81
 ?:[AND [EQU $CLASS Ranger] [EQU $RACE Elf] ]
 R:0:0x96/0x82
-?:[AND [EQU $CLASS Ranger] [EQU $RACE Hobbit] ]
+?:[AND [EQU $CLASS Ranger] [EQU $RACE Hobbits] ]
 R:0:0x96/0x83
 ?:[AND [EQU $CLASS Ranger] [EQU $RACE Gnome] ]
 R:0:0x96/0x84
@@ -332,7 +332,7 @@ R:0:0x97/0x80
 R:0:0x97/0x81
 ?:[AND [EQU $CLASS Paladin] [EQU $RACE Elf] ]
 R:0:0x97/0x82
-?:[AND [EQU $CLASS Paladin] [EQU $RACE Hobbit] ]
+?:[AND [EQU $CLASS Paladin] [EQU $RACE Hobbits] ]
 R:0:0x97/0x83
 ?:[AND [EQU $CLASS Paladin] [EQU $RACE Gnome] ]
 R:0:0x97/0x84
@@ -395,7 +395,7 @@ R:0:0x98/0x80
 R:0:0x98/0x81
 ?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE Elf] ]
 R:0:0x98/0x82
-?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE Hobbit] ]
+?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE Hobbits] ]
 R:0:0x98/0x83
 ?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE Gnome] ]
 R:0:0x98/0x84
@@ -458,7 +458,7 @@ R:0:0x99/0x80
 R:0:0x99/0x81
 ?:[AND [EQU $CLASS Chaos-Warrior] [EQU $RACE Elf] ]
 R:0:0x99/0x82
-?:[AND [EQU $CLASS Chaos-Warrior] [EQU $RACE Hobbit] ]
+?:[AND [EQU $CLASS Chaos-Warrior] [EQU $RACE Hobbits] ]
 R:0:0x99/0x83
 ?:[AND [EQU $CLASS Chaos-Warrior] [EQU $RACE Gnome] ]
 R:0:0x99/0x84
@@ -521,7 +521,7 @@ R:0:0x9A/0x80
 R:0:0x9A/0x81
 ?:[AND [EQU $CLASS Monk] [EQU $RACE Elf] ]
 R:0:0x9A/0x82
-?:[AND [EQU $CLASS Monk] [EQU $RACE Hobbit] ]
+?:[AND [EQU $CLASS Monk] [EQU $RACE Hobbits] ]
 R:0:0x9A/0x83
 ?:[AND [EQU $CLASS Monk] [EQU $RACE Gnome] ]
 R:0:0x9A/0x84
@@ -584,7 +584,7 @@ R:0:0x9B/0x80
 R:0:0x9B/0x81
 ?:[AND [EQU $CLASS Mindcrafter] [EQU $RACE Elf] ]
 R:0:0x9B/0x82
-?:[AND [EQU $CLASS Mindcrafter] [EQU $RACE Hobbit] ]
+?:[AND [EQU $CLASS Mindcrafter] [EQU $RACE Hobbits] ]
 R:0:0x9B/0x83
 ?:[AND [EQU $CLASS Mindcrafter] [EQU $RACE Gnome] ]
 R:0:0x9B/0x84
@@ -647,7 +647,7 @@ R:0:0x9C/0x80
 R:0:0x9C/0x81
 ?:[AND [EQU $CLASS High-Mage] [EQU $RACE Elf] ]
 R:0:0x9C/0x82
-?:[AND [EQU $CLASS High-Mage] [EQU $RACE Hobbit] ]
+?:[AND [EQU $CLASS High-Mage] [EQU $RACE Hobbits] ]
 R:0:0x9C/0x83
 ?:[AND [EQU $CLASS High-Mage] [EQU $RACE Gnome] ]
 R:0:0x9C/0x84

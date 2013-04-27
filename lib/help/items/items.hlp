@@ -1,0 +1,22 @@
+Item spoilers:
+
+    (1) item_gen.txt -- Basics of arms,artifacts,food  [Angband 2.8.0]
+
+    (2) obj-desc.txt -- Basic Items (brief)            [Zangband 2.2.3c]*
+    (3) obj-long.txt -- Basic Items (verbose)          [Angband 2.7.9v6]
+    (4) obj-good.txt -- Ego Items   (verbose)          [Angband 2.7.9v6]
+    (5) artifact.txt -- Artifacts   (verbose)          [Zangband 2.2.3c]* plus comments
+
+    (6) good2.txt    -- Good items - out of date?      [?]
+
+    (0) INDEX
+
+  Entries marked * were dumped in Wizard Mode via CTRL-A and then "
+
+***** [1] items/item_gen.txt
+***** [2] items/obj-desc.txt
+***** [3] items/obj-long.txt
+***** [4] items/obj-good.txt
+***** [5] items/artifact.txt
+***** [6] items/good2.txt
+***** [0] index/index.hlp

@@ -1,0 +1,496 @@
+Zangband FAQ 1.2   (for Zangband 2.0.4)
+
+ [This is cryptic and unfriendly, and since it has lots of statistics
+  and is already out of date, I decided to keep it separate from the
+  rest of the online help.  I've removed all obsolete info and info
+  that exists elsewhere in the online help. -- Trav]
+
+Contents :
+
+  1. Spell Effects 
+  2. Racial Abilities
+  3. Finish Politics 
+  4. Artifacts and Ego Items
+  5. Level Feelings 
+
+=============================================================================
+1. Spell Effects
+=============================================================================
+
+---------------------------
+Objects affected by attacks 
+---------------------------
+
+Object Type             Fire    Cold    Electricty      Acid
+TV_CHEST                 y                               y
+TV_SHOT
+TV_ARROW                 y                               y
+TV_BOLT                                                  y
+TV_BOW                   y                               y
+TV_DIGGING
+TV_HAFTED                y                               y
+TV_POLEARM               y                               y
+TV_SWORD                                                 y
+TV_BOOTS                 y                               y
+TV_GLOVES                y                               y
+TV_HELM                                                  y
+TV_CROWN                                                 y
+TV_SHIELD                                                y
+TV_CLOAK                 y                               y
+TV_SOFT_ARMOR                                            y
+TV_HARD_ARMOR                                            y
+TV_DRAG_ARMOR                                            y
+TV_LITE                  y
+TV_AMULET
+TV_RING                                    y
+TV_STAFF                 y                               y
+TV_WAND                                    y
+TV_ROD          
+TV_SCROLL                y                               y
+TV_POTION                        y
+TV_FLASK                         y
+TV_FOOD
+TV_LIFE_BOOK             y
+TV_SORCERY_BOOK          y
+TV_NATURE_BOOK           y
+TV_CHAOS_BOOK            y
+TV_DEATH_BOOK            y
+TV_GOLD         
+
+--------------------------------------
+Unusual attack resistances or effects: 
+--------------------------------------
+
+Magic missile, Mana, Meteor: Pure damage, cannot be resisted 
+Fire, Cold, Electricity, Poison: Obvious resist, dam19 
+Nuke: is resisted by monsters which resist poison, dam36 also
+  has a 33% chance of polymorphing the monsters 
+Holy Orb: double damage to evil monsters 
+Plasma, Disenchantment, Nexus: obvious resist, dam36 
+Nether: 0 dam against undead else dam36 if resists nether else dam/2 if evil 
+Water: 0 dam for Water spirits/elementals and Unmakers else dam36 if resists 
+Chaos: Confuse monster by (5+ri(11)+dist)/(dist+1) (even if
+  resisted) Polymorph monster unless resisted. Resisted by chaos
+  breathers, and demons 33% of the time, dam36 
+Shards,Inertia,Time: Resisted by appropriate breathing monsters, dam36 
+Rocket: Resisted by shard breathing monsters, dam/2 
+Sound: Stun monster by (10+ri(15)+dist)/(dist+1) (even if
+  resisted) Resisted by sound breathers, dam26 
+Confusion: Confuse monster by (10+ri(15)+dist)/(dist+1) (even if resisted)
+  Resisted by confusion breathers, dam26 or confusion resistance dam/2 
+Force: Stun monster by (ri(15)+dist)/(dist+1) (even if resisted)
+Resisted by force breathers, dam36 
+Gravity: Teleport up to 10 squares. Resisted by gravity breathers, dam36 
+Ice: Stun monster by (1+ri(15)/(dist+1), then as for Cold. 
+(Old?) Drain Life: Resisted by undead, demons, nonliving and types E,g,v 
+Death Ray: Resisted by undead and nonliving, uniques, and all
+  monsters with 1% chance if rlev>((dam/2)+ri(10)) (not
+  working correctly in 2.0.4) Damage otherwise is fixed at
+  plev*200, regardless of distance 
+(Old?) Ploymorph: Ploymorth monster. Resisted by uniques, and stdResist 
+(Old?) Clone: Monster is fully healed, hasted (max 150 speed), then copied. 
+(Old?) Heal: Adds dam hit points to the monster 
+(Old?) Speed Monster: Haste monster +10 speed (max 150) 
+(Old?) Slow Monster: Slow monster -10 speed (min 60).
+  Resisted by uniques, and all monsters by stdResist 
+(Old?) Sleep: Sleep 500. Resisted by uniques, sleep resistant, and stdResist 
+Stasis: As (Old?) Sleep, but non resisted by sleep resistant monsters 
+(Old?) Confusion: Confuse by 1+3d[dam/2]. Resistsed by
+uniques, confusion resistant monsters and stdResist 
+Stun: Stun for 1+[3+(plev/10)]d[dam] Resisted by uniques and stdResist 
+Weak Light: Only affects those monsters which are hurt by light 
+Light: dam26 is monster breathes light, dam*2 if hurt by light 
+Dark: dam26 for orcs, dark breathers and those which are hurt by light 
+Kill Wall (Stone to Mud): Only affects stone/earth-like creatures 
+Away Undead: Teleport undeam dam squares 
+Away Evil: Teleport evil dam squares 
+Away All: Teleport all monsters dam squares 
+Turn Undead: Only affects undead, does 1+3d[dam/2] fear, mResChance 
+Turn Evil: Only affects evil, does 1+3d[dam/2] fear, mResChance 
+Turn All: Does not affect uniques or fear-resistant monsters.  As above 
+Dispel Undead: Only affects undead 
+Dispel Evil: Only affects evil 
+Dispel Living: Does not affect undead or nonliving monsters 
+Dispel Demon: Only affects demons 
+Dispel All: affects all monsters 
+
+-------------
+Side Effects: 
+-------------
+
+[Not yet complete] 
+Confusion: 
+Stunning: 
+Fear: 
+Polymorph: Uniques cannot be polymorphed, nor can a
+non-unique polymorph into a unique. Polymorph occurs if
+ri(90)>rlev, the new monster will have level rlev +-
+1+(ri(20)/ri(9)), chosen from a distribution affected in some
+way by 5+(dlev+rlev)/2, with two 2% chances of boosting this
+by max(5,2+(5+(dlev+rlev)/2)/4) It all gets a bit hazy after this,
+there is lots of table lookups and two further chances to boost
+the monster level. TODO 
+Teleport: 
+
+------
+Notes: 
+------
+
+plev is used to refer to the player level. 
+mlev is used to refer to monster level. 
+ilev is used to refer to item level. 
+ri(N) is used to refer to randint(N), a random number 1 <= x < N 
+r(dam) is used to refer to the damage done by area-affect
+  spells, and is equal to (dam + distance to centre of
+  blast)/(distance to centre of blast +1). 
+
+The notation {2(Pr),4(Oth)} means 2 is the character is a
+Priest, else 4 mResChance means the monster has (mlev >
+ri(max(1,r(plev)-10))+10) chance of resisting the effect. 
+stdbeam = {plev{Mg},(plev/2){Oth)} 
+beam(x) means x% chance of bolt spell becoming a beam spell.
+
+dam19 means damage is reduced to 1/9th if monsters resists. 
+dam26 means damage is reduced to (dam*2)/(6+ri(6)) if monster resists. 
+dam36 means damage is reduced to (dam*3)/(6+ri(6)) if monster resists. 
+stdResist means is resisted if rlev>(10+ri(min(1,dam-10))) 
+
+
+=============================================================================
+2. Racial abilities
+=============================================================================
+
+Racial Intrinsic Ability Chart 
+
+Race        Intrinsic Abilitity     Racial Activation Ability/Level Gained
+
+Human       None                    None 
+Half-Elf    None                    None   
+Elf         Res. Light              None 
+Hobbit      Sus. Dex                None 
+Gnome       FA                      Blink (range 10 + lev feet),level 5 
+Dwarf       Res. Blindness          Detect traps, doors,& stairs, level 5 
+Half-Orc    Res. Dark               *Remove Fear, level 3  
+Half-Troll  Sus. Str, Regen(15)     *Remove Fear, +30 HP, Heroism?, level 10   
+            SD(15 -if Warrior) 
+Amberite    Sus. Con, Regen         **Shadow Shifting, 30& Walk the Pattern, 40
+High-Elf    Res. Light, SI          None 
+Barbarian   Res. Fear               Remove Fear, +30 HP,Heroism?, level 8 
+Half-Ogre   Res. Dark, Sus. Str     Create explosive rune, level 25 
+Half-Giant  Res. Shards, Sus. Str   Stone to mud, level 20 
+Half-Titan  Res. Chaos              Probing, level 35 
+Cyclops     Res. Sound              Throw Boulder, level 20 
+Yeek        Res. Acid, Imm.Acid(20) Scare Monster, level 15 
+Klackon     Res. Confusion          Haste Self, level 30 
+Kobold      Res. Poison             Throw Poison Dart, level 12 
+Nibelung    Res. Dark, Disenchant   Detect, traps, doors, &stairs, level 10 
+Dark Elf    Res. Dark, SI(20)       Magic Missile, level 3 
+Draconian   FF, Res. Fire(5),       ***Breath Weapon, level 1 
+            Cold(10), Acid(15),      
+            Lightning(20),Poison(35) 
+Mind Flayer Sus. Int, Wis, SI(15)   Confuse Monster & Stun Monster, level 15   
+            Telepathy(40) 
+Imp         Res. Fire, SI(10)       Fire Bolt 9 < plev < 30,Fire Ball plev >=30
+Golem       Res. Poison, FA, SI     Toughen Skin (+50 to AC), level 20
+            HL(35) 
+Skeleton    Res. Poison, Shards,SI  Restore Life Levels, level 30
+            HL, Res. Cold(10) 
+Zombie      Res. Poison, Nether,SI  Restore Life Levels, level 30 
+            HL, Res. Cold(5) 
+ 
+Key:
+Res = Resist 
+Sus = Sustain 
+FA = Free Action 
+SI = See Invisible 
+HL = Hold Life 
+FF = Feather fall 
+SD = Slow Digestion 
+plev = Character Level 
+ 
+An abilitiy with a number in parenthesis means that a character
+of that race gains that ability at the level specified in
+parens.  E.g. Zombies gain Resist Cold at 5th level. 
+ 
+Notes:
+*    It is twice as difficult for non-warrior character of this
+     race to use this ability. 
+**   Pattern Walking - remove poison, stunning, cuts, blindness,fear,
+     restore all stats, restore level, and one other thing(set_image(0)?)
+     Shadow Shifting - generates a new level, like the Alter Reality spell. 
+***  66%/33% chance of fire/cold breath with a plev/100 chance of one 
+     of the following instead: 
+        Class            Breath Type 
+        Warrior, Ranger: 1/3 Normal Missile, 2/3 Shards 
+        Mage:            1/3 Mana, 2/3 Disenchant 
+        Priest, Paladin: 1/3 Holy Orb, 2/3 Sound 
+        Rogue:           Poison 
+     Damage: Ball Attack - damage r(2*plev), radius 1+(plev/15)
+
+
+Racial Activation Chart 
+
+
+Race        MinLev   Cost   Stat  Diff  Explanation 
+
+Gnome          5   5+lev/5  Int    12   Blink, range10+lev feet 
+Dwarf          5       5    Wis    12   Detect traps, doors, and stairs 
+Half-Orc       3       5    Wis   5/10* Remove Fear 
+Half-Troll    10      12    Wis   6/12* Remove Fear, +30 HP, Heroism 
+Amberite 
+  shdw shift  30      50    Int    50   Alter Reality 
+  ptrn walk   40      75    Wis    50   Cure-all** (see explanation above) 
+Barbarian      8      10    Wis   6/12* Remove Fear, +30 HP, Heroism 
+Half-Ogre     25      35    Int    15   Create Explosive Rune, damage... 
+Half-Giant    20      10    Str    12   Bash Walls (stone-to-mud) 
+Half-Titan    35      20    Int    12   Probing 
+Cyclops       20      15    Str    12   Throw Boulder, damage (3*plev)/2 
+Yeek          15      15    Wis    10   Scare Monster
+Klackon       30      20    Dex    14   Haste Self, duration ???
+Kobold        12       8    Dex    14   Throw poison dart, damage plev 
+Nibelung      10       5    Wis    10   Detect traps, doors, and stairs 
+Dark Elf       3       2    Int     9   Magic Missile, damage 3+((plev-1)/5 D4 
+Draconian      1     plev   Con    12   Breath Weapon***(see explanation above)
+Mind Flayer   15      12    Int    14   Confuse and Stun monster 
+Imp            9      15    Wis    15   Fire bolt lev<30 then ball dmg plv rad2
+Golem         20      15    Con     8   Shield, +50 added to AC, dur 30+D20
+Skeleton      30      30    Wis    18   Restore Life Levels 
+Zombie        30      30    Wis    18   Restore Life Levels 
+ 
+* First number applies to warriors, second to all other classes 
+ 
+MinLev = Minimum level ability can be used. 
+Cost = All activations use mana if available else they use hit points.  
+Stat = This statistic is used to help determine if ability activation 
+       is successful. 
+Diff = Difficulty.   
+
+
+=============================================================================
+3. Finish Politics
+=============================================================================
+
+[From usenet post by Topi Ylinen]
+Ok, here's the 'official' explanation: 
+
+When the original code for Zangband was written years ago, we were voting for
+the new president. There were a number of strong candidates, among them 
+the democrat Martti Ahtisaari (who would be elected in the vote) and 
+Paavo Väyrynen. These two were very likely to carry on to the second round
+of the vote (since nobody seemed likely to gain more than 50% of the votes,
+required to win the first round so completely that no second round would
+be needed). 
+
+Martti Ahtisaari weighed 127 kg at the time, and played Mr. Nice-guy. He had
+a career in the UN, and he would always do things which made him look unselfish
+and diplomatic. That's why Martti Ihrasaari says what he says in Zangband
+(Ahtisaari = "Ahti's Island", Ihrasaari = "Fat Island"). 
+
+Paavo Väyrynen is a much better known figure to the Finns. He's the kind of
+political gambler who would always do anything (sell his mother, burn his
+kids, or whatever) if it profited him. He would change his opinions and
+decisions immediately if he believed that gave him some kind of advantage.
+He's not the kind of person you would trust (or if you did, I'd call you
+a fool). Curiously, during the elections, books were published that 
+told all kinds of nasty things about the major candidates, but -- surprise,
+surprise -- no such book was published about Paavo Väyrynen. What a 
+coincidence. When Mr Väyrynen heard he didn't make it to the second
+round, he cried in front of tv cameras...
+(The books thing explains why Mr Vaaranen said what he did in Zangband --
+Vaaranen should actually be Vääränen, "the wrongful one").
+
+Why you get to chop these politicians to pieces? Well, I am not normally
+interested in politics, it is just the obligatory pun at the prominent
+politicians of the time, adapted to Angband standards.
+
+
+============================================================================
+4. Artifacts and Ego Items
+============================================================================
+
+----------------------------------------------------------------------------
+Artifacts 
+----------------------------------------------------------------------------
+
+This section only shows the random abilities that are determined
+at run-time. All other abilities for these artifacts can be
+determined by reading the lib/a_info.txt file. 
+
+Terror Mask
+  - if warrior, EGO_XTRA_ABILITY and a high resist
+    else heavy curse, aggravate, ty_curse 
+
+Julian, Arvedui, Caspanion, Hithlomir, Rohirrim, Celegorm, Anarion, Thranduil,
+Luthien, Thror, Thorin, Nimthanc, Dethanc, Narthanc, Sting, Turmil
+  - all get a high resist. 
+
+Maedhros, Glamdring, Orcrist, Anduril, Zarcuthra, Gurthang, Soulsword, Brand 
+  - all get a high resist (50%) or EGO_XTRA_ABILITY 
+
+Nenya, Vilya, Beruthiel, Fingolfin, Thingol, Ulmo, Gandalf
+  - get EGO_XTRA_ABILITY. 
+
+The One Ring, Amber, Aule
+  - get a high resist and EGO_XTRA_ABILITY. 
+
+----------------------------------------------------------------------------
+7b. Ego Items 
+----------------------------------------------------------------------------
+
+In all cases the random abilities that Zangband adds to these ego
+items have been included. In some cases the abilities from the
+e_info.txt file have been extracted as well. Eventually all of the
+abilities for these items will be listed here. 
+
+***************
+*** Weapons ***
+***************
+
+Trump Weapon:
+  Slay Evil, Teleportation, Free Action, Regeneration, Slow
+  Digestion, Resist Nexus and a Searching bonus. They activate
+  for teleport every 50+1d50 turns. They also get a random high
+  resistance, and have a 1 in 5 chance of getting slay demon as
+  well. 1 in 7 chance of EGO_XTRA_ABILITY. One annoying
+  thing about these items (especially if you are using the roguelike
+  keyset) is that they ask you if you want to teleport every so
+  often. See the section on the teleport patch for a fix to this. 
+
+Vampirics:
+  Hold Life, Vampiric drain. This sucks life from non-undead
+  opponents and gives it to you. *Very* powerful ability, making
+  Vampirics competitive with even artifact weaponry. 
+
+Chaotic Weapons:
+  Resist Chaos, Chaotic [randomly drains the enemy (dunno what
+  effect it actually has), confuses the enemy or cause an
+  earthquake. Could do more, not sure.], and get a random
+  resistance (low or high). 
+
+Pattern Weapons:
+  Slay Evil, Slay Demon, Slay Undead, Free Action, See Invisible
+  and a bonus to STR and CON. They also get a 1 in 3 chance of
+  Hold Life, a 1 in 3 chance of a dexterity bonus, and a 1 in 5
+  chance of Resist Fear, along with a random high resistance. 
+
+Weapons of Slaying:
+  33% chance of double damage dice, else at least +1 to both # of
+  dice, and size of dice. (For each of them, it adds one, then rolls
+  a random number from 1 to the current value. If this is one, it
+  does this again.) 1 in 5 chance of poison brand. If a sword-type
+  weapon, then 1 in 3 chance of Vorpal. 
+
+Westernesse weapons have a 1 in 3 chance of getting Resist
+  Fear. Bonus to str, dex and con. Slay Orc, Troll, Giant, Free
+  Action, See Invisitble. 
+
+Defenders get a high resist, and 1 in 3 chance of Resist Poison.
+  (If the high resist rolled is Resist Poison, that's the only high
+  resist you'll get -- high resists aren't rerolled just because the
+  weapon already has the ability.) 
+
+Blessed Weapons: Blessed, EGO_XTRA_ABILITY 
+
+Slay Undead weapons all get Hold Life. 
+*Slay* Undead weapons get additional Resist Nether. 
+
+*Slay Evil* weapons are blessed and get resist fear. 
+
+Holy Avengers have a 1 in 4 chance of getting extra blows, EGO_XTRA_SUSTAIN. 
+
+Slay Dragon weapons get a random low resist. 
+*Slay Dragon* weaponry has a 1 in 3 chance of getting an
+additional Resist Poison, plus it gets another resistance, which is
+limited to low resists and Resist Poison (1 in 7 poison,
+otherwise low). 
+
+Earthquakes: 33% chance of extra attacks. 
+
+Bow of Extra Might give a random_resistance (any except for
+immunities). 
+
+***************
+*** Armour  ***
+***************
+
+Crowns: 
+      Magi: random high resist, EGO_XTRA_POWER 
+      Might: random high resist 
+      Lordliness: random high resist 
+      Seeing: 1 in 3 chance of telepathy. 
+
+Helm of Seeing: 1 in 3 chance of telepathy. 
+
+Gauntlets of Power, Boots of Slow Descent: random high
+resist. 
+
+Armor of Resistance resistance plus has a 1 in 4 chance of
+getting Resist Poison, plus a random high resist. 
+Shields of Resistance resistance plus a random high resist. 
+
+Cloak of Aman: EGO_XTRA_POWER 
+
+Robe of Permanence: EGO_XTRA_POWER 
+
+Armor of Elvenkind: EGO_XTRA_POWER 
+
+Helmets and crowns of Seeing have a chance of granted
+telepathy (1 in 7 for helmets, 1 in 3 for crowns). 
+
+Dragon Sheilds/Helm always gives you at least 1
+random_resistance. After that you have a 50% chance getting a
+second, another 50% chance of getting a third and so on. Each
+resistances is determined as follows: 1 in 4 chance of getting a
+low resist or poison resistance, and a 3 in 4 chance of getting a
+high resist not including fear, poison, light or darkness. 
+
+*************
+*** Other ***
+*************
+
+Ring of Lordly Protection: large plus to AC (at least +10), hold
+life, free action, resist disenchantment, and one guaranteed high
+resist (excluding fear and poison) with each time it gets one,
+25% chance of getting another. 
+
+Amulet of the Magi: 1 in 3 chance of slow digestion. 
+
+------------------------------------------------------------------------
+Notes:
+------------------------------------------------------------------------
+
+high resist: one of blind, conf, sound, shards, nether, nexus,
+             chaos, disen, light, dark, fear, poison 
+low resist: one of fire, cold, acid, elec 
+any resist: 12 in 34 chance of low. otherwise high. 
+EGO_XTRA_SUSTAIN: sustain con and sustain chr are slightly
+  (42 in 256, instead of 43 in 256) less likely 
+EGO_XTRA_POWER: one of blind, conf, sound (24 in 256 each), 
+   shards, nether, nexus, chaos, disen, poison, dark, light (23 in 256) 
+EGO_XTRA_ABILITY: one of feather fall, light, see invis,
+   telepathy, slow digest, regen, free action, hold life. 
+
+Things are actually more complex than this becuase there is a
+bias that hs been introduced based upon your class/race(?)
+which can affect random resistance generation. For instance I
+have seen a Sheild of Resistance with no high resist and heard
+about a dragon shield that gave acid immunity. 
+
+
+============================================================================
+5. Zangband Level Feelings 
+============================================================================
+
+"Looks like any other level."
+"You feel there is something special about this level."
+"You nearly faint as horrible visions of death fill your mind!"
+"This level looks very dangerous.",
+"You have a very bad feeling...",
+"You have a bad feeling...",
+"You feel nervous.",
+"You feel your luck is turning...",
+"You don't like the look of this place.",
+"This level looks reasonably safe.",
+"What a boring place..."
+
+============================================================================

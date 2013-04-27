@@ -1,0 +1,148 @@
+ROGUE SPELLS -- Requirements, costs, and failures
+
+For each level beyond the minimum, the failure rate will decrease by 3%.
+High INT will also decrease the failure rate, to a minimum of 5%.
+
+Sorcery Rogue:            Level  Mana  Fail
+
+Detect Monsters           5      1     50
+Phase Door                7      2     55
+Detect Doors+Traps        8      3     65
+Light Area                9      3     65
+Confuse Monster           13     6     75
+Teleport Self             15     7     75
+Sleep Monster             17     9     75
+Recharging                21     12    80
+Magic Mapping             25     14    80
+Identify                  27     15    80
+Slow Monster              29     17    75
+Mass Sleep                30     20    80
+Teleport Away             31     23    80
+Haste Self                32     25    70
+Detection True            35     30    80
+Identify True             40     35    75
+Detect Objects+Treasure   9      3     65
+Detect Enchantment        13     10    70
+Charm Monster             14     10    80
+Dimension Door            15     10    80
+Sense Minds               16     10    60
+Self Knowledge            17     20    80
+Teleport Level            18     17    60
+Word of Recall            30     35    75
+Stasis                    15     15    40
+Telekinesis               20     20    70
+Explosive Rune            35     40    95
+Clairvoyance              37     40    80
+*Enchant Weapon*          43     80    80
+*Enchant Armor*           44     100   80
+Alchemy                   45     50    70
+Globe of Invulnerability  XXXXXXX
+
+Death Rogue:              Level  Mana  Fail
+
+Detect Unlife             5      3     40
+Malediction               7      4     40
+Detect Evil               9      5     50
+Stinking Cloud            13     7     60
+Black Sleep               15     7     80
+Resist Poison             17     15    80
+Horrify                   19     17    30
+Enslave the Undead        19     19    30
+Orb of Entropy            21     21    60
+Nether Bolt               23     23    75
+Terror                    27     25    75
+Vampiric Drain            30     30    75
+Poison Brand              35     35    75
+Dispel Good               45     45    60
+Genocide                  XXXXXXX
+Restore Life              XXXXXXX
+Berserk                   20     25    80
+Invoke Spirits            23     20    40
+Dark Bolt                 28     28    75
+Battle Frenzy             32     32    80
+Vampirism True            46     45    75
+Vampiric Branding         45     100   90
+Darkness Storm            50     50    75
+Mass Genocide             XXXXXXX
+Death Ray                 30     30    80
+Raise the Dead            31     80    80
+Esoteria                  32     40    90
+Word of Death             XXXXXXX
+Evocation                 XXXXXXX
+Hellfire                  XXXXXXX
+Ommnicide                 XXXXXXX
+Wraithform                50     125   90
+
+Trump Rogue:              Level  Mana  Fail
+
+Phase Door                5      2     50
+Mind Blast                7      5     50
+Shuffle                   9      7     75
+Reset Recall              11     9     80
+Teleport Self             13     11    40
+Dimension Door            15     13    60
+Trump Spying              19     15    60
+Teleport Away             21     20    60
+Trump Object              25     22    80
+Trump Animal              30     26    60
+Phantasmal Servant        33     26    60
+Trump Monster             35     32    70
+Conjure Elemental         40     35    80
+Teleport Level            42     38    70
+Word of Recall            46     44    80
+Banish                    49     50    70
+Joker Card                20     15    80
+Trump Spiders             30     30    70
+Trump Reptiles            33     30    70
+Trump Hounds              38     33    70
+Trump Branding            42     90    80
+Living Trump              45     150   90
+Death Dealing             48     75    50
+Trump Cyberdemon          XXXXXXX
+Trump Divination          35     30    60
+Trump Lore                42     65    90
+Trump Undead              44     100   80
+Trump Dragon              46     100   80
+Mass Trump                XXXXXXX
+Trump Demon               49     125   80
+Trump Ancient Dragon      XXXXXXX
+Trump Greater Undead      XXXXXXX
+
+Arcane Rogue:             Level  Mana  Fail
+
+Zap                       1      1     20
+Wizard Lock               1      1     33
+Detect Invisibility       2      1     33
+Detect Monsters           2      2     33
+Blink                     3      3     33
+Light Area                5      5     40
+Trap+Door Destruction     6      6     33
+Cure Light Wounds         7      7     44
+Detect Doors & Traps      8      8     40
+Phlogiston                9      9     60
+Detect Treasure           10     10    50
+Detect Enchantment        11     11    50
+Detect Objects            13     11    50
+Cure Poison               14     12    50
+Resist Cold               15     13    50
+Resist Fire               16     14    50
+Resist Lightning          17     15    50
+Resist Acid               18     16    50
+Cure Medium Wounds        19     17    33
+Teleport                  20     20    50
+Stone to Mud              23     22    60
+Ray of Light              25     24    60
+Satisfy Hunger            28     25    70
+See Invisible             30     28    60
+Recharging                35     30    80
+Teleport Level            39     36    80
+Identify                  42     37    60
+Teleport Away             44     38    70
+Elemental Ball            46     40    66
+Detection                 47     42    80
+Word of Recall            48     60    70
+Clairvoyance              50     125   80
+
+
+
+

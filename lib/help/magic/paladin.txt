@@ -1,0 +1,77 @@
+PALADIN SPELLS -- Requirements, costs, and failures
+
+Failure rate decreases 3% for each level beyond the minimum,
+to a minimum of 5%.  High WIS also decreases failure rate.
+
+Life Paladin:             Level  Mana  Fail
+
+Detect Evil               1      1     30
+Cure Light Wounds         2      2     35
+Bless                     3      3     35
+Remove Fear               4      3     35
+Call Light                5      4     35
+Detect Traps/Doors        8      5     40
+Cure Medium Wounds        11     9     40
+Satisfy Hunger            13     10    45
+Remove Curse              14     11    45
+Cure Poison               15     15    50
+Cure Critical Wounds      17     15    50
+Sense Unseen              18     15    50
+Holy Orb                  18     15    50
+Protection from Evil      19     15    50
+Healing                   30     25    55
+Glyph of Warding          35     70    75
+Exorcism                  25     22    50
+Dispel Curse              28     24    70
+Dispel Undead+Demons      30     25    60
+Day of the Dove           33     30    60
+Dispel Evil               35     32    70
+Banishment                35     55    80
+Holy Word                 39     38    80
+Warding True              46     60    80
+Heroism                   9      9     50
+Prayer                    25     20    50
+Bless Weapon              35     65    80
+Restoration               40     80    80
+Healing True              45     80    80
+Holy Vision               45     45    80
+Divine Intervention       48     100   90
+Holy Invulnerability      50     100   80
+
+Death Paladin:            Level  Mana  Fail
+
+Detect Unlife             1      1     25
+Malediction               3      2     25
+Detect Evil               4      3     25
+Stinking Cloud            6      5     27
+Black Sleep               8      8     30
+Resist Poison             10     11    75
+Horrify                   12     12    30
+Enslave the Undead        15     15    40
+Orb of Entropy            17     17    40
+Nether Bolt               19     19    30
+Terror                    23     23    50
+Vampiric Drain            28     26    60
+Poison Brand              35     75    90
+Dispel Good               40     35    60
+Genocide                  45     35    95
+Restore Life              50     52    95
+Berserk                   15     20    80
+Invoke Spirits            15     20    80
+Dark Bolt                 18     20    30
+Battle Frenzy             38     38    70
+Vampirism True            40     40    60
+Vampiric Branding         39     100   70
+Darkness Storm            48     50    80
+Mass Genocide             48     75    80
+Death Ray                 30     35    75
+Raise the Dead            36     85    90
+Esoteria                  38     45    95
+Word of Death             45     45    70
+Evocation                 47     45    80
+Hellfire                  50     150   95
+Ommnicide                 50     100   95
+Wraithform                50     111   95
+
+
+

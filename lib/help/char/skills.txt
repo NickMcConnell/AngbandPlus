@@ -1,0 +1,95 @@
+SKILLS
+
+Each character has several primary "skills", disarming, magic
+devices, saving throws, stealth, searching ability, searching
+frequency, fighting skill, and shooting skill, which are
+derived from the character's race, class, level, stats, and
+current equipment.  These skills have rather obvious effects,
+but will be described more completely below. The starting
+abilities of a character are based upon race and class.
+Abilities may be adjusted by high or low stats, and may
+increase with the level of the character.
+ 
+=== Fighting ===
+
+Fighting is the ability to hit and do damage with weapons or
+fists.  Normally  a  character  gets  a single blow from any
+weapon, but if his dexterity and strength are  high  enough,
+he  may  receive  more blows per round with lighter weapons.
+Strength and dexterity both modify the  ability  to  hit  an
+opponent.  This skill increases  with the level of the char-
+acter.
+ 
+=== Shooting Ability ===
+
+Using  ranged  missile  weapons  (and  throwing  objects) is
+included  in this skill.  Different stats apply to different
+weapons, but this ability may modify the distance an  object
+is  thrown/fired, the amount of damage done, and the ability
+to hit a creature.  This skill increases with the  level  of
+the character.
+ 
+=== Saving Throws ===
+
+A Saving Throw is the ability of a character to  resist  the
+effects  of  a spell cast on him by another person/creature.
+This does not include spells cast on the player by  his  own
+stupidity,  such  as  quaffing a nasty potion.  This ability
+increases with the level of the  character,  but  then  most
+high  level  creatures  are  better at casting spells, so it
+tends to even out.  A high wisdom also increases this  abil-
+ity.
+ 
+=== Stealth ===
+
+The ability to move  silently about is very useful.  Charac-
+ters with good stealth can usually surprise their opponents,
+gaining the first blow.  Also, creatures may fail to  notice
+a  stealthy  character  entirely, allowing a player to avoid
+certain fights.  This skill is based entirely upon race  and
+class, and will never improve unless magically enhanced.
+ 
+=== Disarming ===
+
+Disarming is the  ability  to  remove  traps  (safely),  and
+includes  picking  locks  on  traps and doors.  A successful
+disarming will gain the character  some experience.  A  trap
+must  be  found  before  it  can be disarmed.  Dexterity and
+intelligence both modify the ability  to  disarm,  and  this
+ability increases with the level of the character.
+ 
+=== Magical Devices ===
+
+Using a magical device such as  a  wand  or  staff  requires
+experience  and  knowledge.  Spell  users such as  magi  and
+priests are therefore much better at using a magical  device
+than say a warrior.  This skill is modified by intelligence,
+and increases with the level of the character.
+ 
+=== Searching Frequency (Perception) ===
+
+Perception  is  the  ability  to  notice  something  without
+actively  seeking it out.  This skill is based entirely upon
+race and class, and  will  never  improve  unless  magically
+enhanced.
+ 
+=== Searching Ability (Searching) ===
+
+To search is to actively look for secret doors, floor traps,
+and  traps on chests.  Rogues are the best at searching, but
+magi,  rangers, and priests are also good at it.  This skill
+is  based  entirely  upon  race  and  class,  and will never
+improve unless magically enhanced.
+ 
+=== Infra-vision ===
+
+Infra-vision is the ability to see heat sources. Since  most
+of  the  dungeon is cool or cold, infra-vision will not allow
+the player to see walls and objects.  Infra-vision will allow
+a  character  to see any warm-blooded creatures up to a cer-
+tain distance.  This ability works equally well with or with
+out  a  light source.  The majority of Angband's creatures are
+cold-blooded, and will not be detected unless lit  up  by  a
+light  source.  Most non human races have innate  infra-vision
+ability.  Human can gain infra-vision only if it is magically
+enhanced.

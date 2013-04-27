@@ -1,0 +1,20 @@
+=== Monster Memories ===
+
+There are hundreds of different creatures in the pits of Angband, many of
+which have the same letter symbol and color on the screen.  The exact species
+of a creature can be discovered by looking at it.  It is also very difficult
+to keep track of the capabilities of various creatures.  Luckily, Angband
+automatically keeps track of your experiences with a particular creature.
+This feature is called the monster memory.  You monster memory recalls the
+particular attacks of each creature (whether or not technically a monster)
+which you have suffered, as well as recalling if you have observed them to
+multiply or move erratically, or drop treasure, etc.  Otherwise you would
+simply have to take notes, which is an unnecessary bother.
+
+If you have killed enough of a particular creature, or suffered enough
+attacks, recalling the monster memory may also provide you with information
+not otherwise available, such as a armor class or hit dice.  These are not
+explained, but may be useful to give the relative danger of each creature.
+This memory can be passed on to a new character even after you die by means
+of a reduced save file.
+ 

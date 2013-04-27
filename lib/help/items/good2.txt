@@ -1,0 +1,442 @@
+GOOD ITEMS -- Alternative document
+
+      In the listing for great items which follows, keep in mind that all great items
+      get all the bonuses that good items get. If a bonus to-hit, to-dam or to AC
+      is given for a great item, that bonus is in addition to the good item bonus.
+
+      A "low resist" is one of the following: resist fire, resist cold, resist acid,
+      resist lightning, sustain str., sustain int., sustain wis., sustain dex., sustain
+      con., sustain cha.; all with equal probability.
+
+      A "high resist" is resistance to one of the following: confusion, sound, light,
+      darkness, chaos, nether, shards, nexus, blindness, disenchantment; all with
+      equal probability. (Note that poison resistance does not qualify as a high
+      resistance.)
+
+      An item that has resist fire/cold/acid/lightning always has ignore
+      fire/cold/acid/lightning as well. Exception: objects with a random low resist
+      that is resist fire/cold/acid/lightning do not automatically get the
+      corresponding ignore characteristic.
+
+      The notation "XdY" indicates a number obtained by rolling an Y-sided die
+      X times. (Thus 4d6 indicates a number from 4 to 24.)
+
+      The notation MB(X,Y) indicates an integer between X and Y inclusive that
+      is dependent on dungeon depth and has a normal distribution that is
+      centered about (Y-X)*(Dungeon Level/100), with depths greater than level
+      100 (5000') counting as level 100.
+
+      The notation "xdY(1 in Z)" indicates a number obtained by rolling a
+      Y-sided die x times. x is equal to the number of times the 1 in Z is chance is
+      made, until failure. Thus xd4(1 in 10) translates to: 0 (90% chance), 1d4
+      (9% chance), 2d4 (0.9% chance), 3d4 (0.09% chance) ... There is no limit,
+      so theoretically it is possible to get maxint, but don't count on it :-).
+
+
+
+      Good Hand to Hand Weapons
+
+      Good hand-to-hand weapons get a bonus of +1d3+MB(0,10) to-hit and a
+      bonus of +1d3+MB (0,10) to-dam. Good hand-to-hand weapons get a 50%
+      bonus to the roll for greatness.
+
+            Weapon (Blessed) (XdY) (+3,+3) (+1d3) 
+            Probability: 1 in 15 
+            Rating +20; Price Bonus +5000 
+            +1d3 Bonus to Wisdom 
+            Blessed Weapon; One Low Resist 
+
+            Weapon (Defender) (XdY) (+3,+3) [+5+1d5] (+1d3) 
+            Probability: 1 in 30 
+            Rating +23; Price Bonus +15000 
+            +5+1d5 Bonus to AC 
+            +1d3 Bonus to Stealth 
+            Free Action; Resist Fire, Cold, Acid, Lightning; Feather Fall; 
+            Regenerate; See Invisible 
+
+            Weapon (Holy Avenger) (XdY) (+5,+5) [+1d4] (+1d4) 
+            Probability: 1 in 30 
+            Rating +25; Price Bonus +20000 
+            +1d4 Bonus to AC 
+            +1d4 Bonus to Wisdom 
+            Slay Evil, Undead, Demon; Blessed Weapon; See Invisible 
+            Sustain a random statistic (equal chance for any of the six) 
+
+            Weapon of Extra Attacks (XdY) (+5,+3) (+1d3) 
+            Probability: 1 in 30 
+            Rating +20; Price Bonus +10000 
+            If the weapon weighs more than 13 lb.: +1 Extra Attack;
+            otherwise: 
+            If the weapon weighs more than 8 lb.: +1d2 Extra Attacks;
+            otherwise: 
+            If the weapon is 8 lb. or less: +1d3 Extra Attacks 
+
+            Weapon of Flame (XdY) (+2,+2) 
+            Probability: 1 in 15 
+            Rating +20; Price Bonus +3000 
+            Flame Tongue; Resist Fire 
+
+            Weapon of Frost (XdY) (+2,+2) 
+            Probability: 1 in 15 
+            Rating +20; Price Bonus +2500 
+            Frost Brand; Resist Cold 
+
+            Weapon of Slay Animal (XdY) (+3,+3) 
+            Probability: 1 in 15 
+            Rating +15; Price Bonus +2000 
+            Slay Animal 
+
+            Weapon of Slay Demon (XdY) (+2,+2) 
+            Probability: 1 in 10 
+            Rating +16; Price Bonus +1200 
+            Slay Demon 
+
+            Weapon of Slay Dragon (XdY) (+3,+3) 
+            Probability: 1 in 15 
+            Rating +18; Price Bonus +4000 
+            Slay Dragon 
+
+            Weapon of Slay Evil (XdY) (+3,+3) 
+            Probability: 1 in 15 
+            Rating +18; Price Bonus +4000 
+            Slay Evil 
+            1 in 3 chance of: +1 Bonus to Wisdom 
+            Blessed Weapon 
+
+            Weapon of Slay Giant (XdY) (+2,+2) 
+            Probability: 1 in 10 
+            Rating +14; Price Bonus +1200 
+            Slay Giant 
+
+            Weapon of Slay Orc (XdY) (+2,+2) 
+            Probability: 1 in 10 
+            Rating +13; Price Bonus +1200 
+            Slay Orc 
+
+            Weapon of Slay Troll (XdY) (+2,+2) 
+            Probability: 1 in 10 
+            Rating +13; Price Bonus +1200 
+            Slay Troll 
+
+            Weapon of Slay Undead (XdY) (+2,+2) 
+            Probability: 1 in 15 
+            Rating +18; Price Bonus +3000 
+            Slay Undead; See Invisible 
+            1 in 3 chance of: Hold Life 
+
+            Weapon of Westernesse (XdY) (+3+1d5,+3+1d5) (+1) 
+            Probability: 1 in 30 
+            Rating +20; Price Bonus +20000 
+            +1 Bonus to Strength, Dexterity, Constitution 
+            Slay Orc; One Low Resist; Free Action; See Invisible 
+
+
+
+      Good Shooting Weapons
+
+      Good shooting weapons get a bonus of +1d3+MB(0,10) to-hit, and a
+      bonus of +1d3+MB(0,10) to-dam. If the roll for greatness succeeds:
+
+            Shooting Weapon (+0,+MB(2,6)) 
+            Probability: 3 in 20 
+            No Rating or Price Bonus 
+
+            Shooting Weapon (+MB(2,6),+0) 
+            Probability: 3 in 20 
+            No Rating or Price Bonus 
+
+            Shooting Weapon (+MB(2,6),+MB(2,6)) 
+            Probability: 1 in 5 
+            No Rating or Price Bonus 
+
+            Shooting Weapon of Accuracy (+12,+5) 
+            Probability: 1 in 5 
+            Rating +11; Price Bonus +1000 
+
+            Shooting Weapon of Extra Might (+5,+10) 
+            Probability: 1 in 20 
+            Rating +20; Price Bonus +10000 
+            Extra Might 
+
+            Shooting Weapon of Extra Shots (+10,+3) 
+            Probability: 1 in 20 
+            Rating +20; Price Bonus +10000 
+            Extra Shots 
+
+            Shooting Weapon of Velocity (+5,+12) 
+            Probability: 1 in 5 
+            Rating +11; Price Bonus +1000 
+
+
+
+      Good Ammunition
+
+      Good ammunition gets a bonus of +1d5+MB(0,15) to-hit and a bonus of
+      +1d5+MB(0,15) to-dam. It also gets a bonus of 150% to the roll for
+      greatness; if this succeeds:
+
+      Great ammunition may have a higher number of damage dice than normal.
+      Additional rolls for greatness are made, with each successful roll adding one
+      damage die; this continues until a roll fails.
+
+            Ammo of Fire (XdY) (+2,+4) 
+            Probability: 2 in 11 
+            Rating +6; Price Bonus +25 
+            Flame Tongue; Ignore Fire 
+
+            Ammo of Slaying ((X+2)dY) (+10,+10) 
+            Probability: 1 in 11 
+            Rating +10; Price Bonus +45 
+
+            Ammo of Slay Animal (XdY) (+2,+2) 
+            Probability: 2 in 11 
+            Rating +5; Price Bonus +30 
+            Slay Animal 
+
+            Ammo of Slay Dragon (XdY) (+3,+3) 
+            Probability: 1 in 11 
+            Rating +9; Price Bonus +35 
+            Slay Dragon 
+
+            Ammo of Slay Evil (XdY) (+3,+3) 
+            Probability: 2 in 11 
+            Rating +7; Price Bonus +25 
+            Slay Evil 
+
+            Ammo of Wounding ((X+1)dY) (+5,+5) 
+            Probability: 3 in 11 
+            Rating +5; Price Bonus +30
+
+
+
+      Good Body Armor and Shields
+
+      Good body armor and shields get an added bonus to AC of
+      +1d3+MB(0,5). If the roll for greatness succeeds: If the item is a robe, it
+      has a 1 in 30 chance of being a Robe of the Magi.
+
+            Robe of the Magi [2,+10+1d5] 
+            Rating +30; Price Bonus +30000 
+            One High Resist; Resist Fire, Cold, Acid, Lightning; Hold Life; 
+            Sustain All Stats 
+            Otherwise: 
+
+            Armor of Elvenkind [X,+15] (+1d3) 
+            Probability: 1 in 27 
+            Rating +25; Price Bonus +15000 
+            +1d3 Bonus to Stealth 
+            One High Resist; Resist Fire, Cold, Acid, Lightning 
+
+            Armor of Resistance [X,+10] 
+            Probability: 2 in 27 
+            Rating +20; Price Bonus +12500 
+            Resist Fire, Cold, Acid, Lightning 
+
+            Armor of Resist Acid [X,+0] 
+            Probability: 1 in 9 
+            Rating +18; Price Bonus +1000 
+            Resist Acid 
+
+            Armor of Resist Cold [X,+0] 
+            Probability: 2 in 9 
+            Rating +16; Price Bonus +600 
+            Resist Cold 
+
+            Armor of Resist Fire [X,+0] 
+            Probability: 2 in 9 
+            Rating +17; Price Bonus +600 
+            Resist Fire 
+
+            Armor of Resist Lightning [X,+0] 
+            Probability: 1 in 3 
+            Rating +15; Price Bonus +500 
+            Resist Lightning 
+
+
+
+      Dragon Armor
+
+      Good dragon armor gets an added bonus to AC of +1d3+MB(0,5). Note,
+      that dragon armor starts out with a +10 bonus to AC (or +15 if the armor
+      in question is Power Dragon Scale Mail) even if normal.
+
+      Great dragon armor gets, in addition, an added bonus to AC of
+      +1d5+MB(0,5). Great dragon armor can also have a high resist (1 in 5
+      chance) or a low resist (2 in 5 chance).
+
+      Each suit of dragon armor always adds 30 to the rating of a level.
+
+
+
+      Good Cloaks
+
+      Good cloaks have an added bonus to AC of +1d3+MB(0,20). If the roll for
+      greatness succeeds:
+
+            Cloak of Aman [X,+10+1d10] (+1d3) 
+            Probability: 1 in 20 
+            Rating +16; Price Bonus +4000 
+            +1d3 Bonus to Stealth 
+            Resist Acid 
+
+            Cloak of Protection [X,+5+1d3+MB(1,10)] 
+            Probability: 1 in 2 
+            Rating +10; Price Bonus +250 
+            One Low Resist; Ignore Acid 
+
+            Cloak of Stealth [X,+MB(3,10)] 
+            Probability: 9 in 20 
+            Rating +9; Price Bonus +500 
+            +1d3 Bonus to Stealth 
+
+
+
+      Good Helms
+
+      Good helms have an added bonus to AC of +1d3+MB(0,10).
+
+      If the roll for greatness succeeds:
+
+            Helm of Infra-Vision [X,+0] (+1+1d4) 
+            Probability: 2 in 7 
+            Rating +11; Price Bonus +500 
+            +10'*(1+1d4) Bonus to Infra-Vision 
+
+            Helm of Intelligence [X,+0] (+1d2) 
+            Probability: 1 in 7 
+            Rating +13; Price Bonus +500 
+            +1d2 Bonus to Intelligence 
+            Sustain Intelligence 
+
+            Helm of Light [X,+0] 
+            Probability: 1 in 7 
+            Rating +6; Price Bonus +500 
+            Resist Light; Permanent Light 
+
+            Helm of Seeing [X,+0] 
+            Probability: 1 in 7 
+            Rating +8; Price Bonus +1000 
+            Resist Blindness; See Invisible 
+            1 in 5 chance of: +1d2 Bonus to Searching 
+
+            Helm of Telepathy [X,+0] 
+            Probability: 1 in 14 
+            Rating +20; Price Bonus +50000 
+            Telepathy 
+
+            Helm of Wisdom [X,+0] (+1d2) 
+            Probability: 3 in 14 
+            Rating +13; Price Bonus +500 
+            +1d2 Bonus to Wisdom 
+            Sustain Wisdom 
+
+
+
+      Good Crowns
+
+      Good crowns have an added bonus to AC of +1d3+MB(0,10). Crowns get
+      a bonus of 100% to the roll for greatness; if the roll for greatness succeeds:
+
+            Crown of Beauty [0,+0] (+1d4) 
+            Probability: 1 in 6 
+            Rating +8; Price Bonus +1000 
+            +1d4 Bonus to Charisma 
+            Sustain Charisma 
+
+            Crown of Lordliness [0,+0] (+1d3) 
+            Probability: 1 in 6 
+            Rating +17; Price Bonus +2000 
+            +1d3 Bonus to Wisdom, Charisma 
+            Sustain Wisdom, Charisma 
+
+            Crown of the Magi [0,+0] (+1d3) 
+            Probability: 1 in 6 
+            Rating +15; Price Bonus +7500 
+            +1d3 Bonus to Intelligence 
+            Resist Fire, Cold, Acid, Lightning; Sustain Intelligence 
+
+            Crown of Might [0,+0] (+1d3) 
+            Probability: 1 in 6 
+            Rating +19; Price Bonus +2000 
+            +1d3 Bonus to Strength, Dexterity, Constitution 
+            Free Action; Sustain Strength, Dexterity, Constitituion 
+
+            Crown of Regeneration [0,+0] 
+            Probability: 1 in 6 
+            Rating +10; Price Bonus +1500 
+            Regeneration 
+
+            Crown of Seeing [0,+0] (+1+1d4) 
+            Probability: 1 in 6 
+            Rating +8; Price Bonus +1000 
+            +1+1d4 Bonus to Searching 
+            Resist Blindness; See Invisible 
+
+
+
+      Good Gloves
+
+      Good gloves get an added bonus to AC of +1d3+MB(0,10). If the roll for
+      greatness succeeds: All great gloves get one low resist.
+
+            Gloves of Agility [X,+0] (+2+1d2) 
+            Probability: 3 in 10 
+            Rating +14; Price Bonus +1000 
+            +2+1d2 Bonus to Dexterity 
+
+            Gloves of Free Action [X,+0] 
+            Probability: 3 in 10 
+            Rating +11; Price Bonus +1000 
+            Free Action 
+
+            Gloves of Power (+1+1d4,+1+1d4) [X,+0] (+1+1d4) 
+            Probability: 1 in 10 
+            Rating +22; Price Bonus +2500 
+            +1+1d4 Bonus To-Hit; +1+1d4 Bonus To-Dam 
+            +1+1d4 Bonus To Strength 
+
+            Gloves of Slaying (+1+1d4,+1+1d4) [X,+0] 
+            Probability: 3 in 10 
+            Rating +17; Price Bonus +1500 
+            +1+1d4 Bonus To-Hit; +1+1d4 Bonus To-Dam
+
+
+
+      Good Boots
+
+      Good boots get an added bonus to AC of +1d3+MB(0,10). If the roll for
+      greatness succeeds:
+
+            Boots of Free Action [X,+0] 
+            Probability: 1 in 6 
+            Rating +15; Price Bonus +1000 
+            Free Action 
+
+            Boots of Slow Descent [X,+0] 
+            Probability: 11 in 24 
+            Rating +7; Price Bonus +250 
+            Feather Fall 
+
+            Boots of Speed [X,+0] (+1d3+MB(1,5)+xd2) 
+            Probability: 1 in 24 
+            Rating +25+Speed Boost; Price Bonus +200000 
+            +1d3+MB(1,5)+xd2(1 in 2) Bonus to Speed 
+
+            Boots of Stealth [X,+0] (+1d3) 
+            Probability: 1 in 3 
+            Rating +16; Price Bonus +500 
+            +1d3 Bonus to Stealth 
+
+
+
+      Other Items Which May Cause Feelings
+
+            Amulet of the Magi [+1d4+MB(0,6)] (+1d2+MB(0,8)) 
+            Rating +25 
+            +1d4+MB(0,6) Bonus to AC 
+            +1d2+MB(0,8) Bonus to Searching 
+            Free Action, See Invisible; Ignore Fire, Cold, Acid, Lightning 
+
+            Ring of Speed (+1d3+MB(1,5)+xd2) 
+            Rating +25+Speed Boost 
+            +1d3+MB(1,5)+xd2(1 in 2) Bonus to Speed

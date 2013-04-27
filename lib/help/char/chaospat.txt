@@ -1,0 +1,261 @@
+Chaos Patrons
+=============
+
+This spoiler was made by Remco Gerlich for Zangband 2.1.1c. It may
+be inaccurate for other versions.
+
+Chaos Warriors have a chaos patron, who will give them a present, or
+do something nasty to them each time they advance their level. Note that
+if you gain multiple levels at the same time, you will only get a reward
+for the first one.
+There are 36 different things they can do, and 16 Chaos Patrons.
+Each Patron can give only some of those rewards.
+
+The questions to answer:
+o   Which Chaos Patrons are there?
+o   What can they do?
+
+The procedure of selecting a reward is in "What can they do?".
+
+The rewards get short names. With the Patrons are listed the powers
+that they have. Then look them up in the "What can they do?" list.
+Each Patron (except Balo) also has a "favourite stat", that is also
+listed below.
+
+Which Chaos Patrons are there?
+==============================
+
+Slortar the Old
+    Con; "wrath", "curse weap", "curse arm", "ruin abil", "lose abil".
+    "ignore" (3x), "poly wound", "polymorph" (3x), "gain abil" (2x),
+    "gain exp", "good obj", "chaos weap", "great obj", "augm abil" (2x).
+
+Mabelode the Faceless
+    Con; "wrath", "curse weap", "curse arm", "hi summon", "summon".
+    "summon", "ignore" (2x), "poly wound" (2x), "polymorph",
+    "heal full" (2x), "gain abil", "pet undead", "chaos weap",
+    "good obj" (2x), "good obs" (2x).
+
+Chardros the Reaper
+    Str; "wrath" (2x), "hurt lot", "piss off", "hi summon".
+    "summon", "ignore" (2x), "destruct", "pet undead", "genocide",
+    "mass geno" (2x), "dispel", "good obj", "chaos weap" (2x),
+    "good obs" (2x), "augm abil" (2x).
+
+Hionhurn the Executioner
+    Str; "wrath" (2x), "curse weap", "curse arm", "ruin abil".
+    "ignore" (2x), "pet undead", "destruction", "genocide", "mass geno" (2x),
+    "heal full", "gain abil" (2x), "chaos weap", "good obs" (2x),
+    "augm abil" (2x).
+
+Xiombarg the Sword-Queen
+    Str; "ty curse" (2x), "piss off", "ruin abil", "lose abil".
+    "ignore", "polymorph" (2x), "poly wound" (2x), "genocide", "dispel",
+    "good obj" (2x), "pet monster", "gain abil", "chaos weap",
+    "gain exp", "augm abil", "good obs".
+
+Pyaray the Tentacled Whisperer of Impossible Secrets
+    Int; "wrath", "ty curse", "piss off", "hi summon" (2x).
+    "ignore" (3x), "poly wound", "polymorph" (2x), "pet demon", "heal full",
+    "gain abil" (2x), "chaos weap", "havoc", "good obj", "great obj",
+    "great obs".
+
+Balaan the Grim
+    Str; "ty curse", "hurt lot", "curse weap", "curse arm", "ruin abil".
+    "summon", "lose exp", "polymorph" (2x), "poly wound", "pet undead",
+    "heal full" (2x), "gain exp" (2x), "chaos weap", "good obj", "good obs",
+    "great obs", "augm abil".
+
+Arioch, Duke of Hell
+    Int; "wrath", "piss off", "ruin abil", "lose exp", "hi summon".
+    "ignore" (4x), "polymorph" (2x), "mass geno", "pet demon", "heal full",
+    "chaos weap" (2x), "good obj", "gain exp", "great obj", "augm abil".
+
+Eequor, Blue Lady of Dismay
+    Con; "wrath", "ty curse", "piss off", "curse weap", "ruin abil".
+    "ignore" (2x), "polymorph" (2x), "poly wound", "good obj" (2x),
+    "pet monster", "heal full", "gain exp", "gain abil", "chaos weap",
+    "good obs", "great obj", "augm abil".
+
+Narjhan, Lord of Beggars
+    Cha; "wrath", "curse weap" (2x), "curse arm" (2x).
+    "ignore" (3x), "polymorph" (2x), "poly wound", "heal full" (2x),
+    "gain exp", "augm abil", "good obj" (2x), "chaos weap", "great obj",
+    "great obs".
+
+Balo the Jester
+    Random; "wrath", "pet demon", "curse weapon", "curse armour", "lose exp".
+    "gain abil", "lose abil", "poly wound", "polymorph", "ignore",
+    "destruction", "mass geno", "chaos weap", "great obj", "hurt lot",
+    "augm abil", "ruin abil", "hi summon", "great obs", "augm abil".
+
+Khorne the Bloodgod
+    Str; "wrath", "hurt lot" (2x), "hi summon" (2x).
+    "ignore" (3x), "pet monster", "pet demon", "polymorph", "poly wound",
+    "heal full", "good obj" (2x), "chaos weap", "good obs" (2x),
+    "great obj", "great obs".
+
+Slaanesh
+    Chr; "wrath", "piss off" (2x), "ruin abil", "lose abil".
+    "lose exp", "ignore" (2x), "poly wound", "pet demon", "polymorph",
+    "heal full" (2x), "good obj", "gain exp" (2x), "chaos weap",
+    "gain abil", "great obj", "augm abil".
+
+Nurgle
+    Con; "wrath", "piss off", "hurt lot", "ruin abil", "lose abil".
+    "lose exp", "ignore", "polymorph" (4x), "poly wound", "heal full",
+    "chaos weap", "great obj", "gain abil" (2x), "gain exp" (2x), "augm abil".
+
+Tzeentch
+    Int; "wrath", "curse weap", "curse arm", "lose abil", "ruin abil".
+    "lose exp", "ignore", "polymorph" (4x), "poly wound", "heal full",
+    "chaos weap", "great obj", "gain abil" (2x), "gain exp" (2x), "augm abil".
+
+Khaine
+    Str; "wrath", "hurt lot", "piss off", "lose abil", "lose exp",
+    "ignore" (2x), "dispel", "havoc" (2x), "polymorph" (2x), "gain exp",
+    "gain abil" (2x), "pet monster", "good obj", "chaos weap", "great obj",
+    "good obs".
+
+What can they do?
+=================
+
+There is a 1 in 6 chance that you will get a random mutation. If you don't,
+you get one of the reward types.
+
+Each patron can give 20 rewards - not all of them different, if a
+reward is in his list multiple times, that just increases the chance
+of getting that. The first five in the list are considered "nasty",
+the rest isn't. Usually, a random reward is chosen from the "nice" 15.
+But you may be unlucky.
+
+Usually, you have a 1 in 6 chance of being unlucky. If you become lvl
+13, however, the chance is 1 in 2. If your level is merely a multiple
+of 13, it is 1 in 3. If, on the other hand, your level is 14 or a multiple
+of 14, the chance is only 1 in 12. If you're unlucky, a reward is chosen
+randomly from the full list.
+
+Listed with the "short name", the powers are:
+
+"polymorph"     "Thou needs a new form, mortal!"
+                Invokes the Polymorph Self spell.
+
+"gain exp"      "Well done, mortal! Lead on!"
+                Gain +50% xp, with a maximum of 100,000 points.
+
+"lose exp"      "Thou didst not deserve that, slave."
+                Loose 1/6th of your exp.
+
+"good obj"      "Use my gift wisely."
+                Create one good object on the floor.
+
+"great obj"     "Use my gift wisely."
+                Create one great object on the floor.
+
+"chaos weap"    "Thy deed hath earned thee a worthy blade."
+                Create a chaos weapon... +to hit and +to dam both
+                3+random(10) after dungeon level 9, 3+1d(dun lvl)
+                before that. (Chaotic) weapon. 1 random high resist.
+                Always a sharp (edged) weapon, btw.
+
+"good obs"      "Thy deed hath earned thee a worthy reward."
+                Create 1-3 good objects.
+
+"great obs"     "Behold, mortal, how generously I reward thy loyalty."
+                Create 1-3 great objects.
+
+"ty curse"      "Thou art growing arrogant, mortal."
+                Invoke The Curse of Topi Ylinen...
+
+"summon"        "My pets, destroy the arrogant mortal!"
+                Summon 2-6 monsters (not a flat random, weird formula).
+
+"hi summon"     "Thou needst worthier opponents!"
+                Can summon Ants, Spiders, Hounds, Hydrae, Angels, Undead,
+                Demons, Wraiths, Uniques, High Undead, High Dragons, or
+                Cyberdemons. The deeper you are, the higher the chance of
+                the ones later in the list. It's quite possible (quite
+                usual, in fact) that it'll do several of these summons.
+
+"havoc"         "Death and destruction! This pleases me!"
+                Call Chaos - random damage. Random damage type.
+                1 in 6 times, do 75 damage. 3 in 4 changing of doing
+                a player-centered ball, otherwise a beam (that you can't
+                aim, it seems, so it doesn't work - didn't test this).
+                Otherwise, a 1 in 3 chance of doing a dam 300 radius 8 (!)
+                ball. Otherwise, do 150 damage, you get asked for a direction,
+                and it does a beam 1/4 of the time, a ball otherwise.
+
+"gain abil"     "Stay, mortal, and let me mold thee."
+                Gain a random stat; or, 1 in 3 times, the favourite stat
+                of the Patron.
+
+"lose abil"     "I grow tired of thee, mortal."
+                Lose a stat in the same way.
+
+"ruin abil"     "Thou needst a lesson in humility, mortal!"
+                Decrease all stats.
+
+"augm abil"     "Receive this modest gift from me!"
+                Augmentation - increase all stats.
+
+"poly wound"    "You feel the power of 'patron' touch you."
+                Polymorph wounds. 1 in 5 chance of a nasty effect.
+                In that case, take (level)d5 damage, and add the
+                same to the 'cut' counter. Otherwise, heal the same
+                amount.
+
+"heal full"     "Rise, my servant!"
+                Heal 5000 hp, restore life levels, restore stats,
+                cure poison, blindness, confusion, hallucination,
+                stunning and cuts.
+
+"hurt lot"      "Suffer, pathetic fool!"
+                Does a nice damage lvl*4, radius 4 disintegration ball
+                centered on the player. Unfortunately, also hits you
+                for lvl*4 hitpoints.
+
+"curse weap"    "Thou reliest too much on the weapon."
+                Curse your weapon - makes it a very bad weapon.
+                Artifacts have a 50% saving throw.
+
+"curse arm"     "Thou reliest too much on thine equipment."
+                Curses your body armour in the same way.
+
+"piss off"      "Now thou shalt pay for annoying me."
+                Randomly one of the following other rewards: "ty curse",
+                "hi summon", "ruin abil", or curse. Curse does "curse weap"
+                or "curse arm", randomly.
+
+"wrath"         "Die, mortal!"
+                Take 4*level damage, "ty curse", decrease all stats,
+                "hi summon", "curse weap" 50% of the time, and "curse arm"
+                50% of the time.
+
+"destruct"      "Death and destruction! This pleaseth me!"
+                *Destructs* the area around the player.
+
+"genocide"      "Let me relieve thee of thine oppressors!"
+                Gives you the chance to genocide a monster type. You
+                don't take the normal "genocide strain" damage.
+
+"mass geno"     "Let me relieve thee of thine oppressors!"
+                Mass genocides everything in the neighbourhood. Do not
+                take damage.
+
+"dispel"        "You can feel the power of 'patron' assault your enemies!"
+                Hit all monsters in sight with 4*level damage.
+
+"ignore"        "'Patron' ignores you."
+                Do nothing.
+
+"pet undead"    "'Patron' rewards you with an undead servant!"
+                Gives you a pet undead.
+
+"pet demon"     "'Patron' rewards you with a demonic servant!"
+                Gives you a pet demon.
+
+"pet monst"     "'Patron' rewards you with a servant!"
+                Gives you a pet monster.
+
+4 Sept 1998, Remco Gerlich, scarblac@dds.nl

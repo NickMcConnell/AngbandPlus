@@ -1,0 +1,392 @@
+==================
+Mindcrafter powers
+==================
+
+This spoiler was made by Remco Gerlich for Zangband 2.1.0e. It may
+be inaccurate for other versions.
+
+Note: I write a random number between 0 and 5 as random(6), a number
+between 1 and 5 is 1d5.
+
+Mindcrafters get their powers without needing spellbooks. These powers
+become better and better as the player goes up levels. Also, they get
+some other non-spell powers as they go up.
+The stat governing their mana and failure rate is Wisdom.
+
+The following powers are available:
+
+    Level   Cost    Failure    Name
+a   1       1       15         Precognition
+b   2       1       20         Neural Blast
+c   3       2       25         Minor Displacement
+d   7       6       35         Major Displacement
+e   9       7       50         Domination
+f   11      7       30         Pulverise
+g   13      12      50         Character Armour
+h   15      12      60         Psychometry
+i   18      10      45         Mind Wave
+j   23      15      50         Adrenaline Channeling
+k   25      10      40         Psychic Drain
+l   28      20      45         Telekinetic Wave
+
+Level powers:
+
+Level   Power
+10      Resist fear
+20      Sustain Wisdom
+30      Resist confusion
+40      Telepathy
+
+
+Something about failure rates
+=============================
+
+The rates listed are the base failure percentages. From these, substract
+3 for every experience level above the minimum level for the spell.
+Also, decrease the rate depending on Wisdom - see table 1 in the appendix.
+If you do not have enough mana, increase the percentage with 5 times the
+amount of mana you miss. Next, if it is below the minimum failure rate
+for your Wisdom, set it to that (see table 2).
+After that, if you're stunned: add 25 if your stun counter is more than 50,
+otherwise add 15. And, at last, the maximum fail rate is 95%.
+
+Even if the spell fails, if you didn't have enough mana, you're in trouble.
+If m is the amount of points you missed (spell cost - current mana), this
+will happen:
+  Paralyzed for 1d(5*m+1) turns, and
+  50% of the time: damage wisdom, 25% of the time this will be permanent.
+
+Something about side-effects of failing
+=======================================
+
+Once you have failed, there is a chance of backfiring. The backfiring chance
+is half the failure chance.
+
+If the spell backfires, these things can happen:
+
+Chance  Effect
+4%      Mind blank - forget everything.
+10%     Hallucinate for 5+1d10 turns.
+30%     Confusion for 1d8 turns.
+45%     Add 1d8 to the stun counter.
+11%     Mana Storm - damage level*2, radius 2+level/10, centered on player.
+        It will hurt the player as well as monster. Mana damage destroys
+        objects on the floor.
+
+
+The powers
+==========
+
+a Precognition
+--------------
+
+Level: 1 Cost: 1 Failure: 15
+
+Precognition is a detect spell, which detects more and more.
+
+Level   Effect added
+
+1       Detect monsters
+5       Detect traps
+15      Detect invisible
+20      Magic Mapping
+25      ESP for (level) turns (becomes permanent at level 40)
+30      Detect all
+45      Light and know the whole level
+
+b Neural blast
+--------------
+
+Level: 2 Cost: 1 Failure: 20
+
+Neural blast is a nice low-level attack spell.
+
+The damage it does is (3+(level-1)/4)d(3+level/15), but note that this
+is PSI damage. There is a paragraph about PSI damage at the bottom of
+this file.
+
+Neural blast is not a bolt, but a radius 0 ball spell. This means it can
+"jump over" monsters! There is also a (level*2-1)% chance that the spell
+beams, in which case it hits every monster in the direction you fire it.
+
+c Minor displacement
+--------------------
+
+Level: 3 Cost: 2 Failure: 25
+
+Below level 25, this teleports the player 10 squares.
+
+At level 25 and above, it becomes "dimension door", which allows the player
+to choose where to teleport. Where a normal player action takes 100 energy
+points, this effect takes an extra (60-level)!
+
+It fails if the square isn't empty, or if the distance is greater than level+2,
+or random(level*level/2) is 0. If the spell fails, the player is teleported
+20 squares away, at random. Also, the spell takes an additional 100 energy,
+effectively paralyzing you for a turn.
+
+d Major displacement
+--------------------
+
+Level: 7 Cost: 6 Failure: 35
+
+Teleports the player level*5 squares away. From level 30 on, it also
+teleports monsters away (level) squares.
+
+e Domination
+------------
+
+Level: 9 Cost: 7 Failure: 50
+
+Below level 30, this tries to dominate (a weak form of charm) a single
+monster, at power equal to your level. It is a radius-0 ball, so you
+can "jump over" other monsters.
+
+This works as follows:
+
+It has no effect on monsters that are already pets.
+Next, a monsters resists if it is a unique, if it has the "can't be confused"
+  flag, or if (monster level) > 10+random(player level-10),
+  or 10 if player level < 11.
+Undead and demons that resist can harm the poor mindcrafter, see the
+  "Side effects of psionic damage" paragraph.
+Otherwise, the domination is successful.
+
+Domination can make monsters your pets, but unfortunately only with power > 29,
+so that is not possible with this spell. You get one of these effects:
+ o Stun the monster level/2 turns (25% chance)
+ o Confuse the monster level/2 turns (25% chance)
+ o Scare the monster (50% chance)
+
+At level 30, it tries to charm all monsters in sight at power equal
+to (level*2).
+
+This works as follows:
+
+The power is level*2 + a number based on your Charisma. Find this by applying
+  your Cha stat to the 1able for base regeneration rate (which was made for
+  Con stats - I didn't invent this). The table is in the last paragraph.
+A monster resists if it is unique, if it can't be confused, or if
+  (monster level) > random(power-10)+5.
+Also, monsters that are aggravated can't be charmed.
+Otherwise, it becomes your pet. As simple as that.
+
+f Pulverise
+-----------
+
+Level: 11 Cost: 7 Failure: 30
+
+This is a sound ball, with radius 0 below level 20, and radius 1+(level-20)/8
+after that. Its damage is (8+(level-5)/4)d8.
+
+Sound stuns monsters it hits for (10+1d15+r)/(r+1) turns, where r is the
+distance of the monster to the center of the ball.
+
+g Character armour
+------------------
+
+Level: 13 Cost: 12 Failure: 50
+
+This gives stone skin (+50 AC), and temporary resistances at higher levels.
+
+Level   Resistance
+
+15      Acid
+20      Fire
+25      Cold
+30      Electricity
+35      Poison
+
+All of these effects last (level) turns.
+
+h Psychometry
+-------------
+
+Level: 15 Cost: 12 Failure: 60
+
+At level 40 and above, this identifies an item. Below that, it gives
+a pseudo-identify. On things that can't usually be pseudo-id'ed, like potions
+and scrolls, it will always say {average}, unless the item is known to be
+bad, in which case it will say {broken}. The items that are considered
+bad are the same items that don't need confirmation when you try to
+destroy them (if you have that option on), as far as I can tell.
+
+i Mind Wave
+-----------
+
+Level: 18 Cost: 10 Failure: 45
+
+Below level 25, this is a Psi ball, with radius 2+level/10, and damage
+(level*3)/2, centered on the player.
+
+At level 25 or above, hit all monsters in sight with (level*((level-5)/10+1))
+points of Psi damage.
+
+See the paragraph "Side effects of psionic damage".
+
+j Adrenaline Channeling
+-----------------------
+
+Level: 23 Cost: 15 Failure: 45
+
+This has the following effects:
+ o Remove fear
+ o Remove stunning
+ o Heal (level) hitpoints
+ o Below level 35, heroism for 10+1d((level*3)/2) turns
+ o At level 35 or above, superheroism for the same duration
+ o Haste (+10 speed) the player for the same duration
+
+k Psychic Drain
+---------------
+
+Level: 25 Cost: 10 Failure: 40
+
+Fires a "psychic drain" ball, damage (level/2)d6, and radius (level-25)/10.
+If there was any noticeable effect, the spell takes 150 extra points of
+energy, *effectively paralyzing the player for 1.5 player turns*. I lost
+a character to just 4 cold hounds because of this, so it's not to be
+laughed at :-).
+
+Psychic drain damage works as follows:
+
+Empty minded monsters are immune.
+Stupid monsters, "weird mind" monsters and animals resist, as do
+  others if (monster level) > 1d(3*damage). This means the damage
+  is divided by 3.
+Demons and undead can return fire, see "Side effects of psionic damage".
+Otherwise, heal (5d(damage))/4 mana points.
+
+l Telekinetic Wave
+------------------
+
+Level: 28 Cost: 20 Failure: 40
+
+Fires a "telekinesis" ball, damage 3*level below level 40, 4*level otherwise,
+and radius 3+level/10, centered on the player.
+
+Telekinesis damage works as follows:
+
+Teleport the creature 7 squares.
+If the creature is unique, or (creature level) > 5+1d(damage), the
+  creature resists.
+Otherwise, add 1+(3+level/10)d(damage) to the creature's stun count.
+
+As a welcome side effect, sometimes the creature is teleported to a spot
+where the ball hasn't been yet. This way, the creature is hit twice.
+
+
+Side effects of psionic damage
+==============================
+
+The corrupted minds of high-level demons and undead can react aggressively to
+a mindcrafter's powers.
+
+Neural Blast and Mind Wave are pure psi damage. This is what can happen.
+
+If the creature is a demon or undead, and its level is more than half
+  the player's level, its mind will backlash 50% of the time.
+Next, you get a standard saving throw. If it succeeds, no further effects.
+Otherwise, this happens:
+  You take the damage instead (since the creature resisted it's already
+    a third of what it was).
+  And one of the following, all with a 25% chance:
+    You are confused 3+1d(damage) turns, or
+    1d(damage) is added to your stun counter, or
+    you become "Afraid", unless you resist fear, or
+    you become paralyzed for 1d(damage) turns, unless you have free action.
+  The creature takes 0 damage.
+
+Domination under level 30 does domination damage, which has the same effect,
+except that the player can't be paralyzed - instead, the "Afraid" effect
+has a 50% chance of happening.
+
+Psychic drain damage happens with the same monsters and with the same
+chances and saving throw, but the effects are:
+  Take the damage instead (has already been /3), and
+  loose (5d(damage))/2 mana points.
+
+The way I read the code, there is a bug here: the fear effects check if
+the *monster* has resist fear, not the player. Not sure.
+It is also weird to test the player for resist fear, since mindcrafters
+get resist fear at level 10.
+
+Miscellaneous
+=============
+
+Pseudo Identify
+---------------
+
+The mindcrafter's pseudo id is bad, at once every (55000/(level*level+40))
+turns (A priest has 10000 instead of 55000 there, a monk 20000). Mindcrafters
+get the light pseudo id version as well.
+
+Artifact Creation
+-----------------
+
+If an artifact is created with a scroll, there is a 25% chance that it gets
+a bias; for mindcrafters, there is a further 40% chance that it gets a
+"priestly" bias, presumably that means a better chance for a wisdom bonus.
+
+
+Appendix - Stat tables
+======================
+
+Table 1 - Effect of Wisdom on failure rate. Substract this
+          amount from the rate.
+
+Stat    Amount      Stat            Amount      Stat            Amount
+3       0           16              6           18/110-18/119   27
+4       0           17              6           18/120-18/129   30
+5       0           18/00-18/09     9           18/130-18/139   33
+6       0           18/10-18/19     9           18/140-18/149   36
+7       0           18/20-18/29     9           18/150-18/159   39
+8       3           18/30-18/39     9           18/160-18/169   42
+9       3           18/40-18/49     9           18/170-18/179   45
+10      3           18/50-18/59     12          18/180-18/189   48
+11      3           18/60-18/69     12          18/190-18/199   51
+12      3           18/70-18/79     15          18/200-18/209   54
+13      3           18/80-18/89     18          18/210-18/219   57
+14      3           18/90-18/99     21          18/220+         60
+15      6           18/100-18/109   24
+
+Table 2 - Minimum failure rate
+
+Stat    Amount      Stat            Amount      Stat            Amount
+3       99          16              8           18/110-18/119   2
+4       99          17              7           18/120-18/129   2
+5       99          18/00-18/09     6           18/130-18/139   2
+6       99          18/10-18/19     6           18/140-18/149   2
+7       99          18/20-18/29     5           18/150-18/159   1
+8       50          18/30-18/39     5           18/160-18/169   1
+9       30          18/40-18/49     5           18/170-18/179   1
+10      20          18/50-18/59     4           18/180-18/189   1
+11      15          18/60-18/69     4           18/190-18/199   1
+12      12          18/70-18/79     4           18/200-18/209   0
+13      11          18/80-18/89     4           18/210-18/219   0
+14      10          18/90-18/99     3           18/220+         0
+15      9           18/100-18/109   3
+
+Table 3 - A number for creature charming, depending on Cha.
+          (Actually, this is the regeneration rate table, but used here too).
+
+Stat    Amount      Stat            Amount      Stat            Amount
+3       0           16              1           18/110-18/119   4
+4       0           17              1           18/120-18/129   5
+5       0           18/00-18/09     2           18/130-18/139   6
+6       0           18/10-18/19     2           18/140-18/149   6
+7       0           18/20-18/29     2           18/150-18/159   7
+8       0           18/30-18/39     2           18/160-18/169   7
+9       0           18/40-18/49     2           18/170-18/179   8
+10      0           18/50-18/59     3           18/180-18/189   8
+11      0           18/60-18/69     3           18/190-18/199   8
+12      0           18/70-18/79     3           18/200-18/209   9
+13      0           18/80-18/89     3           18/210-18/219   9
+14      1           18/90-18/99     3           18/220+         9
+15      1           18/100-18/109   4
+
+
+
+
+
+13 July 1998, Remco Gerlich (scarblac@dds.nl).

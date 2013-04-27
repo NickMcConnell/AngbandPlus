@@ -1,0 +1,253 @@
+WARRIOR/MAGE SPELLS -- Requirements, costs, and failures
+
+Failure rate decreases 3% for each level beyond the minimum,
+to a minimum of 5%.  High INT also reduces failure rate.
+
+Life Warrior Mage:        Level  Mana  Fail
+
+Detect Evil               2      2     30
+Cure Light Wounds         4      4     35
+Bless                     5      5     35
+Remove Fear               6      6     35
+Call Light                8      8     35
+Detect Traps/Doors        9      9     40
+Cure Medium Wounds        14     14    40
+Satisfy Hunger            16     16    45
+Remove Curse              18     18    45
+Cure Poison               20     20    50
+Cure Critical Wounds      22     22    50
+Sense Unseen              24     24    50
+Holy Orb                  26     26    50
+Protection from Evil      28     28    50
+Healing                   33     33    55
+Glyph of Warding          40     70    75
+Exorcism                  28     28    50
+Dispel Curse              30     30    70
+Dispel Undead+Demons      34     34    60
+Day of the Dove           36     36    60
+Dispel Evil               38     38    70
+Banishment                42     55    80
+Holy Word                 45     45    80
+Warding True              50     70    80
+Heroism                   10     10    50
+Prayer                    28     28    50
+Bless Weapon              38     85    80
+Restoration               45     90    80
+Healing True              46     90    80
+Holy Vision               48     50    80
+Divine Intervention       49     100   90
+Holy Invulnerability      50     100   80
+
+Sorcery Warrior Mage:     Level  Mana  Fail
+
+Detect Monsters           1      1     23
+Phase Door                2      2     24
+Detect Doors+Traps        3      3     25
+Light Area                4      4     30
+Confuse Monster           5      5     30
+Teleport Self             6      6     35
+Sleep Monster             7      7     30
+Recharging                8      8     75
+Magic Mapping             10     9     75
+Identify                  11     10    75
+Slow Monster              12     11    75
+Mass Sleep                13     12    50
+Teleport Away             20     15    60
+Haste Self                27     18    60
+Detection True            33     25    70
+Identify True             40     40    75
+Detect Objects+Treasure   4      4     25
+Detect Enchantment        12     12    70
+Charm Monster             14     12    80
+Dimension Door            15     12    70
+Sense Minds               16     14    60
+Self Knowledge            19     19    85
+Teleport Level            24     22    60
+Word of Recall            28     28    75
+Stasis                    12     12    40
+Telekinesis               19     19    75
+Explosive Rune            30     35    95
+Clairvoyance              35     45    80
+*Enchant Weapon*          42     85    95
+*Enchant Armor*           45     100   95
+Alchemy                   46     55    90
+Globe of Invulnerability  48     75    75
+
+Nature Warrior Mage:      Level  Mana  Fail
+
+Detect Creatures          2      2     23
+First Aid                 3      3     25
+Detect Doors+Traps        4      4     25
+Produce Food              5      5     35
+Daylight                  6      6     50
+Animal Taming             7      7     50
+Resist Environment        8      8     50
+Cure Wounds+Poison        9      9     35
+Stone to Mud              10     10    40
+Lightning Bolt            11     11    30
+Nature Awareness          12     12    45
+Frost Bolt                13     13    40
+Ray of Sunlight           14     14    30
+Entangle                  19     15    65
+Summon Animals            31     31    65
+Herbal Healing            45     100   95
+Door Building             9      9     20
+Stair Building            12     12    40
+Stone Skin                15     15    75
+Resistance True           20     22    85
+Animal Friendship         38     38    85
+Stone Tell                40     42    90
+Wall of Stone             45     48    75
+Protection from Corrosion 49     95    90
+Earthquake                25     25    60
+Whirlwind Attack          27     27    60
+Blizzard                  28     28    75
+Lightning Storm           33     33    75
+Whirlpool                 38     38    85
+Call Sunlight             41     41    90
+Elemental Brand           45     95    95
+Nature's Wrath            50     85    65
+
+Chaos Warrior Mage:       Level  Mana  Fail
+
+Magic Missile             2      2     20
+Trap/Door Destruction     3      3     22
+Flash of Light            4      4     25
+Touch of Confusion        5      5     30
+Manaburst                 8      8     30
+Fire Bolt                 11     11    45
+Fist of Force             17     15    45
+Teleport Self             18     17    35
+Wonder                    21     21    45
+Chaos Bolt                23     22    45
+Sonic Boom                27     25    50
+Doom Bolt                 29     30    50
+Fire Ball                 33     33    50
+Teleport Other            37     35    60
+Word of Destruction       41     40    80
+Invoke Logrus             48     50    85
+Polymorph Other           12     12    45
+Chain Lightning           17     16    60
+Charging                  20     18    80
+Disintegration            27     25    60
+Alter Reality             35     30    85
+Polymorph Self            45     55    85
+Chaos Branding            49     95    80
+Summon Demon              50     111   80
+Gravity Beam              24     20    66
+Meteor Swarm              40     35    85
+Flame Strike              42     40    75
+Call Chaos                46     44    85
+Magic Rocket              48     48    80
+Mana Storm                49     50    85
+Breathe Logrus            50     100   80
+Call the Void             50     100   85
+
+Death Warrior Mage:       Level  Mana  Fail
+
+Detect Unlife             1      1     25
+Malediction               2      2     25
+Detect Evil               3      3     25
+Stinking Cloud            4      4     27
+Black Sleep               7      7     30
+Resist Poison             9      10    75
+Horrify                   10     10    30
+Enslave the Undead        12     12    30
+Orb of Entropy            14     14    40
+Nether Bolt               16     16    30
+Terror                    21     21    50
+Vampiric Drain            25     25    60
+Poison Brand              35     75    50
+Dispel Good               40     40    60
+Genocide                  44     45    95
+Restore Life              48     55    95
+Berserk                   10     22    80
+Invoke Spirits            12     18    80
+Dark Bolt                 14     18    30
+Battle Frenzy             30     30    75
+Vampirism True            40     40    60
+Vampiric Branding         38     90    70
+Darkness Storm            45     50    70
+Mass Genocide             48     85    80
+Death Ray                 24     24    75
+Raise the Dead            33     80    75
+Esoteria                  35     45    95
+Word of Death             42     50    70
+Evocation                 45     55    80
+Hellfire                  50     135   95
+Ommnicide                 50     100   95
+Wraithform                50     123   95
+
+Trump Warrior Mage:       Level  Mana  Fail
+
+Phase Door                1      1     50
+Mind Blast                5      5     50
+Shuffle                   7      7     75
+Reset Recall              8      7     80
+Teleport Self             10     10    40
+Dimension Door            12     12    60
+Trump Spying              18     15    60
+Teleport Away             20     18    60
+Trump Object              24     23    80
+Trump Animal              28     25    60
+Phantasmal Servant        31     26    60
+Trump Monster             33     30    70
+Conjure Elemental         38     32    80
+Teleport Level            40     38    70
+Word of Recall            44     42    80
+Banish                    48     46    70
+Joker Card                19     18    80
+Trump Spiders             29     27    70
+Trump Reptiles            31     30    70
+Trump Hounds              35     33    70
+Trump Branding            40     80    80
+Living Trump              42     120   90
+Death Dealing             46     55    50
+Trump Cyberdemon          50     135   90
+Trump Divination          33     30    60
+Trump Lore                40     60    90
+Trump Undead              42     95    80
+Trump Dragon              45     95    80
+Mass Trump                46     120   80
+Trump Demon               48     125   80
+Trump Ancient Dragon      49     130   80
+Trump Greater Undead      50     135   80
+
+Arcane Warrior Mage:      Level  Mana  Fail
+
+Zap                       1      1     20
+Wizard Lock               2      1     33
+Detect Invisibility       2      2     33
+Detect Monsters           3      3     33
+Blink                     4      4     33
+Light Area                5      5     40
+Trap+Door Destruction     6      6     33
+Cure Light Wounds         7      7     44
+Detect Doors & Traps      8      8     40
+Phlogiston                9      9     60
+Detect Treasure           11     10    50
+Detect Enchantment        12     11    50
+Detect Objects            13     12    50
+Cure Poison               14     13    50
+Resist Cold               15     14    50
+Resist Fire               16     15    50
+Resist Lightning          17     16    50
+Resist Acid               18     17    50
+Cure Medium Wounds        19     18    33
+Teleport                  20     20    50
+Stone to Mud              23     22    60
+Ray of Light              25     23    60
+Satisfy Hunger            29     25    70
+See Invisible             30     27    60
+Recharging                35     30    80
+Teleport Level            39     38    80
+Identify                  41     40    60
+Teleport Away             43     42    70
+Elemental Ball            45     44    66
+Detection                 47     45    80
+Word of Recall            48     65    70
+Clairvoyance              50     140   80
+
+
+
+

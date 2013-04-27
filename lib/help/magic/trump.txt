@@ -1,0 +1,111 @@
+=== Trump  Magic ===
+
+TRUMP: Trump magic seems an independent source of power, although
+its supposed association  with Chaos magic  has been mentioned in
+several places. Although it lacks the unpredictable chaotic side-
+effects of Chaos magic,  it has  a few spells whose exact  effets
+seem  more or less random.  One such spell is Shuffle:  the Trump
+spellbooks actually consist  of decks of trumps,  and the Shuffle
+spell allows the caster to shuffle the deck and pick one card  at
+random.  The effect depends on the card picked, and is not always
+pleasant.  In the Amber universe,  the Trump gateways are  also a
+major  method  of  transportation:  Trump  magic has,  indeed, an
+admirable selection  of  teleportation spells.  Since  the  Trump
+gateways can also be used to summon other creatures,  Trump magic
+has an equally impressive selection of summoning spells. However,
+not all monsters appreciate being drawn to another place by Trump
+user. The only summoned creatures whose loyalty is guaranteed are
+the Phantasmal Servants,  who lack  a will of their own  (but can
+develop one, if you treat them badly).
+
+The four magic books available to the Trump practitioner are: 
+
+  1) Conjuring and Tricks 
+  2) Deck of Many Things 
+  3) Trumps of Doom  [RARE]
+  4) Five Aces  [RARE]
+
+=============================================================================
+
+1) Conjurings and Tricks: 
+
+   1.Phase Door: teleport, range 10 
+   2.Mind Blast: bolt or beam of psi-force, damage 3+(level-1)/5d3 
+   3.Shuffle: rolls 1d120 or 1d100+level/5 (if you are a High Mage or a
+      Rogue)
+      1-6: summons nasty monsters
+      7-13: summons a demon
+      14-17: activates the Curse of Topi Ylinen
+      18-21: aggravates monsters
+      22-25: decreases INT and WIS
+      26-29: summons a monster
+      30-32: creates darkness
+      33-37: creates a chaotic spell effect
+      38-39: Phase Door
+      40-41: +10 to-hit, +5 AC, duration=level
+      42-46: teleport, range 100
+      47-51: teleport, range 200
+      52-60: Wallbreaker spell
+      61-71: sleeps adjacent monsters
+      72-79: earthquake, radius 5
+      80-87: summons a friendly monster
+      88-95: attempts to charm one monster, power minimum of(level,20)
+      96-100: creates walls in adjacent squares
+      101-110: rerolls life rating, cures all mutations
+      111-119: maps and lights entire level
+      120: gain up to 5000 XP
+   4.Reset Recall: resets recall depth 
+   5.Teleport Self: teleport, range (level*4) 
+   6.Dimension Door: same as Sorcery spell 
+   7.Trump Spying: ESP, duration 1d30+25 
+   8.Teleport Away: same as Sorcery spell 
+
+=============================================================================
+
+2) Deck of Many Things: 
+
+   1.Trump Object: attempts to fetch one object. Will fail if the object
+      weighs more than 1.5*level pounds. 
+   2.Trump Animal: attempts to summon 1 animal. 
+   3.Phantasmal Servant: attempts to summon 1 friendly phantom 
+   4.Trump Monster: attempts to summon 1 monster. 
+   5.Conjure Elemental: attempts to summon 1 elemental. 
+   6.Teleport Level: same as Sorcery spell 
+   7.Word of Recall: same as Sorcery spell 
+   8.Banish: banishes monsters, power level*4 
+
+=============================================================================
+
+3) Trumps of Doom:  [RARE]
+
+   This tome tells you the secrets of the Living Trump treatment, as well
+   how to deal the Joker card and how to deal death. It also has rather
+   powerful summoning Trumps which may yet prove your own Doom...
+
+   1.Joker Card: summons a bizarre creature. 
+   2.Trump Spiders: summons spiders. 
+   3.Trump Reptiles: summons a hydra. 
+   4.Trump Hounds: summons hounds. 
+   5.Trump Branding: attempts to make your weapon a Trump Weapon 
+   6.Living Trump: 1 in 8 chance of making you teleport randomly,
+      otherwise making you able to teleport at will. 
+   7.Death Dealing: 1d(level*3) damage to all living creatures in sight 
+   8.Trump Cyberdemon: summons 1 Cyberdemon. 
+
+=============================================================================
+
+4) Five Aces:  [RARE]
+
+   A superb collection of the most classic summoning Trumps ever crafted.
+
+   1.Trump Divination: detects traps, doors, monsters, invisible, stairs,
+      and objects 
+   2.Trump Lore: *Identifies* an item 
+   3.Trump Undead: summons an undead creature. 
+   4.Trump Dragon: summons a dragon. 
+   5.Mass Trump: summons 1 to (3+level/10) creatures. 
+   6.Trump Demon: summons 1 demon. 
+   7.Trump Ancient Dragon: summons 1 ancient dragon. 
+   8.Trump Greater Undead: summons 1 L, W, or V creature. 
+
+=============================================================================

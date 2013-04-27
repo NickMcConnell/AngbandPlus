@@ -1,0 +1,763 @@
+Angband FAQ Part Two
+
+From: benh@phial.com (Ben Harrison)
+Newsgroups: rec.games.roguelike.angband
+Subject: rec.games.roguelike.angband FAQ part 2
+Followup-To: rec.games.roguelike.angband
+Organization: Adventurers Anonymous
+Summary: Some *SPOILERS* for the roguelike game Angband
+
+----------------------------------------------------------------------------
+Angband Frequently Asked Questions - Part 2 (Spoilers)
+----------------------------------------------------------------------------
+
+Compiled and maintained by Ben Harrison (benh@phial.com).
+For Angband version 2.8.3 - May be inaccurate with other versions.
+
+Angband FAQ Part One (Non-Spoilers) is available separately.
+
+Based on the old Angband FAQ by Charles F. Teague II & Charles Swiger, and
+information provided by Jules Bean, Matt Craighead, Joseph W. DeVincentis,
+Leonard Dickens, Ben Harrison, Jason Holtzapple, Randy Hutson, Stephen S.
+Lee, Rick Lim, Steve Linberg, Mike Marcelais, Ross Millikan, Adam Schenker,
+Andrew Schoonmaker, Cliff Stamp, Billy Tanksley, Pat Tracy, and others.
+
+----------------------------------------------------------------------------
+Table of Contents
+----------------------------------------------------------------------------
+Angband FAQ - Part Two:
+
+  1. Spoiler Files
+       a. Where can I get spoiler files and what are their contents?
+  2. Abilities and Resistances
+       a. I don't have see invisible, but I occasionally see invisible
+          monsters. What's going on?
+       b. What's the best way to identify items?
+       c. I just got a feeling about an item. What does it mean?
+       d. What does free action do? Is it important?
+       e. My stats got shuffled by a nexus attack! How do I prevent this?
+          Can they be restored?
+       f. What is the difference between resist confusion and resist chaos?
+       g. What is the difference between ignore, resist and immune?
+  3. Items
+       a. What is a weapon of freezing/burning/shocking/melting?
+       b. What does a [insert item here] do ?
+       c. I found a weapon of Morgul. Is is worth anything?
+       d. What are the special powers of Dragon Scale Mail?
+       e. Explain "good" and "great" items.
+       f. Which items can have extra powers?
+       g. How do I discover an item's special powers?
+  4. Artifacts
+       a. Will I ever see an artifact in one of the stores in town?
+       b. Explain the generation of artifacts.
+       c. Can an artifact be stolen or destroyed by a monster attack?
+       d. I found an artifact on a level that was not "special." What's up?
+       e. One of my items/artifacts was disenchanted! How can I prevent
+          this? Is there any way to restore the item?
+       f. I found Calris. Joy! But how do I uncurse it?
+  5. Combat & Survival
+       a. Is there a trick for surviving an attack by a group of monsters?
+       b. What are some general survival tips?
+       c. How many attacks should my character be getting?
+       d. How do missile weapon to-hit and to-damage bonuses work?
+       e. How do damage multipliers work?
+       f. What are the damage mulipliers for ego weapons?
+       g. I got a critical hit with my weapon. How much damage did it do?
+       h. My priest character doesn't feel comfortable wielding his or her
+          weapon. Why?
+  6. Spellcasting
+       a. How do I keep my spellbooks from being destroyed by fire?
+       b. Why did my maximum mana suddenly go down?
+       c. I don't have enough mana to cast a spell. What are the
+          consequences if I cast it anyway?
+       d. I cast a spell twice in a row. Why doesn't the duration double?
+       e. My bolt spell took out a row of monsters! What happened?
+       f. Where do I find the higher-level spellbooks?
+  7. Monsters
+       a. Are monsters susceptible to certain attacks, like they were in
+          Moria?
+       b. Why are there two different entries in my monster memory for the
+          same monster?
+       c. I killed a monster that I couldn't see. Do I get credit in the
+          monster memory for the kill? What about experience?
+       d. How do I kill large numbers of orcs or trolls fairly easily?
+       e. Why can't I target a monster in a wall?
+       f. Should I kill Farmer Maggot?
+       g. I'm having lots of trouble with a unique monster. Help!
+  8. Dungeon Features
+       a. How is the treasure in chests generated?
+       b. What are monster pits?
+       c. What are monster nests?
+       d. What are lesser vaults?
+       e. What are greater vaults?
+
+----------------------------------------------------------------------------
+Angband Faq - Part Two
+----------------------------------------------------------------------------
+
+----------------------------------------------------------------------------
+1. Spoiler Files
+----------------------------------------------------------------------------
+
+1a. Where can I get spoiler files and what are their contents?
+----------------------------------------------------------------------------
+The most recent spoiler files can be obtained via anonymous FTP from the
+official developement FTP site (Help-Info directory) at
+ftp://export.andrew.cmu.edu/angband/Help-Info.
+
+Descriptions of some useful spoiler files follow:
+
+   * initstat.spo: details how the computer generates starting statistics
+     for a character based on class and race (outdated)
+   * stat.spo: modifiers to abilities based on statistics (outdated)
+   * store.spo: information on storekeepers (outdated)
+   * spells.spo: spell effects (outdated)
+   * dungeon.spo: information on dungeon level creation and level feelings
+   * obj-long.spo: detailed information on every object found in the game,
+     mundane and magical, except for artifacts. Also includes information on
+     wand/staff/rod failure rates
+   * obj-good.spo: how good and great items are created and their abilities
+   * artifact.spo: artifact list with complete descriptions
+   * attack.spo: determining player combat skill
+   * mon-blow.spo: information on monster attacks
+   * mon-info.spo: very long spoiler detailing monsters and uniques
+
+By adding spoiler files to the ./lib/info directory, you should be able to
+access them via the online help, if you have the appropriate "menu" files in
+addition to the spoiler files themselves.
+
+----------------------------------------------------------------------------
+2. Abilities And Resistances
+----------------------------------------------------------------------------
+
+2a. I don't have see invisible, but I occasionally see invisible monsters.
+What's going on?
+----------------------------------------------------------------------------
+Infravision allows you to see some invisible monsters if they aren't
+cold-blooded. This is not a bug.
+
+2b. What's the best way to identify items?
+----------------------------------------------------------------------------
+Some items are junk and don't have to be identified: broken bones, skulls
+and sticks, empty bottles, shards of pottery and skeletons. Some items look
+like junk but have value: filthy rags can be worn if you have no armor and
+broken swords and daggers can be wielded as weapons. Occasionally, even the
+lowliest filthy rag or broken sword can have amazing powers.
+
+For warriors, paladins and rogues, carry all the weapons and armor your
+character finds. The 'pseudo-identify' will give some idea of the item's
+value. For mages and rangers who have the identify spell and know it well
+enough to cast fairly often, ID everything. Warriors, priests, and low level
+mages and rangers have to depend on Scrolls of Identify and Rods and Staves
+of Perception. Priests with 'Orb of Draining' can use it to weed out
+non-artifact cursed items on the floor. Even priests, mages and rangers do
+get some feeling of 'good' or 'cursed' items if they carry things long
+enough, but this is much more general than the feelings other classes
+receive. See the next question.
+
+2c. I just got a feeling about an item. What does it mean?
+----------------------------------------------------------------------------
+Warriors, rogues and paladins can get these feelings:
+
+ 'terrible'  - cursed artifact, usually bad
+ 'worthless' - cursed ego item
+ 'cursed'    - cursed item
+ 'broken'        - useless normal item
+ 'average'   - normal item
+ 'good'      - item with bonuses
+ 'excellent' - item with special powers (ego item)
+ 'special'   - artifact, usually good
+
+But note that at least one 'terrible' item is actually good (Calris).
+
+While priests, mages and rangers are limited to:
+
+ 'good'    - can be 'special,' 'excellent,' or 'good' as above
+ 'cursed'  - can be 'terrible,' 'worthless,' or 'cursed' as above
+
+2d. What does free action do? Is it important?
+----------------------------------------------------------------------------
+Free action prevents you from being paralyzed or slowed by most attacks. It
+does not protect against certain slowing attacks, like the breath of gravity
+hounds. It is essential after about 1000', as paralyzation at those levels
+can often mean instant death. Thankfully, many items provide it, and it is
+not too difficult to obtain.
+
+2e. My stats got shuffled by a nexus attack! How do I prevent this? Can they
+be restored?
+----------------------------------------------------------------------------
+The nexus "stat-shuffling" attack can be prevented by resist nexus. PDSM,
+Aule, Bloodspkike, Soulkeeper, Bladeturner, Isildur, Arvedui, Iron Crown of
+Morgoth, Hammerhand and Feanor all resist nexus. You also get a saving
+throw, so high WIS helps. If your stats do get shuffled, there is no way to
+restore them, short of getting them shuffled again until they get restored.
+Of course, if all your stats are maximized then it doesn't matter if they
+get shuffled.
+
+2f. What is the difference between resist confusion and resist chaos?
+----------------------------------------------------------------------------
+Resist chaos grants resist chaos and resist confusion. But resist confusion
+only resists confusion. I hope the confusion over this issue has ended. :)
+
+2g. What is the difference between ignore, resist and immune?
+----------------------------------------------------------------------------
+An item with an 'ignore' power cannot be damaged by that attack.
+
+Items with 'resist' powers make your character resist damage and side
+effects from those attacks, but they do not protect other equipment from
+harm.
+
+Items with 'immune' powers make your character immune to damage of that type
+and protect carried items from harm.
+
+----------------------------------------------------------------------------
+3. Items
+----------------------------------------------------------------------------
+
+3a. What is a weapon of freezing/burning/shocking/melting?
+----------------------------------------------------------------------------
+These weapons are "branded" with one of the four elements,
+cold/fire/electricity/acid (respectively). A monster that is not resistant
+to the branded element will take x3 base damage from any attack with that
+weapon.
+
+3b. What does a [insert item here] do ?
+----------------------------------------------------------------------------
+
+   * Potion of Life - restores lost experience, restores any drained stats,
+     cures poison, confusion, blindness, hallucination, removes fear and
+     stunning, heals cuts and fully heals you.
+
+   * Potion of Augmentation - restores all your stats, then attempts to
+     raise each one.
+
+   * Potion of Death or Ruinations - Need you ask? Don't drink it!
+
+   * Potion of Detonations - Don't drink it! It makes a good thrown weapon,
+     though, inflicting 25d25 points of damage.
+
+   * Potion of Enlightenment - a Potion of Enlightenment maps and lights the
+     entire level, like the 'Clairvoyance' prayer. It also detects all
+     objects.
+
+   * Potion of *Enlightenment* - completely lights and maps the level,
+     identifies all your items, restores your INT and WIS and then increases
+     them if below maximum, grants self-knowledge, and detects all objects
+     in the immediate vicinity.
+
+   * Staff or Rod of Enlightenment - acts as the priest spell of sense
+     surroundings (basically, it maps one screen, without detecting
+     anything).
+
+   * Staff of the Magi - restores your INT and mana to the maximum.
+
+   * Scroll of Acquirement - Creates one item of great quality on the floor
+     near the player. *Acquirement* creates several.
+
+   * Curse Weapon/Armor Scroll - these will ruin an equipped weapon or piece
+     of armor. Artifacts have only a small chance to survive ruination. Can
+     be used to remove a heavily cursed weapon, as the scroll will "lower"
+     the curse to a normal curse.
+
+3c. I found a weapon of Morgul. Is is worth anything?
+----------------------------------------------------------------------------
+No! Not only do they have large minuses to hit and to damage, they are
+*cursed*, meaning if your character wields one they cannot unwield it until
+they read a scroll of *Remove Curse*.
+
+3d. What are the special powers of Dragon Scale Mail?
+----------------------------------------------------------------------------
+All DSMs except for the rare Power DSM start at [30,+10] and weigh just 20
+pounds, so they are great armor. No DSM can be damaged by the four elemental
+attacks.
+
+All DSMs provide resistance to the "natural" breath weapon(s) of that type
+of dragon (i.e., Red DSM has resist fire, Green DSM has resist poison, etc.)
+Some of these resistances are not very useful, but some are very rare and
+precious high resistances. Some of the more powerful DSMs are the are the
+only items in the game (except artifacts) that can provide multiple high
+resistances.
+
+In addition, all DSM can be activated for a breath weapon appropriate for
+the type of dragon. This capability can very useful for a lower level
+character who is lucky enough to find a DSM.
+
+For information on the specific resistance(s) and activation provided by a
+particular type of DSM, see the spoiler file obj-long.spo.
+
+3e. Explain "good" and "great" items.
+----------------------------------------------------------------------------
+Note that this section is slightly out of date!
+
+Any weapon or piece of armor created by Angband has a chance to become a
+"good" item, based on the dungeon level on which it was created. "Good"
+weapons have bonuses to hit and damage and "good" armor will have a bonus to
+Armor Class.
+
+Any "good" item has a chance (again based on dungeon level) to become a
+"great" item. These items are most of the "named" items such as Holy
+Avengers, Slay Weapons and special "resist" armors. Sometimes a "great" item
+will have additional bonuses over the previous "good" item. These are also
+called "ego items."
+
+Any "great" item has a chance to become an artifact if several other
+conditions exist.
+
+For more information, see the spoilers obj-good.spo and artifact.spo.
+
+3f. Which items can have extra powers?
+----------------------------------------------------------------------------
+Seven ego-items in the game have random powers and are likely candidates for
+*Identify* scrolls.
+
+These items will sustain one statistic:
+
+   * Holy Avenger weapons
+   * Defender weapons
+
+These items will have one ability chosen from the following: feather fall,
+permanent light(1), see invisible, telepathy, slow digestion, regeneration,
+free action, or hold life
+
+   * Crown of the Magi
+   * Blessed weapons
+
+These items will have one high resist chosen from the following: blindness,
+confusion, sound, shards, nether, nexus, chaos, disenchantment or poison.
+
+   * Cloak of Aman
+   * Robe of Permanence
+   * Armor of Elvenkind
+
+3g. How do I discover an item's special powers?
+----------------------------------------------------------------------------
+For most items, identify them and read the spoiler files obj-good.spo and
+obj-long.spo. This is sufficient for all items except those with extra
+powers.
+
+Items with random powers take a little more work. The easiest way to find
+out all their powers is to read a scroll of *Identify* on them. Another
+magical way to find an item's powers is with a potion of Self Knowledge.
+Unequip all your character's items except for the one in question then quaff
+the potion. Subtract any special racial abilities, and you should be able to
+tell the powers of the item.
+
+Finally, there is always the method of trying it out. Some of the abilities
+and resistances are easily deduced; others take work. Have your character
+carry the item. When he/she runs into weak monsters with a particular attack
+equip the item, let the monster hit or cast a spell, and see if the item
+protects your character.
+
+----------------------------------------------------------------------------
+4. Artifacts
+----------------------------------------------------------------------------
+
+4a. Will I ever see an artifact in one of the stores in town?
+----------------------------------------------------------------------------
+Artifacts never appear in stores unless you sell one to them.
+
+4b. Explain the generation of artifacts.
+----------------------------------------------------------------------------
+If you are not playing in preserve mode, artifacts, once created and left
+behind on a level, are gone forever. This includes both artifacts generated
+when the level is created and those dropped by monsters. If you use the "~"
+command on the town level and see an artifact in the list you have never
+found, it means you have missed it somehow in the dungeon. See obj-good.spo
+for more detail.
+
+4c. Can an artifact be stolen or destroyed by a monster attack?
+----------------------------------------------------------------------------
+Artifacts resist destruction by monster attacks, and should never be picked
+up or stolen. However, artifacts are somewhat vulnerable to disenchant
+attacks.
+
+4d. I found an artifact on a level that was not "special." What's up?
+----------------------------------------------------------------------------
+Artifacts can appear on a level that doesn't give you the "special" message.
+The "special" message only lets you know if there is an artifact (or other
+special feature) on the level when it's first generated. If a monster is
+killed and drops an artifact, the only way you'll know about it is to ID it
+(or carry it a while, and hope for the "pseudo-ID" to tell you). However, if
+there is an artifact on the level at the time of creation, you will get the
+"special" message, if not playing in preserve mode.
+
+4e. One of my items/artifacts was disenchanted! How can I prevent this? Is
+there any way to restore the item?
+----------------------------------------------------------------------------
+Artifacts can be disenchanted, just like any other item. If you have an item
+which gives you disenchantment resistance, then all of your items are
+protected. There are a few items which always grant disenchantment
+resistance: Chaos and Balance Dragon Scale Mail, Rilia, Calris,
+Deathwreaker, Belthronding, Celeborn and Bladeturner.
+
+In addition, certain ego items have a chance of granting disenchantment
+resistance. See question 3f.
+
+It is nearly impossible to restore any item past +10, and impossible past
++15. Artifacts are especially difficult. Be careful around disenchanting
+monsters and uniques!
+
+4f. I found Calris. Joy! But how do I uncurse it?
+----------------------------------------------------------------------------
+A *remove curse* or dispel curse will get rid of the curse permanently, and
+enchant to hit can actually eliminate the curse. Each time an item is
+enchanted to +0 or higher, a curse on it has a 1 in 4 chance of
+disappearing. You will know this has occurred when the inscription changes
+to {uncursed}.
+
+----------------------------------------------------------------------------
+5. Combat & Survival
+----------------------------------------------------------------------------
+
+The spoiler attack.spo provides a lot of detail on character attack skill.
+These questions and answers only attempt to address the basics.
+
+5a. Is there a trick for surviving an attack by a group of monsters?
+----------------------------------------------------------------------------
+Group monsters can be dangerous! Even if you can kill a single creature
+without too much trouble, it's easy to get overwhelmed by sheer numbers.
+Make sure only 1 can attack you at a time, and for any spell-casting or
+breathing groups, ambush them from around a corner so that only 1 can see
+you at a time. This is the best way to deal with those pesky hounds. A
+possible exception to this is novice rangers; they can only cast magic
+missile, and missile spells (as opposed to ball spells or breath weapons)
+cannot "jump" other monsters in Angband. So, if you're having trouble with
+novice rangers, get them all lined up in a corridor, and then some of them
+will be wounded/killed by magic missiles from other rangers. Of course, you
+don't get experience for anything that you don't kill, but you may survive a
+bit longer.
+
+5b. What are some general survival tips?
+----------------------------------------------------------------------------
+
+   * How do I know how far to dive?
+
+     Try not to descend below a certain depth without certain powers. Free
+     Action and Poison Resistance are particularly important.
+
+      1000' - Free Action, See Invisible
+      1500' - Fire, Cold, Acid and Lightning Resistance
+      2000' - Poison and Nether Resistance, Hold Life
+
+   * High-level characters should always have lots of Cure Critical potions
+     or better on hand. If you receive a mortal wound, you cannot heal it on
+     your own. They are also cheap ways to cure confusion, blindness and
+     poison.
+
+   * Carry multiple copies of the lower-level spellbooks to prevent losses
+     to theft and fire damage.
+
+   * If you are a warrior, or don't know the Satisfy Hunger spell, buy 6
+     rations of food per visit to town. Leave any extra food in the dungeon
+     to free up an inventory slot.
+
+   * Teleport away and banishment (the latter for priests/paladins) are
+     important magics for emergency use.
+
+   * Have a way to escape in an emergency if there are too many monsters to
+     teleport away. Scrolls of phase door/teleport/teleport level are good
+     for characters who don't have an escape spell. Staves of Teleportation
+     work also, but a thief can only steal 1 scroll at a time, or a fire
+     attack can only burn up 1 scroll at a time. On the other hand, you can
+     use a staff while blinded and confused.
+
+   * For mages and those lucky to have some of the appropriate scrolls, mass
+     genocide is very effective against high-level summoning uniques, as it
+     gets rid of all monsters except uniques.
+
+   * Speed is important. Items providing speed boosts should be treasured,
+     and you should generally carry around items that temporarily boost
+     speed (know the spells, or have potions/staffs/rods). However, speed
+     over about +30 does your character little good, and may actually be
+     annoying because of the increased food consumption. Also, you may now
+     equip two rings of speed (unlike earlier versions of Angband).
+
+   * When going deep into the dungeon, always have a way to invoke the spell
+     of recall. Carry multiple scrolls, or have a Rod of Recall and a high
+     level and/or dexterity (18/150+) to prevent theft.
+
+Some combat tactics:
+
+   * Hit-and-retreat - when you have a big edge in speed, you can hit the
+     monsters, backup, and then hit the monster again when it follows you.
+     Repeat. (This doesn't work well if the monster has a distance attack.)
+
+   * Pillar Trick - Dig out a single section of dungeon thus:
+
+       ....... ...D...
+       ..D#... ...#@..
+       ...@... .......
+
+     If your player has a speed advantage over a monster, they can often hit
+     and move as shown before the monster can even attack.
+
+   * Shoot and scoot - for monsters that are dangerous up close (such as
+     disenchanters), use a heavily enchanted shooting weapon and ammo, and
+     phase door away every time the monster gets near you.
+
+   * Against summoners - Summoners are not as dangerous when fought in a
+     corridor, as they have less room to summon enemies against you. The
+     disadvantage is that the potential treasure drop is also reduced, and
+     summoned undead may be able to walk through walls and surround you
+     anyway.
+
+5c. How many attacks should my character be getting?
+----------------------------------------------------------------------------
+The blows per round formula is based on several factors including strength,
+dexterity, class, level and weapon weight.
+
+All characters can get a maximum of five attacks per round except for mages,
+who only receive four and warriors, who can receive six. There is one
+exception: a weapon of extra attacks can exceed this limit.
+
+If you are playing version 2.7.9v3 or later, the character info screen ('C')
+tells you exactly how many hits and shots your character should be
+receiving.
+
+Otherwise, you must consult the source code or a spoiler file, as it is a
+rather complex formula.
+
+5d. How do missile weapon to-hit and to-damage bonuses work?
+----------------------------------------------------------------------------
+The to-hit bonuses for using a bow can come from any source: rings, DEX,
+gauntlets of slaying, the bow or the arrows. But the to-damage bonus for
+shooting a bow come only from the arrows and the bow, so a Ring of Damage
+(+18) won't help your bow damage.
+
+5e. How do damage multipliers work?
+----------------------------------------------------------------------------
+Note that this section is slightly out of date!
+
+For normal weapon attacks, damage is calculated as:
+
+damage = (((base weapon damage rolled) * weap_mult * hit_mult)
+          + to-dam + hit_bonus)
+
+where weap_mult is the special multiplier for the weapon (if any), to-dam is
+the total damage plusses from the weapon and the character, hit_mult is the
+multiplier granted for a good or better hit, and hit_bonus is the plusses
+granted for a good or better hit.
+
+Note that, for weapon attacks, the special multiplier for the weapon (if
+any) does not affect the damage bonuses. This means that a dagger (1d4),
+even if it does x5 damage, is not as good as a two-handed sword (3d6) that
+does x2 damage, unless you get more swings with the dagger, or the dagger
+has a very high to-dam bonus.
+
+For bows attacks with the correct ammo, damage is calculated as:
+
+damage = (((base ammo damage rolled) + to-dam-ammo + to-dam-bow)
+          * bow_mult * ammo_mult * hit_mult + hit_bonus)
+
+where bow_mult is the basic multiplier for the bow, ammo_mult is the special
+multiplier for the ammo (if any), to-dam-ammo is the damage plusses for the
+ammo, to-dam-bow is the damage plusses for the bow, hit_mult is the
+multiplier granted for a good or better hit, and hit_bonus is the plusses
+granted for a good or better hit.
+
+Note that, for bow attacks, the basic multiplier for the bow and the special
+multiplier for the ammo (if any) both affect the damage bonuses. This makes
+a heavy crossbow (x4) with a high to-dam-bow very powerful, even with
+non-magical bolts.
+
+5f. What are the damage mulipliers for ego weapons?
+----------------------------------------------------------------------------
+Most of the damage multipliers are x3, except for:
+
+ *Slay* Dragon   x5
+ Slay Animal     x2
+ Slay Evil       x2
+
+Note that only the highest applicable multiplier is used if several apply.
+
+5g. I got a critical hit with my weapon. How much damage did it do?
+----------------------------------------------------------------------------
+Damage bonuses for critical hits are:
+
+ "good hit"      x2 +5
+ "excellent hit" x2 +10
+ "superb hit"    x3 +15
+ "*GREAT* hit"   x3 +20
+ "*SUPERB* hit"  x3.5 +25
+
+Heavier weapons have critical hits more often. See attack.spo for the odds
+on receiving a critical hit.
+
+5h. My priest character doesn't feel comfortable wielding his or her weapon.
+Why?
+----------------------------------------------------------------------------
+Priests are penalized for wielding "non-priestly" weapons. Priests are
+basically restricted to blunt weapons and "blessed blades." They should get
+a warning message if they wield a non-priestly weapon. Priests get a
+whopping +25% to their spell failure rate (before adjustments) for wielding
+one of these, and also a -2 to hit and damage. However, some of the more
+powerful artifact weapons may be worth wielding regardless of these
+penalties. And of course, your character can always switch weapons before
+praying.
+
+----------------------------------------------------------------------------
+6. Spellcasting
+----------------------------------------------------------------------------
+
+6a. How do I keep my spellbooks from being destroyed by fire?
+----------------------------------------------------------------------------
+Deathwreaker, Narya, and the One Ring grant immunity to fire. If you do not
+have immunity to fire, always bring at least 2 copies of the first 4
+spellbooks on trips to the dungeon. Take more if you have a high STR. The 5
+most powerful spellbooks of each class are immune to destruction by fire.
+You may also hide some books in a safe part of the dungeon if you are
+hunting a monster that you know is going to incinerate your inventory.
+
+6b. Why did my maximum mana suddenly go down?
+----------------------------------------------------------------------------
+There are two possible equipment-related causes:
+
+  1. All spellcasters are penalized for wearing a combination of armor items
+     weighing over a certain amount. This simulates the general encumbering
+     effects of heavy armor. Try removing some armor to restore your mana,
+     if this is a problem.
+  2. Mages, and other mage-type spell casters, lose mana for wearing gloves
+     (or gauntlets or cestus). This simulates the interference they cause
+     with the intricate gestures required for spellcasting. Gloves providing
+     either free action and/or agility will not decrease mana. Among these
+     are the artifacts Fingolfin and Cambeleg. Priests and paladins don't
+     have this problem, as they invoke the power of their deity directly.
+
+6c. I don't have enough mana to cast a spell. What are the consequences if I
+cast it anyway?
+----------------------------------------------------------------------------
+Casting a spell without enough mana has a 1/3 chance of damaging your CON,
+sometimes permanently. It can also cause you to faint from the effort.
+
+6d. I cast a spell twice in a row. Why doesn't the duration double?
+----------------------------------------------------------------------------
+Haste Self and Essence of Speed spells are not cumulative in effect. For
+example, if your character is already hasted (with a non-permanent spell or
+item), casting addtional Haste Self spells will only extend the total
+duration by 1-5 player turns, rather than the normal amount.
+
+The effects of additional Heroism, Shield, Berserker, Globe of
+Invulnerability, Bless, Chant, Sense Invisible, Protection From Evil and
+Prayer spells/prayers are fully cumulative.
+
+6e. My bolt spell took out a row of monsters! What happened?
+----------------------------------------------------------------------------
+Certain "bolt" spells (magic missile, lightning, fire and frost bolt, etc)
+have a chance to become a "beam" based on your experience level. This chance
+is 1% / level for mages and 0.5% / level for rangers. Magic Missile,
+Lightning Bolt and Frost Bolt all have a -10% to the roll.
+
+Wands have a 20% chance to "beam" and rods have a 10% chance.
+
+6f. Where do I find the higher-level spellbooks?
+----------------------------------------------------------------------------
+There are 9 spellbooks for mages and 9 for priests. The five higher-level
+books can be found deeper in the dungeon, often as part of the treasure
+drops of high-level monsters and uniques. You might get lucky and see them
+at the Black Market. These books are not artifacts.
+
+----------------------------------------------------------------------------
+7. Monsters
+----------------------------------------------------------------------------
+
+7a. Are monsters susceptible to certain attacks, like they were in Moria?
+----------------------------------------------------------------------------
+Monster spell resistances have been changed from Moria. In Moria, a white
+dragon took extra damage from a fire bolt, and partial (1/4th) damage from a
+frost bolt. In Angband, a white dragon takes normal damage from a fire bolt,
+and almost no (1/9th) damage from a frost bolt. Basically, there are no more
+"susceptibilities." There are a couple of exceptions to this. Monsters can
+be susceptible to bright light (i.e. wand of light, not lightning), and holy
+orb does extra damage vs. evil creatures. Earthy creatures are also
+susceptible to stone-to-mud attacks.
+
+7b. Why are there two different entries in my monster memory for the same
+monster?
+----------------------------------------------------------------------------
+The monster memory does show more than one description for some monsters.
+Some examples are novice mages/priests/warriors/rangers, mimics, gnome
+mages, etc. There are two or more entries because there are actually two or
+more different types of these monsters. Often the difference between them is
+that one is found solo and the other is found in groups, at a slightly
+deeper level.
+
+7c. I killed a monster that I couldn't see. Do I get credit in the monster
+memory for the kill? What about experience?
+----------------------------------------------------------------------------
+Monster memory doesn't give you credit for killing a monster if you cannot
+see the monster (if you are blind, or the monster is in a dark area beyond
+your infravision range, etc). The recall code for unique monsters is
+slightly different, and the monster memory will note their deaths, unless
+you never saw them, even by an "ancestor." You will still gain experience
+regardless.
+
+7d. How do I kill large numbers of orcs or trolls fairly easily?
+----------------------------------------------------------------------------
+You can line orcs and trolls up in a long corridor and then blast them with
+a wand of light! (Not all types are susceptible.) A rod of light can be a
+mid-level character's best friend, doing good damage against a whole line of
+susceptible monsters, with a really fast (9 rounds) recharge. For
+higher-level characters, dispel evil, orb of draining or a staff of power
+can also work wonders.
+
+7e. Why can't I target a monster in a wall?
+----------------------------------------------------------------------------
+Monsters in walls can't be hit with spells or missiles, only by physical
+attacks.
+
+7f. Should I kill Farmer Maggot?
+----------------------------------------------------------------------------
+Unfortunately, yes. He can't harm you, just hit him until he dies. He may
+drop a nice item for your troubles.
+
+7g. I'm having lots of trouble with a unique monster. Help!
+----------------------------------------------------------------------------
+Run or teleport the monster away. You can kill the unique later, when you're
+tougher. Speed helps a great deal, as does a nice missile weapon, especially
+with uniques that resist all the major attack forms (Mim and Lorgan come to
+mind).
+
+----------------------------------------------------------------------------
+8. Dungeon Features
+----------------------------------------------------------------------------
+
+8a. How is the treasure in chests generated?
+----------------------------------------------------------------------------
+The treasure in chests is based on the dungeon level where they were
+generated, not where the chest is opened.
+
+8b. What are monster pits?
+----------------------------------------------------------------------------
+Monster pits are rectangular rooms, 19x5, (they look like some of the rooms
+that have an inside wall) filled with monsters. Jelly pits are filled with
+jellies, molds, icky things, oozes, etc. Orc, Troll, Giant, Dragon and Demon
+pits are filled with different types of those monsters (Dragon pits are
+filled with the same color dragons). Undead pits (a.k.a. Graveyards) are
+filled with some nasty undead. Inside monster pits there can be monsters
+that are far out of depth, so you should be very careful around them.
+
+8c. What are monster nests?
+----------------------------------------------------------------------------
+Similar to a pit, but containing an inner room and a random assortment of
+monsters of a given type. Monsters in a nest vary by depth, so a nest deep
+in the dungeon can be very nasty.
+
+8d. What are lesser vaults?
+----------------------------------------------------------------------------
+Monster vaults are unusually shaped and sized rooms, filled with monsters,
+treasures, and traps. Lesser vaults are about 40x20. They are filled with
+all different kinds of monsters, and often have some really nice treasure to
+go along with some out-of-depth monsters.
+
+8e. What are greater vaults?
+----------------------------------------------------------------------------
+Greater vaults are huge rooms (about 60x20), with outside walls of
+impenetrable rock except for a couple of granite walls in the corners. They
+are filled with all different kinds of out-of-depth monsters, with excellent
+treasure (often more than 1 artifact), and some really out-of-depth
+monsters. Taking on a greater vault is amazingly dangerous unless you have
+some speed, lots of resistances, and a teleport away spell/wand/rod.
+
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+

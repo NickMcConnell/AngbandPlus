@@ -1,0 +1,166 @@
+Migrating from pre-2.8.3 macros to 2.8.3 macros. 
+
+About
+=====
+
+Written by Greg Harvey <Greg.Harvey@thezone.net>. Suggestions,
+comments, corrections, money, or  cool lisp code welcome. However,
+do include "angband" (case doesn't matter) in the subject, or else it
+will only get read whenever I decide the junk mailbox has grown large
+enough to start sending out complaints ;) Also, I reserve the right to
+do whatever I like with stupid flames. 
+
+Purpose 
+======= 
+
+This is mostly intended for the users of zangband who've expressed
+some dismay at the inclusion of macros from 2.8.3 to the recent
+zangband releases. It can also be of general help to anyone wondering
+about how to write macros for angband (though I do recommend using the
+spiffy macro creation facilities, with an appropriate patch to the
+keymap saving 
+[http://www.biosys.net/gregh/softs/angband-2.8.3-keymap.patch])
+
+Reasons for the change
+======================
+
+In case anybody is wondering why the new macro system is being used,
+here are a few reasons:
+
+1) Creeping insidious bugs, caused by the difference between the 282
+macros and the 283 macros. Hands up, everyone that noticed the long
+delay while pressing the '1' key in zangband210e and kangband-282e.
+
+2) The guts are nicer. The 282 macro code has a distinctly kludgy feel
+to it, and Ben Harrison did a bang-up job in fixing this with 283
+(well, all except for the part that writes out the keymaps ;)
+
+3) Nicer interface to creating macros. Ok, so this could have been
+done with the original code as well... but it was already done, so why
+do it again ;)
+
+All About Macros 
+================ 
+
+(note: this is not an explaination of the internal workings of the
+macros, this is just a bit of information about writing macros. For
+those so inclined, the relevent code for loading and saving macros
+and pref files is in cmd4.c, all the gory implementation details are
+in util.c)
+
+Macros are, in my not so humble opinion, one of the best features of
+the current crop of *angband games. They take a lot of redundancy out
+of the gameplay, as well as sparing those of us who spend too much
+time typing as it is. 
+
+Unfortunately, due to the way angband is designed, creating new macros
+(outside of the spiffy new interface) isn't a totally easy task, since
+it uses it's own peculiar syntax. The problem is slightly increased by
+the way that Ben Harrison is designed, since he didn't really let
+anyone know that he was changing things or how the new things worked,
+and only put documentation in the source (note: it may be hidden
+somewhere in the docs or release notes as well, but I didn't find it,
+hence this little readme)
+
+Anyhow, to get to the heart of the matter, *angband games, using the
+2.8.3 macro code, contain 2 flavours of 'macro':
+	1: Normal macros
+	2: Keymaps
+
+The Command Macro type from 282 has been removed, with the enhanced
+keymaps (mostly) taking their place.
+
+In both cases, you must first define the action that the keymap or
+macro will expand to. This is done in the pref files like so:
+
+A:<action>
+
+Note that, with macros, any bound keymaps found in the macro are
+expanded. Now, to define a macro that does the action you'd put
+
+P:<str>
+
+where str is the sequence of keypresses that would perform the action.
+
+On the other hand, if you want create a keymap to perform the action,
+you'd put:
+
+C:<mode>:<keystr>
+
+where mode is the keymap mode where the keymap will take effect (0 for
+original mode, 1 for roguelike), and keystr is a string that
+translates to one key. Note that Ctrl-<char> is considered one key,
+but function keys probably aren't (I don't use them, and I'm really
+not in the mood to look it up right now).
+
+The differences between macros and keymaps are a bit subtile, but
+pretty important.
+
+1) Keymaps aren't executed in stores. This is a good thing, because
+you'll get pissed real quick if you can't sell 'r' ;)
+
+2) Keymaps are intended for use with one keypress (well, what angband
+considers one keypress), while macros can take an arbitrary sequence
+of keys (this has both good and bad aspects, and is part of the
+reason for the '1' bug)
+
+3) Keymaps can be different depending on the mode (original or
+roguelike). 
+
+
+The general rule I follow is: if it can be a keymap, make it a keymap.
+
+Converting older pref files
+===========================
+
+Though I've also written a macrocvt program (there's a link at 
+http://www.biosys.net/gregh/angband.html#macrocvt), chances are that,
+if you have an elaborate pref file using old style macros, you will
+probably need to know about the format of the old pref files, and how
+they can be generally converted to 283.
+
+The pre283 pref files can contain 3 different flavours of 'macro':
+	1) Normal macros
+	2) Command macros
+	3) Keymaps
+
+Normal macros haven't changed much, so you can pretty much ignore
+these. The biggest problem is with command macros, and the reason is
+that they were specified like this:
+
+A:<str>
+C:<cstr>
+
+Which can cause quite a bit of havoc when mixing pref files from
+different versions. The general way to convert this for 2.8.3 is:
+
+1)
+A:<str>
+C:<mode>:<cstr>
+
+If cstr is a command string that is equal to something that angband
+considers a character. If not, then you do
+
+2)
+A:<str>
+P:<cstr>
+
+And define a new macro, which shouldn't cause any problems, since, if
+<cstr> is longer than one char, it shouldn't step on any keymap toes
+in special situations (like stores)
+
+Old style keymaps, on the other hand, are a little flakey. They have
+the following form:
+
+S:<num>:<num2>:<dir>
+
+Where <num> is the pressed keycode, <num2> is the keycode it maps to,
+and <dir> is a direction associated with the new keycode. The general
+conversion, then, is to
+
+A:<num2><dir>
+C:<mode>:<num>
+
+This should pretty much cover most of the problems. For further help,
+you can try mailing me (see the top of this document), or asking on
+the usenet group rec.games.roguelike.angband 

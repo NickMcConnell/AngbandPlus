@@ -1,0 +1,277 @@
+MONSTER HINTS
+
+  1) MONSTER FAQ
+  2) TROUBLESOME MONSTERS
+  3) POET'S GUIDE TO DANGEROUS MONSTERS
+  4) PETS
+
+============================================================================
+
+1) MONSTER FAQ
+
+Are monsters susceptible to certain attacks, like they were in Moria?
+
+      Monster spell resistances have been changed from Moria. In Moria, a
+      white dragon took extra damage from a fire bolt/ball, and partial (1/4th)
+      damage from a frost bolt/ball. In Angband, a white dragon takes normal
+      damage from a fire bolt/ball, and almost no (1/9th) damage from a frost
+      bolt/ball. Basically, there are no more "susceptibilities." There are a couple
+      of exceptions to this. Monsters can be susceptible to bright light (ie, wand
+      of light, not lightning), and holy orb does extra damage vs. evil creatures.
+      Earthy creatures are also susceptible to stone-to-mud attacks. 
+
+Why are there two different entries in my monster memory for the
+same monster? 
+
+      The monster memory does show more than one description for some
+      monsters. Some examples are novice mages/priests/warriors/rangers,
+      mimics, gnome mages, etc. There are two or more entries because there are
+      actually two or more different types of these monsters. Often the
+      difference between them is that one is found solo and the other is found in
+      groups, at a slightly deeper level. 
+
+I killed a monster that I couldn't see. Do I get credit in the monster
+memory for the kill? What about experience? 
+
+      Monster memory doesn't give you credit for killing a monster if you cannot
+      see the monster (if you are blind, or the monster is in a dark area beyond
+      your infravision range, etc). The recall code for unique monsters is slightly
+      different, and the monster memory will note their deaths, unless you never
+      saw them, even by an "ancestor." You will still gain experience regardless. 
+
+How do I kill large numbers of orcs/trolls fairly easily? 
+
+      Orcs and trolls can be fun to line up in a long corridor and then blast with a
+      wand of light! (Not all types are susceptible.) A rod of light can be a
+      mid-level character's best friend, doing good damage against a whole line of
+      susceptible monsters, with a really fast (9 rounds) recharge. For
+      higher-level characters, dispel evil, orb of draining or a staff of power can
+      also work wonders. 
+
+Why can't I target a monster in a wall? 
+
+      Monsters in walls can't be hit with spells or missiles, only by physical
+      attacks. 
+
+Should I kill Farmer Maggot? 
+
+      Unfortunately, yes. He can't harm you, just hit him until he dies. He may
+      drop a nice item for your troubles. 
+
+I'm having lots of trouble with a unique monster. Help! 
+
+      Run or teleport the monster away. You can kill the unique later, when
+      you're tougher. Speed helps a great deal, as does a nice missile weapon,
+      especially with uniques that resist all the major attack forms (Mim and
+      Lorgan come to mind). 
+
+============================================================================
+
+2) Troublesome monsters
+
+While most of the monsters in angband present some sort of a
+challenge to the character, there are some that my priest found
+particuarly troublesome. 
+
+  'l' The lice. Irritating breeding lice. One can be dealt with, two
+      are not much of a problem. over 10 of the things and without a
+      good area effect spell the only real option is to run. They aren't
+      dangerous alone but a whole roomful *shudder* 
+
+  ',' The magic mushroom patch. It slows, confuses, darkens the
+      room, then blinks away. Easy to kill, but difficult to catch. 
+
+  'I' Hammerhorns. Worse than lice. They bite to confuse. Get in
+      a room with these without resist confusion and the average
+      character is as good as dead. 
+
+  'Q' Nexus Quelthalaq. Do no damage, do not move, easy to kill.
+      But every time you get within range you are teleported away or
+      it teleports away. Very irritating. 
+
+  'D' Dracolich. Breaths poison and nether. Bane of just about
+      any character. Has high enough hit points to be difficult to kill.
+
+=============================================================================
+
+3) The Poet's Guide to Dangerous Monsters
+
+ Obviously, as you get more powerful, some monsters lose their
+ challenge. For a level one character, almost every monster in the
+ game is a monster to avoid! On the other hand, if you're poking
+ around at 700 feet when you're only level one, whatever happens is
+ your own fault. Therefore, a list of monsters to avoid, by character
+ level:
+
+ Level 1
+ * Battle-Scarred Veteran ('t')- don't even think about it if you're not
+ an experienced player using a class with a lot of hitpoints.
+ * Cave Spiders ('S')- these things are nasty! They travel in packs and
+ they're fast. If you see them and you don't have a good stealth,
+ you're pretty much dead.
+ * Black Naga ('n')- tough as hell, but certainly within the realm of
+ possibility. Ask yourself if you've got a good escape route handy
+ before you wade in, though.
+
+ Level 5
+ * Bullroarer the Hobbit ('h')- What are you doing fighting him at your
+ level? Chances are, he won't kill you, but he'll strip you of all of your
+ wordly possessions, and you'll never be able to nail him to get them
+ back.
+ * Large kobold ('k')- Avoid, avoid, avoid. They've got scads of hit
+ points and they hit HARD. Don't think that the difference in power
+ level between a small kobold and a kobold is the same as the
+ difference between a kobold and a large kobold.
+ * Novice archer ('p')- Wait a few levels and he won't be so tough.
+ * Giant White Lice ('l')- Kill as many as possible as quickly as you
+ can. Keep movement to a minimum and use area-effect weapons, if
+ possible.
+
+ Level 10
+ * Cave orcs ('o')- You'll want to build up a few levels first. If you
+ must fight them, do it in a corridor so you don't get swarmed under
+ by the little beggars.
+ * Mughash the Kobold Lord ('k')- He's surrounded by a bunch of his
+ followers- probably large kobolds, who are tough enough without
+ having to deal with the big guy.
+
+ Level 15
+ * Orfax, son of Boldor ('y')- Even more annoying than Bullroarer,
+ and he actually has a chance to kill you. If you must face him, keep
+ him at a distance along a corridor if possible and pepper him with
+ distance attacks.
+
+ Level 20
+ * Grape Jelly ('j')- Too many hitpoints to risk a toe-to-toe assault.
+ Use arrows and spells instead.
+ * Boldor, King of the Yeeks ('y')- Just as irritating as Orfax. Use the
+ same technique to crater him.
+ * Ochre Jelly ('j')- Yiiii! As soon as you see one, throw everything
+ you have at it before it gets close enough to actually touch you.
+ * Giant Black Lice ('l')- Kill as many as possible as quickly as
+ possible without waking any up (i.e., as soon as you see one, make
+ sure it dies before you take another step)
+
+ Level 25
+ * Magic Mushroom patch (',')- KILL! The most irritating monster in
+ the game, bar none. Try to kill as many with each shot as you can.
+ Use distance attacks.
+ * Hummerhorn ('I')- Try like hell not to wake them up, and kill as
+ many as you can (area-effect, if necessary) with each shot. Keep
+ your distance and don't be afraid to slam doors.
+ * Hounds of all sorts ('Z')- Any hound except Clear Hounds, Light
+ Hounds, and Dark Hounds, are a serious threat to your life and/or
+ inventory. This is true whenever you meet them. Fight only in
+ corridors, and make sure only one or two of them can see you at a
+ time.
+ * Bolg, Son of Azog ('o')- Careful. He is a serious upgrade from the
+ other orc uniques.
+
+ Level 30
+ * Azog, King of the Uruk-Hai ('o')- By far the most dangerous of the
+ orc uniques. Make sure you match him in speed, and keep your
+ distance.
+ * Master Rogue ('p')- Pepper him with arrows before he gets too $#?
+ close!
+ * Ibun and Khim, the sons of Mim ('h')- You don't want these little
+ beggars touching you in combat, trust me. Use arrows, spells,
+ whatever. Just keep them at a distance.
+ * 4-Headed Hydra ('M')- Don't toy with them. They're serious
+ business. Fast, strong, and they inspire fear.
+
+ Level 35 and up
+ * Mim, Betrayer of Turin ('h')- same deal as his treacherous sons.
+ * Acidic Cytoplasm ('j')- Think of an Ochre Jelly on steroids and
+ caffeine with a serious hate-on for you and yours. Easily the worst
+ jelly in the whole game, and rarely a good idea to go hand-to-hand.
+ * Dread ('G')- the most annoying ghost. Tough, and it often travels
+ in packs. Be very careful.
+ * Lorgan, Chief of the Easterlings ('p')- a prodigious summoner. He
+ has a nasty habit of summoning Kavlax the Many-Headed. Kill kill kill
+ as quickly as you can.
+ * Black jelly ('j')- A slightly less irritating version of the Acidic
+ Cytoplasm.
+ * Time vortex ('v')- Kill it ASAP.
+ * Kavlax the Many-Headed ('d')- I don't care HOW tough you are,
+ wear down his hitpoints as fast as you $#*@ can. He's got one
+ weapon in his arsenal that can level you.
+ * Lesser Titam ('P')- Bad news on a stick. One of the worst
+ monsters in the game. Each time you see one is an occasion to curse.
+ * Enchantress ('p')- Kill her now, before she summons her pets.
+ * Solar ('A')- He makes all the angels that came before look REALLY
+ wimpy. Don't let one solar summon another one.
+ * Undead Beholder ('e')- Not an easy task.
+ * Dreadmaster ('G')- Like a Dread, only worse.
+ * Drolem ('g')- Take the most irritating aspects of a dragon, stuff it
+ into an artificial life form with enough hitpoints to embarrass most
+ uniques, and you've got a drolem. Whittle it away before it can
+ breathe on you.
+ * Dracolich ('D')- Not fun. Hope you have Nether resistance...
+ * Greater Titan ('P')- You're probably going to have to change your
+ undies after this particular battle... assuming you survive...
+ * Dracolisk ('D')- Less fun than a Dracolich.
+ * Death mold ('m')- NEVER worth it. Ever. Not even once.
+ * Master mystic ('p')- He can kick you 'til you fall down, then kick
+ you 'til you die. He's good at it, too.
+ * Nightwing ('W')- Rarely worth it.
+ * Time Hound ('Z')- I know I lumped all hounds together above, but
+ these babies deserve a special mention.
+ * Grand Master Mystic ('p')- Need I say more?
+ * Nightcrawler ('W')- Rarely worth it.
+ * Druj of all sorts ('s')- These things can vaporize you. If you're
+ standing outside a graveyard, prepare to meet your maker.
+ * Aether vortex ('v')- More irritating than a Time vortex.
+ * Azriel, Angel of Death ('A')- Probably the number one killer of
+ veteran players who choose to face him. Think about that for a
+ while.
+ * Nightwalker ('W')- Rarely worth it.
+ * Dreadlord ('G')- Like a Dreadmaster, only worse.
+ * The Cat Lord ('f')- He's fast, and can inflict an ungodly amount of
+ damage in a single round- and that's hand-to-hand.
+ * Tselakus, the Dreadlord ('G')- Like a Dreadlord, only worse.
+ * Black Reaver ('L')- One of the most irritating monsters in the game,
+ and a large part of the reason why graveyards are so lethal. Don't
+ bother running; it won't do you any good.
+ * Ungoliant, the Unlight ('S')- Best thing to hope for is that she
+ wastes her time summoning spiders.
+ * The Tarrasque ('R')- Probably the number two killer of veteran
+ players.
+
+ I didn't want to give out much in the way of spoiler information, so
+ let this list serve as a friendly warning. When you see one of these
+ babies on your screen, either flee or get ready for a heck of a fight!
+
+========================================================================
+
+4) MONSTERS AS PETS
+
+A friendly creature can be a mixed blessing. At first sight, one might
+think that they can make the game much easier. It is of course highly
+satisfying to send your pet Hell Wyrm into a Troll pit and wait outside,
+listening for the howls of agony and terror, the sounds of guts
+splattering, bones crunching and so on. But one should not expect to
+gain any experience for such a combat: you will only gain experience
+for creatures to whom you deliver the death blow yourself. New
+experiences require hazards, nobody gains experience by sitting home
+watching the TV. 
+
+Secondly, friendly monsters are often so eager to destroy your
+opponents they may forget all about you, and you get trampled under
+their feet as they charge at your foe. They are not as smart as the
+regular monsters, since they have given up their free will to serve you.
+So don't stand next to that Snaga when your pet Cyberdemon
+brandishes its rocket launcher! Pets are also rather easily irritable.
+Once you do something which causes the slightest discomfort to
+them, they will revert to their normal behaviour and consider you their
+main target. This is something to think about before lighting up a room
+if you have pet orcs. Needless to say, nobody wants to be your friend
+if you are aggravating them. 
+
+Finally, it takes a lot of mental energy to maintain the control over the
+charmed monsters. The first monster or the first few are 'free', but
+after that maintaining the control will start taxing your mana regain
+rate. The higher the sum of the levels of your pets the less mana you
+will be able to regain. Keep this in mind if you have a pet which can
+summon or otherwise produce more pets... 
+
+========================================================================

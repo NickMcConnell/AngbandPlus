@@ -1,0 +1,634 @@
+COMBAT GUIDE
+
+1) Monster Room / Monster Pits
+2) Vaults
+3) Uniques 
+4) Rough Monsters 
+5) Useful tricks 
+6) More techniques for killing monsters
+
+===========================================================================
+1) Monster Rooms / Monster Pits 
+===========================================================================
+
+      Most monster rooms can be approached from the side or behind
+      (behind meaning 'near the wall opposite the wall with the door').
+      But if you are forced to approach the room via the entrance side,
+      then here is one method: 
+
+      Monsters have a limited detection range - roughly 15 spaces.
+      Assume it is. The basic strategy is this. Come within 15 spaces of
+      the door. take one step forward, and 5 steps back. Then, only the
+      closest few monsters noticed your presence, and they will come
+      out of the room, and attack you. You can dispose of them, and then
+      come back to wake up the next closest ones. 
+
+      Jelly pits 
+            Probably safest to leave them alone. They can eat through
+            armor, and are worth little experience. Very easy to take
+            out if you have resist acid armor, though. (hide your
+            weapons first) 
+
+      Orc/Troll pits 
+            (1) Rod of Light / Spear of Light is a good way to do lots
+            of damage to many orcs at once. 
+            (2) Sleep III can be used to put almost all the orcs to sleep
+            at once. (multiple casts might be necessary). You can then
+            take out row by row via light damage in (1). Most trolls are
+            immune to sleep, but a few are not (e.g. I think Forest
+            Trolls aren't), so while you can't do this for a whole pit,
+            the sleep trick (see below) will work if you do it right. 
+
+      Priest trick 
+            Orc, troll, and giant pits (and, at higher levels, demon and
+            dragon pits) are among the best of priest's friends, once
+            they get: i) Dispel Evil (from either Exorcisms and
+            Dispelling or Wrath of God) ii) Some form of speed (temp.
+            or permanent), iii) Protection from Evil. 
+
+            a) Find a pit, by casting Detect Evil. Get as close to it as
+            you can. Cast Protection from Evil a couple of times. If
+            you can get to the door, great, go to step c) below and open
+            it. Otherwise, try to work your way to part of the pit's
+            wall. 
+
+            b) Make a hole in the wall (dig or Stone to Mud). A
+            monster will probably block the hole, unless you hasted
+            yourself first and were able to time it right. 
+
+            c) Using your speed (temporary or permanent), kill the
+            monster in the hole/doorway, or perhaps just teleport it
+            away. Step into the hole with your haste to see all the
+            monsters in the room. 
+
+            d) Cast Dispel Evil repeatedly. The Protection from Evil
+            will reduce or stop melee attacks. This should allow you to
+            easily kill almost all of the monsters. (you might have to go
+            in and clean up). 
+
+      If you have only speed 1, or can't get close enough to dig a hole, but
+      do have Ethereal Openings, do this: 
+
+            Kill or (better) teleport away about 1/3 to 1/2 of the
+            monsters first. Teleport away is best since it removes more
+            monsters at a time. Then you can use Blink to try to get
+            into the pit. Once inside, you can dispell at will. Note that
+            you will want to cast Protection from Evil before Blinking
+            around, and that the killing/teleport steps are required to
+            free up some space in the pit. This will probably take
+            several tries, but it is worth it. 
+
+      At high levels, Demon and Dragon pits can be handled the same
+      way. You should prepare by having the appropriate resistance.
+      MultiHued Dragons just do too much damage compared to the
+      others, and you might want to take them on one by one. It is
+      probably not worth the bother of trying to take out a multihued
+      pit. 
+
+      This is NOT a good technique to use against graveyards (undead
+      pits)! You can easily die if several drujs decide to cast nasty spells
+      at you at once. 
+
+      Undead pits are hard, but kind of fun. Don't try them without
+      some way to get to speed 3, some form of Hold Life or Nether
+      Resistance, Free Action, and lots of heal items. A Helm of
+      Telepathy or some other source of ESP is also very helpful. A good
+      general procedure: a) kill all the monsters that phase through walls.
+      They'll be the first to escape. Then kill b) the others (wraiths,
+      wights, skeletons, vampires, etc.) One or two at a time -- lure them
+      'round a corner. Really nasty guys like Black Reavers,
+      Nightcrawlers, etc. should probably be teleported away and fought
+      elsewhere. Finally, when all of the mobile guys are dead, c) kill the
+      drujs (they don't move). The ball-against-the-wall works, as does a
+      direct target through a hole, but try to avoid being in their line of
+      sight unless you have at least speed 3. Also try not to let more than
+      one or two see you at any given time. 
+
+      Note that Black Reavers can "eat" walls, so when fighting an
+      undead pit be *very* careful not to walk near any such holes and
+      into the line of sight of the drujs before you're ready to go after the
+      drujs. 
+
+      Undead pits can be so dangerous as to make it worth your while to
+      avoid them. Think (and prepare) very carefully before even
+      thinking of taking one on. 
+
+===========================================================================
+2) Vaults
+===========================================================================
+
+      Lesser vaults. These are things like the round rooms, "inner
+      rooms" with oddly-shaped inner rooms, and (probably the most
+      common) the squarish rooms with two large diagonal walls. These
+      contain good treasures and monsters, but usually they are not
+      wildly out of depth -- i.e., the monsters are created as normal for
+      the level, although the large concentration of monsters makes the
+      odds of finding a fairly nasty one (or three :-) quite good. 
+
+      Greater vaults. These are the huge rooms that fill half the screen
+      and contain lots of very good objects and lots of out-of-depth
+      monsters. Many of these are deliberately created out of depth. 
+
+      Incredible vaults. This is a subset of b). It's the "graph paper"
+      room of crypts with one monster+treasure per crypt. These make
+      type b) vaults seem like a piece of cake. Unless you've killed most
+      of the uniques -- unlikely except near the very end -- expect to find
+      LOTS of uniques, at least 6 or 8, with essentially no restriction on
+      level. The treasure is equally incredible. I guess that about half of
+      them contain at least one artifact when they're created. 
+
+      One of the simplest ways to deal with these rooms is by using a
+      wand of teleport monster to get rid of the really tough ones.
+      However, a really tough monster would probably be faster than
+      you are, which means they could also breathe on you the same turn
+      you dig through the wall. You have been warned. These rooms are
+      -very- dangerous. 
+
+      The simplest way by far to deal with these rooms is to avoid them.
+      Much better to be alive and without _ANY_ artifact than dead. 
+
+      To give you an idea of how dangerous, the source code states that
+      monster in these rooms can be up to -40- levels out of depth.
+      That's 2000 feet! 
+
+===========================================================================
+3) Uniques 
+===========================================================================
+
+      By far the best way to deal with most of the uniques is the pillar
+      trick. Indeed, this is so effective I think it's a bit unbalancing.
+      Fighting Tiamat at speed 3 in an open space is difficult. Fighting
+      Tiamat at speed 4 by chasing her around a pillar turns out to be
+      pathetic. Perhaps this should be reworked. 
+
+      At higher levels, when you have multiple attacks, big plusses to
+      damage and possibly some other advantanges, just beating on the
+      monster can be effective. But not all uniques are killed by these two
+      approaches: 
+
+      In the early going, I don't think there's a single unique other than
+      Farmer Maggot who a player who's slightly aggressive will be able
+      to beat by just whaling on. I subscribe to the pummel them and
+      then retreat (phase door, teleport, whatever) rest and hit again - it
+      takes longer since uniques regenerate quickly, but it's much more
+      successful. At high levels, just straight forward pummeling works
+      much better - that's what my 45th level priest does. And I've yet to
+      use the pillar trick on _any_ unique. Again, if you drop levels at
+      any sort of a decent rate, you're rarely going to have speed
+      advantage on the uniques. Everything else, yes, but I can only get
+      temporarily faster than uniques, and that's not enough for the pillar
+      trick. I'm usually the same speed or, if anything, slower.
+
+===========================================================================
+4) Rough Monsters 
+===========================================================================
+
+      An emperor lich has 1520 hit points, plus anything additional that
+      it gains by draining mana (6 points per mana point drained) and
+      charges (40 points per charge). Never let it attack you in melee,
+      because it can destroy your wands, healing itself in the process, as
+      well as draining your experience and dexterity. 
+
+      If you can get to speed 3, faster than the lich, it is easy to kill; just
+      fight, move back, fight, move back, and so on. You will still need a
+      lot of cure wounds potions, unless you let it chase you around a
+      pillar, as in the AMHD technique. 
+
+      Note (for people familiar with Moria) that an emperor lich is
+      (relatively) less nasty than in Moria. 
+
+    Invisibles 
+
+      One tactic, which is dangerous but still worth thinking about is
+      fighting an invisible creature and a group of monsters at the same
+      time. Since only one monster can be in a position at a time,
+      suspicious 'gaps' in the middle of groups of monsters can show you
+      where these annoying pests are. 
+
+    Gain Stat Levels
+
+      1500 - 1600 feet - the other stats besides Charisma. Charisma
+      potions aren't particularly necessary, and are cheap, so don't hang
+      around 1000 feet merely for Charisma. 1500 are physical stat
+      potions - STR, DEX, CON 1600 are mental stat potions - INT,
+      WIS 
+
+      At 2000 or so there are Augmentation potions, but it's a pretty
+      rough jungle down there. 
+
+===========================================================================
+5) Useful tricks 
+===========================================================================
+
+  Useful Trick #1 - Running in a circle
+
+      Find an area with a relatively small path that goes in a circle. The
+      path should be smaller than 1/3 of the screen (like one of those large
+      room in a room rooms). If you are fighting, you can run in a circle,
+      and they will happily chase after you, and your hit points and
+      mana will slowly creep up. You can then beat on whoever, and
+      start running again. This doesn't work if the monster is faster than
+      you are, or can do damage from a distance. 
+
+  ---------------------------------------------------------------------------
+
+  Useful Trick #2 - The pillar trick
+
+      Find a monster slower than you are. Find or make a pillar. A pillar
+      would be a single block of wall with one open space on all four
+      sides. When the monster is right next to you, hit the monster. Then
+      next turn, move to the other side of the wall. The monster will
+      follow you. Hit the monster. Move to the other side of the wall.
+      Continue till the monster is dead. This doesn't work with two
+      monsters at once, btw. 
+
+      Example of pillar:
+
+         ... 
+         .#.
+         ...
+
+  ---------------------------------------------------------------------------
+
+  Useful Trick #3 - taking advantage of stupid monsters
+
+      Monsters always attempt to take the straight path towards you.
+      So, if there is a wall between you, the monsters won't move, cuz
+      they're trying to move straight towards you (towards the wall).
+      This makes it easy to take out a group of monsters. 
+
+      An example is best. Let's say you're fighting a bunch of Ogres. 
+
+         OOOOOOOOO 
+         ##############'### 
+             @ 
+
+      The O's will stay right where they are, since they're all trying to
+      stay as close to you as they can. Notice the door off to the right. If
+      you walk towards the door, you will reach this point: 
+
+               OOOOOOOO 
+         ##############O### 
+                  @ 
+
+      Where one ogre has gone far enough right to go through the door.
+      Now go left again: 
+
+            OOOOOOOO 
+         ##############'### 
+               @   O 
+
+      The one ogre that made it through the door will follow you, the rest
+      will stay on their side (duh). You can take out that single ogre, and
+      repeat as many times as you want. You can vary this a bit, and let
+      two ogres 'out' if you can take on two at a time with no problem. 
+
+      The only annoying thing with this method is that the dead
+      monsters tend to leave a lot of treasure you need to clean up, to
+      give the other monsters a chance to drop treasure too, but it's a
+      good safe method. Works really well with telepathy, too. 
+
+      Subnote: corridors like this make phase door a lot safer, since if you
+      end up on the other side of the wall, you're (usually) completely
+      safe, unless the other monster can go through walls or something. 
+
+  ---------------------------------------------------------------------------
+
+  Useful Trick #4 - The sleep spell in the corridor trick
+
+      A sleep monster wand or "Sleep I" spell is required for this tactic
+      effective against group monsters. It has been used to deadly effect
+      against orc pits and troll pits, but is handy before then at times: 
+
+          In a room:         In a corridor: 
+
+         ####+### # #      ################# 
+         #  oooo### #        ppppppppxppp@ # 
+         # ooxooo @ #      ############### # 
+         #  oooo#####                    # # 
+         ######## 
+
+      These represent some typical situations. In either case you sleep
+      the first creature in the corridor. You then cast a ball spell (or use a
+      wand of stinking cloud/frost ball/...) over their head and past by
+      three or more spaces (at least to the 'x' marked in each case). This
+      prevents the damage spell waking up the slept creature. If you run
+      out of mana, duck around the corner to rest. Periodically the slept
+      creature will awaken, so you may need to sleep it again. 
+
+      If you don't have ball spells, you can always just beat on the first
+      guy, and then sleep the 2nd, rest, then beat... etc. 
+
+      You can often destroy large numbers of creatures with little risk
+      this way. 
+
+      If you have lots of hit points, the sleep spell itself may be
+      unnecessary. Just let the one creature hit you - but then you don't
+      need to be careful not to wake the front guy up either. You can
+      always sleep the first creature and rest. 
+
+      Note - for monsters that shoot some sort of missile/ball weapon
+      (like rangers or dragons), you need to do it so only the first creature
+      can see you - 
+
+         #p# 
+         #p# 
+         #p# 
+         #p# 
+         #p########## 
+         # @ 
+         ############ 
+
+      If you stood in the corner, the creatures behind the slept monster
+      would shoot some weapon, which would wake up that monster,
+      and screw it all up. 
+
+      variation : using a Rune of Protection to block the first monster. 
+
+  ---------------------------------------------------------------------------
+
+  Useful Trick # 5 - The easy way to kill any non-moving creature 
+
+      To start, a little background info. Playing around with the targeting
+      option in Angband (e.g. PC version 1.31 and later) I noticed that I
+      could aim for a particular spot on the floor. Ball type spells affect
+      an area, not just that spot on the floor. Now, if you cant see the
+      monster, but you can target a spot next to the monster, the ball
+      spell's area of effect will encompass the little sucker, and damage it.
+      I'll show you a pretty usual setup. 
+
+         ########################## 
+         #........................# 
+         #.######################.# 
+         #.#                    #.# 
+         #.#                    #.# 
+         #.#   s. <-target that #.# 
+         #.,        dot!!       #.# 
+         #.#                    #.# 
+         #.##### ################.# 
+         #........................# 
+         ####### ################## 
+               # # 
+               # # 
+               # # 
+               #@# <- You are here. # # 
+
+      Now, through experience, Korash the Dwarven Priest (who is my
+      alter personality!) knows where the Druj is (detect monster) and he
+      knows that the monster can't see him! But, he also knows that by
+      targeting the spot marked, Orb of Draining or whatever you choose
+      to use will hit the Druj!. This way, you can kill them off, your
+      mana will recover quicker than its hitpoints. And for a high level
+      character the Druj dies while you still have some mana left. I know
+      that for Korash, about 10-15 Orb of Draining shots and a Hand or
+      Eye Druj is dead. That works out to be about 70-100 mana. A bit ..
+      but not too much. 
+
+      This of course, require detection, ball spells, and likely a digging
+      tool to make the tunnel to shoot through, so might not be easy for
+      the warrior types to use. 
+
+  ---------------------------------------------------------------------------
+
+  Useful Trick #6 - The Close the door trick 
+
+      When low on hit points and being pursued, you can't always set up
+      the 'go round in a circle' trick, but wandering around can be
+      dangerous. 
+
+      Here is the alternative to the 'run in a circle' trick: 
+
+         ########## 
+              ooo 
+         ####'##### 
+            #@# 
+
+      If you can get 1 space ahead of your pursuer(s), and on the other
+      side of a door, then close it. Yes, the pursuer is just going to open it
+      again, so you don't seem to have gained much - but you have - you
+      have gained one free turn of rest. Close it again...and again. Soon
+      you'll see your hp (and mana if you have it) going up. 
+
+      If they don't open it for a turn, you have to decide whether to steal
+      the extra breathing space by running, or wait. In the arrangement
+      above, if the front orc moves left at some stage, they will have a
+      chance of getting through after you. Some other arrangements are
+      safer, like this one: 
+
+            ### 
+         #### 
+           o'@ 
+         #### 
+            ### 
+
+      Note: This won't work at all against monsters that are faster than
+      you are. 
+
+  ---------------------------------------------------------------------------
+
+  Useful Trick #7 - Keeping a tight lid on possible explosions
+
+      If you ever encounter a swarm of exploding somethings that you
+      can't kill, one simple way to take care of it is to simply close a few
+      doors, and lock them in a room. Since they can't multiply outside of
+      this room, you can leave. This works well for Giant Fleas that run
+      rampant, too. 
+
+                 ################## 
+                 #w ww ww w w w w 
+         #########w ww ww wwww 
+         .......@+www ww ww w www 
+         ######### wwww ww www w 
+                 #w w w w 
+                 ################## 
+
+      In addition, this is an easy way to get easy experience at early
+      levels. Since worms are easy to kill, they are easy experience. You
+      can let worms multiply, and then open the door, kill a few, and
+      then close the door at little to no risk. 
+
+      Be sure not to lock yourself in a dead end - trying to run through a
+      room of white worms can kill a character quite easily. 
+
+  ---------------------------------------------------------------------------
+
+  Useful Trick #8 - Death by Rune of Protection
+
+      Runes of Protection are portable walls (almost). If you have Rune
+      of Protection scrolls (or the Glyph of Warding prayer), you can set
+      up a configuration like this: 
+
+                 # # 
+                 # # 
+         #########N# 
+         ....@...^^# 
+         ########### 
+
+      where N is a generic Nasty and the ^'s are Runes. 
+
+      First, you place Runes in a corner as shown. Then, you find some
+      way to lure N into the corner. Perhaps tossing a spell at it, then
+      running away. Even better, ironically, is an item of Aggravate
+      Monster, because then you can cause a distant monster to wake up,
+      start pursuing you, and walk right into the corner. Remember to
+      take the damn thing OFF after a couple of turns (unless it's
+      Deathwreaker/Zarcuthra/The One Ring...). 
+
+      Here, in this setup, N: a) cannot cast spells/breaths. It can't see
+      you. b) is pinned between a rock (its move algorithm that tries to
+      move it towards you) and a hard place (the Runes). 
+
+      In other words, it's stuck. So just use the splash-the-ball-spell-
+      off-the-wall trick, previously described, to kill it. This is a natural
+      for priests, as they have the Glyph/Orb combo.; other classes will
+      have to scrape around for the Rune of Protection scrolls. 
+
+      **BIG CAVEAT** Remember that Runes can break! There is a
+      LEVEL/550 chance (LEVEL is the monster's level; the 550 is
+      specified in CONSTANTS.H in the source) that a monster can
+      break a Rune on any given move. If either rune, especially the one
+      nearest you, breaks, then you may want to leave. Thus, you
+      shouldn't use this technique unless you (a) have a good escape
+      spell/item and (b) can handle one attack of whatever the monster
+      can throw at you. Note that this is not a good thing to use against
+      high-level, high-speed monsters. . . 
+
+  ---------------------------------------------------------------------------
+
+  Useful Trick #9 - Dealing with monsters that summon 
+
+      This is restricted to relatively high-level characters. 
+
+      Monsters that summon - quylthulgs, many higher-level uniques, etc
+      - summon monsters in spaces adjacent to you. As a result, if these
+      spaces are already filled, the summoner can't summon any more. If
+      summoning is the monster's main attack, as with Quylthulgs, then
+      you can wait for the summoner to summon ONCE, then target the
+      summoner and toss ball spells at it. You need ball spells or
+      wands/rods to do this, since the summoned monsters will block
+      bolts, and prevent melee attacks against the summoner. A gnome
+      priest winner killed Qlzqqlzuup this way - its only spells are
+      summons, and so he simply Orbed it to death. 
+
+      Of course, this only works if the first summon gives relatively
+      harmless monsters. Ant, reptile, spider, and hound summons often
+      give relatively easy to deal with monsters, especially if you have
+      lots of resistances and a reasonable way to heal yourself. In any
+      event, eyeball the summoned critters before plunging in. If you find
+      yourself surrounded by Chaos Hounds or Greater Undead, it's a
+      good time to teleport out and try again later. 
+
+      Alternatively just teleport them away as soon as you seem them!
+      (targetting is useful here). I killed one of the unique Q's when it was
+      in a large pit: 
+
+         ########### 
+         # @ 
+         ########### 
+         #Q 
+         ########### 
+
+      Dug diagonally then orb of drained it to death. These pits are nice
+      for killing monsters that summon since you can also just telport
+      them away with one spell..only problem is they have limited space
+      to drop items. 
+
+  ---------------------------------------------------------------------------
+
+  Useful trick #10 - Using an immobile/weak monster as armor 
+
+      Heal monster allows you to hit a fairly weak creature with an area
+      effect rod or spell without killing that creature. This is handy when
+      there is a much more dangerous monster behind the weaker one. 
+
+         ##########
+            @ mp
+         ########## 
+
+      For example: You are in a hallway with a brown mold and a ninja.
+      The mold is two spaces to your right. The ninja is behind the mold,
+      three spaces to your right. You can cast heal monster on the mold a
+      few times, then hit the mold with fireballs from your rod until the
+      adjacent ninja dies. This tactic is, of course, not always useful.
+      Spellcasting and breathing monsters will ignore your barricade.
+      Harmless monsters do not always appear when needed (though
+      they can be encouraged with speed monster). Your blocking
+      monster may die on you, if you aren't careful. Also, you need a
+      reusable area-effect attack. 
+
+      Haste monster can be used on a relatively weak monster so as to
+      block a much nastier creature. Here's an example: You are in a room
+      with a kobold and a night mare. By casting Haste Monster on the
+      kobold two or three times, you may (depending on their locations)
+      be able to get the kobold, rather than the night mare, next to you
+      when you run from the room. 
+
+         ########### 
+         #  q      # 
+         #       k # 
+         #         # 
+         #####@##### 
+             # # 
+             # # 
+
+      This buys you time to run up some stairs or get some mana back. If
+      you have a rod of light, you can blast the night mare repeatedly,
+      without needing to face its attack. Slow Monster can be used if the
+      kobold is doing significant damage. There are many limitations on
+      this tactic. Breathing and spell-casting monsters are best dealt with
+      in other ways. You need a conveniently placed wimpy monster.
+      And you do, of course, end up with a kobold on your trail. 
+
+===========================================================================
+6) More techniques for killing monsters
+===========================================================================
+      
+Pillardancing.
+  Requires that you be at least twice as fast as the monster you
+  are fighting. Find a single block of wall, freestanding, and lure
+  your enemy to it. When both you and your eneny are standing
+  next to the pillar, hit him, and then move so that you are
+  opposite the pillar from him. He will use his turn to move so that
+  he's standing next to you. Hit him again, and then move again.
+  Repeat until he's dead. 
+
+  Note that some monsters move eratically, and cannot be relied
+  upon to move in the method expected. Also, some monsters
+  (mostly Ghosts) can move through walls, and a small number
+  of monsters can chew through walls. 
+
+Shoot'n Scoot.
+  Requires a large room, Phase Door, and some type of missile
+  weapon. Stand at one end of the room, your enemy at the other.
+  Fire your missile weapon at him until he gets close, and then
+  Phase Door. Fire again, until he gets close, and repeat. By the
+  time you run out of ammunition, he should be dead or weak
+  enough for you to finish him HTH (Hand to Hand). 
+
+Hack'n Back.
+  Requires that you be at least twice as fast as your opponent.
+  Stand next to your enemy, hit him, and back up. He should use
+  his turn to move towards you instead of using a missile weapon
+  or a spell. Hit him again, back up again, repeat. This is a little
+  more dangerous than Pillardancing, because the monster gets a
+  chance to breathe or cast a spell, but it's easier to set up. 
+
+Wail'n Bail.
+  Requires Teleport items. Fight the monster until you're almost
+  dead, teleport out, find him, and resume fighting. This is
+  dangerous, because you could teleport right next to some nasty
+  that will kill you. Also, it is not generally useful for killing unique
+  monsters, as they regenerate damage very quickly, and by the
+  time you find them again, they will have healed what you did to
+  them. 
+
+The Anti-Summoning Corridor.
+  Requires a little time to set up. This can be done just about
+  anywhere. Dig a twisting corridor into the rock, and station
+  yourself at one end of it. When your opponent arrives, he won't
+  be able to summon any monsters next to you. This is a very
+  important technique for fighting many higher-end monsters
+  which very quickly bring in a horde of other monsters. 
+
+===========================================================================
+

@@ -1,0 +1,102 @@
+=== Life Magic ===
+
+LIFE: Life is magic is 'good' magic; it relies mostly on healing
+and protective spells. It does have a few attack spells as well,
+but these are mostly used for harming and banishing foul minions
+of evil.  It is rumoured that there is a secret high level prayer
+which will make the  priest (or paladin) completely impervious
+to all forms of hostile action.
+
+The four magic books available to Life practitioners are: 
+
+  1) Book of Common Prayer
+  2) High Mass
+  3) Book of the Unicorn  [RARE]
+  4) Blessings of the Grail  [RARE]
+
+============================================================================
+
+1) Book of Common Prayer: 
+
+   1.Detect Evil: detects evil monsters on map panel 
+   2.Cure Light Wounds: heal 2d10 and subtract 10 from the cut counter 
+   3.Bless: +10 to-hit, +5 AC for 12+1d12 turns 
+   4.Remove Fear: removes "afraid" from status line 
+   5.Call Light: lights area, damage 2d(level/2) to light-sensitive creatures,
+      radius (level/10)+1 
+   6.Detect Traps and Secret Doors: detects traps, doors, and stairs on
+      current map panel 
+   7.Cure Medium Wounds: heal 4d10 and divides the cut counter in half,
+      then subtracts 20 from it. 
+   8.Satisfy Hunger: sets hunger status to full 
+
+============================================================================
+
+2) High Mass: 
+
+   1.Remove Curse: removes normal curses from equipped items 
+   2.Cure Poison: sets poison counter to zero 
+   3.Cure Critical Wounds: heal 8d10, sets stunning and cuts to zero 
+   4.Sense Unseen: gives see invisible for 24+1d24 turns 
+   5.Holy Orb: damage 3d6+3/2 level (priests and high mages) or 3d6+5/4
+      level (all others) Good creatures are immune, evil creatures take
+      double damage, others resist. Any cursed items in the spell radius will
+      be destroyed. 
+   6.Protection from Evil: protection from evil for 3*level+1d25 turns. If
+      an evil monster is of lower level than you, and if 1d100+your level is
+      greater than 50, the monster will not be able to hit you. 
+   7.Healing: heal 300, set stun and cuts to zero 
+   8.Glyph of Warding: sets a glyph on the floor beneath you. Monsters
+      have a (monster level) in 550 chance of breaking it. Monsters cannot
+      attack you if you are on a glyph (though they can breathe or cast
+      spells.) Monsters cannot be summoned onto a glyph. 
+
+===========================================================================
+
+3) Book of the Unicorn  [RARE]
+
+   This book has powerful prayers to ward off, banish and destroy the
+   forces of evil.
+
+   1.Exorcism: damage 1d level to all undead and demons. Also attempts
+      to scare all evil monsters in sight. 
+   2.Dispel Curse: removes normal and heavy curses on equipped items 
+   3.Dispel Undead+Demons: damage 1 to (level*3) to all visible undead
+      and demons 
+   4.Day of the Dove: charms monsters (power=level*2) 
+   5.Dispel Evil: damage 1 to (level*4) to all visible evil monsters 
+   6.Banishment: teleports all visible evil monsters away 
+   7.Holy Word: damage 1 to (level*4) to all visible evil monsters, heal
+      1000, cures fear, poison, cuts, and stun. 
+   8.Warding True: creates glyphs in all adjacent squares and under the
+      player 
+
+===========================================================================
+
+4) Blessings of the Grail  [RARE]
+
+   This book has the most powerful prayers of protection and healing,
+   as well as prayers of holy visions.
+
+   1.Heroism: +12 to-hit, +10 max HP, heal 10, remove fear, fear
+      immunity for 25+1d25 turns 
+   2.Prayer: +10 to-hit, +5 AC for 48+1d48 turns 
+   3.Bless Weapon: adds "blessed" flag to wielded weapon. Artifacts may
+      either become blessed or be disenchanted. 
+   4.Restoration: restores all stats and restores life levels 
+   5.Healing True: heal 2000, cures stun and cuts 
+   6.Holy Vision: *Identifies* an item 
+   7.Divine Intervention: creates a radius 1, damage 777 ball of holy fire
+      centered on you, then causes 1d (level*4) damage to all monsters in
+      sight. Attempts to slow, confuse, stun, scare, and freeze all monsters
+      in sight. Summons a pet angel (or group of angels) of a level up to
+      your own. Makes you berserk for 25+1d25 turns. Heals 300, cures
+      fear, and gives +10 to speed for level+1d(20+level) turns unless
+      you're already hasted. 
+   8.Holy Invulnerability: (almost) immune to all damage for 7+1d7 turns.
+      Monsters have a 1 in 13 chance of getting past your shield. 
+
+===========================================================================
+
+
+

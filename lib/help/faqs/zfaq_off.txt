@@ -1,0 +1,149 @@
+
+                    ZAngband Official FAQ
+
+                     by Robert Ruehlmann
+                       rr9@angband.org
+
+                      November 25, 1998
+                         Version 0.1
+
+
+=====================================================================
+1. About this FAQ
+=====================================================================
+
+---------------------------------------------------------------------
+1.1 Introduction
+---------------------------------------------------------------------
+
+ZAngband is a freeware roguelike computer roleplaying game,
+based on Angband. This document lists frequently asked
+questions and answers.
+
+---------------------------------------------------------------------
+1.2 Table of contents
+---------------------------------------------------------------------
+
+1. About this FAQ
+  1.1 Introduction
+  1.2 Table of contents
+  1.3 Where can I get this FAQ?
+
+2. General questions
+  2.1 What is ZAngband?
+  2.2 On what computers can I play it?
+  2.3 Where can I download it?
+
+3. System-specific questions
+  3.1 DOS
+    3.1.1 Can I play it in the old ASCII-mode?
+    3.1.2 Can I use multiple savefiles?
+    3.1.3 Why uses the DOS version only 2/3 of the screen?
+  3.2 Windows 95/98/NT
+    3.2.1 How do I run in the Windows version?
+    3.2.2 Why do I get an error message when I try to switch on
+          graphics?
+
+---------------------------------------------------------------------
+1.3 Where can I get this FAQ?
+---------------------------------------------------------------------
+
+This FAQ is available from:
+http://thangorodrim.angband.org/zangband-faq.txt
+
+
+=====================================================================
+2. General questions
+=====================================================================
+
+---------------------------------------------------------------------
+2.1 What is ZAngband?
+---------------------------------------------------------------------
+
+ZAngband is one of the many variants of the freeware roguelike
+computer roleplaying game Angband.
+
+---------------------------------------------------------------------
+2.2 On what computers can I play it?
+---------------------------------------------------------------------
+
+ZAngband is available for many different systems, including
+MS-DOS, Windows 95/98/NT, Macintosh, Amiga, OS/2, Acorn RISC OS,
+and the many different Unix-derivates including Linux.
+
+---------------------------------------------------------------------
+2.3 Where can I download it?
+---------------------------------------------------------------------
+
+The newest version of ZAngband is always available from
+"Thangorodrim - The Angband Page" at:
+
+http://thangorodrim.angband.org/
+
+and the Angband FTP-Server at:
+
+ftp://export.andrew.cmu.edu/angband/
+
+
+=====================================================================
+3. System-specific questions
+=====================================================================
+
+
+---------------------------------------------------------------------
+3.1 DOS
+---------------------------------------------------------------------
+
+---------------------------------------------------------------------
+3.1.1 Can I play it in the old ASCII-mode?
+---------------------------------------------------------------------
+
+Yes, you can. The old IBM-mode is included in the DOS version and can
+be activated with the '-mibm' option. Just run ZAngband with
+'ZAngband.exe -mibm' to switch it on.
+
+---------------------------------------------------------------------
+3.1.2 Can I use multiple savefiles?
+---------------------------------------------------------------------
+
+Yes, you can. Run ZAngband with the -u<name> option. For example:
+'ZAngband.exe -uFred' loads the character called Fred. If no
+savefile called 'Fred' is found then a new one is created. To use
+another character just run ZAngband with a different name.
+
+---------------------------------------------------------------------
+3.1.3 Why uses the DOS version only 2/3 of the screen?
+---------------------------------------------------------------------
+
+The lower part of the screen is used for displaying two extra windows
+with additional information. To activate this feature, press '=' to
+access the ZAngband options, then press 'W' to enter the 'Window
+Flags' section. Now you can assign various informations to the two
+special windows lower part of the screen. Move the cursor to the
+'Mirror' column and switch on one of the options with the 'y' key.
+A good choice is the 'Display messages' option. Now move to the
+'Recall' column and select another option (for example 'Display
+inven/equip'). Now press the ESCAPE key two times to leave the
+options menu and press Ctrl-R to redraw the screen.
+
+
+---------------------------------------------------------------------
+3.2 Windows 95/98/NT
+---------------------------------------------------------------------
+
+---------------------------------------------------------------------
+3.2.1 How do I run with the numeric keypad in the Windows version?
+---------------------------------------------------------------------
+
+Press the Num-Lock key to switch off Num-Lock mode. Now you should be
+able to run when pressing Shift and a key of the numeric keypad.
+
+---------------------------------------------------------------------
+3.2.2 Why do I get an error message when I try to switch on graphics?
+---------------------------------------------------------------------
+
+The 'Unusable bitmap palette (255 entries) - Could not initialize
+graphics' error means that you tried to use graphics with a desktop
+set to 256 colors. Switch to high-color or true-color mode to fix
+this problem.
+

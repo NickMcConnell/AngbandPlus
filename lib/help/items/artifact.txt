@@ -1,0 +1,1119 @@
+Artifact Spoilers for Zangband Version 2.2.3c
+
+  [Plus comments and descriptions -- Trav ]
+
+=======================================================================
+During you childhood, you heard many rumors of unique weapons of   
+great or terrible deeds, here are some that you remember...
+=======================================================================
+
+
+Edged Weapons
+-------------
+
+DAGGERS
+
+The Main Gauche of Maedhros (2d5) (+12,+15)
+    +3 to INT, DEX, Speed
+    Slay Troll, Giant
+    Free Action; See Invisible
+    Level 15, Rarity 30, 3.0 lbs, 22500 Gold
+
+The Dagger of Caine (2d4) (+10,+15) [+5]
+    +4 to DEX, Stealth, Searching
+    Slay Evil, Orc, Troll
+    Poisoned
+    Resist Dark
+    Sustain DEX
+    Free Action; See Invisible
+    Level 20, Rarity 80, 1.2 lbs, 125000 Gold
+
+The Dagger 'Narthanc' (1d4) (+4,+6)
+    Flame Tongue
+    Resist Fire
+    Permanent Light(1)
+    Activates for fire bolt (9d8) every 8+d8 turns
+    Level 4, Rarity 10, 1.2 lbs, 12000 Gold
+
+The Dagger 'Nimthanc' (1d4) (+4,+6)
+    Frost Brand
+    Resist Cold
+    Activates for frost bolt (6d8) every 7+d7 turns
+    Level 3, Rarity 10, 1.2 lbs, 11000 Gold
+
+The Dagger 'Dethanc' (1d4) (+4,+6)
+    Lightning Brand
+    Resist Lightning
+    Activates for lightning bolt (4d8) every 6+d6 turns
+    Level 5, Rarity 10, 1.2 lbs, 13000 Gold
+
+The Dagger of Rilia (2d4) (+4,+3)
+    Slay Orc
+    Poisoned
+    Resist Poison, Disenchantment
+    Activates for stinking cloud (12) every 4+d4 turns
+    Level 5, Rarity 40, 1.2 lbs, 35000 Gold
+
+    This ancient and poisonous dagger casts stinking clouds with great
+    frequency.
+
+The Dagger of Fiona (2d4) (+6,+9)
+    +2 to DEX, Attacks, Speed
+    Frost Brand; Poisoned
+    Resist Cold
+    See Invisible; Slow Digestion; Regeneration
+    Activates for frost ball (48) every 5+d5 turns
+    Level 10, Rarity 40, 1.2 lbs, 50000 Gold
+
+
+SWORDS
+
+The Bastard Sword 'Calris' (5d4) (-20,+20)
+    +5 to CON
+    Slay Evil, Demon, Troll, Xdragon
+    Resist Disenchantment
+    Aggravates
+    Level 30, Rarity 15, 14.0 lbs, 100000 Gold
+
+    This sword of Lungorthin the Balrog of White Flame, is an evil cursed
+    sword that needs great mastering to control its powers. If mastered it can
+    execute dragons, slay other evil including demons and trolls, this
+    naturally aggravates them. Also it gives its wielder far greater internal
+    constitution.
+
+The Sabre 'Grayswandir' (2d7) (+20,+12)
+    +4 to STR, DEX, CON
+    Slay Evil, Undead, Demon, Dragon
+    Frost Brand
+    Resist Cold, Fear, Nether, Chaos
+    Sustain STR, CON
+    Free Action; Hold Life; See Invisible; Slow Digestion; Regeneration
+    Blessed Blade
+    Level 20, Rarity 45, 5.0 lbs, 125000 Gold
+
+The Broad Sword 'Glamdring' (2d5) (+10,+15)
+    +1 to Searching
+    Slay Evil, Orc
+    Flame Tongue
+    Resist Fire, Light
+    Slow Digestion; Permanent Light(1)
+    Level 20, Rarity 20, 15.0 lbs, 40000 Gold
+
+    This High-Elven sword (mate to Orcrist) was made during foul orc wars
+    of long ago. It was once wielded by Gandalf the Grey Wizard. It slays
+    orcs and other evil, shining bright red continuously, which aids searching
+    and decreases food consumption. Its element is flame, and it gives
+    resistance to flame to the wielder, and slays those who have not.
+
+The Broad Sword 'Nothung' (2d5) (+12,+16)
+    +4 to Searching
+    Slay Orc, Xdragon
+    Lightning Brand
+    Resist Lightning, Fire, Poison, Fear
+    Slow Digestion; Permanent Light(1)
+    Level 20, Rarity 90, 15.0 lbs, 95000 Gold
+
+The Broad Sword 'Orcrist' (2d5) (+10,+15)
+    +3 to Stealth
+    Slay Evil, Orc
+    Frost Brand
+    Resist Cold
+    Slow Digestion; Permanent Light(1)
+    Level 20, Rarity 20, 15.0 lbs, 40000 Gold
+
+    This High-Elven sword (mate to Glamdring) was made during foul orc
+    wars of long ago. It was once wielded by Thorin Oakenshield the
+    Dwarf-King-Under-the-Mountain. It slays orcs and other evil, shining
+    bright white continuously, which decreases food consumption, plus
+    making the wielder more stealthy. Being of the element frost, it protects
+    from cold, and slays non-cold based creatures.
+
+The Two-Handed Sword 'Gurthang' (3d6) (+13,+17)
+    +2 to STR
+    Slay Troll, Xdragon
+    Free Action; Slow Digestion; Regeneration
+    Level 30, Rarity 30, 20.0 lbs, 100000 Gold
+
+    This Iron of Death belonging to Turin Turambar, made of black eog, was
+    designed to slay Dragons (and Trolls), doing five times normal damage
+    against dragons. It gives you the strength to wield it, regenerates your hit
+    points and mana at no extra cost and allows you to be free of
+    paralyzation.
+
+The Two-Handed Sword 'Zarcuthra' (4d6) (+19,+21)
+    +4 to STR, CHR, Infravision
+    Slay Animal, Evil, Undead, Demon, Orc, Troll, Giant, Xdragon
+    Flame Tongue; Very sharp
+    Resist Fire, Chaos
+    Free Action; See Invisible; Aggravates; Permanent Light(1)
+    Level 30, Rarity 180, 25.0 lbs, 205000 Gold
+
+The Two-Handed Sword 'Twilight' (4d6) (-40,-60) [-50]
+    +10 to Speed
+    Flame Tongue
+    Immunity to Fire
+    Resist Fire, Fear, Disenchantment
+    Aggravates; Permanent Light(1)
+    Level 30, Rarity 15, 25.0 lbs, 0 Gold
+
+The Cutlass 'Gondricam' (1d7) (+10,+11)
+    +3 to DEX, Stealth
+    Resist Acid, Lightning, Fire, Cold
+    Levitation; See Invisible; Regeneration
+    Level 20, Rarity 8, 11.0 lbs, 28000 Gold
+
+    This defender increases the wielders dexterity.
+
+The Executioner's Sword 'Crisdurian' (4d5) (+18,+19)
+    Slay Evil, Undead, Orc, Troll, Giant, Dragon
+    Poisoned; Very sharp
+    See Invisible
+    Level 40, Rarity 15, 26.0 lbs, 111000 Gold
+
+    This executor slays evil, undead, dragons, giants, orcs and trolls and sees
+    invisible.
+
+The Katana of Groo (8d4) (+0,+0)
+    +3 to DEX, Attacks, Speed
+    Very sharp
+    Sustain DEX
+    Level 30, Rarity 25, 5.0 lbs, 75000 Gold
+
+The Long Sword 'Ringil' (4d5) (+22,+25)
+    +10 to Speed
+    Slay Evil, Undead, Demon, Troll
+    Frost Brand
+    Resist Cold, Light
+    Free Action; See Invisible; Slow Digestion; Regeneration
+    Permanent Light(1)
+    Activates for frost ball (100) every 300 turns
+    Level 20, Rarity 120, 13.0 lbs, 300000 Gold
+
+    The Sword of Fingolfin (High-Elf). When wielded it will haste its
+    wielder. It is a blade of such deathly cold that it shines bright white
+    acting as a permanent light and delivering cold criticals. It slays evil,
+    demons, undead and trolls. Allows you to resist cold, regenerate mana
+    and hit points more quickly with no extra food consumption. Also lets
+    you see invisible and be immune to paralyzation. Being made of white
+    eog, it is capable of casting Ice Storms. 
+
+The Long Sword 'Anduril' (2d5) (+10,+15) [+5]
+    +4 to STR
+    Slay Evil, Orc, Troll
+    Flame Tongue
+    Resist Fire
+    Sustain DEX
+    Free Action; See Invisible; Permanent Light(1)
+    Activates for fire ball (72) every 400 turns
+    Level 20, Rarity 40, 13.0 lbs, 80000 Gold
+
+    The Sword of Aragorn the Dunadan Ranger and King. It increases your
+    strength to match true Kingly strength, increases armour class by +5.
+    Being the 'Flame of the West' it delivers heat criticals and defends against
+    fire. It slays evil, orcs and trolls. It allows you to see invisible and avoid
+    paralyzation. So near to the element fire is the blade, that Fire Balls can
+    be cast from its searing surface.
+
+The Long Sword 'Werewindle' (2d5) (+8,+12)
+    +2 to STR, CON, Attacks, Speed
+    Slay Evil, Demon
+    Lightning Brand; Mark of Chaos
+    Resist Lightning, Fear, Light, Dark, Disenchantment
+    Sustain STR, INT, WIS, CON
+    Free Action; See Invisible; Slow Digestion; Regeneration
+    Permanent Light(1)
+    Activates for a getaway every 35 turns
+    Level 20, Rarity 30, 13.0 lbs, 150000 Gold
+
+The Broad Sword 'Chainsword' (11d5) (-30,+7)
+    +2 to DEX, CHR, Stealth, Attacks, Speed
+    Slay Orc, Troll
+    Very sharp
+    See Invisible; Aggravates
+    Level 20, Rarity 15, 13.0 lbs, 66666 Gold
+
+The Rapier 'Forasgil' (1d6) (+12,+19)
+    Slay Animal
+    Frost Brand
+    Resist Cold, Light
+    Permanent Light(1)
+    Level 15, Rarity 8, 4.0 lbs, 15000 Gold
+
+    This glittering ice-blade also slays animals as well as lighting the way.
+
+The Sabre 'Careth Asdriag' (1d7) (+6,+8)
+    +1 to Attacks
+    Slay Animal, Orc, Troll, Giant, Dragon
+    Level 15, Rarity 8, 5.0 lbs, 25000 Gold
+
+    This lightning-quick blade slays dragons, giants, trolls, orcs, and animals.
+
+The Small Sword 'Sting' (1d6) (+7,+8)
+    +2 to STR, DEX, CON, Attacks
+    Slay Evil, Undead, Orc
+    Resist Light
+    Free Action; See Invisible; Permanent Light(1)
+    Level 20, Rarity 15, 7.5 lbs, 100000 Gold
+
+    This small weapon is one of the most powerful weapons of Westernesse.
+    Once wielded by Bilbo and Frodo Baggins (of Hobbit kind), Sting slays
+    undead, evil, and orcs and also shines a continuous, bright blue. It
+    increases the wielder's physical statistics and its piercing blue light lights
+    up those normally invisible to sight.
+
+The Scimitar 'Soulsword' (2d5) (+9,+11)
+    +2 to INT, WIS, Attacks
+    Slay Animal, Evil, Undead, Demon, Dragon
+    Resist Nether, Nexus, Chaos, Disenchantment
+    Hold Life; See Invisible; Blessed Blade
+    Level 20, Rarity 8, 13.0 lbs, 111111 Gold
+
+The Short Sword of Merlin (1d7) (+3,+7)
+    +2 to Attacks
+    Slay Animal
+    Resist Disenchantment
+    See Invisible; Slow Digestion; Regeneration
+    Level 20, Rarity 8, 8.0 lbs, 35000 Gold
+
+The Blade of Chaos 'Doomcaller' (6d5) (+18,+28) [-50]
+    Slay Animal, Evil, Orc, Troll, Xdragon
+    Flame Tongue; Frost Brand; Poisoned; Mark of Chaos; Very sharp
+    Resist Acid, Lightning, Fire, Cold, Chaos
+    Free Action; See Invisible; ESP; Aggravates; Permanent Light(1)
+    Level 70, Rarity 25, 18.0 lbs, 250000 Gold
+
+    This deadly blade calls doom to all who see it, thus it naturally
+    aggravates them. It shows you wherever a creature is, be it invisible or
+    blocked by a wall. It resists all elements and executes dragons, slays evil,
+    animal, orc and troll. It delivers cold criticals, but severely impedes its
+    wielders health.
+
+The Long Sword 'Vorpal Blade' (5d5) (+32,+32)
+    +2 to STR, DEX, Speed
+    Slay Evil
+    Very sharp
+    Free Action; See Invisible; Slow Digestion; Regeneration
+    Permanent Light(1)
+    Level 50, Rarity 30, 15.0 lbs, 250000 Gold
+
+The Long Sword of the Dawn (3d5) (+20,+20)
+    +3 to CHR, Infravision
+    Slay Evil, Undead, Demon, Dragon
+    Flame Tongue; Very sharp
+    Resist Fire, Fear, Light, Blindness
+    Sustain CHR
+    Free Action; Regeneration; Permanent Light(1)
+    Activates for summon the Legion of the Dawn every 500+d500 turns
+    Level 40, Rarity 120, 13.0 lbs, 250000 Gold
+
+
+
+Polearms
+--------
+
+The Beaked Axe of Theoden (2d6) (+8,+10)
+    +3 to WIS, CON
+    Slay Dragon
+    ESP; Slow Digestion
+    Activates for drain life (120) every 400 turns
+    Level 20, Rarity 15, 18.0 lbs, 40000 Gold
+
+The Glaive of Pain (9d6) (+0,+30)
+    Level 30, Rarity 25, 19.0 lbs, 50000 Gold
+
+    This weapon is designed to cause pain to anything without
+    discrimination.
+
+The Halberd 'Osondir' (3d5) (+6,+9)
+    +3 to CHR
+    Slay Undead, Giant
+    Flame Tongue
+    Resist Fire, Sound
+    Levitation; See Invisible; Permanent Light(1)
+    Level 20, Rarity 8, 19.0 lbs, 22000 Gold
+
+The Pike 'Til-i-arc' (2d5) (+10,+12) [+10]
+    +2 to INT
+    Slay Demon, Troll, Giant
+    Flame Tongue; Frost Brand
+    Resist Fire, Cold
+    Sustain INT
+    Slow Digestion; Permanent Light(1)
+    Level 20, Rarity 15, 16.0 lbs, 32000 Gold
+
+The Spear 'Runespear' (4d6) (+15,+25) [+5]
+    +4 to INT, WIS
+    Slay Orc, Troll, Giant
+    Lightning Brand; Flame Tongue
+    Resist Lightning, Fire, Light
+    Free Action; Slow Digestion; Blessed Blade; Permanent Light(1)
+    Activates for lightning ball (100) every 500 turns
+    Level 15, Rarity 45, 5.0 lbs, 180000 Gold
+
+The Spear of Destiny (1d6) (+15,+15)
+    +4 to INT, WIS, Searching, Infravision
+    Slay Evil, Undead, Demon, Giant, Dragon
+    Flame Tongue
+    Resist Fire, Fear, Light
+    Hold Life; Levitation; See Invisible; Blessed Blade; Permanent Light(1)
+    Activates for stone to mud every 5 turns
+    Level 15, Rarity 45, 5.0 lbs, 77777 Gold
+
+The Spear of Hagen (1d6) (+11,+13)
+    +3 to Stealth, Infravision, Speed
+    Slay Undead
+    Frost Brand
+    Resist Cold, Dark
+    See Invisible
+    Level 15, Rarity 12, 5.0 lbs, 30000 Gold
+
+The Lance of Eorlingas (3d8) (+3,+21)
+    +2 to DEX
+    Slay Evil, Orc, Troll
+    See Invisible
+    Level 20, Rarity 23, 36.0 lbs, 55000 Gold
+
+    This heavy lance is suprisingly easy to control, allowing slaughter of
+    orcs, trolls and other evil (visible or not).
+
+The Great Axe of Durin (4d4) (+10,+20) [+15]
+    +3 to CON
+    Slay Demon, Orc, Troll, Xdragon
+    Resist Acid, Fire, Light, Dark, Chaos
+    Free Action
+    Level 30, Rarity 90, 23.0 lbs, 150000 Gold
+
+    This Wonderful Dwarven Axe was once wielded by Durin the Deathless
+    (Father and King of the Dwarves), gives its wielder high protection,
+    executes dragons, while resisting fire and acid. It slays demons, trolls and
+    orcs, frees action and increases constitution.
+
+The Great Axe of Eonwe (4d4) (+15,+18) [+8]
+    +2 to All stats
+    Slay Evil, Undead, Orc
+    Frost Brand
+    Immunity to Cold
+    Free Action; See Invisible; Blessed Blade
+    Activates for mass genocide every 1000 turns
+    Level 30, Rarity 120, 23.0 lbs, 200000 Gold
+
+The Battle Axe of Balli Stonehand (3d8) (+8,+11) [+5]
+    +3 to STR, CON, Stealth
+    Slay Demon, Orc, Troll
+    Resist Acid, Lightning, Fire, Cold, Blindness
+    Free Action; Levitation; See Invisible; Regeneration
+    Level 30, Rarity 15, 17.0 lbs, 90000 Gold
+
+    This Dwarvish Battle axe protects from elements, falls and the invisible.
+    It slays all demons, trolls and orcs, giving even dwarves the stealth,
+    strength and constitution to do so, never letting holding spells affect its
+    use in a fight.
+
+The Battle Axe 'Lotharang' (2d8) (+4,+3)
+    +1 to STR, DEX
+    Slay Orc, Troll
+    Activates for cure wounds (4d7) every 3+d3 turns
+    Level 30, Rarity 15, 17.0 lbs, 21000 Gold
+ 
+    This petty-dwarvish axe, slays orcs and trolls, increasing strength and
+    dexterity. For those of faint heart it also cures medium wounds and cuts.
+
+The Lochaber Axe of the Dwarves (3d8) (+12,+17)
+    +10 to Searching, Infravision, Tunneling
+    Slay Evil, Giant
+    Resist Acid, Lightning, Fire, Cold, Fear
+    Level 30, Rarity 8, 25.0 lbs, 80000 Gold
+
+The Broad Axe 'Barukkheled' (2d6) (+13,+19)
+    +3 to CON
+    Slay Evil, Orc, Troll, Giant
+    See Invisible
+    Level 20, Rarity 8, 16.0 lbs, 50000 Gold
+
+    This beautiful axe slays orcs, trolls, giants and other evil (visible or not),
+    while greatly increasing the wielders internal constitution.
+
+The Trident of Wrath (3d8) (+16,+18)
+    +2 to STR, DEX
+    Slay Evil, Undead
+    Mark of Chaos
+    Resist Light, Dark
+    See Invisible; Blessed Blade
+    Level 15, Rarity 35, 30.0 lbs, 90000 Gold
+
+    This extremely heavy and dangerous trident belonging to the greatest
+    Maiar spirit, Osse, slaughters evil and undead without mercy wherever
+    they hide, and increases the wielder's strength and dexterity.
+
+The Trident of Ulmo (4d8) (+15,+19)
+    +4 to DEX
+    Slay Animal, Dragon
+    Immunity to Acid
+    Resist Nether
+    Free Action; Hold Life; See Invisible; Slow Digestion; Regeneration
+    Blessed Blade
+    Activates for teleport away every 150 turns
+    Level 30, Rarity 90, 7.0 lbs, 120000 Gold
+
+The Scythe 'Avavir' (5d3) (+8,+8) [+10]
+    +3 to DEX, CHR
+    Flame Tongue; Frost Brand
+    Resist Fire, Cold, Light
+    Free Action; See Invisible; Permanent Light(1)
+    Activates for word of recall every 200 turns
+    Level 40, Rarity 8, 25.0 lbs, 18000 Gold
+
+
+
+Hafted Weapons
+--------------
+
+The Mighty Hammer 'Grond' (9d9) (+5,+25) [+10]
+    Slay Animal, Evil, Undead, Demon, Orc, Troll, Xdragon
+    Earthquake impact on hit
+    Resist Acid, Lightning, Fire, Cold
+    Anti-Magic; See Invisible; ESP; Aggravates
+    Level 100, Rarity 1, 100.0 lbs, 500000 Gold
+
+    The Hammer of the Underworld, this is Morgoth's chief weapon. It
+    weighs so much that it slows anything of less than godly status. It is so
+    awesome that it aggravates all that see it. It makes it's wielder see all and
+    resist all. It slays all of Morgoths personal creations of orcs, trolls, and
+    demons and it executes dragons doing five times normal damage against
+    them, (it can kill all but a very few dragons in one mighty blow!). Plus it
+    causes impact criticals that cause earthquakes and it can tunnel through
+    solid granite walls!
+
+The Flail 'Totila' (3d6) (+6,+8)
+    +2 to Stealth
+    Slay Evil
+    Flame Tongue
+    Resist Fire, Confusion
+    Permanent Light(1)
+    Activates for confuse monster every 15 turns
+    Level 20, Rarity 8, 15.0 lbs, 55000 Gold
+
+    This flaming flail slays evil in stealth. It also casts confusion.
+
+The Two-Handed Flail 'Thunderfist' (3d6) (+5,+18)
+    +4 to STR
+    Slay Animal, Orc, Troll
+    Lightning Brand; Flame Tongue
+    Resist Lightning, Fire, Dark
+    Permanent Light(1)
+    Level 45, Rarity 38, 30.0 lbs, 160000 Gold
+
+    This weapon of Electricity and Flame, delivers shock and heat criticals,
+    delivering five times or three times normal damage against the respective
+    types of creatures, also slays animals, trolls and orcs. It also gives the
+    wielder great strength.
+
+The Morning Star 'Bloodspike' (2d6) (+8,+22)
+    +4 to STR
+    Slay Animal, Orc, Troll
+    Resist Nexus
+    See Invisible
+    Level 20, Rarity 30, 15.0 lbs, 30000 Gold
+
+    This Bloody weapon slays animals, trolls, and orcs. It allows you to see
+    invisible creatures, as well as giving the wielder great strength.
+
+The Morning Star 'Firestar' (2d6) (+5,+7) [+2]
+    Flame Tongue
+    Resist Fire
+    Permanent Light(1)
+    Activates for large fire ball (72) every 100 turns
+    Level 20, Rarity 15, 15.0 lbs, 35000 Gold
+
+    This weapon of flame casts fire balls.
+
+The Mace 'Taratol' (3d4) (+12,+12)
+    Slay Xdragon
+    Lightning Brand
+    Immunity to Lightning
+    Activates for haste self (20+d20 turns) every 100+d100 turns
+    Level 20, Rarity 15, 20.0 lbs, 50000 Gold
+
+The War Hammer of Aule (9d3) (+19,+21) [+5]
+    +4 to WIS
+    Slay Evil, Undead, Demon, Xdragon
+    Lightning Brand
+    Resist Acid, Lightning, Fire, Cold, Nexus
+    Free Action; See Invisible
+    Level 40, Rarity 75, 12.0 lbs, 250000 Gold
+
+    This is the great war hammer of the deity, Aule the Smith. Forged in his
+    great furnaces it delivers Shock criticals causing five times normal damage
+    to those not resistant to this element, and even then it executes dragons,
+    slays evil, demons and undead. It resists fire, cold, acid and lightning and
+    allows you to see invisible and be free of paralyzation. It increases its
+    wielder's wisdom so that one may choose wisely what to slay with it.
+    Truly an awesome weapon.
+
+The Quarterstaff 'Nar-i-vagil' (1d9) (+10,+20)
+    +3 to INT
+    Slay Animal
+    Flame Tongue
+    Resist Fire
+    Permanent Light(1)
+    Level 20, Rarity 18, 15.0 lbs, 70000 Gold
+
+    This fiery staff slays animals and resists fire, doing times fire criticals. It
+    also increases the wielders intelligence.
+
+The Quarterstaff 'Eriril' (1d9) (+3,+5)
+    +4 to INT, WIS
+    Slay Evil
+    Resist Light
+    See Invisible; Permanent Light(1)
+    Activates for identify every 10 turns
+    Level 20, Rarity 18, 15.0 lbs, 20000 Gold
+
+    This staff of people who believe in the power of mind over matter,
+    greatly increases wisdom and intelligence and gives the power to identify.
+    It also sees invisible and slays all evil.
+
+The Quarterstaff of Gandalf (2d9) (+10,+13)
+    +4 to INT, WIS, CHR, Searching
+    Slay Evil, Orc, Troll
+    Flame Tongue
+    Resist Fire, Nether
+    Hold Life; See Invisible; Permanent Light(1)
+    Activates for probing, detection and full id every 1000 turns
+    Level 30, Rarity 105, 15.0 lbs, 140000 Gold
+
+The Mace of Disruption 'Deathwreaker' (7d8) (+18,+18)
+    +6 to STR, Tunneling
+    Slay Animal, Evil, Undead, Dragon
+    Flame Tongue; Poisoned; Vampiric
+    Immunity to Fire
+    Resist Dark, Chaos, Disenchantment
+    Prevent Teleportation; Aggravates; Permanent Light(1)
+    Level 80, Rarity 38, 40.0 lbs, 444444 Gold
+
+The Lucerne Hammer 'Turmil' (2d5) (+10,+6) [+8]
+    +4 to WIS, Infravision
+    Slay Orc
+    Frost Brand
+    Resist Cold, Light
+    Regeneration; Permanent Light(1)
+    Activates for drain life (90) every 70 turns
+    Level 20, Rarity 15, 12.0 lbs, 30000 Gold
+
+
+
+Bows
+----
+
+The Long Bow 'Belthronding' (x3) (+20,+22)
+    +3 to DEX, Stealth
+    Resist Disenchantment
+    +1 Extra Shot
+    Level 40, Rarity 20, 4.0 lbs, 35000 Gold
+
+    This Noldorin black-yew bow, belonged to the greatest elven archer,
+    Beleg Cuthalion, who was slain by his own blade, by his best friend
+    Turin Turumbar. The bow increases stealth and dexterity, and rarely
+    missed its target.
+
+The Long Bow of Bard (x4) (+17,+19)
+    +3 to DEX
+    Free Action
+    Level 30, Rarity 20, 4.0 lbs, 20000 Gold
+
+    This bow of men gives free action and increased dexterity.
+
+The Light Crossbow of Brand (x4) (+10,+14)
+    +10 to Speed
+    Resist Fire
+    Activates for fire branding of bolts every 999 turns
+    Level 50, Rarity 25, 11.0 lbs, 50000 Gold
+
+
+=======================================================================
+During your childhood, you heard many rumors of unique armours of
+great   protection   and   abilities,  here  are  some  that  you 
+remember...
+=======================================================================
+
+Body Armor
+----------
+
+The Soft Leather Armour 'Hithlomir' [4,+20]
+    +4 to Stealth
+    Resist Acid, Lightning, Fire, Cold, Dark
+    Level 20, Rarity 3, 8.0 lbs, 45000 Gold
+
+    This dark-misty leather resists the elements and melds the wearer
+    into the background with incredible stealth.
+
+The Leather Scale Mail 'Thalkettoth' (-1) [11,+25]
+    +3 to DEX
+    Resist Acid, Shards
+    Level 20, Rarity 3, 6.0 lbs, 25000 Gold
+
+    This light leather scale mail is suprisingly good at dodging attacks,
+    and is resistant to acid.  Often nicknamed Blade-Turner.
+
+The Adamantite Plate Mail 'Soulkeeper' (-4) [40,+20]
+    +2 to CON
+    Resist Acid, Cold, Dark, Nether, Nexus, Chaos
+    Sustain CON
+    Hold Life
+    Activates for heal (1000) every 888 turns
+    Level 75, Rarity 9, 42.0 lbs, 300000 Gold
+
+    This amazing armour protects your soul from cold, and from life
+    level loss. It is also capable of fully healing you.
+
+The Full Plate Armour of Isildur [25,+25]
+    +1 to CON
+    Resist Acid, Lightning, Fire, Cold, Confusion, Sound, Nexus
+    Level 30, Rarity 3, 30.0 lbs, 50000 Gold
+
+    This armour of the Dunedain Lord, Isildur, Resists.
+
+The Metal Brigandine Armour of the Rohirrim [19,+15]
+    +2 to STR, DEX
+    Resist Acid, Lightning, Fire, Cold, Confusion, Sound
+    Level 30, Rarity 3, 20.0 lbs, 30000 Gold
+
+The Mithril Chain Mail of Lohengrin (-1) [28,+20]
+    +4 to INT, WIS, Stealth
+    Resist Acid, Lightning, Fire, Cold, Poison, Fear, Dark, Nether
+    Hold Life; See Invisible
+    Activates for heal (777), curing and heroism every 300 turns
+    Level 40, Rarity 3, 15.0 lbs, 135000 Gold
+
+The Metal Scale Mail of Julian (-2) [15,+40]
+    +4 to STR, CHR
+    Resist Acid, Lightning, Fire, Cold, Dark, Disenchantment
+    Activates for genocide every 500 turns
+    Level 40, Rarity 3, 25.0 lbs, 150000 Gold
+
+The Chain Mail of Arvedui (-2) [14,+15]
+    +2 to STR, CHR
+    Resist Acid, Lightning, Fire, Cold, Shards, Nexus
+    Level 20, Rarity 3, 22.0 lbs, 32000 Gold
+
+    This wonderful chain mail belonged to the last king of Arnor.
+    It resists the elements and increases strength and charisma.
+
+The Augmented Chain Mail of Caspanion (-2) [16,+20]
+    +3 to INT, WIS, CON
+    Resist Acid, Poison, Confusion
+    Activates for door and trap destruction every 10 turns
+    Level 25, Rarity 9, 27.0 lbs, 40000 Gold
+
+The Multi-Hued Dragon Scale Mail 'Razorback' (-4) [30,+25]
+    Immunity to Lightning
+    Resist Fire, Cold, Poison, Light, Dark
+    Free Action; See Invisible; Aggravates; Permanent Light(1)
+    Activates for star ball (150) every 1000 turns
+    Level 90, Rarity 9, 50.0 lbs, 400000 Gold
+
+The Power Dragon Scale Mail 'Bladeturner' (-8) [50,+35]
+    Resist Acid, Lightning, Fire, Cold, Poison, Light, Dark, Blindness, 
+      Confusion, Sound, Shards, Nether, Nexus, Chaos, Disenchantment
+    Hold Life; Levitation; Regeneration
+    Activates for breathe elements (300), berserk rage, bless, and resistance
+    Level 95, Rarity 3, 60.0 lbs, 500000 Gold
+
+
+
+Cloaks
+------
+
+The Cloak 'Colluin' [1,+15]
+    Resist Acid, Lightning, Fire, Cold, Poison
+    Activates for resistance (20+d20 turns) every 111 turns
+    Level 5, Rarity 45, 1.0 lbs, 10000 Gold
+
+    This cloak of resistance even casts extra resistance spells that
+    can defend against poison.
+
+The Cloak 'Holcolleth' [1,+4]
+    +2 to INT, WIS, Stealth
+    Resist Acid
+    Activates for Sleep II every 55 turns
+    Level 5, Rarity 45, 1.0 lbs, 13000 Gold
+
+    This mage cloak increases intelligence and wisdom and casts spells
+    to make monsters lose their concentration and fall to sleep.
+
+The Cloak of Thingol [1,+18]
+    +3 to DEX, CHR
+    Resist Acid, Fire, Cold
+    Free Action
+    Activates for recharge item I every 70 turns
+    Level 10, Rarity 90, 1.0 lbs, 35000 Gold
+
+The Cloak of Thorongil [1,+10]
+    Resist Acid
+    Free Action; See Invisible
+    Level 5, Rarity 20, 1.0 lbs, 8000 Gold
+
+The Cloak 'Colannon' [1,+15]
+    +3 to Stealth
+    Resist Acid
+    Activates for teleport every 45 turns
+    Level 3, Rarity 10, 1.0 lbs, 11000 Gold
+
+    This Gate-cloak teleports the player at will, and gives stealth
+    so as to avoid awkward situations.
+
+The Shadow Cloak of Luthien [6,+20]
+    +2 to INT, WIS, CHR, Stealth, Speed
+    Resist Acid, Fire, Cold
+    Activates for restore life levels every 450 turns
+    Level 40, Rarity 40, 0.5 lbs, 55000 Gold
+
+The Shadow Cloak of Tuor [6,+12]
+    +4 to Stealth
+    Immunity to Acid
+    Free Action; See Invisible
+    Level 40, Rarity 40, 0.5 lbs, 35000 Gold
+
+
+
+Shields
+-------
+
+The Small Metal Shield of Thorin [3,+25]
+    +4 to STR, CON
+    Immunity to Acid
+    Resist Sound, Chaos
+    Free Action
+    Level 30, Rarity 6, 6.5 lbs, 60000 Gold
+
+The Large Leather Shield of Celegorm [4,+20]
+    Resist Acid, Lightning, Fire, Cold, Light, Dark
+    Level 30, Rarity 3, 6.0 lbs, 12000 Gold
+
+    A quality shield of Resistance.
+
+The Large Metal Shield of Anarion [5,+20]
+    Resist Acid, Lightning, Fire, Cold
+    Sustain All stats
+    Level 40, Rarity 9, 12.0 lbs, 160000 Gold
+
+    This shield Resists and sustains your stats.
+
+
+
+Helms/Crowns
+------------
+
+The Hard Leather Cap of Thranduil [2,+10]
+    +2 to INT, WIS
+    Resist Blindness
+    ESP
+    Level 20, Rarity 2, 1.5 lbs, 50000 Gold
+
+    This acid resistant leather is a thinker's cap. Increasing
+    wisdom and intelligence it also gives telepathy.
+
+The Metal Cap of Thengel [3,+12]
+    +3 to WIS, CHR
+    Level 10, Rarity 2, 2.0 lbs, 22000 Gold
+
+    This cap of the Rohan King Thengel gives kingly wisdom and charisma.
+
+The Steel Helm of Hammerhand [6,+20]
+    +3 to STR, DEX, CON
+    Resist Acid, Nexus
+    Level 20, Rarity 2, 6.0 lbs, 45000 Gold
+
+    This warriors' helm increases the fighting stats.
+
+The Dragon Helm of Dor-Lomin [8,+20]
+    +4 to STR, DEX, CON
+    Resist Acid, Lightning, Fire, Cold, Light, Blindness
+    See Invisible; ESP; Permanent Light(1)
+    Activates for rays of fear in every direction
+    Level 40, Rarity 12, 7.5 lbs, 300000 Gold
+
+    This is the Dragon Helm of Turin Turumbar.  It is rumored that
+    its wearer will never die in combat.  It resists all and sees
+    all, and increases all fighting stats.
+
+The Iron Helm 'Holhenneth' [5,+10]
+    +2 to INT, WIS, Searching
+    Resist Blindness
+    See Invisible
+    Activates for detection every 55+d55 turns
+    Level 20, Rarity 5, 7.5 lbs, 100000 Gold
+
+    This helm of brilliance and vision greatly increases your mental
+    prowess.  It allows you to see all that is hidden, casting
+    detection spells at frequent intervals.
+
+The Iron Helm 'Terror Mask' (+25,+25) [5,+10]
+    -1 to INT, WIS, Searching
+    Immunity to Cold
+    Resist Acid, Cold, Poison, Fear, Disenchantment
+    Free Action; Anti-Magic; See Invisible
+    Activates for rays of fear in every direction
+    Level 20, Rarity 5, 7.5 lbs, 0 Gold
+
+The Massive Iron Crown of Chaos [0,+0]
+    +125 to All stats, Infravision
+    Resist Acid, Lightning, Fire, Cold, Poison, Light, Dark, Confusion, 
+      Nexus
+    Prevent Teleportation; See Invisible; ESP; Permanent Light(1)
+    Level 100, Rarity 1, 2.0 lbs, 10000000 Gold
+
+The Iron Crown of Beruthiel [0,+25]
+    -25 to STR, DEX, CON
+    Free Action; See Invisible; ESP
+    Level 40, Rarity 12, 2.0 lbs, 0 Gold
+
+    This crown once belonged to the Cat-Queen of Gondor, who disdained
+    armed combat. Giving you cat like vision, and sight within sight,
+    it allows its wearer to be free of combat, basically causing armed
+    combat to be beyond his or her means.
+
+The Golden Crown of Amber [0,+15]
+    +3 to STR, WIS, CON, Speed
+    Resist Lightning, Fire, Cold, Light, Blindness, Chaos
+    See Invisible; Regeneration; Permanent Light(1)
+    Activates for heal (700) every 250 turns
+    Level 40, Rarity 40, 3.0 lbs, 125000 Gold
+
+
+
+Gloves
+------
+
+The Set of Leather Gloves 'Cambeleg' (+8,+8) [1,+15]
+    +2 to STR, CON
+    Free Action
+    Level 10, Rarity 6, 0.5 lbs, 36000 Gold
+
+    These Gloves of Might increase strength and constitution.  They
+    never allow their wearer to be paralyzed, and help his/her slaying
+    abilities.
+
+The Set of Leather Gloves 'Cammithrim' [1,+10]
+    Resist Light
+    Sustain CON
+    Free Action; Permanent Light(1)
+    Activates for magic missile (2d6) every 2 turns
+    Level 10, Rarity 3, 0.5 lbs, 30000 Gold
+
+    These Gloves of Light sustain dexterity and give off light so
+    brightly that they can cast magic missiles almost endlessly.
+
+The Set of Gauntlets 'Paurhach' [2,+15]
+    Resist Fire
+    Activates for fire bolt (9d8) every 8+d8 turns
+    Level 10, Rarity 20, 2.5 lbs, 15000 Gold
+
+    These Fists of Fire resist fire and can cast fire bolts.
+
+The Set of Gauntlets of Corwin [2,+15]
+    +4 to CON
+    Resist Cold
+    Sustain CON
+    Regeneration
+    Activates for frost bolt (6d8) every 7+d7 turns
+    Level 10, Rarity 20, 2.5 lbs, 33000 Gold
+
+The Set of Gauntlets 'Pauraegen' [2,+15]
+    Resist Lightning
+    Activates for lightning bolt (4d8) every 6+d6 turns
+    Level 10, Rarity 20, 2.5 lbs, 11000 Gold
+
+    These Fists of Lightning resist lightning and can cast lightning bolts.
+
+The Set of Gauntlets 'Paurnen' [2,+15]
+    Resist Acid
+    Activates for acid bolt (5d8) every 5+d5 turns
+    Level 10, Rarity 20, 2.5 lbs, 12000 Gold
+
+    These Fists of Acid resist acid and can cast acid bolts.
+
+The Set of Gauntlets of Thanos (-11,-12) [2,+0]
+    +2 to STR, DEX
+    Immunity to Fire, Cold
+    Resist Poison, Nether, Nexus, Chaos, Disenchantment
+    Hold Life; Aggravates
+    Level 10, Rarity 20, 2.5 lbs, 0 Gold
+
+The Set of Cesti of Fingolfin (+10,+10) [5,+20]
+    +4 to DEX
+    Resist Acid
+    Free Action
+    Activates for a magical arrow (150) every 90+d90 turns
+    Level 40, Rarity 15, 4.0 lbs, 110000 Gold
+
+    These amazing gauntlets increase the wearers dexterity, and slay
+    creatures at (+10,+10).  They will never be stopped by paralyzation
+    and they also resist damage.  They occasionally grow magical spikes
+    that can be fired causing great damage.
+
+
+Boots
+-----
+
+The Pair of Hard Leather Boots of Feanor [3,+20]
+    +15 to Speed
+    Resist Nexus
+    Activates for haste self (20+d20 turns) every 200 turns
+    Level 40, Rarity 120, 4.0 lbs, 300000 Gold
+
+    These amazing boots belonging to Feanor the High-Elf, haste the
+    wearer permanently and temporarily in combat, making him or her
+    stealthy as well.
+
+The Pair of Soft Leather Boots of Flora [2,+15]
+    +5 to DEX, CHR
+    Resist Nether, Chaos
+    Sustain CON, CHR
+    Free Action
+    Activates for remove fear and cure poison every 5 turns
+    Level 10, Rarity 25, 2.0 lbs, 40000 Gold
+
+The Pair of Metal Shod Boots of Thror [6,+20]
+    +3 to STR, CON, Speed
+    Level 30, Rarity 25, 8.0 lbs, 15000 Gold
+
+    These Dwarf-king boots are ideal for combat, increasing strength
+    and constitution.
+
+
+=======================================================================
+There are some strange and powerful objects that can be found  in 
+the dungeons, here are some you seem to remember...
+=======================================================================
+ 
+
+Light Sources
+-------------
+
+The Phial of Galadriel
+    +1 to Searching
+    Permanent Light(3)
+    Activates for illumination every 10+d10 turns
+    Level 1, Rarity 1, 1.0 lbs, 10000 Gold
+
+    This wonderful object is an infinite light source, and once
+    identified it can light up rooms. 
+
+The Star of Elendil
+    +1 to Speed
+    Hold Life; See Invisible; Permanent Light(3)
+    Activates for magic mapping and light every 50+d50 turns
+    Level 30, Rarity 25, 0.5 lbs, 32500 Gold
+
+The Jewel of Judgement
+    +3 to INT, WIS, Speed
+    Resist Chaos
+    Hold Life; See Invisible; Permanent Light(3)
+    Activates for clairvoyance and recall, draining you
+    Level 50, Rarity 50, 0.5 lbs, 150000 Gold
+
+
+Amulets
+-------
+
+The Amulet of Carlammas
+    +2 to CON
+    Resist Fire
+    Activates for protection from evil every 225+d225 turns
+    Level 50, Rarity 10, 0.3 lbs, 60000 Gold
+
+    This fiery amulet protects from flame, casts protection from evil and
+    increases your constitution.
+
+The Amulet of Ingwe
+    +3 to WIS, CHR, Infravision
+    Resist Acid, Lightning, Cold
+    Free Action; See Invisible
+    Activates for dispel evil (x5) every 300+d300 turns
+    Level 65, Rarity 30, 0.3 lbs, 90000 Gold
+
+    This amulet belonged to the high king of the Vanyar, the most powerful
+    of the High Elves. It gives resistance, and greatly increases your wisdom
+    and charisma. It gives you good infravision, see invisible, and it casts a x5
+    strength dispel evil.
+
+The Necklace of the Dwarves
+    +3 to STR, CON, Infravision
+    Free Action; See Invisible; Regeneration; Permanent Light(1)
+    Level 70, Rarity 50, 0.3 lbs, 75000 Gold
+
+
+
+Rings
+-----
+
+The Ring 'Frakir'
+    +1 to All stats, Stealth, Searching
+    Resist Poison
+    See Invisible
+    Activates for a strangling attack (100) every 100+d100 turns
+    Level 50, Rarity 25, 0.2 lbs, 75000 Gold
+
+The Ring of Tulkas
+    +4 to STR, DEX, CON, Speed
+    Activates for haste self (75+d75 turns) every 150+d150 turns
+    Level 70, Rarity 50, 0.2 lbs, 175000 Gold
+
+
+The Three Elven Rings, made by Celebrimbor, Elf of the
+Girth-I-Mirdain. These Rings of Power are awesome in nature, and very
+rare:
+
+The Ring of Power (Narya) (+10,+10)
+    +1 to All stats, Speed
+    Immunity to Fire
+    Sustain STR, DEX
+    Free Action; See Invisible; Slow Digestion; Regeneration
+    Activates for large fire ball (120) every 225+d225 turns
+    Level 70, Rarity 30, 0.2 lbs, 100000 Gold
+
+    Celeborn gave this to Cirdan who gave it to Gandalf. Since the least
+    powerful of the Elven rings is of the element fire, Narya makes you
+    completely immune to it. It is also capable of casting very powerful fire
+    balls. It increases all your stats by one. It also protects from life draining
+    and helps you regenerate.
+
+The Ring of Power (Nenya) (+11,+11)
+    +2 to All stats, Speed
+    Immunity to Cold
+    Sustain INT, WIS
+    Free Action; Hold Life; Levitation; See Invisible; Regeneration
+    Activates for large frost ball (200) every 325+d325 turns
+    Level 80, Rarity 40, 0.2 lbs, 200000 Gold
+
+    This was kept by Galadriel. As Narya is to fire, Nenya is to Frost... Plus
+    two to all your stats.
+
+The Ring of Power (Vilya) (+12,+12)
+    +3 to All stats, Speed
+    Immunity to Lightning
+    Sustain STR, INT, WIS, DEX
+    Free Action; Hold Life; Levitation; See Invisible; Slow Digestion
+    Regeneration
+    Activates for large lightning ball (250) every 425+d425 turns
+    Level 90, Rarity 50, 0.2 lbs, 300000 Gold
+
+    This was kept by Gil-galad who gave it to Elrond. This gives immunity
+    to lightning and paralyzation. Plus three to all your stats. Casts very
+    powerful lightning balls.
+
+The Ring of Power (The One Ring) (+15,+15)
+    +5 to All stats, Speed
+    Immunity to Acid, Lightning, Fire, Cold
+    Sustain All stats
+    See Invisible; Regeneration; Drains Experience; Aggravates
+    Activates for bizarre things every 450+d450 turns
+    Level 100, Rarity 100, 0.2 lbs, 5000000 Gold
+
+    And of course, the one to rule them all...
+
+    Rumors exist of  a Ring of Power known as the One Ring, which was
+    made  to master  the other Rings of Power.   Its  powers are what
+    legends are made of....
+ =======================================================================

@@ -1,0 +1,625 @@
+ABILITY.SPO, version 1.00, for Angband 2.7.9v6 (all systems)
+Release Date     : September 2, 1996
+Author           : Stephen S. Lee (lee9@fas.harvard.edu)
+with the help of : Leonard Dickens (leonard@alw.nih.gov)
+                   Craig Lewis (clewis@psl.nmsu.edu)
+
+This spoiler describes a wide variety of character abilities: statistics,
+hit points, speed, carrying capacity, food consumption, status conditions,
+digging, stealth, and magical device skill.
+
+Please notify the author of any errors (however minor) that you find.
+Also, it is my intention to provide complete information rather than
+easy-to-understand information, so this spoiler is necessarily verbose.
+Suggestions to improve the format of this spoiler are welcome (especially
+if they help make this spoiler easier to read).
+
+
+STATISTICS
+----------
+
+Here is an exhaustive list of the functions of the six basic statistics:
+
+Strength:
+  (1) necessary to use heavy weaponry
+  (2) affects the number of attacks possible with a melee weapon
+  (3) affects the damage done in melee combat
+  (4) affects the probability of hitting an opponent in melee combat
+  (5) determines carrying capacity
+  (6) improves digging speed
+
+Intelligence:
+  (1) improves skill at activating magical devices
+  (2) improves the chance to disarm a trap
+  (3) affects spellcasting (mages, rangers, and rogues only)
+      a) determines maximum mana
+      b) affects the failure rate of spells
+      c) improves the minimum failure rate of spells
+      d) affects the number of spells learned per level
+
+Wisdom:
+  (1) improves saving throws
+  (2) affects praying (priests and paladins only); same general effects
+        as for spellcasting under "Intelligence"
+
+Dexterity:
+  (1) affects the number of attacks with a melee weapon
+  (2) affects armor class
+  (3) improves the chance to disarm a trap
+  (4) affects the probability of hitting an opponent with a melee,
+        thrown, or fired weapon
+  (5) determines the probability of thwarting a theft attack
+  (6) reduces the chance of being stunned after a bash
+
+Constitution:
+  (1) affects maximum hit points
+  (2) improves ability to recover from poison, stunning, and cuts
+
+Charisma:
+  (1) affects buying and selling prices in shops
+
+
+Initial Calculation of Statistics
+---------------------------------
+
+First of all, Angband rolls up your character's base statistics (i.e.
+independent of race and class).  A value of 5+1d3+1d4+1d5 (range of 8 to
+17) is assigned to each of the six statistics.  These are summed up and
+accepted only if the total is between 73 and 83 inclusive.
+
+Then, adjustments are made for race and class.  For each statistic, add
+up the race and class adjustments from the following tables to find the
+number of total statistic adjustment points.
+
+Race        Str.  Int.  Wis.  Dex.  Con.  Chr.
+----------------------------------------------
+Human          0     0     0     0     0     0
+Half-Elf      -1    +1     0    +1    -1    +1
+Elf           -1    +2    +1    +1    -2    +1
+Hobbit        -2    +2    +1    +3    +2    +1
+Gnome         -1    +2     0    +2    +1    -2
+Dwarf         +2    -3    +2    -2    +2    -3
+Half-Orc      +2    -1     0     0    +1    -4
+Half-Troll    +4    -4    -2    -4    +2    -6
+Dunadan       +1    +2    +2    +2    +3    +2
+High-Elf      +1    +3    -1    +3    +1    +5
+
+Class       Str.  Int.  Wis.  Dex.  Con.  Chr.
+----------------------------------------------
+Warrior       +5    -2    -2    +2    +2    -1
+Mage          -5    +3     0    +1    -2    +1
+Priest        -1    -3    +3    -1     0    +2
+Rogue         +2    +1    -2    +3    +1    -1
+Ranger        +2    +2     0    +1    +1    +1
+Paladin       +3    -3    +1     0    +2    +2
+
+The adjustments are then applied as follows (in no case may any stat be
+adjusted below 3 or above 18/100):
+
+In maximize mode: at 18 or below, statistics are adjusted on a point for
+point basis.  Above 18, 10 points are added for each adjustment point.
+(Example: a high-elf mage in maximize mode with maximum Intelligence will
+get +6 adjustment points added to a base Intelligence of 17, for a
+starting Intelligence of 18/50.)
+
+When not in maximize mode: at 18 or below, statistics are adjusted on a
+point for point basis.  If adding a bonus to a statistic between 18 and
+18/69, add 5+1d15.  If adding a bonus to a statistic between 18/70 and
+18/89, add 2+1d6.  If adding a bonus to a statistic between 18/90 and
+18/99, add 1.
+
+(Example: A Dunadan priest rolled with maximize off gets the maximum base
+17 score for Wisdom.  She gets a +5 adjustment to Wisdom; 1 point of this
+adjustment raises Wisdom to 18.  The other 4 adjustment points suffice to
+increase Wisdom further to 18/58, 58 being the sum of four 5+1d15 rolls.)
+
+
+Statistics After the Start of the Game
+--------------------------------------
+
+If you are not playing in maximize mode, then the natural maximum for all
+statistics, for all race/class combinations, is 18/100.  If in maximize
+mode, the maximum for each statistic is 18/(100+10*stat adjustment); i.e. a
+half-troll warrior has a maximum natural strength of 18/190.  Statistics
+may be raised to 18/220 (shown on the display as 18/***) by equipping
+various magical objects; increasing statistics above this has no effect
+whatsoever.
+
+
+HIT POINTS
+----------
+
+Your character's base HD consists of the sum of the two appropriate
+numbers in the following tables.  (Base HD does not depend on anything
+other than race and class.)
+
+
+            Base              Base                    Bonus
+ Race         HD   Race         HD       Class   to Base HD
++----------------+-----------------+     ------------------
+|Human        10 | Dwarf        11 |     Warrior         +9
+|Half-Elf      9 | Half-Orc     10 |     Mage            +0
+|Elf           8 | Half-Troll   12 |     Priest          +2
+|Hobbit        7 | Dunadan      10 |     Rogue           +6
+|Gnome         8 | High-Elf     10 |     Ranger          +4
++----------------+-----------------+     Paladin         +6
+
+A level 1 character begins with a number of hit points equal to his or
+her base HD (adjusted for Constitution; see below).  For each level of
+experience gained the character gets 1d(base HD) hit points (again
+adjusted for Constitution).  The number of hit points gained for each
+level up to the maximum 50th is determined when your character is rolled,
+so saving the game just before gaining a level and restoring if the number
+of maximum hit points gained is low will not do any good.
+
+A 50th level character will always have a number of hit points (unadjusted
+by Constitution) between 50+(150*(base HD-1))/8 and 50+(250*(base HD-1))/8.
+
+Extra hit points may be awarded (or deducted) for high (low) Constitution.
+To determine this bonus, multiply your character's experience level by the
+appropriate factor from the following table, round down any fraction, and
+add this to the maximum number of hitpoints.
+
+               Extra                           Extra
+Constitution   HP/level         Constitution   HP/level
+-------------+---------        --------------+---------
+           3 |     -2.5          18/90-18/99 |      4.5
+           4 |     -1.5        18/100-18/109 |      5.0
+           5 |     -1.0        18/110-18/119 |      5.5
+           6 |     -0.5        18/120-18/129 |      6.0
+        7-14 |        0        18/130-18/139 |      6.5
+       15-16 |      0.5        18/140-18/149 |      7.0
+          17 |      1.0        18/150-18/159 |      7.5
+    18-18/09 |      1.5        18/160-18/169 |      8.0
+ 18/10-18/49 |      2.0        18/170-18/179 |      9.0
+ 18/50-18/59 |      2.5        18/180-18/189 |     10.0
+ 18/60-18/69 |      3.0        18/190-18/199 |     11.0
+ 18/70-18/79 |      3.5              18/200+ |     12.5
+ 18/80-18/89 |      4.0                      |
+-------------+---------        --------------+---------
+
+
+EXPERIENCE
+----------
+
+The experience a human warrior needs to attain a given experience level
+is given in the following table.
+
+Exp.  Experience    Exp.  Experience    Exp.  Experience
+Lvl.      Needed    Lvl.      Needed    Lvl.      Needed
+----------------    ----------------    ----------------
+   1           0      18       2,900      35     350,000
+   2          10      19       3,600      36     450,000
+   3          25      20       4,400      37     550,000
+   4          45      21       5,400      38     700,000
+   5          70      22       6,800      39     850,000
+   6         100      23       8,400      40   1,000,000
+   7         140      24      10,200      41   1,250,000
+   8         200      25      12,500      42   1,500,000
+   9         280      26      17,500      43   1,800,000
+  10         380      27      25,000      44   2,100,000
+  11         500      28      35,000      45   2,400,000
+  12         650      29      50,000      46   2,700,000
+  13         850      30      75,000      47   3,000,000
+  14       1,100      31     100,000      48   3,500,000
+  15       1,400      32     150,000      49   4,000,000
+  16       1,800      33     200,000      50   4,500,000
+  17       2,300      34     275,000
+
+For other race/class combinations, add (not multiply!) together the
+appropriate race and class penalties from the following tables to find
+the penalty to your character's advancement rate.  (Example: to attain
+experience level 17, a Dunadan paladin requires 2,300*(1+0.80+0.35) =
+4,945 experience points.)
+
+            Exp.              Exp.                     Exp.
+ Race    Penalty   Race    Penalty       Class      penalty
++----------------+-----------------+     ------------------
+|Human       +0% | Dwarf      +20% |     Warrior        +0%
+|Half-Elf   +10% | Half-Orc   +10% |     Mage          +30%
+|Elf        +20% | Half-Troll +20% |     Priest        +20%
+|Hobbit     +10% | Dunadan    +80% |     Rogue         +25%
+|Gnome      +25% | High-Elf  +100% |     Ranger        +30%
++----------------+-----------------+     Paladin       +35%
+
+Other notes on experience:
+
+* If your character suffers from a life drain attack and thus has below
+his or her maximum experience point total, monsters killed will add 1/10
+their experience total to the maximum experience total, in addition to
+increasing the current experience point total normally.
+
+* The game internally keeps track of experience points to two decimal
+places, although fractions of an experience point are never displayed.
+
+
+SPEED
+-----
+
+A "game turn" is defined as the most basic unit of time that Angband uses
+(it is the total number of game turns that is displayed in the high score
+file).  It is not subdivided in any way.  During every game turn, both
+your character and all monsters regain a number of energy points that is
+determined by each individual's speed.
+
+If an individual's speed is between -2 and +25 (+0 is normal, unmodified
+speed) add the speed to 10 to find the energy gained per game turn.
+Otherwise, consult the following tables to find the energy regained per
+game turn:
+
+              Energy/                  Energy/
+Speed       game turn    Speed       game turn
+---------------------    ---------------------
+-41 or below        1    +32 to +33         39
+  -40 to -24        2    +34 to +36         40
+  -23 to -16        3    +37 to +39         41
+  -15 to -11        4    +40 to +42         42
+   -10 to -7        5    +43 to +45         43
+    -6 to -5        6    +46 to +49         44
+    -4 to -3        7    +50 to +54         45
+   -2 to +25 (10+spd)    +55 to +59         46
+  +26 to +27       36    +60 to +64         47
+  +28 to +29       37    +65 to +69         48
+  +30 to +31       38    +70 or higher      49
+
+A "turn" is defined as 10 game turns -- no more, no less.  Note that this
+does not correspond to the moves your character makes unless your
+character's speed is +0.  Note that this is the definition of "turn" that
+is used to determine the duration of spells, conditions such as blindness,
+recharging times, etc.
+
+A character (or monster) may make an action if and only if he/she/it has
+100 energy.  (An action is any of the things you tell your character to do:
+move, hit monsters, cast spells, etc.)  If the character and monsters are
+both over 100 energy on the same turn, the character moves first.  Most
+actions (or "moves") require 100 energy.  Exceptions are: firing from a
+distance weapon when you can get multiple shots per round (energy use =
+100/# of shots per round, displayed on the character info sheet); and
+taking off an equipped object, dropping an object or stack of objects,
+refilling a lantern, or combining torches (energy use = 50).
+
+Note that monsters sometimes get a "double move" even if the character
+is faster than they are.  As an illustration, consider a character (+30
+speed) with 62 energy fighting a monster (+28 speed) with 93 energy.
+Neither can move yet; both gain energy, leaving them at 100 and 130.
+Both are at/over 100 energy; both move this game turn, but the character
+moves first.  Both lose 100 energy; now they are at 0 and 30.  Next game
+turn they are at 38 and 67, then 76 and 104.  The monster moves a second
+time.
+
+Speed is affected by the following factors:
+(1) equipped objects (speed rings, boots of speed/slowness, and the
+    artifact weapons Ringil, Cubragol, and Mormegil).
+(2) strength and the weight of your character's equipment (see below)
+(3) temporary haste effects on your character (+10 to speed)
+(4) temporary slow effects on your character (-10 to speed)
+(5) a bloated stomach (-10 to speed)
+(6) having search mode on (-10 to speed)
+
+
+Carrying Capacity and Encumbrance
+---------------------------------
+
+To find your character's "weight limit" (a somewhat misleading term) in
+pounds, consult the following table.
+
+Strength  Weight(lb)        Strength  Weight(lb)
+--------------------     -----------------------
+       3          50              14         160
+       4          60              15         170
+       5          70              16         180
+       6          80              17         190
+       7          90        18-18/09         200
+       8         100     18/10-18/19         220
+       9         110     18/20-18/29         240
+      10         120     18/30-18/39         260
+      11         130     18/40-18/49         280
+      12         140          18/50+         300
+      13         150
+
+If your character exceeds half of the weight limit given above, his or
+her speed will be penalized by 1 point for every 10% of the weight limit
+in excess (excluding fractions thereof).  For instance, a strength 11
+character (weight limit 130) carrying a total of 146.2 pounds gets a
+penalty of (146.2-(130/2))/(130/10) = -6 to speed.
+
+
+FOOD CONSUMPTION
+----------------
+
+Normally, every 10 turns (100 game turns), the character will digest some
+food.  The amount of food units digested is equal to twice the energy the
+character gains per turn (see above under "Speed").  If the character has
+magical regeneration, 30 extra food units are added to this figure; 10
+food units are subtracted if the character has magical slow digestion.
+
+Here are the various hunger states your character may be in:
+
+Character's
+ Food Units     State  Notes
+-----------   -------  -----
+     15000+   Bloated  -10 to speed; digestion occurs very quickly
+10000-14999      Full  "Satisfy hunger" sets food units to 14999
+  2000-9999  (normal)
+  1000-1999    Hungry
+    500-999      Weak  Regeneration rate reduced about 50%
+    100-499  Fainting  Regeneration rate reduced about 85% *
+       0-99  Starving  No regeneration; damage inflicted each turn *
+
+* The character has a 1 in 10 chance of fainting every turn, inducing
+  paralysis for 1d5 turns; there is no way to prevent this sort of
+  paralysis (other than by eating).
+
+
+CHARACTER ABILITIES
+-------------------
+
+Your character will have a number of abilities that may be intrinsic to
+his or her race, or more likely, may come from various equipping magical
+items.  Some of the less obvious ones are described here.
+
+Free Action -- this will prevent many (but not all) forms of slowness and
+  paralysis.
+
+Hold Life -- this will greatly reduce the chance that an experience drain
+  attack will affect the character, and will reduce the severity of those
+  attacks which do get through.
+
+Infravision -- if the character is not blind, this permits the sighting of
+  all warm-blooded monsters within range, even if the monster is invisible
+  to normal vision.
+
+Regeneration -- this doubles the rate at which mana and hit points
+  regenerate, at the cost of an increased food digestion rate.
+
+Telepathy -- this permits the character to visualize all monsters in the
+  immediate area that have a brain.  Monsters with low intelligence (fleas
+  and the like) can only be detected some of the time, and monsters without
+  brains (such as zombies) cannot be detected at all.
+
+
+STATUS CONDITIONS
+-----------------
+
+Status conditions (displayed on the status line at the bottom of the
+screen) are various negative afflictions that harm the character.
+(Status conditions related to food are dealt with above.)
+
+Here are descriptions and the effects of the various status conditions.
+
+The following table is used in some of the calculations below.
+
+               Recovery                      Recovery
+ Constitution     Bonus        Constitution     Bonus
+-----------------------       -----------------------
+         3-13         0       18/120-18/129         5
+        14-17         1       18/130-18/149         6
+     18-18/49         2       18/150-18/169         7
+  18/50-18/99         3       18/170-18/199         8
+18/100-18/119         4             18/200+         9
+
+Afraid
+------
+* Prevents direct melee attacks against monsters
+
+Blind
+-----
+* Causes loss of sight (seeing monsters on screen, look command, etc.)
+* Decreases search skill by 90%
+* Decreases disarm skill by 90%
+* Decreases combat skill (both melee and distance) by 50%
+* Prevents prayers and spellcasting
+* Prevents browsing spellbooks and gaining spells
+* Prevents reading scrolls
+
+Confused
+--------
+* Causes movement to have a 75% chance of being random -- if a monster is
+  in the selected direction, it will be attacked
+* Prevents running
+* Causes the direction used when aiming (throwing/shooting an object, using
+  a wand/rod, activating dragon scale mail, etc.) to be completely random
+* Decreases search skill by 90%
+* Decreases disarm skill by 90%
+* Decreases device skill by 50%
+* Makes pseudo-identification impossible
+* Prevents prayers and spellcasting
+* Prevents browsing spellbooks and gaining spells
+* Prevents reading scrolls
+
+Cut
+---
+
+Cuts prevent hit point regeneration, and also cause loss of hit points
+every turn from bleeding.  Here is a table showing the various degrees of
+cut severity:
+
+                             Damage
+Cut counter   Description  per turn
+-----------------------------------
+       1-10         Graze         1
+      11-25     Light cut         1
+      26-50       Bad cut         1
+     51-100     Nasty cut         1
+    101-200    Severe cut         2
+   201-1000     Deep gash         3
+      1000+  Mortal wound         3
+
+Magical means must be used to cure a mortal wound.  Otherwise, every turn
+the wound heals: 1 plus the bonus recovery rate from Constitution is
+subtracted from the cut counter.
+
+Hallucinating
+-------------
+* Causes random monsters and objects to apparently show up
+* Prevents use of the "look" command
+* Decreases search skill by 90%
+* Decreases disarm skill by 90%
+
+Paralyzed
+---------
+* The character cannot do anything as long as the paralysis lasts, and is
+  vulnerable to attacks and further paralysis.  Note that this can easily
+  be lethal.
+
+Poisoned
+--------
+* The character takes 1 point of damage per turn from poisoning.
+* Prevents hit point regeneration
+
+Recovering from poisoning: Every turn, 1 plus the bonus recovery rate from
+  Constitution is subtracted from the poison counter.
+
+Stun, Heavy stun, Knocked out
+-----------------------------
+* Your character is knocked out when the stun counter is greater than 100.
+  It is the same as paralysis, but cannot be blocked as easily.
+* Your character is heavily stunned when the stun counter is between 51 and
+  100 inclusive.  This causes a penalty of -20 both to-hit and to-damage,
+  and increases the minimum spell/prayer failure rate by 25%.
+* Your character is stunned when the stun counter is between 1 and 50
+  inclusive.  This causes a penalty of -5 both to-hit and to-damage, and
+  increases the minimum spell/prayer failure rate by 15%.
+
+Recovering from stunning: Every turn, 1 plus the bonus recovery rate from
+  Constitution is subtracted from the stun counter.
+
+
+DIGGING
+-------
+
+A character may be able to dig through any kind of rock or rubble,
+other than permanent walls.  To calculate whether this is possible,
+and if so, how likely it is each turn, first compute the character's
+digging skill.  A character's digging skill is determined by his or
+her strength and wielded hand weapon, as follows.  Start with the base
+digging ability, found on the following table:
+
+Str.  Dig    Strength      Dig   Strength      Dig
+---------    -----------------   -----------------
+  3-4   0      18/01-18/09  12   18/110-18/119  55
+    5   1      18/10-18/19  14   18/120-18/129  60
+    6   2      18/20-18/29  16   18/130-18/139  65
+    7   3      18/30-18/39  18   18/140-18/149  70
+  8-9   4      18/40-18/49  20   18/150-18/159  75
+10-11   5      18/50-18/59  25   18/160-18/169  80
+12-13   6      18/60-18/69  30   18/170-18/179  85
+14-15   7      18/70-18/79  35   18/180-18/189  90
+   16   8      18/80-18/89  40   18/190-18/199  95
+   17   9      18/90-18/99  45         18/200+ 100
+   18  10    18/100-18/109  50
+
+Next, if the wielded weapon is not too heavy for the character (see
+ATTACK.SPO), the weight of the weapon (in pounds) is added to the
+digging skill.
+
+Finally, if the weapon is a digger (a shovel or pick), then the
+digger's digging bonus times twenty is added to the digging skill.
+
+To determine the character's chance per turn to dig through a given
+kind of material, consult the following chart.  Each turn the
+character digs, a random integer from 0 to material's "hardness"
+(minus one) is rolled and added to the "base" strength of the
+material; if this sum is less than the character's digging skill, then
+the dig succeeds.
+
+    Material  base  hardness
+    ------------------------
+    Granite     40      1600
+    Quartz      20       800
+    Magma       10       400
+    Rubble       0       200
+
+Successful digging turns rock into air, and may also create an item (a
+10% chance if the material is rubble), or free a treasure (if the
+material is quartz or magma, and marked "*").  If digging does not
+succeed, there is no effect other than one character turn being spent.
+Note that the material's base number determines if a character has any
+chance at all to dig through the material; if the digging skill is
+higher than the base, it is possible.  If so, the chance to succeed
+each turn is:
+
+    (skill_dig - base) / hardness
+
+Example: a character with strength 18/70 wielding a dwarven pick is
+trying to dig through granite.  Is this possible, and if so, how
+likely?  The character's digging skill is 115: 35 for strength, 20 for
+the weight of the weapon, and a bonus of 60 for being a +3 digger.
+Since 115 is greater than 40, this digging will eventually succeed.
+The chance each turn for success is (115 - 40)/1600, or about 4.7%.
+
+
+STEALTH
+-------
+
+Your character's stealth is an integer between 0 and 30 inclusive.  It
+is *not* dependent on level, and depends only on race, class, and equipment
+that increases stealth (Defender weapons, armor of Elvenkind, etc.)  To
+calculate your character's stealth, take the sum of the appropriate figures
+from the following tables, and add equipment bonuses as appropriate.
+
+Note that stealth is effectively entirely negated if your character is
+equipping an object that aggravates monsters.
+
+            Base              Base                  Stealth
+ Race    Stealth   Race    Stealth       Class     Modifier
++----------------+-----------------+     ------------------
+|Human         1 | Dwarf         0 |     Warrior         +1
+|Half-Elf      2 | Half-Orc      0 |     Mage            +2
+|Elf           2 | Half-Troll   -1 |     Priest          +2
+|Hobbit        5 | Dunadan       3 |     Rogue           +5
+|Gnome         4 | High-Elf      4 |     Ranger          +3
++----------------+-----------------+     Paladin         +1
+
+Each time your character moves, your character makes an amount of "noise"
+equal to 2 to the power of (30-stealth); yes, stealth is an exponential
+and not a linear function!  This noise is noticed by all sleeping monsters
+that have your character in their detection range; once a monster hears
+enough noise, it wakes up.
+
+
+USING A WAND, STAFF, OR ROD
+---------------------------
+
+To calculate the base ability of using a wand, staff, or rod, use the
+following charts.  Begin with the base class ability, then add the race
+modifier.  To take level into account, add in the product of your
+character's experience level and the class bonus per level modifier.
+To this add the appropriate intelligence modifier.  This gives a numerical
+rating of your character's skill at using magic devices.
+
+              Bonus per
+Class    Base Level       Int.         Bonus      Int.         Bonus
+-------------------       ------------------      ------------------
+Warrior    18   0.7       3-7              0      18/130-18/139   11
+Mage       36   1.3       8-14             1      18/140-18/149   12
+Priest     30   1.0       15-17            2      18/150-18/159   13
+Rogue      32   1.0       18-18/19         3      18/160-18/169   14
+Ranger     32   1.0       18/20-18/39      4      18/170-18/179   15
+Paladin    24   1.0       18/40-18/59      5      18/180-18/189   16
+                          18/60-18/79      6      18/190-18/199   17
+Race     Modifier         18/80-18/99      7      18/200-18/209   18
+-----------------         18/100-18/109    8      18/210-18/219   19
+Human           0         18/110-18/119    9      18/220+         20
+Half-Elf        3         18/120-18/129   10
+Elf             6
+Hobbit         18
+Gnome          12
+Dwarf           9
+Half-Orc       -3
+Half-Troll     -8
+Dunadan         5
+High-Elf       20
+
+To calculate the probability of successfully activating a device, first
+divide your character's device skill rating by 2 if your character is
+currently confused.  Then subtract the level of the wand, staff, or rod
+to be activated, with a maximum subtrahend of 50.  Call the resulting
+number K (which may be negative).
+
+If K is at least 3, then the chance of successfully activating the wand,
+staff, or rod is (K-1) in K.
+
+On the other hand, if K is less than 3, the probability of successfully
+activating the device is very low yet nonzero; the probability of success
+is 2 in 3*(4-K).
