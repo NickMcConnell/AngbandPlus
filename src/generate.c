@@ -58,46 +58,7 @@ int template_race;
  * occupy a rectangular group of blocks.  As long as each room type
  * reserves a sufficient number of blocks, the room building routines
  * will not need to check bounds.  Note that most of the normal rooms
- * actually only use 23x11 grids, and so reserve 33x11 grids.
- *
- * Note that the use of 11x11 blocks (instead of the old 33x11 blocks)
- * allows more variability in the horizontal placement of rooms, and
- * at the same time has the disadvantage that some rooms (two thirds
- * of the normal rooms) may be "split" by panel boundaries.  This can
- * induce a situation where a player is in a room and part of the room
- * is off the screen.  It may be annoying enough to go back to 33x11
- * blocks to prevent this visual situation.
- *
- * XXX XXX XXX Note that it is possible to create a room which is only
- * connected to itself, because the "tunnel generation" code allows a
- * tunnel to leave a room, wander around, and then re-enter the room.
- *
- * XXX XXX XXX Note that it is possible to create a set of rooms which
- * are only connected to other rooms in that set, since there is nothing
- * explicit in the code to prevent this from happening.  But this is less
- * likely than the "isolated room" problem, because each room attempts to
- * connect to another room, in a giant cycle, thus requiring at least two
- * bizarre occurances to create an isolated section of the dungeon.
- *
- * Note that (2.7.9) monster pits have been split into monster "nests"
- * and monster "pits".  The "nests" have a collection of monsters of a
- * given type strewn randomly around the room (jelly, animal, or undead),
- * while the "pits" have a collection of monsters of a given type placed
- * around the room in an organized manner (orc, troll, giant, dragon, or
- * demon).  Note that both "nests" and "pits" are now "level dependant",
- * and both make 16 "expensive" calls to the "get_mon_num()" function.
- *
- * Note that the cave grid flags changed in a rather drastic manner
- * for Angband 2.8.0 (and 2.7.9+), in particular, dungeon terrain
- * features, such as doors and stairs and traps and rubble and walls,
- * are all handled as a set of 64 possible "terrain features", and
- * not as "fake" objects (440-479) as in pre-2.8.0 versions.
- *
- * The 64 new "dungeon features" will also be used for "visual display"
- * but we must be careful not to allow, for example, the user to display
- * hidden traps in a different way from floors, or secret doors in a way
- * different from granite walls, or even permanent granite in a different
- * way from granite.  XXX XXX XXX
+ * actually use 23x11 grids, and so reserve 33x11 grids.
  */
 
 
@@ -134,6 +95,9 @@ int template_race;
 #define DUN_LIC_DEN	3	/* Density of lichen streamers */
 #define DUN_LIC_RNG	20	/* Width of lichen streamers */
 #define DUN_STR_LIC	1	/* Number of lichen streamers */
+#define DUN_WAT_DEN	15	/* Density of rivers */
+#define DUN_WAT_RNG	3	/* Width of rivers */
+#define DUN_STR_WAT	3	/* Max number of rivers */
 
 /*
  * Dungeon treausre allocation values
@@ -1494,8 +1458,8 @@ static void build_type1(int yval, int xval)
 	int y1, x1;
 
 	int vault_int = rand_range(2, 4);
-	int y_off;
-	int x_off;
+	int y_off = 0;
+	int x_off = 0;
 	int t;
 
 	bool light = (p_ptr->depth <= randint(25));
@@ -2133,16 +2097,48 @@ static void build_type4(int yval, int xval)
  * is appropriate for inclusion in a monster nest or monster pit or
  * the given type.
  *
- * None of the pits/nests are allowed to include "unique" monsters,
- * or monsters which can "multiply".
- *
- * Some of the pits/nests are asked to avoid monsters which can blink
- * away or which are invisible.  This is probably a hack.
- *
- * The old method made direct use of monster "names", which is bad.
- *
- * Note the use of Angband 2.7.9 monster race pictures in various places.
+ * None of the pits/nests are allowed to include "unique" monsters.
  */
+
+
+/*
+ * Monster validation macro
+ */
+#define vault_monster_okay(I) \
+	 (!(r_info[I].flags1 & (RF1_UNIQUE)))
+
+
+/* Race index for "monster pit (clone)" */
+static int vault_aux_race;
+
+/* Race index for "monster pit (symbol clone)" */
+static char vault_aux_char;
+
+/* Breath mask for "monster pit (dragon)" */
+static u32b vault_aux_dragon_mask4;
+
+
+typedef struct vault_aux_type vault_aux_type;
+
+
+struct vault_aux_type
+{
+	cptr name;
+	bool (*hook_func)(int r_idx);
+	void (*prep_func)(void);
+	int level;
+	int chance;
+};
+
+
+/*
+ * Helper monster selection function
+ */
+static bool vault_aux_simple(int r_idx)
+{
+	/* Okay */
+	return (vault_monster_okay(r_idx));
+}
 
 
 /*
@@ -2152,8 +2148,11 @@ static bool vault_aux_jelly(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	/* Validate the monster */
+	if (!vault_monster_okay(r_idx)) return (FALSE);
+
+	/* Also decline evil jellies (like death molds and shoggoths) */
+	if (r_ptr->flags3 & (RF3_EVIL)) return (FALSE);
 
 	/* Require icky thing, jelly, mold, or mushroom */
 	if (!strchr("ijm,", r_ptr->d_char)) return (FALSE);
@@ -2164,16 +2163,53 @@ static bool vault_aux_jelly(int r_idx)
 
 
 /*
+ * Helper function for "monster nest (doom)"
+ */
+static bool vault_aux_lo_doom(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Validate the monster */
+	if (!vault_monster_okay(r_idx)) return (FALSE);
+
+	/* Decline powerful doom monsters */
+	if (!(r_ptr->flags3 & (RF3_DOOM)) || (r_ptr->flags1 & (RF1_FORCE_MAXHP))) return (FALSE);
+
+	/* Okay */
+	return (TRUE);
+}
+
+
+/*
+ * Helper function for "monster nest (doom)"
+ */
+static bool vault_aux_hi_doom(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Validate the monster */
+	if (!vault_monster_okay(r_idx)) return (FALSE);
+
+	/* Accept doom monsters */
+	return ((r_ptr->flags3 & (RF3_DOOM)) != 0);
+}
+
+
+
+/*
  * Helper function for "monster nest (animal)"
  */
 static bool vault_aux_animal(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
+	/* Validate the monster */
+	if (!vault_monster_okay(r_idx)) return (FALSE);
+
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
-	/* Require animal */
+	/* Require "animal" flag */
 	if (!(r_ptr->flags3 & (RF3_ANIMAL))) return (FALSE);
 
 	/* Okay */
@@ -2188,10 +2224,10 @@ static bool vault_aux_undead(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	/* Validate the monster */
+	if (!vault_monster_okay(r_idx)) return (FALSE);
 
-	/* Require undead */
+	/* Require Undead */
 	if (!(r_ptr->flags3 & (RF3_UNDEAD))) return (FALSE);
 
 	/* Okay */
@@ -2206,12 +2242,11 @@ static bool vault_aux_chapel(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	/* Validate the monster */
+	if (!vault_monster_okay(r_idx)) return (FALSE);
 
-	/* Require angel or priest */
-	if (!strchr("A", r_ptr->d_char) &&
-		 !strstr((r_name + r_ptr->name), "riest"))
+	/* Require "priest" or Angel */
+	if ((r_ptr->d_char != 'A') && !strstr((r_name + r_ptr->name), "riest"))
 	{
 		return (FALSE);
 	}
@@ -2227,10 +2262,10 @@ static bool vault_aux_kennel(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	/* Validate the monster */
+	if (!vault_monster_okay(r_idx)) return (FALSE);
 
-	/* Require canine or zephyr hound */
+	/* Require a Zephyr Hound or a dog */
 	if (!strchr("CZ", r_ptr->d_char)) return (FALSE);
 
 	/* Okay */
@@ -2244,14 +2279,38 @@ static bool vault_aux_mimic(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	/* Validate the monster */
+	if (!vault_monster_okay(r_idx)) return (FALSE);
 
 	/* Require mimic */
-	if (!isalpha(r_ptr->d_char))
-	{
-		return (FALSE);
-	}
+	if (!strchr("!|$?=", r_ptr->d_char)) return (FALSE);
+
+	/* Okay */
+	return (TRUE);
+}
+
+
+/*
+ * Helper function for "monster nest (clone)"
+ */
+static bool vault_aux_clone(int r_idx)
+{
+	return (r_idx == vault_aux_race);
+}
+
+
+/*
+ * Helper function for "monster nest (symbol clone)"
+ */
+static bool vault_aux_symbol(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Validate the monster */
+	if (!vault_monster_okay(r_idx)) return (FALSE);
+
+	/* Decline incorrect symbol */
+	if (r_ptr->d_char != vault_aux_char) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -2265,11 +2324,14 @@ static bool vault_aux_orc(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	/* Validate the monster */
+	if (!vault_monster_okay(r_idx)) return (FALSE);
 
-	/* Require orcs */
-	if (!strchr("o", r_ptr->d_char)) return (FALSE);
+	/* Require orc */
+	if (!(r_ptr->flags3 & RF3_ORC)) return (FALSE);
+
+	/* Decline undead */
+	if (r_ptr->flags3 & RF3_UNDEAD) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -2283,11 +2345,14 @@ static bool vault_aux_troll(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	/* Validate the monster */
+	if (!vault_monster_okay(r_idx)) return (FALSE);
 
-	/* Require trolls */
-	if (!strchr("T", r_ptr->d_char)) return (FALSE);
+	/* Require troll */
+	if (!(r_ptr->flags3 & RF3_TROLL)) return (FALSE);
+
+	/* Decline undead */
+	if (r_ptr->flags3 & RF3_UNDEAD) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -2301,21 +2366,18 @@ static bool vault_aux_giant(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	/* Validate the monster */
+	if (!vault_monster_okay(r_idx)) return (FALSE);
 
-	/* Require giants */
-	if (!strchr("P", r_ptr->d_char)) return (FALSE);
+	/* Require giant */
+	if (!(r_ptr->flags3 & RF3_GIANT)) return (FALSE);
+
+	/* Decline undead */
+	if (r_ptr->flags3 & RF3_UNDEAD) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
 }
-
-
-/*
- * Hack -- breath type for "vault_aux_dragon()"
- */
-static u32b vault_aux_dragon_mask4;
 
 
 /*
@@ -2325,14 +2387,17 @@ static bool vault_aux_dragon(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	/* Validate the monster */
+	if (!vault_monster_okay(r_idx)) return (FALSE);
 
-	/* Require dragons */
-	if (!strchr("Dd", r_ptr->d_char)) return (FALSE);
+	/* Require dragon */
+	if (!(r_ptr->flags3 & RF3_DRAGON)) return (FALSE);
 
 	/* Hack -- Require correct "breath attack" */
 	if (r_ptr->flags4 != vault_aux_dragon_mask4) return (FALSE);
+
+	/* Decline undead */
+	if (r_ptr->flags3 & RF3_UNDEAD) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -2346,29 +2411,11 @@ static bool vault_aux_demon(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	/* Validate the monster */
+	if (!vault_monster_okay(r_idx)) return (FALSE);
 
-	/* Require major demons */
-	if (!strchr("U", r_ptr->d_char)) return (FALSE);
-
-	/* Okay */
-	return (TRUE);
-}
-
-
-/*
- * Helper function for "monster nest (single)"
- */
-static bool vault_aux_single_okay(int r_idx)
-{
-	monster_race *r_ptr = &r_info[r_idx];
-
-	/* No breeders */
-	if (r_ptr->flags2 & (RF2_MULTIPLY)) return (FALSE);
-
-	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	/* Require demon */
+	if (!(r_ptr->flags3 & RF3_DEMON)) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -2376,45 +2423,169 @@ static bool vault_aux_single_okay(int r_idx)
 
 
 /*
- * Type of monster for single-monster nest
+ * Helper function for "monster pit (clone)"
  */
-static int vault_aux_single_r_idx;
-
-/*
- * Helper function for "monster nest (single)"
- */
-static bool vault_aux_single(int r_idx)
+static void vault_prep_clone(void)
 {
-	/* Require single type of monster */
-	if (r_idx != vault_aux_single_r_idx) return (FALSE);
+	/* Apply the monster restriction */
+	get_mon_num_prep(vault_aux_simple);
 
-	/* Okay */
-	return (TRUE);
+	/* Pick a race to clone */
+	vault_aux_race = get_mon_num(p_ptr->depth + 10);
+
+	/* Remove the monster restriction */
+	get_mon_num_prep(NULL);
 }
 
 
 /*
- * Monster race for single-race nest
+ * Helper function for "monster pit (symbol clone)"
  */
-static int vault_aux_single_d_char;
+static void vault_prep_symbol(void)
+{
+	int r_idx;
+
+	/* Apply the monster restriction */
+	get_mon_num_prep(vault_aux_simple);
+
+	/* Pick a race to clone */
+	r_idx = get_mon_num(p_ptr->depth + 10);
+
+	/* Remove the monster restriction */
+	get_mon_num_prep(NULL);
+
+	/* Extract the symbol */
+	vault_aux_char = r_info[r_idx].d_char;
+}
+
 
 /*
- * Helper function for "monster nest (race)"
+ * Helper function for "monster pit (dragon)"
  */
-static bool vault_aux_race(int r_idx)
+static void vault_prep_dragon(void)
 {
-	monster_race *r_ptr = &r_info[r_idx];
-
-	/* Require single type of monster */
-	if ((r_ptr->d_char != vault_aux_single_d_char) ||
-		 (r_ptr->flags1 & RF1_UNIQUE))
+	/* Pick dragon type */
+	switch (rand_int(6))
 	{
-		return (FALSE);
+		/* Black */
+		case 0:
+		{
+			/* Restrict dragon breath type */
+			vault_aux_dragon_mask4 = RF4_BR_ACID;
+
+			/* Done */
+			break;
+		}
+
+		/* Blue */
+		case 1:
+		{
+			/* Restrict dragon breath type */
+			vault_aux_dragon_mask4 = RF4_BR_ELEC;
+
+			/* Done */
+			break;
+		}
+
+		/* Red */
+		case 2:
+		{
+			/* Restrict dragon breath type */
+			vault_aux_dragon_mask4 = RF4_BR_FIRE;
+
+			/* Done */
+			break;
+		}
+
+		/* White */
+		case 3:
+		{
+			/* Restrict dragon breath type */
+			vault_aux_dragon_mask4 = RF4_BR_COLD;
+
+			/* Done */
+			break;
+		}
+
+		/* Green */
+		case 4:
+		{
+			/* Restrict dragon breath type */
+			vault_aux_dragon_mask4 = RF4_BR_POIS;
+
+			/* Done */
+			break;
+		}
+
+		/* Multi-hued */
+		default:
+		{
+			/* Restrict dragon breath type */
+			vault_aux_dragon_mask4 = (RF4_BR_ACID | RF4_BR_ELEC | RF4_BR_FIRE | RF4_BR_COLD | RF4_BR_POIS);
+
+			/* Done */
+			break;
+		}
+	}
+}
+
+
+static vault_aux_type *pick_vault_type(vault_aux_type *l_ptr)
+{
+	int tmp, total;
+
+	vault_aux_type *n_ptr;
+
+	/* Calculate the total possibilities */
+	for (n_ptr = l_ptr, total = 0; TRUE; n_ptr++)
+	{
+		/* Note end */
+		if (!n_ptr->name) break;
+
+		/* Ignore excessive depth */
+		if (n_ptr->level > p_ptr->depth) continue;
+
+		/* Count this possibility */
+		total += n_ptr->chance * MAX_DEPTH / (p_ptr->depth - n_ptr->level + 5);
 	}
 
-	/* Okay */
-	return (TRUE);
+	/* Pick a random type */
+	tmp = rand_int(total);
+
+	/* Find this type */
+	for (n_ptr = l_ptr, total = 0; TRUE; n_ptr++)
+	{
+		/* Note end */
+		if (!n_ptr->name) break;
+
+		/* Ignore excessive depth */
+		if (n_ptr->level > p_ptr->depth) continue;
+
+		/* Count this possibility */
+		total += n_ptr->chance * MAX_DEPTH / (p_ptr->depth - n_ptr->level + 5);
+
+		/* Found the type */
+		if (tmp < total) break;
+	}
+
+	return (n_ptr->name ? n_ptr : NULL);
 }
+
+
+static vault_aux_type nest_types[] =
+{
+	{"clone",			vault_aux_clone,		vault_prep_clone,		5,		3},
+	{"jelly",			vault_aux_jelly,		NULL,						5,		6},
+	{"doom",          vault_aux_lo_doom,   NULL,                10,   8},
+	{"symbol clone",	vault_aux_symbol,		vault_prep_symbol,	25,	3},
+	{"mimic",			vault_aux_mimic,		NULL,						25,	6},
+	{"kennel",			vault_aux_kennel,		NULL,						50,	2},
+	{"animal",			vault_aux_animal,		NULL,						50,	4},
+	{"doom",          vault_aux_hi_doom,   NULL,                55,   6},
+	{"chapel",			vault_aux_chapel,		NULL,						65,	2},
+	{"undead",			vault_aux_undead,		NULL,						65,	4},
+	{NULL,				NULL,						NULL,						0,		0},
+};
 
 
 /*
@@ -2431,16 +2602,6 @@ static bool vault_aux_race(int r_idx)
  * allocation table" in such a way as to optimize the selection of
  * "appropriate" non-unique monsters for the nest.
  *
- * Currently, a monster nest is one of
- *   a nest of a single type      (12.5% chance on any level)
- *   a nest of a single race      (12.5% chance on any level)
- *   a nest of "jelly" monsters   (Dungeon level 5 and deeper)
- *     - may be 'mimics'          (33% chance)
- *   a nest of "animal" monsters  (Dungeon level 30 and deeper)
- *     - may be 'kennel'          (33% chance)
- *   a nest of "undead" monsters  (Dungeon level 50 and deeper)
- *     - may be 'chapel'          (33% chance)
- *
  * Note that the "get_mon_num()" function may (rarely) fail, in which
  * case the nest will be empty, and will not affect the level rating.
  *
@@ -2449,14 +2610,18 @@ static bool vault_aux_race(int r_idx)
 static void build_type5(int yval, int xval)
 {
 	int y, x, y1, x1, y2, x2;
+	int i;
+	int what[64];
 
-	int tmp, i;
+	int align = 0;
 
-	s16b what[64];
+	vault_aux_type *n_ptr = pick_vault_type(nest_types);
 
-	cptr name;
+	/* No type available */
+	if (!n_ptr) return;
 
-	bool empty = FALSE;
+	/* Process a preparation function if necessary */
+	if (n_ptr->prep_func) (*(n_ptr->prep_func))();
 
 	/* Large room */
 	y1 = yval - 4;
@@ -2467,7 +2632,7 @@ static void build_type5(int yval, int xval)
 	/* Build the outer room */
 	draw_rect_room(y1 - 1, x1 - 1, y2 + 1, x2 + 1, FEAT_FLOOR, FEAT_WALL_OUTER, CAVE_ROOM);
 
-	/* The inner room */
+	/* Advance to the center room */
 	y1 = y1 + 2;
 	y2 = y2 - 2;
 	x1 = x1 + 2;
@@ -2485,186 +2650,48 @@ static void build_type5(int yval, int xval)
 		case 4: place_secret_door(yval, x2 + 1); break;
 	}
 
-
-	/* Hack -- Choose a nest type */
-	tmp = randint(p_ptr->depth);
-
-	/* Chance of single-monster nest */
-	if (rand_int(100) < 25)
-	{
-		monster_race *r_ptr;
-
-		/* Clear restriction */
-		get_mon_num_hook = vault_aux_single_okay;
-
 		/* Prepare allocation table */
-		get_mon_num_prep();
-
-		if (rand_int(100) < 50)
-		{
-			/* Pick a hard monster */
-			vault_aux_single_r_idx = get_mon_num(p_ptr->depth + 10);
-
-			if (!vault_aux_single_r_idx)
-			{
-				/* Need a monster! */
-				empty = TRUE;
-			}
-			else
-			{
-				r_ptr = &r_info[vault_aux_single_r_idx];
-
-				/* Get the monster name */
-				name = r_ptr->name + r_name;
-
-				/* Restrict monster selection */
-				get_mon_num_hook = vault_aux_single;
-			}
-		}
-		else
-		{
-			/* Pick a hard monster */
-			int r_idx = get_mon_num(p_ptr->depth + 10);
-
-			if (!r_idx)
-			{
-				/* Need a monster! */
-				empty = TRUE;
-			}
-			else
-			{
-				r_ptr = &r_info[r_idx];
-
-				/* Get the monster symbol */
-				vault_aux_single_d_char = r_ptr->d_char;
-
-				/* Find that character info, and describe it */
-				for (i = 0; ident_info[r_ptr->d_char]; ++i)
-				{
-					if (r_ptr->d_char == ident_info[i][0]) break;
-				}
-
-				/* Get the monster name */
-				name = &ident_info[i][2];
-
-				/* Restrict monster selection */
-				get_mon_num_hook = vault_aux_race;
-			}
-		}
-	}
-
-	else if (tmp < 30)
-	{
-		/* Monster nest (jelly) */
-		if (rand_int(3))
-		{
-			/* Describe */
-			name = "jelly";
-
-			/* Restrict to jelly */
-			get_mon_num_hook = vault_aux_jelly;
-		}
-
-		/* Monster nest (mimic) */
-		else
-		{
-			/* Describe */
-			name = "mimic";
-
-			/* Restrict to mimic */
-			get_mon_num_hook = vault_aux_mimic;
-		}
-	}
-
-	else if (tmp < 50)
-	{
-		/* Monster nest (animal) */
-		if (rand_int(3))
-		{
-			/* Describe */
-			name = "animal";
-
-			/* Restrict to animal */
-			get_mon_num_hook = vault_aux_animal;
-		}
-
-		/* Monster nest (kennel) */
-		else
-		{
-			/* Describe */
-			name = "kennel";
-
-			/* Restrict to kennel */
-			get_mon_num_hook = vault_aux_kennel;
-		}
-	}
-
-	else
-	{
-		/* Monster nest (undead) */
-		if (rand_int(3))
-		{
-			/* Describe */
-			name = "undead";
-
-			/* Restrict to undead */
-			get_mon_num_hook = vault_aux_undead;
-		}
-
-		/* Monster nest (chapel) */
-		else
-		{
-			/* Describe */
-			name = "chapel";
-
-			/* Restrict to chapel */
-			get_mon_num_hook = vault_aux_chapel;
-		}
-	}
-
-	/* Prepare allocation table */
-	get_mon_num_prep();
-
+	get_mon_num_prep(n_ptr->hook_func);
 
 	/* Pick some monster types */
 	for (i = 0; i < 64; i++)
-	{
-		/* Get a (hard) monster type */
-		what[i] = get_mon_num(p_ptr->depth + 10);
+		{
+		int r_idx = 0, attempts = 100;
 
-		/* Notice failure */
-		if (!what[i]) empty = TRUE;
+		while (attempts--)
+		{
+			/* Get a (hard) monster type */
+			r_idx = get_mon_num(p_ptr->depth + 10);
+
+			/* Decline incorrect alignment */
+			if (((align < 0) && (r_info[r_idx].flags3 & RF3_GOOD)) ||
+				 ((align > 0) && (r_info[r_idx].flags3 & RF3_EVIL)))
+		{
+				continue;
+		}
+
+			/* Accept this monster */
+			break;
 	}
 
+		/* Notice failure */
+		if (!r_idx || !attempts) return;
 
-	/* Remove restriction */
-	get_mon_num_hook = NULL;
+		/* Note the alignment */
+		if (r_info[r_idx].flags3 & RF3_GOOD) align++;
+		else if (r_info[r_idx].flags3 & RF3_EVIL) align--;
 
-	/* Prepare allocation table */
-	get_mon_num_prep();
+		what[i] = r_idx;
+	}
 
-
-	/* Oops */
-	if (empty) return;
-
+   get_mon_num_prep(NULL);
 
 	/* Describe */
 	if (cheat_room)
 	{
 		/* Room type */
-		msg_format("Monster nest (%s)", name);
+		msg_format("Monster nest (%s)", n_ptr->name);
 	}
-
-
-	/* Increase the level rating */
-	rating += 10;
-
-	/* (Sometimes) Cause a "special feeling" (for "Monster Nests") */
-	if ((p_ptr->depth <= 40) && (randint(p_ptr->depth*p_ptr->depth + 1) < 300))
-	{
-		good_item_flag = TRUE;
-	}
-
 
 	/* Place some monsters */
 	for (y = yval - 2; y <= yval + 2; y++)
@@ -2680,21 +2707,26 @@ static void build_type5(int yval, int xval)
 }
 
 
+static vault_aux_type pit_types[] =
+{
+	{"orc",				vault_aux_orc,			NULL,						5,		4},
+	{"doom",          vault_aux_lo_doom,   NULL,                10,   6},
+	{"troll",			vault_aux_troll,		NULL,						20,	4},
+	{"giant",			vault_aux_giant,		NULL,						40,	4},
+	{"clone",			vault_aux_symbol,		vault_prep_symbol,	55,	3},
+	{"chapel",			vault_aux_chapel,		NULL,						55,	1},
+	{"doom",          vault_aux_hi_doom,   NULL,                60,   6},
+	{"dragon",			vault_aux_dragon,		vault_prep_dragon,	70,	4},
+	{"demon",			vault_aux_demon,		NULL,             	80,	4},
+	{NULL,				NULL,						NULL,						0,		0},
+};
+
 
 /*
  * Type 6 -- Monster pits
  *
  * A monster pit is a "big" room, with an "inner" room, containing
  * a "collection" of monsters of a given type organized in the room.
- *
- * Monster types in the pit
- *   single race	(25% chance on any level)
- *   orc pit	 (Dungeon Level 5 and deeper)
- *   troll pit	 (Dungeon Level 16 and deeper)
- *   giant pit	 (Dungeon Level 33 and deeper)
- *   dragon pit (Dungeon Level 50 and deeper)
- *   angel pit  (Dungeon Level 66 and deeper)
- *   demon pit	 (Dungeon Level 83 and deeper)
  *
  * The inside room in a monster pit appears as shown below, where the
  * actual monsters in each location depend on the type of the pit
@@ -2728,13 +2760,20 @@ static void build_type5(int yval, int xval)
  */
 static void build_type6(int yval, int xval)
 {
-	int tmp, what[16];
+	int y, x, y1, x1, y2, x2;
+	int i, j;
 
-	int i, j, y, x, y1, x1, y2, x2;
+	int what[16];
 
-	bool empty = FALSE;
+	int align = 0;
 
-	cptr name;
+	vault_aux_type *n_ptr = pick_vault_type(pit_types);
+
+	/* No type available */
+	if (!n_ptr) return;
+
+	/* Process a preparation function if necessary */
+	if (n_ptr->prep_func) (*(n_ptr->prep_func))();
 
 	/* Large room */
 	y1 = yval - 4;
@@ -2745,7 +2784,7 @@ static void build_type6(int yval, int xval)
 	/* Build the outer room */
 	draw_rect_room(y1 - 1, x1 - 1, y2 + 1, x2 + 1, FEAT_FLOOR, FEAT_WALL_OUTER, CAVE_ROOM);
 
-	/* The inner room */
+	/* Advance to the center room */
 	y1 = y1 + 2;
 	y2 = y2 - 2;
 	x1 = x1 + 2;
@@ -2763,221 +2802,42 @@ static void build_type6(int yval, int xval)
 		case 4: place_secret_door(yval, x2 + 1); break;
 	}
 
-
-	/* Choose a pit type */
-	tmp = randint(p_ptr->depth);
-
-
-	/* Chance of single-monster nest */
-	if (rand_int(100) < 25)
-	{
-		monster_race *r_ptr;
-		int r_idx;
-
-		/* Clear restriction */
-		get_mon_num_hook = vault_aux_single_okay;
-
 		/* Prepare allocation table */
-		get_mon_num_prep();
-
-		/* Pick a hard monster */
-		r_idx = get_mon_num(p_ptr->depth + 10);
-
-		if (!r_idx)
-		{
-			/* Need a monster! */
-			empty = TRUE;
-		}
-		else
-		{
-			r_ptr = &r_info[r_idx];
-
-			/* Get the monster symbol */
-			vault_aux_single_d_char = r_ptr->d_char;
-
-			/* Find that character info, and describe it */
-			for (i = 0; ident_info[r_ptr->d_char]; ++i)
-			{
-				if (r_ptr->d_char == ident_info[i][0]) break;
-			}
-
-			/* Get the monster name */
-			name = &ident_info[i][2];
-
-			/* Restrict monster selection */
-			get_mon_num_hook = vault_aux_race;
-		}
-	}
-
-	/* Orc pit */
-	else if (tmp < 16)
-	{
-		/* Message */
-		name = "orc";
-
-		/* Restrict monster selection */
-		get_mon_num_hook = vault_aux_orc;
-	}
-
-	/* Troll pit */
-	else if (tmp < 33)
-	{
-		/* Message */
-		name = "troll";
-
-		/* Restrict monster selection */
-		get_mon_num_hook = vault_aux_troll;
-	}
-
-	/* Giant pit */
-	else if (tmp < 50)
-	{
-		/* Message */
-		name = "giant";
-
-		/* Restrict monster selection */
-		get_mon_num_hook = vault_aux_giant;
-	}
-
-	/* Dragon pit */
-	else if (tmp < 66)
-	{
-		/* Pick dragon type */
-		switch (rand_int(6))
-		{
-			/* Black */
-			case 0:
-			{
-				/* Message */
-				name = "acid dragon";
-
-				/* Restrict dragon breath type */
-				vault_aux_dragon_mask4 = RF4_BR_ACID;
-
-				/* Done */
-				break;
-			}
-
-			/* Blue */
-			case 1:
-			{
-				/* Message */
-				name = "electric dragon";
-
-				/* Restrict dragon breath type */
-				vault_aux_dragon_mask4 = RF4_BR_ELEC;
-
-				/* Done */
-				break;
-			}
-
-			/* Red */
-			case 2:
-			{
-				/* Message */
-				name = "fire dragon";
-
-				/* Restrict dragon breath type */
-				vault_aux_dragon_mask4 = RF4_BR_FIRE;
-
-				/* Done */
-				break;
-			}
-
-			/* White */
-			case 3:
-			{
-				/* Message */
-				name = "cold dragon";
-
-				/* Restrict dragon breath type */
-				vault_aux_dragon_mask4 = RF4_BR_COLD;
-
-				/* Done */
-				break;
-			}
-
-			/* Green */
-			case 4:
-			{
-				/* Message */
-				name = "poison dragon";
-
-				/* Restrict dragon breath type */
-				vault_aux_dragon_mask4 = RF4_BR_POIS;
-
-				/* Done */
-				break;
-			}
-
-			/* Multi-hued */
-			default:
-			{
-				/* Message */
-				name = "multi-hued dragon";
-
-				/* Restrict dragon breath type */
-				vault_aux_dragon_mask4 = (RF4_BR_ACID | RF4_BR_ELEC |
-												  RF4_BR_FIRE | RF4_BR_COLD |
-				                          RF4_BR_POIS);
-
-				/* Done */
-				break;
-			}
-
-		}
-
-		/* Restrict monster selection */
-		get_mon_num_hook = vault_aux_dragon;
-	}
-
-	/* Angel pit */
-	else if (tmp < 83)
-	{
-		/* Message */
-		name = "angel";
-
-		/* Restrict monster selection */
-		get_mon_num_hook = vault_aux_chapel;
-	}
-
-	/* Demon pit */
-	else
-	{
-		/* Message */
-		name = "demon";
-
-		/* Restrict monster selection */
-		get_mon_num_hook = vault_aux_demon;
-	}
-
-	/* Prepare allocation table */
-	get_mon_num_prep();
-
+	get_mon_num_prep(n_ptr->hook_func);
 
 	/* Pick some monster types */
 	for (i = 0; i < 16; i++)
-	{
-		/* Get a (hard) monster type */
-		what[i] = get_mon_num(p_ptr->depth + 10);
+			{
+		int r_idx = 0, attempts = 100;
+
+		while (attempts--)
+			{
+			/* Get a (hard) monster type */
+			r_idx = get_mon_num(p_ptr->depth + 10);
+
+			/* Decline incorrect alignment */
+			if (((align < 0) && (r_info[r_idx].flags3 & RF3_GOOD)) ||
+				 ((align > 0) && (r_info[r_idx].flags3 & RF3_EVIL)))
+			{
+				continue;
+			}
+
+			/* Accept this monster */
+				break;
+			}
 
 		/* Notice failure */
-		if (!what[i]) empty = TRUE;
+		if (!r_idx || !attempts) return;
+
+		/* Note the alignment */
+		if (r_info[r_idx].flags3 & RF3_GOOD) align++;
+		else if (r_info[r_idx].flags3 & RF3_EVIL) align--;
+
+		what[i] = r_idx;
 	}
 
+	get_mon_num_prep(NULL);
 
-	/* Remove restriction */
-	get_mon_num_hook = NULL;
-
-	/* Prepare allocation table */
-	get_mon_num_prep();
-
-
-	/* Oops */
-	if (empty) return;
-
-
-	/* XXX XXX XXX */
 	/* Sort the entries */
 	for (i = 0; i < 16 - 1; i++)
 	{
@@ -3000,38 +2860,25 @@ static void build_type6(int yval, int xval)
 		}
 	}
 
-	/* Select the entries */
-	for (i = 0; i < 8; i++)
-	{
-		/* Every other entry */
-		what[i] = what[i * 2];
-	}
-
-
 	/* Message */
 	if (cheat_room)
 	{
 		/* Room type */
-		msg_format("Monster pit (%s)", name);
+		msg_format("Monster pit (%s)", n_ptr->name);
+	}
 
-		/* Contents */
+	/* Select the entries */
 		for (i = 0; i < 8; i++)
+		{
+		/* Every other entry */
+		what[i] = what[i * 2];
+
+		if (cheat_hear)
 		{
 			/* Message */
 			msg_print(r_name + r_info[what[i]].name);
 		}
 	}
-
-
-	/* Increase the level rating */
-	rating += 10;
-
-	/* (Sometimes) Cause a "special feeling" (for "Monster Pits") */
-	if ((p_ptr->depth <= 40) && (randint(p_ptr->depth*p_ptr->depth + 1) < 300))
-	{
-		good_item_flag = TRUE;
-	}
-
 
 	/* Top and bottom rows */
 	for (x = xval - 9; x <= xval + 9; x++)
@@ -3467,11 +3314,6 @@ static void build_type7(int yval, int xval)
 		}
 		return;
 	}
-    
-
-#ifdef FORCE_V_IDX
-	v_ptr = &v_info[2];
-#endif
 
 	/* Message */
 	if (cheat_room) msg_print("Lesser Vault");
@@ -3520,11 +3362,6 @@ static void build_type8(int yval, int xval)
 		}
 		return;
 	}
-
-
-#ifdef FORCE_V_IDX
-	v_ptr = &v_info[76 + randint(3)];
-#endif
 
 	/* Message */
 	if (cheat_room) msg_print("Greater Vault");
@@ -4176,7 +4013,7 @@ static bool cave_gen(void)
 	}
 
 	/* Hack -- Start with basic granite */
-	draw_rect_room(0, 0, cur_hgt, cur_wid,
+	draw_rect_room(0, 0, cur_hgt - 1, cur_wid - 1,
 						(empty_level) ? FEAT_FLOOR : FEAT_WALL_EXTRA, FEAT_PERM_SOLID, 0);
 
 	/* Possible "destroyed" level */
@@ -4306,7 +4143,7 @@ static bool cave_gen(void)
 	}
 
 	/* Draw the boundary walls */
-	draw_rect_feat(0, 0, cur_hgt, cur_wid, FEAT_PERM_SOLID);
+	draw_rect_feat(0, 0, cur_hgt - 1, cur_wid - 1, FEAT_PERM_SOLID);
 
 	/* Hack -- Scramble the room order */
 	for (i = 0; i < dun->cent_n; i++)
@@ -4463,15 +4300,15 @@ static bool cave_gen(void)
 	alloc_object(ALLOC_SET_CORR, ALLOC_TYP_RUBBLE, randint(k));
 
 	/* Put some objects in rooms */
-	alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_OBJECT, randnor(DUN_AMT_ROOM, 3));
+	alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_OBJECT, rand_nor(DUN_AMT_ROOM, 3));
 
 	/* Put some objects/gold in the dungeon */
-	alloc_object(ALLOC_SET_ANY, ALLOC_TYP_OBJECT, randnor(DUN_AMT_ITEM, 3));
-	alloc_object(ALLOC_SET_ANY, ALLOC_TYP_GOLD, randnor(DUN_AMT_GOLD, 3));
+	alloc_object(ALLOC_SET_ANY, ALLOC_TYP_OBJECT, rand_nor(DUN_AMT_ITEM, 3));
+	alloc_object(ALLOC_SET_ANY, ALLOC_TYP_GOLD, rand_nor(DUN_AMT_GOLD, 3));
 
 	/* Put some exploding barrels in the dungeon */
 	alloc_object((ALLOC_SET_IN_ROOM | ALLOC_SET_WALL | ALLOC_SET_BARREL),
-					 ALLOC_TYP_BARREL, randnor((DUN_AMT_BARREL * p_ptr->depth) /
+					 ALLOC_TYP_BARREL, rand_nor((DUN_AMT_BARREL * p_ptr->depth) /
 					 									randint(MAX_DEPTH), 4));
 
 	 if ((empty_level) && (randint(DARK_EMPTY)!=1 || (randint(100) > p_ptr->depth)))
@@ -4576,12 +4413,9 @@ static void town_gen_hack(void)
 
 	int rooms[MAX_STORES];
 
+	u32b old_seed = random;
 
-	/* Hack -- Use the "simple" RNG */
-	Rand_quick = TRUE;
-
-	/* Hack -- Induce consistant town layout */
-	Rand_value = seed_town;
+	rand_seed(seed_town);
 
 
 	/* Prepare an Array of "remaining stores", and count them */
@@ -4636,11 +4470,9 @@ static void town_gen_hack(void)
 	cave_info[y][x] |= CAVE_MARK;
 
 	/* Hack -- the player starts on the stairs */
-   player_place(y, x);
+	player_place(y, x);
 
-
-	/* Hack -- use the "complex" RNG */
-	Rand_quick = FALSE;
+	rand_seed(old_seed);
 }
 
 
@@ -4773,8 +4605,8 @@ void generate_cave(void)
 			cur_wid = SCREEN_WID;
 
 			/* Determine number of panels */
-			max_panel_rows = (cur_hgt / SCREEN_HGT) * 2 - 2;
-			max_panel_cols = (cur_wid / SCREEN_WID) * 2 - 2;
+			max_panel_rows = cur_hgt * 2 / SCREEN_HGT - 2;
+			max_panel_cols = cur_wid * 2 / SCREEN_WID - 2;
 
 			/* Assume illegal panel */
 			panel_row = max_panel_rows;
@@ -4793,8 +4625,8 @@ void generate_cave(void)
 				cur_wid = randint(MAX_WID / SCREEN_WID) * SCREEN_WID;
 
 				/* Determine number of panels */
-				max_panel_rows = (cur_hgt / SCREEN_HGT) * 2 - 2;
-				max_panel_cols = (cur_wid / SCREEN_WID) * 2 - 2;
+				max_panel_rows = cur_hgt * 2 / SCREEN_HGT - 2;
+				max_panel_cols = cur_wid * 2 / SCREEN_WID - 2;
 
 				/* Assume illegal panel */
 				panel_row = max_panel_rows;
@@ -4813,8 +4645,8 @@ void generate_cave(void)
 				cur_wid = DUN_WID;
 
 				/* Determine number of panels */
-				max_panel_rows = (cur_hgt / SCREEN_HGT) * 2 - 2;
-				max_panel_cols = (cur_wid / SCREEN_WID) * 2 - 2;
+				max_panel_rows = cur_hgt * 2 / SCREEN_HGT - 2;
+				max_panel_cols = cur_wid * 2 / SCREEN_WID - 2;
 
 				/* Assume illegal panel */
 				panel_row = max_panel_rows;
@@ -4831,7 +4663,9 @@ void generate_cave(void)
 
 
 		/* Extract the feeling */
-		if (rating > 100) feeling = 2;
+		if (!p_ptr->depth) feeling = 0;
+		else if ((good_item_flag && !p_ptr->preserve) || (rating > 120)) feeling = 1;
+		else if (rating > 100) feeling = 2;
 		else if (rating > 80) feeling = 3;
 		else if (rating > 60) feeling = 4;
 		else if (rating > 40) feeling = 5;
@@ -4840,13 +4674,6 @@ void generate_cave(void)
 		else if (rating > 10) feeling = 8;
 		else if (rating > 0) feeling = 9;
 		else feeling = 10;
-
-		/* Hack -- Have a special feeling sometimes */
-		if (good_item_flag && !p_ptr->preserve) feeling = 1;
-
-		/* Hack -- no feeling in the town */
-		if (!p_ptr->depth) feeling = 0;
-
 
 		/* Prevent object over-flow */
 		if (o_max >= MAX_O_IDX)
@@ -4916,6 +4743,8 @@ void generate_cave(void)
 
 #ifdef ALLOW_WIZARD
 
+# if 0
+
 /*
  * Mega-hack -- provide a hook into dungeon generation!
  */
@@ -4954,9 +4783,8 @@ void do_cmd_generate(void)
 	}
 }
 
+# endif
 
 #endif
-
-
 
 

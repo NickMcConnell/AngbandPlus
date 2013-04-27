@@ -888,7 +888,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
 	{
 		object_type *o_ptr;
-		
+
 		/* Acquire object */
 		o_ptr = &o_list[this_o_idx];
 
@@ -1273,6 +1273,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 					break;
 				}
 				case RACE_IMP:
+				case RACE_FIEND:
 				{
 					c = 'u';
 					break;
@@ -3733,7 +3734,7 @@ void wiz_lite(void)
 		/* Memorize */
 		o_ptr->marked = TRUE;
 	}
-	
+
 	/* Scan all normal grids */
 	for (y = 1; y < cur_hgt-1; y++)
 	{
@@ -3813,7 +3814,7 @@ void wiz_dark(void)
 		/* Forget the object */
 		o_ptr->marked = FALSE;
 	}
-	
+
 	/* Mega-Hack -- Forget the view and lite */
 	p_ptr->update |= (PU_UN_VIEW);
 
@@ -3933,7 +3934,7 @@ bool projectable(int y1, int x1, int y2, int x2)
  */
 void scatter(int *yp, int *xp, int y, int x, int d, int m)
 {
-	int nx, ny;
+	int nx = y, ny = x;
 
 	int c = 0;
 
@@ -3956,8 +3957,8 @@ void scatter(int *yp, int *xp, int y, int x, int d, int m)
 
 	if (c == 1000)
 	{
-		ny = *yp;
-		nx = *xp;
+		ny = y;
+		nx = x;
 	}
 
 	/* Save the location */

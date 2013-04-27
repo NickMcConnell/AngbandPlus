@@ -29,10 +29,9 @@ cptr copyright[5] =
 /*
  * Executable version
  */
-byte version_major = VERSION_MAJOR;
-byte version_minor = VERSION_MINOR;
-byte version_patch = VERSION_PATCH;
-byte version_extra = VERSION_EXTRA;
+byte version_major = VER_MAJOR;
+byte version_minor = VER_MINOR;
+byte version_patch = VER_PATCH;
 
 /*
  * Savefile version
@@ -42,14 +41,11 @@ byte sf_minor;			/* Savefile's "version_minor" */
 byte sf_patch;			/* Savefile's "version_patch" */
 byte sf_extra;			/* Savefile's "version_extra" */
 
-byte z_major;           /* Savefile version for Zangband */
-byte z_minor;
-byte z_patch;
+u32b zce_version;    /* New savefile version */
 
 /*
  * Savefile information
  */
-u32b sf_xtra;			/* Operating system info */
 u32b sf_when;			/* Time when savefile created */
 u16b sf_lives;			/* Number of past "lives" with this file */
 u16b sf_saves;			/* Number of "saves" during this life */
@@ -228,8 +224,6 @@ bool mute_sounds;		/* No sound effects */
 
 /* Option Set 3 -- Game-Play */
 
-bool auto_haggle;			/* Auto-haggle in stores */
-
 bool auto_scum;				/* Auto-scum for good levels */
 
 bool stack_allow_items;		/* Allow weapons and armor to stack */
@@ -269,8 +263,6 @@ bool flush_command;			/* Flush input before every command */
 bool fresh_before;			/* Flush output before normal commands */
 bool fresh_after;			/* Flush output after normal commands */
 bool fresh_message;			/* Flush output after all messages */
-
-bool compress_savefile;		/* Compress messages in savefiles */
 
 bool hilite_player;			/* Hilite the player with the cursor */
 
@@ -432,27 +424,27 @@ cptr *quark__str;
 /*
  * The next "free" index to use
  */
-u16b message__next;
+u32b message__next;
 
 /*
  * The index of the oldest message (none yet)
  */
-u16b message__last;
+u32b message__last;
 
 /*
  * The next "free" offset
  */
-u16b message__head;
+u32b message__head;
 
 /*
  * The offset to the oldest used char (none yet)
  */
-u16b message__tail;
+u32b message__tail;
 
 /*
  * The array of offsets, by index [MESSAGE_MAX]
  */
-u16b *message__ptr;
+u32b *message__ptr;
 
 /*
  * The array of chars, by offset [MESSAGE_BUF]
@@ -485,7 +477,7 @@ term *angband_term[8];
  */
 char angband_term_name[8][16] =
 {
-	"Zangband",
+	"Zceband-213b",
 	"Term-1",
 	"Term-2",
 	"Term-3",
@@ -503,20 +495,20 @@ byte angband_color_table[256][4] =
 {
 	{0x00, 0x00, 0x00, 0x00},	/* TERM_DARK */
 	{0x00, 0xFF, 0xFF, 0xFF},	/* TERM_WHITE */
-	{0x00, 0x80, 0x80, 0x80},	/* TERM_SLATE */
-	{0x00, 0xFF, 0x80, 0x00},	/* TERM_ORANGE */
-	{0x00, 0xC0, 0x00, 0x00},	/* TERM_RED */
-	{0x00, 0x00, 0x80, 0x40},	/* TERM_GREEN */
+	{0x00, 0xB5, 0xB5, 0xB5},	/* TERM_SLATE */
+	{0x00, 0xFF, 0xB5, 0x00},	/* TERM_ORANGE */
+	{0x00, 0xDE, 0x00, 0x00},	/* TERM_RED */
+	{0x00, 0x00, 0xB5, 0x80},	/* TERM_GREEN */
 	{0x00, 0x00, 0x00, 0xFF},	/* TERM_BLUE */
-	{0x00, 0x80, 0x40, 0x00},	/* TERM_UMBER */
-	{0x00, 0x60, 0x60, 0x60},	/* TERM_L_DARK */
-	{0x00, 0xC0, 0xC0, 0xC0},	/* TERM_L_WHITE */
+	{0x00, 0xB5, 0x80, 0x00},	/* TERM_UMBER */
+	{0x00, 0x80, 0x80, 0x80},	/* TERM_L_DARK */
+	{0x00, 0xDE, 0xDE, 0xDE},	/* TERM_L_WHITE */
 	{0x00, 0xFF, 0x00, 0xFF},	/* TERM_VIOLET */
 	{0x00, 0xFF, 0xFF, 0x00},	/* TERM_YELLOW */
 	{0x00, 0xFF, 0x00, 0x00},	/* TERM_L_RED */
 	{0x00, 0x00, 0xFF, 0x00},	/* TERM_L_GREEN */
 	{0x00, 0x00, 0xFF, 0xFF},	/* TERM_L_BLUE */
-	{0x00, 0xC0, 0x80, 0x40}	/* TERM_L_UMBER */
+	{0x00, 0xDE, 0xB5, 0x80}	/* TERM_L_UMBER */
 };
 
 
@@ -919,13 +911,6 @@ bool (*ang_sort_comp)(vptr u, vptr v, int a, int b);
  * Current "swap" function for ang_sort()
  */
 void (*ang_sort_swap)(vptr u, vptr v, int a, int b);
-
-
-
-/*
- * Hack -- function hook to restrict "get_mon_num_prep()" function
- */
-bool (*get_mon_num_hook)(int r_idx);
 
 
 

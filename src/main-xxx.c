@@ -98,8 +98,6 @@ struct term_data
 static term_data data[MAX_TERM_DATA];
 
 
-#if 0	/* Fix the syntax below XXX XXX XXX */
-
 /*
  * The "color" array for the visual module XXX XXX XXX
  *
@@ -142,8 +140,6 @@ static local_color_data_type color_data[16] =
 	/* XXX XXX XXX 0,4,4 */,		/* TERM_L_BLUE */
 	/* XXX XXX XXX 3,2,1 */ 		/* TERM_L_UMBER */
 };
-
-#endif
 
 
 

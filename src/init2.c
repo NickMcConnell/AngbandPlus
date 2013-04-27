@@ -201,10 +201,6 @@ void init_file_paths(char *path)
 }
 
 
-
-#ifdef ALLOW_TEMPLATES
-
-
 /*
  * Hack -- help give useful error messages
  */
@@ -234,9 +230,6 @@ static cptr err_str[8] =
 	"undefined directive",
 	"out of memory"
 };
-
-
-#endif
 
 
 
@@ -328,9 +321,9 @@ static errr init_f_info(void)
 	MAKE(f_head, header);
 
 	/* Save the "version" */
-	f_head->v_major = VERSION_MAJOR;
-	f_head->v_minor = VERSION_MINOR;
-	f_head->v_patch = VERSION_PATCH;
+	f_head->v_major = VER_MAJOR;
+	f_head->v_minor = VER_MINOR;
+	f_head->v_patch = VER_PATCH;
 	f_head->v_extra = 0;
 
 	/* Save the "record" information */
@@ -341,8 +334,6 @@ static errr init_f_info(void)
 	f_head->head_size = sizeof(header);
 	f_head->info_size = f_head->info_num * f_head->info_len;
 
-
-#ifdef ALLOW_TEMPLATES
 
 	/*** Load the binary image file ***/
 
@@ -467,8 +458,6 @@ static errr init_f_info(void)
 	fake_name_size = 0;
 	fake_text_size = 0;
 
-#endif	/* ALLOW_TEMPLATES */
-
 
 	/*** Load the binary image file ***/
 
@@ -581,9 +570,9 @@ static errr init_k_info(void)
 	MAKE(k_head, header);
 
 	/* Save the "version" */
-	k_head->v_major = VERSION_MAJOR;
-	k_head->v_minor = VERSION_MINOR;
-	k_head->v_patch = VERSION_PATCH;
+	k_head->v_major = VER_MAJOR;
+	k_head->v_minor = VER_MINOR;
+	k_head->v_patch = VER_PATCH;
 	k_head->v_extra = 0;
 
 	/* Save the "record" information */
@@ -594,8 +583,6 @@ static errr init_k_info(void)
 	k_head->head_size = sizeof(header);
 	k_head->info_size = k_head->info_num * k_head->info_len;
 
-
-#ifdef ALLOW_TEMPLATES
 
 	/*** Load the binary image file ***/
 
@@ -720,8 +707,6 @@ static errr init_k_info(void)
 	fake_name_size = 0;
 	fake_text_size = 0;
 
-#endif	/* ALLOW_TEMPLATES */
-
 
 	/*** Load the binary image file ***/
 
@@ -834,9 +819,9 @@ static errr init_a_info(void)
 	MAKE(a_head, header);
 
 	/* Save the "version" */
-	a_head->v_major = VERSION_MAJOR;
-	a_head->v_minor = VERSION_MINOR;
-	a_head->v_patch = VERSION_PATCH;
+	a_head->v_major = VER_MAJOR;
+	a_head->v_minor = VER_MINOR;
+	a_head->v_patch = VER_PATCH;
 	a_head->v_extra = 0;
 
 	/* Save the "record" information */
@@ -847,8 +832,6 @@ static errr init_a_info(void)
 	a_head->head_size = sizeof(header);
 	a_head->info_size = a_head->info_num * a_head->info_len;
 
-
-#ifdef ALLOW_TEMPLATES
 
 	/*** Load the binary image file ***/
 
@@ -973,8 +956,6 @@ static errr init_a_info(void)
 	fake_name_size = 0;
 	fake_text_size = 0;
 
-#endif	/* ALLOW_TEMPLATES */
-
 
 	/*** Load the binary image file ***/
 
@@ -1087,9 +1068,9 @@ static errr init_e_info(void)
 	MAKE(e_head, header);
 
 	/* Save the "version" */
-	e_head->v_major = VERSION_MAJOR;
-	e_head->v_minor = VERSION_MINOR;
-	e_head->v_patch = VERSION_PATCH;
+	e_head->v_major = VER_MAJOR;
+	e_head->v_minor = VER_MINOR;
+	e_head->v_patch = VER_PATCH;
 	e_head->v_extra = 0;
 
 	/* Save the "record" information */
@@ -1100,8 +1081,6 @@ static errr init_e_info(void)
 	e_head->head_size = sizeof(header);
 	e_head->info_size = e_head->info_num * e_head->info_len;
 
-
-#ifdef ALLOW_TEMPLATES
 
 	/*** Load the binary image file ***/
 
@@ -1226,8 +1205,6 @@ static errr init_e_info(void)
 	fake_name_size = 0;
 	fake_text_size = 0;
 
-#endif	/* ALLOW_TEMPLATES */
-
 
 	/*** Load the binary image file ***/
 
@@ -1345,9 +1322,9 @@ static errr init_r_info(void)
 	MAKE(r_head, header);
 
 	/* Save the "version" */
-	r_head->v_major = VERSION_MAJOR;
-	r_head->v_minor = VERSION_MINOR;
-	r_head->v_patch = VERSION_PATCH;
+	r_head->v_major = VER_MAJOR;
+	r_head->v_minor = VER_MINOR;
+	r_head->v_patch = VER_PATCH;
 	r_head->v_extra = 0;
 
 	/* Save the "record" information */
@@ -1358,8 +1335,6 @@ static errr init_r_info(void)
 	r_head->head_size = sizeof(header);
 	r_head->info_size = r_head->info_num * r_head->info_len;
 
-
-#ifdef ALLOW_TEMPLATES
 
 	/*** Load the binary image file ***/
 
@@ -1484,8 +1459,6 @@ static errr init_r_info(void)
 	fake_name_size = 0;
 	fake_text_size = 0;
 
-#endif	/* ALLOW_TEMPLATES */
-
 
 	/*** Load the binary image file ***/
 
@@ -1597,9 +1570,9 @@ static errr init_v_info(void)
 	MAKE(v_head, header);
 
 	/* Save the "version" */
-	v_head->v_major = VERSION_MAJOR;
-	v_head->v_minor = VERSION_MINOR;
-	v_head->v_patch = VERSION_PATCH;
+	v_head->v_major = VER_MAJOR;
+	v_head->v_minor = VER_MINOR;
+	v_head->v_patch = VER_PATCH;
 	v_head->v_extra = 0;
 
 	/* Save the "record" information */
@@ -1610,8 +1583,6 @@ static errr init_v_info(void)
 	v_head->head_size = sizeof(header);
 	v_head->info_size = v_head->info_num * v_head->info_len;
 
-
-#ifdef ALLOW_TEMPLATES
 
 	/*** Load the binary image file ***/
 
@@ -1735,8 +1706,6 @@ static errr init_v_info(void)
 	/* Forget the array sizes */
 	fake_name_size = 0;
 	fake_text_size = 0;
-
-#endif	/* ALLOW_TEMPLATES */
 
 
 	/*** Load the binary image file ***/
@@ -2314,7 +2283,7 @@ static errr init_other(void)
 	temp_y = ((byte*)(temp_g)) + 0;
 	temp_x = ((byte*)(temp_g)) + TEMP_MAX;
 
-	
+
 	/*** Prepare dungeon arrays ***/
 
 	/* Padded info array */
@@ -2351,7 +2320,7 @@ static errr init_other(void)
 	C_MAKE(quark__str, QUARK_MAX, cptr);
 
 	/* Message variables */
-	C_MAKE(message__ptr, MESSAGE_MAX, u16b);
+	C_MAKE(message__ptr, MESSAGE_MAX, u32b);
 	C_MAKE(message__buf, MESSAGE_BUF, char);
 
 	/* Hack -- No messages yet */
@@ -2449,14 +2418,14 @@ static errr init_other(void)
 		{
 			/* Accept */
 			option_mask[os] |= (1L << ob);
-			
+
 			/* Set */
 			if (option_info[i].o_norm)
 			{
 				/* Set */
 				option_flag[os] |= (1L << ob);
 			}
-			
+
 			/* Clear */
 			else
 			{

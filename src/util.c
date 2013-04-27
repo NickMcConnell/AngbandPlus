@@ -26,33 +26,6 @@ char *memset(char *s, int c, huge n)
 #endif
 
 
-
-#ifndef HAS_STRICMP
-
-/*
- * For those systems that don't have "stricmp()"
- *
- * Compare the two strings "a" and "b" ala "strcmp()" ignoring case.
- */
-int stricmp(cptr a, cptr b)
-{
-	cptr s1, s2;
-	char z1, z2;
-
-	/* Scan the strings */
-	for (s1 = a, s2 = b; TRUE; s1++, s2++)
-	{
-		z1 = FORCEUPPER(*s1);
-		z2 = FORCEUPPER(*s2);
-		if (z1 < z2) return (-1);
-		if (z1 > z2) return (1);
-		if (!z1) return (0);
-	}
-}
-
-#endif
-
-
 #ifdef SET_UID
 
 # ifndef HAS_USLEEP
@@ -315,14 +288,14 @@ errr path_build(char *buf, int max, cptr path, cptr file)
 		/* Use the file itself */
 		strnfmt(buf, max, "%s", file);
 	}
-	
+
 	/* Absolute file, on "normal" systems */
 	else if (prefix(file, PATH_SEP) && !streq(PATH_SEP, ""))
 	{
 		/* Use the file itself */
 		strnfmt(buf, max, "%s", file);
 	}
-	
+
 	/* No path given */
 	else if (!path[0])
 	{
@@ -701,24 +674,6 @@ errr fd_seek(int fd, huge n)
 
 	/* Failure */
 	if (p != n) return (1);
-
-	/* Success */
-	return (0);
-}
-
-
-/*
- * Hack -- attempt to truncate a file descriptor
- */
-errr fd_chop(int fd, huge n)
-{
-	/* Verify the fd */
-	if (fd < 0) return (-1);
-
-#if defined(SUNOS) || defined(ULTRIX) || defined(NeXT)
-	/* Truncate */
-	ftruncate(fd, n);
-#endif
 
 	/* Success */
 	return (0);
@@ -1774,7 +1729,7 @@ char inkey(void)
 
 					/* Excessive delay */
 					if (w >= 100) break;
-		
+
 					/* Delay */
 					Term_xtra(TERM_XTRA_DELAY, w);
 				}
@@ -1950,7 +1905,7 @@ cptr quark_str(s16b i)
 /*
  * How many messages are "available"?
  */
-s16b message_num(void)
+s32b message_num(void)
 {
 	int last, next, n;
 
@@ -1973,10 +1928,10 @@ s16b message_num(void)
 /*
  * Recall the "text" of a saved message
  */
-cptr message_str(s16b age)
+cptr message_str(s32b age)
 {
-	s16b x;
-	s16b o;
+	s32b x;
+	s32b o;
 	cptr s;
 
 	/* Forgotten messages have no text */
@@ -2002,7 +1957,7 @@ cptr message_str(s16b age)
  */
 void message_add(cptr str)
 {
-	int i, k, x, m, n;
+	s32b i, k, x, m, n;
 
 	char u[1024];
 
@@ -2088,7 +2043,7 @@ void message_add(cptr str)
 	/* Check the last few messages (if any to count) */
 	for (i = message__next; k; k--)
 	{
-		u16b q;
+		u32b q;
 
 		cptr old;
 
@@ -2239,16 +2194,19 @@ static void msg_flush(int x)
 	if (!use_color) a = TERM_WHITE;
 
 	/* Pause for response */
-	Term_putstr(x, 0, -1, a, "-more-");
-
-	/* Get an acceptable keypress */
-	while (1)
+	if (character_generated)
 	{
-		int cmd = inkey();
-		if (quick_messages) break;
-		if ((cmd == ESCAPE) || (cmd == ' ')) break;
-		if ((cmd == '\n') || (cmd == '\r')) break;
-		bell();
+		Term_putstr(x, 0, -1, a, "-more-");
+
+		/* Get an acceptable keypress */
+		while (1)
+		{
+			int cmd = inkey();
+			if (quick_messages) break;
+			if ((cmd == ESCAPE) || (cmd == ' ')) break;
+			if ((cmd == '\n') || (cmd == '\r')) break;
+			bell();
+		}
 	}
 
 	/* Clear the line */
@@ -2283,7 +2241,7 @@ static void msg_flush(int x)
  */
 void msg_print(cptr msg)
 {
-	static p = 0;
+	static int p = 0;
 
 	int n;
 
@@ -3201,8 +3159,6 @@ void request_command(bool shopping)
 }
 
 
-
-
 /*
  * Check a char for "vowel-hood"
  */
@@ -3227,65 +3183,6 @@ bool is_a_vowel(int ch)
 }
 
 
-
-#if 0
-
-/*
- * Replace the first instance of "target" in "buf" with "insert"
- * If "insert" is NULL, just remove the first instance of "target"
- * In either case, return TRUE if "target" is found.
- *
- * XXX Could be made more efficient, especially in the
- * case where "insert" is smaller than "target".
- */
-static bool insert_str(char *buf, cptr target, cptr insert)
-{
-	int   i, len;
-	int		   b_len, t_len, i_len;
-
-	/* Attempt to find the target (modify "buf") */
-	buf = strstr(buf, target);
-
-	/* No target found */
-	if (!buf) return (FALSE);
-
-	/* Be sure we have an insertion string */
-	if (!insert) insert = "";
-
-	/* Extract some lengths */
-	t_len = strlen(target);
-	i_len = strlen(insert);
-	b_len = strlen(buf);
-
-	/* How much "movement" do we need? */
-	len = i_len - t_len;
-
-	/* We need less space (for insert) */
-	if (len < 0)
-	{
-		for (i = t_len; i < b_len; ++i) buf[i+len] = buf[i];
-	}
-
-	/* We need more space (for insert) */
-	else if (len > 0)
-	{
-		for (i = b_len-1; i >= t_len; --i) buf[i+len] = buf[i];
-	}
-
-	/* If movement occured, we need a new terminator */
-	if (len) buf[b_len+len] = '\0';
-
-	/* Now copy the insertion string */
-	for (i = 0; i < i_len; ++i) buf[i] = insert[i];
-
-	/* Successful operation */
-	return (TRUE);
-}
-
-
-#endif
-
-
 /* GH					     */
 /* Called from cmd4.c and a few other places */
 /* Just extracts a direction from the keymap */
@@ -3295,7 +3192,7 @@ static bool insert_str(char *buf, cptr target, cptr insert)
 /* single keys, which makes it no more than  */
 /* 128, so a char should suffice... but      */
 /* keymap_act is 256...			     */
- 
+
 int get_keymap_dir(char ch)
 {
 	cptr act, s;
@@ -3307,7 +3204,7 @@ int get_keymap_dir(char ch)
 	{
 		act = keymap_act[KEYMAP_MODE_ORIG][(byte)ch];
 	}
-	
+
 	if (act)
 	{
 		/* Convert to a direction */

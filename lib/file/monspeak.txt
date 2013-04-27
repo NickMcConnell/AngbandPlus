@@ -97,12 +97,10 @@ says, 'Death and destruction make me happy!'
 snickers evilly.
 
 N:Wormtongue, Agent of Saruman
-10
+8
 whines and sniggers.
 whispers nasty things.
 says, 'I'll slaughter you slowly...'
-says, 'Lathspell I name you, Ill-news; and Ill-news is an ill guest they say.'
-says, 'Forbid his staff!'
 yells, 'You lie!'
 says, 'Let me go, let me go!  I know the way!'
 says, 'My messages are useless now!'
@@ -140,16 +138,6 @@ says, 'I'll make your short life nasty and brutish!'
 
 N:Lagduf, the Snaga
 N:Grishnakh, the Hill Orc
-7
-says, 'Saruman is a fool, and a dirty treacherous fool.'
-says, 'I left a fool.'
-yells, 'Nazgul, Nazgul!'
-says, 'Fine leadership!  I hope the great Ugluk will lead us out again.'
-hisses, 'My dear tender little fools.'
-says, 'Well, my little ones!  Enjoying your nice rest?'
-snarls, 'Have you got it -- either of you?'
-
-
 N:Golfimbul, the Hill Orc Chief
 N:Ufthak of Cirith Ungol
 N:Orc captain
@@ -159,7 +147,7 @@ N:Bolg, Son of Azog
 N:Ugluk, the Uruk
 N:Lugdush, the Uruk
 N:Azog, King of the Uruk-Hai
-20
+21
 fingers his blade and grins evilly.
 snickers, 'Now, I strike a blow for *our* side!'
 says, 'Orcs don't get no respect... I'm gonna change that!'
@@ -180,6 +168,7 @@ says, 'I shall have my way with your women!'
 says, 'You're not so tough, buttmunch!'
 says, 'Heh-heh, heh-heh, killing people is cool.'
 curses at you in Orcish.
+yells, 'Nazgul, Nazgul!'
 
 N:Mime, the Nibelung
 N:Hagen, son of Alberich
@@ -255,6 +244,13 @@ N:Shoggoth
 2
 barrels towards you horrifyingly.
 wails, 'Tekeli-li!  Tekeli-li!'
+
+N:Arachnotron
+4
+screeches.
+whines.
+grates.
+grinds.
 
 #N:Judge Death
 #N:Ariel, Queen of Air

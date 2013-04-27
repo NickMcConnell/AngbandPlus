@@ -342,7 +342,7 @@ void get_table_name(char * out_string)
 	else
 	{
 		char buf[1024];
-		
+
 		testcounter = (randint(2)) + 1;
 		while (testcounter--)
 		{
@@ -422,187 +422,6 @@ static bool object_easy_know(int i)
 }
 
 
-#if 0
-
-/*
- * Hack -- prepare the default object attr codes by tval
- *
- * XXX XXX XXX Off-load to "pref.prf" file
- */
-static byte default_tval_to_attr(int tval)
-{
-	switch (tval)
-	{
-		case TV_SKELETON:
-		case TV_BOTTLE:
-		case TV_JUNK:
-		{
-			return (TERM_WHITE);
-		}
-
-		case TV_CHEST:
-		{
-			return (TERM_SLATE);
-		}
-
-		case TV_SHOT:
-		case TV_BOLT:
-		case TV_ARROW:
-		{
-			return (TERM_L_UMBER);
-		}
-
-		case TV_LITE:
-		{
-			return (TERM_YELLOW);
-		}
-
-		case TV_SPIKE:
-		{
-			return (TERM_SLATE);
-		}
-
-		case TV_BOW:
-		{
-			return (TERM_UMBER);
-		}
-
-		case TV_DIGGING:
-		{
-			return (TERM_SLATE);
-		}
-
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_SWORD:
-		{
-			return (TERM_L_WHITE);
-		}
-
-		case TV_BOOTS:
-		case TV_GLOVES:
-		case TV_CROWN:
-		case TV_HELM:
-		case TV_SHIELD:
-		case TV_CLOAK:
-		{
-			return (TERM_L_UMBER);
-		}
-
-		case TV_SOFT_ARMOR:
-		case TV_HARD_ARMOR:
-		case TV_DRAG_ARMOR:
-		{
-			return (TERM_SLATE);
-		}
-
-		case TV_AMULET:
-		{
-			return (TERM_ORANGE);
-		}
-
-		case TV_RING:
-		{
-			return (TERM_ORANGE);
-		}
-
-		case TV_STAFF:
-		{
-			return (TERM_VIOLET);
-		}
-
-		case TV_WAND:
-		{
-			return (TERM_VIOLET);
-		}
-
-		case TV_ROD:
-		{
-			return (TERM_VIOLET);
-		}
-
-		case TV_SCROLL:
-		{
-			return (TERM_WHITE);
-		}
-
-		case TV_POTION:
-		{
-			return (TERM_BLUE);
-		}
-
-		case TV_FLASK:
-		{
-			return (TERM_YELLOW);
-		}
-
-		case TV_FOOD:
-		{
-			return (TERM_GREEN);
-		}
-
-		case TV_LIFE_BOOK:
-		{
-			return (TERM_WHITE);
-		}
-
-		case TV_SORCERY_BOOK:
-		{
-			return (TERM_L_BLUE);
-		}
-
-		case TV_NATURE_BOOK:
-		{
-			return (TERM_L_GREEN);
-		}
-
-		case TV_CHAOS_BOOK:
-		{
-			return (TERM_L_RED);
-		}
-		case TV_DEATH_BOOK:
-		{
-			return (TERM_L_DARK);
-		}
-		case TV_TRUMP_BOOK:
-		{
-			return (TERM_ORANGE);
-		}
-		case TV_ARCANE_BOOK:
-		{
-			return (TERM_L_WHITE);
-		}
-	}
-
-	return (TERM_WHITE);
-}
-
-
-/*
- * Hack -- prepare the default object char codes by tval
- *
- * XXX XXX XXX Off-load to "pref.prf" file (?)
- */
-static byte default_tval_to_char(int tval)
-{
-	int i;
-
-	/* Hack -- Guess at "correct" values for tval_to_char[] */
-	for (i = 1; i < MAX_K_IDX; i++)
-	{
-		object_kind *k_ptr = &k_info[i];
-
-		/* Use the first value we find */
-		if (k_ptr->tval == tval) return (k_ptr->k_char);
-	}
-
-	/* Default to space */
-	return (' ');
-}
-
-#endif
-
-
 /*
  * Prepare the "variable" part of the "k_info" array.
  *
@@ -643,11 +462,8 @@ void flavor_init(void)
 	cptr	temp_adj;
 
 
-	/* Hack -- Use the "simple" RNG */
-	Rand_quick = TRUE;
-
 	/* Hack -- Induce consistant flavors */
-	Rand_value = seed_flavor;
+	rand_seed(seed_flavor);
 
 
 	/* Efficiency -- Rods/Wands share initial array */
@@ -819,9 +635,6 @@ void flavor_init(void)
 	}
 
 
-	/* Hack -- Use the "complex" RNG */
-	Rand_quick = FALSE;
-
 	/* Analyze every object */
 	for (i = 1; i < MAX_K_IDX; i++)
 	{
@@ -889,20 +702,6 @@ void reset_visuals(void)
 		r_ptr->x_attr = r_ptr->d_attr;
 		r_ptr->x_char = r_ptr->d_char;
 	}
-
-#if 0
-
-	/* Extract attr/chars for equippy items (by tval) */
-	for (i = 0; i < 128; i++)
-	{
-		/* Extract a default attr */
-		tval_to_attr[i] = default_tval_to_attr(i);
-
-		/* Extract a default char */
-		tval_to_char[i] = default_tval_to_char(i);
-	}
-
-#endif
 
 	if (use_graphics)
 	{
@@ -2229,7 +2028,7 @@ copyback:
 	/* Here's where we dump the built string into buf. */
 	tmp_val[79] = '\0';
 	t = tmp_val;
-	while((void *)(*(buf++) = *(t++))); /* copy the string over */
+	while((*(buf++) = *(t++))); /* copy the string over */
 }
 
 
@@ -2265,8 +2064,6 @@ void object_desc_store(char *buf, object_type *o_ptr, int pref, int mode)
 }
 
 
-
-
 /*
  * Determine the "Activation" (if any) for an artifact
  * Return a string, or NULL for "no activation"
@@ -2283,14 +2080,13 @@ cptr item_activation(object_type *o_ptr)
 
 
 	/*
-	* We need to deduce somehow that it is a random artifact -- one
-	* problem: It could be a random artifact which has NOT YET received
-	* a name. Thus we eliminate other possibilities instead of checking
-	* for art_name
-	*/
+	 * We need to deduce somehow that it is a random artifact -- one
+	 * problem: It could be a random artifact which has NOT YET received
+	 * a name. Thus we eliminate other possibilities instead of checking
+	 * for art_name
+	 */
 
-	if (!normart_p(o_ptr) && !ego_item_p(o_ptr) &&
-		 !o_ptr->xtra1 && o_ptr->xtra2)
+	if (!normart_p(o_ptr) && !ego_item_p(o_ptr) && !o_ptr->xtra1 && o_ptr->xtra2)
 	{
 		switch (o_ptr->xtra2)
 		{
@@ -2588,7 +2384,7 @@ cptr item_activation(object_type *o_ptr)
 			}
 			default:
 			{
-				return "something undefined";
+				return NULL;
 			}
 		}
 	}
@@ -2820,6 +2616,10 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "rays of fear in every direction";
 		}
+		default:
+		{
+			return NULL;
+		}
 	}
 
 
@@ -2833,73 +2633,76 @@ cptr item_activation(object_type *o_ptr)
 		switch(o_ptr->sval)
 		{
 			case SV_RING_FLAMES:
+			{
 				return "ball of fire and resist fire";
+			}
 			case SV_RING_ICE:
+			{
 				return "ball of cold and resist cold";
+			}
 			case SV_RING_ACID:
+			{
 				return "ball of acid and resist acid";
-			default:
-				return NULL;
+			}
 		}
 	}
 
-	/* Require dragon scale mail */
-	if (o_ptr->tval != TV_DRAG_ARMOR) return (NULL);
-
-	/* Branch on the sub-type */
-	switch (o_ptr->sval)
+	if (o_ptr->tval == TV_DRAG_ARMOR)
 	{
-		case SV_DRAGON_BLUE:
+		switch (o_ptr->sval)
 		{
-			return "breathe lightning (100) every 450+d450 turns";
-		}
-		case SV_DRAGON_WHITE:
-		{
-			return "breathe frost (110) every 450+d450 turns";
-		}
-		case SV_DRAGON_BLACK:
-		{
-			return "breathe acid (130) every 450+d450 turns";
-		}
-		case SV_DRAGON_GREEN:
-		{
-			return "breathe poison gas (150) every 450+d450 turns";
-		}
-		case SV_DRAGON_RED:
-		{
-			return "breathe fire (200) every 450+d450 turns";
-		}
-		case SV_DRAGON_MULTIHUED:
-		{
-			return "breathe multi-hued (250) every 225+d225 turns";
-		}
-		case SV_DRAGON_BRONZE:
-		{
-			return "breathe confusion (120) every 450+d450 turns";
-		}
-		case SV_DRAGON_GOLD:
-		{
-			return "breathe sound (130) every 450+d450 turns";
-		}
-		case SV_DRAGON_CHAOS:
-		{
-			return "breathe chaos/disenchant (220) every 300+d300 turns";
-		}
-		case SV_DRAGON_LAW:
-		{
-			return "breathe sound/shards (230) every 300+d300 turns";
-		}
-		case SV_DRAGON_BALANCE:
-		{
-			return "You breathe balance (250) every 300+d300 turns";
-		}
-		case SV_DRAGON_SHINING:
-		{
-			return "breathe light/darkness (200) every 300+d300 turns";
-		}
-		case SV_DRAGON_POWER:
-		{
-			return "breathe the elements (300) every 300+d300 turns";
+			case SV_DRAGON_BLUE:
+			{
+				return "breathe lightning (100) every 450+d450 turns";
+			}
+			case SV_DRAGON_WHITE:
+			{
+				return "breathe frost (110) every 450+d450 turns";
+			}
+			case SV_DRAGON_BLACK:
+			{
+				return "breathe acid (130) every 450+d450 turns";
+			}
+			case SV_DRAGON_GREEN:
+			{
+				return "breathe poison gas (150) every 450+d450 turns";
+			}
+			case SV_DRAGON_RED:
+			{
+				return "breathe fire (200) every 450+d450 turns";
+			}
+			case SV_DRAGON_MULTIHUED:
+			{
+				return "breathe multi-hued (250) every 225+d225 turns";
+			}
+			case SV_DRAGON_BRONZE:
+			{
+				return "breathe confusion (120) every 450+d450 turns";
+			}
+			case SV_DRAGON_GOLD:
+			{
+				return "breathe sound (130) every 450+d450 turns";
+			}
+			case SV_DRAGON_CHAOS:
+			{
+				return "breathe chaos/disenchant (220) every 300+d300 turns";
+			}
+			case SV_DRAGON_LAW:
+			{
+				return "breathe sound/shards (230) every 300+d300 turns";
+			}
+			case SV_DRAGON_BALANCE:
+			{
+				return "You breathe balance (250) every 300+d300 turns";
+			}
+			case SV_DRAGON_SHINING:
+			{
+				return "breathe light/darkness (200) every 300+d300 turns";
+			}
+			case SV_DRAGON_POWER:
+			{
+				return "breathe the elements (300) every 300+d300 turns";
+			}
 		}
 	}
 
@@ -2911,450 +2714,505 @@ cptr item_activation(object_type *o_ptr)
 /*
  * Describe a "fully identified" item
  */
-bool identify_fully_aux(object_type *o_ptr)
+cptr identify_fully_aux(FILE *fff, vptr v_ptr)
 {
-	int					i = 0, j, k;
+	bool special = FALSE;
+
+	int i;
 
 	u32b f1, f2, f3;
 
-	cptr			info[128];
+	object_type *o_ptr = (object_type *)v_ptr;
 
+	cptr act = item_activation(o_ptr);
+
+	char buf[160];
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
 
+	/* Describe it */
+	object_desc(buf, o_ptr, TRUE, 3);
 
-	/* Mega-Hack -- describe activation */
-	if (f3 & (TR3_ACTIVATE))
+	fprintf(fff, "%s\n", buf);
+
+	/* Describe activation */
+	if (act)
 	{
-		info[i++] = "It can be activated for...";
-		info[i++] = item_activation(o_ptr);
-		info[i++] = "...if it is being worn.";
+		special = TRUE;
+		fprintf(fff, "  It can be activated for...\n");
+		fprintf(fff, "    %s\n", act);
+		fprintf(fff, "  ...if it is being worn.\n");
 	}
 
-
-	/* Hack -- describe lite's */
+	/* Describe lite */
 	if (o_ptr->tval == TV_LITE)
 	{
 		if (artifact_p(o_ptr))
 		{
-			info[i++] = "It provides light (radius 3) forever.";
+			special = TRUE;
+			fprintf(fff, "  It provides light (radius 3) forever.\n");
 		}
 		else if (o_ptr->sval == SV_LITE_LANTERN)
 		{
-			info[i++] = "It provides light (radius 2) when fueled.";
+			special = TRUE;
+			fprintf(fff, "  It provides light (radius 2) when fueled.\n");
 		}
 		else
 		{
-			info[i++] = "It provides light (radius 1) when fueled.";
+			special = TRUE;
+			fprintf(fff, "  It provides light (radius 1) when fueled.\n");
 		}
 	}
 
+	for (i = 0; i < 96; i++)
+	{
+		u32b sel = 1L << (i % 32);
+		cptr what = NULL;
 
-	/* And then describe it fully */
-
-	if (f1 & (TR1_STR))
-	{
-		info[i++] = "It affects your strength.";
-	}
-	if (f1 & (TR1_INT))
-	{
-		info[i++] = "It affects your intelligence.";
-	}
-	if (f1 & (TR1_WIS))
-	{
-		info[i++] = "It affects your wisdom.";
-	}
-	if (f1 & (TR1_DEX))
-	{
-		info[i++] = "It affects your dexterity.";
-	}
-	if (f1 & (TR1_CON))
-	{
-		info[i++] = "It affects your constitution.";
-	}
-	if (f1 & (TR1_CHR))
-	{
-		info[i++] = "It affects your charisma.";
-	}
-
-	if (f1 & (TR1_STEALTH))
-	{
-		info[i++] = "It affects your stealth.";
-	}
-	if (f1 & (TR1_SEARCH))
-	{
-		info[i++] = "It affects your searching.";
-	}
-	if (f1 & (TR1_INFRA))
-	{
-		info[i++] = "It affects your infravision.";
-	}
-	if (f1 & (TR1_TUNNEL))
-	{
-		info[i++] = "It affects your ability to tunnel.";
-	}
-	if (f1 & (TR1_SPEED))
-	{
-		info[i++] = "It affects your speed.";
-	}
-	if (f1 & (TR1_BLOWS))
-	{
-		info[i++] = "It affects your attack speed.";
-	}
-
-	if (f1 & (TR1_BRAND_ACID))
-	{
-		info[i++] = "It does extra damage from acid.";
-	}
-	if (f1 & (TR1_BRAND_ELEC))
-	{
-		info[i++] = "It does extra damage from electricity.";
-	}
-	if (f1 & (TR1_BRAND_FIRE))
-	{
-		info[i++] = "It does extra damage from fire.";
-	}
-	if (f1 & (TR1_BRAND_COLD))
-	{
-		info[i++] = "It does extra damage from frost.";
-	}
-
-	if (f1 & (TR1_BRAND_POIS))
-	{
-		info[i++] = "It poisons your foes.";
-	}
-
-	if (f1 & (TR1_CHAOTIC))
-	{
-		info[i++] = "It produces chaotic effects.";
-	}
-
-	if (f1 & (TR1_VAMPIRIC))
-	{
-		info[i++] = "It drains life from your foes.";
-	}
-
-	if (f1 & (TR1_IMPACT))
-	{
-		info[i++] = "It can cause earthquakes.";
-	}
-
-	if (f1 & (TR1_VORPAL))
-	{
-		info[i++] = "It is very sharp and can cut your foes.";
-	}
-
-	if (f1 & (TR1_KILL_DRAGON))
-	{
-		info[i++] = "It is a great bane of dragons.";
-	}
-	else if (f1 & (TR1_SLAY_DRAGON))
-	{
-		info[i++] = "It is especially deadly against dragons.";
-	}
-	if (f1 & (TR1_SLAY_ORC))
-	{
-		info[i++] = "It is especially deadly against orcs.";
-	}
-	if (f1 & (TR1_SLAY_TROLL))
-	{
-		info[i++] = "It is especially deadly against trolls.";
-	}
-	if (f1 & (TR1_SLAY_GIANT))
-	{
-		info[i++] = "It is especially deadly against giants.";
-	}
-	if (f1 & (TR1_SLAY_DEMON))
-	{
-		info[i++] = "It strikes at demons with holy wrath.";
-	}
-	if (f1 & (TR1_SLAY_UNDEAD))
-	{
-		info[i++] = "It strikes at undead with holy wrath.";
-	}
-	if (f1 & (TR1_SLAY_EVIL))
-	{
-		info[i++] = "It fights against evil with holy fury.";
-	}
-	if (f1 & (TR1_SLAY_ANIMAL))
-	{
-		info[i++] = "It is especially deadly against natural creatures.";
-	}
-
-	if (f2 & (TR2_SUST_STR))
-	{
-		info[i++] = "It sustains your strength.";
-	}
-	if (f2 & (TR2_SUST_INT))
-	{
-		info[i++] = "It sustains your intelligence.";
-	}
-	if (f2 & (TR2_SUST_WIS))
-	{
-		info[i++] = "It sustains your wisdom.";
-	}
-	if (f2 & (TR2_SUST_DEX))
-	{
-		info[i++] = "It sustains your dexterity.";
-	}
-	if (f2 & (TR2_SUST_CON))
-	{
-		info[i++] = "It sustains your constitution.";
-	}
-	if (f2 & (TR2_SUST_CHR))
-	{
-		info[i++] = "It sustains your charisma.";
-	}
-
-	if (f2 & (TR2_IM_ACID))
-	{
-		info[i++] = "It provides immunity to acid.";
-	}
-	if (f2 & (TR2_IM_ELEC))
-	{
-		info[i++] = "It provides immunity to electricity.";
-	}
-	if (f2 & (TR2_IM_FIRE))
-	{
-		info[i++] = "It provides immunity to fire.";
-	}
-	if (f2 & (TR2_IM_COLD))
-	{
-		info[i++] = "It provides immunity to cold.";
-	}
-
-	if (f2 & (TR2_FREE_ACT))
-	{
-		info[i++] = "It provides immunity to paralysis.";
-	}
-	if (f2 & (TR2_HOLD_LIFE))
-	{
-		info[i++] = "It provides resistance to life draining.";
-	}
-	if (f2 & (TR2_RES_FEAR))
-	{
-		info[i++] = "It makes you completely fearless.";
-	}
-	if (f2 & (TR2_RES_ACID))
-	{
-		info[i++] = "It provides resistance to acid.";
-	}
-	if (f2 & (TR2_RES_ELEC))
-	{
-		info[i++] = "It provides resistance to electricity.";
-	}
-	if (f2 & (TR2_RES_FIRE))
-	{
-		info[i++] = "It provides resistance to fire.";
-	}
-	if (f2 & (TR2_RES_COLD))
-	{
-		info[i++] = "It provides resistance to cold.";
-	}
-	if (f2 & (TR2_RES_POIS))
-	{
-		info[i++] = "It provides resistance to poison.";
-	}
-
-	if (f2 & (TR2_RES_LITE))
-	{
-		info[i++] = "It provides resistance to light.";
-	}
-	if (f2 & (TR2_RES_DARK))
-	{
-		info[i++] = "It provides resistance to dark.";
-	}
-
-	if (f2 & (TR2_RES_BLIND))
-	{
-		info[i++] = "It provides resistance to blindness.";
-	}
-	if (f2 & (TR2_RES_CONF))
-	{
-		info[i++] = "It provides resistance to confusion.";
-	}
-	if (f2 & (TR2_RES_SOUND))
-	{
-		info[i++] = "It provides resistance to sound.";
-	}
-	if (f2 & (TR2_RES_SHARDS))
-	{
-		info[i++] = "It provides resistance to shards.";
-	}
-
-	if (f2 & (TR2_RES_NETHER))
-	{
-		info[i++] = "It provides resistance to nether.";
-	}
-	if (f2 & (TR2_RES_NEXUS))
-	{
-		info[i++] = "It provides resistance to nexus.";
-	}
-	if (f2 & (TR2_RES_CHAOS))
-	{
-		info[i++] = "It provides resistance to chaos.";
-	}
-	if (f2 & (TR2_RES_DISEN))
-	{
-		info[i++] = "It provides resistance to disenchantment.";
-	}
-
-	if (f3 & (TR3_WRAITH))
-	{
-		info[i++] = "It renders you incorporeal.";
-	}
-	if (f3 & (TR3_FEATHER))
-	{
-		info[i++] = "It allows you to levitate.";
-	}
-	if (f3 & (TR3_LITE))
-	{
-		info[i++] = "It provides permanent light.";
-	}
-	if (f3 & (TR3_SEE_INVIS))
-	{
-		info[i++] = "It allows you to see invisible monsters.";
-	}
-	if (f3 & (TR3_TELEPATHY))
-	{
-		info[i++] = "It gives telepathic powers.";
-	}
-	if (f3 & (TR3_SLOW_DIGEST))
-	{
-		info[i++] = "It slows your metabolism.";
-	}
-	if (f3 & (TR3_REGEN))
-	{
-		info[i++] = "It speeds your regenerative powers.";
-	}
-	if (f2 & (TR2_BERSERK))
-	{
-		info[i++] = "It imbues you with a terrifying fury."; 
-	}
-	if (f2 & (TR2_REFLECT))
-	{
-		info[i++] = "It reflects bolts and arrows.";
-	}
-	if (f3 & (TR3_SH_FIRE))
-	{
-		info[i++] = "It produces a fiery sheath.";
-	}
-	if (f3 & (TR3_SH_ELEC))
-	{
-		info[i++] = "It produces an electric sheath.";
-	}
-	if (f3 & (TR3_NO_MAGIC))
-	{
-		info[i++] = "It produces an anti-magic shell.";
-	}
-	if (f3 & (TR3_NO_TELE))
-	{
-		info[i++] = "It prevents teleportation.";
-	}
-	if (f3 & (TR3_XTRA_MIGHT))
-	{
-		info[i++] = "It fires missiles with extra might.";
-	}
-	if (f3 & (TR3_XTRA_SHOTS))
-	{
-		info[i++] = "It fires missiles excessively fast.";
-	}
-
-	if (f3 & (TR3_DRAIN_EXP))
-	{
-		info[i++] = "It drains experience.";
-	}
-	if (f3 & (TR3_TELEPORT))
-	{
-		info[i++] = "It induces random teleportation.";
-	}
-	if (f3 & (TR3_AGGRAVATE))
-	{
-		info[i++] = "It aggravates nearby creatures.";
-	}
-
-	if (f3 & (TR3_BLESSED))
-	{
-		info[i++] = "It has been blessed by the gods.";
-	}
-
-	if (cursed_p(o_ptr))
-	{
-		if (f3 & (TR3_PERMA_CURSE))
+		switch (i / 32)
 		{
-			info[i++] = "It is permanently cursed.";
+			case 0:
+			{
+				switch (f1 & sel)
+				{
+					case TR1_STR:
+					{
+						what = "affects your strength";
+						break;
+					}
+					case TR1_INT:
+					{
+						what = "affects your intelligence";
+						break;
+					}
+					case TR1_WIS:
+					{
+						what = "affects your wisdom";
+						break;
+					}
+					case TR1_DEX:
+					{
+						what = "affects your dexterity";
+						break;
+					}
+					case TR1_CON:
+					{
+						what = "affects your constitution";
+						break;
+					}
+					case TR1_CHR:
+					{
+						what = "affects your charisma";
+						break;
+					}
+					case TR1_STEALTH:
+					{
+						what = "affects your stealth";
+						break;
+					}
+					case TR1_SEARCH:
+					{
+						what = "affects your searching ability";
+						break;
+					}
+					case TR1_INFRA:
+					{
+						what = "affects your infravision";
+						break;
+					}
+					case TR1_TUNNEL:
+					{
+						what = "affects your tunneling ability";
+						break;
+					}
+					case TR1_SPEED:
+					{
+						what = "affects your speed";
+						break;
+					}
+					case TR1_BLOWS:
+					{
+						what = "affects your attack speed";
+						break;
+					}
+					case TR1_BRAND_ACID:
+					{
+						what = "does extra damage from acid";
+						break;
+					}
+					case TR1_BRAND_ELEC:
+					{
+						what = "does extra damage from electricity";
+						break;
+					}
+					case TR1_BRAND_FIRE:
+					{
+						what = "does extra damage from fire";
+						break;
+					}
+					case TR1_BRAND_COLD:
+					{
+						what = "does extra damage from frost";
+						break;
+					}
+					case TR1_BRAND_POIS:
+					{
+						what = "poisons your foes";
+						break;
+					}
+					case TR1_CHAOTIC:
+					{
+						what = "produces chaotic effects";
+						break;
+					}
+					case TR1_VAMPIRIC:
+					{
+						what = "drains life from your foes";
+						break;
+					}
+					case TR1_IMPACT:
+					{
+						what = "causes earthquakes";
+						break;
+					}
+					case TR1_VORPAL:
+					{
+						what = "is the work of a great smith";
+						break;
+					}
+					case TR1_SLAY_DRAGON:
+					{
+						if (!(f1 & (TR1_KILL_DRAGON))) what = "is especially deadly against dragons";
+						break;
+					}
+					case TR1_KILL_DRAGON:
+					{
+						what = "is a great bane of dragons";
+						break;
+					}
+					case TR1_SLAY_ORC:
+					{
+						what = "is especially deadly against orcs";
+						break;
+					}
+					case TR1_SLAY_TROLL:
+					{
+						what = "is especially deadly against trolls";
+						break;
+					}
+					case TR1_SLAY_GIANT:
+					{
+						what = "is especially deadly against giants";
+						break;
+					}
+					case TR1_SLAY_DEMON:
+					{
+						what = "strikes at demons with holy wrath";
+						break;
+					}
+					case TR1_SLAY_UNDEAD:
+					{
+						what = "strikes at undead with holy wrath";
+						break;
+					}
+					case TR1_SLAY_EVIL:
+					{
+						what = "fights against evil with holy fury";
+						break;
+					}
+					case TR1_SLAY_ANIMAL:
+					{
+						what = "is especially deadly against animals";
+						break;
+					}
+				}
+
+				break;
+			}
+			case 1:
+			{
+				switch (f2 & sel)
+				{
+					case TR2_SUST_STR:
+					{
+						what = "sustains your strength";
+						break;
+					}
+					case TR2_SUST_INT:
+					{
+						what = "sustains your intelligence";
+						break;
+					}
+					case TR2_SUST_WIS:
+					{
+						what = "sustains your wisdom";
+						break;
+					}
+					case TR2_SUST_DEX:
+					{
+						what = "sustains your strength";
+						break;
+					}
+					case TR2_SUST_CON:
+					{
+						what = "sustains your constitution";
+						break;
+					}
+					case TR2_SUST_CHR:
+					{
+						what = "sustains your charisma";
+						break;
+					}
+					case TR2_IM_ACID:
+					{
+						what = "provides immunity to acid";
+						break;
+					}
+					case TR2_IM_ELEC:
+					{
+						what = "provides immunity to electricity";
+						break;
+					}
+					case TR2_IM_FIRE:
+					{
+						what = "provides immunity to fire";
+						break;
+					}
+					case TR2_IM_COLD:
+					{
+						what = "provides immunity to cold";
+						break;
+					}
+					case TR2_BERSERK:
+					{
+						what = "imbues you with a terrifying fury";
+						break;
+					}
+					case TR2_REFLECT:
+					{
+						what = "reflects bolts";
+						break;
+					}
+					case TR2_FREE_ACT:
+					{
+						what = "provides immunity to paralysis";
+						break;
+					}
+					case TR2_HOLD_LIFE:
+					{
+						what = "provides resistance to life draining";
+						break;
+					}
+					case TR2_RES_FEAR:
+					{
+						what = "makes you completely fearless";
+						break;
+					}
+					case TR2_RES_ACID:
+					{
+						what = "provides resistance to acid";
+						break;
+					}
+					case TR2_RES_ELEC:
+					{
+						what = "provides resistance to electricity";
+						break;
+					}
+					case TR2_RES_FIRE:
+					{
+						what = "provides resistance to fire";
+						break;
+					}
+					case TR2_RES_COLD:
+					{
+						what = "provides resistance to cold";
+						break;
+					}
+					case TR2_RES_POIS:
+					{
+						what = "provides resistance to poison";
+						break;
+					}
+					case TR2_RES_LITE:
+					{
+						what = "provides resistance to light";
+						break;
+					}
+					case TR2_RES_DARK:
+					{
+						what = "provides resistance to darkness";
+						break;
+					}
+					case TR2_RES_BLIND:
+					{
+						what = "provides resistance to blindness";
+						break;
+					}
+					case TR2_RES_CONF:
+					{
+						what = "provides resistance to confusion";
+						break;
+					}
+					case TR2_RES_SOUND:
+					{
+						what = "provides resistance to sound";
+						break;
+					}
+					case TR2_RES_SHARDS:
+					{
+						what = "provides resistance to shards";
+						break;
+					}
+					case TR2_RES_NETHER:
+					{
+						what = "provides resistance to nether";
+						break;
+					}
+					case TR2_RES_NEXUS:
+					{
+						what = "provides resistance to nexus";
+						break;
+					}
+					case TR2_RES_CHAOS:
+					{
+						what = "provides resistance to chaos";
+						break;
+					}
+					case TR2_RES_DISEN:
+					{
+						what = "provides resistance to disenchantment";
+						break;
+					}
+				}
+
+				break;
+			}
+			case 2:
+			{
+				switch (f3 & sel)
+				{
+					case TR3_WRAITH:
+					{
+						what = "renders you incorporeal";
+						break;
+					}
+					case TR3_FEATHER:
+					{
+						what = "allows you to levitate";
+						break;
+					}
+					case TR3_LITE:
+					{
+						what = "provides permanent light";
+						break;
+					}
+					case TR3_SEE_INVIS:
+					{
+						what = "allows you to see the invisible";
+						break;
+					}
+					case TR3_TELEPATHY:
+					{
+						what = "grants telepathic powers";
+						break;
+					}
+					case TR3_SLOW_DIGEST:
+					{
+						what = "slows your digestion";
+						break;
+					}
+					case TR3_REGEN:
+					{
+						what = "speeds your metabolism";
+						break;
+					}
+					case TR3_SH_FIRE:
+					{
+						what = "produces a fiery sheath";
+						break;
+					}
+					case TR3_SH_ELEC:
+					{
+						what = "produces an electric sheath";
+						break;
+					}
+					case TR3_NO_MAGIC:
+					{
+						what = "produces an anti-magic shell";
+						break;
+					}
+					case TR3_NO_TELE:
+					{
+						what = "prevents teleportation";
+						break;
+					}
+					case TR3_XTRA_MIGHT:
+					{
+						what = "fires missiles with extra force";
+						break;
+					}
+					case TR3_XTRA_SHOTS:
+					{
+						what = "fires missiles excessively fast";
+						break;
+					}
+					case TR3_DRAIN_EXP:
+					{
+						what = "drains experience";
+						break;
+					}
+					case TR3_TELEPORT:
+					{
+						what = "causes random teleportation";
+						break;
+					}
+					case TR3_AGGRAVATE:
+					{
+						what = "aggravates nearby creatures";
+						break;
+					}
+					case TR3_CURSED:
+					{
+						if (cursed_p(o_ptr) && !(f3 & (TR3_HEAVY_CURSE | TR3_PERMA_CURSE))) what = "is cursed";
+						break;
+					}
+					case TR3_HEAVY_CURSE:
+					{
+						if (cursed_p(o_ptr) && !(f3 & (TR3_PERMA_CURSE))) what = "is heavily cursed";
+						break;
+					}
+					case TR3_PERMA_CURSE:
+					{
+						what = "is permanently cursed";
+						break;
+					}
+					case TR3_TY_CURSE:
+					{
+						what = "carries an ancient foul curse";
+						break;
+					}
+				}
+
+				break;
+			}
 		}
-		else if (f3 & (TR3_HEAVY_CURSE))
-		{
-			info[i++] = "It is heavily cursed.";
-		}
-		else
-		{
-			info[i++] = "It is cursed.";
-		}
+
+		/* Nothing special here */
+		if (!what) continue;
+
+		/* Special */
+		special = TRUE;
+
+		/* Write the description */
+		fprintf(fff, "  It %s.\n", what);
 	}
 
-	if (f3 & (TR3_TY_CURSE))
-	{
-		info[i++] = "It carries an ancient foul curse.";
-	}
-
-	if (f3 & (TR3_IGNORE_ACID))
-	{
-		info[i++] = "It cannot be harmed by acid.";
-	}
-	if (f3 & (TR3_IGNORE_ELEC))
-	{
-		info[i++] = "It cannot be harmed by electricity.";
-	}
-	if (f3 & (TR3_IGNORE_FIRE))
-	{
-		info[i++] = "It cannot be harmed by fire.";
-	}
-	if (f3 & (TR3_IGNORE_COLD))
-	{
-		info[i++] = "It cannot be harmed by cold.";
-	}
-
-
-	/* No special effects */
-	if (!i) return (FALSE);
-
-
-	/* Save the screen */
-	Term_save();
-
-	/* Erase the screen */
-	for (k = 1; k < 24; k++) prt("", k, 13);
+	/* Only show special information */
+	if (!special) return (NULL);
 
 	/* Label the information */
-	prt(" Item Attributes:", 1, 15);
-
-	/* We will print on top of the map (column 13) */
-	for (k = 2, j = 0; j < i; j++)
-	{
-		/* Show the info */
-		prt(info[j], k++, 15);
-
-		/* Every 20 entries (lines 2 to 21), start over */
-		if ((k == 22) && (j+1 < i))
-		{
-			prt("-- more --", k, 15);
-			inkey();
-			for (; k > 2; k--) prt("", k, 15);
-		}
-	}
-
-	/* Wait for it */
-	prt("[Press any key to continue]", k, 15);
-	inkey();
-
-	/* Restore the screen */
-	Term_load();
-
-	/* Gave knowledge */
-	return (TRUE);
+	return ("Item Attributes");
 }
 
 
@@ -4139,7 +3997,7 @@ static bool verify(cptr prompt, int item)
 	{
 		o_ptr = &o_list[0 - item];
 	}
-	
+
 	/* Describe */
 	object_desc(o_name, o_ptr, TRUE, 3);
 
@@ -4427,7 +4285,7 @@ bool get_item(int *cp, cptr pmt, bool equip, bool inven, bool floor)
 		for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
 		{
 			object_type *o_ptr;
-			
+
 			/* Acquire object */
 			o_ptr = &o_list[this_o_idx];
 
@@ -4640,7 +4498,7 @@ bool get_item(int *cp, cptr pmt, bool equip, bool inven, bool floor)
 					for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
 					{
 						object_type *o_ptr;
-						
+
 						/* Acquire object */
 						o_ptr = &o_list[this_o_idx];
 

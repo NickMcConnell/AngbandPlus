@@ -92,6 +92,11 @@
 #define MAX(a,b)	(((a) < (b)) ? (b)  : (a))
 
 /*
+ * Non-typed range validating macro
+ */
+#define RNG(a,x,b) (((x) < (a)) ? (a) : (((x) > (b)) ? (b) : (x)))
+
+/*
  * Non-typed absolute value macro
  */
 #undef ABS

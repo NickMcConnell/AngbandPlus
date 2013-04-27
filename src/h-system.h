@@ -103,9 +103,6 @@
 #  include <string.h>
 # else
 #  include <strings.h>
-extern char *strstr();
-extern char *strchr();
-extern char *strrchr();
 # endif
 
 #else
@@ -114,11 +111,6 @@ extern char *strrchr();
 
 #endif
 
-
-
-#if !defined(linux) && !defined(__MWERKS__) && !defined(ACORN)
-extern long atol();
-#endif
 
 
 #include <stdarg.h>

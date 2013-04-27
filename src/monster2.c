@@ -128,13 +128,13 @@ void delete_monster_idx(int i)
 	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
 	{
 		object_type *o_ptr;
-		
+
 		/* Acquire object */
 		o_ptr = &o_list[this_o_idx];
-		
+
 		/* Acquire next object */
 		next_o_idx = o_ptr->next_o_idx;
-		
+
 		/* Hack -- efficiency */
 		o_ptr->held_m_idx = 0;
 
@@ -390,7 +390,7 @@ s16b m_pop(void)
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type *m_ptr;
-		
+
 		/* Acquire monster */
 		m_ptr = &m_list[i];
 
@@ -418,7 +418,7 @@ s16b m_pop(void)
 /*
  * Apply a "monster restriction function" to the "monster allocation table"
  */
-errr get_mon_num_prep(void)
+void get_mon_num_prep(bool (*check_race)(int r_idx))
 {
 	int i;
 
@@ -428,23 +428,11 @@ errr get_mon_num_prep(void)
 		/* Get the entry */
 		alloc_entry *entry = &alloc_race_table[i];
 
+		entry->prob2 = 0;
+
 		/* Accept monsters which pass the restriction, if any */
-		if (!get_mon_num_hook || (*get_mon_num_hook)(entry->index))
-		{
-			/* Accept this monster */
-			entry->prob2 = entry->prob1;
-		}
-
-		/* Do not use this monster */
-		else
-		{
-			/* Decline this monster */
-			entry->prob2 = 0;
-		}
+		if (!check_race || check_race(entry->index)) entry->prob2 = entry->prob1;
 	}
-
-	/* Success */
-	return (0);
 }
 
 
@@ -1189,7 +1177,7 @@ void update_mon(int m_idx, bool full)
 	{
 		/* Ignore unseen monsters */
 		if (!m_ptr->ml) return;
-    
+
 		/* Detected */
 		if (m_ptr->mflag & (MFLAG_MARK)) flag = TRUE;
 	}
@@ -1757,7 +1745,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 	}
 
 	/* Enforce sleeping if needed */
-	if (slp && r_ptr->sleep)
+	if (slp && r_ptr->sleep && !(r_ptr->flags1 & RF1_NEVER_MOVE))
 	{
 		int val = r_ptr->sleep;
 		m_ptr->csleep = ((val * 2) + randint(val * 10));
@@ -2005,11 +1993,8 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool charm)
 			place_monster_idx = r_idx;
 
 
-			/* Set the escort hook */
-			get_mon_num_hook = place_monster_okay;
-
 			/* Prepare allocation table */
-			get_mon_num_prep();
+			get_mon_num_prep(place_monster_okay);
 
 
 			/* Pick a random race */
@@ -2017,10 +2002,7 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool charm)
 
 
 			/* Remove restriction */
-			get_mon_num_hook = NULL;
-
-			/* Prepare allocation table */
-			get_mon_num_prep();
+			get_mon_num_prep(NULL);
 
 
 			/* Handle failure */
@@ -2136,11 +2118,11 @@ bool alloc_horde(int y, int x)
  */
 bool alloc_monster(int dis, int slp)
 {
-	int			y, x;
-	int         attempts_left = 10000;
+	int y, x;
+	int attempts_left = 10000;
 
 	/* Find a legal, distant, unoccupied, space */
-	while (attempts_left)
+	while (--attempts_left)
 	{
 		/* Pick a location */
 		y = rand_int(cur_hgt);
@@ -2151,11 +2133,9 @@ bool alloc_monster(int dis, int slp)
 
 		/* Accept far away grids */
 		if (distance(y, x, p_ptr->py, p_ptr->px) > dis) break;
-
-		attempts_left--;
 	}
 
-	if (!(attempts_left))
+	if (!attempts_left)
 	{
 		if (cheat_xtra || cheat_hear)
 		{
@@ -2510,20 +2490,14 @@ bool summon_specific(int y1, int x1, int lev, int type, bool group, bool friendl
 
 
 	/* Require "okay" monsters */
-	get_mon_num_hook = summon_specific_okay;
-
-	/* Prepare allocation table */
-	get_mon_num_prep();
+	get_mon_num_prep(summon_specific_okay);
 
 
 	/* Pick a monster, using the level calculation */
 	r_idx = get_mon_num(lev);
 
 	/* Remove restriction */
-	get_mon_num_hook = NULL;
-
-	/* Prepare allocation table */
-	get_mon_num_prep();
+	get_mon_num_prep(NULL);
 
 
 	/* Handle failure */
@@ -2895,8 +2869,6 @@ void message_pain(int m_idx, int dam)
  */
 void update_smart_learn(int m_idx, int what)
 {
-#ifdef DRS_SMART_OPTIONS
-
 	monster_type *m_ptr = &m_list[m_idx];
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -3003,9 +2975,6 @@ void update_smart_learn(int m_idx, int what)
         case DRS_REFLECT:
         if (p_ptr->reflect) m_ptr-> smart |= (SM_IMM_REFLECT);
 	}
-
-#endif /* DRS_SMART_OPTIONS */
-
 }
 
 

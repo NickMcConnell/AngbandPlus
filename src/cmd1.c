@@ -519,7 +519,7 @@ void carry(int pickup)
 	for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
 	{
 		object_type *o_ptr;
-			
+
 		/* Acquire object */
 		o_ptr = &o_list[this_o_idx];
 
@@ -1061,7 +1061,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 		k = critical_norm(n_weight, p_ptr->to_h, k);
 
 		/* Apply the player damage bonuses */
-		k += p_ptr->to_d;	
+		k += p_ptr->to_d;
 
 		/* No negative damage */
 		if (k < 0) k = 0;
@@ -1069,7 +1069,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 		/* Unusual damage */
 		if (p_ptr->muta3 & MUT3_TWISTED)
 		{
-			if (turn % 2) k *= 2;
+			if (rand_bool) k *= 2;
 			else k /= 2;
 		}
 
@@ -1380,7 +1380,7 @@ static int py_attack_martial(int m_idx, cptr m_name)
 	dam = critical_norm(p_ptr->level * (randint(10)), ma_ptr->min_level, dam);
 
 	/* Apply special effects if the monster is still alive */
-	if (dam + p_ptr->to_d <= m_ptr->hp)
+	if (do_xtra && (dam + p_ptr->to_d <= m_ptr->hp))
 	{
 		/* Some attacks have extra effects */
 		switch(do_xtra)
@@ -1459,7 +1459,7 @@ static int py_attack_martial(int m_idx, cptr m_name)
 static int py_attack_berserk(int m_idx, cptr m_name)
 {
 	/* Basic damage */
-	int dam = 1 + randnor(p_ptr->to_d, p_ptr->to_d / 4);
+	int dam = 1 + rand_norm(p_ptr->to_d);
 
 	/* Note Id's followers */
 	bool is_doom = ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) &&
@@ -1589,7 +1589,7 @@ static bool py_attack_chaos(int m_idx, char *m_name, int dam, bool *fear)
 		}
 	}
 	/* Often teleport away */
-	else if (!rand_int(2))
+	else if (!rand_int(5))
 	{
 		/* Message */
 		msg_format("%^s disappears!", m_name);
@@ -1622,16 +1622,11 @@ static bool py_attack_chaos(int m_idx, char *m_name, int dam, bool *fear)
 				/* Create a new monster (no groups) */
 				(void)place_monster_aux(fy, fx, tmp, FALSE, FALSE, FALSE);
 
-				/* XXX XXX XXX Hack -- Assume success */
-
-				/* Hack -- Get new monster */
-				m_ptr = &m_list[m_idx];
-
-				/* Oops, we need a different name... */
-				monster_desc(m_name, m_ptr, 0);
-
 				/* Cancel fear */
 				*fear = FALSE;
+
+				/* Stop attacking */
+				return (FALSE);
 			}
 		}
 		else
@@ -1813,7 +1808,7 @@ void py_attack(int y, int x)
 		else if (do_fiend && (!do_martial || !rand_int(3)))
 		{
 			/* Basic damage */
-			dam = 1 + randnor(p_ptr->to_d, p_ptr->to_d / 4);
+			dam = 1 + rand_norm(p_ptr->to_d);
 
 			if (!is_conf && visible && (m_ptr->csleep > 0))
 			{
@@ -1827,17 +1822,19 @@ void py_attack(int y, int x)
 				dam = dam * 3 / 2;
 			}
 
+			do_martial = FALSE;
 			dam = py_attack_fiend(m_idx, m_name, dam);
 		}
 		/* Martial arts */
 		else if (do_martial)
 		{
-			dam = py_attack_martial(m_idx, m_name);
+			do_fiend = FALSE;
+			dam = py_attack_martial(m_idx, m_name) + p_ptr->to_d;
 		}
 		/* No weapon */
 		else if (no_weapon)
 		{
-			dam = py_attack_berserk(m_idx, m_name);
+			dam = py_attack_berserk(m_idx, m_name) + p_ptr->to_d;
 		}
 		/* Normal attack */
 		else
@@ -1850,7 +1847,7 @@ void py_attack(int y, int x)
 		/* Unusual damage */
 		if (p_ptr->muta3 & MUT3_TWISTED)
 		{
-			if (!rand_int(2))
+			if (rand_bool)
 			{
 				dam *= 2;
 			}

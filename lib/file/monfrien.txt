@@ -99,6 +99,13 @@ N:Shoggoth
 wobbles about disgustingly.
 wails, 'Tekeli-li!  Tekeli-li!'
 
+N:Arachnotron
+4
+screeches.
+whines.
+grates.
+grinds.
+
 #N:Judge Death
 #N:Ariel, Queen of Air
 #N:Smaug the Golden

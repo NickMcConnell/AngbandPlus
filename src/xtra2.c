@@ -3328,9 +3328,6 @@ static s16b target_pick(int y1, int x1, int dy, int dx)
  */
 static bool target_set_accept(int y, int x)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	byte feat = cave_feat[y][x];
 
 	s16b this_o_idx, next_o_idx;
@@ -3483,9 +3480,6 @@ static void target_set_prepare(int mode)
  */
 static int target_set_aux(int y, int x, int mode, cptr info)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	s16b this_o_idx, next_o_idx;
 
 	cptr s1, s2, s3;
@@ -5396,7 +5390,7 @@ bool gain_random_mutation(int choose_mut)
 				break;
 			default:
 				muta_class = NULL;
-				muta_which = NULL;
+				muta_which = 0;
 		}
 
 		if (muta_class && muta_which)
@@ -5569,7 +5563,7 @@ bool gain_random_mutation(int choose_mut)
 				}
 				else if (muta_which == MUT3_NORMAL)
 				{
-					int i;
+					int i = 0;
 
 					p_ptr->muta3 &= ~(MUT3_NORMAL);
 
@@ -5732,46 +5726,46 @@ bool gain_random_mutation(int choose_mut)
 									break;
 								}
 								case MUT1_COLD_TOUCH:
-								{
-									msg_print("Your hands become warm again.");
-									break;
-								}
-								case MUT1_SHARD_BOLT:
 								{
-									msg_print("The nodule on your arm collapses.");
-									break;
-								}
-								case MUT1_SHARD_BLAST:
+									msg_print("Your hands become warm again.");
+									break;
+								}
+								case MUT1_SHARD_BOLT:
 								{
-									msg_print("The lumps on your hands shrink.");
-									break;
-								}
-								case MUT1_DSHARD_BLAST:
+									msg_print("The nodule on your arm collapses.");
+									break;
+								}
+								case MUT1_SHARD_BLAST:
 								{
-									msg_print("The lumps on your hands shrink.");
-									break;
-								}
-								case MUT1_CHAIN_SHARDS:
+									msg_print("The lumps on your hands shrink.");
+									break;
+								}
+								case MUT1_DSHARD_BLAST:
 								{
-									msg_print("The mounds on your shoulders wither.");
-									break;
-								}
-								case MUT1_ROCKET:
+									msg_print("The lumps on your hands shrink.");
+									break;
+								}
+								case MUT1_CHAIN_SHARDS:
 								{
-									msg_print("Your arm returns to normal.");
-									break;
-								}
-								case MUT1_PLAS_BOLT:
+									msg_print("The mounds on your shoulders wither.");
+									break;
+								}
+								case MUT1_ROCKET:
 								{
-									msg_print("Your contact with the Spider Mind breaks.");
-									break;
-								}
-								case MUT1_BFG:
+									msg_print("Your arm returns to normal.");
+									break;
+								}
+								case MUT1_PLAS_BOLT:
 								{
-									msg_print("You feel an immense power fade.");
-									break;
-								}
-							}
+									msg_print("Your contact with the Spider Mind breaks.");
+									break;
+								}
+								case MUT1_BFG:
+								{
+									msg_print("You feel an immense power fade.");
+									break;
+								}
+							}
 						}
 						else if (i < MUT2_MAX)
 						{
@@ -5916,15 +5910,15 @@ bool gain_random_mutation(int choose_mut)
 								case MUT2_SP_TO_HP:
 								case MUT2_HP_TO_SP:
 								{
-									msg_print("Your circulation returns to normal.");
+									msg_print("Your circulation returns to normal.");
 									break;
 								}
 								case MUT2_DISARM:
-								{
-									msg_print("Your feet return to their normal size.");
-									break;
-								}
-							}
+								{
+									msg_print("Your feet return to their normal size.");
+									break;
+								}
+							}
 						}
 						else
 						{
@@ -6076,7 +6070,7 @@ bool gain_random_mutation(int choose_mut)
 									break;
 								}
 							}
-						}
+						}
 					}
 				}
 		}

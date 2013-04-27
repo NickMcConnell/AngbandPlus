@@ -731,18 +731,8 @@ static int showsave_handler(bits event_code, toolbox_action *event,
 	const char *fname;
 	char buffer[256];
 
-#if 0
-	if (savefile[0])
-		fname = translate_name(savefile);
-	else
-	{
-		osfscontrol_canonicalise_path("<Angband$Dir>.^.SavedGame", buffer, 0, 0,
-		                              sizeof buffer);
-		fname=buffer;
-	}
-#else
 	fname = translate_name(savefile);
-#endif
+
 	saveas_set_file_name(NONE, id->this_obj, fname);
 	saveas_set_file_type(NONE, id->this_obj, osfile_TYPE_ANGBAND);
 	saveas_set_file_size(NONE, id->this_obj, 50000); /* Rough guess */
@@ -801,139 +791,6 @@ static int savecomplete_handler(bits event_code, toolbox_action *event,
 	return 1;
 }
 
-#if 0
-static int loadfile_handler(wimp_message *message, void *handle)
-{
-	strcpy(handle, translate_name(message->data.data_xfer.file_name));
-	file_dragged=1;
-
-	return 1;
-}
-
-static int savefile_handler(bits event_code, toolbox_action *event,
-                            toolbox_block *id, void *handle)
-{
-	saveas_action_save_to_file *save=(saveas_action_save_to_file *)&event->data;
-	func_bool saver=(func_bool) handle;
-	errr e;
-	char buf[256];
-
-	strcpy(buf, translate_name(save->file_name));
-
-	/* In case saver wants to display messages */
-	grabcaret();
-
-	msg_flag=FALSE;
-
-	e=saver(buf);
-
-	xsaveas_file_save_completed(e==0, id->this_obj, save->file_name);
-
-	if (e)
-		escape_pressed=1;
-
-	return 1;
-}
-
-static int cancelsavefile_handler(bits event_code, toolbox_action *event,
-                                  toolbox_block *id, void *handle)
-{
-	escape_pressed=1;
-
-	return 1;
-}
-
-static int endsavefile_handler(bits event_code, toolbox_action *event,
-                               toolbox_block *id, void *handle)
-{
-	file_dragged=1;
-
-	return 1;
-}
-
-static errr loadfile_hook(cptr defname, int row, func_errr loader)
-{
-	char ourbuf[256];
-
-	Term_putstr(0, row, -1, TERM_YELLOW, "[Drag a file to the window]");
-
-	Term_fresh();
-
-	event_register_message_handler(message_DATA_LOAD, loadfile_handler, ourbuf);
-
-	file_dragged=escape_pressed=0;
-
-	while (!file_dragged && !escape_pressed)
-		event_poll(0, 0, 0);
-
-	event_deregister_message_handler(message_DATA_LOAD, loadfile_handler, ourbuf);
-
-	if (escape_pressed)
-		return 1;
-
-	return loader(ourbuf);
-}
-
-static errr savefile_hook(cptr defname, int row, func_errr saver)
-{
-	toolbox_o savebox;
-	union
-	{
-		toolbox_position pos;
-		wimp_pointer pointer;
-	} mouse;
-
-	Term_fresh();
-
-	savebox=toolbox_create_object(NONE, (toolbox_id)"SaveFile");
-
-	saveas_set_file_name(NONE, savebox, translate_name(defname));
-	saveas_set_file_size(NONE, savebox, 1024); /* This'll do */
-
-	event_register_toolbox_handler(savebox, action_SAVE_AS_SAVE_TO_FILE, savefile_handler, (void *) saver);
-	event_register_toolbox_handler(savebox, action_SAVE_AS_SAVE_COMPLETED, endsavefile_handler, 0);
-	event_register_toolbox_handler(savebox, action_SAVE_AS_DIALOGUE_COMPLETED, cancelsavefile_handler, 0);
-
-	wimp_get_pointer_info(&mouse.pointer);
-
-	mouse.pos.top_left.x-=64;
-	mouse.pos.top_left.y+=64;
-
-	toolbox_show_object(toolbox_SHOW_AS_MENU, savebox, toolbox_POSITION_TOP_LEFT,
-	                    &mouse.pos, toolbox_NULL_OBJECT, toolbox_NULL_COMPONENT);
-
-	file_dragged=escape_pressed=0;
-
-	while (!file_dragged && !escape_pressed)
-		event_poll(0, 0, 0);
-
-	event_deregister_toolbox_handler(savebox, action_SAVE_AS_SAVE_TO_FILE, savefile_handler, (void *) saver);
-	event_deregister_toolbox_handler(savebox, action_SAVE_AS_SAVE_COMPLETED, endsavefile_handler, 0);
-	event_deregister_toolbox_handler(savebox, action_SAVE_AS_DIALOGUE_COMPLETED, cancelsavefile_handler, 0);
-
-	toolbox_delete_object(NONE, savebox);
-
-	if (escape_pressed)
-		return 1;
-
-	return 0;
-}
-
-static errr askforfile_hook(cptr defname, int row, func_errr filer, int mode)
-{
-	switch (mode)
-	{
-		case O_RDONLY:
-		return loadfile_hook(defname, row, filer);
-
-		case O_WRONLY:
-		case O_RDWR:
-		return savefile_hook(defname, row, filer);
-	}
-
-	return -1;
-}
-#endif
 
 static int defaultcols_handler(bits event_code, toolbox_action *event,
                                toolbox_block *id, void *handle)

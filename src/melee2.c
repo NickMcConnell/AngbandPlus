@@ -29,7 +29,7 @@ static bool get_enemy_dir(int m_idx, int *mm)
 {
 	int i;
 	int x, y;
-	int x2, y2;
+	int x2 = 0, y2 = 0;
 	int t_idx;
 
 	monster_type *m_ptr = &m_list[m_idx];
@@ -308,12 +308,6 @@ static void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note)
 }
 
 
-
- 
-
-#ifdef DRS_SMART_OPTIONS
-
-
 /*
  * And now for Intelligent monster attacks (including spells).
  *
@@ -390,11 +384,11 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 	{
 		/* Less intelligent monsters occasionally forget player status */
 		if (m_ptr->smart && (rand_int(100) < 2) &&
-			 !(r_ptr->flags2 & (RF2_SMART))) 
+			 !(r_ptr->flags2 & (RF2_SMART)))
 		{
       	int i;
 
-			for (i = 0; i < randint(5); i++) 
+			for (i = 0; i < randint(5); i++)
 			{
 				/* Was the player resistant to that or not...? */
 				m_ptr->smart ^= 1L << rand_int(32);
@@ -662,8 +656,6 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 	(*f6p) = f6;
 }
 
-#endif /* DRS_SMART_OPTIONS */
-
 
 /*
  * Determine if there is a space near the player in which
@@ -792,7 +784,7 @@ static void bolt(int m_idx, int typ, int dam_hp)
 	(void)project(m_idx, 0, p_ptr->py, p_ptr->px, dam_hp, typ, flg);
 }
 
- 
+
 /*
  * Return TRUE if a spell is good for hurting the player (directly).
  */
@@ -846,11 +838,6 @@ static bool spell_annoy(byte spell)
 
 	/* Teleport to */
 	if (spell == 160 + 8) return (TRUE);
-
-#if 0
-	/* Hand of Doom */
-	if (spell == 160 + 1) return (TRUE);
-#endif
 
 	/* Darkness, make traps, cause amnesia */
 	if (spell >= 160 + 11 && spell <= 160 + 13) return (TRUE);
@@ -1275,6 +1262,15 @@ static bool monst_spell_monst(int m_idx)
 		y = t_ptr->fy;
 		x = t_ptr->fx;
 
+		/* Disallow darkness */
+		f6 &= ~(RF6_DARKNESS);
+
+		/* Disallow collateral damage from large ball spells */
+		if (friendly && (distance(p_ptr->py, p_ptr->px, y, x) <= 4))
+		{
+			f5 &= ~(RF5_BA_WATE | RF5_BA_MANA | RF5_BA_DARK);
+		}
+
 		/* Disallow blink unless close */
 		if ((distance(fy, fx, y, x) > 1) || !rand_int(3)) f6 &= ~(RF6_BLINK);
 
@@ -1388,9 +1384,6 @@ static bool monst_spell_monst(int m_idx)
 				msg_format("%^s shrieks at %s.", m_name, t_name);
 				disturb(1, 0);
 			}
-#if 0
-			aggravate_monsters(m_idx);
-#endif
 			wake_up = TRUE;
 			break;
 		}
@@ -3635,7 +3628,7 @@ bool make_attack_spell(int m_idx)
 	/* Cannot cast spells when nice */
 	if (m_ptr->mflag & (MFLAG_NICE)) return (FALSE);
 	if (m_ptr->smart & (SM_FRIEND)) return (FALSE);
-	
+
 
 	/* Hack -- Extract the spell probability */
 	chance = (r_ptr->freq_inate + r_ptr->freq_spell) / 2;
@@ -3656,7 +3649,7 @@ bool make_attack_spell(int m_idx)
 		/* Sometimes forbid inate attacks (breaths) */
 		if (rand_int(100) >= (chance * 2)) no_inate = TRUE;
 	}
- 
+
 
 	/* XXX XXX XXX Handle "track_target" option (?) */
 
@@ -3703,16 +3696,11 @@ bool make_attack_spell(int m_idx)
 		if (!f4 && !f5 && !f6) return (FALSE);
 	}
 
-
-#ifdef DRS_SMART_OPTIONS
-
 	/* Remove the "ineffective" spells */
 	remove_bad_spells(m_idx, &f4, &f5, &f6);
 
 	/* No spells left */
 	if (!f4 && !f5 && !f6) return (FALSE);
-
-#endif /* DRS_SMART_OPTIONS */
 
 	if (!stupid_monsters && !(r_ptr->flags2 & RF2_STUPID) &&
 		 !(r_ptr->flags3 & RF3_DOOM))
@@ -5469,7 +5457,7 @@ static bool get_moves_aux(int m_idx, int *yp, int *xp)
 	return (TRUE);
 }
 
- 
+
 /*
  * Provide a location to flee to, but give the player a wide berth.
  *
@@ -5723,7 +5711,7 @@ static bool find_hiding(int m_idx, int *yp, int *xp)
 }
 
 
- 
+
 
 
 /*
@@ -6582,9 +6570,6 @@ static void process_monster(int m_idx, bool is_friend)
 
 	int			mm[8];
 
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int fy = m_ptr->fy;
 	int fx = m_ptr->fx;
 
@@ -6819,8 +6804,8 @@ static void process_monster(int m_idx, bool is_friend)
 	ox = m_ptr->fx;
 
 
-	/* Attempt to "multiply" if able and allowed */
-	if ((r_ptr->flags2 & (RF2_MULTIPLY)) && (num_repro < MAX_REPRO))
+	/* Attempt to "multiply" if able */
+	if (r_ptr->flags2 & (RF2_MULTIPLY))
 	{
 		int k, y, x;
 
@@ -7382,7 +7367,7 @@ static void process_monster(int m_idx, bool is_friend)
 			for (this_o_idx = cave_o_idx[ny][nx]; this_o_idx; this_o_idx = next_o_idx)
 			{
 				object_type *o_ptr;
-			
+
 				/* Acquire object */
 				o_ptr = &o_list[this_o_idx];
 
@@ -7492,7 +7477,7 @@ static void process_monster(int m_idx, bool is_friend)
 		/* Stop when done */
 		if (do_turn) break;
 	}
- 
+
 
 	/* If we haven't done anything, try casting a spell again */
 	if (!do_turn && !do_move && !m_ptr->monfear && !stupid_monsters &&
@@ -7627,7 +7612,7 @@ void process_monsters(void)
 
 	byte	old_r_cast_inate = 0;
 	byte	old_r_cast_spell = 0;
-	
+
 
 	/* Memorize old race */
 	old_monster_race_idx = monster_race_idx;

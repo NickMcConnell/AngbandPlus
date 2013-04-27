@@ -316,6 +316,7 @@ shouts, 'Why didn't I just stay in Asgard?'
 offers you everything in exchange for life.
 yells, 'I'll be back, with a squad of Cyberdemons!'
 
+N:Shoggoth
 N:Ubbo-Sathla, the Unbegotten Source
 N:Zoth-Ommog
 N:Yibb-Tstll the Patient One

@@ -45,7 +45,7 @@
  * they modify the underlying "ascii" value of the key.  You must use the
  * new "user pref files" to be able to interact with the keypad and such.
  *
- * Note that "Term_xtra_dos_react()" allows runtime color, graphics, 
+ * Note that "Term_xtra_dos_react()" allows runtime color, graphics,
  * screen resolution, and sound modification.
  *
  *
@@ -77,10 +77,6 @@
 #ifdef USE_MOD_FILES
 #include <jgmod.h>
 #endif /* USE_MOD_FILES */
-
-#if 0
-# include "load_gif.c"
-#endif
 
 #include <bios.h>
 #include <dos.h>
@@ -474,7 +470,7 @@ static errr Term_xtra_dos_event(int v)
 
 
 /*
- * React to global changes in the colors, graphics, and sound settings. 
+ * React to global changes in the colors, graphics, and sound settings.
  */
 static void Term_xtra_dos_react(void)
 {
@@ -550,7 +546,7 @@ static void Term_xtra_dos_react(void)
 		{
 			/* Warning */
 			plog("Cannot initialize sound!");
-			
+
 			/* Cannot enable */
 			arg_sound = FALSE;
 		}
@@ -932,11 +928,7 @@ static errr Term_user_dos(int n)
 				Term_xtra_dos_react();
 
 				/* Reset visuals */
-#ifdef ANGBAND_2_8_1
 				reset_visuals();
-#else /* ANGBAND_2_8_1 */
-				reset_visuals(TRUE);
-#endif /* ANGBAND_2_8_1 */
 				break;
 			}
 
@@ -1179,7 +1171,7 @@ static errr Term_text_dos(int x, int y, int n, byte a, const char *cp)
 		{
 			/* Build a one character string */
 			text[0] = cp[i];
-	
+
 			/* Dump some text */
 			textout(screen, td->font, text, x1, y1,
 		        	COLOR_OFFSET + (a & 0x0F));
@@ -1449,7 +1441,7 @@ static void dos_dump_screen(void)
  * GRX font file reader by Mark Wodrich.
  *
  * GRX FNT files consist of the header data (see struct below). If the font
- * is proportional, followed by a table of widths per character (unsigned 
+ * is proportional, followed by a table of widths per character (unsigned
  * shorts). Then, the data for each character follows. 1 bit/pixel is used,
  * with each line of the character stored in contiguous bytes. High bit of
  * first byte is leftmost pixel of line.
@@ -1508,7 +1500,7 @@ typedef byte *GRX_BITMAP;
 /*
  * ???
  */
-void convert_grx_bitmap(int width, int height, GRX_BITMAP src, GRX_BITMAP dest) 
+void convert_grx_bitmap(int width, int height, GRX_BITMAP src, GRX_BITMAP dest)
 {
 	unsigned short x, y, bytes_per_line;
 	unsigned char bitpos, bitset;
@@ -1531,7 +1523,7 @@ void convert_grx_bitmap(int width, int height, GRX_BITMAP src, GRX_BITMAP dest)
  * ???
  */
 GRX_BITMAP *load_grx_bmps(PACKFILE *f, FNTfile_header *hdr,
-	int numchar, unsigned short *wtable) 
+	int numchar, unsigned short *wtable)
 {
 	int t, width, bmp_size;
 	GRX_BITMAP temp;
@@ -2129,11 +2121,6 @@ errr init_dos(void)
 
 	/* Install timer support for music and sound */
 	install_timer();
-
-#if 0
-	/* Enable the gif-loading function */
-	register_bitmap_file_type("GIF", load_gif, NULL);
-#endif
 
 	/* Read config info from filename */
 	set_config_file("angdos.cfg");

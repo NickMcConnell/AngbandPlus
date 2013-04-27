@@ -142,7 +142,7 @@ void do_cmd_change_name(void)
 			{
 				if (tmp[0] && (tmp[0] != ' '))
 				{
-					file_character(tmp, FALSE);
+					file_character(tmp);
 				}
 			}
 		}
@@ -294,7 +294,7 @@ void do_cmd_messages(void)
 			/* Success */
 			continue;
 		}
-		
+
 		/* Horizontal scroll */
 		if (k == '6')
 		{
@@ -304,7 +304,7 @@ void do_cmd_messages(void)
 			/* Success */
 			continue;
 		}
-		
+
 		/* Hack -- handle show */
 		if (k == '=')
 		{
@@ -454,7 +454,7 @@ static void do_cmd_options_cheat(cptr info)
 		/* Prompt XXX XXX XXX */
 		sprintf(buf, "%s (RET to advance, y/n to set, ESC to accept) ", info);
 		prt(buf, 0, 0);
-	
+
 		/* Display the options */
 		for (i = 0; i < n; i++)
 		{
@@ -539,7 +539,7 @@ static option_type autosave_info[2] =
 	{ &autosave_t,      FALSE, 255, 0x02, 0x00,
 	    "autosave_t",   "Timed autosave" },
 };
-       
+
 s16b toggle_frequency(s16b current)
 {
 	if (current == 0) return 50;
@@ -577,7 +577,7 @@ static void do_cmd_options_autosave(cptr info)
 		/* Prompt XXX XXX XXX */
 		sprintf(buf, "%s (RET to advance, y/n to set, 'F' for frequency, ESC to accept) ", info);
 		prt(buf, 0, 0);
-	
+
 		/* Display the options */
 		for (i = 0; i < n; i++)
 		{
@@ -697,7 +697,7 @@ static void do_cmd_options_aux(int page, cptr info)
 		/* Prompt XXX XXX XXX */
 		sprintf(buf, "%s (RET to advance, y/n to set, ESC to accept) ", info);
 		prt(buf, 0, 0);
-	
+
 		/* Display the options */
 		for (i = 0; i < n; i++)
 		{
@@ -1492,10 +1492,10 @@ void do_cmd_macros(void)
 
   			/* Default filename */
 			sprintf(tmp, "%s.prf", player_name);
-  
+
   			/* Ask for a file */
 			if (!askfor_aux(tmp, 80)) continue;
-  
+
   			/* Process the given filename */
 			if (0 != process_pref_file(tmp))
 			{
@@ -2515,16 +2515,9 @@ void do_cmd_note(void)
  */
 void do_cmd_version(void)
 {
-
-   /* Silly message */
-#ifndef FAKE_VERSION
-    msg_format("You are playing Angband %d.%d.%d.",
-	           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
-#else
-    msg_format("You are playing Zangband %d.%d.%d.",
-                FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
-#endif
-               
+    msg_format("You are playing Zceband %d.%d.%d.",
+					VER_MAJOR, VER_MINOR, VER_PATCH);
+	 msg_format("Current maintainer: %s", MAINTAINER);
 }
 
 
@@ -2556,7 +2549,7 @@ void do_cmd_feeling(void)
 {
 	int cur_size = cur_wid * cur_hgt;
 	int max_size = DUN_WID * DUN_HGT;
-	cptr t;
+	cptr t = "";
 
 	/* Verify the feeling */
 	if (feeling < 0) feeling = 0;
@@ -2906,7 +2899,7 @@ void do_cmd_knowledge_artifacts(void)
 			for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
 			{
 				object_type *o_ptr;
-			
+
 				/* Acquire object */
 				o_ptr = &o_list[this_o_idx];
 
@@ -3324,7 +3317,7 @@ static void do_cmd_knowledge_kill_count(void)
 
 	char file_name[1024];
 
-	s32b Total = 0;
+	u32b Total = 0;
 
 
 	/* Temporary file */
@@ -3979,7 +3972,7 @@ void do_cmd_knowledge_damage(void)
 
 	object_type object_type_body;
 
-	object_type *i_ptr, *j_ptr;
+	object_type *i_ptr, *j_ptr = NULL;
 
 	int row = 0;
 
@@ -4006,7 +3999,7 @@ void do_cmd_knowledge_damage(void)
 
 	if (i_ptr->tval == TV_BOW)
 	{
-		int tval, k_idx;
+		int tval = 0, k_idx;
 
 		switch(i_ptr->sval)
 		{
@@ -4145,7 +4138,7 @@ void do_cmd_knowledge(void)
 			do_cmd_knowledge_uniques();
 		}
 
-        
+
 		/* Objects */
 		else if (i == '3')
 		{

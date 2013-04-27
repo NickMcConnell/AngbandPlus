@@ -357,30 +357,6 @@ static void roff_aux(int r_idx)
 			pos += r_head->info_size;
 			pos += r_head->name_size;
 
-#if 0
-
-			/* Maximal length */
-			len = r_head->text_size - r_ptr->text;
-
-			/* Actual length */
-			for (i = r_idx+1; i < MAX_R_IDX; i++)
-			{
-				/* Actual length */
-				if (r_info[i].text > r_ptr->text)
-				{
-					/* Extract length */
-					len = r_info[i].text - r_ptr->text;
-
-					/* Done */
-					break;
-				}
-			}
-
-			/* Maximal length */
-			if (len > 2048) len = 2048;
-
-#endif
-
 			/* Seek */
 			(void)fd_seek(fd, pos);
 
@@ -1416,12 +1392,8 @@ static void roff_top(int r_idx)
 	/* Wizards get extra info */
 	if (p_ptr->wizard)
 	{
-		char buf[6];
-
-		itoa(r_idx, buf, 10);
-
 		Term_addstr(-1, TERM_WHITE, " (");
-		Term_addstr(-1, TERM_L_BLUE, buf);
+		Term_addstr(-1, TERM_L_BLUE, format("%d", r_idx));
 		Term_addch(TERM_WHITE, ')');
 	}
 }

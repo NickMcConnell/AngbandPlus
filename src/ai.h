@@ -1,0 +1,160 @@
+/*
+ * Some bit-flags for the "smart" field
+ */
+#define SM_RES_ACID			0x00000001
+#define SM_RES_ELEC			0x00000002
+#define SM_RES_FIRE			0x00000004
+#define SM_RES_COLD			0x00000008
+#define SM_RES_POIS			0x00000010
+#define SM_RES_NETH			0x00000020
+#define SM_RES_LITE			0x00000040
+#define SM_RES_DARK			0x00000080
+#define SM_RES_FEAR			0x00000100
+#define SM_RES_CONF			0x00000200
+#define SM_RES_CHAOS			0x00000400
+#define SM_RES_DISEN			0x00000800
+#define SM_RES_BLIND			0x00001000
+#define SM_RES_NEXUS			0x00002000
+#define SM_RES_SOUND			0x00004000
+#define SM_RES_SHARD			0x00008000
+#define SM_OPP_ACID			0x00010000
+#define SM_OPP_ELEC			0x00020000
+#define SM_OPP_FIRE			0x00040000
+#define SM_OPP_COLD			0x00080000
+#define SM_OPP_POIS			0x00100000
+#define SM_OPP_XXX1			0x00200000
+#define SM_CLONED				0x00400000
+#define SM_FRIEND				0x00800000
+#define SM_IMM_ACID			0x01000000
+#define SM_IMM_ELEC			0x02000000
+#define SM_IMM_FIRE			0x04000000
+#define SM_IMM_COLD			0x08000000
+#define SM_XXX5				0x10000000
+#define SM_IMM_REFLECT		0x20000000
+#define SM_IMM_FREE			0x40000000
+#define SM_IMM_MANA			0x80000000
+
+
+/*
+ * Some things which induce learning
+ */
+#define DRS_ACID		1
+#define DRS_ELEC		2
+#define DRS_FIRE		3
+#define DRS_COLD		4
+#define DRS_POIS		5
+#define DRS_NETH		6
+#define DRS_LITE		7
+#define DRS_DARK		8
+#define DRS_FEAR		9
+#define DRS_CONF		10
+#define DRS_CHAOS		11
+#define DRS_DISEN		12
+#define DRS_BLIND		13
+#define DRS_NEXUS		14
+#define DRS_SOUND		15
+#define DRS_SHARD		16
+#define DRS_FREE		30
+#define DRS_MANA		31
+#define DRS_REFLECT	32
+
+
+/*
+ * Hack -- choose "intelligent" spells when desperate
+ */
+#define RF4_INT_MASK \
+	0L
+
+#define RF5_INT_MASK \
+  (RF5_HOLD | RF5_SLOW | RF5_CONF | RF5_BLIND | RF5_SCARE)
+
+#define RF6_INT_MASK \
+	(RF6_BLINK |  RF6_TPORT | RF6_TELE_LEVEL | RF6_TELE_AWAY | \
+	RF6_HEAL | RF6_HASTE | RF6_TRAPS | RF6_BR_SKULL | RF6_S_DOOM | RF6_S_HI_DOOM | \
+	RF6_S_KIN | RF6_S_CYBER | RF6_S_MONSTER | RF6_S_MONSTERS | \
+	RF6_S_ANT | RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | \
+	RF6_S_ANGEL | RF6_S_DRAGON | RF6_S_UNDEAD | RF6_S_DEMON | \
+	RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | RF6_S_WRAITH | RF6_S_UNIQUE)
+
+
+/*
+ * Dangerous non-resistable spells
+ */
+#define RF4_NRES_MASK \
+	(RF4_BR_SOUN | RF4_BR_TIME | RF4_BR_INER | RF4_BR_GRAV | \
+	RF4_BR_PLAS | RF4_BR_WALL	| RF4_BR_MANA)
+
+#define RF5_NRES_MASK \
+	(RF5_BA_WATE | RF5_BA_MANA | RF5_BRAIN_SMASH | RF5_CAUSE_3 | \
+	RF5_CAUSE_4 | RF5_BO_WATE | RF5_BO_MANA | RF5_BO_PLAS | RF5_CH_SHARD)
+
+#define RF6_NRES_MASK \
+	0L
+
+/*
+ * Dangerous resistable spells
+ */
+#define RF4_RES_MASK \
+	(RF4_BR_ACID | RF4_BR_ELEC | RF4_BR_FIRE | RF4_BR_COLD | \
+	RF4_BR_POIS | RF4_BR_NETH | RF4_BR_LITE | RF4_BR_DARK | \
+	RF4_BR_CONF | RF4_BR_SOUN | RF4_BR_CHAO | RF4_BR_DISE | \
+	RF4_BR_NEXU | RF4_BR_SHAR)
+
+#define RF5_RES_MASK \
+	(RF5_BA_ACID | RF5_BA_ELEC | RF5_BA_FIRE | RF5_BA_COLD | \
+	RF5_BA_NETH | RF5_BA_DARK | RF5_BO_ACID | \
+	RF5_BO_ELEC | RF5_BO_FIRE | RF5_BO_COLD | \
+	RF5_BO_NETH | RF5_BO_ICEE)
+
+#define RF6_RES_MASK \
+	0L
+
+
+/*
+ * Hack -- "bolt" spells that may hurt fellow monsters
+ */
+#define RF4_BOLT_MASK \
+  (RF4_BO_SHARD | RF4_BL_SHARD | RF4_ROCKET | \
+	RF4_ARROW_1 | RF4_ARROW_2 | RF4_ARROW_3 | RF4_ARROW_4)
+
+#define RF5_BOLT_MASK \
+	(RF5_BO_ACID | RF5_BO_ELEC | RF5_BO_FIRE | RF5_BO_COLD | \
+	RF5_CH_SHARD | RF5_BO_NETH | RF5_BO_WATE | RF5_BO_MANA | \
+	RF5_BO_PLAS | RF5_BO_ICEE | RF5_MISSILE)
+
+#define RF6_BOLT_MASK \
+	0L
+
+/*
+ * Hack -- 'ball' spells that may hurt friends
+ */
+#define RF4_BALL_MASK \
+	(RF4_ROCKET | RF4_BR_ACID | RF4_BR_ELEC | RF4_BR_FIRE | \
+	RF4_BR_COLD | RF4_BR_POIS | RF4_BR_NETH | RF4_BR_LITE | \
+	RF4_BR_DARK | RF4_BR_CONF | RF4_BR_SOUN | RF4_BR_CHAO | \
+	RF4_BR_DISE | RF4_BR_NEXU | RF4_BR_SHAR | \
+	RF4_BR_SOUN | RF4_BR_TIME | RF4_BR_INER | RF4_BR_GRAV | \
+	RF4_BR_PLAS | RF4_BR_WALL | RF4_BR_MANA)
+
+#define RF5_BALL_MASK \
+	(RF5_BA_ACID | RF5_BA_ELEC | RF5_BA_FIRE | RF5_BA_COLD | \
+	RF5_BA_NETH | RF5_BA_DARK | RF5_BA_WATE | RF5_BA_MANA)
+
+#define RF6_BALL_MASK \
+	0L
+
+/* Hack -- summon spells */
+
+#define RF4_SUMMON_MASK \
+	0L
+
+#define RF5_SUMMON_MASK \
+	0L
+
+#define RF6_SUMMON_MASK \
+	(RF6_BR_SKULL | RF6_S_DOOM | RF6_S_HI_DOOM | \
+	RF6_S_KIN | RF6_S_CYBER | RF6_S_MONSTER | RF6_S_MONSTERS | \
+	RF6_S_ANT | RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | \
+	RF6_S_ANGEL | RF6_S_DRAGON | RF6_S_UNDEAD | RF6_S_DEMON | \
+	RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | RF6_S_WRAITH | RF6_S_UNIQUE)
+

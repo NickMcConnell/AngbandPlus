@@ -249,18 +249,15 @@ void player_birth_quests(void)
 			/* Occasionally try to make a difficult quest */
 			if (!rand_int(NASTY_QUEST))
 			{
-				get_mon_num_hook = nasty_quest_aux;
+				get_mon_num_prep(nasty_quest_aux);
 				nasty = TRUE;
 			}
 			/* Normal quest */
 			else
 			{
-				get_mon_num_hook = quest_aux;
+				get_mon_num_prep(quest_aux);
 				nasty = FALSE;
 			}
-
-			/* Prepare the allocation table */
-			get_mon_num_prep();
 
 			/* Choose a hard monster  */
 			q_ptr->r_idx = get_mon_num(level + rand_range(15, 30));
@@ -309,11 +306,8 @@ void player_birth_quests(void)
 		}
 	}
 
-	/* Remove the monster allocation hook */
-	get_mon_num_hook = NULL;
-
 	/* Reset the allocation table */
-	get_mon_num_prep();
+	get_mon_num_prep(NULL);
 
 	/* Restore dungeon level */
 	p_ptr->depth = depth;

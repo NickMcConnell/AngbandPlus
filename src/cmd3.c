@@ -22,13 +22,6 @@
  */
 void do_cmd_inven(void)
 {
-
-/* Broken */
-#if 0
-    int capacity_tester = 0;
-    int i = 0, j = 0;
-#endif
-    
 	char out_val[160];
 
 
@@ -48,25 +41,10 @@ void do_cmd_inven(void)
 	/* Hack -- hide empty slots */
 	item_tester_full = FALSE;
 
-/* Broken */
-#if 0
-    /* Extract the current weight (in tenth pounds) */
-	j = total_weight;
+	sprintf(out_val, "Inventory: carrying %d.%d pounds (%d%% of capacity). Command: ",
+			  total_weight / 10, total_weight % 10,
+			  (total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2));
 
-	/* Extract the "weight limit" (in tenth pounds) */
-    i = adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100;
-
-    capacity_tester = i + (i/10) - 1;
-
-    sprintf(out_val, "Inventory: carrying %d.%d pounds (%d%% of capacity). Command: ",
-           total_weight / 10, total_weight % 10,
-       (total_weight * 100) / ((capacity_tester) / 2));
-
-#else
-    sprintf(out_val, "Inventory: carrying %d.%d pounds (%d%% of capacity). Command: ",
-           total_weight / 10, total_weight % 10,
-       (total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2));
-#endif
 	/* Get a command */
 	prt(out_val, 0, 0);
 
@@ -407,11 +385,6 @@ void do_cmd_drop(void)
 
 	object_type *o_ptr;
 
-	/* Unused (rr9) */
-#if 0
-	cave_type *c_ptr = &cave[py][px];
-#endif
-
 	/* Get an item (from equip or inven) */
 	if (!get_item(&item, "Drop which item? ", TRUE, TRUE, FALSE))
 	{
@@ -600,7 +573,7 @@ void do_cmd_destroy(void)
         }
 
         if ((gain_expr) && (p_ptr->exp < PY_MAX_EXP))
-        
+
         {
             s32b tester_exp = p_ptr->max_exp / 20;
             if (tester_exp > 10000) tester_exp = 10000;
@@ -678,7 +651,7 @@ void do_cmd_observe(void)
 	msg_format("Examining %s...", o_name);
 
 	/* Describe it fully */
-	if (!identify_fully_aux(o_ptr)) msg_print("You see nothing special.");
+	if (!wrap_knowledge(identify_fully_aux, o_ptr)) msg_print("You see nothing special.");
 }
 
 

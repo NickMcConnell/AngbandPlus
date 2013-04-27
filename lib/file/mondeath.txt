@@ -32,6 +32,16 @@ N:Wolf, Farmer Maggot's dog
 N:Fang, Farmer Maggot's dog
 0
 
+N:Shoggoth
+3
+deflates into a puddle of glistening black ooze.
+bursts and sprays slime everywhere.
+squeals, 'Tekeli-li!'
+
+N:Arachnotron
+1
+collapses noisily.
+
 N:*
 332
 says, 'Live and let live, right..?'

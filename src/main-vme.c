@@ -310,12 +310,6 @@ static errr Term_xtra_vm(int n, int v)
 		ScreenClear();
 		return (0);
 
-#if 0
-		case TERM_XTRA_FROSH:
-		ScreenUpdateLine(VirtualScreen + (cols*v), v);
-		return (0);
-#endif
-
 		case TERM_XTRA_FLUSH:
 
 		/* Flush keys */

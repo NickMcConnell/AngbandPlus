@@ -32,25 +32,12 @@
  */
 
 
-/*
- * Current version number of Angband: 2.8.1
- */
-#define VERSION_MAJOR   2
-#define VERSION_MINOR   8
-#define VERSION_PATCH   1
+/* Zceband version number */
+#define VER_MAJOR			2
+#define VER_MINOR			1
+#define VER_PATCH			3
 
-/* Added for Zangband */
-#define FAKE_VERSION
-#define FAKE_VER_MAJOR 2
-#define FAKE_VER_MINOR 1
-#define FAKE_VER_PATCH 2
-
-#define ANGBAND_2_8_1
-
-/*
- * This value is not currently used
- */
-#define VERSION_EXTRA   0
+#define VER_SAVE        1
 
 
 /*
@@ -83,7 +70,7 @@
 /*
  * Maximum dungeon width in grids, must be a multiple of SCREEN_WID
  */
-#define MAX_WID		198
+#define MAX_WID		242
 
 
 /*
@@ -216,13 +203,13 @@
 #define MUT1_RECALL              0x00400000L
 #define MUT1_BANISH              0x00800000L
 #define MUT1_COLD_TOUCH          0x01000000L
-#define MUT1_SHARD_BOLT				0x02000000L
-#define MUT1_SHARD_BLAST			0x04000000L
-#define MUT1_DSHARD_BLAST			0x08000000L
-#define MUT1_CHAIN_SHARDS			0x10000000L
-#define MUT1_ROCKET					0x20000000L
-#define MUT1_PLAS_BOLT				0x40000000L
-#define MUT1_BFG						0x80000000L
+#define MUT1_SHARD_BOLT				0x02000000L
+#define MUT1_SHARD_BLAST			0x04000000L
+#define MUT1_DSHARD_BLAST			0x08000000L
+#define MUT1_CHAIN_SHARDS			0x10000000L
+#define MUT1_ROCKET					0x20000000L
+#define MUT1_PLAS_BOLT				0x40000000L
+#define MUT1_BFG						0x80000000L
 
 #define MUT1_MAX	32
 
@@ -405,24 +392,21 @@
 #define MACRO_MAX	256
 
 /*
- * OPTION: Maximum number of "quarks" (see "io.c")
- * Default: assume at most 512 different inscriptions are used
+ * Maximum number of "quarks" (see "io.c")
  */
 #define QUARK_MAX	1024
-		/* Was 512... 256 quarks added for random artifacts */
 
 /*
- * OPTION: Maximum number of messages to remember (see "io.c")
- * Default: assume maximal memorization of 2048 total messages
+ * Maximum number of messages to remember (see "io.c")
  */
-#define MESSAGE_MAX	2048
+#define MESSAGE_MAX	4096
 
 /*
- * OPTION: Maximum space for the message text buffer (see "io.c")
- * Default: assume that each of the 2048 messages is repeated an
- * average of three times, and has an average length of 48
+ * Maximum space for the message text buffer (see "io.c")
+ * Default: assume that each message is repeated an average
+ * of three times, and has an average length of 48
  */
-#define MESSAGE_BUF	32768
+#define MESSAGE_BUF	65536L
 
 
 /*
@@ -566,15 +550,6 @@
  * The town starts out with 8 residents during the night
  */
 #define MIN_M_ALLOC_TN		8
-
-
-/*
- * A monster can only "multiply" (reproduce) if there are fewer than 100
- * monsters on the level capable of such spontaneous reproduction.  This
- * is a hack which prevents the "m_list[]" array from exploding due to
- * reproducing monsters.  Messy, but necessary.
- */
-#define MAX_REPRO	100
 
 
 /*
@@ -2127,7 +2102,7 @@
 #define GF_TURN_ALL	66
 #define GF_DISP_UNDEAD  67
 #define GF_DISP_EVIL	68
-#define GF_DISP_ALL 69	
+#define GF_DISP_ALL 69
 #define GF_DISP_DEMON   70	/* New types for Zangband begin here... */
 #define GF_DISP_LIVING  71
 #define GF_ROCKET	72
@@ -2223,13 +2198,13 @@
  * Special Object Flags
  */
 #define IDENT_SENSE			0x01	/* Item has been "sensed" */
-#define IDENT_FIXED			0x02	/* Item has been "haggled" */
+#define IDENT_XXX1			0x02	/* Item has been "haggled" */
 #define IDENT_EMPTY			0x04	/* Item charges are known */
 #define IDENT_KNOWN			0x08	/* Item abilities are known */
-#define IDENT_STOREB	0x10	/* Item is storebought !!!! */
-#define IDENT_MENTAL	0x20	/* Item information is known */
-#define IDENT_CURSED	0x40	/* Item is temporarily cursed */
-#define IDENT_BROKEN	0x80	/* Item is permanently worthless */
+#define IDENT_STOREB			0x10	/* Item is storebought !!!! */
+#define IDENT_MENTAL			0x20	/* Item information is known */
+#define IDENT_CURSED			0x40	/* Item is temporarily cursed */
+#define IDENT_BROKEN			0x80	/* Item is permanently worthless */
 
 
 
@@ -2744,7 +2719,7 @@
 	RF4_BR_PLAS | RF4_BR_WALL | RF4_BR_MANA)
 
 #define RF5_BALL_MASK \
-	(RF5_BA_ACID | RF5_BA_ELEC | RF5_BA_FIRE | RF5_BA_COLD | \
+	(RF5_BA_ACID | RF5_BA_ELEC | RF5_BA_FIRE | RF5_BA_COLD | RF5_BA_POIS | \
 	RF5_BA_NETH | RF5_BA_DARK | RF5_BA_WATE | RF5_BA_MANA)
 
 #define RF6_BALL_MASK \
@@ -3104,17 +3079,17 @@ extern int PlayerUID;
 #define SOUND_TPOTHER   14
 #define SOUND_HITWALL   15
 #define SOUND_EAT	16
-#define SOUND_STORE1	17
-#define SOUND_STORE2	18
-#define SOUND_STORE3	19
-#define SOUND_STORE4	20
+#define SOUND_STORE1    17
+#define SOUND_STORE2    18
+#define SOUND_STORE3    19
+#define SOUND_STORE4    20
 #define SOUND_DIG	21
 #define SOUND_OPENDOOR  22
 #define SOUND_SHUTDOOR  23
 #define SOUND_TPLEVEL   24
 #define SOUND_SCROLL	25
 #define SOUND_BUY	26
-#define SOUND_SELL	27
+#define SOUND_SELL 27
 #define SOUND_WARN	28
 
 

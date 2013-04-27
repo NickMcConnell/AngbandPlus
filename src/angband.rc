@@ -9,9 +9,8 @@ ANGBAND MENU
   MENUITEM SEPARATOR
   MENUITEM "&Save", 110
   MENUITEM SEPARATOR
-  MENUITEM "Show S&cores", 120
-  MENUITEM SEPARATOR
-  MENUITEM "E&xit", 130
+  MENUITEM "&Abort", 120
+  MENUITEM "E&xit", 121
  }
 
  POPUP "&Window"
@@ -105,16 +104,18 @@ ANGBAND MENU
 
  POPUP "&Options"
  {
-  POPUP "&Graphics"
-  {
-   MENUITEM "&None", 400
-   MENUITEM "&Old tiles", 401
-   MENUITEM "&Adam Bolt's tiles", 402
-   }
-
-  MENUITEM "&Sound", 410
-  MENUITEM SEPARATOR
-  MENUITEM "Activate Screensaver", 420
+/*
+ *POPUP "&Graphics"
+ *{
+ * MENUITEM "&Old tiles", 400
+ * MENUITEM "&Adam Bolt's tiles", 401
+ *}
+ *
+ *MENUITEM "&Sound", 402
+ *MENUITEM SEPARATOR
+ *MENUITEM "Unused menu option", 410
+ */
+  MENUITEM "Activate Screensaver", 411
  }
 
  POPUP "&Help"

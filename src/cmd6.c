@@ -1580,7 +1580,7 @@ void do_cmd_read_scroll(void)
 		case SV_SCROLL_RUMOR:
 		{
 			char buf[1024];
-			
+
 			if (!get_rnd_line("rumors.txt", "", buf))
 			{
 				msg_print("There is message on the scroll. It says:");
@@ -2611,7 +2611,7 @@ void do_cmd_zap_rod(void)
 				if (get_check("Reset recall depth? "))
 					p_ptr->max_depth = p_ptr->depth;
 			}
-            
+
 			if (p_ptr->word_recall == 0)
 			{
 				msg_print("The air about you becomes charged...");
@@ -3339,13 +3339,8 @@ void do_cmd_activate(void)
 			case ART_DOR:
 			case ART_GORLIM:
 			{
-#if 0
-				for (i = 0; i < 8; i++) fear_monster(ddd[i], (p_ptr->level)+10);
-#else
 				turn_monsters(40 + p_ptr->level);
-#endif
 				o_ptr->timeout = 3 * (p_ptr->level + 10);
-
 				break;
 			}
 
@@ -3656,7 +3651,7 @@ void do_cmd_activate(void)
 					if (get_check("Reset recall depth? "))
 					p_ptr->max_depth = p_ptr->depth;
 				}
-                
+
 				msg_print("Your scythe glows soft white...");
 				if (p_ptr->word_recall == 0)
 				{
@@ -4245,13 +4240,8 @@ static bool activate_random_artifact(object_type * o_ptr)
 
 		case ACT_TERROR:
 		{
-#if 0
-			for (i = 0; i < 8; i++) fear_monster(ddd[i], (p_ptr->level)+10);
-#else
 			turn_monsters(40 + p_ptr->level);
-#endif
 			o_ptr->timeout = 3 * (p_ptr->level + 10);
-
 			break;
 		}
 

@@ -8,6 +8,12 @@
 # Allegro support by Robert Ruehlmann (rr9@angband.org)
 #
 
+# Compiling with MOD-file support:
+# - Get the JG-MOD library from http://www.jgmod.home.ml.org and install it.
+# - Insert -ljgmod in front of -lalleg to the Libraries section.
+# - Add -DUSE_MOD_FILES to the compiler flags.
+# - Copy your MOD-files into the "lib/xtra/music" folder.
+
 
 #
 # Basic definitions
@@ -31,11 +37,11 @@ CC = gcc
 
 # Compiler flags
 CFLAGS = -Wall -O2 -s -DUSE_DOS -DUSE_IBM -DUSE_BACKGROUND \
--DUSE_TRANSPARENCY -DUSE_MOD_FILES
+-DUSE_TRANSPARENCY
 
 
 # Libraries
-LIBS = -lpc -ljgmod -lalleg
+LIBS = -lpc -lalleg
 
 
 #

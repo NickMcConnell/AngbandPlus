@@ -954,7 +954,7 @@ static void save_prefs(void)
 		term_data *td = &data[i];
 
 		sprintf(buf, "Term-%d", i);
-		
+
 		save_prefs_aux(td, buf);
 	}
 }
@@ -1003,7 +1003,7 @@ static void load_prefs(void)
 	int i;
 
 	char buf[1024];
-	
+
 	/* Extract the "arg_graphics" flag */
 	arg_graphics = GetPrivateProfileInt("Angband", "Graphics", GRAPHICS_NONE, ini_file);
 
@@ -1016,7 +1016,7 @@ static void load_prefs(void)
 		term_data *td = &data[i];
 
 		sprintf(buf, "Term-%d", i);
-		
+
 		load_prefs_aux(td, buf);
 	}
 }
@@ -1133,7 +1133,7 @@ static int new_palette(void)
 
 	/* Main window */
 	td = &data[0];
-	
+
 	/* Realize the palette */
 	hdc = GetDC(td->w);
 	SelectPalette(hdc, hNewPal, 0);
@@ -1145,7 +1145,7 @@ static int new_palette(void)
 	for (i = 1; i < MAX_TERM_DATA; i++)
 	{
 		td = &data[i];
-		
+
 		hdc = GetDC(td->w);
 		SelectPalette(hdc, hNewPal, 0);
 		ReleaseDC(td->w, hdc);
@@ -1271,7 +1271,7 @@ static bool init_sound()
 		/* Sound available */
 		can_use_sound = TRUE;
 	}
-	
+
 	/* Result */
 	return (can_use_sound);
 }
@@ -1442,7 +1442,7 @@ static void term_change_font(term_data *td)
 		{
 			/* Access the standard font file */
 			path_build(tmp, 1024, ANGBAND_DIR_XTRA_FONT, "8X13.FON");
-			
+
 			/* Force the use of that font */
 			(void)term_force_font(td, tmp);
 		}
@@ -1484,28 +1484,6 @@ static void term_data_redraw(term_data *td)
 
 
 /*** Function hooks needed by "Term" ***/
-
-
-#if 0
-
-/*
- * Initialize a new Term
- */
-static void Term_init_win(term *t)
-{
-	/* XXX Unused */
-}
-
-
-/*
- * Nuke an old Term
- */
-static void Term_nuke_win(term *t)
-{
-	/* XXX Unused */
-}
-
-#endif
 
 
 /*
@@ -1583,7 +1561,7 @@ static errr Term_xtra_win_react(void)
 		{
 			/* Warning */
 			plog("Cannot initialize sound!");
-			
+
 			/* Cannot enable */
 			arg_sound = FALSE;
 		}
@@ -1601,7 +1579,7 @@ static errr Term_xtra_win_react(void)
 	if (use_graphics != arg_graphics)
 	{
 		/* Switch off transparency */
-//		use_transparency = FALSE;
+/*		use_transparency = FALSE;*/
 
 		/* Initialize (if needed) */
 		if (arg_graphics && !init_graphics())
@@ -1617,11 +1595,7 @@ static errr Term_xtra_win_react(void)
 		use_graphics = arg_graphics;
 
 		/* Reset visuals */
-#ifdef ANGBAND_2_8_1
 		reset_visuals();
-#else /* ANGBAND_2_8_1 */
-		reset_visuals(TRUE);
-#endif /* ANGBAND_2_8_1 */
 	}
 
 #endif /* USE_GRAPHICS */
@@ -2166,7 +2140,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 		else
 
 # endif /* USE_TRANSPARENCY */
-		
+
 		{
 			/* Perfect size */
 			if ((w1 == w2) && (h1 == h2))
@@ -2239,12 +2213,6 @@ static void term_data_link(term_data *td)
 	/* Erase with "white space" */
 	t->attr_blank = TERM_WHITE;
 	t->char_blank = ' ';
-
-#if 0
-	/* Prepare the init/nuke hooks */
-	t->init_hook = Term_init_win;
-	t->nuke_hook = Term_nuke_win;
-#endif
 
 	/* Prepare the template hooks */
 	t->user_hook = Term_user_win;
@@ -2339,13 +2307,13 @@ static void init_windows(void)
 
 		/* Access the standard font file */
 		path_build(buf, 1024, ANGBAND_DIR_XTRA_FONT, td->font_want);
-			
+
 		/* Activate the chosen font */
 		if (term_force_font(td, buf))
 		{
 			/* Access the standard font file */
 			path_build(buf, 1024, ANGBAND_DIR_XTRA_FONT, "8X13.FON");
-			
+
 			/* Force the use of that font */
 			(void)term_force_font(td, buf);
 
@@ -2756,11 +2724,7 @@ static void process_menus(WORD wCmd)
 				msg_flag = FALSE;
 
 				/* Save the game */
-#ifdef ZANGBAND
-				do_cmd_save_game(FALSE);
-#else /* ZANGBAND */
 				do_cmd_save_game();
-#endif /* ZANGBAND */
 			}
 			else
 			{
@@ -2785,11 +2749,7 @@ static void process_menus(WORD wCmd)
 				msg_flag = FALSE;
 
 				/* Save the game */
-#ifdef ZANGBAND
-				do_cmd_save_game(FALSE);
-#else /* ZANGBAND */
 				do_cmd_save_game();
-#endif /* ZANGBAND */
 			}
 			quit(NULL);
 			break;
@@ -2826,7 +2786,7 @@ static void process_menus(WORD wCmd)
 			if ((i < 0) || (i >= MAX_TERM_DATA)) break;
 
 			td = &data[i];
-			
+
 			if (!td->visible)
 			{
 				td->visible = TRUE;
@@ -2857,7 +2817,7 @@ static void process_menus(WORD wCmd)
 			if ((i < 0) || (i >= MAX_TERM_DATA)) break;
 
 			td = &data[i];
-			
+
 			term_change_font(td);
 
 			break;
@@ -2878,7 +2838,7 @@ static void process_menus(WORD wCmd)
 			if ((i < 0) || (i >= MAX_TERM_DATA)) break;
 
 			td = &data[i];
-			
+
 			td->bizarre = !td->bizarre;
 
 			term_getsize(td);
@@ -2903,9 +2863,9 @@ static void process_menus(WORD wCmd)
 			if ((i < 0) || (i >= MAX_TERM_DATA)) break;
 
 			td = &data[i];
-			
+
 			td->tile_wid += 1;
-			
+
 			term_getsize(td);
 
 			term_window_resize(td);
@@ -2928,9 +2888,9 @@ static void process_menus(WORD wCmd)
 			if ((i < 0) || (i >= MAX_TERM_DATA)) break;
 
 			td = &data[i];
-			
+
 			td->tile_wid -= 1;
-			
+
 			term_getsize(td);
 
 			term_window_resize(td);
@@ -2953,9 +2913,9 @@ static void process_menus(WORD wCmd)
 			if ((i < 0) || (i >= MAX_TERM_DATA)) break;
 
 			td = &data[i];
-			
+
 			td->tile_hgt += 1;
-			
+
 			term_getsize(td);
 
 			term_window_resize(td);
@@ -2978,9 +2938,9 @@ static void process_menus(WORD wCmd)
 			if ((i < 0) || (i >= MAX_TERM_DATA)) break;
 
 			td = &data[i];
-			
+
 			td->tile_hgt -= 1;
-			
+
 			term_getsize(td);
 
 			term_window_resize(td);
@@ -3168,10 +3128,6 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 	PAINTSTRUCT ps;
 	HDC hdc;
 	term_data *td;
-#if 0
-	MINMAXINFO FAR *lpmmi;
-	RECT rc;
-#endif
 	int i;
 
 
@@ -3196,44 +3152,6 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 
 		case WM_GETMINMAXINFO:
 		{
-#if 0
-			lpmmi = (MINMAXINFO FAR *)lParam;
-
-			/* this message was sent before WM_NCCREATE */
-			if (!td) return 1;
-
-			/* Minimum window size is 8x2 */
-			rc.left = rc.top = 0;
-			rc.right = rc.left + 8 * td->tile_wid + td->size_ow1 + td->size_ow2;
-			rc.bottom = rc.top + 2 * td->tile_hgt + td->size_oh1 + td->size_oh2 + 1;
-
-			/* Adjust */
-			AdjustWindowRectEx(&rc, td->dwStyle, TRUE, td->dwExStyle);
-
-			/* Save minimum size */
-			lpmmi->ptMinTrackSize.x = rc.right - rc.left;
-			lpmmi->ptMinTrackSize.y = rc.bottom - rc.top;
-
-			/* Maximum window size */
-			rc.left = rc.top = 0;
-			rc.right = rc.left + 80 * td->tile_wid + td->size_ow1 + td->size_ow2;
-			rc.bottom = rc.top + 24 * td->tile_hgt + td->size_oh1 + td->size_oh2;
-
-			/* Paranoia */
-			rc.right  += (td->tile_wid - 1);
-			rc.bottom += (td->tile_hgt - 1);
-
-			/* Adjust */
-			AdjustWindowRectEx(&rc, td->dwStyle, TRUE, td->dwExStyle);
-
-			/* Save maximum size */
-			lpmmi->ptMaxSize.x = rc.right - rc.left;
-			lpmmi->ptMaxSize.y = rc.bottom - rc.top;
-
-			/* Save maximum size */
-			lpmmi->ptMaxTrackSize.x = rc.right - rc.left;
-			lpmmi->ptMaxTrackSize.y = rc.bottom - rc.top;
-#endif
 			return 0;
 		}
 
@@ -3316,11 +3234,7 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 				msg_flag = FALSE;
 
 				/* Save the game */
-#ifdef ZANGBAND
-				do_cmd_save_game(FALSE);
-#else /* ZANGBAND */
 				do_cmd_save_game();
-#endif /* ZANGBAND */
 			}
 			quit(NULL);
 			return 0;
@@ -3461,10 +3375,6 @@ LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
 #endif /* __MWERKS__ */
 {
 	term_data *td;
-#if 0
-	MINMAXINFO FAR *lpmmi;
-	RECT rc;
-#endif
 	PAINTSTRUCT ps;
 	HDC hdc;
 	int i;
@@ -3491,44 +3401,6 @@ LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
 
 		case WM_GETMINMAXINFO:
 		{
-#if 0
-			/* this message was sent before WM_NCCREATE */
-			if (!td) return 1;
-
-			lpmmi = (MINMAXINFO FAR *)lParam;
-
-			/* Minimum size */
-			rc.left = rc.top = 0;
-			rc.right = rc.left + 8 * td->tile_wid + td->size_ow1 + td->size_ow2;
-			rc.bottom = rc.top + 2 * td->tile_hgt + td->size_oh1 + td->size_oh2;
-
-			/* Adjust */
-			AdjustWindowRectEx(&rc, td->dwStyle, TRUE, td->dwExStyle);
-
-			/* Save the minimum size */
-			lpmmi->ptMinTrackSize.x = rc.right - rc.left;
-			lpmmi->ptMinTrackSize.y = rc.bottom - rc.top;
-
-			/* Maximum window size */
-			rc.left = rc.top = 0;
-			rc.right = rc.left + 80 * td->tile_wid + td->size_ow1 + td->size_ow2;
-			rc.bottom = rc.top + 24 * td->tile_hgt + td->size_oh1 + td->size_oh2;
-
-			/* Paranoia */
-			rc.right += (td->tile_wid - 1);
-			rc.bottom += (td->tile_hgt - 1);
-
-			/* Adjust */
-			AdjustWindowRectEx(&rc, td->dwStyle, TRUE, td->dwExStyle);
-
-			/* Save maximum size */
-			lpmmi->ptMaxSize.x = rc.right - rc.left;
-			lpmmi->ptMaxSize.y = rc.bottom - rc.top;
-
-			/* Save the maximum size */
-			lpmmi->ptMaxTrackSize.x = rc.right - rc.left;
-			lpmmi->ptMaxTrackSize.y = rc.bottom - rc.top;
-#endif
 			return 0;
 		}
 
@@ -3672,7 +3544,7 @@ LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
 
 				return 0;
 			}
-			
+
 			break;
 		}
 	}
@@ -3716,15 +3588,6 @@ LRESULT FAR PASCAL AngbandSaverProc(HWND hWnd, UINT uMsg,
 			SetCursor(NULL);
 			return 0;
 		}
-
-#if 0
-		case WM_ACTIVATE:
-		{
-			if (LOWORD(wParam) == WA_INACTIVE) break;
-
-			/* else fall through */
-		}
-#endif
 
 		case WM_LBUTTONDOWN:
 		case WM_MBUTTONDOWN:
@@ -4087,7 +3950,7 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	{
 		special_key[special_key_list[i]] = TRUE;
 	}
-	
+
 	/* Determine if display is 16/256/true color */
 	hdc = GetDC(NULL);
 	colors16 = (GetDeviceCaps(hdc, BITSPIXEL) == 4);

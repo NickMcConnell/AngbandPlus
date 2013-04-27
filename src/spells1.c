@@ -251,7 +251,7 @@ void teleport_player(int dis)
 
 	int py = p_ptr->py;
 	int px = p_ptr->px;
-	
+
 	int y = py;
 	int x = px;
 
@@ -570,7 +570,7 @@ void take_hit(int damage, cptr hit_from)
 
 	if (p_ptr->wraith_form)
 	{
-		damage /= 10;
+		damage /= 3;
 		if ((damage==0) && (randint(10)==1)) damage = 1;
 	}
 
@@ -631,7 +631,7 @@ void take_hit(int damage, cptr hit_from)
 		/* Hack -- bell on first notice */
 		if (alert_hitpoint && (old_chp > warning)) bell();
 
-		sound(SOUND_WARN);		
+		sound(SOUND_WARN);
 
 		/* Message */
 		msg_print("*** LOW HITPOINT WARNING! ***");
@@ -952,7 +952,7 @@ static int inven_damage(inven_func typ, int perc)
 				{
 					(void)potion_smash_effect(p_ptr->py, p_ptr->px, o_ptr->sval);
 				}
-                
+
 
 				/* Destroy "amt" items */
 				inven_item_increase(i, -amt);
@@ -1841,11 +1841,30 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			/* Non-walls (etc) */
 			if (!wall) break;
 
+			if (feat == FEAT_BARREL_GOO)
+			{
+				/* Forget it */
+				cave_info[y][x] &= ~(CAVE_MARK);
+
+				/* Kill it */
+				draw_grid_feat(y, x, FEAT_FLOOR);
+
+				/* Message */
+				if (seen)
+				{
+					msg_print("The barrel explodes!");
+				}
+
+				/* Boom! */
+				project(0, 2, y, x, 150, GF_ROCKET, PROJECT_JUMP | PROJECT_GRID |
+						  PROJECT_ITEM | PROJECT_KILL);
+			}
+
 			/* Permanent walls */
-			if (feat >= FEAT_PERM_EXTRA) break;
+			else if (feat >= FEAT_PERM_EXTRA) break;
 
 			/* Granite */
-			if (feat >= FEAT_WALL_EXTRA)
+			else if (feat >= FEAT_WALL_EXTRA)
 			{
 				/* Message */
 				if (seen)
@@ -3249,7 +3268,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				* attacks back on them */
 				if (((r_ptr->flags3 & RF3_UNDEAD) ||
 					  (r_ptr->flags3 & RF3_DEMON)) &&
-				     (r_ptr->level > p_ptr->level/2) && 
+				     (r_ptr->level > p_ptr->level/2) &&
 				     (randint(2) == 1))
 				{
 					note = NULL;
@@ -3293,7 +3312,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 					dam = 0;
 				}
 			}
-		    
+
 			if ((dam > 0) && (randint(4) == 1))
 			{
 				switch (randint(4))
@@ -3312,11 +3331,11 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 						break;
 				}
 			}
-		    
+
 			note_dies = " collapses, a mindless husk.";
 			break;
 		}
-	    
+
 		case GF_PSI_DRAIN:
 		{
 			if (seen) obvious = TRUE;
@@ -3327,7 +3346,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			}
 			else if ((r_ptr->flags2 & RF2_STUPID) ||
 						(r_ptr->flags2 & RF2_WEIRD_MIND) ||
-			         (r_ptr->flags3 & RF3_ANIMAL) || 
+			         (r_ptr->flags3 & RF3_ANIMAL) ||
 						(r_ptr->level > randint(3 * dam)))
 			{
 				dam /= 3;
@@ -3339,7 +3358,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				 */
 				if (((r_ptr->flags3 & RF3_UNDEAD) ||
 				     (r_ptr->flags3 & RF3_DEMON)) &&
-				     (r_ptr->level > p_ptr->level/2) && 
+				     (r_ptr->level > p_ptr->level/2) &&
 					  (randint(2) == 1))
 				{
 					note = NULL;

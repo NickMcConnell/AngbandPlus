@@ -1639,7 +1639,7 @@ bool detect_traps(void)
 				/* Pick a trap */
 				pick_trap(y, x);
 			}
-			
+
 			/* Detect traps */
 			if (f_info[cave_feat[y][x]].d_char == '^')
 			{
@@ -1943,7 +1943,7 @@ bool detect_objects_magic(void)
 	for (i = 1; i < o_max; i++)
 	{
 		object_type *o_ptr = &o_list[i];
-		
+
 		/* Skip dead objects */
 		if (!o_ptr->k_idx) continue;
 
@@ -1956,7 +1956,7 @@ bool detect_objects_magic(void)
 
 		/* Only detect nearby objects */
 		if (!panel_contains(y,x)) continue;
-		
+
 		/* Examine the tval */
 		tv = o_ptr->tval;
 
@@ -2018,7 +2018,7 @@ bool detect_monsters_normal(void)
 
 		/* Only detect nearby monsters */
 		if (!panel_contains(y, x)) continue;
-		
+
 		/* Detect all non-invisible monsters */
 		if ((!(r_ptr->flags2 & (RF2_INVISIBLE))) ||
 		    p_ptr->see_inv || p_ptr->tim_invis)
@@ -2031,7 +2031,7 @@ bool detect_monsters_normal(void)
 
 			/* Hack -- See monster */
 			m_ptr->ml = TRUE;
-			
+
 			/* Redraw */
 			lite_spot(y, x);
 
@@ -2075,7 +2075,7 @@ bool detect_monsters_invis(void)
 
 		/* Only detect nearby monsters */
 		if (!panel_contains(y, x)) continue;
-		
+
 		/* Detect invisible monsters */
 		if (r_ptr->flags2 & (RF2_INVISIBLE))
 		{
@@ -2097,7 +2097,7 @@ bool detect_monsters_invis(void)
 
 			/* Hack -- See monster */
 			m_ptr->ml = TRUE;
-			
+
 			/* Redraw */
 			lite_spot(y, x);
 
@@ -2143,7 +2143,7 @@ bool detect_monsters_evil(void)
 
 		/* Only detect nearby monsters */
 		if (!panel_contains(y, x)) continue;
-		
+
 		/* Detect evil monsters */
 		if (r_ptr->flags3 & (RF3_EVIL))
 		{
@@ -2165,7 +2165,7 @@ bool detect_monsters_evil(void)
 
 			/* Hack -- See monster */
 			m_ptr->ml = TRUE;
-			
+
 			/* Redraw */
 			lite_spot(y, x);
 
@@ -2213,7 +2213,7 @@ bool detect_monsters_string(cptr Match)
 
 		/* Only detect nearby monsters */
 		if (!panel_contains(y, x)) continue;
-		
+
 		/* Detect evil monsters */
 		if (strchr(Match, r_ptr->d_char))
 		{
@@ -2233,7 +2233,7 @@ bool detect_monsters_string(cptr Match)
 
 			/* Hack -- See monster */
 			m_ptr->ml = TRUE;
-			
+
 			/* Redraw */
 			lite_spot(y, x);
 
@@ -2279,7 +2279,7 @@ bool detect_monsters_xxx(u32b match_flag)
 
 		/* Only detect nearby monsters */
 		if (!panel_contains(y, x)) continue;
-		
+
 		/* Detect evil monsters */
 		if (r_ptr->flags3 & (match_flag))
 		{
@@ -2301,7 +2301,7 @@ bool detect_monsters_xxx(u32b match_flag)
 
 			/* Hack -- See monster */
 			m_ptr->ml = TRUE;
-			
+
 			/* Redraw */
 			lite_spot(y, x);
 
@@ -2349,7 +2349,7 @@ bool detect_all(void)
 	if (detect_objects_normal()) detect = TRUE;
 	if (detect_monsters_invis()) detect = TRUE;
 	if (detect_monsters_normal()) detect = TRUE;
-	
+
 	/* Result */
 	return (detect);
 }
@@ -3547,7 +3547,7 @@ void random_slay (object_type * o_ptr, bool is_scroll)
 	o_ptr->art_flags1 |= TR1_SLAY_DRAGON;
 /*  if (is_scroll) msg_print ("You hate dragons.");*/
 	break;
-    case 17: 
+    case 17:
 	o_ptr->art_flags1 |= TR1_KILL_DRAGON;
 /*  if (is_scroll) msg_print ("You feel an intense hatred of dragons.");*/
 	break;
@@ -4019,14 +4019,6 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 
 	if (has_pval)
 	{
-#if 0
-		o_ptr->art_flags3 |= TR3_SHOW_MODS;
-#endif
-#if 0   /* This one commented out by gw's request... */
-		if (!a_scroll)
-			o_ptr->art_flags3 |= TR3_HIDE_TYPE;
-#endif
-
 		if (o_ptr->art_flags1 & TR1_BLOWS)
 		    o_ptr->pval = randint(2) + 1;
 		else
@@ -4089,7 +4081,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 	{
 		char dummy_name[80];
 		strcpy(dummy_name, "");
-		identify_fully_aux(o_ptr);
+		wrap_knowledge(identify_fully_aux, o_ptr);
 		o_ptr->ident |= IDENT_STOREB; /* This will be used later on... */
 		if (!(get_string("What do you want to call the artifact? ", dummy_name, 80)))
 		{
@@ -4352,12 +4344,11 @@ bool identify_fully(void)
 	}
 	else
 	{
-		msg_format("On the ground: %s.",
-			   o_name);
+		msg_format("On the ground: %s.", o_name);
 	}
 
 	/* Describe it fully */
-	identify_fully_aux(o_ptr);
+	wrap_knowledge(identify_fully_aux, o_ptr);
 
 	/* Success */
 	return (TRUE);
@@ -4518,9 +4509,6 @@ bool recharge(int num)
 
 			/* Recharge based on the power */
 			if (t > 0) o_ptr->pval += 2 + randint(t);
-
-			/* Hack -- we no longer "know" the item */
-			o_ptr->ident &= ~(IDENT_KNOWN);
 
 			/* Hack -- we no longer think the item is empty */
 			o_ptr->ident &= ~(IDENT_EMPTY);
@@ -5843,7 +5831,7 @@ bool fire_blast(int typ, int dir, int dd, int ds, int num, int dev)
 
 			/* Never pass through monsters */
 			if (dist && cave_monster_bold(y, x)) break;
-			/* Check for arrival at "final target" */
+			/* Check for arrival at "final target" */
 			if ((x == tx) && (y == ty)) break;
 
 			/* Calculate the new location */

@@ -22,7 +22,7 @@ void excise_object_idx(int o_idx)
 	object_type *j_ptr;
 
 	s16b this_o_idx, next_o_idx;
-	
+
 	s16b prev_o_idx = 0;
 
 
@@ -33,7 +33,7 @@ void excise_object_idx(int o_idx)
 	if (j_ptr->held_m_idx)
 	{
 		monster_type *m_ptr;
-		
+
 		/* Monster */
 		m_ptr = &m_list[j_ptr->held_m_idx];
 
@@ -41,7 +41,7 @@ void excise_object_idx(int o_idx)
 		for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
 		{
 			object_type *o_ptr;
-		
+
 			/* Acquire object */
 			o_ptr = &o_list[this_o_idx];
 
@@ -69,7 +69,7 @@ void excise_object_idx(int o_idx)
 					/* Remove from list */
 					k_ptr->next_o_idx = next_o_idx;
 				}
-				
+
 				/* Forget next pointer */
 				o_ptr->next_o_idx = 0;
 
@@ -81,7 +81,7 @@ void excise_object_idx(int o_idx)
 			prev_o_idx = this_o_idx;
 		}
 	}
-	
+
 	/* Dungeon */
 	else
 	{
@@ -120,7 +120,7 @@ void excise_object_idx(int o_idx)
 					/* Remove from list */
 					k_ptr->next_o_idx = next_o_idx;
  				}
-				
+
 				/* Forget next pointer */
 				o_ptr->next_o_idx = 0;
 
@@ -165,7 +165,7 @@ void delete_object_idx(int o_idx)
 
 	/* Wipe the object */
 	object_wipe(j_ptr);
-	
+
 	/* Count objects */
 	o_cnt--;
 }
@@ -177,7 +177,7 @@ void delete_object_idx(int o_idx)
 void delete_object(int y, int x)
 {
 	s16b this_o_idx, next_o_idx;
-	
+
 
 	/* Refuse "illegal" locations */
 	if (!in_bounds(y, x)) return;
@@ -450,14 +450,14 @@ void wipe_o_list(void)
 		if (o_ptr->held_m_idx)
 		{
 			monster_type *m_ptr;
-			
+
 			/* Monster */
 			m_ptr = &m_list[o_ptr->held_m_idx];
-			
+
 			/* Hack -- see above */
 			m_ptr->hold_o_idx = 0;
 		}
-		
+
 		/* Dungeon */
 		else
 		{
@@ -509,7 +509,7 @@ s16b o_pop(void)
 	for (i = 1; i < o_max; i++)
 	{
 		object_type *o_ptr;
-		
+
 		/* Acquire object */
 		o_ptr = &o_list[i];
 
@@ -1747,7 +1747,7 @@ static s16b m_bonus(int max, int level)
 
 
 	/* Choose an "interesting" value */
-	value = randnor(bonus, stand);
+	value = rand_nor(bonus, stand);
 
 	/* Enforce the minimum value */
 	if (value < 0) return (0);
@@ -1814,7 +1814,7 @@ void random_artifact_resistance(object_type * o_ptr)
 		}
 		else
 		{
-			o_ptr->art_flags3 |= 
+			o_ptr->art_flags3 |=
 			    (TR3_CURSED | TR3_HEAVY_CURSE | TR3_AGGRAVATE | TR3_TY_CURSE);
 			o_ptr->ident |= IDENT_CURSED;
 			return;
@@ -2047,7 +2047,7 @@ static void charge_wand(object_type *o_ptr)
 		case SV_WAND_DRAGON_COLD:               o_ptr->pval = randint(3)  + 1; break;
 		case SV_WAND_DRAGON_BREATH:             o_ptr->pval = randint(3)  + 1; break;
 		case SV_WAND_ROCKETS:                   o_ptr->pval = randint(2)  + 1; break;
-		case SV_WAND_DESTROY_MUNDANE:				 o_ptr->pval = randint(5)  + 3; break;	
+		case SV_WAND_DESTROY_MUNDANE:				 o_ptr->pval = randint(5)  + 3; break;
 	}
 }
 
@@ -2110,8 +2110,8 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 	int tohit2 = m_bonus(10, level);
 	int todam2 = m_bonus(10, level);
 
-	int new_dd = randnor(o_ptr->dd, MAX(1, o_ptr->dd / 4));
-	int new_ds = randnor(o_ptr->ds, MAX(1, o_ptr->ds / 4));
+	int new_dd = rand_norm(o_ptr->dd);
+	int new_ds = rand_norm(o_ptr->ds);
 
 	/* Variation */
 	o_ptr->dd = MAX(0, new_dd);
@@ -2558,7 +2558,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 				}
 
 				/* Hack -- super-charge the damage dice */
-				while (rand_int(10L * o_ptr->dd * o_ptr->ds) == 0) o_ptr->dd++;
+				while (o_ptr->dd && o_ptr->ds && (rand_int(10L * o_ptr->dd * o_ptr->ds) == 0)) o_ptr->dd++;
 
 				/* Hack -- restrict the damage dice */
 				if (o_ptr->dd > 9) o_ptr->dd = 9;
@@ -2607,7 +2607,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 
 	int toac2 = m_bonus(10, level);
 
-	int new_ac = randnor(o_ptr->ac, MAX(1, o_ptr->ac / 4));
+	int new_ac = rand_norm(o_ptr->ac);
 
 	/* Variation */
 	o_ptr->ac = MAX(0, new_ac);
@@ -3681,23 +3681,23 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	power = 0;
 
 	/* Roll for "good" */
-	if (good || magik(f1))
+	if (good || percent(f1))
 	{
 		/* Assume "good" */
 		power = 1;
 
 		/* Roll for "great" */
-		if (great || magik(f2)) power = 2;
+		if (great || percent(f2)) power = 2;
 	}
 
 	/* Roll for "cursed" */
-	else if (magik(f1))
+	else if (percent(f1))
 	{
 		/* Assume "cursed" */
 		power = -1;
 
 		/* Roll for "broken" */
-		if (magik(f2)) power = -2;
+		if (percent(f2)) power = -2;
 	}
 
 
@@ -4099,7 +4099,7 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 		/* Cheat -- peek at items */
 		if (cheat_peek) object_mention(j_ptr);
 	}
-	
+
 	/* Success */
 	return (TRUE);
 }
@@ -4248,7 +4248,6 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 
 	int bs, bn;
 	int by, bx;
-	int dy, dx;
 	int ty, tx;
 
 	s16b this_o_idx, next_o_idx;
@@ -4268,7 +4267,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 
 
 	/* Handle normal "breakage" */
-	if (!artifact_p(j_ptr) && (rand_int(100) < chance))
+	if (!artifact_p(j_ptr) && (chance > 0) && (rand_int(100) < chance))
 	{
 		/* Message */
 		msg_format("The %s %s destroyed.",
@@ -4293,22 +4292,15 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	bx = x;
 
 	/* Scan local grids */
-	for (dy = -3; dy <= 3; dy++)
+	for (d = 0; d <= MAX_SIGHT; d++)
 	{
-		/* Scan local grids */
-		for (dx = -3; dx <= 3; dx++)
+		int n = d * d;
+
+		for (i = 0; i <= 4 * n; i++)
 		{
 			bool comb = FALSE;
 
-			/* Calculate actual distance */
-			d = (dy * dy) + (dx * dx);
-
-			/* Ignore distant grids */
-			if (d > 10) continue;
-
-			/* Location */
-			ty = y + dy;
-			tx = x + dx;
+			scatter(&ty, &tx, y, x, d, 0);
 
 			/* Skip illegal grids */
 			if (!in_bounds_fully(ty, tx)) continue;
@@ -4347,7 +4339,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 			if (k > 99) continue;
 
 			/* Calculate score */
-			s = 1000 - (d + k * 5);
+			s = 1000 - (n + k * 5);
 
 			/* Skip bad values */
 			if (s < bs) continue;
@@ -4368,6 +4360,8 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 			/* Okay */
 			flag = TRUE;
 		}
+
+		if (flag && (d > 2)) break;
 	}
 
 
@@ -4719,7 +4713,7 @@ void inven_item_optimize(int item)
 
 		/* Erase the "final" slot */
 		object_wipe(&inventory[i]);
-		
+
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN);
 	}
@@ -4741,7 +4735,7 @@ void inven_item_optimize(int item)
 
 		/* Recalculate mana XXX */
 		p_ptr->update |= (PU_MANA);
-		
+
 		/* Window stuff */
 		p_ptr->window |= (PW_EQUIP);
 	}
@@ -5030,7 +5024,7 @@ s16b inven_carry(object_type *o_ptr, bool final)
 	o_ptr->iy = o_ptr->ix = 0;
 	o_ptr->next_o_idx = 0;
 	o_ptr->held_m_idx = 0;
-	
+
 	/* Increase the weight */
 	total_weight += (o_ptr->number * o_ptr->weight);
 
@@ -5335,7 +5329,7 @@ void reorder_pack(void)
 			if (!object_known_p(o_ptr)) continue;
 			if (!object_known_p(j_ptr)) break;
 
-  
+
 			/* Hack:  otherwise identical rods sort by
 			increasing recharge time --dsb */
 			if (o_ptr->tval == TV_ROD)
@@ -5675,177 +5669,173 @@ bool spell_okay(int spell, bool known, int realm)
  */
 static void spell_info(char *p, int spell, int realm)
 {
+	int plev = p_ptr->level;
+
+	/* See below */
+	int orb = (plev / ((p_ptr->pclass == 2 || p_ptr->pclass == CLASS_HIGH_MAGE) ? 2 : 4));
+
 	/* Default */
 	strcpy(p, "");
 
-#ifdef DRS_SHOW_SPELL_INFO
+	/* Analyze the spell */
+	switch (realm)
 	{
-		int plev = p_ptr->level;
-
-		/* See below */
-		int orb = (plev / ((p_ptr->pclass == 2 || p_ptr->pclass == CLASS_HIGH_MAGE) ? 2 : 4));
-
-		/* Analyze the spell */
-		switch (realm)
+		case 0: /* Life */
+		switch (spell)
 		{
-			case 0: /* Life */
-				switch (spell)
-				{
-					case  1: strcpy (p, " heal 2d10"); break;
-					case  2: strcpy (p, " dur 12+d12 turns"); break;
-					case  4: sprintf(p, " dam %d", 10 + (plev / 2)); break;
-					case  6: strcpy (p, " heal 4d10"); break;
-					case 10: strcpy (p, " heal 8d10"); break;
-					case 11: strcpy (p, " dur 24+d24"); break;
-					case 12: sprintf(p, " dam 3d6+%d", (plev + orb)); break;
-					case 13: sprintf(p, " dur d25+%d", 3 * (plev)); break;
-					case 14: strcpy (p, " heal 300"); break;
-					case 16: sprintf(p, " dam %d+%d", plev, plev); break;
-					case 18: sprintf(p, " dam %d+%d", 3 * plev, 3 * plev); break;
-					case 20: sprintf(p, " dam %d", 4 * plev); break;
-					case 22: sprintf(p, " d %d/h 1000", 4 * plev); break;
-					case 24: strcpy (p, " dur 25+d25"); break;
-					case 25: strcpy (p, " dur 48+d48"); break;
-					case 28: strcpy (p, " heal 2000"); break;
-					case 30: sprintf(p, " h300/d%d+388", plev * 4); break;
-					case 31: strcpy (p, " dur 7+d7"); break;
-				}
-				break;
-
-			case 1: /* Sorcery */
-				switch (spell)
-				{
-					case  1: strcpy (p, " range 10"); break;
-					case  3: sprintf(p, " dam %d", 10 + (plev / 2)); break;
-					case  5: sprintf(p, " range %d", plev * 5); break;
-					case 13: sprintf(p, " dur %d+d%d", plev, (plev+20)); break;
-					case 19: sprintf(p, " range %d", plev+2); break;
-					case 20: strcpy (p, " dur 25+d30"); break;
-					case 23: strcpy (p, " delay 15+d21"); break;
-					case 25: sprintf(p, " max wgt %d", plev * 15 / 10); break;
-					case 26: sprintf(p, " dam 7d7+%d", (plev/2)); break;
-					case 27: strcpy (p, " dur 25+d30"); break;
-					case 31: strcpy (p, " dur 8+d8"); break;
-				}
-				break;
-
-			case 2: /* Nature */
-				switch (spell)
-				{
-					case  1: strcpy (p, " heal 2d8"); break;
-					case  4: sprintf(p, " dam %d", 10 + (plev / 2)); break;
-					case  6: strcpy (p, " dur 20+d20"); break;
-					case  9: sprintf(p, " dam %dd8", (3+((plev-5)/4))); break;
-					case 11: sprintf(p, " dam %dd8", (5+((plev-5)/4))); break;
-					case 12: strcpy (p, " dam 6d8"); break;
-					case 15: strcpy (p, " heal 1000"); break;
-					case 18: strcpy (p, " dur 20+d30"); break;
-					case 19: strcpy (p, " dur 20+d20"); break;
-					case 24: strcpy (p, " rad 10"); break;
-					case 26: sprintf(p, " dam %d", 70+plev); break;
-					case 27: sprintf(p, " dam %d", 90+plev); break;
-					case 28: sprintf(p, " dam %d", 100+plev); break;
-					case 29: strcpy (p, " dam 75"); break;
-					case 31: sprintf(p, " dam %d+%d", 4*plev,100+plev); break;
-				}
-				break;
-
-			case 3: /* Chaos */
-				switch (spell)
-				{
-					case  0: sprintf(p, " dam %dd4", 3+((plev-1)/5)); break;
-					case  2: sprintf(p, " dam %d", 10 + (plev / 2)); break;
-					case  4: sprintf(p, " dam 3d5+%d", plev + (plev / 
-					     (((p_ptr->pclass == CLASS_MAGE) ||
-					     (p_ptr->pclass == CLASS_HIGH_MAGE)) ? 2 : 4))); break;
-					case  5: sprintf(p, " dam %dd8", (6+((plev-5)/4))); break;
-					case  6: sprintf(p, " dam %dd8", (8+((plev-5)/4))); break;
-					case  7: sprintf(p, " range %d", plev * 5); break;
-					case  8: strcpy (p, " random"); break;
-					case  9: sprintf(p, " dam %dd8", (10+((plev-5)/4))); break;
-					case 10: sprintf(p, " dam %d", 45 + plev); break;
-					case 11: sprintf(p, " dam %dd8", (11+((plev-5)/4))); break;
-					case 12: sprintf(p, " dam %d", 55 + plev); break;
-					case 15: sprintf(p, " dam %d", 66 + plev); break;
-					case 17: sprintf(p, " dam %dd8", (5+((plev)/10))); break;
-					case 19: sprintf(p, " dam %d", 80 + plev); break;
-					case 24: sprintf(p, " dam %dd8", (9 + ((plev/10)))); break;
-					case 25: sprintf(p, " dam %d each", (3*plev)/2); break;
-					case 26: sprintf(p, " dam %d", 75 + plev); break;
-					case 27: strcpy (p, " dam 75 / 150"); break;
-					case 28: sprintf(p, " dam %d", 120 + plev); break;
-					case 29: sprintf(p, " dam %d", 300 + (plev * 2)); break;
-					case 30: sprintf(p, " dam %d", p_ptr->chp); break;
-					case 31: strcpy (p, " dam 3 * 175"); break;
-				}
-				break;
-
-			case 4: /* Death */
-				switch(spell)
-				{
-					case  1: sprintf(p, " dam %dd3", (3 + ((plev-1)/5))); break;
-					case  3: sprintf(p, " dam %d", 10 + (plev / 2)); break;
-					case  5: sprintf(p, " dur 20+d20"); break;
-					case  8: sprintf(p, " dam 3d6+%d", plev +
-					    (plev / (((p_ptr->pclass == CLASS_MAGE) ||
-					    (p_ptr->pclass == CLASS_HIGH_MAGE)) ? 2 : 4))); break;
-					case  9: sprintf(p, " dam %dd8", (6+((plev-5)/4))); break;
-					case 11: sprintf(p, " dm %d* 5+d15", 2 + (plev/15)); break;
-					case 13: sprintf(p, " dam %d", 4 * plev); break;
-					case 16: strcpy (p, " dur 25+d25"); break;
-					case 17: strcpy (p, " random"); break;
-					case 18: sprintf(p, " dam %dd8", (4+((plev-5)/4))); break;
-					case 19: strcpy (p, " max dur 50"); break;
-					case 20: strcpy (p, " dam 3*100"); break;
-					case 22: strcpy (p, " dam 120"); break;
-					case 27: sprintf(p, " dam %d", plev * 3); break;
-					case 28: sprintf(p, " dam %d", plev * 4); break;
-					case 29: strcpy (p, " dam 666"); break;
-					case 31: sprintf(p, " dur %d+d%d", (plev/2), (plev/2)); break;
-				}
-				break;
-
-			case 5: /* Trump */
-				switch(spell)
-				{
-					case  0: strcpy (p, " range 10"); break;
-					case  1: sprintf(p, " dam %dd3", 3 + ((plev-1)/5)); break;
-					case  2: strcpy (p, " random"); break;
-					case  4: sprintf(p, " range %d", plev * 4); break;
-					case  5: sprintf(p, " range %d", plev+2); break;
-					case  6: strcpy (p, " dur 25+d30"); break;
-					case  8: sprintf(p, " max wgt %d", plev * 15 / 10); break;
-					case 14: strcpy (p, " delay 15+d21"); break;
-					case 22: sprintf(p, " dam %d", plev * 3); break;
-				}
-				break;
-
-			case 6: /* Arcane */
-				switch (spell)
-				{
-					case  0: sprintf(p, " dam %dd3", 3 + ((plev-1)/5)); break;
-					case  4: strcpy (p, " range 10"); break;
-					case  5: sprintf(p, " dam 2d%d", plev / 2); break;
-					case  7: strcpy (p, " heal 2d8"); break;
-					case 14:
-					case 15:
-					case 16:
-					case 17: strcpy (p, " dur 20+d20"); break;
-					case 18: strcpy (p, " heal 4d8"); break;
-					case 19: sprintf(p, " range %d", plev * 5); break;
-					case 21: strcpy (p, " dam 6d8"); break;
-					case 23: strcpy (p, " dur 24+d24"); break;
-					case 28: sprintf(p, " dam %d", 75 + (plev)); break;
-					case 30: strcpy (p, " delay 15+d21"); break;
-					case 31: strcpy (p, " dur 25+30"); break;
-				}
-				break;
-
-			default:
-				sprintf(p, "Unknown type: %d.", realm);
+			case  1: strcpy (p, " heal 2d10"); break;
+			case  2: strcpy (p, " dur 12+d12 turns"); break;
+			case  4: sprintf(p, " dam %d", 10 + (plev / 2)); break;
+			case  6: strcpy (p, " heal 4d10"); break;
+			case 10: strcpy (p, " heal 8d10"); break;
+			case 11: strcpy (p, " dur 24+d24"); break;
+			case 12: sprintf(p, " dam 3d6+%d", (plev + orb)); break;
+			case 13: sprintf(p, " dur d25+%d", 3 * (plev)); break;
+			case 14: strcpy (p, " heal 300"); break;
+			case 16: sprintf(p, " dam %d+%d", plev, plev); break;
+			case 18: sprintf(p, " dam %d+%d", 3 * plev, 3 * plev); break;
+			case 20: sprintf(p, " dam %d", 4 * plev); break;
+			case 22: sprintf(p, " d %d/h 1000", 4 * plev); break;
+			case 24: strcpy (p, " dur 25+d25"); break;
+			case 25: strcpy (p, " dur 48+d48"); break;
+			case 28: strcpy (p, " heal 2000"); break;
+			case 30: sprintf(p, " h300/d%d+388", plev * 4); break;
+			case 31: strcpy (p, " dur 7+d7"); break;
 		}
+		break;
+
+		case 1: /* Sorcery */
+		switch (spell)
+		{
+			case  1: strcpy (p, " range 10"); break;
+			case  3: sprintf(p, " dam %d", 10 + (plev / 2)); break;
+			case  5: sprintf(p, " range %d", plev * 5); break;
+			case 13: sprintf(p, " dur %d+d%d", plev, (plev+20)); break;
+			case 19: sprintf(p, " range %d", plev+2); break;
+			case 20: strcpy (p, " dur 25+d30"); break;
+			case 23: strcpy (p, " delay 15+d21"); break;
+			case 25: sprintf(p, " max wgt %d", plev * 15 / 10); break;
+			case 26: sprintf(p, " dam 7d7+%d", (plev/2)); break;
+			case 27: strcpy (p, " dur 25+d30"); break;
+			case 31: strcpy (p, " dur 8+d8"); break;
+		}
+		break;
+
+		case 2: /* Nature */
+		switch (spell)
+		{
+			case  1: strcpy (p, " heal 2d8"); break;
+			case  4: sprintf(p, " dam %d", 10 + (plev / 2)); break;
+			case  6: strcpy (p, " dur 20+d20"); break;
+			case  9: sprintf(p, " dam %dd8", (3+((plev-5)/4))); break;
+			case 11: sprintf(p, " dam %dd8", (5+((plev-5)/4))); break;
+			case 12: strcpy (p, " dam 6d8"); break;
+			case 15: strcpy (p, " heal 1000"); break;
+			case 18: strcpy (p, " dur 20+d30"); break;
+			case 19: strcpy (p, " dur 20+d20"); break;
+			case 24: strcpy (p, " rad 10"); break;
+			case 26: sprintf(p, " dam %d", 70+plev); break;
+			case 27: sprintf(p, " dam %d", 90+plev); break;
+			case 28: sprintf(p, " dam %d", 100+plev); break;
+			case 29: strcpy (p, " dam 75"); break;
+			case 31: sprintf(p, " dam %d+%d", 4*plev,100+plev); break;
+		}
+		break;
+
+		case 3: /* Chaos */
+		switch (spell)
+		{
+			case  0: sprintf(p, " dam %dd4", 3+((plev-1)/5)); break;
+			case  2: sprintf(p, " dam %d", 10 + (plev / 2)); break;
+			case  4: sprintf(p, " dam 3d5+%d", plev + (plev /
+																	 (((p_ptr->pclass == CLASS_MAGE) ||
+																		(p_ptr->pclass == CLASS_HIGH_MAGE)) ? 2 : 4))); break;
+			case  5: sprintf(p, " dam %dd8", (6+((plev-5)/4))); break;
+			case  6: sprintf(p, " dam %dd8", (8+((plev-5)/4))); break;
+			case  7: sprintf(p, " range %d", plev * 5); break;
+			case  8: strcpy (p, " random"); break;
+			case  9: sprintf(p, " dam %dd8", (10+((plev-5)/4))); break;
+			case 10: sprintf(p, " dam %d", 45 + plev); break;
+			case 11: sprintf(p, " dam %dd8", (11+((plev-5)/4))); break;
+			case 12: sprintf(p, " dam %d", 55 + plev); break;
+			case 15: sprintf(p, " dam %d", 66 + plev); break;
+			case 17: sprintf(p, " dam %dd8", (5+((plev)/10))); break;
+			case 19: sprintf(p, " dam %d", 80 + plev); break;
+			case 24: sprintf(p, " dam %dd8", (9 + ((plev/10)))); break;
+			case 25: sprintf(p, " dam %d each", (3*plev)/2); break;
+			case 26: sprintf(p, " dam %d", 75 + plev); break;
+			case 27: strcpy (p, " dam 75 / 150"); break;
+			case 28: sprintf(p, " dam %d", 120 + plev); break;
+			case 29: sprintf(p, " dam %d", 300 + (plev * 2)); break;
+			case 30: sprintf(p, " dam %d", p_ptr->chp); break;
+			case 31: strcpy (p, " dam 3 * 175"); break;
+		}
+		break;
+
+		case 4: /* Death */
+		switch(spell)
+		{
+			case  1: sprintf(p, " dam %dd3", (3 + ((plev-1)/5))); break;
+			case  3: sprintf(p, " dam %d", 10 + (plev / 2)); break;
+			case  5: sprintf(p, " dur 20+d20"); break;
+			case  8: sprintf(p, " dam 3d6+%d", plev +
+								  (plev / (((p_ptr->pclass == CLASS_MAGE) ||
+												(p_ptr->pclass == CLASS_HIGH_MAGE)) ? 2 : 4))); break;
+			case  9: sprintf(p, " dam %dd8", (6+((plev-5)/4))); break;
+			case 11: sprintf(p, " dm %d* 5+d15", 2 + (plev/15)); break;
+			case 13: sprintf(p, " dam %d", 4 * plev); break;
+			case 16: strcpy (p, " dur 25+d25"); break;
+			case 17: strcpy (p, " random"); break;
+			case 18: sprintf(p, " dam %dd8", (4+((plev-5)/4))); break;
+			case 19: strcpy (p, " max dur 50"); break;
+			case 20: strcpy (p, " dam 3*100"); break;
+			case 22: strcpy (p, " dam 120"); break;
+			case 27: sprintf(p, " dam %d", plev * 3); break;
+			case 28: sprintf(p, " dam %d", plev * 4); break;
+			case 29: strcpy (p, " dam 666"); break;
+			case 31: sprintf(p, " dur %d+d%d", (plev/2), (plev/2)); break;
+		}
+		break;
+
+		case 5: /* Trump */
+		switch(spell)
+		{
+			case  0: strcpy (p, " range 10"); break;
+			case  1: sprintf(p, " dam %dd3", 3 + ((plev-1)/5)); break;
+			case  2: strcpy (p, " random"); break;
+			case  4: sprintf(p, " range %d", plev * 4); break;
+			case  5: sprintf(p, " range %d", plev+2); break;
+			case  6: strcpy (p, " dur 25+d30"); break;
+			case  8: sprintf(p, " max wgt %d", plev * 15 / 10); break;
+			case 14: strcpy (p, " delay 15+d21"); break;
+			case 22: sprintf(p, " dam %d", plev * 3); break;
+		}
+		break;
+
+		case 6: /* Arcane */
+		switch (spell)
+		{
+			case  0: sprintf(p, " dam %dd3", 3 + ((plev-1)/5)); break;
+			case  4: strcpy (p, " range 10"); break;
+			case  5: sprintf(p, " dam 2d%d", plev / 2); break;
+			case  7: strcpy (p, " heal 2d8"); break;
+			case 14:
+			case 15:
+			case 16:
+			case 17: strcpy (p, " dur 20+d20"); break;
+			case 18: strcpy (p, " heal 4d8"); break;
+			case 19: sprintf(p, " range %d", plev * 5); break;
+			case 21: strcpy (p, " dam 6d8"); break;
+			case 23: strcpy (p, " dur 24+d24"); break;
+			case 28: sprintf(p, " dam %d", 75 + (plev)); break;
+			case 30: strcpy (p, " delay 15+d21"); break;
+			case 31: strcpy (p, " dur 25+30"); break;
+		}
+		break;
+
+		default:
+		sprintf(p, "Unknown type: %d.", realm);
 	}
-#endif /* DRS_SHOW_SPELL_INFO */
 }
 
 

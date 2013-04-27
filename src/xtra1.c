@@ -708,9 +708,6 @@ static void prt_stun(void)
  */
 static void health_redraw(void)
 {
-
-#ifdef DRS_SHOW_HEALTH_BAR
-
 	/* Not tracking */
 	if (!health_who)
 	{
@@ -779,9 +776,6 @@ static void health_redraw(void)
 		/* Dump the current "health" (use '*' symbols) */
 		Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, "**********");
 	}
-
-#endif
-
 }
 
 
@@ -1391,7 +1385,7 @@ static void calc_spells(void)
 	/* Cannot learn more spells than exist */
 	if (p_ptr->new_spells > k) p_ptr->new_spells = k;
 
-    
+
 
 	/* Spell count changed */
 	if (p_ptr->old_spells != p_ptr->new_spells)
@@ -1515,52 +1509,12 @@ static void calc_mana(void)
 	/* Maximum mana has changed */
 	if (p_ptr->msp != msp)
 	{
-
-#if 1
-
-		/* XXX XXX XXX New mana maintenance */
-
 		/* Enforce maximum */
 		if (p_ptr->csp >= msp)
 		{
 			p_ptr->csp = msp;
 			p_ptr->csp_frac = 0;
 		}
-
-#else
-
-		/* Player has no mana now */
-		if (!msp)
-		{
-			/* No mana left */
-			p_ptr->csp = 0;
-			p_ptr->csp_frac = 0;
-		}
-
-		/* Player had no mana, has some now */
-		else if (!p_ptr->msp)
-		{
-			/* Reset mana */
-			p_ptr->csp = msp;
-			p_ptr->csp_frac = 0;
-		}
-
-		/* Player had some mana, adjust current mana */
-		else
-		{
-			s32b value;
-
-			/* change current mana proportionately to change of max mana, */
-			/* divide first to avoid overflow, little loss of accuracy */
-			value = ((((long)p_ptr->csp << 16) + p_ptr->csp_frac) /
-			         p_ptr->msp * msp);
-
-			/* Extract mana components */
-			p_ptr->csp = (value >> 16);
-			p_ptr->csp_frac = (value & 0xFFFF);
-		}
-
-#endif
 
 		/* Save new mana */
 		p_ptr->msp = msp;
@@ -1639,30 +1593,12 @@ static void calc_hitpoints(void)
 	/* New maximum hitpoints */
 	if (p_ptr->mhp != mhp)
 	{
-
-#if 1
-
-		/* XXX XXX XXX New hitpoint maintenance */
-
 		/* Enforce maximum */
 		if (p_ptr->chp >= mhp)
 		{
 			p_ptr->chp = mhp;
 			p_ptr->chp_frac = 0;
 		}
-
-#else
-
-		s32b value;
-
-		/* change current hit points proportionately to change of mhp */
-		/* divide first to avoid overflow, little loss of accuracy */
-		value = (((long)p_ptr->chp << 16) + p_ptr->chp_frac) / p_ptr->mhp;
-		value = value * mhp;
-		p_ptr->chp = (value >> 16);
-		p_ptr->chp_frac = (value & 0xFFFF);
-
-#endif
 
 		/* Save the new max-hitpoints */
 		p_ptr->mhp = mhp;
@@ -1979,12 +1915,7 @@ static void calc_bonuses(void)
 			break;
 		case CLASS_MONK:
 			/* Unencumbered Monks become faster every 10 levels */
-			if (!(monk_heavy_armor()))
-#ifndef MONK_HACK
-				if (!((p_ptr->prace == RACE_KLACKON) ||
-				    (p_ptr->prace == RACE_SPRITE)))
-#endif /* MONK_HACK */
-					p_ptr->pspeed += (p_ptr->level) / 10;
+			if (!(monk_heavy_armor())) p_ptr->pspeed += (p_ptr->level) / 10;
 
 			/* Free action if unencumbered at level 25 */
 			if  ((p_ptr->level > 24) && !(monk_heavy_armor()))
@@ -1992,7 +1923,7 @@ static void calc_bonuses(void)
 			break;
 	}
 
-	/***** Races ****/ 
+	/***** Races ****/
 	switch (p_ptr->prace)
 	{
 		case RACE_ELF:
@@ -2180,15 +2111,11 @@ static void calc_bonuses(void)
 			;
 	}
 
-	/* Hack -- apply racial/class stat maxes */
-	if (p_ptr->maximize)
+	/* Apply the racial modifiers */
+	for (i = 0; i < 6; i++)
 	{
-		/* Apply the racial modifiers */
-		for (i = 0; i < 6; i++)
-		{
-			/* Modify the stats for "race" */
-			p_ptr->stat_add[i] += (rp_ptr->r_adj[i] + cp_ptr->c_adj[i]);
-		}
+		/* Modify the stats for "race" */
+		p_ptr->stat_add[i] += (rp_ptr->r_adj[i] + cp_ptr->c_adj[i]);
 	}
 
 	/* Chaos patron gifts */
@@ -3056,7 +2983,7 @@ static void calc_bonuses(void)
 			p_ptr->dis_to_d += (p_ptr->level / 3);
 		}
 	}
- 
+
 	/* Assume okay */
 	p_ptr->icky_wield = FALSE;
 	monk_armour_aux = FALSE;
@@ -3222,7 +3149,7 @@ static void calc_bonuses(void)
 			msg_print("You regain your balance.");
 		monk_notify_aux = monk_armour_aux;
 	}
-    
+
 }
 
 
@@ -3537,7 +3464,7 @@ void redraw_stuff(void)
 void window_stuff(void)
 {
 	int j;
-	
+
 	u32b mask = 0L;
 
 

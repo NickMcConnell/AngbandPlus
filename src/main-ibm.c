@@ -305,8 +305,6 @@ static void activate_color_complex(void)
 	int i;
 	printf("%c%c%c%c",8,8,8,8);
 
-#if 1
-
 	/* Edit the EGA palette */
 	inportb(0x3da);
 
@@ -334,50 +332,6 @@ static void activate_color_complex(void)
 		outportb(0x3c9, ((ibm_color_complex[i] >> 8) & 0xFF));
 		outportb(0x3c9, ((ibm_color_complex[i] >> 16) & 0xFF));
 	}
-
-#else /* 1 */
-
-	/* Set the colors */
-	for (i = 0; i < 16; i++)
-	{
-		union REGS r;
-
-		/* Set EGA color */
-		r.h.ah = 0x10;
-		r.h.al = 0x00;
-
-		/* Set color "i" */
-		r.h.bl = i;
-
-		/* To value "i" */
-		r.h.bh = i;
-
-		/* Do it */
-		int86(0x10, &r, &r);
-
-		/* Set VGA color */
-		r.h.ah = 0x10;
-		r.h.al = 0x10;
-
-		/* Set color "i" */
-		r.h.bh = 0x00;
-		r.h.bl = i;
-
-		/* Use this "green" value */
-		r.h.ch = ((ibm_color_complex[i] >> 8) & 0xFF);
-
-		/* Use this "blue" value */
-		r.h.cl = ((ibm_color_complex[i] >> 16) & 0xFF);
-
-		/* Use this "red" value */
-		r.h.dh = ((ibm_color_complex[i]) & 0xFF);
-
-		/* Do it */
-		int86(0x10, &r, &r);
-	}
-
-#endif /* 1 */
-
 };
 
 

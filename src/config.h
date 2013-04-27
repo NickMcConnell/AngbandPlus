@@ -16,7 +16,7 @@
 #endif
 
 /* Allow various special stuff (sound, graphics, etc.) */
-#if 1
+#if 0
 # define USE_SPECIAL
 #endif
 
@@ -157,30 +157,6 @@
 
 
 /*
- * OPTION: Forbid the use of "fiddled" savefiles.  As far as I can tell,
- * a fiddled savefile is one with an internal timestamp different from
- * the actual timestamp.  Thus, turning this option on forbids one from
- * copying a savefile to a different name.  Combined with disabling the
- * ability to save the game without quitting, and with some method of
- * stopping the user from killing the process at the tombstone screen,
- * this should prevent the use of backup savefiles.  It may also stop
- * the use of savefiles from other platforms, so be careful.
- */
-/* #define VERIFY_TIMESTAMP */
-
-
-/*
- * OPTION: Forbid the "savefile over-write" cheat, in which you simply
- * run another copy of the game, loading a previously saved savefile,
- * and let that copy over-write the "dead" savefile later.  This option
- * either locks the savefile, or creates a fake "xxx.lok" file to prevent
- * the use of the savefile until the file is deleted.  Not ready yet.
- */
-/* #define VERIFY_SAVEFILE */
-
-
-
-/*
  * OPTION: Hack -- Compile in support for "Cyborg" mode
  */
 /* #define ALLOW_BORG */
@@ -243,13 +219,6 @@
  * It should be usually be defined anyway to allow easy "updating".
  */
 #define ALLOW_TEMPLATES
-
-/*
- * OPTION: Allow loading of pre-2.7.0 savefiles.  Note that it takes
- * about 15K of code in "save-old.c" to parse the old savefile format.
- * Angband 2.8.0 will ignore a lot of info from pre-2.7.0 savefiles.
- */
-#define ALLOW_OLD_SAVEFILES
 
 
 /*
@@ -325,7 +294,6 @@
 #define MONSTER_FLOW_DEPTH 100
 
 
-
 /*
  * OPTION: Allow use of extended spell info	-DRS-
  */
@@ -335,37 +303,6 @@
  * OPTION: Allow use of the monster health bar	-DRS-
  */
 #define DRS_SHOW_HEALTH_BAR
-
-
-/*
- * OPTION: Enable the "smart_learn" and "smart_cheat" options.
- * They let monsters make more "intelligent" choices about attacks
- * (including spell attacks) based on their observations of the
- * player's reactions to previous attacks.  The "smart_cheat" option
- * lets the monster know how the player would react to an attack
- * without actually needing to make the attack.  The "smart_learn"
- * option requires that a monster make a "failed" attack before
- * learning that the player is not harmed by that attack.
- *
- * This adds about 3K to the memory and about 5K to the executable.
- *
- * SPECIAL NOTE: In Z, the "smart" field is also used to store such
- * monster information as "friendly" and "cloned". Therefore this
- * option should always be defined when compiling Zangband 2.1.0
- * or later.
- */
-#define DRS_SMART_OPTIONS
-
-
-
-/*
- * OPTION: Enable the "track_follow" and "track_target" options.
- * They let monsters follow the player's foot-prints, or remember
- * the player's recent locations.  This code has been removed from
- * the current version because it is being rewritten by Billy, and
- * until it is ready, it will not work.  Do not define this option.
- */
-/* #define WDT_TRACK_OPTIONS */
 
 
 #ifdef USE_SPECIAL
@@ -480,26 +417,28 @@
 #define CAPITALIZE_USER_NAME
 
 
-
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"rr9@angband.org"
+#define MAINTAINER	"Eric Bock (ebock@uswest.net)"
 
 
 /*
  * OPTION: Default font (when using X11).
  */
-#define DEFAULT_X11_FONT		"9x15"
+#define DEFAULT_X11_FONT		"8x13"
 
 /*
  * OPTION: Default fonts (when using X11)
  */
-#define DEFAULT_X11_FONT_SCREEN		DEFAULT_X11_FONT
-#define DEFAULT_X11_FONT_MIRROR		DEFAULT_X11_FONT
-#define DEFAULT_X11_FONT_RECALL		DEFAULT_X11_FONT
-#define DEFAULT_X11_FONT_CHOICE		DEFAULT_X11_FONT
-
+#define DEFAULT_X11_FONT_0		"8x13"
+#define DEFAULT_X11_FONT_1		"6x10"
+#define DEFAULT_X11_FONT_2		"6x10"
+#define DEFAULT_X11_FONT_3		"6x10"
+#define DEFAULT_X11_FONT_4		"5x8"
+#define DEFAULT_X11_FONT_5		"5x8"
+#define DEFAULT_X11_FONT_6		"5x8"
+#define DEFAULT_X11_FONT_7		"5x8"
 
 
 /*
@@ -526,66 +465,22 @@
 # undef ALLOW_VISUALS
 # undef ALLOW_MACROS
 # undef MONSTER_FLOW
-# undef WDT_TRACK_OPTIONS
-# undef DRS_SMART_OPTIONS
 # undef ALLOW_OLD_SAVEFILES
 # undef ALLOW_BORG
 # undef ALLOW_WIZARD
 # undef ALLOW_SPOILERS
 # undef ALLOW_TEMPLATES
-# undef DELAY_LOAD_R_TEXT
 # define DELAY_LOAD_R_TEXT
 #endif
 
 
-
-/*
- * OPTION: Attempt to prevent all "cheating"
- */
-/* #define VERIFY_HONOR */
-
-
-/*
- * React to the "VERIFY_HONOR" flag
- */
-#ifdef VERIFY_HONOR
-# define VERIFY_SAVEFILE
-# define VERIFY_CHECKSUMS
-# define VERIFY_TIMESTAMPS
-#endif
-
 /* Zangband options: */
-
-/* (see above) */
-#ifndef DRS_SMART_OPTIONS
- #define DRS_SMART_OPTIONS
-#endif
-
-/* Should the player know his / her starting life rate? */
-/* #define SHOW_LIFE_RATE */
 
 /* Do we want different characters for different races? */
 # define VARIABLE_PLAYER_GRAPH
-
-/* To turn on the "confirm staircases" check  -- obsolete in 2.1.0 and later */
-/* # define CONFIRM_STAIRCASES */
 
 /* For longer martial arts descriptions */
 # define VERBOSE_MARTIAL_ARTS
 
 /* Allow hordes of 'similar' monsters */
 #define MONSTER_HORDES
-
-/* Allow Klackon- and Sprite-Monks to get extra speed */
-/* Klackons and Sprites are not *supposed* to be
-	playing monks in the first place */
-/* #define MONK_HACK */
-
-/* Wizard mode testing options: */
-
-/* For testing the vaults */
-/* # define FORCE_V_IDX */
-
-/* Testing upkeep */
-/* # define TRACK_FRIENDS */
-

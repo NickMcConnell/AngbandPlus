@@ -1,5 +1,5 @@
 N:*
-98
+100
 'Idspispopd'
 'Purple Rain'
 'Uhl Khakhaas'
@@ -98,3 +98,6 @@ of the Mind
 'Anguirel'
 'Angrist'
 'Belangil'
+'Maiden Taiwan'
+'Maiden Korea'
+

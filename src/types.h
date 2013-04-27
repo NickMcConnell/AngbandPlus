@@ -506,7 +506,7 @@ struct object_type
 	u32b art_flags2;		/* Flags, set 2  for the random artifacts of*/
 	u32b art_flags3;		/* Flags, set 3  Zangband */
 
-	
+
 	s16b next_o_idx;	/* Next object in stack (if any) */
 
 	s16b held_m_idx;	/* Monster holding us (if any) */
@@ -552,23 +552,7 @@ struct monster_type
 
 	s16b hold_o_idx;	/* Object being held (if any) */
 
-#ifdef WDT_TRACK_OPTIONS
-
-	byte ty;			/* Y location of target */
-	byte tx;			/* X location of target */
-
-	byte t_dur;			/* How long are we tracking */
-
-	byte t_bit;			/* Up to eight bit flags */
-
-#endif
-
-#ifdef DRS_SMART_OPTIONS
-
 	u32b smart;			/* Field for "smart_learn" */
-
-#endif
-
 };
 
 
@@ -673,12 +657,7 @@ struct owner_type
 {
 	cptr owner_name;	/* Name */
 
-	byte max_inflate;	/* Inflation (max) */
-	byte min_inflate;	/* Inflation (min) */
-
-	byte haggle_per;	/* Haggle unit */
-
-	byte insult_max;	/* Insult limit */
+	byte inflate;		/* Inflation */
 
 	byte owner_race;	/* Owner race */
 };
@@ -695,25 +674,17 @@ typedef struct store_type store_type;
 
 struct store_type
 {
-	byte owner;				/* Owner index */
-	byte extra;				/* Unused for now */
+	 byte owner;				/* Owner index */
 
-	s16b insult_cur;		/* Insult counter */
+	 s32b store_open;			/* Closed until this turn */
 
-	s16b good_buy;			/* Number of "good" buys */
-	s16b bad_buy;			/* Number of "bad" buys */
+	 s16b table_num;			/* Table -- Number of entries */
+	 s16b table_size;			/* Table -- Total Size of Array */
+	 s16b *table;				/* Table -- Legal item kinds */
 
-	s32b store_open;		/* Closed until this turn */
-
-	s32b store_wrap;		/* Unused for now */
-
-	s16b table_num;			/* Table -- Number of entries */
-	s16b table_size;		/* Table -- Total Size of Array */
-	s16b *table;			/* Table -- Legal item kinds */
-
-	s16b stock_num;			/* Stock -- Number of entries */
-	s16b stock_size;		/* Stock -- Total Size of Array */
-	object_type *stock;		/* Stock -- Actual stock items */
+	 s16b stock_num;			/* Stock -- Number of entries */
+	 s16b stock_size;			/* Stock -- Total Size of Array */
+	 object_type *stock;		/* Stock -- Actual stock items */
 };
 
 
@@ -769,7 +740,7 @@ typedef struct player_sex player_sex;
 struct player_sex
 {
 	cptr title;			/* Type of sex */
-	
+
 	cptr winner;		/* Name of winner */
 };
 
@@ -1131,7 +1102,8 @@ struct martial_arts
 /* Mindcrafters */
 
 typedef struct mindcraft_power mindcraft_power;
-struct mindcraft_power {
+struct mindcraft_power
+{
 	int min_lev;
 	int mana_cost;
 	int fail;

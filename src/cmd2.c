@@ -217,7 +217,7 @@ static s16b chest_check(int y, int x)
 	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
 	{
 		object_type *o_ptr;
-		
+
 		/* Acquire object */
 		o_ptr = &o_list[this_o_idx];
 
@@ -250,7 +250,7 @@ static s16b chest_check(int y, int x)
 static void chest_death(int y, int x, s16b o_idx)
 {
 	int number;
-	
+
 	bool small;
 
 	object_type forge;
@@ -468,7 +468,7 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 		/* Let the Chest drop items */
 		chest_death(y, x, o_idx);
 	}
-	
+
 	/* Result */
 	return (more);
 }
@@ -526,7 +526,7 @@ static bool do_cmd_open_aux(int y, int x, int dir)
 		{
 			/* Message */
 			msg_print("You have picked the lock.");
-		
+
 			/* Open the door */
 			draw_grid_feat(y, x, FEAT_OPEN);
 
@@ -562,7 +562,7 @@ static bool do_cmd_open_aux(int y, int x, int dir)
 
 		/* Update some things */
 		p_ptr->update |= (PU_VIEW | PU_MONSTERS);
-		
+
 		/* Sound */
 		sound(SOUND_OPENDOOR);
 	}
@@ -1208,7 +1208,7 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
 		/* Move the player onto the trap */
 		move_player(dir, FALSE);
 	}
-	
+
 	/* Result */
 	return (more);
 }
@@ -2840,10 +2840,6 @@ static void cmd_racial_power_aux(s32b command)
 				/* Create the food ration */
 				object_prep(q_ptr, 21);
 
-#ifdef USE_SCRIPT
-				q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
-
 				/* Drop the object from heaven */
 				drop_near(q_ptr, -1, py, px);
 				msg_print("You cook some food.");
@@ -4172,7 +4168,7 @@ void do_cmd_racial_power(void)
 			power_desc[num].level = 8;
 			power_desc[num].cost = 8;
 			power_desc[num].fail = 100 - racial_chance(8, A_STR, 14);
-			sprintf(power_desc[num].desc, "dur d25 + 25", lvl);
+			sprintf(power_desc[num].desc, "dur d25 + 25");
 			power_desc[num++].number = MUT1_BERSERK;
 		}
 

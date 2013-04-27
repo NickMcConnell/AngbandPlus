@@ -638,7 +638,7 @@ static void regen_monsters(void)
 /*
  * Forcibly pseudo-identify an object in the inventory
  * (or on the floor)
- * 
+ *
  * note: currently this function allows pseudo-id of any object,
  * including silly ones like potions & scrolls, which always
  * get '{average}'. This should be changed, either to stop such
@@ -687,7 +687,7 @@ bool psychometry(void)
 
 	/* Get an object description */
 	object_desc(o_name, o_ptr, FALSE, 0);
-    
+
 	/* Skip non-feelings */
 	if (!feel)
 	{
@@ -837,7 +837,7 @@ static void process_world(void)
 			if (dawn)
 			{
 				/* Message */
-				msg_print("The sun has risen.");
+				msg_print("The sun has risen.  ");
 
 				/* Hack -- Scan the town */
 				for (y = 0; y < cur_hgt; y++)
@@ -880,8 +880,8 @@ static void process_world(void)
 				}
 			}
 
-			/* Update the monsters */
-			p_ptr->update |= (PU_MONSTERS);
+			/* Update the monsters and view */
+			p_ptr->update |= (PU_MONSTERS | PU_UN_VIEW | PU_VIEW);
 
 			/* Redraw map */
 			p_ptr->redraw |= (PR_MAP);
@@ -1234,23 +1234,12 @@ static void process_world(void)
 		else if (p_ptr->pclass == CLASS_HIGH_MAGE)
 			upkeep_divider = 12;
 
-#ifdef TRACK_FRIENDS
-		if (wizard)
-		msg_format("Total friends: %d.", total_friends);
-#endif /* TRACK_FRIENDS */
-
 		if (total_friends > 1 + (p_ptr->level / (upkeep_divider)))
 		{
 			upkeep_factor = (total_friend_levels);
 
 			if (upkeep_factor > 100) upkeep_factor = 100;
 			else if (upkeep_factor < 10) upkeep_factor = 10;
-
-#ifdef TRACK_FRIENDS
-			if (wizard)
-			msg_format("Levels %d, upkeep %d", total_friend_levels, upkeep_factor);
-#endif /* TRACK_FRIENDS */
-
 		}
 	}
 
@@ -1267,14 +1256,6 @@ static void process_world(void)
 		{
 			s16b upkeep_regen = (((100 - upkeep_factor) * regen_amount) / 100);
 			regenmana(upkeep_regen);
-
-#ifdef TRACK_FRIENDS
-			if (wizard)
-			{
-				msg_format("Regen: %d/%d", upkeep_regen, regen_amount);
-			}
-#endif /* TRACK_FRIENDS */
-
 		}
 		else
 		{
@@ -1746,7 +1727,7 @@ static void process_world(void)
 			{
 				disturb(0, 0);
 
-				if (randint(2) == 1)
+				if (!rand_int(2))
 				{
 					msg_print("You feel less energetic.");
 					if (p_ptr->fast > 0)
@@ -1758,17 +1739,17 @@ static void process_world(void)
 						set_slow(p_ptr->slow + i);
 					}
 				}
-			}
-			else
-			{
-				msg_print("You feel more energetic.");
-				if (p_ptr->slow > 0)
-				{
-					set_slow(0);
-				}
 				else
 				{
-					set_fast(p_ptr->fast + i);
+					msg_print("You feel more energetic.");
+					if (p_ptr->slow > 0)
+					{
+						set_slow(0);
+					}
+					else
+					{
+						set_fast(p_ptr->fast + i);
+					}
 				}
 			}
 		}
@@ -2228,20 +2209,6 @@ static void process_world(void)
 
 	/*** Involuntary Movement ***/
 
-#if 0
-	/*
-	 * This has been replaced with an object specific check.
-	 * Uncursed teleporting objects ask: "Teleport? [y/n]" -- TY
-	 */
-
-	/* Mega-Hack -- Random teleportation XXX XXX XXX */
-	if ((p_ptr->teleport) && (rand_int(100) < 1))
-	{
-		/* Teleport player */
-		teleport_player(40);
-	}
-#endif /* 0 */
-
 	/* Delayed Word-of-Recall */
 	if (p_ptr->word_recall)
 	{
@@ -2354,6 +2321,7 @@ static bool enter_debug_mode(void)
 extern void do_cmd_debug(void);
 
 
+#if 0
 /*
  * Verify use of "god" commands
  */
@@ -2385,6 +2353,8 @@ static bool enter_god_mode(void)
  * Hack -- Declare the God Routines
  */
 extern void do_cmd_god(void);
+#endif
+
 
 #endif /* ALLOW_WIZARD */
 
@@ -3063,24 +3033,7 @@ static void process_command(void)
 		/* Quit (commit suicide) */
 		case 'Q':
 		{
-#ifdef NO_SUICIDE
-			if (total_winner) do_cmd_suicide();
-			else
-			{
-				char buf[1024];
-
-				if (!rand_int(2) && !get_rnd_line("error.txt", "", buf))
-				{
-					msg_print(buf);
-				}
-				else
-				{
-					prt("Type '?' for help.", 0, 0);
-				}
-			}
-#else
 			do_cmd_suicide();
-#endif
 			break;
 		}
 
@@ -3270,7 +3223,7 @@ static void process_player(void)
 			inven_item_increase(item, -255);
 			inven_item_describe(item);
 			inven_item_optimize(item);
-				
+
 			/* Notice stuff (if needed) */
 			if (p_ptr->notice) notice_stuff();
 
@@ -3440,7 +3393,7 @@ static void process_player(void)
 						{
 							/* Forget flag */
 							m_ptr->mflag &= ~(MFLAG_SHOW);
-							
+
 							/* Still need repairs */
 							repair_monsters = TRUE;
 						}
@@ -3573,7 +3526,6 @@ static void dungeon(void)
 	{
 		panel_bounds();
 	}
-
 
 	/* Flush messages */
 	msg_print(NULL);
@@ -3766,40 +3718,6 @@ static void dungeon(void)
 }
 
 
-
-
-#if 0
-
-/* Old routine to load pref files */
-
-/*
- * Load some "user pref files"
- */
-static void load_all_pref_files(void)
-{
-	char buf[1024];
-
-	/* Access the "race" pref file */
-	sprintf(buf, "%s.prf", rp_ptr->title);
-
-	/* Process that file */
-	process_pref_file(buf);
-
-	/* Access the "class" pref file */
-	sprintf(buf, "%s.prf", cp_ptr->title);
-
-	/* Process that file */
-	process_pref_file(buf);
-
-	/* Access the "character" pref file */
-	sprintf(buf, "%s.prf", player_base);
-
-	/* Process that file */
-	process_pref_file(buf);
-}
-
-#else
-
 /* Arcum Dagsson's code to support separate macro files for different realms */
 
 /*
@@ -3826,7 +3744,7 @@ static void load_all_pref_files(void)
 
 	/* Process that file */
 	process_pref_file(buf);
-	
+
 	/* Access the "realm 1" pref file */
 	if (realm_names[p_ptr->realm1]!="no magic")
 		if (realm_names[p_ptr->realm1]!="unknown")
@@ -3836,7 +3754,7 @@ static void load_all_pref_files(void)
 			/* Process that file */
 			process_pref_file(buf);
 		}
-	
+
 		/* Access the "realm 2" pref file */
 		if (realm_names[p_ptr->realm2]!="no magic")
 		if (realm_names[p_ptr->realm2]!="unknown")
@@ -3848,8 +3766,6 @@ static void load_all_pref_files(void)
 		}
 }
 
-
-#endif
 
 /*
  * Actually play a game
@@ -3896,27 +3812,7 @@ void play_game(bool new_game)
 		process_player_name(FALSE);
 	}
 
-	/* Init the RNG */
-	if (Rand_quick)
-	{
-		u32b seed;
-
-		/* Basic seed */
-		seed = (time(NULL));
-
-#ifdef SET_UID
-
-		/* Mutate the seed on Unix machines */
-		seed = ((seed >> 3) * (getpid() << 1));
-
-#endif
-
-		/* Use the complex RNG */
-		Rand_quick = FALSE;
-
-		/* Seed the "complex" RNG */
-		Rand_state_init(seed);
-	}
+	rand_init();
 
 	/* Extract the options */
 	for (i = 0; option_info[i].o_desc; i++)
@@ -3933,7 +3829,7 @@ void play_game(bool new_game)
 				/* Set */
 				(*option_info[i].o_var) = TRUE;
 			}
-			
+
 			/* Clear */
 			else
 			{
@@ -3985,10 +3881,7 @@ void play_game(bool new_game)
 	reset_visuals();
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_MONSTER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER | PW_MONSTER);
 
 	/* Window stuff */
 	window_stuff();
@@ -4022,6 +3915,8 @@ void play_game(bool new_game)
 
 	/* Hack -- Enforce "delayed death" */
 	if (p_ptr->chp < 0) death = TRUE;
+
+	msg_flag = FALSE;
 
 	/* Process */
 	while (TRUE)

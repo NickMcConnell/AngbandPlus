@@ -118,8 +118,6 @@ void safe_setuid_grab(void)
  *
  * Hack -- We will always extract at least one token
  */
-
-
 s16b tokenize(char *buf, s16b num, char **tokens)
 {
 	int i = 0;
@@ -2031,12 +2029,9 @@ static void display_player_stat_info(void)
 		if ((p_ptr->stat_max[i]>18) && (p_ptr->stat_top[i]<=18))
 			e_adj = p_ptr->stat_top[i] - (p_ptr->stat_max[i]-18)/10 - 19;
 
-		/* Deduct class and race bonuses if in maximize */
-		if (p_ptr->maximize)
-		{
-			e_adj -= rp_ptr->r_adj[i];
-			e_adj -= cp_ptr->c_adj[i];
-		}
+		/* Deduct class and race bonuses */
+		e_adj -= rp_ptr->r_adj[i];
+		e_adj -= cp_ptr->c_adj[i];
 
 		/* Reduced name of stat */
 		c_put_str(TERM_WHITE, stat_names_reduced[i], row+i, stat_col);
@@ -2104,7 +2099,7 @@ static void display_player_stat_info(void)
 					/* Label boost */
 					if (o_ptr->pval < 10) c = '0' + o_ptr->pval;
 				}
-				
+
 				/* Bad */
 				if (o_ptr->pval < 0)
 				{
@@ -2196,7 +2191,7 @@ static void display_player_stat_info(void)
 					/* Label boost */
 					if (dummy < 10) c = '0' + dummy;
 				}
-				
+
 				/* Bad */
 				if (dummy < 0)
 				{
@@ -2343,7 +2338,7 @@ static cptr object_flag_names[96] =
 static void display_player_ben(void)
 {
 	int i, x, y;
-	
+
 	object_type *o_ptr;
 
 	u32b f1, f2, f3;
@@ -2353,7 +2348,7 @@ static void display_player_ben(void)
 
 	/* Reset */
 	for (i = 0; i < 6; i++) b[i] = 0;
-	
+
 
 	/* Scan equipment */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
@@ -2376,7 +2371,7 @@ static void display_player_ben(void)
 
 	/* Player flags */
 	player_flags(&f1, &f2, &f3);
-	
+
 	/* Incorporate */
 	b[0] |= (f1 & 0xFFFF);
 	b[1] |= (f1 >> 16);
@@ -2429,7 +2424,7 @@ static void display_player_ben(void)
 static void display_player_ben_one(int mode)
 {
 	int i, n, x, y;
-	
+
 	object_type *o_ptr;
 
 	u32b f1, f2, f3;
@@ -2464,7 +2459,7 @@ static void display_player_ben_one(int mode)
 
 	/* Player flags */
 	player_flags(&f1, &f2, &f3);
-	
+
 	/* Incorporate */
 	b[n][0] = (f1 & 0xFFFF);
 	b[n][1] = (f1 >> 16);
@@ -2677,37 +2672,29 @@ void display_player(int mode)
 }
 
 
-
 /*
  * Hack -- Dump a character description file
- *
- * XXX XXX XXX Allow the "full" flag to dump additional info,
- * and trigger its usage from various places in the code.
  */
-errr file_character(cptr name, bool full)
+errr file_character(cptr name)
 {
-	int			i, x, y;
+	int i, x, y;
 
-	byte		a;
-	char		c;
+	byte a;
+	char c;
 
-#if 0
-	cptr		other = "(";
-#endif
+	int fd;
 
-	cptr		paren = ")";
+	FILE *fff = NULL;
 
-	int			fd;
+	store_type *st_ptr = &store[7];
 
-	FILE		*fff = NULL;
+	char buf[1024];
 
-	store_type		*st_ptr = &store[7];
+	int msg_max = 0;
 
-	char		o_name[80];
+	int k;
 
-	char		buf[1024];
-
-   int msg_max = message_num();
+	u32b kills = 0;
 
 	/* Drop priv's */
 	safe_setuid_drop();
@@ -2742,7 +2729,6 @@ errr file_character(cptr name, bool full)
 	/* Grab priv's */
 	safe_setuid_grab();
 
-
 	/* Invalid file */
 	if (!fff)
 	{
@@ -2754,10 +2740,11 @@ errr file_character(cptr name, bool full)
 		return (-1);
 	}
 
+	sprintf(buf, "%d", message_num());
 
-	fprintf(fff, "  [Zceband %d.%d.%d Character Dump]\n\n",
-				FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
+	if (get_string("Messages to display: ", buf, 10)) msg_max = atoi(buf);
 
+	fprintf(fff, "  [Zceband %d.%d.%d Character Dump]\n\n", VER_MAJOR, VER_MINOR, VER_PATCH);
 
 	/* Display player */
 	display_player(0);
@@ -2805,79 +2792,61 @@ errr file_character(cptr name, bool full)
 		fprintf(fff, "%s\n", buf);
 	}
 
+	fprintf(fff, "\n\n  [Miscellaneous information]\n");
 
-		fprintf(fff, "\n\n  [Miscellaneous information]\n");
-		if (p_ptr->maximize)
-			fprintf(fff, "\n Maximize Mode:   ON");
-		else
-			fprintf(fff, "\n Maximize Mode:   OFF");
+	if (p_ptr->preserve)
+		fprintf(fff, "\n Preserve Mode:   ON");
+	else
+		fprintf(fff, "\n Preserve Mode:   OFF");
 
-		if (p_ptr->preserve)
-			fprintf(fff, "\n Preserve Mode:   ON");
-		else
-			fprintf(fff, "\n Preserve Mode:   OFF");
+	if (auto_scum)
+		fprintf(fff, "\n Autoscum:        ON");
+	else
+		fprintf(fff, "\n Autoscum:        OFF");
 
-		if (auto_scum)
-			fprintf(fff, "\n Autoscum:        ON");
-		else
-			fprintf(fff, "\n Autoscum:        OFF");
+	if (small_levels)
+		fprintf(fff, "\n Small Levels:    ON");
+	else
+		fprintf(fff, "\n Small Levels:    OFF");
 
-		if (small_levels)
-			fprintf(fff, "\n Small Levels:    ON");
-		else
-			fprintf(fff, "\n Small Levels:    OFF");
+	if (empty_levels)
+		fprintf(fff, "\n Arena Levels:    ON");
+	else
+		fprintf(fff, "\n Arena Levels:    OFF");
 
-		if (empty_levels)
-			fprintf(fff, "\n Arena Levels:    ON");
-		else
-			fprintf(fff, "\n Arena Levels:    OFF");
+	fprintf(fff, "\n Recall Depth:    Level %d (%d')\n", p_ptr->max_depth,
+			  50 * (p_ptr->max_depth));
 
-			fprintf(fff, "\n Recall Depth:    Level %d (%d')\n", p_ptr->max_depth,
-						50 * (p_ptr->max_depth));
+	if (p_ptr->noscore) fprintf(fff, "\n You have done something illegal.");
 
+	if (stupid_monsters) fprintf(fff, "\n Your opponents are behaving stupidly.");
 
-		if (p_ptr->noscore)
-			fprintf(fff, "\n You have done something illegal.");
+	for (k = 1; k < MAX_R_IDX-1; k++)
+	{
+		monster_race *r_ptr = &r_info[k];
 
-		if (stupid_monsters)
-			fprintf(fff, "\n Your opponents are behaving stupidly.");
-
-
-	{ /* Monsters slain */
-		int k;
-		s32b Total = 0;
-
-		for (k = 1; k < MAX_R_IDX-1; k++)
+		if ((r_ptr->flags1 & RF1_UNIQUE) && !r_ptr->max_num)
 		{
-			monster_race *r_ptr = &r_info[k];
-
-			if (r_ptr->flags1 & (RF1_UNIQUE))
-			{
-				bool dead = (r_ptr->max_num == 0);
-				if (dead)
-				{
-					Total++;
-				}
-			}
-			else
-			{
-				s16b This = r_ptr->r_pkills;
-				if (This > 0)
-				{
-					Total += This;
-				}
-			}
+			kills++;
 		}
-
-		if (Total < 1)
-			fprintf(fff,"\n You have defeated no enemies yet.\n");
-		else if (Total == 1)
-
-			fprintf(fff,"\n You have defeated one enemy.\n");
 		else
-			fprintf(fff,"\n You have defeated %lu enemies.\n", Total);
+		{
+			kills += r_ptr->r_pkills;
+		}
 	}
 
+	if (!kills)
+	{
+		fprintf(fff,"\n You have defeated no enemies yet.\n");
+	}
+	else if (kills == 1)
+	{
+		fprintf(fff,"\n You have defeated one enemy.\n");
+	}
+	else
+	{
+		fprintf(fff,"\n You have defeated %lu enemies.\n", kills);
+	}
 
 	if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
 	{
@@ -2885,10 +2854,8 @@ errr file_character(cptr name, bool full)
 		dump_mutations(fff);
 	}
 
-
 	/* Skip some lines */
 	fprintf(fff, "\n\n");
-
 
 	/* Dump the equipment */
 	fprintf(fff, "  [Character Equipment]\n\n");
@@ -2898,9 +2865,17 @@ errr file_character(cptr name, bool full)
 
 		if (!o_ptr->k_idx) continue;
 
-		object_desc(o_name, o_ptr, TRUE, 3);
-		fprintf(fff, "%c%s %s\n",
-				index_to_label(i), paren, o_name);
+		if (death)
+		{
+			identify_fully_aux(fff, o_ptr);
+		}
+		else
+		{
+			char o_name[160];
+
+			object_desc(o_name, o_ptr, TRUE, 3);
+			fprintf(fff, "%c) %s\n", index_to_label(i), o_name);
+		}
 	}
 	fprintf(fff, "\n\n");
 
@@ -2912,35 +2887,52 @@ errr file_character(cptr name, bool full)
 
 		if (!o_ptr->k_idx) continue;
 
-		object_desc(o_name, o_ptr, TRUE, 3);
-		fprintf(fff, "%c%s %s\n",
-				index_to_label(i), paren, o_name);
+		if (death)
+		{
+			identify_fully_aux(fff, o_ptr);
+		}
+		else
+		{
+			char o_name[160];
+
+			object_desc(o_name, o_ptr, TRUE, 3);
+			fprintf(fff, "%c) %s\n", index_to_label(i), o_name);
+		}
 	}
 	fprintf(fff, "\n\n");
-
 
 	/* Dump the Home (page 1) */
 	fprintf(fff, "  [Home Inventory]\n\n");
 	for (i = 0; i < st_ptr->stock_num; i++)
 	{
-		object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
-		fprintf(fff, "%c%s %s\n", I2A(i), paren, o_name);
+		if (death)
+		{
+			identify_fully_aux(fff, &st_ptr->stock[i]);
+		}
+		else
+		{
+			char o_name[160];
+
+			object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
+			fprintf(fff, "%c) %s\n", I2A(i), o_name);
+		}
 	}
 	fprintf(fff, "\n\n");
 
-
-	fprintf(fff, "  [Message Log (last %d messages)]\n\n", msg_max);
-
-	for (i = msg_max - 1; i >= 0; i--)
+	if (msg_max)
 	{
-		fprintf(fff, "%s\n", message_str(i));
-	}
-	fprintf(fff, "\n\n");
+		fprintf(fff, "  [Message Log (last %d messages)]\n\n", msg_max);
 
+		for (i = msg_max - 1; i >= 0; i--)
+		{
+			fprintf(fff, "%s\n", message_str(i));
+		}
+
+		fprintf(fff, "\n\n");
+	}
 
 	/* Close it */
 	my_fclose(fff);
-
 
 	/* Message */
 	msg_print("Character dump successful.");
@@ -2949,7 +2941,6 @@ errr file_character(cptr name, bool full)
 	/* Success */
 	return (0);
 }
-
 
 
 /*
@@ -3190,16 +3181,9 @@ static bool do_cmd_help_aux(cptr name, cptr what, int line)
 			continue;
 		}
 
-#ifndef FAKE_VERSION
-		/* Show a general "title" */
-		prt(format("[Angband %d.%d.%d, %s, Line %d/%d]",
-					VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH,
-					caption, line, size), 0, 0);
-#else
-		prt(format("[Zangband %d.%d.%d, %s, Line %d/%d]",
-					FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH,
-					caption, line, size), 0, 0);
-#endif
+		prt(format("[Zceband %d.%d.%d, %s, Line %d/%d]",
+					  VER_MAJOR, VER_MINOR, VER_PATCH,
+					  caption, line, size), 0, 0);
 
 		/* Prompt -- menu screen */
 		if (menu)
@@ -3247,7 +3231,7 @@ static bool do_cmd_help_aux(cptr name, cptr what, int line)
 				find = finder;
 				back = line;
 				line = line + 1;
-				
+
 				/* Show it */
 				strcpy(shower, finder);
 			}
@@ -3356,7 +3340,7 @@ static bool do_cmd_help_aux(cptr name, cptr what, int line)
 
 			/* Hack -- Re-Open the file */
 			fff = my_fopen(path, "r");
-			
+
 		}
 
 		if (k == 'h')  /* Hack, added for character display */
@@ -3376,6 +3360,36 @@ static bool do_cmd_help_aux(cptr name, cptr what, int line)
 
 	/* Normal return */
 	return (TRUE);
+}
+
+
+bool wrap_knowledge(cptr (*knowledge_hook)(FILE *fff, vptr xtra), vptr xtra)
+{
+	FILE *fff;
+
+	char file_name[1024];
+
+	cptr caption;
+
+	/* Temporary file */
+	if (path_temp(file_name, 1024)) return (FALSE);
+
+	/* Open a new file */
+	fff = my_fopen(file_name, "w");
+
+	caption = knowledge_hook(fff, xtra);
+
+	/* Close the file */
+	my_fclose(fff);
+
+	/* Display the file contents */
+	if (caption) show_file(file_name, caption);
+
+	/* Remove the file */
+	fd_kill(file_name);
+
+	/* Report success */
+	return (caption != NULL);
 }
 
 
@@ -3863,10 +3877,11 @@ static void show_info(void)
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
-		
+
 		/* Aware and Known */
 		object_aware(o_ptr);
 		object_known(o_ptr);
+		o_ptr->ident |= IDENT_MENTAL;
 	}
 
 	/* Hack -- Know everything in the home */
@@ -3876,10 +3891,11 @@ static void show_info(void)
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
-		
+
 		/* Aware and Known */
 		object_aware(o_ptr);
 		object_known(o_ptr);
+		o_ptr->ident |= IDENT_MENTAL;
 	}
 
 	/* Hack -- Recalculate bonuses */
@@ -3920,7 +3936,7 @@ static void show_info(void)
 		Term_save();
 
 		/* Dump a character file */
-		(void)file_character(out_val, FALSE);
+		file_character(out_val);
 
 		/* Load screen */
 		Term_load();
@@ -4441,7 +4457,7 @@ static errr top_twenty(void)
 
 	/* Save the version */
 	sprintf(the_score.what, "%u.%u.%u",
-			VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+			  VER_MAJOR, VER_MINOR, VER_PATCH);
 
 	/* Calculate and save the points */
 	sprintf(the_score.pts, "%9lu", (long)total_points());
@@ -4455,13 +4471,13 @@ static errr top_twenty(void)
 	sprintf(the_score.turns, "%9lu", (long)turn);
 	the_score.turns[9] = '\0';
 
-#ifdef HIGHSCORE_DATE_HACK
-	/* Save the date in a hacked up form (9 chars) */
-	sprintf(the_score.day, "%-.6s %-.2s", ctime(&ct) + 4, ctime(&ct) + 22);
-#else
-	/* Save the date in standard form (8 chars) */
-	strftime(the_score.day, 9, "%m/%d/%y", localtime(&ct));
-#endif
+	{
+       /* We don't care about the century, but the compiler still warns us */
+       cptr fmt = "%m/%d/%y";
+
+		 /* Save the date in standard form (8 chars) */
+		 strftime(the_score.day, 9, fmt, localtime(&ct));
+	}
 
 	/* Save the player name (15 chars) */
 	sprintf(the_score.who, "%-.15s", player_name);
@@ -4531,8 +4547,7 @@ static errr predict_score(void)
 
 
 	/* Save the version */
-	sprintf(the_score.what, "%u.%u.%u",
-			VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	sprintf(the_score.what, "%u.%u.%u", VER_MAJOR, VER_MINOR, VER_PATCH);
 
 	/* Calculate and save the points */
 	sprintf(the_score.pts, "%9lu", (long)total_points());
@@ -4777,7 +4792,7 @@ errr get_rnd_line(cptr file_name, cptr entry, char *output)
 {
 	FILE    *fp;
 	char    buf[1024];
-	int     line, counter, test, numentries;
+	int     line, counter, numentries;
 	int     line_num = 0;
 	bool    found = FALSE;
 
@@ -5036,22 +5051,16 @@ static void handle_signal_simple(int sig)
 /*
  * Handle signal -- abort, kill, etc
  */
-static void handle_signal_abort(int sig)
+static void handle_signal_oops(int sig)
 {
 	/* Disable handler */
 	(void)signal(sig, SIG_IGN);
-
-
-	/* Nothing to save, just quit */
-	if (!character_generated || character_saved) quit(NULL);
-
 
 	/* Clear the bottom line */
 	Term_erase(0, 23, 255);
 
 	/* Give a warning */
-	Term_putstr(0, 23, -1, TERM_RED,
-				"A gruesome software bug LEAPS out at you!");
+	Term_putstr(0, 23, -1, TERM_RED, format("A gruesome signal %d bug LEAPS out at you!", sig));
 
 	/* Message */
 	Term_putstr(45, 23, -1, TERM_RED, "Panic save...");
@@ -5059,34 +5068,39 @@ static void handle_signal_abort(int sig)
 	/* Flush output */
 	Term_fresh();
 
-	/* Panic Save */
-	panic_save = 1;
-
-	/* Panic save */
-	(void)strcpy(died_from, "(panic save)");
-
-	/* Forbid suspend */
-	signals_ignore_tstp();
-
-	/* Attempt to save */
-	if (save_player())
+	if (character_generated)
 	{
-		Term_putstr(45, 23, -1, TERM_RED, "Panic save succeeded!");
+		/* Panic Save */
+		panic_save = 1;
+
+		/* Panic save */
+		(void)strcpy(died_from, "(panic save)");
+
+		/* Forbid suspend */
+		signals_ignore_tstp();
+
+		/* Attempt to save */
+		if (save_player())
+		{
+			Term_putstr(45, 23, -1, TERM_RED, "Panic save succeeded!");
+		}
+
+		/* Save failed */
+		else
+		{
+			Term_putstr(45, 23, -1, TERM_RED, "Panic save failed!");
+		}
+
+		/* Flush output */
+		Term_fresh();
 	}
 
-	/* Save failed */
-	else
-	{
-		Term_putstr(45, 23, -1, TERM_RED, "Panic save failed!");
-	}
+	if (!get_check("Attempt to continue? ")) quit_fmt("signal %d", sig);
 
-	/* Flush output */
-	Term_fresh();
+	Term_clear();
 
-	/* Quit */
-	quit("software bug");
+	(void)signal(sig, handle_signal_oops);
 }
-
 
 
 
@@ -5141,59 +5155,59 @@ void signals_init(void)
 
 
 #ifdef SIGFPE
-	(void)signal(SIGFPE, handle_signal_abort);
+	(void)signal(SIGFPE, handle_signal_oops);
 #endif
 
 #ifdef SIGILL
-	(void)signal(SIGILL, handle_signal_abort);
+	(void)signal(SIGILL, handle_signal_oops);
 #endif
 
 #ifdef SIGTRAP
-	(void)signal(SIGTRAP, handle_signal_abort);
+	(void)signal(SIGTRAP, handle_signal_oops);
 #endif
 
 #ifdef SIGIOT
-	(void)signal(SIGIOT, handle_signal_abort);
+	(void)signal(SIGIOT, handle_signal_oops);
 #endif
 
 #ifdef SIGKILL
-	(void)signal(SIGKILL, handle_signal_abort);
+	(void)signal(SIGKILL, handle_signal_oops);
 #endif
 
 #ifdef SIGBUS
-	(void)signal(SIGBUS, handle_signal_abort);
+	(void)signal(SIGBUS, handle_signal_oops);
 #endif
 
 #ifdef SIGSEGV
-	(void)signal(SIGSEGV, handle_signal_abort);
+	(void)signal(SIGSEGV, handle_signal_oops);
 #endif
 
 #ifdef SIGTERM
-	(void)signal(SIGTERM, handle_signal_abort);
+	(void)signal(SIGTERM, handle_signal_oops);
 #endif
 
 #ifdef SIGPIPE
-	(void)signal(SIGPIPE, handle_signal_abort);
+	(void)signal(SIGPIPE, handle_signal_oops);
 #endif
 
 #ifdef SIGEMT
-	(void)signal(SIGEMT, handle_signal_abort);
+	(void)signal(SIGEMT, handle_signal_oops);
 #endif
 
 #ifdef SIGDANGER
-	(void)signal(SIGDANGER, handle_signal_abort);
+	(void)signal(SIGDANGER, handle_signal_oops);
 #endif
 
 #ifdef SIGSYS
-	(void)signal(SIGSYS, handle_signal_abort);
+	(void)signal(SIGSYS, handle_signal_oops);
 #endif
 
 #ifdef SIGXCPU
-	(void)signal(SIGXCPU, handle_signal_abort);
+	(void)signal(SIGXCPU, handle_signal_oops);
 #endif
 
 #ifdef SIGPWR
-	(void)signal(SIGPWR, handle_signal_abort);
+	(void)signal(SIGPWR, handle_signal_oops);
 #endif
 
 }

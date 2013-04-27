@@ -207,45 +207,6 @@
 #endif
 
 
-#if 0
-
-/*
- * The Angband Color Set (0 to 15):
- *   Black, White, Slate, Orange,    Red, Blue, Green, Umber
- *   D-Gray, L-Gray, Violet, Yellow, L-Red, L-Blue, L-Green, L-Umber
- *
- * Colors 8 to 15 are basically "enhanced" versions of Colors 0 to 7.
- *
- * On the Macintosh, we use color quickdraw, and we use actual "RGB"
- * values below to choose the 16 colors.
- *
- * If we are compiled for ancient machines, we bypass color and simply
- * draw everything in white (letting "z-term.c" automatically convert
- * "black" into "wipe" calls).
- */
-static RGBColor foo[16] =
-{
-	{0x0000, 0x0000, 0x0000},	/* TERM_DARK */
-	{0xFFFF, 0xFFFF, 0xFFFF},	/* TERM_WHITE */
-	{0x8080, 0x8080, 0x8080},	/* TERM_SLATE */
-	{0xFFFF, 0x8080, 0x0000},	/* TERM_ORANGE */
-	{0xC0C0, 0x0000, 0x0000},	/* TERM_RED */
-	{0x0000, 0x8080, 0x4040},	/* TERM_GREEN */
-	{0x0000, 0x0000, 0xFFFF},	/* TERM_BLUE */
-	{0x8080, 0x4040, 0x0000},	/* TERM_UMBER */
-	{0x4040, 0x4040, 0x4040},	/* TERM_L_DARK */
-	{0xC0C0, 0xC0C0, 0xC0C0},	/* TERM_L_WHITE */
-	{0xFFFF, 0x0000, 0xFFFF},	/* TERM_VIOLET */
-	{0xFFFF, 0xFFFF, 0x0000},	/* TERM_YELLOW */
-	{0xFFFF, 0x0000, 0x0000},	/* TERM_L_RED */
-	{0x0000, 0xFFFF, 0x0000},	/* TERM_L_GREEN */
-	{0x0000, 0xFFFF, 0xFFFF},	/* TERM_L_BLUE */
-	{0xC0C0, 0x8080, 0x4040}	/* TERM_L_UMBER */
-};
-
-#endif
-
-
 /*
  * Forward declare
  */
@@ -441,52 +402,6 @@ static void refnum_to_name(char *buf, long refnum, short vrefnum, char *fname)
 }
 
 
-#if 0
-
-/*
- * XXX XXX XXX Allow the system to ask us for a filename
- */
-static bool askfor_file(char *buf, int len)
-{
-	SFReply reply;
-	Str255 dflt;
-	Point topleft;
-	short vrefnum;
-	long drefnum, junk;
-
-	/* Default file name */
-	sprintf((char*)dflt + 1, "%s's description", buf);
-	dflt[0] = strlen((char*)dflt + 1);
-
-	/* Ask for a file name */
-	topleft.h=(qd.screenBits.bounds.left+qd.screenBits.bounds.right)/2-344/2;
-	topleft.v=(2*qd.screenBits.bounds.top+qd.screenBits.bounds.bottom)/3-188/2;
-	SFPutFile(topleft, "\pSelect a filename:", dflt, NULL, &reply);
-	/* StandardPutFile("\pSelect a filename:", dflt, &reply); */
-
-	/* Process */
-	if (reply.good)
-	{
-		int fc;
-
-		/* Get info */
-		GetWDInfo(reply.vRefNum, &vrefnum, &drefnum, &junk);
-
-		/* Extract the name */
-		refnum_to_name(buf, drefnum, vrefnum, (char*)reply.fName);
-
-		/* Success */
-		return (TRUE);
-	}
-
-	/* Failure */
-	return (FALSE);
-}
-
-#endif
-
-
-
 /*
  * Center a rectangle inside another rectangle
  */
@@ -664,7 +579,7 @@ static void term_data_color(term_data *td, int a)
 		color.red = (rv | (rv << 8));
 		color.green = (gv | (gv << 8));
 		color.blue = (bv | (bv << 8));
-	
+
 		/* Activate the color */
 		RGBForeColor(&color);
 
@@ -962,7 +877,7 @@ static OSErr BenSWCreateGWorldFromPict(
 	OffsetRect(&pictRect, -pictRect.left, -pictRect.top);
 
 	/* Create a GWorld */
-	err = NewGWorld(&tempGWorld, depth, &pictRect, nil, 
+	err = NewGWorld(&tempGWorld, depth, &pictRect, nil,
 					theGDH, noNewDevice);
 
 	/* Success */
@@ -988,7 +903,7 @@ static OSErr BenSWCreateGWorldFromPict(
 
 	/* Restore GWorld */
 	SetGWorld(saveGWorld, saveGDevice);
-	
+
 	/* Success */
 	return (0);
 }
@@ -1000,7 +915,7 @@ static OSErr BenSWCreateGWorldFromPict(
 static errr globe_init(void)
 {
 	OSErr err;
-	
+
 	GWorldPtr tempPictGWorldP;
 
 	PicHandle newPictH;
@@ -1072,7 +987,7 @@ static errr globe_nuke(void)
 		frameP = NULL;
 	}
 
-	/* Flush events */	
+	/* Flush events */
 	FlushEvents(everyEvent, 0);
 
 	/* Success */
@@ -1151,7 +1066,7 @@ static void Term_init_mac(term *t)
 		/* Obtain the rect */
 		tempRect = td->w->portRect;
 
-		/* Obtain the global rect */	
+		/* Obtain the global rect */
 		globalRect = tempRect;
 		LocalToGlobal((Point*)&globalRect.top);
 		LocalToGlobal((Point*)&globalRect.bottom);
@@ -1242,7 +1157,7 @@ static errr Term_xtra_mac_react(void)
 #ifdef ANGBAND_LITE_MAC
 
 	/* Nothing */
-	
+
 #else /* ANGBAND_LITE_MAC */
 
 	/* Handle sound */
@@ -1316,19 +1231,6 @@ static errr Term_xtra_mac(int n, int v)
 			Handle handle;
 
 			Str255 sound;
-
-#if 0
-			short oldResFile;
-			short newResFile;
-
-			/* Open the resource file */
-			oldResFile = CurResFile();
-			newResFile = OpenResFile(sound);
-
-			/* Close the resource file */
-			CloseResFile(newResFile);
-			UseResFile(oldResFile);
-#endif
 
 			/* Get the proper sound name */
 			sprintf((char*)sound + 1, "%.16s.wav", angband_sound_name[v]);
@@ -2502,7 +2404,7 @@ static void init_menubar(void)
 	for (i = 8; i <= 32; i += ((i / 16) + 1))
 	{
 		Str15 buf;
-		
+
 		/* Textual size */
 		sprintf((char*)buf + 1, "%d", i);
 		buf[0] = strlen((char*)buf + 1);
@@ -2522,7 +2424,7 @@ static void init_menubar(void)
 	for (i = 0; i < MAX_TERM_DATA; i++)
 	{
 		Str15 buf;
-		
+
 		/* Describe the item */
 		sprintf((char*)buf + 1, "%.15s", angband_term_name[i]);
 		buf[0] = strlen((char*)buf + 1);
@@ -2559,7 +2461,7 @@ static void init_menubar(void)
 	for (i = 4; i <= 32; i++)
 	{
 		Str15 buf;
-		
+
 		/* Textual size */
 		sprintf((char*)buf + 1, "%d", i);
 		buf[0] = strlen((char*)buf + 1);
@@ -2753,7 +2655,7 @@ static void setup_menus(void)
 		DisableItem(m, i);
 		CheckItem(m, i, FALSE);
 	}
-	
+
 	/* Active window */
 	if (td)
 	{
@@ -3229,7 +3131,7 @@ static void menu(long mc)
 			/* Mapped */
 			td->mapped = TRUE;
 
-			/* Link */	
+			/* Link */
 			term_data_link(i);
 
 			/* Mapped (?) */
@@ -3596,20 +3498,6 @@ static bool CheckEvents(bool wait)
 	/* Analyze the event */
 	switch (event.what)
 	{
-
-#if 0
-
-		case activateEvt:
-		{
-			w = (WindowPtr)event.message;
-
-			activate(w);
-
-			break;
-		}
-
-#endif
-
 		case updateEvt:
 		{
 			/* Extract the window */
@@ -4234,7 +4122,7 @@ void main(void)
 # if defined(powerc) || defined(__powerc)
 
 	/* Assume System 7 */
-	
+
 	/* Assume Color Quickdraw */
 
 # else

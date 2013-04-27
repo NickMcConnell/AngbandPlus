@@ -5,14 +5,6 @@
 #include "angband.h"
 
 
-/* Some temporary storage variables */
-static byte tmp8u;
-static s16b tmp16s;
-static u16b tmp16u;
-static s32b tmp32s;
-static u32b tmp32u;
-
-
 /*
  * Some "local" parameters, used to help write savefiles
  */
@@ -120,24 +112,9 @@ static void wr_item(object_type *o_ptr)
 
 	wr_byte(o_ptr->marked);
 
-#if 0
-	/* Old flags */
-    if (o_ptr->art_name || o_ptr->art_flags1 || o_ptr->art_flags2 ||
-        o_ptr->art_flags3)
-    {
-#endif
-    wr_u32b(o_ptr->art_flags1);
-    wr_u32b(o_ptr->art_flags2);
-    wr_u32b(o_ptr->art_flags3);
-#if 0
-	 }
-    else                
-	 {
-	wr_u32b(0L);
-	wr_u32b(0L);
-	wr_u32b(0L);
-    }
-#endif
+	wr_u32b(o_ptr->art_flags1);
+	wr_u32b(o_ptr->art_flags2);
+	wr_u32b(o_ptr->art_flags3);
 
 	/* Held by monster index */
 	wr_s16b(o_ptr->held_m_idx);
@@ -155,8 +132,8 @@ static void wr_item(object_type *o_ptr)
 	{
 		wr_string("");
 	}
-	
-	/* If it is a "new" named artifact, save the name */        
+
+	/* If it is a "new" named artifact, save the name */
 	if (o_ptr->art_name)
 	{
 		  wr_string(quark_str(o_ptr->art_name));
@@ -270,18 +247,11 @@ static void wr_store(store_type *st_ptr)
 	/* Save the "open" counter */
 	wr_u32b(st_ptr->store_open);
 
-	/* Save the "insults" */
-	wr_s16b(st_ptr->insult_cur);
-
 	/* Save the current owner */
 	wr_byte(st_ptr->owner);
 
 	/* Save the stock size */
 	wr_byte(st_ptr->stock_num);
-
-	/* Save the "haggle" info */
-	wr_s16b(st_ptr->good_buy);
-	wr_s16b(st_ptr->bad_buy);
 
 	/* Save the stock */
 	for (j = 0; j < st_ptr->stock_num; j++)
@@ -299,18 +269,12 @@ static errr wr_randomizer(void)
 {
 	int i;
 
-	/* Zero */
-	wr_u16b(0);
-	
-	/* Place */
-	wr_u16b(Rand_place);
-
 	/* State */
-	for (i = 0; i < RAND_DEG; i++)
-	{
-		wr_u32b(Rand_state[i]);
-	}
-	
+	wr_u32b(random);
+
+	/* Zero */
+	for (i = 0; i < 63; i++) wr_u32b(0);
+
 	/* Success */
 	return (0);
 }
@@ -378,7 +342,7 @@ static void wr_options(void)
 				/* Set */
 				option_flag[os] |= (1L << ob);
 			}
-			
+
 			/* Clear */
 			else
 			{
@@ -405,21 +369,6 @@ static void wr_options(void)
 
 	/* Dump the masks */
 	for (i = 0; i < 8; i++) wr_u32b(window_mask[i]);
-}
-
-
-/*
- * Hack -- Write the "ghost" info
- */
-static void wr_ghost(void)
-{
-	int i;
-
-	/* Name */
-	wr_string("Broken Ghost");
-
-	/* Hack -- stupid data */
-	for (i = 0; i < 60; i++) wr_byte(0);
 }
 
 
@@ -622,7 +571,7 @@ static void wr_dungeon(void)
 		{
 			/* Extract a byte */
 			tmp8u = (cave_info[y][x] & (IMPORTANT_FLAGS));
-			
+
 			/* If the run is broken, or too full, flush it */
 			if ((tmp8u != prev_char) || (count == MAX_UCHAR))
 			{
@@ -719,7 +668,7 @@ static void wr_dungeon(void)
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type *m_ptr = &m_list[i];
-		
+
 		/* Dump it */
 		wr_monster(m_ptr);
 	}
@@ -732,20 +681,17 @@ static void wr_dungeon(void)
  */
 static bool wr_savefile_new(void)
 {
-	int        i;
+	int i;
 
-	u32b              now;
+	u32b now;
 
-	byte            tmp8u;
-	u16b            tmp16u;
+	byte tmp8u;
+	u16b tmp16u;
 
 
 	/* Guess at the current time */
-	now = time((time_t *)0);
+	now = time(NULL);
 
-
-	/* Note the operating system */
-	sf_xtra = 0L;
 
 	/* Note when the file was saved */
 	sf_when = now;
@@ -756,38 +702,24 @@ static bool wr_savefile_new(void)
 
 	/*** Actually write the file ***/
 
-#if 0
 	/* Dump the file header */
 	xor_byte = 0;
-	wr_byte(VERSION_MAJOR);
+	wr_byte(VER_MAJOR);
 	xor_byte = 0;
-	wr_byte(VERSION_MINOR);
+	wr_byte(VER_MINOR);
 	xor_byte = 0;
-	wr_byte(VERSION_PATCH);
+	wr_byte(VER_PATCH);
 	xor_byte = 0;
-#else
-    /* Dump the file header */
-	xor_byte = 0;
-    wr_byte(FAKE_VER_MAJOR);
-	xor_byte = 0;
-    wr_byte(FAKE_VER_MINOR);
-	xor_byte = 0;
-	 wr_byte(FAKE_VER_PATCH);
-	xor_byte = 0;
-#endif
 
 	tmp8u = rand_int(256);
 	wr_byte(tmp8u);
-
 
 	/* Reset the checksum */
 	v_stamp = 0L;
 	x_stamp = 0L;
 
-
-	/* Operating system */
-	wr_u32b(sf_xtra);
-
+   /* New savefile version */
+	wr_u32b(VER_SAVE);
 
 	/* Time file last saved */
 	wr_u32b(sf_when);
@@ -814,7 +746,6 @@ static bool wr_savefile_new(void)
 
 	/* Dump the number of "messages" */
 	tmp16u = message_num();
-	if (compress_savefile && (tmp16u > 40)) tmp16u = 40;
 	wr_u16b(tmp16u);
 
 	/* Dump the messages (oldest first!) */
@@ -933,14 +864,7 @@ static bool wr_savefile_new(void)
 
 
 	/* Player is not dead, write the dungeon */
-	if (!death)
-	{
-		/* Dump the dungeon */
-		wr_dungeon();
-
-		/* Dump the ghost */
-		wr_ghost();
-	}
+	if (!death) wr_dungeon();
 
 
 	/* Write the "value check-sum" */
@@ -960,16 +884,14 @@ static bool wr_savefile_new(void)
 
 /*
  * Medium level player saver
- *
- * XXX XXX XXX Angband 2.8.0 will use "fd" instead of "fff" if possible
  */
 static bool save_player_aux(char *name)
 {
-	bool    ok = FALSE;
+	bool ok = FALSE;
 
-	int             fd;
+	int fd;
 
-	int             mode = 0644;
+	int mode = 0644;
 
 
 	/* No file yet */
@@ -1024,22 +946,15 @@ static bool save_player_aux(char *name)
  */
 bool save_player(void)
 {
-	int             result = FALSE;
+	int result = FALSE;
 
-	char    safe[1024];
+	char safe[1024];
 
 
-#ifdef SET_UID
-
-# ifdef SECURE
-
+#if defined(SET_UID) && defined(SECURE)
 	/* Get "games" permissions */
 	beGames();
-
-# endif
-
 #endif
-
 
 	/* New savefile */
 	strcpy(safe, savefile);
@@ -1084,31 +999,13 @@ bool save_player(void)
 		/* Hack -- Pretend the character was loaded */
 		character_loaded = TRUE;
 
-#ifdef VERIFY_SAVEFILE
-
-		/* Lock on savefile */
-		strcpy(temp, savefile);
-		strcat(temp, ".lok");
-
-		/* Remove lock file */
-		fd_kill(temp);
-
-#endif
-
 		/* Success */
 		result = TRUE;
 	}
 
-
-#ifdef SET_UID
-
-# ifdef SECURE
-
+#if defined(SET_UID) && defined(SECURE)
 	/* Drop "games" permissions */
 	bePlayer();
-
-# endif
-
 #endif
 
 
@@ -1120,15 +1017,6 @@ bool save_player(void)
 
 /*
  * Attempt to Load a "savefile"
- *
- * Version 2.7.0 introduced a slightly different "savefile" format from
- * older versions, requiring a completely different parsing method.
- *
- * Note that savefiles from 2.7.0 - 2.7.2 are completely obsolete.
- *
- * Pre-2.8.0 savefiles lose some data, see "load2.c" for info.
- *
- * Pre-2.7.0 savefiles lose a lot of things, see "load1.c" for info.
  *
  * On multi-user systems, you may only "read" a savefile if you will be
  * allowed to "write" it later, this prevents painful situations in which
@@ -1143,18 +1031,13 @@ bool save_player(void)
  */
 bool load_player(void)
 {
-	int             fd = -1;
+	int fd = -1;
 
-	errr    err = 0;
+	errr err = 0;
 
-	byte    vvv[4];
+	cptr what = "generic";
 
-#ifdef VERIFY_TIMESTAMP
-	struct stat     statbuf;
-#endif
-
-	cptr    what = "generic";
-
+   byte ver[4];
 
 	/* Paranoia */
 	turn = 0;
@@ -1184,50 +1067,6 @@ bool load_player(void)
 
 #endif
 
-
-#ifdef VERIFY_SAVEFILE
-
-	/* Verify savefile usage */
-	if (!err)
-	{
-		FILE *fkk;
-
-		char temp[1024];
-
-		/* Extract name of lock file */
-		strcpy(temp, savefile);
-		strcat(temp, ".lok");
-
-		/* Check for lock */
-		fkk = my_fopen(temp, "r");
-
-		/* Oops, lock exists */
-		if (fkk)
-		{
-			/* Close the file */
-			my_fclose(fkk);
-
-			/* Message */
-			msg_print("Savefile is currently in use.");
-			msg_print(NULL);
-
-			/* Oops */
-			return (FALSE);
-		}
-
-		/* Create a lock file */
-		fkk = my_fopen(temp, "w");
-
-		/* Dump a line of info */
-		fprintf(fkk, "Lock file for savefile '%s'\n", savefile);
-
-		/* Close the lock file */
-		my_fclose(fkk);
-	}
-
-#endif
-
-
 	/* Okay */
 	if (!err)
 	{
@@ -1244,14 +1083,8 @@ bool load_player(void)
 	/* Process file */
 	if (!err)
 	{
-
-#ifdef VERIFY_TIMESTAMP
-		/* Get the timestamp */
-		(void)fstat(fd, &statbuf);
-#endif
-
 		/* Read the first four bytes */
-		if (fd_read(fd, (char*)(vvv), 4)) err = -1;
+		if (fd_read(fd, (char*)(&ver), 4)) err = -1;
 
 		/* What */
 		if (err) what = "Cannot read savefile";
@@ -1263,47 +1096,11 @@ bool load_player(void)
 	/* Process file */
 	if (!err)
 	{
-
-#if 0
 		/* Extract version */
-		sf_major = vvv[0];
-		sf_minor = vvv[1];
-		sf_patch = vvv[2];
-		sf_extra = vvv[3];
-#else
-		/* Extract version */
-		z_major = vvv[0];
-		z_minor = vvv[1];
-		z_patch = vvv[2];
-		sf_extra = vvv[3];
-		sf_major = 2;
-		sf_minor = 8;
-		sf_patch = 1;
-
-
-		/* Pre-2.1.0: Assume 2.0.6 (same as 2.0.0 - 2.0.5) */
-		if ((z_major == sf_major) &&
-		    (z_minor == sf_minor) &&
-		    (z_patch == sf_patch))
-		{
-			z_major = 2;
-			z_minor = 0;
-			z_patch = 6;
-		}
-#endif
-
-		/* Very old savefiles */
-		if ((sf_major == 5) && (sf_minor == 2))
-		{
-			sf_major = 2;
-			sf_minor = 5;
-		}
-
-		/* Extremely old savefiles */
-		if (sf_major > 2)
-		{
-			sf_major = 1;
-		}
+		sf_major = ver[0];
+		sf_minor = ver[1];
+		sf_patch = ver[2];
+		sf_extra = ver[3];
 
 		/* Clear screen */
 		Term_clear();
@@ -1311,68 +1108,34 @@ bool load_player(void)
 		/* Parse "new" savefiles */
 		if (sf_major == 2)
 		{
-			/* Attempt to load */
-			err = rd_savefile();
+			 /* Attempt to load */
+			 err = rd_savefile();
 		}
-
 		/* Parse "future" savefiles */
 		else
 		{
-			/* Error XXX XXX XXX */
-			err = -1;
-		}
-
-		/* Message (below) */
-		if (err) what = "Cannot parse savefile";
-	}
-
-	/* Paranoia */
-	if (!err)
-	{
-		/* Invalid turn */
-		if (!turn) err = -1;
-
-		/* Message (below) */
-		if (err) what = "Broken savefile";
-	}
-
-#ifdef VERIFY_TIMESTAMP
-	/* Verify timestamp */
-	if (!err && !arg_wizard)
-	{
-		/* Hack -- Verify the timestamp */
-		if (sf_when > (statbuf.st_ctime + 100) ||
-		    sf_when < (statbuf.st_ctime - 100))
-		{
-			/* Message */
-			what = "Invalid timestamp";
-
-			/* Oops */
-			err = -1;
+			 /* Error XXX XXX XXX */
+			 err = -1;
+          what = "Cannot parse savefile";
 		}
 	}
-#endif
 
+	/* Invalid turn */
+	if (!err && !turn)
+	{
+		 err = -1;
+		 what = "Broken savefile";
+	}
 
 	/* Okay */
 	if (!err)
 	{
 		/* Give a conversion warning */
-		if ((FAKE_VER_MAJOR != z_major) ||
-		    (FAKE_VER_MINOR != z_minor) ||
-		    (FAKE_VER_PATCH != z_patch))
+		if ((VER_MAJOR != sf_major) || (VER_MINOR != sf_minor) || (VER_PATCH != sf_patch))
 		{
-			if (z_major == 2 && z_minor == 0 && z_patch == 6)
-			{
-				msg_print("Converted a 2.0.* savefile.");
-			}
-			else
-			{
-				/* Message */
-				msg_format("Converted a %d.%d.%d savefile.",
-				    z_major, z_minor, z_patch);
-			}
-			msg_print(NULL);
+			 /* Message */
+			 msg_format("Converted a %d.%d.%d savefile.", sf_major, sf_minor, sf_patch);
+			 msg_print(NULL);
 		}
 
 		/* Player is dead */
@@ -1415,28 +1178,8 @@ bool load_player(void)
 		return (TRUE);
 	}
 
-
-#ifdef VERIFY_SAVEFILE
-
-	/* Verify savefile usage */
-	if (TRUE)
-	{
-		char temp[1024];
-
-		/* Extract name of lock file */
-		strcpy(temp, savefile);
-		strcat(temp, ".lok");
-
-		/* Remove lock */
-		fd_kill(temp);
-	}
-
-#endif
-
-
 	/* Message */
-	msg_format("Error (%s) reading %d.%d.%d savefile.",
-		   what, sf_major, sf_minor, sf_patch);
+	msg_format("Error (%s) reading %d.%d.%d savefile.", what, sf_major, sf_minor, sf_patch);
 	msg_print(NULL);
 
 	/* Oops */

@@ -274,66 +274,33 @@ static XtResource resources[] =
 	{ XtNcolor1, XtCColor, XtRPixel, sizeof(Pixel),
 	offset(color[1]), XtRString, "white" },
 	{ XtNcolor2, XtCColor, XtRPixel, sizeof(Pixel),
-	offset(color[2]), XtRString, "#d7d7d7" },
+	offset(color[2]), XtRString, "#b5b5b5" },
 	{ XtNcolor3, XtCColor, XtRPixel, sizeof(Pixel),
-	offset(color[3]), XtRString, "#ff9200" },
+	offset(color[3]), XtRString, "#ffb500" },
 	{ XtNcolor4, XtCColor, XtRPixel, sizeof(Pixel),
-	offset(color[4]), XtRString, "#ff0000" },
+	offset(color[4]), XtRString, "#de0000" },
 	{ XtNcolor5, XtCColor, XtRPixel, sizeof(Pixel),
-	offset(color[5]), XtRString, "#00cd00" },
+	offset(color[5]), XtRString, "#00b580" },
 	{ XtNcolor6, XtCColor, XtRPixel, sizeof(Pixel),
-	offset(color[6]), XtRString, "#0000fe" },
+	offset(color[6]), XtRString, "#0000ff" },
 	{ XtNcolor7, XtCColor, XtRPixel, sizeof(Pixel),
-	offset(color[7]), XtRString, "#c86400" },
+	offset(color[7]), XtRString, "#b58000" },
 	{ XtNcolor8, XtCColor, XtRPixel, sizeof(Pixel),
-	offset(color[8]), XtRString, "#a3a3a3" },
+	offset(color[8]), XtRString, "#808080" },
 	{ XtNcolor9, XtCColor, XtRPixel, sizeof(Pixel),
-	offset(color[9]), XtRString, "#ebebeb" },
+	offset(color[9]), XtRString, "#dedede" },
 	{ XtNcolor10, XtCColor, XtRPixel, sizeof(Pixel),
-	offset(color[10]), XtRString, "#a500ff" },
+	offset(color[10]), XtRString, "#ff00ff" },
 	{ XtNcolor11, XtCColor, XtRPixel, sizeof(Pixel),
-	offset(color[11]), XtRString, "#fffd00" },
+	offset(color[11]), XtRString, "#ffff00" },
 	{ XtNcolor12, XtCColor, XtRPixel, sizeof(Pixel),
-	offset(color[12]), XtRString, "#ff00bc" },
+	offset(color[12]), XtRString, "#ff0000" },
 	{ XtNcolor13, XtCColor, XtRPixel, sizeof(Pixel),
 	offset(color[13]), XtRString, "#00ff00" },
 	{ XtNcolor14, XtCColor, XtRPixel, sizeof(Pixel),
-	offset(color[14]), XtRString, "#00c8ff" },
+	offset(color[14]), XtRString, "#00ffff" },
 	{ XtNcolor15, XtCColor, XtRPixel, sizeof(Pixel),
-	offset(color[15]), XtRString, "#ffcc80" },
-
-#if 0
-
-	{ XtNcolor2, XtCColor, XtRPixel, sizeof(Pixel),
-	offset(color[2]), XtRString, "#a6a6a6" },
-	{ XtNcolor3, XtCColor, XtRPixel, sizeof(Pixel),
-	offset(color[3]), XtRString, "#ff6302" },
-	{ XtNcolor4, XtCColor, XtRPixel, sizeof(Pixel),
-	offset(color[4]), XtRString, "#ca0808" },
-	{ XtNcolor5, XtCColor, XtRPixel, sizeof(Pixel),
-	offset(color[5]), XtRString, "#008e18" },
-	{ XtNcolor6, XtCColor, XtRPixel, sizeof(Pixel),
-	offset(color[6]), XtRString, "#0000e3" },
-	{ XtNcolor7, XtCColor, XtRPixel, sizeof(Pixel),
-	offset(color[7]), XtRString, "#814007" },
-	{ XtNcolor8, XtCColor, XtRPixel, sizeof(Pixel),
-	offset(color[8]), XtRString, "#6b6b6b" },
-	{ XtNcolor9, XtCColor, XtRPixel, sizeof(Pixel),
-	offset(color[9]), XtRString, "#d6d6d6" },
-	{ XtNcolor10, XtCColor, XtRPixel, sizeof(Pixel),
-	offset(color[10]), XtRString, "#5100c2" },
-	{ XtNcolor11, XtCColor, XtRPixel, sizeof(Pixel),
-	offset(color[11]), XtRString, "#fdf105" },
-	{ XtNcolor12, XtCColor, XtRPixel, sizeof(Pixel),
-	offset(color[12]), XtRString, "#ff9259" },
-	{ XtNcolor13, XtCColor, XtRPixel, sizeof(Pixel),
-	offset(color[13]), XtRString, "#26cf17" },
-	{ XtNcolor14, XtCColor, XtRPixel, sizeof(Pixel),
-	offset(color[14]), XtRString, "#02b2f2" },
-	{ XtNcolor15, XtCColor, XtRPixel, sizeof(Pixel),
-	offset(color[15]), XtRString, "#b28b48" },
-
-#endif
+	offset(color[15]), XtRString, "#deb580" },
 
 	{ XtNredrawCallback, XtCCallback, XtRCallback, sizeof(XtPointer),
 	offset(redraw_callbacks), XtRCallback, (XtPointer)NULL }
@@ -361,7 +328,7 @@ AngbandClassRec angbandClassRec =
 		/* Core class fields initialization */
 #define superclass              (&simpleClassRec)
 		/* superclass           */      (WidgetClass) superclass,
-		/* class_name           */      "Angband",
+		/* class_name           */      "zceband-213b",
 		/* widget_size          */      sizeof(AngbandRec),
 		/* class_initialize     */      NULL,
 		/* class_part_initialize*/      NULL,
@@ -757,7 +724,7 @@ static XFontStruct *getFont(AngbandWidget widget,
 /*
  * Maximum number of windows XXX XXX XXX XXX
  */
-#define MAX_TERM_DATA 8
+#define MAX_TERM_DATA 4
 
 /*
  * Number of fallback resources per window
@@ -791,14 +758,10 @@ static term_data data[MAX_TERM_DATA];
 
 char *termNames[MAX_TERM_DATA] =
 {
-    "angband",
-    "mirror",
-    "recall",
-    "choice",
-    "term-4",
-    "term-5",
-    "term-6",
-    "term-7"
+    "zceband",
+    "term-1",
+    "term-2",
+    "term-3"
 };
 
 Arg specialArgs[TERM_FALLBACKS][SPECIAL_FALLBACKS] =
@@ -855,22 +818,22 @@ XtAppContext appcon;
  */
 static String fallback[] =
 {
-	"Angband.angband.iconName:            Angband",
-	"Angband.angband.title:               Angband",
-	"Angband.mirror.iconName:             Mirror",
-	"Angband.mirror.title:                Mirror",
-	"Angband.recall.iconName:             Recall",
-	"Angband.recall.title:                Recall",
-	"Angband.choice.iconName:             Choice",
-	"Angband.choice.title:                Choice",
-	"Angband.term-4.iconName:	      Term 4",
-	"Angband.term-4.title:		      Term 4",
-	"Angband.term-5.iconName:	      Term 5",
-	"Angband.term-5.title:		      Term 5",
-	"Angband.term-6.iconName:	      Term 6",
-	"Angband.term-6.title:		      Term 6",
-	"Angband.term-7.iconName:	      Term 7",
-	"Angband.term-7.title:		      Term 7",
+	"zceband-213b.zceband.iconName:       Zceband-213b",
+	"zceband-213b.zceband.title:          Zceband-213b",
+	"zceband-213b.term-1.iconName:        Term 1",
+	"zceband-213b.term-1.title:           Term 1",
+	"zceband-213b.term-2.iconName:        Term 2",
+	"zceband-213b.term-2.title:           Term 2",
+	"zceband-213b.term-3.iconName:        Term 3",
+	"zceband-213b.term-3.title:           Term 3",
+	"zceband-213b.term-4.iconName:	      Term 4",
+	"zceband-213b.term-4.title:		      Term 4",
+	"zceband-213b.term-5.iconName:	      Term 5",
+	"zceband-213b.term-5.title:		      Term 5",
+	"zceband-213b.term-6.iconName:	      Term 6",
+	"zceband-213b.term-6.title:		      Term 6",
+	"zceband-213b.term-7.iconName:	      Term 7",
+	"zceband-213b.term-7.title:		      Term 7",
 	NULL
 };
 
@@ -1254,7 +1217,7 @@ errr init_xaw(void)
 #endif
 
 	/* Initialize the toolkit */
-	topLevel = XtAppInitialize (&appcon, "Angband", NULL, 0, &argc, argv,
+	topLevel = XtAppInitialize (&appcon, "zceband-213b", NULL, 0, &argc, argv,
 	                            fallback, NULL, 0);
 
 	/* Initialize the windows */

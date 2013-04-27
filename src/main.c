@@ -91,14 +91,60 @@ static void init_stuff(void)
 
 	cptr tail;
 
-	/* Get the environment variable */
-	tail = getenv("ANGBAND_PATH");
+	int i = 0;
 
-	/* Use the angband_path, or a default */
-	strcpy(path, tail ? tail : DEFAULT_PATH);
+	FILE *fff;
 
-	/* Hack -- Add a path separator (only if needed) */
-	if (!suffix(path, PATH_SEP)) strcat(path, PATH_SEP);
+	while (1)
+	{
+		switch (i++)
+		{
+			case 0:
+			{
+				/* Get the environment variable */
+				tail = getenv("ANGBAND_PATH");
+				if (tail) strcpy(path, tail);
+
+				break;
+			}
+			case 1:
+			{
+				strcpy(path, DEFAULT_PATH);
+
+				break;
+			}
+			case 2:
+			{
+				getcwd(path, 1024);
+				strcat(path, format("%slib", (suffix(path, PATH_SEP) ? "" : PATH_SEP)));
+
+				break;
+			}
+			case 3:
+			{
+				strcpy(path, argv0);
+				strcpy((strrchr(path, (PATH_SEP)[0]) + 1), "lib");
+
+				break;
+			}
+			default:
+			{
+				quit("Cannot find a 'lib' directory!");
+			}
+		}
+
+		if (!suffix(path, PATH_SEP)) strcat(path, PATH_SEP);
+
+		fff = fopen(format("%sfile%snews.txt", path, PATH_SEP), "r");
+
+		if (fff)
+		{
+			fclose(fff);
+			break;
+		}
+	}
+
+
 
 #endif /* AMIGA / VM */
 
@@ -331,11 +377,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* Acquire the "user name" as a default player name */
-#ifdef ANGBAND_2_8_1
 	user_name(player_name, player_uid);
-#else /* ANGBAND_2_8_1 */
-	user_name(op_ptr->full_name, player_uid);
-#endif /* ANGBAND_2_8_1 */
 
 #endif /* SET_UID */
 
@@ -410,11 +452,7 @@ int main(int argc, char *argv[])
 			case 'U':
 			{
 				if (!argv[i][2]) goto usage;
-#ifdef ANGBAND_2_8_1
 				strcpy(player_name, &argv[i][2]);
-#else /* ANGBAND_2_8_1 */
-				strcpy(op_ptr->full_name, &argv[i][2]);
-#endif /* ANGBAND_2_8_1 */
 				break;
 			}
 
