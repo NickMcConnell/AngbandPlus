@@ -1,0 +1,161 @@
+Fighting Monsters
+%b+ Attacking and Being Attacked %b-
+%br %br
+If you move into a creature, you attack him.  You can attack from a distance
+by firing a missile or by magical means such as aiming a wand.  Creatures
+attack in the same way.  If they move into you, they attack you.  Some
+creatures can also cast spells from a distance, and others can use various
+breath weapons such as fire on you from a distance.
+%br %br
+Creatures in walls can not be attacked by wands and other magic attacks
+normally stopped by walls.  You can attack a creature in a wall normally
+by trying to move into the wall space containing the creature.  However, if
+the creature is invisible (such as a ghost), you must tunnel into the wall
+containing the creature.  If you just try to move into the wall, you will
+bump your head and look quite silly.
+%br %br
+If you are wielding a weapon, the damage for the weapon is used when you hit
+a creature.  Otherwise you get a single punch which does little damage.
+%br %br
+You may wield both a primary weapon for melee combat, and a bow or other
+missile launcher for launching missiles at the same time (along with a
+light, an amulet, two rings, a helmet, boots, gloves, a shield, a cloak, and
+body armor).  Be sure not to try and kill a dragon with a shovel, it makes
+you look silly and probably won't work...
+%br %br
+Firing a missile while wielding the appropriate launcher is the only way to
+get the "full" power out of the missile.  You may of course throw an arrow
+at a monster without shooting it, but you will find the effects may not be
+what you had hoped.
+%br %br
+Hits and misses are determined by ability to hit versus armor class.  A hit
+is a strike that does some damage; a miss may in fact reach a target, but
+fails to do any damage.  Higher armor classes make it harder to do damage,
+and so lead to more misses; they also reduce the damage from a strike that
+actually occurs.
+%br %br
+%b+ Monster Memories %b-
+%br %br
+There are hundreds of different creatures in the pits of Utumno, many of
+which have the same letter symbol and color on the screen.  The exact species
+of a creature can be discovered by looking at it.  It is also very difficult
+to keep track of the capabilities of various creatures.  Utumno keeps track
+of your experiences with a particular creature automatically.  This feature
+is called the monster memory.  You monster memory recalls the particular
+attacks of each creature (whether or not technically a monster) which you
+have suffered, as well as recalling if you have observed them to multiply
+or move erratically, or drop treasure, etc.  Otherwise you would simply
+have to take notes, which is an unnecessary bother.
+%br %br
+If you have killed enough of a particular creature, or suffered enough
+attacks, recalling the monster memory may also provide you with information
+not otherwise available, such as a armor class or hit dice.  This memory
+can be passed on to a new character even after you die by means of a
+reduced save file.
+%br %br
+%b+ Your Weapon %b-
+%br %br
+Carrying a weapon in your backpack does you no good.  You must wield a weapon
+before it can be used in a fight.  A secondary weapon can be kept by keeping
+it in the backpack, and switching it with the primary weapon when needed.
+%br %br
+Weapons have two main magical characteristics, their enchanted ability to hit
+and their enchanted ability to do damage, expressed as `(+#,+#)'.  A normal
+weapon would be `(+0,+0)'.  Many weapons in Utumno have bonuses to hit
+and/or do damage.  Some weapons are cursed, and have penalties that hurt the
+player.  Cursed weapons cannot be unwielded until the curse is lifted.
+Identifying a weapon will inform you of the magical bonuses and penalties
+and whether or not it is cursed.
+%br %br
+Utumno assumes that your youth in the rough environment near the dungeons
+has taught you the relative merits of different weapons, and displays as
+part of their description the damage dice which define their capabilities.
+Any damage enchantment is added to the dice roll for that weapon.  The dice
+used for a given  weapon is displayed as "#d#".  The first number indicates
+how many dice to roll, and the second indicates how many sides they have.  A
+"2d6" weapon will give damage from 2 to 12, plus any damage bonus.  The
+weight of a weapon is also a consideration.  Heavy weapons may hit harder,
+but they are also harder to use.  Depending on your strength, dexterity,
+character class, and weapon weight, you may get several attacks per turn.
+%br %br
+Missile booster weapons, such as bows, have their characteristics added to
+those of the missile used, if the proper weapon/missile combination is used,
+and the the launcher multiplier is applied to the total damage, making
+missile weapons very powerful given the proper missiles, especially if they
+are enchanted.
+%br %br
+Although you receive any magical bonuses an unidentified weapon may possess
+when you wield it, those bonuses will not be added in to the displayed
+values of to-hit and to-dam on your character sheet.  You must identify the
+weapon before the displayed values reflect the real values used.
+%br %br
+Finally, some rare weapons have special abilities.  These are called ego
+weapons, and are feared by great and meek.  An ego weapon must be wielded
+to receive the benefit of its abilities.
+%br %br
+There are some very rare and well made blades in the dungeon that do not
+necessarily have any special abilities. These include Blades
+of Chaos, Maces of Disruption, and Scythes of Slicing.  They can also be
+ego weapons.
+%br %br
+Various artifact weapons with great powers are also rumored to exist...
+%br %br
+%b+ Body and Shield Bashes %b-
+%br %br
+Weight is the primary factor in being able to bash something, but strength
+plays a role too.  After bashing, a character may be off balance for several
+rounds depending upon his dexterity.
+%br %br
+Doors can be broken down by bashing them.  Once a door is bashed open, it is
+forever useless and cannot be closed.
+%br %br
+Finally, a creature may be bashed.  If a shield is currently being worn,
+the bash is a shield bash and will do more damage.  In either case, a bash
+may throw an opponent off balance for a number of rounds, allowing a player
+to get in a free hit or more.  If the player is thrown off balance, his
+opponent may get free hits on him.  This is a risky attack.
+%br %br
+%b+ Your Armor %b-
+%br %br
+Your armor class (or AC) is a number that describes the amount and the
+quality of armor being worn. Armor class will generally run from about 0 to
+150, but could become negative or greater than 150 with rarer armor or by
+magical means.
+%br %br 
+The larger your armor class, the more protective it is.  A negative armor
+class would actually help get you hit.  Armor protects you in three manners.
+One, it makes you harder to be hit for damage.  A hit for no damage is the
+same as a miss.  Two, good armor will absorb some of the damage that your
+character would have taken from normal attacks.  Three, acid damage is
+reduced by wearing body armor (but the armor will be damaged instead).  It
+is obvious that a high armor class is a must for surviving the deeper levels
+of Utumno.
+%br %br
+Each piece of armor has a base armor value, which, like the damage from
+weapons, is assumed known by the player, and a magic bonus, which will not
+be displayed unless the armor has been identified or was bought in a store.
+%br %br
+Armor class values are always displayed between a set of brackets as "[#]"
+or "[#,+#]".  The first value is the armor class of the item.  The second
+number is the magical bonus of the item which is only displayed if known,
+and will always have a sign preceding the value.  Note that a few rings,
+amulets, and weapons also have the "[+#]" notation, indicating that they
+provide an armor bonus.  Many pieces of heavy body armor will also have a
+"(-#)" before the "[#,+#]", which indicates that the weight of the armor
+decreases your chances of hitting monsters.  This can range from nonexistent
+for very light armor to (-8) for the very heaviest armor.
+%br %br
+Some pieces of armor will possess special abilities, just like ego weapons.
+%br %br
+Apart from these there are some very rare and well-made armors in the
+dungeon with not necessarily any special abilities. These include Shields of
+Deflection, Adamantite Plate Mail, Mithril Plate Mail, Mithril Chain Mail,
+and Shadow Cloaks.  The first four cannot be damaged by acid because of the
+quality metals they contain.
+%br %br
+Some very skilled weaponsmiths are rumored to have made armor out of the
+scales of dragons. Such armor protects very well and allows you to resist
+the elements that the same type of dragon breathes. It also cannot be
+damaged by acid. In addition, it allows you to breathe just like a dragon...
+%br %br
+Pieces of artifact armor with great power are also rumored to exist...

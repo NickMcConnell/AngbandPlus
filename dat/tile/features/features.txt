@@ -1,0 +1,59 @@
+Floors  4 variations
+------
+FLOOR00  TIL         1,989
+FLOOR01  TIL         1,989
+FLOOR02  TIL         1,989
+FLOOR03  TIL         1,989
+
+Walls
+-----
+WALNE00  TIL         2,437      Faces NE 
+WALNW00  TIL         2,437      Faces NW
+WALSE00  TIL         3,397      Faces SE, solid
+WALSE00T TIL         3,397      Faces SE, transparent
+WALSE01  TIL         3,397      Faces SE, solid, variation 1
+WALSE01T TIL         3,397        etc.
+WALSW00  TIL         3,397
+WALSW00T TIL         3,397
+WALSW01  TIL         3,397
+WALSW01T TIL         3,397
+WALSE00S TIL         2,437      Version of walse00T if stairs down are behind
+WALSW00S TIL         2,437
+
+Doors
+-----
+DRNE00C  TIL         4,037      Hinge to NE, closed (use in a NW/SE corridor) 
+DRNE00O  TIL         4,869      Hinge to NE, open
+DRNE00OT TIL         4,869      Hinge to NE, open, transparent 
+DRNW00C  TIL         4,037      Hinge to NW, closed (use in a NE/SW corridor)
+DRNW00O  TIL         4,869        etc.
+DRNW00OT TIL         4,869
+
+Stairs Down
+-----------
+STDNE00  TIL         1,989      Enter from NE  (ie. go SW to go down)
+STDNW00  TIL         1,989      Enter from NW
+STDSE00  TIL         1,989        etc.
+STDSW00  TIL         1,989
+
+Stairs Up
+---------
+STUNE00  TIL         3,141      Enter from NE (ie. go SW to go up)
+STUNE00T TIL         3,141      Enter from NE, transparent
+STUNW00  TIL         3,141        etc.
+STUNW00T TIL         3,141
+STUSE00  TIL         4,229
+STUSE00T TIL         4,229
+STUSW00  TIL         4,229
+STUSW00T TIL         4,229
+
+Half-walls for use with stairs up
+---------------------------------
+STWSE00  TIL         3,397      Faces SE (used NW of STUNE-type tiles)
+STWSE00T TIL         3,397      Faces SE, transparent
+STWSW00  TIL         3,397      Faces SW (used NE of STUNW-type tiles)
+STWSW00T TIL         3,397      Faces SW, transparent
+                                Use full WALSE tiles NW of STUSW
+                                 or full WALSW tiles NE of STUSE
+                                Use no wall tiles SE or SW of stairs (Up/Dn)
+                                 since they look messy and don't add info...

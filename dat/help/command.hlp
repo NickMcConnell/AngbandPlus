@@ -1,0 +1,159 @@
+Utumno's Commands
+Utumno allows you to control your character by using both the keyboard and
+the mouse.  You need to know how to use both of these.
+%br %br
+Generally, the mouse is used for the most basic parts of the game: walking
+around, picking up items, attacking monsters, opening and closing doors,
+and so on.
+%br %br
+The keyboard is used for some other commands that do not particularily
+work well with mice.  For example, it is easier to hit the 'i' key to
+display your inventory than to use some complicated mouse technique.
+%br %br
+The keyboard commands map to a set of "console commands" through a process
+called "binding."  This is beyond the scope of this document.
+%br %br
+%b+ Mouse commands %b-
+%br %br
+You can use the mouse to carry out a number of tasks.
+%br %br
+Walking %br
+%indent+
+    To walk to a tile, just click on it.  Your character will
+    automatically begin walking in that direction.  Any commands will
+    interrupt an automatic walk.  If a monster happens to be in your
+    way, you will attack it, but you will not chase any monsters.  If
+    you attempt to walk to a tile that you cannot be in (for example,
+    a wall), nothing will happen.  The walking algorithm will go around
+    simple obstacles, but it is not perfect.  Sometimes, you will need
+    to instruct the game to do several walks to get to some tile.
+%indent-
+%br %br
+Fighting %br
+%indent+
+    To attack a monster, click on the tile it is on.  Instead of
+    simply walking to that square, you will chase the monster until
+    either it leaves your line of sight or it is dead.  When you are
+    adjacent, you will automatically attack it.  Generally, this has
+    the same properties as walking to a tile except for the chasing.
+%br %br
+    If you desire to attack a monster once and only once, shift-click
+    on its tile when you are adjacent to it.  You will attack for one
+    round only.
+%indent-
+%br %br
+Picking up objects %br
+%indent+
+    To pick up an object, walk to the tile it is on,
+    and then shift-click on your character's tile.  You will pick up all the
+    objects underneath yourself.  You cannot pick up objects in a tile
+    other than the one your character is in.
+%indent-
+%br %br
+Opening and closing doors %br
+%indent+
+    To open or close a door, shift-click on its
+    tile when you are adjacent to that tile.  You cannot open or close
+    a door you are not adjacent to, and you cannot close it when you are
+    in its tile.
+%indent-
+%br %br
+Using stairs %br
+%indent+
+    To go up or down some stairs, shift-click on their tile
+    when you are adjacent to it.
+%indent- %br %br
+Disarming traps %br
+%indent+
+    To disarm a trap, shift-click on its tile when you are
+    adjacent to it.
+%indent- %br %br
+Tunneling through walls %br
+%indent+
+    To tunnel through a wall or some rubble, shift-
+    click on its tile when you are adjacent to it.
+%indent- %br %br
+Casting spells and using objects %br
+%indent+
+    The right button allows you to cast
+    spells, zap rods, wands, and staves, activate artifacts, and fire
+    your bow.  To do one of these things, you must first select the
+    object you wish to use using various keyboard commands (see below).
+    The commands are 'm' (Magic), 'z' (Zap), 'a' (Activate), and 'f'
+    (Fire).  Once you have done this, right-click on the map where you
+    wish to target your spell or ranged attack.  Spells without any
+    target (for example, a teleport self spell) may be used by right-
+    clicking at any location on the map.
+%indent-
+%br %br
+%b+ Keyboard commands %b-
+%br %br
+These are the keyboard commands:
+%br %br
+Escape -- Pause Game (console command "pause") %br %indent+
+    This command pauses the game until you hit Escape again.
+%indent- %br %br
+'a' -- Activate Artifact (console command "activate") %br %indent+
+    This command selects an artifact to activate later with the right mouse
+    button.  You select an object from your equipment.  Nothing happens
+    at that time, but right-clicks in the future will activate that object.
+%indent- %br %br
+'c' -- Character Description (console command "character") %br %indent+
+    This command brings up a character description page.  You may change
+    your character's name from this page.
+%indent- %br %br
+'d' -- Drop Item (console command "drop") %br %indent+
+    This command lets you drop items from your inventory.
+%indent- %br %br
+'e' -- Equipment Listing (console command "equipment") %br %indent+
+    This command shows you a listing of all your worn equipment.
+%indent- %br %br
+'i' -- Inventory Listing (console command "inventory") %br %indent+
+    This command shows you a listing of all your inventory.
+%indent- %br %br
+'k' -- Destroy Item (console command "destroy") %br %indent+
+    This command lets you destroy items in your inventory.
+%indent- %br %br
+'b' -- Browse Book (console command "browse") %br %indent+
+    This command lets you examine the spells or prayers present in a
+    magical book.  You may only browse a magical book if you are of the
+    proper class: mages, rangers, and rogues can read spellbooks, priests
+    and paladins can read prayer books, and warriors cannot read any magical
+    books at all.
+%indent- %br %br
+'w' -- Wear/Wield Equipment (console command "wield") %br %indent+
+    This command lets you wield weapons and wear armor and other objects.
+%indent- %br %br
+'z' -- Zap Wand, Staff or Rod (console command "zap") %br %indent+
+    This command allows you to select a wand, staff, or rod to zap with
+    the right mouse button.
+%indent- %br %br
+F1 -- Help (console command "help") %br %indent+
+    This command brings up a help screen.
+%indent- %br %br
+F10 -- Save and quit (console command "save_quit") %br %indent+
+    This command saves your game and exits Utumno.
+%indent- %br %br
+%b+ Other commands %b-
+%br %br
+Here are the other commands (not yet documented):
+%br
+%br 'f': Fire an item
+%br 'g': Gain new spells/prayers
+%br 'm': Cast a spell
+%br 'o': Observe an item
+%br 's': Search for traps/doors
+%br 't': Take off equipment
+%br 'u': Use scroll/potion/food/oil
+%br 'v': Throw an item
+%br 'w': Wear/wield equipment
+%br '[': Check artifacts
+%br ']': Check identified objects
+%br '-': Enter store
+%br '=': Set options
+%br '\': Check uniques
+%br '`': Turn on the console (hit Escape to remove it)
+%br '/': Identify symbol
+%br %br
+%b+ Important note: %b- If you want to commit suicide, use the "Console
+command" command ('`') and type "suicide".

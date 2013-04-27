@@ -1,0 +1,344 @@
+# File: f_info.txt
+
+
+# This file is used to initialize the "lib/raw/f_info.raw" file, which is
+# used to initialize the "terrain feature" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# After modifying this file, delete the "lib/raw/f_info.raw" file.
+
+
+# Note that terrain feature "zero" is reserved for internal usage
+
+
+# Note that the terrain feature are grouped into very regular groups,
+# such that each of the bits in the feature type conveys information.
+
+
+# CAVE_FL_5 off
+#  We do not block line of sight
+#   CAVE_FL_4 off
+#    We are not a visible trap
+#     CAVE_FL_3 off
+#      We are not a store door
+#       CAVE_FL_2 off
+#        We are a mostly empty grid
+#         CAVE_FL_1 off
+#          We are an empty grid
+#           CAVE_FL_0 off
+#            We are nothing
+#           CAVE_FL_0 on
+#            We are a floor
+#         CAVE_FL_1 on
+#          We are a special item
+#           CAVE_FL_0 off
+#            We are an invisible trap
+#           CAVE_FL_0 on
+#            We are a glyph of warding
+#       CAVE_FL_2 on
+#        We are a door/stair
+#         CAVE_FL_1 off
+#          We are a door
+#           CAVE_FL_0 off
+#            We are an open door
+#           CAVE_FL_0 on
+#            We are a broken door
+#         CAVE_FL_1 on
+#          We are a staircase
+#           CAVE_FL_0 off
+#            We are an up staircase
+#           CAVE_FL_0 on
+#            We are a down staircase
+#     CAVE_FL_3 on
+#      We are a store door
+#   CAVE_FL_4 on
+#    We are a visible trap
+# CAVE_FL_5 on
+#  We block line of sight
+#   CAVE_FL_4 off
+#    We are a closed door
+#     CAVE_FL_3 off
+#      We are not jammed shut
+#     CAVE_FL_3 on
+#      We are jammed shut
+#   CAVE_FL_4 on
+#    We are a wall
+#     CAVE_FL_3 off
+#      We are not granite
+#       CAVE_FL_2 off
+#        We do not contain treaure
+#       CAVE_FL_2 on
+#        We contain treaure
+#     CAVE_FL_3 on
+#      We are granite
+#       CAVE_FL_2 off
+#        We are not permanent
+#       CAVE_FL_2 on
+#        We are permanent
+
+
+
+
+# Version stamp
+
+V:v1.0a5
+
+
+# 0x00 --> nothing
+
+N:0:nothing
+
+# 0x01 --> open floor
+
+N:1:open floor
+
+# 0x02 --> invisible trap
+
+N:2:open floor
+
+# 0x03 --> glyph of warding
+
+N:3:glyph of warding
+
+# 0x04 --> open door
+
+N:4:open door
+
+# 0x05 --> broken door
+
+N:5:broken door
+
+# 0x06 --> nothing
+
+N:6:nothing
+
+# 0x07 --> nothing
+
+N:7:nothing
+
+# 0x08 --> shop -- general store (perm)
+
+N:8:General Store
+
+# 0x09 --> shop -- armorer (perm)
+
+N:9:Armorer's Shop
+
+# 0x0A --> shop -- weapon shop (perm)
+
+N:10:Weaponsmith's Shop
+
+# 0x0B --> shop -- temple (perm)
+
+N:11:Temple
+
+# 0x0C --> shop -- alchemist (perm)
+
+N:12:Alchemy Shop
+
+# 0x0D --> shop -- magic shop (perm)
+
+N:13:Magic Shop
+
+# 0x0E --> shop -- black market (perm)
+
+N:14:Black Market
+
+# 0x0F --> shop -- home (perm)
+
+N:15:Home
+
+# 0x10 --> visible trap -- trap door
+
+N:16:trap door
+
+# 0x11 --> visible trap -- open pit
+
+N:17:pit
+
+# 0x12 --> visible trap -- spiked pit
+
+N:18:pit
+
+# 0x13 --> visible trap -- poison pit
+
+N:19:pit
+
+# 0x14 --> visible trap -- rune -- summon
+
+N:20:strange rune
+
+# 0x15 --> visible trap -- rune -- teleport
+
+N:21:strange rune
+
+# 0x16 --> visible trap -- spot -- fire
+
+N:22:discolored spot
+
+# 0x17 --> visible trap -- spot -- acid
+
+N:23:discolored spot
+
+# 0x18 --> visible trap -- dart -- slow
+
+N:24:dart trap
+
+# 0x19 --> visible trap -- dart -- lose str
+
+N:25:dart trap
+
+# 0x1A --> visible trap -- dart -- lose dex
+
+N:26:dart trap
+
+# 0x1B --> visible trap -- dart -- lose con
+
+N:27:dart trap
+
+# 0x1C --> visible trap -- gas -- blind
+
+N:28:gas trap
+
+# 0x1D --> visible trap -- gas -- confuse
+
+N:29:gas trap
+
+# 0x1E --> visible trap -- gas -- poison
+
+N:30:gas trap
+
+# 0x1F --> visible trap -- gas -- sleep
+
+N:31:gas trap
+
+# 0x20 --> locked door (power 0)
+
+N:32:door
+
+# 0x21 --> locked door (power 1)
+
+N:33:door
+
+# 0x22 --> locked door (power 2)
+
+N:34:door
+
+# 0x23 --> locked door (power 3)
+
+N:35:door
+
+# 0x24 --> locked door (power 4)
+
+N:36:door
+
+# 0x25 --> locked door (power 5)
+
+N:37:door
+
+# 0x26 --> locked door (power 6)
+
+N:38:door
+
+# 0x27 --> locked door (power 7)
+
+N:39:door
+
+# 0x28 --> up stair
+
+N:40:up staircase
+
+# 0x29 --> up stair
+
+N:41:up staircase
+
+# 0x2A --> up stair
+
+N:42:up staircase
+
+# 0x2B --> up stair
+
+N:43:up staircase
+
+# 0x2C --> down stair
+
+N:44:down staircase
+
+# 0x2D --> down stair
+
+N:45:down staircase
+
+# 0x2E --> down stair
+
+N:46:down staircase
+
+# 0x2F --> down stair
+
+N:47:down staircase
+
+# 0x30 --> secret door
+
+N:48:granite wall
+
+# 0x31 --> pile of rubble
+
+N:49:pile of rubble
+
+# 0x32 --> magma vein
+
+N:50:magma vein
+
+# 0x33 --> quartz vein
+
+N:51:quartz vein
+
+# 0x34 --> magma vein + treasure
+
+N:52:magma vein
+
+# 0x35 --> quartz vein + treasure
+
+N:53:quartz vein
+
+# 0x36 --> magma vein + known treasure
+
+N:54:magma vein with treasure
+
+# 0x37 --> quartz vein + known treasure
+
+N:55:quartz vein with treasure
+
+# 0x38 --> granite wall -- basic
+
+N:56:granite wall
+
+# 0x39 --> granite wall -- inner
+
+N:57:granite wall
+
+# 0x3A --> granite wall -- outer
+
+N:58:granite wall
+
+# 0x3B --> granite wall -- solid
+
+N:59:granite wall
+
+# 0x3C --> permanent wall -- basic (perm)
+
+N:60:granite wall
+
+# 0x3D --> permanent wall -- inner (perm)
+
+N:61:granite wall
+
+# 0x3E --> permanent wall -- outer (perm)
+
+N:62:granite wall
+
+# 0x3F --> permanent wall -- solid (perm)
+
+N:63:granite wall
+

@@ -1,0 +1,15 @@
+other_query_flag 0
+carry_query_flag 0
+ring_bell 1
+alert_hitpoint 0
+alert_failure 0
+show_inven_weight 0
+show_equip_weight 0
+show_store_weight 0
+show_equip_label 1
+stack_allow_items 1
+stack_allow_wands 1
+stack_force_notes 0
+stack_force_costs 0
+game_speed 12
+hitpoint_warn 0

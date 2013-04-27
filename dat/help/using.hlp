@@ -1,0 +1,8 @@
+Using Help
+%b+ Up: %b- scroll up one line %br
+%b+ Down: %b- scroll down one line %br
+%b+ Page Up: %b- scroll up 26 lines %br
+%b+ Page Down: %b- scroll down 26 lines %br
+%b+ Home: %b- go to the beginning of the file %br
+%b+ End: %b- go to the end of the file %br
+%b+ Escape: %b- go back to the previous help file

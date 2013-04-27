@@ -1,0 +1,3268 @@
+# File: k_info.txt
+
+
+# This file is used to initialize the "lib/raw/k_info.raw" file, which is
+# used to initialize the "object kind" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# After modifying this file, delete the "lib/raw/k_info.raw" file.
+
+
+# Note that major changes are planned for Angband 2.8.0
+
+# XXX XXX Add some "IGNORE_XXX" flags to Rings, Amulets, etc.
+
+
+# Version stamp
+
+V:v1.0a5
+
+
+##### Something special #####
+
+N:0:something
+G:dobject
+
+
+##### Mushrooms #####
+
+N:1:blindness
+G:dobject
+I:80:1:500
+W:5:0:1:0
+A:5/1
+
+N:2:paranoia
+G:dobject
+I:80:2:500
+W:5:0:1:0
+A:5/1
+
+N:3:confusion
+G:dobject
+I:80:3:500
+W:5:0:1:0
+A:5/1
+
+# XXX 4
+
+N:5:cure poison
+G:dobject
+I:80:12:500
+W:10:0:1:60
+A:10/1
+
+N:6:cure blindness
+G:dobject
+I:80:13:500
+W:10:0:1:50
+A:10/1
+
+N:7:cure paranoia
+G:dobject
+I:80:14:500
+W:10:0:1:25
+A:10/1
+
+N:8:cure confusion
+G:dobject
+I:80:15:500
+W:10:0:1:50
+A:10/1
+
+N:9:weakness
+G:dobject
+I:80:6:500
+W:10:0:1:0
+A:10/1
+
+N:10:unhealth
+G:dobject
+I:80:10:500
+W:15:0:1:50
+A:15/1
+P:0:10d10:0:0:0
+
+N:11:restore constitution
+G:dobject
+I:80:18:500
+W:20:0:1:350
+A:20/1
+
+N:12:restoring
+G:dobject
+I:80:19:500
+W:20:0:1:1000
+A:20/8:30/4:40/1
+
+N:13:stupidity
+G:dobject
+I:80:8:500
+W:15:0:1:0
+A:15/1
+
+N:14:naivety
+G:dobject
+I:80:9:500
+W:15:0:1:0
+A:15/1
+
+N:15:poison
+G:dobject
+I:80:0:500
+W:5:0:1:0
+A:5/1:5/1
+
+N:16:sickness
+G:dobject
+I:80:7:500
+W:10:0:1:0
+A:10/1
+
+N:17:paralysis
+G:dobject
+I:80:5:500
+W:20:0:1:0
+A:20/1
+
+N:18:restore strength
+G:dobject
+I:80:17:500
+W:20:0:1:350
+A:20/1
+
+N:19:disease
+G:dobject
+I:80:11:500
+W:20:0:1:50
+A:20/1
+P:0:10d10:0:0:0
+
+N:20:cure serious wounds
+G:dobject
+I:80:16:500
+W:15:0:2:75
+A:15/1
+
+##### Normal Food #####
+
+N:21:& ration~ of food
+G:items/food/ration
+I:80:35:5000
+W:0:0:10:3
+A:0/1:5/1:10/1
+
+N:22:& hard biscuit~
+G:items/food/biscuit
+I:80:32:500
+W:0:0:2:1
+
+N:23:& strip~ of beef jerky
+G:items/food/jerky
+I:80:33:1500
+W:0:0:2:2
+
+N:24:& slime mold~
+G:items/food/slimold
+I:80:36:3000
+W:1:0:5:2
+A:1/1
+
+N:25:& piece~ of elvish waybread
+G:items/food/waybread
+I:80:37:7500
+W:5:0:3:10
+A:5/1:10/1:20/1
+
+N:26:& pint~ of fine ale
+### needs its own
+G:items/food/wine
+I:80:38:500
+W:0:0:5:1
+
+N:27:& pint~ of fine wine
+G:items/food/wine
+I:80:39:1000
+W:0:0:10:2
+
+
+# 28 (unused)
+
+# 29 (unused)
+
+
+##### Edged Weapons #####
+
+N:30:& broken dagger~
+G:items/swords/brkdager
+I:23:1:0
+W:0:0:5:1
+A:0/1
+P:0:1d1:-2:-4:0
+F:SHOW_MODS
+
+N:31:& bastard sword~
+G:dobject
+I:23:21:0
+W:15:0:140:350
+A:15/1
+P:0:3d4:0:0:0
+F:SHOW_MODS
+
+N:32:& scimitar~
+G:dobject
+I:23:18:0
+W:10:0:130:250
+A:10/1
+P:0:2d5:0:0:0
+F:SHOW_MODS
+
+N:33:& tulwar~
+G:dobject
+I:23:15:0
+W:5:0:100:200
+A:5/1
+P:0:2d4:0:0:0
+F:SHOW_MODS
+
+N:34:& broadsword~
+G:items/swords/broadswd
+I:23:16:0
+W:10:0:150:255
+A:10/1:15/1
+P:0:2d5:0:0:0
+F:SHOW_MODS
+
+N:35:& shortsword~
+G:items/swords/shrtswd
+I:23:10:0
+W:5:0:80:90
+A:5/1
+P:0:1d7:0:0:0
+F:SHOW_MODS
+
+N:36:& blade~ of chaos
+G:dobject
+I:23:30:0
+W:70:0:180:4000
+A:70/8
+P:0:6d5:0:0:0
+F:RES_CHAOS | SHOW_MODS
+
+N:37:& two-handed sword~
+G:dobject
+I:23:25:0
+W:30:0:200:775
+A:30/1:40/1
+P:0:3d6:0:0:0
+F:SHOW_MODS
+
+N:38:& main gauche~
+G:dobject
+I:23:5:0
+W:3:0:30:25
+A:3/1
+P:0:1d5:0:0:0
+F:SHOW_MODS
+
+N:39:& cutlass~
+G:dobject
+I:23:12:0
+W:5:0:110:85
+A:5/1
+P:0:1d7:0:0:0
+F:SHOW_MODS
+
+N:40:& executioner's sword~
+G:dobject
+I:23:28:0
+W:40:0:260:850
+A:40/1
+P:0:4d5:0:0:0
+F:SHOW_MODS
+
+N:41:& katana~
+G:items/swords/katana
+I:23:20:0
+W:20:0:120:400
+A:20/1
+P:0:3d4:0:0:0
+F:SHOW_MODS
+
+N:42:& longsword~
+G:dobject
+I:23:17:0
+W:10:0:130:300
+A:10/1:20/1
+P:0:2d5:0:0:0
+F:SHOW_MODS
+
+N:43:& dagger~
+G:items/swords/dagger
+I:23:4:0
+W:0:0:12:10
+A:0/1:5/1:10/1:20/1
+P:0:1d4:0:0:0
+F:SHOW_MODS
+
+N:44:& rapier~
+G:items/swords/rapier
+I:23:7:0
+W:5:0:40:42
+A:5/1
+P:0:1d6:0:0:0
+F:SHOW_MODS
+
+N:45:& sabre~
+G:dobject
+I:23:11:0
+W:5:0:50:50
+A:5/1
+P:0:1d7:0:0:0
+F:SHOW_MODS
+
+N:46:& smallsword~
+G:dobject
+I:23:8:0
+W:5:0:75:48
+A:5/1
+P:0:1d6:0:0:0
+F:SHOW_MODS
+
+N:47:& broken sword~
+G:items/swords/brksword
+I:23:2:0
+W:0:0:30:2
+A:0/1
+P:0:1d2:-2:-4:0
+F:SHOW_MODS
+
+##### Hafted Weapons #####
+
+N:48:& ball-and-chain~
+G:dobject
+I:21:6:0
+W:20:0:150:200
+A:20/1
+P:0:2d4:0:0:0
+F:SHOW_MODS
+
+N:49:& whip~
+G:dobject
+I:21:2:0
+W:3:0:30:30
+A:3/1
+P:0:1d6:0:0:0
+F:SHOW_MODS
+
+N:50:& flail~
+G:items/hafted/flail
+I:21:13:0
+W:10:0:150:353
+A:10/1
+P:0:2d6:0:0:0
+F:SHOW_MODS
+
+N:51:& two-handed flail~
+### bigger
+G:items/hafted/flail
+I:21:18:0
+W:45:0:280:590
+A:45/1
+P:0:3d6:0:0:0
+F:SHOW_MODS
+
+N:52:& morningstar~
+G:dobject
+I:21:12:0
+W:10:0:150:396
+A:10/1
+P:0:2d6:0:0:0
+F:SHOW_MODS
+
+N:53:& mace~
+G:dobject
+I:21:5:0
+W:5:0:120:130
+A:5/1
+P:0:2d4:0:0:0
+F:SHOW_MODS
+
+N:54:& quarterstaff~
+G:items/hafted/qrtstaff
+I:21:3:0
+W:10:0:150:200
+A:10/1
+P:0:1d9:0:0:0
+F:SHOW_MODS
+
+N:55:& war hammer~
+G:dobject
+I:21:8:0
+W:5:0:120:225
+A:5/1
+P:0:3d3:0:0:0
+F:SHOW_MODS
+
+N:56:& lead-filled mace~
+G:items/hafted/leadmace
+I:21:15:0
+W:15:0:180:502
+A:15/1
+P:0:3d4:0:0:0
+F:SHOW_MODS
+
+N:57:& mace~ of disruption
+G:dobject
+I:21:20:0
+W:80:0:400:4300
+A:80/8
+P:0:5d8:0:0:0
+F:SLAY_UNDEAD | SHOW_MODS
+
+N:58:& lucerne hammer~
+G:dobject
+I:21:10:0
+W:10:0:120:376
+A:10/1
+P:0:2d5:0:0:0
+F:SHOW_MODS
+
+##### Polearms #####
+
+N:59:& beaked axe~
+### its own
+G:items/polearms/battlaxe
+I:22:10:0
+W:15:0:180:408
+A:15/1
+P:0:2d6:0:0:0
+F:SHOW_MODS
+
+N:60:& glaive~
+G:dobject
+I:22:13:0
+W:20:0:190:363
+A:20/1
+P:0:2d6:0:0:0
+F:SHOW_MODS
+
+N:61:& halberd~
+G:dobject
+I:22:15:0
+W:25:0:190:430
+A:25/1
+P:0:3d5:0:0:0
+F:SHOW_MODS
+
+N:62:& awl-pike~
+### its own
+G:items/polearms/spear
+I:22:4:0
+W:10:0:160:340
+A:10/1
+P:0:1d8:0:0:0
+F:SHOW_MODS
+
+N:63:& pike~
+### its own
+G:items/polearms/spear
+I:22:8:0
+W:15:0:160:358
+A:15/1
+P:0:2d5:0:0:0
+F:SHOW_MODS
+
+N:64:& spear~
+G:items/polearms/spear
+I:22:2:0
+W:5:0:50:36
+A:5/1
+P:0:1d6:0:0:0
+F:SHOW_MODS
+
+N:65:& trident~
+G:dobject
+I:22:5:0
+W:5:0:70:120
+A:5/1
+P:0:1d8:0:0:0
+F:SHOW_MODS
+
+N:66:& lance~
+G:dobject
+I:22:20:0
+W:10:0:300:230
+A:10/1
+P:0:2d8:0:0:0
+F:SHOW_MODS
+
+N:67:& great axe~
+### bigger
+G:items/polearms/battlaxe
+I:22:25:0
+W:40:0:230:500
+A:40/1
+P:0:4d4:0:0:0
+F:SHOW_MODS
+
+N:68:& battleaxe~
+G:items/polearms/battlaxe
+I:22:22:0
+W:15:0:170:334
+A:15/1
+P:0:2d8:0:0:0
+F:SHOW_MODS
+
+N:69:& lochaber axe~
+G:items/polearms/lochaber
+I:22:28:0
+W:45:0:250:750
+A:45/1
+P:0:3d8:0:0:0
+F:SHOW_MODS
+
+N:70:& broad axe~
+G:items/polearms/broadaxe
+I:22:11:0
+W:15:0:160:304
+A:15/1
+P:0:2d6:0:0:0
+F:SHOW_MODS
+
+N:71:& scythe~
+G:dobject
+I:22:17:0
+W:45:0:250:800
+A:45/1
+P:0:5d3:0:0:0
+F:SHOW_MODS
+
+N:72:& scythe~ of slicing
+G:dobject
+I:22:30:0
+W:60:0:250:3500
+A:60/4
+P:0:8d4:0:0:0
+F:SHOW_MODS
+
+
+##### Bows, Crossbows, Slings #####
+
+N:73:& shortbow~
+G:items/bows/bow
+I:19:12:0
+W:3:0:30:50
+A:3/1
+F:SHOW_MODS
+
+N:74:& longbow~
+G:items/bows/bow
+I:19:13:0
+W:10:0:40:120
+A:10/1
+F:SHOW_MODS
+
+N:75:& light crossbow~
+G:items/bows/crossbow
+I:19:23:0
+W:15:0:110:140
+A:15/1
+F:SHOW_MODS
+
+N:76:& heavy crossbow~
+G:items/bows/crossbow
+I:19:24:0
+W:30:0:200:300
+A:30/1
+F:SHOW_MODS
+
+N:77:& sling~
+G:dobject
+I:19:2:0
+W:1:0:5:5
+A:1/1
+F:SHOW_MODS
+
+
+##### Missiles #####
+
+N:78:& arrow~
+G:items/ammo/arrow
+I:17:1:0
+W:3:0:2:1
+A:3/1:15/1
+P:0:1d4:0:0:0
+F:SHOW_MODS
+
+N:79:& seeker arrow~
+### maybe its own
+G:items/ammo/arrow
+I:17:2:0
+W:55:0:2:20
+A:55/2
+P:0:4d4:0:0:0
+F:SHOW_MODS
+
+N:80:& bolt~
+G:items/ammo/bolt
+I:18:1:0
+W:3:0:3:2
+A:3/1:25/1
+P:0:1d5:0:0:0
+F:SHOW_MODS
+
+N:81:& seeker bolt~
+### maybe its own
+G:items/ammo/bolt
+I:18:2:0
+W:65:0:3:25
+A:65/4
+P:0:4d5:0:0:0
+F:SHOW_MODS
+
+N:82:& rounded pebble~
+G:items/ammo/pebbles
+I:16:0:0
+W:0:0:4:1
+A:0/1
+P:0:1d2:0:0:0
+F:SHOW_MODS
+
+N:83:& iron shot~
+G:items/ammo/shot
+I:16:1:0
+W:3:0:5:2
+A:3/1
+P:0:1d3:0:0:0
+F:SHOW_MODS
+
+
+##### Shovels and Picks #####
+
+N:84:& shovel~
+G:dobject
+I:20:1:1
+W:1:0:60:10
+A:5/16
+P:0:1d2:0:0:0
+F:SHOW_MODS | TUNNEL
+
+N:85:& gnomish shovel~
+G:dobject
+I:20:2:2
+W:20:0:60:100
+A:20/4
+P:0:1d2:0:0:0
+F:SHOW_MODS | TUNNEL
+
+N:86:& dwarven shovel~
+G:dobject
+I:20:3:3
+W:40:0:120:200
+A:40/1
+P:0:1d3:0:0:0
+F:SHOW_MODS | TUNNEL
+
+N:87:& pick~
+G:dobject
+I:20:4:1
+W:5:0:150:50
+A:10/16
+P:0:1d3:0:0:0
+F:SHOW_MODS | TUNNEL
+
+N:88:& orcish pick~
+G:dobject
+I:20:5:2
+W:30:0:150:300
+A:30/4
+P:0:1d3:0:0:0
+F:SHOW_MODS | TUNNEL
+
+N:89:& dwarven pick~
+G:dobject
+I:20:6:3
+W:50:0:200:600
+A:50/1
+P:0:1d4:0:0:0
+F:SHOW_MODS | TUNNEL
+
+
+# This does not belong here
+
+N:90:& dragon-helm~
+G:items/helm/draghelm
+I:32:8:0
+W:60:0:50:1000
+A:60/1
+P:8:1d3:0:0:5
+F:IGNORE_ACID
+
+
+##### Armor #####
+
+N:91:& pair~ of soft leather boots
+G:items/boots/slboots
+I:30:2:0
+W:3:0:20:7
+A:3/1
+P:2:1d1:0:0:0
+
+N:92:& pair~ of hard leather boots
+G:items/boots/hlboots
+I:30:3:0
+W:5:0:40:12
+A:5/1
+P:3:1d1:0:0:0
+
+N:93:& pair~ of metal-shod boots
+G:items/boots/metboots
+I:30:6:0
+W:20:0:80:50
+A:20/1
+P:6:1d1:0:0:0
+F:IGNORE_FIRE
+
+N:94:& hard leather cap~
+G:items/helm/hlethcap
+I:32:2:0
+W:3:0:15:12
+A:3/1
+P:2:0d0:0:0:0
+
+N:95:& metal cap~
+G:items/helm/metlcap
+I:32:3:0
+W:10:0:20:30
+A:10/1
+P:3:1d1:0:0:0
+
+N:96:& iron helm~
+G:items/helm/ironhelm
+I:32:5:0
+W:20:0:75:75
+A:20/1
+P:5:1d3:0:0:0
+
+N:97:& steel helm~
+G:items/helm/stlhelm
+I:32:6:0
+W:40:0:60:200
+A:40/1
+P:6:1d3:0:0:0
+
+N:98:& iron crown~
+G:items/helm/irncrown
+I:33:10:0
+W:45:0:20:500
+A:45/1
+P:0:1d1:0:0:0
+
+N:99:& golden crown~
+G:items/helm/gldcrown
+I:33:11:0
+W:45:0:30:1000
+A:45/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID
+
+N:100:& jewel-encrusted crown~
+G:items/helm/jwlcrown
+I:33:12:0
+W:50:0:40:2000
+A:50/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID
+
+N:101:& robe~
+G:dobject
+I:36:2:0
+W:1:0:20:4
+A:1/1:50/1
+P:2:0d0:0:0:0
+
+N:102:& filthy rag~
+G:dobject
+I:36:1:0
+W:0:0:20:1
+A:0/1
+P:1:0d0:0:0:-1
+
+N:103:& suit~ of soft leather armor
+G:dobject
+I:36:4:0
+W:3:0:80:18
+A:3/1
+P:4:0d0:0:0:0
+
+N:104:& suit~ of soft studded leather armor
+G:dobject
+I:36:5:0
+W:3:0:90:35
+A:3/1
+P:5:1d1:0:0:0
+
+N:105:& suit~ of hard leather armor
+G:dobject
+I:36:6:0
+W:5:0:100:150
+A:5/1
+P:6:1d1:-1:0:0
+
+N:106:& suit~ of hard studded leather
+G:dobject
+I:36:7:0
+W:10:0:110:200
+A:10/1
+P:7:1d2:-1:0:0
+
+N:107:& suit~ of leather scale mail
+G:dobject
+I:36:11:0
+W:15:0:140:450
+A:15/1
+P:11:1d1:-1:0:0
+
+N:108:& suit~ of metal scale mail
+G:dobject
+I:37:3:0
+W:25:0:250:550
+A:25/1
+P:13:1d4:-2:0:0
+
+N:109:& suit~ of chainmail
+G:dobject
+I:37:4:0
+W:25:0:220:750
+A:25/1
+P:14:1d4:-2:0:0
+
+N:110:& suit~ of rusty chainmail
+G:dobject
+I:37:1:0
+W:25:0:200:550
+A:25/1
+P:14:1d4:-5:0:-8
+
+N:111:& suit~ of augmented chainmail
+G:dobject
+I:37:6:0
+W:30:0:270:900
+A:30/1
+P:16:1d4:-2:0:0
+
+N:112:& suit~ of bar chainmail
+G:dobject
+I:37:8:0
+W:35:0:280:950
+A:35/1
+P:18:1d4:-2:0:0
+
+N:113:& suit~ of metal brigandine armor
+G:dobject
+I:37:9:0
+W:35:0:290:1100
+A:35/1
+P:19:1d4:-3:0:0
+
+N:114:& suit~ of partial plate armor
+G:dobject
+I:37:12:0
+W:45:0:260:1200
+A:45/1
+P:22:1d6:-3:0:0
+
+N:115:& suit~ of metal lamellar armor
+G:dobject
+I:37:13:0
+W:45:0:340:1250
+A:45/1
+P:23:1d6:-3:0:0
+
+N:116:& suit~ of full plate armor
+G:dobject
+I:37:15:0
+W:45:0:380:1350
+A:45/1
+P:25:2d4:-3:0:0
+
+N:117:& suit~ of ribbed plate armor
+G:dobject
+I:37:18:0
+W:50:0:380:1500
+A:50/1
+P:28:2d4:-3:0:0
+
+N:118:& suit~ of adamantite plate mail
+G:dobject
+I:37:30:0
+W:75:0:420:20000
+A:75/8
+P:40:2d4:-4:0:10
+F:IGNORE_ACID
+
+N:119:& suit~ of mithril plate mail
+G:dobject
+I:37:25:0
+W:60:0:300:15000
+A:60/4
+P:35:2d4:-3:0:10
+F:IGNORE_ACID
+
+N:120:& suit~ of mithril chainmail
+G:dobject
+I:37:20:0
+W:55:0:150:7000
+A:55/4
+P:28:1d4:-1:0:10
+F:IGNORE_ACID
+
+N:121:& suit~ of double chainmail
+G:dobject
+I:37:7:0
+W:30:0:250:850
+A:30/1
+P:16:1d4:-2:0:0
+
+
+# This shield does not belong here
+
+N:122:& mithril shield~
+G:items/shields/defshld
+I:34:10:0
+W:70:0:100:10000
+A:50/4
+P:10:1d1:0:0:10
+F:IGNORE_ACID
+
+
+### The Cloaks ###
+
+N:123:& cloak~
+G:dobject
+I:35:1:0
+W:1:0:10:3
+A:1/1:20/1
+P:1:0d0:0:0:0
+
+N:124:& elven cloak~
+G:dobject
+I:35:6:0
+W:60:0:5:4000
+A:60/4
+P:6:0d0:0:0:4
+F:RES_DARK
+
+
+### The Gloves ###
+
+N:125:& set~ of leather gloves
+G:items/gloves/lethglov
+I:31:1:0
+W:1:0:5:3
+A:1/1
+P:1:0d0:0:0:0
+
+N:126:& set~ of gauntlets
+G:items/gloves/gauntlet
+I:31:2:0
+W:10:0:25:35
+A:10/1
+P:2:1d1:0:0:0
+
+N:127:& set~ of cesti
+G:items/gloves/cesti
+I:31:5:0
+W:50:0:40:100
+A:50/1
+P:5:1d1:0:0:0
+
+
+### The shields ###
+
+N:128:& small leather shield~
+G:items/shields/slshield
+I:34:2:0
+W:3:0:50:30
+A:3/1
+P:2:1d1:0:0:0
+
+N:129:& large leather shield~
+G:items/shields/lglshld
+I:34:4:0
+W:15:0:100:120
+A:15/1
+P:4:1d2:0:0:0
+
+N:130:& small metal shield~
+G:items/shields/smshield
+I:34:3:0
+W:10:0:65:50
+A:10/1
+P:3:1d2:0:0:0
+
+N:131:& large metal shield~
+G:items/shields/lgmshld
+I:34:5:0
+W:30:0:120:200
+A:30/1
+P:5:1d3:0:0:0
+
+
+##### Rings #####
+
+N:132:strength
+G:items/magic/ring
+I:45:24:0
+W:30:0:2:500
+A:30/1
+F:STR | HIDE_TYPE
+
+N:133:dexterity
+G:items/magic/ring
+I:45:26:0
+W:30:0:2:500
+A:30/1
+F:DEX | HIDE_TYPE
+
+N:134:constitution
+G:items/magic/ring
+I:45:27:0
+W:30:0:2:500
+A:30/1
+F:CON | HIDE_TYPE
+
+N:135:intelligence
+G:items/magic/ring
+I:45:25:0
+W:30:0:2:500
+A:30/1
+F:INT | HIDE_TYPE
+
+N:136:speed
+G:items/magic/ring
+I:45:31:0
+W:80:0:2:100000
+A:80/1
+F:SPEED | HIDE_TYPE
+
+N:137:searching
+G:items/magic/ring
+I:45:23:0
+W:5:0:2:250
+A:5/1
+F:SEARCH | HIDE_TYPE
+
+N:138:teleportation
+G:items/magic/ring
+I:45:4:0
+W:5:0:2:0
+A:5/1
+F:CURSED | TELEPORT | EASY_KNOW
+
+N:139:slow digestion
+G:items/magic/ring
+I:45:6:0
+W:5:0:2:250
+A:5/1
+F:SLOW_DIGEST | EASY_KNOW
+
+N:140:resist fire
+G:items/magic/ring
+I:45:8:0
+W:10:0:2:250
+A:10/1
+F:RES_FIRE | IGNORE_FIRE | EASY_KNOW
+
+N:141:resist cold
+G:items/magic/ring
+I:45:9:0
+W:10:0:2:250
+A:10/1
+F:RES_COLD | IGNORE_COLD | EASY_KNOW
+
+N:142:feather falling
+G:items/magic/ring
+I:45:7:0
+W:5:0:2:200
+A:5/1
+F:FEATHER | EASY_KNOW
+
+N:143:poison resistance
+G:items/magic/ring
+I:45:20:0
+W:50:0:2:16000
+A:50/2
+F:RES_POIS | EASY_KNOW
+
+N:144:free action
+G:items/magic/ring
+I:45:21:0
+W:20:0:2:1500
+A:20/1
+F:FREE_ACT | EASY_KNOW
+
+N:145:telepathy
+G:items/magic/ring
+I:45:5:0
+W:80:0:2:30000
+A:80/2
+F:TELEPATHY | EASY_KNOW
+
+N:146:flames
+G:items/magic/ring
+I:45:18:0
+W:35:0:2:3000
+A:35/1
+P:0:0d0:0:0:15
+F:RES_FIRE | IGNORE_FIRE
+
+N:147:acid
+G:items/magic/ring
+I:45:17:0
+W:35:0:2:3000
+A:35/1
+P:0:0d0:0:0:15
+F:RES_ACID | IGNORE_ACID
+
+N:148:ice
+G:items/magic/ring
+I:45:19:0
+W:35:0:2:3000
+A:35/1
+P:0:0d0:0:0:15
+F:RES_COLD | IGNORE_COLD
+
+N:149:Woe
+G:items/magic/ring
+I:45:0:-5
+W:50:0:2:0
+A:50/1
+F:CURSED | TELEPORT | WIS | CHR | HIDE_TYPE
+
+N:150:sustaining
+G:items/magic/ring
+I:45:2:0
+W:50:0:2:5000
+A:60/1
+F:SUST_STR | SUST_INT | SUST_WIS | SUST_CON | SUST_DEX | SUST_CHR | 
+F:EASY_KNOW
+
+N:151:damage
+G:items/magic/ring
+I:45:29:0
+W:20:0:2:500
+A:20/1
+
+N:152:accuracy
+G:items/magic/ring
+I:45:28:0
+W:20:0:2:500
+A:20/1
+
+N:153:protection
+G:items/magic/ring
+I:45:16:0
+W:10:0:2:500
+A:10/1
+
+N:154:aggravate monster
+G:items/magic/ring
+I:45:1:0
+W:5:0:2:0
+A:5/1
+F:CURSED | AGGRAVATE | EASY_KNOW
+
+N:155:see invisible
+G:items/magic/ring
+I:45:22:0
+W:30:0:2:340
+A:30/1
+F:SEE_INVIS | EASY_KNOW
+
+N:156:sustain strength
+G:items/magic/ring
+I:45:10:0
+W:30:0:2:750
+A:30/1
+F:SUST_STR | EASY_KNOW
+
+N:157:sustain intelligence
+G:items/magic/ring
+I:45:11:0
+W:30:0:2:600
+A:30/1
+F:SUST_INT | EASY_KNOW
+
+N:158:sustain wisdom
+G:items/magic/ring
+I:45:12:0
+W:30:0:2:600
+A:30/1
+F:SUST_WIS | EASY_KNOW
+
+N:159:sustain constitution
+G:items/magic/ring
+I:45:13:0
+W:30:0:2:750
+A:30/1
+F:SUST_CON | EASY_KNOW
+
+N:160:sustain dexterity
+G:items/magic/ring
+I:45:14:0
+W:30:0:2:750
+A:30/1
+F:SUST_DEX | EASY_KNOW
+
+N:161:sustain charisma
+G:items/magic/ring
+I:45:15:0
+W:30:0:2:500
+A:30/1
+F:SUST_CHR | EASY_KNOW
+
+N:162:slaying
+G:items/magic/ring
+I:45:30:0
+W:40:0:2:1000
+A:40/1
+F:SHOW_MODS
+
+##### Amulets #####
+
+N:163:wisdom
+G:items/magic/amulet2
+I:40:6:0
+W:20:0:3:500
+A:20/1
+F:WIS | HIDE_TYPE
+
+N:164:charisma
+G:items/magic/amulet2
+I:40:7:0
+W:20:0:3:500
+A:20/1
+F:CHR | HIDE_TYPE
+
+N:165:searching
+G:items/magic/amulet2
+I:40:5:0
+W:30:0:3:600
+A:30/4
+F:SEARCH | HIDE_TYPE
+
+N:166:teleportation
+G:items/magic/amulet2
+I:40:1:0
+W:15:0:3:0
+A:15/1
+F:CURSED | TELEPORT | EASY_KNOW
+
+N:167:slow digestion
+G:items/magic/amulet2
+I:40:3:0
+W:15:0:3:200
+A:15/1
+F:SLOW_DIGEST | EASY_KNOW
+
+N:168:resist acid
+G:items/magic/amulet2
+I:40:4:0
+W:20:0:3:300
+A:20/1
+F:RES_ACID | IGNORE_ACID | EASY_KNOW
+
+N:169:adornment
+G:items/magic/amulet2
+I:40:2:0
+W:15:0:3:20
+A:15/1
+F:EASY_KNOW
+
+## XXX 170 XXX ##
+
+N:171:the Magi
+G:items/magic/amulet2
+I:40:8:0
+W:50:0:3:15000
+A:50/4
+P:0:0d0:0:0:3
+F:FREE_ACT | SEE_INVIS | SEARCH |
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:172:DOOM
+G:items/magic/amulet2
+I:40:0:-5
+W:50:0:3:0
+A:50/1
+F:CURSED | STR | INT | WIS | DEX | CON | CHR | HIDE_TYPE
+
+
+##### Scrolls #####
+
+N:173:enchant weapon to-hit
+G:items/magic/scroll
+I:70:17:0
+W:15:0:5:125
+A:15/1
+
+N:174:enchant weapon to-damage
+G:items/magic/scroll
+I:70:18:0
+W:15:0:5:125
+A:15/1
+
+N:175:enchant armor
+G:items/magic/scroll
+I:70:16:0
+W:15:0:5:125
+A:15/1
+
+N:176:identify
+G:items/magic/scroll
+I:70:12:0
+W:1:0:5:50
+A:1/1:5/1:10/1:30/1
+
+N:177:*identify*
+G:items/magic/scroll
+I:70:13:0
+W:30:0:5:1000
+A:30/1
+
+## XXX 178 XXX ##
+
+## XXX 179 XXX ##
+
+N:180:remove curse
+G:items/magic/scroll
+I:70:14:0
+W:10:0:5:100
+A:10/1
+
+N:181:light
+G:items/magic/scroll
+I:70:24:0
+W:0:0:5:15
+A:0/1:3/1:10/1
+
+## XXX 182 XXX ##
+
+## XXX 183 XXX ##
+
+N:184:summon monster
+G:items/magic/scroll
+I:70:4:0
+W:1:0:5:0
+A:1/1
+
+N:185:phase door
+G:items/magic/scroll
+I:70:8:0
+W:1:0:5:15
+A:1/1
+
+N:186:teleportation
+G:items/magic/scroll
+I:70:9:0
+W:10:0:5:40
+A:10/1
+
+N:187:teleport level
+G:items/magic/scroll
+I:70:10:0
+W:20:0:5:50
+A:20/1
+
+N:188:monster confusion
+G:items/magic/scroll
+I:70:36:0
+W:5:0:5:30
+A:5/1
+
+N:189:magic mapping
+G:items/magic/scroll
+I:70:25:0
+W:5:0:5:40
+A:5/1
+
+N:190:rune of protection
+G:items/magic/scroll
+I:70:38:0
+W:60:0:5:500
+A:60/2:90/4
+
+N:191:*remove curse*
+G:items/magic/scroll
+I:70:15:0
+W:50:0:5:8000
+A:50/2
+
+N:192:treasure detection
+G:items/magic/scroll
+I:70:26:0
+W:0:0:5:15
+A:0/1
+
+N:193:object detection
+G:items/magic/scroll
+I:70:27:0
+W:0:0:5:15
+A:0/1
+
+N:194:trap detection
+G:items/magic/scroll
+I:70:28:0
+W:5:0:5:35
+A:5/1:10/1
+
+## XXX 195 XXX ##
+
+## XXX 196 XXX ##
+
+N:197:door/stair location
+G:items/magic/scroll
+I:70:29:0
+W:5:0:5:35
+A:5/1:10/1:15/1
+
+N:198:acquirement
+G:items/magic/scroll
+I:70:46:0
+W:20:0:5:100000
+A:20/8
+
+N:199:*acquirement*
+G:items/magic/scroll
+I:70:47:0
+W:60:0:5:200000
+A:60/16
+
+N:200:mass genocide
+G:items/magic/scroll
+I:70:45:0
+W:50:0:5:1000
+A:50/4
+
+N:201:detect invisible
+G:items/magic/scroll
+I:70:30:0
+W:1:0:5:15
+A:1/1
+
+N:202:aggravate monster
+G:items/magic/scroll
+I:70:1:0
+W:5:0:5:0
+A:5/1
+
+N:203:trap creation
+G:items/magic/scroll
+I:70:7:0
+W:10:0:5:0
+A:10/1
+
+N:204:trap/door destruction
+G:items/magic/scroll
+I:70:39:0
+W:10:0:5:50
+A:10/1
+
+## XXX 205 XXX ##
+
+N:206:recharging
+G:items/magic/scroll
+I:70:22:0
+W:40:0:5:200
+A:40/1
+
+N:207:genocide
+G:items/magic/scroll
+I:70:44:0
+W:40:0:5:750
+A:40/4
+
+N:208:darkness
+G:items/magic/scroll
+I:70:0:0
+W:1:0:5:0
+A:1/1
+
+N:209:protection from evil
+G:items/magic/scroll
+I:70:37:0
+W:30:0:5:50
+A:30/1
+
+N:210:satisfy hunger
+G:items/magic/scroll
+I:70:32:0
+W:5:0:5:10
+A:5/1
+
+N:211:dispel undead
+G:items/magic/scroll
+I:70:42:0
+W:40:0:5:200
+A:40/1
+
+N:212:*enchant weapon*
+G:items/magic/scroll
+I:70:21:0
+W:50:0:5:500
+A:50/1
+
+N:213:curse weapon
+G:items/magic/scroll
+I:70:3:0
+W:50:0:5:0
+A:50/1
+
+N:214:*enchant armor*
+G:items/magic/scroll
+I:70:20:0
+W:50:0:5:500
+A:50/1:50/1
+
+N:215:curse armor
+G:items/magic/scroll
+I:70:2:0
+W:50:0:5:0
+A:50/1
+
+N:216:summon undead
+G:items/magic/scroll
+I:70:5:0
+W:15:0:5:0
+A:15/1
+
+N:217:blessing
+G:items/magic/scroll
+I:70:33:0
+W:1:0:5:15
+A:1/1
+
+N:218:holy chant
+G:items/magic/scroll
+I:70:34:0
+W:10:0:5:40
+A:10/1
+
+N:219:holy prayer
+G:items/magic/scroll
+I:70:35:0
+W:25:0:5:80
+A:25/1
+
+N:220:word-of-recall
+G:items/magic/scroll
+I:70:11:0
+W:5:0:5:150
+A:5/1
+
+N:221:*destruction*
+G:items/magic/scroll
+I:70:41:0
+W:40:0:5:250
+A:40/1
+
+##### Potions #####
+
+N:222:slime mold juice
+G:items/potions/rdpotion
+I:75:2:400
+W:0:0:4:2
+A:0/1
+P:0:1d1:0:0:0
+
+N:223:apple juice
+G:items/potions/rdpotion
+I:75:1:250
+W:0:0:4:1
+A:0/1
+P:0:1d1:0:0:0
+
+N:224:water
+G:items/potions/rdpotion
+I:75:0:200
+W:0:0:4:1
+A:0/1
+P:0:1d1:0:0:0
+
+N:225:strength
+G:items/potions/rdpotion
+I:75:48:0
+W:30:0:4:8000
+A:30/1
+P:0:1d1:0:0:0
+
+N:226:weakness
+G:items/potions/rdpotion
+I:75:16:0
+W:3:0:4:0
+A:3/1
+P:0:1d1:0:0:0
+
+N:227:restore strength
+G:items/potions/rdpotion
+I:75:42:0
+W:25:0:4:300
+A:25/1
+P:0:1d1:0:0:0
+
+N:228:intelligence
+G:items/potions/rdpotion
+I:75:49:0
+W:30:0:4:8000
+A:30/1
+P:0:1d1:0:0:0
+
+N:229:stupidity
+G:items/potions/rdpotion
+I:75:17:0
+W:20:0:4:0
+A:20/1
+P:0:1d1:0:0:0
+
+N:230:restore intelligence
+G:items/potions/rdpotion
+I:75:43:0
+W:25:0:4:300
+A:25/1
+P:0:1d1:0:0:0
+
+N:231:wisdom
+G:items/potions/rdpotion
+I:75:50:0
+W:30:0:4:8000
+A:30/1
+P:0:1d1:0:0:0
+
+N:232:naivety
+G:items/potions/rdpotion
+I:75:18:0
+W:20:0:4:0
+A:20/1
+P:0:1d1:0:0:0
+
+N:233:restore wisdom
+G:items/potions/rdpotion
+I:75:44:0
+W:25:0:4:300
+A:25/1
+P:0:1d1:0:0:0
+
+N:234:charisma
+G:items/potions/rdpotion
+I:75:53:0
+W:20:0:4:1000
+A:20/1
+P:0:1d1:0:0:0
+
+N:235:ugliness
+G:items/potions/rdpotion
+I:75:21:0
+W:20:0:4:0
+A:20/1
+P:0:1d1:0:0:0
+
+N:236:restore charisma
+G:items/potions/rdpotion
+I:75:47:0
+W:20:0:4:300
+A:20/1
+P:0:1d1:0:0:0
+
+N:237:cure light wounds
+G:items/potions/rdpotion
+I:75:34:50
+W:0:0:4:15
+A:0/1:1/1:3/1
+P:0:1d1:0:0:0
+
+N:238:clumsiness
+G:items/potions/rdpotion
+I:75:19:0
+W:5:0:4:0
+A:5/1
+P:0:1d1:0:0:0
+
+N:239:sickliness
+G:items/potions/rdpotion
+I:75:20:0
+W:10:0:4:0
+A:10/1
+P:0:1d1:0:0:0
+
+N:240:cure serious wounds
+G:items/potions/rdpotion
+I:75:35:100
+W:3:0:4:40
+A:3/1
+P:0:1d1:0:0:0
+
+N:241:cure critical wounds
+G:items/potions/rdpotion
+I:75:36:100
+W:5:0:4:100
+A:5/1
+P:0:1d1:0:0:0
+
+N:242:healing
+G:items/potions/rdpotion
+I:75:37:200
+W:15:0:4:300
+A:15/1
+P:0:1d1:0:0:0
+
+N:243:constitution
+G:items/potions/rdpotion
+I:75:52:0
+W:30:0:4:8000
+A:30/1
+P:0:1d1:0:0:0
+
+N:244:experience
+G:items/potions/rdpotion
+I:75:59:0
+W:65:0:4:25000
+A:65/1
+P:0:1d1:0:0:0
+
+N:245:sleep
+G:items/potions/rdpotion
+I:75:11:100
+W:0:0:4:0
+A:0/1
+P:0:1d1:0:0:0
+
+N:246:blindness
+G:items/potions/rdpotion
+I:75:7:0
+W:0:0:4:0
+A:0/1
+P:0:1d1:0:0:0
+
+N:247:confusion
+G:items/potions/rdpotion
+I:75:9:50
+W:0:0:4:0
+A:0/1
+P:0:1d1:0:0:0
+
+N:248:poison
+G:items/potions/rdpotion
+I:75:6:0
+W:3:0:4:0
+A:3/1
+P:0:1d1:0:0:0
+
+N:249:speed
+G:items/potions/rdpotion
+I:75:29:0
+W:1:0:4:75
+A:1/1:40/1
+P:0:1d1:0:0:0
+
+N:250:slowness
+G:items/potions/rdpotion
+I:75:4:50
+W:1:0:4:0
+A:1/1
+P:0:1d1:0:0:0
+
+N:251:dexterity
+G:items/potions/rdpotion
+I:75:51:0
+W:30:0:4:8000
+A:30/1
+P:0:1d1:0:0:0
+
+N:252:restore dexterity
+G:items/potions/rdpotion
+I:75:45:0
+W:25:0:4:300
+A:25/1
+P:0:1d1:0:0:0
+
+N:253:restore constitution
+G:items/potions/rdpotion
+I:75:46:0
+W:25:0:4:300
+A:25/1
+P:0:1d1:0:0:0
+
+N:254:lose memories
+G:items/potions/rdpotion
+I:75:13:0
+W:10:0:4:0
+A:10/1
+P:0:1d1:0:0:0
+
+N:255:salt water
+G:items/potions/rdpotion
+I:75:5:0
+W:0:0:4:0
+A:0/1
+P:0:1d1:0:0:0
+
+N:256:enlightenment
+G:items/potions/rdpotion
+I:75:56:0
+W:25:0:4:800
+A:25/1
+P:0:1d1:0:0:0
+
+N:257:heroism
+G:items/potions/rdpotion
+I:75:32:0
+W:1:0:4:35
+A:1/1
+P:0:1d1:0:0:0
+
+N:258:berserk strength
+G:items/potions/rdpotion
+I:75:33:0
+W:3:0:4:100
+A:3/1
+P:0:1d1:0:0:0
+
+N:259:boldness
+G:items/potions/rdpotion
+I:75:28:0
+W:1:0:4:10
+A:1/1
+P:0:1d1:0:0:0
+
+N:260:restore experience
+G:items/potions/rdpotion
+I:75:41:0
+W:40:0:4:400
+A:40/1
+P:0:1d1:0:0:0
+
+N:261:resist heat
+G:items/potions/rdpotion
+I:75:30:0
+W:1:0:4:30
+A:1/1
+P:0:1d1:0:0:0
+
+N:262:resist cold
+G:items/potions/rdpotion
+I:75:31:0
+W:1:0:4:30
+A:1/1
+P:0:1d1:0:0:0
+
+N:263:detect invisible
+G:items/potions/rdpotion
+I:75:25:0
+W:3:0:4:50
+A:3/1
+P:0:1d1:0:0:0
+
+N:264:slow poison
+G:items/potions/rdpotion
+I:75:26:0
+W:1:0:4:25
+A:1/1
+P:0:1d1:0:0:0
+
+N:265:neutralize poison
+G:items/potions/rdpotion
+I:75:27:0
+W:5:0:4:75
+A:5/1
+P:0:1d1:0:0:0
+
+N:266:restore mana
+G:items/potions/rdpotion
+I:75:40:0
+W:25:0:4:350
+A:25/1
+P:0:1d1:0:0:0
+
+N:267:infra-vision
+G:items/potions/rdpotion
+I:75:24:0
+W:3:0:4:20
+A:3/1
+P:0:1d1:0:0:0
+
+## XXX 268 XXX ##
+
+
+##### Wands #####
+
+N:269:light
+G:items/magic/wand
+I:65:7:0
+W:3:0:10:200
+A:3/1
+P:0:1d1:0:0:0
+
+N:270:lightning bolts
+G:items/magic/wand
+I:65:17:0
+W:15:0:10:600
+A:15/1
+P:0:1d1:0:0:0
+
+N:271:frost bolts
+G:items/magic/wand
+I:65:19:0
+W:20:0:10:800
+A:20/1
+P:0:1d1:0:0:0
+
+N:272:fire bolts
+G:items/magic/wand
+I:65:18:0
+W:30:0:10:1000
+A:30/1
+P:0:1d1:0:0:0
+
+N:273:stone to mud
+G:items/magic/wand
+I:65:6:0
+W:10:0:10:300
+A:10/1
+P:0:1d1:0:0:0
+
+N:274:polymorph
+G:items/magic/wand
+I:65:13:0
+W:20:0:10:400
+A:20/1
+P:0:1d1:0:0:0
+
+N:275:heal monster
+G:items/magic/wand
+I:65:0:0
+W:3:0:10:0
+A:3/1
+P:0:1d1:0:0:0
+
+N:276:haste monster
+G:items/magic/wand
+I:65:1:0
+W:3:0:10:0
+A:3/1
+P:0:1d1:0:0:0
+
+N:277:slow monster
+G:items/magic/wand
+I:65:9:0
+W:5:0:10:500
+A:5/1
+P:0:1d1:0:0:0
+
+N:278:confuse monster
+G:items/magic/wand
+I:65:10:0
+W:5:0:10:500
+A:5/1
+P:0:1d1:0:0:0
+
+N:279:sleep monster
+G:items/magic/wand
+I:65:8:0
+W:5:0:10:500
+A:5/1
+P:0:1d1:0:0:0
+
+N:280:drain life
+G:items/magic/wand
+I:65:12:0
+W:50:0:10:1200
+A:50/1
+P:0:1d1:0:0:0
+
+N:281:trap/door destruction
+G:items/magic/wand
+I:65:5:0
+W:10:0:10:100
+A:10/1
+P:0:1d1:0:0:0
+
+N:282:magic missile
+G:items/magic/wand
+I:65:15:0
+W:3:0:10:200
+A:3/1
+P:0:1d1:0:0:0
+
+N:283:clone monster
+G:items/magic/wand
+I:65:2:0
+W:15:0:10:0
+A:15/1:50/1
+P:0:1d1:0:0:0
+
+N:284:scare monster
+G:items/magic/wand
+I:65:11:0
+W:10:0:10:500
+A:10/4
+P:0:1d1:0:0:0
+
+N:285:teleport other
+G:items/magic/wand
+I:65:3:0
+W:20:0:10:350
+A:20/1
+P:0:1d1:0:0:0
+
+N:286:disarming
+G:items/magic/wand
+I:65:4:0
+W:20:0:10:700
+A:20/1
+P:0:1d1:0:0:0
+
+N:287:lightning balls
+G:items/magic/wand
+I:65:21:0
+W:35:0:10:1200
+A:35/1
+P:0:1d1:0:0:0
+F:IGNORE_ELEC
+
+N:288:cold balls
+G:items/magic/wand
+I:65:23:0
+W:40:0:10:1500
+A:40/1
+P:0:1d1:0:0:0
+F:IGNORE_COLD
+
+N:289:fire balls
+G:items/magic/wand
+I:65:22:0
+W:50:0:10:1800
+A:50/1
+P:0:1d1:0:0:0
+F:IGNORE_FIRE
+
+N:290:stinking cloud
+G:items/magic/wand
+I:65:14:0
+W:5:0:10:400
+A:5/1
+P:0:1d1:0:0:0
+
+N:291:acid balls
+G:items/magic/wand
+I:65:20:0
+W:50:0:10:1650
+A:50/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID
+
+N:292:wonder
+G:items/magic/wand
+I:65:24:0
+W:3:0:10:250
+A:3/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+# 293 (unused)
+
+N:294:acid bolts
+G:items/magic/wand
+I:65:16:0
+W:30:0:10:950
+A:30/1
+P:0:1d1:0:0:0
+
+N:295:dragon's flame
+G:items/magic/wand
+I:65:26:0
+W:50:0:10:2400
+A:50/4
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:296:dragon's frost
+G:items/magic/wand
+I:65:27:0
+W:50:0:10:2400
+A:50/4
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:297:dragon's breath
+G:items/magic/wand
+I:65:28:0
+W:60:0:10:2400
+A:60/4
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:298:annihilation
+G:items/magic/wand
+I:65:25:0
+W:60:0:10:3000
+A:60/4
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+# 299 (unused)
+
+
+##### Staves #####
+
+N:300:trap location
+G:items/magic/staff
+I:55:12:0
+W:10:0:50:350
+A:10/1
+P:0:1d2:0:0:0
+
+N:301:treasure location
+G:items/magic/staff
+I:55:10:0
+W:5:0:50:200
+A:5/1
+P:0:1d2:0:0:0
+
+N:302:object location
+G:items/magic/staff
+I:55:11:0
+W:5:0:50:200
+A:5/1
+P:0:1d2:0:0:0
+
+N:303:teleportation
+G:items/magic/staff
+I:55:4:0
+W:20:0:50:2000
+A:20/1
+P:0:1d2:0:0:0
+
+N:304:earthquakes
+G:items/magic/staff
+I:55:28:0
+W:40:0:50:350
+A:40/1
+P:0:1d2:0:0:0
+
+N:305:summoning
+G:items/magic/staff
+I:55:3:0
+W:10:0:50:0
+A:10/1:50/1
+P:0:1d2:0:0:0
+
+N:306:light
+G:items/magic/staff
+I:55:8:0
+W:5:0:50:250
+A:5/1
+P:0:1d2:0:0:0
+
+N:307:*destruction*
+G:items/magic/staff
+I:55:29:0
+W:50:0:50:2500
+A:50/1:70/1
+P:0:1d2:0:0:0
+
+N:308:starlight
+G:items/magic/staff
+I:55:7:0
+W:20:0:50:800
+A:20/1
+P:0:1d2:0:0:0
+
+N:309:haste monsters
+G:items/magic/staff
+I:55:2:0
+W:10:0:50:0
+A:10/1
+P:0:1d2:0:0:0
+
+N:310:slow monsters
+G:items/magic/staff
+I:55:21:0
+W:10:0:50:800
+A:10/1
+P:0:1d2:0:0:0
+
+N:311:sleep monsters
+G:items/magic/staff
+I:55:20:0
+W:10:0:50:700
+A:10/1
+P:0:1d2:0:0:0
+
+N:312:cure light wounds
+G:items/magic/staff
+I:55:16:0
+W:5:0:50:350
+A:5/1
+P:0:1d2:0:0:0
+
+N:313:detect invisible
+G:items/magic/staff
+I:55:14:0
+W:5:0:50:200
+A:5/1
+P:0:1d2:0:0:0
+
+N:314:speed
+G:items/magic/staff
+I:55:22:0
+W:40:0:50:1000
+A:40/1
+P:0:1d2:0:0:0
+
+N:315:slowness
+G:items/magic/staff
+I:55:1:0
+W:40:0:50:0
+A:40/1
+P:0:1d2:0:0:0
+
+N:316:door/stair location
+G:items/magic/staff
+I:55:13:0
+W:10:0:50:350
+A:10/1
+P:0:1d2:0:0:0
+
+N:317:remove curse
+G:items/magic/staff
+I:55:6:0
+W:40:0:50:500
+A:40/1
+P:0:1d2:0:0:0
+
+N:318:detect evil
+G:items/magic/staff
+I:55:15:0
+W:20:0:50:350
+A:20/1
+P:0:1d2:0:0:0
+
+N:319:curing
+G:items/magic/staff
+I:55:17:0
+W:25:0:50:1000
+A:25/1
+P:0:1d2:0:0:0
+
+N:320:dispel evil
+G:items/magic/staff
+I:55:24:0
+W:50:0:50:1200
+A:50/1
+P:0:1d2:0:0:0
+
+N:321:probing
+G:items/magic/staff
+I:55:23:0
+W:30:0:50:2000
+A:30/1
+P:0:1d2:0:0:0
+
+N:322:darkness
+G:items/magic/staff
+I:55:0:0
+W:5:0:50:0
+A:5/1:50/1
+P:0:1d2:0:0:0
+
+N:323:genocide
+G:items/magic/staff
+I:55:27:0
+W:70:0:50:3500
+A:70/4
+P:0:1d2:0:0:0
+
+N:324:power
+G:items/magic/staff
+I:55:25:0
+W:70:0:50:4000
+A:70/2
+P:0:1d2:0:0:0
+
+N:325:the Magi
+G:items/magic/staff
+I:55:19:0
+W:70:0:50:4500
+A:70/2
+P:0:1d2:0:0:0
+
+N:326:perception
+G:items/magic/staff
+I:55:5:0
+W:10:0:50:400
+A:10/1
+P:0:1d2:0:0:0
+
+N:327:holiness
+G:items/magic/staff
+I:55:26:0
+W:70:0:50:4500
+A:70/2
+P:0:1d2:0:0:0
+
+N:328:enlightenment
+G:items/magic/staff
+I:55:9:0
+W:20:0:50:750
+A:20/1
+P:0:1d2:0:0:0
+
+N:329:healing
+G:items/magic/staff
+I:55:18:0
+W:70:0:50:5000
+A:70/2
+P:0:1d2:0:0:0
+
+
+##### Basic Books #####
+
+N:330:[Magic for Beginners]
+G:items/magic/magbook
+I:90:0:0
+W:5:0:30:25
+A:5/1
+P:0:1d1:0:0:0
+
+N:331:[Conjurings and Tricks]
+G:items/magic/magbook
+I:90:1:0
+W:10:0:30:100
+A:10/1
+P:0:1d1:0:0:0
+
+N:332:[Incantations and Illusions]
+G:items/magic/magbook
+I:90:2:0
+W:20:0:30:400
+A:20/1
+P:0:1d1:0:0:0
+
+N:333:[Sorcery and Evocations]
+G:items/magic/magbook
+I:90:3:0
+W:30:0:30:800
+A:30/1
+P:0:1d1:0:0:0
+
+N:334:[Beginners' Handbook]
+G:items/magic/prybook
+I:91:0:0
+W:5:0:30:25
+A:5/1
+P:0:1d1:0:0:0
+
+N:335:[Words of Wisdom]
+G:items/magic/prybook
+I:91:1:0
+W:10:0:30:100
+A:10/1
+P:0:1d1:0:0:0
+
+N:336:[Chants and Blessings]
+G:items/magic/prybook
+I:91:2:0
+W:20:0:30:300
+A:20/1
+P:0:1d1:0:0:0
+
+N:337:[Exorcism and Dispelling]
+G:items/magic/prybook
+I:91:3:0
+W:30:0:30:900
+A:30/1
+P:0:1d1:0:0:0
+
+##### Chests #####
+
+N:338:& small wooden chest~
+G:items/chests/swchest
+I:7:1:0
+W:5:0:250:20
+A:5/3
+P:0:2d3:0:0:0
+
+N:339:& large wooden chest~
+G:items/chests/lwchest
+I:7:5:0
+W:15:0:500:60
+A:15/3
+P:0:2d5:0:0:0
+
+N:340:& small iron chest~
+G:items/chests/smchest
+I:7:2:0
+W:25:0:300:100
+A:25/3
+P:0:2d4:0:0:0
+
+N:341:& large iron chest~
+G:items/chests/lmchest
+I:7:6:0
+W:35:0:1000:150
+A:35/6
+P:0:2d6:0:0:0
+
+N:342:& small steel chest~
+G:items/chests/smchest
+I:7:3:0
+W:45:0:500:200
+A:45/6
+P:0:2d4:0:0:0
+
+N:343:& large steel chest~
+G:items/chests/lmchest
+I:7:7:0
+W:55:0:1000:250
+A:55/6
+P:0:2d6:0:0:0
+
+N:344:& ruined chest~
+G:dobject
+I:7:0:0
+W:0:0:250:0
+A:75/4
+
+
+##### Various Stuff #####
+
+# 345 (unused)
+
+N:346:& wooden torch~
+G:items/lite/torch
+I:39:0:4000
+W:1:0:30:2
+A:1/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+
+N:347:& brass lantern~
+G:items/lite/lantern
+I:39:1:7500
+W:3:0:50:35
+A:3/1
+P:0:1d1:0:0:0
+F:EASY_KNOW | IGNORE_FIRE
+
+N:348:& flask~ of oil
+G:dobject
+I:77:0:7500
+W:1:0:10:3
+A:1/1
+P:0:2d6:0:0:0
+
+N:349:& empty bottle~
+G:items/potions/empty
+I:2:1:0
+W:0:0:2:0
+A:0/1
+P:0:1d1:0:0:0
+
+
+
+
+##### Here are the Rods #####
+
+## XXX 350 XXX ##
+
+N:351:door/stair location
+G:dobject
+I:66:1:0
+W:15:0:15:1000
+A:15/1
+P:0:1d1:0:0:0
+
+N:352:trap location
+G:dobject
+I:66:0:0
+W:5:0:15:100
+A:5/1
+P:0:1d1:0:0:0
+
+N:353:probing
+G:dobject
+I:66:7:0
+W:40:0:15:4000
+A:40/4
+P:0:1d1:0:0:0
+
+N:354:recall
+G:dobject
+I:66:3:0
+W:30:0:15:4000
+A:30/4
+P:0:1d1:0:0:0
+
+N:355:illumination
+G:dobject
+I:66:4:0
+W:20:0:15:1000
+A:20/1
+P:0:1d1:0:0:0
+
+N:356:light
+G:dobject
+I:66:15:0
+W:10:0:15:500
+A:10/1
+P:0:1d1:0:0:0
+
+N:357:lightning bolts
+G:dobject
+I:66:21:0
+W:20:0:15:2000
+A:20/1
+P:0:1d1:0:0:0
+
+N:358:frost bolts
+G:dobject
+I:66:23:0
+W:25:0:15:2500
+A:25/1
+P:0:1d1:0:0:0
+
+N:359:fire bolts
+G:dobject
+I:66:22:0
+W:30:0:15:3000
+A:30/1
+P:0:1d1:0:0:0
+
+N:360:polymorph
+G:dobject
+I:66:19:0
+W:35:0:15:1200
+A:35/1
+P:0:1d1:0:0:0
+
+N:361:slow monster
+G:dobject
+I:66:17:0
+W:30:0:15:1500
+A:30/1
+P:0:1d1:0:0:0
+
+N:362:sleep monster
+G:dobject
+I:66:16:0
+W:30:0:15:1500
+A:30/1
+P:0:1d1:0:0:0
+
+N:363:drain life
+G:dobject
+I:66:18:0
+W:75:0:15:3600
+A:75/4
+P:0:1d1:0:0:0
+
+N:364:teleport other
+G:dobject
+I:66:13:0
+W:45:0:15:1400
+A:45/2
+P:0:1d1:0:0:0
+
+N:365:disarming
+G:dobject
+I:66:14:0
+W:35:0:15:2100
+A:35/1
+P:0:1d1:0:0:0
+
+N:366:lightning ball
+G:dobject
+I:66:25:0
+W:55:0:15:4000
+A:55/1
+P:0:1d1:0:0:0
+
+N:367:cold ball
+G:dobject
+I:66:27:0
+W:60:0:15:4500
+A:60/1
+P:0:1d1:0:0:0
+
+N:368:fire balls
+G:dobject
+I:66:26:0
+W:75:0:15:5000
+A:75/1
+P:0:1d1:0:0:0
+
+N:369:acid balls
+G:dobject
+I:66:24:0
+W:70:0:15:5500
+A:70/1
+P:0:1d1:0:0:0
+
+N:370:acid bolts
+G:dobject
+I:66:20:0
+W:40:0:15:3500
+A:40/1
+P:0:1d1:0:0:0
+
+N:371:enlightenment
+G:dobject
+I:66:5:0
+W:65:0:15:10000
+A:65/4
+P:0:1d1:0:0:0
+
+N:372:perception
+G:dobject
+I:66:2:0
+W:50:0:15:13000
+A:50/8
+P:0:1d1:0:0:0
+
+N:373:curing
+G:dobject
+I:66:8:0
+W:65:0:15:15000
+A:65/8
+P:0:1d1:0:0:0
+
+N:374:healing
+G:dobject
+I:66:9:0
+W:80:0:15:20000
+A:80/8
+P:0:1d1:0:0:0
+
+N:375:detection
+G:dobject
+I:66:6:0
+W:30:0:15:5000
+A:30/8
+P:0:1d1:0:0:0
+
+N:376:restoration
+G:dobject
+I:66:10:0
+W:80:0:15:25000
+A:80/16
+P:0:1d1:0:0:0
+
+N:377:speed
+G:dobject
+I:66:11:0
+W:95:0:15:50000
+A:95/16
+P:0:1d1:0:0:0
+
+
+##### Special Books (note resistances) #####
+
+N:379:[Resistance of Scarabtarices]
+G:items/magic/umagbook
+I:90:4:0
+W:40:0:30:5000
+A:40/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:380:[Mordenkainen's Escapes]
+G:items/magic/umagbook
+I:90:5:0
+W:50:0:30:10000
+A:50/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:381:[Kelek's Grimoire of Power]
+G:items/magic/umagbook
+I:90:6:0
+W:60:0:30:30000
+A:60/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:382:[Tenser's Transformations]
+G:items/magic/umagbook
+I:90:7:0
+W:80:0:30:50000
+A:80/2
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:383:[Raal's Tome of Destruction]
+G:items/magic/umagbook
+I:90:8:0
+W:100:0:30:100000
+A:100/4
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:384:[Ethereal Openings]
+G:items/magic/uprybook
+I:91:4:0
+W:40:0:30:5000
+A:40/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:385:[Godly Insights]
+G:items/magic/uprybook
+I:91:5:0
+W:50:0:30:10000
+A:50/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:386:[Purifications and Healing]
+G:items/magic/uprybook
+I:91:6:0
+W:60:0:30:30000
+A:60/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:387:[Holy Infusions]
+G:items/magic/uprybook
+I:91:7:0
+W:80:0:30:50000
+A:80/2
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:388:[Wrath of God]
+G:items/magic/uprybook
+I:91:8:0
+W:100:0:30:100000
+A:100/4
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+## XXX 389 XXX ##
+
+## XXX 390 XXX ##
+
+
+##### Skeletons #####
+
+N:391:& broken skull~
+G:dobject
+I:1:1:0
+W:0:0:1:0
+A:0/1
+P:0:1d1:0:0:0
+
+N:392:& broken bone~
+G:items/misc/brkbone
+I:1:2:0
+W:0:0:2:0
+A:0/1
+P:0:1d1:0:0:0
+
+N:393:& canine skeleton~
+G:dobject
+I:1:4:0
+W:1:0:10:0
+A:1/1
+P:0:1d1:0:0:0
+
+N:394:& rodent skeleton~
+G:dobject
+I:1:3:0
+W:1:0:10:0
+A:1/1
+P:0:1d1:0:0:0
+
+N:395:& human skeleton~
+G:dobject
+I:1:8:0
+W:5:0:60:0
+A:5/1
+P:0:1d2:0:0:0
+
+N:396:& dwarf skeleton~
+G:dobject
+I:1:7:0
+W:5:0:50:0
+A:5/1
+P:0:1d2:0:0:0
+
+N:397:& elf skeleton~
+G:dobject
+I:1:6:0
+W:5:0:40:0
+A:5/1
+P:0:1d2:0:0:0
+
+N:398:& gnome skeleton~
+G:dobject
+I:1:5:0
+W:5:0:30:0
+A:5/1
+P:0:1d2:0:0:0
+
+## XXX 399 XXX ##
+
+
+##### Dragon Scale Mail #####
+
+N:400:& suit~ of black dragon scale mail
+G:dobject
+I:38:1:0
+W:60:0:200:30000
+A:60/8
+P:40:2d4:-2:0:10
+F:RES_ACID |
+F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:401:& suit~ of blue dragon scale mail
+G:dobject
+I:38:2:0
+W:40:0:200:35000
+A:40/8
+P:40:2d4:-2:0:10
+F:RES_ELEC |
+F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:402:& suit~ of white dragon scale mail
+G:dobject
+I:38:3:0
+W:50:0:200:40000
+A:50/8
+P:40:2d4:-2:0:10
+F:RES_COLD |
+F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:403:& suit~ of red dragon scale mail
+G:dobject
+I:38:4:0
+W:80:0:200:100000
+A:80/8
+P:40:2d4:-2:0:10
+F:RES_FIRE |
+F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:404:& suit~ of green dragon scale mail
+G:dobject
+I:38:5:0
+W:70:0:200:80000
+A:70/8
+P:40:2d4:-2:0:10
+F:RES_POIS |
+F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:405:& suit~ of multi-hued dragon scale mail
+G:dobject
+I:38:6:0
+W:100:0:200:150000
+A:100/16
+P:40:2d4:-2:0:10
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS
+F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:406:& suit~ of shining dragon scale mail
+G:dobject
+I:38:10:0
+W:65:0:200:60000
+A:65/16
+P:40:2d4:-2:0:10
+F:RES_LITE | RES_DARK |
+F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:407:& suit~ of law dragon scale mail
+G:dobject
+I:38:12:0
+W:80:0:200:80000
+A:80/16
+P:40:2d4:-2:0:10
+F:RES_SOUND | RES_SHARDS |
+F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:408:& suit~ of bronze dragon scale mail
+G:dobject
+I:38:14:0
+W:55:0:200:30000
+A:55/8
+P:40:2d4:-2:0:10
+F:RES_CONF |
+F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:409:& suit~ of gold dragon scale mail
+G:dobject
+I:38:16:0
+W:65:0:200:40000
+A:65/8
+P:40:2d4:-2:0:10
+F:RES_SOUND |
+F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:410:& suit~ of chaos dragon scale mail
+G:dobject
+I:38:18:0
+W:75:0:200:70000
+A:75/16
+P:40:2d4:-2:0:10
+F:RES_CHAOS | RES_DISEN |
+F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:411:& suit~ of balance dragon scale mail
+G:dobject
+I:38:20:0
+W:90:0:200:100000
+A:90/16
+P:40:2d4:-2:0:10
+F:RES_CHAOS | RES_DISEN | RES_SOUND | RES_SHARDS |
+F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:412:& suit~ of power dragon scale mail
+G:dobject
+I:38:30:0
+W:110:0:200:300000
+A:110/64
+P:50:2d4:-3:0:15
+F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
+F:RES_NETHER | RES_NEXUS | RES_CHAOS | RES_LITE | RES_DARK
+F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+## XXX 413 XXX ##
+
+## XXX 414 XXX ##
+
+
+##### Extra potions #####
+
+N:415:Death
+G:items/potions/rdpotion
+I:75:23:0
+W:55:0:4:0
+A:55/4
+P:0:1d1:0:0:0
+
+N:416:Ruination
+G:items/potions/rdpotion
+I:75:15:0
+W:40:0:4:0
+A:40/8
+P:0:1d1:0:0:0
+
+N:417:Detonations
+G:items/potions/rdpotion
+I:75:22:0
+W:60:0:4:10000
+A:60/8
+P:0:25d25:0:0:0
+
+N:418:Augmentation
+G:items/potions/rdpotion
+I:75:55:0
+W:40:0:4:60000
+A:40/16
+P:0:1d1:0:0:0
+
+N:419:*healing*
+G:items/potions/rdpotion
+I:75:38:0
+W:40:0:4:1500
+A:40/4
+P:0:1d1:0:0:0
+
+N:420:Life
+G:items/potions/rdpotion
+I:75:39:0
+W:60:0:4:5000
+A:60/4
+P:0:1d1:0:0:0
+
+N:421:self-knowledge
+G:items/potions/rdpotion
+I:75:58:0
+W:40:0:4:2000
+A:40/1
+P:0:1d1:0:0:0
+
+N:422:*enlightenment*
+G:items/potions/rdpotion
+I:75:57:0
+W:70:0:4:80000
+A:70/4
+P:0:1d1:0:0:0
+
+## XXX 423 XXX ##
+
+## XXX 424 XXX ##
+
+
+##### Items 425 to 439 unused #####
+
+##### Items 440 to 444 reserved (old "fake" objects) #####
+
+##### Items 445 to 479 reserved (old "terrain" objects) #####
+
+
+# The old "notice_seams" option is currently unused, but much of its
+# old functionality can be obtained by clever use of 'F' commands in
+# a pref file which define "quartz" and "magma" to look like "granite".
+
+# Note that the "player" picture does not really fit in anywhere, and I
+# have no idea how to go about allowing "redefinition" of that picture.
+# Perhaps by using "monster 0" or "object 0" or "feature 0" or even a
+# special "player picture" which might yield a simple way to show the
+# player in different colors or whatever for different "states", or even
+# a different picture for various "class" or "race" choices.
+
+
+##### And here starts the gold/gems #####
+
+N:480:copper
+G:items/treasure/copper
+I:100:1:0
+W:1:0:0:3
+
+N:481:copper
+G:items/treasure/copper
+I:100:2:0
+W:1:0:0:4
+
+N:482:copper
+G:items/treasure/copper
+I:100:3:0
+W:1:0:0:5
+
+N:483:silver
+G:items/treasure/silver
+I:100:4:0
+W:1:0:0:6
+
+N:484:silver
+G:items/treasure/silver
+I:100:5:0
+W:1:0:0:7
+
+N:485:silver
+G:items/treasure/silver
+I:100:6:0
+W:1:0:0:8
+
+N:486:garnets
+G:items/treasure/garnet
+I:100:7:0
+W:1:0:0:9
+
+N:487:garnets
+G:items/treasure/garnet
+I:100:8:0
+W:1:0:0:10
+
+N:488:gold
+G:items/treasure/gold
+I:100:9:0
+W:1:0:0:12
+
+N:489:gold
+G:items/treasure/gold
+I:100:10:0
+W:1:0:0:14
+
+N:490:gold
+G:items/treasure/gold
+I:100:11:0
+W:1:0:0:16
+
+N:491:opals
+G:dobject
+I:100:12:0
+W:1:0:0:18
+
+N:492:sapphires
+G:items/treasure/sapphire
+I:100:13:0
+W:1:0:0:20
+
+N:493:rubies
+G:items/treasure/ruby
+I:100:14:0
+W:1:0:0:24
+
+N:494:diamonds
+G:items/treasure/diamond
+I:100:15:0
+W:1:0:0:28
+
+N:495:emeralds
+G:items/treasure/emerald
+I:100:16:0
+W:1:0:0:32
+
+N:496:mithril
+G:dobject
+I:100:17:0
+W:1:0:0:40
+
+N:497:adamantite
+G:items/treasure/adamant
+I:100:18:0
+W:1:0:0:80
+
+
+##### Objects 498 and 499 are the "Morgoth Artifacts" #####
+
+# These objects, like objects 500 to 511, are never created
+# without being turned into artifacts.  This simplifies the
+# code for "killing the winner monster".
+
+N:498:& Mighty Hammer~
+G:dobject
+I:21:50:0
+W:15:0:200:1000
+P:0:3d9:0:0:0
+F:SHOW_MODS | INSTA_ART
+
+N:499:& Massive Iron Crown~
+G:dobject
+I:33:50:0
+W:44:0:20:1000
+P:0:1d1:0:0:0
+F:INSTA_ART
+
+
+##### Objects 500 to 511 are the "Special Artifacts" #####
+
+# These objects do not specify "full names" because the artifact name
+# is added in "obj-desc.c" based on the artifact index ("i_ptr->name1").
+#
+# These objects do specify a "base name", which is used when the object
+# is "aware" (always true for lites)
+#
+# The Lites (and the One Ring) specify "physical colors", which
+# over-ride the "flavor" colors, if any.  Note that the "One Ring"
+# also has a specific check for "unknown" in which it changes its
+# name to "a plain gold ring".  See "obj-desc.c"
+#
+# Note that ALL artifacts are given "IGNORE_ACID/ELEC/FIRE/COLD",
+# so we do not need to specify that here.
+#
+# Note that the "INSTA_ART" flag is used to prevent these objects from
+# being created without also turning them into artifacts.  This flag
+# must be specified both here and in the artifact template.
+#
+# The only reason for having six different "ring" templates and three
+# different "amulet" templates is to allow each "special artifact" to
+# have a different "color" and "flavor", and also to allow the use of
+# special "base names" (such as "Necklace").
+
+
+# The Phial of Galadriel -- see artifact list
+
+N:500:& Phial~
+G:dobject
+I:39:4:0
+W:1:0:10:10000
+P:0:1d1:0:0:0
+F:INSTA_ART
+
+# The Star of Elendil -- see artifact list
+
+N:501:& Star~
+G:dobject
+I:39:5:0
+W:30:0:5:25000
+P:0:1d1:0:0:0
+F:INSTA_ART
+
+# The Arkenstone of Thrain -- see artifact list
+
+N:502:& Arkenstone~
+G:dobject
+I:39:6:0
+W:60:0:5:60000
+P:0:1d1:0:0:0
+F:INSTA_ART
+
+
+# The Amulet of Carlammas -- see artifact list
+
+N:503:& Amulet~
+G:items/magic/amulet2
+I:40:10:0
+W:50:0:3:60000
+F:INSTA_ART
+
+# The Amulet of Ingwe -- see artifact list
+
+N:504:& Amulet~
+G:items/magic/amulet2
+I:40:11:0
+W:60:0:3:90000
+F:INSTA_ART
+
+# The Necklace of the Dwarves -- see artifact list
+
+N:505:& Necklace~
+### a necklace
+G:items/magic/amulet2
+I:40:12:0
+W:70:0:3:75000
+F:INSTA_ART
+
+
+# The Ring of Barahir -- see artifact list
+
+N:506:& Ring~
+G:items/magic/ring
+I:45:32:0
+W:50:0:2:65000
+F:INSTA_ART
+
+# The Ring of Tulkas -- see artifact list
+
+N:507:& Ring~
+G:items/magic/ring
+I:45:33:0
+W:90:0:2:150000
+F:INSTA_ART
+
+# The Ring of Power (Narya) -- see artifact list
+
+N:508:& Ring~
+G:items/magic/ring
+I:45:34:0
+W:80:0:2:100000
+F:INSTA_ART
+
+# The Ring of Power (Nenya) -- see artifact list
+
+N:509:& Ring~
+G:items/magic/ring
+I:45:35:0
+W:90:0:2:200000
+F:INSTA_ART
+
+# The Ring of Power (Vilya) -- see artifact list
+
+N:510:& Ring~
+G:items/magic/ring
+I:45:36:0
+W:100:0:2:300000
+F:INSTA_ART
+
+# The Ring of Power (The One Ring) -- see artifact list
+
+N:511:& Ring~
+G:items/magic/ring2
+I:45:37:0
+W:110:0:2:5000000
+F:INSTA_ART
+

@@ -1,0 +1,13 @@
+Help Index
+%b+ Please choose one of the following help files: %b-
+%br %br
+%indent+
+%l+:using.hlp (1) Using Help %l- %br
+%l+:general.hlp (2) General Information %l- %br
+%l+:birth.hlp (3) Creating a Character %l- %br
+%l+:dungeon.hlp (4) Exploring the Dungeon %l- %br
+%l+:attack.hlp (5) Attacking Monsters %l- %br
+%l+:command.hlp (6) List of Commands %l- %br
+%l+:option.hlp (7) List of Options %l- %br
+%l+:version.hlp (8) Version Information and Credits %l- %br
+%indent-

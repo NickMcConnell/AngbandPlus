@@ -1,0 +1,71 @@
+List of options and effects
+This file was last updated for Utumno v1.0a4.
+%br %br
+%b+ Prompt for various information %b- %br %br %indent+
+Forces the game to ask you before taking various actions, such as using
+things which might cause your pack to overflow.  Forces the game to ask
+you which hand to place rings on.
+%indent- %br %br    
+%b+ Prompt before picking things up %b- %br %br %indent+
+Forces the game to ask you if you want to pick something up when you
+do something that would normally cause the item to be picked up.
+%indent- %br %br    
+%b+ Show dungeon level in feet %b- %br %br %indent+
+Display the dungeon depth in "feet" instead of as a number.
+%indent- %br %br    
+%b+ Audible bell (on errors, etc) %b- %br %br %indent+
+Attempt to make a "bell" noise when various "errors" occur.
+%indent- %br %br    
+%b+ Alert user to critical hitpoints %b-
+%br %br %indent+
+Produce a "bell" noise, and flush all pending input, when your hitpoints
+reach the "critical point" chosen elsewhere, preventing stupid deaths.
+%indent- %br %br    
+%b+ Alert user to various failures %b-
+%br %br %indent+
+Produce a "bell" noise, and flush all pending input, when various
+"failures" occur, as described above.
+%indent- %br %br    
+%b+ Show weights in inventory list %b-
+%br %br %indent+
+Display the weights of objects in the "inventory" list.
+%indent- %br %br    
+%b+ Show weights in equipment list %b-
+%br %br %indent+
+Display the weights of objects in the "equipment" list.
+%indent- %br %br    
+%b+ Show weights in stores %b-
+%br %br %indent+
+Display the weights of objects in the "store" lists.
+%indent- %br %br    
+%b+ Show labels in equipment list %b-
+%br %br %indent+
+Display "labels" (such as "Wielding") in the "equipment" list.
+%indent- %br %br    
+%b+ Allow weapons and armor to stack %b-
+%br %br %indent+
+Allow identical weapons and armor to be combined into a stack.
+%indent- %br %br    
+%b+ Allow wands/staffs/rods to stack %b-
+%br %br %indent+
+Allow identical wands/staffs/rods to be combined into a stack.
+This may force the items to be "unstacked" to use them, which
+may result in "overflow" of the stack.  Also, the entire stack
+can be recharged (and possibly destroyed) at the same time.
+%indent- %br %br    
+%b+ Override inscriptions when stacking %b-
+%br %br %indent+
+Ignore "inscriptions" when stacking.
+%indent- %br %br    
+%b+ Override discounts when stacking %b-
+%br %br %indent+
+Force "normal" items to stack with "discounted" items, such that
+all the items acquire the "discount".  Annoying but sometimes useful.
+%indent- %br %br
+The "hitpoint_warn" value, if non-zero, is the percentage of maximal hitpoints
+at which the player is warned that he may die.  It is also used as the cut-off
+for using red to display both hitpoints and mana.
+%br %br
+The "game_speed" value controls how fast the game moves.
+%br %br
+-- Matt
