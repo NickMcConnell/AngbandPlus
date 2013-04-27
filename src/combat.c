@@ -19,9 +19,9 @@ int hit_chance(int hand, int to_h, int ac)
 	int chance = p_ptr->skills.thn + (p_ptr->weapon_info[hand].to_h + to_h) * BTH_PLUS_ADJ;
 	int odds;
 
-	if (chance <= 0) return 0;
-	
 	chance = chance * p_ptr->weapon_info[hand].dual_wield_pct / 1000;
+	if (chance <= 0) return 0;
+
 	odds = 95*(chance - ac*3/4)*1000/(chance*100);
 	if (p_ptr->personality == PERS_LAZY) odds = (19*odds+10)/20;
 	if (odds < 50) odds = 50;
