@@ -2605,9 +2605,6 @@ static void msg_flush(int x)
 {
 	byte a = TERM_L_BLUE;
 
-	/* Hack -- fake monochrome */
-	if (!use_color) a = TERM_WHITE;
-
 	/* Pause for response */
 	Term_putstr(x, 0, -1, a, "-more-");
 
@@ -2906,9 +2903,6 @@ void cmsg_format(byte color, cptr fmt, ...)
 */
 void c_put_str(byte attr, cptr str, int row, int col)
 {
-	/* Hack -- fake monochrome */
-	if (!use_color) attr = TERM_WHITE;
-
 	/* Position cursor, Dump the attr/text */
 	Term_putstr(col, row, -1, attr, str);
 }
@@ -2930,9 +2924,6 @@ void put_str(cptr str, int row, int col)
 */
 void c_prt(byte attr, cptr str, int row, int col)
 {
-	/* Hack -- fake monochrome */
-	if (!use_color) attr = TERM_WHITE;
-
 	/* Clear line, position cursor */
 	Term_erase(col, row, 255);
 
@@ -3297,21 +3288,22 @@ bool askfor_aux(char *buf, int len)
 
 	int k = 0;
 
+        int wid, hgt;
+
 	bool done = FALSE;
 
 
 	/* Locate the cursor */
 	Term_locate(&x, &y);
 
-
-	/* Paranoia -- check len */
-	if (len < 1) len = 1;
+        /* Get terminal size */
+        Term_get_size(&wid, &hgt);
 
 	/* Paranoia -- check column */
-	if ((x < 0) || (x >= 80)) x = 0;
+	if ((x < 0) || (x >= wid)) x = 0;
 
 	/* Restrict the length */
-	if (x + len > 80) len = 80 - x;
+	if (x + len > wid) len = wid - x;
 
 
 	/* Paranoia -- Clip the default entry */

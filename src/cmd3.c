@@ -18,15 +18,6 @@
  */
 void do_cmd_inven(void)
 {
-#if 0
-	/* Broken */
-
-	int capacity_tester = 0;
-
-	int i = 0, j = 0;
-
-#endif
-
 	char out_val[160];
 
 
@@ -46,24 +37,6 @@ void do_cmd_inven(void)
 	/* Hack -- hide empty slots */
 	item_tester_full = FALSE;
 
-#if 0
-
-	/* Broken */
-
-	/* Extract the current weight (in tenth pounds) */
-	j = calc_total_weight();
-
-	/* Extract the "weight limit" (in tenth pounds) */
-	i = weight_limit();
-
-	capacity_tester = i + (i / 10) - 1;
-
-	strnfmt(out_val, 160,
-	        "Inventory: carrying %d.%d pounds (%d%% of capacity). Command: ",
-	        total_weight / 10, total_weight % 10,
-	        (total_weight * 100) / ((capacity_tester) / 2));
-
-#else
 
 	{
 		s32b total_weight = calc_total_weight();
@@ -73,8 +46,6 @@ void do_cmd_inven(void)
 		        total_weight / 10, total_weight % 10,
 		        (total_weight * 100) / ((weight_limit()) / 2));
 	}
-
-#endif
 
 	/* Get a command */
 	prt(out_val, 0, 0);
@@ -1573,10 +1544,6 @@ static void roff_top(int r_idx)
 	/* Access the attrs */
 	a1 = r_ptr->d_attr;
 	a2 = r_ptr->x_attr;
-
-	/* Hack -- fake monochrome */
-	if (!use_color) a1 = TERM_WHITE;
-	if (!use_color) a2 = TERM_WHITE;
 
 
 	/* Clear the top line */
