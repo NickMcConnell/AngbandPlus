@@ -2060,7 +2060,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
 			disturb(1, 0);
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes gas.", m_name);
-			dam = MIN(m_ptr->hp / 3, 700);
+			dam = MIN(m_ptr->hp / 4, 700);
 			breath(y, x, m_idx, GF_POIS, dam, 0, TRUE, MS_BR_POIS, learnable);
 			update_smart_learn(m_idx, DRS_POIS);
 			break;

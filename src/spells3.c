@@ -1949,6 +1949,9 @@ sprintf(out_val, "本当に%sを金に変えますか？", o_name);
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER);
 
+		if (prace_is_(RACE_MON_LEPRECHAUN))
+			p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
+
 	}
 
 	/* Eliminate the item (from the pack) */

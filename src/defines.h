@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 1
 #define VER_MINOR 0
-#define VER_PATCH 7
+#define VER_PATCH 8
 #define VER_EXTRA 0
 
 
@@ -678,11 +678,12 @@
 #define RACE_MON_BEHOLDER       46
 #define RACE_MON_DEMON          47
 #define RACE_MON_HYDRA          48
+#define RACE_MON_LEPRECHAUN     49
 /*
  * Maximum number of player "race" types (see "table.c", etc)
  * Note other races exist, and use constants beginning at MIMIC_MIN
  */
-#define MAX_RACES               49
+#define MAX_RACES               50
 
 #define DEMIGOD_MINOR			0
 #define DEMIGOD_ZEUS			1
@@ -2249,6 +2250,9 @@
 #define SV_AMULET_TRICKERY              34
 #define SV_AMULET_HOLY_GRAIL            35
 #define SV_AMULET_CARCHAROTH            36
+#define SV_AMULET_RESIST_FIRE           37
+#define SV_AMULET_RESIST_COLD           38
+#define SV_AMULET_RESIST_ELEC           39
 
 /* The sval codes for TV_RING */
 #define SV_RING_WOE                      0
@@ -3185,8 +3189,9 @@
 #define GF_ROCK      136
 #define GF_WEB      137
 #define GF_AMNESIA  138
+#define GF_STEAL    139
 
-#define MAX_GF				138
+#define MAX_GF				139
 
 /*
  * Some things which induce learning
@@ -5997,6 +6002,8 @@ extern int PlayerUID;
 #define MYSTIC_TOGGLE_RETALIATE  41
 #define MYSTIC_TOGGLE_OFFENSE    42
 #define MYSTIC_TOGGLE_DEFENSE    43
+
+#define LEPRECHAUN_TOGGLE_BLINK  44
 
 
 /* Wild Counters */

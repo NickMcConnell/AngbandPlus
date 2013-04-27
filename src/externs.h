@@ -1947,11 +1947,14 @@ extern race_t *mon_giant_get_race_t(int psubrace);
 extern race_t *mon_hound_get_race_t(void);
 extern race_t *mon_hydra_get_race_t(void);
 extern race_t *mon_jelly_get_race_t(void);
+extern race_t *mon_leprechaun_get_race_t(void);
 extern race_t *mon_lich_get_race_t(void);
 extern race_t *mon_spider_get_race_t(void);
 extern race_t *mon_xorn_get_race_t(void);
 
 extern void    jelly_eat_object(object_type *o_ptr);
+extern bool    leprechaun_steal(int m_idx);
+extern int	   leprechaun_get_toggle(void);
 
 /* Mimic Forms */
 extern race_t *clay_golem_get_race_t(void);

@@ -90,9 +90,9 @@ static equip_template_ptr _equip_template(void)
 	{
 	case MON_TWO_HEADED_HYDRA: return &_template1;
 	case MON_FOUR_HEADED_HYDRA: return &_template2;
-	case MON_FIVE_HEADED_HYDRA: return &_template2;
-	case MON_SEVEN_HEADED_HYDRA: return &_template3;
-	case MON_NINE_HEADED_HYDRA: return &_template4;
+	case MON_FIVE_HEADED_HYDRA: return &_template3;
+	case MON_SEVEN_HEADED_HYDRA: return &_template4;
+	case MON_NINE_HEADED_HYDRA: return &_template5;
 	case MON_ELEVEN_HEADED_HYDRA: return &_template5;
 	}
 
@@ -169,7 +169,7 @@ static void _calc_innate_attacks(void)
 	innate_attack_t	a = {0};
 	int l = p_ptr->lev;
 
-	a.dd = 1 + l/14;
+	a.dd = 1 + (l+3)/14;
 	a.ds = 4 + l/16;
 	a.to_h = l/2;
 	a.weight = 100 + l*2;
@@ -279,6 +279,9 @@ static int _get_powers(spell_info* spells, int max)
  **********************************************************************/
 static void _calc_bonuses(void) 
 {
+	int ac = 20 + p_ptr->lev/10;
+	p_ptr->to_a += ac;
+	p_ptr->dis_to_a += ac;
 	p_ptr->regenerate = TRUE;
 	switch (p_ptr->current_r_idx)
 	{

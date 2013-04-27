@@ -748,13 +748,8 @@ static bool cave_gen(void)
 	if (ironman_empty_levels || ((d_info[dungeon_type].flags1 & DF1_ARENA) && (empty_levels && one_in_(EMPTY_LEVEL))))
 	{
 		dun->empty_level = TRUE;
-
 		if (cheat_room)
-#ifdef JP
-			msg_print("アリーナレベル");
-#else
 			msg_print("Arena level.");
-#endif
 	}
 
 	if (dun->empty_level)

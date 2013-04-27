@@ -1577,6 +1577,9 @@ void carry(bool pickup)
 
 			/* Window stuff */
 			p_ptr->window |= (PW_PLAYER);
+
+			if (prace_is_(RACE_MON_LEPRECHAUN))
+				p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
 		}
 
 		/* Pick up objects */
@@ -2379,6 +2382,7 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath)
 	int             delay_sleep = 0;
 	int             delay_stasis = 0;
 	int             drain_amt = 0;
+	int             steal_ct = 0;
 	const int       max_drain_amt = MAX_VAMPIRIC_DRAIN;
 
 	set_monster_csleep(m_idx, 0);
@@ -2488,6 +2492,10 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath)
 						}
 						*mdeath = (m_ptr->r_idx == 0);
 						break;
+					case GF_STEAL:
+						if (leprechaun_steal(m_idx))
+							steal_ct++;
+						break;
 					default:
 						project(0, 0, m_ptr->fy, m_ptr->fx, base_dam, e, PROJECT_KILL|PROJECT_HIDE, -1);
 						*mdeath = (m_ptr->r_idx == 0);
@@ -2508,6 +2516,13 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath)
 		project(0, 0, m_ptr->fy, m_ptr->fx, delay_sleep, GF_OLD_SLEEP, PROJECT_KILL|PROJECT_HIDE, -1);
 	if (delay_stasis && !*mdeath)
 		project(0, 0, m_ptr->fy, m_ptr->fx, delay_stasis, GF_STASIS, PROJECT_KILL|PROJECT_HIDE, -1);
+	if (steal_ct && !*mdeath)
+	{
+		if (mon_save_p(m_ptr->r_idx, A_DEX))
+			msg_print("You fail to run away!");
+		else
+			teleport_player(25 + p_ptr->lev/2, 0L);
+	}
 }
 
 /*

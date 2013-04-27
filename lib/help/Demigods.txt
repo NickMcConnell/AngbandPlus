@@ -195,4 +195,4 @@ Black Marketeer     You will gain favorable pricing in the black market.
 
 
 
-Automatically generated for PosChengband 1.0.4.
+Automatically generated for PosChengband 1.0.8.

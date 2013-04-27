@@ -416,6 +416,9 @@ int display_innate_attack_info(int which, int row, int col)
 
 		switch (a->effect[i])
 		{
+		case GF_STEAL: 
+			c_put_str(TERM_L_BLUE, format("Steals%s", xtra), r++, c+10);
+			break;
 		case GF_OLD_SLOW: 
 			c_put_str(TERM_L_BLUE, format("Slows%s", xtra), r++, c+10);
 			break;

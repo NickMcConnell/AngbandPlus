@@ -208,6 +208,53 @@
   level, they become immune to the charge draining attacks of their enemies.
 
 
+***** <Hydra>
+--- Hydra ---
+
+  Hydras are monsters with multiple heads. As they evolve, they grow additional
+  heads granting the potential for extra attacks as well as the ability to wear
+  more equipment (helmets and amulets). While not every head may wear a helmet
+  and an amulet (This would be too powerful), each head is capable of
+  attacking. So the 11-headed hydra can attack up to 11 times per round,
+  provided it has enough strength and dexterity to command such a fearsome
+  arsenal.
+   
+  Hydras are monsters so do not choose a normal class. Instead, they play much
+  like warriors with a few limited abilities. All hydras regenerate quickly and
+  5 and 7-headed hydras resist poison and gain a few poison based attacks. 9
+  and 11-headed hydras are creatures of flame: Their attacks burn and they are
+  capable of breathing fire among other flame based attacks. They resist fire
+  as well.
+
+
+***** <Leprechaun>
+--- Leprechaun ---
+
+  Leprechauns are small, mischevous creatures, always scheming for gold. They
+  are weak, but quick and stealthy. For combat, they prefer not to use weapons
+  at all. Rather, by keeping at least one hand free, they may pilfer objects or
+  gold from their foes and flee to safety, all in a single action. However,
+  they are capable of fighting with normal weapons should the need arise, but
+  one seldom hears of leprechauns inspiring fear in combat!
+   
+  Leprechauns value riches above all else and even begin the game with their
+  legendary pot of gold. Leprechauns also have the luck of the Irish, and good
+  drops are more common for them. For magic, the leprechaun has a few talents
+  and even a bit of cursing offense (Malicious and Death Leprechauns are vile,
+  evil creatures, after all). They are masters of teleportation and detection.
+  And while one never fears their combat (though one despises their thievery,
+  of course), they are great masters of bow and device alike. At high levels,
+  they move with incredible speed and seem to be in multiple places at once.
+  Dexterity determines the leprechaun's skill with their magic.
+   
+  Leprechauns are monsters so can not choose a normal class. Instead, being
+  small, they should spend their initial pot of gold wisely and then enter the
+  dungeons in search of new treasure. Since gold is so important to the
+  leprechaun, much of their strength depends on possessing a large hoard of
+  wealth, and various leprechaun attributes are directly affected by the amount
+  of gold on hand.
+
+
 ***** <Tables>
 --- Table 1 - Race Statistic Bonus Table ---
 
@@ -222,6 +269,8 @@ Hound           +1   -3   -5   +2   +1   +0  100%  150%
 Giant           +3   -3   -6   -2   +3   +0  115%  250%
 Beholder        -3   +4   +0   +1   +0   +0  100%  250%
 Demon           +4   +3  -10   +2   +4   +2  110%  350%
+Hydra           +0   -2   -2   +0   +0   +0  100%  130%
+Leprechaun      -2   +1   +1   +3   -2   -2   80%  150%
 
 
 --- Table 2 - Race Skill Bonus Table ---
@@ -237,8 +286,10 @@ Hound            +3    +5   +10    +5   +15   +20    +10    +0    50'
 Giant            +4   +10   +15    +0    +5   +10    +35   +10    50'
 Beholder        +20   +30   +15    +5   +20   +20    -20    +0    80'
 Demon            -5   +20   +20    -2    +3   +10    +40   +20    50'
+Hydra            +3    +5   +10    +1    +5   +10    +25    +0    50'
+Leprechaun      +45   +40   +10   +12   +24   +16    -20   +20    50'
 
 
 
 
-Automatically generated for PosChengband 1.0.4.
+Automatically generated for PosChengband 1.0.8.

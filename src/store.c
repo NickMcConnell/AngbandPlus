@@ -2107,6 +2107,9 @@ static bool _magic_accept(int k_idx)
 		case SV_AMULET_ADORNMENT:
 		case SV_AMULET_RESIST_ACID:
 		case SV_AMULET_SEARCHING:
+		case SV_AMULET_RESIST_FIRE:
+		case SV_AMULET_RESIST_COLD:
+		case SV_AMULET_RESIST_ELEC:
 			return TRUE;
 		}
 		return FALSE;
@@ -3658,6 +3661,8 @@ static void store_purchase(void)
 
 				/* Spend the money */
 				p_ptr->au -= price;
+				if (prace_is_(RACE_MON_LEPRECHAUN))
+					p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
 
 				/* Update the display */
 				store_prt_gold();
@@ -5655,5 +5660,7 @@ static void _buyout(void)
 		}
 	}
 	msg_format("You spent %d gp.", total_price);
+	if (prace_is_(RACE_MON_LEPRECHAUN))
+		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
 }
 

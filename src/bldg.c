@@ -3808,6 +3808,9 @@ msg_format("%sを＄%d で再充填しました。", tmp_str, price);
 	/* Pay the price */
 	p_ptr->au -= price;
 
+	if (prace_is_(RACE_MON_LEPRECHAUN))
+		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
+
 	/* Finished */
 	return;
 }
@@ -3976,6 +3979,9 @@ static void building_recharge_all(void)
 
 	/* Pay the price */
 	p_ptr->au -= total_cost;
+
+	if (prace_is_(RACE_MON_LEPRECHAUN))
+		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
 
 	/* Finished */
 	return;
@@ -4660,6 +4666,8 @@ msg_print("お金が足りません！");
 	if (paid)
 	{
 		p_ptr->au -= bcost;
+		if (prace_is_(RACE_MON_LEPRECHAUN))
+			p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
 	}
 }
 

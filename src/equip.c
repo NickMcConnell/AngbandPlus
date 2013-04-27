@@ -93,7 +93,7 @@ bool _object_is_weapon_or_shield(object_type *o_ptr)
 	switch (o_ptr->tval)
 	{
 	case TV_DIGGING: case TV_HAFTED: case TV_POLEARM: case TV_SWORD:
-	case TV_SHIELD:  case TV_CARD:
+	case TV_SHIELD:  case TV_CARD: case TV_CAPTURE:
 		return TRUE;
 	}
 	return FALSE;
@@ -306,6 +306,21 @@ int equip_first_empty_slot(object_type *o_ptr)
 		
 		if (p(o_ptr) && !equip_obj(slot))
 			return slot;
+	}
+	return 0;
+}
+
+int equip_find_empty_hand(void)
+{
+	int i;
+	for (i = 0; i < _template->count; i++)
+	{
+		int slot = EQUIP_BEGIN + i;
+		if ( _template->slots[i].type == EQUIP_SLOT_WEAPON_SHIELD
+		  && !equip_obj(slot) )
+		{
+			return slot;
+		}
 	}
 	return 0;
 }

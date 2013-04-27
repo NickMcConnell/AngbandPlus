@@ -774,6 +774,8 @@ bool make_attack_normal(int m_idx)
 
 						/* Window stuff */
 						p_ptr->window |= (PW_PLAYER);
+						if (prace_is_(RACE_MON_LEPRECHAUN))
+							p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
 
 						/* Blink away */
 						blinked = TRUE;

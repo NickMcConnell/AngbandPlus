@@ -1944,6 +1944,7 @@ typedef struct {
 	bool                    mimic;
 	struct equip_template_s *equip_template;
 	int                     boss_r_idx;
+	player_action_fn		player_action;  /* Called once per player action, so long as the action consumes energy */
 } race_t;
 
 typedef struct {

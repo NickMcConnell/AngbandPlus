@@ -40,7 +40,7 @@ static void _birth(void)
  **********************************************************************/
 static void _calc_innate_attacks(void)
 {
-	if (p_ptr->weapon_ct == 0)
+	if (p_ptr->weapon_ct == 0 && equip_find_empty_hand())
 	{
 		innate_attack_t	a = {0};
 		int l = p_ptr->lev;

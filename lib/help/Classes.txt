@@ -631,6 +631,22 @@
 
 
 
+***** <Mystic>
+--- Mystic ---
+
+  Mystics are masters of bare handed fighting, like Monks. However, they do not
+  learn normal spells. Instead, they gain mystical powers with experience, and
+  these powers directly influence their martial arts. In this respect, Mystics
+  are similar to the Samurai. Indeed, they even concentrate to boost their mana
+  like the Samurai. Mystics eschew weapons of any kind and require the lightest
+  of armors in order to practice their martial arts. The number of attacks are
+  influenced by dexterity and experience level while the mystic's mana and fail
+  rates are influenced by charisma. Mystics are in tune with the natural forces
+  around them and may even call on aid when necessary. It has been whispered
+  that mystics have even discovered how to kill an opponent with a single
+  touch, though they do not share this knowledge with novices.
+
+
 ***** <Tables>
 --- Table 1 - Class Statistic Bonus Table ---
 
@@ -677,6 +693,7 @@ Psion           -1   +2   +2   -1   -1   +2  100%  150%
 Rage-Mage       +3   -2   -2   -2   +2   +1  105%  150%
 Scout           +1   -1   +2   +3   +0   +0  105%  130%
 Mauler          +4   -2   -2   -1   +1   +1  115%  120%
+Mystic          +2   -1   -2   +3   +1   +2  100%  130%
 
 
 --- Table 2 - Class Skill Bonus Table ---
@@ -723,8 +740,9 @@ Psion          25+7   35+11  40+12     2    16     8  48+13  35+11
 Rage-Mage      20+7   24+10  40+15    -1    12     2  50+15  30+15
 Scout          30+15  33+11  34+10     6    50    24  50+20  50+20
 Mauler         25+12  25+11  35+12     0    14     2  70+30  20+7 
+Mystic         45+15  34+11  36+10     5    32    24  64+18  60+18
 
 
 
 
-Automatically generated for PosChengband 1.0.4.
+Automatically generated for PosChengband 1.0.8.

@@ -522,6 +522,9 @@
     <ClCompile Include="race_hydra.c">
       <Filter>Player\Races</Filter>
     </ClCompile>
+    <ClCompile Include="race_leprechaun.c">
+      <Filter>Player\Races</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="angband.h">

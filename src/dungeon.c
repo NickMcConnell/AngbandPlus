@@ -5266,9 +5266,14 @@ msg_print("中断しました。");
 		if (energy_use)
 		{
 			class_t *class_ptr = get_class_t();
+			race_t  *race_ptr = get_race_t();
 			
-			if (class_ptr && class_ptr->player_action)
+			if (class_ptr->player_action)
 				class_ptr->player_action(energy_use);
+
+			if (race_ptr->player_action)
+				race_ptr->player_action(energy_use);
+
 
 			if (p_ptr->free_turns)
 			{

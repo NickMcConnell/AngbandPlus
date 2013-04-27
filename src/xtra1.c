@@ -436,6 +436,7 @@ static void prt_stat(int stat)
 #define BAR_MYSTIC_RETALIATE 157
 #define BAR_MYSTIC_OFFENSE 158
 #define BAR_MYSTIC_DEFENSE 159
+#define BAR_BLINK 160
 
 static struct {
 	byte attr;
@@ -604,6 +605,7 @@ static struct {
 	{TERM_L_BLUE, "Rl", "Retaliate"},
 	{TERM_L_BLUE, "Of", "Offense"},
 	{TERM_L_BLUE, "Df", "Defense"},
+	{TERM_L_BLUE, "Bl", "Blink"},
 	{0, NULL, NULL}
 };
 
@@ -914,6 +916,15 @@ static void prt_status(void)
 		}
 	}
 
+	if (p_ptr->prace == RACE_MON_LEPRECHAUN)
+	{
+		switch(leprechaun_get_toggle())
+		{
+		case LEPRECHAUN_TOGGLE_BLINK:
+			ADD_FLG(BAR_BLINK);
+			break;
+		}
+	}
 	if (p_ptr->pclass == CLASS_MAULER)
 	{
 		switch (mauler_get_toggle())
@@ -4538,6 +4549,11 @@ void calc_bonuses(void)
 					{
 						num = 6;
 						mul = 5 + p_ptr->lev/40;
+					}
+					else if (prace_is_(RACE_MON_LEPRECHAUN)) 
+					{
+						num = 3;
+						mul = 2;
 					}
 					break;
 				}
