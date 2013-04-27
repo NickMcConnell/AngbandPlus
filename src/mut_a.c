@@ -335,6 +335,31 @@ void attract_dragon_mut(int cmd, variant *res)
 	}
 }
 
+void black_marketeer_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Black Marketeer");
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print("You become an agent of the black market!");
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print("You are no longer an agent of the black market.");
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, "You are an agent of the black market.");
+		break;
+	case SPELL_HELP_DESC:
+		var_set_string(res, "You will gain favorable pricing in the black market.");
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void blank_face_mut(int cmd, variant *res)
 {
 	switch (cmd)
@@ -1290,16 +1315,16 @@ void merchants_friend_mut(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Merchant's Friend", ""));
+		var_set_string(res, "Merchant's Friend");
 		break;
 	case SPELL_GAIN_MUT:
-		msg_print(T("You feel an intense desire to shop!", ""));
+		msg_print("You feel an intense desire to shop!");
 		break;
 	case SPELL_LOSE_MUT:
-		msg_print(T("You no longer feel like shopping.", ""));
+		msg_print("You no longer feel like shopping.");
 		break;
 	case SPELL_MUT_DESC:
-		var_set_string(res, T("You are a Merchant's Friend.", ""));
+		var_set_string(res, "You are a Merchant's Friend.");
 		break;
 	case SPELL_HELP_DESC:
 		var_set_string(res, "You will gain new powers of shopping.");

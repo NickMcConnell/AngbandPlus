@@ -11914,7 +11914,7 @@ static cptr _rogue_pick_pocket(void)
 			}
 			else if (loot.tval == TV_GOLD)
 			{
-				msg_format("You steal %ld gold pieces worth of %s.", (long)loot.pval, o_name);
+				msg_format("You steal %d gold pieces worth of %s.", (int)loot.pval, o_name);
 				sound(SOUND_SELL);
 				p_ptr->au += loot.pval;
 				p_ptr->redraw |= (PR_GOLD);
@@ -13076,7 +13076,7 @@ static cptr do_armageddon_spell(int spell, int mode)
 		if (desc) return "Breathes a cone of inertia at chosen target.";
     
 		{
-			int dam = spell_power(7*plev);
+			int dam = spell_power(5*plev);
 			int rad = plev > 40 ? -3 : -2;
 
 			if (info) return info_damage(0, 0, dam);
@@ -13093,7 +13093,7 @@ static cptr do_armageddon_spell(int spell, int mode)
 		if (desc) return "Breathes a cone of disintegration at chosen target.";
     
 		{
-			int dam = spell_power(8*plev);
+			int dam = spell_power(7*plev);
 			int rad = plev > 40 ? -3 : -2;
 
 			if (info) return info_damage(0, 0, dam);

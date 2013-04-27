@@ -685,7 +685,12 @@ bool make_attack_normal(int m_idx)
 					}
 
 					if ( !drained 
-					  && !(prace_is_(RACE_BALROG) || prace_is_(RACE_MON_DEMON) || prace_is_(RACE_SKELETON) || prace_is_(MIMIC_DEMON) || prace_is_(MIMIC_DEMON_LORD)) )
+					  && !( prace_is_(RACE_BALROG) 
+					     || prace_is_(RACE_MON_DEMON) 
+						 || prace_is_(RACE_SKELETON) 
+						 || prace_is_(RACE_MON_JELLY)
+						 || prace_is_(MIMIC_DEMON) 
+						 || prace_is_(MIMIC_DEMON_LORD)) )
 					{
 						msg_print("Food drains from your belly!");
 						set_food(MAX(0, MIN(p_ptr->food - 1000, p_ptr->food/2)));
@@ -747,13 +752,8 @@ bool make_attack_normal(int m_idx)
 						}
 						else if (p_ptr->au)
 						{
-#ifdef JP
-							msg_print("財布が軽くなった気がする。");
-							msg_format("$%ld のお金が盗まれた！", (long)gold);
-#else
 							msg_print("Your purse feels lighter.");
-							msg_format("%ld coins were stolen!", (long)gold);
-#endif
+							msg_format("%d coins were stolen!", gold);
 							chg_virtue(V_SACRIFICE, 1);
 						}
 						else
@@ -1664,7 +1664,7 @@ msg_format("%sは体力を回復したようだ。", m_name);
 					case 4: k = randint1(15) + 30; break;
 					case 5: k = randint1(20) + 40; break;
 					case 6: k = 80; break;
-					default: k = 150; break;
+					default: k = 110; break;
 				}
 
 				/* Apply the stun */

@@ -1329,15 +1329,9 @@ static void analyze_misc(object_type *o_ptr, char *misc_desc)
 {
 	artifact_type *a_ptr = &a_info[o_ptr->name1];
 
-#ifdef JP
-	sprintf(misc_desc, "レベル %u, 希少度 %u, %d.%d kg, ＄%ld",
-		a_ptr->level, a_ptr->rarity,
-		lbtokg1(a_ptr->weight), lbtokg2(a_ptr->weight), a_ptr->cost);
-#else
-	sprintf(misc_desc, "Level %u, Rarity %u, %d.%d lbs, %ld Gold",
+	sprintf(misc_desc, "Level %u, Rarity %u, %d.%d lbs, %d Gold",
 		a_ptr->level, a_ptr->rarity,
 		a_ptr->weight / 10, a_ptr->weight % 10, a_ptr->cost);
-#endif
 }
 
 
@@ -1818,7 +1812,7 @@ static void spoil_mon_desc(cptr fname)
 
 
 		/* Experience */
-		sprintf(exp, "%ld", (long)(r_ptr->mexp));
+		sprintf(exp, "%d", r_ptr->mexp);
 
 		/* Hack -- use visual instead */
 		sprintf(exp, "%s '%c'", attr_to_text(r_ptr), r_ptr->d_char);
@@ -2179,7 +2173,7 @@ static void spoil_mon_info(cptr fname)
 		spoil_out(buf);
 
 		/* Experience */
-		sprintf(buf, "Exp:%ld\n", (long)(r_ptr->mexp));
+		sprintf(buf, "Exp:%d\n", r_ptr->mexp);
 		spoil_out(buf);
 
 		/* Reuse the code of monster recall. */
@@ -2407,7 +2401,7 @@ static void spoil_mon_evol(cptr fname)
 #endif
 		for (n = 1; r_ptr->next_exp; n++)
 		{
-			fprintf(fff, "%*s-(%ld)-> ", n * 2, "", r_ptr->next_exp);
+			fprintf(fff, "%*s-(%d)-> ", n * 2, "", r_ptr->next_exp);
 			fprintf(fff, "[%d]: ", r_ptr->next_r_idx);
 			r_ptr = &r_info[r_ptr->next_r_idx];
 #ifdef JP

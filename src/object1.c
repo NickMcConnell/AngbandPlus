@@ -7698,14 +7698,8 @@ void py_pickup_floor(bool pickup)
 		if (o_ptr->tval == TV_GOLD)
 		{
 			/* Message */
-#ifdef JP
-		msg_format(" $%ld の価値がある%sを見つけた。",
-			   (long)o_ptr->pval, o_name);
-#else
-			msg_format("You have found %ld gold pieces worth of %s.",
-				(long) o_ptr->pval, o_name);
-#endif
-
+			msg_format("You have found %d gold pieces worth of %s.",
+				(int)o_ptr->pval, o_name);
 
 			/* Collect the gold */
 			p_ptr->au += o_ptr->pval;

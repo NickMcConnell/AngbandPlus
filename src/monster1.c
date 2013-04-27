@@ -792,30 +792,19 @@ else                            hooked_roff("モンスター");
 #endif
 		/* Group some variables */
 		{
-			long i, j;
+			int i, j;
 
-#ifdef JP
-			i = p_ptr->lev;
-			hooked_roff(format(" %lu レベルのキャラクタにとって", (long)i));
-
-			i = (long)r_ptr->mexp * r_ptr->level / (p_ptr->max_plv+2);
-			j = ((((long)r_ptr->mexp * r_ptr->level % (p_ptr->max_plv+2)) *
-			       (long)1000 / (p_ptr->max_plv+2) + 5) / 10);
-
-			hooked_roff(format(" 約%ld.%02ld ポイントの経験となる。",
-				(long)i, (long)j ));
-#else
 			/* calculate the integer exp part */
-			i = (long)r_ptr->mexp * r_ptr->level / (p_ptr->max_plv+2);
+			i = r_ptr->mexp * r_ptr->level / (p_ptr->max_plv+2);
 
 			/* calculate the fractional exp part scaled by 100, */
 			/* must use long arithmetic to avoid overflow  */
-			j = ((((long)r_ptr->mexp * r_ptr->level % (p_ptr->max_plv+2)) *
-			       (long)1000 / (p_ptr->max_plv+2) + 5) / 10);
+			j = (((r_ptr->mexp * r_ptr->level % (p_ptr->max_plv+2)) *
+			       1000 / (p_ptr->max_plv+2) + 5) / 10);
 
 			/* Mention the experience */
-			hooked_roff(format(" is worth about %ld.%02ld point%s",
-				    (long)i, (long)j,
+			hooked_roff(format(" is worth about %d.%02d point%s",
+				    i, j,
 				    (((i == 1) && (j == 0)) ? "" : "s")));
 
 			/* Take account of annoying English */
@@ -832,10 +821,8 @@ else                            hooked_roff("モンスター");
 			if ((i == 8) || (i == 11) || (i == 18)) q = "n";
 
 			/* Mention the dependance on the player's level */
-			hooked_roff(format(" for a%s %lu%s level character.  ",
-				    q, (long)i, p));
-#endif
-
+			hooked_roff(format(" for a%s %u%s level character.  ",
+				    q, i, p));
 		}
 	}
 

@@ -176,7 +176,7 @@ caster_info *get_caster_info(void)
 }
 
 /* 
-Helper for getting powers (cf. spoil_powers_aux)
+Helper for getting powers
 
 Sample usage:
 	static power_info _powers[] =
@@ -227,64 +227,6 @@ int get_powers_aux(spell_info* spells, int max, power_info* table)
 	return ct;
 }
 
-void spoil_powers_aux(FILE *fff, power_info *table)
-{
-	int i;
-	variant vn, vd;
-	var_init(&vn);
-	var_init(&vd);
-
-	fprintf(fff, "\n== Powers ==\n");
-	fprintf(fff, "||  || *Stat* || *Lvl* || *Cost* || *Fail* || *Description* ||\n");
-	for (i = 0; ; i++)
-	{
-		power_info *base = &table[i];		
-		if (!base->spell.fn) break;
-
-		base->spell.fn(SPELL_SPOIL_NAME, &vn);
-		if (var_is_null(&vn)) base->spell.fn(SPELL_NAME, &vn);
-		
-		base->spell.fn(SPELL_SPOIL_DESC, &vd);
-		if (var_is_null(&vd)) base->spell.fn(SPELL_DESC, &vd);
-
-		fprintf(fff, "||%s||%s||%d||%d||%d||`%s`||\n", 
-			var_get_string(&vn), 
-			stat_abbrev_true[base->stat],
-			base->spell.level, base->spell.cost, base->spell.fail, 
-			var_get_string(&vd)
-		);
-	}
-
-	var_clear(&vn);
-	var_clear(&vd);
-}
-
-
-/* 
-Helper for getting spells (cf. spoil_spells_aux)
-
-Sample usage:
-	static spell_info _spells[] = 
-	{
-		{ 1,   1,  15, _neural_blast_spell},
-		{ 2,   1,  20, _precognition_spell},
-		{ 3,   2,  25, _minor_displacement_spell},
-		...
-		{ -1, -1,  -1, NULL}
-	};
-	...
-	static int _get_spells(spell_info* spells, int max)
-	{
-		return get_spells_aux(spells, max, _spells);
-	}
-	...
-	class_t *mindcrafter_get_class_t(void)
-	{
-	...
-		me.get_spells = _get_spells;
-	...
-	}
-*/
 int get_spells_aux(spell_info* spells, int max, spell_info* table)
 {
 	int i;
@@ -312,32 +254,68 @@ int get_spells_aux(spell_info* spells, int max, spell_info* table)
 	return ct;
 }
 
-void spoil_spells_aux(FILE *fff, spell_info *table)
-{
+void dump_spells_aux(FILE *fff, spell_info *table, int ct)
+{		
 	int i;
-	variant vn, vd;
+	variant vn, vd, vc;
+
+	if (!ct) return;
+
 	var_init(&vn);
 	var_init(&vd);
+	var_init(&vc);
 
-	fprintf(fff, "\n== Spells ==\n");
-	fprintf(fff, "||  || *Lvl* || *Cost* || *Fail* || *Description* ||\n");
-	for (i = 0; ; i++)
+	fprintf(fff, "=================================== Spells ====================================\n\n");
+	fprintf(fff, "%-20.20s Lvl Cost Fail Desc\n", "");
+	for (i = 0; i < ct; i++)
 	{
-		spell_info *base = &table[i];
-		if (!base->fn) break;
+		spell_info *spell = &table[i];		
 
-		base->fn(SPELL_SPOIL_NAME, &vn);
-		if (var_is_null(&vn)) base->fn(SPELL_NAME, &vn);
-		
-		base->fn(SPELL_SPOIL_DESC, &vd);
-		if (var_is_null(&vd)) base->fn(SPELL_DESC, &vd);
+		spell->fn(SPELL_NAME, &vn);
+		spell->fn(SPELL_INFO, &vd);
 
-		fprintf(fff, "||%s||%d||%d||%d||`%s`||\n", 
-			var_get_string(&vn), base->level, base->cost, base->fail, var_get_string(&vd));
+		fprintf(fff, "%-20.20s %3d %4d %3d%% %s\n", 
+			var_get_string(&vn), 
+			spell->level, spell->cost + var_get_int(&vc), spell->fail, 
+			var_get_string(&vd)
+		);
 	}
 
 	var_clear(&vn);
 	var_clear(&vd);
+	var_clear(&vc);
+}
+
+void dump_powers_aux(FILE *fff, spell_info *table, int ct)
+{		
+	int i;
+	variant vn, vd, vc;
+	if (!ct) return;
+
+	var_init(&vn);
+	var_init(&vd);
+	var_init(&vc);
+
+	fprintf(fff, "=================================== Powers ====================================\n\n");
+	fprintf(fff, "%-20.20s Lvl Cost Fail Desc\n", "");
+	for (i = 0; i < ct; i++)
+	{
+		spell_info *spell = &table[i];		
+
+		spell->fn(SPELL_NAME, &vn);
+		spell->fn(SPELL_INFO, &vd);
+		spell->fn(SPELL_COST_EXTRA, &vc);
+
+		fprintf(fff, "%-20.20s %3d %4d %3d%% %s\n", 
+			var_get_string(&vn), 
+			spell->level, spell->cost + var_get_int(&vc), spell->fail, 
+			var_get_string(&vd)
+		);
+	}
+
+	var_clear(&vn);
+	var_clear(&vd);
+	var_clear(&vc);
 }
 
 static void _dump_book(FILE *fff, int realm, int book)

@@ -163,7 +163,7 @@ static void say_comment_2(s32b value, int annoyed)
 	char	tmp_val[80];
 
 	/* Prepare a string to insert */
-	sprintf(tmp_val, "%ld", (long)value);
+	sprintf(tmp_val, "%d", value);
 
 	/* Final offer */
 	if (annoyed > 0)
@@ -189,7 +189,7 @@ static void say_comment_3(s32b value, int annoyed)
 	char	tmp_val[80];
 
 	/* Prepare a string to insert */
-	sprintf(tmp_val, "%ld", (long)value);
+	sprintf(tmp_val, "%d", value);
 
 	/* Final offer */
 	if (annoyed > 0)
@@ -656,7 +656,7 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 		if (adjust > 100) adjust = 100;
 
 		/* Mega-Hack -- Black market sucks */
-		if (cur_store_num == STORE_BLACK && p_ptr->realm1 != REALM_BURGLARY)
+		if (cur_store_num == STORE_BLACK && p_ptr->realm1 != REALM_BURGLARY && !mut_present(MUT_BLACK_MARKETEER))
 			price = price / 2;
 
 		/* Compute the final price (with rounding) */
@@ -674,7 +674,7 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 		if (adjust < 100) adjust = 100;
 
 		/* Mega-Hack -- Black market sucks */
-		if (cur_store_num == STORE_BLACK && p_ptr->realm1 != REALM_BURGLARY)
+		if (cur_store_num == STORE_BLACK && p_ptr->realm1 != REALM_BURGLARY && !mut_present(MUT_BLACK_MARKETEER))
 			price = price * 2;
 
 		/* Compute the final price (with rounding) */
@@ -2666,7 +2666,7 @@ static void display_store(void)
 		put_str(buf, 3, 10);
 
 		/* Show the max price in the store (above prices) */
-		sprintf(buf, "%s (%ld)", store_name, (long)(ot_ptr->max_cost));
+		sprintf(buf, "%s (%d)", store_name, (int)ot_ptr->max_cost);
 		prt(buf, 3, 50);
 
 		/* Label the item descriptions */
@@ -2896,23 +2896,13 @@ static int get_haggle(cptr pmt, s32b *poffer, s32b price, int final)
 	/* Old (negative) increment, and not final */
 	else if (last_inc < 0)
 	{
-#ifdef JP
-		sprintf(buf, "%s [-$%ld] ", pmt, (long)(ABS(last_inc)));
-#else
-		sprintf(buf, "%s [-%ld] ", pmt, (long)(ABS(last_inc)));
-#endif
-
+		sprintf(buf, "%s [-%d] ", pmt, ABS(last_inc));
 	}
 
 	/* Old (positive) increment, and not final */
 	else if (last_inc > 0)
 	{
-#ifdef JP
-		sprintf(buf, "%s [+$%ld] ", pmt, (long)(ABS(last_inc)));
-#else
-		sprintf(buf, "%s [+%ld] ", pmt, (long)(ABS(last_inc)));
-#endif
-
+		sprintf(buf, "%s [+%d] ", pmt, ABS(last_inc));
 	}
 
 	/* Normal haggle */
@@ -3154,14 +3144,9 @@ static bool purchase_haggle(object_type *o_ptr, s32b *price)
 
 		while (!flag && loop_flag)
 		{
-			(void)sprintf(out_val, "%s :  %ld", pmt, (long)cur_ask);
+			(void)sprintf(out_val, "%s :  %d", pmt, cur_ask);
 			put_str(out_val, 1, 0);
-#ifdef JP
-			cancel = receive_offer("提示する金額? ",
-#else
 			cancel = receive_offer("What do you offer? ",
-#endif
-
 					       &offer, last_offer, 1, cur_ask, final);
 
 			if (cancel)
@@ -3236,13 +3221,8 @@ static bool purchase_haggle(object_type *o_ptr, s32b *price)
 				last_offer = offer;
 				allow_inc = TRUE;
 				prt("", 1, 0);
-#ifdef JP
-(void)sprintf(out_val, "前回の提示金額: $%ld",
-#else
-				(void)sprintf(out_val, "Your last offer: %ld",
-#endif
-
-							  (long)last_offer);
+				(void)sprintf(out_val, "Your last offer: %d",
+							  last_offer);
 				put_str(out_val, 1, 39);
 				say_comment_2(cur_ask, annoyed);
 			}
@@ -3396,14 +3376,9 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 		{
 			loop_flag = TRUE;
 
-			(void)sprintf(out_val, "%s :  %ld", pmt, (long)cur_ask);
+			(void)sprintf(out_val, "%s :  %d", pmt, cur_ask);
 			put_str(out_val, 1, 0);
-#ifdef JP
-			cancel = receive_offer("提示する価格? ",
-#else
 			cancel = receive_offer("What price do you ask? ",
-#endif
-
 								   &offer, last_offer, -1, cur_ask, final);
 
 			if (cancel)
@@ -3485,11 +3460,7 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 				allow_inc = TRUE;
 				prt("", 1, 0);
 				(void)sprintf(out_val,
-#ifdef JP
-					      "前回の提示価格 $%ld", (long)last_offer);
-#else
-							  "Your last bid %ld", (long)last_offer);
-#endif
+							  "Your last bid %d", last_offer);
 
 				put_str(out_val, 1, 39);
 				say_comment_3(cur_ask, annoyed);
@@ -3604,7 +3575,7 @@ static void store_purchase(void)
 		if ((cur_store_num != STORE_HOME) &&
 		    (o_ptr->ident & IDENT_FIXED))
 		{
-			msg_format("That costs %ld gold per item.", (long)(best));
+			msg_format("That costs %d gold per item.", best);
 		}
 
 		/* Get a quantity */
@@ -3705,7 +3676,7 @@ static void store_purchase(void)
 				object_desc(o_name, j_ptr, 0);
 
 				/* Message */
-				msg_format("You bought %s for %ld gold.", o_name, (long)price);
+				msg_format("You bought %s for %d gold.", o_name, price);
 
 				strcpy(record_o_name, o_name);
 				record_turn = turn;
@@ -3766,8 +3737,8 @@ static void store_purchase(void)
 						sprintf(buf, "%s (%s)",
 							ot_ptr->owner_name, get_race_t_aux(ot_ptr->owner_race, 0)->name);
 						put_str(buf, 3, 10);
-						sprintf(buf, "%s (%ld)",
-							(f_name + f_info[cur_store_feat].name), (long)(ot_ptr->max_cost));
+						sprintf(buf, "%s (%d)",
+							(f_name + f_info[cur_store_feat].name), (int)ot_ptr->max_cost);
 						prt(buf, 3, 50);
 					}
 
@@ -4131,7 +4102,7 @@ static void store_sell(void)
 			object_desc(o_name, q_ptr, 0);
 
 			/* Describe the result (in message buffer) */
-			msg_format("You sold %s for %ld gold.", o_name, (long)price);
+			msg_format("You sold %s for %d gold.", o_name, price);
 
 			if (!((o_ptr->tval == TV_FIGURINE) && (value > 0)))
 			{
@@ -5582,6 +5553,9 @@ static void _buyout(void)
 	if (cur_store_num == STORE_MUSEUM || cur_store_num == STORE_HOME)
 		return;
 
+	if (disturb_minor && !get_check("Are you sure you want to buy the entire inventory of this store? "))
+		return;
+
 	for (i = st_ptr->stock_num - 1; i >= 0; i--)
 	{
 		o_ptr = &st_ptr->stock[i];
@@ -5652,8 +5626,8 @@ static void _buyout(void)
 					sprintf(buf, "%s (%s)",
 						ot_ptr->owner_name, get_race_t_aux(ot_ptr->owner_race, 0)->name);
 					put_str(buf, 3, 10);
-					sprintf(buf, "%s (%ld)",
-						(f_name + f_info[cur_store_feat].name), (long)(ot_ptr->max_cost));
+					sprintf(buf, "%s (%d)",
+						(f_name + f_info[cur_store_feat].name), (int)(ot_ptr->max_cost));
 					prt(buf, 3, 50);
 				}
 				else

@@ -92,11 +92,7 @@ void self_knowledge(void)
 	}
 	info[i++] = "";
 
-#ifdef JP
-	sprintf(Dummy, "現在の属性 : %s(%ld)", your_alignment(), p_ptr->align);
-#else
-	sprintf(Dummy, "Your alighnment : %s(%ld)", your_alignment(), p_ptr->align);
-#endif
+	sprintf(Dummy, "Your alighnment : %s(%d)", your_alignment(), p_ptr->align);
 	strcpy(buf[1], Dummy);
 	info[i++] = buf[1];
 	for (v_nr = 0; v_nr < 8; v_nr++)

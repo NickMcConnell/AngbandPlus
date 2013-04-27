@@ -2674,7 +2674,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 		o_ptr->art_name = quark_add("Temp");
 
 	total_flags = new_object_cost(o_ptr);
-	if (cheat_peek) msg_format("Score: %ld", total_flags);
+	if (cheat_peek) msg_format("Score: %d", total_flags);
 
 	if (object_is_jewelry(o_ptr))
 	{

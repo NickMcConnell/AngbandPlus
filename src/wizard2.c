@@ -1003,7 +1003,7 @@ static void do_cmd_wiz_change_aux(void)
 		p_ptr->spell_exp[j] = (tmp_s16b > SPELL_EXP_EXPERT ? SPELL_EXP_EXPERT : tmp_s16b);
 
 	/* Default */
-	sprintf(tmp_val, "%ld", (long)(p_ptr->au));
+	sprintf(tmp_val, "%d", p_ptr->au);
 
 	/* Query */
 	if (!get_string("Gold: ", tmp_val, 9)) return;
@@ -1019,7 +1019,7 @@ static void do_cmd_wiz_change_aux(void)
 
 
 	/* Default */
-	sprintf(tmp_val, "%ld", (long)(p_ptr->max_exp));
+	sprintf(tmp_val, "%d", p_ptr->max_exp);
 
 	/* Query */
 	if (!get_string("Experience: ", tmp_val, 9)) return;
@@ -1146,8 +1146,8 @@ static void wiz_display_item(object_type *o_ptr)
 	prt(format("pval = %-5d  toac = %-5d  tohit = %-4d  todam = %-4d",
 		   o_ptr->pval, o_ptr->to_a, o_ptr->to_h, o_ptr->to_d), 6, j);
 
-	prt(format("name1 = %-4d  name2 = %-4d  cost = %ld",
-		   o_ptr->name1, o_ptr->name2, (long)object_value_real(o_ptr)), 7, j);
+	prt(format("name1 = %-4d  name2 = %-4d  cost = %d",
+		   o_ptr->name1, o_ptr->name2, object_value_real(o_ptr)), 7, j);
 
 	prt(format("ident = %04x  xtra1 = %-4d  xtra2 = %-4d  timeout = %-d",
 		   o_ptr->ident, o_ptr->xtra1, o_ptr->xtra2, o_ptr->timeout), 8, j);
@@ -1560,7 +1560,7 @@ static void wiz_statistics(object_type *o_ptr)
 	object_type forge;
 	object_type	*q_ptr;
 
-	cptr q = "Rolls: %ld  Correct: %ld  Matches: %ld  Better: %ld  Worse: %ld  Other: %ld";
+	cptr q = "Rolls: %d  Correct: %d  Matches: %d  Better: %d  Worse: %d  Other: %d";
 
 	cptr p = "Enter number of items to roll: ";
 	char tmp_val[80];
@@ -1602,7 +1602,7 @@ static void wiz_statistics(object_type *o_ptr)
 			break;
 		}
 
-		sprintf(tmp_val, "%ld", test_roll);
+		sprintf(tmp_val, "%d", test_roll);
 		if (get_string(p, tmp_val, 10)) test_roll = atol(tmp_val);
 		test_roll = MAX(1, test_roll);
 

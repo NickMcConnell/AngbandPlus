@@ -6484,17 +6484,9 @@ static void do_cmd_knowledge_kill_count(void)
 		}
 
 		if (Total < 1)
-#ifdef JP
-			fprintf(fff,"あなたはまだ敵を倒していない。\n\n");
-#else
 			fprintf(fff,"You have defeated no enemies yet.\n\n");
-#endif
 		else
-#ifdef JP
-			fprintf(fff,"あなたは%ld体の敵を倒している。\n\n", Total);
-#else
-			fprintf(fff,"You have defeated %ld %s.\n\n", Total, (Total == 1) ? "enemy" : "enemies");
-#endif
+			fprintf(fff,"You have defeated %d %s.\n\n", Total, (Total == 1) ? "enemy" : "enemies");
 	}
 
 	Total = 0;

@@ -26,7 +26,7 @@ static cptr seikaku_jouhou[MAX_SEIKAKU] =
 "\"Shrewd\" reduces your physical stats, and raises your intelligence and magical skills. It makes your stats suitable for a mage. Also it directly influences your hit-points and spell fail rate.",
 "\"Pious\" deepens your faith in your God. It makes your physical ability average, and your stats suitable for priest. ",
 "\"Nimble\" renders you highly skilled comparatively well, but reduces your physical ability. ",
-"\"Fearless\" raises both your melee and magical ability. Stats such as magic defense and constitution are reduced. Also it has a direct bad influence on your hit-points.",
+"\"Fearless\" raises your melee skills and force of personality. Stats such as magic defense and constitution are reduced. Also it has a direct bad influence on your hit-points.",
 "\"Combat\" gives you comparatively high melee and shooting abilities, and average constitution. Other skills such as stealth, magic defence, and magical devices are weakened. All \"Combat\" people have great respect for the legendary \"Combat Echizen\".\n\
 (See \"Death Crimson\" / Ecole Software Corp.)",
 "A \"Lazy\" person has no good stats and can do no action well. Also it has a direct bad influence on your spell fail rate.",
@@ -706,22 +706,22 @@ typedef struct _race_group_s {
 	int ids[_MAX_RACES_PER_GROUP];
 } _race_group_t;
 static _race_group_t _race_groups[_MAX_RACE_GROUPS] = {
-	{ "Human", "races.txt#Tables", 
+	{ "Human", "Races.txt#Tables", 
 		{RACE_AMBERITE, RACE_BARBARIAN, RACE_DEMIGOD, RACE_DUNADAN, RACE_HUMAN, -1} },
-	{ "Elf", "races.txt#Tables", 
+	{ "Elf", "Races.txt#Tables", 
 		{RACE_DARK_ELF, RACE_HIGH_ELF, -1} },
-	{ "Hobbit/Dwarf", "races.txt#Tables", 
+	{ "Hobbit/Dwarf", "Races.txt#Tables", 
 		{RACE_DWARF, RACE_GNOME, RACE_HOBBIT, RACE_NIBELUNG, -1} },
 	{ "Fairy", 
-		"races.txt#Tables", {RACE_SHADOW_FAIRY, RACE_SPRITE, -1} },
+		"Races.txt#Tables", {RACE_SHADOW_FAIRY, RACE_SPRITE, -1} },
 	{ "Angel/Demon", 
-		"races.txt#Tables", {RACE_ARCHON, RACE_BALROG, RACE_IMP, -1} },
-	{ "Orc/Troll/Giant", "races.txt#Tables", 
+		"Races.txt#Tables", {RACE_ARCHON, RACE_BALROG, RACE_IMP, -1} },
+	{ "Orc/Troll/Giant", "Races.txt#Tables", 
 		{RACE_CYCLOPS, RACE_KOBOLD, RACE_HALF_GIANT, RACE_HALF_OGRE, 
 		 RACE_HALF_TITAN, RACE_HALF_TROLL, RACE_SNOTLING, -1} },
-	{ "Undead", "races.txt#Tables", 
+	{ "Undead", "Races.txt#Tables", 
 		{RACE_SKELETON, RACE_SPECTRE, RACE_VAMPIRE, RACE_ZOMBIE, -1} },
-	{ "Other", "races.txt#Tables", 
+	{ "Other", "Races.txt#Tables", 
 		{RACE_ANDROID, RACE_BEASTMAN, RACE_DRACONIAN, RACE_DOPPELGANGER, RACE_ENT, 
 		 RACE_GOLEM, RACE_KLACKON, RACE_KUTAR, RACE_MIND_FLAYER, RACE_TONBERRY, RACE_YEEK,-1 } },
 	{ "Monster", "MonsterRaces.txt#Tables", 
@@ -962,7 +962,7 @@ static int _prompt_race(void)
 		c_put_str(TERM_WHITE, "              ", 5, 14);
 		for (;;)
 		{
-			menu_t menu1 = { "Race Type", "races.txt#Tables", "",
+			menu_t menu1 = { "Race Type", "Races.txt#Tables", "",
 								_race_group_menu_fn, 
 								NULL, _MAX_RACE_GROUPS};
 			idx = _menu_choose(&menu1, group_id);

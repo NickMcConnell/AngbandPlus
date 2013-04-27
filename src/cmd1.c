@@ -271,13 +271,7 @@ static void death_scythe_miss(object_type *o_ptr, int hand, int mode)
 
 		if (p_ptr->tim_slay_sentient && p_ptr->weapon_info[hand].wield_how == WIELD_TWO_HANDS)
 		{
-			if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_POSEIDON)
-			{
-			}
-			else if (mut_present(MUT_WEIRD_MIND))
-			{
-			}
-			else if (mult < 20) mult = 20;
+			if (mult < 20) mult = 20;
 		}
 
 		if ((have_flag(flgs, TR_FORCE_WEAPON) || p_ptr->tim_force) && (p_ptr->csp > (p_ptr->msp / 30)))
@@ -1556,20 +1550,14 @@ void carry(bool pickup)
 		/* Pick up gold */
 		if (o_ptr->tval == TV_GOLD)
 		{
-			int value = (long)o_ptr->pval;
+			int value = o_ptr->pval;
 
 			/* Delete the gold */
 			delete_object_idx(this_o_idx);
 
 			/* Message */
-#ifdef JP
-		msg_format(" $%ld の価値がある%sを見つけた。",
-			   (long)value, o_name);
-#else
-			msg_format("You collect %ld gold pieces worth of %s.",
-				   (long)value, o_name);
-#endif
-
+			msg_format("You collect %d gold pieces worth of %s.",
+				   value, o_name);
 
 			sound(SOUND_SELL);
 
@@ -2443,7 +2431,7 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath)
 					{
 					case GF_MISSILE:
 						*mdeath = mon_take_hit(m_idx, dam, fear, NULL);
-						if (p_ptr->special_attack & ATTACK_CONFUSE)
+						if (!(*mdeath) && (p_ptr->special_attack & ATTACK_CONFUSE))
 						{
 							p_ptr->special_attack &= ~(ATTACK_CONFUSE);
 							msg_format("Your %s stops glowing.", a->name);
@@ -3634,7 +3622,8 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 						}
 					}
 
-					if ((p_ptr->lev >= 45 || mode == WEAPONMASTER_CUNNING_STRIKE) && one_in_(odds))
+					if ( mode == WEAPONMASTER_CUNNING_STRIKE 
+					  || (p_ptr->lev >= 45 && one_in_(odds)) )
 					{
 						if (r_ptr->flagsr & RFR_RES_ALL)
 						{
@@ -3931,7 +3920,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 		{
 			int i;
 			int msec = delay_factor * delay_factor * delay_factor;
-			int dist = hit_ct;
+			int dist = hit_ct * 2;
 
 			if (mode == MAULER_KNOCKBACK)
 				dist = 8;

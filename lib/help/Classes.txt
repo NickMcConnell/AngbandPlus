@@ -727,4 +727,4 @@ Mauler         25+12  25+11  35+12     0    14     2  70+30  20+7
 
 
 
-Automatically generated for PosChengband 1.0.0.
+Automatically generated for PosChengband 1.0.4.

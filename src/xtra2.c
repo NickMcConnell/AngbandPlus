@@ -1446,50 +1446,74 @@ msg_print("地面に落とされた。");
 		case MON_ZEUS:
 			a_idx = ART_ZEUS;
 			chance = 25;
+			if (demigod_is_(DEMIGOD_ZEUS))
+				chance = 100;
 			break;
 		case MON_POSEIDON:
 			a_idx = ART_POSEIDON;
 			chance = 25;
+			if (demigod_is_(DEMIGOD_POSEIDON))
+				chance = 100;
 			break;
 		case MON_HADES:
 			a_idx = ART_HADES;
 			chance = 25;
+			if (demigod_is_(DEMIGOD_HADES))
+				chance = 100;
 			break;
 		case MON_ATHENA:
 			a_idx = ART_ATHENA;
 			chance = 25;
+			if (demigod_is_(DEMIGOD_ATHENA))
+				chance = 100;
 			break;
 		case MON_ARES:
 			a_idx = ART_ARES;
 			chance = 25;
+			if (demigod_is_(DEMIGOD_ARES))
+				chance = 100;
 			break;
 		case MON_HERMES:
 			a_idx = ART_HERMES;
 			chance = 25;
+			if (demigod_is_(DEMIGOD_HERMES))
+				chance = 100;
 			break;
 		case MON_APOLLO:
 			a_idx = ART_APOLLO;
 			chance = 25;
+			if (demigod_is_(DEMIGOD_APOLLO))
+				chance = 100;
 			break;
 		case MON_ARTEMIS:
 			a_idx = ART_ARTEMIS;
 			chance = 25;
+			if (demigod_is_(DEMIGOD_ARTEMIS))
+				chance = 100;
 			break;
 		case MON_HEPHAESTUS:
 			a_idx = ART_HEPHAESTUS;
 			chance = 25;
+			if (demigod_is_(DEMIGOD_HEPHAESTUS))
+				chance = 100;
 			break;
 		case MON_HERA:
 			a_idx = ART_HERA;
 			chance = 25;
+			if (demigod_is_(DEMIGOD_HERA))
+				chance = 100;
 			break;
 		case MON_DEMETER:
 			a_idx = ART_DEMETER;
 			chance = 25;
+			if (demigod_is_(DEMIGOD_DEMETER))
+				chance = 100;
 			break;
 		case MON_APHRODITE:
 			a_idx = ART_APHRODITE;
 			chance = 25;
+			if (demigod_is_(DEMIGOD_APHRODITE))
+				chance = 100;
 			break;
 
 		case MON_HAGEN:
@@ -1628,6 +1652,7 @@ msg_print("地面に落とされた。");
 		{
 			msg_print("Congratulations! You have killed the boss of your race!");
 			chance = 100;
+			p_ptr->update |= PU_BONUS; /* Player is now a "Hero" (cf IS_HERO()) */
 		}
 
 		if ((a_idx > 0) && ((randint0(100) < chance) || p_ptr->wizard))

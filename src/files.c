@@ -1752,9 +1752,6 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 	}
 
 	/* Mutations */
-	if (mut_present(MUT_WEIRD_MIND))
-		add_flag(flgs, TR_RES_CONF);
-	
 	if (mut_present(MUT_FLESH_ROT))
 	{
 		remove_flag(flgs, TR_REGEN);
@@ -1810,7 +1807,8 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 		add_flag(flgs, TR_RES_BLIND);
 		add_flag(flgs, TR_RES_CONF);
 		add_flag(flgs, TR_HOLD_LIFE);
-		if (p_ptr->pclass != CLASS_NINJA) add_flag(flgs, TR_LITE);
+		if (p_ptr->pclass != CLASS_NINJA) 
+			add_flag(flgs, TR_LITE);
 		if (p_ptr->lev > 9)
 			add_flag(flgs, TR_SPEED);
 	}
@@ -3015,16 +3013,16 @@ void display_player(int mode)
 
 		_print_field( 9, 1, "Level      :", format("%d", p_ptr->lev), TERM_L_GREEN, 21);
 		_print_field(10, 1, "Cur Exp    :", 
-								format("%ld", p_ptr->exp), 
+								format("%d", p_ptr->exp), 
 								p_ptr->exp >= p_ptr->max_exp ? TERM_L_GREEN : TERM_YELLOW, 21);
 		_print_field(11, 1, "Max Exp    :", 
-								p_ptr->prace == RACE_ANDROID ? "N/A" : format("%ld", p_ptr->max_exp),
+								p_ptr->prace == RACE_ANDROID ? "N/A" : format("%d", p_ptr->max_exp),
 								TERM_L_GREEN, 21);
 		_print_field(12, 1, "Adv Exp    :", 
-								p_ptr->lev >= PY_MAX_LEVEL ? "*****" : format("%ld", exp_requirement(p_ptr->lev)),
+								p_ptr->lev >= PY_MAX_LEVEL ? "*****" : format("%d", exp_requirement(p_ptr->lev)),
 								TERM_L_GREEN, 21);
 
-		_print_field(15, 1, "Gold       :", format("%ld", p_ptr->au), TERM_L_GREEN, 21);
+		_print_field(15, 1, "Gold       :", format("%d", p_ptr->au), TERM_L_GREEN, 21);
 		_print_field(16, 1, "Kills      :", format("%d", _kills()), TERM_L_GREEN, 21);
 		_print_field(17, 1, "Uniques    :", format("%d", _uniques()), TERM_L_GREEN, 21);
 		_print_field(18, 1, "Artifacts  :", 
@@ -3468,37 +3466,7 @@ static void dump_aux_display_player(FILE *fff)
 		if (class_ptr->get_powers)
 			ct += (class_ptr->get_powers)(spells + ct, MAX_SPELLS - ct);
 
-		ct += mut_get_powers(spells + ct, MAX_SPELLS - ct);
-
-		if (ct)
-		{		
-			int i;
-			variant vn, vd, vc;
-			var_init(&vn);
-			var_init(&vd);
-			var_init(&vc);
-
-			fprintf(fff, "=================================== Powers ====================================\n\n");
-			fprintf(fff, "%-20.20s Lvl Cost Fail Desc\n", "");
-			for (i = 0; i < ct; i++)
-			{
-				spell_info *spell = &spells[i];		
-
-				spell->fn(SPELL_NAME, &vn);
-				spell->fn(SPELL_INFO, &vd);
-				spell->fn(SPELL_COST_EXTRA, &vc);
-
-				fprintf(fff, "%-20.20s %3d %4d %3d%% %s\n", 
-					var_get_string(&vn), 
-					spell->level, spell->cost + var_get_int(&vc), spell->fail, 
-					var_get_string(&vd)
-				);
-			}
-
-			var_clear(&vn);
-			var_clear(&vd);
-			var_clear(&vc);
-		}
+		dump_powers_aux(fff, spells, ct);
 	}
 
 	{
@@ -3514,32 +3482,7 @@ static void dump_aux_display_player(FILE *fff)
 		if (class_ptr->get_spells)
 			ct += (class_ptr->get_spells)(spells + ct, MAX_SPELLS - ct); */
 
-		if (ct)
-		{		
-			int i;
-			variant vn, vd;
-			var_init(&vn);
-			var_init(&vd);
-
-			fprintf(fff, "=================================== Spells ====================================\n\n");
-			fprintf(fff, "%-20.20s Lvl Cost Fail Desc\n", "");
-			for (i = 0; i < ct; i++)
-			{
-				spell_info *spell = &spells[i];		
-
-				spell->fn(SPELL_NAME, &vn);
-				spell->fn(SPELL_INFO, &vd);
-
-				fprintf(fff, "%-20.20s %3d %4d %3d%% %s\n", 
-					var_get_string(&vn), 
-					spell->level, spell->cost, spell->fail, 
-					var_get_string(&vd)
-				);
-			}
-
-			var_clear(&vn);
-			var_clear(&vd);
-		}
+		dump_spells_aux(fff, spells, ct);
 	}
 
 	{
@@ -3815,10 +3758,6 @@ static void dump_aux_last_message(FILE *fff)
 			}
 			fputc('\n', fff);
 		}
-		else if (p_ptr->last_message)
-		{
-			fprintf(fff, "\n*Winning* Message:%s\n\n", p_ptr->last_message);
-		}
 	}
 }
 
@@ -3851,7 +3790,7 @@ static void dump_aux_recall(FILE *fff)
 		{
 			if (p_ptr->total_winner)
 			{
-				sprintf(statmsg, "You %s after the winning.", streq(p_ptr->died_from, "Seppuku") ? "did Seppuku" : "retired from the adventure");
+				sprintf(statmsg, "You %s after winning.", streq(p_ptr->died_from, "Seppuku") ? "did Seppuku" : "retired from the adventure");
 			}
 			else if (!dun_level)
 			{
@@ -3901,6 +3840,9 @@ static void dump_aux_recall(FILE *fff)
 
 		if (*statmsg)
 			fprintf(fff, "\n %s\n", statmsg);
+
+		if (p_ptr->last_message)
+			fprintf(fff, "\n *Winning* Message: %s\n\n", p_ptr->last_message);
 	}
 }
 
@@ -4109,8 +4051,8 @@ static void dump_aux_monsters(FILE *fff)
 	/* Monsters slain */
 
 	int k;
-	long uniq_total = 0;
-	long norm_total = 0;
+	int uniq_total = 0;
+	int norm_total = 0;
 	s16b *who;
 
 	/* Sort by monster level */
@@ -4162,13 +4104,13 @@ static void dump_aux_monsters(FILE *fff)
 	/* Defeated more than one normal monsters */
 	else if (uniq_total == 0)
 	{
-		fprintf(fff,"You have defeated %ld %s.\n", norm_total, norm_total == 1 ? "enemy" : "enemies");
+		fprintf(fff,"You have defeated %d %s.\n", norm_total, norm_total == 1 ? "enemy" : "enemies");
 	}
 
 	/* Defeated more than one unique monsters */
 	else /* if (uniq_total > 0) */
 	{
-		fprintf(fff, "You have defeated %ld %s including %ld unique monster%s in total.\n", norm_total, norm_total == 1 ? "enemy" : "enemies", uniq_total, (uniq_total == 1 ? "" : "s"));
+		fprintf(fff, "You have defeated %d %s including %d unique monster%s in total.\n", norm_total, norm_total == 1 ? "enemy" : "enemies", uniq_total, (uniq_total == 1 ? "" : "s"));
 
 
 		/* Select the sort method */
@@ -4178,7 +4120,7 @@ static void dump_aux_monsters(FILE *fff)
 		/* Sort the array by dungeon depth of monsters */
 		ang_sort(who, &why, uniq_total);
 
-		fprintf(fff, "\n< Unique monsters top %ld >\n", MIN(uniq_total, 20));
+		fprintf(fff, "\n< Unique monsters top %d >\n", MIN(uniq_total, 20));
 
 		/* Print top N */
 		for (k = uniq_total - 1; k >= 0 && k >= uniq_total - 20; k--)
@@ -5901,115 +5843,18 @@ static void print_tomb(void)
 		center_string(buf, get_class_t()->name);
 		put_str(buf, 10, 11);
 
-#ifdef JP
-		(void)sprintf(tmp, "レベル: %d", (int)p_ptr->lev);
-#else
 		(void)sprintf(tmp, "Level: %d", (int)p_ptr->lev);
-#endif
 		center_string(buf, tmp);
 		put_str(buf, 11, 11);
 
-#ifdef JP
-		(void)sprintf(tmp, "経験値: %ld", (long)p_ptr->exp);
-#else
-		(void)sprintf(tmp, "Exp: %ld", (long)p_ptr->exp);
-#endif
+		(void)sprintf(tmp, "Exp: %d", p_ptr->exp);
 		center_string(buf, tmp);
 		put_str(buf, 12, 11);
 
-#ifdef JP
-		(void)sprintf(tmp, "所持金: %ld", (long)p_ptr->au);
-#else
-		(void)sprintf(tmp, "AU: %ld", (long)p_ptr->au);
-#endif
+		(void)sprintf(tmp, "AU: %d", p_ptr->au);
 		center_string(buf, tmp);
 		put_str(buf, 13, 11);
 
-#ifdef JP
-		/* 墓に刻む言葉をオリジナルより細かく表示 */
-		if (streq(p_ptr->died_from, "途中終了"))
-		{
-			strcpy(tmp, "<自殺>");
-		}
-		else if (streq(p_ptr->died_from, "ripe"))
-		{
-			strcpy(tmp, "引退後に天寿を全う");
-		}
-		else if (streq(p_ptr->died_from, "Seppuku"))
-		{
-			strcpy(tmp, "勝利の後、切腹");
-		}
-		else
-		{
-			roff_to_buf(p_ptr->died_from, GRAVE_LINE_WIDTH + 1, tmp, sizeof tmp);
-			t = tmp + strlen(tmp) + 1;
-			if (*t)
-			{
-				strcpy(dummy, t); /* 2nd line */
-				if (*(t + strlen(t) + 1)) /* Does 3rd line exist? */
-				{
-					for (t = dummy + strlen(dummy) - 2; iskanji(*(t - 1)); t--) /* Loop */;
-					strcpy(t, "…");
-				}
-				else if (my_strstr(tmp, "『") && suffix(dummy, "』"))
-				{
-					char dummy2[80];
-					char *name_head = my_strstr(tmp, "『");
-					sprintf(dummy2, "%s%s", name_head, dummy);
-					if (strlen(dummy2) <= GRAVE_LINE_WIDTH)
-					{
-						strcpy(dummy, dummy2);
-						*name_head = '\0';
-					}
-				}
-				else if (my_strstr(tmp, "「") && suffix(dummy, "」"))
-				{
-					char dummy2[80];
-					char *name_head = my_strstr(tmp, "「");
-					sprintf(dummy2, "%s%s", name_head, dummy);
-					if (strlen(dummy2) <= GRAVE_LINE_WIDTH)
-					{
-						strcpy(dummy, dummy2);
-						*name_head = '\0';
-					}
-				}
-				center_string(buf, dummy);
-				put_str(buf, 15, 11);
-				extra_line = 1;
-			}
-		}
-		center_string(buf, tmp);
-		put_str(buf, 14, 11);
-
-		if (!streq(p_ptr->died_from, "ripe") && !streq(p_ptr->died_from, "Seppuku"))
-		{
-			if (dun_level == 0)
-			{
-				cptr town = p_ptr->town_num ? "街" : "荒野";
-				if (streq(p_ptr->died_from, "途中終了"))
-				{
-					sprintf(tmp, "%sで死んだ", town);
-				}
-				else
-				{
-					sprintf(tmp, "に%sで殺された", town);
-				}
-			}
-			else
-			{
-				if (streq(p_ptr->died_from, "途中終了"))
-				{
-					sprintf(tmp, "地下 %d 階で死んだ", dun_level);
-				}
-				else
-				{
-					sprintf(tmp, "に地下 %d 階で殺された", dun_level);
-				}
-			}
-			center_string(buf, tmp);
-			put_str(buf, 15 + extra_line, 11);
-		}
-#else
 		(void)sprintf(tmp, "Killed on Level %d", dun_level);
 		center_string(buf, tmp);
 		put_str(buf, 14, 11);
@@ -6029,7 +5874,6 @@ static void print_tomb(void)
 			center_string(buf, dummy);
 			put_str(buf, 16, 11);
 		}
-#endif
 
 		(void)sprintf(tmp, "%-.24s", ctime(&ct));
 		center_string(buf, tmp);

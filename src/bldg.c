@@ -143,22 +143,12 @@ static void show_building(building_type* bldg)
 				else if (is_owner(bldg))
 				{
 					action_color = TERM_YELLOW;
-#ifdef JP
-sprintf(buff, "($%ld)", bldg->member_costs[i]);
-#else
-					sprintf(buff, "(%ldgp)", bldg->member_costs[i]);
-#endif
-
+					sprintf(buff, "(%dgp)", bldg->member_costs[i]);
 				}
 				else
 				{
 					action_color = TERM_YELLOW;
-#ifdef JP
-sprintf(buff, "($%ld)", bldg->other_costs[i]);
-#else
-					sprintf(buff, "(%ldgp)", bldg->other_costs[i]);
-#endif
-
+					sprintf(buff, "(%dgp)", bldg->other_costs[i]);
 				}
 			}
 			else if (bldg->action_restr[i] == 1)
@@ -182,22 +172,12 @@ strcpy(buff, "(閉店)");
 				else if (is_owner(bldg))
 				{
 					action_color = TERM_YELLOW;
-#ifdef JP
-sprintf(buff, "($%ld)", bldg->member_costs[i]);
-#else
-					sprintf(buff, "(%ldgp)", bldg->member_costs[i]);
-#endif
-
+					sprintf(buff, "(%dgp)", bldg->member_costs[i]);
 				}
 				else
 				{
 					action_color = TERM_YELLOW;
-#ifdef JP
-sprintf(buff, "($%ld)", bldg->other_costs[i]);
-#else
-					sprintf(buff, "(%ldgp)", bldg->other_costs[i]);
-#endif
-
+					sprintf(buff, "(%dgp)", bldg->other_costs[i]);
 				}
 			}
 			else
@@ -215,12 +195,7 @@ strcpy(buff, "(閉店)");
 				else if (bldg->member_costs[i] != 0)
 				{
 					action_color = TERM_YELLOW;
-#ifdef JP
-sprintf(buff, "($%ld)", bldg->member_costs[i]);
-#else
-					sprintf(buff, "(%ldgp)", bldg->member_costs[i]);
-#endif
-
+					sprintf(buff, "(%dgp)", bldg->member_costs[i]);
 				}
 				else
 				{
@@ -1283,12 +1258,7 @@ static bool gamble_comm(int cmd)
 
 		/* Get the wager */
 		strcpy(out_val, "");
-#ifdef JP
-sprintf(tmp_str,"賭け金 (1-%ld)？", maxbet);
-#else
-		sprintf(tmp_str,"Your wager (1-%ld) ? ", maxbet);
-#endif
-
+		sprintf(tmp_str,"Your wager (1-%d) ? ", maxbet);
 
 		/*
 		 * Use get_string() because we may need more than
@@ -1316,12 +1286,7 @@ msg_print("おい！金が足りないじゃないか！出ていけ！");
 			}
 			else if (wager > maxbet)
 			{
-#ifdef JP
-msg_format("%ldゴールドだけ受けよう。残りは取っときな。", maxbet);
-#else
-				msg_format("I'll take %ld gold of that. Keep the rest.", maxbet);
-#endif
-
+				msg_format("I'll take %d gold of that. Keep the rest.", maxbet);
 				wager = maxbet;
 			}
 			else if (wager < 1)
@@ -2026,12 +1991,7 @@ static bool kakutoujou(void)
 
 		/* Get the wager */
 		strcpy(out_val, "");
-#ifdef JP
-sprintf(tmp_str,"賭け金 (1-%ld)？", maxbet);
-#else
-		sprintf(tmp_str,"Your wager (1-%ld) ? ", maxbet);
-#endif
-
+		sprintf(tmp_str,"Your wager (1-%d) ? ", maxbet);
 
 		/*
 		 * Use get_string() because we may need more than
@@ -2059,12 +2019,7 @@ msg_print("おい！金が足りないじゃないか！出ていけ！");
 			}
 			else if (wager > maxbet)
 			{
-#ifdef JP
-msg_format("%ldゴールドだけ受けよう。残りは取っときな。", maxbet);
-#else
-				msg_format("I'll take %ld gold of that. Keep the rest.", maxbet);
-#endif
-
+				msg_format("I'll take %d gold of that. Keep the rest.", maxbet);
 				wager = maxbet;
 			}
 			else if (wager < 1)
@@ -2262,12 +2217,8 @@ static bool kankin(void)
 #endif
 			if (get_check(buf))
 			{
-#ifdef JP
-				msg_format("賞金 %ld＄を手に入れた。", 1000000L * o_ptr->number);
-#else
-				msg_format("You get %ldgp.", 1000000L * o_ptr->number);
-#endif
-				p_ptr->au += 1000000L * o_ptr->number;
+				msg_format("You get %dgp.", 1000000 * o_ptr->number);
+				p_ptr->au += 1000000 * o_ptr->number;
 				p_ptr->redraw |= (PR_GOLD);
 				inven_item_increase(i, -o_ptr->number);
 				inven_item_describe(i);
@@ -2293,12 +2244,8 @@ static bool kankin(void)
 #endif
 			if (get_check(buf))
 			{
-#ifdef JP
-				msg_format("賞金 %ld＄を手に入れた。", 200000L * o_ptr->number);
-#else
-				msg_format("You get %ldgp.", 200000L * o_ptr->number);
-#endif
-				p_ptr->au += 200000L * o_ptr->number;
+				msg_format("You get %dgp.", 200000 * o_ptr->number);
+				p_ptr->au += 200000 * o_ptr->number;
 				p_ptr->redraw |= (PR_GOLD);
 				inven_item_increase(i, -o_ptr->number);
 				inven_item_describe(i);
@@ -2324,12 +2271,8 @@ static bool kankin(void)
 #endif
 			if (get_check(buf))
 			{
-#ifdef JP
-				msg_format("賞金 %ld＄を手に入れた。", 100000L * o_ptr->number);
-#else
-				msg_format("You get %ldgp.", 100000L * o_ptr->number);
-#endif
-				p_ptr->au += 100000L * o_ptr->number;
+				msg_format("You get %dgp.", 100000 * o_ptr->number);
+				p_ptr->au += 100000 * o_ptr->number;
 				p_ptr->redraw |= (PR_GOLD);
 				inven_item_increase(i, -o_ptr->number);
 				inven_item_describe(i);
@@ -2353,11 +2296,7 @@ static bool kankin(void)
 #endif
 			if (get_check(buf))
 			{
-#ifdef JP
-				msg_format("賞金 %ld＄を手に入れた。", (r_info[today_mon].level * 50 + 100) * o_ptr->number);
-#else
-				msg_format("You get %ldgp.", (r_info[today_mon].level * 50 + 100) * o_ptr->number);
-#endif
+				msg_format("You get %dgp.", (int)(r_info[today_mon].level * 50 + 100) * o_ptr->number);
 				p_ptr->au += (r_info[today_mon].level * 50 + 100) * o_ptr->number;
 				p_ptr->redraw |= (PR_GOLD);
 				inven_item_increase(i, -o_ptr->number);
@@ -2383,11 +2322,7 @@ static bool kankin(void)
 #endif
 			if (get_check(buf))
 			{
-#ifdef JP
-				msg_format("賞金 %ld＄を手に入れた。", (r_info[today_mon].level * 30 + 60) * o_ptr->number);
-#else
-				msg_format("You get %ldgp.", (r_info[today_mon].level * 30 + 60) * o_ptr->number);
-#endif
+				msg_format("You get %dgp.", (int)(r_info[today_mon].level * 30 + 60) * o_ptr->number);
 				p_ptr->au += (r_info[today_mon].level * 30 + 60) * o_ptr->number;
 				p_ptr->redraw |= (PR_GOLD);
 				inven_item_increase(i, -o_ptr->number);
@@ -2417,23 +2352,6 @@ static bool kankin(void)
 				sprintf(buf, "Hand %s over? ",o_name);
 #endif
 				if (!get_check(buf)) continue;
-
-#if 0 /* Obsoleted */
-#ifdef JP
-				msg_format("賞金 %ld＄を手に入れた。", (r_info[kubi_r_idx[j]].level + 1) * 300 * o_ptr->number);
-#else
-				msg_format("You get %ldgp.", (r_info[kubi_r_idx[j]].level + 1) * 300 * o_ptr->number);
-#endif
-				p_ptr->au += (r_info[kubi_r_idx[j]].level+1) * 300 * o_ptr->number;
-				p_ptr->redraw |= (PR_GOLD);
-				inven_item_increase(i, -o_ptr->number);
-				inven_item_describe(i);
-				inven_item_optimize(i);
-				chg_virtue(V_JUSTICE, 5);
-				kubi_r_idx[j] += 10000;
-
-				change = TRUE;
-#endif /* Obsoleted */
 
 				/* Hand it first */
 				inven_item_increase(i, -o_ptr->number);

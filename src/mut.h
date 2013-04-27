@@ -122,8 +122,9 @@
 #define MUT_DEMONIC_GRASP 115
 #define MUT_WEIRD_MIND 116
 #define MUT_FANTASTIC_FRENZY 117
+#define MUT_BLACK_MARKETEER 118
 
-#define MAX_MUTATIONS      118   /* see also MUT_FLAG_SIZE in defines.h */
+#define MAX_MUTATIONS      119   /* see also MUT_FLAG_SIZE in defines.h */
 
 typedef enum {
 	MUT_RATING_AWFUL = -2,
@@ -180,6 +181,7 @@ extern void attract_animal_mut(int cmd, variant *res);
 extern void attract_demon_mut(int cmd, variant *res);
 extern void attract_dragon_mut(int cmd, variant *res);
 extern void bad_luck_mut(int cmd, variant *res);
+extern void black_marketeer_mut(int cmd, variant *res);
 extern void beak_mut(int cmd, variant *res);
 extern void berserk_rage_mut(int cmd, variant *res);
 extern void blank_face_mut(int cmd, variant *res);

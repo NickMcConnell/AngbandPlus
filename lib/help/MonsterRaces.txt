@@ -241,4 +241,4 @@ Demon            -5   +20   +20    -2    +3   +10    +40   +20    50'
 
 
 
-Automatically generated for PosChengband 1.0.0.
+Automatically generated for PosChengband 1.0.4.

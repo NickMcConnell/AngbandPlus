@@ -1971,9 +1971,9 @@ extern class_t *get_class_t_aux(int pclass, int psubclass);
 extern int get_class_idx(cptr name);
 extern caster_info *get_caster_info(void);
 extern int get_powers_aux(spell_info* spells, int max, power_info* table);
-extern void spoil_powers_aux(FILE *fff, power_info *table);
+extern void dump_powers_aux(FILE *fff, spell_info *table, int ct);
 extern int get_spells_aux(spell_info* spells, int max, spell_info* table);
-extern void spoil_spells_aux(FILE *fff, spell_info *table);
+extern void dump_spells_aux(FILE *fff, spell_info *table, int ct);
 
 
 
@@ -2054,6 +2054,7 @@ extern class_t *monster_get_class_t(void);
 extern class_t *ninja_get_class_t(void);
 extern class_t *necromancer_get_class_t(void);
 extern class_t *paladin_get_class_t(void);
+extern bool     player_is_monster_king(void);
 extern class_t *priest_get_class_t(void);
 extern class_t *psion_get_class_t(void);
 extern int      psion_backlash_dam(int dam);

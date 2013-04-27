@@ -80,7 +80,7 @@ static int _breath_effect(void)
 	case DRAGON_LAW: return one_in_(2) ? GF_SOUND : GF_SHARDS;
 	case DRAGON_CHAOS: return one_in_(2) ? GF_CHAOS : GF_DISENCHANT;
 	case DRAGON_ETHEREAL: 
-		switch (randint0(3))
+		switch (randint0(2+p_ptr->lev/40))
 		{
 		case 0: return GF_LITE;
 		case 1: return GF_DARK;

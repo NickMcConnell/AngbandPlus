@@ -472,10 +472,13 @@ static cptr _do_scroll(int sval, int mode)
 				p_ptr->pclass == CLASS_SCOUT ||
 				p_ptr->pclass == CLASS_MAULER)
 			{
-				return NULL;
+				msg_print("There is no effect.");
 			}
-			p_ptr->add_spells++;
-			p_ptr->update |= (PU_SPELLS);
+			else
+			{
+				p_ptr->add_spells++;
+				p_ptr->update |= (PU_SPELLS);
+			}
 			device_noticed = TRUE;
 		}
 		break;

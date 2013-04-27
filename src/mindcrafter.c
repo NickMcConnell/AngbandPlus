@@ -557,7 +557,7 @@ void _the_world_spell(int cmd, variant *res)
 							  "時を止める。全MPを消費し、消費したMPに応じて長く時を止めていられる。"));
 		break;
 	case SPELL_INFO:
-		var_set_string(res, format(T("%ld acts.", "行動:%ld回"), MIN((p_ptr->csp + 100-p_ptr->energy_need - 50)/100, 5)));
+		var_set_string(res, format("%d acts.", MIN((p_ptr->csp + 100-p_ptr->energy_need - 50)/100, 5)));
 		break;
 	case SPELL_CAST:
 	{

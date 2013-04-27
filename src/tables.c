@@ -2312,58 +2312,75 @@ player_sex sex_info[MAX_SEXES] =
 demigod_type demigod_info[MAX_DEMIGOD_TYPES] = 
 {
 	{"Minor God", 
-		"Fathered by a minor god, you gain no special powers."},
+		"Fathered by a minor god, you gain no starting powers."},
 	{"Zeus", 
-		"Zeus, King of the gods and ruler of Mount Olympus, god of the Sky "
-		"and Thunder, and nominal husband of Hera.  You inherit elemental "
-		"protection and increased stature."},
+		"Zeus, King of the gods and ruler of Mount Olympus, is god of the Sky "
+		"and Thunder, and nominal husband of Hera.  You inherit increased stature "
+		"and your divine birth will be marked by your aura of electricity. You also "
+		"resist lightning."},
 	{"Poseidon", 
-		"Poseidon, Brother of Zeus, Lord of the Seas and Storm.  You inherit "
-		"elemental protection and corrosive attacks."},
+		"Poseidon, Brother of Zeus, is Lord of the Seas and Storm.  You inherit "
+		"elemental protection and corrosive attacks that melt the armor of your foes."},
 	{"Hades", 
-		"Hades, Ruler of the Underworld.  You gain resistance to nether forces and "
-		"increased fortitude."},
+		"Hades is Ruler of the Underworld.  You gain resistance to nether forces, "
+		"increased fortitude and have a firm grasp on your life and health."},
 	{"Athena", 
 		"Athena is the great goddess of wisdom and the protector of Athens. She was "
 		"born of Zeus and the Titan Metis, and her cunning far surpasses that of the "
-		"other deities.  You inherit great clarity of thought and magic."},
+		"other deities.  You inherit great clarity of thought and magic and will be "
+		"able to cast spells more reliably than other mortals. And should you fail to "
+		"cast a spell, you will pay a reduced casting cost rather than the full amount. "
+		"You have a firm grip on your mental prowess."},
 	{"Ares", 
 		"Ares is the bold son of Zeus and Hera, whose very name is feared and respected "
 		"by warriors and citizens alike. His legendary combat prowess exceeds that of "
 		"Zeus and Poseidon, but he is less skilled in wiles than the other Olympians.  "
-		"You inherit exceptional bonuses to combat."},
+		"You inherit exceptional bonuses to combat and have a firm grip on your strength. "
+		"Later in life, you will be able to fly into a berserk rage on command. However, "
+		"your lust for combat decreases your stealth as you call out challenges "
+		"to all that you meet. And your resistance to magic is suspect."},
 	{"Hermes", 
 		"Hermes, the Messenger, is the extremely cunning diplomat used by the Olympians "
 		"to negotiate truces. With his Winged Sandals and his powerful magic, there "
 		"is no place barred from him, and there is no way to detain him.  You inherit "
-		"great powers of motion."},
+		"great powers of motion and will never become slowed. Your stealth is better "
+		"than your brethren and your speed will increase with experience."},
 	{"Apollo", 
 		"Apollo has been variously recognized as a god of light and the sun, "
 		"truth and prophecy, medicine, healing, plague, music, poetry, arts, "
-		"archery, and more.  You inherit powers of illumination."},
+		"archery, and more.  You inherit powers of illumination and are completely "
+		"immune to light based attacks. You are seldom blinded."},
 	{"Artemis", 
 		"Artemis was often described as the daughter of Zeus and Leto, and the "
 		"twin sister of Apollo. She was the Hellenic goddess of the hunt, wild "
 		"animals, wilderness, childbirth, virginity and young girls, bringing "
 		"and relieving disease in women; she often was depicted as a huntress "
-		"carrying a bow and arrows.  You inherit powers of archery."}, 
+		"carrying a bow and arrows.  You inherit powers of archery and are very "
+		"nimble. Your skills with the bow are unmatched and you shoot arrows "
+		"with increased range and deadliness."}, 
 	{"Hephaestus", 
 		"Hephaestus was the god of technology, blacksmiths, craftsmen, artisans, "
 		"sculptors, metals, metallurgy, fire and volcanoes. Like other mythic smiths "
 		"but unlike most other gods, Hephaestus was lame, which gave him a "
 		"grotesque appearance in Greek eyes. He served as the blacksmith of the "
-		"gods.  You inherit powers of enchantment and protection."},
+		"gods.  You inherit powers of enchantment and protection. Your equipment "
+		"will not suffer diminution by corrosion or magical attack."},
 	{"Hera", 
 		"Hera was the wife and one of three sisters of Zeus.  Her chief function "
 		"was as the goddess of women and marriage.  You inherit great clarity of "
-		"mind and capacity for magic."},
+		"mind and capacity for magic. You are very wise and have a firm grasp on "
+		"your magical energy, which is even augmented."},
 	{"Demeter", 
 		"Demeter is the goddess of the harvest, who presided over grains, the "
 		"fertility of the earth, and the seasons.  You gain powers of regeneration, "
-		"healing, and temperance."},
+		"healing, and temperance. Eventually, you will become resistant to the "
+		"ravages of time."},
 	{"Aphrodite", 
 		"Aphrodite is the Greek goddess of love, beauty, pleasure, and procreation.  "
-		"You inherit her sex appeal!"},
+		"You inherit her sex appeal. As such, your pets are more obedient and shopkeepers "
+		"fawn over you in their efforts to please you. You may kiss monsters and they "
+		"might even decide to follow you with slavish devotion, though sometimes this "
+		"just angers them."},
 };
 
 /* Warlock Pacts */
@@ -2472,8 +2489,8 @@ player_seikaku seikaku_info[MAX_SEIKAKU] =
 
 	{
 		"Munchkin",
-		{ 10,  10,  10,  10,  10,  10 },
-		{20, 40, 30, 10, 40, 40,  80, 80},
+		{ 3,  3,  3,  3,  3,  3 },
+		{10, 20, 15, 5, 20, 20,  40, 40},
 		150, 1, 0, 50
 	},
 

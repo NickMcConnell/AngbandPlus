@@ -245,6 +245,8 @@ bool fear_save_p(int ml)
 	/* Immunity to Fear? */
 	if (!ml) return TRUE;
 	if (res_pct(RES_FEAR) >= 100) return TRUE;
+	if (IS_INVULN()) return TRUE;
+	if (IS_SHERO()) return TRUE;
 	if (p_ptr->pclass == CLASS_BERSERKER) return TRUE;
 	if (equip_find_artifact(ART_ARES)) return TRUE;
 

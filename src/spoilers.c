@@ -55,6 +55,11 @@ static void _race_help(FILE *fff, int idx)
 	fprintf(fff, "***** <%s>\n", race_ptr->name);
 	fprintf(fff, "--- %s ---\n\n", race_ptr->name);
 	_wrap_text(fff, race_ptr->desc, 2, 80);
+	if (idx == RACE_DEMIGOD)
+	{
+		fprintf(fff, "\n\n");
+		_wrap_text(fff, "See [a] for more details on demigod parentage.", 2, 80);
+	}
 
 	fprintf(fff, "\n\n");
 }
@@ -104,6 +109,8 @@ static void _races_help(FILE* fff)
 		);
 	}
 	fprintf(fff, "\n\n");
+	fprintf(fff, "***** [a] Demigods.txt\n");
+
 }
 
 static void _monster_races_help(FILE* fff)
@@ -205,6 +212,13 @@ static void _demigods_help(FILE* fff)
 	fprintf(fff, "\n\n");
 
 	fprintf(fff, "--- Table 3 - Demigod Special Powers ---\n\n");
+	_wrap_text(fff, 
+				"All demigods have access to special powers. When they reach level 20, they may choose "
+				"a single power from the following list. When they reach level, 40, they may choose another. "
+				"These powers can never be removed or changed, so you might want to study this list to "
+				"decide which powers you will choose for your character.", 
+				2, 80);
+	fprintf(fff, "\n");
 	for (i = 0; i < MAX_MUTATIONS; i++)
 	{
 		if (mut_demigod_pred(i))

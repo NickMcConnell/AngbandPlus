@@ -523,7 +523,7 @@ static struct {
 	{TERM_L_BLUE, "Fz", "Frenzy"},
 	{TERM_YELLOW, "Gj", "Genji"},
 	{TERM_L_BLUE, "Fc", "Force"},
-	{TERM_L_BLUE, "Ex", "Combat Expertise"},
+	{TERM_L_BLUE, "DS", "Defensive Stance"},
 	{TERM_UMBER, "SB", "Stone Bones"},
 	{TERM_L_BLUE, "Tr", "Trade Blows"},
 	{TERM_L_BLUE, "Pw", "Power Attack"},
@@ -3290,6 +3290,10 @@ void calc_bonuses(void)
 		p_ptr->weapon_info[i].base_blow = 1;
 		p_ptr->weapon_info[i].xtra_blow = 0;
 		p_ptr->weapon_info[i].dual_wield_pct = 1000;
+
+		p_ptr->weapon_info[i].heavy_wield = FALSE;
+		p_ptr->weapon_info[i].icky_wield = FALSE;
+		p_ptr->weapon_info[i].riding_wield = FALSE;
 	}
 	p_ptr->innate_attack_ct = 0;
 	p_ptr->innate_attack_info.to_dd = 0;
@@ -4504,11 +4508,23 @@ void calc_bonuses(void)
 					num = 4; wgt = 20; mul = 1; break;
 				case CLASS_MONSTER:
 				{
-					if (prace_is_(RACE_MON_LICH)) num = 4;
-					else if (prace_is_(RACE_MON_JELLY)) num = 6;
-					else if (prace_is_(RACE_MON_GIANT)) num = 6;
-					else num = 5;
-					wgt = 70; mul = 5; break;
+					num = 5; wgt = 70; mul = 5;
+					if (prace_is_(RACE_MON_LICH)) 
+					{
+						num = 4;
+						mul = 3;
+					}
+					else if (prace_is_(RACE_MON_JELLY))
+					{ 
+						num = 7;
+						mul = 5 + p_ptr->lev/24;
+					}
+					else if (prace_is_(RACE_MON_GIANT)) 
+					{
+						num = 6;
+						mul = 5 + p_ptr->lev/40;
+					}
+					break;
 				}
 			}
 

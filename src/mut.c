@@ -128,6 +128,7 @@ static mutation_info _mutations[MAX_MUTATIONS] =
 	{MUT_RATING_GOOD,				     0,			 0, 0, {0,  0,   0, demonic_grasp_mut}},
 	{MUT_RATING_GOOD,       MUT_TYPE_BONUS,			 0, 0, {0,  0,   0, weird_mind_mut}},
 	{MUT_RATING_GREAT,	    MUT_TYPE_ACTIVATION, A_STR, 0, {40, 50, 80, fantastic_frenzy_mut}},
+	{MUT_RATING_GOOD,				     0,			 0, 0, {0,  0,   0, black_marketeer_mut}},
 };
 
 int _mut_prob_gain(int i)
@@ -323,6 +324,13 @@ static void _mut_menu_fn(int cmd, int which, vptr cookie, variant *res)
 		var_set_string(res, buf);
 		break;
 	}
+	case MENU_HELP:
+	{
+		char buf[255];
+		mut_help_desc(idx, buf);
+		var_set_string(res, buf);
+		break;
+	}
 	default:
 		default_menu(cmd, which, cookie, res);
 	}
@@ -460,6 +468,8 @@ bool mut_bad_pred(int mut_idx)
 	return TRUE;
 }
 
+/* Note: I am only toying with the idea of restricting Human talents.
+   Currently, they are still using mut_demigod_pred */
 bool mut_human_pred(int mut_idx)
 {
 	switch (mut_idx)
@@ -475,6 +485,7 @@ bool mut_human_pred(int mut_idx)
 	case MUT_SACRED_VITALITY:
 	case MUT_CULT_OF_PERSONALITY:
 	case MUT_WEIRD_MIND:
+	case MUT_BLACK_MARKETEER:
 		return TRUE;
 		break;
 	}
@@ -509,6 +520,7 @@ bool mut_demigod_pred(int mut_idx)
 	case MUT_FLEET_OF_FOOT:
 	case MUT_DEMONIC_GRASP:
 	case MUT_WEIRD_MIND:
+	case MUT_BLACK_MARKETEER:
 		return TRUE;
 		break;
 

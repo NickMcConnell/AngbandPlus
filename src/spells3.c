@@ -1844,7 +1844,7 @@ bool alchemy(void)
 {
 	int item, amt = 1;
 	int old_number;
-	long price;
+	int price;
 	bool force = FALSE;
 	object_type *o_ptr;
 	char o_name[MAX_NLEN];
@@ -1930,13 +1930,7 @@ sprintf(out_val, "本当に%sを金に変えますか？", o_name);
 
 	if (price <= 0)
 	{
-		/* Message */
-#ifdef JP
-msg_format("%sをニセの金に変えた。", o_name);
-#else
 		msg_format("You turn %s to fool's gold.", o_name);
-#endif
-
 	}
 	else
 	{
@@ -1945,11 +1939,7 @@ msg_format("%sをニセの金に変えた。", o_name);
 		if (amt > 1) price *= amt;
 
 		if (price > 30000) price = 30000;
-#ifdef JP
-msg_format("%sを＄%d の金に変えた。", o_name, price);
-#else
-		msg_format("You turn %s to %ld coins worth of gold.", o_name, price);
-#endif
+		msg_format("You turn %s to %d coins worth of gold.", o_name, price);
 
 		p_ptr->au += price;
 

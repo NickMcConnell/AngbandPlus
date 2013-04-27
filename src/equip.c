@@ -763,6 +763,12 @@ static void _weaponmastery(int idx, int amt)
 	case EQUIP_SLOT_ANY:
 		p_ptr->weapon_info[hand].to_dd += amt;
 		break;
+	default: /* At the moment, this is just the Robe of the Kamikaze Warrior (+2) */
+		for (hand = 0; hand < MAX_HANDS; hand++)
+		{
+			if (p_ptr->weapon_info[hand].wield_how != WIELD_NONE)
+				p_ptr->weapon_info[hand].to_dd += amt / p_ptr->weapon_ct;
+		}
 	}
 }
 

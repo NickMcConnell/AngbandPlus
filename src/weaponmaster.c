@@ -536,7 +536,7 @@ static void _combat_expertise_spell(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, "Combat Expertise");
+		var_set_string(res, "Defensive Stance");
 		break;
 	case SPELL_DESC:
 		var_set_string(res, "You lose accuracy but gain armor class.");
@@ -689,6 +689,7 @@ static bool _club_toss(int hand)
 
 	/* Pick a target */
 	info.mult = 1 + NUM_BLOWS(hand);
+	if (p_ptr->mighty_throw) info.mult++;
 	{
 		int mul, div;
 		mul = 10 + 2 * (info.mult - 1);
@@ -1198,6 +1199,7 @@ static bool _dagger_toss(int hand)
 
 	/* Pick a target */
 	info.mult = NUM_BLOWS(hand);
+	if (p_ptr->mighty_throw) info.mult++;
 	{
 		int mul, div;
 		mul = 10 + 2 * (info.mult - 1);
@@ -2929,7 +2931,7 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
 		  { 0, 0 },
 		},
 		{ {  5,   0,  0, _combat_expertise_spell },
-		  { 10,   0,  0, _throw_weapon_spell },
+		  { 10,   5,  0, _throw_weapon_spell },
 		  { 15,  10,  0, _cunning_strike_spell },
 		  { 25,  20, 50, _judge_spell },
 		  { 25,  15, 40, _smash_ground_spell },
@@ -3084,7 +3086,7 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
 		  {
 			{ 10,  0, 0, _flurry_of_blows_spell },
 			{ 15, 15, 0, _vault_attack_spell },
-			{ 25,  20, 50, _judge_spell },
+			{ 25, 20,50, _judge_spell },
 			{ 25, 25, 0, _circle_kick_spell },
 			{ 30,  0, 0, _greater_flurry_spell },
 			{ 40,  0, 0, _monkey_king_spell },
@@ -3858,8 +3860,8 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 		switch (_get_toggle())
 		{
 		case TOGGLE_COMBAT_EXPERTISE:
-			info_ptr->to_h -= p_ptr->lev;
-			info_ptr->dis_to_h -= p_ptr->lev;
+			info_ptr->to_h -= 5 + p_ptr->lev/2;
+			info_ptr->dis_to_h -= 5 + p_ptr->lev/2;
 			break;
 		}
 	}
@@ -4068,7 +4070,7 @@ static void _move_player(void)
 
 static void _character_dump(FILE* file)
 {
-	fprintf(file, "\n\n================================== Abilities ==================================\n");
+	fprintf(file, "\n\n================================== Abilities ==================================\n\n");
 	
 	if (p_ptr->psubclass == WEAPONMASTER_AXES)
 	{
@@ -4184,6 +4186,15 @@ static void _character_dump(FILE* file)
 			fprintf(file, "  * You gain constant heroism when wielding a sword.\n");
 		if (p_ptr->lev >= 45)
 			fprintf(file, "  * You gain vorpal attacks when wielding a sword.\n");
+	}
+
+	fprintf(file, "\n");
+
+	{
+		spell_info spells[MAX_SPELLS];
+		int        ct = _get_spells(spells, MAX_SPELLS);
+
+		dump_spells_aux(file, spells, ct);
 	}
 }
 
