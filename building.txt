@@ -34,10 +34,49 @@ Run
 
 You can now run ToME from anywhere.
 
-NOTE: The user running ToME must have write access to the
-install location's lib/data subdirectory for the first run.
-(This is because the *.raw files will be generated the first
-time ToME is run.)
+You can also use DESTDIR when installing to a different location
+(useful with e.g. stow or when building distribution packages).
 
-You can also use DESTDIR when installing to install into a different
-location (useful with e.g. stow or when building distribution packages).
+
+Compiling on Ubuntu
+===================
+
+If you're having trouble compiling on an Ubuntu install you are
+probably missing the
+
+    build-essential
+
+package.
+
+Each frontend requires the additional packages listed below:
+
+   X11: libx11-dev
+   SDL: libsdl-image1.2-dev, libsdl-ttf2.0-dev
+   ncurses: libncurses5-dev
+
+
+Compiling on OpenBSD
+====================
+
+As of February 2010, the OpenBSD package cmake-2.4.8p2 is too old for
+building ToME. You may need to compile a newer version of CMake.
+
+If you have X11, then a bug in CMake may cause a linker error when
+linking the 'tome' executable. As a workaround, set the environment
+variable LDFLAGS=-L/usr/X11R6/lib when running CMake. Example:
+
+       $ env LDFLAGS=-L/usr/X11R6/lib cmake .
+       $ make
+
+The SDL frontend also requires these packages: sdl-image, sdl-ttf
+
+
+Compiling on Windows using MinGW
+================================
+
+(See http://www.mingw.org/)
+
+To compile on Windows using MinGW, use the commands
+
+       $ cmake -G "MinGW Makefiles"
+       $ mingw32-make
