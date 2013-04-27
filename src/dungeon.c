@@ -34,11 +34,14 @@ static byte value_check_aux1(const object_type *o_ptr)
 	/* Ego-Items */
 	if (ego_item_p(o_ptr))
 	{
-		/* Ego items with negative pvals or flags like aggravate or teleport */
-		if (!o_ptr->cost)
+		ego_item_type *e_ptr = &e_info[o_ptr->e_idx];
+
+		/* Ego items that are inherently cursed are "worthless" */
+		if (FLAG(e_ptr, TR_CURSED))
 		{
 			return FEEL_WORTHLESS;
 		}
+		/* Ego items that are cursed but not inherently are "tainted" */
 		else if (cursed_p(o_ptr))
 		{
 			return FEEL_TAINTED;
@@ -1559,7 +1562,7 @@ static void process_world(void)
 
 
 	/*** Process Inventory ***/
-	
+
 	/* Handle experience draining */
 	if (FLAG(p_ptr, TR_DRAIN_EXP))
 	{
@@ -1780,6 +1783,8 @@ static void process_world(void)
 	/* Delayed Word-of-Recall */
 	if (p_ptr->tim.word_recall)
 	{
+		place_type *pl_ptr;
+
 		/*
 		 * HACK: Autosave BEFORE resetting the recall counter (rr9)
 		 * The player is yanked up/down as soon as
@@ -1794,7 +1799,22 @@ static void process_world(void)
 		p_ptr->redraw |= (PR_STATUS);
 
 		/* Hack - no recalling in the middle of the wilderness */
-		if ((!p_ptr->depth) && (!p_ptr->place_num)) return;
+		if ((!p_ptr->depth) && (!p_ptr->place_num)) 
+		{
+			if (!p_ptr->tim.word_recall)
+				msgf("You feel a momentary yank downwards, but it passes."); 
+			return;
+		}
+
+		pl_ptr = &place[p_ptr->place_num];
+
+		/* No recalling if there's no dungeon, etc. */
+		if (!pl_ptr->dungeon || !(pl_ptr->dungeon->recall_depth))
+		{
+			if (!p_ptr->tim.word_recall)
+				msgf("You feel a momentary yank downwards, but it passes."); 
+			return;
+		}
 
 		/* Activate the recall */
 		if (!p_ptr->tim.word_recall)

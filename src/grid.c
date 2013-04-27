@@ -482,7 +482,7 @@ void generate_draw(int x1, int y1, int x2, int y2, int feat)
 void generate_line(int x1, int y1, int x2, int y2, int feat)
 {
 	int i;
-	
+
 	if (x1 == x2)
 	{
 		for (i = y1; i <= y2; i++)
@@ -1761,7 +1761,7 @@ static void cave_fill(int x, int y)
 {
 	int i, j, d;
 	int ty, tx;
-	
+
 	int flow_tail = 1;
 	int flow_head = 0;
 

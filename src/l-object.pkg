@@ -335,6 +335,16 @@ struct bonuses_type
 };
 
 
+struct object_memory_type
+{
+	byte type;			/* What kind of memory: dropped by a monster, found on the floor, etc. */
+	u16b place_num;  	/* Place it was found in */
+	byte depth; 		/* Depth it was found at */
+	u32b data;			/* Other data about the find */
+};
+
+#define OM_SCROLL 	7
+
 /***** Functions *****/
 
 extern bool item_tester_hook_weapon(const object_type *o_ptr);
@@ -362,3 +372,4 @@ extern void acquirement(int x1, int y1, int num, bool great, bool known);
 extern void ring_of_power(int dir);
 extern bool create_artifact(object_type *o_ptr, int level, bool a_scroll);
 extern bool mushroom_chaos(void);
+extern object_memory_type current_object_source;

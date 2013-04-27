@@ -75,7 +75,7 @@
 
 # Version stamp (required)
 
-V:0.2.0
+V:0.2.1
 
 
 ##### Something special #####
@@ -856,7 +856,7 @@ G:{:U
 I:17:1:0
 W:10:0:2:5
 A:10/20:17/2:43/2
-P:0:1d12:0:0:0
+P:0:1d10:0:0:0
 F:SHOW_MODS
 D:A standard arrow.
 
@@ -865,7 +865,7 @@ G:{:G
 I:17:2:0
 W:50:0:2:50
 A:50/20:80/2:90/1:105/1
-P:0:1d20:0:0:0
+P:0:1d18:0:0:0
 F:SHOW_MODS
 D:This arrow has a superior flight.
 
@@ -1550,7 +1550,6 @@ I:45:22:0
 W:30:0:2:250
 A:30/3:52/1
 F:SEE_INVIS | EASY_KNOW
-D:You can only just see this ring.
 
 N:156:Sustain Physique
 G:=:d
@@ -1572,8 +1571,8 @@ I:45:12:0
 W:32:0:2:800
 A:32/8:64/8
 F:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR
-F:HOLD_LIFE | EASY_KNOW
-L:MAKE: if (one_in_(40)) then create_artifact(object, level/3, FALSE) end
+F:HOLD_LIFE
+L:MAKE: if (one_in_(40) ~= 0) then create_artifact(object, level/3, FALSE) end
 
 N:159:Sustain Youth
 G:=:d
@@ -1587,7 +1586,7 @@ G:=:d
 I:45:14:2
 W:30:0:2:500
 A:30/1
-F:SPEED | FEATHER | EASY_KNOW | HIDE_TYPE
+F:SPEED | FEATHER | HIDE_TYPE
 D:This ring almost vibrates with power.
 L:MAKE: object.pval = 1 + m_bonus(object.pval, level)
 L:MAKE: allow_curse = TRUE
@@ -1666,7 +1665,7 @@ G:":d
 I:40:2:0
 W:33:0:3:10
 A:33/3
-F:AGGRAVATE | EASY_KNOW
+F:AGGRAVATE
 L:MAKE: object.to_d = randint1(7) + m_bonus(10, level)
 L:MAKE: object.to_h = randint1(7) + m_bonus(10, level)
 L:MAKE: object.to_a = -(rand_range(5, 10))
@@ -1812,7 +1811,7 @@ W:0:0:5:15
 A:0/1:5/1
 F:EASY_KNOW
 L:USE:  ident = lite_area(damroll(2, 8), 2)
-D:This scroll lights the room you are in. It also deals a small amount
+D:This scroll lights the room you are in.  It also deals a small amount 
 D:of damage to nearby creatures that are vulnerable to light.
 
 N:182:Fire
@@ -1847,7 +1846,7 @@ I:70:4:0
 W:1:0:5:0
 A:1/1
 F:EASY_KNOW
-L:USE:  ident = summon_monsters(randint1(3), 0)
+L:USE:  ident = summon_monsters_near_player(randint1(3), 0)
 D:This scroll summons monsters from elsewhere... and they won't
 D:be happy about it!
 
@@ -1966,7 +1965,7 @@ G:{:o
 I:17:2:0
 W:35:0:4:20
 A:35/5:52/3:75/1
-P:0:1d16:0:0:0
+P:0:1d14:0:0:0
 F:SHOW_MODS
 D:An arrow with detailed work on it.
 
@@ -1996,6 +1995,10 @@ I:70:46:0
 W:50:0:5:100000
 A:35/8
 F:EASY_KNOW
+L:USE:  current_object_source.type = OM_SCROLL
+L:USE:  current_object_source.place_num = player.place_num
+L:USE:  current_object_source.depth = player.depth
+L:USE:  current_object_source.data = 198
 L:USE:  acquirement(player.px, player.py, 1, TRUE, FALSE)
 L:USE:  ident = TRUE
 D:This scroll transports a powerful item to your location.
@@ -2007,6 +2010,10 @@ I:70:47:0
 W:90:0:5:200000
 A:90/16
 F:EASY_KNOW
+L:USE:  current_object_source.type = OM_SCROLL
+L:USE:  current_object_source.place_num = player.place_num
+L:USE:  current_object_source.depth = player.depth
+L:USE:  current_object_source.data = 199
 L:USE:  acquirement(player.px, player.py, rand_range(2, 3), TRUE, FALSE)
 L:USE:  ident = TRUE
 D:This scroll transports several powerful items to your location.
@@ -2030,7 +2037,7 @@ I:70:30:0
 W:1:0:5:15
 A:1/2
 F:EASY_KNOW
-L:USE: ident = detect_monsters_invis() end
+L:USE: ident = detect_monsters_invis()
 D:This scroll magically detects nearby invisible monsters.
 
 N:202:Aggravate Monster
@@ -2185,7 +2192,7 @@ I:70:5:0
 W:15:0:5:0
 A:26/1
 F:EASY_KNOW
-L:USE:  ident = summon_monsters(randint1(3), SUMMON_UNDEAD)
+L:USE:  ident = summon_monsters_near_player(randint1(3), SUMMON_UNDEAD)
 D:This scroll summons several undead monsters to your location.
 D:They won't be happy about being summoned.
 
@@ -2469,8 +2476,7 @@ L:USE:  if clear_stun() then ident = TRUE end
 L:USE:  if clear_cut() then ident = TRUE end
 L:SMASH:project(who, 2, x, y, damroll(6, 3), GF_OLD_HEAL,
 L:SMASH:    (PROJECT_JUMP + PROJECT_ITEM + PROJECT_KILL)); return FALSE,TRUE
-D:This potion cures stunning and cuts, and
-D:restores 150 hit points.
+D:This potion cures stunning and cuts, and restores 150 hit points.
 
 N:242:Healing
 G:!:d
@@ -2484,8 +2490,7 @@ L:USE:  if clear_stun() then ident = TRUE end
 L:USE:  if clear_cut() then ident = TRUE end
 L:SMASH:project(who, 2, x, y, damroll(10, 10), GF_OLD_HEAL,
 L:SMASH:    (PROJECT_JUMP + PROJECT_ITEM + PROJECT_KILL)); return FALSE,TRUE
-D:This potion cures cuts and stunning, and
-D:restores 300 hit points.
+D:This potion cures cuts and stunning, and restores 300 hit points.
 
 N:243:Constitution
 G:!:d
@@ -2578,7 +2583,7 @@ L:USE:  ident = res_pois_lvl() ~= 0 and inc_poisoned(rand_range(10, 25))
 L:SMASH:project(who, 2, x, y, damroll(3, 6), GF_POIS,
 L:SMASH:    (PROJECT_JUMP + PROJECT_ITEM + PROJECT_KILL)); return TRUE,TRUE
 D:This potion poisons you if you drink it.  If it is thrown and shatters,
-D:it deals 3d6 damage to monsters caught in the splash area.
+D: it deals 3d6 damage to monsters caught in the splash area.
 
 N:249:Speed
 G:!:d
@@ -2663,7 +2668,7 @@ L:USE:  inc_paralyzed(4)
 L:USE:  ident = TRUE
 L:SMASH:return TRUE,FALSE
 D:This alchemical concoction is used to treat poisoning victims by
-D:making them vomit.
+D: making them vomit.
 
 N:256:Enlightenment
 G:!:d
@@ -2687,7 +2692,7 @@ F:EASY_KNOW
 L:USE:  ident = clear_afraid()
 L:USE:  if inc_hero(rand_range(25, 50)) then ident = TRUE end
 L:USE:  if hp_player(10) then ident = TRUE end
-D:This potion makes you more heroic for 25-50 turns, increasing your
+D:This potion makes you more heroic for 25-50 turns, increasing your 
 D:weapon skill.  It also cures you of fear, and heals you slightly.
 
 N:258:Berserk Strength
@@ -2700,8 +2705,8 @@ F:EASY_KNOW
 L:USE:  ident = clear_afraid()
 L:USE:  if inc_shero(rand_range(25, 50)) then ident = TRUE end
 L:USE:  if hp_player(30) then ident = TRUE end
-D:This potion makes you go berserk for 25-50 turns, increasing your
-D:weapon skill but making you easier to hit.  It also restores
+D:This potion makes you go berserk for 25-50 turns, increasing your 
+D:weapon skill but making you easier to hit.  It also restores 
 D:30 hit points and cures you of fear.
 
 N:259:Boldness
@@ -2732,7 +2737,7 @@ A:4/5:15/1:30/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
 L:USE:  ident = inc_oppose_fire(rand_range(10, 20))
-D:This potion grants temporary resistance to fire (10-20 turns).
+D:This potion grants temporary resistance to fire (10-20 turns).  
 D:This resistance stacks with that given by items.
 
 N:262:Resist Cold
@@ -2743,7 +2748,7 @@ A:4/5:15/1:30/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
 L:USE:  ident = inc_oppose_cold(rand_range(10, 20))
-D:This potion grants temporary resistance to cold (10-20 turns).
+D:This potion grants temporary resistance to cold (10-20 turns).  
 D:This resistance stacks with that given by items.
 
 N:263:Detect Invisible
@@ -2813,8 +2818,8 @@ L:USE:  inc_oppose_fire(rand_range(20, 40))
 L:USE:  inc_oppose_cold(rand_range(20, 40))
 L:USE:  inc_oppose_pois(rand_range(20, 40))
 L:USE:  ident = TRUE
-D:This potion grants resistance to acid, lightning, fire, cold,
-D:and poison for 20-40 turns.  This resistance stacks with that
+D:This potion grants resistance to acid, lightning, fire, cold, 
+D:and poison for 20-40 turns.  This resistance stacks with that 
 D:granted by items.
 
 ##### Wands #####
@@ -2828,7 +2833,7 @@ P:0:1d1:0:0:0
 L:USE:  msgf("A line of blue shimmering light appears.")
 L:USE:  lite_line(dir, damroll(6, 8))
 L:USE:  ident = TRUE
-D:This wand creates a line of light that deals 6d8 damage to
+D:This wand creates a line of light that deals 6d8 damage to 
 D:susceptible monsters.
 
 N:270:Tame Monster
@@ -2875,7 +2880,7 @@ W:25:0:10:300
 A:25/2
 P:0:1d1:0:0:0
 L:USE:  ident = poly_monster(dir)
-D:This wand polymorphs a monster into a new random monster.
+D:This wand polymorphs a monster into a new random monster.  
 D:It won't affect unique monsters.
 
 N:275:Heal Monster
@@ -2894,7 +2899,7 @@ W:2:0:10:50
 A:4/2
 P:0:1d1:0:0:0
 L:USE:  ident = speed_monster(dir)
-D:This wand permanently increases a monster's speed.
+D:This wand permanently increases a monster's speed.  
 D:It won't work on a monster that's already hasted.
 
 N:277:Slow Monster
@@ -2976,7 +2981,7 @@ W:20:0:10:350
 A:20/1
 P:0:1d1:0:0:0
 L:USE:  ident = teleport_monster(dir)
-D:This wand teleports away all monsters caught in the beam.
+D:This wand teleports away all monsters caught in the beam.  
 D:Teleported monsters reappear elsewhere on the same level.
 
 N:286:Disarming
@@ -3186,8 +3191,8 @@ I:55:3:5
 W:10:0:50:0
 A:17/4:55/1
 P:0:1d2:0:0:0
-L:USE:  ident = summon_monsters(randint1(4), 0)
-D:This staff summons several monsters to your location.
+L:USE:  ident = summon_monsters_near_player(randint1(4), 0)
+D:This staff summons several monsters to your location.  
 D:The monsters summoned will not be pleased.
 
 N:306:Light
@@ -3197,7 +3202,7 @@ W:5:0:50:250
 A:7/1
 P:0:1d2:0:0:0
 L:USE:  ident = lite_area(damroll(2, 8), 2)
-D:This staff lights the room you are in and deals some damage to nearby
+D:This staff lights the room you are in and deals some damage to nearby 
 D:monsters that are vulnerable to light.
 
 N:307:*Destruction*
@@ -3207,7 +3212,7 @@ W:80:0:50:5000
 A:80/1:100/1
 P:0:1d2:0:0:0
 L:USE:  ident = destroy_area(player.px, player.py, 15)
-D:This staff destroys the nearby dungeon, turning it into a jumble
+D:This staff destroys the nearby dungeon, turning it into a jumble 
 D:of blasted rock.
 
 N:308:Starlight
@@ -3221,7 +3226,7 @@ L:USE:          msgf("The end of the staff glows brightly...")
 L:USE:  end
 L:USE:  starlite()
 L:USE:  ident = TRUE
-D:This staff shoots several rays of light in random directions.
+D:This staff shoots several rays of light in random directions.  
 D:Each ray deals 6d8 damage to vulnerable monsters caught in the beam.
 
 N:309:Haste Monsters
@@ -3231,7 +3236,7 @@ W:10:0:50:0
 A:17/2
 P:0:1d2:0:0:0
 L:USE:  ident = speed_monsters()
-D:This staff permanently increases the speed of all nearby monsters.
+D:This staff permanently increases the speed of all nearby monsters.  
 D:Monsters that are already hasted aren't affected.
 
 N:310:Slow Monsters
@@ -3241,7 +3246,7 @@ W:17:0:50:400
 A:17/2
 P:0:1d2:0:0:0
 L:USE:  ident = slow_monsters()
-D:This staff permanently decreases the speed of all nearby monsters.
+D:This staff permanently decreases the speed of all nearby monsters.  
 D:Monsters that are already slowed aren't affected.
 
 N:311:Sleep Monsters
@@ -3253,7 +3258,7 @@ P:0:1d2:0:0:0
 L:USE:  ident = sleep_monsters()
 D:This staff puts all nearby monsters to sleep.
 
-N:312:Cure Light Wounds
+N:312:Cure Medium Wounds
 G:_:d
 I:55:16:12
 W:5:0:50:400
@@ -3309,7 +3314,7 @@ L:USE:  ident = remove_curse()
 L:USE:  if ident and player.tim.blind == 0 then
 L:USE:          msgf("The staff glows blue for a moment...")
 L:USE:  end
-D:This staff removes curses from equipment, allowing you to take
+D:This staff removes curses from equipment, allowing you to take 
 D:it off.  It might not affect powerful curses.
 
 N:318:Detection
@@ -3328,7 +3333,7 @@ W:33:0:50:500
 A:33/4
 P:0:1d2:0:0:0
 L:USE:  ident = do_curing()
-D:This staff cures blindness, confusion, poison, cuts, and
+D:This staff cures blindness, confusion, poison, cuts, and 
 D:hallucination, and restores 200 hit points.
 
 N:320:Dispel Evil
@@ -3358,7 +3363,7 @@ P:0:1d2:0:0:0
 L:USE:  ident = not player_res(TR1_RES_BLIND) and not player_res(TR1_RES_DARK)
 L:USE:          and inc_blind(rand_range(4, 8))
 L:USE:  if unlite_area(10, 3) then ident = TRUE end
-D:This staff creates a sphere of magical darkness.  It also causes
+D:This staff creates a sphere of magical darkness.  It also causes 
 D:temporary blindness.
 
 N:323:Genocide
@@ -3369,8 +3374,8 @@ A:95/4
 P:0:1d2:0:0:0
 L:USE:  genocide(TRUE)
 L:USE:  ident = TRUE
-D:This staff completely destroys all monsters on the current dungeon level
-D:of a single letter you select.  You don't get experience or treasure
+D:This staff completely destroys all monsters on the current dungeon level 
+D:of a single letter you select.  You don't get experience or treasure 
 D:from those monsters.
 
 N:324:Power
@@ -3416,8 +3421,8 @@ L:USE:  if clear_afraid() then ident = TRUE end
 L:USE:  if hp_player(50) then ident = TRUE end
 L:USE:  if clear_stun() then ident = TRUE end
 L:USE:  if clear_cut() then ident = TRUE end
-D:This staff has many beneficial effects.  It deals 300 damage to nearby
-D:evil monsters; grants temporary protection from evil; cures poison, fear,
+D:This staff has many beneficial effects.  It deals 300 damage to nearby 
+D:evil monsters; grants temporary protection from evil; cures poison, fear, 
 D:stunning, and cuts; and restores 50 hit points.
 
 N:328:Enlightenment
@@ -3451,7 +3456,7 @@ W:17:0:30:100
 A:17/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
-D:A small, light-gray book, containing the simplest of good prayers
+D:A small, light-gray book, containing the simplest of good prayers 
 D:to lighten the way.
 L:MAKE:  if level > 70 and (one_in_(60) ~= 0) then
 L:MAKE:    set_obj_flag(object, 2, TR2_IGNORE_FIRE) end
@@ -3463,7 +3468,7 @@ W:20:0:30:1000
 A:35/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
-D:A white book with invocations of healing, protection and
+D:A white book with invocations of healing, protection and 
 D:fighting evil.
 L:MAKE:  if level > 70 and (one_in_(60) ~= 0) then
 L:MAKE:    set_obj_flag(object, 2, TR2_IGNORE_FIRE) end
@@ -3495,7 +3500,7 @@ W:17:0:30:100
 A:17/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
-D:A small light-blue book with simple sorcerous spells of detection,
+D:A small light-blue book with simple sorcerous spells of detection, 
 D:teleportation and clouding the minds of your foes.
 L:MAKE:  if level > 70 and (one_in_(60) ~= 0) then
 L:MAKE:    set_obj_flag(object, 2, TR2_IGNORE_FIRE) end
@@ -3507,7 +3512,7 @@ W:20:0:30:1000
 A:35/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
-D:A blue book containing sorcerous spells of knowledge, speed,
+D:A blue book containing sorcerous spells of knowledge, speed, 
 D:and hindering your enemies.
 L:MAKE:  if level > 70 and (one_in_(60) ~= 0) then
 L:MAKE:    set_obj_flag(object, 2, TR2_IGNORE_FIRE) end
@@ -3530,7 +3535,7 @@ A:95/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
-D:A mighty grimoire glowing with eldritch blue from the magics
+D:A mighty grimoire glowing with eldritch blue from the magics 
 D:it contains.
 
 ##### Chests #####
@@ -3627,7 +3632,7 @@ W:1:0:10:3
 A:1/1:7/1:15/1
 P:0:2d6:0:0:0
 F:EASY_KNOW
-D:Empty this flask in a lantern to keep it fueled.
+D:Empty this flask in a lantern to keep it fueled.  
 D:Or throw it at a monster which doesn't like fire.
 
 N:349:& Empty Bottle~
@@ -3689,8 +3694,8 @@ A:26/8:52/4
 P:0:1d1:0:0:0
 F:EASY_KNOW
 L:USE:  word_of_recall(); ident = TRUE
-D:This rod has two effects.  If used in the dungeon, it takes you to
-D:the surface.  If used near a dungeon entrance, it takes you to the depth
+D:This rod has two effects.  If used in the dungeon, it takes you to 
+D:the surface.  If used near a dungeon entrance, it takes you to the depth 
 D:you last recalled out from.
 
 N:355:Illumination
@@ -3701,7 +3706,7 @@ A:15/2
 P:0:1d1:0:0:0
 F:EASY_KNOW
 L:USE:  ident = lite_area(damroll(4, 8), 2)
-D:This rod lights the room you are in and deals damage to nearby monsters
+D:This rod lights the room you are in and deals damage to nearby monsters 
 D:that are vulnerable to light.
 
 N:356:Light
@@ -3713,7 +3718,7 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 L:USE:  msgf("A line of blue shimmering light appears.")
 L:USE:  lite_line(dir, damroll(6, 8)); ident = TRUE
-D:This rod creates a line of light that deals 6d8 damage to vulnerable
+D:This rod creates a line of light that deals 6d8 damage to vulnerable 
 D:monsters.
 
 N:357:Lightning Bolts
@@ -3754,7 +3759,7 @@ A:28/2
 P:0:1d1:0:0:0
 F:EASY_KNOW
 L:USE:  if poly_monster(dir) then ident = TRUE end
-D:This rod transforms a monster into another random monster.
+D:This rod transforms a monster into another random monster.  
 D:It doesn't work on uniques.
 
 N:361:Slow Monster
@@ -3765,7 +3770,7 @@ A:26/2
 P:0:1d1:0:0:0
 F:EASY_KNOW
 L:USE:  if slow_monster(dir) then ident = TRUE end
-D:This rod reduces a monster's speed.  It doesn't work
+D:This rod reduces a monster's speed.  It doesn't work 
 D:on a monster that's already slowed.
 
 N:362:Sleep Monster
@@ -3796,7 +3801,7 @@ A:40/4:70/2
 P:0:1d1:0:0:0
 F:EASY_KNOW
 L:USE:  if teleport_monster(dir) then ident = TRUE end
-D:This rod teleports monsters away in a straight line.  Teleported
+D:This rod teleports monsters away in a straight line.  Teleported 
 D:monsters appear elsewhere on the same level.
 
 N:365:Disarming
@@ -3887,7 +3892,7 @@ A:58/8:90/4
 P:0:1d1:0:0:0
 F:EASY_KNOW
 L:USE:  ident = do_curing()
-D:This rod cures blindness, confusion, poison, cuts, and hallucination,
+D:This rod cures blindness, confusion, poison, cuts, and hallucination, 
 D:and restores 200 hit points.
 
 N:374:Healing
@@ -3910,8 +3915,7 @@ A:26/16:52/8
 P:0:1d1:0:0:0
 F:EASY_KNOW
 L:USE:  if detect_all() then ident = TRUE end
-D:This rod magically detects nearby doors, traps, stairs, items, and
-D:monsters.
+D:This rod magically detects nearby doors, traps, stairs, items, and monsters.
 
 N:376:Restoration
 G:-:d
@@ -3953,7 +3957,7 @@ W:17:0:30:100
 A:17/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
-D:A small, light-green book with nature rites of detection, curing,
+D:A small, light-green book with nature rites of detection, curing, 
 D:and other aid.
 L:MAKE:  if level > 70 and (one_in_(60) ~= 0) then
 L:MAKE:    set_obj_flag(object, 2, TR2_IGNORE_FIRE) end
@@ -3965,7 +3969,7 @@ W:20:0:30:1000
 A:35/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
-D:A green book with rites showing both the power and enlightenment
+D:A green book with rites showing both the power and enlightenment 
 D:of nature's magics.
 L:MAKE:  if level > 70 and (one_in_(60) ~= 0) then
 L:MAKE:    set_obj_flag(object, 2, TR2_IGNORE_FIRE) end
@@ -3978,7 +3982,7 @@ A:75/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
-D:A sheaf of papers in deep-green leather bindings, filled with
+D:A sheaf of papers in deep-green leather bindings, filled with 
 D:powerful spells of nature's protection.
 
 N:382:[Nature's Wrath]
@@ -3989,7 +3993,7 @@ A:100/2
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
-D:A mottled-green grimoire, vibrating with the power of nature's
+D:A mottled-green grimoire, vibrating with the power of nature's 
 D:destructive magics.
 
 N:383:[Sign of Chaos]
@@ -4022,7 +4026,7 @@ A:75/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
-D:A deep-red codex, filled with ways of manifesting chaos upon this
+D:A deep-red codex, filled with ways of manifesting chaos upon this 
 D:reality or even twisting life and reality itself.
 
 N:386:[Armageddon Tome]
@@ -4033,7 +4037,7 @@ A:105/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
-D:A fiery-red tome that sizzles with power, barely holding in check
+D:A fiery-red tome that sizzles with power, barely holding in check 
 D:the most destructive magics imaginable.
 
 N:387:[Black Prayers]
@@ -4054,7 +4058,7 @@ W:20:0:30:1000
 A:35/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
-D:A black book with many evil incantations and spells of pain, terror,
+D:A black book with many evil incantations and spells of pain, terror, 
 D:and death.
 L:MAKE:  if level > 70 and (one_in_(60) ~= 0) then
 L:MAKE:    set_obj_flag(object, 2, TR2_IGNORE_FIRE) end
@@ -4172,7 +4176,7 @@ W:60:0:200:17500
 A:60/8
 P:30:2d4:-2:0:10
 F:RES_ACID |
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
+F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 L:USE:  local success; local dir; success, dir = get_aim_dir()
 L:USE:  if not success then return end
 L:USE:  msgf("You breathe acid.")
@@ -4187,7 +4191,7 @@ W:40:0:200:15000
 A:40/8
 P:30:2d4:-2:0:10
 F:RES_ELEC |
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
+F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 L:USE:  local success; local dir; success, dir = get_aim_dir()
 L:USE:  if not success then return end
 L:USE:  msgf("You breathe lightning.")
@@ -4231,7 +4235,7 @@ I:38:5:0
 W:70:0:200:40000
 A:70/8
 P:30:2d4:-2:0:10
-F:RES_POIS | EASY_KNOW |
+F:RES_POIS | 
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 L:USE:  local success; local dir; success, dir = get_aim_dir()
 L:USE:  if not success then return end
@@ -4246,7 +4250,7 @@ I:38:6:0
 W:100:0:200:75000
 A:100/16
 P:30:2d4:-2:0:10
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | EASY_KNOW |
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | 
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 L:USE:  local success; local dir; success, dir = get_aim_dir()
 L:USE:  if not success then return end
@@ -4269,7 +4273,7 @@ I:38:10:0
 W:65:0:200:30000
 A:65/16
 P:30:2d4:-2:0:10
-F:RES_LITE | RES_DARK | EASY_KNOW |
+F:RES_LITE | RES_DARK | 
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 L:USE:  local success; local dir; success, dir = get_aim_dir()
 L:USE:  if not success then return end
@@ -4289,7 +4293,7 @@ I:38:12:0
 W:80:0:200:40000
 A:80/16
 P:30:2d4:-2:0:10
-F:RES_SOUND | RES_SHARDS | EASY_KNOW |
+F:RES_SOUND | RES_SHARDS | 
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 L:USE:  local success; local dir; success, dir = get_aim_dir()
 L:USE:  if not success then return end
@@ -4309,7 +4313,7 @@ I:38:14:0
 W:55:0:200:17500
 A:55/8
 P:30:2d4:-2:0:10
-F:RES_CONF | EASY_KNOW |
+F:RES_CONF | 
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 L:USE:  local success; local dir; success, dir = get_aim_dir()
 L:USE:  if not success then return end
@@ -4324,7 +4328,7 @@ I:38:16:0
 W:65:0:200:20000
 A:65/8
 P:30:2d4:-2:0:10
-F:RES_SOUND | EASY_KNOW |
+F:RES_SOUND | 
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 L:USE:  local success; local dir; success, dir = get_aim_dir()
 L:USE:  if not success then return end
@@ -4339,7 +4343,7 @@ I:38:18:0
 W:75:0:200:35000
 A:75/16
 P:30:2d4:-2:0:10
-F:RES_CHAOS | RES_DISEN | EASY_KNOW |
+F:RES_CHAOS | RES_DISEN | 
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 L:USE:  local success; local dir; success, dir = get_aim_dir()
 L:USE:  if not success then return end
@@ -4358,7 +4362,7 @@ I:38:20:0
 W:90:0:200:50000
 A:90/16
 P:30:2d4:-2:0:10
-F:RES_CHAOS | RES_DISEN | RES_SOUND | RES_SHARDS | EASY_KNOW |
+F:RES_CHAOS | RES_DISEN | RES_SOUND | RES_SHARDS | 
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 L:USE:  local success; local dir; success, dir = get_aim_dir()
 L:USE:  if not success then return end
@@ -4380,7 +4384,7 @@ I:38:30:0
 W:110:0:250:175000
 A:110/64
 P:40:2d4:-3:0:15
-F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | EASY_KNOW |
+F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
 F:RES_NETHER | RES_NEXUS | RES_CHAOS | RES_LITE | RES_DARK |
 F:RES_SHARDS | RES_SOUND | RES_DISEN | RES_CONF |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -4425,7 +4429,7 @@ L:USE:  take_hit(5000, "a potion of Death")
 L:USE:  ident = TRUE
 L:SMASH:project(who, 1, x, y, damroll(25, 25), GF_DEATH_RAY,
 L:SMASH:    (PROJECT_JUMP + PROJECT_ITEM + PROJECT_KILL)); return TRUE,TRUE
-D:This potion deals 5000 damage.  If it is thrown and shatters, it
+D:This potion deals 5000 damage.  If it is thrown and shatters, it 
 D:deals 25d25 damage to each monster caught in the splash area.
 
 N:416:Ruination
@@ -4446,8 +4450,8 @@ L:USE:  dec_stat(A_INT, 25, TRUE)
 L:USE:  ident = TRUE
 L:SMASH:project(who, 1, x, y, damroll(25, 25), GF_SHARDS,
 L:SMASH:    (PROJECT_JUMP + PROJECT_ITEM + PROJECT_KILL)); return TRUE,TRUE
-D:This potion deals damage and permanently drains all your stats.
-D:If it is thrown and shatters, it deals 25d25 damage to each monster
+D:This potion deals damage and permanently drains all your stats.  
+D:If it is thrown and shatters, it deals 25d25 damage to each monster 
 D:caught in the splash area.
 
 N:417:Detonations
@@ -4464,8 +4468,8 @@ L:USE:  inc_cut(5000)
 L:USE:  ident = TRUE
 L:SMASH:project(who, 1, x, y, damroll(25, 25), GF_SHARDS,
 L:SMASH:    (PROJECT_JUMP + PROJECT_ITEM + PROJECT_KILL)); return TRUE,TRUE
-D:The bottle this potion is in looks very fragile.
-D:It deals massive damage if drunk.  If it is thrown and shatters, it
+D:The bottle this potion is in looks very fragile.  
+D:It deals massive damage if drunk.  If it is thrown and shatters, it 
 D:deals 25d25 damage to each monster caught in the splash area.
 
 N:418:Augmentation
@@ -4509,7 +4513,7 @@ F:EASY_KNOW
 L:USE:  do_life_potion()
 L:SMASH:project(who, 2, x, y, damroll(50, 50), GF_OLD_HEAL,
 L:SMASH:    (PROJECT_JUMP + PROJECT_ITEM + PROJECT_KILL)); return FALSE,TRUE
-D:This potion cures poison, blindness, confusion, hallucination, stunning,
+D:This potion cures poison, blindness, confusion, hallucination, stunning, 
 D:cuts, and all stat and experience drains, and restores 5000 hit points.
 
 N:421:Self Knowledge
@@ -4542,9 +4546,9 @@ L:USE:  detect_treasure(); detect_objects_gold(); detect_objects_normal()
 L:USE:  identify_pack()
 L:USE:  self_knowledge()
 L:USE:  ident = TRUE
-D:This potion grants a surge of enlightnment.  You detect everyhing on
-D:the current dungeon level, all objects you are carrying are identified,
-D:magical effects on you are revealed, and your intelligence and wisdom
+D:This potion grants a surge of enlightnment.  You detect everyhing on 
+D:the current dungeon level, all objects you are carrying are identified, 
+D:magical effects on you are revealed, and your intelligence and wisdom 
 D:are permanently increased.
 
 N:423:[Black Channels]
@@ -4555,7 +4559,7 @@ A:75/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
-D:This tome of blackest midnight holds spells to bind evil to oneself
+D:This tome of blackest midnight holds spells to bind evil to oneself 
 D:and bringing darkness and death upon others.
 
 N:424:[Necronomicon]
@@ -4566,7 +4570,7 @@ A:95/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
-D:This mighty grimoire of death seems to suck all life and light from
+D:This mighty grimoire of death seems to suck all life and light from 
 D:around it. Death in all it's forms is controlled by the rituals within.
 
 # Additional rings
@@ -4595,19 +4599,13 @@ F:DRAIN_EXP | HURT_LITE | RES_POIS | SEE_INVIS
 F:RES_NETHER | HOLD_LIFE | EASY_KNOW | CURSED
 D:Wearing this ring, you will exist halfway in the world of the dead.
 
-N:428:Deep Resistance
+N:428:Nexus Resistance
 G:=:d
 I:45:41:0
 W:42:0:2:750
-A:45/1
-L:MAKE: if (one_in_(5) ~= 0) then set_obj_flag(object, 1, TR1_RES_NEXUS)
-L:MAKE: elseif (one_in_(4) ~= 0) then set_obj_flag(object, 1, TR1_RES_SOUND)
-L:MAKE: elseif (one_in_(3) ~= 0) then set_obj_flag(object, 1, TR1_RES_POIS)
-L:MAKE: elseif (one_in_(2) ~= 0) then set_obj_flag(object, 1, TR1_RES_NETHER)
-L:MAKE: else set_obj_flag(object, 1, TR1_RES_SHARDS) end
-D:This ring provides resistance to one of: Nexus, Sound, Poison, Nether, or Shards.
+A:42/2
+F:RES_NEXUS | EASY_KNOW
 
-#A:45/2
 N:429:Electricity
 G:=:d
 I:45:42:0
@@ -4631,11 +4629,11 @@ W:39:0:2:750
 A:39/2
 F:RES_CONF | EASY_KNOW
 
-#A:43/2
 N:431:Shard Resistance
 G:=:d
 I:45:44:0
 W:43:0:2:750
+A:43/2
 F:RES_SHARDS | EASY_KNOW
 
 N:432:Disenchantment Resistance
@@ -4650,7 +4648,7 @@ G:=:d
 I:45:46:0
 W:75:0:2:750
 A:75/2
-F:RES_CHAOS | RES_CONF | EASY_KNOW
+F:RES_CHAOS | EASY_KNOW
 
 N:434:Blindness Resistance
 G:=:d
@@ -4663,13 +4661,13 @@ N:435:Lordly Protection
 G:=:d
 I:45:48:0
 W:100:0:2:6000
-A:100/2
+A:100/4
 F:RES_DISEN | RES_POIS | HOLD_LIFE | FREE_ACT
 L:MAKE: add_ego_power(EGO_XTRA_HI_RESIST, object)
 L:MAKE: while (one_in_(4) ~= 0) do add_ego_power(EGO_XTRA_HI_RESIST, object) end
 L:MAKE: object.to_a = rand_range(10, 15) + m_bonus(10, level)
 L:MAKE: rating_boost = 5
-L:MAKE: if (one_in_(40)) then create_artifact(object, level/4, FALSE) end
+L:MAKE: if (one_in_(40) ~= 0) then create_artifact(object, level/4, FALSE) end
 D:A ring that clearly was meant for some powerful lord.
 
 # This is worth 2500 + the value of the plusses
@@ -5014,7 +5012,7 @@ W:10:0:30:100
 A:10/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
-D:A small drab gray spellbook, containing the simplest of common
+D:A small drab gray spellbook, containing the simplest of common 
 D:utility spells.
 L:MAKE:  if level > 70 and (one_in_(60) ~= 0) then
 L:MAKE:    set_obj_flag(object, 2, TR2_IGNORE_FIRE) end
@@ -5166,7 +5164,7 @@ F:SHOW_MODS
 N:533:& Hatchet~
 G:/:s
 I:22:1:0
-W:3:0:60:120
+W:3:0:60:50
 A:3/1:28/3
 P:0:1d5:0:0:0
 F:SHOW_MODS
@@ -5575,7 +5573,7 @@ G:=:d
 I:45:51:0
 W:21:0:2:850
 A:21/4
-F:RES_FIRE | RES_COLD | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
+F:RES_FIRE | RES_COLD | IGNORE_FIRE | IGNORE_COLD
 L:MAKE: object.to_a = rand_range(1,5)
 
 N:584:Invisibility
@@ -5583,7 +5581,7 @@ G:=:d
 I:45:52:5
 W:13:0:2:80
 A:13/2
-F:STEALTH | EASY_KNOW
+F:STEALTH
 L:MAKE: object.pval = 3 + m_bonus(object.pval, level)
 L:MAKE: allow_curse = TRUE
 
@@ -5619,7 +5617,7 @@ G:":d
 I:40:17:4
 W:35:0:3:750
 A:35/2
-F:SLAY_UNDEAD | WIS | EASY_KNOW
+F:SLAY_UNDEAD | WIS
 L:MAKE: object.pval = 1 + m_bonus(object.pval, level)
 
 N:589:Luck
@@ -5689,10 +5687,9 @@ G:":d
 I:40:19:0
 W:12:0:3:300
 A:12/5
-F:EASY_KNOW
 D:With this amulet you will never be hungry again.
 L:TIMED: if player.food < PY_FOOD_FULL + 500 then set_food(player.food + 10) end
-L:MAKE: if (one_in_(200)) then create_artifact(object, level/4, FALSE) end
+L:MAKE: if (one_in_(50) ~= 0) then create_artifact(object, level/4, FALSE) end
 
 #######
 # Z+ additions
@@ -5701,7 +5698,7 @@ L:MAKE: if (one_in_(200)) then create_artifact(object, level/4, FALSE) end
 N:596:Quality
 G:,:d
 I:80:20:500
-W:12:0:4:50
+W:12:0:4:150
 A:12/3
 F:EASY_KNOW
 L:USE: ident=FALSE  msgf("That tastes good.")
@@ -5713,6 +5710,7 @@ G:,:d
 I:80:21:500
 W:30:0:4:750
 A:30/4:50/4:80/4
+F:EASY_KNOW
 L:USE:  ident = do_curing()  
 D:This mushroom cures blindness, confusion, poison and cuts, and
 D:restores 200 hit points when eaten.
@@ -5723,15 +5721,17 @@ G:,:d
 I:80:22:500
 W:45:0:4:350
 A:45/2:65/2
+F:EASY_KNOW
 L:USE:  ident = sp_player(50)
 D:This mushroom restores 50 points of mana when eaten.
 D:  Mushrooms provide sustenance for about 250 turns under normal conditions.
 
-N:599:Nourishment
+N:599:Plenty
 G:,:d
 I:80:23:1500
-W:8:0:4:5
+W:8:0:4:50
 A:8/1
+F:EASY_KNOW
 L:USE:  ident = TRUE
 L:USE:  if (object.number > 1 and one_in_(10) == 0) then
 L:USE:     object.number = object.number +1
@@ -5746,6 +5746,7 @@ I:80:24:500
 W:40:0:4:600
 A:40/3:60/2
 P:0:10d10:0:0:0
+F:EASY_KNOW
 L:USE:  ident = mushroom_chaos()
 D:This mushroom affects your body in strange ways.  It does 10d10 damage when thrown.
 D:  Mushrooms provide sustenance for about 250 turns under normal conditions.
@@ -5838,7 +5839,7 @@ G:=:d
 I:45:57:0
 W:60:0:2:3000
 A:60/2
-F:EASY_KNOW | STR | INT | CHR | WIS | DEX | CON
+F:HIDE_TYPE | STR | INT | CHR | WIS | DEX | CON
 L:MAKE: if (one_in_(8)) then object.pval = 2 else object.pval=1 end
 L:MAKE: allow_curse = TRUE
 
@@ -5862,7 +5863,7 @@ G:{:w
 I:16:3:0
 W:63:0:3:50
 A:63/3:95/2
-P:0:10d2:0:0:0
+P:0:8d2:0:0:0
 F:SHOW_MODS
 D:Extremely dense and hard, with sharp edges.
 
@@ -6010,9 +6011,9 @@ I:40:24:0
 W:60:0:3:1500
 A:60/4:90/1
 F:SLAY_DEMON | SLAY_DRAGON | SLAY_ORC | SLAY_TROLL | SLAY_GIANT | SLAY_UNDEAD
-F:SLAY_ANIMAL | EASY_KNOW | IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC | IGNORE_COLD
+F:SLAY_ANIMAL | IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC | IGNORE_COLD
 L:MAKE: object.to_a = rand_range(3,8) + m_bonus(8,level)
-L:MAKE: if (one_in_(40)) then create_artifact(object, level/3, FALSE) end
+L:MAKE: if (one_in_(40) ~= 0) then create_artifact(object, level/3, FALSE) end
 
 N:627:Devotion
 G:":d
@@ -6022,7 +6023,7 @@ A:70/8
 F:WIS | CHR | SUST_WIS | SUST_CHR | LITE | RES_DARK | RES_LITE
 F:RES_FIRE | HOLD_LIFE
 L:MAKE: object.pval = 1 + m_bonus(object.pval, level)
-L:MAKE: if (one_in_(40)) then create_artifact(object, level/3, FALSE) end
+L:MAKE: if (one_in_(40) ~= 0) then create_artifact(object, level/3, FALSE) end
 
 N:628:Weaponmastery
 G:":d
@@ -6034,7 +6035,7 @@ L:MAKE: object.to_h = 1 + m_bonus(10,level)
 L:MAKE: object.to_d = 1 + m_bonus(10,level)
 L:MAKE: object.to_a = 6 + m_bonus(5,level)
 L:MAKE: object.pval = 1 + m_bonus(object.pval, level)
-L:MAKE: if (one_in_(40)) then create_artifact(object, level/3, FALSE) end
+L:MAKE: if (one_in_(40) ~= 0) then create_artifact(object, level/3, FALSE) end
 
 N:629:Trickery
 G:":d
@@ -6044,7 +6045,7 @@ A:70/8
 F:DEX | SUST_DEX | STEALTH | SPEED | SENSE | INFRA | RES_NEXUS
 F:RES_POIS | HIDE_TYPE
 L:MAKE: object.pval = 1 + m_bonus(object.pval, level)
-L:MAKE: if (one_in_(40)) then create_artifact(object, level/3, FALSE) end
+L:MAKE: if (one_in_(40) ~= 0) then create_artifact(object, level/3, FALSE) end
 
 N:630:Hold Life
 G:":d
@@ -6059,7 +6060,7 @@ I:70:19:0
 W:40:0:5:1000
 A:40/4
 F:EASY_KNOW
-D:This scroll infuses a weapon of your choice with elemental power.
+D:This scroll infuses your weilded weapon with elemental power.
 L:USE: ident=TRUE
 L:USE: brand_weapon(0)
 
@@ -6157,7 +6158,6 @@ G:-:d
 I:65:30:15
 W:50:0:10:650
 A:50/2:65/1
-F:EASY_KNOW
 L:USE:  ident = fire_bolt_or_beam(100, GF_FIRE, dir, damroll(10, 8))
 D:This wand fires a beam of flames that does 10d8 damage to everything
 D: in its path.
@@ -6167,27 +6167,22 @@ G:-:d
 I:65:31:15
 W:46:0:10:600
 A:46/2:61/1
-F:EASY_KNOW
 L:USE:  ident = fire_bolt_or_beam(100, GF_FROST, dir, damroll(6, 8))
 D:This wand fires a beam of ice that does 6d8 damage to everything
 D: in its path.
 
-#N:641:Acid Beams
-#G:-:d
-#I:65:32:15
-#W:45:0:10:600
-#A:45/2:60/1
-#F:EASY_KNOW
-#L:USE:  ident = fire_bolt_or_beam(100, GF_ACID, dir, damroll(6, 8))
-#D:This wand fires a beam of acid that does 6d8 damage to everything
-#D: in its path.
+N:641:Sound Resistance
+G:=:d
+I:45:44:0
+W:43:0:2:750
+A:43/2
+F:RES_SOUND | EASY_KNOW
 
 N:642:Lightning Beams
 G:-:d
 I:65:33:18
 W:50:0:10:550
 A:50/2:65/1
-F:EASY_KNOW
 L:USE:  ident = fire_bolt_or_beam(100, GF_ELEC, dir, damroll(6, 8))
 D:This wand fires a beam of electricity that does 6d8 damage to everything
 D: in its path.
@@ -6197,7 +6192,6 @@ G:-:d
 I:65:34:12
 W:60:0:10:3000
 A:60/3
-F:EASY_KNOW
 L:USE:  ident = scatter_ball(rand_range(5,10), GF_POIS, 45, 4)
 D:This wand fires balls of poison gas in multiple directions.
 
@@ -6207,7 +6201,6 @@ I:65:35:5
 W:90:0:10:15000
 A:90/4
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-F:EASY_KNOW
 L:USE:  ident = fire_ball(GF_MANA, dir, 200, 4)
 D:This wand fires a mana storm (200).
 
@@ -6217,7 +6210,6 @@ I:65:36:5
 W:85:0:10:13000
 A:85/4
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-F:EASY_KNOW
 L:USE:  ident = fire_ball(GF_WATER, dir, 180, 4)
 D:This wand causes a whirlpool (180).
 
@@ -6226,7 +6218,6 @@ G:-:d
 I:65:37:5
 W:70:0:10:5000
 A:70/3
-F:EASY_KNOW
 L:USE:  ident = fire_ball(GF_LITE, dir, 250, 3)
 D:This wand makes blasts of bright light (250).
 
@@ -6235,7 +6226,6 @@ G:-:d
 I:65:38:20
 W:50:0:10:700
 A:50/2
-F:EASY_KNOW
 L:USE:  local type
 L:USE:  if (one_in_(2) ~= 0) then type=rand_range(0,15)
 L:USE:  else type=rand_range(0,40) end
@@ -6328,7 +6318,6 @@ G:-:d
 I:65:39:8
 W:80:0:10:10000
 A:80/2
-F:EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 L:USE:  local type
 L:USE:  if (one_in_(2) ~= 0) then type=rand_range(0,15)
@@ -6417,38 +6406,35 @@ L:USE:   msgf("Your wand produces a psionic ball!")
 L:USE:   ident = fire_ball(GF_PSI, dir, 175, 2) end
 D:This wand fires off a ball of a random type, up to 175 damage.
 
-#N:649:Lightning Blasts
-#G:-:d
-#I:65:40:12
-#W:42:0:10:800
-#A:42/1
-#F:EASY_KNOW
-#L:USE:  local times; times=rand_range(3,6)
-#L:USE:  while(times ~= 0) do
-#L:USE:    if (fire_bolt(GF_ELEC, dir, damroll(4,8))) then ident=TRUE end
-#L:USE:    times = times - 1 end
-#D:This wand fires a blast of several lightning bolts in the same
-#D:direction (4d8 each).
+N:649:Lightning Blasts
+G:-:d
+I:65:40:12
+W:42:0:10:800
+A:42/1
+L:USE:  local times; times=rand_range(3,6)
+L:USE:  while(times ~= 0) do
+L:USE:    if (fire_bolt(GF_ELEC, dir, damroll(4,8))) then ident=TRUE end
+L:USE:    times = times - 1 end
+D:This wand fires a blast of several lightning bolts in the same
+D: direction (4d8 each).
 
-#N:650:Fire Blasts
-#G:-:d
-#I:65:41:10
-#W:57:0:10:1000
-#A:57/1
-#F:EASY_KNOW
-#L:USE:  local times; times=rand_range(3,6)
-#L:USE:  while(times ~= 0) do
-#L:USE:    if (fire_bolt(GF_FIRE, dir, damroll(6,8))) then ident=TRUE end
-#L:USE:    times = times - 1 end
-#D:This wand fires a blast of several fire bolts in the same
-#D:direction (6d8 each).
+N:650:Fire Blasts
+G:-:d
+I:65:41:10
+W:57:0:10:1000
+A:57/1
+L:USE:  local times; times=rand_range(3,6)
+L:USE:  while(times ~= 0) do
+L:USE:    if (fire_bolt(GF_FIRE, dir, damroll(6,8))) then ident=TRUE end
+L:USE:    times = times - 1 end
+D:This wand fires a blast of several fire bolts in the same
+D:direction (6d8 each).
 
 N:651:Frost Blast
 G:-:d
 I:65:42:12
 W:47:0:10:875
 A:47/1
-F:EASY_KNOW
 L:USE:  local times; times=rand_range(3,6)
 L:USE:  while(times ~= 0) do
 L:USE:    if (fire_bolt(GF_COLD, dir, damroll(5,8))) then ident=TRUE end
@@ -6461,7 +6447,6 @@ G:-:d
 I:65:43:12
 W:52:0:10:950
 A:52/1
-F:EASY_KNOW
 L:USE:    if (fire_bolt(GF_COLD, dir, damroll(4,5))) then ident=TRUE end
 L:USE:    if (fire_bolt(GF_ELEC, dir, damroll(3,5))) then ident=TRUE end
 L:USE:    if (fire_bolt(GF_ACID, dir, damroll(4,5))) then ident=TRUE end
@@ -6487,7 +6472,6 @@ G:_:d
 I:55:31:8
 W:30:0:50:300
 A:30/2
-F:EASY_KNOW
 L:USE: word_of_recall()
 L:USE: ident=TRUE
 D:This staff allows you to teleport between the dungeon and outside.
@@ -6497,7 +6481,6 @@ G:_:d
 I:55:32:4
 W:55:0:50:900
 A:55/5:85/2
-F:EASY_KNOW
 L:USE:  if restore_level() then ident = TRUE end
 L:USE:  if restore_all_stats() then ident = TRUE end
 D:This staff restores all your stats and your experience.
@@ -6508,7 +6491,6 @@ I:65:44:12
 W:28:0:10:300
 A:12/2:28/1
 P:0:1d1:0:0:0
-F:EASY_KNOW
 L:USE:  ident = fire_bolt_or_beam(20, GF_ELEC, dir, damroll(5, 8))
 D:This wand fires a lightning bolt (5d8).
 
@@ -6517,7 +6499,6 @@ G:-:d
 I:66:29:20
 W:50:0:10:500
 A:45/20:70/5
-F:EASY_KNOW
 L:USE:  if not alchemy() then result = FALSE end
 L:USE:  ident = TRUE
 D:This rod can turn an object into gold.
@@ -6525,29 +6506,26 @@ D:This rod can turn an object into gold.
 N:658:Cleaning
 G:-:d
 I:66:50:50
-W:40:0:10:50
+W:40:0:10:500
 A:40/8:65/4
-F:EASY_KNOW
 L:USE:  ident = fire_ball(GF_MANA, dir, 5, 7)
-D:This rod fires an ENORMOUS mana ball (5).  It is useful for destroying
+D:This rod fires an ENORMOUS mana ball (5).  It is useful for destroying 
 D:objects en masse.
 
 N:659:Enchant Armor
 G:-:d
-I:66:31:200
+I:66:31:800
 W:90:0:10:30000
 A:90/16
-F:EASY_KNOW
 L:USE:  if not enchant_spell(0,0,1) then result=FALSE end
 L:USE:  ident = TRUE
 D:This powerful rod enhances a piece of armor.
 
 N:660:Enchant Weapon
 G:-:d
-I:66:31:200
+I:66:31:800
 W:90:0:10:30000
 A:90/16
-F:EASY_KNOW
 L:USE:  if not enchant_spell(1,1,0) then result=FALSE end
 L:USE:  ident = TRUE
 D:This powerful rod enhances a weapon.
@@ -6557,7 +6535,6 @@ G:_:d
 I:55:33:10
 W:45:0:50:1000
 A:45/3
-F:EASY_KNOW
 L:USE:  ident = TRUE
 L:USE:  if not dimension_door() then result=FALSE end
 D:This staff allows you to teleport with pinpoint accuracy.
@@ -6567,7 +6544,6 @@ G:?:d
 I:70:55:0
 W:35:0:5:220
 A:35/2:65/1
-F:EASY_KNOW
 L:USE:  ident = TRUE
 L:USE:  if not dimension_door() then result=FALSE end
 D:This scroll allows you to teleport with pinpoint accuracy.
@@ -6577,7 +6553,6 @@ G:-:d
 I:66:12:400
 W:80:0:10:20000
 A:80/20
-F:EASY_KNOW
 L:USE:  ident = TRUE
 L:USE:  if not recharge(130) then result=FALSE end
 D:This powerful rod can recharge rods, staves, and wands, about every 400 turns.
@@ -6588,7 +6563,6 @@ G:?:d
 I:70:56:0
 W:65:0:5:400
 A:65/1
-F:EASY_KNOW
 L:USE:  ident = inc_shield(rand_range(30,50))
 D:This scroll toughens your skin into protective stone for a while.
 
@@ -6597,7 +6571,6 @@ G:!:d
 I:75:62:0
 W:33:0:1:250
 A:15/3:33/2
-F:EASY_KNOW
 L:USE:  ident=TRUE
 L:USE:  msgf ("You feel your mind expand!");
 L:USE:  inc_tim_esp(rand_range(25,55))
@@ -6642,6 +6615,6 @@ G:=:d
 I:45:0:0
 W:65:0:2:0
 A:65/2
-F:CURSED | SLOW_HEAL
+F:CURSED | SLOW_HEAL | EASY_KNOW
 L:TIMED:  if (one_in_(4)) then take_hit(dam_roll(2,4), "a ring of blood") end
 D:This ring bites deep into your finger and drains your blood.

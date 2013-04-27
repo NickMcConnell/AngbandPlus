@@ -37,7 +37,7 @@ static object_type temp_object;
 /*
  * Prepare an object based on an existing object
  */
-static void object_copy(object_type *o_ptr, const object_type *j_ptr)
+void object_copy(object_type *o_ptr, const object_type *j_ptr)
 {
 	/* Copy the structure */
 	COPY(o_ptr, j_ptr, object_type);
@@ -1931,6 +1931,13 @@ object_type *object_prep(int k_idx)
 	}
 #endif
 
+	/* Save object memory from the current source */
+	o_ptr->mem.type = current_object_source.type;
+	o_ptr->mem.place_num = current_object_source.place_num;
+	o_ptr->mem.depth = current_object_source.depth;
+	o_ptr->mem.data = current_object_source.data;
+
+
 	return (o_ptr);
 }
 
@@ -2456,7 +2463,7 @@ static object_type *make_special_randart(void)
 		lev = k_info[k_idx].level;
 
 		/* Create using the object kind's depth */
-		if (one_in_((randart_rare ? 12 : 1))) create_artifact(o_ptr, lev, FALSE);
+		if (one_in_((randart_rare ? 3 : 1))) create_artifact(o_ptr, lev, FALSE);
 
 		/* Run special scripts */
 		apply_object_trigger(TRIGGER_MAKE, o_ptr, "i", LUA_VAR(lev));
@@ -2556,7 +2563,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int lev_dif, byte flags)
 			else if (flags & OC_FORCE_GOOD)
 			{
 				/* Roll for a random artifact */
-				if (one_in_((randart_rare ? 480 : 40)))
+				if (one_in_((randart_rare ? 120 : 40)))
 				{
 					(void)create_artifact(o_ptr, level, FALSE);
 
@@ -2613,7 +2620,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int lev_dif, byte flags)
 			if (flags & OC_FORCE_GOOD)
 			{
 				/* Roll for a random artifact */
-				if (one_in_((randart_rare ? 252 : 21)))
+				if (one_in_((randart_rare ? 63 : 21)))
 				{
 					(void)create_artifact(o_ptr, level, FALSE);
 
@@ -2758,7 +2765,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int lev_dif, byte flags)
 			if (flags & OC_FORCE_GOOD)
 			{
 				/* Roll for a random artifact */
-				if (one_in_((randart_rare ? 252 : 21)))
+				if (one_in_((randart_rare ? 63 : 21)))
 				{
 					(void)create_artifact(o_ptr, level, FALSE);
 
@@ -2799,7 +2806,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int lev_dif, byte flags)
 				if (flags & OC_FORCE_GOOD)
 				{
 					/* Roll for random artifact */
-					if (one_in_((randart_rare ? 252 : 21)))
+					if (one_in_((randart_rare ? 63 : 21)))
 					{
 						(void)create_artifact(o_ptr, level, FALSE);
 
@@ -2822,7 +2829,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int lev_dif, byte flags)
 			if (flags & OC_FORCE_GOOD)
 			{
 				/* Roll for a random artifact */
-				if (one_in_((randart_rare ? 240 : 20)))
+				if (one_in_((randart_rare ? 60 : 20)))
 				{
 					(void)create_artifact(o_ptr, level, FALSE);
 
@@ -2855,7 +2862,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int lev_dif, byte flags)
 			if (flags & OC_FORCE_GOOD)
 			{
 				/* Roll for a random artifact */
-				if (one_in_((randart_rare ? 240 : 20)))
+				if (one_in_((randart_rare ? 60 : 20)))
 				{
 					(void)create_artifact(o_ptr, level, FALSE);
 
@@ -2888,7 +2895,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int lev_dif, byte flags)
 			if (flags & OC_FORCE_GOOD)
 			{
 				/* Roll for a random artifact */
-				if (one_in_((randart_rare ? 240 : 20)))
+				if (one_in_((randart_rare ? 60 : 20)))
 				{
 					(void)create_artifact(o_ptr, level, FALSE);
 
@@ -2932,7 +2939,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int lev_dif, byte flags)
 				if (flags & OC_FORCE_GOOD)
 				{
 					/* Roll for a random artifacts */
-					if (one_in_((randart_rare ? 240 : 20)))
+					if (one_in_((randart_rare ? 60 : 20)))
 					{
 						(void)create_artifact(o_ptr, level, FALSE);
 
@@ -2971,7 +2978,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int lev_dif, byte flags)
 			if (flags & OC_FORCE_GOOD)
 			{
 				/* Roll for a random artifact */
-				if (one_in_((randart_rare ? 240 : 20)))
+				if (one_in_((randart_rare ? 60 : 20)))
 				{
 					(void)create_artifact(o_ptr, level, FALSE);
 
@@ -3023,24 +3030,31 @@ static void a_m_aux_2(object_type *o_ptr, int level, int lev_dif, byte flags)
 static object_type * misc_artifact_prep(object_type *o_ptr)
 {
 	int n;
+	object_type * j_ptr;
 
 	switch (o_ptr->tval)
 	{
 		case TV_LITE:
 			n = randint1(10);
-			if (n < 6) return (object_prep(500));
-			else if (n < 8) return (object_prep(501));
-			else return (object_prep(502));
+			if (n < 6) j_ptr = object_prep(500);
+			else if (n < 8) j_ptr = object_prep(501);
+			else j_ptr = object_prep(502);
+			break;
 		case TV_RING:
-			return (object_prep(667));
+			j_ptr = object_prep(667);
+			break;
 		case TV_AMULET:
 			n = randint1(10);
-			if (n < 6) return (object_prep(668));
-			else if (n < 8) return (object_prep(669));
-			else return (object_prep(670));
+			if (n < 6) j_ptr = object_prep(668);
+			else if (n < 8) j_ptr = object_prep(669);
+			else j_ptr = object_prep(670);
+			break;
 		default:
 			return o_ptr;
 	}
+
+	if (o_ptr != &temp_object)
+		swap_objects(j_ptr, o_ptr);
 }
 
 
@@ -3061,7 +3075,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, byte flags)
 
 	if (flags & OC_FORCE_GOOD)
 	{
-		if (one_in_((randart_rare ? 360 : 30)) && allow_randart)
+		if (one_in_((randart_rare ? 90 : 30)) && allow_randart)
 		{
 			o_ptr = misc_artifact_prep(o_ptr);
 
@@ -3132,7 +3146,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, byte flags)
 
 			if (flags & OC_FORCE_GOOD)
 			{
-				if (one_in_((randart_rare ? 360 : 30)) && allow_randart)
+				if (one_in_((randart_rare ? 90 : 30)) && allow_randart)
 				{
 					o_ptr = misc_artifact_prep(o_ptr);
 
@@ -3781,8 +3795,8 @@ object_type *make_object(int level, int delta_level, obj_theme *theme)
 		delta_level += 20;
 	}
 
-	/* Renormalise the change in level */
-	delta_level = randint0(delta_level);
+	/* Renormalise the change in level.  Note that we always get at least delta_level-9. */
+	delta_level = MAX(0, delta_level - randint0(MIN(10, delta_level)));
 
 	/* Base level for the object */
 	base = level + delta_level;
@@ -4751,6 +4765,8 @@ static cptr item_describe_aux(object_type *o_ptr, bool back_step)
 	{
 		if (!list)
 		{
+			char * rv;
+
 			/* Hack XXX XXX pretend there is one item */
 			int num = o_ptr->number;
 			o_ptr->number = 1;
@@ -4762,10 +4778,12 @@ static cptr item_describe_aux(object_type *o_ptr, bool back_step)
 			item = GET_ARRAY_INDEX(p_ptr->equipment, o_ptr);
 
 			/* No more items? */
-			return (format("You were %s: %s (%c).", describe_use(item), o_name, I2A(item)));
+			rv = format("You were %s: %s (%c).", describe_use(item), o_name, I2A(item));
 
 			/* Restore old number of items */
 			o_ptr->number = num;
+
+			return (rv);
 		}
 		else if (list == &p_ptr->inventory)
 		{

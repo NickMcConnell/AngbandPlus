@@ -674,7 +674,23 @@ bool check_down_wild(void)
 			msgf("You need to visit the dungeon first.");
 			return (FALSE);
 		}
+
+		/* Cannot recall at quest stairs that are dead */
+		if (pl_ptr->type == PL_QUEST_STAIR)
+		{
+			quest_type *q_ptr = &quest[pl_ptr->quest_num];
+
+			if (q_ptr->status != QUEST_STATUS_TAKEN ||
+				!(q_ptr->flags & QUEST_FLAG_KNOWN) ||
+				q_ptr->data.fix.attempts == 0)
+			{
+				msgf ("Nothing happens.");
+				return (FALSE);
+			}
+		}
 	}
+
+
 
 	return (TRUE);
 }
@@ -1611,6 +1627,12 @@ bool polymorph_item(void)
 
 	cptr q, s;
 
+	/* Prepare for object memory */
+	current_object_source.type = OM_POLYMORPH;
+	current_object_source.place_num = p_ptr->place_num;
+	current_object_source.depth = p_ptr->depth;
+	current_object_source.data = 0;
+
 	/* Hack -- force destruction */
 	if (p_ptr->cmd.arg > 0) force = TRUE;
 
@@ -2118,6 +2140,12 @@ static void bad_luck(object_type *o_ptr)
 		if (!is_art)
 		{
 			SET_FLAG(o_ptr, TR_CURSED);
+
+			/* Keep the same object memory */
+			current_object_source.type = o_ptr->mem.type;
+			current_object_source.place_num = o_ptr->mem.place_num;
+			current_object_source.depth = o_ptr->mem.depth;
+			current_object_source.data = o_ptr->mem.data;
 
 			/* Prepare it */
 			q_ptr = object_prep(o_ptr->k_idx);
@@ -3148,7 +3176,10 @@ s16b spell_chance(int spell, int realm)
 	/* Not enough mana to cast */
 	if (smana > p_ptr->csp)
 	{
-		chance += 5 * (smana - p_ptr->csp);
+		if (p_ptr->rp.pclass != CLASS_HIGH_MAGE)
+			chance += 5 * (smana - p_ptr->csp);
+		else
+			chance += 2 * (smana - p_ptr->csp);
 	}
 
 	/* Some mutations increase spell failure */
@@ -3365,7 +3396,7 @@ void spell_info(char *p, int spell, int realm)
 					}
 					case 19:
 					{
-						strnfmt(p, 80, " dur 300", plev);
+						strnfmt(p, 80, " dur 150");
 						break;
 					}
 					case 20:
@@ -3391,7 +3422,7 @@ void spell_info(char *p, int spell, int realm)
 					}
 					case 30:
 					{
-						strnfmt(p, 80, " d %d, h 300", (plev * 4)+777);
+						strnfmt(p, 80, " d %d, h 300", (plev * 4));
 						break;
 					}
 					case 31:
@@ -3494,7 +3525,7 @@ void spell_info(char *p, int spell, int realm)
 					}
 					case 13:
 					{
-						strcpy(p, " dur 300");
+						strcpy(p, " dur 150");
 						break;
 					}
 					case 15:
@@ -3624,7 +3655,7 @@ void spell_info(char *p, int spell, int realm)
 					}
 					case 22:
 					{
-						strcpy(p, " dur 750");
+						strcpy(p, " dur 350");
 						break;
 					}
 					case 23:
@@ -3747,6 +3778,11 @@ void spell_info(char *p, int spell, int realm)
 						strcpy(p, " dam 120");
 						break;
 					}
+					case 22:
+					{
+						strcpy(p, " dur 350");
+						break;
+					}
 					case 24:
 					{
 						strnfmt(p, 80, " dam %d", plev * 50);
@@ -3794,7 +3830,7 @@ void spell_info(char *p, int spell, int realm)
 					/* several summons: */
 					case 2: case 11: case 14: case 19:
 					{
-						strcpy(p, " dur 300");
+						strcpy(p, " dur 150");
 						break;
 					}
 					case 3:
@@ -3805,6 +3841,11 @@ void spell_info(char *p, int spell, int realm)
 					case 4:
 					{
 						strcpy(p, " heal 6+d8");
+						break;
+					}
+					case 5:
+					{
+						strcpy(p, " dur 300");
 						break;
 					}
 					case 7:
@@ -3836,7 +3877,7 @@ void spell_info(char *p, int spell, int realm)
 						strcpy(p, " dur 30+d20");
 						break;
 					case 20: case 28: case 30:
-						strcpy(p, " dur 750");
+						strcpy(p, " dur 350");
 						break;
 					case 22:
 					{

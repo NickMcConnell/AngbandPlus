@@ -4153,6 +4153,11 @@ void create_food()
 {
 	object_type *q_ptr;
 
+	current_object_source.type = OM_MADE;
+	current_object_source.place_num = p_ptr->place_num;
+	current_object_source.depth = p_ptr->depth;
+	current_object_source.data = 0;
+
 	/* Hack - create a food ration */
 	q_ptr = object_prep(lookup_kind(TV_FOOD, SV_FOOD_RATION));
 

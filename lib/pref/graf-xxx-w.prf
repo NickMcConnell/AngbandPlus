@@ -1,0 +1,57 @@
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/07/09 10:28:25 $
+##### Special attr/char values #####
+
+# This 8x8 graphics set uses graphics for only walls (plus a couple of wall-mimic monsters.)
+
+# Livingstone
+R:336:0x80:0x82
+
+# Lesser wall monster
+R:448:0x80:0x82
+
+# Greater wall monster
+R:718:0x80:0x82
+
+#N:33:pillar
+#G:#:w
+F:33:0xCF:0x9A
+
+# secret door
+F:48:0x80:0x82
+
+# magma vein
+F:50:0x80:0x83
+
+# quartz vein
+F:51:0x80:0x83
+
+# magma vein
+F:52:0x80:0x83
+
+# quartz vein
+F:53:0x80:0x83
+
+# granite wall
+F:56:0x80:0x82
+
+# granite wall
+F:57:0x80:0x82
+
+# granite wall
+F:58:0x80:0x82
+
+# granite wall
+F:59:0x80:0x82
+
+# permanent wall
+F:60:0x80:0x95
+
+# permanent wall
+F:61:0x80:0x95
+
+# permanent wall
+F:62:0x80:0x95
+
+# permanent wall
+F:63:0x80:0x95
+

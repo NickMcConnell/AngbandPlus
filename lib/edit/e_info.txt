@@ -62,7 +62,7 @@
 
 # Version stamp (required)
 
-V:0.2.0
+V:0.2.1
 
 
 ### Body Armor ###
@@ -268,31 +268,31 @@ F:REGEN
 N:35:of Teleportation
 X:33:0
 W:0:2:0:-100
-F:TELEPORT
+F:TELEPORT | CURSED
 
 N:36:of Stupidity
 X:33:0
 C:0:0:0:-5
 W:0:2:0:-100
-F:INT
+F:INT | CURSED
 
 N:37:of Naivety
 X:33:0
 C:0:0:0:-5
 W:0:2:0:-100
-F:WIS
+F:WIS | CURSED
 
 N:38:of Ugliness
 X:33:0
 C:0:0:0:-5
 W:0:2:0:-100
-F:CHR
+F:CHR | CURSED
 
 N:39:of Sickliness
 X:33:0
 C:0:0:0:-5
 W:0:2:0:-100
-F:STR | DEX | CON
+F:STR | DEX | CON | CURSED
 
 
 ### Cloaks ###
@@ -331,19 +331,19 @@ N:44:of Enveloping
 X:31:0
 W:0:1:0:-100
 C:-10:-10:0:0
-F:SHOW_MODS
+F:SHOW_MODS | CURSED
 
 N:45:of Vulnerability
 X:31:0
 W:0:1:0:-100
 C:0:0:-50:0
-F:AGGRAVATE
+F:AGGRAVATE | CURSED
 
 N:46:of Irritation
 X:31:0
 W:0:1:0:-100
 C:-15:-15:0:0
-F:AGGRAVATE | SHOW_MODS
+F:AGGRAVATE | SHOW_MODS | CURSED
 
 # Aura, Electricity
 N:47:of Electricity
@@ -397,13 +397,13 @@ N:54:of Weakness
 X:34:0
 W:0:1:0:-100
 C:0:0:0:-10
-F:STR
+F:STR | CURSED
 
 N:55:of Clumsiness
 X:34:0
 W:0:1:0:-100
 C:0:0:0:-10
-F:DEX
+F:DEX | CURSED
 
 
 ### Boots ###
@@ -438,19 +438,19 @@ F:WILD_WALK | IGNORE_ACID
 N:61:of Noise
 X:35:0
 W:0:1:0:-100
-F:AGGRAVATE
+F:AGGRAVATE | CURSED
 
 N:62:of Slowness
 X:35:0
 W:20:4:0:-100
 C:0:0:0:-5
-F:SPEED
+F:SPEED | CURSED
 
 N:63:of Annoyance
 X:35:0
 W:35:1:0:-100
 C:0:0:0:-10
-F:SPEED | AGGRAVATE
+F:SPEED | AGGRAVATE | CURSED
 
 
 ### Weapons ###
@@ -544,7 +544,7 @@ F:BRAND_ELEC | RES_ELEC | IGNORE_ELEC
 
 N:74:of Flame
 X:24:20
-W:0:6:0:-500
+W:0:6:0:0
 F:BRAND_FIRE | RES_FIRE | IGNORE_FIRE | LITE
 
 N:75:of Ice
@@ -796,15 +796,16 @@ W:0:1:0:0
 F:SLAY_EVIL
 
 # out of place Lite
-N:114:of Brightness
-X:29:10
-W:10:2:0:0
-C:0:0:0:0
-F:LITE | ACTIVATE
-L:USE:	msgf("It wells with clear light...")
-L:USE:	lite_area(damroll(2, 6), 3)
-L:USE:	object.timeout = rand_range(10, 20)
-L:DESC:	return "illumination every 10-20 turns"
+# Removed: doesn't work; .timeout overloaded for lights.
+#N:114:of Brightness
+#X:29:10
+#W:10:2:0:0
+#C:0:0:0:0
+#F:LITE | ACTIVATE
+#L:USE:	msgf("It wells with clear light...")
+#L:USE:	lite_area(damroll(2, 6), 3)
+#L:USE:	object.timeout = rand_range(10, 20)
+#L:DESC:	return "illumination every 10-20 turns"
 
 # 115 (unused)
 
@@ -856,7 +857,7 @@ N:125:of Backbiting
 X:23:0
 W:0:1:0:-100
 C:-50:-50:0:0
-
+F:CURSED
 
 ### Special Broken Items ###
 
@@ -933,10 +934,10 @@ N:133:of Spies
 X:21:17
 W:20:2:0:0
 C:0:0:5:1
-F:DEX | SUST_DEX | ACTIVATE
-L:USE:	probing()
-L:USE:      object.timeout = 15
-L:DESC:	return "probing every 15 turns"
+F:DEX | SUST_DEX
+L:TIMED: if (one_in_(50) ~= 0) then probing() detect_monsters_normal() end
+D:Those who wear a helm of spies have a keen sense of their enemies.  
+
 
 N:134:of Magic
 X:21:25

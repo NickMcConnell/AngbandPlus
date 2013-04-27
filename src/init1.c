@@ -3383,12 +3383,12 @@ errr init_mg_info_txt(FILE *fp, char *buf)
 				/* Turn flags into bytes */
 				for (j = 0; j < 9; j++)
 				{
-					hrt_ptr->data[(4*j)] = (char) (flags[j] && 0xFF);
-					hrt_ptr->data[(4*j)+1] = (char) ((flags[j] >> 8) && 0xFF);
-					hrt_ptr->data[(4*j)+2] = (char) ((flags[j] >> 16) && 0xFF);
-					hrt_ptr->data[(4*j)+3] = (char) ((flags[j] >> 24) && 0xFF);
+					hrt_ptr->data[(4*j)] = (char) (flags[j] & 0x000000FF);
+					hrt_ptr->data[(4*j)+1] = (char) ((flags[j] >> 8) & 0xFF);
+					hrt_ptr->data[(4*j)+2] = (char) ((flags[j] >> 16) & 0xFF);
+					hrt_ptr->data[(4*j)+3] = (char) ((flags[j] >> 24) & 0xFF);
 				}
-
+				
 				/* Complete paranoia: test the algorithm  */
 				for (j = 0; j < 9; j++)
 				{

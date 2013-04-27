@@ -445,7 +445,7 @@ W:60
 
 N:43:fire-breathers
 G:ALL
-H:F:I:+:BR_FIRE
+H:F:I:+:BR_FIRE | CHAR_MIMIC
 H:F:E:+:DEMON | UNDEAD | NEVER_MOVE
 H:N:E:+:multi-hued:aether:many colo
 D:HELL

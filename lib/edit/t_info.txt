@@ -150,11 +150,20 @@ L:TARGET:trap_gf()
 L:PENTER:hit_trap(field)
 L:PENTER:if (bAnd(player.flags[2], TR2_FEATHER) ~= 0) then
 L:PENTER:	msgf("You fly over a trap door.")
-L:PENTER:else
+L:PENTER:elseif (in_quest() == 0) then
 L:PENTER:	msgf("You have fallen through a trap door!")
 L:PENTER:	sound(SOUND_FALL)
 L:PENTER:	take_hit(damroll(4, 8), "a trap door")
 L:PENTER:	move_dun_level(1)
+L:PENTER:else 
+L:PENTER:	msgf("The door leads into a spiked pit!")
+L:PENTER:	dam = damroll(4, 8)
+L:PENTER:	if (randint0(100) < 50) then
+L:PENTER:		msgf("You are impaled!")
+L:PENTER:		dam = dam * 2
+L:PENTER:		inc_cut(randint1(dam))
+L:PENTER:	end
+L:PENTER:	take_hit(dam, "a trap door")
 L:PENTER:end
 
 # Pit
@@ -895,13 +904,16 @@ I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:0:0:0:0:0:0:0
 L:SBINIT:place_sb(rand_range(90, 125), 0)
 L:PENTER:do_cmd_bldg(field)
-L:BUILD1:building_options("$CThe price of a recharge depends on the item.",
-L:BUILD1:				  "",
-L:BUILD1:				  "R) Recharge Items",
-L:BUILD1:				  "I) Identify Items (".. factor * 5 .."gp)")
+L:BUILD1:building_options("R) Recharge Items (".. factor * 3 .."gp)",
+L:BUILD1:			  "I) Identify Items (".. factor * 5 .."gp)")
 L:BUILD2:local cost
 L:BUILD2:if (command == 'R') then
-L:BUILD2:	building_recharge(factor)
+L:BUILD2:       cost = factor * 3
+L:BUILD2:	if (test_gold(cost) == TRUE) then
+L:BUILD2:		if recharge(200) == TRUE then
+L:BUILD2:			player.au = player.au - cost
+L:BUILD2:		end
+L:BUILD2:	end
 L:BUILD2:	done = TRUE
 L:BUILD2:	message_flush()
 L:BUILD2:elseif (command == 'I') then
@@ -1900,10 +1912,10 @@ I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:6:0:0:0:0:0:0:0
 L:SBINIT:place_sb(rand_range(90, 125), 0)
 L:PENTER:do_cmd_bldg(field)
-L:BUILD1:building_options("R) Read about monsters (".. 100 * factor .."gp)")
+L:BUILD1:building_options("R) Read about monsters (".. 10 * factor .."gp)")
 L:BUILD2:local cost
 L:BUILD2:if (command == 'R') then
-L:BUILD2:	cost = 100 * factor
+L:BUILD2:	cost = 10 * factor
 L:BUILD2:	if (test_gold(cost) == TRUE) then
 L:BUILD2:		if (research_mon() == TRUE) then
 L:BUILD2:			player.au = player.au - cost
@@ -2160,7 +2172,7 @@ L:BUILD1:  rstring = "Q) Request Quest ("..build_get_qlevel()..")"
 L:BUILD1:else rstring = "" end
 L:BUILD1:if (is_member() == TRUE) then
 L:BUILD1:	building_options(rstring, 
-L:BUILD1:          "C) Charge Item (".. factor .. "gp)",
+L:BUILD1:          "C) Charge Item",
 L:BUILD1:          "B) Get SpellBooks (".. factor * 2 .."gp)", 
 L:BUILD1:          "S) Spend the night (free)")
 L:BUILD1:else
@@ -2169,8 +2181,11 @@ L:BUILD1:          "C) Charge Item (".. factor * 3 .. "gp)")
 L:BUILD1:end
 L:BUILD2:local cost
 L:BUILD2:if (command == 'C') then
-L:BUILD2:if (is_member() == TRUE) then cost = factor
-L:BUILD2:else	cost = factor * 3  end
+L:BUILD2:  if (is_member() == TRUE) then cost = factor
+L:BUILD2:       building_recharge(factor)
+L:BUILD2:       done = TRUE
+L:BUILD2:       message_flush()
+L:BUILD2:  else	cost = factor * 3 
 L:BUILD2:	if (test_gold(cost) == TRUE) then
 L:BUILD2:		if recharge(200) == TRUE then
 L:BUILD2:			player.au = player.au - cost
@@ -2178,6 +2193,7 @@ L:BUILD2:		end
 L:BUILD2:		message_flush()
 L:BUILD2:	end
 L:BUILD2:	done = TRUE
+L:BUILD2:  end
 L:BUILD2:end
 L:BUILD2:if (command == 'Q') then
 L:BUILD2:       if (is_member() == TRUE) then cost = 15 else cost = 0 end
@@ -2210,7 +2226,7 @@ L:BUILD1:else rstring = "" end
 L:BUILD1:if (is_member() == TRUE) then
 L:BUILD1:	building_options(rstring, 
 L:BUILD1:          "B) Blessing (".. (factor / 3).. "gp)",
-L:BUILD1:          "W) Word of Recall (".. factor .."gp)", 
+L:BUILD1:          "W) Word of Recall",
 L:BUILD1:          "R) Restoration (".. (factor * 15)/2 .."gp)")
 L:BUILD1:else
 L:BUILD1:	building_options(rstring, 
@@ -2234,12 +2250,8 @@ L:BUILD2:       if (is_member() == TRUE) then cost = 5 else cost = 0 end
 L:BUILD2:	build_cmd_quest(cost, field)
 L:BUILD2:	done = TRUE end
 L:BUILD2:if (command == 'W' and is_member() == TRUE) then
-L:BUILD2:       cost = factor
-L:BUILD2:       if (test_gold(cost) == TRUE) then 
-L:BUILD2:            if build_cmd_recall() == TRUE then
-L:BUILD2:               player.au = player.au - cost 
-L:BUILD2:               message_flush() end 
-L:BUILD2:       end
+L:BUILD2:       build_cmd_recall()
+L:BUILD2:       message_flush()
 L:BUILD2:       done = TRUE end
 L:BUILD2:if (command == 'R') then
 L:BUILD2:if (is_member() == TRUE) then cost = (factor*15)/2
@@ -2269,9 +2281,7 @@ L:BUILD1:if (build_has_quest() == TRUE and is_member() == TRUE) then
 L:BUILD1:  rstring = "Q) Request Reward"
 L:BUILD1:elseif (is_member() == TRUE and build_next_quest() == TRUE) then
 L:BUILD1:  rstring = "Q) Request Quest (".. build_get_qlevel()..")" 
-L:BUILD1:elseif (is_member() == FALSE) then
-L:BUILD1:  rstring = "Q) Request Membership" 
-L:BUILD1:else rstring = "" end
+L:BUILD1:else rstring = "Q) Request Membership" end
 L:BUILD1:if (is_full_member() == TRUE) then
 L:BUILD1:	building_options(rstring, 
 L:BUILD1:          "I) Identify item (".. factor / 3 .."gp)",

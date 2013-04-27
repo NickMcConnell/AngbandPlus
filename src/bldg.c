@@ -2252,10 +2252,45 @@ void build_cmd_spellbooks(int price)
 	}
 
 	/* Make sure the player has enough gold. */
-	if (!test_gold(price)) return;
+	if (!test_gold(price))
+		return;
+
+	/* Charge money */
+	p_ptr->au -= price;
 
 	/* First realm spellbook. */
 	tv = TV_LIFE_BOOK + p_ptr->spell.r[0].realm - 1;
+	sv = 0;
+
+	current_object_source.type = OM_STORE;
+	current_object_source.place_num = p_ptr->place_num;
+	current_object_source.depth = 0;
+	/* Hack: gets .data field */
+	(void)get_current_store();
+
+	o_ptr = object_prep(lookup_kind(tv,sv));
+
+	/* Make sure we can carry it */
+	if (!inven_carry_okay(o_ptr))
+	{
+		drop_near(o_ptr, -1, p_ptr->px, p_ptr->py);
+	}
+	else
+	{
+		j_ptr = inven_carry(o_ptr);
+		msgf("You have %v (%c).", OBJECT_FMT(j_ptr, TRUE, 3), I2A(get_item_position(p_ptr->inventory, j_ptr)));
+		message_flush();
+	}
+
+	/* See if we have a second realm. */
+	if (p_ptr->spell.r[1].realm == REALM_NONE)
+	{
+		/* only 1 realm */
+		return;
+	}
+
+	/* Second realm spellbook. */
+	tv = TV_LIFE_BOOK + p_ptr->spell.r[1].realm - 1;
 	sv = 0;
 
 	o_ptr = object_prep(lookup_kind(tv,sv));
@@ -2263,47 +2298,60 @@ void build_cmd_spellbooks(int price)
 	/* Make sure we can carry it */
 	if (!inven_carry_okay(o_ptr))
 	{
-		msgf ("You can't carry that many different items.");
-		return;
+		drop_near(o_ptr, -1, p_ptr->px, p_ptr->py);
 	}
-
-	j_ptr = inven_carry(o_ptr);
-	p_ptr->au -= price/2;
-	msgf("You have %v (%c).", OBJECT_FMT(j_ptr, TRUE, 3), I2A(get_item_position(p_ptr->inventory, j_ptr)));
-
-	/* See if we have a second realm. */
-	if (p_ptr->spell.r[1].realm == REALM_NONE)
+	else
 	{
-		/* only 1 realm.  Charge full amount, though.  */
-		p_ptr->au -= (price - price/2);
-		return;
+		j_ptr = inven_carry(o_ptr);
+		msgf("You have %v (%c).", OBJECT_FMT(j_ptr, TRUE, 3), I2A(get_item_position(p_ptr->inventory, j_ptr)));
+		message_flush();
 	}
 
-	/* Prepare the second realm spellbook. */
-	tv = TV_LIFE_BOOK + p_ptr->spell.r[1].realm - 1;
-	/* sv = 0 already. */
-
-	o_ptr = object_prep(lookup_kind(tv,sv));
-
-	if (!inven_carry_okay(o_ptr))
-	{
-		msgf ("You can't carry that many different items.");
-		return;
-	}
-
-	/* Give the book, deduct the remaining fee */
-	j_ptr = inven_carry(o_ptr);
-	p_ptr->au -= (price - price/2);
-	msgf("You have %v (%c).", OBJECT_FMT(j_ptr, TRUE, 3), I2A(get_item_position(p_ptr->inventory, j_ptr)));
 }
 
+void build_cmd_food (int price)
+{
+    object_type *o_ptr, *j_ptr;
+
+	/* Make sure the player has enough gold. */
+	if (!test_gold(price))
+		return;
+
+	/* Charge money */
+	p_ptr->au -= price;
+
+	current_object_source.type = OM_STORE;
+	current_object_source.place_num = p_ptr->place_num;
+	current_object_source.depth = 0;
+	/* Hack: gets data */
+	(void)get_current_store();
+
+	o_ptr = object_prep(lookup_kind(TV_FOOD,SV_FOOD_RATION));
+
+	/* Make sure we can carry it */
+	if (!inven_carry_okay(o_ptr))
+	{
+		drop_near(o_ptr, -1, p_ptr->px, p_ptr->py);
+		msgf ("Done.");
+		message_flush();
+	}
+	else
+	{
+		j_ptr = inven_carry(o_ptr);
+		msgf("You have %v (%c).", OBJECT_FMT(j_ptr, TRUE, 3), I2A(get_item_position(p_ptr->inventory, j_ptr)));
+		message_flush();
+	}
+}
 
 /*
  * Do Word of recall if it will work.
  */
-void build_cmd_recall (void)
+bool build_cmd_recall (void)
 {
+	if (!check_down_wild()) return FALSE;
+	if (ironman_downward) return FALSE;
 	word_of_recall();
+	return TRUE;
 }
 
 /*

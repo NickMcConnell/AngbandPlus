@@ -265,6 +265,7 @@ extern int owner_suffix_max;
 extern quest_type * current_quest;
 extern bool level_gen_in_progress;
 extern monster_group_type *current_monster_group;
+extern object_memory_type current_object_source;
 
 /* birth.c */
 extern void player_birth(void);
@@ -522,6 +523,7 @@ extern monster_type *multiply_monster(int m_idx, bool clone, bool friendly, bool
 extern void update_smart_learn(int m_idx, int what);
 extern monster_type *place_monster_one(int x, int y, int r_idx, bool slp, bool friendly,
 							  bool pet);
+extern bool summon_monsters_near_player(int num, int type);
 
 /* monster3.c (currently in monster1.c) */
 extern void set_friendly(monster_type *m_ptr);
@@ -546,6 +548,7 @@ extern void object_store_fmt(char *buf, uint max, cptr fmt, va_list *vp);
 /* object1.c */
 /* object2.c */
 
+extern void object_copy(object_type * o_ptr, const object_type *j_ptr);
 extern void inventory_remind(void);
 extern void reset_visuals(void);
 extern void object_flags_known(const object_type *o_ptr, object_flags *of_ptr);
@@ -865,8 +868,9 @@ extern bool inn_rest(void);
 extern void build_init(int town_num, int build_num, byte build_type);
 extern void build_cmd_repair(void);
 extern void build_cmd_spellbooks(int price);
-extern void build_cmd_recall (void);
+extern bool build_cmd_recall (void);
 extern void build_cmd_grave (void);
+extern void build_cmd_food (int price);
 extern void build_cmd_loan(int factor);
 extern bool check_motrgage(void);
 extern void place_qinit(int member, int base);

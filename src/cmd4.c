@@ -4016,7 +4016,7 @@ static void dump_dungeon_info(FILE *fff, int town)
 	depth = d_ptr->recall_depth;
 
 	/* Is it a town? */
-	if (pl_ptr->numstores)
+	if (pl_ptr->type == PL_TOWN_FRACT || pl_ptr->type == PL_TOWN_OLD)
 	{
 		/* Hack-- determine the town has been visited */
 		visited = FALSE;
@@ -4043,6 +4043,11 @@ static void dump_dungeon_info(FILE *fff, int town)
 			/* Don't show this */
 			return;
 		}
+	}
+	else if (pl_ptr->type != PL_DUNGEON)
+	{
+		/* Don't show */
+		return;
 	}
 	/* So it is a dungeon */
 	else

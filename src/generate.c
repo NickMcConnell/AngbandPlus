@@ -389,8 +389,6 @@ static bool alloc_stairs(int feat, int num, int walls)
 	{
 		/* No up stairs in town or in ironman mode */
 		if (ironman_downward || !p_ptr->depth) return TRUE;
-
-		/* if (is_quest()) feat = FEAT_QUEST_LESS */
 	}
 	else if (feat == FEAT_MORE)
 	{
@@ -446,7 +444,7 @@ static bool alloc_stairs(int feat, int num, int walls)
 				if (next_to_walls(x, y) < walls) continue;
 
 				/* Clear previous contents, add stairs */
-				if (!q_stop) set_feat_grid(c_ptr, feat);
+				if (!q_stop || feat == FEAT_LESS) set_feat_grid(c_ptr, feat);
 
 				/* All done */
 				flag = TRUE;
@@ -472,6 +470,184 @@ static bool alloc_stairs(int feat, int num, int walls)
 }
 
 /*
+ * Try to make sure a symmetric dungeon is connected.
+ */
+static void apply_symmetry_connect(dun_type * d_ptr, bool horiz)
+{
+	int x, y, i;
+	int yfirst, ylast;
+	int xfirst, xlast;
+	cave_type * c_ptr;
+
+	/* Check the horizontal "seam" first */
+
+	if (d_ptr->flags & (DF_SYM_4 | DF_SYM_R4) || horiz)
+	{
+		x = (p_ptr->min_wid + p_ptr->max_wid)/2;
+
+		/* Look next to the seam for the first and last connection to it. */
+		yfirst = -1;
+
+		for (y = 0; y < p_ptr->max_hgt; y++)
+		{
+			c_ptr = cave_p(x+1,y);
+
+			if (c_ptr->feat == FEAT_CLOSED || c_ptr->feat == FEAT_SECRET ||
+				!(c_ptr->info & FF_BLOCK))
+			{
+				if (yfirst == -1)  yfirst = y;
+				ylast = y;
+			}
+
+			/* Paranoia: check both sides.  Maybe not paranoia: could be an issue of width parity? */
+			c_ptr = cave_p(x-1,y);
+
+			if (c_ptr->feat == FEAT_CLOSED || c_ptr->feat == FEAT_SECRET ||
+				!(c_ptr->info & FF_BLOCK))
+			{
+				if (yfirst == -1)  yfirst = y;
+				ylast = y;
+			}
+		}
+
+		/* If there were no adjacent open areas, draw a *perpendicular* path. */
+		if (yfirst == -1)
+		{
+			bool ok = FALSE;
+			y = (p_ptr->min_hgt + p_ptr->max_hgt)/2;
+
+			for (i = 0; !ok; i++)
+			{
+				if (x+i >= p_ptr->max_wid) break;
+
+				c_ptr = cave_p(x+i, y);
+
+				if (c_ptr->feat == FEAT_CLOSED || c_ptr->feat == FEAT_SECRET ||
+					!(c_ptr->info & FF_BLOCK))
+				{
+					ok = TRUE;
+				}
+				else
+				{
+					set_feat_bold(x+i, y, dun->feat_floor);
+				}
+
+				if (x-i < 0) break;
+
+				c_ptr = cave_p(x-i, y);
+
+				if (c_ptr->feat == FEAT_CLOSED || c_ptr->feat == FEAT_SECRET ||
+					!(c_ptr->info & FF_BLOCK))
+				{
+					ok = TRUE;
+				}
+				else
+				{
+					set_feat_bold(x-i, y, dun->feat_floor);
+				}
+			}
+		}
+		/* Otherwise, open a path along the seam from yfirst to ylast. */
+		else
+		{
+			for (y = yfirst; y <= ylast; y++)
+			{
+				c_ptr = cave_p(x,y);
+
+				if (c_ptr->feat != FEAT_CLOSED && c_ptr->feat != FEAT_SECRET &&
+					(c_ptr->info & FF_BLOCK))
+				{
+					set_feat_bold(x,y, dun->feat_floor);
+				}
+			}
+		}
+	}
+
+	/* Now the vertical seam */
+	if (d_ptr->flags & (DF_SYM_4 | DF_SYM_R4) || !horiz)
+	{
+		y = (p_ptr->min_hgt + p_ptr->max_hgt)/2;
+
+		/* Look next to the seam for the first and last connection to it. */
+		xfirst = -1;
+
+		for (x = 0; x < p_ptr->max_wid; x++)
+		{
+			c_ptr = cave_p(x,y+1);
+
+			if (c_ptr->feat == FEAT_CLOSED || c_ptr->feat == FEAT_SECRET ||
+				!(c_ptr->info & FF_BLOCK))
+			{
+				if (xfirst == -1)  xfirst = x;
+				xlast = x;
+			}
+
+			/* Paranoia: check both sides.  Maybe not paranoia: could be an issue of width parity? */
+			c_ptr = cave_p(x,y-1);
+
+			if (c_ptr->feat == FEAT_CLOSED || c_ptr->feat == FEAT_SECRET ||
+				!(c_ptr->info & FF_BLOCK))
+			{
+				if (xfirst == -1)  xfirst = x;
+				xlast = x;
+			}
+		}
+
+		/* If there were no adjacent open areas, draw a *perpendicular* path. */
+		if (xfirst == -1)
+		{
+			bool ok = FALSE;
+			x = (p_ptr->min_wid + p_ptr->max_wid)/2;
+
+			for (i = 0; !ok; i++)
+			{
+				if (y+i >= p_ptr->max_hgt) break;
+
+				c_ptr = cave_p(x, y+i);
+
+				if (c_ptr->feat == FEAT_CLOSED || c_ptr->feat == FEAT_SECRET ||
+					!(c_ptr->info & FF_BLOCK))
+				{
+					ok = TRUE;
+				}
+				else
+				{
+					set_feat_bold(x, y+i, dun->feat_floor);
+				}
+
+				if (y-i < 0) break;
+
+				c_ptr = cave_p(x, y-i);
+
+				if (c_ptr->feat == FEAT_CLOSED || c_ptr->feat == FEAT_SECRET ||
+					!(c_ptr->info & FF_BLOCK))
+				{
+					ok = TRUE;
+				}
+				else
+				{
+					set_feat_bold(x, y-i, dun->feat_floor);
+				}
+			}
+		}
+		/* Otherwise, open a path along the seam from yfirst to ylast. */
+		else
+		{
+			for (x = xfirst; x <= xlast; x++)
+			{
+				c_ptr = cave_p(x,y);
+
+				if (c_ptr->feat != FEAT_CLOSED && c_ptr->feat != FEAT_SECRET &&
+					(c_ptr->info & FF_BLOCK))
+				{
+					set_feat_bold(x,y, dun->feat_floor);
+				}
+			}
+		}
+	}
+}
+
+/*
  * Make the current dungeon symmetric.
  */
 static void apply_symmetry(dun_type * d_ptr, bool horiz)
@@ -483,21 +659,14 @@ static void apply_symmetry(dun_type * d_ptr, bool horiz)
 	bool stairs_up = FALSE;
 	bool stairs_down = FALSE;
 
-	/* Make a little space in the center */
-	for (x = (p_ptr->min_wid + p_ptr->max_wid)/2 - 1;
-		 x < (p_ptr->min_wid + p_ptr->max_wid)/2 + 1; x++)
-		for (y = (p_ptr->min_hgt + p_ptr->max_hgt)/2 - 1;
-			 y < (p_ptr->min_hgt + p_ptr->max_hgt)/2 + 1; y++)
-			set_feat_bold(x, y, d_ptr->floor);
-
 	/* We should never have multiple symmetries, but just in case, we will
 	   prioritize: SYM_2 then SYM_R2, then SYM_4 then SYM_R4 */
 	if (d_ptr->flags & (DF_SYM_2 | DF_SYM_R2))
 	{
-		for (x = p_ptr->min_wid; x <= (horiz ? (p_ptr->min_wid + p_ptr->max_wid)/2 :
+		for (x = p_ptr->min_wid; x < (horiz ? (p_ptr->min_wid + p_ptr->max_wid)/2 :
 				p_ptr->max_wid); x++)
 		{
-			for (y = p_ptr->min_hgt; y <= (horiz ? p_ptr->max_hgt :
+			for (y = p_ptr->min_hgt; y < (horiz ? p_ptr->max_hgt :
 				(p_ptr->min_hgt + p_ptr->max_hgt)/2); y++)
 			{
 				c_ptr = cave_p (x,y);
@@ -508,18 +677,18 @@ static void apply_symmetry(dun_type * d_ptr, bool horiz)
 				/* Determine coords of symmetric grid */
 				if (horiz && d_ptr->flags & DF_SYM_2)
 				{
-					x2 = p_ptr->max_wid-1 - x;
+					x2 = p_ptr->max_wid - x - 1;
 					y2 = y;
 				}
 				else if (!horiz & d_ptr->flags & DF_SYM_2)
 				{
 					x2 = x;
-					y2 = p_ptr->max_hgt-1 - y;
+					y2 = p_ptr->max_hgt - y - 1;
 				}
 				else
 				{
-					x2 = p_ptr->max_wid-1 - x;
-					y2 = p_ptr->max_hgt-1 - y;
+					x2 = p_ptr->max_wid - x - 1;
+					y2 = p_ptr->max_hgt - y - 1;
 				}
 
 				c2_ptr = cave_p (x2, y2);
@@ -847,7 +1016,7 @@ static void add_monsters(int count)
 	u16b r_idx;
 	monster_race *r_ptr;
 
-	int num;
+	int num  = 0;
 
 	bool group;
 
@@ -874,7 +1043,11 @@ static void add_monsters(int count)
 		if (delta_level < 0) delta_level = 0;
 		if (delta_level > 10) delta_level = 10;
 
-		(void)alloc_monster(0, TRUE, delta_level);
+		/* Place the monster */
+		if (alloc_monster(0, TRUE, delta_level)) num++;
+
+		/* If we failed, set back the counter: should guarantee at least one monster. */
+		else if (i+num < count) i--;
 	}
 
 	/* Sometimes have lots of monster of a given type */
@@ -974,8 +1147,10 @@ static void add_monsters(int count)
 static bool cave_gen(dun_type *d_ptr)
 {
 	int i, j, k, y, x, y1, x1, p;
+	int min_wid, max_wid, min_hgt, max_hgt;
 
 	bool castle = d_ptr->flags & (DF_CASTLE | DF_PURE_CASTLE);
+	bool horiz = one_in_(2);
 
 	int max_vault_ok = 2;
 
@@ -1013,6 +1188,9 @@ static bool cave_gen(dun_type *d_ptr)
 
 	/* Get room types */
 	dun->room_types = d_ptr->rooms;
+
+	/* No vaults yet */
+	dun->vaults = 0;
 
 	/* Empty arena levels */
 	if (d_ptr->freq_arena && one_in_(d_ptr->freq_arena))
@@ -1343,6 +1521,32 @@ static bool cave_gen(dun_type *d_ptr)
 		}
 	}
 
+	/* Big hack: Modify the bounds on symmetric levels, so as to force allocated things not to get overwritten. */
+	if (d_ptr->flags & (DF_SYM_2 | DF_SYM_R2 | DF_SYM_4 | DF_SYM_R4))
+	{
+		min_hgt = p_ptr->min_hgt;
+		min_wid = p_ptr->min_wid;
+		max_hgt = p_ptr->max_hgt;
+		max_wid = p_ptr->max_wid;
+
+		if (d_ptr->flags & (DF_SYM_2 | DF_SYM_R2))
+		{
+			if (horiz)
+			{
+				p_ptr->max_wid = (p_ptr->min_wid + p_ptr->max_wid)/2;
+			}
+			else
+			{
+				p_ptr->max_hgt = (p_ptr->min_hgt + p_ptr->max_hgt)/2;
+			}
+		}
+		else
+		{
+			p_ptr->max_wid = (p_ptr->min_wid + p_ptr->max_wid)/2;
+			p_ptr->max_hgt = (p_ptr->min_hgt + p_ptr->max_hgt)/2;
+		}
+	}
+
 	/* Place 3 or 4 down stairs near some walls */
 	if (!alloc_stairs(FEAT_MORE, MIN((rand_range(3, 4) * d_ptr->freq_stairs / 100), 1), 3)) return FALSE;
 
@@ -1359,12 +1563,12 @@ static bool cave_gen(dun_type *d_ptr)
 	i = MIN_M_ALLOC_LEVEL;
 
 	/* To make small levels a bit more playable */
-	if (p_ptr->max_hgt < MAX_HGT || p_ptr->max_wid < MAX_WID)
+	if (max_hgt < MAX_HGT || max_wid < MAX_WID)
 	{
 		int small_tester = i;
 
-		i = (i * p_ptr->max_hgt) / MAX_HGT;
-		i = (i * p_ptr->max_wid) / MAX_WID;
+		i = (i * max_hgt) / MAX_HGT;
+		i = (i * max_wid) / MAX_WID;
 		i += 1;
 
 		if (i > small_tester) i = small_tester;
@@ -1393,6 +1597,16 @@ static bool cave_gen(dun_type *d_ptr)
 		p /= 2;
 	}
 
+	/* Compensate for duplicating that happens in apply_symmetry */
+	if (d_ptr->flags & (DF_SYM_2 | DF_SYM_R2))
+		p /= 2;
+
+	if (d_ptr->flags & (DF_SYM_4 | DF_SYM_R4))
+		p /= 4;
+
+	/* Bounds forcing */
+	p = MAX(1,p);
+
 	/* Add some monsters to the dungeon */
 	add_monsters(p);
 
@@ -1410,6 +1624,15 @@ static bool cave_gen(dun_type *d_ptr)
 	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_OBJECT,
 				 Rand_normal((DUN_AMT_ITEM*d_ptr->freq_objects)/100, 3));
 	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_GOLD, Rand_normal((DUN_AMT_GOLD*d_ptr->freq_objects)/100, 3));
+
+	/* Restore actual bounds */
+	if (d_ptr->flags & (DF_SYM_2 | DF_SYM_R2 | DF_SYM_4 | DF_SYM_R4))
+	{
+		p_ptr->min_wid = min_wid;
+		p_ptr->max_wid = max_wid;
+		p_ptr->min_hgt = min_hgt;
+		p_ptr->max_hgt = max_hgt;
+	}
 
 	/* Replace standard stone with dungeon-specified walls */
 	for (y = p_ptr->min_hgt; y < p_ptr->max_hgt; y++)
@@ -1454,7 +1677,10 @@ static bool cave_gen(dun_type *d_ptr)
 	/* Apply cave symmetry */
 	if (d_ptr->flags & (DF_SYM_2 | DF_SYM_R2 | DF_SYM_4 | DF_SYM_R4))
 	{
-		apply_symmetry(d_ptr, one_in_(2));
+		apply_symmetry(d_ptr, horiz);
+		apply_symmetry_connect(d_ptr, horiz);
+
+
 	}
 
 	/* Determine the character location */
@@ -1508,6 +1734,7 @@ static bool cave_gen(dun_type *d_ptr)
 static bool castle_gen(dun_type *d_ptr)
 {
 	int x, y, xmid, ymid, gate, x0, y0;
+	int min_hgt, max_hgt, min_wid, max_wid;
 	int i, k, p;
 	bool horiz = one_in_(2);
 
@@ -1520,6 +1747,9 @@ static bool castle_gen(dun_type *d_ptr)
 
 	/* For this, only need floor */
 	dun->feat_floor = d_ptr->floor;
+
+	/* No vaults yet */
+	dun->vaults = 0;
 
 	xmid = (p_ptr->min_wid + p_ptr->max_wid - 1)/2;
 	ymid = (p_ptr->min_hgt + p_ptr->max_hgt - 1)/2;
@@ -1644,6 +1874,33 @@ static bool castle_gen(dun_type *d_ptr)
 	else
 		build_recursive_room(p_ptr->min_wid+2, p_ptr->min_hgt+2, p_ptr->max_wid - 3, p_ptr->max_hgt - 3, 5);
 
+
+	/* Big hack: Modify the bounds on symmetric levels, so as to force allocated things not to get overwritten. */
+	if (d_ptr->flags & (DF_SYM_2 | DF_SYM_R2 | DF_SYM_4 | DF_SYM_R4))
+	{
+		min_hgt = p_ptr->min_hgt;
+		min_wid = p_ptr->min_wid;
+		max_hgt = p_ptr->max_hgt;
+		max_wid = p_ptr->max_wid;
+
+		if (d_ptr->flags & (DF_SYM_2 | DF_SYM_R2))
+		{
+			if (horiz)
+			{
+				p_ptr->max_wid = (p_ptr->min_wid + p_ptr->max_wid)/2;
+			}
+			else
+			{
+				p_ptr->max_hgt = (p_ptr->min_hgt + p_ptr->max_hgt)/2;
+			}
+		}
+		else
+		{
+			p_ptr->max_wid = (p_ptr->min_wid + p_ptr->max_wid)/2;
+			p_ptr->max_hgt = (p_ptr->min_hgt + p_ptr->max_hgt)/2;
+		}
+	}
+
 	/* Place 3 or 4 down stairs near some walls */
 	(void)alloc_stairs(FEAT_MORE, MIN((rand_range(3, 4) * d_ptr->freq_stairs / 100), 1), 3);
 
@@ -1660,12 +1917,12 @@ static bool castle_gen(dun_type *d_ptr)
 	i = MIN_M_ALLOC_LEVEL;
 
 	/* To make small levels a bit more playable */
-	if (p_ptr->max_hgt < MAX_HGT || p_ptr->max_wid < MAX_WID)
+	if (max_hgt < MAX_HGT || max_wid < MAX_WID)
 	{
 		int small_tester = i;
 
-		i = (i * p_ptr->max_hgt) / MAX_HGT;
-		i = (i * p_ptr->max_wid) / MAX_WID;
+		i = (i * max_hgt) / MAX_HGT;
+		i = (i * max_wid) / MAX_WID;
 		i += 1;
 
 		if (i > small_tester) i = small_tester;
@@ -1694,6 +1951,13 @@ static bool castle_gen(dun_type *d_ptr)
 		p /= 2;
 	}
 
+	/* Compensate for duplicating that happens in apply_symmetry */
+	if (d_ptr->flags & (DF_SYM_2 | DF_SYM_R2))
+		p /= 2;
+
+	if (d_ptr->flags & (DF_SYM_4 | DF_SYM_R4))
+		p /= 4;
+
 	/* Add some monsters to the dungeon */
 	add_monsters(p);
 
@@ -1708,6 +1972,15 @@ static bool castle_gen(dun_type *d_ptr)
 	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_OBJECT,
 				 Rand_normal((DUN_AMT_ITEM*d_ptr->freq_objects)/100, 3));
 	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_GOLD, Rand_normal((DUN_AMT_GOLD*d_ptr->freq_objects)/100, 3));
+
+	/* Restore actual bounds */
+	if (d_ptr->flags & (DF_SYM_2 | DF_SYM_R2 | DF_SYM_4 | DF_SYM_R4))
+	{
+		p_ptr->min_wid = min_wid;
+		p_ptr->max_wid = max_wid;
+		p_ptr->min_hgt = min_hgt;
+		p_ptr->max_hgt = max_hgt;
+	}
 
 	/* Apply cave symmetry */
 	if (d_ptr->flags & (DF_SYM_2 | DF_SYM_R2 | DF_SYM_4 | DF_SYM_R4))
@@ -2210,6 +2483,13 @@ void generate_cave(void)
 
 		return;
 	}
+
+	/* Prepare for object memory */
+	current_object_source.type = OM_FLOOR;
+	current_object_source.place_num = p_ptr->place_num;
+	current_object_source.depth = p_ptr->depth;
+	current_object_source.data = 0;
+
 
 	/* Get random dungeon */
 	if (vanilla_town)

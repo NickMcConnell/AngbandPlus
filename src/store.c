@@ -1355,13 +1355,13 @@ static bool store_access_item(const object_type *o_ptr, s32b price, bool buy)
 	if (buy)
 	{
 		/* Describe the object (fully) */
-		put_fstr(0, 1, "%s %v", (buy) ? "Buying" : "Selling",
+		put_fstr(0, 1, "%s %v   ", (buy) ? "Buying" : "Selling",
 					OBJECT_STORE_FMT(o_ptr, TRUE, 3));
 	}
 	else
 	{
 		/* Describe the object (only what we know) */
-		put_fstr(0, 1, "%s %v", (buy) ? "Buying" : "Selling",
+		put_fstr(0, 1, "%s %v   ", (buy) ? "Buying" : "Selling",
 					OBJECT_FMT(o_ptr, TRUE, 3));
 	}
 
@@ -1463,7 +1463,7 @@ static void store_purchase(void)
 		if (o_ptr->number > 1)
 		{
 			/* Describe the object (fully) */
-			put_fstr(0, 1, "%s %v", "Buying",
+			put_fstr(0, 1, "%s %v   ", "Buying",
 						OBJECT_STORE_FMT(o_ptr, TRUE, 3));
 
 			/* Get a quantity */
@@ -1543,6 +1543,10 @@ static void store_purchase(void)
             /* Erase the inscription */
             quark_remove(&j_ptr->inscription);
 
+			/* Store object memory */
+			if (j_ptr->mem.type == OM_NONE)
+				j_ptr->mem.type = OM_STORE;
+
 			/* Erase the "feeling" */
 			j_ptr->feeling = FEEL_NONE;
 
@@ -1592,8 +1596,14 @@ static void store_purchase(void)
 				}
 
 				/* New inventory */
+				current_object_source.type = OM_NONE;
+				current_object_source.place_num = p_ptr->place_num;
+				current_object_source.depth = 0;
+				/* Data set in get_current_store */
+
 				for (i = 0; i < 10; i++)
 				{
+
 					/* Maintain the store */
 					store_maint();
 				}
@@ -2441,6 +2451,10 @@ store_type *get_current_store(void)
 		}
 	}
 
+	/* HACK: if we create objects, it will be from this store. */
+	current_object_source.data = which;
+
+
 	/* Paranoia */
 	if (which == -1)
 	{
@@ -2524,6 +2538,11 @@ void do_cmd_store(const field_type *f1_ptr)
 
 	if (maintain_num)
 	{
+		current_object_source.type = OM_NONE;
+		current_object_source.place_num = p_ptr->place_num;
+		current_object_source.depth = 0;
+		/* Data set in get_current_store */
+
 		/* Maintain the store */
 		for (i = 0; i < maintain_num; i++)
 		{

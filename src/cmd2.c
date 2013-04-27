@@ -74,6 +74,41 @@ void do_cmd_go_down(void)
 	{
 		p_ptr->state.energy_use = 0;
 
+		/* Prompt before going down quest stairs, so player can tell quests apart */
+		if (c_ptr->feat == FEAT_QUEST_MORE)
+		{
+			monster_race *r_ptr;
+			quest_type *q_ptr = &quest[place[p_ptr->place_num].quest_num];
+		 	char buf[80];
+
+			switch (q_ptr->type)
+			{
+				case QUEST_TYPE_FIXED_DEN:
+					strnfmt (buf, 80, "den of %s", mg_info[q_ptr->data.fix.data.den.mg_idx].name);
+					break;
+				case QUEST_TYPE_FIXED_BOSS:
+					r_ptr = &r_info[q_ptr->data.fix.data.boss.r_idx];
+					strnfmt (buf, 80, "lair of %s%s", (FLAG(r_ptr, RF_UNIQUE) ? "" : "a "), mon_race_name(r_ptr));
+					break;
+				case QUEST_TYPE_FIXED_KILL:
+					r_ptr = &r_info[q_ptr->data.fix.data.kill.r_idx];
+					strnfmt (buf, 80, "lair of %s%s", (FLAG(r_ptr, RF_UNIQUE) ? "" : "a "), mon_race_name(r_ptr));
+					break;
+				case QUEST_TYPE_FIXED_CLEAROUT:
+				{
+					dun_type * d_ptr = place[p_ptr->place_num].dungeon;
+					strnfmt (buf, 80, "%s", dungeon_type_name(d_ptr->habitat));
+					break;
+				}
+				default:
+					strcpy (buf, "quest");
+					break;
+			}
+
+			if (!get_check("Enter the %s (level %d quest)? ", buf, q_ptr->level))
+				return;
+		}
+
 		/* Success */
 		msgf(MSGT_STAIRS, "You enter a maze of down staircases.");
 
@@ -286,6 +321,12 @@ static void chest_death(int x, int y, object_type *o_ptr)
 
 	/* Determine the "value" of the items */
 	level = ABS(o_ptr->pval);
+
+	/* Prepare for object memory */
+	current_object_source.type = OM_CHEST;
+	current_object_source.place_num = p_ptr->place_num;
+	current_object_source.depth = p_ptr->depth;
+	current_object_source.data = (u32b)o_ptr->sval;
 
 	/* Drop some objects (non-chests) */
 	for (; number > 0; --number)
@@ -1228,6 +1269,12 @@ static bool do_cmd_tunnel_aux(int x, int y)
 			/* Hack -- place an object */
 			if (p_ptr->depth && one_in_(10))
 			{
+				/* Prepare for object memory */
+				current_object_source.type = OM_RUBBLE;
+				current_object_source.place_num = p_ptr->place_num;
+				current_object_source.depth = p_ptr->depth;
+				current_object_source.data = 0;
+
 				/* Create a simple object */
 				place_object(x, y, FALSE, FALSE, 0);
 
@@ -2195,11 +2242,13 @@ static int critical_shot(int chance, int sleeping_bonus, cptr o_name,
  * Process the effect of hitting something with a
  * thrown item.
  */
-static void throw_item_effect(object_type *o_ptr, bool hit_body, bool hit_wall,
-                              bool hit_success, int x, int y)
+static void throw_item_effect(object_type *i_ptr, bool hit_body, bool hit_wall,
+                              bool hit_success, int x, int y, object_type *o_ptr)
 {
+	int i;
+
 	/* Chance of breakage (during attacks) */
-	int breakage = (hit_body ? breakage_chance(o_ptr) : 0);
+	int breakage = (hit_body ? breakage_chance(i_ptr) : 0);
 	monster_type *m_ptr;
 
 	/* Figurines transform */
@@ -2208,7 +2257,7 @@ static void throw_item_effect(object_type *o_ptr, bool hit_body, bool hit_wall,
 		/* Always break */
 		breakage = 100;
 
-		m_ptr = summon_named_creature(x, y, o_ptr->pval, FALSE, FALSE, TRUE);
+		m_ptr = summon_named_creature(x, y, i_ptr->pval, FALSE, FALSE, TRUE);
 		if (!m_ptr)
 		{
 			msgf("The Figurine writhes and then shatters.");
@@ -2219,17 +2268,46 @@ static void throw_item_effect(object_type *o_ptr, bool hit_body, bool hit_wall,
 		}
 	}
 
-	if ((FLAG(o_ptr, TR_RETURN)) && randint0(100) < 95)
+	if ((FLAG(i_ptr, TR_RETURN)) && randint0(100) < 95)
 	{
-		msgf("The %v returns to your hand.", OBJECT_FMT(o_ptr, FALSE, 3));
+		msgf("The %v returns to your hand.", OBJECT_FMT(i_ptr, FALSE, 3));
 
-		inven_carry(o_ptr);
+		/* If the object *was* in our equipment, put it back there. */
+		for (i = 0; i < EQUIP_MAX; i++)
+		{
+			if (&p_ptr->equipment[i] == o_ptr)
+			{
+				/* Slot not empty, just inform and increase the number */
+				if (o_ptr->number > 0)
+				{
+					o_ptr->number++;
+
+					return;
+				}
+				/* Put the object back in our equipment */
+				else
+				{
+					object_copy(o_ptr, i_ptr);
+
+					/* Allocate quarks */
+					quark_dup(i_ptr->xtra_name);
+					quark_dup(i_ptr->inscription);
+
+					for (i = 0; i < MAX_TRIGGER; i++)
+						quark_dup(i_ptr->trigger[i]);
+					return;
+				}
+			}
+		}
+
+		/* Otherwise, just pick it up. */
+		inven_carry(i_ptr);
 
 		return;
 	}
 
 	/* Exploding arrows */
-	if ((FLAG(o_ptr, TR_EXPLODE)) && hit_body && hit_success)
+	if ((FLAG(i_ptr, TR_EXPLODE)) && hit_body && hit_success)
 	{
 		project(0, 2, x, y, 100, GF_FIRE, (PROJECT_JUMP |
 					PROJECT_ITEM | PROJECT_KILL));
@@ -2238,14 +2316,14 @@ static void throw_item_effect(object_type *o_ptr, bool hit_body, bool hit_wall,
 	}
 
 	/* Potions smash open */
-	if (object_is_potion(o_ptr))
+	if (object_is_potion(i_ptr))
 	{
 		if (hit_body || hit_wall || (randint1(100) < breakage))
 		{
 			/* Message */
-			msgf("The %v shatters!", OBJECT_FMT(o_ptr, FALSE, 3));
+			msgf("The %v shatters!", OBJECT_FMT(i_ptr, FALSE, 3));
 
-			if (potion_smash_effect(0, x, y, o_ptr))
+			if (potion_smash_effect(0, x, y, i_ptr))
 			{
 				monster_type *m_ptr = &m_list[area(x, y)->m_idx];
 
@@ -2270,7 +2348,7 @@ static void throw_item_effect(object_type *o_ptr, bool hit_body, bool hit_wall,
 	}
 
 	/* Drop (or break) near that location */
-	drop_near(o_ptr, breakage, x, y);
+	drop_near(i_ptr, breakage, x, y);
 
 	p_ptr->redraw |= (PR_EQUIPPY);
 
@@ -2334,6 +2412,8 @@ void do_cmd_fire_aux(int mult, object_type *o_ptr, const object_type *j_ptr)
 	int mul, div;
 
 	int chance2;
+
+	bool returned = FALSE;
 
 	object_type *i_ptr;
 
@@ -2705,7 +2785,7 @@ void do_cmd_fire_aux(int mult, object_type *o_ptr, const object_type *j_ptr)
 				tdam = mon_damage_mod(m_ptr, tdam, 0);
 
 				/* Drop (or break) near that location (i_ptr is now invalid) */
-				throw_item_effect(i_ptr, TRUE, FALSE, TRUE, x, y);
+				throw_item_effect(i_ptr, TRUE, FALSE, TRUE, x, y, o_ptr);
 
 				/* Complex message */
 				if (p_ptr->state.wizard)
@@ -2739,7 +2819,7 @@ void do_cmd_fire_aux(int mult, object_type *o_ptr, const object_type *j_ptr)
 			else
 			{
 				/* Drop (or break) near that location (i_ptr is now invalid) */
-				throw_item_effect(i_ptr, TRUE, FALSE, FALSE, x, y);
+				throw_item_effect(i_ptr, TRUE, FALSE, FALSE, x, y, o_ptr);
 			}
 
 			/* Stop looking */
@@ -2748,7 +2828,7 @@ void do_cmd_fire_aux(int mult, object_type *o_ptr, const object_type *j_ptr)
 	}
 
 	/* Drop (or break) near that location (i_ptr is now invalid) */
-	throw_item_effect(i_ptr, FALSE, hit_wall, FALSE, x, y);
+	throw_item_effect(i_ptr, FALSE, hit_wall, FALSE, x, y, o_ptr);
 }
 
 

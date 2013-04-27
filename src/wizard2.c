@@ -617,14 +617,24 @@ static void wiz_create_named_art(int a_idx)
 static void do_cmd_wiz_hack_mango(int arg)
 {
 	int i = arg;
+	int cnt = 0;
 	/* Debug */
 
-	for (i = 0; i < place_count; i++) 
+	monster_group_type *mg_ptr = &mg_info[arg];
+	
+	msgf ("Group: %s", mg_ptr->name);
+
+	for (i = 0; i < z_info->r_max; i++) 
 	{
-		if (place[i].type != PL_TOWN_MINI) continue;
-		
-		msgf ("Place %i: %s", i, place[i].name);
+		if (monster_group_test(i, mg_ptr))
+		{
+			cnt++;
+			msgf ("%d: %s", i, mon_race_name(&r_info[i]));
+		}
 	}
+
+	msgf ("%d monsters matched", cnt);
+
 }
 
 
@@ -1795,6 +1805,11 @@ static void wiz_create_item(void)
 
 	if (!k_idx) return;
 
+	current_object_source.type = OM_MADE;
+	current_object_source.place_num = p_ptr->place_num;
+	current_object_source.depth = p_ptr->depth;
+	current_object_source.data = 0;
+
 	/* Place the object */
 	place_specific_object(p_ptr->px, p_ptr->py, p_ptr->depth, k_idx);
 
@@ -2320,6 +2335,13 @@ void do_cmd_debug(void)
 		{
 			/* Good Objects */
 			if (p_ptr->cmd.arg <= 0) p_ptr->cmd.arg = 1;
+
+			/* Prepare for object memory */
+			current_object_source.type = OM_MADE;
+			current_object_source.place_num = p_ptr->place_num;
+			current_object_source.depth = p_ptr->depth;
+			current_object_source.data = 0;
+
 			acquirement(px, py, p_ptr->cmd.arg, FALSE, TRUE);
 			break;
 		}

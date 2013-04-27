@@ -259,10 +259,10 @@ static void rd_checksum(cptr msg)
 	test |= ((u32b)((getc(fff) & 0xFF)) << 24);
 
 	/* Check it */
-	if (test != checksum)
+	if (test != checksum && SAVEFILE_VERSION != sf_version)
 	{
 		get_check("Verbal checksum failure (%i, %i): %s", test, checksum, msg);
-		quit ("Verbal checksum failure");
+		quit ("Savefile unreadable: checksum failure");
 	}
 
 	/* Reset the checksum */
@@ -518,6 +518,23 @@ static void rd_item(object_type *o_ptr)
 		 */
 		o_ptr->kn_flags[2] &= o_ptr->flags[2] |
 			~(TR2_HEAVY_CURSE | TR2_PERMA_CURSE);
+
+		/* Object memory stuff added at this point */
+		if (sf_version > 53)
+		{
+			rd_byte(&o_ptr->mem.type);
+			rd_u16b(&o_ptr->mem.place_num);
+			rd_byte(&o_ptr->mem.depth);
+			rd_u32b(&o_ptr->mem.data);
+		}
+		else
+		{
+			o_ptr->mem.type = OM_NONE;
+			o_ptr->mem.place_num = 0;
+			o_ptr->mem.depth = 0;
+			o_ptr->mem.data = 0;
+		}
+
 	}
 	else
 	{
@@ -586,6 +603,7 @@ static void rd_item(object_type *o_ptr)
 		if (o_ptr->dd == 0) o_ptr->dd = 1;
 		if (o_ptr->ds == 0) o_ptr->ds = 1;
 	}
+
 }
 
 

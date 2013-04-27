@@ -216,7 +216,7 @@ example, use "\" + "." + "6", to specify "run east".
  \  (special - bypass keymap)            |  Check information
  `  (special - escape)                   ~  Check information
  /  Identify symbol                      ?  Help
-
+ \K Squelch                            \^U  (or ^ then U): Unsquelch
 
 ***** <SpecialKeys>
 === Special Keys ===

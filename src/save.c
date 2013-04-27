@@ -9,11 +9,11 @@
 
 /*
  *  The basic format of the savefiles is highly dependent on the version of Zangband / Angband
- *  they come from.  
+ *  they come from.
  *
  *  Savefiles are written a variable at a time in a certain order, and read back in the same order.
  *  In order to check correctness, a system of two kinds of checksums are used.
- * 
+ *
  *  There are two simple checksums that check the sum of all the bytes written to the file,
  *  and, sort of, "encrypt/decrypt" the file.  This is done by starting with a random byte, and
  *  XORing the latest byte with the current byte before it is written.
@@ -24,7 +24,7 @@
  *
  *  Important: old savefiles are not supported.  Some may work, who knows.  However, this code
  *  is a killer and I view my version as a new game.  With all the new quests and such, players
- *  really ought to start from the beginning.  
+ *  really ought to start from the beginning.
  *
  *  -- Mangojuice 7/3/08
  */
@@ -502,7 +502,7 @@ static void wr_checksum(void)
 	(void)putc((int)((checksum >> 8)& 0xFF), fff);
 	(void)putc((int)((checksum >> 16)& 0xFF), fff);
 	(void)putc((int)((checksum >> 24)& 0xFF), fff);
-	
+
 	/* Reset the checksum */
 	checksum = checksum_base;
 }
@@ -599,6 +599,12 @@ static void wr_item(const object_type *o_ptr)
 
 	for (i = 0; i < NUM_TR_SETS; i++)
 		wr_u32b(o_ptr->kn_flags[i]);
+
+	/* Object memory */
+	wr_byte(o_ptr->mem.type);
+	wr_u16b(o_ptr->mem.place_num);
+	wr_byte(o_ptr->mem.depth);
+	wr_u32b(o_ptr->mem.data);
 }
 
 
@@ -708,7 +714,7 @@ static void wr_lore(int r_idx)
 	wr_byte(0);
 	wr_byte(0);
 	wr_byte(0);
-	
+
 	/* Checksum */
 	wr_checksum();
 }
@@ -1379,7 +1385,7 @@ static void wr_dungeon(void)
 		/* Dump it */
 		wr_field(f_ptr);
 	}
-	
+
 	wr_checksum();
 }
 
@@ -1849,7 +1855,7 @@ static bool wr_savefile_new(void)
 	{
 		/* Dump the dungeon */
 		wr_dungeon();
-		
+
 		/* Dump the ghost */
 		wr_ghost();
 

@@ -2,7 +2,62 @@ This is a document file listing the changes in Zangband (compared to
 the standard Angband 2.8.1.) No long explanations, just a list. See
 code for details. In reversed chronological order (more or less):
 
-Chanves from Zangband 2.7.5pre1 to Z+Angband 0.2.0 alpha:
+Changes from Z+Angband 0.2.0 alpha to Z+Angband 0.2.1 beta:
+
+1.  Fixed bug that caused farm quests to complete after 1 killed monster.
+2.  Fixed bug that caused X-and-minions quests to not complete properly.
+3.  Fixed how Word of Recall works near quest stairs.
+4.  Fixed crash on entering quests with symmetric levels.
+5.  Symmetric levels should be more connected now, and more balanced.
+6.  Removed "Nothing answers your summons" message from non-summoning 
+	conjuration spells.
+7.  Implemented "buy food" from farms, was missing.
+8.  Scrolls / Staves of summoning now ID themselves properly.
+9.  Summon spell durations diminished in general.
+10.  Implemented experience for pet kills properly.
+11.  Removed buggy lites of Brightness.
+12.  Tweaked standard dungeons: should avoid anomalies like vaults in 
+	strange places and doors in the wilderness.
+13.  Fixed LUA script for Scroll of Detect Invisible
+14.  Reduced price of researching monsters in Libraries
+15.  Zymurgist "strong" recharge and Mage Guild "normal" recharge swapped.  
+	Now only Mage Guild members can have perfect safe recharging.
+16.  Fixed crash when approaching certain areas of the wilderness.
+17.  Fixed some minor bugs in expanded spellbook browsing.
+18.  Store display no longer leaves stray letters behind while buying.
+19.  Removed EASY_KNOW from a whole lot of objects that shouldn't have had 
+	it (e.g. some wands, ring of invisibility, etc.)
+20.  Tweaked Quest Rewards & Quest Granting for balance. 
+21.  Changed default options, should be more friendly to most players now.
+22.  Fixed inherited bug from Zangband where if you throw your equipped 
+	weapon a duplicate is generated.
+23.  Objects that return when thrown now return into your weapon slot if 
+	they were thrown from it.
+24.  Fixed do_cmd_knowledge_dungeon, no longer crashes.
+25.  Improved ^Q (quest knowledge) screen: now sorts by status and danger 
+	level.
+26.  Toned down find artifact quests, no longer so extremely hard.
+27.  Added prompt before entering a quest, so you can tell them apart.
+28.  Fixed monster group parsing bug that led to very strange quests (e.g. 
+	fire-breather quests full of acid breathers).  Note to self: remember, 
+	& and && are different.
+29.  Updated documentation slightly.
+30.  Fix pseudo-id issues on excellent / tainted / worthless items.
+31.  Reduced number of guards on normal dungeon entrances.
+32.  High Mages are now more likely to succeed in desperation spellcasting 
+	than other classes.
+33.  Made "randart_rare" make randarts 3x less likely rather than 12x, needed 
+	toning down.
+34.  Fixed strange things that can happen if you fall through a trap door in 
+	a quest: now, trap doors are just pits in those levels.
+35.  Levels with multiple vaults are less frequent now.
+36.  Slightly reduced base damage for arrows. 
+37.  Changed crown of spies: much much stronger now. 
+38.  Assorted minor object tweaks.
+39.  Started to implement object pickup memory.  Can't be seen in game, but 
+	the data will be stored and will be visible in a future release.
+
+Changes from Zangband 2.7.5pre1 to Z+Angband 0.2.0 alpha:
 
 (Too many to list.  See web site for further information.)
 

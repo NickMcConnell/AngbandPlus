@@ -406,6 +406,12 @@ static bool project_f(int who, int r, int x, int y, int dam, int typ)
 				/* Hack -- place an object */
 				if (randint0(100) < 10)
 				{
+					/* Prepare for object memory */
+					current_object_source.type = OM_RUBBLE;
+					current_object_source.place_num = p_ptr->place_num;
+					current_object_source.depth = p_ptr->depth;
+					current_object_source.data = 0;
+
 					/* Place gold */
 					place_object(x, y, FALSE, FALSE, 0);
 
@@ -2982,25 +2988,11 @@ static bool project_m(int who, int r, int x, int y, int dam, int typ)
 				/* Hack XXX Die, but do not explode and call project() */
 				(void)monster_death(c_ptr->m_idx, FALSE);
 
-				/* We get 10% experience for kills by pets. */
-				if(is_pet(&m_list[who])) {
-					s32b newexp, newexp_frac;
-					exp_for_kill(&r_info[m_list[c_ptr->m_idx].r_idx], &newexp, &newexp_frac);
-					gain_exp(newexp/10);
-				}
-
 				/* Delete the monster */
 				delete_monster_idx(c_ptr->m_idx);
 			}
 			else
 			{
-				/* We get 10% experience for kills by pets. */
-				if(is_pet(&m_list[who])) {
-					s32b newexp, newexp_frac;
-					exp_for_kill(&r_info[m_list[c_ptr->m_idx].r_idx], &newexp, &newexp_frac);
-					gain_exp(newexp/10);
-				}
-
 				/* Queue the monster */
 				mon_d_m_idx[old_m_d_head] = c_ptr->m_idx;
 			}
@@ -3021,6 +3013,29 @@ static bool project_m(int who, int r, int x, int y, int dam, int typ)
 			if (sad)
 			{
 				msgf("You feel sad for a moment.");
+			}
+
+			/* We get 10% experience for kills by pets. */
+			if(is_pet(&m_list[who])) {
+				s32b newexp, newexp_frac;
+
+				/* Get raw experience points */
+				exp_for_kill(&r_info[m_list[c_ptr->m_idx].r_idx], &newexp, &newexp_frac);
+
+				/* Divide it by 10 */
+				newexp_frac = newexp_frac / 10;
+				newexp_frac += ((long)(newexp % 10) * 0x10000L / 10);
+				newexp = newexp / 10;
+
+				/* Handle fractional experience */
+				if (newexp_frac/10 + p_ptr->exp_frac >= 0x10000L)
+				{
+					newexp++;
+					p_ptr->exp_frac = (u16b)(newexp_frac - 0x10000L);
+				}
+
+				/* Gain the experience */
+				gain_exp(newexp);
 			}
 		}
 

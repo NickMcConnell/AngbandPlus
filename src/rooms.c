@@ -1969,10 +1969,13 @@ static void build_vault(int xval, int yval, int xmax, int ymax, cptr data,
                         int xoffset, int yoffset, int transno)
 {
 	int dx, dy, x, y, i, j;
+	byte old = current_object_source.type;
 
 	cptr t;
 
 	cave_type *c_ptr;
+
+	current_object_source.type = OM_VAULT;
 
 
 	/* Place dungeon features and objects */
@@ -2197,6 +2200,8 @@ static void build_vault(int xval, int yval, int xmax, int ymax, cptr data,
 			}
 		}
 	}
+	current_object_source.type = old;
+
 }
 
 
@@ -2211,6 +2216,16 @@ static void build_type7(int bx0, int by0)
 	int xval, yval;
 	int xoffset, yoffset;
 	int transno;
+	byte old = current_object_source.type;
+
+	/* Avoid having too many vaults */
+	if (dun->vaults && !one_in_(dun->vaults+1))
+	{
+		(void)room_build();
+		return;
+	}
+
+	current_object_source.type = OM_VAULT;
 
 	/* Pick a lesser vault */
 	while (dummy < SAFE_MAX_ATTEMPTS)
@@ -2225,7 +2240,11 @@ static void build_type7(int bx0, int by0)
 	}
 
 	/* No lesser vault found */
-	if (!v_ptr) return;
+	if (!v_ptr)
+	{
+		current_object_source.type = old;
+		return;
+	}
 
 	if (!one_in_(3))
 	{
@@ -2263,13 +2282,18 @@ static void build_type7(int bx0, int by0)
 	}
 
 	/* Try to allocate space for room. */
-	if (!room_alloc(ABS(x), ABS(y), FALSE, bx0, by0, &xval, &yval)) return;
+	if (!room_alloc(ABS(x), ABS(y), FALSE, bx0, by0, &xval, &yval))
+	{
+		current_object_source.type = old;
+		return;
+	}
 
 	if (dummy >= SAFE_MAX_ATTEMPTS)
 	{
 		if (cheat_room)
 			msgf("Warning! Could not place lesser vault!");
 
+		current_object_source.type = old;
 		return;
 	}
 
@@ -2278,6 +2302,8 @@ static void build_type7(int bx0, int by0)
 
 	/* Boost the rating */
 	inc_rating(v_ptr->rat);
+
+	dun->vaults++;
 
 	/* (Sometimes) Cause a special feeling */
 	if ((p_ptr->depth <= 50) ||
@@ -2289,6 +2315,9 @@ static void build_type7(int bx0, int by0)
 	/* Hack -- Build the vault */
 	build_vault(xval, yval, v_ptr->wid, v_ptr->hgt,
 				v_text + v_ptr->text, xoffset, yoffset, transno);
+
+	current_object_source.type = old;
+
 }
 
 
@@ -2303,6 +2332,16 @@ static void build_type8(int bx0, int by0)
 	int x, y;
 	int transno;
 	int xoffset, yoffset;
+	byte old = current_object_source.type;
+
+	/* Avoid having too many vaults */
+	if (dun->vaults && !one_in_(dun->vaults+2))
+	{
+		(void)room_build();
+		return;
+	}
+
+	current_object_source.type = OM_VAULT;
 
 	/* Pick a greater vault */
 	while (dummy < SAFE_MAX_ATTEMPTS)
@@ -2317,7 +2356,11 @@ static void build_type8(int bx0, int by0)
 	}
 
 	/* No greater vault found */
-	if (!v_ptr) return;
+	if (!v_ptr)
+	{
+		current_object_source.type = old;
+		return;
+	}
 
 	if (!one_in_(3))
 	{
@@ -2355,13 +2398,17 @@ static void build_type8(int bx0, int by0)
 	}
 
 	/* Try to allocate space for room.  If fails, exit */
-	if (!room_alloc(ABS(x), ABS(y), FALSE, bx0, by0, &xval, &yval)) return;
+	if (!room_alloc(ABS(x), ABS(y), FALSE, bx0, by0, &xval, &yval))
+	{
+		current_object_source.type = old;
+		return;
+	}
 
 	if (dummy >= SAFE_MAX_ATTEMPTS)
 	{
 		if (cheat_room)
 			msgf("Warning! Could not place greater vault!");
-
+		current_object_source.type = old;
 		return;
 	}
 
@@ -2378,9 +2425,14 @@ static void build_type8(int bx0, int by0)
 		set_special();
 	}
 
+	dun->vaults++;
+
 	/* Hack -- Build the vault */
 	build_vault(xval, yval, v_ptr->wid, v_ptr->hgt,
 				v_text + v_ptr->text, xoffset, yoffset, transno);
+
+	current_object_source.type = old;
+
 }
 
 
@@ -2504,8 +2556,13 @@ static void fill_treasure(int x1, int y1, int x2, int y2, int difficulty)
 {
 	int x, y, cx, cy, size;
 	s32b value;
+	byte old = current_object_source.type;
 
 	cave_type *c_ptr;
+
+
+	/* Prepare for object memory */
+	current_object_source.type = OM_VAULT;
 
 	/* center of room: */
 	cx = (x1 + x2) / 2;
@@ -2620,6 +2677,8 @@ static void fill_treasure(int x1, int y1, int x2, int y2, int difficulty)
 			}
 		}
 	}
+	/* Restore old object memory */
+	current_object_source.type = old;
 }
 
 
@@ -3742,6 +3801,16 @@ static void build_micro_room_vault(int x0, int y0, int xsize, int ysize)
 static void build_type10(int bx0, int by0)
 {
 	int y0, x0, xsize, ysize, vtype;
+	byte old = current_object_source.type;
+
+	/* Avoid having too many vaults */
+	if (dun->vaults && !one_in_(dun->vaults+1))
+	{
+		(void)room_build();
+		return;
+	}
+
+	current_object_source.type = OM_VAULT;
 
 	/*
 	 * Get size
@@ -3751,7 +3820,12 @@ static void build_type10(int bx0, int by0)
 	ysize = rand_range(11, 22);
 
 	/* Allocate in room_map.  If will not fit, exit */
-	if (!room_alloc(xsize + 1, ysize + 1, FALSE, bx0, by0, &x0, &y0)) return;
+	if (!room_alloc(xsize + 1, ysize + 1, FALSE, bx0, by0, &x0, &y0))
+	{
+		current_object_source.type = old;
+		return;
+	}
+
 
 	/*
 	 * Boost the rating- higher than lesser vaults
@@ -3818,6 +3892,10 @@ static void build_type10(int bx0, int by0)
 			break;
 		}
 	}
+
+	dun->vaults++;
+
+	current_object_source.type = old;
 }
 
 

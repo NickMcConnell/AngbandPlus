@@ -38,8 +38,6 @@
 # the function in the 'T' flag.  This allows the same function to be used
 # in different ways.
 
-# Testing - only 27 types at the moment.
-
 # mudflats
 N:1
 M:10

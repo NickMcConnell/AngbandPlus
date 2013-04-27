@@ -96,27 +96,6 @@
 #define CITY_WALL		1
 #define CITY_INSIDE		2
 
-
-/* Quest status */
-#define QUEST_STATUS_UNTAKEN		0
-#define QUEST_STATUS_TAKEN			1
-#define QUEST_STATUS_COMPLETED		2
-#define QUEST_STATUS_FINISHED		3
-#define QUEST_STATUS_FINISHED_FAILED 4
-#define QUEST_STATUS_FAILED			5
-
-/* Quest creation flags */
-#define Q_GEN_PICKY		0x01
-#define Q_GEN_OCEAN		0x02
-
-/* Quest flags */
-#define QUEST_FLAG_ACTIVE		0x01	/* Quest triggers have effect */
-#define QUEST_FLAG_TIME			0x02	/* Quest has timeout */
-#define QUEST_FLAG_ITEM			0x04	/* Player has art. quest item */
-#define QUEST_FLAG_DUMMY		0x08
-#define QUEST_FLAG_KNOWN		0x10	/* Player knows about this quest */
-#define QUEST_FLAG_FIRST		0x20	/* First quest for its building */
-
 /* Helper defines for random quests */
 #define QUEST_CAMP_MON		5	/* One in five squares has a monster */
 #define QUEST_CAMP_OBJ		5	/* One in five squares has an object */

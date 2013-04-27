@@ -294,7 +294,7 @@ static void roff_spell_life(int spell)
 			return;
 		case 19:
 			roff ("Summons an angel to serve you for ");
-			roff (CLR_YELLOW "300 turns");
+			roff (CLR_YELLOW "150 turns");
 			roff ("." CLR_L_DARK " There is a chance the summoning will work incompletely, and the creature will attack you.");
 			roff (CLR_L_DARK " Otherwise, it will be your pet and under some limited control.");
 			return;
@@ -359,7 +359,7 @@ static void roff_spell_life(int spell)
 		case 30:
 			roff ("This awesome invocation deals damage and causes various status changes to all monsters not ");
 			roff ("obscured by opaque terrain, heals and enhances you, and summons an angelic being that ");
-			roff ("will serve you until its death.");
+			roff ("will serve you for a long time.");
 			return;
 		case 31:
 			roff ("Makes you nearly invulnerable to damage for ");
@@ -623,7 +623,7 @@ static void roff_spell_nature(int spell)
 			return;
 		case 13:
 			roff ("Summons a group of animals to serve you for ");
-			roff (CLR_YELLOW "300 turns");
+			roff (CLR_YELLOW "150 turns");
 			roff ("." CLR_L_DARK " There is a chance the summoning will work incompletely, and the creatures will attack you.");
 			roff (CLR_L_DARK " Otherwise, they will be your pets and under some limited control.");
 			return;
@@ -881,7 +881,7 @@ static void roff_spell_chaos(int spell)
 			return;
 		case 22:
 			roff ("Summons a demonic creature to serve you for ");
-			roff (CLR_YELLOW "750 turns");
+			roff (CLR_YELLOW "150 turns");
 			roff (".  There is a chance you will get a group of demons instead.");
 			roff (CLR_L_DARK " There is a chance the summoning will work incompletely, and the creatures will attack you.");
 			roff (CLR_L_DARK " Otherwise, they will be your pets and under some limited control.");
@@ -953,7 +953,7 @@ static void roff_spell_death(int spell)
 			roff (" at a target of your choice that will cause ");
 			roff (CLR_RED "%id3 (up to 12d3) damage", 3+((plev-1)/5));
 			roff (" to the target.  ");
-			roff (CLR_L_DARK "Evil monsters take double damage from unholy holy fire, and it will destroy cursed objects. ");
+			roff (CLR_L_DARK "Evil monsters take double damage from unholy fire, and it will destroy cursed objects. ");
 			roff (CLR_L_DARK "A radius 0 ball is like a bolt that can skip over other monsters in the way.");
 			return;
 		case 2:
@@ -981,6 +981,7 @@ static void roff_spell_death(int spell)
 			roff (CLR_VIOLET "20-40 turns");
 			roff ("." CLR_L_DARK "  While you are resistant, you take less damage from posion-based attacks, and");
 			roff (CLR_L_DARK " you cannot be poisoned.");
+			return;
 		case 6:
 			roff ("Attempts to enslave one undead monster of your choice. ");
 			roff (CLR_L_DARK "Enslaved undead are friendly, and attack other foes. ");
@@ -1011,6 +1012,7 @@ static void roff_spell_death(int spell)
 			roff (".");
 			roff (CLR_L_DARK " There is a chance the summoning will work incompletely, and the creatures will attack you.");
 			roff (CLR_L_DARK " Otherwise, they will be your pets and under some limited control.");
+			return;
 		case 11:
 			roff ("Hits a target of your choice with " CLR_L_DARK "vampiric draining ");
 			roff (", causing ");
@@ -1078,8 +1080,8 @@ static void roff_spell_death(int spell)
 			roff (CLR_L_DARK " Creatures that are vulnerable to light resist darkness-based damage.");
 			return;
 		case 22:
-			roff ("Summons a greater undead creature to serve you ");
-			roff (CLR_YELLOW "until its death");
+			roff ("Summons a greater undead creature to serve you for ");
+			roff (CLR_YELLOW "350 turns");
 			roff (".");
 			roff (CLR_L_DARK " There is a chance the summoning will work incompletely, and the creature will attack you.");
 			roff (CLR_L_DARK " Otherwise, it will be your pet and under some limited control.");
@@ -1119,7 +1121,7 @@ static void roff_spell_death(int spell)
 			roff (" at a target of your choice that will cause ");
 			roff (CLR_RED "666 damage", 3+((plev-1)/5));
 			roff (" (at its center) to all monsters in the blast area.  It will also cause 50-100 damage to you. ");
-			roff (CLR_L_DARK "Evil monsters take double damage from unholy holy fire, and it will destroy cursed objects.");
+			roff (CLR_L_DARK "Evil monsters take double damage from unholy fire, and it will destroy cursed objects.");
 			return;
 		case 30:
 			roff ("This dreadful invocation deletes all non-unique monsters on the entire level.  You do not gain ");
@@ -1159,7 +1161,7 @@ static void roff_spell_conj(int spell)
 			return;
 		case 2:
 			roff ("Summons an animal to serve you for ");
-			roff (CLR_YELLOW "300 turns");
+			roff (CLR_YELLOW "150 turns");
 			roff ("." CLR_L_DARK " It will be your pet and under some limited control.");
 			return;
 		case 3:
@@ -1178,7 +1180,7 @@ static void roff_spell_conj(int spell)
 			return;
 		case 5:
 			roff ("Summons a phantom to serve you ");
-			roff (CLR_YELLOW "until death");
+			roff (CLR_YELLOW "for 300 turns");
 			roff ("." CLR_L_DARK " It will be your pet and under some limited control.");
 			return;
 		case 6:
@@ -1218,7 +1220,7 @@ static void roff_spell_conj(int spell)
 			return;
 		case 11:
 			roff ("Summons a group of animals to serve you for ");
-			roff (CLR_YELLOW "300 turns");
+			roff (CLR_YELLOW "150 turns");
 			roff ("." CLR_L_DARK " They will be your pets and under some limited control.");
 			return;
 		case 12:
@@ -1231,7 +1233,7 @@ static void roff_spell_conj(int spell)
 			return;
 		case 14:
 			roff ("Summons an elemental to serve you for ");
-			roff (CLR_YELLOW "300 turns");
+			roff (CLR_YELLOW "150 turns");
 			roff ("." CLR_L_DARK " There is a chance the summoning will work incompletely, and the creature will attack you.");
 			roff (CLR_L_DARK " Otherwise, it will be your pet and under some limited control.");
 			return;
@@ -1263,13 +1265,13 @@ static void roff_spell_conj(int spell)
 			return;
 		case 19:
 			roff ("Summons a hydra to serve you for ");
-			roff (CLR_YELLOW "300 turns");
+			roff (CLR_YELLOW "150 turns");
 			roff ("." CLR_L_DARK " There is a chance the summoning will work incompletely, and the creature will attack you.");
 			roff (CLR_L_DARK " Otherwise, it will be your pet and under some limited control.");
 			return;
 		case 20:
 			roff ("Summons a dragon to serve you for ");
-			roff (CLR_YELLOW "750 turns");
+			roff (CLR_YELLOW "150 turns");
 			roff ("." CLR_L_DARK " There is a chance the summoning will work incompletely, and the creature will attack you.");
 			roff (CLR_L_DARK " Otherwise, it will be your pet and under some limited control.");
 			return;
@@ -1308,7 +1310,7 @@ static void roff_spell_conj(int spell)
 			return;
 		case 28:
 			roff ("Summons a demonic creature to serve you for ");
-			roff (CLR_YELLOW "750 turns");
+			roff (CLR_YELLOW "150 turns");
 			roff (".  There is a chance you will get a group of demons instead.");
 			roff (CLR_L_DARK " There is a chance the summoning will work incompletely, and the creatures will attack you.");
 			roff (CLR_L_DARK " Otherwise, they will be your pets and under some limited control.");
@@ -1320,7 +1322,7 @@ static void roff_spell_conj(int spell)
 			return;
 		case 30:
 			roff ("Summons a greater undead creature to serve you for ");
-			roff (CLR_YELLOW "750 turns");
+			roff (CLR_YELLOW "150 turns");
 			roff ("." CLR_L_DARK " There is a chance the summoning will work incompletely, and the creature will attack you.");
 			roff (CLR_L_DARK " Otherwise, it will be your pet and under some limited control.");
 			return;
@@ -1611,6 +1613,7 @@ void do_cmd_browse_aux(const object_type *o_ptr)
 	int spell;
 	int num = 0;
 	int increment = 0;
+	bool home = FALSE;
 
 	byte spells[PY_MAX_SPELLS];
 
@@ -1635,6 +1638,13 @@ void do_cmd_browse_aux(const object_type *o_ptr)
 		}
 	}
 
+	/* Only do the detailed browse for a realm we know. */
+	if (o_ptr->tval == p_ptr->spell.r[0].realm + TV_BOOKS_MIN - 1 ||
+		o_ptr->tval == p_ptr->spell.r[1].realm + TV_BOOKS_MIN - 1)
+	{
+		home = TRUE;
+	}
+
 	if (o_ptr->tval == REALM2_BOOK) increment = 32;
 
 	/* Save the screen */
@@ -1647,14 +1657,17 @@ void do_cmd_browse_aux(const object_type *o_ptr)
 	clear_msg();
 
 	/* Get spell.  If no valid choices, just display the list */
-	while (get_spell(&spell, "learn about", sval, TRUE,
-					   (bool)(increment ? TRUE : FALSE)))
+	if (home)
 	{
-		do_cmd_browse_aux2(o_ptr, spell);
+		while (get_spell(&spell, "learn about", sval, TRUE,
+					   (bool)(increment ? TRUE : FALSE)))
+		{
+			do_cmd_browse_aux2(o_ptr, spell);
+		}
 	}
 
 	/* Never got a chance to pick one? */
-	if (spell == -2)
+	if (spell == -2 || !home)
 	{
 		pause_line(0);
 	}
@@ -2120,7 +2133,7 @@ static bool cast_life_spell(int spell)
 			(void)dispel_demons(plev * 3);
 			break;
 		case 19:				/* Summon Angel */
-			if(!player_summon(PSUM_ANGEL, 20+plev, FALSE, 300, 0)) msgf("No one answers your call.");
+			if(!player_summon(PSUM_ANGEL, 20+plev, FALSE, 150, 0)) msgf("No one answers your call.");
 			break;
 		case 20:				/* Dispel Evil */
 			(void)dispel_evil(plev * 4);
@@ -2181,7 +2194,7 @@ static bool cast_life_spell(int spell)
 			(void)confuse_monsters(plev * 4);
 			(void)turn_monsters(plev * 4);
 			(void)stasis_monsters(plev * 4);
-			(void)player_summon(PSUM_ANGEL, 45+plev, FALSE, 0, PSUM_FORCE_SUCCESS);
+			(void)player_summon(PSUM_ANGEL, 45+plev, FALSE, 600, PSUM_FORCE_SUCCESS);
 			(void)inc_shero(rand_range(25, 50));
 			(void)hp_player(300);
 
@@ -2441,7 +2454,7 @@ static bool cast_nature_spell(int spell)
 			(void)slow_monsters();
 			break;
 		case 13:				/* Summon Animals */
-	        if(!player_summon(PSUM_ANIMAL, 20+(2*plev), TRUE, 300, 0)) msgf("Nothing answers your call.");
+	        if(!player_summon(PSUM_ANIMAL, 20+(2*plev), TRUE, 150, 0)) msgf("Nothing answers your call.");
 			break;
 		case 14:				/* Protection from Corrosion */
 			if (p_ptr->au < 40) {
@@ -2751,7 +2764,7 @@ static bool cast_chaos_spell(int spell)
 		case 22:				/* Summon monster, demon */
 		{
 			bool group = one_in_(52-plev);
-	        if(!player_summon(PSUM_DEMON, 2*plev, group, 750, 0)) msgf("Nothing answers your call.");
+	        if(!player_summon(PSUM_DEMON, 2*plev, group, 350, 0)) msgf("Nothing answers your call.");
 			break;
 		}
 		case 23:				/* Breathe Logrus */
@@ -3050,7 +3063,7 @@ static bool cast_death_spell(int spell)
 			(void)fire_ball(GF_DARK, dir, 120, 4);
 			break;
 		case 22:				/* Summon Greater Undead */
-	        if(!player_summon(PSUM_HI_UNDEAD, 50+randint1(plev), FALSE, 0, 0)) msgf("Nothing answers your call.");
+	        if(!player_summon(PSUM_HI_UNDEAD, 50+randint1(plev), FALSE, 350, 0)) msgf("Nothing answers your call.");
 			break;
 
 		case 23:				/* Mass Genocide */
@@ -3167,7 +3180,7 @@ static bool cast_conj_spell(int spell)
 	int dir;
 	int beam;
 	int plev = p_ptr->lev;
-	bool sum_fail = FALSE;
+	bool sum_fail = TRUE;
 
 	if (p_ptr->rp.pclass == CLASS_MAGE) beam = plev;
 	else if (p_ptr->rp.pclass == CLASS_HIGH_MAGE) beam = plev + 10;
@@ -3185,7 +3198,7 @@ static bool cast_conj_spell(int spell)
 									damroll(3 + ((plev - 1) / 5), 3));
 			break;
 		case 2: 			/* Summon Lesser Animal */
-	        sum_fail = player_summon(PSUM_ANIMAL_LOW, 2*plev, FALSE, 300, PSUM_FORCE_SUCCESS);
+	        sum_fail = player_summon(PSUM_ANIMAL_LOW, 2*plev, FALSE, 150, PSUM_FORCE_SUCCESS);
 			break;
 		case 3:				/* Light */
 			(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
@@ -3194,7 +3207,7 @@ static bool cast_conj_spell(int spell)
 			(void)hp_player(6+damroll(1,8));
 			break;
 		case 5:				/* Summon Phantom */
-	        sum_fail = player_summon(PSUM_PHANTOM, 2*plev, FALSE, 0, PSUM_FORCE_SUCCESS);
+	        sum_fail = player_summon(PSUM_PHANTOM, 2*plev, FALSE, 300, PSUM_FORCE_SUCCESS);
 			break;
 		case 6:				/* Magic Rope */
 			if (!get_aim_dir(&dir)) return FALSE;
@@ -3219,7 +3232,7 @@ static bool cast_conj_spell(int spell)
 			(void)slow_monsters();
 			break;
 		case 11:			/* Summon Animals */
-	        sum_fail = player_summon(PSUM_ANIMAL, 2*plev, TRUE, 300, PSUM_FORCE_SUCCESS);
+	        sum_fail = player_summon(PSUM_ANIMAL, 2*plev, TRUE, 150, PSUM_FORCE_SUCCESS);
 			break;
 		case 12:				/* Dimension Door */
 			msgf("You open a dimensional gate. Choose a destination.");
@@ -3232,7 +3245,7 @@ static bool cast_conj_spell(int spell)
 			(void)fire_beam(GF_AWAY_ALL, dir, plev);
 			break;
 		case 14:				/* Summon Elemental */
-	        sum_fail = player_summon(PSUM_ELEMENTAL, plev+randint1(plev), FALSE, 300, 0);
+	        sum_fail = player_summon(PSUM_ELEMENTAL, plev+randint1(plev), FALSE, 150, 0);
 			break;
 		case 15:				/* Word of Recall */
 			word_of_recall();
@@ -3251,10 +3264,10 @@ static bool cast_conj_spell(int spell)
 			(void)inc_shield(rand_range(30, 50));
 			break;
 		case 19:				/* Summon Hydra */
-	        sum_fail = player_summon(PSUM_HYDRA, 2*plev, FALSE, 300, 0);
+	        sum_fail = player_summon(PSUM_HYDRA, 2*plev, FALSE, 150, 0);
 			break;
 		case 20:				/* Summon Dragon */
-	        sum_fail = player_summon(PSUM_DRAGON, 2*plev, FALSE, 750, 0);
+	        sum_fail = player_summon(PSUM_DRAGON, 2*plev, FALSE, 350, 0);
 			break;
 		case 21:				/* Banishment */
 			(void)banish_monsters(plev * 4);
@@ -3281,29 +3294,29 @@ static bool cast_conj_spell(int spell)
 			(void)inc_etherealness(rand_range(20,40));
 			break;
 		case 28:				/* Summon Demon */
-	        sum_fail = player_summon(PSUM_DEMON, plev+randint1(plev), one_in_(55-plev), 750, 0);
+	        sum_fail = player_summon(PSUM_DEMON, plev+randint1(plev), one_in_(55-plev), 350, 0);
 			break;
 		case 29:				/* Planar Rift */
 			(void)dispel_monsters(50+plev * 3);
 			break;
 		case 30:				/* Summon Undead */
-	        sum_fail = player_summon(PSUM_HI_UNDEAD, plev+randint1(plev), FALSE, 750, 0);
+	        sum_fail = player_summon(PSUM_HI_UNDEAD, plev+randint1(plev), FALSE, 350, 0);
 			break;
 		case 31:				/* Greater Summoning */
 			switch(randint1(4))
 			{
 				case 1:
-					sum_fail = player_summon(PSUM_HI_UNDEAD, plev+randint1(plev), FALSE, 900, 0) ||
- 							   player_summon(PSUM_HI_UNDEAD, plev+randint1(plev), FALSE, 900, 0);
+					sum_fail = player_summon(PSUM_HI_UNDEAD, plev+randint1(plev), FALSE, 450, 0) ||
+ 							   player_summon(PSUM_HI_UNDEAD, plev+randint1(plev), FALSE, 450, 0);
 					break;
 				case 2:
-					sum_fail = player_summon(PSUM_HI_DRAGON, 45+plev, FALSE, 900, 0);
+					sum_fail = player_summon(PSUM_HI_DRAGON, 45+plev, FALSE, 450, 0);
 					break;
 				case 3:
-			        sum_fail = player_summon(PSUM_DRAGON, 50+plev, TRUE, 1200, PSUM_FORCE_SUCCESS);
+			        sum_fail = player_summon(PSUM_DRAGON, 50+plev, TRUE, 600, PSUM_FORCE_SUCCESS);
 					break;
 				case 4:
-					sum_fail = player_summon(PSUM_ANGEL, 50+plev, TRUE, 1200, PSUM_FORCE_SUCCESS);
+					sum_fail = player_summon(PSUM_ANGEL, 50+plev, TRUE, 600, PSUM_FORCE_SUCCESS);
 					break;
 			}
 			break;
@@ -3458,7 +3471,7 @@ static bool cast_arcane_spell(int spell)
 				return(FALSE);
 			}
 		    if (!enchant_spell(0, 0, randint1(3))) return(FALSE);
-			p_ptr->au = MIN(p_ptr->au-300, 0);  /* Costs 3000 gold */
+			p_ptr->au = MIN(p_ptr->au-300, 0);  /* Costs 300 gold */
 			break;
 		case 28:				/* Recharging */
 			return recharge(plev * 4);

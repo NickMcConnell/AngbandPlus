@@ -96,7 +96,6 @@ static cptr desc_insult[] =
 	"dances around you!",
 	"makes obscene gestures!",
 	"moons you!!!",
-	"goes 'HUHHHHHHH!'"
 };
 
 

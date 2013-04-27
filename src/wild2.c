@@ -1426,6 +1426,11 @@ void draw_quest_stair(place_type *pl_ptr)
 	if (q_ptr->status < QUEST_STATUS_TAKEN || !(q_ptr->flags & QUEST_FLAG_KNOWN))
 		return;
 
+	/* Draw nothing if the quest is totally finished. */
+	if (q_ptr->status == QUEST_STATUS_FINISHED || q_ptr->status == QUEST_STATUS_FINISHED_FAILED)
+		return;
+
+
 	/* Put dungeon floor next to stairs so they are easy to find. */
 	for (i = -2; i <= 2; i++)
 	{
@@ -1667,7 +1672,7 @@ static void entrance_monsters(int x_max, int y_max)
 
 	long size = x_max * y_max;
 
-	int count = size / 25;
+	int count = size / 75;
 
 	cave_type *c_ptr;
 
@@ -2102,7 +2107,7 @@ static void draw_dun_tower(void)
 	{
 		for (j = ysize / 4; j <= (3*ysize)/4; j++)
 		{
-			c_ptr = cave_p((xsize/2)+i,(ysize/2)+j);
+			c_ptr = cave_p(i,j);
 			c_ptr->info |= CAVE_ICKY;
 		}
 	}

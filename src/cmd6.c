@@ -69,7 +69,7 @@ static void do_cmd_eat_food_aux(object_type *o_ptr)
 
 	/* Eat the food */
 	(void)use_object(o_ptr, &ident, FALSE);
-	
+
 	if (!(object_aware_p(o_ptr)))
 	{
 		chg_virtue(V_PATIENCE, -1);
@@ -88,9 +88,9 @@ static void do_cmd_eat_food_aux(object_type *o_ptr)
 		object_aware(o_ptr);
 		gain_exp((lev + p_ptr->lev / 2) / p_ptr->lev);
 	}
-	
+
 	/* Notice changes */
-	notice_item();	
+	notice_item();
 
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER);
@@ -113,8 +113,13 @@ static void do_cmd_eat_food_aux(object_type *o_ptr)
 				  (o_ptr->sval < SV_FOOD_BISCUIT)))
 			{
 				object_type *q_ptr;
-	
+
 				msgf("The food falls through your jaws!");
+
+				current_object_source.type = o_ptr->mem.type;
+				current_object_source.place_num = o_ptr->mem.place_num;
+				current_object_source.depth = o_ptr->mem.depth;
+				current_object_source.data = o_ptr->mem.data;
 
 				/* Create the item */
 				q_ptr = object_prep(lookup_kind(o_ptr->tval, o_ptr->sval));
@@ -299,7 +304,7 @@ static void do_cmd_read_scroll_aux(object_type *o_ptr)
 
 	/* Read the scroll */
 	used_up = use_object(o_ptr, &ident, FALSE);
-	
+
 	/*
 	 * Counter the side effect of use_object on an identify scroll
 	 * by finding the original item
@@ -332,7 +337,7 @@ static void do_cmd_read_scroll_aux(object_type *o_ptr)
 			object_aware(o_ptr);
 			gain_exp((lev + p_ptr->lev / 2) / p_ptr->lev);
 		}
-		
+
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER);
 
@@ -346,11 +351,11 @@ static void do_cmd_read_scroll_aux(object_type *o_ptr)
 		if (!used_up) return;
 
 		sound(SOUND_SCROLL);
-	
+
 		/* Destroy a scroll */
 		item_increase(o_ptr, -1);
 	}
-	
+
 	make_noise(1);
 }
 
@@ -456,7 +461,7 @@ static void do_cmd_use_staff_aux(object_type *o_ptr)
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER);
-		
+
 		/* Notice changes */
 		notice_item();
 
@@ -469,7 +474,7 @@ static void do_cmd_use_staff_aux(object_type *o_ptr)
 
 	/* Use the staff */
 	use_charge = use_object(o_ptr, &ident, FALSE);
-	
+
 	/* Hack - the staff may destroy itself when activated on the ground */
 	if (o_ptr->k_idx)
 	{
@@ -488,7 +493,7 @@ static void do_cmd_use_staff_aux(object_type *o_ptr)
 			object_aware(o_ptr);
 			gain_exp((lev + p_ptr->lev / 2) / p_ptr->lev);
 		}
-		
+
 		/* Notice changes */
 		notice_item();
 
@@ -605,7 +610,7 @@ static void do_cmd_aim_wand_aux(object_type *o_ptr)
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER);
-		
+
 		/* Notice changes */
 		notice_item();
 
@@ -614,7 +619,7 @@ static void do_cmd_aim_wand_aux(object_type *o_ptr)
 
 	/* Allow direction to be cancelled for free */
 	if (!get_aim_dir(&dir)) return;
-	
+
 	/* Is Identity known? */
 	ident = object_aware_p(o_ptr);
 
@@ -653,7 +658,7 @@ static void do_cmd_aim_wand_aux(object_type *o_ptr)
 
 	/* Aim the wand */
 	use_charge = use_object(o_ptr, &ident, dir);
-	
+
 	/* Hack - wands may destroy themselves if activated on the ground */
 	if (o_ptr->k_idx)
 	{
@@ -668,7 +673,7 @@ static void do_cmd_aim_wand_aux(object_type *o_ptr)
 			object_aware(o_ptr);
 			gain_exp((lev + p_ptr->lev / 2) / p_ptr->lev);
 		}
-		
+
 		/* Notice changes */
 		notice_item();
 
@@ -768,7 +773,7 @@ static void do_cmd_zap_rod_aux(object_type *o_ptr)
 
 	/* Not identified yet */
 	ident = FALSE;
-	
+
 	/* Is Identity known? */
 	ident = object_aware_p(o_ptr);
 
@@ -823,7 +828,7 @@ static void do_cmd_zap_rod_aux(object_type *o_ptr)
 		object_aware(o_ptr);
 		gain_exp((lev + p_ptr->lev / 2) / p_ptr->lev);
 	}
-	
+
 	/* Notice changes */
 	notice_item();
 
@@ -1007,7 +1012,7 @@ static void do_cmd_activate_aux(object_type *o_ptr)
 	sound(SOUND_ZAP);
 
 	/* Activate the object */
-	apply_object_trigger(TRIGGER_USE, o_ptr, ""); 
+	apply_object_trigger(TRIGGER_USE, o_ptr, "");
 
 	/* Notice changes */
 	notice_item();

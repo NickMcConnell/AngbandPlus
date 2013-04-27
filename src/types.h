@@ -709,6 +709,16 @@ struct wild_gen_data_type
 	byte data[8];	/* data for generation routine */
 };
 
+typedef struct object_memory_type object_memory_type;
+
+struct object_memory_type
+{
+	byte type;			/* What kind of memory: dropped by a monster, found on the floor, etc. */
+	u16b place_num;  	/* Place it was found in */
+	byte depth; 		/* Depth it was found at */
+	u32b data;			/* Other data about the find */
+};
+
 
 /*
  * Object information, for a specific object.
@@ -793,6 +803,8 @@ struct object_type
 	s16b trigger[MAX_TRIGGER]; /* Special object scripts */
 
 	bool allocated;	/* Held in the o_list[] array */
+
+	object_memory_type mem;  /* Where the object was found */
 };
 
 

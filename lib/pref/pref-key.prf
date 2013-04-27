@@ -200,6 +200,13 @@ C:1:X
 A:U
 C:1:O
 
-# Hack - race/mutation power activation
+# Hack - the time
 A:^t
 C:1:'
+
+# Squelch & unsquelch
+A:K
+C:1:^,
+
+A:^u
+C:1:^.

@@ -18,6 +18,7 @@ static void toluaI_reg_types (lua_State* tolua_S)
 (void) tolua_S;	/* Hack - prevent compiler warnings */
  tolua_usertype(tolua_S,"bonuses_type");
  tolua_usertype(tolua_S,"object_type");
+ tolua_usertype(tolua_S,"object_memory_type");
 }
 
 /* get function: k_idx of class  object_type */
@@ -622,6 +623,78 @@ static int toluaI_set_object_bonuses_type_extra_shots(lua_State* tolua_S)
  return 0;
 }
 
+/* get function: type of class  object_memory_type */
+static int toluaI_get_object_object_memory_type_type(lua_State* tolua_S)
+{
+  TOLUA_GET_SELF(object_memory_type);
+  tolua_pushnumber(tolua_S,(long)self->type);
+ return 1;
+}
+
+/* set function: type of class  object_memory_type */
+static int toluaI_set_object_object_memory_type_type(lua_State* tolua_S)
+{
+  TOLUA_GET_SELF(object_memory_type);
+  if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+   TOLUA_ERR_ASSIGN;
+  self->type = ((byte)  tolua_getnumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: place_num of class  object_memory_type */
+static int toluaI_get_object_object_memory_type_place_num(lua_State* tolua_S)
+{
+  TOLUA_GET_SELF(object_memory_type);
+  tolua_pushnumber(tolua_S,(long)self->place_num);
+ return 1;
+}
+
+/* set function: place_num of class  object_memory_type */
+static int toluaI_set_object_object_memory_type_place_num(lua_State* tolua_S)
+{
+  TOLUA_GET_SELF(object_memory_type);
+  if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+   TOLUA_ERR_ASSIGN;
+  self->place_num = ((u16b)  tolua_getnumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: depth of class  object_memory_type */
+static int toluaI_get_object_object_memory_type_depth(lua_State* tolua_S)
+{
+  TOLUA_GET_SELF(object_memory_type);
+  tolua_pushnumber(tolua_S,(long)self->depth);
+ return 1;
+}
+
+/* set function: depth of class  object_memory_type */
+static int toluaI_set_object_object_memory_type_depth(lua_State* tolua_S)
+{
+  TOLUA_GET_SELF(object_memory_type);
+  if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+   TOLUA_ERR_ASSIGN;
+  self->depth = ((byte)  tolua_getnumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: data of class  object_memory_type */
+static int toluaI_get_object_object_memory_type_data(lua_State* tolua_S)
+{
+  TOLUA_GET_SELF(object_memory_type);
+  tolua_pushnumber(tolua_S,(long)self->data);
+ return 1;
+}
+
+/* set function: data of class  object_memory_type */
+static int toluaI_set_object_object_memory_type_data(lua_State* tolua_S)
+{
+  TOLUA_GET_SELF(object_memory_type);
+  if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+   TOLUA_ERR_ASSIGN;
+  self->data = ((u32b)  tolua_getnumber(tolua_S,2,0));
+ return 0;
+}
+
 /* function: item_tester_hook_weapon */
 static int toluaI_object_item_tester_hook_weapon00(lua_State* tolua_S)
 {
@@ -996,6 +1069,35 @@ static int toluaI_object_create_artifact00(lua_State* tolua_S)
  return 1;
 }
 
+/* function: mushroom_chaos */
+static int toluaI_object_mushroom_chaos00(lua_State* tolua_S)
+{
+ if (!tolua_isnoobj(tolua_S,1))
+ {
+  TOLUA_ERR_FN(mushroom_chaos);
+ } else {
+  bool toluaI_ret = (bool)  mushroom_chaos();
+  tolua_pushbool(tolua_S,(int)toluaI_ret);
+ }
+ return 1;
+}
+
+/* get function: current_object_source */
+static int toluaI_get_object_current_object_source(lua_State* tolua_S)
+{
+  tolua_pushusertype(tolua_S,(void*)&current_object_source,tolua_tag(tolua_S,"object_memory_type"));
+ return 1;
+}
+
+/* set function: current_object_source */
+static int toluaI_set_object_current_object_source(lua_State* tolua_S)
+{
+  if (!tolua_istype(tolua_S,1,tolua_tag(tolua_S,"object_memory_type"),0))
+   TOLUA_ERR_ASSIGN;
+  current_object_source = *((object_memory_type*)  tolua_getusertype(tolua_S,1,0));
+ return 0;
+}
+
 /* Open function */
 int tolua_object_open (lua_State* tolua_S)
 {
@@ -1242,6 +1344,12 @@ int tolua_object_open (lua_State* tolua_S)
  tolua_tablevar(tolua_S,"bonuses_type","pspeed",toluaI_get_object_bonuses_type_pspeed,toluaI_set_object_bonuses_type_pspeed);
  tolua_tablevar(tolua_S,"bonuses_type","extra_blows",toluaI_get_object_bonuses_type_extra_blows,toluaI_set_object_bonuses_type_extra_blows);
  tolua_tablevar(tolua_S,"bonuses_type","extra_shots",toluaI_get_object_bonuses_type_extra_shots,toluaI_set_object_bonuses_type_extra_shots);
+ tolua_cclass(tolua_S,"object_memory_type","");
+ tolua_tablevar(tolua_S,"object_memory_type","type",toluaI_get_object_object_memory_type_type,toluaI_set_object_object_memory_type_type);
+ tolua_tablevar(tolua_S,"object_memory_type","place_num",toluaI_get_object_object_memory_type_place_num,toluaI_set_object_object_memory_type_place_num);
+ tolua_tablevar(tolua_S,"object_memory_type","depth",toluaI_get_object_object_memory_type_depth,toluaI_set_object_object_memory_type_depth);
+ tolua_tablevar(tolua_S,"object_memory_type","data",toluaI_get_object_object_memory_type_data,toluaI_set_object_object_memory_type_data);
+ TOLUA_DEF(OM_SCROLL);
  TOLUA_FUN(item_tester_hook_weapon,toluaI_object_item_tester_hook_weapon00);
  TOLUA_FUN(item_tester_hook_melee_weapon,toluaI_object_item_tester_hook_melee_weapon00);
  TOLUA_FUN(item_tester_hook_nonsword,toluaI_object_item_tester_hook_nonsword00);
@@ -1266,6 +1374,8 @@ int tolua_object_open (lua_State* tolua_S)
  TOLUA_FUN(acquirement,toluaI_object_acquirement00);
  TOLUA_FUN(ring_of_power,toluaI_object_ring_of_power00);
  TOLUA_FUN(create_artifact,toluaI_object_create_artifact00);
+ TOLUA_FUN(mushroom_chaos,toluaI_object_mushroom_chaos00);
+ tolua_globalvar(tolua_S,"current_object_source",toluaI_get_object_current_object_source,toluaI_set_object_current_object_source);
  return 1;
 }
 /* Close function */
@@ -1479,6 +1589,8 @@ void tolua_object_close (lua_State* tolua_S)
  TOLUA_UNDEF(TR3_SLOW_HEAL);
  TOLUA_UNDEF(object_type);
  TOLUA_UNDEF(bonuses_type);
+ TOLUA_UNDEF(object_memory_type);
+ TOLUA_UNDEF(OM_SCROLL);
  TOLUA_UNDEF(item_tester_hook_weapon);
  TOLUA_UNDEF(item_tester_hook_melee_weapon);
  TOLUA_UNDEF(item_tester_hook_nonsword);
@@ -1503,4 +1615,8 @@ void tolua_object_close (lua_State* tolua_S)
  TOLUA_UNDEF(acquirement);
  TOLUA_UNDEF(ring_of_power);
  TOLUA_UNDEF(create_artifact);
+ TOLUA_UNDEF(mushroom_chaos);
+ lua_getglobals(tolua_S);
+ lua_pushstring(tolua_S,"current_object_source"); lua_pushnil(tolua_S); lua_rawset(tolua_S,-3);
+ lua_pop(tolua_S,1);
 }

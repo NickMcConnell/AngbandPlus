@@ -2376,7 +2376,6 @@ bool alloc_monster(int dis, bool slp, int delta_level)
 	}
 
 
-#ifdef MONSTER_HORDES
 	if (randint1(5000) <= p_ptr->depth)
 	{
 		if (alloc_horde(x, y))
@@ -2387,14 +2386,9 @@ bool alloc_monster(int dis, bool slp, int delta_level)
 	}
 	else
 	{
-#endif /* MONSTER_HORDES */
-
 		/* Attempt to place the monster, allow groups */
 		if (place_monster(x, y, slp, TRUE, delta_level)) return (TRUE);
-
-#ifdef MONSTER_HORDES
 	}
-#endif /* MONSTER_HORDES */
 
 	/* Nope */
 	return (FALSE);
@@ -2763,6 +2757,35 @@ bool summon_specific(int who, int x1, int y1, int req_lev, int type, bool group,
 		return (FALSE);
 
 	/* Success */
+	return (TRUE);
+}
+
+/* 
+ * Summon num monsters of type specified
+ * near the player, and inform about things.
+ */
+bool summon_monsters_near_player(int num, int type)
+{
+	int i, summoned = 0;
+	
+	for (i = 0; i < num; i++)
+	{
+		/* Try to summon one monster near the player */
+		if (summon_specific(0, p_ptr->px, p_ptr->py, p_ptr->depth, type, TRUE, FALSE, FALSE))
+			summoned++;
+		else
+			break;
+	}
+
+	/* Don't notice if it failed */
+	if (summoned == 0) return (FALSE);
+	
+	/* Say something */
+	if (p_ptr->tim.blind > 0) 
+		msgf ("You hear several monsters appear nearby.");
+	else
+		msgf ("There is a bright flash of light!");
+	
 	return (TRUE);
 }
 

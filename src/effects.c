@@ -3687,8 +3687,8 @@ void gain_exp(s32b amount)
 	/* Slowly recover from experience drainage */
 	if (p_ptr->exp < p_ptr->max_exp)
 	{
-		/* Gain max experience (20%) (was 10%) */
-		p_ptr->max_exp += amount / 5;
+		/* Gain max experience (10%) */
+		p_ptr->max_exp += amount / 10;
 	}
 
 	/* Check Experience */

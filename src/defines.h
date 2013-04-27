@@ -32,16 +32,16 @@
 #define VERSION_NAME "Z+Angband"
 
 /* Savefile version */
-#define SAVEFILE_VERSION 53
+#define SAVEFILE_VERSION 54
 
 /* User-visible version */
 #define VER_MAJOR 0
 #define VER_MINOR 2
-#define VER_PATCH 0
+#define VER_PATCH 1
 #define VER_EXTRA 0
 
 /* Versions after release */
-#define VER_AFTER "pre1"
+#define VER_AFTER ""
 
 /* Stringify argument */
 #define Z_STR(a) Z_STR1(a)
@@ -270,6 +270,18 @@
 #define QUEST_STATUS_FINISHED		3
 #define QUEST_STATUS_FINISHED_FAILED 4
 #define QUEST_STATUS_FAILED			5
+
+/* Quest creation flags */
+#define Q_GEN_PICKY		0x01
+#define Q_GEN_OCEAN		0x02
+
+/* Quest flags */
+#define QUEST_FLAG_ACTIVE		0x01	/* Quest triggers have effect */
+#define QUEST_FLAG_TIME			0x02	/* Quest has timeout */
+#define QUEST_FLAG_ITEM			0x04	/* Player has art. quest item */
+#define QUEST_FLAG_DUMMY		0x08
+#define QUEST_FLAG_KNOWN		0x10	/* Player knows about this quest */
+#define QUEST_FLAG_FIRST		0x20	/* First quest for its building */
 
 
 /* Number of gates in the city */
@@ -5291,8 +5303,22 @@ extern int PlayerUID;
 #define MGF_GUILD			0x00F8
 
 
-
-
+/*
+ * Object memory types
+ */
+#define OM_NONE			0
+#define OM_FLOOR		1		/* Found on the floor */
+#define OM_VAULT		2	 	/* Found in a vault */
+#define OM_STORE		3		/* Bought in a store */
+#define OM_QUEST		4		/* Quest reward */
+#define OM_MONST		5		/* Monster dropped it */
+#define OM_CHEST		6		/* Found in a chest */
+#define OM_SCROLL		7		/* Created by a scroll */
+#define OM_PATRON		8		/* Chaos Patron reward */
+#define OM_START		9		/* Starting inventory */
+#define OM_POLYMORPH	10		/* Polymorph Item spell */
+#define OM_RUBBLE		11		/* Found it in rubble */
+#define OM_MADE			12		/* You made it yourself (Hobbit food, maybe others) */
 
 
 

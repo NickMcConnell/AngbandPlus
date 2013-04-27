@@ -192,6 +192,7 @@ static void roff_obj_aux(const object_type *o_ptr)
 {
 	object_kind *k_ptr;
 	bonuses_type b;
+	bool ammo = FALSE;
 
 	int i, n;
 
@@ -218,11 +219,13 @@ static void roff_obj_aux(const object_type *o_ptr)
 	/* Start the description a bit lower */
 	roff("\n\n");
 
+	/* Debug: Some of these should have o_ptr->mem.type == OM_NONE when we put object memory back in */
+
 	/* If you don't know anything about the item */
 	if (!object_known_p(o_ptr) && !object_aware_p(o_ptr))
 	{
 		/* say so */
-		roff("You see nothing special.");
+		roff("You see nothing special.  ");
 	}
 
 	/* Hack.  Not all armour and weapons have a description in k_idx.txt */
@@ -238,7 +241,7 @@ static void roff_obj_aux(const object_type *o_ptr)
 			 o_ptr->flags[3] == 0))
 		{
 			/* say nothing is known */
-			roff("You see nothing special.");
+			roff("You see nothing special.  ");
 		}
 	}
 
@@ -864,6 +867,223 @@ static void roff_obj_aux(const object_type *o_ptr)
 		}
 	}
 
+	/* No memory for stacks of non-combat items */
+	if (o_ptr->number > 1 && (o_ptr->tval < TV_SHOT || o_ptr->tval > TV_DRAG_ARMOR))
+	{
+		roff ("\n");
+		return;
+	}
+
+	/* Debug: Disabling object memory to avoid a crash */
+	if (o_ptr->mem.type != OM_NONE)
+	{
+		roff ("\n");
+		return;
+	}
+
+	/* Print out object-finding memory */
+	switch (o_ptr->mem.type)
+	{
+		case OM_NONE:
+			/* Don't remember anything, don't say anything. */
+			break;
+		case OM_FLOOR:
+			/* Found it on the ground */
+			if (o_ptr->mem.depth)
+			{
+				place_type *pl_ptr = &place[o_ptr->mem.place_num];
+
+				if (pl_ptr->type == PL_QUEST_STAIR)
+				{
+					roff ("You found %s on the floor in a quest.  ", o_ptr->number > 1 ? "them" : "it");
+				}
+				else
+				{
+					if (depth_in_feet)
+						roff ("You found %s on the floor at %d'.  ", o_ptr->number > 1 ? "them" : "it", o_ptr->mem.depth*50);
+					else
+						roff ("You found %s on the floor on dungeon level %d.  ", o_ptr->number > 1 ? "them" : "it", o_ptr->mem.depth);
+				}
+			}
+			else if (o_ptr->mem.place_num)
+			{
+				roff ("You found %s in a wilderness monster pit.  ", o_ptr->number > 1 ? "them" : "it");
+			}
+			else
+				/* Is this even possible?  I don't think so... */
+				roff ("You found %s on the ground outside.  ", o_ptr->number > 1 ? "them" : "it");
+			break;
+		case OM_VAULT:
+		{
+			place_type *pl_ptr = &place[o_ptr->mem.place_num];
+
+			if (pl_ptr->type == PL_QUEST_STAIR)
+			{
+				roff ("You found %s in a vault in a quest.  ", o_ptr->number > 1 ? "them" : "it");
+			}
+			else
+			{
+				if (depth_in_feet)
+					roff ("You found %s in a vault at %d'.  ", o_ptr->number > 1 ? "them" : "it", o_ptr->mem.depth*50);
+				else
+					roff ("You found %s in a vault on dungeon level %d.  ", o_ptr->number > 1 ? "them" : "it", o_ptr->mem.depth);
+			}
+			break;
+		}
+		case OM_STORE:
+			/* Bought it */
+		{
+			place_type *pl_ptr = &place[o_ptr->mem.place_num];
+			store_type *st_ptr;
+
+			if (o_ptr->mem.data >= pl_ptr->numstores)
+				st_ptr = NULL;
+			else
+				st_ptr = &pl_ptr->store[o_ptr->mem.data];
+
+			if (pl_ptr->type == PL_FARM)
+			{
+				roff ("You bought %s at a farm.  ", o_ptr->number > 1 ? "them" : "it");
+			}
+			else
+			{
+				roff ("You bought %s in a %s in %s.  ", o_ptr->number > 1 ? "them" : "it", building_name(st_ptr->type), pl_ptr->name);
+			}
+			break;
+		}
+		case OM_QUEST:
+		{
+			/* Quest reward */
+			roff ("%s given to you as a reward ", o_ptr->number > 1 ? "They were" : "It was");
+			switch (o_ptr->mem.data)
+			{
+				case QUEST_TYPE_BOUNTY:
+				case QUEST_TYPE_DUNGEON:
+				case QUEST_TYPE_DEFEND:
+					roff ("for killing some monsters ");
+					break;
+				case QUEST_TYPE_WILD:
+					roff ("for clearing a pit of monsters ");
+					break;
+				case QUEST_TYPE_MESSAGE:
+					roff ("for delivering a message ");
+					break;
+				case QUEST_TYPE_FIND_ITEM:
+					roff ("for finding a relic ");
+					break;
+				case QUEST_TYPE_FIND_PLACE:
+					roff ("for finding a ruin ");
+					break;
+				case QUEST_TYPE_LOAN:
+					roff ("for repaying a loan ");
+					break;
+				case QUEST_TYPE_FIXED_KILL:
+				case QUEST_TYPE_FIXED_BOSS:
+					roff ("for killing a local enemy ");
+					break;
+				case QUEST_TYPE_FIXED_DEN:
+				case QUEST_TYPE_FIXED_CLEAROUT:
+					roff ("for clearing an area ");
+					break;
+				default:
+					roff ("for completing a quest ");
+					break;
+			}
+			roff ("in %s.  ", place[o_ptr->mem.place_num].name);
+			break;
+		}
+
+		case OM_MONST:
+		{
+			/* Dropped by a monster somewhere */
+			monster_race *r_ptr = &r_info[o_ptr->mem.data];
+			place_type *pl_ptr = &place[o_ptr->mem.place_num];
+			roff ("%s dropped by %s%s ", o_ptr->number > 1 ? "They were" : "It was", (FLAG(r_ptr, RF_UNIQUE) ? "" : "a ") , mon_race_name(r_ptr));
+
+			if (o_ptr->mem.depth)
+			{
+				if (pl_ptr->type == PL_QUEST_STAIR)
+				{
+					roff ("in a quest.  ");
+				}
+				else if (depth_in_feet)
+					roff ("at %d'.  ", o_ptr->mem.depth*50);
+				else
+					roff ("on dungeon level %d.  ", o_ptr->mem.depth);
+			}
+			else if (o_ptr->mem.place_num)
+			{
+				switch (pl_ptr->type)
+				{
+					case PL_FARM:
+						roff ("on a farm.  ");
+						break;
+					case PL_TOWN_FRACT:
+					case PL_TOWN_OLD:
+						roff ("in %s.  ", pl_ptr->name);
+						break;
+					case PL_TOWN_MINI:
+						roff ("at %s.  ", pl_ptr->name);
+						break;
+					case PL_QUEST_STAIR:
+					case PL_DUNGEON:
+						roff ("in the wilderness.  ");
+						break;
+					case PL_QUEST_PIT:
+						roff ("in a wilderness monster pit.  ");
+						break;
+				}
+			}
+			else
+			{
+				roff ("in the wilderness.  ");
+			}
+			break;
+		}
+		case OM_CHEST:
+		{
+			/* For now, boring. */
+			roff ("%s in a chest.", o_ptr->number > 1 ? "They were" : "It was");
+			break;
+		}
+		case OM_SCROLL:
+		{
+			roff ("%s created by reading a Scroll of %s.  ", o_ptr->number > 1 ? "They were" : "It was", o_ptr->mem.data == 198 ? "Acquirement" : "*Acquirement*");
+			break;
+		}
+		case OM_PATRON:
+		{
+			/* For now, boring.  */
+			roff ("%s granted to you by your Chaos Patron.  ", o_ptr->number > 1 ? "They were" : "It was");
+			break;
+		}
+		case OM_START:
+		{
+			roff ("You've had %s from the beginning.  ", o_ptr->number > 1 ? "them" : "it");
+			break;
+		}
+		case OM_POLYMORPH:
+		{
+			roff ("%s created by chaos from another object.  ", o_ptr->number > 1 ? "They were" : "It was");
+			break;
+		}
+		case OM_RUBBLE:
+		{
+			/* For now, boring. */
+			roff ("You found %s in some rubble.  ", o_ptr->number > 1 ? "them" : "it");
+			break;
+		}
+		case OM_MADE:
+		{
+			/* For now, boring */
+			roff ("You made %s yourself.  ", o_ptr->number > 1 ? "them" : "it");
+			break;
+		}
+		default:
+			roff ("You don't remember where you found %s.  ", o_ptr->number > 1 ? "them" : "it");
+			break;
+	}
+
 	/* Final blank line */
 	roff("\n");
 }
@@ -880,13 +1100,6 @@ static void resize_ident_fully(void)
 void identify_fully_aux(const object_type *o_ptr)
 {
 	void (*old_hook) (void);
-
-	/* Books, a hack */
-	if ((o_ptr->tval >= TV_BOOKS_MIN) && (o_ptr->tval <= TV_BOOKS_MAX))
-	{
-		do_cmd_browse_aux(o_ptr);
-		return;
-	}
 
 	/* Save the screen */
 	screen_save();
@@ -917,6 +1130,13 @@ void identify_fully_aux(const object_type *o_ptr)
 
 	/* Restore the screen */
 	screen_load();
+
+	/* Books, a hack */
+	if ((o_ptr->tval >= TV_BOOKS_MIN) && (o_ptr->tval <= TV_BOOKS_MAX))
+	{
+		do_cmd_browse_aux(o_ptr);
+		return;
+	}
 }
 
 /*
@@ -2278,7 +2498,7 @@ static bool get_item_allow(object_type *o_ptr)
 static bool inventory_remind_aux(object_type *o_ptr, char c)
 {
 	cptr s;
-	
+
 	/* No inscription */
 	if (!o_ptr->inscription) return (FALSE);
 
@@ -2292,11 +2512,11 @@ static bool inventory_remind_aux(object_type *o_ptr, char c)
 		{
 			return(TRUE);
 		}
-		
+
 		/* Find another '#' */
 		s = strchr (s+1, '&');
 	}
-	
+
 	/* Never matched. */
 	return (FALSE);
 }
@@ -2308,7 +2528,7 @@ void inventory_remind(void)
 {
 	object_type *o_ptr;
 	int i;
-	
+
 	OBJ_ITT_START (p_ptr->inventory, o_ptr)
 	{
 		/* Remind about non-equipped items */

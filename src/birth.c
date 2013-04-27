@@ -552,6 +552,11 @@ static void player_outfit(void)
 
 	object_type *q_ptr;
 
+	current_object_source.type = OM_START;
+	current_object_source.place_num = 0;
+	current_object_source.depth = 0;
+	current_object_source.data = 0;
+
 	/* Give the player some food */
 	switch (p_ptr->rp.prace)
 	{
@@ -677,13 +682,6 @@ static void player_outfit(void)
 
 		/* Hack -- Give the player an object */
 		q_ptr = object_prep(lookup_kind(tv, sv));
-
-		/* Assassins begin the game with a poisoned dagger */
-		if (tv == TV_SWORD && p_ptr->rp.pclass == CLASS_ROGUE &&
-			p_ptr->spell.r[0].realm == REALM_DEATH)
-		{
-			add_ego_flags(q_ptr, EGO_BRAND_POIS);
-		}
 
 		/* These objects give no score */
 		q_ptr->info |= OB_NO_EXP;

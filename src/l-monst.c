@@ -185,6 +185,23 @@ static int toluaI_monst_monster_can_open00(lua_State* tolua_S)
  return 1;
 }
 
+/* function: summon_monsters_near_player */
+static int toluaI_monst_summon_monsters_near_player00(lua_State* tolua_S)
+{
+ if (!tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
+     !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
+     !tolua_isnoobj(tolua_S,3))
+ {
+  TOLUA_ERR_FN(summon_monsters_near_player);
+ } else {
+  int num = ((int)  tolua_getnumber(tolua_S,1,0));
+  int type = ((int)  tolua_getnumber(tolua_S,2,0));
+  bool toluaI_ret = (bool)  summon_monsters_near_player(num,type);
+  tolua_pushbool(tolua_S,(int)toluaI_ret);
+ }
+ return 1;
+}
+
 /* Open function */
 int tolua_monst_open (lua_State* tolua_S)
 {
@@ -431,6 +448,7 @@ int tolua_monst_open (lua_State* tolua_S)
  TOLUA_FUN(monst_race,toluaI_monst_monst_race00);
  TOLUA_FUN(mon_race_name,toluaI_monst_mon_race_name00);
  TOLUA_FUN(monster_can_open,toluaI_monst_monster_can_open00);
+ TOLUA_FUN(summon_monsters_near_player,toluaI_monst_summon_monsters_near_player00);
  return 1;
 }
 /* Close function */
@@ -676,4 +694,5 @@ void tolua_monst_close (lua_State* tolua_S)
  TOLUA_UNDEF(monst_race);
  TOLUA_UNDEF(mon_race_name);
  TOLUA_UNDEF(monster_can_open);
+ TOLUA_UNDEF(summon_monsters_near_player);
 }

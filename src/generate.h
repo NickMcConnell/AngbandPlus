@@ -173,6 +173,9 @@ struct dun_data
 
 	/* Flags */
 	u32b flags;
+
+	/* Vaults so far */
+	byte vaults;
 };
 
 extern dun_data *dun;

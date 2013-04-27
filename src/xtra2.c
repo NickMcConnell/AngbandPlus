@@ -231,6 +231,12 @@ bool monster_death(int m_idx, bool explode)
 	y = m_ptr->fy;
 	x = m_ptr->fx;
 
+	/* Prepare for object memory */
+	current_object_source.type = OM_MONST;
+	current_object_source.place_num = p_ptr->place_num;
+	current_object_source.depth = p_ptr->depth;
+	current_object_source.data = (u32b)m_ptr->r_idx;
+
 	if (m_ptr->smart & SM_CLONED)
 		cloned = TRUE;
 
@@ -3135,6 +3141,10 @@ void gain_level_reward(int chosen_reward)
 	if (type > 20) type = 20;
 	type--;
 
+	current_object_source.type = OM_PATRON;
+	current_object_source.place_num = p_ptr->place_num;
+	current_object_source.depth = p_ptr->depth;
+	current_object_source.data = 0;
 
 	strnfmt(wrath_reason, 32, "the Wrath of %s", chaos_patrons[patron]);
 

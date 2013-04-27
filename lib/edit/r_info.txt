@@ -156,7 +156,7 @@
 
 # Version stamp (required)
 
-V:0.2.0
+V:0.2.1
 
 ##### The Player #####
 
@@ -315,7 +315,7 @@ F:RAND_25 | WILD_TOWN
 F:TAKE_ITEM | OPEN_DOOR
 D:You feel it isn't safe to touch him.
 
-N:14:Agent of black market
+N:14:Agent of the black market
 G:t:D
 I:110:1d16:10:10:99
 W:0:1:0:0
@@ -3321,7 +3321,7 @@ B:HIT:HURT:2d8
 F:FRIENDS | DUN_LAIR | DUN_CAVERN | DUN_CITY
 F:DROP_60 | WILD_WASTE1 | WILD_FOREST2 | WILD_MOUNT2 | DROP_CORPSE
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | GIANT | ORC
+F:EVIL | GIANT
 D:A hideous, smallish giant that is often found near or with orcs.
 
 N:239:Creeping mithril coins
@@ -3655,7 +3655,7 @@ B:HIT:HURT:2d8
 F:RAND_25 | DUN_LAIR | DUN_CAVERN | WILD_MOUNT2 | WILD_WASTE2 | DROP_CORPSE
 F:FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | GIANT | ORC
+F:EVIL | GIANT
 D:A massive orc-like figure with black skin and powerful arms.
 
 N:263:Dweller on the threshold
@@ -5910,7 +5910,7 @@ B:HIT:HURT:3d8
 B:HIT:HURT:3d8
 F:FRIENDS | DROP_60 | DROP_CORPSE | DUN_CAVERN | DUN_MINE
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | GIANT | ORC
+F:EVIL | GIANT
 D:A giant orc-like figure with an awesomely muscled frame.
 
 N:416:White wraith
@@ -6151,7 +6151,7 @@ B:HIT:HURT:3d8
 F:FORCE_SLEEP | 
 F:DROP_90 | DUN_CAVERN | WILD_MOUNT1 | WILD_MOUNT2
 F:OPEN_DOOR | BASH_DOOR | DROP_CORPSE
-F:EVIL | GIANT | ORC
+F:EVIL | GIANT
 S:1_IN_4 | 
 S:HEAL | HOLD | TRAPS | BA_COLD | 
 S:S_MONSTER
@@ -15914,7 +15914,7 @@ B:HIT:HURT:3d8
 B:HIT:HURT:3d8
 F:MALE | FORCE_SLEEP | ESCORT | ONLY_ITEM | DROP_90
 F:DROP_90 | OPEN_DOOR | BASH_DOOR | MOVE_BODY | GIANT
-F:GIANT | EVIL | ORC
+F:GIANT | EVIL
 D:This ogre is leader of his tribe.  He sneers at you as he advances towards 
 D:you, wielding a huge club and pushing his own followers rudely aside.
 

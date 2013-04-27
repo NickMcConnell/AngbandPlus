@@ -123,13 +123,13 @@ store_type **store_cache;	/* The cache of store stocks */
 
 /* Special options */
 
-byte hitpoint_warn;	/* Hitpoint warning (0 to 9) */
+byte hitpoint_warn = 3;	/* Hitpoint warning (0 to 9) */
 
-byte delay_factor;	/* Delay factor (0 to 9) */
+byte delay_factor = 2;	/* Delay factor (0 to 9) */
 
-byte autosave_l;	/* Autosave before entering new levels */
-byte autosave_t;	/* Timed autosave */
-s16b autosave_freq;	/* Autosave frequency */
+byte autosave_l = TRUE;	/* Autosave before entering new levels */
+byte autosave_t = TRUE;	/* Timed autosave */
+s16b autosave_freq = 1000;	/* Autosave frequency */
 
 /* Cheating options */
 bool cheat_peek;
@@ -776,3 +776,8 @@ bool level_gen_in_progress = FALSE;
  * Used in monster nest generation
  */
 monster_group_type *current_monster_group = NULL;
+
+/*
+ * Used in object generation
+ */
+object_memory_type current_object_source;
