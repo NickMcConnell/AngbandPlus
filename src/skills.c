@@ -156,7 +156,7 @@ int get_idx(int i)
 	return (0);
 }
 
-static bool is_known(int s_idx)
+static bool_ is_known(int s_idx)
 {
 	int i;
 
@@ -181,7 +181,7 @@ static bool is_known(int s_idx)
  *
  */
 void init_table_aux(int table[MAX_SKILLS][2], int *idx, int father, int lev,
-                    bool full)
+                    bool_ full)
 {
 	int j, i;
 
@@ -200,14 +200,14 @@ void init_table_aux(int table[MAX_SKILLS][2], int *idx, int father, int lev,
 }
 
 
-void init_table(int table[MAX_SKILLS][2], int *max, bool full)
+void init_table(int table[MAX_SKILLS][2], int *max, bool_ full)
 {
 	*max = 0;
 	init_table_aux(table, max, -1, 0, full);
 }
 
 
-bool has_child(int sel)
+bool_ has_child(int sel)
 {
 	int i;
 
@@ -337,7 +337,7 @@ void print_skills(int table[MAX_SKILLS][2], int max, int sel, int start)
 /*
  * Checks various stuff to do when skills change, like new spells, ...
  */
-void recalc_skills(bool init)
+void recalc_skills(bool_ init)
 {
 	static int thaum_level = 0;
 
@@ -613,7 +613,7 @@ char *melee_names[MAX_MELEE] =
 	"Barehanded combat",
 	"Bearform combat",
 };
-static bool melee_bool[MAX_MELEE];
+static bool_ melee_bool[MAX_MELEE];
 static int melee_num[MAX_MELEE];
 
 s16b get_melee_skill()
@@ -743,7 +743,7 @@ void select_default_melee()
 /*
  * Print a batch of skills.
  */
-static void print_skill_batch(int *p, cptr *p_desc, int start, int max, bool mode)
+static void print_skill_batch(int *p, cptr *p_desc, int start, int max, bool_ mode)
 {
 	char buff[80];
 	int i = start, j = 0;
@@ -771,7 +771,7 @@ int do_cmd_activate_skill_aux()
 	char which;
 	int max = 0, i, start = 0;
 	int ret;
-	bool mode = FALSE;
+	bool_ mode = FALSE;
 	int *p;
 	cptr *p_desc;
 
@@ -792,7 +792,7 @@ int do_cmd_activate_skill_aux()
 		if (s_info[i].action_mkey && s_info[i].value && ((!s_info[i].hidden) || (i == SKILL_LEARN)))
 		{
 			int j;
-			bool next = FALSE;
+			bool_ next = FALSE;
 
 			/* Already got it ? */
 			for (j = 0; j < max; j++)
@@ -815,7 +815,7 @@ int do_cmd_activate_skill_aux()
 		if (ab_info[i].action_mkey && ab_info[i].acquired)
 		{
 			int j;
-			bool next = FALSE;
+			bool_ next = FALSE;
 
 			/* Already got it ? */
 			for (j = 0; j < max; j++)
@@ -924,7 +924,7 @@ int do_cmd_activate_skill_aux()
 void do_cmd_activate_skill()
 {
 	int x_idx;
-	bool push = TRUE;
+	bool_ push = TRUE;
 
 	/* Get the skill, if available */
 	if (repeat_pull(&x_idx))
@@ -1053,7 +1053,7 @@ void do_cmd_activate_skill()
 
 
 /* Which magic forbids non FA gloves */
-bool forbid_gloves()
+bool_ forbid_gloves()
 {
 	if (get_skill(SKILL_SORCERY)) return (TRUE);
 	if (get_skill(SKILL_MANA)) return (TRUE);
@@ -1066,144 +1066,12 @@ bool forbid_gloves()
 }
 
 /* Which gods forbid edged weapons */
-bool forbid_non_blessed()
+bool_ forbid_non_blessed()
 {
 	GOD(GOD_ERU) return (TRUE);
 	return (FALSE);
 }
 
-
-
-
-/*
- * The autoskiller gets fed with the desired skill values at level 50 and determines
- * where to invest each levels
- */
-
-/* Checks if a given autoskill chart is realisable */
-int validate_autoskiller(s32b *ideal)
-{
-	int i;
-	s32b count = 0;
-
-	for (i = 0; i < max_s_idx; i++)
-	{
-		s32b z, c;
-
-		skill_type *s_ptr = &s_info[i];
-
-		if (!ideal[i]) continue;
-
-		/* How much */
-		z = (ideal[i] * SKILL_STEP) - s_ptr->value;
-
-		/* How many points will we need to get there ? */
-		if (s_ptr->mod)
-			c = z / s_ptr->mod;
-		else
-			c = 99999;
-		count += c;
-	}
-	/* DGDGDGDG: I dont work, fix me */
-	/*        return (SKILL_NB_BASE * 49) - count;*/
-	return 0;
-}
-
-void autoskiller_level(s32b *ideal)
-{
-#if 0
-	/* DGDGDGDG */
-	int chart[196];
-	int final[196];
-	int ideal[3] = {50, 30, 25};
-	int real[3] = {0, 0, 0};
-	int mod[3] = {450, 1000, 1100};
-	float pl[3], left[3] = {0, 0, 0}, finalization = 1;
-	int c[3], z;
-	int i, max = 0, ok = 3, a;
-
-	for (i = 0; i < 3; i++)
-	{
-		c[i] = (ideal[i] * 1000) / mod[i];
-		printf("point need c[%d] = %d\n", i, c[i]);
-		max += c[i];
-
-		pl[i] = (float)c[i] / 50.0;
-		printf("pl[%d] = %f\n", i, pl[i]);
-	}
-	printf("skill balance %d\n", 196 - max);
-
-	for (i = 0; i < 196; i++)
-	{
-		chart[i] = -1;
-	}
-
-	a = 0;
-	while ((a < 196) && (ok))
-	{
-		int z = 0;
-
-		for (z = 0; z < 3; z++)
-		{
-			int tmp, ii;
-
-			if (real[z] == c[z])
-				continue;
-			left[z] += pl[z];
-			tmp = left[z];
-			left[z] -= tmp;
-			printf("skill %02d: left %f tmp %d\n", z, left[z], tmp);
-
-			while (tmp >= 1)
-			{
-				chart[a++] = z;
-				real[z]++;
-				tmp--;
-				if (real[z] == c[z])
-				{
-					ok--;
-					break;
-				}
-				if (a == 196)
-				{
-					ok = 0;
-					break;
-				}
-			}
-			if (!ok) break;
-		}
-	}
-	printf("ok %d, a %d interval %f\n", ok, a, (float)a / 196);
-	real[0] = real[1] = real[2] = 0;
-	for (i = 0; i < 196; i++)
-	{
-		real[chart[i]]++;
-	}
-	z = 0;
-	i = 0;
-	while (z < a)
-	{
-		if (finalization > 1)
-		{
-			final[i] = chart[z++];
-			finalization--;
-		}
-		else
-			final[i] = -1;
-		finalization += ((float)a / 196);
-		i++;
-	}
-	for (z = 0; z < 3; z++)
-	{
-		printf("skill %d real %d ideal %d\n", z, real[z], c[z]);
-	}
-
-	for (i = 2; i <= 50; i++)
-	{
-		printf("level %02d, skills %02d %02d %02d %02d\n", i, final[i * 4], final[i * 4 + 1], final[i * 4 + 2], final[i * 4 + 3]);
-	}
-#endif
-}
 
 /*
  * Gets the base value of a skill, given a race/class/...
@@ -1280,10 +1148,10 @@ void init_skill(s32b value, s32b mod, int i)
 
 void do_get_new_skill()
 {
-	char *items[4];
-	int skl[4];
-	s32b val[4], mod[4];
-	bool used[MAX_SKILLS];
+	char *items[LOST_SWORD_NSKILLS];
+	int skl[LOST_SWORD_NSKILLS];
+	s32b val[LOST_SWORD_NSKILLS], mod[LOST_SWORD_NSKILLS];
+	bool_ used[MAX_SKILLS];
 	int available_skills[MAX_SKILLS];
 	int max = 0, max_a = 0, res, i;
 
@@ -1308,8 +1176,8 @@ void do_get_new_skill()
 	/* Count the number of available skills */
 	while (available_skills[max_a] != -1) max_a++;
 
-	/* Get 4 skills */
-	for (max = 0; max < 4; max++)
+	/* Get LOST_SWORD_NSKILLS skills */
+	for (max = 0; max < LOST_SWORD_NSKILLS; max++)
 	{
 		int i;
 		skill_type *s_ptr;
@@ -1360,13 +1228,16 @@ void do_get_new_skill()
 
 	while (TRUE)
 	{
-		res = ask_menu("Choose a skill to learn(a-d to choose, ESC to cancel)?", (char **)items, 4);
+		char last = 'a' + (LOST_SWORD_NSKILLS-1);
+		char buf[80];
+		sprintf(buf, "Choose a skill to learn(a-%c to choose, ESC to cancel)?", last);
+		res = ask_menu(buf, (char **)items, LOST_SWORD_NSKILLS);
 
 		/* Ok ? lets learn ! */
 		if (res > -1)
 		{
 			skill_type *s_ptr;
-			bool oppose = FALSE;
+			bool_ oppose = FALSE;
 			int oppose_skill = -1;
 
 			/* Check we don't oppose an existing skill */
@@ -1419,7 +1290,7 @@ void do_get_new_skill()
 	}
 
 	/* Free them ! */
-	for (max = 0; max < 4; max++)
+	for (max = 0; max < LOST_SWORD_NSKILLS; max++)
 	{
 		string_free(items[max]);
 	}
@@ -1455,13 +1326,13 @@ s16b find_ability(cptr name)
 /*
  * Do the player have the ability
  */
-bool has_ability(int ab)
+bool_ has_ability(int ab)
 {
 	return ab_info[ab].acquired;
 }
 
 /* Do we meet the requirements */
-bool can_learn_ability(int ab)
+bool_ can_learn_ability(int ab)
 {
 	ability_type *ab_ptr = &ab_info[ab];
 	int i;
@@ -1675,11 +1546,7 @@ void do_cmd_ability()
 	/* Initialise the abilities list */
 	for (i = 0; i < max_ab_idx; i++)
 	{
-#if 0 /* Only show learnable */
-		if (ab_info[i].name && ((can_learn_ability(i) || has_ability(i)) || wizard))
-#else /* Show all */
 if (ab_info[i].name)
-#endif
 			add_sorted_ability(table, &max, i);
 	}
 

@@ -35,7 +35,7 @@ static cptr wd_his[3] = { "its", "his", "her" };
  * Determine if the "armor" is known
  * The higher the level, the fewer kills needed.
  */
-static bool know_armour(int r_idx)
+static bool_ know_armour(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -62,7 +62,7 @@ static bool know_armour(int r_idx)
  * the higher the level of the monster, the fewer the attacks you need,
  * the more damage an attack does, the more attacks you need
  */
-static bool know_damage(int r_idx, int i)
+static bool_ know_damage(int r_idx, int i)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -105,8 +105,8 @@ static void roff_aux(int r_idx, int ego, int remem)
 {
 	monster_race *r_ptr;
 
-	bool old = FALSE;
-	bool sin = FALSE;
+	bool_ old = FALSE;
+	bool_ sin = FALSE;
 
 	int m, n, r;
 
@@ -114,8 +114,8 @@ static void roff_aux(int r_idx, int ego, int remem)
 
 	int msex = 0;
 
-	bool breath = FALSE;
-	bool magic = FALSE;
+	bool_ breath = FALSE;
+	bool_ magic = FALSE;
 
 	u32b	flags1;
 	u32b	flags2;
@@ -124,7 +124,6 @@ static void roff_aux(int r_idx, int ego, int remem)
 	u32b	flags5;
 	u32b	flags6;
 	u32b flags7;
-	u32b flags8;
 	u32b flags9;
 
 	int	vn = 0;
@@ -133,23 +132,6 @@ static void roff_aux(int r_idx, int ego, int remem)
 
 	monster_race save_mem;
 
-
-
-#if 0
-
-	/* Nothing erased */
-	roff_old = 0;
-
-	/* Reset the row */
-	roff_row = 1;
-
-	/* Reset the pointer */
-	roff_p = roff_buf;
-
-	/* No spaces yet */
-	roff_s = NULL;
-
-#endif
 
 
 	/* Access the race and lore */
@@ -224,7 +206,6 @@ static void roff_aux(int r_idx, int ego, int remem)
 	flags5 = (r_ptr->flags5 & r_ptr->r_flags5);
 	flags6 = (r_ptr->flags6 & r_ptr->r_flags6);
 	flags7 = (r_ptr->flags7 & r_ptr->r_flags7);
-	flags8 = (r_ptr->flags8 & r_ptr->r_flags8);
 	flags9 = (r_ptr->flags9 & r_ptr->r_flags9);
 
 
@@ -271,7 +252,7 @@ static void roff_aux(int r_idx, int ego, int remem)
 	else if (flags1 & (RF1_UNIQUE))
 	{
 		/* Hack -- Determine if the unique is "dead" */
-		bool dead = (r_ptr->max_num == 0) ? TRUE : FALSE;
+		bool_ dead = (r_ptr->max_num == 0) ? TRUE : FALSE;
 
 		/* We've been killed... */
 		if (r_ptr->r_deaths)
@@ -1661,7 +1642,7 @@ void display_roff(int r_idx, int ego)
 }
 
 
-bool monster_quest(int r_idx)
+bool_ monster_quest(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1678,7 +1659,7 @@ bool monster_quest(int r_idx)
 }
 
 
-bool monster_dungeon(int r_idx)
+bool_ monster_dungeon(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1689,7 +1670,7 @@ bool monster_dungeon(int r_idx)
 }
 
 
-bool monster_ocean(int r_idx)
+bool_ monster_ocean(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1700,7 +1681,7 @@ bool monster_ocean(int r_idx)
 }
 
 
-bool monster_shore(int r_idx)
+bool_ monster_shore(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1711,7 +1692,7 @@ bool monster_shore(int r_idx)
 }
 
 
-bool monster_waste(int r_idx)
+bool_ monster_waste(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1722,7 +1703,7 @@ bool monster_waste(int r_idx)
 }
 
 
-bool monster_town(int r_idx)
+bool_ monster_town(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1733,7 +1714,7 @@ bool monster_town(int r_idx)
 }
 
 
-bool monster_wood(int r_idx)
+bool_ monster_wood(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1744,7 +1725,7 @@ bool monster_wood(int r_idx)
 }
 
 
-bool monster_volcano(int r_idx)
+bool_ monster_volcano(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1755,7 +1736,7 @@ bool monster_volcano(int r_idx)
 }
 
 
-bool monster_mountain(int r_idx)
+bool_ monster_mountain(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1766,7 +1747,7 @@ bool monster_mountain(int r_idx)
 }
 
 
-bool monster_grass(int r_idx)
+bool_ monster_grass(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1777,7 +1758,7 @@ bool monster_grass(int r_idx)
 }
 
 
-bool monster_deep_water(int r_idx)
+bool_ monster_deep_water(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1790,7 +1771,7 @@ bool monster_deep_water(int r_idx)
 }
 
 
-bool monster_shallow_water(int r_idx)
+bool_ monster_shallow_water(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1803,7 +1784,7 @@ bool monster_shallow_water(int r_idx)
 }
 
 
-bool monster_lava(int r_idx)
+bool_ monster_lava(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1864,7 +1845,7 @@ void set_mon_num_hook(void)
 /*
  * Check if monster can cross terrain
  */
-bool monster_can_cross_terrain(byte feat, monster_race *r_ptr)
+bool_ monster_can_cross_terrain(byte feat, monster_race *r_ptr)
 {
 	/* Deep water */
 	if (feat == FEAT_DEEP_WATER)

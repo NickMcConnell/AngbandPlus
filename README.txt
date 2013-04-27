@@ -15,7 +15,7 @@ Simply run the commands below.
 
 You should now be able to run
 
-       $ ./src/tome2
+       $ ./src/tome
 
 to start ToME.
 
@@ -75,6 +75,9 @@ Compiling on Windows using MinGW
 ================================
 
 (See http://www.mingw.org/)
+
+The source MUST be unpacked in a directory without spaces in the
+name.
 
 To compile on Windows using MinGW, use the commands
 

@@ -1,9 +1,9 @@
 static int randquest_hero[] = { 20, 13, 15, 16, 9, 17, 18, 8, -1 };
 
-bool is_randhero(int level)
+bool_ is_randhero(int level)
 {
 	int i;
-	bool result = FALSE;
+	bool_ result = FALSE;
 
 	for (i = 0; randquest_hero[i] != -1; i++)
 	{
@@ -167,7 +167,7 @@ void hero_death(s32b m_idx, s32b r_idx)
 			int d = (i / 15) + 1;
 
 			/* Pick a location */
-			scatter(&y, &x, p_ptr->py, p_ptr->px, d, 0);
+			scatter(&y, &x, p_ptr->py, p_ptr->px, d);
 
 			/* Require "empty" floor grid */
 			if (!cave_empty_bold(y, x)) continue;
@@ -213,7 +213,7 @@ void hero_death(s32b m_idx, s32b r_idx)
 	}
 }
 
-bool quest_random_death_hook(char *fmt)
+bool_ quest_random_death_hook(char *fmt)
 {
 	int r_idx;
 	s32b m_idx;
@@ -242,13 +242,13 @@ bool quest_random_death_hook(char *fmt)
 
 	return (FALSE);
 }
-bool quest_random_turn_hook(char *fmt)
+bool_ quest_random_turn_hook(char *fmt)
 {
 	quest[QUEST_RANDOM].data[0] = 0;
 	quest[QUEST_RANDOM].data[1] = 0;
 	return (FALSE);
 }
-bool quest_random_feeling_hook(char *fmt)
+bool_ quest_random_feeling_hook(char *fmt)
 {
 	if (!(dungeon_flags1 & DF1_PRINCIPAL)) return (FALSE);
 	if ((dun_level < 1) || (dun_level >= MAX_RANDOM_QUEST)) return (FALSE);
@@ -266,7 +266,7 @@ bool quest_random_feeling_hook(char *fmt)
 		cmsg_format(TERM_YELLOW, "You hear someone shouting: 'Leave me alone, stupid %s'", r_info[random_quests[dun_level].r_idx].name + r_name);
 	return (FALSE);
 }
-bool quest_random_gen_hero_hook(char *fmt)
+bool_ quest_random_gen_hero_hook(char *fmt)
 {
 	int i;
 
@@ -296,7 +296,7 @@ bool quest_random_gen_hero_hook(char *fmt)
 
 	return (FALSE);
 }
-bool quest_random_gen_hook(char *fmt)
+bool_ quest_random_gen_hook(char *fmt)
 {
 	s32b x, y, bx0, by0;
 	int xstart;
@@ -316,12 +316,7 @@ bool quest_random_gen_hook(char *fmt)
 	bx0 = get_next_arg(fmt);
 
 	/* Pick a room size */
-	xsize = 0;
-	ysize = 0;
-	init_flags = INIT_GET_SIZE;
-	process_dungeon_file_full = TRUE;
-	process_dungeon_file(NULL, format("qrand%d.map", random_quests[dun_level].type), &ysize, &xsize, cur_hgt, cur_wid, TRUE);
-	process_dungeon_file_full = FALSE;
+	get_map_size(format("qrand%d.map", random_quests[dun_level].type), &ysize, &xsize);
 
 	/* Try to allocate space for room.  If fails, exit */
 	if (!room_alloc(xsize + 2, ysize + 2, FALSE, by0, bx0, &xval, &yval)) return FALSE;
@@ -353,9 +348,7 @@ bool quest_random_gen_hook(char *fmt)
 	xstart = x1;
 	ystart = y1;
 	init_flags = INIT_CREATE_DUNGEON;
-	process_dungeon_file_full = TRUE;
-	process_dungeon_file(NULL, format("qrand%d.map", random_quests[dun_level].type), &ystart, &xstart, cur_hgt, cur_wid, TRUE);
-	process_dungeon_file_full = FALSE;
+	process_dungeon_file(format("qrand%d.map", random_quests[dun_level].type), &ystart, &xstart, cur_hgt, cur_wid, TRUE, TRUE);
 
 	for (x = x1; x < xstart; x++)
 		for (y = y1; y < ystart; y++)
@@ -385,7 +378,7 @@ bool quest_random_gen_hook(char *fmt)
 
 	return (TRUE);
 }
-bool quest_random_dump_hook(char *fmt)
+bool_ quest_random_dump_hook(char *fmt)
 {
 	static char *number[] = 
 	{ "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten" };
@@ -429,7 +422,37 @@ bool quest_random_dump_hook(char *fmt)
 
 	return (FALSE);
 }
-bool quest_random_init_hook(int q_idx)
+
+bool_ quest_random_describe(FILE *fff)
+{
+	if (!(dungeon_flags1 & DF1_PRINCIPAL)) return FALSE;
+	if ((dun_level < 1) || (dun_level >= MAX_RANDOM_QUEST)) return FALSE;
+	if (!random_quests[dun_level].type) return FALSE;
+	if (random_quests[dun_level].done) return FALSE;
+	if (p_ptr->inside_quest) return FALSE;
+	if (!dun_level) return FALSE;
+
+	if (!is_randhero(dun_level))
+	{
+		fprintf(fff, "#####yCaptured princess!\n");
+		fprintf(fff, "A princess is being held prisoner and tortured here!\n");
+		fprintf(fff, "Save her from the horrible %s.\n",
+			r_info[random_quests[dun_level].r_idx].name + r_name);
+	}
+	else
+	{
+		fprintf(fff, "#####yLost sword!\n");
+		fprintf(fff, "An adventurer lost his sword to a bunch of %s!\n",
+			r_info[random_quests[dun_level].r_idx].name + r_name);
+		fprintf(fff, "Kill them all to get it back.\n");
+	}
+	fprintf(fff, "Number: %d, Killed: %ld.\n",
+		random_quests[dun_level].type, (long int) quest[QUEST_RANDOM].data[0]);
+	fprintf(fff, "\n");
+	return TRUE;
+}
+
+bool_ quest_random_init_hook(int q_idx)
 {
 	add_hook(HOOK_MONSTER_DEATH, quest_random_death_hook, "rand_death");
 	add_hook(HOOK_NEW_LEVEL, quest_random_turn_hook, "rand_new_lvl");

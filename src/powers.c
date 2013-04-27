@@ -15,9 +15,9 @@
 /*
  * Note: return value indicates the amount of mana to use
  */
-bool power_chance(power_type *x_ptr)
+bool_ power_chance(power_type *x_ptr)
 {
-	bool use_hp = FALSE;
+	bool_ use_hp = FALSE;
 	int diff = x_ptr->diff;
 
 	/* Always true ? */
@@ -296,8 +296,7 @@ static void power_activate(int power)
 				{
 					ok = 0;
 
-					if (item >= 0) o2_ptr = &p_ptr->inventory[item];
-					else o2_ptr = &o_list[0 - item];
+					o2_ptr = get_object(item);
 
 					/* Is the item cursed? */
 					if ((item >= INVEN_WIELD) && cursed_p(o2_ptr))
@@ -346,18 +345,7 @@ static void power_activate(int power)
 					}
 
 					/* Destroy item */
-					if (item >= 0)
-					{
-						inven_item_increase(item, -1);
-						inven_item_describe(item);
-						inven_item_optimize(item);
-					}
-					else
-					{
-						inven_item_increase(0 - item, -1);
-						inven_item_describe(0 - item);
-						inven_item_optimize(0 - item);
-					}
+					inc_stack_size(item, -1);
 				}
 			}
 		}
@@ -663,13 +651,8 @@ static void power_activate(int power)
 	case PWR_WRECK_WORLD:
 		msg_print("The power of Eru Iluvatar flows through you!");
 		msg_print("The world changes!");
-		if (autosave_l)
-		{
-			is_autosave = TRUE;
-			msg_print("Autosaving the game...");
-			do_cmd_save_game();
-			is_autosave = FALSE;
-		}
+
+		autosave_checkpoint();
 		/* Leaving */
 		p_ptr->leaving = TRUE;
 		break;
@@ -790,7 +773,7 @@ static void power_activate(int power)
 			d = 2;
 			while (d < 100)
 			{
-				scatter(&y, &x, p_ptr->py, p_ptr->px, d, 0);
+				scatter(&y, &x, p_ptr->py, p_ptr->px, d);
 
 				if (cave_floor_bold(y, x) && (!cave[y][x].m_idx)) break;
 
@@ -1075,14 +1058,7 @@ static void power_activate(int power)
 			s = "You have nothing to drain.";
 			if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) break;
 
-			if (item >= 0)
-			{
-				o_ptr = &p_ptr->inventory[item];
-			}
-			else
-			{
-				o_ptr = &o_list[0 - item];
-			}
+			o_ptr = get_object(item);
 
 			lev = k_info[o_ptr->k_idx].level;
 
@@ -1261,7 +1237,7 @@ static void power_activate(int power)
 /*
  * Print a batch of power.
  */
-static void print_power_batch(int *p, int start, int max, bool mode)
+static void print_power_batch(int *p, int start, int max, bool_ mode)
 {
 	char buff[80];
 	power_type* spell;
@@ -1295,7 +1271,7 @@ static power_type* select_power(int *x_idx)
 	char which;
 	int max = 0, i, start = 0;
 	power_type* ret;
-	bool mode = FALSE;
+	bool_ mode = FALSE;
 	int *p;
 
 	C_MAKE(p, power_max, int);
@@ -1384,7 +1360,7 @@ void do_cmd_power()
 {
 	int x_idx;
 	power_type *x_ptr;
-	bool push = TRUE;
+	bool_ push = TRUE;
 
 	/* Get the skill, if available */
 	if (repeat_pull(&x_idx))

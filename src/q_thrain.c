@@ -1,14 +1,13 @@
 #undef cquest
 #define cquest (quest[QUEST_THRAIN])
 
-bool quest_thrain_death_hook(char *fmt)
+bool_ quest_thrain_death_hook(char *fmt)
 {
-	s32b r_idx, m_idx;
+	s32b m_idx;
 	int r, x, y;
 	monster_type *m_ptr;
 
 	m_idx = get_next_arg(fmt);
-	r_idx = m_list[m_idx].r_idx;
 
 	if ((cquest.status >= QUEST_STATUS_FINISHED) || (dun_level !=cquest.data[0]) || (dungeon_type != DUNGEON_DOL_GULDUR)) return (FALSE);
 	m_ptr = &m_list[m_idx];
@@ -88,7 +87,7 @@ bool quest_thrain_death_hook(char *fmt)
 	return (FALSE);
 }
 
-bool quest_thrain_gen_hook(char *fmt)
+bool_ quest_thrain_gen_hook(char *fmt)
 {
 	s32b x, y, bx0, by0;
 	int xstart;
@@ -105,12 +104,7 @@ bool quest_thrain_gen_hook(char *fmt)
 	bx0 = get_next_arg(fmt);
 
 	/* Pick a room size */
-	xsize = 0;
-	ysize = 0;
-	init_flags = INIT_GET_SIZE;
-	process_dungeon_file_full = TRUE;
-	process_dungeon_file(NULL, "thrain.map", &ysize, &xsize, cur_hgt, cur_wid, TRUE);
-	process_dungeon_file_full = FALSE;
+	get_map_size("thrain.map", &ysize, &xsize);
 
 	/* Try to allocate space for room.  If fails, exit */
 	if (!room_alloc(xsize + 2, ysize + 2, FALSE, by0, bx0, &xval, &yval)) return FALSE;
@@ -142,9 +136,7 @@ bool quest_thrain_gen_hook(char *fmt)
 	xstart = x1;
 	ystart = y1;
 	init_flags = INIT_CREATE_DUNGEON;
-	process_dungeon_file_full = TRUE;
-	process_dungeon_file(NULL, "thrain.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
-	process_dungeon_file_full = FALSE;
+	process_dungeon_file("thrain.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE, TRUE);
 
 	for (x = x1; x < xstart; x++)
 		for (y = y1; y < ystart; y++)
@@ -166,7 +158,7 @@ bool quest_thrain_gen_hook(char *fmt)
 
 	return (TRUE);
 }
-bool quest_thrain_feeling_hook(char *fmt)
+bool_ quest_thrain_feeling_hook(char *fmt)
 {
 	if (dungeon_type != DUNGEON_DOL_GULDUR) return (FALSE);
 	if (cquest.data[0] != dun_level) return (FALSE);
@@ -178,7 +170,7 @@ bool quest_thrain_feeling_hook(char *fmt)
 
 	return (FALSE);
 }
-bool quest_thrain_move_hook(char *fmt)
+bool_ quest_thrain_move_hook(char *fmt)
 {
 	s32b y;
 	s32b x;
@@ -209,13 +201,13 @@ bool quest_thrain_move_hook(char *fmt)
 
 	return (FALSE);
 }
-bool quest_thrain_turn_hook(char *fmt)
+bool_ quest_thrain_turn_hook(char *fmt)
 {
 	cquest.data[1] = 0;
 	cquest.data[2] = 0;
 	return (FALSE);
 }
-bool quest_thrain_init_hook(int q)
+bool_ quest_thrain_init_hook(int q)
 {
 	if (!cquest.data[0])
 	{

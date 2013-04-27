@@ -232,14 +232,6 @@
  */
 #include <windows.h>
 
-/*
- * For IRC stuff
- */
-#ifdef USE_WINSOCK
-#define ZSOCK_TIMER_ID   1
-#define ZSOCK_TIMER_RATE 50
-#endif
-
 
 /*
  * Exclude parts of MMSYSTEM.H that are not needed
@@ -367,13 +359,13 @@ struct _term_data
 	uint size_ow2;
 	uint size_oh2;
 
-	bool size_hack;
+	bool_ size_hack;
 
-	bool xtra_hack;
+	bool_ xtra_hack;
 
-	bool visible;
+	bool_ visible;
 
-	bool bizarre;
+	bool_ bizarre;
 
 	cptr font_want;
 
@@ -407,22 +399,22 @@ static term_data *my_td;
 /*
  * game in progress
  */
-bool game_in_progress = FALSE;
+bool_ game_in_progress = FALSE;
 
 /*
  * note when "open"/"new" become valid
  */
-bool initialized = FALSE;
+bool_ initialized = FALSE;
 
 /*
  * screen paletted, i.e. 256 colors
  */
-bool paletted = FALSE;
+bool_ paletted = FALSE;
 
 /*
  * 16 colors screen, don't use RGB()
  */
-bool colors16 = FALSE;
+bool_ colors16 = FALSE;
 
 /*
  * Saved instance handle
@@ -460,21 +452,17 @@ static HWND hwndSaver;
 /*
  * Flag set once "graphics" has been initialized
  */
-static bool can_use_graphics = FALSE;
+static bool_ can_use_graphics = FALSE;
 
 /*
  * The global bitmap
  */
 static DIBINIT infGraph;
 
-#ifdef USE_TRANSPARENCY
-
 /*
  * The global bitmap mask
  */
 static DIBINIT infMask;
-
-#endif /* USE_TRANSPARENCY */
 
 #endif /* USE_GRAPHICS */
 
@@ -484,7 +472,7 @@ static DIBINIT infMask;
 /*
  * Flag set once "sound" has been initialized
  */
-static bool can_use_sound = FALSE;
+static bool_ can_use_sound = FALSE;
 
 /*
  * An array of sound file names
@@ -557,8 +545,8 @@ static BYTE win_pal[256] =
 /*
  * Hack -- define which keys are "special"
  */
-static bool special_key[256];
-static bool ignore_key[256];
+static bool_ special_key[256];
+static bool_ ignore_key[256];
 
 #if 1
 /*
@@ -735,7 +723,7 @@ static char *analyze_font(char *path, int *wp, int *hp)
 /*
  * Check for existance of a file
  */
-static bool check_file(cptr s)
+static bool_ check_file(cptr s)
 {
 	char path[1024];
 
@@ -784,7 +772,7 @@ static bool check_file(cptr s)
 /*
  * Check for existance of a directory
  */
-static bool check_dir(cptr s)
+static bool_ check_dir(cptr s)
 {
 	int i;
 
@@ -1004,12 +992,6 @@ static void save_prefs(void)
 	strcpy(buf, arg_sound ? "1" : "0");
 	WritePrivateProfileString("Angband", "Sound", buf, ini_file);
 
-#ifdef SUPPORT_GAMMA
-	/* Save the "gamma_val" */
-	sprintf(buf, "%d", gamma_val);
-	WritePrivateProfileString("Angband", "GammaVal", buf, ini_file);
-#endif /* SUPPORT_GAMMA */
-
 	/* Save window prefs */
 	for (i = 0; i < MAX_TERM_DATA; ++i)
 	{
@@ -1075,11 +1057,6 @@ static void load_prefs(void)
 
 	/* Extract the "arg_sound" flag */
 	arg_sound = (GetPrivateProfileInt("Angband", "Sound", 0, ini_file) != 0);
-
-#ifdef SUPPORT_GAMMA
-	/* Extract the "gamma_val" */
-	gamma_val = GetPrivateProfileInt("Angband", "GammaVal", 0, ini_file);
-#endif /* SUPPORT_GAMMA */
 
 	/* Load window prefs */
 	for (i = 0; i < MAX_TERM_DATA; ++i)
@@ -1236,7 +1213,7 @@ static int new_palette(void)
 /*
  * Initialize graphics
  */
-static bool init_graphics()
+static bool_ init_graphics()
 {
 	/* Initialize once */
 	/*if (can_use_graphics != arg_graphics) */
@@ -1245,16 +1222,12 @@ static bool init_graphics()
 		int wid, hgt;
 		cptr name;
 
-#ifdef USE_TRANSPARENCY
-
 		/* Unused */
 		PALETTEENTRY entry =
 		        {
 		                0, 0, 0, 0
 		        };
 		(void)entry;
-
-#endif /* USE_TRANSPARENCY */
 
 		if (arg_graphics == 2)
 		{
@@ -1289,8 +1262,6 @@ static bool init_graphics()
 		infGraph.CellHeight = hgt;
 
 
-#ifdef USE_TRANSPARENCY
-
 		path_build(buf, 1024, ANGBAND_DIR_XTRA_GRAF, "mask.bmp");
 		/* Load the bitmap or quit */
 		if (!ReadDIB(data[0].w, buf, &infMask))
@@ -1298,8 +1269,6 @@ static bool init_graphics()
 			plog_fmt("Cannot read bitmap file '%s'", name);
 			return (FALSE);
 		}
-
-#endif /* USE_TRANSPARENCY */
 
 		/* Activate a palette */
 		if (!new_palette())
@@ -1323,7 +1292,7 @@ static bool init_graphics()
 /*
  * Initialize sound
  */
-static bool init_sound()
+static bool_ init_sound()
 {
 	/* Initialize once */
 	if (!can_use_sound)
@@ -1401,7 +1370,7 @@ static errr term_force_font(term_data *td, cptr path)
 	/* Forget old font */
 	if (td->font_file)
 	{
-		bool used = FALSE;
+		bool_ used = FALSE;
 
 		/* Scan windows */
 		for (i = 0; i < MAX_TERM_DATA; i++)
@@ -1594,16 +1563,6 @@ static errr Term_user_win(int n)
 }
 
 
-#ifdef SUPPORT_GAMMA
-
-/*
- * When set to TRUE, indicates that we can use gamma_table
- */
-static bool gamma_table_ready = FALSE;
-
-#endif /* SUPPORT_GAMMA */
-
-
 /*
  * React to global changes
  */
@@ -1630,34 +1589,7 @@ static errr Term_xtra_win_react(void)
 
 		byte rv, gv, bv;
 
-		bool change = FALSE;
-
-#ifdef SUPPORT_GAMMA
-
-		static u16b old_gamma_val = 0;
-
-
-		/* React to change in the gamma value */
-		if (gamma_val != old_gamma_val)
-		{
-			/* Temporarily inactivate the gamma table */
-			gamma_table_ready = FALSE;
-
-			/* Only need to build the table if gamma exists */
-			if (gamma_val)
-			{
-				/* Rebuild the table */
-				build_gamma_table(gamma_val);
-
-				/* Activate the table */
-				gamma_table_ready = TRUE;
-			}
-
-			/* Remember the gamma value used */
-			old_gamma_val = gamma_val;
-		}
-
-#endif /* SUPPORT_GAMMA */
+		bool_ change = FALSE;
 
 		/* Save the default colors */
 		for (i = 0; i < 256; i++)
@@ -1666,18 +1598,6 @@ static errr Term_xtra_win_react(void)
 			rv = angband_color_table[i][1];
 			gv = angband_color_table[i][2];
 			bv = angband_color_table[i][3];
-
-#ifdef SUPPORT_GAMMA
-
-			/* Hack - Gamma correction */
-			if (gamma_table_ready)
-			{
-				rv = gamma_table[rv];
-				gv = gamma_table[gv];
-				bv = gamma_table[bv];
-			}
-
-#endif /* SUPPORT_GAMMA */
 
 			/* Extract a full color code */
 			code = PALETTERGB(rv, gv, bv);
@@ -1796,8 +1716,6 @@ static errr Term_xtra_win_event(int v)
 	/* Check for an event */
 	else
 	{
-		irc_poll();
-
 		/* Check */
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
@@ -2002,8 +1920,6 @@ static errr Term_xtra_win(int n, int v)
 		/* Delay for some milliseconds */
 	case TERM_XTRA_DELAY:
 		{
-			irc_poll();
-
 			return (Term_xtra_win_delay(v));
 		}
 
@@ -2216,15 +2132,7 @@ static errr Term_text_win(int x, int y, int n, byte a, const char *s)
  *
  * If "graphics" is not available, we simply "wipe" the given grids.
  */
-# ifdef USE_TRANSPARENCY
-# ifdef USE_EGO_GRAPHICS
 static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp, const byte *eap, const char *ecp)
-# else /* USE_EGO_GRAPHICS */
-static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
-# endif  /* USE_EGO_GRAPHICS */
-# else /* USE_TRANSPARENCY */
-static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
-# endif  /* USE_TRANSPARENCY */
 {
 	term_data *td = (term_data*)(Term->data);
 
@@ -2234,19 +2142,11 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 	int x1, y1, w1, h1;
 	int x2, y2, w2, h2, tw2;
 
-# ifdef USE_TRANSPARENCY
-
 	int x3, y3;
 
 	HDC hdcMask = NULL;
 
-#ifdef USE_EGO_GRAPHICS
-
 	int x4, y4;
-
-#endif
-
-# endif  /* USE_TRANSPARENCY */
 
 	HDC hdc;
 	HDC hdcSrc;
@@ -2282,15 +2182,11 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 	hdcSrc = CreateCompatibleDC(hdc);
 	hbmSrcOld = SelectObject(hdcSrc, infGraph.hBitmap);
 
-# ifdef USE_TRANSPARENCY
-
 	if (arg_graphics == 2)
 	{
 		hdcMask = CreateCompatibleDC(hdc);
 		SelectObject(hdcMask, infMask.hBitmap);
 	}
-
-# endif  /* USE_TRANSPARENCY */
 
 	/* Draw attr/char pairs */
 	for (i = 0; i < n; i++, x2 += w2)
@@ -2305,8 +2201,6 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 		/* Location of bitmap cell */
 		x1 = col * w1;
 		y1 = row * h1;
-
-# ifdef USE_TRANSPARENCY
 
 		if (arg_graphics == 2)
 		{
@@ -2325,7 +2219,6 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 				/* Draw the tile */
 				BitBlt(hdc, x2, y2, tw2, h2, hdcSrc, x1, y1, SRCPAINT);
 
-#ifdef USE_EGO_GRAPHICS
 				if (ecp[i] != 0 && eap[i] != 0)
 				{
 					x4 = (ecp[i] & 0x7F) * w1;
@@ -2337,7 +2230,6 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 					/* Draw the tile */
 					BitBlt(hdc, x2, y2, tw2, h2, hdcSrc, x4, y4, SRCPAINT);
 				}
-#endif
 			}
 
 			/* Need to stretch */
@@ -2359,7 +2251,6 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 					StretchBlt(hdc, x2, y2, tw2, h2, hdcSrc, x1, y1, w1, h1, SRCPAINT);
 				}
 
-#ifdef USE_EGO_GRAPHICS
 				if (ecp[i] != 0 && eap[i] != 0)
 				{
 					x4 = (ecp[i] & 0x7F) * w1;
@@ -2371,13 +2262,9 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 					/* Draw the tile */
 					StretchBlt(hdc, x2, y2, tw2, h2, hdcSrc, x4, y4, w1, h1, SRCPAINT);
 				}
-#endif
 			}
 		}
 		else
-
-# endif  /* USE_TRANSPARENCY */
-
 		{
 			/* Perfect size */
 			if ((w1 == tw2) && (h1 == h2))
@@ -2402,16 +2289,12 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 	SelectObject(hdcSrc, hbmSrcOld);
 	DeleteDC(hdcSrc);
 
-# ifdef USE_TRANSPARENCY
-
 	if (arg_graphics == 2)
 	{
 		/* Release */
 		SelectObject(hdcMask, hbmSrcOld);
 		DeleteDC(hdcMask);
 	}
-
-# endif  /* USE_TRANSPARENCY */
 
 	/* Release */
 	ReleaseDC(td->w, hdc);
@@ -3594,9 +3477,9 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 			/* Unused */
 			/* BYTE KeyState = 0x00; */
 
-			bool mc = FALSE;
-			bool ms = FALSE;
-			bool ma = FALSE;
+			bool_ mc = FALSE;
+			bool_ ms = FALSE;
+			bool_ ma = FALSE;
 
 			/* Extract the modifiers */
 			if (GetKeyState(VK_CONTROL) & 0x8000) mc = TRUE;
@@ -3906,9 +3789,9 @@ LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
 			/* Unused */
 			/* BYTE KeyState = 0x00; */
 
-			bool mc = FALSE;
-			bool ms = FALSE;
-			bool ma = FALSE;
+			bool_ mc = FALSE;
+			bool_ ms = FALSE;
+			bool_ ma = FALSE;
 
 			/* Extract the modifiers */
 			if (GetKeyState(VK_CONTROL) & 0x8000) mc = TRUE;

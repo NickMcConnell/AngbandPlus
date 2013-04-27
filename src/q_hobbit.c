@@ -1,9 +1,9 @@
 #undef cquest
 #define cquest (quest[QUEST_HOBBIT])
 
-bool quest_hobbit_town_gen_hook(char *fmt)
+bool_ quest_hobbit_town_gen_hook(char *fmt)
 {
-	int x = 1, y = 1, try = 10000;
+	int x = 1, y = 1, tries = 10000;
 	s32b small;
 
 	small = get_next_arg(fmt);
@@ -11,7 +11,7 @@ bool quest_hobbit_town_gen_hook(char *fmt)
 	if ((turn < (cquest.data[1] + (DAY * 10L))) || (cquest.status > QUEST_STATUS_COMPLETED) || (small) || (p_ptr->town_num != 1)) return (FALSE);
 
 	/* Find a good position */
-	while (try)
+	while (tries)
 	{
 		/* Get a random spot */
 		y = randint(20) + (cur_hgt / 2) - 10;
@@ -23,7 +23,7 @@ bool quest_hobbit_town_gen_hook(char *fmt)
 		                cave_plain_floor_bold(y, x)) break;
 
 		/* One less try */
-		try--;
+		tries--;
 	}
 
 	/* Place Melinda */
@@ -33,14 +33,14 @@ bool quest_hobbit_town_gen_hook(char *fmt)
 
 	return FALSE;
 }
-bool quest_hobbit_gen_hook(char *fmt)
+bool_ quest_hobbit_gen_hook(char *fmt)
 {
-	int x = 1, y = 1, try = 10000;
+	int x = 1, y = 1, tries = 10000;
 
 	if ((cquest.status != QUEST_STATUS_TAKEN) || (dun_level != cquest.data[0]) || (dungeon_type != DUNGEON_MAZE)) return FALSE;
 
 	/* Find a good position */
-	while (try)
+	while (tries)
 	{
 		/* Get a random spot */
 		y = randint(cur_hgt - 4) + 2;
@@ -50,7 +50,7 @@ bool quest_hobbit_gen_hook(char *fmt)
 		if (cave_empty_bold(y, x)) break;
 
 		/* One less try */
-		try--;
+		tries--;
 	}
 
 	/* Place the hobbit */
@@ -60,7 +60,7 @@ bool quest_hobbit_gen_hook(char *fmt)
 
 	return FALSE;
 }
-bool quest_hobbit_give_hook(char *fmt)
+bool_ quest_hobbit_give_hook(char *fmt)
 {
 	object_type *o_ptr;
 	monster_type *m_ptr;
@@ -80,8 +80,8 @@ bool quest_hobbit_give_hook(char *fmt)
 	msg_print("Merton Proudfoot reads the scroll and is recalled to the safety of his home.");
 
 	delete_monster_idx(m_idx);
-	inven_item_increase(item, -1);
-	inven_item_optimize(item);
+
+	inc_stack_size_ex(item, -1, OPTIMIZE, NO_DESCRIBE);
 
 	cquest.status = QUEST_STATUS_COMPLETED;
 
@@ -90,7 +90,7 @@ bool quest_hobbit_give_hook(char *fmt)
 
 	return TRUE;
 }
-bool quest_hobbit_speak_hook(char *fmt)
+bool_ quest_hobbit_speak_hook(char *fmt)
 {
 	s32b m_idx = get_next_arg(fmt);
 
@@ -106,7 +106,7 @@ bool quest_hobbit_speak_hook(char *fmt)
 	}
 	return (TRUE);
 }
-bool quest_hobbit_chat_hook(char *fmt)
+bool_ quest_hobbit_chat_hook(char *fmt)
 {
 	monster_type *m_ptr;
 	s32b m_idx;
@@ -158,7 +158,7 @@ bool quest_hobbit_chat_hook(char *fmt)
 
 	return TRUE;
 }
-bool quest_hobbit_dump_hook(char *fmt)
+bool_ quest_hobbit_dump_hook(char *fmt)
 {
 	if (cquest.status >= QUEST_STATUS_COMPLETED)
 	{
@@ -166,7 +166,7 @@ bool quest_hobbit_dump_hook(char *fmt)
 	}
 	return (FALSE);
 }
-bool quest_hobbit_init_hook(int q_idx)
+bool_ quest_hobbit_init_hook(int q_idx)
 {
 	/* Get a level to place the hobbit */
 	if (!cquest.data[0])

@@ -318,7 +318,6 @@
 
 #define MESSAGE_NONE    0
 #define MESSAGE_MSG     1
-#define MESSAGE_IRC     2
 
 /*
  * OPTION: Maximum space for the message text buffer (see "io.c")
@@ -2317,7 +2316,7 @@
 /* xxx */
 #define PW_PLAYER       0x00000008L     /* Display character */
 #define PW_M_LIST       0x00000010L /* Show monster list */
-#define PW_IRC          0x00000020L     /* Display irc messages */
+/* xxx */
 #define PW_MESSAGE      0x00000040L     /* Display messages */
 #define PW_OVERHEAD     0x00000080L     /* Display overhead view */
 #define PW_MONSTER      0x00000100L     /* Display monster recall */
@@ -3851,17 +3850,6 @@
 
 
 
-/*
- * Hack -- Prepare to use the "Secure" routines
- */
-#if defined(SET_UID) && defined(SECURE)
-extern int PlayerUID;
-# define getuid() PlayerUID
-# define geteuid() PlayerUID
-#endif
-
-
-
 /*** Color constants ***/
 
 
@@ -4005,7 +3993,6 @@ extern int PlayerUID;
 #define BACT_GREET_KING              4
 #define BACT_KING_LEGENDS            5
 #define BACT_QUEST1                  6
-#define BACT_GOLD                    7
 #define BACT_POSTER                  8
 #define BACT_ARENA_RULES             9
 #define BACT_ARENA                  10
@@ -4052,7 +4039,7 @@ extern int PlayerUID;
 #define BACT_REQUEST_ITEM           51
 #define BACT_GET_LOAN               52
 #define BACT_PAY_BACK_LOAN          53
-// If one adds new BACT_ do NOT forget to increase max_bact in variables.c
+/* If one adds new BACT_ do NOT forget to increase max_bact in variables.c */
 
 
 /*
@@ -4624,6 +4611,9 @@ extern int PlayerUID;
 /* Ugly but needed */
 #define MAX_SKILLS              200
 
+/* Number of skill choices for Lost Sword quests. */
+#define LOST_SWORD_NSKILLS	4
+
 /* SKill flags */
 #define SKF1_HIDDEN             0x00000001      /* Starts hidden */
 #define SKF1_AUTO_HIDE          0x00000002      /* Tries to rehide at calc_bonus */
@@ -4672,9 +4662,6 @@ extern int PlayerUID;
  * end may have a system-specific encoding
  */
 #define CMD_CLI_HELP	-8192
-#define CMD_IRC_CONNECT	-8191
-#define CMD_IRC_CHAT	-8190
-#define CMD_IRC_DISCON	-8189
 #define CMD_SHOW_TIME	-8188
 #define CMD_SHOW_SKILL	-8187
 #define CMD_DUMP_HTML	-8186

@@ -42,7 +42,7 @@ int distance(int y1, int x1, int y2, int x2)
  * Returns TRUE if a grid is considered to be a wall for the purpose
  * of magic mapping / clairvoyance
  */
-static bool is_wall(cave_type *c_ptr)
+static bool_ is_wall(cave_type *c_ptr)
 {
 	byte feat;
 
@@ -106,7 +106,7 @@ static bool is_wall(cave_type *c_ptr)
  *
  * Use the "update_view()" function to determine player line-of-sight.
  */
-bool los(int y1, int x1, int y2, int x2)
+bool_ los(int y1, int x1, int y2, int x2)
 {
 	/* Delta */
 	int dx, dy;
@@ -333,7 +333,7 @@ bool los(int y1, int x1, int y2, int x2)
 /*
  * Returns true if the player's grid is dark
  */
-bool no_lite(void)
+bool_ no_lite(void)
 {
 	return (!player_can_see_bold(p_ptr->py, p_ptr->px));
 }
@@ -345,7 +345,7 @@ bool no_lite(void)
  *
  * Used by destruction spells, and for placing stairs, etc.
  */
-bool cave_valid_bold(int y, int x)
+bool_ cave_valid_bold(int y, int x)
 {
 	cave_type *c_ptr = &cave[y][x];
 
@@ -508,7 +508,7 @@ static void image_random(byte *ap, char *cp)
 
 #else
 
-static bool feat_supports_lighting(byte feat)
+static bool_ feat_supports_lighting(byte feat)
 {
 	if (f_info[feat].flags1 & FF1_SUPPORT_LIGHT) return TRUE;
 	else return FALSE;
@@ -615,7 +615,7 @@ static byte multi_hued_attr(monster_race *r_ptr)
 	/* Check breaths */
 	for (i = 0; i < 32; i++)
 	{
-		bool stored = FALSE;
+		bool_ stored = FALSE;
 
 		/* Don't have that breath */
 		if (!(r_ptr->flags4 & (1L << i))) continue;
@@ -866,16 +866,8 @@ static byte darker_attrs[16] =
 };
 
 
-#ifdef USE_TRANSPARENCY
-#ifdef USE_EGO_GRAPHICS
 void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp,
               byte *eap, char *ecp)
-#else /* USE_EGO_GRAPHICS */
-void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
-#endif /* USE_EGO_GRAPHICS */
-#else /* USE_TRANSPARENCY */
-void map_info(int y, int x, byte *ap, char *cp)
-#endif /* USE_TRANSPARENCY */
 {
 	cave_type *c_ptr;
 
@@ -902,7 +894,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 	 *     col  col+1  col+2
 	 * row base darker brighter
 	 */
-	bool graf_new = ((graphics_mode == GRAPHICS_ISO) ||
+	bool_ graf_new = ((graphics_mode == GRAPHICS_ISO) ||
 	                 (graphics_mode == GRAPHICS_NEW));
 
 	/*
@@ -911,7 +903,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 	 * go for better graphics support... Anyway this means a port allows
 	 * changing attr independently from its char -- pelpel
 	 */
-	bool attr_mutable = (!use_graphics ||
+	bool_ attr_mutable = (!use_graphics ||
 	                     (graphics_mode == GRAPHICS_IBM));
 
 
@@ -943,13 +935,9 @@ void map_info(int y, int x, byte *ap, char *cp)
 	f_ptr = &f_info[feat];
 
 
-#ifdef USE_EGO_GRAPHICS
-
 	/* Reset attr/char */
 	*eap = 0;
 	*ecp = 0;
-
-#endif /* USE_EGO_GRAPHICS */
 
 
 	/**** Layer 1 -- Terrain feature ****/
@@ -994,8 +982,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 			                (t_info[t_idx].g_char != 0))
 			{
 
-#ifdef USE_EGO_GRAPHICS
-
 				if (graf_new)
 				{
 					*eap = t_info[t_idx].g_attr;
@@ -1006,13 +992,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 					a = t_info[t_idx].g_attr;
 					c = t_info[t_idx].g_char;
 				}
-
-#else /* USE_EGO_GRAPHICS */
-
-				a = t_info[t_idx].g_attr;
-				c = t_info[t_idx].g_char;
-
-#endif /* USE_EGO_GRAPHICS */
 
 			}
 			else
@@ -1242,13 +1221,9 @@ void map_info(int y, int x, byte *ap, char *cp)
 		image_random(ap, cp);
 	}
 
-#ifdef USE_TRANSPARENCY
-
 	/* Save the terrain info for the transparency effects */
 	*tap = a;
 	*tcp = c;
-
-#endif /* USE_TRANSPARENCY */
 
 	/* Save the info */
 	*ap = a;
@@ -1336,18 +1311,12 @@ void map_info(int y, int x, byte *ap, char *cp)
 			{
 				monster_race *r_ptr = race_inf(m_ptr);
 
-#ifdef USE_EGO_GRAPHICS
-
 				/* Reset attr/char */
 				*eap = 0;
 				*ecp = 0;
 
-#endif /* USE_EGO_GRAPHICS */
-
 				if (use_graphics)
 				{
-
-#ifdef USE_EGO_GRAPHICS
 
 					if (graf_new)
 					{
@@ -1359,8 +1328,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 						/* Desired char */
 						*ecp = re_ptr->g_char;
 					}
-
-#endif /* USE_EGO_GRAPHICS */
 
 					/* Use base monster */
 					r_ptr = &r_info[m_ptr->r_idx];
@@ -1469,13 +1436,9 @@ void map_info(int y, int x, byte *ap, char *cp)
 	{
 		monster_race *r_ptr = &r_info[p_ptr->body_monster];
 
-#ifdef USE_EGO_GRAPHICS
-
 		/* Reset attr/char */
 		*eap = 0;
 		*ecp = 0;
-
-#endif /* USE_EGO_GRAPHICS */
 
 		/* Get the "player" attr */
 		if (!avoid_other && attr_mutable && (r_ptr->flags1 & RF1_ATTR_MULTI))
@@ -1511,8 +1474,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 				break;
 			}
 
-#ifdef VARIABLE_PLAYER_GRAPH
-
 		case GRAPHICS_OLD:
 			{
 				if (player_symbols)
@@ -1523,10 +1484,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 				break;
 			}
-
-#endif /* VARIABLE_PLAYER_GRAPH */
-
-#ifdef USE_EGO_GRAPHICS
 
 		case GRAPHICS_ISO:
 		case GRAPHICS_NEW:
@@ -1556,8 +1513,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 				break;
 			}
-
-#endif /* USE_EGO_GRAPHICS */
 
 		}
 
@@ -1591,7 +1546,7 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 
 	byte c;
 
-	bool use_graphics_hack = use_graphics;
+	bool_ use_graphics_hack = use_graphics;
 	byte graphics_mode_hack = graphics_mode;
 
 
@@ -2194,25 +2149,16 @@ void lite_spot(int y, int x)
 	byte a, a2;
 	byte c, c2;
 
-#ifdef USE_TRANSPARENCY
 	byte ta;
 	char tc;
 
-# ifdef USE_EGO_GRAPHICS
 	byte ea;
 	char ec;
-
-# endif  /* USE_EGO_GRAPHICS */
-#endif /* USE_TRANSPARENCY */
 
 
 	/* Redraw if on screen */
 	if (panel_contains(y, x))
 	{
-#ifdef USE_TRANSPARENCY
-
-# ifdef USE_EGO_GRAPHICS
-
 		/* Examine the grid */
 		map_info(y, x, &a, (char*)&c, &ta, &tc, &ea, &ec);
 
@@ -2232,54 +2178,6 @@ void lite_spot(int y, int x)
 			}
 			Term_queue_char(panel_col_of(x) + 1, y - panel_row_prt, a2, c2, 0, 0, 0, 0);
 		}
-
-# else /* USE_EGO_GRAPHICS */
-
-		/* Examine the grid */
-		map_info(y, x, &a, &c, &ta, &tc);
-
-		/* Hack -- Queue it */
-		Term_queue_char(panel_col_of(x), y - panel_row_prt, a, c, ta, tc);
-		if (use_bigtile)
-		{
-			if (a & 0x80)
-			{
-				a2 = 255;
-				c2 = 255;
-			}
-			else
-			{
-				a2 = TERM_WHITE;
-				c2 = ' ';
-			}
-			Term_queue_char(panel_col_of(x) + 1, y - panel_row_prt, a2, c2, 0, 0);
-		}
-
-# endif  /* USE_EGO_GRAPHICS */
-
-#else /* USE_TRANSPARENCY */
-
-		/* Examine the grid */
-		map_info(y, x, &a, (char *) &c);
-
-		/* Hack -- Queue it */
-		Term_queue_char(panel_col_of(x), y - panel_row_prt, a, c);
-		if (use_bigtile)
-		{
-			if (a & 0x80)
-			{
-				a2 = 255;
-				c2 = 255;
-			}
-			else
-			{
-				a2 = TERM_WHITE;
-				c2 = ' ';
-			}
-			Term_queue_char(panel_col_of(x) + 1, y - panel_row_prt, a2, c2);
-		}
-
-#endif /* USE_TRANSPARENCY */
 
 	}
 }
@@ -2315,11 +2213,8 @@ void prt_map(void)
 			byte a, a2;
 			char c, c2;
 
-#ifdef USE_TRANSPARENCY
 			byte ta;
 			char tc;
-
-#ifdef USE_EGO_GRAPHICS
 			byte ea;
 			char ec;
 
@@ -2342,48 +2237,6 @@ void prt_map(void)
 				}
 				Term_queue_char(panel_col_of(x) + 1, y - panel_row_prt, a2, c2, 0, 0, 0, 0);
 			}
-#else /* USE_EGO_GRAPHICS */
-/* Determine what is there */
-			map_info(y, x, &a, &c, &ta, &tc);
-			/* Efficiency -- Redraw that grid of the map */
-			Term_queue_char(panel_col_of(x), y - panel_row_prt, a, c, ta, tc);
-			if (use_bigtile)
-			{
-				if (a & 0x80)
-				{
-					a2 = 255;
-					c2 = 255;
-				}
-				else
-				{
-					a2 = TERM_WHITE;
-					c2 = ' ';
-				}
-				Term_queue_char(panel_col_of(x) + 1, y - panel_row_prt, a2, c2, 0, 0);
-			}
-
-#endif /* USE_EGO_GRAPHICS */
-#else /* USE_TRANSPARENCY */
-			/* Determine what is there */
-			map_info(y, x, &a, &c);
-
-			/* Efficiency -- Redraw that grid of the map */
-			Term_queue_char(panel_col_of(x), y - panel_row_prt, a, c);
-			if (use_bigtile)
-			{
-				if (a & 0x80)
-				{
-					a2 = 255;
-					c2 = 255;
-				}
-				else
-				{
-					a2 = TERM_WHITE;
-					c2 = ' ';
-				}
-				Term_queue_char(panel_col_of(x) + 1, y - panel_row_prt, a2, c2);
-			}
-#endif /* USE_TRANSPARENCY */
 		}
 	}
 
@@ -2544,8 +2397,8 @@ void display_map(int *cy, int *cx)
 
 	byte **mp;
 
-	bool old_view_special_lite;
-	bool old_view_granite_lite;
+	bool_ old_view_special_lite;
+	bool_ old_view_granite_lite;
 
 	int hgt, wid, yrat, xrat, yfactor, xfactor;
 
@@ -2626,15 +2479,7 @@ void display_map(int *cy, int *cx)
 			x = i * xfactor / xrat + 1;
 
 			/* Extract the current attr/char at that map location */
-#ifdef USE_TRANSPARENCY
-# ifdef USE_EGO_GRAPHICS
 			map_info(j, i, &ta, &tc, &ta, &tc, &ta, &tc);
-# else /* USE_EGO_GRAPHICS */
-			map_info(j, i, &ta, &tc, &ta, &tc);
-# endif  /* USE_EGO_GRAPHICS */
-#else /* USE_TRANSPARENCY */
-			map_info(j, i, &ta, &tc);
-#endif /* USE_TRANSPARENCY */
 
 			/* Extract the priority of that attr/char */
 			tp = priority(ta, tc);
@@ -3362,7 +3207,7 @@ struct vinfo_hack
  *
  * We use "u" to point to an array of long integers.
  */
-static bool ang_sort_comp_hook_longs(vptr u, vptr v, int a, int b)
+static bool_ ang_sort_comp_hook_longs(vptr u, vptr v, int a, int b)
 {
 	long *x = (long*)(u);
 
@@ -3543,14 +3388,11 @@ errr vinfo_init(void)
 	{
 		int e;
 
-		vinfo_type *p;
-
-
 		/* Index */
 		e = queue_head;
 
 		/* Dequeue next grid */
-		p = queue[queue_head++];
+		queue_head++;
 
 		/* Location of main grid */
 		y = vinfo[e].grid_y[0];
@@ -4197,7 +4039,7 @@ void update_mon_lite(void)
 	cave_type *c_ptr;
 	u16b info;
 
-	bool invis;
+	bool_ invis;
 
 	s16b fast_lite_n = lite_n;
 	s16b fast_temp_n;
@@ -4927,29 +4769,6 @@ void mmove2(int *y, int *x, int y1, int x1, int y2, int x2)
 	/* Move mostly vertically */
 	if (dy > dx)
 	{
-
-#if 0
-
-		int k;
-
-		/* Starting shift factor */
-		shift = dy >> 1;
-
-		/* Extract a shift factor */
-		for (k = 0; k < dist; k++)
-		{
-			if (shift <= 0) shift += dy;
-			shift -= dx;
-		}
-
-		/* Sometimes move along minor axis */
-		if (shift <= 0) (*x) = (x2 < x1) ? (*x - 1) : (*x + 1);
-
-		/* Always move along major axis */
-		(*y) = (y2 < y1) ? (*y - 1) : (*y + 1);
-
-#endif
-
 		/* Extract a shift factor */
 		shift = (dist * dx + (dy - 1) / 2) / dy;
 
@@ -4963,29 +4782,6 @@ void mmove2(int *y, int *x, int y1, int x1, int y2, int x2)
 	/* Move mostly horizontally */
 	else
 	{
-
-#if 0
-
-		int k;
-
-		/* Starting shift factor */
-		shift = dx >> 1;
-
-		/* Extract a shift factor */
-		for (k = 0; k < dist; k++)
-		{
-			if (shift <= 0) shift += dx;
-			shift -= dy;
-		}
-
-		/* Sometimes move along minor axis */
-		if (shift <= 0) (*y) = (y2 < y1) ? (*y - 1) : (*y + 1);
-
-		/* Always move along major axis */
-		(*x) = (x2 < x1) ? (*x - 1) : (*x + 1);
-
-#endif
-
 		/* Extract a shift factor */
 		shift = (dist * dy + (dx - 1) / 2) / dx;
 
@@ -5005,7 +4801,7 @@ void mmove2(int *y, int *x, int y1, int x1, int y2, int x2)
  *
  * This is slightly (but significantly) different from "los(y1,x1,y2,x2)".
  */
-bool projectable(int y1, int x1, int y2, int x2)
+bool_ projectable(int y1, int x1, int y2, int x2)
 {
 	int dist, y, x;
 
@@ -5050,14 +4846,10 @@ bool projectable(int y1, int x1, int y2, int x2)
  *
  * Currently the "m" parameter is unused.
  */
-void scatter(int *yp, int *xp, int y, int x, int d, int m)
+void scatter(int *yp, int *xp, int y, int x, int d)
 {
 	int nx, ny;
 	int attempts_left = 5000;
-
-	/* Unused */
-	m = m;
-
 
 	/* Pick a location */
 	while (--attempts_left)

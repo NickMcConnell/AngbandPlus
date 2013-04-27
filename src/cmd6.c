@@ -16,14 +16,14 @@
 /*
  * Forward declare
  */
-static bool activate_spell(object_type * o_ptr, byte choice);
+static bool_ activate_spell(object_type * o_ptr, byte choice);
 
 
 /*
  * General function to find an item by its name
  */
 cptr get_item_hook_find_obj_what;
-bool get_item_hook_find_obj(int *item)
+bool_ get_item_hook_find_obj(int *item)
 {
 	int i;
 	char buf[80];
@@ -95,12 +95,12 @@ bool get_item_hook_find_obj(int *item)
  * Determine the effects of eating a corpse. A corpse can be
  * eaten whole or cut into pieces for later.
  */
-static void corpse_effect(object_type *o_ptr, bool cutting)
+static void corpse_effect(object_type *o_ptr, bool_ cutting)
 {
 	monster_race *r_ptr = &r_info[o_ptr->pval2];
 
 	/* Assume no bad effects */
-	bool harmful = FALSE;
+	bool_ harmful = FALSE;
 
 	byte method, effect, d_dice, d_side;
 
@@ -803,17 +803,17 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
 		}
 		if (r_ptr->flags2 & RF2_SHAPECHANGER)
 		{
-			// DGDGDG			(void)set_mimic(20 , rand_int(MIMIC_VALAR));
+			/* DGDGDG			(void)set_mimic(20 , rand_int(MIMIC_VALAR)); */
 		}
 
 		if (r_ptr->flags3 & RF3_DEMON)
 		{
-			// DGDGDG			(void)set_mimic(30 , MIMIC_DEMON);
+			/* DGDGDG			(void)set_mimic(30 , MIMIC_DEMON); */
 		}
 
 		if (r_ptr->flags3 & RF3_UNDEAD)
 		{
-			// DGDGDG			(void)set_mimic(30 , MIMIC_VAMPIRE);
+			/* DGDGDG			(void)set_mimic(30 , MIMIC_VAMPIRE); */
 		}
 
 		if (r_ptr->flags3 & RF3_NO_FEAR)
@@ -907,7 +907,7 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
 /*
  * Hook to determine if an object is eatable
  */
-static bool item_tester_hook_eatable(object_type *o_ptr)
+static bool_ item_tester_hook_eatable(object_type *o_ptr)
 {
 	/* Foods and, well, corpses are edible */
 	if ((o_ptr->tval == TV_FOOD) || (o_ptr->tval == TV_CORPSE)) return (TRUE);
@@ -931,7 +931,7 @@ void do_cmd_eat_food(void)
 
 	cptr q, s;
 
-	bool destroy = TRUE;
+	bool_ destroy = TRUE;
 
 
 	/* Restrict choices to food  */
@@ -946,17 +946,8 @@ void do_cmd_eat_food(void)
 	s = "You have nothing to eat.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_EXTRA))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &p_ptr->inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	/* Get the item */
+	o_ptr = get_object(item);
 
 	/* Sound */
 	sound(SOUND_EAT);
@@ -1324,7 +1315,7 @@ void do_cmd_eat_food(void)
 		{
 		case SV_CORPSE_CORPSE:
 			{
-				bool no_meat = FALSE;
+				bool_ no_meat = FALSE;
 
 				/* Not all is edible. Apologies if messy. */
 
@@ -1483,23 +1474,10 @@ void do_cmd_eat_food(void)
 	}
 
 
-	/* Destroy a food in the pack */
+	/* Destroy food? */
 	if (destroy)
 	{
-		if (item >= 0)
-		{
-			inven_item_increase(item, -1);
-			inven_item_describe(item);
-			inven_item_optimize(item);
-		}
-
-		/* Destroy a food on the floor */
-		else
-		{
-			floor_item_increase(0 - item, -1);
-			floor_item_describe(0 - item);
-			floor_item_optimize(0 - item);
-		}
+		inc_stack_size(item, -1);
 	}
 }
 
@@ -1530,17 +1508,8 @@ void do_cmd_cut_corpse(void)
 	s = "You have no corpses.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &p_ptr->inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	/* Get the item */
+	o_ptr = get_object(item);
 
 	r_ptr = &r_info[o_ptr->pval2];
 
@@ -1643,17 +1612,8 @@ void do_cmd_cure_meat(void)
 	s = "You have no meat to cure.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &p_ptr->inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	/* Get the item */
+	o_ptr = get_object(item);
 
 	/* Restrict choices to potions */
 	item_tester_tval = TV_POTION;
@@ -1663,17 +1623,8 @@ void do_cmd_cure_meat(void)
 	s = "You have no potions to use.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		i_ptr = &p_ptr->inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		i_ptr = &o_list[0 - item];
-	}
+	/* Get the item */
+	i_ptr = get_object(item);
 
 	if (i_ptr->number > 1)
 	{
@@ -1771,28 +1722,15 @@ void do_cmd_cure_meat(void)
 
 	if (o_ptr->timeout > o_ptr->pval) o_ptr->timeout = o_ptr->pval;
 
-	/* Use up the potions in the pack */
-	if (item >= 0)
-	{
-		inven_item_increase(item, 0 - num);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Use up the potions on the floor */
-	else
-	{
-		floor_item_increase(0 - item, 0 - num);
-		floor_item_describe(0 - item);
-		floor_item_optimize(0 - item);
-	}
+	/* Use up the potions */
+	inc_stack_size(item, -num);
 }
 
 
 /*
  * Hook to determine if an object is quaffable
  */
-static bool item_tester_hook_quaffable(object_type *o_ptr)
+static bool_ item_tester_hook_quaffable(object_type *o_ptr)
 {
 	if ((o_ptr->tval == TV_POTION) || (o_ptr->tval == TV_POTION2)) return (TRUE);
 
@@ -1801,7 +1739,7 @@ static bool item_tester_hook_quaffable(object_type *o_ptr)
 }
 
 
-static bool quaff_potion(int tval, int sval, int pval, int pval2)
+static bool_ quaff_potion(int tval, int sval, int pval, int pval2)
 {
 	int ident = FALSE;
 
@@ -2381,9 +2319,6 @@ static bool quaff_potion(int tval, int sval, int pval, int pval2)
 		case SV_POTION_NEW_LIFE:
 			{
 				do_cmd_rerate();
-#if 0 /* DGDGDGDG -- No, losing corruption should be near impossible, maybe a quest to do it once but thats it */
-				lose_all_corruptions();
-#endif
 				ident = TRUE;
 
 				break;
@@ -2526,17 +2461,8 @@ void do_cmd_quaff_potion(void)
 	s = "You have no potions to quaff.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_EXTRA))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &p_ptr->inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	/* Get the item */
+	o_ptr = get_object(item);
 
 
 	/* Sound */
@@ -2599,21 +2525,8 @@ void do_cmd_quaff_potion(void)
 	(void)set_food(p_ptr->food + o_ptr->pval);
 
 
-	/* Destroy a potion in the pack */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Destroy a potion on the floor */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_describe(0 - item);
-		floor_item_optimize(0 - item);
-	}
+	/* Destroy potion */
+	inc_stack_size(item, -1);
 }
 
 
@@ -2624,7 +2537,7 @@ void do_cmd_drink_fountain(void)
 {
 	cave_type *c_ptr = &cave[p_ptr->py][p_ptr->px];
 
-	bool ident;
+	bool_ ident;
 
 	int tval, sval, pval = 0;
 
@@ -2750,21 +2663,8 @@ void do_cmd_fill_bottle(void)
 
 	if (amt > c_ptr->special2) amt = c_ptr->special2;
 
-	/* Destroy bottles in the pack */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -amt);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Destroy bottles on the floor */
-	else
-	{
-		floor_item_increase(0 - item, -amt);
-		floor_item_describe(0 - item);
-		floor_item_optimize(0 - item);
-	}
+	/* Destroy bottles */
+	inc_stack_size(item, -amt);
 
 	/* Create the potion */
 	q_ptr = &forge;
@@ -2793,7 +2693,7 @@ void do_cmd_fill_bottle(void)
 /*
  * Curse the players armor
  */
-bool curse_armor(void)
+bool_ curse_armor(void)
 {
 	object_type *o_ptr;
 
@@ -2858,7 +2758,7 @@ bool curse_armor(void)
 /*
  * Curse the players weapon
  */
-bool curse_weapon(void)
+bool_ curse_weapon(void)
 {
 	object_type *o_ptr;
 
@@ -2925,7 +2825,7 @@ bool curse_weapon(void)
 /*
  * Hook to determine if an object is readable
  */
-static bool item_tester_hook_readable(object_type *o_ptr)
+static bool_ item_tester_hook_readable(object_type *o_ptr)
 {
 	if ((o_ptr->tval == TV_SCROLL) || (o_ptr->tval == TV_PARCHMENT)) return (TRUE);
 
@@ -2984,18 +2884,8 @@ void do_cmd_read_scroll(void)
 	s = "You have no scrolls to read.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_EXTRA))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &p_ptr->inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
+	/* Get the item */
+	o_ptr = get_object(item);
 
 	/* Take a turn */
 	energy_use = 100;
@@ -3699,21 +3589,8 @@ void do_cmd_read_scroll(void)
 
 	sound(SOUND_SCROLL);
 
-	/* Destroy a scroll in the pack */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Destroy a scroll on the floor */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_describe(0 - item);
-		floor_item_optimize(0 - item);
-	}
+	/* Destroy scroll */
+	inc_stack_size(item, -1);
 
 	if (get_skill(SKILL_ALCHEMY))
 	{
@@ -3786,18 +3663,8 @@ void do_cmd_use_staff(void)
 	s = "You have no staff to use.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_EXTRA))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &p_ptr->inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
+	/* Get the item */
+	o_ptr = get_object(item);
 
 	/* Mega-Hack -- refuse to use a pile from the ground */
 	if ((item < 0) && (o_ptr->number > 1))
@@ -3989,17 +3856,8 @@ void do_cmd_aim_wand(void)
 	s = "You have no wand to aim.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_EXTRA))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &p_ptr->inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	/* Get the item */
+	o_ptr = get_object(item);
 
 
 	/* Mega-Hack -- refuse to aim a pile from the ground */
@@ -4127,7 +3985,7 @@ void do_cmd_aim_wand(void)
 /*
  * Hook to determine if an object is zapable
  */
-static bool item_tester_hook_zapable(object_type *o_ptr)
+static bool_ item_tester_hook_zapable(object_type *o_ptr)
 {
 	if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_ROD_MAIN)) return (TRUE);
 
@@ -4139,7 +3997,7 @@ static bool item_tester_hook_zapable(object_type *o_ptr)
 /*
  * Hook to determine if an object is attachable
  */
-static bool item_tester_hook_attachable(object_type *o_ptr)
+static bool_ item_tester_hook_attachable(object_type *o_ptr)
 {
 	if ((o_ptr->tval == TV_ROD_MAIN) &&
 	                (o_ptr->pval == SV_ROD_NOTHING)) return (TRUE);
@@ -4157,8 +4015,6 @@ void zap_combine_rod_tip(object_type *q_ptr, int tip_item)
 	int item;
 
 	object_type *o_ptr;
-
-	object_kind *k_ptr;
 
 	cptr q, s;
 
@@ -4181,19 +4037,8 @@ void zap_combine_rod_tip(object_type *q_ptr, int tip_item)
 	s = "You have no rod to attach to.";
 	if (!get_item(&item, q, s, (USE_INVEN))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &p_ptr->inventory[item];
-		k_ptr = &k_info[o_ptr->k_idx];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-		k_ptr = &k_info[o_ptr->k_idx];
-	}
+	/* Get the item */
+	o_ptr = get_object(item);
 
 	/* Examine the rod */
 	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
@@ -4219,20 +4064,8 @@ void zap_combine_rod_tip(object_type *q_ptr, int tip_item)
 	/* Attach the tip to the rod */
 	o_ptr->pval = q_ptr->sval;
 
-	/* Destroy a rod tip in the pack */
-	if (tip_item >= 0)
-	{
-		inven_item_increase(tip_item, -1);
-		inven_item_describe(tip_item);
-		inven_item_optimize(tip_item);
-	}
-	/* Destroy a rod tip on the floor */
-	else
-	{
-		floor_item_increase(0 - tip_item, -1);
-		floor_item_describe(0 - tip_item);
-		floor_item_optimize(0 - tip_item);
-	}
+	/* Destroy rod tip */
+	inc_stack_size(tip_item, -1);
 }
 
 
@@ -4245,11 +4078,9 @@ void do_cmd_zap_rod(void)
 
 	int cost;
 
-	bool require_dir;
+	bool_ require_dir;
 
 	object_type *o_ptr;
-
-	object_kind *k_ptr;
 
 	object_kind *tip_ptr;
 
@@ -4258,7 +4089,7 @@ void do_cmd_zap_rod(void)
 	cptr q, s;
 
 	/* Hack -- let perception get aborted */
-	bool use_charge = TRUE;
+	bool_ use_charge = TRUE;
 
 
 	/* No magic */
@@ -4281,19 +4112,8 @@ void do_cmd_zap_rod(void)
 	s = "You have no rod to zap.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_EXTRA))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &p_ptr->inventory[item];
-		k_ptr = &k_info[o_ptr->k_idx];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-		k_ptr = &k_info[o_ptr->k_idx];
-	}
+	/* Get the item */
+	o_ptr = get_object(item);
 
 
 	/* "Zapping" a Rod Tip on rod of nothing will attach it */
@@ -4732,7 +4552,7 @@ void do_cmd_zap_rod(void)
 /*
  * Hook to determine if an object is activable
  */
-static bool item_tester_hook_activate(object_type *o_ptr)
+static bool_ item_tester_hook_activate(object_type *o_ptr)
 {
 	u32b f1, f2, f3, f4, f5, esp;
 
@@ -4796,7 +4616,7 @@ int ring_of_power()
 		/* Rewrite this -- pelpel */
 		if (summon_specific_friendly(p_ptr->py, p_ptr->px, ((plev * 3) / 2),
 		                             (plev > 47 ? SUMMON_HI_UNDEAD_NO_UNIQUES : SUMMON_UNDEAD),
-		                             (bool)(((plev > 24) && (randint(3) == 1)) ? TRUE : FALSE)))
+		                             (bool_)(((plev > 24) && (randint(3) == 1)) ? TRUE : FALSE)))
 		{
 			msg_print("Cold winds begin to blow around you, "
 			          "carrying with them the stench of decay...");
@@ -4812,13 +4632,7 @@ int ring_of_power()
 		msg_print("The power of the ring destroys the world!");
 		msg_print("The world changes!");
 
-		if (autosave_l)
-		{
-			is_autosave = TRUE;
-			msg_print("Autosaving the game...");
-			do_cmd_save_game();
-			is_autosave = FALSE;
-		}
+		autosave_checkpoint();
 
 		/* Leaving */
 		p_ptr->leaving = TRUE;
@@ -4854,7 +4668,7 @@ int ring_of_power()
 /*
  * Enchant some bolts
  */
-bool brand_bolts(void)
+bool_ brand_bolts(void)
 {
 	int i;
 
@@ -4930,23 +4744,13 @@ void do_cmd_activate(void)
 	item_tester_hook = item_tester_hook_activate;
 
 	/* Get an item */
-	command_see = TRUE;
 	command_wrk = USE_EQUIP;
 	q = "Activate which item? ";
 	s = "You have nothing to activate.";
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &p_ptr->inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	/* Get the item */
+	o_ptr = get_object(item);
 
 	/* Extract object flags */
 	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
@@ -5162,13 +4966,13 @@ void do_cmd_activate(void)
 
 
 
-const char *activation_aux(object_type * o_ptr, bool doit, int item)
+const char *activation_aux(object_type * o_ptr, bool_ doit, int item)
 {
 	int plev = get_skill(SKILL_DEVICE);
 
 	int i = 0, ii = 0, ij = 0, k, dir, dummy = 0;
 	int chance;
-	bool is_junkart = (o_ptr->tval == TV_RANDART);
+	bool_ is_junkart = (o_ptr->tval == TV_RANDART);
 
 	int spell = 0;
 
@@ -5686,13 +5490,7 @@ const char *activation_aux(object_type * o_ptr, bool doit, int item)
 					{
 						if (get_check("Leave this level? "))
 						{
-							if (autosave_l)
-							{
-								is_autosave = TRUE;
-								msg_print("Autosaving the game...");
-								do_cmd_save_game();
-								is_autosave = FALSE;
-							}
+							autosave_checkpoint();
 
 							/* Leaving */
 							p_ptr->leaving = TRUE;
@@ -5818,7 +5616,7 @@ const char *activation_aux(object_type * o_ptr, bool doit, int item)
 				else
 				{
 					if (summon_specific_friendly(p_ptr->py, p_ptr->px, ((plev * 3) / 2),
-					                             SUMMON_THUNDERLORD, (bool)(plev == 50 ? TRUE : FALSE)))
+					                             SUMMON_THUNDERLORD, (bool_)(plev == 50 ? TRUE : FALSE)))
 					{
 						msg_print("A Thunderlord comes from thin air!");
 						msg_print("'I will help you in your difficult task.'");
@@ -6370,11 +6168,7 @@ const char *activation_aux(object_type * o_ptr, bool doit, int item)
 		case ACT_TERROR:
 			{
 				if (!doit) return "terror every 3 * (level+10) turns";
-#if 0
-				for (i = 0; i < 8; i++) fear_monster(ddd[i], (p_ptr->lev) + 10);
-#else
-turn_monsters(40 + p_ptr->lev);
-#endif
+				turn_monsters(40 + p_ptr->lev);
 
 				o_ptr->timeout = 3 * (p_ptr->lev + 10);
 
@@ -6517,7 +6311,7 @@ turn_monsters(40 + p_ptr->lev);
 				else
 				{
 					if (summon_specific_friendly(p_ptr->py, p_ptr->px, ((plev * 3) / 2),
-					                             SUMMON_ELEMENTAL, (bool)(plev == 50 ? TRUE : FALSE)))
+					                             SUMMON_ELEMENTAL, (bool_)(plev == 50 ? TRUE : FALSE)))
 					{
 						msg_print("An elemental materialises...");
 						msg_print("It seems obedient to you.");
@@ -6543,7 +6337,7 @@ turn_monsters(40 + p_ptr->lev);
 				else
 				{
 					if (summon_specific_friendly(p_ptr->py, p_ptr->px, ((plev * 3) / 2),
-					                             SUMMON_DEMON, (bool)(plev == 50 ? TRUE : FALSE)))
+					                             SUMMON_DEMON, (bool_)(plev == 50 ? TRUE : FALSE)))
 					{
 						msg_print("The area fills with a stench of sulphur and brimstone.");
 						msg_print("'What is thy bidding... Master?'");
@@ -6571,7 +6365,7 @@ turn_monsters(40 + p_ptr->lev);
 				{
 					if (summon_specific_friendly(p_ptr->py, p_ptr->px, ((plev * 3) / 2),
 					                             (plev > 47 ? SUMMON_HI_UNDEAD_NO_UNIQUES : SUMMON_UNDEAD),
-					                             (bool)(((plev > 24) && (randint(3) == 1)) ? TRUE : FALSE)))
+					                             (bool_)(((plev > 24) && (randint(3) == 1)) ? TRUE : FALSE)))
 					{
 						msg_print("Cold winds begin to blow around you, carrying with them the stench of decay...");
 						msg_print("Ancient, long-dead forms arise from the ground to serve you!");
@@ -7418,10 +7212,7 @@ turn_monsters(40 + p_ptr->lev);
 
 		case ACT_CURE_MUT:
 			{
-#if 0 // DGDGDGD
-#else
 				msg_print("Ahah, you wish.");
-#endif
 				/* Timeout is set before return */
 
 				break;
@@ -7611,16 +7402,8 @@ turn_monsters(40 + p_ptr->lev);
 
 					/* It explodes, doesn't it ? */
 					take_hit(damroll(2, 10), "an exploding ring");
-					if ( item > 0)
-					{
-						inven_item_increase(item, -255);
-						inven_item_optimize(item);
-					}
-					else
-					{
-						floor_item_increase( -item, -255);
-						floor_item_optimize( -item);
-					}
+
+					inc_stack_size_ex(item, -255, OPTIMIZE, NO_DESCRIBE);
 				}
 
 				break;
@@ -7914,7 +7697,7 @@ turn_monsters(40 + p_ptr->lev);
 }
 
 
-static bool activate_spell(object_type * o_ptr, byte choice)
+static bool_ activate_spell(object_type * o_ptr, byte choice)
 {
 	int mana = 0, gf = 0, mod = 0;
 

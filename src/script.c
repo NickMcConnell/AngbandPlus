@@ -70,45 +70,6 @@ static struct luaL_reg tome_iolib[] =
 #define luaL_check_bit(L, n)  ((long)luaL_check_number(L, n))
 #define luaL_check_ubit(L, n) ((unsigned long)luaL_check_bit(L, n))
 
-#if 0
-
-/*
- * Nuked because they can confuse some compilers (lcc for example),
- * and because of their obscurity -- pelpel
- */
-
-#define TDYADIC(name, op, t1, t2) \
-static int int_ ## name(lua_State* L) { \
-lua_pushnumber(L, \
-luaL_check_ ## t1 ## bit(L, 1) op luaL_check_ ## t2 ## bit(L, 2)); \
-return 1; \
-}
-
-#define DYADIC(name, op) \
-static int int_ ## name(lua_State* L) { \
-lua_pushnumber(L, \
-luaL_check_bit(L, 1) op luaL_check_bit(L, 2)); \
-return 1; \
-}
-
-#define MONADIC(name, op) \
-static int int_ ## name(lua_State* L) { \
-lua_pushnumber(L, op luaL_check_bit(L, 1)); \
-return 1; \
-}
-
-#define VARIADIC(name, op) \
-static int int_ ## name(lua_State *L) { \
-int n = lua_gettop(L), i; \
-long w = luaL_check_bit(L, 1); \
-for (i = 2; i <= n; i++) \
-w op ## = luaL_check_bit(L, i); \
-lua_pushnumber(L, w); \
-return 1; \
-}
-
-#endif
-
 
 /*
  * Monadic bit negation operation
@@ -224,52 +185,9 @@ static const struct luaL_reg bitlib[] =
 };
 
 /*
- * Some special wrappers
- */
-static int lua_zsock_read(lua_State* L)
-{
-	if (!tolua_istype(L, 1, tolua_tag(L, "zsock_hooks"), 0) ||
-	                !tolua_istype(L, 2, tolua_tag(L, "ip_connection"), 0) ||
-	                !tolua_istype(L, 3, LUA_TNUMBER, 0) ||
-	                !tolua_istype(L, 4, LUA_TNUMBER, 0) ||
-	                !tolua_isnoobj(L, 5)
-	   )
-	{
-		tolua_error(L, "#ferror in function 'read'.");
-		return 0;
-	}
-	else
-	{
-		zsock_hooks* self = (zsock_hooks*) tolua_getusertype(L, 1, 0);
-		ip_connection* conn = ((ip_connection*) tolua_getusertype(L, 2, 0));
-		int len = ((int) tolua_getnumber(L, 3, 0));
-		int start_len = len;
-		bool raw = ((bool) tolua_getnumber(L, 4, 0));
-		char *str;
-
-		if (!self) tolua_error(L, "invalid 'self' in function 'read'");
-		{
-			bool toluaI_ret;
-
-			C_MAKE(str, start_len + 1, char);
-
-			toluaI_ret = (bool)self->read(conn, str, &len, raw);
-			tolua_pushnumber(L, (long)toluaI_ret);
-			tolua_pushstring(L, str);
-			tolua_pushnumber(L, (long)len);
-
-			C_FREE(str, start_len + 1, char);
-
-			return 3;
-		}
-		return 0;
-	}
-}
-
-/*
  * Initialize lua scripting
  */
-static bool init_lua_done = FALSE;
+static bool_ init_lua_done = FALSE;
 void init_lua()
 {
 	/* Hack -- Do not initialize more than once */
@@ -301,9 +219,6 @@ void init_lua()
 	tolua_spells_open(L);
 	tolua_quest_open(L);
 	tolua_dungeon_open(L);
-
-	/* Register some special wrappers */
-	tolua_function(L, "zsock_hooks", "read", lua_zsock_read);
 }
 
 void init_lua_init()
@@ -334,7 +249,7 @@ void init_lua_init()
 	init_corruptions(max);
 }
 
-bool tome_dofile(char *file)
+bool_ tome_dofile(char *file)
 {
 	char buf[1024];
 	int oldtop = lua_gettop(L);
@@ -364,7 +279,7 @@ bool tome_dofile(char *file)
 	return (TRUE);
 }
 
-bool tome_dofile_anywhere(cptr dir, char *file, bool test_exist)
+bool_ tome_dofile_anywhere(cptr dir, char *file, bool_ test_exist)
 {
 	char buf[1024];
 	int oldtop = lua_gettop(L);
@@ -441,7 +356,7 @@ void dump_lua_stack(int min, int max)
 	cmsg_print(TERM_YELLOW, "END lua_stack");
 }
 
-bool call_lua(cptr function, cptr args, cptr ret, ...)
+bool_ call_lua(cptr function, cptr args, cptr ret, ...)
 {
 	int i = 0, nb = 0, nbr = 0;
 	int oldtop = lua_gettop(L), size;
@@ -557,7 +472,7 @@ bool call_lua(cptr function, cptr args, cptr ret, ...)
 	return TRUE;
 }
 
-bool get_lua_var(cptr name, char type, void *arg)
+bool_ get_lua_var(cptr name, char type, void *arg)
 {
 	int oldtop = lua_gettop(L), size;
 

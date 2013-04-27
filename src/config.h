@@ -30,9 +30,8 @@
  * OPTION: See the Makefile(s), where several options may be declared.
  *
  * Some popular options include "USE_GCU" (allow use with Unix "curses"),
- * "USE_X11" (allow basic use with Unix X11), "USE_XAW" (allow use with
- * Unix X11 plus the Athena Widget set), and "USE_CAP" (allow use with
- * the "termcap" library, or with hard-coded vt100 terminals).
+ * "USE_X11" (allow basic use with Unix X11) and "USE_XAW" (allow use with
+ * Unix X11 plus the Athena Widget set).
  *
  * The old "USE_NCU" option has been replaced with "USE_GCU".
  *
@@ -111,37 +110,6 @@
 #if defined(_POSIX_SAVED_IDS) && !(defined(SUNOS) && !defined(SOLARIS)) && !defined(__APPLE__)
 # define SAFE_SETUID_POSIX
 #endif
-
-
-/*
- * OPTION: Verify savefile Checksums (Angband 2.7.0 and up)
- * This option can help prevent "corruption" of savefiles, and also
- * stop intentional modification by amateur users.
- */
-#define VERIFY_CHECKSUMS
-
-
-/*
- * OPTION: Forbid the use of "fiddled" savefiles.  As far as I can tell,
- * a fiddled savefile is one with an internal timestamp different from
- * the actual timestamp.  Thus, turning this option on forbids one from
- * copying a savefile to a different name.  Combined with disabling the
- * ability to save the game without quitting, and with some method of
- * stopping the user from killing the process at the tombstone screen,
- * this should prevent the use of backup savefiles.  It may also stop
- * the use of savefiles from other platforms, so be careful.
- */
-/* #define VERIFY_TIMESTAMP */
-
-
-/*
- * OPTION: Forbid the "savefile over-write" cheat, in which you simply
- * run another copy of the game, loading a previously saved savefile,
- * and let that copy over-write the "dead" savefile later.  This option
- * either locks the savefile, or creates a fake "xxx.lok" file to prevent
- * the use of the savefile until the file is deleted.  Not ready yet.
- */
-/* #define VERIFY_SAVEFILE */
 
 
 /*
@@ -237,17 +205,6 @@
 
 
 /*
- * OPTION: Hack -- EMX stuff
- */
-#ifdef USE_EMX
-
-/* Do not handle signals */
-# undef HANDLE_SIGNALS
-
-#endif
-
-
-/*
  * OPTION: Set the "default" path to the angband "lib" directory.
  *
  * See "main.c" for usage, and note that this value is only used on
@@ -274,42 +231,17 @@
 
 
 /*
- * OPTION: Create and use a hidden directory in the user's home directory
- * for storing pref-files and character-dumps.
- */
-#if defined(SET_UID) && !defined(MACH_O_CARBON) && !defined(NO_HOME_TOME)
-#define PRIVATE_USER_PATH "~/.tome"
-#endif /* SET_UID && !MACH_O_CARBON */
-
-/*
- * Where to put the user's files on the Mac
+ * Where to put the user's files.
  */
 #if defined(MACH_O_CARBON)
 #define PRIVATE_USER_PATH "~/Library/Application Support/ToME"
 #define PRIVATE_USER_PATH_DATA
 #define PRIVATE_USER_PATH_APEX
 #define PRIVATE_USER_PATH_MODULES
+#else
+#define PRIVATE_USER_PATH "~/.tome"
+#define PRIVATE_USER_PATH_APEX
 #endif
-
-/*
- * On multiuser systems, add the "uid" to savefile names
- */
-#if defined(SET_UID) && !defined(MACH_O_CARBON)
-# define SAVEFILE_USE_UID
-#endif /* SET_UID && !MACH_O_CARBON */
-
-
-/*
- * OPTION: Check the "time" against "lib/file/hours.txt"
- */
-/* #define CHECK_TIME */
-
-/*
- * OPTION: Check the "load" against "lib/file/load.txt"
- * This may require the 'rpcsvs' library
- */
-/* #define CHECK_LOAD */
-
 
 /*
  * OPTION: For some brain-dead computers with no command line interface,
@@ -319,20 +251,11 @@
  * machines, once you manage to "load" a savefile, it stays that way.
  * Macintosh is particularly weird because you can load savefiles that
  * are not contained in the "lib:save:" folder, and if you change the
- * player's name, it will then save the savefile elsewhere.  Note that
- * this also gives a method of "bypassing" the "VERIFY_TIMESTAMP" code.
+ * player's name, it will then save the savefile elsewhere.
  */
 #if defined(MACINTOSH) || defined(WINDOWS)
 /* #define SAVEFILE_MUTABLE */
 #endif
-
-
-/*
- * OPTION: Capitalize the "user_name" (for "default" player name)
- * This option is only relevant on SET_UID machines.
- */
-#define CAPITALIZE_USER_NAME
-
 
 
 /*
@@ -356,28 +279,10 @@
 
 
 
-/*
- * OPTION: Attempt to prevent all "cheating"
- */
-/* #define VERIFY_HONOR */
-
-
-/*
- * React to the "VERIFY_HONOR" flag
- */
-#ifdef VERIFY_HONOR
-# define VERIFY_SAVEFILE
-# define VERIFY_CHECKSUMS
-# define VERIFY_TIMESTAMPS
-#endif
-
 /* ToME options: */
 
 /* Should the player know his / her starting life rate? */
 /* #define SHOW_LIFE_RATE */
-
-/* Do we want different characters for different races? */
-#define VARIABLE_PLAYER_GRAPH
 
 /* Allow hordes of 'similar' monsters */
 #define MONSTER_HORDES
@@ -391,40 +296,15 @@
 /* # define TRACK_FRIENDS */
 
 /*
- * OPTION: Repeat last command -- TNB
- */
-#define ALLOW_REPEAT
-
-/*
- * OPTION: Make opening and closing things easy -- TNB
- */
-#define ALLOW_EASY_OPEN
-
-/*
- * OPTION: Make disarming traps easy -- TNB
- */
-#define ALLOW_EASY_DISARM
-
-/*
  * Using the fast autoroller can be considered as cheating
  */
 #define USE_FAST_AUTOROLLER
-
-/*
- * Forbid the use of some race/class combinations
- */
-/* #define RESTRICT_COMBINATIONS */
 
 /*
  * Enable the CTRL + L command to quit without saving
  * Only use for debugging purpose, otherwise you are a CHEATER
  */
 /* #define ALLOW_QUITTING */
-
-/*
- * Panic saves have a different name
- */
-#define SAFER_PANICS
 
 /*
  * Allow makefiles to override the default file mode

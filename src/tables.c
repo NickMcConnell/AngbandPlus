@@ -1301,7 +1301,7 @@ cptr window_flag_desc[32] =
 	NULL,
 	"Display character",
 	"Show visible monsters",
-	"Display IRC messages",
+	NULL,
 	"Display messages",
 	"Display overhead view",
 	"Display monster recall",
@@ -1466,15 +1466,11 @@ option_type option_info[] =
 	{ &disturb_pets, FALSE, 2, 17,
 	  "disturb_pets", "Disturb when visible pets move" },
 
-#ifdef ALLOW_EASY_OPEN
 	{ &easy_open, TRUE, 2, 18,
 	  "easy_open", "Automatically open doors" },
-#endif /* ALLOW_EASY_OPEN */
 
-#ifdef ALLOW_EASY_DISARM
 	{ &easy_disarm, TRUE, 2, 19,
 	  "easy_disarm", "Automatically disarm traps" },
-#endif /* ALLOW_EASY_DISARM */
 
 	{ &easy_tunnel, FALSE, 2, 20,
 	  "easy_tunnel", "Automatically tunnel walls" },
@@ -1617,11 +1613,6 @@ option_type option_info[] =
 
 	/*** Birth Options ***/
 
-#if 0 /* XXX free -- no more used */
-	{ &vanilla_town, FALSE, 6, 0,
-	  "vanilla_town", "Use 'vanilla' town without quests and wilderness" },
-#endif
-
 	{ &maximize, TRUE, 6, 1,
 	  "maximize", "Maximise stats" },
 
@@ -1633,10 +1624,7 @@ option_type option_info[] =
 
 	{ &point_based, FALSE, 6, 17,
 	  "point_based", "Generate character using a point system" },
-#if 0
-	{ &special_lvls, TRUE, 6, 4,
-	  "special_lvls", "Allow the use of special, unique, levels" },
-#endif
+
 	{ &ironman_rooms, FALSE, 6, 6,
 	  "ironman_rooms", "Always generate very unusual rooms" },
 
@@ -1646,10 +1634,6 @@ option_type option_info[] =
 	{ &auto_notes, TRUE, 6, 8,
 	  "auto_notes", "Automatically note important events" },
 
-#if 0 /* when Ill get some ideas */
-	{ &rand_birth, FALSE, 6, 9,
-	  "rand_birth", "Random present at birth" },
-#endif
 	{ &fast_autoroller, FALSE, 6, 10,
 	  "fast_autoroller", "Fast autoroller(NOT on multiuser systems)" },
 
@@ -2923,9 +2907,6 @@ activation activation_info[MAX_T_ACT] =
 	{ "corruption", 100, ACT_MUT },
 	{ "cure insanity", 2000, ACT_CURE_INSANITY },
 	{ "light absortion", 800, ACT_LIGHT_ABSORBTION },
-#if 0 /* No more for the time being, ehehhe evil I am :> */
-	{ "cure corruption", 2000, ACT_CURE_MUT },
-#endif
 };
 
 /*
@@ -3620,6 +3601,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		HOOK_TYPE_C,
 		quest_null_hook,
 		{0, 0},
+		NULL,
 	},
 	{
 		FALSE,
@@ -3644,6 +3626,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		HOOK_TYPE_C,
 		quest_necro_init_hook,
 		{0, 0},
+		NULL,
 	},
 	{
 		FALSE,
@@ -3668,6 +3651,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		HOOK_TYPE_C,
 		quest_sauron_init_hook,
 		{0, 0},
+		NULL,
 	},
 	{
 		FALSE,
@@ -3692,6 +3676,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		HOOK_TYPE_C,
 		quest_morgoth_init_hook,
 		{0, 0},
+		NULL,
 	},
 	
 	/* Bree plot */
@@ -3718,6 +3703,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		HOOK_TYPE_C,
 		quest_thieves_init_hook,
 		{0, 0},
+		NULL,
 	},
 	
 	{
@@ -3743,6 +3729,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		HOOK_TYPE_C,
 		quest_random_init_hook,
 		{0, 0},
+		quest_random_describe,
 	},
 	
 	{
@@ -3768,6 +3755,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		HOOK_TYPE_C,
 		quest_hobbit_init_hook,
 		{0, 0},
+		NULL,
 	},
 	
 	{
@@ -3793,6 +3781,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		HOOK_TYPE_C,
 		quest_nazgul_init_hook,
 		{0, 0},
+		NULL,
 	},
 	
 	{
@@ -3818,6 +3807,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		HOOK_TYPE_C,
 		quest_troll_init_hook,
 		{FALSE, 0},
+		NULL,
 	},
 	
 	{
@@ -3843,6 +3833,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		HOOK_TYPE_C,
 		quest_wight_init_hook,
 		{FALSE, 0},
+		NULL,
 	},
 	
 	/* Lorien plot */
@@ -3869,6 +3860,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		HOOK_TYPE_C,
 		quest_spider_init_hook,
 		{0, 0},
+		NULL,
 	},
 	{
 		FALSE,
@@ -3893,6 +3885,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		HOOK_TYPE_C,
 		quest_poison_init_hook,
 		{0, 0},
+		NULL,
 	},
 	/* Other quests */
 	{
@@ -3918,6 +3911,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		HOOK_TYPE_C,
 		quest_narsil_init_hook,
 		{0, 0},
+		NULL,
 	},
 	/* Gondolin plot */
 	{
@@ -3943,6 +3937,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		HOOK_TYPE_C,
 		quest_eol_init_hook,
 		{0, 0},
+		NULL,
 	},
 	{
 		FALSE,
@@ -3967,6 +3962,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		HOOK_TYPE_C,
 		quest_nirnaeth_init_hook,
 		{0, 0},
+		NULL,
 	},
 	{
 		FALSE,
@@ -3991,6 +3987,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		HOOK_TYPE_C,
 		quest_invasion_init_hook,
 		{0, 0},
+		NULL,
 	},
 	/* Minas Anor Plot*/
 	{
@@ -4016,6 +4013,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		HOOK_TYPE_C,
 		quest_between_init_hook,
 		{0, 0},
+		NULL,
 	},
 	{
 		FALSE,
@@ -4040,6 +4038,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		HOOK_TYPE_C,
 		quest_one_init_hook,
 		{0, 0},
+		NULL,
 	},
 	
 	{
@@ -4065,6 +4064,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		HOOK_TYPE_C,
 		quest_shroom_init_hook,
 		{0, 0},
+		NULL,
 	},
 	
 	{
@@ -4090,6 +4090,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		HOOK_TYPE_C,
 		quest_thrain_init_hook,
 		{0, 0},
+		NULL,
 	},
 	
 	/* The 2 ultra endings go here */
@@ -4116,6 +4117,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		HOOK_TYPE_C,
 		quest_ultra_good_init_hook,
 		{0, 0},
+		NULL,
 	},
 	{
 		FALSE,
@@ -4140,6 +4142,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		HOOK_TYPE_C,
 		quest_ultra_evil_init_hook,
 		{0, 0},
+		NULL,
 	},
 	/* More Lorien */
 	{
@@ -4165,6 +4168,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		HOOK_TYPE_C,
 		quest_wolves_init_hook,
 		{0, 0},
+		NULL,
 	},
 	/* More Gondolin */
 	{
@@ -4190,6 +4194,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		HOOK_TYPE_C,
 		quest_dragons_init_hook,
 		{0, 0},
+		NULL,
 	},
 	/* More Minas Anor */
 	{
@@ -4215,6 +4220,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		HOOK_TYPE_C,
 		quest_haunted_init_hook,
 		{0, 0},
+		NULL,
 	},
 	/* Khazad-Dum Plot*/
 	{
@@ -4240,6 +4246,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		HOOK_TYPE_C,
 		quest_evil_init_hook,
 		{0, 0},
+		NULL,
 	},
 };
 
@@ -4608,7 +4615,7 @@ tval_desc tval_descs[] =
 /*
  * List of the between exits
  *       s16b corresp;           Corresponding between gate
- *       bool dungeon;           Do we exit in a dungeon or in the wild ?
+ *       bool_ dungeon;           Do we exit in a dungeon or in the wild ?
  *
  *       s16b wild_x, wild_y;    Wilderness spot to land onto
  *       s16b p_ptr->px, p_ptr->py;            Location of the map

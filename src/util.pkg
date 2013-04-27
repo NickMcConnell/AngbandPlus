@@ -1316,7 +1316,7 @@ extern void prt(cptr str, int row, int col);
  * @brief Add a message "msg" of type "type" and colour "color" to the
  * message array.\n
  * @param type Number \n the type of message. MESSAGE_MSG for regular
- * messages, MESSAGE_IRC for IRC messages.
+ * messages.
  * @brief Type
  * @param msg String \n the message.
  * @brief Message
@@ -1513,6 +1513,12 @@ extern void quit(cptr str);
  * @note (see file util.c)
  */
 extern s32b value_scale(int value, int vmax, int max, int min);
+
+/*
+ * compass, approximate_distance
+ */
+extern cptr compass(int y, int x, int y2, int x2);
+extern cptr approximate_distance(int y, int x, int y2, int x2);
 
 /** @fn text_out_c(byte a, cptr str)
  * @brief Output text to the screen (in color) or to a file depending on the
@@ -2339,29 +2345,10 @@ extern s16b ddy_ddd[9];
 
 
 /* Gen stuff */
-/** @fn get_map_size(bool full_text, char *name, int *ysize = 0, int *xsize = 0)
- * @brief Return the size of the map in file "name".\n
- * @param full_text Boolean \n if TRUE, "name" contains the map itself,
- * otherwise "name" is the name of the map file.
- * @brief Name is a map?
- * @param *name String \n the map itself, or the name of the map file.
- * @brief Map
- * @param *ysize Number
- * @brief Maximum y-coordinate
- * @param *xsize Number
- * @brief Maximum x-coordinate
- * @return *ysize Number \n The maximum y-coordinate of the map.
- * @return *xsize Number \n The maximum x-coordinate of the map.
- * @note (see file lua_bind.c, init1.c)
- */
-extern void get_map_size(bool full_text, char *name, int *ysize = 0, int *xsize = 0);
 
-/** @fn load_map(bool full_text, char *name, int *y = 2, int *x = 2)
+/** @fn load_map(char *name, int *y = 2, int *x = 2)
  * @brief Load the map in file "name".\n
- * @param full_text Boolean \n if TRUE, "name" contains the map itself,
- * otherwise "name" is the name of the map file.
- * @brief Name is a map?
- * @param *name String \n the map itself, or the name of the map file.
+ * @param *name String \n the name of the map file.
  * @brief Map
  * @param *y Number
  * @brief Maximum y-coordinate
@@ -2373,7 +2360,7 @@ extern void get_map_size(bool full_text, char *name, int *ysize = 0, int *xsize 
  * The map is loaded and the player is placed at the starting position.
  * @note (see file lua_bind.c)
  */
-extern void load_map(bool full_text, char *name, int *y = 2, int *x = 2);
+extern void load_map(char *name, int *y = 2, int *x = 2);
 
 /** @fn alloc_room(int by0, int bx0, int ysize, int xsize, int *y1 = 0, int *x1 = 0, int *y2 = 0, int *x2 = 0)
  * @brief Allocate the space needed by a room in the room_map array.\n
@@ -2462,40 +2449,6 @@ $static const char *player_name_lua(void){return (const char *)player_name;}
  * @note (see file w_util.c)
  */
 const char *player_name_lua@player_name();
-
-/* Temp files */
-/** @fn make_temp_file();
- * @brief Create a temporary file.
- * @note
- * If a temp file already exists, or one can't be generated, the function
- * will fail. Otherwise a file is created and the temp_file flag is set to
- * TRUE.
- * @note (see file lua_bind.c, util.c)
- */
-extern void lua_make_temp_file@make_temp_file();
-
-/** @fn close_temp_file();
- * @brief Close a temporary file.
- * @note
- * The file is closed but not released.
- * @note (see file lua_bind.c, util.c)
- */
-extern void lua_close_temp_file@close_temp_file();
-
-/** @fn end_temp_file();
- * @brief End a temporary file.
- * @note
- * The file is released and the temp_file flag is set to FALSE.
- * @note (see file lua_bind.c, util.c)
- */
-extern void lua_end_temp_file@end_temp_file();
-
-/** @fn get_temp_name();
- * @brief Return the name of the temporary file.
- * @return String \n The name of the temporary file.
- * @note (see file lua_bind.c)
- */
-extern cptr lua_get_temp_name@get_temp_name();
 
 /* Quarks */
 /** @fn quark_str(s16b num)
@@ -2725,3 +2678,6 @@ extern void calc_bonuses(bool silent);
 
 extern void note_spot(int y, int x);
 extern void lite_spot(int y, int x);
+
+extern bool drop_text_left(byte c, cptr s, int y, int o);
+extern bool drop_text_right(byte c, cptr s, int y, int o);

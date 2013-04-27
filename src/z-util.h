@@ -3,6 +3,10 @@
 #ifndef INCLUDED_Z_UTIL_H
 #define INCLUDED_Z_UTIL_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "h-basic.h"
 
 
@@ -59,14 +63,14 @@ extern errr func_problem(void);
 extern errr func_failure(void);
 
 /* Functions that return bools */
-extern bool func_true(void);
-extern bool func_false(void);
+extern bool_ func_true(void);
+extern bool_ func_false(void);
 
 
 /* Test equality, prefix, suffix */
-extern bool streq(cptr s, cptr t);
-extern bool prefix(cptr s, cptr t);
-extern bool suffix(cptr s, cptr t);
+extern bool_ streq(cptr s, cptr t);
+extern bool_ prefix(cptr s, cptr t);
+extern bool_ suffix(cptr s, cptr t);
 
 
 /* Print an error message */
@@ -80,5 +84,8 @@ extern void core(cptr str);
 
 
 
+#ifdef __cplusplus
+} /* extern "C" */
 #endif
 
+#endif

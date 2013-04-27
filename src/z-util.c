@@ -30,12 +30,12 @@ vptr vptr_tmp = NULL;
 /*
  * Constant bool meaning true
  */
-bool bool_true = 1;
+bool_ bool_true = 1;
 
 /*
  * Constant bool meaning false
  */
-bool bool_false = 0;
+bool_ bool_false = 0;
 
 
 /*
@@ -105,7 +105,7 @@ errr func_failure(void)
 /*
  * A routine that always returns "true"
  */
-bool func_true(void)
+bool_ func_true(void)
 {
 	return (1);
 }
@@ -114,7 +114,7 @@ bool func_true(void)
 /*
  * A routine that always returns "false"
  */
-bool func_false(void)
+bool_ func_false(void)
 {
 	return (0);
 }
@@ -125,8 +125,11 @@ bool func_false(void)
 /*
  * Determine if string "t" is equal to string "t"
  */
-bool streq(cptr a, cptr b)
+bool_ streq(cptr a, cptr b)
 {
+	if ((a == NULL) && (b == NULL)) { return TRUE; }
+	if (a == NULL) { return FALSE; }
+	if (b == NULL) { return FALSE; }
 	return (!strcmp(a, b));
 }
 
@@ -134,7 +137,7 @@ bool streq(cptr a, cptr b)
 /*
  * Determine if string "t" is a suffix of string "s"
  */
-bool suffix(cptr s, cptr t)
+bool_ suffix(cptr s, cptr t)
 {
 	int tlen = strlen(t);
 	int slen = strlen(s);

@@ -46,7 +46,7 @@ void abandon_god(int god)
 /*
  * Get a religion
  */
-void follow_god(int god, bool silent)
+void follow_god(int god, bool_ silent)
 {
 	/* Poor unbelievers, i'm so mean ... BOUHAHAHA */
 	if (get_skill(SKILL_ANTIMAGIC))
@@ -78,10 +78,9 @@ void follow_god(int god, bool silent)
 /*
  * Show religious info.
  */
-bool show_god_info(bool ext)
+bool_ show_god_info(bool_ ext)
 {
 	int pgod = p_ptr->pgod;
-	int tmp;
 
 	deity_type *d_ptr;
 
@@ -107,7 +106,7 @@ bool show_god_info(bool ext)
 			text_out(d_ptr->desc[i]);
 		text_out("\n");
 
-		tmp = inkey();
+		inkey();
 
 		Term_load();
 		character_icky = FALSE;

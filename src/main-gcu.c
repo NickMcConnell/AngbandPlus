@@ -25,10 +25,6 @@
  * This code should work with most versions of "curses" or "ncurses",
  * and the "main-ncu.c" file (and USE_NCU define) are no longer used.
  *
- * See also "USE_CAP" and "main-cap.c" for code that bypasses "curses"
- * and uses the "termcap" information directly, or even bypasses the
- * "termcap" information and sends direct vt100 escape sequences.
- *
  * This file provides up to 4 term windows.
  *
  * This file will attempt to redefine the screen colors to conform to
@@ -397,18 +393,6 @@ static void keymap_game_prepare(void)
 	game_termio.c_cc[VEOF] = (char) - 1;
 	game_termio.c_cc[VEOL] = (char) - 1;
 
-#if 0
-	/* Disable the non-posix control characters */
-	game_termio.c_cc[VEOL2] = (char) - 1;
-	game_termio.c_cc[VSWTCH] = (char) - 1;
-	game_termio.c_cc[VDSUSP] = (char) - 1;
-	game_termio.c_cc[VREPRINT] = (char) - 1;
-	game_termio.c_cc[VDISCARD] = (char) - 1;
-	game_termio.c_cc[VWERASE] = (char) - 1;
-	game_termio.c_cc[VLNEXT] = (char) - 1;
-	game_termio.c_cc[VSTATUS] = (char) - 1;
-#endif
-
 	/* Normally, block until a character is read */
 	game_termio.c_cc[VMIN] = 1;
 	game_termio.c_cc[VTIME] = 0;
@@ -511,17 +495,6 @@ static errr Term_xtra_gcu_alive(int v)
 }
 
 
-#if 0
-
-#ifdef USE_NCURSES
-const char help_gcu[] = "NCurses, for terminal console, subopts -b(ig screen)";
-#else /* USE_NCURSES */
-const char help_gcu[] = "Curses, for terminal console, subopts -b(ig screen)";
-#endif /* USE_NCURSES */
-
-#endif
-
-
 /*
  * Init the "curses" system
  */
@@ -612,8 +585,8 @@ static errr Term_xtra_gcu_event(int v)
 		for (k = 0; (k < 10) && (i == ERR); k++) i = getch();
 
 		/* Broken input is special */
-		if (i == ERR) exit_game_panic();
-		if (i == EOF) exit_game_panic();
+		if (i == ERR) abort();
+		if (i == EOF) abort();
 	}
 
 	/* Do not wait */
@@ -658,7 +631,7 @@ static errr Term_xtra_gcu_event(int v)
 		i = read(0, buf, 1);
 
 		/* Hack -- Handle bizarre "errors" */
-		if ((i <= 0) && (errno != EINTR)) exit_game_panic();
+		if ((i <= 0) && (errno != EINTR)) abort();
 	}
 
 	/* Do not wait */
@@ -1010,7 +983,7 @@ errr init_gcu(int argc, char **argv)
 
 	int num_term = MAX_TERM_DATA, next_win = 0;
 
-	bool use_big_screen = FALSE;
+	bool_ use_big_screen = FALSE;
 
 
 	/* Parse args */

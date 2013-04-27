@@ -56,13 +56,7 @@ void teleport_player_town(int town)
 {
 	int x = 0, y = 0;
 
-	if (autosave_l)
-	{
-		is_autosave = TRUE;
-		msg_print("Autosaving the game...");
-		do_cmd_save_game();
-		is_autosave = FALSE;
-	}
+	autosave_checkpoint();
 
 	/* Change town */
 	dun_level = 0;
@@ -142,7 +136,7 @@ static void wiz_create_named_art()
 	object_type *q_ptr;
 	int i, a_idx;
 	cptr p = "Number of the artifact :";
-	char out_val[80];
+	char out_val[80] = "";
 	artifact_type *a_ptr;
 
 	if (!get_string(p, out_val, 4)) return;
@@ -237,7 +231,7 @@ static void do_cmd_summon_horde()
 
 	while (--attempts)
 	{
-		scatter(&wy, &wx, p_ptr->py, p_ptr->px, 3, 0);
+		scatter(&wy, &wx, p_ptr->py, p_ptr->px, 3);
 		if (cave_naked_bold(wy, wx)) break;
 	}
 
@@ -729,11 +723,6 @@ static void wiz_tweak_item(object_type *o_ptr)
 	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
 
-#if 0 /* DG -- A Wizard can do whatever he/she wants */
-	/* Hack -- leave artifacts alone */
-	if (artifact_p(o_ptr) || o_ptr->art_name) return;
-#endif
-
 	p = "Enter new 'pval' setting: ";
 	sprintf(tmp_val, "%ld", (long int) o_ptr->pval);
 	if (!get_string(p, tmp_val, 5)) return;
@@ -813,7 +802,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 
 	char ch;
 
-	bool changed = FALSE;
+	bool_ changed = FALSE;
 
 
 	/* Hack -- leave artifacts alone */
@@ -926,7 +915,7 @@ static void wiz_statistics(object_type *o_ptr)
 	char ch;
 	char *quality;
 
-	bool good, great;
+	bool_ good, great;
 
 	object_type forge;
 	object_type	*q_ptr;
@@ -1112,12 +1101,8 @@ static void wiz_statistics(object_type *o_ptr)
  */
 static void wiz_quantity_item(object_type *o_ptr)
 {
-	int tmp_int, tmp_qnt;
-
+	int tmp_int;
 	char tmp_val[100];
-
-
-	tmp_qnt = o_ptr->number;
 
 	/* Default */
 	sprintf(tmp_val, "%d", o_ptr->number);
@@ -1157,7 +1142,7 @@ static void do_cmd_wiz_play(void)
 
 	char ch;
 
-	bool changed;
+	bool_ changed;
 
 	cptr q, s;
 
@@ -1166,17 +1151,8 @@ static void do_cmd_wiz_play(void)
 	s = "You have nothing to play with.";
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &p_ptr->inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	/* Get the item */
+	o_ptr = get_object(item);
 
 
 	/* The item was not changed */
@@ -1374,7 +1350,6 @@ static void wiz_create_item_2(void)
 void do_cmd_wiz_cure_all(void)
 {
 	object_type *o_ptr;
-	monster_race *r_ptr;
 
 	/* Remove curses */
 	(void)remove_all_curse();
@@ -1403,7 +1378,6 @@ void do_cmd_wiz_cure_all(void)
 	o_ptr = &p_ptr->inventory[INVEN_CARRY];
 	if (o_ptr->k_idx)
 	{
-		r_ptr = &r_info[o_ptr->pval];
 		o_ptr->pval2 = o_ptr->pval3;
 	}
 
@@ -1466,13 +1440,7 @@ static void do_cmd_wiz_jump(void)
 	/* Accept request */
 	msg_format("You jump to dungeon level %d.", command_arg);
 
-	if (autosave_l)
-	{
-		is_autosave = TRUE;
-		msg_print("Autosaving the game...");
-		do_cmd_save_game();
-		is_autosave = FALSE;
-	}
+	autosave_checkpoint();
 
 	/* Change level */
 	dun_level = command_arg;
@@ -1537,7 +1505,7 @@ static void do_cmd_wiz_summon(int num)
  *
  * XXX XXX XXX This function is rather dangerous
  */
-static void do_cmd_wiz_named(int r_idx, bool slp)
+static void do_cmd_wiz_named(int r_idx, bool_ slp)
 {
 	int i, x, y;
 
@@ -1553,7 +1521,7 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
 		int d = 1;
 
 		/* Pick a location */
-		scatter(&y, &x, p_ptr->py, p_ptr->px, d, 0);
+		scatter(&y, &x, p_ptr->py, p_ptr->px, d);
 
 		/* Require empty grids */
 		if (!cave_empty_bold(y, x)) continue;
@@ -1571,7 +1539,7 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
  *
  * XXX XXX XXX This function is rather dangerous
  */
-void do_cmd_wiz_named_friendly(int r_idx, bool slp)
+void do_cmd_wiz_named_friendly(int r_idx, bool_ slp)
 {
 	int i, x, y;
 
@@ -1588,7 +1556,7 @@ void do_cmd_wiz_named_friendly(int r_idx, bool slp)
 		int d = 1;
 
 		/* Pick a location */
-		scatter(&y, &x, p_ptr->py, p_ptr->px, d, 0);
+		scatter(&y, &x, p_ptr->py, p_ptr->px, d);
 
 		/* Require empty grids */
 		if (!cave_empty_bold(y, x)) continue;
@@ -1821,11 +1789,6 @@ void do_cmd_debug(void)
 		/* Phase Door */
 	case 'p':
 		teleport_player(10);
-		break;
-
-		/* Panic save the game */
-	case 'P':
-		exit_game_panic();
 		break;
 
 		/* get a Quest */

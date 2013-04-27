@@ -20,17 +20,6 @@ extern lua_State* L;
 #define AUTO_CURSE_CHANCE 15
 #define CHAINSWORD_NOISE 100
 
-/*
- * I created this when a bug misplaced my character and the game wasn't able
- * to load it again.. very frustrating.
- * So this hack will generate a new level without calling dungeon(), and
- * then the normal behavior will apply.
- */
-/* #define SAVE_HACK */
-#ifdef SAVE_HACK
-bool save_hack = TRUE;
-#endif
-
 
 /*
  * Return a "feeling" (or NULL) about an item.  Method 1 (Heavy).
@@ -226,7 +215,7 @@ byte value_check_aux2_magic(object_type *o_ptr)
 /*
  * Can a player be resurrected?
  */
-static bool granted_resurrection(void)
+static bool_ granted_resurrection(void)
 {
 	PRAY_GOD(GOD_ERU)
 	{
@@ -309,7 +298,7 @@ void sense_inventory(void)
 {
 	int i, combat_lev, magic_lev;
 
-	bool heavy_combat, heavy_magic;
+	bool_ heavy_combat, heavy_magic;
 
 	byte feel;
 
@@ -476,13 +465,7 @@ static void pattern_teleport(void)
 	/* Accept request */
 	msg_format("You teleport to dungeon level %d.", command_arg);
 
-	if (autosave_l)
-	{
-		is_autosave = TRUE;
-		msg_print("Autosaving the game...");
-		do_cmd_save_game();
-		is_autosave = FALSE;
-	}
+	autosave_checkpoint();
 
 	/* Change level */
 	dun_level = command_arg;
@@ -495,7 +478,7 @@ static void pattern_teleport(void)
 /*
  * Returns TRUE if we are on the Straight Road...
  */
-static bool pattern_effect(void)
+static bool_ pattern_effect(void)
 {
 	if ((cave[p_ptr->py][p_ptr->px].feat < FEAT_PATTERN_START) ||
 	                (cave[p_ptr->py][p_ptr->px].feat > FEAT_PATTERN_XTRA2)) return (FALSE);
@@ -800,7 +783,7 @@ static void regen_monsters(void)
  *
  * Should belong to object1.c, renamed to object_decays() -- pelpel
  */
-bool decays(object_type *o_ptr)
+bool_ decays(object_type *o_ptr)
 {
 	u32b f1, f2, f3, f4, f5, esp;
 
@@ -1027,132 +1010,9 @@ void apply_effect(int y, int x)
 }
 
 
-#if 0
-/*
- * Activate corruptions' effects on player
- *
- * All the rolls against arbitrarily chosen numbers are normalised
- * (i.e. zero). They might have some cabalistic(?) significance,
- * but I seriously doubt if processors take care of the Judeo-Christian
- * tradition :) -- pelpel
- */
-static void process_corruption_effects(void)
-{}
-
-#endif
-
-
-
-#ifdef pelpel
-
-/*
- * Handle staying spell effects once every 10 game turns
- */
-static void process_effects(void)
-{
-	int i, j;
-
-	/* Every 10 game turns */
-	if (turn % 10) return;
-
-	/* Not in the small-scale wilderness map */
-	if (p_ptr->wild_mode) return;
-
-
-	/* Handle spell effects */
-	for (j = 0; j < cur_hgt - 1; j++)
-	{
-		for (i = 0; i < cur_wid - 1; i++)
-		{
-			int e = cave[j][i].effect;
-
-			if (e)
-			{
-				effect_type *e_ptr = &effects[e];
-
-				if (e_ptr->time)
-				{
-					/* Apply damage */
-					project(0, 0, j, i, e_ptr->dam, e_ptr->type,
-					        PROJECT_KILL | PROJECT_ITEM | PROJECT_HIDE);
-				}
-				else
-				{
-					cave[j][i].effect = 0;
-				}
-
-				/* Hack -- notice death */
-				if (!alive || death) return;
-
-				if (((e_ptr->flags & EFF_WAVE) && !(e_ptr->flags & EFF_LAST)) || ((e_ptr->flags & EFF_STORM) && !(e_ptr->flags & EFF_LAST)))
-				{
-					if (distance(e_ptr->cy, e_ptr->cx, j, i) < e_ptr->rad - 1)
-						cave[j][i].effect = 0;
-				}
-			}
-		}
-	}
-
-
-	/* Reduce & handle effects */
-	for (i = 0; i < MAX_EFFECTS; i++)
-	{
-		/* Skip empty slots */
-		if (effects[i].time == 0) continue;
-
-		/* Reduce duration */
-		effects[i].time--;
-
-		/* Creates a "wave" effect*/
-		if (effects[i].flags & EFF_WAVE)
-		{
-			effect_type *e_ptr = &effects[i];
-			int x, y;
-
-			e_ptr->rad++;
-			for (y = e_ptr->cy - e_ptr->rad; y <= e_ptr->cy + e_ptr->rad; y++)
-			{
-				for (x = e_ptr->cx - e_ptr->rad; x <= e_ptr->cx + e_ptr->rad; x++)
-				{
-					if (!in_bounds(y, x)) continue;
-
-					if (los(e_ptr->cy, e_ptr->cx, y, x) &&
-					                (distance(e_ptr->cy, e_ptr->cx, y, x) == e_ptr->rad))
-						cave[y][x].effect = i;
-				}
-			}
-		}
-		/* Creates a "storm" effect*/
-		else if (effects[i].flags & EFF_STORM)
-		{
-			effect_type *e_ptr = &effects[i];
-			int x, y;
-
-			e_ptr->cy = p_ptr->py;
-			e_ptr->cx = p_ptr->px;
-			for (y = e_ptr->cy - e_ptr->rad; y <= e_ptr->cy + e_ptr->rad; y++)
-			{
-				for (x = e_ptr->cx - e_ptr->rad; x <= e_ptr->cx + e_ptr->rad; x++)
-				{
-					if (!in_bounds(y, x)) continue;
-
-					if (los(e_ptr->cy, e_ptr->cx, y, x) &&
-					                (distance(e_ptr->cy, e_ptr->cx, y, x) == e_ptr->rad))
-						cave[y][x].effect = i;
-				}
-			}
-		}
-	}
-
-	/* Apply sustained effect in the player grid, if any */
-	apply_effect(p_ptr->py, p_ptr->px);
-}
-
-#endif /* pelpel */
-
 
 /* XXX XXX XXX */
-bool is_recall = FALSE;
+bool_ is_recall = FALSE;
 
 
 /*
@@ -1168,7 +1028,7 @@ static void process_world(void)
 	int x, y, i, j;
 
 	int regen_amount;
-	bool cave_no_regen = FALSE;
+	bool_ cave_no_regen = FALSE;
 	int upkeep_factor = 0;
 
 	dungeon_info_type *d_ptr = &d_info[dungeon_type];
@@ -1176,7 +1036,6 @@ static void process_world(void)
 	cave_type *c_ptr;
 
 	object_type *o_ptr;
-	object_kind *k_ptr;
 	u32b f1 = 0 , f2 = 0 , f3 = 0, f4 = 0, f5 = 0, esp = 0;
 
 
@@ -1249,47 +1108,6 @@ static void process_world(void)
 		}
 	}
 
-	/*** Check the Time and Load ***/
-
-	/*
-	 * Every 1000 game turns -- which means this section is invoked every
-	 * 100 player turns under the normal speed, and slightly more than
-	 * one per move in the reduced map.
-	 */
-	if ((turn % 1000) == 0)
-	{
-		/* Check time and load */
-		if ((0 != check_time()) || (0 != check_load()))
-		{
-			/* Warning */
-			if (closing_flag <= 2)
-			{
-				/* Disturb */
-				disturb(0, 0);
-
-				/* Count warnings */
-				closing_flag++;
-
-				/* Message */
-				msg_print("The gates to Middle Earth are closing...");
-				msg_print("Please finish up and/or save your game.");
-			}
-
-			/* Slam the gate */
-			else
-			{
-				/* Message */
-				msg_print("The gates to Middle Earth are now closed.");
-
-				/* Stop playing */
-				alive = FALSE;
-
-				/* Leaving */
-				p_ptr->leaving = TRUE;
-			}
-		}
-	}
-
 	/*** Attempt timed autosave ***/
 	if (autosave_t && autosave_freq)
 	{
@@ -1311,7 +1129,7 @@ static void process_world(void)
 		/* Hack -- Daybreak/Nighfall in town */
 		if ((turn % ((10L * DAY) / 2)) == 0)
 		{
-			bool dawn;
+			bool_ dawn;
 
 			/* Check for dawn */
 			dawn = ((turn % (10L * DAY)) == 0);
@@ -1455,7 +1273,7 @@ static void process_world(void)
 					/* Summon */
 					while (1)
 					{
-						scatter(&yy, &xx, p_ptr->py, p_ptr->px, 6, 0);
+						scatter(&yy, &xx, p_ptr->py, p_ptr->px, 6);
 
 						/* Accept an empty grid within the boundary */
 						if (in_bounds(yy, xx) && cave_floor_bold(yy, xx)) break;
@@ -1960,7 +1778,7 @@ static void process_world(void)
 		/* Dead player */
 		if (p_ptr->chp < 0)
 		{
-			bool old_quick = quick_messages;
+			bool_ old_quick = quick_messages;
 
 			/* Sound */
 			sound(SOUND_DEATH);
@@ -2482,8 +2300,6 @@ static void process_world(void)
 		}
 	}
 
-#ifndef pelpel
-
 	/* handle spell effects */
 	if (!p_ptr->wild_mode)
 	{
@@ -2691,8 +2507,6 @@ static void process_world(void)
 		apply_effect(p_ptr->py, p_ptr->px);
 	}
 
-#endif /* !pelpel */
-
 	/* Arg cannot breath? */
 	if ((dungeon_flags2 & DF2_WATER_BREATH) && (!p_ptr->water_breath))
 	{
@@ -2715,7 +2529,7 @@ static void process_world(void)
 	{
 		u32b f1, f2, f3, f4, f5;
 
-		bool be_silent = FALSE;
+		bool_ be_silent = FALSE;
 
 		/* check all equipment for the Black Breath flag. */
 		for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
@@ -2997,7 +2811,6 @@ static void process_world(void)
 	for (j = 0, i = 0; i < INVEN_TOTAL; i++)
 	{
 		o_ptr = &p_ptr->inventory[i];
-		k_ptr = &k_info[o_ptr->k_idx];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
@@ -3012,9 +2825,7 @@ static void process_world(void)
 
 			if (o_ptr->timeout <= 0)
 			{
-				inven_item_increase(i, -99);
-				inven_item_describe(i);
-				inven_item_optimize(i);
+				inc_stack_size(i, -99);
 
 				/* Combine and Reorder pack */
 				p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -3116,9 +2927,8 @@ static void process_world(void)
 						m_ptr->status = MSTATUS_COMPANION;
 					}
 
-					inven_item_increase(i, -1);
-					inven_item_describe(i);
-					inven_item_optimize(i);
+					inc_stack_size(i, -1);
+
 					j++;
 				}
 			}
@@ -3273,12 +3083,9 @@ static void process_world(void)
 			 * The player is yanked up/down as soon as
 			 * he loads the autosaved game.
 			 */
-			if (autosave_l && (p_ptr->word_recall == 1))
+			if (p_ptr->word_recall == 1)
 			{
-				is_autosave = TRUE;
-				msg_print("Autosaving the game...");
-				do_cmd_save_game();
-				is_autosave = FALSE;
+				autosave_checkpoint();
 			}
 
 			/* Make SURE that persistent levels are saved
@@ -3345,7 +3152,7 @@ static void process_world(void)
 /*
  * Verify use of "wizard" mode
  */
-static bool enter_wizard_mode(void)
+static bool_ enter_wizard_mode(void)
 {
 	/* Ask first time, but not while loading a dead char with the -w option */
 	if (!noscore && !(p_ptr->chp < 0))
@@ -3373,7 +3180,7 @@ static bool enter_wizard_mode(void)
 /*
  * Verify use of "debug" commands
  */
-static bool enter_debug_mode(void)
+static bool_ enter_debug_mode(void)
 {
 	/* Ask first time */
 	if (!noscore && !wizard)
@@ -3414,12 +3221,8 @@ static void process_command(void)
 {
 	char error_m[80];
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 	/* Handle repeating the last command */
 	repeat_check();
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Process the appropriate hooks */
 	if (process_hooks(HOOK_KEYPRESS, "(d)", command_cmd)) return;
@@ -3658,18 +3461,6 @@ static void process_command(void)
 			break;
 		}
 
-#if 0 /* Merged with the '>' command -- pelpel */
-
-		/* Enter quest level -KMW- */
-	case '[':
-		{
-			if (p_ptr->control) break;
-			if (!p_ptr->wild_mode) do_cmd_quest();
-			break;
-		}
-
-#endif /* 0 */
-
 		/* Go up staircase */
 	case '<':
 		{
@@ -3692,10 +3483,6 @@ static void process_command(void)
 			if (p_ptr->wild_mode || dun_level || is_quest(dun_level))
 			{
 				do_cmd_go_up();
-			}
-			else if (vanilla_town)
-			{
-				/* Do nothing */
 			}
 			/* Don't let the player < when he'd just drop right back down */
 			else if (p_ptr->food < PY_FOOD_ALERT)
@@ -4361,8 +4148,6 @@ static void process_command(void)
 			break;
 		}
 
-#ifndef VERIFY_SAVEFILE
-
 		/* Hack -- Save and don't quit */
 	case KTRL('S'):
 		{
@@ -4370,8 +4155,6 @@ static void process_command(void)
 			do_cmd_save_game();
 			break;
 		}
-
-#endif /* VERIFY_SAVEFILE */
 
 	case KTRL('T'):
 		{
@@ -4433,27 +4216,6 @@ static void process_command(void)
 	case CMD_CLI_HELP:
 		{
 			do_cmd_cli_help();
-			break;
-		}
-
-		/* Connect to IRC. */
-	case CMD_IRC_CONNECT:
-		{
-			irc_connect();
-			break;
-		}
-
-		/* Speak on IRC. */
-	case CMD_IRC_CHAT:
-		{
-			irc_chat();
-			break;
-		}
-
-		/* Disconnect from IRC. */
-	case CMD_IRC_DISCON:
-		{
-			irc_disconnect();
 			break;
 		}
 
@@ -4586,13 +4348,11 @@ void process_player(void)
 		/* Complete resting */
 		else if (resting == -2)
 		{
-			bool stop = TRUE;
+			bool_ stop = TRUE;
 			object_type *o_ptr;
-			monster_race *r_ptr;
 
 			/* Get the carried monster */
 			o_ptr = &p_ptr->inventory[INVEN_CARRY];
-			r_ptr = &r_info[o_ptr->pval];
 
 			/* Stop resting */
 			if ((!p_ptr->drain_life) && (p_ptr->chp != p_ptr->mhp)) stop = FALSE;
@@ -4699,9 +4459,7 @@ void process_player(void)
 			drop_near(o_ptr, 0, p_ptr->py, p_ptr->px);
 
 			/* Modify, Describe, Optimize */
-			inven_item_increase(item, -255);
-			inven_item_describe(item);
-			inven_item_optimize(item);
+			inc_stack_size(item, -255);
 
 			/* Notice stuff (if needed) */
 			if (p_ptr->notice) notice_stuff();
@@ -4715,10 +4473,6 @@ void process_player(void)
 			/* Redraw stuff (if needed) */
 			if (p_ptr->window) window_stuff();
 		}
-
-
-		/* Hack -- cancel "lurking browse mode" */
-		if (!command_new) command_see = FALSE;
 
 
 		/* Assume free turn */
@@ -5276,35 +5030,6 @@ static void dungeon(void)
 		if (!alive || death) break;
 
 
-#ifdef pelpel
-
-		/* Process spell effects */
-		process_effects();
-
-		/* Notice stuff */
-		if (p_ptr->notice) notice_stuff();
-
-		/* Update stuff */
-		if (p_ptr->update) update_stuff();
-
-		/* Redraw stuff */
-		if (p_ptr->redraw) redraw_stuff();
-
-		/* Redraw stuff */
-		if (p_ptr->window) window_stuff();
-
-		/* Hack -- Hilite the player */
-		move_cursor_relative(p_ptr->py, p_ptr->px);
-
-		/* Optional fresh */
-		if (fresh_after) Term_fresh();
-
-		/* Hack -- Notice death or departure */
-		if (!alive || death) break;
-
-#endif /* pelpel */
-
-
 		total_friends = 0;
 		total_friend_levels = 0;
 
@@ -5443,11 +5168,11 @@ static void load_all_pref_files(void)
  * savefile, we will commit suicide, if necessary, to allow the
  * player to start a new game.
  */
-void play_game(bool new_game)
+void play_game(bool_ new_game)
 {
 	int i, tmp_dun;
 
-	bool cheat_death = FALSE;
+	bool_ cheat_death = FALSE;
 
 	hack_corruption = FALSE;
 
@@ -5722,28 +5447,8 @@ void play_game(bool new_game)
 		/* Update monster list window */
 		p_ptr->window |= (PW_M_LIST);
 
-#ifdef SAVE_HACK
-
-		/* Process the level */
-		if (!save_hack)
-		{
-			dungeon();
-		}
-		else
-		{
-			generate_cave();
-		}
-
-		save_hack = FALSE;
-
-		p_ptr->leaving = TRUE;
-
-#else
-
 		/* Process the level */
 		dungeon();
-
-#endif
 
 		/* Save the current level if in a persistent level */
 		tmp_dun = dun_level;

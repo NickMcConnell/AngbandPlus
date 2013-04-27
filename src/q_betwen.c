@@ -1,7 +1,7 @@
 #undef cquest
 #define cquest (quest[QUEST_BETWEEN])
 
-bool quest_between_move_hook(char *fmt)
+bool_ quest_between_move_hook(char *fmt)
 {
 	s32b y;
 	s32b x;
@@ -49,7 +49,7 @@ bool quest_between_move_hook(char *fmt)
 
 	return FALSE;
 }
-bool quest_between_gen_hook(char *fmt)
+bool_ quest_between_gen_hook(char *fmt)
 {
 	int x, y;
 	int xstart = 2;
@@ -74,9 +74,7 @@ bool quest_between_gen_hook(char *fmt)
 	get_mon_num_prep();
 
 	init_flags = INIT_CREATE_DUNGEON;
-	process_dungeon_file_full = TRUE;
-	process_dungeon_file(NULL, "between.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
-	process_dungeon_file_full = FALSE;
+	process_dungeon_file("between.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE, TRUE);
 
 	/* Otherwise instadeath */
 	energy_use = 0;
@@ -85,7 +83,7 @@ bool quest_between_gen_hook(char *fmt)
 
 	return TRUE;
 }
-bool quest_between_finish_hook(char *fmt)
+bool_ quest_between_finish_hook(char *fmt)
 {
 	s32b q_idx;
 	object_type forge, *q_ptr;
@@ -123,7 +121,7 @@ bool quest_between_finish_hook(char *fmt)
 
 	return TRUE;
 }
-bool quest_between_death_hook(char *fmt)
+bool_ quest_between_death_hook(char *fmt)
 {
 	int i, mcnt = 0;
 
@@ -152,7 +150,7 @@ bool quest_between_death_hook(char *fmt)
 
 	return FALSE;
 }
-bool quest_between_dump_hook(char *fmt)
+bool_ quest_between_dump_hook(char *fmt)
 {
 	if (cquest.status >= QUEST_STATUS_COMPLETED)
 	{
@@ -161,7 +159,7 @@ bool quest_between_dump_hook(char *fmt)
 	}
 	return (FALSE);
 }
-bool quest_between_forbid_hook(char *fmt)
+bool_ quest_between_forbid_hook(char *fmt)
 {
 	s32b q_idx;
 	q_idx = get_next_arg(fmt);
@@ -175,7 +173,7 @@ bool quest_between_forbid_hook(char *fmt)
 	}
 	return (FALSE);
 }
-bool quest_between_init_hook(int q)
+bool_ quest_between_init_hook(int q)
 {
 	if ((cquest.status >= QUEST_STATUS_TAKEN) && (cquest.status < QUEST_STATUS_FINISHED))
 	{

@@ -26,7 +26,7 @@
  * Based on mon_take_hit... all monster attacks on
  * other monsters should use
  */
-bool mon_take_hit_mon(int s_idx, int m_idx, int dam, bool *fear, cptr note)
+bool_ mon_take_hit_mon(int s_idx, int m_idx, int dam, bool_ *fear, cptr note)
 {
 	monster_type *m_ptr = &m_list[m_idx], *s_ptr = &m_list[s_idx];
 
@@ -258,7 +258,7 @@ bool mon_take_hit_mon(int s_idx, int m_idx, int dam, bool *fear, cptr note)
 /*
 * Internal probability routine
 */
-static bool int_outof(monster_race *r_ptr, int prob)
+static bool_ int_outof(monster_race *r_ptr, int prob)
 {
 	/* Non-Smart monsters are half as "smart" */
 	if (!(r_ptr->flags2 & (RF2_SMART))) prob = prob / 2;
@@ -552,7 +552,7 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
  * Determine if there is a space near the player in which
  * a summoned creature can appear
  */
-static bool summon_possible(int y1, int x1)
+static bool_ summon_possible(int y1, int x1)
 {
 	int y, x;
 
@@ -594,7 +594,7 @@ static bool summon_possible(int y1, int x1)
  * This is exactly like "projectable", but it will return FALSE if a monster
  * is in the way.
  */
-static bool clean_shot(int y1, int x1, int y2, int x2)
+static bool_ clean_shot(int y1, int x1, int y2, int x2)
 {
 	int dist, y, x;
 
@@ -642,7 +642,7 @@ static void bolt(int m_idx, int typ, int dam_hp)
 /*
  * Return TRUE if a spell is good for hurting the player (directly).
  */
-static bool spell_attack(byte spell)
+static bool_ spell_attack(byte spell)
 {
 	/* All RF4 spells hurt (except for shriek, multiply, summon animal) */
 	if (spell >= 96 + 3 && spell <= 96 + 31) return (TRUE);
@@ -664,7 +664,7 @@ static bool spell_attack(byte spell)
 /*
  * Return TRUE if a spell is good for escaping.
  */
-static bool spell_escape(byte spell)
+static bool_ spell_escape(byte spell)
 {
 	/* Blink or Teleport */
 	if (spell == 160 + 4 || spell == 160 + 5) return (TRUE);
@@ -679,7 +679,7 @@ static bool spell_escape(byte spell)
 /*
  * Return TRUE if a spell is good for annoying the player.
  */
-static bool spell_annoy(byte spell)
+static bool_ spell_annoy(byte spell)
 {
 	/* Shriek */
 	if (spell == 96 + 0) return (TRUE);
@@ -693,11 +693,6 @@ static bool spell_annoy(byte spell)
 	/* Teleport to */
 	if (spell == 160 + 6) return (TRUE);
 
-#if 0
-	/* Hand of Doom */
-	if (spell == 160 + 1) return (TRUE);
-#endif
-
 	/* Darkness, make traps, cause amnesia */
 	if (spell >= 160 + 9 && spell <= 160 + 11) return (TRUE);
 
@@ -708,7 +703,7 @@ static bool spell_annoy(byte spell)
 /*
  * Return TRUE if a spell summons help.
  */
-static bool spell_summon(byte spell)
+static bool_ spell_summon(byte spell)
 {
 	/* RF4_S_ANIMAL, RF6_S_ANIMALS */
 	if (spell == 96 + 2 || spell == 160 + 3) return (TRUE);
@@ -723,7 +718,7 @@ static bool spell_summon(byte spell)
 /*
  * Return TRUE if a spell is good in a tactical situation.
  */
-static bool spell_tactic(byte spell)
+static bool_ spell_tactic(byte spell)
 {
 	/* Blink */
 	if (spell == 160 + 4) return (TRUE);
@@ -736,7 +731,7 @@ static bool spell_tactic(byte spell)
 /*
  * Return TRUE if a spell hastes.
  */
-static bool spell_haste(byte spell)
+static bool_ spell_haste(byte spell)
 {
 	/* Haste self */
 	if (spell == 160 + 0) return (TRUE);
@@ -749,7 +744,7 @@ static bool spell_haste(byte spell)
 /*
  * Return TRUE if a spell is good for healing.
  */
-static bool spell_heal(byte spell)
+static bool_ spell_heal(byte spell)
 {
 	/* Heal */
 	if (spell == 160 + 2) return (TRUE);
@@ -998,7 +993,7 @@ void cmonster_msg(char a, cptr fmt, ...)
  * at another monster.
  */
 int monst_spell_monst_spell = -1;
-static bool monst_spell_monst(int m_idx)
+static bool_ monst_spell_monst(int m_idx)
 {
 	int y = 0, x = 0;
 	int i = 1, k, t_idx;
@@ -1013,21 +1008,21 @@ static bool monst_spell_monst(int m_idx)
 	monster_type *t_ptr;                     /* Putative target */
 	monster_race *tr_ptr;
 	u32b f4, f5, f6;                        /* racial spell flags */
-	bool direct = TRUE;
-	bool wake_up = FALSE;
+	bool_ direct = TRUE;
+	bool_ wake_up = FALSE;
 
 	/* Extract the blind-ness */
-	bool blind = (p_ptr->blind ? TRUE : FALSE);
+	bool_ blind = (p_ptr->blind ? TRUE : FALSE);
 
 	/* Extract the "see-able-ness" */
-	bool seen = (!blind && m_ptr->ml);
+	bool_ seen = (!blind && m_ptr->ml);
 
-	bool see_m;
-	bool see_t;
-	bool see_either;
-	bool see_both;
+	bool_ see_m;
+	bool_ see_t;
+	bool_ see_either;
+	bool_ see_both;
 
-	bool friendly = FALSE;
+	bool_ friendly = FALSE;
 
 	if (is_friend(m_ptr) > 0) friendly = TRUE;
 
@@ -1154,9 +1149,6 @@ static bool monst_spell_monst(int m_idx)
 				if (disturb_other) disturb(1, 0);
 				if (!see_m) monster_msg("You hear a shriek.");
 				else monster_msg("%^s shrieks at %s.", m_name, t_name);
-#if 0
-				aggravate_monsters(m_idx);
-#endif
 				wake_up = TRUE;
 				break;
 			}
@@ -1741,7 +1733,7 @@ static bool monst_spell_monst(int m_idx)
 				}
 				else
 				{
-					bool fear;
+					bool_ fear;
 					monster_msg("%^s is blasted by psionic energy.", t_name);
 					t_ptr->confused += rand_int(4) + 4;
 
@@ -1784,7 +1776,7 @@ static bool monst_spell_monst(int m_idx)
 				}
 				else
 				{
-					bool fear;
+					bool_ fear;
 					if (see_t)
 					{
 						monster_msg("%^s is blasted by psionic energy.", t_name);
@@ -1812,7 +1804,7 @@ static bool monst_spell_monst(int m_idx)
 				}
 				else
 				{
-					bool fear;
+					bool_ fear;
 					mon_take_hit_mon(m_idx, t_idx, damroll(3, 8), &fear, " is destroyed.");
 				}
 				wake_up = TRUE;
@@ -1832,7 +1824,7 @@ static bool monst_spell_monst(int m_idx)
 				}
 				else
 				{
-					bool fear;
+					bool_ fear;
 					mon_take_hit_mon(m_idx, t_idx, damroll(8, 8), &fear, " is destroyed.");
 				}
 				wake_up = TRUE;
@@ -1852,7 +1844,7 @@ static bool monst_spell_monst(int m_idx)
 				}
 				else
 				{
-					bool fear;
+					bool_ fear;
 					mon_take_hit_mon(m_idx, t_idx, damroll(10, 15), &fear, " is destroyed.");
 				}
 				wake_up = TRUE;
@@ -1872,7 +1864,7 @@ static bool monst_spell_monst(int m_idx)
 				}
 				else
 				{
-					bool fear;
+					bool_ fear;
 					mon_take_hit_mon(m_idx, t_idx, damroll(15, 15), &fear, " is destroyed.");
 				}
 				wake_up = TRUE;
@@ -2300,7 +2292,7 @@ static bool monst_spell_monst(int m_idx)
 				if (!direct) break;
 				else
 				{
-					bool resists_tele = FALSE;
+					bool_ resists_tele = FALSE;
 					if (disturb_other) disturb(1, 0);
 					monster_msg("%^s teleports %s away.", m_name, t_name);
 
@@ -2690,14 +2682,6 @@ static bool monst_spell_monst(int m_idx)
 					count += summon_specific(y, x, rlev, SUMMON_WRAITH);
 				}
 
-#if 0
-				/* these are not Lords of Amber... */
-				for (k = 0; k < 12; k++)
-				{
-					count += summon_specific(y, x, rlev, SUMMON_HI_UNDEAD);
-				}
-#endif
-
 				if (blind && count)
 				{
 					monster_msg("You hear immortal beings appear nearby.");
@@ -2780,7 +2764,7 @@ static bool monst_spell_monst(int m_idx)
 
 void curse_equipment(int chance, int heavy_chance)
 {
-	bool changed = FALSE;
+	bool_ changed = FALSE;
 	u32b o1, o2, o3, o4, esp, o5;
 	object_type * o_ptr =
 		&p_ptr->inventory[rand_range(INVEN_WIELD, INVEN_TOTAL - 1)];
@@ -2836,7 +2820,7 @@ void curse_equipment(int chance, int heavy_chance)
 
 void curse_equipment_dg(int chance, int heavy_chance)
 {
-	bool changed = FALSE;
+	bool_ changed = FALSE;
 	u32b o1, o2, o3, o4, esp, o5;
 	object_type * o_ptr =
 		&p_ptr->inventory[rand_range(INVEN_WIELD, INVEN_TOTAL - 1)];
@@ -2947,7 +2931,7 @@ void curse_equipment_dg(int chance, int heavy_chance)
  * Note the special "MFLAG_NICE" flag, which prevents a monster from using
  * any spell attacks until the player has had a single chance to move.
  */
-bool make_attack_spell(int m_idx)
+bool_ make_attack_spell(int m_idx)
 {
 	int k, chance, thrown_spell, rlev, failrate;
 	byte spell[96], num = 0;
@@ -2955,23 +2939,23 @@ bool make_attack_spell(int m_idx)
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = race_inf(m_ptr);
 	char m_name[80];
-	bool no_inate = FALSE;
+	bool_ no_inate = FALSE;
 	int x, y;
 
 	/* Summon count */
 	int count = 0;
 
 	/* Extract the blind-ness */
-	bool blind = (p_ptr->blind ? TRUE : FALSE);
+	bool_ blind = (p_ptr->blind ? TRUE : FALSE);
 
 	/* Extract the "see-able-ness" */
-	bool seen = (!blind && m_ptr->ml);
+	bool_ seen = (!blind && m_ptr->ml);
 
 	/* Assume "normal" target */
-	bool normal = TRUE;
+	bool_ normal = TRUE;
 
 	/* Assume "projectable" */
-	bool direct = TRUE;
+	bool_ direct = TRUE;
 
 	/* Target location */
 	if (m_ptr->target > -1)
@@ -4604,14 +4588,6 @@ bool make_attack_spell(int m_idx)
 					count += summon_specific(y, x, rlev, SUMMON_WRAITH);
 				}
 
-#if 0
-				/* these are not Lords of Amber... */
-				for (k = 0; k < 12; k++)
-				{
-					count += summon_specific(y, x, rlev, SUMMON_HI_UNDEAD);
-				}
-#endif
-
 				if (blind && count)
 				{
 					msg_print("You hear immortal beings appear nearby.");
@@ -4783,7 +4759,7 @@ static int mon_will_run(int m_idx)
 * but instead of heading directly for it, the monster should "swerve"
 * around the player so that he has a smaller chance of getting hit.
 */
-static bool get_fear_moves_aux(int m_idx, int *yp, int *xp)
+static bool_ get_fear_moves_aux(int m_idx, int *yp, int *xp)
 {
 	int y, x, y1, x1, fy, fx, gy = 0, gx = 0;
 	int when = 0, score = -1;
@@ -4875,7 +4851,7 @@ static bool get_fear_moves_aux(int m_idx, int *yp, int *xp)
 *
 * Return TRUE if a safe location is available.
 */
-static bool find_safety(int m_idx, int *yp, int *xp)
+static bool_ find_safety(int m_idx, int *yp, int *xp)
 {
 	monster_type *m_ptr = &m_list[m_idx];
 
@@ -4954,7 +4930,7 @@ static bool find_safety(int m_idx, int *yp, int *xp)
  *
  * Return TRUE if a good location is available.
  */
-static bool find_hiding(int m_idx, int *yp, int *xp)
+static bool_ find_hiding(int m_idx, int *yp, int *xp)
 {
 	monster_type *m_ptr = &m_list[m_idx];
 
@@ -5102,7 +5078,7 @@ static void get_target_monster(int m_idx)
 /*
  * Choose "logical" directions for monster movement
  */
-static bool get_moves(int m_idx, int *mm)
+static bool_ get_moves(int m_idx, int *mm)
 {
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = race_inf(m_ptr);
@@ -5113,7 +5089,7 @@ static bool get_moves(int m_idx, int *mm)
 
 	int y2 = p_ptr->py;
 	int x2 = p_ptr->px;
-	bool done = FALSE;
+	bool_ done = FALSE;
 
 	/* Oups get nearer */
 	if ((is_friend(m_ptr) > 0) && (m_ptr->cdis > p_ptr->pet_follow_distance))
@@ -5498,7 +5474,7 @@ int check_hit2(int power, int level, int ac)
 
 
 /* Monster attacks monster */
-static bool monst_attack_monst(int m_idx, int t_idx)
+static bool_ monst_attack_monst(int m_idx, int t_idx)
 {
 	monster_type *m_ptr = &m_list[m_idx], *t_ptr = &m_list[t_idx];
 	monster_race *r_ptr = race_inf(m_ptr);
@@ -5507,9 +5483,9 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 	int ac, rlev, pt;
 	char m_name[80], t_name[80];
 	char ddesc[80], temp[80];
-	bool blinked = FALSE, touched = FALSE;
-	bool explode = FALSE;
-	bool fear = FALSE;
+	bool_ blinked = FALSE, touched = FALSE;
+	bool_ explode = FALSE;
+	bool_ fear = FALSE;
 	byte y_saver = t_ptr->fy;
 	byte x_saver = t_ptr->fx;
 
@@ -5544,8 +5520,8 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 	/* Scan through all four blows */
 	for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
 	{
-		bool visible = FALSE;
-		bool obvious = FALSE;
+		bool_ visible = FALSE;
+		bool_ obvious = FALSE;
 
 		int power = 0;
 		int damage = 0;
@@ -5581,111 +5557,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 		if (m_ptr->ml) visible = TRUE;
 
 		/* Extract the attack "power" */
-		switch (effect)
-		{
-		case RBE_HURT:
-			power = 60;
-			break;
-		case RBE_POISON:
-			power = 5;
-			break;
-		case RBE_UN_BONUS:
-			power = 20;
-			break;
-		case RBE_UN_POWER:
-			power = 15;
-			break;
-		case RBE_EAT_GOLD:
-			power = 5;
-			break;
-		case RBE_EAT_ITEM:
-			power = 5;
-			break;
-		case RBE_EAT_FOOD:
-			power = 5;
-			break;
-		case RBE_EAT_LITE:
-			power = 5;
-			break;
-		case RBE_ACID:
-			power = 0;
-			break;
-		case RBE_ELEC:
-			power = 10;
-			break;
-		case RBE_FIRE:
-			power = 10;
-			break;
-		case RBE_COLD:
-			power = 10;
-			break;
-		case RBE_BLIND:
-			power = 2;
-			break;
-		case RBE_CONFUSE:
-			power = 10;
-			break;
-		case RBE_TERRIFY:
-			power = 10;
-			break;
-		case RBE_PARALYZE:
-			power = 2;
-			break;
-		case RBE_LOSE_STR:
-			power = 0;
-			break;
-		case RBE_LOSE_DEX:
-			power = 0;
-			break;
-		case RBE_LOSE_CON:
-			power = 0;
-			break;
-		case RBE_LOSE_INT:
-			power = 0;
-			break;
-		case RBE_LOSE_WIS:
-			power = 0;
-			break;
-		case RBE_LOSE_CHR:
-			power = 0;
-			break;
-		case RBE_LOSE_ALL:
-			power = 2;
-			break;
-		case RBE_SHATTER:
-			power = 60;
-			break;
-		case RBE_EXP_10:
-			power = 5;
-			break;
-		case RBE_EXP_20:
-			power = 5;
-			break;
-		case RBE_EXP_40:
-			power = 5;
-			break;
-		case RBE_EXP_80:
-			power = 5;
-			break;
-		case RBE_DISEASE:
-			power = 5;
-			break;
-		case RBE_TIME:
-			power = 5;
-			break;
-		case RBE_SANITY:
-			power = 60;
-			break;
-		case RBE_HALLU:
-			power = 10;
-			break;
-		case RBE_PARASITE:
-			power = 5;
-			break;
-		case RBE_ABOMINATION:
-			power = 20;
-			break;
-		}
+		power = get_attack_power(effect);
 
 
 		/* Monster hits*/
@@ -6158,7 +6030,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 static u32b noise = 0L;
 
 /* Determine whether the player is invisible to a monster */
-static bool player_invis(monster_type * m_ptr)
+static bool_ player_invis(monster_type * m_ptr)
 {
 	s16b inv, mlv;
 	monster_race *r_ptr = race_inf(m_ptr);
@@ -6222,7 +6094,7 @@ static bool player_invis(monster_type * m_ptr)
  *
  * A "direction" of "5" means "pick a random direction".
  */
-static void process_monster(int m_idx, bool is_frien)
+static void process_monster(int m_idx, bool_ is_frien)
 {
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = race_inf(m_ptr);
@@ -6234,21 +6106,21 @@ static void process_monster(int m_idx, bool is_frien)
 
 	monster_type *y_ptr;
 
-	bool do_turn;
-	bool do_move;
-	bool do_view;
+	bool_ do_turn;
+	bool_ do_move;
+	bool_ do_view;
 
-	bool did_open_door;
-	bool did_bash_door;
-	bool did_take_item;
-	bool did_kill_item;
-	bool did_move_body;
-	bool did_kill_body;
-	bool did_pass_wall;
-	bool did_kill_wall;
-	bool gets_angry = FALSE;
-	bool inv;
-	bool xxx = FALSE;
+	bool_ did_open_door;
+	bool_ did_bash_door;
+	bool_ did_take_item;
+	bool_ did_kill_item;
+	bool_ did_move_body;
+	bool_ did_kill_body;
+	bool_ did_pass_wall;
+	bool_ did_kill_wall;
+	bool_ gets_angry = FALSE;
+	bool_ inv;
+	bool_ xxx = FALSE;
 
 	inv = player_invis(m_ptr);
 
@@ -6845,7 +6717,7 @@ static void process_monster(int m_idx, bool is_frien)
 		                (c_ptr->feat <= FEAT_DOOR_TAIL)) ||
 		                (c_ptr->feat == FEAT_SECRET))
 		{
-			bool may_bash = TRUE;
+			bool_ may_bash = TRUE;
 
 			/* Take a turn */
 			do_turn = TRUE;
@@ -6872,12 +6744,6 @@ static void process_monster(int m_idx, bool is_frien)
 					/* Door power */
 					k = ((c_ptr->feat - FEAT_DOOR_HEAD) & 0x07);
 
-#if 0
-					/* XXX XXX XXX Old test (pval 10 to 20) */
-					if (randint((m_ptr->hp + 1) * (50 + o_ptr->pval)) <
-					                40 * (m_ptr->hp - 10 - o_ptr->pval));
-#endif
-
 					/* Try to unlock it XXX XXX XXX */
 					if (rand_int(m_ptr->hp / 10) > k)
 					{
@@ -6898,12 +6764,6 @@ static void process_monster(int m_idx, bool is_frien)
 
 				/* Door power */
 				k = ((c_ptr->feat - FEAT_DOOR_HEAD) & 0x07);
-
-#if 0
-				/* XXX XXX XXX Old test (pval 10 to 20) */
-				if (randint((m_ptr->hp + 1) * (50 + o_ptr->pval)) <
-				                40 * (m_ptr->hp - 10 - o_ptr->pval));
-#endif
 
 				/* Attempt to Bash XXX XXX XXX */
 				if (rand_int(m_ptr->hp / 10) > k)
@@ -7016,7 +6876,7 @@ static void process_monster(int m_idx, bool is_frien)
 		{
 			if (inscription_info[c_ptr->inscription].when & INSCRIP_EXEC_MONST_WALK)
 			{
-				bool t;
+				bool_ t;
 				t = execute_inscription(c_ptr->inscription, ny, nx);
 				if (!t && do_move)
 				{
@@ -7033,11 +6893,6 @@ static void process_monster(int m_idx, bool is_frien)
 		if (do_move && (ny == p_ptr->py) && (nx == p_ptr->px) &&
 		                (r_ptr->flags1 & RF1_NEVER_BLOW))
 		{
-#if 0
-			/* Hack -- memorize lack of attacks */
-			if (m_ptr->ml) r_ptr->r_flags1 |= (RF1_NEVER_BLOW);
-#endif
-
 			/* Do not move */
 			do_move = FALSE;
 		}
@@ -7524,14 +7379,13 @@ void process_monsters(void)
 	int i, e;
 	int fx, fy;
 
-	bool test;
-	bool is_frien = FALSE;
+	bool_ test;
+	bool_ is_frien = FALSE;
 
 	monster_type *m_ptr;
 	monster_race *r_ptr;
 
 	int old_monster_race_idx;
-	int old_monster_ego_idx;
 
 	u32b old_r_flags1 = 0L;
 	u32b old_r_flags2 = 0L;
@@ -7554,7 +7408,6 @@ void process_monsters(void)
 
 	/* Memorize old race */
 	old_monster_race_idx = monster_race_idx;
-	old_monster_ego_idx = monster_ego_idx;
 
 	/* Acquire knowledge */
 	if (monster_race_idx)

@@ -65,7 +65,7 @@ void do_cmd_redraw(void)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER | PW_M_LIST);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_MESSAGE | PW_IRC | PW_OVERHEAD | PW_MONSTER | PW_OBJECT);
+	p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_MONSTER | PW_OBJECT);
 
 	/* Hack -- update */
 	handle_stuff();
@@ -728,7 +728,7 @@ static void do_cmd_options_autosave(cptr info)
 }
 
 /* Switch an option by only knowing its name */
-bool change_option(cptr name, bool value)
+bool_ change_option(cptr name, bool_ value)
 {
 	int i;
 
@@ -737,7 +737,7 @@ bool change_option(cptr name, bool value)
 	{
 		if (!strcmp(option_info[i].o_text, name))
 		{
-			bool old = (*option_info[i].o_var);
+			bool_ old = (*option_info[i].o_var);
 
 			(*option_info[i].o_var) = value;
 
@@ -752,7 +752,7 @@ bool change_option(cptr name, bool value)
 /*
  * Interact with some options
  */
-void do_cmd_options_aux(int page, cptr info, bool read_only)
+void do_cmd_options_aux(int page, cptr info, bool_ read_only)
 {
 	char ch;
 
@@ -889,7 +889,7 @@ static void do_cmd_options_win(void)
 
 	char ch;
 
-	bool go = TRUE;
+	bool_ go = TRUE;
 
 	u32b old_flag[8];
 
@@ -919,7 +919,7 @@ static void do_cmd_options_win(void)
 			cptr s = angband_term_name[j];
 
 			/* Use color */
-			if ((j == x)) a = TERM_L_BLUE;
+			if (j == x) a = TERM_L_BLUE;
 
 			/* Window name, staggered, centered */
 			Term_putstr(35 + j * 5 - strlen(s) / 2, 2 + j % 2, -1, a, s);
@@ -933,7 +933,7 @@ static void do_cmd_options_win(void)
 			cptr str = window_flag_desc[i];
 
 			/* Use color */
-			if ((i == y)) a = TERM_L_BLUE;
+			if (i == y) a = TERM_L_BLUE;
 
 			/* Unused option */
 			if (!str) str = "(Unused option)";
@@ -1346,17 +1346,6 @@ void do_cmd_options(void)
 
 				break;
 			}
-#if 0 /* DGDGDG -- has if anyone used those */
-			/* Stacking Options */
-		case 'S':
-		case 's':
-			{
-				/* Spawn */
-				do_cmd_options_aux(7, "Stacking Options", FALSE);
-
-				break;
-			}
-#endif
 			/* Cheating Options */
 		case 'C':
 			{
@@ -1553,7 +1542,7 @@ static errr macro_dump(cptr fname)
  *
  * Note that both "flush()" calls are extremely important.
  */
-static void do_cmd_macro_aux(char *buf, bool macro_screen)
+static void do_cmd_macro_aux(char *buf, bool_ macro_screen)
 {
 	int i, n = 0;
 
@@ -1649,18 +1638,8 @@ static errr keymap_dump(cptr fname)
 	int mode;
 
 
-	/* Roguelike */
-	if (rogue_like_commands)
-	{
-		mode = KEYMAP_MODE_ROGUE;
-	}
-
-	/* Original */
-	else
-	{
-		mode = KEYMAP_MODE_ORIG;
-	}
-
+	/* Keymap mode */
+	mode = get_keymap_mode();
 
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
@@ -1736,17 +1715,8 @@ void do_cmd_macros(void)
 	int mode;
 
 
-	/* Roguelike */
-	if (rogue_like_commands)
-	{
-		mode = KEYMAP_MODE_ROGUE;
-	}
-
-	/* Original */
-	else
-	{
-		mode = KEYMAP_MODE_ORIG;
-	}
+	/* Keymap mode */
+	mode = get_keymap_mode();
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -2616,9 +2586,6 @@ void do_cmd_colors(void)
 		prt("(1) Load a user pref file", 4, 5);
 		prt("(2) Dump colors", 5, 5);
 		prt("(3) Modify colors", 6, 5);
-# ifdef SUPPORT_GAMMA
-		prt("(4) Gamma correction", 7, 5);
-# endif  /* SUPPORT_GAMMA */
 
 		/* Prompt */
 		prt("Command: ", 8, 0);
@@ -2786,73 +2753,6 @@ void do_cmd_colors(void)
 				Term_redraw();
 			}
 		}
-
-# ifdef SUPPORT_GAMMA
-
-		/* Gamma correction */
-		else if (i == '4')
-		{
-			int gamma;
-
-			/* Prompt */
-			prt("Command: Gamma correction", 8, 0);
-
-			/* gamma_val isn't set - assume 1.0 */
-			if (gamma_val == 0) gamma = 10;
-
-			/* It's set - convert to usual notation (times 10) */
-			else gamma = 2560 / gamma_val;
-
-			/* Hack -- query until done */
-			while (1)
-			{
-				/* Clear */
-				clear_from(10);
-
-				/* Exhibit the normal colors */
-				for (i = 0; i < 16; i++)
-				{
-					/* Exhibit all colors */
-					Term_putstr(i*4, 22, -1, i, format("%3d", i));
-				}
-
-				/* Describe the gamma */
-				Term_putstr(5, 10, -1, TERM_WHITE,
-				            format("Gamma = %d.%d", gamma / 10, gamma % 10));
-
-				/* Prompt */
-				Term_putstr(0, 12, -1, TERM_WHITE, "Command (g/G): ");
-
-				/* Get a command */
-				i = inkey();
-
-				/* All done */
-				if (i == ESCAPE) break;
-
-				/* Analyze */
-				if (i == 'g') gamma = (byte)(gamma + 1);
-				else if (i == 'G') gamma = (byte)(gamma - 1);
-				else continue;
-
-				/* Force limits ([1.0, 2.5]) */
-				if (gamma < 10) gamma = 10;
-				if (gamma > 25) gamma = 25;
-
-				/* Hack - 1.0 means no correction */
-				if (gamma == 10) gamma_val = 0;
-
-				/* otherwise, calculate gamma_val */
-				else gamma_val = 2560 / gamma;
-
-				/* Hack -- react to changes */
-				Term_xtra(TERM_XTRA_REACT, 0);
-
-				/* Hack -- redraw */
-				Term_redraw();
-			}
-		}
-
-# endif  /* SUPPORT_GAMMA */
 
 		/* Unknown option */
 		else
@@ -3025,7 +2925,7 @@ void do_cmd_load_screen(void)
 	byte a = 0;
 	char c = ' ';
 
-	bool okay = TRUE;
+	bool_ okay = TRUE;
 
 	FILE *fff;
 
@@ -3274,12 +3174,12 @@ void do_cmd_knowledge_artifacts(void)
 
 	char base_name[80];
 
-	bool *okay, *okayk;
+	bool_ *okay, *okayk;
 
 
 	/* Allocate the "okay" array */
-	C_MAKE(okay, max_a_idx, bool);
-	C_MAKE(okayk, max_k_idx, bool);
+	C_MAKE(okay, max_a_idx, bool_);
+	C_MAKE(okayk, max_k_idx, bool_);
 
 	/* Temporary file */
 	if (path_temp(file_name, 1024)) return;
@@ -3511,8 +3411,8 @@ void do_cmd_knowledge_artifacts(void)
 	/* Remove the file */
 	fd_kill(file_name);
 
-	C_FREE(okay, max_a_idx, bool);
-	C_FREE(okayk, max_k_idx, bool);
+	C_FREE(okay, max_a_idx, bool_);
+	C_FREE(okayk, max_k_idx, bool_);
 }
 
 
@@ -3646,7 +3546,7 @@ static void do_cmd_knowledge_uniques(void)
 		/* Only print Uniques */
 		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
-			bool dead = (r_ptr->max_num == 0);
+			bool_ dead = (r_ptr->max_num == 0);
 
 			/* Only display "known" uniques */
 			if (dead || cheat_know || r_ptr->r_sights)
@@ -3803,8 +3703,6 @@ static void do_cmd_knowledge_pets(void)
 
 	monster_type *m_ptr;
 
-	monster_race *r_ptr;
-
 	int t_friends = 0;
 
 	int t_levels = 0;
@@ -3829,7 +3727,6 @@ static void do_cmd_knowledge_pets(void)
 	{
 		/* Access the monster */
 		m_ptr = &m_list[i];
-		r_ptr = &r_info[m_ptr->r_idx];
 
 		/* Ignore "dead" monsters */
 		if (!m_ptr->r_idx) continue;
@@ -3909,7 +3806,7 @@ static void do_cmd_knowledge_kill_count(void)
 
 			if (r_ptr->flags1 & (RF1_UNIQUE))
 			{
-				bool dead = (r_ptr->max_num == 0);
+				bool_ dead = (r_ptr->max_num == 0);
 
 				if (dead)
 				{
@@ -3950,7 +3847,7 @@ static void do_cmd_knowledge_kill_count(void)
 
 		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
-			bool dead = (r_ptr->max_num == 0);
+			bool_ dead = (r_ptr->max_num == 0);
 
 			if (dead)
 			{
@@ -4258,34 +4155,13 @@ static void do_cmd_knowledge_quests(void)
 		/* Dynamic quests */
 		if (quest[i].dynamic_desc)
 		{
-			/* Random quests */
-			if (i == QUEST_RANDOM)
+			/* C type quests */
+			if (quest[i].type == HOOK_TYPE_C)
 			{
-				/**/
-				if (!(dungeon_flags1 & DF1_PRINCIPAL)) continue;
-				if ((dun_level < 1) || (dun_level >= MAX_RANDOM_QUEST)) continue;
-				if (!random_quests[dun_level].type) continue;
-				if (random_quests[dun_level].done) continue;
-				if (p_ptr->inside_quest) continue;
-				if (!dun_level) continue;
-
-				if (!is_randhero(dun_level))
+				if (!quest[i].gen_desc(fff))
 				{
-					fprintf(fff, "#####yCaptured princess!\n");
-					fprintf(fff, "A princess is being held prisoner and tortured here!\n");
-					fprintf(fff, "Save her from the horrible %s.\n",
-					        r_info[random_quests[dun_level].r_idx].name + r_name);
+					continue;
 				}
-				else
-				{
-					fprintf(fff, "#####yLost sword!\n");
-					fprintf(fff, "An adventurer lost his sword to a bunch of %s!\n",
-					        r_info[random_quests[dun_level].r_idx].name + r_name);
-					fprintf(fff, "Kill them all to get it back.\n");
-				}
-				fprintf(fff, "Number: %d, Killed: %ld.\n",
-				        random_quests[dun_level].type, (long int) quest[QUEST_RANDOM].data[0]);
-				fprintf(fff, "\n");
 			}
 			/* MUST be a lua quest */
 			else

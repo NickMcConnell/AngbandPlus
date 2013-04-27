@@ -11,6 +11,10 @@
 #ifndef INCLUDED_Z_VIRT_H
 #define INCLUDED_Z_VIRT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "h-basic.h"
 
 #ifdef CHECK_MEMORY_LEAKS
@@ -59,67 +63,49 @@
 	((huge)(sizeof(T)))
 
 
-/* Compare two arrays of type T[N], at locations P1 and P2 */
-#define C_DIFF(P1,P2,N,T) \
-	(memcmp((char*)(P1),(char*)(P2),C_SIZE(N,T)))
-
-/* Compare two things of type T, at locations P1 and P2 */
-#define DIFF(P1,P2,T) \
-	(memcmp((char*)(P1),(char*)(P2),SIZE(T)))
-
-
-/* Set every byte in an array of type T[N], at location P, to V, and return P */
-#define C_BSET(P,V,N,T) \
-	(T*)(memset((char*)(P),(V),C_SIZE(N,T)))
-
-/* Set every byte in a thing of type T, at location P, to V, and return P */
-#define BSET(P,V,T) \
-	(T*)(memset((char*)(P),(V),SIZE(T)))
-
-
 /* Wipe an array of type T[N], at location P, and return P */
 #define C_WIPE(P,N,T) \
-	(T*)(memset((char*)(P),0,C_SIZE(N,T)))
+	(memset((char*)(P),0,C_SIZE(N,T)))
 
 /* Wipe a thing of type T, at location P, and return P */
 #define WIPE(P,T) \
-	(T*)(memset((char*)(P),0,SIZE(T)))
+	(memset((char*)(P),0,SIZE(T)))
 
 
 /* Load an array of type T[N], at location P1, from another, at location P2 */
 #define C_COPY(P1,P2,N,T) \
-	(T*)(memcpy((char*)(P1),(char*)(P2),C_SIZE(N,T)))
+	(memcpy((char*)(P1),(char*)(P2),C_SIZE(N,T)))
 
 /* Load a thing of type T, at location P1, from another, at location P2 */
 #define COPY(P1,P2,T) \
-	(T*)(memcpy((char*)(P1),(char*)(P2),SIZE(T)))
+	(memcpy((char*)(P1),(char*)(P2),SIZE(T)))
 
 
 /* Free an array of N things of type T at P, return NULL */
 #define C_FREE(P,N,T) \
-	(T*)(rnfree(P,C_SIZE(N,T)))
+	(rnfree(P,C_SIZE(N,T)))
 
 /* Free one thing of type T at P, return NULL */
 #define FREE(P,T) \
-	(T*)(rnfree(P,SIZE(T)))
+	(rnfree(P,SIZE(T)))
 
 
 /* Allocate, and return, an array of type T[N] */
 #define C_RNEW(N,T) \
-	((T*)(ralloc(C_SIZE(N,T))))
+	(ralloc(C_SIZE(N,T)))
 
 /* Allocate, and return, a thing of type T */
 #define RNEW(T) \
-	((T*)(ralloc(SIZE(T))))
+	(ralloc(SIZE(T)))
 
 
 /* Allocate, wipe, and return an array of type T[N] */
 #define C_ZNEW(N,T) \
-	((T*)(C_WIPE(C_RNEW(N,T),N,T)))
+	(C_WIPE(C_RNEW(N,T),N,T))
 
 /* Allocate, wipe, and return a thing of type T */
 #define ZNEW(T) \
-	((T*)(WIPE(RNEW(T),T)))
+	(WIPE(RNEW(T),T))
 
 
 /* Allocate a wiped array of type T[N], assign to pointer P */
@@ -173,7 +159,10 @@ extern errr string_free(cptr str);
 
 
 
+#ifdef __cplusplus
+} /* extern "C" */
 #endif
 
 
 
+#endif

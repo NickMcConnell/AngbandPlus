@@ -124,7 +124,7 @@ void mimic_info(char *p, int power)
  * when you run it. It's probably easy to fix but I haven't tried,
  * sorry.
  */
-bool get_magic_power(int *sn, magic_power *powers, int max_powers,
+bool_ get_magic_power(int *sn, magic_power *powers, int max_powers,
                      void (*power_info)(char *p, int power), int plev, int cast_stat)
 {
 	int i;
@@ -151,13 +151,11 @@ bool get_magic_power(int *sn, magic_power *powers, int max_powers,
 
 	magic_power spell;
 
-	bool flag, redraw;
+	bool_ flag, redraw;
 
 
 	/* Assume cancelled */
 	*sn = ( -1);
-
-#ifdef ALLOW_REPEAT /* TNB */
 
 	/* Get the spell, if available */
 	if (repeat_pull(sn))
@@ -169,8 +167,6 @@ bool get_magic_power(int *sn, magic_power *powers, int max_powers,
 			return (TRUE);
 		}
 	}
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Nothing chosen yet */
 	flag = FALSE;
@@ -238,15 +234,8 @@ bool get_magic_power(int *sn, magic_power *powers, int max_powers,
 					/* Extract the minimum failure rate */
 					minfail = adj_mag_fail[p_ptr->stat_ind[cast_stat]];
 
-					/* Minimum failure rate */
-					if (chance < minfail) chance = minfail;
-
-					/* Stunning makes spells harder */
-					if (p_ptr->stun > 50) chance += 25;
-					else if (p_ptr->stun) chance += 15;
-
-					/* Always a 5 percent chance of working */
-					if (chance > 95) chance = 95;
+					/* Failure rate */
+					chance = clamp_failure_chance(chance, minfail);
 
 					/* Get info */
 					power_info(comment, i);
@@ -325,11 +314,8 @@ bool get_magic_power(int *sn, magic_power *powers, int max_powers,
 	/* Save the choice */
 	(*sn) = i;
 
-#ifdef ALLOW_REPEAT /* TNB */
 
 	repeat_push(*sn);
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Success */
 	return (TRUE);
@@ -411,15 +397,8 @@ void do_cmd_mindcraft(void)
 	/* Extract the minimum failure rate */
 	minfail = adj_mag_fail[p_ptr->stat_ind[A_WIS]];
 
-	/* Minimum failure rate */
-	if (chance < minfail) chance = minfail;
-
-	/* Stunning makes spells harder */
-	if (p_ptr->stun > 50) chance += 25;
-	else if (p_ptr->stun) chance += 15;
-
-	/* Always a 5 percent chance of working */
-	if (chance > 95) chance = 95;
+	/* Failure rate */
+	chance = clamp_failure_chance(chance, minfail);
 
 	/* Failed spell */
 	if (rand_int(100) < chance)
@@ -734,7 +713,7 @@ void do_cmd_mindcraft(void)
 		/* Damage WIS (possibly permanently) */
 		if (rand_int(100) < 50)
 		{
-			bool perm = (rand_int(100) < 25);
+			bool_ perm = (rand_int(100) < 25);
 
 			/* Message */
 			msg_print("You have damaged your mind!");
@@ -762,17 +741,8 @@ static int get_mimic_chance(int mimic)
 	chance -= get_skill_scale(SKILL_MIMICRY, 150);
 	chance -= 3 * adj_mag_stat[p_ptr->stat_ind[A_DEX]];
 
-	if (chance < 2) chance = 2;
-
-	/* Stunning makes spells harder */
-	if (p_ptr->stun > 50) chance += 25;
-	else if (p_ptr->stun) chance += 15;
-
-	/* Always a 5 percent chance of working */
-	if (chance > 95) chance = 95;
-
 	/* Return the chance */
-	return (chance);
+	return clamp_failure_chance(chance, 2);
 }
 
 
@@ -856,7 +826,7 @@ void do_cmd_mimic_lore()
 	p_ptr->update |= (PU_BONUS);
 }
 
-static bool mimic_forbid_travel(char *fmt)
+static bool_ mimic_forbid_travel(char *fmt)
 {
 	u32b value = p_ptr->mimic_extra >> 16;
 	u32b att = p_ptr->mimic_extra & 0xFFFF;
@@ -886,7 +856,7 @@ void do_cmd_mimic(void)
 
 	magic_power spell;
 
-	static bool added_hooks = FALSE;
+	static bool_ added_hooks = FALSE;
 	if(!added_hooks)
 	{
 		add_hook(HOOK_FORBID_TRAVEL, mimic_forbid_travel, "mimic_forbid_travel");
@@ -1152,7 +1122,7 @@ void do_cmd_mimic(void)
 		/* Damage WIS (possibly permanently) */
 		if (rand_int(100) < 50)
 		{
-			bool perm = (rand_int(100) < 25);
+			bool_ perm = (rand_int(100) < 25);
 
 			/* Message */
 			msg_print("You have damaged your mind!");
@@ -1232,7 +1202,7 @@ int activation_select;
 
 /* Return true if the player is wielding the philosopher's stone
  */
-bool alchemist_has_stone(void)
+bool_ alchemist_has_stone(void)
 {
 	if (p_ptr->inventory[INVEN_LITE].name1 == 209)
 		return TRUE;
@@ -1443,7 +1413,7 @@ int calc_rqty(int i, int pval, int oldpval)
 int check_artifact_items(int pval, int oldpval, int mode)
 {
 	int i, j, k, row = 1 , col = 15, rqty, orqty, trqty;
-	bool good = TRUE;
+	bool_ good = TRUE;
 	int temporary = -1;
 	char ch;
 
@@ -1487,7 +1457,7 @@ int check_artifact_items(int pval, int oldpval, int mode)
 				 */
 				if ( a_select_flags[i].rtval == TV_CORPSE )
 				{
-					bool itemgood = TRUE;
+					bool_ itemgood = TRUE;
 
 					/*Specified race not this one */
 					if ( o_ptr->pval2 != a_select_flags[i].rpval && a_select_flags[i].rpval)
@@ -1552,15 +1522,7 @@ int check_artifact_items(int pval, int oldpval, int mode)
 
 				if ( mode == 1 )
 				{
-					inven_item_increase(k, -trqty);
-					inven_item_describe(k);
-					/*
-					 if we optimize this now, it moves everything after it
-					 in the p_ptr->inventory up one, and the pointer to the item
-					 being artifactized now points to something else.
-					 DON'T DO IT!
-					 inven_item_optimize(k);
-					 */
+					inc_stack_size_ex(k, -trqty, NO_OPTIMIZE, DESCRIBE);
 				}
 			}/* if p_ptr->inventory item is acceptable */
 
@@ -1646,12 +1608,12 @@ int check_artifact_items(int pval, int oldpval, int mode)
 
 /* Display a list of required essences,
  * and/or use up the essences. */
-bool artifact_display_or_use(int pval, int oldpval, bool use)
+bool_ artifact_display_or_use(int pval, int oldpval, bool_ use)
 {
 	int essence[MAX_BATERIE_SVAL];
 	int essenceh[MAX_BATERIE_SVAL];
 	int al_idx, i, j, k;
-	bool enough;
+	bool_ enough;
 
 	/* Temporary Items require only one item, and no essences. */
 	for ( i = 0 ; a_select_flags[i].group ; i++)
@@ -1713,7 +1675,7 @@ bool artifact_display_or_use(int pval, int oldpval, bool use)
 	if (!enough || !use )
 	{
 		int row = 1 , col = 15;
-		bool good = FALSE;
+		bool_ good = FALSE;
 		char ch;
 
 		/* display of list of required essences */
@@ -1763,13 +1725,8 @@ bool artifact_display_or_use(int pval, int oldpval, bool use)
 			{
 				int num = p_ptr->inventory[k].number;
 
-				inven_item_increase(k, MAX( -essence[i], -num));
-				inven_item_describe(k);
-				/*
-				 messy bug, don't optimize here because it
-				 rearanges the p_ptr->inventory.
-				 inven_item_optimize(k);
-				 */
+				inc_stack_size_ex(k, MAX( -essence[i], -num), NO_OPTIMIZE, DESCRIBE);
+
 				essence[i] -= MIN(num, essence[i]);
 			}
 
@@ -1891,7 +1848,7 @@ void select_an_activation(void)
 /* Consume 'num' magic essences and return true.
  * If there aren't enough essences, return false */
 
-bool magic_essence(int num)
+bool_ magic_essence(int num)
 {
 	int i;
 	int j = 0;
@@ -1921,9 +1878,7 @@ bool magic_essence(int num)
 			 * artifactable object should come before the essences.
 			 */
 			j -= o_ptr->number;
-			inven_item_increase(i, -num);
-			inven_item_describe(i);
-			inven_item_optimize(i);
+			inc_stack_size(i, -num);
 			num = j;
 			if (num <= 0) break;
 			/* Stay on this slot; do not increment i. */
@@ -1954,7 +1909,7 @@ void do_cmd_create_artifact(object_type *q_ptr)
 
 	char out_val[160];
 	char choice = 0;
-	bool lockpval = FALSE;
+	bool_ lockpval = FALSE;
 	int pval;
 	int oldpval;
 	energy_use = 100;
@@ -2385,7 +2340,7 @@ void do_cmd_create_artifact(object_type *q_ptr)
  * recipes as a createable item. Used to determine if we
  * should extract from it.
  */
-bool alchemist_exists(int tval, int sval, int ego, int artifact)
+bool_ alchemist_exists(int tval, int sval, int ego, int artifact)
 {
 	int al_idx;
 
@@ -2414,7 +2369,7 @@ bool alchemist_exists(int tval, int sval, int ego, int artifact)
 /*
  * Hook to determine if an object can have things extracted from it.
  */
-bool item_tester_hook_extractable(object_type *o_ptr)
+bool_ item_tester_hook_extractable(object_type *o_ptr)
 {
 
 	/* No artifacts */
@@ -2434,7 +2389,7 @@ bool item_tester_hook_extractable(object_type *o_ptr)
 /*
  * Hook to determine if an object is empowerable (NOT rechargeable)
  */
-bool item_tester_hook_empower(object_type *o_ptr)
+bool_ item_tester_hook_empower(object_type *o_ptr)
 {
 	int sval = -1;
 	int lev = get_skill(SKILL_ALCHEMY);
@@ -2608,7 +2563,7 @@ void do_cmd_toggle_artifact(object_type *o_ptr)
 
 	if (!(o_ptr->art_flags4 & TR4_ART_EXP))
 	{
-		bool okay = TRUE;
+		bool_ okay = TRUE;
 
 		if ( !alchemist_has_stone())
 		{
@@ -2677,10 +2632,10 @@ void do_cmd_toggle_artifact(object_type *o_ptr)
  * if tocreate=0, will return true if the player has enough
  * in their p_ptr->inventory to empower that item.
  */
-bool alchemist_items_check(int tval, int sval, int ego, int tocreate, bool message)
+bool_ alchemist_items_check(int tval, int sval, int ego, int tocreate, bool_ message)
 {
 	int al_idx, j;
-	bool exists = FALSE;
+	bool_ exists = FALSE;
 
 
 	for ( al_idx = 0 ; al_idx < max_al_idx ; al_idx++ )
@@ -2753,10 +2708,7 @@ bool alchemist_items_check(int tval, int sval, int ego, int tocreate, bool messa
 						/* At this point, the item is required, destroy it. */
 						if ( tocreate )
 						{
-							inven_item_increase(j, 0 - rqty);
-							if ( message)
-								inven_item_describe(j);
-							inven_item_optimize(j);
+							inc_stack_size_ex(j, 0 - rqty, OPTIMIZE, message ? DESCRIBE : NO_DESCRIBE);
 						}
 
 						/* When we find enough of the item, break out of the
@@ -2897,7 +2849,7 @@ void alchemist_recipe_book(void)
 	int num, max_num, i, al_idx, bat, kidx;
 	int choice[61], choice2[61];
 	int mod40;
-	bool essence[MAX_BATERIE_SVAL + 1];
+	bool_ essence[MAX_BATERIE_SVAL + 1];
 	char ch;
 
 	/* Save and clear the screen */
@@ -3178,13 +3130,13 @@ void alchemist_recipe_book(void)
  * This function needs to be able to scroll a list, because
  * there are SO MANY potions. :)
  */
-int alchemist_recipe_select(int *tval, int sval, int ego, bool recipe)
+int alchemist_recipe_select(int *tval, int sval, int ego, bool_ recipe)
 {
 	int i, mod40 = 0, num, max_num = 0;
 
 	cptr tval_desc2 = "";
 	char ch;
-	bool done = FALSE;
+	bool_ done = FALSE;
 
 	int choice[60];
 	int validc[60];
@@ -3611,7 +3563,7 @@ void do_cmd_alchemist(void)
 	int item, ext = 0;
 	int value, basechance;
 	int askill;
-	bool repeat = 0;
+	bool_ repeat = 0;
 	char ch;
 
 	object_type *o_ptr, *q_ptr;
@@ -3697,16 +3649,9 @@ void do_cmd_alchemist(void)
 
 		if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-		/* Get the item (in the pack) */
-		if (item >= 0)
-		{
-			o_ptr = &p_ptr->inventory[item];
-		}
-		/* Get the item (on the floor) */
-		else
-		{
-			o_ptr = &o_list[0 - item];
-		}
+		/* Get the item */
+		o_ptr = get_object(item);
+
 		/* Create an artifact from an ego or double ego item,
 		 * from a previous artifact, or finish an artifact
 		 */
@@ -3825,19 +3770,7 @@ void do_cmd_alchemist(void)
 		carry_o_ptr = TRUE;
 
 		/* Destroy the initial object */
-		if (item >= 0)
-		{
-			/* Destroy an item in the pack */
-			inven_item_increase(item, -qty);
-			inven_item_describe(item);
-		}
-		else
-		{
-			/* Destroy an item on the floor */
-			floor_item_increase(0 - item, -qty);
-			floor_item_describe(0 - item);
-			floor_item_optimize(0 - item);
-		}
+		inc_stack_size(item, -qty);
 
 
 		if ( ego )
@@ -3919,9 +3852,6 @@ void do_cmd_alchemist(void)
 			if (o_ptr->tval == TV_POTION && o_ptr->sval == SV_POTION_DETONATIONS)
 			{
 				basechance /= 10;
-#if 0 /* Let's see how it works */
-				o_ptr->discount = 100;
-#endif
 			}
 		}
 
@@ -4037,11 +3967,11 @@ void do_cmd_alchemist(void)
 	else if (ext == 2)
 	{
 		int ego;
-		bool discharge_stick = FALSE;
+		bool_ discharge_stick = FALSE;
 
 		/* s_ptr holds the empty items */
 		object_type *s_ptr = NULL;
-		bool carry_s_ptr = FALSE;
+		bool_ carry_s_ptr = FALSE;
 
 		item_tester_hook = item_tester_hook_extractable;
 
@@ -4050,15 +3980,8 @@ void do_cmd_alchemist(void)
 		s = "You have no item to extract power from.";
 		if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-		/* Get the item (in the pack) */
-		if (item >= 0)
-		{
-			o_ptr = &p_ptr->inventory[item];
-		}
-		else
-		{
-			o_ptr = &o_list[0 - item];
-		}
+		/* Get the item */
+		o_ptr = get_object(item);
 
 		/* This is to prevent creating magic essences by extracting
 		 * from a recharged wand of dragon breath or something.
@@ -4170,7 +4093,7 @@ void do_cmd_alchemist(void)
 				{
 					/* Otherwise we must create a local copy of the empty item */
 					int tval, sval;
-					bool create_item = TRUE;
+					bool_ create_item = TRUE;
 
 					tval = o_ptr->tval;
 					if ( !ego && (tval == TV_POTION || tval == TV_POTION2))
@@ -4270,18 +4193,7 @@ void do_cmd_alchemist(void)
 					if (o_ptr->number == 1)
 						repeat = 0;
 
-					if (item >= 0)
-					{
-						inven_item_increase(item, ( -1));
-						inven_item_describe(item);
-						inven_item_optimize(item);
-					}
-					else
-					{
-						floor_item_increase(0 - item, ( -1));
-						floor_item_describe(0 - item);
-						floor_item_optimize(0 - item);
-					}
+					inc_stack_size(item, -1);
 				}
 				else
 				{
@@ -4290,14 +4202,7 @@ void do_cmd_alchemist(void)
 
 					/* reset o_ptr to the original stack,
 					 * which contains at least another item */
-					if (item >= 0)
-					{
-						o_ptr = &p_ptr->inventory[item];
-					}
-					else
-					{
-						o_ptr = &o_list[0 - item];
-					}
+					o_ptr = get_object(item);
 				}
 			}
 		}
@@ -4328,17 +4233,8 @@ void do_cmd_alchemist(void)
 		s = "You have no rechargable items.";
 		if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR ))) return;
 
-		/* Get the item (in the pack) */
-		if (item >= 0)
-		{
-			o_ptr = &p_ptr->inventory[item];
-		}
-
-		/* Get the item (on the floor) */
-		else
-		{
-			o_ptr = &o_list[0 - item];
-		}
+		/* Get the item */
+		o_ptr = get_object(item);
 
 		/* Make sure we have enough essences to recharge this */
 		if (!alchemist_items_check(o_ptr->tval, o_ptr->sval, 0, 0, TRUE))
@@ -4427,7 +4323,7 @@ int spell_chance_random(random_spell* rspell)
 
 
 	/* Extract the base spell failure rate */
-	chance = rspell->level + 25;
+	chance = rspell->level + 10;
 
 	/* Reduce failure rate by "effective" level adjustment */
 	chance -= 3 * (get_skill(SKILL_THAUMATURGY) - rspell->level);
@@ -4444,18 +4340,8 @@ int spell_chance_random(random_spell* rspell)
 	/* Extract the minimum failure rate */
 	minfail = adj_mag_fail[p_ptr->stat_ind[A_INT]];
 
-	/* Minimum failure rate */
-	if (chance < minfail) chance = minfail;
-
-	/* Stunning makes spells harder */
-	if (p_ptr->stun > 50) chance += 25;
-	else if (p_ptr->stun) chance += 15;
-
-	/* Always a 5 percent chance of working */
-	if (chance > 95) chance = 95;
-
-	/* Return the chance */
-	return (chance);
+	/* Failure rate */
+	return clamp_failure_chance(chance, minfail);
 }
 
 
@@ -4504,7 +4390,7 @@ static void print_spell_batch(int batch, int max)
 /*
  * List ten random spells and ask to pick one.
  */
-static random_spell* select_spell_from_batch(int batch, bool quick)
+static random_spell* select_spell_from_batch(int batch, bool_ quick)
 {
 	char tmp[160];
 
@@ -4666,7 +4552,7 @@ static random_spell* select_spell_from_batch(int batch, bool quick)
 /*
  * Pick a random spell from a menu
  */
-random_spell* select_spell(bool quick)
+random_spell* select_spell(bool_ quick)
 {
 	char tmp[160];
 
@@ -4893,82 +4779,6 @@ void do_cmd_powermage(void)
 }
 
 
-
-#if 0
-
-/*
- * Incremental sleep spell -KMW-
- */
-static void do_sleep_monster(void)
-{
-	int dir;
-
-	if (p_ptr->lev < 15)
-	{
-		if (!get_aim_dir(&dir)) return;
-		sleep_monster(dir);
-	}
-	else if (p_ptr->lev < 30)
-	{
-		sleep_monsters_touch();
-	}
-	else
-	{
-		sleep_monsters();
-	}
-}
-
-#endif /* 0 */
-
-
-#if 0
-
-/*
- * Multiple Monster Fear -KMW-
- */
-static bool fear_monsters(void)
-{
-	return (project_hack(GF_TURN_ALL, p_ptr->lev));
-}
-
-
-/*
- * Close to Player Monster Fear -KMW-
- */
-static bool fear_monsters_touch(void)
-{
-	int flg = PROJECT_KILL | PROJECT_HIDE;
-
-	return (project(0, 1, p_ptr->py, p_ptr->px, p_ptr->lev,
-	                GF_TURN_ALL, flg));
-}
-
-
-/*
- * Incremental fear spell -KMW-
- */
-static void do_fear_monster(void)
-{
-	int dir;
-
-	if (p_ptr->lev < 15)
-	{
-		if (!get_aim_dir(&dir)) return;
-		fear_monster(dir, p_ptr->lev);
-	}
-	else if (p_ptr->lev < 30)
-	{
-		fear_monsters_touch();
-	}
-	else
-	{
-		fear_monsters();
-	}
-}
-
-#endif /* 0 */
-
-
 /*
  * Brand some ammunition.  Used by Cubragol and a mage spell.  The spell was
  * moved here from cmd6.c where it used to be for Cubragol only.  I've also
@@ -4977,18 +4787,6 @@ static void do_fear_monster(void)
 void brand_ammo(int brand_type, int bolts_only)
 {
 	int a;
-
-	int allowable;
-
-
-	if (bolts_only)
-	{
-		allowable = TV_BOLT;
-	}
-	else
-	{
-		allowable = TV_BOLT | TV_ARROW | TV_SHOT;
-	}
 
 	for (a = 0; a < INVEN_PACK; a++)
 	{
@@ -5138,7 +4936,7 @@ void do_cmd_possessor()
 
 	if (ext == 1)
 	{
-		bool use_great = FALSE;
+		bool_ use_great = FALSE;
 
 		if (p_ptr->disembodied)
 		{
@@ -5192,7 +4990,7 @@ void do_cmd_possessor()
 /*
  * Hook to determine if an object is contertible in an arrow/bolt
  */
-static bool item_tester_hook_convertible(object_type *o_ptr)
+static bool_ item_tester_hook_convertible(object_type *o_ptr)
 {
 	if ((o_ptr->tval == TV_JUNK) || (o_ptr->tval == TV_SKELETON)) return TRUE;
 
@@ -5321,18 +5119,6 @@ void do_cmd_archer(void)
 		s = "You have no item to convert.";
 		if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-		/* Get the item (in the pack) */
-		if (item >= 0)
-		{
-			q_ptr = &p_ptr->inventory[item];
-		}
-
-		/* Get the item (on the floor) */
-		else
-		{
-			q_ptr = &o_list[0 - item];
-		}
-
 		/* Get local object */
 		q_ptr = &forge;
 
@@ -5352,18 +5138,7 @@ void do_cmd_archer(void)
 
 		msg_print("You make some ammo.");
 
-		if (item >= 0)
-		{
-			inven_item_increase(item, -1);
-			inven_item_describe(item);
-			inven_item_optimize(item);
-		}
-		else
-		{
-			floor_item_increase(0 - item, -1);
-			floor_item_describe(0 - item);
-			floor_item_optimize(0 - item);
-		}
+		inc_stack_size(item, -1);
 
 		(void)inven_carry(q_ptr, FALSE);
 	}
@@ -5381,18 +5156,6 @@ void do_cmd_archer(void)
 		q = "Convert which item? ";
 		s = "You have no item to convert.";
 		if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-		/* Get the item (in the pack) */
-		if (item >= 0)
-		{
-			q_ptr = &p_ptr->inventory[item];
-		}
-
-		/* Get the item (on the floor) */
-		else
-		{
-			q_ptr = &o_list[0 - item];
-		}
 
 		/* Get local object */
 		q_ptr = &forge;
@@ -5413,18 +5176,7 @@ void do_cmd_archer(void)
 
 		msg_print("You make some ammo.");
 
-		if (item >= 0)
-		{
-			inven_item_increase(item, -1);
-			inven_item_describe(item);
-			inven_item_optimize(item);
-		}
-		else
-		{
-			floor_item_increase(0 - item, -1);
-			floor_item_describe(0 - item);
-			floor_item_optimize(0 - item);
-		}
+		inc_stack_size(item, -1);
 
 		(void)inven_carry(q_ptr, FALSE);
 	}
@@ -5435,7 +5187,6 @@ void do_cmd_archer(void)
  */
 void do_cmd_set_piercing(void)
 {
-	int ext = 0;
 	char ch;
 	char com[80];
 
@@ -5452,7 +5203,6 @@ void do_cmd_set_piercing(void)
 	{
 		if (!get_com(com, &ch))
 		{
-			ext = 0;
 			break;
 		}
 		if ((ch == 'Y') || (ch == 'y'))
@@ -5574,15 +5324,8 @@ void do_cmd_necromancer(void)
 	/* Extract the minimum failure rate */
 	minfail = adj_mag_fail[p_ptr->stat_ind[A_CON]];
 
-	/* Minimum failure rate */
-	if (chance < minfail) chance = minfail;
-
-	/* Stunning makes spells harder */
-	if (p_ptr->stun > 50) chance += 25;
-	else if (p_ptr->stun) chance += 15;
-
-	/* Always a 5 percent chance of working */
-	if (chance > 95) chance = 95;
+	/* Failure rate */
+	chance = clamp_failure_chance(chance, minfail);
 
 	/* Failed spell */
 	if (rand_int(100) < chance)
@@ -5794,7 +5537,7 @@ void do_cmd_necromancer(void)
 		/* Damage CON (possibly permanently) */
 		if (rand_int(100) < 50)
 		{
-			bool perm = (rand_int(100) < 25);
+			bool_ perm = (rand_int(100) < 25);
 
 			/* Message */
 			msg_print("You have damaged your body!");
@@ -5817,7 +5560,7 @@ static s32b rune_combine = 0;
 /*
  * Hook to determine if an object is "runestone"
  */
-static bool item_tester_hook_runestone(object_type *o_ptr)
+static bool_ item_tester_hook_runestone(object_type *o_ptr)
 {
 	if (o_ptr->tval != TV_RUNE2) return (FALSE);
 
@@ -5830,7 +5573,7 @@ static bool item_tester_hook_runestone(object_type *o_ptr)
 }
 
 
-static bool item_tester_hook_runestone_full(object_type *o_ptr)
+static bool_ item_tester_hook_runestone_full(object_type *o_ptr)
 {
 	if (o_ptr->tval != TV_RUNE2) return (FALSE);
 
@@ -5846,7 +5589,7 @@ static bool item_tester_hook_runestone_full(object_type *o_ptr)
 /*
  * Hook to determine if an object is "rune-able"
  */
-static bool item_tester_hook_runeable1(object_type *o_ptr)
+static bool_ item_tester_hook_runeable1(object_type *o_ptr)
 {
 	if (o_ptr->tval != TV_RUNE1) return (FALSE);
 
@@ -5858,7 +5601,7 @@ static bool item_tester_hook_runeable1(object_type *o_ptr)
 /*
  * Hook to determine if an object is "rune-able"
  */
-static bool item_tester_hook_runeable2(object_type *o_ptr)
+static bool_ item_tester_hook_runeable2(object_type *o_ptr)
 {
 	if (o_ptr->tval != TV_RUNE2) return (FALSE);
 
@@ -5950,18 +5693,8 @@ int spell_chance_rune(rune_spell* spell)
 	/* Extract the minimum failure rate */
 	minfail = adj_mag_fail[p_ptr->stat_ind[A_DEX]];
 
-	/* Minimum failure rate */
-	if (chance < minfail) chance = minfail;
-
-	/* Stunning makes spells harder */
-	if (p_ptr->stun > 50) chance += 25;
-	else if (p_ptr->stun) chance += 15;
-
-	/* Always a 5 percent chance of working */
-	if (chance > 95) chance = 95;
-
 	/* Return the chance */
-	return (chance);
+	return clamp_failure_chance(chance, minfail);
 }
 
 
@@ -6148,13 +5881,13 @@ int rune_exec(rune_spell *spell, int cost)
 /*
  * Test if all runes needed at in the player p_ptr->inventory
  */
-bool test_runespell(rune_spell *spell)
+bool_ test_runespell(rune_spell *spell)
 {
 	int i;
 
 	object_type *o_ptr;
 
-	bool typeok = FALSE;
+	bool_ typeok = FALSE;
 
 	int rune2 = 0;
 
@@ -6186,7 +5919,7 @@ bool test_runespell(rune_spell *spell)
 /*
  * Ask for rune, rune2 and mana
  */
-bool get_runespell(rune_spell *spell)
+bool_ get_runespell(rune_spell *spell)
 {
 	int item, power_rune = 0, rune2 = 0, plev = get_skill(SKILL_RUNECRAFT);
 
@@ -6198,7 +5931,7 @@ bool get_runespell(rune_spell *spell)
 
 	cptr q, s;
 
-	bool OK = FALSE;
+	bool_ OK = FALSE;
 
 
 	rune_combine = 0;
@@ -6211,17 +5944,8 @@ bool get_runespell(rune_spell *spell)
 	s = "You have no rune to use.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return FALSE;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &p_ptr->inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	/* Get the item */
+	o_ptr = get_object(item);
 	type = o_ptr->sval;
 
 	while (1)
@@ -6233,17 +5957,9 @@ bool get_runespell(rune_spell *spell)
 
 		if (OK) break;
 
-		/* Get the item (in the pack) */
-		if (item >= 0)
-		{
-			o_ptr = &p_ptr->inventory[item];
-		}
+		/* Get the item */
+		o_ptr = get_object(item);
 
-		/* Get the item (on the floor) */
-		else
-		{
-			o_ptr = &o_list[0 - item];
-		}
 		rune_combine |= 1 << o_ptr->sval;
 		rune2 |= 1 << o_ptr->sval;
 	}
@@ -6351,7 +6067,7 @@ static void print_runespell_batch(int batch, int max)
  * List ten random spells and ask to pick one.
  */
 
-static rune_spell* select_runespell_from_batch(int batch, bool quick,
+static rune_spell* select_runespell_from_batch(int batch, bool_ quick,
                 int *s_idx)
 {
 	char tmp[160];
@@ -6450,7 +6166,7 @@ static rune_spell* select_runespell_from_batch(int batch, bool quick,
  * Pick a random spell from a menu
  */
 
-rune_spell* select_runespell(bool quick, int *s_idx)
+rune_spell* select_runespell(bool_ quick, int *s_idx)
 {
 	char tmp[160];
 
@@ -6629,16 +6345,8 @@ void do_cmd_runestone()
 	s = "You have no runestone to cast from.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &p_ptr->inventory[item];
-	}
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	/* Get the item */
+	o_ptr = get_object(item);
 
 	s_ptr.type = o_ptr->pval;
 	s_ptr.rune2 = o_ptr->pval2;
@@ -6748,16 +6456,8 @@ void do_cmd_rune_carve()
 	s = "You have no runestone to use.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &p_ptr->inventory[item];
-	}
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	/* Get the item */
+	o_ptr = get_object(item);
 
 	o_ptr->pval = s_ptr.type;
 	o_ptr->pval2 = s_ptr.rune2;
@@ -6793,15 +6493,14 @@ void do_cmd_rune_carve()
 
 		if (o_ptr->k_idx)
 		{
-			bool do_del = FALSE;
+			bool_ do_del = FALSE;
 
 			if ((o_ptr->tval == TV_RUNE1) && (o_ptr->sval == s_ptr.type)) do_del = TRUE;
 			if ((o_ptr->tval == TV_RUNE2) && (BIT(o_ptr->sval) & s_ptr.rune2)) do_del = TRUE;
 
 			if (do_del)
 			{
-				inven_item_increase(i, -1);
-				inven_item_optimize(i);
+				inc_stack_size_ex(i, -1, OPTIMIZE, NO_DESCRIBE);
 			}
 		}
 	}
@@ -7074,7 +6773,7 @@ void do_cmd_unbeliever()
 /*
  * Hook to determine if an object is totemable
  */
-static bool item_tester_hook_totemable(object_type *o_ptr)
+static bool_ item_tester_hook_totemable(object_type *o_ptr)
 {
 	/* Only full corpse */
 	if ((o_ptr->tval == TV_CORPSE) &&
@@ -7097,9 +6796,9 @@ void do_cmd_summoner_extract()
 
 	cptr q, s;
 
-	int item, r, e;
+	int item, r;
 
-	bool partial;
+	bool_ partial;
 
 
 	/* Not when confused */
@@ -7123,17 +6822,9 @@ void do_cmd_summoner_extract()
 	s = "You have no corpse to use.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &p_ptr->inventory[item];
-	}
+	/* Get the item */
+	o_ptr = get_object(item);
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
 
 	if (r_info[o_ptr->pval2].flags1 & RF1_UNIQUE)
 	{
@@ -7145,20 +6836,8 @@ void do_cmd_summoner_extract()
 	}
 
 	r = o_ptr->pval2;
-	e = o_ptr->pval3;
 
-	if (item > 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-	else
-	{
-		floor_item_increase( -item, -1);
-		floor_item_describe( -item);
-		floor_item_optimize( -item);
-	}
+	inc_stack_size(item, -1);
 
 	if (magik(r_info[o_ptr->pval2].level - get_skill(SKILL_SUMMON)))
 	{
@@ -7190,7 +6869,7 @@ void summon_true(int r_idx, int item)
 {
 	int i, status, x = 1, y = 1, rx, ry = 0, chance;
 
-	bool used;
+	bool_ used;
 
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -7279,21 +6958,8 @@ void summon_true(int r_idx, int item)
 	/* Destroy the totem if the used flag is set */
 	if (used)
 	{
-		/* Eliminate the totem (from the pack) */
-		if (item >= 0)
-		{
-			inven_item_increase(item, -1);
-			inven_item_describe(item);
-			inven_item_optimize(item);
-		}
-
-		/* Eliminate the totem (from the floor) */
-		else
-		{
-			floor_item_increase(0 - item, -1);
-			floor_item_describe(0 - item);
-			floor_item_optimize(0 - item);
-		}
+		/* Eliminate the totem */
+		inc_stack_size(item, -1);
 	}
 
 	/* Done */
@@ -7320,14 +6986,7 @@ void do_cmd_summoner_summon()
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Access the item */
-	if (item >= 0)
-	{
-		o_ptr = &p_ptr->inventory[item];
-	}
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	o_ptr = get_object(item);
 
 	/* Take a turn */
 	energy_use = 100;
@@ -7547,8 +7206,6 @@ void do_cmd_symbiotic(void)
 	int plev = get_skill(SKILL_SYMBIOTIC);
 	magic_power spell;
 
-	monster_race *r_ptr;
-
 	/* Get the carried monster */
 	object_type *o_ptr = &p_ptr->inventory[INVEN_CARRY];
 
@@ -7607,15 +7264,8 @@ void do_cmd_symbiotic(void)
 	/* Extract the minimum failure rate */
 	minfail = adj_mag_fail[p_ptr->stat_ind[A_INT]];
 
-	/* Minimum failure rate */
-	if (chance < minfail) chance = minfail;
-
-	/* Stunning makes spells harder */
-	if (p_ptr->stun > 50) chance += 25;
-	else if (p_ptr->stun) chance += 15;
-
-	/* Always a 5 percent chance of working */
-	if (chance > 95) chance = 95;
+	/* Failure rate */
+	chance = clamp_failure_chance(chance, minfail);
 
 	/* Failed spell */
 	if (rand_int(100) < chance)
@@ -7715,7 +7365,7 @@ void do_cmd_symbiotic(void)
 				d = 2;
 				while (d < 100)
 				{
-					scatter(&y, &x, p_ptr->py, p_ptr->px, d, 0);
+					scatter(&y, &x, p_ptr->py, p_ptr->px, d);
 
 					if (cave_floor_bold(y, x) && (!cave[y][x].m_idx)) break;
 
@@ -7772,8 +7422,6 @@ void do_cmd_symbiotic(void)
 					break;
 				}
 
-				r_ptr = &r_info[o_ptr->pval];
-
 				percent1 = p_ptr->chp;
 				percent1 = (percent1 * 100) / p_ptr->mhp;
 
@@ -7825,7 +7473,6 @@ void do_cmd_symbiotic(void)
 					break;
 				}
 
-				r_ptr = &r_info[o_ptr->pval];
 				hp = o_ptr->pval3 * (15 + get_skill_scale(SKILL_SYMBIOTIC, 35)) / 100;
 				o_ptr->pval2 += hp;
 				if (o_ptr->pval2 > o_ptr->pval3) o_ptr->pval2 = o_ptr->pval3;
@@ -7919,7 +7566,7 @@ void do_cmd_symbiotic(void)
 		/* Damage CON (possibly permanently) */
 		if (rand_int(100) < 50)
 		{
-			bool perm = (rand_int(100) < 25);
+			bool_ perm = (rand_int(100) < 25);
 
 			/* Message */
 			msg_print("You have damaged your body!");
@@ -7982,4 +7629,24 @@ void do_cmd_create_boulder()
 		/* Take a turn */
 		energy_use = 100;
 	}
+}
+
+/*
+ * Clamp failure chance
+ */
+extern int clamp_failure_chance(int chance, int minfail)
+{
+	if (minfail < 0) minfail = 0;
+
+	/* Minimum failure rate */
+	if (chance < minfail) chance = minfail;
+
+	/* Stunning makes spells harder */
+	if (p_ptr->stun > 50) chance += 25;
+	else if (p_ptr->stun) chance += 15;
+
+	/* Always a 5 percent chance of working */
+	if (chance > 95) chance = 95;
+
+	return chance;
 }

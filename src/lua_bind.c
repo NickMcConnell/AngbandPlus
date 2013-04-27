@@ -16,37 +16,12 @@
 #include "tolua.h"
 extern lua_State *L;
 
-/*
- * Get a new magic type
- */
-magic_power *new_magic_power(int num)
-{
-	magic_power *m_ptr;
-	C_MAKE(m_ptr, num, magic_power);
-	return (m_ptr);
-}
 magic_power *grab_magic_power(magic_power *m_ptr, int num)
 {
 	return (&m_ptr[num]);
 }
-static char *magic_power_info_lua_fct;
-static void magic_power_info_lua(char *p, int power)
-{
-	int oldtop = lua_gettop(L);
 
-	lua_getglobal(L, magic_power_info_lua_fct);
-	tolua_pushnumber(L, power);
-	lua_call(L, 1, 1);
-	strcpy(p, lua_tostring(L, -1));
-	lua_settop(L, oldtop);
-}
-bool get_magic_power_lua(int *sn, magic_power *powers, int max_powers, char *info_fct, int plev, int cast_stat)
-{
-	magic_power_info_lua_fct = info_fct;
-	return (get_magic_power(sn, powers, max_powers, magic_power_info_lua, plev, cast_stat));
-}
-
-bool lua_spell_success(magic_power *spell, int stat, char *oups_fct)
+bool_ lua_spell_success(magic_power *spell, int stat, char *oups_fct)
 {
 	int chance;
 	int minfail = 0;
@@ -69,15 +44,8 @@ bool lua_spell_success(magic_power *spell, int stat, char *oups_fct)
 	/* Extract the minimum failure rate */
 	minfail = adj_mag_fail[p_ptr->stat_ind[stat]];
 
-	/* Minimum failure rate */
-	if (chance < minfail) chance = minfail;
-
-	/* Stunning makes spells harder */
-	if (p_ptr->stun > 50) chance += 25;
-	else if (p_ptr->stun) chance += 15;
-
-	/* Always a 5 percent chance of working */
-	if (chance > 95) chance = 95;
+	/* Failure rate */
+	chance = clamp_failure_chance(chance, minfail);
 
 	/* Failed spell */
 	if (rand_int(100) < chance)
@@ -136,10 +104,10 @@ s16b add_new_power(cptr name, cptr desc, cptr gain, cptr lose, byte level, byte 
 }
 
 static char *lua_item_tester_fct;
-static bool lua_item_tester(object_type* o_ptr)
+static bool_ lua_item_tester(object_type* o_ptr)
 {
 	int oldtop = lua_gettop(L);
-	bool ret;
+	bool_ ret;
 
 	lua_getglobal(L, lua_item_tester_fct);
 	tolua_pushusertype(L, o_ptr, tolua_tag(L, "object_type"));
@@ -180,16 +148,16 @@ void find_position(int y, int x, int *yy, int *xx)
 
 	do
 	{
-		scatter(yy, xx, y, x, 6, 0);
+		scatter(yy, xx, y, x, 6);
 	}
 	while (!(in_bounds(*yy, *xx) && cave_floor_bold(*yy, *xx)) && --attempts);
 }
 
 static char *summon_lua_okay_fct;
-bool summon_lua_okay(int r_idx)
+bool_ summon_lua_okay(int r_idx)
 {
 	int oldtop = lua_gettop(L);
-	bool ret;
+	bool_ ret;
 
 	lua_getglobal(L, lua_item_tester_fct);
 	tolua_pushnumber(L, r_idx);
@@ -199,11 +167,11 @@ bool summon_lua_okay(int r_idx)
 	return (ret);
 }
 
-bool lua_summon_monster(int y, int x, int lev, bool friend, char *fct)
+bool_ lua_summon_monster(int y, int x, int lev, bool_ friend_, char *fct)
 {
 	summon_lua_okay_fct = fct;
 
-	if (!friend)
+	if (!friend_)
 		return summon_specific(y, x, lev, SUMMON_LUA);
 	else
 		return summon_specific_friendly(y, x, lev, SUMMON_LUA, TRUE);
@@ -236,7 +204,7 @@ void desc_quest(int q_idx, int d, char *desc)
 /*
  * Misc
  */
-bool get_com_lua(cptr prompt, int *com)
+bool_ get_com_lua(cptr prompt, int *com)
 {
 	char c;
 
@@ -325,18 +293,8 @@ s32b lua_spell_chance(s32b chance, int level, int skill_level, int mana, int cur
 	/* Hack -- Priest prayer penalty for "edged" weapons  -DGK */
 	if ((forbid_non_blessed()) && (p_ptr->icky_wield)) chance += 25;
 
-	/* Minimum failure rate */
-	if (chance < minfail) chance = minfail;
-
-	/* Stunning makes spells harder */
-	if (p_ptr->stun > 50) chance += 25;
-	else if (p_ptr->stun) chance += 15;
-
-	/* Always a 5 percent chance of working */
-	if (chance > 95) chance = 95;
-
 	/* Return the chance */
-	return (chance);
+	return clamp_failure_chance(chance, minfail);
 }
 
 s32b lua_spell_device_chance(s32b chance, int level, int base_level)
@@ -348,20 +306,9 @@ s32b lua_spell_device_chance(s32b chance, int level, int base_level)
 
 	/* Extract the minimum failure rate */
 	minfail = 15 - get_skill_scale(SKILL_DEVICE, 25);
-	if (minfail < 0) minfail = 0;
-
-	/* Minimum failure rate */
-	if (chance < minfail) chance = minfail;
-
-	/* Stunning makes spells harder */
-	if (p_ptr->stun > 50) chance += 25;
-	else if (p_ptr->stun) chance += 15;
-
-	/* Always a 5 percent chance of working */
-	if (chance > 95) chance = 95;
 
 	/* Return the chance */
-	return (chance);
+	return clamp_failure_chance(chance, minfail);
 }
 
 /* Cave */
@@ -396,21 +343,15 @@ void get_target(int dir, int *y, int *x)
 }
 
 /* Level gen */
-void get_map_size(bool full_text, char *name, int *ysize, int *xsize)
+void get_map_size(char *name, int *ysize, int *xsize)
 {
 	*xsize = 0;
 	*ysize = 0;
 	init_flags = INIT_GET_SIZE;
-	process_dungeon_file_full = TRUE;
-	if (full_text)
-		process_dungeon_file(name, "embeded map script", ysize, xsize, cur_hgt, cur_wid, TRUE);
-	else
-		process_dungeon_file(NULL, name, ysize, xsize, cur_hgt, cur_wid, TRUE);
-	process_dungeon_file_full = FALSE;
-
+	process_dungeon_file(name, ysize, xsize, cur_hgt, cur_wid, TRUE, TRUE);
 }
 
-void load_map(bool full_text, char *name, int *y, int *x)
+void load_map(char *name, int *y, int *x)
 {
 	/* Set the correct monster hook */
 	set_mon_num_hook();
@@ -419,47 +360,10 @@ void load_map(bool full_text, char *name, int *y, int *x)
 	get_mon_num_prep();
 
 	init_flags = INIT_CREATE_DUNGEON;
-	process_dungeon_file_full = TRUE;
-	if (full_text)
-		process_dungeon_file(name, "embeded map script", y, x, cur_hgt, cur_wid, TRUE);
-	else
-		process_dungeon_file(NULL, name, y, x, cur_hgt, cur_wid, TRUE);
-	process_dungeon_file_full = FALSE;
+	process_dungeon_file(name, y, x, cur_hgt, cur_wid, TRUE, TRUE);
 }
 
-/* Allow lua to use a temporary file */
-static char lua_temp_name[1025];
-static bool lua_temp_file_alloc = FALSE;
-void lua_make_temp_file()
-{
-	if (lua_temp_file_alloc) return;
-
-	if (path_temp(lua_temp_name, 1024)) return;
-
-	/* Open a new file */
-	hook_file = my_fopen(lua_temp_name, "w");
-	lua_temp_file_alloc = TRUE;
-}
-
-void lua_close_temp_file()
-{
-	/* Close the file */
-	my_fclose(hook_file);
-}
-
-void lua_end_temp_file()
-{
-	/* Remove the file */
-	fd_kill(lua_temp_name);
-	lua_temp_file_alloc = FALSE;
-}
-
-cptr lua_get_temp_name()
-{
-	return lua_temp_name;
-}
-
-bool alloc_room(int by0, int bx0, int ysize, int xsize, int *y1, int *x1, int *y2, int *x2)
+bool_ alloc_room(int by0, int bx0, int ysize, int xsize, int *y1, int *x1, int *y2, int *x2)
 {
 	int xval, yval, x, y;
 
@@ -502,7 +406,7 @@ void lua_print_hook(cptr str)
 /*
  * Hook for bounty monster selection.
  */
-static bool lua_mon_hook_bounty(int r_idx)
+static bool_ lua_mon_hook_bounty(int r_idx)
 {
 	monster_race* r_ptr = &r_info[r_idx];
 
@@ -612,23 +516,6 @@ void lua_display_list(int y, int x, int h, int w, cptr title, list_type* list, i
 }
 
 /*
- * Level generators
- */
-bool level_generate_script(cptr name)
-{
-	s32b ret = FALSE;
-
-	call_lua("level_generate", "(s)", "d", name, &ret);
-
-	return ret;
-}
-
-void add_scripted_generator(cptr name, bool stairs, bool monsters, bool objects, bool miscs)
-{
-	add_level_generator(name, level_generate_script, stairs, monsters, objects, miscs);
-}
-
-/*
  * Gods
  */
 s16b add_new_gods(char *name)
@@ -649,4 +536,156 @@ void desc_god(int g_idx, int d, char *desc)
 {
 	if (d >= 0 && d < 10)
 		strncpy(deity_info[g_idx].desc[d], desc, 79);
+}
+
+/*
+ * Returns the direction of the compass that y2, x2 is from y, x
+ * the return value will be one of the following: north, south,
+ * east, west, north-east, south-east, south-west, north-west,
+ * or "close" if it is within 2 tiles.
+ */
+cptr compass(int y, int x, int y2, int x2)
+{
+	static char compass_dir[64];
+
+	// is it close to the north/south meridian?
+	int y_diff = y2 - y;
+
+	// determine if y2, x2 is to the north or south of y, x
+	const char *y_axis;
+	if ((y_diff > -3) && (y_diff < 3))
+	{
+		y_axis = 0;
+	}
+	else if (y2 > y)
+	{
+		y_axis = "south";
+	}
+	else
+	{
+		y_axis = "north";
+	}
+
+	// is it close to the east/west meridian?
+	int x_diff = x2 - x;
+
+	// determine if y2, x2 is to the east or west of y, x
+	const char *x_axis;
+	if ((x_diff > -3) && (x_diff < 3))
+	{
+		x_axis = 0;
+	}
+	else if (x2 > x)
+	{
+		x_axis = "east";
+	}
+	else
+	{
+		x_axis = "west";
+	}
+
+	// Maybe it is very close
+	if ((!x_axis) && (!y_axis)) { strcpy(compass_dir, "close"); }
+	// Maybe it is (almost) due N/S
+	else if (!x_axis) { strcpy(compass_dir, y_axis); }
+	// Maybe it is (almost) due E/W
+	else if (!y_axis) { strcpy(compass_dir, x_axis); }
+	//  or if it is neither
+	else { sprintf(compass_dir, "%s-%s", y_axis, x_axis); }
+	return compass_dir;
+}
+
+/* Returns a relative approximation of the 'distance' of y2, x2 from y, x. */
+cptr approximate_distance(int y, int x, int y2, int x2)
+{
+	//  how far to away to the north/south?
+	int y_diff = abs(y2 - y);
+	// how far to away to the east/west?
+	int x_diff = abs(x2 - x);
+	// find which one is the larger distance
+	int most_dist = x_diff;
+	if (y_diff > most_dist) {
+		most_dist = y_diff;
+	}
+
+	// how far away then?
+	if (most_dist >= 41) {
+		return "a very long way";
+	} else if (most_dist >= 25) {
+		return "a long way";
+	} else if (most_dist >= 8) {
+		return "quite some way";
+	} else {
+		return "not very far";
+	}
+}
+
+bool_ drop_text_left(byte c, cptr str, int y, int o)
+{
+	int i = strlen(str);
+	int x = 39 - (strlen(str) / 2) + o;
+	while (i > 0)
+	{
+		int a = 0;
+		int time = 0;
+
+		if (str[i-1] != ' ')
+		{
+			while (a < x + i - 1)
+			{
+				Term_putch(a - 1, y, c, 32);
+				Term_putch(a, y, c, str[i-1]);
+				time = time + 1;
+				if (time >= 4)
+				{
+					Term_xtra(TERM_XTRA_DELAY, 1);
+					time = 0;
+				}
+				Term_redraw_section(a - 1, y, a, y);
+				a = a + 1;
+
+				inkey_scan = TRUE;
+				if (inkey()) {
+					return TRUE;
+				}
+			}
+		}
+		
+		i = i - 1;
+	}
+	return FALSE;
+}
+
+bool_ drop_text_right(byte c, cptr str, int y, int o)
+{
+	int x = 39 - (strlen(str) / 2) + o;
+	int i = 1;
+	while (i <= strlen(str))
+	{
+		int a = 79;
+		int time = 0;
+
+		if (str[i-1] != ' ') {
+			while (a >= x + i - 1)
+			{
+				Term_putch(a + 1, y, c, 32);
+				Term_putch(a, y, c, str[i-1]);
+				time = time + 1;
+				if (time >= 4) {
+					Term_xtra(TERM_XTRA_DELAY, 1);
+					time = 0;
+				}
+				Term_redraw_section(a, y, a + 1, y);
+				a = a - 1;
+
+				inkey_scan = TRUE;
+				if (inkey()) {
+					return TRUE;
+				}
+			}
+		}
+
+		i = i + 1;
+	}
+	return FALSE;
 }

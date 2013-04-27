@@ -17,7 +17,7 @@ void do_cmd_immovable_special(void);
 /*
  * Try to bash an altar
  */
-static bool do_cmd_bash_altar(int y, int x)
+static bool_ do_cmd_bash_altar(int y, int x)
 {
 	msg_print("Are you mad? You want to anger the gods?");
 	return (FALSE);
@@ -27,13 +27,11 @@ static bool do_cmd_bash_altar(int y, int x)
 /*
  * Try to bash a fountain
  */
-static bool do_cmd_bash_fountain(int y, int x)
+static bool_ do_cmd_bash_fountain(int y, int x)
 {
 	int bash, temp;
 
-	cave_type *c_ptr;
-
-	bool more = TRUE;
+	bool_ more = TRUE;
 
 	monster_race *r_ptr = &r_info[p_ptr->body_monster];
 
@@ -47,9 +45,6 @@ static bool do_cmd_bash_fountain(int y, int x)
 
 	/* Take a turn */
 	energy_use = 100;
-
-	/* Get grid */
-	c_ptr = &cave[y][x];
 
 	/* Message */
 	msg_print("You smash into the fountain!");
@@ -85,7 +80,7 @@ static bool do_cmd_bash_fountain(int y, int x)
  */
 void do_cmd_go_up(void)
 {
-	bool go_up = FALSE, go_up_many = FALSE, prob_traveling = FALSE;
+	bool_ go_up = FALSE, go_up_many = FALSE, prob_traveling = FALSE;
 
 	cave_type *c_ptr;
 
@@ -193,17 +188,7 @@ void do_cmd_go_up(void)
 	if (go_up || go_up_many)
 	{
 
-#if 0
-		/*
-		 * I'm experimenting without this... otherwise the monsters get to
-		 * act first when we go up stairs, theoretically resulting in a possible
-		 * insta-death.
-		 */
-		/* Hack -- take a turn */
-		energy_use = 100;
-#else
-energy_use = 0;
-#endif
+		energy_use = 0;
 
 		/* Success */
 		if (c_ptr->feat == FEAT_WAY_LESS)
@@ -211,13 +196,7 @@ energy_use = 0;
 		else
 			msg_print("You enter a maze of up staircases.");
 
-		if (autosave_l)
-		{
-			is_autosave = TRUE;
-			msg_print("Autosaving the game...");
-			do_cmd_save_game();
-			is_autosave = FALSE;
-		}
+		autosave_checkpoint();
 
 		if (p_ptr->inside_quest)
 		{
@@ -259,22 +238,13 @@ energy_use = 0;
 /*
  * Returns TRUE if we are in the Between...
  */
-static bool between_effect(void)
+static bool_ between_effect(void)
 {
 	byte bx, by;
 
 
 	if (cave[p_ptr->py][p_ptr->px].feat == FEAT_BETWEEN)
 	{
-#if 0							/* The Between is out of the space-time continuum anyway */
-
-		if (p_ptr->resist_continuum)
-		{
-			msg_print("The space-time continuum can't be disrupted.");
-			return (TRUE);
-		}
-
-#endif
 
 		bx = cave[p_ptr->py][p_ptr->px].special & 255;
 		by = cave[p_ptr->py][p_ptr->px].special >> 8;
@@ -316,9 +286,9 @@ void do_cmd_go_down(void)
 {
 	cave_type *c_ptr;
 
-	bool go_down = FALSE, go_down_many = FALSE, prob_traveling = FALSE;
+	bool_ go_down = FALSE, go_down_many = FALSE, prob_traveling = FALSE;
 
-	bool fall_trap = FALSE;
+	bool_ fall_trap = FALSE;
 
 	char i;
 
@@ -445,13 +415,7 @@ void do_cmd_go_down(void)
 
 	if (go_down || go_down_many)
 	{
-
-#if 0
-		/* Hack -- take a turn */
-		energy_use = 100;
-#else
 		energy_use = 0;
-#endif
 
 		if (fall_trap)
 			msg_print("You deliberately jump through the trap door.");
@@ -463,13 +427,7 @@ void do_cmd_go_down(void)
 				msg_print("You enter a maze of down staircases.");
 		}
 
-		if (autosave_l)
-		{
-			is_autosave = TRUE;
-			msg_print("Autosaving the game...");
-			do_cmd_save_game();
-			is_autosave = FALSE;
-		}
+		autosave_checkpoint();
 
 		/* Go down */
 		if (go_down)
@@ -657,7 +615,7 @@ static void chest_death(int y, int x, s16b o_idx)
 {
 	int number;
 
-	bool small;
+	bool_ small;
 
 	object_type forge;
 	object_type *q_ptr;
@@ -735,7 +693,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 
 	object_type *o_ptr = &o_list[o_idx];
 
-	bool ident = FALSE;
+	bool_ ident = FALSE;
 
 
 	/* Ignore disarmed chests */
@@ -765,13 +723,13 @@ static void chest_trap(int y, int x, s16b o_idx)
  *
  * Returns TRUE if repeated commands may continue
  */
-static bool do_cmd_open_chest(int y, int x, s16b o_idx)
+static bool_ do_cmd_open_chest(int y, int x, s16b o_idx)
 {
 	int i, j;
 
-	bool flag = TRUE;
+	bool_ flag = TRUE;
 
-	bool more = FALSE;
+	bool_ more = FALSE;
 
 	object_type *o_ptr = &o_list[o_idx];
 
@@ -842,8 +800,6 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 }
 
 
-#if defined(ALLOW_EASY_OPEN) || defined(ALLOW_EASY_DISARM)
-
 /*
  * Original code by TNB, improvement for Angband 2.9.3 by rr9
  * Slightly modified for ToME because of its trap implementation
@@ -852,7 +808,7 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 /*
  * Return TRUE if the given grid is an open door
  */
-static bool is_open(cave_type *c_ptr)
+static bool_ is_open(cave_type *c_ptr)
 {
 	return (c_ptr->feat == FEAT_OPEN);
 }
@@ -861,7 +817,7 @@ static bool is_open(cave_type *c_ptr)
 /*
  * Return TRUE if the given grid is a closed door
  */
-static bool is_closed(cave_type *c_ptr)
+static bool_ is_closed(cave_type *c_ptr)
 {
 	byte feat;
 
@@ -875,7 +831,7 @@ static bool is_closed(cave_type *c_ptr)
 /*
  * Return TRUE if the given grid has a trap
  */
-static bool is_trap(cave_type *c_ptr)
+static bool_ is_trap(cave_type *c_ptr)
 {
 	return ((c_ptr->info & (CAVE_TRDT)) != 0);
 }
@@ -885,8 +841,8 @@ static bool is_trap(cave_type *c_ptr)
  * Return the number of doors/traps around (or under)
  * the character using the filter function 'test'
  */
-static int count_feats(int *y, int *x, bool (*test) (cave_type *c_ptr),
-                       bool under)
+static int count_feats(int *y, int *x, bool_ (*test) (cave_type *c_ptr),
+                       bool_ under)
 {
 	int d;
 
@@ -935,7 +891,7 @@ static int count_feats(int *y, int *x, bool (*test) (cave_type *c_ptr),
  * Return the number of chests around (or under) the character.
  * If requested, count only trapped chests.
  */
-static int count_chests(int *y, int *x, bool trapped)
+static int count_chests(int *y, int *x, bool_ trapped)
 {
 	int d, count, o_idx;
 
@@ -1001,8 +957,6 @@ static int coords_to_dir(int y, int x)
 	return d[dx + 1][dy + 1];
 }
 
-#endif /* defined(ALLOW_EASY_OPEN) || defined(ALLOW_EASY_DISARM) -- TNB */
-
 
 /*
  * Perform the basic "open" command on doors
@@ -1013,13 +967,13 @@ static int coords_to_dir(int y, int x)
  *
  * Returns TRUE if repeated commands may continue
  */
-static bool do_cmd_open_aux(int y, int x, int dir)
+static bool_ do_cmd_open_aux(int y, int x, int dir)
 {
 	int i, j;
 
 	cave_type *c_ptr;
 
-	bool more = FALSE;
+	bool_ more = FALSE;
 
 	monster_race *r_ptr = &r_info[p_ptr->body_monster];
 
@@ -1134,7 +1088,7 @@ void do_cmd_open(void)
 
 	cave_type *c_ptr;
 
-	bool more = FALSE;
+	bool_ more = FALSE;
 
 	monster_race *r_ptr = &r_info[p_ptr->body_monster];
 
@@ -1145,8 +1099,6 @@ void do_cmd_open(void)
 
 		return;
 	}
-
-#ifdef ALLOW_EASY_OPEN			/* TNB */
 
 	/* Option: Pick a direction */
 	if (easy_open)
@@ -1175,8 +1127,6 @@ void do_cmd_open(void)
 			command_dir = coords_to_dir(y, x);
 		}
 	}
-
-#endif /* ALLOW_EASY_OPEN -- TNB */
 
 	/* Allow repeated command */
 	if (command_arg)
@@ -1258,11 +1208,11 @@ void do_cmd_open(void)
  *
  * Returns TRUE if repeated commands may continue
  */
-static bool do_cmd_close_aux(int y, int x, int dir)
+static bool_ do_cmd_close_aux(int y, int x, int dir)
 {
 	cave_type *c_ptr;
 
-	bool more = FALSE;
+	bool_ more = FALSE;
 
 	monster_race *r_ptr = &r_info[p_ptr->body_monster];
 
@@ -1317,10 +1267,8 @@ void do_cmd_close(void)
 
 	cave_type *c_ptr;
 
-	bool more = FALSE;
+	bool_ more = FALSE;
 
-
-#ifdef ALLOW_EASY_OPEN			/* TNB */
 
 	/* Option: Pick a direction */
 	if (easy_open)
@@ -1346,8 +1294,6 @@ void do_cmd_close(void)
 			command_dir = coords_to_dir(y, x);
 		}
 	}
-
-#endif /* ALLOW_EASY_OPEN -- TNB */
 
 	/* Allow repeated command */
 	if (command_arg)
@@ -1408,7 +1354,7 @@ void do_cmd_close(void)
 /*
  * Determine if a given grid may be "tunneled"
  */
-static bool do_cmd_tunnel_test(int y, int x)
+static bool_ do_cmd_tunnel_test(int y, int x)
 {
 	/* Must have knowledge(execpt on "forget" levels) */
 	if (!(cave[y][x].info & (CAVE_MARK)))
@@ -1455,7 +1401,7 @@ static bool do_cmd_tunnel_test(int y, int x)
  * This will, however, produce grids which are NOT illuminated
  * (or darkened) along with the rest of the room.
  */
-static bool twall(int y, int x, byte feat)
+static bool_ twall(int y, int x, byte feat)
 {
 	cave_type *c_ptr = &cave[y][x];
 
@@ -1488,14 +1434,14 @@ static bool twall(int y, int x, byte feat)
  *
  * Returns TRUE if repeated commands may continue
  */
-bool do_cmd_tunnel_aux(int y, int x, int dir)
+bool_ do_cmd_tunnel_aux(int y, int x, int dir)
 {
 	int skill_req = 0, skill_req_1pct = 0;
 	cave_type *c_ptr = &cave[y][x];
 
 	feature_type *f_ptr = &f_info[c_ptr->feat];
 
-	bool more = FALSE;
+	bool_ more = FALSE;
 
 
 	/* Must be have something to dig with (except for sandwalls) */
@@ -1579,10 +1525,10 @@ bool do_cmd_tunnel_aux(int y, int x, int dir)
 	                ((c_ptr->feat >= FEAT_SANDWALL) &&
 	                 (c_ptr->feat <= FEAT_SANDWALL_K)))
 	{
-		bool okay = FALSE;
-		bool gold = FALSE;
-		bool hard = FALSE;
-		bool soft = FALSE;
+		bool_ okay = FALSE;
+		bool_ gold = FALSE;
+		bool_ hard = FALSE;
+		bool_ soft = FALSE;
 
 		/* Found gold */
 		if ((c_ptr->feat >= FEAT_MAGMA_H) &&
@@ -1780,7 +1726,7 @@ void do_cmd_tunnel(void)
 
 	cave_type *c_ptr;
 
-	bool more = FALSE;
+	bool_ more = FALSE;
 
 
 	if (p_ptr->wild_mode) return;
@@ -1849,8 +1795,6 @@ void do_cmd_tunnel(void)
 }
 
 
-#ifdef ALLOW_EASY_OPEN			/* TNB */
-
 /*
  * easy_open_door --
  *
@@ -1862,7 +1806,7 @@ void do_cmd_tunnel(void)
  *	do_cmd_open_test() and do_cmd_open_aux().
  */
 
-bool easy_open_door(int y, int x)
+bool_ easy_open_door(int y, int x)
 {
 	int i, j;
 
@@ -1967,8 +1911,6 @@ bool easy_open_door(int y, int x)
 	return (TRUE);
 }
 
-#endif /* ALLOW_EASY_OPEN -- TNB */
-
 
 /*
  * Perform the basic "disarm" command
@@ -1979,11 +1921,11 @@ bool easy_open_door(int y, int x)
  *
  * Returns TRUE if repeated commands may continue
  */
-static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
+static bool_ do_cmd_disarm_chest(int y, int x, s16b o_idx)
 {
 	int i, j;
 
-	bool more = FALSE;
+	bool_ more = FALSE;
 
 	object_type *o_ptr = &o_list[o_idx];
 
@@ -2057,11 +1999,7 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
  *
  * Returns TRUE if repeated commands may continue
  */
-#ifdef ALLOW_EASY_DISARM		/* TNB */
-bool do_cmd_disarm_aux(int y, int x, int dir, int do_pickup)
-#else  /* ALLOW_EASY_DISARM -- TNB */
-static bool do_cmd_disarm_aux(int y, int x, int dir, int do_pickup)
-#endif /* ALLOW_EASY_DISARM -- TNB */
+bool_ do_cmd_disarm_aux(int y, int x, int dir, int do_pickup)
 {
 	int i, j, power;
 
@@ -2069,7 +2007,7 @@ static bool do_cmd_disarm_aux(int y, int x, int dir, int do_pickup)
 
 	cptr name;
 
-	bool more = FALSE;
+	bool_ more = FALSE;
 
 
 	/* Take a turn */
@@ -2178,10 +2116,8 @@ void do_cmd_disarm(void)
 
 	cave_type *c_ptr;
 
-	bool more = FALSE;
+	bool_ more = FALSE;
 
-
-#ifdef ALLOW_EASY_DISARM		/* TNB */
 
 	/* Option: Pick a direction */
 	if (easy_disarm)
@@ -2201,8 +2137,6 @@ void do_cmd_disarm(void)
 				command_dir = coords_to_dir(y, x);
 		}
 	}
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
 
 	/* Allow repeated command */
 	if (command_arg)
@@ -2283,13 +2217,13 @@ void do_cmd_disarm(void)
  *
  * Returns TRUE if repeated commands may continue
  */
-static bool do_cmd_bash_aux(int y, int x, int dir)
+static bool_ do_cmd_bash_aux(int y, int x, int dir)
 {
 	int bash, temp;
 
 	cave_type *c_ptr;
 
-	bool more = FALSE;
+	bool_ more = FALSE;
 
 	monster_race *r_ptr = &r_info[p_ptr->body_monster];
 
@@ -2403,7 +2337,7 @@ void do_cmd_bash(void)
 
 	cave_type *c_ptr;
 
-	bool more = FALSE;
+	bool_ more = FALSE;
 
 	monster_race *r_ptr = &r_info[p_ptr->body_monster];
 
@@ -2500,7 +2434,7 @@ void do_cmd_alter(void)
 
 	cave_type *c_ptr;
 
-	bool more = FALSE;
+	bool_ more = FALSE;
 
 
 	/* Allow repeated command */
@@ -2536,15 +2470,6 @@ void do_cmd_alter(void)
 			py_attack(y, x, -1);
 		}
 
-#if 0
-		/* Bash jammed doors */
-		else if ((c_ptr->feat >= FEAT_DOOR_HEAD + 0x08) &&
-		                (c_ptr->feat <= FEAT_DOOR_TAIL))
-		{
-			/* Tunnel */
-			more = do_cmd_bash_aux(y, x, dir);
-		}
-#endif
 		/* Open closed doors */
 		else if ((c_ptr->feat >= FEAT_DOOR_HEAD) &&
 		                (c_ptr->feat <= FEAT_DOOR_TAIL))
@@ -2585,7 +2510,7 @@ void do_cmd_alter(void)
  *
  * XXX XXX XXX Let user choose a pile of spikes, perhaps?
  */
-static bool get_spike(int *ip)
+static bool_ get_spike(int *ip)
 {
 	int i;
 
@@ -2681,19 +2606,17 @@ void do_cmd_spike(void)
 			if (c_ptr->feat < FEAT_DOOR_TAIL) c_ptr->feat++;
 
 			/* Use up, and describe, a single spike, from the bottom */
-			inven_item_increase(item, -1);
-			inven_item_describe(item);
-			inven_item_optimize(item);
+			inc_stack_size(item, -1);
 		}
 	}
 }
 
 
-static void do_cmd_walk_jump(int pickup, bool disarm)
+static void do_cmd_walk_jump(int pickup, bool_ disarm)
 {
 	int dir;
 
-	bool more = FALSE;
+	bool_ more = FALSE;
 
 
 	/* Allow repeated command */
@@ -2752,7 +2675,7 @@ static void do_cmd_walk_jump(int pickup, bool disarm)
 /*
  * Support code for the "Walk" and "Jump" commands
  */
-void do_cmd_walk(int pickup, bool disarm)
+void do_cmd_walk(int pickup, bool_ disarm)
 {
 	/* Move (usually pickup) */
 
@@ -3121,7 +3044,7 @@ void do_cmd_fire(void)
 
 	object_type *j_ptr;
 
-	bool hit_body = FALSE;
+	bool_ hit_body = FALSE;
 
 	byte missile_attr;
 
@@ -3151,29 +3074,6 @@ void do_cmd_fire(void)
 		return;
 	}
 
-#if 0							/* Old code without the quiver slot */
-
-	/* Require proper missile */
-	item_tester_tval = p_ptr->tval_ammo;
-
-	/* Get an item */
-	q = "Fire which item? ";
-	s = "You have nothing to fire.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-
-	/* Access the item (if in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &p_ptr->inventory[item];
-	}
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-#else  /* New code with the quiver slot */
-
 	/* Get the "ammo" (if any) */
 	o_ptr = &p_ptr->inventory[INVEN_AMMO];
 
@@ -3191,18 +3091,10 @@ void do_cmd_fire(void)
 		if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 
-		/* Access the item (if in the pack) */
-		if (item >= 0)
-		{
-			o_ptr = &p_ptr->inventory[item];
-		}
-		else
-		{
-			o_ptr = &o_list[0 - item];
-		}
+		/* Access the item */
+		o_ptr = get_object(item);
 	}
 
-#endif
 
 	/* Get a direction (or cancel) */
 	if (!get_aim_dir(&dir)) return;
@@ -3217,20 +3109,8 @@ void do_cmd_fire(void)
 	/* Single object */
 	q_ptr->number = 1;
 
-	/* Reduce and describe p_ptr->inventory */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Reduce and describe floor item */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_optimize(0 - item);
-	}
+	/* Reduce stack and describe */
+	inc_stack_size(item, -1);
 
 	/* Break goi/manashield */
 	if (p_ptr->invuln)
@@ -3381,7 +3261,7 @@ void do_cmd_fire(void)
 				/* Did we hit it (penalize range) */
 				if (test_hit_fire(chance - cur_dis, m_ptr->ac, m_ptr->ml))
 				{
-					bool fear = FALSE;
+					bool_ fear = FALSE;
 
 					/* Assume a default death */
 					cptr note_dies = " dies.";
@@ -3602,9 +3482,9 @@ void do_cmd_throw(void)
 
 	object_type *o_ptr;
 
-	bool hit_body = FALSE;
+	bool_ hit_body = FALSE;
 
-	bool hit_wall = FALSE;
+	bool_ hit_wall = FALSE;
 
 	byte missile_attr;
 
@@ -3624,15 +3504,8 @@ void do_cmd_throw(void)
 	s = "You have nothing to throw.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-	/* Access the item (if in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &p_ptr->inventory[item];
-	}
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	/* Access the item */
+	o_ptr = get_object(item);
 
 
 	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
@@ -3677,7 +3550,7 @@ void do_cmd_throw(void)
 	 * Hack -- If rods or wands are thrown, the total maximum timeout or
 	 * charges need to be allocated between the two stacks.
 	 */
-	if ((o_ptr->tval == TV_WAND))
+	if (o_ptr->tval == TV_WAND)
 	{
 		q_ptr->pval = o_ptr->pval / o_ptr->number;
 
@@ -3687,21 +3560,8 @@ void do_cmd_throw(void)
 	/* Single object */
 	q_ptr->number = 1;
 
-	/* Reduce and describe p_ptr->inventory */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Reduce and describe floor item */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_optimize(0 - item);
-	}
-
+	/* Reduce stack and describe */
+	inc_stack_size(item, -1);
 
 	/* Description */
 	object_desc(o_name, q_ptr, FALSE, 3);
@@ -3817,7 +3677,7 @@ void do_cmd_throw(void)
 			/* Did we hit it (penalize range) */
 			if (test_hit_fire(chance - cur_dis, m_ptr->ac, m_ptr->ml))
 			{
-				bool fear = FALSE;
+				bool_ fear = FALSE;
 
 				/* Assume a default death */
 				cptr note_dies = " dies.";
@@ -3997,9 +3857,7 @@ void do_cmd_boomerang(void)
 
 	object_type *o_ptr;
 
-	bool hit_body = FALSE;
-
-	bool hit_wall = FALSE;
+	bool_ hit_body = FALSE;
 
 	byte missile_attr;
 
@@ -4098,7 +3956,6 @@ void do_cmd_boomerang(void)
 		/* Stopped by walls/doors */
 		if (!cave_floor_bold(ny, nx))
 		{
-			hit_wall = TRUE;
 			break;
 		}
 
@@ -4147,7 +4004,7 @@ void do_cmd_boomerang(void)
 			/* Did we hit it (penalize range) */
 			if (test_hit_fire(chance - cur_dis, m_ptr->ac, m_ptr->ml))
 			{
-				bool fear = FALSE;
+				bool_ fear = FALSE;
 
 				/* Assume a default death */
 				cptr note_dies = " dies.";
@@ -4258,8 +4115,7 @@ void do_cmd_boomerang(void)
 				                (rand_int(100) < j))
 				{
 					msg_print(format("Your %s is destroyed.", o_name));
-					inven_item_increase(INVEN_BOW, -1);
-					inven_item_optimize(INVEN_BOW);
+					inc_stack_size_ex(INVEN_BOW, -1, OPTIMIZE, NO_DESCRIBE);
 				}
 			}
 
@@ -4318,21 +4174,10 @@ void do_cmd_unwalk()
 
 	cave_type *c_ptr;
 
-	bool more = FALSE;
+	bool_ more = FALSE;
 
 
 	if (!get_rep_dir(&dir)) return;
-
-#if 0							/* No more, but there are penalities */
-
-	/* A mold can't blink in small scale mode */
-	if (p_ptr->wild_mode)
-	{
-		msg_print("You cannot move in the overview display.");
-		return;
-	}
-
-#endif
 
 	y = p_ptr->py + ddy[dir];
 	x = p_ptr->px + ddx[dir];
@@ -4492,7 +4337,7 @@ void do_cmd_unwalk()
 }
 
 
-static bool tport_vertically(bool how)
+static bool_ tport_vertically(bool_ how)
 {
 	/* arena or quest -KMW- */
 	if ((p_ptr->inside_arena) || (p_ptr->inside_quest))
@@ -4551,9 +4396,9 @@ void do_cmd_immovable_special(void)
 
 	int lose_hp = 0;
 
-	bool did_act = FALSE;
+	bool_ did_act = FALSE;
 
-	bool did_load = FALSE;
+	bool_ did_load = FALSE;
 
 
 	if (foo > 1)
@@ -4711,7 +4556,7 @@ void do_cmd_immovable_special(void)
 }
 
 /* Can we sacrifice it ? */
-static bool item_tester_hook_sacrifiable(object_type *o_ptr)
+static bool_ item_tester_hook_sacrifiable(object_type *o_ptr)
 {
 	GOD(GOD_MELKOR)
 	{
@@ -4818,9 +4663,7 @@ void do_cmd_sacrifice(void)
 					}
 
 					/* Remove the item */
-					inven_item_increase(item, -1);
-					inven_item_describe(item);
-					inven_item_optimize(item);
+					inc_stack_size(item, -1);
 				}
 			}
 			else
@@ -4837,7 +4680,7 @@ void do_cmd_sacrifice(void)
  *
  * Return a list of o_list[] indexes of items of the given monster
  */
-bool scan_monst(int *items, int *item_num, int m_idx)
+bool_ scan_monst(int *items, int *item_num, int m_idx)
 {
 	int this_o_idx, next_o_idx;
 
@@ -4997,7 +4840,7 @@ void do_cmd_steal()
 
 	byte num = 0;
 
-	bool done = FALSE;
+	bool_ done = FALSE;
 
 	int monst_list[23];
 

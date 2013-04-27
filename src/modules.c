@@ -12,8 +12,6 @@
 
 #include "angband.h"
 
-#ifdef PRIVATE_USER_PATH
-
 static void module_reset_dir_aux(cptr *dir, cptr new_path)
 {
 	char buf[1024];
@@ -28,8 +26,6 @@ static void module_reset_dir_aux(cptr *dir, cptr new_path)
 	if (!private_check_user_directory(*dir))
 		quit(format("Unable to create module dir %s\n", *dir));
 }
-
-#endif
 
 void module_reset_dir(cptr dir, cptr new_path)
 {
@@ -51,9 +47,6 @@ void module_reset_dir(cptr dir, cptr new_path)
 	if (!strcmp(dir, "user")) d = &ANGBAND_DIR_USER;
 	if (!strcmp(dir, "note")) d = &ANGBAND_DIR_NOTE;
 	if (!strcmp(dir, "cmov")) d = &ANGBAND_DIR_CMOV;
-#ifndef PRIVATE_USER_PATH
-	if (!strcmp(dir, "save")) d = &ANGBAND_DIR_SAVE;
-#else /* PRIVATE_USER_PATH */
 	if (
 #ifdef PRIVATE_USER_PATH_APEX
 	    !strcmp(dir, "apex") ||
@@ -79,12 +72,8 @@ void module_reset_dir(cptr dir, cptr new_path)
 	else if (!strcmp(dir, "save"))
 	{
 		module_reset_dir_aux(&ANGBAND_DIR_SAVE, new_path);
-
-		/* Tell the savefile code that we must not use setuid */
-		savefile_setuid = FALSE;
 	}
 	else
-#endif /* PRIVATE_USER_PATH */
 	{
 		/* Build the new path */
 		strnfmt(buf, 1024, "%s%s%s%s%s", ANGBAND_DIR_MODULES, PATH_SEP, new_path, PATH_SEP, dir);
@@ -170,7 +159,7 @@ static void activate_module()
 cptr force_module = NULL;
 
 /* Display possible modules and select one */
-bool select_module()
+bool_ select_module()
 {
 	s32b k, sel, max;
 

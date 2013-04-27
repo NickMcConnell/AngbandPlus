@@ -1513,14 +1513,8 @@ static void fp_stack_push(cptr name)
 		/* Build the filename */
 		path_build(buf, 1024, ANGBAND_DIR_EDIT, name);
 
-		/* Grab permission */
-		safe_setuid_grab();
-
 		/* Open the file */
 		fp = my_fopen(buf, "r");
-
-		/* Drop permission */
-		safe_setuid_drop();
 
 		/* Parse it */
 		if (!fp) quit(format("Cannot open '%s' file.", name));
@@ -1531,7 +1525,7 @@ static void fp_stack_push(cptr name)
 	}
 }
 
-static bool fp_stack_pop()
+static bool_ fp_stack_pop()
 {
 	if (fp_stack_idx > 0)
 	{
@@ -1570,7 +1564,7 @@ static int my_fgets_dostack(char *buf, int len)
 /*
  * Grab one race flag from a textual string
  */
-static bool unknown_shut_up = FALSE;
+static bool_ unknown_shut_up = FALSE;
 static errr grab_one_class_flag(u32b *choice, cptr what)
 {
 	int i;
@@ -1782,7 +1776,7 @@ errr init_player_info_txt(FILE *fp, char *buf)
 	char *s, *t;
 
 	/* Not ready yet */
-	bool okay = FALSE;
+	bool_ okay = FALSE;
 
 	/* Current entry */
 	player_race *rp_ptr = NULL;
@@ -3412,13 +3406,13 @@ errr init_player_info_txt(FILE *fp, char *buf)
 /*
  * Initialize the "v_info" array, by parsing an ascii "template" file
  */
-errr init_v_info_txt(FILE *fp, char *buf, bool start)
+errr init_v_info_txt(FILE *fp, char *buf, bool_ start)
 {
 	int i;
 	char *s;
 
 	/* Not ready yet */
-	bool okay = FALSE;
+	bool_ okay = FALSE;
 
 	/* Current entry */
 	vault_type *v_ptr = NULL;
@@ -3660,7 +3654,7 @@ errr init_f_info_txt(FILE *fp, char *buf)
 	char *s, *t;
 
 	/* Not ready yet */
-	bool okay = FALSE;
+	bool_ okay = FALSE;
 	u32b default_desc = 0, default_tunnel = 0, default_block = 0;
 
 	/* Current entry */
@@ -3995,7 +3989,7 @@ errr init_f_info_txt(FILE *fp, char *buf)
 /*
  * Grab one flag in an object_kind from a textual string
  */
-static errr grab_one_kind_flag(object_kind *k_ptr, cptr what, bool obvious)
+static errr grab_one_kind_flag(object_kind *k_ptr, cptr what, bool_ obvious)
 {
 	int i;
 
@@ -4107,7 +4101,7 @@ errr init_k_info_txt(FILE *fp, char *buf)
 	char *s, *t;
 
 	/* Not ready yet */
-	bool okay = FALSE;
+	bool_ okay = FALSE;
 
 	/* Current entry */
 	object_kind *k_ptr = NULL;
@@ -4605,7 +4599,7 @@ errr init_al_info_txt(FILE *fp, char *buf)
 	struct artifact_select_flag *a_ptr = NULL;
 
 	/* Not ready yet */
-	bool okay = FALSE;
+	bool_ okay = FALSE;
 
 	/* Just before the first record */
 	error_idx = -1;
@@ -4906,7 +4900,7 @@ errr init_al_info_txt(FILE *fp, char *buf)
 /*
  * Grab one flag in an artifact_type from a textual string
  */
-static errr grab_one_artifact_flag(artifact_type *a_ptr, cptr what, bool obvious)
+static errr grab_one_artifact_flag(artifact_type *a_ptr, cptr what, bool_ obvious)
 {
 	int i;
 
@@ -5021,7 +5015,7 @@ errr init_a_info_txt(FILE *fp, char *buf)
 	char *s, *t;
 
 	/* Not ready yet */
-	bool okay = FALSE;
+	bool_ okay = FALSE;
 
 	/* Current entry */
 	artifact_type *a_ptr = NULL;
@@ -5361,7 +5355,7 @@ errr init_set_info_txt(FILE *fp, char *buf)
 	char *s, *t;
 
 	/* Not ready yet */
-	bool okay = FALSE;
+	bool_ okay = FALSE;
 
 	/* Current entry */
 	set_type *set_ptr = NULL;
@@ -5598,7 +5592,7 @@ errr init_s_info_txt(FILE *fp, char *buf)
 	char *s;
 
 	/* Not ready yet */
-	bool okay = FALSE;
+	bool_ okay = FALSE;
 
 	/* Current entry */
 	skill_type *s_ptr = NULL;
@@ -5977,7 +5971,7 @@ errr init_ab_info_txt(FILE *fp, char *buf)
 	char *s;
 
 	/* Not ready yet */
-	bool okay = FALSE;
+	bool_ okay = FALSE;
 
 	/* Current entry */
 	ability_type *ab_ptr = NULL;
@@ -6187,7 +6181,7 @@ errr init_ab_info_txt(FILE *fp, char *buf)
 			level = atoi(buf + 2);
 			skill = find_skill(sec);
 
-			if ((skill == -1)) return (1);
+			if (skill == -1) return (1);
 
 			for (z = 0; z < 10; z++)
 				if (ab_ptr->skills[z] == -1) break;
@@ -6209,7 +6203,7 @@ errr init_ab_info_txt(FILE *fp, char *buf)
 
 			ab = find_ability(buf + 2);
 
-			if ((ab == -1)) return (1);
+			if (ab == -1) return (1);
 
 			for (z = 0; z < 10; z++)
 				if (ab_ptr->need_abilities[z] == -1) break;
@@ -6244,7 +6238,7 @@ errr init_ab_info_txt(FILE *fp, char *buf)
 					break;
 			}
 
-			if ((stat == 6)) return (1);
+			if (stat == 6) return (1);
 
 			ab_ptr->stat[stat] = atoi(buf + 2);
 
@@ -6312,7 +6306,7 @@ errr init_ab_info_txt(FILE *fp, char *buf)
 /*
  * Grab one flag in a ego-item_type from a textual string
  */
-static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what, int n, bool obvious)
+static bool_ grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what, int n, bool_ obvious)
 {
 	int i;
 
@@ -6424,7 +6418,7 @@ static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what, int n, bool 
 	return (1);
 }
 
-static bool grab_one_ego_item_flag_restrict(ego_item_type *e_ptr, cptr what, bool need)
+static bool_ grab_one_ego_item_flag_restrict(ego_item_type *e_ptr, cptr what, bool_ need)
 {
 	int i;
 
@@ -6539,7 +6533,7 @@ errr init_e_info_txt(FILE *fp, char *buf)
 	char *s, *t;
 
 	/* Not ready yet */
-	bool okay = FALSE;
+	bool_ okay = FALSE;
 
 	/* Current entry */
 	ego_item_type *e_ptr = NULL;
@@ -6934,7 +6928,7 @@ errr init_e_info_txt(FILE *fp, char *buf)
 /*
  * Grab one flag in a randart_part_type from a textual string
  */
-static bool grab_one_randart_item_flag(randart_part_type *ra_ptr, cptr what, char c)
+static bool_ grab_one_randart_item_flag(randart_part_type *ra_ptr, cptr what, char c)
 {
 	int i;
 	u32b *f1, *f2, *f3, *f4, *f5, *esp;
@@ -7061,7 +7055,7 @@ errr init_ra_info_txt(FILE *fp, char *buf)
 	char *s, *t;
 
 	/* Not ready yet */
-	bool okay = FALSE;
+	bool_ okay = FALSE;
 
 	/* Current entry */
 	randart_part_type *ra_ptr = NULL;
@@ -7468,7 +7462,7 @@ errr init_r_info_txt(FILE *fp, char *buf)
 	char *s, *t;
 
 	/* Not ready yet */
-	bool okay = FALSE;
+	bool_ okay = FALSE;
 
 	/* Current entry */
 	monster_race *r_ptr = NULL;
@@ -7875,7 +7869,7 @@ errr init_r_info_txt(FILE *fp, char *buf)
 /*
  * Grab one (basic) flag in a monster_race from a textual string
  */
-static errr grab_one_basic_ego_flag(monster_ego *re_ptr, cptr what, bool add)
+static errr grab_one_basic_ego_flag(monster_ego *re_ptr, cptr what, bool_ add)
 {
 	int i;
 
@@ -7968,7 +7962,7 @@ static errr grab_one_basic_ego_flag(monster_ego *re_ptr, cptr what, bool add)
 /*
  * Grab one (spell) flag in a monster_race from a textual string
  */
-static errr grab_one_spell_ego_flag(monster_ego *re_ptr, cptr what, bool add)
+static errr grab_one_spell_ego_flag(monster_ego *re_ptr, cptr what, bool_ add)
 {
 	int i;
 
@@ -8021,7 +8015,7 @@ static errr grab_one_spell_ego_flag(monster_ego *re_ptr, cptr what, bool add)
 /*
  * Grab one (basic) flag in a monster_race from a textual string
  */
-static errr grab_one_ego_flag(monster_ego *re_ptr, cptr what, bool must)
+static errr grab_one_ego_flag(monster_ego *re_ptr, cptr what, bool_ must)
 {
 	int i;
 
@@ -8111,7 +8105,7 @@ errr init_re_info_txt(FILE *fp, char *buf)
 	char *s, *t;
 
 	/* Not ready yet */
-	bool okay = FALSE;
+	bool_ okay = FALSE;
 
 	/* Current entry */
 	monster_ego *re_ptr = NULL;
@@ -8652,7 +8646,7 @@ errr init_t_info_txt(FILE *fp, char *buf)
 	char *s, *t;
 
 	/* Not ready yet */
-	bool okay = FALSE;
+	bool_ okay = FALSE;
 
 	/* Current entry */
 	trap_type *t_ptr = NULL;
@@ -9025,7 +9019,7 @@ errr init_d_info_txt(FILE *fp, char *buf)
 	char *s, *t;
 
 	/* Not ready yet */
-	bool okay = FALSE;
+	bool_ okay = FALSE;
 
 	/* Current entry */
 	dungeon_info_type *d_ptr = NULL;
@@ -9670,7 +9664,7 @@ errr init_st_info_txt(FILE *fp, char *buf)
 	char *s, *t;
 
 	/* Not ready yet */
-	bool okay = FALSE;
+	bool_ okay = FALSE;
 
 	/* Current entry */
 	store_info_type *st_ptr = NULL;
@@ -9959,7 +9953,7 @@ errr init_ba_info_txt(FILE *fp, char *buf)
 	char *s;
 
 	/* Not ready yet */
-	bool okay = FALSE;
+	bool_ okay = FALSE;
 
 	/* Current entry */
 	store_action_type *ba_ptr = NULL;
@@ -10129,7 +10123,7 @@ errr init_ow_info_txt(FILE *fp, char *buf)
 	char *s, *t;
 
 	/* Not ready yet */
-	bool okay = FALSE;
+	bool_ okay = FALSE;
 
 	/* Current entry */
 	owner_type *ow_ptr = NULL;
@@ -10376,7 +10370,7 @@ errr init_wf_info_txt(FILE *fp, char *buf)
 	char *s, *t;
 
 	/* Not ready yet */
-	bool okay = FALSE;
+	bool_ okay = FALSE;
 
 	/* Current entry */
 	wilderness_type_info *wf_ptr = NULL;
@@ -10622,18 +10616,17 @@ struct dungeon_grid
 	int bx, by;                  /* For between gates */
 	int mimic;                   /* Mimiced features */
 	s32b mflag;			/* monster's mflag */
-	bool ok;
-	bool defined;
+	bool_ ok;
+	bool_ defined;
 };
-static bool meta_sleep = TRUE;
+static bool_ meta_sleep = TRUE;
 
 static dungeon_grid letter[255];
 
 /*
  * Parse a sub-file of the "extra info"
  */
-bool process_dungeon_file_full = FALSE;
-static errr process_dungeon_file_aux(char *buf, int *yval, int *xval, int xvalstart, int ymax, int xmax)
+static errr process_dungeon_file_aux(char *buf, int *yval, int *xval, int xvalstart, int ymax, int xmax, bool_ full)
 {
 	int i;
 
@@ -10657,7 +10650,7 @@ static errr process_dungeon_file_aux(char *buf, int *yval, int *xval, int xvalst
 	if (buf[0] == '%')
 	{
 		/* Attempt to Process the given file */
-		return (process_dungeon_file(NULL, buf + 2, yval, xval, ymax, xmax, FALSE));
+		return (process_dungeon_file(buf + 2, yval, xval, ymax, xmax, FALSE, full));
 	}
 
 	/* Process "N:<sleep>" */
@@ -11095,7 +11088,7 @@ static errr process_dungeon_file_aux(char *buf, int *yval, int *xval, int xvalst
 				c_ptr->special = letter[idx].special;
 			}
 		}
-		if ((process_dungeon_file_full) && (*xval < x)) *xval = x;
+		if (full && (*xval < x)) *xval = x;
 		(*yval)++;
 
 		return (0);
@@ -11549,7 +11542,7 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 	/* Other */
 	else
 	{
-		bool text_mode = FALSE;
+		bool_ text_mode = FALSE;
 
 		/* Accept all printables except spaces and brackets */
 		while (isprint(*s))
@@ -11687,8 +11680,7 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 			/* Wilderness */
 			else if (streq(b + 1, "WILDERNESS"))
 			{
-				if (vanilla_town) v = "NONE";
-				else v = "NORMAL";
+				v = "NORMAL";
 			}
 		}
 
@@ -11710,7 +11702,7 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 }
 
 
-errr process_dungeon_file(cptr full_text, cptr name, int *yval, int *xval, int ymax, int xmax, bool init)
+errr process_dungeon_file(cptr name, int *yval, int *xval, int ymax, int xmax, bool_ init, bool_ full)
 {
 	FILE *fp = 0;
 
@@ -11720,7 +11712,7 @@ errr process_dungeon_file(cptr full_text, cptr name, int *yval, int *xval, int y
 
 	errr err = 0;
 
-	bool bypass = FALSE;
+	bool_ bypass = FALSE;
 
 	/* Save the start since it ought to be modified */
 	int xmin = *xval;
@@ -11738,36 +11730,21 @@ errr process_dungeon_file(cptr full_text, cptr name, int *yval, int *xval, int y
 		}
 	}
 
-	/* We dont need any files for full_text */
-	if (full_text)
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, name);
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* No such file */
+	if (!fp)
 	{
-		/* Init */
-		my_str_fgets(full_text, NULL, 0);
-	}
-	else
-	{
-		/* Build the filename */
-		path_build(buf, 1024, ANGBAND_DIR_EDIT, name);
-
-		/* Grab permission */
-		safe_setuid_grab();
-
-		/* Open the file */
-		fp = my_fopen(buf, "r");
-
-		/* Drop permission */
-		safe_setuid_drop();
-
-		/* No such file */
-		if (!fp)
-		{
-			msg_format("Cannot find file %s at %s", name, buf);
-			return ( -1);
-		}
+		msg_format("Cannot find file %s at %s", name, buf);
+		return ( -1);
 	}
 
 	/* Process the file */
-	while (0 == ((full_text) ? my_str_fgets(full_text, buf, 1024) : my_fgets(fp, buf, 1024)))
+	while (0 == my_fgets(fp, buf, 1024))
 	{
 		/* Count lines */
 		num++;
@@ -11811,7 +11788,7 @@ errr process_dungeon_file(cptr full_text, cptr name, int *yval, int *xval, int y
 		if (buf[0] == '%')
 		{
 			/* Process that file if allowed */
-			(void)process_dungeon_file(NULL, buf + 2, yval, xval, ymax, xmax, FALSE);
+			(void)process_dungeon_file(buf + 2, yval, xval, ymax, xmax, FALSE, full);
 
 			/* Continue */
 			continue;
@@ -11819,7 +11796,7 @@ errr process_dungeon_file(cptr full_text, cptr name, int *yval, int *xval, int y
 
 
 		/* Process the line */
-		err = process_dungeon_file_aux(buf, yval, xval, xmin, ymax, xmax);
+		err = process_dungeon_file_aux(buf, yval, xval, xmin, ymax, xmax, full);
 
 		/* Oops */
 		if (err) break;
@@ -11834,11 +11811,8 @@ errr process_dungeon_file(cptr full_text, cptr name, int *yval, int *xval, int y
 		msg_format("Parsing '%s'", buf);
 	}
 
-	if (!full_text)
-	{
-		/* Close the file */
-		my_fclose(fp);
-	}
+	/* Close the file */
+	my_fclose(fp);
 
 	/* Result */
 	return (err);

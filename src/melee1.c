@@ -115,10 +115,91 @@ static cptr desc_moan[] =
 	"says she is always happy."
 };
 
+
+/*
+ * Get the "power" of an attack of given effect type.
+ */
+int get_attack_power(int effect)
+{
+	switch (effect)
+	{
+	case RBE_HURT:
+		return 60;
+	case RBE_POISON:
+		return 5;
+	case RBE_UN_BONUS:
+		return 20;
+	case RBE_UN_POWER:
+		return 15;
+	case RBE_EAT_GOLD:
+		return 5;
+	case RBE_EAT_ITEM:
+		return 5;
+	case RBE_EAT_FOOD:
+		return 5;
+	case RBE_EAT_LITE:
+		return 5;
+	case RBE_ACID:
+		return 0;
+	case RBE_ELEC:
+		return 10;
+	case RBE_FIRE:
+		return 10;
+	case RBE_COLD:
+		return 10;
+	case RBE_BLIND:
+		return 2;
+	case RBE_CONFUSE:
+		return 10;
+	case RBE_TERRIFY:
+		return 10;
+	case RBE_PARALYZE:
+		return 2;
+	case RBE_LOSE_STR:
+		return 0;
+	case RBE_LOSE_DEX:
+		return 0;
+	case RBE_LOSE_CON:
+		return 0;
+	case RBE_LOSE_INT:
+		return 0;
+	case RBE_LOSE_WIS:
+		return 0;
+	case RBE_LOSE_CHR:
+		return 0;
+	case RBE_LOSE_ALL:
+		return 2;
+	case RBE_SHATTER:
+		return 60;
+	case RBE_EXP_10:
+		return 5;
+	case RBE_EXP_20:
+		return 5;
+	case RBE_EXP_40:
+		return 5;
+	case RBE_EXP_80:
+		return 5;
+	case RBE_DISEASE:
+		return 5;
+	case RBE_TIME:
+		return 5;
+	case RBE_SANITY:
+		return 60;
+	case RBE_HALLU:
+		return 10;
+	case RBE_PARASITE:
+		return 5;
+	case RBE_ABOMINATION:
+		return 30;
+	}
+	/* Unknown effects have no power */
+	return 0;
+}
+
 /*
  * Attack the player via physical attacks.
  */
-bool carried_make_attack_normal(int r_idx)
+bool_ carried_make_attack_normal(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -130,9 +211,7 @@ bool carried_make_attack_normal(int r_idx)
 	char ddesc[80] = "your symbiote";
 	cptr sym_name = symbiote_name(TRUE);
 
-	bool blinked;
-	bool touched = FALSE, alive = TRUE;
-	bool explode = FALSE;
+	bool_ touched = FALSE, alive = TRUE;
 
 	/* Not allowed to attack */
 	if (r_ptr->flags1 & (RF1_NEVER_BLOW)) return (FALSE);
@@ -143,14 +222,11 @@ bool carried_make_attack_normal(int r_idx)
 	/* Extract the effective monster level */
 	rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
 
-	/* Assume no blink */
-	blinked = FALSE;
-
 	/* Scan through all four blows */
 	for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
 	{
-		bool visible = FALSE;
-		bool obvious = FALSE;
+		bool_ visible = FALSE;
+		bool_ obvious = FALSE;
 
 		int power = 0;
 		int damage = 0;
@@ -177,119 +253,8 @@ bool carried_make_attack_normal(int r_idx)
 		/* Extract visibility (before blink) */
 		visible = TRUE;
 
-#if 0
-
-		/* Extract visibility from carrying lite */
-		if (r_ptr->flags9 & RF9_HAS_LITE) visible = TRUE;
-
-#endif /* 0 */
-
 		/* Extract the attack "power" */
-		switch (effect)
-		{
-		case RBE_HURT:
-			power = 60;
-			break;
-		case RBE_POISON:
-			power = 5;
-			break;
-		case RBE_UN_BONUS:
-			power = 20;
-			break;
-		case RBE_UN_POWER:
-			power = 15;
-			break;
-		case RBE_EAT_GOLD:
-			power = 5;
-			break;
-		case RBE_EAT_ITEM:
-			power = 5;
-			break;
-		case RBE_EAT_FOOD:
-			power = 5;
-			break;
-		case RBE_EAT_LITE:
-			power = 5;
-			break;
-		case RBE_ACID:
-			power = 0;
-			break;
-		case RBE_ELEC:
-			power = 10;
-			break;
-		case RBE_FIRE:
-			power = 10;
-			break;
-		case RBE_COLD:
-			power = 10;
-			break;
-		case RBE_BLIND:
-			power = 2;
-			break;
-		case RBE_CONFUSE:
-			power = 10;
-			break;
-		case RBE_TERRIFY:
-			power = 10;
-			break;
-		case RBE_PARALYZE:
-			power = 2;
-			break;
-		case RBE_LOSE_STR:
-			power = 0;
-			break;
-		case RBE_LOSE_DEX:
-			power = 0;
-			break;
-		case RBE_LOSE_CON:
-			power = 0;
-			break;
-		case RBE_LOSE_INT:
-			power = 0;
-			break;
-		case RBE_LOSE_WIS:
-			power = 0;
-			break;
-		case RBE_LOSE_CHR:
-			power = 0;
-			break;
-		case RBE_LOSE_ALL:
-			power = 2;
-			break;
-		case RBE_SHATTER:
-			power = 60;
-			break;
-		case RBE_EXP_10:
-			power = 5;
-			break;
-		case RBE_EXP_20:
-			power = 5;
-			break;
-		case RBE_EXP_40:
-			power = 5;
-			break;
-		case RBE_EXP_80:
-			power = 5;
-			break;
-		case RBE_DISEASE:
-			power = 5;
-			break;
-		case RBE_TIME:
-			power = 5;
-			break;
-		case RBE_SANITY:
-			power = 60;
-			break;
-		case RBE_HALLU:
-			power = 10;
-			break;
-		case RBE_PARASITE:
-			power = 5;
-			break;
-		case RBE_ABOMINATION:
-			power = 30;
-			break;
-		}
+		power = get_attack_power(effect);
 
 
 		/* Monster hits player */
@@ -462,7 +427,6 @@ bool carried_make_attack_normal(int r_idx)
 			case RBM_EXPLODE:
 				{
 					act = "explodes.";
-					explode = TRUE;
 					break;
 				}
 
@@ -1080,7 +1044,7 @@ bool carried_make_attack_normal(int r_idx)
 					if (randint(100) < 11)
 					{
 						/* 1% chance for perm. damage */
-						bool perm = (randint(10) == 1);
+						bool_ perm = (randint(10) == 1);
 						if (dec_stat(A_CON, randint(10), perm)) obvious = TRUE;
 					}
 
@@ -1361,7 +1325,7 @@ void black_breath_attack(int chance)
 /*
  * Attack the player via physical attacks.
  */
-bool make_attack_normal(int m_idx, byte divis)
+bool_ make_attack_normal(int m_idx, byte divis)
 {
 	monster_type *m_ptr = &m_list[m_idx];
 
@@ -1382,9 +1346,9 @@ bool make_attack_normal(int m_idx, byte divis)
 
 	char ddesc[80];
 
-	bool blinked;
-	bool touched = FALSE, fear = FALSE, alive = TRUE;
-	bool explode = FALSE;
+	bool_ blinked;
+	bool_ touched = FALSE, fear = FALSE, alive = TRUE;
+	bool_ explode = FALSE;
 
 	/* Not allowed to attack */
 	if (r_ptr->flags1 & (RF1_NEVER_BLOW)) return (FALSE);
@@ -1419,8 +1383,8 @@ bool make_attack_normal(int m_idx, byte divis)
 	/* Scan through all four blows */
 	for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
 	{
-		bool visible = FALSE;
-		bool obvious = FALSE;
+		bool_ visible = FALSE;
+		bool_ obvious = FALSE;
 
 		int power = 0;
 		int damage = 0;
@@ -1446,13 +1410,6 @@ bool make_attack_normal(int m_idx, byte divis)
 
 		/* Extract visibility (before blink) */
 		if (m_ptr->ml) visible = TRUE;
-
-#if 0
-
-		/* Extract visibility from carrying lite */
-		if (r_ptr->flags9 & RF9_HAS_LITE) visible = TRUE;
-
-#endif
 
 		/* Extract the attack "power" */
 		switch (effect)
@@ -1572,7 +1529,9 @@ bool make_attack_normal(int m_idx, byte divis)
 
 			if ((chance > 0) && magik(chance))
 			{
-				msg_format("You dodge %s attack!", m_name);
+				char m_poss[80];
+				monster_desc(m_poss, m_ptr, 0x06);
+				msg_format("You dodge %s attack!", m_poss);
 				continue;
 			}
 
@@ -2215,8 +2174,7 @@ bool make_attack_normal(int m_idx, byte divis)
 						}
 
 						/* Steal the items */
-						inven_item_increase(i, -1);
-						inven_item_optimize(i);
+						inc_stack_size_ex(i, -1, OPTIMIZE, NO_DESCRIBE);
 
 						/* Obvious */
 						obvious = TRUE;
@@ -2260,8 +2218,7 @@ bool make_attack_normal(int m_idx, byte divis)
 						           o_name, index_to_label(i));
 
 						/* Steal the items */
-						inven_item_increase(i, -1);
-						inven_item_optimize(i);
+						inc_stack_size_ex(i, -1, OPTIMIZE, NO_DESCRIBE);
 
 						/* Obvious */
 						obvious = TRUE;
@@ -2711,7 +2668,7 @@ bool make_attack_normal(int m_idx, byte divis)
 					if (randint(100) < 11)
 					{
 						/* 1% chance for perm. damage */
-						bool perm = (randint(10) == 1);
+						bool_ perm = (randint(10) == 1);
 						if (dec_stat(A_CON, randint(10), perm)) obvious = TRUE;
 					}
 

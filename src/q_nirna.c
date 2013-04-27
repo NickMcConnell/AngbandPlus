@@ -1,7 +1,7 @@
 #undef cquest
 #define cquest (quest[QUEST_NIRNAETH])
 
-bool quest_nirnaeth_gen_hook(char *fmt)
+bool_ quest_nirnaeth_gen_hook(char *fmt)
 {
 	int x, y;
 	int xstart = 2;
@@ -26,9 +26,7 @@ bool quest_nirnaeth_gen_hook(char *fmt)
 	get_mon_num_prep();
 
 	init_flags = INIT_CREATE_DUNGEON;
-	process_dungeon_file_full = TRUE;
-	process_dungeon_file(NULL, "nirnaeth.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
-	process_dungeon_file_full = FALSE;
+	process_dungeon_file("nirnaeth.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE, TRUE);
 
 	/* Count the number of monsters */
 	cquest.data[0] = 0;
@@ -41,7 +39,7 @@ bool quest_nirnaeth_gen_hook(char *fmt)
 
 	return TRUE;
 }
-bool quest_nirnaeth_finish_hook(char *fmt)
+bool_ quest_nirnaeth_finish_hook(char *fmt)
 {
 	s32b q_idx;
 
@@ -78,7 +76,7 @@ bool quest_nirnaeth_finish_hook(char *fmt)
 
 	return TRUE;
 }
-bool quest_nirnaeth_death_hook(char *fmt)
+bool_ quest_nirnaeth_death_hook(char *fmt)
 {
 	if (p_ptr->inside_quest != QUEST_NIRNAETH) return FALSE;
 
@@ -86,7 +84,7 @@ bool quest_nirnaeth_death_hook(char *fmt)
 
 	return FALSE;
 }
-bool quest_nirnaeth_stair_hook(char *fmt)
+bool_ quest_nirnaeth_stair_hook(char *fmt)
 {
 	if (p_ptr->inside_quest != QUEST_NIRNAETH) return FALSE;
 
@@ -98,7 +96,7 @@ bool quest_nirnaeth_stair_hook(char *fmt)
 	process_hooks_restart = TRUE;
 	return (FALSE);
 }
-bool quest_nirnaeth_init_hook(int q_idx)
+bool_ quest_nirnaeth_init_hook(int q_idx)
 {
 	if ((cquest.status >= QUEST_STATUS_TAKEN) && (cquest.status < QUEST_STATUS_FINISHED))
 	{

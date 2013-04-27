@@ -1,7 +1,7 @@
 #undef cquest
 #define cquest (quest[QUEST_ONE])
 
-bool quest_one_move_hook(char *fmt)
+bool_ quest_one_move_hook(char *fmt)
 {
 	s32b y, x;
 	cave_type *c_ptr;
@@ -66,7 +66,7 @@ bool quest_one_move_hook(char *fmt)
 
 	return FALSE;
 }
-bool quest_one_drop_hook(char *fmt)
+bool_ quest_one_drop_hook(char *fmt)
 {
 	s32b o_idx;
 	object_type *o_ptr;
@@ -84,8 +84,7 @@ bool quest_one_drop_hook(char *fmt)
 	cmsg_print(TERM_YELLOW, "You feel the powers of evil weakening.");
 	cmsg_print(TERM_YELLOW, "Now you can go onto the hunt for Sauron!");
 
-	inven_item_increase(o_idx, -99);
-	inven_item_optimize(o_idx);
+	inc_stack_size_ex(o_idx, -99, OPTIMIZE, NO_DESCRIBE);
 
 	abandon_god(GOD_MELKOR);
 
@@ -97,7 +96,7 @@ bool quest_one_drop_hook(char *fmt)
 
 	return TRUE;
 }
-bool quest_one_wield_hook(char *fmt)
+bool_ quest_one_wield_hook(char *fmt)
 {
 	s32b o_idx;
 	object_type *o_ptr;
@@ -154,7 +153,7 @@ bool quest_one_wield_hook(char *fmt)
 
 	return FALSE;
 }
-bool quest_one_hp_hook(char *fmt)
+bool_ quest_one_hp_hook(char *fmt)
 {
 	if (cquest.status == QUEST_STATUS_FAILED_DONE)
 	{
@@ -171,7 +170,7 @@ bool quest_one_hp_hook(char *fmt)
 	}
 	return (FALSE);
 }
-bool quest_one_die_hook(char *fmt)
+bool_ quest_one_die_hook(char *fmt)
 {
 	if (cquest.status == QUEST_STATUS_FAILED_DONE)
 	{
@@ -190,7 +189,7 @@ bool quest_one_die_hook(char *fmt)
 	}
 	return (FALSE);
 }
-bool quest_one_identify_hook(char *fmt)
+bool_ quest_one_identify_hook(char *fmt)
 {
 	s32b item;
 
@@ -200,17 +199,7 @@ bool quest_one_identify_hook(char *fmt)
 	{
 		object_type *o_ptr;
 
-		/* Inventory */
-		if (item >= 0)
-		{
-			o_ptr = &p_ptr->inventory[item];
-		}
-
-		/* Floor */
-		else
-		{
-			o_ptr = &o_list[0 - item];
-		}
+		o_ptr = get_object(item);
 
 		if ((o_ptr->name1 == ART_POWER) && (!object_known_p(o_ptr)))
 		{
@@ -222,15 +211,13 @@ bool quest_one_identify_hook(char *fmt)
 
 	return (FALSE);
 }
-bool quest_one_death_hook(char *fmt)
+bool_ quest_one_death_hook(char *fmt)
 {
 	s32b r_idx, m_idx;
-	bool ok = FALSE;
-	monster_race *r_ptr;
+	bool_ ok = FALSE;
 
 	m_idx = get_next_arg(fmt);
 	r_idx = m_list[m_idx].r_idx;
-	r_ptr = &r_info[r_idx];
 
 	if (a_info[ART_POWER].cur_num) return FALSE;
 
@@ -304,7 +291,7 @@ bool quest_one_death_hook(char *fmt)
 
 	return (FALSE);
 }
-bool quest_one_dump_hook(char *fmt)
+bool_ quest_one_dump_hook(char *fmt)
 {
 	if (cquest.status == QUEST_STATUS_FINISHED)
 	{
@@ -316,16 +303,16 @@ bool quest_one_dump_hook(char *fmt)
 	}
 	return (FALSE);
 }
-bool quest_one_gen_hook(char *fmt)
+bool_ quest_one_gen_hook(char *fmt)
 {
-	s32b x, y, try = 10000;
+	s32b x, y, tries = 10000;
 
 	/* Paranoia */
 	if (cquest.status != QUEST_STATUS_TAKEN) return (FALSE);
 	if ((dungeon_type != DUNGEON_ANGBAND) || (dun_level != 99)) return (FALSE);
 
 	/* Find a good position */
-	while (try)
+	while (tries)
 	{
 		/* Get a random spot */
 		y = randint(cur_hgt - 4) + 2;
@@ -335,10 +322,10 @@ bool quest_one_gen_hook(char *fmt)
 		if (cave_empty_bold(y, x)) break;
 
 		/* One less try */
-		try--;
+		tries--;
 	}
 
-	if (try)
+	if (tries)
 	{
 		int m_idx = place_monster_one(y, x, test_monster_name("Sauron, the Sorcerer"), 0, FALSE, MSTATUS_ENEMY);
 		if (m_idx) m_list[m_idx].mflag |= MFLAG_QUEST;
@@ -346,7 +333,7 @@ bool quest_one_gen_hook(char *fmt)
 
 	return (FALSE);
 }
-bool quest_one_init_hook(int q_idx)
+bool_ quest_one_init_hook(int q_idx)
 {
 	if ((cquest.status >= QUEST_STATUS_TAKEN) && (cquest.status < QUEST_STATUS_FINISHED))
 	{

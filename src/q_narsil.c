@@ -1,7 +1,7 @@
 #undef cquest
 #define cquest (quest[QUEST_NARSIL])
 
-bool quest_narsil_move_hook(char *fmt)
+bool_ quest_narsil_move_hook(char *fmt)
 {
 	s32b y, x;
 	cave_type *c_ptr;
@@ -20,7 +20,7 @@ bool quest_narsil_move_hook(char *fmt)
 	/* Look out for Narsil */
 	for (i = 0; i < INVEN_TOTAL; i++)
 	{
-		o_ptr = &p_ptr->inventory[i];
+		o_ptr = get_object(i);
 
 		if (!o_ptr->k_idx) continue;
 
@@ -56,7 +56,7 @@ bool quest_narsil_move_hook(char *fmt)
 
 	return TRUE;
 }
-bool quest_narsil_dump_hook(char *fmt)
+bool_ quest_narsil_dump_hook(char *fmt)
 {
 	if (cquest.status >= QUEST_STATUS_COMPLETED)
 	{
@@ -64,7 +64,7 @@ bool quest_narsil_dump_hook(char *fmt)
 	}
 	return (FALSE);
 }
-bool quest_narsil_identify_hook(char *fmt)
+bool_ quest_narsil_identify_hook(char *fmt)
 {
 	if (cquest.status == QUEST_STATUS_UNTAKEN)
 	{
@@ -74,17 +74,7 @@ bool quest_narsil_identify_hook(char *fmt)
 
 		item = get_next_arg(fmt);
 
-		/* Inventory */
-		if (item >= 0)
-		{
-			o_ptr = &p_ptr->inventory[item];
-		}
-
-		/* Floor */
-		else
-		{
-			o_ptr = &o_list[0 - item];
-		}
+		o_ptr = get_object(item);
 
 		if (o_ptr->name1 == ART_NARSIL)
 		{
@@ -106,7 +96,7 @@ bool quest_narsil_identify_hook(char *fmt)
 
 	return (FALSE);
 }
-bool quest_narsil_init_hook(int q_idx)
+bool_ quest_narsil_init_hook(int q_idx)
 {
 	if ((cquest.status >= QUEST_STATUS_TAKEN) && (cquest.status < QUEST_STATUS_FINISHED))
 	{

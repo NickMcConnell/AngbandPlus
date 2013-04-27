@@ -16,7 +16,7 @@
 /*
  * Generate a game of life level :) and make it evolve
  */
-void evolve_level(bool noise)
+void evolve_level(bool_ noise)
 {
 	int i, j;
 
@@ -130,12 +130,9 @@ void evolve_level(bool noise)
 }
 
 
-bool level_generate_life(cptr name)
+bool_ level_generate_life()
 {
 	int i, j;
-
-	/* unused */
-	name = name;
 
 	for (i = 1; i < cur_wid - 1; i++)
 	{

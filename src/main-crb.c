@@ -478,12 +478,10 @@
 
 #if defined(MACINTOSH) || defined(MACH_O_CARBON)
 
-#ifdef PRIVATE_USER_PATH
-
 /*
  * Check and create if needed the directory dirpath
  */
-bool private_check_user_directory(cptr dirpath)
+bool_ private_check_user_directory(cptr dirpath)
 {
 	/* Is this used anywhere else in *bands? */
 	struct stat stat_buf;
@@ -525,7 +523,7 @@ bool private_check_user_directory(cptr dirpath)
  * home directory or try to create it if it doesn't exist.
  * Returns FALSE if all the attempts fail.
  */
-static bool check_create_user_dir(void)
+static bool_ check_create_user_dir(void)
 {
 	char dirpath[1024];
 	char versionpath[1024];
@@ -564,8 +562,6 @@ static bool check_create_user_dir(void)
 	       private_check_user_directory(savepath);
 }
 
-#endif /* PRIVATE_USER_PATH */
-
 
 /*
  * Variant-dependent features:
@@ -590,8 +586,6 @@ static bool check_create_user_dir(void)
 # define ALLOW_BIG_SCREEN
 # define HAS_SCORE_MENU
 # define NEW_ZVIRT_HOOKS
-/* I can't ditch this, yet, because there are many variants */
-# define USE_TRANSPARENCY
 #endif /* ANGBAND30X */
 
 # define USE_DOUBLE_TILES
@@ -776,7 +770,7 @@ struct term_data
 /*
  * Forward declare -- see below
  */
-static bool CheckEvents(bool wait);
+static bool_ CheckEvents(bool_ wait);
 
 
 #ifndef MACH_O_CARBON
@@ -839,7 +833,7 @@ static term_data data[MAX_TERM_DATA];
 /*
  * Note when "open"/"new" become valid
  */
-static bool initialized = FALSE;
+static bool_ initialized = FALSE;
 
 
 
@@ -2876,18 +2870,9 @@ static errr Term_text_mac(int x, int y, int n, byte a, const char *cp)
  *
  * Erase "n" characters starting at (x,y)
  */
-#ifdef USE_TRANSPARENCY
-# ifdef USE_EGO_GRAPHICS
 static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp,
                           const byte *tap, const char *tcp,
                           const byte *eap, const char *ecp)
-# else /* USE_EGO_GRAPHICS */
-static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp,
-                          const byte *tap, const char *tcp)
-# endif  /* USE_EGO_GRAPHICS */
-#else /* USE_TRANSPARENCY */
-static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
-#endif /* USE_TRANSPARENCY */
 {
 	int i;
 	Rect dst_r;
@@ -2920,20 +2905,16 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 	/* Scan the input */
 	for (i = 0; i < n; i++)
 	{
-		bool done = FALSE;
+		bool_ done = FALSE;
 
 		byte a = *ap++;
 		char c = *cp++;
 
-#ifdef USE_TRANSPARENCY
 		byte ta = *tap++;
 		char tc = *tcp++;
-# ifdef USE_EGO_GRAPHICS
 		byte ea = *eap++;
 		char ec = *ecp++;
-		bool has_overlay = (ea && ec);
-# endif  /* USE_EGO_GRAPHICS */
-#endif
+		bool_ has_overlay = (ea && ec);
 
 
 #ifdef USE_DOUBLE_TILES
@@ -2958,14 +2939,10 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 		{
 			int col, row;
 			Rect src_r;
-#ifdef USE_TRANSPARENCY
 			int t_col, t_row;
 			Rect terrain_r;
-# ifdef USE_EGO_GRAPHICS
 			int e_col, e_row;
 			Rect ego_r;
-# endif  /* USE_EGO_GRAPHICS */
-#endif /* USE_TRANSPARENCY */
 
 			/* Row and Col */
 			row = ((byte)a & 0x7F) % pict_rows;
@@ -2977,7 +2954,6 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 			src_r.right = src_r.left + graf_width;
 			src_r.bottom = src_r.top + graf_height;
 
-#ifdef USE_TRANSPARENCY
 			/* Row and Col */
 			t_row = ((byte)ta & 0x7F) % pict_rows;
 			t_col = ((byte)tc & 0x7F) % pict_cols;
@@ -2987,8 +2963,6 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 			terrain_r.top = t_row * graf_height;
 			terrain_r.right = terrain_r.left + graf_width;
 			terrain_r.bottom = terrain_r.top + graf_height;
-
-# ifdef USE_EGO_GRAPHICS
 
 			/* If there's an overlay */
 			if (has_overlay)
@@ -3003,10 +2977,6 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 				ego_r.right = ego_r.left + graf_width;
 				ego_r.bottom = ego_r.top + graf_height;
 			}
-
-# endif  /* USE_EGO_GRAPHICS */
-
-#endif /* USE_TRANSPARENCY */
 
 			/* Hardwire CopyBits */
 			RGBBackColor(&white);
@@ -3034,8 +3004,6 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 
 			/* Get Pixmap handle */
 			pixmap_h = GetPortPixMap(port);
-
-#ifdef USE_TRANSPARENCY
 
 			/* Transparency effect */
 			switch (transparency_mode)
@@ -3069,8 +3037,6 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 						         (BitMap*)*pixmap_h,
 						         &src_r, &dst_r, transparent, NULL);
 
-# ifdef USE_EGO_GRAPHICS
-
 					/* Draw overlay if there's one */
 					if (has_overlay)
 					{
@@ -3079,20 +3045,9 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 						         &ego_r, &dst_r, transparent, NULL);
 					}
 
-# endif  /* USE_EGO_GRAPHICS */
-
 					break;
 				}
 			}
-
-#else /* USE_TRANSPARENCY */
-
-			/* Draw the picture */
-			CopyBits((BitMap*)frameP->framePix,
-			         (BitMap*)*pixmap_h,
-			         &src_r, &dst_r, srcCopy, NULL);
-
-#endif /* USE_TRANSPARENCY */
 
 			/* Release the lock and dispose the PixMap handle */
 			UnlockPortBits(port);
@@ -3379,7 +3334,7 @@ static void save_pref_short(const char *key, short value)
  * Load preference value for key, returns TRUE if it succeeds with
  * vptr updated appropriately, FALSE otherwise.
  */
-static bool query_load_pref_short(const char *key, short *vptr)
+static bool_ query_load_pref_short(const char *key, short *vptr)
 {
 	CFStringRef cf_key;
 	CFNumberRef cf_value;
@@ -3499,7 +3454,7 @@ static void cf_save_prefs()
  */
 static void cf_load_prefs()
 {
-	bool ok;
+	bool_ ok;
 	short pref_major, pref_minor, pref_patch, pref_extra;
 	int i;
 
@@ -3751,7 +3706,7 @@ static void save_pref_file(void)
  * is 'SAVE'.
  * Originally written by Peter Ammon
  */
-static bool select_savefile(bool all)
+static bool_ select_savefile(bool_ all)
 {
 	OSErr err;
 	FSSpec theFolderSpec;
@@ -3905,7 +3860,7 @@ static void do_menu_file_new(void)
 /*
  * Handle menu: "File" + "Open" /  "Import"
  */
-static void do_menu_file_open(bool all)
+static void do_menu_file_open(bool_ all)
 {
 	/* Let the player to choose savefile */
 	if (!select_savefile(all)) return;
@@ -5526,7 +5481,7 @@ static void quit_calmly(void)
  * undesirable monopoly of CPU. The side-effect is that you cannot do
  * while (CheckEvents(TRUE)); without discretion.
  */
-static bool CheckEvents(bool wait)
+static bool_ CheckEvents(bool_ wait)
 {
 	EventRecord event;
 
@@ -6389,10 +6344,8 @@ int main(void)
 	/* Note the "system" */
 	ANGBAND_SYS = "mac";
 
-#ifdef PRIVATE_USER_PATH
 	if (check_create_user_dir() == FALSE)
 		quit("Cannot create directory " PRIVATE_USER_PATH);
-#endif
 
 	/* Initialize */
 	init_stuff();

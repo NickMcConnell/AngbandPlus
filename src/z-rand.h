@@ -3,6 +3,10 @@
 #ifndef INCLUDED_Z_RAND_H
 #define INCLUDED_Z_RAND_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "h-basic.h"
 
 
@@ -67,7 +71,7 @@
 /**** Available Variables ****/
 
 
-extern bool Rand_quick;
+extern bool_ Rand_quick;
 extern u32b Rand_value;
 extern u16b Rand_place;
 extern u32b Rand_state[RAND_DEG];
@@ -84,6 +88,9 @@ extern s32b damroll(s16b num, s16b sides);
 extern s32b maxroll(s16b num, s16b sides);
 
 
+#ifdef __cplusplus
+} /* extern "C" */
 #endif
 
 
+#endif

@@ -4,74 +4,6 @@
 
 library_quest = {}
 
--- The map definition itself
-library_quest.MAP =
-[[#!map
-
-# Permanent wall
-F:X:63:3
-
-# Granite Wall
-F:#:57:3
-
-# Cobblestone Road
-F:O:200:3
-
-# Floor
-F:.:1:3
-
-# Lich
-F:l:200:3:518
-
-# Master lich
-F:L:200:3:658
-
-# Quest exit
-F:<:6:3
-
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:X###############################################################X
-D:X#<OlOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO#X
-D:X#O#.###.#.###.#.###.#.###.#.###.O.###.#.###.#.###.#.###.#.###O#X
-D:X#O#.###.#.###.#.###.#.###.#.###.O.###.#.###.#.###.#.###.#.###O#X
-D:X#O#.###.#.###.#.###.#.###.#.###.O.###.#.###.#.###.#.###.#.###O#X
-D:X#O#.###.#.###.#.###.#.###.#.###.O.###.#.###.#.###.#.###.#.###O#X
-D:X#O#.###.#.###.#.###.#.###.#.###.O.###.#.###.#.###.#.###.#.###O#X
-D:X#O#.###.#.###.#.###.#.###.#.###.O.###.#.###.#.###.#.###.#.###O#X
-D:X#O#.###.#.###.#.###.#.###.#.###.O.###.#.###.#.###.#.###.#.###O#X
-D:X#O#.###.#.###.#.###.#.###.#.###.O.###.#.###.#.###.#.###.#.###O#X
-D:X#O#.###.#.###.#.###.#.###.#.###.O.###.#.###.#.###.#.###.#.###O#X
-D:X#O#.###.#.###.#.###.#.###.#.###.O.###.#.###.#.###.#.###.#.###O#X
-D:X#OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO#X
-D:X#O#.###.#.###.#.###.#.###.#.###.O.###.#.###.#.###.#.###.#.###O#X
-D:X#O#.###.#.###.#.###.#.###.#.###.O.###.#.###.#.###.#.###.#.###O#X
-D:X#O#.###.#.###.#.###.#.###.#.###.O.###.#.###.#.###.#.###.#.###O#X
-D:X#O#.###.#.###.#.###.#.###.#.###.O.###.#.###.#.###.#.###.#.###O#X
-D:X#O#.###.#.###.#.###.#.###.#.###.O.###.#.###.#.###.#.###.#.###O#X
-D:X#O#.###.#.###.#.###.#.###.#.###.O.###.#.###.#.###.#.###.#.###O#X
-D:X#O#.###.#.###.#.###.#.###.#.###.O.###.#.###.#.###.#.###.#.###O#X
-D:X#O#.###.#.###.#.###.#.###.#.###.O.###.#.###.#.###.#.###.#.###O#X
-D:X#O#.###.#.###.#.###.#.###.#.###.O.###.#.###.#.###.#.###.#.###O#X
-D:X#O#.###.#.###.#.###.#.###.#.###.O.###.#.###.#.###.#.###.#.###O#X
-D:X#OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO#X
-D:X#O#.###.#.###.#.###.#.###.#.###.O.###.#.###.#.###.#.###.#.###O#X
-D:X#O#.###.#.###.#.###.#.###.#.###.O.###.#.###.#.###.#.###.#.###O#X
-D:X#O#.###.#.###.#.###.#.###.#.###.O.###.#.###.#.###.#.###.#.###O#X
-D:X#O#.###.#.###.#.###.#.###.#.###.O.###.#.###.#.###.#.###.#.###O#X
-D:X#O#.###.#.###.#.###.#.###.#.###.O.###.#.###.#.###.#.###.#.###O#X
-D:X#O#.###.#.###.#.###.#.###.#.###.O.###.#.###.#.###.#.###.#.###O#X
-D:X#O#.###.#.###.#.###.#.###.#.###.O.###.#.###.#.###.#.###.#.###O#X
-D:X#O#.###.#.###.#.###.#.###.#.###.O.###.#.###.#.###.#.###.#.###O#X
-D:X#O#.###.#.###.#.###.#.###.#.###.O.###.#.###.#.###.#.###.#.###O#X
-D:X#O#.###.#.###.#.###.#.###.#.###.O.###.#.###.#.###.#.###.#.###O#X
-D:X#OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOL#X
-D:X###############################################################X
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-
-# Starting position
-P:4:4
-]]
-
 -- Map helper
 library_quest.place_random = function(minY, minX, maxY, maxX, monster)
 	y = randint(maxY - minY + 1) + minY
@@ -184,16 +116,7 @@ function library_quest.print_spell(color, y, spl)
 		local lvl, na = get_level_school(s, 50, -50)
 		local xx, sch_str
 
-		xx = nil
-		sch_str = ""
-		for index, sch in __spell_school[s] do
-			if xx then
-				sch_str = sch_str.."/"..school(sch).name
-			else
-				xx = 1
-				sch_str = sch_str..school(sch).name
-			end
-		end
+		sch_str = spell_school_name(s)
 
 		if s == spl then
 			if na then
@@ -349,7 +272,7 @@ add_quest
 				return FALSE
 			end
 
-			load_map(library_quest.MAP, 2, 2)
+			load_map("library.map", 2, 2)
 			level_flags2 = DF2_NO_GENO
 
 			-- generate the Liches 518

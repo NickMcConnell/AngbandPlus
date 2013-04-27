@@ -429,7 +429,6 @@ static void prt_mh(void)
 	byte color;
 
 	object_type *o_ptr;
-	monster_race *r_ptr;
 
 	/* Get the carried monster */
 	o_ptr = &p_ptr->inventory[INVEN_CARRY];
@@ -439,8 +438,6 @@ static void prt_mh(void)
 		put_str("             ", ROW_MH, COL_MH);
 		return;
 	}
-
-	r_ptr = &r_info[o_ptr->pval];
 
 	put_str("MH ", ROW_MH, COL_MH);
 
@@ -1250,67 +1247,6 @@ void fix_message(void)
 
 
 /*
- * Hack -- display recent IRC messages in sub-windows
- *
- * XXX XXX XXX Adjust for width and split messages
- */
-void fix_irc_message(void)
-{
-	int j, i, k;
-	int w, h;
-	int x, y;
-
-	/* Scan windows */
-	for (j = 0; j < 8; j++)
-	{
-		term *old = Term;
-
-		/* No window */
-		if (!angband_term[j]) continue;
-
-		/* No relevant flags */
-		if (!(window_flag[j] & (PW_IRC))) continue;
-
-		/* Activate */
-		Term_activate(angband_term[j]);
-
-		/* Get size */
-		Term_get_size(&w, &h);
-
-		Term_clear();
-
-		/* Dump messages */
-		k = 0;
-		for (i = 0; ; i++)
-		{
-			byte type = message_type((s16b)i);
-
-			if (k >= h) break;
-			if (MESSAGE_NONE == type) break;
-			if (MESSAGE_IRC != type) continue;
-
-			/* Dump the message on the appropriate line */
-			display_message(0, (h - 1) - k, strlen(message_str((s16b)i)), message_color((s16b)i), message_str((s16b)i));
-
-			/* Cursor */
-			Term_locate(&x, &y);
-
-			/* Clear to end of line */
-			Term_erase(x, y, 255);
-
-			k++;
-		}
-
-		/* Fresh */
-		Term_fresh();
-
-		/* Restore */
-		Term_activate(old);
-	}
-}
-
-
-/*
  * Hack -- display overhead view in sub-windows
  *
  * Note that the "player" symbol does NOT appear on the map.
@@ -1581,13 +1517,13 @@ static void calc_spells(void)
 }
 
 /* Ugly hack */
-bool calc_powers_silent = FALSE;
+bool_ calc_powers_silent = FALSE;
 
 /* Calc the player powers */
 static void calc_powers(void)
 {
 	int i, p = 0;
-	bool *old_powers;
+	bool_ *old_powers;
 
 	/* Hack -- wait for creation */
 	if (!character_generated) return;
@@ -1595,7 +1531,7 @@ static void calc_powers(void)
 	/* Hack -- handle "xtra" mode */
 	if (character_xtra) return;
 
-	C_MAKE(old_powers, power_max, bool);
+	C_MAKE(old_powers, power_max, bool_);
 
 	/* Save old powers */
 	for (i = 0; i < power_max; i++) old_powers[i] = p_ptr->powers[i];
@@ -1650,20 +1586,20 @@ static void calc_powers(void)
 	for (i = 0; i < power_max; i++)
 	{
 		s32b old = old_powers[i];
-		s32b new = p_ptr->powers[i];
+		s32b new_ = p_ptr->powers[i];
 
-		if (new > old)
+		if (new_ > old)
 		{
 			if (!calc_powers_silent) cmsg_print(TERM_GREEN, powers_type[i].gain_text);
 		}
-		else if (new < old)
+		else if (new_ < old)
 		{
 			if (!calc_powers_silent) cmsg_print(TERM_RED, powers_type[i].lose_text);
 		}
 	}
 
 	calc_powers_silent = FALSE;
-	C_FREE(old_powers, power_max, bool);
+	C_FREE(old_powers, power_max, bool_);
 }
 
 
@@ -2180,16 +2116,11 @@ void calc_body()
 		}
 	}
 
-	/* Do we need more parts ? ;) */
-	for (i = 0; i < BODY_MAX; i++)
-		p_ptr->extra_body_parts[i] = 0;
-	process_hooks(HOOK_BODY_PARTS, "()");
-
 	for (i = 0; i < BODY_MAX; i++)
 	{
 		int b;
 
-		b = bp[i] + cp_ptr->body_parts[i] + p_ptr->extra_body_parts[i];
+		b = bp[i] + cp_ptr->body_parts[i];
 		if (b < 0) b = 0;
 		if (b > max_body_part[i]) b = max_body_part[i];
 
@@ -2383,14 +2314,11 @@ int get_weaponmastery_skill()
 int get_archery_skill()
 {
 	int i, skill = 0;
-	object_type *o_ptr;
 
 	i = INVEN_BOW - INVEN_WIELD;
 	/* All weapons must be of the same type */
 	while (p_ptr->body_parts[i] == INVEN_BOW)
 	{
-		o_ptr = &p_ptr->inventory[INVEN_WIELD + i];
-
 		if (p_ptr->inventory[INVEN_WIELD + i].tval == TV_BOW)
 		{
 			switch (p_ptr->inventory[INVEN_WIELD + i].sval / 10)
@@ -2708,10 +2636,9 @@ void apply_flags(u32b f1, u32b f2, u32b f3, u32b f4, u32b f5, u32b esp, s16b pva
  * This function induces various "status" messages, unless silent is
  * TRUE.
  */
-void calc_bonuses(bool silent)
+void calc_bonuses(bool_ silent)
 {
 	int i, j, hold;
-	int old_invis;
 	int old_speed;
 	u32b old_telepathy;
 	int old_see_inv;
@@ -2731,9 +2658,6 @@ void calc_bonuses(bool silent)
 	/* Save the old armor class */
 	old_dis_ac = p_ptr->dis_ac;
 	old_dis_to_a = p_ptr->dis_to_a;
-
-	/* Save the old invisibility */
-	old_invis = p_ptr->invis;
 
 	/* Clear extra blows/shots */
 	extra_blows = extra_shots = 0;
@@ -4452,13 +4376,6 @@ void window_stuff(void)
 	}
 
 	/* Display overhead view */
-	if (p_ptr->window & (PW_IRC))
-	{
-		p_ptr->window &= ~(PW_IRC);
-		fix_irc_message();
-	}
-
-	/* Display overhead view */
 	if (p_ptr->window & (PW_OVERHEAD))
 	{
 		p_ptr->window &= ~(PW_OVERHEAD);
@@ -4497,7 +4414,7 @@ void handle_stuff(void)
 }
 
 
-bool monk_empty_hands(void)
+bool_ monk_empty_hands(void)
 {
 	int i;
 	object_type *o_ptr;
@@ -4517,7 +4434,7 @@ bool monk_empty_hands(void)
 	return TRUE;
 }
 
-bool monk_heavy_armor(void)
+bool_ monk_heavy_armor(void)
 {
 	u16b monk_arm_wgt = 0;
 
@@ -4537,7 +4454,6 @@ bool monk_heavy_armor(void)
 static int get_artifact_idx(int level)
 {
 	int count = 0, i;
-	bool OK = FALSE;
 
 	while (count < 1000)
 	{
@@ -4557,23 +4473,12 @@ static int get_artifact_idx(int level)
 		/* Avoid granting SPECIAL_GENE artifacts */
 		if (a_ptr->flags4 & TR4_SPECIAL_GENE) continue;
 
-		OK = TRUE;
-		break;
+		return i;
 	}
 
 	/* No matches found */
-	if (OK == FALSE)
-	{
-#if 0 /* pelpel */
-		/* XXX XXX XXX Grant the Phial */
-		i = 1;
-#endif /* pelpel */
-
-		/* Grant a randart */
-		i = 0;
-	}
-
-	return i;
+	/* Grant a randart */
+	return 0;
 }
 
 /* Chose a fate */
@@ -4829,7 +4734,7 @@ void dump_fates(FILE *outfile)
 {
 	int i;
 	char buf[120];
-	bool pending = FALSE;
+	bool_ pending = FALSE;
 
 	if (!outfile) return;
 

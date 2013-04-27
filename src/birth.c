@@ -200,7 +200,7 @@ static void save_prev_data(void)
 /*
  * Load the previous data
  */
-static void load_prev_data(bool save)
+static void load_prev_data(bool_ save)
 {
 	int i;
 
@@ -822,8 +822,8 @@ static void player_wipe(void)
 {
 	int i, j;
 
-	bool *powers;
-	bool *corruptions;
+	bool_ *powers;
+	bool_ *corruptions;
 
 
 	/* Wipe special levels */
@@ -844,7 +844,7 @@ static void player_wipe(void)
 	p_ptr->lives = 0;
 
 	/* Wipe the corruptions */
-	(void)C_WIPE(p_ptr->corruptions, max_corruptions, bool);
+	(void)C_WIPE(p_ptr->corruptions, max_corruptions, bool_);
 
 	/* Wipe the history */
 	for (i = 0; i < 4; i++)
@@ -975,9 +975,6 @@ static void player_wipe(void)
 	total_winner = 0;
 	has_won = FALSE;
 
-	/* Assume no panic save */
-	panic_save = 0;
-
 	/* Assume no cheating */
 	noscore = 0;
 	wizard = 0;
@@ -1075,17 +1072,6 @@ void outfit_obj(int tv, int sv, int pval, int dd, int ds)
 	if (pval)
 		q_ptr->pval = pval;
 
-	/* Merchants get a chest which is currently empty */
-#if 0 /* DGDGDGDG -- use a skill */
-	if ((tv == TV_CHEST) && (cp_ptr->magic_key == MKEY_TELEKINESIS))
-	{
-		/* Put items into the chest */
-		q_ptr->pval = -5;
-
-		/* Set the number of items in the chest */
-		q_ptr->pval2 = 6;
-	}
-#endif
 	/* These objects are "storebought" */
 	q_ptr->ident |= IDENT_MENTAL;
 	q_ptr->number = damroll(dd, ds);
@@ -1105,20 +1091,13 @@ static void player_outfit(void)
 {
 	int i;
 
-	object_type forge;
-
-	object_type *q_ptr;
-
-
 	/*
 	 * Get an adventurer guide describing a bit of the
-	 * wilderness(useless for vanilla town)
+	 * wilderness.
 	 */
-	if (!vanilla_town)
 	{
-		/* Get local object */
-		q_ptr = &forge;
-
+		object_type forge;
+		object_type *q_ptr = &forge;
 		/* Hack -- Give the player an adventurer guide */
 		object_prep(q_ptr, lookup_kind(TV_PARCHMENT, 20));
 		q_ptr->number = 1;
@@ -1129,13 +1108,9 @@ static void player_outfit(void)
 
 	process_hooks(HOOK_BIRTH_OBJECTS, "()");
 
-	/* Get local object */
-	q_ptr = &forge;
-
-	/* Get local object */
-	q_ptr = &forge;
-
 	{
+		object_type forge;
+		object_type *q_ptr = &forge;
 		/* Hack -- Give the player some food */
 		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
 		q_ptr->number = (byte)rand_range(3, 7);
@@ -1144,10 +1119,9 @@ static void player_outfit(void)
 		(void)inven_carry(q_ptr, FALSE);
 	}
 
-	/* Get local object */
-	q_ptr = &forge;
-
 	{
+		object_type forge;
+		object_type *q_ptr = &forge;
 		/* Hack -- Give the player some torches */
 		object_prep(q_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
 		q_ptr->number = (byte)rand_range(3, 7);
@@ -1156,9 +1130,6 @@ static void player_outfit(void)
 		object_known(q_ptr);
 		(void)inven_carry(q_ptr, FALSE);
 	}
-
-	/* Get local object */
-	q_ptr = &forge;
 
 	/* Rogues have a better knowledge of traps */
 	if (has_ability(AB_TRAPPING))
@@ -1171,6 +1142,8 @@ static void player_outfit(void)
 		t_info[TRAP_OF_FIRE_BOLT].ident = TRUE;
 
 		/* Hack -- Give the player a some ammo for the traps */
+		object_type forge;
+		object_type *q_ptr = &forge;
 		object_prep(q_ptr, lookup_kind(TV_SHOT, SV_AMMO_NORMAL));
 		q_ptr->number = (byte)rand_range(5, 15);
 		object_aware(q_ptr);
@@ -1252,7 +1225,7 @@ static void gen_random_quests(int n)
 		/* XXX XXX XXX Try until valid choice is found */
 		while (tries)
 		{
-			bool ok;
+			bool_ ok;
 
 			tries--;
 
@@ -1636,9 +1609,9 @@ int dump_gods(int sel, int *choice, int max)
 
 
 /* Ask questions */
-static bool do_quick_start = FALSE;
+static bool_ do_quick_start = FALSE;
 
-static bool player_birth_aux_ask()
+static bool_ player_birth_aux_ask()
 {
 	int i, k, n, v, sel;
 
@@ -2131,20 +2104,6 @@ static bool player_birth_aux_ask()
 		}
 
 		/* Set class */
-#ifdef RESTRICT_COMBINATIONS
-		if (!(restrictions & BIT(k)))
-		{
-			noscore |= 0x0020;
-			message_add(MESSAGE_MSG, " ", TERM_VIOLET);
-			message_add(MESSAGE_MSG, " ", TERM_VIOLET);
-			message_add(MESSAGE_MSG, " ", TERM_VIOLET);
-			message_add(MESSAGE_MSG, "***************************", TERM_VIOLET);
-			message_add(MESSAGE_MSG, "***************************", TERM_VIOLET);
-			message_add(MESSAGE_MSG, "********* Cheater *********", TERM_VIOLET);
-			message_add(MESSAGE_MSG, "***************************", TERM_VIOLET);
-			message_add(MESSAGE_MSG, "***************************", TERM_VIOLET);
-		}
-#endif
 		p_ptr->pclass = class_types[k];
 
 		/* Choose class spec */
@@ -2542,7 +2501,7 @@ static const int birth_stat_costs[(18-10) + 1] =
  *
  * Taken from V 2.9.0
  */
-static bool player_birth_aux_point(void)
+static bool_ player_birth_aux_point(void)
 {
 	int i;
 
@@ -2720,15 +2679,15 @@ static bool player_birth_aux_point(void)
 /*
  * Use the autoroller or not to generate a char
  */
-static bool player_birth_aux_auto()
+static bool_ player_birth_aux_auto()
 {
 	int i, j, m, v;
 
 	int mode = 0;
 
-	bool flag = FALSE;
+	bool_ flag = FALSE;
 
-	bool prev = FALSE;
+	bool_ prev = FALSE;
 
 	char c;
 
@@ -2892,7 +2851,7 @@ static bool player_birth_aux_auto()
 		/* Auto-roll */
 		while (autoroll)
 		{
-			bool accept = TRUE;
+			bool_ accept = TRUE;
 
 			/* Get a new character */
 			get_stats();
@@ -3070,7 +3029,7 @@ static bool player_birth_aux_auto()
  * from continuously rolling up characters, which can be VERY
  * expensive CPU wise.  And it cuts down on player stupidity.
  */
-static bool player_birth_aux()
+static bool_ player_birth_aux()
 {
 	char c;
 
@@ -3245,7 +3204,7 @@ static bool player_birth_aux()
 /*
  * Helper function for validate_bg().
  */
-static void validate_bg_aux(int chart, bool chart_checked[], char *buf)
+static void validate_bg_aux(int chart, bool_ chart_checked[], char *buf)
 {
 	char *s;
 
@@ -3253,10 +3212,10 @@ static void validate_bg_aux(int chart, bool chart_checked[], char *buf)
 
 
 	/* Assume the chart does not exist */
-	bool chart_exists = FALSE;
+	bool_ chart_exists = FALSE;
 
 	/* Assume the chart is not complete */
-	bool chart_complete = FALSE;
+	bool_ chart_complete = FALSE;
 
 	int bg_max = max_bg_idx;
 
@@ -3318,7 +3277,7 @@ static void validate_bg(void)
 {
 	int i, race;
 
-	bool chart_checked[512];
+	bool_ chart_checked[512];
 
 	char buf[1024];
 
@@ -3413,14 +3372,6 @@ void player_birth(void)
 	message_add(MESSAGE_MSG, "  ", TERM_L_BLUE);
 	message_add(MESSAGE_MSG, " ", TERM_L_BLUE);
 
-	/* Verify autoskiller */
-#if 0
-	if (validate_autoskiller(spp_ptr->skill_ideal) < 0)
-	{
-		message_add(MESSAGE_MSG, "WARNING: Bad autoskill chart", TERM_VIOLET);
-	}
-#endif
-
 	/* Hack -- outfit the player */
 	player_outfit();
 
@@ -3449,7 +3400,7 @@ void player_birth(void)
 			while (TRUE)
 			{
 				int j;
-				bool ok = TRUE;
+				bool_ ok = TRUE;
 
 				lev = rand_range(d_ptr->mindepth, d_ptr->maxdepth - 1);
 
@@ -3518,7 +3469,7 @@ void player_birth(void)
 char savefile_module[46][80];
 char savefile_names[46][30];
 char savefile_desc[46][80];
-bool savefile_alive[46];
+bool_ savefile_alive[46];
 int savefile_idx[46];
 
 /*
@@ -3534,24 +3485,14 @@ int load_savefile_names()
 
 
 	/* Build the filename */
-#ifdef SAVEFILE_USE_UID
-	strnfmt(tmp, 50, "user.%d.svg", player_uid);
-#else
 	strcpy(tmp, "global.svg");
-#endif /* SAVEFILE_USE_UID */
 	path_build(buf, 1024, ANGBAND_DIR_SAVE, tmp);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
-	/* Grab permission */
-	if (savefile_setuid) safe_setuid_grab();
-
 	/* Read the file */
 	fff = my_fopen(buf, "r");
-
-	/* Drop permission */
-	if (savefile_setuid) safe_setuid_drop();
 
 	/* Failure */
 	if (!fff) return (0);
@@ -3623,14 +3564,8 @@ int load_savefile_names()
 		/* File type is 'SAVE' */
 		FILE_TYPE(FILE_TYPE_SAVE);
 
-		/* Grab permission */
-		if (savefile_setuid) safe_setuid_grab();
-
 		/* Try to open the savefile */
 		fd = fd_open(savefile, O_RDONLY);
-
-		/* Drop permission */
-		if (savefile_setuid) safe_setuid_drop();
 
 		/* Still existing ? */
 		if (fd >= 0)
@@ -3662,24 +3597,14 @@ void save_savefile_names()
 
 
 	/* Build the filename */
-#ifdef SAVEFILE_USE_UID
-	strnfmt(tmp, 50, "user.%d.svg", player_uid);
-#else
 	strcpy(tmp, "global.svg");
-#endif /* SAVEFILE_USE_UID */
 	path_build(buf, 1024, ANGBAND_DIR_SAVE, tmp);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
-	/* Grab permission */
-	if (savefile_setuid) safe_setuid_grab();
-
 	/* Read the file */
 	fff = my_fopen(buf, "w");
-
-	/* Drop permission */
-	if (savefile_setuid) safe_setuid_drop();
 
 	/* Failure */
 	if (!fff) return;
@@ -3752,9 +3677,9 @@ static void dump_savefiles(int sel, int max)
 
 
 /* Asks for new game or load game */
-bool no_begin_screen = FALSE;
+bool_ no_begin_screen = FALSE;
 
-bool begin_screen()
+bool_ begin_screen()
 {
 	int m, k, sel, max;
 
@@ -3838,14 +3763,8 @@ savefile_try_again:
 			strncpy(player_base, savefile_names[savefile_idx[sel - 2]], 32);
 			process_player_name(TRUE);
 
-			/* Grab permission */
-			if (savefile_setuid) safe_setuid_grab();
-
 			/* Remove the savefile */
 			fd_kill(savefile);
-
-			/* Drop permission */
-			if (savefile_setuid) safe_setuid_drop();
 
 			/* Restore 'player_base' and 'savefile' */
 			strncpy(player_base, player_base_save, 32);

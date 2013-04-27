@@ -18,7 +18,7 @@
  * Determine if the player "hits" a monster (normal combat).
  * Note -- Always miss 5%, always hit 5%, otherwise random.
  */
-bool test_hit_fire(int chance, int ac, int vis)
+bool_ test_hit_fire(int chance, int ac, int vis)
 {
 	int k;
 
@@ -49,7 +49,7 @@ bool test_hit_fire(int chance, int ac, int vis)
  *
  * Note -- Always miss 5%, always hit 5%, otherwise random.
  */
-bool test_hit_norm(int chance, int ac, int vis)
+bool_ test_hit_norm(int chance, int ac, int vis)
 {
 	int k;
 
@@ -120,7 +120,7 @@ s16b critical_shot(int weight, int plus, int dam, int skill)
  *
  * Factor in weapon weight, total plusses, player level.
  */
-s16b critical_norm(int weight, int plus, int dam, int weapon_tval, bool *done_crit)
+s16b critical_norm(int weight, int plus, int dam, int weapon_tval, bool_ *done_crit)
 {
 	int i, k, num = randint(5000);
 
@@ -635,7 +635,7 @@ void carry(int pickup)
  */
 static void hit_trap(void)
 {
-	bool ident = FALSE;
+	bool_ ident = FALSE;
 
 	cave_type *c_ptr;
 
@@ -713,115 +713,12 @@ void touch_zap_player(monster_type *m_ptr)
 	}
 }
 
-#if 0 /* not used, eliminates a compiler warning */
-static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
-{
-	int k, bonus, chance;
-
-	int n_weight = 0;
-	bool done_crit;
-
-	monster_type *m_ptr = &m_list[m_idx];
-
-	char m_name[80];
-
-	int dss, ddd;
-
-	char *atk_desc;
-
-
-	switch (attack)
-	{
-	default:
-		{
-			dss = ddd = n_weight = 1;
-			atk_desc = "undefined body part";
-
-			break;
-		}
-	}
-
-	/* Extract monster name (or "it") */
-	monster_desc(m_name, m_ptr, 0);
-
-
-	/* Calculate the "attack quality" */
-	bonus = p_ptr->to_h;
-	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
-
-	/* Test for hit */
-	if (test_hit_norm(chance, m_ptr->ac, m_ptr->ml))
-	{
-		/* Sound */
-		sound(SOUND_HIT);
-
-		msg_format("You hit %s with your %s.", m_name, atk_desc);
-
-		k = damroll(ddd, dss);
-		k = critical_norm(n_weight, p_ptr->to_h, k, -1, &done_crit);
-
-		/* Apply the player damage bonuses */
-		k += p_ptr->to_d;
-
-		/* No negative damage */
-		if (k < 0) k = 0;
-
-		/* Complex message */
-		if (wizard)
-		{
-			msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
-		}
-
-		switch (is_friend(m_ptr))
-		{
-		case 1:
-			{
-				msg_format("%^s gets angry!", m_name);
-				change_side(m_ptr);
-
-				break;
-			}
-
-		case 0:
-			{
-				msg_format("%^s gets angry!", m_name);
-				m_ptr->status = MSTATUS_NEUTRAL_M;
-
-				break;
-			}
-		}
-
-		/* Damage, check for fear and mdeath */
-		switch (attack)
-		{
-		default:
-			{
-				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
-				break;
-			}
-		}
-
-		touch_zap_player(m_ptr);
-	}
-
-	/* Player misses */
-	else
-	{
-		/* Sound */
-		sound(SOUND_MISS);
-
-		/* Message */
-		msg_format("You miss %s.", m_name);
-	}
-}
-
-#endif
 
 /*
  * Carried monster can attack too.
  * Based on monst_attack_monst.
  */
-static void carried_monster_attack(s16b m_idx, bool *fear, bool *mdeath,
+static void carried_monster_attack(s16b m_idx, bool_ *fear, bool_ *mdeath,
                                    int x, int y)
 {
 	monster_type *t_ptr = &m_list[m_idx];
@@ -829,8 +726,6 @@ static void carried_monster_attack(s16b m_idx, bool *fear, bool *mdeath,
 	monster_race *r_ptr;
 
 	monster_race *tr_ptr = race_inf(t_ptr);
-
-	cave_type *c_ptr;
 
 	int ap_cnt;
 
@@ -842,7 +737,7 @@ static void carried_monster_attack(s16b m_idx, bool *fear, bool *mdeath,
 
 	char temp[80];
 
-	bool blinked = FALSE, touched = FALSE;
+	bool_ blinked = FALSE, touched = FALSE;
 
 	byte y_saver = t_ptr->fy;
 
@@ -854,8 +749,6 @@ static void carried_monster_attack(s16b m_idx, bool *fear, bool *mdeath,
 	/* Get the carried monster */
 	o_ptr = &p_ptr->inventory[INVEN_CARRY];
 	if (!o_ptr->k_idx) return;
-
-	c_ptr = &cave[y][x];
 
 	r_ptr = &r_info[o_ptr->pval];
 
@@ -882,8 +775,8 @@ static void carried_monster_attack(s16b m_idx, bool *fear, bool *mdeath,
 	/* Scan through all four blows */
 	for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
 	{
-		bool visible = FALSE;
-		bool obvious = FALSE;
+		bool_ visible = FALSE;
+		bool_ obvious = FALSE;
 
 		int power = 0;
 		int damage = 0;
@@ -911,128 +804,8 @@ static void carried_monster_attack(s16b m_idx, bool *fear, bool *mdeath,
 		/* Extract visibility (before blink) */
 		visible = TRUE;
 
-#if 0
-
-		/* Extract visibility from carrying lite */
-		if (r_ptr->flags9 & RF9_HAS_LITE) visible = TRUE;
-
-#endif /* 0 */
-
 		/* Extract the attack "power" */
-		switch (effect)
-		{
-		case RBE_HURT:
-			{
-				power = 60;
-				break;
-			}
-		case RBE_POISON:
-			{
-				power = 5;
-				break;
-			}
-		case RBE_UN_BONUS:
-			{
-				power = 20;
-				break;
-			}
-		case RBE_UN_POWER:
-			{
-				power = 15;
-				break;
-			}
-		case RBE_EAT_GOLD:
-			power = 5;
-			break;
-		case RBE_EAT_ITEM:
-			power = 5;
-			break;
-		case RBE_EAT_FOOD:
-			power = 5;
-			break;
-		case RBE_EAT_LITE:
-			power = 5;
-			break;
-		case RBE_ACID:
-			power = 0;
-			break;
-		case RBE_ELEC:
-			power = 10;
-			break;
-		case RBE_FIRE:
-			power = 10;
-			break;
-		case RBE_COLD:
-			power = 10;
-			break;
-		case RBE_BLIND:
-			power = 2;
-			break;
-		case RBE_CONFUSE:
-			power = 10;
-			break;
-		case RBE_TERRIFY:
-			power = 10;
-			break;
-		case RBE_PARALYZE:
-			power = 2;
-			break;
-		case RBE_LOSE_STR:
-			power = 0;
-			break;
-		case RBE_LOSE_DEX:
-			power = 0;
-			break;
-		case RBE_LOSE_CON:
-			power = 0;
-			break;
-		case RBE_LOSE_INT:
-			power = 0;
-			break;
-		case RBE_LOSE_WIS:
-			power = 0;
-			break;
-		case RBE_LOSE_CHR:
-			power = 0;
-			break;
-		case RBE_LOSE_ALL:
-			power = 2;
-			break;
-		case RBE_SHATTER:
-			power = 60;
-			break;
-		case RBE_EXP_10:
-			power = 5;
-			break;
-		case RBE_EXP_20:
-			power = 5;
-			break;
-		case RBE_EXP_40:
-			power = 5;
-			break;
-		case RBE_EXP_80:
-			power = 5;
-			break;
-		case RBE_DISEASE:
-			power = 5;
-			break;
-		case RBE_TIME:
-			power = 5;
-			break;
-		case RBE_SANITY:
-			power = 60;
-			break;
-		case RBE_HALLU:
-			power = 10;
-			break;
-		case RBE_PARASITE:
-			power = 5;
-			break;
-		case RBE_ABOMINATION:
-			power = 20;
-			break;
-		}
-
+		power = get_attack_power(effect);
 
 		/* Monster hits */
 		if (!effect || check_hit2(power, rlev, ac))
@@ -1469,7 +1242,7 @@ static void carried_monster_attack(s16b m_idx, bool *fear, bool *mdeath,
  * Carried monster can attack too.
  * Based on monst_attack_monst.
  */
-static void incarnate_monster_attack(s16b m_idx, bool *fear, bool *mdeath,
+static void incarnate_monster_attack(s16b m_idx, bool_ *fear, bool_ *mdeath,
                                      int x, int y)
 {
 	monster_type *t_ptr = &m_list[m_idx];
@@ -1477,8 +1250,6 @@ static void incarnate_monster_attack(s16b m_idx, bool *fear, bool *mdeath,
 	monster_race *r_ptr;
 
 	monster_race *tr_ptr = race_inf(t_ptr);
-
-	cave_type *c_ptr;
 
 	int ap_cnt;
 
@@ -1488,7 +1259,7 @@ static void incarnate_monster_attack(s16b m_idx, bool *fear, bool *mdeath,
 
 	char temp[80];
 
-	bool blinked = FALSE, touched = FALSE;
+	bool_ blinked = FALSE, touched = FALSE;
 
 	byte y_saver = t_ptr->fy;
 
@@ -1496,8 +1267,6 @@ static void incarnate_monster_attack(s16b m_idx, bool *fear, bool *mdeath,
 
 
 	if (!p_ptr->body_monster) return;
-
-	c_ptr = &cave[y][x];
 
 	r_ptr = race_info_idx(p_ptr->body_monster, 0);
 
@@ -1525,8 +1294,8 @@ static void incarnate_monster_attack(s16b m_idx, bool *fear, bool *mdeath,
 	for (ap_cnt = 0; ap_cnt < (p_ptr->num_blow > 4) ? 4 : p_ptr->num_blow;
 	                ap_cnt++)
 	{
-		bool visible = FALSE;
-		bool obvious = FALSE;
+		bool_ visible = FALSE;
+		bool_ obvious = FALSE;
 
 		int power = 0;
 		int damage = 0;
@@ -1554,117 +1323,8 @@ static void incarnate_monster_attack(s16b m_idx, bool *fear, bool *mdeath,
 		/* Extract visibility (before blink) */
 		visible = TRUE;
 
-#if 0
-
-		/* Extract visibility from carrying lite */
-		if (r_ptr->flags9 & RF9_HAS_LITE) visible = TRUE;
-
-#endif /* 0 */
-
 		/* Extract the attack "power" */
-		switch (effect)
-		{
-		case RBE_HURT:
-			power = 60;
-			break;
-		case RBE_POISON:
-			power = 5;
-			break;
-		case RBE_UN_BONUS:
-			power = 20;
-			break;
-		case RBE_UN_POWER:
-			power = 15;
-			break;
-		case RBE_EAT_GOLD:
-			power = 5;
-			break;
-		case RBE_EAT_ITEM:
-			power = 5;
-			break;
-		case RBE_EAT_FOOD:
-			power = 5;
-			break;
-		case RBE_EAT_LITE:
-			power = 5;
-			break;
-		case RBE_ACID:
-			power = 0;
-			break;
-		case RBE_ELEC:
-			power = 10;
-			break;
-		case RBE_FIRE:
-			power = 10;
-			break;
-		case RBE_COLD:
-			power = 10;
-			break;
-		case RBE_BLIND:
-			power = 2;
-			break;
-		case RBE_CONFUSE:
-			power = 10;
-			break;
-		case RBE_TERRIFY:
-			power = 10;
-			break;
-		case RBE_PARALYZE:
-			power = 2;
-			break;
-		case RBE_LOSE_STR:
-			power = 0;
-			break;
-		case RBE_LOSE_DEX:
-			power = 0;
-			break;
-		case RBE_LOSE_CON:
-			power = 0;
-			break;
-		case RBE_LOSE_INT:
-			power = 0;
-			break;
-		case RBE_LOSE_WIS:
-			power = 0;
-			break;
-		case RBE_LOSE_CHR:
-			power = 0;
-			break;
-		case RBE_LOSE_ALL:
-			power = 2;
-			break;
-		case RBE_SHATTER:
-			power = 60;
-			break;
-		case RBE_EXP_10:
-			power = 5;
-			break;
-		case RBE_EXP_20:
-			power = 5;
-			break;
-		case RBE_EXP_40:
-			power = 5;
-			break;
-		case RBE_EXP_80:
-			power = 5;
-			break;
-		case RBE_DISEASE:
-			power = 5;
-			break;
-		case RBE_TIME:
-			power = 5;
-			break;
-		case RBE_SANITY:
-			power = 60;
-			break;
-		case RBE_HALLU:
-			power = 10;
-			break;
-		case RBE_PARASITE:
-			power = 5;
-			break;
-		}
-
+		effect = get_attack_power(effect);
 
 		/* Monster hits */
 		if (!effect || check_hit2(power, rlev, ac))
@@ -2106,7 +1766,7 @@ static void incarnate_monster_attack(s16b m_idx, bool *fear, bool *mdeath,
 static void flavored_attack(int percent, char *output)
 {
 	int insanity = (p_ptr->msane - p_ptr->csane) * 100 / p_ptr->msane;
-	bool insane = (rand_int(100) < insanity);
+	bool_ insane = (rand_int(100) < insanity);
 
 	if (percent < 5)
 	{
@@ -2235,8 +1895,8 @@ static void py_attack_hand(int *k, monster_type *m_ptr, s32b *special)
 	int resist_stun = 0, max = MAX_MA;
 	monster_race *r_ptr = race_inf(m_ptr);
 	char m_name[80];
-	bool desc = FALSE;
-	bool done_crit;
+	bool_ desc = FALSE;
+	bool_ done_crit;
 	int plev = p_ptr->lev;
 
 	if ((!p_ptr->body_monster) && (p_ptr->mimic_form == resolve_mimic_name("Bear")) &&
@@ -2389,8 +2049,8 @@ void do_nazgul(int *k, int *num, int num_blow, int weap, monster_race *r_ptr,
 {
 	u32b f1, f2, f3, f4, f5, esp;
 
-	bool mundane;
-	bool allow_shatter = TRUE;
+	bool_ mundane;
+	bool_ allow_shatter = TRUE;
 
 	/* Extract mundane-ness of the current weapon */
 	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
@@ -2410,8 +2070,8 @@ void do_nazgul(int *k, int *num, int num_blow, int weap, monster_race *r_ptr,
 		{
 			msg_print("Your weapon *DISINTEGRATES*!");
 			*k = 0;
-			inven_item_increase(INVEN_WIELD + weap, -1);
-			inven_item_optimize(INVEN_WIELD + weap);
+
+			inc_stack_size_ex(INVEN_WIELD + weap, -1, OPTIMIZE, NO_DESCRIBE);
 
 			/* To stop attacking */
 			*num = num_blow;
@@ -2429,8 +2089,8 @@ void do_nazgul(int *k, int *num, int num_blow, int weap, monster_race *r_ptr,
 			if (magik(25) && allow_shatter)
 			{
 				msg_print("Your weapon is destroyed!");
-				inven_item_increase(INVEN_WIELD + weap, -1);
-				inven_item_optimize(INVEN_WIELD + weap);
+				
+				inc_stack_size_ex(INVEN_WIELD + weap, -1, OPTIMIZE, NO_DESCRIBE);
 
 				/* To stop attacking */
 				*num = num_blow;
@@ -2451,8 +2111,8 @@ void do_nazgul(int *k, int *num, int num_blow, int weap, monster_race *r_ptr,
 			if (!rand_int(1000) && allow_shatter)
 			{
 				msg_print("Your weapon is destroyed!");
-				inven_item_increase(INVEN_WIELD + weap, -1);
-				inven_item_optimize(INVEN_WIELD + weap);
+
+				inc_stack_size_ex(INVEN_WIELD + weap, -1, OPTIMIZE, NO_DESCRIBE);
 
 				/* To stop attacking */
 				*num = num_blow;
@@ -2495,23 +2155,23 @@ void py_attack(int y, int x, int max_blow)
 
 	char m_name[80];
 
-	bool fear = FALSE;
+	bool_ fear = FALSE;
 
-	bool mdeath = FALSE;
+	bool_ mdeath = FALSE;
 
-	bool backstab = FALSE;
+	bool_ backstab = FALSE;
 
-	bool vorpal_cut = FALSE;
+	bool_ vorpal_cut = FALSE;
 
 	int chaos_effect = 0;
 
-	bool stab_fleeing = FALSE;
+	bool_ stab_fleeing = FALSE;
 
-	bool do_quake = FALSE;
+	bool_ do_quake = FALSE;
 
-	bool done_crit = FALSE;
+	bool_ done_crit = FALSE;
 
-	bool drain_msg = TRUE;
+	bool_ drain_msg = TRUE;
 
 	int drain_result = 0, drain_heal = 0;
 
@@ -2519,8 +2179,6 @@ void py_attack(int y, int x, int max_blow)
 
 	/* A massive hack -- life-draining weapons */
 	u32b f1, f2, f3, f4, f5, esp;
-
-	bool no_extra = FALSE;
 
 	int weap;
 
@@ -2992,7 +2650,6 @@ void py_attack(int y, int x, int max_blow)
 							msg_format("%^s disappears!", m_name);
 							teleport_away(c_ptr->m_idx, 50);
 							num = num_blow + 1; 	/* Can't hit it anymore! */
-							no_extra = TRUE;
 						}
 
 						else if ((chaos_effect == 5) && cave_floor_bold(y, x) &&
@@ -3076,14 +2733,14 @@ void py_attack(int y, int x, int max_blow)
 
 
 
-static bool pattern_tile(int y, int x)
+static bool_ pattern_tile(int y, int x)
 {
 	return ((cave[y][x].feat <= FEAT_PATTERN_XTRA2) &&
 	        (cave[y][x].feat >= FEAT_PATTERN_START));
 }
 
 
-static bool pattern_seq(int c_y, int c_x, int n_y, int n_x)
+static bool_ pattern_seq(int c_y, int c_x, int n_y, int n_x)
 {
 	if (!(pattern_tile(c_y, c_x)) && !(pattern_tile(n_y, n_x)))
 		return TRUE;
@@ -3197,11 +2854,11 @@ static bool pattern_seq(int c_y, int c_x, int n_y, int n_x)
 
 
 
-bool player_can_enter(byte feature)
+bool_ player_can_enter(byte feature)
 {
-	bool pass_wall;
+	bool_ pass_wall;
 
-	bool only_wall = FALSE;
+	bool_ only_wall = FALSE;
 
 
 	/* Player can not walk through "walls" unless in Shadow Form */
@@ -3279,7 +2936,7 @@ bool player_can_enter(byte feature)
  * any monster which might be in the destination grid.  Previously,
  * moving into walls was "free" and did NOT hit invisible monsters.
  */
-void move_player_aux(int dir, int do_pickup, int run, bool disarm)
+void move_player_aux(int dir, int do_pickup, int run, bool_ disarm)
 {
 	int y, x, tmp;
 
@@ -3291,11 +2948,11 @@ void move_player_aux(int dir, int do_pickup, int run, bool disarm)
 
 	char m_name[80];
 
-	bool stormbringer = FALSE;
+	bool_ stormbringer = FALSE;
 
-	bool old_dtrap, new_dtrap;
+	bool_ old_dtrap, new_dtrap;
 
-	bool oktomove = TRUE;
+	bool_ oktomove = TRUE;
 
 
 	/* Hack - random movement */
@@ -3510,8 +3167,6 @@ void move_player_aux(int dir, int do_pickup, int run, bool disarm)
 		oktomove = FALSE;
 	}
 
-#ifdef ALLOW_EASY_DISARM		/* TNB */
-
 	/* Disarm a visible trap */
 	else if (easy_disarm && disarm && (c_ptr->info & (CAVE_TRDT)))
 	{
@@ -3526,8 +3181,6 @@ void move_player_aux(int dir, int do_pickup, int run, bool disarm)
 		energy_use = 0;
 		oktomove = FALSE;
 	}
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
 
 	/* Player can't enter ? soo bad for him/her ... */
 	else if (!player_can_enter(c_ptr->feat))
@@ -3603,15 +3256,11 @@ void move_player_aux(int dir, int do_pickup, int run, bool disarm)
 			/* Closed doors */
 			else if ((c_ptr->feat >= FEAT_DOOR_HEAD) && (c_ptr->feat <= FEAT_DOOR_TAIL))
 			{
-#ifdef ALLOW_EASY_OPEN
-
 				if (easy_open)
 				{
 					if (easy_open_door(y, x)) return;
 				}
 				else
-#endif /* ALLOW_EASY_OPEN */
-
 				{
 					msg_print("There is a closed door blocking your way.");
 
@@ -3794,31 +3443,6 @@ void move_player_aux(int dir, int do_pickup, int run, bool disarm)
 			command_new = '_';
 		}
 
-#if 0 /* These are noxious -- pelpel */
-
-		/* Handle quest areas -KMW- */
-		else if (cave[y][x].feat == FEAT_QUEST_ENTER)
-		{
-			/* Disturb */
-			disturb(0, 0);
-
-			/* Hack -- Enter quest level */
-			command_new = '[';
-		}
-
-		else if (cave[y][x].feat == FEAT_QUEST_EXIT)
-		{
-			leaving_quest = p_ptr->inside_quest;
-
-			p_ptr->inside_quest = cave[y][x].special;
-			dun_level = 0;
-			p_ptr->oldpx = 0;
-			p_ptr->oldpy = 0;
-			p_ptr->leaving = TRUE;
-		}
-
-#endif /* 0 */
-
 		else if (cave[y][x].feat >= FEAT_ALTAR_HEAD &&
 		                cave[y][x].feat <= FEAT_ALTAR_TAIL)
 		{
@@ -3879,7 +3503,7 @@ void move_player_aux(int dir, int do_pickup, int run, bool disarm)
 	}
 }
 
-void move_player(int dir, int do_pickup, bool disarm)
+void move_player(int dir, int do_pickup, bool_ disarm)
 {
 	move_player_aux(dir, do_pickup, 0, disarm);
 }
@@ -4129,13 +3753,13 @@ static byte find_prevdir;
 /*
  * We are looking for open area
  */
-static bool find_openarea;
+static bool_ find_openarea;
 
 /*
  * We are looking for a break
  */
-static bool find_breakright;
-static bool find_breakleft;
+static bool_ find_breakright;
+static bool_ find_breakleft;
 
 
 
@@ -4247,7 +3871,7 @@ static void run_init(int dir)
  *
  * Return TRUE if the running should be stopped
  */
-static bool run_test(void)
+static bool_ run_test(void)
 {
 	int prev_dir, new_dir, check_dir = 0;
 
@@ -4316,7 +3940,7 @@ static bool run_test(void)
 		/* Check memorized grids */
 		if (c_ptr->info & (CAVE_MARK))
 		{
-			bool notice = TRUE;
+			bool_ notice = TRUE;
 
 			/*
 			 * Examine the terrain -- conditional disturbance
@@ -4729,7 +4353,7 @@ void do_cmd_pet(void)
 
 	char power_desc[36][80];
 
-	bool flag, redraw;
+	bool_ flag, redraw;
 
 	int ask;
 
@@ -4739,7 +4363,7 @@ void do_cmd_pet(void)
 
 	int pets = 0, pet_ctr = 0;
 
-	bool all_pets = FALSE;
+	bool_ all_pets = FALSE;
 
 	monster_type *m_ptr;
 
@@ -5017,9 +4641,9 @@ void do_cmd_pet(void)
 
 				if ((!(r_ptr->flags7 & RF7_NO_DEATH)) && ((m_ptr->status == MSTATUS_PET) || (m_ptr->status == MSTATUS_FRIEND)))	/* Get rid of it! */
 				{
-					bool checked = FALSE;
+					bool_ checked = FALSE;
 					char command;
-					bool delete_this = FALSE;
+					bool_ delete_this = FALSE;
 
 					if (all_pets)
 					{
@@ -5086,7 +4710,7 @@ void do_cmd_pet(void)
 
 				if ((!(r_ptr->flags7 & RF7_NO_DEATH)) && ((m_ptr->status == MSTATUS_COMPANION)))	/* Get rid of it! */
 				{
-					bool delete_this = FALSE;
+					bool_ delete_this = FALSE;
 
 					if (all_pets)
 						delete_this = TRUE;
@@ -5164,7 +4788,7 @@ void do_cmd_pet(void)
 /*
  * Incarnate into a body
  */
-bool do_cmd_integrate_body()
+bool_ do_cmd_integrate_body()
 {
 	cptr q, s;
 
@@ -5213,7 +4837,7 @@ bool do_cmd_integrate_body()
 /*
  * Leave a body
  */
-bool do_cmd_leave_body(bool drop_body)
+bool_ do_cmd_leave_body(bool_ drop_body)
 {
 	object_type *o_ptr, forge;
 
@@ -5277,7 +4901,7 @@ bool do_cmd_leave_body(bool drop_body)
 }
 
 
-bool execute_inscription(byte i, byte y, byte x)
+bool_ execute_inscription(byte i, byte y, byte x)
 {
 	cave_type *c_ptr = &cave[y][x];
 
@@ -5329,7 +4953,7 @@ bool execute_inscription(byte i, byte y, byte x)
 		{
 			int yy = y, xx = x;
 
-			scatter(&yy, &xx, y, x, 3, 0);
+			scatter(&yy, &xx, y, x, 3);
 			place_monster_one(yy, xx, test_monster_name("Dwarven Warrior"),
 			                  0, FALSE, MSTATUS_FRIEND);
 
@@ -5376,7 +5000,7 @@ bool execute_inscription(byte i, byte y, byte x)
 				                this_o_idx = next_o_idx)
 				{
 					object_type * o_ptr;
-					bool plural = FALSE;
+					bool_ plural = FALSE;
 
 					char o_name[80];
 

@@ -1,7 +1,7 @@
 #undef cquest
 #define cquest (quest[QUEST_INVASION])
 
-bool quest_invasion_gen_hook(char *fmt)
+bool_ quest_invasion_gen_hook(char *fmt)
 {
 	int x, y;
 	int xstart = 2;
@@ -26,9 +26,7 @@ bool quest_invasion_gen_hook(char *fmt)
 	get_mon_num_prep();
 
 	init_flags = INIT_CREATE_DUNGEON;
-	process_dungeon_file_full = TRUE;
-	process_dungeon_file(NULL, "maeglin.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
-	process_dungeon_file_full = FALSE;
+	process_dungeon_file("maeglin.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE, TRUE);
 
 	for (x = 3; x < xstart; x++)
 		for (y = 3; y < ystart; y++)
@@ -45,7 +43,7 @@ bool quest_invasion_gen_hook(char *fmt)
 
 	return TRUE;
 }
-bool quest_invasion_ai_hook(char *fmt)
+bool_ quest_invasion_ai_hook(char *fmt)
 {
 	monster_type *m_ptr;
 	s32b m_idx;
@@ -84,9 +82,9 @@ bool quest_invasion_ai_hook(char *fmt)
 
 	return (FALSE);
 }
-bool quest_invasion_turn_hook(char *fmt)
+bool_ quest_invasion_turn_hook(char *fmt)
 {
-	bool old_quick_messages = quick_messages;
+	bool_ old_quick_messages = quick_messages;
 
 	if (cquest.status != QUEST_STATUS_UNTAKEN) return (FALSE);
 	if (p_ptr->lev < 45) return (FALSE);
@@ -113,7 +111,7 @@ bool quest_invasion_turn_hook(char *fmt)
 	process_hooks_restart = TRUE;
 	return (FALSE);
 }
-bool quest_invasion_dump_hook(char *fmt)
+bool_ quest_invasion_dump_hook(char *fmt)
 {
 	if (cquest.status == QUEST_STATUS_FAILED)
 	{
@@ -125,7 +123,7 @@ bool quest_invasion_dump_hook(char *fmt)
 	}
 	return (FALSE);
 }
-bool quest_invasion_death_hook(char *fmt)
+bool_ quest_invasion_death_hook(char *fmt)
 {
 	s32b r_idx, m_idx;
 
@@ -145,7 +143,7 @@ bool quest_invasion_death_hook(char *fmt)
 
 	return FALSE;
 }
-bool quest_invasion_stair_hook(char *fmt)
+bool_ quest_invasion_stair_hook(char *fmt)
 {
 	cptr down;
 
@@ -188,7 +186,7 @@ bool quest_invasion_stair_hook(char *fmt)
 
 	return TRUE;
 }
-bool quest_invasion_init_hook(int q_idx)
+bool_ quest_invasion_init_hook(int q_idx)
 {
 	add_hook(HOOK_END_TURN, quest_invasion_turn_hook, "invasion_turn");
 	add_hook(HOOK_CHAR_DUMP, quest_invasion_dump_hook, "invasion_dump");
