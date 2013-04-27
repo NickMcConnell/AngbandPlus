@@ -1184,7 +1184,8 @@ return "ファイア・ボルト(9d8) : 8+d8 ターン毎";
 			return "something powerful every 10 turns";
 		case ART_OMARAX:
 			return "clairvoyance every 20+d20 turns";
-
+		case ART_LERNEAN:
+			return "heal 700hp every 300 turns";
 		case ART_NIMTHANC:
 		{
 #ifdef JP

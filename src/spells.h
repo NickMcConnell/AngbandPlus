@@ -246,6 +246,7 @@ extern void spit_acid_spell(int cmd, variant *res);
 extern void starburst_I_spell(int cmd, variant *res);
 extern void starburst_II_spell(int cmd, variant *res);
 extern void sterility_spell(int cmd, variant *res);
+extern void stinking_cloud_spell(int cmd, variant *res);
 extern void stone_skin_spell(int cmd, variant *res);
 extern void stone_to_mud_spell(int cmd, variant *res);
 extern void summon_angel_spell(int cmd, variant *res);

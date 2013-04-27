@@ -6502,7 +6502,7 @@ msg_print("奇妙なくらい普通になった気がする。");
 
 		do
 		{
-			new_race = randint0(MAX_RACES);
+			new_race = randint0(36); /* Hack: Skip monster races and androids ... */
 			expfact = get_race_t_aux(new_race, 0)->exp;
 		}
 		while (((new_race == p_ptr->prace) && (expfact > goalexpfact)) || (new_race == RACE_ANDROID));

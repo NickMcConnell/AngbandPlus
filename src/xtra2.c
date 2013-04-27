@@ -1649,6 +1649,10 @@ msg_print("地面に落とされた。");
 			a_idx = ART_GOTHMOG;
 			chance = 5;
 			break;
+		case MON_LERNEAN_HYDRA:
+			a_idx = ART_LERNEAN;
+			chance = 5;
+			break;
 		}
 
 		if (race_ptr->boss_r_idx == m_ptr->r_idx)

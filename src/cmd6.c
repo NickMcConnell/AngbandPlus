@@ -2622,6 +2622,16 @@ static void do_cmd_activate_aux(int item)
 				detect_stairs(DETECT_RAD_DEFAULT);
 				o_ptr->timeout = randint0(20) + 20;
 				break;
+			case ART_LERNEAN:
+				msg_print("The Eye engulfs you in healing flames!");
+				hp_player(700);
+				set_poisoned(0, TRUE);
+				set_cut(0, TRUE);
+				set_stun(0, TRUE);
+				set_confused(0, TRUE);
+				set_blind(0, TRUE);
+				o_ptr->timeout = 300;
+				break;
 			case ART_JUDGE:
 			{
 				msg_print("The Jewel flashes bright red!");

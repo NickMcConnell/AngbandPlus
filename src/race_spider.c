@@ -266,7 +266,7 @@ static void _phase_spider_calc_innate_attacks(void)
 	innate_attack_t	a = {0};
 
 	a.dd = 2 + p_ptr->lev / 15;
-	a.ds = 5 + p_ptr->lev / 15;
+	a.ds = 5 + p_ptr->lev / 16;
 	a.weight = 70;
 	a.effect[0] = GF_MISSILE;
 	a.effect[1] = GF_POIS;
@@ -351,8 +351,8 @@ static void _aranea_calc_innate_attacks(void)
 {
 	innate_attack_t	a = {0};
 
-	a.dd = 2 + p_ptr->lev / 15;
-	a.ds = 7 + p_ptr->lev / 15;
+	a.dd = 2 + p_ptr->lev / 14;
+	a.ds = 7 + p_ptr->lev / 16;
 	a.to_d = p_ptr->lev/5;
 	a.weight = 70;
 	a.effect[0] = GF_MISSILE;

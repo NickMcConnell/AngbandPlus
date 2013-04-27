@@ -488,6 +488,34 @@ void sterility_spell(int cmd, variant *res)
 }
 bool cast_sterility(void) { return cast_spell(sterility_spell); }
 
+void stinking_cloud_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Stinking Cloud");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Fires a ball of poison.");
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(0, 0, spell_power(10 + p_ptr->lev / 2)));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		fire_ball(GF_POIS, dir, spell_power(10 + p_ptr->lev / 2), spell_power(2));
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void stone_skin_spell(int cmd, variant *res)
 {
 	switch (cmd)

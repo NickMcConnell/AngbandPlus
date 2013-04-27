@@ -3843,7 +3843,12 @@ static void dump_aux_recall(FILE *fff)
 			fprintf(fff, "\n %s\n", statmsg);
 
 		if (p_ptr->last_message)
-			fprintf(fff, "\n *Winning* Message: %s\n\n", p_ptr->last_message);
+		{
+			if (p_ptr->is_dead)
+				fprintf(fff, "\n Last Message: %s\n\n", p_ptr->last_message);
+			else if (p_ptr->total_winner)
+				fprintf(fff, "\n *Winning* Message: %s\n\n", p_ptr->last_message);
+		}
 	}
 }
 

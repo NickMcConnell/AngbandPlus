@@ -1945,6 +1945,7 @@ extern race_t *mon_demon_get_race_t(void);
 extern race_t *mon_dragon_get_race_t(int psubrace);
 extern race_t *mon_giant_get_race_t(int psubrace);
 extern race_t *mon_hound_get_race_t(void);
+extern race_t *mon_hydra_get_race_t(void);
 extern race_t *mon_jelly_get_race_t(void);
 extern race_t *mon_lich_get_race_t(void);
 extern race_t *mon_spider_get_race_t(void);

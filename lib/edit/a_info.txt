@@ -4344,6 +4344,14 @@ F:QUESTITEM | ACTIVATE
 F:SEE_INVIS | TELEPATHY | RES_BLIND | RES_DISEN
 F:WARNING | INT | SEARCH
 
+N:307:of the Hydra
+E:of the Hydra
+I:39:22:3
+W:20:1:5:70000
+P:0:1d1:0:0:0
+F:QUESTITEM | ACTIVATE | INSTA_ART
+F:SPEED | SUST_CON | SUST_STR | REGEN | RES_POIS
+
 # N: serial number : item name
 # I: tval : sval : pval
 # W: depth : rarity : weight : cost

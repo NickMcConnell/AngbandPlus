@@ -6614,6 +6614,14 @@ I:40:36:0
 W:50:0:0:30:66666
 F:INSTA_ART
 
+N:730:& Eye
+E:& Eye
+G:*:y
+I:39:22:0
+W:20:0:0:5:25000
+P:0:1d1:0:0:0
+F:INSTA_ART
+
 # N: serial number : & object name~
 # G: symbol : color
 # I: tval : sval : pval

@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 1
 #define VER_MINOR 0
-#define VER_PATCH 6
+#define VER_PATCH 7
 #define VER_EXTRA 0
 
 
@@ -677,11 +677,12 @@
 #define RACE_MON_GIANT          45
 #define RACE_MON_BEHOLDER       46
 #define RACE_MON_DEMON          47
+#define RACE_MON_HYDRA          48
 /*
  * Maximum number of player "race" types (see "table.c", etc)
  * Note other races exist, and use constants beginning at MIMIC_MIN
  */
-#define MAX_RACES               48
+#define MAX_RACES               49
 
 #define DEMIGOD_MINOR			0
 #define DEMIGOD_ZEUS			1
@@ -1529,6 +1530,7 @@
 #define ART_RAIJIN      304
 #define ART_KRONOS      305
 #define ART_OMARAX      306
+#define ART_LERNEAN     307
 
 /*** Ego-Item indexes (see "lib/edit/e_info.txt") ***/
 
@@ -2207,6 +2209,7 @@
 #define SV_LITE_CRAFT                   19
 #define SV_LITE_WAR                     20
 #define SV_LITE_ARMAGEDDON              21
+#define SV_LITE_HYDRA                   22
 
 /* The "sval" codes for TV_AMULET */
 #define SV_AMULET_DOOM                   0
@@ -5067,6 +5070,7 @@ extern int PlayerUID;
 #define MON_GELATINOUS_CUBE 286
 #define MON_FIRE_GIANT 288
 #define MON_BERSERKER     293
+#define MON_TWO_HEADED_HYDRA 301
 #define MON_FIRE_HOUND        307
 #define MON_COLD_HOUND        308
 #define MON_ENERGY_HOUND      309
@@ -5091,6 +5095,7 @@ extern int PlayerUID;
 #define MON_HAGEN         383
 #define MON_MENELDOR      384
 #define MON_PHANTOM_B     385
+#define MON_FOUR_HEADED_HYDRA 387
 #define MON_C_CRAWLER     395
 #define MON_XICLOTLAN     396
 #define MON_D_ELF_DRUID   400
@@ -5101,6 +5106,7 @@ extern int PlayerUID;
 #define MON_VIBRATION_HOUND   428
 #define MON_NEXUS_HOUND       429
 #define MON_SPIRIT_NAGA   436
+#define MON_FIVE_HEADED_HYDRA 440
 #define MON_GACHAPIN      441
 #define MON_BASILISK      453
 #define MON_ARCHANGEL     456
@@ -5156,11 +5162,13 @@ extern int PlayerUID;
 #define MON_ANCIENT_BRONZE_DRAGON 602
 #define MON_BEHOLDER 603
 #define MON_SERAPH        605
+#define MON_SEVEN_HEADED_HYDRA 614
 #define MON_KAVLAX        616
 #define MON_ETTIN         621
 #define MON_NIGHTMARE     622
 #define MON_VAMPIRE_LORD  623
 #define MON_LESSER_TITAN 634
+#define MON_NINE_HEADED_HYDRA 635
 #define MON_XAREN       639
 #define MON_JUBJUB        640
 #define MON_DEATH_DRAKE           643
@@ -5180,6 +5188,7 @@ extern int PlayerUID;
 #define MON_ETHEREAL_DRAGON       676
 #define MON_LLOIGOR       682
 #define MON_SHOGGOTH      685
+#define MON_ELEVEN_HEADED_HYDRA 688
 #define MON_DREADMASTER   690
 #define MON_DAWN          693
 #define MON_NAZGUL        696
@@ -5211,6 +5220,7 @@ extern int PlayerUID;
 #define MON_SKULL_DRUJ	  750
 #define MON_CHAOS_VOR     751
 #define MON_AETHER_VOR    752
+#define MON_LERNEAN_HYDRA 754
 #define MON_NYOGTHA       760
 #define MON_FUNDIN        762
 #define MON_DWORKIN       763

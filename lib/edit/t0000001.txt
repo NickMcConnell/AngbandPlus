@@ -425,6 +425,18 @@ F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:218
 
 ##########################################################################
+# Hydra
+# Dor-Lomin
+?:[AND [EQU $QUEST27 3] [EQU $RACE Hydra] [EQU [MOD $RANDOM27 5] 0] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:39
+
+# Colluin
+?:[AND [EQU $QUEST27 3] [EQU $RACE Hydra] [GEQ [MOD $RANDOM27 5] 1] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:44
+
+##########################################################################
 # Lich
 # Kaschei
 ?:[AND [EQU $QUEST27 3] [EQU $RACE Lich] [EQU [MOD $RANDOM27 5] 0] ]

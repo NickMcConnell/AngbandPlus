@@ -253,6 +253,7 @@ static s32b _activation_p(object_type *o_ptr)
 		case ART_STOMPER: return 4000; 
 		case ART_GONG: return 5000;
 		case ART_STONE_OF_WAR: return 7000;
+		case ART_LERNEAN: return 25000;
 		/* Hack: These activate, but also have *very* valuable hidden powers */
 		case ART_STONE_OF_NATURE: return 100000;
 		case ART_STONE_OF_LIFE: return 100000;

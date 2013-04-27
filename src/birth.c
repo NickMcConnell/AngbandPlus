@@ -726,7 +726,7 @@ static _race_group_t _race_groups[_MAX_RACE_GROUPS] = {
 		 RACE_GOLEM, RACE_KLACKON, RACE_KUTAR, RACE_MIND_FLAYER, RACE_TONBERRY, RACE_YEEK,-1 } },
 	{ "Monster", "MonsterRaces.txt#Tables", 
 		{RACE_MON_ANGEL, RACE_MON_BEHOLDER, RACE_MON_DEMON, RACE_MON_DRAGON, 
-					RACE_MON_GIANT, RACE_MON_HOUND, RACE_MON_JELLY, RACE_MON_LICH, 
+					RACE_MON_GIANT, RACE_MON_HOUND, RACE_MON_HYDRA, RACE_MON_JELLY, RACE_MON_LICH, 
 					RACE_MON_SPIDER, RACE_MON_XORN, -1} },
 };
 static void _race_group_menu_fn(int cmd, int which, vptr cookie, variant *res)

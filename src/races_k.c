@@ -337,11 +337,11 @@ race_t *nibelung_get_race_t(void)
 static void _shadow_fairy_calc_bonuses(void)
 {
 	p_ptr->levitation = TRUE;
+	res_add_vuln(RES_LITE);
 }
 static void _shadow_fairy_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
 	add_flag(flgs, TR_LEVITATION);
-	res_add_vuln(RES_LITE);
 }
 static void _shadow_fairy_get_vulnerabilities(u32b flgs[TR_FLAG_SIZE])
 {

@@ -125,6 +125,9 @@ race_t *get_race_t_aux(int prace, int psubrace)
 	case RACE_MON_HOUND:
 		result = mon_hound_get_race_t();
 		break;
+	case RACE_MON_HYDRA:
+		result = mon_hydra_get_race_t();
+		break;
 	case RACE_MON_JELLY:
 		result = mon_jelly_get_race_t();
 		break;
