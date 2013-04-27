@@ -1,5 +1,5 @@
 
-/* $Id: scene.c,v 1.8 2003/03/18 19:17:40 cipher Exp $ */
+/* $Id: scene.c,v 1.11 2003/03/23 06:10:27 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -30,13 +30,97 @@
 #include "sdl/scene/play.h"
 #include "sdl/scene/grave.h"
 
+#ifdef DEBUG
+
+/* Print modifier info */
+static void
+PrintModifiers(SDLMod mod)
+{
+     fprintf(stderr, "KEY: Modifers: ");
+
+     /* If there are none then say so and return */
+     if(mod == KMOD_NONE)
+     {
+          fprintf(stderr, "None\n");
+          return;
+     }
+
+     /* Check for the presence of each SDLMod value */
+     /* This looks messy, but there really isn't    */
+     /* a clearer way.                              */
+     if(mod & KMOD_NUM)
+          fprintf(stderr, "NUMLOCK ");
+     if(mod & KMOD_CAPS)
+          fprintf(stderr, "CAPSLOCK ");
+     if(mod & KMOD_LCTRL)
+          fprintf(stderr, "LCTRL ");
+     if(mod & KMOD_RCTRL)
+          fprintf(stderr, "RCTRL ");
+     if(mod & KMOD_RSHIFT)
+          fprintf(stderr, "RSHIFT ");
+     if(mod & KMOD_LSHIFT)
+          fprintf(stderr, "LSHIFT ");
+     if(mod & KMOD_RALT)
+          fprintf(stderr, "RALT ");
+     if(mod & KMOD_LALT)
+          fprintf(stderr, "LALT ");
+     if(mod & KMOD_CTRL)
+          fprintf(stderr, "CTRL ");
+     if(mod & KMOD_SHIFT)
+          fprintf(stderr, "SHIFT ");
+     if(mod & KMOD_ALT)
+          fprintf(stderr, "ALT ");
+     fprintf(stderr, "\n");
+}
+
+/* Print all information about a key event */
+static void
+PrintKeyInfo(SDL_KeyboardEvent * key)
+{
+     /* Is it a release or a press? */
+     if(key->type == SDL_KEYUP)
+          fprintf(stderr, "KEY: Release:- ");
+     else
+          fprintf(stderr, "KEY: Press:- ");
+
+     /* Print the hardware scancode first */
+     fprintf(stderr, "Scancode: 0x%02X", key->keysym.scancode);
+     /* Print the name of the key */
+     fprintf(stderr, ", Name: %s", SDL_GetKeyName(key->keysym.sym));
+     /* We want to print the unicode info, but we need to make */
+     /* sure its a press event first (remember, release events */
+     /* don't have unicode info                                */
+     if(key->type == SDL_KEYDOWN)
+     {
+          /* If the Unicode value is less than 0x80 then the    */
+          /* unicode value can be used to get a printable       */
+          /* representation of the key, using (char)unicode.    */
+          fprintf(stderr, ", Unicode: ");
+          if(key->keysym.unicode < 0x80 && key->keysym.unicode > 0)
+          {
+               fprintf(stderr, "%c (0x%04X)", (char) key->keysym.unicode,
+                       key->keysym.unicode);
+          }
+          else
+          {
+               fprintf(stderr, "? (0x%04X)", key->keysym.unicode);
+          }
+     }
+     fprintf(stderr, "\n");
+     /* Print modifier info */
+     PrintModifiers(key->keysym.mod);
+}
+#endif /* DEBUG */
+
 void
 IH_InitScene(void)
 {
      int             scene = 0;
      bool            dirty = FALSE;
 
+#ifdef DEBUG
      fprintf(stderr, "IH_InitScene()\n");
+#endif
 
      if(!SDL_SemWait(ih.sem.scene))
      {
@@ -46,7 +130,9 @@ IH_InitScene(void)
           SDL_SemPost(ih.sem.scene);
      }
 
+#ifdef DEBUG
      fprintf(stderr, "IH_InitScene(): Check if scene is dirty.\n");
+#endif
 
      if(!dirty)
           return;
@@ -97,7 +183,9 @@ IH_InitScene(void)
           SDL_SemPost(ih.sem.scene);
      }
 
+#ifdef DEBUG
      fprintf(stderr, "IH_InitScene: return\n");
+#endif
 }
 
 void
@@ -108,6 +196,7 @@ IH_ProcessScene(SDL_Event * event)
 #ifdef DEBUG
           fprintf(stderr, "Changing scene.\n");
 #endif
+
           ih.changing_scene = FALSE;
           return;
      }
@@ -116,8 +205,21 @@ IH_ProcessScene(SDL_Event * event)
           return;
 
 #ifdef DEBUG
+     switch (event->type)
+     {
+          case SDL_KEYDOWN:
+          case SDL_KEYUP:
+               PrintKeyInfo(&event->key);
+               break;
+
+          default:
+               break;
+     }
+#ifdef DEBUG
      fprintf(stderr, "scene = %d\n", ih.scene);
 #endif
+#endif
+
      switch (ih.scene)
      {
           case IH_SCENE_SPLASH:
@@ -248,7 +350,9 @@ IH_SceneObjectFree(SceneObject * object)
      if(!object)
           return;
 
+#ifdef DEBUG
      fprintf(stderr, "Freeing SceneObject.\n");
+#endif
 
      rnfree(object);
 }

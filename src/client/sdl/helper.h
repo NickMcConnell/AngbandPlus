@@ -1,5 +1,5 @@
 
-/* $Id: helper.h,v 1.4 2003/03/17 22:45:37 cipher Exp $ */
+/* $Id: helper.h,v 1.5 2003/03/21 22:28:07 cipher Exp $ */
 
 #ifndef IH_SDL_HELPER_H
 #define IH_SDL_HELPER_H
@@ -30,5 +30,18 @@ errr            SDL_ScaleBlit(SDL_Surface * src,
                               SDL_Rect * sr,
                               SDL_Surface * dst,
                               SDL_Rect * dr);
+
+errr            SDL_FastScaleBlit(SDL_Surface * src,
+                                  SDL_Rect * sr,
+                                  SDL_Surface * dst,
+                                  SDL_Rect * dr);
+SDL_Surface    *SDL_ScaleTiledBitmap(SDL_Surface * src,
+                                     Uint32 t_oldw,
+                                     Uint32 t_oldh,
+                                     Uint32 t_neww,
+                                     Uint32 t_newh,
+                                     int dealloc_src);
+inline Uint32   ifloor(Uint32 i);
+inline Uint32   iceil(Uint32 i);
 
 #endif /* IH_SDL_HELPER_H */

@@ -1,4 +1,4 @@
-/* $Id: file-osx.m,v 1.12 2003/03/19 04:31:23 cipher Exp $ */
+/* $Id: file-osx.m,v 1.14 2003/03/24 06:04:53 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -12,6 +12,7 @@
 
 #if defined(MACOSX) && defined(__APPLE__)
 
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <dirent.h>
 
@@ -24,17 +25,41 @@
 
 char *IH_GetDataDir(cptr dir)
 {
+     struct stat st;
      NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
      char *path;
-     const char *utf8;
+     const char *res_path;
+     
+     if(!pool)
+          return NULL;
 
-//     utf8 = [[[NSBundle mainBundle] bundlePath] UTF8String];
-     utf8 = [[[NSBundle mainBundle] resourcePath] UTF8String];
-     path = IH_PathBuild(utf8, dir, NULL);
+     /* Try "~/Library/Application Support/Iron Hells".
+      */
+     path = IH_PathBuild("~", 
+                         "Library", 
+                         "Application Support", 
+                         "Iron Hells", 
+                         dir, 
+                         NULL);
+     
+     if(path)
+     {
+          int er;
+          
+          if(!stat(path, &st))
+          {
+               if(S_ISDIR(st.st_mode))
+                    return path;
+          }
+
+          rnfree(path);
+     }
+
+     res_path = [[[NSBundle mainBundle] resourcePath] UTF8String];
+     path = IH_PathBuild(res_path, dir, NULL);
 
      [pool release];
 
-     fprintf(stderr, "path = '%s'\n", path);
      return path;
 }
 
@@ -49,71 +74,6 @@ bool IH_CreateConfigDir(void)
 char *IH_GetConfigDir(void)
 {
      return IH_PathBuild("~", "Library", "Preferences", NULL);
-}
-
-char *IH_GetManifestFilename(cptr path, int item_num)
-{
-     char *manifest_file, *file = NULL;
-     FILE *fp;
-     
-     manifest_file = IH_PathBuild(path, "MANIFEST", NULL);
-     if(!manifest_file)
-          return NULL;
-     
-     fp = fopen(manifest_file, "r");
-     if(fp)
-     {
-          char buf[FILENAME_MAX];
-
-          while(fgets(buf, sizeof(buf), fp))
-          {
-               byte *num = NULL, *f = NULL, *c;
-               
-               /* Skip blank lines and "comments."
-                */
-               if(!buf[0] ||
-                  buf[0] == '\n' ||
-                  buf[0] == '\r' ||
-                  buf[0] == '#')
-                    continue;
-
-               if(c = strchr(buf, '\r'))
-                    *c = 0;
-               if(c = strchr(buf, '\n'))
-                    *c = 0;
-               
-               if(c = strchr(buf, ' '))
-               {
-                    *c = 0;
-                    num = buf;
-                    f = c + 1;
-               }
-               
-               if(num &&
-                  buf)
-               {
-                    int inum;
-                    
-                    inum = atoi(num);
-                    
-                    if(inum == item_num)
-                    {
-                         int len;
-
-                         len = strlen(f);
-
-                         file = ralloc(len + 2);
-                         my_strcpy(file, f, len + 1);
-                    }
-               }
-          }
-
-          fclose(fp);
-     }
-
-     rnfree(manifest_file);
-
-     return file;
 }
 
 ihList *

@@ -1,5 +1,5 @@
 
-/* $Id: text.c,v 1.8 2003/03/18 19:17:41 cipher Exp $ */
+/* $Id: text.c,v 1.11 2003/03/24 06:04:53 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -158,7 +158,9 @@ IH_InitFonts(void)
      fprintf(stderr, "IH_InitFonts()\n");
 
 #ifdef USE_SDLTTF
+#ifdef DEBUG
      fprintf(stderr, "IH_InitFonts(): TTF_Init\n");
+#endif
      if(TTF_Init())
      {
           fprintf(stderr,
@@ -167,17 +169,27 @@ IH_InitFonts(void)
      }
 #endif
 
+#ifdef DEBUG
      fprintf(stderr, "IH_InitFonts(): Get font data dir\n");
+#endif
      path_data = IH_GetDataDir("font");
+#ifdef DEBUG
      fprintf(stderr, "IH_InitFonts(): path_data = %s\n", path_data);
+#endif
 
 #ifdef USE_SDLTTF
+#ifdef DEBUG
      fprintf(stderr, "IH_InitFonts(): get font file path\n");
+#endif
      path_font = IH_PathBuild(path_data, "Angband.ttf", NULL);
+#ifdef DEBUG
      fprintf(stderr, "IH_InitFonts(): path_font = %s\n", path_font);
+#endif
 
+#ifdef DEBUG
      fprintf(stderr, "IH_InitFonts(): TTF_OpenFont(%s, %d)\n", path_font,
              IH_FONT_NORMAL_SIZE);
+#endif
      ih.normal_font = TTF_OpenFont(path_font, IH_FONT_NORMAL_SIZE);
      if(!ih.normal_font)
      {
@@ -185,9 +197,16 @@ IH_InitFonts(void)
                   TTF_GetError());
           return IH_ERROR_CANT_LOAD_FONT;
      }
+     TTF_SetFontStyle(ih.normal_font, TTF_STYLE_NORMAL);
+#ifdef DEBUG
+     fprintf(stderr, "IH_InitFonts(): normal font height = %d\n",
+             TTF_FontHeight(ih.normal_font));
+#endif
 
+#ifdef DEBUG
      fprintf(stderr, "IH_InitFonts(): TTF_OpenFont(%s, %d)\n", path_font,
              IH_FONT_LARGE_SIZE);
+#endif
      ih.large_font = TTF_OpenFont(path_font, IH_FONT_LARGE_SIZE);
      if(!ih.large_font)
      {
@@ -195,6 +214,11 @@ IH_InitFonts(void)
                   TTF_GetError());
           return IH_ERROR_CANT_LOAD_FONT;
      }
+     TTF_SetFontStyle(ih.large_font, TTF_STYLE_NORMAL);
+#ifdef DEBUG
+     fprintf(stderr, "IH_InitFonts(): large font height = %d\n",
+             TTF_FontHeight(ih.large_font));
+#endif
 #else
      path_font = IH_PathBuild(path_data, "Angband-normal.png", NULL);
      ih.normal_font = LoadFont(path_font);
@@ -214,12 +238,18 @@ IH_InitFonts(void)
      }
 #endif
 
+#ifdef DEBUG
      fprintf(stderr, "IH_InitFonts(): free path_font\n");
+#endif
      rnfree(path_font);
+#ifdef DEBUG
      fprintf(stderr, "IH_InitFonts(): free path_data\n");
+#endif
      rnfree(path_data);
 
+#ifdef DEBUG
      fprintf(stderr, "IH_InitFonts(): return (rc = %d)\n", rc);
+#endif
      return rc;
 }
 
@@ -407,4 +437,38 @@ IH_ProcessFontPos(SDL_Surface * image,
                font_pos->y.perc = font_pos->y.pixel / ih.display_height;
                break;
      }
+}
+
+int
+IH_GetFontHeight(int size)
+{
+#ifdef USE_SDLTTF
+     TTF_Font       *font;
+#else
+     BFont_Info     *font;
+#endif
+     int             height = 0;
+
+     switch (size)
+     {
+          case IH_FONT_LARGE:
+               font = ih.large_font;
+               break;
+
+          case IH_FONT_NORMAL:
+          case IH_FONT_SMALL:
+          default:
+               font = ih.normal_font;
+               break;
+     }
+
+     if(!font)
+          return 0;
+
+#ifdef USE_SDLTTF
+     height = TTF_FontHeight(font);
+#else
+#endif
+
+     return height;
 }

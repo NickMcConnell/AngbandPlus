@@ -1,5 +1,5 @@
 
-/* $Id: character.c,v 1.2 2003/03/18 19:17:42 cipher Exp $ */
+/* $Id: character.c,v 1.4 2003/03/20 22:30:17 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -22,7 +22,25 @@
 #include "sdl/render/text.h"
 #include "sdl/strings.h"
 
-#define IH_OVERLAY_CHARACTER_ICON_WIDTH 32
+#define IH_OVERLAY_CHARACTER_ICON_WIDTH  32
+#define IH_OVERLAY_CHARACTER_ICON_HEIGHT 38
+
+#define IH_OVERLAY_CHARACTER_OFFSET_X 3
+#define IH_OVERLAY_CHARACTER_OFFSET_Y 3
+
+#define IH_OVERLAY_CHARACTER_STATS_Y 80
+#define IH_OVERLAY_CHARACTER_AGE_Y 4
+#define IH_OVERLAY_CHARACTER_ARMOR_Y 56
+#define IH_OVERLAY_CHARACTER_FIGHT_Y 94
+#define IH_OVERLAY_CHARACTER_SHOOT_Y 134
+#define IH_OVERLAY_CHARACTER_TURNS_Y 172
+#define IH_OVERLAY_CHARACTER_INFRA_Y 230
+#define IH_OVERLAY_CHARACTER_BURDEN_Y 4
+#define IH_OVERLAY_CHARACTER_GOLD_Y 42
+#define IH_OVERLAY_CHARACTER_BARS_Y 80
+#define IH_OVERLAY_CHARACTER_HISTORY_Y 200
+
+#define IH_OVERLAY_CHARACTER_BARS_SPACING_Y 2
 
 static void
 format_stat(int val,
@@ -122,24 +140,28 @@ IH_RenderOverlay_Character(Overlay * overlay)
 
      IH_ShadeArea(overlay->position.x,
                   overlay->position.y,
-                  overlay->surface->w + 6, overlay->surface->h + 6);
+                  overlay->surface->w +
+                  (IH_OVERLAY_CHARACTER_OFFSET_X * 2),
+                  overlay->surface->h +
+                  (IH_OVERLAY_CHARACTER_OFFSET_Y * 2));
 
      color_val = SDL_MapRGB(ih.screen->format, 50, 50, 50);
      Draw_Round(ih.screen,
                 overlay->position.x, overlay->position.y,
-                overlay->surface->w + 6, overlay->surface->h + 6,
+                overlay->surface->w + (IH_OVERLAY_CHARACTER_OFFSET_X * 2),
+                overlay->surface->h + (IH_OVERLAY_CHARACTER_OFFSET_Y * 2),
                 5, color_val);
 
-     rect.x = overlay->position.x + 3;
-     rect.y = overlay->position.y + 3;
+     rect.x = overlay->position.x + IH_OVERLAY_CHARACTER_OFFSET_X;
+     rect.y = overlay->position.y + IH_OVERLAY_CHARACTER_OFFSET_Y;
      SDL_BlitSurface(overlay->surface, NULL, ih.screen, &rect);
 
      /* Personal information - Name
       */
      pos.x.type = IH_POSITION_TYPE_PIXEL;
-     pos.x.pixel = overlay->position.x + 3;
+     pos.x.pixel = overlay->position.x + IH_OVERLAY_CHARACTER_OFFSET_X;
      pos.y.type = IH_POSITION_TYPE_PIXEL;
-     pos.y.pixel = overlay->position.y + 3;
+     pos.y.pixel = overlay->position.y + IH_OVERLAY_CHARACTER_OFFSET_Y;
      color.r = color.g = 255;
      color.b = 0;
      IH_RenderText(IH_FONT_NORMAL,
@@ -183,7 +205,6 @@ IH_RenderOverlay_Character(Overlay * overlay)
      /* Ability scores
       */
      pos.x.pixel += IH_OVERLAY_CHARACTER_ICON_WIDTH + 2;
-     pos.y.pixel += rect.h;
      for(i = 0; i < A_MAX; i++)
      {
 #if 0
@@ -225,9 +246,11 @@ IH_RenderOverlay_Character(Overlay * overlay)
           /* White */
           color.r = color.g = color.b = 255;
 
-          pos.y.pixel += rect.h;
-          format_stat_info(buf, sizeof(buf) - 1,
-                           p_ptr->stat_max[i],
+          pos.y.pixel =
+              overlay->position.y + IH_OVERLAY_CHARACTER_STATS_Y +
+              (i * IH_OVERLAY_CHARACTER_ICON_HEIGHT) +
+              IH_OVERLAY_CHARACTER_OFFSET_Y;
+          format_stat_info(buf, sizeof(buf) - 1, p_ptr->stat_max[i],
                            p_ptr->stat_top[i], p_ptr->stat_use[i]);
           IH_RenderText(IH_FONT_NORMAL, buf, &pos, color, &rect);
 
@@ -243,7 +266,9 @@ IH_RenderOverlay_Character(Overlay * overlay)
 
      /* Personal information - Age
       */
-     pos.y.pixel = overlay->position.y + 3;
+     pos.y.pixel =
+         overlay->position.y + IH_OVERLAY_CHARACTER_OFFSET_Y +
+         IH_OVERLAY_CHARACTER_AGE_Y;
      color.r = color.g = 255;
      color.b = 0;
      strnfmt(buf, sizeof(buf) - 1, "%d years", p_ptr->age);
@@ -257,16 +282,20 @@ IH_RenderOverlay_Character(Overlay * overlay)
 
      /* Combat info - Armor
       */
-     pos.y.pixel += (rect.h * 2);
-     strnfmt(buf, sizeof(buf) - 1,
-             "[%d,%+d]", p_ptr->dis_ac, p_ptr->dis_to_a);
+     pos.y.pixel =
+         overlay->position.y + IH_OVERLAY_CHARACTER_OFFSET_Y +
+         IH_OVERLAY_CHARACTER_ARMOR_Y;
+     strnfmt(buf, sizeof(buf) - 1, "[%d,%+d]", p_ptr->dis_ac,
+             p_ptr->dis_to_a);
      IH_RenderText(IH_FONT_NORMAL, buf, &pos, color, &rect);
 
      /* Combat info - Fight/Melee
       */
-     pos.y.pixel += (rect.h * 2);
-     strnfmt(buf, sizeof(buf) - 1,
-             "(%+d,%+d)", p_ptr->dis_to_h, p_ptr->dis_to_d);
+     pos.y.pixel =
+         overlay->position.y + IH_OVERLAY_CHARACTER_OFFSET_Y +
+         IH_OVERLAY_CHARACTER_FIGHT_Y;
+     strnfmt(buf, sizeof(buf) - 1, "(%+d,%+d)", p_ptr->dis_to_h,
+             p_ptr->dis_to_d);
      IH_RenderText(IH_FONT_NORMAL, buf, &pos, color, &rect);
 
      pos.y.pixel += rect.h;
@@ -292,7 +321,9 @@ IH_RenderOverlay_Character(Overlay * overlay)
 
      /* Combat info - Shoot
       */
-     pos.y.pixel += rect.h;
+     pos.y.pixel =
+         overlay->position.y + IH_OVERLAY_CHARACTER_OFFSET_Y +
+         IH_OVERLAY_CHARACTER_SHOOT_Y;
      {
           object_type    *o_ptr;
           int             hit, dam;
@@ -316,7 +347,9 @@ IH_RenderOverlay_Character(Overlay * overlay)
 
      /* Combat info - Blows/Shots
       */
-     pos.y.pixel += (rect.h * 2);
+     pos.y.pixel =
+         overlay->position.y + IH_OVERLAY_CHARACTER_OFFSET_Y +
+         IH_OVERLAY_CHARACTER_TURNS_Y;
      strnfmt(buf, sizeof(buf) - 1, "%d/turn", p_ptr->num_blow);
      IH_RenderText(IH_FONT_NORMAL, buf, &pos, color, &rect);
 
@@ -326,7 +359,9 @@ IH_RenderOverlay_Character(Overlay * overlay)
 
      /* Infravision
       */
-     pos.y.pixel += (rect.h * 2);
+     pos.y.pixel =
+         overlay->position.y + IH_OVERLAY_CHARACTER_OFFSET_Y +
+         IH_OVERLAY_CHARACTER_INFRA_Y;
      strnfmt(buf, sizeof(buf) - 1, "%d ft", p_ptr->see_infra * 10);
      IH_RenderText(IH_FONT_NORMAL, buf, &pos, color, &rect);
 
@@ -338,7 +373,9 @@ IH_RenderOverlay_Character(Overlay * overlay)
 
      /* Personal information - Burden
       */
-     pos.y.pixel = overlay->position.y + 3;
+     pos.y.pixel =
+         overlay->position.y + IH_OVERLAY_CHARACTER_OFFSET_Y +
+         IH_OVERLAY_CHARACTER_BURDEN_Y;
      color.r = color.g = 255;
      color.b = 0;
      strnfmt(buf, sizeof(buf) - 1,
@@ -348,15 +385,15 @@ IH_RenderOverlay_Character(Overlay * overlay)
 
      /* Personal information - Gold
       */
-     pos.y.pixel += (rect.h * 2);
+     pos.y.pixel =
+         overlay->position.y + IH_OVERLAY_CHARACTER_OFFSET_Y +
+         IH_OVERLAY_CHARACTER_GOLD_Y;
      color.r = color.g = 255;
      color.b = 0;
      strnfmt(buf, sizeof(buf) - 1, "%ld", p_ptr->au);
      IH_RenderText(IH_FONT_NORMAL, buf, &pos, color, &rect);
 
      pos.x.pixel -= IH_OVERLAY_CHARACTER_ICON_WIDTH + 2;
-     pos.y.pixel += (rect.h * 2) + 2;
-
      {
           SDL_Rect        srect, drect;
           int             tmp;
@@ -389,6 +426,9 @@ IH_RenderOverlay_Character(Overlay * overlay)
           xfos = p_ptr->skill_fos;
 
           /* Saving throw */
+          pos.y.pixel =
+              overlay->position.y + IH_OVERLAY_CHARACTER_OFFSET_Y +
+              IH_OVERLAY_CHARACTER_BARS_Y;
           color.r = color.g = color.b = 255;
           IH_RenderText(IH_FONT_NORMAL,
                         "Saving Throw", &pos, color, &rect);
@@ -400,7 +440,8 @@ IH_RenderOverlay_Character(Overlay * overlay)
                           ih.screen, &drect);
 
           /* Stealth */
-          pos.y.pixel += rect.h + scale_height;
+          pos.y.pixel +=
+              rect.h + scale_height + IH_OVERLAY_CHARACTER_BARS_SPACING_Y;
           IH_RenderText(IH_FONT_NORMAL, "Stealth", &pos, color, &rect);
 
           perc = likert(xstl, 1);
@@ -410,7 +451,8 @@ IH_RenderOverlay_Character(Overlay * overlay)
                           ih.screen, &drect);
 
           /* Fighting */
-          pos.y.pixel += rect.h + scale_height;
+          pos.y.pixel +=
+              rect.h + scale_height + IH_OVERLAY_CHARACTER_BARS_SPACING_Y;
           IH_RenderText(IH_FONT_NORMAL, "Fighting", &pos, color, &rect);
 
           perc = likert(xthn, 12);
@@ -420,7 +462,8 @@ IH_RenderOverlay_Character(Overlay * overlay)
                           ih.screen, &drect);
 
           /* Shooting */
-          pos.y.pixel += rect.h + scale_height;
+          pos.y.pixel +=
+              rect.h + scale_height + IH_OVERLAY_CHARACTER_BARS_SPACING_Y;
           IH_RenderText(IH_FONT_NORMAL, "Shooting", &pos, color, &rect);
 
           perc = likert(xthb, 12);
@@ -430,7 +473,8 @@ IH_RenderOverlay_Character(Overlay * overlay)
                           ih.screen, &drect);
 
           /* Disarming */
-          pos.y.pixel += rect.h + scale_height;
+          pos.y.pixel +=
+              rect.h + scale_height + IH_OVERLAY_CHARACTER_BARS_SPACING_Y;
           IH_RenderText(IH_FONT_NORMAL, "Disarming", &pos, color, &rect);
 
           perc = likert(xdis, 8);
@@ -440,9 +484,10 @@ IH_RenderOverlay_Character(Overlay * overlay)
                           ih.screen, &drect);
 
           /* Magic Device */
-          pos.y.pixel += rect.h + scale_height;
-          IH_RenderText(IH_FONT_NORMAL,
-                        "Magic Device", &pos, color, &rect);
+          pos.y.pixel +=
+              rect.h + scale_height + IH_OVERLAY_CHARACTER_BARS_SPACING_Y;
+          IH_RenderText(IH_FONT_NORMAL, "Magic Device", &pos, color,
+                        &rect);
 
           perc = likert(xdev, 6);
           srect.w = overlay->gfx.character.scale->w * perc;
@@ -451,7 +496,8 @@ IH_RenderOverlay_Character(Overlay * overlay)
                           ih.screen, &drect);
 
           /* Perception */
-          pos.y.pixel += rect.h + scale_height;
+          pos.y.pixel +=
+              rect.h + scale_height + IH_OVERLAY_CHARACTER_BARS_SPACING_Y;
           IH_RenderText(IH_FONT_NORMAL, "Perception", &pos, color, &rect);
 
           perc = likert(xfos, 6);
@@ -461,7 +507,8 @@ IH_RenderOverlay_Character(Overlay * overlay)
                           ih.screen, &drect);
 
           /* Searching */
-          pos.y.pixel += rect.h + scale_height;
+          pos.y.pixel +=
+              rect.h + scale_height + IH_OVERLAY_CHARACTER_BARS_SPACING_Y;
           IH_RenderText(IH_FONT_NORMAL, "Searching", &pos, color, &rect);
 
           perc = likert(xsrh, 6);

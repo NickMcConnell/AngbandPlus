@@ -1,5 +1,5 @@
 
-/* $Id: ipc.c,v 1.4 2003/03/17 22:45:22 cipher Exp $ */
+/* $Id: ipc.c,v 1.5 2003/03/23 06:10:27 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer

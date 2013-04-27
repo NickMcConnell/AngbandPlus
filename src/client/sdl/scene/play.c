@@ -1,5 +1,5 @@
 
-/* $Id: play.c,v 1.5 2003/03/17 22:45:40 cipher Exp $ */
+/* $Id: play.c,v 1.6 2003/03/23 06:10:27 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -13,6 +13,7 @@
 #include "SDL_image.h"
 
 #include "ironhells.h"
+#include "ipc.h"
 #include "sdl/scene/play.h"
 #include "sdl/render/tile.h"
 #include "sdl/render/icon.h"
@@ -51,13 +52,24 @@ IH_InitScene_Play(void)
 void
 IH_ProcessScene_Play(SDL_Event * event)
 {
+     if(!event)
+          return;
+
+     /* Just pass on key events.
+      */
+     if(event->type == SDL_KEYDOWN)
+     {
+          IH_SetIPCEvent(event);
+          return;
+     }
+
+     /* Process mouse events.
+      */
 }
 
 void
 IH_RenderScene_Play(void)
 {
-     fprintf(stderr, "IH_RenderScene_Play(): Rendering play screen.\n");
-
      IH_RenderTiles();
      IH_RenderIcons();
      IH_RenderMisc();

@@ -1,5 +1,5 @@
 
-/* $Id: icon.c,v 1.6 2003/03/18 19:17:40 cipher Exp $ */
+/* $Id: icon.c,v 1.8 2003/03/23 06:10:27 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -21,7 +21,7 @@
 
 struct IconObjectInit
 {
-     char           *name;
+     const char     *name;
      int             object;
 };
 
@@ -74,7 +74,7 @@ static struct IconObjectInit size_icons[] = {
      {"stun", IH_SCENE_OBJECT_STUN},
      {"study", IH_SCENE_OBJECT_STUDY},
      {"depth", IH_SCENE_OBJECT_DEPTH},
-     {NULL, NULL}
+     {NULL, 0}
 };
 
 static struct IconObjectPos icon_pos[] = {
@@ -196,9 +196,11 @@ IH_LoadIcons(void)
                         IMG_Load_RW(SDL_RWFromFile(file, "rb"), 1);
                     if(!object->data.image)
                     {
+#ifdef DEBUG
                          fprintf(stderr,
                                  "Unable to load icon image: %s: %s\n",
                                  file, IMG_GetError());
+#endif
                          rc = IH_ERROR_CANT_LOAD_ICON;
                     }
                }
@@ -233,7 +235,9 @@ IH_PositionIcons(void)
 {
      ihNode         *node;
 
+#ifdef DEBUG
      fprintf(stderr, "IH_PositionIcons()\n");
+#endif
 
      for(node = IH_ListFirst(&ih.icons);
          node; node = IH_ListNext(&ih.icons, node))
@@ -250,8 +254,10 @@ IH_PositionIcons(void)
           if(!object)
                continue;
 
+#ifdef DEBUG
           fprintf(stderr, "object->type = %d\n", object->type);
           fprintf(stderr, "object->object = %d\n", object->object);
+#endif
 
           pos = NULL;
 
@@ -259,7 +265,9 @@ IH_PositionIcons(void)
           {
                if(icon_pos[i].object == object->object)
                {
+#ifdef DEBUG
                     fprintf(stderr, "Object matches positioning data.\n");
+#endif
 
                     pos = &icon_pos[i];
                     break;
@@ -269,7 +277,9 @@ IH_PositionIcons(void)
           if(!pos)
                continue;
 
+#ifdef DEBUG
           fprintf(stderr, "Getting icon size value.\n");
+#endif
           switch (ih.icon_size)
           {
                default:
@@ -285,9 +295,13 @@ IH_PositionIcons(void)
                     icon_size = IH_ICON_SIZE_LARGE_VALUE;
                     break;
           }
+#ifdef DEBUG
           fprintf(stderr, "icon_size = %d\n", icon_size);
+#endif
 
+#ifdef DEBUG
           fprintf(stderr, "Getting anchor positions.\n");
+#endif
           switch (pos->anchor)
           {
                case IH_ICON_ANCHOR_TOPLEFT:
@@ -314,7 +328,9 @@ IH_PositionIcons(void)
           fprintf(stderr, "base_x = %d\nbase_y = %d\n", base_x, base_y);
 #endif
 
+#ifdef DEBUG
           fprintf(stderr, "Getting directional info.\n");
+#endif
           switch (pos->dir)
           {
                case IH_ICON_DIR_DOWN:
@@ -349,19 +365,25 @@ IH_PositionIcons(void)
                          slot_x = object->slot - 1;
                     break;
           }
+#ifdef DEBUG
           fprintf(stderr,
                   "base_x = %d\nbase_y = %d\ndir_x = %d\ndir_y = %d\nslot_x = %d\nslot_y = %d\n",
                   base_x, base_y, dir_x, dir_y, slot_x, slot_y);
+#endif
 
           object->x =
               base_x + (pos->x_offset * icon_size * dir_x) +
               (slot_x * icon_size * dir_x);
+#ifdef DEBUG
           fprintf(stderr, "object->x = %d\n", object->x);
+#endif
 
           object->y =
               base_y + (pos->y_offset * icon_size * dir_y) +
               (slot_y * icon_size * dir_y);
+#ifdef DEBUG
           fprintf(stderr, "object->y = %d\n", object->y);
+#endif
      }
 }
 
@@ -370,14 +392,18 @@ IH_RenderIcons(void)
 {
      ihNode         *node;
 
+#ifdef DEBUG
      fprintf(stderr, "IH_RenderIcons()\n");
+#endif
 
      for(node = IH_ListFirst(&ih.icons);
          node; node = IH_ListNext(&ih.icons, node))
      {
           SceneObject    *object;
 
+#ifdef DEBUG
           fprintf(stderr, "Got a node.\n");
+#endif
           object = (SceneObject *) node->data;
           if(object)
           {

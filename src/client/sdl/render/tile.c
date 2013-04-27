@@ -1,5 +1,5 @@
 
-/* $Id: tile.c,v 1.13 2003/03/18 19:17:42 cipher Exp $ */
+/* $Id: tile.c,v 1.17 2003/03/24 06:04:53 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -9,6 +9,7 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
+#include <stdio.h>
 #include <math.h>
 
 #include "SDL_image.h"
@@ -20,241 +21,301 @@
 #include "sdl/scene.h"
 #include "sdl/render/tile.h"
 
-errr
-IH_InitTiles(void)
-{
-     /* Tiles are loaded on-demand, so this function doesn't really
-      * need to do much; it's here for consistency.
-      */
-
-     return 0;
-}
-
 static SDL_Surface *
-IH_LoadTile(int tile_num)
+IH_LoadTile(cptr filename)
 {
      SDL_Surface    *image = NULL;
      char           *path_data = NULL, *path_tile = NULL;
-     char           *file, *filename;
+     char           *file;
 
-     if((tile_num >= IH_MAX_TILES) || (tile_num < 0))
+     fprintf(stderr, "IH_LoadTile()\n");
+
+     /* Paranoia.
+      */
+     if(!filename)
           return NULL;
-
-     if(ih.tile_array[tile_num])
-          return ih.tile_array[tile_num];
 
      /* Determine path to tiles.
       */
+     fprintf(stderr, "IH_LoadTile(): build path\n");
      path_data = IH_GetDataDir("gfx");
      path_tile = IH_PathBuild(path_data, "tile", NULL);
+     fprintf(stderr, "IH_LoadTile(): path_tile = '%s'\n", path_tile);
 
-     filename = IH_GetManifestFilename(path_tile, tile_num);
-     if(filename)
+     /* Create full path to file.
+      */
+     file = IH_PathBuild(path_tile, filename, NULL);
+     if(file)
      {
-          fprintf(stderr, "IH_LoadTile(): filename = %s\n", filename);
+          SceneObject    *object;
 
-          file = IH_PathBuild(path_tile, filename, NULL);
-          if(file)
+          fprintf(stderr, "IH_LoadTile(): create scene object\n");
+          /* Create a scene object.
+           */
+          object = IH_SceneObjectAlloc
+              (IH_SCENE_OBJECT_TYPE_TILE, IH_SCENE_OBJECT_TILE);
+          if(object)
           {
-               SceneObject    *object;
-
+               /* Load the image data.
+                */
                fprintf(stderr,
-                       "IH_LoadTile(): Allocate object for %s\n", file);
-               object = IH_SceneObjectAlloc
-                   (IH_SCENE_OBJECT_TYPE_TILE, IH_SCENE_OBJECT_TILE);
-               if(object)
+                       "IH_LoadTile(): load image from file '%s'\n", file);
+               object->data.image =
+                   IMG_Load_RW(SDL_RWFromFile(file, "rb"), 1);
+               if(object->data.image)
                {
+                    /* Remember the image.
+                     */
                     fprintf(stderr,
-                            "IH_LoadTile(): Load image from %s\n", file);
-                    object->data.image =
-                        IMG_Load_RW(SDL_RWFromFile(file, "rb"), 1);
-                    if(object->data.image)
-                    {
-                         image = ih.tile_array[tile_num] =
-                             object->data.image;
+                            "IH_LoadTile(): remember image data\n");
+                    image = object->data.image;
 
-                         fprintf(stderr,
-                                 "IH_LoadTile(): Append object to tile list\n");
-                         IH_ListAppend(&ih.tiles, (void *) object);
-                    }
-                    else
-                    {
-                         fprintf(stderr,
-                                 "IH_LoadTile(): Free scene object\n");
-                         IH_SceneObjectFree(object);
-
-                         fprintf(stderr,
-                                 "IH_LoadTile(): Unable to load tile image: %s: %s\n",
-                                 file, IMG_GetError());
-                    }
+                    /* Put the object in a list.
+                     */
+                    fprintf(stderr, "IH_LoadTile(): add object to list\n");
+                    IH_ListAppend(&ih.tiles, (void *) object);
                }
+               else
+               {
+                    /* Oops!  Get rid of the object.
+                     */
+                    fprintf(stderr,
+                            "IH_LoadTile(): get rid of the object\n");
+                    IH_SceneObjectFree(object);
 
-               fprintf(stderr, "IH_LoadTile(): Free file variable\n");
-               rnfree(file);
+                    fprintf(stderr,
+                            "IH_LoadTile(): Unable to load tile image: %s: %s\n",
+                            file, IMG_GetError());
+               }
           }
 
-          rnfree(filename);
+          rnfree(file);
      }
 
-     fprintf(stderr, "IH_LoadTile(): Free path_tile\n");
      rnfree(path_tile);
-     fprintf(stderr, "IH_LoadTile(): Free path_data\n");
      rnfree(path_data);
 
+     fprintf(stderr, "IH_LoadTile(): return %p\n", image);
      return image;
 }
 
 static SDL_Surface *
-IH_LoadObject(int obj_num)
+IH_LoadObject(cptr filename)
 {
      SDL_Surface    *image = NULL;
      char           *path_data = NULL, *path_obj = NULL;
-     char           *file, *filename;
+     char           *file;
 
-     if((obj_num >= IH_MAX_OBJS) || (obj_num < 0))
+     /* Paranoia.
+      */
+     if(!filename)
           return NULL;
-
-     if(ih.obj_array[obj_num])
-          return ih.obj_array[obj_num];
 
      /* Determine path to objects.
       */
      path_data = IH_GetDataDir("gfx");
      path_obj = IH_PathBuild(path_data, "object", NULL);
 
-     filename = IH_GetManifestFilename(path_obj, obj_num);
-     if(filename)
+     file = IH_PathBuild(path_obj, filename, NULL);
+     if(file)
      {
-          fprintf(stderr, "IH_LoadObject(): filename = %s\n", filename);
+          SceneObject    *object;
 
-          file = IH_PathBuild(path_obj, filename, NULL);
-          if(file)
+          object = IH_SceneObjectAlloc
+              (IH_SCENE_OBJECT_TYPE_OBJECT, IH_SCENE_OBJECT_OBJECT);
+          if(object)
           {
-               SceneObject    *object;
-
-               fprintf(stderr,
-                       "IH_LoadObject(): Allocate object for %s\n", file);
-               object = IH_SceneObjectAlloc
-                   (IH_SCENE_OBJECT_TYPE_OBJECT, IH_SCENE_OBJECT_OBJECT);
-               if(object)
+               object->data.image =
+                   IMG_Load_RW(SDL_RWFromFile(file, "rb"), 1);
+               if(object->data.image)
                {
-                    fprintf(stderr,
-                            "IH_LoadObject(): Load image from %s\n", file);
-                    object->data.image =
-                        IMG_Load_RW(SDL_RWFromFile(file, "rb"), 1);
-                    if(object->data.image)
-                    {
-                         image = ih.obj_array[obj_num] =
-                             object->data.image;
+                    image = object->data.image;
 
-                         fprintf(stderr,
-                                 "IH_LoadObject(): Append object to obj list\n");
-                         IH_ListAppend(&ih.objects, (void *) object);
-                    }
-                    else
-                    {
-                         fprintf(stderr,
-                                 "IH_LoadObject(): Free scene object\n");
-                         IH_SceneObjectFree(object);
-
-                         fprintf(stderr,
-                                 "IH_LoadObject(): Unable to load object image: %s: %s\n",
-                                 file, IMG_GetError());
-                    }
+                    IH_ListAppend(&ih.objects, (void *) object);
                }
+               else
+               {
+                    IH_SceneObjectFree(object);
 
-               fprintf(stderr, "IH_LoadObject(): Free file variable\n");
-               rnfree(file);
+                    fprintf(stderr,
+                            "IH_LoadObject(): Unable to load object image: %s: %s\n",
+                            file, IMG_GetError());
+               }
           }
 
-          rnfree(filename);
+          rnfree(file);
      }
 
-     fprintf(stderr, "IH_LoadObject(): Free path_obj\n");
      rnfree(path_obj);
-     fprintf(stderr, "IH_LoadObject(): Free path_data\n");
      rnfree(path_data);
 
      return image;
 }
 
-#if 0
+#ifdef EXT_MAP_INFO
 static SDL_Surface *
-IH_LoadCreature(int creature_num)
+IH_LoadCreature(cptr filename)
 {
      SDL_Surface    *image = NULL;
      char           *path_data = NULL, *path_creature = NULL;
-     char           *file, *filename;
+     char           *file;
 
-     if((creature_num >= IH_MAX_CREATURES) || (creature_num < 0))
+     /* Paranoia.
+      */
+     if(!filename)
           return NULL;
-
-     if(ih.creature_array[creature_num])
-          return ih.creature_array[creature_num];
 
      /* Determine path to creatures.
       */
      path_data = IH_GetDataDir("gfx");
      path_creature = IH_PathBuild(path_data, "creature", NULL);
 
-     filename = IH_GetManifestFilename(path_creature, creature_num);
-     if(filename)
+     file = IH_PathBuild(path_creature, filename, NULL);
+     if(file)
      {
-          fprintf(stderr, "IH_LoadCreature(): filename = %s\n", filename);
+          SceneObject    *object;
 
-          file = IH_PathBuild(path_creature, filename, NULL);
-          if(file)
+          object = IH_SceneObjectAlloc
+              (IH_SCENE_OBJECT_TYPE_CREATURE, IH_SCENE_OBJECT_CREATURE);
+          if(object)
           {
-               SceneObject    *object;
-
-               fprintf(stderr,
-                       "IH_LoadObject(): Allocate object for %s\n", file);
-               object = IH_SceneObjectAlloc
-                   (IH_SCENE_OBJECT_TYPE_CREATURE,
-                    IH_SCENE_OBJECT_CREATURE);
-               if(object)
+               object->data.image =
+                   IMG_Load_RW(SDL_RWFromFile(file, "rb"), 1);
+               if(object->data.image)
                {
-                    fprintf(stderr,
-                            "IH_LoadCreature(): Load image from %s\n",
-                            file);
-                    object->data.image =
-                        IMG_Load_RW(SDL_RWFromFile(file, "rb"), 1);
-                    if(object->data.image)
-                    {
-                         image = ih.creature_array[creature_num] =
-                             object->data.image;
+                    image = object->data.image;
 
-                         fprintf(stderr,
-                                 "IH_LoadCreature(): Append object to creature list\n");
-                         IH_ListAppend(&ih.creatures, (void *) object);
-                    }
-                    else
-                    {
-                         fprintf(stderr,
-                                 "IH_LoadCreature(): Free scene object\n");
-                         IH_SceneObjectFree(object);
-
-                         fprintf(stderr,
-                                 "IH_LoadCreature(): Unable to load creature image: %s: %s\n",
-                                 file, IMG_GetError());
-                    }
+                    IH_ListAppend(&ih.creatures, (void *) object);
                }
+               else
+               {
+                    IH_SceneObjectFree(object);
 
-               fprintf(stderr, "IH_LoadCreature(): Free file variable\n");
-               rnfree(file);
+                    fprintf(stderr,
+                            "IH_LoadCreature(): Unable to load creature image: %s: %s\n",
+                            file, IMG_GetError());
+               }
           }
 
-          rnfree(filename);
+          rnfree(file);
      }
 
-     fprintf(stderr, "IH_LoadCreature(): Free path_creature\n");
      rnfree(path_creature);
-     fprintf(stderr, "IH_LoadCreature(): Free path_data\n");
      rnfree(path_data);
 
      return image;
 }
 #endif
+
+static void
+IH_ProcessManifestFile(cptr manifest_file,
+                       SDL_Surface ** obj_array,
+                       SDL_Surface * (*loader_func) (cptr),
+                       int max_objs)
+{
+     FILE           *fp;
+
+     fprintf(stderr, "IH_ProcessManifestFile()\n");
+
+     if(!manifest_file || !obj_array || !loader_func || !max_objs)
+          return;
+
+     fprintf(stderr, "IH_ProcessManifestFile(): open manifest file '%s'\n",
+             manifest_file);
+     fp = fopen(manifest_file, "r");
+     if(fp)
+     {
+          char            buf[200];
+
+          fprintf(stderr, "IH_ProcessManifestFile(): get contents\n");
+          while(fgets(buf, sizeof(buf), fp))
+          {
+               byte           *num = NULL, *f = NULL, *c;
+
+               fprintf(stderr, "IH_ProcessManifestFile(): buf = '%s'\n",
+                       buf);
+               /* Skip blank lines and "comments."
+                */
+               if(!buf[0] ||
+                  buf[0] == '\n' || buf[0] == '\r' || buf[0] == '#')
+                    continue;
+
+               /* Get rid of newline characters.
+                */
+               fprintf(stderr,
+                       "IH_ProcessManifestFile(): get rid of newlines\n");
+               if(c = strchr(buf, '\r'))
+                    *c = 0;
+               if(c = strchr(buf, '\n'))
+                    *c = 0;
+
+               /* Look for whitespace (space or tab).
+                */
+               fprintf(stderr,
+                       "IH_ProcessManifestFile(): look for whitespace\n");
+               c = strchr(buf, ' ');
+               if(!c)
+                    c = strchr(buf, '\t');
+
+               /* Find first non-whitespace character.
+                */
+               fprintf(stderr,
+                       "IH_ProcessManifestFile(): find non-whitespace\n");
+               while(isspace(*c))
+                    c++;
+               c--;
+
+               if(c)
+               {
+                    fprintf(stderr,
+                            "IH_ProcessManifestFile(): separate number and name\n");
+                    /* Separate the item number and filename.
+                     */
+                    *c = 0;
+                    num = buf;
+                    f = c + 1;
+               }
+
+               fprintf(stderr,
+                       "IH_ProcessManifestFile(): check for number and filename\n");
+               if(num && f)
+               {
+                    int             inum;
+
+                    fprintf(stderr,
+                            "IH_ProcessManifestFile(): convert '%s' to num\n",
+                            num);
+                    /* Get item number.
+                     */
+                    inum = atoi(num);
+
+                    /* Check for out of bounds.
+                     */
+                    fprintf(stderr,
+                            "IH_ProcessManifestFile(): check for bounds\n");
+                    if(inum < 0)
+                         continue;
+                    if(inum > max_objs)
+                         continue;
+
+                    /* Load the object?
+                     */
+                    fprintf(stderr,
+                            "IH_ProcessManifestFile(): load the object?\n");
+                    if(!obj_array[inum])
+                    {
+                         fprintf(stderr,
+                                 "IH_ProcessManifestFile(): call the loader\n");
+                         obj_array[inum] = (*loader_func) (f);
+                    }
+               }
+          }
+
+          fprintf(stderr, "IH_ProcessManifestFile(): close the file\n");
+          fclose(fp);
+     }
+     fprintf(stderr, "IH_ProcessManifestFile(): return\n");
+}
 
 static void
 IH_DrawTile(int pixel_x,
@@ -264,32 +325,84 @@ IH_DrawTile(int pixel_x,
 {
      SDL_Surface    *tile;
      SDL_Rect        rect;
-     byte            ap, tap;
-     char            cp, tcp;
+     byte            tap;
+     char            tcp;
      int             tile_num = 0;
 
      /* Figure out if it will even be displayed on the screen.
       */
-     // FIXME?
+     if(dungeon_x < 0 ||
+        dungeon_x >= DUNGEON_WID ||
+        dungeon_y < 0 || dungeon_y >= DUNGEON_HGT)
+          return;
 
      /* Get the map grid.
       */
-     map_info(dungeon_x, dungeon_y, &ap, &cp, &tap, &tcp);
+#ifdef EXT_MAP_INFO
+     map_info(dungeon_y, dungeon_x, NULL, NULL, NULL, NULL, &tap, &tcp);
+#else
+     map_info(dungeon_y, dungeon_x, NULL, NULL, &tap, &tcp);
+#endif
+#ifdef DEBUG
      fprintf(stderr,
-             "IH_DrawTile(): map_info says (%d,%d) contains: ap=%d, cp=%d, tap=%d, tcp=%d\n",
-             dungeon_x, dungeon_y, ap, cp, tap, tcp);
-     if(cp & 0x80)
-          tile_num = PICT(ap, ap);
-     fprintf(stderr, "IH_DrawTile(): tile_num = %d\n", tile_num);
+             "IH_DrawTile(): map_info says (%d,%d) contains: tap=%d, tcp=%d (%c)\n",
+             dungeon_x, dungeon_y, tap, tcp, tcp);
+#endif
+     tile_num = PICT(tap, tcp);
 
-     /* Display the map grid.
+     /* Paranoia.
       */
-     // FIXME
+     if(tile_num >= IH_MAX_TILES)
+          return;
+
+     /* Get the tile image.
+      */
+     tile = ih.tile_array[tile_num];
+     if(!tile)
+     {
+#ifdef TILE_HACK
+          SDL_Color       color;
+          ihFontPos       pos;
+          char            buf[2];
+
+          buf[0] = tcp;
+          buf[1] = 0;
+
+          color.r = color.g = color.b = 255;
+
+          pos.x.type = IH_POSITION_TYPE_PIXEL;
+          pos.x.pixel = pixel_x + (IH_TILE_ACTUAL_WIDTH / 2);
+          pos.y.type = IH_POSITION_TYPE_PIXEL;
+          pos.y.pixel = pixel_y + (IH_TILE_ACTUAL_HEIGHT / 3);
+
+          IH_RenderText(IH_FONT_LARGE, buf, &pos, color, NULL);
+#endif
+          return;
+     }
+
+     /* If the tile is not a "flat" tile, e.g., a floor or down-staircase,
+      * then make it transparent.
+      */
+#ifdef USE_OBJ_TRANSPARENCY
+     if(((dungeon_x == p_ptr->px - 1) ||
+         (dungeon_x == p_ptr->px)) &&
+        ((dungeon_y == p_ptr->py + 1) || (dungeon_y == p_ptr->py)))
+     {
+#ifdef DEBUG
+          fprintf(stderr, "IH_DrawTile(): Make tile transparent.\n");
+#endif
+          SDL_SetAlpha(tile, SDL_SRCALPHA, 128);
+     }
+     else
+     {
+          SDL_SetAlpha(tile, 0, 0);
+     }
+#endif /* USE_OBJ_TRANSPARENCY */
+
+     /* Draw the tile.
+      */
      rect.x = pixel_x;
      rect.y = pixel_y;
-     tile = IH_LoadTile(0 /* tile_num */ );
-     if(!tile)
-          return;
 
      SDL_BlitSurface(tile, NULL, ih.screen, &rect);
 }
@@ -302,37 +415,96 @@ IH_DrawObject(int pixel_x,
 {
      SDL_Surface    *obj;
      SDL_Rect        rect;
-     byte            ap, tap;
-     char            cp, tcp;
+     byte            oap, tap;
+     char            ocp, tcp;
      int             obj_num = 0;
 
      /* Figure out if it will even be displayed on the screen.
       */
-     // FIXME?
+     if(dungeon_x < 0 ||
+        dungeon_x >= DUNGEON_WID ||
+        dungeon_y < 0 || dungeon_y >= DUNGEON_HGT)
+          return;
 
      /* Get the map grid.
       */
-     map_info(dungeon_x, dungeon_y, &ap, &cp, &tap, &tcp);
+#ifdef EXT_MAP_INFO
+     map_info(dungeon_y, dungeon_x, NULL, NULL, &oap, &ocp, &tap, &tcp);
+#else
+     map_info(dungeon_y, dungeon_x, &oap, &ocp, &tap, &tcp);
+#endif
+#ifdef DEBUG
      fprintf(stderr,
-             "IH_DrawTile(): map_info says (%d,%d) contains: ap=%d, cp=%d, tap=%d, tcp=%d\n",
-             dungeon_x, dungeon_y, ap, cp, tap, tcp);
-     if(tcp & 0x80)
-          obj_num = PICT(tap, tcp);
-     fprintf(stderr, "IH_DrawObject(): obj_num = %d\n", obj_num);
+             "IH_DrawObject(): map_info says (%d,%d) contains: oap=%d, ocp=%d (%c)\n",
+             dungeon_x, dungeon_y, oap, ocp, ocp);
 
-     /* Display the map grid.
+     /* If it's the same thing as the tile, don't draw it.
       */
-     // FIXME
+     if(ocp == tcp)
+          return;
+
+#endif
+     obj_num = PICT(oap, ocp);
+     if(obj_num >= IH_MAX_OBJECTS)
+          return;
+
+#ifdef DEBUG
+     fprintf(stderr, "IH_DrawObject(): obj_num = %d\n", obj_num);
+#endif
+
+     /* Get the object image.
+      */
+     obj = ih.object_array[obj_num];
+     if(!obj)
+     {
+#ifdef TILE_HACK
+          SDL_Color       color;
+          ihFontPos       pos;
+          char            buf[2];
+
+          buf[0] = ocp;
+          buf[1] = 0;
+
+          color.r = color.g = color.b = 255;
+
+          pos.x.type = IH_POSITION_TYPE_PIXEL;
+          pos.x.pixel = pixel_x + (IH_TILE_ACTUAL_WIDTH / 2);
+          pos.y.type = IH_POSITION_TYPE_PIXEL;
+          pos.y.pixel = pixel_y + (IH_TILE_ACTUAL_HEIGHT / 3);
+
+          IH_RenderText(IH_FONT_LARGE, buf, &pos, color, NULL);
+#endif
+          return;
+     }
+
+     /* If the object is "in front of" the player, make it transparent, so
+      * we can still see the player.
+      */
+#ifdef USE_OBJ_TRANSPARENCY
+     if(((dungeon_x == p_ptr->px - 1) ||
+         (dungeon_x == p_ptr->px)) &&
+        ((dungeon_y == p_ptr->py + 1) || (dungeon_y == p_ptr->py)))
+     {
+#ifdef DEBUG
+          fprintf(stderr, "IH_DrawTile(): Make tile transparent.\n");
+#endif
+          SDL_SetAlpha(obj, SDL_SRCALPHA, 128);
+     }
+     else
+     {
+          SDL_SetAlpha(obj, 0, 0);
+     }
+#endif /* USE_OBJ_TRANSPARENCY */
+
+     /* Draw the object.
+      */
      rect.x = pixel_x;
      rect.y = pixel_y;
-     obj = IH_LoadObject(0 /* obj_num */ );
-     if(!obj)
-          return;
 
      SDL_BlitSurface(obj, NULL, ih.screen, &rect);
 }
 
-#if 0
+#ifdef EXT_MAP_INFO
 static void
 IH_DrawCreature(int pixel_x,
                 int pixel_y,
@@ -341,37 +513,121 @@ IH_DrawCreature(int pixel_x,
 {
      SDL_Surface    *creature;
      SDL_Rect        rect;
-     byte            oap, tap, cap;
-     char            ocp, tcp, ccp;
+     byte            cap, tap;
+     char            ccp, tcp;
      int             creature_num = 0;
 
      /* Figure out if it will even be displayed on the screen.
       */
-     // FIXME?
+     if(dungeon_x < 0 ||
+        dungeon_x >= DUNGEON_WID ||
+        dungeon_y < 0 || dungeon_y >= DUNGEON_HGT)
+          return;
 
      /* Get the map grid.
       */
-     map_info(dungeon_x, dungeon_y, &cap, &ccp, &oap, &ocp, &tap, &tcp);
+     map_info(dungeon_y, dungeon_x, &cap, &ccp, NULL, NULL, &tap, &tcp);
+#ifdef DEBUG
      fprintf(stderr,
-             "IH_DrawTile(): map_info says (%d,%d) contains: cap=%d, ccp=%d, oap=%d, ocp=%d, tap=%d, tcp=%d\n",
-             dungeon_x, dungeon_y, cap, ccp, oap, ocp, tap, tcp);
-     if(ccp & 0x80)
-          creature_num = PICT(cap, ccp);
+             "IH_DrawCreature(): map_info says (%d,%d) contains: cap=%d, ccp=%d (%c)\n",
+             dungeon_x, dungeon_y, cap, ccp, ccp);
+#endif
+
+     /* If it's the same thing as the tile, don't draw it.
+      */
+     if(ccp == tcp)
+          return;
+
+     creature_num = PICT(cap, ccp);
+     if(creature_num >= IH_MAX_CREATURES)
+          return;
+
+#ifdef DEBUG
      fprintf(stderr, "IH_DrawCreature(): creature_num = %d\n",
              creature_num);
+#endif
 
-     /* Display the map grid.
+     /* Get the creature image.
       */
-     // FIXME
+     creature = ih.creature_array[creature_num];
+     if(!creature)
+     {
+#ifdef TILE_HACK
+          SDL_Color       color;
+          ihFontPos       pos;
+          char            buf[2];
+
+          buf[0] = ccp;
+          buf[1] = 0;
+
+          color.r = color.g = color.b = 255;
+
+          pos.x.type = IH_POSITION_TYPE_PIXEL;
+          pos.x.pixel = pixel_x + (IH_TILE_ACTUAL_WIDTH / 2);
+          pos.y.type = IH_POSITION_TYPE_PIXEL;
+          pos.y.pixel = pixel_y + (IH_TILE_ACTUAL_HEIGHT / 3);
+
+          IH_RenderText(IH_FONT_LARGE, buf, &pos, color, NULL);
+#endif
+          return;
+     }
+
+     /* Draw the creature.
+      */
      rect.x = pixel_x;
      rect.y = pixel_y;
-     creature = IH_LoadCreature(0 /* creature_num */ );
-     if(!creature)
-          return;
 
      SDL_BlitSurface(creature, NULL, ih.screen, &rect);
 }
 #endif
+
+errr
+IH_InitTiles(void)
+{
+     char           *path_gfx, *path_manifest, *manifest_file;
+
+     fprintf(stderr, "IH_InitTiles()\n");
+
+     path_gfx = IH_GetDataDir("gfx");
+
+     /* Process the tile manifest.
+      */
+     path_manifest = IH_PathBuild(path_gfx, "tile", NULL);
+     manifest_file = IH_PathBuild(path_manifest, "MANIFEST", NULL);
+     fprintf(stderr, "IH_InitTiles(): process tiles (file = '%s')\n",
+             manifest_file);
+     IH_ProcessManifestFile(manifest_file, ih.tile_array, IH_LoadTile,
+                            IH_MAX_TILES);
+     rnfree(manifest_file);
+     rnfree(path_manifest);
+
+     /* Process the object manifest.
+      */
+     path_manifest = IH_PathBuild(path_gfx, "object", NULL);
+     manifest_file = IH_PathBuild(path_manifest, "MANIFEST", NULL);
+     fprintf(stderr, "IH_InitTiles(): process objects (file = '%s')\n",
+             manifest_file);
+     IH_ProcessManifestFile(manifest_file, ih.object_array, IH_LoadObject,
+                            IH_MAX_OBJECTS);
+     rnfree(manifest_file);
+     rnfree(path_manifest);
+
+     /* Process the creature manifest.
+      */
+     path_manifest = IH_PathBuild(path_gfx, "creature", NULL);
+     manifest_file = IH_PathBuild(path_manifest, "MANIFEST", NULL);
+     fprintf(stderr, "IH_InitTiles(): process creatures (file = '%s')\n",
+             manifest_file);
+     IH_ProcessManifestFile(manifest_file, ih.creature_array,
+                            IH_LoadCreature, IH_MAX_CREATURES);
+     rnfree(manifest_file);
+     rnfree(path_manifest);
+
+     rnfree(path_gfx);
+
+     fprintf(stderr, "IH_InitTiles(): return\n");
+     return 0;
+}
 
 void
 IH_RenderTiles(void)
@@ -383,20 +639,14 @@ IH_RenderTiles(void)
      int             num_tiles_x, num_tiles_y;
      int             x, y;
 
-     fprintf(stderr, "IH_RenderTiles()\n");
-
-     fprintf(stderr, "p_ptr->px,py = %d,%d\n", p_ptr->px, p_ptr->py);
-
      /* Calculate pixel positions for the center tile (the player).
       */
      center_tile_x =
          ((ih.display_width - IH_TILE_BASE_WIDTH) / 2) -
-         (IH_TILE_ACTUAL_WIDTH - IH_TILE_BASE_WIDTH);
+         ((IH_TILE_ACTUAL_WIDTH - IH_TILE_BASE_WIDTH) / 2);
      center_tile_y =
          ((ih.display_height - IH_TILE_BASE_HEIGHT) / 2) -
-         (IH_TILE_ACTUAL_HEIGHT - IH_TILE_BASE_HEIGHT);
-     fprintf(stderr, "center_tile_x,y = %d,%d\n", center_tile_x,
-             center_tile_y);
+         ((IH_TILE_ACTUAL_HEIGHT - IH_TILE_BASE_HEIGHT) / 2);
 
      /* Do some dimension calculations.
       */
@@ -409,15 +659,85 @@ IH_RenderTiles(void)
      num_tiles_right =
          ((ih.display_width -
            (center_tile_x + IH_TILE_BASE_WIDTH)) / IH_TILE_BASE_WIDTH) + 1;
-     fprintf(stderr, "num_tiles_up,down,left,right = %d,%d,%d,%d\n",
-             num_tiles_up, num_tiles_down, num_tiles_left,
-             num_tiles_right);
 
      num_tiles_x = (ih.display_width / IH_TILE_BASE_WIDTH) + 1;
      num_tiles_y = (ih.display_height / IH_TILE_BASE_HEIGHT) + 1;
-     fprintf(stderr, "num_tiles_x,y = %d,%d\n", num_tiles_x, num_tiles_y);
 
-     for(y = 0; y < num_tiles_y; y++)
+#if 0
+     fprintf(stderr, "Draw map grid.\n");
+     for(y = 0; y < DUNGEON_HGT; y++)
+     {
+          for(x = 0; x < DUNGEON_WID; x++)
+          {
+               byte            ap;
+               char            cp;
+
+               map_info(y, x, NULL, NULL, &ap, &cp);
+               if(cp < 33)
+                    continue;
+               fprintf(stderr, "%c", cp);
+          }
+
+          fprintf(stderr, "\n");
+     }
+
+     fprintf(stderr, "Draw displayed map grid.\n");
+     for(y = 0; y < num_tiles_y; y += 2)
+     {
+          int             dungeon_x, dungeon_y;
+          byte            ap;
+          char            cp;
+
+          /* Draw staggered row.
+           */
+          for(x = 0; x < num_tiles_x + 1; x++)
+          {
+               dungeon_x =
+                   p_ptr->px - num_tiles_left + num_tiles_up + (x - 1) -
+                   (y - 1);
+               dungeon_y =
+                   p_ptr->py - num_tiles_left - num_tiles_up + (x - 1) +
+                   (y - 1) - 1;
+
+               map_info(dungeon_y, dungeon_x, NULL, NULL, &ap, &cp);
+
+               if(cp < 33)
+                    continue;
+
+               if(dungeon_x < 0 || dungeon_y < 0)
+                    fprintf(stderr, "  ");
+               else
+                    fprintf(stderr, "%c ", cp);
+          }
+          fprintf(stderr, "\n");
+
+          /* Draw normal row.
+           */
+          fprintf(stderr, " ");
+          for(x = 0; x < num_tiles_x + 1; x++)
+          {
+               dungeon_x =
+                   p_ptr->px - num_tiles_left + num_tiles_up + (x - 1) -
+                   (y - 1);
+               dungeon_y =
+                   p_ptr->py - num_tiles_left - num_tiles_up + (x - 1) +
+                   (y - 1);
+
+               map_info(dungeon_y, dungeon_x, NULL, NULL, &ap, &cp);
+
+               if(cp < 33)
+                    continue;
+
+               if(dungeon_x < 0 || dungeon_y < 0)
+                    fprintf(stderr, "  ");
+               else
+                    fprintf(stderr, "%c ", cp);
+          }
+          fprintf(stderr, "\n");
+     }
+#endif
+
+     for(y = 0; y < num_tiles_y + 1; y++)
      {
           int             pixel_x, pixel_y;
           int             dungeon_x, dungeon_y;
@@ -438,19 +758,26 @@ IH_RenderTiles(void)
                    (IH_TILE_BASE_WIDTH / 2) -
                    (IH_TILE_ACTUAL_WIDTH - IH_TILE_BASE_WIDTH);
 
+#ifdef DEBUG
                fprintf(stderr, "(staggered) pixel_x,y = %d,%d\n",
                        pixel_x, pixel_y);
+#endif
 
                dungeon_x =
-                   p_ptr->px - (num_tiles_left - x) - num_tiles_up - 1;
-               dungeon_y = p_ptr->py + num_tiles_left - (num_tiles_up - y);
+                   p_ptr->px - num_tiles_left + num_tiles_up + (x - 1) -
+                   (y - 1);
+               dungeon_y =
+                   p_ptr->py - num_tiles_left - num_tiles_up + (x - 1) +
+                   (y - 1) - 1;
 
+#ifdef DEBUG
                fprintf(stderr, "(staggered) dungeon_x,y = %d,%d\n",
                        dungeon_x, dungeon_y);
+#endif
 
                IH_DrawTile(pixel_x, pixel_y, dungeon_x, dungeon_y);
                IH_DrawObject(pixel_x, pixel_y, dungeon_x, dungeon_y);
-#if 0
+#ifdef EXT_MAP_INFO
                IH_DrawCreature(pixel_x, pixel_y, dungeon_x, dungeon_y);
 #endif
           }
@@ -464,14 +791,22 @@ IH_RenderTiles(void)
                    ((num_tiles_left - x) * IH_TILE_BASE_WIDTH) -
                    (IH_TILE_ACTUAL_WIDTH - IH_TILE_BASE_WIDTH);
 
+#ifdef DEBUG
                fprintf(stderr, "(normal) pixel_x,y = %d,%d\n",
                        pixel_x, pixel_y);
+#endif
 
-               dungeon_x = p_ptr->px - (num_tiles_left - x) - num_tiles_up;
-               dungeon_y = p_ptr->py + num_tiles_left - (num_tiles_up - y);
+               dungeon_x =
+                   p_ptr->px - num_tiles_left + num_tiles_up + (x - 1) -
+                   (y - 1);
+               dungeon_y =
+                   p_ptr->py - num_tiles_left - num_tiles_up + (x - 1) +
+                   (y - 1);
 
+#ifdef DEBUG
                fprintf(stderr, "(normal) dungeon_x,y = %d,%d\n",
                        dungeon_x, dungeon_y);
+#endif
 
                IH_DrawTile(pixel_x,
                            pixel_y + (IH_TILE_BASE_HEIGHT / 2),
@@ -479,7 +814,7 @@ IH_RenderTiles(void)
                IH_DrawObject(pixel_x,
                              pixel_y + (IH_TILE_BASE_HEIGHT / 2),
                              dungeon_x, dungeon_y);
-#if 0
+#ifdef EXT_MAP_INFO
                IH_DrawCreature(pixel_x,
                                pixel_y + (IH_TILE_BASE_HEIGHT / 2),
                                dungeon_x, dungeon_y);

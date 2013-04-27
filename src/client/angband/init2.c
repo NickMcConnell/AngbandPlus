@@ -1,5 +1,5 @@
 
-/* $Id: init2.c,v 1.6 2003/03/17 22:45:24 cipher Exp $ */
+/* $Id: init2.c,v 1.7 2003/03/24 06:04:51 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison
@@ -413,10 +413,8 @@ init_info(cptr filename,
      /* Build the filename */
      path_build(buf, sizeof(buf), ANGBAND_DIR_DATA,
                 format("%s.raw", filename));
-     fprintf(stderr, "buf = %s\n", buf);
 
      /* Attempt to open the "raw" file */
-     fprintf(stderr, "Open %s\n", buf);
      fd = fd_open(buf, O_RDONLY);
 
      /* Process existing "raw" file */
@@ -424,7 +422,6 @@ init_info(cptr filename,
      {
 #ifdef CHECK_MODIFICATION_TIME
 
-          fprintf(stderr, "check mod time()\n");
           err = check_modification_date(fd, format("%s.txt", filename));
 
 #endif /* CHECK_MODIFICATION_TIME */
@@ -434,9 +431,6 @@ init_info(cptr filename,
                err = init_info_raw(fd, head);
 
           /* Close it */
-#ifdef DEBUG
-          fprintf(stderr, "Close %s\n", buf);
-#endif
           fd_close(fd);
      }
 
@@ -445,8 +439,6 @@ init_info(cptr filename,
      {
 
   /*** Make the fake arrays ***/
-
-          fprintf(stderr, "Parse text file\n");
 
           /* Allocate the "*_info" array */
           C_MAKE(head->info_ptr, head->info_size, char);
@@ -465,7 +457,6 @@ init_info(cptr filename,
                      format("%s.txt", filename));
 
           /* Open the file */
-          fprintf(stderr, "Open %s\n", buf);
           fp = my_fopen(buf, "r");
 
           /* Parse it */
@@ -473,15 +464,12 @@ init_info(cptr filename,
                quit(format("Cannot open '%s.txt' file.", filename));
 
           /* Parse the file */
-          fprintf(stderr, "Parse %s\n", buf);
           err = init_info_txt(fp, buf, head, head->parse_info_txt);
 
           /* Close it */
-          fprintf(stderr, "Close %s\n", buf);
           my_fclose(fp);
 
           /* Errors */
-          fprintf(stderr, "Display parse error? (err = %d)\n", err);
           if(err)
                display_parse_error(filename, err, buf);
 
@@ -495,7 +483,6 @@ init_info(cptr filename,
                      format("%s.raw", filename));
 
           /* Attempt to open the file */
-          fprintf(stderr, "Open %s\n", buf);
           fd = fd_open(buf, O_RDONLY);
 
           /* Failure */
@@ -533,7 +520,6 @@ init_info(cptr filename,
           safe_setuid_grab();
 
           /* Attempt to create the raw file */
-          fprintf(stderr, "Open %s\n", buf);
           fd = fd_open(buf, O_WRONLY);
 
           /* Drop permissions */
@@ -555,7 +541,6 @@ init_info(cptr filename,
                fd_write(fd, head->text_ptr, head->text_size);
 
                /* Close */
-               fprintf(stderr, "Close %s\n", buf);
                fd_close(fd);
           }
 
@@ -580,7 +565,6 @@ init_info(cptr filename,
                      format("%s.raw", filename));
 
           /* Attempt to open the "raw" file */
-          fprintf(stderr, "Open %s\n", buf);
           fd = fd_open(buf, O_RDONLY);
 
           /* Process existing "raw" file */
@@ -591,7 +575,6 @@ init_info(cptr filename,
           err = init_info_raw(fd, head);
 
           /* Close it */
-          fprintf(stderr, "Close %s\n", buf);
           fd_close(fd);
 
           /* Error */
@@ -633,22 +616,19 @@ init_z_info(void)
 {
      errr            err;
 
-     fprintf(stderr, "init_z_info()\n");
      /* Init the header */
      init_header(&z_head, 1, sizeof(maxima));
-     fprintf(stderr, "done init_header\n");
 #ifdef ALLOW_TEMPLATES
 
      /* Save a pointer to the parsing function */
      z_head.parse_info_txt = parse_z_info;
 
 #endif /* ALLOW_TEMPLATES */
-     fprintf(stderr, "call init_info()\n");
      err = init_info("limits", &z_head);
-     fprintf(stderr, "done init_info\n");
+
      /* Set the global variables */
      z_info = z_head.info_ptr;
-     fprintf(stderr, "exit init_z_info()\n");
+
      return (err);
 }
 
@@ -1391,13 +1371,11 @@ init_alloc(void)
 static void
 note(cptr str)
 {
-     fprintf(stderr, "note: %s\n", str);
      IH_SetLoadMessage(str);
 
      Term_erase(0, 23, 255);
      Term_putstr(20, 23, -1, TERM_WHITE, str);
      Term_fresh();
-     fprintf(stderr, "exit note()\n");
 }
 
 /*
@@ -1524,17 +1502,13 @@ init_angband(void)
 
      /* Build the filename */
      path_build(buf, sizeof(buf), ANGBAND_DIR_APEX, "scores.raw");
-     fprintf(stderr, "buf = %s\n", buf);
 
      /* Attempt to open the high score file */
-     fprintf(stderr, "Open %s\n", buf);
      fd = fd_open(buf, O_RDONLY);
 
      /* Failure */
      if(fd < 0)
      {
-          fprintf(stderr, "Couldn't open %s\n", buf);
-
           /* File type is "DATA" */
           FILE_TYPE(FILE_TYPE_DATA);
 
@@ -1542,7 +1516,6 @@ init_angband(void)
           safe_setuid_grab();
 
           /* Create a new high score file */
-          fprintf(stderr, "Create %s\n", buf);
           fd = fd_make(buf, mode);
 
           /* Drop permissions */
@@ -1553,7 +1526,6 @@ init_angband(void)
           {
                char            why[1024];
 
-               fprintf(stderr, "Barf on creating %s\n", buf);
                /* Message */
                strnfmt(why, sizeof(why), "Cannot create the '%s' file!",
                        buf);
@@ -1564,7 +1536,6 @@ init_angband(void)
      }
 
      /* Close it */
-     fprintf(stderr, "Close %s\n", buf);
      fd_close(fd);
 
  /*** Initialize some arrays ***/

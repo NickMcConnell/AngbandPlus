@@ -1,5 +1,5 @@
 
-/* $Id: path.c,v 1.7 2003/03/18 19:17:39 cipher Exp $ */
+/* $Id: path.c,v 1.8 2003/03/23 06:10:27 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -21,12 +21,21 @@ IH_PathBuild(cptr dir,
 {
      va_list         ap;
      char           *path = NULL;
-     char           *item;
+     char           *item, *first;
      int             len;
 
-     len = strlen(dir) + 1;
+     first = dir;
+
+     /* Check if dir is the "home directory" (~).
+      */
+     if(!strcmp(first, "~"))
+     {
+          first = getenv("HOME");
+     }
+
+     len = strlen(first) + 1;
      path = ralloc(len);
-     my_strcpy(path, dir, len);
+     my_strcpy(path, first, len);
 
      va_start(ap, dir);
      while(item = va_arg(ap, char *))
@@ -36,10 +45,6 @@ IH_PathBuild(cptr dir,
 
           /* Check for expandable items.
            */
-          if(!strcmp(item, "~"))
-          {
-               exp = IH_PathBuild(getenv("HOME"), NULL);
-          }
 
           len =
               strlen(path) + strlen(exp ? exp : item) + strlen(PATH_SEP) +

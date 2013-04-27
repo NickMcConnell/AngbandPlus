@@ -36,7 +36,7 @@ angband/angband.res: angband/angband.rc
 
 ironhells_LDADD = lua/liblua.a $(SDLTTF_LIBS) $(SDLDRAW_LIBS) $(SDLIMAGE_LIBS) $(SDL_LIBS)
 ironhells_DEPENDENCIES = lua/liblua.a
-ironhells_CFLAGS = $(SDL_CFLAGS) $(SDLTTF_CFLAGS) $(SDLDRAW_CFLAGS) $(SDLIMAGE_CFLAGS)
+ironhells_CFLAGS = $(SDL_CFLAGS) $(SDLTTF_CFLAGS) $(SDLDRAW_CFLAGS) $(SDLIMAGE_CFLAGS) -DTILE_HACK -DEXT_MAP_INFO
 
 ironhells_SOURCES = \
 	angband/angband.h angband/birth.c angband/cave.c angband/cmd1.c \
@@ -69,6 +69,7 @@ ironhells_SOURCES = \
 	sdl/render/overlay/equipment.c sdl/render/overlay/book.c \
 	sdl/render/overlay/messages.c sdl/render/overlay/error.c \
 	sdl/render/overlay/dialog.c sdl/render/overlay/options.c \
+	sdl/render/overlay/shop.c \
 	sdl/render/pointer.c sdl/render/pointer.h \
 	sdl/render/text.c sdl/render/text.h \
 	sdl/render/tile.c sdl/render/tile.h \

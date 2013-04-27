@@ -1,5 +1,5 @@
 
-/* $Id: monster2.c,v 1.3 2003/03/17 22:45:28 cipher Exp $ */
+/* $Id: monster2.c,v 1.4 2003/03/23 06:10:27 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -20,11 +20,8 @@ void
 delete_monster_idx(int i)
 {
      int             x, y;
-
      monster_type   *m_ptr = &mon_list[i];
-
      monster_race   *r_ptr = &r_info[m_ptr->r_idx];
-
      s16b            this_o_idx, next_o_idx = 0;
 
      /* Get location */
@@ -102,9 +99,7 @@ compact_monsters_aux(int i1,
                      int i2)
 {
      int             y, x;
-
      monster_type   *m_ptr;
-
      s16b            this_o_idx, next_o_idx = 0;
 
      /* Do nothing */
@@ -168,7 +163,6 @@ void
 compact_monsters(int size)
 {
      int             i, num, cnt;
-
      int             cur_lev, cur_dis, chance;
 
      /* Message (only if compacting) */
@@ -406,13 +400,9 @@ s16b
 get_mon_num(int level)
 {
      int             i, j, p;
-
      int             r_idx;
-
      long            value, total;
-
      monster_race   *r_ptr;
-
      alloc_entry    *table = alloc_race_table;
 
      /* Boost the level */
@@ -612,11 +602,8 @@ monster_desc(char *desc,
              int mode)
 {
      cptr            res;
-
      monster_race   *r_ptr = &r_info[m_ptr->r_idx];
-
      cptr            name = (r_name + r_ptr->name);
-
      bool            seen, pron;
 
      /* Can we "see" it (forced, or not hidden + visible) */
@@ -917,11 +904,8 @@ update_mon(int m_idx,
            bool full)
 {
      monster_type   *m_ptr = &mon_list[m_idx];
-
      monster_race   *r_ptr = &r_info[m_ptr->r_idx];
-
      monster_lore   *l_ptr = &l_list[m_ptr->r_idx];
-
      int             d;
 
      /* Current location */
@@ -1183,9 +1167,7 @@ monster_carry(int m_idx,
               object_type * j_ptr)
 {
      s16b            o_idx;
-
      s16b            this_o_idx, next_o_idx = 0;
-
      monster_type   *m_ptr = &mon_list[m_idx];
 
      /* Scan objects already being held for combination */
@@ -1255,7 +1237,6 @@ monster_swap(int y1,
              int x2)
 {
      int             m1, m2;
-
      monster_type   *m_ptr;
 
      /* Monsters */
@@ -1368,7 +1349,6 @@ monster_place(int y,
               monster_type * n_ptr)
 {
      s16b            m_idx;
-
      monster_type   *m_ptr;
      monster_race   *r_ptr;
 
@@ -1443,12 +1423,9 @@ place_monster_one(int y,
                   bool slp)
 {
      int             i;
-
      monster_race   *r_ptr;
-
      monster_type   *n_ptr;
      monster_type    monster_type_body;
-
      cptr            name;
 
      /* Paranoia */
@@ -1605,12 +1582,9 @@ place_monster_group(int y,
                     bool slp)
 {
      monster_race   *r_ptr = &r_info[r_idx];
-
      int             old, n, i;
      int             total, extra = 0;
-
      int             hack_n;
-
      byte            hack_y[GROUP_MAX];
      byte            hack_x[GROUP_MAX];
 
@@ -1701,7 +1675,6 @@ static          bool
 place_monster_okay(int r_idx)
 {
      monster_race   *r_ptr = &r_info[place_monster_idx];
-
      monster_race   *z_ptr = &r_info[r_idx];
 
      /* Require similar "race" */
@@ -1750,7 +1723,6 @@ place_monster_aux(int y,
                   bool grp)
 {
      int             i;
-
      monster_race   *r_ptr = &r_info[r_idx];
 
      /* Place one monster, or fail */
@@ -1917,7 +1889,6 @@ alloc_monster(int dis,
 {
      int             py = p_ptr->py;
      int             px = p_ptr->px;
-
      int             y, x;
      int             attempts_left = 10000;
 
@@ -1967,7 +1938,6 @@ static          bool
 summon_specific_okay(int r_idx)
 {
      monster_race   *r_ptr = &r_info[r_idx];
-
      bool            okay = FALSE;
 
      /* Hack -- no specific type specified */
@@ -2175,9 +2145,7 @@ bool
 multiply_monster(int m_idx)
 {
      monster_type   *m_ptr = &mon_list[m_idx];
-
      int             i, y, x;
-
      bool            result = FALSE;
 
      /* Try up to 18 times */
@@ -2214,10 +2182,8 @@ message_pain(int m_idx,
 {
      long            oldhp, newhp, tmp;
      int             percentage;
-
      monster_type   *m_ptr = &mon_list[m_idx];
      monster_race   *r_ptr = &r_info[m_ptr->r_idx];
-
      char            m_name[80];
 
      /* Get the monster name */
@@ -2324,7 +2290,6 @@ update_smart_learn(int m_idx,
 #ifdef DRS_SMART_OPTIONS
 
      monster_type   *m_ptr = &mon_list[m_idx];
-
      monster_race   *r_ptr = &r_info[m_ptr->r_idx];
 
      /* Not allowed to learn */

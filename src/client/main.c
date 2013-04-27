@@ -1,5 +1,5 @@
 
-/* $Id: main.c,v 1.11 2003/03/17 22:45:22 cipher Exp $ */
+/* $Id: main.c,v 1.14 2003/03/24 06:04:50 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -140,14 +140,15 @@ main(int argc,
 
      memset(&ih, 0, sizeof(ih));
 
-#if 1                           // FIXME
-     //     ih.is_fullscreen = TRUE;
+     /* Set some defaults.
+      */
+//     ih.is_fullscreen = TRUE;
      ih.desired_display_width = 1024;
      ih.desired_display_height = 768;
      ih.display_depth = 24;
      ih.icon_size = IH_ICON_SIZE_SMALL;
      ih.pointer = IH_POINTER_STANDARD;
-#endif
+     ih.messages_shown = 10;
 
      /* Hack - force some features to be on.
       */
@@ -178,7 +179,9 @@ main(int argc,
      ih.display_flags = SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_ASYNCBLIT;
      if(ih.is_fullscreen)
           ih.display_flags |= SDL_FULLSCREEN;
+#ifdef DEBUG
      fprintf(stderr, "requested display flags = 0x%x\n", ih.display_flags);
+#endif
 
      /* Get user preferences, such as display mode, etc.
       */
@@ -194,6 +197,8 @@ main(int argc,
           fprintf(stderr, "Couldn't initialize SDL: %s\n", SDL_GetError());
           exit(1);
      }
+     atexit(SDL_Quit);
+     atexit(TTF_Quit);
 
      IH_InitTerm();
 
@@ -211,7 +216,9 @@ main(int argc,
           SDL_Quit();
           exit(2);
      }
+#ifdef DEBUG
      fprintf(stderr, "actual display flags = 0x%x\n", ih.screen->flags);
+#endif
 #if 0
      /* HACK - Set the source alpha on the main screen for hardware
       * accelerated displays.
@@ -231,13 +238,17 @@ main(int argc,
       */
      Draw_Init();
 
+#ifdef DEBUG
      fprintf(stderr, "Initializing lists.\n");
+#endif
      IH_ListInit(&ih.icons);
      IH_ListInit(&ih.misc);
      IH_ListInit(&ih.tiles);
      IH_ListInit(&ih.objects);
 
+#ifdef DEBUG
      fprintf(stderr, "Initializing font.\n");
+#endif
      if(rc = IH_InitFonts())
      {
           fprintf(stderr, "Unable to initialize fonts!\n");
@@ -254,7 +265,9 @@ main(int argc,
 
      ih.scene = IH_SCENE_INTRO;
 
+#ifdef DEBUG
      fprintf(stderr, "Initializing images.\n");
+#endif
      IH_LoadImages();
 
      if(!IH_InitSemaphores())
@@ -276,25 +289,35 @@ main(int argc,
           exit(2);
      }
 
+#ifdef DEBUG
      fprintf(stderr, "main: Entering main loop.\n");
+#endif
      ih.done = 0;
      while(!ih.done)
      {
           SDL_Event       event;
 
+#ifdef DEBUG
           fprintf(stderr, "main: IH_InitScene\n");
+#endif
           IH_InitScene();
 
+#ifdef DEBUG
           fprintf(stderr, "main: IH_RenderScene\n");
+#endif
           IH_RenderScene();
 
           /* Check for events */
+#ifdef DEBUG
           fprintf(stderr, "main: Check for events.\n");
+#endif
           while(SDL_PollEvent(&event))
           {
                /* Do some global event processing.
                 */
+#ifdef DEBUG
                fprintf(stderr, "main: Process an event.\n");
+#endif
                switch (event.type)
                {
                     case SDL_MOUSEMOTION:
@@ -307,31 +330,42 @@ main(int argc,
                          break;
 
                     case SDL_KEYDOWN:
-                         if(event.key.keysym.sym != SDLK_ESCAPE)
+                         if(event.key.keysym.sym != SDLK_F10)
                               break;
                     case SDL_QUIT:
                          ih.done = 1;
                          break;
                }
 
+#ifdef DEBUG
                fprintf(stderr, "main: Check for quit.\n");
+#endif
                if(ih.done)
                     break;
 
                /* Do scene-specific event processing.
                 */
+#ifdef DEBUG
                fprintf(stderr, "main: IH_ProcessScene\n");
+#endif
                IH_ProcessScene(&event);
           }
      }
 
+#ifdef DEBUG
      fprintf(stderr, "main: IH_Cleanup\n");
+#endif
      IH_Cleanup();
 
      /* Clean up the SDL library */
+#ifdef DEBUG
      fprintf(stderr, "main: SDL_Quit\n");
+#endif
+     TTF_Quit();
      SDL_Quit();
 
+#ifdef DEBUG
      fprintf(stderr, "main: exit\n");
+#endif
      return (0);
 }

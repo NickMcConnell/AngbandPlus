@@ -4,7 +4,7 @@
 ** Written by Waldemar Celes
 ** TeCGraf/PUC-Rio
 ** Jul 1998
-** $Id: tolua_eh.c,v 1.2 2003/03/17 22:45:31 cipher Exp $
+** $Id: tolua_eh.c,v 1.1 2003/03/19 21:53:07 cipher Exp $
 */
 
 /* This code is free software; you can redistribute it and/or modify it. 

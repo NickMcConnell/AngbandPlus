@@ -1,5 +1,5 @@
 
-/* $Id: misc.c,v 1.10 2003/03/18 19:17:41 cipher Exp $ */
+/* $Id: misc.c,v 1.11 2003/03/23 06:10:27 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -46,8 +46,10 @@ IH_LoadLMX(void)
               IMG_Load_RW(SDL_RWFromFile(path_lmx, "rb"), 1);
           if(!object->data.image)
           {
+#ifdef DEBUG
                fprintf(stderr, "Unable to load icon image: %s: %s\n",
                        path_lmx, IMG_GetError());
+#endif
                rc = IH_ERROR_CANT_LOAD_IMAGE;
           }
      }
@@ -67,8 +69,10 @@ IH_LoadLMX(void)
               IMG_Load_RW(SDL_RWFromFile(path_life_bar, "rb"), 1);
           if(!object->data.image)
           {
+#ifdef DEBUG
                fprintf(stderr, "Unable to load icon image: %s: %s\n",
                        path_life_bar, IMG_GetError());
+#endif
                rc = IH_ERROR_CANT_LOAD_IMAGE;
           }
      }
@@ -88,8 +92,10 @@ IH_LoadLMX(void)
               IMG_Load_RW(SDL_RWFromFile(path_mana_bar, "rb"), 1);
           if(!object->data.image)
           {
+#ifdef DEBUG
                fprintf(stderr, "Unable to load icon image: %s: %s\n",
                        path_mana_bar, IMG_GetError());
+#endif
                rc = IH_ERROR_CANT_LOAD_IMAGE;
           }
      }
@@ -109,8 +115,10 @@ IH_LoadLMX(void)
               IMG_Load_RW(SDL_RWFromFile(path_xp_bar, "rb"), 1);
           if(!object->data.image)
           {
+#ifdef DEBUG
                fprintf(stderr, "Unable to load icon image: %s: %s\n",
                        path_xp_bar, IMG_GetError());
+#endif
                rc = IH_ERROR_CANT_LOAD_IMAGE;
           }
      }
@@ -295,39 +303,51 @@ IH_RenderMisc(void)
           switch (object->object)
           {
                case IH_SCENE_OBJECT_LIFE:
+#ifdef DEBUG
                     fprintf(stderr, "chp = %d, mhp = %d\n", p_ptr->chp,
                             p_ptr->mhp);
+#endif
                     if(p_ptr->mhp)
                          perc = (p_ptr->chp / p_ptr->mhp);
                     else
                          perc = 0.0f;
+#ifdef DEBUG
                     fprintf(stderr, "perc = %d%%\n", perc * 100);
+#endif
 
                     shade = TRUE;
 
                     break;
 
                case IH_SCENE_OBJECT_MANA:
+#ifdef DEBUG
                     fprintf(stderr, "csp = %d, msp = %d\n", p_ptr->csp,
                             p_ptr->msp);
+#endif
                     if(p_ptr->msp)
                          perc = (p_ptr->csp / p_ptr->msp);
                     else
                          perc = 0.0f;
+#ifdef DEBUG
                     fprintf(stderr, "perc = %d%%\n", perc * 100);
+#endif
 
                     shade = TRUE;
 
                     break;
 
                case IH_SCENE_OBJECT_XP:
+#ifdef DEBUG
                     fprintf(stderr, "exp = %ld, max_exp = %ld\n",
                             p_ptr->exp, p_ptr->max_exp);
+#endif
                     if(p_ptr->max_exp)
                          perc = (p_ptr->exp / p_ptr->max_exp);
                     else
                          perc = 0.0f;
+#ifdef DEBUG
                     fprintf(stderr, "perc = %d%%\n", perc * 100);
+#endif
 
                     shade = TRUE;
 
@@ -412,26 +432,36 @@ IH_ShadeArea(int x,
 {
      SDL_Rect        srect, drect;
 
+#ifdef DEBUG
      fprintf(stderr, "IH_ShadeArea()\n");
+#endif
 
      if(!ih.shader)
           return;
 
+#ifdef DEBUG
      fprintf(stderr,
              "IH_ShadeArea(): check if the shader is the right size\n");
+#endif
      if(w > ih.shader->w || h > ih.shader->h)
      {
+#ifdef DEBUG
           fprintf(stderr, "IH_ShadeArea(): IH_CreateShader\n");
+#endif
           IH_CreateShader(w, h);
      }
 
+#ifdef DEBUG
      fprintf(stderr, "IH_ShadeArea(): double-check the shader\n");
+#endif
      if(!ih.shader)
           return;
 
      /* Setup the rectangles.
       */
+#ifdef DEBUG
      fprintf(stderr, "IH_ShadeArea(): setup the rectangles\n");
+#endif
      srect.x = 0;
      srect.y = 0;
      srect.w = w;
@@ -442,8 +472,12 @@ IH_ShadeArea(int x,
 
      /* Draw it.
       */
+#ifdef DEBUG
      fprintf(stderr, "IH_ShadeArea(): draw the surface\n");
+#endif
      SDL_BlitSurface(ih.shader, &srect, ih.screen, &drect);
 
+#ifdef DEBUG
      fprintf(stderr, "IH_ShadeArea(): return\n");
+#endif
 }

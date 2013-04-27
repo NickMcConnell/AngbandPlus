@@ -1,5 +1,5 @@
 
-/* $Id: store.c,v 1.4 2003/03/17 22:45:28 cipher Exp $ */
+/* $Id: store.c,v 1.5 2003/03/23 06:10:27 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -11,6 +11,8 @@
 
 #include "angband.h"
 #include "script.h"
+
+#include "sdl/render/overlay.h"
 
 #define MAX_COMMENT_1	6
 
@@ -3079,9 +3081,7 @@ do_cmd_store(void)
 {
      int             py = p_ptr->py;
      int             px = p_ptr->px;
-
      int             which;
-
      int             tmp_chr;
 
      /* Verify a store */
@@ -3128,6 +3128,7 @@ do_cmd_store(void)
      store_top = 0;
 
      /* Display the store */
+     Term_xtra(TERM_XTRA_OVER1, IH_OVERLAY_STORE);
      display_store();
 
      /* Do not leave */
@@ -3282,6 +3283,7 @@ do_cmd_store(void)
      character_icky--;
 
      /* Clear the screen */
+     Term_xtra(TERM_XTRA_OVER0, IH_OVERLAY_STORE);
      Term_clear();
 
      /* Update the visuals */

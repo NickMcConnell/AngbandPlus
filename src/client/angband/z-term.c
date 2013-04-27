@@ -1,5 +1,5 @@
 
-/* $Id: z-term.c,v 1.5 2003/03/18 22:03:33 cipher Exp $ */
+/* $Id: z-term.c,v 1.6 2003/03/24 06:04:52 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison
@@ -521,13 +521,10 @@ Term_queue_char(int x,
 {
      byte           *scr_aa = Term->scr->a[y];
      char           *scr_cc = Term->scr->c[y];
-
      byte            oa = scr_aa[x];
      char            oc = scr_cc[x];
-
      byte           *scr_taa = Term->scr->ta[y];
      char           *scr_tcc = Term->scr->tc[y];
-
      byte            ota = scr_taa[x];
      char            otc = scr_tcc[x];
 

@@ -1,5 +1,5 @@
 
-/* $Id: script.c,v 1.9 2003/03/17 22:45:28 cipher Exp $ */
+/* $Id: script.c,v 1.10 2003/03/24 06:04:51 cipher Exp $ */
 
 #include "angband.h"
 #include "script.h"
@@ -720,51 +720,33 @@ script_init(void)
 {
      char            buf[1024];
 
-     fprintf(stderr, "script_init()\n");
-
      /* Start the interpreter with default stack size */
-     fprintf(stderr, "script_init(): lua_open\n");
      L = lua_open(0);
 
      /* Register the Lua base libraries */
-     fprintf(stderr, "script_init(): lua_baselibopen\n");
      lua_baselibopen(L);
-     fprintf(stderr, "script_init(): lua_strlibopen\n");
      lua_strlibopen(L);
-     fprintf(stderr, "script_init(): lua_dblibopen\n");
      lua_dblibopen(L);
 
      /* Register library with binary functions */
-     fprintf(stderr, "script_init(): luaL_openl(bitlib)\n");
      luaL_openl(L, bitlib);
 
      /* Register the Angband base library */
-     fprintf(stderr, "script_init(): luaL_openl(anglib)\n");
      luaL_openl(L, anglib);
 
      /* Register various Angband libraries */
-     fprintf(stderr, "script_init(): tolua_player_open\n");
      tolua_player_open(L);
-     fprintf(stderr, "script_init(): tolua_object_open\n");
      tolua_object_open(L);
-     fprintf(stderr, "script_init(): tolua_monst_open\n");
      tolua_monst_open(L);
-     fprintf(stderr, "script_init(): tolua_random_open\n");
      tolua_random_open(L);
-     fprintf(stderr, "script_init(): tolua_ui_open\n");
      tolua_ui_open(L);
-     fprintf(stderr, "script_init(): tolua_misc_open\n");
      tolua_misc_open(L);
-     fprintf(stderr, "script_init(): tolua_spell_open\n");
      tolua_spell_open(L);
 
      /* Initialization code */
-     fprintf(stderr, "script_init(): path_build\n");
      path_build(buf, sizeof(buf), ANGBAND_DIR_SCRIPT, "init.lua");
-     fprintf(stderr, "script_init(): script_do_file(\"%s\")\n", buf);
      script_do_file(buf);
 
-     fprintf(stderr, "script_init(): return 0\n");
      return 0;
 }
 
@@ -798,9 +780,6 @@ script_do_string(cptr script)
 bool
 script_do_file(cptr filename)
 {
-     fprintf(stderr, "script_do_file()\n");
-
-     fprintf(stderr, "script_do_file(): Check L\n");
      if(!L)
           return FALSE;
 
@@ -812,12 +791,10 @@ script_do_file(cptr filename)
                return TRUE;
      }
 #else /* RISCOS */
-     fprintf(stderr, "script_do_file(): lua_dofile(L, '%s')\n", filename);
      if(!lua_dofile(L, filename))
           return TRUE;
 #endif /* RISCOS */
 
-     fprintf(stderr, "script_do_file(): return FALSE\n");
      return FALSE;
 }
 

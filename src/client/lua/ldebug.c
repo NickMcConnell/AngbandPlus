@@ -1,6 +1,6 @@
 
 /*
-** $Id: ldebug.c,v 1.2 2003/03/17 22:45:30 cipher Exp $
+** $Id: ldebug.c,v 1.1 2003/03/19 21:53:06 cipher Exp $
 ** Debug Interface
 ** See Copyright Notice in lua.h
 */

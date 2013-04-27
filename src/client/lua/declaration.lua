@@ -2,7 +2,7 @@
 -- Written by Waldemar Celes
 -- TeCGraf/PUC-Rio
 -- Jul 1998
--- $Id: declaration.lua,v 1.1.1.1 2003/02/27 18:22:33 cipher Exp $
+-- $Id: declaration.lua,v 1.1 2003/03/19 21:53:05 cipher Exp $
 
 -- This code is free software; you can redistribute it and/or modify it.
 -- The software provided hereunder is on an "as is" basis, and

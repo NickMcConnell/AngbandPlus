@@ -1,5 +1,5 @@
 
-/* $Id: term.c,v 1.9 2003/03/18 22:02:58 cipher Exp $ */
+/* $Id: term.c,v 1.11 2003/03/24 06:04:50 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -22,6 +22,151 @@
  */
 static term_data data[MAX_TERM_DATA];
 
+/*
+ * Key translation structure.
+ */
+struct key_trans
+{
+     SDLKey          sdlkey;
+     int             key;
+};
+
+struct key_trans shift_key_trans[] = {
+     {SDLK_1, '!'},
+     {SDLK_2, '@'},
+     {SDLK_3, '#'},
+     {SDLK_4, '$'},
+     {SDLK_5, '%'},
+     {SDLK_6, '^'},
+     {SDLK_7, '&'},
+     {SDLK_8, '*'},
+     {SDLK_9, '('},
+     {SDLK_0, ')'},
+     {SDLK_MINUS, '_'},
+     {SDLK_EQUALS, '+'},
+     {SDLK_LEFTBRACKET, '{'},
+     {SDLK_RIGHTBRACKET, '}'},
+     {SDLK_BACKSLASH, '|'},
+     {SDLK_SEMICOLON, ':'},
+     {SDLK_SLASH, '?'},
+     {SDLK_COMMA, '<'},
+     {SDLK_PERIOD, '>'},
+     {SDLK_BACKQUOTE, '~'},
+     {SDLK_QUOTE, '"'},
+     {0, 0}
+};
+
+static bool
+HandleKeyEvent(SDL_Event * event)
+{
+     int             key;
+
+     /* Paranoia.
+      */
+     if(!event)
+          return FALSE;
+
+     fprintf(stderr, "HandleKeyEvent(): sym=%c (%d), mod=%x\n",
+             event->key.keysym.sym, event->key.keysym.sym,
+             event->key.keysym.mod);
+
+     key = event->key.keysym.sym;
+
+     if(event->key.keysym.mod & KMOD_SHIFT)
+     {
+          int             i;
+
+          fprintf(stderr, "HandleKeyEvent(): Handling shifted key.\n");
+
+          /* Handle uppercase letters.
+           */
+          if(isalpha(event->key.keysym.sym))
+          {
+               key = toupper(event->key.keysym.sym);
+          }
+
+          /* Handle other cases.
+           */
+          for(i = 0; shift_key_trans[i].sdlkey; i++)
+          {
+               if(event->key.keysym.sym == shift_key_trans[i].sdlkey)
+               {
+                    key = shift_key_trans[i].key;
+                    break;
+               }
+          }
+     }
+
+     if(event->key.keysym.mod & KMOD_CTRL)
+     {
+          fprintf(stderr, "HandleKeyEvent(): Handling CTRL'd key.\n");
+
+          if(isalpha(event->key.keysym.sym))
+          {
+               key = toupper(event->key.keysym.sym) - 'A' + 1;
+          }
+     }
+
+     /* Handle special cases.
+      */
+     switch (event->key.keysym.sym)
+     {
+               /* Skip keystrokes where the sym is just the modifier key.
+                */
+          case SDLK_LSHIFT:
+          case SDLK_RSHIFT:
+          case SDLK_LCTRL:
+          case SDLK_RCTRL:
+          case SDLK_LALT:
+          case SDLK_RALT:
+          case SDLK_LMETA:
+          case SDLK_RMETA:
+          case SDLK_LSUPER:
+          case SDLK_RSUPER:
+          case SDLK_MODE:
+               key = 0;
+               break;
+
+          case SDLK_KP0:
+          case SDLK_KP1:
+          case SDLK_KP2:
+          case SDLK_KP3:
+          case SDLK_KP4:
+          case SDLK_KP5:
+          case SDLK_KP6:
+          case SDLK_KP7:
+          case SDLK_KP8:
+          case SDLK_KP9:
+               fprintf(stderr, "HandleKeyEvent(): Handling keypad.\n");
+               /* Begin special trigger */
+               Term_keypress(31);
+
+               /* Send the "keypad" modifier */
+               Term_keypress('K');
+
+               /* Terminate the trigger */
+               Term_keypress(13);
+
+               /* Send the "ascii" keypress */
+               key = (event->key.keysym.sym - SDLK_KP0) + '0';
+               break;
+     }
+
+     if(key)
+     {
+          fprintf(stderr,
+                  "HandleKeyEvent(): Inserting keypress '%c'\n", key);
+          Term_keypress(key);
+
+          fprintf(stderr, "HandleKeyEvent(): Returning TRUE.\n");
+
+          return TRUE;
+     }
+
+     fprintf(stderr, "HandleKeyEvent(): Returning FALSE.\n");
+     return FALSE;
+}
+
 static          bool
 CheckEvents(bool wait)
 {
@@ -34,6 +179,8 @@ CheckEvents(bool wait)
 
           if(!valid)
           {
+               /* Should we keep waiting for a keypress?
+                */
                if(wait)
                     continue;
 
@@ -49,62 +196,34 @@ CheckEvents(bool wait)
                      * thread.
                      */
                case SDL_KEYDOWN:
-                    fprintf(stderr, "CheckEvents(): sym=%c (%d), mod=%x\n",
-                            event.key.keysym.sym, event.key.keysym.sym,
-                            event.key.keysym.mod);
-
-                    key = event.key.keysym.sym;
-
-                    /* Handle uppercase letters.
-                     */
-                    if(event.key.keysym.mod & KMOD_SHIFT)
+                    /* Try to save a screenshot. */
+                    if(event.key.keysym.sym == SDLK_PRINT)
                     {
                          fprintf(stderr,
-                                 "CheckEvents(): Handling shifted key.\n");
-                         if(isalpha(event.key.keysym.sym))
+                                 "CheckEvents(): Handling Print Screen request.\n");
+#if 0
+                         if(SDL_SaveBMP(data[0].face, "newshot.bmp"))
                          {
-                              key = toupper(event.key.keysym.sym);
-                         }
-                    }
-
-                    /* Handle special cases.
-                     */
-                    switch (event.key.keysym.sym)
-                    {
-                         case SDLK_KP0:
-                         case SDLK_KP1:
-                         case SDLK_KP2:
-                         case SDLK_KP3:
-                         case SDLK_KP4:
-                         case SDLK_KP5:
-                         case SDLK_KP6:
-                         case SDLK_KP7:
-                         case SDLK_KP8:
-                         case SDLK_KP9:
-                              fprintf(stderr,
-                                      "CheckEvents(): Handling keypad.\n");
-                              /* Begin special trigger */
-                              Term_keypress(31);
-
-                              /* Send the "keypad" modifier */
-                              Term_keypress('K');
-
-                              /* Terminate the trigger */
-                              Term_keypress(13);
-
-                              /* Send the "ascii" keypress */
-                              key =
-                                  (event.key.keysym.sym - SDLK_KP0) + '0';
+                              plog("You fail to get the screenshot off!");
                               break;
+                         }
+
+                         for(i = 0; i < 999; ++i)
+                         {
+                              sprintf(buf, "%03d.bmp", i);
+                              if((tmp = fopen(buf, "rb")) != NULL)
+                              {
+                                   fclose(tmp);
+                                   continue;
+                              }
+                              rename("newshot.bmp", buf);
+                         }
+                         plog("*click*");
+#endif
+                         break;
                     }
 
-                    fprintf(stderr,
-                            "CheckEvents(): Inserting keypress '%c'\n",
-                            key);
-                    Term_keypress(key);
-
-                    fprintf(stderr, "CheckEvents(): Returning TRUE.\n");
-                    return TRUE;
+                    return HandleKeyEvent(&event);
           }
      }
 

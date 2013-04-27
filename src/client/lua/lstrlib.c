@@ -1,6 +1,6 @@
 
 /*
-** $Id: lstrlib.c,v 1.2 2003/03/17 22:45:30 cipher Exp $
+** $Id: lstrlib.c,v 1.1 2003/03/19 21:53:07 cipher Exp $
 ** Standard library for string operations and pattern-matching
 ** See Copyright Notice in lua.h
 */

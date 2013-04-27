@@ -1,5 +1,5 @@
 
-/* $Id: file-linux.c,v 1.14 2003/03/18 22:03:35 cipher Exp $ */
+/* $Id: file-linux.c,v 1.16 2003/03/24 06:04:52 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -116,69 +116,6 @@ IH_GetConfigDir(void)
 #endif /* PRIVATE_USER_PATH */
 
      return path_config;
-}
-
-char           *
-IH_GetManifestFilename(cptr path,
-                       int item_num)
-{
-     char           *manifest_file, *file = NULL;
-     FILE           *fp;
-
-     manifest_file = IH_PathBuild(path, "MANIFEST", NULL);
-     if(!manifest_file)
-          return NULL;
-
-     fp = fopen(manifest_file, "r");
-     if(fp)
-     {
-          char            buf[FILENAME_MAX];
-
-          while(fgets(buf, sizeof(buf), fp))
-          {
-               char           *num = NULL, *f = NULL, *c;
-
-               /* Skip blank lines and "comments."
-                */
-               if(!buf[0] ||
-                  buf[0] == '\n' || buf[0] == '\r' || buf[0] == '#')
-                    continue;
-
-               if(c = strchr(buf, '\r'))
-                    *c = 0;
-               if(c = strchr(buf, '\n'))
-                    *c = 0;
-
-               if(c = strchr(buf, ' '))
-               {
-                    *c = 0;
-                    num = buf;
-                    f = c + 1;
-               }
-
-               if(num && buf)
-               {
-                    int             inum;
-
-                    inum = atoi(num);
-                    if(inum == item_num)
-                    {
-                         int             len;
-
-                         len = strlen(f);
-
-                         file = ralloc(len + 2);
-                         my_strcpy(file, f, len + 1);
-                    }
-               }
-          }
-
-          fclose(fp);
-     }
-
-     rnfree(manifest_file);
-
-     return file;
 }
 
 ihList         *

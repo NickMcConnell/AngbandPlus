@@ -1,5 +1,5 @@
 
-/* $Id: cave.c,v 1.4 2003/03/14 22:28:23 cipher Exp $ */
+/* $Id: cave.c,v 1.6 2003/03/23 06:10:27 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -602,8 +602,18 @@ feat_supports_lighting(byte feat)
 void
 map_info(int y,
          int x,
+#ifdef EXT_MAP_INFO
+
+         byte * cap,
+         char *ccp,
+         byte * oap,
+         char *ocp,
+#else
+
          byte * ap,
          char *cp,
+#endif
+
          byte * tap,
          char *tcp)
 {
@@ -617,9 +627,14 @@ map_info(int y,
      s16b            image = p_ptr->image;
      int             floor_num = 0;
 
+     /* Mega-hack - force new lighting effects. */
+     bool            graf_new = TRUE;
+
+#if 0
      /* Hack -- the old tiles don't support the new lighting effects */
      bool            graf_new = (use_graphics &&
                                  !streq(ANGBAND_GRAF, "old"));
+#endif
 
      /* Monster/Player */
      m_idx = cave_m_idx[y][x];
@@ -842,8 +857,10 @@ map_info(int y,
      }
 
      /* Save the terrain info for the transparency effects */
-     (*tap) = a;
-     (*tcp) = c;
+     if(tap)
+          (*tap) = a;
+     if(tcp)
+          (*tcp) = c;
 
      /* Objects */
      for(o_ptr = get_first_object(y, x); o_ptr;
@@ -891,6 +908,12 @@ map_info(int y,
                }
           }
      }
+#ifdef EXT_MAP_INFO
+     if(oap)
+          (*oap) = a;
+     if(ocp)
+          (*ocp) = c;
+#endif
 
      /* Monsters */
      if(m_idx > 0)
@@ -1016,8 +1039,17 @@ map_info(int y,
      }
 
      /* Result */
-     (*ap) = a;
-     (*cp) = c;
+#ifdef EXT_MAP_INFO
+     if(cap)
+          (*cap) = a;
+     if(ccp)
+          (*ccp) = c;
+#else
+     if(ap)
+          (*ap) = a;
+     if(cp)
+          (*cp) = c;
+#endif
 }
 
 /*
@@ -1232,7 +1264,11 @@ lite_spot(int y,
           vx += kx;
 
      /* Hack -- redraw the grid */
+#ifdef EXT_MAP_INFO
+     map_info(y, x, NULL, NULL, &a, &c, &ta, &tc);
+#else
      map_info(y, x, &a, &c, &ta, &tc);
+#endif
 
      /* Hack -- Queue it */
      Term_queue_char(vx, vy, a, c, ta, tc);
@@ -1281,7 +1317,11 @@ prt_map(void)
                     continue;
 
                /* Determine what is there */
+#ifdef EXT_MAP_INFO
+               map_info(y, x, NULL, NULL, &a, &c, &ta, &tc);
+#else
                map_info(y, x, &a, &c, &ta, &tc);
+#endif
 
                /* Hack -- Queue it */
                Term_queue_char(vx, vy, a, c, ta, tc);
@@ -1485,6 +1525,9 @@ display_map(int *cy,
      {
           for(x = 0; x < dungeon_wid; x++)
           {
+               byte            a;
+               char            c;
+
                row = (y * map_hgt / dungeon_hgt);
                col = (x * map_wid / dungeon_wid);
 
@@ -1492,7 +1535,11 @@ display_map(int *cy,
                     col = col & ~1;
 
                /* Get the attr/char at that map location */
-               map_info(y, x, &ta, &tc, &ta, &tc);
+#ifdef EXT_MAP_INFO
+               map_info(y, x, NULL, NULL, &a, &c, &ta, &tc);
+#else
+               map_info(y, x, &a, &c, &ta, &tc);
+#endif
 
                /* Get the priority of that attr/char */
                tp = priority(ta, tc);

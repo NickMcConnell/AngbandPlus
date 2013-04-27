@@ -1,5 +1,5 @@
 
-/* $Id: birth.c,v 1.9 2003/03/17 22:45:23 cipher Exp $ */
+/* $Id: birth.c,v 1.11 2003/03/24 06:04:51 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -1142,8 +1142,6 @@ player_birth_aux_3(void)
           /* Feedback */
           if(adult_auto_roller)
           {
-               fprintf(stderr,
-                       "player_birth_aux_3(): Using adult auto-roller.\n");
                Term_clear();
 
                /* Labels */
@@ -1265,9 +1263,6 @@ player_birth_aux_3(void)
           /* Otherwise just get a character */
           else
           {
-               fprintf(stderr,
-                       "player_birth_aux_3(): Not using adult auto-roller.\n");
-
                /* Get a new character */
                get_stats();
           }
@@ -1371,8 +1366,6 @@ player_birth_aux_3(void)
           prev = TRUE;
      }
 
-     fprintf(stderr, "player_birth_aux_3(): Done with ability rolling.\n");
-
      /* Clear prompt */
      clear_from(23);
 
@@ -1399,8 +1392,6 @@ player_birth_aux(void)
      /* Point-based */
      if(adult_point_based)
      {
-          fprintf(stderr,
-                  "player_birth_aux(): Adult point-based rolling.\n");
           /* Point based */
           if(!player_birth_aux_2())
                return (FALSE);
@@ -1409,7 +1400,6 @@ player_birth_aux(void)
      /* Random */
      else
      {
-          fprintf(stderr, "player_birth_aux(): Auto-rolling.\n");
           /* Auto-roll */
           if(!player_birth_aux_3())
                return (FALSE);

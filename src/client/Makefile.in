@@ -169,7 +169,7 @@ WRES = windres
 
 ironhells_LDADD = lua/liblua.a $(SDLTTF_LIBS) $(SDLDRAW_LIBS) $(SDLIMAGE_LIBS) $(SDL_LIBS)
 ironhells_DEPENDENCIES = lua/liblua.a
-ironhells_CFLAGS = $(SDL_CFLAGS) $(SDLTTF_CFLAGS) $(SDLDRAW_CFLAGS) $(SDLIMAGE_CFLAGS)
+ironhells_CFLAGS = $(SDL_CFLAGS) $(SDLTTF_CFLAGS) $(SDLDRAW_CFLAGS) $(SDLIMAGE_CFLAGS) -DTILE_HACK -DEXT_MAP_INFO
 
 ironhells_SOURCES = \
 	angband/angband.h angband/birth.c angband/cave.c angband/cmd1.c \
@@ -202,6 +202,7 @@ ironhells_SOURCES = \
 	sdl/render/overlay/equipment.c sdl/render/overlay/book.c \
 	sdl/render/overlay/messages.c sdl/render/overlay/error.c \
 	sdl/render/overlay/dialog.c sdl/render/overlay/options.c \
+	sdl/render/overlay/shop.c \
 	sdl/render/pointer.c sdl/render/pointer.h \
 	sdl/render/text.c sdl/render/text.h \
 	sdl/render/tile.c sdl/render/tile.h \
@@ -266,15 +267,15 @@ am_ironhells_OBJECTS = ironhells-birth.$(OBJEXT) \
 	ironhells-equipment.$(OBJEXT) ironhells-book.$(OBJEXT) \
 	ironhells-messages.$(OBJEXT) ironhells-error.$(OBJEXT) \
 	ironhells-dialog.$(OBJEXT) ironhells-options.$(OBJEXT) \
-	ironhells-pointer.$(OBJEXT) ironhells-text.$(OBJEXT) \
-	ironhells-tile.$(OBJEXT) ironhells-bfont.$(OBJEXT) \
-	ironhells-helper.$(OBJEXT) ironhells-render.$(OBJEXT) \
-	ironhells-scene.$(OBJEXT) ironhells-setup.$(OBJEXT) \
-	ironhells-grave.$(OBJEXT) ironhells-intro.$(OBJEXT) \
-	ironhells-mhost.$(OBJEXT) ironhells-mjoin.$(OBJEXT) \
-	ironhells-newchar.$(OBJEXT) ironhells-play.$(OBJEXT) \
-	ironhells-selchar.$(OBJEXT) ironhells-splash.$(OBJEXT) \
-	ironhells-title.$(OBJEXT)
+	ironhells-shop.$(OBJEXT) ironhells-pointer.$(OBJEXT) \
+	ironhells-text.$(OBJEXT) ironhells-tile.$(OBJEXT) \
+	ironhells-bfont.$(OBJEXT) ironhells-helper.$(OBJEXT) \
+	ironhells-render.$(OBJEXT) ironhells-scene.$(OBJEXT) \
+	ironhells-setup.$(OBJEXT) ironhells-grave.$(OBJEXT) \
+	ironhells-intro.$(OBJEXT) ironhells-mhost.$(OBJEXT) \
+	ironhells-mjoin.$(OBJEXT) ironhells-newchar.$(OBJEXT) \
+	ironhells-play.$(OBJEXT) ironhells-selchar.$(OBJEXT) \
+	ironhells-splash.$(OBJEXT) ironhells-title.$(OBJEXT)
 ironhells_OBJECTS = $(am_ironhells_OBJECTS)
 ironhells_LDFLAGS =
 
@@ -347,6 +348,7 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/ironhells-script.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/ironhells-selchar.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/ironhells-setup.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/ironhells-shop.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/ironhells-spells1.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/ironhells-spells2.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/ironhells-splash.Po \
@@ -504,6 +506,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ironhells-script.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ironhells-selchar.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ironhells-setup.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ironhells-shop.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ironhells-spells1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ironhells-spells2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ironhells-splash.Po@am__quote@
@@ -2906,6 +2909,39 @@ ironhells-options.lo: sdl/render/overlay/options.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/ironhells-options.Plo' tmpdepfile='$(DEPDIR)/ironhells-options.TPlo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ironhells_CFLAGS) $(CFLAGS) -c -o ironhells-options.lo `test -f 'sdl/render/overlay/options.c' || echo '$(srcdir)/'`sdl/render/overlay/options.c
+
+ironhells-shop.o: sdl/render/overlay/shop.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ironhells_CFLAGS) $(CFLAGS) -MT ironhells-shop.o -MD -MP -MF "$(DEPDIR)/ironhells-shop.Tpo" \
+@am__fastdepCC_TRUE@	  -c -o ironhells-shop.o `test -f 'sdl/render/overlay/shop.c' || echo '$(srcdir)/'`sdl/render/overlay/shop.c; \
+@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/ironhells-shop.Tpo" "$(DEPDIR)/ironhells-shop.Po"; \
+@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/ironhells-shop.Tpo"; exit 1; \
+@am__fastdepCC_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='sdl/render/overlay/shop.c' object='ironhells-shop.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/ironhells-shop.Po' tmpdepfile='$(DEPDIR)/ironhells-shop.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ironhells_CFLAGS) $(CFLAGS) -c -o ironhells-shop.o `test -f 'sdl/render/overlay/shop.c' || echo '$(srcdir)/'`sdl/render/overlay/shop.c
+
+ironhells-shop.obj: sdl/render/overlay/shop.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ironhells_CFLAGS) $(CFLAGS) -MT ironhells-shop.obj -MD -MP -MF "$(DEPDIR)/ironhells-shop.Tpo" \
+@am__fastdepCC_TRUE@	  -c -o ironhells-shop.obj `if test -f 'sdl/render/overlay/shop.c'; then $(CYGPATH_W) 'sdl/render/overlay/shop.c'; else $(CYGPATH_W) '$(srcdir)/sdl/render/overlay/shop.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/ironhells-shop.Tpo" "$(DEPDIR)/ironhells-shop.Po"; \
+@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/ironhells-shop.Tpo"; exit 1; \
+@am__fastdepCC_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='sdl/render/overlay/shop.c' object='ironhells-shop.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/ironhells-shop.Po' tmpdepfile='$(DEPDIR)/ironhells-shop.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ironhells_CFLAGS) $(CFLAGS) -c -o ironhells-shop.obj `if test -f 'sdl/render/overlay/shop.c'; then $(CYGPATH_W) 'sdl/render/overlay/shop.c'; else $(CYGPATH_W) '$(srcdir)/sdl/render/overlay/shop.c'; fi`
+
+ironhells-shop.lo: sdl/render/overlay/shop.c
+@am__fastdepCC_TRUE@	if $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ironhells_CFLAGS) $(CFLAGS) -MT ironhells-shop.lo -MD -MP -MF "$(DEPDIR)/ironhells-shop.Tpo" \
+@am__fastdepCC_TRUE@	  -c -o ironhells-shop.lo `test -f 'sdl/render/overlay/shop.c' || echo '$(srcdir)/'`sdl/render/overlay/shop.c; \
+@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/ironhells-shop.Tpo" "$(DEPDIR)/ironhells-shop.Plo"; \
+@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/ironhells-shop.Tpo"; exit 1; \
+@am__fastdepCC_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='sdl/render/overlay/shop.c' object='ironhells-shop.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/ironhells-shop.Plo' tmpdepfile='$(DEPDIR)/ironhells-shop.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ironhells_CFLAGS) $(CFLAGS) -c -o ironhells-shop.lo `test -f 'sdl/render/overlay/shop.c' || echo '$(srcdir)/'`sdl/render/overlay/shop.c
 
 ironhells-pointer.o: sdl/render/pointer.c
 @am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ironhells_CFLAGS) $(CFLAGS) -MT ironhells-pointer.o -MD -MP -MF "$(DEPDIR)/ironhells-pointer.Tpo" \

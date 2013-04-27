@@ -1,5 +1,5 @@
 
-/* $Id: tile.h,v 1.9 2003/03/17 06:09:04 cipher Exp $ */
+/* $Id: tile.h,v 1.10 2003/03/24 06:04:53 cipher Exp $ */
 
 #ifndef IH_SDL_RENDER_TILE_H
 #define IH_SDL_RENDER_TILE_H
@@ -30,7 +30,7 @@ void            IH_RenderTiles(void);
 #define IH_TILE_ACTUAL_HEIGHT 98
 
 #define IH_MAX_TILES 1024
-#define IH_MAX_OBJS 1024
+#define IH_MAX_OBJECTS 1024
 #define IH_MAX_CREATURES 1024
 
 #endif /* IH_SDL_RENDER_TILE_H */

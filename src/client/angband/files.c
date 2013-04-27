@@ -1,5 +1,5 @@
 
-/* $Id: files.c,v 1.8 2003/03/17 06:09:04 cipher Exp $ */
+/* $Id: files.c,v 1.9 2003/03/24 06:04:51 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -4317,8 +4317,6 @@ handle_signal_simple(int sig)
      /* Protect errno from library calls in signal handler */
      int             save_errno = errno;
 
-     fprintf(stderr, "handle_signal_simple()\n");
-
      /* Disable handler */
      (void) (*signal_aux) (sig, SIG_IGN);
 
@@ -4404,8 +4402,6 @@ handle_signal_simple(int sig)
 static void
 handle_signal_abort(int sig)
 {
-     fprintf(stderr, "handle_signal_abort()\n");
-
      /* Disable handler */
      (void) (*signal_aux) (sig, SIG_IGN);
 

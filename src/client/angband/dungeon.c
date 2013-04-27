@@ -1,5 +1,5 @@
 
-/* $Id: dungeon.c,v 1.5 2003/03/17 06:09:04 cipher Exp $ */
+/* $Id: dungeon.c,v 1.6 2003/03/23 06:10:27 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -2722,6 +2722,9 @@ play_game(bool new_game)
 
      /* Hack -- Turn off the character overlay, by default */
      Term_xtra(TERM_XTRA_OVER0, IH_OVERLAY_CHARACTER);
+
+     /* Another hack -- Turn on the messages overlay, by default */
+     Term_xtra(TERM_XTRA_OVER1, IH_OVERLAY_MESSAGES);
 
      /* Hack -- Enforce "delayed death" */
      if(p_ptr->chp < 0)

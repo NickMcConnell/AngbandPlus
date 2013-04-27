@@ -1,5 +1,5 @@
 
-/* $Id: overlay.c,v 1.12 2003/03/18 19:17:41 cipher Exp $ */
+/* $Id: overlay.c,v 1.13 2003/03/23 06:10:27 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -134,6 +134,9 @@ IH_InitOverlay(int overlay_num)
                case IH_OVERLAY_MESSAGES:
                     break;
 
+               case IH_OVERLAY_STORE:
+                    break;
+
                case IH_OVERLAY_ERROR:
                     /* Position and size are determined at the time of first
                      * rendering, because that is when we can be certain that the
@@ -214,6 +217,10 @@ IH_RenderOverlays(void)
 
                case IH_OVERLAY_MESSAGES:
                     IH_RenderOverlay_Messages(overlay);
+                    break;
+
+               case IH_OVERLAY_STORE:
+                    IH_RenderOverlay_Store(overlay);
                     break;
 
                case IH_OVERLAY_ERROR:

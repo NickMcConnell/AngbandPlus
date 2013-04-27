@@ -1,5 +1,5 @@
 
-/* $Id: main.c,v 1.5 2003/03/17 22:45:27 cipher Exp $ */
+/* $Id: ang-main.c,v 1.1 2003/03/19 21:53:03 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, and others

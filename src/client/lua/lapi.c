@@ -1,6 +1,6 @@
 
 /*
-** $Id: lapi.c,v 1.4 2003/03/17 22:45:30 cipher Exp $
+** $Id: lapi.c,v 1.1 2003/03/19 21:53:06 cipher Exp $
 ** Lua API
 ** See Copyright Notice in lua.h
 */

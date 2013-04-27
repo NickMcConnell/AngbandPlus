@@ -1,5 +1,5 @@
 
-/* $Id: pointer.c,v 1.7 2003/03/18 19:17:41 cipher Exp $ */
+/* $Id: pointer.c,v 1.9 2003/03/23 06:10:27 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -23,7 +23,7 @@
 
 struct ihPointerInit
 {
-     char           *name;
+     const char     *name;
      int             array_pos;
 };
 
@@ -51,10 +51,14 @@ IH_LoadPointers(void)
      cptr            size;
      int             i;
 
+#ifdef DEBUG
      fprintf(stderr, "IH_LoadPointers()\n");
+#endif
 
      path_data = IH_GetDataDir("gfx");
+#ifdef DEBUG
      fprintf(stderr, "path_data = %s\n", path_data);
+#endif
      switch (ih.icon_size)
      {
           case IH_ICON_SIZE_LARGE:
@@ -71,7 +75,9 @@ IH_LoadPointers(void)
                break;
      }
      path_misc = IH_PathBuild(path_data, "misc", size, NULL);
+#ifdef DEBUG
      fprintf(stderr, "path_misc = %s\n", path_misc);
+#endif
 
      for(i = 0; pointers_init[i].name; i++)
      {
@@ -86,14 +92,18 @@ IH_LoadPointers(void)
           fprintf(stderr, "pointer_name = %s\n", pointer_name);
 
           path_pointer = IH_PathBuild(path_misc, pointer_name, NULL);
+#ifdef DEBUG
           fprintf(stderr, "path_pointer = %s\n", path_pointer);
+#endif
 
           pointers[pointers_init[i].array_pos] =
               IMG_Load_RW(SDL_RWFromFile(path_pointer, "rb"), 1);
           if(!pointers[pointers_init[i].array_pos])
           {
+#ifdef DEBUG
                fprintf(stderr, "Unable to load pointer image: %s: %s\n",
                        path_pointer, IMG_GetError());
+#endif
                rc = IH_ERROR_CANT_LOAD_POINTER;
           }
 

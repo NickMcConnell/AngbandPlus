@@ -4,7 +4,7 @@
 ** TeCGraf/PUC-Rio
 ** http://www.tecgraf.puc-rio.br/~celes/tolua
 ** Jul 1998
-** $Id: tolua.h,v 1.3 2003/03/17 22:45:30 cipher Exp $
+** $Id: tolua.h,v 1.1 2003/03/19 21:53:07 cipher Exp $
 */
 
 /* This code is free software; you can redistribute it and/or modify it.

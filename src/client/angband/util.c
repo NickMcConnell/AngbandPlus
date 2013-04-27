@@ -1,5 +1,5 @@
 
-/* $Id: util.c,v 1.6 2003/03/17 22:45:29 cipher Exp $ */
+/* $Id: util.c,v 1.7 2003/03/24 06:04:52 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -2556,7 +2556,9 @@ msg_print_aux(u16b type,
      if(!msg)
           return;
 
+#ifdef DEBUG
      fprintf(stderr, "MESSAGE: %s\n", msg);
+#endif
 
      /* Paranoia */
      if(n > 1000)

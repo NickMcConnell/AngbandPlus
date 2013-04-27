@@ -1,5 +1,5 @@
 
-/* $Id: render.c,v 1.5 2003/03/17 06:09:04 cipher Exp $ */
+/* $Id: render.c,v 1.6 2003/03/23 06:10:27 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -32,7 +32,9 @@ IH_RenderScene(void)
 {
      SDL_Rect        rect;
 
+#ifdef DEBUG
      fprintf(stderr, "IH_RenderScene()\n");
+#endif
 
      SDL_ShowCursor(FALSE);
 
@@ -45,56 +47,76 @@ IH_RenderScene(void)
      SDL_FillRect(ih.screen,
                   &rect, SDL_MapRGB(ih.screen->format, 0, 0, 0));
 
+#ifdef DEBUG
      fprintf(stderr,
              "IH_RenderScene(): Render proper scene (ih.scene = %d, ih.stage = %d)\n",
              ih.scene, ih.stage);
+#endif
      switch (ih.scene)
      {
           case IH_SCENE_SPLASH:
+#ifdef DEBUG
                fprintf(stderr, "IH_RenderScene(): splash (%d)\n",
                        ih.scene);
+#endif
                IH_RenderScene_Splash();
                break;
 
           case IH_SCENE_INTRO:
+#ifdef DEBUG
                fprintf(stderr, "IH_RenderScene(): intro (%d)\n", ih.scene);
+#endif
                IH_RenderScene_Intro();
                break;
 
           case IH_SCENE_TITLE:
+#ifdef DEBUG
                fprintf(stderr, "IH_RenderScene(): title (%d)\n", ih.scene);
+#endif
                IH_RenderScene_Title();
                break;
 
           case IH_SCENE_SELECT_CHARACTER:
+#ifdef DEBUG
                fprintf(stderr, "IH_RenderScene(): selchar (%d)\n",
                        ih.scene);
+#endif
                IH_RenderScene_SelChar();
                break;
 
           case IH_SCENE_NEW_CHARACTER:
+#ifdef DEBUG
                fprintf(stderr, "IH_RenderScene(): newchar (%d)\n",
                        ih.scene);
+#endif
                IH_RenderScene_NewChar();
                break;
 
           case IH_SCENE_MULTIPLAYER_HOST:
+#ifdef DEBUG
                fprintf(stderr, "IH_RenderScene(): mhost (%d)\n", ih.scene);
+#endif
                IH_RenderScene_MultiHost();
                break;
 
           case IH_SCENE_MULTIPLAYER_JOIN:
+#ifdef DEBUG
                fprintf(stderr, "IH_RenderScene(): mjoin (%d)\n", ih.scene);
+#endif
                IH_RenderScene_MultiJoin();
                break;
 
           case IH_SCENE_PLAY:
+#ifdef DEBUG
                fprintf(stderr, "IH_RenderScene(): play (%d)\n", ih.scene);
+#endif
                IH_RenderScene_Play();
                break;
 
           case IH_SCENE_GRAVE:
+#ifdef DEBUG
                fprintf(stderr, "IH_RenderScene(): grave (%d)\n", ih.scene);
+#endif
                IH_RenderScene_Grave();
                break;
      }

@@ -1,5 +1,5 @@
 
-/* $Id: text.h,v 1.6 2003/03/17 22:45:39 cipher Exp $ */
+/* $Id: text.h,v 1.7 2003/03/24 06:04:53 cipher Exp $ */
 
 #ifndef IH_SDL_RENDER_TEXT_H
 #define IH_SDL_RENDER_TEXT_H
@@ -41,6 +41,7 @@ void            IH_ProcessFontPos(SDL_Surface * image,
                                   SDL_Rect * rect);
 int             IH_GetTextWidth(int size,
                                 cptr text);
+int             IH_GetFontHeight(int size);
 
 /* Data definitions.
  */

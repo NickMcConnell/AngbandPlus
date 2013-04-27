@@ -1,5 +1,5 @@
 
-/* $Id: dialog.c,v 1.3 2003/03/18 19:17:42 cipher Exp $ */
+/* $Id: dialog.c,v 1.4 2003/03/19 21:53:10 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -154,22 +154,23 @@ IH_RenderOverlay_Dialog(Overlay * overlay)
      /* Draw the buffer text */
      if(ih.input_buffer)
      {
-		  SDL_Rect rect;
+          SDL_Rect        rect;
           char           *buf_s;
-		 
-		  /* Backfill the buffer area with black, otherwise the
-		   * text will hardly be readable.
-		   */
-		  rect.x = overlay->position.x + 3;
-		  rect.y = overlay->position.y + 3 + (overlay->gfx.dialog.n_lines * IH_FONT_NORMAL_SIZE);
-		  rect.w = overlay->gfx.dialog.w;
-		  rect.h = IH_FONT_NORMAL_SIZE;
-		  SDL_FillRect(ih.screen,
-		 			   &rect,
-		 			   SDL_MapRGB(ih.screen->format, 0, 0, 0));
 
-		  /* Draw the buffer text, so that it fits.
-		   */
+          /* Backfill the buffer area with black, otherwise the
+           * text will hardly be readable.
+           */
+          rect.x = overlay->position.x + 3;
+          rect.y =
+              overlay->position.y + 3 +
+              (overlay->gfx.dialog.n_lines * IH_FONT_NORMAL_SIZE);
+          rect.w = overlay->gfx.dialog.w;
+          rect.h = IH_FONT_NORMAL_SIZE;
+          SDL_FillRect(ih.screen,
+                       &rect, SDL_MapRGB(ih.screen->format, 0, 0, 0));
+
+          /* Draw the buffer text, so that it fits.
+           */
           buf_s = ih.input_buffer;
           while(1)
           {

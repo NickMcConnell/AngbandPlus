@@ -1,5 +1,5 @@
 
-/* $Id: overlay.h,v 1.8 2003/03/18 19:17:41 cipher Exp $ */
+/* $Id: overlay.h,v 1.9 2003/03/23 06:10:27 cipher Exp $ */
 
 #ifndef IH_SDL_RENDER_OVERLAY_H
 #define IH_SDL_RENDER_OVERLAY_H
@@ -30,6 +30,7 @@ void            IH_RenderOverlay_Equipment(Overlay * overlay);
 void            IH_RenderOverlay_Inventory(Overlay * overlay);
 void            IH_RenderOverlay_Book(Overlay * overlay);
 void            IH_RenderOverlay_Messages(Overlay * overlay);
+void            IH_RenderOverlay_Store(Overlay * overlay);
 void            IH_RenderOverlay_Error(Overlay * overlay);
 void            IH_RenderOverlay_Dialog(Overlay * overlay);
 void            IH_RenderOverlay_Options(Overlay * overlay);
@@ -95,6 +96,11 @@ struct _Overlay
                byte            filler;
           }
           options;
+          struct
+          {
+               byte            filler;
+          }
+          store;
      }
      gfx;
 };
@@ -107,6 +113,7 @@ enum
      IH_OVERLAY_EQUIPMENT,
      IH_OVERLAY_BOOK,
      IH_OVERLAY_MESSAGES,
+     IH_OVERLAY_STORE,
 
      IH_OVERLAY_OPTIONS,
      IH_OVERLAY_DIALOG,

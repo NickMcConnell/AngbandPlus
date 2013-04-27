@@ -1,5 +1,5 @@
 
-/* $Id: externs.h,v 1.4 2003/03/17 22:45:24 cipher Exp $ */
+/* $Id: externs.h,v 1.5 2003/03/21 22:28:07 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison
@@ -282,8 +282,18 @@ feat_supports_lighting(byte feat);
 extern void
 map_info(int y,
          int x,
+#ifdef EXT_MAP_INFO
+
+         byte * cap,
+         char *ccp,
+         byte * oap,
+         char *ocp,
+#else
+
          byte * ap,
          char *cp,
+#endif
+
          byte * tap,
          char *tcp);
 extern void

@@ -1,5 +1,5 @@
 
-/* $Id: newchar.c,v 1.11 2003/03/17 22:58:45 cipher Exp $ */
+/* $Id: newchar.c,v 1.12 2003/03/23 06:10:27 cipher Exp $ */
 
 /*
  * Copyright (c) 2003 Paul A. Schifferer
@@ -558,7 +558,7 @@ IH_ProcessScene_NewChar(SDL_Event * event)
                          scene_info.hilite_random = IH_HILITE_SELECT;
 
                          IH_CreateFakeEvent(&fevent,
-                                            SDL_KEYDOWN, '*', NULL);
+                                            SDL_KEYDOWN, '*', KMOD_SHIFT);
                          IH_SetIPCEvent(&fevent);
                     }
                }

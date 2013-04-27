@@ -1,5 +1,5 @@
 
-/* $Id: cmd4.c,v 1.3 2003/03/17 22:45:23 cipher Exp $ */
+/* $Id: cmd4.c,v 1.4 2003/03/23 06:10:27 cipher Exp $ */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -198,10 +198,8 @@ void
 do_cmd_messages(void)
 {
      char            ch;
-
      int             i, j, n, q;
      int             wid, hgt;
-
      char            shower[80];
      char            finder[80];
 

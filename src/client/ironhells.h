@@ -1,5 +1,5 @@
 
-/* $Id: ironhells.h,v 1.14 2003/03/18 22:02:57 cipher Exp $ */
+/* $Id: ironhells.h,v 1.15 2003/03/24 06:04:50 cipher Exp $ */
 
 #ifndef IH_IRONHELLS_H
 #define IH_IRONHELLS_H
@@ -52,7 +52,7 @@ struct IronHells
      int             icon_size;
 
      SDL_Surface    *tile_array[IH_MAX_TILES];
-     SDL_Surface    *obj_array[IH_MAX_OBJS];
+     SDL_Surface    *object_array[IH_MAX_OBJECTS];
      SDL_Surface    *creature_array[IH_MAX_CREATURES];
 
 #ifdef USE_SDLTTF
@@ -110,6 +110,8 @@ struct IronHells
      int             done;
      int             playing;
      int             new_game;
+
+     int             messages_shown;
 
      /* Variables for dialog overlays.
       */
