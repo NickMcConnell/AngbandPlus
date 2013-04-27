@@ -10,8 +10,6 @@
 
 #include "angband.h"
 
-#include "script.h"
-
 
 /*
  * Return a "feeling" (or NULL) about an item.  Method 1 (Heavy).
@@ -19,30 +17,30 @@
 static int value_check_aux1(const object_type *o_ptr)
 {
 	/* Artifacts */
-	if (artifact_p(o_ptr))
+	if (o_ptr->is_artifact())
 	{
 		/* Cursed/Broken */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) return (INSCRIP_TERRIBLE);
+		if (o_ptr->is_broken_or_cursed()) return (INSCRIP_TERRIBLE);
 
 		/* Normal */
 		return (INSCRIP_SPECIAL);
 	}
 
 	/* Ego-Items */
-	if (ego_item_p(o_ptr))
+	if (o_ptr->is_ego_item())
 	{
 		/* Cursed/Broken */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) return (INSCRIP_WORTHLESS);
+		if (o_ptr->is_broken_or_cursed()) return (INSCRIP_WORTHLESS);
 
 		/* Normal */
 		return (INSCRIP_EXCELLENT);
 	}
 
 	/* Cursed items */
-	if (cursed_p(o_ptr)) return (INSCRIP_CURSED);
+	if (o_ptr->is_cursed()) return (INSCRIP_CURSED);
 
 	/* Broken items */
-	if (broken_p(o_ptr)) return (INSCRIP_BROKEN);
+	if (o_ptr->is_broken()) return (INSCRIP_BROKEN);
 
 	/* Good "armor" bonus */
 	if (o_ptr->to_a > 0) return (INSCRIP_GOOD);
@@ -61,16 +59,16 @@ static int value_check_aux1(const object_type *o_ptr)
 static int value_check_aux2(const object_type *o_ptr)
 {
 	/* Cursed items (all of them) */
-	if (cursed_p(o_ptr)) return (INSCRIP_CURSED);
+	if (o_ptr->is_cursed()) return (INSCRIP_CURSED);
 
 	/* Broken items (all of them) */
-	if (broken_p(o_ptr)) return (INSCRIP_BROKEN);
+	if (o_ptr->is_broken()) return (INSCRIP_BROKEN);
 
 	/* Artifacts -- except cursed/broken ones */
-	if (artifact_p(o_ptr)) return (INSCRIP_GOOD);
+	if (o_ptr->is_artifact()) return (INSCRIP_GOOD);
 
 	/* Ego-Items -- except cursed/broken ones */
-	if (ego_item_p(o_ptr)) return (INSCRIP_GOOD);
+	if (o_ptr->is_ego_item()) return (INSCRIP_GOOD);
 
 	/* Good armor bonus */
 	if (o_ptr->to_a > 0) return (INSCRIP_GOOD);
@@ -126,7 +124,7 @@ static void sense_inventory(void)
 	{
 		bool okay = FALSE;
 
-		o_ptr = &inventory[i];
+		o_ptr = &p_ptr->inventory[i];
 
 		/* Skip empty slots */
 		if (!o_ptr->k_idx) continue;
@@ -168,7 +166,7 @@ static void sense_inventory(void)
 		if (o_ptr->ident & (IDENT_SENSE)) continue;
 
 		/* It is known, no information needed */
-		if (object_known_p(o_ptr)) continue;
+		if (o_ptr->known()) continue;
 
 		/* Occasional failure on inventory items */
 		if ((i < INVEN_WIELD) && (0 != rand_int(5))) continue;
@@ -320,7 +318,33 @@ static void regenmana(int percent)
 
 
 
+static bool regenerate_monster(monster_type& m)
+{
+	/* Allow regeneration (if needed) */
+	if (m.hp < m.maxhp)
+	{
+		monster_race *r_ptr = &r_info[m.r_idx];
 
+		/* Hack -- Base regeneration */
+		int frac = m.maxhp / 100;
+
+		/* Hack -- Minimal regeneration rate */
+		if (!frac) frac = 1;
+
+		/* Hack -- Some monsters regenerate quickly */
+		if (r_ptr->flags2 & (RF2_REGENERATE)) frac *= 2;
+
+		/* Hack -- Regenerate */
+		if (m.maxhp-m.hp>=frac) 
+			m.hp += frac;
+		else
+			m.hp = m.maxhp;
+
+		/* Redraw (later) if needed */
+		if (p_ptr->health_who == (&m-mon_list)) p_ptr->redraw |= (PR_HEALTH);
+	};
+	return false;
+}
 
 
 /*
@@ -330,40 +354,7 @@ static void regenmana(int percent)
  */
 static void regen_monsters(void)
 {
-	int i, frac;
-
-	/* Regenerate everyone */
-	for (i = 1; i < mon_max; i++)
-	{
-		/* Check the i'th monster */
-		monster_type *m_ptr = &mon_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-		/* Skip dead monsters */
-		if (!m_ptr->r_idx) continue;
-
-		/* Allow regeneration (if needed) */
-		if (m_ptr->hp < m_ptr->maxhp)
-		{
-			/* Hack -- Base regeneration */
-			frac = m_ptr->maxhp / 100;
-
-			/* Hack -- Minimal regeneration rate */
-			if (!frac) frac = 1;
-
-			/* Hack -- Some monsters regenerate quickly */
-			if (r_ptr->flags2 & (RF2_REGENERATE)) frac *= 2;
-
-			/* Hack -- Regenerate */
-			m_ptr->hp += frac;
-
-			/* Do not over-regenerate */
-			if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
-
-			/* Redraw (later) if needed */
-			if (p_ptr->health_who == i) p_ptr->redraw |= (PR_HEALTH);
-		}
-	}
+	monster_scan(regenerate_monster);
 }
 
 
@@ -414,6 +405,20 @@ static void recharged_notice(const object_type *o_ptr)
 	}
 }
 
+static bool recharge_rod_on_ground(object_type& o)
+{
+	if ((o.tval == TV_ROD) && (o.timeout))
+	{
+		if (o.timeout<o.number)
+			{
+			o.timeout = 0;
+			}
+		else{
+			o.timeout -= o.number;
+			}
+	}
+	return false;
+}
 
 /*
  * Recharge activatable objects in the player's equipment
@@ -433,7 +438,7 @@ static void recharge_objects(void)
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
 		/* Get the object */
-		o_ptr = &inventory[i];
+		o_ptr = &p_ptr->inventory[i];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
@@ -464,8 +469,8 @@ static void recharge_objects(void)
 	/* Recharge rods */
 	for (i = 0; i < INVEN_PACK; i++)
 	{
-		o_ptr = &inventory[i];
-		k_ptr = &k_info[o_ptr->k_idx];
+		o_ptr = &p_ptr->inventory[i];
+		k_ptr = &object_type::k_info[o_ptr->k_idx];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
@@ -509,26 +514,7 @@ static void recharge_objects(void)
 
 
 	/*** Process Objects ***/
-
-	/* Process objects */
-	for (i = 1; i < o_max; i++)
-	{
-		/* Get the object */
-		o_ptr = &o_list[i];
-
-		/* Skip dead objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Recharge rods on the ground */
-		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
-		{
-			/* Charge it */
-			o_ptr->timeout -= o_ptr->number;
-
-			/* Boundary control */
-			if (o_ptr->timeout < 0) o_ptr->timeout = 0;
-		}
-	}
+	object_scan(recharge_rod_on_ground);
 }
 
 
@@ -744,14 +730,15 @@ static void process_world(void)
 	/* Take damage from cuts */
 	if (p_ptr->cut)
 	{
+		unsigned int bleeding = cut_level(p_ptr->cut);
 		/* Mortal wound or Deep Gash */
-		if (p_ptr->cut > 200)
+		if (6 <= bleeding)
 		{
 			i = 3;
 		}
 
 		/* Severe cut */
-		else if (p_ptr->cut > 100)
+		else if (5 == bleeding)
 		{
 			i = 2;
 		}
@@ -1022,13 +1009,14 @@ static void process_world(void)
 	/* Cut */
 	if (p_ptr->cut)
 	{
+		unsigned int bleeding = cut_level(p_ptr->cut);
 		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
 
-		/* Hack -- Truly "mortal" wound */
-		if (p_ptr->cut > 1000) adjust = 0;
-
-		/* Apply some healing */
-		(void)set_cut(p_ptr->cut - adjust);
+		/* mortal wounds do not heal */
+		if (7 > bleeding)
+			{
+			(void)set_cut(p_ptr->cut - adjust);	/* Apply some healing */
+			};
 	}
 
 
@@ -1036,13 +1024,13 @@ static void process_world(void)
 	/*** Process Light ***/
 
 	/* Check for light being wielded */
-	o_ptr = &inventory[INVEN_LITE];
+	o_ptr = &p_ptr->inventory[INVEN_LITE];
 
 	/* Burn some fuel in the current lite */
 	if (o_ptr->tval == TV_LITE)
 	{
 		/* Hack -- Use some fuel (except on artifacts) */
-		if (!artifact_p(o_ptr) && (o_ptr->pval > 0))
+		if (!o_ptr->is_artifact() && (o_ptr->pval > 0))
 		{
 			/* Decrease life-span */
 			o_ptr->pval--;
@@ -1261,9 +1249,6 @@ static void process_command(void)
 	repeat_check();
 
 #endif /* ALLOW_REPEAT */
-
-	/* Event -- process command */
-	if (process_command_hook(p_ptr->command_cmd)) return;
 
 	/* Parse the command */
 	switch (p_ptr->command_cmd)
@@ -1965,9 +1950,6 @@ static void process_player(void)
 {
 	int i;
 
-	/* Event -- Player turn */
-	player_turn_hook();
-
 	/*** Check for interrupts ***/
 
 	/* Complete resting */
@@ -2047,14 +2029,14 @@ static void process_player(void)
 
 
 		/* Place the cursor on the player */
-		move_cursor_relative(p_ptr->py, p_ptr->px);
+		move_cursor_relative(p_ptr->loc);
 
 		/* Refresh (optional) */
 		if (fresh_before) Term_fresh();
 
 
 		/* Hack -- Pack Overflow */
-		if (inventory[INVEN_PACK].k_idx)
+		if (p_ptr->inventory[INVEN_PACK].k_idx)
 		{
 			int item = INVEN_PACK;
 
@@ -2063,7 +2045,7 @@ static void process_player(void)
 			object_type *o_ptr;
 
 			/* Get the slot to be dropped */
-			o_ptr = &inventory[item];
+			o_ptr = &p_ptr->inventory[item];
 
 			/* Disturbing */
 			disturb(0, 0);
@@ -2078,7 +2060,7 @@ static void process_player(void)
 			msg_format("You drop %s (%c).", o_name, index_to_label(item));
 
 			/* Drop it (carefully) near the player */
-			drop_near(o_ptr, 0, p_ptr->py, p_ptr->px);
+			drop_near(o_ptr, 0, p_ptr->loc);
 
 			/* Modify, Describe, Optimize */
 			inven_item_increase(item, -255);
@@ -2168,7 +2150,7 @@ static void process_player(void)
 			process_player_aux();
 
 			/* Place the cursor on the player */
-			move_cursor_relative(p_ptr->py, p_ptr->px);
+			move_cursor_relative(p_ptr->loc);
 
 			/* Get a command (normal) */
 			request_command(FALSE);
@@ -2203,11 +2185,8 @@ static void process_player(void)
 				/* Shimmer multi-hued monsters */
 				for (i = 1; i < mon_max; i++)
 				{
-					monster_type *m_ptr;
+					monster_type *m_ptr = &mon_list[i];	/* Get the monster */
 					monster_race *r_ptr;
-
-					/* Get the monster */
-					m_ptr = &mon_list[i];
 
 					/* Skip dead monsters */
 					if (!m_ptr->r_idx) continue;
@@ -2222,7 +2201,7 @@ static void process_player(void)
 					shimmer_monsters = TRUE;
 
 					/* Redraw regardless */
-					lite_spot(m_ptr->fy, m_ptr->fx);
+					lite_spot(m_ptr->loc);
 				}
 			}
 
@@ -2234,17 +2213,8 @@ static void process_player(void)
 
 				/* Process monsters */
 				for (i = 1; i < mon_max; i++)
-				{
-					monster_type *m_ptr;
-
-					/* Get the monster */
-					m_ptr = &mon_list[i];
-
-					/* Skip dead monsters */
-					/* if (!m_ptr->r_idx) continue; */
-
-					/* Clear "nice" flag */
-					m_ptr->mflag &= ~(MFLAG_NICE);
+				{	/* loop intentionally does not skip dead monsters */
+					mon_list[i].mflag &= ~(MFLAG_NICE);	/* Clear "nice" flag */
 				}
 			}
 
@@ -2296,17 +2266,8 @@ static void process_player(void)
 
 			/* Process the monsters */
 			for (i = 1; i < mon_max; i++)
-			{
-				monster_type *m_ptr;
-
-				/* Get the monster */
-				m_ptr = &mon_list[i];
-
-				/* Skip dead monsters */
-				/* if (!m_ptr->r_idx) continue; */
-
-				/* Clear "show" flag */
-				m_ptr->mflag &= ~(MFLAG_SHOW);
+			{	/* loop intentionally does not skip dead monsters */
+				mon_list[i].mflag &= ~(MFLAG_SHOW);	/* Clear "show" flag */
 			}
 		}
 	}
@@ -2326,8 +2287,8 @@ static void dungeon(void)
 	monster_type *m_ptr;
 	int i;
 
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	int py = p_ptr->loc.y;
+	int px = p_ptr->loc.x;
 
 
 	/* Hack -- enforce illegal panel */
@@ -2562,7 +2523,7 @@ static void dungeon(void)
 		if (p_ptr->window) window_stuff();
 
 		/* Hack -- Hilite the player */
-		move_cursor_relative(p_ptr->py, p_ptr->px);
+		move_cursor_relative(p_ptr->loc);
 
 		/* Optional fresh */
 		if (fresh_after) Term_fresh();
@@ -2587,7 +2548,7 @@ static void dungeon(void)
 		if (p_ptr->window) window_stuff();
 
 		/* Hack -- Hilite the player */
-		move_cursor_relative(p_ptr->py, p_ptr->px);
+		move_cursor_relative(p_ptr->loc);
 
 		/* Optional fresh */
 		if (fresh_after) Term_fresh();
@@ -2612,7 +2573,7 @@ static void dungeon(void)
 		if (p_ptr->window) window_stuff();
 
 		/* Hack -- Hilite the player */
-		move_cursor_relative(p_ptr->py, p_ptr->px);
+		move_cursor_relative(p_ptr->loc);
 
 		/* Optional fresh */
 		if (fresh_after) Term_fresh();
@@ -2877,16 +2838,6 @@ void play_game(bool new_game)
 	/* Hack -- Enforce "delayed death" */
 	if (p_ptr->chp < 0) p_ptr->is_dead = TRUE;
 
-	/* Call "start game" event handler */
-	if (new_game)
-	{
-		/* Event -- start game */
-		start_game_hook();
-
-		/* Event -- enter level */
-		enter_level_hook();
-	}
-
 	/* Process */
 	while (TRUE)
 	{
@@ -3001,14 +2952,8 @@ void play_game(bool new_game)
 		/* Handle "death" */
 		if (p_ptr->is_dead) break;
 
-		/* "Leaving level" event */
-		leave_level_hook();
-
 		/* Make a new level */
 		generate_cave();
-
-		/* "Entering level" event */
-		enter_level_hook();
 	}
 
 	/* Close stuff */

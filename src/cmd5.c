@@ -10,8 +10,6 @@
 
 #include "angband.h"
 
-#include "script.h"
-
 
 /*
  * Returns chance of failure for a spell
@@ -63,8 +61,11 @@ s16b spell_chance(int spell)
 	if (chance < minfail) chance = minfail;
 
 	/* Stunning makes spells harder (after minfail) */
-	if (p_ptr->stun > 50) chance += 25;
-	else if (p_ptr->stun) chance += 15;
+	unsigned int stunned = stun_level(p_ptr->stun);
+	if (stunned)
+		{
+		chance += (2<=stunned) ? 25 : 15;
+		};
 
 	/* Always a 5 percent chance of working */
 	if (chance > 95) chance = 95;
@@ -199,8 +200,8 @@ void display_koff(int k_idx)
 {
 	int y;
 
-	object_type *i_ptr;
 	object_type object_type_body;
+	object_type *i_ptr = &object_type_body;	/* Get local object */
 
 	char o_name[80];
 
@@ -215,12 +216,8 @@ void display_koff(int k_idx)
 	/* No info */
 	if (!k_idx) return;
 
-
-	/* Get local object */
-	i_ptr = &object_type_body;
-
 	/* Prepare the object */
-	object_wipe(i_ptr);
+	WIPE(i_ptr);
 
 	/* Prepare the object */
 	object_prep(i_ptr, k_idx);
@@ -552,17 +549,8 @@ void do_cmd_browse(void)
 	s = "You have no books that you can read.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	/* Get the object */
+	o_ptr = get_o_ptr_from_inventory_or_floor(item);
 
 	/* Browse the book */
 	do_cmd_browse_aux(o_ptr);
@@ -620,18 +608,8 @@ void do_cmd_study(void)
 	s = "You have no books that you can read.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
+	/* Get the object */
+	o_ptr = get_o_ptr_from_inventory_or_floor(item);
 
 	/* Track the object kind */
 	object_kind_track(o_ptr->k_idx);
@@ -774,18 +752,8 @@ void do_cmd_cast(void)
 	s = "You have no spell books!";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
+	/* Get the object */
+	o_ptr = get_o_ptr_from_inventory_or_floor(item);
 
 	/* Track the object kind */
 	object_kind_track(o_ptr->k_idx);
@@ -945,17 +913,8 @@ void do_cmd_pray(void)
 	s = "You have no prayer books!";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	/* Get the object */
+	o_ptr = get_o_ptr_from_inventory_or_floor(item);
 
 	/* Track the object kind */
 	object_kind_track(o_ptr->k_idx);

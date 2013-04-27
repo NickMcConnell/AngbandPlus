@@ -11,10 +11,6 @@
 #include "angband.h"
 
 
-#ifndef USE_SCRIPT
-
-#include "script.h"
-
 static bool eat_food(object_type *o_ptr, bool *ident)
 {
 	/* Analyze the food */
@@ -704,9 +700,6 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 static bool read_scroll(object_type *o_ptr, bool *ident)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int k;
 
 	bool used_up = TRUE;
@@ -750,7 +743,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 			sound(MSG_SUM_MONSTER);
 			for (k = 0; k < randint(3); k++)
 			{
-				if (summon_specific(py, px, p_ptr->depth, 0))
+				if (summon_specific(p_ptr->loc, p_ptr->depth, 0))
 				{
 					*ident = TRUE;
 				}
@@ -763,7 +756,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 			sound(MSG_SUM_UNDEAD);
 			for (k = 0; k < randint(3); k++)
 			{
-				if (summon_specific(py, px, p_ptr->depth, SUMMON_UNDEAD))
+				if (summon_specific(p_ptr->loc, p_ptr->depth, SUMMON_UNDEAD))
 				{
 					*ident = TRUE;
 				}
@@ -980,7 +973,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 
 		case SV_SCROLL_STAR_DESTRUCTION:
 		{
-			destroy_area(py, px, 15, TRUE);
+			destroy_area(p_ptr->loc, 15, TRUE);
 			*ident = TRUE;
 			break;
 		}
@@ -1007,14 +1000,14 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 
 		case SV_SCROLL_ACQUIREMENT:
 		{
-			acquirement(py, px, 1, TRUE);
+			acquirement(p_ptr->loc, 1, TRUE);
 			*ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_STAR_ACQUIREMENT:
 		{
-			acquirement(py, px, randint(2) + 1, TRUE);
+			acquirement(p_ptr->loc, randint(2) + 1, TRUE);
 			*ident = TRUE;
 			break;
 		}
@@ -1026,9 +1019,6 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 
 static bool use_staff(object_type *o_ptr, bool *ident)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int k;
 
 	bool use_charge = TRUE;
@@ -1063,7 +1053,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 			sound(MSG_SUM_MONSTER);
 			for (k = 0; k < randint(4); k++)
 			{
-				if (summon_specific(py, px, p_ptr->depth, 0))
+				if (summon_specific(p_ptr->loc, p_ptr->depth, 0))
 				{
 					*ident = TRUE;
 				}
@@ -1265,14 +1255,14 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 		case SV_STAFF_EARTHQUAKES:
 		{
-			earthquake(py, px, 10);
+			earthquake(p_ptr->loc, 10);
 			*ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_DESTRUCTION:
 		{
-			destroy_area(py, px, 15, TRUE);
+			destroy_area(p_ptr->loc, 15, TRUE);
 			*ident = TRUE;
 			break;
 		}
@@ -1297,7 +1287,7 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 	*ident = FALSE;
 
 	/* Get the level */
-	lev = k_info[o_ptr->k_idx].level;
+	lev = o_ptr->level();
 
 	/* Base chance of success */
 	chance = p_ptr->skill_dev;
@@ -1526,38 +1516,11 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 
 		case SV_WAND_DRAGON_BREATH:
 		{
-			switch (randint(5))
-			{
-				case 1:
-				{
-					fire_ball(GF_ACID, dir, 200, 3);
-					break;
-				}
+			static const byte wand_dragon_breath_damage[5] = {200,160,200,160,120};
+			static const byte wand_dragon_breath_type[5] = {GF_ACID,GF_ELEC,GF_FIRE,GF_COLD,GF_POIS};
+			const int i = rand_int(5);
 
-				case 2:
-				{
-					fire_ball(GF_ELEC, dir, 160, 3);
-					break;
-				}
-
-				case 3:
-				{
-					fire_ball(GF_FIRE, dir, 200, 3);
-					break;
-				}
-
-				case 4:
-				{
-					fire_ball(GF_COLD, dir, 160, 3);
-					break;
-				}
-
-				default:
-				{
-					fire_ball(GF_POIS, dir, 120, 3);
-					break;
-				}
-			}
+			fire_ball(wand_dragon_breath_type[i],dir,wand_dragon_breath_damage[i],3);
 
 			*ident = TRUE;
 			break;
@@ -1578,11 +1541,11 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 {
 	int chance, dir, lev;
 	bool used_charge = TRUE;
-	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+	object_kind *k_ptr = &object_type::k_info[o_ptr->k_idx];
 
 
 	/* Get a direction (unless KNOWN not to need it) */
-	if ((o_ptr->sval >= SV_ROD_MIN_DIRECTION) || !object_aware_p(o_ptr))
+	if ((o_ptr->sval >= SV_ROD_MIN_DIRECTION) || !o_ptr->aware())
 	{
 		/* Get a direction, allow cancel */
 		if (!get_aim_dir(&dir)) return FALSE;
@@ -1596,7 +1559,7 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 	*ident = FALSE;
 
 	/* Extract the item level */
-	lev = k_info[o_ptr->k_idx].level;
+	lev = o_ptr->level();
 
 	/* Base chance of success */
 	chance = p_ptr->skill_dev;
@@ -2773,10 +2736,3 @@ void describe_item_activation(const object_type *o_ptr)
 	}
 }
 
-#else
-
-#ifdef MACINTOSH
-static int i = 0;
-#endif
-
-#endif /* USE_SCRIPT */

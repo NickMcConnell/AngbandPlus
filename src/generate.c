@@ -10,8 +10,6 @@
 
 #include "angband.h"
 
-#include "script.h"
-
 
 /*
  * Note that Level generation is *not* an important bottleneck,
@@ -179,15 +177,6 @@
 /*
  * Simple structure to hold a map location
  */
-
-typedef struct coord coord;
-
-struct coord
-{
-	byte y;
-	byte x;
-};
-
 
 /*
  * Room type information
@@ -780,9 +769,10 @@ static void vault_traps(int y, int x, int yd, int xd, int num)
 /*
  * Place some sleeping monsters near the given location
  */
-static void vault_monsters(int y1, int x1, int num)
+static void vault_monsters(coord g, int num)
 {
-	int k, i, y, x;
+	coord t;
+	int k, i;
 	int mon_level_old = monster_level;
 
 	/* Temporary increase monster level */
@@ -797,13 +787,13 @@ static void vault_monsters(int y1, int x1, int num)
 			int d = 1;
 
 			/* Pick a nearby location */
-			scatter(&y, &x, y1, x1, d, 0);
+			scatter(t, g, d, 0);
 
 			/* Require "empty" floor grids */
-			if (!cave_empty_bold(y, x)) continue;
+			if (!cave_empty_bold(t.y, t.x)) continue;
 
 			/* Place the monster (allow groups) */
-			(void)place_monster(y, x, TRUE, TRUE);
+			(void)place_monster(t, TRUE, TRUE);
 
 			break;
 		}
@@ -970,7 +960,7 @@ static void generate_hole(int y1, int x1, int y2, int x2, int feat)
 /*
  * Type 1 -- normal rectangular rooms
  */
-static void build_type1(int y0, int x0)
+static void build_type1(coord g)
 {
 	int y, x;
 
@@ -984,10 +974,10 @@ static void build_type1(int y0, int x0)
 
 
 	/* Pick a room size */
-	y1 = y0 - randint(4);
-	x1 = x0 - randint(11);
-	y2 = y0 + randint(3);
-	x2 = x0 + randint(11);
+	y1 = g.y - randint(4);
+	x1 = g.x - randint(11);
+	y2 = g.y + randint(3);
+	x2 = g.x + randint(11);
 
 
 	/* Generate new room */
@@ -1033,7 +1023,7 @@ static void build_type1(int y0, int x0)
 /*
  * Type 2 -- Overlapping rectangular rooms
  */
-static void build_type2(int y0, int x0)
+static void build_type2(coord g)
 {
 	int y1a, x1a, y2a, x2a;
 	int y1b, x1b, y2b, x2b;
@@ -1046,17 +1036,17 @@ static void build_type2(int y0, int x0)
 
 
 	/* Determine extents of room (a) */
-	y1a = y0 - randint(4);
-	x1a = x0 - randint(11);
-	y2a = y0 + randint(3);
-	x2a = x0 + randint(10);
+	y1a = g.y - randint(4);
+	x1a = g.x - randint(11);
+	y2a = g.y + randint(3);
+	x2a = g.x + randint(10);
 
 
 	/* Determine extents of room (b) */
-	y1b = y0 - randint(3);
-	x1b = x0 - randint(10);
-	y2b = y0 + randint(4);
-	x2b = x0 + randint(11);
+	y1b = g.y - randint(3);
+	x1b = g.x - randint(10);
+	y2b = g.y + randint(4);
+	x2b = g.x + randint(11);
 
 
 	/* Generate new room (a) */
@@ -1090,7 +1080,7 @@ static void build_type2(int y0, int x0)
  * the code below will work for 5x5 (and perhaps even for unsymetric
  * values like 4x3 or 5x3 or 3x4 or 3x5).
  */
-static void build_type3(int y0, int x0)
+static void build_type3(coord g)
 {
 	int y, x;
 
@@ -1116,16 +1106,16 @@ static void build_type3(int y0, int x0)
 
 
 	/* Determine extents of room (a) */
-	y1a = y0 - dy;
-	x1a = x0 - wx;
-	y2a = y0 + dy;
-	x2a = x0 + wx;
+	y1a = g.y - dy;
+	x1a = g.x - wx;
+	y2a = g.y + dy;
+	x2a = g.x + wx;
 
 	/* Determine extents of room (b) */
-	y1b = y0 - wy;
-	x1b = x0 - dx;
-	y2b = y0 + wy;
-	x2b = x0 + dx;
+	y1b = g.y - wy;
+	x1b = g.x - dx;
+	y2b = g.y + wy;
+	x2b = g.x + dx;
 
 
 	/* Generate new room (a) */
@@ -1175,13 +1165,13 @@ static void build_type3(int y0, int x0)
 			generate_hole(y1b, x1a, y2b, x2a, FEAT_SECRET);
 
 			/* Place a treasure in the vault */
-			place_object(y0, x0, FALSE, FALSE);
+			place_object(g.y, g.x, FALSE, FALSE);
 
 			/* Let's guard the treasure well */
-			vault_monsters(y0, x0, rand_int(2) + 3);
+			vault_monsters(g, rand_int(2) + 3);
 
 			/* Traps naturally */
-			vault_traps(y0, x0, 4, 4, rand_int(3) + 2);
+			vault_traps(g.y, g.x, 4, 4, rand_int(3) + 2);
 
 			break;
 		}
@@ -1195,7 +1185,7 @@ static void build_type3(int y0, int x0)
 				/* Pinch the east/west sides */
 				for (y = y1b; y <= y2b; y++)
 				{
-					if (y == y0) continue;
+					if (y == g.y) continue;
 					cave_set_feat(y, x1a - 1, FEAT_WALL_INNER);
 					cave_set_feat(y, x2a + 1, FEAT_WALL_INNER);
 				}
@@ -1203,7 +1193,7 @@ static void build_type3(int y0, int x0)
 				/* Pinch the north/south sides */
 				for (x = x1a; x <= x2a; x++)
 				{
-					if (x == x0) continue;
+					if (x == g.x) continue;
 					cave_set_feat(y1b - 1, x, FEAT_WALL_INNER);
 					cave_set_feat(y2b + 1, x, FEAT_WALL_INNER);
 				}
@@ -1224,7 +1214,7 @@ static void build_type3(int y0, int x0)
 			/* Occasionally put a "pillar" in the center */
 			else if (rand_int(3) == 0)
 			{
-				cave_set_feat(y0, x0, FEAT_WALL_INNER);
+				cave_set_feat(g.y, g.x, FEAT_WALL_INNER);
 			}
 
 			break;
@@ -1243,7 +1233,7 @@ static void build_type3(int y0, int x0)
  *	4 - An inner room with a checkerboard
  *	5 - An inner room with four compartments
  */
-static void build_type4(int y0, int x0)
+static void build_type4(coord g)
 {
 	int y, x, y1, x1, y2, x2;
 
@@ -1255,10 +1245,10 @@ static void build_type4(int y0, int x0)
 
 
 	/* Large room */
-	y1 = y0 - 4;
-	y2 = y0 + 4;
-	x1 = x0 - 11;
-	x2 = x0 + 11;
+	y1 = g.y - 4;
+	y2 = g.y + 4;
+	x1 = g.x - 11;
+	x2 = g.x + 11;
 
 
 	/* Generate new room */
@@ -1291,7 +1281,7 @@ static void build_type4(int y0, int x0)
 			generate_hole(y1-1, x1-1, y2+1, x2+1, FEAT_SECRET);
 
 			/* Place a monster in the room */
-			vault_monsters(y0, x0, 1);
+			vault_monsters(g, 1);
 
 			break;
 		}
@@ -1304,28 +1294,28 @@ static void build_type4(int y0, int x0)
 			generate_hole(y1-1, x1-1, y2+1, x2+1, FEAT_SECRET);
 
 			/* Place another inner room */
-			generate_draw(y0-1, x0-1, y0+1, x0+1, FEAT_WALL_INNER);
+			generate_draw(g.y-1, g.x-1, g.y+1, g.x+1, FEAT_WALL_INNER);
 
 			/* Open the inner room with a locked door */
-			generate_hole(y0-1, x0-1, y0+1, x0+1, FEAT_DOOR_HEAD + randint(7));
+			generate_hole(g.y-1, g.x-1, g.y+1, g.x+1, FEAT_DOOR_HEAD + randint(7));
 
 			/* Monsters to guard the treasure */
-			vault_monsters(y0, x0, randint(3) + 2);
+			vault_monsters(g, randint(3) + 2);
 
 			/* Object (80%) */
 			if (rand_int(100) < 80)
 			{
-				place_object(y0, x0, FALSE, FALSE);
+				place_object(g.y, g.x, FALSE, FALSE);
 			}
 
 			/* Stairs (20%) */
 			else
 			{
-				place_random_stairs(y0, x0);
+				place_random_stairs(g.y, g.x);
 			}
 
 			/* Traps to protect the treasure */
-			vault_traps(y0, x0, 4, 10, 2 + randint(3));
+			vault_traps(g.y, g.x, 4, 10, 2 + randint(3));
 
 			break;
 		}
@@ -1338,7 +1328,7 @@ static void build_type4(int y0, int x0)
 			generate_hole(y1-1, x1-1, y2+1, x2+1, FEAT_SECRET);
 
 			/* Inner pillar */
-			generate_fill(y0-1, x0-1, y0+1, x0+1, FEAT_WALL_INNER);
+			generate_fill(g.y-1, g.x-1, g.y+1, g.x+1, FEAT_WALL_INNER);
 
 			/* Occasionally, two more Large Inner Pillars */
 			if (rand_int(2) == 0)
@@ -1347,20 +1337,20 @@ static void build_type4(int y0, int x0)
 				if (rand_int(100) < 50)
 				{
 					/* Inner pillar */
-					generate_fill(y0-1, x0-7, y0+1, x0-5, FEAT_WALL_INNER);
+					generate_fill(g.y-1, g.x-7, g.y+1, g.x-5, FEAT_WALL_INNER);
 
 					/* Inner pillar */
-					generate_fill(y0-1, x0+5, y0+1, x0+7, FEAT_WALL_INNER);
+					generate_fill(g.y-1, g.x+5, g.y+1, g.x+7, FEAT_WALL_INNER);
 				}
 
 				/* Two spaces */
 				else
 				{
 					/* Inner pillar */
-					generate_fill(y0-1, x0-6, y0+1, x0-4, FEAT_WALL_INNER);
+					generate_fill(g.y-1, g.x-6, g.y+1, g.x-4, FEAT_WALL_INNER);
 
 					/* Inner pillar */
-					generate_fill(y0-1, x0+4, y0+1, x0+6, FEAT_WALL_INNER);
+					generate_fill(g.y-1, g.x+4, g.y+1, g.x+6, FEAT_WALL_INNER);
 				}
 			}
 
@@ -1368,19 +1358,19 @@ static void build_type4(int y0, int x0)
 			if (rand_int(3) == 0)
 			{
 				/* Inner rectangle */
-				generate_draw(y0-1, x0-5, y0+1, x0+5, FEAT_WALL_INNER);
+				generate_draw(g.y-1, g.x-5, g.y+1, g.x+5, FEAT_WALL_INNER);
 
 				/* Secret doors (random top/bottom) */
-				place_secret_door(y0 - 3 + (randint(2) * 2), x0 - 3);
-				place_secret_door(y0 - 3 + (randint(2) * 2), x0 + 3);
+				place_secret_door(g.y - 3 + (randint(2) * 2), g.x - 3);
+				place_secret_door(g.y - 3 + (randint(2) * 2), g.x + 3);
 
 				/* Monsters */
-				vault_monsters(y0, x0 - 2, randint(2));
-				vault_monsters(y0, x0 + 2, randint(2));
+				vault_monsters(g-coord(2,0), randint(2));
+				vault_monsters(g+coord(2,0), randint(2));
 
 				/* Objects */
-				if (rand_int(3) == 0) place_object(y0, x0 - 2, FALSE, FALSE);
-				if (rand_int(3) == 0) place_object(y0, x0 + 2, FALSE, FALSE);
+				if (rand_int(3) == 0) place_object(g.y, g.x - 2, FALSE, FALSE);
+				if (rand_int(3) == 0) place_object(g.y, g.x + 2, FALSE, FALSE);
 			}
 
 			break;
@@ -1406,15 +1396,15 @@ static void build_type4(int y0, int x0)
 			}
 
 			/* Monsters just love mazes. */
-			vault_monsters(y0, x0 - 5, randint(3));
-			vault_monsters(y0, x0 + 5, randint(3));
+			vault_monsters(g-coord(5,0), randint(3));
+			vault_monsters(g+coord(5,0), randint(3));
 
 			/* Traps make them entertaining. */
-			vault_traps(y0, x0 - 3, 2, 8, randint(3));
-			vault_traps(y0, x0 + 3, 2, 8, randint(3));
+			vault_traps(g.y, g.x - 3, 2, 8, randint(3));
+			vault_traps(g.y, g.x + 3, 2, 8, randint(3));
 
 			/* Mazes should have some treasure too. */
-			vault_objects(y0, x0, 3);
+			vault_objects(g.y, g.x, 3);
 
 			break;
 		}
@@ -1430,28 +1420,28 @@ static void build_type4(int y0, int x0)
 			if (rand_int(100) < 50)
 			{
 				int i = randint(10);
-				place_secret_door(y1 - 1, x0 - i);
-				place_secret_door(y1 - 1, x0 + i);
-				place_secret_door(y2 + 1, x0 - i);
-				place_secret_door(y2 + 1, x0 + i);
+				place_secret_door(y1 - 1, g.x - i);
+				place_secret_door(y1 - 1, g.x + i);
+				place_secret_door(y2 + 1, g.x - i);
+				place_secret_door(y2 + 1, g.x + i);
 			}
 			else
 			{
 				int i = randint(3);
-				place_secret_door(y0 + i, x1 - 1);
-				place_secret_door(y0 - i, x1 - 1);
-				place_secret_door(y0 + i, x2 + 1);
-				place_secret_door(y0 - i, x2 + 1);
+				place_secret_door(g.y + i, x1 - 1);
+				place_secret_door(g.y - i, x1 - 1);
+				place_secret_door(g.y + i, x2 + 1);
+				place_secret_door(g.y - i, x2 + 1);
 			}
 
 			/* Treasure, centered at the center of the cross */
-			vault_objects(y0, x0, 2 + randint(2));
+			vault_objects(g.y, g.x, 2 + randint(2));
 
 			/* Gotta have some monsters */
-			vault_monsters(y0 + 1, x0 - 4, randint(4));
-			vault_monsters(y0 + 1, x0 + 4, randint(4));
-			vault_monsters(y0 - 1, x0 - 4, randint(4));
-			vault_monsters(y0 - 1, x0 + 4, randint(4));
+			vault_monsters(g+coord_delta(-4,1), randint(4));
+			vault_monsters(g+coord_delta(4,1), randint(4));
+			vault_monsters(g+coord_delta(-4,-1), randint(4));
+			vault_monsters(g+coord_delta(4,-1), randint(4));
 
 			break;
 		}
@@ -1655,7 +1645,8 @@ static bool vault_aux_demon(int r_idx)
  */
 static void build_type5(int y0, int x0)
 {
-	int y, x, y1, x1, y2, x2;
+	coord t;
+	int y1, x1, y2, x2;
 
 	int tmp, i;
 
@@ -1777,14 +1768,14 @@ static void build_type5(int y0, int x0)
 
 
 	/* Place some monsters */
-	for (y = y0 - 2; y <= y0 + 2; y++)
+	for (t.y = y0 - 2; t.y <= y0 + 2; t.y++)
 	{
-		for (x = x0 - 9; x <= x0 + 9; x++)
+		for (t.x = x0 - 9; t.x <= x0 + 9; t.x++)
 		{
 			int r_idx = what[rand_int(64)];
 
 			/* Place that "random" monster (no groups) */
-			(void)place_monster_aux(y, x, r_idx, FALSE, FALSE);
+			(void)place_monster_aux(t, r_idx, FALSE, FALSE);
 		}
 	}
 }
@@ -1838,7 +1829,8 @@ static void build_type6(int y0, int x0)
 {
 	int tmp, what[16];
 
-	int i, j, y, x, y1, x1, y2, x2;
+	coord t;
+	int i, j, y1, x1, y2, x2;
 
 	bool empty = FALSE;
 
@@ -2088,53 +2080,77 @@ static void build_type6(int y0, int x0)
 
 
 	/* Top and bottom rows */
-	for (x = x0 - 9; x <= x0 + 9; x++)
+	for (t.x = x0 - 9; t.x <= x0 + 9; t.x++)
 	{
-		place_monster_aux(y0 - 2, x, what[0], FALSE, FALSE);
-		place_monster_aux(y0 + 2, x, what[0], FALSE, FALSE);
+		t.y = y0 - 2;
+		place_monster_aux(t, what[0], FALSE, FALSE);
+		t.y = y0 + 2;
+		place_monster_aux(t, what[0], FALSE, FALSE);
 	}
 
 	/* Middle columns */
-	for (y = y0 - 1; y <= y0 + 1; y++)
+	for (t.y = y0 - 1; t.y <= y0 + 1; t.y++)
 	{
-		place_monster_aux(y, x0 - 9, what[0], FALSE, FALSE);
-		place_monster_aux(y, x0 + 9, what[0], FALSE, FALSE);
+		t.x = x0 - 9;
+		place_monster_aux(t, what[0], FALSE, FALSE);
+		t.x = x0 + 9;
+		place_monster_aux(t, what[0], FALSE, FALSE);
 
-		place_monster_aux(y, x0 - 8, what[1], FALSE, FALSE);
-		place_monster_aux(y, x0 + 8, what[1], FALSE, FALSE);
+		t.x = x0 - 8;
+		place_monster_aux(t, what[1], FALSE, FALSE);
+		t.x = x0 + 8;
+		place_monster_aux(t, what[1], FALSE, FALSE);
 
-		place_monster_aux(y, x0 - 7, what[1], FALSE, FALSE);
-		place_monster_aux(y, x0 + 7, what[1], FALSE, FALSE);
+		t.x = x0 - 7;
+		place_monster_aux(t, what[1], FALSE, FALSE);
+		t.x = x0 + 7;
+		place_monster_aux(t, what[1], FALSE, FALSE);
 
-		place_monster_aux(y, x0 - 6, what[2], FALSE, FALSE);
-		place_monster_aux(y, x0 + 6, what[2], FALSE, FALSE);
+		t.x = x0 - 6;
+		place_monster_aux(t, what[2], FALSE, FALSE);
+		t.x = x0 + 6;
+		place_monster_aux(t, what[2], FALSE, FALSE);
 
-		place_monster_aux(y, x0 - 5, what[2], FALSE, FALSE);
-		place_monster_aux(y, x0 + 5, what[2], FALSE, FALSE);
+		t.x = x0 - 5;
+		place_monster_aux(t, what[2], FALSE, FALSE);
+		t.x = x0 + 5;
+		place_monster_aux(t, what[2], FALSE, FALSE);
 
-		place_monster_aux(y, x0 - 4, what[3], FALSE, FALSE);
-		place_monster_aux(y, x0 + 4, what[3], FALSE, FALSE);
+		t.x = x0 - 4;
+		place_monster_aux(t, what[3], FALSE, FALSE);
+		t.x = x0 + 4;
+		place_monster_aux(t, what[3], FALSE, FALSE);
 
-		place_monster_aux(y, x0 - 3, what[3], FALSE, FALSE);
-		place_monster_aux(y, x0 + 3, what[3], FALSE, FALSE);
+		t.x = x0 - 3;
+		place_monster_aux(t, what[3], FALSE, FALSE);
+		t.x = x0 + 3;
+		place_monster_aux(t, what[3], FALSE, FALSE);
 
-		place_monster_aux(y, x0 - 2, what[4], FALSE, FALSE);
-		place_monster_aux(y, x0 + 2, what[4], FALSE, FALSE);
+		t.x = x0 - 2;
+		place_monster_aux(t, what[4], FALSE, FALSE);
+		t.x = x0 + 2;
+		place_monster_aux(t, what[4], FALSE, FALSE);
 	}
 
 	/* Above/Below the center monster */
-	for (x = x0 - 1; x <= x0 + 1; x++)
+	for (t.x = x0 - 1; t.x <= x0 + 1; t.x++)
 	{
-		place_monster_aux(y0 + 1, x, what[5], FALSE, FALSE);
-		place_monster_aux(y0 - 1, x, what[5], FALSE, FALSE);
+		t.y = y0 + 1;
+		place_monster_aux(t, what[5], FALSE, FALSE);
+		t.y = y0 - 1;
+		place_monster_aux(t, what[5], FALSE, FALSE);
 	}
 
 	/* Next to the center monster */
-	place_monster_aux(y0, x0 + 1, what[6], FALSE, FALSE);
-	place_monster_aux(y0, x0 - 1, what[6], FALSE, FALSE);
+	t.y = y0;
+	t.x = x0 + 1;
+	place_monster_aux(t, what[6], FALSE, FALSE);
+	t.x = x0 - 1;
+	place_monster_aux(t, what[6], FALSE, FALSE);
 
 	/* Center monster */
-	place_monster_aux(y0, x0, what[7], FALSE, FALSE);
+	t.x = x0;
+	place_monster_aux(t, what[7], FALSE, FALSE);
 }
 
 
@@ -2144,7 +2160,8 @@ static void build_type6(int y0, int x0)
  */
 static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 {
-	int dx, dy, x, y;
+	coord tt;
+	int dx, dy;
 
 	cptr t;
 
@@ -2155,17 +2172,17 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 		for (dx = 0; dx < xmax; dx++, t++)
 		{
 			/* Extract the location */
-			x = x0 - (xmax / 2) + dx;
-			y = y0 - (ymax / 2) + dy;
+			tt.x = x0 - (xmax / 2) + dx;
+			tt.y = y0 - (ymax / 2) + dy;
 
 			/* Hack -- skip "non-grids" */
 			if (*t == ' ') continue;
 
 			/* Lay down a floor */
-			cave_set_feat(y, x, FEAT_FLOOR);
+			cave_set_feat(tt.y, tt.x, FEAT_FLOOR);
 
 			/* Part of a vault */
-			cave_info[y][x] |= (CAVE_ROOM | CAVE_ICKY);
+			cave_info[tt.y][tt.x] |= (CAVE_ROOM | CAVE_ICKY);
 
 			/* Analyze the grid */
 			switch (*t)
@@ -2173,21 +2190,21 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				/* Granite wall (outer) */
 				case '%':
 				{
-					cave_set_feat(y, x, FEAT_WALL_OUTER);
+					cave_set_feat(tt.y, tt.x, FEAT_WALL_OUTER);
 					break;
 				}
 
 				/* Granite wall (inner) */
 				case '#':
 				{
-					cave_set_feat(y, x, FEAT_WALL_INNER);
+					cave_set_feat(tt.y, tt.x, FEAT_WALL_INNER);
 					break;
 				}
 
 				/* Permanent wall (inner) */
 				case 'X':
 				{
-					cave_set_feat(y, x, FEAT_PERM_INNER);
+					cave_set_feat(tt.y, tt.x, FEAT_PERM_INNER);
 					break;
 				}
 
@@ -2196,11 +2213,11 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				{
 					if (rand_int(100) < 75)
 					{
-						place_object(y, x, FALSE, FALSE);
+						place_object(tt.y, tt.x, FALSE, FALSE);
 					}
 					else
 					{
-						place_trap(y, x);
+						place_trap(tt.y, tt.x);
 					}
 					break;
 				}
@@ -2208,14 +2225,14 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				/* Secret doors */
 				case '+':
 				{
-					place_secret_door(y, x);
+					place_secret_door(tt.y, tt.x);
 					break;
 				}
 
 				/* Trap */
 				case '^':
 				{
-					place_trap(y, x);
+					place_trap(tt.y, tt.x);
 					break;
 				}
 			}
@@ -2229,8 +2246,8 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 		for (dx = 0; dx < xmax; dx++, t++)
 		{
 			/* Extract the grid */
-			x = x0 - (xmax/2) + dx;
-			y = y0 - (ymax/2) + dy;
+			tt.x = x0 - (xmax/2) + dx;
+			tt.y = y0 - (ymax/2) + dy;
 
 			/* Hack -- skip "non-grids" */
 			if (*t == ' ') continue;
@@ -2242,7 +2259,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				case '&':
 				{
 					monster_level = p_ptr->depth + 5;
-					place_monster(y, x, TRUE, TRUE);
+					place_monster(tt, TRUE, TRUE);
 					monster_level = p_ptr->depth;
 					break;
 				}
@@ -2251,7 +2268,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				case '@':
 				{
 					monster_level = p_ptr->depth + 11;
-					place_monster(y, x, TRUE, TRUE);
+					place_monster(tt, TRUE, TRUE);
 					monster_level = p_ptr->depth;
 					break;
 				}
@@ -2260,10 +2277,10 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				case '9':
 				{
 					monster_level = p_ptr->depth + 9;
-					place_monster(y, x, TRUE, TRUE);
+					place_monster(tt, TRUE, TRUE);
 					monster_level = p_ptr->depth;
 					object_level = p_ptr->depth + 7;
-					place_object(y, x, TRUE, FALSE);
+					place_object(tt.y, tt.x, TRUE, FALSE);
 					object_level = p_ptr->depth;
 					break;
 				}
@@ -2272,10 +2289,10 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				case '8':
 				{
 					monster_level = p_ptr->depth + 40;
-					place_monster(y, x, TRUE, TRUE);
+					place_monster(tt, TRUE, TRUE);
 					monster_level = p_ptr->depth;
 					object_level = p_ptr->depth + 20;
-					place_object(y, x, TRUE, TRUE);
+					place_object(tt.y, tt.x, TRUE, TRUE);
 					object_level = p_ptr->depth;
 					break;
 				}
@@ -2286,13 +2303,13 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 					if (rand_int(100) < 50)
 					{
 						monster_level = p_ptr->depth + 3;
-						place_monster(y, x, TRUE, TRUE);
+						place_monster(tt, TRUE, TRUE);
 						monster_level = p_ptr->depth;
 					}
 					if (rand_int(100) < 50)
 					{
 						object_level = p_ptr->depth + 7;
-						place_object(y, x, FALSE, FALSE);
+						place_object(tt.y, tt.x, FALSE, FALSE);
 						object_level = p_ptr->depth;
 					}
 					break;
@@ -2307,7 +2324,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 /*
  * Type 7 -- simple vaults (see "vault.txt")
  */
-static void build_type7(int y0, int x0)
+static void build_type7(coord g)
 {
 	vault_type *v_ptr;
 
@@ -2335,7 +2352,7 @@ static void build_type7(int y0, int x0)
 	}
 
 	/* Hack -- Build the vault */
-	build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text);
+	build_vault(g.y, g.x, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text);
 }
 
 
@@ -2343,7 +2360,7 @@ static void build_type7(int y0, int x0)
 /*
  * Type 8 -- greater vaults (see "vault.txt")
  */
-static void build_type8(int y0, int x0)
+static void build_type8(coord g)
 {
 	vault_type *v_ptr;
 
@@ -2371,7 +2388,7 @@ static void build_type8(int y0, int x0)
 	}
 
 	/* Hack -- Build the vault */
-	build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text);
+	build_vault(g.y, g.x, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text);
 }
 
 
@@ -2771,14 +2788,14 @@ static bool room_build(int by0, int bx0, int typ)
 	switch (typ)
 	{
 		/* Build an appropriate room */
-		case 8: build_type8(y, x); break;
-		case 7: build_type7(y, x); break;
+		case 8: build_type8(coord(x, y)); break;
+		case 7: build_type7(coord(x, y)); break;
 		case 6: build_type6(y, x); break;
 		case 5: build_type5(y, x); break;
-		case 4: build_type4(y, x); break;
-		case 3: build_type3(y, x); break;
-		case 2: build_type2(y, x); break;
-		case 1: build_type1(y, x); break;
+		case 4: build_type4(coord(x, y)); break;
+		case 3: build_type3(coord(x, y)); break;
+		case 2: build_type2(coord(x, y)); break;
+		case 1: build_type1(coord(x, y)); break;
 
 		/* Paranoia */
 		default: return (FALSE);
@@ -3075,19 +3092,17 @@ static void cave_gen(void)
 			    (r_ptr->level == p_ptr->depth) &&
 			    (r_ptr->cur_num <= 0))
 			{
-				int y, x;
+				coord g;
 
 				/* Pick a location */
-				while (1)
-				{
-					y = rand_int(DUNGEON_HGT);
-					x = rand_int(DUNGEON_WID);
-
-					if (cave_naked_bold(y, x)) break;
-				}
+				do	{
+					g.y = rand_int(DUNGEON_HGT);
+					g.x = rand_int(DUNGEON_WID);
+					}
+				while(!cave_naked_bold(g.y, g.x));
 
 				/* Place the questor */
-				place_monster_aux(y, x, i, TRUE, TRUE);
+				place_monster_aux(g, i, TRUE, TRUE);
 			}
 		}
 	}
@@ -3404,8 +3419,7 @@ void generate_cave(void)
 
 
 		/* Mega-Hack -- no player yet */
-		p_ptr->px = p_ptr->py = 0;
-
+		p_ptr->loc.clear();
 
 		/* Hack -- illegal panel */
 		Term->offset_y = DUNGEON_HGT;
@@ -3425,22 +3439,18 @@ void generate_cave(void)
 		rating = 0;
 
 
-		/* Event -- generate level */
-		if (!generate_level_hook(p_ptr->depth))
+		/* Build the town */
+		if (!p_ptr->depth)
 		{
-			/* Build the town */
-			if (!p_ptr->depth)
-			{
-				/* Make a town */
-				town_gen();
-			}
+			/* Make a town */
+			town_gen();
+		}
 
-			/* Build a real level */
-			else
-			{
-				/* Make a dungeon */
-				cave_gen();
-			}
+		/* Build a real level */
+		else
+		{
+			/* Make a dungeon */
+			cave_gen();
 		}
 
 		/* Extract the feeling */

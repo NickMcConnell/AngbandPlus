@@ -105,7 +105,7 @@ cptr string_make(cptr str)
 	if (!str) return (str);
 
 	/* Allocate space for the string including terminator */
-	res = ralloc(strlen(str) + 1);
+	res = (char*)ralloc(strlen(str) + 1);
 
 	/* Copy the string (with terminator) */
 	strcpy(res, str);

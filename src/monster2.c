@@ -29,8 +29,8 @@ void delete_monster_idx(int i)
 
 
 	/* Get location */
-	y = m_ptr->fy;
-	x = m_ptr->fx;
+	y = m_ptr->loc.y;
+	x = m_ptr->loc.x;
 
 
 	/* Hack -- Reduce the racial counter */
@@ -54,10 +54,7 @@ void delete_monster_idx(int i)
 	/* Delete objects */
 	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
 	{
-		object_type *o_ptr;
-
-		/* Get the object */
-		o_ptr = &o_list[this_o_idx];
+		object_type *o_ptr = &o_list[this_o_idx];	/* Get the object */
 
 		/* Get the next object */
 		next_o_idx = o_ptr->next_o_idx;
@@ -71,14 +68,14 @@ void delete_monster_idx(int i)
 
 
 	/* Wipe the Monster */
-	(void)WIPE(m_ptr, monster_type);
+	WIPE(m_ptr);
 
 	/* Count monsters */
 	mon_cnt--;
 
 
 	/* Visual update */
-	lite_spot(y, x);
+	lite_spot(m_ptr->loc);
 }
 
 
@@ -100,8 +97,6 @@ void delete_monster(int y, int x)
  */
 static void compact_monsters_aux(int i1, int i2)
 {
-	int y, x;
-
 	monster_type *m_ptr;
 
 	s16b this_o_idx, next_o_idx = 0;
@@ -114,20 +109,13 @@ static void compact_monsters_aux(int i1, int i2)
 	/* Old monster */
 	m_ptr = &mon_list[i1];
 
-	/* Location */
-	y = m_ptr->fy;
-	x = m_ptr->fx;
-
 	/* Update the cave */
-	cave_m_idx[y][x] = i2;
+	cave_m_idx[m_ptr->loc.y][m_ptr->loc.x] = i2;
 
 	/* Repair objects being carried by monster */
 	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
 	{
-		object_type *o_ptr;
-
-		/* Get the object */
-		o_ptr = &o_list[this_o_idx];
+		object_type *o_ptr = &o_list[this_o_idx];	/* Get the object */
 
 		/* Get the next object */
 		next_o_idx = o_ptr->next_o_idx;
@@ -143,10 +131,10 @@ static void compact_monsters_aux(int i1, int i2)
 	if (p_ptr->health_who == i1) p_ptr->health_who = i2;
 
 	/* Hack -- move monster */
-	COPY(&mon_list[i2], &mon_list[i1], monster_type);
+	COPY(&mon_list[i2], &mon_list[i1]);
 
 	/* Hack -- wipe hole */
-	(void)WIPE(&mon_list[i1], monster_type);
+	WIPE(&mon_list[i1]);
 }
 
 
@@ -263,10 +251,10 @@ void wipe_mon_list(void)
 		r_ptr->cur_num--;
 
 		/* Monster is gone */
-		cave_m_idx[m_ptr->fy][m_ptr->fx] = 0;
+		cave_m_idx[m_ptr->loc.y][m_ptr->loc.x] = 0;
 
 		/* Wipe the Monster */
-		(void)WIPE(m_ptr, monster_type);
+		WIPE(m_ptr);
 	}
 
 	/* Reset "mon_max" */
@@ -826,7 +814,7 @@ void monster_desc(char *desc, size_t max, const monster_type *m_ptr, int mode)
 		}
 
 		/* Mention "offscreen" monsters XXX XXX */
-		if (!panel_contains(m_ptr->fy, m_ptr->fx))
+		if (!panel_contains(m_ptr->loc))
 		{
 			/* Append special notation */
 			my_strcat(desc, " (offscreen)", max);
@@ -961,16 +949,14 @@ void lore_treasure(int m_idx, int num_item, int num_gold)
 void update_mon(int m_idx, bool full)
 {
 	monster_type *m_ptr = &mon_list[m_idx];
-
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 	int d;
 
 	/* Current location */
-	int fy = m_ptr->fy;
-	int fx = m_ptr->fx;
+	int fy = m_ptr->loc.y;
+	int fx = m_ptr->loc.x;
 
 	/* Seen at all */
 	bool flag = FALSE;
@@ -982,8 +968,8 @@ void update_mon(int m_idx, bool full)
 	/* Compute distance */
 	if (full)
 	{
-		int py = p_ptr->py;
-		int px = p_ptr->px;
+		int py = p_ptr->loc.y;
+		int px = p_ptr->loc.x;
 
 		/* Distance components */
 		int dy = (py > fy) ? (py - fy) : (fy - py);
@@ -1124,7 +1110,7 @@ void update_mon(int m_idx, bool full)
 			m_ptr->ml = TRUE;
 
 			/* Draw the monster */
-			lite_spot(fy, fx);
+			lite_spot(m_ptr->loc);
 
 			/* Update health bar as needed */
 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
@@ -1150,7 +1136,7 @@ void update_mon(int m_idx, bool full)
 			m_ptr->ml = FALSE;
 
 			/* Erase the monster */
-			lite_spot(fy, fx);
+			lite_spot(m_ptr->loc);
 
 			/* Update health bar as needed */
 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
@@ -1234,10 +1220,7 @@ s16b monster_carry(int m_idx, object_type *j_ptr)
 	/* Scan objects already being held for combination */
 	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
 	{
-		object_type *o_ptr;
-
-		/* Get the object */
-		o_ptr = &o_list[this_o_idx];
+		object_type *o_ptr = &o_list[this_o_idx];	/* Get the object */
 
 		/* Get the next object */
 		next_o_idx = o_ptr->next_o_idx;
@@ -1260,19 +1243,16 @@ s16b monster_carry(int m_idx, object_type *j_ptr)
 	/* Success */
 	if (o_idx)
 	{
-		object_type *o_ptr;
-
-		/* Get new object */
-		o_ptr = &o_list[o_idx];
+		object_type *o_ptr = &o_list[o_idx];	/* Get new object */
 
 		/* Copy object */
-		object_copy(o_ptr, j_ptr);
+		COPY(o_ptr, j_ptr);
 
 		/* Forget mark */
 		o_ptr->marked = FALSE;
 
 		/* Forget location */
-		o_ptr->iy = o_ptr->ix = 0;
+		o_ptr->loc.clear();
 
 		/* Link the object to the monster */
 		o_ptr->held_m_idx = m_idx;
@@ -1292,7 +1272,7 @@ s16b monster_carry(int m_idx, object_type *j_ptr)
 /*
  * Swap the players/monsters (if any) at two locations XXX XXX XXX
  */
-void monster_swap(int y1, int x1, int y2, int x2)
+void monster_swap(coord g1, coord g2)
 {
 	int m1, m2;
 
@@ -1300,13 +1280,13 @@ void monster_swap(int y1, int x1, int y2, int x2)
 
 
 	/* Monsters */
-	m1 = cave_m_idx[y1][x1];
-	m2 = cave_m_idx[y2][x2];
+	m1 = cave_m_idx[g1.y][g1.x];
+	m2 = cave_m_idx[g2.y][g2.x];
 
 
 	/* Update grids */
-	cave_m_idx[y1][x1] = m2;
-	cave_m_idx[y2][x2] = m1;
+	cave_m_idx[g1.y][g1.x] = m2;
+	cave_m_idx[g2.y][g2.x] = m1;
 
 
 	/* Monster 1 */
@@ -1315,8 +1295,7 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		m_ptr = &mon_list[m1];
 
 		/* Move monster */
-		m_ptr->fy = y2;
-		m_ptr->fx = x2;
+		m_ptr->loc = g2;
 
 		/* Update monster */
 		update_mon(m1, TRUE);
@@ -1326,8 +1305,7 @@ void monster_swap(int y1, int x1, int y2, int x2)
 	else if (m1 < 0)
 	{
 		/* Move player */
-		p_ptr->py = y2;
-		p_ptr->px = x2;
+		p_ptr->loc = g2;
 
 		/* Update the panel */
 		p_ptr->update |= (PU_PANEL);
@@ -1348,8 +1326,7 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		m_ptr = &mon_list[m2];
 
 		/* Move monster */
-		m_ptr->fy = y1;
-		m_ptr->fx = x1;
+		m_ptr->loc = g1;
 
 		/* Update monster */
 		update_mon(m2, TRUE);
@@ -1359,8 +1336,7 @@ void monster_swap(int y1, int x1, int y2, int x2)
 	else if (m2 < 0)
 	{
 		/* Move player */
-		p_ptr->py = y1;
-		p_ptr->px = x1;
+		p_ptr->loc = g1;
 
 		/* Update the panel */
 		p_ptr->update |= (PU_PANEL);
@@ -1377,8 +1353,8 @@ void monster_swap(int y1, int x1, int y2, int x2)
 
 
 	/* Redraw */
-	lite_spot(y1, x1);
-	lite_spot(y2, x2);
+	lite_spot(g1);
+	lite_spot(g2);
 }
 
 
@@ -1392,8 +1368,8 @@ s16b player_place(int y, int x)
 
 
 	/* Save player location */
-	p_ptr->py = y;
-	p_ptr->px = x;
+	p_ptr->loc.y = y;
+	p_ptr->loc.x = x;
 
 	/* Mark cave grid */
 	cave_m_idx[y][x] = -1;
@@ -1406,16 +1382,12 @@ s16b player_place(int y, int x)
 /*
  * Place a copy of a monster in the dungeon XXX XXX
  */
-s16b monster_place(int y, int x, monster_type *n_ptr)
+s16b monster_place(coord g, monster_type *n_ptr)
 {
 	s16b m_idx;
 
-	monster_type *m_ptr;
-	monster_race *r_ptr;
-
-
 	/* Paranoia XXX XXX */
-	if (cave_m_idx[y][x] != 0) return (0);
+	if (cave_m_idx[g.y][g.x] != 0) return (0);
 
 
 	/* Get a new record */
@@ -1424,24 +1396,13 @@ s16b monster_place(int y, int x, monster_type *n_ptr)
 	/* Oops */
 	if (m_idx)
 	{
-		/* Make a new monster */
-		cave_m_idx[y][x] = m_idx;
+		monster_type* m_ptr = &mon_list[m_idx];			/* Get the new monster */
+		monster_race* r_ptr = &r_info[n_ptr->r_idx];	/* Get the new race */
 
-		/* Get the new monster */
-		m_ptr = &mon_list[m_idx];
-
-		/* Copy the monster XXX */
-		COPY(m_ptr, n_ptr, monster_type);
-
-		/* Location */
-		m_ptr->fy = y;
-		m_ptr->fx = x;
-
-		/* Update the monster */
-		update_mon(m_idx, TRUE);
-
-		/* Get the new race */
-		r_ptr = &r_info[m_ptr->r_idx];
+		cave_m_idx[g.y][g.x] = m_idx;	/* Make a new monster */
+		COPY(m_ptr, n_ptr);				/* Copy the monster XXX */
+		m_ptr->loc = g;					/* Location */
+		update_mon(m_idx, TRUE);		/* Update the monster */
 
 		/* Hack -- Notice new multi-hued monsters */
 		if (r_ptr->flags1 & (RF1_ATTR_MULTI)) shimmer_monsters = TRUE;
@@ -1478,26 +1439,26 @@ s16b monster_place(int y, int x, monster_type *n_ptr)
  * This is the only function which may place a monster in the dungeon,
  * except for the savefile loading code.
  */
-static bool place_monster_one(int y, int x, int r_idx, bool slp)
+static bool place_monster_one(coord g, int r_idx, bool slp)
 {
 	int i;
 
 	monster_race *r_ptr;
 
-	monster_type *n_ptr;
 	monster_type monster_type_body;
+	monster_type *n_ptr = &monster_type_body;	/* Get local monster */
 
 	cptr name;
 
 
 	/* Paranoia */
-	if (!in_bounds(y, x)) return (FALSE);
+	if (!in_bounds(g.y, g.x)) return (FALSE);
 
 	/* Require empty space */
-	if (!cave_empty_bold(y, x)) return (FALSE);
+	if (!cave_empty_bold(g.y, g.x)) return (FALSE);
 
 	/* Hack -- no creation on glyph of warding */
-	if (cave_feat[y][x] == FEAT_GLYPH) return (FALSE);
+	if (cave_feat[g.y][g.x] == FEAT_GLYPH) return (FALSE);
 
 
 	/* Paranoia */
@@ -1561,11 +1522,8 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	}
 
 
-	/* Get local monster */
-	n_ptr = &monster_type_body;
-
 	/* Clean out the monster */
-	(void)WIPE(n_ptr, monster_type);
+	WIPE(n_ptr);
 
 
 	/* Save the race */
@@ -1620,7 +1578,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	}
 
 	/* Place the monster in the dungeon */
-	if (!monster_place(y, x, n_ptr)) return (FALSE);
+	if (!monster_place(g, n_ptr)) return (FALSE);
 
 	/* Success */
 	return (TRUE);
@@ -1636,7 +1594,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 /*
  * Attempt to place a "group" of monsters around the given location
  */
-static bool place_monster_group(int y, int x, int r_idx, bool slp)
+static bool place_monster_group(coord g, int r_idx, bool slp)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1644,9 +1602,7 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
 	int total, extra = 0;
 
 	int hack_n;
-
-	byte hack_y[GROUP_MAX];
-	byte hack_x[GROUP_MAX];
+	coord hack[GROUP_MAX];
 
 
 	/* Pick a group size */
@@ -1684,32 +1640,27 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
 
 	/* Start on the monster */
 	hack_n = 1;
-	hack_x[0] = x;
-	hack_y[0] = y;
+	hack[0] = g;
 
 	/* Puddle monsters, breadth first, up to total */
 	for (n = 0; (n < hack_n) && (hack_n < total); n++)
 	{
 		/* Grab the location */
-		int hx = hack_x[n];
-		int hy = hack_y[n];
+		coord h = hack[n];
 
 		/* Check each direction, up to total */
 		for (i = 0; (i < 8) && (hack_n < total); i++)
 		{
-			int mx = hx + ddx_ddd[i];
-			int my = hy + ddy_ddd[i];
+			coord m(h.x + ddx_ddd[i], h.y + ddy_ddd[i]);
 
 			/* Walls and Monsters block flow */
-			if (!cave_empty_bold(my, mx)) continue;
+			if (!cave_empty_bold(m.y, m.x)) continue;
 
 			/* Attempt to place another monster */
-			if (place_monster_one(my, mx, r_idx, slp))
+			if (place_monster_one(m, r_idx, slp))
 			{
 				/* Add it to the "hack" set */
-				hack_y[hack_n] = my;
-				hack_x[hack_n] = mx;
-				hack_n++;
+				hack[hack_n++] = m;
 			}
 		}
 	}
@@ -1772,7 +1723,7 @@ static bool place_monster_okay(int r_idx)
  * Note the use of the new "monster allocation table" code to restrict
  * the "get_mon_num()" function to "legal" escort types.
  */
-bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
+bool place_monster_aux(coord g, int r_idx, bool slp, bool grp)
 {
 	int i;
 
@@ -1780,7 +1731,7 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 
 
 	/* Place one monster, or fail */
-	if (!place_monster_one(y, x, r_idx, slp)) return (FALSE);
+	if (!place_monster_one(g, r_idx, slp)) return (FALSE);
 
 
 	/* Require the "group" flag */
@@ -1791,7 +1742,7 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 	if (r_ptr->flags1 & (RF1_FRIENDS))
 	{
 		/* Attempt to place a group */
-		(void)place_monster_group(y, x, r_idx, slp);
+		(void)place_monster_group(g, r_idx, slp);
 	}
 
 
@@ -1801,13 +1752,14 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 		/* Try to place several "escorts" */
 		for (i = 0; i < 50; i++)
 		{
-			int nx, ny, z, d = 3;
+			coord n;
+			int z, d = 3;
 
 			/* Pick a location */
-			scatter(&ny, &nx, y, x, d, 0);
+			scatter(n, g, d, 0);
 
 			/* Require empty grids */
-			if (!cave_empty_bold(ny, nx)) continue;
+			if (!cave_empty_bold(n.y, n.x)) continue;
 
 
 			/* Set the escort index */
@@ -1836,14 +1788,14 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 			if (!z) break;
 
 			/* Place a single escort */
-			(void)place_monster_one(ny, nx, z, slp);
+			(void)place_monster_one(n, z, slp);
 
 			/* Place a "group" of escorts if needed */
 			if ((r_info[z].flags1 & (RF1_FRIENDS)) ||
 			    (r_ptr->flags1 & (RF1_ESCORTS)))
 			{
 				/* Place a group of monsters */
-				(void)place_monster_group(ny, nx, z, slp);
+				(void)place_monster_group(n, z, slp);
 			}
 		}
 	}
@@ -1859,21 +1811,15 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
  *
  * Attempt to find a monster appropriate to the "monster_level"
  */
-bool place_monster(int y, int x, bool slp, bool grp)
+bool place_monster(coord g, bool slp, bool grp)
 {
-	int r_idx;
-
-	/* Pick a monster */
-	r_idx = get_mon_num(monster_level);
+	int r_idx = get_mon_num(monster_level);	/* Pick a monster */
 
 	/* Handle failure */
 	if (!r_idx) return (FALSE);
 
 	/* Attempt to place the monster */
-	if (place_monster_aux(y, x, r_idx, slp, grp)) return (TRUE);
-
-	/* Oops */
-	return (FALSE);
+	return place_monster_aux(g, r_idx, slp, grp);
 }
 
 
@@ -1946,24 +1892,24 @@ bool place_monster(int y, int x, bool slp, bool grp)
  */
 bool alloc_monster(int dis, bool slp)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	int py = p_ptr->loc.y;
+	int px = p_ptr->loc.x;
 
-	int y, x;
+	coord g;
 	int	attempts_left = 10000;
 
 	/* Find a legal, distant, unoccupied, space */
 	while (--attempts_left)
 	{
 		/* Pick a location */
-		y = rand_int(DUNGEON_HGT);
-		x = rand_int(DUNGEON_WID);
+		g.y = rand_int(DUNGEON_HGT);
+		g.x = rand_int(DUNGEON_WID);
 
 		/* Require "naked" floor grid */
-		if (!cave_naked_bold(y, x)) continue;
+		if (!cave_naked_bold(g.y, g.x)) continue;
 
 		/* Accept far away grids */
-		if (distance(y, x, py, px) > dis) break;
+		if (distance(g.y, g.x, py, px) > dis) break;
 	}
 
 	if (!attempts_left)
@@ -1977,7 +1923,7 @@ bool alloc_monster(int dis, bool slp)
 	}
 
 	/* Attempt to place the monster, allow groups */
-	if (place_monster(y, x, slp, TRUE)) return (TRUE);
+	return place_monster(g, slp, TRUE);
 
 	/* Nope */
 	return (FALSE);
@@ -2135,9 +2081,10 @@ static bool summon_specific_okay(int r_idx)
  *
  * Note that this function may not succeed, though this is very rare.
  */
-bool summon_specific(int y1, int x1, int lev, int type)
+bool summon_specific(coord g, int lev, int type)
 {
-	int i, x, y, r_idx;
+	coord new_g;
+	int i, r_idx;
 
 
 	/* Look for a location */
@@ -2147,13 +2094,13 @@ bool summon_specific(int y1, int x1, int lev, int type)
 		int d = (i / 15) + 1;
 
 		/* Pick a location */
-		scatter(&y, &x, y1, x1, d, 0);
+		scatter(new_g, g, d, 0);
 
 		/* Require "empty" floor grid */
-		if (!cave_empty_bold(y, x)) continue;
+		if (!cave_empty_bold(new_g.y, new_g.x)) continue;
 
 		/* Hack -- no summon on glyph of warding */
-		if (cave_feat[y][x] == FEAT_GLYPH) continue;
+		if (cave_feat[new_g.y][new_g.x] == FEAT_GLYPH) continue;
 
 		/* Okay */
 		break;
@@ -2189,7 +2136,7 @@ bool summon_specific(int y1, int x1, int lev, int type)
 	if (!r_idx) return (FALSE);
 
 	/* Attempt to place the monster (awake, allow groups) */
-	if (!place_monster_aux(y, x, r_idx, FALSE, TRUE)) return (FALSE);
+	if (!place_monster_aux(new_g, r_idx, FALSE, TRUE)) return (FALSE);
 
 	/* Success */
 	return (TRUE);
@@ -2208,9 +2155,8 @@ bool multiply_monster(int m_idx)
 {
 	monster_type *m_ptr = &mon_list[m_idx];
 
-	int i, y, x;
-
-	bool result = FALSE;
+	coord g;
+	int i;
 
 	/* Try up to 18 times */
 	for (i = 0; i < 18; i++)
@@ -2218,20 +2164,17 @@ bool multiply_monster(int m_idx)
 		int d = 1;
 
 		/* Pick a location */
-		scatter(&y, &x, m_ptr->fy, m_ptr->fx, d, 0);
+		scatter(g, m_ptr->loc, d, 0);
 
 		/* Require an "empty" floor grid */
-		if (!cave_empty_bold(y, x)) continue;
+		if (cave_empty_bold(g.y, g.x)) break;
 
 		/* Create a new monster (awake, no groups) */
-		result = place_monster_aux(y, x, m_ptr->r_idx, FALSE, FALSE);
-
-		/* Done */
-		break;
+		return place_monster_aux(g, m_ptr->r_idx, FALSE, FALSE);
 	}
 
-	/* Result */
-	return (result);
+	/* fell through */
+	return false;
 }
 
 
@@ -2500,4 +2443,14 @@ void update_smart_learn(int m_idx, int what)
 
 }
 
+bool
+monster_has_attack(monster_race *r_ptr, byte this_method)
+{
+	int i;
+	for (i = 0; i < MONSTER_BLOW_MAX; i++)
+		{
+		if (r_ptr->blow[i].effect == this_method) return (TRUE);
+		};
+	return (FALSE);
+}
 

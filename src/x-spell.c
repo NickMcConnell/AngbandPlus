@@ -10,10 +10,6 @@
 
 
 #include "angband.h"
-#include "script.h"
-
-#ifndef USE_SCRIPT
-
 
 /*
  * Maximum number of spells per realm
@@ -576,9 +572,6 @@ static cptr spell_names[2][PY_MAX_SPELLS] =
 
 int get_spell_index(const object_type *o_ptr, int index)
 {
-	int spell;
-	int num = 0;
-
 	/* Get the item's sval */
 	int sval = o_ptr->sval;
 
@@ -819,8 +812,6 @@ static void spell_wonder(int dir)
    keeping the results quite random.  It also allows
    some potent effects only at high level. */
 
-	int py = p_ptr->py;
-	int px = p_ptr->px;
 	int plev = p_ptr->lev;
 	int die = randint(100) + plev / 5;
 	int beam = beam_chance();
@@ -854,8 +845,8 @@ static void spell_wonder(int dir)
 	else if (die < 91) fire_ball(GF_ICE, dir, 70 + plev, 3);
 	else if (die < 96) fire_ball(GF_FIRE, dir, 80 + plev, 3);
 	else if (die < 101) drain_life(dir, 100 + plev);
-	else if (die < 104) earthquake(py, px, 12);
-	else if (die < 106) destroy_area(py, px, 15, TRUE);
+	else if (die < 104) earthquake(p_ptr->loc, 12);
+	else if (die < 106) destroy_area(p_ptr->loc, 15, TRUE);
 	else if (die < 108) banishment();
 	else if (die < 110) dispel_monsters(120);
 	else /* RARE */
@@ -871,9 +862,6 @@ static void spell_wonder(int dir)
 
 static bool cast_mage_spell(int spell)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int dir;
 
 	int plev = p_ptr->lev;
@@ -1095,7 +1083,7 @@ static bool cast_mage_spell(int spell)
 
 		case SPELL_WORD_OF_DESTRUCTION:
 		{
-			destroy_area(py, px, 15, TRUE);
+			destroy_area(p_ptr->loc, 15, TRUE);
 			break;
 		}
 
@@ -1125,7 +1113,7 @@ static bool cast_mage_spell(int spell)
 
 		case SPELL_EARTHQUAKE:
 		{
-			earthquake(py, px, 10);
+			earthquake(p_ptr->loc, 10);
 			break;
 		}
 
@@ -1323,9 +1311,6 @@ static bool cast_mage_spell(int spell)
 
 static bool cast_priest_spell(int spell)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int dir;
 
 	int plev = p_ptr->lev;
@@ -1470,7 +1455,7 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_EARTHQUAKE:
 		{
-			earthquake(py, px, 10);
+			earthquake(p_ptr->loc, 10);
 			break;
 		}
 
@@ -1629,7 +1614,7 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_WORD_OF_DESTRUCTION:
 		{
-			destroy_area(py, px, 15, TRUE);
+			destroy_area(p_ptr->loc, 15, TRUE);
 			break;
 		}
 
@@ -1732,4 +1717,3 @@ bool cast_spell(int tval, int index)
 	}
 }
 
-#endif /* USE_SCRIPT */

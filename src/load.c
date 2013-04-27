@@ -259,8 +259,8 @@ static errr rd_item(object_type *o_ptr)
 		return (-1);
 
 	/* Location */
-	rd_byte(&o_ptr->iy);
-	rd_byte(&o_ptr->ix);
+	rd_byte((byte*)(&o_ptr->loc.y));
+	rd_byte((byte*)(&o_ptr->loc.x));
 
 	/* Type/Subtype */
 	rd_byte(&o_ptr->tval);
@@ -310,7 +310,7 @@ static errr rd_item(object_type *o_ptr)
 	if (buf[0]) o_ptr->note = quark_add(buf);
 
 	/* Obtain the "kind" template */
-	k_ptr = &k_info[o_ptr->k_idx];
+	k_ptr = &object_type::k_info[o_ptr->k_idx];
 
 	/* Obtain tval/sval from k_info */
 	o_ptr->tval = k_ptr->tval;
@@ -379,31 +379,15 @@ static errr rd_item(object_type *o_ptr)
 	/* Paranoia */
 	if (o_ptr->name1)
 	{
-		artifact_type *a_ptr;
-
-		/* Paranoia */
-		if (o_ptr->name1 >= z_info->a_max) return (-1);
-
-		/* Obtain the artifact info */
-		a_ptr = &a_info[o_ptr->name1];
-
-		/* Verify that artifact */
-		if (!a_ptr->name) o_ptr->name1 = 0;
+		if (o_ptr->name1 >= z_info->a_max) return (-1);		/* Paranoia */
+		if (!a_info[o_ptr->name1].name) o_ptr->name1 = 0;	/* Verify that artifact */
 	}
 
 	/* Paranoia */
 	if (o_ptr->name2)
 	{
-		ego_item_type *e_ptr;
-
-		/* Paranoia */
-		if (o_ptr->name2 >= z_info->e_max) return (-1);
-
-		/* Obtain the ego-item info */
-		e_ptr = &e_info[o_ptr->name2];
-
-		/* Verify that ego-item */
-		if (!e_ptr->name) o_ptr->name2 = 0;
+		if (o_ptr->name2 >= z_info->e_max) return (-1);		/* Paranoia */
+		if (!e_info[o_ptr->name2].name) o_ptr->name2 = 0;	/* Verify that ego-item */
 	}
 
 
@@ -445,10 +429,7 @@ static errr rd_item(object_type *o_ptr)
 	/* Ego items */
 	if (o_ptr->name2)
 	{
-		ego_item_type *e_ptr;
-
-		/* Obtain the ego-item info */
-		e_ptr = &e_info[o_ptr->name2];
+		ego_item_type *e_ptr = &e_info[o_ptr->name2];	/* Obtain the ego-item info */
 
 		/* Hack -- keep some old fields */
 		if ((o_ptr->dd < old_dd) && (o_ptr->ds == old_ds))
@@ -496,8 +477,8 @@ static void rd_monster(monster_type *m_ptr)
 	rd_s16b(&m_ptr->r_idx);
 
 	/* Read the other information */
-	rd_byte(&m_ptr->fy);
-	rd_byte(&m_ptr->fx);
+	rd_byte((byte*)&m_ptr->loc.y);
+	rd_byte((byte*)&m_ptr->loc.x);
 	rd_s16b(&m_ptr->hp);
 	rd_s16b(&m_ptr->maxhp);
 	rd_s16b(&m_ptr->csleep);
@@ -614,14 +595,11 @@ static errr rd_store(int n)
 	/* Read the items */
 	for (j = 0; j < num; j++)
 	{
-		object_type *i_ptr;
 		object_type object_type_body;
-
-		/* Get local object */
-		i_ptr = &object_type_body;
+		object_type *i_ptr = &object_type_body;	/* Get local object */
 
 		/* Wipe the object */
-		object_wipe(i_ptr);
+		WIPE(i_ptr);
 
 		/* Read the item */
 		if (rd_item(i_ptr))
@@ -642,7 +620,7 @@ static errr rd_store(int n)
 			int k = st_ptr->stock_num++;
 
 			/* Accept the item */
-			object_copy(&st_ptr->stock[k], i_ptr);
+			COPY(&st_ptr->stock[k], i_ptr);
 		}
 	}
 
@@ -1293,8 +1271,8 @@ static errr rd_inventory(void)
 {
 	int slot = 0;
 
-	object_type *i_ptr;
 	object_type object_type_body;
+	object_type *i_ptr = &object_type_body;	/* Get local object */
 
 	/* Read until done */
 	while (1)
@@ -1307,11 +1285,8 @@ static errr rd_inventory(void)
 		/* Nope, we reached the end */
 		if (n == 0xFFFF) break;
 
-		/* Get local object */
-		i_ptr = &object_type_body;
-
 		/* Wipe the object */
-		object_wipe(i_ptr);
+		WIPE(i_ptr);
 
 		/* Read the item */
 		if (rd_item(i_ptr))
@@ -1330,7 +1305,7 @@ static errr rd_inventory(void)
 		if (n >= INVEN_WIELD)
 		{
 			/* Copy object */
-			object_copy(&inventory[n], i_ptr);
+			COPY(&p_ptr->inventory[n], i_ptr);
 
 			/* Add the weight */
 			p_ptr->total_weight += (i_ptr->number * i_ptr->weight);
@@ -1356,7 +1331,7 @@ static errr rd_inventory(void)
 			n = slot++;
 
 			/* Copy object */
-			object_copy(&inventory[n], i_ptr);
+			COPY(&p_ptr->inventory[n], i_ptr);
 
 			/* Add the weight */
 			p_ptr->total_weight += (i_ptr->number * i_ptr->weight);
@@ -1415,7 +1390,7 @@ static void rd_messages(void)
  * size will be silently discarded by this routine.
  *
  * Note that dungeon objects, including objects held by monsters, are
- * placed directly into the dungeon, using "object_copy()", which will
+ * placed directly into the dungeon, using "COPY()", which will
  * copy "iy", "ix", and "held_m_idx", leaving "next_o_idx" blank for
  * objects held by monsters, since it is not saved in the savefile.
  *
@@ -1559,18 +1534,14 @@ static errr rd_dungeon(void)
 	/* Read the dungeon items */
 	for (i = 1; i < limit; i++)
 	{
-		object_type *i_ptr;
 		object_type object_type_body;
+		object_type *i_ptr = &object_type_body;	/* Get the object */
 
 		s16b o_idx;
 		object_type *o_ptr;
 
-
-		/* Get the object */
-		i_ptr = &object_type_body;
-
 		/* Wipe the object */
-		object_wipe(i_ptr);
+		WIPE(i_ptr);
 
 		/* Read the item */
 		if (rd_item(i_ptr))
@@ -1593,13 +1564,13 @@ static errr rd_dungeon(void)
 		o_ptr = &o_list[o_idx];
 
 		/* Structure Copy */
-		object_copy(o_ptr, i_ptr);
+		COPY(o_ptr, i_ptr);
 
 		/* Dungeon floor */
 		if (!i_ptr->held_m_idx)
 		{
-			int x = i_ptr->ix;
-			int y = i_ptr->iy;
+			int x = i_ptr->loc.x;
+			int y = i_ptr->loc.y;
 
 			/* ToDo: Verify coordinates */
 
@@ -1627,22 +1598,18 @@ static errr rd_dungeon(void)
 	/* Read the monsters */
 	for (i = 1; i < limit; i++)
 	{
-		monster_type *n_ptr;
 		monster_type monster_type_body;
-
-
-		/* Get local monster */
-		n_ptr = &monster_type_body;
+		monster_type *n_ptr = &monster_type_body;	/* Get local monster */
 
 		/* Clear the monster */
-		(void)WIPE(n_ptr, monster_type);
+		WIPE(n_ptr);
 
 		/* Read the monster */
 		rd_monster(n_ptr);
 
 
 		/* Place monster in dungeon */
-		if (monster_place(n_ptr->fy, n_ptr->fx, n_ptr) != i)
+		if (monster_place(n_ptr->loc, n_ptr) != i)
 		{
 			note(format("Cannot place monster %d", i));
 			return (-1);
@@ -1655,12 +1622,8 @@ static errr rd_dungeon(void)
 	/* Reacquire objects */
 	for (i = 1; i < o_max; ++i)
 	{
-		object_type *o_ptr;
-
+		object_type *o_ptr = &o_list[i];	/* Get the object */
 		monster_type *m_ptr;
-
-		/* Get the object */
-		o_ptr = &o_list[i];
 
 		/* Ignore dungeon objects */
 		if (!o_ptr->held_m_idx) continue;
@@ -1798,7 +1761,7 @@ static errr rd_savefile_new_aux(void)
 	{
 		byte tmp8u;
 
-		object_kind *k_ptr = &k_info[i];
+		object_kind *k_ptr = &object_type::k_info[i];
 
 		rd_byte(&tmp8u);
 

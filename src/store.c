@@ -10,8 +10,6 @@
 
 #include "angband.h"
 
-#include "script.h"
-
 
 #define MAX_COMMENT_ACCEPT	6
 
@@ -124,6 +122,156 @@ static cptr comment_great[MAX_COMMENT_GREAT] =
 	"The shopkeeper jumps for joy.",
 	"The shopkeeper smiles gleefully."
 };
+
+static int get_store_choice(int store_num)
+{
+	return store[store_num].table[rand_int(store[store_num].table_num)];
+}
+
+/*
+ * Determine if the current store will purchase the given object
+ *
+ * Note that a shop-keeper must refuse to buy "worthless" objects
+ */
+bool store_will_buy(int store_num, const object_type *o_ptr)
+{
+	/* Hack -- The Home is simple */
+	if (store_num == STORE_HOME) return (TRUE);
+
+	/* Switch on the store */
+	switch (store_num)
+	{
+		/* General Store */
+		case STORE_GENERAL:
+		{
+			/* Analyze the type */
+			switch (o_ptr->tval)
+			{
+				case TV_FOOD:
+				case TV_LITE:
+				case TV_FLASK:
+				case TV_SPIKE:
+				case TV_SHOT:
+				case TV_ARROW:
+				case TV_BOLT:
+				case TV_DIGGING:
+				case TV_CLOAK:
+				break;
+				default:
+				return (FALSE);
+			}
+			break;
+		}
+
+		/* Armoury */
+		case STORE_ARMOR:
+		{
+			/* Analyze the type */
+			switch (o_ptr->tval)
+			{
+				case TV_BOOTS:
+				case TV_GLOVES:
+				case TV_CROWN:
+				case TV_HELM:
+				case TV_SHIELD:
+				case TV_CLOAK:
+				case TV_SOFT_ARMOR:
+				case TV_HARD_ARMOR:
+				case TV_DRAG_ARMOR:
+				break;
+				default:
+				return (FALSE);
+			}
+			break;
+		}
+
+		/* Weapon Shop */
+		case STORE_WEAPON:
+		{
+			/* Analyze the type */
+			switch (o_ptr->tval)
+			{
+				case TV_SHOT:
+				case TV_BOLT:
+				case TV_ARROW:
+				case TV_BOW:
+				case TV_DIGGING:
+				case TV_HAFTED:
+				case TV_POLEARM:
+				case TV_SWORD:
+				break;
+				default:
+				return (FALSE);
+			}
+			break;
+		}
+
+		/* Temple */
+		case STORE_TEMPLE:
+		{
+			/* Analyze the type */
+			switch (o_ptr->tval)
+			{
+				case TV_PRAYER_BOOK:
+				case TV_SCROLL:
+				case TV_POTION:
+				case TV_HAFTED:
+				break;
+				case TV_POLEARM:
+				case TV_SWORD:
+				{
+					/* Known blessed blades are accepted too */
+					if (is_blessed(o_ptr) && o_ptr->known()) break;
+				}
+				default:
+				return (FALSE);
+			}
+			break;
+		}
+
+		/* Alchemist */
+		case STORE_ALCHEMY:
+		{
+			/* Analyze the type */
+			switch (o_ptr->tval)
+			{
+				case TV_SCROLL:
+				case TV_POTION:
+				break;
+				default:
+				return (FALSE);
+			}
+			break;
+		}
+
+		/* Magic Shop */
+		case STORE_MAGIC:
+		{
+			/* Analyze the type */
+			switch (o_ptr->tval)
+			{
+				case TV_MAGIC_BOOK:
+				case TV_AMULET:
+				case TV_RING:
+				case TV_STAFF:
+				case TV_WAND:
+				case TV_ROD:
+				case TV_SCROLL:
+				case TV_POTION:
+				break;
+				default:
+				return (FALSE);
+			}
+			break;
+		}
+	}
+
+	/* Ignore "worthless" items XXX XXX XXX */
+	if (object_value(o_ptr) <= 0) return (FALSE);
+
+	/* Assume okay */
+	return (TRUE);
+}
 
 
 /*
@@ -396,7 +544,7 @@ static void mass_produce(object_type *o_ptr)
 	/* Hack -- rods need to increase PVAL if stacked */
 	if (o_ptr->tval == TV_ROD)
 	{
-		o_ptr->pval = o_ptr->number * k_info[o_ptr->k_idx].pval;
+		o_ptr->pval = o_ptr->number * object_type::k_info[o_ptr->k_idx].pval;
 	}
 }
 
@@ -634,16 +782,16 @@ static int home_carry(object_type *o_ptr)
 		if (o_ptr->tval < j_ptr->tval) continue;
 
 		/* Can happen in the home */
-		if (!object_aware_p(o_ptr)) continue;
-		if (!object_aware_p(j_ptr)) break;
+		if (!o_ptr->aware()) continue;
+		if (!j_ptr->aware()) break;
 
 		/* Objects sort by increasing sval */
 		if (o_ptr->sval < j_ptr->sval) break;
 		if (o_ptr->sval > j_ptr->sval) continue;
 
 		/* Objects in the home can be unknown */
-		if (!object_known_p(o_ptr)) continue;
-		if (!object_known_p(j_ptr)) break;
+		if (!o_ptr->known()) continue;
+		if (!j_ptr->known()) break;
 
 		/* Objects sort by decreasing value */
 		j_value = object_value(j_ptr);
@@ -655,14 +803,14 @@ static int home_carry(object_type *o_ptr)
 	for (i = st_ptr->stock_num; i > slot; i--)
 	{
 		/* Hack -- slide the objects */
-		object_copy(&st_ptr->stock[i], &st_ptr->stock[i-1]);
+		COPY(&st_ptr->stock[i], &st_ptr->stock[i-1]);
 	}
 
 	/* More stuff now */
 	st_ptr->stock_num++;
 
 	/* Hack -- Insert the new object */
-	object_copy(&st_ptr->stock[slot], o_ptr);
+	COPY(&st_ptr->stock[slot], o_ptr);
 
 	/* Return the location */
 	return (slot);
@@ -748,14 +896,14 @@ static int store_carry(object_type *o_ptr)
 	for (i = st_ptr->stock_num; i > slot; i--)
 	{
 		/* Hack -- slide the objects */
-		object_copy(&st_ptr->stock[i], &st_ptr->stock[i-1]);
+		COPY(&st_ptr->stock[i], &st_ptr->stock[i-1]);
 	}
 
 	/* More stuff now */
 	st_ptr->stock_num++;
 
 	/* Hack -- Insert the new object */
-	object_copy(&st_ptr->stock[slot], o_ptr);
+	COPY(&st_ptr->stock[slot], o_ptr);
 
 	/* Return the location */
 	return (slot);
@@ -768,14 +916,10 @@ static int store_carry(object_type *o_ptr)
  */
 static void store_item_increase(int item, int num)
 {
-	int cnt;
-	object_type *o_ptr;
-
-	/* Get the object */
-	o_ptr = &st_ptr->stock[item];
+	object_type *o_ptr = &st_ptr->stock[item];	/* Get the object */
+	int cnt = o_ptr->number + num;
 
 	/* Verify the number */
-	cnt = o_ptr->number + num;
 	if (cnt > 255) cnt = 255;
 	else if (cnt < 0) cnt = 0;
 	num = cnt - o_ptr->number;
@@ -791,10 +935,7 @@ static void store_item_increase(int item, int num)
 static void store_item_optimize(int item)
 {
 	int j;
-	object_type *o_ptr;
-
-	/* Get the object */
-	o_ptr = &st_ptr->stock[item];
+	object_type *o_ptr = &st_ptr->stock[item];	/* Get the object */
 
 	/* Must exist */
 	if (!o_ptr->k_idx) return;
@@ -812,7 +953,7 @@ static void store_item_optimize(int item)
 	}
 
 	/* Nuke the final slot */
-	object_wipe(&st_ptr->stock[j]);
+	WIPE(&st_ptr->stock[j]);
 }
 
 
@@ -910,9 +1051,8 @@ static void store_create(void)
 {
 	int k_idx, tries, level;
 
-	object_type *i_ptr;
 	object_type object_type_body;
-
+	object_type *i_ptr = &object_type_body;	/* Get local object */
 
 	/* Paranoia -- no room left */
 	if (st_ptr->stock_num >= st_ptr->stock_size) return;
@@ -943,10 +1083,6 @@ static void store_create(void)
 			/* Hack -- fake level for apply_magic() */
 			level = rand_range(1, STORE_OBJ_LEVEL);
 		}
-
-
-		/* Get local object */
-		i_ptr = &object_type_body;
 
 		/* Create a new object of the chosen kind */
 		object_prep(i_ptr, k_idx);
@@ -1623,8 +1759,8 @@ static void store_purchase(void)
 
 	object_type *o_ptr;
 
-	object_type *i_ptr;
 	object_type object_type_body;
+	object_type *i_ptr = &object_type_body;	/* Get local object */
 
 	char o_name[80];
 
@@ -1668,11 +1804,8 @@ static void store_purchase(void)
 	/* Allow user abort */
 	if (amt <= 0) return;
 
-	/* Get local object */
-	i_ptr = &object_type_body;
-
 	/* Get desired object */
-	object_copy(i_ptr, o_ptr);
+	COPY(i_ptr, o_ptr);
 
 	/*
 	 * Hack -- If a rod or wand, allocate total maximum timeouts or charges
@@ -1743,7 +1876,7 @@ static void store_purchase(void)
 				item_new = inven_carry(i_ptr);
 
 				/* Describe the final result */
-				object_desc(o_name, sizeof(o_name), &inventory[item_new], TRUE, 3);
+				object_desc(o_name, sizeof(o_name), &p_ptr->inventory[item_new], TRUE, 3);
 
 				/* Message */
 				msg_format("You have %s (%c).",
@@ -1843,7 +1976,7 @@ static void store_purchase(void)
 		item_new = inven_carry(i_ptr);
 
 		/* Describe just the result */
-		object_desc(o_name, sizeof(o_name), &inventory[item_new], TRUE, 3);
+		object_desc(o_name, sizeof(o_name), &p_ptr->inventory[item_new], TRUE, 3);
 
 		/* Message */
 		msg_format("You have %s (%c).", o_name, index_to_label(item_new));
@@ -1894,10 +2027,9 @@ static void store_sell(void)
 
 	s32b price, value, dummy;
 
-	object_type *o_ptr;
-
-	object_type *i_ptr;
 	object_type object_type_body;
+	object_type *o_ptr;
+	object_type *i_ptr = &object_type_body;	/* Get local object */
 
 	cptr q, s;
 
@@ -1921,21 +2053,11 @@ static void store_sell(void)
 	s = "You have nothing that I want.";
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
+	/* Get the object */
+	o_ptr = get_o_ptr_from_inventory_or_floor(item);
 
 	/* Hack -- Cannot remove cursed objects */
-	if ((item >= INVEN_WIELD) && cursed_p(o_ptr))
+	if ((item >= INVEN_WIELD) && o_ptr->is_cursed())
 	{
 		/* Oops */
 		msg_print("Hmmm, it seems to be cursed.");
@@ -1950,11 +2072,8 @@ static void store_sell(void)
 	/* Allow user abort */
 	if (amt <= 0) return;
 
-	/* Get local object */
-	i_ptr = &object_type_body;
-
 	/* Get a copy of the object */
-	object_copy(i_ptr, o_ptr);
+	COPY(i_ptr, o_ptr);
 
 	/* Modify quantity */
 	i_ptr->number = amt;
@@ -2028,11 +2147,8 @@ static void store_sell(void)
 
 			p_ptr->redraw |= (PR_EQUIPPY);
 
-			/* Get local object */
-			i_ptr = &object_type_body;
-
 			/* Get a copy of the object */
-			object_copy(i_ptr, o_ptr);
+			COPY(i_ptr, o_ptr);
 
 			/* Modify quantity */
 			i_ptr->number = amt;
@@ -2492,8 +2608,8 @@ static void store_process_command(void)
  */
 void do_cmd_store(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	int py = p_ptr->loc.y;
+	int px = p_ptr->loc.x;
 
 	int which;
 
@@ -2611,11 +2727,11 @@ void do_cmd_store(void)
 		handle_stuff();
 
 		/* Pack Overflow XXX XXX XXX */
-		if (inventory[INVEN_PACK].k_idx)
+		if (p_ptr->inventory[INVEN_PACK].k_idx)
 		{
 			int item = INVEN_PACK;
 
-			object_type *o_ptr = &inventory[item];
+			object_type *o_ptr = &p_ptr->inventory[item];
 
 			/* Hack -- Flee from the store */
 			if (store_num != STORE_HOME)
@@ -2642,8 +2758,8 @@ void do_cmd_store(void)
 			{
 				int item_pos;
 
-				object_type *i_ptr;
 				object_type object_type_body;
+				object_type *i_ptr = &object_type_body;	/* Get local object */
 
 				char o_name[80];
 
@@ -2651,11 +2767,8 @@ void do_cmd_store(void)
 				/* Give a message */
 				msg_print("Your pack overflows!");
 
-				/* Get local object */
-				i_ptr = &object_type_body;
-
 				/* Grab a copy of the object */
-				object_copy(i_ptr, o_ptr);
+				COPY(i_ptr, o_ptr);
 
 				/* Describe it */
 				object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 3);
@@ -2764,10 +2877,7 @@ void store_shuffle(int which)
 	/* Discount all the items */
 	for (i = 0; i < st_ptr->stock_num; i++)
 	{
-		object_type *o_ptr;
-
-		/* Get the object */
-		o_ptr = &st_ptr->stock[i];
+		object_type *o_ptr = &st_ptr->stock[i];	/* Get the object */
 
 		/* Discount non-discounted items by 40 percent */
 		if (o_ptr->discount == 0) o_ptr->discount = 40;
@@ -2866,9 +2976,6 @@ void store_maint(int which)
  */
 void store_init(int which)
 {
-	int k;
-
-
 	/* Save the store index */
 	store_num = which;
 
@@ -2887,8 +2994,5 @@ void store_init(int which)
 	st_ptr->stock_num = 0;
 
 	/* Clear any old items */
-	for (k = 0; k < st_ptr->stock_size; k++)
-	{
-		object_wipe(&st_ptr->stock[k]);
-	}
+	C_WIPE(st_ptr->stock,st_ptr->stock_size);
 }

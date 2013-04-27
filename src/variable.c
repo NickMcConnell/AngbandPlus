@@ -380,7 +380,7 @@ const cptr angband_sound_name[MSG_MAX] =
  * Array[VIEW_MAX] used by "update_view()"
  */
 int view_n = 0;
-u16b *view_g;
+coord *view_g;
 
 /*
  * Arrays[TEMP_MAX] used for various things
@@ -388,7 +388,7 @@ u16b *view_g;
  * Note that temp_g shares memory with temp_x and temp_y.
  */
 int temp_n = 0;
-u16b *temp_g;
+coord *temp_g;
 byte *temp_y;
 byte *temp_x;
 
@@ -475,11 +475,6 @@ quest *q_list;
  * Array[MAX_STORES] of stores
  */
 store_type *store;
-
-/*
- * Array[INVEN_TOTAL] of objects in the player's inventory
- */
-object_type *inventory;
 
 
 /*
@@ -596,9 +591,9 @@ char *f_text;
 /*
  * The object kind arrays
  */
-object_kind *k_info;
-char *k_name;
-char *k_text;
+object_kind* object_type::k_info;
+char* object_type::k_name;
+char* object_type::k_text;
 
 /*
  * The artifact arrays
@@ -661,9 +656,9 @@ char *g_text;
 /*
  * The object flavor arrays
  */
-flavor_type *flavor_info;
-char *flavor_name;
-char *flavor_text;
+flavor_type* object_type::flavor_info;
+char* object_type::flavor_name;
+char* object_type::flavor_text;
 
 
 /*
@@ -749,13 +744,6 @@ cptr ANGBAND_DIR_USER;
  * These files are rarely portable between platforms
  */
 cptr ANGBAND_DIR_XTRA;
-
-/*
- * Script files
- * These files are portable between platforms
- */
-cptr ANGBAND_DIR_SCRIPT;
-
 
 /*
  * Total Hack -- allow all items to be listed (even empty ones)

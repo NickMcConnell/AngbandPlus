@@ -10,8 +10,6 @@
 
 #include "angband.h"
 
-#include "script.h"
-
 
 /*
  * Forward declare
@@ -306,8 +304,23 @@ static void get_extra(void)
 		/* Roll the hitpoint values */
 		for (i = 1; i < PY_MAX_LEVEL; i++)
 		{
-			j = randint(p_ptr->hitdie);
-			p_ptr->player_hp[i] = p_ptr->player_hp[i-1] + j;
+			p_ptr->player_hp[i] = randint(p_ptr->hitdie);
+
+			/* insert-sort them, nonstrictly decreasing order */
+			if (p_ptr->player_hp[i]>p_ptr->player_hp[i-1])
+				{
+				s16b k = p_ptr->player_hp[i];
+				j = i-1;
+				while(0<j && p_ptr->player_hp[i]>p_ptr->player_hp[j-1]) --j;
+				memmove(p_ptr->player_hp+j+1,p_ptr->player_hp+j,sizeof(s16b)*(i-j));
+				p_ptr->player_hp[j] = k;
+				};
+		}
+
+		/* convert to total hp */
+		for (i = 1; i < PY_MAX_LEVEL; i++)
+		{
+			p_ptr->player_hp[i] += p_ptr->player_hp[i-1];
 		}
 
 		/* XXX Could also require acceptable "mid-level" hitpoints */
@@ -443,9 +456,12 @@ static void player_wipe(void)
 	byte prace = p_ptr->prace;
 	byte pclass = p_ptr->pclass;
 
+	/* back up the inventory pointer...or crash */
+	object_type *InventoryBackup = p_ptr->inventory;
+	p_ptr->inventory = NULL;
 
-	/* Wipe the player */
-	(void)WIPE(p_ptr, player_type);
+	(void)WIPE(p_ptr);					/* Wipe the player */
+	p_ptr->inventory = InventoryBackup;	/* restore inventory space from backup */
 
 	/* Restore the choices */
 	p_ptr->psex = psex;
@@ -453,11 +469,7 @@ static void player_wipe(void)
 	p_ptr->pclass = pclass;
 
 	/* Clear the inventory */
-	for (i = 0; i < INVEN_TOTAL; i++)
-	{
-		object_wipe(&inventory[i]);
-	}
-
+	C_WIPE(p_ptr->inventory,INVEN_TOTAL);
 
 	/* Start with no artifacts made yet */
 	for (i = 0; i < z_info->a_max; i++)
@@ -483,7 +495,7 @@ static void player_wipe(void)
 	/* Reset the "objects" */
 	for (i = 1; i < z_info->k_max; i++)
 	{
-		object_kind *k_ptr = &k_info[i];
+		object_kind *k_ptr = &object_type::k_info[i];
 
 		/* Reset "tried" */
 		k_ptr->tried = FALSE;
@@ -535,9 +547,9 @@ static void player_wipe(void)
 static void player_outfit(void)
 {
 	int i;
-	const start_item *e_ptr;
-	object_type *i_ptr;
 	object_type object_type_body;
+	const start_item *e_ptr;
+	object_type *i_ptr = &object_type_body; /* Get local object */
 
 
 	/* Hack -- Give the player his equipment */
@@ -545,9 +557,6 @@ static void player_outfit(void)
 	{
 		/* Access the item */
 		e_ptr = &(cp_ptr->start_items[i]);
-
-		/* Get local object */
-		i_ptr = &object_type_body;
 
 		/* Hack	-- Give the player an object */
 		if (e_ptr->tval > 0)
@@ -1674,6 +1683,28 @@ static bool player_birth_aux(void)
 
 	/* Accept */
 	return (TRUE);
+}
+
+static void player_birth_done_hook(void)
+{
+	object_type object_type_body;
+	object_type *i_ptr = &object_type_body;	/* Get local object */
+
+	/* Hack -- Give the player some food */
+	object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
+	i_ptr->number = (byte)rand_range(3, 7);
+	object_aware(i_ptr);
+	object_known(i_ptr);
+	(void)inven_carry(i_ptr);
+
+
+	/* Hack -- Give the player some torches */
+	object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
+	i_ptr->number = (byte)rand_range(3, 7);
+	i_ptr->pval = rand_range(3, 7) * 500;
+	object_aware(i_ptr);
+	object_known(i_ptr);
+	(void)inven_carry(i_ptr);
 }
 
 

@@ -1,6 +1,23 @@
+Changes Zaiband 3.0.6:
+- LUA support is gone.  Partial conversion to C++.
+- hit dice are now sorted in decreasing order.
+- ranged penalties have been changed to be more geometric.  Also, ranged accuracy suffers when monsters are in melee range.
+- new gazes: presbyopic, hyperopic, ranged, and clairvoyant.
+	myopic: range 1, as before.
+    presbyopic: range 2-4
+    hyperopic: range 4+
+    ranged: LoS range
+    clairvoyant: in range, ignore physical obstacles
+	The Zaiband equivalent to a V Floating eye, is a Myopic floating eye.  A Zaiband floating eye has a ranged gaze.
+- Immobile, stupid monsters now take out appropriate items, that end up under them.
+    Eats food?  It now spoils food under it.  [Rot jellies.]
+    Eats light?  It now unfuels light sources under it.  [Silver jellies.]
+    Acid attack?  Items vulnerable to acid, are destroyed under it.  Similarly for electricity, fire, and cold.
+- (Mobile) monsters that can attack to eat food, eat food from the floor.  [E.g., green glutton ghosts.]
+
 Changes Angband 3.0.6:
 - Wands and staves are no longer destroyed when a recharge attempt
-  backfires.  Instead all the charges are drained.
+  backfires.  Instead all the charges are drained.  [Reverted per CVS...one now destroyed]
 - Renamed the artifact short sword 'Gilettar' to 'Dagmor' since that
   name is mentioned for the sword of Beren in Tolkien's notes.
   (suggested by Tyler Witter)

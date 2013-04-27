@@ -61,7 +61,9 @@ typedef s16b s16b_wid[DUNGEON_WID];
 
 /**** Available Structs ****/
 
-
+/* these typedefs are unnecessary in C++ */
+#ifndef __cplusplus
+typedef struct _grid _grid;
 typedef struct maxima maxima;
 typedef struct feature_type feature_type;
 typedef struct object_kind object_kind;
@@ -86,11 +88,56 @@ typedef struct hist_type hist_type;
 typedef struct player_other player_other;
 typedef struct player_type player_type;
 typedef struct start_item start_item;
-
+typedef struct flavor_type flavor_type;
+#endif
 
 
 /**** Available structs ****/
 
+/*
+ * dungeon grid, and similar
+ * instantiate with POD only
+ */
+template<class T>
+struct _grid
+{
+	T x;	/* constrains dungeon size to 255x255, in practice */
+	T y;
+
+	_grid() {};
+	_grid(T _x, T _y) : x(_x),y(_y) {};
+
+	bool operator==(const _grid& RHS) const {return x==RHS.x && y==RHS.y;};
+	bool operator!=(const _grid& RHS) const {return !(*this==RHS);};
+
+	/* technically wrong metaphor, but I don't use chained assignment operations */
+	template<class U> void operator+=(const _grid<U>& RHS)	/* assumes NVRO */
+		{
+		x += RHS.x;
+		y += RHS.y;
+		}
+	template<class U> void operator-=(const _grid<U>& RHS)	/* assumes NVRO */
+		{
+		x -= RHS.x;
+		y -= RHS.y;
+		}
+
+	template<class U> _grid operator+(const _grid<U>& RHS) const	/* assumes NVRO */
+		{
+		return _grid(x+RHS.x,y+RHS.y);
+		}
+	template<class U>_grid operator-(const _grid<U>& RHS) const	/* assumes NVRO */
+		{
+		return _grid(x-RHS.x,y-RHS.y);
+		}
+
+	void clear() {x = 0; y =0;};
+};
+
+typedef _grid<byte> coord;
+typedef _grid<signed char> coord_delta;
+
+typedef bool coord_action(coord g);
 
 /*
  * Information about maximal indices of certain arrays
@@ -190,7 +237,7 @@ struct object_kind
 
 	u16b flavor;		/* Special object flavor (or zero) */
 
-
+	/* next two could be per-character ... */
 	bool aware;			/* The player is "aware" of the item's effects */
 
 	bool tried;			/* The player has "tried" one of the items */
@@ -411,7 +458,19 @@ struct vault_type
 	byte wid;			/* Vault width */
 };
 
+struct flavor_type
+{
+	u32b text;      /* Text (offset) */
+	
+	byte tval;      /* Associated object type */
+	byte sval;      /* Associated object sub-type */
 
+	byte d_attr;    /* Default flavor attribute */
+	char d_char;    /* Default flavor character */
+
+	byte x_attr;    /* Desired flavor attribute */
+	char x_char;    /* Desired flavor character */
+};
 
 /*
  * Object information, for a specific object.
@@ -442,10 +501,23 @@ struct vault_type
  */
 struct object_type
 {
+/*
+ * The object flavor arrays
+ */
+	static flavor_type *flavor_info;
+	static char *flavor_name;
+	static char *flavor_text;
+
+/*
+ * The object kind arrays
+ */
+	static object_kind *k_info;
+	static char *k_name;
+	static char *k_text;
+
 	s16b k_idx;			/* Kind index (zero if "dead") */
 
-	byte iy;			/* Y-position on map, or zero */
-	byte ix;			/* X-position on map, or zero */
+	coord loc;			/* position on map, or (0,0) */
 
 	byte tval;			/* Item type (from kind) */
 	byte sval;			/* Item sub-type (from kind) */
@@ -483,14 +555,46 @@ struct object_type
 	s16b next_o_idx;	/* Next object in stack (if any) */
 
 	s16b held_m_idx;	/* Monster holding us (if any) */
+
+	/* member functions */
+	bool is_artifact() const {return name1;};
+	bool is_ego_item() const {return name2;};
+
+	bool is_broken() const {return ident & (IDENT_BROKEN);};
+	bool is_cursed() const {return ident & (IDENT_CURSED);};
+	bool is_broken_or_cursed() const {return ident & (IDENT_BROKEN | IDENT_CURSED);};
+
+	/* k_info reflection functions */
+	bool aware() const {return k_info[k_idx].aware;};
+	bool tried() const {return k_info[k_idx].tried;};
+	byte level() const {return k_info[k_idx].level;};
+	
+	byte attr_user() const {return use_flavor_glyph() ? flavor_info[k_info[k_idx].flavor].x_attr : k_info[k_idx].x_attr;};
+	char char_user() const {return use_flavor_glyph() ? flavor_info[k_info[k_idx].flavor].x_char : k_info[k_idx].x_char;};
+	byte attr_default() const {return use_flavor_glyph() ? flavor_info[k_info[k_idx].flavor].d_attr : k_info[k_idx].d_attr;};
+	char char_default() const {return use_flavor_glyph() ? flavor_info[k_info[k_idx].flavor].d_char : k_info[k_idx].d_char;};
+
+	/* more complicated functions */
+/*
+ * Determine if a given inventory item is "known"
+ * Test One -- Check for special "known" tag
+ * Test Two -- Check for "Easy Know" + "Aware"
+ */
+	bool known() const {return (ident & IDENT_KNOWN) || ((k_info[k_idx].flags3 & TR3_EASY_KNOW) && aware());};
+
+/*
+ * Determine if the attr and char should consider the item's flavor
+ *
+ * Identified scrolls should use their own tile.
+ */
+	bool use_flavor_glyph() const {return k_info[k_idx].flavor &&  !(TV_SCROLL==k_info[k_idx].tval && aware());};
 };
 
+typedef bool object_action(object_type& o);
 
 
 /*
  * Monster information, for a specific monster.
- *
- * Note: fy, fx constrain dungeon size to 256x256
  *
  * The "hold_o_idx" field points to the first object of a stack
  * of objects (if any) being carried by the monster (see above).
@@ -499,8 +603,7 @@ struct monster_type
 {
 	s16b r_idx;			/* Monster race index */
 
-	byte fy;			/* Y location on map */
-	byte fx;			/* X location on map */
+	coord loc;	/* location on map */
 
 	s16b hp;			/* Current Hit points */
 	s16b maxhp;			/* Max Hit points */
@@ -530,7 +633,7 @@ struct monster_type
 
 };
 
-
+typedef bool monster_action(monster_type& m);
 
 
 /*
@@ -606,11 +709,9 @@ struct store_type
 	s16b stock_size;		/* Stock -- Total Size of Array */
 	object_type *stock;		/* Stock -- Actual stock items */
 
-#ifndef USE_SCRIPT
 	s16b table_num;     /* Table -- Number of entries */
 	s16b table_size;    /* Table -- Total Size of Array */
 	s16b *table;        /* Table -- Legal item kinds */
-#endif /* USE_SCRIPT */
 };
 
 
@@ -805,8 +906,7 @@ struct player_other
  */
 struct player_type
 {
-	s16b py;			/* Player location */
-	s16b px;			/* Player location */
+	coord loc;	/* Player location */
 
 	byte psex;			/* Sex index */
 	byte prace;			/* Race index */
@@ -897,6 +997,7 @@ struct player_type
 
 	bool wizard;			/* Player is in wizard mode */
 
+	object_type* inventory;	/* Array[INVEN_TOTAL] of objects in the player's inventory */
 
 	/*** Temporary fields ***/
 
@@ -914,8 +1015,7 @@ struct player_type
 
 	s16b target_set;		/* Target flag */
 	s16b target_who;		/* Target identity */
-	s16b target_row;		/* Target location */
-	s16b target_col;		/* Target location */
+	coord target;			/* Target location */
 
 	s16b health_who;		/* Health bar trackee */
 
@@ -991,12 +1091,7 @@ struct player_type
 	bool resist_chaos;	/* Resist chaos */
 	bool resist_disen;	/* Resist disenchant */
 
-	bool sustain_str;	/* Keep strength */
-	bool sustain_int;	/* Keep intelligence */
-	bool sustain_wis;	/* Keep wisdom */
-	bool sustain_dex;	/* Keep dexterity */
-	bool sustain_con;	/* Keep constitution */
-	bool sustain_chr;	/* Keep charisma */
+	bool sustain[A_MAX];/* Keep strength, etc. (cf. stat_index enumeration) */
 
 	bool slow_digest;	/* Slower digestion */
 	bool ffall;			/* Feather falling */
@@ -1093,19 +1188,3 @@ struct high_score
 	char how[32];		/* Method of death (string) */
 };
 
-
-typedef struct flavor_type flavor_type;
-
-struct flavor_type
-{
-	u32b text;      /* Text (offset) */
-	
-	byte tval;      /* Associated object type */
-	byte sval;      /* Associated object sub-type */
-
-	byte d_attr;    /* Default flavor attribute */
-	char d_char;    /* Default flavor character */
-
-	byte x_attr;    /* Desired flavor attribute */
-	char x_char;    /* Desired flavor character */
-};

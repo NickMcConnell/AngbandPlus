@@ -41,13 +41,13 @@
 /*
  * Name of the version/variant
  */
-#define VERSION_NAME "Angband"
+#define VERSION_NAME "Zaiband"
 
 
 /*
  * Current version string
  */
-#define VERSION_STRING	"3.0.6"
+#define VERSION_STRING	"3.0.5"
 
 
 /*
@@ -437,18 +437,19 @@
 /*
  * Indexes of the various "stats" (hard-coded by savefiles, etc).
  */
-#define A_STR	0
-#define A_INT	1
-#define A_WIS	2
-#define A_DEX	3
-#define A_CON	4
-#define A_CHR	5
+enum stat_index {
+	A_STR = 0,
+	A_INT,
+	A_WIS,
+	A_DEX,
+	A_CON,
+	A_CHR
+};
 
 /*
- * Total number of stats.
+ * total number of stats
  */
-#define A_MAX	6
-
+#define A_MAX (A_CHR+1)
 
 /*
  * Player sex constants (hard-coded by save-files, arrays, etc)
@@ -1463,6 +1464,17 @@
 #define RBM_MOAN	23
 #define RBM_XXX5	24
 
+/*
+ * ZaiBand specific monster blow types
+ * We assume that V will add types in increasing order.  To minimize chance of 
+ * collision with V, we add types in decreasing order.
+ */
+
+/* The augmented gazes */
+#define RBM_PRESBYOPIC_GAZE	255		/* range: 2-4, LOS */
+#define RBM_HYPEROPIC_GAZE	254 	/* range: 4-MAX_RANGE, LOS */
+#define RBM_RANGED_GAZE 253			/* range: 1-MAX_RANGE, LOS */
+#define RBM_CLAIRVOYANT_GAZE 252	/* range: 1-MAX_RANGE, ignore LOS */
 
 /*
  * New monster blow effects
@@ -1658,8 +1670,8 @@
 #define PW_OBJECT           0x00000200L /* Display object recall */
 #define PW_MONLIST          0x00000400L /* Display monster list */
 #define PW_STATUS           0x00000800L /* Display status */
-#define PW_SCRIPT_VARS      0x00001000L /* Display script variables */
-#define PW_SCRIPT_SOURCE    0x00002000L /* Display script source */
+#define PW_XXX_1      		0x00001000L /* XXX deleted XXX */
+#define PW_XXX_2    		0x00002000L /* XXX deleted XXX */
 #define PW_BORG_1           0x00004000L /* Display borg messages */
 #define PW_BORG_2           0x00008000L /* Display borg status */
 
@@ -2649,108 +2661,12 @@
  */
 #define term_screen	(angband_term[0])
 
-
-/*
- * Determine if a given inventory item is "aware"
+/* 
+ * Get an item pointer.  Non-negative index is from inventory.
+ * Negative index is from floor.
  */
-#define object_aware_p(T) \
-	(k_info[(T)->k_idx].aware)
-
-/*
- * Determine if a given inventory item is "tried"
- */
-#define object_tried_p(T) \
-	(k_info[(T)->k_idx].tried)
-
-
-/*
- * Determine if a given inventory item is "known"
- * Test One -- Check for special "known" tag
- * Test Two -- Check for "Easy Know" + "Aware"
- */
-#define object_known_p(T) \
-	(((T)->ident & (IDENT_KNOWN)) || \
-	 ((k_info[(T)->k_idx].flags3 & (TR3_EASY_KNOW)) && \
-	  k_info[(T)->k_idx].aware))
-
-
-/*
- * Determine if the attr and char should consider the item's flavor
- *
- * Identified scrolls should use their own tile.
- */
-#define use_flavor_glyph(T) \
-	((k_info[(T)->k_idx].flavor) && \
-	 !((k_info[(T)->k_idx].tval == TV_SCROLL) && object_aware_p(T)))
-
-
-/*
- * Return the "attr" for a given item.
- * Use "flavor" if available.
- * Default to user definitions.
- */
-#define object_attr(T) \
-	(use_flavor_glyph(T) ? \
-	 (flavor_info[k_info[(T)->k_idx].flavor].x_attr) : \
-	 (k_info[(T)->k_idx].x_attr))
-
-/*
- * Return the "char" for a given item.
- * Use "flavor" if available.
- * Default to user definitions.
- */
-#define object_char(T) \
-	(use_flavor_glyph(T) ? \
-	 (flavor_info[k_info[(T)->k_idx].flavor].x_char) : \
-	 (k_info[(T)->k_idx].x_char))
-
-
-/*
- * Return the "attr" for a given item.
- * Use "flavor" if available.
- * Use default definitions.
- */
-#define object_attr_default(T) \
-	((k_info[(T)->k_idx].flavor) ? \
-	 (flavor_info[k_info[(T)->k_idx].flavor].d_attr) : \
-	 (k_info[(T)->k_idx].d_attr))
-
-/*
- * Return the "char" for a given item.
- * Use "flavor" if available.
- * Use default definitions.
- */
-#define object_char_default(T) \
-	((k_info[(T)->k_idx].flavor) ? \
-	 (flavor_info[k_info[(T)->k_idx].flavor].d_char) : \
-	 (k_info[(T)->k_idx].d_char))
-
-
-/*
- * Artifacts use the "name1" field
- */
-#define artifact_p(T) \
-	((T)->name1 ? TRUE : FALSE)
-
-/*
- * Ego-Items use the "name2" field
- */
-#define ego_item_p(T) \
-	((T)->name2 ? TRUE : FALSE)
-
-
-/*
- * Broken items.
- */
-#define broken_p(T) \
-	((T)->ident & (IDENT_BROKEN))
-
-/*
- * Cursed items.
- */
-#define cursed_p(T) \
-	((T)->ident & (IDENT_CURSED))
-
+#define get_o_ptr_from_inventory_or_floor(item) \
+	((item >= 0) ? &p_ptr->inventory[item] : &o_list[0 - item])
 
 /*
  * Convert an "attr"/"char" pair into a "pict" (P)
@@ -2772,25 +2688,6 @@
 
 
 /*
- * Convert a "location" (Y,X) into a "grid" (G)
- */
-#define GRID(Y,X) \
-	(256 * (Y) + (X))
-
-/*
- * Convert a "grid" (G) into a "location" (Y)
- */
-#define GRID_Y(G) \
-	((int)((G) / 256U))
-
-/*
- * Convert a "grid" (G) into a "location" (X)
- */
-#define GRID_X(G) \
-	((int)((G) % 256U))
-
-
-/*
  * Determines if a map location is "meaningful"
  */
 #define in_bounds(Y,X) \
@@ -2805,17 +2702,6 @@
 #define in_bounds_fully(Y,X) \
 	(((Y) > 0) && ((Y) < DUNGEON_HGT-1) && \
 	 ((X) > 0) && ((X) < DUNGEON_WID-1))
-
-
-/*
- * Determines if a map location is currently "on screen"
- * Note that "panel_contains(Y,X)" always implies "in_bounds(Y,X)".
- * Pre-storing this into a cave_info flag would be nice.  XXX XXX
- */
-#define panel_contains(Y,X) \
-	(((unsigned)((Y) - Term->offset_y) < (unsigned)(SCREEN_HGT)) && \
-	 ((unsigned)((X) - Term->offset_x) < (unsigned)(SCREEN_WID)))
-
 
 
 /*
@@ -2874,27 +2760,6 @@
 	  (cave_feat[Y][X] == FEAT_MORE)) || \
 	 ((cave_feat[Y][X] >= FEAT_SHOP_HEAD) && \
 	  (cave_feat[Y][X] <= FEAT_SHOP_TAIL)))
-
-
-/*
- * Determine if a "legal" grid is within "los" of the player
- *
- * Note the use of comparison to zero to force a "boolean" result
- */
-#define player_has_los_bold(Y,X) \
-	((cave_info[Y][X] & (CAVE_VIEW)) != 0)
-
-
-/*
- * Determine if a "legal" grid can be "seen" by the player
- *
- * Note the use of comparison to zero to force a "boolean" result
- */
-#define player_can_see_bold(Y,X) \
-	((cave_info[Y][X] & (CAVE_SEEN)) != 0)
-
-
-
 
 /*** Color constants ***/
 

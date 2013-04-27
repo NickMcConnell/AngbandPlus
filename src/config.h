@@ -155,11 +155,6 @@
 #define ALLOW_SPOILERS
 
 /*
- * OPTION: Compile in scripting support
- */
-#define USE_SCRIPT
-
-/*
  * OPTION: Allow "do_cmd_colors" at run-time
  */
 #define ALLOW_COLORS
@@ -261,7 +256,7 @@
 /*
  * OPTION: Use the "complex" wall illumination code
  */
-/* #define UPDATE_VIEW_COMPLEX_WALL_ILLUMINATION */
+#define UPDATE_VIEW_COMPLEX_WALL_ILLUMINATION
 
 
 /*
@@ -396,18 +391,6 @@
 
 
 /*
- * Allow the user to execute his own scripts in debug mode.
- *
- * The user-script code has not been checked for security issues yet,
- * so the user shouldn't be allowed to execute his own scripts from
- * a setgid executable.
- */
-#ifndef SET_UID
-# define ALLOW_USER_SCRIPTS
-#endif /* SET_UID */
-
-
-/*
  * OPTION: Check the "time" against "lib/file/hours.txt"
  */
 /* #define CHECK_TIME */
@@ -436,7 +419,7 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"rr9@thangorodrim.net"
+#define MAINTAINER	"zaimoni@zaimoni.com"
 
 
 /*

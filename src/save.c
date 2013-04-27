@@ -138,7 +138,7 @@ static errr wr_block(void)
 	data_next = data_head;
 
 	/* Wipe the data block */
-	C_WIPE(data_head, 65535, byte);
+	C_WIPE(data_head, 65535);
 
 	/* Success */
 	return (0);
@@ -458,7 +458,7 @@ static errr rd_block(void)
 	data_size = (fake[2] | ((u16b)fake[3] << 8));
 
 	/* Wipe the data block */
-	C_WIPE(data_head, 65535, byte);
+	C_WIPE(data_head, 65535);
 
 	/* Read the actual data */
 	err = fd_read(data_fd, (char*)data_head, data_size);
@@ -690,8 +690,8 @@ static void wr_item(const object_type *o_ptr)
 	wr_s16b(o_ptr->k_idx);
 
 	/* Location */
-	wr_byte(o_ptr->iy);
-	wr_byte(o_ptr->ix);
+	wr_byte(o_ptr->loc.y);
+	wr_byte(o_ptr->loc.x);
 
 	wr_byte(o_ptr->tval);
 	wr_byte(o_ptr->sval);
@@ -748,8 +748,8 @@ static void wr_item(const object_type *o_ptr)
 static void wr_monster(const monster_type *m_ptr)
 {
 	wr_s16b(m_ptr->r_idx);
-	wr_byte(m_ptr->fy);
-	wr_byte(m_ptr->fx);
+	wr_byte(m_ptr->loc.y);
+	wr_byte(m_ptr->loc.x);
 	wr_s16b(m_ptr->hp);
 	wr_s16b(m_ptr->maxhp);
 	wr_s16b(m_ptr->csleep);
@@ -824,7 +824,7 @@ static void wr_xtra(int k_idx)
 {
 	byte tmp8u = 0;
 
-	object_kind *k_ptr = &k_info[k_idx];
+	object_kind *k_ptr = &object_type::k_info[k_idx];
 
 	if (k_ptr->aware) tmp8u |= 0x01;
 	if (k_ptr->tried) tmp8u |= 0x02;
@@ -1204,14 +1204,13 @@ static void wr_dungeon(void)
 	byte count;
 	byte prev_char;
 
-
 	/*** Basic info ***/
 
 	/* Dungeon specific info follows */
 	wr_u16b(p_ptr->depth);
 	wr_u16b(0);
-	wr_u16b(p_ptr->py);
-	wr_u16b(p_ptr->px);
+	wr_u16b(p_ptr->loc.y);
+	wr_u16b(p_ptr->loc.x);
 	wr_u16b(DUNGEON_HGT);
 	wr_u16b(DUNGEON_WID);
 	wr_u16b(0);
@@ -1495,7 +1494,7 @@ static bool wr_savefile_new(void)
 	/* Write the inventory */
 	for (i = 0; i < INVEN_TOTAL; i++)
 	{
-		object_type *o_ptr = &inventory[i];
+		object_type *o_ptr = &p_ptr->inventory[i];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;

@@ -10,8 +10,6 @@
 
 #include "angband.h"
 
-#include "script.h"
-
 
 
 /*
@@ -246,10 +244,10 @@ static void prt_equippy(int row, int col)
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
 		/* Object */
-		o_ptr = &inventory[i];
+		o_ptr = &p_ptr->inventory[i];
 
-		a = object_attr(o_ptr);
-		c = object_char(o_ptr);
+		a = o_ptr->attr_user();
+		c = o_ptr->char_user();
 
 		/* Clear the part of the screen */
 		if (!o_ptr->k_idx)
@@ -668,67 +666,49 @@ static void prt_study(int row, int col)
 	}
 }
 
+static const char* cut_text[8] =	{	"            ",
+										"Graze       ",
+										"Light cut   ",
+										"Bad cut     ",
+										"Nasty cut   ",
+										"Severe cut  ",
+										"Deep gash   ",
+										"Mortal wound"
+									};
+
+static const int cut_color[8]	=	{	TERM_GREEN,
+										TERM_YELLOW,
+										TERM_YELLOW,
+										TERM_ORANGE,
+										TERM_ORANGE,
+										TERM_RED,
+										TERM_RED,
+										TERM_L_RED
+									};
+
 
 static void prt_cut(int row, int col)
 {
-	int c = p_ptr->cut;
-
-	if (c > 1000)
-	{
-		c_put_str(TERM_L_RED, "Mortal wound", row, col);
-	}
-	else if (c > 200)
-	{
-		c_put_str(TERM_RED, "Deep gash   ", row, col);
-	}
-	else if (c > 100)
-	{
-		c_put_str(TERM_RED, "Severe cut  ", row, col);
-	}
-	else if (c > 50)
-	{
-		c_put_str(TERM_ORANGE, "Nasty cut   ", row, col);
-	}
-	else if (c > 25)
-	{
-		c_put_str(TERM_ORANGE, "Bad cut     ", row, col);
-	}
-	else if (c > 10)
-	{
-		c_put_str(TERM_YELLOW, "Light cut   ", row, col);
-	}
-	else if (c)
-	{
-		c_put_str(TERM_YELLOW, "Graze       ", row, col);
-	}
-	else
-	{
-		put_str("            ", row, col);
-	}
+	unsigned int bleeding = cut_level(p_ptr->cut);
+	c_put_str(cut_color[bleeding], cut_text[bleeding], row, col);
 }
 
+static const char* stun_text[4] =	{	"            ",
+										"Stun        ",
+										"Heavy stun  ",
+										"Knocked out "
+									};
 
+static const int stun_color[4]	=	{	TERM_GREEN,
+										TERM_ORANGE,
+										TERM_ORANGE,
+										TERM_RED
+									};
 
 static void prt_stun(int row, int col)
 {
-	int s = p_ptr->stun;
-
-	if (s > 100)
-	{
-		c_put_str(TERM_RED, "Knocked out ", row, col);
-	}
-	else if (s > 50)
-	{
-		c_put_str(TERM_ORANGE, "Heavy stun  ", row, col);
-	}
-	else if (s)
-	{
-		c_put_str(TERM_ORANGE, "Stun        ", row, col);
-	}
-	else
-	{
-		put_str("            ", row, col);
-	}
+	unsigned int stunned = stun_level(p_ptr->stun);
+	c_put_str(stun_color[stunned], stun_text[stunned], row, col);
 }
 
 
@@ -1644,7 +1624,7 @@ static void calc_mana(void)
 		p_ptr->cumber_glove = FALSE;
 
 		/* Get the gloves */
-		o_ptr = &inventory[INVEN_HANDS];
+		o_ptr = &p_ptr->inventory[INVEN_HANDS];
 
 		/* Examine the gloves */
 		object_flags(o_ptr, &f1, &f2, &f3);
@@ -1668,12 +1648,12 @@ static void calc_mana(void)
 
 	/* Weigh the armor */
 	cur_wgt = 0;
-	cur_wgt += inventory[INVEN_BODY].weight;
-	cur_wgt += inventory[INVEN_HEAD].weight;
-	cur_wgt += inventory[INVEN_ARM].weight;
-	cur_wgt += inventory[INVEN_OUTER].weight;
-	cur_wgt += inventory[INVEN_HANDS].weight;
-	cur_wgt += inventory[INVEN_FEET].weight;
+	cur_wgt += p_ptr->inventory[INVEN_BODY].weight;
+	cur_wgt += p_ptr->inventory[INVEN_HEAD].weight;
+	cur_wgt += p_ptr->inventory[INVEN_ARM].weight;
+	cur_wgt += p_ptr->inventory[INVEN_OUTER].weight;
+	cur_wgt += p_ptr->inventory[INVEN_HANDS].weight;
+	cur_wgt += p_ptr->inventory[INVEN_FEET].weight;
 
 	/* Determine the weight allowance */
 	max_wgt = cp_ptr->spell_weight;
@@ -1809,7 +1789,7 @@ static void calc_torch(void)
 	/* Loop through all wielded items */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
-		o_ptr = &inventory[i];
+		o_ptr = &p_ptr->inventory[i];
 
 		/* Skip empty slots */
 		if (!o_ptr->k_idx) continue;
@@ -1818,7 +1798,7 @@ static void calc_torch(void)
 		if (o_ptr->tval == TV_LITE)
 		{
 			/* Artifact Lites provide permanent, bright, lite */
-			if (artifact_p(o_ptr))
+			if (o_ptr->is_artifact())
 			{
 				p_ptr->cur_lite += 3;
 				continue;
@@ -2000,12 +1980,12 @@ static void calc_bonuses(void)
 	p_ptr->hold_life = FALSE;
 	p_ptr->telepathy = FALSE;
 	p_ptr->lite = FALSE;
-	p_ptr->sustain_str = FALSE;
-	p_ptr->sustain_int = FALSE;
-	p_ptr->sustain_wis = FALSE;
-	p_ptr->sustain_con = FALSE;
-	p_ptr->sustain_dex = FALSE;
-	p_ptr->sustain_chr = FALSE;
+	p_ptr->sustain[A_STR] = FALSE;
+	p_ptr->sustain[A_INT] = FALSE;
+	p_ptr->sustain[A_WIS] = FALSE;
+	p_ptr->sustain[A_DEX] = FALSE;
+	p_ptr->sustain[A_CON] = FALSE;
+	p_ptr->sustain[A_CHR] = FALSE;
 	p_ptr->resist_acid = FALSE;
 	p_ptr->resist_elec = FALSE;
 	p_ptr->resist_fire = FALSE;
@@ -2112,12 +2092,12 @@ static void calc_bonuses(void)
 	if (f2 & (TR2_RES_DISEN)) p_ptr->resist_disen = TRUE;
 
 	/* Sustain flags */
-	if (f2 & (TR2_SUST_STR)) p_ptr->sustain_str = TRUE;
-	if (f2 & (TR2_SUST_INT)) p_ptr->sustain_int = TRUE;
-	if (f2 & (TR2_SUST_WIS)) p_ptr->sustain_wis = TRUE;
-	if (f2 & (TR2_SUST_DEX)) p_ptr->sustain_dex = TRUE;
-	if (f2 & (TR2_SUST_CON)) p_ptr->sustain_con = TRUE;
-	if (f2 & (TR2_SUST_CHR)) p_ptr->sustain_chr = TRUE;
+	if (f2 & (TR2_SUST_STR)) p_ptr->sustain[A_STR] = TRUE;
+	if (f2 & (TR2_SUST_INT)) p_ptr->sustain[A_INT] = TRUE;
+	if (f2 & (TR2_SUST_WIS)) p_ptr->sustain[A_WIS] = TRUE;
+	if (f2 & (TR2_SUST_DEX)) p_ptr->sustain[A_DEX] = TRUE;
+	if (f2 & (TR2_SUST_CON)) p_ptr->sustain[A_CON] = TRUE;
+	if (f2 & (TR2_SUST_CHR)) p_ptr->sustain[A_CHR] = TRUE;
 
 
 	/*** Analyze equipment ***/
@@ -2125,7 +2105,7 @@ static void calc_bonuses(void)
 	/* Scan the equipment */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
-		o_ptr = &inventory[i];
+		o_ptr = &p_ptr->inventory[i];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
@@ -2211,12 +2191,12 @@ static void calc_bonuses(void)
 		if (f2 & (TR2_RES_DISEN)) p_ptr->resist_disen = TRUE;
 
 		/* Sustain flags */
-		if (f2 & (TR2_SUST_STR)) p_ptr->sustain_str = TRUE;
-		if (f2 & (TR2_SUST_INT)) p_ptr->sustain_int = TRUE;
-		if (f2 & (TR2_SUST_WIS)) p_ptr->sustain_wis = TRUE;
-		if (f2 & (TR2_SUST_DEX)) p_ptr->sustain_dex = TRUE;
-		if (f2 & (TR2_SUST_CON)) p_ptr->sustain_con = TRUE;
-		if (f2 & (TR2_SUST_CHR)) p_ptr->sustain_chr = TRUE;
+		if (f2 & (TR2_SUST_STR)) p_ptr->sustain[A_STR] = TRUE;
+		if (f2 & (TR2_SUST_INT)) p_ptr->sustain[A_INT] = TRUE;
+		if (f2 & (TR2_SUST_WIS)) p_ptr->sustain[A_WIS] = TRUE;
+		if (f2 & (TR2_SUST_DEX)) p_ptr->sustain[A_DEX] = TRUE;
+		if (f2 & (TR2_SUST_CON)) p_ptr->sustain[A_CON] = TRUE;
+		if (f2 & (TR2_SUST_CHR)) p_ptr->sustain[A_CHR] = TRUE;
 
 		/* Modify the base armor class */
 		p_ptr->ac += o_ptr->ac;
@@ -2228,7 +2208,7 @@ static void calc_bonuses(void)
 		p_ptr->to_a += o_ptr->to_a;
 
 		/* Apply the mental bonuses to armor class, if known */
-		if (object_known_p(o_ptr)) p_ptr->dis_to_a += o_ptr->to_a;
+		if (o_ptr->known()) p_ptr->dis_to_a += o_ptr->to_a;
 
 		/* Hack -- do not apply "weapon" bonuses */
 		if (i == INVEN_WIELD) continue;
@@ -2240,9 +2220,12 @@ static void calc_bonuses(void)
 		p_ptr->to_h += o_ptr->to_h;
 		p_ptr->to_d += o_ptr->to_d;
 
-		/* Apply the mental bonuses tp hit/damage, if known */
-		if (object_known_p(o_ptr)) p_ptr->dis_to_h += o_ptr->to_h;
-		if (object_known_p(o_ptr)) p_ptr->dis_to_d += o_ptr->to_d;
+		/* Apply the mental bonuses to hit/damage, if known */
+		if (o_ptr->known())
+			{
+			p_ptr->dis_to_h += o_ptr->to_h;
+			p_ptr->dis_to_d += o_ptr->to_d;
+			};
 	}
 
 
@@ -2478,7 +2461,7 @@ static void calc_bonuses(void)
 	/*** Analyze current bow ***/
 
 	/* Examine the "current bow" */
-	o_ptr = &inventory[INVEN_BOW];
+	o_ptr = &p_ptr->inventory[INVEN_BOW];
 
 	/* Assume not heavy */
 	p_ptr->heavy_shoot = FALSE;
@@ -2573,7 +2556,7 @@ static void calc_bonuses(void)
 	/*** Analyze weapon ***/
 
 	/* Examine the "current weapon" */
-	o_ptr = &inventory[INVEN_WIELD];
+	o_ptr = &p_ptr->inventory[INVEN_WIELD];
 
 	/* Assume not heavy */
 	p_ptr->heavy_wield = FALSE;
@@ -2732,9 +2715,6 @@ static void calc_bonuses(void)
 		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 	}
 
-	/* Event -- Calc bonus */
-	player_calc_bonus_hook();
-
 	/* Hack -- handle "xtra" mode */
 	if (character_xtra) return;
 
@@ -2746,7 +2726,7 @@ static void calc_bonuses(void)
 		{
 			msg_print("You have trouble wielding such a heavy bow.");
 		}
-		else if (inventory[INVEN_BOW].k_idx)
+		else if (p_ptr->inventory[INVEN_BOW].k_idx)
 		{
 			msg_print("You have no trouble wielding your bow.");
 		}
@@ -2764,7 +2744,7 @@ static void calc_bonuses(void)
 		{
 			msg_print("You have trouble wielding such a heavy weapon.");
 		}
-		else if (inventory[INVEN_WIELD].k_idx)
+		else if (p_ptr->inventory[INVEN_WIELD].k_idx)
 		{
 			msg_print("You have no trouble wielding your weapon.");
 		}
@@ -2782,7 +2762,7 @@ static void calc_bonuses(void)
 		{
 			msg_print("You do not feel comfortable with your weapon.");
 		}
-		else if (inventory[INVEN_WIELD].k_idx)
+		else if (p_ptr->inventory[INVEN_WIELD].k_idx)
 		{
 			msg_print("You feel comfortable with your weapon.");
 		}

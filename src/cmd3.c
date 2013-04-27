@@ -127,14 +127,14 @@ void do_cmd_wield(void)
 {
 	int item, slot;
 
-	object_type *o_ptr;
-
-	object_type *i_ptr;
 	object_type object_type_body;
+	object_type *o_ptr;
+	object_type *i_ptr = &object_type_body;	/* Get local object */
 
 	cptr act;
 
-	cptr q, s;
+	cptr q = "Wear/Wield which item? ";
+	cptr s = "You have nothing you can wear or wield.";
 
 	char o_name[80];
 
@@ -143,31 +143,19 @@ void do_cmd_wield(void)
 	item_tester_hook = item_tester_hook_wear;
 
 	/* Get an item */
-	q = "Wear/Wield which item? ";
-	s = "You have nothing you can wear or wield.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
+	/* Get the object */
+	o_ptr = get_o_ptr_from_inventory_or_floor(item);
 
 	/* Check the slot */
 	slot = wield_slot(o_ptr);
 
 	/* Prevent wielding into a cursed slot */
-	if (cursed_p(&inventory[slot]))
+	if (p_ptr->inventory[slot].is_cursed())
 	{
 		/* Describe it */
-		object_desc(o_name, sizeof(o_name), &inventory[slot], FALSE, 0);
+		object_desc(o_name, sizeof(o_name), &p_ptr->inventory[slot], FALSE, 0);
 
 		/* Message */
 		msg_format("The %s you are %s appears to be cursed.",
@@ -181,11 +169,8 @@ void do_cmd_wield(void)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
-	/* Get local object */
-	i_ptr = &object_type_body;
-
 	/* Obtain local object */
-	object_copy(i_ptr, o_ptr);
+	COPY(i_ptr,o_ptr);
 
 	/* Modify quantity */
 	i_ptr->number = 1;
@@ -205,7 +190,7 @@ void do_cmd_wield(void)
 	}
 
 	/* Get the wield slot */
-	o_ptr = &inventory[slot];
+	o_ptr = &p_ptr->inventory[slot];
 
 	/* Take off existing item */
 	if (o_ptr->k_idx)
@@ -215,7 +200,7 @@ void do_cmd_wield(void)
 	}
 
 	/* Wear the new stuff */
-	object_copy(o_ptr, i_ptr);
+	COPY(o_ptr,i_ptr);
 
 	/* Increase the weight */
 	p_ptr->total_weight += i_ptr->weight;
@@ -249,7 +234,7 @@ void do_cmd_wield(void)
 	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
 
 	/* Cursed! */
-	if (cursed_p(o_ptr))
+	if (o_ptr->is_cursed())
 	{
 		/* Warn the player */
 		sound(MSG_CURSED);
@@ -291,29 +276,18 @@ void do_cmd_takeoff(void)
 
 	object_type *o_ptr;
 
-	cptr q, s;
+	cptr q = "Take off which item? ";
+	cptr s = "You are not wearing anything to take off.";
 
 
 	/* Get an item */
-	q = "Take off which item? ";
-	s = "You are not wearing anything to take off.";
 	if (!get_item(&item, q, s, (USE_EQUIP))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
+	/* Get the object */
+	o_ptr = get_o_ptr_from_inventory_or_floor(item);
 
 	/* Item is cursed */
-	if (cursed_p(o_ptr))
+	if (o_ptr->is_cursed())
 	{
 		/* Oops */
 		msg_print("Hmmm, it seems to be cursed.");
@@ -340,25 +314,15 @@ void do_cmd_drop(void)
 
 	object_type *o_ptr;
 
-	cptr q, s;
+	cptr q = "Drop which item? ";
+	cptr s = "You have nothing to drop.";
 
 
 	/* Get an item */
-	q = "Drop which item? ";
-	s = "You have nothing to drop.";
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	/* Get the object */
+	o_ptr = get_o_ptr_from_inventory_or_floor(item);
 
 	/* Get a quantity */
 	amt = get_quantity(NULL, o_ptr->number);
@@ -367,7 +331,7 @@ void do_cmd_drop(void)
 	if (amt <= 0) return;
 
 	/* Hack -- Cannot remove cursed items */
-	if ((item >= INVEN_WIELD) && cursed_p(o_ptr))
+	if ((item >= INVEN_WIELD) && o_ptr->is_cursed())
 	{
 		/* Oops */
 		msg_print("Hmmm, it seems to be cursed.");
@@ -394,32 +358,22 @@ void do_cmd_destroy(void)
 
 	object_type *o_ptr;
 
-	object_type *i_ptr;
 	object_type object_type_body;
+	object_type *i_ptr = &object_type_body; /* Get local object */
 
 	char o_name[120];
 
 	char out_val[160];
 
-	cptr q, s;
+	cptr q = "Destroy which item? ";
+	cptr s = "You have nothing to destroy.";
 
 
 	/* Get an item */
-	q = "Destroy which item? ";
-	s = "You have nothing to destroy.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	/* Get the object */
+	o_ptr = get_o_ptr_from_inventory_or_floor(item);
 
 	/* Get a quantity */
 	amt = get_quantity(NULL, o_ptr->number);
@@ -427,11 +381,8 @@ void do_cmd_destroy(void)
 	/* Allow user abort */
 	if (amt <= 0) return;
 
-	/* Get local object */
-	i_ptr = &object_type_body;
-
 	/* Obtain a local object */
-	object_copy(i_ptr, o_ptr);
+	COPY(i_ptr,o_ptr);
 
 	if ((o_ptr->tval == TV_WAND) ||
 	    (o_ptr->tval == TV_STAFF) ||
@@ -458,19 +409,19 @@ void do_cmd_destroy(void)
 	p_ptr->energy_use = 100;
 
 	/* Artifacts cannot be destroyed */
-	if (artifact_p(o_ptr))
+	if (o_ptr->is_artifact())
 	{
 		/* Message */
 		msg_format("You cannot destroy %s.", o_name);
 
 		/* Don't mark id'ed objects */
-		if (object_known_p(o_ptr)) return;
+		if (o_ptr->known()) return;
 
 		/* It has already been sensed */
 		if (o_ptr->ident & (IDENT_SENSE))
 		{
 			/* Already sensed objects always get improved feelings */
-			if (cursed_p(o_ptr) || broken_p(o_ptr))
+			if (o_ptr->is_broken_or_cursed())
 				o_ptr->discount = INSCRIP_TERRIBLE;
 			else
 				o_ptr->discount = INSCRIP_SPECIAL;
@@ -526,25 +477,14 @@ void do_cmd_observe(void)
 
 	object_type *o_ptr;
 
-	cptr q, s;
-
+	cptr q = "Examine which item? ";
+	cptr s = "You have nothing to examine.";
 
 	/* Get an item */
-	q = "Examine which item? ";
-	s = "You have nothing to examine.";
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	/* Get the object */
+	o_ptr = get_o_ptr_from_inventory_or_floor(item);
 
 	/* Describe */
 	object_info_screen(o_ptr);
@@ -562,25 +502,15 @@ void do_cmd_uninscribe(void)
 
 	object_type *o_ptr;
 
-	cptr q, s;
+	cptr q = "Un-inscribe which item? ";
+	cptr s = "You have nothing to un-inscribe.";
 
 
 	/* Get an item */
-	q = "Un-inscribe which item? ";
-	s = "You have nothing to un-inscribe.";
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	/* Get the object */
+	o_ptr = get_o_ptr_from_inventory_or_floor(item);
 
 	/* Nothing to remove */
 	if (!o_ptr->note)
@@ -616,25 +546,14 @@ void do_cmd_inscribe(void)
 
 	char tmp[80];
 
-	cptr q, s;
-
+	cptr q = "Inscribe which item? ";
+	cptr s = "You have nothing to inscribe.";
 
 	/* Get an item */
-	q = "Inscribe which item? ";
-	s = "You have nothing to inscribe.";
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	/* Get the object */
+	o_ptr = get_o_ptr_from_inventory_or_floor(item);
 
 	/* Describe the activity */
 	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
@@ -698,37 +617,23 @@ static void do_cmd_refill_lamp(void)
 	int item;
 
 	object_type *o_ptr;
-	object_type *j_ptr;
+	object_type *j_ptr = &p_ptr->inventory[INVEN_LITE];	/* Get the lantern */
 
-	cptr q, s;
+	cptr q = "Refill with which source of oil? ";
+	cptr s = "You have no sources of oil.";
 
 
 	/* Restrict the choices */
 	item_tester_hook = item_tester_refill_lantern;
 
 	/* Get an item */
-	q = "Refill with which source of oil? ";
-	s = "You have no sources of oil.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
+	/* Get the object */
+	o_ptr = get_o_ptr_from_inventory_or_floor(item);
 
 	/* Take a partial turn */
 	p_ptr->energy_use = 50;
-
-	/* Get the lantern */
-	j_ptr = &inventory[INVEN_LITE];
 
 	/* Refuel */
 	j_ptr->pval += o_ptr->pval;
@@ -749,14 +654,11 @@ static void do_cmd_refill_lamp(void)
 		/* Unstack if necessary */
 		if (o_ptr->number > 1)
 		{
-			object_type *i_ptr;
 			object_type object_type_body;
-
-			/* Get local object */
-			i_ptr = &object_type_body;
+			object_type *i_ptr = &object_type_body;	/* Get local object */
 
 			/* Obtain a local object */
-			object_copy(i_ptr, o_ptr);
+			COPY(i_ptr,o_ptr);
 
 			/* Modify quantity */
 			i_ptr->number = 1;
@@ -772,7 +674,7 @@ static void do_cmd_refill_lamp(void)
 			if (item >= 0)
 				item = inven_carry(i_ptr);
 			else
-				drop_near(i_ptr, 0, p_ptr->py, p_ptr->px);
+				drop_near(i_ptr, 0, p_ptr->loc);
 		}
 
 		/* Empty a single latern */
@@ -840,37 +742,23 @@ static void do_cmd_refill_torch(void)
 	int item;
 
 	object_type *o_ptr;
-	object_type *j_ptr;
+	object_type *j_ptr = &p_ptr->inventory[INVEN_LITE];	/* Get the primary torch */
 
-	cptr q, s;
+	cptr q = "Refuel with which torch? ";
+	cptr s = "You have no extra torches.";
 
 
 	/* Restrict the choices */
 	item_tester_hook = item_tester_refill_torch;
 
 	/* Get an item */
-	q = "Refuel with which torch? ";
-	s = "You have no extra torches.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
+	/* Get the object */
+	o_ptr = get_o_ptr_from_inventory_or_floor(item);
 
 	/* Take a partial turn */
 	p_ptr->energy_use = 50;
-
-	/* Get the primary torch */
-	j_ptr = &inventory[INVEN_LITE];
 
 	/* Refuel */
 	j_ptr->pval += o_ptr->pval + 5;
@@ -922,10 +810,7 @@ static void do_cmd_refill_torch(void)
  */
 void do_cmd_refill(void)
 {
-	object_type *o_ptr;
-
-	/* Get the light */
-	o_ptr = &inventory[INVEN_LITE];
+	object_type *o_ptr = &p_ptr->inventory[INVEN_LITE];	/* Get the light */
 
 	/* It is nothing */
 	if (o_ptr->tval != TV_LITE)

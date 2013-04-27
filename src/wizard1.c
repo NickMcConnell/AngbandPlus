@@ -128,18 +128,14 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 {
 	object_kind *k_ptr;
 
-	object_type *i_ptr;
 	object_type object_type_body;
-
-
-	/* Get local object */
-	i_ptr = &object_type_body;
+	object_type *i_ptr = &object_type_body;	/* Get local object */
 
 	/* Prepare a fake item */
 	object_prep(i_ptr, k);
 
 	/* Obtain the "kind" info */
-	k_ptr = &k_info[i_ptr->k_idx];
+	k_ptr = &object_type::k_info[i_ptr->k_idx];
 
 	/* Cancel bonuses */
 	i_ptr->pval = 0;
@@ -319,7 +315,7 @@ static void spoil_obj_desc(cptr fname)
 		/* Get legal item types */
 		for (k = 1; k < z_info->k_max; k++)
 		{
-			object_kind *k_ptr = &k_info[k];
+			object_kind *k_ptr = &object_type::k_info[k];
 
 			/* Skip wrong tval's */
 			if (k_ptr->tval != group_item[i].tval) continue;
@@ -433,8 +429,8 @@ static void spoil_artifact(cptr fname)
 {
 	int i, j;
 
-	object_type *i_ptr;
 	object_type object_type_body;
+	object_type *i_ptr = &object_type_body;	/* Get local object */
 
 	char buf[1024];
 
@@ -486,11 +482,8 @@ static void spoil_artifact(cptr fname)
 			/* We only want objects in the current group */
 			if (a_ptr->tval != group_artifact[i].tval) continue;
 
-			/* Get local object */
-			i_ptr = &object_type_body;
-
 			/* Wipe the object */
-			object_wipe(i_ptr);
+			WIPE(i_ptr);
 
 			/* Attempt to "forge" the artifact */
 			if (!make_fake_artifact(i_ptr, (byte)j)) continue;

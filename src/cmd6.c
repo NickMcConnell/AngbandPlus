@@ -10,8 +10,6 @@
 
 #include "angband.h"
 
-#include "script.h"
-
 
 /*
  * This file includes code for eating food, drinking potions,
@@ -79,18 +77,8 @@ void do_cmd_eat_food(void)
 	s = "You have nothing to eat.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
+	/* Get the object */
+	o_ptr = get_o_ptr_from_inventory_or_floor(item);
 
 	/* Sound */
 	sound(MSG_EAT);
@@ -103,7 +91,7 @@ void do_cmd_eat_food(void)
 	ident = FALSE;
 
 	/* Object level */
-	lev = k_info[o_ptr->k_idx].level;
+	lev = o_ptr->level();
 
 	/* Eat the food */
 	use_object(o_ptr, &ident);
@@ -115,7 +103,7 @@ void do_cmd_eat_food(void)
 	object_tried(o_ptr);
 
 	/* The player is now aware of the object */
-	if (ident && !object_aware_p(o_ptr))
+	if (ident && !o_ptr->aware())
 	{
 		object_aware(o_ptr);
 		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
@@ -164,18 +152,8 @@ void do_cmd_quaff_potion(void)
 	s = "You have no potions to quaff.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
+	/* Get the object */
+	o_ptr = get_o_ptr_from_inventory_or_floor(item);
 
 	/* Sound */
 	sound(MSG_QUAFF);
@@ -188,7 +166,7 @@ void do_cmd_quaff_potion(void)
 	ident = FALSE;
 
 	/* Object level */
-	lev = k_info[o_ptr->k_idx].level;
+	lev = o_ptr->level();
 
 	/* Quaff the potion */
 	use_object(o_ptr, &ident);
@@ -200,7 +178,7 @@ void do_cmd_quaff_potion(void)
 	object_tried(o_ptr);
 
 	/* An identification was made */
-	if (ident && !object_aware_p(o_ptr))
+	if (ident && !o_ptr->aware())
 	{
 		object_aware(o_ptr);
 		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
@@ -270,18 +248,8 @@ void do_cmd_read_scroll(void)
 	s = "You have no scrolls to read.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
+	/* Get the object */
+	o_ptr = get_o_ptr_from_inventory_or_floor(item);
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
@@ -290,7 +258,7 @@ void do_cmd_read_scroll(void)
 	ident = FALSE;
 
 	/* Object level */
-	lev = k_info[o_ptr->k_idx].level;
+	lev = o_ptr->level();
 
 	/* Read the scroll */
 	used_up = use_object(o_ptr, &ident);
@@ -302,7 +270,7 @@ void do_cmd_read_scroll(void)
 	object_tried(o_ptr);
 
 	/* An identification was made */
-	if (ident && !object_aware_p(o_ptr))
+	if (ident && !o_ptr->aware())
 	{
 		object_aware(o_ptr);
 		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
@@ -367,17 +335,8 @@ void do_cmd_use_staff(void)
 	s = "You have no staff to use.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	/* Get the object */
+	o_ptr = get_o_ptr_from_inventory_or_floor(item);
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
@@ -386,7 +345,7 @@ void do_cmd_use_staff(void)
 	ident = FALSE;
 
 	/* Extract the item level */
-	lev = k_info[o_ptr->k_idx].level;
+	lev = o_ptr->level();
 
 	/* Base chance of success */
 	chance = p_ptr->skill_dev;
@@ -438,7 +397,7 @@ void do_cmd_use_staff(void)
 	object_tried(o_ptr);
 
 	/* An identification was made */
-	if (ident && !object_aware_p(o_ptr))
+	if (ident && !o_ptr->aware())
 	{
 		object_aware(o_ptr);
 		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
@@ -508,17 +467,8 @@ void do_cmd_aim_wand(void)
 	s = "You have no wand to aim.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	/* Get the object */
+	o_ptr = get_o_ptr_from_inventory_or_floor(item);
 
 	/* Aim the wand */
 	if (!use_object(o_ptr, &ident)) return;
@@ -531,10 +481,10 @@ void do_cmd_aim_wand(void)
 	object_tried(o_ptr);
 
 	/* Object level */
-	lev = k_info[o_ptr->k_idx].level;
+	lev = o_ptr->level();
 
 	/* Apply identification */
-	if (ident && !object_aware_p(o_ptr))
+	if (ident && !o_ptr->aware())
 	{
 		object_aware(o_ptr);
 		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
@@ -588,17 +538,8 @@ void do_cmd_zap_rod(void)
 	s = "You have no rod to zap.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	/* Get the object */
+	o_ptr = get_o_ptr_from_inventory_or_floor(item);
 
 	/* Zap the rod */
 	if (!use_object(o_ptr, &ident)) return;
@@ -610,10 +551,10 @@ void do_cmd_zap_rod(void)
 	object_tried(o_ptr);
 
 	/* Successfully determined the object function */
-	if (ident && !object_aware_p(o_ptr))
+	if (ident && !o_ptr->aware())
 	{
 		/* Object level */
-		int lev = k_info[o_ptr->k_idx].level;
+		int lev = o_ptr->level();
 
 		object_aware(o_ptr);
 		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
@@ -634,7 +575,7 @@ static bool item_tester_hook_activate(const object_type *o_ptr)
 	u32b f1, f2, f3;
 
 	/* Not known */
-	if (!object_known_p(o_ptr)) return (FALSE);
+	if (!o_ptr->known()) return (FALSE);
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
@@ -671,27 +612,17 @@ void do_cmd_activate(void)
 	s = "You have nothing to activate.";
 	if (!get_item(&item, q, s, (USE_EQUIP))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
+	/* Get the object */
+	o_ptr = get_o_ptr_from_inventory_or_floor(item);
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
 	/* Extract the item level */
-	lev = k_info[o_ptr->k_idx].level;
+	lev = o_ptr->level();
 
 	/* Hack -- use artifact level instead */
-	if (artifact_p(o_ptr)) lev = a_info[o_ptr->name1].level;
+	if (o_ptr->is_artifact()) lev = a_info[o_ptr->name1].level;
 
 	/* Base chance of success */
 	chance = p_ptr->skill_dev;

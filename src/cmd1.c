@@ -19,10 +19,7 @@
  */
 bool test_hit(int chance, int ac, int vis)
 {
-	int k;
-
-	/* Percentile dice */
-	k = rand_int(100);
+	int k = rand_int(100);	/* Percentile dice */
 
 	/* Hack -- Instant miss or hit */
 	if (k < 10) return (k < 5);
@@ -409,34 +406,29 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
  */
 void search(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	int y, x, chance;
+	int chance = p_ptr->skill_srh;	/* Start with base search ability */
 
 	object_type *o_ptr;
 
-
-	/* Start with base search ability */
-	chance = p_ptr->skill_srh;
+	coord t;
 
 	/* Penalize various conditions */
-	if (p_ptr->blind || no_lite()) chance = chance / 10;
-	if (p_ptr->confused || p_ptr->image) chance = chance / 10;
+	if (p_ptr->blind || no_lite()) chance /= 10;
+	if (p_ptr->confused || p_ptr->image) chance /= 10;
 
 	/* Search the nearby grids, which are always in bounds */
-	for (y = (py - 1); y <= (py + 1); y++)
+	for (t.y = (p_ptr->loc.y - 1); t.y <= (p_ptr->loc.y + 1); t.y++)
 	{
-		for (x = (px - 1); x <= (px + 1); x++)
+		for (t.x = (p_ptr->loc.x - 1); t.x <= (p_ptr->loc.x + 1); t.x++)
 		{
 			/* Sometimes, notice things */
 			if (rand_int(100) < chance)
 			{
 				/* Invisible trap */
-				if (cave_feat[y][x] == FEAT_INVIS)
+				if (cave_feat[t.y][t.x] == FEAT_INVIS)
 				{
 					/* Pick a trap */
-					pick_trap(y, x);
+					pick_trap(t.y, t.x);
 
 					/* Message */
 					msg_print("You have found a trap.");
@@ -446,20 +438,20 @@ void search(void)
 				}
 
 				/* Secret door */
-				if (cave_feat[y][x] == FEAT_SECRET)
+				if (cave_feat[t.y][t.x] == FEAT_SECRET)
 				{
 					/* Message */
 					msg_print("You have found a secret door.");
 
 					/* Pick a door */
-					place_closed_door(y, x);
+					place_closed_door(t.y, t.x);
 
 					/* Disturb */
 					disturb(0, 0);
 				}
 
 				/* Scan all objects in the grid */
-				for (o_ptr = get_first_object(y, x); o_ptr; o_ptr = get_next_object(o_ptr))
+				for (o_ptr = get_first_object(t.y, t.x); o_ptr; o_ptr = get_next_object(o_ptr))
 				{
 					/* Skip non-chests */
 					if (o_ptr->tval != TV_CHEST) continue;
@@ -471,7 +463,7 @@ void search(void)
 					if (!chest_traps[o_ptr->pval]) continue;
 
 					/* Identify once */
-					if (!object_known_p(o_ptr))
+					if (!o_ptr->known())
 					{
 						/* Message */
 						msg_print("You have discovered a trap on the chest!");
@@ -529,18 +521,12 @@ static bool auto_pickup_okay(const object_type *o_ptr)
  */
 static void py_pickup_aux(int o_idx)
 {
-	int slot;
-
 	char o_name[80];
-	object_type *o_ptr;
-
-	o_ptr = &o_list[o_idx];
-
-	/* Carry the object */
-	slot = inven_carry(o_ptr);
+	object_type *o_ptr = &o_list[o_idx];
+	int slot = inven_carry(o_ptr);	/* Carry the object */
 
 	/* Get the object again */
-	o_ptr = &inventory[slot];
+	o_ptr = &p_ptr->inventory[slot];
 
 	/* Describe the object */
 	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
@@ -560,8 +546,8 @@ static void py_pickup_aux(int o_idx)
  */
 void py_pickup(int pickup)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	int py = p_ptr->loc.y;
+	int px = p_ptr->loc.x;
 
 	s16b this_o_idx, next_o_idx = 0;
 
@@ -706,11 +692,8 @@ void py_pickup(int pickup)
 			/* One object */
 			if (not_pickup == 1)
 			{
-				/* Get the object */
-				o_ptr = &o_list[last_o_idx];
-
 				/* Describe the object */
-				object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+				object_desc(o_name, sizeof(o_name), &o_list[last_o_idx], TRUE, 3);
 
 				/* Message */
 				msg_format("You see %s.", o_name);
@@ -733,11 +716,8 @@ void py_pickup(int pickup)
 			/* One object */
 			if (not_pickup == 1)
 			{
-				/* Get the object */
-				o_ptr = &o_list[last_o_idx];
-
 				/* Describe the object */
-				object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+				object_desc(o_name, sizeof(o_name), &o_list[last_o_idx], TRUE, 3);
 
 				/* Message */
 				msg_format("You have no room for %s.", o_name);
@@ -757,7 +737,7 @@ void py_pickup(int pickup)
 		/* Pick up objects */
 		while (1)
 		{
-			cptr q, s;
+			cptr q = "Get which item? ";
 
 			int item;
 
@@ -765,9 +745,7 @@ void py_pickup(int pickup)
 			item_tester_hook = inven_carry_okay;
 
 			/* Get an object*/
-			q = "Get which item? ";
-			s = NULL;
-			if (!get_item(&item, q, s, (USE_FLOOR))) break;
+			if (!get_item(&item, q, NULL, (USE_FLOOR))) break;
 
 			/* Pick up the object */
 			py_pickup_aux(0 - item);
@@ -790,7 +768,7 @@ static bool check_hit(int power)
 /*
  * Handle player hitting a real trap
  */
-void hit_trap(int y, int x)
+void hit_trap(coord g)
 {
 	int i, num, dam;
 
@@ -801,7 +779,7 @@ void hit_trap(int y, int x)
 	disturb(0, 0);
 
 	/* Analyze XXX XXX XXX */
-	switch (cave_feat[y][x])
+	switch (cave_feat[g.y][g.x])
 	{
 		case FEAT_TRAP_HEAD + 0x00:
 		{
@@ -915,12 +893,12 @@ void hit_trap(int y, int x)
 		{
 			sound(MSG_SUM_MONSTER);
 			msg_print("You are enveloped in a cloud of smoke!");
-			cave_info[y][x] &= ~(CAVE_MARK);
-			cave_set_feat(y, x, FEAT_FLOOR);
+			cave_info[g.y][g.x] &= ~(CAVE_MARK);
+			cave_set_feat(g.y, g.x, FEAT_FLOOR);
 			num = 2 + randint(3);
 			for (i = 0; i < num; i++)
 			{
-				(void)summon_specific(y, x, p_ptr->depth, 0);
+				(void)summon_specific(g, p_ptr->depth, 0);
 			}
 			break;
 		}
@@ -1061,7 +1039,7 @@ void hit_trap(int y, int x)
  *
  * If no "weapon" is available, then "punch" the monster one time.
  */
-void py_attack(int y, int x)
+void py_attack(coord g)
 {
 	int num = 0, k, bonus, chance;
 
@@ -1079,7 +1057,7 @@ void py_attack(int y, int x)
 
 
 	/* Get the monster */
-	m_ptr = &mon_list[cave_m_idx[y][x]];
+	m_ptr = &mon_list[cave_m_idx[g.y][g.x]];
 	r_ptr = &r_info[m_ptr->r_idx];
 	l_ptr = &l_list[m_ptr->r_idx];
 
@@ -1096,11 +1074,11 @@ void py_attack(int y, int x)
 	monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
 
-	/* Auto-Recall if possible and visible */
-	if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
-
-	/* Track a new monster */
-	if (m_ptr->ml) health_track(cave_m_idx[y][x]);
+	if (m_ptr->ml)	/* if visible */
+		{
+		monster_race_track(m_ptr->r_idx);	/* Auto-Recall if possible */
+		health_track(cave_m_idx[g.y][g.x]);	/* Track a new monster */
+		}
 
 
 	/* Handle player fear */
@@ -1115,7 +1093,7 @@ void py_attack(int y, int x)
 
 
 	/* Get the weapon */
-	o_ptr = &inventory[INVEN_WIELD];
+	o_ptr = &p_ptr->inventory[INVEN_WIELD];
 
 	/* Calculate the "attack quality" */
 	bonus = p_ptr->to_h + o_ptr->to_h;
@@ -1157,7 +1135,7 @@ void py_attack(int y, int x)
 			}
 
 			/* Damage, check for fear and death */
-			if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL)) break;
+			if (mon_take_hit(cave_m_idx[g.y][g.x], k, &fear, NULL)) break;
 
 			/* Confusion attack */
 			if (p_ptr->confusing)
@@ -1208,7 +1186,7 @@ void py_attack(int y, int x)
 
 
 	/* Mega-Hack -- apply earthquake brand */
-	if (do_quake) earthquake(p_ptr->py, p_ptr->px, 10);
+	if (do_quake) earthquake(p_ptr->loc, 10);
 }
 
 
@@ -1225,29 +1203,21 @@ void py_attack(int y, int x)
  */
 void move_player(int dir, int jumping)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	int y, x;
-
-
 	/* Find the result of moving */
-	y = py + ddy[dir];
-	x = px + ddx[dir];
-
+	coord dest_g(p_ptr->loc + dd_coord[dir]);
 
 	/* Hack -- attack monsters */
-	if (cave_m_idx[y][x] > 0)
+	if (cave_m_idx[dest_g.y][dest_g.x] > 0)
 	{
 		/* Attack */
-		py_attack(y, x);
+		py_attack(dest_g);
 	}
 
 	/* Optionally alter known traps/doors on (non-jumping) movement */
 	else if (easy_alter && !jumping &&
-	         (cave_info[y][x] & (CAVE_MARK)) &&
-	         (cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
-	         (cave_feat[y][x] <= FEAT_DOOR_TAIL))
+	         (cave_info[dest_g.y][dest_g.x] & (CAVE_MARK)) &&
+	         (cave_feat[dest_g.y][dest_g.x] >= FEAT_TRAP_HEAD) &&
+	         (cave_feat[dest_g.y][dest_g.x] <= FEAT_DOOR_TAIL))
 	{
 		/* Not already repeating */
 		if (!p_ptr->command_rep)
@@ -1268,36 +1238,36 @@ void move_player(int dir, int jumping)
 	}
 
 	/* Player can not walk through "walls" */
-	else if (!cave_floor_bold(y, x))
+	else if (!cave_floor_bold(dest_g.y, dest_g.x))
 	{
 		/* Disturb the player */
 		disturb(0, 0);
 
 		/* Notice unknown obstacles */
-		if (!(cave_info[y][x] & (CAVE_MARK)))
+		if (!(cave_info[dest_g.y][dest_g.x] & (CAVE_MARK)))
 		{
 			/* Rubble */
-			if (cave_feat[y][x] == FEAT_RUBBLE)
+			if (cave_feat[dest_g.y][dest_g.x] == FEAT_RUBBLE)
 			{
 				message(MSG_HITWALL, 0, "You feel a pile of rubble blocking your way.");
-				cave_info[y][x] |= (CAVE_MARK);
-				lite_spot(y, x);
+				cave_info[dest_g.y][dest_g.x] |= (CAVE_MARK);
+				lite_spot(dest_g);
 			}
 
 			/* Closed door */
-			else if (cave_feat[y][x] < FEAT_SECRET)
+			else if (cave_feat[dest_g.y][dest_g.x] < FEAT_SECRET)
 			{
 				message(MSG_HITWALL, 0, "You feel a door blocking your way.");
-				cave_info[y][x] |= (CAVE_MARK);
-				lite_spot(y, x);
+				cave_info[dest_g.y][dest_g.x] |= (CAVE_MARK);
+				lite_spot(dest_g);
 			}
 
 			/* Wall (or secret door) */
 			else
 			{
 				message(MSG_HITWALL, 0, "You feel a wall blocking your way.");
-				cave_info[y][x] |= (CAVE_MARK);
-				lite_spot(y, x);
+				cave_info[dest_g.y][dest_g.x] |= (CAVE_MARK);
+				lite_spot(dest_g);
 			}
 		}
 
@@ -1305,13 +1275,13 @@ void move_player(int dir, int jumping)
 		else
 		{
 			/* Rubble */
-			if (cave_feat[y][x] == FEAT_RUBBLE)
+			if (cave_feat[dest_g.y][dest_g.x] == FEAT_RUBBLE)
 			{
 				message(MSG_HITWALL, 0, "There is a pile of rubble blocking your way.");
 			}
 
 			/* Closed door */
-			else if (cave_feat[y][x] < FEAT_SECRET)
+			else if (cave_feat[dest_g.y][dest_g.x] < FEAT_SECRET)
 			{
 				message(MSG_HITWALL, 0, "There is a door blocking your way.");
 			}
@@ -1331,12 +1301,10 @@ void move_player(int dir, int jumping)
 		/* sound(MSG_WALK); */
 
 		/* Move player */
-		monster_swap(py, px, y, x);
+		monster_swap(p_ptr->loc, dest_g);
 
 		/* New location */
-		y = py = p_ptr->py;
-		x = px = p_ptr->px;
-
+		dest_g = p_ptr->loc;
 
 		/* Spontaneous Searching */
 		if ((p_ptr->skill_fos >= 50) ||
@@ -1355,8 +1323,8 @@ void move_player(int dir, int jumping)
 		py_pickup(jumping != always_pickup);
 
 		/* Handle "store doors" */
-		if ((cave_feat[y][x] >= FEAT_SHOP_HEAD) &&
-		    (cave_feat[y][x] <= FEAT_SHOP_TAIL))
+		if ((cave_feat[dest_g.y][dest_g.x] >= FEAT_SHOP_HEAD) &&
+		    (cave_feat[dest_g.y][dest_g.x] <= FEAT_SHOP_TAIL))
 		{
 			/* Disturb */
 			disturb(0, 0);
@@ -1369,7 +1337,7 @@ void move_player(int dir, int jumping)
 		}
 
 		/* Discover invisible traps */
-		else if (cave_feat[y][x] == FEAT_INVIS)
+		else if (cave_feat[dest_g.y][dest_g.x] == FEAT_INVIS)
 		{
 			/* Disturb */
 			disturb(0, 0);
@@ -1378,21 +1346,21 @@ void move_player(int dir, int jumping)
 			msg_print("You found a trap!");
 
 			/* Pick a trap */
-			pick_trap(y, x);
+			pick_trap(dest_g.y, dest_g.x);
 
 			/* Hit the trap */
-			hit_trap(y, x);
+			hit_trap(dest_g);
 		}
 
 		/* Set off an visible trap */
-		else if ((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
-		         (cave_feat[y][x] <= FEAT_TRAP_TAIL))
+		else if ((cave_feat[dest_g.y][dest_g.x] >= FEAT_TRAP_HEAD) &&
+		         (cave_feat[dest_g.y][dest_g.x] <= FEAT_TRAP_TAIL))
 		{
 			/* Disturb */
 			disturb(0, 0);
 
 			/* Hit the trap */
-			hit_trap(y, x);
+			hit_trap(dest_g);
 		}
 	}
 }
@@ -1401,43 +1369,35 @@ void move_player(int dir, int jumping)
 /*
  * Hack -- Check for a "known wall" (see below)
  */
-static int see_wall(int dir, int y, int x)
+static bool see_wall(int dir, coord g)
 {
 	/* Get the new location */
-	y += ddy[dir];
-	x += ddx[dir];
+	g += dd_coord[dir];
 
 	/* Illegal grids are not known walls XXX XXX XXX */
-	if (!in_bounds(y, x)) return (FALSE);
+	if (!in_bounds(g.y, g.x)) return (FALSE);
 
 	/* Non-wall grids are not known walls */
-	if (cave_feat[y][x] < FEAT_SECRET) return (FALSE);
+	if (cave_feat[g.y][g.x] < FEAT_SECRET) return (FALSE);
 
-	/* Unknown walls are not known walls */
-	if (!(cave_info[y][x] & (CAVE_MARK))) return (FALSE);
-
-	/* Default */
-	return (TRUE);
+	/* Unknown walls are not known walls; default */
+	return cave_info[g.y][g.x] & (CAVE_MARK);
 }
 
 
 /*
  * Hack -- Check for an "unknown corner" (see below)
  */
-static int see_nothing(int dir, int y, int x)
+static bool see_nothing(int dir, coord g)
 {
 	/* Get the new location */
-	y += ddy[dir];
-	x += ddx[dir];
+	g += dd_coord[dir];
 
 	/* Illegal grids are unknown XXX XXX XXX */
-	if (!in_bounds(y, x)) return (TRUE);
+	if (!in_bounds(g.y, g.x)) return (TRUE);
 
 	/* Memorized grids are always known */
-	if (cave_info[y][x] & (CAVE_MARK)) return (FALSE);
-
-	/* Default */
-	return (TRUE);
+	return !(cave_info[g.y][g.x] & (CAVE_MARK));
 }
 
 
@@ -1488,7 +1448,7 @@ static int see_nothing(int dir, int y, int x)
  *
  * In the diagram below, in which the player is running east along a
  * hallway, he will stop as indicated before attempting to enter the
- * intersection (marked 'x').  Starting a new run in any direction
+ * intersection (marked 'x').  Starting a new run in an.y direction
  * will begin a new hallway run.
  *
  * #.#
@@ -1623,13 +1583,14 @@ static const byte chome[] =
  */
 static void run_init(int dir)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	int i;
+	coord t;
 
-	int i, row, col;
-
-	bool deepleft, deepright;
-	bool shortleft, shortright;
+	/* Assume no nearby walls */
+	bool deepleft = false;
+	bool deepright = false;
+	bool shortleft = false;
+	bool shortright = false;
 
 
 	/* Save the direction */
@@ -1645,40 +1606,35 @@ static void run_init(int dir)
 	p_ptr->run_break_right = FALSE;
 	p_ptr->run_break_left = FALSE;
 
-	/* Assume no nearby walls */
-	deepleft = deepright = FALSE;
-	shortright = shortleft = FALSE;
-
 	/* Find the destination grid */
-	row = py + ddy[dir];
-	col = px + ddx[dir];
+	t = p_ptr->loc + dd_coord[dir];
 
 	/* Extract cycle index */
 	i = chome[dir];
 
 	/* Check for nearby wall */
-	if (see_wall(cycle[i+1], py, px))
+	if (see_wall(cycle[i+1], p_ptr->loc))
 	{
 		p_ptr->run_break_left = TRUE;
 		shortleft = TRUE;
 	}
 
 	/* Check for distant wall */
-	else if (see_wall(cycle[i+1], row, col))
+	else if (see_wall(cycle[i+1], t))
 	{
 		p_ptr->run_break_left = TRUE;
 		deepleft = TRUE;
 	}
 
 	/* Check for nearby wall */
-	if (see_wall(cycle[i-1], py, px))
+	if (see_wall(cycle[i-1], p_ptr->loc))
 	{
 		p_ptr->run_break_right = TRUE;
 		shortright = TRUE;
 	}
 
 	/* Check for distant wall */
-	else if (see_wall(cycle[i-1], row, col))
+	else if (see_wall(cycle[i-1], t))
 	{
 		p_ptr->run_break_right = TRUE;
 		deepright = TRUE;
@@ -1704,7 +1660,7 @@ static void run_init(int dir)
 		}
 
 		/* Hack -- allow blunt corridor entry */
-		else if (see_wall(cycle[i], row, col))
+		else if (see_wall(cycle[i], t))
 		{
 			if (shortleft && !shortright)
 			{
@@ -1726,29 +1682,18 @@ static void run_init(int dir)
  */
 static bool run_test(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	int prev_dir;
+	int prev_dir = p_ptr->run_old_dir;	/* Where we came from */
 	int new_dir;
 	int check_dir = 0;
 
-	int row, col;
-	int i, max, inv;
-	int option, option2;
-
+	int i, inv;
+	int max = (prev_dir & 0x01) + 1;	/* Range of newly adjacent grids */
 
 	/* No options yet */
-	option = 0;
-	option2 = 0;
+	int option = 0;
+	int option2 = 0;
 
-	/* Where we came from */
-	prev_dir = p_ptr->run_old_dir;
-
-
-	/* Range of newly adjacent grids */
-	max = (prev_dir & 0x01) + 1;
-
+	coord t;
 
 	/* Look at every newly adjacent square. */
 	for (i = -max; i <= max; i++)
@@ -1760,21 +1705,17 @@ static bool run_test(void)
 		new_dir = cycle[chome[prev_dir] + i];
 
 		/* New location */
-		row = py + ddy[new_dir];
-		col = px + ddx[new_dir];
-
+		t = p_ptr->loc + dd_coord[new_dir];
 
 		/* Visible monsters abort running */
-		if (cave_m_idx[row][col] > 0)
+		if (cave_m_idx[t.y][t.x] > 0)
 		{
-			monster_type *m_ptr = &mon_list[cave_m_idx[row][col]];
-
 			/* Visible monster */
-			if (m_ptr->ml) return (TRUE);
+			if (mon_list[cave_m_idx[t.y][t.x]].ml) return (TRUE);
 		}
 
 		/* Visible objects abort running */
-		for (o_ptr = get_first_object(row, col); o_ptr; o_ptr = get_next_object(o_ptr))
+		for (o_ptr = get_first_object(t.y, t.x); o_ptr; o_ptr = get_next_object(o_ptr))
 		{
 			/* Visible object */
 			if (o_ptr->marked) return (TRUE);
@@ -1785,12 +1726,12 @@ static bool run_test(void)
 		inv = TRUE;
 
 		/* Check memorized grids */
-		if (cave_info[row][col] & (CAVE_MARK))
+		if (cave_info[t.y][t.x] & (CAVE_MARK))
 		{
 			bool notice = TRUE;
 
 			/* Examine the terrain */
-			switch (cave_feat[row][col])
+			switch (cave_feat[t.y][t.x])
 			{
 				/* Floors */
 				case FEAT_FLOOR:
@@ -1857,7 +1798,7 @@ static bool run_test(void)
 		}
 
 		/* Analyze unknown grids and floors */
-		if (inv || cave_floor_bold(row, col))
+		if (inv || cave_floor_bold(t.y, t.x))
 		{
 			/* Looking for open area */
 			if (p_ptr->run_open_area)
@@ -1928,13 +1869,12 @@ static bool run_test(void)
 		{
 			new_dir = cycle[chome[prev_dir] + i];
 
-			row = py + ddy[new_dir];
-			col = px + ddx[new_dir];
+			t = p_ptr->loc + dd_coord[new_dir];
 
 			/* Unknown grid or non-wall */
 			/* Was: cave_floor_bold(row, col) */
-			if (!(cave_info[row][col] & (CAVE_MARK)) ||
-			    (cave_feat[row][col] < FEAT_SECRET))
+			if (!(cave_info[t.y][t.x] & (CAVE_MARK)) ||
+			    (cave_feat[t.y][t.x] < FEAT_SECRET))
 			{
 				/* Looking to break right */
 				if (p_ptr->run_break_right)
@@ -1959,13 +1899,12 @@ static bool run_test(void)
 		{
 			new_dir = cycle[chome[prev_dir] + i];
 
-			row = py + ddy[new_dir];
-			col = px + ddx[new_dir];
+			t = p_ptr->loc + dd_coord[new_dir];
 
 			/* Unknown grid or non-wall */
 			/* Was: cave_floor_bold(row, col) */
-			if (!(cave_info[row][col] & (CAVE_MARK)) ||
-			    (cave_feat[row][col] < FEAT_SECRET))
+			if (!(cave_info[t.y][t.x] & (CAVE_MARK)) ||
+			    (cave_feat[t.y][t.x] < FEAT_SECRET))
 			{
 				/* Looking to break left */
 				if (p_ptr->run_break_left)
@@ -2020,19 +1959,18 @@ static bool run_test(void)
 		else
 		{
 			/* Get next location */
-			row = py + ddy[option];
-			col = px + ddx[option];
+			t = p_ptr->loc + dd_coord[option];
 
 			/* Don't see that it is closed off. */
 			/* This could be a potential corner or an intersection. */
-			if (!see_wall(option, row, col) ||
-			    !see_wall(check_dir, row, col))
+			if (!see_wall(option, t) ||
+			    !see_wall(check_dir, t))
 			{
 				/* Can not see anything ahead and in the direction we */
 				/* are turning, assume that it is a potential corner. */
 				if (run_use_corners &&
-				    see_nothing(option, row, col) &&
-				    see_nothing(option2, row, col))
+				    see_nothing(option, t) &&
+				    see_nothing(option2, t))
 				{
 					p_ptr->run_cur_dir = option;
 					p_ptr->run_old_dir = option2;
@@ -2064,7 +2002,7 @@ static bool run_test(void)
 
 
 	/* About to hit a known wall, stop */
-	if (see_wall(p_ptr->run_cur_dir, py, px))
+	if (see_wall(p_ptr->run_cur_dir, p_ptr->loc))
 	{
 		return (TRUE);
 	}

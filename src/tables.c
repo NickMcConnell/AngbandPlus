@@ -28,6 +28,19 @@ const s16b ddx[10] =
 const s16b ddy[10] =
 { 0, 1, 1, 1, 0, 0, 0, -1, -1, -1 };
 
+const coord_delta dd_coord[10]	=	{
+									coord_delta(0,0),
+									coord_delta(-1,1),
+									coord_delta(0,1),
+									coord_delta(1,1),
+									coord_delta(-1,0),
+									coord_delta(0,0),
+									coord_delta(1,0),
+									coord_delta(-1,-1),
+									coord_delta(0,-1),
+									coord_delta(1,-1)
+									};
+
 /*
  * Global arrays for optimizing "ddx[ddd[i]]" and "ddy[ddd[i]]".
  */
@@ -37,6 +50,17 @@ const s16b ddx_ddd[9] =
 const s16b ddy_ddd[9] =
 { 1, -1, 0, 0, 1, 1, -1, -1, 0 };
 
+const coord_delta dd_coord_ddd[9]	=	{
+										coord_delta(0,1),
+										coord_delta(0,-1),
+										coord_delta(1,0),
+										coord_delta(-1,0),
+										coord_delta(1,1),
+										coord_delta(-1,1),
+										coord_delta(1,-1),
+										coord_delta(-1,-1),
+										coord_delta(0,0)
+										};
 
 /*
  * Global array for converting numbers to uppercase hecidecimal digit

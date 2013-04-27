@@ -10,11 +10,8 @@
 
 #include "angband.h"
 
-#include "script.h"
-
 
 #ifdef ALLOW_DEBUG
-
 
 /*
  * Hack -- quick debugging hook
@@ -23,51 +20,49 @@ static void do_cmd_wiz_hack_ben(void)
 {
 
 #ifdef MONSTER_FLOW
+	unsigned int relay_flow_depth;
 
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	int i, y, x;
-
-
-	for (i = 0; i < MONSTER_FLOW_DEPTH; ++i)
+	for (relay_flow_depth = 0; relay_flow_depth < MONSTER_FLOW_DEPTH; ++relay_flow_depth)
 	{
 		/* Update map */
-		for (y = Term->offset_y; y < Term->offset_y + SCREEN_HGT; y++)
+		coord t;
+
+		/* Scan the current panel */
+		for (t.y = Term->offset_y; t.y < Term->offset_y + SCREEN_HGT; t.y++)
 		{
-			for (x = Term->offset_x; x < Term->offset_x + SCREEN_WID; x++)
+			for (t.x = Term->offset_x; t.x < Term->offset_x + SCREEN_WID; t.x++)
 			{
 				byte a = TERM_RED;
 
-				if (!in_bounds_fully(y, x)) continue;
+				if (!in_bounds_fully(t.y, t.x)) continue;
 
 				/* Display proper cost */
-				if (cave_cost[y][x] != i) continue;
+				if (cave_cost[t.y][t.x] != relay_flow_depth) continue;
 
 				/* Reliability in yellow */
-				if (cave_when[y][x] == cave_when[py][px])
+				if (cave_when[t.y][t.x] == cave_when[p_ptr->loc.y][p_ptr->loc.x])
 				{
 					a = TERM_YELLOW;
 				}
 
 				/* Display player/floors/walls */
-				if ((y == py) && (x == px))
+				if (t==p_ptr->loc)
 				{
-					print_rel('@', a, y, x);
+					print_rel('@', a, t);
 				}
-				else if (cave_floor_bold(y, x))
+				else if (cave_floor_bold(t.y, t.x))
 				{
-					print_rel('*', a, y, x);
+					print_rel('*', a, t);
 				}
 				else
 				{
-					print_rel('#', a, y, x);
+					print_rel('#', a, t);
 				}
 			}
 		}
 
 		/* Prompt */
-		prt(format("Depth %d: ", i), 0, 0);
+		prt(format("Depth %d: ", relay_flow_depth), 0, 0);
 
 		/* Get key */
 		if (inkey() == ESCAPE) break;
@@ -128,7 +123,7 @@ static void do_cmd_wiz_bamf(void)
 	if (target_okay())
 	{
 		/* Teleport to the target */
-		teleport_player_to(p_ptr->target_row, p_ptr->target_col);
+		teleport_player_to(p_ptr->target);
 	}
 }
 
@@ -315,7 +310,7 @@ static void wiz_display_item(const object_type *o_ptr)
 	prt(buf, 2, j);
 
 	prt(format("kind = %-5d  level = %-4d  tval = %-5d  sval = %-5d",
-	           o_ptr->k_idx, k_info[o_ptr->k_idx].level,
+	           o_ptr->k_idx, o_ptr->level(),
 	           o_ptr->tval, o_ptr->sval), 4, j);
 
 	prt(format("number = %-3d  wgt = %-6d  ac = %-5d    damage = %dd%d",
@@ -419,9 +414,9 @@ static void strip_name(char *buf, int k_idx)
 {
 	char *t;
 
-	object_kind *k_ptr = &k_info[k_idx];
+	object_kind *k_ptr = &object_type::k_info[k_idx];
 
-	cptr str = (k_name + k_ptr->name);
+	cptr str = (object_type::k_name + k_ptr->name);
 
 
 	/* Skip past leading characters */
@@ -500,7 +495,7 @@ static int wiz_create_itemtype(void)
 	/* We have to search the whole itemlist. */
 	for (num = 0, i = 1; (num < 60) && (i < z_info->k_max); i++)
 	{
-		object_kind *k_ptr = &k_info[i];
+		object_kind *k_ptr = &object_type::k_info[i];
 
 		/* Analyze matching items */
 		if (k_ptr->tval == tval)
@@ -553,7 +548,7 @@ static void wiz_tweak_item(object_type *o_ptr)
 
 
 	/* Hack -- leave artifacts alone */
-	if (artifact_p(o_ptr)) return;
+	if (o_ptr->is_artifact()) return;
 
 	p = "Enter new 'pval' setting: ";
 	sprintf(tmp_val, "%d", o_ptr->pval);
@@ -586,8 +581,8 @@ static void wiz_tweak_item(object_type *o_ptr)
  */
 static void wiz_reroll_item(object_type *o_ptr)
 {
-	object_type *i_ptr;
 	object_type object_type_body;
+	object_type *i_ptr = &object_type_body;	/* Get local object */
 
 	char ch;
 
@@ -595,15 +590,10 @@ static void wiz_reroll_item(object_type *o_ptr)
 
 
 	/* Hack -- leave artifacts alone */
-	if (artifact_p(o_ptr)) return;
-
-
-	/* Get local object */
-	i_ptr = &object_type_body;
+	if (o_ptr->is_artifact()) return;
 
 	/* Copy the object */
-	object_copy(i_ptr, o_ptr);
-
+	COPY(i_ptr, o_ptr);
 
 	/* Main loop. Ask for magification and artifactification */
 	while (TRUE)
@@ -649,13 +639,12 @@ static void wiz_reroll_item(object_type *o_ptr)
 	if (changed)
 	{
 		/* Restore the position information */
-		i_ptr->iy = o_ptr->iy;
-		i_ptr->ix = o_ptr->ix;
+		i_ptr->loc = o_ptr->loc;
 		i_ptr->next_o_idx = o_ptr->next_o_idx;
 		i_ptr->marked = o_ptr->marked;
 
 		/* Apply changes */
-		object_copy(o_ptr, i_ptr);
+		COPY(o_ptr, i_ptr);
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -694,14 +683,14 @@ static void wiz_statistics(object_type *o_ptr)
 
 	bool good, great;
 
-	object_type *i_ptr;
 	object_type object_type_body;
+	object_type *i_ptr = &object_type_body;	/* Get local object */
 
 	cptr q = "Rolls: %ld, Matches: %ld, Better: %ld, Worse: %ld, Other: %ld";
 
 
 	/* Mega-Hack -- allow multiple artifacts XXX XXX XXX */
-	if (artifact_p(o_ptr)) a_info[o_ptr->name1].cur_num = 0;
+	if (o_ptr->is_artifact()) a_info[o_ptr->name1].cur_num = 0;
 
 
 	/* Interact */
@@ -775,18 +764,15 @@ static void wiz_statistics(object_type *o_ptr)
 			}
 
 
-			/* Get local object */
-			i_ptr = &object_type_body;
-
 			/* Wipe the object */
-			object_wipe(i_ptr);
+			WIPE(i_ptr);
 
 			/* Create an object */
 			make_object(i_ptr, good, great);
 
 
 			/* Mega-Hack -- allow multiple artifacts XXX XXX XXX */
-			if (artifact_p(i_ptr)) a_info[i_ptr->name1].cur_num = 0;
+			if (i_ptr->is_artifact()) a_info[i_ptr->name1].cur_num = 0;
 
 
 			/* Test for the same tval and sval. */
@@ -834,7 +820,7 @@ static void wiz_statistics(object_type *o_ptr)
 
 
 	/* Hack -- Normally only make a single artifact */
-	if (artifact_p(o_ptr)) a_info[o_ptr->name1].cur_num = 1;
+	if (o_ptr->is_artifact()) a_info[o_ptr->name1].cur_num = 1;
 }
 
 
@@ -849,7 +835,7 @@ static void wiz_quantity_item(object_type *o_ptr, bool carried)
 
 
 	/* Never duplicate artifacts */
-	if (artifact_p(o_ptr)) return;
+	if (o_ptr->is_artifact()) return;
 
 
 	/* Default */
@@ -899,46 +885,29 @@ static void do_cmd_wiz_play(void)
 {
 	int item;
 
-	object_type *i_ptr;
 	object_type object_type_body;
-
+	object_type *i_ptr = &object_type_body;	/* Get local object */
 	object_type *o_ptr;
 
 	char ch;
 
-	cptr q, s;
+	cptr q = "Play with which object? ";
+	cptr s = "You have nothing to play with.";
 
 	bool changed = FALSE;
 
 
 	/* Get an item */
-	q = "Play with which object? ";
-	s = "You have nothing to play with.";
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
+	/* Get the object */
+	o_ptr = get_o_ptr_from_inventory_or_floor(item);
 
 	/* Save screen */
 	screen_save();
 
-
-	/* Get local object */
-	i_ptr = &object_type_body;
-
 	/* Copy object */
-	object_copy(i_ptr, o_ptr);
-
+	COPY(i_ptr, o_ptr);
 
 	/* The main loop */
 	while (TRUE)
@@ -990,7 +959,7 @@ static void do_cmd_wiz_play(void)
 		msg_print("Changes accepted.");
 
 		/* Change */
-		object_copy(o_ptr, i_ptr);
+		COPY(o_ptr, i_ptr);
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -1020,11 +989,8 @@ static void do_cmd_wiz_play(void)
  */
 static void wiz_create_item(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	object_type *i_ptr;
 	object_type object_type_body;
+	object_type *i_ptr = &object_type_body;	/* Get local object */
 
 	int k_idx;
 
@@ -1042,9 +1008,6 @@ static void wiz_create_item(void)
 	/* Return if failed */
 	if (!k_idx) return;
 
-	/* Get local object */
-	i_ptr = &object_type_body;
-
 	/* Create the item */
 	object_prep(i_ptr, k_idx);
 
@@ -1052,7 +1015,7 @@ static void wiz_create_item(void)
 	apply_magic(i_ptr, p_ptr->depth, FALSE, FALSE, FALSE);
 
 	/* Drop the object from heaven */
-	drop_near(i_ptr, -1, py, px);
+	drop_near(i_ptr, -1, p_ptr->loc);
 
 	/* All done */
 	msg_print("Allocated.");
@@ -1064,8 +1027,8 @@ static void wiz_create_item(void)
  */
 static void wiz_create_artifact(int a_idx)
 {
-	object_type *i_ptr;
 	object_type object_type_body;
+	object_type *i_ptr = &object_type_body;	/* Get local object */
 	int k_idx;
 
 	artifact_type *a_ptr = &a_info[a_idx];
@@ -1073,11 +1036,8 @@ static void wiz_create_artifact(int a_idx)
 	/* Ignore "empty" artifacts */
 	if (!a_ptr->name) return;
 
-	/* Get local object */
-	i_ptr = &object_type_body;
-
 	/* Wipe the object */
-	object_wipe(i_ptr);
+	WIPE(i_ptr);
 
 	/* Acquire the "kind" index */
 	k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
@@ -1102,7 +1062,7 @@ static void wiz_create_artifact(int a_idx)
 	i_ptr->weight = a_ptr->weight;
 
 	/* Drop the artifact from heaven */
-	drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
+	drop_near(i_ptr, -1, p_ptr->loc);
 
 	/* All done */
 	msg_print("Allocated.");
@@ -1204,20 +1164,17 @@ static void do_cmd_wiz_learn(void)
 {
 	int i;
 
-	object_type *i_ptr;
 	object_type object_type_body;
+	object_type *i_ptr = &object_type_body;	/* Get local object */
 
 	/* Scan every object */
 	for (i = 1; i < z_info->k_max; i++)
 	{
-		object_kind *k_ptr = &k_info[i];
+		object_kind *k_ptr = &object_type::k_info[i];
 
 		/* Induce awareness */
 		if (k_ptr->level <= p_ptr->command_arg)
 		{
-			/* Get local object */
-			i_ptr = &object_type_body;
-
 			/* Prepare object */
 			object_prep(i_ptr, i);
 
@@ -1281,14 +1238,11 @@ static void do_cmd_rerate(void)
  */
 static void do_cmd_wiz_summon(int num)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int i;
 
 	for (i = 0; i < num; i++)
 	{
-		(void)summon_specific(py, px, p_ptr->depth, 0);
+		(void)summon_specific(p_ptr->loc, p_ptr->depth, 0);
 	}
 }
 
@@ -1300,10 +1254,9 @@ static void do_cmd_wiz_summon(int num)
  */
 static void do_cmd_wiz_named(int r_idx, bool slp)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	coord g;
 
-	int i, x, y;
+	int i;
 
 	/* Paranoia */
 	if (!r_idx) return;
@@ -1315,13 +1268,13 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
 		int d = 1;
 
 		/* Pick a location */
-		scatter(&y, &x, py, px, d, 0);
+		scatter(g, p_ptr->loc, d, 0);
 
 		/* Require empty grids */
-		if (!cave_empty_bold(y, x)) continue;
+		if (!cave_empty_bold(g.y, g.x)) continue;
 
 		/* Place it (allow groups) */
-		if (place_monster_aux(y, x, r_idx, slp, TRUE)) break;
+		if (place_monster_aux(g, r_idx, slp, TRUE)) break;
 	}
 }
 
@@ -1383,21 +1336,14 @@ static void do_cmd_wiz_unhide(int d)
 	}
 }
 
-
 /*
  * Query the dungeon
  */
 static void do_cmd_wiz_query(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	int y, x;
-
+	u16b wiz_mask = 0;
+	coord t;
 	char cmd;
-
-	u16b mask = 0x00;
-
 
 	/* Get a "debug command" */
 	if (!get_com("Debug Command Query: ", &cmd)) return;
@@ -1405,55 +1351,55 @@ static void do_cmd_wiz_query(void)
 	/* Extract a flag */
 	switch (cmd)
 	{
-		case '0': mask = (1 << 0); break;
-		case '1': mask = (1 << 1); break;
-		case '2': mask = (1 << 2); break;
-		case '3': mask = (1 << 3); break;
-		case '4': mask = (1 << 4); break;
-		case '5': mask = (1 << 5); break;
-		case '6': mask = (1 << 6); break;
-		case '7': mask = (1 << 7); break;
+		case '0': wiz_mask = (1 << 0); break;
+		case '1': wiz_mask = (1 << 1); break;
+		case '2': wiz_mask = (1 << 2); break;
+		case '3': wiz_mask = (1 << 3); break;
+		case '4': wiz_mask = (1 << 4); break;
+		case '5': wiz_mask = (1 << 5); break;
+		case '6': wiz_mask = (1 << 6); break;
+		case '7': wiz_mask = (1 << 7); break;
 
-		case 'm': mask |= (CAVE_MARK); break;
-		case 'g': mask |= (CAVE_GLOW); break;
-		case 'r': mask |= (CAVE_ROOM); break;
-		case 'i': mask |= (CAVE_ICKY); break;
-		case 's': mask |= (CAVE_SEEN); break;
-		case 'v': mask |= (CAVE_VIEW); break;
-		case 't': mask |= (CAVE_TEMP); break;
-		case 'w': mask |= (CAVE_WALL); break;
+		case 'm': wiz_mask |= (CAVE_MARK); break;
+		case 'g': wiz_mask |= (CAVE_GLOW); break;
+		case 'r': wiz_mask |= (CAVE_ROOM); break;
+		case 'i': wiz_mask |= (CAVE_ICKY); break;
+		case 's': wiz_mask |= (CAVE_SEEN); break;
+		case 'v': wiz_mask |= (CAVE_VIEW); break;
+		case 't': wiz_mask |= (CAVE_TEMP); break;
+		case 'w': wiz_mask |= (CAVE_WALL); break;
 	}
 
-	/* Scan map */
-	for (y = Term->offset_y; y < Term->offset_y + SCREEN_HGT; y++)
+	/* Scan the current panel */
+	for (t.y = Term->offset_y; t.y < Term->offset_y + SCREEN_HGT; t.y++)
 	{
-		for (x = Term->offset_x; x < Term->offset_x + SCREEN_WID; x++)
+		for (t.x = Term->offset_x; t.x < Term->offset_x + SCREEN_WID; t.x++)
 		{
 			byte a = TERM_RED;
 
-			if (!in_bounds_fully(y, x)) continue;
+			if (!in_bounds_fully(t.y, t.x)) continue;
 
 			/* Given mask, show only those grids */
-			if (mask && !(cave_info[y][x] & mask)) continue;
+			if (wiz_mask && !(cave_info[t.y][t.x] & wiz_mask)) continue;
 
 			/* Given no mask, show unknown grids */
-			if (!mask && (cave_info[y][x] & (CAVE_MARK))) continue;
+			if (!wiz_mask && (cave_info[t.y][t.x] & (CAVE_MARK))) continue;
 
 			/* Color */
-			if (cave_floor_bold(y, x)) a = TERM_YELLOW;
+			if (cave_floor_bold(t.y, t.x)) a = TERM_YELLOW;
 
 			/* Display player/floors/walls */
-			if ((y == py) && (x == px))
+			if (t==p_ptr->loc)
 			{
-				print_rel('@', a, y, x);
+				print_rel('@', a, t);
 			}
-			else if (cave_floor_bold(y, x))
+			else if (cave_floor_bold(t.y, t.x))
 			{
-				print_rel('*', a, y, x);
+				print_rel('*', a, t);
 			}
 			else
 			{
-				print_rel('#', a, y, x);
+				print_rel('#', a, t);
 			}
 		}
 	}
@@ -1474,9 +1420,6 @@ static void do_cmd_wiz_query(void)
  */
 void do_cmd_debug(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	char cmd;
 
 
@@ -1567,7 +1510,7 @@ void do_cmd_debug(void)
 		case 'g':
 		{
 			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 1;
-			acquirement(py, px, p_ptr->command_arg, FALSE);
+			acquirement(p_ptr->loc, p_ptr->command_arg, FALSE);
 			break;
 		}
 
@@ -1668,7 +1611,7 @@ void do_cmd_debug(void)
 		case 'v':
 		{
 			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 1;
-			acquirement(py, px, p_ptr->command_arg, TRUE);
+			acquirement(p_ptr->loc, p_ptr->command_arg, TRUE);
 			break;
 		}
 
@@ -1698,13 +1641,6 @@ void do_cmd_debug(void)
 		{
 			if (p_ptr->command_arg <= 0) p_ptr->command_arg = MAX_SIGHT;
 			do_cmd_wiz_zap(p_ptr->command_arg);
-			break;
-		}
-
-		/* Execute script */
-		case '@':
-		{
-			do_cmd_script();
 			break;
 		}
 

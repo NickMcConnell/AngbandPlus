@@ -12,7 +12,6 @@
 #include "angband.h"
 
 #include "init.h"
-#include "script.h"
 
 /*
  * This file is used to initialize various variables and arrays for the
@@ -97,7 +96,6 @@ void init_file_paths(char *path)
 	string_free(ANGBAND_DIR_PREF);
 	string_free(ANGBAND_DIR_USER);
 	string_free(ANGBAND_DIR_XTRA);
-	string_free(ANGBAND_DIR_SCRIPT);
 
 
 	/*** Prepare the "path" ***/
@@ -126,7 +124,6 @@ void init_file_paths(char *path)
 	ANGBAND_DIR_PREF = string_make("");
 	ANGBAND_DIR_USER = string_make("");
 	ANGBAND_DIR_XTRA = string_make("");
-	ANGBAND_DIR_SCRIPT = string_make("");
 
 
 #else /* VM */
@@ -219,10 +216,6 @@ void init_file_paths(char *path)
 	/* Build a path name */
 	strcpy(tail, "xtra");
 	ANGBAND_DIR_XTRA = string_make(path);
-
-	/* Build a path name */
-	strcpy(tail, "script");
-	ANGBAND_DIR_SCRIPT = string_make(path);
 
 #endif /* VM */
 
@@ -408,14 +401,14 @@ static errr init_info_raw(int fd, header *head)
 
 
 	/* Accept the header */
-	COPY(head, &test, header);
+	COPY(head, &test);
 
 
 	/* Allocate the "*_info" array */
 	C_MAKE(head->info_ptr, head->info_size, char);
 
 	/* Read the "*_info" array */
-	fd_read(fd, head->info_ptr, head->info_size);
+	fd_read(fd, (char*)head->info_ptr, head->info_size);
 
 	if (head->name_size)
 	{
@@ -635,7 +628,7 @@ static errr init_info(cptr filename, header *head)
 
 			/* Dump the "*_info" array */
 			if (head->info_size > 0)
-				fd_write(fd, head->info_ptr, head->info_size);
+				fd_write(fd, (const char*)head->info_ptr, head->info_size);
 
 			/* Dump the "*_name" array */
 			if (head->name_size > 0)
@@ -733,7 +726,7 @@ static errr init_z_info(void)
 	err = init_info("limits", &z_head);
 
 	/* Set the global variables */
-	z_info = z_head.info_ptr;
+	z_info = (maxima*)z_head.info_ptr;
 
 	return (err);
 }
@@ -759,7 +752,7 @@ static errr init_f_info(void)
 	err = init_info("terrain", &f_head);
 
 	/* Set the global variables */
-	f_info = f_head.info_ptr;
+	f_info = (feature_type*)f_head.info_ptr;
 	f_name = f_head.name_ptr;
 	f_text = f_head.text_ptr;
 
@@ -788,9 +781,9 @@ static errr init_k_info(void)
 	err = init_info("object", &k_head);
 
 	/* Set the global variables */
-	k_info = k_head.info_ptr;
-	k_name = k_head.name_ptr;
-	k_text = k_head.text_ptr;
+	object_type::k_info = (object_kind*)k_head.info_ptr;
+	object_type::k_name = k_head.name_ptr;
+	object_type::k_text = k_head.text_ptr;
 
 	return (err);
 }
@@ -817,7 +810,7 @@ static errr init_a_info(void)
 	err = init_info("artifact", &a_head);
 
 	/* Set the global variables */
-	a_info = a_head.info_ptr;
+	a_info = (artifact_type*)a_head.info_ptr;
 	a_name = a_head.name_ptr;
 	a_text = a_head.text_ptr;
 
@@ -846,7 +839,7 @@ static errr init_e_info(void)
 	err = init_info("ego_item", &e_head);
 
 	/* Set the global variables */
-	e_info = e_head.info_ptr;
+	e_info = (ego_item_type*)e_head.info_ptr;
 	e_name = e_head.name_ptr;
 	e_text = e_head.text_ptr;
 
@@ -875,7 +868,7 @@ static errr init_r_info(void)
 	err = init_info("monster", &r_head);
 
 	/* Set the global variables */
-	r_info = r_head.info_ptr;
+	r_info = (monster_race*)r_head.info_ptr;
 	r_name = r_head.name_ptr;
 	r_text = r_head.text_ptr;
 
@@ -904,7 +897,7 @@ static errr init_v_info(void)
 	err = init_info("vault", &v_head);
 
 	/* Set the global variables */
-	v_info = v_head.info_ptr;
+	v_info = (vault_type*)v_head.info_ptr;
 	v_name = v_head.name_ptr;
 	v_text = v_head.text_ptr;
 
@@ -932,7 +925,7 @@ static errr init_p_info(void)
 	err = init_info("p_race", &p_head);
 
 	/* Set the global variables */
-	p_info = p_head.info_ptr;
+	p_info = (player_race*)p_head.info_ptr;
 	p_name = p_head.name_ptr;
 	p_text = p_head.text_ptr;
 
@@ -960,7 +953,7 @@ static errr init_c_info(void)
 	err = init_info("p_class", &c_head);
 
 	/* Set the global variables */
-	c_info = c_head.info_ptr;
+	c_info = (player_class*)c_head.info_ptr;
 	c_name = c_head.name_ptr;
 	c_text = c_head.text_ptr;
 
@@ -989,7 +982,7 @@ static errr init_h_info(void)
 	err = init_info("p_hist", &h_head);
 
 	/* Set the global variables */
-	h_info = h_head.info_ptr;
+	h_info = (hist_type*)h_head.info_ptr;
 	h_text = h_head.text_ptr;
 
 	return (err);
@@ -1017,7 +1010,7 @@ static errr init_b_info(void)
 	err = init_info("shop_own", &b_head);
 
 	/* Set the global variables */
-	b_info = b_head.info_ptr;
+	b_info = (owner_type*)b_head.info_ptr;
 	b_name = b_head.name_ptr;
 	b_text = b_head.text_ptr;
 
@@ -1046,7 +1039,7 @@ static errr init_g_info(void)
 	err = init_info("cost_adj", &g_head);
 
 	/* Set the global variables */
-	g_info = g_head.info_ptr;
+	g_info = (byte*)g_head.info_ptr;
 	g_name = g_head.name_ptr;
 	g_text = g_head.text_ptr;
 
@@ -1074,17 +1067,15 @@ static errr init_flavor_info(void)
 	err = init_info("flavor", &flavor_head);
 
 	/* Set the global variables */
-	flavor_info = flavor_head.info_ptr;
-	flavor_name = flavor_head.name_ptr;
-	flavor_text = flavor_head.text_ptr;
+	object_type::flavor_info = (flavor_type*)flavor_head.info_ptr;
+	object_type::flavor_name = flavor_head.name_ptr;
+	object_type::flavor_text = flavor_head.text_ptr;
 
 	return (err);
 }
 
 
 /*** Initialize others ***/
-
-#ifndef USE_SCRIPT
 
 #define STORE_CHOICES   32              /* Number of items to choose stock from */
 
@@ -1335,8 +1326,6 @@ static const byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 	}
 };
 
-#endif /* USE_SCRIPT */
-
 /*
  * Initialize some other arrays
  */
@@ -1359,10 +1348,10 @@ static errr init_other(void)
 	/*** Prepare grid arrays ***/
 
 	/* Array of grids */
-	C_MAKE(view_g, VIEW_MAX, u16b);
+	C_MAKE(view_g, VIEW_MAX, coord);
 
 	/* Array of grids */
-	C_MAKE(temp_g, TEMP_MAX, u16b);
+	C_MAKE(temp_g, TEMP_MAX, coord);
 
 	/* Hack -- use some memory twice */
 	temp_y = ((byte*)(temp_g)) + 0;
@@ -1419,7 +1408,7 @@ static errr init_other(void)
 	/*** Prepare the inventory ***/
 
 	/* Allocate it */
-	C_MAKE(inventory, INVEN_TOTAL, object_type);
+	C_MAKE(p_ptr->inventory, INVEN_TOTAL, object_type);
 
 
 	/*** Prepare the stores ***/
@@ -1431,9 +1420,7 @@ static errr init_other(void)
 	for (i = 0; i < MAX_STORES; i++)
 	{
 
-#ifndef USE_SCRIPT
 		int k;
-#endif /* USE_SCRIPT */
 
 		/* Get the store */
 		store_type *st_ptr = &store[i];
@@ -1443,8 +1430,6 @@ static errr init_other(void)
 
 		/* Allocate the stock */
 		C_MAKE(st_ptr->stock, st_ptr->stock_size, object_type);
-
-#ifndef USE_SCRIPT
 
 		/* No table for the black market or home */
 		if ((i == STORE_B_MARKET) || (i == STORE_HOME)) continue;
@@ -1467,7 +1452,7 @@ static errr init_other(void)
 			/* Look for it */
 			for (k_idx = 1; k_idx < z_info->k_max; k_idx++)
 			{
-				object_kind *k_ptr = &k_info[k_idx];
+				object_kind *k_ptr = &object_type::k_info[k_idx];
 
 				/* Found a match */
 				if ((k_ptr->tval == tv) && (k_ptr->sval == sv)) break;
@@ -1479,8 +1464,6 @@ static errr init_other(void)
 			/* Add that item index to the table */
 			st_ptr->table[st_ptr->table_num++] = k_idx;
 		}
-
-#endif /* USE_SCRIPT */
 
 	}
 
@@ -1537,10 +1520,10 @@ static errr init_alloc(void)
 	/*** Analyze object allocation info ***/
 
 	/* Clear the "aux" array */
-	(void)C_WIPE(aux, MAX_DEPTH, s16b);
+	C_WIPE(aux, MAX_DEPTH);
 
 	/* Clear the "num" array */
-	(void)C_WIPE(num, MAX_DEPTH, s16b);
+	C_WIPE(num, MAX_DEPTH);
 
 	/* Size of "alloc_kind_table" */
 	alloc_kind_size = 0;
@@ -1548,7 +1531,7 @@ static errr init_alloc(void)
 	/* Scan the objects */
 	for (i = 1; i < z_info->k_max; i++)
 	{
-		k_ptr = &k_info[i];
+		k_ptr = &object_type::k_info[i];
 
 		/* Scan allocation pairs */
 		for (j = 0; j < 4; j++)
@@ -1587,7 +1570,7 @@ static errr init_alloc(void)
 	/* Scan the objects */
 	for (i = 1; i < z_info->k_max; i++)
 	{
-		k_ptr = &k_info[i];
+		k_ptr = &object_type::k_info[i];
 
 		/* Scan allocation pairs */
 		for (j = 0; j < 4; j++)
@@ -1626,10 +1609,10 @@ static errr init_alloc(void)
 	/*** Analyze monster allocation info ***/
 
 	/* Clear the "aux" array */
-	(void)C_WIPE(aux, MAX_DEPTH, s16b);
+	C_WIPE(aux, MAX_DEPTH);
 
 	/* Clear the "num" array */
-	(void)C_WIPE(num, MAX_DEPTH, s16b);
+	C_WIPE(num, MAX_DEPTH);
 
 	/* Size of "alloc_race_table" */
 	alloc_race_size = 0;
@@ -1708,10 +1691,10 @@ static errr init_alloc(void)
 	/*** Analyze ego_item allocation info ***/
 
 	/* Clear the "aux" array */
-	(void)C_WIPE(aux, MAX_DEPTH, s16b);
+	C_WIPE(aux, MAX_DEPTH);
 
 	/* Clear the "num" array */
-	(void)C_WIPE(num, MAX_DEPTH, s16b);
+	C_WIPE(num, MAX_DEPTH);
 
 	/* Size of "alloc_ego_table" */
 	alloc_ego_size = 0;
@@ -2028,10 +2011,6 @@ void init_angband(void)
 	note("[Initializing arrays... (alloc)]");
 	if (init_alloc()) quit("Cannot initialize alloc stuff");
 
-	/* Initialize scripting */
-	note("[Initializing scripts... (scripts)]");
-	if (script_init()) quit("Cannot initialize scripts");
-
 	/*** Load default user pref files ***/
 
 	/* Initialize feature info */
@@ -2049,9 +2028,6 @@ void cleanup_angband(void)
 {
 	int i;
 
-
-	/* Free the scripting support */
-	script_free();
 
 	/* Free the macros */
 	macro_free();
@@ -2081,7 +2057,7 @@ void cleanup_angband(void)
 	FREE(store);
 
 	/* Free the player inventory */
-	FREE(inventory);
+	FREE(p_ptr->inventory);
 
 	/* Free the quest list */
 	FREE(q_list);
@@ -2148,5 +2124,4 @@ void cleanup_angband(void)
 	string_free(ANGBAND_DIR_PREF);
 	string_free(ANGBAND_DIR_USER);
 	string_free(ANGBAND_DIR_XTRA);
-	string_free(ANGBAND_DIR_SCRIPT);
 }

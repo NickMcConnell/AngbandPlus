@@ -508,6 +508,11 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 			case RBM_INSULT:	p = "insult"; break;
 			case RBM_MOAN:	p = "moan"; break;
 			case RBM_XXX5:	break;
+			/* ZaiBand extended monster attacks */
+			case RBM_PRESBYOPIC_GAZE: p = "gaze at moderate ranges"; break;
+			case RBM_HYPEROPIC_GAZE: p = "gaze when far away"; break;
+			case RBM_RANGED_GAZE: p = "gaze anywhere it can see"; break;
+			case RBM_CLAIRVOYANT_GAZE: 	p = "gaze (disregarding mere physical obstructions)"; break;
 		}
 
 
@@ -1262,7 +1267,7 @@ void describe_monster(int r_idx, bool spoilers)
 
 
 	/* Hack -- create a copy of the monster-memory */
-	COPY(&lore, l_ptr, monster_lore);
+	COPY(&lore, l_ptr);
 
 	/* Assume some "obvious" flags */
 	lore.flags1 |= (r_ptr->flags1 & RF1_OBVIOUS_MASK);

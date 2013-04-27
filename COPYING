@@ -4,7 +4,6 @@ This software may be copied and distributed for educational, research,
 and not for profit purposes provided that this copyright and statement
 are included in all such copies.  Other copyrights may also apply.
 
-
 All changes made by Ben Harrison, Robert Ruehlmann, and many other Angband
 developers are also available under the GNU GENERAL PUBLIC LICENSE.
 Note that this doesn't influence the current distribution, since parts of
@@ -15,3 +14,8 @@ license remains the original Moria/Angband license.
 More informations about Angband and the GPL can be found at:
 http://www.thangorodrim.net/development/opensource.html
 
+====
+
+Material changes by Kenneth 'Bessarion' Boyd are under the Boost License 1.0, which is compatible with (version 2 of) the GPL.
+
+The David Gervais graphical tileset is under (Version 2 of) the GPL.  Cf. GPL_2.0.txt in that directory for the exact details.

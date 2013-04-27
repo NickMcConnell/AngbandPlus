@@ -385,7 +385,7 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f3)
 	if (f3 & (TR3_IMPACT))      good[gc++] = "creates earthquakes on impact";
 	if (f3 & (TR3_SLOW_DIGEST)) good[gc++] = "slows your metabolism";
 	if (f3 & (TR3_FEATHER))     good[gc++] = "makes you fall like a feather";
-	if (((o_ptr->tval == TV_LITE) && artifact_p(o_ptr)) || (f3 & (TR3_LITE)))
+	if (((o_ptr->tval == TV_LITE) && o_ptr->is_artifact()) || (f3 & (TR3_LITE)))
 		good[gc++] = "lights the dungeon around you";
 	if (f3 & (TR3_REGEN))       good[gc++] = "speeds your regeneration";
 
@@ -407,11 +407,11 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f3)
 	if (f3 & (TR3_TELEPORT))  bad[bc++] = "induces random teleportation";
 
 	/* Deal with cursed stuff */
-	if (cursed_p(o_ptr))
+	if (o_ptr->is_cursed())
 	{
 		if (f3 & (TR3_PERMA_CURSE)) bad[bc++] = "is permanently cursed";
 		else if (f3 & (TR3_HEAVY_CURSE)) bad[bc++] = "is heavily cursed";
-		else if (object_known_p(o_ptr)) bad[bc++] = "is cursed";
+		else if (o_ptr->known()) bad[bc++] = "is cursed";
 	}
 
 	/* Describe */
@@ -492,8 +492,8 @@ bool object_info_out(const object_type *o_ptr)
 	if (describe_ignores(o_ptr, f3)) something = TRUE;
 
 	/* Unknown extra powers (ego-item with random extras or artifact) */
-	if (object_known_p(o_ptr) && (!(o_ptr->ident & IDENT_MENTAL)) &&
-	    ((o_ptr->xtra1) || artifact_p(o_ptr)))
+	if (o_ptr->known() && (!(o_ptr->ident & IDENT_MENTAL)) &&
+	    ((o_ptr->xtra1) || o_ptr->is_artifact()))
 	{
 		/* Hack -- Put this in a separate paragraph if screen dump */
 		if (text_out_hook == text_out_to_screen)
@@ -533,7 +533,7 @@ static bool screen_out_head(const object_type *o_ptr)
 
 	/* Display the known artifact description */
 	if (!adult_rand_artifacts && o_ptr->name1 &&
-	    object_known_p(o_ptr) && a_info[o_ptr->name1].text)
+	    o_ptr->known() && a_info[o_ptr->name1].text)
 	{
 		p_text_out("\n\n   ");
 		p_text_out(a_text + a_info[o_ptr->name1].text);
@@ -541,17 +541,17 @@ static bool screen_out_head(const object_type *o_ptr)
 	}
 
 	/* Display the known object description */
-	else if (object_aware_p(o_ptr) || object_known_p(o_ptr))
+	else if (o_ptr->aware() || o_ptr->known())
 	{
-		if (k_info[o_ptr->k_idx].text)
+		if (object_type::k_info[o_ptr->k_idx].text)
 		{
 			p_text_out("\n\n   ");
-			p_text_out(k_text + k_info[o_ptr->k_idx].text);
+			p_text_out(object_type::k_text + object_type::k_info[o_ptr->k_idx].text);
 			has_description = TRUE;
 		}
 
 		/* Display an additional ego-item description */
-		if (o_ptr->name2 && object_known_p(o_ptr) && e_info[o_ptr->name2].text)
+		if (o_ptr->name2 && o_ptr->known() && e_info[o_ptr->name2].text)
 		{
 			p_text_out("\n\n   ");
 			p_text_out(e_text + e_info[o_ptr->name2].text);
@@ -585,7 +585,7 @@ void object_info_screen(const object_type *o_ptr)
 	has_info = object_info_out(o_ptr);
 	new_paragraph = FALSE;
 
-	if (!object_known_p(o_ptr))
+	if (!o_ptr->known())
 		p_text_out("\n\n   This item has not been identified.");
 	else if (!has_description && !has_info)
 		p_text_out("\n\n   This item does not seem to possess any special abilities.");

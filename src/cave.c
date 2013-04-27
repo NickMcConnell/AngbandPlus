@@ -299,7 +299,7 @@ bool los(int y1, int x1, int y2, int x2)
  */
 bool no_lite(void)
 {
-	return (!player_can_see_bold(p_ptr->py, p_ptr->px));
+	return (!player_can_see_bold(p_ptr->loc.y, p_ptr->loc.x));
 }
 
 
@@ -321,7 +321,7 @@ bool cave_valid_bold(int y, int x)
 	for (o_ptr = get_first_object(y, x); o_ptr; o_ptr = get_next_object(o_ptr))
 	{
 		/* Forbid artifact grids */
-		if (artifact_p(o_ptr)) return (FALSE);
+		if (o_ptr->is_artifact()) return (FALSE);
 	}
 
 	/* Accept */
@@ -370,7 +370,7 @@ static u16b image_object(void)
 	while (1)
 	{
 		/* Select a random object */
-		k_ptr = &k_info[rand_int(z_info->k_max - 1) + 1];
+		k_ptr = &object_type::k_info[rand_int(z_info->k_max - 1) + 1];
 
 		/* Skip non-entries */
 		if (!k_ptr->name) continue;
@@ -861,10 +861,10 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			}
 
 			/* Normal attr */
-			a = object_attr(o_ptr);
+			a = o_ptr->attr_user();
 
 			/* Normal char */
-			c = object_char(o_ptr);
+			c = o_ptr->char_user();
 
 			/* First marked object */
 			if (!show_piles) break;
@@ -872,10 +872,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			/* Special stack symbol */
 			if (++floor_num > 1)
 			{
-				object_kind *k_ptr;
-
-				/* Get the "pile" feature */
-				k_ptr = &k_info[0];
+				object_kind *k_ptr = &object_type::k_info[0];	/* Get the "pile" feature */
 
 				/* Normal attr */
 				a = k_ptr->x_attr;
@@ -1192,10 +1189,7 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 	/* Objects */
 	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
 	{
-		object_type *o_ptr;
-
-		/* Get the object */
-		o_ptr = &o_list[this_o_idx];
+		object_type *o_ptr = &o_list[this_o_idx];	/* Get the object */
 
 		/* Get the next object */
 		next_o_idx = o_ptr->next_o_idx;
@@ -1215,10 +1209,10 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 			}
 
 			/* Normal attr */
-			a = object_attr_default(o_ptr);
+			a = o_ptr->attr_default();
 
 			/* Normal char */
-			c = object_char_default(o_ptr);
+			c = o_ptr->char_default();
 
 			/* First marked object */
 			if (!show_piles) break;
@@ -1229,7 +1223,7 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 				object_kind *k_ptr;
 
 				/* Get the "pile" feature */
-				k_ptr = &k_info[0];
+				k_ptr = &object_type::k_info[0];
 
 				/* Normal attr */
 				a = k_ptr->d_attr;
@@ -1375,13 +1369,13 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 /*
  * Move the cursor to a given map location.
  */
-static void move_cursor_relative_map(int y, int x)
+static void move_cursor_relative_map(coord g)
 {
-	int ky, kx;
-
 	term *old;
 
 	int j;
+
+	coord k;
 
 	/* Scan windows */
 	for (j = 0; j < ANGBAND_TERM_MAX; j++)
@@ -1394,24 +1388,27 @@ static void move_cursor_relative_map(int y, int x)
 		/* No relevant flags */
 		if (!(op_ptr->window_flag[j] & (PW_MAP))) continue;
 
-		/* Location relative to panel */
-		ky = y - t->offset_y;
-
 		/* Verify location */
-		if ((ky < 0) || (ky >= t->hgt)) continue;
+		if (g.y<t->offset_y || g.x<t->offset_x) continue;
 
 		/* Location relative to panel */
-		kx = x - t->offset_x;
-
-		if (use_bigtile) kx += kx;
+		k.y = g.y - t->offset_y;
 
 		/* Verify location */
-		if ((kx < 0) || (kx >= t->wid)) continue;
+		if (k.y >= t->hgt) continue;
+
+		/* Location relative to panel */
+		k.x = g.x - t->offset_x;
+
+		if (use_bigtile) k.x += k.x;
+
+		/* Verify location */
+		if (k.x >= t->wid) continue;
 
 		/* Go there */
 		old = Term;
 		Term_activate(t);
-		(void)Term_gotoxy(kx, ky);
+		(void)Term_gotoxy(k.x, k.y);
 		Term_activate(old);
 	}
 }
@@ -1422,36 +1419,35 @@ static void move_cursor_relative_map(int y, int x)
  *
  * The main screen will always be at least 24x80 in size.
  */
-void move_cursor_relative(int y, int x)
+void move_cursor_relative(coord g)
 {
-	int ky, kx;
-	int vy, vx;
+	coord k,v;
 
 	/* Move the cursor on map sub-windows */
-	move_cursor_relative_map(y, x);
-
-	/* Location relative to panel */
-	ky = y - Term->offset_y;
+	move_cursor_relative_map(g);
 
 	/* Verify location */
-	if ((ky < 0) || (ky >= SCREEN_HGT)) return;
+	if (g.y<Term->offset_y || g.x<Term->offset_x) return;
 
 	/* Location relative to panel */
-	kx = x - Term->offset_x;
+	k.y = g.y - Term->offset_y;
 
 	/* Verify location */
-	if ((kx < 0) || (kx >= SCREEN_WID)) return;
+	if (k.y >= SCREEN_HGT) return;
+
+	/* Location relative to panel */
+	k.x = g.x - Term->offset_x;
+
+	/* Verify location */
+	if (k.x >= SCREEN_WID) return;
 
 	/* Location in window */
-	vy = ky + ROW_MAP;
+	v = k + coord(COL_MAP,ROW_MAP);
 
-	/* Location in window */
-	vx = kx + COL_MAP;
-
-	if (use_bigtile) vx += kx;
+	if (use_bigtile) v.x += k.x;
 
 	/* Go there */
-	(void)Term_gotoxy(vx, vy);
+	(void)Term_gotoxy(v.x, v.y);
 }
 
 
@@ -1463,9 +1459,9 @@ void move_cursor_relative(int y, int x)
  *
  * Note the use of "Term_queue_char()" for efficiency.
  */
-static void print_rel_map(char c, byte a, int y, int x)
+static void print_rel_map(char c, byte a, coord g)
 {
-	int ky, kx;
+	coord k;
 
 	int j;
 
@@ -1480,34 +1476,37 @@ static void print_rel_map(char c, byte a, int y, int x)
 		/* No relevant flags */
 		if (!(op_ptr->window_flag[j] & (PW_MAP))) continue;
 
+		/* Verify location */
+		if (g.y<t->offset_y || g.x<t->offset_x) continue;
+
 		/* Location relative to panel */
-		ky = y - t->offset_y;
+		k.y = g.y - t->offset_y;
 
 		/* Verify location */
-		if ((ky < 0) || (ky >= t->hgt)) continue;
+		if (k.y >= t->hgt) continue;
 
 		/* Location relative to panel */
-		kx = x - t->offset_x;
+		k.x = g.x - t->offset_x;
 
 		if (use_bigtile)
 		{
-			kx += kx;
-			if (kx + 1 >= t->wid) continue;
+			k.x += k.x;
+			if (k.x + 1 >= t->wid) continue;
 		}
 
 		/* Verify location */
-		if ((kx < 0) || (kx >= t->wid)) continue;
+		if (k.x >= t->wid) continue;
 
 		/* Hack -- Queue it */
-		Term_queue_char(t, kx, ky, a, c, 0, 0);
+		Term_queue_char(t, k.x, k.y, a, c, 0, 0);
 
 		if (use_bigtile)
 		{
 			/* Mega-Hack : Queue dummy char */
 			if (a & 0x80)
-				Term_queue_char(t, kx+1, ky, 255, -1, 0, 0);
+				Term_queue_char(t, k.x+1, k.y, 255, -1, 0, 0);
 			else
-				Term_queue_char(t, kx+1, ky, TERM_WHITE, ' ', 0, 0);
+				Term_queue_char(t, k.x+1, k.y, TERM_WHITE, ' ', 0, 0);
 		}
 
 		/* Redraw map */
@@ -1526,44 +1525,43 @@ static void print_rel_map(char c, byte a, int y, int x)
  *
  * The main screen will always be at least 24x80 in size.
  */
-void print_rel(char c, byte a, int y, int x)
+void print_rel(char c, byte a, coord g)
 {
-	int ky, kx;
-	int vy, vx;
+	coord k,v;
 
 	/* Print on map sub-windows */
-	print_rel_map(c, a, y, x);
-
-	/* Location relative to panel */
-	ky = y - Term->offset_y;
+	print_rel_map(c, a, g);
 
 	/* Verify location */
-	if ((ky < 0) || (ky >= SCREEN_HGT)) return;
+	if (g.y<Term->offset_y || g.x<Term->offset_x) return;
 
 	/* Location relative to panel */
-	kx = x - Term->offset_x;
+	k.y = g.y - Term->offset_y;
 
 	/* Verify location */
-	if ((kx < 0) || (kx >= SCREEN_WID)) return;
+	if (k.y >= SCREEN_HGT) return;
+
+	/* Location relative to panel */
+	k.x = g.x - Term->offset_x;
+
+	/* Verify location */
+	if (k.x >= SCREEN_WID) return;
 
 	/* Location in window */
-	vy = ky + ROW_MAP;
+	v = k + coord(COL_MAP,ROW_MAP);
 
-	/* Location in window */
-	vx = kx + COL_MAP;
-
-	if (use_bigtile) vx += kx;
+	if (use_bigtile) v.x += k.x;
 
 	/* Hack -- Queue it */
-	Term_queue_char(Term, vx, vy, a, c, 0, 0);
+	Term_queue_char(Term, v.x, v.y, a, c, 0, 0);
 
 	if (use_bigtile)
 	{
 		/* Mega-Hack : Queue dummy char */
 		if (a & 0x80)
-			Term_queue_char(Term, vx+1, vy, 255, -1, 0, 0);
+			Term_queue_char(Term, v.x+1, v.y, 255, -1, 0, 0);
 		else
-			Term_queue_char(Term, vx+1, vy, TERM_WHITE, ' ', 0, 0);
+			Term_queue_char(Term, v.x+1, v.y, TERM_WHITE, ' ', 0, 0);
 	}
 }
 
@@ -1599,21 +1597,17 @@ void print_rel(char c, byte a, int y, int x)
  * This function is called primarily from the "update_view()" function, for
  * each grid which becomes newly "see-able".
  */
-void note_spot(int y, int x)
+void note_spot(coord g)
 {
-	byte info;
-
+	byte info = cave_info[g.y][g.x];	/* Get cave info */
 	object_type *o_ptr;
-
-	/* Get cave info */
-	info = cave_info[y][x];
 
 	/* Require "seen" flag */
 	if (!(info & (CAVE_SEEN))) return;
 
 
 	/* Hack -- memorize objects */
-	for (o_ptr = get_first_object(y, x); o_ptr; o_ptr = get_next_object(o_ptr))
+	for (o_ptr = get_first_object(g.y, g.x); o_ptr; o_ptr = get_next_object(o_ptr))
 	{
 		/* Memorize objects */
 		o_ptr->marked = TRUE;
@@ -1624,14 +1618,14 @@ void note_spot(int y, int x)
 	if (!(info & (CAVE_MARK)))
 	{
 		/* Memorize some "boring" grids */
-		if (cave_feat[y][x] <= FEAT_INVIS)
+		if (cave_feat[g.y][g.x] <= FEAT_INVIS)
 		{
 			/* Option -- memorize certain floors */
 			if (((info & (CAVE_GLOW)) && view_perma_grids) ||
 			    view_torch_grids)
 			{
 				/* Memorize */
-				cave_info[y][x] |= (CAVE_MARK);
+				cave_info[g.y][g.x] |= (CAVE_MARK);
 			}
 		}
 
@@ -1639,13 +1633,13 @@ void note_spot(int y, int x)
 		else
 		{
 			/* Memorize */
-			cave_info[y][x] |= (CAVE_MARK);
+			cave_info[g.y][g.x] |= (CAVE_MARK);
 		}
 	}
 }
 
 
-static void lite_spot_map(int y, int x)
+static void lite_spot_map(coord g)
 {
 	byte a, ta;
 	char c, tc;
@@ -1665,9 +1659,12 @@ static void lite_spot_map(int y, int x)
 		/* No relevant flags */
 		if (!(op_ptr->window_flag[j] & (PW_MAP))) continue;
 
+		/* Verify location */
+		if (g.y<t->offset_y || g.x<t->offset_x) continue;
+
 		/* Location relative to panel */
-		ky = y - t->offset_y;
-		kx = x - t->offset_x;
+		ky = g.y - t->offset_y;
+		kx = g.x - t->offset_x;
 
 		if (use_bigtile)
 		{
@@ -1676,11 +1673,11 @@ static void lite_spot_map(int y, int x)
 		}
 
 		/* Verify location */
-		if ((ky < 0) || (ky >= t->hgt)) continue;
-		if ((kx < 0) || (kx >= t->wid)) continue;
+		if (ky >= t->hgt) continue;
+		if (kx >= t->wid) continue;
 
 		/* Hack -- redraw the grid */
-		map_info(y, x, &a, &c, &ta, &tc);
+		map_info(g.y, g.x, &a, &c, &ta, &tc);
 
 		/* Hack -- Queue it */
 		Term_queue_char(t, kx, ky, a, c, ta, tc);
@@ -1712,54 +1709,53 @@ static void lite_spot_map(int y, int x)
  *
  * The main screen will always be at least 24x80 in size.
  */
-void lite_spot(int y, int x)
+void lite_spot(coord g)
 {
 	byte a;
 	char c;
 	byte ta;
 	char tc;
 
-	int ky, kx;
-	int vy, vx;
+	coord k,v;
 
 	/* Update map sub-windows */
-	lite_spot_map(y, x);
-
-	/* Location relative to panel */
-	ky = y - Term->offset_y;
+	lite_spot_map(g);
 
 	/* Verify location */
-	if ((ky < 0) || (ky >= SCREEN_HGT)) return;
+	if (g.y<Term->offset_y || g.x<Term->offset_x) return;
 
 	/* Location relative to panel */
-	kx = x - Term->offset_x;
+	k.y = g.y - Term->offset_y;
 
 	/* Verify location */
-	if ((kx < 0) || (kx >= SCREEN_WID)) return;
+	if (k.y >= SCREEN_HGT) return;
+
+	/* Location relative to panel */
+	k.x = g.x - Term->offset_x;
+
+	/* Verify location */
+	if (k.x >= SCREEN_WID) return;
 
 	/* Location in window */
-	vy = ky + ROW_MAP;
+	v = k + coord(COL_MAP,ROW_MAP);
 
-	/* Location in window */
-	vx = kx + COL_MAP;
-
-	if (use_bigtile) vx += kx;
+	if (use_bigtile) v.x += k.x;
 
 	/* Hack -- redraw the grid */
-	map_info(y, x, &a, &c, &ta, &tc);
+	map_info(g.y, g.x, &a, &c, &ta, &tc);
 
 	/* Hack -- Queue it */
-	Term_queue_char(Term, vx, vy, a, c, ta, tc);
+	Term_queue_char(Term, v.x, v.y, a, c, ta, tc);
 
 	if (use_bigtile)
 	{
-		vx++;
+		v.x++;
 
 		/* Mega-Hack : Queue dummy char */
 		if (a & 0x80)
-			Term_queue_char(Term, vx, vy, 255, -1, 0, 0);
+			Term_queue_char(Term, v.x, v.y, 255, -1, 0, 0);
 		else
-			Term_queue_char(Term, vx, vy, TERM_WHITE, ' ', TERM_WHITE, ' ');
+			Term_queue_char(Term, v.x, v.y, TERM_WHITE, ' ', TERM_WHITE, ' ');
 	}
 }
 
@@ -1982,11 +1978,16 @@ static byte priority(byte a, char c)
  */
 void display_map(int *cy, int *cx)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	int py = p_ptr->loc.y;
+	int px = p_ptr->loc.x;
 
-	int map_hgt, map_wid;
-	int dungeon_hgt, dungeon_wid;
+	/* Desired map height */
+	int map_hgt = Term->hgt - 2;
+	int map_wid = Term->wid - 2;
+
+	int dungeon_hgt = (p_ptr->depth == 0) ? TOWN_HGT : DUNGEON_HGT;
+	int dungeon_wid = (p_ptr->depth == 0) ? TOWN_WID : DUNGEON_WID;
+
 	int row, col;
 
 	int x, y;
@@ -1999,18 +2000,11 @@ void display_map(int *cy, int *cx)
 	/* Large array on the stack */
 	byte mp[DUNGEON_HGT][DUNGEON_WID];
 
-	bool old_view_special_lite;
-	bool old_view_granite_lite;
+	/* Save lighting effects */
+	bool old_view_special_lite = view_special_lite;
+	bool old_view_granite_lite = view_granite_lite;
 
 	monster_race *r_ptr = &r_info[0];
-
-
-	/* Desired map height */
-	map_hgt = Term->hgt - 2;
-	map_wid = Term->wid - 2;
-
-	dungeon_hgt = (p_ptr->depth == 0) ? TOWN_HGT : DUNGEON_HGT;
-	dungeon_wid = (p_ptr->depth == 0) ? TOWN_WID : DUNGEON_WID;
 
 	/* Prevent accidents */
 	if (map_hgt > dungeon_hgt) map_hgt = dungeon_hgt;
@@ -2019,10 +2013,6 @@ void display_map(int *cy, int *cx)
 	/* Prevent accidents */
 	if ((map_wid < 1) || (map_hgt < 1)) return;
 
-
-	/* Save lighting effects */
-	old_view_special_lite = view_special_lite;
-	old_view_granite_lite = view_granite_lite;
 
 	/* Disable lighting effects */
 	view_special_lite = FALSE;
@@ -2544,7 +2534,7 @@ typedef struct vinfo_type vinfo_type;
  */
 struct vinfo_type
 {
-	s16b grid[8];
+	coord grid[8];
 
 	u32b bits_3;
 	u32b bits_2;
@@ -2832,8 +2822,9 @@ static void vinfo_init_aux(vinfo_hack *hack, int y, int x, long m)
  */
 errr vinfo_init(void)
 {
-	int i, g;
+	int i;
 	int y, x;
+	coord g;
 
 	long m;
 
@@ -2931,29 +2922,33 @@ errr vinfo_init(void)
 	/* Process queue */
 	while (queue_head < queue_tail)
 	{
-		int e;
-
-
-		/* Index */
-		e = queue_head++;
+		int e = queue_head++;	/* Index */
 
 		/* Main Grid */
 		g = vinfo[e].grid[0];
 
 		/* Location */
-		y = GRID_Y(g);
-		x = GRID_X(g);
+		y = g.y;
+		x = g.x;
 
 
 		/* Compute grid offsets */
-		vinfo[e].grid[0] = GRID(+y,+x);
-		vinfo[e].grid[1] = GRID(+x,+y);
-		vinfo[e].grid[2] = GRID(+x,-y);
-		vinfo[e].grid[3] = GRID(+y,-x);
-		vinfo[e].grid[4] = GRID(-y,-x);
-		vinfo[e].grid[5] = GRID(-x,-y);
-		vinfo[e].grid[6] = GRID(-x,+y);
-		vinfo[e].grid[7] = GRID(-y,+x);
+/*		vinfo[e].grid[0].x = g.x;
+		vinfo[e].grid[0].y = g.y; */
+		vinfo[e].grid[1].x = g.y;
+		vinfo[e].grid[1].y = g.x;
+		vinfo[e].grid[2].x = -g.y;
+		vinfo[e].grid[2].y = g.x;
+		vinfo[e].grid[3].x = -g.x;
+		vinfo[e].grid[3].y = g.y;
+		vinfo[e].grid[4].x = -g.x;
+		vinfo[e].grid[4].y = -g.y;
+		vinfo[e].grid[5].x = -g.y;
+		vinfo[e].grid[5].y = -g.x;
+		vinfo[e].grid[6].x = g.y;
+		vinfo[e].grid[6].y = -g.x;
+		vinfo[e].grid[7].x = g.x;
+		vinfo[e].grid[7].y = -g.y;
 
 
 		/* Analyze slopes */
@@ -2983,7 +2978,8 @@ errr vinfo_init(void)
 		/* Grid next child */
 		if (distance(0, 0, y, x+1) <= MAX_SIGHT)
 		{
-			g = GRID(y,x+1);
+			g.x = x+1;
+			g.y = y;
 
 			if (queue[queue_tail-1]->grid[0] != g)
 			{
@@ -3002,7 +2998,8 @@ errr vinfo_init(void)
 		/* Grid diag child */
 		if (distance(0, 0, y+1, x+1) <= MAX_SIGHT)
 		{
-			g = GRID(y+1,x+1);
+			g.x = x+1;
+			g.y = y+1;
 
 			if (queue[queue_tail-1]->grid[0] != g)
 			{
@@ -3052,13 +3049,11 @@ errr vinfo_init(void)
  */
 void forget_view(void)
 {
-	int i, g;
+	int i;
+	coord g;
 
 	int fast_view_n = view_n;
-	u16b *fast_view_g = view_g;
-
-	byte *fast_cave_info = &cave_info[0][0];
-
+	coord *fast_view_g = view_g;
 
 	/* None to forget */
 	if (!fast_view_n) return;
@@ -3066,23 +3061,17 @@ void forget_view(void)
 	/* Clear them all */
 	for (i = 0; i < fast_view_n; i++)
 	{
-		int y, x;
-
 		/* Grid */
 		g = fast_view_g[i];
 
-		/* Location */
-		y = GRID_Y(g);
-		x = GRID_X(g);
-
 		/* Clear "CAVE_VIEW" and "CAVE_SEEN" flags */
-		fast_cave_info[g] &= ~(CAVE_VIEW | CAVE_SEEN);
+		cave_info[g.y][g.x] &= ~(CAVE_VIEW | CAVE_SEEN);
 
 		/* Clear "CAVE_LITE" flag */
-		/* fast_cave_info[g] &= ~(CAVE_LITE); */
+		/* cave_info[g.y][g.x] &= ~(CAVE_LITE); */
 
 		/* Redraw */
-		lite_spot(y, x);
+		lite_spot(g);
 	}
 
 	/* None left */
@@ -3183,22 +3172,21 @@ void forget_view(void)
  */
 void update_view(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	int py = p_ptr->loc.y;
+	int px = p_ptr->loc.x;
 
-	int pg = GRID(py,px);
+	coord pg = p_ptr->loc;
+	coord g;
 
-	int i, g, o2;
+	int i, o2;
 
 	int radius;
 
 	int fast_view_n = view_n;
-	u16b *fast_view_g = view_g;
+	coord *fast_view_g = view_g;
 
 	int fast_temp_n = 0;
-	u16b *fast_temp_g = temp_g;
-
-	byte *fast_cave_info = &cave_info[0][0];
+	coord *fast_temp_g = temp_g;
 
 	byte info;
 
@@ -3212,7 +3200,7 @@ void update_view(void)
 		g = fast_view_g[i];
 
 		/* Get grid info */
-		info = fast_cave_info[g];
+		info = cave_info[g.y][g.x];
 
 		/* Save "CAVE_SEEN" grids */
 		if (info & (CAVE_SEEN))
@@ -3231,7 +3219,7 @@ void update_view(void)
 		/* info &= ~(CAVE_LITE); */
 
 		/* Save cave info */
-		fast_cave_info[g] = info;
+		cave_info[g.y][g.x] = info;
 	}
 
 	/* Reset the "view" array */
@@ -3250,7 +3238,7 @@ void update_view(void)
 	g = pg;
 
 	/* Get grid info */
-	info = fast_cave_info[g];
+	info = cave_info[g.y][g.x];
 
 	/* Assume viewable */
 	info |= (CAVE_VIEW);
@@ -3273,7 +3261,7 @@ void update_view(void)
 	}
 
 	/* Save cave info */
-	fast_cave_info[g] = info;
+	cave_info[g.y][g.x] = info;
 
 	/* Save in array */
 	fast_view_g[fast_view_n++] = g;
@@ -3323,7 +3311,7 @@ void update_view(void)
 				g = pg + p->grid[o2];
 
 				/* Get grid info */
-				info = fast_cave_info[g];
+				info = cave_info[g.y][g.x];
 
 				/* Handle wall */
 				if (info & (CAVE_WALL))
@@ -3353,12 +3341,12 @@ void update_view(void)
 						/* Perma-lit grids */
 						else if (info & (CAVE_GLOW))
 						{
-							int y = GRID_Y(g);
-							int x = GRID_X(g);
+							int y = g.y;
+							int x = g.x;
 
 							/* Hack -- move towards player */
-							int yy = (y < py) ? (y + 1) : (y > py) ? (y - 1) : y;
-							int xx = (x < px) ? (x + 1) : (x > px) ? (x - 1) : x;
+							int yy = y+SGN(py-y);
+							int xx = x+SGN(px-x);
 
 #ifdef UPDATE_VIEW_COMPLEX_WALL_ILLUMINATION
 
@@ -3388,7 +3376,7 @@ void update_view(void)
 						}
 
 						/* Save cave info */
-						fast_cave_info[g] = info;
+						cave_info[g.y][g.x] = info;
 
 						/* Save in array */
 						fast_view_g[fast_view_n++] = g;
@@ -3434,7 +3422,7 @@ void update_view(void)
 						}
 
 						/* Save cave info */
-						fast_cave_info[g] = info;
+						cave_info[g.y][g.x] = info;
 
 						/* Save in array */
 						fast_view_g[fast_view_n++] = g;
@@ -3457,7 +3445,7 @@ void update_view(void)
 			g = fast_view_g[i];
 
 			/* Grid cannot be "CAVE_SEEN" */
-			fast_cave_info[g] &= ~(CAVE_SEEN);
+			cave_info[g.y][g.x] &= ~(CAVE_SEEN);
 		}
 	}
 
@@ -3468,22 +3456,16 @@ void update_view(void)
 		g = fast_view_g[i];
 
 		/* Get grid info */
-		info = fast_cave_info[g];
+		info = cave_info[g.y][g.x];
 
 		/* Was not "CAVE_SEEN", is now "CAVE_SEEN" */
 		if ((info & (CAVE_SEEN)) && !(info & (CAVE_TEMP)))
 		{
-			int y, x;
-
-			/* Location */
-			y = GRID_Y(g);
-			x = GRID_X(g);
-
 			/* Note */
-			note_spot(y, x);
+			note_spot(g);
 
 			/* Redraw */
-			lite_spot(y, x);
+			lite_spot(g);
 		}
 	}
 
@@ -3494,25 +3476,19 @@ void update_view(void)
 		g = fast_temp_g[i];
 
 		/* Get grid info */
-		info = fast_cave_info[g];
+		info = cave_info[g.y][g.x];
 
 		/* Clear "CAVE_TEMP" flag */
 		info &= ~(CAVE_TEMP);
 
 		/* Save cave info */
-		fast_cave_info[g] = info;
+		cave_info[g.y][g.x] = info;
 
 		/* Was "CAVE_SEEN", is now not "CAVE_SEEN" */
 		if (!(info & (CAVE_SEEN)))
 		{
-			int y, x;
-
-			/* Location */
-			y = GRID_Y(g);
-			x = GRID_X(g);
-
 			/* Redraw */
-			lite_spot(y, x);
+			lite_spot(g);
 		}
 	}
 
@@ -3602,8 +3578,8 @@ void update_flow(void)
 
 #ifdef MONSTER_FLOW
 
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	int py = p_ptr->loc.y;
+	int px = p_ptr->loc.x;
 
 	int ty, tx;
 
@@ -3783,7 +3759,13 @@ void map_area(void)
 	p_ptr->window |= (PW_OVERHEAD | PW_MAP);
 }
 
+static bool wiz_lite_object(object_type& o)
+{
+	/* Memorize non-held objects */
+	if (!o.held_m_idx) o.marked = TRUE;
 
+	return false;
+}
 
 /*
  * Light up the dungeon using "claravoyance"
@@ -3807,19 +3789,7 @@ void wiz_lite(void)
 
 
 	/* Memorize objects */
-	for (i = 1; i < o_max; i++)
-	{
-		object_type *o_ptr = &o_list[i];
-
-		/* Skip dead objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Skip held objects */
-		if (o_ptr->held_m_idx) continue;
-
-		/* Memorize */
-		o_ptr->marked = TRUE;
-	}
+	object_scan(wiz_lite_object);
 
 	/* Scan all normal grids */
 	for (y = 1; y < DUNGEON_HGT-1; y++)
@@ -3867,13 +3837,20 @@ void wiz_lite(void)
 	p_ptr->window |= (PW_OVERHEAD | PW_MONLIST | PW_MAP);
 }
 
+static bool wiz_dark_object(object_type& o)
+{
+	/* Forget non-held objects */
+	if (!o.held_m_idx) o.marked = FALSE;
+
+	return false;
+}
 
 /*
  * Forget the dungeon map (ala "Thinking of Maud...").
  */
 void wiz_dark(void)
 {
-	int i, y, x;
+	int y, x;
 
 
 	/* Forget every grid */
@@ -3887,19 +3864,7 @@ void wiz_dark(void)
 	}
 
 	/* Forget all objects */
-	for (i = 1; i < o_max; i++)
-	{
-		object_type *o_ptr = &o_list[i];
-
-		/* Skip dead objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Skip held objects */
-		if (o_ptr->held_m_idx) continue;
-
-		/* Forget the object */
-		o_ptr->marked = FALSE;
-	}
+	object_scan(wiz_dark_object);
 
 	/* Fully update the visuals */
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
@@ -4029,10 +3994,10 @@ void cave_set_feat(int y, int x, int feat)
 	if (character_dungeon)
 	{
 		/* Notice */
-		note_spot(y, x);
+		note_spot(coord(x, y));
 
 		/* Redraw */
-		lite_spot(y, x);
+		lite_spot(coord(x, y));
 	}
 }
 
@@ -4078,7 +4043,7 @@ void cave_set_feat(int y, int x, int feat)
  * This algorithm is similar to, but slightly different from, the one used
  * by "update_view_los()", and very different from the one used by "los()".
  */
-int project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
+int project_path(coord *gp, int range, int y1, int x1, int y2, int x2, int flg)
 {
 	int y, x;
 
@@ -4154,7 +4119,8 @@ int project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 		while (1)
 		{
 			/* Save grid */
-			gp[n++] = GRID(y,x);
+			gp[n].x = x;
+			gp[n++].y = y;
 
 			/* Hack -- Check maximum range */
 			if ((n + (k >> 1)) >= range) break;
@@ -4216,7 +4182,8 @@ int project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 		while (1)
 		{
 			/* Save grid */
-			gp[n++] = GRID(y,x);
+			gp[n].x = x;
+			gp[n++].y = y;
 
 			/* Hack -- Check maximum range */
 			if ((n + (k >> 1)) >= range) break;
@@ -4272,7 +4239,8 @@ int project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 		while (1)
 		{
 			/* Save grid */
-			gp[n++] = GRID(y,x);
+			gp[n].x = x;
+			gp[n++].y = y;
 
 			/* Hack -- Check maximum range */
 			if ((n + (n >> 1)) >= range) break;
@@ -4316,28 +4284,24 @@ int project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
  * This function is used to determine if the player can (easily) target
  * a given grid, and if a monster can target the player.
  */
-bool projectable(int y1, int x1, int y2, int x2)
+bool projectable(coord g1, coord g2)
 {
-	int y, x;
+	coord grid_g[512];
+	coord t;
 
-	int grid_n = 0;
-	u16b grid_g[512];
-
-	/* Check the projection path */
-	grid_n = project_path(grid_g, MAX_RANGE, y1, x1, y2, x2, 0);
+	int grid_n = project_path(grid_g, MAX_RANGE, g1.y, g1.x, g2.y, g2.x, 0);	/* Check the projection path */
 
 	/* No grid is ever projectable from itself */
 	if (!grid_n) return (FALSE);
 
 	/* Final grid */
-	y = GRID_Y(grid_g[grid_n-1]);
-	x = GRID_X(grid_g[grid_n-1]);
+	t = grid_g[grid_n-1];
 
 	/* May not end in a wall grid */
-	if (!cave_floor_bold(y, x)) return (FALSE);
+	if (!cave_floor_bold(t.y, t.x)) return (FALSE);
 
 	/* May not end in an unrequested grid */
-	if ((y != y2) || (x != x2)) return (FALSE);
+	if (t!=g2) return (FALSE);
 
 	/* Assume okay */
 	return (TRUE);
@@ -4356,7 +4320,7 @@ bool projectable(int y1, int x1, int y2, int x2)
  *
  * Currently the "m" parameter is unused.
  */
-void scatter(int *yp, int *xp, int y, int x, int d, int m)
+void scatter(coord& g, coord g2, int d, int m)
 {
 	int nx, ny;
 
@@ -4365,25 +4329,21 @@ void scatter(int *yp, int *xp, int y, int x, int d, int m)
 	(void)m;
 
 	/* Pick a location */
-	while (TRUE)
-	{
+	do	{
 		/* Pick a new location */
-		ny = rand_spread(y, d);
-		nx = rand_spread(x, d);
+		ny = rand_spread(g2.y, d);
+		nx = rand_spread(g2.x, d);
 
 		/* Ignore annoying locations */
 		if (!in_bounds_fully(ny, nx)) continue;
 
 		/* Ignore "excessively distant" locations */
-		if ((d > 1) && (distance(y, x, ny, nx) > d)) continue;
-
-		/* Require "line of sight" */
-		if (los(y, x, ny, nx)) break;
-	}
+		if ((d > 1) && (distance(g2.y, g2.x, ny, nx) > d)) continue;
+		}
+	while(!los(g2.y, g2.x, ny, nx));	/* Require "line of sight" */
 
 	/* Save the location */
-	(*yp) = ny;
-	(*xp) = nx;
+	g = coord(nx,ny);
 }
 
 
@@ -4485,11 +4445,8 @@ void disturb(int stop_search, int unused_flag)
 		/* Redraw the player */
 		if (hidden_player)
 		{
-			int py = p_ptr->py;
-			int px = p_ptr->px;
-
 			/* Redraw player */
-			lite_spot(py, px);
+			lite_spot(p_ptr->loc);
 		}
 	}
 

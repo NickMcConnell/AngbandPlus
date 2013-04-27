@@ -2022,13 +2022,13 @@ void do_cmd_visuals(void)
 			/* Dump objects */
 			for (i = 0; i < z_info->k_max; i++)
 			{
-				object_kind *k_ptr = &k_info[i];
+				object_kind *k_ptr = &object_type::k_info[i];
 
 				/* Skip non-entries */
 				if (!k_ptr->name) continue;
 
 				/* Dump a comment */
-				fprintf(fff, "# %s\n", (k_name + k_ptr->name));
+				fprintf(fff, "# %s\n", (object_type::k_name + k_ptr->name));
 
 				/* Dump the object attr/char info */
 				fprintf(fff, "K:%d:0x%02X:0x%02X\n\n", i,
@@ -2158,10 +2158,10 @@ void do_cmd_visuals(void)
 			/* Dump flavors */
 			for (i = 0; i < z_info->flavor_max; i++)
 			{
-				flavor_type *flavor_ptr = &flavor_info[i];
+				flavor_type *flavor_ptr = &object_type::flavor_info[i];
 
 				/* Dump a comment */
-				fprintf(fff, "# %s\n", (flavor_text + flavor_ptr->text));
+				fprintf(fff, "# %s\n", (object_type::flavor_text + flavor_ptr->text));
 
 				/* Dump the flavor attr/char info */
 				fprintf(fff, "L:%d:0x%02X:0x%02X\n\n", i,
@@ -2263,7 +2263,7 @@ void do_cmd_visuals(void)
 			/* Hack -- query until done */
 			while (1)
 			{
-				object_kind *k_ptr = &k_info[k];
+				object_kind *k_ptr = &object_type::k_info[k];
 
 				byte da = (byte)(k_ptr->d_attr);
 				byte dc = (byte)(k_ptr->d_char);
@@ -2273,7 +2273,7 @@ void do_cmd_visuals(void)
 				/* Label the object */
 				Term_putstr(5, 17, -1, TERM_WHITE,
 				            format("Object = %d, Name = %-40.40s",
-				                   k, (k_name + k_ptr->name)));
+				                   k, (object_type::k_name + k_ptr->name)));
 
 				/* Label the Default values */
 				Term_putstr(10, 19, -1, TERM_WHITE,
@@ -2316,10 +2316,10 @@ void do_cmd_visuals(void)
 				/* Analyze */
 				if (cx == 'n') k = (k + z_info->k_max + 1) % z_info->k_max;
 				if (cx == 'N') k = (k + z_info->k_max - 1) % z_info->k_max;
-				if (cx == 'a') k_info[k].x_attr = (byte)(ca + 1);
-				if (cx == 'A') k_info[k].x_attr = (byte)(ca - 1);
-				if (cx == 'c') k_info[k].x_char = (byte)(cc + 1);
-				if (cx == 'C') k_info[k].x_char = (byte)(cc - 1);
+				if (cx == 'a') object_type::k_info[k].x_attr = (byte)(ca + 1);
+				if (cx == 'A') object_type::k_info[k].x_attr = (byte)(ca - 1);
+				if (cx == 'c') object_type::k_info[k].x_char = (byte)(cc + 1);
+				if (cx == 'C') object_type::k_info[k].x_char = (byte)(cc - 1);
 			}
 		}
 
@@ -2405,7 +2405,7 @@ void do_cmd_visuals(void)
 			/* Hack -- query until done */
 			while (1)
 			{
-				flavor_type *flavor_ptr = &flavor_info[f];
+				flavor_type *flavor_ptr = &object_type::flavor_info[f];
 
 				byte da = (byte)(flavor_ptr->d_attr);
 				byte dc = (byte)(flavor_ptr->d_char);
@@ -2415,7 +2415,7 @@ void do_cmd_visuals(void)
 				/* Label the object */
 				Term_putstr(5, 17, -1, TERM_WHITE,
 				            format("Flavor = %d, Text = %-40.40s",
-				                   f, (flavor_text + flavor_ptr->text)));
+				                   f, (object_type::flavor_text + flavor_ptr->text)));
 
 				/* Label the Default values */
 				Term_putstr(10, 19, -1, TERM_WHITE,
@@ -2458,10 +2458,10 @@ void do_cmd_visuals(void)
 				/* Analyze */
 				if (cx == 'n') f = (f + z_info->flavor_max + 1) % z_info->flavor_max;
 				if (cx == 'N') f = (f + z_info->flavor_max - 1) % z_info->flavor_max;
-				if (cx == 'a') flavor_info[f].x_attr = (byte)(ca + 1);
-				if (cx == 'A') flavor_info[f].x_attr = (byte)(ca - 1);
-				if (cx == 'c') flavor_info[f].x_char = (byte)(cc + 1);
-				if (cx == 'C') flavor_info[f].x_char = (byte)(cc - 1);
+				if (cx == 'a') object_type::flavor_info[f].x_attr = (byte)(ca + 1);
+				if (cx == 'A') object_type::flavor_info[f].x_attr = (byte)(ca - 1);
+				if (cx == 'c') object_type::flavor_info[f].x_char = (byte)(cc + 1);
+				if (cx == 'C') object_type::flavor_info[f].x_char = (byte)(cc - 1);
 			}
 		}
 
@@ -2925,13 +2925,15 @@ void do_cmd_save_screen(void)
  */
 static void do_cmd_knowledge_artifacts(void)
 {
-	int i, k, z, x, y;
+	int i, k, z;
 
 	FILE *fff;
 
 	char file_name[1024];
 
 	char o_name[80];
+
+	coord t;
 
 	bool *okay;
 
@@ -2964,20 +2966,20 @@ static void do_cmd_knowledge_artifacts(void)
 	}
 
 	/* Check the dungeon */
-	for (y = 0; y < DUNGEON_HGT; y++)
+	for (t.y = 0; t.y < DUNGEON_HGT; t.y++)
 	{
-		for (x = 0; x < DUNGEON_WID; x++)
+		for (t.x = 0; t.x < DUNGEON_WID; t.x++)
 		{
 			object_type *o_ptr;
 
 			/* Scan all objects in the grid */
-			for (o_ptr = get_first_object(y, x); o_ptr; o_ptr = get_next_object(o_ptr))
+			for (o_ptr = get_first_object(t.y, t.x); o_ptr; o_ptr = get_next_object(o_ptr))
 			{
 				/* Ignore non-artifacts */
-				if (!artifact_p(o_ptr)) continue;
+				if (!o_ptr->is_artifact()) continue;
 
 				/* Ignore known items */
-				if (object_known_p(o_ptr)) continue;
+				if (o_ptr->known()) continue;
 
 				/* Note the artifact */
 				okay[o_ptr->name1] = FALSE;
@@ -2988,16 +2990,16 @@ static void do_cmd_knowledge_artifacts(void)
 	/* Check the inventory and equipment */
 	for (i = 0; i < INVEN_TOTAL; i++)
 	{
-		object_type *o_ptr = &inventory[i];
+		object_type *o_ptr = &p_ptr->inventory[i];
 
 		/* Ignore non-objects */
 		if (!o_ptr->k_idx) continue;
 
 		/* Ignore non-artifacts */
-		if (!artifact_p(o_ptr)) continue;
+		if (!o_ptr->is_artifact()) continue;
 
 		/* Ignore known items */
-		if (object_known_p(o_ptr)) continue;
+		if (o_ptr->known()) continue;
 
 		/* Note the artifact */
 		okay[o_ptr->name1] = FALSE;
@@ -3020,11 +3022,8 @@ static void do_cmd_knowledge_artifacts(void)
 		/* Real object */
 		if (z)
 		{
-			object_type *i_ptr;
 			object_type object_type_body;
-
-			/* Get local object */
-			i_ptr = &object_type_body;
+			object_type *i_ptr = &object_type_body;	/* Get local object */
 
 			/* Create fake object */
 			object_prep(i_ptr, z);
@@ -3157,7 +3156,7 @@ static void do_cmd_knowledge_objects(void)
 	/* Scan the object kinds */
 	for (k = 1; k < z_info->k_max; k++)
 	{
-		object_kind *k_ptr = &k_info[k];
+		object_kind *k_ptr = &object_type::k_info[k];
 
 		/* Hack -- skip artifacts */
 		if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
@@ -3165,11 +3164,8 @@ static void do_cmd_knowledge_objects(void)
 		/* List known flavored objects */
 		if (k_ptr->flavor && k_ptr->aware)
 		{
-			object_type *i_ptr;
 			object_type object_type_body;
-
-			/* Get local object */
-			i_ptr = &object_type_body;
+			object_type *i_ptr = &object_type_body;	/* Get local object */
 
 			/* Create fake object */
 			object_prep(i_ptr, k);

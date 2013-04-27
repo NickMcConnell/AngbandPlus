@@ -62,7 +62,7 @@ static void flavor_assign_fixed(void)
 
 	for (i = 0; i < z_info->flavor_max; i++)
 	{
-		flavor_type *flavor_ptr = &flavor_info[i];
+		flavor_type *flavor_ptr = &object_type::flavor_info[i];
 
 		/* Skip random flavors */
 		if (flavor_ptr->sval == SV_UNKNOWN) continue;
@@ -70,11 +70,11 @@ static void flavor_assign_fixed(void)
 		for (j = 0; j < z_info->k_max; j++)
 		{
 			/* Skip other objects */
-			if ((k_info[j].tval == flavor_ptr->tval) &&
-			    (k_info[j].sval == flavor_ptr->sval))
+			if ((object_type::k_info[j].tval == flavor_ptr->tval) &&
+			    (object_type::k_info[j].sval == flavor_ptr->sval))
 			{
 				/* Store the flavor index */
-				k_info[j].flavor = i;
+				object_type::k_info[j].flavor = i;
 			}
 		}
 	}
@@ -90,8 +90,8 @@ static void flavor_assign_random(byte tval)
 	/* Count the random flavors for the given tval */
 	for (i = 0; i < z_info->flavor_max; i++)
 	{
-		if ((flavor_info[i].tval == tval) &&
-		    (flavor_info[i].sval == SV_UNKNOWN))
+		if ((object_type::flavor_info[i].tval == tval) &&
+		    (object_type::flavor_info[i].sval == SV_UNKNOWN))
 		{
 			flavor_count++;
 		}
@@ -100,13 +100,13 @@ static void flavor_assign_random(byte tval)
 	for (i = 0; i < z_info->k_max; i++)
 	{
 		/* Skip other object types */
-		if (k_info[i].tval != tval) continue;
+		if (object_type::k_info[i].tval != tval) continue;
 
 		/* Skip objects that already are flavored */
-		if (k_info[i].flavor != 0) continue;
+		if (object_type::k_info[i].flavor != 0) continue;
 
 		/* HACK - Ordinary food is "boring" */
-		if ((tval == TV_FOOD) && (k_info[i].sval >= SV_FOOD_MIN_FOOD))
+		if ((tval == TV_FOOD) && (object_type::k_info[i].sval >= SV_FOOD_MIN_FOOD))
 			continue;
 
 		if (!flavor_count) quit_fmt("Not enough flavors for tval %d.", tval);
@@ -118,18 +118,18 @@ static void flavor_assign_random(byte tval)
 		for (j = 0; j < z_info->flavor_max; j++)
 		{
 			/* Skip other tvals */
-			if (flavor_info[j].tval != tval) continue;
+			if (object_type::flavor_info[j].tval != tval) continue;
 
 			/* Skip assigned svals */
-			if (flavor_info[j].sval != SV_UNKNOWN) continue;
+			if (object_type::flavor_info[j].sval != SV_UNKNOWN) continue;
 
 			if (choice == 0)
 			{
 				/* Store the flavor index */
-				k_info[i].flavor = j;
+				object_type::k_info[i].flavor = j;
 
 				/* Mark the flavor as used */
-				flavor_info[j].sval = k_info[i].sval;
+				object_type::flavor_info[j].sval = object_type::k_info[i].sval;
 
 				/* One less flavor to choose from */
 				flavor_count--;
@@ -275,7 +275,7 @@ void flavor_init(void)
 	/* Analyze every object */
 	for (i = 1; i < z_info->k_max; i++)
 	{
-		object_kind *k_ptr = &k_info[i];
+		object_kind *k_ptr = &object_type::k_info[i];
 
 		/* Skip "empty" objects */
 		if (!k_ptr->name) continue;
@@ -327,7 +327,7 @@ void reset_visuals(bool unused)
 	/* Extract default attr/char code for objects */
 	for (i = 0; i < z_info->k_max; i++)
 	{
-		object_kind *k_ptr = &k_info[i];
+		object_kind *k_ptr = &object_type::k_info[i];
 
 		/* Default attr/char */
 		k_ptr->x_attr = k_ptr->d_attr;
@@ -347,7 +347,7 @@ void reset_visuals(bool unused)
 	/* Extract default attr/char code for flavors */
 	for (i = 0; i < z_info->flavor_max; i++)
 	{
-		flavor_type *flavor_ptr = &flavor_info[i];
+		flavor_type *flavor_ptr = &object_type::flavor_info[i];
 
 		/* Default attr/char */
 		flavor_ptr->x_attr = flavor_ptr->d_attr;
@@ -404,12 +404,12 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 		(*f1) = (*f2) = (*f3) = 0L;
 
 		/* Must be identified */
-		if (!object_known_p(o_ptr)) return;
+		if (!o_ptr->known()) return;
 	}
 
 	if (mode != OBJECT_FLAGS_RANDOM)
 	{
-		k_ptr = &k_info[o_ptr->k_idx];
+		k_ptr = &object_type::k_info[o_ptr->k_idx];
 
 		/* Base object */
 		(*f1) = k_ptr->flags1;
@@ -460,7 +460,7 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 
 #ifdef SPOIL_ARTIFACTS
 		/* Full knowledge for some artifacts */
-		if (artifact_p(o_ptr)) spoil = TRUE;
+		if (o_ptr->is_artifact()) spoil = TRUE;
 #endif /* SPOIL_ARTIFACTS */
 
 #ifdef SPOIL_EGO_ITEMS
@@ -692,20 +692,19 @@ void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
  */
 void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int mode)
 {
-	cptr basenm;
-	cptr modstr;
+	object_kind *k_ptr = &object_type::k_info[o_ptr->k_idx];
+	cptr basenm = (object_type::k_name + k_ptr->name);	/* Extract default "base" string */
+	cptr modstr = "";									/* Assume no "modifier" string */
 
 	int power;
 
-	bool aware;
-	bool known;
+	bool aware = o_ptr->aware();	/* See if the object is "aware" */
+	bool known = o_ptr->known();	/* See if the object is "known" */
+	bool flavor = k_ptr->flavor;	/* See if the object is "flavored" */
 
-	bool flavor;
-
-	bool append_name;
-
-	bool show_weapon;
-	bool show_armour;
+	bool append_name = FALSE;		/* Assume no name appending */
+	bool show_weapon = FALSE;		/* Assume no need to show "weapon" bonuses */
+	bool show_armour = FALSE;		/* Assume no need to show "armour" bonuses */
 
 	char *b;
 
@@ -726,51 +725,20 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 
 	u32b f1, f2, f3;
 
-	object_kind *k_ptr = &k_info[o_ptr->k_idx];
-
 
 	/* Extract some flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
 
-
-	/* See if the object is "aware" */
-	aware = (object_aware_p(o_ptr) ? TRUE : FALSE);
-
-	/* See if the object is "known" */
-	known = (object_known_p(o_ptr) ? TRUE : FALSE);
-
-	/* See if the object is "flavored" */
-	flavor = (k_ptr->flavor ? TRUE : FALSE);
-
-	/* Allow flavors to be hidden when aware */
-	if (aware && !show_flavors) flavor = FALSE;
-
 	/* Object is in the inventory of a store */
 	if (o_ptr->ident & IDENT_STORE)
 	{
-		/* Don't show flavors */
-		flavor = FALSE;
-
 		/* Pretend known and aware */
 		aware = TRUE;
 		known = TRUE;
 	}
 
-	/* Assume no name appending */
-	append_name = FALSE;
-
-	/* Assume no need to show "weapon" bonuses */
-	show_weapon = FALSE;
-
-	/* Assume no need to show "armour" bonuses */
-	show_armour = FALSE;
-
-	/* Extract default "base" string */
-	basenm = (k_name + k_ptr->name);
-
-	/* Assume no "modifier" string */
-	modstr = "";
-
+	/* Allow flavors to be hidden when aware */
+	if (aware && !show_flavors) flavor = FALSE;
 
 	/* Analyze the object */
 	switch (o_ptr->tval)
@@ -825,10 +793,10 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		case TV_AMULET:
 		{
 			/* Hack -- Known artifacts */
-			if (artifact_p(o_ptr) && aware) break;
+			if (o_ptr->is_artifact() && aware) break;
 
 			/* Color the object */
-			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
+			modstr = object_type::flavor_text + object_type::flavor_info[k_ptr->flavor].text;
 			if (aware) append_name = TRUE;
 			basenm = (flavor ? "& # Amulet~" : "& Amulet~");
 
@@ -839,10 +807,10 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		case TV_RING:
 		{
 			/* Hack -- Known artifacts */
-			if (artifact_p(o_ptr) && aware) break;
+			if (o_ptr->is_artifact() && aware) break;
 
 			/* Color the object */
-			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
+			modstr = object_type::flavor_text + object_type::flavor_info[k_ptr->flavor].text;
 			if (aware) append_name = TRUE;
 			basenm = (flavor ? "& # Ring~" : "& Ring~");
 
@@ -853,7 +821,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		case TV_STAFF:
 		{
 			/* Color the object */
-			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
+			modstr = object_type::flavor_text + object_type::flavor_info[k_ptr->flavor].text;
 			if (aware) append_name = TRUE;
 			basenm = (flavor ? "& # Staff~" : "& Staff~");
 
@@ -864,7 +832,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		case TV_WAND:
 		{
 			/* Color the object */
-			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
+			modstr = object_type::flavor_text + object_type::flavor_info[k_ptr->flavor].text;
 			if (aware) append_name = TRUE;
 			basenm = (flavor ? "& # Wand~" : "& Wand~");
 
@@ -875,7 +843,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		case TV_ROD:
 		{
 			/* Color the object */
-			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
+			modstr = object_type::flavor_text + object_type::flavor_info[k_ptr->flavor].text;
 			if (aware) append_name = TRUE;
 			basenm = (flavor ? "& # Rod~" : "& Rod~");
 
@@ -897,7 +865,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		case TV_POTION:
 		{
 			/* Color the object */
-			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
+			modstr = object_type::flavor_text + object_type::flavor_info[k_ptr->flavor].text;
 			if (aware) append_name = TRUE;
 			basenm = (flavor ? "& # Potion~" : "& Potion~");
 
@@ -911,7 +879,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			if (o_ptr->sval >= SV_FOOD_MIN_FOOD) break;
 
 			/* Color the object */
-			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
+			modstr = object_type::flavor_text + object_type::flavor_info[k_ptr->flavor].text;
 			if (aware) append_name = TRUE;
 			basenm = (flavor ? "& # Mushroom~" : "& Mushroom~");
 
@@ -985,7 +953,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		}
 
 		/* Hack -- The only one of its kind */
-		else if (known && artifact_p(o_ptr))
+		else if (known && o_ptr->is_artifact())
 		{
 			object_desc_str_macro(t, "The ");
 		}
@@ -1026,7 +994,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		}
 
 		/* Hack -- The only one of its kind */
-		else if (known && artifact_p(o_ptr))
+		else if (known && o_ptr->is_artifact())
 		{
 			object_desc_str_macro(t, "The ");
 		}
@@ -1049,7 +1017,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		if (*s == '~')
 		{
 			/* Add a plural if needed */
-			if ((o_ptr->number != 1) && !(known && artifact_p(o_ptr)))
+			if ((o_ptr->number != 1) && !(known && o_ptr->is_artifact()))
 			{
 				char k = t[-1];
 
@@ -1081,7 +1049,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	if (append_name)
 	{
 		object_desc_str_macro(t, " of ");
-		object_desc_str_macro(t, (k_name + k_ptr->name));
+		object_desc_str_macro(t, (object_type::k_name + k_ptr->name));
 	}
 
 
@@ -1326,7 +1294,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	if (mode < 2) goto object_desc_done;
 
 	/* Hack -- Process Lanterns/Torches */
-	if ((o_ptr->tval == TV_LITE) && (!artifact_p(o_ptr)))
+	if ((o_ptr->tval == TV_LITE) && (!o_ptr->is_artifact()))
 	{
 		/* Hack -- Turns of light for normal lites */
 		object_desc_str_macro(t, " (with ");
@@ -1510,7 +1478,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	}
 
 	/* Use "cursed" if the item is known to be cursed */
-	else if (cursed_p(o_ptr) && known)
+	else if (o_ptr->is_cursed() && known)
 	{
 		v = "cursed";
 	}
@@ -1522,7 +1490,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	}
 
 	/* Use "tried" if the object has been tested unsuccessfully */
-	else if (!aware && object_tried_p(o_ptr))
+	else if (!aware && o_ptr->tried())
 	{
 		v = "tried";
 	}
@@ -1597,7 +1565,7 @@ void object_desc_spoil(char *buf, size_t max, const object_type *o_ptr, int pref
 	object_type *i_ptr = &object_type_body;
 
 	/* Make a backup */
-	object_copy(i_ptr, o_ptr);
+	COPY(i_ptr, o_ptr);
 
 	/* HACK - Pretend the object is in a store inventory */
 	i_ptr->ident |= IDENT_STORE;
@@ -1660,7 +1628,7 @@ s16b label_to_inven(int c)
 	if ((i < 0) || (i > INVEN_PACK)) return (-1);
 
 	/* Empty slots can never be chosen */
-	if (!inventory[i].k_idx) return (-1);
+	if (!p_ptr->inventory[i].k_idx) return (-1);
 
 	/* Return the index */
 	return (i);
@@ -1683,7 +1651,7 @@ s16b label_to_equip(int c)
 	if ((i < INVEN_WIELD) || (i >= INVEN_TOTAL)) return (-1);
 
 	/* Empty slots can never be chosen */
-	if (!inventory[i].k_idx) return (-1);
+	if (!p_ptr->inventory[i].k_idx) return (-1);
 
 	/* Return the index */
 	return (i);
@@ -1715,7 +1683,7 @@ s16b wield_slot(const object_type *o_ptr)
 		case TV_RING:
 		{
 			/* Use the right hand first */
-			if (!inventory[INVEN_RIGHT].k_idx) return (INVEN_RIGHT);
+			if (!p_ptr->inventory[INVEN_RIGHT].k_idx) return (INVEN_RIGHT);
 
 			/* Use the left hand for swapping (by default) */
 			return (INVEN_LEFT);
@@ -1798,8 +1766,7 @@ cptr mention_use(int i)
 	/* Hack -- Heavy weapon */
 	if (i == INVEN_WIELD)
 	{
-		object_type *o_ptr;
-		o_ptr = &inventory[i];
+		object_type *o_ptr = &p_ptr->inventory[i];
 		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
 		{
 			p = "Just lifting";
@@ -1809,8 +1776,7 @@ cptr mention_use(int i)
 	/* Hack -- Heavy bow */
 	if (i == INVEN_BOW)
 	{
-		object_type *o_ptr;
-		o_ptr = &inventory[i];
+		object_type *o_ptr = &p_ptr->inventory[i];
 		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
 		{
 			p = "Just holding";
@@ -1850,8 +1816,7 @@ cptr describe_use(int i)
 	/* Hack -- Heavy weapon */
 	if (i == INVEN_WIELD)
 	{
-		object_type *o_ptr;
-		o_ptr = &inventory[i];
+		object_type *o_ptr = &p_ptr->inventory[i];
 		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
 		{
 			p = "just lifting";
@@ -1861,8 +1826,7 @@ cptr describe_use(int i)
 	/* Hack -- Heavy bow */
 	if (i == INVEN_BOW)
 	{
-		object_type *o_ptr;
-		o_ptr = &inventory[i];
+		object_type *o_ptr = &p_ptr->inventory[i];
 		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
 		{
 			p = "just holding";
@@ -1934,10 +1898,7 @@ int scan_floor(int *items, int size, int y, int x, int mode)
 	/* Scan all objects in the grid */
 	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
 	{
-		object_type *o_ptr;
-
-		/* Get the object */
-		o_ptr = &o_list[this_o_idx];
+		object_type *o_ptr = &o_list[this_o_idx];	/* Get the object */
 
 		/* Get the next object */
 		next_o_idx = o_ptr->next_o_idx;
@@ -1980,7 +1941,7 @@ void display_inven(void)
 	/* Find the "final" slot */
 	for (i = 0; i < INVEN_PACK; i++)
 	{
-		o_ptr = &inventory[i];
+		o_ptr = &p_ptr->inventory[i];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
@@ -1993,7 +1954,7 @@ void display_inven(void)
 	for (i = 0; i < z; i++)
 	{
 		/* Examine the item */
-		o_ptr = &inventory[i];
+		o_ptr = &p_ptr->inventory[i];
 
 		/* Start with an empty "index" */
 		tmp_val[0] = tmp_val[1] = tmp_val[2] = ' ';
@@ -2063,7 +2024,7 @@ void display_equip(void)
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
 		/* Examine the item */
-		o_ptr = &inventory[i];
+		o_ptr = &p_ptr->inventory[i];
 
 		/* Start with an empty "index" */
 		tmp_val[0] = tmp_val[1] = tmp_val[2] = ' ';
@@ -2157,7 +2118,7 @@ void show_inven(void)
 	/* Find the "final" slot */
 	for (i = 0; i < INVEN_PACK; i++)
 	{
-		o_ptr = &inventory[i];
+		o_ptr = &p_ptr->inventory[i];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
@@ -2169,7 +2130,7 @@ void show_inven(void)
 	/* Display the inventory */
 	for (k = 0, i = 0; i < z; i++)
 	{
-		o_ptr = &inventory[i];
+		o_ptr = &p_ptr->inventory[i];
 
 		/* Is this item acceptable? */
 		if (!item_tester_okay(o_ptr)) continue;
@@ -2212,7 +2173,7 @@ void show_inven(void)
 		i = out_index[j];
 
 		/* Get the item */
-		o_ptr = &inventory[i];
+		o_ptr = &p_ptr->inventory[i];
 
 		/* Clear the line */
 		prt("", j + 1, col ? col - 2 : col);
@@ -2274,7 +2235,7 @@ void show_equip(void)
 	/* Scan the equipment list */
 	for (k = 0, i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
-		o_ptr = &inventory[i];
+		o_ptr = &p_ptr->inventory[i];
 
 		/* Is this item acceptable? */
 		if (!item_tester_okay(o_ptr)) continue;
@@ -2320,7 +2281,7 @@ void show_equip(void)
 		i = out_index[j];
 
 		/* Get the item */
-		o_ptr = &inventory[i];
+		o_ptr = &p_ptr->inventory[i];
 
 		/* Clear the line */
 		prt("", j + 1, col ? col - 2 : col);
@@ -2516,19 +2477,7 @@ static bool verify_item(cptr prompt, int item)
 
 	char out_val[160];
 
-	object_type *o_ptr;
-
-	/* Inventory */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Floor */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	object_type *o_ptr = get_o_ptr_from_inventory_or_floor(item);	/* Get the object */
 
 	/* Describe */
 	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
@@ -2550,19 +2499,7 @@ static bool get_item_allow(int item)
 {
 	cptr s;
 
-	object_type *o_ptr;
-
-	/* Inventory */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Floor */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	object_type *o_ptr = get_o_ptr_from_inventory_or_floor(item);	/* Get the object */
 
 	/* No inscription */
 	if (!o_ptr->note) return (TRUE);
@@ -2596,19 +2533,7 @@ static bool get_item_allow(int item)
  */
 static bool get_item_okay(int item)
 {
-	object_type *o_ptr;
-
-	/* Inventory */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Floor */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	object_type *o_ptr = get_o_ptr_from_inventory_or_floor(item);	/* Get the object */
 
 	/* Verify the item */
 	return (item_tester_okay(o_ptr));
@@ -2634,7 +2559,7 @@ static int get_tag(int *cp, char tag)
 	/* Check every object */
 	for (i = 0; i < INVEN_TOTAL; ++i)
 	{
-		object_type *o_ptr = &inventory[i];
+		object_type *o_ptr = &p_ptr->inventory[i];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
@@ -2738,8 +2663,8 @@ static int get_tag(int *cp, char tag)
  */
 bool get_item(int *cp, cptr pmt, cptr str, int mode)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+	int py = p_ptr->loc.y;
+	int px = p_ptr->loc.x;
 
 	char which;
 
@@ -2753,9 +2678,9 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 	bool oops = FALSE;
 
-	bool use_inven = ((mode & (USE_INVEN)) ? TRUE : FALSE);
-	bool use_equip = ((mode & (USE_EQUIP)) ? TRUE : FALSE);
-	bool use_floor = ((mode & (USE_FLOOR)) ? TRUE : FALSE);
+	bool use_inven = (mode & (USE_INVEN));
+	bool use_equip = (mode & (USE_EQUIP));
+	bool use_floor = (mode & (USE_FLOOR));
 
 	bool allow_inven = FALSE;
 	bool allow_equip = FALSE;

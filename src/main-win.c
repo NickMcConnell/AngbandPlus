@@ -361,19 +361,19 @@ struct _term_data
 	DWORD dwStyle;
 	DWORD dwExStyle;
 
-	uint keys;
+	unsigned int keys;
 
 	byte rows;
 	byte cols;
 
-	uint pos_x;
-	uint pos_y;
-	uint size_wid;
-	uint size_hgt;
-	uint size_ow1;
-	uint size_oh1;
-	uint size_ow2;
-	uint size_oh2;
+	unsigned int pos_x;
+	unsigned int pos_y;
+	unsigned int size_wid;
+	unsigned int size_hgt;
+	unsigned int size_ow1;
+	unsigned int size_oh1;
+	unsigned int size_ow2;
+	unsigned int size_oh2;
 
 	bool size_hack;
 
@@ -390,14 +390,14 @@ struct _term_data
 
 	HFONT font_id;
 
-	uint font_wid;
-	uint font_hgt;
+	unsigned int font_wid;
+	unsigned int font_hgt;
 
-	uint tile_wid;
-	uint tile_hgt;
+	unsigned int tile_wid;
+	unsigned int tile_hgt;
 
-	uint map_tile_wid;
-	uint map_tile_hgt;
+	unsigned int map_tile_wid;
+	unsigned int map_tile_hgt;
 
 	bool map_active;
 };
@@ -690,8 +690,9 @@ static cptr extract_file_name(cptr s)
 
 
 static void show_win_error(void)
-{
-	LPVOID lpMsgBuf;
+{	/* XXX put in correct definition that works on both ASCII and 
+		UNICODE platforms XXX */
+	LPSTR lpMsgBuf;	
 
 	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
 	              NULL, GetLastError(),
@@ -1252,7 +1253,7 @@ static int new_palette(void)
 	/* Use the bitmap */
 	if (hBmPal)
 	{
-		lppe = ralloc(256 * sizeof(PALETTEENTRY));
+		lppe = (LPPALETTEENTRY)ralloc(256 * sizeof(PALETTEENTRY));
 		nEntries = GetPaletteEntries(hBmPal, 0, 255, lppe);
 		if ((nEntries == 0) || (nEntries > 220))
 		{
@@ -1584,7 +1585,7 @@ static errr term_force_font(term_data *td, cptr path)
 
 		/* all this trouble to get the cell size */
 		hdcDesktop = GetDC(HWND_DESKTOP);
-		hfOld = SelectObject(hdcDesktop, td->font_id);
+		hfOld = (HFONT)SelectObject(hdcDesktop, td->font_id);
 		GetTextMetrics(hdcDesktop, &tm);
 		SelectObject(hdcDesktop, hfOld);
 		ReleaseDC(HWND_DESKTOP, hdcDesktop);
@@ -2405,7 +2406,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 
 	/* More info */
 	hdcSrc = CreateCompatibleDC(hdc);
-	hbmSrcOld = SelectObject(hdcSrc, infGraph.hBitmap);
+	hbmSrcOld = (HBITMAP)SelectObject(hdcSrc, infGraph.hBitmap);
 
 	if ((arg_graphics == GRAPHICS_ADAM_BOLT) ||
 	    (arg_graphics == GRAPHICS_DAVID_GERVAIS))
@@ -2578,7 +2579,7 @@ static void windows_map_aux(void)
 	}
 
 	/* Hilite the player */
-	Term_curs_win(p_ptr->px - min_x, p_ptr->py - min_y);
+	Term_curs_win(p_ptr->loc.x - min_x, p_ptr->loc.y - min_y);
 }
 
 
@@ -2683,7 +2684,7 @@ static void init_windows(void)
 
 	/* Main window */
 	td = &data[0];
-	WIPE(td, term_data);
+	WIPE(td);
 	td->s = angband_term_name[0];
 	td->keys = 1024;
 	td->rows = 24;
@@ -2700,7 +2701,7 @@ static void init_windows(void)
 	for (i = 1; i < MAX_TERM_DATA; i++)
 	{
 		td = &data[i];
-		WIPE(td, term_data);
+		WIPE(td);
 		td->s = angband_term_name[i];
 		td->keys = 16;
 		td->rows = 24;
@@ -3906,7 +3907,7 @@ static void handle_wm_paint(HWND hWnd)
 }
 
 
-static LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
+static LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, unsigned int uMsg,
                                           WPARAM wParam, LPARAM lParam)
 {
 	HDC hdc;
@@ -4229,7 +4230,7 @@ static LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 }
 
 
-static LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
+static LRESULT FAR PASCAL AngbandListProc(HWND hWnd, unsigned int uMsg,
                                            WPARAM wParam, LPARAM lParam)
 {
 	term_data *td;
@@ -4513,7 +4514,7 @@ static LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
 
 #ifdef USE_SAVER
 
-LRESULT FAR PASCAL AngbandSaverProc(HWND hWnd, UINT uMsg,
+LRESULT FAR PASCAL AngbandSaverProc(HWND hWnd, unsigned int uMsg,
                                             WPARAM wParam, LPARAM lParam)
 {
 	static int iMouse = 0;
@@ -4825,11 +4826,6 @@ static void init_stuff(void)
 	validate_dir(ANGBAND_DIR_BONE);
 	validate_dir(ANGBAND_DIR_DATA);
 	validate_dir(ANGBAND_DIR_EDIT);
-
-#ifdef USE_SCRIPT
-	validate_dir(ANGBAND_DIR_SCRIPT);
-#endif /* USE_SCRIPT */
-
 	validate_dir(ANGBAND_DIR_FILE);
 	validate_dir(ANGBAND_DIR_HELP);
 	validate_dir(ANGBAND_DIR_INFO);
@@ -4967,7 +4963,7 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 		wc.hInstance     = hInst;
 		wc.hIcon         = hIcon = LoadIcon(hInst, "ANGBAND");
 		wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
-		wc.hbrBackground = GetStockObject(BLACK_BRUSH);
+		wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
 		wc.lpszMenuName  = "ANGBAND";
 		wc.lpszClassName = AppName;
 

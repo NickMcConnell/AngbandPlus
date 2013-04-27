@@ -885,7 +885,7 @@ static s32b artifact_power(int a_idx)
 		}
 	}
 
-	k_ptr = &k_info[k_idx];
+	k_ptr = &object_type::k_info[k_idx];
 
 	if (a_idx >= ART_MIN_NORMAL)
 	{
@@ -1112,7 +1112,7 @@ static void choose_item(int a_idx)
 	 * of only 95/3, but which is based on an object with 110/64!
 	 */
 	k_idx = kinds[a_idx];
-	k_ptr = &k_info[k_idx];
+	k_ptr = &object_type::k_info[k_idx];
 	target_level = k_ptr->level;
 
 	/*
@@ -1299,7 +1299,7 @@ static void choose_item(int a_idx)
 	}
 
 	k_idx = lookup_kind(tval, sval);
-	k_ptr = &k_info[k_idx];
+	k_ptr = &object_type::k_info[k_idx];
 	kinds[a_idx] = k_idx;
 
 	/*

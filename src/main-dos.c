@@ -1458,7 +1458,7 @@ static bool init_windows(void)
 	for (i = 0; i < num_windows; i++)
 	{
 		td = &data[i];
-		WIPE(td, term_data);
+		WIPE(td);
 
 		/* Section name */
 		sprintf(section, "Term-%d-%d", resolution, i);

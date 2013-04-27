@@ -350,7 +350,7 @@ errr process_pref_file_command(char *buf)
 			n1 = strtol(zz[1], NULL, 0);
 			n2 = strtol(zz[2], NULL, 0);
 			if ((i < 0) || (i >= (long)z_info->k_max)) return (1);
-			k_ptr = &k_info[i];
+			k_ptr = &object_type::k_info[i];
 			if (n1) k_ptr->x_attr = (byte)n1;
 			if (n2) k_ptr->x_char = (char)n2;
 			return (0);
@@ -386,7 +386,7 @@ errr process_pref_file_command(char *buf)
 			n1 = strtol(zz[1], NULL, 0);
 			n2 = strtol(zz[2], NULL, 0);
 			if ((i < 0) || (i >= (long)z_info->flavor_max)) return (1);
-			flavor_ptr = &flavor_info[i];
+			flavor_ptr = &object_type::flavor_info[i];
 			if (n1) flavor_ptr->x_attr = (byte)n1;
 			if (n2) flavor_ptr->x_char = (char)n2;
 			return (0);
@@ -1400,15 +1400,18 @@ static void display_player_xtra_info(void)
 
 
 	/* Melee weapon */
-	o_ptr = &inventory[INVEN_WIELD];
+	o_ptr = &p_ptr->inventory[INVEN_WIELD];
 
 	/* Base skill */
 	hit = p_ptr->dis_to_h;
 	dam = p_ptr->dis_to_d;
 
 	/* Apply weapon bonuses */
-	if (object_known_p(o_ptr)) hit += o_ptr->to_h;
-	if (object_known_p(o_ptr)) dam += o_ptr->to_d;
+	if (o_ptr->known())
+		{
+		hit += o_ptr->to_h;
+		dam += o_ptr->to_d;
+		};
 
 	/* Melee attacks */
 	strnfmt(buf, sizeof(buf), "(%+d,%+d)", hit, dam);
@@ -1417,15 +1420,18 @@ static void display_player_xtra_info(void)
 
 
 	/* Range weapon */
-	o_ptr = &inventory[INVEN_BOW];
+	o_ptr = &p_ptr->inventory[INVEN_BOW];
 
 	/* Base skill */
 	hit = p_ptr->dis_to_h;
 	dam = 0;
 
 	/* Apply weapon bonuses */
-	if (object_known_p(o_ptr)) hit += o_ptr->to_h;
-	if (object_known_p(o_ptr)) dam += o_ptr->to_d;
+	if (o_ptr->known())
+		{
+		hit += o_ptr->to_h;
+		dam += o_ptr->to_d;
+		};
 
 	/* Range attacks */
 	strnfmt(buf, sizeof(buf), "(%+d,%+d)", hit, dam);
@@ -1456,12 +1462,12 @@ static void display_player_xtra_info(void)
 
 
 	/* Fighting Skill (with current weapon) */
-	o_ptr = &inventory[INVEN_WIELD];
+	o_ptr = &p_ptr->inventory[INVEN_WIELD];
 	tmp = p_ptr->to_h + o_ptr->to_h;
 	xthn = p_ptr->skill_thn + (tmp * BTH_PLUS_ADJ);
 
 	/* Shooting Skill (with current bow) */
-	o_ptr = &inventory[INVEN_BOW];
+	o_ptr = &p_ptr->inventory[INVEN_BOW];
 	tmp = p_ptr->to_h + o_ptr->to_h;
 	xthb = p_ptr->skill_thb + (tmp * BTH_PLUS_ADJ);
 
@@ -1558,14 +1564,14 @@ static void display_player_equippy(int y, int x)
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; ++i)
 	{
 		/* Object */
-		o_ptr = &inventory[i];
+		o_ptr = &p_ptr->inventory[i];
 
 		/* Skip empty objects */
 		if (!o_ptr->k_idx) continue;
 
 		/* Get attr/char for display */
-		a = object_attr(o_ptr);
-		c = object_char(o_ptr);
+		a = o_ptr->attr_user();
+		c = o_ptr->char_user();
 
 		/* Dump */
 		Term_putch(x+i-INVEN_WIELD, y, a, c);
@@ -1695,11 +1701,7 @@ static void display_player_flag_info(void)
 			for (n = 6, i = INVEN_WIELD; i < INVEN_TOTAL; ++i, ++n)
 			{
 				byte attr = TERM_SLATE;
-
-				object_type *o_ptr;
-
-				/* Object */
-				o_ptr = &inventory[i];
+				object_type *o_ptr = &p_ptr->inventory[i];	/* Object */
 
 				/* Known flags */
 				object_flags_known(o_ptr, &f[1], &f[2], &f[3]);
@@ -1939,7 +1941,7 @@ static void display_player_sust_info(void)
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; ++i)
 	{
 		/* Get the object */
-		o_ptr = &inventory[i];
+		o_ptr = &p_ptr->inventory[i];
 
 		/* Get the "known" flags */
 		object_flags_known(o_ptr, &f1, &f2, &f3);
@@ -2245,12 +2247,12 @@ errr file_character(cptr name, bool full)
 		fprintf(fff, "  [Character Equipment]\n\n");
 		for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 		{
-			object_desc(o_name, sizeof(o_name), &inventory[i], TRUE, 3);
+			object_desc(o_name, sizeof(o_name), &p_ptr->inventory[i], TRUE, 3);
 			fprintf(fff, "%c) %s\n",
 			        index_to_label(i), o_name);
 
 			/* Describe random object attributes */
-			identify_random_gen(&inventory[i]);
+			identify_random_gen(&p_ptr->inventory[i]);
 		}
 		fprintf(fff, "\n\n");
 	}
@@ -2259,14 +2261,14 @@ errr file_character(cptr name, bool full)
 	fprintf(fff, "  [Character Inventory]\n\n");
 	for (i = 0; i < INVEN_PACK; i++)
 	{
-		if (!inventory[i].k_idx) break;
+		if (!p_ptr->inventory[i].k_idx) break;
 
-		object_desc(o_name, sizeof(o_name), &inventory[i], TRUE, 3);
+		object_desc(o_name, sizeof(o_name), &p_ptr->inventory[i], TRUE, 3);
 		fprintf(fff, "%c) %s\n",
 		        index_to_label(i), o_name);
 
 		/* Describe random object attributes */
-		identify_random_gen(&inventory[i]);
+		identify_random_gen(&p_ptr->inventory[i]);
 	}
 	fprintf(fff, "\n\n");
 
@@ -3247,7 +3249,7 @@ static void death_knowledge(void)
 	/* Hack -- Know everything in the inven/equip */
 	for (i = 0; i < INVEN_TOTAL; i++)
 	{
-		o_ptr = &inventory[i];
+		o_ptr = &p_ptr->inventory[i];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
@@ -3398,7 +3400,7 @@ static void death_examine(void)
 		if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP))) return;
 
 		/* Get the item */
-		o_ptr = &inventory[item];
+		o_ptr = &p_ptr->inventory[item];
 
 		/* Fully known */
 		o_ptr->ident |= (IDENT_MENTAL);
@@ -3819,7 +3821,7 @@ static errr enter_score(void)
 
 
 	/* Clear the record */
-	(void)WIPE(&the_score, high_score);
+	WIPE(&the_score);
 
 	/* Save the version */
 	strnfmt(the_score.what, sizeof(the_score.what), "%s", VERSION_STRING);

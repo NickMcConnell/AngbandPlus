@@ -198,9 +198,9 @@ struct metadpy
 
 	int fd;
 
-	uint width;
-	uint height;
-	uint depth;
+	unsigned int width;
+	unsigned int height;
+	unsigned int depth;
 
 	Pixell black;
 	Pixell white;
@@ -209,9 +209,9 @@ struct metadpy
 	Pixell fg;
 	Pixell zg;
 
-	uint mono:1;
-	uint color:1;
-	uint nuke:1;
+	unsigned int mono:1;
+	unsigned int color:1;
+	unsigned int nuke:1;
 };
 
 
@@ -255,16 +255,16 @@ struct infowin
 
 	byte byte1;
 
-	uint mapped:1;
-	uint redraw:1;
-	uint resize:1;
+	unsigned int mapped:1;
+	unsigned int redraw:1;
+	unsigned int resize:1;
 
-	uint nuke:1;
+	unsigned int nuke:1;
 
-	uint flag1:1;
-	uint flag2:1;
-	uint flag3:1;
-	uint flag4:1;
+	unsigned int flag1:1;
+	unsigned int flag2:1;
+	unsigned int flag3:1;
+	unsigned int flag4:1;
 };
 
 
@@ -291,9 +291,9 @@ struct infoclr
 	Pixell fg;
 	Pixell bg;
 
-	uint code:4;
-	uint stip:1;
-	uint nuke:1;
+	unsigned int code:4;
+	unsigned int stip:1;
+	unsigned int nuke:1;
 };
 
 
@@ -327,8 +327,8 @@ struct infofnt
 
 	byte off;
 
-	uint mono:1;
-	uint nuke:1;
+	unsigned int mono:1;
+	unsigned int nuke:1;
 };
 
 
@@ -718,7 +718,7 @@ static errr Infowin_prepare(Window xid)
 static errr Infowin_init_real(Window xid)
 {
 	/* Wipe it clean */
-	(void)WIPE(Infowin, infowin);
+	WIPE(Infowin);
 
 	/* Start out non-nukable */
 	Infowin->nuke = 0;
@@ -748,7 +748,7 @@ static errr Infowin_init_data(Window dad, int x, int y, int w, int h,
 	Window xid;
 
 	/* Wipe it clean */
-	(void)WIPE(Infowin, infowin);
+	WIPE(Infowin);
 
 
 	/*** Error Check XXX ***/
@@ -1073,7 +1073,7 @@ static errr Infoclr_init_1(GC gc)
 	infoclr *iclr = Infoclr;
 
 	/* Wipe the iclr clean */
-	(void)WIPE(iclr, infoclr);
+	WIPE(iclr);
 
 	/* Assign the GC */
 	iclr->gc = gc;
@@ -1168,7 +1168,7 @@ static errr Infoclr_init_data(Pixell fg, Pixell bg, int op, int stip)
 	/*** Initialize ***/
 
 	/* Wipe the iclr clean */
-	(void)WIPE(iclr, infoclr);
+	WIPE(iclr);
 
 	/* Assign the GC */
 	iclr->gc = gc;
@@ -1288,7 +1288,7 @@ static errr Infofnt_prepare(XFontStruct *info)
 static errr Infofnt_init_real(XFontStruct *info)
 {
 	/* Wipe the thing */
-	(void)WIPE(Infofnt, infofnt);
+	WIPE(Infofnt);
 
 	/* No nuking */
 	Infofnt->nuke = 0;
@@ -1326,7 +1326,7 @@ static errr Infofnt_init_data(cptr name)
 	/*** Init the font ***/
 
 	/* Wipe the thing */
-	(void)WIPE(Infofnt, infofnt);
+	WIPE(Infofnt);
 
 	/* Attempt to prepare it */
 	if (Infofnt_prepare(info))
@@ -1554,7 +1554,7 @@ static void react_keypress(XKeyEvent *ev)
 {
 	int i, n, mc, ms, mo, mx;
 
-	uint ks1;
+	unsigned int ks1;
 
 	KeySym ks;
 
@@ -1574,7 +1574,7 @@ static void react_keypress(XKeyEvent *ev)
 
 
 	/* Hack -- convert into an unsigned int */
-	ks1 = (uint)(ks);
+	ks1 = (unsigned int)(ks);
 
 	/* Extract four "modifier flags" */
 	mc = (ev->state & ControlMask) ? TRUE : FALSE;
