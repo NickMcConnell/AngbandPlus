@@ -1171,7 +1171,7 @@ return "ファイア・ボルト(9d8) : 8+d8 ターン毎";
 		case ART_STONE_OF_DEATH:
 			return "animate dead every 666 turns";
 		case ART_STONE_OF_TRUMP:
-			return "teleport self every 5 turns";
+			return "teleport self every turn";
 		case ART_STONE_OF_DAEMON:
 			return "breathe fire every 666 turns";
 		case ART_STONE_OF_CRUSADE:
@@ -1181,7 +1181,7 @@ return "ファイア・ボルト(9d8) : 8+d8 ターン毎";
 		case ART_STONE_OF_WAR:
 			return "berserk rage every 100 turns";
 		case ART_STONE_OF_ARMAGEDDON:
-			return "something powerful every 10 turns";
+			return "destruction every 10 turns";
 		case ART_OMARAX:
 			return "clairvoyance every 20+d20 turns";
 		case ART_LERNEAN:
@@ -2613,15 +2613,8 @@ info[i++] = "それは無敵のバリアを切り裂く。";
 #endif
 	}
 
-	if (o_ptr->name2 == EGO_GENJI)
-	{
-#ifdef JP
-info[i++] = "それは二刀流での命中率を向上させる。";
-#else
+	if (o_ptr->name2 == EGO_GENJI || o_ptr->name1 == ART_MASTER_TONBERRY || o_ptr->name1 == ART_MEPHISTOPHELES)
 		info[i++] = "It affects your ability to hit when you are wielding two weapons.";
-#endif
-
-	}
 
 	if (have_flag(flgs, TR_WEAPONMASTERY))
 		info[i++] = "It increases the damage dice of your melee weapon.";
@@ -3741,6 +3734,8 @@ info[i++] = "それは反魔法バリアを張る。";
 #endif
 
 	}
+	if (have_flag(flgs, TR_NO_SUMMON))
+		info[i++] = "It disrupts summoning spells.";
 	if (have_flag(flgs, TR_NO_TELE))
 	{
 #ifdef JP

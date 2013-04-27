@@ -668,6 +668,58 @@ static cptr _do_scroll(int sval, int mode)
 			if (!reset_recall()) return NULL;
 		}
 		break;
+	case SV_SCROLL_FIRE:
+		if (desc) return "It creates a huge fire ball centered on you.";
+		if (info) return info_damage(0, 0, 333);
+		if (cast)
+		{
+			device_noticed = TRUE;
+			fire_ball(GF_FIRE, 0, 666, 4);
+			if (!res_save_default(RES_FIRE))
+			{
+				int dam = res_calc_dam(RES_FIRE, 25 + randint1(25));
+				take_hit(DAMAGE_NOESCAPE, dam, "a Scroll of Fire", -1);
+			}
+		}
+		break;
+	case SV_SCROLL_ICE:
+		if (desc) return "It creates a huge ice ball centered on you.";
+		if (info) return info_damage(0, 0, 400);
+		if (cast)
+		{
+			device_noticed = TRUE;
+			fire_ball(GF_ICE, 0, 800, 4);
+			if (!res_save_default(RES_COLD))
+			{
+				int dam = res_calc_dam(RES_COLD, 30 + randint1(30));
+				take_hit(DAMAGE_NOESCAPE, dam, "a Scroll of Ice", -1);
+			}
+		}
+		break;
+	case SV_SCROLL_CHAOS:
+		if (desc) return "It creates a huge ball of logrus centered on you.";
+		if (info) return info_damage(0, 0, 500);
+		if (cast)
+		{
+			device_noticed = TRUE;
+			fire_ball(GF_CHAOS, 0, 1000, 4);
+			if (!res_save_default(RES_CHAOS))
+			{
+				int dam = res_calc_dam(RES_CHAOS, 50 + randint1(50));
+				take_hit(DAMAGE_NOESCAPE, dam, "a Scroll of Logrus", -1);
+			}
+		}
+		break;
+	case SV_SCROLL_MANA:
+		if (desc) return "It creates a huge ball of pure mana centered on you.";
+		if (info) return info_damage(0, 0, 550);
+		if (cast)
+		{
+			device_noticed = TRUE;
+			fire_ball(GF_MANA, 0, 1100, 4);
+			take_hit(DAMAGE_NOESCAPE, 50 + randint1(50), "a Scroll of Mana", -1);
+		}
+		break;
 	}
 	return "";
 }
@@ -1346,6 +1398,16 @@ static cptr _do_rod(int sval, int mode)
 
 	switch (sval)
 	{
+	case SV_ROD_ESCAPING:
+		if (desc) return "It teleports you when you zap it.";
+		if (cast)
+		{
+			teleport_player(25 + p_ptr->lev / 2, 0);
+			if (mut_present(MUT_ASTRAL_GUIDE))
+				energy_use = energy_use / 3;
+			device_noticed = TRUE;
+		}
+		break;
 	case SV_ROD_DETECT_MONSTERS:
 		if (desc) return "It detects all monsters in your vicinity when you zap it.";
 		if (cast)

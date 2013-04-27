@@ -781,7 +781,8 @@ static cptr k_info_flags[] =
 	"LIFE",
 	"WILD",
 	"ORDER",
-	"DARKNESS"
+	"DARKNESS",
+	"NO_SUMMON"
 };
 
 

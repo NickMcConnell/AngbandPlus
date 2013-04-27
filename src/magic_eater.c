@@ -263,6 +263,7 @@ static _group_t _rods[] = {
 		{ 72+17, {TV_ROD, SV_ROD_SLOW_MONSTER, 0}, 0}, 
 		{ 72+19, {TV_ROD, SV_ROD_POLYMORPH, 0}, 0}, 
 		{ 72+14, {TV_ROD, SV_ROD_DISARMING, 0}, 0}, 
+		{ 72+32, {TV_ROD, SV_ROD_ESCAPING, 0}, 0}, 
 		{ 72+13, {TV_ROD, SV_ROD_TELEPORT_AWAY, 0}, 0}, 
 		{ 72+29, {TV_ROD, SV_ROD_STONE_TO_MUD, 0}, 0}, 
 		{ 72+7, {TV_ROD, SV_ROD_PROBING, 0}, 0}, 

@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 1
 #define VER_MINOR 0
-#define VER_PATCH 12
+#define VER_PATCH 13
 #define VER_EXTRA 0
 
 
@@ -706,6 +706,12 @@
 #define SPIDER_ARANEA 1
 #define SPIDER_MAX    2
 
+#define DEMON_BALROG     0
+#define DEMON_MARILITH   1
+#define DEMON_KHORNE     2
+#define DEMON_CYBERDEMON 3
+#define DEMON_MAX        4
+
 #define DRAGON_RED      0
 #define DRAGON_WHITE    1
 #define DRAGON_BLUE     2
@@ -758,6 +764,7 @@
 #define demigod_is_(B) (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == (B))
 #define dragon_is_(B) (prace_is_(RACE_MON_DRAGON) && p_ptr->psubrace == (B))
 #define giant_is_(B) (prace_is_(RACE_MON_GIANT) && p_ptr->psubrace == (B))
+#define demon_is_(B) (prace_is_(RACE_MON_DEMON) && p_ptr->psubrace == (B))
 
 
 /*
@@ -1535,6 +1542,9 @@
 #define ART_FANG        308
 #define ART_WOLF        309
 #define ART_GRIP        310
+#define ART_OREMORJ     311
+#define ART_KHORNE      312
+#define ART_MEPHISTOPHELES 313
 
 /*** Ego-Item indexes (see "lib/edit/e_info.txt") ***/
 
@@ -2259,6 +2269,7 @@
 #define SV_AMULET_FANG                  40
 #define SV_AMULET_WOLF                  41
 #define SV_AMULET_GRIP                  42
+#define SV_AMULET_NO_SUMMON             43
 
 /* The sval codes for TV_RING */
 #define SV_RING_WOE                      0
@@ -2431,6 +2442,7 @@
 #define SV_ROD_STONE_TO_MUD             29
 #define SV_ROD_AGGRAVATE                30
 #define SV_ROD_DETECT_MONSTERS          31
+#define SV_ROD_ESCAPING                 32
 
 
 /* The "sval" codes for TV_SCROLL */
@@ -2492,6 +2504,10 @@
 #define SV_SCROLL_BRAND_WEAPON          55
 #define SV_SCROLL_MADNESS				56
 #define SV_SCROLL_DETECT_MONSTERS		57
+#define SV_SCROLL_FIRE                  58
+#define SV_SCROLL_ICE                   59
+#define SV_SCROLL_CHAOS                 60
+#define SV_SCROLL_MANA                  61
 
 /* The "sval" codes for TV_POTION */
 #define SV_POTION_WATER                  0
@@ -3492,8 +3508,9 @@
 #define TR_WILD				   122
 #define TR_ORDER               123
 #define TR_DARKNESS            124
+#define TR_NO_SUMMON           125
 
-#define TR_FLAG_MAX            125
+#define TR_FLAG_MAX            126
 #define TR_FLAG_SIZE           6
 
 #define TRG_INSTA_ART           0x00000001     /* Item must be an artifact */
@@ -5081,6 +5098,7 @@ extern int PlayerUID;
 #define MON_GELATINOUS_CUBE 286
 #define MON_FIRE_GIANT 288
 #define MON_BERSERKER     293
+#define MON_QUASIT 294
 #define MON_TWO_HEADED_HYDRA 301
 #define MON_FIRE_HOUND        307
 #define MON_COLD_HOUND        308
@@ -5102,6 +5120,7 @@ extern int PlayerUID;
 #define MON_IRON_GOLEM    367
 #define MON_JADE_MONK     370
 #define MON_BLACK_OOZE    371
+#define MON_FLESHHOUND_KHORNE  374
 #define MON_D_ELF_WARLOCK 375
 #define MON_HAGEN         383
 #define MON_MENELDOR      384
@@ -5146,6 +5165,7 @@ extern int PlayerUID;
 #define MON_LICH          518
 #define MON_GREATER_MUMMY 522
 #define MON_BLOODLETTER   523
+#define MON_BLOODLETTER_KHORNE 523
 #define MON_DREAD         534
 #define MON_HALFLING_S    539
 #define MON_GRAV_HOUND    540
@@ -5160,6 +5180,7 @@ extern int PlayerUID;
 #define MON_YOUNG_GOLD_DRAGON     559
 #define MON_MATURE_BRONZE_DRAGON  562
 #define MON_NIGHTBLADE    564
+#define MON_BODAK  566
 #define MON_ELDER_THING   569
 #define MON_CRYPT_THING   577
 #define MON_NEXUS_VOR     587
@@ -5186,6 +5207,7 @@ extern int PlayerUID;
 #define MON_ANCIENT_GOLD_DRAGON   645
 #define MON_GREAT_CRYSTAL_DRAKE   646
 #define MON_CLUB_DEMON    648
+#define MON_DEATH_QUASIT  649
 #define MON_UBBO_SATHLA   655
 #define MON_D_ELF_SORC    657
 #define MON_MASTER_LICH   658
@@ -5196,6 +5218,7 @@ extern int PlayerUID;
 #define MON_SHADOW_DEMON  665
 #define MON_IRON_LICH     666
 #define MON_JACK_SHADOWS  670
+#define MON_JUGGERNAUT_KHORNE 672
 #define MON_ETHEREAL_DRAGON       676
 #define MON_LLOIGOR       682
 #define MON_SHOGGOTH      685
@@ -5232,6 +5255,7 @@ extern int PlayerUID;
 #define MON_CHAOS_VOR     751
 #define MON_AETHER_VOR    752
 #define MON_LERNEAN_HYDRA 754
+#define MON_BLOODTHIRSTER 758
 #define MON_NYOGTHA       760
 #define MON_FUNDIN        762
 #define MON_DWORKIN       763
@@ -5274,6 +5298,7 @@ extern int PlayerUID;
 #define MON_CORWIN        820
 #define MON_ANGMAR        825
 #define MON_CANTORAS      830
+#define MON_MEPHISTOPHELES 831
 #define MON_GODZILLA      832
 #define MON_YMIR          834
 #define MON_SPAWN_CTH     836
@@ -5281,6 +5306,7 @@ extern int PlayerUID;
 #define MON_TARRASQUE     838
 #define MON_LUNGORTHIN    839
 #define MON_CYBER_KING    843
+#define MON_OREMORJ       843
 #define MON_WYRM_POWER    847
 #define MON_NODENS        849
 #define MON_CARCHAROTH    850

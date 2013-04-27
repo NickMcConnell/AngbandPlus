@@ -2409,7 +2409,7 @@ static void do_cmd_activate_aux(int item)
 				if (mut_present(MUT_ASTRAL_GUIDE))
 					energy_use = 30;
 				teleport_player(200, 0);
-				o_ptr->timeout = 5;
+			/*	o_ptr->timeout = 5; */
 				break;
 			}
 			case ART_STONE_OF_DAEMON:
@@ -2448,7 +2448,8 @@ static void do_cmd_activate_aux(int item)
 			case ART_STONE_OF_ARMAGEDDON:
 			{
 				msg_print("Your stone glows an intense red.");
-				call_chaos();
+				if (!destroy_area(py, px, 13 + randint0(5), 1000))
+					msg_print("The dungeon trembles...");
 				o_ptr->timeout = 10;
 				break;
 			}

@@ -4379,6 +4379,34 @@ F:HIDE_TYPE
 F:SPEED | DEX
 F:INSTA_ART
 
+N:311:of the Cyberdemon Lord
+E:of the Cyberdemon Lord
+I:37:15:3
+W:30:3:700:50000
+P:50:2d4:-5:15:40
+F:QUESTITEM
+F:STR | CON | CHR
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | RES_SHARDS | RES_CONF
+
+N:312:'Bloodthirster'
+E:'Bloodthirster'
+I:23:30:-3
+W:70:25:666:250000
+P:0:50d1:-6:-16:-26
+F:QUESTITEM | SHOW_MODS | PERMA_CURSE
+F:FREE_ACT | SEE_INVIS | RES_CONF | RES_CHAOS | AGGRAVATE
+F:SLAY_DRAGON | SLAY_EVIL | SLAY_HUMAN
+F:BRAND_ACID | BRAND_ELEC
+F:STR | INT | WIS | DEX | CON | SPEED | LIFE
+
+N:313:of Mephistopheles
+E:of Mephistopheles
+I:31:1:2
+W:10:6:5:36000
+P:1:0d0:16:6:16
+F:QUESTITEM
+F:STR | DEX | SPEED | HIDE_TYPE | FREE_ACT | SHOW_MODS
+
 # N: serial number : item name
 # I: tval : sval : pval
 # W: depth : rarity : weight : cost

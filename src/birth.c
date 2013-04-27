@@ -157,9 +157,9 @@ static int _menu_choose(menu_ptr menu, int start_choice)
 		if (cs != os)
 		{
 			c_put_str(TERM_WHITE, cur, 12 + (os/3), 1 + 20 * (os%3));
-			put_str("                                   ", 3, 40);
-			put_str("                                   ", 4, 40);
-			put_str("                                   ", 5, 40);
+			put_str("                                    ", 3, 40);
+			put_str("                                    ", 4, 40);
+			put_str("                                    ", 5, 40);
 			if(cs == menu->count)
 			{
 				sprintf(cur, "*) Random");
@@ -950,6 +950,51 @@ static void _dragon_menu_fn(int cmd, int which, vptr cookie, variant *res)
 	}
 	}
 }
+static _name_desc_t _demon_info[DEMON_MAX] = {
+	{ "Balrog", 
+		"Balrogs are demons of shadow and flame. Their evil knows no bounds. Their spells are "
+		"the most powerful of all demonkind and at very high levels they may even call forth "
+		"fires directly from hell." },
+	{ "Tanar'ri", 
+		"Tanar'ri were originally slave demons, but rose up to overthrow their masters. "
+		"They generally take on a humanoid form and are classic demons full of malice and "
+		"cruelty. The ultimate form for this demon is the Marilith, a female demon with "
+		"three sets of arms and a serpent body capable of attacking with six melee weapons!" },
+	{ "Servant of Khorne",
+		"Khorne's servants come in many forms and are powerful forces of melee. They know nothing "
+		"save melee, and strike at all that dare oppose the will of their master. As they gain "
+		"experience, Khorne rewards his servants with new and more powerful forms." },
+	{ "Cyberdemon",
+		"Cyberdemons are giant humanoid forms, half demon and half machine. They are a bit "
+		"slow and susceptible to confusion, but their immense bodies and unsurpassable firepower "
+		"more than make up for this. The walls of the dungeon reverberate with their heavy steps!" },
+};
+static void _demon_menu_fn(int cmd, int which, vptr cookie, variant *res)
+{
+	switch (cmd)
+	{
+	case MENU_TEXT:
+		var_set_string(res, _demon_info[which].name);
+		break;
+	case MENU_ON_BROWSE:
+	{
+		char buf[100];
+		race_t *race_ptr = get_race_t_aux(RACE_MON_DEMON, which);
+
+		c_put_str(TERM_L_BLUE, _demon_info[which].name, 3, 40);
+		put_str(": Race modification", 3, 40+strlen(_demon_info[which].name));
+		put_str("Str  Int  Wis  Dex  Con  Chr   EXP ", 4, 40);
+		sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d %+4d%% ",
+			race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
+			race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR], 
+			race_ptr->exp);
+		c_put_str(TERM_L_BLUE, buf, 5, 40);
+
+		var_set_bool(res, TRUE);
+		break;
+	}
+	}
+}
 
 static int _prompt_race(void)
 {
@@ -959,7 +1004,7 @@ static int _prompt_race(void)
 		int group_id = 0;
 
 		c_put_str(TERM_WHITE, "              ", 4, 14);
-		c_put_str(TERM_WHITE, "              ", 5, 14);
+		c_put_str(TERM_WHITE, "                   ", 5, 14);
 		for (;;)
 		{
 			menu_t menu1 = { "Race Type", "Races.txt#Tables", "",
@@ -976,7 +1021,7 @@ static int _prompt_race(void)
 								_race_groups[group_id].ids, _count_ids(_race_groups[group_id].ids)};
 
 				c_put_str(TERM_WHITE, "              ", 4, 14);
-				c_put_str(TERM_WHITE, "              ", 5, 14);
+				c_put_str(TERM_WHITE, "                   ", 5, 14);
 				idx = _menu_choose(&menu2, _find_id(_race_groups[group_id].ids, p_ptr->prace));
 				if (idx == _BIRTH_ESCAPE) break;
 				if (idx < 0) return idx;
@@ -998,12 +1043,12 @@ static int _prompt_race(void)
 										_demigod_menu_fn, 
 										NULL, MAX_DEMIGOD_TYPES};
 
-						c_put_str(TERM_WHITE, "              ", 5, 14);
+						c_put_str(TERM_WHITE, "                        ", 5, 14);
 						idx = _menu_choose(&menu3, p_ptr->psubrace);
 						if (idx == _BIRTH_ESCAPE) break;
 						if (idx < 0) return idx;
 						p_ptr->psubrace = idx;
-						c_put_str(TERM_L_BLUE, format("%-14s", demigod_info[p_ptr->psubrace].name), 5, 14);
+						c_put_str(TERM_L_BLUE, format("%-19s", demigod_info[p_ptr->psubrace].name), 5, 14);
 						if (!_confirm_choice(demigod_info[p_ptr->psubrace].desc, menu3.count)) continue;
 						idx = _prompt_class();
 						if (idx == _BIRTH_ESCAPE) continue;
@@ -1017,12 +1062,12 @@ static int _prompt_race(void)
 						menu_t menu3 = { "Subrace", "MonsterRaces.txt#Spider", "",
 											_spider_menu_fn, 
 											NULL, SPIDER_MAX};
-						c_put_str(TERM_WHITE, "              ", 5, 14);
+						c_put_str(TERM_WHITE, "                   ", 5, 14);
 						idx = _menu_choose(&menu3, p_ptr->psubrace);
 						if (idx == _BIRTH_ESCAPE) break;
 						if (idx < 0) return idx;
 						p_ptr->psubrace = idx;
-						c_put_str(TERM_L_BLUE, format("%-14s", _spider_info[p_ptr->psubrace].name), 5, 14);
+						c_put_str(TERM_L_BLUE, format("%-19s", _spider_info[p_ptr->psubrace].name), 5, 14);
 						if (!_confirm_choice(_spider_info[p_ptr->psubrace].desc, menu3.count)) continue;
 						idx = _prompt_class();
 						if (idx == _BIRTH_ESCAPE) continue;
@@ -1036,12 +1081,12 @@ static int _prompt_race(void)
 						menu_t menu3 = { "Subrace", "MonsterRaces.txt#Giant", "",
 											_giant_menu_fn, 
 											NULL, GIANT_MAX};
-						c_put_str(TERM_WHITE, "              ", 5, 14);
+						c_put_str(TERM_WHITE, "                   ", 5, 14);
 						idx = _menu_choose(&menu3, p_ptr->psubrace);
 						if (idx == _BIRTH_ESCAPE) break;
 						if (idx < 0) return idx;
 						p_ptr->psubrace = idx;
-						c_put_str(TERM_L_BLUE, format("%-14s", _giant_info[p_ptr->psubrace].name), 5, 14);
+						c_put_str(TERM_L_BLUE, format("%-19s", _giant_info[p_ptr->psubrace].name), 5, 14);
 						if (!_confirm_choice(_giant_info[p_ptr->psubrace].desc, menu3.count)) continue;
 						idx = _prompt_class();
 						if (idx == _BIRTH_ESCAPE) continue;
@@ -1055,13 +1100,32 @@ static int _prompt_race(void)
 						menu_t menu3 = { "Subrace", "MonsterRaces.txt#Dragon", "",
 											_dragon_menu_fn, 
 											NULL, DRAGON_MAX};
-						c_put_str(TERM_WHITE, "              ", 5, 14);
+						c_put_str(TERM_WHITE, "                   ", 5, 14);
 						idx = _menu_choose(&menu3, p_ptr->psubrace);
 						if (idx == _BIRTH_ESCAPE) break;
 						if (idx < 0) return idx;
 						p_ptr->psubrace = idx;
-						c_put_str(TERM_L_BLUE, format("%-14s", _dragon_info[p_ptr->psubrace].name), 5, 14);
+						c_put_str(TERM_L_BLUE, format("%-19s", _dragon_info[p_ptr->psubrace].name), 5, 14);
 						if (!_confirm_choice(_dragon_info[p_ptr->psubrace].desc, menu3.count)) continue;
+						idx = _prompt_class();
+						if (idx == _BIRTH_ESCAPE) continue;
+						return idx;
+					}
+				}
+				else if (p_ptr->prace == RACE_MON_DEMON)
+				{
+					for (;;)
+					{
+						menu_t menu3 = { "Subrace", "MonsterRaces.txt#Demon", "",
+											_demon_menu_fn, 
+											NULL, DEMON_MAX};
+						c_put_str(TERM_WHITE, "                   ", 5, 14);
+						idx = _menu_choose(&menu3, p_ptr->psubrace);
+						if (idx == _BIRTH_ESCAPE) break;
+						if (idx < 0) return idx;
+						p_ptr->psubrace = idx;
+						c_put_str(TERM_L_BLUE, format("%-19s", _demon_info[p_ptr->psubrace].name), 5, 14);
+						if (!_confirm_choice(_demon_info[p_ptr->psubrace].desc, menu3.count)) continue;
 						idx = _prompt_class();
 						if (idx == _BIRTH_ESCAPE) continue;
 						return idx;
@@ -1069,7 +1133,7 @@ static int _prompt_race(void)
 				}
 				else
 				{
-					c_put_str(TERM_WHITE, "              ", 5, 14);
+					c_put_str(TERM_WHITE, "                   ", 5, 14);
 					p_ptr->psubrace = 0;
 					idx = _prompt_class();
 					if (idx == _BIRTH_ESCAPE) continue;

@@ -1376,6 +1376,7 @@ struct player_type
 
 	bool anti_magic;    /* Anti-magic */
 	bool anti_tele;     /* Prevent teleportation */
+	bool anti_summon;
 
 	bool sustain_str;	/* Keep strength */
 	bool sustain_int;	/* Keep intelligence */

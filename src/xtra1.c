@@ -3361,6 +3361,7 @@ void calc_bonuses(void)
 	p_ptr->sh_shards = FALSE;
 	p_ptr->anti_magic = FALSE;
 	p_ptr->anti_tele = FALSE;
+	p_ptr->anti_summon = FALSE;
 	p_ptr->warning = FALSE;
 	p_ptr->mighty_throw = FALSE;
 	p_ptr->see_nocto = FALSE;

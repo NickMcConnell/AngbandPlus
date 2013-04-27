@@ -945,7 +945,7 @@ msg_print("地面に落とされた。");
 	}
 
 	/* Drop a dead corpse? */
-	if (one_in_(r_ptr->flags1 & RF1_UNIQUE ? 1 : 4) &&
+	if (one_in_(r_ptr->flags1 & RF1_UNIQUE ? 1 : 3) &&
 	    (r_ptr->flags9 & (RF9_DROP_CORPSE | RF9_DROP_SKELETON)) &&
 	    !(p_ptr->inside_arena || p_ptr->inside_battle || cloned || ((m_ptr->r_idx == today_mon) && is_pet(m_ptr))))
 	{
@@ -967,7 +967,7 @@ msg_print("地面に落とされた。");
 			/* Lots of damage in one blow */
 			if ((0 - ((m_ptr->maxhp) / 4)) > m_ptr->hp)
 			{
-				if (one_in_(5)) corpse = TRUE;
+				if (one_in_(4)) corpse = TRUE;
 			}
 			else
 			{
@@ -1594,17 +1594,26 @@ msg_print("地面に落とされた。");
 
 		case MON_FANG:
 			a_idx = ART_FANG;
-			chance = 15;
+			if (prace_is_(RACE_MON_HOUND))
+				chance = 50;
+			else
+				chance = 10;
 			break;
 
 		case MON_WOLF:
 			a_idx = ART_WOLF;
-			chance = 15;
+			if (prace_is_(RACE_MON_HOUND))
+				chance = 50;
+			else
+				chance = 10;
 			break;
 
 		case MON_GRIP:
 			a_idx = ART_GRIP;
-			chance = 15;
+			if (prace_is_(RACE_MON_HOUND))
+				chance = 50;
+			else
+				chance = 10;
 			break;
 
 		/* Monster boss rewards */
@@ -1666,6 +1675,17 @@ msg_print("地面に落とされた。");
 			break;
 		case MON_LERNEAN_HYDRA:
 			a_idx = ART_LERNEAN;
+			chance = 5;
+			break;
+		case MON_OREMORJ:
+			a_idx = ART_OREMORJ;
+			chance = 5;
+			break;
+		case MON_MEPHISTOPHELES:
+			if (demon_is_(DEMON_KHORNE))
+				a_idx = ART_KHORNE;
+			else
+				a_idx = ART_MEPHISTOPHELES;
 			chance = 5;
 			break;
 		}

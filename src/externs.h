@@ -1942,7 +1942,7 @@ extern race_t *zombie_get_race_t(void);
 /* Monster Races */
 extern race_t *mon_angel_get_race_t(void);
 extern race_t *mon_beholder_get_race_t(void);
-extern race_t *mon_demon_get_race_t(void);
+extern race_t *mon_demon_get_race_t(int psubrace);
 extern race_t *mon_dragon_get_race_t(int psubrace);
 extern race_t *mon_giant_get_race_t(int psubrace);
 extern race_t *mon_hound_get_race_t(void);

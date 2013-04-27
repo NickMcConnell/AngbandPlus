@@ -772,6 +772,7 @@ s32b jewelry_cost(object_type *o_ptr)
 	q = _abilities_q(flgs);
 	if (have_flag(flgs, TR_NO_MAGIC)) q += 7000;
 	if (have_flag(flgs, TR_NO_TELE)) q += 5000;
+	if (have_flag(flgs, TR_NO_SUMMON)) q += 1000000;
 	p += q;
 
 	if (cost_calc_hook)
@@ -1042,7 +1043,7 @@ s32b armor_cost(object_type *o_ptr)
 	}
 
 	/* Genji? This will become TR_2WEAPON someday ... */
-	if (o_ptr->name2 == EGO_GENJI || o_ptr->name1 == ART_MASTER_TONBERRY)
+	if (o_ptr->name2 == EGO_GENJI || o_ptr->name1 == ART_MASTER_TONBERRY || o_ptr->name1 == ART_MEPHISTOPHELES)
 	{
 		p += 20000;
 		if (cost_calc_hook)

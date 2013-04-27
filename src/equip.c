@@ -1161,6 +1161,7 @@ void equip_calc_bonuses(void)
 		if (have_flag(flgs, TR_SH_SHARDS))  p_ptr->sh_shards = TRUE;
 		if (have_flag(flgs, TR_NO_MAGIC)) p_ptr->anti_magic = TRUE;
 		if (have_flag(flgs, TR_NO_TELE))  p_ptr->anti_tele = TRUE;
+		if (have_flag(flgs, TR_NO_SUMMON)) p_ptr->anti_summon = TRUE;
 
 		if (have_flag(flgs, TR_SUST_STR)) p_ptr->sustain_str = TRUE;
 		if (have_flag(flgs, TR_SUST_INT)) p_ptr->sustain_int = TRUE;
@@ -1169,7 +1170,7 @@ void equip_calc_bonuses(void)
 		if (have_flag(flgs, TR_SUST_CON)) p_ptr->sustain_con = TRUE;
 		if (have_flag(flgs, TR_SUST_CHR)) p_ptr->sustain_chr = TRUE;
 
-		if (o_ptr->name2 == EGO_GENJI || o_ptr->name1 == ART_MASTER_TONBERRY)
+		if (o_ptr->name2 == EGO_GENJI || o_ptr->name1 == ART_MASTER_TONBERRY || o_ptr->name1 == ART_MEPHISTOPHELES)
 		{
 			switch (_template->slots[i].type)
 			{

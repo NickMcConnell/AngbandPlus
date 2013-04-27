@@ -6667,6 +6667,54 @@ I:40:42:0
 W:5:0:0:30:5000
 F:INSTA_ART | FIXED_FLAVOR
 
+N:737:Fire:itus whamko
+E:Fire:itus whamko
+G:?:w
+I:70:58:0
+W:50:0:0:5:1000
+A:50/4
+F:STACK | IGNORE_FIRE
+
+N:738:Ice:facwon mailor
+E:Ice:facwon mailor
+G:?:w
+I:70:59:0
+W:75:0:0:5:1000
+A:75/6
+F:STACK | IGNORE_COLD
+
+N:739:Logrus:fentwon gerbil
+E:Logrus:fentwon gerbil
+G:?:w
+I:70:60:0
+W:90:0:0:5:5000
+A:90/8
+F:STACK | IGNORE_COLD | IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC
+
+N:740:Mana:deedil dorko
+E:Mana:deedil dorko
+G:?:w
+I:70:61:0
+W:100:0:0:5:10000
+A:100/12
+F:IGNORE_COLD | IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC
+
+N:741:Anti-Summoning:Obsidian
+E:Anti-Summoning:Obsidian
+G:":o
+I:40:43:0
+W:100:0:0:3:1000000
+A:100/32
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:NO_SUMMON
+
+N:742:Escaping:Translucent
+E:Escaping:Translucent
+G:-:s
+I:66:32:12
+W:30:0:0:15:2500
+A:30/4
+P:0:1d1:0:0:0
 
 # N: serial number : & object name~
 # G: symbol : color

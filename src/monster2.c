@@ -4427,6 +4427,11 @@ bool summon_specific(int who, int y1, int x1, int lev, int type, u32b mode)
 	int x, y, r_idx;
 
 	if (p_ptr->inside_arena) return (FALSE);
+	if (p_ptr->anti_summon && !one_in_(7)) 
+	{
+		msg_format("The summoning is blocked!");
+		return FALSE;
+	}
 
 	if (!mon_scatter(0, &y, &x, y1, x1, 2)) return FALSE;
 
@@ -4557,6 +4562,11 @@ bool summon_named_creature (int who, int oy, int ox, int r_idx, u32b mode)
 
 	if (r_idx >= max_r_idx) return FALSE;
 	if (p_ptr->inside_arena) return FALSE;
+	if (p_ptr->anti_summon && !one_in_(7)) 
+	{
+		msg_format("The summoning is blocked!");
+		return FALSE;
+	}
 	if (!mon_scatter(r_idx, &y, &x, oy, ox, 2)) return FALSE;
 
 	r_ptr = &r_info[r_idx];
