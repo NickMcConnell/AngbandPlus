@@ -726,8 +726,9 @@ static _race_group_t _race_groups[_MAX_RACE_GROUPS] = {
 		 RACE_GOLEM, RACE_KLACKON, RACE_KUTAR, RACE_MIND_FLAYER, RACE_TONBERRY, RACE_YEEK,-1 } },
 	{ "Monster", "MonsterRaces.txt#Tables", 
 		{RACE_MON_ANGEL, RACE_MON_BEHOLDER, RACE_MON_DEMON, RACE_MON_DRAGON, 
-					RACE_MON_GIANT, RACE_MON_HOUND, RACE_MON_HYDRA, RACE_MON_JELLY, 
-					RACE_MON_LEPRECHAUN, RACE_MON_LICH, RACE_MON_SPIDER, RACE_MON_XORN, -1} },
+			RACE_MON_GIANT, RACE_MON_HOUND, RACE_MON_HYDRA, RACE_MON_JELLY, 
+			RACE_MON_LEPRECHAUN, RACE_MON_LICH, RACE_MON_SPIDER, RACE_MON_TROLL, 
+			RACE_MON_XORN, -1} },
 };
 static void _race_group_menu_fn(int cmd, int which, vptr cookie, variant *res)
 {
@@ -778,6 +779,45 @@ static void _demigod_menu_fn(int cmd, int which, vptr cookie, variant *res)
 
 		c_put_str(TERM_L_BLUE, demigod_info[which].name, 3, 40);
 		put_str(": Race modification", 3, 40+strlen(demigod_info[which].name));
+		put_str("Str  Int  Wis  Dex  Con  Chr   EXP ", 4, 40);
+		sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d %+4d%% ",
+			race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
+			race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR], 
+			race_ptr->exp);
+		c_put_str(TERM_L_BLUE, buf, 5, 40);
+
+		var_set_bool(res, TRUE);
+		break;
+	}
+	}
+}
+
+static _name_desc_t _troll_info[TROLL_MAX] = {
+	{ "Ettin", "Ettins are large, two-headed trolls. They lack much in the way of "
+				"powers and abilities, but make up for this with the ability to "
+				"wield an extra helmet and amulet. " },
+	{ "Storm Troll", "Storm Trolls are fast trolls with elemental powers. They may call "
+						"forth elemental balls and bolts. Their weapons are wreathed in "
+						"electricity as their fury rains down on all they meet." },
+	{ "Spirit Troll", "Spirit trolls may pass through walls on their quest to demolish "
+						"all that oppose them." },
+	{ "Troll King", "Troll Kings are lords of their kind, fast and extremely deadly in "
+						"melee. They may blink themselves out of harms way." },
+};
+static void _troll_menu_fn(int cmd, int which, vptr cookie, variant *res)
+{
+	switch (cmd)
+	{
+	case MENU_TEXT:
+		var_set_string(res, _troll_info[which].name);
+		break;
+	case MENU_ON_BROWSE:
+	{
+		char buf[100];
+		race_t *race_ptr = get_race_t_aux(RACE_MON_TROLL, which);
+
+		c_put_str(TERM_L_BLUE, _troll_info[which].name, 3, 40);
+		put_str(": Race modification", 3, 40+strlen(_troll_info[which].name));
 		put_str("Str  Int  Wis  Dex  Con  Chr   EXP ", 4, 40);
 		sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d %+4d%% ",
 			race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
@@ -1088,6 +1128,25 @@ static int _prompt_race(void)
 						p_ptr->psubrace = idx;
 						c_put_str(TERM_L_BLUE, format("%-19s", _giant_info[p_ptr->psubrace].name), 5, 14);
 						if (!_confirm_choice(_giant_info[p_ptr->psubrace].desc, menu3.count)) continue;
+						idx = _prompt_class();
+						if (idx == _BIRTH_ESCAPE) continue;
+						return idx;
+					}
+				}
+				else if (p_ptr->prace == RACE_MON_TROLL)
+				{
+					for (;;)
+					{
+						menu_t menu3 = { "Subrace", "MonsterRaces.txt#Troll", "",
+											_troll_menu_fn, 
+											NULL, TROLL_MAX};
+						c_put_str(TERM_WHITE, "                   ", 5, 14);
+						idx = _menu_choose(&menu3, p_ptr->psubrace);
+						if (idx == _BIRTH_ESCAPE) break;
+						if (idx < 0) return idx;
+						p_ptr->psubrace = idx;
+						c_put_str(TERM_L_BLUE, format("%-19s", _troll_info[p_ptr->psubrace].name), 5, 14);
+						if (!_confirm_choice(_troll_info[p_ptr->psubrace].desc, menu3.count)) continue;
 						idx = _prompt_class();
 						if (idx == _BIRTH_ESCAPE) continue;
 						return idx;

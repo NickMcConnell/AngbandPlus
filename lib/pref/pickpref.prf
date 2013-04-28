@@ -5,6 +5,7 @@ mushroom of restoring#!E
 ambrosia#!E
 potion of resist#!k!q
 potion of restore mana#!k!q
+potion of heroism
 
 ring of speed
 ring of weaponmastery
@@ -37,7 +38,7 @@ wizardstaff
 rod of healing
 staff of healing
 staff of speed
-staff of destruction#!u!s!d!k
+staff of destruction
 
 diamond edge
 rune sword
@@ -95,7 +96,7 @@ unaware items
 #!unidentified armors
 #!statue
 #!figurine
-#ring of sustain
+#!ring of sustain
 
 
 # To summarize with an example:

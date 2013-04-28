@@ -10,7 +10,7 @@ int get_race_idx(cptr name)
 	for (i = 0; i < MAX_RACES; i++)
 	{
 		race_t *race_ptr = get_race_t_aux(i, 0);
-		if (strcmp(name, race_ptr->name) == 0)
+		if (race_ptr && strcmp(name, race_ptr->name) == 0)
 			return i;
 	}
 	return -1;
@@ -139,6 +139,9 @@ race_t *get_race_t_aux(int prace, int psubrace)
 		break;
 	case RACE_MON_SPIDER:
 		result = mon_spider_get_race_t();
+		break;
+	case RACE_MON_TROLL:
+		result = mon_troll_get_race_t();
 		break;
 	case RACE_MON_XORN:
 		result = mon_xorn_get_race_t();

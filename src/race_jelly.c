@@ -14,10 +14,7 @@ static cptr _desc =
   "For attacking, jellies are capable of forming a single pseudopod which they "
   "may either use for grasping a normal melee weapon, or leave empty to use their "
   "innate acid based attacks.\n \n"
-  "Jellies are monsters and cannot pick a normal player class. Lacking a mouth, they "
-  "are unable to speak. Lacking eyes, they are unable to see so cannot use magical "
-  "scrolls which they would be too stupid to read anyway. On the plus side, their "
-  "lack of normal vision makes them immune to blindness. Rather than relying on sight, "
+  "Jellies are monsters and cannot pick a normal player class. Rather than relying on sight, "
   "jellies use a little understood sense of their surroundings which allows them to "
   "see in the dark with neither light nor infravision. So while jellies can equip a "
   "torch or lantern, there is little reason for them to do so.\n \n"
@@ -128,7 +125,7 @@ race_t *_black_ooze_get_race_t(void)
 		me.stats[A_CON] =  1;
 		me.stats[A_CHR] = -2;
 
-		me.life = 100;
+		me.life = 95;
 		me.infra = 0;
 
 		me.calc_bonuses = _black_ooze_calc_bonuses;
@@ -188,7 +185,7 @@ race_t *_gelatinous_cube_get_race_t(void)
 		me.stats[A_CON] =  2;
 		me.stats[A_CHR] = -2;
 		
-		me.life = 115;
+		me.life = 105;
 		me.infra = 0;
 
 		me.calc_bonuses = _gelatinous_cube_calc_bonuses;
@@ -202,8 +199,7 @@ race_t *_gelatinous_cube_get_race_t(void)
 }
 
 static equip_template_t _acidic_cytoplasm_template = 
-	{8, { {EQUIP_SLOT_WEAPON_SHIELD, "Pseudopod", 0},
-		  {EQUIP_SLOT_ANY, "Belly", 0},
+	{7, { {EQUIP_SLOT_WEAPON_SHIELD, "Pseudopod", 0},
 		  {EQUIP_SLOT_ANY, "Belly", 0},
 		  {EQUIP_SLOT_ANY, "Belly", 0},
 		  {EQUIP_SLOT_ANY, "Belly", 0},
@@ -263,7 +259,7 @@ race_t *_acidic_cytoplasm_get_race_t(void)
 		me.stats[A_CON] =  3;
 		me.stats[A_CHR] = -1;
 		
-		me.life = 120;
+		me.life = 110;
 		me.infra = 0;
 
 		me.calc_bonuses = _acidic_cytoplasm_calc_bonuses;
@@ -277,9 +273,7 @@ race_t *_acidic_cytoplasm_get_race_t(void)
 }
 
 static equip_template_t _shoggoth_template = 
-	{10, { {EQUIP_SLOT_WEAPON_SHIELD, "Pseudopod", 0},
-		   {EQUIP_SLOT_ANY, "Any", 0},
-		   {EQUIP_SLOT_ANY, "Any", 0},
+	{8, { {EQUIP_SLOT_WEAPON_SHIELD, "Pseudopod", 0},
 		   {EQUIP_SLOT_ANY, "Any", 0},
 		   {EQUIP_SLOT_ANY, "Any", 0},
 		   {EQUIP_SLOT_ANY, "Any", 0},
@@ -332,7 +326,7 @@ race_t *_shoggoth_get_race_t(void)
 		me.stats[A_CON] =  4;
 		me.stats[A_CHR] =  0;
 		
-		me.life = 125;
+		me.life = 115;
 		me.infra = 0;
 
 		me.calc_bonuses = _shoggoth_calc_bonuses;
@@ -417,7 +411,7 @@ race_t *mon_jelly_get_race_t(void)
 	result->name = "Jelly";
 	result->desc = _desc;
 	result->exp = 150;
-	result->flags = RACE_IS_MONSTER | RACE_IS_ILLITERATE;
+	result->flags = RACE_IS_MONSTER /* | RACE_IS_ILLITERATE */;
 	result->gain_level = _gain_level;
 	result->get_powers = _jelly_get_powers;
 	result->calc_innate_attacks = _jelly_calc_innate_attacks;

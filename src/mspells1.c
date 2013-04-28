@@ -1990,7 +1990,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
 				default:
 					for (;;)
 					{
-						which = randint0(MAX_RACES);
+						which = randint0(RACE_MON_JELLY);
 						if ( which != RACE_HUMAN 
 						  && which != RACE_DEMIGOD 
 						  && which != RACE_ANDROID 

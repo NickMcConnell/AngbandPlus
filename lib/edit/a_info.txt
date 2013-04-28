@@ -4407,6 +4407,14 @@ P:1:0d0:16:6:16
 F:QUESTITEM
 F:STR | DEX | SPEED | HIDE_TYPE | FREE_ACT | SHOW_MODS
 
+N:314:of Ulik
+E:of Ulik
+I:21:1:4
+W:50:50:400:150000
+P:0:5d8:0:25:0
+F:QUESTITEM
+F:STR | CON | KILL_TROLL
+
 # N: serial number : item name
 # I: tval : sval : pval
 # W: depth : rarity : weight : cost

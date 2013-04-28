@@ -273,6 +273,7 @@ extern void throw_boulder_spell(int cmd, variant *res);
 extern void touch_of_confusion_spell(int cmd, variant *res);
 extern void turn_undead_spell(int cmd, variant *res);
 extern void vampirism_spell(int cmd, variant *res);
+extern void water_bolt_spell(int cmd, variant *res);
 extern void weigh_magic_spell(int cmd, variant *res);
 extern void wonder_spell(int cmd, variant *res);
 extern void wraithform_spell(int cmd, variant *res);

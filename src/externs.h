@@ -1951,6 +1951,7 @@ extern race_t *mon_jelly_get_race_t(void);
 extern race_t *mon_leprechaun_get_race_t(void);
 extern race_t *mon_lich_get_race_t(void);
 extern race_t *mon_spider_get_race_t(void);
+extern race_t *mon_troll_get_race_t(void);
 extern race_t *mon_xorn_get_race_t(void);
 
 extern void    jelly_eat_object(object_type *o_ptr);

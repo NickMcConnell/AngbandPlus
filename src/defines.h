@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 1
 #define VER_MINOR 0
-#define VER_PATCH 14
+#define VER_PATCH 15
 #define VER_EXTRA 0
 
 
@@ -1552,6 +1552,7 @@
 #define ART_OREMORJ     311
 #define ART_KHORNE      312
 #define ART_MEPHISTOPHELES 313
+#define ART_ULIK        314
 
 /*** Ego-Item indexes (see "lib/edit/e_info.txt") ***/
 
@@ -5106,6 +5107,7 @@ extern int PlayerUID;
 #define MON_FIRE_GIANT 288
 #define MON_BERSERKER     293
 #define MON_QUASIT 294
+#define MON_FOREST_TROLL 297
 #define MON_TWO_HEADED_HYDRA 301
 #define MON_FIRE_HOUND        307
 #define MON_COLD_HOUND        308
@@ -5136,18 +5138,22 @@ extern int PlayerUID;
 #define MON_C_CRAWLER     395
 #define MON_XICLOTLAN     396
 #define MON_D_ELF_DRUID   400
+#define MON_STONE_TROLL  401
 #define MON_TROLL_PRIEST  403
 #define MON_GWAIHIR       410
 #define MON_ANGEL         417
 #define MON_ADAMANT_COINS 423
+#define MON_ALGROTH      424
 #define MON_VIBRATION_HOUND   428
 #define MON_NEXUS_HOUND       429
 #define MON_SPIRIT_NAGA   436
 #define MON_FIVE_HEADED_HYDRA 440
 #define MON_GACHAPIN      441
 #define MON_BASILISK      453
+#define MON_ICE_TROLL    454
 #define MON_ARCHANGEL     456
 #define MON_YOUNG_BRONZE_DRAGON   462
+#define MON_AKLASH       463
 #define MON_MITHRIL_GOLEM 464
 #define MON_THORONDOR     468
 #define MON_SHADOW_DRAKE  471
@@ -5174,6 +5180,7 @@ extern int PlayerUID;
 #define MON_BLOODLETTER   523
 #define MON_BLOODLETTER_KHORNE 523
 #define MON_DREAD         534
+#define MON_OLOG         538
 #define MON_HALFLING_S    539
 #define MON_GRAV_HOUND    540
 #define MON_GRAVITY_HOUND     540
@@ -5206,6 +5213,7 @@ extern int PlayerUID;
 #define MON_ETTIN         621
 #define MON_NIGHTMARE     622
 #define MON_VAMPIRE_LORD  623
+#define MON_SPIRIT_TROLL 630
 #define MON_LESSER_TITAN 634
 #define MON_NINE_HEADED_HYDRA 635
 #define MON_XAREN       639
@@ -5247,6 +5255,7 @@ extern int PlayerUID;
 #define MON_NETHER_HOUND      724
 #define MON_TIME_HOUND        725
 #define MON_PLASMA_HOUND      726
+#define MON_ULIK         729
 #define MON_BULLGATES     732
 #define MON_SANTACLAUS    733
 #define MON_LORD_CHAOS    737
@@ -5335,6 +5344,7 @@ extern int PlayerUID;
 #define MON_ECHIZEN       873
 #define MON_SPECT_WYRM    874
 #define MON_SPECTRAL_WYRM         874
+#define MON_STORM_TROLL  875
 #define MON_DIO           878
 #define MON_OHMU          879
 #define MON_WONG          880
@@ -5342,8 +5352,10 @@ extern int PlayerUID;
 #define MON_D_ELF_SHADE   886
 #define MON_MANA_HOUND    887
 #define MON_VENOM_WYRM    890
+#define MON_TROLL_KING   894
 #define MON_BAZOOKER      896
 #define MON_SHARD_VOR     897
+#define MON_FIRE_TROLL   899
 #define MON_SMALL_KRAKEN  903
 #define MON_MASTER_MYS    916
 #define MON_G_MASTER_MYS  917

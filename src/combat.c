@@ -201,17 +201,10 @@ static _blow_info_t _get_blow_info(int hand)
 			result.num = 4;
 			result.mul = 3;
 		}
-		else if (prace_is_(RACE_MON_JELLY))
-		{ 
-			result.num = 7;
-			result.mul = 5 + p_ptr->lev/24;
-		}
-		else if (prace_is_(RACE_MON_GIANT)) 
-		{
-			result.num = 6;
-			result.mul = 5 + p_ptr->lev/40;
-		}
-		else if (demon_is_(DEMON_KHORNE))
+		else if ( prace_is_(RACE_MON_GIANT) 
+		       || prace_is_(RACE_MON_TROLL) 
+			   || prace_is_(RACE_MON_JELLY)
+			   || demon_is_(DEMON_KHORNE) )  
 		{
 			result.num = 6;
 			result.mul = 5 + p_ptr->lev/40;

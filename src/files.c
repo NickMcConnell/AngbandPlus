@@ -2024,6 +2024,7 @@ static void tim_player_flags(u32b flgs[TR_FLAG_SIZE])
 #define DP_IMM     0x02
 #define DP_WP      0x08
 
+#define EQUIPPY_MAIN 1
 
 /*
  * Equippy chars
@@ -2043,6 +2044,8 @@ static void display_player_equippy(int y, int x, u16b mode)
 		int slot = EQUIP_BEGIN + i;
 		o_ptr = equip_obj(slot);
 
+		if (mode == EQUIPPY_MAIN && i >= 12) break; /* Hack: This will overwrite the map display otherwise ... */
+
 		if (o_ptr && equippy_chars)
 		{
 			a = object_attr(o_ptr);
@@ -2060,7 +2063,7 @@ static void display_player_equippy(int y, int x, u16b mode)
 
 void print_equippy(void)
 {
-	display_player_equippy(ROW_EQUIPPY, COL_EQUIPPY, 0);
+	display_player_equippy(ROW_EQUIPPY, COL_EQUIPPY, EQUIPPY_MAIN);
 }
 
 static void known_obj_immunity(u32b flgs[TR_FLAG_SIZE])

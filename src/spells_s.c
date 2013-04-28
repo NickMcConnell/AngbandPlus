@@ -1403,6 +1403,37 @@ void vampirism_spell(int cmd, variant *res)
 }
 bool cast_vampirism(void) { return cast_spell(vampirism_spell); }
 
+void water_bolt_spell(int cmd, variant *res)
+{
+	int dd = 7 + p_ptr->lev / 4;
+	int ds = 15;
+
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Water Bolt");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Fires a bolt of water.");
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(dd, spell_power(ds), 0));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		fire_bolt(GF_WATER, dir, spell_power(damroll(dd, ds)));
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void weigh_magic_spell(int cmd, variant *res)
 {
 	switch (cmd)

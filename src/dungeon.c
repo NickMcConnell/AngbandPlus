@@ -1691,7 +1691,7 @@ static void process_world_aux_hp_and_sp(void)
 			regen_amount += regen_amount*p_ptr->lev/50;
 
 		if (prace_is_(RACE_MON_TROLL))
-			regen_amount += regen_amount*p_ptr->lev/25;
+			regen_amount += regen_amount + regen_amount*p_ptr->lev/10;
 		else if (p_ptr->regenerate)
 			regen_amount = regen_amount * 2;
 

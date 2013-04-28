@@ -1688,6 +1688,10 @@ msg_print("地面に落とされた。");
 				a_idx = ART_MEPHISTOPHELES;
 			chance = 5;
 			break;
+		case MON_ULIK:
+			a_idx = ART_ULIK;
+			chance = 5;
+			break;
 		}
 
 		if (race_ptr->boss_r_idx == m_ptr->r_idx)
@@ -1695,6 +1699,7 @@ msg_print("地面に落とされた。");
 			msg_print("Congratulations! You have killed the boss of your race!");
 			chance = 100;
 			p_ptr->update |= PU_BONUS; /* Player is now a "Hero" (cf IS_HERO()) */
+			p_ptr->redraw |= PR_STATUS;
 		}
 
 		if ((a_idx > 0) && ((randint0(100) < chance) || p_ptr->wizard))
