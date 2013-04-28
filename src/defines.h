@@ -469,6 +469,30 @@
 /*
  * Constants for use in various talents.
  */
+#define TALENT_DET_TRAPS		0
+#define TALENT_PRED_WEATH		1
+#define TALENT_DET_EVIL			2
+#define TALENT_DET_ANIMAL		3
+#define TALENT_DETECTION		4
+#define TALENT_ID_ALCHEMY		5
+#define TALENT_ID_CHARGES		6
+#define TALENT_WEAPON_SMITH		7
+#define TALENT_ARMOR_SMITH		8
+#define TALENT_AMMO_SMITH		9
+#define TALENT_BOW_SMITH		10
+#define TALENT_MUNCHKINISM		11
+#define TALENT_ALCHEMY			12
+#define TALENT_INFUSION			13
+#define TALENT_MEDITATION		14
+#define TALENT_RESTORE_XP		15
+#define TALENT_RECHARGE			16
+#define TALENT_BREATHE_FIRE		17
+#define TALENT_XXX1				18
+#define TALENT_XXX2				19
+#define TALENT_XXX3				20
+#define TALENT_XXX4				21
+#define TALENT_XXX5				22
+
 #define NUM_TALENTS 23
 
 #define TAL_MAKE_WEAP   1

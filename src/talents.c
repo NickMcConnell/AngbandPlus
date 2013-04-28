@@ -2205,41 +2205,58 @@ do_cmd_talents()
 
 	switch (tal)
 	{
-	case 0:					/* Detect traps */
+	case TALENT_DET_TRAPS:
 		{
 			detect_traps();
 			break;
 		}
-	case 1:					/* Predict Weather */
+	case TALENT_PRED_WEATH:
 		{
 			predict_weather(level * 3);
 			break;
 		}
-	case 2:					/* Detect Evil */
+	case TALENT_DET_EVIL:
 		{
 			detect_evil();
 			break;
 		}
-	case 3:					/* Detect Animals */
+	case TALENT_DET_ANIMAL:
 		{
 			detect_animals();
 			break;
 		}
-	case 4:					/* Id scrolls/potions */
+	case TALENT_DETECTION:
+		{
+			if (level > 150)
+			  detect_all();
+			else
+			  {
+				if (get_raw_skill(S_DISARM) > 50)
+				  detect_traps();
+				if (get_raw_skill(S_DISARM) > 75)
+				  {
+					detect_doors();
+					detect_stairs();
+				  }
+				detect_monsters_normal();
+			  }
+			break;
+		}
+	case TALENT_ID_ALCHEMY:
 		{
 			item_tester_hook = item_tester_hook_alchemy;
 			if (!ident_spell())
 				return;
 			break;
 		}
-	case 5:					/* Id number of charges on known wands/staves */
+	case TALENT_ID_CHARGES:
 		{
 			item_tester_hook = item_tester_hook_charges;
 			if (!ident_spell())
 				return;
 			break;
 		}
-	case 6:					/* Forge weapons */
+	case TALENT_WEAPON_SMITH:
 		{
 			if (!good_work_cond())
 				return;
@@ -2247,7 +2264,7 @@ do_cmd_talents()
 				return;
 			break;
 		}
-	case 7:					/* Forge armor */
+	case TALENT_ARMOR_SMITH:
 		{
 			if (!good_work_cond())
 				return;
@@ -2255,7 +2272,7 @@ do_cmd_talents()
 				return;
 			break;
 		}
-	case 8:					/* Make ammo */
+	case TALENT_AMMO_SMITH:
 		{
 			if (!good_work_cond())
 				return;
@@ -2263,7 +2280,7 @@ do_cmd_talents()
 				return;
 			break;
 		}
-	case 9:					/* Make bows */
+	case TALENT_BOW_SMITH:
 		{
 			if (!good_work_cond())
 				return;
@@ -2271,7 +2288,7 @@ do_cmd_talents()
 				return;
 			break;
 		}
-	case 10:					/* Fenneling. */
+	case TALENT_MUNCHKINISM:					/* Fenneling. */
 		{
 			if (!good_work_cond())
 				return;
@@ -2279,7 +2296,7 @@ do_cmd_talents()
 				return;
 			break;
 		}
-	case 11:					/* Make scrolls/potions */
+	case TALENT_ALCHEMY:
 		{
 			tmp = 0;
 			if (!good_work_cond())
@@ -2309,7 +2326,7 @@ do_cmd_talents()
 				return;
 			break;
 		}
-	case 12:					/* Make wands/staves */
+	case TALENT_INFUSION:
 		{
 			tmp = 0;
 			if (!good_work_cond())
@@ -2341,26 +2358,26 @@ do_cmd_talents()
 				return;
 			break;
 		}
-	case 13:					/* Meditate */
+	case TALENT_MEDITATION:
 		{
 			(void)set_afraid(0);
 			(void)set_confused(0);
 			(void)set_blind(0);
 			break;
 		}
-	case 14:					/* Restore Exp */
+	case TALENT_RESTORE_XP:
 		{
 			if (!restore_level())
 				msg_print("Nothing happened.");
 			break;
 		}
-	case 15:					/* Recharge wands/staves */
+	case TALENT_RECHARGE:
 		{
 			if (!recharge(get_raw_skill(S_INFUSION) / 5))
 				return;
 			break;
 		}
-	case 16:					/* Breathe Fire */
+	case TALENT_BREATHE_FIRE:
 		{
 			if (!get_aim_dir(&dir))
 				return;

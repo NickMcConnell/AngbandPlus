@@ -1,3 +1,10 @@
+SAngband 0.9.5b:
+1) Various bug fixes and cleanups.
+2) Life is less hard on low-level spellcasters.
+3) Multiple blows are somewhat easier.
+4) Giants get better histories.
+5) Some talents are easier, and a new one has been added.
+
 SAngband 0.9.5:
 1) Heavy revisions to: skills, talents, object forging, the spell
 list, ego-item generation, weather, invisibility, and possibly other

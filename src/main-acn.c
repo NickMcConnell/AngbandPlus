@@ -1270,7 +1270,7 @@ static int key_handler(wimp_event_no event_code, wimp_block *event,
 		/*
 		 * Hack - allow Shift & Ctrl as modifiers to the keypad
 		 */
-		if (event->key.c <= '9'ler(event->key.c >= '0')
+		if (event->key.c <= '9' && event->key.c >= '0')
 		{
 			if (osbyte1(osbyte_IN_KEY, 0xFF, 0xFF))     /* Is Shift held down? */
 				event->key.c |= 0x800;

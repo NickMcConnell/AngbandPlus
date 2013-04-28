@@ -1021,9 +1021,9 @@ process_world(void)
 			{
 				char o_desc[80];
 
-				if (randint(5) == 1)
+				if (randint(3) == 1)
 				{
-					take_hit(damroll(1, 2), "a hungry weapon");
+					take_hit(damroll(2, 2), "a hungry weapon");
 					object_desc(o_desc, o_ptr, 0, 0);
 					msg_format("Your %s is feeding on your soul!", o_desc);
 				}

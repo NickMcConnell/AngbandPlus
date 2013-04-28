@@ -2809,11 +2809,11 @@ do_cmd_suicide(void)
 	else
 	{
 		/* Verify */
-		if (!get_check("Do you really want to quit? "))
+		if (!get_check("Do you really want to commit suicide? "))
 			return;
 
 		/* Special Verification for suicide */
-		prt("Please verify QUITTING by typing the '@' sign: ", 0, 0);
+		prt("Please verify SUICIDE by typing the '@' sign: ", 0, 0);
 		flush();
 		i = inkey();
 		prt("", 0, 0);

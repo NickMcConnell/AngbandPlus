@@ -813,6 +813,7 @@ store_will_buy(object_type * o_ptr)
 			case TV_BOLT:
 			case TV_DIGGING:
 			case TV_CLOAK:
+			case TV_COMPONENT:
 				break;
 			default:
 				return (FALSE);
@@ -887,6 +888,7 @@ store_will_buy(object_type * o_ptr)
 			{
 			case TV_SCROLL:
 			case TV_POTION:
+			case TV_COMPONENT:
 				break;
 			default:
 				return (FALSE);

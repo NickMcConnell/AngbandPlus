@@ -614,19 +614,19 @@ Hit-Die is an indicator of the number of Hit Points a character of a
 given race will have, excluding constitution modifiers.  Base Exp is
 an indicator of the amount of experience the race begins with.
 
-   	   	     Str  Int  Wis  Dex  Con  Chr  Luc  Hit-Die  Base Exp
-Human  	   	  +0   +0  	+0 	 +0	  +0   +0  	+4 	  15   	    38
-Half-Elf	  -1   +1   +0   +1   -1   +1   +0    14        20
-Elf			  -1   +2   +1   +1   -2   +1   -1    13        18
-Hobbit		  -2   +2   +1   +3   +2   +1   +2    12        18
-Gnome		  -1   +2   +0   +2   +1   -2   +3    13        17
-Dwarf		  +2   -3   +2   -2   +2   -3   +0    16        20
-Half-Orc	  +2   -1   +0   +0   +1   -4   -1    15        21
-Half-Troll	  +4   -4   -2   -4   +3   -6   -2    18        19
-Dunedian	  +1   +2   +2   +2   +3   +2   +1    15        38
-High Elf      +1   +3   -1   +3   +1   +5   +2    15        36
-Dark Elf	  -1   +3   +0   +2   -3   -2   -1    13        18
-Giant         +2   -1   +2   -3   +4   -2   +1    20        21
+               Str  Int  Wis  Dex  Con  Chr  Luc  Hit-Die  Base Exp
+Human           +0   +0   +0   +0   +0   +0   +4    15        38
+Half-Elf        -1   +1   +0   +1   -1   +1   +0    14        20
+Elf             -1   +2   +1   +1   -2   +1   -1    13        18
+Hobbit          -2   +2   +1   +3   +2   +1   +2    12        18
+Gnome           -1   +2   +0   +2   +1   -2   +3    13        17
+Dwarf           +2   -3   +2   -2   +2   -3   +0    16        20
+Half-Orc        +2   -1   +0   +0   +1   -4   -1    15        21
+Half-Troll      +4   -4   -2   -4   +3   -6   -2    18        19
+Dunedian        +1   +2   +2   +2   +3   +2   +1    15        38
+High Elf        +1   +3   -1   +3   +1   +5   +2    15        36
+Dark Elf        -1   +3   +0   +2   -3   -2   -1    13        18
+Giant           +2   -1   +2   -3   +4   -2   +1    20        21
 
 === Racial Skill Table ===
 

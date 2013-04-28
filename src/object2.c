@@ -5396,7 +5396,7 @@ reorder_pack(void)
 		inventory[INVEN_ARM].k_idx &&
 		inventory[INVEN_ARM].tval != TV_SHIELD)
 	{
-		object_copy(&inventory[INVEN_ARM], &inventory[INVEN_WIELD]);
+		object_copy(&inventory[INVEN_WIELD], &inventory[INVEN_ARM]);
 		object_wipe(&inventory[INVEN_ARM]);
 	}
 }
@@ -5651,7 +5651,7 @@ spell_info(char *p, int spell)
 		strcpy(p, " range 10");
 		break;
 	case 3:
-		sprintf(p, "dam 2d%d", spower / 2);
+		sprintf(p, " dam 2d%d", spower / 2);
 		break;
 	case 8:
 		sprintf(p, " dam %d", 10 + (spower / 2));

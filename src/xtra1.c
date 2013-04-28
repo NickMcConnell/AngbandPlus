@@ -1245,20 +1245,18 @@ calc_spells(void)
 
 	/* Determine the number of spells allowed */
 	levels = get_skill(S_MAGIC);
-	if (levels < 12)
-		levels = levels / 2 + 1;	/* REAL slow learning */
-	else if (levels < 25)
-		levels = levels * 2 / 3 + 1;	/* Still kinda slow */
-
 
 	/* Hack -- no negative spells */
 	if (levels < 0)
 		levels = 0;
+
 	/* Extract total allowed spells */
 	num_allowed = (adj_mag_study[p_ptr->stat_ind[mp_ptr->spell_stat]] *
 				   levels / 2);
+
 	/* Assume none known */
 	num_known = 0;
+
 	/* Count the number of spells we know */
 	for (j = 0; j < 64; j++)
 	{
@@ -1515,10 +1513,6 @@ calc_mana(void)
 
 	/* Extract "effective" player level */
 	levels = get_skill(S_MPOWER);
-	if (levels < 40)
-		levels = levels / 2 + 1;
-	else if (levels < 70)
-		levels = levels * 2 / 3 + 1;
 
 	/* Hack -- no negative mana */
 	if (levels < 0)
@@ -2677,9 +2671,13 @@ calc_bonuses(void)
 
 		int num = 0, wgt = 0, mul = 0, div = 0;
 
-		num = wsv / 50 + 1;
-		mul = wsv / 60 + 1;
-		wgt = 45 - wsv / 16;
+		num = 1;
+		if (wsv > 40) num++;
+		if (wsv > 80) num++;
+		if (wsv > 140) num++;
+		if (wsv > 180) num++;
+		mul = wsv / 80 + 2;
+		wgt = 40 - wsv / 20;
 
 		/* Enforce a minimum "weight" (tenth pounds) */
 		div = ((o_ptr->weight < wgt) ? wgt : o_ptr->weight);

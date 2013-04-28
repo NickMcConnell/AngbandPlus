@@ -74,7 +74,7 @@ struct hist_type
  *   Dwarf         --> 16 --> 17 --> 18 --> 57 --> 58 --> 59 --> 60 --> 61
  *   Half-Orc      --> 19 --> 20 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
  *   Half-Troll    --> 22 --> 23 --> 62 --> 63 --> 64 --> 65 --> 66
- *   Giant         --> 24 --> 23 --> 62 --> 63 --> 64 --> 65 --> 66
+ *   Giant         --> 24 --> 67 --> 68 --> 69 --> 70 --> 71
  *
  * XXX XXX XXX This table *must* be correct or drastic errors may occur!
  */
@@ -169,10 +169,11 @@ static hist_type bg[] =
 	{"Shaman.  ", 99, 23, 62, 65},
 	{"Clan Chief.  ", 100, 23, 62, 80},
 
-	{"Your mother was a hill-giant ", 30, 24, 23, 20},
-	{"Your father was a hill-giant ", 50, 24, 23, 30},
-	{"Your mother was a stone-giant ", 80, 24, 23, 35},
-	{"Your father was a stone-giant ", 96, 24, 23, 40},
+	{"You are the child of Hill Giant ", 30, 24, 67, 45},
+	{"You are the child of Stone Giant ", 50, 24, 67, 50},
+	{"You are the child of Fire Giant ", 80, 24, 67, 55},
+	{"You are the child of Cloud Giant ", 96, 24, 67, 70},
+	{"You are the child of Storm Giant ", 100, 24, 67, 85},
 
 	{"You have dark brown eyes, ", 20, 50, 51, 50},
 	{"You have brown eyes, ", 60, 50, 51, 50},
@@ -211,6 +212,7 @@ static hist_type bg[] =
 
 	{"You have dark brown eyes, ", 99, 57, 58, 50},
 	{"You have glowing red eyes, ", 100, 57, 58, 60},
+
 	{"straight ", 90, 58, 59, 50},
 	{"wavy ", 100, 58, 59, 50},
 
@@ -244,7 +246,32 @@ static hist_type bg[] =
 
 	{"ulcerous skin.", 33, 66, 0, 50},
 	{"scabby skin.", 66, 66, 0, 50},
-	{"leprous skin.", 100, 66, 0, 50}
+	{"leprous skin.", 100, 66, 0, 50},
+
+	{"Outcasts.  ", 5, 67, 68, 30},
+	{"Warriors.  ", 95, 67, 68, 60},
+	{"War Leaders.  ", 99, 67, 68, 80},
+	{"Clan Chiefs.  ", 100, 67, 68, 100},
+
+	{"You have grey eyes, ", 30, 68, 69, 50},
+	{"You have blue eyes, ", 60, 68, 69, 50},
+	{"You have brown eyes, ", 90, 68, 69, 50},
+	{"You have glowing eyes, ", 100, 68, 69, 55},
+
+	{"long ", 50, 69, 70, 50},
+	{"short ", 90, 69, 70, 45},
+	{"wild ", 94, 69, 70, 50},
+	{"flowing ", 98, 69, 70, 55},
+	{"no hair, ", 100, 69, 71, 50},
+
+	{"black hair, ", 60, 70, 71, 50},
+	{"red hair, ", 70, 70, 71, 50},
+	{"grey hair, ", 90, 70, 71, 50},
+	{"silver hair, ", 100, 70, 71, 60},
+
+	{"and a pale complexion.", 30, 71, 0, 50},
+	{"and a fair complexion.", 85, 71, 0, 50},
+	{"and a dark complexion.", 100, 71, 0, 50}
 };
 
 
@@ -392,7 +419,7 @@ choose_mods(void)
 {
 	char c;
 	int i, tot_plus, tot_minus;
-	char inp[5];
+	char inp[6];
 
 	/* Clear */
 	clear_from(15);
@@ -406,7 +433,7 @@ choose_mods(void)
 	do
 	{
 		c = inkey();
-		if (c == 'n' || c == 'N')
+		if (c == 'n' || c == 'N' || c == ESCAPE)
 		{
 			clear_from(15);
 			return;
@@ -722,7 +749,7 @@ get_history(void)
 
 	case RACE_GIANT:
 		{
-			chart = 23;
+			chart = 24;
 			break;
 		}
 
@@ -823,19 +850,29 @@ get_ahw(void)
 	/* Calculate the age */
 	p_ptr->age = rp_ptr->b_age + randint(rp_ptr->m_age);
 
-	/* Calculate the height/weight for males */
-	if (p_ptr->psex == SEX_MALE)
-	{
-		p_ptr->ht = Rand_normal(rp_ptr->m_b_ht, rp_ptr->m_m_ht);
-		p_ptr->wt = Rand_normal(rp_ptr->m_b_wt, rp_ptr->m_m_wt);
-	}
+	while (1) /* Hack to make Giants always large */
+	  {
+		/* Calculate the height/weight for males */
+		if (p_ptr->psex == SEX_MALE)
+		  {
+			p_ptr->ht = Rand_normal(rp_ptr->m_b_ht, rp_ptr->m_m_ht);
+			p_ptr->wt = Rand_normal(rp_ptr->m_b_wt, rp_ptr->m_m_wt);
+			if (p_ptr->prace == RACE_GIANT &&
+				(p_ptr->ht < rp_ptr->m_b_ht || p_ptr->wt < rp_ptr->m_b_wt))
+			  continue;
+		  }
 
-	/* Calculate the height/weight for females */
-	else if (p_ptr->psex == SEX_FEMALE)
-	{
-		p_ptr->ht = Rand_normal(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
-		p_ptr->wt = Rand_normal(rp_ptr->f_b_wt, rp_ptr->f_m_wt);
-	}
+		/* Calculate the height/weight for females */
+		else if (p_ptr->psex == SEX_FEMALE)
+		  {
+			p_ptr->ht = Rand_normal(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
+			p_ptr->wt = Rand_normal(rp_ptr->f_b_wt, rp_ptr->f_m_wt);
+			if (p_ptr->prace == RACE_GIANT &&
+				(p_ptr->ht < rp_ptr->f_b_ht || p_ptr->wt < rp_ptr->f_b_wt))
+			  continue;
+		  }
+		break;
+	  }
 }
 
 
