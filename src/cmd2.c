@@ -121,7 +121,7 @@ void do_cmd_sneaking(void)
 	}
 
 	/* Start sneaking */
-	else if (can_use_talent(TALENT_SNEAKING) > 0)
+	else if (can_use_talent(TALENT_SNEAKING, TALENT_UTILITY) > 0)
 	{
 		/* Set the sneaking flag */
 		p_ptr->sneaking = TRUE;
@@ -134,8 +134,7 @@ void do_cmd_sneaking(void)
 	}
 	else
 	{
-		msg_format("You are not good enough at %s to sneak effectively.",
-			skill_info[talent_info[TALENT_SNEAKING].skill].name);
+		msg_format("You are not good enough at Stealth to sneak effectively.");
 	}
 }
 
@@ -286,7 +285,6 @@ static byte get_choice(int lev)
 		if ((tval == TV_STAFF) && (get_skill(S_DEVICE, 0, 100) < p_ptr->power / 2)) continue;
 		if ((tval == TV_ROD) && (get_skill(S_DEVICE, 0, 100) < p_ptr->power / 2)) continue;
 		if ((tval == TV_COMPONENT) && (get_skill(S_FORGE_WEAPON, 0, 100) < p_ptr->power / 2) &&
-		    (get_skill(S_FORGE_BOW, 0, 100) < p_ptr->power / 2) &&
 		    (get_skill(S_FORGE_ARMOR, 0, 100) < p_ptr->power / 2)) continue;
 
 		if ((tval == TV_MAGIC_BOOK)  && (p_ptr->realm != MAGE)) continue;
@@ -2406,6 +2404,11 @@ static bool do_cmd_disarm_trap(int y, int x)
 		safe = TRUE;
 	}
 
+	/* Update display of when maximum number of traps are set */
+	if (t_ptr->t_idx == TRAP_MONSTER)
+	{
+		p_ptr->redraw |= PR_CONDITIONS;
+	}
 
 	/* Success */
 	if ((diff == 0) || (rand_int(100) < chance))
@@ -2424,7 +2427,7 @@ static bool do_cmd_disarm_trap(int y, int x)
 			           get_skill(S_DISARM, 0, 100);
 
 			/* However, a high trap level is difficult to overcome */
-			loot -= (80 * diff + 1500);
+			loot -= (80 * diff);
 
 			/* And chance cannot rise too high */
 			if (loot > 500) loot = 500;

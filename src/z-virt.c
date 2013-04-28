@@ -73,19 +73,19 @@ void* ralloc(size_t len)
 /*
  * Optional auxiliary "rnfree" function
  */
-void* (*rnfree_aux)(void*, size_t) = NULL;
+void* (*rnfree_aux)(void*) = NULL;
 
 
 /*
  * Free some memory (allocated by ralloc), return NULL
  */
-void* rnfree(void *p, size_t len)
+void* rnfree(void *p)
 {
 	/* Easy to free nothing */
 	if (!p) return (NULL);
 
 	/* Use the "aux" function */
-	if (rnfree_aux) return ((*rnfree_aux)(p, len));
+	if (rnfree_aux) return ((*rnfree_aux)(p));
 
 	/* Use "free" */
 	free(p);
@@ -125,7 +125,7 @@ errr string_free(cptr str)
 	if (!str) return (0);
 
 	/* Kill the buffer of chars we must have allocated above */
-	(void)rnfree((void*)str, sizeof(char));
+	(void)rnfree((void*)str);
 
 	/* Success */
 	return (0);

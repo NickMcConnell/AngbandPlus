@@ -599,7 +599,6 @@ cptr get_title(int len, bool wizard, bool quotes)
 	int s_device = get_skill(S_DEVICE, 0, 100);
 	int s_burglary = get_skill(S_BURGLARY, 0, 100);
 	int s_forge_weapon = get_skill(S_FORGE_WEAPON, 0, 100);
-	int s_forge_bow = get_skill(S_FORGE_BOW, 0, 100);
 	int s_forge_armor = get_skill(S_FORGE_ARMOR, 0, 100);
 	int s_alchemy = get_skill(S_ALCHEMY, 0, 100);
 	int s_infusion = get_skill(S_INFUSION, 0, 100);
@@ -628,8 +627,7 @@ cptr get_title(int len, bool wizard, bool quotes)
 	magic_combat_skill = MAX(s_nature, magic_combat_skill);
 	magic_combat_skill = MAX(s_dominion, magic_combat_skill);
 
-	forging_skill = MAX(s_forge_weapon, s_forge_bow);
-	forging_skill = MAX(s_forge_armor, forging_skill);
+	forging_skill = MAX(s_forge_armor, s_forge_weapon);
 
 	creation_skill = MAX(s_alchemy, forging_skill);
 	creation_skill = MAX(s_infusion, creation_skill);
@@ -1426,6 +1424,30 @@ static void prt_shape(void)
 		case SHAPE_BAT:
 			shapedesc = "Bat       ";
 			break;
+		case SHAPE_LICH:
+			shapedesc = "Lich      ";
+			break;
+		case SHAPE_VAMPIRE:
+			shapedesc = "Vampire   ";
+			break;
+		case SHAPE_WEREWOLF:
+			shapedesc = "Werewolf  ";
+			break;
+		case SHAPE_SERPENT:
+			shapedesc = "Serpent   ";
+			break;
+		case SHAPE_ANGEL:
+			shapedesc = "Angel     ";
+			break;
+		case SHAPE_VORTEX:
+			shapedesc = "Fire Vortx";
+			break;
+		case SHAPE_GOLEM:
+			shapedesc = "Golem     ";
+			break;
+		case SHAPE_EAGLE:
+			shapedesc = "Golem     ";
+			break;
 
 		default:
 			shapedesc = "          ";
@@ -1855,7 +1877,7 @@ static bool prt_diseased(byte r_margin)
  */
 static bool prt_invisible(byte r_margin)
 {
-	if (p_ptr->invisible)
+	if (p_ptr->invisible > 0)
 	{
 		int i = p_ptr->invisible;
 		int a;
@@ -2720,7 +2742,7 @@ static void prt_conditions(void)
 	}
 
 	/* Show invisibility */
-	if ((p_ptr->invisible) && (!left_panel_display(DISPLAY_INVISIBILITY, 1)))
+	if ((p_ptr->invisible > 0) && (!left_panel_display(DISPLAY_INVISIBILITY, 1)))
 	{
 		prt_invisible(r_margin);
 	}
@@ -2751,6 +2773,11 @@ static void prt_conditions(void)
 				if (c_roff_insert(TERM_WHITE, "Blessed", r_margin)) return;
 			}
 		}
+	}
+
+	if (num_trap_on_level >= PLAYER_ALLOWED_TRAPS)
+	{
+		c_roff_insert(TERM_YELLOW, "Traps", r_margin);
 	}
 
 	/* Show oppositions */
@@ -3152,7 +3179,7 @@ static void fix_player_0(void)
 		(void)Term_activate(angband_term[j]);
 
 		/* Display player */
-		display_player(0);
+		display_player(0, FALSE);
 
 		/* Fresh */
 		(void)Term_fresh();
@@ -3186,7 +3213,7 @@ static void fix_player_1(void)
 		(void)Term_activate(angband_term[j]);
 
 		/* Display flags */
-		display_player(2);
+		display_player(2, FALSE);
 
 		/* Fresh */
 		(void)Term_fresh();
@@ -3371,6 +3398,9 @@ static void fix_m_list(void)
 
 	term *old = Term;
 
+	/* Skip updating monster list while running */
+	if (p_ptr->running) return;
+
 	/* Scan sub-windows */
 	for (j = TERM_SUBWINDOW; j < TERM_MAX; j++)
 	{
@@ -3403,6 +3433,9 @@ static void fix_o_list(void)
 	int j;
 
 	term *old = Term;
+
+	/* Skip updating object list while running */
+	if (p_ptr->running) return;
 
 	/* Scan sub-windows */
 	for (j = TERM_SUBWINDOW; j < TERM_MAX; j++)
@@ -3786,7 +3819,7 @@ static int armor_weight(void)
 void calc_mana(void)
 {
 	int msp, cur_wgt, max_wgt;
-	int skill;
+	int skill, power;
 	int spell_stat_index = p_ptr->stat_ind[mp_ptr->spell_stat];
 
 	bool old_cumber_armor = p_ptr->cumber_armor;
@@ -3798,18 +3831,26 @@ void calc_mana(void)
 		return;
 	}
 
-	/* Get mana level (60% for non-Oath spellcasters) */
+	skill = get_skill(S_MPOWER, 0, 100);
+
+	/* Get mana level (~60% for non-Oath spellcasters) (10x inflation) */
 	if (oath_caster)
 	{
-		skill = get_skill(S_MPOWER, 1, 101);
+		power = get_skill(S_MPOWER, 0, 1000);
+	}
+
+	/* Give medium mana at low levels */
+	else if (skill < 20)
+	{
+		power = get_skill(S_MPOWER, 0, 800);
 	}
 	else
 	{
-		skill = get_skill(S_MPOWER, 1, 61);
+		power = 50 + get_skill(S_MPOWER, 0, 550);
 	}
 
 	/* Calculate total mana, using spell stat and character power */
-	msp = 2 + ((adj_mag_mana[spell_stat_index] * skill) + 10) / 20;
+	msp = 4 + ((adj_mag_mana[spell_stat_index] * power) + 100) / 200;
 
 	/* Take mana bonus into account */
 	msp += p_ptr->mana_bonus;
@@ -4051,7 +4092,7 @@ static void calc_torch(void)
 	}
 
 	/* Examine all wielded objects, use the brightest */
-	for (light = 0, i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	for (light = 0, i = INVEN_WIELD; i < INVEN_SUBTOTAL; i++)
 	{
 		object_type *o_ptr = &inventory[i];
 
@@ -4195,7 +4236,7 @@ s16b calc_hp_regen(void)
  */
 s16b calc_mana_regen(void)
 {
-	/* Get basic regeneration */
+	/* Get basic regeneration -- MP should regen slightly faster than HP */
 	int base = calc_regen_aux();
 	int regen_amount = base;
 
@@ -4365,6 +4406,7 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, bool shape, bool modify)
 	int to_a = 0;
 	int to_h = 0;
 	int to_d = 0;
+	int to_s = 0;
 	int skill;
 
 	int weapon_skill;
@@ -4515,6 +4557,70 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, bool shape, bool modify)
 			to_d -= 15;
 			break;
 		}
+		case SHAPE_LICH:
+		{
+			/*
+			 * Lich abilities are temporary haste, resistance to cold, poison  -- they are handled elsewhere
+			 * See shapechange(), oppose_cold, opppose_pois, set_fast
+			 */
+			(*f3) |= TR3_SEE_INVIS;
+			break;
+		}
+		case SHAPE_VAMPIRE:
+		{
+			(*f2) |= (TR2_RES_DARK);
+			(*f3) |= (TR3_HOLD_LIFE);
+			break;
+		}
+		case SHAPE_WEREWOLF:
+		{
+			(*f2) |= (TR2_RES_FEAR);
+			(*f3) |= (TR3_AGGRAVATE);
+			if (check_barehanded()) to_h += 10;
+			break;
+		}
+		case SHAPE_SERPENT:
+		{
+			if (get_skill(S_NATURE, 0, 100) > 70)
+				(*f2) |= (TR2_RES_POIS);
+
+			if (check_barehanded() && p_ptr->barehand == S_WRESTLING) to_h += 20;
+			break;
+		}
+		case SHAPE_ANGEL:
+		{
+			(*f3) |= TR3_LITE;
+			(*f2) |= TR2_RES_LITE;
+			(*f3) |= TR3_FEATHER;
+			break;
+		}
+		case SHAPE_VORTEX:
+		{
+			if (get_skill(S_WIZARDRY,0,100) >= 80)
+				*(f2) |= TR2_IM_FIRE;
+			else
+				*(f2) |= TR2_RES_FIRE;
+			*(f3) |= TR3_LITE;
+			*(f1) |= TR1_BRAND_FIRE;
+
+			to_s += -10;
+			break;
+		}
+		case SHAPE_GOLEM:
+		{
+			to_a += 30;
+			*(f3) |= TR3_NOMAGIC;
+			*(f3) |= TR3_HOLD_LIFE;
+			*(f2) |= TR2_RES_CONFU;
+			break;
+		}
+		case SHAPE_EAGLE:
+		{
+			*(f3) |= TR3_FEATHER;
+			to_h -= 10;
+			to_s -= 10;
+			break;
+		}
 	}
 
 	/* Modify */
@@ -4525,12 +4631,33 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, bool shape, bool modify)
 
 		/* Only melee skill is affected */
 		p_ptr->skill_thn += to_h * BTH_PLUS_ADJ;
+		p_ptr->skill_thn2 += to_h * BTH_PLUS_ADJ;
+
+		/* Affect missile skill separately */
+		p_ptr->skill_thb += to_s * BTH_PLUS_ADJ;
 
 		p_ptr->to_d += to_d;
 		p_ptr->dis_to_d += to_d;
 	}
 }
 
+/*
+ * Handle racial and shapechange vulnerabilities
+ */
+void player_flags_vulnerable(u32b *f1, u32b *f2, u32b *f3, bool shape)
+{
+	/* Clear */
+	(*f1) = (*f2) = (*f3) = 0L;
+
+	/* Ents are vulnerable to fire */
+	if (p_ptr->prace == RACE_ENT) *f2 |= TR2_RES_FIRE;
+
+	if (!shape) return;
+
+	if (p_ptr->schange == SHAPE_LICH) *f2 |= TR2_RES_FIRE;
+	if (p_ptr->schange == SHAPE_VAMPIRE) *f2 |= TR2_RES_LITE;
+	if (p_ptr->schange == SHAPE_ENT) *f2 |= TR2_RES_FIRE;
+}
 
 
 /*
@@ -4563,7 +4690,6 @@ void player_flags_cancel(u32b *f1, u32b *f2, u32b *f3, bool shape)
 		case SHAPE_ENT:
 		{
 			(*f2) |= (TR2_IM_FIRE);
-			(*f2) |= (TR2_RES_FIRE);
 			(*f3) |= (TR3_FEATHER);
 			break;
 		}
@@ -4712,6 +4838,194 @@ int player_flags_pval(u32b flag_pval, bool shape)
 	/* Assume no change */
 	int pval = 0;
 
+	/* Optionally ignore the effects of shapechanges */
+	if (shape)
+	{
+		/* Awareness is reduced in all forms */
+		if (flag_pval == TR_PVAL_AWARE && p_ptr->schange) pval -= 2;
+
+		/* Handle shapechanges */
+		switch (p_ptr->schange)
+		{
+			case SHAPE_NORMAL:
+			{
+				break;
+			}
+			case SHAPE_GOAT:
+			{
+				if (flag_pval == TR_PVAL_INFRA)   pval += 1;
+				if (flag_pval == TR_PVAL_DEVICE)  pval -= p_ptr->skill_dev / 20;
+				break;
+			}
+			case SHAPE_BEAR:
+			{
+				if (flag_pval == TR_PVAL_STR)     pval += 2;
+				if (flag_pval == TR_PVAL_INT)     pval -= 1;
+				if (flag_pval == TR_PVAL_CON)     pval += 2;
+				if (flag_pval == TR_PVAL_CHR)     pval -= 3;
+				if (flag_pval == TR_PVAL_INFRA)   pval += 1;
+				if (flag_pval == TR_PVAL_DEVICE)  pval -= p_ptr->skill_dev / 20;
+				break;
+			}
+			case SHAPE_MOUSE:
+			{
+				if (flag_pval == TR_PVAL_STR)     pval -= 2;
+				if (flag_pval == TR_PVAL_INT)     pval -= 7;
+				if (flag_pval == TR_PVAL_CON)     pval -= 1;
+				if (flag_pval == TR_PVAL_CHR)     pval -= 5;
+
+				if (flag_pval == TR_PVAL_INFRA)   pval += 2;
+				if (flag_pval == TR_PVAL_DEVICE)  pval -= p_ptr->skill_dev / 15;
+				if (flag_pval == TR_PVAL_STEALTH) pval += 10;
+				if (flag_pval == TR_PVAL_AWARE)   pval += 5;
+				break;
+			}
+			case SHAPE_HOUND:
+			{
+				if (flag_pval == TR_PVAL_INT)     pval -= 2;
+				if (flag_pval == TR_PVAL_CON)     pval += 2;
+				if (flag_pval == TR_PVAL_CHR)     pval -= 2;
+
+				if (flag_pval == TR_PVAL_AWARE)   pval += 3;
+				if (flag_pval == TR_PVAL_INFRA)   pval += 3;
+				if (flag_pval == TR_PVAL_DEVICE)  pval -= p_ptr->skill_dev / 20;
+				break;
+			}
+			case SHAPE_CHEETAH:
+			{
+				if (flag_pval == TR_PVAL_DEX)     pval += 2;
+				if (flag_pval == TR_PVAL_INFRA)   pval += 2;
+				if (flag_pval == TR_PVAL_SPEED)   pval += get_skill(S_NATURE, 1, 7);
+				if (flag_pval == TR_PVAL_DEVICE)  pval -= p_ptr->skill_dev / 20;
+				break;
+			}
+			case SHAPE_LION:
+			{
+				if (flag_pval == TR_PVAL_STR)     pval += 3;
+				if (flag_pval == TR_PVAL_INT)     pval -= 1;
+				if (flag_pval == TR_PVAL_WIS)     pval -= 1;
+				if (flag_pval == TR_PVAL_CHR)     pval -= 4;
+				if (flag_pval == TR_PVAL_SPEED)   pval += 1;
+				if (flag_pval == TR_PVAL_INFRA)   pval += 2;
+				if (flag_pval == TR_PVAL_DEVICE)  pval -= p_ptr->skill_dev / 20;
+				break;
+			}
+			case SHAPE_DRAGON:
+			{
+				if (flag_pval == TR_PVAL_STR)     pval += 3;
+				if (flag_pval == TR_PVAL_CON)     pval += 2;
+				if (flag_pval == TR_PVAL_INFRA)   pval += 3;
+				if (flag_pval == TR_PVAL_DEVICE)  pval -= p_ptr->skill_dev / 20;
+				break;
+			}
+			case SHAPE_ENT:
+			{
+				if (flag_pval == TR_PVAL_WIS)     pval += 1;
+				if (flag_pval == TR_PVAL_DEX)     pval -= 5;
+				if (flag_pval == TR_PVAL_STR)     pval += 4;
+				if (flag_pval == TR_PVAL_CON)     pval += 4;
+				if (flag_pval == TR_PVAL_TUNNEL)  pval += 8;
+
+				break;
+			}
+			case SHAPE_TROLL:
+			{
+				if (flag_pval == TR_PVAL_INT)     pval -= 2;
+				if (flag_pval == TR_PVAL_DEX)     pval -= 2;
+				if (flag_pval == TR_PVAL_STR)     pval += 3;
+				if (flag_pval == TR_PVAL_CON)     pval += 1;
+				if (flag_pval == TR_PVAL_INFRA)   pval += 2;
+				if (flag_pval == TR_PVAL_DEVICE)  pval -= p_ptr->skill_dev / 40;
+				break;
+			}
+			case SHAPE_BAT:
+			{
+				if (flag_pval == TR_PVAL_STR)     pval -= 1;
+				if (flag_pval == TR_PVAL_WIS)     pval -= 2;
+				if (flag_pval == TR_PVAL_INT)     pval -= 2;
+				if (flag_pval == TR_PVAL_CHR)     pval -= 2;
+				if (flag_pval == TR_PVAL_INFRA)   pval += 6;
+				if (flag_pval == TR_PVAL_SPEED)   pval += 5;
+				if (flag_pval == TR_PVAL_DEVICE)  pval -= p_ptr->skill_dev / 15;
+				break;
+			}
+			case SHAPE_LICH:
+			{
+				if (flag_pval == TR_PVAL_INVIS)   pval += 6;
+				break;
+			}
+			case SHAPE_VAMPIRE:
+			{
+				if (flag_pval == TR_PVAL_STR)     pval += 2;
+				if (flag_pval == TR_PVAL_INT)     pval += 2;
+				if (flag_pval == TR_PVAL_CHR)     pval += 2;
+				if (flag_pval == TR_PVAL_SPEED)   pval += 3;
+				break;
+			}
+			case SHAPE_WEREWOLF:
+			{
+				if (flag_pval == TR_PVAL_STR)     pval += get_skill(S_DOMINION, 1, 4);
+				if (flag_pval == TR_PVAL_CON)     pval += get_skill(S_DOMINION, 1, 4);
+				if (flag_pval == TR_PVAL_CHR)     pval -= 4;
+				if (flag_pval == TR_PVAL_INT)     pval -= 2;
+				if (flag_pval == TR_PVAL_WIS)     pval -= 2;
+				if (flag_pval == TR_PVAL_DEVICE)  pval -= p_ptr->skill_dev / 15;
+				if (flag_pval == TR_PVAL_INFRA)   pval += 3;
+				if (flag_pval == TR_PVAL_STEALTH) pval -= 3;  /* It's those constant howls */
+				break;
+			}
+			case SHAPE_SERPENT:
+			{
+				if (flag_pval == TR_PVAL_STR)     pval += get_skill(S_NATURE, 1, 4);
+				if (flag_pval == TR_PVAL_DEX)     pval += get_skill(S_NATURE, 1, 4);
+				if (flag_pval == TR_PVAL_INT)     pval -= 2;
+				if (flag_pval == TR_PVAL_WIS)     pval -= 2;
+				if (flag_pval == TR_PVAL_STEALTH) pval += get_skill(S_NATURE, 1, 4);
+				break;
+			}
+			case SHAPE_ANGEL:
+			{
+				if (flag_pval == TR_PVAL_STR)     pval += 2;
+				if (flag_pval == TR_PVAL_WIS)     pval += 2;
+				if (flag_pval == TR_PVAL_CON)     pval += 2;
+				if (flag_pval == TR_PVAL_CHR)     pval += 3;
+				if (flag_pval == TR_PVAL_INVIS)   pval -= 2;
+				break;
+			}
+			case SHAPE_VORTEX:
+			{
+				if (flag_pval == TR_PVAL_DEX)     pval += 2;
+				break;
+			}
+			case SHAPE_GOLEM:
+			{
+				if (flag_pval == TR_PVAL_STR)     pval += 2;
+				if (flag_pval == TR_PVAL_DEX)     pval -= 2;
+				if (flag_pval == TR_PVAL_SAVE)    pval += get_skill(S_WIZARDRY, 0, 5);
+				if (flag_pval == TR_PVAL_DEVICE)  pval -= p_ptr->skill_dev / 10;
+				break;
+			}
+			case SHAPE_EAGLE:
+			{
+				if (flag_pval == TR_PVAL_STR)      pval -= 2;
+				if (flag_pval == TR_PVAL_AWARE)    pval += 4;
+				if (flag_pval == TR_PVAL_STEALTH)  pval += get_skill(S_SHAPECHANGE, 0, 6);
+				if (flag_pval == TR_PVAL_SPEED)    pval += get_skill(S_SHAPECHANGE, 0, 6);
+				if (flag_pval == TR_PVAL_DEVICE)   pval -= p_ptr->skill_dev / 15;
+				break;
+			}
+		}
+
+		/* Decrease penalties for high-level shapechangers */
+		/* Should trigger at 3/4 of the way to 100 from where player got the skill */
+		if (get_skill(p_ptr->schange_skill, 0, 100) >= (300 + p_ptr->schange_min_skill) / 4)
+		{
+			if (pval < 0) pval++;
+		}
+
+	}
+
+
 	/* Handle racial modifiers to stats */
 	if (flag_pval == TR_PVAL_STR) pval += rp_ptr->r_adj[A_STR];
 	if (flag_pval == TR_PVAL_INT) pval += rp_ptr->r_adj[A_INT];
@@ -4738,10 +5052,11 @@ int player_flags_pval(u32b flag_pval, bool shape)
 
 
 
-	/* Giants are great at tunneling */
+	/* Giants and Ents are great at tunneling */
 	if (flag_pval == TR_PVAL_TUNNEL)
 	{
-		if (p_ptr->prace == RACE_GIANT) pval += 1 + p_ptr->power / 20;
+		if (p_ptr->prace == RACE_GIANT ||
+			p_ptr->prace == RACE_ENT) pval += 1 + p_ptr->power / 20;
 	}
 
 
@@ -4812,9 +5127,9 @@ int player_flags_pval(u32b flag_pval, bool shape)
 		if (skill >= LEV_REQ_MARTIAL_STAT3) pval++;
 	}
 
-	/* Karate gives some speed */
 	if (flag_pval == TR_PVAL_SPEED)
 	{
+		/* Karate gives some speed */
 		int skill = get_skill(S_KARATE, 0, 100);
 		if(skill >= LEV_REQ_KARATE_SPEED1) pval++;
 		if(skill >= LEV_REQ_KARATE_SPEED2) pval++;
@@ -4841,118 +5156,75 @@ int player_flags_pval(u32b flag_pval, bool shape)
 	}
 
 
-	/* Optionally ignore the effects of shapechanges */
-	if (!shape) return (pval);
 
 
-	/* Handle shapechanges */
-	switch (p_ptr->schange)
-	{
-		case SHAPE_NORMAL:
-		{
-			break;
-		}
-		case SHAPE_GOAT:
-		{
-			if (flag_pval == TR_PVAL_INFRA)   pval += 1;
-			if (flag_pval == TR_PVAL_DEVICE)  pval -= p_ptr->skill_dev / 20;
-			break;
-		}
-		case SHAPE_BEAR:
-		{
-			if (flag_pval == TR_PVAL_STR)     pval += 2;
-			if (flag_pval == TR_PVAL_INT)     pval -= 1;
-			if (flag_pval == TR_PVAL_CON)     pval += 2;
-			if (flag_pval == TR_PVAL_CHR)     pval -= 3;
-			if (flag_pval == TR_PVAL_INFRA)   pval += 1;
-			if (flag_pval == TR_PVAL_DEVICE)  pval -= p_ptr->skill_dev / 20;
-			break;
-		}
-		case SHAPE_MOUSE:
-		{
-			if (flag_pval == TR_PVAL_STR)     pval -= 2;
-			if (flag_pval == TR_PVAL_INT)     pval -= 7;
-			if (flag_pval == TR_PVAL_CON)     pval -= 1;
-			if (flag_pval == TR_PVAL_CHR)     pval -= 5;
 
-			if (flag_pval == TR_PVAL_INFRA)   pval += 2;
-			if (flag_pval == TR_PVAL_DEVICE)  pval -= p_ptr->skill_dev / 15;
-			if (flag_pval == TR_PVAL_STEALTH) pval += 10;
-			if (flag_pval == TR_PVAL_AWARE)   pval += 3;
-			break;
-		}
-		case SHAPE_HOUND:
-		{
-			if (flag_pval == TR_PVAL_INT)     pval -= 2;
-			if (flag_pval == TR_PVAL_CON)     pval += 2;
-			if (flag_pval == TR_PVAL_CHR)     pval -= 2;
-
-			if (flag_pval == TR_PVAL_INFRA)   pval += 3;
-			if (flag_pval == TR_PVAL_DEVICE)  pval -= p_ptr->skill_dev / 20;
-			break;
-		}
-		case SHAPE_CHEETAH:
-		{
-			if (flag_pval == TR_PVAL_DEX)     pval += 2;
-			if (flag_pval == TR_PVAL_INFRA)   pval += 2;
-			if (flag_pval == TR_PVAL_SPEED)   pval += 6;
-			if (flag_pval == TR_PVAL_DEVICE)  pval -= p_ptr->skill_dev / 20;
-			break;
-		}
-		case SHAPE_LION:
-		{
-			if (flag_pval == TR_PVAL_STR)     pval += 3;
-			if (flag_pval == TR_PVAL_INT)     pval -= 1;
-			if (flag_pval == TR_PVAL_WIS)     pval -= 1;
-			if (flag_pval == TR_PVAL_CHR)     pval -= 4;
-			if (flag_pval == TR_PVAL_SPEED)   pval += 1;
-			if (flag_pval == TR_PVAL_INFRA)   pval += 2;
-			if (flag_pval == TR_PVAL_DEVICE)  pval -= p_ptr->skill_dev / 20;
-			break;
-		}
-		case SHAPE_DRAGON:
-		{
-			if (flag_pval == TR_PVAL_STR)     pval += 3;
-			if (flag_pval == TR_PVAL_CON)     pval += 2;
-			if (flag_pval == TR_PVAL_INFRA)   pval += 3;
-			if (flag_pval == TR_PVAL_DEVICE)  pval -= p_ptr->skill_dev / 20;
-			break;
-		}
-		case SHAPE_ENT:
-		{
-			if (flag_pval == TR_PVAL_WIS)     pval += 1;
-			if (flag_pval == TR_PVAL_DEX)     pval -= 5;
-			if (flag_pval == TR_PVAL_STR)     pval += 4;
-			if (flag_pval == TR_PVAL_CON)     pval += 4;
-			if (flag_pval == TR_PVAL_TUNNEL)  pval += 8;
-
-			break;
-		}
-		case SHAPE_TROLL:
-		{
-			if (flag_pval == TR_PVAL_INT)     pval -= 2;
-			if (flag_pval == TR_PVAL_DEX)     pval -= 2;
-			if (flag_pval == TR_PVAL_STR)     pval += 3;
-			if (flag_pval == TR_PVAL_CON)     pval += 1;
-			if (flag_pval == TR_PVAL_INFRA)   pval += 2;
-			if (flag_pval == TR_PVAL_DEVICE)  pval -= p_ptr->skill_dev / 40;
-			break;
-		}
-		case SHAPE_BAT:
-		{
-			if (flag_pval == TR_PVAL_STR)     pval -= 1;
-			if (flag_pval == TR_PVAL_WIS)     pval -= 2;
-			if (flag_pval == TR_PVAL_INT)     pval -= 2;
-			if (flag_pval == TR_PVAL_CHR)     pval -= 2;
-			if (flag_pval == TR_PVAL_INFRA)   pval += 6;
-			if (flag_pval == TR_PVAL_SPEED)   pval += 5;
-			if (flag_pval == TR_PVAL_DEVICE)  pval -= p_ptr->skill_dev / 15;
-			break;
-		}
-	}
 
 	/* Return */
 	return (pval);
+}
+
+/*
+ * Consolidate weapon blow calculations
+ */
+int weapon_blows(object_type *o_ptr, bool primary)
+{
+	int str_index, dex_index, blows, str, dex;
+	object_type *i_ptr;
+	int weight, effective_weight, hold;
+
+	str = p_ptr->stat_ind[A_STR];
+	dex = p_ptr->stat_ind[A_DEX];
+
+	hold = adj_str_hold[p_ptr->stat_ind[A_STR]];
+
+	i_ptr = &inventory[INVEN_WIELD];
+
+	if (primary) weight = o_ptr->weight / 10;
+	else weight = (o_ptr->weight + i_ptr->weight) / 5;  /* Half the single-weapon weight */
+
+	/* Handle heavy weapons */
+	if (weight > hold) return (primary) ? 1 : 0;
+
+	/* Choose which item to replace in calculation */
+	if (primary) 	i_ptr = &inventory[INVEN_WIELD];
+	else 			i_ptr = &inventory[INVEN_ARM];
+
+	/* Remove benefits from replaced weapon or shield */
+	if (i_ptr)
+	{
+
+		str -= get_object_pval(i_ptr, TR_PVAL_STR);
+		dex -= get_object_pval(i_ptr, TR_PVAL_DEX);
+	}
+
+	/* Add benefits of new weapon */
+	str += get_object_pval(o_ptr, TR_PVAL_STR);
+	dex += get_object_pval(o_ptr, TR_PVAL_DEX);
+
+	/* Keep within limits */
+	str = MIN(MAX(0, str), 37);
+	dex = MIN(MAX(0, dex), 37);
+
+	/* Enforce a minimum weight of three pounds */
+	effective_weight = (o_ptr->weight < 30 ? 30 : o_ptr->weight);
+
+	/* Compare strength and weapon weight */
+	str_index = MIN(11, 6 * adj_str_blow[str] / effective_weight);
+
+	/* Index by dexterity */
+	dex_index = MIN(11, (adj_dex_blow[dex]));
+
+	/* Use the blows table */
+	blows = blows_table[str_index][dex_index];
+
+	/* Add extra blows */
+	blows += get_object_pval(o_ptr, TR_PVAL_BLOWS);
+
+	/* Apply character modifiers to blows */
+	blows += player_flags_pval(TR_PVAL_BLOWS, TRUE);
+
+	return blows;
 }
 
 
@@ -5053,6 +5325,7 @@ static void analyze_weapons(void)
 
 		/* Automatic penalty to melee skill */
 		p_ptr->skill_thn -= 10 + (o_ptr->weight + i_ptr->weight) / 10;
+		p_ptr->skill_thn2 -= 10 + (o_ptr->weight + i_ptr->weight) / 10;
 	}
 
 	/* Assume not heavy */
@@ -5068,44 +5341,28 @@ static void analyze_weapons(void)
 		if (hold < weapon_weight / 10)
 		{
 			p_ptr->skill_thn += 5 * (hold - weapon_weight / 10);
+			p_ptr->skill_thn2 += 5 * (hold - weapon_weight / 10);
 
 			/* Note that weapon is heavy */
 			p_ptr->heavy_wield = TRUE;
 
 			/* The player gets to swing a heavy weapon only once. */
 			p_ptr->num_blow = 1;
+
+			/* Calculate digging bonus */
+			p_ptr->skill_dig += (get_object_pval(o_ptr, TR_PVAL_TUNNEL) * 20) + (o_ptr->weight / 25);
 		}
 
 		/* Weapon is not too heavy */
 		else
 		{
-			int str_index, dex_index;
-			int effective_weight = 0;
 			int skill_dig1 = 0, skill_dig2 = 0;
 
 			/* First weapon */
 			if (TRUE)
 			{
-				/* Enforce a minimum weight of three pounds */
-				effective_weight = (o_ptr->weight < 30 ? 30 : o_ptr->weight);
-
-				/* Compare strength and weapon weight */
-				str_index = MIN(11, 6 * adj_str_blow[p_ptr->stat_ind[A_STR]] /
-					effective_weight);
-
-				/* Index by dexterity */
-				dex_index = MIN(11, (adj_dex_blow[p_ptr->stat_ind[A_DEX]]));
-
-				/* Use the blows table */
-				p_ptr->num_blow = blows_table[str_index][dex_index];
-
-
-				/* Add extra blows */
-				p_ptr->num_blow += get_object_pval(o_ptr, TR_PVAL_BLOWS);
-
-				/* Apply character modifiers to blows */
-				p_ptr->num_blow += player_flags_pval(TR_PVAL_BLOWS, TRUE);
-
+				/* Calculate number of blows */
+				p_ptr->num_blow = weapon_blows(o_ptr, TRUE);
 
 				/* Calculate digging bonus */
 				skill_dig1 += (get_object_pval(o_ptr, TR_PVAL_TUNNEL) * 20) +
@@ -5116,26 +5373,7 @@ static void analyze_weapons(void)
 			/* Second weapon */
 			if (p_ptr->twoweap)
 			{
-				/* Enforce a minimum weight of three pounds */
-				effective_weight = (i_ptr->weight < 30 ? 30 : i_ptr->weight);
-
-				/* Compare strength and weapon weight */
-				str_index = MIN(11, 6 * adj_str_blow[p_ptr->stat_ind[A_STR]] /
-					effective_weight);
-
-				/* Index by dexterity */
-				dex_index = MIN(11, (adj_dex_blow[p_ptr->stat_ind[A_DEX]]));
-
-				/* Use the blows table */
-				p_ptr->num_blow2 = blows_table[str_index][dex_index];
-
-
-				/* Add extra blows */
-				p_ptr->num_blow2 += get_object_pval(i_ptr, TR_PVAL_BLOWS);
-
-				/* Apply character modifiers to blows */
-				p_ptr->num_blow2 += player_flags_pval(TR_PVAL_BLOWS, TRUE);
-
+				p_ptr->num_blow2 = weapon_blows(i_ptr, FALSE);
 
 				/* Calculate digging bonus */
 				skill_dig2 += (get_object_pval(i_ptr, TR_PVAL_TUNNEL) * 20) +
@@ -5188,6 +5426,7 @@ static void analyze_weapons(void)
 	{
 		/* Reduce the melee combat ability (not anything else) */
 		p_ptr->skill_thn /= 2;
+		p_ptr->skill_thn2 /= 2;
 
 		/* Icky weapon */
 		p_ptr->icky_wield = TRUE;
@@ -5316,6 +5555,7 @@ static void calc_bonuses(void)
 	object_type *o_ptr;
 	u32b f1, f2, f3;
 
+	int tmp;
 
 	/*** Memorize ***/
 
@@ -5514,16 +5754,30 @@ static void calc_bonuses(void)
 
 
 	/* Determine which weapon and bow skills are currently applicable */
-	weapon_skill = sweapon(inventory[INVEN_WIELD].tval);
 	bow_skill = sbow(inventory[INVEN_BOW].tval);
-
 
 	/* Melee Combat (ranges from ~12 to ~140 (~185 with martial arts)) */
 	p_ptr->skill_thn  = 10 + rp_ptr->r_thn;
-	p_ptr->skill_thn += add_special_melee_skill();
+	p_ptr->skill_thn2  = 10 + rp_ptr->r_thn;
 
-	if (get_skill(weapon_skill, 0, 100))
-		p_ptr->skill_thn += get_skill_race(weapon_skill, 5, 115);
+	tmp = add_special_melee_skill();
+	p_ptr->skill_thn += tmp;
+	p_ptr->skill_thn2 += tmp;
+
+	/* Main weapon */
+	o_ptr = &inventory[INVEN_WIELD];
+	object_flags(o_ptr, &f1, &f2, &f3);
+	if (f3 & TR3_BLESSED) weapon_skill = best_melee_skill();  	/* Hack -- blessed weapons are used as if the best weapon type */
+	else weapon_skill = sweapon(o_ptr->tval);
+	if (get_skill(weapon_skill, 0, 100)) p_ptr->skill_thn += get_skill_race(weapon_skill, 5, 115);
+
+	/* Offhand weapon */
+	o_ptr = &inventory[INVEN_ARM];
+	object_flags(o_ptr, &f1, &f2, &f3);
+	if (f3 & TR3_BLESSED) weapon_skill = best_melee_skill();  	/* Hack -- blessed weapons are used as if the best weapon type */
+	else weapon_skill = sweapon(o_ptr->tval);
+	if (get_skill(weapon_skill, 0, 100)) p_ptr->skill_thn2 += get_skill_race(weapon_skill, 5, 115);
+
 
 	/* Hack -- special bonus for high-level martial arts experts */
 	if ((weapon_skill == S_KARATE) || (weapon_skill == S_WRESTLING))
@@ -5902,9 +6156,10 @@ static void calc_bonuses(void)
 	}
 
 	/* Apply bonuses to the non-magical combat skills */
-	p_ptr->skill_thn += hit_bonus * BTH_PLUS_ADJ;
-	p_ptr->skill_thb += hit_bonus * BTH_PLUS_ADJ;
-	p_ptr->skill_tht += hit_bonus * BTH_PLUS_ADJ;
+	p_ptr->skill_thn  += hit_bonus * BTH_PLUS_ADJ;
+	p_ptr->skill_thn2 += hit_bonus * BTH_PLUS_ADJ;
+	p_ptr->skill_thb  += hit_bonus * BTH_PLUS_ADJ;
+	p_ptr->skill_tht  += hit_bonus * BTH_PLUS_ADJ;
 
 
 	/* Sorcerers and necromancers are hindered by most gloves */
@@ -5959,18 +6214,20 @@ static void calc_bonuses(void)
 	/* Apply stunning  */
 	if (p_ptr->stun >= HVY_STUN)
 	{
-		p_ptr->skill_thn /= 2;
-		p_ptr->skill_thb /= 2;
-		p_ptr->skill_tht /= 2;
+		p_ptr->skill_thn  /= 2;
+		p_ptr->skill_thn2 /= 2;
+		p_ptr->skill_thb  /= 2;
+		p_ptr->skill_tht  /= 2;
 
 		p_ptr->to_d -= 10;
 		p_ptr->dis_to_d -= 10;
 	}
 	else if (p_ptr->stun)
 	{
-		p_ptr->skill_thn -= p_ptr->skill_thn / 3;
-		p_ptr->skill_thb -= p_ptr->skill_thb / 3;
-		p_ptr->skill_tht -= p_ptr->skill_tht / 3;
+		p_ptr->skill_thn  -= p_ptr->skill_thn / 3;
+		p_ptr->skill_thn2 -= p_ptr->skill_thn2 / 3;
+		p_ptr->skill_thb  -= p_ptr->skill_thb / 3;
+		p_ptr->skill_tht  -= p_ptr->skill_tht / 3;
 		p_ptr->to_d -= 5;
 		p_ptr->dis_to_d -= 5;
 	}
@@ -5999,6 +6256,7 @@ static void calc_bonuses(void)
 		p_ptr->to_a += 20;
 		p_ptr->dis_to_a += 20;
 		p_ptr->skill_thn += 5;
+		p_ptr->skill_thn2 += 5;
 		p_ptr->skill_thb += 5;
 		p_ptr->skill_tht += 5;
 	}
@@ -6008,6 +6266,7 @@ static void calc_bonuses(void)
 		p_ptr->to_a += 10;
 		p_ptr->dis_to_a += 10;
 		p_ptr->skill_thn += 5;
+		p_ptr->skill_thn2 += 5;
 		p_ptr->skill_thb += 5;
 		p_ptr->skill_tht += 5;
 	}
@@ -6023,6 +6282,7 @@ static void calc_bonuses(void)
 	if (p_ptr->hero)
 	{
 		p_ptr->skill_thn += 20;
+		p_ptr->skill_thn2 += 20;
 		p_ptr->skill_thb += 20;
 		p_ptr->skill_tht += 20;
 	}
@@ -6037,6 +6297,7 @@ static void calc_bonuses(void)
 
 			/* Berserkers are great in melee, but not in ranged combat */
 			p_ptr->skill_thn += 36;
+			p_ptr->skill_thn2 += 36;
 			p_ptr->skill_thb -= 36;
 			p_ptr->skill_tht -= 36;
 
@@ -6125,6 +6386,13 @@ static void calc_bonuses(void)
 		p_ptr->dis_ac += p_ptr->power / 3;
 	}
 
+	/* Special case -- Ents have *very* tough skin */
+	if (p_ptr->prace == RACE_ENT)
+	{
+		p_ptr->ac     += 10 + 2 * p_ptr->power / 5;
+		p_ptr->dis_ac += 10 + 2 * p_ptr->power / 5;
+	}
+
 	/* Handle lack of sanctity -- frowned upon by the Divine */
 	if (p_ptr->unsanctified)
 	{
@@ -6193,6 +6461,24 @@ static void calc_bonuses(void)
 	if (f3 & (TR3_DRAIN_EXP))      p_ptr->drain_exp     = FALSE;
 	if (f3 & (TR3_DRAIN_HP))       p_ptr->being_crushed = FALSE;
 
+	/* Handle vulnerabilities */
+	player_flags_vulnerable(&f1, &f2, &f3, TRUE);
+
+	/* Vunlerability flags */
+	if (f2 & (TR2_RES_ACID))       p_ptr->vuln_acid   = FALSE;
+	if (f2 & (TR2_RES_ELEC))       p_ptr->vuln_elec   = FALSE;
+	if (f2 & (TR2_RES_FIRE))       p_ptr->vuln_fire   = FALSE;
+	if (f2 & (TR2_RES_COLD))       p_ptr->vuln_cold   = FALSE;
+	if (f2 & (TR2_RES_POIS))       p_ptr->vuln_pois   = FALSE;
+	if (f2 & (TR2_RES_LITE))       p_ptr->vuln_lite   = FALSE;
+	if (f2 & (TR2_RES_DARK))       p_ptr->vuln_dark   = FALSE;
+	if (f2 & (TR2_RES_CONFU))      p_ptr->vuln_confu  = FALSE;
+	if (f2 & (TR2_RES_SOUND))      p_ptr->vuln_sound  = FALSE;
+	if (f2 & (TR2_RES_SHARD))      p_ptr->vuln_shard  = FALSE;
+	if (f2 & (TR2_RES_NEXUS))      p_ptr->vuln_nexus  = FALSE;
+	if (f2 & (TR2_RES_NETHR))      p_ptr->vuln_nethr  = FALSE;
+	if (f2 & (TR2_RES_CHAOS))      p_ptr->vuln_chaos  = FALSE;
+	if (f2 & (TR2_RES_DISEN))      p_ptr->vuln_disen  = FALSE;
 
 
 	/*** Notice changes ***/
@@ -6392,6 +6678,7 @@ static void calc_bonuses(void)
 	/* Print "regen" (unless dead or in a special display) */
 	if ((!p_ptr->is_dead) && (!main_screen_inactive))
 		left_panel_display(DISPLAY_REGEN, 0);
+
 }
 
 

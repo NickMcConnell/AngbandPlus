@@ -374,7 +374,7 @@ cptr do_object(int mode, object_type *o_ptr)
 				if (p_ptr->schange != SHAPE_NORMAL)
 				{
 					msg_print("You are wrenched back into your normal form!");
-					shapechange(SHAPE_NORMAL);
+					shapechange_perm(SHAPE_NORMAL);
 				}
 
 				/* Shuffle stats (resist nexus helps a lot) */
@@ -1474,7 +1474,10 @@ cptr do_object(int mode, object_type *o_ptr)
 
 			if (info) return (format("(duration %d-%d)", dur1, dur2));
 
-			(void)set_trollform(p_ptr->trollform + rand_range(dur1, dur2));
+			if (p_ptr->schange == SHAPE_TROLL) dur = p_ptr->form_dur + rand_range(dur1, dur2);
+			else dur = rand_range(dur1, dur2);
+
+			(void)shapechange_temp(dur, SHAPE_TROLL);
 			obj_ident = TRUE;
 			break;
 		}
@@ -1486,7 +1489,11 @@ cptr do_object(int mode, object_type *o_ptr)
 
 			if (info) return (format("(duration %d-%d)", dur1, dur2));
 
-			(void)set_dragonform(p_ptr->dragonform + rand_range(dur1, dur2));
+			if (p_ptr->schange == SHAPE_DRAGON) dur = p_ptr->form_dur + rand_range(dur1, dur2);
+			else dur = rand_range(dur1, dur2);
+
+			(void)shapechange_temp(dur, SHAPE_DRAGON);
+
 			obj_ident = TRUE;
 			break;
 		}
@@ -2465,7 +2472,7 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 
 		case SV_STAFF_CURE_MEDIUM:
 		{
-			pow = 10;
+			pow = 15;
 
 			if (info) return (format("(heal about %d%%, reduce cuts)", pow));
 			if (use)
@@ -3304,9 +3311,11 @@ cptr do_device(int mode, object_type *o_ptr, bool *ident, bool *used,
 			if (info) return (format("(damage: %dd%d)", dice, sides));
 			if (use)
 			{
+				int rad = 3;
+				p_ptr->max_dist = rad;
 				if ((need_dir) && (!get_aim_dir(&dir))) return ("");
 				sound(MSG_AIM_WAND);
-				(void)fire_arc(GF_ELEC, dir, damroll(dice, sides), 3, 0);
+				(void)fire_arc(GF_ELEC, dir, damroll(dice, sides), rad, 0);
 				*ident = TRUE;
 			}
 			break;
@@ -4543,6 +4552,9 @@ void use_device(int tval)
 
 			/* Become aware of the object's effects */
 			object_aware(o_ptr);
+
+			/* User has a chance of learning charges */
+			sense_object(o_ptr, 0, FALSE, FALSE);
 
 			/* Describe only one, unflavoured, object */
 			object_desc_plural = -1;
@@ -6937,7 +6949,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			if (act)
 			{
 				(void)set_elec_attack(get_skill(S_DEVICE, 20, 40));
-				(void)set_oppose_acid(p_ptr->oppose_elec + rand_range(dur1, dur2));
+				(void)set_oppose_elec(p_ptr->oppose_elec + rand_range(dur1, dur2));
 			}
 			break;
 		}
@@ -7192,7 +7204,7 @@ cptr do_activation_aux(int mode, object_type *o_ptr)
 			if (act)
 			{
 				/* Turn into a dragon, but only temporarily */
-				(void)set_dragonform(p_ptr->dragonform + dur);
+				(void)shapechange_temp(dur, SHAPE_DRAGON);
 			}
 			break;
 		}

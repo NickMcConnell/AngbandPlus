@@ -117,6 +117,9 @@ static bool chromatic_burst(int dam, int dir)
 			continue;
 		}
 
+		if (typ == GF_FIRE && p_ptr->aura_fire) dam = dam * 3 /2;
+		if (typ == GF_COLD && p_ptr->aura_cold) dam = dam * 3 /2;
+
 		/* Fire the arc */
 		fire_arc(typ, dir, dam, 6, rand_range(50, 70));
 
@@ -2056,8 +2059,10 @@ cptr do_spell(int mode, int spell)
 			limit_power = TRUE;
 
 		/* Get spell power (up to 100, or 75 for non-specialists) */
+		/* Low level casters non-oath casters gain power faster, as they cannot take the oath */
 		if (!limit_power) spower = get_skill(S_MAGIC, 0, 100);
-		else              spower = get_skill(S_MAGIC, 0,  75);
+		else if (get_skill(S_MAGIC, 0, 100) < 20)  spower = get_skill(S_MAGIC, 0,  95);
+		else spower = 5 + get_skill(S_MAGIC, 0,  70);
 
 		/* Necromancers cast stronger spells in the darkness */
 		if (p_ptr->realm == NECRO) spower += darkness_ratio(3) / 20;
@@ -2558,7 +2563,13 @@ cptr do_spell(int mode, int spell)
 				dam1 = 3 * spower / 2;
 				dam2 = 5 * spower / 2;
 
-				if (info) return (format("dam %d-%d", dam1, dam2));
+				if (info)
+				{
+					if (p_ptr->aura_cold || p_ptr->aura_fire)
+						return (format("dam %d-%d or %d-%d", dam1, dam2, dam1 * 3 / 2, dam2 * 3 / 2));
+					else
+						return (format("dam %d-%d", dam1, dam2));
+				}
 				if (desc) return ("Fires a burst of any of the four elements.");
 				if (cast)
 				{
@@ -3838,6 +3849,7 @@ cptr do_spell(int mode, int spell)
 				if (desc) return ("Short-range beam of lightning.  Not affected by weather.");
 				if (cast)
 				{
+					p_ptr->max_dist = rad;
 					if (!get_aim_dir(&dir)) return (NULL);
 					(void)fire_arc(GF_ELEC, dir, damroll(dice, sides), rad, 0);
 				}
@@ -5662,22 +5674,17 @@ cptr do_spell(int mode, int spell)
 				break;
 			}
 
-			/* Lich Powers  (this could also be a shapechange) */
+			/* Lich Powers */
 			case 242:
 			{
 				dur1 = spower / 2;     dur2 = spower;
 
 				if (info) return (format("dur %d-%d", dur1, dur2));
-				if (desc) return ("Grants you many of the powers of liches, invisible undead who move with speed.");
+				if (desc) return ("Grants you many of the powers of liches, invisible undead who move with speed, but vulnerable to fire.");
 				if (cast)
 				{
 					dur = rand_range(dur1, dur2);
-
-					(void)set_invis(dur, 30);
-					(void)set_oppose_cold(dur);
-					(void)set_oppose_pois(dur);
-					(void)set_detect_inv(dur);
-					(void)set_fast(dur);
+					shapechange_temp(dur, SHAPE_LICH);
 				}
 				break;
 			}
@@ -5822,7 +5829,9 @@ cptr do_spell(int mode, int spell)
 	/* Shapechange after mana is deducted -JM */
 	if (do_shapechange)
 	{
-		shapechange(do_shapechange);
+		shapechange_perm(do_shapechange);
+		p_ptr->schange_skill = mp_ptr->spell_skill;
+		p_ptr->schange_min_skill = s_ptr->slevel;
 	}
 
 

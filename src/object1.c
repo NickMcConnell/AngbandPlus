@@ -1345,8 +1345,10 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			}
 
 			/* Build the feeling */
-			(void)strnfmt(buf, max, "some kind of %s%s", modstr, basenm);
-
+			if (o_ptr->number)
+				(void)strnfmt(buf, max, "some kind of %s%s", modstr, basenm);
+			else
+				(void)strnfmt(buf, max, "no more %s%s", modstr, basenm);
 			/* Express the feeling */
 			return;
 		}
@@ -2548,9 +2550,9 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 
 	/*
 	 * Use the price adjustment, if any.   No annoying inscription for homemade
-	 * items.
+	 * items, or if you can't sell the goods anyway.
 	 */
-	else if ((o_ptr->cost_adjust > 0) && (o_ptr->cost_adjust < 100) &&
+	else if (!birth_stores_only_sell && (o_ptr->cost_adjust > 0) && (o_ptr->cost_adjust < 100) &&
 	         (o_ptr->cost_adjust != 20))
 	{
 		char *q = discount_buf;
@@ -4181,7 +4183,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	int floor_num = 0;
 	int equip_num = 0;
 	int inven_num = 0;
-	int first_option;
 
 	/* Get the item index */
 	if (repeat_pull(cp))
@@ -5309,6 +5310,6 @@ void display_nearby_objects(int y, int x, bool also_list_monsters)
 
 
 	/* Free the object counters */
-	C_FREE(nearby_o_count, o_max, nearby_object_type);
+	FREE(nearby_o_count);
 }
 

@@ -918,12 +918,13 @@ static int choose_ranged_attack(int m_idx, bool archery_only)
 	bool do_random = FALSE;
 
 	bool require_los = TRUE;
+	bool splash_ball = FALSE;
 
 	bool is_harass = FALSE;
 	bool is_best_harass = FALSE;
 	bool is_breath = FALSE;
 
-	int i, py = p_ptr->py, px = p_ptr->px;
+	int i, s, py = p_ptr->py, px = p_ptr->px;
 	int breath_hp, breath_maxhp, path, spaces;
 
 	int want_hps=0, want_escape=0, want_mana=0, want_summon=0;
@@ -939,21 +940,7 @@ static int choose_ranged_attack(int m_idx, bool archery_only)
 	f7 = r_ptr->flags7;
 
 	/* Check what kinds of spells can hit player */
-	path=projectable(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px, PROJECT_CHCK);
-
-	/* do we have the player in sight at all? */
-	if (path==PROJECT_NO)
-	{
-		/* Flat out 75% chance of not casting if the player is not in sight */
-		/* In addition, most spells don't work without a player around */
-		if (!one_in_(4)) return (0);
-
-		require_los=FALSE;
-	}
-
-	/* Special case -- Angels avoid users of holy lore */
-	if ((p_ptr->realm == PRIEST) && (r_ptr->d_char == 'A') &&
-	    (!p_ptr->unsanctified)) return (0);
+	path = projectable(m_ptr->fy, m_ptr->fx, py, px, PROJECT_CHCK);
 
 	/* Are we restricted to archery? */
 	/* Note - we have assumed for speed that no archery attacks
@@ -974,15 +961,63 @@ static int choose_ranged_attack(int m_idx, bool archery_only)
 		return (choose_attack_spell_fast(m_idx, &f4, &f5, &f6, &f7, TRUE));
 	}
 
+	/* do we have the player in sight at all? */
+	if (path==PROJECT_NO)
+	{
+		/* Flat out 75% chance of not casting if the player is not in sight */
+		/* In addition, most spells don't work without a player around */
+		if (!one_in_(4)) return (0);
+
+		/* Try to abuse LOS against player */
+		/* Note, this interfaces poorly with monsters not knowing where the player is */
+		for (i = 0, s = rand_int(8); i < 8; i++, s++)
+		{
+			/* Require casting onto actual squares */
+			if (!cave_project_bold(py + ddy[ddc[s % 8]], px + ddx[ddc[s % 8]]))
+				continue;
+
+			/* Check path to square */
+			path = projectable(m_ptr->fy, m_ptr->fx, py + ddy[ddc[s % 8]], px + ddx[ddc[s % 8]], PROJECT_CHCK);
+
+			if (path != PROJECT_NO)
+			{
+				splash_ball = TRUE;
+
+				/* Adjust target */
+				py = py + ddx[ddc[s % 8]];
+				px = px + ddx[ddc[s % 8]];
+				break;
+			}
+		}
+
+		require_los=FALSE;
+	}
+
+	/* Special case -- Angels avoid users of holy lore */
+	if ((p_ptr->realm == PRIEST) && (r_ptr->d_char == 'A') &&
+	    (!p_ptr->unsanctified)) return (0);
+
+
 	/* Remove spells the 'no-brainers'*/
-	/* Spells that require LOS */
-	if (!require_los)
+	/* Can cast spells that would deal splash damage to player or that don't require LOS */
+	if (splash_ball)
+	{
+		f4 &= (RF4_NO_PLAYER_MASK | RF4_BALL_MASK);
+		f5 &= (RF5_NO_PLAYER_MASK | RF5_BALL_MASK);
+		f6 &= (RF6_NO_PLAYER_MASK | RF6_BALL_MASK);
+		f7 &= (RF7_NO_PLAYER_MASK | RF7_BALL_MASK);
+	}
+
+	/* Can only cast spells that don't require LOS */
+	else if (!require_los)
 	{
 		f4 &= (RF4_NO_PLAYER_MASK);
 		f5 &= (RF5_NO_PLAYER_MASK);
 		f6 &= (RF6_NO_PLAYER_MASK);
 		f7 &= (RF7_NO_PLAYER_MASK);
 	}
+
+	/* Remove bolt spells */
 	else if (path==PROJECT_NOT_CLEAR)
 	{
 		f4 &= ~(RF4_BOLT_MASK);
@@ -2361,6 +2396,41 @@ static bool get_move_retreat(monster_type *m_ptr, int *ty, int *tx)
 	return (TRUE);
 }
 
+/*
+ * Check to see if any my friends I can see are hurt.
+ *
+ * Used by pack AI to rush player if he is using ball spells during an ambush.
+ */
+
+bool comrade_hurt(monster_type *m_ptr, bool include_self)
+{
+	monster_type *n_ptr;
+	int i;
+
+	if (m_ptr->hp < m_ptr->maxhp && include_self) return (TRUE);
+
+	/* Loop over all monsters */
+	for (i = 1; i < m_max; i++)
+	{
+		/* Get the monster */
+		n_ptr = &m_list[i];
+
+		/* Check monster index */
+		if (n_ptr->r_idx != m_ptr->r_idx) continue;
+
+		/* Check HP */
+		if (n_ptr->hp == n_ptr->maxhp) continue;
+
+		/* Check LOS */
+		if (!projectable(n_ptr->fy, n_ptr->fx, m_ptr->fy, m_ptr->fx, PROJECT_JUMP)) continue;
+
+		/* We can see a hurt comrade */
+		return (TRUE);
+	}
+
+	return (FALSE);
+}
+
 
 /*
  * Choose the probable best direction for a monster to move in.  This
@@ -2493,7 +2563,7 @@ static bool get_move(monster_type *m_ptr, int *ty, int *tx, bool *fear,
 					char m_poss[DESC_LEN];
 
 					/* Get the monster name/poss */
-					monster_desc(m_name, m_ptr, 0);
+					monster_desc(m_name, m_ptr, 0x40);
 					monster_desc(m_poss, m_ptr, 0x22);
 
 					/* Dump a message */
@@ -2596,8 +2666,8 @@ static bool get_move(monster_type *m_ptr, int *ty, int *tx, bool *fear,
 			}
 		}
 
-		/* We are hurt */
-		else if ((p_ptr->vulnerability < 100) && (m_ptr->hp < m_ptr->maxhp))
+		/* We or comrades are hurt */
+		else if ((p_ptr->vulnerability < 100) && (comrade_hurt(m_ptr, TRUE)))
 		{
 			/* The ambush has been blown -- charge! */
 			p_ptr->vulnerability = 120;

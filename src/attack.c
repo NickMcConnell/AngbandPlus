@@ -52,9 +52,9 @@ bool test_hit_combat(int chance, int ac, int visible)
 /*
  * Determine if monster evades or resists a blow.  -LM-
  *
- * Return TRUE if blow was avoided.
+ * Return percentage of damage resisted.
  */
-bool monster_evade_or_resist(object_type *o_ptr,
+int monster_evade_or_resist(object_type *o_ptr,
 	monster_type *m_ptr, byte blow_type)
 {
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -104,7 +104,7 @@ bool monster_evade_or_resist(object_type *o_ptr,
 		}
 
 		/* Can't hurt me! */
-		return (TRUE);
+		return (100);
 	}
 
 
@@ -124,8 +124,8 @@ bool monster_evade_or_resist(object_type *o_ptr,
 			if (r_ptr->flags3 & (RF3_IM_EDGED))
 			{
 				/* Resist */
-				if (f1 & (TR1_VORPAL)) resist = 70;
-				else resist = 85;
+				if (f1 & (TR1_VORPAL)) resist = 50;
+				else resist = 70;
 
 				/* Learn */
 				if ((!(l_ptr->flags3 & (RF3_IM_EDGED))) &&
@@ -140,8 +140,8 @@ bool monster_evade_or_resist(object_type *o_ptr,
 			}
 			else if (r_ptr->flags3 & (RF3_RES_EDGED))
 			{
-				if (f1 & (TR1_VORPAL)) resist = 33;
-				else resist = 60;
+				if (f1 & (TR1_VORPAL)) resist = 25;
+				else resist = 50;
 
 				if ((!(l_ptr->flags3 & (RF3_RES_EDGED))) &&
 					(mon_fully_visible(m_ptr)))
@@ -161,8 +161,8 @@ bool monster_evade_or_resist(object_type *o_ptr,
 		{
 			if (r_ptr->flags3 & (RF3_IM_BLUNT))
 			{
-				if (f1 & (TR1_VORPAL)) resist = 70;
-				else resist = 85;
+				if (f1 & (TR1_VORPAL)) resist = 50;
+				else resist = 70;
 
 				if ((!(l_ptr->flags3 & (RF3_IM_BLUNT))) &&
 					(mon_fully_visible(m_ptr)))
@@ -172,14 +172,14 @@ bool monster_evade_or_resist(object_type *o_ptr,
 				}
 
 				if (strchr("G*A", r_ptr->d_char))
-					note = "passes harmlessly through";
+					note = "passes through";
 				else
 					note = "bounces off of";
 			}
 			else if (r_ptr->flags3 & (RF3_RES_BLUNT))
 			{
-				if (f1 & (TR1_VORPAL)) resist = 33;
-				else resist = 60;
+				if (f1 & (TR1_VORPAL)) resist = 25;
+				else resist = 50;
 
 				if ((!(l_ptr->flags3 & (RF3_RES_BLUNT))) &&
 					(mon_fully_visible(m_ptr)))
@@ -189,7 +189,7 @@ bool monster_evade_or_resist(object_type *o_ptr,
 				}
 
 				if (strchr("G*A", r_ptr->d_char))
-					note = "passes harmlessly through";
+					note = "passes through";
 				else
 					note = "bounces off of";
 			}
@@ -203,8 +203,7 @@ bool monster_evade_or_resist(object_type *o_ptr,
 		}
 	}
 
-	/* Try for a miss */
-	if (resist > rand_int(100))
+	if (resist)
 	{
 		/* Monster is fully visible */
 		if (mon_fully_visible(m_ptr))
@@ -232,13 +231,9 @@ bool monster_evade_or_resist(object_type *o_ptr,
 				msg_format("Your %s %s %s.", p, note, m_name);
 			}
 		}
-
-		/* Can't hurt me! */
-		return (TRUE);
 	}
 
-	/* Can hurt me */
-	return (FALSE);
+	return (resist);
 }
 
 /*
@@ -797,7 +792,7 @@ void adjust_dam(int *damage, object_type *o_ptr, monster_type *m_ptr,
 	if (!is_trap)
 	{
 		u32b fc1, fc2, fc3;
-		object_type *o_ptr = &inventory[INVEN_HANDS];
+		object_type *i_ptr = &inventory[INVEN_HANDS];
 
 		/* Get character flags */
 		player_flags(&fc1, &fc2, &fc3, TRUE, FALSE);
@@ -807,7 +802,9 @@ void adjust_dam(int *damage, object_type *o_ptr, monster_type *m_ptr,
 
 		/* Apply brands and slays from gauntlets for martial artists */
 		if (!o_ptr->tval)
-		{	f1 |= o_ptr->flags1; f2 |= o_ptr->flags2; f3 |= o_ptr->flags3;}
+		{
+			f1 |= i_ptr->flags1; f2 |= i_ptr->flags2; f3 |= i_ptr->flags3;
+		}
 
 		/* Get "cancelled" flags */
 		player_flags_cancel(&fc1, &fc2, &fc3, TRUE);
@@ -1095,9 +1092,12 @@ void adjust_dam(int *damage, object_type *o_ptr, monster_type *m_ptr,
 	/* Use up special attack powers, unless a trap */
 	if (!is_trap) dec_special_atk();
 
-
 	/* Apply addition and subtraction */
-	*damage += (add - sub);
+	/* Scale damage for low level characters */
+	if (skill_being_used != S_NOSKILL)
+		*damage += ((add - sub) * get_skill(skill_being_used, 50, 100)) / 100;
+	else
+		*damage += (add - sub);
 
 	/* Apply multiplier, if positive */
 	if (mul > 1) *damage *= mul;
@@ -1815,6 +1815,8 @@ bool py_attack(int y, int x)
 
 	bool fear = FALSE;
 
+	int resist;
+
 
 	/* Get the monster */
 	m_ptr = &m_list[cave_m_idx[y][x]];
@@ -2082,8 +2084,8 @@ bool py_attack(int y, int x)
 			else             bonus = o_ptr->to_h;
 
 			/* Calculate the attack quality. */
-			chance = p_ptr->skill_thn + BTH_PLUS_ADJ * bonus;
-
+			if (!offhand) chance = p_ptr->skill_thn + BTH_PLUS_ADJ * bonus;
+			else chance = p_ptr->skill_thn2 + BTH_PLUS_ADJ * bonus;
 
 			/* This blow missed */
 			if (!test_hit_combat(chance + sleeping_bonus,
@@ -2095,10 +2097,13 @@ bool py_attack(int y, int x)
 			else learn_about_hits(1, offhand);
 
 			/* Monster evaded or resisted */
-			if (monster_evade_or_resist(o_ptr, m_ptr, BLOW_MELEE))
-			{
-				continue;
-			}
+			resist = monster_evade_or_resist(o_ptr, m_ptr, BLOW_MELEE);
+
+			/* Monster can evade */
+			if (resist == 100) continue;
+
+			/* Practice the melee skill */
+			skill_being_used = sweapon(o_ptr->tval);
 
 			/* Character is wielding a weapon */
 			if (is_melee_weapon(o_ptr))
@@ -2127,6 +2132,9 @@ bool py_attack(int y, int x)
 				/* No attack */
 				continue;
 			}
+
+			/* Resisted */
+			if (resist) damage -= (damage * resist + 50) / 100;
 
 			/* Count hits */
 			hits++;
@@ -2160,9 +2168,6 @@ bool py_attack(int y, int x)
 
 			/* Paranoia -- No negative damage */
 			if (damage < 0) damage = 0;
-
-			/* Practice the melee skill */
-			skill_being_used = sweapon(o_ptr->tval);
 
 			/* Learn about damage */
 			learn_about_damage(damage, offhand);
@@ -2720,6 +2725,7 @@ void do_cmd_fire(void)
 	char msg_hit[DESC_LEN];
 
 	bool no_pile = FALSE;
+	int resist;
 
 	cptr q, s;
 
@@ -2758,14 +2764,7 @@ void do_cmd_fire(void)
 	p_ptr->max_dist = tdis;
 
 	/* Get a direction (or cancel) */
-	if (!get_aim_dir(&dir))
-	{
-	    p_ptr->max_dist = 0;
-	    return;
-	}
-
-	/* Clear max distance */
-	p_ptr->max_dist = 0;
+	if (!get_aim_dir(&dir)) return;
 
 	/* Use some energy ("p_ptr->num_fire" has a standard value of 2) */
 	p_ptr->energy_use = div_round(200, p_ptr->num_fire);
@@ -2993,7 +2992,6 @@ void do_cmd_fire(void)
 	/* Hack -- Handle stuff */
 	handle_stuff();
 
-
 	/* Calculate path of projection */
 	calc_ranged_path(tdis, py, px, &ty, &tx, dir, inaccuracy);
 
@@ -3095,10 +3093,10 @@ void do_cmd_fire(void)
 			}
 
 			/* Monster evaded or resisted */
-			if (monster_evade_or_resist(o_ptr, m_ptr, BLOW_MISSILE))
-			{
-				continue;
-			}
+			resist = monster_evade_or_resist(i_ptr, m_ptr, BLOW_MISSILE);
+
+			/* Evaded */
+			if (resist == 100)	continue;
 
 			/* Note the collision */
 			hit_body++;
@@ -3148,6 +3146,8 @@ void do_cmd_fire(void)
 				m_name, total_deadliness, chance + sleeping_bonus,
 				msg_hit, combat_mods);
 
+			/* Damage was resisted */
+			if (resist)		damage -= (damage * resist + 50) / 100;
 
 			/* Hack! -- display hit messages before monster dies  XXX */
 			if ((damage > m_ptr->hp) && (strlen(msg_hit)))
@@ -3313,6 +3313,7 @@ void do_cmd_throw(void)
 	char msg_hit[DESC_LEN];
 
 	bool no_pile = FALSE;
+	int resist;
 
 	int msec = op_ptr->delay_factor * op_ptr->delay_factor;
 	int returning = 0;
@@ -3369,14 +3370,7 @@ void do_cmd_throw(void)
     p_ptr->max_dist = tdis;
 
 	/* Get a direction (or cancel) */
-	if (!get_aim_dir(&dir))
-	{
-	    p_ptr->max_dist = 0;
-        return;
-	}
-
-	/* Important -- Clear out maximum distance */
-	p_ptr->max_dist = 0;
+	if (!get_aim_dir(&dir)) return;
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
@@ -3595,10 +3589,10 @@ void do_cmd_throw(void)
 			}
 
 			/* Monster evaded or resisted */
-			if (monster_evade_or_resist(i_ptr, m_ptr, BLOW_THROWN))
-			{
-				continue;
-			}
+			resist = monster_evade_or_resist(i_ptr, m_ptr, BLOW_THROWN);
+
+			/* Evaded */
+			if (resist == 100) continue;
 
 			/* Note the collision */
 			hit_body = TRUE;
@@ -3673,6 +3667,9 @@ void do_cmd_throw(void)
 				m_name, total_deadliness, chance + sleeping_bonus,
 				msg_hit, combat_mods);
 
+			/* Damage was resisted */
+			if (resist)  damage -= (damage * resist + 50) / 100;
+
 
 			/* Hack! -- display hit messages before monster dies  XXX */
 			if ((damage > m_ptr->hp) && (strlen(msg_hit)))
@@ -3716,7 +3713,10 @@ void do_cmd_throw(void)
 							else if (strchr("OTdgv", r_ptr->d_char)) k /= 2;
 
 							/* Thrust away */
-							thrust_away(-1, m_ptr->fy, m_ptr->fx, MIN(3, 1 + k / 15));
+							if (returning != 2)
+								thrust_away(-1, m_ptr->fy, m_ptr->fx, MIN(3, 1 + k / 15));
+							/* On the return, thrust toward player! */
+							else thrust_toward(-1, m_ptr->fy, m_ptr->fx, MIN(3, 1 + k / 15));
 						}
 					}
 				}
@@ -3863,7 +3863,11 @@ void do_cmd_throw(void)
 void do_cmd_weapon_switch()
 {
 	if (p_ptr->barehanded)	do_cmd_barehanded();
-	else 					(void) switch_weapons(FALSE);
+	else if (switch_weapons(FALSE))
+	{
+		p_ptr->energy_use = 100;
+		msg_print("You swap your weapons.");
+	}
 }
 
 

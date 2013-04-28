@@ -39,7 +39,7 @@ F:56:w/177:w/177:W/177
 F:60:w/177:w/177:W/177
 
 # Permanent wall -- all others
-F:61:w/178:w/178:W/178
+F:61:z/178:z/178:z/178
 
 # Pillar
 F:64:w/4:w/4:W/4

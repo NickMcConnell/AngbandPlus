@@ -1,7 +1,7 @@
 
 ====== Races ======
 
-     There are eleven different races that you may choose among, representing
+     There are fourteen different races that you may choose among, representing
 most of the speaking peoples found in Tolkien's books, plus Gnomes and Giants.
 Races differ in abilities, and tend to be better at some skills than at others.
 
@@ -38,13 +38,13 @@ and have innate infravision.
 
 Dwarf:
      Dwarves are the headstrong miners and fighters of legend.  They are strong,
-wise, tough, and resistant to magic; although not very good at casting spells,
-they make excellent mages and smiths.  They are better than average at melee
-combat, but don't know the first thing about bows.  Dwarves have good innate
-infravision and -- a major advantage -- can never be blinded.  They do have one
-big drawback, though:  Dwarves are loudmouthed and proud, singing in loud
-voices, arguing with themselves for no good reason, screaming out challenges at
-imagined foes.  In other words, dwarves have a miserable stealth.
+intelligent, tough, and resistant to magic; although not very good at casting
+spells, they make excellent mages and smiths.  They are better than average at
+melee combat, but don't know the first thing about bows.  Dwarves have good
+innate infravision and -- a major advantage -- can never be blinded.  They do 
+have one big drawback, though:  Dwarves are loudmouthed and proud, singing in 
+loud voices, arguing with themselves for no good reason, screaming out challenges
+at imagined foes.  In other words, dwarves have a miserable stealth.
 
 Half-Orc:
      The bastard offspring of humans and orcs, half-orcs are ugly, strong, and
@@ -90,29 +90,51 @@ elves always have their intelligence sustained.
 
 Giant:
      Eight feet tall, nine, even ten feet tall they stand, and thick and broad
-in proportion.  Giants have more hitpoints than any other race and make
+in proportion.  Giants have more hitpoints than any other race but Ents and make
 formidable wrestlers.  Their high strength and constitution make them decent
 fighters, especially with clubs and thrown objects, good tunnelers, and they can
 readily learn magic or object-creation.  Unfortunately, all those tales about
 the naivete and clumsiness of giants have a large grain of truth to them.  No
 other race is less perceptive than a giant, and none is more easy to spot.
 
+Ent:
+     Ents are tree-like creatures, large, strong and wise.  Their bark-like
+exterior protects them from attacks, but they are vulnerable to fire.  They can
+handle weapons well, but dislike axes; they are clumsy with bows, crossbows, and
+magical devices.  Their harmony with nature makes them natural druids, and they
+are in touch with priestly magics as well.  Ents have no trouble walking through
+forests.
+
+Druedain (Woses):
+     The Druedain are wild men, with squat bodies and limbs.  They are a
+versatile race not unsimilar to humans, though a little less educated and
+friendly.  They make decent fighters, as they are apt with many weapons; they
+also are make excellent druids.  Woses have no trouble walking through
+forests.
+
+Beorning:
+	The beornings are descendants of Beor, and retain his ability to change 
+into the shape of a bear.  They are excellent with all weapons and make natural
+warriors, but are bad at spellcasting and devices.
 
 Racial Adjustments:
 
                STR  INT   WIS   DEX   CON   CHR  Hit Dice  Infravision
- Human          0     0     0     0     0     0     10        0
- Elf           -1    +1    +2    +1    -2    +1      8        0
- Hobbit        -2    +1    +1    +3    +2    +1      7        3
- Gnome         -1    +2     0    +2    +0    -2      8        3
- Dwarf         +2    +2    -2    -2    +2    -2     11        4
- Half-Orc      +2    -1    -1     0    +2    -3     11        3
- Half-Troll    +4    -4    -1    -3    +3    -4     12        3
- Dunadan       +1    +1    +3    +2    +3    +2     10        0
- High-Elf      +1    +3    -1    +3    +1    +3     10        0
- Dark-Elf      -1    +3     0    +2    -2    -1      8        2
- Giant         +3     0    -2    -2    +2    -1     13        0
-
+ Human          0     0     0     0     0     0     12        0
+ Elf           -1    +1    +2    +1    -2    +1     10        0
+ Hobbit        -2    +1    +1    +3    +2    +1      9        3
+ Gnome         -1    +2     0    +2     0    -2     10        3
+ Dwarf         +2    +2    -2    -2    +2    -2     13        4
+ Half-Orc      +2    -1    -1     0    +2    -3     13        3
+ Half-Troll    +4    -4    -1    -3    +3    -4     14        3
+ Dunadan       +1    +1    +3    +2    +3    +2     12        0
+ High-Elf      +1    +3    -1    +3    +1    +3     12        0
+ Dark-Elf      -1    +3     0    +2    -2    -1     10        2
+ Giant         +3     0    -2    -2    +2    -1     15        0
+ Ent           +3    -2    +3    -4    +3    -1     15        0
+ Druedain       0    -2    +1     0    +1    -2     10        0
+ Beorning      +1    -1    +1    -1    +1    -1     10        0
+ 
      All racial stat adjustments act as modifiers to your maximum internal
 stats.  A Half-Troll, for example, can raise his internal strength to 18/140,
 but his dexterity only to 18/70.
@@ -131,7 +153,10 @@ Racial Abilities:
  Dunadan       6       8       7       6       8       7       7       7
  High-Elf     10       9       8       7       9       5       9       9
  Dark-Elf      9       8       5       7       7       4       5       5
- Giant         2       4       5       3       1       5       4       4
+ Giant         2       4       5       3       1       8       4       4
+ Ent           1       3       5       3       5       8       5       5 
+ Druedain      5       4       5       5       6       5       5       5
+ Beorning      4       4       5       5       5       6       5       5
 
      Abilities are ranked on a comparative scale ranging from 1 to 10.
 * Half-trolls are bad with thrown weapons, though.
@@ -139,40 +164,41 @@ Racial Abilities:
 
 Racial Aptitudes:
 
-               Hum  Elf  Hob  Gno  Dwa  HlO  HlT  Dun  HiE  DkE  Gia
- sword          10   11   12   12   10    8    9   10   10    9   11
- hafted         10   13   13   12    9    9    7   10   12   13   10
- polearm        10   12   14   12    8    9    9   10   11   11   10
- crossbow       10   11   11   10   10   10   10   10   10   11   13
- bow            10    8    9   10   14   10   13   10    8    9   13
- sling          10   10    7   10   13   10   15   10   10   10   13
- throwing       10   10    8   10   12   10    8   10    9   11   10
- wrestling      10   14   15   14    9   10    9   10   12   13    7
- karate         10    8   10   10   12   13   15   10    8   11   13
+             Hum Elf Hob Gno Dwa HlO HlT Dun HiE DkE Gia Ent Dru Brn             
+ sword        10  11  12  12  10   8   9  10  10   9  11  10  11   9             
+ hafted       10  13  13  12   9   9   7  10  12  13  10  10   9   8             
+ polearm      10  12  14  12   8   9   9  10  11  11  10  15   9   8             
+ crossbow     10  11  11   9  10  10  10  10  10  11  13  11  11   9             
+ bow          10   8   9  10  14  10  13  10   8   9  13  12   9  10             
+ sling        10  10   7  10  13  10  15  10  10  10  13  12  10  10             
+ throwing     10  10   8  10  12  10   8  10   9  11  10  10  10   9             
+ wrestling    10  14  15  14   9  10   9  10  12  13   7   8  10   9             
+ karate       10   8  10  10  12  13  15  10   8  11  13   8  10  10             
 
- spell level    10    9   11    9   11   11   12   10   10    8   10
- mana           10    9   10    9   10   11   11   10    9    8   10
+ spell level  10   9  11   9  11  11  12  10  10   8  10  10  10  11             
+ mana         10   9  10   9  10  11  11  10   9   8  10   8  10  11             
 
- wizard         10    9   11    8   12   12   13   10    9    9   11
- piety          10   11   11   10    8   11   11   10   11   10   12
- nature         10    8   10   10   12   15   10   10    8   14    9
- dominion       10   11   11    9   10    9    9   10   10    9   10
+ wizard       10   9  11   8  12  12  13  10   9   9  11  12  12  12             
+ piety        10  11  11  10   8  11  11  10  11  10  12   9  11  12             
+ nature       10   8  10  10  12  15  10  10   8  14   9   8   8   7             
+ dominion     10  11  11   9  10   9   9  10  10   9  10  12   9  11             
 
- device         10    9   11    8   10   12   16   10    9    8   11
- burglary       10   10    7   10   12   10   12   10   10    9   14
+ device       10   9  11   8  10  12  16  10   9   8  11  12  11  12             
+ burglary     10  10   7  10  12  10  12  10  10   9  14  15  10  10             
 
- perception     10    9    8    9   11   11   12   10    9    8   15
- stealth        10    8    7   10   15   10   13   10    8    9   15
- disarming      10   10    7   10   10   10   12   10   10   11   13
- dodging        10    9    8   10   10   10   20   10    9   10   15
- saving throw   10   10    8   10    8   11   12   10    9    9   11
+ perception   10   9   8   9  11  11  12  10   9   8  15  10   8  10             
+ stealth      10   8   7  10  15  10  13  10   8   9  15  15   8  10             
+ disarming    10  10   7  10  10  10  12  10  10  11  13  10  12  11             
+ dodging      10   9   8  10  10  10  20  10   9  10  15  20   9   9             
+ saving throw 10  10   8  10   8  11  12  10   9   9  11  11  11   9             
 
- forge weapon   10   12   11   11    7   10   11   10   12    8    9
- forge bow      10   10   11   11   11   11   11   10   10    8   12
- forge armor    10   12   11   11    7   10   11   10   12   11    9
- alchemy        10   11   12    8   14   13   11   10   11   10   13
- infusion       10   10   13    9   11   13   13   10   10    7   13
-               Hum  Elf  Hob  Gno  Dwa  HlO  HlT  Dun  HiE  DkE  Gia
+ forge weapon 10  12  11  11   7  10  11  10  12   8   9  12  11  10             
+ forge armor  10  12  11  11   7  10  11  10  12  11   9  12  12  10             
+ alchemy      10  11  12   8  14  13  11  10  11  10  13  11  12  11             
+ infusion     10  10  13   9  11  13  13  10  10   7  13  10  12  11             
+ shapechange  10  10   9  10  11   9  12  10  12  10  12  12   9   8
+             Hum Elf Hob Gno Dwa HlO HlT Dun HiE DkE Gia Ent Dru Brn             
+
 
 
      Higher values mean that the skill is more expensive to raise.

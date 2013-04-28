@@ -646,6 +646,18 @@ static void process_world_aux_inven(void)
 			/* Blankets of Cursing */
 			if (o_ptr->flags3 & (TR3_BLESSED)) do_curse = TRUE;
 		}
+
+		/* Handle athelas spoilage */
+		if (o_ptr->tval == TV_FOOD && o_ptr->sval == SV_FOOD_ATHELAS)
+		{
+			/* Should wilt in around 1 day */
+			if (one_in_(10000 / o_ptr->number))
+			{
+				msg_print("Your athelas wilts!");
+				inven_item_increase(i, -1);
+				inven_item_optimize(i);
+			}
+		}
 	}
 
 	/* Apply effects of cursed blankets */
@@ -1003,7 +1015,7 @@ static void process_world(void)
 		if (!p_ptr->paralyzed && (one_in_(10)))
 		{
 			/* Message */
-			msg_print("You faint from the lack of food.");
+			message(MSG_RED, 500, "You faint from the lack of food.");
 			disturb(1, 0);
 
 			/* Hack -- faint (bypass free action) */
@@ -1294,13 +1306,9 @@ static void process_world(void)
 	{
 		(void)set_wraithform(p_ptr->wraithform - 1);
 	}
-	if (p_ptr->trollform)
+	if (p_ptr->form_dur)
 	{
-		(void)set_trollform(p_ptr->trollform - 1);
-	}
-	if (p_ptr->dragonform)
-	{
-		(void)set_dragonform(p_ptr->dragonform - 1);
+		(void)shapechange_temp(p_ptr->form_dur - 1, p_ptr->schange);
 	}
 
 
@@ -1429,6 +1437,9 @@ static void process_world(void)
 	/*** Process Inventory ***/
 	process_world_aux_inven();
 
+	/*** Process Home ***/
+	process_world_aux_home();
+
 
 	/* Process objects in the dungeon */
 	for (i = 1; i < o_max; i++)
@@ -1488,6 +1499,18 @@ static void process_world(void)
 
 				/* Light eventually goes out */
 				if (o_ptr->pval <= 0) o_ptr->flags3 &= ~(TR3_IS_LIT);
+			}
+		}
+
+		/* Handle athelas spoilage */
+		if (o_ptr->tval == TV_FOOD && o_ptr->sval == SV_FOOD_ATHELAS)
+		{
+			/* Should wilt in around 1 day */
+			if (one_in_(10000 / o_ptr->number))
+			{
+				if (player_has_los_bold(o_ptr->iy, o_ptr->ix)) msg_print("The athelas wilts.");
+				floor_item_increase(i, -1);
+				floor_item_optimize(i);
 			}
 		}
 	}
@@ -2031,7 +2054,6 @@ static void process_command(void)
 
 		/* Cast a spell */
 		case 'm':
-		case 'p':
 		{
 			(void)do_spell(SPELL_CAST, 0);
 			break;
@@ -2223,14 +2245,21 @@ static void process_command(void)
 		/* Use talents */
 		case '[':
 		{
-			do_cmd_talents();
+			do_cmd_talents(TALENT_UTILITY);
 			break;
 		}
 
-		/* Stop doing a shapechange */
+		case 'p':
+		{
+			do_cmd_talents(TALENT_WARRIOR);
+			break;
+		}
+
+		/* Handle shapechange (either talent or unchange) */
 		case ']':
 		{
-			do_cmd_unchange(TRUE);
+			if (get_skill(S_SHAPECHANGE, 0, 100)) do_cmd_talents(TALENT_SHAPE);
+			else do_cmd_unchange(TRUE);
 			break;
 		}
 
@@ -2312,7 +2341,7 @@ static void process_command(void)
 		/* Save and quit, or retire */
 		case 'Q':
 		{
-			if (!p_ptr->total_winner)
+			if (!p_ptr->total_winner && !ironman_play)
 			{
 				/* Stop playing */
 				p_ptr->playing = FALSE;
@@ -3115,6 +3144,9 @@ void process_player(void)
 			/* Take a turn */
 			p_ptr->energy_use = 100;
 
+			/* Increment resting turns counter */
+			p_ptr->resting_turns++;
+
 			/* Note end of rest */
 			if (!p_ptr->resting) left_panel_display(DISPLAY_REGEN, 0);
 		}
@@ -3171,6 +3203,8 @@ void process_player(void)
 		{
 			/* Use some energy */
 			p_ptr->energy -= p_ptr->energy_use;
+
+			p_ptr->total_turns++;
 		}
 	}
 	while (!p_ptr->energy_use && !p_ptr->leaving);
@@ -3673,7 +3707,7 @@ void play_game(bool new_game)
 			character_silent = 0;
 
 			/* Display the character */
-			display_player(0);
+			display_player(0, TRUE);
 
 			/* Center the prompt */
 			center_string(buf, sizeof(buf),

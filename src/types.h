@@ -243,8 +243,8 @@ struct object_kind
 
 	byte level;             /* Level */
 
-	byte locale[3];         /* Allocation level(s) */
-	byte chance[3];         /* Allocation chance(s) */
+	byte locale[4];         /* Allocation level(s) */
+	byte chance[4];         /* Allocation chance(s) */
 
 	byte gen_mult_prob;     /* Probability of generating more than one */
 	byte gen_dice;          /* Average number to generate - dice rolled */
@@ -946,10 +946,15 @@ struct skill_data
 struct talent_type
 {
 	cptr name;              /* Name of this talent */
-	char index;             /* Index of talent */
-	byte skill;             /* Skill this talent is based on */
+	char index;             /* Index of talent (character used to access) */
+	byte skill_count;       /* Number of skills for this talent */
+	byte skill[5];          /* Skill(s) this talent is based on */
+
 	byte min_level;         /* Value of skill needed to use */
 	s16b timeout;           /* Time between uses of this talent */
+	byte oath;              /* Required oath(s) */
+	int type;               /* Type of talent (warrior or utility) */
+	int form;               /* Associated shapechange form */
 };
 
 /*
@@ -1148,9 +1153,7 @@ struct player_type
 	s16b word_recall;			/* Word of recall counter */
 
 	s16b wraithform;           /* Can go through walls */
-	s16b trollform;            /* Temporary Troll form */
-	s16b dragonform;           /* Temporary Dragon form */
-
+	s16b form_dur;             /* Handle temporary forms -- note: no longer any dragonform or trollform variable */
 
 	s16b dancing_feet;         /* Player blinks every turn */
 	bool dancing_feet_safe;    /* Are these blinks safe or unsafe? */
@@ -1188,6 +1191,8 @@ struct player_type
 	s32b food;				/* Current nutrition */
 
 	byte schange;			/* Current shapechange */
+	byte schange_skill;     /* Which skill increases power of shapechange */
+	byte schange_min_skill; /* The minimum skill required to use the skill */
 
 	s16b soul_reserve;		/* Xp your weapon has stored */
 	bool feed_weapon;			/* We can feed our weapon */
@@ -1288,6 +1293,9 @@ struct player_type
 
 	s16b resting;			/* Resting counter */
 	s16b running;			/* Running counter */
+
+	s32b resting_turns;     /* Number of turns spent resting */
+	s32b total_turns;      /* Number of turns spent active */
 
 	s16b run_cur_dir;			/* Direction we are running */
 	s16b run_old_dir;			/* Direction we came from */
@@ -1402,11 +1410,26 @@ struct player_type
 	bool free_act;				/* Never paralyzed */
 	bool hold_life;				/* Resist life draining */
 
+	bool vuln_fire;             /* Take extra damage from fire */
+	bool vuln_cold;             /* Take extra damage from cold */
+	bool vuln_acid;             /* Take extra damage from acid */
+	bool vuln_elec;             /* Take extra damage from electricity */
+	bool vuln_pois;             /* Take extra damage from poison */
+	bool vuln_lite;             /* Take extra damage from light */
+	bool vuln_dark;             /* Take extra damage from dark */
+	bool vuln_confu;			/* Take extra damage from confusion */
+	bool vuln_sound;			/* Take extra damage from sound */
+	bool vuln_shard;			/* Take extra damage from shards */
+	bool vuln_nexus;			/* Take extra damage from nexus */
+	bool vuln_nethr;			/* Take extra damage from nether */
+	bool vuln_chaos;			/* Take extra damage from chaos */
+	bool vuln_disen;			/* Take extra damage from disenchant */
+
 	bool aggravate;				/* Aggravate monsters */
 	bool teleport;				/* Random teleporting */
 	bool drain_exp;				/* Experience draining (permanent, light) */
 	bool black_breath;			/* Experience draining (temporary, heavy) */
-	bool drain_light;				/* Drain light */
+	bool drain_light;			/* Drain light */
 
 	bool bless_blade;			/* Blessed blade */
 
@@ -1428,7 +1451,8 @@ struct player_type
 	s16b skill_stl;				/* Skill: Stealth factor */
 	s16b skill_srh;				/* Skill: Perception */
 	s16b skill_awr;				/* Skill: Awareness */
-	s16b skill_thn;				/* Skill: To hit (normal) */
+	s16b skill_thn;				/* Skill: To hit (melee) */
+	s16b skill_thn2;			/* Skill: To hit (offhand) */
 	s16b skill_thb;				/* Skill: To hit (shooting) */
 	s16b skill_tht;				/* Skill: To hit (throwing) */
 	s16b skill_dig;				/* Skill: Digging */

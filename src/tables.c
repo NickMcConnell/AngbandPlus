@@ -28,6 +28,12 @@ const s16b ddd[9] =
 { 2, 8, 6, 4, 3, 1, 9, 7, 5 };
 
 /*
+ * Global array for looping through directions circularly
+ */
+const s16b ddc[8] =
+{ 4, 7, 8, 9, 6, 3, 2, 1};
+
+/*
  * Global arrays for converting "keypad direction" into offsets
  */
 const s16b ddx[10] =
@@ -221,7 +227,7 @@ const char index_chars_lower[] =
 
 
 /*
- * Stat Table (INT/WIS) -- extra tenth-mana-points per level.
+ * Stat Table (INT/WIS) -- extra twentieth-mana-points per skill level.
  */
 const byte adj_mag_mana[] =
 {
@@ -233,20 +239,20 @@ const byte adj_mag_mana[] =
 	6	/* 8 */,
 	7	/* 9 */,
 	8	/* 10 */,
-	9  /* 11 */,
-	10 /* 12 */,
-	11	/* 13 */,
-	12	/* 14 */,
-	13	/* 15 */,
-	14	/* 16 */,
-	15	/* 17 */,
-	16	/* 18/00-18/09 */,
-	17	/* 18/10-18/19 */,
-	18	/* 18/20-18/29 */,
-	19	/* 18/30-18/39 */,
-	21	/* 18/40-18/49 */,
-	23	/* 18/50-18/59 */,
-	26	/* 18/60-18/69 */,
+	9   /* 11 */,
+	11  /* 12 */,
+	13	/* 13 */,
+	15	/* 14 */,
+	17	/* 15 */,
+	18	/* 16 */,
+	19	/* 17 */,
+	20	/* 18/00-18/09 */,
+	21	/* 18/10-18/19 */,
+	22	/* 18/20-18/29 */,
+	23	/* 18/30-18/39 */,
+	24	/* 18/40-18/49 */,
+	25	/* 18/50-18/59 */,
+	27	/* 18/60-18/69 */,
 	29	/* 18/70-18/79 */,
 	33	/* 18/80-18/89 */,
 	37	/* 18/90-18/99 */,
@@ -869,7 +875,7 @@ const byte adj_con_fix[] =
 
 
 /*
- * Stat Table (CON) -- extra half-hitpoints per level (plus 128)
+ * Stat Table (CON) -- extra quarter-hitpoints per power (plus 128)
  */
 const byte adj_con_mhp[] =
 {
@@ -887,30 +893,30 @@ const byte adj_con_mhp[] =
 	128 + 0 	/* 14 */,
 	128 + 1 	/* 15 */,
 	128 + 1 	/* 16 */,
-	128 + 2 	/* 17 */,
-	128 + 3 	/* 18/00-18/09 */,
-	128 + 4 	/* 18/10-18/19 */,
-	128 + 4 	/* 18/20-18/29 */,
-	128 + 4 	/* 18/30-18/39 */,
-	128 + 4 	/* 18/40-18/49 */,
-	128 + 5 	/* 18/50-18/59 */,
-	128 + 6 	/* 18/60-18/69 */,
-	128 + 7 	/* 18/70-18/79 */,
-	128 + 8 	/* 18/80-18/89 */,
-	128 + 9 	/* 18/90-18/99 */,
-	128 + 10	/* 18/100-18/109 */,
-	128 + 11	/* 18/110-18/119 */,
-	128 + 12	/* 18/120-18/129 */,
-	128 + 13	/* 18/130-18/139 */,
-	128 + 14	/* 18/140-18/149 */,
-	128 + 15	/* 18/150-18/159 */,
-	128 + 16	/* 18/160-18/169 */,
-	128 + 18	/* 18/170-18/179 */,
-	128 + 20	/* 18/180-18/189 */,
-	128 + 22	/* 18/190-18/199 */,
-	128 + 24	/* 18/200-18/209 */,
-	128 + 25	/* 18/210-18/219 */,
-	128 + 25	/* 18/220+ */
+	128 + 1 	/* 17 */,
+	128 + 2 	/* 18/00-18/09 */,
+	128 + 2 	/* 18/10-18/19 */,
+	128 + 2 	/* 18/20-18/29 */,
+	128 + 3 	/* 18/30-18/39 */,
+	128 + 3 	/* 18/40-18/49 */,
+	128 + 4 	/* 18/50-18/59 */,
+	128 + 4 	/* 18/60-18/69 */,
+	128 + 5 	/* 18/70-18/79 */,
+	128 + 6 	/* 18/80-18/89 */,
+	128 + 7		/* 18/90-18/99 */,
+	128 + 8		/* 18/100-18/109 */,
+	128 + 9		/* 18/110-18/119 */,
+	128 + 10	/* 18/120-18/129 */,
+	128 + 11	/* 18/130-18/139 */,
+	128 + 12	/* 18/140-18/149 */,
+	128 + 13	/* 18/150-18/159 */,
+	128 + 14	/* 18/160-18/169 */,
+	128 + 15	/* 18/170-18/179 */,
+	128 + 16	/* 18/180-18/189 */,
+	128 + 18	/* 18/190-18/199 */,
+	128 + 20	/* 18/200-18/209 */,
+	128 + 20	/* 18/210-18/219 */,
+	128 + 21	/* 18/220+ */
 };
 
 
@@ -1230,50 +1236,50 @@ const s32b player_exp[PY_MAX_POWER + 1] =
  */
 const byte race_adj_cost_skill[NUM_SKILLS][MAX_RACES] =
 {
-                /* Hum  Elf  Hob  Gno  Dwa  HlO  HlT  Dun  HiE  DkE  Gia  */
-  /* sword   */  { 10,  11,  12,  12,  10,   8,   9,  10,  10,   9,  11 },
-  /* hafted  */  { 10,  13,  13,  12,   9,   9,   7,  10,  12,  13,  10 },
-  /* polearm */  { 10,  12,  14,  12,   8,   9,   9,  10,  11,  11,  10 },
-  /* x-bow   */  { 10,  11,  11,  10,  10,  10,  10,  10,  10,  11,  13 },
-  /* bow     */  { 10,   8,   9,  10,  14,  10,  13,  10,   8,   9,  13 },
-  /* sling   */  { 10,  10,   7,  10,  13,  10,  15,  10,  10,  10,  13 },
-  /* throw   */  { 10,  10,   8,  10,  12,  10,   8,  10,   9,  11,  10 },
-  /* wrestle */  { 10,  13,  15,  14,   9,  10,   9,  10,  12,  13,   7 },
-  /* karate  */  { 10,   9,  10,  10,  12,  13,  15,  10,   8,  11,  13 },
+                /* Hum  Elf  Hob  Gno  Dwa  HlO  HlT  Dun  HiE  DkE  Gia  Ent  Dru  Brn*/
+  /* sword   */  { 10,  10,  12,  12,  10,   8,   9,  10,  10,   9,  11,  10,  11,   9 },
+  /* hafted  */  { 10,  12,  13,  12,   9,   9,   7,  10,  12,  13,  10,  10,   9,   8 },
+  /* polearm */  { 10,  11,  14,  12,   8,   9,   9,  10,  11,  11,  10,  15,   9,   8 },
+  /* x-bow   */  { 10,  11,  11,   9,  10,  10,  10,  10,  10,  11,  13,  11,  11,   9 },
+  /* bow     */  { 10,   8,   9,  10,  14,  10,  13,  10,   8,   9,  13,  12,   9,  10 },
+  /* sling   */  { 10,  10,   7,  10,  13,  10,  15,  10,  10,  10,  13,  12,  10,  10 },
+  /* throw   */  { 10,  10,   8,  10,  12,  10,   8,  10,   9,  11,  10,  10,  10,   9 },
+  /* wrestle */  { 10,  13,  15,  14,   9,  10,   9,  10,  12,  13,   7,   8,  10,   9 },
+  /* karate  */  { 10,   8,  10,  10,  12,  13,  15,  10,   8,  11,  13,   8,  10,  10 },
 
-  /* spell   */  { 10,   9,  11,   9,  11,  11,  12,  10,  10,   8,  10 },
-  /* mana    */  { 10,   9,  10,   9,  10,  11,  11,  10,   9,   8,  10 },
+  /* spell   */  { 10,   9,  11,   9,  11,  11,  12,  10,  10,   8,  10,  10,  10,  11 },
+  /* mana    */  { 10,   9,  10,   9,  10,  11,  11,  10,   9,   8,  10,   8,  10,  11 },
 
-  /* wizard  */  { 10,   9,  11,   8,  12,  12,  13,  10,   9,   9,  11 },
-  /* piety   */  { 10,  11,  11,  10,   8,  11,  11,  10,  11,  10,  12 },
-  /* nature  */  { 10,   8,  10,  10,  12,  15,  10,  10,   8,  14,   9 },
-  /* dominio */  { 10,  11,  11,   9,  10,   9,   9,  10,  10,   9,  10 },
+  /* wizard  */  { 10,   9,  11,   8,  12,  12,  13,  10,   9,   9,  11,  12,  12,  12 },
+  /* piety   */  { 10,  11,  11,  10,   8,  11,  11,  10,  11,  10,  12,   9,  11,  12 },
+  /* nature  */  { 10,   8,  10,  10,  12,  15,  10,  10,   8,  14,   9,   8,   8,   7 },
+  /* dominio */  { 10,  12,  11,   9,  10,   9,   9,  10,  10,   9,  10,  12,   9,  11 },
 
-  /* device  */  { 10,   9,  11,   8,  10,  12,  16,  10,   9,   8,  11 },
-  /* burglar */  { 10,  10,   7,  10,  12,  10,  12,  10,  10,   9,  14 },
+  /* device  */  { 10,   9,  11,   8,  10,  12,  16,  10,   9,   8,  11,  12,  11,  12 },
+  /* burglar */  { 10,  10,   7,  10,  12,  10,  12,  10,  10,   9,  14,  15,  10,  10 },
 
-  /* percept */  { 10,   9,   8,   9,  11,  11,  12,  10,   9,   8,  15 },
-  /* stealth */  { 10,   8,   7,  10,  15,  10,  13,  10,   8,   9,  15 },
-  /* disarm  */  { 10,   9,   7,  10,  10,  10,  12,  10,  10,  11,  13 },
-  /* dodging */  { 10,   9,   8,  10,  10,  10,  20,  10,   9,  10,  15 },
-  /* save    */  { 10,  10,   8,  10,   8,  11,  12,  10,   9,   9,  11 },
+  /* percept */  { 10,   9,   8,   9,  11,  11,  12,  10,   9,   8,  15,  10,   8,  10 },
+  /* stealth */  { 10,   8,   7,  10,  15,  10,  13,  10,   8,   9,  15,  15,   8,  10 },
+  /* disarm  */  { 10,   9,   7,  10,  10,  10,  12,  10,  10,  11,  13,  10,  12,  11 },
+  /* dodging */  { 10,   9,   8,  10,  10,  10,  20,  10,   9,  10,  15,  20,   9,   9 },
+  /* save    */  { 10,  10,   8,  10,   8,  11,  12,  10,   9,   9,  11,  11,  11,   9 },
 
-  /* f_weap  */  { 10,  12,  11,  11,   7,  10,  11,  10,  12,   8,   9 },
-  /* f_bow   */  { 10,  10,  11,  11,  11,  11,  11,  10,  10,   8,  12 },
-  /* f_armor */  { 10,  12,  11,  11,   7,  10,  11,  10,  12,  11,   9 },
-  /* alchemy */  { 10,  11,  12,   8,  14,  13,  11,  10,  11,  10,  13 },
-  /* infuse  */  { 10,  10,  13,   9,  11,  13,  13,  10,  10,   7,  13 },
+  /* f_weap  */  { 10,  11,  11,  11,   8,  10,  11,  10,  11,   8,   9,  12,  11,  10 },
+  /* f_armor */  { 10,  12,  11,  11,   7,  10,  11,  10,  12,  11,   9,  12,  12,  10 },
+  /* alchemy */  { 10,  11,  12,   8,  14,  13,  11,  10,  11,  10,  13,  11,  12,  11 },
+  /* infuse  */  { 10,  10,  13,   9,  11,  13,  13,  10,  10,   7,  13,  10,  12,  11 },
 
-  /* XXX1    */  { 10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10 },
+  /* shape   */  { 10,  10,   9,  10,  11,   9,  12,  10,  12,  10,  12,  12,   9,   8 },
 
-  /* XXX1    */  { 10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10 },
-  /* XXX2    */  { 10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10 },
-  /* XXX3    */  { 10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10 },
-  /* XXX4    */  { 10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10 },
-  /* XXX5    */  { 10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10 },
-  /* XXX6    */  { 10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10 },
-  /* XXX7    */  { 10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10 },
-  /* XXX8    */  { 10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10 }
+  /* XXX1    */  { 10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10 },
+  /* XXX2    */  { 10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10 },
+  /* XXX3    */  { 10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10 },
+  /* XXX4    */  { 10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10 },
+  /* XXX5    */  { 10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10 },
+  /* XXX6    */  { 10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10 },
+  /* XXX7    */  { 10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10 },
+  /* XXX8    */  { 10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10,  10 }
+                /* Hum  Elf  Hob  Gno  Dwa  HlO  HlT  Dun  HiE  DkE  Gia  Ent  Dru  Brn*/
 };
 
 
@@ -1307,7 +1313,7 @@ player_race race_info[MAX_RACES] =
 		"Human",
 		{ 0,  0,  0,  0,  0,  0 },
 		  0,  0,  0,  0,  0,  0,  0,  0,
-		 10,
+		 12,
 		 16, 10,
 		 68,  3, 135, 10,
 		 64,  3, 120,  9,
@@ -1319,7 +1325,7 @@ player_race race_info[MAX_RACES] =
 		"Elf",
 		{-1,  1,  2,  1, -2,  1 },
 		  3,  2,  4,  3,  5,  -2,  2,  0,
-		  8,
+		 10,
 		300, 100,
 		 65,  3, 115,   8,
 		 62,  3, 105,   7,
@@ -1331,7 +1337,7 @@ player_race race_info[MAX_RACES] =
 		"Hobbit",
 		{-2,  1,  1,  3,  2,  1 },
 		  5,  2, 10,  3, 10, -4,  2,  2,
-		  7,
+		  9,
 		 21,  12,
 		 41,  2,  70,  5,
 		 39,  2,  65,  4,
@@ -1343,7 +1349,7 @@ player_race race_info[MAX_RACES] =
 		"Gnome",
 		{-1,  2,  0,  2,  0, -2 },
 		  4,  3,  6,  1,  5, -3,  0,  0,
-		  8,
+		 10,
 		 50,  40,
 		 44,  2,  80,  6,
 		 41,  2,  70,  5,
@@ -1355,7 +1361,7 @@ player_race race_info[MAX_RACES] =
 		"Dwarf",
 		{ 2,  2, -2, -2,  2, -2 },
 		 -2,  0,  8, -2,  0,  2,  0,  0,
-		 11,
+		 13,
 		 35,  50,
 		 52,  2, 120,  7,
 		 48,  2, 105,  6,
@@ -1367,7 +1373,7 @@ player_race race_info[MAX_RACES] =
 		"Half-Orc",
 		{ 2, -1, -1,  0,  2, -3 },
 		 -2, -1, -4,  0, -6,  2,  0,  0,
-		 11,
+		 13,
 		 16,  8,
 		 64,  3, 140,  8,
 		 60,  3, 125,  7,
@@ -1379,7 +1385,7 @@ player_race race_info[MAX_RACES] =
 		"Half-Troll",
 		{ 4, -4, -1, -3,  4, -4 },
 		 -5, -4, -4, -1,-10,  2,  -4,  0,
-		 12,
+		 14,
 		 50,  50,
 		 77,  3, 360, 28,
 		 72,  3, 300, 22,
@@ -1391,7 +1397,7 @@ player_race race_info[MAX_RACES] =
 		"D['u]nadan",  /* Dunadan */
 		{ 1,  1,  3,  2,  3,  2 },
 		  5,  3, 10,  1, 10,  4,  2,  2,
-		 11,
+		 13,
 		 50,  20,
 		 72,  3, 160, 10,
 		 68,  3, 140,  9,
@@ -1403,7 +1409,7 @@ player_race race_info[MAX_RACES] =
 		"High-Elf",
 		{ 1,  3, -1,  3,  1,  3 },
 		  6,  5, 10,  3, 12,  2,  4,  2,
-		 10,
+		 12,
 		400, 200,
 		 76,  3, 150, 12,
 		 71,  3, 130, 10,
@@ -1415,7 +1421,7 @@ player_race race_info[MAX_RACES] =
 		"Dark-Elf",
 		{-1,  3,  0,  2, -2, -1 },
 		  5,  2,  0,  2,  8, -2,  0,  0,
-		  8,
+		 10,
 		 80, 150,
 		 65,  2, 105, 6,
 		 60,  2,  95, 5,
@@ -1427,14 +1433,51 @@ player_race race_info[MAX_RACES] =
 		"Giant",
 		{ 3,  0, -2, -2,  2, -1 },
 		 -5, -1,  0, -2,-16,  2, -2,  0,
-		 13,
+		 15,
 		 20, 10,
 		110, 6, 500, 36,
 		102, 6, 400, 30,
 		  0,
 		 0L, 0L, 0L
+	},
+
+	{
+		"Ent",
+		{ 3, -2,  3, -4,  3, -1 },
+         -5, -3, 0, -2, 0, 1, 0, 0,
+         15,
+		100, 200,
+		110, 6, 500, 36,
+		102, 6, 400, 30,
+		  0,
+		 0L, 0L, 0L
+	},
+
+	{
+		"Dr['u]edain",
+		{ 0, -2,  1,  0,  1, -2 },
+		  0, -2,  0,  0,  2,  0,  0,  0,
+		 12,
+		 16, 10,
+		 68,  3, 135, 10,
+		 64,  3, 120,  9,
+		  0,
+		 0L, 0L, 0L
+	},
+
+	{
+		"Beorning",
+		{ 1, -1,  1, -1,  1, -1 },
+		 -2, -2,  0,  0,  0,  1, -1,  0,
+		 12,
+		 16, 10,
+		 68,  3, 135, 10,
+		 64,  3, 120,  9,
+		  0,
+		 0L, 0L, 0L
 	}
 };
+
 
 
 /*
@@ -2514,10 +2557,10 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* xxx */
 	FALSE,		/* OPT_always_pickup */
 	TRUE, 		/* OPT_query_floor */
-	FALSE,		/* OPT_never_haggle */
+	TRUE,		/* OPT_never_haggle */
 	FALSE,		/* OPT_use_old_target */
-	TRUE, 		/* OPT_run_ignore_stairs */
-	TRUE, 		/* OPT_run_ignore_doors */
+	FALSE, 		/* OPT_run_ignore_stairs */
+	FALSE, 		/* OPT_run_ignore_doors */
 	FALSE, 		/* OPT_run_cut_corners */
 	TRUE, 		/* OPT_xchars_to_file */
 	TRUE, 		/* OPT_stack_force_notes */
@@ -3324,8 +3367,8 @@ const skill_type skill_info[NUM_SKILLS] =
 	{"Archery - Slings", "ability to use slings",                        7},
 	{"Throwing", "ability to throw weapons and objects",                 9},
 
-	{"Wrestling", "ability to grapple and slam your opponents",         10},
-	{"Karate", "ability to kick and punch your opponents",              10},
+	{"Wrestling", "ability to grapple and slam your opponents",         12},
+	{"Karate", "ability to kick and punch your opponents",              11},
 
 	{"Spellcasting", "ability to master powerful spells",               16},
 	{"Magical Power", "ability to gather and use mana",                 12},
@@ -3344,12 +3387,12 @@ const skill_type skill_info[NUM_SKILLS] =
 	{"Dodging", "ability to evade attacks and use armor effectively",    6},
 	{"Spell Resistance", "extra resistance to magical attacks",          4},
 
-	{"Weaponsmithing", "ability to forge weapons",                      10},
-	{"Bowmaking", "ability to make bows and arrows",                    10},
+	{"Weaponsmithing", "ability to forge weapons, bows, and missiles",  11},
 	{"Armor Forging", "ability to forge armor",                         15},
-	{"Alchemy", "ability to create scrolls, potions, rings, & amulets",  8},
+	{"Alchemy", "ability to create scrolls, potions, rings, & amulets",  6},
 	{"Magical Infusion", "ability to magically enhance objects",        13},
 
+	{"Shapechange", "ability to assume other forms",                    14},
 	{NULL, NULL, 0},
 	{NULL, NULL, 0},
 	{NULL, NULL, 0},
@@ -3365,7 +3408,7 @@ const skill_type skill_info[NUM_SKILLS] =
 /*
  * Talent information table.
  *
- * name, index, skill, min_level, timeout
+ * name, index, skills, min_level, timeout, oath requirements, show on warrior screen
  *
  * Name - name of the talent.  Names longer than 22 characters are trouble.
  * Index char - the list index of the talent, and therefore the command
@@ -3374,90 +3417,110 @@ const skill_type skill_info[NUM_SKILLS] =
  *    ments for only one at any given time.  You can change indexes between
  *    versions of the game; just don't do it needlessly.  Note that indexes
  *    should be in alphabetical order.  Sneaking should have an index of 's'.
- * Skill - skill required for talent.
+ * Skills - skills, one of which is required for talent.
  * Level - level of skill (from 1 to 100) required to use this talent.
  *    Many talents also have other requirements.
  * Timeout - Time between uses of this talent.
+ * Oath - oath requirement
+ * Type of talent
+ *  1 - warrior
+ *  2 - utility
  */
 talent_type talent_info[NUM_TALENTS] =
 {
 	/* Combat talents */
-	{"Turn skin to stone",          'a', S_WRESTLING,    65, 140},
-	{"Berserk fury",                'b', S_WRESTLING,    80, 140},
-	{"Resist damage",               'c', S_KARATE,       90, 140},
-	{"Learn about monster",         'd', NUM_SKILLS,      0,   0},
-	{NULL,                          '?', NUM_SKILLS,      0,   0},
-	{NULL,                          '?', NUM_SKILLS,      0,   0},
-	{NULL,                          '?', NUM_SKILLS,      0,   0},
-	{NULL,                          '?', NUM_SKILLS,      0,   0},
+	{"Turn skin to stone",          'a', 1, {S_WRESTLING},                   65, 140, OATH_OF_IRON, TALENT_WARRIOR},
+	{"Berserk fury",                'b', 1, {S_WRESTLING},                   80, 140, OATH_OF_IRON, TALENT_WARRIOR},
+	{"Resist damage",               'c', 1, {S_KARATE},                      90, 140, OATH_OF_IRON, TALENT_WARRIOR},
+	{"Learn about monster",         'd', 1, {NUM_SKILLS},                     0,   0, OATH_OF_IRON, TALENT_WARRIOR},
+	{"Whirlwind Attack",            'e', 3, {S_SWORD, S_POLEARM, S_HAFTED},  30,   0,            0, TALENT_WARRIOR},
+	{"Circle Kick",                 'f', 1, {S_KARATE},                      30,  20,            0, TALENT_WARRIOR},
+	{"Impact Blow",                 'g', 1, {S_HAFTED},                      30,  10,            0, TALENT_WARRIOR},
+	{"Earthquakes",                 'h', 1, {S_HAFTED},                      60, 140, OATH_OF_IRON, TALENT_WARRIOR},
+	{"Lunge",                       'l', 1, {NUM_SKILLS},                     0,   3, OATH_OF_IRON, TALENT_WARRIOR},
+	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,            TALENT_UTILITY},
 
 	/* Specialized realm talents */
-	{"Detect magic",                'e', S_WIZARDRY,     40,  40},
-	{"Phase warp",                  'f', S_WIZARDRY,     70,  10},
-	{"Tap magical energy",          'g', S_WIZARDRY,     75,  10},
-	{NULL,                          '?', NUM_SKILLS,      0,   0},
+	{"Detect magic",                'e', 1, {S_WIZARDRY},                    40,  40, 0,            TALENT_UTILITY},
+	{"Phase warp",                  'f', 1, {S_WIZARDRY},                    70,  10, 0,            TALENT_UTILITY},
+	{"Tap magical energy",          'g', 1, {S_WIZARDRY},                    75,  10, 0,            TALENT_UTILITY},
+	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,            TALENT_UTILITY},
 
-	{"Sense evil",                  'h', S_PIETY,        30,  50},
-	{"Restore stats",               'i', S_PIETY,        75, 400},
-	{NULL,                          '?', NUM_SKILLS,      0,   0},
-	{NULL,                          '?', NUM_SKILLS,      0,   0},
+	{"Sense evil",                  'h', 1, {S_PIETY},                       30,  50, 0,            TALENT_UTILITY},
+	{"Restore stats",               'i', 1, {S_PIETY},                       75, 400, 0,            TALENT_UTILITY},
+	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,            TALENT_UTILITY},
 
-	{"Sense animals",               'j', S_NATURE,       25,  40},
-	{"Mend self",                   'k', S_NATURE,       50,   0},
-	{NULL,                          '?', NUM_SKILLS,      0,   0},
-	{NULL,                          '?', NUM_SKILLS,      0,   0},
+	{"Sense animals",               'j', 1, {S_NATURE},                      25,  40, 0,            TALENT_UTILITY},
+	{"Mend self",                   'k', 1, {S_NATURE},                      50,   0, 0,            TALENT_UTILITY},
+	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,            TALENT_UTILITY},
 
-	{"Sense undead",                'l', S_DOMINION,     25,  40},
-	{"Restore experience",          'm', S_DOMINION,     85, 400},
-	{NULL,                          '?', NUM_SKILLS,      0,   0},
-	{NULL,                          '?', NUM_SKILLS,      0,   0},
+	{"Sense undead",                'l', 1, {S_DOMINION},                    25,  40, 0,            TALENT_UTILITY},
+	{"Restore experience",          'm', 1, {S_DOMINION},                    85, 400, 0,            TALENT_UTILITY},
+	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,            TALENT_UTILITY},
 
 	/* Magical device */
-	{"Sense charges",               'n', S_DEVICE,       70,   0},
-	{NULL,                          '?', NUM_SKILLS,      0,   0},
+	{"Sense charges",               'n', 1, {S_DEVICE},                      70,   0, 0,            TALENT_UTILITY},
+	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,            TALENT_UTILITY},
 
 	/* Burglary */
-	{"Darkness",                    '-', S_BURGLARY,     20,  10},
-	{"Detect & nab objects",        'o', S_BURGLARY,     40,   0},
-	{"Poison ammo",                 'p', S_BURGLARY,     55,   0},
-	{"Hit and run",                 'q', S_BURGLARY,     70,  10},
+	{"Darkness",                    '-', 1, {S_BURGLARY},                    20,  10, 0,            TALENT_UTILITY | TALENT_WARRIOR},
+	{"Detect & nab objects",        'o', 1, {S_BURGLARY},                    40,   0, 0,            TALENT_UTILITY | TALENT_WARRIOR},
+	{"Poison ammo",                 'p', 1, {S_BURGLARY},                    55,   0, 0,            TALENT_UTILITY},
+	{"Hit and run",                 'q', 1, {S_BURGLARY},                    70,  10, 0,            TALENT_UTILITY | TALENT_WARRIOR},
 
 	/* Utility skills */
-	{"Predict weather",             'r', S_PERCEPTION,    0, WEATHER_LENGTH},
-	{"Sneaking",                    's', S_STEALTH,      10,   0},
-	{"Sense area",                  't', S_PERCEPTION,   55,  70},
-	{"Superstealth",                'u', S_STEALTH,      75, 200},
+	{"Predict weather",             'r', 1, {S_PERCEPTION},                   0, WEATHER_LENGTH, 0,            TALENT_UTILITY},
+	{"Sneaking",                    's', 1, {S_STEALTH},                     10,   0, 0,            TALENT_UTILITY | TALENT_WARRIOR},
+	{"Sense area",                  't', 1, {S_PERCEPTION},                  55,  70, 0,            TALENT_UTILITY | TALENT_WARRIOR},
+	{"Superstealth",                'u', 1, {S_STEALTH},                     75, 200, 0,            TALENT_UTILITY | TALENT_WARRIOR},
 
-	{NULL,                          '?', NUM_SKILLS,      0,   0},
-	{NULL,                          '?', NUM_SKILLS,      0,   0},
-	{NULL,                          '?', NUM_SKILLS,      0,   0},
-	{NULL,                          '?', NUM_SKILLS,      0,   0},
+	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,            TALENT_UTILITY},
+	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,            TALENT_UTILITY},
 
 	/* Object-manipulation talents */
-	{"Recharging",                  'v', S_INFUSION,     30,   0},
-	{"Weapon forging",              'w', S_FORGE_WEAPON, 15,   0},
-	{"Armor forging",               'x', S_FORGE_ARMOR,  15,   0},
-	{"Bowmaking/Fletchery",         'y', S_FORGE_BOW,    15,   0},
-	{"Alchemy",                     'z', S_ALCHEMY,      LEV_REQ_ALCHEMY,   0},
-	{"Save/stop saving",            '$', S_ALCHEMY,      LEV_REQ_ALCHEMY,   0},
-	{NULL,                          '?', NUM_SKILLS,      0,   0},
-	{NULL,                          '?', NUM_SKILLS,      0,   0},
-	{NULL,                          '?', NUM_SKILLS,      0,   0},
-	{NULL,                          '?', NUM_SKILLS,      0,   0},
+	{"Recharging",                  'v', 1, {S_INFUSION},                    30,   0, 0,            TALENT_UTILITY},
+	{"Weapon forging",              'w', 1, {S_FORGE_WEAPON},                15,   0, 0,            TALENT_UTILITY},
+	{"Armor forging",               'x', 1, {S_FORGE_ARMOR},                 15,   0, 0,            TALENT_UTILITY},
+	{"Bowmaking/Fletchery",         'y', 1, {S_FORGE_WEAPON},                15,   0, 0,            TALENT_UTILITY},
+	{"Alchemy",                     'z', 1, {S_ALCHEMY},                     LEV_REQ_ALCHEMY,   0, 0,            TALENT_UTILITY},
+	{"Save/stop saving",            '$', 1, {S_ALCHEMY},                     LEV_REQ_ALCHEMY,   0, 0,            TALENT_UTILITY},
+	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,            TALENT_UTILITY},
+	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,            TALENT_UTILITY},
+	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,            TALENT_UTILITY},
 
-	/* Miscellaneous */
-	{"Dragon-breathing",            '[', NUM_SKILLS,      0,   2},
-	{NULL,                          '?', NUM_SKILLS,      0,   0},
-	{NULL,                          '?', NUM_SKILLS,      0,   0},
-	{NULL,                          '?', NUM_SKILLS,      0,   0},
-	{NULL,                          '?', NUM_SKILLS,      0,   0},
-	{NULL,                          '?', NUM_SKILLS,      0,   0},
-	{NULL,                          '?', NUM_SKILLS,      0,   0},
-	{NULL,                          '?', NUM_SKILLS,      0,   0}
+	/* Miscellaneous abilities */
+	{"Dragon-breathing",            'a', 1, {NUM_SKILLS},                     0,   2, 0,            TALENT_UTILITY | TALENT_SHAPE},
+
+	/* General shapechanges */
+	{"Unchange",                    'y', 1, {S_SHAPECHANGE},                  1,   0, 0,             TALENT_SHAPE},
+	{"Bear",                        'b', 1, {NUM_SKILLS},                     0,  200, 0,            TALENT_UTILITY | TALENT_SHAPE, SHAPE_BEAR},  /* Can be accessed by shapechage skill or beornings */
+	{"Dragon",                      'd', 1, {S_SHAPECHANGE},                 85,  200, 0,            TALENT_SHAPE, SHAPE_DRAGON},
+	{"Troll",                       't', 1, {S_SHAPECHANGE},                 30,  200, 0,            TALENT_SHAPE, SHAPE_TROLL},
+	{"Eagle",                       'e', 1, {S_SHAPECHANGE},                 50,  200, 0,            TALENT_SHAPE, SHAPE_EAGLE},
+	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,             TALENT_UTILITY},
+
+	/* Holy alliance shapechanges */
+	{"Angel",                       'a', 1, {S_SHAPECHANGE},                 60,  200, 0,           TALENT_SHAPE, SHAPE_ANGEL},
+	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,            TALENT_UTILITY},
+	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,            TALENT_UTILITY},
+
+	/* Wizardy shapechangs */
+	{"Vortex",                      'v', 1, {S_SHAPECHANGE},                 45, 200, 0,            TALENT_SHAPE, SHAPE_VORTEX},
+	{"Golem",                       'g', 1, {S_SHAPECHANGE},                 65, 200, 0,            TALENT_SHAPE, SHAPE_GOLEM},
+	{NULL,                          '?', 1, {NUM_SKILLS},                     0,   0, 0,            TALENT_UTILITY},
+
+	/* Nature lore shapechanges */
+	{"Hound",                       'h', 1, {S_SHAPECHANGE},                 45,  200, 0,            TALENT_SHAPE, SHAPE_HOUND},
+	{"Cheetah",                     'c', 1, {S_SHAPECHANGE},                 30,  200, 0,            TALENT_SHAPE, SHAPE_CHEETAH},
+	{"Mouse",                       'o', 1, {S_SHAPECHANGE},                 10,  200, 0,            TALENT_SHAPE, SHAPE_MOUSE},
+	{"Serpent",                     's', 1, {S_SHAPECHANGE},                 20,  200, 0,            TALENT_SHAPE, SHAPE_SERPENT},
+
+	/* Blood Dominion shapechanges */
+	{"Bat",                         'f', 1, {S_SHAPECHANGE},                 8,  200, 0,            TALENT_SHAPE, SHAPE_BAT},
+	{"Werewolf",                    'w', 1, {S_SHAPECHANGE},                 25,  200, 0,            TALENT_SHAPE, SHAPE_WEREWOLF},
+	{"Vampire",                     'v', 1, {S_SHAPECHANGE},                 60,  200, 0,            TALENT_SHAPE, SHAPE_VAMPIRE},
+	{"Lich",                        'l', 1, {S_SHAPECHANGE},                 90,  200, 0,            TALENT_SHAPE, SHAPE_LICH},
 };
-
-
-
 
 /*
  * Creation-related data for object flags
@@ -3753,5 +3816,44 @@ byte misc_graphics_info[MISC_GRAPHICS_MAX][2] =
 	{ TERM_WHITE,  '*' },    /* Partly seen monster (for expansion) */
 
 	{ TERM_WHITE,  ' ' }     /* (unused) */
+};
+
+/*
+ * Descriptions of pval-dependent qualities.
+ */
+cptr pval_desc_text[32] =
+{
+	"strength",
+	"intelligence",
+	"wisdom",
+	"dexterity",
+	"constitution",
+	"charisma",
+	"XXX6",
+	"XXX7",
+	"stealth",
+	"awareness",
+	"infravision",
+	"tunneling",
+	"speed",
+	"invisibility",
+	"disarming",
+	"device skill",
+	"saving throw",
+	"mana",
+	"light radius",
+	"XX19",
+	"melee blows",
+	"shooting speed",
+	"missile weapon power",
+	"XX23",
+	"XX24",
+	"XX25",
+	"XX26",
+	"XX27",
+	"XX28",
+	"XX29",
+	"XX30",
+	"XX31"
 };
 

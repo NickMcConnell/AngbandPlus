@@ -338,45 +338,6 @@ void object_info(char *buf, object_type *o_ptr, bool reveal_flavor)
 	}
 }
 
-/*
- * Descriptions of pval-dependent qualities.
- */
-static cptr pval_desc_text[32] =
-{
-	"strength",
-	"intelligence",
-	"wisdom",
-	"dexterity",
-	"constitution",
-	"charisma",
-	"XXX6",
-	"XXX7",
-	"stealth",
-	"awareness",
-	"infravision",
-	"tunneling",
-	"speed",
-	"invisibility",
-	"disarming",
-	"device skill",
-	"saving throw",
-	"mana",
-	"light radius",
-	"XX19",
-	"melee blows",
-	"shooting speed",
-	"missile weapon power",
-	"XX23",
-	"XX24",
-	"XX25",
-	"XX26",
-	"XX27",
-	"XX28",
-	"XX29",
-	"XX30",
-	"XX31"
-};
-
 
 /*
  * Display most of what is known about any object.  Rewritten to
@@ -841,6 +802,12 @@ void object_details(object_type *o_ptr, bool mental, bool known)
 			{
 				roff("It can be thrown effectively. \n", 0, 80);
 			}
+
+			if (f1 & TR1_RETURNING)
+			{
+				roff("It returns to you when wielded and thrown.\n", 0, 80);
+			}
+
 		}
 
 		/* Two-handed weapons. */
@@ -1282,6 +1249,8 @@ void object_details(object_type *o_ptr, bool mental, bool known)
 	/* Explain skills and other "gotchas" */
 	if (is_melee_weapon(o_ptr))
 	{
+		int blows;
+
 		roff("\n", 0, 80);
 		if (k_info[o_ptr->k_idx].flags1 & (TR1_THROWING))
 		{
@@ -1307,6 +1276,16 @@ void object_details(object_type *o_ptr, bool mental, bool known)
 			}
 			roff(".\n", 0, 80);
 		}
+
+		roff("\n", 0, 80);
+
+		/* Add blow information */
+		blows = weapon_blows(o_ptr, TRUE);
+		if (blows > 1) roff(format("If attacking in melee as primary weapon, you get %d blows.\n", blows), 0, 80);
+		else c_roff(TERM_RED, "This weapon is too heavy for you to wield properly.\n", 0, 80);
+
+		blows = weapon_blows(o_ptr, FALSE);
+		if (blows) roff(format("If attacking in melee as secondary weapon, you get %d blows.\n", blows), 0, 80);
 	}
 	else if (is_missile_weapon(o_ptr))
 	{
@@ -1521,26 +1500,24 @@ void self_knowledge(bool full)
 
 		switch (p_ptr->schange)
 		{
-			case SHAPE_GOAT:    roff(format("%sa goat.\n",    p), 0, 0);
-				break;
-			case SHAPE_BEAR:    roff(format("%sa bear.\n",    p), 0, 0);
-				break;
-			case SHAPE_MOUSE:   roff(format("%sa mouse.\n",   p), 0, 0);
-				break;
-			case SHAPE_HOUND:   roff(format("%sa hound.\n",   p), 0, 0);
-				break;
-			case SHAPE_CHEETAH: roff(format("%sa cheetah.\n", p), 0, 0);
-				break;
-			case SHAPE_LION:    roff(format("%sa lion.\n",    p), 0, 0);
-				break;
-			case SHAPE_DRAGON:  roff(format("%sa dragon.\n",  p), 0, 0);
-				break;
-			case SHAPE_ENT:     roff(format("%san ent.\n",    p), 0, 0);
-				break;
-			case SHAPE_TROLL:   roff(format("%sa troll.\n",   p), 0, 0);
-				break;
-			case SHAPE_BAT:     roff(format("%sa bat.\n",     p), 0, 0);
-				break;
+			case SHAPE_GOAT:    roff(format("%sa goat.\n",    p), 0, 0); 				break;
+			case SHAPE_BEAR:    roff(format("%sa bear.\n",    p), 0, 0); 				break;
+			case SHAPE_MOUSE:   roff(format("%sa mouse.\n",   p), 0, 0); 				break;
+			case SHAPE_HOUND:   roff(format("%sa hound.\n",   p), 0, 0); 				break;
+			case SHAPE_CHEETAH: roff(format("%sa cheetah.\n", p), 0, 0); 				break;
+			case SHAPE_LION:    roff(format("%sa lion.\n",    p), 0, 0); 				break;
+			case SHAPE_DRAGON:  roff(format("%sa dragon.\n",  p), 0, 0); 				break;
+			case SHAPE_ENT:     roff(format("%san ent.\n",    p), 0, 0); 				break;
+			case SHAPE_TROLL:   roff(format("%sa troll.\n",   p), 0, 0); 				break;
+			case SHAPE_BAT:     roff(format("%sa bat.\n",     p), 0, 0); 				break;
+			case SHAPE_LICH:    roff(format("%sa lich.\n",    p), 0, 0); 				break;
+			case SHAPE_VAMPIRE: roff(format("%sa vampire.\n", p), 0, 0); 			    break;
+			case SHAPE_WEREWOLF:roff(format("%sa werewolf.\n",p), 0, 0); 			    break;
+			case SHAPE_SERPENT: roff(format("%sa serpent.\n", p), 0, 0); 			    break;
+			case SHAPE_ANGEL:   roff(format("%san angel.\n",  p), 0, 0); 			    break;
+			case SHAPE_VORTEX:  roff(format("%sa vortex.\n",  p), 0, 0); 			    break;
+			case SHAPE_GOLEM:   roff(format("%sa golem.\n",   p), 0, 0); 			    break;
+			case SHAPE_EAGLE:   roff(format("%san eagle.\n",  p), 0, 0); 			    break;
 			default:  roff(format("%san unknown creature.\n", p), 0, 0);
 				break;
 		}
@@ -1584,7 +1561,7 @@ void self_knowledge(bool full)
 	{
 		roff("You have a firm hold on your lifeforce.", sk_get_col(), 0);
 	}
-	if (p_ptr->invisible)
+	if (p_ptr->invisible > 0)
 	{
 		roff("You are partially invisible.", sk_get_col(), 0);
 	}
@@ -3138,6 +3115,11 @@ void dump_obj_attrib(FILE *fff, object_type *o_ptr, int know_all)
 			else if (!(k_ptr->flags1 & (TR1_THROWING)))
 			{
 				strcat(buf, "Throwing Weapon.|");
+			}
+
+			if (f1 & TR1_RETURNING)
+			{
+				strcat(buf, "Returning Weapon.|");
 			}
 		}
 

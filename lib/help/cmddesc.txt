@@ -210,7 +210,7 @@ Cast a spell or Pray a Prayer (m and p) :
 
 End/Default shapechange (]) :
      Return to your normal state if you have previously transformed yourself
-into any creature.
+into any creature.  Shapeshifters may change into other forms with this command.
 
 
 --- Object Manipulation Commands ---

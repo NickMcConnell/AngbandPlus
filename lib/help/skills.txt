@@ -57,17 +57,17 @@ can learn the most powerful warrior arts.  Inductees can spread their blows out
 among weaker monsters, can handle heavy weapons with ease, have better combat
 stats, get the most bonuses to missile might and shooting speed, the most
 hitpoints, and have access to several very powerful talents.  However, they can
-learn no realm of magic, and cannot raise their magical device skill past 50.
-     You gain access to the Oath of Iron by raising a combat skill to level 45
-or above (the exception being Slings, in which you need 55).
+learn no realm of magic, and their magic devices suffer a 33% penalty..
+     You gain access to the Oath of Iron by raising a combat skill to level 25
+or above.
 
 The Magic-users' Oaths:
      Each realm of magic also has an Oath.  Wizards may take the Oath of
 Sorcery, Priests subscribe to the Covenant of Faith, Druids join Yavanna's
 Fellowship, and Necromancers bind themselves to the Black Mystery.  You gain
 access to the magic-user Oaths by choosing that realm of magic, and then
-navigating to the specialist skill for that realm (wizardry, holy alliance,
-etc.).
+raising the specialist skill for that realm (wizardry, holy alliance,
+etc.) to 20.
      Spellcasters that have taken the Oath associated with their realm cast
 spells at full power, have another +2 bonus to their spell stat, and eventually
 get plenty of mana.  However, they also are worse for their skill in all kinds
@@ -150,7 +150,7 @@ carrying around flasks of oil, mushrooms, or boulders quite handy, and allow you
 to turn potions you wouldn't want to drink and well-balanced weapons into deadly
 missiles.
 
-Wrestling   (cost - 10):
+Wrestling   (cost - 12):
      Affects hit chance and damage when wrestling.  Sufficient increases in this
 skill increase strength and also dexterity, allow you to bash doors and chests
 with greater force, tunnel more rapidly, and recover from stuns more quickly.
@@ -168,7 +168,7 @@ skilled wrestlers who are not wielding a weapon get special immunities:  free
 action at a skill of 86, resist sound and stunning at 92, and resist confusion
 at 98.
 
-Karate   (cost - 10):
+Karate   (cost - 11):
      Affects hit chance and damage when using karate.  Sufficient increases in
 this skill increase dexterity and also strength, allow you to dodge better and
 become slightly more stealthy, and recover from stuns more quickly.
@@ -242,7 +242,7 @@ cannot learn both Holy Alliance and Blood Dominion.
      If you are not a necromancer, learning blood dominion also gives you two
 special talents:  sense undead (25) and restore experience (85).
 
-Magical Device   (cost - 15):
+Magical Device   (cost - 16):
      Determines success rate with magical devices and all activatable items
 except dragon scale mail, and increases their power when used.  Makes recharging
 less likely to blow up items.  Allows you to learn the true effects of magical
@@ -318,17 +318,11 @@ Spell resistance   (cost - 4):
 confusion, paralyzation, etc.).  Attention paid to this skill can save your
 life...
 
-Weaponsmithing   (cost - 10):
+Weaponsmithing   (cost - 11):
      Once you raise it to 15, allows you to forge melee and throwing weapons
-from components found in the dungeon.  Note:  you also need to be moderately
-skilled in using the weapon type you are making to get good results.
-     Weaponsmithing reduces the cost of Bowmaking by 2/5ths.
-
-Bowmaking   (cost - 10):
-     With a skill of 15, allows you to forge missile weapons and missiles from
-components found in the dungeon.  Note:  you also need to be moderately skilled
-in using the weapon or ammunition you are making to get good results.
-     Bowmaking reduces the cost of Weaponsmithing by 2/5ths.
+as well as bows and missiles from components found in the dungeon. Note:  you
+also need to be moderately skilled in using the weapon type you are making to
+get good results.
 
 Armor forging   (cost - 14):
      With a skill of 15, allows you to forge armor from components found in the
@@ -336,10 +330,14 @@ dungeon.  Armor forging is very powerful, because there are almost no object
 qualities that cannot be had with enough skill, good enough components, and a
 dash of luck.
 
-Alchemy   (cost - 8):
+Alchemy   (cost - 6):
      Allows you to create potions, scrolls, rings and amulets.  You need a skill
 of 10 to create potions and scrolls, and a skill of 35 to create rings and
 amulets.
+
+     A relatively high magical infusion or alchemy skill is essential for
+reliably finding essences, especially deep in the dungeon (Perception also
+helps a little).
 
 Magical infusion   (cost - 13):
      Infusion is among the most powerful of skills, because it allows you to use
@@ -347,12 +345,18 @@ magical essences to control the powers that armor, weapons, and missiles get,
 pack essences into potions that explode violently when thrown, and make more
 potions and scrolls using a given number of essences.  You need an infusion
 skill of 10 to infuse forged items.
-     A relatively high Magical infusion skill is essential for reliably finding
-essences, especially deep in the dungeon (Perception also helps a little).  You
-cannot search for essences at all unless you have a Magical Infusion skill of 10
-or higher.
+
+    A relatively high magical infusion or alchemy skill is essential for 
+reliably finding essences, especially deep in the dungeon (Perception also
+helps a little).
+
      Infusion grants one talent:  Recharging with essences (30).
 
+Shapechange  (cost - 14)
+	 Shapechanging allows you to take the form of many different beasts, modifying
+your stats, resistances, and more.  Some forms are only available in combination
+with the nature lore or blood dominion skill.  Press ']' to change form.  See the
+shapechanging section for more details.
 
 
 
@@ -367,3 +371,5 @@ or higher.
 
 
 
+
+ 

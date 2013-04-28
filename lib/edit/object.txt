@@ -17,7 +17,7 @@
 
 # Version stamp (required)
 
-V:1.0.1
+V:1.0.2
 
 #
 # N: object index: name
@@ -372,7 +372,7 @@ N:44:& Dagger~
 G:|:W
 I:23:4:0
 W:0:0:10:18
-A:0/80:10/125:40/40
+A:0/80:10/125:40/40:80/15
 C:0:1d4:0:0:0
 F:SHOW_MODS
 D:A two-edged knife with a sharp point.
@@ -381,7 +381,7 @@ N:45:& Main Gauche~
 G:|:W
 I:23:5:0
 W:3:0:18:25
-A:3/50:20/30:55/10
+A:3/50:20/30:55/10:80/5
 C:0:1d5:0:0:0
 F:SHOW_MODS
 D:A short thrusting blade with a large guard, primarily used in duels.
@@ -392,7 +392,7 @@ N:47:& Rapier~
 G:|:W
 I:23:7:0
 W:7:0:25:70
-A:7/50:40/15
+A:7/50:40/15:60/10
 C:0:1d6:0:0:0
 F:SHOW_MODS
 X:MAYBE_VORPAL
@@ -403,7 +403,7 @@ N:48:& Small Sword~
 G:|:W
 I:23:8:0
 W:5:0:40:55
-A:5/50:40/15
+A:5/50:40/15:80/5
 C:0:1d6:0:0:0
 F:SHOW_MODS
 D:A smaller version of the longsword, perfectly sized for Hobbits.
@@ -414,7 +414,7 @@ N:50:& Short Sword~
 G:|:W
 I:23:10:0
 W:7:0:45:90
-A:7/50:40/15
+A:7/50:40/15:60/5
 C:0:1d7:0:0:0
 F:SHOW_MODS
 D:A short thrusting sword.
@@ -423,7 +423,7 @@ N:51:& Sabre~
 G:|:W
 I:23:11:0
 W:10:0:35:90
-A:10/50:45/15
+A:10/50:45/15:80/5
 C:0:1d7:0:0:0
 F:SHOW_MODS
 D:A light, somewhat curved blade that can be used to thrust or slash; familiar 
@@ -432,8 +432,8 @@ D:to horseman and duelists alike.
 N:52:& Cutlass~
 G:|:W
 I:23:12:0
-W:15:0:45:85
-A:15/50:45/15
+W:15:0:60:120
+A:15/50:45/15:80/10
 C:0:1d8:0:0:0
 F:SHOW_MODS
 D:A large, curved chopper with a basket hilt, well known to seamen.
@@ -456,7 +456,7 @@ N:56:& Broad Sword~
 G:|:W
 I:23:16:0
 W:12:0:80:250
-A:12/40:17/80:50/40
+A:12/40:17/80:50/40:80/10
 C:0:2d5:0:0:0
 F:SHOW_MODS
 D:A heavy, single-edged sword with a strong grip.
@@ -465,7 +465,7 @@ N:57:& Long Sword~
 G:|:W
 I:23:17:0
 W:15:0:75:275
-A:15/40:20/80:50/40
+A:15/40:20/80:50/40:80/10
 C:0:2d5:0:0:0
 F:SHOW_MODS
 D:A long, straight, two-edged blade, with two hand guards projecting out from 
@@ -475,7 +475,7 @@ N:58:& Scimitar~
 G:|:W
 I:23:18:0
 W:30:0:75:275
-A:30/25:40/50:50/25
+A:30/25:40/50:50/25:80/10
 C:0:1d10:0:0:0
 F:SHOW_MODS
 D:A single-edged slashing sword with a blade like a crescent.
@@ -486,9 +486,10 @@ N:60:& Katana~
 G:|:W
 I:23:20:0
 W:35:0:85:400
-A:35/50
-C:0:3d4:0:0:0
+A:35/50:70/15
+C:0:1d12:0:0:0
 F:SHOW_MODS
+X:MAYBE_VORPAL
 D:A slightly curved long-handled slashing sword with a single-edged 
 D:blade and a chisel tip.
 
@@ -496,7 +497,7 @@ N:61:& Bastard Sword~
 G:|:W
 I:23:21:0
 W:40:0:100:350
-A:40/60:100/35
+A:40/60:100/20
 C:0:2d7:0:0:0
 F:SHOW_MODS
 D:Also known as the hand-and-a-half blade.  A larger-than-normal straight-
@@ -512,7 +513,7 @@ N:65:& Two-Handed Sword~
 G:|:W
 I:23:25:0
 W:50:0:140:775
-A:50/75:100/45
+A:50/75:100/25
 C:0:2d10:0:0:0
 F:TWO_HANDED_DES | SHOW_MODS
 D:A great, double-edged broadsword which few can wield in one hand.
@@ -533,7 +534,7 @@ N:68:& Executioner's Sword~
 G:|:W
 I:23:28:0
 W:50:0:190:1250
-A:60/60:100/35
+A:60/60:100/30
 C:0:2d12:0:0:0
 F:TWO_HANDED_DES | SHOW_MODS
 D:A giant, curved blade designed to cleave the head cleanly from the 
@@ -600,7 +601,7 @@ N:75:& Mace~
 G:\:D
 I:21:5:0
 W:5:0:80:140
-A:5/100:35/50:100/40
+A:5/100:35/50:100/20
 C:0:2d4:0:0:0
 F:SHOW_MODS
 X:CAN_BE_HEAVY
@@ -610,7 +611,7 @@ N:76:& Ball-and-Chain~
 G:\:D
 I:21:6:0
 W:15:0:120:160
-A:15/50:40/25:60/20
+A:15/50:40/25:60/10
 C:0:2d5:0:0:0
 F:SHOW_MODS
 X:CAN_BE_HEAVY
@@ -622,7 +623,7 @@ N:78:& War Hammer~
 G:\:D
 I:21:8:0
 W:20:0:100:225
-A:20/80:100/50
+A:20/80:100/20
 C:0:3d3:0:0:0
 F:SHOW_MODS
 X:CAN_BE_HEAVY
@@ -647,7 +648,7 @@ N:82:& Morning Star~
 G:\:W
 I:21:12:0
 W:15:0:110:325
-A:15/80:100/50
+A:15/80:100/20
 C:0:2d6:0:0:0
 F:SHOW_MODS 
 X:CAN_BE_HEAVY
@@ -658,7 +659,7 @@ N:83:& Flail~
 G:\:u
 I:21:13:0
 W:12:0:130:250
-A:12/80:100/50
+A:12/80:100/20
 C:0:2d6:0:0:0
 F:SHOW_MODS 
 X:CAN_BE_HEAVY
@@ -670,7 +671,7 @@ N:85:& Lead-Filled Mace~
 G:\:D
 I:21:15:0
 W:30:0:180:500
-A:30/50:100/30
+A:30/50:100/20
 C:0:3d5:0:0:0
 F:SHOW_MODS
 X:CAN_BE_HEAVY
@@ -685,7 +686,7 @@ N:88:& Two-Handed Flail~
 G:\:y
 I:21:18:0
 W:55:0:220:600
-A:55/50:100/35
+A:55/50:100/40
 C:0:3d7:0:0:0
 F:TWO_HANDED_DES | SHOW_MODS
 X:CAN_BE_HEAVY
@@ -736,8 +737,8 @@ N:97:& Spear~
 G:/:U
 I:22:2:0
 W:2:0:50:50
-A:2/150:15/150:70/25
-C:0:1d6:0:0:0
+A:2/150:15/150:70/25:80/10
+C:1:1d6:0:0:0
 F:SHOW_MODS
 X:CAN_BE_HEAVY
 D:The basic polearm, with a double-edged knife mounted on a light shaft.
@@ -757,7 +758,7 @@ N:99:& Trident~
 G:/:y
 I:22:4:0
 W:5:0:70:120
-A:5/50:35/25
+A:5/50:35/25:80:10
 C:4:1d7:0:0:0
 F:SHOW_MODS 
 X:CAN_BE_HEAVY
@@ -767,7 +768,7 @@ N:100:& Pike~
 G:/:u
 I:22:5:0
 W:20:0:160:300
-A:20/50:50/25
+A:20/50:50/25:80:20
 C:5:1d11:0:0:0
 F:SHOW_MODS | TWO_HANDED_DES
 D:A long, heavy spear with an iron head and reinforced shaft.
@@ -791,7 +792,7 @@ N:104:& Beaked Axe~
 G:/:D
 I:22:9:0
 W:25:0:115:300
-A:25/60:100/20
+A:25/60:100/15
 C:0:2d6:0:0:0
 F:SHOW_MODS
 D:A narrow axe head opposed by a crow's beak, mounted on an oaken shaft.
@@ -800,7 +801,7 @@ N:105:& Broad Axe~
 G:/:D
 I:22:10:0
 W:20:0:120:300
-A:20/75:100/40
+A:20/75:100/20
 C:0:2d6:0:0:0
 F:SHOW_MODS
 D:A simple, single-bladed war axe capable of chopping though limbs or armor.
@@ -809,7 +810,7 @@ N:106:& Battle Axe~
 G:/:D
 I:22:11:0
 W:30:0:140:550
-A:30/75:100/50
+A:30/75:100/30
 C:0:2d8:0:0:0
 F:SHOW_MODS
 D:A double-bladed axe.  Very popular among Dwarves.
@@ -832,7 +833,7 @@ N:110:& Glaive~
 G:/:W
 I:22:15:0
 W:35:0:190:550
-A:35/25:30/75:100/40
+A:35/25:30/75:100/20
 C:8:1d13:0:0:0
 F:TWO_HANDED_REQ | SHOW_MODS
 D:A reinforced wooden pole eight feet long, topped by a massive knife blade 
@@ -842,7 +843,7 @@ N:111:& Halberd~
 G:/:W
 I:22:16:0
 W:40:0:190:750
-A:40/75:100/50
+A:40/75:100/20
 C:8:1d14:0:0:0
 F:TWO_HANDED_REQ | SHOW_MODS
 D:The most successful of the polearms, the halberd has a long haft mounted 
@@ -854,7 +855,7 @@ N:113:& Scythe~
 G:/:W
 I:22:18:0
 W:45:0:180:1000
-A:45/50:100/30
+A:45/50:100/20
 C:3:1d16:0:0:0
 F:TWO_HANDED_DES | SHOW_MODS
 D:The long crescent blade stands out from the handle of this polearm, and 
@@ -1698,7 +1699,7 @@ I:35:3:2
 W:35:0:5:1500
 A:35/20
 C:2:0d0:0:0:0
-F:STEALTH
+F:STEALTH | HIDE_TYPE
 D:A mantle made of curious silken material by the Galadrim that wondrously 
 D:takes on the hues and shapes of its surroundings.
 
@@ -1708,7 +1709,7 @@ I:35:4:1
 W:50:0:5:1500
 A:50/33
 C:2:0d0:0:0:4
-F:INVIS
+F:INVIS | HIDE_TYPE
 D:A midnight-hued cloak that wreathes the wearer in folds of shadow.
 
 ## XXX 234 XXX ##
@@ -2293,7 +2294,15 @@ A:18/100:25/100:40/5
 F:CHR | HIDE_TYPE
 D:that affects your charisma.
 
-## XXX 314 XXX ##
+N:314:Trickery
+G:":d
+I:40:14:0
+W:75:228:3:25000
+A:75/12
+F:DEX | STEALTH | INFRA | AWARENESS | HIDE_TYPE |
+F:FEATHER
+D:that enhances skills essential to rogues, and smothers you in darkness.  
+D:It is bound together with magics to let you flee from harm.
 
 ## XXX 315 XXX ##
 
@@ -2304,9 +2313,11 @@ G:":d
 I:40:17:0
 W:35:0:3:100
 A:35/20:55/20:70/0
-F:SAVE | HIDE_TYPE
+F:SAVE | FREE_ACT | HIDE_TYPE
 E:MAGIC 1 | SHIELD 2
-D:that affects your saving throw against magic.
+X:ADD_A_HIGH_RESIST
+D:that affects your saving throw against magic, paralyzation, and against 
+D:one type of high magic.
 
 ## XXX 318 XXX ##
 
@@ -3048,6 +3059,7 @@ I:75:28:0
 W:20:0:4:180
 A:5/20:25/80:55/0
 C:0:1d1:0:0:0
+M:50:1d3
 E:DARK 2
 D:that temporarily makes you partially invisible and lets you see invisible.  
 D:The effectiveness of this potion depends on your Stealth skill.
@@ -3059,6 +3071,7 @@ I:75:29:0
 W:1:0:4:175
 A:1/50:70/100
 C:0:1d1:0:0:0
+M:10:1d4
 E:TIME 2
 D:that makes you supernaturally fast.
 
@@ -3095,6 +3108,7 @@ I:75:33:0
 W:35:0:4:400
 A:35/50:60/75
 C:0:1d1:0:0:0
+M:10:1d4
 E:ACID 1 | ELEC 1 | FIRE 1 | COLD 1
 D:that offers additional protection from fire, cold, acid, and electricity.
 
@@ -3104,6 +3118,7 @@ I:75:34:50
 W:0:0:4:12
 A:0/100:15/0
 C:0:1d1:0:0:0
+M:40:1d6
 E:LIFE 1
 D:that heals small wounds, and a little blinding, confusion, and poisoning.
 
@@ -3113,6 +3128,7 @@ I:75:35:100
 W:5:0:4:40
 A:5/100:15/100:30/0
 C:0:1d1:0:0:0
+M:30:1d6
 E:LIFE 1
 D:that heals moderate wounds, and some blinding, confusion, poisoning, 
 D:and disease.
@@ -3123,6 +3139,7 @@ I:75:36:100
 W:15:0:4:120
 A:15/100:40/100:70/0
 C:0:1d1:0:0:0
+M:30:1d4
 E:LIFE 1
 D:that heals you considerably and cures a fair amount of blinding, 
 D:confusion, poisoning, and disease.
@@ -3131,8 +3148,9 @@ N:417:Healing
 G:!:d
 I:75:37:200
 W:30:0:4:300
-A:30/40:60/100
+A:30/40:60/150
 C:0:1d1:0:0:0
+M:20:1d4
 E:LIFE 2
 D:that heals you greatly and cures a lot of blinding, 
 D:confusion, poisoning, and disease.
@@ -3841,6 +3859,7 @@ W:8:0:50:200
 A:8/75:60/0
 C:10:1d2:0:0:0
 E:KNOWLEDGE 1
+F:EASY_ACTIVATE
 D:that reveals traps nearby.
 
 N:513:Door/Stair Location
@@ -3927,6 +3946,7 @@ W:48:0:50:2000
 A:48/80
 C:10:1d2:0:0:0
 E:TIME 1
+F:EASY_ACTIVATE
 D:that hastens you for a time.
 
 N:523:Probing
@@ -4160,6 +4180,7 @@ W:70:0:15:40000
 A:70/7
 C:10:1d1:0:0:0
 E:TIME 1
+F:EASY_ACTIVATE
 D:that wonderfully hastens you.
 
 ## XXX 580 XXX (only available non-aimed rod svals are 6 and 12) ##
@@ -4623,30 +4644,34 @@ N:650:[Apprentice Magic]
 G:?:R
 I:90:0:0
 W:5:0:30:35
-A:5/60:30/0
+A:5/60
 C:0:2d4:0:0:0
+F:GLOW_WORDS
 
 N:651:[Lesser Conjury]
 G:?:R
 I:90:1:0
 W:10:0:30:225
-A:10/60:40/0
+A:10/60
 C:0:3d7:0:0:0
+F:GLOW_WORDS
 
 N:652:[Elemental Sorcery]
 G:?:R
 I:90:2:0
 W:25:0:30:1000
-A:25/60:60/5
+A:25/60
 C:0:5d11:0:0:0
+F:GLOW_WORDS
 
 N:653:[Phantasms and Illusions]
 G:?:r
 I:90:3:0
 W:40:0:30:4000
-A:40/40:55/40:75/10
+A:40/40:55/20
 C:0:7d14:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:GLOW_WORDS
 
 N:654:[Mordenkainen's Escapes]
 G:?:r
@@ -4655,6 +4680,7 @@ W:60:0:30:15000
 A:60/35:100/25
 C:0:8d19:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:GLOW_WORDS
 
 N:655:[Grimoire of Wizardry]
 G:?:r
@@ -4663,6 +4689,7 @@ W:75:0:30:40000
 A:75/30
 C:0:9d28:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:GLOW_WORDS
 
 # does 240 damage when thrown
 N:656:[Raal's Tome of Destruction]
@@ -4673,6 +4700,7 @@ A:95/25
 C:0:10d47:0:0:0
 F:ATTR_MULTI | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:GLOW_WORDS
 
 ## XXX 657 XXX ##
 
@@ -4687,7 +4715,7 @@ N:660:[Novitiate]
 G:?:B
 I:91:0:0
 W:5:0:30:35
-A:5/60:30/0
+A:5/60
 C:0:1d3:0:0:0
 F:GLOW_WORDS
 
@@ -4695,7 +4723,7 @@ N:661:[Words of Wisdom]
 G:?:B
 I:91:1:0
 W:10:0:30:225
-A:10/60:40/0
+A:10/60
 C:0:1d3:0:0:0
 F:GLOW_WORDS
 
@@ -4703,7 +4731,7 @@ N:662:[Holy of Holies]
 G:?:B
 I:91:2:0
 W:25:0:30:1000
-A:25/60:60/5
+A:25/60
 C:0:1d3:0:0:0
 F:GLOW_WORDS
 
@@ -4711,7 +4739,7 @@ N:663:[Shining Spirit]
 G:?:b
 I:91:3:0
 W:40:0:30:4000
-A:40/40:55/40:75/10
+A:40/40:55/20
 C:0:1d3:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD |
 F:GLOW_WORDS
@@ -4759,30 +4787,34 @@ N:670:[Call of the Wild]
 G:?:G
 I:92:0:0
 W:5:0:30:35
-A:5/60:30/0
+A:5/60
 C:0:1d3:0:0:0
+F:GLOW_WORDS
 
 N:671:[Communion with Nature]
 G:?:G
 I:92:1:0
 W:10:0:30:225
-A:10/60:40/0
+A:10/60
 C:0:1d3:0:0:0
+F:GLOW_WORDS
 
 N:672:[Book of Combat]
 G:?:G
 I:92:2:0
 W:25:0:30:1000
-A:25/60:60/5
+A:25/60
 C:0:1d3:0:0:0
+F:GLOW_WORDS
 
 N:673:[Druidic Transformations]
 G:?:g
 I:92:3:0
 W:40:0:30:4000
-A:40/40:55/40:75/10
+A:40/40:55/20
 C:0:1d3:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:GLOW_WORDS
 
 N:674:[Weather Mastery]
 G:?:g
@@ -4791,6 +4823,7 @@ W:60:0:30:15000
 A:60/35:100/25
 C:0:1d3:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:GLOW_WORDS
 
 N:675:[Primal Forces]
 G:?:g
@@ -4799,6 +4832,7 @@ W:75:0:30:40000
 A:75/30
 C:0:1d3:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:GLOW_WORDS
 
 N:676:[Spirit of Yavanna]
 G:?:g
@@ -4808,6 +4842,7 @@ A:95/25
 C:0:1d3:0:0:0
 F:ATTR_MULTI | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:GLOW_WORDS
 
 ## XXX 677 XXX ## 
 
@@ -4822,7 +4857,7 @@ N:680:[Beginner's Curses]
 G:?:D
 I:93:0:0
 W:5:0:30:35
-A:5/60:30/0
+A:5/60
 C:0:2d6:-5:0:0
 F:GLOW_WORDS
 
@@ -4830,7 +4865,7 @@ N:681:[Darker Elements]
 G:?:D
 I:93:1:0
 W:10:0:30:225
-A:10/60:40/0
+A:10/60
 C:0:4d8:-5:0:0
 F:GLOW_WORDS
 
@@ -4838,7 +4873,7 @@ N:682:[Frightful Realms]
 G:?:D
 I:93:2:0
 W:25:0:30:1000
-A:25/60:60/5
+A:25/60
 C:0:5d17:-5:0:0
 F:GLOW_WORDS
 
@@ -4846,7 +4881,7 @@ N:683:[Mysteries of Angmar]
 G:?:v
 I:93:3:0
 W:40:0:30:4000
-A:40/40:55/40:75/10
+A:40/40:55/20
 C:0:5d29:-5:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD |
 F:GLOW_WORDS
@@ -5210,7 +5245,7 @@ N:755:Copper
 G:%:u
 I:5:0:0
 W:2:0:80:100
-A:2/50:9/50:20/0
+A:2/50:12/100:20/0
 C:2:2d4:0:0:0
 D:A large piece of ordinary copper.
 
@@ -5218,7 +5253,7 @@ N:756:Bronze
 G:%:o
 I:5:1:0
 W:10:0:80:600
-A:10/50:19/50:35/0
+A:10/50:19/80:35/0
 C:4:2d7:0:0:0
 D:A large piece of bronze.
 
@@ -5242,7 +5277,7 @@ N:759:Runegold
 G:%:y
 I:5:4:0
 W:50:0:90:6000
-A:50/50:65/50:75/10
+A:50/30:60/40
 C:11:3d16:0:0:0
 D:A large piece of thaumaturgic gold, glittering with unearthly brilliancy.
 
@@ -5251,7 +5286,7 @@ N:760:Mithril
 G:%:B
 I:5:5:0
 W:70:0:50:12000
-A:70/30:80/40:100/33
+A:70/30
 C:14:4d18:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A large piece of true-silver: light, strong, and magical.
@@ -5261,7 +5296,7 @@ N:761:Adamant
 G:%:G
 I:5:6:0
 W:86:0:130:14000
-A:80/10:90/40
+A:80/10:90/15:100/20
 C:16:5d20:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A large piece of almost impenetrable adamantite; heavy, but stronger than 

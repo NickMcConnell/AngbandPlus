@@ -645,13 +645,13 @@ static errr init_info(cptr filename, header *head)
 static errr free_info(header *head)
 {
 	if (head->info_size)
-		C_FREE(head->info_ptr, head->info_size, char);
+		FREE(head->info_ptr);
 
 	if (head->name_size)
-		C_FREE(head->name_ptr, head->name_size, char);
+		FREE(head->name_ptr);
 
 	if (head->text_size)
-		C_FREE(head->text_ptr, head->text_size, char);
+		FREE(head->text_ptr);
 
 	/* Success */
 	return (0);
@@ -1573,10 +1573,10 @@ void cleanup_angband(void)
 	(void)macro_free();
 
 	/* Free the allocation tables */
-	FREE(alloc_ego_table, alloc_entry);
-	FREE(alloc_race_table, alloc_entry);
-	FREE(permit_kind_table, bool);
-	FREE(chance_kind_table, byte);
+	FREE(alloc_ego_table);
+	FREE(alloc_race_table);
+	FREE(permit_kind_table);
+	FREE(chance_kind_table);
 
 	if (store)
 	{
@@ -1587,52 +1587,52 @@ void cleanup_angband(void)
 			store_type *st_ptr = &store[i];
 
 			/* Free the store inventory */
-			C_FREE(st_ptr->stock, st_ptr->stock_size , object_type);
+			FREE(st_ptr->stock);
 		}
 	}
 
 	/* Free the stores */
-	C_FREE(store, MAX_STORES, store_type);
+	FREE(store);
 
 	/* Free the player inventory */
-	C_FREE(inventory, INVEN_TOTAL, object_type);
-	
+	FREE(inventory);
+
 	/* Free the left panel custom display array */
-	C_FREE(custom_display, CUSTOM_DISPLAY_ROWS, byte);
+	FREE(custom_display);
 
 	/* Free the lore, monster, and object lists */
-	C_FREE(l_list, z_info->r_max, monster_lore);
-	C_FREE(m_list, z_info->m_max, monster_type);
-	C_FREE(o_list, z_info->o_max, object_type);
+	FREE(l_list);
+	FREE(m_list);
+	FREE(o_list);
 
 	/* Free the effects and the traps */
-	C_FREE(x_list, z_info->x_max, effect_type);
-	C_FREE(t_list, z_info->t_max, trap_type);
+	FREE(x_list);
+	FREE(t_list);
 
 	/* Free the movement moments */
-	C_FREE(move_moment, z_info->m_max, move_moment_type);
+	FREE(move_moment);
 
 	/* Free the projection graphics */
-	C_FREE(proj_graphics, 256, proj_graphics_type);
+	FREE(proj_graphics);
 
 	/* Flow arrays */
-	C_FREE(cave_when, DUNGEON_HGT_MAX, byte_wid);
-	C_FREE(cave_cost, DUNGEON_HGT_MAX, byte_wid);
+	FREE(cave_when);
+	FREE(cave_cost);
 
 	/* Free the cave */
-	C_FREE(cave_o_idx, DUNGEON_HGT_MAX, s16b_wid);
-	C_FREE(cave_m_idx, DUNGEON_HGT_MAX, s16b_wid);
-	C_FREE(cave_feat, DUNGEON_HGT_MAX, byte_wid);
-	C_FREE(cave_info, DUNGEON_HGT_MAX, u16b_256);
+	FREE(cave_o_idx);
+	FREE(cave_m_idx);
+	FREE(cave_feat);
+	FREE(cave_info);
 
 	/* Free the "update_view()" array */
-	C_FREE(view_g, VIEW_MAX, u16b);
+	FREE(view_g);
 
 	/* Free the temp array */
-	C_FREE(temp_g, TEMP_MAX, u16b);
+	FREE(temp_g);
 
 	/* Free the effect grids array */
-	C_FREE(effect_grid, EFFECT_GRID_MAX, effect_grid_type);
+	FREE(effect_grid);
 
 	/* Free the messages */
 	messages_free();

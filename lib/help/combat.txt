@@ -76,7 +76,8 @@ fire.  Slays, in contrast, do extra damage to particular monster races, so wield
 that Mace of Orc Slaying if you come upon any orcs.  Only the best applicable
 quality is used; they do not combine.
      Bonuses from slays and brands are applied after all other damage
-adjustments, except monster resistances.
+adjustments, except monster resistances.  Being more skilled with the weapon you
+wield increases the effect of the brand.
 
 
 --- Melee (unarmed) ---

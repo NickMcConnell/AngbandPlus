@@ -128,7 +128,9 @@
  * This may need to be removed for some compilers XXX XXX XXX
  */
 #ifndef _MBCS
+#ifndef STRICT
 #define STRICT
+#endif
 #endif
 
 
@@ -532,7 +534,7 @@ static void remove_font_win(window_type *win_ptr)
 	win_ptr->font_file = NULL;
 
 	/* Notify other applications that a font is no longer available  */
-	SendMessage(HWND_BROADCAST, WM_FONTCHANGE, 0, 0);
+	PostMessage(HWND_BROADCAST, WM_FONTCHANGE, 0, 0);
 }
 
 
@@ -3057,8 +3059,8 @@ static LRESULT CALLBACK my_WindowProc(HWND hWnd, UINT uMsg,
 		/* Create the application window */
 		case WM_CREATE:
 		{
-			/* Set a 2-second timer */
-			SetTimer(hWnd, TIMER_BASIC, 2000, NULL);
+			/* Set a 1-second timer */
+			SetTimer(hWnd, TIMER_BASIC, 1000, NULL);
 
 			/* Turn off numlock */
 			SetNumLock(TRUE);

@@ -53,7 +53,7 @@
 
 # Version stamp (required)
 
-V:1.0.1
+V:1.0.2
 
 #
 # === Understanding monster.txt ===
@@ -2286,7 +2286,7 @@ W:19:3:200:50
 B:BITE:ELEC:2d4
 F:WEIRD_MIND | RAND_50 | BASH_DOOR | FRIENDS | 
 F:ANIMAL | IM_ELEC | IS_LIT
-S:1_IN_4 | POW_3 | 
+S:1_IN_6 | POW_3 | 
 S:BEAM_ELEC | TELE_SELF_TO
 D:Snakes of pure electricity; the union of force and magic.  They attack 
 D:everything in sight; the very walls are blackened by their fury.
@@ -3126,7 +3126,7 @@ W:27:3:90:75
 B:HIT:FIRE:2d8
 F:FORCE_SLEEP | FRIENDS | RAND_50 | OPEN_DOOR | 
 F:DROP_60 | DEMON | EVIL | IM_FIRE | NO_FEAR
-S:1_IN_4 | POW_4 | 
+S:1_IN_5 | POW_4 | 
 S:LASH | BLINK | TELE_SELF_TO | WOUND | SLOW
 D:Little sparks of flame that dance around you, lashing whips and cursing 
 D:horribly.
@@ -3281,13 +3281,13 @@ D:You don't believe in it.  But it believes in you...
 
 N:327:Stormcrow
 G:B:s
-I:120:80:25:20:15:3
+I:115:80:25:20:15:3
 W:28:5:200:110
-B:PECK:WOUND:1d4
+B:PECK:WOUND:1d10
 F:WEIRD_MIND | FRIENDS | BASH_DOOR | FLYING | 
 F:ANIMAL | RES_WATER | RES_NEXUS | RES_TPORT | 
 F:NO_CONF
-S:1_IN_1 | POW_3 | 
+S:1_IN_2 | POW_3 | 
 S:BALL_WIND | ARC_FORCE
 D:From the vast Plains of Air come these shimmering avian beings; as they 
 D:beat their wings, terrible winds rise up and buffet you.
@@ -4017,7 +4017,7 @@ B:BITE:WOUND:3d13
 B:STING:POISON:2d13
 F:MALE | FORCE_SLEEP | BASH_DOOR | 
 F:ONLY_GOLD | DROP_90 | DROP_GREAT
-S:1_IN_3 | POW_25 | 
+S:1_IN_4 | POW_25 | 
 S:PMISSL | SLOW
 D:A great man-faced red lion with a lashing spiked tail.  The weak-minded he 
 D:lulls with song; the strong he slays with poisoned barbs.
@@ -8552,7 +8552,7 @@ D:master from Ungoliant's rage.
 #Note:  This index is used in "quest.txt"
 N:767:Sauron, the Sorcerer
 G:p:p
-I:130:6800:100:64:0:5
+I:130:6800:100:64:0:10
 W:99:1:202:25000
 B:HIT:UN_BONUS:10d12
 B:HIT:UN_BONUS:10d12
@@ -8565,10 +8565,9 @@ F:DROP_GOOD | DROP_GREAT | EVIL |
 F:IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP | 
 F:SMART
 S:1_IN_2 | POW_140 | 
-S:BALL_ACID | BALL_FIRE | BALL_POIS | BALL_DARK | BALL_STORM | BALL_NETHR | 
-S:BALL_MANA | BOLT_PLAS | BOLT_ICE | 
-S:ADD_MANA | BLINK | TPORT | FORGET | MIND_BLAST | WOUND | HELLDARK | 
-S:SCARE | BLIND | CONF | 
+S:BALL_STORM | BALL_NETHR | BALL_WIND | BALL_MANA | BOLT_PLAS | PMISSL |
+S:ADD_MANA | BLINK | TPORT | MIND_BLAST | WOUND | HELLDARK | 
+S:SCARE |
 S:S_MONSTERS | S_HI_DRAGON | S_HI_DEMON | S_HI_UNDEAD | S_WRAITH
 D:He is Morgoth's most powerful servant.  Mighty in spells and enchantments, 
 D:he created the One Ring.  His eyes glow with power and his gaze seeks to 
@@ -8590,7 +8589,7 @@ F:BASH_DOOR | KILL_WALL | ONLY_ITEM | DROP_1D2 | DROP_2D2 | DROP_3D2 |
 F:DROP_4D2 | DROP_GOOD | DROP_GREAT | 
 F:EVIL | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP | 
 F:SMART | MORGUL_MAGIC | UDUN_MAGIC
-S:1_IN_3 | POW_160 | 
+S:1_IN_2 | POW_160 | 
 S:BALL_DARK | BALL_NETHR | BALL_MANA | ARC_HFIRE | 
 S:ADD_MANA | TELE_TO | MIND_BLAST | WOUND | 
 S:S_MONSTERS | S_HI_DRAGON | S_HI_DEMON | S_HI_UNDEAD | S_WRAITH | S_UNIQUE

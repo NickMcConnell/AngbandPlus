@@ -40,14 +40,14 @@
 /*
  * Current version string
  */
-#define VERSION_STRING   "1.0.1"
+#define VERSION_STRING   "1.0.2b4"
 
 /*
  * Current (Sangband) version numbers
  */
 #define VERSION_MAJOR   1
 #define VERSION_MINOR   0
-#define VERSION_PATCH   1
+#define VERSION_PATCH   2
 
 /*
  * This value is used for beta versions (now deprecated)
@@ -450,7 +450,7 @@
 #define PY_REGEN_WEAK       15	/* Regeneration when weak */
 #define PY_REGEN_FAINT       5	/* Regeneration when fainting */
 #define PY_REGEN_HPBASE    400	/* Bonus to regeneration:  1/25 HP per turn */
-#define PY_REGEN_MNBASE    400	/* Bonus to regeneration:  1/25 HP per turn */
+#define PY_REGEN_MNBASE    400	/* Bonus to regeneration:  1/25 MP per turn */
 
 
 
@@ -580,8 +580,11 @@
 #define RACE_HIGH_ELF     8
 #define RACE_DARK_ELF     9
 #define RACE_GIANT       10
+#define RACE_ENT         11
+#define RACE_WOSES       12
+#define RACE_BEORNING    13
 
-#define MAX_RACES        11
+#define MAX_RACES        14
 
 
 
@@ -626,13 +629,13 @@
 #define S_DODGING       20       /* dodging and armor use skill */
 #define S_SAVE          21       /* saving throw */
 
-#define S_FORGE_WEAPON  22       /* weaponsmithing */
-#define S_FORGE_BOW     23       /* bow and missile making */
-#define S_FORGE_ARMOR   24       /* armor forging */
-#define S_ALCHEMY       25       /* scroll, potion, ring, & amulet creation */
-#define S_INFUSION      26       /* magical enhancement (using essences) */
+#define S_FORGE_WEAPON  22       /* weaponsmithing and bow and missile making*/
+#define S_FORGE_ARMOR   23       /* armor forging */
+#define S_ALCHEMY       24       /* scroll, potion, ring, & amulet creation */
+#define S_INFUSION      25       /* magical enhancement (using essences) */
+#define S_SHAPECHANGE   26       /* shapechange */
 
-#define S_XXX1          28       /*  */
+
 #define S_XXX1          28       /*  */
 #define S_XXX2          29       /*  */
 #define S_XXX3          30       /*  */
@@ -683,8 +686,8 @@
 
 /* Bonuses accrued by martial artists */
 
-#define LEV_REQ_MARTIAL_FA           75
-#define LEV_REQ_MARTIAL_RESIST       90
+#define LEV_REQ_MARTIAL_FA           50
+#define LEV_REQ_MARTIAL_RESIST       70
 #define LEV_REQ_MARTIAL_STAT1        35
 #define LEV_REQ_MARTIAL_STAT2        60
 #define LEV_REQ_MARTIAL_STAT3        85
@@ -710,69 +713,81 @@
 #define TALENT_BERSERK              1
 #define TALENT_RESIST_DAM           2
 #define TALENT_PROBING              3
-#define TALENT_XXX1                 4
-#define TALENT_XXX2                 5
-#define TALENT_XXX3                 6
-#define TALENT_XXX4                 7
+#define TALENT_WHIRLWIND            4
+#define TALENT_CIRCLEKICK           5
+#define TALENT_IMPACTBLOW           6
+#define TALENT_EARTHQUAKES          7
+#define TALENT_LUNGE                8
 
-#define TALENT_DET_MAGIC            8
-#define TALENT_PHASE_WARP           9
-#define TAP_ENERGY                 10
-#define TALENT_XXX5                11
+#define TALENT_DET_MAGIC           10
+#define TALENT_PHASE_WARP          11
+#define TAP_ENERGY                 12
+#define TALENT_XX13                13
 
-#define TALENT_DET_EVIL            12
-#define TALENT_RESTORATION         13
-#define TALENT_XXX6                14
-#define TALENT_XXX7                15
+#define TALENT_DET_EVIL            14
+#define TALENT_RESTORATION         15
+#define TALENT_XX16                16
 
-#define TALENT_DET_ANIMAL          16
-#define TALENT_MEND_WOUNDS         17
-#define TALENT_XXX8                18
-#define TALENT_XXX9                19
+#define TALENT_DET_ANIMAL          17
+#define TALENT_MEND_WOUNDS         18
+#define TALENT_XX19                19
 
 #define TALENT_DET_UNDEAD          20
 #define TALENT_REMEMBRANCE         21
-#define TALENT_XX10                22
-#define TALENT_XX11                23
+#define TALENT_XX22                22
 
-#define TALENT_ID_CHARGES          24
-#define TALENT_XX12                25
+#define TALENT_ID_CHARGES          23
+#define TALENT_XX24                24
 
-#define TALENT_DARKNESS            26
-#define TALENT_D_OR_NAB_OBJECT     27
-#define TALENT_POISON_AMMO         28
-#define TALENT_HIT_AND_RUN         29
+#define TALENT_DARKNESS            25
+#define TALENT_D_OR_NAB_OBJECT     26
+#define TALENT_POISON_AMMO         27
+#define TALENT_HIT_AND_RUN         28
 
-#define TALENT_PRED_WEATH          30
-#define TALENT_SNEAKING            31
-#define TALENT_SENSE_AREA          32
-#define TALENT_SUPERSTEALTH        33
-#define TALENT_XX15                34
-#define TALENT_XX16                35
-#define TALENT_XX17                36
-#define TALENT_XX18                37
+#define TALENT_PRED_WEATH          29
+#define TALENT_SNEAKING            30
+#define TALENT_SENSE_AREA          31
+#define TALENT_SUPERSTEALTH        32
+#define TALENT_XX33                33
+#define TALENT_XX34                34
 
-#define TALENT_RECHARGING          38
-#define TALENT_WEAPON_SMITH        39
-#define TALENT_ARMOR_SMITH         40
-#define TALENT_MISSILE_SMITH       41
-#define TALENT_ALCHEMY             42
-#define TALENT_SAVE_BOTTLE         43
-#define TALENT_XX20                44
-#define TALENT_XX21                45
-#define TALENT_XX22                46
-#define TALENT_XX23                47
+#define TALENT_RECHARGING          35
+#define TALENT_WEAPON_SMITH        36
+#define TALENT_ARMOR_SMITH         37
+#define TALENT_MISSILE_SMITH       38
+#define TALENT_ALCHEMY             39
+#define TALENT_SAVE_BOTTLE         40
+#define TALENT_XX41                41
+#define TALENT_XX42                42
+#define TALENT_XX43                43
 
-#define TALENT_DRAGON_BREATHING    48
-#define TALENT_XX24                49
-#define TALENT_XX25                50
-#define TALENT_XX26                51
-#define TALENT_XX27                52
-#define TALENT_XX28                53
-#define TALENT_XX29                54
-#define TALENT_XX30                55
+#define TALENT_DRAGON_BREATHING    44
+#define TALENT_UNCHANGE            45
+#define TALENT_BEARFORM            46
+#define TALENT_DRAGONFORM          47
+#define TALENT_TROLLFORM           48
+#define TALENT_EAGLEFORM           49
+#define TALENT_XX60                50
 
-#define NUM_TALENTS 56
+#define TALENT_ANGELFORM           51
+#define TALENT_XX53                52
+#define TALENT_XX54                53
+
+#define TALENT_VORTEXFORM          54
+#define TALENT_GOLEMFORM           55
+#define TALENT_XX57                56
+
+#define TALENT_HOUNDFORM           57
+#define TALENT_CHEETAHFORM         58
+#define TALENT_MOUSEFORM           59
+#define TALENT_SERPENTFORM         60
+
+#define TALENT_BATFORM             61
+#define TALENT_WEREWOLFFORM        62
+#define TALENT_VAMPIREFORM         63
+#define TALENT_LICHFORM            64
+
+#define NUM_TALENTS 65
 
 
 /*
@@ -1661,7 +1676,7 @@
 #define EGO_RESIST_COLD             7
 #define EGO_RESISTANCE              8
 #define EGO_ELVENKIND               9
-/* xxx */
+#define EGO_ATTENTION              10
 #define EGO_PERMANENCE             11
 /* xxx */
 #define EGO_PLAGUE                 13
@@ -1745,11 +1760,11 @@
 #define EGO_BRAND_POIS             82
 #define EGO_SLAY_ANIMAL            85
 #define EGO_SLAY_EVIL              86
-#define EGO_SLAY_UNDEAD            87
-#define EGO_SLAY_DEMON             88
-#define EGO_SLAY_ORC               89
-#define EGO_SLAY_TROLL             90
-#define EGO_SLAY_GIANT             91
+#define EGO_SLAY_DEMON_UNDEAD      87
+/* xxx */
+#define EGO_SLAY_ORC_TROLL         89
+/* xxx */
+#define EGO_SLAY_TROLL_GIANT       91
 #define EGO_SLAY_DRAGON            92
 
 #define EGO_KILL_ANIMAL            96
@@ -1759,8 +1774,8 @@
 #define EGO_BALROG                100
 /* xxx */
 /* xxx */
-/* xxx */
-/* xxx */
+#define EGO_BLOOD_SEEPER          103
+#define EGO_AGGRESSION            104
 #define EGO_CORRODED              105
 #define EGO_DIGGING               106
 /* xxx */
@@ -2088,6 +2103,7 @@
 #define SV_AMULET_INTELLIGENCE          11
 #define SV_AMULET_WISDOM                12
 #define SV_AMULET_CHARISMA              13
+#define SV_AMULET_TRICKERY              14
 #define SV_AMULET_SAVING_THROW          17
 /* xxx */
 /* xxx */
@@ -2813,6 +2829,13 @@
 #define TALENT_DESC        3
 #define TALENT_CHECK       4
 
+/* Talent type */
+#define TALENT_WARRIOR 0x00000001
+#define TALENT_UTILITY 0x00000002
+#define TALENT_SHAPE   0x00000004
+
+#define TALENT_TYPE_MAX 0x00000004
+
 
 /*
  * Modes for the "check_blanket" function
@@ -3093,9 +3116,15 @@
 #define SHAPE_DRAGON        7
 #define SHAPE_ENT           8
 #define SHAPE_TROLL         9
-
+#define SHAPE_ANGEL        10
 #define SHAPE_BAT          11
-
+#define SHAPE_LICH         12
+#define SHAPE_VAMPIRE      13
+#define SHAPE_WEREWOLF     14
+#define SHAPE_SERPENT      15
+#define SHAPE_VORTEX       16
+#define SHAPE_GOLEM        17
+#define SHAPE_EAGLE        18
 
 
 /*
@@ -3198,6 +3227,8 @@
 
 
 /*** Trap defines ***/
+
+#define PLAYER_ALLOWED_TRAPS get_skill(S_BURGLARY, 1, 6)
 
 
 /*
@@ -4105,6 +4136,22 @@
 
 
 /*
+ * Ball spells
+ */
+#define RF4_BALL_MASK \
+        (0L)
+
+#define RF5_BALL_MASK \
+	(RF5_BALL_ACID | RF5_BALL_ELEC | RF5_BALL_FIRE | RF5_BALL_COLD | RF5_BALL_POIS | RF5_BALL_LITE | RF5_BALL_DARK | RF5_BALL_CONFU | RF5_BALL_SOUND | RF5_BALL_SHARD | RF5_BALL_STORM | RF5_BALL_NETHR | RF5_BALL_CHAOS | RF5_BALL_MANA)
+
+#define RF6_BALL_MASK \
+	(0L)
+
+#define RF7_BALL_MASK \
+	(0L)
+
+
+/*
  * Breath attacks.
  * Need special treatment in movement AI.
  */
@@ -4656,6 +4703,12 @@
  */
 #define is_wargear(T) \
 	(is_any_armor(T) || is_any_weapon(T) || is_missile(T))
+
+/*
+ * Object is a true polearm
+ */
+#define is_polearm(T) \
+   ((T)->tval == TV_POLEARM && (T)->ac > 0)
 
 /*
  * Object is wearable

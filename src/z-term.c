@@ -2557,14 +2557,14 @@ errr Term_resize(int w, int h)
 	}
 
 	/* Free some arrays */
-	C_FREE(hold_x1, h, byte);
-	C_FREE(hold_x2, h, byte);
+	FREE(hold_x1);
+	FREE(hold_x2);
 
 	/* Nuke */
 	(void)term_win_nuke(hold_old, Term->cols, Term->rows);
 
 	/* Kill */
-	FREE(hold_old, term_win);
+	FREE(hold_old);
 
 	/* Illegal cursor */
 	if (Term->old->cx >= w) Term->old->cu = 1;
@@ -2574,7 +2574,7 @@ errr Term_resize(int w, int h)
 	(void)term_win_nuke(hold_scr, Term->cols, Term->rows);
 
 	/* Kill */
-	FREE(hold_scr, term_win);
+	FREE(hold_scr);
 
 	/* Illegal cursor */
 	if (Term->scr->cx >= w) Term->scr->cu = 1;
@@ -2587,7 +2587,7 @@ errr Term_resize(int w, int h)
 		(void)term_win_nuke(hold_mem, w, h);
 
 		/* Kill */
-		FREE(hold_mem, term_win);
+		FREE(hold_mem);
 
 		/* Illegal cursor */
 		if (Term->mem->cx >= w) Term->mem->cu = 1;
@@ -2601,7 +2601,7 @@ errr Term_resize(int w, int h)
 		(void)term_win_nuke(hold_tmp, Term->cols, Term->rows);
 
 		/* Kill */
-		FREE(hold_tmp, term_win);
+		FREE(hold_tmp);
 
 		/* Illegal cursor */
 		if (Term->tmp->cx >= w) Term->tmp->cu = 1;

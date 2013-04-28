@@ -519,12 +519,7 @@ void do_cmd_wield(void)
 				/* Weapon in the primary wield slot is light enough */
 				if (o_ptr->weight + i_ptr->weight <= hold)
 				{
-					/* Hack -- to avoid annoyance, shields cancel dual wield */
-					if (inventory[INVEN_ARM].tval != TV_SHIELD)
-					{
-						/* Weapon is of same type -- allow dual wield in slot 2 */
-						if (i_ptr->tval == o_ptr->tval) slot2_ok = TRUE;
-					}
+					slot2_ok = TRUE;
 				}
 
 				/* Get item in secondary wield slot */
@@ -534,10 +529,9 @@ void do_cmd_wield(void)
 				if (!is_melee_weapon(i_ptr)) slot1_ok = TRUE;
 
 				/* Weapon in the secondary wield slot is light enough */
-				else if (o_ptr->weight + i_ptr->weight <= hold)
+				if (o_ptr->weight + i_ptr->weight <= hold)
 				{
-					/* Weapon is of same type -- allow dual wield in slot 1 */
-					if (i_ptr->tval == o_ptr->tval) slot1_ok = TRUE;
+					slot1_ok = TRUE;
 				}
 
 				/* Weapon is too heavy to wield with either existing weapon. */
@@ -616,22 +610,6 @@ void do_cmd_wield(void)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
-	/* Activate hidden curses, which may or may not be caught in time */
-	if (o_ptr->flags3 & (TR3_CURSE_HIDDEN))
-	{
-		if (!activate_hidden_curse(o_ptr)) return;
-
-		/* No further messages or effects */
-		hidden_curse = TRUE;
-	}
-
-	/* Get local object */
-	i_ptr = &object_type_body;
-
-	/* Obtain local object */
-	object_copy(i_ptr, o_ptr);
-
-
 	/* Usually, we wear or wield only one item. */
 	num = 1;
 
@@ -683,12 +661,32 @@ void do_cmd_wield(void)
 			return;
 		}
 
-		/* Remember that the item is quivered */
-		i_ptr->quivered = TRUE;
-
 		/* Quiver will be reorganized (again) later. */
 		p_ptr->notice |= (PN_COMBINE);
 	}
+
+	/* Activate hidden curses, which may or may not be caught in time */
+	if (o_ptr->flags3 & (TR3_CURSE_HIDDEN))
+	{
+		if (!activate_hidden_curse(o_ptr)) return;
+
+		/* No further messages or effects */
+		hidden_curse = TRUE;
+	}
+
+	/* Get local object */
+	i_ptr = &object_type_body;
+
+	/* Obtain local object */
+	object_copy(i_ptr, o_ptr);
+
+	if (slot >= INVEN_Q1 && slot <= INVEN_Q0)
+	{
+		/* Remember that the item is quivered */
+		i_ptr->quivered = TRUE;
+	}
+
+
 
 	/* Modify quantity */
 	i_ptr->number = num;
@@ -718,7 +716,7 @@ void do_cmd_wield(void)
 	{
 		/* Take off both existing weapons */
 		(void)inven_takeoff(INVEN_ARM, 255);
-		(void)inven_takeoff(INVEN_WIELD, 255);
+		(void)switch_weapons(TRUE);   /* Hack -- delay removing second weapon to prevent object loss */
 	}
 	/* Hack -- Replacing the primary weapon sometimes moves the secondary weapon -- move it back */
 	else if (replace_primary_weapon)
@@ -760,6 +758,11 @@ void do_cmd_wield(void)
 
 	/* Object has no location */
 	i_ptr->iy = i_ptr->ix = 0;
+
+    /* Hack -- delay removing the second weapon */
+    if (remove_two_weapons)
+        (void)inven_takeoff(INVEN_ARM, 255);
+
 
 	/* Increment the equip counter by hand */
 	p_ptr->equip_cnt++;
@@ -2332,7 +2335,7 @@ void do_cmd_query_symbol(void)
 	if (!n)
 	{
 		/* XXX XXX Free the "who" array */
-		C_FREE(who, z_info->r_max, u16b);
+		FREE(who);
 
 		return;
 	}
@@ -2374,7 +2377,7 @@ void do_cmd_query_symbol(void)
 	else if (!strchr("yYrR", query))
 	{
 		/* XXX XXX Free the "who" array */
-		C_FREE(who, z_info->r_max, u16b);
+		FREE(who);
 
 		return;
 	}
@@ -2504,7 +2507,7 @@ void do_cmd_query_symbol(void)
 
 
 	/* Free the "who" array */
-	C_FREE(who, z_info->r_max, u16b);
+	FREE(who);
 }
 
 
@@ -2777,7 +2780,7 @@ void py_steal(int y, int x)
 bool py_set_trap(int y, int x, int dir)
 {
 	/* Limit traps. */
-	if (num_trap_on_level >= get_skill(S_BURGLARY, 1, 6))
+	if (num_trap_on_level >= PLAYER_ALLOWED_TRAPS)
 	{
 		msg_print("You must disarm an existing trap to free up your equipment.");
 		return (FALSE);

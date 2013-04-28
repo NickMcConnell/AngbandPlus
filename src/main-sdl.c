@@ -114,14 +114,14 @@
 
 
 /* Include the basic and font-rendering SDL libraries (both are required) */
-#include "SDL.h"
-#include "SDL_audio.h"
-#include "SDL_ttf.h"
+#include "SDL/SDL.h"
+#include "SDL/SDL_audio.h"
+#include "SDL/SDL_ttf.h"
 
 
 /* Optional libaries:  SDL_Mixer (needed to play sounds) */
 #ifdef USE_SOUND
-#  include "SDL_mixer.h"
+#  include "SDL/SDL_mixer.h"
 #endif /* USE_SOUND */
 
 
@@ -2313,10 +2313,10 @@ static void sdl_keypress(SDL_keysym keysym)
 	SDLKey key_sym = keysym.sym;
 
 	/* Store the value of various modifier keys */
-	bool mc = (bool)(keysym.mod & (KMOD_CTRL));
-	bool ms = (bool)(keysym.mod & (KMOD_SHIFT));
-	bool ma = (bool)(keysym.mod & (KMOD_ALT));
-	bool mm = (bool)(keysym.mod & (KMOD_META));
+	bool mc = (bool)((keysym.mod & (KMOD_CTRL)) != KMOD_NONE);
+	bool ms = (bool)((keysym.mod & (KMOD_SHIFT)) != KMOD_NONE);
+	bool ma = (bool)((keysym.mod & (KMOD_ALT)) != KMOD_NONE);
+	bool mm = (bool)((keysym.mod & (KMOD_META)) != KMOD_NONE);
 
 
 	/* Ignore if main term is not initialized */
@@ -3602,8 +3602,8 @@ int main(int argc, char *argv[])
 	init_stuff();
 
 
-	/* Set up a 2-second timer for screen animation */
-	timer_basic = SDL_AddTimer(2000L, animate_timer_sdl, 0);
+	/* Set up a 1-second timer for screen animation */
+	timer_basic = SDL_AddTimer(1000L, animate_timer_sdl, 0);
 
 
 	/* Initialize the ignored keypresses */

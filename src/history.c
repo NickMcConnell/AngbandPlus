@@ -33,10 +33,10 @@
 history_info *history_list;
 
 /* Index of first writable entry */
-static size_t history_ctr;
+static u32b history_ctr;
 
 /* Current size of history list */
-static size_t history_size;
+static u32b history_size;
 
 
 #define LIMITLOW(a, b) if (a < b) a = b;
@@ -47,7 +47,7 @@ static size_t history_size;
 /*
  * Initialise an empty history list.
  */
-void history_init(size_t entries)
+void history_init(u32b entries)
 {
 	history_ctr = entries;
 	history_size = entries + 10;
@@ -62,7 +62,8 @@ void history_clear(void)
 {
 	if (!history_list) return;
 
-	C_FREE(history_list, history_size, history_info);
+	FREE(history_list);
+	history_list = NULL;
 	history_ctr = 0;
 	history_size = 0;
 }
@@ -71,7 +72,7 @@ void history_clear(void)
 /*
  * Set the number of history items.
  */
-static bool history_set_num(size_t num)
+static bool history_set_num(u32b num)
 {
 	history_info *new_list;
 
@@ -85,7 +86,7 @@ static bool history_set_num(size_t num)
 	/* XXX Should use mem_realloc() */
 	new_list = C_ZNEW(num, history_info);
 	C_COPY(new_list, history_list, history_ctr, history_info);
-	C_FREE(history_list, history_size, history_info);
+	FREE(history_list);
 
 	history_list = new_list;
 	history_size = num;
@@ -97,7 +98,7 @@ static bool history_set_num(size_t num)
 /*
  * Return the number of history entries.
  */
-size_t history_get_num(void)
+u32b history_get_num(void)
 {
 	return history_ctr;
 }
@@ -108,7 +109,7 @@ size_t history_get_num(void)
  */
 static bool history_know_artifact(byte a_idx)
 {
-	size_t i = history_ctr;
+	u32b i = history_ctr;
 
 	while (i--)
 	{
@@ -129,7 +130,7 @@ static bool history_know_artifact(byte a_idx)
  */
 bool history_lose_artifact(byte a_idx)
 {
-	size_t i = history_ctr;
+	u32b i = history_ctr;
 
 	while (i--)
 	{
@@ -197,7 +198,7 @@ bool history_add(const char *event, u16b type, byte a_idx)
  */
 static bool history_is_artifact_logged(byte a_idx)
 {
-	size_t i = history_ctr;
+	u32b i = history_ctr;
 
 	while (i--)
 	{
@@ -263,7 +264,7 @@ bool history_add_artifact(byte a_idx, bool known)
  */
 void history_unmask_unknown(void)
 {
-	size_t i = history_ctr;
+	u32b i = history_ctr;
 
 	while (i--)
 	{
@@ -280,7 +281,7 @@ void history_unmask_unknown(void)
  * Used to determine whether the history entry is visible in the listing or not.
  * Returns TRUE if the item is masked -- that is, if it is invisible
  */
-static bool history_masked(size_t i)
+static bool history_masked(u32b i)
 {
 	if (history_list[i].type & HISTORY_ARTIFACT_UNKNOWN)
 		return TRUE;
@@ -291,9 +292,9 @@ static bool history_masked(size_t i)
 /*
  * Finds the index of the last printable (non-masked) item in the history list.
  */
-static size_t last_printable_item(void)
+static u32b last_printable_item(void)
 {
-	size_t i = history_ctr;
+	u32b i = history_ctr;
 
 	while (i--)
 	{
@@ -369,8 +370,8 @@ void history_dump(FILE *fff)
 void history_display()
 {
 	int wid, hgt, page_size;
-	static size_t first_item = 0;
-	size_t max_item = last_printable_item();
+	static u32b first_item = 0;
+	u32b max_item = last_printable_item();
 
 	Term_get_size(&wid, &hgt);
 
@@ -396,7 +397,7 @@ void history_display()
 
 		if (ch == 'n')
 		{
-			size_t scroll_to = first_item + page_size;
+			u32b scroll_to = first_item + page_size;
 
 			while (history_masked(scroll_to) && scroll_to < history_ctr - 1)
 				scroll_to++;
@@ -414,7 +415,7 @@ void history_display()
 		}
 		else if (ch == ARROW_DOWN)
 		{
-			size_t scroll_to = first_item + 1;
+			u32b scroll_to = first_item + 1;
 
 			while (history_masked(scroll_to) && scroll_to < history_ctr - 1)
 				scroll_to++;

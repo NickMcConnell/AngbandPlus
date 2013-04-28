@@ -53,7 +53,7 @@
 /* Size of one thing of type 'T' */
 #define SIZE(T) \
 	((size_t)(sizeof(T)))
-	
+
 /* Compare two arrays of type T[N], at locations P1 and P2 */
 #define C_DIFF(P1,P2,N,T) \
 	(memcmp((char*)(P1),(char*)(P2),C_SIZE(N,T)))
@@ -87,13 +87,9 @@
 #define COPY(P1, P2, T) \
 	(memcpy((P1), (P2), sizeof(T)))
 
-/* Free an array of N things of type T at P, return NULL */
-#define C_FREE(P,N,T) \
-	(rnfree(P,C_SIZE(N,T)))
-
-/* Free one thing of type T at P, return NULL */
-#define FREE(P,T) \
-	(rnfree(P,SIZE(T)))
+/* Free one thing at P, return NULL */
+#define FREE(P) \
+	(rnfree(P))
 
 /* Allocate, and return, an array of type T[N] */
 #define C_RNEW(N, T) \
@@ -123,18 +119,18 @@
 
 /* Free an array of type T[N], at location P, and set P to NULL */
 #define C_KILL(P,N,T) \
-	((P)=(T*) C_FREE(P,N,T))
+	((P)=(T*) FREE(P))
 
 /* Free a thing at location P and set P to NULL */
 #define KILL(P,T) \
-	((P) = (T*)FREE(P,T))
+	((P) = (T*)FREE(P))
 
 
 
 /**** Available variables ****/
 
 /* Replacement hook for "rnfree()" */
-extern void* (*rnfree_aux)(void*, size_t);
+extern void* (*rnfree_aux)(void*);
 
 /* Replacement hook for "rpanic()" */
 extern void* (*rpanic_aux)(size_t);
@@ -146,7 +142,7 @@ extern void* (*ralloc_aux)(size_t);
 /**** Available functions ****/
 
 /* De-allocate memory */
-extern void* rnfree(void *p, size_t);
+extern void* rnfree(void *p);
 
 /* Panic, attempt to allocate 'len' bytes */
 extern void* rpanic(size_t len);

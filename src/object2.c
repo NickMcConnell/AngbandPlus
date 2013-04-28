@@ -562,8 +562,8 @@ void compact_objects(int size)
 			}
 
 			/* Free the "obj_value and obj_index" arrays */
-			C_FREE(obj_value, o_max, s32b);
-			C_FREE(obj_index, o_max, s16b);
+			FREE(obj_value);
+			FREE(obj_index);
 		}
 	}
 
@@ -835,7 +835,7 @@ s16b get_obj_num(int level)
 {
 	int i, j, z;
 	int lev1, lev2, chance1, chance2;
-    int new_index, fix_freq;
+    int fix_freq;
 
 	object_kind *k_ptr;
 
@@ -1532,10 +1532,11 @@ s32b object_value(const object_type *o_ptr)
 		if (o_ptr->inscrip == INSCRIP_TERRIBLE) return (0L);
 		if (o_ptr->inscrip == INSCRIP_WORTHLESS) return (0L);
 		if (o_ptr->inscrip == INSCRIP_BROKEN) return (0L);
+		if (o_ptr->inscrip == INSCRIP_UNCURSED) return (0L);
 
 		/* Hack -- Felt cursed items */
 		if ((o_ptr->ident & (IDENT_SENSE)) && cursed_p(o_ptr) &&
-		    (o_ptr->inscrip != INSCRIP_UNCERTAIN)) return (0L);
+		    (o_ptr->inscrip != INSCRIP_UNCERTAIN && o_ptr->inscrip != INSCRIP_NULL)) return (0L);
 
 		/* Base value (see above) */
 		value = object_value_base(o_ptr);
@@ -1839,6 +1840,16 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 			/* Probably okay */
 			break;
 		}
+		case TV_MAGIC_BOOK:
+		case TV_NATURE_BOOK:
+		case TV_DARK_BOOK:
+		case TV_PRAYER_BOOK:
+		{
+			if (o_ptr->ego_item_index != j_ptr->ego_item_index)
+			{
+				return (FALSE);
+			}
+		}
 
 		/* Various */
 		default:
@@ -1872,7 +1883,7 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 	}
 
 	/* Hack -- Require compatible cost_adjustments */
-	if ((!stack_force_costs) && (o_ptr->cost_adjust != j_ptr->cost_adjust))
+	if ((!stack_force_costs) && (o_ptr->cost_adjust != j_ptr->cost_adjust) && !birth_stores_only_sell)
 	{
 		return (FALSE);
 	}
@@ -1917,6 +1928,12 @@ void object_absorb(object_type *o_ptr, object_type *j_ptr)
 	if ((o_ptr->ident & (IDENT_EMPTY)) && (j_ptr->ident & (IDENT_EMPTY)))
 	{
 		o_ptr->ident |= (IDENT_EMPTY);
+	}
+
+	if (((o_ptr->ident & (IDENT_EMPTY)) && object_known_p(j_ptr)) ||
+		((j_ptr->ident & (IDENT_EMPTY)) && object_known_p(o_ptr)))
+	{
+		ident_flags |= (IDENT_KNOWN);
 	}
 
 	/* Retain knowledge only if both items are known */
@@ -2594,7 +2611,7 @@ static bool make_artifact(object_type *o_ptr)
 		}
 
 		/* Free the "art_chance" array */
-		C_FREE(art_chance, z_info->a_max, s16b);
+		FREE(art_chance);
 	}
 
 
@@ -2793,6 +2810,15 @@ static void add_magic_to_weapon(object_type *o_ptr, int level, int power)
 				/* One in 10 chance to improve a dagger to 1d6 */
 				int odds = 8 + (o_ptr->dd * sides) / 2;
 
+				/* Make well OOD weapons more useful */
+				if (extra_depth > 20 + 8 * i) odds--;
+				if (extra_depth > 40 + 8 * i) odds--;
+				if (extra_depth > 60 + 8 * i) odds--;
+				if (extra_depth > 80 + 8 * i) odds--;
+
+				/* Throwing weapons are very likely to be upgraded */
+				if (o_ptr->flags1 & TR1_THROWING) odds /= 2;
+
 				/* Require that weapon be well in depth */
 				if (extra_depth >= rand_range(5, 10) + (i * 8)) break;
 
@@ -2852,8 +2878,14 @@ static void add_magic_to_weapon(object_type *o_ptr, int level, int power)
 		case TV_ARROW:
 		case TV_BOLT:
 		{
+			int odds = 6;
+
+			/* Drop better ammo if it's out of depth */
+			if (object_level - k_ptr->level > 30) odds--;
+			if (object_level - k_ptr->level > 60) odds--;
+
 			/* Boost the dice */
-			if ((object_level >= 30) && (one_in_(6)))
+			if ((object_level >= 30) && (one_in_(odds)))
 			{
 				/* Up to +5 on rare occasions */
 				o_ptr->ds += rand_int(m_bonus(5, object_level, MAX_DEPTH));
@@ -3328,6 +3360,28 @@ static void add_magic_to_ring(object_type *o_ptr, int level, int power)
 				{
 					o_ptr->pval = 1 + m_bonus(3, level, MAX_DEPTH);
 
+					o_ptr->ac = 5 + m_bonus(15, level, MAX_DEPTH);
+
+					/* Cursed */
+					if (power < 0)
+					{
+						/* Cursed */
+						o_ptr->ident |= (IDENT_CURSED);
+
+						/* Reverse bonuses */
+						o_ptr->pval = 0 - (o_ptr->pval);
+						o_ptr->ac = 0 - (o_ptr->ac);
+					}
+
+					break;
+				}
+
+				case SV_AMULET_TRICKERY:
+				{
+					o_ptr->pval = 1 + m_bonus(2, level, MAX_DEPTH);
+					o_ptr->pval2 = -1;
+					o_ptr->flags_pval2 = TR_PVAL_LIGHT;
+
 					/* Cursed */
 					if (power < 0)
 					{
@@ -3738,13 +3792,20 @@ void apply_random_qualities(object_type *o_ptr)
 	/* Chance of being extra heavy and powerful (not in stores) */
 	if ((xtra & (XTRA_CAN_BE_HEAVY)) && (!(obj_gen_flags & (OBJ_GEN_STORE))))
 	{
-		int dice, in_depth;
+		int dice, in_depth, odds;
 
 		/* Allow up to +2 dice on occasion */
 		for (dice = o_ptr->dd; dice < o_ptr->dd + 2;)
 		{
+			/* High damage reduce odds, extra depth increases odds */
+			odds = 4 + (o_ptr->dd * o_ptr->ds) / 2;
+			if (object_level - k_ptr->level > 20) odds--;
+			if (object_level - k_ptr->level > 40) odds--;
+			if (object_level - k_ptr->level > 60) odds--;
+			if (object_level - k_ptr->level > 80) odds--;
+
 			/* Stop most of the time */
-			if (!one_in_(4 + (o_ptr->dd * o_ptr->ds / 2))) break;
+			if (!one_in_(odds)) break;
 
 			/* Objects have to be well in-depth to become powerful */
 			in_depth = 10 * (dice - o_ptr->dd) + rand_range(10, 15);
@@ -6509,6 +6570,8 @@ bool switch_weapons(bool allow_empty)
         object_copy(i_ptr, j_ptr);
         object_copy(j_ptr, o_ptr);
         object_wipe(o_ptr);
+
+        p_ptr->update |= PU_BONUS;
         return (TRUE);
     }
 	return (FALSE);

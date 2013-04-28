@@ -161,7 +161,7 @@
 
 
 /*
- * OPTION: Assume that setegid is available, 
+ * OPTION: Assume that setegid is available,
  * if not undefine to use setgid instead.
  */
 #define HAVE_SETEGID
@@ -172,7 +172,7 @@
  * for storing pref-files and character-dumps.
  */
 #ifdef SET_UID
-#define PRIVATE_USER_PATH "~/.sangband"
+#define PRIVATE_USER_PATH "~/.angband"
 #endif /* SET_UID */
 
 

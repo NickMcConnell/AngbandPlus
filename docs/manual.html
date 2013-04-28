@@ -46,8 +46,8 @@ ALINK="#ff0000"><PRE><center><DIV CLASS="bgblack" BGCOLOR="#000000">
 <span id="y">***<span id="o">*</span>   **<span id="o">*</span>   **<span id="o">*</span> ***   *<span id="o">*</span>   *<span id="o">*</span>  **<span id="o">*</span>  **<span id="o">*</span>  **<span id="o">*</span>  **<span id="o">*</span>  *** ***   *<span id="o">*</span>   *<span id="o">*</span>  **<span id="o">*</span>  **<span id="o">*</span>  </span>
 <span id="y">*  ******     ***  ** **** ****  ******<span id="o">*</span> *** ****    ***  ** ** * ****  ****  ** </span>
 <span id="y">                                      *<span id="o">*</span>                                         </span>
-<span id="U">   Version 1.0.0</span>                <span id="y">*     *<span id="o">*</span>                                         </span>
-<span id="U">   April, 2007</span>                  <span id="y"> ******                                          </span>
+<span id="U">   Version 1.0.2</span>                <span id="y">*     *<span id="o">*</span>                                         </span>
+<span id="U">   October, 2010</span>                <span id="y"> ******                                          </span>
 
 <span id="B">The Sangband Manual</span>                               
 <span id="w">(revision  #22)</span>                                 
@@ -333,7 +333,11 @@ and save character dumps to file (which appear in the "lib/user" directory).
 
 <H3>The skills screen  ('$')</H3>
      When you collect enough experience, you can spend it on skills by typing    
-'$' to open up the skills advancement screen.                                    
+'$' to open up the skills advancement screen.  Press the arrow keys or the       
+appropriate letter to navigate the skills and press '+' to increase it.  If you  
+make a mistake, you can press '-' to undo the error.  You may also choose to     
+reduce a skill you raised at an earlier date with the '-' key, but your          
+experience will not be refunded.                                                 
 
 
 <H3>The help screen  ('?')</H3>
@@ -371,7 +375,7 @@ slain character one last time.  Here you can:
 
 <H2><A NAME="2.1X">Races</A></H2><A HREF="manual.html#2.">(return)</A>
 
-     There are eleven different races that you may choose among, representing    
+     There are fourteen different races that you may choose among, representing  
 most of the speaking peoples found in Tolkien's books, plus Gnomes and Giants.   
 Races differ in abilities, and tend to be better at some skills than at others.  
 
@@ -408,13 +412,13 @@ and have innate infravision.
 
 <b>Dwarf:</b>                                                                           
      Dwarves are the headstrong miners and fighters of legend.  They are strong, 
-wise, tough, and resistant to magic; although not very good at casting spells,   
-they make excellent priests and smiths.  They are better than average at melee   
-combat, but don't know the first thing about bows.  Dwarves have good innate     
-infravision and -- a major advantage -- can never be blinded.  They do have one  
-big drawback, though:  Dwarves are loudmouthed and proud, singing in loud        
-voices, arguing with themselves for no good reason, screaming out challenges at  
-imagined foes.  In other words, dwarves have a miserable stealth.                
+intelligent, tough, and resistant to magic; although not very good at casting    
+spells, they make excellent priests and smiths.  They are better than average at 
+melee combat, but don't know the first thing about bows.  Dwarves have good      
+innate infravision and -- a major advantage -- can never be blinded.  They do    
+have one big drawback, though:  Dwarves are loudmouthed and proud, singing in    
+loud voices, arguing with themselves for no good reason, screaming out challenges
+at imagined foes.  In other words, dwarves have a miserable stealth.             
 
 <b>Half-Orc:</b>                                                                        
      The bastard offspring of humans and orcs, half-orcs are ugly, strong, and   
@@ -467,21 +471,43 @@ readily learn magic or object-creation.  Unfortunately, all those tales about
 the naivete and clumsiness of giants have a large grain of truth to them.  No    
 other race is less perceptive than a giant, and none is more easy to spot.       
 
+<b>Ent:</b>                                                                             
+      Ents are tree-like creatures, large, strong and wise.  Their bark-like     
+exterior protects them from attacks, but they are vulnerable to fire.  They can  
+handle weapons well, but dislike axes; they are clumsy with bows, crossbows, and 
+magical devices.  Their harmony with nature makes them natural druids, and they  
+are in touch with priestly magics as well.  Ents have no trouble walking through 
+forests.                                                                         
+
+
+<b>Druedain (Woses):</b>                                                                
+     The Drúedain are wild men, with squat bodies and limbs.  They are a         
+versatile race not unsimilar to humans, though a little less educated and        
+friendly.  They make decent fighters, as they are apt with many weapons; they    
+also are make excellent druids.  Woses have no trouble walking through forests.  
+
+<b>Beorning:</b>                                                                        
+     The beornings are descendants of Beor, and retain his ability to change into
+the shape of a bear.  They are excellent with all weapons and make natural       
+warriors, but are bad at spellcasting and devices.                               
 
 <b>Racial Adjustments:</b>                                                              
 
                STR  INT   WIS   DEX   CON   CHR  Hit Dice  Infravision           
- Human          0     0     0     0     0     0     10        0                  
- Elf           -1    +2    +1    +1    -2    +1      8        0                  
- Hobbit        -2    +1    +1    +3    +2    +1      7        3                  
- Gnome         -1    +2     0    +2    +0    -2      8        3                  
- Dwarf         +2    -2    +2    -2    +2    -2     11        4                  
- Half-Orc      +2    -1    -1     0    +2    -3     11        3                  
- Half-Troll    +4    -4    -1    -3    +3    -4     12        3                  
- Dunadan       +1    +1    +3    +2    +3    +2     10        0                  
- High-Elf      +1    +3    -1    +3    +1    +3     10        0                  
- Dark-Elf      -1    +3     0    +2    -2    -1      8        2                  
- Giant         +3     0    -2    -2    +2    -1     13        0                  
+ Human          0     0     0     0     0     0     12        0                  
+ Elf           -1    +2    +1    +1    -2    +1     10        0                  
+ Hobbit        -2    +1    +1    +3    +2    +1      9        3                  
+ Gnome         -1    +2     0    +2    +0    -2     10        3                  
+ Dwarf         +2    +2    -2    -2    +2    -2     13        4                  
+ Half-Orc      +2    -1    -1     0    +2    -3     13        3                  
+ Half-Troll    +4    -4    -1    -3    +3    -4     14        3                  
+ Dunadan       +1    +1    +3    +2    +3    +2     12        0                  
+ High-Elf      +1    +3    -1    +3    +1    +3     12        0                  
+ Dark-Elf      -1    +3     0    +2    -2    -1     10        2                  
+ Giant         +3     0    -2    -2    +2    -1     15        0                  
+ Ent           +3    -2    +3    -4    +3    -1     15        0                  
+ Drúedain       0    -2    +1     0    +1    -2     12        0                  
+ Beorning      +1    -1    +1    -1    +1    -1     12        0                  
 
      All racial stat adjustments act as modifiers to your maximum internal       
 stats.  A Half-Troll, for example, can raise his internal strength to 18/140,    
@@ -502,50 +528,53 @@ but his dexterity only to 18/70.
  High-Elf     10       9       8       7       9       5       9       9         
  Dark-Elf      9       8       5       7       7       4       5       5         
  Giant         2       4       5       3       1       5       4       4         
-
+ Ent           1       3       5       3       5       8       5       5         
+ Drúedain      5       4       5       5       6       5       5       5         
+ Beorning      4       4       5       5       5       6       5       5         
+ 
      Abilities are ranked on a comparative scale ranging from 1 to 10.           
 * Half-trolls are bad with thrown weapons, though.                               
 
 
 <b>Racial Aptitudes:</b>                                                                
 
-               Hum  Elf  Hob  Gno  Dwa  HlO  HlT  Dun  HiE  DkE  Gia             
- sword          10   11   12   12   10    8    9   10   10    9   11             
- hafted         10   13   13   12    9    9    7   10   12   13   10             
- polearm        10   12   14   12    8    9    9   10   11   11   10             
- crossbow       10   11   11   10   10   10   10   10   10   11   13             
- bow            10    8    9   10   14   10   13   10    8    9   13             
- sling          10   10    7   10   13   10   15   10   10   10   13             
- throwing       10   10    8   10   12   10    8   10    9   11   10             
- wrestling      10   14   15   14    9   10    9   10   12   13    7             
- karate         10    8   10   10   12   13   15   10    8   11   13             
+             Hum Elf Hob Gno Dwa HlO HlT Dun HiE DkE Gia Ent Dru Brn             
+ sword        10  10  12  12  10   8   9  10  10   9  11  10  11   9             
+ hafted       10  12  13  12   9   9   7  10  12  13  10  10   9   8             
+ polearm      10  11  14  12   8   9   9  10  11  11  10  15   9   8             
+ crossbow     10  11  11   9  10  10  10  10  10  11  13  11  11   9             
+ bow          10   8   9  10  14  10  13  10   8   9  13  12   9  10             
+ sling        10  10   7  10  13  10  15  10  10  10  13  12  10  10             
+ throwing     10  10   8  10  12  10   8  10   9  11  10  10  10   9             
+ wrestling    10  14  15  14   9  10   9  10  12  13   7   8  10   9             
+ karate       10   8  10  10  12  13  15  10   8  11  13   8  10  10             
 
- spell level    10    9   11    9   11   11   12   10   10    8   10             
- mana           10    9   10    9   10   11   11   10    9    8   10             
+ spell level  10   9  11   9  11  11  12  10  10   8  10  10  10  11             
+ mana         10   9  10   9  10  11  11  10   9   8  10   8  10  11             
 
- wizard         10    9   11    8   12   12   13   10    9    9   11             
- piety          10   11   11   10    8   11   11   10   11   10   12             
- nature         10    8   10   10   12   15   10   10    8   14    9             
- dominion       10   11   11    9   10    9    9   10   10    9   10             
+ wizard       10   9  11   8  12  12  13  10   9   9  11  12  12  12             
+ piety        10  11  11  10   8  11  11  10  11  10  12   9  11  12             
+ nature       10   8  10  10  12  15  10  10   8  14   9   8   8   7             
+ dominion     10  11  11   9  10   9   9  10  10   9  10  12   9  11             
 
- device         10    9   11    8   10   12   16   10    9    8   11             
- burglary       10   10    7   10   12   10   12   10   10    9   14             
+ device       10   9  11   8  10  12  16  10   9   8  11  12  11  12             
+ burglary     10  10   7  10  12  10  12  10  10   9  14  15  10  10             
 
- perception     10    9    8    9   11   11   12   10    9    8   15             
- stealth        10    8    7   10   15   10   13   10    8    9   15             
- disarming      10   10    7   10   10   10   12   10   10   11   13             
- dodging        10    9    8   10   10   10   20   10    9   10   15             
- saving throw   10   10    8   10    8   11   12   10    9    9   11             
+ perception   10   9   8   9  11  11  12  10   9   8  15  10   8  10             
+ stealth      10   8   7  10  15  10  13  10   8   9  15  15   8  10             
+ disarming    10  10   7  10  10  10  12  10  10  11  13  10  12  11             
+ dodging      10   9   8  10  10  10  20  10   9  10  15  20   9   9             
+ saving throw 10  10   8  10   8  11  12  10   9   9  11  11  11   9             
 
- forge weapon   10   12   11   11    7   10   11   10   12    8    9             
- forge bow      10   10   11   11   11   11   11   10   10    8   12             
- forge armor    10   12   11   11    7   10   11   10   12   11    9             
- alchemy        10   11   12    8   14   13   11   10   11   10   13             
- infusion       10   10   13    9   11   13   13   10   10    7   13             
-               Hum  Elf  Hob  Gno  Dwa  HlO  HlT  Dun  HiE  DkE  Gia             
-
+ forge weapon 10  12  11  11   7  10  11  10  12   8   9  12  11  10             
+ forge armor  10  12  11  11   7  10  11  10  12  11   9  12  12  10             
+ alchemy      10  11  12   8  14  13  11  10  11  10  13  11  12  11             
+ infusion     10  10  13   9  11  13  13  10  10   7  13  10  12  11             
+ shapechange  10  10   9  10  11   9  12  10  12  10  12  12   9   8             
+             Hum Elf Hob Gno Dwa HlO HlT Dun HiE DkE Gia Ent Dru Brn             
 
      Higher values mean that the skill is more expensive to raise.               
+
      For the non-magical combat skills, magical device, perception, stealth, and 
 disarming, a higher value also means that improving the skill has a somewhat     
 smaller effect on your ability.  Elves, for example, are innately better at      
@@ -792,6 +821,11 @@ weak (slower recovery), feel faint (pass out every so often), and finally starve
               use magical devices.                                               
   Recall    : You are about to teleport to the surface, or to the deepest level  
               of the dungeon that you have ever visited.                         
+  Darkness  : You are standing in darkness and have no light source.  You can    
+              only read some scrolls (mostly dealing with escape, light, and     
+              darkness) and only priests and necromancers can cast spells.       
+			  Without infravision, you will have trouble with many things.       
+
 
      There are many other temporary conditions, most of which are explained by   
 the objects or spells that cause them.                                           
@@ -849,10 +883,8 @@ values
 - Maximum hitpoints                                                              
 - Current hitpoints                                                              
 - Blows/Round : the number of blows you get per turn in hand-to-hand combat      
-- + to Skill : bonus to melee Skill                                              
-- Deadliness (%) : the melee damage you do is adjusted by this percentage.       
-     If you are using martial arts, you instead see a guess at the average       
-damage you've done recently.                                                     
+- Hit Rate: the recent percentage of blows that hit monsters.                    
+- Average Damage: the average damage you've done recently.                       
 
 - Power : affects hitpoints and some other things                                
 - Score : how well you are doing in the game.  Always starts at zero.            
@@ -1046,17 +1078,17 @@ can learn the most powerful warrior arts.  Inductees can spread their blows out
 among weaker monsters, can handle heavy weapons with ease, have better combat    
 stats, get the most bonuses to missile might and shooting speed, the most        
 hitpoints, and have access to several very powerful talents.  However, they can  
-learn no realm of magic, and cannot raise their magical device skill past 50.    
+learn no realm of magic, and their magic devices suffer a 33% penalty.           
      You gain access to the Oath of Iron by raising a combat skill to level 45   
-or above (the exception being Slings, in which you need 55).                     
+or above.                                                                        
 
 <b>The Magic-users' Oaths:</b>                                                          
      Each realm of magic also has an Oath.  Wizards may take the Oath of         
 Sorcery, Priests subscribe to the Covenant of Faith, Druids join Yavanna's       
 Fellowship, and Necromancers bind themselves to the Black Mystery.  You gain     
-access to the magic-user Oaths by choosing that realm of magic, and then         
-navigating to the specialist skill for that realm (wizardry, holy alliance,      
-etc.).                                                                           
+access to the magic-user Oaths by choosing that realm of magic, and then
+raising the specialist skill for that realm (wizardry, holy alliance,
+etc.) to 20.
      Spellcasters that have taken the Oath associated with their realm cast      
 spells at full power, have another +2 bonus to their spell stat, and eventually  
 get plenty of mana.  However, they also are worse for their skill in all kinds   
@@ -1138,7 +1170,7 @@ carrying around flasks of oil, mushrooms, or boulders quite handy, and allow you
 to turn potions you wouldn't want to drink and well-balanced weapons into deadly 
 missiles.                                                                        
 
-<b>Wrestling   (cost - 10):</b>                                                         
+<b>Wrestling   (cost - 12):</b>                                                         
      Affects hit chance and damage when wrestling.  Sufficient increases in this 
 skill increase strength and also dexterity, allow you to bash doors and chests   
 with greater force, tunnel more rapidly, and recover from stuns more quickly.    
@@ -1156,7 +1188,7 @@ skilled wrestlers who are not wielding a weapon get special immunities:  free
 action at a skill of 86, resist sound and stunning at 92, and resist confusion   
 at 98.                                                                           
 
-<b>Karate   (cost - 10):</b>                                                            
+<b>Karate   (cost - 11):</b>                                                            
      Affects hit chance and damage when using karate.  Sufficient increases in   
 this skill increase dexterity and also strength, allow you to dodge better and   
 become slightly more stealthy, and recover from stuns more quickly.              
@@ -1306,17 +1338,11 @@ factors into account.
 confusion, paralyzation, etc.).  Attention paid to this skill can save your      
 life...                                                                          
 
-<b>Weaponsmithing   (cost - 10):</b>                                                    
+<b>Weaponsmithing   (cost - 11):</b>                                                    
      Once you raise it to 15, allows you to forge melee and throwing weapons     
-from components found in the dungeon.  Note:  you also need to be moderately     
-skilled in using the weapon type you are making to get good results.             
-     Weaponsmithing reduces the cost of Bowmaking by 2/5ths.                     
-
-<b>Bowmaking   (cost - 10):</b>                                                         
-     With a skill of 15, allows you to forge missile weapons and missiles from   
-components found in the dungeon.  Note:  you also need to be moderately skilled  
-in using the weapon or ammunition you are making to get good results.            
-     Bowmaking reduces the cost of Weaponsmithing by 2/5ths.                     
+as well as bows and missiles from components found in the dungeon. <i>Note:  you    
+also need to be moderately skilled in using the weapon type you are making to    
+get good results.</i>                                                                
 
 <b>Armor forging   (cost - 14):</b>                                                     
      With a skill of 15, allows you to forge armor from components found in the  
@@ -1324,10 +1350,13 @@ dungeon.  Armor forging is very powerful, because there are almost no object
 qualities that cannot be had with enough skill, good enough components, and a    
 dash of luck.                                                                    
 
-<b>Alchemy   (cost - 8):</b>                                                            
+<b>Alchemy   (cost - 6):</b>                                                            
      Allows you to create potions, scrolls, rings and amulets.  You need a skill 
 of 10 to create potions and scrolls, and a skill of 35 to create rings and       
 amulets.                                                                         
+     A relatively high magical infusion or alchemy skill is essential for        
+reliably finding essences, especially deep in the dungeon (Perception also helps 
+a little).                                                                       
 
 <b>Magical infusion   (cost - 13):</b>                                                  
      Infusion is among the most powerful of skills, because it allows you to use 
@@ -1335,12 +1364,16 @@ magical essences to control the powers that armor, weapons, and missiles get,
 pack essences into potions that explode violently when thrown, and make more     
 potions and scrolls using a given number of essences.  You need an infusion      
 skill of 10 to infuse forged items.                                              
-     A relatively high Magical infusion skill is essential for reliably finding  
-essences, especially deep in the dungeon (Perception also helps a little).  You  
-cannot search for essences at all unless you have a Magical Infusion skill of 10 
-or higher.                                                                       
+     A relatively high magical infusion or alchemy skill is essential for        
+reliably finding essences, especially deep in the dungeon (Perception also helps 
+a little).                                                                       
      Infusion grants one talent:  Recharging with essences (30).                 
 
+<b>Shapechange  (cost - 14)</b>                                                         
+	Shapechanging allows you to take the form of many different beasts, modifying
+your stats, resistances, and more.  Some forms are only available in combination 
+with the nature lore or blood dominion skill.  Press ']' to change form.  See the
+shapechanging section for more details.                                          
 
 
 <H2><A NAME="2.5X">Talents</A></H2><A HREF="manual.html#2.">(return)</A>
@@ -1352,7 +1385,7 @@ you can browse (get extra information about) it by typing '*', or mark it (get
 notification when it is again available for use) by typing '!'.                  
 
 
-<H3>List of Talents</H3>
+<H3>List of Talents ('[')</H3>
 <b>Turn skin to stone:</b>                                                              
      Increases your armor class substantially.  Requires a wrestling skill of 65 
 and the Oath of Iron.                                                            
@@ -1492,6 +1525,29 @@ breathe them out in powerful breaths.  The amount of damage you do depends on
 your total power and on the type of essence you choose (the more likely the      
 breath is to be resisted, the more damage it does).                              
      Of course, you have to find a way to turn into a dragon first...            
+
+<H4>Warrior Talents ('p')</H4>
+
+<b>Lunge</b>                                                                            
+	 Attack a monster two squares away.  Suffer a penalty to attack from the     
+distance.  Requires the Oath of Iron.                                            
+	 
+<b>Whirlwind Attack</b>                                                                 
+	 Attack all monsters nearby in a spinning attack.  Requires a weapon, and a
+weapon skill of 30 or more.                                                      
+	 
+<b>Circle Kick</b>                                                                 
+	 Attempts to stun all monsters surrounding you, becoming more powerful with  
+your karate skill.  Requires a karate skill of 30 or more.                       
+	 
+<b>Impact Blow</b>                                                                 
+	 Attack and knock back a monster.  Requires a blunt weapon and hafted skill  
+of 30.                                                                           
+	 
+<b>Earthquakes</b>                                                                 
+	 Call the walls down around you to provide cover.  Requires a blunt weapon,  
+the oath of iron, and hafted skill of 60.                                        
+
 
 
 <H3>Other skills-based abilities</H3>
@@ -2950,23 +3006,26 @@ fire.  Slays, in contrast, do extra damage to particular monster races, so wield
 that Mace of Orc Slaying if you come upon any orcs.  Only the best applicable    
 quality is used; they do not combine.                                            
      Bonuses from slays and brands are applied after all other damage            
-adjustments, except monster resistances.                                         
+adjustments, except monster resistances.  Being more skilled with the weapon you 
+wield increases the effect of the brand.                                         
 
 
 <H3>Melee (unarmed)</H3>
 <b>Unarmed Combat:</b>                                                                  
      The unarmed combat methods, Karate and Wrestling, are known as martial      
-arts.  When using a martial art, you always get two blows.                       
+arts.  When using a martial art, you gain additional blows as you increase       
+your skill in the martial art.                                                   
      They are effective against almost all sorts of monsters, are relatively     
 inexpensive to learn, and really come into their own against monsters that seem  
 to resist everything.  But be warned!  You need to be blessed (Scrolls of        
 Blessing work) to do damage to non-material beings, and touching certain kinds   
 of monsters can be quite painful...                                              
-     You can get (temporary) slays and brands with martial arts.  You can also   
-get critical hits on occasion, especially if you have skill in Piety, Blood      
-Dominion, or Nature Lore, or get vorpal blows or sneak attacks.  Bonuses (and    
-penalties) to Skill from non-weapon equipment count when using martial arts, but 
-bonuses to Deadliness do not.                                                    
+     You can get (temporary) slays and brands with martial arts, or you can use  
+the brand offered by some rare gauntlets.  You can also get critical hits on     
+occasion, especially if you have skill in Piety, Blood Dominion, or Nature Lore, 
+ or get vorpal blows or sneak attacks.  Bonuses (and penalties) to Skill from    
+non-weapon equipment count when using martial arts, but bonuses to Deadliness do 
+not.                                                                             
 
 <b>Damage Display:</b>                                                                  
      The melee section of your character screen changes when you use a martial   
@@ -3433,9 +3492,7 @@ information on the approximate current power of your spells.
 much experimentation.                                                            
 
 <b>Gaining new spells:</b>                                                              
-     You learn new spells by pressing 'G', choosing a spellbook with unlearnt    
-spells that are not too high level for you, and (unless you use holy magics)     
-choosing a spell.                                                                
+     You do not need to learn new spells.  You may cast any available spell.     
 
 <b>Casting spells:</b>                                                                  
      You may cast any learnt spell that has a spell level less than or equal to  
@@ -3463,6 +3520,9 @@ also has an important effect on the reliability of many spells.
 provide free action, increase dexterity, or enhance magic mastery skill.         
 Priests suffer likewise if they wield an unblessed edged weapon.  Stunning       
 (especially if heavy), fear, and lack of mana all make magic harder to use.      
+     Priests and Necromancers can cast spells in the dark, though both suffer
+an increase in spell failure.  Priestly spells will decrease in potency, and     
+necromatic spells will increase in potency.                                      
 
 <b>Weather:</b>                                                                         
      The knowledge of weather is an art, not a science.  However, it is believed 
@@ -3496,7 +3556,15 @@ be checked by using the Character screen.
             resist fire, lousy dexterity.                                        
   Troll   : Extreme regeneration and toughness.  Dumb.  No feather fall.         
   Bat     : Fast but weak.  Infravision, feather fall, and resist blindness.     
-
+  Lich    : Fast, invisible, strong versus cold, poison, but hit hard by fire.   
+  Vampire : Strong, smart, fast, with a safe lifeforce.                          
+            Extra damage from light, less from dark.                             
+  Werewolf: Strong, hale, and fearless.  Good bare-clawed fighter.               
+  Serpent : Strong, stealthy, and great at wrestling.                            
+  Angel   : Wise and strong and imbued with light.                               
+  Golem   : Strong against magic, but blocked from it.                           
+  Eagle   : Swift and silent, but weak of attack.                                
+  Fire Vortex: Wreathed in fire, and protected from it.                          
 
 <H3>Getting Good at Magic</H3>
 1)   Take a spellcaster's Oath to tap the full power of a realm.  You take an    
@@ -3645,7 +3713,7 @@ roguelike keyset is likely to be the better choice.
  d  Drop an item                         D  Disarm a trap/Desanctify a glyph     
  e  Equipment list                       E  Eat some food                        
  f  Fire an item                         F  Fuel your lantern/torch              
- g  Get objects on floor                 G  Gain new spells/prayers              
+ g  Get objects on floor                 G  (unused)              
  h  (unused)                             H  (unused)                             
  i  Inventory list                       I  Inspect an item                      
  j  Jam a door                           J  (unused)                             
@@ -3654,7 +3722,7 @@ roguelike keyset is likely to be the better choice.
  m  Cast a spell or pray a prayer        M  Full dungeon map                     
  n  Repeat last command                  N  (unused)                             
  o  Open a door or chest                 O  (unused)                             
- p  Pray a prayer or cast a spell        P  (unused)                             
+ p  Perform a combat talent              P  (unused)                             
  q  Quaff a potion                       Q  Save and quit (or retire)            
  r  Read a scroll                        R  Rest for a period                    
  s  Search for traps/doors               S  Start/stop sneaking                  
@@ -5551,7 +5619,7 @@ Peter Berger, "Prfnoff", Arcum Dagsson, Ed Cogburn, Matthias Kurzke, Ben
 Harrison, Steven Fuerst, Julian Lighton, Andrew Hill, Werner Baer, Tom Morton,   
 "Cyric the Mad", Chris Kern, Tim Baker, Jurriaan Kalkman, Alexander Wilkins,     
 Mauro Scarpa, John I'anson-Holton, "facade", Dennis van Es, Kenneth A. Strom,    
-Wei-Hwa Huang, Nikodemus, Timo Pietil�, Greg Wooledge, Keldon Jones, Shayne      
+Wei-Hwa Huang, Nikodemus, Timo Pietil�, Greg Wooledge, Keldon Jones, Shayne      
 Steele, Dr. Andrew White, Musus Umbra, Jonathan Ellis                            
 
 

@@ -3749,7 +3749,7 @@ static int convert_names(void)
 
 
 	/* Free the old names */
-	FREE(a_name, char);
+	FREE(a_name);
 
 	for (i = ART_MIN_RANDOM; i < z_info->a_max; i++)
 	{

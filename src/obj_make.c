@@ -3007,7 +3007,9 @@ bool make_melee_weapon(void)
 	int tval = 0;
 	cptr desc;
 
-	int skill = get_skill(S_FORGE_WEAPON, 0, 100);
+	int weap  = get_skill(S_FORGE_WEAPON, 0, 80);
+	int infus = get_skill(S_INFUSION, 0, 20);
+	int skill = weap + infus;
 
 	/* Interact until satisfied */
 	while (TRUE)
@@ -3050,8 +3052,9 @@ bool make_armor(void)
 	cptr desc;
 
 	/* Get skill */
-	int skill = get_skill(S_FORGE_ARMOR, 0, 100);
-
+	int armor = get_skill(S_FORGE_ARMOR, 0, 80);
+	int infus = get_skill(S_INFUSION, 0, 20);
+	int skill = armor + infus;
 
 	/* Interact until satisfied */
 	while (TRUE)
@@ -3098,7 +3101,9 @@ bool make_launcher_or_ammo(void)
 	int tval = 0;
 	cptr desc;
 
-	int skill = get_skill(S_FORGE_BOW, 0, 100);
+	int weap  = get_skill(S_FORGE_WEAPON, 0, 80);
+	int infus = get_skill(S_INFUSION, 0, 20);
+	int skill = weap + infus;
 
 	/* Interact until satisfied */
 	while (TRUE)

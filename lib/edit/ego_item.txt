@@ -4,7 +4,7 @@
 
 # Version stamp (required)
 
-V:1.0.1
+V:1.0.2
 
 #
 # === Understanding ego_item.txt (and similar files) ===
@@ -108,9 +108,14 @@ D:Made in the smithies of Beleriand, this armor resists the elements and
 D:one other attack, cannot be harmed by the elements, and conceals the 
 D:wearer from hostile eyes.
 
-# 10 (unused)
-
-# OnePower
+N:10:of Attention
+W:10:4:0:15000
+C:0:0:8
+T:36:0:99
+T:37:0:99
+T:38:0:99
+F:AGGRAVATE | LITE | TELEPATHY | LIGHT_CURSE
+D:Gleaming and shiny, this calls out to all monsters, and all monsters respond.
 
 N:11:of Permanence
 W:35:1:20:30000
@@ -557,7 +562,7 @@ D:foes.
 ### Weapons ###
 
 N:64:(Holy Avenger)
-W:25:18:20:16000
+W:25:15:20:16000
 C:5:5:4
 T:21:0:99
 T:22:2:99
@@ -573,7 +578,7 @@ D:by pious characters comfortably, grants sight beyond sight, and boosts
 D:armor class.
 
 N:65:(Defender)
-W:20:15:15:10000
+W:20:10:15:10000
 C:2:2:15
 T:21:0:99
 T:22:2:99
@@ -588,7 +593,7 @@ D:basic elements and cannot be damaged by them, and increases armor
 D:class.
 
 N:66:(Blessed)
-W:0:14:10:1000
+W:0:12:10:1000
 T:21:0:99
 T:22:2:99
 T:23:0:99
@@ -599,7 +604,7 @@ X:ADD_A_POWER
 D:A priestly weapon that increases wisdom and bears a hidden power.
 
 N:67:(Serpentine)
-W:45:25:15:18000
+W:45:15:15:18000
 C:6:0:0
 T:21:0:99
 T:22:2:99
@@ -612,7 +617,7 @@ D:your stealth and infravision, grants resistance to poison and
 D:feather falling, and slays natural creatures.
 
 N:68:of Westernesse
-W:15:14:15:18000
+W:15:8:15:18000
 C:4:4:0
 T:21:0:99
 T:22:2:99
@@ -627,7 +632,7 @@ D:offers see invisible and protects against paralyzation.
 # 69 (unused)
 
 N:70:(Mystic)
-W:30:22:12:6500
+W:30:15:12:6500
 C:-4:-4:0
 T:21:0:99
 T:22:2:99
@@ -640,7 +645,7 @@ D:intelligence it grants and sustains.  The wielder is given feather falling
 D:and resistance to confusion.
 
 N:71:of Chance
-W:20:22:12:500
+W:20:15:12:500
 T:21:0:99
 T:22:2:99
 T:23:0:99
@@ -652,7 +657,7 @@ D:high one, a sustain, and a special attribute.  Weapons of this type may
 D:have enhanced damage dice, and sometimes be vorpal.
 
 N:72:of Death
-W:50:26:15:7500
+W:50:15:15:7500
 C:6:6:0
 T:21:0:99
 T:22:2:99
@@ -666,7 +671,7 @@ D:of your enemies, or with your own.  Weapons of this type may have
 D:enhanced damage dice, and sometimes be vorpal.
 
 N:73:of Battle
-W:10:12:12:3000
+W:10:10:12:3000
 C:6:0:0
 T:21:0:99
 T:22:2:99
@@ -751,7 +756,7 @@ D:It gleams a sickly green, and you dare not hold it above the handle.
 # 84 (unused)
 
 
-# The "Slay" brands (8)
+# The "Slay" brands
 
 N:85:of Slay Animal
 W:0:4:8:2800
@@ -769,45 +774,33 @@ T:23:0:99
 F:SLAY_EVIL | EASY_KNOW
 D:This weapon fights against evil with holy fury.
 
-N:87:of Slay Undead
+N:87:of Slay Demon & Undead
 W:30:4:8:3500
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:SLAY_UNDEAD | EASY_KNOW
-D:This weapon strikes at undead with holy wrath.
+F:SLAY_DEMON | SLAY_UNDEAD | EASY_KNOW
+D:This weapon strikes at demons and undead with holy wrath.
 
-N:88:of Slay Demon
-W:40:4:8:3500
-T:21:0:99
-T:22:0:99
-T:23:0:99
-F:SLAY_DEMON | EASY_KNOW
-D:This weapon smites demonic foes with holy wrath.
+# 88 (unused)
 
-N:89:of Slay Orc
+N:89:of Slay Orc & Troll
 W:0:4:8:2000
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:SLAY_ORC | EASY_KNOW
-D:This weapon is especially deadly against orcs.
+F:SLAY_ORC | SLAY_TROLL | EASY_KNOW
+D:This weapon is especially deadly against orcs and their larger kin, trolls.
 
-N:90:of Slay Troll
-W:0:4:8:2700
+# 90 (unused)
+
+N:91:of Slay Troll & Giant
+W:20:6:8:2700
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:SLAY_TROLL | EASY_KNOW
-D:This weapon is especially deadly against trolls.
-
-N:91:of Slay Giant
-W:20:4:8:2700
-T:21:0:99
-T:22:0:99
-T:23:0:99
-F:SLAY_GIANT | EASY_KNOW
-D:This weapon is especially deadly against giants.
+F:SLAY_TROLL | SLAY_GIANT | EASY_KNOW
+D:This weapon is especially deadly against large creatures - trolls and giants.
 
 N:92:of Dragon Slaying
 W:30:4:8:3500
@@ -891,9 +884,9 @@ D:blazing so brightly as to light your path and disturb nearby foes.
 # Note the hardcoding of tval/sval
 
 N:101:of Returning
-W:0:5:10:500
+W:0:2:10:500
 T:21:4:4
-#T:22:1:1
+T:22:1:1
 T:22:8:8
 T:23:3:3
 F:RETURNING | EASY_KNOW
@@ -901,9 +894,31 @@ D:If wielded, this weapon returns to you when thrown.
 
 # 102 (unused)
 
-# 103 (unused)
+N:103:(Blood Seeper)
+W:10:5:10:7000
+C:10:10:0
+T:21:0:99
+T:22:0:99
+T:23:0:99
+P:2
+1:CON
+F:VORPAL | DRAIN_HP | LIGHT_CURSE
+X:ADD_DICE_SIDES | CAN_BE_HEAVY
+D:This weapon seeks blood, whatever the source.
 
-# 104 (unused)
+
+N:104:of Aggression
+W:10:5:10:7000
+C:5:20:0
+T:21:0:99
+T:22:0:99
+T:23:0:99
+P:-5
+1:INVIS
+F:LIGHT_CURSE | SLAY_ORC | SLAY_DRAGON | SLAY_TROLL | SLAY_ANIMAL | SLAY_UNDEAD |
+F:SLAY_DEMON | SLAY_GIANT | HIDE_TYPE |
+F:AGGRAVATE
+D:This wicked weapon hates all things and all things hate it.
 
 N:105:(foully corroded)
 W:0:1:0:0
@@ -913,7 +928,7 @@ T:22:2:99
 T:23:0:99
 P:-5
 1:SAVE
-F:LIGHT_CURSE
+F:LIGHT_CURSE | HIDE_TYPE
 D:Seemingly a weapon of great worth, but in fact blasted by noxious hexes.  
 D:The metal is rotted through and through; curses lay upon the wielder.
 

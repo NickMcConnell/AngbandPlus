@@ -3251,7 +3251,7 @@ void forget_view(void)
 						}
 
 						/* Mark unseen grids with infravision if seen */
-						if (!(info & (CAVE_SEEN)) & p->d < infra)
+						if (!(info & (CAVE_SEEN)) && p->d < infra)
 						{
 							/* Mark as noticed */
 							info |= (CAVE_INFR);
@@ -4974,8 +4974,6 @@ void object_kind_track(int k_idx)
 	p_ptr->window |= (PW_OBJECT);
 }
 
-
-
 /*
  * Something has happened to disturb the player.
  *
@@ -5018,11 +5016,7 @@ void disturb(int seriousness, int unused_flag)
 	/* Cancel running */
 	if (p_ptr->running)
 	{
-		/* Cancel */
-		p_ptr->running = 0;
-
-		/* Calculate torch radius */
-		p_ptr->update |= (PU_TORCH);
+		cancel_running();
 	}
 
 	/* Cancel sneaking if requested */

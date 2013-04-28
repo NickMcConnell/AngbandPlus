@@ -69,10 +69,10 @@ F:55:o/12:o/12:o/12
 F:56:w/127:w/127:W/127
 
 # Permanent wall -- town buildings
-F:60:w/127:w/127:W/127
+F:60:z/127:z/127:z/127
 
 # Permanent wall -- all others
-F:61:w/3:w/3:W/3
+F:61:z/3:z/3:z/3
 
 # Pillar
 F:64:w/16:w/16:W/16

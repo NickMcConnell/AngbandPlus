@@ -1540,7 +1540,7 @@ errr parse_k_info(char *buf, header *head)
 		/* XXX Simply read each number following a colon */
 		for (i = 0, s = buf+1; s && (s[0] == ':') && s[1]; ++i)
 		{
-			/* Sanity check */
+			/* Sanity check (allow 4 allocations) */
 			if (i > 3) return (PARSE_ERROR_TOO_MANY_ALLOCATIONS);
 
 			/* Store the attack damage index */
@@ -3040,7 +3040,8 @@ static cptr race_init_desc[MAX_RACES] =
 	"RACE_DUNADAN",
 	"RACE_HIGH_ELF",
 	"RACE_DARK_ELF",
-	"RACE_GIANT"
+	"RACE_GIANT",
+	"RACE_ENT"
 };
 
 

@@ -60,9 +60,7 @@ information on the approximate current power of your spells.
 much experimentation.
 
 Gaining new spells:
-     You learn new spells by pressing 'G', choosing a spellbook with unlearnt
-spells that are not too high level for you, and (unless you use holy magics)
-choosing a spell.
+     You do not need to learn new spells.  You may cast any spell available to you.
 
 Casting spells:
      You may cast any learnt spell that has a spell level less than or equal to
@@ -90,6 +88,9 @@ also has an important effect on the reliability of many spells.
 provide free action, increase dexterity, or enhance your magic device skill.
 Priests suffer likewise if they wield an unblessed edged weapon.  Stunning
 (especially if heavy), fear, and lack of mana all make magic harder to use.
+     Priests and Necromancers can cast spells in the dark, though both suffer
+an increase in spell failure.  Priestly spells will decrease in potency, and
+necromatic spells will increase in potency.
 
 Weather:
      The knowledge of weather is an art, not a science.  However, it is believed
@@ -123,6 +124,15 @@ be checked by using the Character screen.
             resist fire, lousy dexterity.
   Troll   : Extreme regeneration and toughness.  Dumb.  No feather fall.
   Bat     : Fast but weak.  Infravision, feather fall, and resist blindness.
+  Lich    : Fast, invisible, strong versus cold, poison, but hit hard by fire.
+  Vampire : Strong, smart, fast, with a safe lifeforce.
+            Extra damage from light, less from dark.
+  Werewolf: Strong, hale, and fearless.  Good bare-clawed fighter.
+  Serpent : Strong, stealthy, and great at wrestling.
+  Angel   : Wise and strong and imbued with light.
+  Golem   : Strong against magic, but blocked from it.
+  Eagle   : Swift and silent, but weak of attack.
+  Fire Vortex: Wreathed in fire, and protected from it.
 
 
 --- Getting Good at Magic ---

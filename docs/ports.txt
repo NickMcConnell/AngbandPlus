@@ -1,0 +1,48 @@
+     You have a variety of ports to choose from when compiling Sangband, but there are 
+some that are more updated than others.  All fully updated ports live in the main source 
+directory; those that are only partially updated live in various subfolders.  If you 
+update any port, please send a copy to the maintainer so he can include it in future 
+releases.
+
+     Compiling help is in /docs/compile.txt.
+
+
+
+UNIX, Linux, OpenBSD, and similar:
+
+     Graphical systems (on roughly Pentium or better):
+     - The SDL port is recommended.  Read "src/Makefile.sdl" and "src/main-sdl.c" for more
+       details.
+
+     Systems with the "curses" library:
+     - use "src/Makefile.std" and "src/main-gcu.c".
+
+
+Windows:
+
+     Virtually all Windows machines with Windows 95, Windows NT 4.0, or better:
+     - Use "src/main-win.c".
+
+     If you want music and better sound:
+     - Both depend on an external set of libraries called SDL.  For more information, 
+      read "src/makefile.sdl".  You have the choice of compiling "src/main-win.c" with
+      USE_SDL defined, or of using "src/main-sdl.c".
+
+     Really old Windows/DOS machines:
+     - "src/main-ibm.c" still works.  Its makefile is "makefile.ibm".
+
+
+Macintosh:
+
+     OS 10.2 or better (possibly also OS 9 with the CarbonLib extension, but I'm not sure):
+     - The SDL port /may/ work, but I do not have access to a Mac to test this (or to 
+       make any necessary corrections).  Read the top-most portion of "src/makefile.sdl".
+
+     Other Macs, or if SDL doesn't work:
+     - See "src/mac/" for Macintosh files.  Although rather outdated, they're a place 
+       to start.
+
+
+Amiga, Solaris, OS/2, and other systems:
+
+     (no helpful comments yet)

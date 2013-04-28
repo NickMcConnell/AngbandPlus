@@ -240,6 +240,10 @@ Temporary conditions:
               use magical devices.
   Recall    : You are about to teleport to the surface, or to the deepest level
               of the dungeon that you have ever visited.
+  Darkness  : You are standing in darkness and have no light source.  You can only
+              read some scrolls (mostly dealing with escape and light/darkness)
+			  and only priests and necromancers can cast spells.  Without
+			  infravision, you will have trouble with many things.
 
      There are many other temporary conditions, most of which are explained by
 the objects or spells that cause them.

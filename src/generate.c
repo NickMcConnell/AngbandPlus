@@ -5396,7 +5396,7 @@ static bool build_type7(void)
 	if (!v_cnt)
 	{
 		/* Free the array */
-		C_FREE(v_idx, z_info->v_max, s16b);
+		FREE(v_idx);
 
 		/* Leave */
 		return (FALSE);
@@ -5416,7 +5416,7 @@ static bool build_type7(void)
 		(p_ptr->depth < rand_int(37)), FALSE, 7)) return (FALSE);
 
 	/* Free the array */
-	C_FREE(v_idx, z_info->v_max, s16b);
+	FREE(v_idx);
 
 	return (TRUE);
 }
@@ -5454,7 +5454,7 @@ static bool build_type8(void)
 	if (!v_cnt)
 	{
 		/* Free the array */
-		C_FREE(v_idx, z_info->v_max, s16b);
+		FREE(v_idx);
 
 		/* Leave */
 		return (FALSE);
@@ -5484,7 +5484,7 @@ static bool build_type8(void)
 		precog_msg(PRECOG_GEN_DANGEROUS);
 
 	/* Free the array */
-	C_FREE(v_idx, z_info->v_max, s16b);
+	FREE(v_idx);
 
 	return (TRUE);
 }
@@ -5523,7 +5523,7 @@ static bool build_type9(void)
 	if (!v_cnt)
 	{
 		/* Free the array */
-		C_FREE(v_idx, z_info->v_max, s16b);
+		FREE(v_idx);
 
 		/* Leave */
 		return (FALSE);
@@ -5554,7 +5554,7 @@ static bool build_type9(void)
 		precog_msg(PRECOG_GEN_DANGEROUS);
 
 	/* Free the array */
-	C_FREE(v_idx, z_info->v_max, s16b);
+	FREE(v_idx);
 
 	return (TRUE);
 }

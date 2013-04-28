@@ -708,8 +708,8 @@ errr macro_free(void)
 		(void)string_free(macro__act[i]);
 	}
 
-	C_FREE(macro__pat, MACRO_MAX, cptr);
-	C_FREE(macro__act, MACRO_MAX, cptr);
+	FREE(macro__pat);
+	FREE(macro__act);
 
 	/* Free the keymaps */
 	for (i = 0; i < KEYMAP_MODES; ++i)
@@ -1549,7 +1549,7 @@ errr quarks_free(void)
 	}
 
 	/* Free the list of "quarks" */
-	C_FREE(quark__str, QUARK_MAX, cptr);
+	FREE(quark__str);
 
 	/* Success */
 	return (0);
@@ -2011,10 +2011,10 @@ errr messages_init(void)
 void messages_free(void)
 {
 	/* Free the messages */
-	C_FREE(message__ptr, MESSAGE_MAX, u16b);
-	C_FREE(message__buf, MESSAGE_BUF, char);
-	C_FREE(message__type, MESSAGE_MAX, u16b);
-	C_FREE(message__count, MESSAGE_MAX, u16b);
+	FREE(message__ptr);
+	FREE(message__buf);
+	FREE(message__type);
+	FREE(message__count);
 }
 
 

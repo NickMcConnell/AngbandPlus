@@ -123,15 +123,14 @@ void search(void)
 /*
  * Search for hidden essences
  *
- * - Finding essences requires infusion (and also perception) skill.
+ * - Finding essences requires infusion or alchemy (and also perception) skill.
  * - The deeper you go, the harder essences are to find.
  * - We do not need light to find essences.
  */
 void search_essence(bool strong)
 {
 	/* Skill ranges from 0 to 200 */
-	int skill = get_skill(S_INFUSION, 0, 150) +
-	            get_skill(S_PERCEPTION, 0, 50);
+	int skill;
 	int range;
 	int y, x;
 
@@ -141,20 +140,24 @@ void search_essence(bool strong)
 	char o_name[DESC_LEN];
 	object_type *o_ptr;
 
+	int infus, alchm;
 
-	/* Penalize various conditions */
+	/* Allow users to use both infusion and alchemy */
+	infus = get_skill(S_INFUSION, 0, 130);
+	alchm = get_skill(S_ALCHEMY, 0, 130);
+
+	skill = rsqrt((infus * infus) + (alchm + alchm)) +
+			get_skill(S_PERCEPTION, 0, 50);
+
+	/* Various conditions prevent finding essences */
 	if (p_ptr->confused || p_ptr->image) return;
 	if (p_ptr->berserk || p_ptr->necro_rage) return;
 
-
-	/* Require an infusion skill of 10 */
-	if (get_skill(S_INFUSION, 0, 100) < LEV_REQ_INFUSE) return;
+	/* Deliberate search is better */
+	if (strong) skill += 10 + skill / 3;
 
 	/* Modify effective skill by randomized depth */
 	skill -= randint(20 + 5 * p_ptr->depth / 3);
-
-	/* Deliberate search is better */
-	if (strong) skill += get_skill(S_INFUSION, 10, 60);
 
 	/* Search only sometimes */
 	if (skill <= 0) return;
@@ -286,11 +289,8 @@ void do_cmd_search(void)
 	/* Search */
 	search();
 
-	/* Search -- essences */
-	if (get_skill(S_INFUSION, 0, 100) >= LEV_REQ_INFUSE)
-	{
-		search_essence(TRUE);
-	}
+	/* Search for essences; note, infusion or alchemy required */
+	search_essence(TRUE);
 
 	/* Notice unseen objects */
 	notice_unseen_objects();
@@ -833,7 +833,7 @@ byte py_pickup(int pickup)
 	}
 
 	/* Free the gold array */
-	C_FREE(treasure,FIRST_SPECIAL_TREASURE,byte);
+	FREE(treasure);
 
 
 	/* Scan the remaining objects */
@@ -1185,6 +1185,24 @@ static bool escape_pit(void)
 	return (TRUE);
 }
 
+
+/*
+ * Turn off running, updating visuals as necessary
+ */
+void cancel_running()
+{
+	/* Cancel */
+	p_ptr->running = 0;
+
+	/* Calculate torch radius */
+	p_ptr->update |= (PU_TORCH);
+
+	/* Update object list and monster list */
+	p_ptr->window |= (PW_O_LIST | PW_M_LIST);
+}
+
+
+
 /*
  * Move player in the given direction, with the given "pickup" flag.
  *
@@ -1292,7 +1310,7 @@ void move_player(int dir, int do_pickup)
 					p_ptr->command_dir = dir;
 
 					/* Stop any run */
-					p_ptr->running = FALSE;
+					cancel_running();
 
 					/* Repeat 99 times */
 					p_ptr->command_rep = 99;
@@ -1429,7 +1447,7 @@ void move_player(int dir, int do_pickup)
 				}
 				else
 				{
-					p_ptr->running = 0;
+					cancel_running();
 
 					if (p_ptr->crossing_dir == dir)
 					{
@@ -1457,6 +1475,10 @@ void move_player(int dir, int do_pickup)
 
 				/* Characters in wraithform move easily through trees */
 				else if (p_ptr->wraithform) can_move = TRUE;
+
+				/* Ents and Woses can move through trees easily */
+				else if (p_ptr->prace == RACE_ENT) can_move = TRUE;
+				else if (p_ptr->prace == RACE_WOSES) can_move = TRUE;
 
 				/* Require two turns to get through trees */
 				else if (p_ptr->crossing_moves)
@@ -1538,7 +1560,7 @@ void move_player(int dir, int do_pickup)
 				if (p_ptr->running)
 				{
 					/* Stop the run */
-					p_ptr->running = 0;
+					cancel_running();
 
 					/* Hack -- Use no energy */
 					p_ptr->energy_use = 0;
@@ -1606,14 +1628,12 @@ void move_player(int dir, int do_pickup)
 			search();
 		}
 
-		/* Spontaneous searching -- essences */
-		if (get_skill(S_INFUSION, 0, 100) >= LEV_REQ_INFUSE)
+		/* Spontaneous searching for essences */
+		/* Skill competes with depth */
+		if (rand_int(25 + p_ptr->depth) < get_skill(S_INFUSION, 0, 100) ||
+			rand_int(25 + p_ptr->depth) < get_skill(S_ALCHEMY, 0, 100))
 		{
-			/* Skill competes with depth */
-			if (rand_int(25 + p_ptr->depth) < get_skill(S_INFUSION, 0, 100))
-			{
-				search_essence(FALSE);
-			}
+			search_essence(FALSE);
 		}
 
 		/* Handle store doors */

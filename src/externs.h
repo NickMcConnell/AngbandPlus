@@ -16,6 +16,7 @@
 
 /* tables.c */
 extern const s16b ddd[9];
+extern const s16b ddc[8];
 extern const s16b ddx[10];
 extern const s16b ddy[10];
 extern const s16b ddx_ddd[9];
@@ -92,7 +93,7 @@ extern cptr character_type_desc[PCHAR_MAX];
 extern graphics_data_type graphics_data[GRAPHICS_MAX];
 extern byte term_size_min[TERM_MAX + 1][2];
 extern byte misc_graphics_info[MISC_GRAPHICS_MAX][2];
-
+extern cptr pval_desc_text[32];
 
 /* variable.c */
 extern cptr copyright;
@@ -308,7 +309,7 @@ extern byte player_graphics[MAX_RACES][MAX_SPECIALTIES][2];
 
 /* attack.c */
 extern bool test_hit_combat(int chance, int ac, int visible);
-extern bool monster_evade_or_resist(object_type *o_ptr,
+extern int monster_evade_or_resist(object_type *o_ptr,
 	monster_type *m_ptr, byte blow_type);
 extern void adjust_dam(int *damage, object_type *o_ptr, monster_type *m_ptr,
 	bool is_trap);
@@ -376,7 +377,7 @@ extern bool quiver_carry(object_type *o_ptr, int o_idx);
 extern byte py_pickup(int pickup);
 extern void move_player(int dir, int do_pickup);
 extern void run_step(int dir);
-
+extern void cancel_running();
 
 /* cmd2.c */
 extern void do_cmd_go_up(void);
@@ -486,7 +487,7 @@ extern void process_effects(void);
 extern s16b tokenize(char *buf, s16b num, char **tokens);
 extern errr process_pref_file_command(char *buf);
 extern errr process_pref_file(cptr name);
-extern void display_player(int mode);
+extern void display_player(int mode, bool change_display);
 extern errr file_character(cptr name, bool full);
 extern errr get_rnd_line(const char *file_name, char *output);
 extern bool show_file(cptr name, cptr what, int line, int mode);
@@ -523,14 +524,14 @@ extern void generate_cave(void);
 /* history.c */
 extern history_info *history_list;
 void history_clear(void);
-size_t history_get_num(void);
+u32b history_get_num(void);
 bool history_add_full(u16b type, byte a_idx, s16b dlev, s16b clev, s32b turn, const char *text);
 bool history_add(const char *event, u16b type, byte a_idx);
 bool history_add_artifact(byte a_idx, bool known);
 void history_unmask_unknown(void);
 bool history_lose_artifact(byte a_idx);
 void history_display(void);
-void history_init(size_t entries);
+void history_init(u32b entries);
 void history_dump(FILE *fff);
 
 /* info.c */
@@ -618,6 +619,8 @@ extern void mon_death_effect(int m_idx);
 extern bool monster_loot(int max, bool steal, monster_type *m_ptr);
 extern void monster_death(int m_idx);
 extern bool mon_take_hit(int m_idx, int who, int dam, bool *fear, cptr note);
+long monster_exp(monster_race *r_ptr);
+long monster_exp_frac(monster_race *r_ptr);
 
 
 /* obj_make.c */
@@ -760,10 +763,12 @@ extern void initialize_random_artifacts(void);
 /* skills.c */
 extern s16b get_skill(int skill, int min, int max);
 extern s16b get_skill_race(int skill, int min, int max);
+extern int best_melee_skill(void);
 extern int sweapon(int tval);
 extern int sbow(int tval);
 extern void calc_power(void);
 extern int calc_exp_power(void);
+extern int calc_max_power(void);
 extern void adv_cost_reduce_similar(int skill, s32b *base_cost, byte mode);
 extern s32b adv_cost(int skill, bool add_practice_cost);
 extern bool alter_skill(int skill, int change, bool perm);
@@ -779,6 +784,7 @@ extern bool project(int who, int rad, int y0, int x0, int y1, int x1,
 
 
 /* spells2.c */
+extern void find_target(int dir, int range, int y0, int x0, int *y1, int *x1);
 extern bool project_bolt(int who, int rad, int y0, int x0, int y1, int x1,
 	int dam, int typ, u32b flg);
 extern bool project_beam(int who, int rad, int y0, int x0, int y1, int x1,
@@ -807,6 +813,7 @@ extern bool beam_burst(int y, int x, int typ, int num, int dam);
 extern bool project_los(int y0, int x0, int dam, int typ);
 extern void teleport_away(int m_idx, int dis, bool require_los);
 extern void thrust_away(int who, int t_y, int t_x, int grids_away);
+extern void thrust_toward(int who, int t_y, int t_x, int grids_away);
 extern void teleport_player(int dis, bool safe, bool require_los);
 extern void teleport_towards(int oy, int ox, int ny, int nx);
 extern void teleport_player_to(int ny, int nx, int dis,
@@ -986,13 +993,14 @@ extern void do_cmd_store(void);
 extern void store_shuffle(int which);
 extern void store_maint(int num, bool full);
 extern void store_init(int which);
+extern void process_world_aux_home(void);
 
 /* talents.c */
 extern void pseudo_probe(void);
 extern int dodging_ability(int max);
 extern bool can_precog(int max_chance, int cutoff);
-extern int can_use_talent(int talent);
-extern void do_cmd_talents(void);
+extern int can_use_talent(int talent, int talent_choice);
+extern void do_cmd_talents(int talent_choice);
 
 /* traps.c */
 extern trap_kind t_kind_info[TRAP_KIND_MAX];
@@ -1158,9 +1166,11 @@ extern void handle_stuff(void);
 extern s16b calc_hp_regen(void);
 extern s16b calc_mana_regen(void);
 extern void player_flags(u32b *f1, u32b *f2, u32b *f3, bool shape, bool modify);
+extern void player_flags_vulnerable(u32b *f1, u32b *f2, u32b *f3, bool shape);
 extern void player_flags_cancel(u32b *f1, u32b *f2, u32b *f3, bool shape);
 extern int missile_bonus(u32b flag_pval, int skill);
 extern int player_flags_pval(u32b flag_pval, bool shape);
+extern int weapon_blows(object_type *o_ptr, bool primary);
 
 
 /* xtra2.c */
@@ -1218,8 +1228,8 @@ extern bool set_aura_cold(int v);
 extern bool set_mental_barrier(int v);
 extern bool set_forbid_summoning(int v);
 extern bool set_wraithform(int v);
-extern bool set_trollform(int v);
-extern bool set_dragonform(int v);
+extern bool shapechange_pern(s16b shape);
+extern bool shapechange_temp(int v, s16b shape);
 extern bool set_pois_power(int v, int dur);
 extern bool set_chaos_power(int v, int dur);
 extern bool set_nexus_field(int v, int dam);

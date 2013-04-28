@@ -1942,6 +1942,15 @@ static bool can_hinder(int type, monster_type *m_ptr, int power,
 		return (FALSE);
 	}
 
+	/* Hindrance practices a skill */
+	if (skill_being_used != S_NOSKILL)
+	{
+		/* Hindrance trains around 5% of base skill */
+		long new_exp = div_round(monster_exp(r_ptr), 20);
+
+		/* Practice */
+		practice_skill(new_exp, skill_being_used);
+	}
 
 	/* Monster failed to resist */
 	return (TRUE);
@@ -3039,7 +3048,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 			}
 			else if (r_ptr->d_char == 'A')
 			{
-				strcpy(note, "is immune!");
+				strcpy(note, " is immune!");
 				dam = 0;
 			}
 			break;
@@ -4571,7 +4580,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 					if (take_hit(dam, 0, msg, killer)) break;
 
 					/* Then a cute message, */
-					if (k == 4) msg_print("Foul magics assault body and mind!");
+					if (k >= 4) msg_print("Foul magics assault body and mind!");
 
 					/* Then the poison, */
 					if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
@@ -4619,7 +4628,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 					}
 
 					/* Then the Black Breath. */
-					if (k == 4)
+					if (k >= 4)
 					{
 						if (p_ptr->black_breath == FALSE)
 						{
@@ -4777,6 +4786,9 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 			if (p_ptr->resist_pois) dam = div_round(dam, 3);
 			if (p_ptr->oppose_pois) dam = div_round(dam, 3);
 
+			/* Handle vulnerability */
+			if (p_ptr->vuln_pois) dam += dam / 2;
+
 			/* Take damage */
 			if (take_hit(dam, 0, NULL, killer)) break;
 
@@ -4912,6 +4924,10 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 			dam += terrain_adjustment / 2;
 
 			if (fuzzy) msg_print("You are hit by something!");
+
+			/* Handle vulnerability */
+			if (p_ptr->vuln_lite) dam += dam / 2;
+
 			if ((p_ptr->resist_lite) || (p_ptr->oppose_ethereal))
 			{
 				dam = div_round(dam, 2);
@@ -4930,6 +4946,9 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		{
 			/* Slightly affected by terrain. */
 			dam += terrain_adjustment / 2;
+
+			/* Handle vulnerability */
+			if (p_ptr->vuln_dark) dam += dam / 2;
 
 			if (fuzzy) msg_print("You are hit by something!");
 			if ((p_ptr->resist_dark) || (p_ptr->oppose_ethereal))
@@ -4952,6 +4971,9 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 			dam += terrain_adjustment / 2;
 
 			if (fuzzy) msg_print("You feel a deadly blackness surround you!");
+
+			/* Handle vulnerability */
+			if (p_ptr->vuln_dark) dam += dam / 2;
 
 			/* Adjust damage for darkness resistance, or blind the player. */
 			if ((p_ptr->resist_dark) || (p_ptr->oppose_ethereal))
@@ -5091,6 +5113,10 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 			dam += terrain_adjustment / 2;
 
 			if (fuzzy) msg_print("You are hit by something confusing!");
+
+			/* Handle vulnerability */
+			if (p_ptr->vuln_confu) dam += dam / 2;
+
 			if (p_ptr->resist_confu)
 			{
 				dam = div_round(dam, 2);
@@ -5111,6 +5137,9 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 			dam += terrain_adjustment / 2;
 
 			if (fuzzy) msg_print("You are blasted by sound.");
+
+			/* Handle vulnerability */
+			if (p_ptr->vuln_sound) dam += dam / 2;
 
 
 			/* Resistance reduces damage, negates all side effects. */
@@ -5164,6 +5193,9 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		{
 			/* Affected by terrain. */
 			dam += terrain_adjustment;
+
+			/* Handle vulnerability */
+			if (p_ptr->vuln_shard) dam += dam / 2;
 
 			/* Test for partial shield protection. */
 			if ((inventory[INVEN_ARM].k_idx) &&
@@ -5356,6 +5388,10 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		case GF_NEXUS:
 		{
 			if (fuzzy) msg_print("You are hit by something strange!");
+
+			/* Handle vulnerability */
+			if (p_ptr->vuln_nexus) dam += dam / 2;
+
 			if (p_ptr->resist_nexus)
 			{
 				dam = div_round(dam, 2);
@@ -5373,6 +5409,9 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		{
 			/* Slightly affected by terrain. */
 			dam += terrain_adjustment / 2;
+
+			/* Handle vulnerability */
+			if (p_ptr->vuln_nethr) dam += dam / 2;
 
 			if (fuzzy) msg_print("You are hit by nether!");
 			if (p_ptr->resist_nethr)
@@ -5407,6 +5446,9 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		{
 			/* Slightly affected by terrain. */
 			dam += terrain_adjustment / 2;
+
+			/* Handle vulnerability */
+			if (p_ptr->vuln_chaos) dam += dam / 2;
 
 			if (fuzzy) msg_print("You are hit by chaos!");
 			if (p_ptr->resist_chaos)
@@ -5454,6 +5496,10 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		case GF_DISENCHANT:
 		{
 			if (fuzzy) msg_print("You are hit by something strange!");
+
+			/* Handle vulnerability */
+			if (p_ptr->vuln_disen) dam += dam / 2;
+
 			if (p_ptr->resist_disen)
 			{
 				dam = div_round(dam, 2);
@@ -5579,7 +5625,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 			if (fuzzy) msg_print("You are hit by life-draining energies!");
 
 			/* Allow resistance */
-			if (p_ptr->resist_nethr) resist++;
+			if (p_ptr->resist_nethr && !p_ptr->vuln_nethr) resist++;
 			if (p_ptr->hold_life)    resist++;
 
 			/* Apply resistance */
@@ -5619,6 +5665,9 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 
 			/* Take some damage */
 			if (take_hit(dam, 0, NULL, killer)) break;
+
+			/* Handle vulnerability */
+			if (p_ptr->vuln_pois) dam += dam / 2;
 
 			/* Poison */
 			if (!(p_ptr->resist_pois || p_ptr->oppose_pois))

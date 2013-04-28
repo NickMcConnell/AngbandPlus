@@ -318,6 +318,10 @@ bool set_fast(int v)
 {
 	bool notice = FALSE;
 
+	/* Hack -- handle lich's temporary speed */
+	if ((p_ptr->schange == SHAPE_LICH) && (v == 0)) return (TRUE);
+
+
 	/* Sounds */
 	if      (!p_ptr->fast && v) sound(MSG_SPEED);
 	else if (p_ptr->fast && !v) sound(MSG_RECOVER);
@@ -1303,6 +1307,9 @@ bool set_oppose_cold(int v)
 {
 	bool notice = FALSE;
 
+	/* Hack -- handle lich's temporary resistance */
+	if ((p_ptr->schange == SHAPE_LICH) && (v == 0)) return (TRUE);
+
 	/* Sounds */
 	if      (!p_ptr->oppose_cold && v) sound(MSG_RES_COLD);
 	else if (p_ptr->oppose_cold && !v) sound(MSG_RECOVER);
@@ -1335,6 +1342,9 @@ bool set_oppose_cold(int v)
 bool set_oppose_pois(int v)
 {
 	bool notice = FALSE;
+
+	/* Hack -- handle lich's temporary resistance */
+	if ((p_ptr->schange == SHAPE_LICH) && (v == 0)) return (TRUE);
 
 	/* Sounds */
 	if      (!p_ptr->oppose_pois && v) sound(MSG_RES_POIS);
@@ -2042,19 +2052,19 @@ bool set_food(s32b v)
 			/* Fainting / Starving */
 			case 0:
 			sound(MSG_NOTICE);
-			msg_print("You are getting faint from hunger!");
+			message(MSG_RED,  500, "You are getting faint from hunger!");
 			break;
 
 			/* Weak */
 			case 1:
 			sound(MSG_NOTICE);
-			msg_print("You are getting weak from hunger!");
+			message(MSG_ORANGE, 500, "You are getting weak from hunger!");
 			break;
 
 			/* Hungry */
 			case 2:
 			sound(MSG_NOTICE);
-			msg_print("You are getting hungry.");
+			message(MSG_YELLOW, 0, "You are getting hungry.");
 			break;
 
 			/* Normal */
@@ -2421,25 +2431,23 @@ bool set_wraithform(int v)
 
 
 /*
- * Set "p_ptr->trollform", notice observable changes
+ * Set "p_ptr->form_dur and p_ptr->schange", notice observable changes
  */
-bool set_trollform(int v)
+bool shapechange_temp(int v, s16b shape)
 {
 	bool notice = FALSE;
 
-	/* Set trollform, no messages */
-	notice = set_condition(&p_ptr->trollform, v, 0L,
-	        "",
-	        "");
+	/* Set form duration, no messages */
+	notice = set_condition(&p_ptr->form_dur, v, 0L, "", "");
 
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
+	/* Nothing to do */
+	if (shape == p_ptr->schange && v > 0) return (TRUE);
 
-	/* Turn into a troll */
-	if (p_ptr->trollform) shapechange(SHAPE_TROLL);
+	/* Turn into a something */
+	if (p_ptr->form_dur) shapechange(shape);
 
 	/* Change back to normal form */
-	if ((!p_ptr->trollform) && (p_ptr->schange))
+	if ((!p_ptr->form_dur) && (p_ptr->schange))
 	{
 		do_cmd_unchange(FALSE);
 	}
@@ -2451,37 +2459,6 @@ bool set_trollform(int v)
 	return (TRUE);
 }
 
-
-/*
- * Set "p_ptr->dragonform", notice observable changes
- */
-bool set_dragonform(int v)
-{
-	bool notice = FALSE;
-
-	/* Set dragonform, no messages */
-	notice = set_condition(&p_ptr->dragonform, v, 0L,
-	        "",
-	        "");
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Turn into a dragon */
-	if (p_ptr->dragonform) shapechange(SHAPE_DRAGON);
-
-	/* Change back to normal form */
-	if ((!p_ptr->dragonform) && (p_ptr->schange))
-	{
-		do_cmd_unchange(FALSE);
-	}
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
 
 /*
  * Set "p_ptr->pois_power", do not notice
@@ -2652,6 +2629,13 @@ bool set_self_knowledge(int v, cptr msg)
 	return (TRUE);
 }
 
+void shapechange_perm(s16b shape)
+{
+	/* Clear form duration */
+	p_ptr->form_dur = 0;
+	shapechange(shape);
+}
+
 
 /*
  * Shapechange code. Most of the work is done by calc_bonuses().
@@ -2661,7 +2645,7 @@ bool set_self_knowledge(int v, cptr msg)
 void shapechange(s16b shape)
 {
 	cptr shapedesc = "(none)";
-
+	int old_shape = p_ptr->schange;
 
 	/* Wonder Twin powers -- Activate! */
 	p_ptr->schange = shape;
@@ -2679,6 +2663,11 @@ void shapechange(s16b shape)
 		case SHAPE_ENT:     shapedesc = "ent";        break;
 		case SHAPE_TROLL:   shapedesc = "troll";      break;
 		case SHAPE_BAT:     shapedesc = "bat";        break;
+		case SHAPE_LICH:    shapedesc = "lich";       break;
+		case SHAPE_VAMPIRE: shapedesc = "vampire";    break;
+		case SHAPE_WEREWOLF:shapedesc = "werewolf";   break;
+		case SHAPE_SERPENT: shapedesc = "serpent";    break;
+		case SHAPE_ANGEL:   shapedesc = "angel";      break;
 		default:            shapedesc = "monster";    break;
 	}
 
@@ -2695,6 +2684,20 @@ void shapechange(s16b shape)
 	{
 		/* Message */
 		msg_print("You return to your normal form.");
+	}
+
+	/* Hack -- handle lich's temporary stuff */
+	if (shape == SHAPE_LICH)
+	{
+		if (!p_ptr->oppose_cold) set_oppose_cold(1);
+		if (!p_ptr->oppose_pois) set_oppose_pois(1);
+		if (!p_ptr->fast) set_fast(1);
+	}
+	else if (old_shape == SHAPE_LICH)
+	{
+		if (p_ptr->oppose_cold == 1) set_oppose_cold(0);
+		if (p_ptr->oppose_pois == 1) set_oppose_pois(0);
+		if (p_ptr->fast == 1) set_fast(0);
 	}
 
 	/* Update stuff */
@@ -2737,11 +2740,10 @@ void do_cmd_unchange(bool voluntary)
 	}
 
 	/* Return to normal form */
-	shapechange(SHAPE_NORMAL);
+	shapechange_perm(SHAPE_NORMAL);
 
 	/* Hack -- cancel temporary shapechanges */
-	p_ptr->trollform = 0;
-	p_ptr->dragonform = 0;
+	p_ptr->form_dur = 0;
 
 	/* Use some energy  XXX */
 	if (voluntary) p_ptr->energy_use = 100;
@@ -3841,6 +3843,8 @@ bool target_able(int m_idx, bool use_sight)
 {
 	monster_type *m_ptr;
 
+	int mx, my;
+
 	/* No monster */
 	if (m_idx <= 0) return (FALSE);
 
@@ -3860,7 +3864,12 @@ bool target_able(int m_idx, bool use_sight)
 	if (p_ptr->image) return (FALSE);
 
 	/* Check maximum distance if necessary */
-	if (p_ptr->max_dist > 0 && p_ptr->max_dist < distance(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px)) return (FALSE);
+	if (p_ptr->max_dist > 0)
+	{
+		mx = m_ptr->fx;
+		my = m_ptr->fy;
+		if (p_ptr->max_dist < project_path(MAX_RANGE, p_ptr->py, p_ptr->px, &my, &mx, 0)) return (FALSE);
+	}
 
 	/* In manual mode */
 	if (use_sight)
@@ -5461,6 +5470,7 @@ bool get_aim_dir(int *dp)
 		/* Verify */
 		if (!(*dp == 5 && !target_okay()))
 		{
+			p_ptr->max_dist = 0;
 			return (TRUE);
 		}
 		else
@@ -5572,7 +5582,11 @@ bool get_aim_dir(int *dp)
 	}
 
 	/* No direction */
-	if (!dir) return (FALSE);
+	if (!dir)
+	{
+		p_ptr->max_dist = 0;
+		return (FALSE);
+	}
 
 	/* Save the direction */
 	p_ptr->command_dir = dir;
@@ -5596,6 +5610,9 @@ bool get_aim_dir(int *dp)
 
 	/* Save command */
 	repeat_push(dir);
+
+	/* Clear max distance */
+	p_ptr->max_dist = 0;
 
 	/* A "valid" direction was entered */
 	return (TRUE);

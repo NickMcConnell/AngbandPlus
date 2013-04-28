@@ -229,12 +229,11 @@ bool project_star(int who, int rad, int y0, int x0, int y1, int x1, int dam,
 	return (project(who, rad, y0, x0, y1, x1, dam, typ, flg, 0, 0));
 }
 
-
 /*
  * Handle target grids for projections under the control of
  * the character.  - Chris Wilde, Morgul
  */
-static void adjust_target(int dir, int y0, int x0, int *y1, int *x1)
+void find_target(int dir, int range, int y0, int x0, int *y1, int *x1)
 {
 	/* If no direction is given, and a target is, use the target. */
 	if ((dir == 5) && target_okay())
@@ -246,10 +245,20 @@ static void adjust_target(int dir, int y0, int x0, int *y1, int *x1)
 	/* Otherwise, use the given direction */
 	else
 	{
-		*y1 = y0 + MAX_RANGE * ddy[dir];
-		*x1 = x0 + MAX_RANGE * ddx[dir];
+		*y1 = y0 + range * ddy[dir];
+		*x1 = x0 + range * ddx[dir];
 	}
 }
+
+/*
+ * Handle target grids for projections under the control of
+ * the character.  - Chris Wilde, Morgul
+ */
+static void adjust_target(int dir, int y0, int x0, int *y1, int *x1)
+{
+	find_target(dir, MAX_RANGE, y0, x0, y1, x1);
+}
+
 
 /*
  * Character casts a bolt spell.
@@ -886,7 +895,7 @@ void teleport_away(int m_idx, int dis, bool require_los)
  * Monsters and players can be pushed past monsters or players weaker than
  * they are.
  */
-void thrust_away(int who, int t_y, int t_x, int grids_away)
+static void thrust_creature(int who, bool push, int t_y, int t_x, int grids_away)
 {
 	int y, x, yy, xx;
 	int i, d, first_d;
@@ -946,9 +955,17 @@ void thrust_away(int who, int t_y, int t_x, int grids_away)
 			/* Ignore if angular difference is too great (45 degrees+) */
 			if (ABS(centerline - angle) > 30) continue;
 
-			/* Extract adjacent location */
-			yy = y + dy;
-			xx = x + dx;
+			/* Extract adjacent location, adjusting for direction */
+			if (push)
+			{
+				yy = y + dy;
+				xx = x + dx;
+			}
+			else
+			{
+				yy = y - dy;
+				xx = x - dx;
+			}
 
 			/* Cannot switch places with stronger monsters. */
 			if (cave_m_idx[yy][xx] != 0)
@@ -1101,6 +1118,22 @@ void thrust_away(int who, int t_y, int t_x, int grids_away)
 
 	/* Clear the cave_temp flag (the "project()" code may have set it). */
 	cave_info[y][x] &= ~(CAVE_TEMP);
+}
+
+/*
+ * Thrust a monster away from the source of the projection
+ */
+void thrust_away(int who, int t_y, int t_x, int grids_away)
+{
+	thrust_creature(who, TRUE, t_y, t_x, grids_away);
+}
+
+/*
+ * Thrust a monster away toward the source of the projection
+ */
+void thrust_toward(int who, int t_y, int t_x, int grids_away)
+{
+	thrust_creature(who, FALSE, t_y, t_x, grids_away);
 }
 
 
@@ -1899,6 +1932,8 @@ void acid_dam(int dam0, int msg_type, cptr hit_str, cptr kb_str)
 	if (p_ptr->immune_acid) inv = div_round(inv, 5);
 	else if ((p_ptr->resist_acid) || (p_ptr->oppose_acid)) inv /= 2;
 
+	/* Handle vulnerability */
+	if (p_ptr->vuln_acid) dam += dam / 2;
 
 	/* Total (bodily) Immunity */
 	if (p_ptr->immune_acid) dam = 0;
@@ -1969,6 +2004,8 @@ void elec_dam(int dam0, int msg_type, cptr hit_str, cptr kb_str)
 	/* Take damage */
 	(void)take_hit(dam, msg_type, hit_str, kb_str);
 
+	/* Handle vulnerability */
+	if (p_ptr->vuln_elec) dam += dam / 2;
 
 	/* Player is still alive */
 	if (!p_ptr->is_dead)
@@ -2005,6 +2042,7 @@ void fire_dam(int dam0, int msg_type, cptr hit_str, cptr kb_str)
 {
 	int inv = 0;
 	int dam = dam0;
+	int extra_dam = 0;
 
 	/* No damage. */
 	if (dam <= 0) return;
@@ -2019,6 +2057,8 @@ void fire_dam(int dam0, int msg_type, cptr hit_str, cptr kb_str)
 	if (p_ptr->immune_fire) inv = div_round(inv, 5);
 	else if ((p_ptr->resist_fire) || (p_ptr->oppose_fire)) inv /= 2;
 
+	/* Handle vulnerability */
+	if (p_ptr->vuln_fire) dam += dam / 2;
 
 	/* Total (bodily) Immunity */
 	if (p_ptr->immune_fire) dam = 0;
@@ -2026,6 +2066,8 @@ void fire_dam(int dam0, int msg_type, cptr hit_str, cptr kb_str)
 	/* Resist the damage */
 	if (p_ptr->resist_fire) dam = div_round(dam, 3);
 	if (p_ptr->oppose_fire) dam = div_round(dam, 3);
+
+	dam += extra_dam;
 
 	/* Take damage */
 	(void)take_hit(dam, msg_type, hit_str, kb_str);
@@ -2080,6 +2122,9 @@ void cold_dam(int dam0, int msg_type, cptr hit_str, cptr kb_str)
 	/* Resist the damage */
 	if (p_ptr->resist_cold) dam = div_round(dam, 3);
 	if (p_ptr->oppose_cold) dam = div_round(dam, 3);
+
+	/* Handle vulnerability */
+	if (p_ptr->vuln_cold) dam += dam / 2;
 
 	/* Take damage */
 	(void)take_hit(dam, msg_type, hit_str, kb_str);
@@ -2136,7 +2181,7 @@ bool apply_disenchant(int dam)
 			msg_print("You are wrenched back into your normal form!");
 
 			/* Change back to normal form */
-			shapechange(SHAPE_NORMAL);
+			shapechange_perm(SHAPE_NORMAL);
 		}
 
 		/* A shapechanged character's armor is safe from disenchantment */
@@ -2397,7 +2442,7 @@ void apply_nexus(int fy, int fx, int dam)
 	if ((p_ptr->schange != SHAPE_NORMAL) && (dam > randint(200)))
 	{
 		msg_print("You are wrenched back into your normal form!");
-		shapechange(SHAPE_NORMAL);
+		shapechange_perm(SHAPE_NORMAL);
 	}
 
 	/* Effects of nexus */

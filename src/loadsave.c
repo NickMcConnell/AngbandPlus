@@ -1183,7 +1183,7 @@ static int convert_saved_names(void)
 
 
 	/* Free the old names */
-	FREE(a_name, char);
+	FREE(a_name);
 
 	for (i = ART_MIN_RANDOM; i < z_info->a_max; i++)
 	{
@@ -1497,24 +1497,22 @@ static errr do_character(void)
 	do_s16b(&p_ptr->word_recall);
 
 	do_s16b(&p_ptr->wraithform);
-	do_s16b(&p_ptr->trollform);
-	do_s16b(&p_ptr->dragonform);
+	do_s16b(&p_ptr->form_dur);
+	do_u16b(&blank_u16b);
 
 	do_byte((byte *)&p_ptr->suppress_bottle);
 	do_byte((byte *)&p_ptr->move_dir);
 
-	do_u16b(&blank_u16b);   /* Space for more temporary shapechanges */
+	do_u16b(&blank_u16b);
 	do_u16b(&blank_u16b);
 	do_u16b(&blank_u16b);
 
 	if (!older_than(0, 9, 9, 21)) do_s16b(&p_ptr->self_knowledge);
 	else do_u16b(&blank_u16b);
 
-	/* Space for more temporary conditions */
-	do_u16b(&blank_u16b);
-	do_u16b(&blank_u16b);
-	do_u16b(&blank_u16b);
-	do_u16b(&blank_u16b);
+	/* Turn counters */
+	do_s32b(&p_ptr->resting_turns);
+	do_s32b(&p_ptr->total_turns);
 	do_u16b(&blank_u16b);
 
 	do_s16b(&p_ptr->life_recovery_value);
@@ -1715,7 +1713,8 @@ static errr do_character(void)
 		do_byte(&blank_u8b);
 
 		do_u32b(&p_ptr->dungeon_flags);
-		do_u16b(&blank_u16b);
+		do_byte(&p_ptr->schange_skill);
+		do_byte(&p_ptr->schange_min_skill);
 		do_u16b(&blank_u16b);
 		do_u16b(&blank_u16b);
 		do_u16b(&blank_u16b);

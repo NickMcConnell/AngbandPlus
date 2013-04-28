@@ -16,7 +16,7 @@
 
 # Version stamp (required)
 
-V:1.0.1
+V:1.0.2
 
 #
 # N: artifact index: artifact name
@@ -1213,7 +1213,7 @@ D:both the living and undead.
 N:115:'Aglarang'
 I:23:20
 W:45:20:50:40000
-C:0:5d4:0:0:0:0
+C:0:2d12:0:0:0:0
 P:3
 1:DEX
 F:SUST_DEX | VORPAL | HIDE_TYPE | SHOW_MODS
@@ -1483,7 +1483,7 @@ D:fire demons, who war forever, fettered in sorcerous binds.
 N:137:'Aeglos'
 I:22:2
 W:65:20:80:160000
-C:0:3d6:15:25:10:79
+C:1:3d6:15:25:10:79
 P:4
 1:WIS
 F:HIDE_TYPE | 
@@ -1499,7 +1499,7 @@ D:Elves, against which all the foul corruptions of Sauron dashed in vain.
 N:138:of Orom["e]
 I:22:2
 W:35:20:50:80000
-C:0:2d6:15:15:0:80
+C:1:2d6:15:15:0:80
 P:4:1
 1:WIS | INFRA
 2:LIGHT
@@ -1515,7 +1515,7 @@ D:able to melt rock or flesh with ease.
 N:139:'Nimloth'
 I:22:2
 W:18:12:50:25000
-C:0:1d6:11:13:0:0
+C:1:1d6:11:13:0:0
 P:3
 1:STEALTH
 F:THROWING | PERFECT_BALANCE | 
@@ -1531,7 +1531,7 @@ D:spear.
 N:140:of the Eorlingas
 I:22:5
 W:35:6:160:55000
-C:0:2d13:3:21:0:0
+C:5:2d13:3:21:0:0
 P:2
 1:DEX | STR
 F:SLAY_EVIL | SLAY_TROLL | SLAY_ORC | SLAY_ANIMAL | SEE_INVIS | 
@@ -1687,7 +1687,7 @@ D:returning.
 N:150:of Melkor
 I:22:2
 W:80:30:300:75000
-C:0:4d6:-12:25:0:85
+C:1:4d6:-12:25:0:85
 P:-4
 1:STEALTH | WIS
 F:LIGHT_CURSE | HEAVY_CURSE | DRAIN_EXP | TWO_HANDED_DES | 

@@ -636,7 +636,7 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 
 			/* High-level undead can give the character the Black Breath.  -LM- */
 			if ((r_ptr->flags3 & (RF3_UNDEAD)) && (!p_ptr->black_breath) &&
-			    (r_ptr->level >= 40))
+			    (r_ptr->level >= 50))
 			{
 				int prob;
 
@@ -2812,7 +2812,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		}
 		else
 		{
-			if (spell_desire_RF4[attack-192][D_SUMM]) summon = TRUE;
+			if (spell_desire_RF4[attack-96][D_SUMM]) summon = TRUE;
 		}
 
 		/* Spell is a summon spell */

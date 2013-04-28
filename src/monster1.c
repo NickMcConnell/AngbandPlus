@@ -1565,7 +1565,7 @@ static void describe_monster_toughness(int r_idx, const monster_lore *l_ptr)
  */
 static void describe_monster_exp(int r_idx, const monster_lore *l_ptr)
 {
-	const monster_race *r_ptr = &r_info[r_idx];
+	monster_race *r_ptr = &r_info[r_idx];
 
 	/* Describe experience if known */
 	if (l_ptr->tkills)
@@ -1587,17 +1587,11 @@ static void describe_monster_exp(int r_idx, const monster_lore *l_ptr)
 		{
 			long i, j;
 
-			/* Actual exp depends on base exp and monster level */
-			long exp_value = (long)r_ptr->mexp * r_ptr->level;
-
-			/* Exp value falls as character becomes more experienced */
-			int power_div = calc_exp_power();
-
 			/* Calculate integer experience */
-			i = exp_value / power_div;
+			i = monster_exp(r_ptr);
 
 			/* Calculate fractional experience */
-			j = (((exp_value % power_div) * 1000L / power_div + 5) / 10);
+			j = (monster_exp_frac(r_ptr) + 5) / 10;
 
 			/* Describe the experience */
 			text_out(format(" is worth %ld.%02ld point%s",
@@ -1615,7 +1609,7 @@ static void describe_monster_exp(int r_idx, const monster_lore *l_ptr)
  */
 static void describe_monster_movement(int r_idx, const monster_lore *l_ptr)
 {
-	const monster_race *r_ptr = &r_info[r_idx];
+	monster_race *r_ptr = &r_info[r_idx];
 
 	bool old = FALSE;
 
@@ -2190,7 +2184,7 @@ void display_m_list(int y, int x, bool also_list_objects)
 	}
 
 	/* Free the race counters */
-	if (race_count) C_FREE(race_count, z_info->r_max, u16b);
+	if (race_count) FREE(race_count);
 }
 
 
@@ -2319,8 +2313,8 @@ void get_closest_los_monster(int n, int y0, int x0, int *ty, int *tx,
 	if (monster_count <= n)
 	{
 		/* Free some arrays */
-		C_FREE(monster_dist, m_max, int);
-		C_FREE(monster_index, m_max, int);
+		FREE(monster_dist);
+		FREE(monster_index);
 
 		return;
 	}
@@ -2360,8 +2354,8 @@ void get_closest_los_monster(int n, int y0, int x0, int *ty, int *tx,
 	*tx = m_ptr->fx;
 
 	/* Free some arrays */
-	C_FREE(monster_dist, m_max, int);
-	C_FREE(monster_index, m_max, int);
+	FREE(monster_dist);
+	FREE(monster_index);
 }
 
 

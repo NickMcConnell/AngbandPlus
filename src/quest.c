@@ -22,16 +22,6 @@
 static int avail_quest;
 
 /*
- * The Inn's quest selection
- */
-static s16b inn_quests[GUILD_QUESTS] =
-{
-	2,	5,	8
-};
-
-
-
-/*
  * Pluralize a monster name.  From Zangband, etc.
  */
 void plural_aux(char *name)
@@ -301,6 +291,28 @@ void insure_quest_monsters(void)
 	}
 }
 
+static bool item_improvement(object_type *i_ptr, int ratio)
+{
+	object_type *j_ptr;
+	int j;
+
+	/* Wearable items - compare to item already in slot */
+	j = wield_slot(i_ptr);
+
+	j_ptr = &inventory[j];
+
+	/* Compare value of the item with the old item */
+	if (j_ptr->k_idx)
+	{
+		/* Similar items also get weeded out */
+		if (object_value_real(i_ptr) < (object_value_real(j_ptr) * ratio) / 10)
+		{
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+
 
 /*
  * Give a reward to the character.
@@ -422,6 +434,13 @@ static void grant_reward(byte reward_level, byte type, int diff)
 				{
 					continue;
 				}
+
+				/* Warriors should only get devices that are easy to activate */
+				if ((p_ptr->oath & OATH_OF_IRON) && !(i_ptr->flags2 & TR2_EASY_ACTIVATE))
+				{
+					continue;
+				}
+
 			}
 
 			/* Check spellbooks */
@@ -493,6 +512,9 @@ static void grant_reward(byte reward_level, byte type, int diff)
 				{
 					if (get_skill(sbow(i_ptr->tval), 0, 100) < p_ptr->power / 2)
 						continue;
+					/* Make sure value is significantly better */
+					else if (!item_improvement(i_ptr, 12))
+						continue;
 					else
 						break;
 				}
@@ -524,6 +546,12 @@ static void grant_reward(byte reward_level, byte type, int diff)
 						/* Limit to legal weapon types */
 						if ((i_ptr->tval != TV_HAFTED) && !(f3 & (TR3_BLESSED)))
 							continue;
+					}
+
+					/* Make sure value is significantly better */
+					else if (!item_improvement(i_ptr, 12))
+					{
+						continue;
 					}
 				}
 			}
@@ -603,20 +631,7 @@ static void grant_reward(byte reward_level, byte type, int diff)
 			/* Check all other wearable items */
 			else if (is_wearable(i_ptr))
 			{
-				/* Wearable items - compare to item already in slot */
-				j = wield_slot(i_ptr);
-
-				j_ptr = &inventory[j];
-
-				/* Compare value of the item with the old item */
-				if (j_ptr->k_idx)
-				{
-					/* Similar items also get weeded out */
-					if (value <= object_value_real(j_ptr))
-					{
-						continue;
-					}
-				}
+				if (!item_improvement(i_ptr, 12)) break;
 			}
 
 			/* Check magical devices */
@@ -802,7 +817,7 @@ static bool place_mon_quest(int q, int lev, int m_level, int diff)
 		msg_print("There are no eligible monsters to quest for.");
 
 		/* XXX XXX Free the "monster_idx" array */
-		C_FREE(monster_idx, z_info->r_max, int);
+		FREE(monster_idx);
 
 		return (FALSE);
 	}
@@ -878,7 +893,7 @@ static bool place_mon_quest(int q, int lev, int m_level, int diff)
 	}
 
 	/* XXX XXX Free the "monster_idx" array */
-	C_FREE(monster_idx, z_info->r_max, int);
+	FREE(monster_idx);
 
 	/* Take note of quest */
 	left_panel_display(DISPLAY_QUEST, 0);
@@ -1159,7 +1174,7 @@ void inn_purchase(int item)
 	int i, qlev;
 	bool found = FALSE;
 	int m_level;
-	int add_depth;
+	int add_depth, base_depth;
 
 	/* We always offer easy quests */
 	avail_quest = 1;
@@ -1189,18 +1204,18 @@ void inn_purchase(int item)
 	/* Quit if no quest chosen */
 	if (item == -1) return;
 
+	/* Base depth might be based on power or depth */
+	base_depth = MAX(1, MAX(2 * p_ptr->power / 3, p_ptr->max_depth));
+
 	/* Get added depth of monsters (no variance for very early quest) */
-	add_depth = ((p_ptr->max_depth <= 2) ? 2 : rand_range(2, 5));
+	add_depth = ((p_ptr->max_depth <= 2) ? 2 : rand_range(3, 5));
 
 	/* Get level for quest */
-	qlev = MAX(1, p_ptr->max_depth) + add_depth;
-
-	/* Get approximate level of monster (apply character power if high) */
-	m_level = MAX(2 * p_ptr->power / 3, qlev);
+	qlev = base_depth + add_depth;
 
 	/* Adjust approximate level of monster according to depth */
 	/* Add a depth of two for each additional level of difficulty -JM */
-	m_level = 1 + m_level + qlev / 30 + item * 2;
+	m_level = qlev + qlev / 20 + item * 2 + 1;
 
 
 	/* We've run out of OOD monsters.  XXX */

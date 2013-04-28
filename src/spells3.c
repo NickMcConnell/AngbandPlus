@@ -3279,7 +3279,7 @@ void sense_object(object_type *o_ptr, int slot, bool strong, bool force_heavy)
 	if (chance < 0) chance = 0;
 
 	/* Chance is improved if we're using strong sensing */
-	if (strong) chance += 30;
+	if (strong) chance += 20;
 
 	/* Get object flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
@@ -3297,8 +3297,7 @@ void sense_object(object_type *o_ptr, int slot, bool strong, bool force_heavy)
 	else if (!p_ptr->realm)	chance = 4 * chance / 3;
 
 	/* Roll for "heavy" sensing */
-	if (chance >= rand_range(40, 80)) heavy = TRUE;
-
+	if (chance >= rand_range(60, 80) || randint(100) < chance) heavy = TRUE;
 
 	/* Adjustments to chance that doesn't determine heaviness of sensing */
 	/* Holy alliance helps reveal bless & curse  -clefs- */
@@ -3311,8 +3310,7 @@ void sense_object(object_type *o_ptr, int slot, bool strong, bool force_heavy)
 	if ((force_heavy) && (!full)) heavy = TRUE;
 
 	/* Can fully identify if strongly sensing with a heavy feeling */
-	if (heavy && strong) full = TRUE;
-
+	if (heavy && strong && randint(100) < chance) full = TRUE;
 
 	/* Didn't get more information */
 	if (chance < randint(100))
@@ -3751,8 +3749,6 @@ bool scan_object_priest(bool full)
  */
 void learn_about_wearable(object_type *o_ptr, int slot, bool strong)
 {
-	bool sense_it = FALSE;
-
 	/* New sensing is usually not forced heavy */
 	bool heavy = strong;
 
@@ -3762,41 +3758,8 @@ void learn_about_wearable(object_type *o_ptr, int slot, bool strong)
 	/* Already known */
 	if (object_known_p(o_ptr)) return;
 
-
-	/* Inscription reveals too little */
-	if (!o_ptr->inscrip) sense_it = TRUE;
-	else if (o_ptr->inscrip == INSCRIP_UNCERTAIN)
-	{
-		object_kind *k_ptr = &k_info[o_ptr->k_idx];
-
-		sense_it = TRUE;
-
-		/* Note average items */
-		if ((!o_ptr->artifact_index) && (!o_ptr->ego_item_index) &&
-		    (!cursed_p(o_ptr)) && (o_ptr->to_a == k_ptr->to_a) &&
-		    (o_ptr->to_h == k_ptr->to_h) && (o_ptr->to_d == k_ptr->to_d))
-		{
-			heavy = TRUE;
-		}
-	}
-
-	/* Upgrade light sensing of special items */
-	else if ((o_ptr->inscrip == INSCRIP_GOOD) ||
-				(o_ptr->inscrip == INSCRIP_CURSED))
-	{
-		if ((o_ptr->artifact_index) || (o_ptr->ego_item_index))
-		{
-			sense_it = TRUE;
-			heavy = TRUE;
-		}
-	}
-
-	/* Re-sense the object if allowed */
-	if (sense_it)
-	{
-		/* Sense the object (strongly) */
-		sense_object(o_ptr, slot, TRUE, heavy);
-	}
+	/* Sense the object (strongly) */
+	sense_object(o_ptr, slot, TRUE, heavy);
 }
 
 
@@ -5065,12 +5028,12 @@ int stare_into_the_palantir(void)
 			else                                   msex = 0;
 
 			name1 = m_name;
-			strcpy(name2, (msex == 2) ? "she" : ((msex == 1) ? "he" : "it"));
+			name2 = (msex == 2) ? "she" : ((msex == 1) ? "he" : "it");
 			short_m_name(m_name);
 		}
 
 		/* Messages */
-		message_format(MSG_YELLOW, 0, "%^s stares straight back at you!", name1);
+		message_format(MSG_YELLOW, 0, "%s stares straight back at you!", name1);
 		message_format(MSG_YELLOW, 0, "You and %s meet in mental combat!", name2);
 
 

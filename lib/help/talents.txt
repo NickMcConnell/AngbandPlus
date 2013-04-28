@@ -150,6 +150,23 @@ your total power and on the type of essence you choose (the more likely the
 breath is to be resisted, the more damage it does).
      Of course, you have to find a way to turn into a dragon first...
 
+- Warrior Talents -
+Warrior talents can be accessed by pressing 'p'.
+
+Lunge
+	 Attack a monster two squares away.  Suffer a penalty to attack from the distance.  Requires the Oath of Iron.
+	 
+Whirlwind Attack
+	 Attack all monsters nearby in a spinning attack.  Requires a weapon, and a weapon skill of 30 or more.
+	 
+Circle Kick
+	 Attempts to stun all monsters surrounding you, becoming more powerful with your karate skill.  Requires a karate skill of 30 or more.
+	 
+Impact Blow
+	 Attack and knock back a monster.  Requires a blunt weapon and hafted skill of 30.
+	 
+Earthquakes
+	 Call the walls down around you to provide cover.  Requires a blunt weapon, the oath of iron, and hafted skill of 60.
 
 --- Other skills-based abilities ---
 

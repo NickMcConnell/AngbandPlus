@@ -26,10 +26,8 @@ Second row:
 - Maximum hitpoints
 - Current hitpoints
 - Blows/Round : the number of blows you get per turn in hand-to-hand combat
-- + to Skill : bonus to melee Skill
-- Deadliness (%) : the melee damage you do is adjusted by this percentage.
-     If you are using martial arts, you instead see a guess at the average
-damage you've done recently.
+- Hit Rate: the recent percentage of blows that hit monsters.
+- Average Damage: the average damage you've done recently.
 
 - Power : affects hitpoints and some other things
 - Score : how well you are doing in the game.  Always starts at zero.

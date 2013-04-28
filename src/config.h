@@ -52,7 +52,7 @@
 /*
  * OPTION: Hack -- Compile in support for "Debug Commands"
  */
- #define ALLOW_DEBUG 
+ #define ALLOW_DEBUG
 
 
 /*
@@ -116,7 +116,7 @@
  */
 #ifdef SET_UID
 # ifndef PRIVATE_USER_PATH
-#  define PRIVATE_USER_PATH "~/.sangband"
+#  define PRIVATE_USER_PATH "~/.angband"
 # endif /* PRIVATE_USER_PATH */
 #endif /* SET_UID */
 

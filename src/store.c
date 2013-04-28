@@ -632,6 +632,9 @@ static void say_comment_7(int num)
  */
 static void purchase_analyze(s32b price, s32b value, s32b guess)
 {
+	/* No need to comment about purchases */
+	if (birth_stores_only_sell) return;
+
 	/* Item was worthless, and we paid a lot for it */
 	if ((value <= 0L) && (price >= 25L * (p_ptr->max_depth + 10)))
 	{
@@ -2784,6 +2787,78 @@ static int buy_and_sell(object_type *o_ptr, s32b *price, bool buying,
 	return (0);
 }
 
+static void store_retire()
+{
+	long retire_cost;
+	char short_name[DESC_LEN];
+	cptr s = "";
+
+
+	/* Show that the shelves are empty */
+	display_inventory();
+
+	/* Get the short shopkeeper name */
+	shopkeeper_short_name(short_name, ot_ptr->owner_name);
+
+	/* Get the retirement cost */
+	retire_cost = 50000L + 10L * ot_ptr->max_cost;
+
+	/* Character can offer it */
+	if (p_ptr->au >= retire_cost)
+	{
+		/* The shopkeeper may be willing to retire */
+		msg_format("%s may be willing to retire if you offer enough incentive:  %ld in gold should be sufficient.", short_name, retire_cost);
+
+		/* See if the player is up for it */
+		if (get_check(format("Offer %ld gold?", retire_cost)))
+		{
+			/* Shopkeeper decides not to retire */
+			if (one_in_(2))
+			{
+				msg_format("%s thanks you for the offer, but declines to retire.",
+					short_name);
+				msg_format("It'll take a while until I can replenish my stores.");
+			}
+
+			/* Retire */
+			else
+			{
+				/* Message */
+				msg_format("%s retires.", short_name);
+
+				/* Give the gold */
+				p_ptr->au -= retire_cost;
+
+				/* Shuffle the store */
+				store_shuffle(store_num);
+
+				/* Get the new short shopkeeper name */
+				shopkeeper_short_name(short_name, ot_ptr->owner_name);
+
+				/* Has things to sell */
+				s = ", the new shopkeeper, brings in things to sell";
+
+				/* Rebuild the stock */
+				store_maint(store_num, TRUE);
+
+				/* Flush any pending messages */
+				message_flush();
+
+				/* Start over */
+				store_top = 0;
+
+				/* Re-display the store */
+				display_store();
+
+				/* Message */
+				msg_format("%s%s.", short_name, s);
+			}
+		}
+	}
+
+}
+
+
 
 /*
  * Buy an object from a store
@@ -3018,73 +3093,7 @@ static void store_purchase(void)
 				/* Store is empty */
 				if (st_ptr->stock_num == 0)
 				{
-					long retire_cost;
-					char short_name[DESC_LEN];
-					cptr s = " brings in some new stock";
-
-
-					/* Show that the shelves are empty */
-					display_inventory();
-
-					/* Get the short shopkeeper name */
-					shopkeeper_short_name(short_name, ot_ptr->owner_name);
-
-					/* Get the retirement cost */
-					retire_cost = 50000L + 10L * ot_ptr->max_cost;
-
-					/* Character can offer it */
-					if (p_ptr->au >= retire_cost)
-					{
-						/* The shopkeeper may be willing to retire */
-						msg_format("%s may be willing to retire if you offer enough incentive:  %ld in gold should be sufficient.", short_name, retire_cost);
-
-						/* See if the player is up for it */
-						if (get_check(format("Offer %ld gold?", retire_cost)))
-						{
-							/* Shopkeeper decides not to retire */
-							if (one_in_(2))
-							{
-								msg_format("%s thanks you for the offer, but declines to retire.",
-									short_name);
-							}
-
-							/* Retire */
-							else
-							{
-								/* Message */
-								msg_format("%s retires.", short_name);
-
-								/* Give the gold */
-								p_ptr->au -= retire_cost;
-
-								/* Shuffle the store */
-								store_shuffle(store_num);
-
-								/* Get the new short shopkeeper name */
-								shopkeeper_short_name(short_name, ot_ptr->owner_name);
-
-								/* Has things to sell */
-								s = ", the new shopkeeper, brings in things to sell";
-							}
-						}
-					}
-
-					/* Flush any pending messages */
-					message_flush();
-
-
-					/* Start over */
-					store_top = 0;
-
-					/* Rebuild the stock (in all cases) */
-					store_maint(store_num, TRUE);
-
-					/* Re-display the store */
-					display_store();
-
-					/* Message */
-					msg_format("%s%s.", short_name, s);
-
+					store_retire();
 				}
 
 				/* The object is gone */
@@ -3698,6 +3707,7 @@ static void store_process_command(bool inn_cmd)
 			break;
 		}
 
+
 		/* Use special commands */
 		case '*':
 		{
@@ -3779,9 +3789,9 @@ static void store_process_command(bool inn_cmd)
 					do_cmd_redraw();
 					display_store();
 				}
-				else if (ch == 'c' || ch == 'C')  /* Cycle store goods, for a price */
+				else if (ch == 'c' || ch == 'C')  /* Clear store goods, for a price */
 				{
-					int cost = 0, invest, i, num, price, markup;
+					int cost = 0, i, num, price, markup;
 					char prompt[80];
 					object_type *o_ptr;
 
@@ -3792,14 +3802,16 @@ static void store_process_command(bool inn_cmd)
 
 						if (!o_ptr) continue;
 
-						if (!(o_ptr->ident & (IDENT_FIXED)))  markup = price_markup(object_value(o_ptr));  /* Give price assuming good bargaining */
+						markup = price_markup(object_value(o_ptr));  /* Give price assuming good bargaining */
 
 						/* Get the listed price */
 						price = price_item(o_ptr, ot_ptr->min_inflate, FALSE, markup);
 
 						cost +=  price * o_ptr->number;
-						invest += (price - object_value_real(o_ptr)) * o_ptr->number;
 					}
+
+					/* Make sure there's a large cost associated with cycling inventory */
+					cost += 100000;
 
 					/* Prompt player with total cost */
 					if (cost > p_ptr->au)
@@ -3810,8 +3822,11 @@ static void store_process_command(bool inn_cmd)
 					}
 
 					/* Verify player wants to spend the money */
-					sprintf(prompt, "Clearing out the inventory will cost %d gold.  Are you sure?", cost);
+					sprintf(prompt, "Cycling the inventory will cost %d gold.  Are you sure?", cost);
 					if (!get_check(prompt))  break;
+
+					/* Reduce gold */
+					p_ptr->au -= cost;
 
 					/* Destroy all inventory */
 					for (i = st_ptr->stock_num; i >= 0; i--)
@@ -3823,11 +3838,12 @@ static void store_process_command(bool inn_cmd)
 							store_item_optimize(i);
 						}
 					}
-					/* Bring in new stock */
+
+					/* Update goods */
 					store_maint(store_num, TRUE);
 
-					/* Credit store with investment */
-					st_ptr->total_buy += invest;
+					/* Credit store with some investment */
+					st_ptr->total_buy += cost / 2;
 
 					/* Refresh store */
 					display_store();
@@ -4516,5 +4532,35 @@ void store_init(int which)
 	for (k = 0; k < st_ptr->stock_size; k++)
 	{
 		object_wipe(&st_ptr->stock[k]);
+	}
+}
+
+
+/*
+ * Handle what happens in the home over time
+ *
+ * We should probably worry about the player knowing what is going on in the house while away, but we don't.
+ */
+void process_world_aux_home(void)
+{
+	object_type *o_ptr;
+	int i;
+
+	st_ptr = &store[STORE_HOME];
+
+	for (i = 0; i < st_ptr->stock_num; i++)
+	{
+		o_ptr = &st_ptr->stock[i];
+
+		/* Handle athelas spoilage */
+		if (o_ptr->tval == TV_FOOD && o_ptr->sval == SV_FOOD_ATHELAS)
+		{
+			/* Should wilt in around 1 day */
+			if (one_in_(10000 / o_ptr->number))
+			{
+				store_item_increase(i, -1);
+				store_item_optimize(i);
+			}
+		}
 	}
 }

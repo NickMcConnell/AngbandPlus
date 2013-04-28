@@ -47,6 +47,66 @@ static bool cannot_learn_prayers;
  */
 int selected = -1;
 
+/* Array of old skill values */
+skill_data old_pskills[NUM_SKILLS];
+
+/*
+ * Handle boosts from similar skill abilities
+ */
+static int get_skill_similar(int skill)
+{
+	int best = 0;
+
+	switch(skill)
+	{
+		case S_SWORD:
+		case S_POLEARM:
+		case S_HAFTED:
+		{
+			best = MAX(best, p_ptr->pskills[S_SWORD].cur / 2);
+			best = MAX(best, p_ptr->pskills[S_POLEARM].cur / 2);
+			best = MAX(best, p_ptr->pskills[S_HAFTED].cur / 2);
+
+			best = MAX(best, p_ptr->pskills[S_WRESTLING].cur / 3);
+			best = MAX(best, p_ptr->pskills[S_KARATE].cur / 3);
+			break;
+		}
+		case S_WRESTLING:
+		case S_KARATE:
+		{
+			best = MAX(best, p_ptr->pskills[S_SWORD].cur / 3);
+			best = MAX(best, p_ptr->pskills[S_POLEARM].cur / 3);
+			best = MAX(best, p_ptr->pskills[S_HAFTED].cur / 3);
+
+			best = MAX(best, p_ptr->pskills[S_WRESTLING].cur / 2);
+			best = MAX(best, p_ptr->pskills[S_KARATE].cur / 2);
+			break;
+		}
+
+		case S_BOW:
+		case S_CROSSBOW:
+		case S_SLING:
+		case S_THROWING:
+		{
+			best = MAX(best, p_ptr->pskills[S_BOW].cur / 2);
+			best = MAX(best, p_ptr->pskills[S_CROSSBOW].cur / 2);
+			best = MAX(best, p_ptr->pskills[S_SLING].cur / 2);
+			best = MAX(best, p_ptr->pskills[S_THROWING].cur / 2);
+
+			break;
+		}
+
+		/* No related skill minimum */
+		default:
+		{
+			return 0;
+			break;
+		}
+	}
+
+	return best;
+}
+
 
 /*
  * This function is used to get effective values for all skills.
@@ -64,7 +124,7 @@ int selected = -1;
  */
 s16b get_skill(int skill, int min, int max)
 {
-	int tmp, std_max;
+	int tmp, alt, std_max;
 
 
 	/* Illegal or empty skill */
@@ -76,6 +136,10 @@ s16b get_skill(int skill, int min, int max)
 
 	/* Get the current skill percentage */
 	tmp = p_ptr->pskills[skill].cur;
+
+	/* Give some partial credit for similar skills */
+	alt = get_skill_similar(skill);
+	if (alt > tmp) tmp = (tmp + alt) / 2;
 
 
 	/*** Handle special cases ***/
@@ -204,7 +268,20 @@ s16b get_skill_race(int skill, int min, int max)
 	return (get_skill(skill, min, max));
 }
 
+int best_melee_skill(void)
+{
+	int sword, hafted, polearm;
+	sword = get_skill(S_SWORD, 0, 100);
+	hafted = get_skill(S_HAFTED, 0, 100);
+	polearm = get_skill(S_POLEARM, 0, 100);
 
+	if (sword >= hafted && sword >= polearm) return S_SWORD;
+	if (hafted >= sword && hafted >= polearm) return S_HAFTED;
+	if (polearm >= hafted && polearm >= sword) return S_POLEARM;
+
+	/* Paranoia */
+	return S_SWORD;
+}
 
 /*
  * Determine which melee weapon skill we're using.
@@ -326,19 +403,28 @@ static void skill_comment(int attr, const char *msg)
  */
 static int check_for_new_talent(int skill, int level)
 {
-	int i;
+	int i, j;
+	bool check;
 
 	/* Scan the list of talents */
 	for (i = 0; i < NUM_TALENTS; i++)
 	{
+		check = FALSE;
+
+		/* Check all skills for talents */
+		for (j = 0; j < talent_info[i].skill_count; j++)
+		{
+			if (talent_info[i].skill[j] == skill) check = TRUE;
+		}
+
 		/* Talent uses this skill */
-		if (talent_info[i].skill == skill)
+		if (check)
 		{
 			/* Talent has just become available */
 			if (talent_info[i].min_level == level)
 			{
 				/* Talent can in fact be used (or at least browsed) */
-				if (can_use_talent(i) > -1) return (i);
+				if (can_use_talent(i, TALENT_WARRIOR | TALENT_UTILITY) > -1) return (i);
 			}
 		}
 	}
@@ -726,20 +812,6 @@ void adv_cost_reduce_similar(int skill, s32b *base_cost, byte mode)
 		reduction += 1L * adv_cost_reduce_aux(S_CROSSBOW, level, mode) / 6L;
 	}
 
-
-	/* 2/5ths of Weaponsmithing is included in Bowmaking, and vice versa */
-	if ((skill == S_FORGE_WEAPON) &&
-	    (((mode == 1) && (p_ptr->pskills[S_FORGE_BOW].max >  skill_max)) ||
-	     ((mode != 1) && (p_ptr->pskills[S_FORGE_BOW].max >= skill_max))))
-	{
-		reduction += 2L * adv_cost_reduce_aux(S_FORGE_BOW, level, mode) / 5L;
-	}
-	if ((skill == S_FORGE_BOW) &&
-	    (p_ptr->pskills[S_FORGE_WEAPON].max > skill_max))
-	{
-		reduction += 2L * adv_cost_reduce_aux(S_FORGE_WEAPON, level, mode) / 5L;
-	}
-
 	/* Sanity check:  Cost reduction cannot be more than 90% */
 	if (reduction > 9L * *base_cost / 10L)
 		reduction = 9L * *base_cost / 10L;
@@ -1073,7 +1145,7 @@ static int can_raise_skill(int skill, bool verbose, int auto_raise)
 	int lev = p_ptr->pskills[skill].max;
 
 	/* Cap maximum power at 100 -JM */
-	if (calc_max_power() == PY_MAX_POWER && !no_skill_cap)
+	if (calc_max_power() == PY_MAX_POWER && !no_skill_cap && (p_ptr->pskills[skill].cur == p_ptr->pskills[skill].max))
 	{
 		if (verbose) prt("You need no more practice.",18,2);
 		return (-1);
@@ -1930,10 +2002,10 @@ void prt_oath_message()
 	(void)inkey(ALLOW_CLICK);
 }
 
-static bool can_reduce_skill(int skill, bool verbose)
+static bool can_reduce_skill(int skill, bool verbose, bool refund)
 {
 	int martial_skills = 0;
-	int level = get_skill(skill, 0, 100);
+	int level = p_ptr->pskills[skill].max;
 
 	if (level == 0) return (FALSE);
 
@@ -1973,6 +2045,8 @@ static bool can_reduce_skill(int skill, bool verbose)
 				}
 			}
 
+			break;
+
 		case S_MAGIC:
 			if (level == 1)
 			{
@@ -1981,7 +2055,6 @@ static bool can_reduce_skill(int skill, bool verbose)
 					if (verbose) prt_oath_message();
 					return (FALSE);
 				}
-				p_ptr->realm = 0;
 			}
 			return (TRUE);
 			break;
@@ -2023,6 +2096,14 @@ static bool can_reduce_skill(int skill, bool verbose)
 				if (verbose) prt_oath_message();
 				return (FALSE);
 			}
+		case S_FORGE_ARMOR:
+		case S_FORGE_WEAPON:
+		case S_INFUSION:
+		case S_ALCHEMY:
+		{
+			/* Only allow while still on screen */
+			return refund;
+		}
 		default:
 			return (TRUE);
 			break;
@@ -2031,11 +2112,15 @@ static bool can_reduce_skill(int skill, bool verbose)
 	return (TRUE);
 }
 
+
+/*
+ * Reduce a skill, refunding experience if necessary
+ */
 static bool reduce_skill(int skill, bool refund_exp)
 {
 	int exp, level;
 
-	if (!can_reduce_skill(skill, TRUE)) return (FALSE);
+	if (!can_reduce_skill(skill, TRUE, refund_exp)) return (FALSE);
 
 	/* Reduce current skill if necessary */
 	if (p_ptr->pskills[skill].cur == p_ptr->pskills[skill].max)
@@ -2048,7 +2133,7 @@ static bool reduce_skill(int skill, bool refund_exp)
 	if (refund_exp)
 	{
 		level = p_ptr->pskills[skill].max;
-		exp = adv_cost(skill, FALSE);
+		exp = adv_cost(skill, TRUE);
 		p_ptr->exp += exp;
 	}
 
@@ -2286,6 +2371,13 @@ static bool special_skill_command(int skill, bool *must_accept)
 
 					/* Refuse to cancel */
 					*must_accept = TRUE;
+
+					/* Message about new talents */
+					skill_comment(TERM_SLATE, "You may be able to use several new talents depending on your skill.");
+
+					/* Wait for it */
+					skill_msg(TERM_WHITE, "Press any key to continue.");
+					(void)inkey(ALLOW_CLICK);
 				}
 				else
 				{
@@ -2573,6 +2665,13 @@ static void prt_skill_rank(int skill)
 		/* Darker colors for drained skills */
 		if (skill == selected) a = TERM_ORANGE;
 		else                   a = TERM_SLATE;
+	}
+
+	/* Player has lowered skill and will lose experience */
+	else if (p_ptr->pskills[skill].max < old_pskills[skill].max)
+	{
+		if (skill == selected) a = TERM_L_PURPLE;
+		else                   a = TERM_PURPLE;
 	}
 
 	/* Skill is zero */
@@ -2912,7 +3011,6 @@ void do_cmd_skills(void)
 	bool must_accept = FALSE;
 
 	/* Old player's skills and unused experience */
-	skill_data old_pskills[NUM_SKILLS];
 	int old_exp;
 	byte old_oath, old_realm, old_power, old_ten_power, ten_power;
 
@@ -2947,6 +3045,7 @@ void do_cmd_skills(void)
 		old_pskills[i].cur = p_ptr->pskills[i].cur;
 		old_pskills[i].max = p_ptr->pskills[i].max;
 	}
+
 	old_exp = p_ptr->exp;
 	old_oath = p_ptr->oath;
 	old_realm = p_ptr->realm;
@@ -3042,7 +3141,10 @@ void do_cmd_skills(void)
 		/* Advance the skill */
 		if (ch == '+' || ch == '=')
 		{
-			int advance = adv_skill(selected, TRUE);
+			/* Allow user to change their mind about skill reduction */
+			bool pay = (p_ptr->pskills[selected].max < old_pskills[selected].max)? FALSE : TRUE;
+
+			int advance = adv_skill(selected, pay);
 
 			/* Cannot raise the skill */
 			if (advance < 0)
@@ -3064,7 +3166,7 @@ void do_cmd_skills(void)
 			else
 			{
 				/* Choose a magic realm */
-				if ((selected == S_MAGIC) && (!p_ptr->realm))
+				if ((selected == S_MAGIC) && (old_pskills[S_MAGIC].max == 0 && p_ptr->pskills[S_MAGIC].max == 1))
 				{
 					/* Allow cancel */
 					if (!choose_realm()) continue;
@@ -3236,6 +3338,13 @@ void do_cmd_skills(void)
 	    3 * p_ptr->pskills[S_WRESTLING].cur))
 	{
 		do_cmd_barehanded();
+	}
+
+	/* Reset magic choice if needed */
+	if (get_skill(S_MAGIC, 0, 100) == 0)
+	{
+		p_ptr->realm = 0;
+		mp_ptr = &magic_info[NONE];
 	}
 
 	/* Combine and Reorder the pack (later) */
