@@ -659,14 +659,17 @@
 #define LEV_REQ_XTRA_LIGHT   95  /* S_PIETY - extra light */
 #define LEV_REQ_RECHARGE     30  /* S_DEVICE - allow essence-based recharging */
 
+/* Bonuses accrued by martial artists */
 
-#define LEV_REQ_WRESTLE_STR_BONUS1   40  /* STR and DEX bonuses */
-#define LEV_REQ_WRESTLE_STR_BONUS2   75
-#define LEV_REQ_KARATE_STR_BONUS1    60
-#define LEV_REQ_KARATE_DEX_BONUS1    40
-#define LEV_REQ_KARATE_DEX_BONUS2    80
-#define LEV_REQ_WRESTLE_DEX_BONUS1   60
+#define LEV_REQ_MARTIAL_FA           75
+#define LEV_REQ_MARTIAL_RESIST       90
+#define LEV_REQ_MARTIAL_STAT1        35
+#define LEV_REQ_MARTIAL_STAT2        60
+#define LEV_REQ_MARTIAL_STAT3        85
 
+#define LEV_REQ_KARATE_SPEED1        50
+#define LEV_REQ_KARATE_SPEED2        80
+#define LEV_REQ_KARATE_SPEED3        95
 
 
 /*
@@ -2720,6 +2723,7 @@
 #define USE_EQUIP      0x01		/* Allow equip items */
 #define USE_INVEN      0x02		/* Allow inven items */
 #define USE_FLOOR      0x04		/* Allow floor items */
+#define USE_AUTO       0x08     /* If there is only one item, use it automatically */
 
 /*
  * Bit flags for the "drop_near" function
@@ -4130,6 +4134,44 @@
 #define RF7_NO_PLAYER_MASK \
         (0L)
 
+/*
+ * Ball spells, can be used for splash damage 
+ * Need special treatment in movement AI.
+ */
+
+#define RF4_BALL_MASK \
+    (0L)
+
+#define RF5_BALL_MASK \
+	(RF5_BALL_ACID | RF5_BALL_ELEC | RF5_BALL_FIRE | RF5_BALL_COLD | RF5_BALL_POIS | RF5_BALL_LITE | RF5_BALL_DARK | RF5_BALL_CONFU | RF5_BALL_SOUND | RF5_BALL_SHARD | RF5_BALL_WIND | RF5_BALL_STORM | RF5_BALL_NETHR | RF5_BALL_CHAOS | RF5_BALL_MANA)
+
+#define RF6_BALL_MASK \
+	(0L)
+
+#define RF7_BALL_MASK \
+	(0L)
+
+
+/*
+ * Summon spells
+ * Need special treatment in movement AI.
+ */
+#define RF4_SUMMON_MASK \
+    (0L)
+
+#define RF5_SUMMON_MASK \
+	(0L)
+
+#define RF6_SUMMON_MASK \
+	(0L)
+
+#define RF7_SUMMON_MASK \
+	(RF7_S_KIN | RF7_S_MONSTER | RF7_S_MONSTERS | RF7_S_BEETLE | RF7_S_ANT | RF7_S_SPIDER | RF7_S_HOUND | \
+     RF7_S_ANIMAL | RF7_S_THIEF | RF7_S_BERTBILLTOM | RF7_S_ORC | RF7_S_ANGEL | RF7_S_DRAGON | RF7_S_HI_DRAGON | \
+	 RF7_S_DEMON | RF7_S_HI_DEMON | RF7_S_UNDEAD | RF7_S_HI_UNDEAD | RF7_S_WRAITH | RF7_S_UNIQUE)
+
+
+
 
 /*
  * Spells that increase in range with level.
@@ -4395,8 +4437,6 @@
  */
 #define better_skill(S,T) \
 	(get_skill(S,0,100)>get_skill(T,0,100))?(S):(T)
-
-
 
 
 /*
@@ -4835,11 +4875,16 @@
 
 /*
  * Determine if a grid is a closed door.
- * Open or broken doors don't count.
+ * Open or broken doors, as well as secret doors don't count.
  */
 #define cave_closed_door(Y,X) \
-   (f_info[cave_feat[Y][X]].flags & (TF_DOOR_CLOSED))
+   (f_info[cave_feat[Y][X]].flags & (TF_DOOR_CLOSED) && !(cave_feat[Y][X] == FEAT_SECRET))
 
+/*
+ * Determine if a grid contains a secret door
+ */
+#define cave_secret_door(Y,X) \
+   ((cave_feat[Y][X] == FEAT_SECRET))
 
 /*
  * Determine if a grid is any door.
@@ -4847,11 +4892,13 @@
 #define cave_any_door(Y,X) \
    (f_info[cave_feat[Y][X]].flags & (TF_DOOR_ANY))
 
-/*
- * Determine if a grid contains a secret door
+/* 
+ * Determine if a grid contains an open door
  */
-#define cave_secret_door(Y,X) \
-   ((cave_feat[Y][X] == FEAT_SECRET))
+
+#define cave_open_door(Y,X) \
+   ((cave_feat[Y][X] == FEAT_OPEN))
+
 
 /*
  * Determine if a grid is marked as having traps in it.

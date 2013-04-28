@@ -1394,6 +1394,7 @@ static void display_player_middle(void)
 
 	prt_lnum("Unspent Exp   ",   p_ptr->exp,       12, 27, TERM_L_GREEN);
 	prt_lnum("Gold          ",   p_ptr->au,        13, 27, TERM_L_GREEN);
+	prt_lnum("Turns         ",   turn,             14, 27, TERM_L_BLUE);
 
 
 
@@ -3466,6 +3467,8 @@ errr file_character(cptr name, bool full)
 			"   Time Elapsed: %ld days, %ld hours, %ld minutes   (%ld turns)\n\n",
 				day, hour, min, turn);
 	}
+
+	fprintf(fff,"   You made %ld actions, %ld of which were spent resting\n\n",player_turn, resting_turn);
 
 
 	/* Character attributes  (This section needs some work) */

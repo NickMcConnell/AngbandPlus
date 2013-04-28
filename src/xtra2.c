@@ -882,8 +882,8 @@ bool set_tim_infra(int v)
 	/* Print "tim_infra" */
 	left_panel_display(DISPLAY_REALM_COND, 0);
 
-	/* Update the monsters XXX */
-	p_ptr->update |= (PU_MONSTERS);
+	/* Update the monsters and dungeon XXX */
+	p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 
 	/* Handle stuff */
 	handle_stuff();

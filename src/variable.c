@@ -84,6 +84,9 @@ s16b project_immune = 0;		/* Hack -- special immunity to projections */
 
 s32b turn;						/* Current game turn */
 s32b old_turn;					/* Turn when level began (feelings) */
+s32b player_turn;               /* Number of turns the player has taken (including resting) */
+s32b resting_turn;              /* Number of turns spent resting */
+
 
 bool use_sound;					/* The "sound" mode is enabled */
 bool use_graphics;				/* The "graphics" mode is enabled */

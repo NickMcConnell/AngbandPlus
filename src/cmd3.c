@@ -1762,7 +1762,7 @@ void do_cmd_light_and_douse(void)
 	/* Get an item (not in the backpack) */
 	q = "Light or douse which light source?";
 	s = "You have no light sources.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_FLOOR | USE_AUTO))) return;
 	item_to_object(o_ptr, item);
 
 	/* Get an object description */

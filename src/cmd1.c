@@ -1364,7 +1364,7 @@ void move_player(int dir, int do_pickup)
 				/* Already known */
 				if (cave_info[y][x] & (CAVE_MARK))
 				{
-					message(MSG_HITWALL, 0, "There is a wall blocking your way.");
+					message(MSG_HITWALL, 0, "There is a wall in your way.");
 
 					/* Hack -- Use no energy */
 					if (!p_ptr->confused) p_ptr->energy_use = 0;
@@ -2239,7 +2239,6 @@ static bool run_test(void)
 	/* Failure */
 	return (FALSE);
 }
-
 
 
 /*

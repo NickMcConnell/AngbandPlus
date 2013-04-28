@@ -1412,6 +1412,18 @@ static void store_delete(void)
 }
 
 
+/*
+ * Credits the total_buy of a store by the amount
+ * and return the value of a player's adjusted total buy (adjusted for fame)
+ * Written by JM
+ */
+static s32b store_credit(int amount)
+{
+	int fame = p_ptr->fame;
+
+	st_ptr->total_buy += amount;
+	return st_ptr->total_buy + fame * ( 50 + fame * fame /2 );
+}
 
 
 
@@ -1471,7 +1483,7 @@ static void store_item_create(int k_idx, int level, bool special, int num)
 		else
 		{
 			/* 1 in 10 -> 1 in 3 great */
-			odds = 10 - MIN(7, rsqrt(st_ptr->total_buy / 25000));
+			odds = 10 - MIN(7, rsqrt(store_credit(0) / 25000));
 
 			/* Make object */
 			apply_magic(i_ptr, level, FALSE, TRUE, (one_in_(odds)));
@@ -1707,7 +1719,7 @@ static void store_adjust(int table_idx)
 	}
 
 	/* Sometimes a store owner will have special items in stock */
-	if (rsqrt(st_ptr->total_buy) > rand_int(divisor))
+	if (rsqrt(store_credit(0)) > rand_int(divisor))
 	{
 		/* Scan to the end of the list of tvals this store sells */
 		for (i = 0; i < 10; i++)
@@ -1732,14 +1744,14 @@ static void store_adjust(int table_idx)
 		if (store_num != STORE_SPELLBOOK)
 		{
 			/* Level 80 (some chance of higher) with 2m invested */
-			level = MIN(rsqrt(st_ptr->total_buy / 785), 50) + 20;
+			level = MIN(rsqrt(store_credit(0) / 785), 50) + 20;
 		}
 
 		/* Special case -- the bookstore */
 		else
 		{
 			/* Harder to get high, but can reach any level */
-			level = rsqrt(st_ptr->total_buy / 370);
+			level = rsqrt(store_credit(0) / 370);
 		}
 
 		/* Restrict to our chosen tval */
@@ -2049,6 +2061,16 @@ static void store_prt_gold(void)
 }
 
 
+static void store_prt_invest(void)
+{
+	char out_val[64];
+
+	prt("Total Investment: ", screen_rows - 1, 50);
+
+	sprintf(out_val, "%9ld", (long)st_ptr->total_buy);
+	prt(out_val, screen_rows - 1, 68);
+}
+
 
 /*
  * Display store (after clearing screen)
@@ -2275,7 +2297,7 @@ static bool get_stock(int *com_val, cptr pmt)
  */
 static void prt_welcome(void)
 {
-	int attitude = rsqrt(st_ptr->total_buy);
+	int attitude = rsqrt(store_credit(0));
 	int i = 0;
 	int dummy;
 
@@ -3385,7 +3407,7 @@ static void store_sell(void)
 		{
 			char buf[80];
 
-			int attitude = rsqrt(st_ptr->total_buy);
+			int attitude = rsqrt(store_credit(0));
 
 			int quantity = o_ptr->number;
 
@@ -3807,6 +3829,9 @@ static void store_process_command(bool inn_cmd)
 			{
 				char ch;
 
+				/* Display investment */
+				store_prt_invest();
+
 				/* Prompt */
 				prt("Command (I to invest money, ESC to return)?", 0, 0);
 
@@ -3818,6 +3843,7 @@ static void store_process_command(bool inn_cmd)
 					s32b invest, tmp32s;
 					char short_name[80];
 
+					move_cursor(1,0);
 					invest = get_quantity("Invest how much of your money in the store?", 0, p_ptr->au);
 
 					/* Stay legal */
@@ -3887,17 +3913,17 @@ static void store_process_command(bool inn_cmd)
 		}
 
 		/* Get quests */
-		case '1':
+		case 'a':
 		{
 			if (inn_cmd) inn_purchase(1);
 			break;
 		}
-		case '2':
+		case 'b':
 		{
 			if (inn_cmd) inn_purchase(2);
 			break;
 		}
-		case '3':
+		case 'c':
 		{
 			if (inn_cmd) inn_purchase(3);
 			break;

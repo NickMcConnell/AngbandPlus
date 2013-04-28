@@ -4012,11 +4012,9 @@ bool identify_fully(void)
 	object_known(o_ptr);
 	object_mental(o_ptr);
 
-	/* Become fully aware of the effects of easy_know objects */
-	if (k_ptr->flags3 & (TR3_EASY_KNOW))
-	{
-		k_ptr->special |= (SPECIAL_KNOWN_EFFECT);
-	}
+	/* Reveal the special properties of items */
+	k_ptr->special |= (SPECIAL_KNOWN_EFFECT);
+	
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);

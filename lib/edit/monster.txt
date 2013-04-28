@@ -8579,7 +8579,19 @@ D:defiance as he strides towards you to crush you to a pulp!
 
 ## empty space (available for dungeon monsters) ##
 
-## empty space (available for dungeon monsters) ##
+N:773:!Xok, Tussler
+G:T:M
+I:115:3100:10:40:30:1
+W:72:5:100:11000
+B:HIT:BATTER:12d10
+B:HIT:BATTER:12d10
+F:MALE | UNIQUE | FORCE_SLEEP |
+F:REGENERATE | OPEN_DOOR | BASH_DOOR | SMART | TROLL | ORC |
+F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT 
+S:1_IN_4 | POW_65 |
+S:HEAL | BALL_ELEC | BALL_FIRE | BALL_ACID | BALL_COLD | BOLT_MANA | ADD_MANA | TELE_TO | HASTE | TPORT
+D:This hideous half-troll, half-orc monster has the largest arms you've ever
+D:seen.  In his hands he wields both staff and wand, glowing with power.
 
 N:774:Gyrus, Necromancer-King
 G:p:p

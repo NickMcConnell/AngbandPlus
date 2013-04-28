@@ -184,16 +184,17 @@ N:14:of Power 'Narya'
 I:45:44
 W:70:45:2:350000
 C:0:1d1:0:0:0:11
-P:1:10
-1:STR | INT | WIS | DEX | CON | CHR | INVIS
+P:2:10
+1:STR | CON | CHR
 2:SPEED
-F:HIDE_TYPE | FREE_ACT | SEE_INVIS | 
-F:SLOW_DIGEST | REGEN | 
-F:SUST_STR | SUST_DEX | IM_FIRE | 
+F:HIDE_TYPE | FREE_ACT |
+F:SLOW_DIGEST | REGEN |
+F:SUST_CON | IM_FIRE |
 F:INSTA_ART
-D:The Ring of Fire, set with a ruby that glows like flame.  Narya is one 
-D:of the three Rings of Power created by the Elves and hidden by them from 
-D:Sauron.
+D:The Ring of Ruby -- "Take this ring, Master, for your labours will be 
+D:heavy; butit will support you in the weariness that you have taken upon
+D:yourself. For this is the Ring of Fire, and with it you may rekindle
+D:hearts in a world that grows chill."
 
 
 # The Ring of Power 'Nenya'
@@ -202,15 +203,14 @@ N:15:of Power 'Nenya'
 I:45:45
 W:80:55:2:425000
 C:0:1d1:0:0:0:12
-P:2:10
-1:STR | INT | WIS | DEX | CON | CHR | INVIS
+P:4:10
+1:INT | WIS | DEX | AWARENESS
 2:SPEED
-F:HIDE_TYPE | HOLD_LIFE | FREE_ACT | SEE_INVIS | 
-F:FEATHER | REGEN | 
-F:SUST_INT | SUST_WIS | IM_COLD | 
+F:HIDE_TYPE | HOLD_LIFE | FREE_ACT | SEE_INVIS |
+F:SUST_INT | SUST_WIS | IM_COLD | FEATHER
 F:INSTA_ART
-D:The Ring of Adamant, with a pure white stone as centerpiece.  Nenya is one 
-D:of the three Rings of Power created by the Elves and hidden by them from 
+D:The Ring of Adamant, with a pure white stone as centerpiece. Nenya is chief
+D:among the three Rings of Power created by the Elves and hidden by them from
 D:Sauron.
 
 
@@ -221,16 +221,16 @@ I:45:46
 W:90:65:2:500000
 C:0:1d1:0:0:0:13
 P:3:10
-1:STR | INT | WIS | DEX | CON | CHR | INVIS
+1:STR | INT | WIS | DEX | CON | CHR | AWARENESS
 2:SPEED
 F:HIDE_TYPE | HOLD_LIFE | FREE_ACT | SEE_INVIS | 
 F:FEATHER | SLOW_DIGEST | REGEN | 
-F:SUST_INT | SUST_WIS | SUST_STR | SUST_DEX | IM_ELEC | 
+F:SUST_INT | SUST_WIS | SUST_STR | SUST_CHR | IM_ELEC | 
 F:INSTA_ART
 D:The Ring of Sapphire, with clear blue gems that shine like stars, 
 D:glittering untouchable despite all that Morgoth ever wrought.  Vilya is 
-D:one of the three Rings of Power created by the Elves and hidden by them 
-D:from Sauron.
+D:the greatest of the three Rings of Power created by the Elves and hidden
+D:by them from Sauron.
 
 
 # The One Ring
@@ -415,9 +415,9 @@ N:37:'H[^i]thl['o]m[^i]r'
 I:36:4
 W:20:4:70:45000
 C:4:0d0:0:0:20:0
-P:4
-1:STEALTH
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_DARK
+P:2
+1:STEALTH | INVIS
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_DARK | HIDE_TYPE
 D:Familar with the secret ways hidden in darkness, this black leather 
 D:cuirass is truely more than it appears.
 
@@ -738,10 +738,10 @@ D:this prove insufficient, the Gate-Cloak can whisk you far away.
 
 N:71:of L['u]thien
 I:35:4
-W:55:30:5:60000
+W:55:30:5:80000
 C:4:0d0:0:0:20:45
 P:2
-1:INT | WIS | CHR
+1:INT | WIS | CHR | INVIS
 F:HIDE_TYPE | RES_COLD | RES_DARK | RES_NETHR | RES_CHAOS
 D:As the diamond-studded midnight folds of this cloak swirl around you, 
 D:you feel a hint, a fragment of the knowledge and power to restore that 
@@ -752,10 +752,10 @@ D:lay in L['u]thien, the most beautiful being who ever knew death.
 
 N:72:of Tuor
 I:35:4
-W:40:30:5:45000
+W:40:30:5:60000
 C:4:0d0:0:0:15:0
-P:4
-1:STEALTH
+P:3
+1:STEALTH | INVIS
 F:FREE_ACT | IM_ACID | SEE_INVIS
 D:From the ruin of Gondolin did Tuor escape, through secret ways and 
 D:travail, mantled by sea-commanding Ulmo's kingly gift from a multitude 
@@ -1410,8 +1410,8 @@ N:128:'Whispering Death'
 I:23:27
 W:95:10:9:125000
 C:0:2d7:26:30:0
-P:5
-1:STEALTH
+P:4
+1:STEALTH | INVIS
 F:THROWING | VORPAL | PERFECT_BALANCE | RETURNING
 D:The weapon of Thrakheira, Death-Goddess of Kanwaith, whose whispering 
 D:knives are very harbingers of doom.  Endless is the sleep of those she lulls!

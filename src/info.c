@@ -162,6 +162,10 @@ void object_info(char *buf, object_type *o_ptr)
 			case TV_SCROLL:
 			{
 				strcpy(baseinfo, format("A parchment scroll %s", buf));
+				if(dark_read_scroll(o_ptr->sval))
+				{
+					strcpy(baseinfo, format("%s  It is writ in glowing letters.", baseinfo));
+				}
 				break;
 			}
 

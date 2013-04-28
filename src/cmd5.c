@@ -1120,6 +1120,10 @@ static s16b spell_chance(int spell)
 	/* Fear makes spells a little harder */
 	if (p_ptr->afraid) fail += 10;
 
+	/* Non-necromatic spells are harder in the dark */
+	if(no_light() && (p_ptr->realm != NECRO)) fail += 15 - get_skill(S_PERCEPTION, 0, 15);
+
+
 	/* Always a 5 percent chance of working */
 	if (fail > 95) fail = 95;
 	if (fail <  0) fail =  0;
@@ -1139,7 +1143,6 @@ static bool can_study_or_cast(void)
 	if (p_ptr->realm == NONE) note = "You know no magical realm.";
 	else if (p_ptr->berserk)  note = "You are too berserk!";
 	else if (p_ptr->blind)    note = "You are blind!";
-	else if (no_light())      note = "It is dark; you cannot see!";
 	else if (p_ptr->confused) note = "You are too confused!";
 	else if (p_ptr->image)    note = "You are hallucinating!";
 

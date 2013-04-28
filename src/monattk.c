@@ -2363,6 +2363,9 @@ static void mon_ball(int m_idx, int typ, int dam, int rad, bool jump)
 	int fy = m_ptr->fy;
 	int fx = m_ptr->fx;
 
+	int splash_y, splash_x;
+	bool good = FALSE;
+
 	u32b flg = PROJECT_BOOM | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL |
 	           PROJECT_PLAY;
 
@@ -2371,6 +2374,30 @@ static void mon_ball(int m_idx, int typ, int dam, int rad, bool jump)
 
 	/* Maddened monsters may adjust their target */
 	if (m_ptr->mflag & (MFLAG_MADD)) mad_mon_retarget(fy, fx, &py, &px);
+
+	/* Check and make sure player is targettable -- otherwise, target a legal square */
+	if (!projectable(m_ptr->fy, m_ptr->fx, py, px, PROJECT_CHCK))
+	{
+		for(splash_y = py - 1; splash_y <= py + 1; splash_y++)
+		{
+			for (splash_x = px - 1; splash_x <= px + 1; splash_x++)
+			{
+				if(projectable(m_ptr->fy, m_ptr->fx, splash_y, splash_x, PROJECT_CHCK)) good=TRUE;
+				if (good) break;
+			}
+			if(good) break;
+		}
+		if(good)
+		{
+			/* Target next to the player */
+			py = splash_y;
+			px = splash_x;
+		}
+		else
+		{
+			return;
+		}
+	}
 
 	/* Target may shift due to inaccuracy */
 	shift_target_inaccurate(typ, fy, fx, &py, &px);
@@ -2758,8 +2785,20 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 	if (r_ptr->d_char == 'Q')
 	{
 		/* Quylthulgs summon high-level monsters near the character */
-		sy = p_ptr->py;
-		sx = p_ptr->px;
+		if(projectable(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px, PROJECT_CHCK))
+		{
+			/* As long as they can actually *see* the character */
+			sy = p_ptr->py;
+			sx = p_ptr->px;
+		}
+		else
+		{
+			/* Otherwise they summon near themselves */
+			sy = m_ptr->fy;
+			sx = m_ptr->fx;
+
+		}
+
 		summon_lev = r_ptr->level + 2;
 	}
 	else

@@ -1,0 +1,160 @@
+                 [Sangband 0.9.9, beta 21 Character Dump]
+
+          Tom            Age    :             20  STR!  18/***
+    the Mystic Lord      Height :     5 ft, 4 in  INT!  18/130
+                         Weight :         138 lb  WIS!  18/170
+Gender : Male                                     DEX!  18/200
+Race   : Half-Orc               Slayer of         CON!  18/210
+Realm  : Nature Magic    Harowen the Black Hand   CHR!  18/100
+
+Max Hitpoints       990  Power                96  Max Mana          228
+Cur Hitpoints       915  Score              1705  Cur Mana          228
+
+       (Melee)           Unspent Exp    88357440         (Missile)
+Blows per round       4  Gold          123133728  Shots per round     0
+Average Damage       82  Turns             19536  + to Skill          0
+     (Wrestling)         Max Depth        Lev 55  Deadliness ()    112
+
+                          (Character Abilities)
+Melee     : Legendary  Saving Throw: Superb     Magic Device: Superb
+Shooting  : Superb     Stealth     : Excellent  Dodging     : Heroic
+Throwing  : Heroic     Perception  : Very Good  Fame        : Praised
+Digging   : Heroic     Disarming   : Legendary  Infra-Vision: 60 feet
+
+   Speed       : +14
+   Armour      : 106
+   Kills       : 56
+   Time Elapsed: 0 days, 4 hours, 41 minutes   (19536 turns)
+
+   You made 35 actions, 0 of which were spent resting
+
+
+  [Character Attributes]
+
+      abcdefghijkl@        Stat Intrnl abcdefghijkl@ Adjust
+Stlth:.........3...        STR! 18/100 ...43....3..5 18/***
+Invis:.............        INT! 18/100 ..4.........1 18/130
+Aware:..4..........        WIS! 18/100 ..4...2.....1 18/170
+Disar:.............        DEX! 18/100 ..44..2..s... 18/200
+Devic:.............        CON! 18/100 ...43.2.....2 18/210
+Speed:..*6.........        CHR! 18/100 .........3..3 18/100
+
+      abcdefghijkl@                           abcdefghijkl@
+Infra:....3.......3                     NFuel:.............
+Tunnl:......2.....3                     Steal:.............
+Save :.............                     NoMag:.............
+Mana :.............                     Telep:.............
+Light:.....2.......                     Aggra:.............
+                                        Drain:.............
+
+                                        Curse:.............
+
+      abcdefghijkl@       abcdefghijkl@       abcdefghijkl@
+Acid :......+..+... Light:......+...... Food :.............
+Elec :......+..+... Dark :......+.....+ Feath:..+...+......
+Fire :......+..+... Sound:............+ Shine:......+..+...
+Cold :..*...+..+... Shard:............. Regen:.............
+Pois :......+...... Nexus:.........+... ESP  :.........+...
+Fear :............. Nethr:............. SeeIn:..+.......+..
+Blind:......+...... Chaos:......+...... FrAct:..+.........+
+Confu:......+...+.. Disen:............. HLife:..+..........
+
+
+  [Last Messages]
+
+You sold an Arrow (2d2) (+5,+8) (w) for 3 gold.
+You have 24 Arrows (2d2) (+5,+8) {Harowen} (w).
+Selling 24 Arrows (2d2) (+5,+8) {Harowen} (w).
+You sold 24 Arrows (2d2) (+5,+8) (w) for 912 gold.
+You have no more Arrows (2d2) (+5,+8) {Harowen} (w).
+You bought a Cloak [1,+4] {504575754ff} (h) for 230 gold.
+You have a Cloak [1,+4] {504575754ff} (s).
+Selling a Wooden Torch [2] <Fuel: 3500> (q).
+You sold a Wooden Torch [2] <Fuel: 3500> (q) for 2 gold.
+You have a Wooden Torch [2] <Fuel: 3500> (q).
+Selling a Wooden Torch [2] <Fuel: 3500> (q).
+You sold a Wooden Torch [2] <Fuel: 3500> (q) for 2 gold.
+You have no more Wooden Torches [2] <Fuel: 3500> (q).
+You bought a Shovel (1d2) (+0,+0) (+1) {254575754ff} (i) for 51 gold.
+You have a Shovel (1d2) (+0,+0) (+1) {254575754ff} (w).
+
+
+  [Skills]
+
+Jousting          :   7(max 8)
+Wrestling         : 100
+Spellcasting      : 100
+Magical Power     : 100
+Nature Lore       :  99(max 100)
+Magical Device    :  68
+Stealth           :  67(max 68)
+Disarming         :  75
+Dodging           :  83(max 84)
+Spell Resistance  :  76(max 77)
+
+
+
+  [Quests]
+
+   You have finished no quests yet.
+
+
+  [Character Equipment]
+
+The Ring of Power 'Nenya' (+4, +10)
+     Activates for large frost ball (250) every 125-150 turns.  [88% fail]
+     +10 Speed; +4 INT, WIS, DEX, Awareness.
+     Sustain INT, WIS.  Immunity to Cold.
+     Feather Falling; See Invisible; Free Action; Hold Life.
+The Ring of Tulkas (+4, +6)
+     Activates for haste self (duration 75-150) every 150-300 turns.  [25% fail]
+     +6 Speed; +4 STR, DEX, CON.
+The Necklace of the Dwarves (+3)
+     +3 STR, CON, Infravision.
+A Wooden Torch (lit) [2] <Fuel: 3225>
+The Ethereal Dragon Scale Mail of Hurin (-1) [30,+21] (+2) (charging)
+     Activates for cure ailments every 100 turns.  [0% fail]
+     +2 WIS, DEX, CON, Tunneling.  Sustain WIS.
+     Resist Acid, Lightning, Fire, Cold, Poison, Light, Dark, Chaos,
+     Blindness, Confusion.  Feather Falling; Permanent Light.
+The Barbut 'True Companion' [4,+16] (+3 to stealth)
+     +3 STR, CHR, Stealth.  Sustain DEX, CHR.
+     Resist Acid, Lightning, Fire, Cold, Nexus.
+     Permanent Light; ESP.
+The Set of Leather Gloves of Eldoroth (+10,+10) [1,+12]
+     Resist Confusion.  See Invisible.
+
+
+  [Character Inventory]
+
+a Stone of Nature [Book of Combat]
+2 Stones of Nature [Druidic Transformations]
+9 Pink Mushrooms of Envenomation
+3 Fuzzy Mushrooms of Disease
+3 Rations of Food
+95 Blue Potions of Life
+a Scroll titled "ad oth-ro" of *Enchant Weapon*
+16 Scrolls titled "nuthwarg" of Holy Prayer
+86 Scrolls titled "nun kokduk kaldok" of Questing
+an Eldritch Wand of Cold Balls {empty}
+a Corundum Wand of Dragon's Flame
+an Antimony Wand of Dragon's Frost {Harowen}
+a Beech Staff of Teleportation
+a Lebethron Staff of Power {Harowen, empty}
+a Tiger Eye Ring of Strength
+a Jasper Ring of Constitution (+5)
+Segmented Plate Mail [19] {unknown}
+a Cloak [1,+4] {504575754ff}
+an Iron Helm [5] {Harowen, unknown}
+an Executioner's Sword (2d12) {Harowen, unknown}
+a Spear (1d6) (+0,+0)
+a Scythe of Slicing (7d3) (+7,+15) [3,+0]
+a Shovel (1d2) (+0,+0) (+1) {254575754ff}
+
+
+  [Special Advantages and Disadvantages]
+
+You have used debug mode.
+
+You were rolled up exactly once.
+

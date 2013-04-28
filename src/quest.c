@@ -1054,12 +1054,12 @@ void display_inn(void)
 				p = "A difficult";
 			}
 
-			put_str(format("%c)", '1' + i), 9 + i, 3);
+			put_str(format("%c)", 'a' + i), 9 + i, 3);
 			c_put_str(attr, format ("%s quest.", p), 9 + i, 7);
 		}
 
 
-		prt(format("%c-%c) Get a quest.", '1', '1' + (avail_quest - 1)), 22, 31);
+		prt(format("%c-%c) Get a quest.", 'a', 'a' + (avail_quest - 1)), 22, 31);
 	}
 
 	else

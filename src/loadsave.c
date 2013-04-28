@@ -1656,6 +1656,7 @@ static errr do_character(void)
 		do_byte(&blank_u8b);
 
 		do_u32b(&p_ptr->dungeon_flags);
+
 		do_u16b(&blank_u16b);
 		do_u16b(&blank_u16b);
 		do_u16b(&blank_u16b);
@@ -1724,6 +1725,19 @@ static errr do_character(void)
 		if (sf_xtra < 21) do_byte(&blank_u8b);
 	}
 
+	if (sf_xtra >= 21)
+	{
+		/* # of Player turns */
+		do_s32b(&player_turn);
+
+		/* # of turns spent resting */
+		do_s32b(&resting_turn);
+	}
+	else
+	{
+		player_turn = 0;
+		resting_turn = 0;
+	}
 
 	/* Loading a file -- Initialize some stuff */
 	if (load_file)
@@ -3074,7 +3088,9 @@ errr load_player(bool silent)
 	character_existed = FALSE;
 
 	/* Paranoia */
-	turn = 0;
+	turn         = 0;
+	player_turn  = 0;
+	resting_turn = 0;
 
 	/* Paranoia */
 	p_ptr->is_dead = FALSE;

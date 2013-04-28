@@ -3250,7 +3250,7 @@ static bool do_cmd_walk_test(int y, int x)
 		/* Door */
 		if (cave_closed_door(y, x))
 		{
-			/* Doors can be opened. */
+		/* Doors can be opened. */
 			return (TRUE);
 		}
 

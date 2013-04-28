@@ -3311,16 +3311,20 @@ static void make_terrible(int a_idx)
 	a_ptr->flags3 |= (TR3_LIGHT_CURSE);
 
 	if (heavy_curse)       a_ptr->flags3 |= (TR3_HEAVY_CURSE);
-	if (aggravation)       a_ptr->flags3 |= (TR3_AGGRAVATE);
-	if (one_in_(6))        a_ptr->flags3 |= (TR3_TELEPORT);
 
-	if (is_melee_weapon(a_ptr))
+	if(!is_missile(a_ptr))
 	{
-		if (one_in_(8))  a_ptr->flags3 |= (TR3_SOULSTEAL);
+		if (aggravation)       a_ptr->flags3 |= (TR3_AGGRAVATE);
+		if (one_in_(6))        a_ptr->flags3 |= (TR3_TELEPORT);
+
+		if (is_melee_weapon(a_ptr))
+		{
+			if (one_in_(8))  a_ptr->flags3 |= (TR3_SOULSTEAL);
+		}
+		if (one_in_(12)) a_ptr->flags3 |= (TR3_NOMAGIC);
+		if (one_in_(12)) a_ptr->flags3 |= (TR3_DRAIN_EXP);
+		if (one_in_(30)) a_ptr->flags3 |= (TR3_DRAIN_HP);
 	}
-	if (one_in_(12)) a_ptr->flags3 |= (TR3_NOMAGIC);
-	if (one_in_(12)) a_ptr->flags3 |= (TR3_DRAIN_EXP);
-	if (one_in_(30)) a_ptr->flags3 |= (TR3_DRAIN_HP);
 }
 
 

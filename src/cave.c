@@ -2801,6 +2801,8 @@ void update_view(void)
 	u16b g;
 
 	int radius;
+	int darkvision = p_ptr->see_infra;
+
 
 	int fast_view_n = view_n;
 	u16b *fast_view_g = view_g;
@@ -2849,7 +2851,7 @@ void update_view(void)
 
 	/* Handle real light */
 	if (radius > 0) ++radius;
-
+	if (darkvision > 0) ++darkvision;
 
 	/*** Step 1 -- player grid ***/
 
@@ -2981,6 +2983,9 @@ void update_view(void)
 					info |= (CAVE_FIRE);
 				}
 
+
+
+
 				/* Handle grids that block line of sight */
 				if (!(info & (CAVE_LOS)))
 				{
@@ -3002,7 +3007,13 @@ void update_view(void)
 							/* Mark as "CAVE_SEEN" */
 							info |= (CAVE_SEEN);
 						}
+						else if (p->d < darkvision)
+						{
+							/* Mark as noticed */
+							info |= (CAVE_MARK);
+						}
 
+					
 						/* Perma-lit or temporarily lit grids */
 						else if (info & (CAVE_GLOW | CAVE_LITE))
 						{
@@ -3065,6 +3076,15 @@ void update_view(void)
 							/* Mark as "CAVE_SEEN" */
 							info |= (CAVE_SEEN);
 						}
+						else if (p->d < darkvision)
+						{
+							/* Mark only "interesting" features */
+							if(!(f_info[cave_feat[GRID_Y(g)][GRID_X(g)]].flags & (TF_FLOOR)))
+							{
+								info |= (CAVE_MARK);
+							}
+						}
+
 
 						/* Save in array */
 						fast_view_g[fast_view_n++] = g;
@@ -3114,6 +3134,17 @@ void update_view(void)
 
 			/* Note */
 			note_spot(y, x);
+
+			/* Redraw */
+			lite_spot(y, x);
+		}
+		else if ( (info & (CAVE_MARK)) )
+		{
+			int y, x;
+
+			/* Location */
+			y = GRID_Y(g);
+			x = GRID_X(g);
 
 			/* Redraw */
 			lite_spot(y, x);

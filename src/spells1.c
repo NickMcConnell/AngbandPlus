@@ -5392,12 +5392,15 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 				dam = div_round(dam, 2);
 			}
 			if (!p_ptr->resist_chaos)
-			{
+			{ 
+				int temp;
 				if (!p_ptr->resist_confu)
 				{
 					(void)set_confused(p_ptr->confused + rand_range(dam / 4, dam / 2));
 				}
-				(void)set_image(p_ptr->image + rand_range(dam / 4, dam / 2));
+
+				temp = rsqrt(dam);
+				(void)set_image(p_ptr->image + rand_range(temp*2, temp*4));
 			}
 
 			/* Can lose exp */

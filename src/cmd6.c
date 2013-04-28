@@ -3715,10 +3715,6 @@ void learn_details(object_type *o_ptr)
 		odds = 30 - get_skill(S_PERCEPTION, 0, 15);
 
 		more_info = strlen(do_object(OBJECT_INFO, o_ptr));
-		if(o_ptr->tval == TV_POTION)
-		{
-		}
-		
 	}
 	else return;
 
@@ -3757,11 +3753,6 @@ static bool can_read_scroll(void)
 		msg_print("You can't see anything.");
 		return (FALSE);
 	}
-	if (no_light())
-	{
-		msg_print("You have no light to read by.");
-		return (FALSE);
-	}
 	if (p_ptr->confused)
 	{
 		msg_print("You are too confused!");
@@ -3769,6 +3760,80 @@ static bool can_read_scroll(void)
 	}
 	return (TRUE);
 }
+
+/*
+ * Determine whether a scroll can be read in the dark
+ *
+ */
+
+extern bool dark_read_scroll(int sval)
+{
+	switch(sval)
+	{
+	/* Escape, detection, summoning, necromatic scrolls still allowed */
+	case SV_SCROLL_DARKNESS:
+	case SV_SCROLL_AGGRAVATE_MONSTER:
+	case SV_SCROLL_SUMMON_MONSTER:
+	case SV_SCROLL_SUMMON_UNDEAD:
+	case SV_SCROLL_SUMMON_DEMONS:
+	case SV_SCROLL_TRAP_CREATION:
+	case SV_SCROLL_PHASE_DOOR:
+	case SV_SCROLL_TELEPORT:
+	case SV_SCROLL_TELEPORT_LEVEL:
+	case SV_SCROLL_WORD_OF_RECALL:
+	case SV_SCROLL_LIGHT:
+	case SV_SCROLL_MAPPING:
+	case SV_SCROLL_DETECT_GOLD:
+	case SV_SCROLL_DETECT_ITEM:
+	case SV_SCROLL_DETECT_TRAP:
+	case SV_SCROLL_DETECT_DOOR:
+	case SV_SCROLL_DETECT_INVIS:
+	case SV_SCROLL_GENOCIDE:
+	case SV_SCROLL_MASS_GENOCIDE:
+	case SV_SCROLL_ALTER_REALITY:
+	case SV_SCROLL_NIGHTFALL:
+	case SV_SCROLL_QUESTING:
+		return (TRUE);
+
+	/* Other scrolls not allowed */
+	case SV_SCROLL_ACQUIREMENT:
+	case SV_SCROLL_STAR_ACQUIREMENT:
+	case SV_SCROLL_MADNESS:
+	case SV_SCROLL_TREES:
+	case SV_SCROLL_WATER:
+	case SV_SCROLL_LAVA:
+	case SV_SCROLL_CURSE_ARMOR:
+	case SV_SCROLL_CURSE_WEAPON:
+	case SV_SCROLL_IDENTIFY:
+	case SV_SCROLL_STAR_IDENTIFY:
+	case SV_SCROLL_REMOVE_CURSE:
+	case SV_SCROLL_STAR_REMOVE_CURSE:
+	case SV_SCROLL_ENCHANT_ARMOR:
+	case SV_SCROLL_ENCHANT_WEAPON_TO_HIT:
+	case SV_SCROLL_ENCHANT_WEAPON_TO_DAM:
+	case SV_SCROLL_STAR_ENCHANT_ARMOR:
+	case SV_SCROLL_STAR_ENCHANT_WEAPON:
+	case SV_SCROLL_RECHARGING:
+	case SV_SCROLL_STAR_RECHARGING:
+	case SV_SCROLL_ELEMENTAL_ATTACKS:
+	case SV_SCROLL_LEARN_MAGIC:
+	case SV_SCROLL_SATISFY_HUNGER:
+	case SV_SCROLL_BLESSING:
+	case SV_SCROLL_HOLY_CHANT:
+	case SV_SCROLL_HOLY_PRAYER:
+	case SV_SCROLL_MONSTER_CONFUSION:
+	case SV_SCROLL_PROTECTION_FROM_EVIL:
+	case SV_SCROLL_RUNE_OF_PROTECTION:
+	case SV_SCROLL_FORCE_DOOR:
+	case SV_SCROLL_STAR_DESTRUCTION:
+	case SV_SCROLL_POISON_CLOUD:
+	case SV_SCROLL_NEXUS_STORM:
+		return (FALSE);
+	default:
+		return (FALSE);
+	}
+}
+
 
 
 /*
@@ -3791,7 +3856,6 @@ static bool item_tester_hook_quaff(const object_type *o_ptr)
 	/* Nope. */
 	return (FALSE);
 }
-
 
 /*
  * Eat some food, quaff a potion, or read a scroll
@@ -3874,7 +3938,17 @@ void use_object(int tval)
 	}
 	else if (o_ptr->tval == TV_SCROLL)
 	{
-		/* No sound effect */
+		if (no_light())
+		{
+			if(!dark_read_scroll(o_ptr->sval))
+			{
+				msg_format("You can't see this scroll to read it!");
+				if(object_known_p(o_ptr))	p_ptr->energy_use = 0;
+				else p_ptr->energy_use = 100;
+				obj_used_up = FALSE;
+				return;
+			}
+		}
 	}
 
 
@@ -7270,6 +7344,12 @@ void do_cmd_activate(void)
 	/* Check the recharge */
 	if (o_ptr->timeout)
 	{
+		/* Since whether or not an item is recharging is known,
+		 * failing does not take energy
+		 */
+		p_ptr->energy_use = 0;
+
+
 		/* Getting greedy with the One Ring is a bad mistake. */
 		if (o_ptr->activate == ACTIV_POWER)
 		{
@@ -7289,6 +7369,7 @@ void do_cmd_activate(void)
 			lose_exp(calc_spent_exp() / 5, TRUE);
 
 			check_experience();
+			p_ptr->energy_use = 100;
 		}
 
 		/* Other items just fail */

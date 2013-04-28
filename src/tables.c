@@ -3646,26 +3646,20 @@ byte spell_range_RF7[32] =
  *
  * Position of skill in this table should correspond with the skill index.
  *
- * Note: Swordsmanship gives bonuses to jousting, and vice-versa, at
- *      a rate of half a level per level.  These two skill also affect and
- *      are affected by clubbing.
- * Note: Crossbows gives bonuses to bows, and vice-versa, at a rate of
- *      half a level per level.
- * Note: Burglary gives bonuses to perception, sneaking, disarming, and
- *      dodging.
+ * Note: Burglary gives a bonus to disarming
  */
 const skill_type skill_info[NUM_SKILLS] =
 {
-	{"Swordsmanship", "ability to fight with swords",                   12},
-	{"Clubbing", "ability to fight with blunt (hafted) weapons",        12},
-	{"Jousting", "ability to fight with pole-mounted weapons",          12},
+	{"Swordsmanship", "ability to fight with swords",                   11},
+	{"Clubbing", "ability to fight with blunt (hafted) weapons",        11},
+	{"Jousting", "ability to fight with pole-mounted weapons",          11},
 	{"Archery - Xbows", "ability to use crossbows",                      9},
 	{"Archery - Bows", "ability to use bows",                            9},
 	{"Archery - Slings", "ability to use slings",                        7},
 	{"Throwing", "ability to throw weapons and objects",                 9},
 
-	{"Wrestling", "ability to grapple and throw your opponents",        10},
-	{"Karate", "ability to kick and punch your opponents",              10},
+	{"Wrestling", "ability to grapple and throw your opponents",        11},
+	{"Karate", "ability to kick and punch your opponents",              11},
 
 	{"Spellcasting", "spell level",                                     16},
 	{"Magical Power", "mana supply",                                    12},
@@ -3675,8 +3669,8 @@ const skill_type skill_info[NUM_SKILLS] =
 	{"Nature Lore", "understanding of nature",                           6},
 	{"Blood Dominion", "understanding of necromancy and the undead",     6},
 
-	{"Magical Device", "understanding of magical devices",              13},
-	{"Burglary", "skill in thievery and trap-setting",                  14},
+	{"Magical Device", "understanding of magical devices",              16},
+	{"Burglary", "skill in thievery and trap-setting",                  10},
 
 	{"Perception", "ability to notice the things around you",            7},
 	{"Stealth", "stealth",                                               6},
@@ -3684,11 +3678,11 @@ const skill_type skill_info[NUM_SKILLS] =
 	{"Dodging", "ability to evade attacks and use armour effectively",   6},
 	{"Spell Resistance", "resistance to magical attacks",                6},
 
-	{"Weaponsmithing", "ability to forge weapons",                      10},
-	{"Bowmaking", "ability to make bows and arrows",                    10},
-	{"Armor Forging", "ability to forge armor",                         14},
-	{"Alchemy", "ability to create scrolls, potions, rings, & amulets",  9},
-	{"Magical Infusion", "ability to magically enhance objects",        13},
+	{"Weaponsmithing", "ability to forge weapons",                       8},
+	{"Bowmaking", "ability to make bows and arrows",                     8},
+	{"Armor Forging", "ability to forge armor",                         16},
+	{"Alchemy", "ability to create scrolls, potions, rings, & amulets",  8},
+	{"Magical Infusion", "ability to magically enhance objects",        12},
 
 	{NULL, NULL, 0},
 	{NULL, NULL, 0},

@@ -2528,8 +2528,9 @@ static void glow_object(int y0, int x0, int rad)
 
 	bool no_los;
 
-	/* Do not emit light with 0 radius */
-	if(!rad) return;
+
+	/* Radius zero emits no light */
+	if (!rad) return;
 
 	/* Scan the los table until all legal grids are checked */
 	for (i = 0, grid = 0; grid < grid_limit; grid++)
@@ -3189,7 +3190,18 @@ void process_player(void)
 		{
 			/* Use some energy */
 			p_ptr->energy -= p_ptr->energy_use;
+
+			/* Increment the player turn counter */
+			player_turn++;
 		}
+
+		/* Action is or was resting */
+		if (p_ptr->resting)
+		{
+			/* Increment the resting counter */
+			resting_turn++;
+		}
+
 	}
 	while (!p_ptr->energy_use && !p_ptr->leaving);
 

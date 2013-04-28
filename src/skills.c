@@ -45,6 +45,48 @@ static bool cannot_learn_prayers;
 int selected = -1;
 
 
+
+
+
+/*
+ * Returns the maximum score of a skill, either actual or virtual
+ *
+ * Written by JM
+ */
+
+int get_virtual_skill(int skill)
+{
+	int tmp = p_ptr->pskills[skill].cur;
+	switch (skill){
+	case S_SWORD:
+		tmp = MAX(tmp, p_ptr->pskills[S_HAFTED].cur / 4);
+		tmp = MAX(tmp, p_ptr->pskills[S_POLEARM].cur / 2);
+		break;
+	case S_HAFTED:
+		tmp = MAX(tmp, p_ptr->pskills[S_SWORD].cur / 4);
+		tmp = MAX(tmp, p_ptr->pskills[S_POLEARM].cur / 4);
+		break;
+	case S_POLEARM:
+		tmp = MAX(tmp, p_ptr->pskills[S_HAFTED].cur / 4);
+		tmp = MAX(tmp, p_ptr->pskills[S_SWORD].cur / 2);
+		break;
+	case S_BOW:
+		tmp = MAX(tmp, p_ptr->pskills[S_CROSSBOW].cur / 2);
+		break;
+	case S_CROSSBOW:
+		tmp = MAX(tmp, p_ptr->pskills[S_BOW].cur / 2);
+		break;
+	default:
+		break;
+	}
+
+	return tmp;
+}
+
+
+
+
+
 /*
  * This function is used to get effective values for all skills.
  *
@@ -72,7 +114,7 @@ s16b get_skill(int skill, int min, int max)
 
 
 	/* Get the current skill percentage */
-	tmp = p_ptr->pskills[skill].cur;
+	tmp = get_virtual_skill(skill);
 
 
 	/*** Handle special cases ***/
@@ -467,6 +509,13 @@ static void practice_penalty(int skill, s32b *cost)
 	*cost += penalty;
 }
 
+/* Calculates the minumum level for calculating costs for advancement of a skill */
+
+int min_level(void)
+{
+	return MAX(1, -8 + (p_ptr->power * 8) / 10 + (p_ptr->power*p_ptr->power)/400);
+}
+
 
 /*
  * Calculate the experience point cost to raise the given skill one
@@ -519,7 +568,7 @@ s32b adv_cost(int skill, bool add_practice_cost)
 	/* Otherwise, require a minimum cost */
 	else if (p_ptr->power >= 10)
 	{
-		int tmp_pow = MAX(2, (p_ptr->power - 8) * 8 / 10);
+		int tmp_pow = min_level();
 
 		/* Minimum cost depends on character power */
 		s32b min_cost = player_exp[tmp_pow] - player_exp[tmp_pow - 1];
@@ -1446,40 +1495,43 @@ static int adv_skill(int skill, bool pay_exp)
 			p_ptr->ammo_tval = old_ammo_tval;
 		}
 
+
 		/* Wrestling */
 		if (skill == S_WRESTLING)
 		{
-			if (p_ptr->pskills[skill].max == LEV_REQ_WRESTLE_STR_BONUS1)
+			if (p_ptr->pskills[skill].max == LEV_REQ_MARTIAL_STAT1)
 				skill_comment(TERM_L_BLUE, "Your strength increases.");
-			if (p_ptr->pskills[skill].max == LEV_REQ_WRESTLE_STR_BONUS2)
+			if (p_ptr->pskills[skill].max == LEV_REQ_MARTIAL_STAT2)
 				skill_comment(TERM_L_BLUE, "Your strength increases.");
-			if (p_ptr->pskills[skill].max == LEV_REQ_WRESTLE_DEX_BONUS1)
-				skill_comment(TERM_L_BLUE, "Your dexterity increases.");
+			if (p_ptr->pskills[skill].max == LEV_REQ_MARTIAL_STAT3)
+				skill_comment(TERM_L_BLUE, "Your strength increases.");
+			if (p_ptr->pskills[skill].max == LEV_REQ_MARTIAL_FA)
+				skill_comment(TERM_L_BLUE, "You feel protected from slowing and paralysis.");
+			if (p_ptr->pskills[skill].max == LEV_REQ_MARTIAL_RESIST)
+				skill_comment(TERM_L_BLUE, "Your are no longer troubled by sound attacks.");
+			
 		}
 
 		/* Karate */
 		if (skill == S_KARATE)
-		{
-			if (p_ptr->pskills[skill].max == LEV_REQ_KARATE_STR_BONUS1)
-				skill_comment(TERM_L_BLUE, "Your strength increases.");
-			if (p_ptr->pskills[skill].max == LEV_REQ_KARATE_DEX_BONUS1)
+		{ 
+			if (p_ptr->pskills[skill].max == LEV_REQ_MARTIAL_STAT1)
 				skill_comment(TERM_L_BLUE, "Your dexterity increases.");
-			if (p_ptr->pskills[skill].max == LEV_REQ_KARATE_DEX_BONUS2)
+			if (p_ptr->pskills[skill].max == LEV_REQ_MARTIAL_STAT2)
 				skill_comment(TERM_L_BLUE, "Your dexterity increases.");
-		}
-
-		/* Spellpower */
-		if (skill == S_MPOWER)
-		{
-			/* Recalculate mana */
-			calc_mana();
-
-			/* Note current mana -- if any */
-			if (p_ptr->msp)
-			{
-				skill_comment(TERM_L_BLUE,
-					format("Your maximum mana is now %d.", p_ptr->msp));
-			}
+			if (p_ptr->pskills[skill].max == LEV_REQ_MARTIAL_STAT3)
+				skill_comment(TERM_L_BLUE, "Your dexterity increases.");
+			if (p_ptr->pskills[skill].max == LEV_REQ_MARTIAL_FA)
+				skill_comment(TERM_L_BLUE, "You feel protected from slowing and paralysis.");
+			if (p_ptr->pskills[skill].max == LEV_REQ_MARTIAL_RESIST)
+				skill_comment(TERM_L_BLUE, "Your are no longer troubled by confusion attacks.");
+			if (p_ptr->pskills[skill].max == LEV_REQ_KARATE_SPEED1)
+				skill_comment(TERM_L_BLUE, "You accelerate.");
+			if (p_ptr->pskills[skill].max == LEV_REQ_KARATE_SPEED2)
+				skill_comment(TERM_L_BLUE, "You accelerate.");
+			if (p_ptr->pskills[skill].max == LEV_REQ_KARATE_SPEED3)
+				skill_comment(TERM_L_BLUE, "You accelerate.");
+		
 		}
 
 		/* Piety */
@@ -1583,9 +1635,8 @@ static int adv_skill(int skill, bool pay_exp)
 	/* Spend experience */
 	if (pay_exp) p_ptr->exp -= cost;
 
-	/* Recalculate character power */
+	/* Recalculate character power and hitpoints */
 	calc_power();
-
 
 	/* Redraw and update some stuff (later) */
 	p_ptr->redraw |= (PR_EXP | PR_HP | PR_TITLE);
@@ -2220,8 +2271,11 @@ static void print_all_skills(bool must_accept)
 		prt("                 RETURN) Accept             ?) Get help      ",
 			24, 5);
 
-	c_prt(TERM_L_BLUE, format("Power: %d", p_ptr->power), 24, 69);
-
+	c_prt(TERM_L_BLUE, format("Min Level: %2d    Power: %d", min_level(), p_ptr->power), 22, 52);
+	calc_hitpoints();
+	c_prt(TERM_L_GREEN, format("HP: %d", p_ptr->mhp), 23, 69);
+	calc_mana();
+	if(p_ptr->msp) c_prt(TERM_L_GREEN, format("SP: %d", p_ptr->msp), 24, 69);
 
 	/* Center realm description */
 	center_string(buf, sizeof(buf), realm_desc(), 78);
@@ -2254,92 +2308,6 @@ static void raise_other_skills(int skill)
 		if (level > p_ptr->pskills[S_DISARM].max)
 		{
 			if (level % 4 != 0) (void)adv_skill(S_DISARM, FALSE);
-		}
-
-		/* Raise perception 1/3rd as fast as burglary rises */
-		if (level > p_ptr->pskills[S_PERCEPTION].max)
-		{
-			if (level % 3 == 0) (void)adv_skill(S_PERCEPTION, FALSE);
-		}
-
-		/* Raise stealth 1/3rd as fast as burglary rises */
-		if (level > p_ptr->pskills[S_STEALTH].max)
-		{
-			if (level % 3 == 1) (void)adv_skill(S_STEALTH, FALSE);
-		}
-
-		/* Raise dodging 1/4th as fast as burglary rises */
-		if (level > p_ptr->pskills[S_DODGING].max)
-		{
-			if (level % 4 == 2) (void)adv_skill(S_DODGING, FALSE);
-		}
-	}
-
-	/* Swordsmanship */
-	if (skill == S_SWORD)
-	{
-		/* Raise jousting 1/2th as fast as swordsmanship rises */
-		if (level > p_ptr->pskills[S_POLEARM].max)
-		{
-			if (level % 2 == 0) (void)adv_skill(S_POLEARM, FALSE);
-		}
-
-		/* Raise clubbing 1/4th as fast as swordsmanship rises */
-		if (level > p_ptr->pskills[S_HAFTED].max)
-		{
-			if (level % 4 == 2) (void)adv_skill(S_HAFTED, FALSE);
-		}
-	}
-
-	/* Clubbing */
-	if (skill == S_HAFTED)
-	{
-		/* Raise swordsmanship 1/4th as fast as clubbing rises */
-		if (level > p_ptr->pskills[S_SWORD].max)
-		{
-			if (level % 4 == 0) (void)adv_skill(S_SWORD, FALSE);
-		}
-
-		/* Raise jousting 1/4th as fast as clubbing rises */
-		if (level > p_ptr->pskills[S_POLEARM].max)
-		{
-			if (level % 4 == 2) (void)adv_skill(S_POLEARM, FALSE);
-		}
-	}
-
-	/* Jousting */
-	if (skill == S_POLEARM)
-	{
-		/* Raise swordsmanship 1/2th as fast as jousting rises */
-		if (level > p_ptr->pskills[S_SWORD].max)
-		{
-			if (level % 2 == 0) (void)adv_skill(S_SWORD, FALSE);
-		}
-
-		/* Raise clubbing 1/4th as fast as jousting rises */
-		if (level > p_ptr->pskills[S_HAFTED].max)
-		{
-			if (level % 4 == 2) (void)adv_skill(S_HAFTED, FALSE);
-		}
-	}
-
-	/* Crossbows */
-	if (skill == S_CROSSBOW)
-	{
-		/* Raise bows 1/2th as fast as crossbows rises */
-		if (level > p_ptr->pskills[S_BOW].max)
-		{
-			if (level % 2 == 0) (void)adv_skill(S_BOW, FALSE);
-		}
-	}
-
-	/* Bows */
-	if (skill == S_BOW)
-	{
-		/* Raise crossbows 1/2th as fast as bows rises */
-		if (level > p_ptr->pskills[S_CROSSBOW].max)
-		{
-			if (level % 2 == 0) (void)adv_skill(S_CROSSBOW, FALSE);
 		}
 	}
 }
@@ -2776,6 +2744,7 @@ void do_cmd_skills(void)
 		{
 			bell("Illegal skill option.");
 		}
+
 	}
 
 	/* Remember selected skill */

@@ -4080,6 +4080,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 	int floor_list[MAX_FLOOR_STACK];
 	int floor_num = 0;
+	int total_choices;
 
 	/* Get the item index */
 	if (repeat_pull(cp))
@@ -4136,7 +4137,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	e2 = INVEN_TOTAL - 1;
 
 	/* Forbid equipment */
-	if (!use_equip) e2 = -1;
+	if (!use_equip) e2 = INVEN_WIELD - 1;
 
 	/* Restrict equipment indexes */
 	while ((e1 <= e2) && (!get_item_okay(e1))) e1++;
@@ -4166,6 +4167,9 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Accept floor */
 	if (f1 <= f2) allow_floor = TRUE;
 
+	/* Calulate total number of choices for USE_AUTO */
+	total_choices = (f2 - f1 + 1) + (e2 - e1 + 1) + (i2 - i1 + 1);
+
 	/* Require at least one legal choice */
 	if (!allow_inven && !allow_equip && !allow_floor)
 	{
@@ -4178,6 +4182,36 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		/* Done */
 		done = TRUE;
 	}
+
+	/* If there is only one item, and USE_AUTO is requested
+	 * Then choose it and return the item -JM
+	 */
+	else if(total_choices == 1 && (mode & USE_AUTO) )
+	{
+		item = TRUE;
+		if(allow_inven) *cp = i1;
+		else if (allow_floor) *cp = 0 - floor_list[f1];
+		else if (allow_equip) *cp = e1;
+		else
+		{
+			msg_format("Error selecting item!");
+			item = (FALSE);
+		}
+
+		/* Forget the item_tester_tval restriction */
+		item_tester_tval = 0;
+
+		/* Forget the item_tester_hook restriction */
+		item_tester_hook = NULL;
+
+		/* Forget the slot_tester_hook restriction */
+		slot_tester_hook = NULL;
+
+
+		return item;
+
+	}
+
 
 	/* Analyze choices */
 	else

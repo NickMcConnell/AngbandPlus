@@ -5236,7 +5236,6 @@ void do_cmd_quest(void)
 	else msg_print("You are not currently undertaking a quest.");
 }
 
-
 /*
  * Translates screen characters to ascii characters -JM-
  */
@@ -5480,6 +5479,7 @@ static void text_screenshot(cptr name)
 	/* Close it */
 	(void)my_fclose(fp);
 }
+
 
 /*
  * Hack -- save a screen dump to a file.  Choose between B&W text

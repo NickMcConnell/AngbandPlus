@@ -917,11 +917,10 @@ static int choose_ranged_attack(int m_idx, bool archery_only)
 
 	bool do_random = FALSE;
 
-	bool require_los = TRUE;
-
 	bool is_harass = FALSE;
 	bool is_best_harass = FALSE;
 	bool is_breath = FALSE;
+	bool require_los = TRUE;
 
 	int i, py = p_ptr->py, px = p_ptr->px;
 	int breath_hp, breath_maxhp, path, spaces;
@@ -931,6 +930,8 @@ static int choose_ranged_attack(int m_idx, bool archery_only)
 
 	int best_spell=0, best_spell_rating=0;
 	int cur_spell_rating;
+	int splash_path=0;
+	int test_y, test_x;
 
 	/* Extract the racial spell flags */
 	f4 = r_ptr->flags4;
@@ -940,16 +941,6 @@ static int choose_ranged_attack(int m_idx, bool archery_only)
 
 	/* Check what kinds of spells can hit player */
 	path=projectable(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px, PROJECT_CHCK);
-
-	/* do we have the player in sight at all? */
-	if (path==PROJECT_NO)
-	{
-		/* Flat out 75% chance of not casting if the player is not in sight */
-		/* In addition, most spells don't work without a player around */
-		if (!one_in_(4)) return (0);
-
-		require_los=FALSE;
-	}
 
 	/* Special case -- Angels avoid users of holy lore */
 	if ((p_ptr->realm == PRIEST) && (r_ptr->d_char == 'A') &&
@@ -973,16 +964,57 @@ static int choose_ranged_attack(int m_idx, bool archery_only)
 		/* choose at random from restricted list */
 		return (choose_attack_spell_fast(m_idx, &f4, &f5, &f6, &f7, TRUE));
 	}
-
-	/* Remove spells the 'no-brainers'*/
-	/* Spells that require LOS */
-	if (!require_los)
+	/* do we have the player in sight at all? */
+	else if (path==PROJECT_NO)
 	{
-		f4 &= (RF4_NO_PLAYER_MASK);
-		f5 &= (RF5_NO_PLAYER_MASK);
-		f6 &= (RF6_NO_PLAYER_MASK);
-		f7 &= (RF7_NO_PLAYER_MASK);
+		require_los = FALSE;
+
+
+		/* Let's see if we can splash the player with ball damage */
+		/* Can't splash damage into a wall */
+		if(!(cave_wall_bold(py, px)))
+		{
+			for (test_y = py - 1 ; test_y <= py + 1; test_y++)
+			{
+				for (test_x = px - 1 ; test_x <= px + 1; test_x++)
+				{
+					/* Don't want to project ball spells onto unprojectable squares */
+					if(!cave_project_bold(test_y, test_x)) continue;
+
+					splash_path = projectable(m_ptr->fy, m_ptr->fx, test_y, test_x, PROJECT_CHCK);
+					if(splash_path) break;
+				}
+			}
+
+		}
+		/* Monsters will abuse LOS with ball spells, summoning, and normal out of range spells */
+		/* Quest monsters don't mind casting all the time */
+		if(splash_path && one_in_(2))
+		{
+			/* Only abuse LOS half the time */
+			f4 &= (RF4_BALL_MASK | RF4_NO_PLAYER_MASK | RF4_SUMMON_MASK);
+			f5 &= (RF5_BALL_MASK | RF5_NO_PLAYER_MASK | RF5_SUMMON_MASK);
+			f6 &= (RF6_BALL_MASK | RF6_NO_PLAYER_MASK | RF6_SUMMON_MASK);
+			f7 &= (RF7_BALL_MASK | RF7_NO_PLAYER_MASK | RF7_SUMMON_MASK);
+		
+		}
+
+		/* Flat out 75% chance of not casting if the player is not in sight */
+		/* In addition, most spells don't work without a player around */
+		/* Quest monsters don't mind casting all the time */
+		else if (one_in_(4) || r_ptr->flags1 & RF1_QUESTOR)
+		{
+			f4 &= (RF4_NO_PLAYER_MASK);
+			f5 &= (RF5_NO_PLAYER_MASK);
+			f6 &= (RF6_NO_PLAYER_MASK);
+			f7 &= (RF7_NO_PLAYER_MASK);
+		}
+		else
+		{
+			return (0);
+		}
 	}
+
 	else if (path==PROJECT_NOT_CLEAR)
 	{
 		f4 &= ~(RF4_BOLT_MASK);
@@ -1340,6 +1372,12 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 			if (r_ptr->mexp == nr_ptr->mexp) move_chance = 40;
 			else move_chance = 80;
 		}
+
+		/* Uniques are better at pushing past monsters */
+		if (r_ptr->flags1 & (RF1_UNIQUE)) move_chance += 20;
+		
+		/* Make sure return value does not exceed 100 */
+		if(move_chance > 100) move_chance = 100;
 
 		/* Cannot do anything to clear away the other monster */
 		else return (0);

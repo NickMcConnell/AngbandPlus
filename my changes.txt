@@ -33,28 +33,66 @@ Other changes I've noticed so far not done by me
 
 Bugfixes
 --------
-* Chest (Strange Magiks) will no longer spawn themselves when teleporting
-* Restoring skills via '+' command should now be equivalent to restoring via '!' command
-* Cancelling genocide spell or scroll no longer costs a turn and mana/scroll
-* Equipping items now requests quantity before activating hidden curses
-* Doomcaller now has res_chaos flag
-* If you add un ided wand into other unided wands, they improperly identify
-* Needle traps now check for the correct sustain
-* Monsters will trigger traps even when players are not within sight range
-* Small bug in randart cursing fixed
-* Monsters may now cast spells into the first square of rock to prevent abuse of wraithform (Be wary -- ball and bolt spells will still affect the player, even though breath weapons will not)
-* Non-stupid monsters will not breathe at you if you are in the walls (i.e. wraithformed)
-* Holy casters will no longer get Angels for quests
-* Involuntary movement now disturbs the player
-* Activating Palantir now correctly references monster gender
-* Player now correctly emits no light when light radius is zero.
-* Autoroller now assigns stats in the correct order
-* Running code should work properly now.
-* Screenshots should now work correctly.
-* Crafting of shots should work correctly.
-* Colors of missle weapons should work correctly.
-* Secret doors now act properly when moving into them.
++ Chest (Strange Magiks) will no longer spawn themselves when teleporting.
++ Restoring skills via '+' command should now be equivalent to restoring via '!' command.
++ Cancelling genocide spell or scroll no longer costs a turn and mana/scroll.
++ Equipping items now requests quantity before activating hidden curses.
++ Doomcaller now has res_chaos flag.
++ Wands identify correctly when stacked.
++ Needle traps now check for the correct sustain.
++ Monsters will trigger traps even when players are not within sight range.
++ Small bug in randart cursing fixed.
++ Monsters may now cast spells into the first square of rock to prevent abuse of wraithform (Be wary -- ball and bolt spells will still affect the player, even though breath weapons will not).
++ Non-stupid monsters will not breathe at you if you are in the walls (i.e. wraithformed).
++ Holy casters will no longer get Angels for quests.
++ Involuntary movement now disturbs the player.
++ Activating Palantir now correctly references monster gender.
++ Monsters won't cast tele_to if you're already next to them.
++ Player now correctly emits no light when light radius is zero.
++ Autoroller now assigns stats in the correct order
++ run_ignore_doors now ignores only closed doors.
++ Secret doors now act properly when moving into them.
++ Running code should work properly now.
++ Crafting of shots now requires *either* throwing or slings skill to be effective.
+
+Unfixed Bugs
+------------
+* Sometimes scrolls show up as colored '='.
+* Would be nice to make the cursor disappear on the skills screen.
 
 Prettyifying
 ------------
-* Spell fail text changed for Priests and Druids
++ Spell fail text changed for Priests and Druids.
++ Dousing a light source will not require selecting an item if you have only one item available
++ Total investment in a store is now displayed in the store when investing
++ Time will be displayed on the Character Screen
++ Number of player actions and resting actions is recorded (in char dump) 
++ Messages for barehanded attacks changed
++ HP and SP and level of minimum cost are displayed on the skills screen
++ Scrolls let you know if they can be read in the dark
++ Commands in the inn switched to a, b, c to recieve quests to avoid problems with the numpad.
+
+Balance
+-------
+Major
++ More expensive to raise skills that are not particularly high.
++ Related skill increases (swords/hafted/polearms and bows/xbows) are virtual rather than actual.  A minimum level of competence is guaranteed, but the skill level is not increased.
++ Burglary now only increases disarming, and costs much less.  The increase to disarming is not virtual.
++ Many skill costs tweaked (swords, polearms, clubs, karate, wrestling, magic devices, armor crafting, weaponsmithing, bowmaking, alchemy, and infusion).
++ Shadowstalker now more playable -- can casts spells in dark (with penalty), infravision reveals terrain, read some scrolls.
++ Improved hit chance at low levels.
++ Monsters will now splash ball and summoning spells around corners.
++ Martial arts changed greatly.  Karate gives dex, speed, free action, and res_conf, while wrestling gives str, hp, tunnelling, free action, and res_sound.  Karate gives 2 to 6 blows, wrestling 2 to 4.  The bonuses for martial arts do not go away when a weapon is wielded.  Martial arts damage should be better in the endgame, a tad worse in the early game, and interesting in the middle game.  This is something of a work in progress.
+
+Minor
++ Perception grants some infravision.
++ Uniques have a better chance of pushing past monsters.
++ Shadow cloaks and more artifacts give invisibility, as do some artifacts.
++ Added !Xok, the tussler unique.
++ Narya and Nenya changed a fair bit.
++ *ID* now gives fail rates on magic devices, and always show charges on wands and staves.
++ Slays increase to hit chance somewhat.
++ Fame will increase quality of goods in the store.
++ Hallucination from chaos damage will last somewhat less long.
++ Attempting to activate or attack when it is not possible will not take a turn
++ Spellcasters with a low stat (under 18) will have a reduced spellpower, resulting in getting spells later.

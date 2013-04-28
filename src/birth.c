@@ -1715,7 +1715,6 @@ static bool player_birth_aux_2(bool quick_start)
 				/* Indicate the state */
 				put_str("(Hit ESC to stop)", 12, col+13);
 
-
 				/* Remove racial bonuses from stat_limit */
 				for (i = 0; i < A_MAX; i++)
 				{
@@ -1748,7 +1747,6 @@ static bool player_birth_aux_2(bool quick_start)
 				{
 					stat_limit[i] += rp_ptr->r_adj[i];
 				}
-
 
 
 				/*

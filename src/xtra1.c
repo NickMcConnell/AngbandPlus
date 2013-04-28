@@ -3667,8 +3667,8 @@ static void calc_spells(void)
 	/* Determine spell-casting level */
 	level = get_skill(S_MAGIC, 0, 100);
 
-	/* Adjust for low stat */
-	if (stat < 18) level = level * stat / 18;
+	/* Adjust for low stat (below 18) */
+	if (stat < 15) level = level * stat / 15;
 
 	/* Save our new spell level */
 	p_ptr->spell_level = level;
@@ -3930,7 +3930,7 @@ void calc_mana(void)
  *
  * Adjust current hitpoints if necessary
  */
-static void calc_hitpoints(void)
+extern void calc_hitpoints(void)
 {
 	int bonus, mhp;
 
@@ -4370,6 +4370,7 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, bool shape, bool modify)
 	int to_d = 0;
 
 	int weapon_skill;
+	int skill;
 
 	/* Set to the racial flags */
 	*f1 = rp_ptr->flags1;
@@ -4389,15 +4390,21 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, bool shape, bool modify)
 	/* Get non-magical combat skill */
 	weapon_skill = sweapon(inventory[INVEN_WIELD].tval);
 
-	/* Special immunities for high-level martial arts experts */
-	if ((weapon_skill == S_KARATE) || (weapon_skill == S_WRESTLING))
-	{
-		int skill = get_skill(weapon_skill, 0, 100);
+	/*
+	 * Special immunities for high-level martial arts experts
+	 * No longer requires character to be fighting with karate or wrestling -JM-
+	 */
 
-		if (skill >= 86) *f3 |= (TR3_FREE_ACT);
-		if (skill >= 92) *f2 |= (TR2_RES_SOUND);
-		if (skill >= 98) *f2 |= (TR2_RES_CONFU);
-	}
+	/* Karate bonuses */
+	skill = get_skill(S_KARATE, 0, 100);
+	if (skill >= LEV_REQ_MARTIAL_FA) *f3 |= (TR3_FREE_ACT);
+	if (skill >= LEV_REQ_MARTIAL_RESIST) *f2 |= (TR2_RES_CONFU);
+
+	/* Wrestling bonuses */
+	skill = get_skill(S_WRESTLING, 0, 100);
+	if (skill >= LEV_REQ_MARTIAL_FA) *f3 |= (TR3_FREE_ACT);
+	if (skill >= LEV_REQ_MARTIAL_RESIST) *f2 |= (TR2_RES_SOUND);
+
 
 	/* Wizardly protection */
 	if (p_ptr->wiz_prot)
@@ -4720,6 +4727,9 @@ int player_flags_pval(u32b flag_pval, bool shape)
 	/* Handle racial modifiers to infravision */
 	if (flag_pval == TR_PVAL_INFRA) pval += rp_ptr->infra;
 
+	/* Handle perception modifiers to infravision */
+	if (flag_pval == TR_PVAL_INFRA) pval += MAX(0, get_skill(S_PERCEPTION, -1, 4));
+
 	/* Giants are great at tunneling */
 	if (flag_pval == TR_PVAL_TUNNEL)
 	{
@@ -4781,21 +4791,26 @@ int player_flags_pval(u32b flag_pval, bool shape)
 	if (flag_pval == TR_PVAL_STR)
 	{
 		int skill = get_skill(S_WRESTLING, 0, 100);
-		if (skill >= LEV_REQ_WRESTLE_STR_BONUS1) pval++;
-		if (skill >= LEV_REQ_WRESTLE_STR_BONUS2) pval++;
-
-		skill = get_skill(S_KARATE, 0, 100);
-		if (skill >= LEV_REQ_KARATE_STR_BONUS1) pval++;
+		if (skill >= LEV_REQ_MARTIAL_STAT1) pval++;
+		if (skill >= LEV_REQ_MARTIAL_STAT2) pval++;
+		if (skill >= LEV_REQ_MARTIAL_STAT3) pval++;
 	}
 	if (flag_pval == TR_PVAL_DEX)
 	{
 		int skill = get_skill(S_KARATE, 0, 100);
-		if (skill >= LEV_REQ_KARATE_DEX_BONUS1) pval++;
-		if (skill >= LEV_REQ_KARATE_DEX_BONUS2) pval++;
-
-		skill = get_skill(S_WRESTLING, 0, 100);
-		if (skill >= LEV_REQ_WRESTLE_DEX_BONUS1) pval++;
+		if (skill >= LEV_REQ_MARTIAL_STAT1) pval++;
+		if (skill >= LEV_REQ_MARTIAL_STAT2) pval++;
+		if (skill >= LEV_REQ_MARTIAL_STAT3) pval++;
 	}
+
+	if (flag_pval == TR_PVAL_SPEED)
+	{
+		int skill = get_skill(S_KARATE, 0, 100);
+		if(skill >= LEV_REQ_KARATE_SPEED1) pval++;
+		if(skill >= LEV_REQ_KARATE_SPEED2) pval++;
+		if(skill >= LEV_REQ_KARATE_SPEED3) pval++;
+	}
+
 
 	/* Handle wrestling bonus to digging */
 	if (flag_pval == TR_PVAL_TUNNEL) pval += get_skill(S_WRESTLING, 0, 3);
@@ -5130,8 +5145,21 @@ static void analyze_weapons(void)
 	/* Using bare-handed combat */
 	else
 	{
-		/* Two blows in all circumstances */
-		p_ptr->num_blow = 2;
+		/* Karate gets up to 6 attacks */
+		if (p_ptr->barehand == S_KARATE)
+		{
+			int str_factor   = get_skill(S_KARATE,0,11);
+			p_ptr->num_blow  = blows_table[MIN(11,str_factor)]
+				                          [MIN(11,adj_dex_blow[p_ptr->stat_ind[A_DEX]])];
+		}
+
+		/* Wrestling gets up to 4 attacks */
+		else
+		{
+			int dex_factor  = get_skill(S_WRESTLING,0,5);
+			p_ptr->num_blow  = blows_table[MIN(11,adj_str_blow[p_ptr->stat_ind[A_STR]]/15)]
+										  [MIN(11,dex_factor)];
+		}
 
 		/* Note that we are bare-handed */
 		p_ptr->barehanded = TRUE;
@@ -5477,9 +5505,7 @@ static void calc_bonuses(void)
 	/* Melee Combat (ranges from ~12 to ~140 (~200 with martial arts)) */
 	p_ptr->skill_thn  = 10 + rp_ptr->r_thn;
 	p_ptr->skill_thn += add_special_melee_skill();
-
-	if (get_skill(weapon_skill, 0, 100))
-		p_ptr->skill_thn += get_skill_race(weapon_skill, 5, 115);
+	p_ptr->skill_thn += get_skill_race(weapon_skill, 8, 115);
 
 	/* Hack -- special bonus for high-level martial arts experts */
 	if ((weapon_skill == S_KARATE) || (weapon_skill == S_WRESTLING))
@@ -5487,7 +5513,7 @@ static void calc_bonuses(void)
 		int ma_bonus = get_skill(weapon_skill, -60, 20);
 		if (ma_bonus > 0)
 		{
-			/* Bonus is exponential -- goes up to 60 */
+			/* Bonus is quadratic -- goes up to 60 */
 			p_ptr->skill_thn += ma_bonus * (10 + ma_bonus) / 10;
 		}
 	}
@@ -5495,16 +5521,12 @@ static void calc_bonuses(void)
 
 	/* Ranged Combat (ranges from ~11 (with skill of 1) to ~140) */
 	p_ptr->skill_thb = 10 + rp_ptr->r_thb;
-
-	if (get_skill(bow_skill, 0, 100))
-		p_ptr->skill_thb += get_skill_race(bow_skill, 5, 115);
+	p_ptr->skill_thb += get_skill_race(bow_skill, 10, 115);
 
 
 	/* Throwing (ranges from ~15 (with skill of 1) to ~140) */
 	p_ptr->skill_tht = 10 + rp_ptr->r_tht;
-
-	if (get_skill(S_THROWING, 0, 100))
-		p_ptr->skill_tht += get_skill_race(S_THROWING, 5, 115);
+	p_ptr->skill_tht += get_skill_race(S_THROWING, 10, 115);
 
 
 
@@ -5562,62 +5584,6 @@ static void calc_bonuses(void)
 	if (f3 & (TR3_AGGRAVATE))      p_ptr->aggravate     = TRUE;
 	if (f3 & (TR3_DRAIN_EXP))      p_ptr->drain_exp     = TRUE;
 	if (f3 & (TR3_DRAIN_HP))       p_ptr->being_crushed = TRUE;
-
-
-	/*** Cancellation of flags ***/
-
-	/* Extract the player cancellation flags (including shapechanges) */
-	player_flags_cancel(&f1, &f2, &f3, TRUE);
-
-	/* Sustain flags */
-	if (f1 & (TR1_SUST_STR))       p_ptr->sustain_str   = FALSE;
-	if (f1 & (TR1_SUST_INT))       p_ptr->sustain_int   = FALSE;
-	if (f1 & (TR1_SUST_WIS))       p_ptr->sustain_wis   = FALSE;
-	if (f1 & (TR1_SUST_DEX))       p_ptr->sustain_dex   = FALSE;
-	if (f1 & (TR1_SUST_CON))       p_ptr->sustain_con   = FALSE;
-	if (f1 & (TR1_SUST_CHR))       p_ptr->sustain_chr   = FALSE;
-
-	/* Immunity flags */
-	if (f2 & (TR2_IM_ACID))        p_ptr->immune_acid   = FALSE;
-	if (f2 & (TR2_IM_ELEC))        p_ptr->immune_elec   = FALSE;
-	if (f2 & (TR2_IM_FIRE))        p_ptr->immune_fire   = FALSE;
-	if (f2 & (TR2_IM_COLD))        p_ptr->immune_cold   = FALSE;
-
-	/* Resistance flags */
-	if (f2 & (TR2_RES_ACID))       p_ptr->resist_acid   = FALSE;
-	if (f2 & (TR2_RES_ELEC))       p_ptr->resist_elec   = FALSE;
-	if (f2 & (TR2_RES_FIRE))       p_ptr->resist_fire   = FALSE;
-	if (f2 & (TR2_RES_COLD))       p_ptr->resist_cold   = FALSE;
-	if (f2 & (TR2_RES_POIS))       p_ptr->resist_pois   = FALSE;
-	if (f2 & (TR2_RES_LITE))       p_ptr->resist_lite   = FALSE;
-	if (f2 & (TR2_RES_DARK))       p_ptr->resist_dark   = FALSE;
-	if (f2 & (TR2_RES_FEAR))       p_ptr->resist_fear   = FALSE;
-	if (f2 & (TR2_RES_BLIND))      p_ptr->resist_blind  = FALSE;
-	if (f2 & (TR2_RES_CONFU))      p_ptr->resist_confu  = FALSE;
-	if (f2 & (TR2_RES_SOUND))      p_ptr->resist_sound  = FALSE;
-	if (f2 & (TR2_RES_SHARD))      p_ptr->resist_shard  = FALSE;
-	if (f2 & (TR2_RES_NEXUS))      p_ptr->resist_nexus  = FALSE;
-	if (f2 & (TR2_RES_NETHR))      p_ptr->resist_nethr  = FALSE;
-	if (f2 & (TR2_RES_CHAOS))      p_ptr->resist_chaos  = FALSE;
-	if (f2 & (TR2_RES_DISEN))      p_ptr->resist_disen  = FALSE;
-
-	/* Miscellaneous flags */
-	if (f3 & (TR3_SLOW_DIGEST))    p_ptr->slow_digest   = FALSE;
-	if (f3 & (TR3_FEATHER))        p_ptr->ffall         = FALSE;
-	if (f3 & (TR3_LITE))           p_ptr->glowing       = FALSE;
-	if (f3 & (TR3_REGEN))          p_ptr->regenerate    = FALSE;
-	if (f3 & (TR3_TELEPATHY))      p_ptr->telepathy     = FALSE;
-	if (f3 & (TR3_SEE_INVIS))      p_ptr->see_inv       = FALSE;
-	if (f3 & (TR3_FREE_ACT))       p_ptr->free_act      = FALSE;
-	if (f3 & (TR3_HOLD_LIFE))      p_ptr->hold_life     = FALSE;
-	if (f3 & (TR3_BLESSED))        p_ptr->bless_blade   = FALSE;
-
-	/* Bad flags */
-	if (f3 & (TR3_NOMAGIC))        p_ptr->nomagic       = FALSE;
-	if (f3 & (TR3_TELEPORT))       p_ptr->teleport      = FALSE;
-	if (f3 & (TR3_AGGRAVATE))      p_ptr->aggravate     = FALSE;
-	if (f3 & (TR3_DRAIN_EXP))      p_ptr->drain_exp     = FALSE;
-	if (f3 & (TR3_DRAIN_HP))       p_ptr->being_crushed = FALSE;
 
 
 
@@ -5949,6 +5915,60 @@ static void calc_bonuses(void)
 		}
 	}
 
+	/*** Cancellation of flags ***/
+
+	/* Extract the player cancellation flags (including shapechanges) */
+	player_flags_cancel(&f1, &f2, &f3, TRUE);
+
+	/* Sustain flags */
+	if (f1 & (TR1_SUST_STR))       p_ptr->sustain_str   = FALSE;
+	if (f1 & (TR1_SUST_INT))       p_ptr->sustain_int   = FALSE;
+	if (f1 & (TR1_SUST_WIS))       p_ptr->sustain_wis   = FALSE;
+	if (f1 & (TR1_SUST_DEX))       p_ptr->sustain_dex   = FALSE;
+	if (f1 & (TR1_SUST_CON))       p_ptr->sustain_con   = FALSE;
+	if (f1 & (TR1_SUST_CHR))       p_ptr->sustain_chr   = FALSE;
+
+	/* Immunity flags */
+	if (f2 & (TR2_IM_ACID))        p_ptr->immune_acid   = FALSE;
+	if (f2 & (TR2_IM_ELEC))        p_ptr->immune_elec   = FALSE;
+	if (f2 & (TR2_IM_FIRE))        p_ptr->immune_fire   = FALSE;
+	if (f2 & (TR2_IM_COLD))        p_ptr->immune_cold   = FALSE;
+
+	/* Resistance flags */
+	if (f2 & (TR2_RES_ACID))       p_ptr->resist_acid   = FALSE;
+	if (f2 & (TR2_RES_ELEC))       p_ptr->resist_elec   = FALSE;
+	if (f2 & (TR2_RES_FIRE))       p_ptr->resist_fire   = FALSE;
+	if (f2 & (TR2_RES_COLD))       p_ptr->resist_cold   = FALSE;
+	if (f2 & (TR2_RES_POIS))       p_ptr->resist_pois   = FALSE;
+	if (f2 & (TR2_RES_LITE))       p_ptr->resist_lite   = FALSE;
+	if (f2 & (TR2_RES_DARK))       p_ptr->resist_dark   = FALSE;
+	if (f2 & (TR2_RES_FEAR))       p_ptr->resist_fear   = FALSE;
+	if (f2 & (TR2_RES_BLIND))      p_ptr->resist_blind  = FALSE;
+	if (f2 & (TR2_RES_CONFU))      p_ptr->resist_confu  = FALSE;
+	if (f2 & (TR2_RES_SOUND))      p_ptr->resist_sound  = FALSE;
+	if (f2 & (TR2_RES_SHARD))      p_ptr->resist_shard  = FALSE;
+	if (f2 & (TR2_RES_NEXUS))      p_ptr->resist_nexus  = FALSE;
+	if (f2 & (TR2_RES_NETHR))      p_ptr->resist_nethr  = FALSE;
+	if (f2 & (TR2_RES_CHAOS))      p_ptr->resist_chaos  = FALSE;
+	if (f2 & (TR2_RES_DISEN))      p_ptr->resist_disen  = FALSE;
+
+	/* Miscellaneous flags */
+	if (f3 & (TR3_SLOW_DIGEST))    p_ptr->slow_digest   = FALSE;
+	if (f3 & (TR3_FEATHER))        p_ptr->ffall         = FALSE;
+	if (f3 & (TR3_LITE))           p_ptr->glowing       = FALSE;
+	if (f3 & (TR3_REGEN))          p_ptr->regenerate    = FALSE;
+	if (f3 & (TR3_TELEPATHY))      p_ptr->telepathy     = FALSE;
+	if (f3 & (TR3_SEE_INVIS))      p_ptr->see_inv       = FALSE;
+	if (f3 & (TR3_FREE_ACT))       p_ptr->free_act      = FALSE;
+	if (f3 & (TR3_HOLD_LIFE))      p_ptr->hold_life     = FALSE;
+	if (f3 & (TR3_BLESSED))        p_ptr->bless_blade   = FALSE;
+
+	/* Bad flags */
+	if (f3 & (TR3_NOMAGIC))        p_ptr->nomagic       = FALSE;
+	if (f3 & (TR3_TELEPORT))       p_ptr->teleport      = FALSE;
+	if (f3 & (TR3_AGGRAVATE))      p_ptr->aggravate     = FALSE;
+	if (f3 & (TR3_DRAIN_EXP))      p_ptr->drain_exp     = FALSE;
+	if (f3 & (TR3_DRAIN_HP))       p_ptr->being_crushed = FALSE;
 
 	/*** Temporary conditions ***/
 

@@ -265,16 +265,16 @@ Y:always_pickup
 X:query_floor
 
 # Option 'Never haggle in stores'
-X:never_haggle
+Y:never_haggle
 
 # Option 'Use old target by default'
 X:use_old_target
 
 # Option 'Ignore stairs when running'
-Y:run_ignore_stairs
+X:run_ignore_stairs
 
 # Option 'Ignore doors when running'
-Y:run_ignore_doors
+X:run_ignore_doors
 
 # Option 'Cut corners when running'
 X:run_cut_corners
@@ -286,7 +286,7 @@ Y:xchars_to_file
 Y:stack_force_notes
 
 # Option 'Merge discounts when stacking'
-X:stack_force_costs
+Y:stack_force_costs
 
 # Option 'Allow quantity specification'
 Y:allow_quantity
@@ -628,7 +628,7 @@ D:4
 H:4
 
 # Autosave  (autosave, frequency)
-a:1:1000
+a:1:500
 
 # Screen  (force_25_rows, text_50_rows, map rows, y-margin, x-margin)
 t:1:0:22:2:4
@@ -637,12 +637,3 @@ t:1:0:22:2:4
 # If marked, changes above will be deleted and replaced automatically.
 #
 ### (Automatic deletion marker) ### end Options dump
-
-# Color of slings
-#E:25:u
-
-# Color of bows
-#E:26:u
-
-# Color of crossbows
-#E:27:u

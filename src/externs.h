@@ -133,6 +133,8 @@ extern s16b old_monster_level;
 extern s16b project_immune;
 extern s32b turn;
 extern s32b old_turn;
+extern s32b player_turn;
+extern s32b resting_turn;
 extern bool use_sound;
 extern bool use_graphics;
 extern bool use_transparency;
@@ -457,6 +459,7 @@ extern int device_chance(const object_type *o_ptr);
 extern void use_device(int tval);
 extern cptr do_activation_aux(int mode, object_type *o_ptr);
 extern void do_cmd_activate(void);
+extern bool dark_read_scroll(int sval);
 
 
 /* dungeon.c */
@@ -1129,6 +1132,7 @@ extern void player_flags(u32b *f1, u32b *f2, u32b *f3, bool shape, bool modify);
 extern void player_flags_cancel(u32b *f1, u32b *f2, u32b *f3, bool shape);
 extern int missile_bonus(u32b flag_pval, int skill);
 extern int player_flags_pval(u32b flag_pval, bool shape);
+extern void calc_hitpoints(void);
 
 
 /* xtra2.c */
