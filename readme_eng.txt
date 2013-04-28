@@ -3,8 +3,8 @@
 --- UNIX
   Download source archive and try...
 
-  tar -zxvf hengband-x.x.x.tar.gz
-  cd hengband-x.x.x
+  tar -zxvf entroband-x.x.x.tar.gz
+  cd entroband-x.x.x
   ./configure --disable-japanese
   make install
 
@@ -13,11 +13,10 @@
   If you are a super user, --with-setgid=games option works.
 
   then try
-  ./hengband -- -n<number of windows>  ## for normal ASCII graphics
+  ./entroband -- -n<number of windows>  ## for normal ASCII graphics
   or
-  ./hengband -g -- -n<# of windows>    ## for 8x8 tile graphics 
-  ./hengband -g -- -b -n<# of windows> ## for Bigtile graphics
-  ./hengband -g -- -a -n<# of windows> ## for 16x16 tile (need heng_graf.tar.gz)
+  ./entroband -g -- -n<# of windows>    ## for 8x8 tile graphics 
+  ./entroband -g -- -b -n<# of windows> ## for Bigtile graphics
   to play.
 
 You can change game windows' font, location, and size, by environment 
@@ -25,7 +24,7 @@ variables.
 
 Ex.
 setenv ANGBAND_X11_FONT '-*-*-medium-r-normal--24-*-*-*-*-*-iso8859-1'
-hengband -- -n
+entroband -- -n
 
 Then font size will be changed.
 
@@ -38,7 +37,7 @@ Size of windows are ANGBAND_X11_COLS_n, and ANGBAND_X11_ROWS_n.
 --- Windows
 
 Download the binary archive for Windows.
-Unzip it, and click hengband to play.
+Unzip it, and click entroband to play.
 
 The makefile.bcc was changed again.
 If you want to compile from the source with borland compiler (BCC),
@@ -56,7 +55,7 @@ or makefile.dos before MAKE with these.
 --- Macintosh
 
 Download the binary archive for Macintosh.
-Unpack it, and click hengband to play.
+Unpack it, and click entroband to play.
 
 
 
@@ -165,7 +164,7 @@ keyset, and by pushing 'x' in the Rogue-like keyset.
 
 --- Inscriptions
 
-Below, only the new features in Hengband are explained.
+Below, only the new features in Entroband are explained.
 
 - You can inscribe on objects with "@ma" or '@'+<any command letter>+<any tag>.
   Then, type these alphabet letter in 'm' command to cast from the spellbook.
@@ -186,9 +185,9 @@ Below, only the new features in Hengband are explained.
 
 ---- Auto pickup/destroy
 
-Hengband offers two different methods of auto-pickup/destroy.
+Entroband offers two different methods of auto-pickup/destroy.
 - Powerful method
-  Hengband offers a very powerful auto-pickup/auto-destroy system
+  Entroband offers a very powerful auto-pickup/auto-destroy system
   which you may customize.  Press '_' key to enter edit mode.  Please
   read the file "autopick_eng.txt" about the syntax.
 
@@ -224,18 +223,13 @@ Hengband offers two different methods of auto-pickup/destroy.
 ------ Play Record
 Play record will be written to a file named 'playrec-<character's name>.txt' 
 in the same directory as your user preference file.  It is in ~/.angband/
-Hengband/ for UNIX, or hengband/lib/user/ for other OS.
+entroband/ for UNIX, or entroband/lib/user/ for other OS.
 '|' command displays play record in the game.
 
 
 ------ World score
 
-When You die, or retire, you can register a score to the world 
-score sever through the Internet. 
-However, please do not register a score, if you have cheated 
-by modifying data or source files, or by restoring from a backed 
-up savefile.
-
-The score server is here:
-  http://hengband.sourceforge.jp/en/score.html
+I recommend using the Angband Ladder page at http://angband.oook.cz
+to dump characters and get comparisons and comments from other players.
+The Hengband World Score server should not be used.
 

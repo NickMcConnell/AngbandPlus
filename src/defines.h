@@ -43,7 +43,7 @@
 /*
  * Name of the version/variant
  */
-#define VERSION_NAME "Hengband"
+#define VERSION_NAME "Entroband"
 
 
 /*
@@ -51,13 +51,13 @@
  *
  * FAKE_VER_MAJOR=1,2 were reserved for ZAngband version 1.x.x/2.x.x .
  *
- * Program Version of Hengband version is
+ * Program Version of Entroband version is
  *   "(FAKE_VER_MAJOR-10).(FAKE_VER_MINOR).(FAKE_VER_PATCH)".
  */
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 11
 #define FAKE_VER_MINOR 7
-#define FAKE_VER_PATCH 0
+#define FAKE_VER_PATCH 1
 
 
 /*
@@ -1343,14 +1343,14 @@
 #define ART_YENDOR              141
 #define ART_YATA                151
 #define ART_EARENDIL            186
-#define ART_PERSEUS             197
+#define ART_ANABASIS            197
 
 /* Helms and Crowns */
 #define ART_INDRA               33
 #define ART_CHAOS               34
 #define ART_BERUTHIEL           35
 #define ART_THRANDUIL           36
-#define ART_THENGEL             37
+#define ART_DIATRIBE            37
 #define ART_HAMMERHAND          38
 #define ART_DOR                 39
 #define ART_HOLHENNETH          40
@@ -1362,10 +1362,10 @@
 /* Cloaks */
 #define ART_JACK                43
 #define ART_COLLUIN             44
-#define ART_HOLCOLLETH          45
+#define ART_DAISY               45
 #define ART_THINGOL             46
-#define ART_THORONGIL           47
-#define ART_COLANNON            48
+#define ART_BULLSEYE            47
+#define ART_MAELSTROM           48
 #define ART_LUTHIEN             49
 #define ART_TUOR                50
 #define ART_MOOK                205
@@ -1373,7 +1373,7 @@
 /* Gloves */
 #define ART_CAMBELEG            52
 #define ART_CAMMITHRIM          53
-#define ART_PAURHACH            54
+#define ART_SPEC                54
 #define ART_CORWIN              55
 #define ART_PAURAEGEN           56
 #define ART_PAURNEN             57
@@ -1480,6 +1480,7 @@
 #define ART_AEGLOS              187
 #define ART_BLOOD               199
 #define ART_NUMAHOKO            202
+#define ART_SONGMASTER          221
 
 /* The sword of the Dawn */
 #define ART_DAWN                110
@@ -5097,6 +5098,7 @@ extern int PlayerUID;
 #define MON_CHAMELEON     1040
 #define MON_CHAMELEON_K   1041
 #define MON_TOPAZ_MONK    1047
+#define MON_CHEMIST       1052
 #define MON_NOBORTA       1059
 #define MON_MORI_TROLL    1060
 #define MON_BARNEY        1061

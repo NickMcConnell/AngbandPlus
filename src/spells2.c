@@ -6970,6 +6970,7 @@ void call_chaos(void)
  * Activate the evil Topi Ylinen curse
  * rr9: Stop the nasty things when a Cyberdemon is summoned
  * or the player gets paralyzed.
+ * bcb: rollback rr9's changes.  robert is a wimp!
  */
 bool activate_ty_curse(bool stop_ty, int *count)
 {
@@ -7077,7 +7078,6 @@ msg_print("彫像になった気分だ！");
 					set_paralyzed(p_ptr->paralyzed + randint1(3));
 				else
 					set_paralyzed(p_ptr->paralyzed + randint1(13));
-				stop_ty = TRUE;
 			}
 			if (!one_in_(6)) break;
 		case 21: case 22: case 23:
@@ -7099,7 +7099,6 @@ msg_print("ほえ？私は誰？ここで何してる？");
 			if ((dun_level > 65) && !stop_ty)
 			{
 				(*count) += summon_cyber(-1, py, px);
-				stop_ty = TRUE;
 				break;
 			}
 			if (!one_in_(6)) break;

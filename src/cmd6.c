@@ -2004,7 +2004,7 @@ msg_print("ダンジョンが揺れた...");
 			break;
 		}
 
-		/* New Hengband scrolls */
+		/* New scrolls */
 		case SV_SCROLL_FIRE:
 		{
 			fire_ball(GF_FIRE, 0, 666, 4);
@@ -4567,7 +4567,7 @@ msg_print("天国の歌が聞こえる...");
 				break;
 			}
 
-			case ART_HOLCOLLETH:
+			case ART_DAISY:
 			{
 #ifdef JP
 				msg_print("クロークが深いブルーに輝いた...");
@@ -4593,7 +4593,7 @@ msg_print("天国の歌が聞こえる...");
 				break;
 			}
 
-			case ART_COLANNON:
+			case ART_MAELSTROM:
 			{
 #ifdef JP
 				msg_print("クロークが辺りの空間をゆがませた...");
@@ -4633,19 +4633,6 @@ msg_print("天国の歌が聞こえる...");
 				break;
 			}
 
-			case ART_PAURHACH:
-			{
-#ifdef JP
-				msg_print("ガントレットが炎に覆われた...");
-#else
-				msg_print("Your gauntlets are covered in fire...");
-#endif
-
-				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_FIRE, dir, damroll(9, 8));
-				o_ptr->timeout = randint0(8) + 8;
-				break;
-			}
 
 			case ART_PAURNIMMEN:
 			{

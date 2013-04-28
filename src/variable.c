@@ -544,7 +544,7 @@ term *angband_term[8];
  */
 char angband_term_name[8][16] =
 {
-	"Hengband",
+	"Entroband",
 	"Term-1",
 	"Term-2",
 	"Term-3",

@@ -1,3 +1,12 @@
+=== History of Entroband ===
+
+Nov 1, 2005.  Entroband 1.7.0 released.
+
+Many changes to artifacts, monsters, and uniques from
+Hengband 1.7.0 (final CVS version).
+
+
+
 === History of Hengband ===
 
 

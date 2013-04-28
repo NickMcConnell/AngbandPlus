@@ -3,6 +3,9 @@
                   **            —∂Ú»⁄≈‹  1.7.0         **
                   ***************************************
 
+         !! DISCLAIMER: This file left unchanged (other than this)
+            as the japanese version of ENTROBAND is UNSUPPORTED !!
+
           Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
               and Umoria:    Copyright (c) 1989 James E. Wilson
 

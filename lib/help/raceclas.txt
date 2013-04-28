@@ -1,7 +1,7 @@
 === Races, Classes and Personalities ===
 
 This file describes about the races, classes and personalities
-available in Hengband; racial, class, personality tables are provided
+available in Entroband; racial, class, personality tables are provided
 at the bottom.
 
 
@@ -9,7 +9,7 @@ at the bottom.
 === The Races ===
 
 There are thirty seven different races that you can choose from in
-Hengband.  Each race has various strengths and weaknesses and its own
+Entroband.  Each race has various strengths and weaknesses and its own
 adjustments to a character's stats and abilities.  Many races also
 have intrinsic abilities and powers.  Their racial powers can be used
 by the racial/class power command ("U"/"O").
@@ -463,7 +463,7 @@ by the racial/class power command ("U"/"O").
 === The Classes ===
  
 There are twenty seven different classes that you can choose from in
-Hengband.  Each class has various strengths and weaknesses and its own
+Entroband.  Each class has various strengths and weaknesses and its own
 adjustments to a character's stats and abilities.  Many classes also
 have intrinsic abilities and powers.  These are often linked to the
 character's experience level and only become available later in the
@@ -500,7 +500,7 @@ command("U"/"O").
     Their natural inclination makes Life magic fairly hard to learn.
     Otherwise, a mage tends to learn and cast all the spells in his or
     her realms better than any other character.  The ability to choose
-    second realm of magic has a special meaning in Hengband; only
+    second realm of magic has a special meaning in Entroband; only
     second realm can be changed in the middle of the game.  You can
     change second realm by studying ("G") from a spellbook of new
     realm.  They have a class power - 'Eat Magic' - which absorbs mana
@@ -729,7 +729,7 @@ command("U"/"O").
 --- BeastMaster ---
 
     Beastmasters are in tune with the minds of the creatures of the
-    world of Hengband.  They are very good at riding, and have enough
+    world of Entroband.  They are very good at riding, and have enough
     fighting ability.  They use monsters which summoned or dominated
     by him as his hands and feet.  Beastmasters can cast trump magic,
     and very good at summoning spell, but they can not summon
@@ -994,7 +994,7 @@ command("U"/"O").
 
 
 There are twelve different personality that you can choose from in
-Hengband.  Each personality has various strengths and weaknesses and
+Entroband.  Each personality has various strengths and weaknesses and
 its own adjustments to a character's stats and abilities.
 
 
@@ -1307,4 +1307,4 @@ the 50th level.
 
 
 --
-Updated    : Hengband 1.3.2
+Updated    : Entroband 1.7.0

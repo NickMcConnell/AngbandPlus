@@ -1363,7 +1363,7 @@ return "全耐性(20+d20ターン) : 111 ターン毎";
 #endif
 
 		}
-		case ART_HOLCOLLETH:
+		case ART_DAISY:
 		{
 #ifdef JP
 return "スリープ(II) : 55 ターン毎";
@@ -1381,7 +1381,7 @@ return "魔力充填 : 70 ターン毎";
 #endif
 
 		}
-		case ART_COLANNON:
+		case ART_MAELSTROM:
 		{
 #ifdef JP
 return "テレポート : 45 ターン毎";
@@ -1408,15 +1408,7 @@ return "マジック・ミサイル(2d6) : 2 ターン毎";
 #endif
 
 		}
-		case ART_PAURHACH:
-		{
-#ifdef JP
-return "ファイア・ボルト(9d8) : 8+d8 ターン毎";
-#else
-			return "fire bolt (9d8) every 8+d8 turns";
-#endif
 
-		}
 		case ART_PAURNIMMEN:
 		{
 #ifdef JP

@@ -3556,7 +3556,7 @@ static byte get_dungeon_feeling(void)
 			if (cost > 100000L) delta += 10 * base;
 
 			/* Special feeling */
-			if (!preserve_mode) return 1;
+			if (object_is_fixed_artifact(o_ptr) && (!preserve_mode)) return 1;
 		}
 
 		if (o_ptr->tval == TV_DRAG_ARMOR) delta += 30 * base;

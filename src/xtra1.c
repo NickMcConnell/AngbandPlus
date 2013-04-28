@@ -3595,8 +3595,8 @@ void calc_bonuses(void)
 		p_ptr->sh_fire = TRUE;
 		p_ptr->sh_elec = TRUE;
 		p_ptr->sh_cold = TRUE;
-		p_ptr->to_a += 100;
-		p_ptr->dis_to_a += 100;
+		p_ptr->to_a += 10;
+		p_ptr->dis_to_a += 10;
 	}
 	/* Temporary shield */
 	else if (p_ptr->tsubureru || p_ptr->shield || p_ptr->magicdef)
@@ -4538,6 +4538,11 @@ void calc_bonuses(void)
 			new_speed += 7;
 			p_ptr->to_a += 10;
 			p_ptr->dis_to_a += 10;
+		}
+		if (inventory[INVEN_HANDS].name1 == ART_SPEC)
+		{
+			if (penalty1 > 0) penalty1 = 0;
+			if (penalty2 > 0) penalty2 = 0;
 		}
 		if (easy_2weapon)
 		{

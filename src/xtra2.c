@@ -1540,7 +1540,7 @@ msg_print("地面に落とされた。");
 #ifdef JP
 		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "見事に変愚蛮怒の勝利者となった！");
 #else
-		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "become *WINNER* of Hengband finely!");
+		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "become *WINNER* of Entroband!");
 #endif
 
 		if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) || (p_ptr->muta2 & MUT2_CHAOS_GIFT))
@@ -1752,6 +1752,17 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 	/* Hurt it */
 	m_ptr->hp -= dam;
+
+	/* it is unwise to attack the serpent when not level 50, or the chemist (ever) */
+
+	if ((((m_ptr->r_idx == MON_SERPENT) && (p_ptr->lev < 50)) || (m_ptr->r_idx == MON_CHEMIST)) && (randint1(3) == 1))
+        {
+	  int count = 0;
+	  if (!(((p_ptr->pclass == CLASS_BERSERKER) || (p_ptr->pclass == CLASS_WARRIOR)) && (randint1(4) == 1)))
+	    {
+	      (void)activate_ty_curse(FALSE, &count);
+	    }
+	}
 
 	/* It is dead now */
 	if (m_ptr->hp < 0)

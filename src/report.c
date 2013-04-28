@@ -27,7 +27,7 @@
 #endif
 
 /*
- * internet resource value
+ * internet resource value - this should never be used!
  */
 #define HTTP_PROXY ""                   /* Default proxy url */
 #define HTTP_PROXY_PORT 0               /* Default proxy port */
@@ -219,7 +219,7 @@ static void http_post(int sd, cptr url, BUF *buf)
 
 	output = buf_new();
 	buf_sprintf(output, "POST %s HTTP/1.0\n", url);
-	buf_sprintf(output, "User-Agent: Hengband %d.%d.%d\n",
+	buf_sprintf(output, "User-Agent: Entroband %d.%d.%d\n",
 		    FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
 
 	buf_sprintf(output, "Content-Length: %d\n", buf->size);
@@ -435,7 +435,7 @@ errr report_score(void)
 	buf_sprintf(score, "version:  —∂Ú»⁄≈‹ %d.%d.%d\n",
 		    FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #else
-	buf_sprintf(score, "version: Hengband %d.%d.%d\n",
+	buf_sprintf(score, "version: Entroband %d.%d.%d\n",
 		    FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #endif
 	buf_sprintf(score, "score: %d\n", total_points());

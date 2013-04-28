@@ -66,14 +66,14 @@ LIBS = -lpc -lalleg
 # Targets
 #
 
-default: hengband.exe
-	copy hengband.exe ..
-	del hengband.exe
+default: entroband.exe
+	copy entroband.exe ..
+	del entroband.exe
 
-install: hengband.exe
-	copy hengband.exe ..
+install: entroband.exe
+	copy entroband.exe ..
 
-all: hengband.exe
+all: entroband.exe
 	@echo All done.  Use 'make install' to install.
 
 
@@ -81,7 +81,7 @@ all: hengband.exe
 # Link executables
 #
 
-hengband.exe: $(OBJS)
+entroband.exe: $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
 
 

@@ -2,7 +2,7 @@
 
 ●Windows
   Windows用バイナリをダウンロードし、適当なフォルダに展開します。
-  後は展開したフォルダに移動し、hengbandをクリックすれば遊べます。
+  後は展開したフォルダに移動し、entrobandをクリックすれば遊べます。
 
   ・Windows版独自の機能(by Kokaさん)
   Option - 壁紙を使う で壁紙を設定できます。
@@ -12,18 +12,18 @@
 ●UNIX
 
   ソースをダウンロードします。そして、
-  tar -jxvf hengband-x.x.x.tar.bz2
-  cd hengband-x.x.x
+  tar -jxvf entroband-x.x.x.tar.bz2
+  cd entroband-x.x.x
   ./configure
   make install
   でコンパイル及びトップディレクトリへのコピーができます(x.x.x はバージョン番号)。
   
   後は、ASCII文字画面なら、
-  ./hengband -- -n＜ウィンドウの数＞  
+  ./entroband -- -n＜ウィンドウの数＞  
   タイルグラフィックス画面なら、
-  ./hengband -g -- -n＜ウィンドウの数＞      ## 通常の8x8タイル
-  ./hengband -g -- -b -n＜ウィンドウの数＞   ## 2倍幅サイズのタイル
-  ./hengband -g -- -a -n＜ウィンドウの数＞   ## 16x16タイル(別配布のタイルが必要)
+  ./entroband -g -- -n＜ウィンドウの数＞      ## 通常の8x8タイル
+  ./entroband -g -- -b -n＜ウィンドウの数＞   ## 2倍幅サイズのタイル
+  ./entroband -g -- -a -n＜ウィンドウの数＞   ## 16x16タイル(別配布のタイルが必要)
   等で遊べます。
 
   また、スーパーユーザーとして setgid を付けてインストールしたい場合は、
@@ -392,7 +392,7 @@
 
 ●プレイ記録
 
-  UNIXでは ~/.angband/Hengband/ 、それ以外のOSでは変愚蛮怒の中の lib/user/ の
+  UNIXでは ~/.angband/entroband/ 、それ以外のOSでは変愚蛮怒の中の lib/user/ の
   ディレクトリに playrecord-(名前).txt というファイル名でプレイ記録があります。
   ゲーム中に'|'コマンドで見ることができます。
   どういう行動をしたときに記録をするかは'='コマンドのオプション設定で、
@@ -409,7 +409,4 @@
   ものは登録しないで下さい。
 
 
---------
-Mr.hoge
-http://hengband.sourceforge.jp/
-echizen＠users.sourceforge.jp
+

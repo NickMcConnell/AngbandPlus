@@ -186,9 +186,9 @@
  * Cleaning up a couple of things to make these easier to change --AR
  */
 #ifdef JP
-#define PREF_FILE_NAME "Hengband Preferences"
+#define PREF_FILE_NAME "Entroband Preferences"
 #else
-#define PREF_FILE_NAME "Hengband-E Preferences"
+#define PREF_FILE_NAME "Entroband-E Preferences"
 #endif
 
 /*
@@ -199,7 +199,7 @@
 
 /* Default creator signature */
 #ifndef ANGBAND_CREATOR
-# define ANGBAND_CREATOR 'Heng'
+# define ANGBAND_CREATOR 'Entro'
 #endif
 
 
@@ -7077,7 +7077,7 @@ static void init_stuff(void)
 
 		/* Warning */
 #ifdef JP
-		plog("Hengbandの'lib'フォルダが存在しないか正しく無い可能性があります.");
+		plog("Entrobandの'lib'フォルダが存在しないか正しく無い可能性があります.");
 #else
 		plog("The Angband 'lib' folder is probably missing or misplaced.");
 #endif
