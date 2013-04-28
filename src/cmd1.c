@@ -289,12 +289,15 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			}
 
 			/* Brand (Elec) */
-			if (f1 & TR1_BRAND_ELEC)
+			if (f1 & (TR1_BRAND_ELEC))
 			{
 				/* Notice immunity */
-				if (r_ptr->flags3 & RF3_IM_ELEC)
+				if (r_ptr->flags3 & (RF3_IM_ELEC))
 				{
-					if (m_ptr->ml) r_ptr->r_flags3 |= RF3_IM_ELEC;
+					if (m_ptr->ml)
+				{
+						r_ptr->r_flags3 |= (RF3_IM_ELEC);
+					}
 				}
 
 				/* Otherwise, take the damage */
@@ -305,12 +308,15 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			}
 
 			/* Brand (Fire) */
-			if (f1 & TR1_BRAND_FIRE)
+			if (f1 & (TR1_BRAND_FIRE))
 			{
 				/* Notice immunity */
-				if (r_ptr->flags3 & RF3_IM_FIRE)
+				if (r_ptr->flags3 & (RF3_IM_FIRE))
 				{
-					if (m_ptr->ml) r_ptr->r_flags3 |= RF3_IM_FIRE;
+					if (m_ptr->ml)
+				{
+						r_ptr->r_flags3 |= (RF3_IM_FIRE);
+					}
 				}
 
 				/* Otherwise, take the damage */
@@ -321,12 +327,15 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			}
 
 			/* Brand (Cold) */
-			if (f1 & TR1_BRAND_COLD)
+			if (f1 & (TR1_BRAND_COLD))
 			{
 				/* Notice immunity */
-				if (r_ptr->flags3 & RF3_IM_COLD)
+				if (r_ptr->flags3 & (RF3_IM_COLD))
 				{
-					if (m_ptr->ml) r_ptr->r_flags3 |= RF3_IM_COLD;
+					if (m_ptr->ml)
+				{
+						r_ptr->r_flags3 |= (RF3_IM_COLD);
+					}
 				}
 
 				/* Otherwise, take the damage */
@@ -347,14 +356,15 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 
 
 /*
- * Searches for hidden things.			-RAK-
+ * Search for hidden things
  */
 void search(void)
 {
 	int           y, x, chance;
 
+	s16b this_o_idx, next_o_idx = 0;
+
 	cave_type    *c_ptr;
-	object_type  *o_ptr;
 
 
 	/* Start with base search ability */
@@ -375,9 +385,6 @@ void search(void)
 				/* Access the grid */
 				c_ptr = &cave[y][x];
 
-				/* Access the object */
-				o_ptr = &o_list[c_ptr->o_idx];
-
 				/* Invisible trap */
 				if (c_ptr->feat == FEAT_INVIS)
 				{
@@ -392,29 +399,37 @@ void search(void)
 				}
 
 				/* Secret door */
-				else if (c_ptr->feat == FEAT_SECRET)
+				if (c_ptr->feat == FEAT_SECRET)
 				{
 					/* Message */
 					msg_print("You have found a secret door.");
 
 					/* Pick a door XXX XXX XXX */
-					c_ptr->feat = FEAT_DOOR_HEAD + 0x00;
-
-					/* Notice */
-					note_spot(y, x);
-
-					/* Redraw */
-					lite_spot(y, x);
+					cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
 
 					/* Disturb */
 					disturb(0, 0);
 				}
 
-				/* Search chests */
-				else if (o_ptr->tval == TV_CHEST)
+				/* Scan all objects in the grid */
+				for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
 				{
-					/* Examine chests for traps */
-					if (!object_known_p(o_ptr) && (chest_traps[o_ptr->pval]))
+					object_type *o_ptr;
+					
+					/* Acquire object */
+					o_ptr = &o_list[this_o_idx];
+
+					/* Acquire next object */
+					next_o_idx = o_ptr->next_o_idx;
+
+					/* Skip non-chests */
+					if (o_ptr->tval != TV_CHEST) continue;
+
+					/* Skip non-trapped chests */
+					if (!chest_traps[o_ptr->pval]) continue;
+
+					/* Identify once */
+					if (!object_known_p(o_ptr))
 					{
 						/* Message */
 						msg_print("You have discovered a trap on the chest!");
@@ -443,26 +458,31 @@ void carry(int pickup)
 {
 	cave_type  *c_ptr = &cave[py][px];
 
-	object_type *o_ptr;
+	s16b this_o_idx, next_o_idx = 0;
 
 	char	o_name[80];
 
 
-	/* Hack -- nothing here to pick up */
-	if (!(c_ptr->o_idx)) return;
+	/* Scan the pile of objects */
+	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+	{
+		object_type *o_ptr;
 
-	/* Get the object */
-	o_ptr = &o_list[c_ptr->o_idx];
+		/* Acquire object */
+		o_ptr = &o_list[this_o_idx];
 
 	/* Describe the object */
 	object_desc(o_name, o_ptr, TRUE, 3);
 
+		/* Acquire next object */
+		next_o_idx = o_ptr->next_o_idx;
+
+		/* Hack -- disturb */
+		disturb(0, 0);
+
 	/* Pick up gold */
 	if (o_ptr->tval == TV_GOLD)
 	{
-		/* Disturb */
-		disturb(0, 0);
-
 		/* Message */
 		msg_format("You have found %ld gold pieces worth of %s.",
 		           (long)o_ptr->pval, o_name);
@@ -476,16 +496,13 @@ void carry(int pickup)
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER);
 
-		/* Delete gold */
-		delete_object(py, px);
+			/* Delete the gold */
+			delete_object_idx(this_o_idx);
 	}
 
-	/* Pick it up */
+		/* Pick up objects */
 	else
 	{
-		/* Hack -- disturb */
-		disturb(0, 0);
-
 		/* Describe the object */
 		if (!pickup)
 		{
@@ -517,7 +534,7 @@ void carry(int pickup)
 				int slot;
 
 				/* Carry the item */
-				slot = inven_carry(o_ptr);
+					slot = inven_carry(o_ptr, FALSE);
 
 				/* Get the item again */
 				o_ptr = &inventory[slot];
@@ -528,8 +545,9 @@ void carry(int pickup)
 				/* Message */
 				msg_format("You have %s (%c).", o_name, index_to_label(slot));
 
-				/* Delete original */
-				delete_object(py, px);
+					/* Delete the object */
+					delete_object_idx(this_o_idx);
+				}
 			}
 		}
 	}
@@ -571,7 +589,6 @@ static int check_hit(int power)
 static void hit_trap(void)
 {
 	int			i, num, dam;
-
 	cave_type		*c_ptr;
 
 	cptr		name = "a trap";
@@ -692,10 +709,8 @@ static void hit_trap(void)
 		case FEAT_TRAP_HEAD + 0x04:
 		{
 			msg_print("You are enveloped in a cloud of smoke!");
-			c_ptr->feat = FEAT_FLOOR;
-			c_ptr->info &= ~CAVE_MARK;
-			note_spot(py, px);
-			lite_spot(py, px);
+			c_ptr->info &= ~(CAVE_MARK);
+			cave_set_feat(py, px, FEAT_FLOOR);
 			num = 2 + randint(3);
 			for (i = 0; i < num; i++)
 			{
@@ -843,7 +858,6 @@ void py_attack(int y, int x)
 {
 	int			num = 0, k, bonus, chance, lev, tt;
 	bool resist=FALSE;
-
 	cave_type		*c_ptr = &cave[y][x];
 
 	monster_type	*m_ptr = &m_list[c_ptr->m_idx];
@@ -873,7 +887,7 @@ void py_attack(int y, int x)
 	monster_desc(m_name, m_ptr, 0);
 
 	/* Auto-Recall if possible and visible */
-	if (m_ptr->ml) recent_track(m_ptr->r_idx);
+	if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
 
 	/* Track a new monster */
 	if (m_ptr->ml) health_track(c_ptr->m_idx);
@@ -925,12 +939,25 @@ void py_attack(int y, int x)
 					}
 
 					/* Tripple damage if using a vorpal blade */
-					if(o_ptr->name2 == EGO_VORPAL && randint(20)==1)
+					if (o_ptr->flags1 & TR1_VORPAL && randint(20)==1)
 					{
-						k*=3;
-						k+=50;
+						k *= 3;
+						k += 20;
 						strcpy(out,
 							"Your vorpal blade goes snicker snack!");
+					}
+
+					/* x3/2 damage if venom and no resist */
+					if (o_ptr->flags1 & TR1_VORPAL)
+					{
+						if (!r_ptr->flags3 & RF3_IM_POIS)
+						{
+							k *= 3;
+							k /= 2;
+							sprintf(out,
+							"Your weapon shoots venom into the %s.", m_name);
+						}
+						else r_ptr->r_flags3 |= RF3_IM_POIS;
 					}
 
 					if (p_ptr->impact && (k > 50)) do_quake = TRUE;
@@ -951,7 +978,6 @@ void py_attack(int y, int x)
 				if(tt>0) k+=tt;
 				k = critical_norm(1, 0, k);
 			}
-
 			/* Apply the player damage bonuses */
 			k += p_ptr->to_d;
 
@@ -977,9 +1003,13 @@ void py_attack(int y, int x)
 				msg_print("Your hands stop glowing.");
 
 				/* Confuse the monster */
-				if (r_ptr->flags3 & RF3_NO_CONF)
+				if (r_ptr->flags3 & (RF3_NO_CONF))
 				{
-					if (m_ptr->ml) r_ptr->r_flags3 |= RF3_NO_CONF;
+					if (m_ptr->ml)
+				{
+						r_ptr->r_flags3 |= (RF3_NO_CONF);
+					}
+
 					msg_format("%^s is unaffected.", m_name);
 				}
 				else if (rand_int(100) < r_ptr->level)
@@ -1004,8 +1034,6 @@ void py_attack(int y, int x)
 			msg_format("You miss %s.", m_name);
 		}
 	}
-
-
 	/* Hack -- delay fear messages */
 	if (fear && m_ptr->ml)
 	{
@@ -1033,7 +1061,6 @@ void move_player(int dir, int do_pickup)
 	int			y, x;
 
 	cave_type		*c_ptr;
-	object_type		*o_ptr;
 	monster_type	*m_ptr;
 
 
@@ -1043,10 +1070,6 @@ void move_player(int dir, int do_pickup)
 
 	/* Examine the destination */
 	c_ptr = &cave[y][x];
-
-	/* Get the object */
-	o_ptr = &o_list[c_ptr->o_idx];
-
 	/* Get the monster */
 	m_ptr = &m_list[c_ptr->m_idx];
 
@@ -1065,28 +1088,28 @@ void move_player(int dir, int do_pickup)
 		disturb(0, 0);
 
 		/* Notice things in the dark */
-		if (!(c_ptr->info & CAVE_MARK) &&
-		    (p_ptr->blind || !(c_ptr->info & CAVE_LITE)))
+		if (!(c_ptr->info & (CAVE_MARK)) &&
+		    (p_ptr->blind || !(c_ptr->info & (CAVE_LITE))))
 		{
 			/* Rubble */
 			if (c_ptr->feat == FEAT_RUBBLE)
 			{
 				msg_print("You feel some rubble blocking your way.");
-				c_ptr->info |= CAVE_MARK;
+				c_ptr->info |= (CAVE_MARK);
 				lite_spot(y, x);
 			}
 			/* Closed door */
 			else if (c_ptr->feat < FEAT_SECRET)
 			{
 				msg_print("You feel a closed door blocking your way.");
-				c_ptr->info |= CAVE_MARK;
+				c_ptr->info |= (CAVE_MARK);
 				lite_spot(y, x);
 			}
 			/* Wall (or secret door) */
 			else
 			{
 				msg_print("You feel a wall blocking your way.");
-				c_ptr->info |= CAVE_MARK;
+				c_ptr->info |= (CAVE_MARK);
 				lite_spot(y, x);
 			}
 		}
@@ -1112,6 +1135,9 @@ void move_player(int dir, int do_pickup)
 				msg_print("There is a wall blocking your way.");
 			}
 		}
+
+		/* Sound */
+		sound(SOUND_HITWALL);
 	}
 
 	/* Normal movement */
@@ -1129,6 +1155,9 @@ void move_player(int dir, int do_pickup)
 		lite_spot(py, px);
 		/* Redraw old spot */
 		lite_spot(oy, ox);
+
+		/* Sound */
+		/* sound(SOUND_WALK); */
 
 		/* Check for new panel (redraw map) */
 		verify_panel();
@@ -1149,7 +1178,6 @@ void move_player(int dir, int do_pickup)
 		{
 			search();
 		}
-
 		/* Continuous Searching */
 		if (p_ptr->searching)
 		{
@@ -1157,7 +1185,7 @@ void move_player(int dir, int do_pickup)
 		}
 
 		/* Handle "objects" */
-		if (c_ptr->o_idx) carry(do_pickup);
+		carry(do_pickup);
 
 		/* Handle "store doors" */
 		if ((c_ptr->feat >= FEAT_SHOP_HEAD) &&
@@ -1210,11 +1238,11 @@ static int see_wall(int dir, int y, int x)
 	/* Illegal grids are blank */
 	if (!in_bounds2(y, x)) return (FALSE);
 
-	/* Must actually block motion */
+	/* Must be a motion blocker */
 	if (cave_floor_bold(y, x)) return (FALSE);
 
 	/* Must be known to the player */
-	if (!(cave[y][x].info & CAVE_MARK)) return (FALSE);
+	if (!(cave[y][x].info & (CAVE_MARK))) return (FALSE);
 
 	/* Default */
 	return (TRUE);
@@ -1542,11 +1570,17 @@ static bool run_test(void)
 	/* Look at every newly adjacent square. */
 	for (i = -max; i <= max; i++)
 	{
+		s16b this_o_idx, next_o_idx = 0;
+
+
+		/* New direction */
 		new_dir = cycle[chome[prev_dir] + i];
 
+		/* New location */
 		row = py + ddy[new_dir];
 		col = px + ddx[new_dir];
 
+		/* Access grid */
 		c_ptr = &cave[row][col];
 
 
@@ -1554,13 +1588,21 @@ static bool run_test(void)
 		if (c_ptr->m_idx)
 		{
 			monster_type *m_ptr = &m_list[c_ptr->m_idx];
+
 			/* Visible monster */
 			if (m_ptr->ml) return (TRUE);
 		}
+
 		/* Visible objects abort running */
-		if (c_ptr->o_idx)
+		for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
 		{
-			object_type *o_ptr = &o_list[c_ptr->o_idx];
+			object_type *o_ptr;
+			
+			/* Acquire object */
+			o_ptr = &o_list[this_o_idx];
+
+			/* Acquire next object */
+			next_o_idx = o_ptr->next_o_idx;
 
 			/* Visible object */
 			if (o_ptr->marked) return (TRUE);
@@ -1571,7 +1613,7 @@ static bool run_test(void)
 		inv = TRUE;
 
 		/* Check memorized grids */
-		if (c_ptr->info & CAVE_MARK)
+		if (c_ptr->info & (CAVE_MARK))
 		{
 			bool notice = TRUE;
 
@@ -1740,8 +1782,11 @@ static bool run_test(void)
 			row = py + ddy[new_dir];
 			col = px + ddx[new_dir];
 
-			/* Unknown grid or floor */
-			if (!(cave[row][col].info & CAVE_MARK) || cave_floor_bold(row, col))
+			/* Access grid */
+			c_ptr = &cave[row][col];
+
+			/* Unknown grid or non-wall XXX XXX XXX cave_floor_grid(c_ptr)) */
+			if (!(c_ptr->info & (CAVE_MARK)) || (c_ptr->feat < FEAT_SECRET))
 			{
 				/* Looking to break left */
 				if (find_breakleft)
@@ -1761,8 +1806,6 @@ static bool run_test(void)
 			}
 		}
 	}
-
-
 	/* Not looking for open area */
 	else
 	{
@@ -1887,7 +1930,6 @@ void run_step(int dir)
 			return;
 		}
 	}
-
 	/* Decrease the run counter */
 	if (--running <= 0) return;
 

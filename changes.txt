@@ -1,3 +1,25 @@
+SAngband 0.9.3 (04/04/97):
+1) "Mystic" weapons should now work.
+2) Priest spells are matched correctly.  Also, the "elemental brand" prayer
+will properly brand weapons.
+3) Luck cannot be minimized with the autoroller and is not displayed until
+the player casts self-knowledge.  Players no longer become extremely lucky by
+going back to a previous character.
+4) Weapons with "venom" now work correctly.
+5) Self-knowledge has been fixed to display all flags.
+6) The player's "spell level" is calculated differently so that it cannot be
+higher than 50.  The "teleport" prayer should not lock up the game.
+7) Serpentine weapons are no longer vorpal (I had them erroneously defined as
+being the same :).)  Weapons that were vorpal in v0.8.9 are once again
+vorpal.
+8) No more cursed "holy avenger" boots (oops...)
+9) The screen should always withdraw from the talent screen.
+10) Angband 2.8.0 -> 2.8.1 changes apply.
+11) There is now a maximum speed of +70.  (A player reported getting his
+speed higher than this and losing the ability to move, so I have put in a
+max.)
+12) No more "Bootses" or "Gauntletses" when forged boots or gloves stack.
+
 SAngband 0.9.2 (01/25/97):
 1) The "spiritual hammer" prayer now works correctly.
 2) To-dam modifiers of weapons now work.
@@ -37,3 +59,4 @@ when altering the number of objects in a stack with wizard mode.
 12) See invisible now works.
 13) Hellfire does less damage now.  Monsters that appear in groups no longer
 cast it.  ALso, this attack is now described as a spell rather than a breath.
+

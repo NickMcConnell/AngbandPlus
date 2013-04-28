@@ -422,11 +422,19 @@ struct vault_type
  * many places in the code where we need quick access to the actual
  * monster or object(s) in a given cave grid.  The easiest way to
  * do this is to simply keep the index of the monster and object
- * (if any) with the grid, but takes a lot of memory.  Several other
- * methods come to mind, but they all seem rather complicated.
+ * (if any) with the grid, but this takes 198*66*4 bytes of memory.
+ * Several other methods come to mind, which require only half this
+ * amound of memory, but they all seem rather complicated, and would
+ * probably add enough code that the savings would be lost.  So for
+ * these reasons, we simply store an index into the "o_list" and
+ * "m_list" arrays, using "zero" when no monster/object is present.
  *
- * Note the special fields for the simple "monster flow" code,
- * and for the "tracking" code.
+ * Note that "o_idx" is the index of the top object in a stack of
+ * objects, using the "next_o_idx" field of objects (see below) to
+ * create the singly linked list of objects.  If "o_idx" is zero
+ * then there are no objects in the grid.
+ *
+ * Note the special fields for the "MONSTER_FLOW" code.
  */
 typedef struct cave_type cave_type;
 
@@ -452,17 +460,31 @@ struct cave_type
 
 
 /*
- * Structure for an object. (32 bytes)
+ * Object information, for a specific object.
  *
  * Note that a "discount" on an item is permanent and never goes away.
  *
  * Note that inscriptions are now handled via the "quark_str()" function
  * applied to the "note" field, which will return NULL if "note" is zero.
  *
- * Note that "object" records are "copied" on a fairly regular basis.
+ * Note that "object" records are "copied" on a fairly regular basis,
+ * and care must be taken when handling such objects.
  *
  * Note that "object flags" must now be derived from the object kind,
  * the artifact and ego-item indexes, and the two "xtra" fields.
+ *
+ * Each cave grid points to one (or zero) objects via the "o_idx"
+ * field (above).  Each object then points to one (or zero) objects
+ * via the "next_o_idx" field, forming a singly linked list, which
+ * in game terms, represents a "stack" of objects in the same grid.
+ *
+ * Each monster points to one (or zero) objects via the "hold_o_idx"
+ * field (below).  Each object then points to one (or zero) objects
+ * via the "next_o_idx" field, forming a singly linked list, which
+ * in game terms, represents a pile of objects held by the monster.
+ *
+ * The "held_m_idx" field is used to indicate which monster, if any,
+ * is holding the object.  Objects being held have "ix=0" and "iy=0".
  */
 
 typedef struct object_type object_type;
@@ -508,6 +530,10 @@ struct object_type
 	byte marked;        /* Object is marked */
 
 	u16b note;               /* Inscription index */
+
+	s16b next_o_idx;	/* Next object in stack (if any) */
+
+	s16b held_m_idx;	/* Monster holding us (if any) */
 };
 
 
@@ -516,6 +542,9 @@ struct object_type
  * Monster information, for a specific monster.
  *
  * Note: fy, fx constrain dungeon size to 256x256
+ *
+ * The "hold_o_idx" field points to the first object of a stack
+ * of objects (if any) being carried by the monster (see above).
  */
 
 typedef struct monster_type monster_type;
@@ -538,9 +567,14 @@ struct monster_type
 	byte stunned;       /* Monster is stunned */
 	byte confused;      /* Monster is confused */
 	byte monfear;       /* Monster is afraid */
-	byte cdis;               /* Current dis from player */
-	bool los;           /* Monster is "in sight" */
+
+     	byte cdis;               /* Current dis from player */
+
+	byte mflag;			/* Extra monster flags */
+
 	bool ml;            /* Monster is "visible" */
+
+	s16b hold_o_idx;	/* Object being held (if any) */
 
 #ifdef WDT_TRACK_OPTIONS
 
@@ -558,10 +592,7 @@ struct monster_type
 	u32b smart;              /* Field for "smart_learn" */
 
 #endif
-
 };
-
-
 
 
 /*
@@ -672,7 +703,6 @@ struct owner_type
 	byte insult_max;    /* Insult limit */
 
 	byte owner_race;    /* Owner race */
-
 	byte unused;        /* Unused */
 };
 
@@ -726,8 +756,6 @@ struct magic_type
 	byte sfail;              /* Minimum chance of failure */
 	s16b sexp;               /* Encoded experience bonus */
 };
-
-
 /*
  * Information about the player's "magic"
  *
@@ -746,6 +774,20 @@ struct player_magic
 	magic_type info[64];     /* The available spells */
 };
 
+
+
+/*
+ * Player sex info
+ */
+
+typedef struct player_sex player_sex;
+
+struct player_sex
+{
+	cptr title;			/* Type of sex */
+	
+	cptr winner;		/* Name of winner */
+};
 
 
 /*
@@ -768,7 +810,6 @@ struct player_race
 
 	byte b_age;              /* base age */
 	byte m_age;              /* mod age */
-
 	byte m_b_ht;        /* base height (males) */
 	byte m_m_ht;        /* mod height (males) */
 	byte m_b_wt;        /* base weight (males) */
@@ -809,9 +850,10 @@ struct player_race
 typedef struct player_type player_type;
 struct player_type
 {
+	byte psex;			/* Sex index */
 	byte prace;              /* Race index */
-	byte male;               /* Sex of character */
-	byte realm;               /* Magical realm */
+	byte realm;              /* Magical realm */
+	byte luck_known;         /* Display luck if true */
 
 	byte hitdie;        /* Hit dice (sides) */
 	byte expfact;       /* Experience factor */
@@ -876,7 +918,6 @@ struct player_type
 	s16b oppose_cold;   /* Timed -- oppose cold */
 	s16b oppose_pois;   /* Timed -- oppose poison */
 	s16b ironwill;	/* Timed-- Iron will */
-
 	s16b word_recall;   /* Word of recall counter */
 
 	s16b energy;        /* Current energy */
@@ -929,7 +970,6 @@ struct player_type
 	bool resist_fire;   /* Resist fire */
 	bool resist_cold;   /* Resist cold */
 	bool resist_pois;   /* Resist poison */
-
 	bool resist_conf;   /* Resist confusion */
 	bool resist_sound;  /* Resist sound */
 	bool resist_lite;   /* Resist light */
@@ -969,7 +1009,6 @@ struct player_type
 	s16b dis_to_h;      /* Known bonus to hit */
 	s16b dis_to_d;      /* Known bonus to dam */
 	s16b dis_to_a;      /* Known bonus to ac */
-
 	s16b dis_ac;        /* Known base ac */
 	s16b to_h;               /* Bonus to hit */
 	s16b to_d;               /* Bonus to dam */

@@ -135,6 +135,12 @@ static void prt_stat(int stat)
 		cnv_stat(p_ptr->stat_use[stat], tmp);
 		c_put_str(TERM_L_GREEN, tmp, ROW_STAT + stat, COL_STAT + 6);
 	}
+
+	/* Indicate natural maximum */
+	if (p_ptr->stat_max[stat] == 18+100)
+	{
+		put_str("!", ROW_STAT + stat, 3);
+	}
 }
 
 
@@ -156,7 +162,7 @@ static void prt_title(void)
 	/* Winner */
 	else if (total_winner || (p_ptr->lev > PY_MAX_LEVEL))
 	{
-		p = (p_ptr->male ? "**KING**" : "**QUEEN**");
+		p = "***WINNER***";
 	}
 
 	prt_field(p, ROW_TITLE, COL_TITLE);
@@ -748,7 +754,6 @@ static void health_redraw(void)
 
 		/* Wounded */
 		if (pct >= 25) attr = TERM_ORANGE;
-
 		/* Somewhat Wounded */
 		if (pct >= 60) attr = TERM_YELLOW;
 
@@ -793,7 +798,7 @@ static void prt_frame_basic(void)
 	prt_exp();
 
 	/* All Stats */
-	for (i = 0; i < 7; i++) prt_stat(i);
+	for (i = 0; i < 6 + p_ptr->luck_known; i++) prt_stat(i);
 
 	/* Armor */
 	prt_ac();
@@ -803,7 +808,6 @@ static void prt_frame_basic(void)
 
 	/* Spellpoints */
 	prt_sp();
-
 	/* Gold */
 	prt_gold();
 
@@ -857,13 +861,11 @@ static void fix_inven(void)
 		term *old = Term;
 
 		/* No window */
-		if (!ang_term[j]) continue;
-
+		if (!angband_term[j]) continue;
 		/* No relevant flags */
 		if (!(window_flag[j] & PW_INVEN)) continue;
-
 		/* Activate */
-		Term_activate(ang_term[j]);
+		Term_activate(angband_term[j]);
 		/* Display inventory */
 		display_inven();
 
@@ -887,13 +889,13 @@ static void fix_equip(void)
 		term *old = Term;
 
 		/* No window */
-		if (!ang_term[j]) continue;
+		if (!angband_term[j]) continue;
 
 		/* No relevant flags */
-		if (!(window_flag[j] & PW_EQUIP)) continue;
+		if (!(window_flag[j] & (PW_EQUIP))) continue;
 
 		/* Activate */
-		Term_activate(ang_term[j]);
+		Term_activate(angband_term[j]);
 
 		/* Display equipment */
 		display_equip();
@@ -918,11 +920,11 @@ static void fix_spell(void)
 	for (j = 0; j < 8; j++)
 	{
 		/* No window */
-		if (!ang_term[j]) continue;
+		if (!angband_term[j]) continue;
 		/* No relevant flags */
 		if (!(window_flag[j] & PW_SPELL)) continue;
 		/* Activate */
-		Term_activate(ang_term[j]);
+		Term_activate(angband_term[j]);
 
 		/* Display spell list */
 		display_spell_list();
@@ -949,16 +951,16 @@ static void fix_player(void)
 		term *old = Term;
 
 		/* No window */
-		if (!ang_term[j]) continue;
+		if (!angband_term[j]) continue;
 
 		/* No relevant flags */
-		if (!(window_flag[j] & PW_PLAYER)) continue;
+		if (!(window_flag[j] & (PW_PLAYER))) continue;
 
 		/* Activate */
-		Term_activate(ang_term[j]);
+		Term_activate(angband_term[j]);
 
 		/* Display player */
-		display_player(FALSE);
+		display_player(0);
 
 		/* Fresh */
 		Term_fresh();
@@ -967,7 +969,6 @@ static void fix_player(void)
 		Term_activate(old);
 	}
 }
-
 
 /*
  * Hack -- display recent messages in sub-windows
@@ -986,13 +987,13 @@ static void fix_message(void)
 		term *old = Term;
 
 		/* No window */
-		if (!ang_term[j]) continue;
+		if (!angband_term[j]) continue;
 
 		/* No relevant flags */
-		if (!(window_flag[j] & PW_MESSAGE)) continue;
+		if (!(window_flag[j] & (PW_MESSAGE))) continue;
 
 		/* Activate */
-		Term_activate(ang_term[j]);
+		Term_activate(angband_term[j]);
 
 		/* Get size */
 		Term_get_size(&w, &h);
@@ -1035,13 +1036,13 @@ static void fix_overhead(void)
 	for (j = 0; j < 8; j++)
 	{
 		/* No window */
-		if (!ang_term[j]) continue;
+		if (!angband_term[j]) continue;
 
 		/* No relevant flags */
-		if (!(window_flag[j] & PW_OVERHEAD)) continue;
+		if (!(window_flag[j] & (PW_OVERHEAD))) continue;
 
 		/* Activate */
-		Term_activate(ang_term[j]);
+		Term_activate(angband_term[j]);
 
 		/* Redraw map */
 		display_map(&cy, &cx);
@@ -1068,22 +1069,58 @@ static void fix_monster(void)
 		term *old = Term;
 
 		/* No window */
-		if (!ang_term[j]) continue;
+		if (!angband_term[j]) continue;
 
 		/* No relevant flags */
 		if (!(window_flag[j] & PW_MONSTER)) continue;
 
 		/* Activate */
-		Term_activate(ang_term[j]);
+		Term_activate(angband_term[j]);
 
 		/* Display monster info */
-		if (recent_idx) display_roff(recent_idx);
+		if (monster_race_idx) display_roff(monster_race_idx);
+
 		/* Fresh */
 		Term_fresh();
+
 		/* Restore */
 		Term_activate(old);
 	}
 }
+
+
+/*
+ * Hack -- display object recall in sub-windows
+ */
+static void fix_object(void)
+{
+	int j;
+
+	/* Scan windows */
+	for (j = 0; j < 8; j++)
+	{
+		term *old = Term;
+
+		/* No window */
+		if (!angband_term[j]) continue;
+
+		/* No relevant flags */
+		if (!(window_flag[j] & (PW_OBJECT))) continue;
+
+		/* Activate */
+		Term_activate(angband_term[j]);
+
+		/* Display monster race info */
+		if (object_kind_idx) display_koff(object_kind_idx);
+
+		/* Fresh */
+		Term_fresh();
+
+		/* Restore */
+		Term_activate(old);
+	}
+}
+
 /*
  * Calculate number of spells player should have, and forget,
  * or remember, spells until that number is properly reflected.
@@ -1095,7 +1132,6 @@ static void calc_spells(void)
 {
 	int			i, j, k, levels;
 	int			num_allowed, num_known;
-
 	magic_type		*s_ptr;
 
 	cptr p;
@@ -1330,25 +1366,24 @@ static void calc_spells(void)
 	/* Cannot learn more spells than exist */
 	if (p_ptr->new_spells > k) p_ptr->new_spells = k;
 
-	/* Learn new spells */
-	if (p_ptr->new_spells && !p_ptr->old_spells)
+	/* Spell count changed */
+	if (p_ptr->old_spells != p_ptr->new_spells)
 	{
-		/* Message */
-		msg_format("You can learn some new %ss now.", p);
-
-		/* Display "study state" later */
-		p_ptr->redraw |= (PR_STUDY);
-	}
-
-	/* No more spells */
-	else if (!p_ptr->new_spells && p_ptr->old_spells)
+		/* Message if needed */
+		if (p_ptr->new_spells)
 	{
-		/* Display "study state" later */
-		p_ptr->redraw |= (PR_STUDY);
+			/* Message */
+			msg_format("You can learn %d more %s%s.",
+			           p_ptr->new_spells, p,
+			           (p_ptr->new_spells != 1) ? "s" : "");
 	}
 
 	/* Save the new_spells value */
 	p_ptr->old_spells = p_ptr->new_spells;
+
+		/* Redraw Study Status */
+		p_ptr->redraw |= (PR_STUDY);
+	}
 }
 
 
@@ -1360,15 +1395,13 @@ static void calc_spells(void)
  */
 static void calc_mana(void)
 {
-	int		new_mana, levels, cur_wgt, max_wgt;
+	int		msp, levels, cur_wgt, max_wgt;
 
 	object_type	*o_ptr;
 
 
 	/* Hack -- Must be literate */
 	if (!p_ptr->realm) return;
-
-
 	/* Extract "effective" player level */
 	levels = smod(S_MPOWER);
 	if (levels < 20)
@@ -1380,10 +1413,10 @@ static void calc_mana(void)
 	if (levels < 0) levels = 0;
 
 	/* Extract total mana */
-	new_mana = adj_mag_mana[p_ptr->stat_ind[mp_ptr->spell_stat]] * levels/2;
+	msp = adj_mag_mana[p_ptr->stat_ind[mp_ptr->spell_stat]] * levels/2;
 
 	/* Hack -- usually add one mana */
-	if (new_mana) new_mana++;
+	if (msp) msp++;
 
 
 	/* Only mages are affected */
@@ -1407,7 +1440,7 @@ static void calc_mana(void)
 			/* Encumbered */
 			p_ptr->cumber_glove = TRUE;
 			/* Reduce mana */
-			new_mana = (3 * new_mana) / 4;
+			msp = (3 * msp) / 4;
 		}
 	}
 
@@ -1428,19 +1461,33 @@ static void calc_mana(void)
 		p_ptr->cumber_armor = TRUE;
 
 		/* Reduce mana */
-		new_mana -= ((cur_wgt - max_wgt) / 10);
+		msp -= ((cur_wgt - max_wgt) / 10);
 	}
 
 
 	/* Mana can never be negative */
-	if (new_mana < 0) new_mana = 0;
+	if (msp < 0) msp = 0;
 
 
 	/* Maximum mana has changed */
-	if (p_ptr->msp != new_mana)
+	if (p_ptr->msp != msp)
 	{
+
+#if 1
+
+		/* XXX XXX XXX New mana maintenance */
+
+		/* Enforce maximum */
+		if (p_ptr->csp >= msp)
+	{
+			p_ptr->csp = msp;
+			p_ptr->csp_frac = 0;
+		}
+
+#else
+
 		/* Player has no mana now */
-		if (!new_mana)
+		if (!msp)
 		{
 			/* No mana left */
 			p_ptr->csp = 0;
@@ -1450,7 +1497,7 @@ static void calc_mana(void)
 		else if (!p_ptr->msp)
 		{
 			/* Reset mana */
-			p_ptr->csp = new_mana;
+			p_ptr->csp = msp;
 			p_ptr->csp_frac = 0;
 		}
 
@@ -1462,15 +1509,17 @@ static void calc_mana(void)
 			/* change current mana proportionately to change of max mana, */
 			/* divide first to avoid overflow, little loss of accuracy */
 			value = ((((long)p_ptr->csp << 16) + p_ptr->csp_frac) /
-			         p_ptr->msp * new_mana);
+			         p_ptr->msp * msp);
 
 			/* Extract mana components */
 			p_ptr->csp = (value >> 16);
 			p_ptr->csp_frac = (value & 0xFFFF);
 		}
 
+#endif
+
 		/* Save new mana */
-		p_ptr->msp = new_mana;
+		p_ptr->msp = msp;
 
 		/* Display mana later */
 		p_ptr->redraw |= (PR_MANA);
@@ -1544,8 +1593,22 @@ static void calc_hitpoints(void)
 	if (p_ptr->shero) mhp += 30;
 
 	/* New maximum hitpoints */
-	if (mhp != p_ptr->mhp)
+	if (p_ptr->mhp != mhp)
 	{
+
+#if 1
+
+		/* XXX XXX XXX New hitpoint maintenance */
+
+		/* Enforce maximum */
+		if (p_ptr->chp >= mhp)
+		{
+			p_ptr->chp = mhp;
+			p_ptr->chp_frac = 0;
+		}
+
+#else
+
 		s32b value;
 
 		/* change current hit points proportionately to change of mhp */
@@ -1554,8 +1617,12 @@ static void calc_hitpoints(void)
 		value = value * mhp;
 		p_ptr->chp = (value >> 16);
 		p_ptr->chp_frac = (value & 0xFFFF);
+
+#endif
+
 		/* Save the new max-hitpoints */
 		p_ptr->mhp = mhp;
+
 		/* Display hitpoints (later) */
 		p_ptr->redraw |= (PR_HP);
 
@@ -1689,7 +1756,6 @@ static void calc_bonuses(void)
 
 	int			extra_blows;
 	int			extra_shots;
-
 	object_type		*o_ptr;
 
 	u32b		f1, f2, f3;
@@ -1711,8 +1777,6 @@ static void calc_bonuses(void)
 
 	/* Clear the stat modifiers */
 	for (i = 0; i < 7; i++) p_ptr->stat_add[i] = 0;
-
-
 	/* Clear the Displayed/Real armor class */
 	p_ptr->dis_ac = p_ptr->ac = smod(S_DODGING) + p_ptr->ac_mod;
 
@@ -1766,7 +1830,6 @@ static void calc_bonuses(void)
 	p_ptr->immune_elec = FALSE;
 	p_ptr->immune_fire = FALSE;
 	p_ptr->immune_cold = FALSE;
-
 /* Get level */
 	p_ptr->lev = get_level();
 
@@ -1852,8 +1915,6 @@ static void calc_bonuses(void)
 
 	/* Reset the "ammo" tval */
 	p_ptr->tval_ammo = 0;
-
-
 	/* Hack -- apply racial/class stat maxes */
 	if (p_ptr->maximize)
 	{
@@ -1908,7 +1969,6 @@ static void calc_bonuses(void)
 		if (f1 & TR1_IMPACT) p_ptr->impact = TRUE;
 		/* Boost shots */
 		if (f3 & TR3_XTRA_SHOTS) extra_shots++;
-
 		/* Various flags */
 		if (f3 & TR3_AGGRAVATE) p_ptr->aggravate = TRUE;
 		if (f3 & TR3_TELEPORT) p_ptr->teleport = TRUE;
@@ -1963,7 +2023,6 @@ static void calc_bonuses(void)
 
 		/* Apply the bonuses to armor class */
 		p_ptr->to_a += o_ptr->to_a;
-
 		/* Apply the mental bonuses to armor class, if known */
 		if (object_known_p(o_ptr)) p_ptr->dis_to_a += o_ptr->to_a;
 
@@ -1984,7 +2043,6 @@ static void calc_bonuses(void)
 	for (i = 0; i < 7; i++)
 	{
 		int top, use, ind;
-
 		/* Extract the new "stat_use" value for the stat */
 		top = modify_stat_value(p_ptr->stat_max[i], p_ptr->stat_add[i]);
 		/* Notice changes */
@@ -2043,8 +2101,6 @@ static void calc_bonuses(void)
 			p_ptr->window |= (PW_PLAYER);
 		}
 	}
-
-
 	/* Apply temporary "stun" */
 	if (p_ptr->stun > 50)
 	{
@@ -2123,7 +2179,6 @@ static void calc_bonuses(void)
 
 	/* Hack -- Res Chaos -> Res Conf */
 	if (p_ptr->resist_chaos) p_ptr->resist_conf = TRUE;
-
 	/* Hack -- Hero/Shero -> Res fear */
 	if (p_ptr->hero || p_ptr->shero) p_ptr->resist_fear = TRUE;
 
@@ -2146,15 +2201,17 @@ static void calc_bonuses(void)
 	if (p_ptr->food >= PY_FOOD_MAX) p_ptr->pspeed -= 10;
 	/* Searching slows the player down */
 	if (p_ptr->searching) p_ptr->pspeed -= 10;
+
+	/* Maximum speed */
+	if (p_ptr->pspeed > 180) p_ptr->pspeed = 180;
+
 	/* Display the speed (if needed) */
 	if (p_ptr->pspeed != old_speed) p_ptr->redraw |= (PR_SPEED);
-
 	/* Actual Modifier Bonuses (Un-inflate stat bonuses) */
 	p_ptr->to_a += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
 	p_ptr->to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
 	p_ptr->to_h += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
 	p_ptr->to_h += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
-
 	/* Displayed Modifier Bonuses (Un-inflate stat bonuses) */
 	p_ptr->dis_to_a += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
 	p_ptr->dis_to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
@@ -2177,7 +2234,6 @@ static void calc_bonuses(void)
 
 	/* Examine the "current bow" */
 	o_ptr = &inventory[INVEN_BOW];
-
 
 	/* Assume not heavy */
 	p_ptr->heavy_shoot = FALSE;
@@ -2425,7 +2481,6 @@ void notice_stuff(void)
 {
 	/* Notice stuff */
 	if (!p_ptr->notice) return;
-
 	/* Combine the pack */
 	if (p_ptr->notice & PN_COMBINE)
 	{
@@ -2449,32 +2504,31 @@ void update_stuff(void)
 	/* Update stuff */
 	if (!p_ptr->update) return;
 
-
-	if (p_ptr->update & PU_BONUS)
+	if (p_ptr->update & (PU_BONUS))
 	{
 		p_ptr->update &= ~(PU_BONUS);
 		calc_bonuses();
 	}
 
-	if (p_ptr->update & PU_TORCH)
+	if (p_ptr->update & (PU_TORCH))
 	{
 		p_ptr->update &= ~(PU_TORCH);
 		calc_torch();
 	}
 
-	if (p_ptr->update & PU_HP)
+	if (p_ptr->update & (PU_HP))
 	{
 		p_ptr->update &= ~(PU_HP);
 		calc_hitpoints();
 	}
 
-	if (p_ptr->update & PU_MANA)
+	if (p_ptr->update & (PU_MANA))
 	{
 		p_ptr->update &= ~(PU_MANA);
 		calc_mana();
 	}
 
-	if (p_ptr->update & PU_SPELLS)
+	if (p_ptr->update & (PU_SPELLS))
 	{
 		p_ptr->update &= ~(PU_SPELLS);
 		calc_spells();
@@ -2588,7 +2642,6 @@ void redraw_stuff(void)
 		p_ptr->redraw &= ~(PR_LEV);
 		prt_level();
 	}
-
 	if (p_ptr->redraw & PR_EXP)
 	{
 		p_ptr->redraw &= ~(PR_EXP);
@@ -2598,7 +2651,7 @@ void redraw_stuff(void)
 	if (p_ptr->redraw & PR_STATS)
 	{
 		p_ptr->redraw &= ~(PR_STATS);
-		for (i = 0; i < 7; i++) prt_stat(i);
+		for (i = 0; i < 6 + p_ptr->luck_known; i++) prt_stat(i);
 	}
 
 	if (p_ptr->redraw & PR_ARMOR)
@@ -2648,61 +2701,60 @@ void redraw_stuff(void)
 		prt_frame_extra();
 	}
 
-	if (p_ptr->redraw & PR_CUT)
+	if (p_ptr->redraw & (PR_CUT))
 	{
 		p_ptr->redraw &= ~(PR_CUT);
 		prt_cut();
 	}
 
-	if (p_ptr->redraw & PR_STUN)
+	if (p_ptr->redraw & (PR_STUN))
 	{
 		p_ptr->redraw &= ~(PR_STUN);
 		prt_stun();
 	}
 
-	if (p_ptr->redraw & PR_HUNGER)
+	if (p_ptr->redraw & (PR_HUNGER))
 	{
 		p_ptr->redraw &= ~(PR_HUNGER);
 		prt_hunger();
 	}
 
-	if (p_ptr->redraw & PR_BLIND)
+	if (p_ptr->redraw & (PR_BLIND))
 	{
 		p_ptr->redraw &= ~(PR_BLIND);
 		prt_blind();
 	}
 
-	if (p_ptr->redraw & PR_CONFUSED)
+	if (p_ptr->redraw & (PR_CONFUSED))
 	{
 		p_ptr->redraw &= ~(PR_CONFUSED);
 		prt_confused();
 	}
 
-	if (p_ptr->redraw & PR_AFRAID)
+	if (p_ptr->redraw & (PR_AFRAID))
 	{
 		p_ptr->redraw &= ~(PR_AFRAID);
 		prt_afraid();
 	}
 
-	if (p_ptr->redraw & PR_POISONED)
+	if (p_ptr->redraw & (PR_POISONED))
 	{
 		p_ptr->redraw &= ~(PR_POISONED);
 		prt_poisoned();
 	}
 
-	if (p_ptr->redraw & PR_STATE)
+	if (p_ptr->redraw & (PR_STATE))
 	{
 		p_ptr->redraw &= ~(PR_STATE);
 		prt_state();
 	}
-
-	if (p_ptr->redraw & PR_SPEED)
+	if (p_ptr->redraw & (PR_SPEED))
 	{
 		p_ptr->redraw &= ~(PR_SPEED);
 		prt_speed();
 	}
 
-	if (p_ptr->redraw & PR_STUDY)
+	if (p_ptr->redraw & (PR_STUDY))
 	{
 		p_ptr->redraw &= ~(PR_STUDY);
 		prt_study();
@@ -2768,6 +2820,13 @@ void window_stuff(void)
 	{
 		p_ptr->window &= ~(PW_MONSTER);
 		fix_monster();
+	}
+
+	/* Display object recall */
+	if (p_ptr->window & (PW_OBJECT))
+	{
+		p_ptr->window &= ~(PW_OBJECT);
+		fix_object();
 	}
 }
 

@@ -518,6 +518,10 @@ errr init_ami( void )
    struct DimensionInfo diminfo;
    int pw,ph,maxw,maxh,th,barh;
 
+   /* XXX XXX XXX */
+   use_sound = arg_sound;
+   use_graphics = arg_graphics;
+
    /* Term data pointers */
    term_data *ts = &screen;
    term_data *tc = &choice;
@@ -969,6 +973,9 @@ errr init_ami( void )
       if ( tr->use ) if ( !size_gfx( tr ) ) FAIL( "Out of memory while scaling graphics." );
       if ( tc->use ) if ( !size_gfx( tc ) ) FAIL( "Out of memory while scaling graphics." );
       if ( ts->use ) if ( !size_gfx( ts ) ) FAIL( "Out of memory while scaling graphics." );
+
+      /* Use graphics */
+      use_graphics = TRUE;
    }
 
    /* Load sound effects */
@@ -2915,6 +2922,7 @@ int init_sound( void )
    }
    /* Success */
    has_sound = TRUE;
+   use_sound = TRUE;
 
    return ( TRUE );
 }
@@ -2947,6 +2955,7 @@ void free_sound( void )
 
    /* Done */
    has_sound = FALSE;
+   use_sound = FALSE;
 }
 
 ///}

@@ -88,7 +88,7 @@ int smod(int skill)
 		case S_MAGIC: /* Should be HARD.  We have 5 points/lvl.  Spellcasting. None
 				 if below 40 points. */
 		if (tmp<40) return 0;
-		return ((tmp-40)/4)+1;
+		return ((tmp-40)/5)+1;
 		break;
 		case S_MPOWER: /* Is HARD.  4 points/lvl.  Determines Mana. */
 		if (tmp<35) return 0;

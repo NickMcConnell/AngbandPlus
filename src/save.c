@@ -352,8 +352,9 @@ static void wr_extra(void)
 
 	/* Race/Class/Gender/Spells */
 	wr_byte(p_ptr->prace);
-	wr_byte(p_ptr->male);
+	wr_byte(p_ptr->psex);
 	wr_byte(p_ptr->realm);
+	wr_byte(p_ptr->luck_known);
 
 	wr_byte(p_ptr->hitdie);
 	wr_byte(p_ptr->expfact);
@@ -482,7 +483,6 @@ static void wr_dungeon(void)
 	byte prev_char;
 
 	cave_type *c_ptr;
-
 
 	/*** Basic info ***/
 
@@ -750,11 +750,15 @@ static bool wr_savefile_new(void)
 	/* Write the inventory */
 	for (i = 0; i < INVEN_TOTAL; i++)
 	{
-		if (inventory[i].k_idx)
-		{
+		object_type *o_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+		/* Dump index */
 			wr_u16b(i);
-			wr_item(&inventory[i]);
-		}
+
+		/* Dump object */
+		wr_item(o_ptr);
 	}
 	/* Add a sentinel */
 	wr_u16b(0xFFFF);
@@ -803,7 +807,6 @@ static bool save_player_aux(char *name)
 
 	/* No file yet */
 	fff = NULL;
-
 
 #if defined(MACINTOSH) && !defined(applec)
 	/* Global -- "save file" */
@@ -967,8 +970,6 @@ bool load_player(void)
 #endif
 
 	cptr	what = "generic";
-
-
 	/* Paranoia */
 	turn = 0;
 	/* Paranoia */
@@ -1025,6 +1026,7 @@ bool load_player(void)
 
 		/* Dump a line of info */
 		fprintf(fkk, "Lock file for savefile '%s'\n", savefile);
+
 		/* Close the lock file */
 		my_fclose(fkk);
 	}
@@ -1040,6 +1042,7 @@ bool load_player(void)
 
 		/* No file */
 		if (fd < 0) err = -1;
+
 		/* Message (below) */
 		if (err) what = "Cannot open savefile";
 	}
@@ -1077,7 +1080,6 @@ bool load_player(void)
 
 		/* Attempt to load */
 		err = rd_savefile_new();
-
 #if 0
 		/* Parse "future" savefiles */
 		{

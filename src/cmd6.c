@@ -91,6 +91,8 @@ void do_cmd_eat_food(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* Sound */
+	sound(SOUND_EAT);
 
 	/* Take a turn */
 	energy_use = 100;
@@ -320,7 +322,6 @@ void do_cmd_eat_food(void)
 	/* Food can feed the player */
 	(void)set_food(p_ptr->food + o_ptr->pval);
 
-
 	/* Destroy a food in the pack */
 	if (item >= 0)
 	{
@@ -373,7 +374,8 @@ void do_cmd_quaff_potion(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-
+	/* Sound */
+	sound(SOUND_QUAFF);
 	/* Take a turn */
 	energy_use = 100;
 	/* Not identified yet */
@@ -482,7 +484,6 @@ void do_cmd_quaff_potion(void)
 			ident = TRUE;
 			break;
 		}
-
 		case SV_POTION_DEC_STR:
 		{
 			if (do_dec_stat(A_STR)) ident = TRUE;
@@ -808,10 +809,10 @@ void do_cmd_quaff_potion(void)
 			wiz_lite();
 			(void)do_inc_stat(A_INT);
 			(void)do_inc_stat(A_WIS);
-			(void)detect_treasure();
-			(void)detect_object();
-			(void)detect_sdoor();
-			(void)detect_trap();
+			(void)detect_traps();
+			(void)detect_doors();
+			(void)detect_objects_gold();
+			(void)detect_objects_normal();
 			identify_pack();
 			self_knowledge();
 			ident = TRUE;
@@ -858,10 +859,8 @@ void do_cmd_quaff_potion(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 
-
 	/* Potions can feed the player */
 	(void)set_food(p_ptr->food + o_ptr->pval);
-
 	/* Destroy a potion in the pack */
 	if (item >= 0)
 	{
@@ -924,10 +923,10 @@ static bool curse_armor(void)
 		o_ptr->ds = 0;
 
 		/* Curse it */
-		o_ptr->ident |= ID_CURSED;
+		o_ptr->ident |= (IDENT_CURSED);
 
 		/* Break it */
-		o_ptr->ident |= ID_BROKEN;
+		o_ptr->ident |= (IDENT_BROKEN);
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -986,10 +985,10 @@ static bool curse_weapon(void)
 		o_ptr->ds = 0;
 
 		/* Curse it */
-		o_ptr->ident |= ID_CURSED;
+		o_ptr->ident |= (IDENT_CURSED);
 
 		/* Break it */
-		o_ptr->ident |= ID_BROKEN;
+		o_ptr->ident |= (IDENT_BROKEN);
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -1077,11 +1076,11 @@ void do_cmd_read_scroll(void)
 	{
 		case SV_SCROLL_DARKNESS:
 		{
-			if (unlite_area(10, 3)) ident = TRUE;
 			if (!p_ptr->resist_blind)
 			{
 				(void)set_blind(p_ptr->blind + 3 + randint(5));
 			}
+			if (unlite_area(10, 3)) ident = TRUE;
 			break;
 		}
 
@@ -1164,7 +1163,6 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_IDENTIFY:
 		{
-			msg_print("This is an identify scroll.");
 			ident = TRUE;
 			if (!ident_spell()) used_up = FALSE;
 			break;
@@ -1172,7 +1170,6 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_STAR_IDENTIFY:
 		{
-			msg_print("This is an *identify* scroll.");
 			ident = TRUE;
 			if (!identify_fully()) used_up = FALSE;
 			break;
@@ -1187,7 +1184,6 @@ void do_cmd_read_scroll(void)
 			}
 			break;
 		}
-
 		case SV_SCROLL_STAR_REMOVE_CURSE:
 		{
 			remove_all_curse();
@@ -1197,7 +1193,6 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_ENCHANT_ARMOR:
 		{
-			msg_print("This is a scroll of enchant armor.");
 			ident = TRUE;
 			if (!enchant_spell(0, 0, 1)) used_up = FALSE;
 			break;
@@ -1205,7 +1200,6 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_ENCHANT_WEAPON_TO_HIT:
 		{
-			msg_print("This is a scroll of enchant weapon to-hit.");
 			if (!enchant_spell(1, 0, 0)) used_up = FALSE;
 			ident = TRUE;
 			break;
@@ -1213,7 +1207,6 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_ENCHANT_WEAPON_TO_DAM:
 		{
-			msg_print("This is a scroll of enchant weapon to-dam.");
 			if (!enchant_spell(0, 1, 0)) used_up = FALSE;
 			ident = TRUE;
 			break;
@@ -1221,7 +1214,6 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_STAR_ENCHANT_ARMOR:
 		{
-			msg_print("This is a scroll of *enchant* armor.");
 			if (!enchant_spell(0, 0, randint(3) + 2)) used_up = FALSE;
 			ident = TRUE;
 			break;
@@ -1229,14 +1221,13 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_STAR_ENCHANT_WEAPON:
 		{
-			msg_print("This is a scroll of *enchant* weapon.");
 			if (!enchant_spell(randint(3), randint(3), 0)) used_up = FALSE;
 			ident = TRUE;
 			break;
 		}
+
 		case SV_SCROLL_RECHARGING:
 		{
-			msg_print("This is a scroll of recharging.");
 			if (!recharge(60)) used_up = FALSE;
 			ident = TRUE;
 			break;
@@ -1258,29 +1249,30 @@ void do_cmd_read_scroll(void)
 		case SV_SCROLL_DETECT_GOLD:
 		{
 			if (detect_treasure()) ident = TRUE;
-			break;
+			if (detect_objects_gold()) ident = TRUE;			break;
 		}
 
 		case SV_SCROLL_DETECT_ITEM:
 		{
-			if (detect_object()) ident = TRUE;
+			if (detect_objects_normal()) ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_DETECT_TRAP:
 		{
-			if (detect_trap()) ident = TRUE;
+			if (detect_traps()) ident = TRUE;
 			break;
 		}
 		case SV_SCROLL_DETECT_DOOR:
 		{
-			if (detect_sdoor()) ident = TRUE;
+			if (detect_doors()) ident = TRUE;
+			if (detect_stairs()) ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_DETECT_INVIS:
 		{
-			if (detect_invisible()) ident = TRUE;
+			if (detect_monsters_invis()) ident = TRUE;
 			break;
 		}
 
@@ -1294,7 +1286,6 @@ void do_cmd_read_scroll(void)
 			if (set_blessed(p_ptr->blessed + randint(12) + 6)) ident = TRUE;
 			break;
 		}
-
 		case SV_SCROLL_HOLY_CHANT:
 		{
 			if (set_blessed(p_ptr->blessed + randint(24) + 12)) ident = TRUE;
@@ -1369,7 +1360,6 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_GENOCIDE:
 		{
-			msg_print("This is a genocide scroll.");
 			(void)genocide();
 			ident = TRUE;
 			break;
@@ -1377,7 +1367,6 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_MASS_GENOCIDE:
 		{
-			msg_print("This is a mass genocide scroll.");
 			(void)mass_genocide();
 			ident = TRUE;
 			break;
@@ -1456,7 +1445,6 @@ void do_cmd_use_staff(void)
 	/* Hack -- let staffs of identify get aborted */
 	bool use_charge = TRUE;
 
-
 	/* Restrict choices to wands */
 	item_tester_tval = TV_STAFF;
 
@@ -1485,14 +1473,6 @@ void do_cmd_use_staff(void)
 	{
 		msg_print("You must first pick up the staffs.");
 		return;
-	}
-	/* Verify potential overflow */
-	if ((inven_cnt >= INVEN_PACK) &&
-	    (o_ptr->number > 1))
-	{
-		/* Verify with the player */
-		if (other_query_flag &&
-		    !get_check("Your pack might overflow.  Continue? ")) return;
 	}
 
 	/* Take a turn */
@@ -1531,21 +1511,23 @@ void do_cmd_use_staff(void)
 	{
 		if (flush_failure) flush();
 		msg_print("The staff has no charges left.");
-		o_ptr->ident |= ID_EMPTY;
+		o_ptr->ident |= (IDENT_EMPTY);
 		return;
 	}
 
+	/* Sound */
+	sound(SOUND_ZAP);
 
 	/* Analyze the staff */
 	switch (o_ptr->sval)
 	{
 		case SV_STAFF_DARKNESS:
 		{
-			if (unlite_area(10, 3)) ident = TRUE;
 			if (!p_ptr->resist_blind)
 			{
 				if (set_blind(p_ptr->blind + 3 + randint(5))) ident = TRUE;
 			}
+			if (unlite_area(10, 3)) ident = TRUE;
 			break;
 		}
 
@@ -1626,28 +1608,31 @@ void do_cmd_use_staff(void)
 		case SV_STAFF_DETECT_GOLD:
 		{
 			if (detect_treasure()) ident = TRUE;
+			if (detect_objects_gold()) ident = TRUE;			break;
 			break;
 		}
 
 		case SV_STAFF_DETECT_ITEM:
 		{
-			if (detect_object()) ident = TRUE;
+			if (detect_objects_normal()) ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_DETECT_TRAP:
 		{
-			if (detect_trap()) ident = TRUE;
+			if (detect_traps()) ident = TRUE;
 			break;
 		}
+
 		case SV_STAFF_DETECT_DOOR:
 		{
-			if (detect_sdoor()) ident = TRUE;
-			break;
+			if (detect_doors()) ident = TRUE;
+			if (detect_stairs()) ident = TRUE;
+		break;
 		}
 		case SV_STAFF_DETECT_INVIS:
 		{
-			if (detect_invisible()) ident = TRUE;
+			if (detect_monsters_invis()) ident = TRUE;
 			break;
 		}
 
@@ -1733,7 +1718,6 @@ void do_cmd_use_staff(void)
 			if (dispel_creature(RF3_EVIL, 60)) ident = TRUE;
 			break;
 		}
-
 		case SV_STAFF_POWER:
 		{
 			if (dispel_creature(0, 120)) ident = TRUE;
@@ -1802,19 +1786,29 @@ void do_cmd_use_staff(void)
 	if ((item >= 0) && (o_ptr->number > 1))
 	{
 		/* Make a fake item */
-		object_type tmp_obj;
-		tmp_obj = *o_ptr;
-		tmp_obj.number = 1;
+		object_type forge;
+		object_type *q_ptr;
+
+		/* Get local object */
+		q_ptr = &forge;
+
+		/* Obtain a local object */
+		object_copy(q_ptr, o_ptr);
+
+		/* Modify quantity */
+		q_ptr->number = 1;
+
 		/* Restore the charges */
 		o_ptr->pval++;
 
 		/* Unstack the used item */
 		o_ptr->number--;
-		total_weight -= tmp_obj.weight;
-		item = inven_carry(&tmp_obj);
+		total_weight -= q_ptr->weight;
+		item = inven_carry(q_ptr, FALSE);
 
 		/* Message */
 		msg_print("You unstack your staff.");
+
 	}
 
 	/* Describe charges in the pack */
@@ -1885,16 +1879,6 @@ void do_cmd_aim_wand(void)
 		return;
 	}
 
-	/* Hack -- verify potential overflow */
-	if ((inven_cnt >= INVEN_PACK) &&
-	    (o_ptr->number > 1))
-	{
-		/* Verify with the player */
-		if (other_query_flag &&
-		    !get_check("Your pack might overflow.  Continue? ")) return;
-	}
-
-
 	/* Allow direction to be cancelled for free */
 	if (!get_aim_dir(&dir)) return;
 
@@ -1935,12 +1919,14 @@ void do_cmd_aim_wand(void)
 	{
 		if (flush_failure) flush();
 		msg_print("The wand has no charges left.");
-		o_ptr->ident |= ID_EMPTY;
+		o_ptr->ident |= (IDENT_EMPTY);
 		return;
 	}
 
+	/* Sound */
+	sound(SOUND_ZAP);
 
-
+/* XXX Hack -- Extract the "sval" effect */
 	/* XXX Hack -- Extract the "sval" effect */
 	sval = o_ptr->sval;
 
@@ -2163,8 +2149,6 @@ void do_cmd_aim_wand(void)
 			break;
 		}
 	}
-
-
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
@@ -2189,17 +2173,26 @@ void do_cmd_aim_wand(void)
 	if ((item >= 0) && (o_ptr->number > 1))
 	{
 		/* Make a fake item */
-		object_type tmp_obj;
-		tmp_obj = *o_ptr;
-		tmp_obj.number = 1;
+		object_type forge;
+		object_type *q_ptr;
+
+		/* Get local object */
+		q_ptr = &forge;
+
+		/* Obtain a local object */
+		object_copy(q_ptr, o_ptr);
+
+		/* Modify quantity */
+		q_ptr->number = 1;
 
 		/* Restore the charges */
 		o_ptr->pval++;
 
 		/* Unstack the used item */
 		o_ptr->number--;
-		total_weight -= tmp_obj.weight;
-		item = inven_carry(&tmp_obj);
+		total_weight -= q_ptr->weight;
+		item = inven_carry(q_ptr, FALSE);
+
 		/* Message */
 		msg_print("You unstack your wand.");
 	}
@@ -2267,14 +2260,6 @@ void do_cmd_zap_rod(void)
 		return;
 	}
 
-	/* Hack -- verify potential overflow */
-	if ((inven_cnt >= INVEN_PACK) &&
-	    (o_ptr->number > 1))
-	{
-		/* Verify with the player */
-		if (other_query_flag &&
-		    !get_check("Your pack might overflow.  Continue? ")) return;
-	}
 
 	/* Get a direction (unless KNOWN not to need it) */
 	if ((o_ptr->sval >= SV_ROD_MIN_DIRECTION) || !object_aware_p(o_ptr))
@@ -2329,13 +2314,14 @@ void do_cmd_zap_rod(void)
 	{
 		case SV_ROD_DETECT_TRAP:
 		{
-			if (detect_trap()) ident = TRUE;
+			if (detect_traps()) ident = TRUE;
 			o_ptr->pval = 50;
 			break;
 		}
+
 		case SV_ROD_DETECT_DOOR:
 		{
-			if (detect_sdoor()) ident = TRUE;
+			if (detect_doors()) ident = TRUE;
 			o_ptr->pval = 70;
 			break;
 		}
@@ -2379,10 +2365,9 @@ void do_cmd_zap_rod(void)
 			o_ptr->pval = 99;
 			break;
 		}
-
 		case SV_ROD_DETECTION:
 		{
-			detection();
+			detect_all();
 			ident = TRUE;
 			o_ptr->pval = 99;
 			break;
@@ -2489,7 +2474,6 @@ void do_cmd_zap_rod(void)
 			o_ptr->pval = 25;
 			break;
 		}
-
 		case SV_ROD_ACID_BOLT:
 		{
 			fire_bolt_or_beam(10, GF_ACID, dir, damroll(6, 8));
@@ -2580,18 +2564,25 @@ void do_cmd_zap_rod(void)
 	/* XXX Hack -- unstack if necessary */
 	if ((item >= 0) && (o_ptr->number > 1))
 	{
-		/* Make a fake item */
-		object_type tmp_obj;
-		tmp_obj = *o_ptr;
-		tmp_obj.number = 1;
+		object_type forge;
+		object_type *q_ptr;
+
+		/* Get local object */
+		q_ptr = &forge;
+
+		/* Obtain a local object */
+		object_copy(q_ptr, o_ptr);
+
+		/* Modify quantity */
+		q_ptr->number = 1;
 
 		/* Restore "charge" */
 		o_ptr->pval = 0;
 
 		/* Unstack the used item */
 		o_ptr->number--;
-		total_weight -= tmp_obj.weight;
-		item = inven_carry(&tmp_obj);
+		total_weight -= q_ptr->weight;
+		item = inven_carry(q_ptr, FALSE);
 
 		/* Message */
 		msg_print("You unstack your rod.");
@@ -2614,7 +2605,7 @@ static bool item_tester_hook_activate(object_type *o_ptr)
 	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Check activation flag */
-	if (f3 & TR3_ACTIVATE) return (TRUE);
+	if (f3 & (TR3_ACTIVATE)) return (TRUE);
 
 	/* Assume not */
 	return (FALSE);
@@ -2693,14 +2684,12 @@ static bool brand_bolts(void)
 {
 	int i;
 
-	/* Use the first (XXX) acceptable bolts */
+	/* Use the first acceptable bolts */
 	for (i = 0; i < INVEN_PACK; i++)
 	{
 		object_type *o_ptr = &inventory[i];
-
 		/* Skip non-bolts */
 		if (o_ptr->tval != TV_BOLT) continue;
-
 		/* Skip artifacts and ego-items */
 		if (artifact_p(o_ptr) || ego_item_p(o_ptr)) continue;
 		/* Skip cursed/broken items */
@@ -2752,7 +2741,6 @@ void do_cmd_activate(void)
 
 	/* Prepare the hook */
 	item_tester_hook = item_tester_hook_activate;
-
 	/* Get an item (from equip) */
 	if (!get_item(&item, "Activate which item? ", TRUE, FALSE, FALSE))
 	{
@@ -2861,7 +2849,6 @@ void do_cmd_activate(void)
 				o_ptr->timeout = rand_int(5) + 5;
 				break;
 			}
-
 			case ART_DAL:
 			{
 				msg_print("You feel energy flow through your feet...");
@@ -3045,6 +3032,7 @@ void do_cmd_activate(void)
 
 			case ART_BELEGENNON:
 			{
+				msg_print("Your armor twists space around you...");
 				teleport_player(10);
 				o_ptr->timeout = 2;
 				break;
@@ -3054,12 +3042,6 @@ void do_cmd_activate(void)
 			{
 				(void)genocide();
 				o_ptr->timeout = 500;
-				break;
-			}
-			case ART_LUTHIEN:
-			{
-				restore_level();
-				o_ptr->timeout = 450;
 				break;
 			}
 
@@ -3094,7 +3076,7 @@ void do_cmd_activate(void)
 
 			case ART_THINGOL:
 			{
-				msg_print("You hear a low humming noise...");
+				msg_print("Your cloak glows bright yellow...");
 				recharge(60);
 				o_ptr->timeout = 70;
 				break;
@@ -3102,17 +3084,17 @@ void do_cmd_activate(void)
 
 			case ART_COLANNON:
 			{
+				msg_print("Your cloak twists space around you...");
 				teleport_player(100);
 				o_ptr->timeout = 45;
 				break;
 			}
 
-			case ART_TOTILA:
+			case ART_LUTHIEN:
 			{
-				msg_print("Your flail glows in scintillating colours...");
-				if (!get_aim_dir(&dir)) return;
-				confuse_monster(dir, 20);
-				o_ptr->timeout = 15;
+				msg_print("Your cloak glows a deep red...");
+				restore_level();
+				o_ptr->timeout = 450;
 				break;
 			}
 			case ART_CAMMITHRIM:
@@ -3152,7 +3134,7 @@ void do_cmd_activate(void)
 			}
 			case ART_PAURNEN:
 			{
-				msg_print("Your gauntlets look very acidic...");
+				msg_print("Your gauntlets are covered in acid...");
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_ACID, dir, damroll(5, 8));
 				o_ptr->timeout = rand_int(5) + 5;
@@ -3170,7 +3152,7 @@ void do_cmd_activate(void)
 			case ART_HOLHENNETH:
 			{
 				msg_print("An image forms in your mind...");
-				detection();
+				detect_all();
 				o_ptr->timeout = rand_int(55) + 55;
 				break;
 			}
@@ -3183,7 +3165,6 @@ void do_cmd_activate(void)
 				o_ptr->timeout = 500;
 				break;
 			}
-
 			case ART_RAZORBACK:
 			{
 				msg_print("You are surrounded by lightning!");
@@ -3227,12 +3208,11 @@ void do_cmd_activate(void)
 			{
 				msg_print("The stone glows a deep green...");
 				wiz_lite();
-				(void)detect_sdoor();
-				(void)detect_trap();
+				(void)detect_doors();
+				(void)detect_traps();
 				o_ptr->timeout = rand_int(100) + 100;
 				break;
 			}
-
 
 			case ART_INGWE:
 			{
@@ -3340,7 +3320,6 @@ void do_cmd_activate(void)
 				o_ptr->timeout = rand_int(450) + 450;
 				break;
 			}
-
 			case SV_DRAGON_GREEN:
 			{
 				msg_print("You breathe poison gas.");

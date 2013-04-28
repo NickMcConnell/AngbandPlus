@@ -1316,7 +1316,28 @@ byte extract_energy[200] =
 
 
 /*
- * Player Race Information:
+ * Player Sexes
+ *
+ *	Title,
+ *	Winner
+ */
+player_sex sex_info[MAX_SEXES] =
+{
+	{
+		"Female",
+		"Queen"
+	},
+	
+	{
+		"Male",
+		"King"
+	}
+};
+
+
+/*
+ * Player Races
+ *
  *    Title,
  *    {STR,INT,WIS,DEX,CON,CHR, LUC},
  *    r_srh, r_thn, r_thb,
@@ -1954,8 +1975,8 @@ u32b spell_flags[4][9][2] =
 		{ 0x0000ff00, 0x00000000 },
 		{ 0x01ff0000, 0x00000000 },
 		{ 0x7e000000, 0x00000000 },
-		{ 0x80000000, 0x0000000f },
-		{ 0x00000000, 0x000001f0 },
+		{ 0x80000000, 0x0000001f },
+		{ 0x00000000, 0x000001e0 },
 		{ 0x00000000, 0x00003e00 },
 		{ 0x00000000, 0x000fc000 },
 		{ 0x00000000, 0x01f00000 }
@@ -2399,23 +2420,6 @@ cptr color_names[16] =
 
 
 /*
- * Hack -- the "basic" sound names (see "SOUND_xxx")
- */
-cptr sound_names[SOUND_MAX] =
-{
-	"",
-	"hit",
-	"miss",
-	"flee",
-	"drop",
-	"kill",
-	"level",
-	"death",
-};
-
-
-
-/*
  * Abbreviations of healthy stats
  */
 cptr stat_names[7] =
@@ -2430,22 +2434,6 @@ cptr stat_names_reduced[7] =
 {
 	"Str: ", "Int: ", "Wis: ", "Dex: ", "Con: ", "Chr: ", "Luc: "
 };
-
-/*
- * Standard window names
- */
-cptr ang_term_name[8] =
-{
-	"Angband",
-	"Mirror",
-	"Recall",
-	"Choice",
-	"Term-4",
-	"Term-5",
-	"Term-6",
-	"Term-7"
-};
-
 
 /*
  * Certain "screens" always use the main screen, including News, Birth,
@@ -2716,6 +2704,15 @@ option_type option_info[] =
 
 	{ &view_special_lite,	FALSE,	4,	1, 31,
 	"view_special_lite",	"Use special colors for floor grids (slow)" },
+
+
+	/*** Testing ***/
+
+	{ &testing_stack,		FALSE,	255, 7, 30,
+	"testing_stack",		"Testing -- allow objects to stack on floor" },
+
+	{ &testing_carry,		FALSE,	255, 7, 31,
+	"testing_carry",		"Testing -- allow monsters to carry objects" },
 
 
 	/*** End of Table ***/

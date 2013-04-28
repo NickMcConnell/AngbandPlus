@@ -56,7 +56,7 @@
 static bool int_outof(monster_race *r_ptr, int prob)
 {
 	/* Non-Smart monsters are half as "smart" */
-	if (!(r_ptr->flags2 & RF2_SMART)) prob = prob / 2;
+	if (!(r_ptr->flags2 & (RF2_SMART))) prob = prob / 2;
 
 	/* Roll the dice */
 	return (rand_int(100) < prob);
@@ -80,7 +80,7 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 
 
 	/* Too stupid to know anything */
-	if (r_ptr->flags2 & RF2_STUPID) return;
+	if (r_ptr->flags2 & (RF2_STUPID)) return;
 
 
 	/* Must be cheating or learning */
@@ -102,39 +102,39 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 	if (smart_cheat)
 	{
 		/* Know basic info */
-		if (p_ptr->resist_acid) smart |= SM_RES_ACID;
-		if (p_ptr->oppose_acid) smart |= SM_OPP_ACID;
-		if (p_ptr->immune_acid) smart |= SM_IMM_ACID;
-		if (p_ptr->resist_elec) smart |= SM_RES_ELEC;
-		if (p_ptr->oppose_elec) smart |= SM_OPP_ELEC;
-		if (p_ptr->immune_elec) smart |= SM_IMM_ELEC;
-		if (p_ptr->resist_fire) smart |= SM_RES_FIRE;
-		if (p_ptr->oppose_fire) smart |= SM_OPP_FIRE;
-		if (p_ptr->immune_fire) smart |= SM_IMM_FIRE;
-		if (p_ptr->resist_cold) smart |= SM_RES_COLD;
-		if (p_ptr->oppose_cold) smart |= SM_OPP_COLD;
-		if (p_ptr->immune_cold) smart |= SM_IMM_COLD;
+		if (p_ptr->resist_acid) smart |= (SM_RES_ACID);
+		if (p_ptr->oppose_acid) smart |= (SM_OPP_ACID);
+		if (p_ptr->immune_acid) smart |= (SM_IMM_ACID);
+		if (p_ptr->resist_elec) smart |= (SM_RES_ELEC);
+		if (p_ptr->oppose_elec) smart |= (SM_OPP_ELEC);
+		if (p_ptr->immune_elec) smart |= (SM_IMM_ELEC);
+		if (p_ptr->resist_fire) smart |= (SM_RES_FIRE);
+		if (p_ptr->oppose_fire) smart |= (SM_OPP_FIRE);
+		if (p_ptr->immune_fire) smart |= (SM_IMM_FIRE);
+		if (p_ptr->resist_cold) smart |= (SM_RES_COLD);
+		if (p_ptr->oppose_cold) smart |= (SM_OPP_COLD);
+		if (p_ptr->immune_cold) smart |= (SM_IMM_COLD);
 
 		/* Know poison info */
-		if (p_ptr->resist_pois) smart |= SM_RES_POIS;
-		if (p_ptr->oppose_pois) smart |= SM_OPP_POIS;
+		if (p_ptr->resist_pois) smart |= (SM_RES_POIS);
+		if (p_ptr->oppose_pois) smart |= (SM_OPP_POIS);
 
 		/* Know special resistances */
-		if (p_ptr->resist_neth) smart |= SM_RES_NETH;
-		if (p_ptr->resist_lite) smart |= SM_RES_LITE;
-		if (p_ptr->resist_dark) smart |= SM_RES_DARK;
-		if (p_ptr->resist_fear) smart |= SM_RES_FEAR;
-		if (p_ptr->resist_conf) smart |= SM_RES_CONF;
-		if (p_ptr->resist_chaos) smart |= SM_RES_CHAOS;
-		if (p_ptr->resist_disen) smart |= SM_RES_DISEN;
-		if (p_ptr->resist_blind) smart |= SM_RES_BLIND;
-		if (p_ptr->resist_nexus) smart |= SM_RES_NEXUS;
-		if (p_ptr->resist_sound) smart |= SM_RES_SOUND;
-		if (p_ptr->resist_shard) smart |= SM_RES_SHARD;
+		if (p_ptr->resist_neth) smart |= (SM_RES_NETH);
+		if (p_ptr->resist_lite) smart |= (SM_RES_LITE);
+		if (p_ptr->resist_dark) smart |= (SM_RES_DARK);
+		if (p_ptr->resist_fear) smart |= (SM_RES_FEAR);
+		if (p_ptr->resist_conf) smart |= (SM_RES_CONF);
+		if (p_ptr->resist_chaos) smart |= (SM_RES_CHAOS);
+		if (p_ptr->resist_disen) smart |= (SM_RES_DISEN);
+		if (p_ptr->resist_blind) smart |= (SM_RES_BLIND);
+		if (p_ptr->resist_nexus) smart |= (SM_RES_NEXUS);
+		if (p_ptr->resist_sound) smart |= (SM_RES_SOUND);
+		if (p_ptr->resist_shard) smart |= (SM_RES_SHARD);
 
 		/* Know bizarre "resistances" */
-		if (p_ptr->free_act) smart |= SM_IMM_FREE;
-		if (!p_ptr->msp) smart |= SM_IMM_MANA;
+		if (p_ptr->free_act) smart |= (SM_IMM_FREE);
+		if (!p_ptr->msp) smart |= (SM_IMM_MANA);
 	}
 
 
@@ -351,7 +351,7 @@ static void breath(int m_idx, int typ, int dam_hp)
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	/* Determine the radius of the blast */
-	rad = (r_ptr->flags2 & RF2_POWERFUL) ? 3 : 2;
+	rad = (r_ptr->flags2 & (RF2_POWERFUL)) ? 3 : 2;
 
 	/* Target the player with a ball attack */
 	(void)project(m_idx, rad, py, px, dam_hp, typ, flg);
@@ -409,6 +409,9 @@ static void breath(int m_idx, int typ, int dam_hp)
  * cases in which the monster has no spells, or has spells but cannot use
  * them, or has spells but they will have no "useful" effect.  Note that
  * this function has been an efficiency bottleneck in the past.
+ *
+ * Note the special "MFLAG_NICE" flag, which prevents a monster from using
+ * any spell attacks until the player has had a single chance to move.
  */
 bool make_attack_spell(int m_idx)
 {
@@ -448,14 +451,17 @@ bool make_attack_spell(int m_idx)
 	bool direct = TRUE;
 
 
+	/* Cannot cast spells when confused */
+	if (m_ptr->confused) return (FALSE);
+
+	/* Cannot cast spells when nice */
+	if (m_ptr->mflag & (MFLAG_NICE)) return (FALSE);
+
 	/* Hack -- Extract the spell probability */
 	chance = (r_ptr->freq_inate + r_ptr->freq_spell) / 2;
 
 	/* Not allowed to cast spells */
 	if (!chance) return (FALSE);
-
-	/* Cannot cast spells when confused */
-	if (m_ptr->confused) return (FALSE);
 
 	/* Only do spells occasionally */
 	if (rand_int(100) >= chance) return (FALSE);
@@ -485,14 +491,14 @@ bool make_attack_spell(int m_idx)
 	f6 = r_ptr->flags6;
 
 	/* Hack -- allow "desperate" spells */
-	if ((r_ptr->flags2 & RF2_SMART) &&
+	if ((r_ptr->flags2 & (RF2_SMART)) &&
 	    (m_ptr->hp < m_ptr->maxhp / 10) &&
 	    (rand_int(100) < 50))
 	{
 		/* Require intelligent spells */
-		f4 &= RF4_INT_MASK;
-		f5 &= RF5_INT_MASK;
-		f6 &= RF6_INT_MASK;
+		f4 &= (RF4_INT_MASK);
+		f5 &= (RF5_INT_MASK);
+		f6 &= (RF6_INT_MASK);
 
 		/* No spells left */
 		if (!f4 && !f5 && !f6) return (FALSE);
@@ -1925,7 +1931,10 @@ bool make_attack_spell(int m_idx)
 
 
 	/* Always take note of monsters that kill you */
-	if (death && (r_ptr->r_deaths < MAX_SHORT)) r_ptr->r_deaths++;
+	if (death && (r_ptr->r_deaths < MAX_SHORT))
+	{
+		r_ptr->r_deaths++;
+	}
 
 
 	/* A spell was cast */
@@ -2043,8 +2052,8 @@ static bool get_moves_aux(int m_idx, int *yp, int *xp)
 	if (!flow_by_sound) return (FALSE);
 
 	/* Monster can go through rocks */
-	if (r_ptr->flags2 & RF2_PASS_WALL) return (FALSE);
-	if (r_ptr->flags2 & RF2_KILL_WALL) return (FALSE);
+	if (r_ptr->flags2 & (RF2_PASS_WALL)) return (FALSE);
+	if (r_ptr->flags2 & (RF2_KILL_WALL)) return (FALSE);
 
 	/* Monster location */
 	y1 = m_ptr->fy;
@@ -2350,7 +2359,7 @@ static void process_monster(int m_idx)
 	int			mm[8];
 
 	cave_type    	*c_ptr;
-	object_type 	*o_ptr;
+
 	monster_type	*y_ptr;
 
 	bool		do_turn;
@@ -2398,7 +2407,10 @@ static void process_monster(int m_idx)
 				if (m_ptr->ml)
 				{
 					/* Hack -- Count the ignores */
-					if (r_ptr->r_ignore < MAX_UCHAR) r_ptr->r_ignore++;
+					if (r_ptr->r_ignore < MAX_UCHAR)
+					{
+						r_ptr->r_ignore++;
+					}
 				}
 			}
 
@@ -2420,7 +2432,10 @@ static void process_monster(int m_idx)
 					msg_format("%^s wakes up.", m_name);
 
 					/* Hack -- Count the wakings */
-					if (r_ptr->r_wake < MAX_UCHAR) r_ptr->r_wake++;
+					if (r_ptr->r_wake < MAX_UCHAR)
+					{
+						r_ptr->r_wake++;
+					}
 				}
 			}
 		}
@@ -2548,7 +2563,7 @@ static void process_monster(int m_idx)
 
 
 	/* Attempt to "mutiply" if able and allowed */
-	if ((r_ptr->flags2 & RF2_MULTIPLY) && (num_repro < MAX_REPRO))
+	if ((r_ptr->flags2 & (RF2_MULTIPLY)) && (num_repro < MAX_REPRO))
 	{
 		int k, y, x;
 		/* Count the adjacent monsters */
@@ -2567,7 +2582,10 @@ static void process_monster(int m_idx)
 			if (multiply_monster(m_idx))
 			{
 				/* Take note if visible */
-				if (m_ptr->ml) r_ptr->r_flags2 |= RF2_MULTIPLY;
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags2 |= (RF2_MULTIPLY);
+				}
 
 				/* Multiplying takes energy */
 				return;
@@ -2593,35 +2611,35 @@ static void process_monster(int m_idx)
 	}
 
 	/* 75% random movement */
-	else if ((r_ptr->flags1 & RF1_RAND_50) &&
-	         (r_ptr->flags1 & RF1_RAND_25) &&
+	else if ((r_ptr->flags1 & (RF1_RAND_50)) &&
+	         (r_ptr->flags1 & (RF1_RAND_25)) &&
 	         (rand_int(100) < 75))
 	{
 		/* Memorize flags */
-		if (m_ptr->ml) r_ptr->r_flags1 |= RF1_RAND_50;
-		if (m_ptr->ml) r_ptr->r_flags1 |= RF1_RAND_25;
+		if (m_ptr->ml) r_ptr->r_flags1 |= (RF1_RAND_50);
+		if (m_ptr->ml) r_ptr->r_flags1 |= (RF1_RAND_25);
 
 		/* Try four "random" directions */
 		mm[0] = mm[1] = mm[2] = mm[3] = 5;
 	}
 
 	/* 50% random movement */
-	else if ((r_ptr->flags1 & RF1_RAND_50) &&
+	else if ((r_ptr->flags1 & (RF1_RAND_50)) &&
 	         (rand_int(100) < 50))
 	{
 		/* Memorize flags */
-		if (m_ptr->ml) r_ptr->r_flags1 |= RF1_RAND_50;
+		if (m_ptr->ml) r_ptr->r_flags1 |= (RF1_RAND_50);
 
 		/* Try four "random" directions */
 		mm[0] = mm[1] = mm[2] = mm[3] = 5;
 	}
 
 	/* 25% random movement */
-	else if ((r_ptr->flags1 & RF1_RAND_25) &&
+	else if ((r_ptr->flags1 & (RF1_RAND_25)) &&
 	         (rand_int(100) < 25))
 	{
 		/* Memorize flags */
-		if (m_ptr->ml) r_ptr->r_flags1 |= RF1_RAND_25;
+		if (m_ptr->ml) r_ptr->r_flags1 |= (RF1_RAND_25);
 
 		/* Try four "random" directions */
 		mm[0] = mm[1] = mm[2] = mm[3] = 5;
@@ -2667,9 +2685,6 @@ static void process_monster(int m_idx)
 		c_ptr = &cave[ny][nx];
 
 		/* Access that cave grid's contents */
-		o_ptr = &o_list[c_ptr->o_idx];
-
-		/* Access that cave grid's contents */
 		y_ptr = &m_list[c_ptr->m_idx];
 
 
@@ -2687,7 +2702,7 @@ static void process_monster(int m_idx)
 		}
 
 		/* Monster moves through walls (and doors) */
-		else if (r_ptr->flags2 & RF2_PASS_WALL)
+		else if (r_ptr->flags2 & (RF2_PASS_WALL))
 		{
 			/* Pass through walls/doors/rubble */
 			do_move = TRUE;
@@ -2697,7 +2712,7 @@ static void process_monster(int m_idx)
 		}
 
 		/* Monster destroys walls (and doors) */
-		else if (r_ptr->flags2 & RF2_KILL_WALL)
+		else if (r_ptr->flags2 & (RF2_KILL_WALL))
 		{
 			/* Eat through walls/doors/rubble */
 			do_move = TRUE;
@@ -2731,7 +2746,7 @@ static void process_monster(int m_idx)
 			do_turn = TRUE;
 
 			/* Creature can open doors. */
-			if (r_ptr->flags2 & RF2_OPEN_DOOR)
+			if (r_ptr->flags2 & (RF2_OPEN_DOOR))
 			{
 				/* Closed doors and secret doors */
 				if ((c_ptr->feat == FEAT_DOOR_HEAD) ||
@@ -2753,7 +2768,7 @@ static void process_monster(int m_idx)
 					k = ((c_ptr->feat - FEAT_DOOR_HEAD) & 0x07);
 
 #if 0
-					/* XXX XXX XXX XXX Old test (pval 10 to 20) */
+					/* XXX XXX XXX Old test (pval 10 to 20) */
 					if (randint((m_ptr->hp + 1) * (50 + o_ptr->pval)) <
 					    40 * (m_ptr->hp - 10 - o_ptr->pval));
 #endif
@@ -2762,7 +2777,7 @@ static void process_monster(int m_idx)
 					if (rand_int(m_ptr->hp / 10) > k)
 					{
 						/* Unlock the door */
-						c_ptr->feat = FEAT_DOOR_HEAD + 0x00;
+						cave_set_feat(ny, nx, FEAT_DOOR_HEAD + 0x00);
 
 						/* Do not bash the door */
 						may_bash = FALSE;
@@ -2771,7 +2786,7 @@ static void process_monster(int m_idx)
 			}
 
 			/* Stuck doors -- attempt to bash them down if allowed */
-			if (may_bash && (r_ptr->flags2 & RF2_BASH_DOOR))
+			if (may_bash && (r_ptr->flags2 & (RF2_BASH_DOOR)))
 			{
 				int k;
 
@@ -2779,7 +2794,7 @@ static void process_monster(int m_idx)
 				k = ((c_ptr->feat - FEAT_DOOR_HEAD) & 0x07);
 
 #if 0
-				/* XXX XXX XXX XXX Old test (pval 10 to 20) */
+				/* XXX XXX XXX Old test (pval 10 to 20) */
 				if (randint((m_ptr->hp + 1) * (50 + o_ptr->pval)) <
 				    40 * (m_ptr->hp - 10 - o_ptr->pval));
 #endif
@@ -2808,20 +2823,14 @@ static void process_monster(int m_idx)
 				/* Break down the door */
 				if (did_bash_door && (rand_int(100) < 50))
 				{
-					c_ptr->feat = FEAT_BROKEN;
+					cave_set_feat(ny, nx, FEAT_BROKEN);
 				}
 
 				/* Open the door */
 				else
 				{
-					c_ptr->feat = FEAT_OPEN;
+					cave_set_feat(ny, nx, FEAT_OPEN);
 				}
-
-				/* Notice */
-				note_spot(ny, nx);
-
-				/* Redraw */
-				lite_spot(ny, nx);
 
 				/* Handle viewable doors */
 				if (player_has_los_bold(ny, nx)) do_view = TRUE;
@@ -2839,13 +2848,16 @@ static void process_monster(int m_idx)
 			if (randint(BREAK_GLYPH) < r_ptr->level)
 			{
 				/* Describe observable breakage */
-				if (c_ptr->info & CAVE_MARK)
+				if (c_ptr->info & (CAVE_MARK))
 				{
 					msg_print("The rune of protection is broken!");
 				}
 
+				/* Forget the rune */
+				c_ptr->info &= ~(CAVE_MARK);
+
 				/* Break the rune */
-				c_ptr->feat = FEAT_FLOOR;
+				cave_set_feat(ny, nx, FEAT_FLOOR);
 
 				/* Allow movement */
 				do_move = TRUE;
@@ -2854,10 +2866,10 @@ static void process_monster(int m_idx)
 
 		/* Some monsters never attack */
 		if (do_move && (ny == py) && (nx == px) &&
-		    (r_ptr->flags1 & RF1_NEVER_BLOW))
+		    (r_ptr->flags1 & (RF1_NEVER_BLOW)))
 		{
 			/* Hack -- memorize lack of attacks */
-			/* if (m_ptr->ml) r_ptr->r_flags1 |= RF1_NEVER_BLOW; */
+			/* if (m_ptr->ml) r_ptr->r_flags1 |= (RF1_NEVER_BLOW); */
 
 			/* Do not move */
 			do_move = FALSE;
@@ -2879,10 +2891,10 @@ static void process_monster(int m_idx)
 
 
 		/* Some monsters never move */
-		if (do_move && (r_ptr->flags1 & RF1_NEVER_MOVE))
+		if (do_move && (r_ptr->flags1 & (RF1_NEVER_MOVE)))
 		{
 			/* Hack -- memorize lack of attacks */
-			/* if (m_ptr->ml) r_ptr->r_flags1 |= RF1_NEVER_MOVE; */
+			/* if (m_ptr->ml) r_ptr->r_flags1 |= (RF1_NEVER_MOVE); */
 
 			/* Do not move */
 			do_move = FALSE;
@@ -2898,7 +2910,7 @@ static void process_monster(int m_idx)
 			do_move = FALSE;
 
 			/* Kill weaker monsters */
-			if ((r_ptr->flags2 & RF2_KILL_BODY) &&
+			if ((r_ptr->flags2 & (RF2_KILL_BODY)) &&
 			    (r_ptr->mexp > z_ptr->mexp))
 			{
 				/* Allow movement */
@@ -2917,7 +2929,7 @@ static void process_monster(int m_idx)
 			}
 
 			/* Push past weaker monsters (unless leaving a wall) */
-			if ((r_ptr->flags2 & RF2_MOVE_BODY) &&
+			if ((r_ptr->flags2 & (RF2_MOVE_BODY)) &&
 			    (r_ptr->mexp > z_ptr->mexp) &&
 			    (cave_floor_bold(m_ptr->fy, m_ptr->fx)))
 			{
@@ -2935,6 +2947,8 @@ static void process_monster(int m_idx)
 		/* Creature has been allowed move */
 		if (do_move)
 		{
+			s16b this_o_idx, next_o_idx = 0;
+
 			/* Take a turn */
 			do_turn = TRUE;
 
@@ -2971,7 +2985,7 @@ static void process_monster(int m_idx)
 			/* Possible disturb */
 			if (m_ptr->ml &&
 			    (disturb_move ||
-			     (m_ptr->los &&
+			     ((m_ptr->mflag & (MFLAG_VIEW)) &&
 			      disturb_near)))
 			{
 				/* Disturb */
@@ -2979,12 +2993,23 @@ static void process_monster(int m_idx)
 			}
 
 
-			/* XXX XXX XXX Change for Angband 2.8.0 */
+			/* Scan all objects in the grid */
+			for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+			{
+				object_type *o_ptr;
+			
+				/* Acquire object */
+				o_ptr = &o_list[this_o_idx];
 
-			/* Take or Kill objects (not "gold") on the floor */
-			if (o_ptr->k_idx && (o_ptr->tval != TV_GOLD) &&
-			    ((r_ptr->flags2 & RF2_TAKE_ITEM) ||
-			     (r_ptr->flags2 & RF2_KILL_ITEM)))
+				/* Acquire next object */
+				next_o_idx = o_ptr->next_o_idx;
+
+				/* Skip gold */
+				if (o_ptr->tval == TV_GOLD) continue;
+
+				/* Take or Kill objects on the floor */
+				if ((r_ptr->flags2 & (RF2_TAKE_ITEM)) ||
+				    (r_ptr->flags2 & (RF2_KILL_ITEM)))
 			{
 				u32b f1, f2, f3;
 
@@ -2992,9 +3017,6 @@ static void process_monster(int m_idx)
 
 				char m_name[80];
 				char o_name[80];
-
-				/* Check the grid */
-				o_ptr = &o_list[c_ptr->o_idx];
 
 				/* Extract some flags */
 				object_flags(o_ptr, &f1, &f2, &f3);
@@ -3006,21 +3028,21 @@ static void process_monster(int m_idx)
 				monster_desc(m_name, m_ptr, 0x04);
 
 				/* React to objects that hurt the monster */
-				if (f1 & TR1_KILL_DRAGON) flg3 |= RF3_DRAGON;
-				if (f1 & TR1_SLAY_DRAGON) flg3 |= RF3_DRAGON;
-				if (f1 & TR1_SLAY_TROLL) flg3 |= RF3_TROLL;
-				if (f1 & TR1_SLAY_GIANT) flg3 |= RF3_GIANT;
-				if (f1 & TR1_SLAY_ORC) flg3 |= RF3_ORC;
-				if (f1 & TR1_SLAY_DEMON) flg3 |= RF3_DEMON;
-				if (f1 & TR1_SLAY_UNDEAD) flg3 |= RF3_UNDEAD;
-				if (f1 & TR1_SLAY_ANIMAL) flg3 |= RF3_ANIMAL;
-				if (f1 & TR1_SLAY_EVIL) flg3 |= RF3_EVIL;
+					if (f1 & (TR1_KILL_DRAGON)) flg3 |= (RF3_DRAGON);
+					if (f1 & (TR1_SLAY_DRAGON)) flg3 |= (RF3_DRAGON);
+					if (f1 & (TR1_SLAY_TROLL)) flg3 |= (RF3_TROLL);
+					if (f1 & (TR1_SLAY_GIANT)) flg3 |= (RF3_GIANT);
+					if (f1 & (TR1_SLAY_ORC)) flg3 |= (RF3_ORC);
+					if (f1 & (TR1_SLAY_DEMON)) flg3 |= (RF3_DEMON);
+					if (f1 & (TR1_SLAY_UNDEAD)) flg3 |= (RF3_UNDEAD);
+					if (f1 & (TR1_SLAY_ANIMAL)) flg3 |= (RF3_ANIMAL);
+					if (f1 & (TR1_SLAY_EVIL)) flg3 |= (RF3_EVIL);
 
 				/* The object cannot be picked up by the monster */
 				if (artifact_p(o_ptr) || (r_ptr->flags3 & flg3))
 				{
 					/* Only give a message for "take_item" */
-					if (r_ptr->flags2 & RF2_TAKE_ITEM)
+						if (r_ptr->flags2 & (RF2_TAKE_ITEM))
 					{
 						/* Take note */
 						did_take_item = TRUE;
@@ -3036,7 +3058,7 @@ static void process_monster(int m_idx)
 				}
 
 				/* Pick up the item */
-				else if (r_ptr->flags2 & RF2_TAKE_ITEM)
+					else if (r_ptr->flags2 & (RF2_TAKE_ITEM))
 				{
 					/* Take note */
 					did_take_item = TRUE;
@@ -3048,8 +3070,34 @@ static void process_monster(int m_idx)
 						msg_format("%^s picks up %s.", m_name, o_name);
 					}
 
+						/* Option */
+						if (testing_carry)
+						{
+							/* Excise the object */
+							excise_object_idx(this_o_idx);
+
+							/* Forget mark */
+							o_ptr->marked = FALSE;
+
+							/* Forget location */
+							o_ptr->iy = o_ptr->ix = 0;
+
+							/* Memorize monster */
+							o_ptr->held_m_idx = m_idx;
+
+							/* Build a stack */
+							o_ptr->next_o_idx = m_ptr->hold_o_idx;
+
+							/* Carry object */
+							m_ptr->hold_o_idx = this_o_idx;
+						}
+
+						/* Nope */
+						else
+						{
 					/* Delete the object */
-					delete_object(ny, nx);
+							delete_object_idx(this_o_idx);
+						}
 				}
 
 				/* Destroy the item */
@@ -3066,7 +3114,8 @@ static void process_monster(int m_idx)
 					}
 
 					/* Delete the object */
-					delete_object(ny, nx);
+						delete_object_idx(this_o_idx);
+					}
 				}
 			}
 		}
@@ -3157,18 +3206,21 @@ static void process_monster(int m_idx)
  * Most of the rest of the time is spent in "update_view()" and "lite_spot()",
  * especially when the player is running.
  *
- * Note the use of the new special "m_fast" array, which allows us to only
- * process monsters which are alive (or at least recently alive), which may
- * provide some optimization, especially when resting.  Note that monsters
- * which are only recently alive are excised, using a simple "excision"
- * method relying on the fact that the array is processed backwards.
+ * Note the special "MFLAG_BORN" flag, which allows us to ignore "fresh"
+ * monsters while they are still being "born".  A monster is "fresh" only
+ * during the turn in which it is created, and we use the "hack_m_idx" to
+ * determine if the monster is yet to be processed during the current turn.
  *
- * Note that "new" monsters are always added by "m_pop()" and they are
- * always added at the end of the "m_fast" array.
+ * Note the special "MFLAG_NICE" flag, which allows the player to get one
+ * move before any "nasty" monsters get to use their spell attacks.
+ *
+ * Note that when the "knowledge" about the currently tracked monster
+ * changes (flags, attacks, spells), we induce a redraw of the monster
+ * recall window.
  */
 void process_monsters(void)
 {
-	int			k, i, e;
+	int			i, e;
 	int			fx, fy;
 
 	bool		test;
@@ -3176,26 +3228,73 @@ void process_monsters(void)
 	monster_type	*m_ptr;
 	monster_race	*r_ptr;
 
+	int		old_monster_race_idx;
+
+	u32b	old_r_flags1 = 0L;
+	u32b	old_r_flags2 = 0L;
+	u32b	old_r_flags3 = 0L;
+	u32b	old_r_flags4 = 0L;
+	u32b	old_r_flags5 = 0L;
+	u32b	old_r_flags6 = 0L;
+
+	byte	old_r_blows0 = 0;
+	byte	old_r_blows1 = 0;
+	byte	old_r_blows2 = 0;
+	byte	old_r_blows3 = 0;
+
+	byte	old_r_cast_inate = 0;
+	byte	old_r_cast_spell = 0;
+	
+
+	/* Memorize old race */
+	old_monster_race_idx = monster_race_idx;
+
+	/* Acquire knowledge */
+	if (monster_race_idx)
+	{
+		/* Acquire current monster */
+		r_ptr = &r_info[monster_race_idx];
+
+		/* Memorize flags */
+		old_r_flags1 = r_ptr->r_flags1;
+		old_r_flags2 = r_ptr->r_flags2;
+		old_r_flags3 = r_ptr->r_flags3;
+		old_r_flags4 = r_ptr->r_flags4;
+		old_r_flags5 = r_ptr->r_flags5;
+		old_r_flags6 = r_ptr->r_flags6;
+
+		/* Memorize blows */
+		old_r_blows0 = r_ptr->r_blows[0];
+		old_r_blows1 = r_ptr->r_blows[1];
+		old_r_blows2 = r_ptr->r_blows[2];
+		old_r_blows3 = r_ptr->r_blows[3];
+
+		/* Memorize castings */
+		old_r_cast_inate = r_ptr->r_cast_inate;
+		old_r_cast_spell = r_ptr->r_cast_spell;
+	}
+
 
 	/* Hack -- calculate the "player noise" */
 	noise = (1L << (30 - p_ptr->skill_stl));
 
 
-	/* Process the monsters */
-	for (k = m_top - 1; k >= 0; k--)
+	/* Process the monsters (backwards) */
+	for (i = m_max - 1; i >= 1; i--)
 	{
-		/* Access the index */
-		i = m_fast[k];
-
 		/* Access the monster */
 		m_ptr = &m_list[i];
 
 
-		/* Excise "dead" monsters */
-		if (!m_ptr->r_idx)
+		/* Ignore "dead" monsters */
+		if (!m_ptr->r_idx) continue;
+
+
+		/* Handle "fresh" monsters */
+		if (m_ptr->mflag & (MFLAG_BORN))
 		{
-			/* Excise the monster */
-			m_fast[k] = m_fast[--m_top];
+			/* No longer "fresh" */
+			m_ptr->mflag &= ~(MFLAG_BORN);
 
 			/* Skip */
 			continue;
@@ -3257,6 +3356,8 @@ void process_monsters(void)
 		/* Do nothing */
 		if (!test) continue;
 
+		/* Save global index */
+		hack_m_idx = i;
 
 		/* Process the monster */
 		process_monster(i);

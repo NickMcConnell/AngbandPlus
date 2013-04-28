@@ -35,13 +35,12 @@ int isqrt(int x)
 
 void do_cmd_talents()
 {
-	int i, j, k, item, item2, dir, mask, level, skill, ability, sv;
+	int i, j, k, item, item2, dir, mask, level, ability, sv;
 	char str[80],tval;
 	object_type *o_ptr, *j_ptr;
 	object_kind *k_ptr;
 	object_type tmp_obj;
 	char tmp;
-	skill = 0;
 
 	if (p_ptr->tt && !wizard)
 	{
@@ -73,10 +72,10 @@ void do_cmd_talents()
 	while (1)
 	{
 		tmp=inkey();
-		if (tmp==27) goto done; /* Don't use a talent */
+		if (tmp==27) return; /* Don't use a talent */
 		if (tmp>='a' && tmp<='z')
 			tmp-=32;
-		if (tmp > 64 && tmp <= tmp+i) break;
+		if (tmp > 64 && tmp <= 64+i) break;
 	}
 	i = tmp-64;
 	k = 0;
@@ -90,163 +89,171 @@ void do_cmd_talents()
 	ability = k; /* k holds the REAL ability we're using */
 	level = smod(ability);
 	energy_use = 100;
+	Term_load();
 	switch(ability)
 	{
 	/* fennling talent (has to be VERY difficult! otherwise unbalancing.) */
 	/* this part (fennling talent) Copyright Frits Daalmans, 1995 */
 		case S_DEVICE:
-		if (!get_com("Merge W)ands, S)taffs, R)ings, aM)ulets, A)rmor, wE)aponry? ", &tmp)) goto done;
+		if (!get_com("Merge W)ands, S)taffs, R)ings, aM)ulets, A)rmor, wE)aponry? ", &tmp)) return;
 
+		switch (tmp)
+		{
 		/* Wands */
-		if (tmp == 'w')
-		{
-			if (smod (S_INFUSION) > 10)
+			case 'w':if (tmp == 'w')
+			{
+				if (smod (S_INFUSION) < 10)
+				{
+					msg_print ("You do not know enough about wands yet!");
+					return;
+				}
 				tval = TV_WAND;
-			 else
-			{
-				tmp = 0;
-				msg_print ("You do not know enough about wands yet!");
-			}
-		}
-
-		/* Staffs */
-		if (tmp == 's')
-		{
-			if (level <= 10)
-			{
-				msg_print("You are not skilled enough!");
-				goto done;
+				break;
 			}
 
-			if (smod (S_INFUSION) > 20)
-				tval = TV_STAFF;
-			 else
+			/* Staffs */
+			case 's':
 			{
-				tmp = 0;
-				msg_print ("You do not know enough about staffs yet!");
-			}
-		}
+				if (level <= 10)
+				{
+					msg_print("You are not skilled enough!");
+					return;
+				}
 
-		/* Rings */
-		if (tmp == 'r')
-		{
-			if (level <= 30)
+			if (smod (S_INFUSION) < 20)
+				{
+					msg_print ("You do not know enough about staffs yet!");
+					return;
+				}
+					tval = TV_STAFF;
+				break;
+			}
+
+			/* Rings */
+			case 'r':
 			{
-				msg_print("You are not skilled enough!");
-				goto done;
-			}
+				if (level <= 30)
+				{
+					msg_print("You are not skilled enough!");
+					return;
+				}
 
-			if (smod (S_INFUSION) > 30)
+				if (smod (S_INFUSION) < 30)
+				{
+					msg_print ("You need to know more about magical infusion of rings!");
+					return;
+				}
 				tval = TV_RING;
-			 else
-			{
-				tmp = 0;
-				msg_print ("You need to know more about magical infusion of rings!");
-			}
-		}
-
-		/* aMulets */
-		if (tmp == 'm')
-		{
-			if (level <= 35)
-			{
-				msg_print("You are not skilled enough!");
-				goto done;
+				break;
 			}
 
-			if (smod (S_INFUSION) > 35)
+			/* aMulets */
+			case 'm':
+			{
+				if (level <= 35)
+				{
+					msg_print("You are not skilled enough!");
+					return;
+				}
+
+				if (smod (S_INFUSION) < 35)
+
+				{
+					tmp = 0;
+					msg_print ("You need to know more about magical infusion of amulets!");
+				}
 				tval = TV_AMULET;
-			else
-			{
-				tmp = 0;
-				msg_print ("You need to know more about magical infusion of amulets!");
+				break;
 			}
+
+			/* Armor */
+			case 'a':
+			{
+				if (level <= 40)
+				{
+					msg_print("You are not skilled enough!");
+					return;
+				}
+
+				if (smod(S_INFUSION) < 40)
+				{
+					msg_print("You are not skilled enough at infusion.");
+					return;
+				}
+				if(smod(S_ARMOR) <= 15)
+				{
+					msg_print("You need to be better at forging armor first.");
+					return;
+				}
+				if (!get_com("What kind, (H)elmet, (B)oots, (S)hield, (C)loak, (G)auntlets, or (A)rmor? ", &tmp)) return;
+				switch (tmp)
+				{
+					case 'h': tval = TV_HELM; break;
+					case 'b': tval = TV_BOOTS; break;
+					case 's': tval = TV_SHIELD; break;
+					case 'c': tval = TV_CLOAK; break;
+					case 'g': tval = TV_GLOVES; break;
+					case 'a': tval = TV_HARD_ARMOR; break;
+					default: return;
+				}
+				break;
+			}
+
+			/* wEaponry */
+			case 'e':
+			{
+				if (level <= 50)
+				{
+					msg_print("You are not skilled enough!");
+					return;
+				}
+				if (smod(S_INFUSION) <= 40)
+				{
+					msg_print("You are not skilled enough at infusion.");
+					return;
+				}
+				if(smod(S_WEAPON) <= 15)
+				{
+					msg_print("You need to be better at smithing first.");
+					return;
+				}
+
+				if (!get_com("What kind of weapon, (S)word, (M)ace, or (P)olearm?", &tmp)) return;
+				switch (tmp)
+				{
+					case 's': tval = TV_SWORD; break;
+					case 'm': tval = TV_HAFTED; break;
+					case 'p': tval = TV_POLEARM; break;
+					default: return;
+				}
+				break;
+			}
+			default:
+			return;
 		}
 
-		/* Armor */
-		if (tmp == 'a')
-		{
-			if (level <= 40)
-			{
-				msg_print("You are not skilled enough!");
-				goto done;
-			}
-
-			if (smod(S_INFUSION) <= 40)
-			{
-				msg_print("You are not skilled enough at infusion.");
-				goto done;
-			}
-			if(smod(S_ARMOR) <= 15)
-			{
-				msg_print("You need to be better at forging armor first.");
-				goto done;
-			}
-			if (get_com("What kind, (H)elmet, (B)oots, (S)hield, (C)loak, (G)auntlets, or (A)rmor? ", &tmp)) goto done;
-			if (tmp == 'h')
-				tval = TV_HELM;
-			else if (tmp == 'b')
-				tval = TV_BOOTS;
-			else if (tmp == 's')
-				tval = TV_SHIELD;
-			else if (tmp == 'c')
-				tval = TV_CLOAK;
-			else if (tmp == 'g')
-				tval = TV_GLOVES;
-			else if (tmp == 'a')
-				tval = TV_HARD_ARMOR;
-		}
-		/* wEaponry */
-		if (tmp == 'e')
-		{
-			if (level <= 50)
-			{
-				msg_print("You are not skilled enough!");
-				goto done;
-			}
-			if (smod(S_INFUSION) <= 40)
-			{
-				msg_print("You are not skilled enough at infusion.");
-				goto done;
-			}
-			if(smod(S_WEAPON) <= 15)
-			{
-				msg_print("You need to be better at smithing first.");
-				goto done;
-			}
-
-			if (!get_com("What kind of weapon, (S)word, (M)ace, or (P)olearm?", &tmp)) goto done;
-			if (tmp == 's')
-				tval = TV_SWORD;
-			else if (tmp == 'm')
-				tval = TV_HAFTED;
-			else if (tmp == 'p')
-				tval = TV_POLEARM;
-		}
-
-		if (!tmp) goto done;
 		if (p_ptr->confused > 0)
 		{
 			msg_print ("You are too confused.");
-			goto done;
+			return;
 		}
 		if (no_lite ())
 		{
 			msg_print ("You have no light!");
-			goto done;
+			return;
 		}
 		 if (p_ptr->blind > 0)
 		{
 			msg_print ("You can't see!");
-			goto done;
+			return;
 		}
 
 		item_tester_tval = tval;
 		if (!get_item (&item, "Merge which item?",
-			FALSE, TRUE, FALSE)) goto done;
+			FALSE, TRUE, FALSE)) return;
 		item_tester_tval = tval;
 		if ((!get_item (&item2, "With which other item?",
-			FALSE, TRUE, FALSE)) || (item == item2)) goto done;
+			FALSE, TRUE, FALSE)) || (item == item2)) return;
 		o_ptr = &inventory[item];
 		if(inventory[item2].number > 1)
 		{
@@ -254,14 +261,14 @@ void do_cmd_talents()
 			inventory[item2].number--;
 			tmp_obj.number = 1;
 			total_weight -= tmp_obj.weight;
-			item2 = inven_carry(&tmp_obj);
+			item2 = inven_carry(&tmp_obj, FALSE);
 		}
 
 		j_ptr = &inventory[item2];
 		if(artifact_p(o_ptr) || artifact_p(j_ptr))
 		{
 			msg_print("You cannot fennle artifacts.");
-			goto done;
+			return;
 		}
 
 		j_ptr->number = 1;
@@ -300,7 +307,6 @@ void do_cmd_talents()
 				inven_item_decrease(item2);
 			}
 			break;
-
 			case TV_RING:
 			j_ptr->pval = j_ptr->pval + (o_ptr->pval * level / 50) / 2;
 			j_ptr->pval = j_ptr->pval;
@@ -409,7 +415,7 @@ void do_cmd_talents()
 		{
 			if (ability<0)
 			{
-				if (!get_com("Make a (W)and or (S)taff?", &tmp)) goto done;
+				if (!get_com("Make a (W)and or (S)taff?", &tmp)) return;
 				if (tmp=='w')
 					tval=TV_WAND;
 				 else if (tmp=='s')
@@ -419,7 +425,7 @@ void do_cmd_talents()
 			}
 			 else
 			{
-				if (!get_com("Make a (S)croll or (P)otion?", &tmp)) goto done;
+				if (!get_com("Make a (S)croll or (P)otion?", &tmp)) return;
 				if (tmp=='s')
 				{
 					tval = TV_SCROLL;
@@ -434,23 +440,23 @@ void do_cmd_talents()
 				if (p_ptr->confused > 0)
 				{
 					msg_print("You are too confused.");
-					goto done;
+					return;
 				}
 				if (no_lite())
 				{
 					msg_print("You have no light!");
-					goto done;
+					return;
 				}
 				if (p_ptr->blind > 0)
 				{
 					msg_print("You can't see!");
-					goto done;
+					return;
 				}
 				item_tester_tval = TV_COMPONENT;
 				if (!get_item(&item, "Use which component?", FALSE, TRUE, FALSE))
 				{
 					msg_print("You have no components.");
-					goto done;
+					return;
 				}
 				o_ptr = &inventory[item];
 				j=(o_ptr->pval*5)+1;
@@ -466,24 +472,24 @@ void do_cmd_talents()
 
 			}
 			if (tmp)
-				skill=200;
+				p_ptr->tt = 200;
 			}
 		break;
 		case S_PERCEPTION:
 		predict_weather(level-60);
-		skill=20;
+		p_ptr->tt = 20;
 		break;
 		case S_SLAY_EVIL:
 		detect_general(0, RF3_EVIL, "evil");
-		skill=100;
+		p_ptr->tt = 100;
 		break;
 		case S_SLAY_ANIMAL:
 		detect_general(0, RF3_ANIMAL, "animals");
-		skill=75;
+		p_ptr->tt = 75;
 		break;
 		case S_DISARM:
-		detect_trap();
-		skill=50;
+		detect_traps();
+		p_ptr->tt = 50;
 		break;
 		case S_SLAY_UNDEAD:
 		if (p_ptr->exp < p_ptr->max_exp)
@@ -493,10 +499,9 @@ void do_cmd_talents()
 		}
 		 else
 			msg_print("Nothing happened.");
-		skill=200;
+		p_ptr->tt = 200;
 		break;
 		case S_KARATE:
-		Term_load();		/* Need to do this now so the screen updates */
 		(void)set_afraid(0);
 		(void)set_confused(0);
 		(void)set_blind(0);
@@ -521,7 +526,7 @@ void do_cmd_talents()
 			tmp='z';
 		if (tmp=='w')
 		{
-			if (!get_com("Forge a (S)word, (M)ace, or (P)olearm?", &tmp)) goto done;
+			if (!get_com("Forge a (S)word, (M)ace, or (P)olearm?", &tmp)) return;
 			if (tmp=='s')
 				i=TV_SWORD;
 			 else if (tmp=='m')
@@ -529,11 +534,11 @@ void do_cmd_talents()
 			 else if (tmp=='p')
 				i=TV_POLEARM;
 			 else
-				goto done;
+				return;
 		}
 		if (tmp=='a')
 		{
-			if (!get_com("Forge a (H)elmet, (B)oots, (S)hield, (G)auntlets, or (A)rmor?", &tmp)) goto done;
+			if (!get_com("Forge a (H)elmet, (B)oots, (S)hield, (G)auntlets, or (A)rmor?", &tmp)) return;
 			if (tmp=='h')
 				i=TV_HELM;
 			 else if (tmp=='a')
@@ -545,11 +550,11 @@ void do_cmd_talents()
 			 else if (tmp=='g')
 				i=TV_GLOVES;
 			 else
-				goto done;
+				return;
 		}
 		if (tmp=='z')
 		{
-			if (!get_com("Forge (B)ow, (C)rossbow, (A)rrows, or (S)hots?", &tmp)) goto done;
+			if (!get_com("Forge (B)ow, (C)rossbow, (A)rrows, or (S)hots?", &tmp)) return;
 			if (tmp=='b')
 				i=TV_BOW;
 			else if (tmp=='c')
@@ -559,7 +564,7 @@ void do_cmd_talents()
 			else if (tmp=='s')
 				i=TV_BOLT;
 			else
-				goto done;
+				return;
 		}
 		if (i) /* Now forge it */
 		{
@@ -568,24 +573,24 @@ void do_cmd_talents()
 			 if (p_ptr->confused > 0)
 			{
 				msg_print("You are too confused.");
-				goto done;
+				return;
 			}
 			if (no_lite())
 			{
 				msg_print("You have no light to forge by!");
-				goto done;
+				return;
 			}
 			if (p_ptr->blind)
 			{
 				msg_print("You can't see to forge!");
-				goto done;
+				return;
 			}
 			item_tester_tval = TV_COMPONENT;
 			if (!get_item(&item, "Use which component?",
 				FALSE, TRUE, FALSE))
 			{
 				msg_print("You have no components.");
-				goto done;
+				return;
 			}
 			i = mask;
 
@@ -596,10 +601,7 @@ void do_cmd_talents()
 				inventory[item].number--;
 				total_weight -= tmp_obj.weight;
 
-				/* Hack it so it doesn't stack */
-				tmp_obj.pval += 100;
-				item = inven_carry(&tmp_obj);
-				inventory[item].pval -= 100;
+				item = inven_carry(&tmp_obj, TRUE);
 			}
 
 			o_ptr = &inventory[item];
@@ -619,7 +621,7 @@ void do_cmd_talents()
 		}
 
 					/* Now try to forge the item */
-		if (!i) goto done;
+		if (!i) return;
 		o_ptr->pval = 0;
 		o_ptr->tval = i;
 		o_ptr->sval = o_ptr->k_idx - K_MIN_COMPONENT + 64;
@@ -646,7 +648,7 @@ void do_cmd_talents()
 				o_ptr->k_idx=78;
 			}
 			o_ptr->dd=1;
-			o_ptr->ident |= ID_KNOWN;
+			o_ptr->ident |= (IDENT_KNOWN);
 			o_ptr->number=5+randint(dir/2)+dir/4;
 			/* No specials---these are powerful ENOUGH! */
 			k_ptr = &k_info[o_ptr->k_idx];
@@ -681,7 +683,7 @@ void do_cmd_talents()
 			}
 			o_ptr->dd=1;
 			o_ptr->ds=1;
-			o_ptr->ident |= ID_KNOWN;
+			o_ptr->ident |= (IDENT_KNOWN);
 			o_ptr->pval=tmp;
 			if (randint(dir*3/2) > 3)
 			{
@@ -722,7 +724,7 @@ void do_cmd_talents()
 			o_ptr->dd = 1+dir/11+randint(dir/19);
 			o_ptr->ds = 2+dir/8+randint(dir/13);
 			o_ptr->weight *= 2; /* Max=5d8 */
-			o_ptr->ident |= ID_KNOWN;
+			o_ptr->ident |= (IDENT_KNOWN);
 			if (randint(dir*3/2) > 3)
 			{
 				j=randint(dir/5)+2;
@@ -756,7 +758,7 @@ void do_cmd_talents()
 			o_ptr->dd = 1+(dir/13); /* Max=3d14 */
 			o_ptr->ds = 2+dir/5+randint(dir/7);
 			o_ptr->weight = o_ptr->weight * 2/3;
-			o_ptr->ident |= ID_KNOWN;
+			o_ptr->ident |= (IDENT_KNOWN);
 			if (randint(dir*3/2) > 3)
 			{
 				msg_print("This is a special polearm!");
@@ -789,7 +791,7 @@ void do_cmd_talents()
 			o_ptr->dd = 2+dir/11+randint(dir/19);
 			o_ptr->ds = 3+dir/11+randint(dir/11);
 			o_ptr->weight = o_ptr->weight*5/2;
-			o_ptr->ident |= ID_KNOWN; /* Max=6d9 */
+			o_ptr->ident |= (IDENT_KNOWN); /* Max=6d9 */
 			if (randint(dir*3/2) > 3)
 			{
 				msg_print("This is a special mace!");
@@ -937,7 +939,7 @@ void do_cmd_talents()
 						o_ptr->to_a += 2;
 				}
 			}
-			if (tmp) skill=255;
+			if (tmp) p_ptr->tt = 255;
 			break;
 			default:
 			break;
@@ -945,6 +947,9 @@ void do_cmd_talents()
 
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN);
+
+		/* Combine and reorder the pack */
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 		/* Evaluate cost of the item */
 		j = 0; /* Current cost */
@@ -985,8 +990,4 @@ void do_cmd_talents()
 		if (!o_ptr->pval) o_ptr->flags1 = 0;
 		break;
 	}
-done:
-	p_ptr->tt = skill;
-	if (msg_flag) msg_print(NULL);
-	Term_load();
 }

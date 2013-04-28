@@ -21,11 +21,14 @@
  */
 bool hp_player(int num)
 {
+	/* Healing needed */
 	if (p_ptr->chp < p_ptr->mhp)
 	{
+		/* Gain hitpoints */
 		p_ptr->chp += num;
 
-		if (p_ptr->chp > p_ptr->mhp)
+		/* Enforce maximum */
+		if (p_ptr->chp >= p_ptr->mhp)
 		{
 			p_ptr->chp = p_ptr->mhp;
 			p_ptr->chp_frac = 0;
@@ -37,33 +40,35 @@ bool hp_player(int num)
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER);
 
-		num = num / 5;
-		if (num < 3)
-		{
-			if (num == 0)
+		/* Heal 0-4 */
+		if (num < 5)
 			{
 				msg_print("You feel a little better.");
 			}
-			else
+		
+		/* Heal 5-14 */
+		else if (num < 15)
 			{
 				msg_print("You feel better.");
 			}
-		}
-		else
-		{
-			if (num < 7)
+
+		/* Heal 15-34 */		
+		else if (num < 35)
 			{
 				msg_print("You feel much better.");
 			}
+
+		/* Heal 35+ */
 			else
 			{
 				msg_print("You feel very good.");
 			}
-		}
 
+		/* Notice */
 		return (TRUE);
 	}
 
+	/* Ignore */
 	return (FALSE);
 }
 
@@ -74,16 +79,15 @@ bool hp_player(int num)
  */
 void warding_glyph(void)
 {
-	cave_type *c_ptr;
+	/* XXX XXX XXX */
+	if (!cave_clean_bold(py, px))
+	{
+		msg_print("The object resists the spell.");
+		return;
+	}
 
-	/* Require clean space */
-	if (!cave_clean_bold(py, px)) return;
-
-	/* Access the player grid */
-	c_ptr = &cave[py][px];
-
-	/* Create a glyph of warding */
-	c_ptr->feat = FEAT_GLYPH;
+	/* Create a glyph */
+	cave_set_feat(py, px, FEAT_GLYPH);
 }
 
 
@@ -101,7 +105,6 @@ static cptr desc_stat_pos[] =
 	"healthy",
 	"cute"
 };
-
 
 /*
  * Array of stat "descriptions"
@@ -221,18 +224,19 @@ bool do_inc_stat(int stat)
 void identify_pack(void)
 {
 	int                 i;
-	object_type        *o_ptr;
 
 	/* Simply identify and know every item */
 	for (i = 0; i < INVEN_TOTAL; i++)
 	{
-		o_ptr = &inventory[i];
-		if (o_ptr->k_idx)
-		{
+		object_type *o_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Aware and Known */
 			object_aware(o_ptr);
 			object_known(o_ptr);
 		}
-	}
 }
 
 
@@ -273,6 +277,9 @@ static int remove_curse_aux(int all)
 
 		object_type *o_ptr = &inventory[i];
 
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
 		/* Uncursed already */
 		if (!cursed_p(o_ptr)) continue;
 
@@ -280,16 +287,16 @@ static int remove_curse_aux(int all)
 		object_flags(o_ptr, &f1, &f2, &f3);
 
 		/* Heavily Cursed Items need a special spell */
-		if (!all && (f3 & TR3_HEAVY_CURSE)) continue;
+		if (!all && (f3 & (TR3_HEAVY_CURSE))) continue;
 
 		/* Perma-Cursed Items can NEVER be uncursed */
-		if (f3 & TR3_PERMA_CURSE) continue;
+		if (f3 & (TR3_PERMA_CURSE)) continue;
 
 		/* Uncurse it */
-		o_ptr->ident &= ~ID_CURSED;
+		o_ptr->ident &= ~(IDENT_CURSED);
 
 		/* Hack -- Assume felt */
-		o_ptr->ident |= ID_SENSE;
+		o_ptr->ident |= (IDENT_SENSE);
 
 		/* Take note */
 		o_ptr->note = quark_add("uncursed");
@@ -298,7 +305,7 @@ static int remove_curse_aux(int all)
 		p_ptr->update |= (PU_BONUS);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+		p_ptr->window |= (PW_EQUIP);
 
 		/* Count the uncursings */
 		cnt++;
@@ -395,7 +402,7 @@ void self_knowledge(void)
 
 		o_ptr = &inventory[k];
 
-		/* Skip empty items */
+		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
 
 		/* Extract the flags */
@@ -480,7 +487,7 @@ void self_knowledge(void)
 	}
 	if (p_ptr->new_spells)
 	{
-		info[i++] = "You can learn some more spells.";
+		info[i++] = "You can learn some spells/prayers.";
 	}
 	if (p_ptr->word_recall)
 	{
@@ -521,6 +528,10 @@ void self_knowledge(void)
 	if (p_ptr->lite)
 	{
 		info[i++] = "You are carrying a permanent light.";
+	}
+	if (p_ptr->ironwill)
+	{
+		info[i++] = "You have a strong will to live.";
 	}
 
 	if (p_ptr->immune_acid)
@@ -654,52 +665,52 @@ void self_knowledge(void)
 		info[i++] = "Your charisma is sustained.";
 	}
 
-	if (f1 & TR1_STR)
+	if (f1 & (TR1_STR))
 	{
 		info[i++] = "Your strength is affected by your equipment.";
 	}
-	if (f1 & TR1_INT)
+	if (f1 & (TR1_INT))
 	{
 		info[i++] = "Your intelligence is affected by your equipment.";
 	}
-	if (f1 & TR1_WIS)
+	if (f1 & (TR1_WIS))
 	{
 		info[i++] = "Your wisdom is affected by your equipment.";
 	}
-	if (f1 & TR1_DEX)
+	if (f1 & (TR1_DEX))
 	{
 		info[i++] = "Your dexterity is affected by your equipment.";
 	}
-	if (f1 & TR1_CON)
+	if (f1 & (TR1_CON))
 	{
 		info[i++] = "Your constitution is affected by your equipment.";
 	}
-	if (f1 & TR1_CHR)
+	if (f1 & (TR1_CHR))
 	{
 		info[i++] = "Your charisma is affected by your equipment.";
 	}
 
-	if (f1 & TR1_STEALTH)
+	if (f1 & (TR1_STEALTH))
 	{
 		info[i++] = "Your stealth is affected by your equipment.";
 	}
-	if (f1 & TR1_SEARCH)
+	if (f1 & (TR1_SEARCH))
 	{
 		info[i++] = "Your searching ability is affected by your equipment.";
 	}
-	if (f1 & TR1_INFRA)
+	if (f1 & (TR1_INFRA))
 	{
 		info[i++] = "Your infravision is affected by your equipment.";
 	}
-	if (f1 & TR1_TUNNEL)
+	if (f1 & (TR1_TUNNEL))
 	{
 		info[i++] = "Your digging ability is affected by your equipment.";
 	}
-	if (f1 & TR1_SPEED)
+	if (f1 & (TR1_SPEED))
 	{
 		info[i++] = "Your speed is affected by your equipment.";
 	}
-	if (f1 & TR1_BLOWS)
+	if (f1 & (TR1_BLOWS))
 	{
 		info[i++] = "Your attack speed is affected by your equipment.";
 	}
@@ -721,6 +732,18 @@ void self_knowledge(void)
 		if (f1 & TR1_IMPACT)
 		{
 			info[i++] = "The impact of your weapon can cause earthquakes.";
+		}
+		if (f1 & TR1_VORPAL)
+		{
+			info[i++] = "Your vorpal blade can cause serious harm to monsters.";
+		}
+		if (f1 & TR1_VENOM)
+		{
+			info[i++] = "Your weapon is poisonous.";
+		}
+		if (f1 & TR1_NOMAGIC)
+		{
+			info[i++] = "Your weapon prevents you from being able to cast spells.";
 		}
 
 		/* Special "Attack Bonuses" */
@@ -785,7 +808,6 @@ void self_knowledge(void)
 
 	/* Save the screen */
 	Term_save();
-
 	/* Erase the screen */
 	for (k = 1; k < 24; k++) prt("", k, 13);
 
@@ -813,6 +835,10 @@ void self_knowledge(void)
 
 	/* Restore the screen */
 	Term_load();
+
+	/* Luck known now */
+	p_ptr->luck_known = TRUE;
+	p_ptr->redraw |= PR_STATS;
 }
 
 
@@ -835,10 +861,9 @@ bool lose_all_info(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Allow "protection" by the MENTAL flag */
-		if (o_ptr->ident & ID_MENTAL) continue;
-
+		if (o_ptr->ident & IDENT_MENTAL) continue;
 		/* Remove "default inscriptions" */
-		if (o_ptr->note && (o_ptr->ident & ID_SENSE))
+		if (o_ptr->note && (o_ptr->ident & IDENT_SENSE))
 		{
 			/* Access the inscription */
 			cptr q = quark_str(o_ptr->note);
@@ -859,13 +884,13 @@ bool lose_all_info(void)
 		}
 
 		/* Hack -- Clear the "empty" flag */
-		o_ptr->ident &= ~ID_EMPTY;
+		o_ptr->ident &= ~(IDENT_EMPTY);
 
 		/* Hack -- Clear the "known" flag */
-		o_ptr->ident &= ~ID_KNOWN;
+		o_ptr->ident &= ~(IDENT_KNOWN);
 
 		/* Hack -- Clear the "felt" flag */
-		o_ptr->ident &= ~ID_SENSE;
+		o_ptr->ident &= ~(IDENT_SENSE);
 	}
 
 	/* Recalculate bonuses */
@@ -884,20 +909,16 @@ bool lose_all_info(void)
 	return (TRUE);
 }
 
-
 /*
- * Detect any treasure on the current panel		-RAK-
- *
- * We do not yet create any "hidden gold" features XXX XXX XXX
+ * Detect all traps on current panel
  */
-bool detect_treasure(void)
+bool detect_traps(void)
 {
 	int		y, x;
+
 	bool	detect = FALSE;
 
 	cave_type	*c_ptr;
-
-	object_type	*o_ptr;
 
 
 	/* Scan the current panel */
@@ -905,188 +926,148 @@ bool detect_treasure(void)
 	{
 		for (x = panel_col_min; x <= panel_col_max; x++)
 		{
+			/* Access the grid */
 			c_ptr = &cave[y][x];
 
-			o_ptr = &o_list[c_ptr->o_idx];
-
-			/* Magma/Quartz + Known Gold */
-			if ((c_ptr->feat == FEAT_MAGMA_K) ||
-			    (c_ptr->feat == FEAT_QUARTZ_K))
-			{
-				/* Notice detected gold */
-				if (!(c_ptr->info & CAVE_MARK))
+			/* Detect invisible traps */
+			if (c_ptr->feat == FEAT_INVIS)
 				{
-					/* Detect */
-					detect = TRUE;
+				/* Pick a trap */
+				pick_trap(y, x);
+			}
 
-					/* Hack -- memorize the feature */
-					c_ptr->info |= CAVE_MARK;
+			/* Detect traps */
+			if ((c_ptr->feat >= FEAT_TRAP_HEAD) &&
+			    (c_ptr->feat <= FEAT_TRAP_TAIL))
+			{
+				/* Hack -- Memorize */
+				c_ptr->info |= (CAVE_MARK);
 
 					/* Redraw */
 					lite_spot(y, x);
-				}
-			}
 
-			/* Notice embedded gold */
-			if ((c_ptr->feat == FEAT_MAGMA_H) ||
-			    (c_ptr->feat == FEAT_QUARTZ_H))
-			{
-				/* Expose the gold */
-				c_ptr->feat += 0x02;
-
-				/* Detect */
+				/* Obvious */
 				detect = TRUE;
-
-				/* Hack -- memorize the item */
-				c_ptr->info |= CAVE_MARK;
-
-				/* Redraw */
-				lite_spot(y, x);
 			}
-
-			/* Notice gold */
-			if (o_ptr->tval == TV_GOLD)
-			{
-				/* Notice new items */
-				if (!(o_ptr->marked))
-				{
-					/* Detect */
-					detect = TRUE;
-
-					/* Hack -- memorize the item */
-					o_ptr->marked = TRUE;
-
-					/* Redraw */
-					lite_spot(y, x);
 				}
 			}
-		}
-	}
 
-	return (detect);
-}
-
-
-
-/*
- * Detect magic items.
- *
- * This will light up all spaces with "magic" items, including artifacts,
- * ego-items, potions, scrolls, books, rods, wands, staves, amulets, rings,
- * and "enchanted" items of the "good" variety.
- *
- * It can probably be argued that this function is now too powerful.
- */
-bool detect_magic(void)
-{
-	int		i, j, tv;
-	bool	detect = FALSE;
-
-	cave_type	*c_ptr;
-	object_type	*o_ptr;
-
-
-	/* Scan the current panel */
-	for (i = panel_row_min; i <= panel_row_max; i++)
-	{
-		for (j = panel_col_min; j <= panel_col_max; j++)
-		{
-			/* Access the grid and object */
-			c_ptr = &cave[i][j];
-			o_ptr = &o_list[c_ptr->o_idx];
-
-			/* Nothing there */
-			if (!(c_ptr->o_idx)) continue;
-
-			/* Examine the tval */
-			tv = o_ptr->tval;
-
-			/* Artifacts, misc magic items, or enchanted wearables */
-			if (artifact_p(o_ptr) || ego_item_p(o_ptr) ||
-			    (tv == TV_AMULET) || (tv == TV_RING) ||
-			    (tv == TV_STAFF) || (tv == TV_WAND) || (tv == TV_ROD) ||
-			    (tv == TV_SCROLL) || (tv == TV_POTION) ||
-			    (tv == TV_MAGIC_BOOK) || (tv == TV_PRAYER_BOOK) ||
-			    ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
+	/* Describe */
+	if (detect)
 			{
-				/* Note new items */
-				if (!(o_ptr->marked))
-				{
-					/* Detect */
-					detect = TRUE;
-
-					/* Memorize the item */
-					o_ptr->marked = TRUE;
-
-					/* Redraw */
-					lite_spot(i, j);
-				}
-			}
-		}
-	}
-
-	/* Return result */
-	return (detect);
-}
-
-
-
-/*
- * Locates and displays all invisible creatures on current panel -RAK-
- */
-bool detect_invisible(void)
-{
-	int		i;
-	bool	flag = FALSE;
-
-
-	/* Detect all invisible monsters */
-	for (i = 1; i < m_max; i++)
-	{
-		monster_type *m_ptr = &m_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-		int fy = m_ptr->fy;
-		int fx = m_ptr->fx;
-
-		/* Paranoia -- Skip dead monsters */
-		if (!m_ptr->r_idx) continue;
-
-		/* Skip visible monsters */
-		if (m_ptr->ml) continue;
-
-		/* Detect all invisible monsters */
-		if (panel_contains(fy, fx) && (r_ptr->flags2 & RF2_INVISIBLE))
-		{
-			/* Take note that they are invisible */
-			r_ptr->r_flags2 |= RF2_INVISIBLE;
-
-			/* Mega-Hack -- Show the monster */
-			m_ptr->ml = TRUE;
-			lite_spot(fy, fx);
-			flag = TRUE;
-		}
-	}
-
-	/* Describe result, and clean up */
-	if (flag)
-	{
-		/* Describe, and wait for acknowledgement */
-		msg_print("You sense the presence of invisible creatures!");
-		msg_print(NULL);
-
-		/* Mega-Hack -- Fix the monsters */
-		update_monsters(FALSE);
+		msg_print("You sense the presence of traps!");
 	}
 
 	/* Result */
-	return (flag);
+	return (detect);
+}
+
+/*
+ * Detect all doors on current panel
+ */
+bool detect_doors(void)
+{
+	int y, x;
+
+	bool detect = FALSE;
+
+	cave_type *c_ptr;
+
+
+	/* Scan the panel */
+	for (y = panel_row_min; y <= panel_row_max; y++)
+			{
+		for (x = panel_col_min; x <= panel_col_max; x++)
+				{
+			c_ptr = &cave[y][x];
+
+			/* Detect secret doors */
+			if (c_ptr->feat == FEAT_SECRET)
+			{
+				/* Pick a door XXX XXX XXX */
+				cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
+			}
+
+			/* Detect doors */
+			if (((c_ptr->feat >= FEAT_DOOR_HEAD) &&
+			     (c_ptr->feat <= FEAT_DOOR_HEAD)) ||
+			    ((c_ptr->feat == FEAT_OPEN) ||
+			     (c_ptr->feat == FEAT_BROKEN)))
+			{
+				/* Hack -- Memorize */
+				c_ptr->info |= (CAVE_MARK);
+
+					/* Redraw */
+					lite_spot(y, x);
+
+				/* Obvious */
+				detect = TRUE;
+				}
+			}
+		}
+
+	/* Describe */
+	if (detect)
+	{
+		msg_print("You sense the presence of doors!");
+	}
+
+	/* Result */
+	return (detect);
+}
+
+/*
+ * Detect all stairs on current panel
+ */
+bool detect_stairs(void)
+{
+	int y, x;
+
+	bool	detect = FALSE;
+
+	cave_type	*c_ptr;
+
+
+	/* Scan the panel */
+	for (y = panel_row_min; y <= panel_row_max; y++)
+	{
+		for (x = panel_col_min; x <= panel_col_max; x++)
+		{
+			c_ptr = &cave[y][x];
+
+			/* Detect stairs */
+			if ((c_ptr->feat == FEAT_LESS) ||
+			    (c_ptr->feat == FEAT_MORE))
+				{
+				/* Hack -- Memorize */
+				c_ptr->info |= (CAVE_MARK);
+
+					/* Redraw */
+				lite_spot(y, x);
+
+				/* Obvious */
+				detect = TRUE;
+				}
+			}
+		}
+
+	/* Describe */
+	if (detect)
+	{
+		msg_print("You sense the presence of stairs!");
+	}
+
+	/* Result */
+	return (detect);
 }
 
 
-/* General detection; this will detect any creature that has at least one
-   of the passed bits set.  Or, if this is <0, will detect only creatures
-   WITHOUT any of the bits set */
+
+/*
+ * General detection; this will detect any creature that has at least one
+ * of the passed bits set.  Or, if this is <0, will detect only creatures
+ * WITHOUT any of the bits set
+ */
 bool detect_general(char inv, long flag2, char *str)
 {
 	int		i;
@@ -1107,7 +1088,6 @@ bool detect_general(char inv, long flag2, char *str)
 
 		/* Skip visible monsters */
 		if (m_ptr->ml) continue;
-
 		/* Detect evil monsters */
 		if (panel_contains(fy, fx) && (inv^(r_ptr->flags3 & flag2)))
 		{
@@ -1133,50 +1113,346 @@ bool detect_general(char inv, long flag2, char *str)
 	return (flag);
 }
 
+/*
+ * Detect any treasure on the current panel
+ */
+bool detect_treasure(void)
+{
+	int y, x;
+	bool detect = FALSE;
+
+	cave_type *c_ptr;
+
+
+	/* Scan the current panel */
+	for (y = panel_row_min; y <= panel_row_max; y++)
+	{
+		for (x = panel_col_min; x <= panel_col_max; x++)
+		{
+			c_ptr = &cave[y][x];
+
+			/* Notice embedded gold */
+			if ((c_ptr->feat == FEAT_MAGMA_H) ||
+			    (c_ptr->feat == FEAT_QUARTZ_H))
+			{
+				/* Expose the gold */
+				c_ptr->feat += 0x02;
+			}
+
+			/* Magma/Quartz + Known Gold */
+			if ((c_ptr->feat == FEAT_MAGMA_K) ||
+			    (c_ptr->feat == FEAT_QUARTZ_K))
+			{
+				/* Hack -- Memorize */
+				c_ptr->info |= (CAVE_MARK);
+
+				/* Redraw */
+				lite_spot(y, x);
+
+				/* Detect */
+				detect = TRUE;
+			}
+		}
+	}
+
+	/* Describe */
+	if (detect)
+	{
+		msg_print("You sense the presence of buried treasure!");
+	}
+
+	/* Result */
+	return (detect);
+}
+
+
 
 /*
- * Display all non-invisible monsters on the current panel
+ * Detect all "gold" objects on the current panel
  */
-bool detect_monsters(void)
+bool detect_objects_gold(void)
 {
-	int		i;
+	int i, y, x;
+	bool detect = FALSE;
+
+	/* Scan objects */
+	for (i = 1; i < o_max; i++)
+	{
+		object_type *o_ptr = &o_list[i];
+
+		/* Skip dead objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Skip held objects */
+		if (o_ptr->held_m_idx) continue;
+
+		/* Location */
+		y = o_ptr->iy;
+		x = o_ptr->ix;
+
+		/* Only detect nearby objects */
+		if (!panel_contains(y, x)) continue;
+		
+		/* Detect "gold" objects */
+		if (o_ptr->tval == TV_GOLD)
+		{
+			/* Hack -- memorize it */
+			o_ptr->marked = TRUE;
+
+			/* Redraw */
+			lite_spot(y, x);
+
+			/* Detect */
+			detect = TRUE;
+		}
+	}
+
+	/* Describe */
+	if (detect)
+	{
+		msg_print("You sense the presence of treasure!");
+	}
+
+	/* Result */
+	return (detect);
+}
+
+
+/*
+ * Detect all "normal" objects on the current panel
+ */
+bool detect_objects_normal(void)
+{
+	int i, y, x;
+
+	bool detect = FALSE;
+
+	/* Scan objects */
+	for (i = 1; i < o_max; i++)
+	{
+		object_type *o_ptr = &o_list[i];
+
+		/* Skip dead objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Skip held objects */
+		if (o_ptr->held_m_idx) continue;
+
+		/* Location */
+		y = o_ptr->iy;
+		x = o_ptr->ix;
+
+		/* Only detect nearby objects */
+		if (!panel_contains(y, x)) continue;
+		
+		/* Detect "real" objects */
+		if (o_ptr->tval != TV_GOLD)
+		{
+			/* Hack -- memorize it */
+			o_ptr->marked = TRUE;
+
+			/* Redraw */
+			lite_spot(y, x);
+
+			/* Detect */
+			detect = TRUE;
+		}
+	}
+
+	/* Describe */
+	if (detect)
+	{
+		msg_print("You sense the presence of objects!");
+	}
+
+	/* Result */
+	return (detect);
+}
+
+
+/*
+ * Detect all "magic" objects on the current panel.
+ *
+ * This will light up all spaces with "magic" items, including artifacts,
+ * ego-items, potions, scrolls, books, rods, wands, staves, amulets, rings,
+ * and "enchanted" items of the "good" variety.
+ *
+ * It can probably be argued that this function is now too powerful.
+ */
+bool detect_objects_magic(void)
+{
+	int i, y, x, tv;
+
+	bool detect = FALSE;
+
+
+	/* Scan all objects */
+	for (i = 1; i < o_max; i++)
+	{
+		object_type *o_ptr = &o_list[i];
+		
+		/* Skip dead objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Skip held objects */
+		if (o_ptr->held_m_idx) continue;
+
+		/* Location */
+		y = o_ptr->iy;
+		x = o_ptr->ix;
+
+		/* Only detect nearby objects */
+		if (!panel_contains(y,x)) continue;
+		
+		/* Examine the tval */
+		tv = o_ptr->tval;
+
+		/* Artifacts, misc magic items, or enchanted wearables */
+		if (artifact_p(o_ptr) || ego_item_p(o_ptr) ||
+		    (tv == TV_AMULET) || (tv == TV_RING) ||
+		    (tv == TV_STAFF) || (tv == TV_WAND) || (tv == TV_ROD) ||
+		    (tv == TV_SCROLL) || (tv == TV_POTION) ||
+		    (tv == TV_MAGIC_BOOK) || (tv == TV_PRAYER_BOOK) ||
+		    ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
+		{
+			/* Memorize the item */
+			o_ptr->marked = TRUE;
+
+			/* Redraw */
+			lite_spot(y, x);
+
+			/* Detect */
+			detect = TRUE;
+		}
+	}
+
+	/* Describe */
+	if (detect)
+	{
+		msg_print("You sense the presence of magic objects!");
+	}
+
+	/* Return result */
+	return (detect);
+}
+
+
+/*
+ * Detect all "normal" monsters on the current panel
+ */
+bool detect_monsters_normal(void)
+{
+	int		i, y, x;
+
 	bool	flag = FALSE;
 
 
-	/* Detect non-invisible monsters */
+	/* Scan monsters */
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type *m_ptr = &m_list[i];
 		monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-		int fy = m_ptr->fy;
-		int fx = m_ptr->fx;
-
-		/* Paranoia -- Skip dead monsters */
+		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
-		/* Skip visible monsters */
-		if (m_ptr->ml) continue;
+		/* Location */
+		y = m_ptr->fy;
+		x = m_ptr->fx;
 
+		/* Only detect nearby monsters */
+		if (!panel_contains(y, x)) continue;
+		
 		/* Detect all non-invisible monsters */
-		if (panel_contains(fy, fx) && (!(r_ptr->flags2 & RF2_INVISIBLE)))
+		if (!(r_ptr->flags2 & (RF2_INVISIBLE)))
 		{
-			/* Mega-Hack -- Show the monster */
+			/* Repair visibility later */
+			repair_monsters = TRUE;
+
+			/* Hack -- Detect monster */
+			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+
+			/* Hack -- See monster */
 			m_ptr->ml = TRUE;
-			lite_spot(fy, fx);
+			
+			/* Redraw */
+			lite_spot(y, x);
+
+			/* Detect */
 			flag = TRUE;
 		}
 	}
 
-	/* Describe and clean up */
+	/* Describe */
 	if (flag)
 	{
-		/* Describe, and wait for acknowledgement */
+		/* Describe result */
 		msg_print("You sense the presence of monsters!");
-		msg_print(NULL);
+	}
 
-		/* Mega-Hack -- Fix the monsters */
-		update_monsters(FALSE);
+	/* Result */
+	return (flag);
+}
+
+/*
+ * Detect all "invisible" monsters on current panel
+ */
+bool detect_monsters_invis(void)
+{
+	int		i, y, x;
+
+	bool	flag = FALSE;
+
+
+	/* Scan monsters */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Location */
+		y = m_ptr->fy;
+		x = m_ptr->fx;
+
+		/* Only detect nearby monsters */
+		if (!panel_contains(y, x)) continue;
+		
+		/* Detect invisible monsters */
+		if (r_ptr->flags2 & (RF2_INVISIBLE))
+		{
+			/* Take note that they are invisible */
+			r_ptr->r_flags2 |= (RF2_INVISIBLE);
+
+			/* Update monster recall window */
+			if (monster_race_idx == m_ptr->r_idx)
+			{
+				/* Window stuff */
+				p_ptr->window |= (PW_MONSTER);
+			}
+
+			/* Repair visibility later */
+			repair_monsters = TRUE;
+
+			/* Hack -- Detect monster */
+			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+
+			/* Hack -- See monster */
+			m_ptr->ml = TRUE;
+			
+			/* Redraw */
+			lite_spot(y, x);
+			/* Detect */
+			flag = TRUE;
+		}
+	}
+	/* Describe */
+	if (flag)
+	{
+		/* Describe result */
+		msg_print("You sense the presence of invisible creatures!");
 	}
 
 	/* Result */
@@ -1187,201 +1463,21 @@ bool detect_monsters(void)
 /*
  * Detect everything
  */
-bool detection(void)
+bool detect_all(void)
 {
-	int		i;
-	bool	flag = FALSE;
-	bool	detect = FALSE;
+	bool detect = FALSE;
 
-	/* Detect the easy things */
+	/* Detect everything */
+	if (detect_traps()) detect = TRUE;
+	if (detect_doors()) detect = TRUE;
+	if (detect_stairs()) detect = TRUE;
 	if (detect_treasure()) detect = TRUE;
-	if (detect_object()) detect = TRUE;
-	if (detect_trap()) detect = TRUE;
-	if (detect_sdoor()) detect = TRUE;
-
-
-	/* Detect all monsters in the current panel */
-	for (i = 1; i < m_max; i++)
-	{
-		monster_type *m_ptr = &m_list[i];
-
-		int fy = m_ptr->fy;
-		int fx = m_ptr->fx;
-
-		/* Paranoia -- Skip dead monsters */
-		if (!m_ptr->r_idx) continue;
-
-		/* Skip visible monsters */
-		if (m_ptr->ml) continue;
-
-		/* Detect all monsters */
-		if (panel_contains(fy, fx))
-		{
-			/* Mega-Hack -- Show the monster */
-			m_ptr->ml = TRUE;
-			lite_spot(fy, fx);
-			flag = detect = TRUE;
-		}
-	}
-
-	/* Describe the result, then fix the monsters */
-	if (flag)
-	{
-		/* Describe, and wait for acknowledgement */
-		msg_print("You sense the presence of monsters!");
-		msg_print(NULL);
-
-		/* Mega-Hack -- Fix the monsters */
-		update_monsters(FALSE);
-	}
+	if (detect_objects_gold()) detect = TRUE;
+	if (detect_objects_normal()) detect = TRUE;
+	if (detect_monsters_invis()) detect = TRUE;
+	if (detect_monsters_normal()) detect = TRUE;
+	
 	/* Result */
-	return (detect);
-}
-
-
-/*
- * Detect all objects on the current panel		-RAK-
- */
-bool detect_object(void)
-{
-	int		i, j;
-	bool	detect = FALSE;
-
-	cave_type	*c_ptr;
-
-	object_type	*o_ptr;
-
-
-	/* Scan the current panel */
-	for (i = panel_row_min; i <= panel_row_max; i++)
-	{
-		for (j = panel_col_min; j <= panel_col_max; j++)
-		{
-			c_ptr = &cave[i][j];
-
-			o_ptr = &o_list[c_ptr->o_idx];
-
-			/* Nothing here */
-			if (!(c_ptr->o_idx)) continue;
-
-			/* Do not detect "gold" */
-			if (o_ptr->tval == TV_GOLD) continue;
-
-			/* Note new objects */
-			if (!(o_ptr->marked))
-			{
-				/* Detect */
-				detect = TRUE;
-
-				/* Hack -- memorize it */
-				o_ptr->marked = TRUE;
-
-				/* Redraw */
-				lite_spot(i, j);
-			}
-		}
-	}
-
-	return (detect);
-}
-
-
-/*
- * Locates and displays traps on current panel
- */
-bool detect_trap(void)
-{
-	int		i, j;
-
-	bool	detect = FALSE;
-	cave_type  *c_ptr;
-
-
-	/* Scan the current panel */
-	for (i = panel_row_min; i <= panel_row_max; i++)
-	{
-		for (j = panel_col_min; j <= panel_col_max; j++)
-		{
-			/* Access the grid */
-			c_ptr = &cave[i][j];
-
-			/* Detect invisible traps */
-			if (c_ptr->feat == FEAT_INVIS)
-			{
-				/* Pick a trap */
-				pick_trap(i, j);
-
-				/* Hack -- memorize it */
-				c_ptr->info |= CAVE_MARK;
-
-				/* Redraw */
-				lite_spot(i, j);
-
-				/* Obvious */
-				detect = TRUE;
-			}
-		}
-	}
-
-	return (detect);
-}
-
-
-
-/*
- * Locates and displays all stairs and secret doors on current panel -RAK-
- */
-bool detect_sdoor(void)
-{
-	int		i, j;
-	bool	detect = FALSE;
-
-	cave_type *c_ptr;
-
-
-	/* Scan the panel */
-	for (i = panel_row_min; i <= panel_row_max; i++)
-	{
-		for (j = panel_col_min; j <= panel_col_max; j++)
-		{
-			/* Access the grid and object */
-			c_ptr = &cave[i][j];
-
-			/* Hack -- detect secret doors */
-			if (c_ptr->feat == FEAT_SECRET)
-			{
-				/* Find the door XXX XXX XXX */
-				c_ptr->feat = FEAT_DOOR_HEAD + 0x00;
-
-				/* Memorize the door */
-				c_ptr->info |= CAVE_MARK;
-
-				/* Redraw */
-				lite_spot(i, j);
-
-				/* Obvious */
-				detect = TRUE;
-			}
-
-			/* Ignore known grids */
-			if (c_ptr->info & CAVE_MARK) continue;
-
-			/* Hack -- detect stairs */
-			if ((c_ptr->feat == FEAT_LESS) ||
-			    (c_ptr->feat == FEAT_MORE))
-			{
-				/* Memorize the stairs */
-				c_ptr->info |= CAVE_MARK;
-
-				/* Redraw */
-				lite_spot(i, j);
-
-				/* Obvious */
-				detect = TRUE;
-			}
-		}
-	}
-
 	return (detect);
 }
 
@@ -1432,11 +1528,9 @@ void stair_creation(bool quest)
 
 	/* Notice */
 	note_spot(py, px);
-
 	/* Redraw */
 	lite_spot(py, px);
 }
-
 
 
 
@@ -1463,7 +1557,6 @@ static bool item_tester_hook_weapon(object_type *o_ptr)
 	return (FALSE);
 }
 
-
 /*
  * Hook to specify "armour"
  */
@@ -1487,9 +1580,6 @@ static bool item_tester_hook_armour(object_type *o_ptr)
 
 	return (FALSE);
 }
-
-
-
 /*
  * Enchants a plus onto an item.                        -RAK-
  *
@@ -1520,7 +1610,6 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 
 	/* Large piles resist enchantment */
 	prob = o_ptr->number * 100;
-
 	/* Missiles are easy to enchant */
 	if ((o_ptr->tval == TV_BOLT) ||
 	    (o_ptr->tval == TV_ARROW) ||
@@ -1536,7 +1625,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		if (rand_int(prob) >= 100) continue;
 
 		/* Enchant to hit */
-		if (eflag & ENCH_TOHIT)
+		if (eflag & (ENCH_TOHIT))
 		{
 			if (o_ptr->to_h < 0) chance = 0;
 			else if (o_ptr->to_h > 15) chance = 1000;
@@ -1549,19 +1638,19 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 
 				/* only when you get it above -1 -CFT */
 				if (cursed_p(o_ptr) &&
-				    (!(f3 & TR3_PERMA_CURSE)) &&
+				    (!(f3 & (TR3_PERMA_CURSE))) &&
 				    (o_ptr->to_h >= 0) && (rand_int(100) < 25))
 				{
 					msg_print("The curse is broken!");
-					o_ptr->ident &= ~ID_CURSED;
-					o_ptr->ident |= ID_SENSE;
+					o_ptr->ident &= ~(IDENT_CURSED);
+					o_ptr->ident |= (IDENT_SENSE);
 					o_ptr->note = quark_add("uncursed");
 				}
 			}
 		}
 
 		/* Enchant to damage */
-		if (eflag & ENCH_TODAM)
+		if (eflag & (ENCH_TODAM))
 		{
 			if (o_ptr->to_d < 0) chance = 0;
 			else if (o_ptr->to_d > 15) chance = 1000;
@@ -1574,19 +1663,19 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 
 				/* only when you get it above -1 -CFT */
 				if (cursed_p(o_ptr) &&
-				    (!(f3 & TR3_PERMA_CURSE)) &&
+				    (!(f3 & (TR3_PERMA_CURSE))) &&
 				    (o_ptr->to_d >= 0) && (rand_int(100) < 25))
 				{
 					msg_print("The curse is broken!");
-					o_ptr->ident &= ~ID_CURSED;
-					o_ptr->ident |= ID_SENSE;
+					o_ptr->ident &= ~(IDENT_CURSED);
+					o_ptr->ident |= (IDENT_SENSE);
 					o_ptr->note = quark_add("uncursed");
 				}
 			}
 		}
 
 		/* Enchant to armor class */
-		if (eflag & ENCH_TOAC)
+		if (eflag & (ENCH_TOAC))
 		{
 			if (o_ptr->to_a < 0) chance = 0;
 			else if (o_ptr->to_a > 15) chance = 1000;
@@ -1596,15 +1685,14 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 			{
 				o_ptr->to_a++;
 				res = TRUE;
-
 				/* only when you get it above -1 -CFT */
 				if (cursed_p(o_ptr) &&
-				    (!(f3 & TR3_PERMA_CURSE)) &&
+				    (!(f3 & (TR3_PERMA_CURSE))) &&
 				    (o_ptr->to_a >= 0) && (rand_int(100) < 25))
 				{
 					msg_print("The curse is broken!");
-					o_ptr->ident &= ~ID_CURSED;
-					o_ptr->ident |= ID_SENSE;
+					o_ptr->ident &= ~(IDENT_CURSED);
+					o_ptr->ident |= (IDENT_SENSE);
 					o_ptr->note = quark_add("uncursed");
 				}
 			}
@@ -1705,11 +1793,8 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 bool ident_spell(void)
 {
 	int			item;
-
 	object_type		*o_ptr;
-
 	char		o_name[80];
-
 
 	/* Get an item (from equip or inven or floor) */
 	if (!get_item(&item, "Identify which item? ", TRUE, TRUE, TRUE))
@@ -1734,7 +1819,6 @@ bool ident_spell(void)
 	/* Identify it fully */
 	object_aware(o_ptr);
 	object_known(o_ptr);
-
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
@@ -1763,11 +1847,9 @@ bool ident_spell(void)
 		msg_format("On the ground: %s.",
 		           o_name);
 	}
-
 	/* Something happened */
 	return (TRUE);
 }
-
 
 
 /*
@@ -1808,7 +1890,7 @@ bool identify_fully(void)
 	object_known(o_ptr);
 
 	/* Mark the item as fully known */
-	o_ptr->ident |= (ID_MENTAL);
+	o_ptr->ident |= (IDENT_MENTAL);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -1818,7 +1900,6 @@ bool identify_fully(void)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
-
 	/* Handle stuff */
 	handle_stuff();
 
@@ -1870,7 +1951,6 @@ static bool item_tester_hook_recharge(object_type *o_ptr)
 	return (FALSE);
 }
 
-
 /*
  * Recharge a wand/staff/rod from the pack or on the floor.
  *
@@ -1901,7 +1981,6 @@ static bool item_tester_hook_recharge(object_type *o_ptr)
 bool recharge(int num)
 {
 	int                 i, t, item, lev;
-
 	object_type		*o_ptr;
 
 
@@ -1954,7 +2033,6 @@ bool recharge(int num)
 		{
 			/* Rechange amount */
 			t = (num * damroll(2, 4));
-
 			/* Recharge by that amount */
 			if (o_ptr->pval > t)
 			{
@@ -1974,7 +2052,6 @@ bool recharge(int num)
 	{
 		/* Recharge power */
 		i = (num + 100 - lev - (10 * o_ptr->pval)) / 15;
-
 		/* Paranoia -- prevent crashes */
 		if (i < 1) i = 1;
 
@@ -2011,18 +2088,17 @@ bool recharge(int num)
 			if (t > 0) o_ptr->pval += 2 + randint(t);
 
 			/* Hack -- we no longer "know" the item */
-			o_ptr->ident &= ~ID_KNOWN;
+			o_ptr->ident &= ~(IDENT_KNOWN);
 
 			/* Hack -- we no longer think the item is empty */
-			o_ptr->ident &= ~ID_EMPTY;
+			o_ptr->ident &= ~(IDENT_EMPTY);
 		}
 	}
-
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+	p_ptr->window |= (PW_INVEN);
 
 	/* Something was done */
 	return (TRUE);
@@ -2033,15 +2109,14 @@ bool recharge(int num)
 
 
 
-
-
 /*
  * Apply a "project()" directly to all viewable monsters
+ *
+ * Note that affected monsters are NOT auto-tracked by this usage.
  */
 static bool project_hack(int typ, int dam)
 {
 	int		i, x, y;
-
 	int		flg = PROJECT_JUMP | PROJECT_KILL | PROJECT_HIDE;
 
 	bool	obvious = FALSE;
@@ -2065,7 +2140,6 @@ static bool project_hack(int typ, int dam)
 		/* Jump directly to the target monster */
 		if (project(0, 0, y, x, dam, typ, flg)) obvious = TRUE;
 	}
-
 	/* Result */
 	return (obvious);
 }
@@ -2159,7 +2233,7 @@ bool turn_undead(void)
 bool dispel_creature(u32b flag, int dam)
 {
 	p_flag = flag;
-	return (project_hack(GF_DISP, dam));
+	return (project_hack(GF_DISP_ALL, dam));
 }
 
 
@@ -2173,7 +2247,6 @@ void aggravate_monsters(int who)
 
 	bool sleep = FALSE;
 	bool speed = FALSE;
-
 	/* Aggravate everyone nearby */
 	for (i = 1; i < m_max; i++)
 	{
@@ -2247,7 +2320,6 @@ bool genocide(void)
 
 		/* Delete the monster */
 		delete_monster_idx(i);
-
 		/* Take damage */
 		take_hit(randint(4), "the strain of casting Genocide");
 
@@ -2256,7 +2328,6 @@ bool genocide(void)
 
 		/* Redraw */
 		p_ptr->redraw |= (PR_HP);
-
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER);
 
@@ -2297,17 +2368,14 @@ bool mass_genocide(void)
 		if (!m_ptr->r_idx) continue;
 		/* Hack -- Skip unique monsters */
 		if (r_ptr->flags1 & RF1_UNIQUE) continue;
-
 		/* Skip distant monsters */
 		if (m_ptr->cdis > MAX_SIGHT) continue;
 
 		/* Delete the monster */
 		delete_monster_idx(i);
-
 		/* Hack -- visual feedback */
 		take_hit(randint(3), "the strain of casting Mass Genocide");
 		move_cursor_relative(py, px);
-
 		/* Redraw */
 		p_ptr->redraw |= PR_HP;
 
@@ -2339,7 +2407,6 @@ bool probing(void)
 	int            i;
 
 	bool	probe = FALSE;
-
 	/* Probe all (nearby) monsters */
 	for (i = 1; i < m_max; i++)
 	{
@@ -2358,7 +2425,6 @@ bool probing(void)
 
 			/* Start the message */
 			if (!probe) msg_print("Probing...");
-
 			/* Get "the monster" or "something" */
 			monster_desc(m_name, m_ptr, 0x04);
 
@@ -2395,7 +2461,6 @@ bool probing(void)
 void destroy_area(int y1, int x1, int r, bool full)
 {
 	int y, x, k, t;
-
 	cave_type *c_ptr;
 
 	bool flag = FALSE;
@@ -2443,7 +2508,7 @@ void destroy_area(int y1, int x1, int r, bool full)
 			/* Destroy "valid" grids */
 			if (cave_valid_bold(y, x))
 			{
-				/* Delete the object (if any) */
+				/* Delete objects */
 				delete_object(y, x);
 				/* Wall (or floor) type */
 				t = rand_int(200);
@@ -2504,7 +2569,6 @@ void destroy_area(int y1, int x1, int r, bool full)
 
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);
-
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD);
 }
@@ -2531,7 +2595,6 @@ void destroy_area(int y1, int x1, int r, bool full)
 void earthquake(int cy, int cx, int r)
 {
 	int		i, t, y, x, yy, xx, dy, dx, oy, ox;
-
 	int		damage = 0;
 
 	int		sn = 0, sy = 0, sx = 0;
@@ -2586,7 +2649,6 @@ void earthquake(int cy, int cx, int r)
 
 			/* Damage this grid */
 			map[16+yy-cy][16+xx-cx] = TRUE;
-
 			/* Hack -- Take note of player damage */
 			if ((yy == py) && (xx == px)) hurt = TRUE;
 		}
@@ -2693,7 +2755,6 @@ void earthquake(int cy, int cx, int r)
 		/* Take some damage */
 		if (damage) take_hit(damage, "an earthquake");
 	}
-
 	/* Examine the quaked region */
 	for (dy = -r; dy <= r; dy++)
 	{
@@ -2716,15 +2777,15 @@ void earthquake(int cy, int cx, int r)
 				monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 				/* Most monsters cannot co-exist with rock */
-				if (!(r_ptr->flags2 & RF2_KILL_WALL) &&
-				    !(r_ptr->flags2 & RF2_PASS_WALL))
+				if (!(r_ptr->flags2 & (RF2_KILL_WALL)) &&
+				    !(r_ptr->flags2 & (RF2_PASS_WALL)))
 				{
 					char m_name[80];
 
 					/* Assume not safe */
 					sn = 0;
 					/* Monster can move to escape the wall */
-					if (!(r_ptr->flags1 & RF1_NEVER_MOVE))
+					if (!(r_ptr->flags1 & (RF1_NEVER_MOVE)))
 					{
 						/* Look for safety */
 						for (i = 0; i < 8; i++)
@@ -2773,7 +2834,6 @@ void earthquake(int cy, int cx, int r)
 
 						/* Delete the monster */
 						delete_monster(yy, xx);
-
 						/* No longer safe */
 						sn = 0;
 					}
@@ -2782,7 +2842,6 @@ void earthquake(int cy, int cx, int r)
 					if (sn)
 					{
 						int m_idx = cave[yy][xx].m_idx;
-
 						/* Update the new location */
 						cave[sy][sx].m_idx = m_idx;
 						/* Update the old location */
@@ -2828,8 +2887,7 @@ void earthquake(int cy, int cx, int r)
 			if (cave_valid_bold(yy, xx))
 			{
 				bool floor = cave_floor_bold(yy, xx);
-
-				/* Delete any object that is still there */
+				/* Delete objects */
 				delete_object(yy, xx);
 
 				/* Wall (or floor) type */
@@ -2884,7 +2942,6 @@ void earthquake(int cy, int cx, int r)
 }
 
 
-
 /*
  * This routine clears the entire "temp" set.
  *
@@ -2933,10 +2990,10 @@ static void cave_temp_room_lite(void)
 			update_mon(c_ptr->m_idx, FALSE);
 
 			/* Stupid monsters rarely wake up */
-			if (r_ptr->flags2 & RF2_STUPID) chance = 10;
+			if (r_ptr->flags2 & (RF2_STUPID)) chance = 10;
 
 			/* Smart monsters always wake up */
-			if (r_ptr->flags2 & RF2_SMART) chance = 100;
+			if (r_ptr->flags2 & (RF2_SMART)) chance = 100;
 
 			/* Sometimes monsters wake up */
 			if (m_ptr->csleep && (rand_int(100) < chance))
@@ -2948,7 +3005,6 @@ static void cave_temp_room_lite(void)
 				if (m_ptr->ml)
 				{
 					char m_name[80];
-
 					/* Acquire the monster name */
 					monster_desc(m_name, m_ptr, 0);
 
@@ -2995,7 +3051,6 @@ static void cave_temp_room_unlite(void)
 
 		/* No longer in the array */
 		c_ptr->info &= ~CAVE_TEMP;
-
 		/* Darken the grid */
 		c_ptr->info &= ~CAVE_GLOW;
 
@@ -3004,7 +3059,6 @@ static void cave_temp_room_unlite(void)
 		{
 			/* Forget the grid */
 			c_ptr->info &= ~CAVE_MARK;
-
 			/* Notice */
 			note_spot(y, x);
 		}
@@ -3034,23 +3088,22 @@ static void cave_temp_room_aux(int y, int x)
 	cave_type *c_ptr = &cave[y][x];
 
 	/* Avoid infinite recursion */
-	if (c_ptr->info & CAVE_TEMP) return;
+	if (c_ptr->info & (CAVE_TEMP)) return;
 
 	/* Do not "leave" the current room */
-	if (!(c_ptr->info & CAVE_ROOM)) return;
+	if (!(c_ptr->info & (CAVE_ROOM))) return;
 
 	/* Paranoia -- verify space */
 	if (temp_n == TEMP_MAX) return;
 
 	/* Mark the grid as "seen" */
-	c_ptr->info |= CAVE_TEMP;
+	c_ptr->info |= (CAVE_TEMP);
 
 	/* Add it to the "seen" set */
 	temp_y[temp_n] = y;
 	temp_x[temp_n] = x;
 	temp_n++;
 }
-
 
 
 
@@ -3105,7 +3158,6 @@ void unlite_room(int y1, int x1)
 
 		/* Walls get dark, but stop darkness */
 		if (!cave_floor_bold(y, x)) continue;
-
 		/* Spread adjacent */
 		cave_temp_room_aux(y + 1, x);
 		cave_temp_room_aux(y - 1, x);
@@ -3160,7 +3212,6 @@ bool unlite_area(int dam, int rad)
 	{
 		msg_print("Darkness surrounds you.");
 	}
-
 	/* Hook into the "project()" function */
 	(void)project(0, rad, py, px, dam, GF_DARK_WEAK, flg);
 
@@ -3170,7 +3221,6 @@ bool unlite_area(int dam, int rad)
 	/* Assume seen */
 	return (TRUE);
 }
-
 
 /*
  * Cast a ball spell
@@ -3190,7 +3240,7 @@ bool fire_ball(int typ, int dir, int dam, int rad)
 	/* Hack -- Use an actual "target" */
 	if ((dir == 5) && target_okay())
 	{
-		flg &= ~PROJECT_STOP;
+		flg &= ~(PROJECT_STOP);
 		tx = target_col;
 		ty = target_row;
 	}
@@ -3224,8 +3274,6 @@ static bool project_hook(int typ, int dir, int dam, int flg)
 	/* Analyze the "dir" and the "target", do NOT explode */
 	return (project(0, 0, ty, tx, dam, typ, flg));
 }
-
-
 /*
  * Cast a bolt spell
  * Stop if we hit a monster, as a "bolt"
@@ -3284,7 +3332,6 @@ bool wall_to_mud(int dir)
 	int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
 	return (project_hook(GF_KILL_WALL, dir, 20 + randint(30), flg));
 }
-
 bool destroy_door(int dir)
 {
 	int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM;
@@ -3393,7 +3440,6 @@ void recall_player()
 		msg_print("A tension leaves the air around you...");
 	}
 }
-
 /* Restore all stats */
 bool restore_stats()
 {

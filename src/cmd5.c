@@ -63,8 +63,11 @@ static void fetch(int dir, int wgt)
 		return;
 	}
 	i = c_ptr->o_idx;
-	c_ptr->o_idx=0;
-	cave[py][px].o_idx=i; /* 'move' it */
+	c_ptr->o_idx = 0;
+	cave[py][px].o_idx = i; /* 'move' it */
+	o_ptr->iy = py;
+o_ptr->ix = px;
+
 	p_ptr->redraw |= PR_MAP;
 }
 
@@ -94,6 +97,8 @@ static void brand_weapon(void)
 
 		char o_name[80];
 
+		ego_item_type *e_ptr;
+
 		if (rand_int(100) < 25)
 		{
 			act = "is covered in a fiery shield!";
@@ -104,6 +109,10 @@ static void brand_weapon(void)
 			act = "glows deep, icy blue!";
 			o_ptr->name2 = EGO_BRAND_COLD;
 		}
+		e_ptr = &e_info[o_ptr->name2];
+		o_ptr->flags1 |= e_ptr->flags1;
+		o_ptr->flags2 |= e_ptr->flags2;
+		o_ptr->flags3 |= e_ptr->flags3;
 		object_desc(o_name, o_ptr, FALSE, 0);
 		msg_format("Your %s %s", o_name, act);
 		enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
@@ -222,500 +231,6 @@ static void attack(int typ, int dam, int ball)
 	}
 }
 
-/*
- * Hack -- Display all known spells in a window
- *
- * XXX XXX XXX Need to analyze size of the window.
- *
- * XXX XXX XXX Need more color coding.
- */
-void display_spell_list(void)
-{
-	int			i, j;
-	int			y, x;
-
-	int			m[9];
-
-	magic_type	*s_ptr;
-
-	char		name[80];
-
-	char		out_val[160];
-
-
-	/* Erase window */
-	clear_from(0);
-
-	/* Warriors are illiterate */
-	if (!mp_ptr->spell_book) return;
-
-	/* Scan books */
-	for (j = 0; j < 9; j++)
-	{
-		int n = 0;
-
-		/* Reset vertical */
-		m[j] = 0;
-
-		/* Vertical location */
-		y = (j < 3) ? 0 : (m[j - 3] + 2);
-
-		/* Horizontal location */
-		x = 27 * (j % 3);
-
-		/* Scan spells */
-		for (i = 0; i < 64; i++)
-		{
-			/* Check for spell */
-			if ((i < 32) ?
-			    (spell_flags[p_ptr->realm][j][0] & (1L << i)) :
-			    (spell_flags[p_ptr->realm][j][1] & (1L << (i - 32))))
-			{
-				byte a = TERM_WHITE;
-
-				/* Access the spell */
-				s_ptr = &mp_ptr->info[i];
-
-				/* Default name */
-				strcpy(name, spell_names[p_ptr->realm][i]);
-
-				/* Illegible */
-				if (s_ptr->slevel >= 99)
-				{
-					/* Illegible */
-					strcpy(name, "(illegible)");
-
-					/* Unusable */
-					a = TERM_L_DARK;
-				}
-
-				/* Forgotten */
-				else if ((i < 32) ?
-				         ((spell_forgotten1 & (1L << i))) :
-				         ((spell_forgotten2 & (1L << (i - 32)))))
-				{
-					/* Forgotten */
-					a = TERM_ORANGE;
-				}
-
-				/* Unknown */
-				else if (!((i < 32) ?
-				           (spell_learned1 & (1L << i)) :
-				           (spell_learned2 & (1L << (i - 32)))))
-				{
-					/* Unknown */
-					a = TERM_RED;
-				}
-
-				/* Untried */
-				else if (!((i < 32) ?
-				           (spell_worked1 & (1L << i)) :
-				           (spell_worked2 & (1L << (i - 32)))))
-				{
-					/* Untried */
-					a = TERM_YELLOW;
-				}
-
-				/* Dump the spell --(-- */
-				sprintf(out_val, "%c/%c) %-20.20s",
-		        		I2A(j), I2A(n), name);
-
-				/* Track maximum */
-				m[j] = y + n;
-
-				/* Dump onto the window */
-				Term_putstr(x, m[j], -1, a, out_val);
-
-				/* Next */
-				n++;
-			}
-		}
-	}
-}
-
-
-
-/*
- * Returns spell chance of failure for spell		-RAK-
- */
-static s16b spell_chance(int spell)
-{
-	int		chance, minfail, plev;
-	magic_type	*s_ptr;
-
-
-	/* Paranoia -- must be literate */
-	if (!p_ptr->realm) return (100);
-
-	/* Access the spell */
-	s_ptr = &mp_ptr->info[spell];
-
-	/* Extract the base spell failure rate */
-	chance = s_ptr->sfail;
-
-	/* Get effective level */
-	plev = smod(S_MAGIC) + p_ptr->cur_skill[mp_ptr->spell_skill]/30 -4;
-
-	/* Reduce failure rate by "effective" level adjustment */
-	chance -= 3 * (plev - s_ptr->slevel);
-
-	/* Reduce failure rate by INT/WIS adjustment */
-	chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
-
-	/* Not enough mana to cast */
-	if (s_ptr->smana > p_ptr->csp)
-	{
-		chance += 5 * (s_ptr->smana - p_ptr->csp);
-	}
-
-	/* Extract the minimum failure rate */
-	minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
-	/* Hack -- Priest prayer penalty for "edged" weapons  -DGK */
-	if ((p_ptr->realm == PRIEST) && (p_ptr->icky_wield)) chance += 25;
-	/* Minimum failure rate */
-	if (chance < minfail) chance = minfail;
-	/* Stunning makes spells harder */
-	if (p_ptr->stun > 50) chance += 25;
-	else if (p_ptr->stun) chance += 15;
-
-	/* Always a 5 percent chance of working */
-	if (chance > 95) chance = 95;
-
-	/* Return the chance */
-	return (chance);
-}
-
-
-
-/*
- * Determine if a spell is "okay" for the player to cast or study
- * The spell must be legible, not forgotten, and also, to cast,
- * it must be known, and to study, it must not be known.
- */
-static bool spell_okay(int j, bool known)
-{
-	magic_type *s_ptr;
-
-	/* Access the spell */
-	s_ptr = &mp_ptr->info[j];
-
-	/* Spell is illegal */
-	if (s_ptr->slevel > smod(S_MAGIC)) return (FALSE);
-
-	/* Spell is forgotten */
-	if ((j < 32) ?
-	    (spell_forgotten1 & (1L << j)) :
-	    (spell_forgotten2 & (1L << (j - 32))))
-	{
-		/* Never okay */
-		return (FALSE);
-	}
-
-	/* Spell is learned */
-	if ((j < 32) ?
-	    (spell_learned1 & (1L << j)) :
-	    (spell_learned2 & (1L << (j - 32))))
-	{
-		/* Okay to cast, not to study */
-		return (known);
-	}
-
-	/* Okay to study, not to cast */
-	return (!known);
-}
-
-/*
- * Extra information on a spell		-DRS-
- *
- * We can use up to 14 characters of the buffer 'p'
- */
-static void spell_info(char *p, int j)
-{
-	int plev = p_ptr->lev;
-	/* Default */
-	strcpy(p, "");
-
-#ifdef DRS_SHOW_SPELL_INFO
-
-	/* Analyze the spell */
-
-	switch (j+((p_ptr->realm-1)*64))
-	{
-		/*** Mage spells ***/
-		case 0: strcpy(p, " dam 2d6"); break;
-		case 2: strcpy(p, " range 10"); break;
-		case 8: sprintf(p, " dam %d", 10 + (plev / 2)); break;
-		case 10: sprintf(p, " dam %dd8", (3+((plev-5)/4))); break;
-		case 11: sprintf(p, " dam %d", 10+plev/4);
-		case 14: sprintf(p, " range %d", plev * 5); break;
-		case 15: sprintf(p, " dam %dd6", 4+((plev-5)/45)); break;
-		case 16: sprintf(p, " dam %dd8", (5+((plev-5)/4))); break;
-		case 23: sprintf(p, " dam %d", 30+plev/4); break;
-		case 24: sprintf(p, " dam %dd8", (8+((plev-5)/4))); break;
-		case 26: sprintf(p, " dam %d", 30 + plev); break;
-		case 29: sprintf(p, " dur %d+d20", plev); break;
-		case 30: sprintf(p, " dam %d", 55 + plev); break;
-		case 32: strcpy(p, " restore 35"); break;
-		case 33: case 34: case 35: case 36: case 37:
-			strcpy(p," dur 20+d20"); break;
-		case 46: strcpy(p, " dur 25+d25"); break;
-		case 47: strcpy(p, " dur 30+d20"); break;
-		case 48: strcpy(p, " dur 25+d25"); break;
-		case 49: sprintf(p, " dur %d+d30", plev+30); break;
-		case 50: strcpy(p, " dur 8+d8"); break;
-		case 51: sprintf(p, " dam %d", (plev*3)/2+150); break;
-		case 52: sprintf(p, " dam %d", (plev*3)/2+220); break;
-		case 53: sprintf(p, " dam %d", (plev*3)/2+240); break;
-		case 54: sprintf(p, " dam %d", (plev*3)/2+260); break;
-		case 55: sprintf(p, " dam %d", (plev*3)/2+180); break;
-		case 56: sprintf(p, " dam %d", (plev*3)/2+180); break;
-		case 57: sprintf(p, " dam %d", (plev*3)/2+190); break;
-		case 58: strcpy(p, " dam 300"); break;
-
-		/*** Priest spells ***/
-		case 65: sprintf(p," heal %dd%d", 3+plev/15, 3+plev/8); break;
-		case 66: strcpy(p, " dur 12+d12"); break;
-		case 70: strcpy(p, " dam 3d5"); break;
-		case 73: sprintf(p, " range %d", 3*plev); break;
-		case 74: sprintf(p, " heal %dd%d", 4+plev/5, 5+plev/8); break;
-		case 75: strcpy(p, " dur 24+d24"); break;
-		case 79: strcpy(p, " dur 10+d10"); break;
-		case 81: sprintf(p, " dam %d+4d4", (plev*3)/2); break;
-		case 82: sprintf(p, " heal %dd%d", 5+plev/5, 5+plev/6); break;
-		case 83: sprintf(p, " dur %d+d24", plev+15); break;
-		case 84: sprintf(p, " dur %d+d25", 3*plev); break;
-		case 87: sprintf(p, " heal %dd%d", 10+plev/9, 4+plev/8); break;
-		case 90: sprintf(p, " dam d%d", plev*3); break;
-		case 91: sprintf(p, " heal %d", 200+plev/3); break;
-		case 92: sprintf(p, " dam d%d", plev*3); break;
-		case 94: strcpy(p, " heal 2000"); break;
-		case 95: strcpy(p, " range 10"); break;
-		case 96: sprintf(p, " range %d", 8*plev); break;
-		case 105: sprintf(p, " dur %d+d%d", 50+plev, plev+10);
-		case 106: sprintf(p, " dur %d+d%d", 50+plev/3, plev); break;
-		case 109: sprintf(p, " dur %d+d%d", plev/5+2, plev/10); break;
-		case 116: sprintf(p, " dam %d", plev+40); break;
-		case 117: sprintf(p, " dam %d", plev*5); break;
-		case 118: sprintf(p, " dam %d", (plev*3)/2+150); break;
-		case 120: strcpy(p, " dam 300"); break;
-
-		/*** Druid spells ***/
-		case 130: sprintf(p, " dur %d", plev*2+10); break;
-		case 134: strcpy(p, " heal 3d4"); break;
-		case 138: sprintf(p, " heal 5d6+%d", (plev*2)/3); break;
-		case 140: sprintf(p, " range %d", plev*2+10); break;
-		case 141: sprintf(p, " dur %d+d%d", plev+20, plev); break;
-		case 142: sprintf(p, " heal %d+6d7", plev); break;
-		case 144: sprintf(p, " dam %d", 20+plev/4); break;
-		case 145: sprintf(p, " dam %d", 25+plev/4); break;
-		case 147: sprintf(p, " dam %d", 30+plev/4); break;
-		case 148: sprintf(p, " heal %d+10d10", (plev*3)/2); break;
-		case 149: sprintf(p, " dam %d", 35+plev/4); break;
-		case 150: sprintf(p, " dam %d", 40+plev/4); break;
-		case 151: sprintf(p, " dam %d", 45+plev/2); break;
-		case 152: sprintf(p, " dam %d", 50+plev/2); break;
-		case 153: sprintf(p, " dam %d", 55+plev/2); break;
-		case 154: sprintf(p, " dam %d", 60+plev/2); break;
-		case 157: strcpy(p, " heal 1000"); break;
-		case 158: sprintf(p, " dur %d+d%d", plev, plev+50); break;
-		case 159: strcpy(p, " restore 50"); break;
-		case 170: sprintf(p, " dur %d", plev+60); break;
-		case 171: sprintf(p, " dur %d", plev+60); break;
-		case 172: sprintf(p, " dur %d", 50+plev); break;
-		case 173: sprintf(p, " dur %d+d%d", plev+10, plev); break;
-		case 175: sprintf(p, " dam %d", (plev*3)/2+200); break;
-		case 176: sprintf(p, " dam %d", (plev*3)/2+210); break;
-		case 177: sprintf(p, " dam %d", (plev*3)/2+220); break;
-		case 178: sprintf(p, " dam %d", (plev*3)/2+230); break;
-		case 179: sprintf(p, " dam %d", (plev*3)/2+240); break;
-
-		/*** Necro spells ***/
-		case 193: strcpy(p, " range 20"); break;
-		case 200: sprintf(p, " dam %d", plev*4); break;
-		case 202: sprintf(p, " dur %d", 30+plev); break;
-		case 204: sprintf(p, " dur %d", plev*2+30); break;
-		case 205: sprintf(p, " range %d", plev*4); break;
-		case 206: sprintf(p," dur %d", plev+50); break;
-		case 209: sprintf(p, " dam %d", plev/3+20); break;
-		case 210: sprintf(p, " heal %d", (plev*3)/2+50); break;
-		case 211: sprintf(p," dur %d", plev+50); break;
-		case 213: sprintf(p, " dam %d", plev/3+35); break;
-		case 217: sprintf(p, " dur %d", plev+30); break;
-		case 218: sprintf(p, " dur %d", plev+50); break;
-		case 219: sprintf(p, " dur 30+d%d", 20); break;
-		case 220: sprintf(p, " dam %d", (plev*3)/2+80); break;
-		case 224: sprintf(p, " dam %d", plev*5); break;
-		case 225: sprintf(p, " dam %d", (plev*3)/2+220); break;
-		case 226: sprintf(p, " dam %d", (plev+150)); break;
-		case 232: sprintf(p, " dam %d", plev*5); break;
-		case 233: sprintf(p, " dam %d", (plev*3)/2+120); break;
-		case 236: sprintf(p, " heal %d", plev*2+200); break;
-		case 237: sprintf(p, " dur %d", plev+50); break;
-		case 238: sprintf(p, " dur %d", plev*2+50); break;
-		case 239: sprintf(p, " dur 10+d%d", plev/5); break;
-	}
-#endif
-}
-
-
-/*
- * Print a list of spells (for browsing or casting)
- */
-static void print_spells(byte *spell, int num)
-{
-	int			i, j, col;
-
-	magic_type		*s_ptr;
-
-	cptr		comment;
-
-	char		info[80];
-
-	char		out_val[160];
-
-
-	/* Print column */
-	col = 20;
-	/* Title the list */
-	prt("", 1, col);
-	put_str("Name", 1, col + 5);
-	put_str("Lv Mana Fail", 1, col + 35);
-
-	/* Dump the spells */
-	for (i = 0; i < num; i++)
-	{
-		/* Access the spell */
-		j = spell[i];
-		/* Access the spell */
-		s_ptr = &mp_ptr->info[j];
-		/* Skip illegible spells */
-		if (s_ptr->slevel >= 99)
-		{
-			sprintf(out_val, "  %c) %-30s", I2A(i), "(illegible)");
-			prt(out_val, 2 + i, col);
-			continue;
-		}
-
-		/* XXX XXX Could label spells above the players level */
-
-		/* Get extra info */
-		spell_info(info, j);
-
-		/* Use that info */
-		comment = info;
-
-		/* Analyze the spell */
-		if ((j < 32) ?
-		    ((spell_forgotten1 & (1L << j))) :
-		    ((spell_forgotten2 & (1L << (j - 32)))))
-		{
-			comment = " forgotten";
-		}
-		else if (!((j < 32) ?
-		           (spell_learned1 & (1L << j)) :
-		           (spell_learned2 & (1L << (j - 32)))))
-		{
-			comment = " unknown";
-		}
-		else if (!((j < 32) ?
-		           (spell_worked1 & (1L << j)) :
-		           (spell_worked2 & (1L << (j - 32)))))
-		{
-			comment = " untried";
-		}
-
-		/* Dump the spell --(-- */
-		sprintf(out_val, "  %c) %-30s%2d %4d %3d%%%s",
-		        I2A(i), spell_names[p_ptr->realm-1][j],
-		        s_ptr->slevel, s_ptr->smana, spell_chance(j), comment);
-		prt(out_val, 2 + i, col);
-	}
-
-	/* Clear the bottom line */
-	prt("", 2 + i, col);
-}
-
-
-/*
- * Hack -- Print a list of spells in a "term" window.
- * See "print_spells()" for the basic algorithm.
- */
-#if 0
-static void display_spells(byte *spell, int num)
-{
-	int			i, j;
-
-	magic_type		*s_ptr;
-
-	cptr		comment;
-
-	char		info[80];
-
-	char		out_val[160];
-
-
-	/* Erase window */
-	clear_from(0);
-
-
-#if 0
-	/* Title the list */
-	prt("", 1, col);
-	put_str("Name", 1, col + 5);
-	put_str("Lv Mana Fail", 1, col + 35);
-#endif
-
-	/* Dump the spells */
-	for (i = 0; i < num; i++)
-	{
-		/* Access the spell */
-		j = spell[i];
-
-		/* Access the spell */
-		s_ptr = &mp_ptr->info[j];
-
-		/* Skip illegible spells */
-		if (s_ptr->slevel >= 99)
-		{
-			/* --(-- */
-			sprintf(out_val, "%c) %-30s", I2A(i), "(illegible)");
-			Term_putstr(0, i, -1, TERM_WHITE, out_val);
-			continue;
-		}
-
-		/* Get extra info */
-		spell_info(info, j);
-
-		/* Use that info */
-		comment = info;
-		/* Analyze the spell */
-		if ((j < 32) ?
-		    ((spell_forgotten1 & (1L << j))) :
-		    ((spell_forgotten2 & (1L << (j - 32)))))
-		{
-			comment = " forgotten";
-		}
-		else if (!((j < 32) ?
-		           (spell_learned1 & (1L << j)) :
-		           (spell_learned2 & (1L << (j - 32)))))
-		{
-			comment = " unknown";
-		}
-		else if (!((j < 32) ?
-		           (spell_worked1 & (1L << j)) :
-		           (spell_worked2 & (1L << (j - 32)))))
-		{
-			comment = " untried";
-		}
-
-		/* Dump the spell --(-- */
-		sprintf(out_val, "%c) %-30s%2d %4d %3d%%%s",
-		        I2A(i), spell_names[p_ptr->realm-1][j],
-		        s_ptr->slevel, s_ptr->smana, spell_chance(j), comment);
-		Term_putstr(0, i, -1, TERM_WHITE, out_val);
-	}
-}
-#endif
 
 /*
  * Get the "name" of spells (ie, "spell", "prayer", or "technique")
@@ -746,15 +261,12 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known)
 	int			i, j = -1;
 
 	byte		spell[64], num = 0;
-
 	bool		flag, redraw, okay, ask;
 	char		choice;
 	magic_type		*s_ptr;
-
 	char		out_val[160];
 
 	cptr p = spell_type();
-
 	/* Extract spells */
 	for (i = 0; i < 64; i++)
 	{
@@ -820,7 +332,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known)
 				/* Save the screen */
 				Term_save();
 				/* Display a list of spells */
-				print_spells(spell, num);
+				print_spells(spell, num, 1, 20);
 			}
 			/* Hide the list */
 			else
@@ -980,7 +492,7 @@ void do_cmd_browse(void)
 	/* Save the screen */
 	Term_save();
 	/* Display the spells */
-	print_spells(spell, num);
+	print_spells(spell, num, 1, 20);
 
 	/* Clear the top line */
 	prt("", 0, 0);
@@ -1018,7 +530,6 @@ void do_cmd_study(void)
 		msg_print("You cannot see!");
 		return;
 	}
-
 	if (p_ptr->confused)
 	{
 		msg_print("You are too confused!");
@@ -1072,7 +583,6 @@ void do_cmd_study(void)
 				if (!spell_okay(i, FALSE)) continue;
 				/* Hack -- Prepare the randomizer */
 				k++;
-
 				/* Hack -- Apply the randomizer */
 				if (rand_int(k) == 0) j = i;
 			}
@@ -1255,7 +765,7 @@ void do_cmd_cast(void)
 
 			case 1:
 			{
-				(void)detect_monsters();
+				(void)detect_monsters_normal();
 				break;
 			}
 
@@ -1273,15 +783,16 @@ void do_cmd_cast(void)
 
 			case 4:
 			{
-				(void)detect_object();
+				(void)detect_objects_normal();
 				(void)detect_treasure();
+				(void)detect_objects_gold();
 				break;
 			}
 
 			case 5:
 			{
-				(void)detect_trap();
-				(void)detect_sdoor();
+				(void)detect_traps();
+				(void)detect_doors();
 				break;
 			}
 
@@ -1500,7 +1011,6 @@ void do_cmd_cast(void)
 				(void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
 				break;
 			}
-
 			case 37:
 			{
 				(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
@@ -1537,7 +1047,7 @@ void do_cmd_cast(void)
 
 			case 42:
 			{
-				(void)detect_magic();
+				(void)detect_objects_magic();
 				break;
 			}
 
@@ -1558,7 +1068,6 @@ void do_cmd_cast(void)
 				(void)mass_genocide();
 				break;
 			}
-
 			case 46:
 			{
 				(void)hp_player(10);
@@ -1692,8 +1201,8 @@ void do_cmd_cast(void)
 
 			case 69:
 			{
-				(void)detect_trap();
-				(void)detect_sdoor();
+				(void)detect_traps();
+				(void)detect_doors();
 				break;
 			}
 
@@ -1815,7 +1324,6 @@ void do_cmd_cast(void)
 				(void)set_cut(0);
 				break;
 			}
-
 			case 88:
 			{
 				(void)turn_undead();
@@ -1900,35 +1408,40 @@ void do_cmd_cast(void)
 
 			case 100:
 			{
-				(void)detection();
+				msg_print("The world changes.");
+				new_level_flag = TRUE;
 				break;
 			}
 
 			case 101:
 			{
-				(void)ident_spell();
+				(void)detect_all();
 				break;
 			}
 
 			case 102:
 			{
-				(void)probing();
+				(void)ident_spell();
 				break;
 			}
 
 			case 103:
 			{
-				wiz_lite();
+				(void)probing();
 				break;
 			}
 
 			case 104:
 			{
+				wiz_lite();
+				break;
+			}
+			case 105:
+			{
 				self_knowledge();
 				break;
 			}
-
-			case 105:
+			case 106:
 			{
 				(void)set_oppose_acid(p_ptr->oppose_acid + 50 + plev +
 									randint(plev+10));
@@ -1943,34 +1456,28 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case 106:
+			case 107:
 			{
 				(void)set_shield(p_ptr->shield + 50 + plev/3 + randint(plev));
 				msg_print("The essence of your god surrounds you!");
 				break;
 			}
 
-			case 107:
+			case 108:
 			{
 				(void)restore_stats();
 				break;
 			}
 
-			case 108:
+			case 109:
 			{
 				(void)restore_level();
 				break;
 			}
 
-			case 109:
-			{
-				(void)set_invuln(p_ptr->invuln + randint(10)+plev/5 +2);
-				break;
-			}
-
 			case 110:
 			{
-				(void)destroy_doors_touch();
+				(void)set_invuln(p_ptr->invuln + randint(10)+plev/5 +2);
 				break;
 			}
 
@@ -1979,6 +1486,7 @@ void do_cmd_cast(void)
 				(void)recharge(15);
 				break;
 			}
+
 			case 112:
 			{
 				(void)remove_all_curse();
@@ -1987,49 +1495,54 @@ void do_cmd_cast(void)
 
 			case 113:
 			{
-				(void)enchant_spell(rand_int(4) + 1, rand_int(4) + 1, 0);
-				break;
+				set_blessed(p_ptr->blessed + 20 + plev);
+				set_fast(!p_ptr->fast? plev+20: randint(plev/2)+5);
 			}
 
 			case 114:
 			{
-				(void)enchant_spell(0, 0, rand_int(3) + 2);
+				(void)enchant_spell(rand_int(4) + 1, rand_int(4) + 1, 0);
 				break;
 			}
 
 			case 115:
 			{
-				brand_weapon();
+				(void)enchant_spell(0, 0, rand_int(3) + 2);
 				break;
 			}
 
 			case 116:
+			{
+				brand_weapon();
+				break;
+			}
+
+			case 117:
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_beam(GF_SOUND, dir, plev+40);
 				break;
 			}
 
-			case 117:
+			case 118:
 			{
 				(void)dispel_creature(RF3_EVIL, plev * 4);
 				break;
 			}
 
-			case 118:
+			case 119:
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_beam(GF_HOLY_ORB, dir, (plev*3)/2+150);
 				break;
 			}
 
-			case 119:
+			case 120:
 			{
 				destroy_area(py, px, 15, TRUE);
 				break;
 			}
-
-			case 120:
+			case 121:
 			{
 				if (!get_aim_dir(&dir)) return;
 				drain_life(dir, 300);
@@ -2068,8 +1581,8 @@ void do_cmd_cast(void)
 
 			case 133:
 			{
-				(void)detect_sdoor();
-				(void)detect_trap();
+				(void)detect_doors();
+				(void)detect_traps();
 				break;
 			}
 
@@ -2275,9 +1788,10 @@ void do_cmd_cast(void)
 
 			case 166:
 			{
-				(void)detect_object();
+				(void)detect_objects_normal();
 				(void)detect_treasure();
-				(void)detect_magic();
+				(void)detect_objects_gold();
+				(void)detect_objects_magic();
 				break;
 			}
 
@@ -2292,7 +1806,6 @@ void do_cmd_cast(void)
 				(void)stair_creation(FALSE);
 				break;
 			}
-
 			case 169:
 			{
 				(void)wiz_lite();
@@ -2304,7 +1817,6 @@ void do_cmd_cast(void)
 				(void)set_blessed(p_ptr->blessed + 60 + plev);
 				break;
 			}
-
 			case 171:
 			{
 				(void)set_ironwill(p_ptr->ironwill=0?
@@ -2360,7 +1872,6 @@ void do_cmd_cast(void)
 				attack(GF_ELEC, (plev*3)/2+240, 3);
 				break;
 			}
-
 			case 180:
 			{
 				p_ptr->weather|=W_DRY;
@@ -2415,7 +1926,6 @@ void do_cmd_cast(void)
 				(void)detect_general(0, RF3_UNDEAD, "undead");
 				break;
 			}
-
 			case 193:
 			{
 				(void)teleport_player(20);
@@ -2443,8 +1953,8 @@ void do_cmd_cast(void)
 
 			case 197:
 			{
-				(void)detect_sdoor();
-				(void)detect_trap();
+				(void)detect_doors();
+				(void)detect_traps();
 				break;
 			}
 
@@ -2562,14 +2072,12 @@ void do_cmd_cast(void)
 				(void)slow_monsters(0);
 				break;
 			}
-
 			case 215:
 			{
 				if (!get_aim_dir(&dir)) return;
 				(void)teleport_monster(dir);
 				break;
 			}
-
 			case 216:
 			{
 				o_ptr = &inventory[INVEN_WIELD];
@@ -2617,7 +2125,6 @@ void do_cmd_cast(void)
 				fire_ball(GF_SPIRIT, dir, 80+(plev*3)/2, 2);
 				break;
 			}
-
 			case 221:
 			{
 				o_ptr=&inventory[INVEN_WIELD];
@@ -2687,7 +2194,6 @@ void do_cmd_cast(void)
 				(void)restore_stats();
 				break;
 			}
-
 			case 230:
 			{
 				if(p_ptr->exp == p_ptr->max_exp) break;
@@ -2733,7 +2239,6 @@ void do_cmd_cast(void)
 				(void)hp_player(plev*2 +200);
 				break;
 			}
-
 			case 237:
 			{
 				set_shero(p_ptr->shero>0? p_ptr->shero+plev+10:
@@ -2764,7 +2269,7 @@ void do_cmd_cast(void)
 
 			case 240:
 			{
-				(void)detection();
+				(void)detect_all();
 				break;
 			}
 
@@ -2797,7 +2302,6 @@ void do_cmd_cast(void)
 		      (spell_worked2 & (1L << (j - 32)))))
 		{
 			int e = s_ptr->sexp;
-
 			/* The spell worked */
 			if (j < 32)
 			{

@@ -67,8 +67,9 @@ static u32b	x_check = 0L;
 
 
 /*
-* Show information on the screen, one line at a time.
- * Start at line 2, and wrap, if needed, back to line 2.
+ * Hack -- Show information on the screen, one line at a time.
+ *
+ * Avoid the top two lines, to avoid interference with "msg_print()".
  */
 static void note(cptr msg)
 {
@@ -124,8 +125,7 @@ static bool wearable_p(object_type *o_ptr)
 
 
 /*
- * The following functions are used to load the basic building blocks
- * of savefiles.  They also maintain the "checksum" info for 2.7.0+
+ * These functions load the basic building blocks of savefiles.
  */
 
 static byte sf_get(void)
@@ -202,11 +202,10 @@ static void rd_string(char *str, int max)
  */
 static void strip_bytes(int n)
 {
-	int i;
 	byte tmp8u;
 
 	/* Strip the bytes */
-	for (i = 0; i < n; i++) rd_byte(&tmp8u);
+	while (n--) rd_byte(&tmp8u);
 }
 
 
@@ -269,7 +268,6 @@ static void rd_item(object_type *o_ptr)
 	rd_u32b(&o_ptr->flags2);
 	rd_u32b(&o_ptr->flags3);
 	rd_s32b(&o_ptr->b_cost);
-
 	/* Inscription */
 	rd_string(note, 128);
 
@@ -281,7 +279,7 @@ static void rd_item(object_type *o_ptr)
 	k_ptr = &k_info[o_ptr->k_idx];
 
 	/* Hack -- notice "broken" items */
-	if (k_ptr->cost <= 0) o_ptr->ident |= ID_BROKEN;
+	if (k_ptr->cost <= 0) o_ptr->ident |= (IDENT_BROKEN);
 	/* Repair non "wearable" items */
 	if (!wearable_p(o_ptr))
 	{
@@ -329,7 +327,7 @@ static void rd_item(object_type *o_ptr)
 	}
 
 	/* Hack -- extract the "broken" flag */
-	if (!o_ptr->pval < 0) o_ptr->ident |= ID_BROKEN;
+	if (!o_ptr->pval < 0) o_ptr->ident |= (IDENT_BROKEN);
 
 
 	/* Artifacts */
@@ -341,7 +339,7 @@ static void rd_item(object_type *o_ptr)
 		a_ptr = &a_info[o_ptr->name1];
 
 		/* Hack -- extract the "broken" flag */
-		if (!a_ptr->cost) o_ptr->ident |= ID_BROKEN;
+		if (!a_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
 	}
 
 	/* Ego items */
@@ -353,7 +351,7 @@ static void rd_item(object_type *o_ptr)
 		e_ptr = &e_info[o_ptr->name2];
 
 		/* Hack -- extract the "broken" flag */
-		if (!e_ptr->cost) o_ptr->ident |= ID_BROKEN;
+		if (!e_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
 	}
 }
 
@@ -432,7 +430,6 @@ static void rd_lore(int r_idx)
 
 	/* Read the "Racial" monster limit per level */
 	rd_byte(&r_ptr->max_num);
-
 	/* Later (?) */
 	rd_byte(&tmp8u);
 	rd_byte(&tmp8u);
@@ -487,7 +484,6 @@ static errr rd_store(int n)
 			st_ptr->stock[st_ptr->stock_num++] = forge;
 		}
 	}
-
 	/* Success */
 	return (0);
 }
@@ -596,8 +592,6 @@ static void rd_options(void)
 			}
 		}
 	}
-
-
 	/*** Window Options ***/
 
 	/* Read the window flags */
@@ -658,8 +652,9 @@ static void rd_extra(void)
 
 	/* Class/Race/Gender/Spells */
 	rd_byte(&p_ptr->prace);
-	rd_byte(&p_ptr->male);
+	rd_byte(&p_ptr->psex);
 	rd_byte(&p_ptr->realm);
+	if (sf_vindex >= 93) rd_byte(&p_ptr->luck_known);
 
 	/* Special Race/Class info */
 	rd_byte(&p_ptr->hitdie);
@@ -807,14 +802,12 @@ static errr rd_inventory(void)
 	/* No items */
 	inven_cnt = 0;
 	equip_cnt = 0;
-
 	/* Read until done */
 	while (1)
 	{
 		u16b n;
 		/* Get the next item index */
 		rd_u16b(&n);
-
 		/* Nope, we reached the end */
 		if (n == 0xFFFF) break;
 		/* Read the item */
@@ -888,6 +881,33 @@ static void rd_messages(void)
 }
 
 /*
+ * Old "cave grid" flags -- saved in savefile
+ */
+#define OLD_GRID_W_01	0x0001	/* Wall type (bit 1) */
+#define OLD_GRID_W_02	0x0002	/* Wall type (bit 2) */
+#define OLD_GRID_PERM	0x0004	/* Wall type is permanent */
+#define OLD_GRID_QQQQ	0x0008	/* Unused */
+#define OLD_GRID_MARK	0x0010	/* Grid is memorized */
+#define OLD_GRID_GLOW	0x0020	/* Grid is illuminated */
+#define OLD_GRID_ROOM	0x0040	/* Grid is part of a room */
+#define OLD_GRID_ICKY	0x0080	/* Grid is anti-teleport */
+
+/*
+ * Masks for the new grid types
+ */
+#define OLD_GRID_WALL_MASK	0x0003	/* Wall type */
+
+/*
+ * Legal results of OLD_GRID_WALL_MASK
+ */
+#define OLD_GRID_WALL_NONE		0x0000	/* No wall */
+#define OLD_GRID_WALL_MAGMA		0x0001	/* Magma vein */
+#define OLD_GRID_WALL_QUARTZ	0x0002	/* Quartz vein */
+#define OLD_GRID_WALL_GRANITE	0x0003	/* Granite wall */
+
+
+
+/*
  * Read the dungeon
  *
  * The monsters/objects must be loaded in the same order
@@ -896,7 +916,6 @@ static void rd_messages(void)
 static errr rd_dungeon(void)
 {
 	int i, y, x;
-
 	int ymax, xmax;
 
 	byte count;
@@ -970,6 +989,7 @@ static errr rd_dungeon(void)
 		{
 			/* Access the cave */
 			c_ptr = &cave[y][x];
+
 			/* Extract "feat" */
 			c_ptr->feat = tmp8u;
 
@@ -987,6 +1007,7 @@ static errr rd_dungeon(void)
 
 
 	/*** Objects ***/
+
 	/* Read the item count */
 	rd_u16b(&limit);
 
@@ -996,7 +1017,6 @@ static errr rd_dungeon(void)
 		note(format("Too many (%d) object entries!", limit));
 		return (151);
 	}
-
 	/* Read the dungeon items */
 	for (i = 1; i < limit; i++)
 	{
@@ -1004,9 +1024,9 @@ static errr rd_dungeon(void)
 
 		object_type *o_ptr;
 
-
 		/* Get a new record */
 		o_idx = o_pop();
+
 		/* Oops */
 		if (i != o_idx)
 		{
@@ -1021,10 +1041,36 @@ static errr rd_dungeon(void)
 		/* Read the item */
 		rd_item(o_ptr);
 
-		/* Access the item location */
-		c_ptr = &cave[o_ptr->iy][o_ptr->ix];
-		/* Mark the location */
-		c_ptr->o_idx = o_idx;
+
+		/* XXX XXX XXX XXX XXX */
+
+		/* Monster */
+		if (o_ptr->held_m_idx)
+		{
+			monster_type *m_ptr;
+
+			/* Monster */
+			m_ptr = &m_list[o_ptr->held_m_idx];
+
+			/* Build a stack */
+			o_ptr->next_o_idx = m_ptr->hold_o_idx;
+
+			/* Place the object */
+			m_ptr->hold_o_idx = o_idx;
+		}
+		
+		/* Dungeon */
+		else
+		{
+			/* Access the item location */
+			c_ptr = &cave[o_ptr->iy][o_ptr->ix];
+
+			/* Build a stack */
+			o_ptr->next_o_idx = c_ptr->o_idx;
+
+			/* Place the object */
+			c_ptr->o_idx = o_idx;
+		}
 	}
 
 
@@ -1032,7 +1078,6 @@ static errr rd_dungeon(void)
 
 	/* Read the monster count */
 	rd_u16b(&limit);
-
 	/* Hack -- verify */
 	if (limit >= MAX_M_IDX)
 	{
@@ -1061,7 +1106,7 @@ static errr rd_dungeon(void)
 		}
 
 
-		/* Acquire place */
+		/* Acquire monster */
 		m_ptr = &m_list[m_idx];
 
 		/* Read the monster */
@@ -1074,6 +1119,7 @@ static errr rd_dungeon(void)
 		/* Mark the location */
 		c_ptr->m_idx = m_idx;
 
+
 		/* Access race */
 		r_ptr = &r_info[m_ptr->r_idx];
 
@@ -1084,9 +1130,8 @@ static errr rd_dungeon(void)
 
 	/*** Success ***/
 
-	/* Read the dungeon */
+	/* The dungeon is ready */
 	character_dungeon = TRUE;
-
 	/* Success */
 	return (0);
 }
@@ -1094,9 +1139,6 @@ static errr rd_dungeon(void)
 
 /*
  * Actually read the savefile
- *
- * Angband 2.8.0 will completely replace this code, see "save.c",
- * though this code will be kept to read pre-2.8.0 savefiles.
  */
 static errr rd_savefile_new_aux(void)
 {
@@ -1134,7 +1176,6 @@ static errr rd_savefile_new_aux(void)
 	rd_u16b(&sf_lives);
 	/* Number of times played */
 	rd_u16b(&sf_saves);
-
 	/* Read RNG state */
 	rd_randomizer();
 	if (arg_fiddle) note("Loaded Randomizer Info");
@@ -1189,7 +1230,6 @@ static errr rd_savefile_new_aux(void)
 		object_kind *k_ptr = &k_info[i];
 
 		rd_byte(&tmp8u);
-
 		k_ptr->aware = (tmp8u & 0x01) ? TRUE: FALSE;
 		k_ptr->tried = (tmp8u & 0x02) ? TRUE: FALSE;
 	}
@@ -1240,7 +1280,6 @@ static errr rd_savefile_new_aux(void)
 	/* Read the extra stuff */
 	rd_extra();
 	if (arg_fiddle) note("Loaded extra information");
-
 	/* Read the player_hp array */
 	rd_u16b(&tmp16u);
 
@@ -1256,7 +1295,6 @@ static errr rd_savefile_new_aux(void)
 		rd_s16b(&player_hp[i]);
 	}
 
-
 	/* Important -- Initialize the race/class */
 	rp_ptr = &race_info[p_ptr->prace];
 
@@ -1264,7 +1302,7 @@ static errr rd_savefile_new_aux(void)
 	mp_ptr = &magic_info[p_ptr->realm];
 
 
-	/* Read spell info */
+	/* Read spell flags */
 	rd_u32b(&spell_learned1);
 	rd_u32b(&spell_learned2);
 	rd_u32b(&spell_worked1);
@@ -1272,6 +1310,7 @@ static errr rd_savefile_new_aux(void)
 	rd_u32b(&spell_forgotten1);
 	rd_u32b(&spell_forgotten2);
 
+	/* Read spell order */
 	for (i = 0; i < 64; i++)
 	{
 		rd_byte(&spell_order[i]);
@@ -1351,6 +1390,7 @@ errr rd_savefile_new(void)
 	fff = my_fopen(savefile, "rb");
 	/* Paranoia */
 	if (!fff) return (-1);
+
 	/* Call the sub-function */
 	err = rd_savefile_new_aux();
 

@@ -1,7 +1,7 @@
 
 
                         ***********************
-                        **   SAngband 0.9.1  **
+                        **   SAngband 0.9.3  **
                         ***********************
 
          Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke

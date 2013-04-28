@@ -323,7 +323,7 @@ static void new_player_spot(void)
 		/* Must be a "naked" floor grid */
 		if (!cave_naked_bold(y, x)) continue;
 		/* Refuse to start on anti-teleport grids */
-		if (cave[y][x].info & CAVE_ICKY) continue;
+		if (cave[y][x].info & (CAVE_ICKY)) continue;
 
 		/* Done */
 		break;
@@ -599,7 +599,7 @@ static void alloc_object(int set, int typ, int num)
 			if (!cave_naked_bold(y, x)) continue;
 
 			/* Check for "room" */
-			room = (cave[y][x].info & CAVE_ROOM) ? TRUE : FALSE;
+			room = (cave[y][x].info & (CAVE_ROOM)) ? TRUE : FALSE;
 
 			/* Require corridor? */
 			if ((set == ALLOC_SET_CORR) && room) continue;
@@ -744,7 +744,7 @@ static void destroy_level(void)
 				/* Destroy valid grids */
 				if (cave_valid_bold(y, x))
 				{
-					/* Delete the object (if any) */
+					/* Delete objects */
 					delete_object(y, x);
 
 					/* Access the grid */
@@ -963,8 +963,8 @@ static void build_type1(int yval, int xval)
 		{
 			c_ptr = &cave[y][x];
 			c_ptr->feat = FEAT_FLOOR;
-			c_ptr->info |= CAVE_ROOM;
-			if (light) c_ptr->info |= CAVE_GLOW;
+			c_ptr->info |= (CAVE_ROOM);
+			if (light) c_ptr->info |= (CAVE_GLOW);
 		}
 	}
 
@@ -1059,8 +1059,8 @@ static void build_type2(int yval, int xval)
 		{
 			c_ptr = &cave[y][x];
 			c_ptr->feat = FEAT_FLOOR;
-			c_ptr->info |= CAVE_ROOM;
-			if (light) c_ptr->info |= CAVE_GLOW;
+			c_ptr->info |= (CAVE_ROOM);
+			if (light) c_ptr->info |= (CAVE_GLOW);
 		}
 	}
 
@@ -1071,8 +1071,8 @@ static void build_type2(int yval, int xval)
 		{
 			c_ptr = &cave[y][x];
 			c_ptr->feat = FEAT_FLOOR;
-			c_ptr->info |= CAVE_ROOM;
-			if (light) c_ptr->info |= CAVE_GLOW;
+			c_ptr->info |= (CAVE_ROOM);
+			if (light) c_ptr->info |= (CAVE_GLOW);
 		}
 	}
 
@@ -1190,8 +1190,8 @@ static void build_type3(int yval, int xval)
 		{
 			c_ptr = &cave[y][x];
 			c_ptr->feat = FEAT_FLOOR;
-			c_ptr->info |= CAVE_ROOM;
-			if (light) c_ptr->info |= CAVE_GLOW;
+			c_ptr->info |= (CAVE_ROOM);
+			if (light) c_ptr->info |= (CAVE_GLOW);
 		}
 	}
 
@@ -1202,8 +1202,8 @@ static void build_type3(int yval, int xval)
 		{
 			c_ptr = &cave[y][x];
 			c_ptr->feat = FEAT_FLOOR;
-			c_ptr->info |= CAVE_ROOM;
-			if (light) c_ptr->info |= CAVE_GLOW;
+			c_ptr->info |= (CAVE_ROOM);
+			if (light) c_ptr->info |= (CAVE_GLOW);
 		}
 	}
 
@@ -1266,115 +1266,118 @@ static void build_type3(int yval, int xval)
 	{
 		/* Large solid middle pillar */
 		case 1:
-		for (y = y1b; y <= y2b; y++)
 		{
-			for (x = x1a; x <= x2a; x++)
+			for (y = y1b; y <= y2b; y++)
 			{
-				c_ptr = &cave[y][x];
-				c_ptr->feat = FEAT_WALL_INNER;
+				for (x = x1a; x <= x2a; x++)
+				{
+					c_ptr = &cave[y][x];
+					c_ptr->feat = FEAT_WALL_INNER;
+				}
 			}
+			break;
 		}
-		break;
 
 		/* Inner treasure vault */
 		case 2:
-
-		/* Build the vault */
-		for (y = y1b; y <= y2b; y++)
 		{
-			c_ptr = &cave[y][x1a];
-			c_ptr->feat = FEAT_WALL_INNER;
-			c_ptr = &cave[y][x2a];
-			c_ptr->feat = FEAT_WALL_INNER;
+			/* Build the vault */
+			for (y = y1b; y <= y2b; y++)
+			{
+				c_ptr = &cave[y][x1a];
+				c_ptr->feat = FEAT_WALL_INNER;
+				c_ptr = &cave[y][x2a];
+				c_ptr->feat = FEAT_WALL_INNER;
+			}
+			for (x = x1a; x <= x2a; x++)
+			{
+				c_ptr = &cave[y1b][x];
+				c_ptr->feat = FEAT_WALL_INNER;
+				c_ptr = &cave[y2b][x];
+				c_ptr->feat = FEAT_WALL_INNER;
+			}
+
+			/* Place a secret door on the inner room */
+			switch (rand_int(4))
+			{
+				case 0: place_secret_door(y1b, xval); break;
+				case 1: place_secret_door(y2b, xval); break;
+				case 2: place_secret_door(yval, x1a); break;
+				case 3: place_secret_door(yval, x2a); break;
+			}
+
+			/* Place a treasure in the vault */
+			place_object(yval, xval, FALSE, FALSE);
+
+			/* Let's guard the treasure well */
+			vault_monsters(yval, xval, rand_int(2) + 3);
+
+			/* Traps naturally */
+			vault_traps(yval, xval, 4, 4, rand_int(3) + 2);
+
+			break;
 		}
-		for (x = x1a; x <= x2a; x++)
-		{
-			c_ptr = &cave[y1b][x];
-			c_ptr->feat = FEAT_WALL_INNER;
-			c_ptr = &cave[y2b][x];
-			c_ptr->feat = FEAT_WALL_INNER;
-		}
-
-		/* Place a secret door on the inner room */
-		switch (rand_int(4))
-		{
-			case 0: place_secret_door(y1b, xval); break;
-			case 1: place_secret_door(y2b, xval); break;
-			case 2: place_secret_door(yval, x1a); break;
-			case 3: place_secret_door(yval, x2a); break;
-		}
-
-		/* Place a treasure in the vault */
-		place_object(yval, xval, FALSE, FALSE);
-
-		/* Let's guard the treasure well */
-		vault_monsters(yval, xval, rand_int(2) + 3);
-
-		/* Traps naturally */
-		vault_traps(yval, xval, 4, 4, rand_int(3) + 2);
-
-		break;
-
 
 		/* Something else */
 		case 3:
-
-		/* Occasionally pinch the center shut */
-		if (rand_int(3) == 0)
 		{
-			/* Pinch the east/west sides */
-			for (y = y1b; y <= y2b; y++)
-			{
-				if (y == yval) continue;
-				c_ptr = &cave[y][x1a - 1];
-				c_ptr->feat = FEAT_WALL_INNER;
-				c_ptr = &cave[y][x2a + 1];
-				c_ptr->feat = FEAT_WALL_INNER;
-			}
-
-			/* Pinch the north/south sides */
-			for (x = x1a; x <= x2a; x++)
-			{
-				if (x == xval) continue;
-				c_ptr = &cave[y1b - 1][x];
-				c_ptr->feat = FEAT_WALL_INNER;
-				c_ptr = &cave[y2b + 1][x];
-				c_ptr->feat = FEAT_WALL_INNER;
-			}
-
-			/* Sometimes shut using secret doors */
+			/* Occasionally pinch the center shut */
 			if (rand_int(3) == 0)
 			{
-				place_secret_door(yval, x1a - 1);
-				place_secret_door(yval, x2a + 1);
-				place_secret_door(y1b - 1, xval);
-				place_secret_door(y2b + 1, xval);
+				/* Pinch the east/west sides */
+				for (y = y1b; y <= y2b; y++)
+				{
+					if (y == yval) continue;
+					c_ptr = &cave[y][x1a - 1];
+					c_ptr->feat = FEAT_WALL_INNER;
+					c_ptr = &cave[y][x2a + 1];
+					c_ptr->feat = FEAT_WALL_INNER;
+				}
+
+				/* Pinch the north/south sides */
+				for (x = x1a; x <= x2a; x++)
+				{
+					if (x == xval) continue;
+					c_ptr = &cave[y1b - 1][x];
+					c_ptr->feat = FEAT_WALL_INNER;
+					c_ptr = &cave[y2b + 1][x];
+					c_ptr->feat = FEAT_WALL_INNER;
+				}
+
+				/* Sometimes shut using secret doors */
+				if (rand_int(3) == 0)
+				{
+					place_secret_door(yval, x1a - 1);
+					place_secret_door(yval, x2a + 1);
+					place_secret_door(y1b - 1, xval);
+					place_secret_door(y2b + 1, xval);
+				}
 			}
-		}
 
-		/* Occasionally put a "plus" in the center */
-		else if (rand_int(3) == 0)
-		{
-			c_ptr = &cave[yval][xval];
-			c_ptr->feat = FEAT_WALL_INNER;
-			c_ptr = &cave[y1b][xval];
-			c_ptr->feat = FEAT_WALL_INNER;
-			c_ptr = &cave[y2b][xval];
-			c_ptr->feat = FEAT_WALL_INNER;
-			c_ptr = &cave[yval][x1a];
-			c_ptr->feat = FEAT_WALL_INNER;
-			c_ptr = &cave[yval][x2a];
-			c_ptr->feat = FEAT_WALL_INNER;
-		}
+			/* Occasionally put a "plus" in the center */
+			else if (rand_int(3) == 0)
+			{
+				c_ptr = &cave[yval][xval];
+				c_ptr->feat = FEAT_WALL_INNER;
+				c_ptr = &cave[y1b][xval];
+				c_ptr->feat = FEAT_WALL_INNER;
+				c_ptr = &cave[y2b][xval];
+				c_ptr->feat = FEAT_WALL_INNER;
+				c_ptr = &cave[yval][x1a];
+				c_ptr->feat = FEAT_WALL_INNER;
+				c_ptr = &cave[yval][x2a];
+				c_ptr->feat = FEAT_WALL_INNER;
+			}
 
-		/* Occasionally put a pillar in the center */
-		else if (rand_int(3) == 0)
-		{
-			c_ptr = &cave[yval][xval];
-			c_ptr->feat = FEAT_WALL_INNER;
-		}
+			/* Occasionally put a pillar in the center */
+			else if (rand_int(3) == 0)
+			{
+				c_ptr = &cave[yval][xval];
+				c_ptr->feat = FEAT_WALL_INNER;
+			}
 
-		break;
+			break;
+		}
 	}
 }
 
@@ -1418,8 +1421,8 @@ static void build_type4(int yval, int xval)
 		{
 			c_ptr = &cave[y][x];
 			c_ptr->feat = FEAT_FLOOR;
-			c_ptr->info |= CAVE_ROOM;
-			if (light) c_ptr->info |= CAVE_GLOW;
+			c_ptr->info |= (CAVE_ROOM);
+			if (light) c_ptr->info |= (CAVE_GLOW);
 		}
 	}
 
@@ -1721,7 +1724,7 @@ static bool vault_aux_jelly(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 	/* Decline unique monsters */
-	if (r_ptr->flags1 & RF1_UNIQUE) return (FALSE);
+	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 	/* Require icky thing, jelly, mold, or mushroom */
 	if (!strchr("ijm,", r_ptr->d_char)) return (FALSE);
 
@@ -1738,10 +1741,10 @@ static bool vault_aux_animal(int r_idx)
 	monster_race *r_ptr = &r_info[r_idx];
 
 	/* Decline unique monsters */
-	if (r_ptr->flags1 & RF1_UNIQUE) return (FALSE);
+	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
 	/* Require "animal" flag */
-	if (!(r_ptr->flags3 & RF3_ANIMAL)) return (FALSE);
+	if (!(r_ptr->flags3 & (RF3_ANIMAL))) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -1756,10 +1759,10 @@ static bool vault_aux_undead(int r_idx)
 	monster_race *r_ptr = &r_info[r_idx];
 
 	/* Decline unique monsters */
-	if (r_ptr->flags1 & RF1_UNIQUE) return (FALSE);
+	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
 	/* Require Undead */
-	if (!(r_ptr->flags3 & RF3_UNDEAD)) return (FALSE);
+	if (!(r_ptr->flags3 & (RF3_UNDEAD))) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -1774,7 +1777,7 @@ static bool vault_aux_orc(int r_idx)
 	monster_race *r_ptr = &r_info[r_idx];
 
 	/* Decline unique monsters */
-	if (r_ptr->flags1 & RF1_UNIQUE) return (FALSE);
+	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
 	/* Hack -- Require "o" monsters */
 	if (!strchr("o", r_ptr->d_char)) return (FALSE);
@@ -1792,7 +1795,7 @@ static bool vault_aux_troll(int r_idx)
 	monster_race *r_ptr = &r_info[r_idx];
 
 	/* Decline unique monsters */
-	if (r_ptr->flags1 & RF1_UNIQUE) return (FALSE);
+	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
 	/* Hack -- Require "T" monsters */
 	if (!strchr("T", r_ptr->d_char)) return (FALSE);
@@ -1810,7 +1813,7 @@ static bool vault_aux_giant(int r_idx)
 	monster_race *r_ptr = &r_info[r_idx];
 
 	/* Decline unique monsters */
-	if (r_ptr->flags1 & RF1_UNIQUE) return (FALSE);
+	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
 	/* Hack -- Require "P" monsters */
 	if (!strchr("P", r_ptr->d_char)) return (FALSE);
@@ -1834,7 +1837,7 @@ static bool vault_aux_dragon(int r_idx)
 	monster_race *r_ptr = &r_info[r_idx];
 
 	/* Decline unique monsters */
-	if (r_ptr->flags1 & RF1_UNIQUE) return (FALSE);
+	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
 	/* Hack -- Require "d" or "D" monsters */
 	if (!strchr("Dd", r_ptr->d_char)) return (FALSE);
@@ -1855,7 +1858,7 @@ static bool vault_aux_demon(int r_idx)
 	monster_race *r_ptr = &r_info[r_idx];
 
 	/* Decline unique monsters */
-	if (r_ptr->flags1 & RF1_UNIQUE) return (FALSE);
+	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
 	/* Hack -- Require "U" monsters */
 	if (!strchr("U", r_ptr->d_char)) return (FALSE);
@@ -1921,7 +1924,7 @@ static void build_type5(int yval, int xval)
 		{
 			c_ptr = &cave[y][x];
 			c_ptr->feat = FEAT_FLOOR;
-			c_ptr->info |= CAVE_ROOM;
+			c_ptr->info |= (CAVE_ROOM);
 		}
 	}
 
@@ -2138,7 +2141,7 @@ static void build_type6(int yval, int xval)
 		{
 			c_ptr = &cave[y][x];
 			c_ptr->feat = FEAT_FLOOR;
-			c_ptr->info |= CAVE_ROOM;
+			c_ptr->info |= (CAVE_ROOM);
 		}
 	}
 
@@ -2550,53 +2553,63 @@ vl = (dun_level==-1? 70: dun_level);
 			{
 				/* Monster */
 				case '&':
-				monster_level = mvl + 5;
-				place_monster(y, x, TRUE, TRUE);
-				monster_level = mvl;
-				break;
+				{
+					monster_level = mvl + 5;
+					place_monster(y, x, TRUE, TRUE);
+					monster_level = mvl;
+					break;
+				}
 
 				/* Meaner monster */
 				case '@':
-				monster_level = mvl + 11;
-				place_monster(y, x, TRUE, TRUE);
-				monster_level = mvl;
-				break;
+				{
+					monster_level = mvl + 11;
+					place_monster(y, x, TRUE, TRUE);
+					monster_level = mvl;
+					break;
+				}
 
 				/* Meaner monster, plus treasure */
 				case '9':
-				monster_level = mvl + 9;
-				place_monster(y, x, TRUE, TRUE);
-				monster_level = mvl;
-				object_level = vl + 7;
-				place_object(y, x, TRUE, FALSE);
-				object_level = vl;
-				break;
+				{
+					monster_level = mvl + 9;
+					place_monster(y, x, TRUE, TRUE);
+					monster_level = mvl;
+					object_level = vl + 7;
+					place_object(y, x, TRUE, FALSE);
+					object_level = vl;
+					break;
+				}
 
 				/* Nasty monster and treasure */
 				case '8':
-				monster_level = mvl + 40;
-				place_monster(y, x, TRUE, TRUE);
-				monster_level = mvl;
-				object_level = vl + 20;
-				place_object(y, x, TRUE, TRUE);
-				object_level = vl;
-				break;
+				{
+					monster_level = mvl + 40;
+					place_monster(y, x, TRUE, TRUE);
+					monster_level = mvl;
+					object_level = vl + 20;
+					place_object(y, x, TRUE, TRUE);
+					object_level = vl;
+					break;
+				}
 
 				/* Monster and/or object */
 				case ',':
-				if (rand_int(100) < 50)
 				{
-					monster_level = mvl + 3;
-					place_monster(y, x, TRUE, TRUE);
-					monster_level = mvl;
+					if (rand_int(100) < 50)
+					{
+						monster_level = mvl + 3;
+						place_monster(y, x, TRUE, TRUE);
+						monster_level = mvl;
+					}
+					if (rand_int(100) < 50)
+					{
+						object_level = vl + 7;
+						place_object(y, x, FALSE, FALSE);
+						object_level = vl;
+					}
+					break;	
 				}
-				if (rand_int(100) < 50)
-				{
-					object_level = vl + 7;
-					place_object(y, x, FALSE, FALSE);
-					object_level = vl;
-				}
-				break;
 			}
 		}
 	}
@@ -2628,7 +2641,6 @@ static void build_type7(int yval, int xval)
 	if (cheat_room) msg_print("Lesser Vault");
 	/* Boost the rating */
 	rating += v_ptr->rat;
-
 	/* (Sometimes) Cause a special feeling */
 	if ((vl <= 50) ||
 	    (randint((vl-40) * (vl-40) + 1) < 400))
@@ -2737,7 +2749,6 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 
 	/* Start out in the correct direction */
 	correct_dir(&row_dir, &col_dir, row1, col1, row2, col2);
-
 	/* Keep going until done (or bored) */
 	while ((row1 != row2) || (col1 != col2))
 	{
@@ -3115,7 +3126,6 @@ static bool room_build(int y0, int x0, int typ)
 
 	/* Count "crowded" rooms */
 	if ((typ == 5) || (typ == 6)) dun->crowded = TRUE;
-
 	/* Success */
 	return (TRUE);
 }
@@ -3539,7 +3549,7 @@ static void town_gen_hack(void)
 	c_ptr->feat = FEAT_MORE;
 
 	/* Memorize the stairs */
-	c_ptr->info |= CAVE_MARK;
+	c_ptr->info |= (CAVE_MARK);
 
 	/* Hack -- the player starts on the stairs */
 	py = y;
@@ -3645,10 +3655,10 @@ static void town_gen(void)
 			{
 				c_ptr = &cave[y][x];
 				/* Perma-Lite */
-				c_ptr->info |= CAVE_GLOW;
+				c_ptr->info |= (CAVE_GLOW);
 
 				/* Memorize */
-				if (view_perma_grids) c_ptr->info |= CAVE_MARK;
+				if (view_perma_grids) c_ptr->info |= (CAVE_MARK);
 			}
 		}
 
@@ -3676,7 +3686,7 @@ void generate_cave(void)
 
 	vl = dun_level==-1? 50: dun_level;
 
-	/* No dungeon yet */
+	/* The dungeon is not ready */
 	character_dungeon = FALSE;
 
 	is_scroll=0; /* So we can get a Quest Scroll to leave */
@@ -3690,7 +3700,7 @@ void generate_cave(void)
 		cptr why = NULL;
 
 
-		/* Hack -- Reset heaps */
+		/* XXX XXX XXX XXX */
 		o_max = 1;
 		m_max = 1;
 
@@ -3844,7 +3854,7 @@ void generate_cave(void)
 	}
 
 
-	/* Dungeon level ready */
+	/* The dungeon is ready */
 	character_dungeon = TRUE;
 
 	/* Remember when this level was "created" */

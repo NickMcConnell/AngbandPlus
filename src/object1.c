@@ -1,6 +1,6 @@
-/* File: obj-desc.c */
+/* File: object1.c */
 
-/* Purpose: handle object descriptions, mostly string handling code */
+/* Purpose: Object code, part 1 */
 
 /*
  * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
@@ -338,7 +338,7 @@ static bool object_easy_know(int i)
 		case TV_AMULET:
 		case TV_LITE:
 		{
-			if (k_ptr->flags3 & TR3_EASY_KNOW) return (TRUE);
+			if (k_ptr->flags3 & (TR3_EASY_KNOW)) return (TRUE);
 			return (FALSE);
 		}
 	}
@@ -793,12 +793,17 @@ static byte object_d_char(int i)
 /*
  * Reset the "visual" lists
  *
- * This is useful for switching on/off the "use_graphics" flag.
+ * This involves resetting various things to their "default"
+ * state, and then loading the appropriate "user pref file"
+ * based on the "use_graphics" flag.
+ *
+ * This is useful for switching "graphics" on/off
  */
 void reset_visuals(void)
 {
 	int i;
 
+	char buf[1024];
 	/* Extract some info about terrain features */
 	for (i = 0; i < MAX_F_IDX; i++)
 	{
@@ -843,13 +848,13 @@ void reset_visuals(void)
 		/* Extract a default char */
 		tval_to_char[i] = default_tval_to_char(i);
 	}
+
+	/* Access the "font" or "graf" pref file, based on "use_graphics" */
+	sprintf(buf, "%s-%s.prf", (use_graphics ? "graf" : "font"), ANGBAND_SYS);
+
+	/* Process that file */
+	process_pref_file(buf);
 }
-
-
-
-
-
-
 
 
 
@@ -861,6 +866,65 @@ void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 	(*f1) = o_ptr->flags1;
 	(*f2) = o_ptr->flags2;
 	(*f3) = o_ptr->flags3;
+}
+
+
+/*
+ * Obtain the "flags" for an item which are known to the player
+ */
+void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+{
+	bool spoil = FALSE;
+
+	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
+	/* Clear */
+	(*f1) = (*f2) = (*f3) = 0L;
+
+	/* Must be identified */
+	if (!object_known_p(o_ptr)) return;
+
+	/* Base object */
+	(*f1) = k_ptr->flags1;
+	(*f2) = k_ptr->flags2;
+	(*f3) = k_ptr->flags3;
+
+#ifdef SPOIL_ARTIFACTS
+	/* Full knowledge for some artifacts */
+	if (artifact_p(o_ptr)) spoil = TRUE;
+#endif
+
+#ifdef SPOIL_EGO_ITEMS
+	/* Full knowledge for some ego-items */
+	if (ego_item_p(o_ptr)) spoil = TRUE;
+#endif
+
+	/* Need full knowledge or spoilers */
+	if (!spoil && !(o_ptr->ident & IDENT_MENTAL)) return;
+
+	/* Artifact */
+	if (o_ptr->name1)
+	{
+		artifact_type *a_ptr = &a_info[o_ptr->name1];
+		(*f1) = a_ptr->flags1;
+		(*f2) = a_ptr->flags2;
+		(*f3) = a_ptr->flags3;
+	}
+	/* Ego-item */
+	if (o_ptr->name2)
+	{
+		ego_item_type *e_ptr = &e_info[o_ptr->name2];
+
+		(*f1) |= e_ptr->flags1;
+		(*f2) |= e_ptr->flags2;
+		(*f3) |= e_ptr->flags3;
+	}
+
+	/* Full knowledge for *identified* objects */
+	if (!(o_ptr->ident & IDENT_MENTAL)) return;
+
+	/* Get all flag */
+	object_flags(o_ptr, f1, f2, f3);
 }
 
 /*
@@ -895,8 +959,6 @@ static char *object_desc_str(char *t, cptr s)
 	/* Result */
 	return (t);
 }
-
-
 
 /*
  * Print an unsigned number "n" into a string "t", as if by
@@ -997,7 +1059,7 @@ static cptr f_mod[] =
 	"",
 	"",
 	"Boots",
-	"Gauntlest",
+	"Gauntlets",
 	"Helm",
 	"",
 	"Shield",
@@ -1005,7 +1067,6 @@ static cptr f_mod[] =
 	"",
 	"Plate Armor"
 };
-
 /*
  * Base names for forged weapons/armor
  */
@@ -1169,7 +1230,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			break;
 		}
-
 			/* Amulets (including a few "Specials") */
 		case TV_AMULET:
 		{
@@ -1281,7 +1341,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			basenm = "& Holy Book~ of Prayers #";
 			break;
 		}
-
 			/* Nature Books */
 		case TV_NATURE_BOOK:
 		{
@@ -1410,7 +1469,8 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 
 			/* Add a plural if needed */
-			if (o_ptr->number != 1)
+			if (o_ptr->number != 1 && (o_ptr->sval < 64 ||
+				(o_ptr->tval != TV_BOOTS && o_ptr->tval != TV_GLOVES)))
 			{
 				char k = t[-1];
 
@@ -1436,7 +1496,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			*t++ = *s;
 		}
 	}
-
 	/* Terminate */
 	*t = '\0';
 
@@ -1549,10 +1608,8 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			}
 		}
 	}
-
-
 	/* Display the item like a weapon */
-	if (f3 & TR3_SHOW_MODS) show_weapon = TRUE;
+	if (f3 & (TR3_SHOW_MODS)) show_weapon = TRUE;
 
 	/* Display the item like a weapon */
 	if (o_ptr->to_h && o_ptr->to_d) show_weapon = TRUE;
@@ -1586,7 +1643,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		/* Mega-Hack -- Extract the "base power" */
 		power = (o_ptr->sval % 10);
 		/* Apply the "Extra Might" flag */
-		if (f3 & TR3_XTRA_MIGHT) power++;
+		if (f3 & (TR3_XTRA_MIGHT)) power++;
 
 		/* Append a special "damage" string */
 		t = object_desc_chr(t, ' ');
@@ -1598,7 +1655,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		/* All done */
 		break;
 	}
-
 
 	/* Add the weapon bonuses */
 	if (known)
@@ -1701,7 +1757,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	}
 
 	/* Dump "pval" flags for wearable items */
-	if (known && (f1 & TR1_PVAL_MASK))
+	if (known && (f1 & (TR1_PVAL_MASK)))
 	{
 		/* Start the display */
 		t = object_desc_chr(t, ' ');
@@ -1709,22 +1765,20 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 		/* Dump the "pval" itself */
 		t = object_desc_int(t, o_ptr->pval);
-
 		/* Do not display the "pval" flags */
-		if (f3 & TR3_HIDE_TYPE)
+		if (f3 & (TR3_HIDE_TYPE))
 		{
 			/* Nothing */
 		}
-
 		/* Speed */
-		else if (f1 & TR1_SPEED)
+		else if (f1 & (TR1_SPEED))
 		{
 			/* Dump " to speed" */
 			t = object_desc_str(t, " to speed");
 		}
 
 		/* Attack speed */
-		else if (f1 & TR1_BLOWS)
+		else if (f1 & (TR1_BLOWS))
 		{
 			/* Add " attack" */
 			t = object_desc_str(t, " attack");
@@ -1762,14 +1816,12 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		t = object_desc_chr(t, p2);
 	}
 
-
 	/* Indicate "charging" artifacts XXX XXX XXX */
 	if (known && o_ptr->timeout)
 	{
 		/* Hack -- Dump " (charging)" if relevant */
 		t = object_desc_str(t, " (charging)");
 	}
-
 
 	/* No more details wanted */
 	if (mode < 3) return;
@@ -1783,13 +1835,13 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	}
 
 	/* Note "cursed" if the item is known to be cursed */
-	else if (cursed_p(o_ptr) && (known || (o_ptr->ident & ID_SENSE)))
+	else if (cursed_p(o_ptr) && (known || (o_ptr->ident & (IDENT_SENSE))))
 	{
 		strcpy(tmp_val, "cursed");
 	}
 
 	/* Mega-Hack -- note empty wands/staffs */
-	else if (!known && (o_ptr->ident & ID_EMPTY))
+	else if (!known && (o_ptr->ident & (IDENT_EMPTY)))
 	{
 		strcpy(tmp_val, "empty");
 	}
@@ -1819,7 +1871,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 		/* Hack -- shrink the inscription */
 		tmp_val[75 - n] = '\0';
-
 		/* Append the inscription */
 		t = object_desc_chr(t, ' ');
 		t = object_desc_chr(t, c1);
@@ -1827,7 +1878,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		t = object_desc_chr(t, c2);
 	}
 }
-
 /*
  * Hack -- describe an item currently in a store's inventory
  * This allows an item to *look* like the player is "aware" of it
@@ -1837,11 +1887,11 @@ void object_desc_store(char *buf, object_type *o_ptr, int pref, int mode)
 	/* Save the "aware" flag */
 	bool hack_aware = k_info[o_ptr->k_idx].aware;
 	/* Save the "known" flag */
-	bool hack_known = (o_ptr->ident & ID_KNOWN) ? TRUE : FALSE;
+	bool hack_known = (o_ptr->ident & (IDENT_KNOWN)) ? TRUE : FALSE;
 
 
 	/* Set the "known" flag */
-	o_ptr->ident |= ID_KNOWN;
+	o_ptr->ident |= (IDENT_KNOWN);
 
 	/* Force "aware" for description */
 	k_info[o_ptr->k_idx].aware = TRUE;
@@ -1853,7 +1903,7 @@ void object_desc_store(char *buf, object_type *o_ptr, int pref, int mode)
 	k_info[o_ptr->k_idx].aware = hack_aware;
 
 	/* Clear the known flag */
-	if (!hack_known) o_ptr->ident &= ~ID_KNOWN;
+	if (!hack_known) o_ptr->ident &= ~(IDENT_KNOWN);
 }
 
 
@@ -1871,7 +1921,7 @@ cptr item_activation(object_type *o_ptr)
 	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Require activation ability */
-	if (!(f3 & TR3_ACTIVATE)) return (NULL);
+	if (!(f3 & (TR3_ACTIVATE))) return (NULL);
 
 	/* Some artifacts can be activated */
 	switch (o_ptr->name1)
@@ -2090,10 +2140,8 @@ cptr item_activation(object_type *o_ptr)
 		}
 	}
 
-
 	/* Require dragon scale mail */
 	if (o_ptr->tval != TV_DRAG_ARMOR) return (NULL);
-
 	/* Branch on the sub-type */
 	switch (o_ptr->sval)
 	{
@@ -2151,11 +2199,9 @@ cptr item_activation(object_type *o_ptr)
 		}
 	}
 
-
 	/* Oops */
 	return NULL;
 }
-
 
 /*
  * Describe a "fully identified" item
@@ -2172,7 +2218,7 @@ bool identify_fully_aux(object_type *o_ptr)
 	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Mega-Hack -- describe activation */
-	if (f3 & TR3_ACTIVATE)
+	if (f3 & (TR3_ACTIVATE))
 	{
 		info[i++] = "It can be activated for...";
 		info[i++] = item_activation(o_ptr);
@@ -2199,7 +2245,6 @@ bool identify_fully_aux(object_type *o_ptr)
 
 
 	/* And then describe it fully */
-
 	if (f1 & TR1_STR)
 	{
 		info[i++] = "It affects your strength.";
@@ -2249,7 +2294,6 @@ bool identify_fully_aux(object_type *o_ptr)
 	{
 		info[i++] = "It affects your attack speed.";
 	}
-
 	if (f1 & TR1_BRAND_ACID)
 	{
 		info[i++] = "It does extra damage from acid.";
@@ -2420,7 +2464,6 @@ bool identify_fully_aux(object_type *o_ptr)
 	{
 		info[i++] = "It provides resistance to disenchantment.";
 	}
-
 	if (f3 & TR3_FEATHER)
 	{
 		info[i++] = "It induces feather falling.";
@@ -2490,19 +2533,19 @@ bool identify_fully_aux(object_type *o_ptr)
 	}
 
 
-	if (f3 & TR3_IGNORE_ACID)
+	if (f3 & (TR3_IGNORE_ACID))
 	{
 		info[i++] = "It cannot be harmed by acid.";
 	}
-	if (f3 & TR3_IGNORE_ELEC)
+	if (f3 & (TR3_IGNORE_ELEC))
 	{
 		info[i++] = "It cannot be harmed by electricity.";
 	}
-	if (f3 & TR3_IGNORE_FIRE)
+	if (f3 & (TR3_IGNORE_FIRE))
 	{
 		info[i++] = "It cannot be harmed by fire.";
 	}
-	if (f3 & TR3_IGNORE_COLD)
+	if (f3 & (TR3_IGNORE_COLD))
 	{
 		info[i++] = "It cannot be harmed by cold.";
 	}
@@ -2520,13 +2563,11 @@ bool identify_fully_aux(object_type *o_ptr)
 
 	/* Label the information */
 	prt("     Item Attributes:", 1, 15);
-
 	/* We will print on top of the map (column 13) */
 	for (k = 2, j = 0; j < i; j++)
 	{
 		/* Show the info */
 		prt(info[j], k++, 15);
-
 		/* Every 20 entries (lines 2 to 21), start over */
 		if ((k == 22) && (j+1 < i))
 		{
@@ -2535,7 +2576,6 @@ bool identify_fully_aux(object_type *o_ptr)
 			for (; k > 2; k--) prt("", k, 15);
 		}
 	}
-
 	/* Wait for it */
 	prt("[Press any key to continue]", k, 15);
 	inkey();
@@ -2590,7 +2630,6 @@ s16b label_to_equip(int c)
 	int i;
 	/* Convert */
 	i = (islower(c) ? A2I(c) : -1) + INVEN_WIELD;
-
 	/* Verify the index */
 	if ((i < INVEN_WIELD) || (i >= INVEN_TOTAL)) return (-1);
 
@@ -2737,7 +2776,6 @@ cptr mention_use(int i)
 cptr describe_use(int i)
 {
 	cptr p;
-
 	switch (i)
 	{
 		case INVEN_WIELD: p = "attacking monsters with"; break;
@@ -2802,7 +2840,6 @@ bool item_tester_okay(object_type *o_ptr)
 	{
 		if (!(item_tester_tval == o_ptr->tval)) return (FALSE);
 	}
-
 	/* Check the hook */
 	if (item_tester_hook)
 	{
@@ -2834,8 +2871,11 @@ void display_inven(void)
 	{
 		o_ptr = &inventory[i];
 
-		/* Track non-empty slots */
-		if (o_ptr->k_idx) z = i + 1;
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Track */
+		z = i + 1;
 	}
 
 	/* Display the pack */
@@ -2843,7 +2883,6 @@ void display_inven(void)
 	{
 		/* Examine the item */
 		o_ptr = &inventory[i];
-
 		/* Start with an empty "index" */
 		tmp_val[0] = tmp_val[1] = tmp_val[2] = ' ';
 
@@ -2904,7 +2943,6 @@ void display_equip(void)
 	object_type *o_ptr;
 	byte	attr = TERM_WHITE;
 	char	tmp_val[80];
-
 	char	o_name[80];
 
 	/* Display the equipment */
@@ -2920,11 +2958,9 @@ void display_equip(void)
 		{
 			/* Prepare an "index" */
 			tmp_val[0] = index_to_label(i);
-
 			/* Bracket the "index" --(-- */
 			tmp_val[1] = ')';
 		}
-
 		/* Display the index (or blank space) */
 		Term_putstr(0, i - INVEN_WIELD, 3, TERM_WHITE, tmp_val);
 
@@ -3006,14 +3042,16 @@ void show_inven(void)
 	/* Require space for weight (if needed) */
 	if (show_weights) lim -= 9;
 
-
 	/* Find the "final" slot */
 	for (i = 0; i < INVEN_PACK; i++)
 	{
 		o_ptr = &inventory[i];
 
-		/* Track non-empty slots */
-		if (o_ptr->k_idx) z = i + 1;
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Track */
+		z = i + 1;
 	}
 	/* Display the inventory */
 	for (k = 0, i = 0; i < z; i++)
@@ -3026,12 +3064,10 @@ void show_inven(void)
 		object_desc(o_name, o_ptr, TRUE, 3);
 		/* Hack -- enforce max length */
 		o_name[lim] = '\0';
-
 		/* Save the object index, color, and description */
 		out_index[k] = i;
 		out_color[k] = tval_to_attr[o_ptr->tval % 128];
 		(void)strcpy(out_desc[k], o_name);
-
 		/* Find the predicted "line length" */
 		l = strlen(out_desc[k]) + 5;
 
@@ -3118,7 +3154,6 @@ void show_equip(void)
 
 	/* Require space for weight (if needed) */
 	if (show_weights) lim -= 9;
-
 	/* Scan the equipment list */
 	for (k = 0, i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
@@ -3165,7 +3200,6 @@ void show_equip(void)
 
 		/* Clear the line */
 		prt("", j + 1, col ? col - 2 : col);
-
 		/* Prepare an index --(-- */
 		sprintf(tmp_val, "%c)", index_to_label(i));
 
@@ -3196,7 +3230,6 @@ void show_equip(void)
 			put_str(tmp_val, j+1, 71);
 		}
 	}
-
 	/* Make a "shadow" below the list (only if needed) */
 	if (j && (j < 23)) prt("", j + 1, col ? col - 2 : col);
 
@@ -3218,10 +3251,10 @@ void toggle_inven_equip(void)
 	for (j = 0; j < 8; j++)
 	{
 		/* Unused */
-		if (!ang_term[j]) continue;
+		if (!angband_term[j]) continue;
 
 		/* Flip inven to equip */
-		if (window_flag[j] & PW_INVEN)
+		if (window_flag[j] & (PW_INVEN))
 		{
 			/* Flip flags */
 			window_flag[j] &= ~(PW_INVEN);
@@ -3231,7 +3264,7 @@ void toggle_inven_equip(void)
 			p_ptr->window |= (PW_EQUIP);
 		}
 		/* Flip inven to equip */
-		else if (window_flag[j] & PW_EQUIP)
+		else if (window_flag[j] & (PW_EQUIP))
 		{
 			/* Flip flags */
 			window_flag[j] &= ~(PW_EQUIP);
@@ -3246,6 +3279,8 @@ void toggle_inven_equip(void)
 
 /*
  * Verify the choice of an item.
+ *
+ * The item can be negative to mean "item on floor".
  */
 static bool verify(cptr prompt, int item)
 {
@@ -3253,13 +3288,25 @@ static bool verify(cptr prompt, int item)
 
 	char	out_val[160];
 
+	object_type *o_ptr;
+
+	/* Inventory */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+	
+	/* Floor */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
 
 	/* Describe */
-	object_desc(o_name, &inventory[item], TRUE, 3);
+	object_desc(o_name, o_ptr, TRUE, 3);
 
 	/* Prompt */
 	(void)sprintf(out_val, "%s %s? ", prompt, o_name);
-
 	/* Query */
 	return (get_check(out_val));
 }
@@ -3267,12 +3314,25 @@ static bool verify(cptr prompt, int item)
 
 /*
  * Hack -- allow user to "prevent" certain choices
+ *
+ * The item can be negative to mean "item on floor".
  */
-static bool get_item_allow(int i)
+static bool get_item_allow(int item)
 {
 	cptr s;
+	object_type *o_ptr;
 
-	object_type *o_ptr = &inventory[i];
+	/* Inventory */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+	
+	/* Floor */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
 
 	/* No inscription */
 	if (!o_ptr->note) return (TRUE);
@@ -3287,7 +3347,7 @@ static bool get_item_allow(int i)
 		if ((s[1] == command_cmd) || (s[1] == '*'))
 		{
 			/* Verify the choice */
-			if (!verify("Really try", i)) return (FALSE);
+			if (!verify("Really try", item)) return (FALSE);
 		}
 		/* Find another '!' */
 		s = strchr(s + 1, '!');
@@ -3313,7 +3373,6 @@ static bool get_item_okay(int i)
 	/* Assume okay */
 	return (TRUE);
 }
-
 
 
 /*
@@ -3354,7 +3413,6 @@ static int get_tag(int *cp, char tag)
 				/* Success */
 				return (TRUE);
 			}
-
 			/* Check the special tags */
 			if ((s[1] == command_cmd) && (s[2] == tag))
 			{
@@ -3424,19 +3482,23 @@ static int get_tag(int *cp, char tag)
  */
 bool get_item(int *cp, cptr pmt, bool equip, bool inven, bool floor)
 {
-	char        n1, n2, which = ' ';
+	cave_type *c_ptr = &cave[py][px];
 
-	int		floor_item = 0;
+	s16b this_o_idx, next_o_idx = 0;
+
+	char n1, n2, which = ' ';
 
 	int		k, i1, i2, e1, e2;
+
 	bool	ver, done, item;
+
+	bool allow_floor = FALSE;
 
 	char	tmp_val[160];
 	char	out_val[160];
 
 	/* Paranoia XXX XXX XXX */
 	msg_print(NULL);
-
 
 	/* Not done */
 	done = FALSE;
@@ -3459,7 +3521,6 @@ bool get_item(int *cp, cptr pmt, bool equip, bool inven, bool floor)
 	while ((i1 <= i2) && (!get_item_okay(i1))) i1++;
 	while ((i1 <= i2) && (!get_item_okay(i2))) i2--;
 
-
 	/* Full equipment */
 	e1 = INVEN_WIELD;
 	e2 = INVEN_TOTAL - 1;
@@ -3472,20 +3533,27 @@ bool get_item(int *cp, cptr pmt, bool equip, bool inven, bool floor)
 	while ((e1 <= e2) && (!get_item_okay(e2))) e2--;
 
 
-	/* Hack -- Restrict floor usage */
+	/* Restrict floor usage */
 	if (floor)
 	{
-		cave_type *c_ptr = &cave[py][px];
+		/* Scan all objects in the grid */
+		for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+		{
+			object_type *o_ptr;
+			/* Acquire object */
+			o_ptr = &o_list[this_o_idx];
 
-		object_type *o_ptr = &o_list[c_ptr->o_idx];
+			/* Acquire next object */
+			next_o_idx = o_ptr->next_o_idx;
 
 		/* Accept the item on the floor if legal */
-		if (item_tester_okay(o_ptr)) floor_item = c_ptr->o_idx;
+			if (item_tester_okay(o_ptr)) allow_floor = TRUE;
+		}
 	}
 
 
-	/* Verify choices */
-	if (!floor_item && (i1 > i2) && (e1 > e2))
+	/* Require at least one legal choice */
+	if (!allow_floor && (i1 > i2) && (e1 > e2))
 	{
 		/* Cancel command_see */
 		command_see = FALSE;
@@ -3558,7 +3626,6 @@ bool get_item(int *cp, cptr pmt, bool equip, bool inven, bool floor)
 			/* Extract the legal requests */
 			n1 = I2A(e1 - INVEN_WIELD);
 			n2 = I2A(e2 - INVEN_WIELD);
-
 			/* Redraw if needed */
 			if (command_see) show_equip();
 		}
@@ -3607,7 +3674,7 @@ bool get_item(int *cp, cptr pmt, bool equip, bool inven, bool floor)
 		}
 
 		/* Indicate legality of the "floor" item */
-		if (floor_item) strcat(out_val, " - for floor,");
+		if (allow_floor) strcat(out_val, " - for floor,");
 
 		/* Finish the prompt */
 		strcat(out_val, " ESC");
@@ -3621,7 +3688,6 @@ bool get_item(int *cp, cptr pmt, bool equip, bool inven, bool floor)
 
 		/* Get a key */
 		which = inkey();
-
 		/* Parse it */
 		switch (which)
 		{
@@ -3674,16 +3740,41 @@ bool get_item(int *cp, cptr pmt, bool equip, bool inven, bool floor)
 			case '-':
 			{
 				/* Use floor item */
-				if (floor_item)
+				if (allow_floor)
 				{
-					(*cp) = 0 - floor_item;
+					/* Scan all objects in the grid */
+					for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+					{
+						object_type *o_ptr;
+						
+						/* Acquire object */
+						o_ptr = &o_list[this_o_idx];
+
+						/* Acquire next object */
+						next_o_idx = o_ptr->next_o_idx;
+
+						/* Skip illegal items */
+						if (!item_tester_okay(o_ptr)) continue;
+						/* Skip non-verified items */
+						if (other_query_flag && !verify("Try", 0 - this_o_idx)) continue;
+
+						/* Skip non-acceptable items */
+						if (other_query_flag && !get_item_allow(0 - this_o_idx)) continue;
+
+						/* Accept choice */
+						(*cp) = 0 - this_o_idx;
+
 					item = TRUE;
 					done = TRUE;
+						break;
 				}
-				else
-				{
-					bell();
+
+					/* Outer break */
+					if (done) break;
 				}
+
+				/* Oops */
+				bell();
 				break;
 			}
 
@@ -3770,7 +3861,6 @@ bool get_item(int *cp, cptr pmt, bool equip, bool inven, bool floor)
 				{
 					k = label_to_inven(which);
 				}
-
 				/* Convert letter to equipment index */
 				else
 				{
@@ -3809,7 +3899,6 @@ bool get_item(int *cp, cptr pmt, bool equip, bool inven, bool floor)
 
 	/* Fix the screen if necessary */
 	if (command_see) Term_load();
-
 	/* Hack -- Cancel "display" */
 	command_see = FALSE;
 
@@ -3832,7 +3921,6 @@ bool get_item(int *cp, cptr pmt, bool equip, bool inven, bool floor)
 
 	/* Clear the prompt line */
 	prt("", 0, 0);
-
 	/* Return TRUE if something was picked */
 	return (item);
 }

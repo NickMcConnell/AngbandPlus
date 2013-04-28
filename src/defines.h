@@ -37,7 +37,7 @@
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	9
-#define VERSION_PATCH	2
+#define VERSION_PATCH	3
 
 /*
  * This value is not currently used
@@ -82,6 +82,11 @@
 #define MAX_OWNERS	4
 
 /*
+ * Maximum number of player "sex" types (see "table.c", etc)
+ */
+#define MAX_SEXES            2
+
+/*
  * Maximum number of player "race" types (see "table.c", etc)
  */
 #define MAX_RACES           12
@@ -101,8 +106,6 @@
 #define MAX_E_IDX	128	/* Max size for "e_info[]" */
 #define MAX_R_IDX	551	/* Max size for "r_info[]" */
 #define MAX_V_IDX	16	/* Max size for "v_info[]" */
-
-
 /*
  * Maximum array bounds for entity list arrays
  */
@@ -314,8 +317,6 @@
  * reproducing monsters.  Messy, but necessary.
  */
 #define MAX_REPRO	100
-
-
 /*
  * Player constants
  */
@@ -369,7 +370,6 @@
 #define INVEN_HEAD      33
 #define INVEN_HANDS     34
 #define INVEN_FEET      35
-
 /*
  * Total number of inventory slots (hard-coded).
  */
@@ -395,6 +395,12 @@
 #define A_LUC	6
 
 /*
+ * Player sex constants (hard-coded by save-files, arrays, etc)
+ */
+#define SEX_FEMALE		0
+#define SEX_MALE		1
+
+/*
  * Player race constants (hard-coded by save-files, arrays, etc)
  */
 #define RACE_HUMAN		0
@@ -417,9 +423,7 @@
 #define NECRO  4
 #define NONE  0
 
-
 /*** Screen Locations ***/
-
 /*
  * Some screen locations for various display routines
  * Currently, row 8 and 15 are the only "blank" rows.
@@ -525,7 +529,6 @@
 /* Extra */
 #define FEAT_SECRET		0x30
 #define FEAT_RUBBLE		0x31
-
 /* Seams */
 #define FEAT_MAGMA		0x32
 #define FEAT_QUARTZ		0x33
@@ -778,7 +781,6 @@
 #define EGO_HA				64
 #define EGO_DF				65
 #define EGO_BLESS_BLADE		66
-#define EGO_VORPAL 			67
 #define EGO_WEST			68
 #define EGO_ATTACKS			69
 #define EGO_MYSTIC			70
@@ -848,7 +850,6 @@
 
 /*** Object "tval" and "sval" codes ***/
 
-
 /*
  * The values for the "tval" field of various objects.
  *
@@ -902,12 +903,10 @@
 #define TV_DARK_BOOK 93
 #define TV_GOLD         100	/* Gold can only be picked up by players */
 
-
 /* The "sval" codes for TV_SHOT/TV_ARROW/TV_BOLT */
 #define SV_AMMO_LIGHT		0	/* pebbles */
 #define SV_AMMO_NORMAL		1	/* shots, arrows, bolts */
 #define SV_AMMO_HEAVY		2	/* seeker arrows and bolts */
-
 /* The "sval" codes for TV_BOW (note information in "sval") */
 #define SV_SLING			2	/* (x2) */
 #define SV_SHORT_BOW		12	/* (x2) */
@@ -1011,7 +1010,6 @@
 #define SV_HARD_LEATHER_ARMOR		6
 #define SV_HARD_STUDDED_LEATHER		7
 #define SV_LEATHER_SCALE_MAIL		11
-
 /* The "sval" codes for TV_HARD_ARMOR */
 #define SV_RUSTY_CHAIN_MAIL			1	/* 14- */
 #define SV_METAL_SCALE_MAIL			3	/* 13 */
@@ -1344,8 +1342,6 @@
 #define SV_FOOD_WAYBREAD		37
 #define SV_FOOD_PINT_OF_ALE		38
 #define SV_FOOD_PINT_OF_WINE	39
-
-
 /*
  * Special "sval" limit -- first "normal" food
  */
@@ -1411,6 +1407,19 @@
 #define ENCH_TOHIT   0x01
 #define ENCH_TODAM   0x02
 #define ENCH_TOAC    0x04
+
+/*
+ * Bit flags for the "target_set" function XXX XXX XXX
+ *
+ *	KILL: Target monsters
+ *	LOOK: Describe grid fully
+ *	XTRA: Currently unused flag
+ *	GRID: Select from all grids
+ */
+#define TARGET_KILL		0x01
+#define TARGET_LOOK		0x02
+#define TARGET_XTRA		0x04
+#define TARGET_GRID		0x08
 
 
 /*
@@ -1539,7 +1548,6 @@
 #define PW_BORG_2	0x00008000L	/* Display borg status */
 
 
-
 /*** General index values ***/
 
 /*
@@ -1602,14 +1610,20 @@
 #define GF_OLD_SLOW		55
 #define GF_OLD_CONF		56
 #define GF_OLD_SLEEP	57
-#define GF_MASS_SLEEP	58
-#define GF_OLD_DRAIN	59
+#define GF_OLD_DRAIN	58
+#define GF_MASS_SLEEP 60
+#define GF_AWAY_UNDEAD	61
+#define GF_AWAY_EVIL	62
 #define GF_AWAY_ALL	63
 #define GF_TURN_UNDEAD	64
 #define GF_TURN_EVIL	65
 #define GF_TURN_ALL	66
-#define GF_DISP	67
-#define GF_SPIRIT	68/*
+#define GF_DISP_UNDEAD	67
+#define GF_DISP_EVIL	68
+#define GF_DISP_ALL	69
+#define GF_SPIRIT	70
+
+/*
  * Some things which induce learning
  */
 #define DRS_ACID	1
@@ -1654,9 +1668,6 @@
 #define EGO_XTRA_ABILITY	3
 
 
-
-
-
 /*** Object flag values ***/
 
 
@@ -1673,16 +1684,28 @@
 
 
 /*
- * Special "Item Flags"
+ * Special Object Flags
  */
-#define ID_SENSE	0x01	/* Item has been "sensed" */
-#define ID_FIXED	0x02	/* Item has been "haggled" */
-#define ID_EMPTY	0x04	/* Item charges are known */
-#define ID_KNOWN	0x08	/* Item abilities are known */
-#define ID_RUMOUR	0x10	/* Item background is known */
-#define ID_MENTAL	0x20	/* Item information is known */
-#define ID_CURSED	0x40	/* Item is temporarily cursed */
-#define ID_BROKEN	0x80	/* Item is permanently worthless */
+#define IDENT_SENSE		0x01	/* Item has been "sensed" */
+#define IDENT_FIXED		0x02	/* Item has been "haggled" */
+#define IDENT_EMPTY		0x04	/* Item charges are known */
+#define IDENT_KNOWN		0x08	/* Item abilities are known */
+#define IDENT_RUMOUR	0x10	/* Item background is known */
+#define IDENT_MENTAL	0x20	/* Item information is known */
+#define IDENT_CURSED	0x40	/* Item is temporarily cursed */
+#define IDENT_BROKEN	0x80	/* Item is permanently worthless */
+
+
+
+/*
+ * Special Monster Flags (all temporary)
+ */
+#define MFLAG_VIEW	0x01	/* Monster is in line of sight */
+/* xxx */
+#define MFLAG_BORN	0x10	/* Monster is still being born */
+#define MFLAG_NICE	0x20	/* Monster is still being nice */
+#define MFLAG_SHOW	0x40	/* Monster is recently memorized */
+#define MFLAG_MARK	0x80	/* Monster is currently memorized */
 
 
 
@@ -1735,7 +1758,7 @@
 #define TR1_KILL_DRAGON		0x01000000L	/* Execute Dragon */
 #define TR1_SOULSTEAL			0x02000000L	/* Take double damage */
 #define TR1_IMPACT			0x04000000L	/* Cause Earthquakes */
-#define TR1_VORPAL			0x08000000L	/* Later */
+#define TR1_VORPAL			0x08000000L	/* Vorpal -- hits criticals */
 #define TR1_BRAND_ACID		0x10000000L
 #define TR1_BRAND_ELEC		0x20000000L
 #define TR1_BRAND_FIRE		0x40000000L
@@ -1881,7 +1904,6 @@
 #define RBE_EXP_20		26
 #define RBE_EXP_40		27
 #define RBE_EXP_80		28
-
 /*** Monster flag values (hard-coded) ***/
 
 
@@ -2139,7 +2161,7 @@
 #define EGO_BOOTS		56
 #define EGO_BOOTS_NUM	4
 #define EGO_BOOTS_C		61
-#define EGO_BOOTS_C_NUM	4
+#define EGO_BOOTS_C_NUM	3
 #define EGO_CROWN		24
 #define EGO_CROWN_NUM	6
 #define EGO_HELM		29
@@ -2153,12 +2175,9 @@
 /*** Macro Definitions ***/
 
 /*
- * Hack -- Old-style names
+ * Hack -- The main "screen"
  */
-#define term_screen	(ang_term[0])
-#define term_mirror	(ang_term[1])
-#define term_recall	(ang_term[2])
-#define term_choice	(ang_term[3])
+#define term_screen	(angband_term[0])
 
 
 /*
@@ -2180,9 +2199,8 @@
  * Test Two -- Check for "Easy Know" + "Aware"
  */
 #define object_known_p(T) \
-    (((T)->ident & ID_KNOWN) || \
+    (((T)->ident & (IDENT_KNOWN)) || \
      (k_info[(T)->k_idx].easy_know && k_info[(T)->k_idx].aware))
-
 
 /*
  * Return the "attr" for a given item.
@@ -2221,13 +2239,13 @@
  * Broken items.
  */
 #define broken_p(T) \
-        ((T)->ident & ID_BROKEN)
+        ((T)->ident & (IDENT_BROKEN))
+
 /*
  * Cursed items.
  */
 #define cursed_p(T) \
-        ((T)->ident & ID_CURSED)
-
+        ((T)->ident & (IDENT_CURSED))
 
 
 /*
@@ -2250,7 +2268,6 @@
 #define panel_contains(Y,X) \
   (((Y) >= panel_row_min) && ((Y) <= panel_row_max) && \
    ((X) >= panel_col_min) && ((X) <= panel_col_max))
-
 
 /*
  * Determine if a "legal" grid is a "floor" grid
@@ -2314,24 +2331,6 @@
      ((cave[Y][X].feat >= FEAT_SHOP_HEAD) && \
       (cave[Y][X].feat <= FEAT_SHOP_TAIL)))
 
-/*
- * Is a given location "valid" for placing things?
- *
- * Permanent grids are never "valid" (see above).
- *
- * Hack -- a grid with an artifact in it is never valid.
- *
- * This function is often "combined" with "cave_floor_bold(Y,X)"
- * or one of the other similar macros above.
- *
- * Line 1 -- forbid perma-grids
- * Line 2-3 -- forbid grids containing artifacts
- */
-#define cave_valid_bold(Y,X) \
-    (!cave_perma_bold(Y,X) && \
-     (!cave[Y][X].o_idx || \
-      !artifact_p(&o_list[cave[Y][X].o_idx])))
-
 /* Test for a feature >= x but < FEAT_SHOP_HEAD */
 #define feat_greater(x) (c_ptr->feat >= x) && (c_ptr->feat <= FEAT_SHOP_HEAD)
 
@@ -2377,15 +2376,6 @@
       ((C)->feat <= FEAT_SHOP_TAIL)))
 
 
-/*
- * Grid based version of "cave_valid_bold()"
- */
-#define cave_valid_grid(C) \
-    (!cave_perma_grid(C) && \
-     (!(C)->o_idx || \
-      !artifact_p(&o_list[(C)->o_idx])))
-
-
 
 /*
  * Determine if a "legal" grid is within "los" of the player
@@ -2393,7 +2383,7 @@
  * Note the use of comparison to zero to force a "boolean" result
  */
 #define player_has_los_bold(Y,X) \
-    ((cave[Y][X].info & CAVE_VIEW) != 0)
+    ((cave[Y][X].info & (CAVE_VIEW)) != 0)
 
 
 
@@ -2447,11 +2437,28 @@ extern int PlayerUID;
 #define SOUND_KILL	5
 #define SOUND_LEVEL	6
 #define SOUND_DEATH	7
+#define SOUND_STUDY     8
+#define SOUND_TELEPORT  9
+#define SOUND_SHOOT     10
+#define SOUND_QUAFF     11
+#define SOUND_ZAP       12
+#define SOUND_WALK      13
+#define SOUND_TPOTHER   14
+#define SOUND_HITWALL   15
+#define SOUND_EAT       16
+#define SOUND_STORE1    17
+#define SOUND_STORE2    18
+#define SOUND_STORE3    19
+#define SOUND_STORE4    20
+#define SOUND_DIG       21
+#define SOUND_OPENDOOR  22
+#define SOUND_SHUTDOOR  23
+#define SOUND_TPLEVEL   24
 
 /*
  * Mega-Hack -- maximum known sounds
  */
-#define SOUND_MAX	8
+#define SOUND_MAX 25
 
 
 /*** Hack ***/

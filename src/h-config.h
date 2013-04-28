@@ -52,7 +52,6 @@
 #ifndef SYS_V
 /* #define SYS_V */
 #endif
-
 /*
  * OPTION: Compile on a HPUX version of UNIX
  */
@@ -68,7 +67,14 @@
 #endif
 
 /*
- * OPTION: Compile on Solaris, treat it as System V
+ * OPTION: Compile on a SunOS machine
+ */
+#ifndef SUNOS
+/* #define SUNOS */
+#endif
+
+/*
+ * OPTION: Compile on a Solaris machine
  */
 #ifndef SOLARIS
 /* #define SOLARIS */
@@ -76,20 +82,29 @@
 
 /*
  * OPTION: Compile on an ultrix/4.2BSD/Dynix/etc. version of UNIX,
- * Do not define this if you are on any kind of SUN OS.
+ * Do not define this if you are on any kind of SunOS.
  */
-#ifndef ultrix
-/* #define ultrix */
+#ifndef ULTRIX
+/* #define ULTRIX */
 #endif
 
 
 
 /*
- * OPTION: Compile on Pyramid, treat it as Ultrix
+ * Extract the "SUNOS" flag from the compiler
  */
-#if defined(Pyramid)
-# ifndef ultrix
-#  define ultrix
+#if defined(sun)
+# ifndef SUNOS
+#   define SUNOS
+# endif
+#endif
+
+/*
+ * Extract the "ULTRIX" flag from the compiler
+ */
+#if defined(ultrix) || defined(Pyramid)
+# ifndef ULTRIX
+#  define ULTRIX
 # endif
 #endif
 
@@ -275,8 +290,8 @@
  * OPTION: Define "HAS_USLEEP" only if "usleep()" exists.
  * Note that this is only relevant for "SET_UID" machines
  */
-#ifdef SET_UID
-# if !defined(HPUX) && !defined(ultrix) && !defined(SOLARIS) && \
+#if defined(SET_UID) || defined(MSDOS)
+# if !defined(HPUX) && !defined(ULTRIX) && !defined(SOLARIS) && \
      !defined(SGI) && !defined(ISC)
 #  define HAS_USLEEP
 # endif
