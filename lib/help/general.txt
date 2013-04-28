@@ -1,12 +1,12 @@
 === General Information ===
 
-This document gives a brief introduction to Entroband. You will probably
+This document gives a brief introduction to Questband. You will probably
 want to browse through all the "help files", especially the sections on
 available commands (see command.txt [b] and commdesc.txt [c]), before
 beginning any serious adventuring...
 
 
-The game of Entroband is a single player dungeon simulation. A player
+The game of Questband is a single player dungeon simulation. A player
 may choose from a number of races, classes and magic realms when
 creating a character (see birth.hlp [d]), and then "run" that
 character over a period of days, weeks, even months. Deep down inside,
@@ -102,14 +102,14 @@ memory containing all the experience of past incarnations.
 
  
 ***** <Web>
-=== Entroband on the Web ===
+=== Questband on the Web ===
 
 
---- The official Entroband website ---
+--- The official Questband website ---
 (http://artsci.wustl.edu/~bcbarnes/band/)
 
-http://artsci.wustl.edu/~bcbarnes/band/ is the official Entroband website.
-It includes information on where to download the Entroband source code
+http://artsci.wustl.edu/~bcbarnes/band/ is the official Questband website.
+It includes information on where to download the Questband source code
 and current executables for most popular operating systems as well as
 information on current development issues.
 
@@ -122,17 +122,17 @@ Also to be found at Pav's Ladder page.
 --- The Newsgroup (rec.games.roguelike.angband) ---
 
 The newsgroup is a forum for the discussion of all things relating to
-Angband and its variants (including Entroband) and is a good place to
+Angband and its variants (including Questband) and is a good place to
 ask various questions about both game play and game design. Be sure to
-include '[Entro]' in your subject heading so people know your question
-is about Entroband.
+include '[Quest]' in your subject heading so people know your question
+is about Questband.
 
 
 --
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Updated    : Entroband 1.7.0
+Updated    : Questband 1.0.0
 
 
 ***** Begin Hyperlinks

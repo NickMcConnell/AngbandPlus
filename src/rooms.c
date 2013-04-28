@@ -308,7 +308,7 @@ static bool find_space_aux(int blocks_high, int blocks_wide, int block_y, int bl
 	/* Never run off the screen */
 	if ((by1 < 0) || (by2 > dun->row_rooms)) return FALSE;
 	if ((bx1 < 0) || (bx2 > dun->col_rooms)) return FALSE;
-	
+
 	/* Verify available space */
 	for (by = by1; by < by2; by++)
 	{
@@ -1483,8 +1483,8 @@ static bool vault_aux_undead(int r_idx)
 static bool vault_aux_chapel_g(int r_idx)
 {
 	static int chapel_list[] = {
-		MON_NOV_PRIEST, MON_NOV_PALADIN, MON_NOV_PRIEST_G, MON_NOV_PALADIN_G, 
-		MON_PRIEST, MON_JADE_MONK, MON_IVORY_MONK, MON_ULTRA_PALADIN, 
+		MON_NOV_PRIEST, MON_NOV_PALADIN, MON_NOV_PRIEST_G, MON_NOV_PALADIN_G,
+		MON_PRIEST, MON_JADE_MONK, MON_IVORY_MONK, MON_ULTRA_PALADIN,
 		MON_EBONY_MONK, MON_W_KNIGHT, MON_KNI_TEMPLAR, MON_PALADIN,
 		MON_TOPAZ_MONK, 0};
 
@@ -1521,7 +1521,7 @@ static bool vault_aux_kennel(int r_idx)
 
 	/* Require a Zephyr Hound or a dog */
 	if (!my_strchr("CZ", r_ptr->d_char)) return (FALSE);
-  
+
 	/* Okay */
 	return (TRUE);
 }
@@ -3063,7 +3063,7 @@ static bool build_type8(void)
 	/*
 	 * Try to allocate space for room.  If fails, exit
 	 *
-	 * Hack -- Prepare a bit larger space (+2, +2) to 
+	 * Hack -- Prepare a bit larger space (+2, +2) to
 	 * prevent generation of vaults with no-entrance.
 	 */
 	/* Find and reserve some space in the dungeon.  Get center of room. */
@@ -3203,7 +3203,7 @@ static void generate_hmap(int y0, int x0, int xsiz, int ysiz, int grd, int roug,
 	u16b xstep, xhstep, ystep, yhstep;
 	u16b xstep2, xhstep2, ystep2, yhstep2;
 	u16b i, j, ii, jj, diagsize, xxsize, yysize;
-	
+
 	/* Cache for speed */
 	u16b xm, xp, ym, yp;
 
@@ -3374,7 +3374,7 @@ static void generate_hmap(int y0, int x0, int xsiz, int ysiz, int grd, int roug,
 						ym = fill_data.ymin + (j - yhstep) / 256;
 						yp = fill_data.ymin + (j + yhstep) / 256;
 
-						/* 
+						/*
 						 * Average over all four corners + scale by diagsize to
 						 * reduce the effect of the square grid on the shape of the fractal
 						 */
@@ -5638,9 +5638,9 @@ static bool build_type13(void)
 		{+2, -9, 0}, {+2, -8, 0}, {+3, -7, 0}, {+3, -6, 0},
 		{-2, +9, 0}, {-2, +8, 0}, {-3, +7, 0}, {-3, +6, 0},
 		{+2, +9, 0}, {+2, +8, 0}, {+3, +7, 0}, {+3, +6, 0},
-		{-2, -7, 1}, {-3, -5, 1}, {-3, -4, 1}, 
-		{+2, -7, 1}, {+3, -5, 1}, {+3, -4, 1}, 
-		{-2, +7, 1}, {-3, +5, 1}, {-3, +4, 1}, 
+		{-2, -7, 1}, {-3, -5, 1}, {-3, -4, 1},
+		{+2, -7, 1}, {+3, -5, 1}, {+3, -4, 1},
+		{-2, +7, 1}, {-3, +5, 1}, {-3, +4, 1},
 		{+2, +7, 1}, {+3, +5, 1}, {+3, +4, 1},
 		{-2, -6, 2}, {-2, -5, 2}, {-3, -3, 2},
 		{+2, -6, 2}, {+2, -5, 2}, {+3, -3, 2},
@@ -6300,7 +6300,7 @@ static bool room_build(int typ)
 
 /*
  * [from SAngband (originally from OAngband)]
- * 
+ *
  * Generate rooms in dungeon.  Build bigger rooms at first.
  */
 bool generate_rooms(void)
@@ -6344,7 +6344,8 @@ bool generate_rooms(void)
 	 */
 
 	/* Ironman sees only Greater Vaults */
-	if (ironman_rooms && !((d_info[dungeon_type].flags1 & (DF1_BEGINNER | DF1_CHAMELEON | DF1_SMALLEST))))
+	if ((ironman_rooms || unusual_rooms) &&
+            !((d_info[dungeon_type].flags1 & (DF1_BEGINNER | DF1_CHAMELEON | DF1_SMALLEST))))
 	{
 		for (i = 0; i < ROOM_T_MAX; i++)
 		{

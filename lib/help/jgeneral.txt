@@ -135,7 +135,7 @@ http://www.kmc.gr.jp/~habu/gridbug.html
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Updated    : Hengband 1.5.0
+Updated    : Questband 1.5.0
 
 
 ***** Begin Hyperlinks

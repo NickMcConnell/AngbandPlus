@@ -380,7 +380,7 @@ static void spoil_obj_desc(cptr fname)
 
 
 	/* Header */
-	fprintf(fff, "Spoiler File -- Basic Items (Entroband %d.%d.%d)\n\n\n",
+	fprintf(fff, "Spoiler File -- Basic Items (Questband %d.%d.%d)\n\n\n",
 		FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
 
 	/* More Header */
@@ -1356,7 +1356,7 @@ static void print_header(void)
 {
 	char buf[80];
 
-	sprintf(buf, "Artifact Spoilers for Entroband Version %d.%d.%d",
+	sprintf(buf, "Artifact Spoilers for Questband Version %d.%d.%d",
 		FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
 	spoiler_underline(buf);
 }
@@ -1724,7 +1724,7 @@ static void spoil_mon_desc(cptr fname)
 	C_MAKE(who, max_r_idx, s16b);
 
 	/* Dump the header */
-	fprintf(fff, "Monster Spoilers for Entroband Version %d.%d.%d\n",
+	fprintf(fff, "Monster Spoilers for Questband Version %d.%d.%d\n",
 		FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
 	fprintf(fff, "------------------------------------------\n\n");
 
@@ -2057,7 +2057,7 @@ static void spoil_mon_info(cptr fname)
 
 
 	/* Dump the header */
-	sprintf(buf, "Monster Spoilers for Entroband Version %d.%d.%d\n",
+	sprintf(buf, "Monster Spoilers for Questband Version %d.%d.%d\n",
 	     FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
 
 	spoil_out(buf);
@@ -2317,7 +2317,7 @@ static void spoil_mon_evol(cptr fname)
 	}
 
 	/* Dump the header */
-	sprintf(buf, "Monster Spoilers for Entroband Version %d.%d.%d\n",
+	sprintf(buf, "Monster Spoilers for Questband Version %d.%d.%d\n",
 	     FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
 
 	spoil_out(buf);

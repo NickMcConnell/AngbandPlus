@@ -109,7 +109,7 @@ CC = gcc
 #
 # Options for Japanese version (comment out for English version)
 
-JP_OPT= -D"JP" -D"EUC" -DDEFAULT_LOCALE="\"ja_JP.eucJP\""
+#JP_OPT= -D"JP" -D"EUC" -DDEFAULT_LOCALE="\"ja_JP.eucJP\""
 
 ###################################################################
 
@@ -135,8 +135,10 @@ JP_OPT= -D"JP" -D"EUC" -DDEFAULT_LOCALE="\"ja_JP.eucJP\""
 #CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU"
 #LIBS = -lX11 -lcurses -ltermcap
 
-CFLAGS = -Wall -O2  -fno-strength-reduce -m486 -pipe -g -D"USE_X11" $(JP_OPT) -D"USE_GCU" -I/usr/X11R6/include
+#CFLAGS = -Wall -O2  -fno-strength-reduce -m486 -pipe -g -D"USE_X11" $(JP_OPT) -D"USE_GCU" -I/usr/X11R6/include
+CFLAGS = -std=c99 -Wall -Wextra -pedantic -O3 -pipe -D"USE_X11" $(JP_OPT) -D"USE_GCU" -I/usr/X11R6/include
 LIBS = -L/usr/X11R6/lib -lX11 -lncurses
+
 
 
 ##
@@ -258,17 +260,17 @@ LIBS = -L/usr/X11R6/lib -lX11 -lncurses
 # Hack -- "install" as the base target
 #
 
-install: entroband
-	cp entroband ..
-#	chmod u+s ../entroband
+install: questband
+	cp questband ..
+#	chmod u+s ../questband
 
 
 #
 # Build the "Angband" program
 #
 
-entroband: $(OBJS)
-	$(CC) $(CFLAGS) -o entroband $(OBJS) $(LDFLAGS) $(LIBS)
+questband: $(OBJS)
+	$(CC) $(CFLAGS) -o questband $(OBJS) $(LDFLAGS) $(LIBS)
 
 
 #

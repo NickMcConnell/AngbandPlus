@@ -88,9 +88,9 @@ static unsigned long create_pixel(Display *dpy, byte red, byte green, byte blue)
 	{
 		cptr str = getenv("ANGBAND_X11_GAMMA");
 		if (str != NULL) gamma_val = atoi(str);
-		
+
 		gamma_table_ready = TRUE;
-		
+
 		/* Only need to build the table if gamma exists */
 		if (gamma_val) build_gamma_table(gamma_val);
 	}
@@ -106,7 +106,7 @@ static unsigned long create_pixel(Display *dpy, byte red, byte green, byte blue)
 #endif /* SUPPORT_GAMMA */
 
 	/* Build the color */
-	
+
 	xcolour.red = red * 255;
 	xcolour.green = green * 255;
 	xcolour.blue = blue * 255;
@@ -280,7 +280,7 @@ static XImage *ReadBMP(Display *dpy, char *Name)
 		rd_byte(f, &(clrg.g));
 		rd_byte(f, &(clrg.r));
 		rd_byte(f, &(clrg.filler));
-		
+
 		/* Analyze the color */
 		clr_pixels[i] = create_pixel(dpy, clrg.r, clrg.g, clrg.b);
 	}
@@ -306,11 +306,11 @@ static XImage *ReadBMP(Display *dpy, char *Name)
 		return (NULL);
 	}
 
-	for (y = 0; y < infoheader.biHeight; y++)
+	for (y = 0; y < (int) infoheader.biHeight; y++)
 	{
 		int y2 = infoheader.biHeight - y - 1;
 
-		for (x = 0; x < infoheader.biWidth; x++)
+		for (x = 0; x < (int) infoheader.biWidth; x++)
 		{
 			int ch = getc(f);
 

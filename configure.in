@@ -3,10 +3,10 @@ AC_INIT(src/main.c)
 
 AM_CONFIG_HEADER(src/autoconf.h)
 
-AM_INIT_AUTOMAKE(entroband, 1.7.0)
+AM_INIT_AUTOMAKE(Questband, 1.0.0)
 
 AC_ARG_WITH(setgid,
-[  --with-setgid=NAME      install entroband as group NAME],
+[  --with-setgid=NAME      install questband as group NAME],
 [case "${withval}" in
   no) GAMEGROUP="";;
   yes) AC_MSG_ERROR(missing argument for --with-setgid);;
@@ -27,10 +27,10 @@ fi
 
 dnl overwrite the path with an user-specified value
 AC_ARG_WITH(libpath,
-[  --with-libpath=path     specify the path to the Entroband lib folder],
+[  --with-libpath=path     specify the path to the Questband lib folder],
 [game_datadir="$withval"])
 
-AC_DEFINE_UNQUOTED(DEFAULT_PATH, "$game_datadir", [Path to the Entroband lib folder])
+AC_DEFINE_UNQUOTED(DEFAULT_PATH, "$game_datadir", [Path to the Questband lib folder])
 DEFAULT_PATH="$game_datadir"
 AC_SUBST(DEFAULT_PATH)
 

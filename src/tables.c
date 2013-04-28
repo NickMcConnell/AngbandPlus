@@ -1236,7 +1236,7 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 #ifdef JP
 		{ "フレンドリーなビルボ",       200,    170,  108,   5,  15,  RACE_HOBBIT},
 /*                { "憶病者ラストリン",       200,    175,  108,   4,  12,  RACE_HUMAN},  */
-		{ "憶病者リンスウィンド",       200,    175,  108,   4,  12,  RACE_HUMAN}, 
+		{ "憶病者リンスウィンド",       200,    175,  108,   4,  12,  RACE_HUMAN},
 		{ "背の低いサルタン",             300,    170,  107,   5,  15,  RACE_GNOME},
 		{ "ハンサムなライア=エル",      300,    165,  107,   6,  18,  RACE_ELF},
 #else
@@ -2942,7 +2942,7 @@ player_race race_info[MAX_RACES] =
 
 		{ 4, -4, -1, -3,  3, -3 },
 		-5, -8, -5, -2,  -1, 5, 20, -10,
-		12,  125,
+		12,  200,
 		20, 10,
 		96, 10, 250, 50,
 		84,  8, 225, 40,
@@ -3266,7 +3266,7 @@ player_race race_info[MAX_RACES] =
 	},
 	{
 #ifdef JP
-		"獣人",  
+		"獣人",
 #endif
 		"Beastman",
 
@@ -5371,7 +5371,7 @@ cptr window_flag_desc[32] =
 #endif
 
 #ifdef JP
-	"自分の周囲を表示", 
+	"自分の周囲を表示",
 #else
 	"Display dungeon view",
 #endif
@@ -5857,6 +5857,14 @@ option_type option_info[] =
 #else
 	{ &always_small_levels,         FALSE, OPT_PAGE_GAMEPLAY, 2, 3,
 	"always_small_levels",          "Always create unusually small dungeon levels" },
+#endif
+
+#ifdef JP
+	{ &unusual_rooms,         FALSE, OPT_PAGE_GAMEPLAY, 4, 10,
+	"unusual_rooms",          "???" },
+#else
+	{ &unusual_rooms,         FALSE, OPT_PAGE_GAMEPLAY, 4, 10,
+	"unusual_rooms",          "Always generate very unusual rooms" },
 #endif
 
 #ifdef JP

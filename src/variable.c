@@ -36,7 +36,7 @@ cptr macro_trigger_keycode[2][MAX_MACRO_TRIG];
 /* レベルアップの時に上昇量を表示するのに使う */
 int level_up = 0;
 
-/* 
+/*
  *  List for auto-picker/destroyer entries
  */
 int max_autopick = 0;
@@ -258,6 +258,7 @@ bool always_small_levels;	/* Always create unusually small dungeon levels */
 bool empty_levels;	/* Allow empty 'arena' levels */
 bool bound_walls_perm;	/* Boundary walls become 'permanent wall' */
 bool last_words;	/* Leave last words when your character dies */
+bool unusual_rooms;	/* Generate very unusual rooms */
 
 #ifdef WORLD_SCORE
 bool send_score;	/* Send score dump to the world score server */
@@ -544,7 +545,7 @@ term *angband_term[8];
  */
 char angband_term_name[8][16] =
 {
-	"Entroband",
+	"Questband",
 	"Term-1",
 	"Term-2",
 	"Term-3",

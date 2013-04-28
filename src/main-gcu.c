@@ -874,7 +874,7 @@ static errr Term_xtra_gcu_sound(int v)
 
    sprintf(buf,"./gcusound.sh %s\n", sound_file[v]);
    system(buf);
-   
+
    return (0);
 
 #if 0

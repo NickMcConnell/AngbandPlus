@@ -1,6 +1,6 @@
 
                   ****************************************
-                  **          Entroband 1.7.1           **
+                  **          Questband 1.0.0           **
                   ****************************************
 
           Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
@@ -17,4 +17,5 @@
            Hengband: Mr.Hoge (echizen @ users.sourceforge.jp) & Many others
 
              Entroband: Brian Barnes (bcbarnes@artsci.wustl.edu)
- 
+
+             Questband: Enyah Eleets (eeleets@yahoo.com)

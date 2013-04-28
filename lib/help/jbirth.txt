@@ -361,7 +361,7 @@ lib/user/ にある histedit-<名前>.prf または histedit.prf というファイル
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Updated    : Hengband 1.5.2
+Updated    : Questband 1.5.2
 
 
 ***** [a] jraceclas.hlp

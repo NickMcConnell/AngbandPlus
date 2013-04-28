@@ -527,7 +527,7 @@ static void prt_status(void)
 	if (p_ptr->tsubureru) ADD_FLG(BAR_EXPAND);
 
 	if (p_ptr->shield) ADD_FLG(BAR_STONESKIN);
-	
+
 	if (p_ptr->special_defense & NINJA_KAWARIMI) ADD_FLG(BAR_KAWARIMI);
 
 	/* Oppose Acid */
@@ -772,7 +772,7 @@ static void prt_exp(void)
 		{
 #ifdef JP
 			(void)sprintf(out_val, "%7ld", (long)(player_exp [p_ptr->lev - 1] * p_ptr->expfact / 100L) - p_ptr->exp);
-#else      
+#else
 			(void)sprintf(out_val, "%8ld", (long)(player_exp [p_ptr->lev - 1] * p_ptr->expfact / 100L) - p_ptr->exp);
 #endif
 		}
@@ -851,9 +851,9 @@ static void prt_hp(void)
 {
 /* ヒットポイントの表示方法を変更 */
 	char tmp[32];
-  
+
 	byte color;
-  
+
 	/* タイトル */
 /*	put_str(" ＨＰ・ＭＰ", ROW_HPMP, COL_HPMP); */
 
@@ -2465,7 +2465,7 @@ static void calc_mana(void)
 	/* Subtract a percentage of maximum mana. */
 	switch (p_ptr->pclass)
 	{
-		/* For these classes, mana is halved if armour 
+		/* For these classes, mana is halved if armour
 		 * is 30 pounds over their weight limit. */
 		case CLASS_MAGE:
 		case CLASS_HIGH_MAGE:
@@ -2537,7 +2537,7 @@ static void calc_mana(void)
 		/* Subtract a percentage of maximum mana. */
 		switch (p_ptr->pclass)
 		{
-			/* For these classes, mana is halved if armour 
+			/* For these classes, mana is halved if armour
 			 * is 30 pounds over their weight limit. */
 			case CLASS_MAGE:
 			case CLASS_HIGH_MAGE:
@@ -2864,7 +2864,7 @@ static void calc_torch(void)
 		p_ptr->cur_lite = 1;
 
 	/*
-	 * check if the player doesn't have light radius, 
+	 * check if the player doesn't have light radius,
 	 * but does weakly glow as an intrinsic.
 	 */
 	if (p_ptr->cur_lite <= 0 && p_ptr->lite) p_ptr->cur_lite++;
@@ -3368,22 +3368,11 @@ void calc_bonuses(void)
 			p_ptr->resist_dark = TRUE;
 			break;
 		case RACE_HALF_TROLL:
-			p_ptr->sustain_str = TRUE;
-
-			if (p_ptr->lev > 14)
+			p_ptr->sustain_con = TRUE;
+                        p_ptr->slow_digest = TRUE;
+			if (p_ptr->lev > 19)
 			{
-				/* High level trolls heal fast... */
 				p_ptr->regenerate = TRUE;
-
-				if (p_ptr->pclass == CLASS_WARRIOR || p_ptr->pclass == CLASS_BERSERKER)
-				{
-					p_ptr->slow_digest = TRUE;
-					/* Let's not make Regeneration
-					 * a disadvantage for the poor warriors who can
-					 * never learn a spell that satisfies hunger (actually
-					 * neither can rogues, but half-trolls are not
-					 * supposed to play rogues) */
-				}
 			}
 			break;
 		case RACE_AMBERITE:
@@ -3506,7 +3495,7 @@ void calc_bonuses(void)
 			break;
 		case RACE_ENT:
 			/* Ents dig like maniacs, but only with their hands. */
-			if (!inventory[INVEN_RARM].k_idx) 
+			if (!inventory[INVEN_RARM].k_idx)
 				p_ptr->skill_dig += p_ptr->lev * 10;
 			/* Ents get tougher and stronger as they age, but lose dexterity. */
 			if (p_ptr->lev > 25) p_ptr->stat_add[A_STR]++;
@@ -3977,7 +3966,8 @@ void calc_bonuses(void)
 		if (have_flag(flgs, TR_SUST_CHR)) p_ptr->sustain_chr = TRUE;
 
 		if (o_ptr->name2 == EGO_YOIYAMI) yoiyami = TRUE;
-		if (o_ptr->name2 == EGO_2WEAPON) easy_2weapon = TRUE;
+		if ((o_ptr->name2 == EGO_2WEAPON) ||
+                    (o_ptr->name1 == ART_SHIVA_GLOVES)) easy_2weapon = TRUE;
 		if (o_ptr->name2 == EGO_RING_RES_TIME) p_ptr->resist_time = TRUE;
 		if (o_ptr->name2 == EGO_RING_THROW) p_ptr->mighty_throw = TRUE;
 		if (have_flag(flgs, TR_EASY_SPELL)) p_ptr->easy_spell = TRUE;
@@ -4645,7 +4635,6 @@ void calc_bonuses(void)
 	p_ptr->dis_to_h[1] += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
 	p_ptr->dis_to_h_b  += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
 
-
 	/* Obtain the "hold" value */
 	hold = adj_str_hold[p_ptr->stat_ind[A_STR]];
 
@@ -4907,8 +4896,6 @@ void calc_bonuses(void)
 
 			/* Add in the "bonus blows" */
 			p_ptr->num_blow[i] += extra_blows[i];
-
-
 			if (p_ptr->pclass == CLASS_WARRIOR) p_ptr->num_blow[i] += (p_ptr->lev / 40);
 			else if (p_ptr->pclass == CLASS_BERSERKER)
 			{
@@ -5094,7 +5081,7 @@ void calc_bonuses(void)
 		{
 			p_ptr->to_a -= 40;
 			p_ptr->dis_to_a -= 40;
-			
+
 		}
 		else if (p_ptr->special_defense & KAMAE_SEIRYU)
 		{
@@ -5174,6 +5161,18 @@ void calc_bonuses(void)
 
 			if (inventory[INVEN_RARM + i].name1 == ART_IRON_BALL) p_ptr->align -= 1000;
 		}
+
+                if (prace_is_(RACE_HALF_TROLL))
+                {
+                        if (p_ptr->lev > 24)
+                        {
+                                p_ptr->num_blow[i] += 1;
+                        }
+                        if (p_ptr->lev > 34)
+                        {
+                                p_ptr->num_blow[i] += 1;
+                        }
+                }
 	}
 
 	/* Maximum speed is (+99). (internally it's 110 + 99) */
@@ -5717,7 +5716,7 @@ void update_stuff(void)
 	{
 		p_ptr->update &= ~(PU_DISTANCE);
 
-		/* Still need to call update_monsters(FALSE) after update_mon_lite() */ 
+		/* Still need to call update_monsters(FALSE) after update_mon_lite() */
 		/* p_ptr->update &= ~(PU_MONSTERS); */
 
 		update_monsters(TRUE);

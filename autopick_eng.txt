@@ -1,20 +1,20 @@
-# autopick.txt for Entroband
+# autopick.txt for Questband
 #
-# The last part of this file is an example of 'pickpref.prf'. 
-# You can copy this file to lib\user\ or ~/.angband/entroband/ 
+# The last part of this file is an example of 'pickpref.prf'.
+# You can copy this file to lib\user\ or ~/.angband/questband/
 # to use as preference of auto-picker.
-# (UNIX user must copy to ~/.angband/entroband/. Others must 
+# (UNIX user must copy to ~/.angband/questband/. Others must
 # copy to lib\user\ .)
 #
 #    =====   How to use auto-picker/destroyer   ========
-#    
+#
 #     Press the _ in a game to enter editor mode for preference of
 #     auto-picker/destroyer.  Basic usage of the editor is almost same
 #     as vi, and also have emacs like commands.  Most commands is
 #     always displayed on the first line and the right half of the
 #     screen.
 #
-#     Important commands 
+#     Important commands
 #      'a', 'i' or ^Q :  Enter insert mode from command mode
 #      ESC  or ^Q     :  Return to command mode from insert mode
 #      'q'            :  Quit the editor (command mode only)
@@ -30,7 +30,7 @@
 #
 #      The preference will be saved in a file named
 #      "pickpref-<<name>>.prf" in your user directory; This will be
-#      ~/.angband/entroband/ for UNIX, or entroband\lib\user\ for other
+#      ~/.angband/questband/ for UNIX, or questband\lib\user\ for other
 #      operating systems.  You may edit this file using any text
 #      editor, and may use the '$' command within the game to reread
 #      this file.  When you don't use the in-game editor, you may use
@@ -57,11 +57,11 @@
 #      force the game to ask you if you want to pick the item up or
 #      not.  Otherwise, your character will automatically attempt to
 #      pick up the object.
-#           There is an additional command letter '('.  It indicates that 
+#           There is an additional command letter '('.  It indicates that
 #      you don't wish this item to be displayed in full map. see below.
 #
 #      Notes:
-#      If you want to disable the effect of the '!' indicator temporally, 
+#      If you want to disable the effect of the '!' indicator temporally,
 #      use 'always_pickup' option.
 #
 #
@@ -96,7 +96,7 @@
 #      third             : Third one of four spellbooks in each realm match.
 #      fourth            : Fourth one of four spellbooks in each realm match.
 #
-#      items             : All items match. Use it with an adjective for 
+#      items             : All items match. Use it with an adjective for
 #                          readability (i.e. "unaware items").
 #      weapons           : All weapons including missile weapons match.
 #      armors            : All armors match.
@@ -110,20 +110,20 @@
 #                          BeastMaster, ForceTrainer, Cavalry, and Ninja)
 #
 #      You may also use keywords which match specified kinds of equipment:
-#      weapons, armors, missiles, magical devices, lights, junks, spellbooks, 
-#      hafted weapons, shields, bows, rings, amulets, suits, cloaks, helms, 
+#      weapons, armors, missiles, magical devices, lights, junks, spellbooks,
+#      hafted weapons, shields, bows, rings, amulets, suits, cloaks, helms,
 #      gloves, boots
 #
 #
 #    Character strings:
-#           After the keywords, you may write a character string. Only items 
-#      whose name contains this character string as part of their name match. 
+#           After the keywords, you may write a character string. Only items
+#      whose name contains this character string as part of their name match.
 #      Upper or lower case makes no difference.
-#           You must insert a ':' between your special keywords and character 
+#           You must insert a ':' between your special keywords and character
 #      string, if both exist in one line.
 #
 #    Force start-of-line matching:
-#      If the first character in a character string is '^', then the 
+#      If the first character in a character string is '^', then the
 #      character string must match the beginning of a line.
 #
 #    !Mace           // Destroy Maces and Lead-Filled Maces.
@@ -142,11 +142,11 @@
 #    Meaning:  "leave all unidentified light sources on the ground"
 #
 #    unidentified more than 25 dice weapons
-#    Meaning:  "pick up all weapons with dice that total more than 25.  A 
+#    Meaning:  "pick up all weapons with dice that total more than 25.  A
 #         weapon that is 2d13 qualifies, a weapon that is 5d5 does not."
 #
 #    Acquirement
-#    Meaning:  "pick up anything that includes in its name the word 
+#    Meaning:  "pick up anything that includes in its name the word
 #    'Acquirement'"
 #
 #    potion of Experience
@@ -160,14 +160,14 @@
 #
 #
 #    Special Notes:
-#    
-#      Lines will be evaluated in order, and first matched line will be 
-#      applied. So you can write names of specific excellent items to pick 
+#
+#      Lines will be evaluated in order, and first matched line will be
+#      applied. So you can write names of specific excellent items to pick
 #      up, followed by a general item name with '!' to destroy useless items.
-#    
+#
 #      ! Tips
-#      !     In full map command ('M'), you can press M, N, K, or D to 
-#      ! display locations of items for auto-pickup, leaving, auto-destroy 
+#      !     In full map command ('M'), you can press M, N, K, or D to
+#      ! display locations of items for auto-pickup, leaving, auto-destroy
 #      ! or both auto-pickup and leaving.
 #      !     Additional command letter '(' prevents this display.
 #      !
@@ -177,39 +177,39 @@
 #
 #
 #      Strict syntax of each line is below.
-#      
+#
 #      [! ~ ; (]
 #      [[all] [collecting]
-#       [unaware] [unidentified] [identified] [*identified*] 
+#       [unaware] [unidentified] [identified] [*identified*]
 #       [artifact] [ego] [good] [nameless] [average]
 #       [worthless] [rare] [common]
-#       [dice boosted] [more than N dice] [more bonus than N] 
-#       [wanted] [unique monster's] [human] [unreadable] 
-#       [first realm's] [second realm's] [first] [second] [third] [fourth] 
+#       [dice boosted] [more than N dice] [more bonus than N]
+#       [wanted] [unique monster's] [human] [unreadable]
+#       [first realm's] [second realm's] [first] [second] [third] [fourth]
 #       [items | weapons | favorite weapons | armors | missiles |
 #        magical devices | lights | junks | corpses or skeletons | spellbooks |
 #        hafted weapons | shields | bows | rings | amulets | suits | cloaks |
 #        helms | gloves | boots] :]
 #      [[^]part-of-item-name] [#auto-inscription-string]
-#    
-#    
+#
+#
 #    =======  How to use Conditional Expressions  ========
-#    
-#      The lines of pickpref.prf can be disabled/enabled using 
-#      conditional expressions. 
+#
+#      The lines of pickpref.prf can be disabled/enabled using
+#      conditional expressions.
 #      The syntax is the same as that of other preference files.
-#    
+#
 #      - usage of condition expressions
 #        ?:expr
 #          If result of expr is "0", all lines below are disabled.
 #          If result of expr is "1", all lines below are enabled.
 #          Caution:It cannot be nested.
-#    
+#
 #      - usage to include other file
 #        %:filename
-#          Read a file named 'filename' as a new pick-pref file. The file 
+#          Read a file named 'filename' as a new pick-pref file. The file
 #          must be in the user directory.
-#    
+#
 #      - usage of operators
 #        [EQU arg1 arg2 ...]
 #          If all args are the same as arg1, returns "1", or else returns "0".
@@ -222,7 +222,7 @@
 #        [GEQ arg1 arg2 ...]
 #          Compare args as string. LEQ returns "1" if (arg1 <= arg2 <= ...) ,
 #          GEQ returns "1" if (arg1 >= arg2 >= ...) otherwise returns "0".
-#    
+#
 #      - Special variables
 #        $RACE
 #         Returns name of player race. One of below:
@@ -257,8 +257,8 @@
 #------------------------------------------------------------------
 #
 #    Below is an example 'pickpref.prf' file.
-#    You can copy this file to lib\user\ or ~/.angband/entroband/.
-#    (UNIX user must copy to ~/.angband/entroband/. Others must copy 
+#    You can copy this file to lib\user\ or ~/.angband/questband/.
+#    (UNIX user must copy to ~/.angband/questband/. Others must copy
 #    to  lib\user\ .)
 #
 #------------------------------------------------------------------
@@ -325,11 +325,11 @@ healing#!k
 # Skeletons is material of missiles for Archers.
 # Ninja needs lights of darkness.
 # Vampire needs darkness.
-# 
+#
 ?:[EQU $CLASS Magic-Eater]
-rod of 
-staff of 
-wand of 
+rod of
+staff of
+wand of
 ?:[EQU $CLASS Archer]
 worthless skeleton
 ?:[EQU $CLASS Ninja]

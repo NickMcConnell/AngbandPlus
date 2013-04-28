@@ -330,7 +330,7 @@
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Updated    : Hengband 1.7.0
+Updated    : Questband 1.0.0
 
 
 

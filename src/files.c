@@ -1265,7 +1265,7 @@ errr process_pref_file(cptr name)
 
 	/* Build the filename */
 	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, name);
-	
+
 	/* Process the user pref file */
 	err2 = process_pref_file_aux(buf, PREF_TYPE_NORMAL);
 
@@ -1876,7 +1876,7 @@ static void display_player_middle(void)
 				sprintf(buf, "Riding (%+d)", i);
 #endif
 		}
-	
+
 		display_player_one_line(ENTRY_SPEED, buf, attr);
 	}
 
@@ -1928,17 +1928,17 @@ static void display_player_middle(void)
 	display_player_one_line(ENTRY_DAY, buf, TERM_L_GREEN);
 
 	/* Dump hit point */
-	if (p_ptr->chp >= p_ptr->mhp) 
+	if (p_ptr->chp >= p_ptr->mhp)
 		display_player_one_line(ENTRY_HP, format("%4d/%4d", p_ptr->chp , p_ptr->mhp), TERM_L_GREEN);
-	else if (p_ptr->chp > (p_ptr->mhp * hitpoint_warn) / 10) 
+	else if (p_ptr->chp > (p_ptr->mhp * hitpoint_warn) / 10)
 		display_player_one_line(ENTRY_HP, format("%4d/%4d", p_ptr->chp , p_ptr->mhp), TERM_YELLOW);
 	else
 		display_player_one_line(ENTRY_HP, format("%4d/%4d", p_ptr->chp , p_ptr->mhp), TERM_RED);
 
 	/* Dump mana power */
-	if (p_ptr->csp >= p_ptr->msp) 
+	if (p_ptr->csp >= p_ptr->msp)
 		display_player_one_line(ENTRY_SP, format("%4d/%4d", p_ptr->csp , p_ptr->msp), TERM_L_GREEN);
-	else if (p_ptr->csp > (p_ptr->msp * mana_warn) / 10) 
+	else if (p_ptr->csp > (p_ptr->msp * mana_warn) / 10)
 		display_player_one_line(ENTRY_SP, format("%4d/%4d", p_ptr->csp , p_ptr->msp), TERM_YELLOW);
 	else
 		display_player_one_line(ENTRY_SP, format("%4d/%4d", p_ptr->csp , p_ptr->msp), TERM_RED);
@@ -2383,21 +2383,11 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 		add_flag(flgs, TR_RES_DARK);
 		break;
 	case RACE_HALF_TROLL:
-		add_flag(flgs, TR_SUST_STR);
-		if (p_ptr->lev > 14)
+		add_flag(flgs, TR_SUST_CON);
+                add_flag(flgs, TR_SLOW_DIGEST);
+		if (p_ptr->lev > 19)
 		{
 			add_flag(flgs, TR_REGEN);
-			if ((p_ptr->pclass == CLASS_WARRIOR) || (p_ptr->pclass == CLASS_BERSERKER))
-			{
-				add_flag(flgs, TR_SLOW_DIGEST);
-				/*
-				 * Let's not make Regeneration a disadvantage
-				 * for the poor warriors who can never learn
-				 * a spell that satisfies hunger (actually
-				 * neither can rogues, but half-trolls are not
-				 * supposed to play rogues)
-				 */
-			}
 		}
 		break;
 	case RACE_AMBERITE:
@@ -3936,7 +3926,7 @@ void display_player(int mode)
 				for(i=0 ; i<2 ; i++)
 				{
 					if(t[0]==0)
-						break; 
+						break;
 					else
 					{
 						put_str(t, i + 5 + 12, 10);
@@ -4305,7 +4295,7 @@ static void dump_aux_class_special(FILE *fff)
 					strcat(p[col], ", ");
 				}
 			}
-			
+
 			if (!pcol)
 			{
 #ifdef JP
@@ -4325,7 +4315,7 @@ static void dump_aux_class_special(FILE *fff)
 					p[col][strlen(p[col])-10] = '\0';
 				}
 			}
-			
+
 			strcat(p[col], "\n");
 		}
 
@@ -4722,7 +4712,7 @@ static void dump_aux_monsters(FILE *fff)
 	else /* if (uniq_total > 0) */
 	{
 #ifdef JP
-		fprintf(fff, "%ld体のユニーク・モンスターを含む、合計%ld体の敵を倒しています。\n", uniq_total, norm_total); 
+		fprintf(fff, "%ld体のユニーク・モンスターを含む、合計%ld体の敵を倒しています。\n", uniq_total, norm_total);
 #else
 		fprintf(fff, "You have defeated %ld %s including %ld unique monster%s in total.\n", norm_total, norm_total == 1 ? "enemy" : "enemies", uniq_total, (uniq_total == 1 ? "" : "s"));
 #endif
@@ -4747,9 +4737,9 @@ static void dump_aux_monsters(FILE *fff)
 			monster_race *r_ptr = &r_info[who[k]];
 
 #ifdef JP
-			fprintf(fff, "  %-40s (レベル%3d)\n", (r_name + r_ptr->name), r_ptr->level); 
+			fprintf(fff, "  %-40s (レベル%3d)\n", (r_name + r_ptr->name), r_ptr->level);
 #else
-			fprintf(fff, "  %-40s (level %3d)\n", (r_name + r_ptr->name), r_ptr->level); 
+			fprintf(fff, "  %-40s (level %3d)\n", (r_name + r_ptr->name), r_ptr->level);
 #endif
 		}
 
@@ -5005,7 +4995,7 @@ errr make_character_dump(FILE *fff)
 	fprintf(fff, "  [変愚蛮怒 %d.%d.%d キャラクタ情報]\n\n",
 		FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #else
-	fprintf(fff, "  [Entroband %d.%d.%d Character Dump]\n\n",
+	fprintf(fff, "  [Questband %d.%d.%d Character Dump]\n\n",
 		FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #endif
 
@@ -5582,7 +5572,7 @@ msg_format("'%s'をオープンできません。", name);
 #ifdef JP
 				"[変愚蛮怒 %d.%d.%d, %s, %d/%d]",
 #else
-				"[Entroband %d.%d.%d, %s, Line %d/%d]",
+				"[Questband %d.%d.%d, %s, Line %d/%d]",
 #endif
 
 			   FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH,

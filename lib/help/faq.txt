@@ -1,5 +1,5 @@
 
-=========  Entroband FAQ  ==========
+=========  Questband FAQ  ==========
 
 
 Q. I want to play as an Android, Balrog, Golem, Skeleton, Zombie,
@@ -50,9 +50,9 @@ A. Ninja can use Iron Spikes as shuriken; they can throw it as good
 Q. I'm at normal speed (+0). But normal speed monsters sometimes do
    double or even triple move!
 
-A. On Entroband, amount of energy needed for a move is somewhat
+A. On Questband, amount of energy needed for a move is somewhat
    randomized.  This method of speed system is an important feature of
-   Entroband, and is simulating real fighting.  So always expect that
+   Questband, and is simulating real fighting.  So always expect that
    your enemy can get two or three move.  Don't fight when your HP is
    low, if you don't want to get instakill!
 
@@ -109,35 +109,35 @@ A. You cannot directly control your mount unless you use one hand to
 Q. Where is the score server?  And how do I register my character
    dumps?
 
-A. For Entroband, please use the Ladder page at http://angband.oook.cz
+A. For Questband, please use the Ladder page at http://angband.oook.cz
    instead of trying to use the legacy world-score reporting code.
 
 
 Q. Are there spoiler for more details?
 
-A. Yes. BCB has adopted Henkma's spoiler page for Hengband;
-   see the Entroband page for more information.
+A. Yes. BCB has adopted Henkma's spoiler page for Questband;
+   see the Questband page for more information.
 
 
-Q. Who wrote Hengband?
+Q. Who wrote Questband?
 
-A. Hengband is mainly based on ZAngband 2.2.8 Japanese version.
+A. Questband is mainly based on ZAngband 2.2.8 Japanese version.
    ZAngband 2.2.8 Japanese version was developed by Mitsuhiro Itakura,
    based on both ZAngband 2.2.8 and Angband 2.8.3 Japanese version,
    and has some original features, for example, Auto-picker, in
    addition to simple translation.
 
-   Hengband also includes codes from many other variants including
+   Questband also includes codes from many other variants including
    ToME, OAngband, etc.  Mr.Hoge wrote the first original part of
-   Hengband.  And currently, it is maintained by Hengband Development
+   Questband.  And currently, it is maintained by Questband Development
    Team including Mr.Hoge, Habu, Henkma, iks, Kuwa, Mogami and nsk.
 
 
-Q. Where is Entroband?
+Q. Where is Questband?
 
 A. Here: http:/artsci.wustl.edu/~bcbarnes/band/
 
 
 
 --
-Updated    : Entroband 1.7.0
+Updated    : Questband 1.0.0

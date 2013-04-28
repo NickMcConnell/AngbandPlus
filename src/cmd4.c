@@ -4798,10 +4798,10 @@ void do_cmd_version(void)
 
 	/* Silly message */
 #ifdef JP
-	msg_format(" —∂Ú»⁄≈‹(Entroband) %d.%d.%d",
+	msg_format(" —∂Ú»⁄≈‹(Questband) %d.%d.%d",
 		    FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #else
-	msg_format("You are playing Entroband %d.%d.%d.",
+	msg_format("You are playing Questband %d.%d.%d.",
 		    FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #endif
 }

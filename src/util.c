@@ -1072,7 +1072,7 @@ static void trigger_text_to_ascii(char **bufptr, cptr *strptr)
 
 	if (macro_template == NULL)
 		return;
-	
+
 	for (i = 0; macro_modifier_chr[i]; i++)
 		mod_status[i] = FALSE;
 	str++;
@@ -1083,7 +1083,7 @@ static void trigger_text_to_ascii(char **bufptr, cptr *strptr)
 		for (i=0; macro_modifier_chr[i]; i++)
 		{
 			len = strlen(macro_modifier_name[i]);
-			
+
 			if(!my_strnicmp(str, macro_modifier_name[i], len))
 				break;
 		}
@@ -1341,7 +1341,7 @@ static bool trigger_ascii_to_text(char **bufptr, cptr *strptr)
 	while (*tmp) *s++ = *tmp++;
 
 	*s++ = ']';
-	
+
 	*bufptr = s;
 	*strptr = str;
 	return TRUE;
@@ -2432,7 +2432,7 @@ void message_add(cptr str)
 
 		/* Find multiple */
 #ifdef JP
- for (t = buf; *t && (*t != '<' || (*(t+1) != 'x' )); t++) 
+ for (t = buf; *t && (*t != '<' || (*(t+1) != 'x' )); t++)
      if( iskanji(*t))t++;
 #else
 		for (t = buf; *t && (*t != '<'); t++);
@@ -3261,7 +3261,7 @@ bool askfor_aux(char *buf, int len, bool numpad_cursor)
 				if (iskanji(buf[i])) next_pos++;
 #endif
 
-				/* Is there the cursor at next position? */ 
+				/* Is there the cursor at next position? */
 				if (next_pos >= pos) break;
 
 				/* Move to next */
@@ -3321,7 +3321,7 @@ bool askfor_aux(char *buf, int len, bool numpad_cursor)
 				if (iskanji(buf[i])) next_pos++;
 #endif
 
-				/* Is there the cursor at next position? */ 
+				/* Is there the cursor at next position? */
 				if (next_pos >= pos) break;
 
 				/* Move to next */
@@ -3644,7 +3644,7 @@ bool get_com(cptr prompt, char *command, bool z_escape)
 s16b get_quantity(cptr prompt, int max)
 {
 	bool res;
-	int amt;
+	int amt = 0;
 	char tmp[80];
 	char buf[80];
 
@@ -4789,7 +4789,7 @@ bool repeat_pull(int *what)
 
 void repeat_check(void)
 {
-	int		what;
+	int		what = 0;
 
 	/* Ignore some commands */
 	if (command_cmd == ESCAPE) return;
@@ -4984,49 +4984,49 @@ static s16b gamma_helper[256] =
 };
 
 
-/* 
+/*
  * Build the gamma table so that floating point isn't needed.
- * 
+ *
  * Note gamma goes from 0->256.  The old value of 100 is now 128.
  */
 void build_gamma_table(int gamma)
 {
 	int i, n;
-	
+
 	/*
 	 * value is the current sum.
 	 * diff is the new term to add to the series.
 	 */
 	long value, diff;
-	
+
 	/* Hack - convergence is bad in these cases. */
 	gamma_table[0] = 0;
 	gamma_table[255] = 255;
-	
+
 	for (i = 1; i < 255; i++)
 	{
-		/* 
+		/*
 		 * Initialise the Taylor series
 		 *
 		 * value and diff have been scaled by 256
 		 */
-		
+
 		n = 1;
 		value = 256 * 256;
 		diff = ((long)gamma_helper[i]) * (gamma - 256);
-		
+
 		while (diff)
 		{
 			value += diff;
 			n++;
-			
-			
+
+
 			/*
 			 * Use the following identiy to calculate the gamma table.
 			 * exp(x) = 1 + x + x^2/2 + x^3/(2*3) + x^4/(2*3*4) +...
 			 *
 			 * n is the current term number.
-			 * 
+			 *
 			 * The gamma_helper array contains a table of
 			 * ln(x/256) * 256
 			 * This is used because a^b = exp(b*ln(a))
@@ -5043,8 +5043,8 @@ void build_gamma_table(int gamma)
 			 */
 			diff = (((diff / 256) * gamma_helper[i]) * (gamma - 256)) / (256 * n);
 		}
-		
-		/* 
+
+		/*
 		 * Store the value in the table so that the
 		 * floating point pow function isn't needed .
 		 */

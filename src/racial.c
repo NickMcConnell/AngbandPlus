@@ -1327,7 +1327,14 @@ static bool cmd_racial_power_aux(s32b command)
 		}
 		case CLASS_BERSERKER:
 		{
-			if (!word_of_recall()) return FALSE;
+			if (command == -4)
+			{
+                          if (!word_of_recall()) return FALSE;
+                        }
+                        else if (command == -3)
+                          {
+                            set_food(PY_FOOD_MAX - 1);
+                          }
 			break;
 		}
 		case CLASS_SMITH:
@@ -1490,7 +1497,7 @@ static bool cmd_racial_power_aux(s32b command)
 		}
 	}
 
-	else 
+	else
 	{
 
 	switch (p_ptr->prace)
@@ -1555,10 +1562,10 @@ static bool cmd_racial_power_aux(s32b command)
 #else
 			msg_print("RAAAGH!");
 #endif
-
-			(void)set_afraid(0);
-			(void)set_shero(10 + randint1(plev), FALSE);
-			(void)hp_player(30);
+                        set_shero(randint1(25) + 25, FALSE);
+                        hp_player(30);
+                        set_afraid(0);
+                        set_fast(randint1((20 + plev / 2)) + (plev / 2), FALSE);
 			break;
 
 		case RACE_AMBERITE:
@@ -2575,6 +2582,17 @@ strcpy(power_desc[num].name, "¹ÓÇÏ¤Ê¤é¤·");
 	case CLASS_BERSERKER:
 	{
 #ifdef JP
+strcpy(power_desc[num].name, "???");
+#else
+		strcpy(power_desc[num].name, "Satisfy Hunger");
+#endif
+
+		power_desc[num].level = 5;
+		power_desc[num].cost = 5;
+		power_desc[num].stat = A_DEX;
+		power_desc[num].fail = 10;
+		power_desc[num++].number = -3;
+#ifdef JP
 strcpy(power_desc[num].name, "µ¢´Ô");
 #else
 		strcpy(power_desc[num].name, "Recall");
@@ -2584,7 +2602,7 @@ strcpy(power_desc[num].name, "µ¢´Ô");
 		power_desc[num].cost = 10;
 		power_desc[num].stat = A_DEX;
 		power_desc[num].fail = 20;
-		power_desc[num++].number = -3;
+		power_desc[num++].number = -4;
 		break;
 	}
 	case CLASS_MIRROR_MASTER:
@@ -2758,13 +2776,13 @@ strcpy(power_desc[num].name, "¶²ÉÝ½üµî");
 #ifdef JP
 strcpy(power_desc[num].name, "¶¸Àï»Î²½");
 #else
-			strcpy(power_desc[num].name, "Berserk");
+			strcpy(power_desc[num].name, "Battle Frenzy");
 #endif
 
-			power_desc[num].level = 10;
-			power_desc[num].cost = 12;
-			power_desc[num].stat = A_STR;
-			power_desc[num].fail = warrior ? 6 : 12;
+			power_desc[num].level = 30;
+			power_desc[num].cost = 32;
+			power_desc[num].stat = A_CON;
+			power_desc[num].fail = 16;
 			power_desc[num++].number = -1;
 			break;
 		case RACE_BARBARIAN:
@@ -3618,8 +3636,8 @@ if (!repeat_pull(&i) || i<0 || i>=num) {
 	choice = (always_show_list || use_menu) ? ESCAPE:1;
 	while (!flag)
 	{
-		if( choice==ESCAPE ) choice = ' '; 
-		else if( !get_com(out_val, &choice, FALSE) )break; 
+		if( choice==ESCAPE ) choice = ' ';
+		else if( !get_com(out_val, &choice, FALSE) )break;
 
 		if (use_menu && choice != ' ')
 		{

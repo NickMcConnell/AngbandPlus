@@ -120,9 +120,9 @@ sprintf(Dummy, "現在の体力ランク : %d/100", percent);
 		char v_name [20];
 		char vir_desc[80];
 		int tester = p_ptr->virtues[v_nr];
-	
+
 		strcpy(v_name, virtue[(p_ptr->vir_types[v_nr])-1]);
- 
+
 #ifdef JP
 		sprintf(vir_desc, "おっと。%sの情報なし。", v_name);
 #else
@@ -170,7 +170,7 @@ sprintf(Dummy, "現在の体力ランク : %d/100", percent);
 			sprintf(vir_desc, "You have strayed from the path of %s (%d).",
 #endif
 				v_name, tester);
-		else if (tester == 0)                   
+		else if (tester == 0)
 #ifdef JP
 			sprintf(vir_desc, "[%s]の中立者 (%d)",
 #else
@@ -219,13 +219,13 @@ sprintf(Dummy, "現在の体力ランク : %d/100", percent);
 			sprintf(vir_desc,"You are the living embodiment of %s (%d).",
 #endif
 		v_name, tester);
-	
+
 		strcpy(v_string[v_nr], vir_desc);
-	
+
 		info[i++] = v_string[v_nr];
 	}
 	info[i++] = "";
-	
+
 	/* Racial powers... */
 	if (p_ptr->mimic_form)
 	{
@@ -304,11 +304,11 @@ info[i++] = "あなたは恐怖を除去できる。(5 MP)";
 
 			break;
 		case RACE_HALF_TROLL:
-			if (plev > 9)
+			if (plev > 29)
 #ifdef JP
 info[i++] = "あなたは狂暴化することができる。(12 MP) ";
 #else
-				info[i++] = "You enter berserk fury (cost 12).";
+				info[i++] = "You enter battle frenzy (cost 32).";
 #endif
 
 			break;
@@ -814,6 +814,14 @@ info[i++] = "あなたはモンスターに乗って無理矢理ペットにすることができる。";
 			}
 			break;
 		case CLASS_BERSERKER:
+			if (plev > 4)
+			{
+#ifdef JP
+info[i++] = "???";
+#else
+			info[i++] = "You can satisfy your hunger.";
+#endif
+			}
 			if (plev > 9)
 			{
 #ifdef JP
@@ -5918,7 +5926,7 @@ void discharge_minion(void)
 		if (dam > 400) dam = (dam-400)/2 + 400;
 		if (dam > 800) dam = 800;
 		project(i, 2+(r_ptr->level/20), m_ptr->fy,
-			m_ptr->fx, dam, GF_PLASMA, 
+			m_ptr->fx, dam, GF_PLASMA,
 			PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL, -1);
 
 		if (record_named_pet && m_ptr->nickname)
@@ -6490,9 +6498,9 @@ bool fire_ball_hide(int typ, int dir, int dam, int rad)
 
 
 /*
- * Cast a meteor spell, defined as a ball spell cast by an arbitary monster, 
- * player, or outside source, that starts out at an arbitrary location, and 
- * leaving no trail from the "caster" to the target.  This function is 
+ * Cast a meteor spell, defined as a ball spell cast by an arbitary monster,
+ * player, or outside source, that starts out at an arbitrary location, and
+ * leaving no trail from the "caster" to the target.  This function is
  * especially useful for bombardments and similar. -LM-
  *
  * Option to hurt the player.

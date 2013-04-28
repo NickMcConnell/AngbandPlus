@@ -2,17 +2,17 @@
 
 Please choose one of the following online help files:
 
-    (a) The Basics of Auto-picker Editor      (#Editor)            
-    (b) Cur and Paste                         (#CutAndPaste)       
-    (c) Register to Auto-picker               (#RegisterName)      
-    (d) Insert Name from your Inventory       (#InsertObjectName)  
-    (e) Insert Fixed Keyword                  (#InsertKeyword)     
-    (f) Change Multiple Lines at Once         (#MultiLines)        
-    (g) Conditionals                          (#Conditionals)      
-    (h) Auto Register an Item without Editor  (#AutoRegister)      
+    (a) The Basics of Auto-picker Editor      (#Editor)
+    (b) Cur and Paste                         (#CutAndPaste)
+    (c) Register to Auto-picker               (#RegisterName)
+    (d) Insert Name from your Inventory       (#InsertObjectName)
+    (e) Insert Fixed Keyword                  (#InsertKeyword)
+    (f) Change Multiple Lines at Once         (#MultiLines)
+    (g) Conditionals                          (#Conditionals)
+    (h) Auto Register an Item without Editor  (#AutoRegister)
 
-    (i) Format of Auto-picker/destroyer       (#AutopickFormat)      
-    (j) Format of Conditionals                (#ConditionFormat)     
+    (i) Format of Auto-picker/destroyer       (#AutopickFormat)
+    (j) Format of Conditionals                (#ConditionFormat)
     (k) Sample Preference File                (lib/pref/pickpref.prf)
 
 ***** [a] editor.txt#Editor
@@ -85,7 +85,7 @@ Selected text will be displayed in yellow.  You can press ^X to cut
 the selected text, or press ^C to copy the selected text to the
 clipboard.  Contents of the clipboard will be pasted on pressing ^V.
 
-Note that it's possible that Entroband cannot recognize shift+arrow
+Note that it's possible that Questband cannot recognize shift+arrow
 keys on a minor environment.  In that case, you can press ^G and then
 move cursor to select text.
 
@@ -111,10 +111,10 @@ move cursor to select text.
 ***** <AutopickFormat>
 [[[[G|--- Format of Auto-picker/destroyer ---
 
-Entroband can automatically pick up or destroy specified objects when
+Questband can automatically pick up or destroy specified objects when
 you write objects name in the file "pickpref.prf" or
 "pickpref-<<playername>>.prf" in the user directory, this will be
-~/.angband/entroband/ for UNIX, or Entroband\lib\user\ for other
+~/.angband/questband/ for UNIX, or Questband\lib\user\ for other
 operating systems.
 
 The game will read the file "pickpref-<<playername>>.prf" first and
@@ -178,7 +178,7 @@ Keywords:
   third             : Third one of four spellbooks in each realm match.
   fourth            : Fourth one of four spellbooks in each realm match.
 
-  items             : All items match. Use it with an adjective for 
+  items             : All items match. Use it with an adjective for
                       readability (i.e. "unaware items").
   weapons           : All weapons including missile weapons match.
   armors            : All armors match.
@@ -192,20 +192,20 @@ Keywords:
                       BeastMaster, ForceTrainer, Cavalry, and Ninja)
 
   You may also use keywords which match specified kinds of equipment:
-  weapons, armors, missiles, magical devices, lights, junks, spellbooks, 
-  hafted weapons, shields, bows, rings, amulets, suits, cloaks, helms, 
+  weapons, armors, missiles, magical devices, lights, junks, spellbooks,
+  hafted weapons, shields, bows, rings, amulets, suits, cloaks, helms,
   gloves, boots
 
 
 Character strings:
-       After the keywords, you may write a character string. Only items 
-  whose name contains this character string as part of their name match. 
+       After the keywords, you may write a character string. Only items
+  whose name contains this character string as part of their name match.
   Upper or lower case makes no difference.
-       You must insert a ':' between your special keywords and character 
+       You must insert a ':' between your special keywords and character
   string, if both exist in one line.
 
 Force start-of-line matching:
-  If the first character in a character string is '^', then the 
+  If the first character in a character string is '^', then the
   character string must match the beginning of a line.
 
 !Mace           // Destroy Maces and Lead-Filled Maces.
@@ -224,11 +224,11 @@ Meaning:  "pick up all unaware potions"
 Meaning:  "leave all unidentified light sources on the ground"
 
 unidentified more than 25 dice weapons
-Meaning:  "pick up all weapons with dice that total more than 25.  A 
+Meaning:  "pick up all weapons with dice that total more than 25.  A
      weapon that is 2d13 qualifies, a weapon that is 5d5 does not."
 
 Acquirement
-Meaning:  "pick up anything that includes in its name the word 
+Meaning:  "pick up anything that includes in its name the word
 'Acquirement'"
 
 potion of Experience
@@ -243,13 +243,13 @@ Meaning:  "Pick up gauntlets of slaying. Not rings of slaying."
 
 Special Notes:
 
-  Lines will be evaluated in order, and first matched line will be 
-  applied. So you can write names of specific excellent items to pick 
+  Lines will be evaluated in order, and first matched line will be
+  applied. So you can write names of specific excellent items to pick
   up, followed by a general item name with '!' to destroy useless items.
 
   ! Tips
-  !     In full map command ('M'), you can press M, N, K, or D to 
-  ! display locations of items for auto-pickup, leaving, auto-destroy 
+  !     In full map command ('M'), you can press M, N, K, or D to
+  ! display locations of items for auto-pickup, leaving, auto-destroy
   ! or both auto-pickup and leaving.
   !     Additional command letter '(' prevents this display.
   !
@@ -259,15 +259,15 @@ Special Notes:
 
 
   Strict syntax of each line is below.
-  
+
   [! ~ ; (]
   [[all] [collecting]
-   [unaware] [unidentified] [identified] [*identified*] 
+   [unaware] [unidentified] [identified] [*identified*]
    [artifact] [ego] [good] [nameless] [average]
    [worthless] [rare] [common]
-   [dice boosted] [more than N dice] [more bonus than N] 
-   [wanted] [unique monster's] [human] [unreadable] 
-   [first realm's] [second realm's] [first] [second] [third] [fourth] 
+   [dice boosted] [more than N dice] [more bonus than N]
+   [wanted] [unique monster's] [human] [unreadable]
+   [first realm's] [second realm's] [first] [second] [third] [fourth]
    [items | weapons | favorite weapons | armors | missiles |
     magical devices | lights | junks | corpses or skeletons | spellbooks |
     hafted weapons | shields | bows | rings | amulets | suits | cloaks |
@@ -278,8 +278,8 @@ Special Notes:
 ***** <ConditionFormat>
 [[[[G|--- Format of Conditionals ---
 
-  The lines of pickpref.prf can be disabled/enabled using 
-  conditional expressions. 
+  The lines of pickpref.prf can be disabled/enabled using
+  conditional expressions.
   The syntax is the same as that of other preference files.
 
   - usage of condition expressions
@@ -290,7 +290,7 @@ Special Notes:
 
   - usage to include other file
     %:filename
-      Read a file named 'filename' as a new pick-pref file. The file 
+      Read a file named 'filename' as a new pick-pref file. The file
       must be in the user directory.
 
   - usage of operators

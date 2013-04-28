@@ -1218,4 +1218,4 @@
 到達したときには -5 + 40/50 * (-5) で -9 になります。
 
 --
-Updated    : Hengband 1.3.2
+Updated    : Questband 1.3.2

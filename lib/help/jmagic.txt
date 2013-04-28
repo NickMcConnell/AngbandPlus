@@ -288,7 +288,7 @@
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Updated    : Hengband 1.1.0
+Updated    : Questband 1.1.0
 
 
 ***** [a] jraceclas.txt#TheClasses

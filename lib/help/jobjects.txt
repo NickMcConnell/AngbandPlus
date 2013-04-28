@@ -819,7 +819,7 @@
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Updated    : Hengband 1.3.0
+Updated    : Questband 1.3.0
 
 
 ***** Begin Hyperlinks

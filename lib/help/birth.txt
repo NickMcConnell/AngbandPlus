@@ -1,7 +1,7 @@
 === Creating a Character ===
 
-Entroband is a role playing game, in which you, the player, control a
-character in the world of Entroband.  Perhaps the most important thing
+Questband is a role playing game, in which you, the player, control a
+character in the world of Questband.  Perhaps the most important thing
 you control is the birth of your character, in which you choose or
 allow to be chosen various attributes that will affect the future life
 of your character.
@@ -159,7 +159,7 @@ quantum of this modification can be found in the stat bonus table (see
 raceclas.txt#StatBonusTable [h]).
 
 Once a character that matches or exceeds your expectations has been
-rolled, Entroband stops to ask you whether you accept or not.  If you
+rolled, Questband stops to ask you whether you accept or not.  If you
 accept the rolled character (by pressing Enter), you will be asked for
 its name.  If not, you may press 'r' to resume rolling and searching
 for the next match or, if this is not your first match, 'p' to return
@@ -362,7 +362,7 @@ Infra-vision
      player to see walls and objects.  Infra-vision will allow a
      character to see any warm-blooded creatures up to a certain
      distance.  This ability works equally well with or with out a
-     light source.  The majority of Entroband's creatures are
+     light source.  The majority of Questband's creatures are
      cold-blooded, and will not be detected unless lit up by a light
      source.  Most non-human races have innate infra-vision ability.
      Humans can gain infra-vision only if it is magically enhanced.
@@ -371,7 +371,7 @@ Infra-vision
 ***** <Proficiency>
 === Proficiency Levels ===
 
-In Entroband, characters possess different proficiency levels or
+In Questband, characters possess different proficiency levels or
 experiences for each weapon type, spells, and a few other skills.  The
 starting proficiency levels and the maximum proficiency levels of a
 character are based upon class.  Each proficiency level may increase
@@ -405,7 +405,7 @@ monster.txt#Pets [i])
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Updated    : Entroband 1.7.0
+Updated    : Questband 1.0.0
 
 ***** [a] raceclas.hlp
 ***** [b] magic.hlp

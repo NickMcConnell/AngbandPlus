@@ -1,13 +1,13 @@
-=== History of Entroband ===
+=== History of Questband ===
 
-Nov 1, 2005.  Entroband 1.7.0 released.
+Nov 1, 2005.  Questband 1.0.0 released.
 
 Many changes to artifacts, monsters, and uniques from
-Hengband 1.7.0 (final CVS version).
+Questband 1.0.0 (final CVS version).
 
 
 
-=== History of Hengband ===
+=== History of Questband ===
 
 
 Jan. 9th, 2004  hengband 1.6.0 (New stable branch) released.
@@ -262,7 +262,7 @@ Implemented 'Saved Floors':
 
   Sep. 9th, 2002  hengband 1.2.1 (Stable branch) released.
 
-- Added description about license of Hengband; 'jlicense.txt'.
+- Added description about license of Questband; 'jlicense.txt'.
   (jlicense.txt is Japanese only for now)
 - Increased AC of the ego Ring of Protection (Extra Armor) by 7.
 - Fixed some bug on monster's AI.
@@ -420,7 +420,7 @@ Modifications for auto-picker/destroyer editor:
   'http://www.kmc.gr.jp/~habu/local/hengscore-en/screens/'.
   But links on the webpage to the screenshots are not yet available.
 - Limited support of 8x8 tile graphics.
-- Hengband online help in *Japanese*. 
+- Questband online help in *Japanese*. 
   (sadly English version of online help is not yet available)
 - Rune of explosion no longer has anti-summoning effects.
 - Rune of protection no longer has perfect
@@ -517,7 +517,7 @@ The source can be used to compile English version too.
   Dec. 4th, 2001  hengband 1.0.7fix2 english alpha version released.
 
 
-=== The main differences of Hengband 1.0.7 from ZAngband2.2.8  ===
+=== The main differences of Questband 1.0.7 from ZAngband2.2.8  ===
 
 - World score server: You can register scores and character dumps.
 - Player can write last words when died, which is displayed in the 
@@ -1209,4 +1209,4 @@ Angband Version 2.7   :  1/1/95  Ben Harrison
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Updated    : Hengband 1.5.3
+Updated    : Questband 1.5.3

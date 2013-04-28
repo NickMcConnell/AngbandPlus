@@ -146,7 +146,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
 	choice = (always_show_list || use_menu) ? ESCAPE : 1;
 	while (!flag)
 	{
-		if (choice == ESCAPE) choice = ' '; 
+		if (choice == ESCAPE) choice = ' ';
 		else if (!get_com(out_val, &choice, TRUE))break;
 
 		if (use_menu && choice != ' ')
@@ -1217,8 +1217,8 @@ void do_cmd_cast(void)
 
 	/* Ask for a spell */
 #ifdef JP
-	if (!get_spell(&spell,  
-				((mp_ptr->spell_book == TV_LIFE_BOOK) ? "詠唱する" : (mp_ptr->spell_book == TV_MUSIC_BOOK) ? "歌う" : "唱える"), 
+	if (!get_spell(&spell,
+				((mp_ptr->spell_book == TV_LIFE_BOOK) ? "詠唱する" : (mp_ptr->spell_book == TV_MUSIC_BOOK) ? "歌う" : "唱える"),
 		       sval, TRUE, realm))
 	{
 		if (spell == -2) msg_format("その本には知っている%sがない。", prayer);
@@ -1604,7 +1604,7 @@ static bool ang_sort_comp_pet_dismiss(vptr u, vptr v, int a, int b)
 
 	if (m_ptr1->hp > m_ptr2->hp) return TRUE;
 	if (m_ptr2->hp > m_ptr1->hp) return FALSE;
-	
+
 	return w1 <= w2;
 }
 
@@ -1643,7 +1643,7 @@ int calculate_upkeep(void)
 	{
 		monster_type *m_ptr;
 		monster_race *r_ptr;
-		
+
 		m_ptr = &m_list[m_idx];
 		if (!m_ptr->r_idx) continue;
 		r_ptr = &r_info[m_ptr->r_idx];
@@ -2307,7 +2307,7 @@ void do_cmd_pet(void)
 	int			powers[36];
 	cptr			power_desc[36];
 	bool			flag, redraw;
-	int			ask;
+	int			ask = 0;
 	char			choice;
 	char			out_val[160];
 	int			pet_ctr;

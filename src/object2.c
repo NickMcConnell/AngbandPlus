@@ -781,7 +781,7 @@ void object_aware(object_type *o_ptr)
 
 		q_ptr->number = 1;
 		object_desc(o_name, q_ptr, OD_NAME_ONLY);
-		
+
 		do_cmd_write_nikki(NIKKI_HANMEI, 0, o_name);
 	}
 }
@@ -1189,7 +1189,7 @@ s32b object_value_real(object_type *o_ptr)
 		int i;
 		bool flag = FALSE;
 
-		for (i = 0; i < TR_FLAG_SIZE; i++) 
+		for (i = 0; i < TR_FLAG_SIZE; i++)
 			if (o_ptr->art_flags[i]) flag = TRUE;
 
 		if (flag) value += flag_cost(o_ptr, o_ptr->pval);
@@ -2244,11 +2244,11 @@ static byte get_random_ego(byte slot, bool good)
 	ego_item_type *e_ptr;
 
 	long total = 0L;
-	
+
 	for (i = 1; i < max_e_idx; i++)
 	{
 		e_ptr = &e_info[i];
-		
+
 		if (e_ptr->slot == slot
 		    && ((good && e_ptr->rating) || (!good && !e_ptr->rating)) )
 		{
@@ -2262,7 +2262,7 @@ static byte get_random_ego(byte slot, bool good)
 	for (i = 1; i < max_e_idx; i++)
 	{
 		e_ptr = &e_info[i];
-		
+
 		if (e_ptr->slot == slot
 		    && ((good && e_ptr->rating) || (!good && !e_ptr->rating)) )
 		{
@@ -2418,14 +2418,14 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 							o_ptr->dd++;
 						}
 						while (one_in_(o_ptr->dd));
-						
+
 						do
 						{
 							o_ptr->ds++;
 						}
 						while (one_in_(o_ptr->ds));
 					}
-					
+
 					if (one_in_(5))
 					{
 						add_flag(o_ptr->art_flags, TR_BRAND_POIS);
@@ -2771,7 +2771,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 					break;
 				}
 				o_ptr->name2 = get_random_ego(INVEN_LARM, TRUE);
-				
+
 				switch (o_ptr->name2)
 				{
 				case EGO_ENDURANCE:
@@ -2805,7 +2805,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 				}
 				o_ptr->name2 = get_random_ego(INVEN_HANDS, TRUE);
 			}
-			
+
 			/* Very cursed */
 			else if (power < -1)
 			{
@@ -6892,7 +6892,7 @@ typedef struct {
  *  Smithing type data for Weapon smith
  */
 #ifdef JP
-static essence_type essence_info[] = 
+static essence_type essence_info[] =
 {
 	{TR_STR, "ÏÓÎÏ", 4, TR_STR, 20},
 	{TR_INT, "ÃÎÇ½", 4, TR_INT, 20},
@@ -6970,18 +6970,18 @@ static essence_type essence_info[] =
 	{TR_SLAY_TROLL, "¥È¥í¥ëÇÜÂÇ", 5, TR_SLAY_TROLL, 15},
 	{TR_KILL_TROLL, "¥È¥í¥ëÇÜÇÜÂÇ", 5, TR_SLAY_TROLL, 60},
 	{TR_SLAY_GIANT, "µð¿ÍÇÜÂÇ", 5, TR_SLAY_GIANT, 20},
-	{TR_KILL_GIANT, "µð¿ÍÇÜÇÜÂÇ", 5, TR_SLAY_GIANT, 60},       
+	{TR_KILL_GIANT, "µð¿ÍÇÜÇÜÂÇ", 5, TR_SLAY_GIANT, 60},
 	{TR_SLAY_DRAGON, "ÎµÇÜÂÇ", 5, TR_SLAY_DRAGON, 20},
 	{TR_KILL_DRAGON, "ÎµÇÜÇÜÂÇ", 5, TR_SLAY_DRAGON, 60},
 	{TR_SLAY_HUMAN, "¿Í´ÖÇÜÂÇ", 5, TR_SLAY_HUMAN, 20},
 	{TR_KILL_HUMAN, "¿Í´ÖÇÜÇÜÂÇ", 5, TR_SLAY_HUMAN, 60},
 
 	{TR_ESP_ANIMAL, "Æ°ÊªESP", 6, TR_SLAY_ANIMAL, 40},
-	{TR_ESP_UNDEAD, "ÉÔ»àESP", 6, TR_SLAY_UNDEAD, 40}, 
-	{TR_ESP_DEMON, "°­ËâESP", 6, TR_SLAY_DEMON, 40},       
-	{TR_ESP_ORC, "¥ª¡¼¥¯ESP", 6, TR_SLAY_ORC, 40},     
-	{TR_ESP_TROLL, "¥È¥í¥ëESP", 6, TR_SLAY_TROLL, 40},   
-	{TR_ESP_GIANT, "µð¿ÍESP", 6, TR_SLAY_GIANT, 40},       
+	{TR_ESP_UNDEAD, "ÉÔ»àESP", 6, TR_SLAY_UNDEAD, 40},
+	{TR_ESP_DEMON, "°­ËâESP", 6, TR_SLAY_DEMON, 40},
+	{TR_ESP_ORC, "¥ª¡¼¥¯ESP", 6, TR_SLAY_ORC, 40},
+	{TR_ESP_TROLL, "¥È¥í¥ëESP", 6, TR_SLAY_TROLL, 40},
+	{TR_ESP_GIANT, "µð¿ÍESP", 6, TR_SLAY_GIANT, 40},
 	{TR_ESP_DRAGON, "ÎµESP", 6, TR_SLAY_DRAGON, 40},
 	{TR_ESP_HUMAN, "¿Í´ÖESP", 6, TR_SLAY_HUMAN, 40},
 
@@ -7001,7 +7001,7 @@ static essence_type essence_info[] =
 	{-1, NULL, 0, -1, 0}
 };
 #else
-static essence_type essence_info[] = 
+static essence_type essence_info[] =
 {
 	{TR_STR, "strength", 4, TR_STR, 20},
 	{TR_INT, "intelligence", 4, TR_INT, 20},
@@ -7079,18 +7079,18 @@ static essence_type essence_info[] =
 	{TR_SLAY_TROLL, "slay troll", 5, TR_SLAY_TROLL, 15},
 	{TR_KILL_TROLL, "kill troll", 5, TR_SLAY_TROLL, 60},
 	{TR_SLAY_GIANT, "slay giant", 5, TR_SLAY_GIANT, 20},
-	{TR_KILL_GIANT, "kill giant", 5, TR_SLAY_GIANT, 60},       
+	{TR_KILL_GIANT, "kill giant", 5, TR_SLAY_GIANT, 60},
 	{TR_SLAY_DRAGON, "slay dragon", 5, TR_SLAY_DRAGON, 20},
 	{TR_KILL_DRAGON, "kill dragon", 5, TR_SLAY_DRAGON, 60},
 	{TR_SLAY_HUMAN, "slay human", 5, TR_SLAY_HUMAN, 20},
 	{TR_KILL_HUMAN, "kill human", 5, TR_SLAY_HUMAN, 60},
 
 	{TR_ESP_ANIMAL, "sense animal", 6, TR_SLAY_ANIMAL, 40},
-	{TR_ESP_UNDEAD, "sense undead", 6, TR_SLAY_UNDEAD, 40}, 
-	{TR_ESP_DEMON, "sense demon", 6, TR_SLAY_DEMON, 40},       
-	{TR_ESP_ORC, "sense orc", 6, TR_SLAY_ORC, 40},     
-	{TR_ESP_TROLL, "sense troll", 6, TR_SLAY_TROLL, 40},   
-	{TR_ESP_GIANT, "sense giant", 6, TR_SLAY_GIANT, 40},       
+	{TR_ESP_UNDEAD, "sense undead", 6, TR_SLAY_UNDEAD, 40},
+	{TR_ESP_DEMON, "sense demon", 6, TR_SLAY_DEMON, 40},
+	{TR_ESP_ORC, "sense orc", 6, TR_SLAY_ORC, 40},
+	{TR_ESP_TROLL, "sense troll", 6, TR_SLAY_TROLL, 40},
+	{TR_ESP_GIANT, "sense giant", 6, TR_SLAY_GIANT, 40},
 	{TR_ESP_DRAGON, "sense dragon", 6, TR_SLAY_DRAGON, 40},
 	{TR_ESP_HUMAN, "sense human", 6, TR_SLAY_HUMAN, 40},
 
@@ -7116,7 +7116,7 @@ static essence_type essence_info[] =
  *  Essense names for Weapon smith
  */
 #ifdef JP
-static cptr essence_name[] = 
+static cptr essence_name[] =
 {
 	"ÏÓÎÏ",
 	"ÃÎÇ½",
@@ -7219,7 +7219,7 @@ static cptr essence_name[] =
 
 #else
 
-static cptr essence_name[] = 
+static cptr essence_name[] =
 {
 	"strength",
 	"intelligen.",
@@ -7365,7 +7365,7 @@ static void drain_essence(void)
 	byte iy, ix, marked, number;
 	s16b next_o_idx, weight;
 
-	for (i = 0; i < sizeof(drain_value) / sizeof(int); i++)
+	for (i = 0; i < (int) (sizeof(drain_value) / sizeof(int)); i++)
 		drain_value[i] = 0;
 
 	item_tester_hook = object_is_weapon_armour_ammo;
@@ -7531,7 +7531,7 @@ static void drain_essence(void)
 	if (old_ac > o_ptr->ac) drain_value[TR_ES_AC] += (old_ac-o_ptr->ac)*10;
 	if (old_to_a > o_ptr->to_a) drain_value[TR_ES_AC] += (old_to_a-o_ptr->to_a)*10;
 
-	for (i = 0; i < sizeof(drain_value) / sizeof(int); i++)
+	for (i = 0; i < (int) (sizeof(drain_value) / sizeof(int)); i++)
 	{
 		drain_value[i] *= number;
 		drain_value[i] = drain_value[i] * dec / 4;
@@ -7586,7 +7586,7 @@ static int choose_essence(void)
 
 #ifdef JP
 	cptr menu_name[] = {
-		"Éð´ïÂ°À­", 
+		"Éð´ïÂ°À­",
 		"ÂÑÀ­",
 		"Ç½ÎÏ",
 		"¿ôÃÍ",
@@ -7599,7 +7599,7 @@ static int choose_essence(void)
 		"Brand weapon",
 		"Resistance",
 		"Ability",
-		"Magic number", 
+		"Magic number",
 		"Slay",
 		"ESP",
 		"Others"
@@ -7743,8 +7743,8 @@ static void add_essence(int mode)
 	while (!flag)
 	{
 		bool able[22];
-		if( choice==ESCAPE ) choice = ' '; 
-		else if( !get_com(out_val, &choice, FALSE) )break; 
+		if( choice==ESCAPE ) choice = ' ';
+		else if( !get_com(out_val, &choice, FALSE) )break;
 
 		if (use_menu && choice != ' ')
 		{
@@ -7842,7 +7842,7 @@ static void add_essence(int mode)
 							strcpy(dummy, ">  ");
 #endif
 						else strcpy(dummy, "   ");
-						
+
 					}
 					/* letter/number for power selection */
 					else

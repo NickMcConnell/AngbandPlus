@@ -578,10 +578,10 @@ $LEVEL
 ---  ファイルの挿入の書式  ---
 
 %:ファイル名
-   「lib\user\ファイル名」 か 「~/.angband/Hengband/ファイル名」 を自
+   「lib\user\ファイル名」 か 「~/.angband/Questband/ファイル名」 を自
    動拾いの登録ファイルとして読み込みます。
 
 
 
 --
-Updated    : Hengband 1.7.0
+Updated    : Questband 1.0.0

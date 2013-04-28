@@ -31,7 +31,7 @@ extern cptr macro_trigger_keycode[2][MAX_MACRO_TRIG];
 /* 日本語版機能追加で使う */
 extern int level_up;
 
-/* 
+/*
  *  List for auto-picker/destroyer entries
  */
 extern int max_autopick;
@@ -291,6 +291,7 @@ extern bool always_small_levels;	/* Always create unusually small dungeon levels
 extern bool empty_levels;	/* Allow empty 'arena' levels */
 extern bool bound_walls_perm;	/* Boundary walls become 'permanent wall' */
 extern bool last_words;	/* Leave last words when your character dies */
+extern bool unusual_rooms;	/* Generate very unusual rooms */
 
 #ifdef WORLD_SCORE
 extern bool send_score;	/* Send score dump to the world score server */

@@ -17,7 +17,7 @@ pref file)」と呼ばれるファイルに保存します。そのファイルはコメントと、
 変愚蛮怒にもともと用意された設定ファイルは「lib/pref/」ディレクトリに
 入っています。ユーザーの設定を保存したりユーザー自身が書く設定ファイル
 は、「ユーザーディレクトリ」に保管されます。これは標準の設定でコンパイ
-ルされた場合ならば、 Unix の場合は ~/.angband/Hengband/ その他の機種の
+ルされた場合ならば、 Unix の場合は ~/.angband/Questband/ その他の機種の
 場合は、lib/user/ の下になります。また設定変更コマンド (") を使って、
 普通はファイルに書いている設定変更のコマンドをゲーム上で直接打ち込むこ
 ともできます。ゲームの画面に影響する設定を変更したならば、画面描き直し
@@ -251,4 +251,4 @@ Updated    : (2.7.6) by Russ Allbery (rra@cs.stanford.edu)
 Updated    : (2.7.9) by Ben Harrison (benh@phial.com)
 Updated    : Zangband 2.2.0 through 2.2.6c by Robert Ruehlmann
 Updated    : Zangband DevTeam
-Updated    : Hengband 1.7.0
+Updated    : Questband 1.0.0

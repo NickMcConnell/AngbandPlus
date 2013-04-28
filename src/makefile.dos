@@ -66,14 +66,14 @@ LIBS = -lpc -lalleg
 # Targets
 #
 
-default: entroband.exe
-	copy entroband.exe ..
-	del entroband.exe
+default: questband.exe
+	copy questband.exe ..
+	del questband.exe
 
-install: entroband.exe
-	copy entroband.exe ..
+install: questband.exe
+	copy questband.exe ..
 
-all: entroband.exe
+all: questband.exe
 	@echo All done.  Use 'make install' to install.
 
 
@@ -81,7 +81,7 @@ all: entroband.exe
 # Link executables
 #
 
-entroband.exe: $(OBJS)
+questband.exe: $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
 
 

@@ -18,6 +18,6 @@ the previous location.                     [[[[y|Down Arrow|(Go down 1 line)
     [[[[y]'|']     (Save current document to a file)
 
 --
-Updated    : Entroband 1.7.0
+Updated    : Questband 1.0.0
 
 ***** [j] monster.txt#Pets

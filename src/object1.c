@@ -2436,7 +2436,7 @@ info[i++] = "それは無敵のバリアを切り裂く。";
 #endif
 	}
 
-	if (o_ptr->name2 == EGO_2WEAPON)
+	if ((o_ptr->name2 == EGO_2WEAPON) || (o_ptr->name1 == ART_SHIVA_GLOVES))
 	{
 #ifdef JP
 info[i++] = "それは二刀流での命中率を向上させる。";
@@ -2505,7 +2505,7 @@ info[i++] = "それは魔法抵抗力を下げる。";
 		info[i++] = "It is cheerful.";
 #endif
 	}
-	
+
 	/* Hack -- describe lite's */
 	if (o_ptr->tval == TV_LITE)
 	{
@@ -7326,7 +7326,7 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 				/* Add after the last object. */
 				o_list[i].next_o_idx = o_idx;
 
-				/* Re-scan floor list */ 
+				/* Re-scan floor list */
 				floor_num = scan_floor(floor_list, py, px, 0x03);
 
 				/* Hack -- Fix screen */

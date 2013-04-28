@@ -778,11 +778,11 @@ static void chest_trap(int y, int x, s16b o_idx)
 				else if (one_in_(5)) (void)set_cut(p_ptr->cut + 200);
 				else if (one_in_(4))
 				{
-					if (!p_ptr->free_act) 
-						(void)set_paralyzed(p_ptr->paralyzed + 2 + 
+					if (!p_ptr->free_act)
+						(void)set_paralyzed(p_ptr->paralyzed + 2 +
 						randint0(6));
-					else 
-						(void)set_stun(p_ptr->stun + 10 + 
+					else
+						(void)set_stun(p_ptr->stun + 10 +
 						randint0(100));
 				}
 				else if (one_in_(3)) apply_disenchant(0);
@@ -1173,7 +1173,7 @@ static bool do_cmd_open_aux(int y, int x)
  */
 void do_cmd_open(void)
 {
-	int y, x, dir;
+	int y = 0, x = 0, dir;
 
 	s16b o_idx;
 
@@ -1361,7 +1361,7 @@ static bool do_cmd_close_aux(int y, int x)
  */
 void do_cmd_close(void)
 {
-	int y, x, dir;
+	int y = 0, x = 0, dir;
 
 	bool more = FALSE;
 
@@ -2110,7 +2110,7 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
  */
 void do_cmd_disarm(void)
 {
-	int y, x, dir;
+	int y = 0, x = 0, dir;
 
 	s16b o_idx;
 
@@ -2596,7 +2596,7 @@ void do_cmd_spike(void)
 	/* Get a "repeated" direction */
 	if (get_rep_dir(&dir,FALSE))
 	{
-		int y, x, item;
+		int y, x, item = 0;
 		cave_type *c_ptr;
 		s16b feat;
 
@@ -2724,7 +2724,7 @@ void do_cmd_walk(bool pickup)
 	if (p_ptr->wild_mode && !cave_have_flag_bold(py, px, FF_TOWN))
 	{
 		int tmp = 120 + p_ptr->lev*10 - wilderness[py][px].level + 5;
-		if (tmp < 1) 
+		if (tmp < 1)
 			tmp = 1;
 		if (((wilderness[py][px].level + 5) > (p_ptr->lev / 2)) && randint0(tmp) < (21-p_ptr->skill_stl))
 		{
@@ -2884,7 +2884,7 @@ void do_cmd_rest(void)
 	/* The sin of sloth */
 	if (command_arg > 100)
 		chg_virtue(V_DILIGENCE, -1);
-	
+
 	/* Why are you sleeping when there's no need?  WAKE UP!*/
 	if ((p_ptr->chp == p_ptr->mhp) &&
 	    (p_ptr->csp == p_ptr->msp) &&

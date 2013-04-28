@@ -43,7 +43,7 @@
 /*
  * Name of the version/variant
  */
-#define VERSION_NAME "Entroband"
+#define VERSION_NAME "Questband"
 
 
 /*
@@ -51,7 +51,7 @@
  *
  * FAKE_VER_MAJOR=1,2 were reserved for ZAngband version 1.x.x/2.x.x .
  *
- * Program Version of Entroband version is
+ * Program Version of Questband version is
  *   "(FAKE_VER_MAJOR-10).(FAKE_VER_MINOR).(FAKE_VER_PATCH)".
  */
 #define FAKE_VERSION   0
@@ -1371,6 +1371,7 @@
 #define ART_MOOK                205
 
 /* Gloves */
+#define ART_SHIVA_GLOVES        51
 #define ART_CAMBELEG            52
 #define ART_CAMMITHRIM          53
 #define ART_SPEC                54
@@ -2836,7 +2837,7 @@
 /*
  * Bit flags for the "p_ptr->special_attack" variable. -LM-
  *
- * Note:  The elemental and poison attacks should be managed using the 
+ * Note:  The elemental and poison attacks should be managed using the
  * function "set_ele_attack", in spell2.c.  This provides for timeouts and
  * prevents the player from getting more than one at a time.
  */
@@ -3154,7 +3155,7 @@
 #define IDENT_BROKEN    0x80    /* Item is permanently worthless */
 
 
-/* 
+/*
  * How object is marked (flags in object_type.mark)
  * OM_FOUND --- original boolean flag
  * OM_NOMSG --- temporary flag to suppress messages which were

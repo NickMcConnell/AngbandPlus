@@ -50,7 +50,7 @@ N:1018:Raou
 points at himself and shouts, 'I finished my life with no regrets!'
 
 N:1063:lousy, the King of louses
-says, 'Ah, Entroband is too difficult!'
+says, 'Ah, Questband is too difficult!'
 
 N:*:Default
 shouts, 'AAAARRRGGGHHH!!!'
